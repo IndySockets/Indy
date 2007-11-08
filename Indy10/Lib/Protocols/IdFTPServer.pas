@@ -3213,7 +3213,7 @@ end;
 procedure TIdFTPServer.DoDataChannelOperation(ASender: TIdCommand; const AConnectMode : Boolean = False);
 const
   DEF_BLOCKSIZE = 10*10240;
-  DEF_CHECKCMD_WAIT = 1;
+  {CH DEF_CHECKCMD_WAIT = 1; }
 var
   LMemStream: TStream;
   LContext : TIdFTPServerContext;
@@ -3223,13 +3223,13 @@ var
 
   procedure CheckControlConnection(AContext : TIdFTPServerContext; ACmdQueue : TStrings);
   var
-    LLine : String;
+    LLocalLine : String;
   begin
-    LLine := ReadCommandLine(AContext);
-    if LLine <> '' then
+    LLocalLine := ReadCommandLine(AContext);
+    if LLocalLine <> '' then
     begin
-      if not FDataChannelCommands.HandleCommand(AContext, LLine) then begin
-        ACmdQueue.Add(LLine);
+      if not FDataChannelCommands.HandleCommand(AContext, LLocalLine) then begin
+        ACmdQueue.Add(LLocalLine);
       end;
     end;
   end;
@@ -4903,7 +4903,7 @@ end;
 
 procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
 
-  procedure TrygFTPSyntax(AContext: TIdFTPServerContext; ASender: TIdCommand);
+  procedure TryNewFTPSyntax(AContext: TIdFTPServerContext; ALSender: TIdCommand);
   var
     LgMTime : TDateTime;
     LgPermitted : Boolean;
@@ -4913,14 +4913,14 @@ procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
     //this is for gFTP Syntax
     //such as: "SITE UTIME 20050815041129 /.bashrc"
     LgPermitted := True;
-    if ASender.Params.Count = 0 then
+    if ALSender.Params.Count = 0 then
     begin
-      CmdSyntaxError(ASender);
+      CmdSyntaxError(ALSender);
       Exit;
     end;
-    if IsValidTimeStamp(ASender.Params[0]) then
+    if IsValidTimeStamp(ALSender.Params[0]) then
     begin
-      LFileName := ASender.UnparsedParams;
+      LFileName := ALSender.UnparsedParams;
       //This is local Time
       LgMTime := FTPMLSToGMTDateTime(Fetch(LFileName)) - OffSetFromUTC;
       LFileName := DoProcessPath(AContext, LFileName);
@@ -4936,13 +4936,13 @@ procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
         FOnSetModifiedTime(AContext, LFileName, LgMTime);
       end;
       if LgPermitted then begin
-        ASender.Reply.SetReply(200, RSFTPCHMODSuccessful);
+        ALSender.Reply.SetReply(200, RSFTPCHMODSuccessful);
       end else begin
-        ASender.Reply.SetReply(553, RSFTPPermissionDenied);
+        ALSender.Reply.SetReply(553, RSFTPPermissionDenied);
       end;
     end else
     begin
-      CmdSyntaxError(ASender);
+      CmdSyntaxError(ALSender);
     end;
   end;
 
@@ -5004,7 +5004,7 @@ where the timestamp is probably in based on the local time.
             end;
           end else
           begin
-            TrygFTPSyntax(LContext, ASender);
+            TryNewFTPSyntax(LContext, ASender);
             Exit;
           end;
           //now extract the date
@@ -5050,7 +5050,7 @@ where the timestamp is probably in based on the local time.
       end;
     end;
 
-    TrygFTPSyntax(LContext, ASender);
+    TryNewFTPSyntax(LContext, ASender);
     // CmdNotImplemented(ASender);
   end;
 end;
@@ -5611,8 +5611,8 @@ end;
 
 procedure TIdFTPServer.CommandSSCN(ASender: TIdCommand);
 const
-  SSCN_ON = 'SSCN:CLIENT METHOD';                 {do not localize}
-  SSCN_OFF = 'SSCN:SERVER METHOD';                {do not localize}
+  REPLY_SSCN_ON = 'SSCN:CLIENT METHOD';                 {do not localize}
+  REPLY_SSCN_OFF = 'SSCN:SERVER METHOD';                {do not localize}
 var
   LContext : TIdFTPServerContext;
 begin
@@ -5628,9 +5628,9 @@ begin
     begin
       //check state
       if LContext.SSCNOn then begin
-        ASender.Reply.SetReply(200, SSCN_ON);
+        ASender.Reply.SetReply(200, REPLY_SSCN_ON);
       end else begin
-        ASender.Reply.SetReply(200, SSCN_OFF);
+        ASender.Reply.SetReply(200, REPLY_SSCN_OFF);
       end;
     end else
     begin
@@ -5639,12 +5639,12 @@ begin
         0 : //'ON'
         begin
           LContext.SSCNOn := True;
-          ASender.Reply.SetReply(200, SSCN_ON);
+          ASender.Reply.SetReply(200, REPLY_SSCN_ON);
         end;
         1 : //'OFF'
         begin
           LContext.SSCNOn := False;
-          ASender.Reply.SetReply(200,SSCN_OFF);
+          ASender.Reply.SetReply(200,REPLY_SSCN_OFF);
         end;
       else
         ASender.Reply.SetReply(504,  RSFTPInvalidForParam);

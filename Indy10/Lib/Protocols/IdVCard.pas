@@ -943,24 +943,24 @@ var
   procedure ParseEmbeddedObject(EmObj : TIdVCardEmbeddedObject; StLn : String);
   var
     Value : String;
-    Attribs : TStringList;
+    LAttribs : TStringList;
     idx2 : Integer;
     {this is for testing the type so we can break out of the loop}
   begin
-    attribs := GetAttributesAndValue(StLn, Value);
+    LAttribs := GetAttributesAndValue(StLn, Value);
     try
-      for idx2 := 0 to attribs.Count-1 do begin
-        if PosInStrArray(Attribs[idx2], ['ENCODING=BASE64', 'BASE64']) <> -1 then begin   {Do not Localize}
+      for idx2 := 0 to LAttribs.Count-1 do begin
+        if PosInStrArray(LAttribs[idx2], ['ENCODING=BASE64', 'BASE64']) <> -1 then begin   {Do not Localize}
           emObj.Base64Encoded := True;
         end
-        else if PosInStrArray(Attribs[idx2], ['VALUE=URI', 'VALUE=URL', 'URI', 'URL']) = -1 then begin   {Do not Localize}
-          emObj.ObjectType := Attribs[idx2];
+        else if PosInStrArray(LAttribs[idx2], ['VALUE=URI', 'VALUE=URL', 'URI', 'URL']) = -1 then begin   {Do not Localize}
+          emObj.ObjectType := LAttribs[idx2];
         end;
       end;
-      if (Attribs.IndexOf('VALUE=URI') > -1) or    {Do not Localize}
-          (Attribs.IndexOf('VALUE=URL') > -1) or    {Do not Localize}
-          (Attribs.IndexOf('URI') > -1) or    {Do not Localize}
-          (Attribs.IndexOf('URL') > -1)  then    {Do not Localize}
+      if (LAttribs.IndexOf('VALUE=URI') > -1) or    {Do not Localize}
+          (LAttribs.IndexOf('VALUE=URL') > -1) or    {Do not Localize}
+          (LAttribs.IndexOf('URI') > -1) or    {Do not Localize}
+          (LAttribs.IndexOf('URL') > -1)  then    {Do not Localize}
       begin
         emObj.ObjectURL := Value + UnfoldLines;
       end else begin
@@ -975,7 +975,7 @@ var
         Dec(idx);
       end;
     finally
-      FreeAndNil(Attribs);
+      FreeAndNil(LAttribs);
     end;
   end;
 
@@ -1365,18 +1365,18 @@ end;
 
 procedure TIdCardAddressItem.Assign(Source: TPersistent);
 var
-  Addr : TIdCardAddressItem;
+  LAddr : TIdCardAddressItem;
 begin
   if Source is TIdCardAddressItem then begin
-    Addr := Source as TIdCardAddressItem;
-    AddressAttributes := Addr.AddressAttributes;
-    POBox := Addr.POBox;
-    ExtendedAddress := Addr.ExtendedAddress;
-    StreetAddress := Addr.StreetAddress;
-    Locality := Addr.Locality;
-    Region := Addr.Region;
-    PostalCode := Addr.PostalCode;
-    Nation := Addr.Nation;
+    LAddr := Source as TIdCardAddressItem;
+    AddressAttributes := LAddr.AddressAttributes;
+    POBox := LAddr.POBox;
+    ExtendedAddress := LAddr.ExtendedAddress;
+    StreetAddress := LAddr.StreetAddress;
+    Locality := LAddr.Locality;
+    Region := LAddr.Region;
+    PostalCode := LAddr.PostalCode;
+    Nation := LAddr.Nation;
   end else begin
     inherited Assign(Source);
   end;

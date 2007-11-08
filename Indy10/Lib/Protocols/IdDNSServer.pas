@@ -445,7 +445,7 @@ type
     procedure SetMyBinding(const Value: TIdSocketHandle);
     procedure SetMyData(const Value: TStream);
     procedure SetServer(const Value: TIdDNS_UDPServer);
-    procedure ComposeErrorResult(var Final: TIdBytes; OriginalHeader: TDNSHeader;
+    procedure ComposeErrorResult(var VFinal: TIdBytes; OriginalHeader: TDNSHeader;
       OriginalQuestion : TIdBytes; ErrorStatus: Integer);
     function CombineAnswer(Header : TDNSHeader; const EQuery, Answer : TIdBytes): TIdBytes;
     procedure InternalSearch(Header: TDNSHeader; QName: string; QType: Word;
@@ -1235,7 +1235,7 @@ var
   var
     EachLinePart : TStrings;
     CurrentLineNum, TagField, Count : Integer;
-    LineData, DataBody, Comment, FPart, Tag : string;
+    LineData, DataBody, Comment, FPart, LTag : string;
     Denoted, Stop, PassQuota : Boolean;
   begin
     EachLinePart := TStringList.Create;
@@ -1275,10 +1275,10 @@ var
 
               repeat
                 FPart := Trim(FPart);
-                Tag := Fetch(FPart,' ');
+                LTag := Fetch(FPart,' ');
 
-                if (Tag <> '') and (Tag <> '(') and (Tag <> ')') then begin
-                  EachLinePart.Add(Tag);
+                if (LTag <> '') and (LTag <> '(') and (LTag <> ')') then begin
+                  EachLinePart.Add(LTag);
                 end;
               until FPart = '';
             until DataBody = '';
@@ -1412,10 +1412,10 @@ var
   function LoadMasterFile : Boolean;
   var
     Checks, EachLinePart, DenotedDomain : TStrings;
-    CurrentLineNum, FieldCount, TagField, Count, LastTTL : Integer;
-    LineData, DataBody, Comment, FPart, Tag, Text,
+    CurrentLineNum, {CH FieldCount, } TagField, Count, LastTTL : Integer;
+    LineData, DataBody, Comment, FPart, LTag, LText,
       RName, LastDenotedDomain, LastTag, NewDomain, SingleHostName, PrevDNTag : string;
-    Denoted, Stop, PassQuota, Found, canChangPrevDNTag : Boolean;
+    {CH Denoted, } Stop, PassQuota, Found, canChangPrevDNTag : Boolean;
     LLRR_A : TIdRR_A;
     LLRR_AAAA : TIdRR_AAAA;
     LLRR_NS : TIdRR_NS;
@@ -1477,17 +1477,17 @@ var
                 FPart := Trim(FPart);
                 if Pos('"', FPart) = 1 then begin
                   Fetch(FPart, '"');
-                  Text := Fetch(FPart, '"');
-                  EachLinePart.Add(Text);
+                  LText := Fetch(FPart, '"');
+                  EachLinePart.Add(LText);
                 end;
 
-                Tag := Fetch(FPart, ' ');
-                if (TagList.IndexOf(Tag) = -1) and (Tag <> 'IN') then begin {do not localize}
-                  Tag := LowerCase(Tag);
+                LTag := Fetch(FPart, ' ');
+                if (TagList.IndexOf(LTag) = -1) and (LTag <> 'IN') then begin {do not localize}
+                  LTag := LowerCase(LTag);
                 end;
 
-                if (Tag <> '') and (Tag <> '(') and (Tag <> ')') then begin
-                  EachLinePart.Add(Tag);
+                if (LTag <> '') and (LTag <> '(') and (LTag <> ')') then begin
+                  EachLinePart.Add(LTag);
                 end;
               until FPart = '';
             until DataBody = '';
@@ -3562,7 +3562,7 @@ begin
   FreeOnTerminate := True;
 end;
 
-procedure TIdDNS_ProcessThread.ComposeErrorResult(var Final: TIdBytes;
+procedure TIdDNS_ProcessThread.ComposeErrorResult(var VFinal: TIdBytes;
   OriginalHeader: TDNSHeader; OriginalQuestion : TIdBytes;
   ErrorStatus: Integer);
 begin
@@ -3572,8 +3572,8 @@ begin
         OriginalHeader.Qr := iQr_Answer;
         OriginalHeader.RCode := iRCodeNotImplemented;
 
-        Final := OriginalHeader.GenerateBinaryHeader;
-        AppendBytes(Final, OriginalQuestion, 12);
+        VFinal := OriginalHeader.GenerateBinaryHeader;
+        AppendBytes(VFinal, OriginalQuestion, 12);
       end;
     iRCodeQueryNotFound :
       begin
@@ -3581,8 +3581,8 @@ begin
         OriginalHeader.RCode := iRCodeNameError;
         OriginalHeader.ANCount := 0;
 
-        Final := OriginalHeader.GenerateBinaryHeader;
-        //Final := Final;
+        VFinal := OriginalHeader.GenerateBinaryHeader;
+        //VFinal := VFinal;
       end;
   end;
 end;

@@ -1767,7 +1767,7 @@ end;
 
 function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TIdHTTPWhatsNext;
 
-  procedure CheckException(AResponseCode: Integer; AIgnoreReplies: array of Smallint;
+  procedure CheckException(AResponseCode: Integer; ALIgnoreReplies: array of Smallint;
     AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
     i: Integer;
@@ -1779,9 +1779,9 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
     Response.ContentStream := LTempResponse;
     try
       FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
-      if High(AIgnoreReplies) > -1 then begin
-        for i := Low(AIgnoreReplies) to High(AIgnoreReplies) do begin
-          if AResponseCode = AIgnoreReplies[i] then begin
+      if High(ALIgnoreReplies) > -1 then begin
+        for i := Low(ALIgnoreReplies) to High(ALIgnoreReplies) do begin
+          if AResponseCode = ALIgnoreReplies[i] then begin
             Exit;
           end;
         end;

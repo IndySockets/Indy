@@ -92,8 +92,8 @@ type
     procedure SendDirectoryEntry(AContext:TIdContext;
       ItemType : Char; UserFriendlyName, RealResourceName : String;
       HostServer : String; HostPort : TIdPort);
-    procedure SetTruncateUserFriendlyName(truncate : Boolean);
-    procedure SetTruncateLength(length : Integer);
+    procedure SetTruncateUserFriendlyName(const Atruncate : Boolean);
+    procedure SetTruncateLength(const Alength : Integer);
   published
     property AdminEmail : String read fAdminEmail write fAdminEmail;
     property OnRequest: TRequestEvent read fOnRequest write fOnRequest;
@@ -186,14 +186,14 @@ begin
        RealResourceName, HostServer, HostPort));
 end;
 
-procedure TIdGopherServer.SetTruncateUserFriendlyName;
+procedure TIdGopherServer.SetTruncateUserFriendlyName(const Atruncate : Boolean);
 begin
-     fTruncateUserFriendly := Truncate;
+     fTruncateUserFriendly := ATruncate;
 end;
 
-procedure TIdGopherServer.SetTruncateLength;
+procedure TIdGopherServer.SetTruncateLength(const Alength : Integer);
 begin
-     fTruncateLength := Length;
+     fTruncateLength := ALength;
 end;
 
 end.

@@ -206,11 +206,11 @@ uses
   IdUserPassProvider;
 
 type
-  TIdPOP3AuthenticationType = (atUserPass, atAPOP, atSASL);
+  TIdPOP3AuthenticationType = (patUserPass, patAPOP, patSASL);
 
 const
   DEF_POP3USE_IMPLICIT_TLS = False;
-  DEF_ATYPE = atUserPass;
+  DEF_ATYPE = patUserPass;
 
 type
   TIdPOP3 = class(TIdMessageClient)
@@ -308,7 +308,7 @@ begin
   end;
 
   case FAuthType of
-    atAPOP:  //APR
+    patAPOP:  //APR
       begin
         if FHasAPOP then begin
           with TIdHashMessageDigest5.Create do
@@ -322,12 +322,12 @@ begin
           raise EIdDoesNotSupportAPOP.Create(RSPOP3ServerDoNotSupportAPOP);
         end;
       end;
-    atUserPass:
+    patUserPass:
       begin //classic method
         SendCmd('USER ' + Username, ST_OK);    {Do not Localize}
         SendCmd('PASS ' + Password, ST_OK);    {Do not Localize}
       end;//if APOP
-    atSASL:
+    patSASL:
       begin
         EIdSASLMechNeeded.IfTrue(FSASLMechanisms.Count = 0, RSASLRequired);
         FSASLMechanisms.LoginSASL('AUTH', [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}

@@ -432,7 +432,7 @@ Misc parsing
 ***}
 function PatternsInStr(const ASearchPattern, AString : String): Integer;
 function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
-function StripPath(const AFileName : String; const PathDelim : String = '/'): String;
+function StripPath(const AFileName : String; const APathDelim : String = '/'): String;
 function CharsInStr(const ASearchChar : Char; const AString : String) : Integer;
 function UnfoldLines(const AData : String; ALine : Integer; AStrings : TStrings): String;
 function StrPart(var AInput: string; const AMaxLength : Integer; const ADelete: Boolean = IdFetchDeleteDefault) : String;
@@ -601,13 +601,13 @@ begin
   end;
 end;
 
-function StripPath(const AFileName : String; const PathDelim : String = '/'): String;
+function StripPath(const AFileName : String; const APathDelim : String = '/'): String;
 var
   LBuf : String;
 begin
   LBuf := AFileName;
   repeat
-    Result := Fetch(LBuf, PathDelim);
+    Result := Fetch(LBuf, APathDelim);
   until LBuf = '';
 end;
 
@@ -1225,13 +1225,6 @@ This function ensures that 2 digit dates returned
 by some FTP servers are interpretted just like Borland's year
 handling routines.
 }
-  function CurrentYear : Integer;
-  var
-    LYear, LMonth, LDay : Word;
-  begin
-    DecodeDate(Now, LYear, LMonth, LDay);
-    Result := LYear;
-  end;
 
 begin
   Result := AYear;
@@ -1242,12 +1235,12 @@ begin
     if TwoDigitYearCenturyWindow > 0 then
     begin
       if Result > TwoDigitYearCenturyWindow then begin
-        Inc(Result, ((CurrentYear div 100)-1)*100);
+        Inc(Result, ((IndyCurrentYear div 100)-1)*100);
       end else begin
-        Inc(Result, (CurrentYear div 100)*100);
+        Inc(Result, (IndyCurrentYear div 100)*100);
       end;
     end else begin
-      Inc(Result, (CurrentYear div 100)*100);
+      Inc(Result, (IndyCurrentYear div 100)*100);
     end;
   end;
 end;

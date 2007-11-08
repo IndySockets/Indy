@@ -359,13 +359,13 @@ begin
     if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then
     begin
       //1.LConnectionHandle
-      if FDataAvailList.Contains(Connection.Socket.Binding.Handle) then
+      if FDataAvailList.ContainsSocket(Connection.Socket.Binding.Handle) then
       begin
         // TODO: WSAECONNRESET (Exception [EIdSocketError] Socket Error # 10054 Connection reset by peer)
         Connection.IOHandler.CheckForDataOnSource(0);
       end;
       //2.LOutBoundHandle
-      if FDataAvailList.Contains(FOutboundClient.Socket.Binding.Handle) then
+      if FDataAvailList.ContainsSocket(FOutboundClient.Socket.Binding.Handle) then
       begin
         FOutboundClient.IOHandler.CheckForDataOnSource(0);
       end;

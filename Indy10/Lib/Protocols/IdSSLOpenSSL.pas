@@ -1,4 +1,4 @@
-{
+﻿{
   $Project$
   $Workfile$
   $Revision$
@@ -954,7 +954,7 @@ begin
   Result := (A and B) = B;
 end;
 
-function BytesToHexString(ptr : Pointer; ALen : Integer) : String;
+function BytesToHexString(APtr : Pointer; ALen : Integer) : String;
 var
   i : PtrInt;
 begin
@@ -965,7 +965,7 @@ begin
     begin
       Result := Result + ':';    {Do not Localize}
     end;
-    Result := Result +  IndyFormat('%.2x', [Byte(Pointer(PtrInt(ptr)+I)^)]);
+    Result := Result +  IndyFormat('%.2x', [Byte(Pointer(PtrInt(APtr)+I)^)]);
   end;
 end;
 
@@ -1927,12 +1927,12 @@ end;
 
 function TIdSSLSocket.GetPeerCert: TIdX509;
 var
-  X509: PX509;
+  LX509: PX509;
 begin
   if fPeerCert = nil then begin
-    X509 := IdSslGetPeerCertificate(fSSL);
-    if X509 <> nil then begin
-      fPeerCert := TIdX509.Create(X509, False);
+    LX509 := IdSslGetPeerCertificate(fSSL);
+    if LX509 <> nil then begin
+      fPeerCert := TIdX509.Create(LX509, False);
     end;
   end;
   Result := fPeerCert;
@@ -1997,13 +1997,13 @@ end;
 
 function TIdX509Name.CertInOneLine: String;
 var
-  OneLine: Array[0..2048] of Char;
+  LOneLine: Array[0..2048] of Char;
 begin
   if FX509Name = nil then begin
     Result := '';    {Do not Localize}
   end
   else begin
-    Result := StrPas(IdSslX509NameOneline(FX509Name, PChar(@OneLine), sizeof(OneLine)));
+    Result := StrPas(IdSslX509NameOneline(FX509Name, PChar(@LOneLine), sizeof(LOneLine)));
   end;
 end;
 
@@ -2052,16 +2052,16 @@ end;
 function TIdX509Fingerprints.GetMD5AsString: String;
 var
 //  I: Integer;
-  EVP_MD: TEVP_MD;
+  LEVP_MD: TEVP_MD;
 begin
-  EVP_MD := MD5;
+  LEVP_MD := MD5;
 {  for I := 0 to EVP_MD.Length - 1 do begin
     if I <> 0 then begin
       Result := Result + ':';    {Do not Localize}
 {    end;
     Result := Result + Sys.Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
 {  end;      }
-  Result := MDAsString(EVP_MD);
+  Result := MDAsString(LEVP_MD);
 end;
 
 function TIdX509Fingerprints.GetSHA1: TEVP_MD;
@@ -2071,10 +2071,10 @@ end;
 
 function TIdX509Fingerprints.GetSHA1AsString: String;
 var
-  EVP_MD : TEVP_MD;
+  LEVP_MD : TEVP_MD;
 begin
-  EVP_MD := SHA1;
-  Result := MDAsString(EVP_MD);
+  LEVP_MD := SHA1;
+  Result := MDAsString(LEVP_MD);
 end;
 
 function TIdX509Fingerprints.GetSHA224 : TEVP_MD;
@@ -2091,12 +2091,12 @@ end;
 
 function TIdX509Fingerprints.GetSHA224AsString : String;
 var
-  EVP_MD : TEVP_MD;
+  LEVP_MD : TEVP_MD;
 begin
-  EVP_MD := SHA224;
+  LEVP_MD := SHA224;
   if Assigned(IdSslEvpSHA224) then
   begin
-    Result := MDAsString(EVP_MD);
+    Result := MDAsString(LEVP_MD);
   end
   else
   begin
@@ -2118,12 +2118,12 @@ end;
 
 function TIdX509Fingerprints.GetSHA256AsString : String;
 var
-  EVP_MD : TEVP_MD;
+  LEVP_MD : TEVP_MD;
 begin
   if Assigned(IdSslEvpSHA256) then
   begin
-    EVP_MD := SHA256;
-    Result := MDAsString(EVP_MD);
+    LEVP_MD := SHA256;
+    Result := MDAsString(LEVP_MD);
   end
   else
   begin
@@ -2145,12 +2145,12 @@ end;
 
 function TIdX509Fingerprints.GetSHA386AsString : String;
 var
-  EVP_MD : TEVP_MD;
+  LEVP_MD : TEVP_MD;
 begin
   if Assigned(IdSslEvpSHA386) then
   begin
-    EVP_MD := SHA386;
-    Result := MDAsString(EVP_MD);
+    LEVP_MD := SHA386;
+    Result := MDAsString(LEVP_MD);
   end
   else
   begin
@@ -2172,12 +2172,12 @@ end;
 
 function TIdX509Fingerprints.GetSHA512AsString : String;
 var
-  EVP_MD : TEVP_MD;
+  LEVP_MD : TEVP_MD;
 begin
   if Assigned(IdSslEvpSHA512) then
   begin
-    EVP_MD := SHA512;
-    Result := MDAsString(EVP_MD);
+    LEVP_MD := SHA512;
+    Result := MDAsString(LEVP_MD);
   end
   else
   begin
@@ -2255,32 +2255,32 @@ end;
 
 function TIdX509.RSubject: TIdX509Name;
 var
-  x509_name: PX509_NAME;
+  Lx509_name: PX509_NAME;
 Begin
   if not Assigned(FSubject) then begin
     if FX509<>nil then
     begin
-      x509_name := IdSslX509GetSubjectName(FX509);
+      Lx509_name := IdSslX509GetSubjectName(FX509);
     end else begin
-      x509_name := nil;
+      Lx509_name := nil;
     end;
-    FSubject := TIdX509Name.Create(x509_name);
+    FSubject := TIdX509Name.Create(Lx509_name);
   end;
   Result := FSubject;
 end;
 
 function TIdX509.RIssuer: TIdX509Name;
 var
-  x509_name: PX509_NAME;
+  lx509_name: PX509_NAME;
 begin
   if not Assigned(FIssuer) then begin
     if FX509<>nil then
     begin
-      x509_name := IdSslX509GetIssuerName(FX509);
+      lx509_name := IdSslX509GetIssuerName(FX509);
     end else begin
-      x509_name := nil;
+      lx509_name := nil;
     end;
-    FIssuer := TIdX509Name.Create(x509_name);
+    FIssuer := TIdX509Name.Create(lx509_name);
   End;
   Result := FIssuer;
 end;
@@ -2292,18 +2292,11 @@ end;
 
 function TIdX509.RFingerprintAsString: String;
 var
-//  I: Integer;
-  EVP_MD: TEVP_MD;
+  LEVP_MD: TEVP_MD;
 begin
   Result := '';
-  EVP_MD := Fingerprint;
-{  for I := 0 to EVP_MD.Length - 1 do begin
-    if I <> 0 then begin
-      Result := Result + ':';    {Do not Localize}
-{    end;
-    Result := Result + Sys.Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
-{  end;      }
-  Result := MDAsString(EVP_MD);
+  LEVP_MD := Fingerprint;
+  Result := MDAsString(LEVP_MD);
 end;
 
 function TIdX509.RnotBefore: TDateTime;

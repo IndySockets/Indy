@@ -147,7 +147,7 @@ class function TIdFTPLPOS2.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var
   LBuf, lBuf2, LNum : String;
-  LO :  TIdOS2FTPListItem;
+  LOSItem :  TIdOS2FTPListItem;
 begin
   {
   Assume layout such as:
@@ -162,7 +162,7 @@ begin
   LBuf := TrimLeft(LBuf);
   LNum := Fetch(LBuf);
   AItem.Size := IndyStrToInt64(LNum, 0);
-  LO := AItem as TIdOS2FTPListItem;
+  LOSItem := AItem as TIdOS2FTPListItem;
   repeat
     //keep going until we find a date
     LBuf := TrimLeft(LBuf);
@@ -171,7 +171,7 @@ begin
     begin
       if LBuf2 = 'DIR' then {do not localize}
       begin
-        LO.ItemType := ditDirectory;
+        LOSItem.ItemType := ditDirectory;
         LBuf := TrimLeft(LBuf);
         LBuf2 := Fetch(LBuf);
       end;
@@ -179,10 +179,10 @@ begin
     if IsMMDDYY(LBuf2, '-') then
     begin
       //we found a date
-      LO.ModifiedDate := DateMMDDYY(LBuf2);
+      LOSItem.ModifiedDate := DateMMDDYY(LBuf2);
       Break;
     end;
-    LO.Attributes.AddAttribute(LBuf2);
+    LOSItem.Attributes.AddAttribute(LBuf2);
     if LBuf = '' then begin
       Exit;
     end;
@@ -191,12 +191,12 @@ begin
   LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   if IsHHMMSS(LBuf2, ':') then begin {do not localize}
-    LO.ModifiedDate := LO.ModifiedDate + TimeHHMMSS(LBuf2);
+    LOSItem.ModifiedDate := LOSItem.ModifiedDate + TimeHHMMSS(LBuf2);
   end;
   //fetch removes one space.  We ned to remove an additional one
   //before the filename as a filename might start with a space
   Delete(LBuf, 1, 1);
-  LO.FileName := LBuf;
+  LOSItem.FileName := LBuf;
   Result := True;
 end;
 

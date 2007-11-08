@@ -919,18 +919,18 @@ var
   LMIMEVersion: string;
 
   // Some mailers send priority as text, number or combination of both
-  function GetMsgPriority(Priority:string): TIdMessagePriority;
+  function GetMsgPriority(APriority:string): TIdMessagePriority;
   var
     s: string;
     Num: integer;
   begin
     // This is for Pegasus.
-    if IndyPos('urgent', LowerCase(Priority)) <> 0 then begin {do not localize}
+    if IndyPos('urgent', LowerCase(APriority)) <> 0 then begin {do not localize}
       Result := mpHigh;
-    end else if IndyPos('non-priority', LowerCase(Priority)) <> 0 then begin {do not localize}
+    end else if IndyPos('non-priority', LowerCase(APriority)) <> 0 then begin {do not localize}
       Result := mpLow;
     end else begin
-      s := Trim(Priority);
+      s := Trim(APriority);
       s := Fetch(s, ' ');   {do not localize}
       Num := IndyStrToInt(s, 3);
       Result := TIdMessagePriority(Num - 1);

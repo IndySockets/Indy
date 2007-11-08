@@ -512,12 +512,12 @@ type
 
 type
   TIdIMAP4AuthenticationType = (
-    atUserPass,
-    atSASL
+    iatUserPass,
+    iatSASL
   );
 
 const
-  DEF_IMAP4_AUTH = atUserPass;
+  DEF_IMAP4_AUTH = iatUserPass;
   IDF_DEFAULT_MS_TO_WAIT_TO_CLEAR_BUFFER = 10;
 
 {CC3: TIdImapMessagePart and TIdImapMessageParts added for retrieving
@@ -1924,7 +1924,7 @@ begin
     if LastCmdResult.Code = IMAP_OK then begin
       FConnectionState := csNonAuthenticated;
       FCmdCounter := 0;
-      if FAuthType = atUserPass then begin
+      if FAuthType = iatUserPass then begin
         if Length(Password) <> 0 then begin                              {Do not Localize}
           SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username + ' ' + Password, []);   {Do not Localize}
         end else begin
@@ -1965,10 +1965,10 @@ begin
   end;
   try
     GetResponse;
-    if PosInStrArray(LastCmdResult.Code, [IMAP_OK, IMAP_PREAUTH]) = -1 then begin
+   // if PosInStrArray(LastCmdResult.Code, [IMAP_OK, IMAP_PREAUTH]) = -1 then begin
       {Should have got OK or PREAUTH in the greeting.  Happened with some server,
       may need further investigation and coding...}
-    end;
+  //  end;
     {CC7: Save FGreetingBanner so the user can use it to determine what type of
     server he is connected to...}
     if LastCmdResult.Text.Count > 0 then begin
@@ -4458,7 +4458,8 @@ procedure TIdIMAP4.ParseIntoParts(APartString: string; AParams: TStrings);
 var
   LInPart: Integer;
   LStartPos: Integer;
-  LParam: string;
+  //don't rename this LParam.  That's the same asa windows identifier
+  LParamater: string;
   LBracketLevel: Integer;
   Ln: Integer;
   LInQuotesInsideBrackets: Boolean;
@@ -4470,8 +4471,8 @@ begin
   for Ln := 1 to Length(APartString) do begin
     if LInPart = 1 then begin
       if APartString[Ln] = '"' then begin {Do not Localize}
-        LParam := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-        AParams.Add(LParam);
+        LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+        AParams.Add(LParamater);
         LInPart := 0;
       end;
     end else if LInPart = 2 then begin
@@ -4487,8 +4488,8 @@ begin
           end else if APartString[Ln] = ')' then begin {Do not Localize}
             Dec(LBracketLevel);
             if LBracketLevel = 0 then begin
-              LParam := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-              AParams.Add(LParam);
+              LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+              AParams.Add(LParamater);
               LInPart := 0;
             end;
           end;
@@ -4496,14 +4497,14 @@ begin
       end;
     end else if LInPart = 3 then begin
       if APartString[Ln] = 'L' then begin {Do not Localize}
-        LParam := Copy(APartString, LStartPos, Ln-LStartPos+1);
-        AParams.Add(LParam);
+        LParamater := Copy(APartString, LStartPos, Ln-LStartPos+1);
+        AParams.Add(LParamater);
         LInPart := 0;
       end;
     end else if LInPart = 4 then begin
       if not IsNumeric(APartString[Ln]) then begin
-        LParam := Copy(APartString, LStartPos, Ln-LStartPos);
-        AParams.Add(LParam);
+        LParamater := Copy(APartString, LStartPos, Ln-LStartPos);
+        AParams.Add(LParamater);
         LInPart := 0;
       end;
     end else if APartString[Ln] = '"' then begin {Do not Localize}
@@ -4530,8 +4531,8 @@ begin
   end;
   {We could be in a numeric entry when we hit the end of the line...}
   if LInPart = 4 then begin
-    LParam := Copy(APartString, LStartPos, MaxInt);
-    AParams.Add(LParam);
+    LParamater := Copy(APartString, LStartPos, MaxInt);
+    AParams.Add(LParamater);
   end;
 end;
 
@@ -4539,7 +4540,8 @@ procedure TIdIMAP4.ParseIntoBrackettedQuotedAndUnquotedParts(APartString: string
 var
   LInPart: Integer;
   LStartPos: Integer;
-  LParam: string;
+  //don't rename this back to LParam, that's a Windows identifier.
+  LParamater: string;
   LBracketLevel: Integer;
   Ln: Integer;
   LInQuotesInsideBrackets: Boolean;
@@ -4563,8 +4565,8 @@ begin
   for Ln := 1 to Length(APartString) do begin
     if LInPart = 1 then begin
       if APartString[Ln] = '"' then begin {Do not Localize}
-        LParam := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-        AParams.Add(LParam);
+        LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+        AParams.Add(LParamater);
         LInPart := 0;
       end;
     end else if LInPart = 2 then begin
@@ -4581,11 +4583,11 @@ begin
             Dec(LBracketLevel);
             if LBracketLevel = 0 then begin
               if AKeepBrackets then begin
-                LParam := Copy(APartString, LStartPos, Ln-LStartPos+1);
+                LParamater := Copy(APartString, LStartPos, Ln-LStartPos+1);
               end else begin
-                LParam := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+                LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
               end;
-              AParams.Add(LParam);
+              AParams.Add(LParamater);
               LInPart := 0;
             end;
           end;
@@ -4593,8 +4595,8 @@ begin
       end;
     end else if LInPart = 3 then begin
       if APartString[Ln] = ' ' then begin {Do not Localize}
-        LParam := Copy(APartString, LStartPos, Ln-LStartPos);
-        AParams.Add(LParam);
+        LParamater := Copy(APartString, LStartPos, Ln-LStartPos);
+        AParams.Add(LParamater);
         LInPart := 0;
       end;
     end else if APartString[Ln] = '"' then begin {Do not Localize}
@@ -4617,24 +4619,24 @@ begin
   end;
   {We could be in an entry when we hit the end of the line...}
   if LInPart = 3 then begin
-    LParam := Copy(APartString, LStartPos, MaxInt);
-    AParams.Add(LParam);
+    LParamater := Copy(APartString, LStartPos, MaxInt);
+    AParams.Add(LParamater);
   end else if LInPart = 2 then begin
     if AKeepBrackets then begin
-      LParam := Copy(APartString, LStartPos, MaxInt);
+      LParamater := Copy(APartString, LStartPos, MaxInt);
     end else begin
-      LParam := Copy(APartString, LStartPos+1, MaxInt);
+      LParamater := Copy(APartString, LStartPos+1, MaxInt);
     end;
-    if (not AKeepBrackets) and TextEndsWith(LParam, ')') then begin    {Do not Localize}
-      LParam := Copy(LParam, 1, Length(LParam)-1);
+    if (not AKeepBrackets) and TextEndsWith(LParamater, ')') then begin    {Do not Localize}
+      LParamater := Copy(LParamater, 1, Length(LParamater)-1);
     end;
-    AParams.Add(LParam);
+    AParams.Add(LParamater);
   end else if LInPart = 1 then begin
-    LParam := Copy(APartString, LStartPos+1, MaxInt);
-    if TextEndsWith(LParam, '"') then begin    {Do not Localize}
-      LParam := Copy(LParam, 1, Length(LParam)-1);
+    LParamater := Copy(APartString, LStartPos+1, MaxInt);
+    if TextEndsWith(LParamater, '"') then begin    {Do not Localize}
+      LParamater := Copy(LParamater, 1, Length(LParamater)-1);
     end;
-    AParams.Add(LParam);
+    AParams.Add(LParamater);
   end;
 end;
 

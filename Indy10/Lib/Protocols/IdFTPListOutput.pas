@@ -615,7 +615,7 @@ var
   //always takes precidence over the others.
   var
     LStopScan : Boolean;
-    i : Integer;
+    li : Integer;
   begin
     if ADetails then begin
       Result := doLong;
@@ -626,8 +626,8 @@ var
       Exit;
     end;
     LStopScan := False;
-    for i := Length(Switches) downto 1 do begin
-      case Switches[i] of
+    for li := Length(Switches) downto 1 do begin
+      case Switches[li] of
         SWITCH_COLS_ACCROSS :
           begin
             Result := doColsAccross;
@@ -665,7 +665,7 @@ var
     end;
   end;
 
-  procedure PrintSubDirHeader(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  procedure PrintSubDirHeader(ARoot, ACurDir : TDirEntry; ALOutput : TStrings; const Recurse : Boolean = False);
   var
     LUnixPrependPath : Boolean;
   begin
@@ -674,66 +674,66 @@ var
     if (ACurDir <> ARoot) or LUnixPrependPath then begin
       //we don't want an empty line to start the list
       if ACurDir <> ARoot then begin
-        AOutput.Add('');
+        ALOutput.Add('');
       end;
       if DirFormat = doWin32 then begin
-        AOutput.Add(MS_DOS_CURDIR + UnixPathToDOSPath(ACurDir.PathName) + ':');
+        ALOutput.Add(MS_DOS_CURDIR + UnixPathToDOSPath(ACurDir.PathName) + ':');
       end
       else if LUnixPrependPath then begin
         if ACurDir = ARoot then begin
-          AOutput.Add(CUR_DIR + ':');
+          ALOutput.Add(CUR_DIR + ':');
         end else begin
-          AOutput.Add(UNIX_CURDIR + DOSPathToUnixPath(ACurDir.PathName) + ':');
+          ALOutput.Add(UNIX_CURDIR + DOSPathToUnixPath(ACurDir.PathName) + ':');
         end;
       end else begin
-        AOutput.Add(DOSPathToUnixPath(ACurDir.PathName) + ':');
+        ALOutput.Add(DOSPathToUnixPath(ACurDir.PathName) + ':');
       end;
     end;
   end;
 
-  procedure ProcessOnePathCol(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  procedure ProcessOnePathCol(ARoot, ACurDir : TDirEntry; ALOutput : TStrings; const Recurse : Boolean = False);
   var
-    i : Integer;
+    li : Integer;
     LCurItem : TIdFTPListOutputItem;
   begin
     if Recurse and Assigned(ACurDir.SubDirs) then begin
       if Recurse then begin
-        PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+        PrintSubDirHeader(ARoot, ACurDir, ALOutput, Recurse);
       end;
     end;
-    for i := 0 to ACurDir.FileList.Count-1 do begin
-      AOutput.Add(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])));
+    for li := 0 to ACurDir.FileList.Count-1 do begin
+      ALOutput.Add(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[li])));
     end;
     if Recurse and Assigned(ACurDir.SubDirs) then begin
-      for i := 0 to ACurDir.SubDirs.Count-1 do begin
-        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+      for li := 0 to ACurDir.SubDirs.Count-1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[li]).DirListItem;
         if LCurItem.DirError then begin
-          if i = 0 then begin
-            AOutput.Add('');
+          if li = 0 then begin
+            ALOutput.Add('');
           end;
-          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+          ALOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
         end else begin
-          ProcessOnePathCol(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+          ProcessOnePathCol(ARoot, TDirEntry(ACurDir.SubDirs[li]), ALOutput, Recurse);
         end;
       end;
     end;
   end;
 
-  function CalcMaxLen(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False) : Integer;
+  function CalcMaxLen(ARoot, ACurDir : TDirEntry; ALOutput : TStrings; const Recurse : Boolean = False) : Integer;
   var
     LEntryMaxLen : Integer;
-    i : Integer;
+    li : Integer;
   begin
     Result := 0;
-    for i := 0 to ACurDir.FileList.Count-1 do begin
-      LEntryMaxLen := Length(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])));
+    for li := 0 to ACurDir.FileList.Count-1 do begin
+      LEntryMaxLen := Length(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[li])));
       if LEntryMaxLen > Result then begin
         Result := LEntryMaxLen;
       end;
     end;
     if Recurse and Assigned(ACurDir.SubDirs) then begin
-      for i := 0 to ACurDir.SubDirs.Count-1 do begin
-        LEntryMaxLen := CalcMaxLen(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+      for li := 0 to ACurDir.SubDirs.Count-1 do begin
+        LEntryMaxLen := CalcMaxLen(ARoot, TDirEntry(ACurDir.SubDirs[li]), ALOutput, Recurse);
         if LEntryMaxLen > Result then begin
           Result := LEntryMaxLen;
         end;
@@ -741,9 +741,9 @@ var
     end;
   end;
 
-  procedure ProcessPathAccross(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  procedure ProcessPathAccross(ARoot, ACurDir : TDirEntry; ALOutput : TStrings; const Recurse : Boolean = False);
   var
-    i, j : Integer;
+    li, j : Integer;
     LTmp : String;
     LMaxLen : Integer;
     LCols : Integer;
@@ -754,50 +754,50 @@ var
     end;
     //Note that we will assume a console width of 80 and we don't want something to wrap
     //causing a blank line
-    LMaxLen := CalcMaxLen(ARoot, ACurDir, AOutput, Recurse);
+    LMaxLen := CalcMaxLen(ARoot, ACurDir, ALOutput, Recurse);
     //if more than 39, we probably are going to exceed the width of the screen,
     //just treat as one column
     if LMaxLen > 39 then begin
-      ProcessOnePathCol(ARoot, ACurDir, AOutput, Recurse);
+      ProcessOnePathCol(ARoot, ACurDir, ALOutput, Recurse);
       Exit;
     end;
     if Recurse and Assigned(ACurDir.SubDirs) then begin
       if Recurse then begin
-        PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+        PrintSubDirHeader(ARoot, ACurDir, ALOutput, Recurse);
       end;
     end;
     LCols := 79 div (LMaxLen + 2);//2 spaces between columns
     j := 0;
     repeat
       LTmp := '';
-      for i := 0 to LCols -1 do begin
+      for li := 0 to LCols -1 do begin
         LTmp := LTmp + PadString(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[j])), LMaxLen, ' ') + '  ';
         Inc(j);
         if j = ACurDir.FileList.Count then begin
           Break;
         end;
       end;
-      AOutput.Add(TrimRight(LTmp));
+      ALOutput.Add(TrimRight(LTmp));
     until j = ACurDir.FileList.Count;
 
     if Recurse and Assigned(ACurDir.SubDirs) then begin
-      for i := 0 to ACurDir.SubDirs.Count-1 do begin
-        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+      for li := 0 to ACurDir.SubDirs.Count-1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[li]).DirListItem;
         if LCurItem.DirError then begin
-          if i = 0 then begin
-            AOutput.Add('');
+          if li = 0 then begin
+            ALOutput.Add('');
           end;
-          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+          ALOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
         end else begin
-          ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+          ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[li]), ALOutput, Recurse);
         end;
       end;
     end;
   end;
 
-  procedure ProcessPathDown(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  procedure ProcessPathDown(ARoot, ACurDir : TDirEntry; ALOutput : TStrings; const Recurse : Boolean = False);
   var
-    i, j : Integer;
+    li, j : Integer;
     LTmp : String;
     LMaxLen : Integer;
     LCols : Integer;
@@ -805,22 +805,22 @@ var
     LFrm : String;
     LCurItem : TIdFTPListOutputItem;
   begin
-    LFrm := '';
+
     if ACurDir.FileList.Count = 0 then begin
       Exit;
     end;
     //Note that we will assume a console width of 80 and we don't want something to wrap
     //causing a blank line
-    LMaxLen := CalcMaxLen(ARoot, ACurDir, AOutput, Recurse);
+    LMaxLen := CalcMaxLen(ARoot, ACurDir, ALOutput, Recurse);
     //if more than 39, we probably are going to exceed the width of the screen,
     //just treat as one column
     if LMaxLen > 39 then begin
-      ProcessOnePathCol(ARoot, ACurDir, AOutput, Recurse);
+      ProcessOnePathCol(ARoot, ACurDir, ALOutput, Recurse);
       Exit;
     end;
     if Recurse and Assigned(ACurDir.SubDirs) then begin
       if Recurse then begin
-        PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+        PrintSubDirHeader(ARoot, ACurDir, ALOutput, Recurse);
       end;
     end;
     LCols := 79 div (LMaxLen + 2);//2 spaces between columns
@@ -829,115 +829,115 @@ var
     if (ACurDir.FileList.COunt mod LCols) > 0 then begin
       Inc(LLines);
     end;
-    for i := 1 to LLines do begin
+    for li := 1 to LLines do begin
       j := 0;
       LTmp := '';
       repeat
-        if ((i-1)+(LLInes*j)) < ACurDir.FileList.Count then begin
-          LTmp := LTmp + PadString(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[(i-1)+(LLInes*j)])), LMaxLen, ' ') + '  ';
+        if ((li-1)+(LLInes*j)) < ACurDir.FileList.Count then begin
+          LTmp := LTmp + PadString(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[(li-1)+(LLInes*j)])), LMaxLen, ' ') + '  ';
         end;
         Inc(j);
       until (j > LCols);
-      AOutput.Add(TrimRight(LTmp));
+      ALOutput.Add(TrimRight(LTmp));
     end;
     if Recurse and Assigned(ACurDir.SubDirs) then begin
-      for i := 0 to ACurDir.SubDirs.Count -1 do begin
-        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+      for li := 0 to ACurDir.SubDirs.Count -1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[li]).DirListItem;
         if LCurItem.DirError then begin
-          if i = 0 then begin
-            AOutput.Add('');
+          if li = 0 then begin
+            ALOutput.Add('');
           end;
-          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+          ALOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
         end else begin
-          ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+          ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[li]), ALOutput, Recurse);
         end;
       end;
     end;
   end;
 
-  procedure ProcessPathComma(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  procedure ProcessPathComma(ARoot, ACurDir : TDirEntry; ALOutput : TStrings; const Recurse : Boolean = False);
   var
-    i : Integer;
+    li : Integer;
     LTmp : String;
     LCurItem : TIdFTPListOutputItem;
   begin
     if Recurse then begin
-      PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+      PrintSubDirHeader(ARoot, ACurDir, ALOutput, Recurse);
     end;
     LTmp := '';
-    for i := 0 to ACurDir.FileList.Count -1 do begin
-      LTmp := LTmp + NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])) + ', ';
+    for li := 0 to ACurDir.FileList.Count -1 do begin
+      LTmp := LTmp + NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[li])) + ', ';
     end;
     IdDelete(LTmp, Length(LTmp)-1, 2);
-    AOutput.Text := AOutput.Text + IndyWrapText(LTmp, EOL + ' ', LWS + ',' , 79);  //79 good maxlen for text only terminals
+    ALOutput.Text := ALOutput.Text + IndyWrapText(LTmp, EOL + ' ', LWS + ',' , 79);  //79 good maxlen for text only terminals
     if Recurse and Assigned(ACurDir.SubDirs) then begin
-      for i := 0 to ACurDir.SubDirs.Count -1 do begin
-        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+      for li := 0 to ACurDir.SubDirs.Count -1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[li]).DirListItem;
         if LCurItem.DirError then begin
-          if i = 0 then begin
-            AOutput.Add('');
+          if li = 0 then begin
+            ALOutput.Add('');
           end;
-          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+          ALOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
         end else begin
-          ProcessPathComma(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+          ProcessPathComma(ARoot, TDirEntry(ACurDir.SubDirs[li]), ALOutput, Recurse);
         end;
       end;
     end;
   end;
 
-  procedure ProcessPathLong(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  procedure ProcessPathLong(ARoot, ACurDir : TDirEntry; ALOutput : TStrings; const Recurse : Boolean = False);
   var
-    i : Integer;
+    li : Integer;
     LBlockCount : Integer;
     LCurItem : TIdFTPListOutputItem;
   begin
     if Recurse then begin
-      PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+      PrintSubDirHeader(ARoot, ACurDir, ALOutput, Recurse);
     end;
 
     if (DirFormat = doUnix) and ExportTotalLine then begin
       LBlockCount := 0;
-      for i := 0 to ACurDir.FileList.Count-1 do begin
-        LBlockCount := LBlockCount + TIdFTPListOutputItem(ACurDir.FileList.Objects[i]).NumberBlocks;
+      for li := 0 to ACurDir.FileList.Count-1 do begin
+        LBlockCount := LBlockCount + TIdFTPListOutputItem(ACurDir.FileList.Objects[li]).NumberBlocks;
       end;
-      AOutput.Add(IndyFormat('total %d', [LBlockCount]));  {Do not translate}
+      ALOutput.Add(IndyFormat('total %d', [LBlockCount]));  {Do not translate}
     end;
 
-    for i := 0 to ACurDir.FileList.Count-1 do begin
-      LCurItem := TIdFTPListOutputItem(ACurDir.FileList.Objects[i]);
+    for li := 0 to ACurDir.FileList.Count-1 do begin
+      LCurItem := TIdFTPListOutputItem(ACurDir.FileList.Objects[li]);
       case DirFormat of
-        doEPLF : AOutput.Add(EPLFItem(LCurItem));
-        doWin32 : AOutput.Add(Win32Item(LCurItem));
+        doEPLF : ALOutput.Add(EPLFItem(LCurItem));
+        doWin32 : ALOutput.Add(Win32Item(LCurItem));
       else
-        AOutput.Add(UnixItem(LCurItem));
+        ALOutput.Add(UnixItem(LCurItem));
       end;
     end;
 
     if Recurse and Assigned(ACurDir.SubDirs) then begin
-      for i := 0 to ACurDir.SubDirs.Count-1 do begin
-        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+      for li := 0 to ACurDir.SubDirs.Count-1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[li]).DirListItem;
         if LCurItem.DirError then begin
           if DirFormat = doUnix then begin
-            if i = 0 then begin
-              AOutput.Add('');
+            if li = 0 then begin
+              ALOutput.Add('');
             end;
-            AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+            ALOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
           end;
         end;
-        ProcessPathLong(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+        ProcessPathLong(ARoot, TDirEntry(ACurDir.SubDirs[li]), ALOutput, Recurse);
       end;
     end;
   end;
 
-  procedure DoUnixfParam(ARoot : TDirEntry; AOutput : TStrings);
+  procedure DoUnixfParam(ARoot : TDirEntry; ALOutput : TStrings);
   var
-    i : Integer;
-    LI : TIdFTPListItem;
+    li : Integer;
+    LIt : TIdFTPListItem;
   begin
-    for i := 0 to ARoot.FileList.Count -1 do begin
-      LI := TIdFTPListItem(ARoot.FileList.Objects[i]);
-      if LI.ItemType = ditDirectory then begin
-        AOutput.Add(IndyGetFileName(LI.FileName));
+    for li := 0 to ARoot.FileList.Count -1 do begin
+      LIt := TIdFTPListItem(ARoot.FileList.Objects[li]);
+      if LIt.ItemType = ditDirectory then begin
+        ALOutput.Add(IndyGetFileName(LIt.FileName));
       end;
     end;
   end;

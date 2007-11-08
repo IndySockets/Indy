@@ -686,7 +686,7 @@ begin
   end;
 end;
 
-procedure IdHexToBin(const Text: TIdBytes; var Buffer: TIdBytes; const BufSize: Integer);
+procedure IdHexToBin(const AText: TIdBytes; var Buffer: TIdBytes; const BufSize: Integer);
 const
   Convert: array['0'..'f'] of SmallInt =                   {do not localize}
     ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,-1,-1,-1,-1,-1,-1,
@@ -701,12 +701,12 @@ begin
   BufferPos := 0;
   TextPos := 0;
   repeat
-    if (not ByteIsInSet(Text, TextPos, ValidChars)) or
-      (not ByteIsInSet(Text, TextPos+1, ValidChars)) then
+    if (not ByteIsInSet(AText, TextPos, ValidChars)) or
+      (not ByteIsInSet(AText, TextPos+1, ValidChars)) then
     begin
       Break;
     end;
-    Buffer[BufferPos] := (Convert[Char(Text[TextPos])] shl 4) + Convert[Char(Text[TextPos + 1])];
+    Buffer[BufferPos] := (Convert[Char(AText[TextPos])] shl 4) + Convert[Char(AText[TextPos + 1])];
     Inc(BufferPos);
     Inc(TextPos, 2);
   until False;

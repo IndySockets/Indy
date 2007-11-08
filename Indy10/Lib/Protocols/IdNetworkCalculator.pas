@@ -73,7 +73,7 @@ type
     procedure SetByteArray(Index: Byte; const Value: Boolean);
     procedure SetByte(Index: Integer; const Value: Byte);
     //
-    property ReadOnly: Boolean read FReadOnly write FReadOnly default False;
+    property IsReadOnly: Boolean read FReadOnly write FReadOnly default False;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -464,7 +464,7 @@ var
   i: Integer;
   NewIP: LongWord;
 begin
-  if ReadOnly then begin
+  if IsReadOnly then begin
     Exit;
   end;
   if Length(Value) <> 32 then begin
@@ -492,7 +492,7 @@ procedure TIpProperty.SetAsDoubleWord(const Value: LongWord);
 var
   LByte1, LByte2, LByte3, LByte4: Byte;
 begin
-  if not ReadOnly then
+  if not IsReadOnly then
   begin
     LongWordToOrdFourByte(Value, LByte1, LByte2, LByte3, LByte4);
     SetAll(LByte1, LByte2, LByte3, LByte4);
@@ -508,7 +508,7 @@ procedure TIpProperty.SetByteArray(Index: Byte; const Value: Boolean);
 var
   NewIP: LongWord;
 begin
-  if (not ReadOnly) and (FByteArray[Index] <> Value) then
+  if (not IsReadOnly) and (FByteArray[Index] <> Value) then
   begin
     FByteArray[Index] := Value;
     NewIP := FValue.s_l;
@@ -523,7 +523,7 @@ end;
 
 procedure TIpProperty.SetByte(Index: Integer; const Value: Byte);
 begin
-  if (not ReadOnly) and (GetByte(Index) <> Value) then
+  if (not IsReadOnly) and (GetByte(Index) <> Value) then
   begin
     case Index of
       0: SetAll(Value, Byte2, Byte3, Byte4);

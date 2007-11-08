@@ -442,6 +442,7 @@ type
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: LongWord): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
+  function IndyCurrentYear : Integer;
 
   function IndyStrToBool(const AString: String): Boolean;
   function IsDomain(const S: String): Boolean;
@@ -462,11 +463,11 @@ type
 
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
-  {$IFNDEF DOTNET}
+
   // still to figure out how to reproduce these under .Net
   function ROL(AVal: LongWord; AShift: Byte): LongWord;
   function ROR(AVal: LongWord; AShift: Byte): LongWord;
-  {$ENDIF}
+
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
   function IndySetLocalTime(Value: TDateTime): Boolean;
 
@@ -652,6 +653,20 @@ begin
     end; //if not
   end; //while Pos <= LineLen do
   Result := Result + Copy(ALine, LLinePos, MaxInt);
+end;
+
+function IndyCurrentYear : Integer;
+{$IFDEF VCL11ORABOVE}
+{$IFDEF USEINLINE} inline; {$ENDIF}
+begin
+  Result := CurrentYear;
+{$ELSE}
+var
+  LYear, LMonth, LDay : Word;
+begin
+  DecodeDate(Now, LYear, LMonth, LDay);
+  Result := LYear;
+{$ENDIF}
 end;
 
 {$IFDEF DOTNET}
@@ -1553,7 +1568,7 @@ function FileSizeByName(const AFilename: TIdFileName): Int64;
 //Leave in for HTTP Server
 {$IFDEF DOTNET}
 var
-  LF : System.IO.FileInfo;
+  LFile : System.IO.FileInfo;
 {$ELSE}
   {$IFDEF USEINLINE} inline; {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -1565,9 +1580,9 @@ var
 begin
   Result := 0;
   {$IFDEF DOTNET}
-  LF := System.IO.FileInfo.Create(AFileName);
-  if LF.Exists then begin
-    Result := LF.Length;
+  LFile := System.IO.FileInfo.Create(AFileName);
+  if LFile.Exists then begin
+    Result := LFile.Length;
   end;
   {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}

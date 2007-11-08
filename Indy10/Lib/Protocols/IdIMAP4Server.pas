@@ -783,6 +783,7 @@ var
   LN: integer;
   LReassembledParam: string;
 begin
+  Result := False;
   case ASeparator of
     '(': LEndSeparator := ')';           {Do not Localize}
     '[': LEndSeparator := ']';           {Do not Localize}
@@ -790,7 +791,6 @@ begin
   end;
   LTemp := AParams[AParamToReassemble];
   if (LTemp = '') or (LTemp[1] <> ASeparator) then begin
-    Result := False;
     Exit;
   end;
   if LTemp[Length(LTemp)] = LEndSeparator then begin
@@ -872,7 +872,7 @@ var
   LDataItems: TStringList;
   LM: integer;
   LN: integer;
-  LO: integer;
+  LLO: integer;
   LRecord: integer;
   LSize: integer;
   LMessageToCheck, LMessageTemp: TIdMessage;
@@ -909,15 +909,15 @@ begin
           Exit;
         end;
         LMessageToCheck := LContext.MailBox.MessageList.Messages[LRecord];
-        for LO := 0 to LDataItems.Count-1 do begin
-          if TextIsSame(LDataItems[LO], 'UID') then begin  {Do not Localize}
+        for LLO := 0 to LDataItems.Count-1 do begin
+          if TextIsSame(LDataItems[LLO], 'UID') then begin  {Do not Localize}
             //Format:
             //C9 FETCH 490 (UID)
             //* 490 FETCH (UID 6545)
             //C9 OK Completed
             DoSendReply(ASender.Context, '* FETCH (UID %s)', [LMessageToCheck.UID]); {Do not Localize}
           end
-          else if TextIsSame(LDataItems[LO], 'FLAGS') then begin  {Do not Localize}
+          else if TextIsSame(LDataItems[LLO], 'FLAGS') then begin  {Do not Localize}
             //Format:
             //C10 UID FETCH 6545 (FLAGS)
             //* 490 FETCH (FLAGS (\Recent) UID 6545)
@@ -930,7 +930,7 @@ begin
                 [LRecord+1, MessageFlagSetToStr(LMessageToCheck.Flags)]);
             end;
           end
-          else if TextIsSame(LDataItems[LO], 'RFC822.HEADER') then begin  {Do not Localize}
+          else if TextIsSame(LDataItems[LLO], 'RFC822.HEADER') then begin  {Do not Localize}
             //Format:
             //C11 UID FETCH 6545 (RFC822.HEADER)
             //* 490 FETCH (UID 6545 RFC822.HEADER {1654}
@@ -967,7 +967,7 @@ begin
               FreeAndNil(LMessageTemp);
             end;
           end
-          else if TextIsSame(LDataItems[LO], 'RFC822.SIZE') then begin  {Do not Localize}
+          else if TextIsSame(LDataItems[LLO], 'RFC822.SIZE') then begin  {Do not Localize}
             //Format:
             //C12 UID FETCH 6545 (RFC822.SIZE)
             //* 490 FETCH (UID 6545 RFC822.SIZE 3447)
@@ -985,7 +985,7 @@ begin
 	        [LRecord+1, LSize]);
 	    end;
           end
-          else if PosInStrArray(LDataItems[LO], ['BODY.PEEK[]', 'BODY[]', 'RFC822', 'RFC822.PEEK'], False) <> -1 then   {Do not Localize}
+          else if PosInStrArray(LDataItems[LLO], ['BODY.PEEK[]', 'BODY[]', 'RFC822', 'RFC822.PEEK'], False) <> -1 then   {Do not Localize}
           begin
             //All are the same, except the return string is different...
             LMessageRaw := TStringList.Create;
@@ -1018,14 +1018,14 @@ begin
 	      FreeAndNil(LMessageRaw);
             end;
           end
-          else if TextIsSame(LDataItems[LO], 'BODYSTRUCTURE') then begin  {Do not Localize}
+          else if TextIsSame(LDataItems[LLO], 'BODYSTRUCTURE') then begin  {Do not Localize}
             //Format:
             //C49 UID FETCH 6545 (BODYSTRUCTURE)
             //* 490 FETCH (UID 6545 BODYSTRUCTURE (("TEXT" "PLAIN" ("CHARSET" "iso-8859-1") NIL NIL "7BIT" 290 8 NIL NIL NIL)("TEXT" "HTML" ("CHARSET" "iso-8859-1") NIL NIL "7BIT" 1125 41 NIL NIL NIL) "ALTERNATIVE" ("BOUNDARY"
             //C12 OK Completed
             SendBadReply(ASender, 'Parameter not supported: ' + AParams[1]); {Do not Localize}
           end
-          else if TextStartsWith(LDataItems[LO], 'BODY[') or TextStartsWith(LDataItems[LO], 'BODY.PEEK[') then begin  {Do not Localize}
+          else if TextStartsWith(LDataItems[LLO], 'BODY[') or TextStartsWith(LDataItems[LLO], 'BODY.PEEK[') then begin  {Do not Localize}
             //Format:
             //C50 UID FETCH 6545 (BODY[1])
             //* 490 FETCH (FLAGS (\Recent \Seen) UID 6545 BODY[1] {290}

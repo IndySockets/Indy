@@ -65,7 +65,7 @@ contains
   IdDICTServer in 'IdDICTServer.pas',
   IdDNSCommon in 'IdDNSCommon.pas',
   IdDNSResolver in 'IdDNSResolver.pas',
-  IdDNSServer in 'IdDNSServer.pas' {IdDNSServer.TIdDNS_TCPServer},
+  IdDNSServer in 'IdDNSServer.pas' {IdDNSServer.TIdDNS_TCPServer: IdCustomTCPServer.TIdCustomTCPServer},
   IdDateTimeStamp in 'IdDateTimeStamp.pas',
   IdDayTime in 'IdDayTime.pas',
   IdDayTimeServer in 'IdDayTimeServer.pas',

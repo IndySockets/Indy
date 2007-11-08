@@ -128,7 +128,7 @@ uses
 
 constructor TfrmSASLListEditorVCL.Create(AOwner: TComponent);
 begin
-  inherited CreateNew(AOwner);
+  inherited CreateNew(AOwner,0);
   FormCreate;
   UpdateList;
 end;

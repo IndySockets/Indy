@@ -202,10 +202,10 @@ begin
   begin
     if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then
     begin
-      if FDataAvailList.Contains(FOutboundClient.Socket.Binding.Handle) then begin
+      if FDataAvailList.ContainsSocket(FOutboundClient.Socket.Binding.Handle) then begin
         FOutboundClient.IOHandler.CheckForDataOnSource(0);
       end;
-      if FDataAvailList.Contains(Connection.Socket.Binding.Handle) then begin
+      if FDataAvailList.ContainsSocket(Connection.Socket.Binding.Handle) then begin
         Connection.IOHandler.CheckForDataOnSource(0);
       end;
     end;        
@@ -491,7 +491,7 @@ begin
 
         if FReadList.SelectRead(IdTimeoutInfinite) then
         begin
-          if Contains(LConnectionHandle) then
+          if ContainsSocket(LConnectionHandle) then
           begin
             Connection.IOHandler.CheckForDataOnSource(0);
             SetLength(FNetData, 0);
@@ -502,7 +502,7 @@ begin
               FOutboundClient.IOHandler.Write(FNetData);
             end;
           end;
-          if Contains(LOutBoundHandle) then
+          if ContainsSocket(LOutBoundHandle) then
           begin
             Connection.IOHandler.CheckForDataOnSource(0);
             SetLength(FNetData, 0);

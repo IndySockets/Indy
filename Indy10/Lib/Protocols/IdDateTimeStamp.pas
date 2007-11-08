@@ -519,7 +519,7 @@ begin
 //    EIdExceptionBase.CreateFmt('''%d.%d'' is not a valid timestamp', [ATimeStamp.Date, ATimeStamp.Time]);
 end;
 
-function TimeStampToDateTime(const ATimeStamp: TIdDateTimeStamp): TDateTime;
+function LocalTimeStampToDateTime(const ATimeStamp: TIdDateTimeStamp): TDateTime;
 begin
   ValidateTimeStamp(ATimeStamp);
   Result := EncodeDate(ATimeStamp.Year, ATimeStamp.MonthOfYear, ATimeStamp.DayOfMonth) +
@@ -788,7 +788,7 @@ end;
 
 function TIdDateTimeStamp.GetAsTDateTime : TDateTime;
 begin
-  Result := TimeStampToDateTime(GetAsTTimeStamp);
+  Result := LocalTimeStampToDateTime(GetAsTTimeStamp);
 end;
 
 function TIdDateTimeStamp.GetAsTTimeStamp : TIdDateTimeStamp;

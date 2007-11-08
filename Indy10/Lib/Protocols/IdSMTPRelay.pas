@@ -433,7 +433,7 @@ var
   LFrom: String;
   i: Integer;
 
-  procedure RelayInternalSend(const AMsg: TIdMessage; const AFrom: String; const AEmailAddresses: TIdEMailAddressList);
+  procedure RelayInternalSend(const ALMsg: TIdMessage; const AFrom: String; const AEmailAddresses: TIdEMailAddressList);
   var
     ServerIndex:Integer;
     EMailSent: Boolean;
@@ -479,9 +479,9 @@ var
             end;
             if Trim(MailAgent) <> '' then
             begin
-              AMsg.ExtraHeaders.Values[XMAILER_HEADER] := MailAgent;
+              ALMsg.ExtraHeaders.Values[XMAILER_HEADER] := MailAgent;
             end;
-            InternalSend(AMsg, AFrom, AEmailAddresses);
+            InternalSend(ALMsg, AFrom, AEmailAddresses);
             EMailSent := True;
             with FStatusList.Add do
             begin

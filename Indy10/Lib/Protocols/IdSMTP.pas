@@ -204,10 +204,10 @@ uses
   IdGlobal;
 
 type
-  TIdSMTPAuthenticationType = (atNone, atDefault, atSASL);
+  TIdSMTPAuthenticationType = (satNone, satDefault, satSASL);
 
 const
-  DEF_SMTP_AUTH = atDefault;
+  DEF_SMTP_AUTH = satDefault;
 
 type
 //FSASLMechanisms
@@ -219,8 +219,8 @@ type
     // FSASLMechanisms : TIdSASLList;
     FSASLMechanisms : TIdSASLEntries;
     //
-    procedure SetAuthType(const Value: TIdSMTPAuthenticationType);
-    procedure SetUseEhlo(const Value: Boolean); override;
+    procedure SetAuthType(const AValue: TIdSMTPAuthenticationType);
+    procedure SetUseEhlo(const AValue: Boolean); override;
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
     procedure InitComponent; override;
@@ -309,12 +309,12 @@ begin
   //note that we pass the reply numbers as strings so the SASL stuff can work
   //with IMAP4 and POP3 where non-numeric strings are used for reply codes
   case FAuthType of
-    atNone:
+    satNone:
       begin
         //do nothing
         FDidAuthenticate := True;
       end;
-    atDefault:
+    satDefault:
       begin
         if Username <> '' then begin
           s := SASLMechanisms.ParseCapaReply(Capabilities);
@@ -342,7 +342,7 @@ begin
         FDidAuthenticate := SASLMechanisms.LoginSASL('AUTH', 'LOGIN', ['235'], ['334'], Self, Capabilities);
 }
       end;
-    atSASL:
+    satSASL:
       begin
         EIdSASLMechNeeded.IfTrue(SASLMechanisms.Count = 0, RSASLRequired);
         FDidAuthenticate := SASLMechanisms.LoginSASL('AUTH', ['235'], ['334'], Self, Capabilities); {do not localize}
@@ -415,20 +415,20 @@ begin
   inherited Send(AMsg, ARecipients);
 end;
 
-procedure TIdSMTP.SetAuthType(const Value: TIdSMTPAuthenticationType);
+procedure TIdSMTP.SetAuthType(const AValue: TIdSMTPAuthenticationType);
 Begin
-  FAuthType := Value;
-  if Value = atSASL then begin
+  FAuthType := AValue;
+  if AValue = satSASL then begin
     FUseEhlo := True;
   end;
 end;
 
-procedure TIdSMTP.SetUseEhlo(const Value: Boolean);
+procedure TIdSMTP.SetUseEhlo(const AValue: Boolean);
 Begin
-  FUseEhlo := Value;
-  if not Value then
+  FUseEhlo := AValue;
+  if not AValue then
   begin
-    FAuthType := atDefault;
+    FAuthType := satDefault;
     if FUseTLS in ExplicitTLSVals then
     begin
       FUseTLS := DEF_USETLS;

@@ -340,14 +340,16 @@ end;
 procedure TIdPOP3Server.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
 var
   LReply: TIdReply;
+  LLine : String;
 begin
+  LLine := ALine;
   // RLebeau 03/17/2007: TIdCmdTCPServer.DoReplyUnknownCommand() adds the
   // offending command as a multi-line response generically for all servers.
   // POP3 Error replies are not mult-line, however, so overriding the
   // behavior here to not do that!
   LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
   try
-    LReply.SetReply(ERR, IndyFormat(RSPOP3SvrUnknownCmdFmt, [Fetch(ALine)]));
+    LReply.SetReply(ERR, IndyFormat(RSPOP3SvrUnknownCmdFmt, [Fetch(LLine)]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     FreeAndNil(LReply);

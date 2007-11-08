@@ -26,6 +26,7 @@ implicitunits=IdASN1Util \
   IdAuthentication \
   IdAuthenticationDigest \
   IdAuthenticationManager \
+  IdBlockCipherIntercept \
   IdChargenServer \
   IdChargenUDPServer \
   IdCharsets \
@@ -114,6 +115,9 @@ implicitunits=IdASN1Util \
   IdGopher \
   IdGopherConsts \
   IdGopherServer \
+  IdHMAC \
+  IdHMACMD5 \
+  IdHMACSHA1 \
   IdHTTP \
   IdHTTPHeaderInfo \
   IdHTTPProxyServer \

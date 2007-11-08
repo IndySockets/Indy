@@ -903,24 +903,24 @@ var
 
   procedure EncodeAttachment(ADestStream: TStream; AAttachment: TIdAttachment; AEncoderClass: TIdMessageEncoderClass);
   var
-    LDestStream: TStream;
+    LLocalDestStream: TStream;
     LAttachStream: TStream;
   begin
     if ADestStream = nil then begin
-      LDestStream := TIdTCPStream.Create(Self);
+      LLocalDestStream := TIdTCPStream.Create(Self);
     end else begin
-      LDestStream := ADestStream;
+      LLocalDestStream := ADestStream;
     end;
     try
       LEncoder := AEncoderClass.Create(Self); try
         LEncoder.Filename := AAttachment.Filename;
         LAttachStream := AAttachment.OpenLoadStream; try
-          LEncoder.Encode(LAttachStream, LDestStream);
+          LEncoder.Encode(LAttachStream, LLocalDestStream);
         finally AAttachment.CloseLoadStream; end;
       finally FreeAndNil(LEncoder); end;
     finally
       if ADestStream = nil then begin
-        FreeAndNil(LDestStream);
+        FreeAndNil(LLocalDestStream);
       end;
     end;
   end;
@@ -928,7 +928,7 @@ var
   procedure WriteTextPart(ATextPart: TIdText);
   var
     LData: TStringList;
-    i, j: Integer;
+    li, j: Integer;
     LQuotedPrintableEncoder: TIdEncoderQuotedPrintable;
     LHeaderCoder: TIdHeaderCoderClass;
   begin
@@ -962,8 +962,8 @@ var
           LData := TStringList.Create;
           try
             LHeaderCoder := HeaderCoderByCharSet(ISOCharSet);
-            for i := 0 to ATextPart.Body.Count - 1 do begin
-              LQuotedPrintableEncoder.Encode(ATextPart.Body[i] + EOL, LData);
+            for li := 0 to ATextPart.Body.Count - 1 do begin
+              LQuotedPrintableEncoder.Encode(ATextPart.Body[li] + EOL, LData);
               for j := 0 to LData.Count-1 do begin
                 if (LData[j] <> '') and (LHeaderCoder <> nil) then begin
                   LData[j] := LHeaderCoder.Encode(ISOCharSet, LData[j]);

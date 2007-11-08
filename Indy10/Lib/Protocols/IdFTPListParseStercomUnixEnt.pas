@@ -256,11 +256,11 @@ Total Number of batches listed: 14
 }
    function IsValidDate(const ADate : String) : Boolean;
    var
-     LBuf, LDate : String;
+     LLBuf, LDate : String;
      LDay, LMonth, LHour, LMin : Word;
    begin
-     LBuf := ADate;
-     LDate := Fetch(LBuf, '-'); {do not localize}
+     LLBuf := ADate;
+     LDate := Fetch(LLBuf, '-'); {do not localize}
      LMonth := IndyStrToInt(Copy(LDate, 3, 2), 0);
      Result := (LMonth > 0) and (LMonth < 13);
      if not Result then begin
@@ -271,12 +271,12 @@ Total Number of batches listed: 14
      if not Result then begin
        Exit;
      end;
-     LHour := IndyStrToInt(Copy(LBuf, 1, 2), 0);
+     LHour := IndyStrToInt(Copy(LLBuf, 1, 2), 0);
      Result := (LHour > 0) and (LHour < 25);
      if not Result then begin
        Exit;
      end;
-     LMin := IndyStrToInt(Copy(LBuf, 3, 2), 0);
+     LMin := IndyStrToInt(Copy(LLBuf, 3, 2), 0);
      Result := (LMin < 60);
    end;
 
