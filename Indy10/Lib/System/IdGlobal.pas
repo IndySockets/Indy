@@ -644,13 +644,6 @@ type
   {$ENDIF}
 
 const
-  {$IFDEF DOTNETDISTRO}
-  tpIdLowest      = tpIdNetLowest;
-  tpIdBelowNormal = tpIdNetBelowNormal;
-  tpIdNormal      = tpIdNetNormal;
-  tpIdAboveNormal = tpIdNetAboveNormal;
-  tpIdHighest     = tpIdNetHighest;
-  {$ELSE}
     {$IFDEF INTTHREADPRIORITY}
   // approximate values, its finer grained on Linux
   tpIdle = 19;
@@ -661,7 +654,6 @@ const
   tpHighest = -13;
   tpTimeCritical = -20;
     {$ENDIF}
-  {$ENDIF}
   tpIdLowest = tpLowest;
   tpIdBelowNormal = tpLower;
   tpIdNormal = tpNormal;
@@ -712,9 +704,9 @@ type
   end;
 
   {$IFDEF DOTNET}
+    {$IFNDEF DOTNET2}
   // dotNET implementation
   TWaitResult = (wrSignaled, wrTimeout, wrAbandoned, wrError);
-
   TEvent = class(TObject)
   protected
     FEvent: WaitHandle;
@@ -736,9 +728,10 @@ type
     procedure Enter;
     procedure Leave;
   end;
+    {$ENDIF}
   {$ELSE}
     {$IFNDEF NOREDECLARE}
-  TCriticalSection = SyncObjs.TCriticalSection;
+ // TCriticalSection = SyncObjs.TCriticalSection;
     {$ENDIF}
   {$ENDIF}
 
@@ -817,11 +810,11 @@ type
   THandle = Integer;
   {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  THandle = Windows.THandle;
+//  THandle = Windows.THandle;
      {$ENDIF}
   {$ENDIF}
 
-  TPosProc = function(const substr, str: {$IFDEF DOTNET}WideString{$ELSE}String{$ENDIF}): Integer;
+  TPosProc = function(const substr, str: {$IFDEF DOTNET}WideString{$ELSE}String{$ENDIF}): LongInt;
   TIdReuseSocket = (rsOSDependent, rsTrue, rsFalse);
 
   {$IFNDEF VCL6ORABOVE}
@@ -881,7 +874,7 @@ const
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   GOSType = otWindows;
   GPathDelim = '\'; {do not localize}
-  Infinite = Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
+ // Infinite = Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
   {$ENDIF}
 
   {$IFDEF DOTNET}
@@ -925,14 +918,14 @@ procedure IndyRaiseLastError;
 //You could possibly use the standard StrInt and StrIntDef but these
 //also remove spaces from the string using the trim functions.
 function IndyStrToInt(const S: string): Integer; overload;
-function IndyStrToInt(const S: string; Default: Integer): Integer; overload;
+function IndyStrToInt(const S: string; ADefault: Integer): Integer; overload;
 
-function IndyFileAge(const FileName: string): TDateTime;
-function IndyDirectoryExists(const Directory: string): Boolean;
+function IndyFileAge(const AFileName: string): TDateTime;
+function IndyDirectoryExists(const ADirectory: string): Boolean;
 
 //You could possibly use the standard StrToInt and StrToInt64Def
 //functions but these also remove spaces using the trim function
-function IndyStrToInt64(const S: string; const Default: Int64): Int64; overload;
+function IndyStrToInt64(const S: string; const ADefault: Int64): Int64; overload;
 function IndyStrToInt64(const S: string): Int64;  overload;
 
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
@@ -1130,12 +1123,15 @@ function HackLoad(const ALibName : String; const ALibVersions : array of String)
 {$IFNDEF DOTNET}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
+
 function OffsetFromUTC: TDateTime;
 
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: LongWord = 0): LongWord; //For "ignoreCase" use AnsiUpperCase
-function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
-function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean = True): Integer;
+function PosInSmallIntArray(const ASearchInt: SmallInt; const AArray: array of SmallInt): Integer;
+function PosInStrArray(const SearchStr: string; const Contents: array of string; const CaseSensitive: Boolean = True): Integer;
+{$IFNDEF DOTNET}
 function ServicesFilePath: string;
+{$ENDIF}
 procedure IndySetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 procedure SetThreadName(const AName: string);
 procedure IndySleep(ATime: LongWord);
@@ -1849,7 +1845,7 @@ begin
   end;
 end;
 
-function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
+function PosInSmallIntArray(const ASearchInt: SmallInt; const AArray: array of SmallInt): Integer;
 begin
   for Result := Low(AArray) to High(AArray) do begin
     if ASearchInt = AArray[Result] then begin
@@ -1860,7 +1856,7 @@ begin
 end;
 
 {This searches an array of string for an occurance of SearchStr}
-function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean = True): Integer;
+function PosInStrArray(const SearchStr: string; const Contents: array of string; const CaseSensitive: Boolean = True): Integer;
 begin
   for Result := Low(Contents) to High(Contents) do begin
     if CaseSensitive then begin
@@ -1914,6 +1910,7 @@ begin
     Result[i*2+2] := IdHexDigits[Ord(P[i]) and $F];
   end;//for
 {$ELSE}
+  Result := '';
   for i := 0 to Length(AValue)-1 do begin
     Result := Result + ToHex(ToBytes(AValue[i]));
   end;//for
@@ -1937,6 +1934,7 @@ begin
   end;
 end;
 
+{$IFNDEF DOTNET}
 function OctalToInt64(const AValue: string): Int64;
 var
   i: Integer;
@@ -1946,6 +1944,7 @@ begin
     Result := (Result shl 3) +  IndyStrToInt(AValue[i], 0);
   end;
 end;
+{$ENDIF}
 
 function ByteToOctal(const AByte: Byte): string;
 {$IFDEF USEINLINE}inline;{$ENDIF}
@@ -2354,6 +2353,7 @@ begin
   end;
 end;
 
+{$IFNDEF DOTNET}
 function ServicesFilePath: string;
 var
   sLocation: string;
@@ -2371,6 +2371,8 @@ begin
   {$ENDIF}
   Result := sLocation + 'services'; {do not localize}
 end;
+{$ENDIF}
+
 
 {$IFNDEF DOTNET}
 // IdPorts returns a list of defined ports in /etc/services
@@ -2604,6 +2606,7 @@ We had to adapt it to work with Int64 because the one with Integers
 can not deal with anything greater than MaxInt and IP addresses are
 always $0-$FFFFFFFF (unsigned)
 }
+{$IFNDEF VCL11ORABOVE}
 function StrToInt64Def(const S: string; Default: Integer): Int64;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
@@ -2614,6 +2617,7 @@ begin
     Result := Default;
   end;
 end;
+{$ENDIF}
 
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): LongWord;
 {$IFDEF USEINLINE}inline;{$ENDIF}
@@ -3043,19 +3047,19 @@ begin
   end;
 {$ELSE}
   // use best register allocation on Win32
-  function Find(AStartPos, EndPos: LongWord; StartChar: AnsiChar; const AStr: AnsiString): LongWord;
+  function FindStr(ALStartPos, EndPos: LongWord; StartChar: AnsiChar; const ALStr: AnsiString): LongWord;
   begin
-    for Result := AStartPos to EndPos do
-      if AStr[Result] = StartChar then
+    for Result := ALStartPos to EndPos do
+      if ALStr[Result] = StartChar then
         Exit;
     Result := 0;
   end;
 
   // use best register allocation on Win32
-  function FindNext(AStartPos, EndPos: LongWord; const AStr, ASubStr: AnsiString): LongWord;
+  function FindNextStr(ALStartPos, EndPos: LongWord; const ALStr, ALSubStr: AnsiString): LongWord;
   begin
-    for Result := AStartPos + 1 to EndPos do
-      if AStr[Result] <> ASubStr[Result - AStartPos + 1] then
+    for Result := ALStartPos + 1 to EndPos do
+      if ALStr[Result] <> ALSubStr[Result - ALStartPos + 1] then
         Exit;
     Result := 0;
   end;
@@ -3076,16 +3080,16 @@ begin
   StartChar := ASubStr[1];
   EndPos := LenStr - LenSubStr + 1;
   if LenSubStr = 1 then begin
-    Result := Find(AStartPos, EndPos, StartChar, AStr)
+    Result := FindStr(AStartPos, EndPos, StartChar, AStr)
   end else
   begin
     repeat
-      Result := Find(AStartPos, EndPos, StartChar, AStr);
+      Result := FindStr(AStartPos, EndPos, StartChar, AStr);
       if Result = 0 then begin
         Break;
       end;
       AStartPos := Result;
-      Result := FindNext(Result, AStartPos + LenSubStr - 1, AStr, ASubStr);
+      Result := FindNextStr(Result, AStartPos + LenSubStr - 1, AStr, ASubStr);
       if Result = 0 then
       begin
         Result := AStartPos;
@@ -3097,7 +3101,7 @@ begin
 {$ENDIF}
 end;
 
-function SBPos(const Substr, S: string): Integer;
+function SBPos(const Substr, S: string): LongInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   // Necessary because of "Compiler magic"
@@ -3105,7 +3109,8 @@ begin
 end;
 
 {$IFNDEF DOTNET}
-function AnsiPos(const Substr, S: string): Integer;
+//Don't rename this back to AnsiPos because that conceals a symbol in Windows
+function InternalAnsiPos(const Substr, S: string): LongInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := SysUtils.AnsiPos(Substr, S);
@@ -3299,6 +3304,7 @@ Begin
 end;
 
 {$IFDEF DOTNET}
+  {$IFNDEF DOTNET2}
 
 { TEvent }
 
@@ -3391,7 +3397,7 @@ procedure TCriticalSection.Leave;
 begin
   System.Threading.Monitor.Exit(Self);
 end;
-
+   {$ENDIF}
 {$ENDIF}
 
 { TIdLocalEvent }
@@ -3709,10 +3715,10 @@ begin
   Result := StrToInt(Trim(S));
 end;
 
-function IndyStrToInt(const S: string; Default: Integer): Integer;
+function IndyStrToInt(const S: string; ADefault: Integer): Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := StrToIntDef(Trim(S), Default);
+  Result := StrToIntDef(Trim(S), ADefault);
 end;
 
 function CompareDate(const D1, D2: TDateTime): Integer;
@@ -3757,20 +3763,20 @@ begin
   {$ENDIF}
 end;
 
-function IndyFileAge(const FileName: string): TDateTime;
+function IndyFileAge(const AFileName: string): TDateTime;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF VCL10ORABOVE}
   //single-parameter fileage is deprecated in d2006 and above
-  if not FileAge(FileName, Result) then begin
+  if not FileAge(AFileName, Result) then begin
     Result := 0;
   end;
   {$ELSE}
-  Result := FileDateToDateTime(SysUtils.FileAge(FileName));
+  Result := FileDateToDateTime(SysUtils.FileAge(AFileName));
   {$ENDIF}
 end;
 
-function IndyDirectoryExists(const Directory: string): Boolean;
+function IndyDirectoryExists(const ADirectory: string): Boolean;
 {$IFNDEF VCL6ORABOVE}
 var
   Code: Integer;
@@ -3779,18 +3785,18 @@ var
 {$ENDIF}
 begin
   {$IFDEF VCL6ORABOVE}
-  Result := SysUtils.DirectoryExists(Directory);
+  Result := SysUtils.DirectoryExists(ADirectory);
   {$ELSE}
   // RLebeau 2/16/2006: Removed dependency on the FileCtrl unit
-  Code := GetFileAttributes(PChar(Directory));
+  Code := GetFileAttributes(PChar(ADirectory));
   Result := (Code <> -1) and ((Code and FILE_ATTRIBUTE_DIRECTORY) <> 0);
   {$ENDIF}
 end;
 
-function IndyStrToInt64(const S: string; const Default: Int64): Int64;
+function IndyStrToInt64(const S: string; const ADefault: Int64): Int64;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.StrToInt64Def(Trim(S), Default);
+  Result := SysUtils.StrToInt64Def(Trim(S), ADefault);
 end;
 
 function IndyStrToInt64(const S: string): Int64;
@@ -4745,7 +4751,7 @@ initialization
   if LeadBytes = [] then begin
     IndyPos := SBPos;
   end else begin
-    IndyPos := AnsiPos;
+    IndyPos := InternalAnsiPos;
   end;
   {$ENDIF}
 

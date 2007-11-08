@@ -190,14 +190,14 @@ type
     procedure SetNormalReply(AValue: TIdReply);
     procedure SetResponse(AValue: TStrings);
   public
-    function Check(AData: string; AContext: TIdContext): boolean; virtual;
-    procedure DoCommand(AData: string; AContext: TIdContext; AUnparsedParams: string); virtual;
+    function Check(const AData: string; AContext: TIdContext): boolean; virtual;
+    procedure DoCommand(const AData: string; AContext: TIdContext; AUnparsedParams: string); virtual;
     constructor Create(
       ACollection: TCollection
       ); override;
     destructor Destroy; override;
 //    function GetNamePath: string; override;
-    function NameIs(ACommand: string): Boolean;
+    function NameIs(const ACommand: string): Boolean;
     //
     property Data: TObject read FData write FData;
   published
@@ -235,7 +235,7 @@ type
     //
     procedure DoAfterCommandHandler(AContext: TIdContext);
     procedure DoBeforeCommandHandler(AContext: TIdContext; var VLine: string);
-    procedure DoOnCommandHandlersException(ACommand: String; AContext: TIdContext);
+    procedure DoOnCommandHandlersException(const ACommand: String; AContext: TIdContext);
     function GetItem(AIndex: Integer): TIdCommandHandler;
     // This is used instead of the OwnedBy property directly calling GetOwner because
     // D5 dies with internal errors and crashes
@@ -373,7 +373,7 @@ begin
   end;
 end;
 
-procedure TIdCommandHandlers.DoOnCommandHandlersException(ACommand: String;
+procedure TIdCommandHandlers.DoOnCommandHandlersException(const ACommand: String;
   AContext: TIdContext);
 begin
   if Assigned(FOnCommandHandlersException) then begin
@@ -401,7 +401,7 @@ end;
 { TIdCommandHandler }
 
 procedure TIdCommandHandler.DoCommand(
-  AData: string;
+  const AData: string;
   AContext: TIdContext;
   AUnparsedParams: string
   );
@@ -495,7 +495,7 @@ begin
   end;
 end;
 
-function TIdCommandHandler.Check(AData: string; AContext: TIdContext): boolean;
+function TIdCommandHandler.Check(const AData: string; AContext: TIdContext): boolean;
 // AData is not preparsed and is completely left up to the command handler. This will allow for
 // future expansion such as wild cards etc, and allow the logic to properly remain in each of the
 // command handler implementations. In the future there may be a base type and multiple descendants
@@ -580,7 +580,7 @@ begin
 end;
 }
 
-function TIdCommandHandler.NameIs(ACommand: string): Boolean;
+function TIdCommandHandler.NameIs(const ACommand: string): Boolean;
 begin
   Result := TextIsSame(ACommand, FName);
 end;

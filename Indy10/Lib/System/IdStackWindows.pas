@@ -214,7 +214,7 @@ type
     function Count: Integer; override;
     procedure Clear; override;
     function Clone: TIdSocketList; override;
-    function Contains(AHandle: TIdStackSocketHandle): boolean; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
     procedure GetFDSet(var VSet: TFDSet);
     procedure SetFDSet(var VSet: TFDSet);
     class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
@@ -426,10 +426,10 @@ var
 
   {$IFDEF UNICODE}
   Hints: TAddrInfoW;
-  AddrInfo: pAddrInfoW;
+  LAddrInfo: pAddrInfoW;
   {$ELSE}
   Hints: TAddrInfo;
-  AddrInfo: pAddrInfo;
+  LAddrInfo: pAddrInfo;
   {$ENDIF}
   RetVal: Integer;
 begin
@@ -469,18 +469,18 @@ begin
   Hints.ai_family := IdIPFamily[AIPVersion];
   Hints.ai_socktype := Integer(SOCK_STREAM);
   Hints.ai_flags := AI_CANONNAME;
-  AddrInfo := nil;
-  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AAddress), nil, @Hints, @AddrInfo);
+  LAddrInfo := nil;
+  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AAddress), nil, @Hints, @LAddrInfo);
   try
     if RetVal<>0 then
       RaiseSocketError(gaiErrorToWsaError(RetVal))
     else begin
       setlength(result,NI_MAXHOST);
-      getnameinfo(AddrInfo.ai_addr, AddrInfo.ai_addrlen, Pointer(result), NI_MAXHOST, nil, 0, NI_NAMEREQD);
+      getnameinfo(LAddrInfo.ai_addr, LAddrInfo.ai_addrlen, Pointer(result), NI_MAXHOST, nil, 0, NI_NAMEREQD);
       Result := PChar(Result);
     end;
   finally
-    FreeAddrInfo(AddrInfo);
+    FreeAddrInfo(LAddrInfo);
   end;
 end;
 
@@ -709,10 +709,10 @@ var
 
   {$IFDEF UNICODE}
   Hints:TAddrInfoW;
-  AddrInfo:pAddrInfoW;
+  LAddrInfo:pAddrInfoW;
   {$ELSE}
   Hints:TAddrInfo;
-  AddrInfo:pAddrInfo;
+  LAddrInfo:pAddrInfo;
   {$ENDIF}
   RetVal:integer;  
 begin
@@ -736,19 +736,19 @@ begin
   ZeroMemory(@Hints, SIZE_TADDRINFO);
   Hints.ai_family := Id_PF_INET4;
   Hints.ai_socktype := SOCK_STREAM;
-  AddrInfo := nil;
-  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(HostName), nil, @Hints, @AddrInfo);
+  LAddrInfo := nil;
+  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(HostName), nil, @Hints, @LAddrInfo);
   try
     if RetVal <> 0 then begin
       RaiseSocketError(gaiErrorToWsaError(RetVal));
     end;
-    while  AddrInfo <> nil do
+    while  LAddrInfo <> nil do
     begin
-      FLocalAddresses.Add(TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_addr,Id_IPv4));
-      AddrInfo := AddrInfo^.ai_next;
+      FLocalAddresses.Add(TranslateTInAddrToString(LAddrInfo^.ai_addr^.sin_addr,Id_IPv4));
+      LAddrInfo := LAddrInfo^.ai_next;
     end;
   finally
-    freeaddrinfo(AddrInfo);
+    freeaddrinfo(LAddrInfo);
   end;
 end;
 
@@ -809,7 +809,7 @@ begin
   finally Unlock; end;
 end;
 
-function TIdSocketListWindows.Contains(AHandle: TIdStackSocketHandle): Boolean;
+function TIdSocketListWindows.ContainsSocket(AHandle: TIdStackSocketHandle): Boolean;
 begin
   Lock; try
     Result := fd_isset(AHandle, FFDSet);
@@ -886,7 +886,7 @@ end;
 class function TIdSocketListWindows.FDSelect(AReadSet, AWriteSet,
  AExceptSet: PFDSet; const ATimeout: Integer): Boolean;
 var
-  LResult: Integer;
+  LRes: Integer;
   LTime: TTimeVal;
   LTimePtr: PTimeVal;
 begin
@@ -897,9 +897,9 @@ begin
     LTime.tv_usec := (ATimeout mod 1000) * 1000;
     LTimePtr := @LTime;
   end;
-  LResult := IdWinsock2.Select(0, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  LRes := IdWinsock2.Select(0, AReadSet, AWriteSet, AExceptSet, LTimePtr);
   //TODO: Remove this cast
-  Result := GBSDStack.CheckForSocketError(LResult) > 0;
+  Result := GBSDStack.CheckForSocketError(LRes) > 0;
 end;
 
 function TIdSocketListWindows.SelectReadList(var VSocketList: TIdSocketList; const ATimeout: Integer): Boolean;
@@ -1002,9 +1002,9 @@ var
   {$ENDIF}
   Hints:TAddrInfo;
   {$IFDEF UNICODE}
-  AddrInfo:pAddrInfoW;
+  LAddrInfo:pAddrInfoW;
   {$ELSE}
-  AddrInfo:pAddrInfo;
+  LAddrInfo:pAddrInfo;
   {$ENDIF}
   RetVal:integer;
 begin
@@ -1047,18 +1047,18 @@ begin
   ZeroMemory(@Hints, SIZE_TADDRINFO);
   Hints.ai_family := IdIPFamily[AIPVersion];
   Hints.ai_socktype := SOCK_STREAM;
-  AddrInfo := nil;
-  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AHostName), nil, @Hints, @AddrInfo);
+  LAddrInfo := nil;
+  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AHostName), nil, @Hints, @LAddrInfo);
   try
     if RetVal <> 0 then begin
       RaiseSocketError(gaiErrorToWsaError(RetVal));
     end;
     if AIPVersion = Id_IPv4 then
-      Result := TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_addr, AIPVersion)
+      Result := TranslateTInAddrToString(LAddrInfo^.ai_addr^.sin_addr, AIPVersion)
     else
-      Result := TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_zero, AIPVersion);
+      Result := TranslateTInAddrToString(LAddrInfo^.ai_addr^.sin_zero, AIPVersion);
   finally
-    freeaddrinfo(AddrInfo);
+    freeaddrinfo(LAddrInfo);
   end;
 end;
 

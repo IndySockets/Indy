@@ -104,7 +104,7 @@ type
     function Count: Integer; override;
     procedure Clear; override;
     function Clone: TIdSocketList; override;
-    function Contains(AHandle: TIdStackSocketHandle): Boolean; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): Boolean; override;
     procedure GetFDSet(var VSet: TFDSet);
     procedure SetFDSet(var VSet: TFDSet);
     class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
@@ -1001,7 +1001,7 @@ begin
   end;
 end;
 
-function TIdSocketListUnix.Contains(AHandle: TIdStackSocketHandle): Boolean;
+function TIdSocketListUnix.ContainsSocket(AHandle: TIdStackSocketHandle): Boolean;
 begin
   Lock; try
     Result := fpFD_ISSET(AHandle, FFDSet) > 0;

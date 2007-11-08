@@ -202,7 +202,7 @@ type
     property Items[AIndex: Integer]: TIdStackSocketHandle read GetItem; default;
     procedure Remove(AHandle: TIdStackSocketHandle); virtual; abstract;
     procedure Clear; virtual; abstract;
-    function Contains(AHandle: TIdStackSocketHandle): boolean; virtual; abstract;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; virtual; abstract;
     procedure Lock;
     class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; virtual;
@@ -249,7 +249,7 @@ type
     function HostToNetwork(AValue: Word): Word; overload; virtual; abstract;
     function HostToNetwork(AValue: LongWord): LongWord; overload; virtual; abstract;
     function HostToNetwork(AValue: Int64): Int64; overload; virtual; abstract;
-    function HostToNetwork(AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
+    function HostToNetwork(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     function IsIP(AIP: string): Boolean;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
     function WSGetLastError: Integer; virtual; abstract;
@@ -264,7 +264,7 @@ type
     function NetworkToHost(AValue: Word): Word; overload; virtual; abstract;
     function NetworkToHost(AValue: LongWord): LongWord; overload; virtual; abstract;
     function NetworkToHost(AValue: Int64): Int64; overload; virtual; abstract;
-    function NetworkToHost(AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
+    function NetworkToHost(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
       out AOptVal: Integer); virtual; abstract;
@@ -691,7 +691,7 @@ begin
   Result := IndyFormat(RSStackError, [AErr, Result]);
 end;
 
-function TIdStack.HostToNetwork(AValue: TIdIPv6Address): TIdIPv6Address;
+function TIdStack.HostToNetwork(const AValue: TIdIPv6Address): TIdIPv6Address;
 var i : Integer;
 begin
   for i := 0 to 7 do begin
@@ -699,7 +699,7 @@ begin
   end;
 end;
 
-function TIdStack.NetworkToHost(AValue: TIdIPv6Address): TIdIPv6Address;
+function TIdStack.NetworkToHost(const AValue: TIdIPv6Address): TIdIPv6Address;
 var i : Integer;
 begin
   for i := 0 to 7 do begin

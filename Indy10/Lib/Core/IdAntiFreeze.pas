@@ -107,13 +107,13 @@ end;
 {$IFDEF WIN32}
 procedure TIdAntiFreeze.Process;
 var
-  Msg: TMsg;
+  LMsg: TMsg;
 begin
   if ApplicationHasPriority then begin
     Application.ProcessMessages;
   end else begin
     // This guarantees it will not ever call Application.Idle
-    if PeekMessage(Msg, 0, 0, 0, PM_NOREMOVE) then begin
+    if PeekMessage(LMsg, 0, 0, 0, PM_NOREMOVE) then begin
       Application.HandleMessage;
     end;
   end;

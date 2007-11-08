@@ -74,7 +74,7 @@ type
     FFilename: String;
     FFileStream: TStream;
     //
-    procedure LogFormat(const AFormat: string; AArgs: array of const); virtual;
+    procedure LogFormat(const AFormat: string; const AArgs: array of const); virtual;
     procedure LogReceivedData(const AText, AData: string); override;
     procedure LogSentData(const AText, AData: string); override;
     procedure LogStatus(const AText: string); override;
@@ -127,7 +127,7 @@ begin
   WriteStringToStream(FFileStream, AText);
 end;
 
-procedure TIdLogFile.LogFormat(const AFormat: string; AArgs: array of const);
+procedure TIdLogFile.LogFormat(const AFormat: string; const AArgs: array of const);
 var
   sPre: string;
   sMsg: string;

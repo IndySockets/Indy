@@ -85,7 +85,7 @@ type
     function Count: Integer; override;
     procedure Clear; override;
     function Clone: TIdSocketList; override;
-    function Contains(AHandle: TIdStackSocketHandle): boolean; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
     procedure GetFDSet(var VSet: TFDSet);
     procedure SetFDSet(var VSet: TFDSet);
     class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
@@ -942,7 +942,7 @@ begin
   end;
 end;
 
-function TIdSocketListLinux.Contains(
+function TIdSocketListLinux.ContainsSocket(
   AHandle: TIdStackSocketHandle): boolean;
 begin
   Lock; try

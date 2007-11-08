@@ -176,7 +176,7 @@ type
     function Count: Integer; override;
     procedure Clear; override;
     function Clone: TIdSocketList; override;
-    function Contains(AHandle: TIdStackSocketHandle): boolean; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
     class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
       AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
     function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
@@ -635,7 +635,7 @@ begin
   FSockets.Clear;
 end;
 
-function TIdSocketListDotNet.Contains(AHandle: TIdStackSocketHandle): Boolean;
+function TIdSocketListDotNet.ContainsSocket(AHandle: TIdStackSocketHandle): Boolean;
 begin
   Result := FSockets.Contains(AHandle);
 end;
@@ -723,20 +723,20 @@ var
 
   function DoSelect(const AInterval: Integer; var VList: ArrayList): Boolean;
   var
-    LTemp: ArrayList;
+    LLTemp: ArrayList;
   begin
     // DotNet updates this object on return, so we need to copy it each time we need it
-    LTemp := ArrayList(FSockets.Clone);
+    LLTemp := ArrayList(FSockets.Clone);
     try
-      Socket.Select(LTemp, nil, nil, AInterval);
-      Result := LTemp.Count > 0;
+      Socket.Select(LLTemp, nil, nil, AInterval);
+      Result := LLTemp.Count > 0;
       if Result then
       begin
-        VList := LTemp;
-        LTemp := nil;
+        VList := LLTemp;
+        LLTemp := nil;
       end;
     finally
-      LTemp.Free;
+      LLTemp.Free;
     end;
   end;
 
@@ -801,13 +801,13 @@ var
   function DoSelect(var VReadList, VWriteList, VExceptList: ArrayList;
     const AInterval: Integer): Boolean;
   var
-    LReadTemp: ArrayList;
-    LWriteTemp: ArrayList;
-    LExceptTemp: ArrayList;
+    LLReadTemp: ArrayList;
+    LLWriteTemp: ArrayList;
+    LLExceptTemp: ArrayList;
   begin
-    LReadTemp := nil;
-    LWriteTemp := nil;
-    LExceptTemp := nil;
+    LLReadTemp := nil;
+    LLWriteTemp := nil;
+    LLExceptTemp := nil;
 
     VReadList := nil;
     VWriteList := nil;
@@ -815,40 +815,40 @@ var
 
     // DotNet updates these objects on return, so we need to copy them each time we need them
     if Assigned(AReadList) and Assigned(TIdSocketListDotNet(AReadList).FSockets) then begin
-      LReadTemp := ArrayList(TIdSocketListDotNet(AReadList).FSockets.Clone);
+      LLReadTemp := ArrayList(TIdSocketListDotNet(AReadList).FSockets.Clone);
     end;
     try
       if Assigned(AWriteList) and Assigned(TIdSocketListDotNet(AWriteList).FSockets) then begin
-        LWriteTemp := ArrayList(TIdSocketListDotNet(AWriteList).FSockets.Clone);
+        LLWriteTemp := ArrayList(TIdSocketListDotNet(AWriteList).FSockets.Clone);
       end;
       try
         if Assigned(AExceptList) and Assigned(TIdSocketListDotNet(AExceptList).FSockets) then begin
-          LExceptTemp := ArrayList(TIdSocketListDotNet(AExceptList).FSockets.Clone);
+          LLExceptTemp := ArrayList(TIdSocketListDotNet(AExceptList).FSockets.Clone);
         end;
         try
-          Socket.Select(LReadTemp, LWriteTemp, LExceptTemp, AInterval);
-          Result := (LReadTemp.Count > 0) or
-                    (LWriteTemp.Count > 0) or
-                    (LExceptTemp.Count > 0);
+          Socket.Select(LLReadTemp, LLWriteTemp, LLExceptTemp, AInterval);
+          Result := (LLReadTemp.Count > 0) or
+                    (LLWriteTemp.Count > 0) or
+                    (LLExceptTemp.Count > 0);
           if Result then
           begin
-            VReadList := LReadTemp;
-            LReadTemp:= nil;
+            VReadList := LLReadTemp;
+            LLReadTemp:= nil;
 
-            VWriteList := LWriteTemp;
-            LWriteTemp:= nil;
+            VWriteList := LLWriteTemp;
+            LLWriteTemp:= nil;
 
-            VExceptList := LExceptTemp;
-            LExceptTemp:= nil;
+            VExceptList := LLExceptTemp;
+            LLExceptTemp:= nil;
           end;
         finally
-          LExceptTemp.Free;
+          LLExceptTemp.Free;
         end;
       finally
-        LWriteTemp.Free;
+        LLWriteTemp.Free;
       end;
     finally
-      LReadTemp.Free;
+      LLReadTemp.Free;
     end;
   end;
 
@@ -1084,19 +1084,21 @@ begin
   APkt.SourcePort := LPort;
   {$ELSE}
   LSF := SocketFlags.None;
+  if not (AIPVersion in [Id_IPv6,Id_IPv6]) then
+  begin
+    IPVersionUnsupported;
+  end;
   {
   The AddressFamily of the EndPoint used in ReceiveFrom needs to match the
    AddressFamily of the EndPoint used in SendTo.
    }
-  case AIPVersion of
-  Id_IPv4 :
-    begin
+  if AIPVersion = Id_IPv4 then
+  begin
       LRemEP := IPEndPoint.Create(IPAddress.Parse('0.0.0.0'),0);
-    end;
-  Id_IPv6 :
-    begin
+  end
+  else //Id_IPv6 :
+  begin
       LRemEP := IPEndPoint.Create(IPAddress.Parse('::0'),0);
-    end;
   end;
   Result := ASocket.ReceiveMessageFrom(VBuffer, 0, Length(VBUffer), LSF, LRemEP, lpki);
   APkt.SourceIP := IPEndPoint(LRemEP).Address.ToString;

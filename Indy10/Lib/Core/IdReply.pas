@@ -177,8 +177,8 @@ type
     procedure SetItem(Index: Integer; const Value: TIdReply);
   public
     function Add: TIdReply; overload;
-    function Add(ACode: Integer; AText: string): TIdReply; overload;
-    function Add(ACode: string; AText: string): TIdReply; overload;
+    function Add(const ACode: Integer; const AText: string): TIdReply; overload;
+    function Add(const ACode, AText: string): TIdReply; overload;
     constructor Create(AOwner: TPersistent; const AReplyClass: TIdReplyClass); reintroduce; virtual;
     function Find(const ACode: string; AIgnore: TIdReply = nil): TIdReply; virtual;
     procedure UpdateText(AReply: TIdReply); virtual;
@@ -342,12 +342,12 @@ begin
   Result := TIdReply(inherited Add);
 end;
 
-function TIdReplies.Add(ACode: Integer; AText: string): TIdReply;
+function TIdReplies.Add(const ACode: Integer; const AText: string): TIdReply;
 begin
   Result := Add(IntToStr(ACode), AText);
 end;
 
-function TIdReplies.Add(ACode, AText: string): TIdReply;
+function TIdReplies.Add(const ACode, AText: string): TIdReply;
 begin
   Result := Add;
   try

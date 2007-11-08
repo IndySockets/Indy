@@ -390,10 +390,9 @@ type
     procedure CreateIOHandler(ABaseType: TIdIOHandlerClass = nil);
     procedure CheckForGracefulDisconnect(ARaiseExceptionIfDisconnected: Boolean = True); virtual;
     //
-    function CheckResponse(AResponse: SmallInt;
+    function CheckResponse(const AResponse: SmallInt;
      const AAllowedResponses: array of SmallInt): SmallInt; overload; virtual;
-    function CheckResponse(AResponse: string;
-      AAllowedResponse: string): string; overload; virtual;
+    function CheckResponse(const AResponse, AAllowedResponse: string): string; overload; virtual;
     //
     function Connected: Boolean; virtual;
     destructor Destroy; override;
@@ -680,7 +679,7 @@ begin
   end;
 end;
 
-function TIdTCPConnection.CheckResponse(AResponse: SmallInt;
+function TIdTCPConnection.CheckResponse(const AResponse: SmallInt;
  const AAllowedResponses: array of SmallInt): SmallInt;
 var
   i: Integer;
@@ -749,7 +748,7 @@ begin
   Result := GetResponse(AResponse);
 end;
 
-function TIdTCPConnection.CheckResponse(AResponse, AAllowedResponse: string): string;
+function TIdTCPConnection.CheckResponse(const AResponse, AAllowedResponse: string): string;
 begin
   if (AAllowedResponse <> '')
    and (not TextIsSame(AResponse, AAllowedResponse)) then begin
