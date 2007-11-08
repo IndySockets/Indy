@@ -1084,7 +1084,7 @@ begin
   APkt.SourcePort := LPort;
   {$ELSE}
   LSF := SocketFlags.None;
-  if not (AIPVersion in [Id_IPv6,Id_IPv6]) then
+  if not (AIPVersion in [Id_IPv6,Id_IPv4]) then
   begin
     IPVersionUnsupported;
   end;
