@@ -878,7 +878,7 @@ const
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   GOSType = otWindows;
   GPathDelim = '\'; {do not localize}
- // Infinite = Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
+  Infinite = Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
   {$ENDIF}
 
   {$IFDEF DOTNET}
