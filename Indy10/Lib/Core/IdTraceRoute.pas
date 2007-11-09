@@ -77,28 +77,22 @@ begin
 //We do things this way because we only want to resolve the destination host name
 //only one time.  Otherwise, there's a performance penalty for earch DNS resolve.
   LIPAddr := GStack.ResolveHost(FHost, FBinding.IPVersion);
-  try
-
-   LSeq := $1;
-   LTTL := 1;
-   TTL := LTTL;
-   for i := 1 to 30 do
-   begin
-     ReplyStatus.PacketNumber := i;
-     InternalPing(LIPAddr, '', LSeq);
-     case ReplyStatus.ReplyStatusType of
-       rsErrorTTLExceeded,
-       rsTimeout : ;
-     else
-       Break;
-     end;
-
-     Inc(LTTL);
-     TTL := LTTL;
-     LSeq := LSeq * 2;
-   end;
-  finally
-//    Disconnect;
+  LSeq := $1;
+  LTTL := 1;
+  TTL := LTTL;
+  for i := 1 to 30 do
+  begin
+    ReplyStatus.PacketNumber := i;
+    InternalPing(LIPAddr, '', LSeq);
+    case ReplyStatus.ReplyStatusType of
+      rsErrorTTLExceeded,
+      rsTimeout : ;
+    else
+      Break;
+    end;
+    Inc(LTTL);
+    TTL := LTTL;
+    LSeq := LSeq * 2;
   end;
 end;
 
