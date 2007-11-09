@@ -3133,9 +3133,9 @@ var
 
   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSA_CMSGHDR_ALIGN}
-  function WSA_CMSGHDR_ALIGN(const Alength: PtrUInt): PtrUInt;
+  function WSA_CMSGHDR_ALIGN(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSGDATA_ALIGN}
-  function WSA_CMSGDATA_ALIGN(const Alength: PtrUInt): PtrUInt;
+  function WSA_CMSGDATA_ALIGN(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_FIRSTHDR}
   function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
   {$EXTERNALSYM WSA_CMSG_NXTHDR}
@@ -3143,9 +3143,9 @@ var
   {$EXTERNALSYM WSA_CMSG_DATA}
   function WSA_CMSG_DATA(const cmsg: LPWSACMSGHDR): PByte;
   {$EXTERNALSYM WSA_CMSG_SPACE}
-  function WSA_CMSG_SPACE(const Alength: PtrUInt): PtrUInt;
+  function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_LEN}
-  function WSA_CMSG_LEN(const Alength: PtrUInt): PtrUInt;
+  function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
   {$ENDIF}
   
 //=============================================================
@@ -6037,7 +6037,7 @@ begin
 end;
 
 {$IFNDEF UNDER_CE}
-function WSA_CMSGHDR_ALIGN(const Alength: PtrUint): PtrUInt;
+function WSA_CMSGHDR_ALIGN(const length: PtrUint): PtrUInt;
 type
   {$IFDEF WIN32}
     {$ALIGN ON}
@@ -6059,13 +6059,13 @@ var
 begin
   Tmp := nil;
   Alignment := PtrUInt(@(Tmp^.test));
-  Result := (Alength + (Alignment-1)) and not (Alignment-1);
+  Result := (length + (Alignment-1)) and not (Alignment-1);
 end;
 
-function WSA_CMSGDATA_ALIGN(const Alength: PtrUInt): PtrUInt;
+function WSA_CMSGDATA_ALIGN(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := (Alength + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
+  Result := (length + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
 end;
 
 function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
@@ -6098,16 +6098,16 @@ begin
   Result := PByte(PtrUInt(cmsg) + WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR));
 end;
 
-function WSA_CMSG_SPACE(const Alength: PtrUInt): PtrUInt;
+function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(PtrUInt(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(Alength)));
+  Result := WSA_CMSGDATA_ALIGN(PtrUInt(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
 end;
 
-function WSA_CMSG_LEN(const Alength: PtrUInt): PtrUInt;
+function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + Alength);
+  Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length);
 end;
 
 function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
