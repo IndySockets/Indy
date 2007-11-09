@@ -185,6 +185,7 @@ function CCheck(code: Integer): Integer;
 
 const
   //winbit constants
+  MAX_WBITS = IdZLibHeaders.MAX_WBITS;
   GZIP_WINBITS = MAX_WBITS + 16; //GZip format
   //negative values mean do not add any headers
   //adapted from "Enhanced zlib implementation"
