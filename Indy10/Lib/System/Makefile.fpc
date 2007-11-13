@@ -22,6 +22,7 @@ units=indysystemfpc
 rsts=IdResourceStrings
 implicitunits=IdAntiFreezeBase \
   IdBaseComponent \
+  IdCTypes \
   IdComponent \
   IdException \
   IdGlobal \
