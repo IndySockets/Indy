@@ -284,7 +284,7 @@ end;
 constructor TIdDsnPropEdBindingVCL.Create(AOwner: TComponent);
 var i : Integer;
 begin
-  inherited CreateNew(AOwner);
+  inherited CreateNew(AOwner,0);
   {$IFNDEF WIDGETKYLIX}
   Borderstyle := bsDialog;
   {$ENDIF}
