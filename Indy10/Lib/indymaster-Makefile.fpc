@@ -48,7 +48,9 @@ implicitunits=IdASN1Util \
   IdAuthenticationDigest \
   IdAuthenticationManager \
   IdBaseComponent \
+  IdBlockCipherIntercept \
   IdBuffer \
+  IdCTypes \
   IdChargenServer \
   IdChargenUDPServer \
   IdCharsets \
@@ -148,6 +150,9 @@ implicitunits=IdASN1Util \
   IdGopher \
   IdGopherConsts \
   IdGopherServer \
+  IdHMAC \
+  IdHMACMD5 \
+  IdHMACSHA1 \
   IdHTTP \
   IdHTTPHeaderInfo \
   IdHTTPProxyServer \
@@ -253,6 +258,7 @@ implicitunits=IdASN1Util \
   IdSMTPServer \
   IdSNMP \
   IdSNPP \
+  IdSNTP \
   IdSSL \
   IdScheduler \
   IdSchedulerOfThread \
@@ -311,6 +317,7 @@ implicitunits=IdASN1Util \
   IdUserAccounts \
   IdUserPassProvider \
   IdVCard \
+  IdWebDAV \
   IdWhoIsServer \
   IdWhois \
   IdYarn \
@@ -394,7 +401,6 @@ units_gba=
 
 [install]
 fpcpackage=y
-buildunit=indysystemfpc indycorefpc indyprotocolsfpc
 
 [shared]
 build=n
@@ -403,7 +409,7 @@ build=n
 # KYLIXCOMPAT option for using the Kylix i386 compatability layer
 BACKEND=IdStackUnix
 ifeq ($(FULL_TARGET),i386-linux)
-ifeq ($(findstring -dKYLIXCOMPAT,$(OPT)),)
+ifeq ($(findstring -dKYLIXCOMPAT,$(OPT)),-dKYLIXCOMPAT)
 BACKEND=IdStackLinux
 endif
 endif
