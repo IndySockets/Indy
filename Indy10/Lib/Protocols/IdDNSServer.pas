@@ -1235,7 +1235,7 @@ var
   var
     EachLinePart : TStrings;
     CurrentLineNum, TagField, Count : Integer;
-    LineData, DataBody, Comment, FPart, LTag : string;
+    LineData, DataBody, {Comment,} FPart, LTag : string;
     Denoted, Stop, PassQuota : Boolean;
   begin
     EachLinePart := TStringList.Create;
@@ -1249,7 +1249,7 @@ var
         repeat
           LineData := Trim(FileStrings.Strings[CurrentLineNum]);
           DataBody := Fetch(LineData, ';');
-          Comment := LineData;
+          //Comment := LineData;
           PassQuota := Pos('(', DataBody) = 0;
 
           // Split each item into TStrings.
@@ -1412,10 +1412,10 @@ var
   function LoadMasterFile : Boolean;
   var
     Checks, EachLinePart, DenotedDomain : TStrings;
-    CurrentLineNum, {CH FieldCount, } TagField, Count, LastTTL : Integer;
-    LineData, DataBody, Comment, FPart, LTag, LText,
-      RName, LastDenotedDomain, LastTag, NewDomain, SingleHostName, PrevDNTag : string;
-    {CH Denoted, } Stop, PassQuota, Found, canChangPrevDNTag : Boolean;
+    CurrentLineNum,  TagField, Count, LastTTL : Integer;
+    LineData, DataBody,  FPart, LTag, LText,
+      RName, LastDenotedDomain, LastTag, NewDomain, SingleHostName, PrevDNTag  : string;
+    Stop, PassQuota, Found, canChangPrevDNTag : Boolean;
     LLRR_A : TIdRR_A;
     LLRR_AAAA : TIdRR_AAAA;
     LLRR_NS : TIdRR_NS;
@@ -1453,7 +1453,7 @@ var
           repeat
             LineData := Trim(FileStrings.Strings[CurrentLineNum]);
             DataBody := Fetch(LineData, ';');
-            Comment := LineData;
+       //     Comment := LineData;
             PassQuota := Pos('(', DataBody) = 0;
 
             // Split each item into TStrings.

@@ -28,6 +28,8 @@ todo change depth param from infinity to -1? also string>integer?
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdHTTP;

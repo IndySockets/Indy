@@ -1420,18 +1420,7 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF DOTNET}
-function TempPath: String; 
-{$IFDEF USEINLINE}inline;{$ENDIF}
-begin
-  {$IFDEF DOTNET1_1}
-  Result := IndyIncludeTrailingPathDelimiter(System.IO.GetTempPath);
-  {$ENDIF}
-  {$IFDEF DOTNET2_OR_ABOVE}
-  Result := IndyIncludeTrailingPathDelimiter(System.IO.Path.GetTempPath);
-  {$ENDIF}
-end; 
-{$ENDIF} 
+
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
 function TempPath: {$IFDEF UNICODE}WideString{$ELSE}String{$ENDIF}; 
 var

@@ -186,6 +186,7 @@ procedure Register;
 implementation
 
 uses
+  IdDsnResourceStrings,
   {$IFDEF FPC}
   LResources,
   {$ENDIF}
@@ -422,7 +423,7 @@ uses
   {$R IconsDotNet\TIdSMTPServer.bmp}
   {$R IconsDotNet\TIdSNPP.bmp}
   {$R IconsDotNet\TIdSNTP.bmp}
-  {$R IconsDotNet\TIdSocksServer.bmp}
+  {.$R IconsDotNet\TIdSocksServer.bmp}
   {$R IconsDotNet\TIdSysLog.bmp}
   {$R IconsDotNet\TIdSysLogMessage.bmp}
   {$R IconsDotNet\TIdSyslogServer.bmp}
@@ -691,7 +692,7 @@ begin
    TIdRexecServer,
    TIdRSHServer,
    TIdSMTPServer,
-   TIdSocksServer,
+//   TIdSocksServer,
    TIdSyslogServer,
    TIdSystatServer,
    TIdSystatUDPServer,
@@ -715,12 +716,9 @@ begin
   RegisterComponents(RSRegIndyIntercepts+RSProt, [
    {$IFDEF USEZLIBUNIT}
    TIdCompressionIntercept,
-   {$ENDIF}
-   TIdBlockCipherIntercept,
-   TIdCompressionIntercept,
-   {$IFDEF USEZLIBUNIT}
    TIdServerCompressionIntercept,
    {$ENDIF}
+   TIdBlockCipherIntercept,
    TIdServerInterceptLogEvent,
    TIdServerInterceptLogFile
    ]);

@@ -55,6 +55,7 @@ resourcestring
 {$IFDEF FPC}
   //This is part of a workaround for the Lazarus IDE Toolbar being
   //unable to scroll.
+  RSProt = ' Protocols';
   RSProtam = ' Protocols (am)';
   RSProtnz = ' Protocols (nz)';
   RSMappedPort = ' Mapped Port';

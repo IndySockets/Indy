@@ -591,7 +591,7 @@ end;
 function TIdFTPListOutput.IndexOf(AItem: TIdFTPListOutputItem): Integer;
 var
   i : Integer;
-begin
+begin               
   Result := -1;
   for i := 0 to Count - 1 do begin
     if AItem = Items[i] then begin
@@ -802,7 +802,7 @@ var
     LMaxLen : Integer;
     LCols : Integer;
     LLines : Integer;
-    LFrm : String;
+  //  LFrm : String;
     LCurItem : TIdFTPListOutputItem;
   begin
 
@@ -825,7 +825,7 @@ var
     end;
     LCols := 79 div (LMaxLen + 2);//2 spaces between columns
     LLines := ACurDir.FileList.COunt div LCols;
-    LFrm := '%' + IntToStr(LMaxLen+2) + 's';
+    //LFrm := '%' + IntToStr(LMaxLen+2) + 's';
     if (ACurDir.FileList.COunt mod LCols) > 0 then begin
       Inc(LLines);
     end;
