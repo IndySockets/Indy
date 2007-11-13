@@ -389,18 +389,28 @@ function TIdStackUnix.HostByName(const AHostName: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
   LI4 : array of THostAddr;
+  LH4 : THostEntry;
   LI6 : array of THostAddr6;
+
   LRetVal : Integer;
 begin
   case AIPVersion of
     ID_IPv4 :
     begin
-      SetLength(LI4, 10);
-      LRetVal := ResolveName(AHostName, LI4);
-      if LRetVal < 1 then begin
-        raise EIdResolveError.CreateFmt(RSResolveError, [AHostName, 'Error', LRetVal]); {do not localize}
+      if GetHostByName(AHostName,LH4) then
+      begin
+        Result := HostAddrToStr( LH4.Addr );
+        exit;
+      end
+      else
+      begin
+        SetLength(LI4, 10);
+        LRetVal := ResolveName(AHostName, LI4);
+        if LRetVal < 1 then begin
+          raise EIdResolveError.CreateFmt(RSResolveError, [AHostName, 'Error', LRetVal]); {do not localize}
+        end;
+        Result := NetAddrToStr(LI4[0]);
       end;
-      Result := NetAddrToStr(LI4[0]);
     end;
     ID_IPv6 :
     begin
