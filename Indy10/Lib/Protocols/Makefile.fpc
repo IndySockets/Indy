@@ -5,7 +5,6 @@ name=indyprotocolsfpc
 version=10.2.0.1
 main=indy
 
-
 [compiler]
 includedir=../Inc
 unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
@@ -198,6 +197,7 @@ implicitunits=IdASN1Util \
   IdSMTPServer \
   IdSNMP \
   IdSNPP \
+  IdSNTP \
   IdSSL \
   IdServerInterceptLogBase \
   IdServerInterceptLogEvent \
@@ -228,6 +228,7 @@ implicitunits=IdASN1Util \
   IdUserAccounts \
   IdUserPassProvider \
   IdVCard \
+  IdWebDAV \
   IdWhoIsServer \
   IdWhois \
   IdZLibCompressorBase
@@ -240,7 +241,6 @@ packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)/:../Core/lib/$(CPU_TARGET)-$
 [install]
 fpcpackage=y
 fpcsubdir=packages/extra
-buildunit=indyprotocolsfpc
 
 [shared]	
 build=n

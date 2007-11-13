@@ -184,6 +184,7 @@ uses
   IdSMTPServer,
   IdSNMP,
   IdSNPP,
+  IdSNTP,
   IdSSL,
   IdServerInterceptLogBase,
   IdServerInterceptLogEvent,
@@ -214,6 +215,7 @@ uses
   IdUserAccounts,
   IdUserPassProvider,
   IdVCard,
+  IdWebDAV,
   IdWhoIsServer,
   IdWhois,
   IdZLibCompressorBase;
