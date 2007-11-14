@@ -1618,6 +1618,10 @@ Indy10/Lib/examples/httpget/ftpprothandler.pas -text
 Indy10/Lib/examples/httpget/httpget.pas -text
 Indy10/Lib/examples/httpget/httpprothandler.pas -text
 Indy10/Lib/examples/httpget/prothandler.pas -text
+Indy10/Lib/fpcnotes/COPYING -text
+Indy10/Lib/fpcnotes/COPYING.MPL -text
+Indy10/Lib/fpcnotes/COPYING.modifiedBSD -text
+Indy10/Lib/fpcnotes/README -text
 Indy10/Lib/indy-fpc.spec.template -text
 Indy10/Lib/indymaster-Makefile.fpc -text
 Indy10/Lib/lspFix.dpr -text
