@@ -141,7 +141,6 @@ implicitunits=IdASN1Util \
   IdIdentServer \
   IdIrcServer \
   IdLPR \
-  IdMIMETypes \
   IdMailBox \
   IdMappedFTP \
   IdMappedPOP3 \

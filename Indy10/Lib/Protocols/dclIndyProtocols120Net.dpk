@@ -29,11 +29,7 @@ requires
   IndyProtocols120Net,
   IndySystem120Net,
   IndyCore120Net,
-  dclIndyCore120Net,
-  System.Drawing,
-  Borland.Studio.Vcl.Design,
-  Borland.Delphi,
-  Borland.VclRtl;
+  dclIndyCore120Net;
 
 contains
   IdDsnRegister in 'IdDsnRegister.pas',
@@ -42,7 +38,6 @@ contains
   IdDsnSASLListEditorForm in 'IdDsnSASLListEditorForm.pas',
   IdDsnSASLListEditorFormNET in 'IdDsnSASLListEditorFormNET.pas',
   IdRegister in 'IdRegister.pas';
-
 {$I IddclProtocols90ASM90.inc}
 
 end.

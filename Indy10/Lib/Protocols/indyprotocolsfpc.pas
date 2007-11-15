@@ -128,7 +128,6 @@ uses
   IdIdentServer,
   IdIrcServer,
   IdLPR,
-  IdMIMETypes,
   IdMailBox,
   IdMappedFTP,
   IdMappedPOP3,
