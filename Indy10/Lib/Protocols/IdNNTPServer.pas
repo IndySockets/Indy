@@ -438,8 +438,8 @@ uses
   IdSSL,
   SysUtils;
 
-const
-  AuthTypes: array [1..2] of string = ('USER', 'PASS'); {Do not localize}
+{CH const
+  AuthTypes: array [1..2] of string = ('USER', 'PASS'); } {Do not localize}
 
 class function TIdNNTPServer.NNTPTimeToTime(const ATimeStamp : String): TDateTime;
 var
