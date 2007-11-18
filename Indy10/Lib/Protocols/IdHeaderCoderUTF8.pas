@@ -27,10 +27,12 @@ var
   {$IFDEF DOTNET}
   LBytes: TIdBytes;
   {$ELSE}
+  {$IFNDEF VCL6ORABOVE}
   I, LCount, LLength: Integer;
   LCh: Byte;
-  LWC: Word;
-  Temp: WideString;
+  LWC: LongWord;
+  LResult: WideString;
+  {$ENDIF}
   {$ENDIF}
 begin
   Result := '';
@@ -50,46 +52,53 @@ begin
   end;
 
   {$ELSE}
+  {$IFDEF VCL6ORABOVE}
+
+  Result := System.UTF8Decode(AData);
+
+  {$ELSE}
 
   LCount := Length(AData);
-  SetLength(Temp, LCount);
+  SetLength(LResult, LCount);
 
   I := 1;
   LLength := 0;
 
   while I <= LCount do begin
-    LWC := Word(AData[I]);
+    LWC := LongWord(AData[I]);
     Inc(I);
-    if (LWC and $0080) <> 0 then begin
+    if (LWC and $80) <> 0 then begin
       if I > LCount then begin
         Exit;
       end;
-      LWC := LWC and $003F;
-      if (LWC and $0020) <> 0 then begin
+      LWC := LWC and $3F;
+      if (LWC and $20) <> 0 then begin
         LCh := Byte(AData[I]);
         Inc(I);
         if ((LCh and $C0) <> $80) or (I > LCount) then begin
           Exit;
         end;
-        LWC := ((LWC and $000F) shl 6) or Word(LCh and $3F);
+        LWC := ((LWC and $0F) shl 6) or LongWord(LCh and $3F);
       end;
       LCh := Byte(AData[I]);
       Inc(I);
       if (LCh and $C0) <> $80 then begin
         Exit;
       end;
-      LWC := (LWC shl 6) or Word(LCh and $3F);
+      LWC := (LWC shl 6) or LongWord(LCh and $3F);
     end;
-    Temp[LLength+1] := WideChar(LWC);
+    LResult[LLength+1] := WideChar(LWC);
     Inc(LLength);
   end;
 
   if LLength > 0 then begin
     if LLength < LCount then begin
-      SetLength(Temp, LLength);
+      SetLength(LResult, LLength);
     end;
-    Result := Temp;
+    Result := LResult;
   end;
+
+  {$ENDIF}
   {$ENDIF}
 end;
 
@@ -98,9 +107,12 @@ var
   {$IFDEF DOTNET}
   LBytes: TIdBytes;
   {$ELSE}
+  {$IFNDEF VCL6ORABOVE}
   I, LCount, LLength, LMax: Integer;
-  LWC: Word;
-  Temp: AnsiString;
+  LWC: LongWord;
+  LResult: AnsiString;
+  LTemp: WideString;
+  {$ENDIF}
   {$ENDIF}
 begin
   Result := '';
@@ -120,42 +132,53 @@ begin
   end;
 
   {$ELSE}
+  {$IFDEF VCL6ORABOVE}
 
-  LCount := IndyMin(Length(AData), MaxInt div 3);
+  Result := System.UTF8Encode(AData);
+
+  {$ELSE}
+
+  // RLebeau: need to convert to actual Unicode first.
+  // This way, MBCS characters are encoded properly.
+  LTemp := AData;
+
+  LCount := IndyMin(Length(LTemp), MaxInt div 3);
   LMax := LCount * 3;
-  SetLength(Temp, LMax);
+  SetLength(LResult, LMax);
 
   I := 1;
   LLength := 0;
 
   while I <= LCount do
   begin
-    LWC := Word(AData[I]);
+    LWC := LongWord(LTemp[I]);
     Inc(I);
 
-    if LWC <= $007F then
+    if LWC <= $7F then
     begin
-      Temp[LLength+1] := AnsiChar(LWC);
+      LResult[LLength+1] := AnsiChar(LWC);
       Inc(LLength);
     end
-    else if LWC <= $07FF then begin
-      Temp[LLength+1] := AnsiChar($00C0 or (LWC shr 6));
-      Temp[LLength+2] := AnsiChar($0080 or (LWC and $003F));
+    else if LWC <= $7FF then begin
+      LResult[LLength+1] := AnsiChar($C0 or (LWC shr 6));
+      LResult[LLength+2] := AnsiChar($80 or (LWC and $3F));
       Inc(LLength, 2);
     end else // (LWC >= $8000)
     begin
-      Temp[LLength+1] := AnsiChar($00E0 or (LWC shr 12));
-      Temp[LLength+2] := AnsiChar($0080 or ((LWC shr 6) and $003F));
-      Temp[LLength+3] := AnsiChar($0080 or (LWC and $003F));
+      LResult[LLength+1] := AnsiChar($E0 or (LWC shr 12));
+      LResult[LLength+2] := AnsiChar($80 or ((LWC shr 6) and $3F));
+      LResult[LLength+3] := AnsiChar($80 or (LWC and $3F));
       Inc(LLength, 3);
     end;
   end;
 
   if LLength < LMax then begin
-    SetLength(Temp, LLength);
+    SetLength(LResult, LLength);
   end;
 
-  Result := Temp;
+  Result := LResult;
+
+  {$ENDIF}
   {$ENDIF}
 end;
 
