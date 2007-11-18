@@ -159,7 +159,6 @@ contains
   IdIdentServer in 'IdIdentServer.pas',
   IdIrcServer in 'IdIrcServer.pas',
   IdLPR in 'IdLPR.pas',
-  IdMIMETypes in 'IdMIMETypes.pas',
   IdMailBox in 'IdMailBox.pas',
   IdMappedFTP in 'IdMappedFTP.pas',
   IdMappedPOP3 in 'IdMappedPOP3.pas',
