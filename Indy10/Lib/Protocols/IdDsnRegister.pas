@@ -72,15 +72,96 @@ uses
   {$ENDIF}
 // Procs
 
+type
+  TIdPropEdSASL = class(TClassProperty)
+  public
+    procedure Edit; override;
+    function GetAttributes: TPropertyAttributes; override;
+    function GetValue: string; override;
+    procedure SetValue(const Value: string); override;
+  end;
+
 procedure Register;
 
 implementation
 
 uses
-  IdDsnSASLListEditor,
+  IdDsnResourceStrings,
+   {$IFDEF WidgetWinforms}
+  IdDsnSASLListEditorFormNET,
+  {$R 'IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources' 'IdDsnSASLListEditorFormNET.resx'}
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
+  IdDsnSASLListEditorFormVCL,
+  {$ENDIF}
+  IdSASL, IdSASLCollection,
+  SysUtils, TypInfo;
   {Since we are removing New Design-Time part, we remove the "New Message Part Editor"}
   {IdDsnNewMessagePart, }
-  IdSASLCollection;
+
+type
+  {$IFDEF WidgetWinforms}
+  //we make a create here because I'm not sure how the Visual Designer for WinForms
+  //we behave in a package.  I know it can act weird if something is renamed
+  TfrmSASLListEditor = class(IdDsnSASLListEditorFormNET.TfrmSASLListEditor)
+  public
+    constructor Create(AOwner : TComponent);
+  end;
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
+  TfrmSASLListEditor = class(TfrmSASLListEditorVCL);
+  {$ENDIF}
+
+{ TfrmSASLListEditor }
+{$IFDEF WidgetWinForms}
+constructor TfrmSASLListEditor.Create(AOwner : TComponent);
+begin
+  inherited Create;
+end;
+{$ENDIF}
+
+{ TIdPropEdSASL }
+
+procedure TIdPropEdSASL.Edit;
+var
+  LF: TfrmSASLListEditor;
+  LComp: TPersistent;
+  LList: TIdSASLEntries;
+begin
+  inherited Edit;
+
+  LComp := GetComponent(0);
+  //done this way to prevent invalid typecast error.
+  LList := TIdSASLEntries(TObject(GetOrdProp(LComp, GetPropInfo)));
+
+  LF := TfrmSASLListEditor.Create(nil);
+  try
+    if LComp is TComponent then begin
+      LF.SetComponentName(TComponent(LComp).Name);
+    end;
+    LF.SetList(LList);
+    if LF.Execute then begin
+      LF.GetList(LList);
+    end;
+  finally
+    FreeAndNil(LF);
+  end;
+end;
+
+function TIdPropEdSASL.GetAttributes: TPropertyAttributes;
+begin
+  Result := inherited GetAttributes + [paDialog];
+end;
+
+function TIdPropEdSASL.GetValue: string;
+begin
+  Result := GetStrValue;
+end;
+
+procedure TIdPropEdSASL.SetValue(const Value: string);
+begin
+  inherited SetValue(Value);
+end;
 
 procedure Register;
 begin
