@@ -57,6 +57,8 @@ type
   TIdServerIOHandler = class(TIdComponent)
   protected
     FScheduler: TIdScheduler;
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
+      override;
   public
     // This is a thread and not a yarn. Its the listener thread.
     function Accept(
@@ -93,9 +95,24 @@ begin
   Result := nil;
 end;
 
+procedure TIdServerIOHandler.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  // Remove the reference to the linked Scheduler if it is deleted
+  if (Operation = opRemove) and (AComponent = FScheduler) then begin
+    FScheduler := nil;
+  end;
+end;
+
 procedure TIdServerIOHandler.SetScheduler(AScheduler: TIdScheduler);
 begin
-  FScheduler:=AScheduler;
+  if FScheduler <> AValue then begin
+    FScheduler := AValue;
+    // Add self to the Scheduler's notification list
+    if Assigned(FScheduler) then begin
+      FScheduler.FreeNotification(Self);
+    end;
+  end;
 end;
 
 procedure TIdServerIOHandler.Shutdown;
