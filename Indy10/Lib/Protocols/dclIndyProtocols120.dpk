@@ -1,6 +1,7 @@
 package dclIndyProtocols120;
 
 {$R *.res}
+{$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
@@ -34,8 +35,6 @@ requires
 contains
   IdDsnRegister in 'IdDsnRegister.pas',
   IdDsnResourceStrings in 'IdDsnResourceStrings.pas',
-  IdDsnSASLListEditor in 'IdDsnSASLListEditor.pas',
-  IdDsnSASLListEditorForm in 'IdDsnSASLListEditorForm.pas',
   IdDsnSASLListEditorFormVCL in 'IdDsnSASLListEditorFormVCL.pas',
   IdRegister in 'IdRegister.pas';
 
