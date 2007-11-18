@@ -537,11 +537,13 @@ begin
   // Remove the reference to the linked components if they are deleted
   if (Operation = opRemove) then begin
     if (AComponent = FScheduler) then begin
-      SetScheduler(nil);
+      FScheduler := nil;
+      FImplicitScheduler := False;
     end else if (AComponent = FIntercept) then begin
       FIntercept := nil;
     end else if (AComponent = FIOHandler) then begin
       FIOHandler := nil;
+      FImplicitIOHandler := False;
     end;
   end;
 end;
