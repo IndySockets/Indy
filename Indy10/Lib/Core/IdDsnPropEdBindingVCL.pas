@@ -173,7 +173,7 @@ uses
 
 const
   IPv6Wildcard1 = '::';                 {do not localize}
-  IPv6Wildcard2 = '0:0:0:0:0:0:0:0';    {do not localize}
+  {CH IPv6Wildcard2 = '0:0:0:0:0:0:0:0'; }    {do not localize}
   IPv6Loopback  = '::1';                {do not localize}
   IPv4Wildcard  = '0.0.0.0';            {do not localize}
   IPv4Loopback  = '127.0.0.1';          {do not localize}

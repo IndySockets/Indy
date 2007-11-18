@@ -29,23 +29,15 @@ requires
   System.Windows.Forms,
   Borland.Studio.Vcl.Design,
   IndySystem120Net,
-  IndyCore120Net,
-  System.Data,
-  System.Drawing,
-  Borland.Delphi,
-  Borland.VclRtl;
+  IndyCore120Net;
 
 contains
-  IdAbout in 'IdAbout.pas',
-  IdAboutDotNET in 'IdAboutDotNET.pas' {IdAboutDotNET.TfrmAbout},
-  IdAntiFreeze in 'IdAntiFreeze.pas' {IdAntiFreeze.TIdAntiFreeze},
+  IdAboutDotNET in 'IdAboutDotNET.pas',
+  IdAntiFreeze in 'IdAntiFreeze.pas',
   IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
-  IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
   IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
-  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas' {IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET},
+  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas',
   IdRegisterCore in 'IdRegisterCore.pas';
-
 {$I IddclCore90ASM90.inc}
 
 end.

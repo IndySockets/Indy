@@ -26,8 +26,8 @@ package IndyCore120Net;
 {$IMPLICITBUILD OFF}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl,
+Borland.Delphi,
+Borland.VclRtl,
   IndySystem120Net;
 
 contains
@@ -41,9 +41,9 @@ contains
   IdCustomTransparentProxy in 'IdCustomTransparentProxy.pas',
   IdExceptionCore in 'IdExceptionCore.pas',
   IdGlobalCore in 'IdGlobalCore.pas',
-  IdIOHandler in 'IdIOHandler.pas' {IdIOHandler.TIdIOHandler: IdComponent.TIdComponent},
-  IdIOHandlerSocket in 'IdIOHandlerSocket.pas' {IdIOHandlerSocket.TIdIOHandlerSocket: IdIOHandler.TIdIOHandler},
-  IdIOHandlerStack in 'IdIOHandlerStack.pas' {IdIOHandlerStack.TIdIOHandlerStack: IdIOHandlerSocket.TIdIOHandlerSocket},
+  IdIOHandler in 'IdIOHandler.pas',
+  IdIOHandlerSocket in 'IdIOHandlerSocket.pas',
+  IdIOHandlerStack in 'IdIOHandlerStack.pas',
   IdIOHandlerStream in 'IdIOHandlerStream.pas',
   IdIPAddress in 'IdIPAddress.pas',
   IdIPMCastBase in 'IdIPMCastBase.pas',
@@ -89,7 +89,6 @@ contains
   IdUDPClient in 'IdUDPClient.pas',
   IdUDPServer in 'IdUDPServer.pas',
   IdYarn in 'IdYarn.pas';
-
 {$I IdCore90ASM90.inc}
 
 end.

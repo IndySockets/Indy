@@ -62,6 +62,16 @@ uses
 
 type
   {$IFDEF FPC}
+  TIdBaseComponentEditor = class(TDefaultComponentEditor)
+  {$ELSE}
+  TIdBaseComponentEditor = class(TDefaultEditor)
+  {$ENDIF}
+  public
+    procedure ExecuteVerb(Index: Integer); override;
+    function GetVerb(Index: Integer): string; override;
+    function GetVerbCount: Integer; override;
+  end;
+  {$IFDEF FPC}
   TIdPropEdBinding = class(TPropertyEditor)
   protected
     FValue : String;
@@ -83,14 +93,60 @@ implementation
 
 uses
   Classes,
-  IdDsnBaseCmpEdt,
+  {$IFDEF WidgetWinForms}
+  IdDsnPropEdBindingNET,
+  IdAboutDotNET,
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
+  IdDsnPropEdBindingVCL,
+  IdAboutVCL,
+  {$ENDIF}
+  IdDsnCoreResourceStrings,
   IdBaseComponent,
   IdComponent,
   IdGlobal,
-  IdDsnPropEdBinding,
   IdStack,
   IdSocketHandle;
 
+{
+  Design Note:  It turns out that in DotNET, there are no services file functions and
+  IdPorts does not work as expected in DotNET.  It is probably possible to read the
+  services file ourselves but that creates some portability problems as the placement
+ is different in every operating system.
+
+  e.g.
+
+  Linux and Unix-like systems - /etc
+  Windows 95, 98, and ME - c:\windows
+  Windows NT systems - c:\winnt\system32\drivers\etc
+
+  Thus, it will undercut whatever benefit we could get with DotNET.
+
+  About the best I could think of is to use an edit control because
+  we can't offer anything from the services file in DotNET.
+
+  TODO:  Maybe there might be a way to find the location in a more elegant
+  manner than what I described.
+}
+
+type
+  {$IFDEF WidgetWinForms}
+   TIdPropEdBindingEntry = TIdDsnPropEdBindingNET;
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
+  TIdPropEdBindingEntry = TIdDsnPropEdBindingVCL;
+  {$ENDIF}
+
+procedure ShowAboutBox(const AProductName, AProductVersion : String);
+begin
+  TfrmAbout.ShowAboutBox(AProductName, AProductVersion);
+end;
+
+
+
+
+
+  
 procedure TIdPropEdBinding.Edit;
 var
   pSockets: TIdSocketHandles;
@@ -152,6 +208,27 @@ begin
   finally
     pSockets.EndUpdate;
   end;
+end;
+
+{ TIdBaseComponentEditor }
+
+procedure TIdBaseComponentEditor.ExecuteVerb(Index: Integer);
+begin
+  case Index of
+    0 : ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
+  end;
+end;
+
+function TIdBaseComponentEditor.GetVerb(Index: Integer): string;
+begin
+  case Index of
+    0: Result := IndyFormat(RSAAboutMenuItemName, [gsIdVersion]);
+  end;
+end;
+
+function TIdBaseComponentEditor.GetVerbCount: Integer;
+begin
+  Result := 1;
 end;
 
 procedure Register;

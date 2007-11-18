@@ -31,13 +31,10 @@ requires
   IndyCoreK3;
 
 contains
-  IdAbout in 'IdAbout.pas',
   IdAboutVCL in 'IdAboutVCL.pas',
   IdAntiFreeze in 'IdAntiFreeze.pas',
   IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
-  IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
   IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
   IdDsnPropEdBindingVCL in 'IdDsnPropEdBindingVCL.pas',
   IdRegisterCore in 'IdRegisterCore.pas';
 
