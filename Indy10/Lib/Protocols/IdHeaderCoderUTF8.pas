@@ -23,11 +23,12 @@ uses
 {$ENDIF}
 
 class function TIdHeaderCoderUTF8.Decode(const ACharSet, AData: String): String;
-var
   {$IFDEF DOTNET}
+var
   LBytes: TIdBytes;
   {$ELSE}
   {$IFNDEF VCL6ORABOVE}
+var
   I, LCount, LLength: Integer;
   LCh: Byte;
   LWC: LongWord;
@@ -103,11 +104,12 @@ begin
 end;
 
 class function TIdHeaderCoderUTF8.Encode(const ACharSet, AData: String): String;
-var
   {$IFDEF DOTNET}
+var
   LBytes: TIdBytes;
   {$ELSE}
   {$IFNDEF VCL6ORABOVE}
+var
   I, LCount, LLength, LMax: Integer;
   LWC: LongWord;
   LResult: AnsiString;
