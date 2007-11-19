@@ -644,7 +644,7 @@ type
   {$ENDIF}
 
 const
-    {$IFDEF INTTHREADPRIORITY}
+  {$IFDEF INTTHREADPRIORITY}
   // approximate values, its finer grained on Linux
   tpIdle = 19;
   tpLowest = 12;
@@ -653,7 +653,7 @@ const
   tpHigher = -7;
   tpHighest = -13;
   tpTimeCritical = -20;
-    {$ENDIF}
+  {$ENDIF}
   tpIdLowest = tpLowest;
   tpIdBelowNormal = tpLower;
   tpIdNormal = tpNormal;
@@ -711,6 +711,7 @@ type
     {$IFNDEF DOTNET2}
   // dotNET implementation
   TWaitResult = (wrSignaled, wrTimeout, wrAbandoned, wrError);
+
   TEvent = class(TObject)
   protected
     FEvent: WaitHandle;
@@ -1127,7 +1128,6 @@ function HackLoad(const ALibName : String; const ALibVersions : array of String)
 {$IFNDEF DOTNET}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
-
 function OffsetFromUTC: TDateTime;
 
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: LongWord = 0): LongWord; //For "ignoreCase" use AnsiUpperCase
@@ -1203,7 +1203,7 @@ var
   GIdPorts: TList = nil;
 {$ENDIF}
 
-{$IFDEF UNIX}
+ {$IFDEF UNIX}
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
 var
   i : Integer;
@@ -1215,7 +1215,7 @@ begin
     Result := LoadLibrary(ALibName+ALibVersions[i]+LIBEXT);
     {$ELSE}
       {$IFDEF KYLIXCOMPAT}
-    // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
     Result := HMODULE(dlopen(PChar(ALibName+LIBEXT+ALibVersions[i]), RTLD_LAZY));
       {$ELSE}
     Result := LoadLibrary(ALibName+LIBEXT+ALibVersions[i]);
@@ -1241,9 +1241,7 @@ end;
 {$IFNDEF DOTNET}
 function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUInt) : THandle;
 {$IFDEF USEINLINE}inline;{$ENDIF}
-
 begin
-
   {$IFDEF THANDLE32}
   Result := InterlockedExchange(LongInt(VTarget), AValue);
   {$ENDIF}
@@ -1428,7 +1426,7 @@ type
 
   TIdUTF8DecoderIndy = class(TIdUTF8Decoder)
   private
-    fValue: Word;
+    fValue: LongWord;
     fStep: TIdUTF8DecodeStep;
   public
     constructor Create;
@@ -1449,11 +1447,11 @@ begin
   case fStep of
     utf8Step1:
     begin
-      fValue := Word(AByte);
-      if (fValue and $0080) <> 0 then
+      fValue := LongWord(AByte);
+      if (fValue and $80) <> 0 then
       begin
-        fValue := fValue and $003F;
-        if (fValue and $0020) <> 0 then begin
+        fValue := fValue and $3F;
+        if (fValue and $20) <> 0 then begin
           fStep := utf8Step2;
         end else begin
           fStep := utf8Step3;
@@ -1467,7 +1465,7 @@ begin
       if (AByte and $C0) <> $80 then begin
         raise EIdException.Create('Byte is invalid for this UTF-8 sequence'); {do not localize}
       end;
-      fValue := ((fValue and $000F) shl 6) or Word(AByte and $3F);
+      fValue := ((fValue and $0F) shl 6) or LongWord(AByte and $3F);
       fStep := utf8Step3;
       Exit;
     end;
@@ -1477,7 +1475,7 @@ begin
       if (AByte and $C0) <> $80 then begin
         raise EIdException.Create('Byte is invalid for this UTF-8 sequence'); {do not localize}
       end;
-      fValue := (fValue shl 6) or Word(AByte and $3F);
+      fValue := (fValue shl 6) or LongWord(AByte and $3F);
     end;
   end;
 
@@ -1496,13 +1494,14 @@ begin
   {$ENDIF}
 end;
 
+// TODO: support MBCS->Wide conversion
 function EncodeCharToUTF8(const AChar: Char; var VDest: TIdBytes; const AIndex: Integer): Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
   {$IFDEF DOTNET}
   LChars : array[0..1] of Char;
   {$ELSE}
-  LWC: Word;
+  LWC: LongWord;
   {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1510,29 +1509,32 @@ begin
   LChars[1] := #0;
   Result := GetEncoder(enUTF8).GetBytes(LChars, 0, 1, VDest, 0);
   {$ELSE}
-  LWC := Word(AChar);
-  if LWC <= $007F then
+  LWC := LongWord(AChar);
+  if LWC <= $7F then
   begin
     VDest[AIndex] := Byte(LWC);
     Result := 1;
   end
-  else if LWC <= $07FF then
+  else if LWC <= $7FF then
   begin
-    VDest[AIndex] := Byte($00C0 or (LWC shr 6));
-    VDest[AIndex+1] := Byte($0080 or (LWC and $003F));
+    VDest[AIndex] := Byte($C0 or (LWC shr 6));
+    VDest[AIndex+1] := Byte($80 or (LWC and $3F));
     Result := 2;
   end else // (LWC >= $8000)
   begin
-    VDest[AIndex] := Byte($00E0 or (LWC shr 12));
-    VDest[AIndex+1] := Byte($0080 or ((LWC shr 6) and $003F));
-    VDest[AIndex+2] := Byte($0080 or (LWC and $003F));
+    VDest[AIndex] := Byte($E0 or (LWC shr 12));
+    VDest[AIndex+1] := Byte($80 or ((LWC shr 6) and $3F));
+    VDest[AIndex+2] := Byte($80 or (LWC and $3F));
     Result := 3;
   end;
   {$ENDIF}
 end;
 
 { RLebeau - .NET does not have a function to calculate how many bytes a UTF-8
-  character in a byte array occupies (or I haven't found one) so here is our own }
+  character in a byte array occupies (or I haven't found one) so here is our own. }
+  
+// TODO: support MBCS->Wide conversion
+
 function CalcBytesOfUTF8Char(const ABytes: TIdBytes; const AIndex: Integer): Integer;
 var
   I, LLength: Integer;
@@ -1563,21 +1565,22 @@ end;
   not CLS compliant.  Would like to be able to calculate this without having
   to make a copy of the desired string block in memory. }
 
+// TODO: support MBCS->Wide conversion
 function CalcBytesForUTF8Char(const AChar: Char): Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
-  LWC: Word;
+  LWC: LongWord;
 begin
   {$IFDEF DOTNET2_OR_ABOVE}
   { RLebeau: maybe use the System.Text.UTF8Encoding.GetEncoder()
     method to get an Encoder object that can be called in a loop
     to calculate the necessary byte count? }
   {$ENDIF}
-  LWC := Word(AChar);
-  if LWC <= $007F then begin
+  LWC := LongWord(AChar);
+  if LWC <= $7F then begin
     Result := 1;
   end
-  else if LWC <= $07FF then begin
+  else if LWC <= $7FF then begin
     Result := 2;
   end else
   begin // (LWC >= $8000)
@@ -1585,6 +1588,7 @@ begin
   end;
 end;
 
+// TODO: support MBCS->Wide conversion
 function CalcBytesForUTF8String(const AStr: String; const AIndex, ALength: Integer): Integer;
 var
   I: Integer;
@@ -1609,7 +1613,7 @@ function UTF8BytesToString(const ABytes: TIdBytes; const AIndex, ALength: Intege
 var
   I, LLength: Integer;
   LCh: WideChar;
-  Temp: WideString;
+  LResult: WideString;
 {$ENDIF}
 begin
   // RLebeau: AIndex and ALength have already been validated/calculated
@@ -1620,7 +1624,7 @@ begin
   {$ELSE}
   Result := '';
 
-  SetLength(Temp, ALength);
+  SetLength(LResult, ALength);
   LLength := 0;
 
   with GetUTF8Decoder do
@@ -1629,7 +1633,7 @@ begin
     begin
       if ProcessByte(ABytes[AIndex+I], LCh) then
       begin
-        Temp[LLength+1] := LCh;
+        LResult[LLength+1] := LCh;
         Inc(LLength);
       end;
     end;
@@ -1640,9 +1644,9 @@ begin
   if LLength > 0 then
   begin
     if LLength < ALength then begin
-      SetLength(Temp, LLength);
+      SetLength(LResult, LLength);
     end;
-    Result := Temp;
+    Result := LResult;
   end;
   {$ENDIF}
 end;
@@ -1685,6 +1689,7 @@ begin
   raise EIdException.Create('Not enough bytes to decode UTF-8 character'); {do not localize}
 end;
 
+// TODO: support MBCS->Wide conversion
 function StringToUTF8Bytes(const AStr: String; const AIndex, ALength: Integer): TIdBytes;
 {$IFDEF DOTNET}
   {$IFDEF USEINLINE}inline;{$ENDIF}
@@ -1710,6 +1715,7 @@ begin
   {$ENDIF}
 end;
 
+// TODO: support MBCS->Wide conversion
 function CharToUTF8Bytes(const AChar: Char): TIdBytes;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
