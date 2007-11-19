@@ -391,6 +391,9 @@ type
     Windows2003Server, Windows2003AdvancedServer);
   {$ENDIF}
 
+  //This is called whenever there is a failure to retreive the time zone information
+  EIdFailedToRetreiveTimeZoneInfo = class(EIdException);
+
   //
   EIdExtensionAlreadyExists = class(EIdException);
 
@@ -463,11 +466,11 @@ type
 
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
-
+  {$IFNDEF DOTNET}
   // still to figure out how to reproduce these under .Net
   function ROL(AVal: LongWord; AShift: Byte): LongWord;
   function ROR(AVal: LongWord; AShift: Byte): LongWord;
-
+  {$ENDIF}
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
   function IndySetLocalTime(Value: TDateTime): Boolean;
 
@@ -669,30 +672,25 @@ begin
 {$ENDIF}
 end;
 
-{$IFDEF DOTNET}
 function CharRange(const AMin, AMax : Char): String;
-var i : Char;
+var
+  i : Char;
+{$IFDEF DOTNET}
   LSB : System.Text.StringBuilder;
 begin
   LSB := System.Text.StringBuilder.Create;
-  for i := Amin to AMax do
-  begin
-    LSB.Append(Char(i));
-    Result := Result + i;
+  for i := AMin to AMax do begin
+    LSB.Append(i);
   end;
   Result := LSB.ToString;
-end;
 {$ELSE}
-function CharRange(const AMin, AMax : Char): String;
-var i : Char;
 begin
   Result := '';
-  for i := Amin to AMax do
-  begin
+  for i := AMin to AMax do begin
     Result := Result + i;
   end;
-end;
 {$ENDIF}
+end;
 
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
 var
@@ -702,7 +700,7 @@ var
 function StartsWith(const ANSIStr, APattern : String) : Boolean;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := (ANSIStr <> '') and (IndyPos(APattern, UpperCase(ANSIStr)) = 1)  {do not localize}
+  Result := TextStartsWith(ANSIStr, APattern) {do not localize}
   //tentative fix for a problem with Korean indicated by "SungDong Kim" <infi@acrosoft.pe.kr>
   {$IFNDEF DOTNET}
   //note that in DotNET, everything is MBCS
@@ -711,7 +709,6 @@ begin
   ;
   //just in case someone is doing a recursive listing and there's a dir with the name total
 end;
-
 
 function UnixDateTimeToDelphiDateTime(UnixDateTime: LongWord): TDateTime;
 {$IFDEF USEINLINE} inline; {$ENDIF}
@@ -890,8 +887,8 @@ var
   LVersion: ULONG;
 begin
   Result := Workstation;
-    //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
-    //call because LoadLibrary messes with the FPU control word.  
+  //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
+  //call because LoadLibrary messes with the FPU control word.  
   lh := SafeLoadLibrary('ntdll.dll'); {do not localize}
   if Lh > 0 then begin
     @RtlGetNtProductType := GetProcAddress(lh, 'RtlGetNtProductType'); {do not localize}
@@ -1168,19 +1165,18 @@ begin
 
     Result := EncodeDate(Yr, Mo, Dt);
     // SG 26/9/00: Changed so that ANY time format is accepted
-    if IndyPos('AM', Value)>0 then {do not localize}
+    if IndyPos('AM', Value) > 0 then {do not localize}
     begin
       LAM := True;
       Value := Fetch(Value, 'AM');  {do not localize}
     end;
-    if IndyPos('PM', Value)>0 then  {do not localize}
+    if IndyPos('PM', Value) > 0 then  {do not localize}
     begin
       LPM := True;
       Value := Fetch(Value, 'PM');  {do not localize}
     end;
     i := IndyPos(':', Value);       {do not localize}
     if i > 0 then begin
-
       // Copy time string up until next space (before GMT offset)
       sTime := fetch(Value, ' ');  {do not localize}
       {Hour}
@@ -1300,15 +1296,15 @@ begin
     EndOfCurrentString := Pos(BreakString, BaseString);
     if EndOfCurrentString = 0 then begin
       StringList.Add(BaseString);
-    end else begin
-      StringList.add(Copy(BaseString, 1, EndOfCurrentString - 1));
+      Break;
     end;
-    delete(BaseString, 1, EndOfCurrentString + Length(BreakString) - 1); //Copy(BaseString, EndOfCurrentString + length(BreakString), length(BaseString) - EndOfCurrentString);
-  until EndOfCurrentString = 0;
+    StringList.Add(Copy(BaseString, 1, EndOfCurrentString - 1));
+    Delete(BaseString, 1, EndOfCurrentString + Length(BreakString) - 1); //Copy(BaseString, EndOfCurrentString + length(BreakString), length(BaseString) - EndOfCurrentString);
+  until False;
   Result := StringList;
 end;
 
-procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
+procedure CommaSeparatedToStringList(AList: TStrings; const Value: string);
 var
   iStart,
   iEnd,
@@ -1319,27 +1315,27 @@ var
 begin
   iQuote := 0;
   iPos := 1 ;
-  iLength := Length(Value) ;
+  iLength := Length(Value);
   AList.Clear ;
-  while (iPos <= iLength) do
+  while iPos <= iLength do
   begin
     iStart := iPos ;
     iEnd := iStart ;
-    while ( iPos <= iLength ) do
+    while iPos <= iLength do
     begin
       if Value[iPos] = '"' then  {do not localize}
       begin
-        inc(iQuote);
+        Inc(iQuote);
       end;
       if Value[iPos] = ',' then  {do not localize}
       begin
         if iQuote <> 1 then
         begin
-          break;
+          Break;
         end;
       end;
-      inc(iEnd);
-      inc(iPos);
+      Inc(iEnd);
+      Inc(iPos);
     end ;
     sTemp := Trim(Copy(Value, iStart, iEnd - iStart));
     if Length(sTemp) > 0 then
@@ -1420,7 +1416,18 @@ begin
   {$ENDIF}
 end;
 
-
+{$IFDEF DOTNET}
+function TempPath: String; 
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  {$IFDEF DOTNET1_1}
+  Result := IndyIncludeTrailingPathDelimiter(System.IO.GetTempPath);
+  {$ENDIF}
+  {$IFDEF DOTNET2_OR_ABOVE}
+  Result := IndyIncludeTrailingPathDelimiter(System.IO.Path.GetTempPath);
+  {$ENDIF}
+end; 
+{$ENDIF} 
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
 function TempPath: {$IFDEF UNICODE}WideString{$ELSE}String{$ENDIF}; 
 var
@@ -1532,7 +1539,7 @@ var
   LStartPos: Integer;
   LTokenLen: Integer;
 begin
-  result := 0;
+  Result := 0;
   LTokenLen := Length(ASub);
   // Get starting position
   if AStart < 0 then begin
@@ -2767,7 +2774,7 @@ var
   LPreserveTrail: Boolean;
   LWork: string;
 begin
-  if IndyPos(APathDelim, APath) = 1 then begin
+  if TextStartsWith(APath, APathDelim) then begin
     Result := APath;
   end else begin
     Result := '';    {Do not Localize}
@@ -2784,10 +2791,12 @@ begin
         if LWork[i] = APathDelim then begin
           if i = 1 then begin
             Result := APathDelim;
-          end else if not TextEndsWith(Result, APathDelim) then begin
+          end
+          else if not TextEndsWith(Result, APathDelim) then begin
             Result := Result + LWork[i];
           end;
-        end else if LWork[i] = '.' then begin    {Do not Localize}
+        end
+        else if LWork[i] = '.' then begin    {Do not Localize}
           // If the last character was a PathDelim then the . is a relative path modifier.
           // If it doesnt follow a PathDelim, its part of a filename
           if TextEndsWith(Result, APathDelim) and (Copy(LWork, i, 2) = '..') then begin    {Do not Localize}
