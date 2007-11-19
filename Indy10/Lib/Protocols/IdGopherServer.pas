@@ -49,6 +49,7 @@
 unit IdGopherServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -77,13 +78,13 @@ type
   private
     fAdminEmail : String;
 
-    fOnRequest:TRequestEvent;
+    fOnRequest : TRequestEvent;
     fOnPlusRequest : TPlusRequestEvent;
 
     fTruncateUserFriendly : Boolean;
     fTruncateLength : Integer;
   protected
-    function DoExecute(AContext:TIdContext): boolean; override;
+    function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
   public
     function ReturnGopherItem(ItemType : Char;
@@ -92,17 +93,15 @@ type
     procedure SendDirectoryEntry(AContext:TIdContext;
       ItemType : Char; UserFriendlyName, RealResourceName : String;
       HostServer : String; HostPort : TIdPort);
-    procedure SetTruncateUserFriendlyName(const Atruncate : Boolean);
-    procedure SetTruncateLength(const Alength : Integer);
   published
     property AdminEmail : String read fAdminEmail write fAdminEmail;
     property OnRequest: TRequestEvent read fOnRequest write fOnRequest;
     property OnPlusRequest : TPlusRequestEvent read fOnPlusRequest
       write fOnPlusRequest;
     property TruncateUserFriendlyName : Boolean read fTruncateUserFriendly
-      write SetTruncateUserFriendlyName default True;
+      write fTruncateUserFriendly default True;
     property TruncateLength : Integer read fTruncateLength
-      write SetTruncateLength default 70;
+      write fTruncateLength default 70;
   end;
 
 implementation
@@ -115,42 +114,37 @@ begin
   inherited InitComponent;
   DefaultPort := IdPORT_GOPHER;
   fAdminEmail := '<gopher@domain.example>';    {Do not Localize}
+  fTruncateUserFriendly := True;
+  fTruncateLength := 70;
 end;
 
-function TIdGopherServer.DoExecute(AContext:TIdContext): boolean;
+function TIdGopherServer.DoExecute(AContext: TIdContext): boolean;
 var
-   s : String;
-   i : Integer;
+  s : String;
+  i : Integer;
 begin
-  result := true;
+  Result := True;
   with AContext.Connection do begin
-    while Connected do begin
-      try
-        s:=IOHandler.ReadLn;
-        i := Pos(TAB, s);
-        if i > 0 then begin
-          // Is a Gopher+ request
-          if Assigned(OnPlusRequest) then begin
-            OnPlusRequest(AContext, Copy(s, 1, i - 1), Copy(s, i + 1, length(s)));
-          end else if Assigned(OnRequest) then begin
-            OnRequest(AContext, s);
-          end else begin
-            AContext.Connection.IOHandler.Write(IdGopherPlusData_ErrorBeginSign
-              + IdGopherPlusError_NotAvailable
-              + RSGopherServerNoProgramCode + EOL
-              + IdGopherPlusData_EndSign);
-          end;
-        end else if Assigned(OnRequest) then begin
-           OnRequest(AContext, s)
-        end else begin
-            AContext.Connection.IOHandler.Write(RSGopherServerNoProgramCode
-              + EOL + IdGopherPlusData_EndSign);
-        end;
-      except
-        break;
+    s := IOHandler.ReadLn;
+    i := Pos(TAB, s);
+    if i > 0 then begin
+      // Is a Gopher+ request
+      if Assigned(OnPlusRequest) then begin
+        OnPlusRequest(AContext, Copy(s, 1, i - 1), Copy(s, i + 1, Length(s)));
+      end else if Assigned(OnRequest) then begin
+        OnRequest(AContext, s);
+      end else begin
+        IOHandler.Write(IdGopherPlusData_ErrorBeginSign
+          + IdGopherPlusError_NotAvailable
+          + RSGopherServerNoProgramCode + EOL
+          + IdGopherPlusData_EndSign);
       end;
-      AContext.Connection.Disconnect;
+    end else if Assigned(OnRequest) then begin
+      OnRequest(AContext, s);
+    end else begin
+      IOHandler.Write(RSGopherServerNoProgramCode + EOL + IdGopherPlusData_EndSign);
     end;
+    Disconnect;
   end;
 end;
 
@@ -158,14 +152,13 @@ function TIdGopherServer.ReturnGopherItem(ItemType : Char;
   UserFriendlyName, RealResourceName : String;
   HostServer : String; HostPort : TIdPort): String;
 begin
-     if fTruncateUserFriendly then begin
-        if (Length(UserFriendlyName) > fTruncateLength)
-        and (fTruncateLength <> 0) then begin
-            UserFriendlyName := Copy(UserFriendlyName, 1, fTruncateLength);
-        end;
-     end;
-    result := ItemType + UserFriendlyName +
-       TAB + RealResourceName + TAB + HostServer + TAB + IntToStr(HostPort);
+  if fTruncateUserFriendly then begin
+    if (Length(UserFriendlyName) > fTruncateLength) and (fTruncateLength <> 0) then begin
+      UserFriendlyName := Copy(UserFriendlyName, 1, fTruncateLength);
+    end;
+  end;
+  Result := ItemType + UserFriendlyName +
+    TAB + RealResourceName + TAB + HostServer + TAB + IntToStr(HostPort);
 end;
 
 procedure TIdGopherServer.SendDirectoryEntry;
@@ -182,18 +175,8 @@ one line, with CR LF at the end)
  - Port # of host
 }
 begin
-     AContext.Connection.IOHandler.WriteLn(ReturnGopherItem(ItemType, UserFriendlyName,
-       RealResourceName, HostServer, HostPort));
-end;
-
-procedure TIdGopherServer.SetTruncateUserFriendlyName(const Atruncate : Boolean);
-begin
-     fTruncateUserFriendly := ATruncate;
-end;
-
-procedure TIdGopherServer.SetTruncateLength(const Alength : Integer);
-begin
-     fTruncateLength := ALength;
+  AContext.Connection.IOHandler.WriteLn(ReturnGopherItem(ItemType, UserFriendlyName,
+    RealResourceName, HostServer, HostPort));
 end;
 
 end.
