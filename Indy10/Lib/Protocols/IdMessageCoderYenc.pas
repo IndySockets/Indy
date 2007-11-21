@@ -158,17 +158,17 @@ end;
 
 function TIdMessageDecoderInfoYenc.CheckForStart(ASender: TIdMessage; const ALine: string): TIdMessageDecoder;
 
-  function GetName: string;
+  {CH function GetName: string;
   var
     LStart: Integer;
   begin
-    LStart := IndyPos('name=', LowerCase(ALine)); {Do not Localize}
-    if LStart > 0 then begin
+    LStart := IndyPos('name=', LowerCase(ALine)); } {Do not Localize}
+    {CH if LStart > 0 then begin
       Result := Copy(ALine, LStart+5, MaxInt);
     end else begin
       Result := '';
     end;
-  end;
+  end; }
 
 begin
   if TextStartsWith(ALine, '=ybegin ') {Do not Localize} then
