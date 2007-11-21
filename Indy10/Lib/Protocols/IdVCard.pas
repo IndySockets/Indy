@@ -909,7 +909,7 @@ end;
 procedure TIdVCard.SetVariablesAfterRead;
 var
   idx : Integer;
-  OrigLine : String;
+//  OrigLine : String;
   Line : String;
   Attribs : String;
   Data : String;
@@ -1006,7 +1006,7 @@ begin
       //****  Begin QP check & decode
       if IndyPos('QUOTED-PRINTABLE', UpperCase(Attribs)) > 0 then begin   {Do not Localize}
         // First things first - make a copy of the Line.
-        OrigLine := Line;
+      //  OrigLine := Line;
 
         // Set Data to be the data contained on this line of the vCard
         Data := Copy(Line, Colon + 1, MaxInt);

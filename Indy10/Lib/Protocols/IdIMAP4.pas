@@ -3438,7 +3438,7 @@ var
   bCreatedStream: Boolean;
   LDestStream: TStream;
   LMemoryStream: TMemoryStream;
-  LPartSizeParam: string;
+//  LPartSizeParam: string;
   LHelper: TIdIMAP4WorkHelper;
 
   procedure DoDecode(ATargetStream: TStream; ADecoderClass: TIdDecoderClass = nil; AStripCRLFs: Boolean = False);
@@ -3529,7 +3529,7 @@ begin
   WriteLn(LCmd);
   {CC7: wsBAD added because Ipswitch's IMAP server sometimes returns it here...}
   if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True) = IMAP_OK then begin
-    LPartSizeParam := '';                                               {Do not Localize}
+  //  LPartSizeParam := '';                                               {Do not Localize}
     if ( (LastCmdResult.Text.Count < 1) or
       (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], []))
       or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1)    {do not localize}
@@ -4358,7 +4358,7 @@ procedure TIdIMAP4.ParseBodyStructurePart(APartString: string; AThePart: TIdMess
   {CC3: Function added to support individual part retreival}
 var
   LParams: TStringList;
-  LContentDispositionStuff: string;
+//  LContentDispositionStuff: string;
   LFilename: string;
   LDescription: string;
   LTemp: string;
@@ -4378,22 +4378,22 @@ begin
     {Content Disposition: If present, may be at index 8 or 9...}
     {CC8: Altered to allow for case where it may not be present at all (get "List
     index out of bounds" error if try to access non-existent LParams[9])...}
-    LContentDispositionStuff := '';         {Do not Localize}
-    if LParams.Count > 9 then begin  {Have an LParams[9]}
-      if TextIsSame(LParams[9], 'NIL') then begin      {Do not Localize}
+//    LContentDispositionStuff := '';         {Do not Localize}
+//    if LParams.Count > 9 then begin  {Have an LParams[9]}
+//      if TextIsSame(LParams[9], 'NIL') then begin      {Do not Localize}
         {It's NIL at 9, must be at 8...}
-        if TextIsSame(LParams[8], 'NIL') then begin    {Do not Localize}
-          LContentDispositionStuff := LParams[8];
-        end;
-      end else begin
+//        if TextIsSame(LParams[8], 'NIL') then begin    {Do not Localize}
+//          LContentDispositionStuff := LParams[8];
+//        end;
+//      end else begin
         {It's not NIL, must be valid...}
-        LContentDispositionStuff := LParams[9];
-      end;
-    end else if LParams.Count > 8 then begin  {Have an LParams[8]}
-      if TextIsSame(LParams[8], 'NIL') then begin      {Do not Localize}
-        LContentDispositionStuff := LParams[8];
-      end;
-    end;
+//        LContentDispositionStuff := LParams[9];
+//      end;
+//    end else if LParams.Count > 8 then begin  {Have an LParams[8]}
+//      if TextIsSame(LParams[8], 'NIL') then begin      {Do not Localize}
+//        LContentDispositionStuff := LParams[8];
+//      end;
+//    end;
 
     {Find and clean up the filename, if present...}
     LFilename := ''; {Do not Localize}

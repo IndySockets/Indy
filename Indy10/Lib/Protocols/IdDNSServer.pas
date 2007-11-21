@@ -1414,8 +1414,8 @@ var
     Checks, EachLinePart, DenotedDomain : TStrings;
     CurrentLineNum,  TagField, Count, LastTTL : Integer;
     LineData, DataBody,  FPart, LTag, LText,
-      RName, LastDenotedDomain, LastTag, NewDomain, SingleHostName, PrevDNTag  : string;
-    Stop, PassQuota, Found, canChangPrevDNTag : Boolean;
+      RName, LastDenotedDomain, LastTag, NewDomain, SingleHostName {CH: , PrevDNTag}  : string;
+    Stop, PassQuota, Found {, canChangPrevDNTag } : Boolean;
     LLRR_A : TIdRR_A;
     LLRR_AAAA : TIdRR_AAAA;
     LLRR_NS : TIdRR_NS;
@@ -1438,7 +1438,7 @@ var
         LastDenotedDomain := '';
         LastTag := '';
         NewDomain := '';
-        PrevDNTag := '';
+      //  PrevDNTag := '';
         Stop := False;
         //canChangPrevDNTag := True;
 
@@ -1522,31 +1522,31 @@ var
                   case TagField of
                     1 :
                       if EachLinePart.Strings[0] <> 'IN' then begin {do not localize}
-                        canChangPrevDNTag := True;
+//                        canChangPrevDNTag := True;
                         LastTag := EachLinePart.Strings[0];
                         if EachLinePart.Strings[TagField] <> 'SOA' then begin  {do not localize}
-                          PrevDNTag := '';
+                         // PrevDNTag := '';
                         end else begin
                           LastTTL := IndyStrToInt(EachLinePart.Strings[TagField + 6]);
                         end;
-                      end else begin
-                        canChangPrevDNTag := False;
+//                      end else begin
+//                        canChangPrevDNTag := False;
                       end;
                     2 :
                       if EachLinePart.Strings[1] = 'IN' then begin  {do not localize}
                         LastTag := EachLinePart.Strings[0];
-                        canChangPrevDNTag := True;
+//                        canChangPrevDNTag := True;
                         if EachLinePart.Strings[TagField] <> 'SOA' then begin  {do not localize}
-                          PrevDNTag := '';
+                         // PrevDNTag := '';
                         end else begin
                           LastTTL := IndyStrToInt(EachLinePart.Strings[TagField + 6]);
                         end;
                       end else begin
-                        canChangPrevDNTag := False;
+//                        canChangPrevDNTag := False;
                       end;
                     else
                       begin
-                        canChangPrevDNTag := False;
+//                        canChangPrevDNTag := False;
                         LastTTL := 86400;
                       end;
                   end;
@@ -1575,9 +1575,9 @@ var
                         LLRR_A.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_A);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'A';
-                        end;
+                      //  if canChangPrevDNTag then begin
+                      //    PrevDNTag := 'A';
+                      //  end;
                       end;
 
                     // Check IPv6 ip address 10/29,2002
@@ -1589,9 +1589,9 @@ var
                         LLRR_AAAA.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_AAAA);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'AAAA'; {do not localize}
-                        end;
+                      //  if canChangPrevDNTag then begin
+                      //    PrevDNTag := 'AAAA'; {do not localize}
+                      //  end;
                       end;
 
                     // Check Domain Name
@@ -1607,9 +1607,9 @@ var
                         LLRR_Name.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_Name);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'CNAME'; {do not localize}
-                        end;
+                       // if canChangPrevDNTag then begin
+                       //   PrevDNTag := 'CNAME'; {do not localize}
+                       // end;
                       end;
 
                     TypeCode_NS :
@@ -1624,9 +1624,9 @@ var
                         LLRR_NS.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_NS);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'NS';  {do not localize}
-                        end;
+                      //  if canChangPrevDNTag then begin
+                      //    PrevDNTag := 'NS';  {do not localize}
+                      //  end;
                       end;
 
                     TypeCode_MR :
@@ -1641,9 +1641,9 @@ var
                         LLRR_MR.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_MR);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'MR';  {do not localize}
-                        end;
+                       // if canChangPrevDNTag then begin
+                       //   PrevDNTag := 'MR';  {do not localize}
+                       // end;
                       end;
 
                     TypeCode_MD, TypeCode_MB, TypeCode_MF :
@@ -1658,9 +1658,9 @@ var
                         LLRR_MB.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_MB);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'MF';  {do not localize}
-                        end;
+                        // if canChangPrevDNTag then begin
+                        //  PrevDNTag := 'MF';  {do not localize}
+                        // end;
                       end;
 
                     TypeCode_MG :
@@ -1675,9 +1675,9 @@ var
                         LLRR_MG.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_MG);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'MG'; {do not localize}
-                        end;
+                        // if canChangPrevDNTag then begin
+                        //  PrevDNTag := 'MG'; {do not localize}
+                        // end;
                       end;
 
                     // Can be anything
@@ -1689,9 +1689,9 @@ var
                         LLRR_TXT.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_TXT);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'TXT';  {do not localize}
-                        end;
+                       // if canChangPrevDNTag then begin
+                       //   PrevDNTag := 'TXT';  {do not localize}
+                       // end;
                       end;
 
                     // Must be FQDN.
@@ -1707,9 +1707,9 @@ var
                         LLRR_PTR.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_PTR);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'PTR';  {do not localize}
-                        end;
+                        // if canChangPrevDNTag then begin
+                        //  PrevDNTag := 'PTR';  {do not localize}
+                        // end;
                       end;
 
                     // HINFO should has 2 fields : CPU and OS. but TStrings
@@ -1725,9 +1725,9 @@ var
                         LLRR_HINFO.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_HINFO);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'HINFO';  {do not localize}
-                        end;
+                       // if canChangPrevDNTag then begin
+                       //   PrevDNTag := 'HINFO';  {do not localize}
+                       // end;
                       end;
 
                     // Check RMailBX and EMailBX but TStrings
@@ -1751,9 +1751,9 @@ var
                         LLRR_MINFO.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_MINFO);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'MINFO'; {do not localize}
-                        end;
+                      //  if canChangPrevDNTag then begin
+                      //    PrevDNTag := 'MINFO'; {do not localize}
+                      //  end;
                       end;
 
                     // Check Pref(Numeric) and Exchange. but TStrings
@@ -1771,9 +1771,9 @@ var
                         LLRR_MX.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_MX);
-                        if canChangPrevDNTag then begin
-                          PrevDNTag := 'MX'; {do not localize}
-                        end;
+                      //  if canChangPrevDNTag then begin
+                      //    PrevDNTag := 'MX'; {do not localize}
+                      //  end;
                       end;
 
                       // TStrings is 0 base, so that we have to minus one
@@ -1852,16 +1852,16 @@ var
                           LLRR_SOA.TTL := LastTTL;
                           UpdateTree(TreeRoot, LLRR_SOA);
 
-                          if canChangPrevDNTag then begin
-                            PrevDNTag := 'SOA'; {do not localize}
-                          end;
+                          // if canChangPrevDNTag then begin
+                          //   PrevDNTag := 'SOA'; {do not localize}
+                          // end;
                         end;
 
                       TypeCode_WKS:
                         begin
-                          if canChangPrevDNTag then begin
-                            PrevDNTag := 'WKS'; {do not localize}
-                          end;
+                         // if canChangPrevDNTag then begin
+                         //   PrevDNTag := 'WKS'; {do not localize}
+                         // end;
                         end;
                   end;
                 end;
