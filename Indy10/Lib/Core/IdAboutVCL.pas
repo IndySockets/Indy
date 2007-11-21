@@ -51,9 +51,6 @@ type
     property Version : String read GetVersion write SetVersion;
   end;
 
-procedure ShowAboutBox(const AProductName, AProductVersion : String);
-procedure ShowDlg;
-
 implementation
 {$IFNDEF WidgetLCL}
   {$IFDEF WIN32}
@@ -74,23 +71,6 @@ uses
   {$ENDIF}
   IdDsnCoreResourceStrings,
   IdGlobal;
-
-Procedure ShowAboutBox(const AProductName, AProductVersion : String);
-begin
-  with TfrmAbout.Create(Application) do
-  try
-    ProductName := AProductName;
-    Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
-    ShowModal;
-  finally
-    Free;
-  end;
-end;
-
-Procedure ShowDlg;
-begin
-  ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
-end;
 
 { TfrmAbout }
 
