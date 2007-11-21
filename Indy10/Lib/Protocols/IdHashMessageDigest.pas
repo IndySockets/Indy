@@ -96,6 +96,7 @@ type
   end;
 
 implementation
+uses IdGlobalProtocols;
 
 { TIdHashMessageDigest }
 
@@ -243,11 +244,6 @@ const
     $67452301, $EFCDAB89, $98BADCFE, $10325476);
 
 {$Q-} // Arithmetic operations performed modulo $100000000
-{ TODO : Remove ROL and add IdGlobal to the uses clause, when it is ready for dotNET. }
-function ROL(AVal: LongWord; AShift: Byte): LongWord;
-begin
-  Result := (AVal shl AShift) or (AVal shr (32 - AShift));
-end;
 
 constructor TIdHashMessageDigest4.Create;
 begin
