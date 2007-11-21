@@ -463,11 +463,9 @@ type
 
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
-  {$IFNDEF DOTNET}
   // still to figure out how to reproduce these under .Net
   function ROL(AVal: LongWord; AShift: Byte): LongWord;
   function ROR(AVal: LongWord; AShift: Byte): LongWord;
-  {$ENDIF}
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
   function IndySetLocalTime(Value: TDateTime): Boolean;
 
