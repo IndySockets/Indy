@@ -391,9 +391,6 @@ type
     Windows2003Server, Windows2003AdvancedServer);
   {$ENDIF}
 
-  //This is called whenever there is a failure to retreive the time zone information
-  EIdFailedToRetreiveTimeZoneInfo = class(EIdException);
-
   //
   EIdExtensionAlreadyExists = class(EIdException);
 
