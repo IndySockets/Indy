@@ -50,8 +50,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdSocketHandle, IdComponent, IdIOHandlerStack, IdStackConsts, IdIOHandler,
-  IdThread, IdScheduler, IdYarn;
+  Classes,
+  IdSocketHandle, IdComponent, IdIOHandlerStack, IdStackConsts,
+  IdIOHandler, IdThread, IdScheduler, IdYarn;
 
 type
   TIdServerIOHandler = class(TIdComponent)
@@ -106,8 +107,8 @@ end;
 
 procedure TIdServerIOHandler.SetScheduler(AScheduler: TIdScheduler);
 begin
-  if FScheduler <> AValue then begin
-    FScheduler := AValue;
+  if FScheduler <> AScheduler then begin
+    FScheduler := AScheduler;
     // Add self to the Scheduler's notification list
     if Assigned(FScheduler) then begin
       FScheduler.FreeNotification(Self);
