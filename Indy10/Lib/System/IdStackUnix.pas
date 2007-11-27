@@ -877,7 +877,7 @@ procedure TIdStackUnix.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
 begin
   if not ABlocking then begin
-    raise EIdBlockingNotSupported.Create(RSStackNotSupportedOnLinux);
+    raise EIdBlockingNotSupported.Create(RSStackNotSupportedOnUnix);
   end;
 end;
 

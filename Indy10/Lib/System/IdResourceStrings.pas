@@ -37,7 +37,7 @@ resourcestring
   // Winsock
   RSWinsockCallError = 'Error on call to Winsock2 library function %s';
   RSWinsockLoadError = 'Error on loading Winsock2 library (%s)';
-  RSWinsockInitializationError = 'Winsock Initialization Error.';
+  {CH RSWinsockInitializationError = 'Winsock Initialization Error.'; }
   // Status
   RSStatusResolving = 'Resolving hostname %s.';
   RSStatusConnecting = 'Connecting to %s.';
@@ -86,10 +86,12 @@ resourcestring
   RSStackEHOSTUNREACH = 'No route to host.';
   RSStackENOTEMPTY = 'Directory not empty';
   RSStackHOST_NOT_FOUND = 'Host not found.';
-  RSStackTRY_AGAIN = 'Non-authoritative response (try again or check DNS setup).';
-  RSStackNO_RECOVERY = 'Non-recoverable errors: FORMERR, REFUSED, NOTIMP.';
-  RSStackNO_DATA = 'Valid name, no data record (check DNS setup).';
-  RSStackNotSupportedOnLinux = 'Non-blocking not supported on Linux';
+  {CH RSStackTRY_AGAIN = 'Non-authoritative response (try again or check DNS setup).'; }
+  {CH RSStackNO_RECOVERY = 'Non-recoverable errors: FORMERR, REFUSED, NOTIMP.'; }
+  {CH RSStackNO_DATA = 'Valid name, no data record (check DNS setup).'; }
+  {$IFDEF UNIX}
+  RSStackNotSupportedOnUnix = 'Non-blocking not supported on Unix-like operating systems.';
+  {$ENDIF}
   RSStackClassUndefined = 'Stack Class is undefined.';
   RSStackAlreadyCreated = 'Stack already created.';
   // Other
@@ -107,13 +109,16 @@ resourcestring
   RSNotAllBytesSent = 'Not all bytes sent.';
   RSPackageSizeTooBig = 'Package Size Too Big.';
   RSSetSizeExceeded = 'Set Size Exceeded.';
-  RSStreamNotEnoughBytes = 'Not enough bytes read from stream.';
+  {CH RSStreamNotEnoughBytes = 'Not enough bytes read from stream.'; }
   RSEndOfStream = 'End of stream: Class %s at %d';
 
  //DNS Resolution error messages
+  {$IFDEF UNIX}
   RSResolveError = 'Error resolving host %s: %s (%d)'; { hostname, errorstring, errornumber }
+    {$IFDEF KYLIXCOMPAT}
   RSReverseResolveError = 'Error resolving Address %s: %s (%d)'; { address, errorstring, errornumber }
-
+    {$ENDIF}
+  {$ENDIF}
  {$IFDEF DOTNET1_1}
  RSNotSupportedInMicrosoftNET11 = 'Not Supported in Microsoft.NET 1.1';
  {$ENDIF}

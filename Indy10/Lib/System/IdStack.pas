@@ -157,8 +157,10 @@ type
   { resolving hostnames }
   EIdStackError = class (EIdException);
   EIdIPVersionUnsupported = class (EIdStackError);
+  {$IFDEF UNIX}
   EIdResolveError = class(EIdSocketError);
   EIdReverseResolveError = class(EIdSocketError);
+  {$ENDIF}
   EIdNotASocket = class(EIdSocketError);
 
   TIdServeFile = function(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
@@ -166,9 +168,9 @@ type
   TIdPacketInfo = class
   protected
     FSourceIP: String;
-    FSourcePort : Integer;
+    FSourcePort : TIdPort;
     FDestIP: String;
-    FDestPort : Integer;
+    FDestPort : TIdPort;
     FSourceIF: LongWord;
     FDestIF: LongWord;
     FTTL: Byte;
@@ -176,11 +178,11 @@ type
     property TTL : Byte read FTTL write FTTL;
     //The computer that sent it to you
     property SourceIP : String read FSourceIP write FSourceIP;
-    property SourcePort : Integer read FSourcePort write FSourcePort;
+    property SourcePort : TIdPort read FSourcePort write FSourcePort;
     property SourceIF : LongWord read FSourceIF write FSourceIF;
     //you, the receiver - this is provided for multihorned machines
     property DestIP : String read FDestIP write FDestIP;
-    property DestPort : Integer read FDestPort write FDestPort;
+    property DestPort : TIdPort read FDestPort write FDestPort;
     property DestIF : LongWord read FDestIF write FDestIF;
   end;
   TIdSocketListClass = class of TIdSocketList;
