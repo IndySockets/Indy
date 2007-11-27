@@ -1,4 +1,4 @@
-{
+﻿{
   $Project$
   $Workfile$
   $Revision$
@@ -2399,7 +2399,7 @@ end;
 initialization
 
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright � 1993 - 2004'#10#13 +                                     {do not localize}
+    'Copyright (c) 1993 - 2004'#10#13 +                                     {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
     'http://www.indyproject.org/'#10#13 +                                 {do not localize}
