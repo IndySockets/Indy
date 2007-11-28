@@ -1,4 +1,4 @@
-﻿{
+{
   $Project$
   $Workfile$
   $Revision$
@@ -96,7 +96,7 @@
 
   Rev 1.14    6/29/2003 5:42:02 PM  BGooijen
   fixed problem in TIdSSLIOHandlerSocketOpenSSL.SetPassThrough that Henrick
-  Hellstr�m reported
+  Hellstrom reported
 
   Rev 1.13    5/7/2003 7:13:00 PM  BGooijen
   changed Connected to BindingAllocated in ReadFromSource
