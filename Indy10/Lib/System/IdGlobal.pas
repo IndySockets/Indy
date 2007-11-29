@@ -643,8 +643,9 @@ type
   TIdThreadPriority = TThreadPriority;
   {$ENDIF}
 
-const
+
   {$IFDEF INTTHREADPRIORITY}
+const  
   // approximate values, its finer grained on Linux
   tpIdle = 19;
   tpLowest = 12;
@@ -654,11 +655,11 @@ const
   tpHighest = -13;
   tpTimeCritical = -20;
   {$ENDIF}
-  tpIdLowest = tpLowest;
-  tpIdBelowNormal = tpLower;
-  tpIdNormal = tpNormal;
-  tpIdAboveNormal = tpHigher;
-  tpIdHighest = tpHighest;
+  {CH tpIdLowest = tpLowest; }
+  {CH tpIdBelowNormal = tpLower; }
+  {CH tpIdNormal = tpNormal; }
+  {CH tpIdAboveNormal = tpHigher; }
+  {CH tpIdHighest = tpHighest; }
   //end thread stuff
 
 const
