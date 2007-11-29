@@ -95,7 +95,7 @@ type
 
   // EIdConnClosedGracefully is raised when remote side closes connection normally
   EIdConnClosedGracefully = class(EIdSilentException);
-
+   {$IFDEF DOTNET}
   // This class used in DotNet. Under windows/linux, all errors that come out the
   // indy layer descend from IdException (actually not all errors in theory, but
   // certainly all errors in practice)
@@ -104,20 +104,23 @@ type
   // Otherwise Indy will raise an EIdWrapperException. In this case, the original
   // exception will be available using the InnerException member
   EIdWrapperException = class (EIdException);
-
+  {$ENDIF}
+  
   //used for index out of range
-  EIdRangeException = class(EIdException);
+  {CH EIdRangeException = class(EIdException); }
 
   // Other shared exceptions
   EIdSocketHandleError = class(EIdException);
+  {$IFDEF UNIX}
   EIdBlockingNotSupported = class(EIdException);
+  {$ENDIF}
   EIdPackageSizeTooBig = class(EIdSocketHandleError);
   EIdNotAllBytesSent = class (EIdSocketHandleError);
   EIdCouldNotBindSocket = class (EIdSocketHandleError);
   EIdCanNotBindPortInRange = class (EIdSocketHandleError);
   EIdInvalidPortRange = class(EIdSocketHandleError);
   EIdCannotSetIPVersionWhenConnected = class(EIdSocketHandleError);
-  EIdInvalidIPAddress = class(EIdSocketHandleError);
+  {CH EIdInvalidIPAddress = class(EIdSocketHandleError); }
 
 implementation
 
