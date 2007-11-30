@@ -9300,12 +9300,12 @@ them in case we use them later.}
   {CH fn_SSL_COMP_get_compression_methods = 'SSL_COMP_get_compression_methods'; } {Do not localize}
 
   // GREGOR
-  fn_SSLeay_add_ssl_algorithms = 'mi_SSLeay_add_ssl_algorithms';  {Do not localize}
+  //fn_SSLeay_add_ssl_algorithms = 'mi_SSLeay_add_ssl_algorithms';  {Do not localize}
   //why does the function name not match?
   //
   // RLebeau: because it is not an actual function of its own to begin with.
   // It is a precompiler macro that maps to another function
-  {CH fn_SSLeay_add_ssl_algorithms = 'SSL_library_init'; }  {Do not localize}
+  fn_SSLeay_add_ssl_algorithms = 'SSL_library_init';   {Do not localize}
 
   //fn_SSL_CTX_set_info_callback = 'SSL_CTX_set_info_callback_indy'; // GREGOR  {Do not localize}
   fn_SSL_SESSION_get_id = 'SSL_SESSION_get_id';  {Do not localize}
