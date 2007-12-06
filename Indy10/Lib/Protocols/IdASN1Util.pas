@@ -348,7 +348,7 @@ var
     else
     begin
       t := Copy(s, 1, lx - 1);
-      s := Copy(s, lx + 1, Length(s) - x);
+      s := Copy(s, lx + 1, MaxInt);
     end;
     Result := IndyStrToInt(t, 0);
   end;
