@@ -464,8 +464,8 @@ type
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
   // still to figure out how to reproduce these under .Net
-  function ROL(AVal: LongWord; AShift: Byte): LongWord;
-  function ROR(AVal: LongWord; AShift: Byte): LongWord;
+  function ROL(const AVal: LongWord; AShift: Byte): LongWord;
+  function ROR(const AVal: LongWord; AShift: Byte): LongWord;
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
   function IndySetLocalTime(Value: TDateTime): Boolean;
 
@@ -2873,12 +2873,14 @@ end;
 {$ENDIF}
 
 {$IFDEF DONTHAVENATIVEX86}
-function ROL(AVal: LongWord; AShift: Byte): LongWord;
+function ROL(const AVal: LongWord; AShift: Byte): LongWord;
+  {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
    Result := (AVal shl AShift) or (AVal shr (32 - AShift));
 end;
 
-function ROR(AVal: LongWord; AShift: Byte): LongWord;
+function ROR(const AVal: LongWord; AShift: Byte): LongWord;
+  {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
    Result := (AVal shr AShift) or (AVal shl (32 - AShift)) ;
 end;
@@ -2886,13 +2888,13 @@ end;
 {$ELSE}
 
 // Arg1=EAX, Arg2=DL
-function ROL(AVal: LongWord; AShift: Byte): LongWord;
+function ROL(const AVal: LongWord; AShift: Byte): LongWord; assembler;
 asm
   mov  cl, dl
   rol  eax, cl
 end;
 
-function ROR(AVal: LongWord; AShift: Byte): LongWord;
+function ROR(const AVal: LongWord; AShift: Byte): LongWord; assembler;
 asm
   mov  cl, dl
   ror  eax, cl
