@@ -1017,6 +1017,8 @@ procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes;
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
 
+function LongWordToHex(const ALongWord : LongWord) : String;
+
 procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
 
@@ -1887,22 +1889,36 @@ end;
 function ByteToHex(const AByte: Byte): string;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := IdHexDigits[AByte shr 4] + IdHexDigits[AByte and $F];
+  Result := IdHexDigits[ (AByte and $F0) shr 4] + IdHexDigits[AByte and $F];
+end;
+
+
+function LongWordToHex(const ALongWord : LongWord) : String;
+ {$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := ByteToHex((ALongWord and $FF000000) shr 24);
+  Result := Result + ByteToHex((ALongWord and $00FF0000) shr 16);
+  Result := Result + ByteToHex((ALongWord and $0000FF00) shr 8);
+  Result := Result + ByteToHex(ALongWord and $000000FF);
 end;
 
 function ToHex(const AValue: TIdBytes; const ACount: Integer = -1;
   const AIndex: Integer = 0): AnsiString;
+ {$IFDEF USEINLINE}inline;{$ENDIF}
 var
   I, LCount: Integer;
 begin
-  Result := '';
   LCount := IndyLength(AValue, ACount, AIndex);
   if LCount > 0 then begin
     SetLength(Result, LCount*2);
     for I := 0 to LCount-1 do begin
-      Result[I*2+1] := IdHexDigits[AValue[AIndex+I] shr 4];
+      Result[I*2+1] := IdHexDigits[(AValue[AIndex+I] and $F0) shr 4];
       Result[I*2+2] := IdHexDigits[AValue[AIndex+I] and $F];
     end;
+  end
+  else
+  begin
+    Result := '';
   end;
 end;
 
@@ -1917,7 +1933,7 @@ begin
   P := PChar(@AValue);
   SetString(Result, nil, Length(AValue)*4*2);//40
   for i := 0 to Length(AValue)*4-1 do begin
-    Result[i*2+1] := IdHexDigits[Ord(P[i]) shr 4];
+    Result[i*2+1] := IdHexDigits[(Ord(P[i]) and $F0) shr 4];
     Result[i*2+2] := IdHexDigits[Ord(P[i]) and $F];
   end;//for
 {$ELSE}
