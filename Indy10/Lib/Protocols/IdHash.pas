@@ -197,15 +197,9 @@ begin
 end;
 
 function TIdHash.LongWordHashToHex(const AHash: TIdBytes; const ACount: Integer): String;
-var
-  LValue: LongWord;
-  I: Integer;
 begin
   Result := '';
-  for I := 0 to ACount-1 do begin
-    LValue := BytesToLongWord(AHash, SizeOf(LongWord)*I);
-    Result := Result + IntToHex(LValue, 8);
-  end;
+  Result := ToHex(AHash,ACount*SizeOf(LongWord));
 end;
 
 { TIdHash16 }
@@ -307,7 +301,7 @@ end;
 
 function TIdHash32.HashToHex(const AHash: TIdBytes): String;
 begin
-  Result := IntToHex(BytesToLongWord(AHash), 8);
+  Result := LongWordToHex(BytesToLongWord(AHash)); //IntToHex(BytesToLongWord(AHash), 8);
 end;
 
 procedure TIdHash32.HashEnd(var VRunningHash : LongWord);
