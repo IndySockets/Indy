@@ -5755,6 +5755,10 @@ Begin
               begin
                 LActiveDecoder := ProcessAttachment(LActiveDecoder);
               end;
+              mcptIgnore:
+              begin
+                FreeAndNil(LActiveDecoder);
+              end;
             end;
           end;
         end;
