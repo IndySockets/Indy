@@ -2,23 +2,37 @@
 
 // Make this $DEFINE to use the 16 color icons required by Borland
 // or DEFINE to use the 256 color Indy versions
-{DEFINE Borland}
+{.$DEFINE Borland}
 
 // S.G. 4/9/2002: IPv4/IPv6 general switch (for defaults only)
 {$DEFINE IdIPv4}
 
 {$DEFINE INDY100}
-
 {$DEFINE 10_2}  //so developers can IFDEF for this specific version
-
-{$UNDEF USEOPENSSL}
-{$UNDEF USEZLIBUNIT}
 
 {$IFDEF BCB}
   {$DEFINE CBUILDER}
 {$ELSE}
   {$DEFINE DELPHI}
 {$ENDIF}
+
+{$UNDEF USEOPENSSL}
+{$UNDEF USEZLIBUNIT}
+
+// $DEFINE the following if the global objects in the IdStack and IdThread
+// units should be freed on finalization
+{.DEFINE IDFREEONFINAL}
+{$UNDEF IDFREEONFINAL}
+
+// Make sure the following is $DEFINE'd only for suitable environments
+// as specified further below.  This works in conjunction with the
+// IDFREEONFINAL define above.
+{$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+
+// FastMM is natively available in BDS 2006 and higher.  $DEFINE the
+// following for earlier versions if FastMM has been installed manually
+{.$DEFINE USEFASTMM4}
+{$UNDEF USEFASTMM4}
 
 // Delphi 4
 {$IFDEF VER120}
@@ -184,7 +198,9 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
-  {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF IDFREEONFINAL}
+    {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+  {$ENDIF}
   {$DEFINE TFormatSettings}
   {$DEFINE CPUI386}
   {$DEFINE ENDIAN_LITTLE}
@@ -213,7 +229,9 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
-  {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF IDFREEONFINAL}
+    {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+  {$ENDIF}
   {$DEFINE TFormatSettings}
   {$DEFINE CPUI386}
   {$DEFINE ENDIAN_LITTLE}
@@ -246,10 +264,10 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
-   {$DEFINE TFormatSettings}
-  {$define CPUI386}
-  {$define ENDIAN_LITTLE}
-  {$define CPU32}
+  {$DEFINE TFormatSettings}
+  {$DEFINE CPUI386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
 {$ENDIF}
 
 //Delphi.NET
@@ -276,8 +294,6 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE DOTNETEXCLUDE}
 {$ENDIF}
 
-
-
 // FPC (2+)
 
 {$IFDEF FPC}
@@ -301,7 +317,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
       //I will see what I can do about the Makefile.    
       {$IFDEF KYLIXCOMPAT}
         {$IFDEF CPUI386}
-           {$UNDEF USEBASEUNIX}
+          {$UNDEF USEBASEUNIX}
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
@@ -311,7 +327,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$ENDIF}
   //so we can use IdWinsock2 in WinCE, maybe in other places in Indy as well -CYA
   {$IFDEF WINCE}
-     //CE is UNICODE ONLY - UNICODE is already defined though.
+    //CE is UNICODE ONLY - UNICODE is already defined though.
     {$DEFINE WIN32_OR_WIN64_OR_WINCE}
   {$ENDIF}
   {$DEFINE VCL4ORABOVE}
@@ -337,7 +353,6 @@ BDS 2007 NET personality uses VER190 instead of 185.
 //and Kylix 1 does not have CompilerVersion defined at all.
 {$IFNDEF FPC}
   {$IFDEF LINUX}
-
     {$IFDEF CONDITIONALEXPRESSIONS}
       {$IF RTLVersion = 14.0}
         {$DEFINE KYLIX1}
@@ -420,7 +435,7 @@ word to an 8 bit byteee and an 8 bit byte feild named sa_len was added.
   {$DEFINE THANDLE32}
 {$ENDIF}
 {$IFDEF BSD}
-//I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
+  //I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
   {$DEFINE THANDLE32}
 {$ENDIF}
 {$IFDEF EMBEDDED}
@@ -473,9 +488,9 @@ word to an 8 bit byteee and an 8 bit byte feild named sa_len was added.
 
 {$IFDEF THANDLECPUBITS}  
   {$IFDEF CPU64}
-     {$DEFINE THANDLE64}
+    {$DEFINE THANDLE64}
   {$ELSE}
-     {$DEFINE THANDLE32}
+    {$DEFINE THANDLE32}
   {$ENDIF}
 {$ENDIF}
 //
@@ -486,4 +501,12 @@ word to an 8 bit byteee and an 8 bit byte feild named sa_len was added.
 {$ENDIF}
 {$IFDEF VCL6ORABOVE}
   {$DEFINE SIZE64STREAM}
+{$ENDIF}
+
+{$IFNDEF IDFREEONFINAL}
+  {$IFNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+    {$IFDEF USEFASTMM4}
+      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
