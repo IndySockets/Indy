@@ -589,21 +589,17 @@ begin
   end;
 end;
 
-{$IFNDEF IDFREEONFINAL}
-  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
 type
   TIdThreadSafeIntegerAccess = class(TIdThreadSafeInteger);
-  {$ENDIF}
 {$ENDIF}
   
 initialization
   SetThreadName('Main');  {do not localize}
   GThreadCount := TIdThreadSafeInteger.Create;
-  {$IFNDEF IDFREEONFINAL}
-    {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-  SysRegisterExpectedMemoryLeak(GThreadCount);
-  SysRegisterExpectedMemoryLeak(TIdThreadSafeIntegerAccess(GThreadCount).FCriticalSection);
-    {$ENDIF}
+  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  IndyRegisterExpectedMemoryLeak(GThreadCount);
+  IndyRegisterExpectedMemoryLeak(TIdThreadSafeIntegerAccess(GThreadCount).FCriticalSection);
   {$ENDIF}
 finalization
   // This call hangs if not all threads have been properly destroyed.
