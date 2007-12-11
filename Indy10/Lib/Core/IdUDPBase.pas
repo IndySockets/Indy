@@ -121,8 +121,8 @@ type
     destructor Destroy; override;
     //
     property Binding: TIdSocketHandle read GetBinding;
-    procedure Broadcast(const AData: string; const APort: integer); overload;
-    procedure Broadcast(const AData: TIdBytes; const APort: integer); overload;
+    procedure Broadcast(const AData: string; const APort: integer; const AIP: String = ''); overload;
+    procedure Broadcast(const AData: TIdBytes; const APort: integer; const AIP: String = ''); overload;
     function ReceiveBuffer(var ABuffer : TIdBytes;
       var VPeerIP: string; var VPeerPort: TIdPort;
       AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
@@ -156,15 +156,23 @@ uses
 
 { TIdUDPBase }
 
-procedure TIdUDPBase.Broadcast(const AData: string; const APort: integer);
+procedure TIdUDPBase.Broadcast(const AData: string; const APort: integer;
+  const AIP: String = '');
 begin
-  Broadcast(ToBytes(AData), APort);
+  Broadcast(ToBytes(AData), APort, AIP);
 end;
 
-procedure TIdUDPBase.Broadcast(const AData: TIdBytes; const APort: integer);
+procedure TIdUDPBase.Broadcast(const AData: TIdBytes; const APort: integer;
+  const AIP: String = '');
+var
+  LIP: String;
 begin
+  LIP := Trim(AIP);
+  if LIP = '' then begin
+    LIP := '255.255.255.255'; {Do not Localize}
+  end;
   SetBroadcastFlag(True);
-  SendBuffer('255.255.255.255', APort, AData);    {Do not Localize}
+  SendBuffer(LIP, APort, AData);    {Do not Localize}
   BroadcastEnabledChanged;
 end;
 
