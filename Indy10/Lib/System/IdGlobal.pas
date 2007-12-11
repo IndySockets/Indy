@@ -1125,7 +1125,7 @@ function IndyMax(const AValueOne, AValueTwo: LongInt): LongInt; overload;
 function IndyMax(const AValueOne, AValueTwo: Word): Word; overload;
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): LongWord;
 {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-procedure IndyRegisterExpectedMemoryLeak(AAddress: Pointer);
+function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
 {$ENDIF}
 {$IFDEF UNIX}
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
@@ -4774,14 +4774,16 @@ begin
 end;
 
 {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-procedure IndyRegisterExpectedMemoryLeak(AAddress: Pointer);
+function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF VCL10ORABOVE}
-  SysRegisterExpectedMemoryLeak(AAddress);    
+  Result := System.RegisterExpectedMemoryLeak(AAddress);
   {$ELSE}
     {$IFDEF USEFASTMM4}
-  FastMM4.RegisterExpectedMemoryLeak(AAddress);
+  Result := FastMM4.RegisterExpectedMemoryLeak(AAddress);
+    {$ELSE}
+  Result := False;
     {$ENDIF}
   {$ENDIF}
 end;
