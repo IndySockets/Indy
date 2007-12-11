@@ -562,7 +562,7 @@ const
   MinsPerDay    = HoursPerDay * MinsPerHour;
   SecsPerDay    = MinsPerDay * SecsPerMin;
   MSecsPerDay   = SecsPerDay * MSecsPerSec;
-    {$ENDIF}
+  {$ENDIF}
   {$ENDIF}
 
   {$IFDEF DOTNET}
@@ -642,7 +642,6 @@ type
   TIdThreadHandle = THandle;
   TIdThreadPriority = TThreadPriority;
   {$ENDIF}
-
 
   {$IFDEF INTTHREADPRIORITY}
 const  
@@ -1125,6 +1124,9 @@ function IndyMax(const AValueOne, AValueTwo: Int64): Int64; overload;
 function IndyMax(const AValueOne, AValueTwo: LongInt): LongInt; overload;
 function IndyMax(const AValueOne, AValueTwo: Word): Word; overload;
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): LongWord;
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+procedure IndyRegisterExpectedMemoryLeak(AAddress: Pointer);
+{$ENDIF}
 {$IFDEF UNIX}
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
 {$ENDIF}
@@ -1197,6 +1199,10 @@ const
 implementation
 
 uses
+  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+    {$IFDEF USEFASTMM4}FastMM4,{$ENDIF}
+  {$ENDIF}
+  {$IFDEF USELIBC}Libc,{$ENDIF}
   {$IFDEF VCL6ORABOVE}DateUtils,{$ENDIF}
   IdResourceStrings,
   IdStream;
@@ -1206,7 +1212,7 @@ var
   GIdPorts: TList = nil;
 {$ENDIF}
 
- {$IFDEF UNIX}
+{$IFDEF UNIX}
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
 var
   i : Integer;
@@ -1218,7 +1224,7 @@ begin
     Result := LoadLibrary(ALibName+ALibVersions[i]+LIBEXT);
     {$ELSE}
       {$IFDEF KYLIXCOMPAT}
-  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+    // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
     Result := HMODULE(dlopen(PChar(ALibName+LIBEXT+ALibVersions[i]), RTLD_LAZY));
       {$ELSE}
     Result := LoadLibrary(ALibName+LIBEXT+ALibVersions[i]);
@@ -1892,7 +1898,6 @@ begin
   Result := IdHexDigits[ (AByte and $F0) shr 4] + IdHexDigits[AByte and $F];
 end;
 
-
 function LongWordToHex(const ALongWord : LongWord) : String;
  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
@@ -1915,9 +1920,7 @@ begin
       Result[I*2+1] := IdHexDigits[(AValue[AIndex+I] and $F0) shr 4];
       Result[I*2+2] := IdHexDigits[AValue[AIndex+I] and $F];
     end;
-  end
-  else
-  begin
+  end else begin
     Result := '';
   end;
 end;
@@ -2291,7 +2294,7 @@ function GetThreadHandle(AThread: TThread): TIdThreadHandle;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF UNIX}
-  Result := AThread.ThreadID;
+  Result := AThread.ThreadID; // RLebeau: is it right to return an ID where a thread object handle is expected instead?
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   Result := AThread.Handle;
@@ -4769,6 +4772,20 @@ begin
   VLine := BytesToString(LLine, 0, -1, AEncoding);
   Result := True;
 end;
+
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+procedure IndyRegisterExpectedMemoryLeak(AAddress: Pointer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  {$IFDEF VCL10ORABOVE}
+  SysRegisterExpectedMemoryLeak(AAddress);    
+  {$ELSE}
+    {$IFDEF USEFASTMM4}
+  FastMM4.RegisterExpectedMemoryLeak(AAddress);
+    {$ENDIF}
+  {$ENDIF}
+end;
+{$ENDIF}
 
 initialization
   // AnsiPos does not handle strings with #0 and is also very slow compared to Pos
