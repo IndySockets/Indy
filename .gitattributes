@@ -1301,7 +1301,9 @@ Indy10/Lib/Protocols/IdSASLOTP.pas -text
 Indy10/Lib/Protocols/IdSASLPlain.pas -text
 Indy10/Lib/Protocols/IdSASLSKey.pas -text
 Indy10/Lib/Protocols/IdSASLUserPass.pas -text
+Indy10/Lib/Protocols/IdSASL_CRAMBase.pas -text
 Indy10/Lib/Protocols/IdSASL_CRAM_MD5.pas -text
+Indy10/Lib/Protocols/IdSASL_CRAM_SHA1.pas -text
 Indy10/Lib/Protocols/IdSMTP.pas -text
 Indy10/Lib/Protocols/IdSMTPBase.pas -text
 Indy10/Lib/Protocols/IdSMTPRelay.pas -text
