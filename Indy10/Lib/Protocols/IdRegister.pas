@@ -276,6 +276,7 @@ uses
   IdSASLSKey,
   IdSASLUserPass,
   IdSASL_CRAM_MD5,
+  IdSASL_CRAM_SHA1,
   IdServerInterceptLogEvent,
   IdServerInterceptLogFile,
   IdSMTP,
@@ -578,6 +579,7 @@ begin
   RegisterComponents(RSRegSASL, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
+   TIdSASLCRAMSHA1,
    TIdSASLExternal,
    TIdSASLLogin,
    TIdSASLOTP,
