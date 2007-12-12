@@ -61,61 +61,44 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdHMACMD5,
   IdSASL,
+  IdSASL_CRAMBase,
   IdSASLUserPass;
 
 type
 
-  TIdSASLCRAMMD5 = class(TIdSASLUserPass)
+  TIdSASLCRAMMD5 = class(TIdSASLCRAMBase)
   public
-    class function BuildKeydMD5Auth(const Password, Challenge: string): string;
+    class function BuildKeydAuth(const APassword, AChallenge: string): string; override;
     class function ServiceName: TIdSASLServiceName; override;
-    function StartAuthenticate(const AChallenge:string) : String; override;
-    function ContinueAuthenticate(const ALastResponse: String): string; override;
   end;
 
 implementation
 
 uses
   IdGlobal,
+  IdHMACMD5,
   SysUtils;
 
-class function TIdSASLCRAMMD5.BuildKeydMD5Auth(const Password, Challenge: string): string;
+class function TIdSASLCRAMMD5.BuildKeydAuth(const APassword, AChallenge: string): string;
 var
- aHash:TIdHMACMD5;
- aBuffer:TIdBytes;
+ LHash:TIdHMACMD5;
+ LBuffer:TIdBytes;
 begin
- aHash:=TIdHMACMD5.Create;
+ LHash:=TIdHMACMD5.Create;
  try
-  aHash.Key:=ToBytes(Password);
-  aBuffer:=ToBytes(Challenge);
-  aBuffer:=aHash.HashValue(aBuffer);
-  Result:=LowerCase(ToHex(aBuffer));
+  LHash.Key:=ToBytes(APassword);
+  LBuffer:=ToBytes(AChallenge);
+  LBuffer:=LHash.HashValue(LBuffer);
+  Result:=LowerCase(ToHex(LBuffer));
  finally
-  FreeAndNil(aHash);
+  FreeAndNil(LHash);
  end;
-end;
-
-function TIdSASLCRAMMD5.ContinueAuthenticate(const ALastResponse: String): String;
-//this is not called
-begin
-  Result:='';
 end;
 
 class function TIdSASLCRAMMD5.ServiceName: TIdSASLServiceName;
 begin
   result := 'CRAM-MD5'; {do not localize}
-end;
-
-function TIdSASLCRAMMD5.StartAuthenticate(const AChallenge: string): String;
-begin
-  if Length(AChallenge) > 0 then
-  begin
-    result := GetUsername + ' ' + BuildKeydMD5Auth(GetPassword, AChallenge);
-  end
-  else
-    result := '';
 end;
 
 end.
