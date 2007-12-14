@@ -35,7 +35,7 @@ interface
 
 uses
   Classes,
-  IdResourceStringsProtocols, IdSASL, IdUserPassProvider, IdBaseComponent,
+  IdSASL, IdUserPassProvider, IdBaseComponent,
   IdException;
 
 type
@@ -55,6 +55,7 @@ type
   EIdUserPassProviderUnassigned = class(EIdException);
 
 implementation
+uses IdResourceStringsProtocols;
 
 { TIdSASLUserPass }
 
