@@ -724,6 +724,22 @@ irc             194/udp    Internet Relay Chat Protocol
   IdPORT_IRC     = 6667;
 
 const
+  {GSSAPI/Kerberos/SASL service names}
+  IdGSKSSN_rcmd    = 'rcmd';          //remote command/rlogin/telnet                         [RFC1411]
+  IdGSKSSN_imap    = 'imap';          //mailstore access/IMAP4                               [RFC3501]
+  IdGSKSSN_pop     = 'pop';           //maildrop access/POP3                                 [RFC-siemborski-rfc1734bis-11.txt]
+  IdGSKSSN_acap    = 'acap';          //remote configuration access/ACAP                     [RFC2244]
+  IdGSKSSN_nfs     = 'nfs';           //distributed file system protocol                     [RFC1813][RFC1094]
+  IdGSKSSN_ftp     = 'ftp';           //file transfer/FTP/TFTP                               [RFC2228]
+  IdGSKSSN_ldap    = 'ldap';          //Lightweight Directory Access Protocol (LDAP)         [RFC2251][RFC2829]
+  IdGSKSSN_smtp    = 'smtp';          //message transfer/SMTP                                [RFC4954]
+  IdGSKSSN_beep    = 'beep';          //Blocks Extensible Exchange Protocol                  [RFC3080]
+  IdGSKSSN_mupdate = 'mupdate';       //Mailbox Update (MUPDATE) Protocol                    [RFC3656]
+  IdGSKSSN_sacred  = 'sacred';        //Secure Available Credentials (SACRED) Protocol       [RFC3767]
+  IdGSKSSN_xmpp    = 'xmpp';          //Extensible Messaging and Presence Protocol (XMPP)    [RFC3920]
+  IdGSKSSN_nntp    = 'nntp';          //Network News Transfer Protocol (NNTP)                [RFC4643]
+
+const
 
   Id_AIVN_Rserved = 0;//                Reserved                                [JBP]
   Id_AIVN_IP = 4; //       IP       Internet Protocol                [RFC791,JBP]
