@@ -1251,6 +1251,7 @@ Indy10/Lib/Protocols/IdMappedPortTCP.pas -text
 Indy10/Lib/Protocols/IdMappedPortUDP.pas -text
 Indy10/Lib/Protocols/IdMappedTelnet.pas -text
 Indy10/Lib/Protocols/IdMessage.pas -text
+Indy10/Lib/Protocols/IdMessageBuilder.pas -text
 Indy10/Lib/Protocols/IdMessageClient.pas -text
 Indy10/Lib/Protocols/IdMessageCoder.pas -text
 Indy10/Lib/Protocols/IdMessageCoderMIME.pas -text
