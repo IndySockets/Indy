@@ -214,7 +214,7 @@ type
       var VHost : String; var VPort : TIdPort): TIdBytes;
     function MakeUDPRequestPacket(const AData: TIdBytes;
       const AHost: String; const APort: TIdPort) : TIdBytes;
-    procedure AssignTo(ASource: TPersistent); override;
+    procedure Assign(ASource: TPersistent); override;
     function GetEnabled: Boolean; override;
     procedure InitComponent; override;
     procedure AuthenticateSocks5Connection(AIOHandler: TIdIOHandler);
@@ -265,17 +265,16 @@ uses
 
 { TIdSocksInfo }
 
-procedure TIdSocksInfo.AssignTo(ASource: TPersistent);
+procedure TIdSocksInfo.Assign(ASource: TPersistent);
 begin
   if ASource is TIdSocksInfo then begin
-    inherited AssignTo(ASource);
     with TIdSocksInfo(ASource) do begin
-      Authentication := Self.Authentication;
-      Version := Self.Version;
+      Self.FAuthentication := Authentication;
+      Self.FVersion := Version;
     end;
-  end else begin
-    inherited AssignTo(ASource);
   end;
+  // always allow TIdCustomTransparentProxy to assign its properties as well
+  inherited Assign(ASource);
 end;
 
 procedure TIdSocksInfo.MakeSocks4Request(AIOHandler: TIdIOHandler; const AHost: string;
