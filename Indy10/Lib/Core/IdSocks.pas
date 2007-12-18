@@ -214,7 +214,6 @@ type
       var VHost : String; var VPort : TIdPort): TIdBytes;
     function MakeUDPRequestPacket(const AData: TIdBytes;
       const AHost: String; const APort: TIdPort) : TIdBytes;
-    procedure Assign(ASource: TPersistent); override;
     function GetEnabled: Boolean; override;
     procedure InitComponent; override;
     procedure AuthenticateSocks5Connection(AIOHandler: TIdIOHandler);
@@ -235,6 +234,7 @@ type
     procedure MakeSocks5UDPAssociation(AHandle : TIdSocketHandle);
     procedure CloseSocks5UDPAssociation;
   public
+    procedure Assign(ASource: TPersistent); override;
     destructor Destroy; override;
     procedure Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function  Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;override;
