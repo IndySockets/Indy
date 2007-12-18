@@ -70,8 +70,8 @@ type
   TIdSASLCRAMBase = class(TIdSASLUserPass)
   public
     class function BuildKeydAuth(const APassword, AChallenge: string): string; virtual;
-    function StartAuthenticate(const AChallenge:string) : String; override;
-    function ContinueAuthenticate(const ALastResponse: String): string; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName:string) : String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): string; override;
   end;
 
 implementation
@@ -87,13 +87,13 @@ begin
   Result := '';
 end;
 
-function TIdSASLCRAMBase.ContinueAuthenticate(const ALastResponse: String): String;
+function TIdSASLCRAMBase.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): String;
 //this is not called
 begin
   Result:='';
 end;
 
-function TIdSASLCRAMBase.StartAuthenticate(const AChallenge: string): String;
+function TIdSASLCRAMBase.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
 begin
   if Length(AChallenge) > 0 then
   begin

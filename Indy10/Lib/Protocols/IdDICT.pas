@@ -174,7 +174,7 @@ begin
     end
     else
     begin
-       FSASLMechanisms.LoginSASL('SASLAUTH', ['230'], ['330'], Self, FCapabilities, ''); {do not localize}
+       FSASLMechanisms.LoginSASL('SASLAUTH',FHost, 'dict', ['230'], ['330'], Self, FCapabilities, ''); {do not localize}
     end;
     if FTryMIME and IsCapaSupported('MIME') then {do not localize}
     begin

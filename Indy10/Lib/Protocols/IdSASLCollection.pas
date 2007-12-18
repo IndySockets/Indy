@@ -70,10 +70,10 @@ type
   public
     constructor Create ( AOwner : TPersistent ); reintroduce;
     function Add: TIdSASLListEntry;
-    function LoginSASL(const ACmd: String; const AOkReplies, AContinueReplies: array of string;
+    function LoginSASL(const ACmd, AHost, AProtocolName: String; const AOkReplies, AContinueReplies: array of string;
       AClient : TIdTCPConnection; ACapaReply : TStrings;
       const AAuthString : String = 'AUTH'): Boolean; overload;      {Do not Localize}
-    function LoginSASL(const ACmd: String; const AServiceName: String;
+    function LoginSASL(const ACmd, AHost, AProtocolName: String; const AServiceName: String;
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH'): Boolean; overload;      {Do not Localize}
     function ParseCapaReply(ACapaReply: TStrings; const AAuthString: String = 'AUTH') : TStrings; {do not localize}
@@ -129,7 +129,7 @@ begin
     (PosInStrArray(AStr, ACont) = -1);
 end;
 
-function PerformSASLLogin(const ACmd: String; ASASL: TIdSASL; AEncoder: TIdEncoder;
+function PerformSASLLogin(const ACmd, AHost, AProtocolName: String; ASASL: TIdSASL; AEncoder: TIdEncoder;
   ADecoder: TIdDecoder; const AOkReplies, AContinueReplies: array of string;
   AClient : TIdTCPConnection): Boolean;
 var
@@ -145,7 +145,7 @@ begin
     Exit; // we've authenticated successfully :)
   end;
   S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
-  S := ASASL.StartAuthenticate(S);
+  S := ASASL.StartAuthenticate(S, AHost, AProtocolName);
   AClient.SendCmd(AEncoder.Encode(S));
   if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
   begin
@@ -154,7 +154,7 @@ begin
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
     S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
-    S := ASASL.ContinueAuthenticate(S);
+    S := ASASL.ContinueAuthenticate(S, AHost, AProtocolName);
     AClient.SendCmd(AEncoder.Encode(S));
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
     begin
@@ -198,7 +198,7 @@ begin
   Result := TIdSASLListEntry( inherited Insert(Index) );
 end;
 
-function TIdSASLEntries.LoginSASL(const ACmd: String; const AOkReplies,
+function TIdSASLEntries.LoginSASL(const ACmd, AHost, AProtocolName: String; const AOkReplies,
   AContinueReplies: array of string; AClient: TIdTCPConnection;
   ACapaReply: TStrings; const AAuthString: String): Boolean;
 var
@@ -245,7 +245,7 @@ begin
             LD := TIdDecoderMIME.Create(nil);
             try
               for i := 0 to LSASLList.Count-1 do begin
-                Result := PerformSASLLogin(ACmd, TIdSASL(LSASLList.Items[i]),
+                Result := PerformSASLLogin(ACmd, AHost, AProtocolName,TIdSASL(LSASLList.Items[i]),
                   LE, LD, AOkReplies, AContinueReplies, AClient);
                 if Result then begin
                   Exit;
@@ -275,7 +275,7 @@ begin
   end;
 end;
 
-function TIdSASLEntries.LoginSASL(const ACmd: String; const AServiceName: String;
+function TIdSASLEntries.LoginSASL(const ACmd, AHost, AProtocolName: String; const AServiceName: String;
   const AOkReplies, AContinueReplies: array of string; AClient: TIdTCPConnection;
   ACapaReply: TStrings; const AAuthString: String): Boolean;
 var
@@ -300,7 +300,7 @@ begin
       try
         LD := TIdDecoderMIME.Create(nil);
         try
-          Result := PerformSASLLogin(ACmd, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient);
+          Result := PerformSASLLogin(ACmd, AHost, AProtocolName, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient);
           if not Result then begin
             AClient.RaiseExceptionForLastCmdResult;
           end;

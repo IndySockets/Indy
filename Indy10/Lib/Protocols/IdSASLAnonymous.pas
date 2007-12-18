@@ -47,7 +47,7 @@ type
   public
     function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
-    function StartAuthenticate(const AChallenge: String): String; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String; override;
   published
     property TraceInfo : String read FTraceInfo write FTraceInfo;
   end;
@@ -73,7 +73,7 @@ begin
   Result := 'ANONYMOUS';   {Do not translate}
 end;
 
-function TIdSASLAnonymous.StartAuthenticate(const AChallenge: String): String;
+function TIdSASLAnonymous.StartAuthenticate(const AChallenge, AHost, AProtocolName: String): String;
 begin
   Result := TraceInfo;
 end;

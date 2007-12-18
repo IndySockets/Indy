@@ -80,8 +80,9 @@ type
       according to the mechanism, not for any transmission. The same holds
       for return values.
     }
-    function StartAuthenticate(const AChallenge: string): string; virtual; abstract;
-    function ContinueAuthenticate(const ALastResponse: string): string; virtual;
+    //SASL AProtocolName must be a name from "http://www.iana.org/assignments/gssapi-service-names"
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string): string; virtual; abstract;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; virtual;
 
     { For cleaning up after Authentication }
     procedure FinishAuthenticate; virtual;
@@ -148,7 +149,7 @@ begin
   inherited Destroy;
 end;
 
-function TIdSASL.ContinueAuthenticate(const ALastResponse: string): string;
+function TIdSASL.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string;
 begin
   // intentionally empty
 end;

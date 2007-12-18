@@ -46,8 +46,8 @@ type
   public
     class function ServiceName: TIdSASLServiceName; override;
 
-    function StartAuthenticate(const AChallenge:string) : String; override;
-    function ContinueAuthenticate(const ALastResponse: String): String; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string) : String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
 
 implementation
@@ -57,12 +57,12 @@ uses
 
 { TIdSASLLogin }
 
-function TIdSASLLogin.StartAuthenticate(const AChallenge: string): String;
+function TIdSASLLogin.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
 begin
   Result := GetUsername;
 end;
 
-function TIdSASLLogin.ContinueAuthenticate(const ALastResponse: String): String;
+function TIdSASLLogin.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): String;
 begin
   Result := GetPassword;
 end;

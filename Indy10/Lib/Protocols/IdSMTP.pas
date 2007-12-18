@@ -345,7 +345,7 @@ begin
     satSASL:
       begin
         EIdSASLMechNeeded.IfTrue(SASLMechanisms.Count = 0, RSASLRequired);
-        FDidAuthenticate := SASLMechanisms.LoginSASL('AUTH', ['235'], ['334'], Self, Capabilities); {do not localize}
+        FDidAuthenticate := SASLMechanisms.LoginSASL('AUTH',FHost,'smtp', ['235'], ['334'], Self, Capabilities); {do not localize}
       end;
   end;
   Result := FDidAuthenticate;

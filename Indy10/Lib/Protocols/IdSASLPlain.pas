@@ -45,7 +45,7 @@ type
   public
     function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
-    function StartAuthenticate(const AChallenge:string) : String; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string) : String; override;
   published
     property LoginAs : String read FLoginAs write FLoginAs;
   end;
@@ -67,7 +67,7 @@ begin
   Result := 'PLAIN';  {Do not translate}
 end;
 
-function TIdSASLPlain.StartAuthenticate(const AChallenge: string): String;
+function TIdSASLPlain.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): String;
 var
   LUser, LUserAs: string;
 begin

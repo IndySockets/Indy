@@ -57,8 +57,8 @@ type
     procedure InitComponent; override;
   public
     class function ServiceName: TIdSASLServiceName; override;
-    function StartAuthenticate(const AChallenge: String) : String; override;
-    function ContinueAuthenticate(const ALastResponse: String): String; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : String) : String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
 
 implementation
@@ -71,7 +71,7 @@ const
 
 { TIdSASLSKey }
 
-function TIdSASLSKey.ContinueAuthenticate(const ALastResponse: String): String;
+function TIdSASLSKey.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
 var
   LBuf, LSeed : String;
   LCount : Cardinal;
@@ -94,7 +94,7 @@ begin
   Result := SKEYSERVICENAME;
 end;
 
-function TIdSASLSKey.StartAuthenticate(const AChallenge: String): String;
+function TIdSASLSKey.StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String;
 begin
   Result := GetUsername;
 end;

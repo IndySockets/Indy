@@ -51,8 +51,8 @@ type
     procedure InitComponent; override;
   public
     class function ServiceName: TIdSASLServiceName; override;
-    function StartAuthenticate(const AChallenge: String): String; override;
-    function ContinueAuthenticate(const ALastResponse: String): String; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
 
 implementation
@@ -62,7 +62,7 @@ uses
 
 { TIdSASLOTP }
 
-function TIdSASLOTP.ContinueAuthenticate(const ALastResponse: String): String;
+function TIdSASLOTP.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
 begin
   Result := GenerateOTP(ALastResponse, GetPassword);
 end;
@@ -78,7 +78,7 @@ begin
   Result := 'OTP'; {Do not translate}
 end;
 
-function TIdSASLOTP.StartAuthenticate(const AChallenge: string): String;
+function TIdSASLOTP.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): String;
 begin
   Result := GetUsername;
 end;
