@@ -1257,15 +1257,15 @@ procedure TIdIOHandler.Write(AStream: TStream; ASize: Int64 = 0;
   AWriteByteCount: Boolean = FALSE);
 var
   LBuffer: TIdBytes;
+  LStreamPos: Int64; // RLebeau: needed to prevent Integer overflow on large streams
   LBufSize: Integer;
   // LBufferingStarted: Boolean;
 begin
-  if ASize < 0 then begin //"-1" All form current position
-    LBufSize := AStream.Position;
-    ASize := AStream.Size;
-    //todo1 is this step required?
-    AStream.Position := LBufSize;
-    ASize := ASize - LBufSize;
+  if ASize < 0 then begin //"-1" All from current position
+    LStreamPos := AStream.Position;
+    ASize := AStream.Size - LStreamPos;
+    //todo is this step required?
+    AStream.Position := LStreamPos;
   end
   else if ASize = 0 then begin //"0" ALL
     ASize := AStream.Size;
