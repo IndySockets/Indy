@@ -1294,6 +1294,7 @@ Indy10/Lib/Protocols/IdRexecServer.pas -text
 Indy10/Lib/Protocols/IdSASL.pas -text
 Indy10/Lib/Protocols/IdSASLAnonymous.pas -text
 Indy10/Lib/Protocols/IdSASLCollection.pas -text
+Indy10/Lib/Protocols/IdSASLDigest.pas -text
 Indy10/Lib/Protocols/IdSASLExternal.pas -text
 Indy10/Lib/Protocols/IdSASLListEditorForm.RES -text svneol=unset#unset
 Indy10/Lib/Protocols/IdSASLListEditorForm.resources -text svneol=unset#unset
