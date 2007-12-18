@@ -320,11 +320,20 @@ begin
           end;
           Result := s;
         end;
-    else // NULL
+      ASN1_NULL:
+        begin
+          Result := '';
+          Start := Start + ASNSize;
+        end;
+    else // unknown
       begin
-        Result := '';      {Do not Localize}
-        Inc(Start);
-        Start := Start + ASNSize;
+        for n := 1 to ASNSize do
+        begin
+          c := Char(Buffer[Start]);
+          Inc(Start);
+          s := s + c;
+        end;
+        Result := s;
       end;
     end;
 end;
