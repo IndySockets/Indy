@@ -148,6 +148,7 @@ implicitunits=IdASN1Util \
   IdMappedPortUDP \
   IdMappedTelnet \
   IdMessage \
+  IdMessageBuilder \
   IdMessageClient \
   IdMessageCoder \
   IdMessageCoderMIME \
@@ -183,13 +184,16 @@ implicitunits=IdASN1Util \
   IdSASL \
   IdSASLAnonymous \
   IdSASLCollection \
+  IdSASLDigest \
   IdSASLExternal \
   IdSASLLogin \
   IdSASLOTP \
   IdSASLPlain \
   IdSASLSKey \
   IdSASLUserPass \
+  IdSASL_CRAMBase \
   IdSASL_CRAM_MD5 \
+  IdSASL_CRAM_SHA1 \
   IdSMTP \
   IdSMTPBase \
   IdSMTPRelay \
