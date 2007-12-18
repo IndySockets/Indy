@@ -170,6 +170,11 @@ resourcestring
   RSASLNotSupported = 'Doesn''t support AUTH or the SASL handlers you specified!!';
   RSASLRequired = 'Need SASL mechanisms to login with it!!';
   RSASLNotValidForProt = 'Authentication Type not valid for this protocol.';
+
+  //TIdSASLDigest
+  RSSASLDigestMissingAlgorithm = 'missing algorithm in challange.';
+  RSSASLDigestInvalidAlgorithm = 'invalid algorithm in challange.';
+  RSSASLDigestAuthConfNotSupported = 'auth-conf not yet supported.';
   //  TIdEMailAddress
   RSEMailSymbolOutsideAddress = '@ Outside address';
   //ZLIB Intercept
