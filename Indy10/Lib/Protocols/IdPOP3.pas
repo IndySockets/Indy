@@ -330,7 +330,7 @@ begin
     patSASL:
       begin
         EIdSASLMechNeeded.IfTrue(FSASLMechanisms.Count = 0, RSASLRequired);
-        FSASLMechanisms.LoginSASL('AUTH', FHost, 'pop3', [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
+        FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
       end;
   end;
 end;

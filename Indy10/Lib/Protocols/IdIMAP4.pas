@@ -1936,7 +1936,7 @@ begin
         end;
       end else begin
         if Capability(FCapabilities) then begin
-          FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, 'imap', ['* OK'], ['* +'], Self, FCapabilities);     {Do not Localize}
+          FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, ['* OK'], ['* +'], Self, FCapabilities);     {Do not Localize}
         end;
         Capability(FCapabilities);
       end;
