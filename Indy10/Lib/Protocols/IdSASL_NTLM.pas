@@ -11,6 +11,7 @@ type
     class function ServiceName: TIdSASLServiceName; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName:string) : String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): string; override;
+    function IsReadyToStart: Boolean; override;
   end;
 
 implementation
@@ -49,6 +50,14 @@ begin
 //  S := LType2.Nonce;
   Result := 'NTLM ' + BuildType3Message(LDomain, AHost,LUserName, GetPassword, LType2.Nonce);
 //  Result := 'NTLM ' + S;    {do not localize}
+end;
+
+function TIdSASLNTLM.IsReadyToStart: Boolean;
+begin
+  Result := inherited IsReadyToStart;
+  if Result then begin
+    Result := NTLMFunctionsLoaded;
+  end;
 end;
 
 class function TIdSASLNTLM.ServiceName: TIdSASLServiceName;

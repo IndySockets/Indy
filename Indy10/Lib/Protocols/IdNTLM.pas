@@ -110,6 +110,8 @@ Type
 function BuildType1Message(ADomain, AHost: String): String;
 function BuildType3Message(ADomain, AHost, AUsername: WideString; APassword, ANonce: String): String;
 
+function NTLMFunctionsLoaded : Boolean;
+
 implementation
 
 Uses
@@ -119,6 +121,14 @@ Uses
   IdHashMessageDigest,
   IdCoderMIME;
 
+function NTLMFunctionsLoaded : Boolean;
+begin
+  Result := Assigned(iddes_set_odd_parity) and
+    Assigned(IdDES_set_key) and
+    Assigned(iddes_set_odd_parity) and
+    Assigned(IdDES_ecb_encrypt) and
+    Assigned(iddes_ecb_encrypt);
+end;
 {/*
  * turns a 56 bit key into the 64 bit, odd parity key and sets the key.
  * The key schedule ks is also set.
