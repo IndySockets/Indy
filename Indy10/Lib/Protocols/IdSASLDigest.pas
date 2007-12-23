@@ -33,6 +33,12 @@ uses IdGlobal, IdHash, IdHashMessageDigest, IdResourceStringsProtocols, SysUtils
 const
   SASL_DIGEST_METHOD = 'AUTHENTICATE:';  {do not localize}
 
+function NCToStr(const AValue : Integer):String;
+{$IFDEF USEINLINE} inline; {$ENDIF}
+begin
+  Result := IntToHex(AValue,8);
+end;
+
 function RemoveQuote(const aStr:string):string;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
@@ -43,24 +49,24 @@ begin
   end;
 end;
 
+//
 function HashResult(const AStr : String): TIdBytes;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-   with TIdHashMessageDigest5.Create do
-   try
-     Result := HashString(AStr);
-   finally
-     Free;
-   end;
-end;
-
-function HashResultAsHex(const ABytes : TIdBytes) : String; overload;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   with TIdHashMessageDigest5.Create do
   try
+    Result := HashString(AStr);
+  finally
+    Free;
+  end;
+end;
 
-    Result := HashBytesAsHex(ABytes);
+function HashResultAsHex(const ABytes : TIdBytes) : String;  overload;
+{$IFDEF USEINLINE} inline; {$ENDIF}
+begin
+  with TIdHashMessageDigest5.Create do
+  try
+    Result := LowerCase(HashBytesAsHex(ABytes));
   finally
     Free;
   end;
@@ -71,77 +77,38 @@ function HashResultAsHex(const AStr : String) : String; overload;
 begin
   with TIdHashMessageDigest5.Create do
   try
-
     Result := LowerCase(HashStringAsHex(AStr));
   finally
     Free;
   end;
 end;
 
-function NCToStr(const ANC : Integer): String;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  Result := IntToHex(ANC, 8);
-end;
-
 function CalcDigestResponse(const AUserName, APassword, ARealm, ANonce, ACNonce : String;
-  const ANC : Integer;
-  const  AQop, ADigestURI : String; const AAuthzid : String = '') : String;
+  const ANC : Integer; const  AQop, ADigestURI : String; const AAuthzid : String = '') : String;
 var
-  LA1, LA2, LH_A1, LH_A2, LNC : String;
+  LA1 : TIdBytes;
+   LA2: TIdBytes;
+  LA1_P : TIdBytes;
 begin
-  LNC := NCToStr(ANC);
-
-//
-//   If authzid is specified, then A1 is
-//
-//
-//      A1 = { H( { username-value, ":", realm-value, ":", passwd } ),
-//           ":", nonce-value, ":", cnonce-value, ":", authzid-value }
-//
-//   If authzid is not specified, then A1 is
-//
-//
-//      A1 = { H( { username-value, ":", realm-value, ":", passwd } ),
-//           ":", nonce-value, ":", cnonce-value }
-//
-//   where
-//
-//         passwd   = *OCTET
-
-    LA1 := BytesToString(HashResult(AUserName + ':' + ARealm + ':' + APassword));
-    LA1 := LA1 + ':' + ANonce + ':'+ ACNonce;
-    if AAuthzid<>'' then begin
-      LA1 := LA1 + ':'+AAuthzid;
-    end;
-    LH_A1 := HashResultAsHex(LA1);
-//   If the "qop" directive's value is "auth", then A2 is:
-//
-//      A2       = { "AUTHENTICATE:", digest-uri-value }
-//
-//   If the "qop" value is "auth-int" or "auth-conf" then A2 is:
-//
-//      A2       = { "AUTHENTICATE:", digest-uri-value,
-//               ":00000000000000000000000000000000" }
-    LA2 := SASL_DIGEST_METHOD + ADigestURI;
-    if AQop = 'auth-int' then begin
-      LA2 := Result +':00000000000000000000000000000000';
-    end;
-    LH_A2 := HashResultAsHex(LA2);
-//RFC 2831
-//     response-value  =
-//
-//         HEX( KD ( HEX(H(A1)),
-//                 { nonce-value, ":" nc-value, ":",
-//                   cnonce-value, ":", qop-value, ":", HEX(H(A2)) }))
-//
-//    //result
-    Result := HashResultAsHex( LH_A1 + ':' + ANonce + ':'+LNC+':'+ACNonce+':'+AQop+':'+LH_A2);
-
-//    if LQopOptions.IndexOf('auth-conf') > -1 then begin
-//      EIdSASLDigestAuthConfNotSupported.IfFalse(LQopOptions.IndexOf('auth')>-1,RSSASLDigestAuthConfNotSupported);
-//    end;
+  LA1_P := IdGlobal.ToBytes(':' + ANonce + ':' + ACNonce);
+  LA1 :=  HashResult(AUserName + ':' + ARealm + ':' +
+    APassword);
+  IdGlobal.AppendBytes(LA1,LA1_P);
+  If AAuthzid <> '' then begin
+    IdGlobal.AppendBytes(LA1,IdGlobal.ToBytes(AAuthzid));
+  end;
+  if AQop = 'auth' then begin
+     LA2 := ToBytes('AUTHENTICATE:' + ADigestURI);
+  end
+  else if (AQop = 'auth-int') or (AQop = 'auth-conf') then begin
+    LA2 := ToBytes('AUTHENTICATE:' + ADigestURI + ':00000000000000000000000000000000');
+  end else begin
+   SetLength(LA2,0);
+  end;
+  Result := HashResultAsHex(HashResultAsHex(LA1) + ':' + ANonce + ':' +
+     NCToStr(ANC) + ':' + ACNonce + ':' + AQop +':' + HashResultAsHex(LA2));
 end;
+//
 
 { TIdSASLDigest }
 
