@@ -1125,7 +1125,7 @@ function IndyMax(const AValueOne, AValueTwo: LongInt): LongInt; overload;
 function IndyMax(const AValueOne, AValueTwo: Word): Word; overload;
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): LongWord;
 {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
+procedure IndyRegisterExpectedMemoryLeak(AAddress: Pointer);
 {$ENDIF}
 {$IFDEF UNIX}
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
@@ -1615,22 +1615,17 @@ begin
   end;
 end;
 
+{$IFNDEF DOTNET}
 function UTF8BytesToString(const ABytes: TIdBytes; const AIndex, ALength: Integer): String;
-{$IFDEF DOTNET}
   {$IFDEF USEINLINE}inline;{$ENDIF}
-{$ELSE}
 var
   I, LLength: Integer;
   LCh: WideChar;
   LResult: WideString;
-{$ENDIF}
 begin
   // RLebeau: AIndex and ALength have already been validated/calculated
   // by BytesToString() so use them as-is here...
 
-  {$IFDEF DOTNET}
-  Result := GetEncoder(enUTF8).GetString(ABytes, AIndex, ALength);
-  {$ELSE}
   Result := '';
 
   SetLength(LResult, ALength);
@@ -1657,8 +1652,8 @@ begin
     end;
     Result := LResult;
   end;
-  {$ENDIF}
 end;
+{$ENDIF}
 
 function UTF8BytesToChar(const ABytes: TIdBytes; const AIndex, ALength: Integer): Char;
 var
@@ -4163,6 +4158,9 @@ begin
   LLength := IndyLength(AValue, ALength, AStartIndex);
   if LLength > 0 then
   begin
+    {$IFDEF DOTNET}
+    Result := GetEncoder(AEncoding).GetString(AValue, AStartIndex, LLength);
+    {$ELSE}
     if AEncoding = enUTF8 then begin
       Result := UTF8BytesToString(AValue, AStartIndex, LLength);
     end else
@@ -4170,14 +4168,9 @@ begin
       // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
       // With MBCS we still map 1:1
       SetLength(Result, LLength);
-      {$IFDEF DOTNET}
-      for I := 0 to LLength-1 do begin
-        Result[I+1] := Char(AValue[AStartIndex+I]);
-      end;
-      {$ELSE}
       Move(AValue[AStartIndex], Result[1], LLength);
-      {$ENDIF}
     end;
+    {$ENDIF}
   end else begin
     Result := '';
   end;
@@ -4774,16 +4767,14 @@ begin
 end;
 
 {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
+procedure IndyRegisterExpectedMemoryLeak(AAddress: Pointer);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF VCL10ORABOVE}
-  Result := System.RegisterExpectedMemoryLeak(AAddress);
+  SysRegisterExpectedMemoryLeak(AAddress);    
   {$ELSE}
     {$IFDEF USEFASTMM4}
-  Result := FastMM4.RegisterExpectedMemoryLeak(AAddress);
-    {$ELSE}
-  Result := False;
+  FastMM4.RegisterExpectedMemoryLeak(AAddress);
     {$ENDIF}
   {$ENDIF}
 end;
