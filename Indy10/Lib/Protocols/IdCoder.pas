@@ -190,11 +190,15 @@ function TIdEncoder.Encode(const AIn: string): string;
 var
   LStream: TStringStream;
 begin
-  LStream := TStringStream.Create(AIn);
-  try
-    Result := Encode(LStream);
-  finally
-    FreeAndNil(LStream);
+  if AIn<>'' then  begin
+    LStream := TStringStream.Create(AIn);
+    try
+      Result := Encode(LStream);
+    finally
+      FreeAndNil(LStream);
+    end;
+  end else begin
+    Result := '';
   end;
 end;
 
