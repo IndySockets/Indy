@@ -11,7 +11,9 @@ type
     Fauthzid : String;
   public
     function StartAuthenticate(const AChallenge, AHost, AProtocolName:string) : String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string;
     class function ServiceName: TIdSASLServiceName; override;
+
   published
     property authzid : String read Fauthzid write Fauthzid;
   end;
@@ -111,6 +113,12 @@ end;
 //
 
 { TIdSASLDigest }
+
+function TIdSASLDigest.ContinueAuthenticate(const ALastResponse, AHost,
+  AProtocolName: string): string;
+begin
+  Result := '';
+end;
 
 class function TIdSASLDigest.ServiceName: TIdSASLServiceName;
 
