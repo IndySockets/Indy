@@ -17,23 +17,6 @@ type
 implementation
 uses IdNTLM;
 
-procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
-{$IFDEF USEINLINE} inline; {$ENDIF}
-var i : Integer;
-begin
-   i := Pos('\', AUsername);
-   if i > -1 then
-   begin
-     VDomain := Copy(AUsername, 1, i - 1);
-     VUserName := Copy(AUsername, i + 1, Length(AUserName));
-   end
-   else
-   begin
-     VDomain := ' ';         {do not localize}
-     VUserName := AUserName;
-   end;
-end;
-
 { TIdSASLNTLM }
 
 function TIdSASLNTLM.ContinueAuthenticate(const ALastResponse, AHost,
