@@ -112,6 +112,8 @@ function BuildType3Message(ADomain, AHost, AUsername: WideString; APassword, ANo
 
 function NTLMFunctionsLoaded : Boolean;
 
+procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
+
 implementation
 
 Uses
@@ -120,6 +122,23 @@ Uses
   IdHash,
   IdHashMessageDigest,
   IdCoderMIME;
+
+procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
+{$IFDEF USEINLINE} inline; {$ENDIF}
+var i : Integer;
+begin
+   i := Pos('\', AUsername);
+   if i > -1 then
+   begin
+     VDomain := Copy(AUsername, 1, i - 1);
+     VUserName := Copy(AUsername, i + 1, Length(AUserName));
+   end
+   else
+   begin
+     VDomain := ' ';         {do not localize}
+     VUserName := AUserName;
+   end;
+end;
 
 function NTLMFunctionsLoaded : Boolean;
 begin
