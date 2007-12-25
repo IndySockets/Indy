@@ -11,7 +11,7 @@ type
     Fauthzid : String;
   public
     function StartAuthenticate(const AChallenge, AHost, AProtocolName:string) : String; override;
-    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; override;
     class function ServiceName: TIdSASLServiceName; override;
 
   published
