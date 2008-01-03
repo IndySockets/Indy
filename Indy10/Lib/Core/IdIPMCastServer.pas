@@ -158,7 +158,7 @@ begin
     FBinding.Bind;
     //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
     //Hope the following is correct for StringToTIn4Addr(), should be checked...
-    GStack.AddMulticastMembership(FBinding.Handle,FMulticastGroup,FBinding.IP,FBinding.IPVersion);
+    GStack.AddMulticastMembership(FBinding.Handle, FMulticastGroup, FBinding.IP, FBinding.IPVersion);
     ApplyTimeToLive;
     ApplyLoopback;
   end;
@@ -169,7 +169,6 @@ procedure TIdIPMCastServer.MulticastBuffer(const AHost: string; const APort: Int
 begin
   // DS - if not IsValidMulticastGroup(FMulticastGroup) then
   EIdMCastNotValidAddress.IfFalse(IsValidMulticastGroup(AHost), RSIPMCastInvalidMulticastAddress);
-
   Binding.SendTo(AHost, APort, ABuffer);
 end;
 
@@ -201,15 +200,15 @@ end;
 
 procedure TIdIPMCastServer.ApplyLoopback;
 begin
-  if FDsgnActive and (Assigned(FBinding) and FBinding.HandleAllocated) then begin
-    GStack.SetLoopBack(FBinding.Handle,FLoopback,FBinding.IPVersion);
+  if Assigned(FBinding) and FBinding.HandleAllocated then begin
+    GStack.SetLoopBack(FBinding.Handle, FLoopback, FBinding.IPVersion);
   end;
 end;
 
 procedure TIdIPMCastServer.ApplyTimeToLive;
 begin
-  if FDsgnActive and (Assigned(FBinding) and FBinding.HandleAllocated) then begin
-    GStack.SetMulticastTTL(FBinding.Handle,FTimeToLive,FBinding.IPVersion);
+  if Assigned(FBinding) and FBinding.HandleAllocated then begin
+    GStack.SetMulticastTTL(FBinding.Handle, FTimeToLive, FBinding.IPVersion);
   end;
 end;
 
