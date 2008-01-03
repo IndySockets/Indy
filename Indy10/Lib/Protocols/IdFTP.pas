@@ -660,7 +660,7 @@ will chop off a connection instead of closing it causing TIdFTP to wait forever 
   DEF_Id_FTP_READTIMEOUT = 60000; //one minute
   DEF_Id_FTP_PassiveUseControlHost = False;
   DEF_Id_FTP_AutoIssueFEAT = True;
-  
+
 type
   //Added by SP
   TIdCreateFTPList = procedure(ASender: TObject; var VFTPList: TIdFTPListItems) of object;
@@ -1202,6 +1202,12 @@ begin
 
     FGreeting.Assign(LastCmdResult);
     DoOnBannerBeforeLogin (FGreeting.FormattedReply);
+
+    // RLebeau: having an AutoIssueFeat property doesn't make sense to
+    // me.  There are commands below that require FEAT's response, but
+    // if the user sets AutoIssueFeat to False, these commands will not
+    // be allowed to execute!
+
     if AutoLogin then begin
       Login;
       DoAfterLogin;
@@ -1211,6 +1217,7 @@ begin
           SendCmd('CLNT '+ FClientInfo.GetClntOutput);  {do not localize}
         end;
       end;
+
       //Fast track is set only one time per connection and no more, even
       //with REINIT
       if TryNATFastTrack then begin
@@ -1218,9 +1225,10 @@ begin
       end;
 
       if FUseTLS = utUseImplicitTLS then begin
-       //at this point, we treat implicit FTP as if it were explicit FTP with TLS
-       FUsingSFTP := True;
-     end;
+        //at this point, we treat implicit FTP as if it were explicit FTP with TLS
+        FUsingSFTP := True;
+      end;
+
       // OpenVMS 7.1 replies with 200 instead of 215 - What does the RFC say about this?
       // if SendCmd('SYST', [200, 215, 500]) = 500 then begin  {do not localize}
       //Do not fault if SYST was not understood by the server.  Novel Netware FTP
@@ -1230,6 +1238,7 @@ begin
       end else begin
         FSystemDesc := LastCmdResult.Text[0];
       end;
+
       if IsSiteZONESupported then
       begin
         if not FCanUseMLS then begin
@@ -1244,8 +1253,6 @@ begin
           end;
         end;
       end;
-      SendTransferType;
-      DoStatus(ftpReady, [RSFTPStatusReady]);
     end
     else
     begin
@@ -1257,12 +1264,14 @@ begin
         FSystemDesc := RSFTPUnknownHost;
       end else begin
         FSystemDesc := LastCmdResult.Text[0];
-      end;    
+      end;
       if FAutoIssueFEAT then
       begin
         IssueFEAT;
       end;
     end;
+    SendTransferType;
+    DoStatus(ftpReady, [RSFTPStatusReady]);
   except
     Disconnect(LSendQuitOnError); // RLebeau: do not send the QUIT command if the greeting was not received
     raise;
@@ -1466,7 +1475,7 @@ This is a bug fix for servers will do something like this:
   if FAbortFlag.Value then
   begin
     LResponse := GetResponse(AcceptableAbortReplies);
-//Expiremental -
+//Experimental -
     if PosInSmallIntArray(LResponse,AbortedReplies)>-1 then begin
       GetResponse([226, 225]);
     end;
@@ -1497,10 +1506,10 @@ This is a bug fix for servers will do something like this:
       end;
     end;
     DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
-//end expiriemental section
+//end experimental section
   end else begin
     //ftp.marist.edu returns 250
-    GetResponse([226, 225,250]);
+    GetResponse([226, 225, 250]);
   end;
 end;
 
@@ -2170,17 +2179,21 @@ begin
   //Feat data
 
   SendCmd('FEAT');  {do not localize}
-
   FCapabilities.Clear;
-  FCapabilities.AddStrings(LastCmdResult.Text);
 
-  //we remove the first and last lines because we only want the list
-  if FCapabilities.Count > 0 then begin
-    FCapabilities.Delete(0);
+  if LastCmdResult.NumericCode = 211 then
+  begin
+    FCapabilities.AddStrings(LastCmdResult.Text);
+
+    //we remove the first and last lines because we only want the list
+    if FCapabilities.Count > 0 then begin
+      FCapabilities.Delete(0);
+    end;
+    if FCapabilities.Count > 0 then begin
+      FCapabilities.Delete(FCapabilities.Count-1);
+    end;
   end;
-  if FCapabilities.Count > 0 then begin
-    FCapabilities.Delete(FCapabilities.Count-1);
-  end;
+
   if FUsingExtDataPort then begin
     FUsingExtDataPort := IsExtSupported('EPRT') and IsExtSupported('EPSV');  {do not localize}
   end;
@@ -2265,7 +2278,7 @@ begin
           end else begin
             RaiseExceptionForLastCmdResult
           end;
-      	end;
+   	end;
       end;
     end;
   fpcmUserSite:
