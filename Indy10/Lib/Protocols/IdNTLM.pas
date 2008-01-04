@@ -42,14 +42,142 @@ unit IdNTLM;
 
 interface
 {$i IdCompilerDefines.inc}
+uses
+  IdGlobal,
+  IdStruct;
 
+type
+{$IFDEF DOTNET}
+  ProtocolArray = array [1..8] of char;
+  padArray2 = array[0..1] of byte;
+  padArray3 = Array[0..2] of byte;
+  padArray7 = Array[0..6] of byte;
+  padArray8 = Array[0..7] of byte;
+  nonceArray = Array[1..8] of char;
+  ntlm_base = class(TIdStruct)
+  protected
+    fprotocol : ProtocolArray;
+    function GetBytesLen: LongWord; override;
+  public
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  override;
+
+    property protocol: ProtocolArray read fprotocol write fprotocol; // array [1..8] of Char;     // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
+  end;
+  type_1_message_header = class(ntlm_base)
+  protected
+    f_type : Byte;
+    fpad : padArray3;
+    fflags : Word;
+    fpad2 : padArray2;
+    fdom_len1 : Word;
+    fdom_len2 : Word;
+    fdom_off : LongWord;
+    fhost_len1 : Word;
+    fhost_len2 : Word;
+    fhost_off : LongWord;
+    function GetBytesLen: LongWord; override;
+
+  public
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  override;
+
+    property _type: Byte read f_type write f_type;                        // 0x01
+    property pad  : padArray3 read fpad write fpad;  // 0x0
+    property flags: Word read fflags write fflags;                        // 0xb203
+    property pad2 : padArray2 read fpad2 write fpad2;  // 0x0
+    property dom_len1: Word read fdom_len1 write fdom_len1;                     // domain string length
+    property dom_len2: Word read fdom_len2 write fdom_len2;                     // domain string length
+    property dom_off: LongWord read fdom_off write fdom_off;                  // domain string offset
+
+    property host_len1: Word read fhost_len1 write fhost_len1;                    // host string length
+    property host_len2: Word read fhost_len2 write fhost_len2;                    // host string length
+    property host_off: LongWord read fhost_off write fhost_off;                 // host string offset (always 0x20)
+  end;
+  type_2_message_header = class(ntlm_base)
+  protected
+    f_type : Byte;
+    fPad : padArray7;
+    fmsg_len : Word;
+    fPad2 : padArray2;
+    fflags : Word;
+    fPad3 : padArray2;
+    fnonce : nonceArray;
+    fpad4 : padArray8;
+    function GetBytesLen: LongWord; override;
+  public
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  override;
+
+    property _type: Byte read f_type write f_type;       // $2
+    property Pad  : padArray7 read fPad write fPad; //packed Array[1..7] of byte;          // 0x0
+    property msg_len: Word read fmsg_len write fmsg_len;                              // 0x28
+    property Pad2 : padArray2 read fPad2 write fPad2;    // 0x0
+    property flags: word read fflags write fflags;                                // 0x8201
+    property Pad3: padArray2 read fPad3 write fPad3;          // 0x0
+    property nonce: nonceArray read fnonce write fnonce;      // nonce
+    property pad4: padArray8 read fpad4 write fpad4;            // 0x0
+  end;
+  type_3_message_header = class(ntlm_base)
+  protected
+    f_type: LongWord;
+    flm_resp_len1: Word;
+    flm_resp_len2: Word;
+    flm_resp_off : LongWord;
+    fnt_resp_len1: Word;
+    fnt_resp_len2: Word;
+    fnt_resp_off: LongWord;
+    fdom_len1: Word;
+    fdom_len2 : Word;
+    fdom_off : LongWord;
+    fuser_len1: Word;
+    fuser_len2: Word;
+    fuser_off: LongWord;
+    fhost_len1: Word;
+    fhost_len2: Word;
+    fhost_off: LongWord;
+    fzero: LongWord;
+    fmsg_len: LongWord;
+    fflags: LongWord;
+    function GetBytesLen: LongWord; override;
+  public
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  override;
+
+    property _type: LongWord read f_type write f_type;                    // 0x03
+
+    property lm_resp_len1: Word read flm_resp_len1 write flm_resp_len1;                 // LanManager response length (always 0x18)
+    property lm_resp_len2: Word read flm_resp_len2 write flm_resp_len2;                 // LanManager response length (always 0x18)
+    property lm_resp_off: LongWord read flm_resp_off write flm_resp_off;              // LanManager response offset
+
+    property nt_resp_len1: Word read fnt_resp_len1 write fnt_resp_len1;                 // NT response length (always 0x18)
+    property nt_resp_len2: Word read fnt_resp_len2 write fnt_resp_len2;                 // NT response length (always 0x18)
+    property nt_resp_off: LongWord read fnt_resp_off write fnt_resp_off;              // NT response offset
+
+    property dom_len1: Word read fdom_len1 write fdom_len1;           // domain string length
+    property dom_len2: Word read fdom_len2 write fdom_len2;           // domain string length
+    property dom_off: LongWord read fdom_off write fdom_off;          // domain string offset (always 0x40)
+
+    property user_len1: Word read fuser_len1 write fuser_len1;                    // username string length
+    property user_len2: Word read fuser_len2 write fuser_len2;                    // username string length
+    property user_off: LongWord read fuser_off write fuser_off;                 // username string offset
+
+    property host_len1: Word read fhost_len1 write fhost_len1;                    // host string length
+    property host_len2: Word read fhost_len2 write fhost_len2;                    // host string length
+    property host_off: LongWord read fhost_off write fhost_off;                 // host string offset
+    property zero: LongWord read fzero write fzero;
+
+    property msg_len: LongWord read fmsg_len write fmsg_len;                  // message length
+
+    property flags: LongWord read fflags write fflags;                    // 0xA0808205
+  end;
+{$ELSE}
 Uses
   IdSSLOpenSSLHeaders;
 
 Type
-
   type_1_message_header = packed record
-    protocol: array [1..8] of Char;     // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
+    protocol: array [0..7] of Char;     // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
     _type: Byte;                        // 0x01
     pad  : packed Array[1..3] of byte;  // 0x0
     flags: Word;                        // 0xb203
@@ -107,8 +235,10 @@ Type
 
   Pdes_key_schedule = ^des_key_schedule;
 
-function BuildType1Message(ADomain, AHost: String): String;
-function BuildType3Message(ADomain, AHost, AUsername: WideString; APassword, ANonce: String): String;
+{$ENDIF}
+
+//function BuildType1Message(ADomain, AHost: String): String;
+//function BuildType3Message(ADomain, AHost, AUsername: WideString; APassword, ANonce: String): String;
 
 function NTLMFunctionsLoaded : Boolean;
 
@@ -118,7 +248,11 @@ implementation
 
 Uses
   SysUtils,
+  {$IFDEF DOTNET}
+  System.Text,
+  {$ELSE}
   IdGlobal,
+  {$ENDIF}
   IdHash,
   IdHashMessageDigest,
   IdCoderMIME;
@@ -140,6 +274,13 @@ begin
    end;
 end;
 
+{$IFDEF DOTNET}
+function NTLMFunctionsLoaded : Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
+begin
+  Result := True;
+end;
+{$ELSE}
 function NTLMFunctionsLoaded : Boolean;
 begin
   Result := Assigned(iddes_set_odd_parity) and
@@ -148,6 +289,8 @@ begin
     Assigned(IdDES_ecb_encrypt) and
     Assigned(iddes_ecb_encrypt);
 end;
+{$ENDIF}
+{$IFNDEF DOTNET}
 {/*
  * turns a 56 bit key into the 64 bit, odd parity key and sets the key.
  * The key schedule ks is also set.
@@ -209,7 +352,10 @@ begin
     Move(APassword[1], lm_pw, len);
   end;
   if len < 14 then begin
-    for idx := len + 1 to 14 do lm_pw[idx] := #0;
+    for idx := len + 1 to 14 do
+    begin
+      lm_pw[idx] := #0;
+    end;
   end;
 
   //* create LanManager hashed password */
@@ -342,5 +488,286 @@ begin
     result := Encode(S + ADomain + AUsername + AHost + lm_password + nt_password);
   finally Free; end;
 end;
+
+{$ELSE}
+procedure BytesToCharArray(const ABytes : TIdBytes; var VArray : Array of char; const AIndex : Integer=0);
+var i, ll, lh : Integer;
+begin
+   ll :=  Low(VArray);
+   lh := High(Varray);
+  for i := ll to lh do
+  begin
+    VArray[i] := Char(Abytes[ (i - ll)+ AIndex]);
+  end;
+end;
+
+procedure BytesToByteArray(const ABytes : TIdBytes; var VArray : Array of byte; const AIndex : Integer=0);
+var i, ll, lh : Integer;
+begin
+   ll :=  Low(VArray);
+   lh := High(Varray);
+  for i := ll to lh do
+  begin
+    VArray[i] := Abytes[ (i - ll)+ AIndex];
+  end;
+end;
+
+procedure ByteArrayToBytes(const VArray : array of byte; const ABytes : TIdBytes; const AIndex : Integer=0);
+var i, ll, lh : Integer;
+begin
+   ll :=  Low(VArray);
+   lh := High(Varray);
+  for i := ll to lh do
+  begin
+    Abytes[ (i - ll)+ AIndex] := VArray[i];
+  end;
+end;
+
+function ntlm_base.GetBytesLen: LongWord;
+begin
+  Result := 8;
+end;
+
+procedure ntlm_base.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+var 
+  i : Integer;
+begin
+  inherited ReadStruct(ABytes,VIndex);
+  for i := 1 to Length(fprotocol) do
+  begin
+    fprotocol[i] := Char(ABytes[i+VIndex]);
+  end;
+  Inc(VIndex,Length(fprotocol));
+
+end;
+
+procedure ntlm_base.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+var LEnc : System.Text.Encoding;
+ LLen : Integer;
+ LBytes : TIdBytes;
+begin
+  inherited WriteStruct(VBytes,VIndex);
+  LEnc := System.Text.ASCIIEncoding.Create;
+  LBytes :=  LEnc.GetBytes(fprotocol);
+  LLen := Length(fprotocol);
+  CopyTIdBytes(LBytes,VIndex,VBytes,VIndex, LLen);
+  Inc(VIndex,LLen);
+end;
+
+function type_1_message_header.GetBytesLen: LongWord;
+begin
+  Result := 32;
+end;
+
+procedure type_1_message_header.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+var i : Integer;
+{
+    f_type : Byte;
+    fpad : padArray3;
+    fflags : Word;
+    fpad2 : padArray2;
+    fdom_len1 : Word;
+    fdom_len2 : Word;
+    fdom_off : LongWord;
+    fhost_len1 : Word;
+    fhost_len2 : Word;
+    fhost_off : LongWord;
+}
+begin
+  inherited ReadStruct(ABytes,VIndex);
+  f_type := ABytes[VIndex];
+  Inc(VIndex);
+
+  i := Length(fpad);
+  BytesToByteArray(ABytes,fpad,i);
+  Inc(VIndex,i);
+  fflags := IdGlobal.BytesToWord(ABytes,i);
+  Inc(VIndex,2);
+  i := Length(fpad2);
+  BytesToByteArray(ABytes,fpad2,i);
+  Inc(VIndex,i);
+  fdom_len1 := IdGlobal.BytesToWord(ABytes,i);
+  Inc(VIndex,2);
+  fdom_len2 := IdGlobal.BytesToWord(ABytes,i);
+  Inc(VIndex,2);
+  fdom_off := IdGlobal.BytesToLongWord(ABytes,i);
+  Inc(VIndex,4);
+  fhost_len1 := IdGlobal.BytesToWord(ABytes,i);
+  Inc(VIndex,2);
+  fhost_len2 := IdGlobal.BytesToWord(ABytes,i);
+  Inc(VIndex,2);
+  fhost_off := IdGlobal.BytesToLongWord(ABytes,i);
+  Inc(VIndex,4);
+end;
+
+procedure type_1_message_header.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+var i : Integer;
+begin
+  inherited WriteStruct(VBytes,VIndex);
+  VBytes[VIndex] := f_type;
+  Inc(VIndex);
+  ByteArrayToBytes(fpad,VBytes,VIndex);
+  Inc(VIndex,i);
+  CopyTIdWord(fflags,VBytes,VIndex);
+  Inc(VIndex,2);
+  i := Length(fpad2);
+  ByteArrayToBytes(fpad2,VBytes,VIndex);
+  Inc(VIndex,i);
+  CopyTIdWord(fdom_len1,VBytes,VIndex);
+  Inc(VIndex,2);
+  CopyTIdWord(fdom_len2,VBytes,VIndex);
+  Inc(VIndex,2);
+  CopyTIdLongWord(fdom_off,VBytes,VIndex);
+  Inc(VIndex,4);
+  CopyTIdWord(fhost_len1,VBytes,VIndex);
+  Inc(VIndex,2);
+  CopyTIdWord(fhost_len2,VBytes,VIndex);
+  Inc(VIndex,2);
+  CopyTIdLongWord(fhost_off,VBytes,VIndex);
+  Inc(VIndex,4);
+end;
+
+function type_2_message_header.GetBytesLen: LongWord;
+begin
+end;
+
+procedure type_2_message_header.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+var i : Integer;
+begin
+  inherited ReadStruct(ABytes,VIndex);
+  f_type := ABytes[VIndex];
+  Inc(VIndex);
+  i := Length(fpad);
+  BytesToByteArray(ABytes,fpad,i);
+  Inc(VIndex,i);
+  fmsg_len := IdGlobal.BytesToWord(ABytes,i);
+  Inc(VIndex,2);
+   i := Length(fpad2);
+  BytesToByteArray(ABytes, fPad2,i);
+  Inc(VIndex,i);
+  fflags := IdGlobal.BytesToWord(ABytes,i);
+  Inc(VIndex,2);
+
+  i := Length(fpad3);
+  BytesToByteArray(ABytes, fPad3,i);
+  Inc(VIndex,i);
+
+  for i := 1 to Length(fnonce) do
+  begin
+    fnonce[i] := Char(ABytes[i+VIndex]);
+  end;
+  Inc(VIndex,Length(fnonce));
+
+  i := Length(fpad4);
+  BytesToByteArray(ABytes, fPad4,i);
+  Inc(VIndex,i);
+end;
+
+procedure type_2_message_header.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+var i : Integer;
+begin
+   inherited WriteStruct(VBytes,VIndex);
+   VBytes[VIndex] := f_type;
+  Inc(VIndex);
+   i := Length(fpad);
+   ByteArrayToBytes(fPad,VBytes,i);
+   Inc(VIndex, i);
+
+   CopyTIdWord( fmsg_len,VBytes,i);
+   Inc(VIndex,2);
+
+   i := Length(fPad2);
+   ByteArrayToBytes(fPad2,VBytes,i);
+   Inc(VIndex, i);
+
+   CopyTIdWord( fflags,VBytes,i);
+   Inc(VIndex,2);
+
+   i := Length(fPad3);
+   ByteArrayToBytes(fPad3,VBytes,i);
+
+
+   i := Length((fnonce);
+  CopyTIdBytes((fnonce,VIndex,VBytes,VIndex, LLen);
+  Inc(VIndex,LLen);
+
+   Inc(VIndex, i);
+
+    for i := 1 to Length(fnonce) do
+    begin
+       fnonce[i] := Char(VBytes[i+VIndex]);
+    end;
+   i := Length(fPad4);
+   ByteArrayToBytes(fPad4,VBytes,i);
+   Inc(VIndex, i);
+end;
+
+function type_3_message_header.GetBytesLen: LongWord;
+begin
+end;
+
+procedure type_3_message_header.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+begin
+{      _type: LongWord;                    // 0x03
+
+    lm_resp_len1: Word;                 // LanManager response length (always 0x18)
+    lm_resp_len2: Word;                 // LanManager response length (always 0x18)
+    lm_resp_off: LongWord;              // LanManager response offset
+
+    nt_resp_len1: Word;                 // NT response length (always 0x18)
+    nt_resp_len2: Word;                 // NT response length (always 0x18)
+    nt_resp_off: LongWord;              // NT response offset
+
+    dom_len1: Word;                     // domain string length
+    dom_len2: Word;                     // domain string length
+    dom_off: LongWord;                  // domain string offset (always 0x40)
+
+    user_len1: Word;                    // username string length
+    user_len2: Word;                    // username string length
+    user_off: LongWord;                 // username string offset
+
+    host_len1: Word;                    // host string length
+    host_len2: Word;                    // host string length
+    host_off: LongWord;                 // host string offset
+    zero: LongWord;
+
+    msg_len: LongWord;                  // message length
+
+    flags: LongWord;                    // 0xA0808205
+    }
+end;
+
+procedure type_3_message_header.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  
+begin
+{
+    _type: LongWord;                    // 0x03
+
+    lm_resp_len1: Word;                 // LanManager response length (always 0x18)
+    lm_resp_len2: Word;                 // LanManager response length (always 0x18)
+    lm_resp_off: LongWord;              // LanManager response offset
+
+    nt_resp_len1: Word;                 // NT response length (always 0x18)
+    nt_resp_len2: Word;                 // NT response length (always 0x18)
+    nt_resp_off: LongWord;              // NT response offset
+
+    dom_len1: Word;                     // domain string length
+    dom_len2: Word;                     // domain string length
+    dom_off: LongWord;                  // domain string offset (always 0x40)
+
+    user_len1: Word;                    // username string length
+    user_len2: Word;                    // username string length
+    user_off: LongWord;                 // username string offset
+
+    host_len1: Word;                    // host string length
+    host_len2: Word;                    // host string length
+    host_off: LongWord;                 // host string offset
+    zero: LongWord;
+
+    msg_len: LongWord;                  // message length
+
+    flags: LongWord;                    // 0xA0808205
+}
+end;
+{$ENDIF}
 
 end.
