@@ -41,10 +41,13 @@
 unit IdNTLM;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdGlobal,
-  IdStruct;
+  IdStruct
+  {$IFNDEF DOTNET}, IdSSLOpenSSLHeaders{$ENDIF};
 
 type
 {$IFDEF DOTNET}
@@ -54,6 +57,7 @@ type
   padArray7 = Array[0..6] of byte;
   padArray8 = Array[0..7] of byte;
   nonceArray = Array[1..8] of char;
+
   ntlm_base = class(TIdStruct)
   protected
     fprotocol : ProtocolArray;
@@ -64,6 +68,7 @@ type
 
     property protocol: ProtocolArray read fprotocol write fprotocol; // array [1..8] of Char;     // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
   end;
+
   type_1_message_header = class(ntlm_base)
   protected
     f_type : Byte;
@@ -94,6 +99,7 @@ type
     property host_len2: Word read fhost_len2 write fhost_len2;                    // host string length
     property host_off: LongWord read fhost_off write fhost_off;                 // host string offset (always 0x20)
   end;
+
   type_2_message_header = class(ntlm_base)
   protected
     f_type : Byte;
@@ -118,6 +124,7 @@ type
     property nonce: nonceArray read fnonce write fnonce;      // nonce
     property pad4: padArray8 read fpad4 write fpad4;            // 0x0
   end;
+
   type_3_message_header = class(ntlm_base)
   protected
     f_type: LongWord;
@@ -172,10 +179,6 @@ type
     property flags: LongWord read fflags write fflags;                    // 0xA0808205
   end;
 {$ELSE}
-Uses
-  IdSSLOpenSSLHeaders;
-
-Type
   type_1_message_header = packed record
     protocol: array [0..7] of Char;     // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
     _type: Byte;                        // 0x01
@@ -235,10 +238,9 @@ Type
 
   Pdes_key_schedule = ^des_key_schedule;
 
+function BuildType1Message(ADomain, AHost: String): String;
+function BuildType3Message(ADomain, AHost, AUsername: WideString; APassword, ANonce: String): String;
 {$ENDIF}
-
-//function BuildType1Message(ADomain, AHost: String): String;
-//function BuildType3Message(ADomain, AHost, AUsername: WideString; APassword, ANonce: String): String;
 
 function NTLMFunctionsLoaded : Boolean;
 
@@ -246,12 +248,10 @@ procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
 
 implementation
 
-Uses
+uses
   SysUtils,
   {$IFDEF DOTNET}
   System.Text,
-  {$ELSE}
-  IdGlobal,
   {$ENDIF}
   IdHash,
   IdHashMessageDigest,
@@ -290,6 +290,7 @@ begin
     Assigned(iddes_ecb_encrypt);
 end;
 {$ENDIF}
+
 {$IFNDEF DOTNET}
 {/*
  * turns a 56 bit key into the 64 bit, odd parity key and sets the key.
