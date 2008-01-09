@@ -1184,8 +1184,11 @@ begin
   case ARequest.UseProxy of
     ctNormal:
       if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
+      begin
         ARequest.Connection := 'keep-alive';      {do not localize}
-    ctSSL, ctSSLProxy: ARequest.Connection := '';
+      end;
+    ctSSL, ctSSLProxy:
+      ARequest.Connection := '';
     ctProxy:
       if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
       begin
@@ -1194,10 +1197,21 @@ begin
   end;
 
   if Assigned(FCompressor) and FCompressor.IsReady then begin
-    if (IndyPos('deflate',Request.AcceptEncoding)=0) and  {do not localize}
-      (IndyPos('gzip',Request.AcceptEncoding)=0) then     {do not localize}
+    if IndyPos('deflate', Request.AcceptEncoding) = 0 then  {do not localize}
     begin
-      Request.AcceptEncoding := 'deflate, gzip, ';        {do not localize}
+      if Request.AcceptEncoding <> '' then begin {do not localize}
+        Request.AcceptEncoding := Request.AcceptEncoding + ', deflate'; {do not localize}
+      end else begin
+        Request.AcceptEncoding := 'deflate'; {do not localize}
+      end;
+    end;
+    if IndyPos('gzip', Request.AcceptEncoding) = 0 then {do not localize}
+    begin
+      if Request.AcceptEncoding <> '' then begin {do not localize}
+        Request.AcceptEncoding := Request.AcceptEncoding + ', gzip'; {do not localize}
+      end else begin
+        Request.AcceptEncoding := 'gzip'; {do not localize}
+      end;
     end;
   end;
 
@@ -1205,7 +1219,7 @@ begin
     if Request.AcceptEncoding <> '' then begin
       Request.AcceptEncoding := Request.AcceptEncoding + ', identity'; {do not localize}
     end else begin
-      Request.AcceptEncoding := Request.AcceptEncoding + 'identity'; {do not localize}
+      Request.AcceptEncoding := 'identity'; {do not localize}
     end;
   end;
 
@@ -1384,7 +1398,7 @@ begin
   end;}
   // S.G. 20/10/2003: Added part about the password. Not testing user name as some
   // S.G. 20/10/2003: web sites do not require user name, only password.
-  result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
+  Result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
 
   if Result then
   begin
@@ -1632,11 +1646,13 @@ begin
   S := Copy(FResponseText, 6, 3);
 
   for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do
+  begin
     if TextIsSame(ProtocolVersionString[i], S) then
     begin
       ResponseVersion := i;
       Break;
     end;
+  end;
 
   if FHTTP.Connected then begin
     FHTTP.IOHandler.CheckForDisconnect(False);
