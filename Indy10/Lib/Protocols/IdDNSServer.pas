@@ -3358,7 +3358,7 @@ begin
   LInterval := FInterval;
   while LInterval > 0 do begin
     LStep := IndyMin(LInterval, 500);
-    Sleep(LStep);
+    IndySleep(LStep);
     Dec(LInterval, LStep);
     if Terminated then begin
       Exit;
@@ -3821,7 +3821,7 @@ begin
     until FullName = '';
 
     repeat
-      Sleep(0);
+      IndySleep(0);
       if QType <> TypeCode_SOA then begin
         RRIndex := NodeCursor.ChildIndex.IndexOf(NameLabels.Strings[NameLabels.Count - 1]);
         if RRIndex <> -1 then begin
