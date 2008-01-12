@@ -183,7 +183,7 @@ type
 implementation
 
 uses
-  IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
+  IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
 
 { TIdLPR }
 
@@ -202,9 +202,8 @@ begin
 //  known -problem with this some trouble while multible printjobs are running
 //  This is the FD_WAIT port problem where a port is in a FD_WAIT state
 //  but you can bind to it.  You get a port reuse error.
-  IOHandler := TIdIOHandlerStack.Create(Self);
-  TIdIOHandlerStack(IOHandler).BoundPortMin := 721;
-  TIdIOHandlerStack(IOHandler).BoundPortMax := 731;
+  BoundPortMin := 721;
+  BoundPortMax := 731;
 end;
 
 
@@ -284,21 +283,21 @@ begin
     end;
 
     // Receive a printer job
-    Write(#02 + Queue + LF);
+    IOHandler.Write(#02 + Queue + LF);
     CheckReply;
     // Receive control file
-    Write(#02 + IntToStr(Length(GetControlData)) + ' cfA' + JobId + ControlFile.HostName + LF);    {Do not Localize}
+    IOHandler.Write(#02 + IntToStr(Length(GetControlData)) + ' cfA' + JobId + ControlFile.HostName + LF);    {Do not Localize}
     CheckReply;
     // Send control file
-    Write(GetControlData);
-    Write(#0);
+    IOHandler.Write(GetControlData);
+    IOHandler.Write(#0);
     CheckReply;
     // Send data file
-    Write(#03 + IntToStr(Data.Size) +	' dfA'  + JobId + ControlFile.HostName + LF);   {Do not Localize}
+    IOHandler.Write(#03 + IntToStr(Data.Size) +	' dfA'  + JobId + ControlFile.HostName + LF);   {Do not Localize}
     CheckReply;
     // Send data
     IOHandler.Write(Data);
-    Write(#0);
+    IOHandler.Write(#0);
     CheckReply;
     DoOnLPRStatus(psJobCompleted, JobID);
   except
@@ -312,9 +311,9 @@ function TIdLPR.GetQueueState(const AShortFormat: Boolean = False; const AList :
 begin
   DoOnLPRStatus(psGettingQueueState, AList);
   if AShortFormat then begin
-    Write(#03 + Queue + ' ' + AList + LF)    {Do not Localize}
+    IOHandler.Write(#03 + Queue + ' ' + AList + LF)    {Do not Localize}
   end else begin
-    Write(#04 + Queue + ' ' + AList + LF);    {Do not Localize}
+    IOHandler.Write(#04 + Queue + ' ' + AList + LF);    {Do not Localize}
   end;
 //  This was the original code - problematic as this is more than one line
 //  read until I close the connection
@@ -444,7 +443,7 @@ procedure TIdLPR.PrintWaitingJobs;
 begin
   try
     DoOnLPRStatus(psPrintingWaitingJobs, '');    {Do not Localize}
-    Write(#03 + Queue + LF);
+    IOHandler.Write(#03 + Queue + LF);
     CheckReply;
     DoOnLPRStatus(psPrintedWaitingJobs, '');    {Do not Localize}
   except
@@ -460,9 +459,9 @@ begin
     DoOnLPRStatus(psDeletingJobs, JobID);
     if AAsRoot then begin
       {Only root can delete other people's print jobs}    {Do not Localize}
-      Write(#05 + Queue + ' root ' + AList + LF);    {Do not Localize}
+      IOHandler.Write(#05 + Queue + ' root ' + AList + LF);    {Do not Localize}
     end else begin
-      Write(#05 + Queue + ' ' + ControlFile.UserName + ' ' + AList + LF);    {Do not Localize}
+      IOHandler.Write(#05 + Queue + ' ' + ControlFile.UserName + ' ' + AList + LF);    {Do not Localize}
     end;
     CheckReply;
     DoOnLPRStatus(psJobsDeleted, JobID);
