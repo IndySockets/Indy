@@ -1398,7 +1398,7 @@ begin
   end;}
   // S.G. 20/10/2003: Added part about the password. Not testing user name as some
   // S.G. 20/10/2003: web sites do not require user name, only password.
-  Result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
+  result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
 
   if Result then
   begin
@@ -1858,39 +1858,42 @@ begin
   if ((LResponseDigit = 3) and (LResponseCode <> 304)) or (Response.Location <> '') then
   begin
     Inc(FHTTP.FRedirectCount);
+
     // LLocation := TIdURI.URLDecode(Response.Location);
     LLocation := Response.Location;
+    LMethod := Request.Method;
 
-    if (FHTTP.FHandleRedirects) and (FHTTP.FRedirectCount < FHTTP.FRedirectMax) then begin
-      LMethod := Request.Method;
-      if FHTTP.DoOnRedirect(LLocation, LMethod, FHTTP.FRedirectCount) then begin
-        Result := wnGoToURL;
-        Request.URL := LLocation;
-        // GDG 21/11/2003. If it's a 303, we should do a get this time
-        // RLebeau 7/15/2004 - do a GET on 302 as well, as mentioned in RFC 2616
-        if (LResponseCode = 302) or (LResponseCode = 303) then begin
-          Request.Source := nil;
-          Request.Method := Id_HTTPMethodGet;
-        end else begin
-          Request.Method := LMethod;
-        end;
-      end else begin
-        CheckException(LResponseCode, AIgnoreReplies);
-        Result := wnJustExit;
-        Exit;
-      end;
-    // Just fire the event
-    end else begin
-      LMethod := Request.Method;
+    // fire the event
+    if not FHTTP.DoOnRedirect(LLocation, LMethod, FHTTP.FRedirectCount) then
+    begin
+      CheckException(LResponseCode, AIgnoreReplies);
       Result := wnJustExit;
-      // If not Handled
-      if not FHTTP.DoOnRedirect(LLocation, LMethod, FHTTP.FRedirectCount) then begin
-        CheckException(LResponseCode, AIgnoreReplies);
-        Result := wnJustExit;
-        Exit;
+      Exit;
+    end;
+
+    if (FHTTP.FHandleRedirects) and (FHTTP.FRedirectCount < FHTTP.FRedirectMax) then
+    begin
+      Result := wnGoToURL;
+      Request.URL := LLocation;
+      // GDG 21/11/2003. If it's a 303, we should do a get this time
+      // RLebeau 7/15/2004 - do a GET on 302 as well, as mentioned in RFC 2616
+      // RLebeau 1/11/2008 - turns out both situations are WRONG! RFCs 2068 an
+      // 2616 specifically state that changing the method to GET in response
+      // to 302 and 303 is errorneous.  Indy 9 did it right by reusing the
+      // original method and source again and only changing the URL, so lets
+      // revert back to that same behavior!
+      {
+      if (LResponseCode = 302) or (LResponseCode = 303) then begin
+        Request.Source := nil;
+        Request.Method := Id_HTTPMethodGet;
       end else begin
-        Response.Location := LLocation;
+        Request.Method := LMethod;
       end;
+      }
+      Request.Method := LMethod;
+    end else begin
+      Result := wnJustExit;
+      Response.Location := LLocation;
     end;
 
     if FHTTP.Connected then begin
