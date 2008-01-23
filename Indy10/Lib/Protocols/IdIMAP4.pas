@@ -5711,7 +5711,7 @@ Begin
   end;                   {CC3: ...IMAP hack inserted lines end here}
   LMsgEnd := False;
   if AMsg.NoDecode then begin
-    IOHandler.Capture(AMsg.Body, ADelim);
+    IOHandler.Capture(AMsg.Body, LDelim);
   end else begin
     BeginWork(wmRead);
     try
