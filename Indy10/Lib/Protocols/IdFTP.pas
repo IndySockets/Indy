@@ -637,7 +637,7 @@ type
   TAuthCmd = (tAuto, tAuthTLS, tAuthSSL, tAuthTLSC, tAuthTLSP);
 
 const
-  Id_TIdFTP_TransferType = ftBinary;
+  Id_TIdFTP_TransferType = {ftBinary} ftASCII; // RLebeau 1/22/08: per RFC 959
   Id_TIdFTP_Passive = False;
   Id_TIdFTP_UseNATFastTrack = False;
   Id_TIdFTP_HostPortDelimiter = ':';
@@ -1212,12 +1212,6 @@ begin
       Login;
       DoAfterLogin;
 
-      if FClientInfo.GetClntOutput <> '' then begin
-        if IsExtSupported('CLNT') then begin {do not localize}
-          SendCmd('CLNT '+ FClientInfo.GetClntOutput);  {do not localize}
-        end;
-      end;
-
       //Fast track is set only one time per connection and no more, even
       //with REINIT
       if TryNATFastTrack then begin
@@ -1253,6 +1247,9 @@ begin
           end;
         end;
       end;
+
+      SendTransferType;
+      DoStatus(ftpReady, [RSFTPStatusReady]);
     end
     else
     begin
@@ -1270,8 +1267,6 @@ begin
         IssueFEAT;
       end;
     end;
-    SendTransferType;
-    DoStatus(ftpReady, [RSFTPStatusReady]);
   except
     Disconnect(LSendQuitOnError); // RLebeau: do not send the QUIT command if the greeting was not received
     raise;
@@ -2200,6 +2195,12 @@ begin
 
   FCanUseMLS := UseMLIS and (IsExtSupported('MLSD') or IsExtSupported('MLST')); {do not localize}
   ExtractFeatFacts('LANG', FLangsSupported); {do not localize}
+
+  if FClientInfo.GetClntOutput <> '' then begin
+    if IsExtSupported('CLNT') then begin {do not localize}
+      SendCmd('CLNT '+ FClientInfo.GetClntOutput);  {do not localize}
+    end;
+  end;
 end;
 
 procedure TIdFTP.Login;
@@ -2463,6 +2464,8 @@ Connection: close}
   begin
     IssueFEAT;
   end;
+
+  SendTransferType;
 end;
 
 procedure TIdFTP.DoAfterLogin;
