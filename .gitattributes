@@ -713,924 +713,6 @@ Builder/VersionMarker/VersionMarker.fblz -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.fbw -text
 Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.ini -text
-Indy10/Lib/Clean.bat eol=crlf
-Indy10/Lib/Computil.dpr -text
-Indy10/Lib/Computil.exe -text svneol=unset#unset
-Indy10/Lib/Core/AboutIndyNET.resources -text svneol=unset#unset
-Indy10/Lib/Core/AboutProg.res -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdCmdTCPClient.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdCmdTCPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdConnectionIntercept.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdICMPClient.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdIOHandlerStack.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdIOHandlerStream.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdIPMCastClient.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdIPMCastServer.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdInterceptSimLog.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdInterceptThrottler.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdLogDebug.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdLogEvent.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdLogFile.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdLogStream.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdSchedulerOfThreadDefault.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdSchedulerOfThreadPool.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdServerIOHandlerStack.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdSimpleServer.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdSocksInfo.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdTCPClient.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdTCPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdThreadComponent.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdUDPClient.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IconsDotNet/TIdUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IdAbout.TWinForm.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdAbout.TfrmAbout.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdAbout.pas -text
-Indy10/Lib/Core/IdAbout.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdAbout.resx -text
-Indy10/Lib/Core/IdAboutDotNET.TfrmAbout.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdAboutDotNET.pas -text
-Indy10/Lib/Core/IdAboutDotNET.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdAboutDotNET.resx -text
-Indy10/Lib/Core/IdAboutNET.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdAboutVCL.RES -text svneol=unset#unset
-Indy10/Lib/Core/IdAboutVCL.pas -text
-Indy10/Lib/Core/IdAboutVCL.rc -text
-Indy10/Lib/Core/IdAntiFreeze.pas -text
-Indy10/Lib/Core/IdAssignedNumbers.pas -text
-Indy10/Lib/Core/IdBuffer.pas -text
-Indy10/Lib/Core/IdCmdTCPClient.pas -text
-Indy10/Lib/Core/IdCmdTCPServer.pas -text
-Indy10/Lib/Core/IdCommandHandlers.pas -text
-Indy10/Lib/Core/IdCompilerDefines.inc -text
-Indy10/Lib/Core/IdContext.pas -text
-Indy10/Lib/Core/IdCore90ASM90.inc -text
-Indy10/Lib/Core/IdCoreDsnRegister.pas -text
-Indy10/Lib/Core/IdCoreRegister.dcr -text svneol=unset#unset
-Indy10/Lib/Core/IdCoreRegisterCool.dcr -text svneol=unset#unset
-Indy10/Lib/Core/IdCreditsBitmap.res -text svneol=unset#unset
-Indy10/Lib/Core/IdCreditsBitmap.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdCustomTCPServer.pas -text
-Indy10/Lib/Core/IdCustomTransparentProxy.pas -text
-Indy10/Lib/Core/IdDsnBaseCmpEdt.pas -text
-Indy10/Lib/Core/IdDsnCoreResourceStrings.pas -text
-Indy10/Lib/Core/IdDsnPropEdBinding.pas -text
-Indy10/Lib/Core/IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources -text svneol=unset#unset
-Indy10/Lib/Core/IdDsnPropEdBindingNET.pas -text
-Indy10/Lib/Core/IdDsnPropEdBindingNET.resx -text
-Indy10/Lib/Core/IdDsnPropEdBindingVCL.pas -text
-Indy10/Lib/Core/IdExceptionCore.pas -text
-Indy10/Lib/Core/IdGlobalCore.pas -text
-Indy10/Lib/Core/IdIOHandler.pas -text
-Indy10/Lib/Core/IdIOHandlerSocket.pas -text
-Indy10/Lib/Core/IdIOHandlerStack.pas -text
-Indy10/Lib/Core/IdIOHandlerStream.pas -text
-Indy10/Lib/Core/IdIPAddress.pas -text
-Indy10/Lib/Core/IdIPMCastBase.pas -text
-Indy10/Lib/Core/IdIPMCastClient.pas -text
-Indy10/Lib/Core/IdIPMCastServer.pas -text
-Indy10/Lib/Core/IdIcmpClient.pas -text
-Indy10/Lib/Core/IdIntercept.pas -text
-Indy10/Lib/Core/IdInterceptSimLog.pas -text
-Indy10/Lib/Core/IdInterceptThrottler.pas -text
-Indy10/Lib/Core/IdLogBase.pas -text
-Indy10/Lib/Core/IdLogDebug.pas -text
-Indy10/Lib/Core/IdLogEvent.pas -text
-Indy10/Lib/Core/IdLogFile.pas -text
-Indy10/Lib/Core/IdLogStream.pas -text
-Indy10/Lib/Core/IdRawBase.pas -text
-Indy10/Lib/Core/IdRawClient.pas -text
-Indy10/Lib/Core/IdRawFunctions.pas -text
-Indy10/Lib/Core/IdRawHeaders.pas -text
-Indy10/Lib/Core/IdRegisterCore.lrs -text
-Indy10/Lib/Core/IdRegisterCore.pas -text
-Indy10/Lib/Core/IdReply.pas -text
-Indy10/Lib/Core/IdReplyRFC.pas -text
-Indy10/Lib/Core/IdResourceStringsCore.pas -text
-Indy10/Lib/Core/IdScheduler.pas -text
-Indy10/Lib/Core/IdSchedulerOfThread.pas -text
-Indy10/Lib/Core/IdSchedulerOfThreadDefault.pas -text
-Indy10/Lib/Core/IdSchedulerOfThreadPool.pas -text
-Indy10/Lib/Core/IdServerIOHandler.pas -text
-Indy10/Lib/Core/IdServerIOHandlerSocket.pas -text
-Indy10/Lib/Core/IdServerIOHandlerStack.pas -text
-Indy10/Lib/Core/IdSimpleServer.pas -text
-Indy10/Lib/Core/IdSocketHandle.pas -text
-Indy10/Lib/Core/IdSocks.pas -text
-Indy10/Lib/Core/IdSync.pas -text
-Indy10/Lib/Core/IdTCPClient.pas -text
-Indy10/Lib/Core/IdTCPConnection.pas -text
-Indy10/Lib/Core/IdTCPServer.pas -text
-Indy10/Lib/Core/IdTCPStream.pas -text
-Indy10/Lib/Core/IdTask.pas -text
-Indy10/Lib/Core/IdThread.pas -text
-Indy10/Lib/Core/IdThreadComponent.pas -text
-Indy10/Lib/Core/IdThreadSafe.pas -text
-Indy10/Lib/Core/IdTraceRoute.pas -text
-Indy10/Lib/Core/IdUDPBase.pas -text
-Indy10/Lib/Core/IdUDPClient.pas -text
-Indy10/Lib/Core/IdUDPServer.pas -text
-Indy10/Lib/Core/IdYarn.pas -text
-Indy10/Lib/Core/IddclCore90ASM90.inc -text
-Indy10/Lib/Core/IndyCar.bmp -text svneol=unset#unset
-Indy10/Lib/Core/IndyCore100.bdsproj -text
-Indy10/Lib/Core/IndyCore100.dpk -text
-Indy10/Lib/Core/IndyCore100.rc -text
-Indy10/Lib/Core/IndyCore100.res -text svneol=unset#unset
-Indy10/Lib/Core/IndyCore100Net.bdsproj -text
-Indy10/Lib/Core/IndyCore100Net.dpk -text
-Indy10/Lib/Core/IndyCore110.dpk -text
-Indy10/Lib/Core/IndyCore110.rc -text
-Indy10/Lib/Core/IndyCore110Net.dpk -text
-Indy10/Lib/Core/IndyCore120.dpk -text
-Indy10/Lib/Core/IndyCore120.rc -text
-Indy10/Lib/Core/IndyCore120Net.dpk -text
-Indy10/Lib/Core/IndyCore50.RES -text svneol=unset#unset
-Indy10/Lib/Core/IndyCore50.dpk -text
-Indy10/Lib/Core/IndyCore50.rc -text
-Indy10/Lib/Core/IndyCore60.RES -text svneol=unset#unset
-Indy10/Lib/Core/IndyCore60.dpk -text
-Indy10/Lib/Core/IndyCore60.rc -text
-Indy10/Lib/Core/IndyCore70.RES -text svneol=unset#unset
-Indy10/Lib/Core/IndyCore70.dpk -text
-Indy10/Lib/Core/IndyCore70.rc -text
-Indy10/Lib/Core/IndyCore90.RES -text svneol=unset#unset
-Indy10/Lib/Core/IndyCore90.bdsproj -text
-Indy10/Lib/Core/IndyCore90.dpk -text
-Indy10/Lib/Core/IndyCore90.rc -text
-Indy10/Lib/Core/IndyCore90Net.bdsproj -text
-Indy10/Lib/Core/IndyCore90Net.dpk -text
-Indy10/Lib/Core/IndyCoreK3.dpk -text
-Indy10/Lib/Core/Makefile.fpc -text
-Indy10/Lib/Core/Res/IdCreditsBitmap.RES -text svneol=unset#unset
-Indy10/Lib/Core/Res/IdCreditsBitmap.rc -text
-Indy10/Lib/Core/Res/Maint/1sink.jpg -text svneol=unset#image/jpeg
-Indy10/Lib/Core/Res/Maint/1sinkCropped.jpg -text svneol=unset#image/jpeg
-Indy10/Lib/Core/Res/Maint/1sinkPlainCropped.jpg -text svneol=unset#image/jpeg
-Indy10/Lib/Core/Res/Maint/1sinkPlainCroppedRed.bmp -text svneol=unset#unset
-Indy10/Lib/Core/Res/Maint/1sinkPlainCroppedRed.jpg -text svneol=unset#image/jpeg
-Indy10/Lib/Core/Res/Maint/sinkdr.wav -text svneol=unset#unset
-Indy10/Lib/Core/Res/Sink.bmp -text svneol=unset#unset
-Indy10/Lib/Core/Res/TIDABOUTPICTURE.BMP -text svneol=unset#unset
-Indy10/Lib/Core/Res/makeres.bat eol=crlf
-Indy10/Lib/Core/Res/sinkdr.wav -text svneol=unset#unset
-Indy10/Lib/Core/dclIndyCore100.bdsproj -text
-Indy10/Lib/Core/dclIndyCore100.dpk -text
-Indy10/Lib/Core/dclIndyCore100.rc -text
-Indy10/Lib/Core/dclIndyCore100.res -text svneol=unset#unset
-Indy10/Lib/Core/dclIndyCore100Net.bdsproj -text
-Indy10/Lib/Core/dclIndyCore100Net.dpk -text
-Indy10/Lib/Core/dclIndyCore110.dpk -text
-Indy10/Lib/Core/dclIndyCore110.rc -text
-Indy10/Lib/Core/dclIndyCore110Net.dpk -text
-Indy10/Lib/Core/dclIndyCore120.dpk -text
-Indy10/Lib/Core/dclIndyCore120.rc -text
-Indy10/Lib/Core/dclIndyCore120Net.dpk -text
-Indy10/Lib/Core/dclIndyCore50.dpk -text
-Indy10/Lib/Core/dclIndyCore50.rc -text
-Indy10/Lib/Core/dclIndyCore50.res -text svneol=unset#unset
-Indy10/Lib/Core/dclIndyCore60.dpk -text
-Indy10/Lib/Core/dclIndyCore60.rc -text
-Indy10/Lib/Core/dclIndyCore60.res -text svneol=unset#unset
-Indy10/Lib/Core/dclIndyCore70.dpk -text
-Indy10/Lib/Core/dclIndyCore70.rc -text
-Indy10/Lib/Core/dclIndyCore70.res -text svneol=unset#unset
-Indy10/Lib/Core/dclIndyCore90.bdsproj -text
-Indy10/Lib/Core/dclIndyCore90.dpk -text
-Indy10/Lib/Core/dclIndyCore90.rc -text
-Indy10/Lib/Core/dclIndyCore90.res -text svneol=unset#unset
-Indy10/Lib/Core/dclIndyCore90Net.bdsproj -text
-Indy10/Lib/Core/dclIndyCore90Net.dpk -text
-Indy10/Lib/Core/dclindycorek3.dpk -text
-Indy10/Lib/Core/dclindycorek3.dpkl -text
-Indy10/Lib/Core/dclindycorek3.res -text svneol=unset#unset
-Indy10/Lib/Core/indycorefpc.pas -text
-Indy10/Lib/Design/DsnIndy.bdsproj -text
-Indy10/Lib/Design/DsnIndy.dpr -text
-Indy10/Lib/Design/DsnIndy90.bdsproj -text
-Indy10/Lib/Design/DsnIndy90.dpr -text
-Indy10/Lib/Design/IdDsnCoreResourceStrings.pas -text
-Indy10/Lib/Design/IdDsnNETCompEditor.pas -text
-Indy10/Lib/Design/IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources -text svneol=unset#unset
-Indy10/Lib/Design/IdDsnPropEdBindingNET.pas -text
-Indy10/Lib/Design/IdDsnPropEdBindingNET.resx -text
-Indy10/Lib/FCL/IdCompilerDefines.inc -text
-Indy10/Lib/FCL/IdVers.inc -text
-Indy10/Lib/FCL/Indy.Sockets.bdsproj -text
-Indy10/Lib/FCL/Indy.Sockets.dpr -text
-Indy10/Lib/FCL/Mono.Security.dll -text svneol=unset#unset
-Indy10/Lib/FreeBSDPort/Makefile -text
-Indy10/Lib/FreeBSDPort/distinfo -text
-Indy10/Lib/FreeBSDPort/make-plist.sh -text svneol=LF#unset
-Indy10/Lib/FreeBSDPort/pkg-descr -text
-Indy10/Lib/FreeBSDPort/pkg-plist -text
-Indy10/Lib/Fullc4.bat eol=crlf
-Indy10/Lib/Fullc5.bat eol=crlf
-Indy10/Lib/Fullc6.bat eol=crlf
-Indy10/Lib/Fulld10.bat eol=crlf
-Indy10/Lib/Fulld5.bat eol=crlf
-Indy10/Lib/Fulld6.bat eol=crlf
-Indy10/Lib/Fulld7.bat eol=crlf
-Indy10/Lib/Fulld9.bat eol=crlf
-Indy10/Lib/Indy.Sockets.bdsproj -text
-Indy10/Lib/Indy.Sockets.dpr -text
-Indy10/Lib/Indy.SocketsDebug.bdsproj -text
-Indy10/Lib/Indy.SocketsDebug.dpr -text
-Indy10/Lib/Indy100Net.dpk -text
-Indy10/Lib/Indy110Net.dpk -text
-Indy10/Lib/Indy90Net.dpk -text
-Indy10/Lib/Protocols/DelphiZLib.cpp -text svneol=native#unset
-Indy10/Lib/Protocols/DelphiZLib.lib -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdBlockCipherIntercept.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdChargenServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdChargenUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdConnectThroughHttpProxy.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdCookieManager.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDICT.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDICTServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDISCARDServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDNSResolver.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDNSServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDateTimeStamp.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDayTime.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDayTimeServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDayTimeUDP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDayTimeUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDecoderBinHex4.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDecoderMIME.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDecoderQuotedPrintable.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDecoderUUE.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDecoderXXE.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdDiscardUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdECHOServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEcho.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEchoUDP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEchoUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEncoderBinHex4.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEncoderMIME.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEncoderQuotedPrintable.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEncoderUUE.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdEncoderXXE.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdFSP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdFTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdFTPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdFinger.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdFingerServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdGopher.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdGopherServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdHTTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdHTTPProxyServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdHTTPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdHostnameServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIMAP4.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIMAP4Server.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIOHandlerChain.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIOHandlerSocket.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIOHandlerThrottle.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIPAddrMon.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIPWatch.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIRC.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIRCServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIdent.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdIdentServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdLPR.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMBCSDecoder.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMailBox.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMappedFTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMappedPOP3.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMappedPortTCP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMappedPortUDP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMappedTelnet.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMessage.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMessageDecoder.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMessageDecoderMIME.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMessageDecoderYENC.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMessageEncoder.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMessageEncoderMIME.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdMessageEncoderYENC.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdNNTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdNNTPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdNetworkCalculator.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdPOP3.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdPOP3Server.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdQOTD.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdQOTDServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdQOTDUDP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdQotdUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdRSH.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdRSHServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdRawClient.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdRexec.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdRexecServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASL.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLAnonymous.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLCRAMMD5.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLExternal.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLList.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLLogin.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLOTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLPlain.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSASLSKey.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSMTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSMTPRelay.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSMTPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSNPP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSNTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSOCKSServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSSLIOHandlerSocket.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdServerCompressionIntercept.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdServerIOHandlerSocket.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdServerIOHandlerStream.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdServerInterceptLogEvent.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdServerInterceptLogFile.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSysLog.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSysLogMessage.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSyslogServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSystat.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSystatServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSystatUDP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdSystatUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTelnet.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTelnetServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTime.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTimeServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTimeUDP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTimeUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTrivialFTP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTrivialFTPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTunnelMaster.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdTunnelSlave.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdUnixTime.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdUnixTimeServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdUnixTimeUDP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdUnixTimeUDPServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdUserAccounts.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdUserManager.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdUserPassProvider.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdVCard.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdWebDAV.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdWhoIsServer.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/TIdWhois.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIDIMFEncoder.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIDMBCSEncoder.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdCoderMD2.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdCoderMD4.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdCoderMD5.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdCompressionIntercept.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdCompressorBorZLib.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdCompressorZLibEx.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdConnectionInterceptOpenSSL.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdFTPFileSystem.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdHL7.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdIMFDecoder.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdRLECompress.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdRLEDecompress.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdSNMP.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdSSLIOHandlerSocketOpenSSL.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdServerIOHandlerOpenSSL.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdServerIOHandlerSSL.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdServerInterceptOpenSSL.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdThreadMgrDefault.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IconsDotNet/Unref/TIdThreadMgrPool.bmp -text svneol=unset#unset
-Indy10/Lib/Protocols/IdASN1Coder.pas -text
-Indy10/Lib/Protocols/IdASN1Util.pas -text
-Indy10/Lib/Protocols/IdAllAuthentications.pas -text
-Indy10/Lib/Protocols/IdAllFTPListParsers.pas -text
-Indy10/Lib/Protocols/IdAllHeaderCoders.pas -text
-Indy10/Lib/Protocols/IdAttachment.pas -text
-Indy10/Lib/Protocols/IdAttachmentFile.pas -text
-Indy10/Lib/Protocols/IdAttachmentMemory.pas -text
-Indy10/Lib/Protocols/IdAuthentication.pas -text
-Indy10/Lib/Protocols/IdAuthenticationDigest.pas -text
-Indy10/Lib/Protocols/IdAuthenticationManager.pas -text
-Indy10/Lib/Protocols/IdAuthenticationNTLM.pas -text
-Indy10/Lib/Protocols/IdAuthenticationSSPI.pas -text
-Indy10/Lib/Protocols/IdBlockCipherIntercept.pas -text
-Indy10/Lib/Protocols/IdChargenServer.pas -text
-Indy10/Lib/Protocols/IdChargenUDPServer.pas -text
-Indy10/Lib/Protocols/IdCharsets.pas -text
-Indy10/Lib/Protocols/IdCoder.pas -text
-Indy10/Lib/Protocols/IdCoder00E.pas -text
-Indy10/Lib/Protocols/IdCoder3to4.pas -text
-Indy10/Lib/Protocols/IdCoderBinHex4.pas -text
-Indy10/Lib/Protocols/IdCoderHeader.pas -text
-Indy10/Lib/Protocols/IdCoderMIME.pas -text
-Indy10/Lib/Protocols/IdCoderQuotedPrintable.pas -text
-Indy10/Lib/Protocols/IdCoderTNEF.pas -text
-Indy10/Lib/Protocols/IdCoderUUE.pas -text
-Indy10/Lib/Protocols/IdCoderXXE.pas -text
-Indy10/Lib/Protocols/IdCompilerDefines.inc -text
-Indy10/Lib/Protocols/IdCompressionIntercept.pas -text
-Indy10/Lib/Protocols/IdCompressorZLib.pas -text
-Indy10/Lib/Protocols/IdConnectThroughHttpProxy.pas -text
-Indy10/Lib/Protocols/IdContainers.pas -text
-Indy10/Lib/Protocols/IdCookie.pas -text
-Indy10/Lib/Protocols/IdCookieManager.pas -text
-Indy10/Lib/Protocols/IdCustomHTTPServer.pas -text
-Indy10/Lib/Protocols/IdDICT.pas -text
-Indy10/Lib/Protocols/IdDICTCommon.pas -text
-Indy10/Lib/Protocols/IdDICTServer.pas -text
-Indy10/Lib/Protocols/IdDNSCommon.pas -text
-Indy10/Lib/Protocols/IdDNSResolver.pas -text
-Indy10/Lib/Protocols/IdDNSServer.pas -text
-Indy10/Lib/Protocols/IdDateTimeStamp.pas -text
-Indy10/Lib/Protocols/IdDayTime.pas -text
-Indy10/Lib/Protocols/IdDayTimeServer.pas -text
-Indy10/Lib/Protocols/IdDayTimeUDP.pas -text
-Indy10/Lib/Protocols/IdDayTimeUDPServer.pas -text
-Indy10/Lib/Protocols/IdDiscardServer.pas -text
-Indy10/Lib/Protocols/IdDiscardUDPServer.pas -text
-Indy10/Lib/Protocols/IdDsnRegister.pas -text
-Indy10/Lib/Protocols/IdDsnResourceStrings.pas -text
-Indy10/Lib/Protocols/IdDsnSASLListEditor.pas -text
-Indy10/Lib/Protocols/IdDsnSASLListEditorForm.pas -text
-Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources -text svneol=unset#unset
-Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.pas -text
-Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.resx -text
-Indy10/Lib/Protocols/IdDsnSASLListEditorFormVCL.lrs -text
-Indy10/Lib/Protocols/IdDsnSASLListEditorFormVCL.pas -text
-Indy10/Lib/Protocols/IdDummyUnit.pas -text
-Indy10/Lib/Protocols/IdEMailAddress.pas -text
-Indy10/Lib/Protocols/IdEcho.pas -text
-Indy10/Lib/Protocols/IdEchoServer.pas -text
-Indy10/Lib/Protocols/IdEchoUDP.pas -text
-Indy10/Lib/Protocols/IdEchoUDPServer.pas -text
-Indy10/Lib/Protocols/IdExplicitTLSClientServerBase.pas -text
-Indy10/Lib/Protocols/IdFSP.pas -text
-Indy10/Lib/Protocols/IdFTP.pas -text
-Indy10/Lib/Protocols/IdFTPBaseFileSystem.pas -text
-Indy10/Lib/Protocols/IdFTPCommon.pas -text
-Indy10/Lib/Protocols/IdFTPList.pas -text
-Indy10/Lib/Protocols/IdFTPListOutput.pas -text
-Indy10/Lib/Protocols/IdFTPListParseAS400.pas -text
-Indy10/Lib/Protocols/IdFTPListParseBase.pas -text
-Indy10/Lib/Protocols/IdFTPListParseBullGCOS7.pas -text
-Indy10/Lib/Protocols/IdFTPListParseBullGCOS8.pas -text
-Indy10/Lib/Protocols/IdFTPListParseChameleonNewt.pas -text
-Indy10/Lib/Protocols/IdFTPListParseCiscoIOS.pas -text
-Indy10/Lib/Protocols/IdFTPListParseDistinctTCPIP.pas -text
-Indy10/Lib/Protocols/IdFTPListParseEPLF.pas -text
-Indy10/Lib/Protocols/IdFTPListParseHellSoft.pas -text
-Indy10/Lib/Protocols/IdFTPListParseKA9Q.pas -text
-Indy10/Lib/Protocols/IdFTPListParseMPEiX.pas -text
-Indy10/Lib/Protocols/IdFTPListParseMVS.pas -text
-Indy10/Lib/Protocols/IdFTPListParseMicrowareOS9.pas -text
-Indy10/Lib/Protocols/IdFTPListParseMusic.pas -text
-Indy10/Lib/Protocols/IdFTPListParseNCSAForDOS.pas -text
-Indy10/Lib/Protocols/IdFTPListParseNCSAForMACOS.pas -text
-Indy10/Lib/Protocols/IdFTPListParseNovellNetware.pas -text
-Indy10/Lib/Protocols/IdFTPListParseNovellNetwarePSU.pas -text
-Indy10/Lib/Protocols/IdFTPListParseOS2.pas -text
-Indy10/Lib/Protocols/IdFTPListParsePCNFSD.pas -text
-Indy10/Lib/Protocols/IdFTPListParseStercomOS390Exp.pas -text
-Indy10/Lib/Protocols/IdFTPListParseStercomUnixEnt.pas -text
-Indy10/Lib/Protocols/IdFTPListParseStratusVOS.pas -text
-Indy10/Lib/Protocols/IdFTPListParseSuperTCP.pas -text
-Indy10/Lib/Protocols/IdFTPListParseTOPS20.pas -text
-Indy10/Lib/Protocols/IdFTPListParseTSXPlus.pas -text
-Indy10/Lib/Protocols/IdFTPListParseTandemGuardian.pas -text
-Indy10/Lib/Protocols/IdFTPListParseUnisysClearPath.pas -text
-Indy10/Lib/Protocols/IdFTPListParseUnix.pas -text
-Indy10/Lib/Protocols/IdFTPListParseVM.pas -text
-Indy10/Lib/Protocols/IdFTPListParseVMS.pas -text
-Indy10/Lib/Protocols/IdFTPListParseVSE.pas -text
-Indy10/Lib/Protocols/IdFTPListParseVxWorks.pas -text
-Indy10/Lib/Protocols/IdFTPListParseWfFTP.pas -text
-Indy10/Lib/Protocols/IdFTPListParseWinQVTNET.pas -text
-Indy10/Lib/Protocols/IdFTPListParseWindowsNT.pas -text
-Indy10/Lib/Protocols/IdFTPListParseXecomMicroRTOS.pas -text
-Indy10/Lib/Protocols/IdFTPListTypes.pas -text
-Indy10/Lib/Protocols/IdFTPServer.pas -text
-Indy10/Lib/Protocols/IdFTPServerContextBase.pas -text
-Indy10/Lib/Protocols/IdFinger.pas -text
-Indy10/Lib/Protocols/IdFingerServer.pas -text
-Indy10/Lib/Protocols/IdGlobalProtocols.pas -text
-Indy10/Lib/Protocols/IdGopher.pas -text
-Indy10/Lib/Protocols/IdGopherConsts.pas -text
-Indy10/Lib/Protocols/IdGopherServer.pas -text
-Indy10/Lib/Protocols/IdHL7.pas -text
-Indy10/Lib/Protocols/IdHMAC.pas -text
-Indy10/Lib/Protocols/IdHMACMD5.pas -text
-Indy10/Lib/Protocols/IdHMACSHA1.pas -text
-Indy10/Lib/Protocols/IdHTTP.pas -text
-Indy10/Lib/Protocols/IdHTTPHeaderInfo.pas -text
-Indy10/Lib/Protocols/IdHTTPProxyServer.pas -text
-Indy10/Lib/Protocols/IdHTTPServer.pas -text
-Indy10/Lib/Protocols/IdHTTPWebBrokerBridge.pas -text
-Indy10/Lib/Protocols/IdHash.pas -text
-Indy10/Lib/Protocols/IdHashAdler32.pas -text
-Indy10/Lib/Protocols/IdHashCRC.pas -text
-Indy10/Lib/Protocols/IdHashElf.pas -text
-Indy10/Lib/Protocols/IdHashMessageDigest.pas -text
-Indy10/Lib/Protocols/IdHashSHA1.pas -text
-Indy10/Lib/Protocols/IdHeaderCoder2022JP.pas -text
-Indy10/Lib/Protocols/IdHeaderCoderBase.pas -text
-Indy10/Lib/Protocols/IdHeaderCoderBig5.pas -text
-Indy10/Lib/Protocols/IdHeaderCoderDotNet.pas -text
-Indy10/Lib/Protocols/IdHeaderCoderPlain.pas -text
-Indy10/Lib/Protocols/IdHeaderCoderUTF8.pas -text
-Indy10/Lib/Protocols/IdHeaderList.pas -text
-Indy10/Lib/Protocols/IdHostnameServer.pas -text
-Indy10/Lib/Protocols/IdIMAP4.pas -text
-Indy10/Lib/Protocols/IdIMAP4Server.pas -text
-Indy10/Lib/Protocols/IdIPAddrMon.pas -text
-Indy10/Lib/Protocols/IdIPWatch.pas -text
-Indy10/Lib/Protocols/IdIRC.pas -text
-Indy10/Lib/Protocols/IdIdent.pas -text
-Indy10/Lib/Protocols/IdIdentServer.pas -text
-Indy10/Lib/Protocols/IdIrcServer.pas -text
-Indy10/Lib/Protocols/IdLDAPV3.pas -text
-Indy10/Lib/Protocols/IdLDAPV3Coder.pas -text
-Indy10/Lib/Protocols/IdLPR.pas -text
-Indy10/Lib/Protocols/IdMIMETypes.pas -text
-Indy10/Lib/Protocols/IdMailBox.pas -text
-Indy10/Lib/Protocols/IdMappedFTP.pas -text
-Indy10/Lib/Protocols/IdMappedPOP3.pas -text
-Indy10/Lib/Protocols/IdMappedPortTCP.pas -text
-Indy10/Lib/Protocols/IdMappedPortUDP.pas -text
-Indy10/Lib/Protocols/IdMappedTelnet.pas -text
-Indy10/Lib/Protocols/IdMessage.pas -text
-Indy10/Lib/Protocols/IdMessageBuilder.pas -text
-Indy10/Lib/Protocols/IdMessageClient.pas -text
-Indy10/Lib/Protocols/IdMessageCoder.pas -text
-Indy10/Lib/Protocols/IdMessageCoderMIME.pas -text
-Indy10/Lib/Protocols/IdMessageCoderQuotedPrintable.pas -text
-Indy10/Lib/Protocols/IdMessageCoderUUE.pas -text
-Indy10/Lib/Protocols/IdMessageCoderXXE.pas -text
-Indy10/Lib/Protocols/IdMessageCoderYenc.pas -text
-Indy10/Lib/Protocols/IdMessageCollection.pas -text
-Indy10/Lib/Protocols/IdMessageParts.pas -text
-Indy10/Lib/Protocols/IdMultipartFormData.pas -text
-Indy10/Lib/Protocols/IdNNTP.pas -text
-Indy10/Lib/Protocols/IdNNTPServer.pas -text
-Indy10/Lib/Protocols/IdNTLM.pas -text
-Indy10/Lib/Protocols/IdNetworkCalculator.pas -text
-Indy10/Lib/Protocols/IdOSFileName.pas -text
-Indy10/Lib/Protocols/IdOTPCalculator.pas -text
-Indy10/Lib/Protocols/IdPOP3.pas -text
-Indy10/Lib/Protocols/IdPOP3Server.pas -text
-Indy10/Lib/Protocols/IdPOP4Server.pas -text
-Indy10/Lib/Protocols/IdProtocols90ASM90.inc -text
-Indy10/Lib/Protocols/IdQOTDUDP.pas -text
-Indy10/Lib/Protocols/IdQOTDUDPServer.pas -text
-Indy10/Lib/Protocols/IdQotd.pas -text
-Indy10/Lib/Protocols/IdQotdServer.pas -text
-Indy10/Lib/Protocols/IdRSH.pas -text
-Indy10/Lib/Protocols/IdRSHServer.pas -text
-Indy10/Lib/Protocols/IdRegister.dcr -text svneol=unset#unset
-Indy10/Lib/Protocols/IdRegister.lrs -text
-Indy10/Lib/Protocols/IdRegister.pas -text
-Indy10/Lib/Protocols/IdRegisterCool.dcr -text svneol=unset#unset
-Indy10/Lib/Protocols/IdRemoteCMDClient.pas -text
-Indy10/Lib/Protocols/IdRemoteCMDServer.pas -text
-Indy10/Lib/Protocols/IdReplyFTP.pas -text
-Indy10/Lib/Protocols/IdReplyIMAP4.pas -text
-Indy10/Lib/Protocols/IdReplyPOP3.pas -text
-Indy10/Lib/Protocols/IdReplySMTP.pas -text
-Indy10/Lib/Protocols/IdResourceStringsProtocols.pas -text
-Indy10/Lib/Protocols/IdRexec.pas -text
-Indy10/Lib/Protocols/IdRexecServer.pas -text
-Indy10/Lib/Protocols/IdSASL.pas -text
-Indy10/Lib/Protocols/IdSASLAnonymous.pas -text
-Indy10/Lib/Protocols/IdSASLCollection.pas -text
-Indy10/Lib/Protocols/IdSASLDigest.pas -text
-Indy10/Lib/Protocols/IdSASLExternal.pas -text
-Indy10/Lib/Protocols/IdSASLListEditorForm.RES -text svneol=unset#unset
-Indy10/Lib/Protocols/IdSASLListEditorForm.resources -text svneol=unset#unset
-Indy10/Lib/Protocols/IdSASLLogin.pas -text
-Indy10/Lib/Protocols/IdSASLOTP.pas -text
-Indy10/Lib/Protocols/IdSASLPlain.pas -text
-Indy10/Lib/Protocols/IdSASLSKey.pas -text
-Indy10/Lib/Protocols/IdSASLUserPass.pas -text
-Indy10/Lib/Protocols/IdSASL_CRAMBase.pas -text
-Indy10/Lib/Protocols/IdSASL_CRAM_MD5.pas -text
-Indy10/Lib/Protocols/IdSASL_CRAM_SHA1.pas -text
-Indy10/Lib/Protocols/IdSASL_NTLM.pas -text
-Indy10/Lib/Protocols/IdSMTP.pas -text
-Indy10/Lib/Protocols/IdSMTPBase.pas -text
-Indy10/Lib/Protocols/IdSMTPRelay.pas -text
-Indy10/Lib/Protocols/IdSMTPServer.pas -text
-Indy10/Lib/Protocols/IdSNMP.pas -text
-Indy10/Lib/Protocols/IdSNPP.pas -text
-Indy10/Lib/Protocols/IdSNTP.pas -text
-Indy10/Lib/Protocols/IdSSH.pas -text
-Indy10/Lib/Protocols/IdSSL.pas -text
-Indy10/Lib/Protocols/IdSSLDotNET.pas -text
-Indy10/Lib/Protocols/IdSSLOpenSSL.pas -text
-Indy10/Lib/Protocols/IdSSLOpenSSLHeaders.pas -text
-Indy10/Lib/Protocols/IdSSPI.pas -text
-Indy10/Lib/Protocols/IdSecurity90ASM90.inc -text
-Indy10/Lib/Protocols/IdServerIOHandlerSSLOpenSSL.pas -text
-Indy10/Lib/Protocols/IdServerInterceptLogBase.pas -text
-Indy10/Lib/Protocols/IdServerInterceptLogEvent.pas -text
-Indy10/Lib/Protocols/IdServerInterceptLogFile.pas -text
-Indy10/Lib/Protocols/IdSocksServer.pas -text
-Indy10/Lib/Protocols/IdStrings.pas -text
-Indy10/Lib/Protocols/IdSysLog.pas -text
-Indy10/Lib/Protocols/IdSysLogMessage.pas -text
-Indy10/Lib/Protocols/IdSysLogServer.pas -text
-Indy10/Lib/Protocols/IdSystat.pas -text
-Indy10/Lib/Protocols/IdSystatServer.pas -text
-Indy10/Lib/Protocols/IdSystatUDP.pas -text
-Indy10/Lib/Protocols/IdSystatUDPServer.pas -text
-Indy10/Lib/Protocols/IdTelnet.pas -text
-Indy10/Lib/Protocols/IdTelnetServer.pas -text
-Indy10/Lib/Protocols/IdText.pas -text
-Indy10/Lib/Protocols/IdTime.pas -text
-Indy10/Lib/Protocols/IdTimeServer.pas -text
-Indy10/Lib/Protocols/IdTimeUDP.pas -text
-Indy10/Lib/Protocols/IdTimeUDPServer.pas -text
-Indy10/Lib/Protocols/IdTrivialFTP.pas -text
-Indy10/Lib/Protocols/IdTrivialFTPBase.pas -text
-Indy10/Lib/Protocols/IdTrivialFTPServer.pas -text
-Indy10/Lib/Protocols/IdTunnelCommon.pas -text
-Indy10/Lib/Protocols/IdTunnelMaster.pas -text
-Indy10/Lib/Protocols/IdTunnelSlave.pas -text
-Indy10/Lib/Protocols/IdURI.pas -text
-Indy10/Lib/Protocols/IdUnixTime.pas -text
-Indy10/Lib/Protocols/IdUnixTimeServer.pas -text
-Indy10/Lib/Protocols/IdUnixTimeUDP.pas -text
-Indy10/Lib/Protocols/IdUnixTimeUDPServer.pas -text
-Indy10/Lib/Protocols/IdUserAccounts.pas -text
-Indy10/Lib/Protocols/IdUserAccountsOTP.pas -text
-Indy10/Lib/Protocols/IdUserPassProvider.pas -text
-Indy10/Lib/Protocols/IdVCard.pas -text
-Indy10/Lib/Protocols/IdWebDAV.pas -text
-Indy10/Lib/Protocols/IdWhoIsServer.pas -text
-Indy10/Lib/Protocols/IdWhois.pas -text
-Indy10/Lib/Protocols/IdZLib.pas -text
-Indy10/Lib/Protocols/IdZLibCompressorBase.pas -text
-Indy10/Lib/Protocols/IdZLibConst.pas -text
-Indy10/Lib/Protocols/IdZLibHeaders.pas -text
-Indy10/Lib/Protocols/IddclProtocols90ASM90.inc -text
-Indy10/Lib/Protocols/IndyProtocols100.bdsproj -text
-Indy10/Lib/Protocols/IndyProtocols100.dpk -text
-Indy10/Lib/Protocols/IndyProtocols100.rc -text
-Indy10/Lib/Protocols/IndyProtocols100.res -text svneol=unset#unset
-Indy10/Lib/Protocols/IndyProtocols100Net.bdsproj -text
-Indy10/Lib/Protocols/IndyProtocols100Net.dpk -text
-Indy10/Lib/Protocols/IndyProtocols110.dpk -text
-Indy10/Lib/Protocols/IndyProtocols110.rc -text
-Indy10/Lib/Protocols/IndyProtocols110Net.dpk -text
-Indy10/Lib/Protocols/IndyProtocols120.dpk -text
-Indy10/Lib/Protocols/IndyProtocols120.rc -text
-Indy10/Lib/Protocols/IndyProtocols120Net.dpk -text
-Indy10/Lib/Protocols/IndyProtocols40.dpk -text
-Indy10/Lib/Protocols/IndyProtocols40.res -text svneol=unset#unset
-Indy10/Lib/Protocols/IndyProtocols50.dpk -text
-Indy10/Lib/Protocols/IndyProtocols50.rc -text
-Indy10/Lib/Protocols/IndyProtocols50.res -text svneol=unset#unset
-Indy10/Lib/Protocols/IndyProtocols60.dpk -text
-Indy10/Lib/Protocols/IndyProtocols60.rc -text
-Indy10/Lib/Protocols/IndyProtocols60.res -text svneol=unset#unset
-Indy10/Lib/Protocols/IndyProtocols70.dpk -text
-Indy10/Lib/Protocols/IndyProtocols70.rc -text
-Indy10/Lib/Protocols/IndyProtocols70.res -text svneol=unset#unset
-Indy10/Lib/Protocols/IndyProtocols90.bdsproj -text
-Indy10/Lib/Protocols/IndyProtocols90.dpk -text
-Indy10/Lib/Protocols/IndyProtocols90.rc -text
-Indy10/Lib/Protocols/IndyProtocols90.res -text svneol=unset#unset
-Indy10/Lib/Protocols/IndyProtocols90Net.bdsproj -text
-Indy10/Lib/Protocols/IndyProtocols90Net.dpk -text
-Indy10/Lib/Protocols/IndyProtocolsK3.dpk -text
-Indy10/Lib/Protocols/Makefile.fpc -text
-Indy10/Lib/Protocols/ZLib/ZLib.pas -text
-Indy10/Lib/Protocols/ZLib/ZLibConst.pas -text
-Indy10/Lib/Protocols/ZLib/adler32.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/adler32.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/build.bat eol=crlf
-Indy10/Lib/Protocols/ZLib/compress.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/compress.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/crc32.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/crc32.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/crc32.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/deflate.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/deflate.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/deflate.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/example.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/example.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/example.tds -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/gzio.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/gzio.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/infback.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/infback.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/inffast.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/inffast.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/inffast.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/inffixed.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/inflate.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/inflate.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/inflate.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/inftrees.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/inftrees.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/inftrees.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/minigzip.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/minigzip.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/minigzip.tds -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/readme.txt -text svneol=native#unset
-Indy10/Lib/Protocols/ZLib/trees.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/trees.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/trees.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/uncompr.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/uncompr.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/zconf.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/zconf.in.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/zlib.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/zlib.lib -text svneol=unset#unset
-Indy10/Lib/Protocols/ZLib/zlibd32.mak -text
-Indy10/Lib/Protocols/ZLib/zutil.c -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/zutil.h -text svneol=LF#unset
-Indy10/Lib/Protocols/ZLib/zutil.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/adler32.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/compress.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/crc32.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/dclIndyProtocols100.bdsproj -text
-Indy10/Lib/Protocols/dclIndyProtocols100.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols100.rc -text
-Indy10/Lib/Protocols/dclIndyProtocols100Net.bdsproj -text
-Indy10/Lib/Protocols/dclIndyProtocols100Net.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols110.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols110.rc -text
-Indy10/Lib/Protocols/dclIndyProtocols110Net.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols120.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols120.rc -text
-Indy10/Lib/Protocols/dclIndyProtocols120Net.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols50.RES -text svneol=unset#unset
-Indy10/Lib/Protocols/dclIndyProtocols50.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols50.rc -text
-Indy10/Lib/Protocols/dclIndyProtocols60.RES -text svneol=unset#unset
-Indy10/Lib/Protocols/dclIndyProtocols60.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols60.rc -text
-Indy10/Lib/Protocols/dclIndyProtocols70.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols70.rc -text
-Indy10/Lib/Protocols/dclIndyProtocols70.res -text svneol=unset#unset
-Indy10/Lib/Protocols/dclIndyProtocols90.bdsproj -text
-Indy10/Lib/Protocols/dclIndyProtocols90.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocols90.rc -text
-Indy10/Lib/Protocols/dclIndyProtocols90.res -text svneol=unset#unset
-Indy10/Lib/Protocols/dclIndyProtocols90Net.bdsproj -text
-Indy10/Lib/Protocols/dclIndyProtocols90Net.dpk -text
-Indy10/Lib/Protocols/dclIndyProtocolsK3.dpk -text
-Indy10/Lib/Protocols/dclindyprotocolslaz.lpk -text
-Indy10/Lib/Protocols/deflate.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/example.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/gzio.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/indyprotocolsfpc.pas -text
-Indy10/Lib/Protocols/infback.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/inffast.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/inflate.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/inftrees.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/minigzip.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/trees.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/uncompr.obj -text svneol=unset#unset
-Indy10/Lib/Protocols/zutil.obj -text svneol=unset#unset
-Indy10/Lib/Security/IconsDotNet/TIdIOHandlerTls.bmp -text svneol=unset#unset
-Indy10/Lib/Security/IconsDotNet/TIdServerIOHandlerTls.bmp -text svneol=unset#unset
-Indy10/Lib/Security/IdCarrierStream.pas -text
-Indy10/Lib/Security/IdIOHandlerTls.pas -text
-Indy10/Lib/Security/IdRegisterSecurity.pas -text
-Indy10/Lib/Security/IdSecurity90ASM90.inc -text
-Indy10/Lib/Security/IdServerIOHandlerTls.pas -text
-Indy10/Lib/Security/IdSocketStream.pas -text
-Indy10/Lib/Security/IdTlsClientOptions.pas -text
-Indy10/Lib/Security/IdTlsServerOptions.pas -text
-Indy10/Lib/Security/IddclSecurity90ASM90.inc -text
-Indy10/Lib/Security/IndySecurity100Net.bdsproj -text
-Indy10/Lib/Security/IndySecurity100Net.dpk -text
-Indy10/Lib/Security/IndySecurity110Net.dpk -text
-Indy10/Lib/Security/IndySecurity90Net.bdsproj -text
-Indy10/Lib/Security/IndySecurity90Net.dpk -text
-Indy10/Lib/Security/dclIndySecurity100Net.bdsproj -text
-Indy10/Lib/Security/dclIndySecurity100Net.dpk -text
-Indy10/Lib/Security/dclIndySecurity110Net.dpk -text
-Indy10/Lib/Security/dclIndySecurity90Net.bdsproj -text
-Indy10/Lib/Security/dclIndySecurity90Net.dpk -text
-Indy10/Lib/SuperCore/IconsDotNet/TIdChainEngine.bmp -text svneol=unset#unset
-Indy10/Lib/SuperCore/IconsDotNet/TIdFiberWeaverInline.bmp -text svneol=unset#unset
-Indy10/Lib/SuperCore/IconsDotNet/TIdFiberWeaverThreaded.bmp -text svneol=unset#unset
-Indy10/Lib/SuperCore/IconsDotNet/TIdSchedulerOfFiber.bmp -text svneol=unset#unset
-Indy10/Lib/SuperCore/IconsDotNet/TIdServerIOHandlerChain.bmp -text svneol=unset#unset
-Indy10/Lib/SuperCore/IdCompilerDefines.inc -text
-Indy10/Lib/SuperCore/IdFiber.pas -text
-Indy10/Lib/SuperCore/IdFiberWeaver.pas -text
-Indy10/Lib/SuperCore/IdFiberWeaverInline.pas -text
-Indy10/Lib/SuperCore/IdFiberWeaverThreaded.pas -text
-Indy10/Lib/SuperCore/IdIOHandlerChain.pas -text
-Indy10/Lib/SuperCore/IdSchedulerOfFiber.pas -text
-Indy10/Lib/SuperCore/IdServerIOHandlerChain.pas -text
-Indy10/Lib/SuperCore/IdSuperCoreRegister.dcr -text svneol=unset#unset
-Indy10/Lib/SuperCore/IdSuperCoreRegister.pas -text
-Indy10/Lib/SuperCore/IdSuperCoreRegisterCool.dcr -text svneol=unset#unset
-Indy10/Lib/SuperCore/IdWorkOpUnit.pas -text
-Indy10/Lib/SuperCore/IdWorkOpUnits.pas -text
-Indy10/Lib/SuperCore/IndySuperCore70.dpk -text
-Indy10/Lib/SuperCore/IndySuperCore70.res -text svneol=unset#unset
-Indy10/Lib/SuperCore/dclIndySuperCore70.dpk -text
-Indy10/Lib/SuperCore/dclIndySuperCore70.res -text svneol=unset#unset
-Indy10/Lib/System/IdAntiFreezeBase.pas -text
-Indy10/Lib/System/IdAssemblyInfo.pas -text
-Indy10/Lib/System/IdBaseComponent.pas -text
-Indy10/Lib/System/IdCTypes.pas -text
-Indy10/Lib/System/IdCompilerDefines.inc -text
-Indy10/Lib/System/IdComponent.pas -text
-Indy10/Lib/System/IdException.pas -text
-Indy10/Lib/System/IdGlobal.pas -text
-Indy10/Lib/System/IdResourceStrings.pas -text
-Indy10/Lib/System/IdStack.pas -text
-Indy10/Lib/System/IdStackBSDBase.pas -text
-Indy10/Lib/System/IdStackConsts.pas -text
-Indy10/Lib/System/IdStackDotNet.pas -text
-Indy10/Lib/System/IdStackLinux.pas -text
-Indy10/Lib/System/IdStackUnix.pas -text
-Indy10/Lib/System/IdStackWindows.pas -text
-Indy10/Lib/System/IdStream.pas -text
-Indy10/Lib/System/IdStreamNET.pas -text
-Indy10/Lib/System/IdStreamVCL.pas -text
-Indy10/Lib/System/IdStruct.pas -text
-Indy10/Lib/System/IdSystem90ASM90.inc -text
-Indy10/Lib/System/IdVers.inc -text
-Indy10/Lib/System/IdWinsock2.pas -text
-Indy10/Lib/System/IdWship6.pas -text
-Indy10/Lib/System/IndySystem100.bdsproj -text
-Indy10/Lib/System/IndySystem100.dpk -text
-Indy10/Lib/System/IndySystem100.rc -text
-Indy10/Lib/System/IndySystem100.res -text svneol=unset#unset
-Indy10/Lib/System/IndySystem100Net.bdsproj -text
-Indy10/Lib/System/IndySystem100Net.dpk -text
-Indy10/Lib/System/IndySystem110.dpk -text
-Indy10/Lib/System/IndySystem110.rc -text
-Indy10/Lib/System/IndySystem110Net.dpk -text
-Indy10/Lib/System/IndySystem120.dpk -text
-Indy10/Lib/System/IndySystem120.rc -text
-Indy10/Lib/System/IndySystem120Net.dpk -text
-Indy10/Lib/System/IndySystem40.dpk -text
-Indy10/Lib/System/IndySystem40.res -text svneol=unset#unset
-Indy10/Lib/System/IndySystem50.dpk -text
-Indy10/Lib/System/IndySystem50.rc -text
-Indy10/Lib/System/IndySystem50.res -text svneol=unset#unset
-Indy10/Lib/System/IndySystem60.dpk -text
-Indy10/Lib/System/IndySystem60.rc -text
-Indy10/Lib/System/IndySystem60.res -text svneol=unset#unset
-Indy10/Lib/System/IndySystem70.dpk -text
-Indy10/Lib/System/IndySystem70.rc -text
-Indy10/Lib/System/IndySystem70.res -text svneol=unset#unset
-Indy10/Lib/System/IndySystem80Net.bdsproj -text
-Indy10/Lib/System/IndySystem80Net.dpk -text
-Indy10/Lib/System/IndySystem90.bdsproj -text
-Indy10/Lib/System/IndySystem90.dpk -text
-Indy10/Lib/System/IndySystem90.rc -text
-Indy10/Lib/System/IndySystem90.res -text svneol=unset#unset
-Indy10/Lib/System/IndySystem90Net.bdsproj -text
-Indy10/Lib/System/IndySystem90Net.dpk -text
-Indy10/Lib/System/IndySystemK3.dpk -text
-Indy10/Lib/System/Makefile.fpc -text
-Indy10/Lib/System/indysystemfpc.pas -text
-Indy10/Lib/debian/README.Debian -text
-Indy10/Lib/debian/changelog -text
-Indy10/Lib/debian/compat -text
-Indy10/Lib/debian/conffiles.ex -text
-Indy10/Lib/debian/control -text
-Indy10/Lib/debian/copyright -text
-Indy10/Lib/debian/docs -text
-Indy10/Lib/debian/files -text
-Indy10/Lib/debian/indy-fpc-default.ex -text
-Indy10/Lib/debian/indy-fpc.doc-base.EX -text
-Indy10/Lib/debian/postinst.ex -text
-Indy10/Lib/debian/postrm.ex -text
-Indy10/Lib/debian/preinst.ex -text
-Indy10/Lib/debian/prerm.ex -text
-Indy10/Lib/debian/rules -text
-Indy10/Lib/debian/watch.ex -text
-Indy10/Lib/examples/Makefile -text
-Indy10/Lib/examples/Makefile.fpc -text
-Indy10/Lib/examples/elizaweb/HTML/Eliza.jpg -text svneol=unset#image/jpeg
-Indy10/Lib/examples/elizaweb/HTML/eliza.html -text svneol=unset#text/html
-Indy10/Lib/examples/elizaweb/HTML/index.html -text svneol=unset#text/html
-Indy10/Lib/examples/elizaweb/HTML/logo.jpg -text svneol=unset#image/jpeg
-Indy10/Lib/examples/elizaweb/Makefile -text
-Indy10/Lib/examples/elizaweb/Makefile.fpc -text
-Indy10/Lib/examples/elizaweb/elizaweb.pas -text
-Indy10/Lib/examples/elizaweb/ezBillClinton.pas -text
-Indy10/Lib/examples/elizaweb/ezEliza.pas -text
-Indy10/Lib/examples/elizaweb/ezEngine.pas -text
-Indy10/Lib/examples/elizaweb/ezIFM.pas -text
-Indy10/Lib/examples/elizaweb/ezMSTechSupport.pas -text
-Indy10/Lib/examples/elizaweb/ezpersonality.pas -text
-Indy10/Lib/examples/httpget/Makefile -text
-Indy10/Lib/examples/httpget/Makefile.fpc -text
-Indy10/Lib/examples/httpget/ftpprothandler.pas -text
-Indy10/Lib/examples/httpget/httpget.pas -text
-Indy10/Lib/examples/httpget/httpprothandler.pas -text
-Indy10/Lib/examples/httpget/prothandler.pas -text
-Indy10/Lib/fpcnotes/COPYING -text
-Indy10/Lib/fpcnotes/COPYING.MPL -text
-Indy10/Lib/fpcnotes/COPYING.modifiedBSD -text
-Indy10/Lib/fpcnotes/README -text
-Indy10/Lib/indy-fpc.spec.template -text
-Indy10/Lib/indymaster-Makefile.fpc -text
-Indy10/Lib/lspFix.dpr -text
-Indy10/Lib/lspFix.exe -text svneol=unset#unset
-Indy10/Lib/makeindyrpm.sh -text svneol=LF#unset
 Indy10/NUnit/Sys.cs -text
 Indy10/Other/Protocols/IdCompressorAbbrevia.pas -text
 Indy10/Test/Core/IdTestBuffer.pas -text
@@ -1684,6 +766,924 @@ Indy10/Test/TestDotNet/IndyNetTest.bdsproj -text
 Indy10/Test/TestDotNet/IndyNetTest.dpr -text
 Indy10/Test/TestExample/IdTest.pas -text
 KB/IndyKB.hm3 -text svneol=unset#unset
+Lib/Clean.bat eol=crlf
+Lib/Computil.dpr -text
+Lib/Computil.exe -text svneol=unset#unset
+Lib/Core/AboutIndyNET.resources -text svneol=unset#unset
+Lib/Core/AboutProg.res -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdCmdTCPClient.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdCmdTCPServer.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdConnectionIntercept.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdICMPClient.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdIOHandlerStack.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdIOHandlerStream.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdIPMCastClient.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdIPMCastServer.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdInterceptSimLog.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdInterceptThrottler.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdLogDebug.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdLogEvent.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdLogFile.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdLogStream.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdSchedulerOfThreadDefault.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdSchedulerOfThreadPool.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdServerIOHandlerStack.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdSimpleServer.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdSocksInfo.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdTCPClient.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdTCPServer.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdThreadComponent.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdUDPClient.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdUDPServer.bmp -text svneol=unset#unset
+Lib/Core/IdAbout.TWinForm.resources -text svneol=unset#unset
+Lib/Core/IdAbout.TfrmAbout.resources -text svneol=unset#unset
+Lib/Core/IdAbout.pas -text
+Lib/Core/IdAbout.resources -text svneol=unset#unset
+Lib/Core/IdAbout.resx -text
+Lib/Core/IdAboutDotNET.TfrmAbout.resources -text svneol=unset#unset
+Lib/Core/IdAboutDotNET.pas -text
+Lib/Core/IdAboutDotNET.resources -text svneol=unset#unset
+Lib/Core/IdAboutDotNET.resx -text
+Lib/Core/IdAboutNET.resources -text svneol=unset#unset
+Lib/Core/IdAboutVCL.RES -text svneol=unset#unset
+Lib/Core/IdAboutVCL.pas -text
+Lib/Core/IdAboutVCL.rc -text
+Lib/Core/IdAntiFreeze.pas -text
+Lib/Core/IdAssignedNumbers.pas -text
+Lib/Core/IdBuffer.pas -text
+Lib/Core/IdCmdTCPClient.pas -text
+Lib/Core/IdCmdTCPServer.pas -text
+Lib/Core/IdCommandHandlers.pas -text
+Lib/Core/IdCompilerDefines.inc -text
+Lib/Core/IdContext.pas -text
+Lib/Core/IdCore90ASM90.inc -text
+Lib/Core/IdCoreDsnRegister.pas -text
+Lib/Core/IdCoreRegister.dcr -text svneol=unset#unset
+Lib/Core/IdCoreRegisterCool.dcr -text svneol=unset#unset
+Lib/Core/IdCreditsBitmap.res -text svneol=unset#unset
+Lib/Core/IdCreditsBitmap.resources -text svneol=unset#unset
+Lib/Core/IdCustomTCPServer.pas -text
+Lib/Core/IdCustomTransparentProxy.pas -text
+Lib/Core/IdDsnBaseCmpEdt.pas -text
+Lib/Core/IdDsnCoreResourceStrings.pas -text
+Lib/Core/IdDsnPropEdBinding.pas -text
+Lib/Core/IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources -text svneol=unset#unset
+Lib/Core/IdDsnPropEdBindingNET.pas -text
+Lib/Core/IdDsnPropEdBindingNET.resx -text
+Lib/Core/IdDsnPropEdBindingVCL.pas -text
+Lib/Core/IdExceptionCore.pas -text
+Lib/Core/IdGlobalCore.pas -text
+Lib/Core/IdIOHandler.pas -text
+Lib/Core/IdIOHandlerSocket.pas -text
+Lib/Core/IdIOHandlerStack.pas -text
+Lib/Core/IdIOHandlerStream.pas -text
+Lib/Core/IdIPAddress.pas -text
+Lib/Core/IdIPMCastBase.pas -text
+Lib/Core/IdIPMCastClient.pas -text
+Lib/Core/IdIPMCastServer.pas -text
+Lib/Core/IdIcmpClient.pas -text
+Lib/Core/IdIntercept.pas -text
+Lib/Core/IdInterceptSimLog.pas -text
+Lib/Core/IdInterceptThrottler.pas -text
+Lib/Core/IdLogBase.pas -text
+Lib/Core/IdLogDebug.pas -text
+Lib/Core/IdLogEvent.pas -text
+Lib/Core/IdLogFile.pas -text
+Lib/Core/IdLogStream.pas -text
+Lib/Core/IdRawBase.pas -text
+Lib/Core/IdRawClient.pas -text
+Lib/Core/IdRawFunctions.pas -text
+Lib/Core/IdRawHeaders.pas -text
+Lib/Core/IdRegisterCore.lrs -text
+Lib/Core/IdRegisterCore.pas -text
+Lib/Core/IdReply.pas -text
+Lib/Core/IdReplyRFC.pas -text
+Lib/Core/IdResourceStringsCore.pas -text
+Lib/Core/IdScheduler.pas -text
+Lib/Core/IdSchedulerOfThread.pas -text
+Lib/Core/IdSchedulerOfThreadDefault.pas -text
+Lib/Core/IdSchedulerOfThreadPool.pas -text
+Lib/Core/IdServerIOHandler.pas -text
+Lib/Core/IdServerIOHandlerSocket.pas -text
+Lib/Core/IdServerIOHandlerStack.pas -text
+Lib/Core/IdSimpleServer.pas -text
+Lib/Core/IdSocketHandle.pas -text
+Lib/Core/IdSocks.pas -text
+Lib/Core/IdSync.pas -text
+Lib/Core/IdTCPClient.pas -text
+Lib/Core/IdTCPConnection.pas -text
+Lib/Core/IdTCPServer.pas -text
+Lib/Core/IdTCPStream.pas -text
+Lib/Core/IdTask.pas -text
+Lib/Core/IdThread.pas -text
+Lib/Core/IdThreadComponent.pas -text
+Lib/Core/IdThreadSafe.pas -text
+Lib/Core/IdTraceRoute.pas -text
+Lib/Core/IdUDPBase.pas -text
+Lib/Core/IdUDPClient.pas -text
+Lib/Core/IdUDPServer.pas -text
+Lib/Core/IdYarn.pas -text
+Lib/Core/IddclCore90ASM90.inc -text
+Lib/Core/IndyCar.bmp -text svneol=unset#unset
+Lib/Core/IndyCore100.bdsproj -text
+Lib/Core/IndyCore100.dpk -text
+Lib/Core/IndyCore100.rc -text
+Lib/Core/IndyCore100.res -text svneol=unset#unset
+Lib/Core/IndyCore100Net.bdsproj -text
+Lib/Core/IndyCore100Net.dpk -text
+Lib/Core/IndyCore110.dpk -text
+Lib/Core/IndyCore110.rc -text
+Lib/Core/IndyCore110Net.dpk -text
+Lib/Core/IndyCore120.dpk -text
+Lib/Core/IndyCore120.rc -text
+Lib/Core/IndyCore120Net.dpk -text
+Lib/Core/IndyCore50.RES -text svneol=unset#unset
+Lib/Core/IndyCore50.dpk -text
+Lib/Core/IndyCore50.rc -text
+Lib/Core/IndyCore60.RES -text svneol=unset#unset
+Lib/Core/IndyCore60.dpk -text
+Lib/Core/IndyCore60.rc -text
+Lib/Core/IndyCore70.RES -text svneol=unset#unset
+Lib/Core/IndyCore70.dpk -text
+Lib/Core/IndyCore70.rc -text
+Lib/Core/IndyCore90.RES -text svneol=unset#unset
+Lib/Core/IndyCore90.bdsproj -text
+Lib/Core/IndyCore90.dpk -text
+Lib/Core/IndyCore90.rc -text
+Lib/Core/IndyCore90Net.bdsproj -text
+Lib/Core/IndyCore90Net.dpk -text
+Lib/Core/IndyCoreK3.dpk -text
+Lib/Core/Makefile.fpc -text
+Lib/Core/Res/IdCreditsBitmap.RES -text svneol=unset#unset
+Lib/Core/Res/IdCreditsBitmap.rc -text
+Lib/Core/Res/Maint/1sink.jpg -text svneol=unset#image/jpeg
+Lib/Core/Res/Maint/1sinkCropped.jpg -text svneol=unset#image/jpeg
+Lib/Core/Res/Maint/1sinkPlainCropped.jpg -text svneol=unset#image/jpeg
+Lib/Core/Res/Maint/1sinkPlainCroppedRed.bmp -text svneol=unset#unset
+Lib/Core/Res/Maint/1sinkPlainCroppedRed.jpg -text svneol=unset#image/jpeg
+Lib/Core/Res/Maint/sinkdr.wav -text svneol=unset#unset
+Lib/Core/Res/Sink.bmp -text svneol=unset#unset
+Lib/Core/Res/TIDABOUTPICTURE.BMP -text svneol=unset#unset
+Lib/Core/Res/makeres.bat eol=crlf
+Lib/Core/Res/sinkdr.wav -text svneol=unset#unset
+Lib/Core/dclIndyCore100.bdsproj -text
+Lib/Core/dclIndyCore100.dpk -text
+Lib/Core/dclIndyCore100.rc -text
+Lib/Core/dclIndyCore100.res -text svneol=unset#unset
+Lib/Core/dclIndyCore100Net.bdsproj -text
+Lib/Core/dclIndyCore100Net.dpk -text
+Lib/Core/dclIndyCore110.dpk -text
+Lib/Core/dclIndyCore110.rc -text
+Lib/Core/dclIndyCore110Net.dpk -text
+Lib/Core/dclIndyCore120.dpk -text
+Lib/Core/dclIndyCore120.rc -text
+Lib/Core/dclIndyCore120Net.dpk -text
+Lib/Core/dclIndyCore50.dpk -text
+Lib/Core/dclIndyCore50.rc -text
+Lib/Core/dclIndyCore50.res -text svneol=unset#unset
+Lib/Core/dclIndyCore60.dpk -text
+Lib/Core/dclIndyCore60.rc -text
+Lib/Core/dclIndyCore60.res -text svneol=unset#unset
+Lib/Core/dclIndyCore70.dpk -text
+Lib/Core/dclIndyCore70.rc -text
+Lib/Core/dclIndyCore70.res -text svneol=unset#unset
+Lib/Core/dclIndyCore90.bdsproj -text
+Lib/Core/dclIndyCore90.dpk -text
+Lib/Core/dclIndyCore90.rc -text
+Lib/Core/dclIndyCore90.res -text svneol=unset#unset
+Lib/Core/dclIndyCore90Net.bdsproj -text
+Lib/Core/dclIndyCore90Net.dpk -text
+Lib/Core/dclindycorek3.dpk -text
+Lib/Core/dclindycorek3.dpkl -text
+Lib/Core/dclindycorek3.res -text svneol=unset#unset
+Lib/Core/indycorefpc.pas -text
+Lib/Design/DsnIndy.bdsproj -text
+Lib/Design/DsnIndy.dpr -text
+Lib/Design/DsnIndy90.bdsproj -text
+Lib/Design/DsnIndy90.dpr -text
+Lib/Design/IdDsnCoreResourceStrings.pas -text
+Lib/Design/IdDsnNETCompEditor.pas -text
+Lib/Design/IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources -text svneol=unset#unset
+Lib/Design/IdDsnPropEdBindingNET.pas -text
+Lib/Design/IdDsnPropEdBindingNET.resx -text
+Lib/FCL/IdCompilerDefines.inc -text
+Lib/FCL/IdVers.inc -text
+Lib/FCL/Indy.Sockets.bdsproj -text
+Lib/FCL/Indy.Sockets.dpr -text
+Lib/FCL/Mono.Security.dll -text svneol=unset#unset
+Lib/FreeBSDPort/Makefile -text
+Lib/FreeBSDPort/distinfo -text
+Lib/FreeBSDPort/make-plist.sh -text svneol=LF#unset
+Lib/FreeBSDPort/pkg-descr -text
+Lib/FreeBSDPort/pkg-plist -text
+Lib/Fullc4.bat eol=crlf
+Lib/Fullc5.bat eol=crlf
+Lib/Fullc6.bat eol=crlf
+Lib/Fulld10.bat eol=crlf
+Lib/Fulld5.bat eol=crlf
+Lib/Fulld6.bat eol=crlf
+Lib/Fulld7.bat eol=crlf
+Lib/Fulld9.bat eol=crlf
+Lib/Indy.Sockets.bdsproj -text
+Lib/Indy.Sockets.dpr -text
+Lib/Indy.SocketsDebug.bdsproj -text
+Lib/Indy.SocketsDebug.dpr -text
+Lib/Indy100Net.dpk -text
+Lib/Indy110Net.dpk -text
+Lib/Indy90Net.dpk -text
+Lib/Protocols/DelphiZLib.cpp -text svneol=native#unset
+Lib/Protocols/DelphiZLib.lib -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdBlockCipherIntercept.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdChargenServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdChargenUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdConnectThroughHttpProxy.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdCookieManager.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDICT.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDICTServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDISCARDServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDNSResolver.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDNSServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDateTimeStamp.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDayTime.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDayTimeServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDayTimeUDP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDayTimeUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDecoderBinHex4.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDecoderMIME.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDecoderQuotedPrintable.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDecoderUUE.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDecoderXXE.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdDiscardUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdECHOServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEcho.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEchoUDP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEchoUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEncoderBinHex4.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEncoderMIME.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEncoderQuotedPrintable.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEncoderUUE.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdEncoderXXE.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdFSP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdFTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdFTPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdFinger.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdFingerServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdGopher.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdGopherServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdHTTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdHTTPProxyServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdHTTPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdHostnameServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIMAP4.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIMAP4Server.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIOHandlerChain.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIOHandlerSocket.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIOHandlerThrottle.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIPAddrMon.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIPWatch.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIRC.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIRCServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIdent.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdIdentServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdLPR.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMBCSDecoder.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMailBox.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMappedFTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMappedPOP3.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMappedPortTCP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMappedPortUDP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMappedTelnet.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMessage.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMessageDecoder.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMessageDecoderMIME.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMessageDecoderYENC.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMessageEncoder.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMessageEncoderMIME.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdMessageEncoderYENC.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdNNTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdNNTPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdNetworkCalculator.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdPOP3.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdPOP3Server.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdQOTD.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdQOTDServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdQOTDUDP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdQotdUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdRSH.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdRSHServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdRawClient.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdRexec.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdRexecServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASL.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLAnonymous.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLCRAMMD5.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLExternal.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLList.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLLogin.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLOTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLPlain.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSASLSKey.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSMTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSMTPRelay.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSMTPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSNPP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSNTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSOCKSServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSSLIOHandlerSocket.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdServerCompressionIntercept.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdServerIOHandlerSocket.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdServerIOHandlerStream.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdServerInterceptLogEvent.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdServerInterceptLogFile.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSysLog.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSysLogMessage.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSyslogServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSystat.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSystatServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSystatUDP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdSystatUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTelnet.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTelnetServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTime.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTimeServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTimeUDP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTimeUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTrivialFTP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTrivialFTPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTunnelMaster.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdTunnelSlave.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdUnixTime.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdUnixTimeServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdUnixTimeUDP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdUnixTimeUDPServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdUserAccounts.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdUserManager.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdUserPassProvider.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdVCard.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdWebDAV.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdWhoIsServer.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/TIdWhois.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIDIMFEncoder.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIDMBCSEncoder.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdCoderMD2.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdCoderMD4.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdCoderMD5.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdCompressionIntercept.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdCompressorBorZLib.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdCompressorZLibEx.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdConnectionInterceptOpenSSL.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdFTPFileSystem.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdHL7.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdIMFDecoder.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdRLECompress.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdRLEDecompress.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdSNMP.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdSSLIOHandlerSocketOpenSSL.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdServerIOHandlerOpenSSL.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdServerIOHandlerSSL.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdServerInterceptOpenSSL.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdThreadMgrDefault.bmp -text svneol=unset#unset
+Lib/Protocols/IconsDotNet/Unref/TIdThreadMgrPool.bmp -text svneol=unset#unset
+Lib/Protocols/IdASN1Coder.pas -text
+Lib/Protocols/IdASN1Util.pas -text
+Lib/Protocols/IdAllAuthentications.pas -text
+Lib/Protocols/IdAllFTPListParsers.pas -text
+Lib/Protocols/IdAllHeaderCoders.pas -text
+Lib/Protocols/IdAttachment.pas -text
+Lib/Protocols/IdAttachmentFile.pas -text
+Lib/Protocols/IdAttachmentMemory.pas -text
+Lib/Protocols/IdAuthentication.pas -text
+Lib/Protocols/IdAuthenticationDigest.pas -text
+Lib/Protocols/IdAuthenticationManager.pas -text
+Lib/Protocols/IdAuthenticationNTLM.pas -text
+Lib/Protocols/IdAuthenticationSSPI.pas -text
+Lib/Protocols/IdBlockCipherIntercept.pas -text
+Lib/Protocols/IdChargenServer.pas -text
+Lib/Protocols/IdChargenUDPServer.pas -text
+Lib/Protocols/IdCharsets.pas -text
+Lib/Protocols/IdCoder.pas -text
+Lib/Protocols/IdCoder00E.pas -text
+Lib/Protocols/IdCoder3to4.pas -text
+Lib/Protocols/IdCoderBinHex4.pas -text
+Lib/Protocols/IdCoderHeader.pas -text
+Lib/Protocols/IdCoderMIME.pas -text
+Lib/Protocols/IdCoderQuotedPrintable.pas -text
+Lib/Protocols/IdCoderTNEF.pas -text
+Lib/Protocols/IdCoderUUE.pas -text
+Lib/Protocols/IdCoderXXE.pas -text
+Lib/Protocols/IdCompilerDefines.inc -text
+Lib/Protocols/IdCompressionIntercept.pas -text
+Lib/Protocols/IdCompressorZLib.pas -text
+Lib/Protocols/IdConnectThroughHttpProxy.pas -text
+Lib/Protocols/IdContainers.pas -text
+Lib/Protocols/IdCookie.pas -text
+Lib/Protocols/IdCookieManager.pas -text
+Lib/Protocols/IdCustomHTTPServer.pas -text
+Lib/Protocols/IdDICT.pas -text
+Lib/Protocols/IdDICTCommon.pas -text
+Lib/Protocols/IdDICTServer.pas -text
+Lib/Protocols/IdDNSCommon.pas -text
+Lib/Protocols/IdDNSResolver.pas -text
+Lib/Protocols/IdDNSServer.pas -text
+Lib/Protocols/IdDateTimeStamp.pas -text
+Lib/Protocols/IdDayTime.pas -text
+Lib/Protocols/IdDayTimeServer.pas -text
+Lib/Protocols/IdDayTimeUDP.pas -text
+Lib/Protocols/IdDayTimeUDPServer.pas -text
+Lib/Protocols/IdDiscardServer.pas -text
+Lib/Protocols/IdDiscardUDPServer.pas -text
+Lib/Protocols/IdDsnRegister.pas -text
+Lib/Protocols/IdDsnResourceStrings.pas -text
+Lib/Protocols/IdDsnSASLListEditor.pas -text
+Lib/Protocols/IdDsnSASLListEditorForm.pas -text
+Lib/Protocols/IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources -text svneol=unset#unset
+Lib/Protocols/IdDsnSASLListEditorFormNET.pas -text
+Lib/Protocols/IdDsnSASLListEditorFormNET.resx -text
+Lib/Protocols/IdDsnSASLListEditorFormVCL.lrs -text
+Lib/Protocols/IdDsnSASLListEditorFormVCL.pas -text
+Lib/Protocols/IdDummyUnit.pas -text
+Lib/Protocols/IdEMailAddress.pas -text
+Lib/Protocols/IdEcho.pas -text
+Lib/Protocols/IdEchoServer.pas -text
+Lib/Protocols/IdEchoUDP.pas -text
+Lib/Protocols/IdEchoUDPServer.pas -text
+Lib/Protocols/IdExplicitTLSClientServerBase.pas -text
+Lib/Protocols/IdFSP.pas -text
+Lib/Protocols/IdFTP.pas -text
+Lib/Protocols/IdFTPBaseFileSystem.pas -text
+Lib/Protocols/IdFTPCommon.pas -text
+Lib/Protocols/IdFTPList.pas -text
+Lib/Protocols/IdFTPListOutput.pas -text
+Lib/Protocols/IdFTPListParseAS400.pas -text
+Lib/Protocols/IdFTPListParseBase.pas -text
+Lib/Protocols/IdFTPListParseBullGCOS7.pas -text
+Lib/Protocols/IdFTPListParseBullGCOS8.pas -text
+Lib/Protocols/IdFTPListParseChameleonNewt.pas -text
+Lib/Protocols/IdFTPListParseCiscoIOS.pas -text
+Lib/Protocols/IdFTPListParseDistinctTCPIP.pas -text
+Lib/Protocols/IdFTPListParseEPLF.pas -text
+Lib/Protocols/IdFTPListParseHellSoft.pas -text
+Lib/Protocols/IdFTPListParseKA9Q.pas -text
+Lib/Protocols/IdFTPListParseMPEiX.pas -text
+Lib/Protocols/IdFTPListParseMVS.pas -text
+Lib/Protocols/IdFTPListParseMicrowareOS9.pas -text
+Lib/Protocols/IdFTPListParseMusic.pas -text
+Lib/Protocols/IdFTPListParseNCSAForDOS.pas -text
+Lib/Protocols/IdFTPListParseNCSAForMACOS.pas -text
+Lib/Protocols/IdFTPListParseNovellNetware.pas -text
+Lib/Protocols/IdFTPListParseNovellNetwarePSU.pas -text
+Lib/Protocols/IdFTPListParseOS2.pas -text
+Lib/Protocols/IdFTPListParsePCNFSD.pas -text
+Lib/Protocols/IdFTPListParseStercomOS390Exp.pas -text
+Lib/Protocols/IdFTPListParseStercomUnixEnt.pas -text
+Lib/Protocols/IdFTPListParseStratusVOS.pas -text
+Lib/Protocols/IdFTPListParseSuperTCP.pas -text
+Lib/Protocols/IdFTPListParseTOPS20.pas -text
+Lib/Protocols/IdFTPListParseTSXPlus.pas -text
+Lib/Protocols/IdFTPListParseTandemGuardian.pas -text
+Lib/Protocols/IdFTPListParseUnisysClearPath.pas -text
+Lib/Protocols/IdFTPListParseUnix.pas -text
+Lib/Protocols/IdFTPListParseVM.pas -text
+Lib/Protocols/IdFTPListParseVMS.pas -text
+Lib/Protocols/IdFTPListParseVSE.pas -text
+Lib/Protocols/IdFTPListParseVxWorks.pas -text
+Lib/Protocols/IdFTPListParseWfFTP.pas -text
+Lib/Protocols/IdFTPListParseWinQVTNET.pas -text
+Lib/Protocols/IdFTPListParseWindowsNT.pas -text
+Lib/Protocols/IdFTPListParseXecomMicroRTOS.pas -text
+Lib/Protocols/IdFTPListTypes.pas -text
+Lib/Protocols/IdFTPServer.pas -text
+Lib/Protocols/IdFTPServerContextBase.pas -text
+Lib/Protocols/IdFinger.pas -text
+Lib/Protocols/IdFingerServer.pas -text
+Lib/Protocols/IdGlobalProtocols.pas -text
+Lib/Protocols/IdGopher.pas -text
+Lib/Protocols/IdGopherConsts.pas -text
+Lib/Protocols/IdGopherServer.pas -text
+Lib/Protocols/IdHL7.pas -text
+Lib/Protocols/IdHMAC.pas -text
+Lib/Protocols/IdHMACMD5.pas -text
+Lib/Protocols/IdHMACSHA1.pas -text
+Lib/Protocols/IdHTTP.pas -text
+Lib/Protocols/IdHTTPHeaderInfo.pas -text
+Lib/Protocols/IdHTTPProxyServer.pas -text
+Lib/Protocols/IdHTTPServer.pas -text
+Lib/Protocols/IdHTTPWebBrokerBridge.pas -text
+Lib/Protocols/IdHash.pas -text
+Lib/Protocols/IdHashAdler32.pas -text
+Lib/Protocols/IdHashCRC.pas -text
+Lib/Protocols/IdHashElf.pas -text
+Lib/Protocols/IdHashMessageDigest.pas -text
+Lib/Protocols/IdHashSHA1.pas -text
+Lib/Protocols/IdHeaderCoder2022JP.pas -text
+Lib/Protocols/IdHeaderCoderBase.pas -text
+Lib/Protocols/IdHeaderCoderBig5.pas -text
+Lib/Protocols/IdHeaderCoderDotNet.pas -text
+Lib/Protocols/IdHeaderCoderPlain.pas -text
+Lib/Protocols/IdHeaderCoderUTF8.pas -text
+Lib/Protocols/IdHeaderList.pas -text
+Lib/Protocols/IdHostnameServer.pas -text
+Lib/Protocols/IdIMAP4.pas -text
+Lib/Protocols/IdIMAP4Server.pas -text
+Lib/Protocols/IdIPAddrMon.pas -text
+Lib/Protocols/IdIPWatch.pas -text
+Lib/Protocols/IdIRC.pas -text
+Lib/Protocols/IdIdent.pas -text
+Lib/Protocols/IdIdentServer.pas -text
+Lib/Protocols/IdIrcServer.pas -text
+Lib/Protocols/IdLDAPV3.pas -text
+Lib/Protocols/IdLDAPV3Coder.pas -text
+Lib/Protocols/IdLPR.pas -text
+Lib/Protocols/IdMIMETypes.pas -text
+Lib/Protocols/IdMailBox.pas -text
+Lib/Protocols/IdMappedFTP.pas -text
+Lib/Protocols/IdMappedPOP3.pas -text
+Lib/Protocols/IdMappedPortTCP.pas -text
+Lib/Protocols/IdMappedPortUDP.pas -text
+Lib/Protocols/IdMappedTelnet.pas -text
+Lib/Protocols/IdMessage.pas -text
+Lib/Protocols/IdMessageBuilder.pas -text
+Lib/Protocols/IdMessageClient.pas -text
+Lib/Protocols/IdMessageCoder.pas -text
+Lib/Protocols/IdMessageCoderMIME.pas -text
+Lib/Protocols/IdMessageCoderQuotedPrintable.pas -text
+Lib/Protocols/IdMessageCoderUUE.pas -text
+Lib/Protocols/IdMessageCoderXXE.pas -text
+Lib/Protocols/IdMessageCoderYenc.pas -text
+Lib/Protocols/IdMessageCollection.pas -text
+Lib/Protocols/IdMessageParts.pas -text
+Lib/Protocols/IdMultipartFormData.pas -text
+Lib/Protocols/IdNNTP.pas -text
+Lib/Protocols/IdNNTPServer.pas -text
+Lib/Protocols/IdNTLM.pas -text
+Lib/Protocols/IdNetworkCalculator.pas -text
+Lib/Protocols/IdOSFileName.pas -text
+Lib/Protocols/IdOTPCalculator.pas -text
+Lib/Protocols/IdPOP3.pas -text
+Lib/Protocols/IdPOP3Server.pas -text
+Lib/Protocols/IdPOP4Server.pas -text
+Lib/Protocols/IdProtocols90ASM90.inc -text
+Lib/Protocols/IdQOTDUDP.pas -text
+Lib/Protocols/IdQOTDUDPServer.pas -text
+Lib/Protocols/IdQotd.pas -text
+Lib/Protocols/IdQotdServer.pas -text
+Lib/Protocols/IdRSH.pas -text
+Lib/Protocols/IdRSHServer.pas -text
+Lib/Protocols/IdRegister.dcr -text svneol=unset#unset
+Lib/Protocols/IdRegister.lrs -text
+Lib/Protocols/IdRegister.pas -text
+Lib/Protocols/IdRegisterCool.dcr -text svneol=unset#unset
+Lib/Protocols/IdRemoteCMDClient.pas -text
+Lib/Protocols/IdRemoteCMDServer.pas -text
+Lib/Protocols/IdReplyFTP.pas -text
+Lib/Protocols/IdReplyIMAP4.pas -text
+Lib/Protocols/IdReplyPOP3.pas -text
+Lib/Protocols/IdReplySMTP.pas -text
+Lib/Protocols/IdResourceStringsProtocols.pas -text
+Lib/Protocols/IdRexec.pas -text
+Lib/Protocols/IdRexecServer.pas -text
+Lib/Protocols/IdSASL.pas -text
+Lib/Protocols/IdSASLAnonymous.pas -text
+Lib/Protocols/IdSASLCollection.pas -text
+Lib/Protocols/IdSASLDigest.pas -text
+Lib/Protocols/IdSASLExternal.pas -text
+Lib/Protocols/IdSASLListEditorForm.RES -text svneol=unset#unset
+Lib/Protocols/IdSASLListEditorForm.resources -text svneol=unset#unset
+Lib/Protocols/IdSASLLogin.pas -text
+Lib/Protocols/IdSASLOTP.pas -text
+Lib/Protocols/IdSASLPlain.pas -text
+Lib/Protocols/IdSASLSKey.pas -text
+Lib/Protocols/IdSASLUserPass.pas -text
+Lib/Protocols/IdSASL_CRAMBase.pas -text
+Lib/Protocols/IdSASL_CRAM_MD5.pas -text
+Lib/Protocols/IdSASL_CRAM_SHA1.pas -text
+Lib/Protocols/IdSASL_NTLM.pas -text
+Lib/Protocols/IdSMTP.pas -text
+Lib/Protocols/IdSMTPBase.pas -text
+Lib/Protocols/IdSMTPRelay.pas -text
+Lib/Protocols/IdSMTPServer.pas -text
+Lib/Protocols/IdSNMP.pas -text
+Lib/Protocols/IdSNPP.pas -text
+Lib/Protocols/IdSNTP.pas -text
+Lib/Protocols/IdSSH.pas -text
+Lib/Protocols/IdSSL.pas -text
+Lib/Protocols/IdSSLDotNET.pas -text
+Lib/Protocols/IdSSLOpenSSL.pas -text
+Lib/Protocols/IdSSLOpenSSLHeaders.pas -text
+Lib/Protocols/IdSSPI.pas -text
+Lib/Protocols/IdSecurity90ASM90.inc -text
+Lib/Protocols/IdServerIOHandlerSSLOpenSSL.pas -text
+Lib/Protocols/IdServerInterceptLogBase.pas -text
+Lib/Protocols/IdServerInterceptLogEvent.pas -text
+Lib/Protocols/IdServerInterceptLogFile.pas -text
+Lib/Protocols/IdSocksServer.pas -text
+Lib/Protocols/IdStrings.pas -text
+Lib/Protocols/IdSysLog.pas -text
+Lib/Protocols/IdSysLogMessage.pas -text
+Lib/Protocols/IdSysLogServer.pas -text
+Lib/Protocols/IdSystat.pas -text
+Lib/Protocols/IdSystatServer.pas -text
+Lib/Protocols/IdSystatUDP.pas -text
+Lib/Protocols/IdSystatUDPServer.pas -text
+Lib/Protocols/IdTelnet.pas -text
+Lib/Protocols/IdTelnetServer.pas -text
+Lib/Protocols/IdText.pas -text
+Lib/Protocols/IdTime.pas -text
+Lib/Protocols/IdTimeServer.pas -text
+Lib/Protocols/IdTimeUDP.pas -text
+Lib/Protocols/IdTimeUDPServer.pas -text
+Lib/Protocols/IdTrivialFTP.pas -text
+Lib/Protocols/IdTrivialFTPBase.pas -text
+Lib/Protocols/IdTrivialFTPServer.pas -text
+Lib/Protocols/IdTunnelCommon.pas -text
+Lib/Protocols/IdTunnelMaster.pas -text
+Lib/Protocols/IdTunnelSlave.pas -text
+Lib/Protocols/IdURI.pas -text
+Lib/Protocols/IdUnixTime.pas -text
+Lib/Protocols/IdUnixTimeServer.pas -text
+Lib/Protocols/IdUnixTimeUDP.pas -text
+Lib/Protocols/IdUnixTimeUDPServer.pas -text
+Lib/Protocols/IdUserAccounts.pas -text
+Lib/Protocols/IdUserAccountsOTP.pas -text
+Lib/Protocols/IdUserPassProvider.pas -text
+Lib/Protocols/IdVCard.pas -text
+Lib/Protocols/IdWebDAV.pas -text
+Lib/Protocols/IdWhoIsServer.pas -text
+Lib/Protocols/IdWhois.pas -text
+Lib/Protocols/IdZLib.pas -text
+Lib/Protocols/IdZLibCompressorBase.pas -text
+Lib/Protocols/IdZLibConst.pas -text
+Lib/Protocols/IdZLibHeaders.pas -text
+Lib/Protocols/IddclProtocols90ASM90.inc -text
+Lib/Protocols/IndyProtocols100.bdsproj -text
+Lib/Protocols/IndyProtocols100.dpk -text
+Lib/Protocols/IndyProtocols100.rc -text
+Lib/Protocols/IndyProtocols100.res -text svneol=unset#unset
+Lib/Protocols/IndyProtocols100Net.bdsproj -text
+Lib/Protocols/IndyProtocols100Net.dpk -text
+Lib/Protocols/IndyProtocols110.dpk -text
+Lib/Protocols/IndyProtocols110.rc -text
+Lib/Protocols/IndyProtocols110Net.dpk -text
+Lib/Protocols/IndyProtocols120.dpk -text
+Lib/Protocols/IndyProtocols120.rc -text
+Lib/Protocols/IndyProtocols120Net.dpk -text
+Lib/Protocols/IndyProtocols40.dpk -text
+Lib/Protocols/IndyProtocols40.res -text svneol=unset#unset
+Lib/Protocols/IndyProtocols50.dpk -text
+Lib/Protocols/IndyProtocols50.rc -text
+Lib/Protocols/IndyProtocols50.res -text svneol=unset#unset
+Lib/Protocols/IndyProtocols60.dpk -text
+Lib/Protocols/IndyProtocols60.rc -text
+Lib/Protocols/IndyProtocols60.res -text svneol=unset#unset
+Lib/Protocols/IndyProtocols70.dpk -text
+Lib/Protocols/IndyProtocols70.rc -text
+Lib/Protocols/IndyProtocols70.res -text svneol=unset#unset
+Lib/Protocols/IndyProtocols90.bdsproj -text
+Lib/Protocols/IndyProtocols90.dpk -text
+Lib/Protocols/IndyProtocols90.rc -text
+Lib/Protocols/IndyProtocols90.res -text svneol=unset#unset
+Lib/Protocols/IndyProtocols90Net.bdsproj -text
+Lib/Protocols/IndyProtocols90Net.dpk -text
+Lib/Protocols/IndyProtocolsK3.dpk -text
+Lib/Protocols/Makefile.fpc -text
+Lib/Protocols/ZLib/ZLib.pas -text
+Lib/Protocols/ZLib/ZLibConst.pas -text
+Lib/Protocols/ZLib/adler32.c -text svneol=LF#unset
+Lib/Protocols/ZLib/adler32.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/build.bat eol=crlf
+Lib/Protocols/ZLib/compress.c -text svneol=LF#unset
+Lib/Protocols/ZLib/compress.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/crc32.c -text svneol=LF#unset
+Lib/Protocols/ZLib/crc32.h -text svneol=LF#unset
+Lib/Protocols/ZLib/crc32.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/deflate.c -text svneol=LF#unset
+Lib/Protocols/ZLib/deflate.h -text svneol=LF#unset
+Lib/Protocols/ZLib/deflate.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/example.c -text svneol=LF#unset
+Lib/Protocols/ZLib/example.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/example.tds -text svneol=unset#unset
+Lib/Protocols/ZLib/gzio.c -text svneol=LF#unset
+Lib/Protocols/ZLib/gzio.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/infback.c -text svneol=LF#unset
+Lib/Protocols/ZLib/infback.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/inffast.c -text svneol=LF#unset
+Lib/Protocols/ZLib/inffast.h -text svneol=LF#unset
+Lib/Protocols/ZLib/inffast.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/inffixed.h -text svneol=LF#unset
+Lib/Protocols/ZLib/inflate.c -text svneol=LF#unset
+Lib/Protocols/ZLib/inflate.h -text svneol=LF#unset
+Lib/Protocols/ZLib/inflate.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/inftrees.c -text svneol=LF#unset
+Lib/Protocols/ZLib/inftrees.h -text svneol=LF#unset
+Lib/Protocols/ZLib/inftrees.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/minigzip.c -text svneol=LF#unset
+Lib/Protocols/ZLib/minigzip.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/minigzip.tds -text svneol=unset#unset
+Lib/Protocols/ZLib/readme.txt -text svneol=native#unset
+Lib/Protocols/ZLib/trees.c -text svneol=LF#unset
+Lib/Protocols/ZLib/trees.h -text svneol=LF#unset
+Lib/Protocols/ZLib/trees.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/uncompr.c -text svneol=LF#unset
+Lib/Protocols/ZLib/uncompr.obj -text svneol=unset#unset
+Lib/Protocols/ZLib/zconf.h -text svneol=LF#unset
+Lib/Protocols/ZLib/zconf.in.h -text svneol=LF#unset
+Lib/Protocols/ZLib/zlib.h -text svneol=LF#unset
+Lib/Protocols/ZLib/zlib.lib -text svneol=unset#unset
+Lib/Protocols/ZLib/zlibd32.mak -text
+Lib/Protocols/ZLib/zutil.c -text svneol=LF#unset
+Lib/Protocols/ZLib/zutil.h -text svneol=LF#unset
+Lib/Protocols/ZLib/zutil.obj -text svneol=unset#unset
+Lib/Protocols/adler32.obj -text svneol=unset#unset
+Lib/Protocols/compress.obj -text svneol=unset#unset
+Lib/Protocols/crc32.obj -text svneol=unset#unset
+Lib/Protocols/dclIndyProtocols100.bdsproj -text
+Lib/Protocols/dclIndyProtocols100.dpk -text
+Lib/Protocols/dclIndyProtocols100.rc -text
+Lib/Protocols/dclIndyProtocols100Net.bdsproj -text
+Lib/Protocols/dclIndyProtocols100Net.dpk -text
+Lib/Protocols/dclIndyProtocols110.dpk -text
+Lib/Protocols/dclIndyProtocols110.rc -text
+Lib/Protocols/dclIndyProtocols110Net.dpk -text
+Lib/Protocols/dclIndyProtocols120.dpk -text
+Lib/Protocols/dclIndyProtocols120.rc -text
+Lib/Protocols/dclIndyProtocols120Net.dpk -text
+Lib/Protocols/dclIndyProtocols50.RES -text svneol=unset#unset
+Lib/Protocols/dclIndyProtocols50.dpk -text
+Lib/Protocols/dclIndyProtocols50.rc -text
+Lib/Protocols/dclIndyProtocols60.RES -text svneol=unset#unset
+Lib/Protocols/dclIndyProtocols60.dpk -text
+Lib/Protocols/dclIndyProtocols60.rc -text
+Lib/Protocols/dclIndyProtocols70.dpk -text
+Lib/Protocols/dclIndyProtocols70.rc -text
+Lib/Protocols/dclIndyProtocols70.res -text svneol=unset#unset
+Lib/Protocols/dclIndyProtocols90.bdsproj -text
+Lib/Protocols/dclIndyProtocols90.dpk -text
+Lib/Protocols/dclIndyProtocols90.rc -text
+Lib/Protocols/dclIndyProtocols90.res -text svneol=unset#unset
+Lib/Protocols/dclIndyProtocols90Net.bdsproj -text
+Lib/Protocols/dclIndyProtocols90Net.dpk -text
+Lib/Protocols/dclIndyProtocolsK3.dpk -text
+Lib/Protocols/dclindyprotocolslaz.lpk -text
+Lib/Protocols/deflate.obj -text svneol=unset#unset
+Lib/Protocols/example.obj -text svneol=unset#unset
+Lib/Protocols/gzio.obj -text svneol=unset#unset
+Lib/Protocols/indyprotocolsfpc.pas -text
+Lib/Protocols/infback.obj -text svneol=unset#unset
+Lib/Protocols/inffast.obj -text svneol=unset#unset
+Lib/Protocols/inflate.obj -text svneol=unset#unset
+Lib/Protocols/inftrees.obj -text svneol=unset#unset
+Lib/Protocols/minigzip.obj -text svneol=unset#unset
+Lib/Protocols/trees.obj -text svneol=unset#unset
+Lib/Protocols/uncompr.obj -text svneol=unset#unset
+Lib/Protocols/zutil.obj -text svneol=unset#unset
+Lib/Security/IconsDotNet/TIdIOHandlerTls.bmp -text svneol=unset#unset
+Lib/Security/IconsDotNet/TIdServerIOHandlerTls.bmp -text svneol=unset#unset
+Lib/Security/IdCarrierStream.pas -text
+Lib/Security/IdIOHandlerTls.pas -text
+Lib/Security/IdRegisterSecurity.pas -text
+Lib/Security/IdSecurity90ASM90.inc -text
+Lib/Security/IdServerIOHandlerTls.pas -text
+Lib/Security/IdSocketStream.pas -text
+Lib/Security/IdTlsClientOptions.pas -text
+Lib/Security/IdTlsServerOptions.pas -text
+Lib/Security/IddclSecurity90ASM90.inc -text
+Lib/Security/IndySecurity100Net.bdsproj -text
+Lib/Security/IndySecurity100Net.dpk -text
+Lib/Security/IndySecurity110Net.dpk -text
+Lib/Security/IndySecurity90Net.bdsproj -text
+Lib/Security/IndySecurity90Net.dpk -text
+Lib/Security/dclIndySecurity100Net.bdsproj -text
+Lib/Security/dclIndySecurity100Net.dpk -text
+Lib/Security/dclIndySecurity110Net.dpk -text
+Lib/Security/dclIndySecurity90Net.bdsproj -text
+Lib/Security/dclIndySecurity90Net.dpk -text
+Lib/SuperCore/IconsDotNet/TIdChainEngine.bmp -text svneol=unset#unset
+Lib/SuperCore/IconsDotNet/TIdFiberWeaverInline.bmp -text svneol=unset#unset
+Lib/SuperCore/IconsDotNet/TIdFiberWeaverThreaded.bmp -text svneol=unset#unset
+Lib/SuperCore/IconsDotNet/TIdSchedulerOfFiber.bmp -text svneol=unset#unset
+Lib/SuperCore/IconsDotNet/TIdServerIOHandlerChain.bmp -text svneol=unset#unset
+Lib/SuperCore/IdCompilerDefines.inc -text
+Lib/SuperCore/IdFiber.pas -text
+Lib/SuperCore/IdFiberWeaver.pas -text
+Lib/SuperCore/IdFiberWeaverInline.pas -text
+Lib/SuperCore/IdFiberWeaverThreaded.pas -text
+Lib/SuperCore/IdIOHandlerChain.pas -text
+Lib/SuperCore/IdSchedulerOfFiber.pas -text
+Lib/SuperCore/IdServerIOHandlerChain.pas -text
+Lib/SuperCore/IdSuperCoreRegister.dcr -text svneol=unset#unset
+Lib/SuperCore/IdSuperCoreRegister.pas -text
+Lib/SuperCore/IdSuperCoreRegisterCool.dcr -text svneol=unset#unset
+Lib/SuperCore/IdWorkOpUnit.pas -text
+Lib/SuperCore/IdWorkOpUnits.pas -text
+Lib/SuperCore/IndySuperCore70.dpk -text
+Lib/SuperCore/IndySuperCore70.res -text svneol=unset#unset
+Lib/SuperCore/dclIndySuperCore70.dpk -text
+Lib/SuperCore/dclIndySuperCore70.res -text svneol=unset#unset
+Lib/System/IdAntiFreezeBase.pas -text
+Lib/System/IdAssemblyInfo.pas -text
+Lib/System/IdBaseComponent.pas -text
+Lib/System/IdCTypes.pas -text
+Lib/System/IdCompilerDefines.inc -text
+Lib/System/IdComponent.pas -text
+Lib/System/IdException.pas -text
+Lib/System/IdGlobal.pas -text
+Lib/System/IdResourceStrings.pas -text
+Lib/System/IdStack.pas -text
+Lib/System/IdStackBSDBase.pas -text
+Lib/System/IdStackConsts.pas -text
+Lib/System/IdStackDotNet.pas -text
+Lib/System/IdStackLinux.pas -text
+Lib/System/IdStackUnix.pas -text
+Lib/System/IdStackWindows.pas -text
+Lib/System/IdStream.pas -text
+Lib/System/IdStreamNET.pas -text
+Lib/System/IdStreamVCL.pas -text
+Lib/System/IdStruct.pas -text
+Lib/System/IdSystem90ASM90.inc -text
+Lib/System/IdVers.inc -text
+Lib/System/IdWinsock2.pas -text
+Lib/System/IdWship6.pas -text
+Lib/System/IndySystem100.bdsproj -text
+Lib/System/IndySystem100.dpk -text
+Lib/System/IndySystem100.rc -text
+Lib/System/IndySystem100.res -text svneol=unset#unset
+Lib/System/IndySystem100Net.bdsproj -text
+Lib/System/IndySystem100Net.dpk -text
+Lib/System/IndySystem110.dpk -text
+Lib/System/IndySystem110.rc -text
+Lib/System/IndySystem110Net.dpk -text
+Lib/System/IndySystem120.dpk -text
+Lib/System/IndySystem120.rc -text
+Lib/System/IndySystem120Net.dpk -text
+Lib/System/IndySystem40.dpk -text
+Lib/System/IndySystem40.res -text svneol=unset#unset
+Lib/System/IndySystem50.dpk -text
+Lib/System/IndySystem50.rc -text
+Lib/System/IndySystem50.res -text svneol=unset#unset
+Lib/System/IndySystem60.dpk -text
+Lib/System/IndySystem60.rc -text
+Lib/System/IndySystem60.res -text svneol=unset#unset
+Lib/System/IndySystem70.dpk -text
+Lib/System/IndySystem70.rc -text
+Lib/System/IndySystem70.res -text svneol=unset#unset
+Lib/System/IndySystem80Net.bdsproj -text
+Lib/System/IndySystem80Net.dpk -text
+Lib/System/IndySystem90.bdsproj -text
+Lib/System/IndySystem90.dpk -text
+Lib/System/IndySystem90.rc -text
+Lib/System/IndySystem90.res -text svneol=unset#unset
+Lib/System/IndySystem90Net.bdsproj -text
+Lib/System/IndySystem90Net.dpk -text
+Lib/System/IndySystemK3.dpk -text
+Lib/System/Makefile.fpc -text
+Lib/System/indysystemfpc.pas -text
+Lib/debian/README.Debian -text
+Lib/debian/changelog -text
+Lib/debian/compat -text
+Lib/debian/conffiles.ex -text
+Lib/debian/control -text
+Lib/debian/copyright -text
+Lib/debian/docs -text
+Lib/debian/files -text
+Lib/debian/indy-fpc-default.ex -text
+Lib/debian/indy-fpc.doc-base.EX -text
+Lib/debian/postinst.ex -text
+Lib/debian/postrm.ex -text
+Lib/debian/preinst.ex -text
+Lib/debian/prerm.ex -text
+Lib/debian/rules -text
+Lib/debian/watch.ex -text
+Lib/examples/Makefile -text
+Lib/examples/Makefile.fpc -text
+Lib/examples/elizaweb/HTML/Eliza.jpg -text svneol=unset#image/jpeg
+Lib/examples/elizaweb/HTML/eliza.html -text svneol=unset#text/html
+Lib/examples/elizaweb/HTML/index.html -text svneol=unset#text/html
+Lib/examples/elizaweb/HTML/logo.jpg -text svneol=unset#image/jpeg
+Lib/examples/elizaweb/Makefile -text
+Lib/examples/elizaweb/Makefile.fpc -text
+Lib/examples/elizaweb/elizaweb.pas -text
+Lib/examples/elizaweb/ezBillClinton.pas -text
+Lib/examples/elizaweb/ezEliza.pas -text
+Lib/examples/elizaweb/ezEngine.pas -text
+Lib/examples/elizaweb/ezIFM.pas -text
+Lib/examples/elizaweb/ezMSTechSupport.pas -text
+Lib/examples/elizaweb/ezpersonality.pas -text
+Lib/examples/httpget/Makefile -text
+Lib/examples/httpget/Makefile.fpc -text
+Lib/examples/httpget/ftpprothandler.pas -text
+Lib/examples/httpget/httpget.pas -text
+Lib/examples/httpget/httpprothandler.pas -text
+Lib/examples/httpget/prothandler.pas -text
+Lib/fpcnotes/COPYING -text
+Lib/fpcnotes/COPYING.MPL -text
+Lib/fpcnotes/COPYING.modifiedBSD -text
+Lib/fpcnotes/README -text
+Lib/indy-fpc.spec.template -text
+Lib/indymaster-Makefile.fpc -text
+Lib/lspFix.dpr -text
+Lib/lspFix.exe -text svneol=unset#unset
+Lib/makeindyrpm.sh -text svneol=LF#unset
 icon16/Blank.bmp -text svneol=unset#unset
 icon16/BlankServer.bmp -text svneol=unset#unset
 icon16/IdCoreRegister.rc -text
