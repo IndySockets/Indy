@@ -713,56 +713,6 @@ Builder/VersionMarker/VersionMarker.fblz -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.fbw -text
 Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.ini -text
-Indy10/Test/Core/IdTestBuffer.pas -text
-Indy10/Test/Core/IdTestCmdTCPClient.pas -text
-Indy10/Test/Core/IdTestCmdTCPServer.pas -text
-Indy10/Test/Core/IdTestIOHandler.pas -text
-Indy10/Test/Core/IdTestIPMCastServer.pas -text
-Indy10/Test/Core/IdTestReply.pas -text
-Indy10/Test/Core/IdTestReplyRFC.pas -text
-Indy10/Test/Core/IdTestSchedulerOfThreadPool.pas -text
-Indy10/Test/Core/IdTestSimpleServer.pas -text
-Indy10/Test/Core/IdTestSocketHandle.pas -text
-Indy10/Test/Core/IdTestTcpClient.pas -text
-Indy10/Test/Core/IdTestThreadComponent.pas -text
-Indy10/Test/IdRegisterTests.pas -text
-Indy10/Test/Protocols/IdTestCoder3to4.pas -text
-Indy10/Test/Protocols/IdTestCoderHeader.pas -text
-Indy10/Test/Protocols/IdTestCoderMIME.pas -text
-Indy10/Test/Protocols/IdTestCoderQuotedPrintable.pas -text
-Indy10/Test/Protocols/IdTestCoderUUE.pas -text
-Indy10/Test/Protocols/IdTestCookie.pas -text
-Indy10/Test/Protocols/IdTestDateTimeStamp.pas -text
-Indy10/Test/Protocols/IdTestFtpServer.pas -text
-Indy10/Test/Protocols/IdTestGlobalProtocols.pas -text
-Indy10/Test/Protocols/IdTestHMACMD5.pas -text
-Indy10/Test/Protocols/IdTestHMACSHA1.pas -text
-Indy10/Test/Protocols/IdTestHttp.pas -text
-Indy10/Test/Protocols/IdTestHttpServer.pas -text
-Indy10/Test/Protocols/IdTestIMAP4.pas -text
-Indy10/Test/Protocols/IdTestMD5Hash.pas -text
-Indy10/Test/Protocols/IdTestMessage.pas -text
-Indy10/Test/Protocols/IdTestMessageCoderMime.pas -text
-Indy10/Test/Protocols/IdTestSHA1Hash.pas -text
-Indy10/Test/Protocols/IdTestSMTPServer.pas -text
-Indy10/Test/Protocols/IdTestTrivialFTP.pas -text
-Indy10/Test/Protocols/IdTestVCard.pas -text
-Indy10/Test/Protocols/IdTestWhois.pas -text
-Indy10/Test/ReadMe.txt -text svneol=native#unset
-Indy10/Test/System/IdTestBaseComponent.pas -text
-Indy10/Test/System/IdTestGlobal.pas -text
-Indy10/Test/System/IdTestObjs.pas -text
-Indy10/Test/System/IdTestStack.pas -text
-Indy10/Test/System/IdTestStreamHelper.pas -text
-Indy10/Test/System/IdTestSys.pas -text
-Indy10/Test/TestDUnit/IdTest.pas -text
-Indy10/Test/TestDUnit/IndyDUnit.dof -text
-Indy10/Test/TestDUnit/IndyDUnit.dpr -text
-Indy10/Test/TestDUnit/IndyDUnit.res -text svneol=unset#unset
-Indy10/Test/TestDotNet/IdTest.pas -text
-Indy10/Test/TestDotNet/IndyNetTest.bdsproj -text
-Indy10/Test/TestDotNet/IndyNetTest.dpr -text
-Indy10/Test/TestExample/IdTest.pas -text
 KB/IndyKB.hm3 -text svneol=unset#unset
 Lib/Clean.bat eol=crlf
 Lib/Computil.dpr -text
@@ -1684,6 +1634,56 @@ Lib/lspFix.exe -text svneol=unset#unset
 Lib/makeindyrpm.sh -text svneol=LF#unset
 NUnit/Sys.cs -text
 Other/Protocols/IdCompressorAbbrevia.pas -text
+Test/Core/IdTestBuffer.pas -text
+Test/Core/IdTestCmdTCPClient.pas -text
+Test/Core/IdTestCmdTCPServer.pas -text
+Test/Core/IdTestIOHandler.pas -text
+Test/Core/IdTestIPMCastServer.pas -text
+Test/Core/IdTestReply.pas -text
+Test/Core/IdTestReplyRFC.pas -text
+Test/Core/IdTestSchedulerOfThreadPool.pas -text
+Test/Core/IdTestSimpleServer.pas -text
+Test/Core/IdTestSocketHandle.pas -text
+Test/Core/IdTestTcpClient.pas -text
+Test/Core/IdTestThreadComponent.pas -text
+Test/IdRegisterTests.pas -text
+Test/Protocols/IdTestCoder3to4.pas -text
+Test/Protocols/IdTestCoderHeader.pas -text
+Test/Protocols/IdTestCoderMIME.pas -text
+Test/Protocols/IdTestCoderQuotedPrintable.pas -text
+Test/Protocols/IdTestCoderUUE.pas -text
+Test/Protocols/IdTestCookie.pas -text
+Test/Protocols/IdTestDateTimeStamp.pas -text
+Test/Protocols/IdTestFtpServer.pas -text
+Test/Protocols/IdTestGlobalProtocols.pas -text
+Test/Protocols/IdTestHMACMD5.pas -text
+Test/Protocols/IdTestHMACSHA1.pas -text
+Test/Protocols/IdTestHttp.pas -text
+Test/Protocols/IdTestHttpServer.pas -text
+Test/Protocols/IdTestIMAP4.pas -text
+Test/Protocols/IdTestMD5Hash.pas -text
+Test/Protocols/IdTestMessage.pas -text
+Test/Protocols/IdTestMessageCoderMime.pas -text
+Test/Protocols/IdTestSHA1Hash.pas -text
+Test/Protocols/IdTestSMTPServer.pas -text
+Test/Protocols/IdTestTrivialFTP.pas -text
+Test/Protocols/IdTestVCard.pas -text
+Test/Protocols/IdTestWhois.pas -text
+Test/ReadMe.txt -text svneol=native#unset
+Test/System/IdTestBaseComponent.pas -text
+Test/System/IdTestGlobal.pas -text
+Test/System/IdTestObjs.pas -text
+Test/System/IdTestStack.pas -text
+Test/System/IdTestStreamHelper.pas -text
+Test/System/IdTestSys.pas -text
+Test/TestDUnit/IdTest.pas -text
+Test/TestDUnit/IndyDUnit.dof -text
+Test/TestDUnit/IndyDUnit.dpr -text
+Test/TestDUnit/IndyDUnit.res -text svneol=unset#unset
+Test/TestDotNet/IdTest.pas -text
+Test/TestDotNet/IndyNetTest.bdsproj -text
+Test/TestDotNet/IndyNetTest.dpr -text
+Test/TestExample/IdTest.pas -text
 icon16/Blank.bmp -text svneol=unset#unset
 icon16/BlankServer.bmp -text svneol=unset#unset
 icon16/IdCoreRegister.rc -text
