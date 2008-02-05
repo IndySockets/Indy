@@ -610,109 +610,109 @@ Bubbles/boxtests/UDPBox.pas -text
 Bubbles/boxtests/URIBox.dfm -text
 Bubbles/boxtests/URIBox.pas -text
 Bubbles/boxtests/URIBox2.pas -text
-Indy10/Builder/ClassList.txt -text svneol=native#unset
-Indy10/Builder/ClassParser.exe -text svneol=unset#unset
-Indy10/Builder/ClassParser.ini -text
-Indy10/Builder/ClassRenamer.exe -text svneol=unset#unset
-Indy10/Builder/ClassRenamer.ini -text
-Indy10/Builder/IndyAliaser/IndyAliaser.exe -text svneol=unset#unset
-Indy10/Builder/IndyAliaser/classlist.dat -text
-Indy10/Builder/IndyAliaser/customnames.dat -text
-Indy10/Builder/IndyAliaser/default.ini -text
-Indy10/Builder/IndyAliaser/directories.cds -text svneol=unset#unset
-Indy10/Builder/IndyAliaser/files.cds -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/DModule.dfm -text
-Indy10/Builder/Package[!!-~]Generator/DModule.pas -text
-Indy10/Builder/Package[!!-~]Generator/Data/File.DB -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/Data/File.FAM -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/Data/File.PX -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/Data/File.TV -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/Data/File.VAL -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/DistPasFileList.bdsproj -text
-Indy10/Builder/Package[!!-~]Generator/DistPasFileList.dpr -text
-Indy10/Builder/Package[!!-~]Generator/DistPasFileList.exe -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/LazPkgGen.bdsproj -text
-Indy10/Builder/Package[!!-~]Generator/LazPkgGen.dpr -text
-Indy10/Builder/Package[!!-~]Generator/LazPkgGen.exe -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/LazTemplates/indycorefpc-Makefile.fpc -text
-Indy10/Builder/Package[!!-~]Generator/LazTemplates/indylaz-Makefile.fpc -text
-Indy10/Builder/Package[!!-~]Generator/LazTemplates/indymaster-Makefile.fpc -text
-Indy10/Builder/Package[!!-~]Generator/LazTemplates/indyprotocolsfpc-Makefile.fpc -text
-Indy10/Builder/Package[!!-~]Generator/LazTemplates/indysystemfpc-Makefile.fpc -text
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGen.dpr -text
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGen.exe -text svneol=unset#unset
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.dfm -text
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.pas -text
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBMain.dfm -text
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBMain.pas -text
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGenMgrDModDS.dfm -text
-Indy10/Builder/Package[!!-~]Generator/MgrPkgGenMgrDModDS.pas -text
-Indy10/Builder/Package[!!-~]Generator/Package.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageCore.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageD8Master.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageFTPParsers.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageProtocols.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageSecurity.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageSuperCore.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageSystem.pas -text
-Indy10/Builder/Package[!!-~]Generator/PackageVisualStudio.pas -text
-Indy10/Builder/Package[!!-~]Generator/PkgGen.bdsproj -text
-Indy10/Builder/Package[!!-~]Generator/PkgGen.dpr -text
-Indy10/Builder/Package[!!-~]Generator/PkgGen.res -text svneol=unset#unset
-Indy10/Builder/PkgGen.exe -text svneol=unset#unset
-Indy10/Builder/ResXBuilder/ResxBuilder.bdsproj -text
-Indy10/Builder/ResXBuilder/ResxBuilder.dpr -text
-Indy10/Builder/UnitAliaser.exe -text svneol=unset#unset
-Indy10/Builder/UnitAliaser.ini -text
-Indy10/Builder/VersionMarker.exe -text svneol=unset#unset
-Indy10/Builder/VersionMarker.ini -text
-Indy10/Builder/VersionMarker/Data/FreeBSDMakefile -text
-Indy10/Builder/VersionMarker/Data/IdAssemblyInfo.pas -text
-Indy10/Builder/VersionMarker/Data/IdCore90ASM90.inc -text
-Indy10/Builder/VersionMarker/Data/IdProtocols90ASM90.inc -text
-Indy10/Builder/VersionMarker/Data/IdSecurity90ASM90.inc -text
-Indy10/Builder/VersionMarker/Data/IdSystem90ASM90.inc -text
-Indy10/Builder/VersionMarker/Data/IddclCore90ASM90.inc -text
-Indy10/Builder/VersionMarker/Data/IddclProtocols90ASM90.inc -text
-Indy10/Builder/VersionMarker/Data/IddclSecurity90ASM90.inc -text
-Indy10/Builder/VersionMarker/Data/Indy100.rc -text
-Indy10/Builder/VersionMarker/Data/Indy40.rc -text
-Indy10/Builder/VersionMarker/Data/Indy50.rc -text
-Indy10/Builder/VersionMarker/Data/Indy60.rc -text
-Indy10/Builder/VersionMarker/Data/Indy70.rc -text
-Indy10/Builder/VersionMarker/Data/Indy90.rc -text
-Indy10/Builder/VersionMarker/Data/IndyCore100.rc -text
-Indy10/Builder/VersionMarker/Data/IndyCore40.rc -text
-Indy10/Builder/VersionMarker/Data/IndyCore50.rc -text
-Indy10/Builder/VersionMarker/Data/IndyCore60.rc -text
-Indy10/Builder/VersionMarker/Data/IndyCore70.rc -text
-Indy10/Builder/VersionMarker/Data/IndyCore90.rc -text
-Indy10/Builder/VersionMarker/Data/IndySuperCore70.rc -text
-Indy10/Builder/VersionMarker/Data/IndySystem100.rc -text
-Indy10/Builder/VersionMarker/Data/IndySystem40.rc -text
-Indy10/Builder/VersionMarker/Data/IndySystem50.rc -text
-Indy10/Builder/VersionMarker/Data/IndySystem60.rc -text
-Indy10/Builder/VersionMarker/Data/IndySystem70.rc -text
-Indy10/Builder/VersionMarker/Data/IndySystem90.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndy100.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndy40.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndy50.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndy60.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndy70.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndy90.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndyCore100.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndyCore40.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndyCore50.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndyCore60.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndyCore70.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndyCore90.rc -text
-Indy10/Builder/VersionMarker/Data/dclIndySuperCore70.rc -text
-Indy10/Builder/VersionMarker/VersionMarker.bdsproj -text
-Indy10/Builder/VersionMarker/VersionMarker.dpr -text
-Indy10/Builder/VersionMarker/VersionMarker.fblz -text svneol=unset#unset
-Indy10/Builder/VersionMarker/VersionMarker.fbw -text
-Indy10/Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
-Indy10/Builder/VersionMarker/VersionMarker.ini -text
+Builder/ClassList.txt -text svneol=native#unset
+Builder/ClassParser.exe -text svneol=unset#unset
+Builder/ClassParser.ini -text
+Builder/ClassRenamer.exe -text svneol=unset#unset
+Builder/ClassRenamer.ini -text
+Builder/IndyAliaser/IndyAliaser.exe -text svneol=unset#unset
+Builder/IndyAliaser/classlist.dat -text
+Builder/IndyAliaser/customnames.dat -text
+Builder/IndyAliaser/default.ini -text
+Builder/IndyAliaser/directories.cds -text svneol=unset#unset
+Builder/IndyAliaser/files.cds -text svneol=unset#unset
+Builder/Package[!!-~]Generator/DModule.dfm -text
+Builder/Package[!!-~]Generator/DModule.pas -text
+Builder/Package[!!-~]Generator/Data/File.DB -text svneol=unset#unset
+Builder/Package[!!-~]Generator/Data/File.FAM -text svneol=unset#unset
+Builder/Package[!!-~]Generator/Data/File.PX -text svneol=unset#unset
+Builder/Package[!!-~]Generator/Data/File.TV -text svneol=unset#unset
+Builder/Package[!!-~]Generator/Data/File.VAL -text svneol=unset#unset
+Builder/Package[!!-~]Generator/DistPasFileList.bdsproj -text
+Builder/Package[!!-~]Generator/DistPasFileList.dpr -text
+Builder/Package[!!-~]Generator/DistPasFileList.exe -text svneol=unset#unset
+Builder/Package[!!-~]Generator/LazPkgGen.bdsproj -text
+Builder/Package[!!-~]Generator/LazPkgGen.dpr -text
+Builder/Package[!!-~]Generator/LazPkgGen.exe -text svneol=unset#unset
+Builder/Package[!!-~]Generator/LazTemplates/indycorefpc-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indylaz-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indymaster-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indyprotocolsfpc-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indysystemfpc-Makefile.fpc -text
+Builder/Package[!!-~]Generator/MgrPkgGen.dpr -text
+Builder/Package[!!-~]Generator/MgrPkgGen.exe -text svneol=unset#unset
+Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.dfm -text
+Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.pas -text
+Builder/Package[!!-~]Generator/MgrPkgGenDBMain.dfm -text
+Builder/Package[!!-~]Generator/MgrPkgGenDBMain.pas -text
+Builder/Package[!!-~]Generator/MgrPkgGenMgrDModDS.dfm -text
+Builder/Package[!!-~]Generator/MgrPkgGenMgrDModDS.pas -text
+Builder/Package[!!-~]Generator/Package.pas -text
+Builder/Package[!!-~]Generator/PackageCore.pas -text
+Builder/Package[!!-~]Generator/PackageD8Master.pas -text
+Builder/Package[!!-~]Generator/PackageFTPParsers.pas -text
+Builder/Package[!!-~]Generator/PackageProtocols.pas -text
+Builder/Package[!!-~]Generator/PackageSecurity.pas -text
+Builder/Package[!!-~]Generator/PackageSuperCore.pas -text
+Builder/Package[!!-~]Generator/PackageSystem.pas -text
+Builder/Package[!!-~]Generator/PackageVisualStudio.pas -text
+Builder/Package[!!-~]Generator/PkgGen.bdsproj -text
+Builder/Package[!!-~]Generator/PkgGen.dpr -text
+Builder/Package[!!-~]Generator/PkgGen.res -text svneol=unset#unset
+Builder/PkgGen.exe -text svneol=unset#unset
+Builder/ResXBuilder/ResxBuilder.bdsproj -text
+Builder/ResXBuilder/ResxBuilder.dpr -text
+Builder/UnitAliaser.exe -text svneol=unset#unset
+Builder/UnitAliaser.ini -text
+Builder/VersionMarker.exe -text svneol=unset#unset
+Builder/VersionMarker.ini -text
+Builder/VersionMarker/Data/FreeBSDMakefile -text
+Builder/VersionMarker/Data/IdAssemblyInfo.pas -text
+Builder/VersionMarker/Data/IdCore90ASM90.inc -text
+Builder/VersionMarker/Data/IdProtocols90ASM90.inc -text
+Builder/VersionMarker/Data/IdSecurity90ASM90.inc -text
+Builder/VersionMarker/Data/IdSystem90ASM90.inc -text
+Builder/VersionMarker/Data/IddclCore90ASM90.inc -text
+Builder/VersionMarker/Data/IddclProtocols90ASM90.inc -text
+Builder/VersionMarker/Data/IddclSecurity90ASM90.inc -text
+Builder/VersionMarker/Data/Indy100.rc -text
+Builder/VersionMarker/Data/Indy40.rc -text
+Builder/VersionMarker/Data/Indy50.rc -text
+Builder/VersionMarker/Data/Indy60.rc -text
+Builder/VersionMarker/Data/Indy70.rc -text
+Builder/VersionMarker/Data/Indy90.rc -text
+Builder/VersionMarker/Data/IndyCore100.rc -text
+Builder/VersionMarker/Data/IndyCore40.rc -text
+Builder/VersionMarker/Data/IndyCore50.rc -text
+Builder/VersionMarker/Data/IndyCore60.rc -text
+Builder/VersionMarker/Data/IndyCore70.rc -text
+Builder/VersionMarker/Data/IndyCore90.rc -text
+Builder/VersionMarker/Data/IndySuperCore70.rc -text
+Builder/VersionMarker/Data/IndySystem100.rc -text
+Builder/VersionMarker/Data/IndySystem40.rc -text
+Builder/VersionMarker/Data/IndySystem50.rc -text
+Builder/VersionMarker/Data/IndySystem60.rc -text
+Builder/VersionMarker/Data/IndySystem70.rc -text
+Builder/VersionMarker/Data/IndySystem90.rc -text
+Builder/VersionMarker/Data/dclIndy100.rc -text
+Builder/VersionMarker/Data/dclIndy40.rc -text
+Builder/VersionMarker/Data/dclIndy50.rc -text
+Builder/VersionMarker/Data/dclIndy60.rc -text
+Builder/VersionMarker/Data/dclIndy70.rc -text
+Builder/VersionMarker/Data/dclIndy90.rc -text
+Builder/VersionMarker/Data/dclIndyCore100.rc -text
+Builder/VersionMarker/Data/dclIndyCore40.rc -text
+Builder/VersionMarker/Data/dclIndyCore50.rc -text
+Builder/VersionMarker/Data/dclIndyCore60.rc -text
+Builder/VersionMarker/Data/dclIndyCore70.rc -text
+Builder/VersionMarker/Data/dclIndyCore90.rc -text
+Builder/VersionMarker/Data/dclIndySuperCore70.rc -text
+Builder/VersionMarker/VersionMarker.bdsproj -text
+Builder/VersionMarker/VersionMarker.dpr -text
+Builder/VersionMarker/VersionMarker.fblz -text svneol=unset#unset
+Builder/VersionMarker/VersionMarker.fbw -text
+Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
+Builder/VersionMarker/VersionMarker.ini -text
 Indy10/KB/IndyKB.hm3 -text svneol=unset#unset
 Indy10/Lib/Clean.bat eol=crlf
 Indy10/Lib/Computil.dpr -text
