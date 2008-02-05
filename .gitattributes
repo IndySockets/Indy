@@ -713,7 +713,6 @@ Builder/VersionMarker/VersionMarker.fblz -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.fbw -text
 Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.ini -text
-Indy10/NUnit/Sys.cs -text
 Indy10/Other/Protocols/IdCompressorAbbrevia.pas -text
 Indy10/Test/Core/IdTestBuffer.pas -text
 Indy10/Test/Core/IdTestCmdTCPClient.pas -text
@@ -1684,6 +1683,7 @@ Lib/indymaster-Makefile.fpc -text
 Lib/lspFix.dpr -text
 Lib/lspFix.exe -text svneol=unset#unset
 Lib/makeindyrpm.sh -text svneol=LF#unset
+NUnit/Sys.cs -text
 icon16/Blank.bmp -text svneol=unset#unset
 icon16/BlankServer.bmp -text svneol=unset#unset
 icon16/IdCoreRegister.rc -text
