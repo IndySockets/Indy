@@ -1,615 +1,615 @@
 * text=auto !eol
-Indy10/Bubbles/BubbleData/BreakApart/BreakApart.dat -text
-Indy10/Bubbles/BubbleData/ChainedHTTPClient/ChainedHTTPClient.ini -text
-Indy10/Bubbles/BubbleData/DateTimeStamp/DateTimeStamp.dat -text
-Indy10/Bubbles/BubbleData/EmailAddress/EmailAddress.dat -text
-Indy10/Bubbles/BubbleData/ExtraHeaders/test.bmp -text svneol=unset#unset
-Indy10/Bubbles/BubbleData/GMTToLocalDateTime/GMTToLocalDateTimeProc.dat -text
-Indy10/Bubbles/BubbleData/HTTPClient/HTTPClient.ini -text
-Indy10/Bubbles/BubbleData/HTTPServer/99-BG-1518.pdf -text svneol=unset#application/pdf
-Indy10/Bubbles/BubbleData/Hash/0-9x5+01234.dat -text
-Indy10/Bubbles/BubbleData/Hash/0-9x5+01234.ini -text
-Indy10/Bubbles/BubbleData/Hash/8x1-0.dat -text
-Indy10/Bubbles/BubbleData/Hash/8x1-0.ini -text
-Indy10/Bubbles/BubbleData/Hash/A-Za-z0-9.dat -text
-Indy10/Bubbles/BubbleData/Hash/A-Za-z0-9.ini -text
-Indy10/Bubbles/BubbleData/Hash/Blank.dat -text
-Indy10/Bubbles/BubbleData/Hash/Blank.ini -text
-Indy10/Bubbles/BubbleData/Hash/a.dat -text
-Indy10/Bubbles/BubbleData/Hash/a.ini -text
-Indy10/Bubbles/BubbleData/Hash/abc.dat -text
-Indy10/Bubbles/BubbleData/Hash/abc.ini -text
-Indy10/Bubbles/BubbleData/Hash/abcdefghijklmnopqrstuvwxyz.dat -text
-Indy10/Bubbles/BubbleData/Hash/abcdefghijklmnopqrstuvwxyz.ini -text
-Indy10/Bubbles/BubbleData/Hash/message[!!-~]digest.dat -text
-Indy10/Bubbles/BubbleData/Hash/message[!!-~]digest.ini -text
-Indy10/Bubbles/BubbleData/HeaderCoder/headers.ini -text
-Indy10/Bubbles/BubbleData/MakeCanonicalIPv6Address/MakeCanonicalIPv6Address.dat -text
-Indy10/Bubbles/BubbleData/ProcessPath/ProcessPath.dat -text
-Indy10/Bubbles/BubbleData/URI/uri.dat -text
-Indy10/Bubbles/Playgrounds/FTPList/AS400-Unknown-Help[!!-~]output.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/CiscoNotes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/BullGCOS7-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/BullGCOS7-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/BullGCOS7-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/BullGCOS8-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/ChameleonNewt-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Cisco-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-ActiveX-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HCL_Test.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000_LISTF-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000_LISTF-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HP3000_LISTF-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-Netware-inf.wsp.krakow.pl-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-Netware-inf.wsp.krakow.pl-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/HellSoft-novell.felk.cvut.cz-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.borland.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.borland.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.ipswitch.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.ipswitch.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-MSNT35Server-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-MicrosoftFTP5.0-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-Win2003Server-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-XP-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-XP-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-_R_ftp.turbopower.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.asus.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.asus.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.asus.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.jasc.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.jasc.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.qsc.co.uk-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.qsc.co.uk-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.turbopower.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.turbopower.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.turbopower.com_R-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-PseudoDir-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-PseudoDir-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-10.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-11.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-10.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Mac-NetPresenz-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Music-sdsumus.sdstate.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Music-sdsumus.sdstate.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Music-vm1.mcgill.ca-1021-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Music-vm1.mcgill.ca-1022-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/NCSA-MACOS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/NCSA-MACOS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/NCSA-MACOS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/NCSA-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/NCSA-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Ftp.helsinki.fi-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Ftp.helsinki.fi-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-ftp.sips.state.nc.us-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-ftp.sips.state.nc.us-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-4-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-4-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-5-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-5-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/OS2-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/OS2-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/OS_9-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/OS_9-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/OS_9-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/PC-NFS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/QVTNET-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-UnknownNS-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-UnknownNS-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-UnknownRoot-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-10.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-11.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-12.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-13.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-14.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-15.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-16.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-17.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-18.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-19.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-20.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-21.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-22.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SuperTCP-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SuperTCP-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/SuperTCP-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TOPS20-toad.xkl.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TOPS20-xkleten.paulallen.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TOPS20-xkleten.paulallen.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TOPS20-xkleten.paulallen.com.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Tandem-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Tandem-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/UnisysClearPath-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/UnisysClearPath-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-2r10-FTPServer-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD_siT-ftp.iaehv.nl-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD_t-ftp.iaehv.nl-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD_t-ftp.iaehv.nl.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-BSD_tsi-ftp.iaehv.nl-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Cygwin-TestCase.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Cygwin-TestCase2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-ActiveX-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-FileDrive-ftp.symantec.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-HummingBird-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-HummingBird-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-MSFTPService30-ftp.microsoft-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-MSIIS-ftp.turbopower.com_R-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-MatchBox-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-MatchBox-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-OSF1-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Post-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Redhat.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-BulletProofFTPD-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-CharDevice-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-OverflowCountError-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-WFTPD-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-VxWorksTestDir.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-WinQVT-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-WindowsIISUnixListing.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-WorldGroup-ftp.netvillage.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_R-ftp.borland.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_R_myweb.wvnet.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_T-ftp.nevrona.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_g-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_go-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_i-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_is-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_o-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_r_ftp.turbopower.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-_s-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-eserver.org-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-eserver.org-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-R-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-Rr-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.fulgan.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.hethmon.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.hethmon.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.murkworks.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.murkworks.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.stmarys.ca-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.stmarys.ca-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.sun.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-ftp.xecom.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-indy.fulgan.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-musicm.mcgill.ca-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix-xbox-MediaCenter.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix_-rR-ftp.netscape.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix_-rR-ftp.netscape.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/Unix_-rR-ftp.netscape.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-NBRF.Georgetown.Edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-NBRF.Georgetown.Edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-OptTest.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-10.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-11.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-12.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-13.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-14.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-cobra.uni.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-cobra.uni.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-R-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-R-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-10.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-11.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-12.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-13.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-7.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-8.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-9.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-non-MutliNet-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-titan.ksc.nasa.gov-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ubvms.cc.buffalo.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-ubvms.cc.buffalo.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-whatif-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-wvnvaxa.wvnet.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VMS-wvnvaxa.wvnet.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_BFS-unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-cms-sfs-dirinfo.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-cmsdirinfo.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-UnknownSample-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-UnknownSample-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-UnknownSample-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-6.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-mitvma.mit.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-sruvm.sru.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-4.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-5.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-wvnvm.wvnet.edu-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_CMS-wvnvm.wvnet.edu-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VM_RDR-unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_Lib-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_PowerFile-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_Root-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_Root-Unknown-3.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_Root-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_SubLib-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_SubLib-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_VSAM_Cat-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_VSAM_Cat-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VSE_VTOC-Unknown.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/VxWorks-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/WfFTP-Unknown-1.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Data/WfFTP-Unknown-2.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/DistinctFormatAttribs.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/DistinctManualExcerpt.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/HitSessionNotes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Netscape-Notes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/NovellNameSpaceNotes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/OS-9-Notes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/QVTNET-41.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/SessionNotes3Com11.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Unix-LS-Rl-Test.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/Unix-Recursive-Data.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/WarFTPD-Notes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/box.dpr -text
-Indy10/Bubbles/Playgrounds/FTPList/box.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/FTPList/boxMLSD.dpr -text
-Indy10/Bubbles/Playgrounds/FTPList/boxMLSD.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/FTPList/capture.dpr -text
-Indy10/Bubbles/Playgrounds/FTPList/capture.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/FTPList/captureMLSD.dpr -text
-Indy10/Bubbles/Playgrounds/FTPList/captureMLSD.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/FTPList/capturemain.dfm -text
-Indy10/Bubbles/Playgrounds/FTPList/capturemain.pas -text
-Indy10/Bubbles/Playgrounds/FTPList/capturemainMLSD.dfm -text
-Indy10/Bubbles/Playgrounds/FTPList/capturemainMLSD.pas -text
-Indy10/Bubbles/Playgrounds/FTPList/ftplistmain.dfm -text
-Indy10/Bubbles/Playgrounds/FTPList/ftplistmain.pas -text
-Indy10/Bubbles/Playgrounds/FTPList/ftplistmainMLSD.dfm -text
-Indy10/Bubbles/Playgrounds/FTPList/ftplistmainMLSD.pas -text
-Indy10/Bubbles/Playgrounds/FTPList/toad.xkl.com-sessionNotes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/vxWorksNotes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/xkleten.paulallen.com-Notes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/z-VM-Notes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPList/zVMNotes.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/FTPServer/Cert/CAcert.crt -text
-Indy10/Bubbles/Playgrounds/FTPServer/Cert/CAcert.pem -text
-Indy10/Bubbles/Playgrounds/FTPServer/Cert/WSScert.pem -text
-Indy10/Bubbles/Playgrounds/FTPServer/Cert/WSSkey.pem -text
-Indy10/Bubbles/Playgrounds/FTPServer/FTPServer_console1.dpr -text
-Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestMain.dfm -text
-Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestMain.pas -text
-Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.dpr -text
-Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.ini -text
-Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/QuotdCore/quotd.dpr -text
-Indy10/Bubbles/Playgrounds/QuotdCore/quotd.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/QuotdCore/quotdNoRF.dpr -text
-Indy10/Bubbles/Playgrounds/QuotdCore/quotdNoRF.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/QuotdCore/quotemain.dfm -text
-Indy10/Bubbles/Playgrounds/QuotdCore/quotemain.pas -text
-Indy10/Bubbles/Playgrounds/QuotdCore/quotemainNoRF.dfm -text
-Indy10/Bubbles/Playgrounds/QuotdCore/quotemainNoRF.pas -text
-Indy10/Bubbles/Playgrounds/Readme.txt -text svneol=native#unset
-Indy10/Bubbles/Playgrounds/TCPServer/Global.pas -text
-Indy10/Bubbles/Playgrounds/TCPServer/Main.dfm -text
-Indy10/Bubbles/Playgrounds/TCPServer/Main.pas -text
-Indy10/Bubbles/Playgrounds/TCPServer/TCPServerPlayground.dpr -text
-Indy10/Bubbles/Playgrounds/TCPServer/TCPServerPlayground.res -text svneol=unset#unset
-Indy10/Bubbles/Playgrounds/TCPServer/TCPServerPlaygroundTest.dpr -text
-Indy10/Bubbles/Playgrounds/TCPServer/web/Jedi.gif -text svneol=unset#image/gif
-Indy10/Bubbles/Playgrounds/TCPServer/web/OSLogo.gif -text svneol=unset#image/gif
-Indy10/Bubbles/Playgrounds/TCPServer/web/index.html -text svneol=unset#text/html
-Indy10/Bubbles/Playgrounds/TCPServer/web/winshoes_logo.gif -text svneol=unset#image/gif
-Indy10/Bubbles/README.txt -text svneol=native#unset
-Indy10/Bubbles/boxtests/BreakApartTest.pas -text
-Indy10/Bubbles/boxtests/ChainClients.dfm -text
-Indy10/Bubbles/boxtests/ChainClients.pas -text
-Indy10/Bubbles/boxtests/ChainedHTTPClient.dfm -text
-Indy10/Bubbles/boxtests/ChainedHTTPClient.pas -text
-Indy10/Bubbles/boxtests/CoderRawBubble.dfm -text
-Indy10/Bubbles/boxtests/CoderRawBubble.pas -text
-Indy10/Bubbles/boxtests/CoderSpeed.dfm -text
-Indy10/Bubbles/boxtests/CoderSpeed.pas -text
-Indy10/Bubbles/boxtests/CommandHandler.pas -text
-Indy10/Bubbles/boxtests/CompressionInterceptBubble.dfm -text
-Indy10/Bubbles/boxtests/CompressionInterceptBubble.pas -text
-Indy10/Bubbles/boxtests/DNSResolver.pas -text
-Indy10/Bubbles/boxtests/DateTimeStamp.pas -text
-Indy10/Bubbles/boxtests/EMailAddress.pas -text
-Indy10/Bubbles/boxtests/EmailSender.dfm -text
-Indy10/Bubbles/boxtests/EmailSender.pas -text
-Indy10/Bubbles/boxtests/EncoderBox.pas -text
-Indy10/Bubbles/boxtests/EncoderPlayground.dfm -text
-Indy10/Bubbles/boxtests/EncoderPlayground.pas -text
-Indy10/Bubbles/boxtests/ExtraHeaders.pas -text
-Indy10/Bubbles/boxtests/FTPClient.pas -text
-Indy10/Bubbles/boxtests/FTPListBox.pas -text
-Indy10/Bubbles/boxtests/FTPListTests.dfm -text
-Indy10/Bubbles/boxtests/FTPListTests.pas -text
-Indy10/Bubbles/boxtests/GMTToLocalDateTimeProc.pas -text
-Indy10/Bubbles/boxtests/HTTPClient.dfm -text
-Indy10/Bubbles/boxtests/HTTPClient.pas -text
-Indy10/Bubbles/boxtests/HTTPServer.pas -text
-Indy10/Bubbles/boxtests/HashBox.pas -text
-Indy10/Bubbles/boxtests/HeaderCoder.pas -text
-Indy10/Bubbles/boxtests/HeaderListTest.pas -text
-Indy10/Bubbles/boxtests/IPAddressForm.dfm -text
-Indy10/Bubbles/boxtests/IPAddressForm.pas -text
-Indy10/Bubbles/boxtests/IPv4.pas -text
-Indy10/Bubbles/boxtests/IPv6.pas -text
-Indy10/Bubbles/boxtests/IdHL7Tests.pas -text
-Indy10/Bubbles/boxtests/IdReadLineStream.pas -text
-Indy10/Bubbles/boxtests/IdStreamTest.pas -text
-Indy10/Bubbles/boxtests/MakeCanonicalIPv6AddressBox.dfm -text
-Indy10/Bubbles/boxtests/MakeCanonicalIPv6AddressBox.pas -text
-Indy10/Bubbles/boxtests/ProcessPath.pas -text
-Indy10/Bubbles/boxtests/RexecTest.pas -text
-Indy10/Bubbles/boxtests/SMTPBox.pas -text
-Indy10/Bubbles/boxtests/SNTPBox.pas -text
-Indy10/Bubbles/boxtests/SaveToLoadFromFileTests.pas -text
-Indy10/Bubbles/boxtests/TCPServer.dfm -text
-Indy10/Bubbles/boxtests/TCPServer.pas -text
-Indy10/Bubbles/boxtests/TimeClient.pas -text
-Indy10/Bubbles/boxtests/UDPBox.pas -text
-Indy10/Bubbles/boxtests/URIBox.dfm -text
-Indy10/Bubbles/boxtests/URIBox.pas -text
-Indy10/Bubbles/boxtests/URIBox2.pas -text
+Bubbles/BubbleData/BreakApart/BreakApart.dat -text
+Bubbles/BubbleData/ChainedHTTPClient/ChainedHTTPClient.ini -text
+Bubbles/BubbleData/DateTimeStamp/DateTimeStamp.dat -text
+Bubbles/BubbleData/EmailAddress/EmailAddress.dat -text
+Bubbles/BubbleData/ExtraHeaders/test.bmp -text svneol=unset#unset
+Bubbles/BubbleData/GMTToLocalDateTime/GMTToLocalDateTimeProc.dat -text
+Bubbles/BubbleData/HTTPClient/HTTPClient.ini -text
+Bubbles/BubbleData/HTTPServer/99-BG-1518.pdf -text svneol=unset#application/pdf
+Bubbles/BubbleData/Hash/0-9x5+01234.dat -text
+Bubbles/BubbleData/Hash/0-9x5+01234.ini -text
+Bubbles/BubbleData/Hash/8x1-0.dat -text
+Bubbles/BubbleData/Hash/8x1-0.ini -text
+Bubbles/BubbleData/Hash/A-Za-z0-9.dat -text
+Bubbles/BubbleData/Hash/A-Za-z0-9.ini -text
+Bubbles/BubbleData/Hash/Blank.dat -text
+Bubbles/BubbleData/Hash/Blank.ini -text
+Bubbles/BubbleData/Hash/a.dat -text
+Bubbles/BubbleData/Hash/a.ini -text
+Bubbles/BubbleData/Hash/abc.dat -text
+Bubbles/BubbleData/Hash/abc.ini -text
+Bubbles/BubbleData/Hash/abcdefghijklmnopqrstuvwxyz.dat -text
+Bubbles/BubbleData/Hash/abcdefghijklmnopqrstuvwxyz.ini -text
+Bubbles/BubbleData/Hash/message[!!-~]digest.dat -text
+Bubbles/BubbleData/Hash/message[!!-~]digest.ini -text
+Bubbles/BubbleData/HeaderCoder/headers.ini -text
+Bubbles/BubbleData/MakeCanonicalIPv6Address/MakeCanonicalIPv6Address.dat -text
+Bubbles/BubbleData/ProcessPath/ProcessPath.dat -text
+Bubbles/BubbleData/URI/uri.dat -text
+Bubbles/Playgrounds/FTPList/AS400-Unknown-Help[!!-~]output.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/CiscoNotes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/BullGCOS7-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/BullGCOS7-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/BullGCOS7-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/BullGCOS8-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/ChameleonNewt-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Cisco-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-ActiveX-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Distinct-Unknown-Attribs-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-cr.yp.to-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/EPLF-ftp.ohse.de-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HCL_Test.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000-jazz.external.hp.com-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000_LISTF-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000_LISTF-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HP3000_LISTF-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-Netware-inf.wsp.krakow.pl-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-Netware-inf.wsp.krakow.pl-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-Novel-ftp.hit.bme.hu-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/HellSoft-novell.felk.cvut.cz-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.borland.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.borland.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.ipswitch.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.ipswitch.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-MSNT35Server-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-MicrosoftFTP5.0-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-Win2003Server-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-XP-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-XP-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-_R_ftp.turbopower.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.asus.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.asus.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.asus.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.jasc.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.jasc.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.qsc.co.uk-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.qsc.co.uk-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.turbopower.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.turbopower.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MS-DOS-ftp.turbopower.com_R-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-PseudoDir-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-PseudoDir-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-10.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-11.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS-Unknown-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-10.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JES-Unknown-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_JESIntf2-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MVS_PDS-Unknown-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Mac-NetPresenz-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Mac-ftp.monkeybyte.com-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/MicroRTOS-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Music-sdsumus.sdstate.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Music-sdsumus.sdstate.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Music-vm1.mcgill.ca-1021-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Music-vm1.mcgill.ca-1022-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/NCSA-MACOS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/NCSA-MACOS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/NCSA-MACOS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/NCSA-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/NCSA-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Ftp.helsinki.fi-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Ftp.helsinki.fi-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-ftp.sips.state.nc.us-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-ftp.sips.state.nc.us-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-Netware-netlab2.usu.edu-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-4-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-4-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-5-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_DOS-5-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Novel-NetwarePSU_NFS-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/OS2-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/OS2-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/OS_9-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/OS_9-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/OS_9-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/PC-NFS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/QVTNET-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-UnknownNS-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-UnknownNS-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SterComEntUnix-UnknownRoot-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-10.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-11.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-12.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-13.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-14.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-15.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-16.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-17.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-18.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-19.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-20.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-21.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-22.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/StratusVOS-Unknown-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SuperTCP-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SuperTCP-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/SuperTCP-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TOPS20-toad.xkl.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TOPS20-xkleten.paulallen.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TOPS20-xkleten.paulallen.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TOPS20-xkleten.paulallen.com.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/TSX+-shop-pdp.kent.edu-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Tandem-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Tandem-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/UnisysClearPath-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/UnisysClearPath-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unitree-Unknown-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-286.eznos.org.eznos.org-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-117-FTPServer-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-3CDaemon-2r10-FTPServer-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-486.eznos.org-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD-ftp.iaehv.nl-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD_siT-ftp.iaehv.nl-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD_t-ftp.iaehv.nl-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD_t-ftp.iaehv.nl.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-BSD_tsi-ftp.iaehv.nl-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Cygwin-TestCase.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Cygwin-TestCase2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-ActiveX-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Distinct-Unknown-Attribs-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-FileDrive-ftp.symantec.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-HummingBird-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-HummingBird-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-MSFTPService30-ftp.microsoft-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-MSIIS-ftp.turbopower.com_R-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-MatchBox-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-MatchBox-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-OSF1-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Post-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Redhat.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Tandem-OSS-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-BulletProofFTPD-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-CharDevice-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-OverflowCountError-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-Unknown-WFTPD-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-VxWorksTestDir.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-WinQVT-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-WindowsIISUnixListing.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-WorldGroup-ftp.netvillage.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_R-ftp.borland.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_R_myweb.wvnet.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_T-ftp.nevrona.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_g-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_go-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_i-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_is-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_o-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_r_ftp.turbopower.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-_s-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-eserver.org-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-eserver.org-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-R-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.borland.com-Rr-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.emea.ibm.com-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.fulgan.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.hethmon.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.hethmon.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.mrunix.net-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.murkworks.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.murkworks.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.netscape.com-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.stmarys.ca-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.stmarys.ca-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.sun.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-ftp.xecom.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-indy.fulgan.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-musicm.mcgill.ca-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix-xbox-MediaCenter.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix_-rR-ftp.netscape.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix_-rR-ftp.netscape.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/Unix_-rR-ftp.netscape.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-NBRF.Georgetown.Edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-NBRF.Georgetown.Edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-OptTest.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Thuban.AC.HMC.edu-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-10.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-11.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-12.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-13.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-14.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-Unknown-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-cobra.uni.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-cobra.uni.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.ctrl-c.liu.se-R-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.madgoat.com-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.montagar.com-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ftp.process.com-R-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-10.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-11.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-12.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-13.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-7.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-8.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-kuhub.cc.ukans.edu-9.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-non-MutliNet-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-titan.ksc.nasa.gov-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ubvms.cc.buffalo.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-ubvms.cc.buffalo.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-whatif-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-wvnvaxa.wvnet.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VMS-wvnvaxa.wvnet.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_BFS-unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-cms-sfs-dirinfo.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-Unknown-cmsdirinfo.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-UnknownSample-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-UnknownSample-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-UnknownSample-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-ftp.marist.edu-6.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-mitvma.mit.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-sruvm.sru.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-4.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-vm.sc.edu-5.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-wvnvm.wvnet.edu-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_CMS-wvnvm.wvnet.edu-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VM_RDR-unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_Lib-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_PowerFile-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_Root-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_Root-Unknown-3.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_Root-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_SubLib-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_SubLib-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_VSAM_Cat-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_VSAM_Cat-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VSE_VTOC-Unknown.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/VxWorks-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/WfFTP-Unknown-1.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Data/WfFTP-Unknown-2.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/DistinctFormatAttribs.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/DistinctManualExcerpt.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/HitSessionNotes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Netscape-Notes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/NovellNameSpaceNotes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/OS-9-Notes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/QVTNET-41.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/SessionNotes3Com11.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Unix-LS-Rl-Test.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/Unix-Recursive-Data.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/WarFTPD-Notes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/box.dpr -text
+Bubbles/Playgrounds/FTPList/box.res -text svneol=unset#unset
+Bubbles/Playgrounds/FTPList/boxMLSD.dpr -text
+Bubbles/Playgrounds/FTPList/boxMLSD.res -text svneol=unset#unset
+Bubbles/Playgrounds/FTPList/capture.dpr -text
+Bubbles/Playgrounds/FTPList/capture.res -text svneol=unset#unset
+Bubbles/Playgrounds/FTPList/captureMLSD.dpr -text
+Bubbles/Playgrounds/FTPList/captureMLSD.res -text svneol=unset#unset
+Bubbles/Playgrounds/FTPList/capturemain.dfm -text
+Bubbles/Playgrounds/FTPList/capturemain.pas -text
+Bubbles/Playgrounds/FTPList/capturemainMLSD.dfm -text
+Bubbles/Playgrounds/FTPList/capturemainMLSD.pas -text
+Bubbles/Playgrounds/FTPList/ftplistmain.dfm -text
+Bubbles/Playgrounds/FTPList/ftplistmain.pas -text
+Bubbles/Playgrounds/FTPList/ftplistmainMLSD.dfm -text
+Bubbles/Playgrounds/FTPList/ftplistmainMLSD.pas -text
+Bubbles/Playgrounds/FTPList/toad.xkl.com-sessionNotes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/vxWorksNotes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/xkleten.paulallen.com-Notes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/z-VM-Notes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPList/zVMNotes.txt -text svneol=native#unset
+Bubbles/Playgrounds/FTPServer/Cert/CAcert.crt -text
+Bubbles/Playgrounds/FTPServer/Cert/CAcert.pem -text
+Bubbles/Playgrounds/FTPServer/Cert/WSScert.pem -text
+Bubbles/Playgrounds/FTPServer/Cert/WSSkey.pem -text
+Bubbles/Playgrounds/FTPServer/FTPServer_console1.dpr -text
+Bubbles/Playgrounds/FTPServer/FileSYstemTestMain.dfm -text
+Bubbles/Playgrounds/FTPServer/FileSYstemTestMain.pas -text
+Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.dpr -text
+Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.ini -text
+Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.res -text svneol=unset#unset
+Bubbles/Playgrounds/QuotdCore/quotd.dpr -text
+Bubbles/Playgrounds/QuotdCore/quotd.res -text svneol=unset#unset
+Bubbles/Playgrounds/QuotdCore/quotdNoRF.dpr -text
+Bubbles/Playgrounds/QuotdCore/quotdNoRF.res -text svneol=unset#unset
+Bubbles/Playgrounds/QuotdCore/quotemain.dfm -text
+Bubbles/Playgrounds/QuotdCore/quotemain.pas -text
+Bubbles/Playgrounds/QuotdCore/quotemainNoRF.dfm -text
+Bubbles/Playgrounds/QuotdCore/quotemainNoRF.pas -text
+Bubbles/Playgrounds/Readme.txt -text svneol=native#unset
+Bubbles/Playgrounds/TCPServer/Global.pas -text
+Bubbles/Playgrounds/TCPServer/Main.dfm -text
+Bubbles/Playgrounds/TCPServer/Main.pas -text
+Bubbles/Playgrounds/TCPServer/TCPServerPlayground.dpr -text
+Bubbles/Playgrounds/TCPServer/TCPServerPlayground.res -text svneol=unset#unset
+Bubbles/Playgrounds/TCPServer/TCPServerPlaygroundTest.dpr -text
+Bubbles/Playgrounds/TCPServer/web/Jedi.gif -text svneol=unset#image/gif
+Bubbles/Playgrounds/TCPServer/web/OSLogo.gif -text svneol=unset#image/gif
+Bubbles/Playgrounds/TCPServer/web/index.html -text svneol=unset#text/html
+Bubbles/Playgrounds/TCPServer/web/winshoes_logo.gif -text svneol=unset#image/gif
+Bubbles/README.txt -text svneol=native#unset
+Bubbles/boxtests/BreakApartTest.pas -text
+Bubbles/boxtests/ChainClients.dfm -text
+Bubbles/boxtests/ChainClients.pas -text
+Bubbles/boxtests/ChainedHTTPClient.dfm -text
+Bubbles/boxtests/ChainedHTTPClient.pas -text
+Bubbles/boxtests/CoderRawBubble.dfm -text
+Bubbles/boxtests/CoderRawBubble.pas -text
+Bubbles/boxtests/CoderSpeed.dfm -text
+Bubbles/boxtests/CoderSpeed.pas -text
+Bubbles/boxtests/CommandHandler.pas -text
+Bubbles/boxtests/CompressionInterceptBubble.dfm -text
+Bubbles/boxtests/CompressionInterceptBubble.pas -text
+Bubbles/boxtests/DNSResolver.pas -text
+Bubbles/boxtests/DateTimeStamp.pas -text
+Bubbles/boxtests/EMailAddress.pas -text
+Bubbles/boxtests/EmailSender.dfm -text
+Bubbles/boxtests/EmailSender.pas -text
+Bubbles/boxtests/EncoderBox.pas -text
+Bubbles/boxtests/EncoderPlayground.dfm -text
+Bubbles/boxtests/EncoderPlayground.pas -text
+Bubbles/boxtests/ExtraHeaders.pas -text
+Bubbles/boxtests/FTPClient.pas -text
+Bubbles/boxtests/FTPListBox.pas -text
+Bubbles/boxtests/FTPListTests.dfm -text
+Bubbles/boxtests/FTPListTests.pas -text
+Bubbles/boxtests/GMTToLocalDateTimeProc.pas -text
+Bubbles/boxtests/HTTPClient.dfm -text
+Bubbles/boxtests/HTTPClient.pas -text
+Bubbles/boxtests/HTTPServer.pas -text
+Bubbles/boxtests/HashBox.pas -text
+Bubbles/boxtests/HeaderCoder.pas -text
+Bubbles/boxtests/HeaderListTest.pas -text
+Bubbles/boxtests/IPAddressForm.dfm -text
+Bubbles/boxtests/IPAddressForm.pas -text
+Bubbles/boxtests/IPv4.pas -text
+Bubbles/boxtests/IPv6.pas -text
+Bubbles/boxtests/IdHL7Tests.pas -text
+Bubbles/boxtests/IdReadLineStream.pas -text
+Bubbles/boxtests/IdStreamTest.pas -text
+Bubbles/boxtests/MakeCanonicalIPv6AddressBox.dfm -text
+Bubbles/boxtests/MakeCanonicalIPv6AddressBox.pas -text
+Bubbles/boxtests/ProcessPath.pas -text
+Bubbles/boxtests/RexecTest.pas -text
+Bubbles/boxtests/SMTPBox.pas -text
+Bubbles/boxtests/SNTPBox.pas -text
+Bubbles/boxtests/SaveToLoadFromFileTests.pas -text
+Bubbles/boxtests/TCPServer.dfm -text
+Bubbles/boxtests/TCPServer.pas -text
+Bubbles/boxtests/TimeClient.pas -text
+Bubbles/boxtests/UDPBox.pas -text
+Bubbles/boxtests/URIBox.dfm -text
+Bubbles/boxtests/URIBox.pas -text
+Bubbles/boxtests/URIBox2.pas -text
 Indy10/Builder/ClassList.txt -text svneol=native#unset
 Indy10/Builder/ClassParser.exe -text svneol=unset#unset
 Indy10/Builder/ClassParser.ini -text
