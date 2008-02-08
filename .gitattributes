@@ -1645,6 +1645,10 @@ Lib/indymaster-Makefile.fpc -text
 Lib/lspFix.dpr -text
 Lib/lspFix.exe -text svneol=unset#unset
 Lib/makeindyrpm.sh -text svneol=LF#unset
+Lib/testsuite/Makefile.fpc -text
+Lib/testsuite/testhash/Makefile.fpc -text
+Lib/testsuite/testhash/testhash.dpr -text
+Lib/testsuite/testhash/testhash.dproj -text
 NUnit/Sys.cs -text
 Other/Protocols/IdCompressorAbbrevia.pas -text
 Test/Core/IdTestBuffer.pas -text
