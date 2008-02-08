@@ -634,11 +634,17 @@ Builder/Package[!!-~]Generator/DistPasFileList.exe -text svneol=unset#unset
 Builder/Package[!!-~]Generator/LazPkgGen.bdsproj -text
 Builder/Package[!!-~]Generator/LazPkgGen.dpr -text
 Builder/Package[!!-~]Generator/LazPkgGen.exe -text svneol=unset#unset
+Builder/Package[!!-~]Generator/LazTemplates/dclindycorelaz.lpk -text
+Builder/Package[!!-~]Generator/LazTemplates/dclindyprotocolslaz.lpk -text
 Builder/Package[!!-~]Generator/LazTemplates/indycorefpc-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indycorelaz.lpk -text
 Builder/Package[!!-~]Generator/LazTemplates/indylaz-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indylaz.lpk -text
 Builder/Package[!!-~]Generator/LazTemplates/indymaster-Makefile.fpc -text
 Builder/Package[!!-~]Generator/LazTemplates/indyprotocolsfpc-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indyprotocolslaz.lpk -text
 Builder/Package[!!-~]Generator/LazTemplates/indysystemfpc-Makefile.fpc -text
+Builder/Package[!!-~]Generator/LazTemplates/indysystemlaz.lpk -text
 Builder/Package[!!-~]Generator/MgrPkgGen.dpr -text
 Builder/Package[!!-~]Generator/MgrPkgGen.exe -text svneol=unset#unset
 Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.dfm -text
