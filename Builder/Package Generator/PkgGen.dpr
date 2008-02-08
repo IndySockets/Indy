@@ -121,47 +121,60 @@ begin
 
       with TPackageD8Master.Create do try
         Load(tablFile, 'DelphiDotNet=True and DesignUnit=False', True);
-        Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
+        Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net,ctDelphi12Net]);
       finally Free; end;
 
       with TPackageSystem.Create do try
         Load(tablFile, 'VCL=True and Pkg=''System'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10]);
+        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12]);
         //
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''System'' and DesignUnit=False');
+        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''System'' and DesignUnit=False');
         Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
+         //
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''System'' and DesignUnit=False');
+        Generate([ctDelphi12Net]);
+
       finally Free; end;
 
       with TPackageCore.Create do try
         Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10]);
+        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12]);
         //
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=False');
+        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Core'' and DesignUnit=False');
         Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
         //
-        Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=True');
-        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10]);
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=False');
+        Generate([ctDelphi12Net]);
         //
+        Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=True');
+        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,
+          ctDelphi11,ctDelphi12]);
         Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=True');
-        GenerateDT([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
+        GenerateDT([ ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net]);
       finally Free; end;
 
       with TPackageProtocols.Create do try
         Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10]);
+        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12]);
 
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Protocols'' and DesignUnit=False');
+        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Protocols'' and DesignUnit=False');
         Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
 
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Protocols'' and DesignUnit=False');
+        Generate([ctDelphi12Net]);
+
         Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=True');
-        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005, ctDelphi10]);
+        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005, ctDelphi10,ctDelphi11,ctDelphi12]);
+
+        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Protocols'' and DesignUnit=True');
+        GenerateDT([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
 
         Load(tablFile, 'DelphiDotNet=True and Pkg=''Protocols'' and DesignUnit=True');
-        GenerateDT([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
+        GenerateDT([ctDelphi12Net]);
       finally Free; end;
 
       with TPackageSecurity.Create do try
-
+        //We are not going to support the Security package in NET 2.0.
         Load(tablFile, 'DelphiDotNet=True and Pkg=''Security'' and DesignUnit=False');
         Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
 
@@ -255,7 +268,7 @@ begin
   except
     on E: Exception do begin
       WriteLn(E.Message);
-      raise;
+   //   raise;
     end;
   end;
 end.

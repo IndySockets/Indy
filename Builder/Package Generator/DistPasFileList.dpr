@@ -15,19 +15,22 @@ begin
     s := TStringList.Create;
     try
       // Default Output Path is w:\source\Indy10
-      DM.OutputPath := 'w:\source\Indy10';
+   //   DM.OutputPath := 'w:\source\Indy10';
       // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
-      DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
+    //  DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
       DM.tablFile.Open;
       try
         while not DM.tablFile.Eof do
         begin
-          LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.pas';
-          s.Add(LSt);
-          WriteLn(LSt);
+          if DM.tablFile.FieldByName('Release').AsBoolean then
+          begin
+            LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.pas';
+            s.Add(LSt);
+            WriteLn(LSt);
+          end;
           DM.tablFile.Next;
         end;
-        s.SaveToFile('w:\source\Indy10\Lib\FileList.txt');
+        s.SaveToFile(DM.OutputPath+'\Lib\FileList.txt');
       finally
         DM.tablFile.Close;
       end;

@@ -75,6 +75,8 @@ type
 
 const
    DelphiNet = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net];
+   DelphiNet2OrLater = [ctDelphi12Net];
+   DelphiNet1_1 = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net];
 
 type
   TPackage = class

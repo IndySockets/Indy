@@ -66,22 +66,22 @@ object frmDBEntry: TfrmDBEntry
         end
         object grpDevIDE: TGroupBox
           Left = 16
-          Top = 72
+          Top = 59
           Width = 385
-          Height = 226
+          Height = 239
           Anchors = [akLeft, akTop, akRight, akBottom]
           Caption = 'Packaging (Development ENviornment)'
           TabOrder = 1
           object lblPackage: TLabel
             Left = 24
-            Top = 144
+            Top = 164
             Width = 40
             Height = 13
             Caption = 'Package'
           end
           object dbchkDotNET: TDBCheckBox
             Left = 24
-            Top = 24
+            Top = 25
             Width = 161
             Height = 17
             Caption = 'DotNet (Visual Studio)'
@@ -93,7 +93,7 @@ object frmDBEntry: TfrmDBEntry
           end
           object dbchkDelphiDotNET: TDBCheckBox
             Left = 24
-            Top = 48
+            Top = 49
             Width = 97
             Height = 17
             Caption = 'Delphi DotNet'
@@ -105,57 +105,57 @@ object frmDBEntry: TfrmDBEntry
           end
           object dbchkVCL: TDBCheckBox
             Left = 24
-            Top = 72
+            Top = 95
             Width = 97
             Height = 17
             Caption = 'VCL'
             DataField = 'VCL'
             DataSource = DMDS.DSMain
-            TabOrder = 2
+            TabOrder = 3
             ValueChecked = 'True'
             ValueUnchecked = 'False'
           end
           object dbchkKylix: TDBCheckBox
             Left = 24
-            Top = 96
+            Top = 118
             Width = 97
             Height = 17
             Caption = 'Kylix'
             DataField = 'Kylix'
             DataSource = DMDS.DSMain
-            TabOrder = 3
+            TabOrder = 4
             ValueChecked = 'True'
             ValueUnchecked = 'False'
           end
           object dbchkDesignTimeOnly: TDBCheckBox
             Left = 24
-            Top = 192
+            Top = 210
             Width = 153
             Height = 17
             Caption = 'Design-Time-Only Unit'
             DataField = 'DesignUnit'
             DataSource = DMDS.DSMain
-            TabOrder = 4
+            TabOrder = 5
             ValueChecked = 'True'
             ValueUnchecked = 'False'
             OnClick = dbchkDesignTimeOnlyClick
           end
           object dbchkFPCLazarus: TDBCheckBox
             Left = 24
-            Top = 120
+            Top = 141
             Width = 153
             Height = 17
             Caption = 'FreePascal/Lazarus Unit'
             DataField = 'FPC'
             DataSource = DMDS.DSMain
-            TabOrder = 5
+            TabOrder = 6
             ValueChecked = 'True'
             ValueUnchecked = 'False'
             OnClick = dbchkFPCLazarusClick
           end
           object dbcboPackage: TDBComboBox
             Left = 24
-            Top = 160
+            Top = 183
             Width = 265
             Height = 21
             DataField = 'Pkg'
@@ -166,7 +166,19 @@ object frmDBEntry: TfrmDBEntry
               'Core'
               'Protocols'
               'Security')
-            TabOrder = 6
+            TabOrder = 7
+          end
+          object dbcboNet20Framework: TDBCheckBox
+            Left = 24
+            Top = 72
+            Width = 213
+            Height = 17
+            Caption = 'Requires NET 2.0 Framework or Above'
+            DataField = 'DotNet2_0OrAboveOnly'
+            DataSource = DMDS.DSMain
+            TabOrder = 2
+            ValueChecked = 'True'
+            ValueUnchecked = 'False'
           end
         end
       end
@@ -294,9 +306,9 @@ object frmDBEntry: TfrmDBEntry
         object dbchkListInLazPackage: TDBCheckBox
           Left = 16
           Top = 88
-          Width = 153
+          Width = 273
           Height = 17
-          Caption = 'List in Lazarus Package'
+          Caption = 'List in Makefile.fpc or Lazarus Package'
           DataField = 'FPCListInPkg'
           DataSource = DMDS.DSMain
           TabOrder = 3

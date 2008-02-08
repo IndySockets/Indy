@@ -74,6 +74,7 @@ type
     tablFileFPCListInPkg: TBooleanField;
     tablFileFPCHasRegProc: TBooleanField;
     tablFileFPCHasLRSFile: TBooleanField;
+    tablFileDotNet2_0OrAboveOnly: TBooleanField;
   private
   protected
     FDataPath : String;

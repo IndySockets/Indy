@@ -44,6 +44,7 @@ type
     dbchkListInLazPackage: TDBCheckBox;
     lbldbProtocols: TLabel;
     dbedtProtocols: TDBEdit;
+    dbcboNet20Framework: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure dbchkDesignTimeOnlyClick(Sender: TObject);
     procedure dbchkListInLazPackageClick(Sender: TObject);

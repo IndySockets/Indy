@@ -4,6 +4,114 @@ object DM: TDM
   Width = 537
   object tablFile: TTable
     DatabaseName = 'w:\source\Indy10\Builder\Package Generator\Data'
+    FieldDefs = <
+      item
+        Name = 'FileName'
+        Attributes = [faRequired]
+        DataType = ftString
+        Size = 100
+      end
+      item
+        Name = 'FileID'
+        Attributes = [faReadonly]
+        DataType = ftAutoInc
+      end
+      item
+        Name = 'DotNet'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'DelphiDotNet'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'VCL'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'Kylix'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'Pkg'
+        Attributes = [faRequired]
+        DataType = ftString
+        Size = 20
+      end
+      item
+        Name = 'DescrShort'
+        DataType = ftString
+        Size = 100
+      end
+      item
+        Name = 'Protocol'
+        DataType = ftString
+        Size = 100
+      end
+      item
+        Name = 'DesignUnit'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'FTPParser'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'Release'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'ReleaseNative'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'ReleaseDotNet'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'ReleaseComment'
+        DataType = ftString
+        Size = 100
+      end
+      item
+        Name = 'BubbleExists'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'IFDEFPermitted'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'Owners'
+        DataType = ftString
+        Size = 100
+      end
+      item
+        Name = 'FPC'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'FPCListInPkg'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'FPCHasRegProc'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'FPCHasLRSFile'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'DotNet2_0OrAboveOnly'
+        DataType = ftBoolean
+      end>
+    IndexDefs = <
+      item
+        Fields = 'FileName'
+        Options = [ixPrimary, ixUnique]
+      end>
+    StoreDefs = True
     TableName = 'File.DB'
     Left = 48
     Top = 24
@@ -95,6 +203,9 @@ object DM: TDM
     object tablFileFPCHasLRSFile: TBooleanField
       DisplayLabel = 'Has Associated Lazarus Resource File (.LRS)'
       FieldName = 'FPCHasLRSFile'
+    end
+    object tablFileDotNet2_0OrAboveOnly: TBooleanField
+      FieldName = 'DotNet2_0OrAboveOnly'
     end
   end
 end
