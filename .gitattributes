@@ -615,6 +615,7 @@ Builder/ClassParser.exe -text svneol=unset#unset
 Builder/ClassParser.ini -text
 Builder/ClassRenamer.exe -text svneol=unset#unset
 Builder/ClassRenamer.ini -text
+Builder/DebChanglogUpdate/test.txt -text
 Builder/IndyAliaser/IndyAliaser.exe -text svneol=unset#unset
 Builder/IndyAliaser/classlist.dat -text
 Builder/IndyAliaser/customnames.dat -text
