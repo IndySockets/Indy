@@ -5,7 +5,6 @@ program LazPkgGen;
 uses
   ShellAPI,
   Windows,
-  ExceptionLog,
   Classes,
   SysUtils,
   IdGlobal,
@@ -106,6 +105,7 @@ The format is like this:
     </Files>
 ===
 }
+
 //i is a var that this procedure will cmanage for the main loop.
 procedure WriteLRSEntry(var VEntryCount : Integer; var VOutput : String);
 var s : String;
@@ -137,7 +137,7 @@ var i : Integer;
 begin
   LS := TStringList.Create;
   try
-    LS.LoadFromFile('W:\Source\Indy10\Builder\Package Generator\LazTemplates\'+AFileName);
+    LS.LoadFromFile(DM.OutputPath+ '\Builder\Package Generator\LazTemplates\'+AFileName);
     Result := LS.Text;
   finally
     FreeAndNil(LS);
@@ -216,362 +216,6 @@ begin
 //  Result :=  PChar(@TempDir[0]);
 end;
 
-//This is from:
-// http://www.delphidabbler.com/articles?article=6
-function GetEnvVarValue(const VarName: string): string;
-var
-  BufSize: Integer;  // buffer size required for value
-begin
-  // Get required buffer size (inc. terminal #0)
-  BufSize := GetEnvironmentVariable(
-    PChar(VarName), nil, 0);
-  if BufSize > 0 then
-  begin
-    // Read env var value into result string
-    SetLength(Result, BufSize - 1); 
-    GetEnvironmentVariable(PChar(VarName), 
-      PChar(Result), BufSize);
-  end
-  else
-    // No such environment variable
-    Result := '';
-end;
-
-function SetEnvVarValue(const VarName,
-  VarValue: string): Integer;
-begin
-  // Simply call API function
-  if SetEnvironmentVariable(PChar(VarName),
-    PChar(VarValue)) then
-    Result := 0
-  else
-    Result := GetLastError;
-end;
-
-function DeleteEnvVar(const VarName: string): Integer;
-begin
-  if SetEnvironmentVariable(PChar(VarName), nil) then
-    Result := 0
-  else
-    Result := GetLastError;
-end;
-function GetAllEnvVars(const Vars: TStrings): Integer;
-var
-  PEnvVars: PChar;    // pointer to start of environment block
-  PEnvEntry: PChar;   // pointer to an env string in block
-begin
-  // Clear the list
-  if Assigned(Vars) then
-    Vars.Clear;
-  // Get reference to environment block for this process
-  PEnvVars := GetEnvironmentStrings;
-  if PEnvVars <> nil then
-  begin
-    // We have a block: extract strings from it
-    // Env strings are #0 separated and list ends with #0#0
-    PEnvEntry := PEnvVars;
-    try
-      while PEnvEntry^ <> #0 do
-      begin
-        if Assigned(Vars) then
-          Vars.Add(PEnvEntry);
-        Inc(PEnvEntry, StrLen(PEnvEntry) + 1);
-      end;
-      // Calculate length of block
-      Result := (PEnvEntry - PEnvVars) + 1;
-    finally
-      // Dispose of the memory block
-      Windows.FreeEnvironmentStrings(PEnvEntry);
-    end;
-  end
-  else
-    // No block => zero length
-    Result := 0;
-end;
-function CreateEnvBlock(const NewEnv: TStrings; 
-  const IncludeCurrent: Boolean;
-  const Buffer: Pointer; 
-  const BufSize: Integer): Integer;
-var
-  EnvVars: TStringList; // env vars in new block
-  Idx: Integer;         // loops thru env vars
-  PBuf: PChar;          // start env var entry in block
-begin
-  // String list for new environment vars
-  EnvVars := TStringList.Create;
-  try
-    // include current block if required
-    if IncludeCurrent then
-      GetAllEnvVars(EnvVars);
-    // store given environment vars in list
-    if Assigned(NewEnv) then
-      EnvVars.AddStrings(NewEnv);
-    // Calculate size of new environment block
-    Result := 0;
-    for Idx := 0 to Pred(EnvVars.Count) do
-      Inc(Result, Length(EnvVars[Idx]) + 1);
-    Inc(Result);
-    // Create block if buffer large enough
-    if (Buffer <> nil) and (BufSize >= Result) then
-    begin
-      // new environment blocks are always sorted
-      EnvVars.Sorted := True;
-      // do the copying
-      PBuf := Buffer;
-      for Idx := 0 to Pred(EnvVars.Count) do
-      begin
-        StrPCopy(PBuf, EnvVars[Idx]);
-        Inc(PBuf, Length(EnvVars[Idx]) + 1);
-      end;
-      // terminate block with additional #0
-      PBuf^ := #0;
-    end;
-  finally
-    EnvVars.Free;
-  end;
-end;
-procedure ExecAppWithEnvBlock;
-var
-  SI: TStartupInfo;         // start up info
-  PI: TProcessInformation;  // process info
-  NewEnv: TStringList;      // new env strings
-  BufSize: Integer;         // env block size
-  Buffer: PChar;            // env block
-begin
-  // Create new env block
-  NewEnv := TStringList.Create;
-  try
-    NewEnv.Add('FOO=Bar');
-    BufSize := CreateEnvBlock(NewEnv, False, nil, 0);
-    Buffer := StrAlloc(BufSize);
-    try
-      CreateEnvBlock(NewEnv, False, Buffer, BufSize);
-      // Exec child process 
-      FillChar(SI, SizeOf(SI), 0);
-      SI.cb := SizeOf(SI);
-      // Execute the program
-      CreateProcess(nil, 'ChildProg.exe', nil, nil, True, 
-        0, Buffer, nil, SI, PI);
-    finally
-      // Free the memory
-      StrDispose(Buffer);
-    end;
-  finally
-    NewEnv.Free;
-  end;
-end;
-
-
-function ExpandEnvVars(const Str: string): string;
-var
-  BufSize: Integer; // size of expanded string
-begin
-  // Get required buffer size 
-  BufSize := ExpandEnvironmentStrings(
-    PChar(Str), nil, 0);
-  if BufSize > 0 then
-  begin
-    // Read expanded string into result string
-    SetLength(Result, BufSize); 
-    ExpandEnvironmentStrings(PChar(Str), 
-      PChar(Result), BufSize);
-  end
-  else
-    // Trying to expand empty string
-    Result := '';
-end;
-   {==end block==}
-   
-//This is from:
-//http://www.swissdelphicenter.ch/en/showcode.php?id=683
-//
-//We use it to run fpcmake so we can redirect the output from it
-//onto our console instead of its own Window.  This is necessary
-//so the results could appear in our caller's display.
-function CreateDOSProcessRedirected(const CommandLine, CurrDir, InputFile, OutputFile,
-  ErrMsg: string; const EnvVars : TStrings = nil): Boolean;
-const
-  ROUTINE_ID = '[function: CreateDOSProcessRedirected ]';
-var
- // OldCursor: TCursor;
-  pCommandLine: array[0..MAX_PATH] of Char;
-  pInputFile, pOutPutFile: array[0..MAX_PATH] of Char;
-  StartupInfo: TStartupInfo;
-  ProcessInfo: TProcessInformation;
-  SecAtrrs: TSecurityAttributes;
-  hAppProcess, hAppThread, hInputFile, hOutputFile: THandle;
-
-  EnvBufSize: Integer;         // env block size
-  EnvBuffer: PChar;            // env block
-begin
-  Result := False;
-  EnvBufSize := 0;
-  EnvBuffer := nil;
-  { check for InputFile existence }
-  if not FileExists(InputFile) then
-  begin
-    raise Exception.CreateFmt(ROUTINE_ID + #10 + #10 +
-      'Input file * %s *' + #10 +
-      'does not exist' + #10 + #10 +
-      ErrMsg, [InputFile]);
-  end;
-  { save the cursor }
-//  OldCursor     := Screen.Cursor;
-//  Screen.Cursor := crHourglass;
-
-  { copy the parameter Pascal strings to null terminated strings }
-  StrPCopy(pCommandLine, CommandLine);
-  StrPCopy(pInputFile, InputFile);
-  StrPCopy(pOutPutFile, OutputFile);
-
-  try
-
-    { prepare SecAtrrs structure for the CreateFile calls
-      This SecAttrs structure is needed in this case because
-      we want the returned handle can be inherited by child process
-      This is true when running under WinNT.
-      As for Win95 the documentation is quite ambiguous }
-    FillChar(SecAtrrs, SizeOf(SecAtrrs), #0);
-    SecAtrrs.nLength        := SizeOf(SecAtrrs);
-    SecAtrrs.lpSecurityDescriptor := nil;
-    SecAtrrs.bInheritHandle := True;
-
-    { create the appropriate handle for the input file }
-    hInputFile := CreateFile(pInputFile,
-      { pointer to name of the file }
-      GENERIC_READ or GENERIC_WRITE,
-      { access (read-write) mode }
-      FILE_SHARE_READ or FILE_SHARE_WRITE,
-      { share mode } @SecAtrrs,                             { pointer to security attributes }
-      OPEN_ALWAYS,                           { how to create }
-      FILE_ATTRIBUTE_TEMPORARY,              { file attributes }
-      0);                                   { handle to file with attributes to copy }
-
-
-    { is hInputFile a valid handle? }
-    if hInputFile = INVALID_HANDLE_VALUE then
-      raise Exception.CreateFmt(ROUTINE_ID + #10 + #10 +
-        'WinApi function CreateFile returned an invalid handle value' +
-        #10 +
-        'for the input file * %s *' + #10 + #10 +
-        ErrMsg, [InputFile]);
-
-    { create the appropriate handle for the output file }
-    hOutputFile := CreateFile(pOutPutFile,
-      { pointer to name of the file }
-      GENERIC_READ or GENERIC_WRITE,
-      { access (read-write) mode }
-      FILE_SHARE_READ or FILE_SHARE_WRITE,
-      { share mode } @SecAtrrs,                             { pointer to security attributes }
-      CREATE_ALWAYS,                         { how to create }
-      FILE_ATTRIBUTE_TEMPORARY,              { file attributes }
-      0);                                   { handle to file with attributes to copy }
-
-    { is hOutputFile a valid handle? }
-    if hOutputFile = INVALID_HANDLE_VALUE then
-      raise Exception.CreateFmt(ROUTINE_ID + #10 + #10 +
-        'WinApi function CreateFile returned an invalid handle value' +
-        #10 +
-        'for the output file * %s *' + #10 + #10 +
-        ErrMsg, [OutputFile]);
-
-    { prepare StartupInfo structure }
-    FillChar(StartupInfo, SizeOf(StartupInfo), #0);
-    StartupInfo.cb          := SizeOf(StartupInfo);
-    StartupInfo.dwFlags     := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
-    StartupInfo.wShowWindow := SW_HIDE;
-    StartupInfo.hStdOutput  := hOutputFile;
-    StartupInfo.hStdInput   := hInputFile;
-    if Assigned(EnvVars) and (EnvVars.Count > 0) then
-    begin
-      EnvBufSize := CreateEnvBlock(EnvVars, False, nil, 0);
-      EnvBuffer := StrAlloc(EnvBufSize);
-      CreateEnvBlock(EnvVars, False, EnvBuffer, EnvBufSize);
-    end;
-
-    try
-    { create the app }
-      Result := CreateProcess(nil,                           { pointer to name of executable module }
-        pCommandLine,
-        { pointer to command line string }
-        nil,                           { pointer to process security attributes }
-        nil,                           { pointer to thread security attributes }
-        True,                          { handle inheritance flag }
-        CREATE_NEW_CONSOLE or
-        REALTIME_PRIORITY_CLASS,       { creation flags }
-        EnvBuffer,                           { pointer to new environment block }
-        PChar(CurrDir),                           { pointer to current directory name }
-        StartupInfo,                   { pointer to STARTUPINFO }
-        ProcessInfo);                  { pointer to PROCESS_INF }
-
-      { wait for the app to finish its job and take the handles to free them later }
-      if Result then
-      begin
-        WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
-        hAppProcess := ProcessInfo.hProcess;
-        hAppThread  := ProcessInfo.hThread;
-      end
-      else
-        raise Exception.Create(ROUTINE_ID + #10 + #10 +
-          'Function failure' + #10 + #10 +
-          ErrMsg);
-    finally
-      // Free the memory
-      if EnvBuffer <> nil then
-      begin
-        StrDispose(EnvBuffer);
-      end;
-    end;
-  finally
-    { close the handles
-      Kernel objects, like the process and the files we created in this case,
-      are maintained by a usage count.
-      So, for cleaning up purposes we have to close the handles
-      to inform the system that we don't need the objects anymore }
-    if hOutputFile <> 0 then
-      CloseHandle(hOutputFile);
-    if hInputFile <> 0 then
-      CloseHandle(hInputFile);
-    if hAppThread <> 0 then
-      CloseHandle(hAppThread);
-    if hAppProcess <> 0 then
-      CloseHandle(hAppProcess);
-    { restore the old cursor }
-  //  Screen.Cursor := OldCursor;
-  end;
-end;
-
-procedure MakeMakefile(const AMakefileDir : String);
-var LInputFile, LOutputFile : String;
-  s : TStrings;
-  i : Integer;
-  NewEnv : TStrings;
-begin
-  s := TStringList.Create;
-  try
-    LInputFile := GetTempDirectory+'\inputdummy.txt';
-     s.SaveToFile(LInputFile);
-     LOutputFile := GetTempDirectory+'\output.txt';
-    NewEnv := TStringList.Create;
-    try
-      NewEnv.Add('FPCDIR=w:\fpc');
-      CreateDOSProcessRedirected('C:\lazarus\pp\bin\i386-win32\fpcmake.exe -vTall',
-        AMakeFileDir,LInputFile,LOutputFile,'Error: ',NewEnv);
-    finally
-      FreeANdNil(NewEnv);
-    end;
-    s.LoadFromFile(LOutputFile);
-    for i := 0 to s.Count - 1 do
-    begin
-      WriteLn(s[i]);
-    end;  
-  finally
-    FreeAndNil(s);
-  end;
-
-
-end;
-
 procedure MakeFPCMasterPackage(const AWhere: string; const AFileName : String;
    const AOutPath : String);
 var s, LS : TStringList;
@@ -592,7 +236,7 @@ begin
     //construct our make file
     LS := TStringList.Create;
     try
-      LS.LoadFromFile('W:\Source\Indy10\Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
+      LS.LoadFromFile(DM.OutputPath+ '\Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
       LTemp := LS.Text;
     finally
       FreeAndNil(LS);
@@ -643,7 +287,7 @@ begin
     //construct our make file
     LS := TStringList.Create;
     try
-      LS.LoadFromFile('W:\Source\Indy10\Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
+      LS.LoadFromFile(GIndyPath+ 'Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
       LTemp := LS.Text;
     finally
       FreeAndNil(LS);
@@ -691,7 +335,6 @@ begin
      s.Add('');
      s.Add('end.');
      WriteFile(s.text,AOutPath+ '\' + AFileName+'.pas');
-      MakeMakeFile(AOutpath);
   finally
     FreeAndNil(s);
   end;
@@ -731,7 +374,7 @@ begin
       end;
       DM.tablFile.Next;
     end;
-    s.SaveToFile('W:\Source\Indy\Indy10FPC\Lib\RTFileList.txt');
+    s.SaveToFile(DM.OutputPath+ '\lib\RTFileList.txt');
 
   finally
     FreeAndNil(s);
@@ -753,31 +396,31 @@ begin
       end;
       DM.tablFile.Next;
     end;
-    s.SaveToFile('W:\Source\Indy\Indy10FPC\Lib\DTFileList.txt');
+    s.SaveToFile(DM.OutputPath+ '\lib\DTFileList.txt');
   finally
     FreeAndNil(s);
   end;
 end;
 
 begin
+
   { TODO -oUser -cConsole Main : Insert code here }
   DM := TDM.Create(nil); try
     with DM do begin
-      // Default Output Path is w:\source\Indy10
-      DM.OutputPath := 'w:\source\Indy10';
-      // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
-      DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
+   //our path settings in the module are created in its constructor now.
+   //we use the defaults it provides so we can use this in various pathes
+   //in subversion.
       tablFile.Open;
-      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False', 'indysystemfpc','System','w:\source\Indy\Indy10FPC\Lib\System');
-   //   WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=False','indysystemlaz.lpk','System','w:\source\Indy\Indy10FPC\Lib\System');
-      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core','w:\source\Indy\Indy10FPC\Lib\Core');
-//    WriteLPK      ('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core','w:\source\Indy\Indy10FPC\Lib\Core');
-      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindycorelaz.lpk', 'Core',          'w:\source\Indy\Indy10FPC\Lib\Core');
-      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indyprotocolsfpc',  'Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
-      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindyprotocolslaz.lpk','Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
-      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','indylaz.lpk','', 'W:\Source\Indy\Indy10FPC\Lib');
+      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False', 'indysystemfpc','System',DM.OutputPath+ '\Lib\System');
+   //   WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=False','indysystemlaz.lpk','System',GIndyPath+ 'Lib\System');
+      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core',DM.OutputPath+ '\Lib\Core');
+//    WriteLPK      ('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core',GIndyPath+ 'Lib\Core');
+      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindycorelaz.lpk', 'Core',DM.OutputPath+ '\Lib\Core');
+      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indyprotocolsfpc',  'Protocols', DM.OutputPath+ '\Lib\Protocols');
+      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindyprotocolslaz.lpk','Protocols', DM.OutputPath+ '\Lib\Protocols');
+      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','indylaz.lpk','', DM.OutputPath+ '\Lib');
       MakeFileDistList;
-      MakeFPCMasterPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indymaster', 'W:\Source\Indy\Indy10FPC\Lib');
+      MakeFPCMasterPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indymaster',DM.OutputPath+  '\Lib');
     end;
   finally
     FreeAndNil(DM);

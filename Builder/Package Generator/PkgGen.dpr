@@ -80,7 +80,6 @@ program PkgGen;
 {$APPTYPE CONSOLE}
 
 uses
-  ExceptionLog,
   Classes,
   SysUtils,
   IdGlobal,
@@ -99,10 +98,13 @@ procedure Main;
 begin
   DM := TDM.Create(nil); try
     with DM do begin
+    //The pathes are now managed in the data module and are
+    //based on a path provided or a from where the program
+    //is launched.  That should be more friendly to subversion.
       // Default Output Path is w:\source\Indy10
-      DM.OutputPath := 'w:\source\Indy10';
+    //  DM.OutputPath := 'w:\source\Indy10';
       // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
-      DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
+    //  DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
       tablFile.Open;
 
       with TPackageVisualStudio.Create do try

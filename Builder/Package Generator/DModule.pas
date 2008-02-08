@@ -80,17 +80,39 @@ type
     FOutputPath : String;
     procedure SetDataPath(const AValue : String);
   public
+    constructor Create(AOwner: TComponent); override;
     property DataPath : String read FDataPath write SetDataPath;
     property OutputPath : String read FOutputPath write FOutputPath;
   end;
 
 var
   DM: TDM;
+  
+var
+  GIndyPath : String = 'W:\Source\Indy10\';
 
 implementation
 {$R *.dfm}
 
+function UpTwoDirs(const APath : String):String;
+begin
+  Result := SysUtils.ExcludeTrailingPathDelimiter( APath);
+  Result := ExtractFilePath(Result);
+  Result := SysUtils.ExcludeTrailingPathDelimiter( Result);
+  Result := ExtractFilePath(Result);
+end;
+
 { TDM }
+
+constructor TDM.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  // Default Output Path is w:\source\Indy10
+  OutputPath := SysUtils.ExcludeTrailingPathDelimiter( GIndyPath );
+  // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
+  DataPath   := GIndyPath+ 'builder\Package Generator\Data';
+
+end;
 
 procedure TDM.SetDataPath(const AValue: String);
 begin
@@ -101,5 +123,11 @@ begin
   end;
 end;
 
+initialization
+  if ParamCount > 0 then  begin
+     GIndyPath := IncludeTrailingPathDelimiter(ParamStr(1));
+  end else begin
+    GIndyPath := UpTwoDirs(ExtractFilePath(ParamStr(0)));
+  end;
 end.
  

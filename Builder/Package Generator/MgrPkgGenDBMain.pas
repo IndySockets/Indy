@@ -62,7 +62,7 @@ procedure TfrmPkgMain.FormCreate(Sender: TObject);
 var s : String;
 begin
    s := ExtractFilePath(ParamStr(0))+'Data';
-                                      DM.tablFile.BeforeDelete := OnBeforeRecordDelete;
+   DM.tablFile.BeforeDelete := OnBeforeRecordDelete;
    DM.tablFile.DatabaseName := s;
    DM.tablFile.TableName := 'File.DB';
    DM.tablFile.Exclusive := True;
