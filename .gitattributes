@@ -615,6 +615,11 @@ Builder/ClassParser.exe -text svneol=unset#unset
 Builder/ClassParser.ini -text
 Builder/ClassRenamer.exe -text svneol=unset#unset
 Builder/ClassRenamer.ini -text
+Builder/DebChanglogUpdate/DebChangelogUpdate.dpr -text
+Builder/DebChanglogUpdate/DebChangelogUpdate.dproj -text
+Builder/DebChanglogUpdate/DebChangelogUpdate.rc -text
+Builder/DebChanglogUpdate/ExecutionLevelAsInvoker.manifest -text
+Builder/DebChanglogUpdate/ExecutionLevelAsInvoker.rc -text
 Builder/DebChanglogUpdate/test.txt -text
 Builder/IndyAliaser/IndyAliaser.exe -text svneol=unset#unset
 Builder/IndyAliaser/classlist.dat -text
