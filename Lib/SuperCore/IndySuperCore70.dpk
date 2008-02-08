@@ -1,5 +1,6 @@
 package IndySuperCore70;
 
+{$R *.res}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
