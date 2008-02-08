@@ -620,7 +620,6 @@ Builder/DebChanglogUpdate/DebChangelogUpdate.dproj -text
 Builder/DebChanglogUpdate/DebChangelogUpdate.rc -text
 Builder/DebChanglogUpdate/ExecutionLevelAsInvoker.manifest -text
 Builder/DebChanglogUpdate/ExecutionLevelAsInvoker.rc -text
-Builder/DebChanglogUpdate/test.txt -text
 Builder/IndyAliaser/IndyAliaser.exe -text svneol=unset#unset
 Builder/IndyAliaser/classlist.dat -text
 Builder/IndyAliaser/customnames.dat -text
