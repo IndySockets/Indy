@@ -724,6 +724,12 @@ Builder/VersionMarker/VersionMarker.fblz -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.fbw -text
 Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
 Builder/VersionMarker/VersionMarker.ini -text
+Builder/uddu/DOS2UNIX.C -text
+Builder/uddu/DOS2UNIX.EXE -text
+Builder/uddu/LICENSE.TXT -text
+Builder/uddu/README.TXT -text
+Builder/uddu/UNIX2DOS.C -text
+Builder/uddu/UNIX2DOS.EXE -text
 KB/IndyKB.hm3 -text svneol=unset#unset
 Lib/Clean.bat eol=crlf
 Lib/Computil.dpr -text
