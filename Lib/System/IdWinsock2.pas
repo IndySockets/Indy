@@ -164,7 +164,7 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
     {$ALIGN OFF}
   {$ELSE}
     //It turns out that Win64 does require alignment
-  {$IPACKRECORDS C}
+  {$PACKRECORDS C}
   {$ENDIF}
 {$ELSE}
   {$IFDEF REQUIRES_PROPER_ALIGNMENT}
