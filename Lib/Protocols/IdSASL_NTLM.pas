@@ -1,6 +1,7 @@
 unit IdSASL_NTLM;
 
 interface
+{$i IdCompilerDefines.inc}
 uses
   IdSASL,
   IdSASLUserPass;

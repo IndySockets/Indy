@@ -1,6 +1,7 @@
 unit IdSASLDigest;
 
 interface
+{$i IdCompilerDefines.inc}
 uses
   Classes,
    IdSASL, IdSASLUserPass, IdUserPassProvider, IdException;

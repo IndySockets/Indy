@@ -170,8 +170,15 @@ type
   TIdInt64Parts = packed record
     case Integer of
     0: (
+    {$ifdef ENDIAN_LITTLE}
       LowPart: LongWord;
-      HighPart: LongWord);
+      HighPart: LongWord
+     {$endif}
+     {$ifdef ENDIAN_BIG}
+      HighPart: LongWord
+      LowPart: LongWord;
+      {$endif}
+      );
     1: (
       QuadPart: Int64);
   end;
