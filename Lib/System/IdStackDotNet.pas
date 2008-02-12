@@ -277,6 +277,9 @@ var
 implementation
 
 uses
+ {$IFDEF DOTNET1_1}
+ IdResourceStrings,
+ {$ENDIF}
   IdException;
 
 const
