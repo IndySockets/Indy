@@ -1445,12 +1445,7 @@ begin
   {$IFDEF DOTNET}
   if lPath = '' then
   begin
-    {$IFDEF DOTNET1_1}
-    lPath := System.IO.GetTempPath;
-    {$ENDIF}
-    {$IFDEF DOTNET2_OR_ABOVE}
     lPath := System.IO.Path.GetTempPath;
-    {$ENDIF}
   end;
   {$ENDIF}
 
