@@ -1425,7 +1425,10 @@ begin
   begin
     VChar := fValue[0];
     Result := True;
+    {$IFNDEF DOTNET1_1}
+    //This is not supported in Microsoft.NET 1.1 framework
     fDecoder.Reset;
+    {$ENDIF}
   end;
 end;
 
