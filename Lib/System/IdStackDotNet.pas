@@ -1087,7 +1087,7 @@ begin
   APkt.SourcePort := LPort;
   {$ELSE}
   LSF := SocketFlags.None;
-  if not (AIPVersion in [Id_IPv6,Id_IPv4]) then
+  if not (AIPVersion in [Id_IPv4, Id_IPv6]) then
   begin
     IPVersionUnsupported;
   end;
@@ -1097,11 +1097,11 @@ begin
    }
   if AIPVersion = Id_IPv4 then
   begin
-      LRemEP := IPEndPoint.Create(IPAddress.Parse('0.0.0.0'),0);
+    LRemEP := IPEndPoint.Create(IPAddress.Parse('0.0.0.0'),0);
   end
   else //Id_IPv6 :
   begin
-      LRemEP := IPEndPoint.Create(IPAddress.Parse('::0'),0);
+    LRemEP := IPEndPoint.Create(IPAddress.Parse('::0'),0);
   end;
   Result := ASocket.ReceiveMessageFrom(VBuffer, 0, Length(VBUffer), LSF, LRemEP, lpki);
   APkt.SourceIP := IPEndPoint(LRemEP).Address.ToString;
