@@ -70,12 +70,14 @@ type
    , ctDelphi11Net
    , ctDelphi12
    , ctDelphi12Net
+   , ctDelphi13
+   , ctDelphi13Net
    , ctDotNet // Visual Studio
    , ctKylix3);
 
 const
-   DelphiNet = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net];
-   DelphiNet2OrLater = [ctDelphi12Net];
+   DelphiNet = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net,ctDelphi13Net];
+   DelphiNet2OrLater = [ctDelphi12Net,ctDelphi13Net];
    DelphiNet1_1 = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net];
 
 type
@@ -121,6 +123,8 @@ const
    , '110Net'
    , '120'
    , '120Net'
+   , '130'
+   , '130Net'
    , ''
    , 'K3');
 

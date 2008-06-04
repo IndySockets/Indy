@@ -126,7 +126,7 @@
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
-			<Parameters Name="RunParams"></Parameters>
+			<Parameters Name="RunParams">E:\source\indy10\branches\Tiburon</Parameters>
 			<Parameters Name="HostApplication"></Parameters>
 			<Parameters Name="Launcher"></Parameters>
 			<Parameters Name="UseLauncher">False</Parameters>
@@ -160,7 +160,12 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
-		</VersionInfoKeys>  <Excluded_Packages>
+		</VersionInfoKeys>  
+    
+    
+    
+    
+    <Excluded_Packages>
       <Excluded_Packages Name="C:\WINDOWS\system32\JvCustomD9R.bpl">JVCL Custom Controls Runtime Package</Excluded_Packages>
       <Excluded_Packages Name="C:\jvcl\packages\d9\JvDBD9D.bpl">JVCL Database Components</Excluded_Packages>
       <Excluded_Packages Name="C:\Program Files\EldoS\SecureBlackbox\Packages\SMIMEBBoxD9.bpl">EldoS SMIMEBlackbox</Excluded_Packages>
@@ -169,7 +174,7 @@
   </Delphi.Personality>
 <!-- EurekaLog First Line
 [Exception Log]
-EurekaLog Version=502
+EurekaLog Version=512
 Activate=1
 Activate Handle=1
 Save Log File=1
@@ -249,19 +254,19 @@ mtDialog_CPUCaption0="CPU"
 Count mtDialog_CPUHeader=1
 mtDialog_CPUHeader0="CPU Information"
 Count mtDialog_OKButtonCaption=1
-mtDialog_OKButtonCaption0="&OK"
+mtDialog_OKButtonCaption0="%26OK"
 Count mtDialog_TerminateButtonCaption=1
-mtDialog_TerminateButtonCaption0="&Terminate"
+mtDialog_TerminateButtonCaption0="%26Terminate"
 Count mtDialog_RestartButtonCaption=1
-mtDialog_RestartButtonCaption0="&Restart"
+mtDialog_RestartButtonCaption0="%26Restart"
 Count mtDialog_DetailsButtonCaption=1
-mtDialog_DetailsButtonCaption0="&Details"
+mtDialog_DetailsButtonCaption0="%26Details"
 Count mtDialog_EmailMessage=1
-mtDialog_EmailMessage0=&Send this error via Email
+mtDialog_EmailMessage0=%26Send this error via Email
 Count mtDialog_ScreenshotMessage=1
-mtDialog_ScreenshotMessage0="&Attach a Screenshot image"
+mtDialog_ScreenshotMessage0="%26Attach a Screenshot image"
 Count mtDialog_CopyMessage=1
-mtDialog_CopyMessage0="&Copy to Clipboard"
+mtDialog_CopyMessage0="%26Copy to Clipboard"
 Count mtLog_AppHeader=1
 mtLog_AppHeader0="Application"
 Count mtLog_AppStartDate=1
@@ -347,7 +352,7 @@ mtReproduceDialog_Caption0="Request"
 Count mtReproduceDialog_Request=1
 mtReproduceDialog_Request0="Please describe the steps to reproduce the error:"
 Count mtReproduceDialog_OKButtonCaption=1
-mtReproduceDialog_OKButtonCaption0="&OK"
+mtReproduceDialog_OKButtonCaption0="%26OK"
 Count mtModules_Handle=1
 mtModules_Handle0="Handle"
 Count mtModules_Name=1
@@ -466,7 +471,7 @@ mtDialog_CustomDataCaption0="Other"
 Count mtDialog_CustomDataHeader=1
 mtDialog_CustomDataHeader0="Other Information"
 Count mtDialog_SendMessage=1
-mtDialog_SendMessage0="&Send this error via Internet"
+mtDialog_SendMessage0="%26Send this error via Internet"
 Count mtDialog_SupportMessage=1
 mtDialog_SupportMessage0="Go to the Support Page"
 Count mtLog_AppCompilationDate=1
