@@ -1713,6 +1713,7 @@ icon16/IdCoreRegister.rc -text
 icon16/IdRegister.rc -text
 icon16/IdSuperCoreRegister.rc -text
 icon16/SASLBase.bmp -text svneol=unset#unset
+icon16/SASLBlank.bmp -text
 icon16/TIDBINHEX40DECODER.bmp -text svneol=unset#unset
 icon16/TIDBINHEX40ENCODER.bmp -text svneol=unset#unset
 icon16/TIDCHARGENSERVER.bmp -text svneol=unset#unset
@@ -1799,9 +1800,11 @@ icon16/TIdConnectThroughHttpProxy.bmp -text svneol=unset#unset
 icon16/TIdConnectionIntercept.bmp -text svneol=unset#unset
 icon16/TIdConnectionInterceptOpenSSL.bmp -text svneol=unset#unset
 icon16/TIdCookieManager.bmp -text svneol=unset#unset
+icon16/TIdDecoderBinHex4.bmp -text
 icon16/TIdDecoderMIME.BMP -text svneol=unset#unset
 icon16/TIdDecoderQuotedPrintable.BMP -text svneol=unset#unset
 icon16/TIdDecoderXXE.BMP -text svneol=unset#unset
+icon16/TIdEncoderBinHex4.bmp -text
 icon16/TIdEncoderMIME.BMP -text svneol=unset#unset
 icon16/TIdEncoderQuotedPrintable.BMP -text svneol=unset#unset
 icon16/TIdEncoderXXE.BMP -text svneol=unset#unset
@@ -1842,6 +1845,8 @@ icon16/TIdRexecServer.bmp -text svneol=unset#unset
 icon16/TIdSASL.bmp -text svneol=unset#unset
 icon16/TIdSASLAnonymous.bmp -text svneol=unset#unset
 icon16/TIdSASLCRAMMD5.bmp -text svneol=unset#unset
+icon16/TIdSASLCRAMSHA1.bmp -text
+icon16/TIdSASLDigest.bmp -text
 icon16/TIdSASLExternal.bmp -text svneol=unset#unset
 icon16/TIdSASLList.bmp -text svneol=unset#unset
 icon16/TIdSASLLogin.bmp -text svneol=unset#unset
