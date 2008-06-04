@@ -1900,6 +1900,7 @@ icons/IdCompressorBorZLib.bmp -text svneol=unset#unset
 icons/IdCoreRegister.rc -text
 icons/IdRegister.rc -text
 icons/IdSuperCoreRegister.rc -text
+icons/SASLBase.bmp -text
 icons/TIDBINHEX40DECODER.BMP -text svneol=unset#unset
 icons/TIDBINHEX40ENCODER.BMP -text svneol=unset#unset
 icons/TIDCHARGENSERVER.BMP -text svneol=unset#unset
@@ -1954,15 +1955,18 @@ icons/TIdCoderMD4.bmp -text svneol=unset#unset
 icons/TIdCoderMD5.bmp -text svneol=unset#unset
 icons/TIdCompressionIntercept.bmp -text svneol=unset#unset
 icons/TIdCompressorBorZLib.bmp -text svneol=unset#unset
+icons/TIdCompressorZLib.bmp -text
 icons/TIdCompressorZLibEx.bmp -text svneol=unset#unset
 icons/TIdConnectThroughHttpProxy.bmp -text svneol=unset#unset
 icons/TIdConnectionIntercept.bmp -text svneol=unset#unset
 icons/TIdConnectionInterceptOpenSSL.bmp -text svneol=unset#unset
 icons/TIdCookieManager.bmp -text svneol=unset#unset
 icons/TIdDICT.bmp -text svneol=unset#unset
+icons/TIdDecoderBinHex4.BMP -text
 icons/TIdDecoderMIME.bmp -text svneol=unset#unset
 icons/TIdDecoderQuotedPrintable.bmp -text svneol=unset#unset
 icons/TIdDecoderXXE.bmp -text svneol=unset#unset
+icons/TIdEncoderBinHex4.BMP -text
 icons/TIdEncoderMIME.bmp -text svneol=unset#unset
 icons/TIdEncoderQuotedPrintable.bmp -text svneol=unset#unset
 icons/TIdEncoderXXE.bmp -text svneol=unset#unset
@@ -2009,6 +2013,8 @@ icons/TIdRexec.bmp -text svneol=unset#unset
 icons/TIdRexecServer.bmp -text svneol=unset#unset
 icons/TIdSASLAnonymous.bmp -text svneol=unset#unset
 icons/TIdSASLCRAMMD5.bmp -text svneol=unset#unset
+icons/TIdSASLCRAMSHA1.bmp -text
+icons/TIdSASLDigest.bmp -text
 icons/TIdSASLExternal.bmp -text svneol=unset#unset
 icons/TIdSASLList.bmp -text svneol=unset#unset
 icons/TIdSASLLogin.bmp -text svneol=unset#unset
@@ -2018,6 +2024,7 @@ icons/TIdSASLSKey.bmp -text svneol=unset#unset
 icons/TIdSMTPRelay.bmp -text svneol=unset#unset
 icons/TIdSNMP.bmp -text svneol=unset#unset
 icons/TIdSNPP.bmp -text svneol=unset#unset
+icons/TIdSSLIOHandlerSocketNET.bmp -text
 icons/TIdSSLIOHandlerSocketOpenSSL.bmp -text svneol=unset#unset
 icons/TIdSchedulerOfFiber.BMP -text svneol=unset#unset
 icons/TIdSchedulerOfThreadDefault.BMP -text svneol=unset#unset
@@ -2025,6 +2032,7 @@ icons/TIdSchedulerOfThreadPool.bmp -text svneol=unset#unset
 icons/TIdServerCompressionIntercept.bmp -text svneol=unset#unset
 icons/TIdServerIOHandlerChain.bmp -text svneol=unset#unset
 icons/TIdServerIOHandlerOpenSSL.bmp -text svneol=unset#unset
+icons/TIdServerIOHandlerSSLNET.bmp -text
 icons/TIdServerIOHandlerStack.bmp -text svneol=unset#unset
 icons/TIdServerIOHandlerStream.bmp -text svneol=unset#unset
 icons/TIdServerInterceptLogEvent.bmp -text svneol=unset#unset
