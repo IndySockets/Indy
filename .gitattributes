@@ -1714,8 +1714,6 @@ icon16/IdRegister.rc -text
 icon16/IdSuperCoreRegister.rc -text
 icon16/SASLBase.bmp -text svneol=unset#unset
 icon16/SASLBlank.bmp -text
-icon16/TIDBINHEX40DECODER.bmp -text svneol=unset#unset
-icon16/TIDBINHEX40ENCODER.bmp -text svneol=unset#unset
 icon16/TIDCHARGENSERVER.bmp -text svneol=unset#unset
 icon16/TIDCHARGENUDPSERVER.bmp -text svneol=unset#unset
 icon16/TIDDATETIMESTAMP.bmp -text svneol=unset#unset
@@ -1901,8 +1899,6 @@ icons/IdCoreRegister.rc -text
 icons/IdRegister.rc -text
 icons/IdSuperCoreRegister.rc -text
 icons/SASLBase.bmp -text
-icons/TIDBINHEX40DECODER.BMP -text svneol=unset#unset
-icons/TIDBINHEX40ENCODER.BMP -text svneol=unset#unset
 icons/TIDCHARGENSERVER.BMP -text svneol=unset#unset
 icons/TIDDATETIMESTAMP.BMP -text svneol=unset#unset
 icons/TIDDAYTIME.BMP -text svneol=unset#unset
@@ -1954,7 +1950,6 @@ icons/TIdCoderMD2.bmp -text svneol=unset#unset
 icons/TIdCoderMD4.bmp -text svneol=unset#unset
 icons/TIdCoderMD5.bmp -text svneol=unset#unset
 icons/TIdCompressionIntercept.bmp -text svneol=unset#unset
-icons/TIdCompressorBorZLib.bmp -text svneol=unset#unset
 icons/TIdCompressorZLib.bmp -text
 icons/TIdCompressorZLibEx.bmp -text svneol=unset#unset
 icons/TIdConnectThroughHttpProxy.bmp -text svneol=unset#unset
