@@ -120,13 +120,15 @@ LLIA -DOPENSSL_NO_SEED -DOPENSSL_NO_RC5 -DOPENSSL_NO_MDC2 -DOPENSSL_NO_TLSEXT
 interface
 
 {$i IdCompilerDefines.inc}
+
 {$WRITEABLECONST OFF}
+
 {$IFNDEF FPC}
   {$IFDEF WIN32}
-  {$ALIGN OFF}
+    {$ALIGN OFF}
   {$ELSE}
-  {$message error alignment!}
-  {$ENDIF}  
+    {$message error alignment!}
+  {$ENDIF}
 {$ELSE}
   {$packrecords C}
 {$ENDIF}
@@ -679,12 +681,12 @@ const
   OPENSSL_ASN1_STRFLGS_ESC_MSB = 4;
   OPENSSL_ASN1_STRFLGS_ESC_QUOTE = 8;
 
-  OPENSSL_ASN1_STRFLGS_UTF8_CONVERT =  $10;
-  OPENSSL_ASN1_STRFLGS_IGNORE_TYPE =  $20;
-  OPENSSL_ASN1_STRFLGS_SHOW_TYPE    =  $40;
-  OPENSSL_ASN1_STRFLGS_DUMP_ALL     =  $80;
+  OPENSSL_ASN1_STRFLGS_UTF8_CONVERT = $10;
+  OPENSSL_ASN1_STRFLGS_IGNORE_TYPE = $20;
+  OPENSSL_ASN1_STRFLGS_SHOW_TYPE = $40;
+  OPENSSL_ASN1_STRFLGS_DUMP_ALL = $80;
   OPENSSL_ASN1_STRFLGS_DUMP_UNKNOWN = $100;
-  OPENSSL_ASN1_STRFLGS_DUMP_DER     = $200;
+  OPENSSL_ASN1_STRFLGS_DUMP_DER = $200;
   OPENSSL_ASN1_STRFLGS_RFC2253  = OPENSSL_ASN1_STRFLGS_ESC_2253 or
                                   OPENSSL_ASN1_STRFLGS_ESC_CTRL or
                                   OPENSSL_ASN1_STRFLGS_ESC_MSB or
@@ -1412,7 +1414,7 @@ const
   OPENSSL_SHA384_DIGEST_LENGTH = 48;
   OPENSSL_SHA512_DIGEST_LENGTH = 64;
     {$IFNDEF OPENSSL_NO_SHA512}
-  OPENSSL_SHA512_CBLOCK =(OPENSSL_SHA_LBLOCK*8);
+  OPENSSL_SHA512_CBLOCK = (OPENSSL_SHA_LBLOCK*8);
     {$ENDIF}
   {$ENDIF}
 
@@ -3495,12 +3497,10 @@ type
     err_buffer: array[0..OPENSSL_ERR_NUM_ERRORS-1] of TIdC_UINT;
     err_data : array [0..OPENSSL_ERR_NUM_ERRORS -1] of PChar;
     err_data_flags : array [0..OPENSSL_ERR_NUM_ERRORS -1] of TIdC_INT;
-    
     err_file: array[0..OPENSSL_ERR_NUM_ERRORS-1] of PChar;
     err_line: array[0..OPENSSL_ERR_NUM_ERRORS-1] of TIdC_INT;
-    
     top: TIdC_INT;
-    Bottom: TIdC_INT;
+    bottom: TIdC_INT;
   end; // record
 
 const
@@ -3620,7 +3620,7 @@ const
 
 type
   UInteger        = Longint;
-  PUInteger   =^UInteger;
+  PUInteger       =^UInteger;
   PFunction       = Pointer;
   {$IFNDEF FPC}
      {$IFNDEF VCL11ORABOVE}
@@ -7089,6 +7089,11 @@ const
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   SSL_DLL_name       = 'ssleay32.dll';  {Do not localize}
+  //The following is a workaround for an alternative name for
+  //one of the OpenSSL .DLL's.  If you compile the .DLL's using
+  //mingw32, the SSL .dll might be named 'libssl32.dll' instead of
+  //ssleay32.dll like you would expect.
+  SSL_DLL_name_alt   = 'libssl32.dll';  {Do not localize}
   SSLCLIB_DLL_name   = 'libeay32.dll';  {Do not localize}
   {$ENDIF}
 var
@@ -9344,7 +9349,7 @@ them in case we use them later.}
   {CH fn_RAND_poll = 'RAND_poll'; } {Do not localize}
   {$IFDEF SYS_WIN}
   //GREGOR
-  fn_RAND_screen = 'RAND_screen';   {Do not localize}
+  fn_RAND_screen = 'RAND_screen';  {Do not localize}
   {CH fn_RAND_event = 'RAND_event'; } {Do not localize}
   {$ENDIF}
 
@@ -9356,7 +9361,7 @@ them in case we use them later.}
   fn_ERR_error_string = 'ERR_error_string';  {Do not localize}
   fn_ERR_error_string_n = 'ERR_error_string_n';  {Do not localize}
   fn_ERR_lib_error_string = 'ERR_lib_error_string';  {Do not localize}
-  fn_ERR_func_error_string = 'ERR_func_error_string';  {Do not localize}
+  fn_ERR_func_error_string = 'ERR_func_error_string'; {Do not localize}
   fn_ERR_reason_error_string = 'ERR_reason_error_string'; {Do not localize}
   fn_ERR_load_ERR_strings = 'ERR_load_ERR_strings'; {Do not localize}
   fn_ERR_free_strings = 'ERR_free_strings'; {do not localize}
@@ -9440,9 +9445,12 @@ begin
   end;
   if hIdSSL = 0 then begin
     hIdSSL := SafeLoadLibrary(SSL_DLL_name);
-  end
-  else
-  begin
+    //This is a workaround for mingw32-compiled SSL .DLL which
+    //might be named 'libssl32.dll'.
+    if hIdSSL = 0 then begin
+      hIdSSL := SafeLoadLibrary(SSL_DLL_name_alt);
+    end;
+  end else begin
     Exit;
   end;
        {$ENDIF}
@@ -9463,6 +9471,11 @@ begin
   end;
   if hIdSSL = 0 then begin
     hIdSSL := SafeLoadLibrary(SSL_DLL_name);
+    //This is a workaround for mingw32-compiled SSL .DLL which
+    //might be named 'libssl32.dll'.
+    if hIdSSL = 0 then begin
+      hIdSSL := SafeLoadLibrary(SSL_DLL_name_alt);
+    end;    
   end else begin
     Exit;
   end;
