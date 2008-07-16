@@ -1109,6 +1109,7 @@ function IsHexidecimal(const AChar: Char): Boolean; overload;
 function IsHexidecimal(const AString: string): Boolean; overload;
 function IsNumeric(const AChar: Char): Boolean; overload;
 function IsNumeric(const AString: string): Boolean; overload;
+function IsNumeric(const AString: string; const ALength: Integer; const AIndex: Integer = 1): Boolean; overload;
 function IsOctal(const AChar: Char): Boolean; overload;
 function IsOctal(const AString: string): Boolean; overload;
 {$IFNDEF DOTNET}
@@ -2620,6 +2621,23 @@ begin
   Result := LCode = 0;
 end;
 {$HINTS ON}
+
+function IsNumeric(const AString: string; const ALength: Integer; const AIndex: Integer = 1): Boolean;
+var
+  I: Integer;
+  LLen: Integer;
+begin
+  Result := False;
+  LLen := IndyLength(AString, ALength, AIndex);
+  if LLen > 0 then begin
+    for I := 0 to LLen-1 do begin
+      if not IsNumeric(AString[AIndex+i]) then begin
+        Exit;
+      end;
+    end;
+    Result := True;
+  end;
+end;
 
 function IsNumeric(const AChar: Char): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
