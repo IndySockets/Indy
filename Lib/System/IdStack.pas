@@ -255,6 +255,7 @@ type
     function IsIP(AIP: string): Boolean;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
     function WSGetLastError: Integer; virtual; abstract;
+    procedure WSSetLastError(const AErr : Integer); virtual; abstract;
     function WSTranslateSocketErrorMsg(const AErr: integer): string; virtual;
     function CheckForSocketError(const AResult: Integer): Integer; overload;
     function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload;

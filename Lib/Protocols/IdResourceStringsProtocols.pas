@@ -506,6 +506,7 @@ resourcestring
   RSSSLGetMethodError = 'Error geting SSL method.';
   RSSSLFDSetError = 'Error setting File Descriptor for SSL';
   RSSSLDataBindingError = 'Error binding data to SSL socket.';
+  RSSSLEOFViolation = 'EOF was observed that violates the protocol';
 
   {IdMessage Component Editor}
   RSMsgCmpEdtrNew = '&New Message Part...';

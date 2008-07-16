@@ -129,6 +129,7 @@ type
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function WSGetLastError: Integer; override;
+    procedure WSSetLastError(const AErr : Integer);  override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
     function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle;
@@ -224,6 +225,11 @@ end;
 procedure TIdStackLinux.SetLastError(Const AError : Integer);
 begin
   __errno_location^ := AError;
+end;
+
+procedure TIdStackLinux.WSSetLastError(const AErr : Integer);
+begin
+  SetLastError(AErr);
 end;
 
 function TIdStackLinux.Accept(ASocket: TIdStackSocketHandle;

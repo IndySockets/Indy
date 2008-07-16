@@ -147,6 +147,7 @@ type
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function WSGetLastError: Integer; override;
+    procedure WSSetLastError(const AErr : Integer); override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
     function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
@@ -639,6 +640,11 @@ begin
   if Result = ESysEPIPE then begin
     Result := Id_WSAECONNRESET;
   end;
+end;
+
+procedure TIdStackUnix.WSSetLastError(const AErr : Integer);
+begin
+  SetLastError(AErr);
 end;
 
 function TIdStackUnix.WSSocket(AFamily, AStruct, AProtocol: Integer;
