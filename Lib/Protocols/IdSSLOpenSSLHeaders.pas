@@ -436,14 +436,17 @@ except from configure script:
   {$ENDIF}
 {$ENDIF}
 
-// the following emit is a workaround to a name conflict
-// with Win32 API header files
+// the following emits are a workaround to a
+// name conflict with Win32 API header files
 (*$HPPEMIT '#include <time.h>'*)
 {$IFDEF OPENSSL_SYS_WIN32}
 (*$HPPEMIT '#undef X509_NAME'*)
 (*$HPPEMIT '#undef X509_EXTENSIONS'*)
 (*$HPPEMIT '#undef X509_CERT_PAIR'*)
 (*$HPPEMIT '#undef PKCS7_ISSUER_AND_SERIAL'*)
+(*$HPPEMIT '#undef OCSP_RESPONSE'*)
+(*$HPPEMIT '#undef OCSP_REQUEST'*)
+(*$HPPEMIT '#undef PKCS7_SIGNER_INFO'*)
 {$ENDIF}
 uses 
   {$IFDEF KYLIX}
@@ -1227,20 +1230,34 @@ const
   OPENSSL_DES_PCBC_MODE = 1;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_DH}
+  OPENSSL_DH_FLAG_CACHE_MONT_P = $01;
+  OPENSSL_DH_FLAG_NO_EXP_CONSTTIME = $02;
+
+  OPENSSL_DH_GENERATOR_2 = 2;
+  OPENSSL_DH_GENERATOR_5 = 5;
+
   OPENSSL_DH_CHECK_P_NOT_PRIME = $01;
   OPENSSL_DH_CHECK_P_NOT_STRONG_PRIME = $02;
-  OPENSSL_DH_FLAG_CACHE_MONT_P = $01;
+  OPENSSL_DH_UNABLE_TO_CHECK_GENERATOR = $04;
+  OPENSSL_DH_NOT_SUITABLE_GENERATOR = $08;
+
+  OPENSSL_DH_CHECK_PUBKEY_TOO_SMALL = $01;
+  OPENSSL_DH_CHECK_PUBKEY_TOO_LARGE = $02;
+  OPENSSL_DH_CHECK_P_NOT_SAFE_PRIME = OPENSSL_DH_CHECK_P_NOT_STRONG_PRIME;
+
   OPENSSL_DH_F_DHPARAMS_PRINT = 100;
   OPENSSL_DH_F_DHPARAMS_PRINT_FP = 101;
   OPENSSL_DH_F_DH_COMPUTE_KEY = 102;
   OPENSSL_DH_F_DH_GENERATE_KEY = 103;
   OPENSSL_DH_F_DH_GENERATE_PARAMETERS = 104;
   OPENSSL_DH_F_DH_NEW = 105;
-  OPENSSL_DH_GENERATOR_2 = 2;
-  OPENSSL_DH_GENERATOR_5 = 5;
-  OPENSSL_DH_NOT_SUITABLE_GENERATOR = $08;
+  OPENSSL_DH_F_DH_BUILTIN_GENPARAMS = 106;
+
   OPENSSL_DH_R_NO_PRIVATE_VALUE = 100;
-  OPENSSL_DH_UNABLE_TO_CHECK_GENERATOR = $04;
+  OPENSSL_DH_R_BAD_GENERATOR = 101;
+  OPENSSL_DH_R_INVALID_PUBKEY = 102;
+  OPENSSL_DH_R_MODULUS_TOO_LARGE = 103;
+
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_DSA}
   OPENSSL_DSA_FLAG_CACHE_MONT_P = $01;
@@ -2958,9 +2975,7 @@ const
   OPENSSL_SSL_CTRL_SET_TLSEXT_STATUS_REQ_IDS	= 69;
   OPENSSL_SSL_CTRL_GET_TLSEXT_STATUS_REQ_OCSP_RESP = 70;
   OPENSSL_SSL_CTRL_SET_TLSEXT_STATUS_REQ_OCSP_RESP = 71;
-
   OPENSSL_SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB	= 72;
-
   {$ENDIF}
 
   OPENSSL_SSL_DEFAULT_CIPHER_LIST= 'AES:ALL:!aNULL:!eNULL:+RC4:@STRENGTH'; //* low priority for RC4 */
@@ -2972,6 +2987,7 @@ const
   OPENSSL_SSL_ERROR_SYSCALL = 5;
   OPENSSL_SSL_ERROR_ZERO_RETURN = 6;
   OPENSSL_SSL_ERROR_WANT_CONNECT = 7;
+  OPENSSL_SSL_ERROR_WANT_ACCEPT = 8;
   
   OPENSSL_X509_FILETYPE_ASN1 = 2;
   OPENSSL_SSL_FILETYPE_ASN1 = OPENSSL_X509_FILETYPE_ASN1;
@@ -3146,30 +3162,42 @@ const
   OPENSSL_SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER = $00000002;
   OPENSSL_SSL_MODE_ENABLE_PARTIAL_WRITE = $00000001;
   OPENSSL_SSL_NOTHING = 1;
-  OPENSSL_SSL_OP_ALL = $000FFFFF;
-  OPENSSL_SSL_OP_NO_QUERY_MTU    = $00001000;
-  OPENSSL_SSL_OP_COOKIE_EXCHANGE = $00002000;
-  OPENSSL_SSL_OP_NO_TICKET       = $00004000;
-  OPENSSL_SSL_OP_EPHEMERAL_RSA   = $00200000;
-  OPENSSL_SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER = $00000020;
+
   OPENSSL_SSL_OP_MICROSOFT_SESS_ID_BUG = $00000001;
-  OPENSSL_SSL_OP_MSIE_SSLV2_RSA_PADDING = $00000040;
-  OPENSSL_SSL_OP_NETSCAPE_CA_DN_BUG = $20000000;
   OPENSSL_SSL_OP_NETSCAPE_CHALLENGE_BUG = $00000002;
-  OPENSSL_SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG = $80000000;
   OPENSSL_SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG = $00000008;
-  OPENSSL_SSL_OP_NON_EXPORT_FIRST = $40000000;
+  OPENSSL_SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG = $00000010;
+  OPENSSL_SSL_OP_MICROSOFT_BIG_SSLV3_BUFFER  = $00000020;
+  OPENSSL_SSL_OP_MSIE_SSLV2_RSA_PADDING      = $00000040;
+  OPENSSL_SSL_OP_SSLEAY_080_CLIENT_DH_BUG    = $00000080;
+  OPENSSL_SSL_OP_TLS_D5_BUG                  = $00000100;
+  OPENSSL_SSL_OP_TLS_BLOCK_PADDING_BUG       = $00000200;
+
+  OPENSSL_SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS = $00000800;
+  OPENSSL_SSL_OP_ALL                         = $00000FFF; //this was $000FFFFF; before 0.9.7
+
+  OPENSSL_SSL_OP_NO_QUERY_MTU                           = $00001000;
+  OPENSSL_SSL_OP_COOKIE_EXCHANGE                        = $00002000;
+  OPENSSL_SSL_OP_NO_TICKET                              = $00004000;
+  OPENSSL_SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION = $00010000;
+  OPENSSL_SSL_OP_SINGLE_ECDH_USE                        = $00080000;
+  OPENSSL_SSL_OP_SINGLE_DH_USE                          = $00100000;
+  OPENSSL_SSL_OP_EPHEMERAL_RSA                          = $00200000;
+  OPENSSL_SSL_OP_CIPHER_SERVER_PREFERENCE               = $00400000;
+  OPENSSL_SSL_OP_TLS_ROLLBACK_BUG                       = $00800000; //was $00000400;
+
   OPENSSL_SSL_OP_NO_SSLv2 = $01000000;
   OPENSSL_SSL_OP_NO_SSLv3 = $02000000;
   OPENSSL_SSL_OP_NO_TLSv1 = $04000000;
+
   OPENSSL_SSL_OP_PKCS1_CHECK_1 = $08000000;
-  OPENSSL_SSL_OP_PKCS1_CHECK_2 = $10000000;
-  OPENSSL_SSL_OP_SINGLE_DH_USE = $00100000;
-  OPENSSL_SSL_OP_SSLEAY_080_CLIENT_DH_BUG = $00000080;
-  OPENSSL_SSL_OP_SSLREF2_REUSE_CERT_TYPE_BUG = $00000010;
-  OPENSSL_SSL_OP_TLS_BLOCK_PADDING_BUG = $00000200;
-  OPENSSL_SSL_OP_TLS_D5_BUG = $00000100;
-  OPENSSL_SSL_OP_TLS_ROLLBACK_BUG = $00000400;
+  OPENSSL_SSL_OP_PKCS1_CHECK_2 = $10000000;  
+  OPENSSL_SSL_OP_NETSCAPE_CA_DN_BUG = $20000000;
+
+  //OPENSSL_SSL_OP_NON_EXPORT_FIRST was removed for OpenSSL 0.9.7 (that was $40000000;)
+
+  OPENSSL_SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG = $40000000;// was $80000000;
+
   OPENSSL_SSL_READING = 3;
   OPENSSL_SSL_RECEIVED_SHUTDOWN = 2;
   OPENSSL_SSL_R_APP_DATA_IN_HANDSHAKE = 100;
@@ -4021,7 +4049,7 @@ type
 // (and possibly other headers) so using the HPPEMIT further above as a workaround
 
   {$EXTERNALSYM time_t}
-  time_t   = TIdC_LONG;
+  time_t	  = TIdC_LONG;
   STACK = record
     num : TIdC_INT; //int num;
     data : PChar;  //char **data;
@@ -4122,18 +4150,18 @@ type
   PBN_LONG = ^BN_LONG;
   PBN_ULONG = ^BN_ULONG;
   BIGNUM = record
-    d : PBN_ULONG; // Pointer to an array of 'BN_BITS2' bit chunks.
-    top : TIdC_INT; // Index of last used d +1.
+    d : PBN_ULONG;	// Pointer to an array of 'BN_BITS2' bit chunks.
+    top : TIdC_INT;	// Index of last used d +1.
     // The next are internal book keeping for bn_expand.
-    dmax : TIdC_INT; // Size of the d array.
-    neg : TIdC_INT; // one if the number is negative
+    dmax : TIdC_INT;	// Size of the d array.
+    neg : TIdC_INT;	// one if the number is negative
     flags : TIdC_INT;
   end;
   PBIGNUM = ^BIGNUM;
-  BN_CTX = record
+ // BN_CTX = record
     //This is defined internally.  I don't want to do anything with an internal structure.
-  end;
-  PBN_CTX = ^BN_CTX;
+ // end;
+  PBN_CTX = Pointer;//^BN_CTX;
   PPBN_CTX = ^PBN_CTX; 
   // Used for montgomery multiplication
   BN_MONT_CTX = record
@@ -4142,14 +4170,25 @@ type
     N : BIGNUM;      // The modulus
     Ni : BIGNUM;     // R*(1/R mod N) - N*Ni = 1
                      // (Ni is only stored for bignum algorithm)
+{#if 0
+	/* OpenSSL 0.9.9 preview: */
+	BN_ULONG n0[2];/* least significant word(s) of Ni */
+#else
+	BN_ULONG n0;   /* least significant word of Ni */
+#endif}
+    {$IFNDEF USETHIS}
+    //* OpenSSL 0.9.9 preview: */
+    n0 : array [0..1] of BN_ULONG;
+    {$ELSE}
     n0 : BN_ULONG;   // least significant word of Ni
+    {$ENDIF}
     flags : TIdC_INT;
   end;
   PBN_MONT_CTX = ^BN_MONT_CTX;
-  BN_BLINDING = record
+//  BN_BLINDING = record
     //I can't locate any information about the record fields in this.
-  end;
-  PBN_BLINDING = ^BN_BLINDING;
+//  end;
+  PBN_BLINDING = pointer;//^BN_BLINDING;
   BN_RECP_CTX = record
     N : BIGNUM;  // the divisor
     Nr : BIGNUM; // the reciprocal
@@ -4165,9 +4204,9 @@ type
   BN_cb_2 = function (p1, p2 : TIdC_INT; p3 : PBN_GENCB): TIdC_INT; cdecl;
   BN_GENCB_union = record
     case Integer of
-      // if(ver==1) - handles old style callbacks
+    		// if(ver==1) - handles old style callbacks
         0 : (cb_1 : BN_cb_1);
-  // if(ver==2) - new callback style
+		// if(ver==2) - new callback style
         1 : (cb_2 : BN_cb_2);
   end;
   BN_GENCB = record
@@ -4261,10 +4300,10 @@ type
   {$ENDIF}
 
   //engiene.h
-  ENGINE = record
+//  ENGINE = record
     //I don't have any info about record fields.
-  end;
-  PENGINE = ^ENGINE;
+//  end;
+  PENGINE = Pointer;//^ENGINE;
 
   //crypto.h
   CRYPTO_EX_DATA = record
@@ -4274,9 +4313,9 @@ type
   PCRYPTO_EX_DATA = ^CRYPTO_EX_DATA;
 
   //evp.h
-  EVP_PBE_KEYGEN = record
-  end;
-  PEVP_PBE_KEYGEN = ^EVP_PBE_KEYGEN;
+//  EVP_PBE_KEYGEN = record
+//  end;
+  PEVP_PBE_KEYGEN = Pointer;//^EVP_PBE_KEYGEN;
 
   //rsa.h - struct rsa_st
   {$IFNDEF OPENSSL_NO_RSA}
@@ -4417,7 +4456,7 @@ type
   DSA_METHOD = record
     name : PChar;
     dsa_do_sign : function (const dgst : PChar; dlen : TIdC_INT; dsa : PDSA) : PDSA_SIG; cdecl;
-    dsa_sign_setup : function (dsa : PDSA; ctx_in : BN_CTX; kinvp, rp : PPBN_CTX) : TIdC_INT; cdecl;
+    dsa_sign_setup : function (dsa : PDSA; ctx_in : PBN_CTX; kinvp, rp : PPBN_CTX) : TIdC_INT; cdecl;
     dsa_do_verify : function(dgst : PChar; dgst_len : TIdC_INT;
       sig : PDSA_SIG; dsa : PDSA) : TIdC_INT; cdecl;
     dsa_mod_exp : function(dsa : PDSA; rr, a1, p1,
@@ -4463,35 +4502,35 @@ type
     // functional reference if 'meth' is ENGINE-provided
     engine : PENGINE;
   end;
-  PPDSA =^PDSA;
+  PPDSA = ^PDSA;
   {$ENDIF}
 
   // ec.h
   {$IFNDEF OPENSSL_NO_EC}
-  EC_METHOD = record
+ // EC_METHOD = record
     //The fields are internal to OpenSSL, they are not listed in the header.
-  end;
-  PEC_METHOD = ^EC_METHOD;
+ // end;
+  PEC_METHOD = Pointer;//^EC_METHOD;
   PPEC_METHOD = ^PEC_METHOD;
-  EC_GROUP = record
+ // EC_GROUP = record
     //The fields are internal to OpenSSL, they are not listed in the header.
-  end;
-  PEC_GROUP = ^EC_GROUP;
+//  end;
+  PEC_GROUP = Pointer;//^EC_GROUP;
   PPEC_GROUP = ^PEC_GROUP;
 
-  EC_POINT = record
+//  EC_POINT = record
     //The fields are internal to OpenSSL, they are not listed in the header.
-  end;
-  PEC_POINT = ^EC_POINT;
+//  end;
+  PEC_POINT = Pointer;//^EC_POINT;
   PPEC_POINT = ^PEC_POINT;
   EC_builtin_curve = record
     nid : TIdC_INT;
     comment : PChar;
   end;
-  PEC_KEY = ^EC_KEY;
-  EC_KEY = record
+  PEC_KEY = Pointer;//^EC_KEY;
+//  EC_KEY = record
     //The fields are internal to OpenSSL, they are not listed in the header.
-  end;
+//  end;
   PPEC_KEY = ^PEC_KEY;
   {$ENDIF}
 
@@ -4503,10 +4542,10 @@ type
   end;
   PECDSA_SIG = ^ECDSA_SIG;
   PPECDSA_SIG = ^PECDSA_SIG;
-  ECDH_METHOD = record
+//  ECDH_METHOD = record
     //defined interally, not through the header so use function to access members
-  end;
-  PECDH_METHOD = ^ECDH_METHOD;
+ // end;
+  PECDH_METHOD = Pointer;//^ECDH_METHOD;
   PPECDH_METHOD = ^PECDH_METHOD;
   {$ENDIF}
 
@@ -4613,9 +4652,9 @@ type
   //D2I_OF(type) type *(*)(type **,const unsigned char **,long)
   D2I_OF_void = function (var _para1 : Pointer; const _para2 : PPChar; _para3 : TIdC_LONG) : Pointer; cdecl; 
   // This is just an opaque pointer
-  ASN1_VALUE = record
-  end;
-  PASN1_VALUE = ^ASN1_VALUE;
+ // ASN1_VALUE = record
+ // end;
+  PASN1_VALUE = Pointer;//^ASN1_VALUE;
   PPASN1_VALUE = ^PASN1_VALUE;
   {$IFDEF DEBUG_SAFESTACK}
   STACK_OF_ASN1_VALUE = record
@@ -4933,7 +4972,7 @@ type
 
   ASN1_ADB_TABLE = record
     flags : TIdC_LONG;            // Various flags
-    offset : TIdC_LONG;           // Offset of selector field
+    offset : TIdC_LONG;	          // Offset of selector field
     app_items : PPSTACK_OF_ASN1_ADB_TABLE; // Application defined items
     tbl : PASN1_ADB_TABLE;        // Table of possible types
     tblcount : TIdC_LONG;         // Number of entries in tbl
@@ -5121,7 +5160,7 @@ type
     num : TIdC_INT;     // used by cfb/ofb mode
     app_data : Pointer; // application stuff
     key_len : TIdC_INT; // May change for variable length cipher
-    flags : TIdC_ULONG; // Various flags
+    flags : TIdC_ULONG;	// Various flags
     cipher_data : Pointer; // per EVP data
     final_used : TIdC_INT;
     block_mask : TIdC_INT;
@@ -5141,7 +5180,7 @@ type
                        // the length is adjusted up each time a longer
                        // line is decoded
     enc_data:array [0..79] of char;
-    line_num: TIdC_INT; // number read on current line
+    line_num: TIdC_INT;	// number read on current line
     expect_nl: TIdC_INT;
   end;
   PEVP_ENCODE_CTX = ^EVP_ENCODE_CTX;
@@ -5186,16 +5225,16 @@ type
   PSTACK_OF_POLICYQUALINFO = PSTACK;
   {$ENDIF}
 
-  X509_POLICY_DATA = record
-  end;
-  PX509_POLICY_DATA = ^X509_POLICY_DATA;
+ // X509_POLICY_DATA = record
+ // end;
+  PX509_POLICY_DATA = Pointer;//^X509_POLICY_DATA;
 
-  X509_POLICY_REF = record
-  end;
-  PX509_POLICY_REF = ^X509_POLICY_REF;
-  X509_POLICY_CACHE = record
-  end;
-  PX509_POLICY_CACHE = ^X509_POLICY_CACHE;
+ // X509_POLICY_REF = record
+ // end;
+  PX509_POLICY_REF = Pointer;//^X509_POLICY_REF;
+ // X509_POLICY_CACHE = record
+ // end;
+  PX509_POLICY_CACHE = Pointer; //^X509_POLICY_CACHE;
 
   //x509v3.h
   //forward declarations from x509.h to make sure this compiles.
@@ -5736,7 +5775,7 @@ type
     trust : PSTACK_OF_ASN1_OBJECT;  // trusted uses
     reject : PSTACK_OF_ASN1_OBJECT; // rejected uses
     alias : PASN1_UTF8STRING;       // "friendly name"
-    keyid : PASN1_OCTET_STRING;     // key id of private key
+    keyid : PASN1_OCTET_STRING;	    // key id of private key
     other : PSTACK_OF_X509_ALGOR;   // other unspecified info
   end;
   PX509_CERT_AUX = ^X509_CERT_AUX;
@@ -6364,16 +6403,16 @@ type
   POCSP_SERVICELOC = ^OCSP_SERVICELOC;
   PPOCSP_SERVICELOC = ^POCSP_SERVICELOC;
   //mdc2.h
-  MDC2_CTX = record
+  //MDC2_CTX = record
     //this is not defined in headers so it's best use functions in the API to access the structure.
-  end;
-  PMDC2_CTX = ^MDC2_CTX;
+  //end;
+  PMDC2_CTX = Pointer;//^MDC2_CTX;
 
   //tmdiff.h
-  MS_TM = record
+//  MS_TM = record
     //this is not defined in headers so it's best use functions in the API to access the structure.
-  end;
-  PMS_TM = ^MS_TM;
+ // end;
+  PMS_TM = Pointer;//^MS_TM;
   PPMS_TM = ^PMS_TM;
 
   //PEVP_PBE_KEYGEN          = Pointer;
@@ -6447,63 +6486,12 @@ type
 ///ssl_locl.h structs.  These are probably internal records so don't expose
 //their members as ssl_lock.h is not included in the headers
 //JPM
-  PSSL3_ENC_METHOD = ^SSL3_ENC_METHOD;
-  SSL3_ENC_METHOD = record
-  end;
-
-  CERT_PKEY = record
-  end;
-  PCERT_PKEY = ^CERT_PKEY;
-
+  PSSL3_ENC_METHOD = pointer;//^SSL3_ENC_METHOD;
+//  SSL3_ENC_METHOD = record
+//  end;
+  PCERT = pointer;
   PPCERT = ^PCERT;
-  PCERT = ^CERT;
-  CERT = record
-    // Current active set
-    key : PCERT_PKEY; // ALWAYS points to an element of the pkeys array
-                      // Probably it would make more sense to store
-                      // an index, not a pointer.
-
-    // The following masks are for the key and auth
-    // algorithms that are supported by the certs below
-    valid : TIdC_INT;
-    mask : TIdC_ULONG;
-    export_mask : TIdC_ULONG;
-    {$IFNDEF OPENSSL_NO_RSA}
-    rsa_tmp : PRSA;
-    rsa_tmp_cb : function (ssl : PSSL; is_export : TIdC_INT; keysize : TIdC_INT) : PRSA; cdecl;
-    {$ENDIF}
-    {$IFNDEF OPENSSL_NO_DH}
-    dh_tmp : PDH;
-    dh_tmp_cb : function (ssl : PSSL; is_export : TIdC_INT; keysize : TIdC_INT) : PDH; cdecl;
-    {$ENDIF}
-    {$IFDEF OPENSSL_NO_ECDH}
-    ecdh_tmp : PEC_KEY;
-    // Callback for generating ephemeral ECDH keys
-    ecdh_tmp_cb : function (ssl : PSSL; is_export : TIdC_INT; keysize : TIdC_INT) : PEC_KEY; cdecl;
-    {$ENDIF}
-    pkeys : array [0..OPENSSL_SSL_PKEY_NUM - 1] of CERT_PKEY;
-    references : TIdC_INT; // >1 only if SSL_copy_session_id is used
-  end;
-
-  SESS_CERT = record
-    cert_chain : PSTACK_OF_X509; // as received from peer (not for SSL2)
-    // The 'peer_...' members are used only by clients.
-    peer_cert_type : TIdC_INT;
-    peer_key : PCERT_PKEY; // points to an element of peer_pkeys (never NULL!)
-    peer_pkeys : array [0..OPENSSL_SSL_PKEY_NUM - 1] of  CERT_PKEY;
-    // Obviously we don't have the private keys of these,
-    // so maybe we shouldn't even use the CERT_PKEY type here.
-    {$IFNDEF OPENSSL_NO_RSA}
-    peer_rsa_tmp : PRSA; // not used for SSL 2
-    {$ENDIF}
-    {$IFNDEF OPENSSL_NO_DH}
-    peer_dh_tmp : PDH; // not used for SSL 2
-    {$ENDIF}
-    {$IFNDEF OPENSSL_NO_ECDH}
-    ecdh_tmp : PEC_KEY;
-    {$ENDIF}
-    references : TIdC_INT; // actually always 1 at the moment
-  end;
+  PSESS_CERT = pointer;
 
   //pkcs7.h
   PPKCS7 = ^PKCS7;
@@ -6660,7 +6648,7 @@ type
     iter : PASN1_INTEGER; // defaults to 1
   end;
   PPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
-  PSESS_CERT = ^SESS_CERT;
+ // PSESS_CERT = ^SESS_CERT;
   PPKCS12 = ^PKCS12;
   PKCS12 = record
     version : PASN1_INTEGER;
@@ -6759,7 +6747,7 @@ type
   {$ENDIF}
 
   //ssl.h
-  PSSL_CIPHER   = ^SSL_CIPHER;
+  PSSL_CIPHER = ^SSL_CIPHER;
   SSL_CIPHER = record
     valid : TIdC_INT;
     name: PChar;  // text name
@@ -6777,7 +6765,7 @@ type
   STACK_OF_SSL_CIPHER = record
     _stack: STACK;
   end;
-  PSTACK_OF_SSL_CIPHER =^STACK_OF_SSL_CIPHER;
+  PSTACK_OF_SSL_CIPHER = ^STACK_OF_SSL_CIPHER;
   {$ELSE}
   //I think the DECLARE_STACK_OF macro is empty
   PSTACK_OF_SSL_CIPHER = PSTACK;
@@ -6798,10 +6786,10 @@ type
     // the appropriate context. It is up to the application to set this,
     // via SSL_new
     sid_ctx_length: TIdC_UINT;
-    sid_ctx:Array[0..OPENSSL_SSL_MAX_SID_CTX_LENGTH-1] of Byte;
+    sid_ctx: array[0..OPENSSL_SSL_MAX_SID_CTX_LENGTH-1] of Byte;
     {$IFNDEF OPENSSL_NO_KRB5}
     krb5_client_princ_len: TIdC_UINT;
-    krb5_client_princ: Array[0..OPENSSL_SSL_MAX_KRB5_PRINCIPAL_LENGTH-1] of Byte;
+    krb5_client_princ: array[0..OPENSSL_SSL_MAX_KRB5_PRINCIPAL_LENGTH-1] of Byte;
     {$ENDIF}
     not_resumable: TIdC_INT;
     // The cert is the certificate used to establish this connection
@@ -6991,7 +6979,7 @@ type
 
     verify_mode : TIdC_INT;
     sid_ctx_length : TIdC_UINT;
-    sid_ctx : array[0..OPENSSL_SSL_MAX_SID_CTX_LENGTH - 1] of char;
+    sid_ctx : array[0..OPENSSL_SSL_MAX_SID_CTX_LENGTH - 1] of Char;
     default_verify_callback : function(ok : TIdC_INT; ctx : PX509_STORE_CTX) : TIdC_INT; cdecl; // called 'verify_callback' in the SSL
 
     // Default generate session ID callback.
@@ -7002,10 +6990,10 @@ type
    {$IFDEF OMITTHIS}
     purpose : TIdC_INT;  // Purpose setting
     trust : TIdC_INT;    // Trust setting
-   {$ENDIF}
+    {$ENDIF}
 
     quiet_shutdown : TIdC_INT;
-   {$IFNDEF OPENSSL_NO_TLSEXT}
+    {$IFNDEF OPENSSL_NO_TLSEXT}
 //* TLS extensions servername callback */
     tlsext_servername_callback : PSSL_CTEX_tlsext_servername_callback;
     tlsext_servername_arg : Pointer;
@@ -7033,9 +7021,6 @@ type
   PDTLS1_STATE = ^DTLS1_STATE;
 
 //* TLS extension debug callback */
-//    void (*tlsext_debug_cb)(SSL *s, int client_server, int type,
-//     unsigned char *data, int len,
-//     void *arg);
   PSSL_tlsext_debug_cb = procedure (s : PSSL; client_server : TIdC_INT; 
     _type : TIdC_INT; data : PChar; len : TIdC_INT;
     arg : Pointer); cdecl;
@@ -7197,9 +7182,6 @@ type
     {$IFNDEF OPENSSL_NO_TLSEXT}
     //* TLS extension debug callback */
     tlsext_debug_cb : PSSL_tlsext_debug_cb;
-//    void (*tlsext_debug_cb)(SSL *s, int client_server, int type,
-//     unsigned char *data, int len,
-//     void *arg);
     tlsext_debug_arg : Pointer;
     tlsext_hostname : PChar;
     servername_done : TIdC_INT;   //* no further mod of servername 
@@ -7895,6 +7877,8 @@ procedure IdSslMASN1StringLengthSet(x : PASN1_STRING; n : TIdC_INT);
 function IdSslMASN1StringType(x : PASN1_STRING) : TIdC_INT;
 function IdSslMASN1StringData(x : PASN1_STRING) : PChar;
 
+//
+
 function ErrMsg(AErr : TIdC_ULONG) : string;
 
 implementation
@@ -7965,7 +7949,7 @@ them in case we use them later.}
   {CH fn_sk_dup = 'sk_dup'; }  {Do not localize}
   {CH fn_sk_sort = 'sk_sort'; }  {Do not localize}
   fn_SSLeay_version = 'SSLeay_version';  {Do not localize}
-  fn_SSLeay = 'SSLeay';  {Do not localize}
+  fn_SSLeay = 'SSLeay';   {Do not localize}
   {CH fn_CONF_set_default_method = 'CONF_set_default_method'; } {Do not localize}
   {CH fn_CONF_set_nconf = 'CONF_set_nconf'; } {Do not localize}
   {CH fn_CONF_load = 'CONF_load'; } {Do not localize}
@@ -10319,8 +10303,8 @@ begin
   Result := True;
 
   Assert(FFailedFunctionLoadList<>nil);
-
   FFailedFunctionLoadList.Clear;
+
   {$IFDEF KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   if hIdCrypto = 0 then begin
@@ -10659,15 +10643,17 @@ var
   i, tz_dir: Integer;
   time_str: String;
 begin
-  SetLength(time_str, UCTtime^.length);
-  Move(UCTtime^.data[0], time_str[1], UCTtime^.length);
-
   Result := 1;
+
+  if UCTtime^.length < 12 then begin
+    Exit;
+  end;
+
+  SetString(time_str, UCTtime^.data, UCTtime^.length);
+
   // Check if first 12 chars are numbers
-  for i := 1 to 12 do begin
-    if (time_str[i] > '9') or (time_str[i] < '0') then begin {Do not Localize}
-      Exit;
-    end;
+  if not IsNumeric(time_str, 12) then begin
+    Exit;
   end;
 
   // Convert time from string to number
@@ -10687,18 +10673,14 @@ begin
   tz_hour := 0;
   tz_min := 0;
 
-  if (time_str[13] = '-' ) or (time_str[13] = '+') then begin    {Do not Localize}
-    if time_str[13] = '-' then begin    {Do not Localize}
-       tz_dir := -1;
-    end else begin
-       tz_dir := 1;
-    end;
+  if CharIsInSet(time_str, 13, '-+') then begin    {Do not Localize}
+    tz_dir := iif(CharEquals(time_str, 13, '-'), -1, 1);    {Do not Localize}
 
     for i := 14 to 18 do begin  // Check if numbers are numbers
       if i = 16 then begin
         Continue;
       end;
-      if (time_str[i] > '9' ) or (time_str[i] < '0') then begin {Do not Localize}
+      if not IsNumeric(time_str[i]) then begin
         Exit;
       end;
     end;
