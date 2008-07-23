@@ -836,6 +836,7 @@ Lib/Core/IdServerIOHandlerStack.pas -text
 Lib/Core/IdSimpleServer.pas -text
 Lib/Core/IdSocketHandle.pas -text
 Lib/Core/IdSocks.pas -text
+Lib/Core/IdStruct.pas -text
 Lib/Core/IdSync.pas -text
 Lib/Core/IdTCPClient.pas -text
 Lib/Core/IdTCPConnection.pas -text
