@@ -101,6 +101,9 @@
 			<Compiler Name="OptionTruncated">True</Compiler>
 			<Compiler Name="WideCharReduced">True</Compiler>
 			<Compiler Name="DuplicatesIgnored">True</Compiler>
+			<Compiler Name="UnitInitSeq">True</Compiler>
+			<Compiler Name="LocalPInvoke">True</Compiler>
+			<Compiler Name="CodePage"></Compiler>
 		</Compiler>
 		<Linker>
 			<Linker Name="MapFile">3</Linker>
@@ -113,6 +116,7 @@
 			<Linker Name="MaxStackSize">1048576</Linker>
 			<Linker Name="ImageBase">4194304</Linker>
 			<Linker Name="ExeDescription"></Linker>
+			<Linker Name="GenerateHpps">False</Linker>
 		</Linker>
 		<Directories>
 			<Directories Name="OutputDir"></Directories>
@@ -121,12 +125,12 @@
 			<Directories Name="PackageDCPOutputDir"></Directories>
 			<Directories Name="SearchPath"></Directories>
 			<Directories Name="Packages">rtl;vcl;dbrtl;vcldb;vclx;adortl;dbxcds;dbexpress;vclib;ibxpress;IntrawebDB_72_90;Intraweb_72_90;xmlrtl;vclie;inet;inetdbbde;inetdbxpress;dclOffice2k;VclSmp;dsnap;soaprtl;inetdb;bdertl;vcldbx;webdsnap;websnap;vclactnband;vclshlctrls;dsnapcon;teeui;teedb;tee;Rave60VCL;BaseBBoxD9;MIMEBBoxD9;PGPBBoxD9;PKIBBoxD9;PGPMIMEBBoxD9;SFTPBBoxD9;SSHBBoxCliD9;SMIMEBBoxD9;SSHBBoxSrvD9;SSLBBoxSrvD9;elpackD9;PMemo6Pack9;PMemoU6Pack9;MiscUnits90;ImageTypes90;LowLevel90;IndySystem90;IndyProtocols90;tb2k_d9;vclSvComV6D9;DJcl;JvXPCtrlsD9R;JvStdCtrlsD9R;JvAppFrmD9R;JvCoreD9R;JvBandsD9R;JvCryptD9R;JvCtrlsD9R;JvCustomD9R;JvDBD9R;JvDlgsD9R;JvEDID9R;JvGlobusD9R;JvHMID9R;JvInspectorD9R;JvJansD9R;JvManagedThreadsD9R;JvCmpD9R;JvMMD9R;JvNetD9R;JvPageCompsD9R;JvPluginD9R;JvPrintPreviewD9R;JvSystemD9R;JvTimeFrameworkD9R;JvUIBD9R;JvValidatorsD9R;JvWizardD9R</Directories>
-			<Directories Name="Conditionals">EUREKALOG</Directories>
+			<Directories Name="Conditionals">EUREKALOG;EUREKALOG_VER5</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
-			<Parameters Name="RunParams"></Parameters>
+			<Parameters Name="RunParams">"E:\source\Indy10\branches\Tiburon"</Parameters>
 			<Parameters Name="HostApplication"></Parameters>
 			<Parameters Name="Launcher"></Parameters>
 			<Parameters Name="UseLauncher">False</Parameters>
@@ -136,6 +140,9 @@
 			<Parameters Name="RemoteLauncher"></Parameters>
 			<Parameters Name="RemoteCWD"></Parameters>
 			<Parameters Name="RemoteDebug">False</Parameters>
+			<Parameters Name="Debug Symbols Search Path"></Parameters>
+			<Parameters Name="LoadAllSymbols">True</Parameters>
+			<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
 		</Parameters>
 		<Language>
 			<Language Name="ActiveLang"></Language>
@@ -160,10 +167,7 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
-		</VersionInfoKeys>  
-    
-    
-    <Excluded_Packages>
+		</VersionInfoKeys>  <Excluded_Packages>
       <Excluded_Packages Name="C:\WINDOWS\system32\JvCustomD9R.bpl">JVCL Custom Controls Runtime Package</Excluded_Packages>
       <Excluded_Packages Name="C:\jvcl\packages\d9\JvDBD9D.bpl">JVCL Database Components</Excluded_Packages>
       <Excluded_Packages Name="C:\Program Files\EldoS\SecureBlackbox\Packages\SMIMEBBoxD9.bpl">EldoS SMIMEBlackbox</Excluded_Packages>
@@ -172,7 +176,7 @@
   </Delphi.Personality>
 <!-- EurekaLog First Line
 [Exception Log]
-EurekaLog Version=501
+EurekaLog Version=512
 Activate=1
 Activate Handle=1
 Save Log File=1
@@ -252,19 +256,19 @@ mtDialog_CPUCaption0="CPU"
 Count mtDialog_CPUHeader=1
 mtDialog_CPUHeader0="CPU Information"
 Count mtDialog_OKButtonCaption=1
-mtDialog_OKButtonCaption0="&OK"
+mtDialog_OKButtonCaption0="%26OK"
 Count mtDialog_TerminateButtonCaption=1
-mtDialog_TerminateButtonCaption0="&Terminate"
+mtDialog_TerminateButtonCaption0="%26Terminate"
 Count mtDialog_RestartButtonCaption=1
-mtDialog_RestartButtonCaption0="&Restart"
+mtDialog_RestartButtonCaption0="%26Restart"
 Count mtDialog_DetailsButtonCaption=1
-mtDialog_DetailsButtonCaption0="&Details"
+mtDialog_DetailsButtonCaption0="%26Details"
 Count mtDialog_EmailMessage=1
-mtDialog_EmailMessage0=&Send this error via Email
+mtDialog_EmailMessage0=%26Send this error via Email
 Count mtDialog_ScreenshotMessage=1
-mtDialog_ScreenshotMessage0="&Attach a Screenshot image"
+mtDialog_ScreenshotMessage0="%26Attach a Screenshot image"
 Count mtDialog_CopyMessage=1
-mtDialog_CopyMessage0="&Copy to Clipboard"
+mtDialog_CopyMessage0="%26Copy to Clipboard"
 Count mtLog_AppHeader=1
 mtLog_AppHeader0="Application"
 Count mtLog_AppStartDate=1
@@ -350,7 +354,7 @@ mtReproduceDialog_Caption0="Request"
 Count mtReproduceDialog_Request=1
 mtReproduceDialog_Request0="Please describe the steps to reproduce the error:"
 Count mtReproduceDialog_OKButtonCaption=1
-mtReproduceDialog_OKButtonCaption0="&OK"
+mtReproduceDialog_OKButtonCaption0="%26OK"
 Count mtModules_Handle=1
 mtModules_Handle0="Handle"
 Count mtModules_Name=1
@@ -469,7 +473,7 @@ mtDialog_CustomDataCaption0="Other"
 Count mtDialog_CustomDataHeader=1
 mtDialog_CustomDataHeader0="Other Information"
 Count mtDialog_SendMessage=1
-mtDialog_SendMessage0="&Send this error via Internet"
+mtDialog_SendMessage0="%26Send this error via Internet"
 Count mtDialog_SupportMessage=1
 mtDialog_SupportMessage0="Go to the Support Page"
 Count mtLog_AppCompilationDate=1
