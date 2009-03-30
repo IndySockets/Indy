@@ -50,29 +50,27 @@ unit IdSSLOpenSSLHeaders;
 {
 Note to self::
 ===== Win32 with mingw32 ====
-W:\openssl\openssl-0.9.8h>perl Configure mingw
 Configuring for mingw
     no-camellia     [default]  OPENSSL_NO_CAMELLIA (skip dir)
+    no-capieng      [default]  OPENSSL_NO_CAPIENG (skip dir)
     no-cms          [default]  OPENSSL_NO_CMS (skip dir)
     no-gmp          [default]  OPENSSL_NO_GMP (skip dir)
+    no-jpake        [experimental] OPENSSL_NO_JPAKE (skip dir)
     no-krb5         [krb5-flavor not specified] OPENSSL_NO_KRB5
     no-mdc2         [default]  OPENSSL_NO_MDC2 (skip dir)
-    no-montasm      [default]
+    no-montasm      [default] 
     no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
     no-rfc3779      [default]  OPENSSL_NO_RFC3779 (skip dir)
     no-seed         [default]  OPENSSL_NO_SEED (skip dir)
-    no-shared       [default]
-    no-tlsext       [default]  OPENSSL_NO_TLSEXT (skip dir)
-    no-zlib         [default]
-    no-zlib-dynamic [default]
+    no-shared       [default] 
+    no-zlib         [default] 
+    no-zlib-dynamic [default] 
 IsMK1MF=1
 CC            =gcc
-CFLAG         =-DOPENSSL_THREADS  -DDSO_WIN32 -mno-cygwin -DL_ENDIA
-e-pointer -O3 -march=i486 -Wall -D_WIN32_WINNT=0x333 -DOPENSSL_BN_A
- -DOPENSSL_IA32_SSE2 -DSHA1_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM
+CFLAG         =-DOPENSSL_THREADS  -DDSO_WIN32 -mno-cygwin -DL_ENDIAN -fomit-frame-pointer -O3 -march=i486 -Wall -D_WIN32_WINNT=0x333 -DOPENSSL_BN_ASM_PART_WORDS -DOPENSSL_IA32_SSE2 -DSHA1_ASM -DMD5_ASM -DRMD160_ASM -DAES_ASM
 EX_LIBS       =-lwsock32 -lgdi32
 CPUID_OBJ     =x86cpuid-cof.o
-BN_ASM        =bn86-cof.o co86-cof.o
+BN_ASM        =bn86-cof.o co86-cof.o 
 DES_ENC       =dx86-cof.o yx86-cof.o
 AES_ASM_OBJ   =ax86-cof.o
 BF_ENC        =bx86-cof.o
@@ -111,27 +109,25 @@ Generating makefile
 Generating DLL definition files
 Building the libraries
 Building OpenSSL
-
-OPTIONS= no-camellia no-cms no-gmp no-krb5 no-mdc2 no-montasm no-rc5 no-rfc3779 no-seed no-shared no-tlsext no-zlib no-zlib-dynamic
-=============================
 ===== Win64 ======
 Targeting Windows Server 2003 X64 RETAIL
 
 perl Configure VC-WIN64A
 
-W:\openssl\openssl-0.9.8h>perl Configure VC-WIN64A
+W:\openssl\openssl-0.9.8k>perl Configure VC-WIN64A
 Configuring for VC-WIN64A
-    no-camellia     [default]  OPENSSL_NO_CAMELLIA (skip d
+    no-camellia     [default]  OPENSSL_NO_CAMELLIA (skip dir)
+    no-capieng      [default]  OPENSSL_NO_CAPIENG (skip dir)
     no-cms          [default]  OPENSSL_NO_CMS (skip dir)
     no-gmp          [default]  OPENSSL_NO_GMP (skip dir)
-    no-krb5         [krb5-flavor not specified] OPENSSL_NO
+    no-jpake        [experimental] OPENSSL_NO_JPAKE (skip dir)
+    no-krb5         [krb5-flavor not specified] OPENSSL_NO_KRB5
     no-mdc2         [default]  OPENSSL_NO_MDC2 (skip dir)
     no-montasm      [default]
     no-rc5          [default]  OPENSSL_NO_RC5 (skip dir)
-    no-rfc3779      [default]  OPENSSL_NO_RFC3779 (skip di
+    no-rfc3779      [default]  OPENSSL_NO_RFC3779 (skip dir)
     no-seed         [default]  OPENSSL_NO_SEED (skip dir)
     no-shared       [default]
-    no-tlsext       [default]  OPENSSL_NO_TLSEXT (skip dir
     no-zlib         [default]
     no-zlib-dynamic [default]
 IsMK1MF=1
@@ -159,28 +155,34 @@ RC4_CHUNK is unsigned long long
 
 Configured for VC-WIN64A.
 
-W:\openssl\openssl-0.9.8h>ms\do_win64a
+W:\openssl\openssl-0.9.8k>ms\do_win64a
 
-W:\openssl\openssl-0.9.8h>perl util\mkfiles.pl  1>MINFO
+W:\openssl\openssl-0.9.8k>perl util\mkfiles.pl  1>MINFO
 
-W:\openssl\openssl-0.9.8h>perl ms\uplink.pl win64a  1>ms\uptable.asm
+W:\openssl\openssl-0.9.8k>perl ms\uplink.pl win64a  1>ms\uptable.asm
 
-W:\openssl\openssl-0.9.8h>ml64 -c -Foms\uptable.obj ms\uptable.asm
+W:\openssl\openssl-0.9.8k>ml64 -c -Foms\uptable.obj ms\uptable.asm
 Microsoft (R) Macro Assembler (AMD64) Version 8.00.40310.39
 Copyright (C) Microsoft Corporation.  All rights reserved.
 
  Assembling: ms\uptable.asm
 
-W:\openssl\openssl-0.9.8h>perl util\mk1mf.pl no-asm VC-WIN64A  1>ms\nt.mak
+W:\openssl\openssl-0.9.8k>perl util\mk1mf.pl no-asm VC-WIN64A  1>ms\nt.mak
 
-W:\openssl\openssl-0.9.8h>perl util\mk1mf.pl dll no-asm VC-WIN64A  1>ms\ntdll.ma
+W:\openssl\openssl-0.9.8k>perl util\mk1mf.pl dll no-asm VC-WIN64A  1>ms\ntdll.ma
 k
 
-W:\openssl\openssl-0.9.8h>perl util\mkdef.pl 32 libeay  1>ms\libeay32.def
+W:\openssl\openssl-0.9.8k>perl util\mkdef.pl 32 libeay  1>ms\libeay32.def
 
-W:\openssl\openssl-0.9.8h>perl util\mkdef.pl 32 ssleay  1>ms\ssleay32.def
+W:\openssl\openssl-0.9.8k>perl util\mkdef.pl 32 ssleay  1>ms\ssleay32.def
 
-OPTIONS= no-camellia no-cms no-gmp no-krb5 no-mdc2 no-montasm no-rc5 no-rfc3779 no-seed no-shared no-tlsext no-zlib no-zlib-dynamic
+CFLAG= /MD /Ox /W3 /Gs0 /GF /Gy /nologo
+-DWIN32_LEAN_AND_MEAN -DL_ENDIAN -DDSO_WIN32 -DOPENSSL_SYSNAME_WIN32
+-DOPENSSL_SYSNAME_WINNT -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_DEPRECATE
+-D_CRT_NONSTDC_NO_DEPRECATE -DOPENSSL_USE_APPLINK -I. /Fdout32dll
+-DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_SEED -DOPENSSL_NO_RC5 -DOPENSSL_NO_MDC2
+-DOPENSSL_NO_CMS -DOPENSSL_NO_JPAKE -DOPENSSL_NO_CAPIENG -DOPENSSL_NO_KRB5
+-DOPENSSL_NO_DYNAMIC_ENGINE
 
 }
 
@@ -715,6 +717,7 @@ const
   OPENSSL_ASN1_R_BAD_OBJECT_HEADER = 102;
   OPENSSL_ASN1_R_BAD_PASSWORD_READ = 103;
   OPENSSL_ASN1_R_BAD_TAG = 104;
+  OPENSSL_ASN1_R_BMPSTRING_IS_WRONG_LENGTH = 210;
   OPENSSL_ASN1_R_BN_LIB	= 105;
   OPENSSL_ASN1_R_BOOLEAN_IS_WRONG_LENGTH = 106;
   OPENSSL_ASN1_R_BUFFER_TOO_SMALL = 107;
@@ -804,6 +807,7 @@ const
   OPENSSL_ASN1_R_UNABLE_TO_DECODE_RSA_KEY	= 157;
   OPENSSL_ASN1_R_UNABLE_TO_DECODE_RSA_PRIVATE_KEY	= 158;
   OPENSSL_ASN1_R_UNEXPECTED_EOC	= 159;
+  OPENSSL_ASN1_R_UNIVERSALSTRING_IS_WRONG_LENGTH = 211;
   OPENSSL_ASN1_R_UNKNOWN_FORMAT	= 160;
   OPENSSL_ASN1_R_UNKNOWN_MESSAGE_DIGEST_ALGORITHM	= 161;
   OPENSSL_ASN1_R_UNKNOWN_OBJECT_TYPE = 162;
@@ -1129,7 +1133,8 @@ const
   OPENSSL_B_ASN1_SEQUENCE = $10000;
   OPENSSL_B_ASN1_TIME = OPENSSL_B_ASN1_UTCTIME or
                         OPENSSL_B_ASN1_GENERALIZEDTIME;
-  OPENSSL_B_ASN1_PRINTABLE = OPENSSL_B_ASN1_PRINTABLESTRING or
+  OPENSSL_B_ASN1_PRINTABLE = OPENSSL_B_ASN1_NUMERICSTRING or
+        OPENSSL_B_ASN1_PRINTABLESTRING or
         OPENSSL_B_ASN1_T61STRING or
         OPENSSL_B_ASN1_IA5STRING or
         OPENSSL_B_ASN1_BIT_STRING or
@@ -1965,12 +1970,13 @@ const
   OPENSSL_OBJ_NAME_TYPE_UNDEF = $00;
   OPENSSL_OBJ_R_MALLOC_FAILURE = 100;
   OPENSSL_OBJ_R_UNKNOWN_NID = 101;
-  OPENSSL_OPENSSL_VERSION_NUMBER	= $0090808f;
+  OPENSSL_OPENSSL_VERSION_NUMBER	= $009080bf;
 {$IFDEF OPENSSL_FIPS}
-  OPENSSL_OPENSSL_VERSION_TEXT = 'OpenSSL 0.9.8h-fips 28 May 2008'; {Do not localize}
+  OPENSSL_OPENSSL_VERSION_TEXT = 'OpenSSL 0.9.8k-fips 25 Mar 2009'; {Do not localize}
 {$ELSE}
-  OPENSSL_OPENSSL_VERSION_TEXT = 'OpenSSL 0.9.8h 28 May 2008'; {Do not localize}
+  OPENSSL_OPENSSL_VERSION_TEXT = 'OpenSSL 0.9.8k 25 Mar 2009'; {Do not localize}
 {$ENDIF}
+  OPENSSL_OPENSSL_VERSION_PTEXT = ' part of '+ OPENSSL_OPENSSL_VERSION_TEXT;  {Do not localize}
   OPENSSL_PEM_BUFSIZE = 1024;
   OPENSSL_PEM_DEK_DES_CBC = 40;
   OPENSSL_PEM_DEK_DES_ECB = 60;
@@ -4098,8 +4104,8 @@ type
     {$ENDIF}
     {$IFDEF RC4_CHUNK}
   RC4_CHUNK = TIdC_ULONG;
-      {$ELSE}
-        {$IFDEF RC4_CHUNK_LL}
+    {$ELSE}
+      {$IFDEF RC4_CHUNK_LL}
   RC4_CHUNK = TIdC_ULONGLONG;
       {$ELSE}
         {$UNDEF RC4_CHUNK}
@@ -5573,12 +5579,13 @@ type
   PPROXY_CERT_INFO_EXTENSION = ^PROXY_CERT_INFO_EXTENSION;
 
   PX509_PURPOSE = ^X509_PURPOSE;
+  X509_PURPOSE_check_purpose = function(const _para1 : Px509_purpose; const _para2 : PX509;
+      para3 : TIdC_INT) : TIdC_INT; cdecl;
   X509_PURPOSE = record
     purpose : TIdC_INT;
     trust : TIdC_INT;    // Default trust ID
     flags : TIdC_INT;
-    check_purpose : function(const _para1 : Px509_purpose; const _para2 : PX509;
-      para3 : TIdC_INT) : TIdC_INT; cdecl;
+    check_purpose : X509_PURPOSE_check_purpose;
     name : PChar;
     sname : PChar;
     usr_data : Pointer;
@@ -5966,10 +5973,11 @@ type
   PX509_EXTENSION_METHOD   = Pointer;
   
   PX509_TRUST = ^X509_TRUST;
+  X509_TRUST_check_trust = function(_para1 : PX509_TRUST; para2 : PX509; _para3 : TIdC_INT) : TIdC_INT; cdecl;
   X509_TRUST = record
     trust : TIdC_INT;
     flags : TIdC_INT;
-    check_trust : function(_para1 : PX509_TRUST; para2 : PX509; _para3 : TIdC_INT) : TIdC_INT; cdecl;
+    check_trust : X509_TRUST_check_trust;
     name : PChar;
     arg1 : TIdC_INT;
     arg2 : Pointer;
@@ -6470,8 +6478,8 @@ type
   des_cblocks     = array[0..7] of byte;
   //des_cblocks     = Integer;
 
-  TIdSslLockingCallback = procedure (mode, n : TIdC_INT; Afile : PChar; line : TIdC_INT) cdecl;
-  TIdSslIdCallback = function: TIdC_ULONG cdecl;
+  TIdSslLockingCallback = procedure (mode, n : TIdC_INT; Afile : PChar; line : TIdC_INT); cdecl;
+  TIdSslIdCallback = function: TIdC_ULONG; cdecl;
     
 {  X509_REQ = record
     nid : TIdC_INT;
@@ -7521,11 +7529,11 @@ type
   TCRYPTO_set_mem_functions_r = function (ptr : Pointer; size : size_t) : Pointer; cdecl;
   TCRYPTO_set_mem_functions_f = procedure (ptr : Pointer); cdecl;
 
-  TCRYPTO_set_mem_ex_functions_m = function(size : size_t; const c : PChar; i : TIdC_INT) : Pointer cdecl;
+  TCRYPTO_set_mem_ex_functions_m = function(size : size_t; const c : PChar; i : TIdC_INT) : Pointer; cdecl;
   TCRYPTO_set_mem_ex_functions_r = function(ptr : Pointer; size : size_t; const c : PChar; i : TIdC_INT) : Pointer; cdecl;
   TCRYPTO_set_mem_ex_functions_f = procedure (ptr : Pointer); cdecl;
 
-  Tset_mem_debug_functions_m = procedure (addr : Pointer; num : TIdC_INT; const _file : PChar; line, before_p : TIdC_INT) cdecl;
+  Tset_mem_debug_functions_m = procedure (addr : Pointer; num : TIdC_INT; const _file : PChar; line, before_p : TIdC_INT); cdecl;
   Tset_mem_debug_functions_r = procedure (addr1, addr2 : Pointer; num : TIdC_INT; const _file : PChar; line, before_p : TIdC_INT); cdecl;
   Tset_mem_debug_functions_f = procedure (addr : Pointer; before_p : TIdC_INT); cdecl;
   Tset_mem_debug_functions_so = procedure (bits : TIdC_LONG); cdecl;
@@ -7543,252 +7551,252 @@ var
   IdSslEvpCleanup : procedure cdecl = nil;
 
   //SSL Version function
-  IdSslSSLeay_version : function(_type : TIdC_INT) : PChar; cdecl = nil;
+  IdSslSSLeay_version : function(_type : TIdC_INT) : PChar cdecl = nil;
   //SSLeay
   IdSsleay : function : TIdC_LONG; cdecl;
   //CRYPTO_set_mem_ex_functions
   IdSslCryptoSetMemFunctions : function(
     m: TCRYPTO_set_mem_functions_m;
     r: TCRYPTO_set_mem_functions_r;
-    f: TCRYPTO_set_mem_functions_f): TIdC_INT; cdecl = nil;
-  IdSslCryptoMalloc : function(num: TIdC_INT; const _file: PChar; line: TIdC_INT): Pointer; cdecl = nil;
-  IdSslCryptoFree : procedure(ptr : Pointer); cdecl = nil;
-  IdSslCryptoMemLeaks : procedure(b:PBIO); cdecl = nil;
-  IdSslCryptoMemCtrl : function(mode: TIdC_INT): TIdC_INT; cdecl = nil;
+    f: TCRYPTO_set_mem_functions_f): TIdC_INT cdecl = nil;
+  IdSslCryptoMalloc : function(num: TIdC_INT; const _file: PChar; line: TIdC_INT): Pointer cdecl = nil;
+  IdSslCryptoFree : procedure(ptr : Pointer) cdecl = nil;
+  IdSslCryptoMemLeaks : procedure(b:PBIO) cdecl = nil;
+  IdSslCryptoMemCtrl : function(mode: TIdC_INT): TIdC_INT cdecl = nil;
 
   IdSslCryptoSetMemDebugFunctions : procedure (
       m: Tset_mem_debug_functions_m;
       r: Tset_mem_debug_functions_r;
       f : Tset_mem_debug_functions_f;
       so : Tset_mem_debug_functions_so;
-      go : Tset_mem_debug_functions_go); cdecl = nil;
+      go : Tset_mem_debug_functions_go) cdecl = nil;
 
-  IdSslCryptoDbgMalloc : procedure(addr: Pointer; num: TIdC_INT; const _file: PChar; line, before: TIdC_INT); cdecl = nil;
-  IdSslCryptoDbgRealloc : procedure(arrd1, addr2: Pointer; num: TIdC_INT; const _file: PChar; line, before: TIdC_INT); cdecl = nil;
-  IdSslCryptoDbgFree : procedure(addr: Pointer; before: TIdC_INT); cdecl = nil;
-  IdSslCryptoDbgSetOptions : procedure(bits: TIdC_LONG); cdecl = nil;
-  IdSslCryptoDbgGetOptions : function: TIdC_LONG; cdecl = nil;
+  IdSslCryptoDbgMalloc : procedure(addr: Pointer; num: TIdC_INT; const _file: PChar; line, before: TIdC_INT) cdecl = nil;
+  IdSslCryptoDbgRealloc : procedure(arrd1, addr2: Pointer; num: TIdC_INT; const _file: PChar; line, before: TIdC_INT) cdecl = nil;
+  IdSslCryptoDbgFree : procedure(addr: Pointer; before: TIdC_INT) cdecl = nil;
+  IdSslCryptoDbgSetOptions : procedure(bits: TIdC_LONG) cdecl = nil;
+  IdSslCryptoDbgGetOptions : function: TIdC_LONG cdecl = nil;
 
-  IdSslSkNewNull : function: PSTACK; cdecl = nil;
-  IdSslSkPush : function(st: PSTACK; data: PChar): TIdC_INT; cdecl = nil;
+  IdSslSkNewNull : function: PSTACK cdecl = nil;
+  IdSslSkPush : function(st: PSTACK; data: PChar): TIdC_INT cdecl = nil;
 
-  IdSslRsaFree : procedure(rsa: PRSA); cdecl = nil;
+  IdSslRsaFree : procedure(rsa: PRSA) cdecl = nil;
   //This function is depreciated.
-  IdSslRsaGenerateKey : function(bits: TIdC_INT; e: TIdC_ULONG; callback: TRSA_generate_key_callback; cb_arg: Pointer): PRSA; cdecl = nil;
-  IdSslRsaGenerateKeyEx : function(rsa : PRSA; bits : TIdC_INT; e : PBIGNUM; cb : PBN_GENCB) : TIdC_INT; cdecl = nil;
-  IdSslRsaCheckKey : function(const rsa: PRSA): TIdC_INT; cdecl = nil;
-  IdSslBioNew : function(_type: PBIO_METHOD): PBIO; cdecl = nil;
-  IdSslBioFree : function(bio: PBIO): TIdC_INT; cdecl = nil;
-  IdSslBioSMem : function: PBIO_METHOD; cdecl = nil;
-  IdSslBioSFile : function: PBIO_METHOD; cdecl = nil;
-  IdSslBioCtrl : function(bp: PBIO; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG; cdecl = nil;
-  IdSslBioNewFile : function(const filename: PChar; const mode: PChar): PBIO; cdecl = nil;
-  IdSslBioPutS : function(b: PBIO; const txt: PChar): TIdC_INT; cdecl = nil;
-  IdSslBioRead : function(b: PBIO; data: Pointer; len: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslBioWrite : function(b: PBIO; const buf: Pointer; len: TIdC_INT): TIdC_INT; cdecl = nil;
+  IdSslRsaGenerateKey : function(bits: TIdC_INT; e: TIdC_ULONG; callback: TRSA_generate_key_callback; cb_arg: Pointer): PRSA cdecl = nil;
+  IdSslRsaGenerateKeyEx : function(rsa : PRSA; bits : TIdC_INT; e : PBIGNUM; cb : PBN_GENCB) : TIdC_INT cdecl = nil;
+  IdSslRsaCheckKey : function(const rsa: PRSA): TIdC_INT cdecl = nil;
+  IdSslBioNew : function(_type: PBIO_METHOD): PBIO cdecl = nil;
+  IdSslBioFree : function(bio: PBIO): TIdC_INT cdecl = nil;
+  IdSslBioSMem : function: PBIO_METHOD cdecl = nil;
+  IdSslBioSFile : function: PBIO_METHOD cdecl = nil;
+  IdSslBioCtrl : function(bp: PBIO; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl = nil;
+  IdSslBioNewFile : function(const filename: PChar; const mode: PChar): PBIO cdecl = nil;
+  IdSslBioPutS : function(b: PBIO; const txt: PChar): TIdC_INT cdecl = nil;
+  IdSslBioRead : function(b: PBIO; data: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslBioWrite : function(b: PBIO; const buf: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
 
-  IdSslPemWriteBioX509Req : function(bp: PBIO; x: PX509_REQ): TIdC_INT; cdecl = nil;
+  IdSslPemWriteBioX509Req : function(bp: PBIO; x: PX509_REQ): TIdC_INT cdecl = nil;
   {$IFNDEF OPENSSL_NO_BIO}
   IdSslPemWriteBioPKCS8PrivateKey : function(bp: PBIO; key: PEVP_PKEY; enc: PEVP_CIPHER;
-    kstr: PChar; klen: TIdC_INT; cb: ppem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+    kstr: PChar; klen: TIdC_INT; cb: ppem_password_cb; u: Pointer): TIdC_INT cdecl = nil;
   IdSslPemAsn1WriteBio : function(i2d: D2I_OF_void; const name: PChar;
     bp: PBIO; x: PChar; const enc: PEVP_CIPHER; kstr: PChar; klen: TIdC_INT;
     cb: ppem_password_cb; u: Pointer):TIdC_INT cdecl = nil;
   IdSslPemAsn1ReadBio : function(d2i: D2I_OF_void; const name: PChar; bp: PBIO;
-      var x: Pointer; cb: ppem_password_cb; u:PChar): Pointer; cdecl = nil;
+      var x: Pointer; cb: ppem_password_cb; u:PChar): Pointer cdecl = nil;
   {$ENDIF}
 
-  IdSslPemReadBioPrivateKey : function(bio: PBIO; var x: PEVP_PKEY; cb: ppem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
+  IdSslPemReadBioPrivateKey : function(bio: PBIO; var x: PEVP_PKEY; cb: ppem_password_cb; u: Pointer): PEVP_PKEY cdecl = nil;
   {$IFNDEF OPENSSL_NO_DES}
-  IdSslEvpDesEde3Cbc : function: PEVP_CIPHER; cdecl = nil;
+  IdSslEvpDesEde3Cbc : function: PEVP_CIPHER cdecl = nil;
   {$ENDIF}
-  IdSslEvpPKeyNew : function: PEVP_PKEY; cdecl = nil;
-  IdSslEvpPKeyFree : procedure(pkey: PEVP_PKEY); cdecl = nil;
+  IdSslEvpPKeyNew : function: PEVP_PKEY cdecl = nil;
+  IdSslEvpPKeyFree : procedure(pkey: PEVP_PKEY) cdecl = nil;
 
   {$IFNDEF OPENSSL_NO_RSA}
-  IdSslEvpPKeyAssign : function(pkey: PEVP_MD; _type: TIdC_INT; key: PChar): TIdC_INT; cdecl = nil;
+  IdSslEvpPKeyAssign : function(pkey: PEVP_MD; _type: TIdC_INT; key: PChar): TIdC_INT cdecl = nil;
   {$ENDIF}
-  IdSslEvpGetDigestByName : function(const name: PChar): PEVP_MD; cdecl = nil;
+  IdSslEvpGetDigestByName : function(const name: PChar): PEVP_MD cdecl = nil;
 
-  IdSslAsn1IntegerSet : function(a: PASN1_INTEGER; v: TIdC_LONG): TIdC_INT; cdecl = nil;
-  IdSslAsn1IntegerGet : function(a: PASN1_INTEGER) : TIdC_LONG; cdecl = nil;
-  //IdSslAsn1UtcTimeNew : function: Pointer; cdecl = nil;
-  IdSslAsn1StringTypeNew : function(_type: TIdC_INT): PASN1_STRING; cdecl = nil;
-  IdSslAsn1StringFree : procedure(a: PASN1_STRING); cdecl = nil;
+  IdSslAsn1IntegerSet : function(a: PASN1_INTEGER; v: TIdC_LONG): TIdC_INT cdecl = nil;
+  IdSslAsn1IntegerGet : function(a: PASN1_INTEGER) : TIdC_LONG cdecl = nil;
+  //IdSslAsn1UtcTimeNew : function: Pointer cdecl = nil;
+  IdSslAsn1StringTypeNew : function(_type: TIdC_INT): PASN1_STRING cdecl = nil;
+  IdSslAsn1StringFree : procedure(a: PASN1_STRING) cdecl = nil;
 
-  IdSslI2dX509 : function(x: PX509; var buf: PByte): TIdC_INT; cdecl = nil;
-  IdSslD2iX509 : function(pr : PX509; _in : PPByte; len : TIdC_INT): PX509; cdecl = nil;
+  IdSslI2dX509 : function(x: PX509; var buf: PByte): TIdC_INT cdecl = nil;
+  IdSslD2iX509 : function(pr : PX509; _in : PPByte; len : TIdC_INT): PX509 cdecl = nil;
   {$IFNDEF OPENSSL_NO_BIO}
-  IdSslD2iX509Bio : function(bp: PBIO; x: PPx509): PX509; cdecl = nil;
-  IdSslI2dX509ReqBio : function(x: PX509_REQ; bp: PBIO): TIdC_INT; cdecl = nil;
-  IdSslI2dX509Bio : function(bp: PBIO; x509: PX509): TIdC_INT; cdecl = nil;
-  IdSslI2dPrivateKeyBio : function(b: PBIO; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  IdSslD2iX509Bio : function(bp: PBIO; x: PPx509): PX509 cdecl = nil;
+  IdSslI2dX509ReqBio : function(x: PX509_REQ; bp: PBIO): TIdC_INT cdecl = nil;
+  IdSslI2dX509Bio : function(bp: PBIO; x509: PX509): TIdC_INT cdecl = nil;
+  IdSslI2dPrivateKeyBio : function(b: PBIO; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
   {$ENDIF}
-  IdSslX509New : function: PPX509; cdecl = nil;
-  IdSslX509Free : procedure(x: PX509); cdecl = nil;
+  IdSslX509New : function: PPX509 cdecl = nil;
+  IdSslX509Free : procedure(x: PX509) cdecl = nil;
   IdSslX509ReqNew : function():PX509_REQ cdecl = nil;
   IdSslX509ReqFree : procedure(x:PX509_REQ) cdecl = nil;
-  IdSslX509ToX509Req : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): PX509_REQ; cdecl = nil;
+  IdSslX509ToX509Req : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): PX509_REQ cdecl = nil;
   IdSslX509NameAddEntryByTxt : function(name: PX509_NAME; const field: PChar; _type: TIdC_INT;
-    const bytes: PChar; len, loc, _set: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslX509SetVersion : function(x: PX509; version: TIdC_LONG): TIdC_INT; cdecl = nil;
-  IdSslX509GetSerialNumber : function(x: PX509): PASN1_INTEGER; cdecl = nil;
-  IdSslX509GmTimeAdj : function(s: PASN1_TIME; adj: TIdC_LONG): PASN1_TIME; cdecl = nil;
-  IdSslX509SetNotBefore : function(x: PX509; tm: PASN1_TIME): TIdC_INT; cdecl = nil;
-  IdSslX509SetNotAfter : function(x: PX509; tm: PASN1_TIME): TIdC_INT; cdecl = nil;
-  IdSslX509SetPubKey : function(x: PX509; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
-  IdSslX509ReqSetPubKey : function(x: PX509_REQ; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
-  IdSslX509Sign : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT; cdecl = nil;
-  IdSslX509ReqSign : function(x: PX509_REQ; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT; cdecl = nil;
-  IdSslX509ReqAddExtensions : function(req: PX509_REQ; exts: PSTACK_OF_X509_EXTENSION): TIdC_INT; cdecl = nil;
-  IdSslX509V3ExtConfNid : function(conf: PLHASH; ctx: PX509V3_CTX; ext_nid: TIdC_INT; value: PChar): PX509_EXTENSION; cdecl = nil;
+    const bytes: PChar; len, loc, _set: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslX509SetVersion : function(x: PX509; version: TIdC_LONG): TIdC_INT cdecl = nil;
+  IdSslX509GetSerialNumber : function(x: PX509): PASN1_INTEGER cdecl = nil;
+  IdSslX509GmTimeAdj : function(s: PASN1_TIME; adj: TIdC_LONG): PASN1_TIME cdecl = nil;
+  IdSslX509SetNotBefore : function(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl = nil;
+  IdSslX509SetNotAfter : function(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl = nil;
+  IdSslX509SetPubKey : function(x: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  IdSslX509ReqSetPubKey : function(x: PX509_REQ; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  IdSslX509Sign : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
+  IdSslX509ReqSign : function(x: PX509_REQ; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
+  IdSslX509ReqAddExtensions : function(req: PX509_REQ; exts: PSTACK_OF_X509_EXTENSION): TIdC_INT cdecl = nil;
+  IdSslX509V3ExtConfNid : function(conf: PLHASH; ctx: PX509V3_CTX; ext_nid: TIdC_INT; value: PChar): PX509_EXTENSION cdecl = nil;
   IdSslX509ExtensionCreateByNid : function(ex: PPX509_EXTENSION; nid: TIdC_INT;
-    crit: TIdC_INT; data: PASN1_OCTET_STRING): PX509_EXTENSION; cdecl = nil;
-  IdSslX509V3SetCtx : procedure(ctx: PX509V3_CTX; issuer, subject: PX509; req: PX509_REQ; crl: PX509_CRL; flags: TIdC_INT); cdecl = nil;
-  IdSslX509ExtensionFree : procedure(ex: PX509_EXTENSION); cdecl = nil;
-  IdSslX509AddExt : function(cert: PX509; ext: PX509_EXTENSION; loc: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslCtxSetCipherList : function(_para1: PSSL_CTX; const str: PChar): TIdC_INT; cdecl = nil;
-  IdSslCtxNew : function(meth: PSSL_METHOD): PSSL_CTX; cdecl = nil;
-  IdSslCtxFree : procedure(_para1: PSSL_CTX); cdecl = nil;
-  IdSslSetFd : function(s: PSSL; fd: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslCtxUsePrivateKeyFile : function(ctx: PSSL_CTX; const _file: PChar; _type: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslCtxUsePrivateKey : function(ctx: PSSL_CTX; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
-  IdSslCtxUseCertificate : function(ctx: PSSL_CTX; x: PX509): TIdC_INT; cdecl = nil;
-  IdSslCtxUseCertificateFile : function(ctx: PSSL_CTX; const _file: PChar; _type: TIdC_INT): TIdC_INT;cdecl = nil;
-  IdSslLoadErrorStrings : procedure; cdecl = nil;
-  IdSslStateStringLong : function(s: PSSL): PChar; cdecl = nil;
-  IdSslGetPeerCertificate : function(s: PSSL): PX509; cdecl = nil;
-  IdSslCtxSetVerify : procedure(ctx: PSSL_CTX; mode: TIdC_INT; callback: TSSL_CTX_set_verify_callback); cdecl = nil;
-  IdSslCtxSetVerifyDepth : procedure(ctx: PSSL_CTX; depth: TIdC_INT); cdecl = nil;
-  IdSslCtxGetVerifyDepth : function (ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  IdSslCtxSetDefaultPasswdCb : procedure(ctx: PSSL_CTX; cb: ppem_password_cb); cdecl = nil;
-  IdSslCtxSetDefaultPasswdCbUserdata : procedure(ctx: PSSL_CTX; u: Pointer); cdecl = nil;
-  IdSslCtxCheckPrivateKeyFile : function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  IdSslNew : function(ctx: PSSL_CTX): PSSL; cdecl = nil;
-  IdSslFree : procedure(ssl: PSSL); cdecl = nil;
-  IdSslAccept : function(ssl: PSSL): TIdC_INT; cdecl = nil;
-  IdSslConnect : function(ssl: PSSL): TIdC_INT; cdecl = nil;
-  IdSslRead : function(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslPeek : function(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslWrite : function(ssl: PSSL; const buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslCtxCtrl : function(ssl: PSSL_CTX; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG; cdecl = nil;
+    crit: TIdC_INT; data: PASN1_OCTET_STRING): PX509_EXTENSION cdecl = nil;
+  IdSslX509V3SetCtx : procedure(ctx: PX509V3_CTX; issuer, subject: PX509; req: PX509_REQ; crl: PX509_CRL; flags: TIdC_INT) cdecl = nil;
+  IdSslX509ExtensionFree : procedure(ex: PX509_EXTENSION) cdecl = nil;
+  IdSslX509AddExt : function(cert: PX509; ext: PX509_EXTENSION; loc: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslCtxSetCipherList : function(_para1: PSSL_CTX; const str: PChar): TIdC_INT cdecl = nil;
+  IdSslCtxNew : function(meth: PSSL_METHOD): PSSL_CTX cdecl = nil;
+  IdSslCtxFree : procedure(_para1: PSSL_CTX) cdecl = nil;
+  IdSslSetFd : function(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslCtxUsePrivateKeyFile : function(ctx: PSSL_CTX; const _file: PChar; _type: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslCtxUsePrivateKey : function(ctx: PSSL_CTX; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  IdSslCtxUseCertificate : function(ctx: PSSL_CTX; x: PX509): TIdC_INT cdecl = nil;
+  IdSslCtxUseCertificateFile : function(ctx: PSSL_CTX; const _file: PChar; _type: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslLoadErrorStrings : procedure cdecl = nil;
+  IdSslStateStringLong : function(s: PSSL): PChar cdecl = nil;
+  IdSslGetPeerCertificate : function(s: PSSL): PX509 cdecl = nil;
+  IdSslCtxSetVerify : procedure(ctx: PSSL_CTX; mode: TIdC_INT; callback: TSSL_CTX_set_verify_callback) cdecl = nil;
+  IdSslCtxSetVerifyDepth : procedure(ctx: PSSL_CTX; depth: TIdC_INT) cdecl = nil;
+  IdSslCtxGetVerifyDepth : function (ctx: PSSL_CTX): TIdC_INT cdecl = nil;
+  IdSslCtxSetDefaultPasswdCb : procedure(ctx: PSSL_CTX; cb: ppem_password_cb) cdecl = nil;
+  IdSslCtxSetDefaultPasswdCbUserdata : procedure(ctx: PSSL_CTX; u: Pointer) cdecl = nil;
+  IdSslCtxCheckPrivateKeyFile : function(ctx: PSSL_CTX): TIdC_INT cdecl = nil;
+  IdSslNew : function(ctx: PSSL_CTX): PSSL cdecl = nil;
+  IdSslFree : procedure(ssl: PSSL) cdecl = nil;
+  IdSslAccept : function(ssl: PSSL): TIdC_INT cdecl = nil;
+  IdSslConnect : function(ssl: PSSL): TIdC_INT cdecl = nil;
+  IdSslRead : function(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslPeek : function(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslWrite : function(ssl: PSSL; const buf: Pointer; num: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslCtxCtrl : function(ssl: PSSL_CTX; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl = nil;
   //long	SSL_ctrl(SSL *ssl,int cmd, long larg, void *parg);
-  IdSslCtrl : function(ssl : PSSL; cmd : TIdC_INT; larg : TIdC_LONG; parg : Pointer) : TIdC_LONG; cdecl = nil;
+  IdSslCtrl : function(ssl : PSSL; cmd : TIdC_INT; larg : TIdC_LONG; parg : Pointer) : TIdC_LONG cdecl = nil;
   //long	SSL_callback_ctrl(SSL *, int, void (*)(void));
   IdSslCallbackCtrl : function(ssl : PSSL; cmd : TIdC_INT; fp : SSL_callback_ctrl_fp) : TIdC_LONG cdecl = nil;
   //long	SSL_CTX_callback_ctrl(SSL_CTX *, int, void (*)(void));
   IdSslCtxCallbackCtrl : function(ssl : PSSL_CTX; cmd : TIdC_INT; fp : SSL_callback_ctrl_fp) : TIdC_LONG cdecl = nil;
-  IdSslGetError : function(s: PSSL; ret_code: TIdC_INT): TIdC_INT; cdecl = nil;
-  IdSslMethodV2 : function: PSSL_METHOD; cdecl = nil; // SSLv2
-  IdSslMethodServerV2 : function: PSSL_METHOD; cdecl = nil; // SSLv2
-  IdSslMethodClientV2 : function: PSSL_METHOD; cdecl = nil; // SSLv2
-  IdSslMethodV3 : function: PSSL_METHOD; cdecl = nil; // SSLv3
-  IdSslMethodServerV3 : function: PSSL_METHOD; cdecl = nil; // SSLv3
+  IdSslGetError : function(s: PSSL; ret_code: TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslMethodV2 : function: PSSL_METHOD cdecl = nil; // SSLv2
+  IdSslMethodServerV2 : function: PSSL_METHOD cdecl = nil; // SSLv2
+  IdSslMethodClientV2 : function: PSSL_METHOD cdecl = nil; // SSLv2
+  IdSslMethodV3 : function: PSSL_METHOD cdecl = nil; // SSLv3
+  IdSslMethodServerV3 : function: PSSL_METHOD cdecl = nil; // SSLv3
   IdSslMethodClientV3 : function: PSSL_METHOD cdecl = nil; // SSLv3
-  IdSslMethodV23 : function: PSSL_METHOD; cdecl = nil; // SSLv3 but can rollback to v2
-  IdSslMethodServerV23 : function: PSSL_METHOD; cdecl = nil; // SSLv3 but can rollback to v2
-  IdSslMethodClientV23 : function: PSSL_METHOD; cdecl = nil; // SSLv3 but can rollback to v2
-  IdSslMethodTLSV1 : function: PSSL_METHOD; cdecl = nil; // TLSv1.0
-  IdSslMethodServerTLSV1 : function: PSSL_METHOD; cdecl = nil; // TLSv1.0
-  IdSslMethodClientTLSV1 : function: PSSL_METHOD; cdecl = nil; // TLSv1.0
+  IdSslMethodV23 : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
+  IdSslMethodServerV23 : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
+  IdSslMethodClientV23 : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
+  IdSslMethodTLSV1 : function: PSSL_METHOD cdecl = nil; // TLSv1.0
+  IdSslMethodServerTLSV1 : function: PSSL_METHOD cdecl = nil; // TLSv1.0
+  IdSslMethodClientTLSV1 : function: PSSL_METHOD cdecl = nil; // TLSv1.0
 
-  IdSslMethodDTLSv1 : function: PSSL_METHOD; cdecl = nil; // DTLSv1.0
-  IdSslMethodServerDTLSv1 : function: PSSL_METHOD; cdecl = nil; // DTLSv1.0
-  IdSslMethodClientDTLSv1 : function: PSSL_METHOD; cdecl = nil; // DTLSv1.0
+  IdSslMethodDTLSv1 : function: PSSL_METHOD cdecl = nil; // DTLSv1.0
+  IdSslMethodServerDTLSv1 : function: PSSL_METHOD cdecl = nil; // DTLSv1.0
+  IdSslMethodClientDTLSv1 : function: PSSL_METHOD cdecl = nil; // DTLSv1.0
 
-  IdSslShutdown : function(s: PSSL): TIdC_INT; cdecl = nil;
-  IdSslSetConnectState : procedure(s: PSSL); cdecl = nil;
-  IdSslSetAcceptState : procedure(s: PSSL); cdecl = nil;
-  IdSslSetShutdown : procedure(ssl: PSSL; mode: TIdC_INT); cdecl = nil;
-  IdSslCtxLoadVerifyLocations : function(ctx: PSSL_CTX; const CAfile: PChar; const CApath: PChar): TIdC_INT; cdecl = nil;
-  IdSslGetSession : function(const ssl: PSSL): PSSL_SESSION; cdecl = nil;
-  IdSslAddSslAlgorithms : function: TIdC_INT; cdecl = nil;
-  // IdSslSetAppData : function(s: PSSL; arg: Pointer): Integer; cdecl = nil;
-  // IdSslGetAppData : function(s: PSSL): Pointer; cdecl = nil;
-  IdSslSessionGetId : function(const s: PSSL_SESSION; id: PPChar; length: PIdC_INT): PChar; cdecl = nil;
-  IdSslX509NameOneline : function(a: PX509_NAME; buf: PChar; size: TIdC_INT): PChar; cdecl = nil;
-  IdSslX509NameHash : function(x: PX509_NAME): TIdC_ULONG; cdecl = nil;
-  IdSslX509SetIssuerName : function(x: PX509; name: PX509_NAME): TIdC_INT; cdecl = nil;
-  IdSslX509GetIssuerName : function(a: PX509): PX509_NAME; cdecl = nil;
-  IdSslX509SetSubjectName : function(x: PX509; name: PX509_NAME): TIdC_INT; cdecl = nil;
-  IdSslX509GetSubjectName : function(a: PX509): PX509_NAME; cdecl = nil;
-  IdSslOBJObj2Nid  : function (const o: PASN1_OBJECT): TIdC_INT; cdecl = nil;
+  IdSslShutdown : function(s: PSSL): TIdC_INT cdecl = nil;
+  IdSslSetConnectState : procedure(s: PSSL) cdecl = nil;
+  IdSslSetAcceptState : procedure(s: PSSL) cdecl = nil;
+  IdSslSetShutdown : procedure(ssl: PSSL; mode: TIdC_INT) cdecl = nil;
+  IdSslCtxLoadVerifyLocations : function(ctx: PSSL_CTX; const CAfile: PChar; const CApath: PChar): TIdC_INT cdecl = nil;
+  IdSslGetSession : function(const ssl: PSSL): PSSL_SESSION cdecl = nil;
+  IdSslAddSslAlgorithms : function: TIdC_INT cdecl = nil;
+  // IdSslSetAppData : function(s: PSSL; arg: Pointer): Integer cdecl = nil;
+  // IdSslGetAppData : function(s: PSSL): Pointer cdecl = nil;
+  IdSslSessionGetId : function(const s: PSSL_SESSION; id: PPChar; length: PIdC_INT): PChar cdecl = nil;
+  IdSslX509NameOneline : function(a: PX509_NAME; buf: PChar; size: TIdC_INT): PChar cdecl = nil;
+  IdSslX509NameHash : function(x: PX509_NAME): TIdC_ULONG cdecl = nil;
+  IdSslX509SetIssuerName : function(x: PX509; name: PX509_NAME): TIdC_INT cdecl = nil;
+  IdSslX509GetIssuerName : function(a: PX509): PX509_NAME cdecl = nil;
+  IdSslX509SetSubjectName : function(x: PX509; name: PX509_NAME): TIdC_INT cdecl = nil;
+  IdSslX509GetSubjectName : function(a: PX509): PX509_NAME cdecl = nil;
+  IdSslOBJObj2Nid  : function (const o: PASN1_OBJECT): TIdC_INT cdecl = nil;
 
-  IdSslOBJNid2Obj : function (n : TIdC_INT) : PASN1_OBJECT; cdecl = nil;
-  IdSslOBJNid2ln : function (n : TIdC_INT) : PChar; cdecl = nil;
-   IdSslOBJNid2sn : function (n : TIdC_INT) : PChar; cdecl = nil;
+  IdSslOBJNid2Obj : function (n : TIdC_INT) : PASN1_OBJECT cdecl = nil;
+  IdSslOBJNid2ln : function (n : TIdC_INT) : PChar cdecl = nil;
+   IdSslOBJNid2sn : function (n : TIdC_INT) : PChar cdecl = nil;
 
   IdSslX509Digest : function(const data: PX509; const _type: PEVP_MD;
-      md: PByte; var len: TIdC_UINT): TIdC_INT; cdecl = nil;
+      md: PByte; var len: TIdC_UINT): TIdC_INT cdecl = nil;
   {$IFNDEF OPENSSL_NO_SHA512}
-  IdSslEvpSHA512 : function : PEVP_MD; cdecl = nil;
-  IdSslEvpSHA386 : function : PEVP_MD; cdecl = nil;
+  IdSslEvpSHA512 : function : PEVP_MD cdecl = nil;
+  IdSslEvpSHA386 : function : PEVP_MD cdecl = nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA256}
-  IdSslEvpSHA256 : function : PEVP_MD; cdecl = nil;
-  IdSslEvpSHA224 : function : PEVP_MD; cdecl = nil;
+  IdSslEvpSHA256 : function : PEVP_MD cdecl = nil;
+  IdSslEvpSHA224 : function : PEVP_MD cdecl = nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
-  IdSslEvpSHA1 : function: PEVP_MD; cdecl = nil;
+  IdSslEvpSHA1 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_MD5}
-  IdSslEvpMd5 : function: PEVP_MD; cdecl = nil;
+  IdSslEvpMd5 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
-  IdSslEvpPKEYType : function(_type : TIdC_INT): TIdC_INT; cdecl =nil;
-  IdSslX509StoreCtxGetExData : function(ctx: PX509_STORE_CTX; idx: TIdC_INT): Pointer; cdecl = nil;
-  IdSslX509StoreCtxGetError : function(ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
-  IdSslX509StoreCtxSetError : procedure(ctx: PX509_STORE_CTX; s: TIdC_INT); cdecl = nil;
-  IdSslX509StoreCtxGetErrorDepth : function(ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
-  IdSslX509StoreCtxGetCurrentCert : function(ctx: PX509_STORE_CTX): PX509; cdecl = nil;
-  IdSslCryptoNumLocks : function: TIdC_INT; cdecl = nil; // return CRYPTO_NUM_LOCKS (shared libs!)
-  IdSslSetLockingCallback : procedure(func: TIdSslLockingCallback); cdecl = nil;
-  IdSslSetIdCallback : procedure(func: TIdSslIdCallback); cdecl = nil;
+  IdSslEvpPKEYType : function(_type : TIdC_INT): TIdC_INT cdecl = nil;
+  IdSslX509StoreCtxGetExData : function(ctx: PX509_STORE_CTX; idx: TIdC_INT): Pointer cdecl = nil;
+  IdSslX509StoreCtxGetError : function(ctx: PX509_STORE_CTX): TIdC_INT cdecl = nil;
+  IdSslX509StoreCtxSetError : procedure(ctx: PX509_STORE_CTX; s: TIdC_INT) cdecl = nil;
+  IdSslX509StoreCtxGetErrorDepth : function(ctx: PX509_STORE_CTX): TIdC_INT cdecl = nil;
+  IdSslX509StoreCtxGetCurrentCert : function(ctx: PX509_STORE_CTX): PX509 cdecl = nil;
+  IdSslCryptoNumLocks : function: TIdC_INT cdecl = nil; // return CRYPTO_NUM_LOCKS (shared libs!)
+  IdSslSetLockingCallback : procedure(func: TIdSslLockingCallback) cdecl = nil;
+  IdSslSetIdCallback : procedure(func: TIdSslIdCallback) cdecl = nil;
 
   // 3DES functions
-  IdDES_set_odd_parity: procedure(key: des_cblock); cdecl = nil;
-  IdDES_set_key: function(key: const_DES_cblock; schedule: DES_key_schedule): TIdC_INT; cdecl = nil;
-  IdDES_ecb_encrypt: procedure(input, output: DES_cblock; ks: DES_key_schedule; enc: TIdC_INT); cdecl = nil;
+  IdDES_set_odd_parity: procedure(key: des_cblock) cdecl = nil;
+  IdDES_set_key: function(key: const_DES_cblock; schedule: DES_key_schedule): TIdC_INT cdecl = nil;
+  IdDES_ecb_encrypt: procedure(input, output: DES_cblock; ks: DES_key_schedule; enc: TIdC_INT) cdecl = nil;
 
   //More SSL functions
-  IdSSL_set_ex_data: function(ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
-  IdSSL_get_ex_data: function(ssl: PSSL; idx: TIdC_INT): Pointer; cdecl = nil;
+  IdSSL_set_ex_data: function(ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl = nil;
+  IdSSL_get_ex_data: function(ssl: PSSL; idx: TIdC_INT): Pointer cdecl = nil;
 
   IdSSLPKCS12Create: function(pass, name: PChar; pkey: PEVP_PKEY; cert : PX509;
-    ca: PSTACK_OF_X509; nid_key, nid_cert, iter, mac_iter, keytype : TIdC_INT) : PPKCS12; cdecl = nil;
+    ca: PSTACK_OF_X509; nid_key, nid_cert, iter, mac_iter, keytype : TIdC_INT) : PPKCS12 cdecl = nil;
 
-  IdSSLI2dPKCS12Bio: function(b: PBIO; p12: PPKCS12) : TIdC_INT; cdecl = nil;
+  IdSSLI2dPKCS12Bio: function(b: PBIO; p12: PPKCS12) : TIdC_INT cdecl = nil;
 
-  IdSSLPKCS12Free: procedure(p12: PPKCS12); cdecl = nil;
-  IdSSLLoadClientCAFile: function(const _file: PChar): PSTACK_OF_X509_NAME; cdecl = nil;
-  IdSSLCtxSetClientCAList: procedure(ctx: PSSL_CTX; list: PSTACK_OF_X509_NAME); cdecl = nil;
-  IdSSLCtxSetDefaultVerifyPaths: function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  IdSSLCtxSetSessionIdContext: function(ctx: PSSL_CTX; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT; cdecl = nil;
+  IdSSLPKCS12Free: procedure(p12: PPKCS12) cdecl = nil;
+  IdSSLLoadClientCAFile: function(const _file: PChar): PSTACK_OF_X509_NAME cdecl = nil;
+  IdSSLCtxSetClientCAList: procedure(ctx: PSSL_CTX; list: PSTACK_OF_X509_NAME) cdecl = nil;
+  IdSSLCtxSetDefaultVerifyPaths: function(ctx: PSSL_CTX): TIdC_INT cdecl = nil;
+  IdSSLCtxSetSessionIdContext: function(ctx: PSSL_CTX; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl = nil;
 
-  IdSSLCipherDescription: function(_para1: PSSL_CIPHER; buf: PChar; size: TIdC_INT): PChar; cdecl = nil;
+  IdSSLCipherDescription: function(_para1: PSSL_CIPHER; buf: PChar; size: TIdC_INT): PChar cdecl = nil;
 
-  IdSSLGetCurrentCipher: function(const s: PSSL): PSSL_CIPHER; cdecl = nil;
-  IdSSLCipherGetName: function(const c: PSSL_CIPHER): PChar; cdecl = nil;
-  IdSSLCipherGetVersion: function(const c: PSSL_CIPHER): PChar; cdecl = nil;
-  IdSSLCipherGetBits: function(const c: PSSL_CIPHER; var alg_bits: TIdC_INT): TIdC_INT; cdecl = nil;
+  IdSSLGetCurrentCipher: function(const s: PSSL): PSSL_CIPHER cdecl = nil;
+  IdSSLCipherGetName: function(const c: PSSL_CIPHER): PChar cdecl = nil;
+  IdSSLCipherGetVersion: function(const c: PSSL_CIPHER): PChar cdecl = nil;
+  IdSSLCipherGetBits: function(const c: PSSL_CIPHER; var alg_bits: TIdC_INT): TIdC_INT cdecl = nil;
 
   //experimental
-  IdSSLERR_error_string_n: procedure(e: TIdC_ULONG; buf: PChar; len : size_t); cdecl = nil;
-  IdSSLERR_get_err : function: TIdC_ULONG; cdecl = nil;
-  IdSSLERR_peek_err : function: TIdC_ULONG; cdecl = nil;
-  IdSSLERR_clear_error : procedure; cdecl = nil;
-  IdSSLERR_error_string : function (e: TIdC_ULONG; buf: PChar): PChar; cdecl = nil;
-  IdSSLERR_lib_error_string : function(e : TIdC_ULONG): PChar; cdecl = nil;
-  IdSSLERR_func_error_string : function(e : TIdC_ULONG): PChar; cdecl = nil;
-  IdSSLERR_reason_error_string : function(e : TIdC_ULONG): PChar; cdecl = nil;
-  IdSSLERR_load_ERR_strings : procedure; cdecl = nil;
-  IdSSLERR_load_crypto_strings : procedure; cdecl = nil;
-  IdSSLERR_free_strings : procedure; cdecl = nil;
-  IdSslErrRemoveState : procedure(pid: TIdC_ULONG); cdecl = nil;
+  IdSSLERR_error_string_n: procedure(e: TIdC_ULONG; buf: PChar; len : size_t) cdecl = nil;
+  IdSSLERR_get_err : function: TIdC_ULONG cdecl = nil;
+  IdSSLERR_peek_err : function: TIdC_ULONG cdecl = nil;
+  IdSSLERR_clear_error : procedure cdecl = nil;
+  IdSSLERR_error_string : function (e: TIdC_ULONG; buf: PChar): PChar cdecl = nil;
+  IdSSLERR_lib_error_string : function(e : TIdC_ULONG): PChar cdecl = nil;
+  IdSSLERR_func_error_string : function(e : TIdC_ULONG): PChar cdecl = nil;
+  IdSSLERR_reason_error_string : function(e : TIdC_ULONG): PChar cdecl = nil;
+  IdSSLERR_load_ERR_strings : procedure cdecl = nil;
+  IdSSLERR_load_crypto_strings : procedure cdecl = nil;
+  IdSSLERR_free_strings : procedure cdecl = nil;
+  IdSslErrRemoveState : procedure(pid: TIdC_ULONG) cdecl = nil;
 
-  IdSslCryptoCleanupAllExData : procedure; cdecl = nil;
+  IdSslCryptoCleanupAllExData : procedure cdecl = nil;
 
-  IdSslCompGetCompressionMethods : function: PSTACK_OF_SSL_COMP; cdecl = nil;
-  IdSslSkPopFree : procedure(st: PSTACK; func: Tsk_pop_free_func); cdecl = nil;
+  IdSslCompGetCompressionMethods : function: PSTACK_OF_SSL_COMP cdecl = nil;
+  IdSslSkPopFree : procedure(st: PSTACK; func: Tsk_pop_free_func) cdecl = nil;
 
 function IdSslUCTTimeDecode(UCTtime : PASN1_UTCTIME; var year, month, day, hour, min, sec: Word;
   var tz_hour, tz_min: Integer): Integer;
@@ -7919,7 +7927,7 @@ var
 
   {$IFDEF SYS_WIN}
   // LIBEAY functions - open SSL 0.9.6a
-  IdSslRandScreen : procedure; cdecl = nil;
+  IdSslRandScreen : procedure cdecl = nil;
   {$ENDIF}
 
 { This constant's are used twice. First time in Load function and second time  }  {Do not localize}
