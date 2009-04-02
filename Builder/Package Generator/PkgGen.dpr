@@ -80,10 +80,11 @@ program PkgGen;
 {$APPTYPE CONSOLE}
 
 uses
-  ExceptionLog,
   Classes,
+  {$IFDEF WIN32}
+  Windows,
+  {$ENDIF}
   SysUtils,
-  IdGlobal,
   Package in 'Package.pas',
   PackageVisualStudio in 'PackageVisualStudio.pas',
   PackageD8Master in 'PackageD8Master.pas',
@@ -98,6 +99,7 @@ uses
 procedure Main;
 begin
   DM := TDM.Create(nil); try
+    WriteLn(' Path '+ DM.tablFile.DatabaseName );
     with DM do begin
     //The pathes are now managed in the data module and are
     //based on a path provided or a from where the program
@@ -265,6 +267,7 @@ end;
 
 begin
   try
+
     Main;
   except
     on E: Exception do begin
@@ -272,4 +275,5 @@ begin
    //   raise;
     end;
   end;
+  ReadLn;
 end.
