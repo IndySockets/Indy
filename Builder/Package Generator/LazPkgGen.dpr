@@ -7,7 +7,6 @@ uses
   Windows,
   Classes,
   SysUtils,
-  IdGlobal,
   DBTables,
   DModule in 'DModule.pas' {DM: TDataModule};
 
@@ -106,6 +105,11 @@ The format is like this:
 ===
 }
 
+const
+  LF = #10;
+  CR = #13;
+  EOL = CR + LF;
+  
 //i is a var that this procedure will cmanage for the main loop.
 procedure WriteLRSEntry(var VEntryCount : Integer; var VOutput : String);
 var s : String;
@@ -186,34 +190,6 @@ begin
       SaveToFile(AFileName);
     finally Free; end;
   end;
-end;
-
-function GetTempDirectory: String;
-
-var  TempDir: TIdBytes;
-   LLen : Cardinal;
-begin
-  SetLength(TempDir,MAX_PATH);
- // FillChar(TempDir[0],#0,MAX_PATH);
-  repeat
-    LLen := GetTempPath(MAX_PATH, @TempDir[0]);
-    if (LLen=0) then
-    begin
-      Result := '';
-      exit;
-    end;
-    if LLen > MAX_PATH then
-    begin
-       //increase array size, too small
-       SetLength(TempDir,LLen);
-    end
-    else
-    begin
-      Break;
-    end;
-  until False;
-  Result := IdGlobal.BytesToString(TempDir,0,LLen)
-//  Result :=  PChar(@TempDir[0]);
 end;
 
 procedure MakeFPCMasterPackage(const AWhere: string; const AFileName : String;
@@ -410,6 +386,7 @@ begin
    //our path settings in the module are created in its constructor now.
    //we use the defaults it provides so we can use this in various pathes
    //in subversion.
+      WriteLn( DM.tablFile.DatabaseName );
       tablFile.Open;
       MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False', 'indysystemfpc','System',DM.OutputPath+ '\Lib\System');
    //   WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=False','indysystemlaz.lpk','System',GIndyPath+ 'Lib\System');
