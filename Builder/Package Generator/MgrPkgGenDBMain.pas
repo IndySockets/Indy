@@ -59,11 +59,10 @@ uses DModule, MgrPkgGenMgrDModDS, MgrPkgGenDBEntryEdit;
 {$R *.dfm}
 
 procedure TfrmPkgMain.FormCreate(Sender: TObject);
-var s : String;
 begin
-   s := ExtractFilePath(ParamStr(0))+'Data';
    DM.tablFile.BeforeDelete := OnBeforeRecordDelete;
-   DM.tablFile.DatabaseName := s;
+  Self.Caption := Self.Caption + ' - [' + DM.tablFile.DatabaseName + ']';
+  Application.Title := Self.Caption;
    DM.tablFile.TableName := 'File.DB';
    DM.tablFile.Exclusive := True;
    DM.tablFile.Active := True;
