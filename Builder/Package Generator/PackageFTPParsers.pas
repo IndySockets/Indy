@@ -54,7 +54,6 @@ type
 
 implementation
 uses
-  IdGlobal,
   SysUtils, DModule;
 
 { TFTPParsers }
