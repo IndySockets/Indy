@@ -128,11 +128,123 @@ const
    , ''
    , 'K3');
 
+
+   //Fetch Defaults
+  IdFetchDelimDefault = ' ';    {Do not Localize}
+  IdFetchDeleteDefault = True;
+  IdFetchCaseSensitiveDefault = True;
+
+function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer;  overload;
+function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string; overload;
+function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
+
+function FetchCaseInsensitive(var AInput: string; const ADelim: string;
+  const ADelete: Boolean): string;
+function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
+  const ADelete: Boolean = IdFetchDeleteDefault;
+  const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): string;
+
 implementation
 
 uses
-  IdGlobal,
   SysUtils;
+
+type
+  TPosProc = function(const substr, str: String): LongInt;
+  
+var
+  IndyPos: TPosProc = nil;
+
+function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
+  const ADelete: Boolean = IdFetchDeleteDefault;
+  const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LPos: Integer;
+begin
+  if ACaseSensitive then begin
+    if ADelim = #0 then begin
+      // AnsiPos does not work with #0
+      LPos := Pos(ADelim, AInput);
+    end else begin
+      LPos := IndyPos(ADelim, AInput);
+    end;
+    if LPos = 0 then begin
+      Result := AInput;
+      if ADelete then begin
+        AInput := '';    {Do not Localize}
+      end;
+    end
+    else begin
+      Result := Copy(AInput, 1, LPos - 1);
+      if ADelete then begin
+        //slower Delete(AInput, 1, LPos + Length(ADelim) - 1); because the
+        //remaining part is larger than the deleted
+        AInput := Copy(AInput, LPos + Length(ADelim), MaxInt);
+      end;
+    end;
+  end else begin
+    Result := FetchCaseInsensitive(AInput, ADelim, ADelete);
+  end;
+end;
+
+function FetchCaseInsensitive(var AInput: string; const ADelim: string;
+  const ADelete: Boolean): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LPos: Integer;
+begin
+  if ADelim = #0 then begin
+    // AnsiPos does not work with #0
+    LPos := Pos(ADelim, AInput);
+  end else begin
+    //? may be AnsiUpperCase?
+    LPos := IndyPos(UpperCase(ADelim), UpperCase(AInput));
+  end;
+  if LPos = 0 then begin
+    Result := AInput;
+    if ADelete then begin
+      AInput := '';    {Do not Localize}
+    end;
+  end else begin
+    Result := Copy(AInput, 1, LPos - 1);
+    if ADelete then begin
+      //faster than Delete(AInput, 1, LPos + Length(ADelim) - 1); because the
+      //remaining part is larger than the deleted
+      AInput := Copy(AInput, LPos + Length(ADelim), MaxInt);
+    end;
+  end;
+end;
+
+function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  if ATest then begin
+    Result := ATrue;
+  end else begin
+    Result := AFalse;
+  end;
+end;
+
+function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  if ATest then begin
+    Result := ATrue;
+  end else begin
+    Result := AFalse;
+  end;
+end;
+
+function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  if ATest then begin
+    Result := ATrue;
+  end else begin
+    Result := AFalse;
+  end;
+end;
 
 { TPackage }
 
@@ -246,18 +358,18 @@ begin
     begin
       Code('{$R *.res}');
     end;
-  Code('{$ASSERTIONS ON}');
+//  Code('{$ASSERTIONS ON}');
   Code('{$BOOLEVAL OFF}');
-  Code('{$DEBUGINFO ON}');
+//  Code('{$DEBUGINFO ON}');
   Code('{$EXTENDEDSYNTAX ON}');
   Code('{$IMPORTEDDATA ON}');
-  Code('{$IOCHECKS ON}');
+//  Code('{$IOCHECKS ON}');
   Code('{$LOCALSYMBOLS ON}');
   Code('{$LONGSTRINGS ON}');
   Code('{$OPENSTRINGS ON}');
   Code('{$OPTIMIZATION ON}');
-  Code('{$OVERFLOWCHECKS ON}');
-  Code('{$RANGECHECKS ON}');
+//  Code('{$OVERFLOWCHECKS ON}');
+//  Code('{$RANGECHECKS ON}');
   Code('{$REFERENCEINFO ON}');
   Code('{$SAFEDIVIDE OFF}');
   Code('{$STACKFRAMES OFF}');
@@ -315,4 +427,29 @@ procedure TPackage.WritePreContains;
 begin
 end;
 
+function SBPos(const Substr, S: string): LongInt;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  // Necessary because of "Compiler magic"
+  Result := Pos(Substr, S);
+end;
+
+//Don't rename this back to AnsiPos because that conceals a symbol in Windows
+function InternalAnsiPos(const Substr, S: string): LongInt;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := SysUtils.AnsiPos(Substr, S);
+end;
+
+initialization
+  // AnsiPos does not handle strings with #0 and is also very slow compared to Pos
+  {$IFDEF DOTNET}
+  IndyPos := SBPos;
+  {$ELSE}
+  if LeadBytes = [] then begin
+    IndyPos := SBPos;
+  end else begin
+    IndyPos := InternalAnsiPos;
+  end;
+  {$ENDIF}
 end.
