@@ -21,7 +21,6 @@ object frmPkgMain: TfrmPkgMain
     Width = 452
     Height = 490
     Align = alClient
-    BorderStyle = bsNone
     DataSource = DMDS.DSMain
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
