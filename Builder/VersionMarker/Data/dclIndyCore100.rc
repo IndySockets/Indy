@@ -12,7 +12,7 @@ FILESUBTYPE 0x0L
   BLOCK "000104E4"
   {
    VALUE "CompanyName", "{COMPANY}\0"
-   VALUE "FileDescription", "'{DESCRIPTION} Core Design-Time Package for Borland Delphi 2005\0"
+   VALUE "FileDescription", "'{DESCRIPTION} - Core Design-Time Package for Borland Delphi 2009\0"
    VALUE "FileVersion", "{MAJORVER}.{MINORVER}.0.{POINTVER}\0"
    VALUE "InternalName", "dclIndyCore100\0"
    VALUE "LegalCopyright", "'{COPYRIGHT}\0"
