@@ -164,6 +164,7 @@ type
     procedure InitComponent; override;
   public
     destructor Destroy; override;
+    procedure Connect; override;
     procedure Print(const AText: String); overload;
     procedure Print(const ABuffer: TIdBytes); overload;
     procedure PrintFile(const AFileName: String);
@@ -174,6 +175,8 @@ type
   published
     property Queue: String read FQueue write FQueue;
     property ControlFile: TIdLPRControlFile read FControlFile write SeTIdLPRControlFile;
+    property Host;
+    property Port default IdPORT_LPD;
     property OnLPRStatus: TIdLPRStatusEvent read FOnLPRStatus write FOnLPRStatus;
   end;
 
@@ -183,7 +186,13 @@ type
 implementation
 
 uses
-  IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
+  {$IFDEF DOTNET}
+  IdStreamNET,
+  {$ELSE}
+  IdStreamVCL,
+  {$ENDIF}
+  IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStackConsts,
+  SysUtils;
 
 { TIdLPR }
 
@@ -199,13 +208,46 @@ begin
   // Restriction in RFC 1179
   // The source port must be in the range 721 to 731, inclusive.
 
-//  known -problem with this some trouble while multible printjobs are running
-//  This is the FD_WAIT port problem where a port is in a FD_WAIT state
-//  but you can bind to it.  You get a port reuse error.
   BoundPortMin := 721;
   BoundPortMax := 731;
 end;
 
+procedure TIdLPR.Connect;
+var
+  LPort: TIdPort;
+begin
+  // RLebeau 3/7/2010: there is a problem on Windows where sometimes it will
+  // not raise a WSAEADDRINUSE error in TIdSocketHandle.TryBind(), but will
+  // delay it until TIdSocketHandle.Connect() instead.  So we will loop here
+  // to force a Connect() on each port, rather than let TIdSocketHandle do
+  // the looping in BindPortReserved().  If this logic proves useful in other
+  // protocols, we can move it into TIdSocketHandle later on...
+
+  // AWinkelsdorf 3/9/2010: Implemented, adjusted to use BoundPortMax and
+  // BoundPortMin
+
+  // looping backwards because that is what TIdSocketHandle.BindPortReserved() does
+  for LPort := BoundPortMax downto BoundPortMin do
+  begin
+    BoundPort := LPort;
+    try
+      inherited Connect;
+      Exit;
+    except
+      on E: EIdCouldNotBindSocket do begin end;
+      on E: EIdSocketError do begin
+        if E.LastError <> Id_WSAEADDRINUSE then begin
+          raise;
+        end;
+        // Socket already in use, cleanup and try again with the next
+        Disconnect;
+      end;
+    end;
+  end;
+
+  // no local ports could be bound successfully
+  raise EIdCanNotBindPortInRange.CreateFmt(RSCannotBindRange, [BoundPortMin, BoundPortMax]);
+end;
 
 procedure TIdLPR.Print(const AText: String);
 var

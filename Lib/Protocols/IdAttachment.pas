@@ -57,13 +57,8 @@ uses
 type
   TIdAttachment = class(TIdMessagePart)
   protected
-    FFileName: String;
-
-    function  GetContentDisposition: string; virtual;
+    function  GetContentDisposition: string; override;
     function  GetContentType: String; override;
-    function  GetContentTypeName: String; virtual;
-    procedure SetContentDisposition(const Value: string); virtual;
-    procedure SetContentType(const Value: String); override;
   public
     // here the methods you have to override...
 
@@ -90,12 +85,7 @@ type
     procedure LoadFromStream(AStream: TStream); virtual;
     procedure SaveToFile(const FileName: String); virtual;
     procedure SaveToStream(AStream: TStream); virtual;
-
-    procedure Assign(Source: TPersistent); override;
-
-    property  FileName: String read FFileName write FFileName;
-    property  ContentDisposition: string read GetContentDisposition write SetContentDisposition;
-    property  ContentTypeName: String read GetContentTypeName;
+    
     class function PartType: TIdMessagePartType; override;
   end;
 
@@ -104,51 +94,19 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, SysUtils;
-
-const
-  SContentDisposition = 'Content-Disposition';  {do not localize}
+  IdGlobal, IdGlobalProtocols, IdCoderHeader,
+  SysUtils;
 
 { TIdAttachment }
 
-procedure TIdAttachment.Assign(Source: TPersistent);
-var
-  mp: TIdAttachment;
-begin
-  if Source is TIdAttachment then begin
-    mp := TIdAttachment(Source);
-    {
-    ContentTransfer := mp.ContentTransfer;
-    ContentType := mp.ContentType;
-    ContentID := mp.ContentID;
-    ContentDisposition := mp.ContentDisposition;
-    }
-
-    // RLebeau 10/17/2003
-    Headers.Assign(mp.Headers);
-
-    ExtraHeaders.Assign(mp.ExtraHeaders);
-    FileName := mp.FileName;
-  end else begin
-    inherited;
-  end;
-end;
-
 function TIdAttachment.GetContentDisposition: string;
 begin
-  Result := Headers.Values[SContentDisposition]; {do not localize}
-  Result := Fetch(Result, ';');
+  Result := ExtractHeaderItem(inherited GetContentDisposition);
 end;
 
 function TIdAttachment.GetContentType: String;
 Begin
-  Result := inherited GetContentType;
-  Result := Fetch(Result, ';');
-End;//
-
-function TIdAttachment.GetContentTypeName: String;
-Begin
-  Result := ExtractHeaderSubItem(inherited GetContentType, 'NAME='); {do not localize}
+  Result := ExtractHeaderItem(inherited GetContentType);
 End;//
 
 class function TIdAttachment.PartType: TIdMessagePartType;
@@ -200,16 +158,6 @@ begin
   finally
     CloseLoadStream;
   end;
-end;
-
-procedure TIdAttachment.SetContentDisposition(const Value: string);
-begin
-  Headers.Values[SContentDisposition] := Value;
-end;
-
-procedure TIdAttachment.SetContentType(const Value: String);
-begin
-  inherited SetContentType(Value); // TODO: what is here? must we add 'name='?
 end;
 
 end.

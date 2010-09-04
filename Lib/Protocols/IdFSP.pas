@@ -334,6 +334,7 @@ causes that directory can be listable even it do not have
     FStatInfo : TIdFSPStatInfo;
     FOnRecv, FOnSend : TIdFSPLogEvent;
     FAbortFlag : TIdThreadSafeBoolean;
+    FInCmd : TIdThreadSafeBoolean;
 
     //note:  This is optimized for performance - DO NOT MESS with it even if you don't like it
     //or think its wrong.  There is a performance penalty that is noticable with downloading,
@@ -341,7 +342,7 @@ causes that directory can be listable even it do not have
     //packet size.  We also do not want to eat CPU cycles excessively which I've noticed
     //with previous code.
     procedure SendCmdOnce(ACmdPacket, ARecvPacket : TIdFSPPacket; var VTempBuf : TIdBytes; const ARaiseException : Boolean=True); overload;
-    procedure SendCmdOnce(const ACmd : Byte; const AData, AExtraData : TIdBYtes;
+    procedure SendCmdOnce(const ACmd : Byte; const AData, AExtraData : TIdBytes;
       const AFilePosition : Int64; //in case FSP 3.0 does support more than 4GB
       var VData, VExtraData : TIdBytes; const ARaiseException : Boolean=True);  overload;
 
@@ -405,13 +406,26 @@ implementation
 
 uses
   //facilitate inlining only.
+  {$IFDEF KYLIXCOMPAT}
+  Libc,
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysSelect,
+  PosixSysTime,
+  PosixUnistd,
+  {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-     {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   Windows,
-     {$ENDIF}
+    {$ELSE}
+  //facilitate inlining only.
+      {$IFDEF VCL_2009_OR_ABOVE}
+  Windows,
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.IO,
   System.Threading,
     {$ENDIF}
@@ -492,6 +506,7 @@ procedure TIdFSP.Disconnect;
 var
   LBuf, LData, LExtra : TIdBytes;
 begin
+   AbortCmd;
   if FConEstablished then begin
     SetLength(LBuf, 0);
     SendCmd(CC_BYE, LBuf, 0, LData, LExtra);
@@ -553,7 +568,7 @@ var
   LDestStream: TStream;
 begin
   if ACanOverwrite and (not AResume) then begin
-    DeleteFile(ADestFile);
+    SysUtils.DeleteFile(ADestFile);
     LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
   else if (not ACanOverwrite) and AResume then begin
@@ -578,7 +593,10 @@ end;
 procedure TIdFSP.InitComponent;
 begin
   inherited InitComponent;
-  Port := IdPORT_FSP;
+  FAbortFlag := TIdThreadSafeBoolean.Create;
+  FAbortFlag.Value := False;
+  //you have to use FPort or this will cause a stack overflow
+  FPort := IdPORT_FSP;
   FSequence := 0;
   FKey := 0;
   FDirInfo := TIdFSPDirInfo.Create;
@@ -587,8 +605,10 @@ begin
   BroadcastEnabled := False;
   FConEstablished := False;
   FClientMaxPacketSize := DEF_MAXSIZE;
-  FAbortFlag := TIdThreadSafeBoolean.Create;
-  FAbortFlag.Value := False;
+  FInCmd := TIdThreadSafeBoolean.Create;
+  FInCmd.Value := False;
+
+
 end;
 
 procedure TIdFSP.List;
@@ -749,52 +769,57 @@ var
   LSendBuf : TIdBytes;
   LMSec : Integer;
 begin
-  Inc(FSequence);
-  FAbortFlag.Value := False;
-  //we don't set the temp buff size here for speed.  
-  ACmdPacket.Key := FKey;
-  ACmdPacket.Sequence := FSequence;
-  LMSec := MINTIMEOUT;
-  LSendBuf := ACmdPacket.WritePacket;
+  FInCmd.Value := True;
+  try
+    Inc(FSequence);
+    FAbortFlag.Value := False;
+    //we don't set the temp buff size here for speed.
+    ACmdPacket.Key := FKey;
+    ACmdPacket.Sequence := FSequence;
+    LMSec := MINTIMEOUT;
+    LSendBuf := ACmdPacket.WritePacket;
 
-  //It's very important that you have some way of aborting this loop
-  //if you do not and the server does not reply, this can go for infinity.
-  //AbortCmd is ThreadSafe.
+    //It's very important that you have some way of aborting this loop
+    //if you do not and the server does not reply, this can go for infinity.
+    //AbortCmd is ThreadSafe.
 
-  while not FAbortFlag.Value do
-  begin
-    SendBuffer(LSendBuf);
+    while not FAbortFlag.Value do
+    begin
+      SendBuffer(LSendBuf);
 
-    if Assigned(FOnSend) then begin
-      FOnSend(Self, ACmdPacket);
-    end;
-
-    IndySleep(5); //this is so we don't eat up all of the CPU
-    LLen := ReceiveBuffer(VTempBuf, LMsec);
-
-    ARecvPacket.ReadPacket(VTempBuf, LLen);
-    if ARecvPacket.Valid then begin
-      if Assigned(FOnRecv) then begin
-        FOnRecv(Self, ARecvPacket);
+      if Assigned(FOnSend) then begin
+        FOnSend(Self, ACmdPacket);
       end;
-      if ARecvPacket.Sequence = FSequence then begin
-        Break;
+
+      IndySleep(5); //this is so we don't eat up all of the CPU
+      LLen := ReceiveBuffer(VTempBuf, LMsec);
+
+      ARecvPacket.ReadPacket(VTempBuf, LLen);
+      if ARecvPacket.Valid then begin
+        if Assigned(FOnRecv) then begin
+          FOnRecv(Self, ARecvPacket);
+        end;
+        if ARecvPacket.Sequence = FSequence then begin
+          Break;
+        end;
+      end;
+
+      LMSec := Round(LMSec * 1.5);
+      if LMSec > MAXTIMEOUT then begin
+        LMSec := MAXTIMEOUT;
       end;
     end;
 
-    LMSec := Round(LMSec * 1.5);
-    if LMSec > MAXTIMEOUT then begin
-      LMSec := MAXTIMEOUT;
+    if not FAbortFlag.Value then begin
+      FKey := ARecvPacket.Key;
     end;
-  end;
+    FAbortFlag.Value := False;
 
-  if not FAbortFlag.Value then begin
-    FKey := ARecvPacket.Key;
-  end;
-  FAbortFlag.Value := False;
-
-  if (ARecvPacket.Cmd = CC_ERR) and ARaiseException then begin
+    if (ARecvPacket.Cmd = CC_ERR) and ARaiseException then begin
       raise EIdFSPProtException.Create(ParseASCIIZLen(ARecvPacket.Data, ARecvPacket.DataLen));
+    end;
+  finally
+    FInCmd.Value := False;
   end;
 end;
 
@@ -1024,7 +1049,7 @@ begin
 end;
 
 procedure TIdFSP.SendCmdOnce(const ACmd: Byte; const AData,
-  AExtraData: TIdBYtes; const AFilePosition: Int64; var VData,
+  AExtraData: TIdBytes; const AFilePosition: Int64; var VData,
   VExtraData: TIdBytes; const ARaiseException: Boolean);
 var
   LSendPacket : TIdFSPPacket;
@@ -1079,12 +1104,17 @@ end;
 
 procedure TIdFSP.AbortCmd;
 begin
-  FAbortFlag.Value := True;
-  repeat
-    IndySleep(5);
-    //we need to wait until the SendCmd routine catches the Abort
-    //request so you don't get an AV in a worker thread.
-  until not FAbortFlag.Value;
+  //we don't want to go into the abort loop if there is no command
+  //being send.  If that happens, your program could hang.
+  if FInCmd.Value then
+  begin
+    FAbortFlag.Value := True;
+    repeat
+      IndySleep(5);
+      //we need to wait until the SendCmd routine catches the Abort
+      //request so you don't get an AV in a worker thread.
+    until not FAbortFlag.Value;
+  end;
 end;
 
 { TIdFSPPacket }

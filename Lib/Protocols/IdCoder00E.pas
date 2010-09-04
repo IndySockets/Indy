@@ -65,15 +65,16 @@ uses
 procedure TIdDecoder00E.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
 var
   LBuf: TIdBytes;
+  LSize: TIdStreamSize;
 begin
-  if ABytes < 0 then begin
-    inherited Decode(ASrcStream, ABytes);
-  end
-  else if ABytes > 0 then begin
+  LSize := IndyLength(ASrcStream, ABytes);
+  if LSize > 0 then begin
     //Param 2 - Start at second char since 00E's have byte 1 as length
-    //Param 3 - Get expected length of input. This is length in bytes, not chars
     TIdStreamHelper.ReadBytes(ASrcStream, LBuf, 1);
-    inherited Decode(ASrcStream, FDecodeTable[Ord(LBuf[0])]);
+    //Param 3 - Get output length of input. This is length in bytes,
+    // not encoded chars. DO NOT include fill chars in calculation
+    {Assert(Ord(FDecodeTable[LBuf[0]]) = (((LSize-1) div 4) * 3));}
+    inherited Decode(ASrcStream, LSize-1);
   end;
 end;
 
@@ -82,27 +83,28 @@ end;
 procedure TIdEncoder00E.Encode(ASrcStream, ADestStream: TStream; const ABytes: Integer = -1);
 var
   LStream: TMemoryStream;
-  LSize: Int64;
+  LSize: TIdStreamSize;
+  LEncodeSize: Integer;
   LBuf: TIdBytes;
 begin
-  SetLength(LBuf, 1024);
+  SetLength(LBuf, 1);
   LStream := TMemoryStream.Create;
   try
-    LBuf[0] := 0;
-    TIdStreamHelper.Write(LStream, LBuf, 1);
-    inherited Encode(ASrcStream, LStream, ABytes);
-    LSize := LStream.Size - 1;
-    Assert(LSize<High(Integer));
-    LBuf[0] := Byte(FCodingTable[Integer(LSize) + 1]);
-    LStream.Position := 0;
-    TIdStreamHelper.Write(LStream, LBuf, 1);
-    LStream.Position := 0;
-    repeat
-      LSize := TIdStreamHelper.ReadBytes(LStream, LBuf, Length(LBuf));
+    LSize := IndyLength(ASrcStream, ABytes);
+    while LSize > 0 do
+    begin
+      LEncodeSize := IndyMin(LSize, Length(FCodingTable)-1);
+      inherited Encode(ASrcStream, LStream, LEncodeSize);
+      Dec(LSize, LEncodeSize);
+      LBuf[0] := Ord(FCodingTable[Integer(LEncodeSize)+1]);
+      TIdStreamHelper.Write(ADestStream, LBuf, 1);
+      LStream.Position := 0;
+      ADestStream.CopyFrom(LStream, 0);
       if LSize > 0 then begin
-        TIdStreamHelper.Write(ADestStream, LBuf, Integer(LSize));
+        WriteStringToStream(ADestStream, EOL);
+        LStream.Clear;
       end;
-    until LSize = 0;
+    end;
   finally
     FreeAndNil(LStream);
   end;

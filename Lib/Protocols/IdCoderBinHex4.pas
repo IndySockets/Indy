@@ -163,12 +163,14 @@ uses
 type
   TIdEncoderBinHex4 = class(TIdEncoder3to4)
   protected
+    FFileName: String;
     function GetCRC(const ABlock: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Word;
     procedure AddByteCRC(var ACRC: Word; AByte: Byte);
     procedure InitComponent; override;
   public
-    //We cannot override Encode because we need different parameters...
-    procedure EncodeFile(AFileName: string; ASrcStream: TStream; ADestStream: TStream);
+    procedure Encode(ASrcStream: TStream; ADestStream: TStream; const ABytes: Integer = -1); override;
+    //We need to specify this value before calling Encode...
+    property FileName: String read FFileName write FFileName;
   end;
 
   TIdDecoderBinHex4 = class(TIdDecoder4to3)
@@ -180,11 +182,12 @@ type
 
 const
   //Note the 7th characeter is a ' which is represented in a string as ''
-  GBinHex4CodeTable: string = '!"#$%&''()*+,-012345689@ABCDEFGHIJKLMNPQRSTUVXYZ[`abcdefhijklmpqr';    {Do not Localize}
+  GBinHex4CodeTable: AnsiString = '!"#$%&''()*+,-012345689@ABCDEFGHIJKLMNPQRSTUVXYZ[`abcdefhijklmpqr';    {Do not Localize}
   GBinHex4IdentificationString: string = '(This file must be converted with BinHex 4.0)';             {Do not Localize}
 
 type
   EIdMissingColon = class(EIdException);
+  EIdMissingFileName = class(EIdException);
 
 var
   GBinHex4DecodeTable: TIdDecodeTable;
@@ -247,9 +250,13 @@ begin
   end;
 
   //did we get the initial colon?
-  EIdMissingColon.IfFalse(LCopyToPos <> -1, 'Block passed to TIdDecoderBinHex4.Decode is missing a starting colon :');    {Do not Localize}
+  if LCopyToPos = -1 then begin
+    EIdMissingColon.Toss('Block passed to TIdDecoderBinHex4.Decode is missing a starting colon :');    {Do not Localize}
+  end;
   //did we get the terminating colon?
-  EIdMissingColon.IfFalse(LCopyToPos = -2, 'Block passed to TIdDecoderBinHex4.Decode is missing a terminating colon :'); {Do not Localize}
+  if LCopyToPos <> -2 then begin
+    EIdMissingColon.Toss('Block passed to TIdDecoderBinHex4.Decode is missing a terminating colon :'); {Do not Localize}
+  end;
 
   if Length(LIn) = 0 then begin
     Exit;
@@ -365,29 +372,35 @@ begin
   end;
 end;
 
-procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TStream; ADestStream: TStream);
+procedure TIdEncoderBinHex4.Encode(ASrcStream: TStream; ADestStream: TStream; const ABytes: Integer = -1);
 var
   LN: Integer;
   LOffset: Integer;
   LBlocks: Integer;
   LOut: TIdBytes;
   LSSize, LTemp: Integer;
-  LFileName: string;
+  LFileName: AnsiString;
   LCRC: word;
   LRemainder: integer;
 begin
+  if FFileName = '' then begin
+    EIdMissingFileName.Toss('Data passed to TIdEncoderBinHex4.Encode is missing a filename');    {Do not Localize}
+  end;
   //Read in the attachment first...
-  LSSize := IndyMin(ASrcStream.Size - ASrcStream.Position, MaxInt);
+  LSSize := IndyLength(ASrcStream, ABytes);
   //BinHex4.0 allows filenames to be only 255 bytes long (because the length
   //is stored in a byte), so truncate the filename to 255 bytes...
-  if Length(AFileName) > 255 then begin
-    LFileName := Copy(AFileName, 1, 255);
-  end else begin
-    LFileName := AFileName;
+  {$IFDEF STRING_IS_UNICODE}
+  LFileName := AnsiString(FFileName); // explicit convert to Ansi
+  {$ELSE}
+  LFileName := FFileName;
+  {$ENDIF}
+  if Length(FFileName) > 255 then begin
+    SetLength(LFileName, 255);
   end;
   //Construct the header...
   SetLength(LOut, 1+Length(LFileName)+1+4+4+2+4+4+2+LSSize+2);
-  LOut[0] := Length(LFileName);         //Length of filename in 1st byte
+  LOut[0] := Length(LFileName);               //Length of filename in 1st byte
   for LN := 1 to Length(LFileName) do begin
     LOut[LN] := Byte(LFileName[LN]);
   end;

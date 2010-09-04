@@ -199,7 +199,7 @@ uses
   IdCoderQuotedPrintable,
   IdCoderUUE,
   IdCoderXXE,
-  {$IFDEF USEZLIBUNIT}
+  {$IFDEF USE_ZLIB_UNIT}
   IdCompressorZLib,
   IdCompressionIntercept,
   {$ENDIF}
@@ -269,6 +269,7 @@ uses
   IdRSH,
   IdRSHServer,
   IdSASLAnonymous,
+  IdSASLDigest,
   IdSASLExternal,
   IdSASLLogin,
   IdSASLOTP,
@@ -287,10 +288,11 @@ uses
   {$ENDIF}
   IdSNPP,
   IdSNTP,
-  {$IFDEF DOTNET2_OR_ABOVE}
+  IdSocksServer,
+  {$IFDEF DOTNET_2_OR_ABOVE}
   IdSSLDotNET,
   {$ENDIF}
-  {$IFDEF USEOPENSSL}
+  {$IFDEF USE_OPENSSL}
   IdSSLOpenSSL,
   {$ENDIF}
   IdSysLog,
@@ -404,6 +406,7 @@ uses
   {$R IconsDotNet\TIdSASL.bmp}
   {$R IconsDotNet\TIdSASLAnonymous.bmp}
   {$R IconsDotNet\TIdSASLCRAMMD5.bmp}
+  {$R IconsDotNet\TIdSASLDigest.bmp}
   {$R IconsDotNet\TIdSASLExternal.bmp}
   {$R IconsDotNet\TIdSASLList.bmp}
   {$R IconsDotNet\TIdSASLLogin.bmp}
@@ -415,7 +418,7 @@ uses
   {$R IconsDotNet\TIdServerInterceptLogFile.bmp}
   {$R IconsDotNet\TIdServerIOHandlerSocket.bmp}
   {$R IconsDotNet\TIdServerIOHandlerStream.bmp}
-  {$IFDEF DOTNET2_OR_ABOVE}
+  {$IFDEF DOTNET_2_OR_ABOVE}
   {$R IconsDotNet\TIdSSLIOHandlerSocketNET.bmp}
   {$R IconsDotNet\TIdServerIOHandlerSSLNET.bmp}
   {$ENDIF}
@@ -424,7 +427,7 @@ uses
   {$R IconsDotNet\TIdSMTPServer.bmp}
   {$R IconsDotNet\TIdSNPP.bmp}
   {$R IconsDotNet\TIdSNTP.bmp}
-  {.$R IconsDotNet\TIdSocksServer.bmp}
+  {$R IconsDotNet\TIdSocksServer.bmp}
   {$R IconsDotNet\TIdSysLog.bmp}
   {$R IconsDotNet\TIdSysLogMessage.bmp}
   {$R IconsDotNet\TIdSyslogServer.bmp}
@@ -538,6 +541,7 @@ begin
    TIdRexecServer,
    TIdRSHServer,
    TIdSMTPServer,
+   TIdSocksServer,
    TIdSyslogServer,
    TIdSystatServer,
    TIdSystatUDPServer,
@@ -555,7 +559,7 @@ begin
 
   RegisterComponents(RSRegIndyIntercepts, [
    TIdBlockCipherIntercept,
-   {$IFDEF USEZLIBUNIT}
+   {$IFDEF USE_ZLIB_UNIT}
    TIdCompressionIntercept,
    TIdServerCompressionIntercept,
     {$ENDIF}
@@ -563,13 +567,13 @@ begin
    TIdServerInterceptLogFile
    ]);
 
-   {$IFDEF DOTNET2_OR_ABOVE}
+   {$IFDEF DOTNET_2_OR_ABOVE}
    RegisterComponents(RSRegIndyIOHandlers, [
     TIdSSLIOHandlerSocketNET,
     TIdServerIOHandlerSSLNET
    ]);
   {$ENDIF}
-  {$IFDEF USEOPENSSL}
+  {$IFDEF USE_OPENSSL}
   RegisterComponents(RSRegIndyIOHandlers, [
    TIdServerIOHandlerSSLOpenSSL,
    TIdSSLIOHandlerSocketOpenSSL
@@ -580,6 +584,7 @@ begin
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
    TIdSASLCRAMSHA1,
+   TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
    TIdSASLOTP,
@@ -694,7 +699,7 @@ begin
    TIdRexecServer,
    TIdRSHServer,
    TIdSMTPServer,
-//   TIdSocksServer,
+   TIdSocksServer,
    TIdSyslogServer,
    TIdSystatServer,
    TIdSystatUDPServer,
@@ -716,7 +721,7 @@ begin
    TIdMappedTelnet]);
 
   RegisterComponents(RSRegIndyIntercepts+RSProt, [
-   {$IFDEF USEZLIBUNIT}
+   {$IFDEF USE_ZLIB_UNIT}
    TIdCompressionIntercept,
    TIdServerCompressionIntercept,
    {$ENDIF}
@@ -728,6 +733,7 @@ begin
   RegisterComponents(RSRegSASL+RSProt, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
+   TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
    TIdSASLOTP,
@@ -736,7 +742,7 @@ begin
    TIdUserPassProvider
    ]);
 
-  {$IFDEF USEOPENSSL}
+  {$IFDEF USE_OPENSSL}
   RegisterComponents(RSRegIndyIOHandlers+RSProt, [
    TIdServerIOHandlerSSLOpenSSL,
    TIdSSLIOHandlerSocketOpenSSL
@@ -745,7 +751,7 @@ begin
 
   RegisterComponents(RSRegIndyMisc+RSProt, [
    TIdConnectThroughHttpProxy,
-   {$IFDEF USEZLIBUNIT}
+   {$IFDEF USE_ZLIB_UNIT}
    TIdCompressorZLib,
    {$ENDIF}
    TIdCookieManager,

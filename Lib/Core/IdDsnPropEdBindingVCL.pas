@@ -62,13 +62,13 @@ interface
 
 uses
   Classes,
-{$IFDEF WIDGETKYLIX}
+{$IFDEF WIDGET_KYLIX}
   QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt,
 {$ENDIF}
-{$IFDEF WIDGETVCLLIKE}
+{$IFDEF WIDGET_VCL_LIKE}
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
 {$ENDIF}
-{$IFDEF VCL6ORABOVE}
+{$IFDEF VCL6_OR_ABOVE}
   Types,
 {$ENDIF}
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -101,7 +101,7 @@ uses
 
 type
   TIdDsnPropEdBindingVCL = class(TForm)
-   {$IFDEF USETBITBTN}
+   {$IFDEF USE_TBitBtn}
     btnOk: TBitBtn;
     btnCancel: TBitBtn;
   {$ELSE}
@@ -262,12 +262,12 @@ begin
   Result := -1;
 end;
 
-function GetDisplayString(const AIP : String; const APort : Integer; AIPVer : TIdIPVersion): string;
+function GetDisplayString(ASocketHandle: TIdSocketHandle): string;
 begin
   Result := '';
-  case AIPVer of
-      Id_IPv4 : Result := Format('%s:%d',[AIP,APort]);
-      Id_IPv6 : Result := Format('[%s]:%d',[AIP,APort]);
+  case ASocketHandle.IPVersion of
+    Id_IPv4 : Result := Format('%s:%d',[ASocketHandle.IP, ASocketHandle.Port]);
+    Id_IPv6 : Result := Format('[%s]:%d',[ASocketHandle.IP, ASocketHandle.Port]);
   end;
 end;
 
@@ -276,23 +276,24 @@ var i : Integer;
 begin
   Result := '';
   for i := 0 to ASocketHandles.Count -1 do begin
-    Result := Result + ',' + GetDisplayString(ASocketHandles[i].IP,ASocketHandles[i].Port,ASocketHandles[i].IPVersion );
+    Result := Result + ',' + GetDisplayString(ASocketHandles[i]);
   end;
   Delete(Result,1,1);
 end;
 
 constructor TIdDsnPropEdBindingVCL.Create(AOwner: TComponent);
-var i : Integer;
+var
+  i : Integer;
 begin
-  inherited CreateNew(AOwner,0);
-  {$IFNDEF WIDGETKYLIX}
+  inherited CreateNew(AOwner, 0);
+  {$IFNDEF WIDGET_KYLIX}
   Borderstyle := bsDialog;
   {$ENDIF}
   BorderIcons := [biSystemMenu];
  // Width := 480;
  // Height := 252;
   ClientWidth  := 472;
-  {$IFDEF USETBITBTN}
+  {$IFDEF USE_TBitBtn}
   ClientHeight := 230;
   {$ELSE}
   ClientHeight := 225;
@@ -316,7 +317,7 @@ begin
   edtPort := TComboBox.Create(Self);
   rdoBindingType := TRadioGroup.Create(Self);
 
-  {$IFDEF USETBITBTN}
+  {$IFDEF USE_TBitBtn}
   btnOk := TBitBtn.Create(Self);
   btnCancel := TBitBtn.Create(Self);
   {$ELSE}
@@ -473,7 +474,7 @@ begin
     Left := 306;
     Top := 193;
     Width := 75;
-    {$IFDEF USETBITBTN}
+    {$IFDEF USE_TBitBtn}
     Height := 30;
     Kind := bkOk;
     {$ELSE}
@@ -493,7 +494,7 @@ begin
     Left := 386;
     Top := 193;
     Width := 75;
-    {$IFDEF USETBITBTN}
+    {$IFDEF USE_TBitBtn}
     Height := 30;
     Kind := bkCancel;
     {$ELSE}
@@ -512,17 +513,16 @@ begin
   SetIPv4Addresses(nil);
   SetIPv6Addresses(nil);
 
-  if Assigned(GStack) then begin
-    fCreatedStack := False;
-  end else begin
-    TIdStack.Make;
-    fCreatedStack := True;
+  TIdStack.IncUsage;
+  try
+    GStack.AddLocalAddressesToList(FIPv4Addresses);
+  finally
+    TIdStack.DecUsage;
   end;
 
-  IPv4Addresses := GStack.LocalAddresses;
+  edtPort.Items.BeginUpdate;
   try
     edtPort.Items.Add(PortDescription(0));
-    edtPort.Items.BeginUpdate;
     for i := 0 to IdPorts.Count - 1 do begin
       edtPort.Items.Add(PortDescription(Integer(IdPorts[i])));
     end;
@@ -532,7 +532,7 @@ begin
 
   AutoScroll := False;
   Caption := RSBindingFormCaption;
-  {$IFDEF WIDGETVCL}
+  {$IFDEF WIDGET_VCL}
   Scaled := False;
   {$ENDIF}
   Font.Color := clBtnText;
@@ -550,9 +550,6 @@ begin
   FreeAndNil(FIPv4Addresses);
   FreeAndNil(FIPv6Addresses);
   FreeAndNil(FHandles);
-  if fCreatedStack then begin
-    FreeAndNil(GStack);
-  end;
   inherited Destroy;
 end;
 
@@ -620,7 +617,7 @@ begin
   begin
     edtIPAddress.Text := '';
     //in LCL, the line below caused an index out of range error.
-    {$IFDEF WIDGETVCL}
+    {$IFDEF WIDGET_VCL}
     edtPort.ItemIndex := -1; //-2;
     {$ENDIF}
     edtPort.Text := '';
@@ -631,13 +628,13 @@ begin
   lblPort.Enabled := Assigned(FCurrentHandle);
   edtPort.Enabled := Assigned(FCurrentHandle);
   rdoBindingType.Enabled := Assigned(FCurrentHandle);
-  {$IFDEF WIDGETKYLIX}
+  {$IFDEF WIDGET_KYLIX}
   //WOrkaround for CLX quirk that might be Kylix 1
   for i := 0 to rdoBindingType.ControlCount -1 do begin
     rdoBindingType.Controls[i].Enabled := Assigned(FCurrentHandle);
   end;
   {$ENDIF}
-  {$IFDEF WIDGETVCLLIKE}
+  {$IFDEF WIDGET_VCL_LIKE}
   //The Win32 VCL does not change the control background to a greyed look
   //when controls are disabled.  This quirk is not present in CLX.
   if Assigned(FCurrentHandle) then
@@ -704,7 +701,12 @@ end;
 
 procedure TIdDsnPropEdBindingVCL.edtPortKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (Key > #31) and (Key < #128) then begin
+  // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
+  // may change characters >= #128 from their Ansi codepage value to their true
+  // Unicode codepoint value, depending on the codepage used for the source code.
+  // For instance, #128 may become #$20AC...
+
+  if (Key > Chr(31)) and (Key < Chr(128)) then begin
     if not IsNumeric(Key) then begin
       Key := #0;
     end;
@@ -792,9 +794,7 @@ begin
     try
       if lbBindings.Items.Count = FHandles.Count then begin
         for i := 0 to FHandles.Count - 1 do begin
-          with FHandles[i] do begin
-            s := GetDisplayString(IP, Port, IPVersion);
-          end;
+          s := GetDisplayString(FHandles[i]);
           if s <> lbBindings.Items[i] then begin
             lbBindings.Items[i] := s;
           end;
@@ -802,9 +802,7 @@ begin
       end else begin
         lbBindings.Items.Clear;
         for i := 0 to FHandles.Count-1 do begin
-          with FHandles[i] do begin
-            lbBindings.Items.Add(GetDisplayString(IP, Port, IPVersion));
-          end;
+          lbBindings.Items.Add(GetDisplayString(FHandles[i]));
         end;
       end;
     finally

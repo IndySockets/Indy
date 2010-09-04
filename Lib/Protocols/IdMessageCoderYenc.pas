@@ -120,6 +120,11 @@ const
 implementation
 
 uses
+  {$IFDEF DOTNET}
+  IdStreamNET,
+  {$ELSE}
+  IdStreamVCL,
+  {$ENDIF}
   IdHashCRC,
   IdResourceStringsProtocols,
   SysUtils;
@@ -162,7 +167,7 @@ function TIdMessageDecoderInfoYenc.CheckForStart(ASender: TIdMessage; const ALin
   var
     LStart: Integer;
   begin
-    LStart := IndyPos('name=', LowerCase(ALine));  {Do not Localize}
+    LStart := IndyPos('name=', LowerCase(ALine)); {Do not Localize}
     if LStart > 0 then begin
       Result := Copy(ALine, LStart+5, MaxInt);
     end else begin
@@ -240,7 +245,7 @@ begin
     // break something, and storing in an extra buffer will just eat space
     while True do
     begin
-      LLine := ReadLnRFC(LMsgEnd, en8Bit);
+      LLine := ReadLnRFC(LMsgEnd, Indy8BitEncoding);
       if (IndyPos('=yend', LowerCase(LLine)) <> 0) or LMsgEnd then {Do not Localize}
       begin
         Break;
@@ -255,7 +260,9 @@ begin
           LChar := Byte(LLine[LLinePos]);
           if LChar = B_EQUALS then begin
             // invalid file, escape character may not appear at end of line
-            EIdMessageYencCorruptionException.IfTrue(LLinePos = Length(LLine), RSYencFileCorrupted);
+            if LLinePos = Length(LLine) then begin
+              EIdMessageYencCorruptionException.Toss(RSYencFileCorrupted);
+            end;
             Inc(LLinePos);
             LChar := Byte(LLine[LLinePos]) - 42 - 64;
           end else begin
@@ -271,13 +278,17 @@ begin
     LH.HashEnd(LHash);
 
     FlushOutputBuffer;
-    EIdMessageYencInvalidSizeException.IfTrue(LPartSize <> LBytesDecoded, RSYencInvalidSize);
+    if LPartSize <> LBytesDecoded then begin
+      EIdMessageYencInvalidSizeException.Toss(RSYencInvalidSize);
+    end;
 
     LCrc32 := LowerCase(GetStrValue(LLine, 'crc32', $FFFF)); {Do not Localize}
     if LCrc32 <> '' then begin
       //done this way because values can be computed faster than strings and we don't
       //have to mess with charactor case.
-      EIdMessageYencInvalidCRCException.IfTrue(IndyStrToInt64('$' + LCrc32) <> LHash, RSYencInvalidCRC);
+      if IndyStrToInt64('$' + LCrc32) <> LHash then begin
+        EIdMessageYencInvalidCRCException.Toss(RSYencInvalidCRC);
+      end;
     end;
   finally
     FreeAndNil(LH);
@@ -301,9 +312,8 @@ procedure TIdMessageEncoderYenc.Encode(ASrc: TStream; ADest: TStream);
 const
   LineSize = 128;
 var
-  i: Integer;
   s: String;
-  LSSize: Int64;
+  i, LSSize: TIdStreamSize;
   LInput: Byte;
   LOutput: Byte;
   LEscape : Byte;
@@ -346,8 +356,7 @@ var
 begin
   SetLength(LOutputBuffer, BUFLEN);
   SetLength(LInputBuffer, BUFLEN);
-  ASrc.Position := 0;
-  LSSize := ASrc.Size;
+  LSSize := IndyLength(ASrc);
   LCurrentLineLength := 0;
   LEscape := B_EQUALS;
   LOutputBufferUsed := 0;
@@ -358,9 +367,11 @@ begin
     s := '=ybegin line=' + IntToStr(LineSize) + ' size=' + IntToStr(LSSize) + ' name=' + FFilename + EOL;  {do not localize}
     WriteStringToStream(ADest, s);
 
-    for i := 0 to ASrc.Size - 1 do
+    i := 0;
+    while i < LSSize do
     begin
       LInput := ReadByteFromInputBuffer;
+      Inc(i);
       LOutput := Byte(LInput) + 42;
       if LOutput in [B_NUL, B_LF, B_CR, B_EQUALS, B_TAB, B_PERIOD] then begin {do not localize}
         AddByteToOutputBuffer(LEscape);

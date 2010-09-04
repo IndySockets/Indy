@@ -23,14 +23,14 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-{$IFDEF DotNet}
+{$IFDEF DOTNET}
   IdStreamNET
 {$ELSE}
   IdStreamVCL
 {$ENDIF};
 
 type
-{$IFDEF DotNet}
+{$IFDEF DOTNET}
   TIdStreamHelper = TIdStreamHelperNET;
 {$ELSE}
   TIdStreamHelper = TIdStreamHelperVCL;

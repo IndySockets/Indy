@@ -38,9 +38,11 @@
 }
 
 unit IdIPMCastClient;
+
+interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
-interface
 
 uses
   IdException,
@@ -53,8 +55,9 @@ uses
 
 const
   DEF_IMP_THREADEDEVENT = False;
+
 type
-	TIPMCastReadEvent = procedure(Sender: TObject; const AData: TIdBytes; ABinding: TIdSocketHandle) of object;
+  TIPMCastReadEvent = procedure(Sender: TObject; const AData: TIdBytes; ABinding: TIdSocketHandle) of object;
 
   TIdIPMCastClient = class;
 
@@ -83,6 +86,7 @@ type
     FCurrentBinding: TIdSocketHandle;
     FListenerThread: TIdIPMCastListenerThread;
     FOnIPMCastRead: TIPMCastReadEvent;
+    FReuseSocket: TIdReuseSocket;
     FThreadedEvent: boolean;
     //
     procedure CloseBinding; override;
@@ -98,13 +102,15 @@ type
     destructor Destroy; override;
     //
   published
+    property IPVersion;
     property Active;
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
     property BufferSize: Integer read FBufferSize write FBufferSize default ID_UDP_BUFFERSIZE;
     property DefaultPort: integer read GetDefaultPort write SetDefaultPort;
     property MulticastGroup;
-    property OnIPMCastRead: TIPMCastReadEvent read FOnIPMCastRead write FOnIPMCastRead;
+    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
     property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default DEF_IMP_THREADEDEVENT;
+    property OnIPMCastRead: TIPMCastReadEvent read FOnIPMCastRead write FOnIPMCastRead;
   end;
 
 implementation
@@ -133,12 +139,7 @@ begin
     // Necessary here - cancels the recvfrom in the listener thread
     FListenerThread.Stop;
     for i := 0 to Bindings.Count - 1 do begin
-      //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
-      //Hope the following is correct for StringToTIn4Addr(), should be checked...
-
-      //GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
-      GStack.DropMulticastMembership(Bindings[i].Handle,FMulticastGroup,'0.0.0.0');
-    //  GBSDStack.SetSocketOption(Bindings[i].Handle,Id_IPPROTO_IP, Id_IP_DROP_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
+      Bindings[i].DropMulticastMembership(FMulticastGroup);
       Bindings[i].CloseSocket;
     end;
     FListenerThread.WaitFor;
@@ -169,25 +170,23 @@ begin
   begin
     if Bindings.Count < 1 then begin
       if DefaultPort > 0 then begin
-        Bindings.Add;
+        Bindings.Add.IPVersion := FIPVersion;
       end else begin
         raise EIdMCastNoBindings.Create(RSNoBindingsSpecified);
       end;
     end;
     for i := 0 to Bindings.Count - 1 do begin
+
 {$IFDEF LINUX}
       Bindings[i].AllocateSocket(LongInt(Id_SOCK_DGRAM));
 {$ELSE}
       Bindings[i].AllocateSocket(Id_SOCK_DGRAM);
 {$ENDIF}
+      if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)) then begin
+        Bindings[i].SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
+      end;
       Bindings[i].Bind;
-      //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
-      //Hope the following is correct for StringToTIn4Addr(), should be checked...
-
-//      GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
-//      Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
-//      GBSDStack.SetSocketOption(Bindings[i].Handle,Id_IPPROTO_IP, Id_IP_ADD_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
-      GStack.AddMulticastMembership(Bindings[i].Handle,FMulticastGroup,Bindings[i].IP, Bindings[i].IPVersion );
+      Bindings[i].AddMulticastMembership(FMulticastGroup);
     end;
     FCurrentBinding := Bindings[0];
     FListenerThread := TIdIPMCastListenerThread.Create(Self);
@@ -234,7 +233,7 @@ begin
   inherited Create(True);
   FAcceptWait := 1000;
   FBufferSize := AOwner.BufferSize;
-  SetLength(FBuffer,FBufferSize);
+  FBuffer := nil;
   FServer := AOwner;
 end;
 
@@ -246,22 +245,24 @@ end;
 procedure TIdIPMCastListenerThread.Run;
 var
   PeerIP: string;
-  PeerPort:TIdPort;
+  PeerPort: TIdPort;
+  PeerIPVersion: TIdIPVersion;
   ByteCount: Integer;
   LReadList: TIdSocketList;
   i: Integer;
   LBuffer : TIdBytes;
 begin
-  SetLength(LBuffer,4096);
+  SetLength(LBuffer, FBufferSize);
+
   // create a socket list to select for read
   LReadList := TIdSocketList.CreateSocketList;
-
   try
     // fill list of socket handles for reading
     for i := 0 to FServer.Bindings.Count - 1 do
     begin
       LReadList.Add(FServer.Bindings[i].Handle);
     end;
+
     // select the handles for reading
     LReadList.SelectRead(AcceptWait);
 
@@ -274,25 +275,21 @@ begin
       if not Stopped then
       begin
         IncomingData := FServer.Bindings.BindingByHandle(TIdStackSocketHandle(LReadList[i]));
-        ByteCount := IncomingData.RecvFrom(LBuffer,PeerIP, PeerPort);
-        if ByteCount = 0 then
+        ByteCount := IncomingData.RecvFrom(LBuffer, PeerIP, PeerPort, PeerIPVersion);
+        if ByteCount <= 0 then
         begin
           raise EIdUDPReceiveErrorZeroBytes.Create(RSIPMCastReceiveError0);
         end;
-        SetLength(FBuffer,ByteCount);
-        CopyTIdBytes(LBuffer,0,FBuffer,0,ByteCount);
-        IncomingData.SetPeer(PeerIP, PeerPort);
-        if FServer.ThreadedEvent then
-        begin
+        SetLength(FBuffer, ByteCount);
+        CopyTIdBytes(LBuffer, 0, FBuffer, 0, ByteCount);
+        IncomingData.SetPeer(PeerIP, PeerPort, PeerIPVersion);
+        if FServer.ThreadedEvent then begin
           IPMCastRead;
-        end
-        else
-        begin
+        end else begin
           Synchronize(IPMCastRead);
         end;
       end;
     end;
-
   finally
     LReadList.Free;
   end;

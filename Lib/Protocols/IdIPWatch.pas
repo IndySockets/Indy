@@ -135,10 +135,14 @@ implementation
 
 uses
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.Threading,
   System.IO,
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysSelect,
+  PosixSysTime,
   {$ENDIF}
   IdGlobal, IdStack, SysUtils;
 
@@ -301,10 +305,9 @@ end;
 procedure TIdIPWatch.SetActive(Value: Boolean);
 begin
   if Value <> FActive then begin
-    FActive := Value;
     if not IsDesignTime then begin
-      if FActive then begin
-        FThread := TIdIPWatchThread.Create;
+      if Value then begin
+        FThread := TIdIPWatchThread.Create(True);
         with FThread do begin
           FSender := Self;
           FTimerEvent := CheckStatus;
@@ -318,6 +321,7 @@ begin
         end;
       end;
     end;
+    FActive := Value;
   end;
 end;
 
@@ -357,7 +361,7 @@ begin
       LInterval := 0;
     end;
     if Terminated then begin
-      exit;
+      Exit;
     end;
     Synchronize(TimerEvent);
   end;

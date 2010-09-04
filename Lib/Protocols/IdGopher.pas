@@ -430,9 +430,9 @@ end;
 procedure TIdGopher.GetFile (ASelector : String; ADestStream : TStream;
   IsGopherPlus : Boolean = False;
   AView: String = '');    {Do not Localize}
-var Reply : Char;
-    LengthBytes : Integer;  {legnth of the gopher items}
-
+var
+  Reply : Char;
+  LengthBytes : Integer;  {legnth of the gopher items}
 begin
   Connect;
   try
@@ -448,7 +448,7 @@ begin
       AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
       IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
       {We read only one byte from the peer}
-      Reply := IOHandler.ReadChar;
+      Reply := Char(IOHandler.ReadByte);
       {Get the additonal reply code for error or success}
       case Reply of
         '-' : begin    {Do not Localize}
@@ -482,8 +482,9 @@ end;
 
 function TIdGopher.GetMenu ( ASelector : String; IsGopherPlus : Boolean = False; AView : String = '' ) :    {Do not Localize}
       TIdGopherMenu;
-var Reply : Char;
-    LengthBytes : Integer;  {legnth of the gopher items}
+var
+  Reply : Char;
+  LengthBytes : Integer;  {legnth of the gopher items}
 begin
   Result := nil;
   Connect;
@@ -498,7 +499,7 @@ begin
       {Gopher does not give a greating}
       IOHandler.WriteLn ( ASelector + TAB+'+' + AView );    {Do not Localize}
       {We read only one byte from the peer}
-      Reply := IOHandler.ReadChar;
+      Reply := Char(IOHandler.ReadByte);
       {Get the additonal reply code for error or success}
       case Reply of
         '-' : begin    {Do not Localize}
@@ -531,7 +532,7 @@ begin
     {Gopher does not give a greating}
     IOHandler.WriteLn(ASelector + TAB + '$' + AView);    {Do not Localize}
     {We read only one byte from the peer}
-    Reply := IOHandler.ReadChar;
+    Reply := Char(IOHandler.ReadByte);
     {Get the additonal reply code for error or success}
     case Reply of
       '-' : begin    {Do not Localize}
@@ -553,9 +554,9 @@ end;
 
 procedure TIdGopher.GetTextFile(ASelector: String; ADestStream: TStream;
   IsGopherPlus: Boolean; AView: String);
-var Reply : Char;
-    LengthBytes : Integer;  {length of the gopher items}
-
+var
+  Reply : Char;
+  LengthBytes : Integer;  {length of the gopher items}
 begin
   Connect;
   try
@@ -571,7 +572,7 @@ begin
       AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
       IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
       {We read only one byte from the peer}
-      Reply := IOHandler.ReadChar;
+      Reply := Char(IOHandler.ReadByte);
       {Get the additonal reply code for error or success}
       case Reply of
         '-' : begin    {Do not Localize}
@@ -631,13 +632,13 @@ end;
 constructor TIdGopherMenuItem.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
-  FGopherBlock := TIdHeaderList.Create;
+  FGopherBlock := TIdHeaderList.Create(QuotePlain);
   {we don't unfold or fold lines as headers in that block start with a space}    {Do not Localize}
   FGopherBlock.UnfoldLines := False;
   FGopherBlock.FoldLines := False;
   FViews := TStringList.Create;
   FAbstract := TStringList.Create;
-  FAsk := TIdHeaderList.Create;
+  FAsk := TIdHeaderList.Create(QuotePlain);
   fAdminEmail := TIdEMailAddressItem.Create ( nil );
 end;
 

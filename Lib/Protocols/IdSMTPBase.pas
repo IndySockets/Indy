@@ -99,10 +99,12 @@ uses
 //default property values
 const
   DEF_SMTP_PIPELINE = False;
-  IdDEF_UseEhlo = TRUE; //APR: default behavior
+  IdDEF_UseEhlo = True; //APR: default behavior
+  IdDEF_UseVerp = False;
 
 const
   CAPAPIPELINE = 'PIPELINING';  {do not localize}
+  CAPAVERP = 'VERP';            {do not localize}
   XMAILER_HEADER = 'X-Mailer';  {do not localize}
 
 const
@@ -127,7 +129,9 @@ type
     FMailAgent: string;
     FHeloName : String;
     FPipeline : Boolean;
-    FUseEHLO : Boolean;
+    FUseEhlo : Boolean;
+    FUseVerp : Boolean;
+    FVerpDelims: string;
     FOnFailedRecipient: TIdSMTPFailedRecipient;
     //
     function GetSupportsTLS : Boolean; override;
@@ -142,20 +146,25 @@ type
     //No pipeline send methods
     function WriteRecipientNoPipelining(const AEmailAddress: TIdEmailAddressItem): Boolean;
     procedure WriteRecipientsNoPipelining(AList: TIdEmailAddressList);
-    procedure SendNoPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); overload;
+    procedure SendNoPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
     //pipeline send methods
     procedure WriteRecipientPipeLine(const AEmailAddress: TIdEmailAddressItem);
     procedure WriteRecipientsPipeLine(AList: TIdEmailAddressList);
     procedure SendPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
-    procedure InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); overload;
+    //
+    procedure InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); virtual;
   public
     procedure Send(AMsg: TIdMessage); overload; virtual;
     procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList); overload; virtual;
+    procedure Send(AMsg: TIdMessage; const AFrom: string); overload; virtual;
+    procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList; const AFrom: string); overload; virtual;
   published
     property MailAgent: string read FMailAgent write FMailAgent;
     property HeloName : string read FHeloName write FHeloName;
     property UseEhlo: Boolean read FUseEhlo write SetUseEhlo default IdDEF_UseEhlo;
     property PipeLine : Boolean read FPipeLine write SetPipeline default DEF_SMTP_PIPELINE;
+    property UseVerp: Boolean read FUseVerp write FUseVerp default IdDEF_UseVerp;
+    property VerpDelims: string read FVerpDelims write FVerpDelims;
     //
     property OnFailedRecipient: TIdSMTPFailedRecipient read FOnFailedRecipient write FOnFailedRecipient;
   end;
@@ -183,6 +192,7 @@ begin
   FRegularProtPort := IdPORT_SMTP;
   FPipeLine := DEF_SMTP_PIPELINE;
   FUseEhlo := IdDEF_UseEhlo;
+  FUseVerp := IdDEF_UseVerp;
   FMailAgent := '';
   FHeloName := '';
   Port := IdPORT_SMTP;
@@ -242,9 +252,22 @@ begin
 end;
 
 procedure TIdSMTPBase.SendNoPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
+var
+  LCmd: string;
 begin
+  LCmd := MAILFROM_CMD + ' <' + AFrom + '>';    {Do not Localize}
+  if FUseVerp then begin
+    if Capabilities.IndexOf(CAPAVERP) > -1 then begin
+      LCmd := LCmd + ' VERP';                   {Do not Localize}
+    end else begin
+      LCmd := LCmd + ' XVERP';                  {Do not Localize}
+    end;
+    if FVerpDelims <> '' then begin
+     LCmd := LCmd + '=' + FVerpDelims;          {Do not Localize}
+    end;
+  end;
   SendCmd(RSET_CMD);
-  SendCmd(MAILFROM_CMD + ' <' + AFrom + '>', MAILFROM_ACCEPT);    {Do not Localize}
+  SendCmd(LCmd, MAILFROM_ACCEPT);
   try
     WriteRecipientsNoPipelining(ARecipients);
     SendCmd(DATA_CMD, DATA_ACCEPT);
@@ -262,6 +285,8 @@ procedure TIdSMTPBase.SendPipelining(AMsg: TIdMessage; const AFrom: String; ARec
 var
   LError : TIdReplySMTP;
   I, LFailedRecips : Integer;
+  LCmd: string;
+  LBufferingStarted: Boolean;
 
   function SetupErrorReply: TIdReplySMTP;
   begin
@@ -273,15 +298,35 @@ var
 
 begin
   LError := nil;
+  LCmd := MAILFROM_CMD + ' <' + AFrom + '>';    {Do not Localize}
+  if FUseVerp then begin
+    if Capabilities.IndexOf(CAPAVERP) > -1 then begin
+      LCmd := LCmd + ' VERP';                   {Do not Localize}
+    end else begin
+      LCmd := LCmd + ' XVERP';                  {Do not Localize}
+    end;
+    if FVerpDelims <> '' then begin
+     LCmd := LCmd + '=' + FVerpDelims;          {Do not Localize}
+    end;
+  end;
   try
-    IOHandler.WriteBufferOpen;
+    LBufferingStarted := not IOHandler.WriteBufferingActive;
+    if LBufferingStarted then begin
+      IOHandler.WriteBufferOpen;
+    end;
     try
       IOHandler.WriteLn(RSET_CMD);
-      IOHandler.WriteLn(MAILFROM_CMD + ' <' + AFrom + '>');
+      IOHandler.WriteLn(LCmd);
       WriteRecipientsPipeLine(ARecipients);
       IOHandler.WriteLn(DATA_CMD);
-    finally
-      IOHandler.WriteBufferClose;
+      if LBufferingStarted then begin
+        IOHandler.WriteBufferClose;
+      end;
+    except
+      if LBufferingStarted then begin
+        IOHandler.WriteBufferCancel;
+      end;
+      raise;
     end;
     //RSET
     if PosInSmallIntArray(GetResponse, RSET_ACCEPT) = -1 then begin
@@ -427,6 +472,8 @@ begin
   end;
 end;
 
+// this version of Send() uses the TIdMessage to determine both the
+// sender and the recipients...
 procedure TIdSMTPBase.Send(AMsg: TIdMessage);
 var
   LRecipients: TIdEMailAddressList;
@@ -442,9 +489,45 @@ begin
   end;
 end;
 
+// this version of Send() uses the TIdMessage to determine the
+// sender, but sends to the caller's specified recipients
 procedure TIdSMTPBase.Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList);
+var
+  LSender: string;
 begin
-  InternalSend(AMsg, AMsg.From.Address, ARecipients);
+  LSender := Trim(AMsg.Sender.Address);
+  if LSender = '' then begin
+    LSender := Trim(AMsg.From.Address);
+  end;
+  InternalSend(AMsg, LSender, ARecipients);
+end;
+
+// this version of Send() uses the TIdMessage to determine the
+// recipients, but sends using the caller's specified sender.
+// The sender can be empty, which is useful for server-generated
+// error messages...
+procedure TIdSMTPBase.Send(AMsg: TIdMessage; const AFrom: string);
+var
+  LRecipients: TIdEMailAddressList;
+begin
+  LRecipients := TIdEMailAddressList.Create(Self);
+  try
+    LRecipients.AddItems(AMsg.Recipients);
+    LRecipients.AddItems(AMsg.CCList);
+    LRecipients.AddItems(AMsg.BccList);
+    Send(AMsg, LRecipients, AFrom);
+  finally
+    FreeAndNil(LRecipients);
+  end;
+end;
+
+// this version of Send() uses the caller's specified sender and
+// recipients.  The sender can be empty, which is useful for
+// server-generated error messages...
+procedure TIdSMTPBase.Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList;
+  const AFrom: string);
+begin
+  InternalSend(AMsg, AFrom, ARecipients);
 end;
 
 end.

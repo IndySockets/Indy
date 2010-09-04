@@ -95,6 +95,7 @@ type
     function Run: Boolean; override;
     procedure AfterRun; override;
     procedure HandleException(AException: Exception); override;
+    function GetBinding: TIdSocketHandle;
   public
     constructor Create(
       AConnection: TIdTCPConnection;
@@ -103,8 +104,8 @@ type
       ); reintroduce; virtual;
     destructor Destroy; override;
     procedure RemoveFromList;
-    function Binding: TIdSocketHandle;
     //
+    property Binding: TIdSocketHandle read GetBinding;
     property Connection: TIdTCPConnection read FConnection;
     //
     property OnAfterRun: TIdContextEvent read FOnAfterRun write FOnAfterRun;
@@ -188,7 +189,7 @@ begin
   end;
 end;
 
-function TIdContext.Binding: TIdSocketHandle;
+function TIdContext.GetBinding: TIdSocketHandle;
 begin
   Result := nil;
   if Connection <> nil then begin

@@ -90,13 +90,14 @@ type
 
   TIdVMBFSFTPListItem = class(TIdFTPListItem);
 
-  TIdFTPLPVMCMS = class(TIdFTPListBase)
+  TIdFTPLPVMCMS = class(TIdFTPListBaseHeaderOpt)
   protected
+    class function IsHeader(const AData : String): Boolean; override;
     class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
+    class function CheckListingAlt(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
   TIdFTPLPVMBFS = class(TIdFTPListBase)
@@ -115,36 +116,53 @@ type
   public
     class function GetIdent : String; override;
     class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
+
   end;
+
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseVM"'*)
 
 implementation
 
 uses
+  IdException,
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
   SysUtils;
 
+function IsFileMode(const AStr : String) : Boolean;
+begin
+  Result := CharIsInSet(AStr,1,'ABCDEFGHIJKLMNOPQRSTUV') and
+    CharIsInSet(AStr,2,'0123456');
+end;
+
 { TIdFTPLPVMCMS }
 
-class function TIdFTPLPVMCMS.CheckListing(AListing: TStrings; const ASysDescript: String;
+class function TIdFTPLPVMCMS.CheckListingAlt(AListing: TStrings; const ASysDescript: String;
   const ADetails: Boolean): Boolean;
 const
   VMTypes : array [1..3] of string = ('F','V','DIR'); {do not localize}
 var
   LData : String;
+
 begin
   Result := False;
-  if AListing.Count > 0 then
-  begin
+  if AListing.Count > 0 then begin
     LData := AListing[0];
-    Result := PosInStrArray(Trim(Copy(LData, 19, 3)), VMTypes) <> -1;
-    if Result then
-    begin
-      Result := (Copy(LData, 56, 1) = '/') and (Copy(LData, 59, 1) = '/'); {do not localize}
-      if not Result then
-      begin
-        Result := (Copy(LData, 58, 1) = '-') and (Copy(LData, 61, 1) = '-'); {do not localize}
+    if IsFileMode(Trim(Copy(LData, 19, 3))) then begin
+       Result := PosInStrArray(Trim(Copy(LData, 22, 3)), VMTypes) <> -1;
+       if Result then begin
+         Result := IsMMDDYY(Trim(Copy(LData,52,10)),'/');
+       end;
+    end else begin
+      Result := PosInStrArray(Trim(Copy(LData, 19, 3)), VMTypes) <> -1;
+      if Result then begin
+        Result := (Copy(LData, 56, 1) = '/') and (Copy(LData, 59, 1) = '/'); {do not localize}
         if not Result then begin
-          Result := (Copy(LData, 48, 1) = '-') and (Copy(LData, 51, 1) = '-'); {do not localize}
+          Result := (Copy(LData, 58, 1) = '-') and (Copy(LData, 61, 1) = '-'); {do not localize}
+          if not Result then begin
+            Result := (Copy(LData, 48, 1) = '-') and (Copy(LData, 51, 1) = '-'); {do not localize}
+          end;
         end;
       end;
     end;
@@ -154,6 +172,11 @@ end;
 class function TIdFTPLPVMCMS.GetIdent: String;
 begin
   Result := 'VM/CMS'; {do not localize}
+end;
+
+class function TIdFTPLPVMCMS.IsHeader(const AData: String): Boolean;
+begin
+  Result := Trim(AData) = 'Filename FileType  Fm Format Lrecl  Records Blocks Date      Time'
 end;
 
 class function TIdFTPLPVMCMS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
@@ -168,6 +191,10 @@ var
   LCols : TStrings;
   LI : TIdVMCMSFTPListItem;
   LSize : Int64;
+  LPRecLn,LLRecLn : Integer;
+  LPRecNo, LLRecNo : Integer;
+  LPBkNo,LLBkNo : Integer;
+  LPCol : Integer;
 begin
 {Some of this is based on the following:
 
@@ -190,8 +217,24 @@ README   ANONYMOU V         71         26          1 1997-04-02 12:33:20 TCP291
 or maybe this:
 
 ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
-23456789012345678901234567890123456789012345678901234567890123456789012
+123456789012345678901234567890123456789012345678901234567890123456789012
          1         2         3         4         5         6         7
+
+or possibly this FILELIST format:
+
+Filename FileType  Fm Format Lrecl  Records Blocks Date      Time
+LASTING  GLOBALV   A1 V      41     21     1       9/16/91   15:10:32
+J43401   NETLOG    A0 V      77     1      1       9/12/91   12:36:04
+PROFILE  EXEC      A1 V      17     3      1       9/12/91   12:39:07
+DIRUNIX  SCRIPT    A1 V      77     1216   17      1/04/93   20:30:47
+MAIL     PROFILE   A2 F      80     1      1       10/14/92  16:12:27
+BADY2K   TEXT      A0 V      1      1      1       1/03/102  10:11:12
+AUTHORS            A1 DIR    -      -      -       9/20/99   10:31:11
+---------------
+
+123456789012345678901234567890123456789012345678901234567890123456789012
+         1         2         3         4         5         6         7
+
 }
   LI := AItem as TIdVMCMSFTPListItem;
   //File Name
@@ -208,19 +251,39 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
   end;
   //Record format
   LBuffer := Trim(Copy(AItem.Data, 19, 3));
+  if IsFileMode(LBuffer) then begin
+    LBuffer := Trim(Copy(AItem.Data, 23, 3));
+    LPRecLn := 30;
+    LLRecLn :=  7;
+    LPRecNo := 37;
+    LLRecNo := 7;
+    LPBkNo := 44;
+    LLBkNo := 8;
+    LPCol := 52;
+  end else begin
+    LPRecLn := 22;
+    LLRecLn := 9;
+    LPRecNo := 31;
+    LLRecNo := 11;
+    LPBkNo := 42;
+    LLBkNo := 11;
+    if (Copy(AItem.Data, 48, 1) = '-') and (Copy(AItem.Data, 51, 1) = '-') then begin {do not localize}
+      LPCol := 44;
+    end else begin
+      LPCol := 54;
+    end;
+  end;
   LI.RecFormat := LBuffer;
-  if LI.RecFormat = 'DIR' then {do not localize}
-  begin
+  if LI.RecFormat = 'DIR' then begin {do not localize}
     LI.ItemType := ditDirectory;
     LI.RecLength := 0;
-  end else
-  begin
+  end else begin
     LI.ItemType := ditFile;
     //Record Length - for files
-    LBuffer := Copy(AItem.Data, 22, 9);
+    LBuffer := Copy(AItem.Data, LPRecLn, LLRecLn);
     LI.RecLength := IndyStrToInt(LBuffer, 0);
     //Record numbers
-    LBuffer := Trim(Copy(AItem.Data, 31, 11));
+    LBuffer := Trim(Copy(AItem.Data, LPRecNo, LLRecNo));
     LBuffer := Fetch(LBuffer);
     LI.NumberRecs := IndyStrToInt(LBuffer, 0);
     //Number of Blocks
@@ -243,7 +306,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
 
     Anyway, you can not know from the directory list.
     }
-    LBuffer := Trim(Copy(AItem.Data, 42, 11));
+    LBuffer := Trim(Copy(AItem.Data, LPBkNo, LLBkNo));
     LI.NumberBlocks := IndyStrToInt(LBuffer, 0);
     LI.Size := LI.RecLength * LI.NumberRecs;
     //File Size - note that this is just an estimiate
@@ -264,12 +327,14 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
 
     For virtual reader files, a size of 0 is always indicated.}
 
-    if LI.RecFormat = 'V' then
-    begin
+    if LI.RecFormat = 'V' then begin
       LSize := LI.NumberBlocks * 4096;
       if LI.Size > LSize then begin
         LI.Size := LSize;
       end;
+    end;
+    if LI.RecFormat = 'DIR' then begin
+      LI.SizeAvail := False;
     end;
   end;
   LCols := TStringList.Create;
@@ -279,24 +344,17 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     //and some columns could be off.
     //Note that the start position in one server it's column 44 while in others, it's column 54
     // handle both cases.
-    if (Copy(AItem.Data, 48, 1) = '-') and (Copy(AItem.Data, 51, 1) = '-') then begin {do not localize}
-      LBuffer := Trim(Copy(AItem.Data, 44, MaxInt));
-    end else begin
-      LBuffer := Trim(Copy(AItem.Data, 54, MaxInt));
-    end;
+    LBuffer := Trim(Copy(AItem.Data, LPCol, MaxInt));
     SplitColumns(LBuffer,LCols);
     //LCols - 0 - Date
     //LCols - 1 - Time
     //LCols - 2 - Owner if present
-    if LCols.Count > 0 then
-    begin
+    if LCols.Count > 0 then begin
       //date
-      if IsNumeric(Copy(LCols[0], 1, 3)) then
-      begin
+      if IsNumeric(LCols[0], 3) then begin
         // vm.sc.edu date stamps yyyy-mm-dd
         LI.ModifiedDate := DateYYMMDD(LCols[0]);
-      end else
-      begin
+      end else begin
         //Note that the date is displayed as 2 digits not 4 digits
         //mm/dd/yy
         LI.ModifiedDate := DateMMDDYY(LCols[0]);
@@ -345,11 +403,9 @@ var
 begin
   Result := False;
 
-  if AListing.Count > 0 then
-  begin
+  if AListing.Count > 0 then begin
     //should have a "'" as the terminator
-    if AListing[0] <> '' then
-    begin
+    if AListing[0] <> '' then begin
       if not TextEndsWith(AListing[0], '''') then begin
         Exit;
       end;
@@ -357,8 +413,7 @@ begin
     s := TStringList.Create;
     try
       SplitColumns(TrimRight(AListing[0]), s);
-      if s.Count > 4 then
-      begin
+      if s.Count > 4 then begin
         if not IsMMDDYY(s[0], '/') then begin {do not localize}
           Exit;
         end;
@@ -427,13 +482,10 @@ begin
     end;
     //file size
     if LCols.Count > 4 then begin
-      if IsNumeric(LCols[3]) then
-      begin
+      if IsNumeric(LCols[3]) then begin
         AItem.Size := IndyStrToInt64(LCols[4], 0);
         AItem.SizeAvail := True;
-      end
-      else
-      begin
+      end else begin
         AItem.SizeAvail := False;
       end;
     end;
@@ -451,13 +503,11 @@ var
   s : TStrings;
 begin
   Result := False;
-  if AListing.Count > 0 then
-  begin
+  if AListing.Count > 0 then begin
     s := TStringList.Create;
     try
       SplitColumns(AListing[0], s);
-      if s.Count > 2 then
-      begin
+      if s.Count > 2 then begin
         if (Length(s[0]) = 4) and IsNumeric(s[0]) then begin
           Result := (Length(s[2]) = 8) and (IsNumeric(s[2]));
         end;

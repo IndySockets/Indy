@@ -416,6 +416,7 @@ unit IdFTPList;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -430,6 +431,8 @@ type
   TIdDirItemType = (ditDirectory, ditFile, ditSymbolicLink, ditSymbolicLinkDir,
     ditBlockDev, ditCharDev, ditFIFO, ditSocket);
 
+  TIdFTPFileName = TIdUnicodeString;
+
   TIdFTPListItems = class;
 
   // TIdFTPListItem stores an item in the FTP directory listing
@@ -437,8 +440,8 @@ type
   protected
     FSize: Int64;
     FData: string;
-    FFileName: string;
-    FLocalFileName : string; //suggested file name for local file
+    FFileName: TIdFTPFileName;
+    FLocalFileName : TIdFTPFileName; //suggested file name for local file
     FSizeAvail : Boolean;
     FModifiedAvail : Boolean;
     FModifiedDate: TDateTime;
@@ -458,7 +461,7 @@ type
     //The format veries amoung systems.  This is only provided for people
     //wanting to display a "permission column in their FTP listing
     //property set methods
-    procedure SetFileName(const AValue : String);
+    procedure SetFileName(const AValue : TIdFTPFileName);
     //may be used by some descendent classes
     property ModifiedDateGMT : TDateTime read FModifiedDateGMT write FModifiedDateGMT;
   public
@@ -470,8 +473,8 @@ type
     property Size: Int64 read FSize write FSize;
     property ModifiedDate: TDateTime read FModifiedDate write FModifiedDate;
 
-    property FileName: string read FFileName write SetFileName;
-    property LocalFileName : string read FLocalFileName write FLocalFileName;
+    property FileName: TIdFTPFileName read FFileName write SetFileName;
+    property LocalFileName : TIdFTPFileName read FLocalFileName write FLocalFileName;
     property ItemType: TIdDirItemType read FItemType write FItemType;
     property SizeAvail : Boolean read FSizeAvail write FSizeAvail;
     property ModifiedAvail : Boolean read FModifiedAvail write FModifiedAvail;
@@ -580,7 +583,7 @@ begin
   end;
 end;
 
-procedure TIdFTPListItem.SetFileName(const AValue: String);
+procedure TIdFTPListItem.SetFileName(const AValue: TIdFTPFileName);
 var
   i : Integer;
   LDoLowerCase : Boolean;
@@ -593,6 +596,7 @@ begin
     //prefer lower case filenames.  We do not want to force lowercase if a file
     //has both uppercase and lowercase because the uppercase letters are probably intentional
     LDoLowerCase := True;
+    // TODO: add IsLower() functions in IdGlobal/Protocol?
     for i := 1 to Length(AValue) do begin
       if CharIsInSet(AValue, i, LLowCase) then begin
         LDoLowerCase := False;

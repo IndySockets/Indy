@@ -394,7 +394,9 @@ var
   LTmp, LBuf: string;
   LValidPart: string;
 begin
-  EIdSMTPReplyInvalidReplyString.IfFalse(IsValidReplyCode(AText), RSSMTPReplyInvalidReplyStr);
+  if not IsValidReplyCode(AText) then begin
+    EIdSMTPReplyInvalidReplyString.Toss(RSSMTPReplyInvalidReplyStr);
+  end;
   LTmp := AText;
   LBuf := Fetch(LTmp);
   if LBuf <> '' then begin
@@ -414,7 +416,9 @@ end;
 
 procedure TIdSMTPEnhancedCode.SetStatusClass(const AValue: Cardinal);
 begin
-  EIdSMTPReplyInvalidClass.IfFalse(AValue in ValidClassVals, RSSMTPReplyInvalidClass);
+  if not (AValue in ValidClassVals) then begin
+    EIdSMTPReplyInvalidClass.Toss(RSSMTPReplyInvalidClass);
+  end;
   FStatusClass := AValue;
 end;
 

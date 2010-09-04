@@ -103,6 +103,7 @@ implementation
 
 uses
   SysUtils,
+  IdException,
   IdGlobal,
   IdGlobalProtocols;
 
@@ -147,8 +148,6 @@ begin
 end;
 
 function IsWhiteString(const AStr: String): Boolean;
-const
-  WhiteSet = TAB+CHAR32;    {do not localize}
 var
   i: Integer;
   LLen: Integer;
@@ -160,10 +159,10 @@ begin
   begin
     for i := 1 to LLen do
     begin
-      if not CharIsInSet(AStr, i, WhiteSet) then
+      if not CharIsInSet(AStr, i, LWS) then
       begin
         Result := FALSE;
-        break;
+        Break;
       end;
     end;
   end;

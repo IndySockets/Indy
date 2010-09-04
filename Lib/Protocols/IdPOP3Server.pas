@@ -222,7 +222,7 @@ const
   ERR = '-ERR';   {do not localize}
 
 type
-  TIdPOP3ServerContext = class(TIdContext)
+  TIdPOP3ServerContext = class(TIdServerContext)
   protected
     // what needs to be stored...
     fUsername : String;
@@ -320,6 +320,7 @@ type
 implementation
 
 uses
+  IdFIPS,
   IdGlobalProtocols, IdHash,
   IdHashMessageDigest,
   IdReplyPOP3,
@@ -330,8 +331,8 @@ uses
 procedure TIdPOP3Server.DoConnect(AContext: TIdContext);
 begin
   if AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase then begin
-    if FUseTLS=utUseImplicitTLS then begin
-      TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough:=false;
+    if FUseTLS = utUseImplicitTLS then begin
+      TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
     end;
   end;
   inherited DoConnect(AContext);
@@ -534,33 +535,27 @@ var
  LValidHash : String;
 begin
   LThread := TIdPOP3ServerContext(aCmd.Context);
-  if not LThread.Authenticated then
-  begin
-    if (FUseTLS = utUseRequireTLS) and (aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then
-    begin
+  if not LThread.Authenticated then begin
+    if (FUseTLS = utUseRequireTLS) and
+      (aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then begin
       MustUseTLS(aCmd);
-    end
-    else
-    begin
+    end else begin
       if Assigned(fCommandAPOP) then
       begin
-       OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
-       with TIdHashMessageDigest5.Create do
-       try
-         LValidHash := IndyLowerCase(HashStringAsHex(LThread.APOP3Challenge + LValidPassword));
-       finally Free; end;
+        OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
+        with TIdHashMessageDigest5.Create do
+        try
+          LValidHash := IndyLowerCase(HashStringAsHex(LThread.APOP3Challenge + LValidPassword));
+        finally Free; end;
 
         LThread.fAuthenticated := (LValidHash = aCmd.Params[1]);
 
-       // User to set return state of LThread.State as required.
-       if not LThread.Authenticated then
-       begin
-         aCmd.Reply.SetReply(ST_ERR,RSPOP3SvrLoginFailed);
-       end
-       else
-       begin
-         aCmd.Reply.SetReply(ST_OK,RSPOP3SvrLoginOk);
-       end;
+        // User to set return state of LThread.State as required.
+        if not LThread.Authenticated then begin
+          aCmd.Reply.SetReply(ST_ERR,RSPOP3SvrLoginFailed);
+        end else begin
+          aCmd.Reply.SetReply(ST_OK,RSPOP3SvrLoginOk);
+        end;
       end
       else
       begin
@@ -633,17 +628,18 @@ end;
 
 procedure TIdPOP3Server.CommandSTLS(aCmd: TIdCommand);
 begin
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (FUseTLS in ExplicitTLSVals) then begin
+  if (aCmd.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS in ExplicitTLSVals) then begin
     if TIdPOP3ServerContext(aCmd.Context).UsingTLS then begin // we are already using TLS
-      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrNotPermittedWithTLS);    {Do not Localize}
+      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrNotPermittedWithTLS);
       Exit;
     end;
     if TIdPOP3ServerContext(aCmd.Context).Authenticated then begin //STLS only allowed in auth-state
-      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrNotInThisState);    {Do not Localize}
+      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrNotInThisState);
       Exit;
     end;
     aCmd.Reply.SetReply(ST_OK, RSPOP3SvrbeginTLSNegotiation);
-    (aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).Passthrough := False;
+    aCmd.SendReply;
+    TIdSSLIOHandlerSocketBase(aCmd.Context.Connection.IOHandler).Passthrough := False;
   end else begin
     aCmd.Reply.SetReply(ST_ERR, IndyFormat(RSPOP3SVRNotHandled, ['STLS']));    {do not localize}
   end;
@@ -656,7 +652,9 @@ begin
   // RLebeau: in case no capabilities are specified, the terminating '.' still has to be sent.
   aCmd.SendEmptyResponse := True;
 
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (FUseTLS in ExplicitTLSVals) then
+  if (aCmd.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and
+    TIdSSLIOHandlerSocketBase(aCmd.Context.Connection.IOHandler).Passthrough and
+    (FUseTLS in ExplicitTLSVals) then
   begin
     aCmd.Response.Add('STLS'); {do not localize}
   end;
@@ -726,10 +724,10 @@ end;
 
 { TIdPOP3ServerContext }
 
-function TIdPOP3ServerContext.GetUsingTLS:boolean;
+function TIdPOP3ServerContext.GetUsingTLS: Boolean;
 begin
-  Result:=Connection.IOHandler is TIdSSLIOHandlerSocketBase;
-  if result then begin
+  Result := Connection.IOHandler is TIdSSLIOHandlerSocketBase;
+  if Result then begin
     Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
   end;
 end;
@@ -747,7 +745,7 @@ var
   LGreeting : TIdReplyPOP3;
 begin
 //  AGreeting.Code := OK; {do not localize}
-  if Assigned(fCommandAPOP) then
+  if ( not GetFIPSMode ) and Assigned(fCommandAPOP) then
   begin
     LThread := TIdPOP3ServerContext(AContext);
     LGreeting := TIdReplyPOP3.Create(nil);

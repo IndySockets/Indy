@@ -201,7 +201,8 @@ uses
   IdSASLCollection,
   IdSMTPBase,
   IdBaseComponent,
-  IdGlobal;
+  IdGlobal,
+  SysUtils;
 
 type
   TIdSMTPAuthenticationType = (satNone, satDefault, satSASL);
@@ -216,6 +217,7 @@ type
     FAuthType: TIdSMTPAuthenticationType;
     // This is just an internal flag we use to determine if we already authenticated to the server.
     FDidAuthenticate: Boolean;
+    FValidateAuthLoginCapability: Boolean;
     // FSASLMechanisms : TIdSASLList;
     FSASLMechanisms : TIdSASLEntries;
     //
@@ -224,6 +226,7 @@ type
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
     procedure InitComponent; override;
+    procedure InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
 
     //
@@ -236,8 +239,8 @@ type
     procedure Connect; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure DisconnectNotifyPeer; override;
-    class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText: string);
-    procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList); override;
+    class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText: string); overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ContentType overload of QuickSend()'{$ENDIF};{$ENDIF}
+    class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText, AContentType, ACharset, AContentTransferEncoding: string); overload;
     procedure Expand(AUserName : String; AResults : TStrings); virtual;
     function Verify(AUserName : String) : String; virtual;
     //
@@ -252,6 +255,8 @@ type
     property SASLMechanisms : TIdSASLEntries read FSASLMechanisms write SetSASLMechanisms;
     property UseTLS;
     property Username;
+    property ValidateAuthLoginCapability: Boolean read FValidateAuthLoginCapability
+      write FValidateAuthLoginCapability default True;
     //
     property OnTLSNotAvailable;
   end;
@@ -264,7 +269,7 @@ uses
   IdReplySMTP,
   IdSSL,
   IdResourceStringsProtocols,
-  IdTCPConnection, SysUtils;
+  IdTCPConnection;
 
 { TIdSMTP }
 
@@ -317,37 +322,48 @@ begin
     satDefault:
       begin
         if Username <> '' then begin
-          s := SASLMechanisms.ParseCapaReply(Capabilities);
-          try
-            //many servers today do not use username/password authentication
-            if s.IndexOf('LOGIN') > -1 then begin
-              with TIdEncoderMIME.Create(nil) do try
-                SendCmd('AUTH LOGIN', 334);
-                SendCmd(Encode(Username), 334);
-                SendCmd(Encode(Password), 235);
-              finally
-                Free;
+          if FValidateAuthLoginCapability then begin
+            s := TStringList.Create;
+            try
+              SASLMechanisms.ParseCapaReplyToList(Capabilities, s);
+              //many servers today do not use username/password authentication
+              if s.IndexOf('LOGIN') = -1 then begin
+                Result := False;
+                Exit;
               end;
-              FDidAuthenticate := True;
+            finally
+              FreeAndNil(s);
+            end;
+          end;
+          with TIdEncoderMIME.Create(nil) do try
+            SendCmd('AUTH LOGIN', 334);
+            if SendCmd(Encode(Username), [235, 334]) = 334 then begin
+              SendCmd(Encode(Password), 235);
             end;
           finally
-            FreeAndNil(s);
+            Free;
           end;
+          FDidAuthenticate := True;
         end;
 {
         RLebeau: TODO - implement the following code in the future
         instead of the code above.  This way, TIdSASLLogin can be utilized.
 
-        EIdSASLMechNeeded.IfTrue(SASLMechanisms.Count = 0, RSASLRequired);
+        if SASLMechanisms.Count = 0 then begin
+          EIdSASLMechNeeded.Toss(RSASLRequired);
+        end;
         FDidAuthenticate := SASLMechanisms.LoginSASL('AUTH', 'LOGIN', ['235'], ['334'], Self, Capabilities);
 }
       end;
     satSASL:
       begin
-        EIdSASLMechNeeded.IfTrue(SASLMechanisms.Count = 0, RSASLRequired);
+        if SASLMechanisms.Count = 0 then begin
+          EIdSASLMechNeeded.Toss(RSASLRequired);
+        end;
         FDidAuthenticate := SASLMechanisms.LoginSASL('AUTH',FHost,IdGSKSSN_smtp, ['235'], ['334'], Self, Capabilities); {do not localize}
       end;
   end;
+
   Result := FDidAuthenticate;
 end;
 
@@ -369,6 +385,7 @@ begin
   inherited InitComponent;
   FSASLMechanisms := TIdSASLEntries.Create(Self);
   FAuthType := DEF_SMTP_AUTH;
+  FValidateAuthLoginCapability := True;
 end;
 
 procedure TIdSMTP.DisconnectNotifyPeer;
@@ -382,7 +399,9 @@ begin
   SendCMD('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
 end;
 
-class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText : String);
+procedure InternalQuickSend(const AHost, ASubject, ATo, AFrom, AText,
+  AContentType, ACharset, AContentTransferEncoding: String);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LSMTP: TIdSMTP;
   LMsg: TIdMessage;
@@ -394,6 +413,9 @@ begin
         Recipients.EMailAddresses := ATo;
         From.Text := AFrom;
         Body.Text := AText;
+        ContentType := AContentType;
+        CharSet := ACharset;
+        ContentTransferEncoding := AContentTransferEncoding;
       end;
       with LSMTP do begin
         Host := AHost;
@@ -405,14 +427,25 @@ begin
   finally FreeAndNil(LSMTP); end;
 end;
 
-procedure TIdSMTP.Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList);
+class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText: String);
+begin
+  InternalQuickSend(AHost, ASubject, ATo, AFrom, AText, '', '', '');
+end;
+
+class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText,
+  AContentType, ACharset, AContentTransferEncoding: String);
+begin
+  InternalQuickSend(AHost, ASubject, ATo, AFrom, AText, AContentType, ACharset, AContentTransferEncoding);
+end;
+
+procedure TIdSMTP.InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
 begin
   //Authenticate now calls StartTLS
   //so that you do not send login information before TLS negotiation (big oops security wise).
   //It also should see if authentication should be done according to your settings.
   Authenticate;
   AMsg.ExtraHeaders.Values[XMAILER_HEADER] := MailAgent;
-  inherited Send(AMsg, ARecipients);
+  inherited InternalSend(AMsg, AFrom, ARecipients);
 end;
 
 procedure TIdSMTP.SetAuthType(const AValue: TIdSMTPAuthenticationType);

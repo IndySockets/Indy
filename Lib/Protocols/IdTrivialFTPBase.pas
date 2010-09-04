@@ -44,15 +44,13 @@ uses
 type
   TIdTFTPMode = (tfNetAscii, tfOctet);
 
-type
-  WordStr = string[2];
-
 // Procs
-  function MakeAckPkt(const BlockNumber: Word): string;
-  procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; ErrorString: string); overload;
-  procedure SendError(UDPClient: TIdUDPClient; const ErrNumber: Word; ErrorString: string); overload;
-  procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; E: Exception); overload;
-  procedure SendError(UDPClient: TIdUDPClient; E: Exception); overload;
+
+function MakeActPkt(const BlockNumber: Word): TIdBytes;
+procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string); overload;
+procedure SendError(UDPClient: TIdUDPClient; const ErrNumber: Word; const ErrString: string); overload;
+procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; E: Exception); overload;
+procedure SendError(UDPClient: TIdUDPClient; E: Exception); overload;
 
 const  // TFTP opcodes
   TFTP_RRQ   = 1;
@@ -62,14 +60,7 @@ const  // TFTP opcodes
   TFTP_ERROR = 5;
   TFTP_OACK  = 6;  // see RFC 1782 and 1783
 
-const  // various
-  MaxWord = High(Word);
-  hdrsize = 4;           // TFTP Headersize on DATA packets (opcode + block#)
-  sBlockSize = 'blksize'#0;    {Do not Localize}
-  // TFTP RFC 1782/1783 allows an optional blocksize to be specified
-  // A blocksize of 8192 bytes generates far less ACK packets than 512 bytes blocks
-
-const  // tftp error codes
+const  // TFTP error codes
   ErrUndefined               = 0;
   ErrFileNotFound            = 1;
   ErrAccessViolation         = 2;
@@ -80,24 +71,39 @@ const  // tftp error codes
   ErrNoSuchUser              = 7;
   ErrOptionNegotiationFailed = 8;
 
+const
+  // TFTP options
+  sBlockSize = 'blksize';  {do not localize}
+  sTransferSize = 'tsize'; {do not localize}
+
 implementation
 
 uses
   IdGlobalProtocols, IdExceptionCore, IdStack;
 
-function MakeAckPkt(const BlockNumber: Word): string;
+function MakeActPkt(const BlockNumber: Word): TIdBytes;
 begin
-  Result := WordToStr(GStack.HostToNetwork(TFTP_ACK)) + WordToStr(GStack.HostToNetwork(BlockNumber));
+  SetLength(Result, 4);
+  CopyTIdWord(GStack.HostToNetwork(Word(TFTP_ACK)), Result, 0);
+  CopyTIdWord(GStack.HostToNetwork(BlockNumber), Result, 2);
 end;
 
-procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; ErrorString: string);
+procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string);
+var
+  Buffer, LErrStr: TIdBytes;
 begin
-  UDPBase.Send(APeerIP, APort, WordToStr(GStack.HostToNetwork(Word(TFTP_ERROR))) + WordToStr(ErrNumber) + ErrorString + #0);
+  LErrStr := ToBytes(ErrString); 
+  SetLength(Buffer, 4 + Length(LErrStr) + 1);
+  CopyTIdWord(GStack.HostToNetwork(Word(TFTP_ERROR)), Buffer, 0);
+  CopyTIdWord(GStack.HostToNetwork(ErrNumber), Buffer, 2);
+  CopyTIdBytes(LErrStr, 0, Buffer, 4, Length(LErrStr));
+  Buffer[4 + Length(LErrStr)] := 0;
+  UDPBase.SendBuffer(APeerIP, APort, Buffer);
 end;
 
-procedure SendError(UDPClient: TIdUDPClient; const ErrNumber: Word; ErrorString: string);
+procedure SendError(UDPClient: TIdUDPClient; const ErrNumber: Word; const ErrString: string);
 begin
-  SendError(UDPClient, UDPClient.Host, UDPClient.Port, ErrNumber, ErrorString);
+  SendError(UDPClient, UDPClient.Host, UDPClient.Port, ErrNumber, ErrString);
 end;
 
 procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; E: Exception);

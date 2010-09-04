@@ -61,8 +61,6 @@ uses
   IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection;
 
 // TODO: MIME should be integrated into this.
-// TODO: SASL mechanism support needs to coded
-// TODO: This needs to be completely based on UTF8
 
 type
   TIdDICTAuthenticationType = (datDefault, datSASL);
@@ -114,6 +112,7 @@ type
 implementation
 
 uses
+  IdFIPS,
   IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, SysUtils;
 
 const
@@ -129,12 +128,13 @@ var
 begin
   LBuf := '';
   FCapabilities.Clear;
+
   FServer := '';
   try
     inherited Connect;
+    IOHandler.DefStringEncoding := TIdTextEncoding.UTF8;
     GetResponse(220);
-    if LastCmdResult.Text.Count > 0 then
-    begin
+    if LastCmdResult.Text.Count > 0 then begin
       // 220 pan.alephnull.com dictd 1.8.0/rf on Linux 2.4.18-14 <auth.mime> <258510.25288.1078409724@pan.alephnull.com>
       LBuf := LastCmdResult.Text[0];
       //server
@@ -144,24 +144,18 @@ begin
       //One server I tested with has no feature negotiation at all and it returns something
       //like this:
       //220 dict.org Ho Ngoc Duc's DICT server 2.2 <1078465742246@dict.org>
-      if (IndyPos('@',LFeat)=0) and (IndyPos('<',LBuf)>0) then
-      begin
+      if (IndyPos('@',LFeat)=0) and (IndyPos('<',LBuf)>0) then begin
          BreakApart ( LFeat, '.', FCapabilities );
-      end
-      else
-      begin
+      end else begin
         LBuf := '<'+LFeat+'>';
       end;
       //LBuf is now for the APOP3 like Challenge
       LBuf := Trim(LBuf);
     end;
     SendCmd('CLIENT '+FClient); {do not localize}
-    if FAuthType = datDefault then
-    begin
-      if IsCapaSupported('auth') then {do not localize}
-      begin
-        if (FPassword <> '') and (FUserName <> '') then
-        begin
+    if FAuthType = datDefault then begin
+      if IsCapaSupported('auth') then begin {do not localize}
+        if GetFIPSMode and (FPassword <> '') and (FUserName <> '') then begin
           with TIdHashMessageDigest5.Create do
           try
             S := LowerCase(HashStringAsHex(LBuf+Password));
@@ -171,13 +165,10 @@ begin
           SendCmd('AUTH ' + Username + ' ' + S, 230); {do not localize}
         end;
       end;
-    end
-    else
-    begin
+    end else begin
        FSASLMechanisms.LoginSASL('SASLAUTH',FHost, 'dict', ['230'], ['330'], Self, FCapabilities, ''); {do not localize}
     end;
-    if FTryMIME and IsCapaSupported('MIME') then {do not localize}
-    begin
+    if FTryMIME and IsCapaSupported('MIME') then begin {do not localize}
       SendCmd('OPTION MIME'); {do not localize}
     end;
   except
@@ -193,8 +184,7 @@ begin
   AResults.Clear;
   SendCmd('DEFINE '+ ADBName + ' ' + AWord); {do not localize}
   repeat
-    if (LastCmdResult.NumericCode div 100) = 1 then
-    begin
+    if (LastCmdResult.NumericCode div 100) = 1 then begin
       //Good, we got a response
       LBuf := LastCmdResult.Text[0];
       case LastCmdResult.NumericCode of
@@ -220,9 +210,7 @@ begin
         end;
       end;
       Self.GetInternalResponse;
-    end
-    else
-    begin
+    end else begin
       Break;
     end;
   until False;
@@ -230,12 +218,9 @@ end;
 
 procedure TIdDICT.Define(const AWord : String; AResults : TIdDefinitions; const AGetAll : Boolean = True);
 begin
-  if AGetAll then
-  begin
+  if AGetAll then begin
     Define(AWord,'*',AResults);
-  end
-  else
-  begin
+  end else begin
     Define(AWord,'!',AResults);
   end;
 end;
@@ -300,8 +285,7 @@ begin
   LS := TStringList.Create;
   try
     InternalGetStrs(ACmd,LS);
-    for i := 0 to LS.Count - 1 do
-    begin
+    for i := 0 to LS.Count - 1 do begin
       LEnt := AENtries.Add as TIdGeneric;
       s := LS[i];
       LEnt.Name := Fetch(s);
@@ -317,8 +301,7 @@ procedure TIdDICT.InternalGetStrs(const ACmd: String; AStrs: TStrings);
 begin
   AStrs.Clear;
   SendCmd(ACmd);
-  if (LastCmdResult.NumericCode div 100) = 1 then
-  begin
+  if (LastCmdResult.NumericCode div 100) = 1 then begin
     IOHandler.Capture(AStrs);
     GetInternalResponse;
   end;
@@ -329,8 +312,7 @@ var
   i : Integer;
 begin
   Result := False;
-  for i := 0 to FCapabilities.Count-1 do
-  begin
+  for i := 0 to FCapabilities.Count-1 do begin
     Result := TextIsSame(ACapa, FCapabilities[i]);
     if Result then begin
       Break;
@@ -350,8 +332,7 @@ begin
   LS := TStringList.Create;
   try
     InternalGetStrs('MATCH '+ADBName+' '+AStrat+' '+AWord,LS); {do not localize}
-    for i := 0 to LS.Count -1 do
-    begin
+    for i := 0 to LS.Count -1 do begin
       s := LS[i];
       LM := AResults.Add;
       LM.DB := Fetch(s);
@@ -366,12 +347,9 @@ end;
 procedure TIdDICT.Match(const AWord, AStrat: String;
   AResults: TIdMatchList; const AGetAll: Boolean);
 begin
-  if AGetAll then
-  begin
+  if AGetAll then begin
     Match(AWord,'*','.',AResults);
-  end
-  else
-  begin
+  end else begin
     Match(AWord,'!','.',AResults);
   end;
 end;
@@ -386,8 +364,7 @@ procedure TIdDICT.SetClient(const AValue: String);
 //RFC 2229 says that a CLIENT command should always be
 //sent immediately after connection.
 begin
-  if AValue <> '' then
-  begin
+  if AValue <> '' then begin
     FClient := AValue;
   end;
 end;

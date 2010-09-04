@@ -139,10 +139,14 @@ type
     FSendStream: TStream;
     FStreamType: TIdIOHandlerStreamType;
     //
+    procedure InitComponent; override;
     function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
     function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     function SourceIsAvailable: Boolean; override;
+    function CheckForError(ALastResult: Integer): Integer; override;
+    procedure RaiseError(AError: Integer); override;
   public
+    function StreamingAvailable: Boolean;
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
       AIgnoreBuffer: Boolean = False); override;
     constructor Create(AOwner: TComponent; AReceiveStream: TStream; ASendStream: TStream = nil); reintroduce; overload; virtual;
@@ -154,9 +158,9 @@ type
     //
     property ReceiveStream: TStream read FReceiveStream;
     property SendStream: TStream read FSendStream;
+    property StreamType: TIdIOHandlerStreamType read FStreamType;
   published
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
-    property StreamType: TIdIOHandlerStreamType read FStreamType;
     //
     property OnGetStreams: TIdOnGetStreams read FOnGetStreams write FOnGetStreams;
   end;
@@ -164,17 +168,40 @@ type
 implementation
 
 uses
-  SysUtils;
+  IdException, IdComponent, SysUtils;
 
 { TIdIOHandlerStream }
+
+procedure TIdIOHandlerStream.InitComponent;
+begin
+  inherited InitComponent;
+  FDefStringEncoding := Indy8BitEncoding;
+end;
 
 procedure TIdIOHandlerStream.CheckForDisconnect(
   ARaiseExceptionIfDisconnected: Boolean = True;
   AIgnoreBuffer: Boolean = False);
+var
+  LDisconnected: Boolean;
 begin
-  FClosedGracefully := not Self.Connected;
-  if FClosedGracefully and ARaiseExceptionIfDisconnected then begin
-    RaiseConnClosedGracefully;
+  // ClosedGracefully // Server disconnected
+  // IOHandler = nil // Client disconnected
+  if ClosedGracefully then begin
+    if StreamingAvailable then begin
+      Close;
+      // Call event handlers to inform the user that we were disconnected
+      DoStatus(hsDisconnected);
+      //DoOnDisconnected;
+    end;
+    LDisconnected := True;
+  end else begin
+    LDisconnected := not StreamingAvailable;
+  end;
+  // Do not raise unless all data has been read by the user
+  if LDisconnected then begin
+    if (InputBufferIsEmpty or AIgnoreBuffer) and ARaiseExceptionIfDisconnected then begin
+      RaiseConnClosedGracefully;
+    end;
   end;
 end;
 
@@ -187,7 +214,7 @@ begin
   end;
 end;
 
-function TIdIOHandlerStream.Connected: Boolean;
+function TIdIOHandlerStream.StreamingAvailable: Boolean;
 begin
   Result := False;  // Just to avoid warning message
   case FStreamType of
@@ -195,6 +222,11 @@ begin
     stWrite: Result := Assigned(SendStream);
     stReadWrite: Result := Assigned(ReceiveStream) and Assigned(SendStream);
   end;
+end;
+
+function TIdIOHandlerStream.Connected: Boolean;
+begin
+  Result := (StreamingAvailable and inherited Connected) or (not InputBufferIsEmpty);
 end;
 
 constructor TIdIOHandlerStream.Create(AOwner: TComponent);
@@ -250,9 +282,13 @@ begin
   // We dont want to read the whole stream in at a time. If its a big
   // file will consume way too much memory by loading it all at once.
   // So lets read it in chunks.
-  Result := IndyMin(32 * 1024, Length(VBuffer));
-  if Result > 0 then begin
-    Result := TIdStreamHelper.ReadBytes(FReceiveStream, VBuffer, Result);
+  if Assigned(FReceiveStream) then begin
+    Result := IndyMin(32 * 1024, Length(VBuffer));
+    if Result > 0 then begin
+      Result := TIdStreamHelper.ReadBytes(FReceiveStream, VBuffer, Result);
+    end;
+  end else begin
+    Result := 0;
   end;
 end;
 
@@ -261,13 +297,26 @@ begin
   if Assigned(FSendStream) then begin
     Result := TIdStreamHelper.Write(FSendStream, ABuffer, ALength, AOffset);
   end else begin
-    Result := 0;
+    Result := IndyLength(ABuffer, ALength, AOffset);
   end;
 end;
 
 function TIdIOHandlerStream.SourceIsAvailable: Boolean;
 begin
   Result := Assigned(ReceiveStream);
+end;
+
+function TIdIOHandlerStream.CheckForError(ALastResult: Integer): Integer;
+begin
+  Result := ALastResult;
+  if Result < 0 then begin
+    raise EIdException.Create('Stream error'); {do not localize}
+  end;
+end;
+
+procedure TIdIOHandlerStream.RaiseError(AError: Integer);
+begin
+  raise EIdException.Create('Stream error'); {do not localize}
 end;
 
 end.

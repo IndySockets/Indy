@@ -59,7 +59,7 @@ type
   TIdAttachmentMemory = class(TIdAttachment)
   protected
     FDataStream: TStream;
-    FDataStreamBeforeLoadPosition: Int64;
+    FDataStreamBeforeLoadPosition: TIdStreamSize;
 
     function GetDataString: string;
     procedure SetDataStream(const Value: TStream);
@@ -123,7 +123,7 @@ end;
 
 function TIdAttachmentMemory.GetDataString: string;
 var
-  Pos: Int64;
+  Pos: TIdStreamSize;
 begin
   Pos := FDataStream.Position;
   try

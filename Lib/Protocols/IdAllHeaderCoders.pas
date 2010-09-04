@@ -13,13 +13,19 @@ ABSOLUTELY NO CODE is permitted in this unit.
 
 }
 
+// RLebeau 2/14/09: this forces C++Builder to link to this unit so
+// the units can register themselves correctly at program startup...
+(*$HPPEMIT '#pragma link "IdAllHeaderCoders"'*)
+
 implementation
 
 uses
   IdHeaderCoderPlain,
   IdHeaderCoder2022JP,
-  {$IFDEF DOTNET}IdHeaderCoderDotNet,{$ENDIF}
-  IdHeaderCoderUTF8;
+  {$IFNDEF DOTNET}
+  IdHeaderCoderUTF,
+  {$ENDIF}
+  IdHeaderCoderIndy;
 
 {dee-duh-de-duh, that's all folks.}
 

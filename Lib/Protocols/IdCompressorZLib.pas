@@ -94,8 +94,10 @@ type
   EIdDecompressionError = class(EIdCompressionException);
 
 implementation
+
 uses
-  IdComponent, IdResourceStringsProtocols, IdGlobal, IdGlobalProtocols, IdZLib;
+  IdAntiFreezeBase, IdComponent, IdResourceStringsProtocols, IdGlobal,
+  IdGlobalProtocols, IdZLib, SysUtils;
 
 const
   bufferSize = 32768;
@@ -107,15 +109,20 @@ procedure TIdCompressorZLib.InternalDecompressStream(
 {Note that much of this is taken from the ZLibEx unit and adapted to use the IOHandler}
 var
   zresult  : Integer;
-  outBuffer: Array [0..bufferSize-1] of Char;
+  outBuffer: Array [0..bufferSize-1] of AnsiChar;
   inSize   : Integer;
   outSize  : Integer;
   LBuf : TIdBytes;
 
   function RawReadFromIOHandler(ABuffer : TIdBytes; AOIHandler : TIdIOHandler; AMax : Integer) : Integer;
   begin
-    //We don't use the IOHandler.ReadBytes because that will check for disconnect and
-    //raise an exception that we don't want.
+    //We don't use the IOHandler.ReadBytes because that will check
+    // for disconnect and raise an exception that we don't want.
+
+    // RLebeau 3/26/09: we need to raise exceptions here!  The socket component
+    // that is performing the IO needs to know what is happening on the socket...
+
+    {
     repeat
       AIOHandler.CheckForDataOnSource(1);
       Result := IndyMin(AIOHandler.InputBuffer.Size, AMax);
@@ -124,25 +131,47 @@ var
         Break;
       end;
     until not AIOHandler.Connected;
+    }
+
+    // copied from TIdIOHandler.ReadStream() and trimmed down...
+    try
+      AIOHandler.ReadBytes(ABuffer, AMax, False);
+    except
+      on E: Exception do begin
+        // RLebeau - ReadFromSource() inside of ReadBytes()
+        // could have filled the InputBuffer with more bytes
+        // than actually requested, so don't extract too
+        // many bytes here...
+        AMax := IndyMin(AMax, AIOHandler.InputBuffer.Size);
+        AIOHandler.InputBuffer.ExtractToBytes(ABuffer, AMax, False);
+        if not (E is EIdConnClosedGracefully) then begin
+          raise;
+        end;
+      end;
+    end;
+    TIdAntiFreezeBase.DoProcess;
+    Result := AMax;
   end;
 
 begin
-  SetLength(LBuf,bufferSize);
-  inSize := RawReadFromIOHandler(LBuf, AIOHandler, bufferSize);
-  while inSize > 0 do
-  begin
-    LZstream.next_in := @LBuf[0];
+  SetLength(LBuf, bufferSize);
+  repeat
+    inSize := RawReadFromIOHandler(LBuf, AIOHandler, bufferSize);
+    if inSize < 1 then begin
+      Break;
+    end;
+
+    LZstream.next_in := PAnsiChar(@LBuf[0]);
     LZstream.avail_in := inSize;
+
     repeat
       LZstream.next_out := outBuffer;
       LZstream.avail_out := bufferSize;
-
       DCheck(inflate(LZstream,Z_NO_FLUSH));
       outSize := bufferSize - LZstream.avail_out;
-      AOutStream.Write(outBuffer,outSize);
+      AOutStream.Write(outBuffer, outSize);
     until (LZstream.avail_in = 0) and (LZstream.avail_out > 0);
-    inSize := RawReadFromIOHandler(LBuf, AIOHandler, bufferSize);
-  end;
+  until False;
   { From the ZLIB FAQ at http://www.gzip.org/zlib/FAQ.txt
 
  5. deflate() or inflate() returns Z_BUF_ERROR
@@ -156,19 +185,19 @@ begin
     it is not possible to tell whether or not there is more output pending
     when strm.avail_out returns with zero.
 }
-    repeat
-      LZstream.next_out := outBuffer;
-      LZstream.avail_out := bufferSize;
+  repeat
+    LZstream.next_out := outBuffer;
+    LZstream.avail_out := bufferSize;
 
-      zresult := inflate(LZstream,Z_FINISH);
-      if zresult<>Z_BUF_ERROR then
-      begin
-        zresult := DCheck(zresult);
-      end;
-      outSize := bufferSize - LZstream.avail_out;
-      AOutStream.Write(outBuffer,outSize);
+    zresult := inflate(LZstream, Z_FINISH);
+    if zresult <> Z_BUF_ERROR then
+    begin
+      zresult := DCheck(zresult);
+    end;
+    outSize := bufferSize - LZstream.avail_out;
+    AOutStream.Write(outBuffer, outSize);
 
-    until ((zresult = Z_STREAM_END) and (LZstream.avail_out > 0)) or (zresult = Z_BUF_ERROR);
+  until ((zresult = Z_STREAM_END) and (LZstream.avail_out > 0)) or (zresult = Z_BUF_ERROR);
 
   DCheck(inflateEnd(LZstream));
 end;
@@ -214,8 +243,8 @@ var
   LCompressRec : TZStreamRec;
 
   zresult  : Integer;
-  inBuffer : Array [0..bufferSize-1] of Char;
-  outBuffer: Array [0..bufferSize-1] of Char;
+  inBuffer : Array [0..bufferSize-1] of AnsiChar;
+  outBuffer: Array [0..bufferSize-1] of AnsiChar;
   inSize   : Integer;
   outSize  : Integer;
 begin

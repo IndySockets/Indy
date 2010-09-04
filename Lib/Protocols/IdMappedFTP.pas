@@ -98,7 +98,7 @@ type
     FPort, FoutboundPort: TIdPort;
     FDataChannelThread: TIdMappedFtpDataThread;
     //
-    procedure CheckForData(DoRead: Boolean); override;
+    procedure HandleLocalClientData; override;
     //
     function GetFtpCmdLine: string; //Cmd+' '+Params    {Do not Localize}
     procedure CreateDataChannelThread;
@@ -196,51 +196,33 @@ begin
   FoutboundPort := 0;
 end;
 
-procedure TIdMappedFtpContext.CheckForData(DoRead: Boolean);
+procedure TIdMappedFtpContext.HandleLocalClientData;
+var
+  s: String;
 begin
-  if DoRead then
-  begin
-    if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then
+  repeat
+    s := Connection.IOHandler.ReadLn;  //USeR REQuest
+    if Length(s) > 0 then
     begin
-      if FDataAvailList.ContainsSocket(FOutboundClient.Socket.Binding.Handle) then begin
-        FOutboundClient.IOHandler.CheckForDataOnSource(0);
-      end;
-      if FDataAvailList.ContainsSocket(Connection.Socket.Binding.Handle) then begin
-        Connection.IOHandler.CheckForDataOnSource(0);
-      end;
-    end;        
-  end;
-  // FTP Server
-  if not FOutboundClient.IOHandler.InputBufferIsEmpty then
-  begin
-    FNetData := FOutboundClient.IOHandler.InputBufferAsString;
-    TIdMappedFTP(Server).DoOutboundClientData(Self);
-    Connection.IOHandler.Write(FNetData);
-  end;
-  // FTP Client
-  while not Connection.IOHandler.InputBufferIsEmpty do
-  begin
-    FNetData := Connection.IOHandler.ReadLn;  //USeR REQuest
-    if Length(FNetData) > 0 then
-    begin
-      FFtpParams := FNetData;
+      FFtpParams := s;
       FFtpCommand := UpperCase(Fetch(FFtpParams, ' ', True));    {Do not Localize}
-      if ProcessFtpCommand then begin
-        TIdMappedFTP(Server).DoLocalClientData(Self); //bServer
-      end else
+
+      FNetData := ToBytes(FtpCmdLine, Connection.IOHandler.DefStringEncoding);
+      TIdMappedFTP(Server).DoLocalClientData(Self); //bServer
+
+      if not ProcessFtpCommand then
       begin
-        TIdMappedFTP(Server).DoLocalClientData(Self); //bServer
         FOutboundClient.IOHandler.WriteLn(FtpCmdLine); //send USRREQ to FtpServer
         ProcessDataCommand;
       end;
     end;
-  end;
+  until Connection.IOHandler.InputBufferIsEmpty;
 end;
 
 procedure TIdMappedFtpContext.CreateDataChannelThread;
 begin
   FDataChannelThread := TIdMappedFtpDataThread.Create(Self);
-  //  FDataChannelThread.OnException := TIdTCPServer(FConnection.Server).OnException;
+  //FDataChannelThread.OnException := TIdTCPServer(FConnection.Server).OnException;
 end;
 
 procedure TIdMappedFtpContext.ProcessDataCommand;
@@ -334,7 +316,7 @@ var
 
   procedure SendPort;
   begin
-    OutboundHost := (OutboundClient.Socket.Binding.IP);
+    OutboundHost := OutboundClient.Socket.Binding.IP;
 
     DataChannelThread.FOutboundClient := TIdSimpleServer.Create(nil);
 

@@ -61,7 +61,7 @@ uses
   IdComponent,
   IdException,
   IdUserAccounts,
-  IdGlobal;
+  IdGlobal, SysUtils;
 
 const
   DEF_MAXCount = 900;
@@ -119,11 +119,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure UserDisconnected(const AUser : String); override;
-        //Challenge user is a nice backdoor for some things we will do in a descendent class
-    function  ChallengeUser(var VIsSafe : Boolean; const AUserName : String) : String; override;
-    procedure SaveUserAccounts(const AIniFile : String);
-    procedure LoadUserAccounts(const AIniFile : String);
+    function SendsChallange : Boolean; override;
     property Accounts : TIdOTPUserAccounts  read FAccounts;
+
   published
     property DefaultPassword : String read FDefaultPassword write SetDefaultPassword;
     property MaxCount : LongWord read FMaxCount write SetMaxCount default DEF_MAXCount;
@@ -159,8 +157,7 @@ var
 begin
   randomize;
   MaxChar := Length(CharMap) - 1;
-  for i := 1 to NumChar do
-  begin
+  for i := 1 to NumChar do begin
     // Add one because CharMap is 1-based
     Result := Result + CharMap[Random(maxChar) + 1];
   end;
@@ -176,10 +173,8 @@ var
   i : Integer;
 begin
   Result := (ASeed <> '') and (Length(ASeed) < 17);
-  if Result then
-  begin
-    for i := 1 to Length(ASeed) do
-    begin
+  if Result then begin
+    for i := 1 to Length(ASeed) do begin
       if not CharIsInSet(ASeed, i, CharMap) then begin
         Result := False;
         Break;
@@ -199,10 +194,8 @@ var
   i : Integer;
 begin
   Result := '';
-  for i := 1 to Length(AString) do
-  begin
-    if not (AString[i] in LWS) then
-    begin
+  for i := 1 to Length(AString) do begin
+    if not (AString[i] in LWS) then begin
       Result := Result + LowerCase(AString[i]);
     end;
   end;
@@ -220,8 +213,7 @@ begin
     Exit;
   end;
   VIsSafe := not LUser.Authenticating;
-  if VIsSafe then
-  begin
+  if VIsSafe then begin
   //Note that we want to block any attempts to access the server after the challanage
   //is given.  This is required to prevent a race condition that a hacker can
   //exploit.
@@ -285,13 +277,17 @@ end;
 
 procedure TIdOTPUserManager.SetDefaultPassword(const AValue: String);
 begin
-  EIdOTPInvalidPassword.IfFalse(IsValidPassword(AValue), RSOTP_InvalidPassword);
+  if not IsValidPassword(AValue) then begin
+    EIdOTPInvalidPassword.Toss(RSOTP_InvalidPassword);
+  end;
   FDefaultPassword := AValue;
 end;
 
 procedure TIdOTPUserManager.SetMaxCount(const AValue: LongWord);
 begin
-  EIdOTPInvalidCount.IfFalse(AValue > 1, RSOTP_InvalidCount);
+  if AValue <= 1 then begin
+    EIdOTPInvalidCount.Toss(RSOTP_InvalidCount);
+  end;
   FMaxCount := AValue;
 end;
 
@@ -386,8 +382,7 @@ begin
   if (not Result) and (LHexOTP <> '') then begin
     Result := (LRecPass = LHexOTP);
   end;
-  if Result then
-  begin
+  if Result then begin
     FNoReenter.Acquire;
     try
       if CurrentCount = 0 then begin
@@ -416,15 +411,24 @@ end;
 
 procedure TIdOTPUserAccount.SetPassword(const AValue: String);
 begin
-  raise EIdOTPInvalidPassword.IfFalse(IsValidPassword(AValue), RSOTP_InvalidPassword);
+  if not IsValidPassword(AValue) then begin
+    EIdOTPInvalidPassword.Toss(RSOTP_InvalidPassword);
+  end;
   inherited SetPassword(AValue);
 end;
 
 procedure TIdOTPUserAccount.SetSeed(const AValue: String);
 begin
-  EIdOTPInvalidSeed.IfFalse(IsValidSeed(LowerCase(AValue)), RSOTP_SeedBadFormat);
+  if not IsValidSeed(LowerCase(AValue)) then begin
+    EIdOTPInvalidSeed.Toss(RSOTP_SeedBadFormat);
+  end;
   FSeed := LowerCase(AValue);
   FCurrentCount := TIdOTPUserManager(TIdOTPUserAccounts(Collection).GetOwner).MaxCount;
+end;
+
+function TIdOTPUserAccount.SendsChallange : Boolean;
+begin
+   Result := True;
 end;
 
 end.

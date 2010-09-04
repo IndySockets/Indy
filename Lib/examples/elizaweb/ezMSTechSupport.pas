@@ -18,8 +18,9 @@
 unit ezMSTechSupport;
 
 interface
+{$ifdef fpc}
 {$mode objfpc}{$H+}
-
+{$endif}
 uses
   EZPersonality;
 

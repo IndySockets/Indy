@@ -1,5 +1,7 @@
 unit IdCTypes;
+
 interface
+
 {$i IdCompilerDefines.inc}
 
 {This unit should not contain ANY program code.  It is meant to be extremely 
@@ -8,6 +10,7 @@ and API calls using the headers.  The unit is here because in cross-platform
 headers, the types may not always be the same as they would for Win32 on x86
 Intel architecture.  We also want to be completely compatiable with Borland
 Delphi for Win32.}
+
 {$IFDEF FPC}
 uses
   ctypes;
@@ -74,8 +77,7 @@ type
   TIdC_LONGDOUBLE = clongdouble;
   PIdC_LONGDOUBLE =  pclongdouble;
 
-  {$ENDIF}
-  {$IFNDEF FPC}
+  {$ELSE}
   //this is necessary because Borland still doesn't support QWord
   // (unsigned 64bit type).
   qword = Int64;
@@ -125,14 +127,14 @@ type
   TIdC_UINT64 = qword;
   PIdC_UINT64 = ^TIdC_UINT64;
 
-    TIdC_FLOAT = single;
+  TIdC_FLOAT = single;
   PIdC_FLOAT = ^TIdC_FLOAT;
   TIdC_DOUBLE = double;
   PIdC_DOUBLE = ^TIdC_DOUBLE;
   TIdC_LONGDOUBLE = extended;
   PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE;
 
-    {$IFNDEF VCL6ORABOVE}
+    {$IFNDEF VCL_6_OR_ABOVE}
     //Some headers require this in D5 or earlier.
     //FreePascal already has this in its system unit.
   PByte = ^Byte;
@@ -140,7 +142,6 @@ type
     {$ENDIF}
   {$ENDIF}
     
-
 implementation
 
 end.

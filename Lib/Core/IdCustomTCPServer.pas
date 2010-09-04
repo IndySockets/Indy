@@ -292,12 +292,21 @@ type
   TIdServerThreadExceptionEvent = procedure(AContext: TIdContext; AException: Exception) of object;
   TIdServerThreadEvent = procedure(AContext: TIdContext) of object;
 
+  TIdServerContext = class(TIdContext)
+  protected
+    FServer: TIdCustomTCPServer;
+  public
+    property Server: TIdCustomTCPServer read FServer;
+  end;
+
+  TIdServerContextClass = class of TIdServerContext;
+
   TIdCustomTCPServer = class(TIdComponent)
   protected
     FActive: Boolean;
     FScheduler: TIdScheduler;
     FBindings: TIdSocketHandles;
-    FContextClass: TIdContextClass;
+    FContextClass: TIdServerContextClass;
     FImplicitScheduler: Boolean;
     FImplicitIOHandler: Boolean;
     FIntercept: TIdServerIntercept;
@@ -316,12 +325,14 @@ type
     FOnBeforeBind: TIdSocketHandleEvent;
     FOnAfterBind: TNotifyEvent;
     FOnBeforeListenerRun: TIdNotifyThreadEvent;
+    FUseNagle : Boolean;
     //
     procedure CheckActive;
     procedure CheckOkToBeActive;  virtual;
     procedure ContextCreated(AContext: TIdContext); virtual;
     procedure ContextConnected(AContext: TIdContext); virtual;
     procedure ContextDisconnected(AContext: TIdContext); virtual;
+    function CreateConnection: TIdTCPConnection; virtual;
     procedure DoBeforeBind(AHandle: TIdSocketHandle); virtual;
     procedure DoAfterBind; virtual;
     procedure DoBeforeListenerRun(AThread: TIdThread); virtual;
@@ -359,7 +370,7 @@ type
     procedure StopListening;
     //
     property Contexts: TThreadList read FContexts;
-    property ContextClass: TIdContextClass read FContextClass write FContextClass;
+    property ContextClass: TIdServerContextClass read FContextClass write FContextClass;
     property ImplicitIOHandler: Boolean read FImplicitIOHandler;
     property ImplicitScheduler: Boolean read FImplicitScheduler;
   published
@@ -382,6 +393,12 @@ type
     property OnException: TIdServerThreadExceptionEvent read FOnException write FOnException;
     property OnListenException: TIdListenExceptionEvent read FOnListenException write FOnListenException;
     property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
+//UseNagle should be set to true in most cases.
+//See: http://tangentsoft.net/wskfaq/intermediate.html#disable-nagle and
+//   http://tangentsoft.net/wskfaq/articles/lame-list.html#item19
+//The Nagle algorithm reduces the amount of needless traffic.  Disabling Nagle
+//program’s throughput to degrade.
+    property UseNagle: boolean read FUseNagle write FUseNagle default true;
     property TerminateWaitTime: Integer read FTerminateWaitTime write FTerminateWaitTime default 5000;
     property Scheduler: TIdScheduler read FScheduler write SetScheduler;
   end;
@@ -393,6 +410,11 @@ type
 implementation
 
 uses
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Windows,
+    {$ENDIF}
+  {$ENDIF}
   IdGlobalCore,
   IdResourceStringsCore, IdReplyRFC,
   IdSchedulerOfThreadDefault, IdStack,
@@ -407,7 +429,7 @@ begin
   end;
 end;
 
-procedure TIdCustomTCPServer.ContextCreated(AContext:TIdContext);
+procedure TIdCustomTCPServer.ContextCreated(AContext: TIdContext);
 begin
 //
 end;
@@ -473,6 +495,11 @@ begin
       AContext.Connection.IOHandler.Intercept := nil;
     end;
   end;
+end;
+
+function TIdCustomTCPServer.CreateConnection: TIdTCPConnection;
+begin
+  Result := TIdTCPConnection.Create(nil);
 end;
 
 procedure TIdCustomTCPServer.DoConnect(AContext: TIdContext);
@@ -578,6 +605,10 @@ end;
 procedure TIdCustomTCPServer.SetIntercept(const AValue: TIdServerIntercept);
 begin
   if FIntercept <> AValue then begin
+    // Remove self from the intercept's notification list
+    if Assigned(FIntercept) then begin
+      FIntercept.RemoveFreeNotification(Self);
+    end;
     FIntercept := AValue;
     // Add self to the intercept's notification list
     if Assigned(FIntercept) then begin
@@ -593,7 +624,9 @@ begin
   // RLebeau - is this really needed?  What should happen if this
   // gets called by Notification() if the Scheduler is freed while
   // the server is still Active?
-  EIdException.IfTrue(Active, RSTCPServerSchedulerAlreadyActive);
+  if Active then begin
+    EIdException.Toss(RSTCPServerSchedulerAlreadyActive);
+  end;
 
   // If implicit one already exists free it
   // Free the default Thread manager
@@ -609,12 +642,17 @@ begin
     FImplicitScheduler := False;
   end;
 
+  // Ensure we will no longer be notified when the component is freed
+  if FScheduler <> nil then begin
+    FScheduler.RemoveFreeNotification(Self);
+  end;
   FScheduler := AValue;
   // Ensure we will be notified when the component is freed, even is it's on
   // another form
-  if AValue <> nil then begin
-    AValue.FreeNotification(Self);
+  if FScheduler <> nil then begin
+    FScheduler.FreeNotification(Self);
   end;
+
   if FIOHandler <> nil then begin
     FIOHandler.SetScheduler(FScheduler);
   end;
@@ -623,9 +661,13 @@ end;
 procedure TIdCustomTCPServer.SetIOHandler(const AValue: TIdServerIOHandler);
 begin
   if FIOHandler <> AValue then begin
-    if Assigned(FIOHandler) and FImplicitIOHandler then begin
-      FImplicitIOHandler := False;
-      FreeAndNil(FIOHandler);
+    if Assigned(FIOHandler) then begin
+      if FImplicitIOHandler then begin
+        FImplicitIOHandler := False;
+        FreeAndNil(FIOHandler);
+      end else begin
+        FIOHandler.RemoveFreeNotification(Self);
+      end;
     end;
     FIOHandler := AValue;
     if FIOHandler <> nil then begin
@@ -654,6 +696,7 @@ begin
           end;
           DoBeforeBind(Bindings[I]);
           Bind;
+          UseNagle := Self.FUseNagle;
         end;
         Inc(I);
       end;
@@ -717,6 +760,15 @@ begin
   end;
 end;
 
+{$IFDEF STRING_IS_UNICODE}
+//This is an ugly hack that's required because a ShortString does not seem
+//to be acceptable to D2009's Assert function.
+procedure AssertClassName(const ABool : Boolean; const AString : String); inline;
+begin
+  Assert(ABool, AString);
+end;
+{$ENDIF}
+
 procedure TIdCustomTCPServer.TerminateAllThreads;
 var
   i: Integer;
@@ -732,7 +784,11 @@ begin
       for i := 0 to Count - 1 do begin
         LContext := TIdContext(Items[i]);
         Assert(LContext<>nil);
+        {$IFDEF STRING_IS_UNICODE}
+        AssertClassName(LContext.Connection<>nil, LContext.ClassName);
+        {$ELSE}
         Assert(LContext.Connection<>nil, LContext.ClassName);
+        {$ENDIF}
         // RLebeau: allow descendants to perform their own cleanups before
         // closing the connection.  FTP, for example, needs to abort an
         // active data transfer on a separate asociated connection
@@ -772,13 +828,14 @@ begin
   inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
   FContexts := TThreadList.Create;
-  FContextClass := TIdContext;
+  FContextClass := TIdServerContext;
   //
   FTerminateWaitTime := 5000;
   FListenQueue := IdListenQueueDefault;
   FListenerThreads := TThreadList.Create;
   //TODO: When reestablished, use a sleeping thread instead
 //  fSessionTimer := TTimer.Create(self);
+  FUseNagle := true; // default
 end;
 
 procedure TIdCustomTCPServer.Shutdown;
@@ -809,6 +866,8 @@ procedure TIdCustomTCPServer.Startup;
 begin
   // Set up bindings
   if Bindings.Count = 0 then begin
+    // TODO: on systems that support dual-stack sockets, create a single
+    // Binding object that supports both IPv4 and IPv6 on the same socket...
     Bindings.Add; // IPv4
     if GStack.SupportsIPv6 then begin
       // maybe add a property too, so the developer can switch it on/off
@@ -873,12 +932,12 @@ begin
 end;
 
 type
-  TIdContextAccess = class(TIdContext)
+  TIdServerContextAccess = class(TIdServerContext)
   end;
 
 procedure TIdListenerThread.Run;
 var
-  LContext: TIdContext;
+  LContext: TIdServerContext;
   LIOHandler: TIdIOHandler;
   LPeer: TIdTCPConnection;
   LYarn: TIdYarn;
@@ -893,6 +952,10 @@ begin
     // GetYarn can raise exceptions
     LYarn := Server.Scheduler.AcquireYarn;
 
+    // TODO: under Windows at least, use SO_CONDITIONAL_ACCEPT to allow
+    // the user to reject connections before they are accepted.  Somehow
+    // expose an event here for the user to decide with...
+    
     LIOHandler := Server.IOHandler.Accept(Binding, Self, LYarn);
     if LIOHandler = nil then begin
       // Listening has finished
@@ -917,6 +980,7 @@ begin
 
     // Create and init context
     LContext := Server.FContextClass.Create(LPeer, LYarn, Server.Contexts);
+    LContext.FServer := Server;
     // We set these instead of having the context call them directly
     // because they are protected methods. Also its good to keep
     // Context indepent of the server as well.
@@ -934,7 +998,7 @@ begin
       // RLebeau 1/11/07: TIdContext owns the Peer by default so
       // take away ownership here so the Peer is not freed twice
       if LContext <> nil then begin
-        TIdContextAccess(LContext).FOwnsConnection := False;
+        TIdServerContextAccess(LContext).FOwnsConnection := False;
       end;
       FreeAndNil(LContext);
       FreeAndNil(LPeer);

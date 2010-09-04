@@ -96,7 +96,9 @@ unit IdCmdTCPClient;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   IdContext,
   IdException,
@@ -117,9 +119,17 @@ type
     var AData: string; AContext: TIdContext) of object;
 
   { Listening Thread }
+
+  TIdCmdClientContext = class(TIdContext)
+  protected
+    FClient: TIdCmdTCPClient;
+  public
+    property Client: TIdCmdTCPClient read FClient;
+  end;
+  
   TIdCmdTCPClientListeningThread = class(TIdThread)
   protected
-    FContext: TIdContext;
+    FContext: TIdCmdClientContext;
     FClient: TIdCmdTCPClient;
     FRecvData: String;
     //
@@ -144,6 +154,8 @@ type
     procedure DoAfterCommandHandler(ASender: TIdCommandHandlers; AContext: TIdContext);
     procedure DoBeforeCommandHandler(ASender: TIdCommandHandlers; var AData: string;
       AContext: TIdContext);
+    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); virtual;
+    function GetCmdHandlerClass: TIdCommandHandlerClass; virtual;
     procedure InitComponent; override;
     procedure SetCommandHandlers(AValue: TIdCommandHandlers);
     procedure SetExceptionReply(AValue: TIdReply);
@@ -166,11 +178,11 @@ type
 
 implementation
 
-uses IdReplyRFC, SysUtils;
+uses
+  IdReplyRFC, SysUtils;
 
 type
-
-  TIdContextAccess = class(TIdContext)
+  TIdCmdClientContextAccess = class(TIdCmdClientContext)
   end;
 
 { Listening Thread }
@@ -178,8 +190,9 @@ type
 constructor TIdCmdTCPClientListeningThread.Create(AClient: TIdCmdTCPClient);
 begin
   FClient := AClient;
-  FContext := TIdContext.Create(AClient, nil, nil);
-  TIdContextAccess(FContext).FOwnsConnection := False;
+  FContext := TIdCmdClientContext.Create(AClient, nil, nil);
+  FContext.FClient := AClient;
+  TIdCmdClientContextAccess(FContext).FOwnsConnection := False;
   //
   inherited Create(False);
 end;
@@ -193,7 +206,9 @@ end;
 procedure TIdCmdTCPClientListeningThread.Run;
 begin
   FRecvData := FClient.IOHandler.ReadLn;
-  FClient.CommandHandlers.HandleCommand(FContext, FRecvData);
+  if not FClient.CommandHandlers.HandleCommand(FContext, FRecvData) then begin
+    FClient.DoReplyUnknownCommand(FContext, FRecvData);
+  end;
   //Synchronize(?);
   FClient.IOHandler.CheckForDisconnect;
 end;
@@ -250,14 +265,26 @@ begin
   end;
 end;
 
+procedure TIdCmdTCPClient.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+begin
+end;
+
+function TIdCmdTCPClient.GetCmdHandlerClass: TIdCommandHandlerClass;
+begin
+  Result := TIdCommandHandler;
+end;
+
 procedure TIdCmdTCPClient.InitComponent;
+var
+  LHandlerClass: TIdCommandHandlerClass;
 begin
   inherited InitComponent;
 
   FExceptionReply := FReplyClass.Create(nil);
   ExceptionReply.SetReply(500, 'Unknown Internal Error'); {do not localize}
 
-  FCommandHandlers := TIdCommandHandlers.Create(Self, FReplyClass, nil, ExceptionReply);
+  LHandlerClass := GetCmdHandlerClass;
+  FCommandHandlers := TIdCommandHandlers.Create(Self, FReplyClass, nil, ExceptionReply, LHandlerClass);
   FCommandHandlers.OnAfterCommandHandler := DoAfterCommandHandler;
   FCommandHandlers.OnBeforeCommandHandler := DoBeforeCommandHandler;
 end;

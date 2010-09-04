@@ -1,18 +1,13 @@
 package dclIndyProtocols90Net;
 
 {$ALIGN 0}
-{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -23,11 +18,10 @@ package dclIndyProtocols90Net;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Protocols Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl,
+  System.Windows.Forms,
   Borland.Studio.Vcl.Design,
   IndyProtocols90Net,
   IndySystem90Net,

@@ -67,60 +67,68 @@ type
     property  ChainedProxy;
     property Username;
     property Password;
-  End;//TIdConnectThroughHttpProxy
+  end;
 
 implementation
 
 uses
-  IdCoderMIME, IdExceptionCore, SysUtils;
+  IdCoderMIME, IdExceptionCore, IdHeaderList, IdGlobalProtocols, SysUtils;
 
 { TIdConnectThroughHttpProxy }
 
 function TIdConnectThroughHttpProxy.GetEnabled: Boolean;
-Begin
+begin
   Result := FEnabled;
-End;
+end;
 
 procedure TIdConnectThroughHttpProxy.DoMakeConnection(AIOHandler: TIdIOHandler;
-  const AHost: string;const APort: TIdPort; const ALogin:boolean; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const AHost: string; const APort: TIdPort; const ALogin: Boolean; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
-  LStatus:string;
-  LResponseCode:integer;
-Begin
-  AIOHandler.WriteLn(IndyFormat('CONNECT %s:%d HTTP/1.0', [AHost,APort])); {do not localize}
-  if ALogin then begin
-    with TIdEncoderMIME.Create do try
-      AIOHandler.WriteLn('Proxy-authorization: basic '
-       + Encode(Username + ':' + Password));  {do not localize}
-    finally Free; end;
-  end;
-  AIOHandler.WriteLn;
-  LStatus:=AIOHandler.ReadLn;
-  if LStatus<>'' then begin // if empty response then we assume it succeeded
-    Fetch(LStatus);// to remove the http/1.0 or http/1.1
-    LResponseCode:=IndyStrToInt(Fetch(LStatus,' ',false),200); // if invalid response then we assume it succeeded
-    if (LResponseCode=407) and (length(Username)>0) and not ALogin then begin // authorisation required
-      repeat until AIOHandler.ReadLn = '';//flush connection
-      DoMakeConnection(AIOHandler, AHost, APort, True);// try again, but with login
-    end else begin
-      if not (LResponseCode in [200]) then begin // maybe more responsecodes to add
+  LStatus: string;
+  LResponseCode: Integer;
+  LHeaders: TIdHeaderList;
+  LContentLength: Int64;
+begin
+  LHeaders := TIdHeaderList.Create(QuoteHTTP);
+  try
+    AIOHandler.WriteLn(IndyFormat('CONNECT %s:%d HTTP/1.0', [AHost,APort])); {do not localize}
+    if ALogin then begin
+      with TIdEncoderMIME.Create do try
+        AIOHandler.WriteLn('Proxy-Authorization: Basic ' + Encode(Username + ':' + Password));  {do not localize}
+      finally Free; end;
+    end;
+    AIOHandler.WriteLn;
+    LStatus := AIOHandler.ReadLn;
+    if LStatus <> '' then begin // if empty response then we assume it succeeded
+      AIOHandler.Capture(LHeaders, '', False);
+      // TODO: support chunked replies...
+      LContentLength := IndyStrToInt64(LHeaders.Values['Content-Length'], -1); {do not localize}
+      if LContentLength > 0 then begin
+        AIOHandler.Discard(LContentLength);
+      end;
+      Fetch(LStatus);// to remove the http/1.0 or http/1.1
+      LResponseCode := IndyStrToInt(Fetch(LStatus, ' ', False), 200); // if invalid response then we assume it succeeded
+      if (LResponseCode = 407) and (Length(Username) > 0) and (not ALogin) then begin // authorization required
+        DoMakeConnection(AIOHandler, AHost, APort, True);// try again, but with login
+      end
+      else if not (LResponseCode in [200]) then begin // maybe more responsecodes to add
         raise EIdHttpProxyError.Create(LStatus);//BGO: TODO: maybe split into more exceptions?
       end;
-      repeat until AIOHandler.ReadLn = '';
     end;
+  finally
+    LHeaders.Free;
   end;
 end;
 
 procedure TIdConnectThroughHttpProxy.MakeConnection(AIOHandler: TIdIOHandler;
   const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
-Begin
-  DoMakeConnection(AIOHandler,AHost,APort,false);
-End;
-
+begin
+  DoMakeConnection(AIOHandler, AHost, APort, False);
+end;
 
 procedure TIdConnectThroughHttpProxy.SetEnabled(AValue: Boolean);
-Begin
+begin
   FEnabled := AValue;
-End;
+end;
 
 end.

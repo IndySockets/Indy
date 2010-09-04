@@ -154,7 +154,7 @@ interface
 
 {$I IdCompilerDefines.inc}
 
-{$IFDEF DotNet}
+{$IFDEF DOTNET}
 Improper compile.
 This unit must NOT be linked into DotNet applications.
 {$ENDIF}
@@ -164,13 +164,16 @@ uses
   IdException, IdStack, IdStackConsts, IdGlobal;
 
 type
-  // RP - for use with the HostToNetwork() and NetworkToHost()
+  // RLebeau - for use with the HostToNetwork() and NetworkToHost()
   // methods under Windows and Linux since the Socket API doesn't
   // have native conversion functions for int64 values...
   TIdInt64Parts = packed record
     case Integer of
     0: (
-    {$ifdef ENDIAN_LITTLE}
+       {$IFDEF ENDIAN_BIG}
+      HighPart: LongWord;
+      LowPart: LongWord);
+       {$ELSE}
       LowPart: LongWord;
       HighPart: LongWord
      {$endif}
@@ -179,6 +182,7 @@ type
       LowPart: LongWord;
       {$endif}
       );
+      {$ENDIF}
     1: (
       QuadPart: Int64);
   end;
@@ -195,11 +199,11 @@ type
 //procedure EmptyIPRec(var VIP : TIdIPAddress);
 
   TIdSunB = packed record
-    s_b1, s_b2, s_b3, s_b4: byte;
+    s_b1, s_b2, s_b3, s_b4: Byte;
   end;
 
   TIdSunW = packed record
-    s_w1, s_w2: word;
+    s_w1, s_w2: Word;
   end;
 
   PIdIn4Addr = ^TIdIn4Addr;
@@ -207,7 +211,7 @@ type
     case integer of
         0: (S_un_b: TIdSunB);
         1: (S_un_w: TIdSunW);
-        2: (S_addr: longword);
+        2: (S_addr: LongWord);
   end;
 
   PIdIn6Addr = ^TIdIn6Addr;
@@ -215,7 +219,6 @@ type
     case Integer of
     0: (s6_addr: packed array [0..16-1] of Byte);
     1: (s6_addr16: packed array [0..8-1] of Word);
-    2: (s6_addr32: packed array [0..4-1] of LongWord);
   end;
 
   PIdInAddr = ^TIdInAddr;
@@ -247,19 +250,17 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
   public
     constructor Create; override;
-    destructor Destroy; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; virtual; abstract;
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes): Integer; override;
     function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       const AOffset: Integer = 0; const ASize: Integer = -1): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-      ): Integer; override;
+      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       const AOffset: Integer; const ASize: Integer; const AIP: string;
       const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
-      const Alevel, Aoptname: Integer; Aoptval: PChar;
+      const Alevel, Aoptname: Integer; Aoptval: PAnsiChar;
       const Aoptlen: Integer); overload; virtual; abstract;
     function TranslateTInAddrToString(var AInAddr; const AIPVersion: TIdIPVersion): string;
     procedure TranslateStringToTInAddr(const AIP: string; var AInAddr; const AIPVersion: TIdIPVersion);
@@ -267,14 +268,14 @@ type
     function WSGetServByPort(const APortNumber: TIdPort): TStrings; virtual; abstract;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var ABuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
-      AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
+      var VIPVersion: TIdIPVersion): Integer; virtual; abstract;
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
-    function WSSocket(AFamily, AStruct, AProtocol: Integer;
+    function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
       const AOverlapped: Boolean = False): TIdStackSocketHandle; virtual; abstract;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
-      AOptval: PChar; var AOptlen: Integer); virtual; abstract;
+      AOptval: PAnsiChar; var AOptlen: Integer); virtual; abstract;
     procedure SetBlocking(ASocket: TIdStackSocketHandle;
      const ABlocking: Boolean); virtual; abstract;
     function WouldBlock(const AResult: Integer): Boolean; virtual; abstract;
@@ -315,9 +316,13 @@ uses
   //done this way so we can have a separate stack for the Unix systems in FPC
   {$IFDEF UNIX}
     {$IFDEF KYLIXCOMPAT}
-  IdStackLinux,
-    {$ELSE}
+  IdStackLibc,
+    {$ENDIF}
+    {$IFDEF USE_BASEUNIX}
   IdStackUnix,
+    {$ENDIF}
+    {$IFDEF USE_VCL_POSIX}
+  IdStackVCLPosix,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -326,14 +331,15 @@ uses
   {$IFDEF DOTNET}
   IdStackDotNet,
   {$ENDIF}
-  IdResourceStrings, SysUtils;
+  IdResourceStrings,
+  SysUtils;
 
 { TIdStackBSDBase }
 
 function TIdStackBSDBase.TranslateTInAddrToString(var AInAddr;
   const AIPVersion: TIdIPVersion): string;
 var
-  i: integer;
+  i: Integer;
 begin
   case AIPVersion of
     Id_IPv4: begin
@@ -345,7 +351,7 @@ begin
     Id_IPv6: begin
       Result := '';
       for i := 0 to 7 do begin
-        Result := Result + IntToHex(NetworkToHost(TIdIn6Addr(AInAddr).s6_addr16[i]),1)+':';
+        Result := Result + IntToHex(NetworkToHost(TIdIn6Addr(AInAddr).s6_addr16[i]), 1) + ':';
       end;
       SetLength(Result, Length(Result)-1);
     end;
@@ -386,8 +392,15 @@ function TIdStackBSDBase.NewSocketHandle(const ASocketType:TIdSocketType;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
   const AOverlapped: Boolean = False): TIdStackSocketHandle;
 begin
-  Result := CheckForSocketError(WSSocket(IdIPFamily[AIPVersion], ASocketType,
-    AProtocol, AOverlapped));
+  // RLebeau 04/17/2008: Don't use CheckForSocketError() here.  It expects
+  // an Integer error code, not a TSocket handle.  When WSSocket() fails,
+  // it returns Id_INVALID_SOCKET.  Although that is technically the same
+  // value as Id_SOCKET_ERROR, passing Id_INVALID_SOCKET to CheckForSocketError()
+  // causes a range check error to be raised.
+  Result := WSSocket(IdIPFamily[AIPVersion], ASocketType, AProtocol, AOverlapped);
+  if Result = Id_INVALID_SOCKET then begin
+    RaiseLastSocketError;
+  end;
 end;
 
 constructor TIdStackBSDBase.Create;
@@ -396,14 +409,8 @@ begin
   GBSDStack := Self;
 end;
 
-destructor TIdStackBSDBase.Destroy;
-begin
-  FreeAndNil(FLocalAddresses);
-  inherited Destroy;
-end;
-
 function TIdStackBSDBase.Receive(ASocket: TIdStackSocketHandle;
- var VBuffer: TIdBytes): Integer;
+  var VBuffer: TIdBytes): Integer;
 begin
   Result := CheckForSocketError(WSRecv(ASocket, VBuffer[0], Length(VBuffer) , 0));
 end;
@@ -413,16 +420,16 @@ function TIdStackBSDBase.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdB
 begin
   Result := IndyLength(ABuffer, ASize, AOffset);
   if Result > 0 then begin
-    Result := WSSend(ASocket, PChar(@ABuffer[AOffset])^, Result, 0);
+    Result := WSSend(ASocket, ABuffer[AOffset], Result, 0);
   end;
 end;
 
 function TIdStackBSDBase.ReceiveFrom(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; var VIP: string; var VPort: TIdPort;
-  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+  var VIPVersion: TIdIPVersion): Integer;
 begin
    Result := CheckForSocketError(RecvFrom(ASocket, VBuffer[0], Length(VBuffer),
-     0, VIP, VPort, AIPVersion));
+     0, VIP, VPort, VIPVersion));
 end;
 
 function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
@@ -432,86 +439,107 @@ function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
 begin
   Result := IndyLength(ABuffer, ASize, AOffset);
   if Result > 0 then begin
-    WSSendTo(ASocket, PChar(@ABuffer[AOffset])^, Result, 0, AIP, APort, AIPVersion);
+    WSSendTo(ASocket, ABuffer[AOffset], Result, 0, AIP, APort, AIPVersion);
   end;
 end;
 
 procedure TIdStackBSDBase.DropMulticastMembership(AHandle: TIdStackSocketHandle;
   const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  if AIPVersion = Id_IPv4 then begin
-    MembershipSockOpt(AHandle, AGroupIP, ALocalIP, Id_IP_DROP_MEMBERSHIP);
-  end else begin
-    MembershipSockOpt(AHandle, AGroupIP, ALocalIP, Id_IPV6_DROP_MEMBERSHIP, AIPVersion);
-  end;
+  MembershipSockOpt(AHandle, AGroupIP, ALocalIP,
+    iif(AIPVersion = Id_IPv4, Id_IP_DROP_MEMBERSHIP, Id_IPV6_DROP_MEMBERSHIP),
+    AIPVersion);
 end;
 
 procedure TIdStackBSDBase.AddMulticastMembership(AHandle: TIdStackSocketHandle;
   const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  if AIPVersion = Id_IPv4 then begin
-    MembershipSockOpt(AHandle, AGroupIP, ALocalIP, Id_IP_ADD_MEMBERSHIP, AIPVersion);
-  end else begin
-    MembershipSockOpt(AHandle, AGroupIP, ALocalIP, Id_IPV6_ADD_MEMBERSHIP, AIPVersion);
-  end;
+  MembershipSockOpt(AHandle, AGroupIP, ALocalIP,
+    iif(AIPVersion = Id_IPv4, Id_IP_ADD_MEMBERSHIP, Id_IPV6_ADD_MEMBERSHIP),
+    AIPVersion);
 end;
 
 procedure TIdStackBSDBase.SetMulticastTTL(AHandle: TIdStackSocketHandle;
   const AValue: Byte; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
-  LThisTTL: Integer;
+  LLevel, LOpt, LTTL: Integer;
 begin
-  LThisTTL := AValue;
-  if AIPVersion = Id_IPv4 then begin
-    GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IP, Id_IP_MULTICAST_TTL,
-      PChar(@LThisTTL), SizeOf(LThisTTL));
-  end else begin
-    GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IPv6, Id_IPV6_MULTICAST_HOPS,
-      PChar(@LThisTTL), SizeOf(LThisTTL));
+  case AIPVersion of
+    Id_IPv4: begin
+      LLevel := Id_IPPROTO_IP;
+      LOpt := Id_IP_MULTICAST_TTL;
+    end;
+    id_IPv6: begin
+      LLevel := Id_IPPROTO_IPv6;
+      LOpt := Id_IPV6_MULTICAST_HOPS;
+    end;
+    else begin
+      // keep the compiler happy
+      LLevel := 0;
+      LOpt := 0;
+      IPVersionUnsupported;
+    end;
   end;
+  LTTL := AValue;
+  GBSDStack.SetSocketOption(AHandle, LLevel, LOpt, PAnsiChar(@LTTL), SizeOf(LTTL));
 end;
 
 procedure TIdStackBSDBase.SetLoopBack(AHandle: TIdStackSocketHandle;
   const AValue: Boolean; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
-  LThisLoopback: Integer;
+  LLevel, LOpt, LLoopback: Integer;
 begin
-  if AValue then begin
-    LThisLoopback := 1;
-  end else begin
-    LThisLoopback := 0;
+  case AIPVersion of
+    Id_IPv4: begin
+      LLevel := Id_IPPROTO_IP;
+      LOpt := Id_IP_MULTICAST_LOOP;
+    end;
+    Id_IPv6: begin
+      LLevel := Id_IPPROTO_IPv6;
+      LOpt := Id_IPV6_MULTICAST_LOOP;
+    end;
+    else begin
+      // keep the compiler happy
+      LLevel := 0;
+      LOpt := 0;
+      IPVersionUnsupported;
+    end;
   end;
-  if AIPVersion = Id_IPv4 then begin
-    GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IP, Id_IP_MULTICAST_LOOP,
-      PChar(@LThisLoopback), SizeOf(LThisLoopback));
-  end else begin
-    GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IPv6, Id_IPV6_MULTICAST_LOOP,
-      PChar(@LThisLoopback), SizeOf(LThisLoopback));
-  end;
+  LLoopback := Ord(AValue);
+  GBSDStack.SetSocketOption(AHandle, LLevel, LOpt, PAnsiChar(@LLoopback), SizeOf(LLoopback));
 end;
 
 procedure TIdStackBSDBase.MembershipSockOpt(AHandle: TIdStackSocketHandle;
-  const AGroupIP, ALocalIP: String;  const ASockOpt: Integer;
+  const AGroupIP, ALocalIP: String; const ASockOpt: Integer;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LIP4: TIdIPMreq;
   LIP6: TIdIPv6Mreq;
 begin
-  if IsValidIPv4MulticastGroup(AGroupIP) then
-  begin
-    GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP4.IMRMultiAddr, Id_IPv4);
-    LIP4.IMRInterface.S_addr := Id_INADDR_ANY;
-    GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IP, ASockOpt, PChar(@LIP4), SizeOf(LIP4));
-  end
-  else if IsValidIPv6MulticastGroup(AGroupIP) then
-  begin
-    GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP6.ipv6mr_multiaddr, Id_IPv6);
-    //this should be safe meaning any adaptor
-    //we can't support a localhost address in IPv6 because we can't get that
-    //and even if you could, you would have to convert it into a network adaptor
-    //index - Yuk
-    LIP6.ipv6mr_interface := 0;
-    GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IPv6, ASockOpt, PChar(@LIP6), SizeOf(LIP6));
+  case AIPVersion of
+    Id_IPv4: begin
+      if IsValidIPv4MulticastGroup(AGroupIP) then
+      begin
+        GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP4.IMRMultiAddr, Id_IPv4);
+        GBSDStack.TranslateStringToTInAddr(ALocalIP, LIP4.IMRInterface, Id_IPv4);
+        GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IP, ASockOpt, PAnsiChar(@LIP4), SizeOf(LIP4));
+      end;
+    end;
+    Id_IPv6: begin
+      if IsValidIPv6MulticastGroup(AGroupIP) then
+      begin
+        GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP6.ipv6mr_multiaddr, Id_IPv6);
+        //this should be safe meaning any adaptor
+        //we can't support a localhost address in IPv6 because we can't get that
+        //and even if you could, you would have to convert it into a network adaptor
+        //index - Yuk
+        LIP6.ipv6mr_interface := 0;
+        GBSDStack.SetSocketOption(AHandle, Id_IPPROTO_IPv6, ASockOpt, PAnsiChar(@LIP6), SizeOf(LIP6));
+      end;
+    end;
+    else begin
+      IPVersionUnsupported;
+    end;
   end;
 end;
 

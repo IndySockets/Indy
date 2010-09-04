@@ -77,6 +77,11 @@ type
 implementation
 
 uses
+  {$IFDEF DOTNET}
+  IdStreamNET,
+    {$ELSE}
+  IdStreamVCL,
+  {$ENDIF}
   IdException, IdResourceStringsCore, SysUtils;
 
 { TIdInterceptSimLog }
@@ -97,19 +102,23 @@ end;
 
 procedure TIdInterceptSimLog.Receive(var ABuffer: TIdBytes);
 begin
+  // let the next Intercept in the chain decode its data first
   inherited Receive(ABuffer);
   WriteRecord('Recv', ABuffer); {do not localize}
 end;
 
 procedure TIdInterceptSimLog.Send(var ABuffer: TIdBytes);
 begin
-  inherited Send(ABuffer);
   WriteRecord('Send', ABuffer); {do not localize}
+  // let the next Intercept in the chain encode its data next
+  inherited Send(ABuffer);
 end;
 
 procedure TIdInterceptSimLog.SetFilename(const AValue: string);
 begin
-  EIdException.IfAssigned(FStream, RSLogFileAlreadyOpen);
+  if Assigned(FStream) then begin
+    EIdException.Toss(RSLogFileAlreadyOpen);
+  end;
   FFilename := AValue;
 end;
 

@@ -1,8 +1,14 @@
 unit prothandler;
 interface
+{$IFDEF FPC}
 {$mode delphi}{$H+}
+{$ENDIF}
 uses
 {$IFDEF UNIX}
+  {$define usezlib}
+  {$define useopenssl}
+{$ENDIF}
+{$IFDEF POSIX}
   {$define usezlib}
   {$define useopenssl}
 {$ENDIF}

@@ -161,12 +161,13 @@ resourcestring
   // General
   RSIOHandlerPropInvalid = 'IOHandler value is not valid';
 
+  //FIPS
+  RSFIPSAlgorithmNotAllowed = 'Algorithm %s not permitted in FIPS mode';
   //FSP
   RSFSPNotFound = 'File Not Found';
   RSFSPPacketTooSmall = 'Packet too small';
 
   //SASL
-
   RSASLNotSupported = 'Doesn''t support AUTH or the SASL handlers you specified!!';
   RSASLRequired = 'Need SASL mechanisms to login with it!!';
   RSASLNotValidForProt = 'Authentication Type not valid for this protocol.';
@@ -175,20 +176,24 @@ resourcestring
   RSSASLDigestMissingAlgorithm = 'missing algorithm in challange.';
   RSSASLDigestInvalidAlgorithm = 'invalid algorithm in challange.';
   RSSASLDigestAuthConfNotSupported = 'auth-conf not yet supported.';
+
   //  TIdEMailAddress
   RSEMailSymbolOutsideAddress = '@ Outside address';
+
   //ZLIB Intercept
   RSZLCompressorInitializeFailure = 'Unable to initialize compressor';
   RSZLDecompressorInitializeFailure = 'Unable to initialize decompressor';
   RSZLCompressionError = 'Compression error';
   RSZLDecompressionError = 'Decompression error';
-  //Winsock 2 Stub
+
   //MIME Types
   RSMIMEExtensionEmpty = 'Extension is empty';
   RSMIMEMIMETypeEmpty = 'Mimetype is empty';
   RSMIMEMIMEExtAlreadyExists = 'Extension already exits';
+
   // IdRegister
   RSRegSASL = 'Indy SASL';
+
   // Status Strings
   // TIdTCPClient
   // Message Strings
@@ -197,7 +202,6 @@ resourcestring
   // MessageClient Strings
   RSMsgClientEncodingText = 'Encoding text';
   RSMsgClientEncodingAttachment = 'Encoding attachment';
-  RSMsgClientUnkownMessagePartType = 'Unknown Message Part Type.';
   RSMsgClientInvalidEncoding = 'Invalid Encoding. UU only allows Body and Attachments.';
   RSMsgClientInvalidForTransferEncoding = 'Message parts cannot be used in a message which has a ContentTransferEncoding value.';
 
@@ -238,7 +242,7 @@ resourcestring
   RSHTTPGone = 'Gone';
   RSHTTPLengthRequired = 'Length Required';
   RSHTTPPreconditionFailed = 'Precondition Failed';
-  RSHTTPRequestEntityToLong = 'Request Entity To Long';
+  RSHTTPRequestEntityTooLong = 'Request Entity Too Long';
   RSHTTPRequestURITooLong = 'Request-URI Too Long. 256 Chars max';
   RSHTTPUnsupportedMediaType = 'Unsupported Media Type';
   RSHTTPExpectationFailed = 'Expectation Failed';
@@ -249,6 +253,7 @@ resourcestring
   RSHTTPGatewayTimeout = 'Gateway timeout';
   RSHTTPHTTPVersionNotSupported = 'HTTP version not supported';
   RSHTTPUnknownResponseCode = 'Unknown Response Code';
+
   // HTTP Other
   RSHTTPUnknownProtocol = 'Unknown Protocol';
   RSHTTPMethodRequiresVersion = 'Request method requires HTTP version 1.1';
@@ -256,10 +261,13 @@ resourcestring
   RSHTTPErrorParsingCommand = 'Error in parsing command.';
   RSHTTPUnsupportedAuthorisationScheme = 'Unsupported authorization scheme.';
   RSHTTPCannotSwitchSessionStateWhenActive = 'Cannot change session state when the server is active.';
+
   //HTTP Authentication
   RSHTTPAuthAlreadyRegistered = 'This authentication method is already registered with class name %s.';
+
   //HTTP Authentication Digeest
   RSHTTPAuthInvalidHash = 'Unsupported hash algorithm. This implementation supports only MD5 encoding.';
+
   //SSPI Authentication
   {
   Note: CompleteToken is an API function Name:
@@ -329,6 +337,8 @@ resourcestring
   RSBlockIncorrectLength = 'Incorrect length in received block (%d)';
 
   // FTP
+  RSFTPInvalidNumberArgs = 'Invalid number of arguments %s';
+  RSFTPHostNotFound = 'Host not found.';
   RSFTPUnknownHost = 'Unknown';
   RSFTPStatusReady = 'Connection established';
   RSFTPStatusStartTransfer = 'Starting FTP transfer';
@@ -359,7 +369,11 @@ resourcestring
   RSFTPNoAUTHWOSSL = 'Can not set AUTH without SSL.';
   RSFTPNoAUTHCon = 'Can not set AUTH while connected.';
   RSFTPSToSTransferModesMusbtSame = 'Transfer modes must be the same.';
-  RSFTPNoListParseUnitsRegistered = 'No IdFTPListParse classes have been registered. Check your uses clause!';
+  RSFTPNoListParseUnitsRegistered = 'No FTP list parsers have been registered.';
+  RSFTPMissingCompressor = 'No Compressor is assigned.';
+  RSFTPCompressorNotReady = 'Compressor is not ready.';
+  RSFTPUnsupportedTransferMode = 'Unsupported transfer mode.';
+  RSFTPUnsupportedTransferType = 'Unsupported transfer type.';
 
   // Property editor exceptions
   // Stack Error Messages
@@ -416,9 +430,11 @@ resourcestring
   RSTFTPDiskFull = 'Unable to complete write request, progress halted at %d bytes';
   RSTFTPFileNotFound = 'Unable to open %s';
   RSTFTPAccessDenied = 'Access to %s denied';
+  RSTFTPUnsupportedOption = 'Unsupported option: "%s"';
+  RSTFTPUnsupportedOptionValue = 'Unsupported value "%s" for option: "%s"';
 
   { MESSAGE Exception messages }
-  RSTIdTextInvalidCount = 'Invalid Text count. TIdText must be greater than 1';
+  RSTIdTextInvalidCount = 'Invalid Text count. Must have more than 1 TIdText object.';
   RSTIdMessagePartCreate = 'TIdMessagePart can not be created.  Use descendant classes. ';
   RSTIdMessageErrorSavingAttachment = 'Error saving attachment.';
   RSTIdMessageErrorAttachmentBlocked = 'Attachment %s is blocked.';
@@ -499,6 +515,7 @@ resourcestring
   RSSSLAcceptError = 'Error accepting connection with SSL.';
   RSSSLConnectError = 'Error connecting with SSL.';
   RSSSLSettingCipherError = 'SetCipher failed.';
+  RSSSLCreatingSessionError = 'Error creating SSL session.';
   RSSSLCreatingContextError = 'Error creating SSL context.';
   RSSSLLoadingRootCertError = 'Could not load root certificate.';
   RSSSLLoadingCertError = 'Could not load certificate.';
@@ -582,6 +599,7 @@ resourcestring
   RSInvalidSyslogPacketSize = 'Invalid Syslog message: packet too large (%d bytes)';
   RSInvalidHostName = 'Invalid host name. A SYSLOG host name cannot contain any space ("%s")+';
 
+  {$IFDEF USE_OPENSSL}
   {IdOpenSSL}
   RSOSSLModeNotSet = 'Mode has not been set.';
   RSOSSLCouldNotLoadSSLLibrary = 'Could not load SSL library.';
@@ -589,6 +607,21 @@ resourcestring
   RSOSSLConnectionDropped = 'SSL connection has dropped.';
   RSOSSLCertificateLookup = 'SSL certificate request error.';
   RSOSSLInternal = 'SSL library internal error.';
+  //callback where strings
+  RSOSSLAlert =  '%s Alert';
+  RSOSSLReadAlert =  '%s Read Alert';
+  RSOSSLWriteAlert =  '%s Write Alert';
+  RSOSSLAcceptLoop = 'Accept Loop';
+  RSOSSLAcceptError = 'Accept Error';
+  RSOSSLAcceptFailed = 'Accept Failed';
+  RSOSSLAcceptExit =  'Accept Exit';
+  RSOSSLConnectLoop =  'Connect Loop';
+  RSOSSLConnectError = 'Connect Error';
+  RSOSSLConnectFailed = 'Connect Failed';
+  RSOSSLConnectExit =  'Connect Exit';
+  RSOSSLHandshakeStart = 'Handshake Start';
+  RSOSSLHandshakeDone =  'Handshake Done';
+  {$ENDIF}
 
   {IdWinsockStack}
   RSWSockStack = 'Winsock stack';
@@ -704,6 +737,7 @@ resourcestring
   RSFTPUserOkay = 'User name okay, need password.';
   RSFTPAnonymousUserOkay = 'Anonymous login OK, send e-mail as password.';
   RSFTPNeedLoginWithUser = 'Login with USER first.';
+  RSFTPNotAfterAuthentication = 'Not in authorization state, already logged in.';
   RSFTPFileActionPending = 'Requested file action pending further information.';
   RSFTPServiceNotAvailable = 'Service not available, closing control connection.';
   RSFTPCantOpenDataConn = 'Can''t open data connection.';
@@ -718,6 +752,7 @@ resourcestring
   RSFTPEPSVAllEntered = ' EPSV ALL sent, now only accepting EPSV connections';
   RSFTPNetProtNotSup = 'Network protocol not supported, use %s';
   RSFTPFileOpSuccess = 'File Operation Successful';
+  RSFTPIsAFile = '%s: Is a file.';
   RSFTPInvalidOps = 'Invalid %s options';
   RSFTPOptNotRecog = 'Option not recognized.';
   RSFTPPropNotNeg = 'Property can not be a negative number.';
@@ -764,6 +799,7 @@ resourcestring
   RSFTPSTRUChanged = 'Structure set to %s.';
   RSFTPSITECmdsSupported = 'The following SITE commands are supported:';
   RSFTPDirectorySTRU = '%s directory structure.';
+  RSFTPCmdStartOfStat = 'System status';
   RSFTPCmdEndOfStat = 'End of Status';
   RSFTPCmdExtsSupportedStart = 'Extensions supported:';
   RSFTPCmdExtsSupportedEnd = 'End of extentions.';
@@ -828,17 +864,18 @@ resourcestring
   {LPR Messages}
   RSLPRError = 'Reply %d on Job ID %s';
   RSLPRUnknown = 'Unknown';
+  RSCannotBindRange = 'Cannot bind to a LPR port from range %d to %d (No free Port)';
 
   {IRC Messages}
   RSIRCCanNotConnect = 'IRC Connect Failed';
-  RSIRCNotConnected = 'Not connected to server.';
-  RSIRCClientVersion =  'TIdIRC 1.061 by Steve Williams';
-  RSIRCClientInfo = '%s Non-visual component for 32-bit Delphi.';
-  RSIRCNick = 'Nick';
-  RSIRCAltNick = 'OtherNick';
-  RSIRCUserName = 'ircuser';
-  RSIRCRealName = 'Real name';
-  RSIRCTimeIsNow = 'Local time is %s';
+  // RSIRCNotConnected = 'Not connected to server.';
+  // RSIRCClientVersion =  'TIdIRC 1.061 by Steve Williams';
+  // RSIRCClientInfo = '%s Non-visual component for 32-bit Delphi.';
+  // RSIRCNick = 'Nick';
+  // RSIRCAltNick = 'OtherNick';
+  // RSIRCUserName = 'ircuser';
+  // RSIRCRealName = 'Real name';
+  // RSIRCTimeIsNow = 'Local time is %s'; // difficult to strip for clients
 
   {HL7 Lower Layer Protocol Messages}
   RSHL7StatusStopped           = 'Stopped';
@@ -939,10 +976,28 @@ resourcestring
   RSFTPFSysErrMsg = 'Permission Denied';
   RSOTPUnknownMethod = 'Unknown OTP method';
 
-  {$IFDEF DOTNET2_OR_ABOVE}
+  {$IFDEF DOTNET_2_OR_ABOVE}
   RSSSLNETNotAuthenticated = 'Not authenticated';
   RSSSLNETCertificateRequired = 'Certificate required for servers';
   {$ENDIF}
+
+  // TIdURI
+  {$IFDEF DOTNET}
+  RSUTF16InvalidSurrogatePair = 'Characters at Index %d are not a valid UTF-16 Surrogate Pair';
+  {$ELSE}
+    {$IFNDEF HAS_TCharacter}
+  RSUTF16IndexOutOfRange = 'Character Index %d out of Range, Length = %d';
+  RSUTF16InvalidHighSurrogate = 'Character at Index %d is not a valid UTF-16 High Surrogate';
+  RSUTF16InvalidLowSurrogate = 'Character at Index %d is not a valid UTF-16 Low Surrogate';
+  RSUTF16MissingLowSurrogate = 'Missing a Low Surrogate in UTF-16 sequence';
+    {$ENDIF}
+  {$ENDIF}
+
+  // Message Header Encoding
+  RSHeaderEncodeError = 'Could not encode header data using charset "%s"';
+  // message builder strings
+  rsHtmlViewerNeeded = 'An HTML viewer is required to see this message';
+  rsRtfViewerNeeded = 'An RTF viewer is required to see this message';  
   
 implementation
 

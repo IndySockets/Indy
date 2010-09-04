@@ -2,45 +2,97 @@ unit IdMessageBuilder;
 
 interface
 {$i IdCompilerDefines.inc}
+{$i IdCompilerDefines.inc}
+
 uses
   Classes, IdMessage;
 
 type
+  TIdMessageBuilderAttachment = class(TCollectionItem)
+  private
+    FContentID: String;
+    FContentTransfer: String;
+    FContentType: String;
+    FData: TStream;
+    FFileName: String;
+    FName: String;
+  public
+    procedure Assign(Source: TPersistent); override;
+    property ContentID: String read FContentID write FContentID;
+    property ContentTransfer: String read FContentTransfer;
+    property ContentType: String read FContentType write FContentType;
+    property Data: TStream read FData write FData;
+    property FileName: String read FFileName write FFileName;
+    property Name: String read FName write FName;
+  end;
+
+  TIdMessageBuilderAttachments = class(TCollection)
+  private
+    function GetAttachment(Index: Integer): TIdMessageBuilderAttachment;
+    procedure SetAttachment(Index: Integer; Value: TIdMessageBuilderAttachment);
+  public
+    constructor Create; reintroduce;
+    function Add: TIdMessageBuilderAttachment; reintroduce; overload;
+    function Add(const AFileName: String; const AContentID: String = ''): TIdMessageBuilderAttachment; overload;
+    function Add(AData: TStream; const AContentType: String; const AContentID: String = ''): TIdMessageBuilderAttachment; overload;
+    procedure AddToMessage(AMsg: TIdMessage; ParentPart: Integer);
+    property Attachment[Index: Integer]: TIdMessageBuilderAttachment
+      read GetAttachment write SetAttachment; default;
+  end;
+
   TIdCustomMessageBuilder = class
   protected
-    FAttachments: TStrings;
+    FAttachments: TIdMessageBuilderAttachments;
     FPlainText: TStrings;
-    FSubject: String;
+    FPlainTextCharSet: String;
+    FPlainTextContentTransfer: String;
     procedure AddAttachments(AMsg: TIdMessage);
-    procedure InternalFill(AMsg: TIdMessage); virtual; abstract;
+    procedure FillBody(AMsg: TIdMessage); virtual; abstract;
+    procedure FillHeaders(AMsg: TIdMessage); virtual;
     procedure SetPlainText(AValue: TStrings);
-    procedure SetAttachments(AValue: TStrings);
-    procedure SetContentType(AMsg: TIdMessage); virtual;
+    procedure SetAttachments(AValue: TIdMessageBuilderAttachments);
   public
     constructor Create; virtual;
     destructor Destroy; override;
     //
+    procedure Clear; virtual;
     procedure FillMessage(AMsg: TIdMessage);
     function NewMessage(AOwner: TComponent = nil): TIdMessage;
     //
-    property Attachments: TStrings read FAttachments write SetAttachments;
+    property Attachments: TIdMessageBuilderAttachments read FAttachments write SetAttachments;
     property PlainText: TStrings read FPlainText write SetPlainText;
-    property Subject: String read FSubject write FSubject;
+    property PlainTextCharSet: String read FPlainTextCharSet write FPlainTextCharSet;
+    property PlainTextContentTransfer: String read FPlainTextContentTransfer write FPlainTextContentTransfer;
+  end;
+
+  TIdMessageBuilderPlain = class(TIdCustomMessageBuilder)
+  protected
+    procedure FillBody(AMsg: TIdMessage); override;
+    procedure FillHeaders(AMsg: TIdMessage); override;
   end;
 
   TIdMessageBuilderHtml = class(TIdCustomMessageBuilder)
   protected
     FHtml: TStrings;
-    FHtmlFiles: TStrings;
-    procedure InternalFill(AMsg: TIdMessage); override;
-    procedure SetContentType(AMsg: TIdMessage); override;
+    FHtmlCharSet: String;
+    FHtmlContentTransfer: String;
+    FHtmlFiles: TIdMessageBuilderAttachments;
+    FHtmlViewerNeededMsg: String;
+    procedure FillBody(AMsg: TIdMessage); override;
+    procedure FillHeaders(AMsg: TIdMessage); override;
     procedure SetHtml(AValue: TStrings);
-    procedure SetHtmlFiles(AValue: TStrings);
+    procedure SetHtmlFiles(AValue: TIdMessageBuilderAttachments);
   public
     constructor Create; override;
     destructor Destroy; override;
+    //
+    procedure Clear; override;
+    //
     property Html: TStrings read FHtml write SetHtml;
-    property HtmlFiles: TStrings read FHtmlFiles write SetHtmlFiles;
+    property HtmlCharSet: String read FHtmlCharSet write FHtmlCharSet;
+    property HtmlContentTransfer: String read FHtmlContentTransfer write FHtmlContentTransfer;
+    property HtmlFiles: TIdMessageBuilderAttachments read FHtmlFiles write SetHtmlFiles;
+    property HtmlViewerNeededMsg: String read FHtmlViewerNeededMsg write FHtmlViewerNeededMsg; 
   end;
 
   TIdMessageBuilderRtfType = (idMsgBldrRtfMS, idMsgBldrRtfEnriched, idMsgBldrRtfRichtext);
@@ -48,21 +100,27 @@ type
   TIdMessageBuilderRtf = class(TIdCustomMessageBuilder)
   protected
     FRtf: TStrings;
-    FType: TIdMessageBuilderRtfType;
-    procedure InternalFill(AMsg: TIdMessage); override;
-    procedure SetContentType(AMsg: TIdMessage); override;
+    FRtfType: TIdMessageBuilderRtfType;
+    FRtfViewerNeededMsg: String;
+    procedure FillBody(AMsg: TIdMessage); override;
+    procedure FillHeaders(AMsg: TIdMessage); override;
     procedure SetRtf(AValue: TStrings);
   public
     constructor Create; override;
     destructor Destroy; override;
+    //
+    procedure Clear; override;
+    //
     property Rtf: TStrings read FRtf write SetRtf;
-    property RtfType: TIdMessageBuilderRtfType read FType write FType;
+    property RtfType: TIdMessageBuilderRtfType read FRtfType write FRtfType;
+    property RtfViewerNeededMsg: String read FRtfViewerNeededMsg write FRtfViewerNeededMsg;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdAttachmentFile, IdText, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdAttachment, IdAttachmentFile, IdAttachmentMemory, 
+  IdResourceStringsProtocols, IdText, SysUtils;
 
 const
   cTextPlain = 'text/plain'; {do not localize}
@@ -72,13 +130,148 @@ const
   cMultipartMixed = 'multipart/mixed'; {do not localize}
   cMultipartRelatedHtml = 'multipart/related; type="text/html"'; {do not localize}
 
+{ TIdMessageBuilderAttachment }
+
+procedure TIdMessageBuilderAttachment.Assign(Source: TPersistent);
+begin
+  if Source is TIdMessageBuilderAttachment then
+  begin
+    with TIdMessageBuilderAttachment(Source) do
+    begin
+      Self.FContentID := FContentID;
+      Self.FContentTransfer := FContentTransfer;
+      Self.FContentType := FContentType;
+      Self.FData := FData;
+      Self.FFileName := FFileName;
+      Self.FName := FName;
+    end;
+  end else begin
+    inherited Assign(Source);
+  end;
+end;
+
+{ TIdMessageBuilderAttachments }
+
+constructor TIdMessageBuilderAttachments.Create;
+begin
+  inherited Create(TIdMessageBuilderAttachment);
+end;
+
+function TIdMessageBuilderAttachments.Add: TIdMessageBuilderAttachment;
+begin
+  // This helps prevent unsupported TIdMessageBuilderAttachment from being added
+  Result := nil;
+end;
+
+function TIdMessageBuilderAttachments.Add(const AFileName: String;
+  const AContentID: String = ''): TIdMessageBuilderAttachment;
+begin
+  Result := TIdMessageBuilderAttachment(inherited Add);
+  Result.FContentID := AContentID;
+  Result.FFileName := AFileName;
+end;
+
+function TIdMessageBuilderAttachments.Add(AData: TStream; const AContentType: String;
+  const AContentID: String = ''): TIdMessageBuilderAttachment;
+begin
+  Assert(AData <> nil);
+  Result := TIdMessageBuilderAttachment(inherited Add);
+  Result.FContentID := AContentID;
+  Result.FContentType := AContentType;
+  Result.FData := AData;
+end;
+
+procedure TIdMessageBuilderAttachments.AddToMessage(AMsg: TIdMessage; ParentPart: Integer);
+var
+  I: Integer;
+  LMsgBldrAttachment: TIdMessageBuilderAttachment;
+  LMsgAttachment: TIdAttachment;
+  LStream: TStream;
+
+  function FormatContentId(Item: TIdMessageBuilderAttachment): String;
+  begin
+    if Item.ContentID <> '' then begin
+      Result := EnsureMsgIDBrackets(Item.ContentID);
+    end else begin
+      Result := '';
+    end;
+  end;
+
+  function FormatContentType(Item: TIdMessageBuilderAttachment): String;
+  begin
+    if Item.ContentType <> '' then begin
+      Result := Item.ContentType;
+    end else begin
+      Result := GetMIMETypeFromFile(Item.FileName);
+    end;
+  end;
+
+  function FormatName(Item: TIdMessageBuilderAttachment): String;
+  begin
+    if Item.Name <> '' then begin
+      Result := Item.Name;
+    end
+    else if Item.FileName <> '' then begin
+      Result := ExtractFileName(Item.FileName);
+    end else begin
+      Result := '';
+    end;
+  end;
+
+begin
+  for I := 0 to Count-1 do
+  begin
+    LMsgBldrAttachment := Attachment[I];
+    if Assigned(LMsgBldrAttachment.Data) then
+    begin
+      LMsgAttachment := TIdAttachmentMemory.Create(AMsg.MessageParts);
+      try
+        LMsgAttachment.FileName := ExtractFileName(LMsgBldrAttachment.FileName);
+        LStream := LMsgAttachment.PrepareTempStream;
+        try
+          LStream.CopyFrom(LMsgBldrAttachment.Data, 0);
+        finally
+          LMsgAttachment.FinishTempStream;
+        end;
+      except
+        LMsgAttachment.Free;
+        raise;
+      end;
+    end else
+    begin
+      LMsgAttachment := TIdAttachmentFile.Create(AMsg.MessageParts, LMsgBldrAttachment.FileName);
+    end;
+    LMsgAttachment.Name := FormatName(LMsgBldrAttachment);
+    LMsgAttachment.ContentId := FormatContentId(LMsgBldrAttachment);
+    LMsgAttachment.ContentType := FormatContentType(LMsgBldrAttachment);
+    LMsgAttachment.ContentTransfer := LMsgBldrAttachment.ContentTransfer;
+    if ParentPart > -1 then
+    begin
+      if IsHeaderMediaType(LMsgAttachment.ContentType, 'image') then begin {do not localize}
+        LMsgAttachment.ContentDisposition := 'inline'; {do not localize}
+      end;
+      LMsgAttachment.ParentPart := ParentPart;
+    end;
+  end;
+end;
+
+function TIdMessageBuilderAttachments.GetAttachment(Index: Integer): TIdMessageBuilderAttachment;
+begin
+  Result := TIdMessageBuilderAttachment(inherited GetItem(Index));
+end;
+
+procedure TIdMessageBuilderAttachments.SetAttachment(Index: Integer; Value: TIdMessageBuilderAttachment);
+begin
+  inherited SetItem(Index, Value);
+end;
+
 { TIdCustomMessageBuilder }
 
 constructor TIdCustomMessageBuilder.Create;
 begin
   inherited Create;
   FPlainText := TStringList.Create;
-  FAttachments := TStringList.Create;
+  FAttachments := TIdMessageBuilderAttachments.Create;
 end;
 
 destructor TIdCustomMessageBuilder.Destroy;
@@ -89,15 +282,16 @@ begin
 end;
 
 procedure TIdCustomMessageBuilder.AddAttachments(AMsg: TIdMessage);
-var
-  I: Integer;
 begin
-  for I := 0 to FAttachments.Count-1 do
-  begin
-    with TIdAttachmentFile.Create(AMsg.MessageParts, FAttachments[I]) do begin
-      ContentType := GetMIMETypeFromFile(FileName);
-    end;
-  end;
+  FAttachments.AddToMessage(AMsg, -1);
+end;
+
+procedure TIdCustomMessageBuilder.Clear;
+begin
+  FAttachments.Clear;
+  FPlainText.Clear;
+  FPlainTextCharSet := '';
+  FPlainTextContentTransfer := '';
 end;
 
 procedure TIdCustomMessageBuilder.FillMessage(AMsg: TIdMessage);
@@ -106,11 +300,12 @@ begin
     Exit;
   end;
 
-  // Clear only the body and ContentType here...
+  // Clear only the body, ContentType, CharSet, and ContentTransferEncoding here...
   //
   AMsg.ClearBody;
   AMsg.ContentType := '';
-  AMsg.Subject := FSubject;
+  AMsg.CharSet := '';
+  AMsg.ContentTransferEncoding := '';
 
   // let the message decide how to encode itself
   // based on what parts are added in InternalFill()
@@ -119,15 +314,16 @@ begin
 
   // fill in type-specific content first
   //
-  InternalFill(AMsg);
+  FillBody(AMsg);
 
   // Are non-related attachments present?
   //
   AddAttachments(AMsg);
 
-  // Determine the top-level ContentType for the message now
+  // Determine the top-level ContentType and
+  // ContentTranferEncoding for the message now
   //
-  SetContentType(AMsg);
+  FillHeaders(AMsg);
 end;
 
 function TIdCustomMessageBuilder.NewMessage(AOwner: TComponent = nil): TIdMessage;
@@ -141,12 +337,12 @@ begin
   end;
 end;
 
-procedure TIdCustomMessageBuilder.SetAttachments(AValue: TStrings);
+procedure TIdCustomMessageBuilder.SetAttachments(AValue: TIdMessageBuilderAttachments);
 begin
   FAttachments.Assign(AValue);
 end;
 
-procedure TIdCustomMessageBuilder.SetContentType(AMsg: TIdMessage);
+procedure TIdCustomMessageBuilder.FillHeaders(AMsg: TIdMessage);
 begin
   if FAttachments.Count > 0 then
   begin
@@ -155,12 +351,24 @@ begin
       // plain text and/or formatting, and at least 1 non-related attachment
       //
       AMsg.ContentType := cMultipartMixed;
+      AMsg.CharSet := '';
+      AMsg.ContentTransferEncoding := '';
     end else
     begin
       // no plain text or formatting, only 1 non-related attachment
       //
-      AMsg.ContentType := AMsg.MessageParts[0].ContentType;
+      with AMsg.MessageParts[0] do
+      begin
+        AMsg.ContentType := ContentType;
+        AMsg.CharSet := CharSet;
+        AMsg.ContentTransferEncoding := ContentTransfer;
+      end;
     end;
+  end else
+  begin
+    AMsg.ContentType := '';
+    AMsg.CharSet := '';
+    AMsg.ContentTransferEncoding := '';
   end;
 end;
 
@@ -169,13 +377,57 @@ begin
   FPlainText.Assign(AValue);
 end;
 
+{ TIdMessageBuilderPlain }
+
+procedure TIdMessageBuilderPlain.FillBody(AMsg: TIdMessage);
+begin
+  // Is plain text present?
+  //
+  if FPlainText.Count > 0 then
+  begin
+    // Should the message contain only plain text?
+    //
+    if FAttachments.Count = 0 then
+    begin
+      AMsg.Body.Assign(FPlainText);
+    end else
+    begin
+      // At this point, multiple pieces will be present in the message
+      // body, so everything must be stored in the MessageParts collection...
+      //
+      with TIdText.Create(AMsg.MessageParts, FPlainText) do
+      begin
+        ContentType := cTextPlain;
+        CharSet := FPlainTextCharSet;
+        ContentTransfer := FPlainTextContentTransfer;
+      end;
+    end;
+  end;
+end;
+
+procedure TIdMessageBuilderPlain.FillHeaders(AMsg: TIdMessage);
+begin
+  if (FPlainText.Count > 0) and (FAttachments.Count = 0) then
+  begin
+    // plain text only
+    //
+    AMsg.ContentType := cTextPlain;
+    AMsg.CharSet := FPlainTextCharSet;
+    AMsg.ContentTransferEncoding := FPlainTextContentTransfer;
+  end else
+  begin
+    inherited FillHeaders(AMsg);
+  end;
+end;
+
 { TIdMessageBuilderHtml }
 
 constructor TIdMessageBuilderHtml.Create;
 begin
   inherited Create;
   FHtml := TStringList.Create;
-  FHtmlFiles := TStringList.Create;
+  FHtmlFiles := TIdMessageBuilderAttachments.Create;
+  FHtmlViewerNeededMsg := rsHtmlViewerNeeded;
 end;
 
 destructor TIdMessageBuilderHtml.Destroy;
@@ -185,14 +437,23 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdMessageBuilderHtml.InternalFill(AMsg: TIdMessage);
+procedure TIdMessageBuilderHtml.Clear;
+begin
+  FHtml.Clear;
+  FHtmlCharSet := '';
+  FHtmlContentTransfer := '';
+  FHtmlFiles.Clear;
+  inherited Clear;
+end;
+
+procedure TIdMessageBuilderHtml.FillBody(AMsg: TIdMessage);
 var
-  LUseText, LUseHtml, LUseHtmlFiles, LUseAttachments: Boolean;
-  I, LAlternativeIndex, LRelatedIndex: Integer;
+  LUsePlain, LUseHtml, LUseHtmlFiles, LUseAttachments: Boolean;
+  LAlternativeIndex, LRelatedIndex: Integer;
 begin
   // Cache these for better performance
   //
-  LUseText := FPlainText.Count > 0;
+  LUsePlain := FPlainText.Count > 0;
   LUseHtml := FHtml.Count > 0;
   LUseHtmlFiles := LUseHtml and (FHtmlFiles.Count > 0);
   LUseAttachments := FAttachments.Count > 0;
@@ -202,13 +463,13 @@ begin
 
   // Is any body data present at all?
   //
-  if not (LUseText or LUseHtml or LUseHtmlFiles or LUseAttachments) then begin
+  if not (LUsePlain or LUseHtml or LUseHtmlFiles or LUseAttachments) then begin
     Exit;
   end;
 
   // Should the message contain only plain text?
   //
-  if LUseText and not (LUseHtml or LUseAttachments) then
+  if LUsePlain and not (LUseHtml or LUseAttachments) then
   begin
     AMsg.Body.Assign(FPlainText);
     Exit;
@@ -216,7 +477,7 @@ begin
 
   // Should the message contain only HTML?
   //
-  if LUseHtml and not (LUseText or LUseHtmlFiles or LUseAttachments) then
+  if LUseHtml and not (LUsePlain or LUseHtmlFiles or LUseAttachments) then
   begin
     AMsg.Body.Assign(FHtml);
     Exit;
@@ -229,7 +490,7 @@ begin
   // "multipart/alternative" piece is needed to wrap them if
   // non-related attachments are also present...
   //
-  if LUseHtml and LUseAttachments then
+  if LUsePlain and LUseHtml and LUseAttachments then
   begin
     with TIdText.Create(AMsg.MessageParts, nil) do
     begin
@@ -240,15 +501,17 @@ begin
 
   // Is plain text present?
   //
-  if LUseText or LUseHtml then
+  if LUsePlain or LUseHtml then
   begin
     with TIdText.Create(AMsg.MessageParts, FPlainText) do
     begin
-      if LUseHtml and (not LUseText) then
+      if LUseHtml and (not LUsePlain) then
       begin
-        Body.Text := 'An HTML viewer is required to see this message'; {do not localize}
+        Body.Text := FHtmlViewerNeededMsg;
       end;
       ContentType := cTextPlain;
+      CharSet := FPlainTextCharSet;
+      ContentTransfer := FPlainTextContentTransfer;
       ParentPart := LAlternativeIndex;
     end;
   end;
@@ -279,6 +542,8 @@ begin
     with TIdText.Create(AMsg.MessageParts, FHtml) do
     begin
       ContentType := cTextHtml;
+      CharSet := FHtmlCharSet;
+      ContentTransfer := FHtmlContentTransfer;
       if LRelatedIndex <> -1 then begin
         ParentPart := LRelatedIndex; // plain text and related attachments
       end else begin
@@ -288,25 +553,13 @@ begin
 
     // Are related attachments present?
     //
-    if LUseHtmlFiles then
-    begin
-      for I := 0 to FHtmlFiles.Count-1 do
-      begin
-        with TIdAttachmentFile.Create(AMsg.MessageParts, FHtmlFiles[I]) do
-        begin
-          ContentId := '<' + FileName + '>';
-          ContentType := GetMIMETypeFromFile(FileName);
-          if TextStartsWith(ContentType, 'image/') then begin {do not localize}
-            ContentDisposition := 'inline'; {do not localize}
-          end;
-          ParentPart := LRelatedIndex;
-        end;
-      end;
+    if LUseHtmlFiles then begin
+      FHtmlFiles.AddToMessage(AMsg, LRelatedIndex);
     end;
   end;
 end;
 
-procedure TIdMessageBuilderHtml.SetContentType(AMsg: TIdMessage);
+procedure TIdMessageBuilderHtml.FillHeaders(AMsg: TIdMessage);
 begin
   if FAttachments.Count = 0 then
   begin
@@ -315,6 +568,8 @@ begin
       // plain text only
       //
       AMsg.ContentType := cTextPlain;
+      AMsg.CharSet := FPlainTextCharSet;
+      AMsg.ContentTransferEncoding := FPlainTextContentTransfer;
     end
     else if FHtml.Count > 0 then
     begin
@@ -323,16 +578,20 @@ begin
         // HTML only
         //
         AMsg.ContentType := cTextHtml;
+        AMsg.CharSet := FHtmlCharSet;
+        AMsg.ContentTransferEncoding := FHtmlContentTransfer;
       end else
       begin
         // plain text and HTML and no related attachments
         //
         AMsg.ContentType := cMultipartAlternative;
+        AMsg.CharSet := '';
+        AMsg.ContentTransferEncoding := '';
       end;
     end;
   end else
   begin
-    inherited SetContentType(AMsg);
+    inherited FillHeaders(AMsg);
   end;
 end;
 
@@ -341,7 +600,7 @@ begin
   FHtml.Assign(AValue);
 end;
 
-procedure TIdMessageBuilderHtml.SetHtmlFiles(AValue: TStrings);
+procedure TIdMessageBuilderHtml.SetHtmlFiles(AValue: TIdMessageBuilderAttachments);
 begin
   FHtmlFiles.Assign(AValue);
 end;
@@ -352,7 +611,8 @@ constructor TIdMessageBuilderRtf.Create;
 begin
   inherited Create;
   FRtf := TStringList.Create;
-  FType := idMsgBldrRtfMS;
+  FRtfType := idMsgBldrRtfMS;
+  FRtfViewerNeededMsg := rsRtfViewerNeeded;
 end;
 
 destructor TIdMessageBuilderRtf.Destroy;
@@ -361,27 +621,33 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdMessageBuilderRtf.InternalFill(AMsg: TIdMessage);
+procedure TIdMessageBuilderRtf.Clear;
+begin
+  FRtf.Clear;
+  inherited Clear;
+end;
+
+procedure TIdMessageBuilderRtf.FillBody(AMsg: TIdMessage);
 var
-  LUseText, LUseRtf, LUseAttachments: Boolean;
+  LUsePlain, LUseRtf, LUseAttachments: Boolean;
   LAlternativeIndex: Integer;
 begin
   // Cache these for better performance
   //
-  LUseText := FPlainText.Count > 0;
+  LUsePlain := FPlainText.Count > 0;
   LUseRtf := FRtf.Count > 0;
   LUseAttachments := FAttachments.Count > 0;
   LAlternativeIndex := -1;
 
   // Is any body data present at all?
   //
-  if not (LUseText or LUseRtf or LUseAttachments) then begin
+  if not (LUsePlain or LUseRtf or LUseAttachments) then begin
     Exit;
   end;
 
   // Should the message contain only plain text?
   //
-  if LUseText and not (LUseRtf or LUseAttachments) then
+  if LUsePlain and not (LUseRtf or LUseAttachments) then
   begin
     AMsg.Body.Assign(FPlainText);
     Exit;
@@ -389,7 +655,7 @@ begin
 
   // Should the message contain only RTF?
   //
-  if LUseRtf and not (LUseText or LUseAttachments) then
+  if LUseRtf and not (LUsePlain or LUseAttachments) then
   begin
     AMsg.Body.Assign(FRtf);
     Exit;
@@ -402,7 +668,7 @@ begin
   // "multipart/alternative" piece is needed to wrap them if
   // attachments are also present...
   //
-  if LUseRtf and LUseAttachments then
+  if LUsePlain and LUseRtf and LUseAttachments then
   begin
     with TIdText.Create(AMsg.MessageParts, nil) do
     begin
@@ -413,13 +679,13 @@ begin
 
   // Is plain text present?
   //
-  if LUseText or LUseRtf then
+  if LUsePlain or LUseRtf then
   begin
     with TIdText.Create(AMsg.MessageParts, FPlainText) do
     begin
-      if LUseRtf and (not LUseText) then
+      if LUseRtf and (not LUsePlain) then
       begin
-        Body.Text := 'An RTF viewer is required to see this message'; {do not localize}
+        Body.Text := FRtfViewerNeededMsg;
       end;
       ContentType := cTextPlain;
       ParentPart := LAlternativeIndex;
@@ -434,13 +700,13 @@ begin
     //
     with TIdText.Create(AMsg.MessageParts, FRtf) do
     begin
-      ContentType := cTextRtf[FType];
+      ContentType := cTextRtf[FRtfType];
       ParentPart := LAlternativeIndex; // plain text and optional non-related attachments
     end;
   end;
 end;
 
-procedure TIdMessageBuilderRtf.SetContentType(AMsg: TIdMessage);
+procedure TIdMessageBuilderRtf.FillHeaders(AMsg: TIdMessage);
 begin
   if FAttachments.Count = 0 then
   begin
@@ -449,21 +715,27 @@ begin
       // plain text only
       //
       AMsg.ContentType := cTextPlain;
+      AMsg.CharSet := FPlainTextCharSet;
+      AMsg.ContentTransferEncoding := FPlainTextContentTransfer;
     end
     else if (FRtf.Count > 0) and (FPlainText.Count = 0) then
     begin
       // RTF only
       //
-      AMsg.ContentType := cTextRtf[FType];
+      AMsg.ContentType := cTextRtf[FRtfType];
+      AMsg.CharSet := '';
+      AMsg.ContentTransferEncoding := '';
     end else
     begin
       // plain text and RTF and no non-related attachments
       //
       AMsg.ContentType := cMultipartAlternative;
+      AMsg.CharSet := '';
+      AMsg.ContentTransferEncoding := '';
     end;
   end else
   begin
-    inherited SetContentType(AMsg);
+    inherited FillHeaders(AMsg);
   end;
 end;
 

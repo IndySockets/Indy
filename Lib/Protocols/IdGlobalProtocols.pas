@@ -1,4 +1,4 @@
-{
+    {
   $Project$
   $Workfile$
   $Revision$
@@ -342,11 +342,13 @@ const
     ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'); {do not localize}
 
 type
-  //WinceCE only has WideString functions for files.
+  //WinCE only has Unicode functions for files.
   {$IFDEF WINCE}
-  TIdFileName = WideString;
+  TIdFileName = TIdUnicodeString;
+  PIdFileNameChar = PWideChar;
   {$ELSE}
   TIdFileName = String;
+  PIdFileNameChar = PChar;
   {$ENDIF}
 
   TIdReadLnFunction = function: string of object;
@@ -391,10 +393,12 @@ type
     Windows2003Server, Windows2003AdvancedServer);
   {$ENDIF}
 
+  TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
+
   //
   EIdExtensionAlreadyExists = class(EIdException);
 
-// Procs - KEEP THESE ALPHABETICAL!!!!!
+  // Procs - KEEP THESE ALPHABETICAL!!!!!
 
 //  procedure BuildMIMETypeMap(dest: TIdStringList);
   // TODO: IdStrings have optimized SplitColumns* functions, can we remove it?
@@ -403,9 +407,24 @@ type
   function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
   function LongWordToFourChar(AValue : LongWord): string;
   function CharRange(const AMin, AMax : Char): String;
-  Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
   procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
   function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
+
+  function ContentTypeToEncoding(const AContentType: string; AQuoteType: TIdHeaderQuotingType): TIdTextEncoding;
+  function CharsetToEncoding(const ACharset: string): TIdTextEncoding;
+
+  function ReadStringAsContentType(AStream: TStream; const AContentType: String;
+    AQuoteType: TIdHeaderQuotingType
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}): String;
+  function ReadStringAsCharset(AStream: TStream; const ACharset: String
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}): String;
+
+  procedure ReadStringsAsContentType(AStream: TStream; AStrings: TStrings; const AContentType: String;
+    AQuoteType: TIdHeaderQuotingType
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF});
+  procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: string
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF});
+
   {
   These are for handling binary values that are in Network Byte order.  They call
   ntohs, ntols, htons, and htons which are required by SNTP and FSP
@@ -420,12 +439,20 @@ type
     var VDest: TIdBytes; const ADestIndex: Integer);
   procedure CopyTIdNetworkWord(const ASource: Word;
     var VDest: TIdBytes; const ADestIndex: Integer);
-  //Wince only has WideString functions so this might as well be a widestring.
   function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
   function DomainName(const AHost: String): String;
   function EnsureMsgIDBrackets(const AMsgID: String): String;
+  function ExtractHeaderItem(const AHeaderLine: String): String;
+  function ExtractHeaderSubItem(const AHeaderLine, ASubItem: String; AQuoteType: TIdHeaderQuotingType): String;
+  function ReplaceHeaderSubItem(const AHeaderLine, ASubItem, AValue: String; AQuoteType: TIdHeaderQuotingType): String; overload;
+  function ReplaceHeaderSubItem(const AHeaderLine, ASubItem, AValue: String; var VOld: String; AQuoteType: TIdHeaderQuotingType): String; overload;
+  function IsHeaderMediaType(const AHeaderLine, AMediaType: String): Boolean;
+  function IsHeaderMediaTypes(const AHeaderLine: String; const AMediaTypes: array of String): Boolean;
+  function IsHeaderValue(const AHeaderLine: String; const AValue: String): Boolean;
   function FileSizeByName(const AFilename: TIdFileName): Int64;
-
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  function IsVolume(const APathName : TIdFileName) : Boolean;
+  {$ENDIF}
   //MLIST FTP DateTime conversion functions
   function FTPMLSToGMTDateTime(const ATimeStamp : String):TDateTime;
   function FTPMLSToLocalDateTime(const ATimeStamp : String):TDateTime;
@@ -437,7 +464,7 @@ type
   function GetMIMETypeFromFile(const AFile: TIdFileName): string;
   function GetMIMEDefaultFileExt(const MIMEType: string): TIdFileName;
   function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
-  function GmtOffsetStrToDateTime(S: string): TDateTime;
+  function GmtOffsetStrToDateTime(const S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: LongWord): string;
@@ -450,16 +477,18 @@ type
   function IsBinary(const AChar : Char) : Boolean;
   function IsHex(const AChar : Char) : Boolean;
   function IsHostname(const S: String): Boolean;
-  function IsLeadChar(ACh : Char):Boolean;
+  {$IFDEF STRING_IS_ANSI}
+  function IsLeadChar(ACh : Char): Boolean;
+  {$ENDIF}
   function IsTopDomain(const AStr: string): Boolean;
   function IsValidIP(const S: String): Boolean;
-
-  function MakeTempFilename(const APath: String = ''): string;
-  procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
+  function MakeTempFilename(const APath: TIdFileName = ''): TIdFileName;
+  procedure MoveChars(const ASource: ShortString; ASourceStart: integer; var ADest: ShortString; ADestStart, ALen: integer);
   function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
   procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 
   function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
+  function UnquotedStr(const AStr : String): String;
 
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
@@ -480,7 +509,7 @@ type
   function UnixDateTimeToDelphiDateTime(UnixDateTime: LongWord): TDateTime;
   function DateTimeToUnix(ADateTime: TDateTime): LongWord;
 
-  function TwoCharToWord(AChar1, AChar2: Char):Word;
+  function TwoCharToWord(AChar1, AChar2: Char): Word;
   function UpCaseFirst(const AStr: string): string;
   function UpCaseFirstWord(const AStr: string): string;
   function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
@@ -493,7 +522,9 @@ type
   function IndyWrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
  
   //The following is for working on email headers and message part headers...
-  function RemoveHeaderEntry(AHeader, AEntry: string): string;
+  function RemoveHeaderEntry(const AHeader, AEntry: string; AQuoteType: TIdHeaderQuotingType): string; overload;
+  function RemoveHeaderEntry(const AHeader, AEntry: string; var VOld: String; AQuoteType: TIdHeaderQuotingType): string; overload;
+  function RemoveHeaderEntries(const AHeader: string; AEntries: array of string; AQuoteType: TIdHeaderQuotingType): string;
 
   {
     Three functions for easier manipulating of strings.  Don't know of any
@@ -503,14 +534,18 @@ type
   function FindFirstOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
   function FindFirstNotOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
   function TrimAllOf(const ATrim, AText: string): string;
+  procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings);
+
+type
+  TIdEncodingNeededEvent = function(const ACharset: String): TIdTextEncoding;
 
 var
   {$IFDEF UNIX}
   // For linux the user needs to set these variables to be accurate where used (mail, etc)
-  GOffsetFromUTC: TDateTime = 0;
-  GTimeZoneBias: TDateTime = 0;
-  GIdDefaultCharSet : TIdCharSet = idcsISO_8859_1;
+  GIdDefaultCharSet : TIdCharSet = idcs_ISO_8859_1; // idcsISO_8859_1;
   {$ENDIF}
+
+  GEncodingNeeded: TIdEncodingNeededEvent = nil;
 
   IndyFalseBoolStrs : array of String;
   IndyTrueBoolStrs : array of String;
@@ -531,22 +566,33 @@ const
 implementation
 
 uses
+  {$IFDEF DELPHI_CROSS}
+    {$IFDEF MACOSX}
+  CoreServices,
+    {$ENDIF}
+  {$ENDIF}
+  IdIPAddress,
   {$IFDEF UNIX}
-    {$IFDEF KYLIX}
+    {$IFDEF KYLIXCOMPAT}
   Libc,
     {$ENDIF}
     {$IFDEF FPC}
-      {$IFDEF KYLIXCOMPAT}
-      libc,
-      {$ENDIF}
-      {$IFDEF USEBASEUNIX}
+      {$IFDEF USE_BASEUNIX}
       BaseUnix,
       Unix,
       DateUtils,
       {$ENDIF}
     {$ENDIF}
+    {$IFDEF USE_VCL_POSIX}
+      {$IFDEF DARWIN}
+    CoreServices,
+      {$ENDIF}
+    DateUtils,
+    PosixSysStat, PosixSysTime, PosixTime, PosixUnistd,
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Messages,
   Registry,
   {$ENDIF}
   {$IFDEF DOTNET}
@@ -557,6 +603,17 @@ uses
   IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack;
+
+//
+
+function UnquotedStr(const AStr : String): String;
+begin
+  Result := AStr;
+  if TextStartsWith(Result, '"') then begin
+    IdDelete(Result, 1, 1);
+    Result := Fetch(Result, '"');
+  end;
+end;
 
 {This is taken from Borland's SysUtils and modified for our folding}    {Do not Localize}
 function IndyWrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
@@ -578,70 +635,54 @@ begin
   LLineLen := Length(ALine);
   LBreakLen := Length(ABreakStr);
   Result := '';    {Do not Localize}
-  while LPos <= LLineLen do
-  begin
+  while LPos <= LLineLen do begin
     LCurChar := ALine[LPos];
-    if IsLeadChar(LCurChar) then
-    begin
+    {$IFDEF STRING_IS_ANSI}
+    if IsLeadChar(LCurChar) then begin
       Inc(LPos);
       Inc(LCol);
-    end  //if CurChar in LeadBytes then
-    else
-    begin
-      if LCurChar = ABreakStr[1] then
-      begin
-        if LQuoteChar = ' ' then    {Do not Localize}
-        begin
+    end else begin //if CurChar in LeadBytes then
+    {$ENDIF}
+      if LCurChar = ABreakStr[1] then begin
+        if LQuoteChar = ' ' then begin   {Do not Localize}
           LExistingBreak := TextIsSame(ABreakStr, Copy(ALine, LPos, LBreakLen));
-          if LExistingBreak then
-          begin
+          if LExistingBreak then begin
             Inc(LPos, LBreakLen-1);
             LBreakPos := LPos;
           end; //if ExistingBreak then
         end // if QuoteChar = ' ' then    {Do not Localize}
-      end // if CurChar = BreakStr[1] then
-      else
-        if CharIsInSet(LCurChar, 1, ABreakChars) then
-        begin
-          if LQuoteChar = ' ' then    {Do not Localize}
-          begin
+      end else begin// if CurChar = BreakStr[1] then
+        if CharIsInSet(LCurChar, 1, ABreakChars) then begin
+          if LQuoteChar = ' ' then begin   {Do not Localize}
             LBreakPos := LPos;
           end;
-        end  // if CurChar in BreakChars then
-        else
-        begin
-        if CharIsInSet(LCurChar, 1, QuoteChars) then
-        begin
-          if LCurChar = LQuoteChar then
-          begin
-            LQuoteChar := ' ';    {Do not Localize}
-          end
-          else
-          begin
-            if LQuoteChar = ' ' then    {Do not Localize}
-            begin
-              LQuoteChar := LCurChar;
+        end else begin // if CurChar in BreakChars then
+          if CharIsInSet(LCurChar, 1, QuoteChars) then begin
+            if LCurChar = LQuoteChar then begin
+              LQuoteChar := ' ';    {Do not Localize}
+            end else begin
+              if LQuoteChar = ' ' then begin   {Do not Localize}
+                LQuoteChar := LCurChar;
+              end;
             end;
           end;
         end;
       end;
+    {$IFDEF STRING_IS_ANSI}
     end;
+    {$ENDIF}
     Inc(LPos);
     Inc(LCol);
     if not (CharIsInSet(LQuoteChar, 1, QuoteChars)) and
        (LExistingBreak or
-      ((LCol > MaxCol) and (LBreakPos > LLinePos))) then
-    begin
+      ((LCol > MaxCol) and (LBreakPos > LLinePos))) then begin
       LCol := LPos - LBreakPos;
       Result := Result + Copy(ALine, LLinePos, LBreakPos - LLinePos + 1);
-      if not (CharIsInSet(LCurChar, 1, QuoteChars)) then
-      begin
-        while (LPos <= LLineLen) and (CharIsInSet(ALine, LPos, ABreakChars + #13+#10)) do
-        begin
+      if not (CharIsInSet(LCurChar, 1, QuoteChars)) then begin
+        while (LPos <= LLineLen) and (CharIsInSet(ALine, LPos, ABreakChars + #13+#10)) do begin
           Inc(LPos);
         end;
-        if not LExistingBreak and (LPos < LLineLen) then
-        begin
+        if not LExistingBreak and (LPos < LLineLen) then begin
           Result := Result + ABreakStr;
         end;
       end;
@@ -654,17 +695,19 @@ begin
 end;
 
 function IndyCurrentYear : Integer;
-{$IFDEF VCL11ORABOVE}
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  Result := CurrentYear;
+{$IFDEF VCL_2007_OR_ABOVE}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 {$ELSE}
 var
   LYear, LMonth, LDay : Word;
+{$ENDIF}
 begin
+  {$IFDEF VCL_2007_OR_ABOVE}
+  Result := CurrentYear;
+  {$ELSE}
   DecodeDate(Now, LYear, LMonth, LDay);
   Result := LYear;
-{$ENDIF}
+  {$ENDIF}
 end;
 
 function CharRange(const AMin, AMax : Char): String;
@@ -689,34 +732,33 @@ end;
 
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
 var
-  ATempPath: string;
+  ATempPath: TIdFileName;
 {$ENDIF}
 
 function StartsWith(const ANSIStr, APattern : String) : Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := TextStartsWith(ANSIStr, APattern) {do not localize}
   //tentative fix for a problem with Korean indicated by "SungDong Kim" <infi@acrosoft.pe.kr>
   {$IFNDEF DOTNET}
   //note that in DotNET, everything is MBCS
     and (ByteType(ANSIStr, 1) = mbSingleByte)
-  {$ENDIF}
-  ;
+  {$ENDIF} ;
   //just in case someone is doing a recursive listing and there's a dir with the name total
 end;
 
 function UnixDateTimeToDelphiDateTime(UnixDateTime: LongWord): TDateTime;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
    Result := (UnixDateTime / 86400) + UnixStartDate;
 {
 From: http://homepages.borland.com/efg2lab/Library/UseNet/1999/0309b.txt
  }
-   //  Result := EncodeDate(1970, 1, 1) + (UnixDateTime / 86400); {86400=No. of secs. per day}
+ //   Result := EncodeDate(1970, 1, 1) + (UnixDateTime / 86400); {86400=No. of secs. per day}
 end;
 
 function DateTimeToUnix(ADateTime: TDateTime): LongWord;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   //example: DateTimeToUnix(now);
   Result := Round((ADateTime - UnixStartDate) * 86400);
@@ -724,7 +766,7 @@ end;
 
 procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer;
   var VDest : Word);
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   VDest := IdGlobal.BytesToWord(ASource, ASourceIndex);
   VDest := GStack.NetworkToHost(VDest);
@@ -732,7 +774,7 @@ end;
 
 procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer;
   var VDest : LongWord);
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   VDest := IdGlobal.BytesToLongWord(ASource, ASourceIndex);
   VDest := GStack.NetworkToHost(VDest);
@@ -740,20 +782,21 @@ end;
 
 procedure CopyTIdNetworkWord(const ASource: Word;
     var VDest: TIdBytes; const ADestIndex: Integer);
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   CopyTIdWord(GStack.HostToNetwork(ASource),VDest,ADestIndex);
 end;
 
 procedure CopyTIdNetworkLongWord(const ASource: LongWord;
     var VDest: TIdBytes; const ADestIndex: Integer);
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   CopyTIdLongWord(GStack.HostToNetwork(ASource),VDest,ADestIndex);
 end;
 
 // BGO: TODO: Move somewhere else
-procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
+procedure MoveChars(const ASource: ShortString; ASourceStart: integer;
+  var ADest: ShortString; ADestStart, ALen: integer);
 {$IFDEF DOTNET}
 var
   a: Integer;
@@ -771,23 +814,14 @@ begin
   {$ENDIF}
 end;
 
-Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  SetLength(Result,2);
-  Result[1] := IdHexDigits[byte(c) shr 4];
-  Result[2] := IdHexDigits[byte(c) AND $0F];
-  Result := APrefix + Result;
-end;
-
 function LongWordToFourChar(AValue : LongWord): string;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := BytesToString(ToBytes(AValue));
+  Result := BytesToString(ToBytes(AValue), Indy8BitEncoding);
 end;
 
 procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   //ByteArray[Index] := AWord div 256;
   //ByteArray[Index + 1] := AWord mod 256;
@@ -796,13 +830,13 @@ begin
 end;
 
 function StrToWord(const Value: String): Word;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if Length(Value) > 1 then begin
-    {$IFDEF DOTNET}
+    {$IFDEF STRING_IS_UNICODE}
     Result := TwoCharToWord(Value[1], Value[2]);
     {$ELSE}
-    Result := Word(Pointer(@Value[1])^);
+    Result := Word(Pointer(Value)^);
     {$ENDIF}
   end else begin
     Result := 0;
@@ -810,10 +844,10 @@ begin
 end;
 
 function WordToStr(const Value: Word): String;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  {$IFDEF DOTNET}
-  Result := BytesToString(ToBytes(Value));
+  {$IFDEF STRING_IS_UNICODE}
+  Result := BytesToString(ToBytes(Value), Indy8BitEncoding);
   {$ELSE}
   SetLength(Result, SizeOf(Value));
   Move(Value, Result[1], SizeOf(Value));
@@ -821,7 +855,7 @@ begin
 end;
 
 function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LValue: TIdBytes;
 begin
@@ -834,7 +868,7 @@ begin
 end;
 
 procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LValue: TIdBytes;
 begin
@@ -845,13 +879,13 @@ begin
   VByte4 := LValue[3];
 end;
 
-function TwoCharToWord(AChar1,AChar2: Char):Word;
+function TwoCharToWord(AChar1, AChar2: Char): Word;
 //Since Replys are returned as Strings, we need a rountime to convert two
 // characters which are a 2 byte U Int into a two byte unsigned integer
 var
   LWord: TIdBytes;
 begin
-  SetLength(LWord,2);
+  SetLength(LWord, 2);
   LWord[0] := Ord(AChar1);
   LWord[1] := Ord(AChar2);
   Result := BytesToWord(LWord);
@@ -914,8 +948,7 @@ begin
   Fetch(LBuf,' ');
   //get the version number without any letters
   LNumber := '';
-  for i := 1 to Length(LBuf) do
-  begin
+  for i := 1 to Length(LBuf) do begin
     if IsNumeric(LBuf[i]) then begin
       LNumber := LNumber+LBuf[i];
     end else begin
@@ -937,8 +970,7 @@ begin
       else
         Result := WindowsXPPro; // Windows 2003 has no desktop version
       end;
-    end else
-    begin
+    end else begin
       if Win32MinorVersion >= 1 then begin
         case GetNTType of
           Server : Result := Windows2000Server; // hmmm, winXp has no server versions
@@ -946,8 +978,7 @@ begin
         else
           Result := WindowsXPPro;
         end;
-      end
-      else begin
+      end else begin
         case GetNTType of
           Server : Result := Windows2000Server;
           AdvancedServer : Result := Windows2000AdvancedServer;
@@ -956,22 +987,19 @@ begin
         end;
       end;
     end;
-  end
-  else begin
+  end else begin
     {is this WIndows 95, 98, Me, or NT 40}
     if Win32MajorVersion > 3 then begin
       if Win32Platform = VER_PLATFORM_WIN32_NT then begin
         //Bas requested that we specifically check for anything below SP6
-        if GetOSServicePack < 6 then
-        begin
+        if GetOSServicePack < 6 then begin
           case GetNTType of
             Server : Result := WindowsNT40PreSP6Server;
             AdvancedServer : Result := WindowsNT40PreSP6AdvancedServer;
           else
             Result := WindowsNT40PreSP6Workstation;
           end;
-        end else
-        begin
+        end else begin
           case GetNTType of
         //WindowsNT40Workstation, WindowsNT40Server, WindowsNT40AdvancedServer
             Server : Result := WindowsNT40Server;
@@ -980,35 +1008,29 @@ begin
             Result := WindowsNT40Workstation;
           end;
         end;
-      end
-      else begin
+      end else begin
         {mask off junk}
         Win32BuildNumber := Win32BuildNumber and $FFFF;
         if Win32MinorVersion >= 90 then begin
           Result := WindowsMe;
-        end
-        else begin
+        end else begin
           if Win32MinorVersion >= 10 then begin
             {Windows 98}
             if Win32BuildNumber >= 2222 then begin
               Result := Windows98SE
-            end
-            else begin
+            end else begin
               Result := Windows98;
             end;
-          end
-          else begin {Windows 95}
+          end else begin {Windows 95}
             if Win32BuildNumber >= 1000 then begin
               Result := Windows95OSR2
-            end
-            else begin
+            end else begin
               Result := Windows95;
             end;
           end;
         end;
       end;
-    end
-    else begin
+    end else begin
       Result := Win32s;
     end;
   end;
@@ -1034,40 +1056,34 @@ begin
   DecodeDate(ADateTime2, LYear2, LMonth2, LDay2);
   // year
   Result := LYear1 - LYear2;
-  if Result <> 0 then
-  begin
+  if Result <> 0 then begin
     Exit;
   end;
   // month
   Result := LMonth1 - LMonth2;
-  if Result <> 0 then
-  begin
+  if Result <> 0 then begin
     Exit;
   end;
   // day
   Result := LDay1 - LDay2;
-  if Result <> 0 then
-  begin
+  if Result <> 0 then begin
     Exit;
   end;
   DecodeTime(ADateTime1, LHour1, LMin1, LSec1, LMSec1);
   DecodeTime(ADateTime2, LHour2, LMin2, LSec2, LMSec2);
   //hour
   Result := LHour1 - LHour2;
-  if Result <> 0 then
-  begin
+  if Result <> 0 then begin
     Exit;
   end;
   //minute
   Result := LMin1 - LMin2;
-  if Result <> 0 then
-  begin
+  if Result <> 0 then begin
     Exit;
   end;
   //second
   Result := LSec1 - LSec2;
-  if Result <> 0 then
-  begin
+  if Result <> 0 then begin
     Exit;
   end;
   //millasecond
@@ -1075,31 +1091,32 @@ begin
 end;
 
 {This is an internal procedure so the StrInternetToDateTime and GMTToLocalDateTime can share common code}
-function RawStrInternetToDateTime(var Value: string): TDateTime;
+function RawStrInternetToDateTime(var Value: string; var VDateTime: TDateTime): Boolean;
 var
   i: Integer;
   Dt, Mo, Yr, Ho, Min, Sec: Word;
-  sTime: String;
-  ADelim: string;
+  sYear, sTime, sDelim: string;
   //flags for if AM/PM marker found
   LAM, LPM : Boolean;
 
-  Procedure ParseDayOfMonth;
+  procedure ParseDayOfMonth;
   begin
-    Dt :=  IndyStrToInt( Fetch(Value, ADelim), 1);
+    Dt :=  IndyStrToInt( Fetch(Value, sDelim), 1);
     Value := TrimLeft(Value);
   end;
 
-  Procedure ParseMonth;
+  procedure ParseMonth;
   begin
-    Mo := StrToMonth( Fetch ( Value, ADelim )  );
+    Mo := StrToMonth( Fetch (Value, sDelim)  );
     Value := TrimLeft(Value);
   end;
+
 begin
-  Result := 0.0;
+  Result := False;
+  VDateTime := 0.0;
 
-  LAM:=false;
-  LPM:=false;
+  LAM := False;
+  LPM := False;
 
   Value := Trim(Value);
   if Length(Value) = 0 then begin
@@ -1110,9 +1127,8 @@ begin
     {Day of Week}
     if StrToDay(Copy(Value, 1, 3)) > 0 then begin
       //workaround in case a space is missing after the initial column
-      if (Copy(Value,4,1)=',') and (Copy(Value,5,1)<>' ') then
-      begin
-        Insert(' ',Value,5);
+      if CharEquals(Value, 4, ',') and (not CharEquals(Value, 5, ' ')) then begin
+        Insert(' ', Value, 5);
       end;
       Fetch(Value);
       Value := TrimLeft(Value);
@@ -1120,94 +1136,109 @@ begin
 
     // Workaround for some buggy web servers which use '-' to separate the date parts.    {Do not Localize}
     if (IndyPos('-', Value) > 1) and (IndyPos('-', Value) < IndyPos(' ', Value)) then begin    {Do not Localize}
-      ADelim := '-';    {Do not Localize}
-    end
-    else begin
-      ADelim := ' ';    {Do not Localize}
+      sDelim := '-';    {Do not Localize}
+    end else begin
+      sDelim := ' ';    {Do not Localize}
     end;
+
     //workaround for improper dates such as 'Fri, Sep 7 2001'    {Do not Localize}
     //RFC 2822 states that they should be like 'Fri, 7 Sep 2001'    {Do not Localize}
-    if (StrToMonth(Fetch(Value, ADelim,False)) > 0) then
-    begin
+    if StrToMonth(Fetch(Value, sDelim, False)) > 0 then begin
       {Month}
       ParseMonth;
       {Day of Month}
       ParseDayOfMonth;
-    end
-    else
-    begin
+    end else begin
       {Day of Month}
       ParseDayOfMonth;
       {Month}
       ParseMonth;
     end;
-    {Year}
-    // There is sometrage date/time formats like
-    // DayOfWeek Month DayOfMonth Time Year
 
-    sTime := Fetch(Value);
-    Yr := IndyStrToInt(sTime, 1900);
-    // Is sTime valid Integer
-    if Yr = 1900 then begin
-      Yr := IndyStrToInt(Value, 1900);
-      Value := sTime;
+    {Year}
+    // There is some strange date/time formats like
+    // DayOfWeek Month DayOfMonth Time Year
+    sYear := Fetch(Value);
+    Yr := IndyStrToInt(sYear, High(Word));
+    if Yr = High(Word) then begin // Is sTime valid Integer?
+      sTime := sYear;
+      sYear := Fetch(Value);
+      Value := TrimRight(sTime + ' ' + Value);
+      Yr := IndyStrToInt(sYear);
     end;
-    if Yr < 80 then begin
-      Inc(Yr, 2000);
-    end else if Yr < 100 then begin
+
+    // RLebeau: According to RFC 2822, Section 4.3:
+    //
+    // "Where a two or three digit year occurs in a date, the year is to be
+    // interpreted as follows: If a two digit year is encountered whose
+    // value is between 00 and 49, the year is interpreted by adding 2000,
+    // ending up with a value between 2000 and 2049.  If a two digit year is
+    // encountered with a value between 50 and 99, or any three digit year
+    // is encountered, the year is interpreted by adding 1900."
+    if Length(sYear) = 2 then begin
+      if {(Yr >= 0) and} (Yr <= 49) then begin
+        Inc(Yr, 2000);
+      end
+      else if (Yr >= 50) and (Yr <= 99) then begin
+        Inc(Yr, 1900);
+      end;
+    end
+    else if Length(sYear) = 3 then begin
       Inc(Yr, 1900);
     end;
 
-    Result := EncodeDate(Yr, Mo, Dt);
+    VDateTime := EncodeDate(Yr, Mo, Dt);
     // SG 26/9/00: Changed so that ANY time format is accepted
-    if IndyPos('AM', Value) > 0 then {do not localize}
-    begin
+    if IndyPos('AM', Value) > 0 then begin{do not localize}
       LAM := True;
       Value := Fetch(Value, 'AM');  {do not localize}
-    end;
-    if IndyPos('PM', Value) > 0 then  {do not localize}
-    begin
+    end
+    else if IndyPos('PM', Value) > 0 then begin {do not localize}
       LPM := True;
       Value := Fetch(Value, 'PM');  {do not localize}
     end;
-    i := IndyPos(':', Value);       {do not localize}
+
+    // RLebeau 03/04/2009: some countries use dot instead of colon
+    // for the time separator
+    i := IndyPos('.', Value);       {do not localize}
+    if i > 0 then begin
+      sDelim := '.';                {do not localize}
+    end else begin
+      sDelim := ':';                {do not localize}
+    end;
+    i := IndyPos(sDelim, Value);
     if i > 0 then begin
       // Copy time string up until next space (before GMT offset)
-      sTime := fetch(Value, ' ');  {do not localize}
+      sTime := Fetch(Value, ' ');  {do not localize}
       {Hour}
-      Ho  := IndyStrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
+      Ho  := IndyStrToInt( Fetch(sTime, sDelim), 0);
       {Minute}
-      Min := IndyStrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
+      Min := IndyStrToInt( Fetch(sTime, sDelim), 0);
       {Second}
-      Sec := IndyStrToInt( Fetch ( sTime ), 0);
-      {AM/PM part if preasent}
+      Sec := IndyStrToInt( Fetch(sTime), 0);
+      {AM/PM part if present}
       Value := TrimLeft(Value);
-      if LAM then
-      begin
-        if Ho = 12 then
-        begin
+      if LAM then begin
+        if Ho = 12 then begin
           Ho := 0;
         end;
       end
-      else
-      begin
-        if LPM then
-        begin
-          //in the 12 hour format, afternoon is 12:00PM followed by 1:00PM
-          //while midnight is written as 12:00 AM
-          //Not exactly technically correct but pritty accurate
-          if Ho < 12 then
-          begin
-            Ho := Ho + 12;
-          end;
+      else if LPM then begin
+        //in the 12 hour format, afternoon is 12:00PM followed by 1:00PM
+        //while midnight is written as 12:00 AM
+        //Not exactly technically correct but pretty accurate
+        if Ho < 12 then begin
+          Inc(Ho, 12);
         end;
       end;
       {The date and time stamp returned}
-      Result := Result + EncodeTime(Ho, Min, Sec, 0);
+      VDateTime := VDateTime + EncodeTime(Ho, Min, Sec, 0);
     end;
     Value := TrimLeft(Value);
+    Result := True;
   except
-    Result := 0.0;
+    VDateTime := 0.0;
+    Result := False;
   end;
 end;
 
@@ -1215,17 +1246,17 @@ end;
 
 function StrInternetToDateTime(Value: string): TDateTime;
 begin
-  Result := RawStrInternetToDateTime(Value);
+  RawStrInternetToDateTime(Value, Result);
 end;
 
 function FTPMLSToGMTDateTime(const ATimeStamp : String):TDateTime;
-var LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
-    LBuffer : String;
+var
+  LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
+  LBuffer : String;
 begin
   Result := 0;
   LBuffer := ATimeStamp;
-  if LBuffer <> '' then
-  begin
+  if LBuffer <> '' then begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
@@ -1244,29 +1275,26 @@ begin
 end;
 
 function FTPMLSToLocalDateTime(const ATimeStamp : String):TDateTime;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := 0;
-  if ATimeStamp <> '' then
-  begin
+  Result := 0.0;
+  if ATimeStamp <> '' then begin
     Result := FTPMLSToGMTDateTime(ATimeStamp);
     // Apply local offset
-    Result := Result + OffSetFromUTC;
+    Result := Result + OffsetFromUTC;
   end;
 end;
 
 function FTPGMTDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
-var LYear, LMonth, LDay,
-    LHour, LMin, LSec, LMSec : Word;
-
+var
+  LYear, LMonth, LDay,
+  LHour, LMin, LSec, LMSec : Word;
 begin
   DecodeDate(ATimeStamp,LYear,LMonth,LDay);
   DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
   Result := IndyFormat('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]);
-  if AIncludeMSecs then
-  begin
-    if (LMSec <> 0) then
-    begin
+  if AIncludeMSecs then begin
+    if (LMSec <> 0) then begin
       Result := Result + IndyFormat('.%3d',[LMSec]);
     end;
   end;
@@ -1277,9 +1305,9 @@ Note that MS-DOS displays the time in the Local Time Zone - MLISx commands use
 stamps based on GMT)
 }
 function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := FTPGMTDateTimeToMLS(ATimeStamp - OffSetFromUTC, AIncludeMSecs);
+  Result := FTPGMTDateTimeToMLS(ATimeStamp - OffsetFromUTC, AIncludeMSecs);
 end;
 
 
@@ -1312,20 +1340,15 @@ begin
   iPos := 1 ;
   iLength := Length(Value);
   AList.Clear ;
-  while iPos <= iLength do
-  begin
+  while iPos <= iLength do begin
     iStart := iPos ;
     iEnd := iStart ;
-    while iPos <= iLength do
-    begin
-      if Value[iPos] = '"' then  {do not localize}
-      begin
+    while iPos <= iLength do begin
+      if Value[iPos] = '"' then begin {do not localize}
         Inc(iQuote);
       end;
-      if Value[iPos] = ',' then  {do not localize}
-      begin
-        if iQuote <> 1 then
-        begin
+      if Value[iPos] = ',' then begin {do not localize}
+        if iQuote <> 1 then begin
           Break;
         end;
       end;
@@ -1333,8 +1356,7 @@ begin
       Inc(iPos);
     end ;
     sTemp := Trim(Copy(Value, iStart, iEnd - iStart));
-    if Length(sTemp) > 0 then
-    begin
+    if Length(sTemp) > 0 then begin
       AList.Add(sTemp);
     end;
     iPos := iEnd + 1 ;
@@ -1342,17 +1364,27 @@ begin
   end ;
 end;
 
-{$UNDEF APICOPYFILETO}
+{$UNDEF NATIVEFILEAPI}
+{$UNDEF NATIVECOPYAPI}
 {$IFDEF DOTNET}
-  {$DEFINE APICOPYFILETO}
+  {$DEFINE NATIVEFILEAPI}
+  {$DEFINE NATIVECOPYAPI}
 {$ENDIF}
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  {$DEFINE APICOPYFILETO}
+  {$DEFINE NATIVEFILEAPI}
+  {$DEFINE NATIVECOPYAPI}
+{$ENDIF}
+{$IFDEF UNIX}
+  {$DEFINE NATIVEFILEAPI}
 {$ENDIF}
 
 function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
-{$IFDEF APICOPYFILETO} 
-  {$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF NATIVECOPYAPI}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF WIN32_OR_WIN64}
+var
+  LOldErrorMode : Integer;
+  {$ENDIF}
 {$ELSE}
 var
   SourceF, DestF : File;
@@ -1364,13 +1396,19 @@ begin
   System.IO.File.Copy(Source, Destination, True);
   Result := True; // or you'll get an exception
   {$ENDIF}
-  {$IFDEF WINCE}
-  Result := CopyFile(PWideChar(Source), PWideChar(Destination), True);
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WIN32_OR_WIN64}
+  LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+  try
+    {$ENDIF}
+    Result := CopyFile(PIdFileNameChar(Source), PIdFileNameChar(Destination), False);
+    {$IFDEF WIN32_OR_WIN64}
+  finally
+    SetErrorMode(LOldErrorMode);
+  end;
+    {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64}
-  Result := CopyFile(PChar(Source), PChar(Destination), true);
-  {$ENDIF}
-  {$IFNDEF APICOPYFILETO}
+  {$IFNDEF NATIVECOPYAPI}
   //mostly from  http://delphi.about.com/od/fileio/a/untypedfiles.htm
 
   //note that I do use the I+ and I- directive.
@@ -1398,8 +1436,7 @@ begin
   Rewrite(DestF, 1);
   {$I+} //turn it back on
   Result := IOResult <> 0;
-  if Result then
-  begin
+  if Result then begin
     repeat
       BlockRead(SourceF, Buffer, SizeOf(Buffer), NumRead);
       BlockWrite(DestF, Buffer, NumRead, NumWritten);
@@ -1412,21 +1449,25 @@ begin
 end;
 
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-function TempPath: {$IFDEF UNICODE}WideString{$ELSE}String{$ENDIF}; 
+function TempPath: TIdFileName;
 var
   i: Integer;
 begin
   SetLength(Result, MAX_PATH);
-  i := GetTempPath(Length(Result),  {$IFDEF UNICODE}PWideChar{$ELSE}PChar{$ENDIF}(Result));
-  SetLength(Result, i);
-  Result := IndyIncludeTrailingPathDelimiter(Result);
+  i := GetTempPath(MAX_PATH, PIdFileNameChar(Result));
+  if i > 0 then begin
+    SetLength(Result, i);
+    Result := IndyIncludeTrailingPathDelimiter(Result);
+  end else begin
+    Result := '';
+  end;
 end;
 {$ENDIF}
 
-function MakeTempFilename(const APath: String = ''): string;
+function MakeTempFilename(const APath: TIdFileName = ''): TIdFileName;
 var
-  lPath: string;
-  lExt: string;
+  lPath: TIdFileName;
+  lExt: TIdFileName;
 begin
   lPath := APath;
 
@@ -1440,35 +1481,33 @@ begin
   if lPath = '' then begin
     lPath := ATempPath;
   end;
-  {$ENDIF}
-
-  {$IFDEF DOTNET}
-  if lPath = '' then
-  begin
+  {$ELSE}
+    {$IFDEF DOTNET}
+  if lPath = '' then begin
     lPath := System.IO.Path.GetTempPath;
   end;
+    {$ENDIF}
   {$ENDIF}
 
   Result := GetUniqueFilename(lPath, 'Indy', lExt);
 end;
 
+
 function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
-{$IFNDEF UNIX}
+{$IFNDEF FPC}
 var
   LNamePart : LongWord;
   LFQE : String;
   LFName: String;
 {$ENDIF}
 begin
-  {$IFDEF UNIX}
+  {$IFDEF FPC}
   //Do not use Tempnam in Unix-like Operating systems.  That function is dangerous
   //and you will be warned about it when compiling.  FreePascal has GetTempFileName.  Use
   //that instead.
-  if APath = '' then
-  begin
+  if APath = '' then begin
     Result := GetTempFileName('', 'Indy');
-  end else
-  begin
+  end else begin
     Result := GetTempFileName(APath, 'Indy');
   end;
   {$ELSE}
@@ -1476,16 +1515,14 @@ begin
   LFQE := AExt;
 
   // period is optional in the extension... force it
-  if LFQE <> '' then
-  begin
+  if LFQE <> '' then begin
     if LFQE[1] <> '.' then begin
       LFQE := '.' + LFQE;
     end;
   end;
 
   // validate path and add path delimiter before file name prefix
-  if APath <> '' then
-  begin
+  if APath <> '' then begin
     if not IndyDirectoryExists(APath) then begin
       LFName := APrefix;
     end else begin
@@ -1537,6 +1574,14 @@ begin
   end;
 end;
 
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+function IsVolume(const APathName : TIdFileName) : Boolean;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TextEndsWith(APathName, ':') or TextEndsWith(APathName, ':\');
+end;
+{$ENDIF}
+
 // OS-independant version
 function FileSizeByName(const AFilename: TIdFileName): Int64;
 //Leave in for HTTP Server
@@ -1544,34 +1589,89 @@ function FileSizeByName(const AFilename: TIdFileName): Int64;
 var
   LFile : System.IO.FileInfo;
 {$ELSE}
-  {$IFDEF USEINLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
 var
   LHandle : THandle;
   LRec : TWin32FindData;
+    {$IFDEF WIN32_OR_WIN64}
+  LOldErrorMode : Integer;
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF UNIX}
+var
+    {$IFDEF USE_VCL_POSIX}
+  LRec : _Stat;
+    {$ELSE}
+      {$IFDEF KYLIXCOMPAT}
+  LRec : TStatBuf;
+      {$ELSE}
+  LRec : TStat;
+  LU : time_t;
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 begin
-  Result := 0;
   {$IFDEF DOTNET}
+    Result := -1;
   LFile := System.IO.FileInfo.Create(AFileName);
   if LFile.Exists then begin
     Result := LFile.Length;
   end;
-  {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  LHandle := Windows.FindFirstFile({$IFDEF WINCE}PWideChar(AFileName){$ELSE}PChar(AFileName){$ENDIF}, LRec);
-  if LHandle <> INVALID_HANDLE_VALUE then begin
-    Windows.FindClose(LHandle);
-    Result := (Int64(LRec.nFileSizeHigh) shl 32) + LRec.nFileSizeLow;
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    Result := -1;
+  //check to see if something like "a:\" is specified and fail in that case.
+  //FindFirstFile would probably succede even though a drive is not a proper
+  //file.
+  if not IsVolume(AFileName) then begin
+    {
+    IMPORTANT!!!
+
+    For servers in Windows, you probably want the API call to fail rather than
+    get a "Cancel   Try Again   Continue " dialog-box box if a drive is not
+    ready or there's some other critical I/O error.
+    }
+    {$IFDEF WIN32_OR_WIN64}
+    LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+    try
+    {$ENDIF}
+      LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+      if LHandle <> INVALID_HANDLE_VALUE then begin
+        Windows.FindClose(LHandle);
+        if (LRec.dwFileAttributes and Windows.FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
+          Result := (Int64(LRec.nFileSizeHigh) shl 32) + LRec.nFileSizeLow;
+        end;
+      end;
+    {$IFDEF WIN32_OR_WIN64}
+    finally
+      SetErrorMode(LOldErrorMode);
+    end;
+    {$ENDIF}
   end;
-    {$ELSE}
+  {$ENDIF}
+  {$IFDEF UNIX}
+  Result := -1;
+      {$IFDEF USE_VCL_POSIX}
+  //This is messy with IFDEF's but I want to be able to handle 63 bit file sizes.
+   if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+      Result := LRec.st_size;
+   end;
+      {$ELSE}
+    //Note that we can use stat here because we are only looking at the date.
+  if {$IFDEF KYLIXCOMPAT}stat{$ELSE}fpstat{$ENDIF}(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+      Result := LRec.st_Size;
+  end;
+    {$ENDIF}
+  {$ENDIF}
+  {$IFNDEF NATIVEFILEAPI}
+  Result := -1;
   if FileExists(AFilename) then begin
     with TIdReadFileExclusiveStream.Create(AFilename) do try
       Result := Size;
     finally Free; end;
   end;
-    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -1581,14 +1681,22 @@ var
   LRec : TWin32FindData;
   LHandle : THandle;
   LTime : {$IFDEF WINCE}TSystemTime{$ELSE}Integer{$ENDIF};
+  {$IFDEF WIN32_OR_WIN64}
+  LOldErrorMode : Integer;
+ {$ENDIF}
 {$ENDIF}
 {$IFDEF UNIX}
 var
   LTime : Integer;
+  {$IFDEF USE_VCL_POSIX}
+  LRec : _Stat;
+
+  {$ENDIF}
   {$IFDEF KYLIXCOMPAT}
   LRec : TStatBuf;
   LU : TUnixTime;
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF USE_BASEUNIX}
   LRec : TStat;
   LU : time_t;
   {$ENDIF}
@@ -1596,12 +1704,19 @@ var
 begin
   Result := -1;
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  LHandle := Windows.FindFirstFile({$IFDEF WINCE}PWideChar(AFileName){$ELSE}PChar(AFileName){$ENDIF}, LRec);
-  if LHandle <> INVALID_HANDLE_VALUE then
-  begin
-    Windows.FindClose(LHandle);
-    if (LRec.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then
-    begin
+  if not IsVolume(AFileName) then begin
+    {$IFDEF WIN32_OR_WIN64}
+    LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+    try
+    {$ENDIF}
+      LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+    {$IFDEF WIN32_OR_WIN64}
+    finally
+      SetErrorMode(LOldErrorMode);
+    end;
+    {$ENDIF}
+    if LHandle <> INVALID_HANDLE_VALUE then begin
+      Windows.FindClose(LHandle);
       {$IFDEF WINCE}
       FileTimeToSystemTime(@LRec, @LTime);
       Result := SystemTimeToDateTime(LTime);
@@ -1618,16 +1733,27 @@ begin
   end;
   {$ENDIF}
   {$IFDEF UNIX}
-  if {$IFDEF KYLIXCOMPAT}stat{$ELSE}fpstat{$ENDIF}(PChar(AFileName), LRec) = 0 then
-  begin
+  //Note that we can use stat here because we are only looking at the date.
+    {$IFDEF USE_BASEUNIX}
+  if fpstat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+    {$ENDIF}
+    {$IFDEF KYLIXCOMPAT}
+  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+    {$ENDIF}
+    {$IFDEF USE_VCL_POSIX}
+  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+    {$ENDIF}
     LTime := LRec.st_mtime;
     {$IFDEF KYLIXCOMPAT}
-    gmtime_r({$IFDEF KYLIX}@{$ENDIF}LTime, LU);
+    gmtime_r(@LTime, LU);
     Result := EncodeDate(LU.tm_year + 1900, LU.tm_mon + 1, LU.tm_mday) +
               EncodeTime(LU.tm_hour, LU.tm_min, LU.tm_sec, 0);
-
-    {$ELSE}
+    {$ENDIF}
+    {$IFDEF USE_BASEUNIX}
     Result := UnixToDateTime(LTime);
+    {$ENDIF}
+    {$IFDEF USE_VCL_POSIX}
+    Result := DateUtils.UnixToDateTime(LTime);
     {$ENDIF}
   end;
   {$ENDIF}
@@ -1640,58 +1766,54 @@ begin
   LStrLen := Length(AStr);
   if (Len > LStrLen) or (Len < 0) then begin
     Result := AStr;
-  end
-  else begin
+  end else begin
     //+1 is necessary for the Index because it is one based
     Result := Copy(AStr, LStrLen - Len+1, Len);
   end;
 end;
 
 function TimeZoneBias: TDateTime;
-{$IFNDEF WIN32_OR_WIN64_OR_WINCE}
-  {$IFDEF USEINLINE} inline; {$ENDIF}
-{$ELSE}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+  {$IFDEF UNIX}
 var
-  ATimeZone: TTimeZoneInformation;
-{$ENDIF}
+  T: Time_T;
+  TV: TimeVal;
+      {$IFDEF USE_VCL_POSIX}
+  UT: tm;
+      {$ELSE}
+  UT: TUnixTime;
+      {$ENDIF}
+  {$ENDIF}
 begin
   {$IFDEF UNIX}
-  //TODO: Fix TimeZoneBias for Linux to be automatic
-  Result := GTimeZoneBias;
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  Result := -OffsetFromUTC;
-  {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    {$IFNDEF WINCE}
-  case GetTimeZoneInformation(ATimeZone) of
+ {from http://edn.embarcadero.com/article/27890 }
+  gettimeofday(TV, nil);
+  T := TV.tv_sec;
+    {$IFDEF USE_VCL_POSIX}
+  localtime_r(T, UT);
+    // __tm_gmtoff is the bias in seconds from the UTC to the current time.
+    // so I multiply by -1 to compensate for this.
+  Result := (UT.tm_gmtoff / 60 / 60 / 24);
     {$ELSE}
-  case GetTimeZoneInformation(@ATimeZone) of
+  localtime_r(@T, UT);
+    // __tm_gmtoff is the bias in seconds from the UTC to the current time.
+    // so I multiply by -1 to compensate for this.
+  Result := (UT.__tm_gmtoff / 60 / 60 / 24);
     {$ENDIF}
-    TIME_ZONE_ID_DAYLIGHT:
-      Result := ATimeZone.Bias + ATimeZone.DaylightBias;
-    TIME_ZONE_ID_STANDARD:
-      Result := ATimeZone.Bias + ATimeZone.StandardBias;
-    TIME_ZONE_ID_UNKNOWN:
-      Result := ATimeZone.Bias;
-    else
-      raise EIdException.Create(SysErrorMessage(GetLastError));
-  end;
-  Result := Result / 1440;
+  {$ELSE}
+  Result := -OffsetFromUTC;
   {$ENDIF}
 end;
 
 function IndyStrToBool(const AString : String) : Boolean;
 begin
   // First check against each of the elements of the FalseBoolStrs
-  if PosInStrArray(AString, IndyFalseBoolStrs, False) <> -1 then
-  begin
+  if PosInStrArray(AString, IndyFalseBoolStrs, False) <> -1 then begin
     Result := False;
     Exit;
   end;
   // Second check against each of the elements of the TrueBoolStrs
-  if PosInStrArray(AString, IndyTrueBoolStrs, False) <> -1 then
-  begin
+  if PosInStrArray(AString, IndyTrueBoolStrs, False) <> -1 then begin
     Result := True;
     Exit;
   end;
@@ -1703,54 +1825,83 @@ end;
 
 function IndySetLocalTime(Value: TDateTime): Boolean;
 {$IFNDEF WIN32_OR_WIN64_OR_WINCE}
-  {$IFDEF USEINLINE}inline;{$ENDIF}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
 var
-   dSysTime: TSystemTime;
-   buffer: DWord;
-   tkp, tpko: TTokenPrivileges;
-   hToken: THandle;
+  dSysTime: TSystemTime;
+  buffer: DWord;
+  tkp, tpko: TTokenPrivileges;
+  hToken: THandle;
 {$ENDIF}
 begin
   Result := False;
+
   {$IFDEF LINUX}
   //TODO: Implement SetTime for Linux. This call is not critical.
   {$ENDIF}
+
   {$IFDEF DOTNET}
   //TODO: Figure out how to do this
   {$ENDIF}
+
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   {I admit that this routine is a little more complicated than the one
-  in Indy 8.0.  However, this routine does support Windows NT privillages
+  in Indy 8.0.  However, this routine does support Windows NT privileges
   meaning it will work if you have administrative rights under that OS
 
   Original author Kerry G. Neighbour with modifications and testing
   from J. Peter Mugaas}
     {$IFNDEF WINCE}
-  if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then
-  begin
-    if not Windows.OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
+  // RLebeau 2/1/2008: MSDN says that SetLocalTime() does the adjustment
+  // automatically, so why is it being done manually?
+  if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then begin
+    if not Windows.OpenProcessToken(Windows.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
       Exit;
     end;
-    Windows.LookupPrivilegeValue(nil, 'SE_SYSTEMTIME_NAME', tkp.Privileges[0].Luid);    {Do not Localize}
+    if not Windows.LookupPrivilegeValue(nil, 'SeSystemtimePrivilege', tkp.Privileges[0].Luid) then begin    {Do not Localize}
+      Windows.CloseHandle(hToken);
+      Exit;
+    end;
     tkp.PrivilegeCount := 1;
     tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
-    if not Windows.AdjustTokenPrivileges(hToken, FALSE, tkp, sizeof(tkp), tpko, buffer) then begin
+    if not Windows.AdjustTokenPrivileges(hToken, FALSE, tkp, SizeOf(tkp), tpko, buffer) then begin
+      Windows.CloseHandle(hToken);
       Exit;
     end;
   end;
     {$ENDIF}
+
   DateTimeToSystemTime(Value, dSysTime);
-    {$IFDEF FPC}
-  Result := Windows.SetLocalTime(@dSysTime);
-    {$ELSE}
-  Result := Windows.SetLocalTime(dSysTime);
-    {$ENDIF}
+  Result := Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
+
     {$IFNDEF WINCE}
-  {Undo the Process Privillage change we had done for the set time
-  and close the handle that was allocated}
-  if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then
-  begin
+  if Result then begin
+    // RLebeau 2/1/2008: According to MSDN:
+    //
+    // "The system uses UTC internally. Therefore, when you call SetLocalTime(),
+    // the system uses the current time zone information to perform the conversion,
+    // including the daylight saving time setting. Note that the system uses the
+    // daylight saving time setting of the current time, not the new time you are
+    // setting. Therefore, to ensure the correct result, call SetLocalTime() a
+    // second time, now that the first call has updated the daylight saving time
+    // setting."
+    //
+    // TODO: adjust the Time manually so only 1 call to SetLocalTime() is needed...
+
+    if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then begin
+      Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
+      // Windows 2000+ will broadcast WM_TIMECHANGE automatically...
+      if Win32MajorVersion < 5 then begin // Windows 2000 = v5.0
+        SendMessage(HWND_BROADCAST, WM_TIMECHANGE, 0, 0);
+      end;
+    end else begin
+      SendMessage(HWND_BROADCAST, WM_TIMECHANGE, 0, 0);
+    end;
+  end;
+
+  {Undo the Process Privilege change we had done for the
+  set time and close the handle that was allocated}
+  if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then begin
     Windows.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
     Windows.CloseHandle(hToken);
   end;
@@ -1759,8 +1910,9 @@ begin
 end;
 
 function StrToDay(const ADay: string): Byte;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
+  // RLebeau 03/04/2009: TODO - support localized strings as well...
   Result := Succ(
     PosInStrArray(ADay,
       ['SUN','MON','TUE','WED','THU','FRI','SAT'], {do not localize}
@@ -1768,16 +1920,53 @@ begin
 end;
 
 function StrToMonth(const AMonth: string): Byte;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+const
+  // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
+  // may change characters >= #128 from their Ansi codepage value to their true
+  // Unicode codepoint value, depending on the codepage used for the source code.
+  // For instance, #128 may become #$20AC...
+  Months: array[0..7] of array[1..12] of string = (
+
+    // English
+    ('JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'),
+
+    // English - alt. 4 letter abbreviations (Netware Print Services may return a 4 char month such as Sept)
+    ('',    '',    '',    '',    '',   'JUNE','JULY', '',   'SEPT', '',    '',    ''),
+
+    // German
+    ('',    '',    'MRZ', '',    'MAI', '',    '',    '',    '',    'OKT', '',    'DEZ'),
+
+    // Spanish
+    ('ENO', 'FBRO','MZO', 'AB',  '',    '',    '',    'AGTO','SBRE','OBRE','NBRE','DBRE'),
+
+    // Dutch
+    ('',    '',    'MRT', '',    'MEI', '',    '',    '',    '',    'OKT', '',    ''),
+
+    // French
+    ('JANV','F'+Char($C9)+'V', 'MARS','AVR', 'MAI', 'JUIN','JUIL','AO'+Char($DB), 'SEPT','',    '',    'D'+Char($C9)+'C'),
+
+    // French (alt)
+    ('',    'F'+Char($C9)+'VR','',    '',    '',    '',    'JUI',    'AO'+Char($DB)+'T','',    '',    '',    ''),
+
+    // Slovenian
+    ('',    '',     '',   '', 'MAJ',    '',    '',       '',     'AVG',    '',    '',  ''));
+var
+  i: Integer;
 begin
-  Result := Succ(
-    PosInStrArray(AMonth,
-      ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'], {do not localize}
-      False));
+  if AMonth <> '' then begin
+    for i := Low(Months) to High(Months) do begin
+      for Result := Low(Months[i]) to High(Months[i]) do begin
+        if TextIsSame(AMonth, Months[i][Result]) then begin
+          Exit;
+        end;
+      end;
+	  end;
+  end;
+  Result := 0;
 end;
 
 function UpCaseFirst(const AStr: string): string;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := LowerCase(TrimLeft(AStr));
   if Result <> '' then begin   {Do not Localize}
@@ -1786,31 +1975,29 @@ begin
 end;
 
 function UpCaseFirstWord(const AStr: string): string;
-const
-  LWhiteSet = TAB+CHAR32;    {Do not Localize}
 var
   I: Integer;
 begin
   for I := 1 to Length(AStr) do begin
-    if CharIsInSet(AStr, I, LWhiteSet) then begin
+    if CharIsInSet(AStr, I, LWS) then begin
       if I > 1 then begin
-        Result := UpperCase(Copy(Result, 1, I-1)) + Copy(AStr, I, MaxInt);
+        Result := UpperCase(Copy(AStr, 1, I-1)) + Copy(AStr, I, MaxInt);
         Exit;
       end;
       Break;
     end;
   end;
-  Result := AStr;
+  Result := UpperCase(AStr);
 end;
 
 function IsHex(const AChar : Char) : Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := IndyPos(UpperCase(AChar), HexNumbers) > 0;
 end;
 
 function IsBinary(const AChar : Char) : Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := IndyPos(UpperCase(AChar), BinNumbers) > 0;
 end;
@@ -1836,15 +2023,12 @@ var
 begin
   LR := data;
   Result := '';
-  for i := 1 to Length(AText) do
-  begin
+  for i := 1 to Length(AText) do begin
     case LR of
       data :
-        if (AText[i] = '%') and (i < Length(AText)) then
-        begin
+        if (AText[i] = '%') and (i < Length(AText)) then begin
           LR := rule;
-        end else
-        begin
+        end else begin
           Result := Result + AText[i];
         end;
       rule :
@@ -1859,8 +2043,7 @@ begin
           end;
         end;
       decimal :
-        If IsNumeric(AText[i]) then
-        begin
+        If IsNumeric(AText[i]) then begin
           LNum := LNum + AText[i];
           if IndyStrToInt(LNum, 0) > $FF then begin
             IdDelete(LNum,Length(LNum),1);
@@ -1868,9 +2051,7 @@ begin
             LR := Data;
             Result := Result + AText[i];
           end;
-        end
-        else
-        begin
+        end else begin
           Result := Result + Char(IndyStrToInt(LNum, 0));
           LNum := '';
           if AText[i] <> '.' then begin
@@ -1887,35 +2068,27 @@ begin
             LR := Data;
             Result := Result + AText[i];
           end;
-        end
-        else
-        begin
+        end else begin
           Result := Result + Char(IndyStrToInt('$'+LNum, 0));
           LNum := '';
-          if AText[i] <> '.' then
-          begin
+          if AText[i] <> '.' then begin
             LR := Data;
             Result := Result + AText[i];
           end;
         end;
     binary :
-        If IsBinary(AText[i]) and (Length(LNum)<8) then
-        begin
+        If IsBinary(AText[i]) and (Length(LNum)<8) then begin
           LNum := LNum + AText[i];
-          if (BinStrToInt(LNum)>$FF)  then
-          begin
+          if (BinStrToInt(LNum)>$FF) then begin
             IdDelete(LNum,Length(LNum),1);
             Result := Result + Char(BinStrToInt(LNum));
             LR := Data;
             Result := Result + AText[i];
           end;
-        end
-        else
-        begin
+        end else begin
           Result := Result + Char(IndyStrToInt('$'+LNum, 0));
           LNum := '';
-          if AText[i] <> '.' then
-          begin
+          if AText[i] <> '.' then begin
             LR := Data;
             Result := Result + AText[i];
           end;
@@ -1948,19 +2121,182 @@ begin
   end;
 end;
 
-function GmtOffsetStrToDateTime(S: string): TDateTime;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+// RLebeau: According to RFC 2822 Section 4.3:
+//
+// In the obsolete time zone, "UT" and "GMT" are indications of
+// "Universal Time" and "Greenwich Mean Time" respectively and are both
+// semantically identical to "+0000".
+//
+// The remaining three character zones are the US time zones.  The first
+// letter, "E", "C", "M", or "P" stands for "Eastern", "Central",
+// "Mountain" and "Pacific".  The second letter is either "S" for
+// "Standard" time, or "D" for "Daylight" (or summer) time.  Their
+// interpretations are as follows:
+//
+// EDT is semantically equivalent to -0400
+// EST is semantically equivalent to -0500
+// CDT is semantically equivalent to -0500
+// CST is semantically equivalent to -0600
+// MDT is semantically equivalent to -0600
+// MST is semantically equivalent to -0700
+// PDT is semantically equivalent to -0700
+// PST is semantically equivalent to -0800
+//
+// The 1 character military time zones were defined in a non-standard
+// way in [RFC822] and are therefore unpredictable in their meaning.
+// The original definitions of the military zones "A" through "I" are
+// equivalent to "+0100" through "+0900" respectively; "K", "L", and "M"
+// are equivalent to  "+1000", "+1100", and "+1200" respectively; "N"
+// through "Y" are equivalent to "-0100" through "-1200" respectively;
+// and "Z" is equivalent to "+0000".  However, because of the error in
+// [RFC822], they SHOULD all be considered equivalent to "-0000" unless
+// there is out-of-band information confirming their meaning.
+//
+// Other multi-character (usually between 3 and 5) alphabetic time zones
+// have been used in Internet messages.  Any such time zone whose
+// meaning is not known SHOULD be considered equivalent to "-0000"
+// unless there is out-of-band information confirming their meaning.
+
+// RLebeau: according to http://en.wikipedia.org/wiki/Central_European_Time:
+//
+// Central European Time (CET) is one of the names of the time zone that is
+// 1 hour ahead of Coordinated Universal Time. It is used in most European
+// and some North African countries.
+//
+// Its time offset is normally UTC+1. During daylight saving time, Central
+// European Summer Time (CEST) is used instead (UTC+2). The current time
+// offset is UTC+1.
+
+// RLebeau: other abbreviations taken from:
+// http://www.timeanddate.com/library/abbreviations/timezones/
+
+function TimeZoneToGmtOffsetStr(const ATimeZone: String): String;
+type
+  TimeZoneOffset = record
+    TimeZone: String;
+    Offset: String;
+  end;
+const
+  cTimeZones: array[0..90] of TimeZoneOffset = (
+    (TimeZone:'A';    Offset:'+0100'), // Alpha Time Zone - Military                             {do not localize}
+    (TimeZone:'ACDT'; Offset:'+1030'), // Australian Central Daylight Time                       {do not localize}
+    (TimeZone:'ACST'; Offset:'+0930'), // Australian Central Standard Time                       {do not localize}
+    (TimeZone:'ADT';  Offset:'-0300'), // Atlantic Daylight Time - North America                 {do not localize}
+    (TimeZone:'AEDT'; Offset:'+1100'), // Australian Eastern Daylight Time                       {do not localize}
+    (TimeZone:'AEST'; Offset:'+1000'), // Australian Eastern Standard Time                       {do not localize}
+    (TimeZone:'AKDT'; Offset:'-0800'), // Alaska Daylight Time                                   {do not localize}
+    (TimeZone:'AKST'; Offset:'-0900'), // Alaska Standard Time                                   {do not localize}
+    (TimeZone:'AST';  Offset:'-0400'), // Atlantic Standard Time - North America                 {do not localize}
+    (TimeZone:'AWDT'; Offset:'+0900'), // Australian Western Daylight Time                       {do not localize}
+    (TimeZone:'AWST'; Offset:'+0800'), // Australian Western Standard Time                       {do not localize}
+    (TimeZone:'B';    Offset:'+0200'), // Bravo Time Zone - Military                             {do not localize}
+    (TimeZone:'BST';  Offset:'+0100'), // British Summer Time - Europe                           {do not localize}
+    (TimeZone:'C';    Offset:'+0300'), // Charlie Time Zone - Military                           {do not localize}
+    (TimeZone:'CDT';  Offset:'+1030'), // Central Daylight Time - Australia                      {do not localize}
+    (TimeZone:'CDT';  Offset:'-0500'), // Central Daylight Time - North America                  {do not localize}
+    (TimeZone:'CEDT'; Offset:'+0200'), // Central European Daylight Time                         {do not localize}
+    (TimeZone:'CEST'; Offset:'+0200'), // Central European Summer Time                           {do not localize}
+    (TimeZone:'CET';  Offset:'+0100'), // Central European Time                                  {do not localize}
+    (TimeZone:'CST';  Offset:'+1030'), // Central Summer Time - Australia                        {do not localize}
+    (TimeZone:'CST';  Offset:'+0930'), // Central Standard Time - Australia                      {do not localize}
+    (TimeZone:'CST';  Offset:'-0600'), // Central Standard Time - North America                  {do not localize}
+    (TimeZone:'CXT';  Offset:'+0700'), // Christmas Island Time - Australia                      {do not localize}
+    (TimeZone:'D';    Offset:'+0400'), // Delta Time Zone - Military                             {do not localize}
+    (TimeZone:'E';    Offset:'+0500'), // Echo Time Zone - Military                              {do not localize}
+    (TimeZone:'EDT';  Offset:'+1100'), // Eastern Daylight Time - Australia                      {do not localize}
+    (TimeZone:'EDT';  Offset:'-0400'), // Eastern Daylight Time - North America                  {do not localize}
+    (TimeZone:'EEDT'; Offset:'+0300'), // Eastern European Daylight Time                         {do not localize}
+    (TimeZone:'EEST'; Offset:'+0300'), // Eastern European Summer Time                           {do not localize}
+    (TimeZone:'EET';  Offset:'+0200'), // Eastern European Time                                  {do not localize}
+    (TimeZone:'EST';  Offset:'+1100'), // Eastern Summer Time - Australia                        {do not localize}
+    (TimeZone:'EST';  Offset:'+1000'), // Eastern Standard Time - Australia                      {do not localize}
+    (TimeZone:'EST';  Offset:'-0500'), // Eastern Standard Time - North America                  {do not localize}
+    (TimeZone:'F';    Offset:'+0600'), // Foxtrot Time Zone - Military                           {do not localize}
+    (TimeZone:'G';    Offset:'+0700'), // Golf Time Zone - Military                              {do not localize}
+    (TimeZone:'GMT';  Offset:'+0000'), // Greenwich Mean Time - Europe                           {do not localize}
+    (TimeZone:'H';    Offset:'+0800'), // Hotel Time Zone - Military                             {do not localize}
+    (TimeZone:'HAA';  Offset:'-0300'), // Heure Avancée de l'Atlantique - North America          {do not localize}
+    (TimeZone:'HAC';  Offset:'-0500'), // Heure Avancée du Centre - North America                {do not localize}
+    (TimeZone:'HADT'; Offset:'-0900'), // Hawaii-Aleutian Daylight Time - North America          {do not localize}
+    (TimeZone:'HAE';  Offset:'-0400'), // Heure Avancée de l'Est - North America                 {do not localize}
+    (TimeZone:'HAP';  Offset:'-0700'), // Heure Avancée du Pacifique - North America             {do not localize}
+    (TimeZone:'HAR';  Offset:'-0600'), // Heure Avancée des Rocheuses - North America            {do not localize}
+    (TimeZone:'HAST'; Offset:'-1000'), // Hawaii-Aleutian Standard Time - North America          {do not localize}
+    (TimeZone:'HAT';  Offset:'-0230'), // Heure Avancée de Terre-Neuve - North America           {do not localize}
+    (TimeZone:'HAY';  Offset:'-0800'), // Heure Avancée du Yukon - North America                 {do not localize}
+    (TimeZone:'HNA';  Offset:'-0400'), // Heure Normale de l'Atlantique - North America          {do not localize}
+    (TimeZone:'HNC';  Offset:'-0600'), // Heure Normale du Centre - North America                {do not localize}
+    (TimeZone:'HNE';  Offset:'-0500'), // Heure Normale de l'Est - North America                 {do not localize}
+    (TimeZone:'HNP';  Offset:'-0800'), // Heure Normale du Pacifique - North America             {do not localize}
+    (TimeZone:'HNR';  Offset:'-0700'), // Heure Normale des Rocheuses - North America            {do not localize}
+    (TimeZone:'HNT';  Offset:'-0330'), // Heure Normale de Terre-Neuve - North America           {do not localize}
+    (TimeZone:'HNY';  Offset:'-0900'), // Heure Normale du Yukon - North America                 {do not localize}
+    (TimeZone:'I';    Offset:'+0900'), // India Time Zone - Military                             {do not localize}
+    (TimeZone:'IST';  Offset:'+0100'), // Irish Summer Time - Europe                             {do not localize}
+    (TimeZone:'K';    Offset:'+1000'), // Kilo Time Zone - Military                              {do not localize}
+    (TimeZone:'L';    Offset:'+1100'), // Lima Time Zone - Military                              {do not localize}
+    (TimeZone:'M';    Offset:'+1200'), // Mike Time Zone - Military                              {do not localize}
+    (TimeZone:'MDT';  Offset:'-0600'), // Mountain Daylight Time - North America                 {do not localize}
+    (TimeZone:'MEHSZ';Offset:'+0300'), // Mitteleuropäische Hochsommerzeit - Europe              {do not localize}
+    (TimeZone:'MESZ'; Offset:'+0200'), // Mitteleuroäische Sommerzeit - Europe                   {do not localize}
+    (TimeZone:'MEZ';  Offset:'+0100'), // Mitteleuropäische Zeit - Europe                        {do not localize}
+    (TimeZone:'MSD';  Offset:'+0400'), // Moscow Daylight Time - Europe                          {do not localize}
+    (TimeZone:'MSK';  Offset:'+0300'), // Moscow Standard Time - Europe                          {do not localize}
+    (TimeZone:'MST';  Offset:'-0700'), // Mountain Standard Time - North America                 {do not localize}
+    (TimeZone:'N';    Offset:'-0100'), // November Time Zone - Military                          {do not localize}
+    (TimeZone:'NDT';  Offset:'-0230'), // Newfoundland Daylight Time - North America             {do not localize}
+    (TimeZone:'NFT';  Offset:'+1130'), // Norfolk (Island), Time - Australia                     {do not localize}
+    (TimeZone:'NST';  Offset:'-0330'), // Newfoundland Standard Time - North America             {do not localize}
+    (TimeZone:'O';    Offset:'-0200'), // Oscar Time Zone - Military                             {do not localize}
+    (TimeZone:'P';    Offset:'-0300'), // Papa Time Zone - Military                              {do not localize}
+    (TimeZone:'PDT';  Offset:'-0700'), // Pacific Daylight Time - North America                  {do not localize}
+    (TimeZone:'PST';  Offset:'-0800'), // Pacific Standard Time - North America                  {do not localize}
+    (TimeZone:'Q';    Offset:'-0400'), // Quebec Time Zone - Military                            {do not localize}
+    (TimeZone:'R';    Offset:'-0500'), // Romeo Time Zone - Military                             {do not localize}
+    (TimeZone:'S';    Offset:'-0600'), // Sierra Time Zone - Military                            {do not localize}
+    (TimeZone:'T';    Offset:'-0700'), // Tango Time Zone - Military                             {do not localize}
+    (TimeZone:'U';    Offset:'-0800'), // Uniform Time Zone - Military                           {do not localize}
+    (TimeZone:'UT';   Offset:'+0000'), // Universal Time - Europe                                {do not localize}
+    (TimeZone:'UTC';  Offset:'+0000'), // Coordinated Universal Time - Europe                    {do not localize}
+    (TimeZone:'V';    Offset:'-0900'), // Victor Time Zone - Military                            {do not localize}
+    (TimeZone:'W';    Offset:'-1000'), // Whiskey Time Zone - Military                           {do not localize}
+    (TimeZone:'WDT';  Offset:'+0900'), // Western Daylight Time - Australia                      {do not localize}
+    (TimeZone:'WEDT'; Offset:'+0100'), // Western European Daylight Time - Europe                {do not localize}
+    (TimeZone:'WEST'; Offset:'+0100'), // Western European Summer Time - Europe                  {do not localize}
+    (TimeZone:'WET';  Offset:'+0000'), // Western European Time - Europe                         {do not localize}
+    (TimeZone:'WST';  Offset:'+0900'), // Western Summer Time - Australia                        {do not localize}
+    (TimeZone:'WST';  Offset:'+0800'), // Western Standard Time - Australia                      {do not localize}
+    (TimeZone:'X';    Offset:'-1100'), // X-ray Time Zone - Military                             {do not localize}
+    (TimeZone:'Y';    Offset:'-1200'), // Yankee Time Zone - Military                            {do not localize}
+    (TimeZone:'Z';    Offset:'+0000')  // Zulu Time Zone - Military                              {do not localize}
+  );
+var
+  I: Integer;
+begin
+  for I := Low(cTimeZones) to High(cTimeZones) do begin
+    if TextIsSame(ATimeZone, cTimeZones[I].TimeZone) then begin
+      Result := cTimeZones[I].Offset;
+      Exit;
+    end;
+  end;
+  Result := '-0000' {do not localize}
+end;
+
+function GmtOffsetStrToDateTime(const S: string): TDateTime;
+var
+  sTmp: String;
 begin
   Result := 0.0;
-  S := Copy(Trim(s), 1, 5);
-  if Length(S) > 0 then
-  begin
-    if (s[1] = '-') or (s[1] = '+') then   {do not localize}
-    begin
+  sTmp := Trim(S);
+  sTmp := Fetch(sTmp);
+  if Length(sTmp) > 0 then begin
+    if (sTmp[1] <> '-') and (sTmp[1] <> '+') then begin {do not localize}
+      sTmp := TimeZoneToGmtOffsetStr(sTmp);
+    end;
+    if (Length(sTmp) = 5) and ((sTmp[1] = '-') or (sTmp[1] = '+')) then begin  {do not localize}
       try
-        Result := EncodeTime(IndyStrToInt(Copy(s, 2, 2)), IndyStrToInt(Copy(s, 4, 2)), 0, 0);
-        if s[1] = '-' then  {do not localize}
-        begin
+        Result := EncodeTime(IndyStrToInt(Copy(sTmp, 2, 2)), IndyStrToInt(Copy(sTmp, 4, 2)), 0, 0);
+        if sTmp[1] = '-' then begin  {do not localize}
           Result := -Result;
         end;
       except
@@ -1970,22 +2306,13 @@ begin
   end;
 end;
 
+{-Always returns date/time relative to GMT!!  -Replaces StrInternetToDateTime}
 function GMTToLocalDateTime(S: string): TDateTime;
-var  {-Always returns date/time relative to GMT!!  -Replaces StrInternetToDateTime}
+var
   DateTimeOffset: TDateTime;
 begin
-  if s = '' then
-  begin
-    // just hardcode to 0 - don't need all the work below and the spurious timezone adjustment. GDG 20-Mar 2003
-    Result := 0;
-  end else
-  begin
-    Result := RawStrInternetToDateTime(S);
-    if Length(S) < 5 then begin
-      DateTimeOffset := 0.0
-    end else begin
-      DateTimeOffset := GmtOffsetStrToDateTime(S);
-    end;
+  if RawStrInternetToDateTime(S, Result) then begin
+    DateTimeOffset := GmtOffsetStrToDateTime(S);
     {-Apply GMT offset here}
     if DateTimeOffset < 0.0 then begin
       Result := Result + Abs(DateTimeOffset);
@@ -1993,7 +2320,7 @@ begin
       Result := Result - DateTimeOffset;
     end;
     // Apply local offset
-    Result := Result + OffSetFromUTC;
+    Result := Result + OffsetFromUTC;
   end;
 end;
 
@@ -2003,12 +2330,12 @@ var
   i: Integer;
 begin
   SetLength(Result, 32);
-  for i := 1 to 32 do
-  begin
-    if ((Value shl (i-1)) shr 31) = 0 then
+  for i := 1 to 32 do begin
+    if ((Value shl (i-1)) shr 31) = 0 then begin
       Result[i] := '0'  {do not localize}
-    else
+    end else begin
       Result[i] := '1'; {do not localize}
+    end;
   end;
 end;
 
@@ -2021,8 +2348,7 @@ var
   i, p: Integer;
   s, LMimeType, LExtension: String;
 begin
-  if FileExists(AFileName) then  {Do not localize}
-  begin
+  if FileExists(AFileName) then begin {Do not localize}
     // build list from /etc/mime.types style list file
     // I'm lazy so I'm using a stringlist to load the file, ideally
     // this should not be done, reading the file line by line is better
@@ -2030,21 +2356,17 @@ begin
     KeyList := TStringList.Create;
     try
       KeyList.LoadFromFile(AFileName); {Do not localize}
-      for i := 0 to KeyList.Count -1 do
-      begin
+      for i := 0 to KeyList.Count -1 do begin
         s := KeyList[i];
         p := IndyPos('#', s); {Do not localize}
         if p > 0 then begin
           SetLength(s, p-1);
         end;
-        if s <> '' then {Do not localize}
-        begin
+        if s <> '' then begin {Do not localize}
           s := Trim(s);
           LMimeType := IndyLowerCase(Fetch(s));
-          if LMimeType <> '' then {Do not localize}
-          begin
-             while s <> '' do {Do not localize}
-             begin
+          if LMimeType <> '' then begin {Do not localize}
+             while s <> '' do begin {Do not localize}
                LExtension := IndyLowerCase(Fetch(s));
                if LExtension <> '' then {Do not localize}
                try
@@ -2079,14 +2401,10 @@ begin
   if not Assigned(AMIMEList) then begin
     Exit;
   end;
-
-  if AMIMEList.Count > 0 then
-  begin
+  if AMIMEList.Count > 0 then begin
     Exit;
   end;
-
-  with AMIMEList do
-  begin
+  with AMIMEList do begin
     {NOTE:  All of these strings should never be translated
     because they are protocol specific and are important for some
     web-browsers}
@@ -2095,51 +2413,81 @@ begin
     Add('.nml=animation/narrative');    {Do not Localize}
 
     { Audio }
+    Add('.aac=audio/mp4');
+    Add('.aif=audio/x-aiff');    {Do not Localize}
+    Add('.aifc=audio/x-aiff');    {Do not Localize}
     Add('.aiff=audio/x-aiff');    {Do not Localize}
+
     Add('.au=audio/basic');    {Do not Localize}
-    Add('.mid=midi/mid');    {Do not Localize}
+    Add('.gsm=audio/x-gsm');    {Do not Localize}
+    Add('.kar=audio/midi');    {Do not Localize}
+    Add('.m3u=audio/mpegurl');    {Do not Localize}
+    Add('.m4a=audio/x-mpg');    {Do not Localize}
+    Add('.mid=audio/midi');    {Do not Localize}
+    Add('.midi=audio/midi');    {Do not Localize}
+    Add('.mpega=audio/x-mpg');    {Do not Localize}
+    Add('.mp2=audio/x-mpg');    {Do not Localize}
     Add('.mp3=audio/x-mpg');    {Do not Localize}
+    Add('.mpga=audio/x-mpg');    {Do not Localize}
     Add('.m3u=audio/x-mpegurl');    {Do not Localize}
+    Add('.pls=audio/x-scpls');   {Do not Localize}
     Add('.qcp=audio/vnd.qcelp');    {Do not Localize}
     Add('.ra=audio/x-realaudio');    {Do not Localize}
+    Add('.ram=audio/x-pn-realaudio');    {Do not Localize}
+    Add('.rm=audio/x-pn-realaudio');    {Do not Localize}
+    Add('.sd2=audio/x-sd2');    {Do not Localize}
+    Add('.sid=audio/prs.sid');   {Do not Localize}
+    Add('.snd=audio/basic');   {Do not Localize}
     Add('.wav=audio/x-wav');    {Do not Localize}
-    Add('.gsm=audio/x-gsm');    {Do not Localize}
     Add('.wax=audio/x-ms-wax');    {Do not Localize}
     Add('.wma=audio/x-ms-wma');    {Do not Localize}
-    Add('.ram=audio/x-pn-realaudio');    {Do not Localize}
+
     Add('.mjf=audio/x-vnd.AudioExplosion.MjuiceMediaFile');    {Do not Localize}
 
     { Image }
+    Add('.art=image/x-jg');    {Do not Localize}
     Add('.bmp=image/bmp');    {Do not Localize}
+    Add('.cdr=image/x-coreldraw');    {Do not Localize}
+    Add('.cdt=image/x-coreldrawtemplate');    {Do not Localize}
+    Add('.cpt=image/x-corelphotopaint');    {Do not Localize}
+    Add('.djv=image/vnd.djvu');    {Do not Localize}
+    Add('.djvu=image/vnd.djvu');    {Do not Localize}
     Add('.gif=image/gif');    {Do not Localize}
+    Add('.ief=image/ief');    {Do not Localize}
+    Add('.ico=image/x-icon');    {Do not Localize}
+    Add('.jng=image/x-jng');    {Do not Localize}
     Add('.jpg=image/jpeg');    {Do not Localize}
     Add('.jpeg=image/jpeg');    {Do not Localize}
     Add('.jpe=image/jpeg');    {Do not Localize}
-    Add('.pict=image/x-pict');    {Do not Localize}
-    Add('.png=image/x-png');    {Do not Localize}
-    Add('.svg=image/svg-xml');    {Do not Localize}
-    Add('.tif=image/x-tiff');    {Do not Localize}
-    Add('.rf=image/vnd.rn-realflash');    {Do not Localize}
-    Add('.rp=image/vnd.rn-realpix');    {Do not Localize}
-    Add('.ico=image/x-icon');    {Do not Localize}
-    Add('.art=image/x-jg');    {Do not Localize}
-    Add('.pntg=image/x-macpaint');    {Do not Localize}
-    Add('.qtif=image/x-quicktime');    {Do not Localize}
-    Add('.sgi=image/x-sgi');    {Do not Localize}
-    Add('.targa=image/x-targa');    {Do not Localize}
-    Add('.xbm=image/xbm');    {Do not Localize}
-    Add('.psd=image/x-psd');    {Do not Localize}
-    Add('.pnm=image/x-portable-anymap');    {Do not Localize}
+    Add('.pat=image/x-coreldrawpattern');   {Do not Localize}
+    Add('.pcx=image/pcx');    {Do not Localize}
     Add('.pbm=image/x-portable-bitmap');    {Do not Localize}
     Add('.pgm=image/x-portable-graymap');    {Do not Localize}
+    Add('.pict=image/x-pict');    {Do not Localize}
+    Add('.png=image/x-png');    {Do not Localize}
+    Add('.pnm=image/x-portable-anymap');    {Do not Localize}
+    Add('.pntg=image/x-macpaint');    {Do not Localize}
     Add('.ppm=image/x-portable-pixmap');    {Do not Localize}
+    Add('.psd=image/x-psd');    {Do not Localize}
+    Add('.qtif=image/x-quicktime');    {Do not Localize}
+    Add('.ras=image/x-cmu-raster');    {Do not Localize}
+    Add('.rf=image/vnd.rn-realflash');    {Do not Localize}
     Add('.rgb=image/x-rgb');    {Do not Localize}
+    Add('.rp=image/vnd.rn-realpix');    {Do not Localize}
+    Add('.sgi=image/x-sgi');    {Do not Localize}
+    Add('.svg=image/svg-xml');    {Do not Localize}
+    Add('.svgz=image/svg-xml');    {Do not Localize}
+    Add('.targa=image/x-targa');    {Do not Localize}
+    Add('.tif=image/x-tiff');    {Do not Localize}
+    Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
+    Add('.xbm=image/xbm');    {Do not Localize}
     Add('.xbm=image/x-xbitmap');    {Do not Localize}
     Add('.xpm=image/x-xpixmap');    {Do not Localize}
     Add('.xwd=image/x-xwindowdump');    {Do not Localize}
 
     { Text }
     Add('.323=text/h323');    {Do not Localize}
+
     Add('.xml=text/xml');    {Do not Localize}
     Add('.uls=text/iuls');    {Do not Localize}
     Add('.txt=text/plain');    {Do not Localize}
@@ -2151,8 +2499,18 @@ begin
     Add('.vcf=text/x-vcard');    {Do not Localize}
 
     { Video }
+    Add('.asf=video/x-ms-asf');    {Do not Localize}
+    Add('.asx=video/x-ms-asf');    {Do not Localize}
     Add('.avi=video/x-msvideo');    {Do not Localize}
+    Add('.dl=video/dl');    {Do not Localize}
+    Add('.dv=video/dv');  {Do not Localize}
     Add('.flc=video/flc');    {Do not Localize}
+    Add('.fli=video/fli');    {Do not Localize}
+    Add('.gl=video/gl');    {Do not Localize}
+    Add('.lsf=video/x-la-asf');    {Do not Localize}
+    Add('.lsx=video/x-la-asf');    {Do not Localize}
+    Add('.mng=video/x-mng');    {Do not Localize}
+
     Add('.mp2=video/mpeg');    {Do not Localize}
     Add('.mp3=video/mpeg');    {Do not Localize}
     Add('.mp4=video/mpeg');    {Do not Localize}
@@ -2160,7 +2518,11 @@ begin
     Add('.mpa=video/mpeg');    {Do not Localize}
     Add('.mpe=video/mpeg');    {Do not Localize}
     Add('.mpg=video/mpeg');    {Do not Localize}
+    Add('.moov=video/quicktime');     {Do not Localize}
     Add('.mov=video/quicktime');    {Do not Localize}
+    Add('.mxu=video/vnd.mpegurl');   {Do not Localize}
+    Add('.qt=video/quicktime');    {Do not Localize}
+    Add('.qtc=video/x-qtc'); {Do not loccalize}
     Add('.rv=video/vnd.rn-realvideo');    {Do not Localize}
     Add('.ivf=video/x-ivf');    {Do not Localize}
     Add('.wm=video/x-ms-wm');    {Do not Localize}
@@ -2173,15 +2535,22 @@ begin
     Add('.movie=video/x-sgi-movie');    {Do not Localize}
 
     { Application }
+    Add('.7z=application/x-7z-compressed');   {Do not Localize}
+    Add('.a=application/x-archive');   {Do not Localize}
     Add('.aab=application/x-authorware-bin');    {Do not Localize}
     Add('.aam=application/x-authorware-map');    {Do not Localize}
     Add('.aas=application/x-authorware-seg');    {Do not Localize}
     Add('.abw=application/x-abiword');    {Do not Localize}
+    Add('.ace=application/x-ace-compressed');  {Do not Localize}
     Add('.ai=application/postscript');    {Do not Localize}
+    Add('.alz=application/x-alz-compressed');    {Do not Localize}
+    Add('.ani=application/x-navi-animation');   {Do not Localize}
     Add('.arj=application/x-arj');    {Do not Localize}
     Add('.asf=application/vnd.ms-asf');    {Do not Localize}
     Add('.bat=application/x-msdos-program');    {Do not Localize}
     Add('.bcpio=application/x-bcpio');    {Do not Localize}
+    Add('.boz=application/x-bzip2');     {Do not Localize}
+    Add('.bz=application/x-bzip');
     Add('.bz2=application/x-bzip2');    {Do not Localize}
     Add('.cab=application/vnd.ms-cab-compressed');    {Do not Localize}
     Add('.cat=application/vnd.ms-pki.seccat');    {Do not Localize}
@@ -2201,6 +2570,7 @@ begin
     Add('.crd=application/x-mscardfile');    {Do not Localize}
     Add('.crl=application/pkix-crl');    {Do not Localize}
     Add('.csh=application/x-csh');    {Do not Localize}
+    Add('.dar=application/x-dar');    {Do not Localize}
     Add('.dbf=application/x-dbase');    {Do not Localize}
     Add('.dcr=application/x-director');    {Do not Localize}
     Add('.deb=application/x-debian-package');    {Do not Localize}
@@ -2221,6 +2591,7 @@ begin
     Add('.fif=application/fractals');    {Do not Localize}
     Add('.flm=application/vnd.kde.kivio');    {Do not Localize}
     Add('.fml=application/x-file-mirror-list');    {Do not Localize}
+    Add('.gzip=application/x-gzip');  {Do not Localize}
     Add('.gnumeric=application/x-gnumeric');    {Do not Localize}
     Add('.gtar=application/x-gtar');    {Do not Localize}
     Add('.gz=application/x-gzip');    {Do not Localize}
@@ -2245,7 +2616,11 @@ begin
     Add('.lha=application/x-lzh');    {Do not Localize}
     Add('.lcc=application/fastman');    {Do not Localize}
     Add('.lrm=application/vnd.ms-lrm');    {Do not Localize}
+    Add('.lz=application/x-lzip');    {Do not Localize}
     Add('.lzh=application/x-lzh');    {Do not Localize}
+    Add('.lzma=application/x-lzma');  {Do not Localize}
+    Add('.lzo=application/x-lzop'); {Do not Localize}
+    Add('.lzx=application/x-lzx');
     Add('.m13=application/x-msmediaview');    {Do not Localize}
     Add('.m14=application/x-msmediaview');    {Do not Localize}
     Add('.mpp=application/vnd.ms-project');    {Do not Localize}
@@ -2310,8 +2685,6 @@ begin
     Add('.rss=application/rss+xml');    {Do not Localize}
     Add('.scm=application/x-icq-scm');    {Do not Localize}
     Add('.ser=application/java-serialized-object');    {Do not Localize}
-    Add('.sh=application/x-sh');    {Do not Localize}
-    Add('.shar=application/x-shar');    {Do not Localize}
     Add('.scd=application/x-msschedule');    {Do not Localize}
     Add('.sda=application/vnd.stardivision.draw');    {Do not Localize}
     Add('.sdc=application/vnd.stardivision.calc');    {Do not Localize}
@@ -2319,8 +2692,11 @@ begin
     Add('.sdp=application/x-sdp');    {Do not Localize}
     Add('.setpay=application/set-payment-initiation');    {Do not Localize}
     Add('.setreg=application/set-registration-initiation');    {Do not Localize}
+    Add('.sh=application/x-sh');    {Do not Localize}
+    Add('.shar=application/x-shar');    {Do not Localize}
     Add('.shw=application/presentations');    {Do not Localize}
     Add('.sit=application/x-stuffit');    {Do not Localize}
+    Add('.sitx=application/x-stuffitx');  {Do not localize}
     Add('.skd=application/x-koan');    {Do not Localize}
     Add('.skm=application/x-koan');    {Do not Localize}
     Add('.skp=application/x-koan');    {Do not Localize}
@@ -2340,6 +2716,7 @@ begin
     Add('.sv4cpio=application/x-sv4cpio');    {Do not Localize}
     Add('.sv4crc=application/x-sv4crc');    {Do not Localize}
     Add('.swf=application/x-shockwave-flash');    {Do not Localize}
+    Add('.swf1=application/x-shockwave-flash');    {Do not Localize}
     Add('.sxc=application/vnd.sun.xml.calc');    {Do not Localize}
     Add('.sxi=application/vnd.sun.xml.impress');    {Do not Localize}
     Add('.sxm=application/vnd.sun.xml.math');    {Do not Localize}
@@ -2351,13 +2728,19 @@ begin
     Add('.tex=application/x-tex');    {Do not Localize}
     Add('.texi=application/x-texinfo');    {Do not Localize}
     Add('.texinfo=application/x-texinfo');    {Do not Localize}
+    Add('.tbz=application/x-bzip-compressed-tar');   {Do not Localize}
+    Add('.tbz2=application/x-bzip-compressed-tar');   {Do not Localize}
+    Add('.tgz=application/x-compressed-tar');    {Do not Localize}
+    Add('.tlz=application/x-lzma-compressed-tar');    {Do not Localize}
     Add('.tr=application/x-troff');    {Do not Localize}
     Add('.trm=application/x-msterminal');    {Do not Localize}
     Add('.troff=application/x-troff');    {Do not Localize}
     Add('.tsp=application/dsptype');    {Do not Localize}
-    Add('.tgz=application/x-compressed');    {Do not Localize}
     Add('.torrent=application/x-bittorrent');    {Do not Localize}
     Add('.ttz=application/t-time');    {Do not Localize}
+    Add('.txz=application/x-xz-compressed-tar'); {Do not localize}
+    Add('.udeb=application/x-debian-package');    {Do not Localize}
+
     Add('.uin=application/x-icq');    {Do not Localize}
     Add('.urls=application/x-url-list');    {Do not Localize}
     Add('.ustar=application/x-ustar');    {Do not Localize}
@@ -2406,18 +2789,22 @@ begin
     if a web-browser shows all of the 8bit charactors.
     }
     //of course, we have to add this :-).
+    Add('.asm=text/x-asm');   {Do not Localize}
     Add('.p=text/x-pascal');    {Do not Localize}
     Add('.pas=text/x-pascal');    {Do not Localize}
-    Add('.h++=text/x-c++hdr');    {Do not Localize}
-    Add('.hpp=text/x-c++hdr');    {Do not Localize}
-    Add('.hxx=text/x-c++hdr');    {Do not Localize}
-    Add('.hh=text/x-c++hdr');    {Do not Localize}
+
+    Add('.cs=text/x-csharp'); {Do not Localize}
+
+    Add('.c=text/x-csrc');    {Do not Localize}
     Add('.c++=text/x-c++src');    {Do not Localize}
     Add('.cpp=text/x-c++src');    {Do not Localize}
     Add('.cxx=text/x-c++src');    {Do not Localize}
     Add('.cc=text/x-c++src');    {Do not Localize}
-    Add('.h=text/x-chdr');    {Do not Localize}
-    Add('.c=text/x-csrc');    {Do not Localize}
+    Add('.h=text/x-chdr'); {Do not localize}
+    Add('.h++=text/x-c++hdr');    {Do not Localize}
+    Add('.hpp=text/x-c++hdr');    {Do not Localize}
+    Add('.hxx=text/x-c++hdr');    {Do not Localize}
+    Add('.hh=text/x-c++hdr');    {Do not Localize}
     Add('.java=text/x-java');    {Do not Localize}
 
     { WEB }
@@ -2444,19 +2831,15 @@ begin
     KeyList := TStringList.create;
     try
       Reg.RootKey := HKEY_CLASSES_ROOT;
-      if Reg.OpenKeyReadOnly('\') then  {do not localize}
-      begin
+      if Reg.OpenKeyReadOnly('\') then begin  {do not localize}
         Reg.GetKeyNames(KeyList);
         Reg.Closekey;
       end;
       // get a list of registered extentions
-      for i := 0 to KeyList.Count - 1 do
-      begin
+      for i := 0 to KeyList.Count - 1 do begin
         LExt := KeyList[i];
-        if TextStartsWith(LExt, '.') then   {do not localize}
-        begin
-          if Reg.OpenKeyReadOnly(LExt) then
-          begin
+        if TextStartsWith(LExt, '.') then begin  {do not localize}
+          if Reg.OpenKeyReadOnly(LExt) then begin
             s := Reg.ReadString('Content Type');  {do not localize}
             if Length(s) > 0 then begin
               AMIMEList.Values[IndyLowerCase(LExt)] := IndyLowerCase(s);
@@ -2465,20 +2848,16 @@ begin
           end;
         end;
       end;
-      if Reg.OpenKeyReadOnly('\MIME\Database\Content Type') then {do not localize}
-      begin
+      if Reg.OpenKeyReadOnly('\MIME\Database\Content Type') then begin {do not localize}
         // get a list of registered MIME types
         KeyList.Clear;
         Reg.GetKeyNames(KeyList);
         Reg.CloseKey;
 
-        for i := 0 to KeyList.Count - 1 do
-        begin
-          if Reg.OpenKeyReadOnly('\MIME\Database\Content Type\' + KeyList[i]) then {do not localize}
-          begin
+        for i := 0 to KeyList.Count - 1 do begin
+          if Reg.OpenKeyReadOnly('\MIME\Database\Content Type\' + KeyList[i]) then begin {do not localize}
             LExt := IndyLowerCase(Reg.ReadString('Extension'));  {do not localize}
-            if Length(LExt) > 0 then
-            begin
+            if Length(LExt) > 0 then begin
               if LExt[1] <> '.' then begin
                 LExt := '.' + LExt; {do not localize}
               end;
@@ -2519,27 +2898,31 @@ var
 begin
   { Check and fix extension }
   LExt := IndyLowerCase(Ext);
-  if Length(LExt) = 0 then
-  begin
-    EIdException.IfTrue(ARaiseOnError, RSMIMEExtensionEmpty);
+  if Length(LExt) = 0 then begin
+    if ARaiseOnError then begin
+      EIdException.Toss(RSMIMEExtensionEmpty);
+    end;
     Exit;
   end;
   { Check and fix MIMEType }
   LMIMEType := IndyLowerCase(MIMEType);
   if Length(LMIMEType) = 0 then begin
-    EIdException.IfTrue(ARaiseOnError, RSMIMEMIMETypeEmpty);
+    if ARaiseOnError then begin
+      EIdException.Toss(RSMIMEMIMETypeEmpty);
+    end;
     Exit;
   end;
   if LExt[1] <> '.' then begin    {do not localize}
     LExt := '.' + LExt;      {do not localize}
   end;
   { Check list }
-  if FFileExt.IndexOf(LExt) = -1 then
-  begin
+  if FFileExt.IndexOf(LExt) = -1 then begin
     FFileExt.Add(LExt);
     FMIMEList.Add(LMIMEType);
   end else begin
-    EIdException.IfTrue(ARaiseOnError, RSMIMEMIMEExtAlreadyExists);
+    if ARaiseOnError then begin
+      EIdException.Toss(RSMIMEMIMEExtAlreadyExists);
+    end;
     Exit;
   end;
 end;
@@ -2548,10 +2931,10 @@ procedure TIdMimeTable.BuildCache;
 begin
   if Assigned(FOnBuildCache) then begin
     FOnBuildCache(Self);
-  end
-  else if FFileExt.Count = 0 then
-  begin
-    BuildDefaultCache;
+  end else begin
+    if FFileExt.Count = 0 then begin
+      BuildDefaultCache;
+    end;
   end;
 end;
 
@@ -2594,8 +2977,7 @@ var
 begin
   LMimeType := IndyLowerCase(MIMEType);
   Index := FMIMEList.IndexOf(LMimeType);
-  if Index = -1 then
-  begin
+  if Index = -1 then begin
     BuildCache;
     Index := FMIMEList.IndexOf(LMIMEType);
   end;
@@ -2612,9 +2994,9 @@ var
   LExt: string;
 begin
   LExt := IndyLowerCase(ExtractFileExt(AFileName));
+
   Index := FFileExt.IndexOf(LExt);
-  if Index = -1 then
-  begin
+  if Index = -1 then begin
     BuildCache;
     Index := FFileExt.IndexOf(LExt);
   end;
@@ -2635,8 +3017,7 @@ begin
   FFileExt.Clear;
   FMIMEList.Clear;
 
-  for I := 0 to AStrings.Count - 1 do
-  begin
+  for I := 0 to AStrings.Count - 1 do begin
     S := AStrings[I];
     P := Pos(MimeSeparator, S);
     if P > 0 then begin
@@ -2661,26 +3042,23 @@ begin
 end;
 
 function IsValidIP(const S: String): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 var
-  j, i: Integer;
-  LTmp: String;
+  LErr: Boolean;
 begin
-  Result := False;
-  LTmp := Trim(S);
-  for i := 1 to 4 do begin
-    j := IndyStrToInt(Fetch(LTmp, '.'), -1);    {Do not Localize}
-    if (j < 0) or (j >= 256) then begin
-      Exit;
-    end;
+  LErr := False; // keep the compiler happy
+  IPv4ToDWord(S, LErr);
+  if LErr then begin
+    LErr := (MakeCanonicalIPv6Address(S) = '');
   end;
-  Result := True;
+  Result := not LErr;
 end;
 
 //everything that does not start with '.' is treated as hostname
 function IsHostname(const S: String): Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := (not TextStartsWith(S, '.')) and (not IsValidIP(S));    {Do not Localize}
+  Result := (not TextStartsWith(S, '.')) and (not IsValidIP(S)) ;    {Do not Localize}
 end;
 
 function IsTopDomain(const AStr: string): Boolean;
@@ -2702,30 +3080,38 @@ begin
     S1 := Fetch(S1, '.');    {Do not Localize}
     // here will be the exceptions check: com.uk, co.uk, com.tw and etc.
     if LTmp = 'UK' then begin    {Do not Localize}
-      if S1 = 'CO' then result := i = 2;    {Do not Localize}
-      if S1 = 'COM' then result := i = 2;    {Do not Localize}
+      if S1 = 'CO' then begin
+        result := i = 2;    {Do not Localize}
+      end;
+      if S1 = 'COM' then begin
+        result := i = 2;    {Do not Localize}
+      end;
     end;
     if LTmp = 'TW' then begin    {Do not Localize}
-      if S1 = 'CO' then result := i = 2;    {Do not Localize}
-      if S1 = 'COM' then result := i = 2;    {Do not Localize}
+      if S1 = 'CO' then begin
+        result := i = 2;    {Do not Localize}
+      end;
+      if S1 = 'COM' then begin
+        result := i = 2;    {Do not Localize}
+      end;
     end;
   end;
 end;
 
 function IsDomain(const S: String): Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := (not IsHostname(S)) and (IndyPos('.', S) > 0) and (not IsTopDomain(S));    {Do not Localize}
 end;
 
 function DomainName(const AHost: String): String;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := Copy(AHost, IndyPos('.', AHost), Length(AHost));    {Do not Localize}
 end;
 
 function IsFQDN(const S: String): Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := IsHostName(S) and IsDomain(DomainName(S));
 end;
@@ -2733,7 +3119,7 @@ end;
 // The password for extracting password.bin from password.zip is indyrules
 
 function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if Length(Result) >= ALen then begin
     Result := AString;
@@ -2773,24 +3159,25 @@ begin
           else if not TextEndsWith(Result, APathDelim) then begin
             Result := Result + LWork[i];
           end;
-        end
-        else if LWork[i] = '.' then begin    {Do not Localize}
-          // If the last character was a PathDelim then the . is a relative path modifier.
-          // If it doesnt follow a PathDelim, its part of a filename
-          if TextEndsWith(Result, APathDelim) and (Copy(LWork, i, 2) = '..') then begin    {Do not Localize}
-            // Delete the last PathDelim
-            Delete(Result, Length(Result), 1);
-            // Delete up to the next PathDelim
-            while (Length(Result) > 0) and (not TextEndsWith(Result, APathDelim)) do begin
+        end else begin
+          if LWork[i] = '.' then begin    {Do not Localize}
+            // If the last character was a PathDelim then the . is a relative path modifier.
+            // If it doesnt follow a PathDelim, its part of a filename
+            if TextEndsWith(Result, APathDelim) and (Copy(LWork, i, 2) = '..') then begin    {Do not Localize}
+              // Delete the last PathDelim
               Delete(Result, Length(Result), 1);
+              // Delete up to the next PathDelim
+              while (Length(Result) > 0) and (not TextEndsWith(Result, APathDelim)) do begin
+                Delete(Result, Length(Result), 1);
+              end;
+              // Skip over second .
+              Inc(i);
+            end else begin
+              Result := Result + LWork[i];
             end;
-            // Skip over second .
-            Inc(i);
           end else begin
             Result := Result + LWork[i];
           end;
-        end else begin
-          Result := Result + LWork[i];
         end;
         Inc(i);
       end;
@@ -2803,24 +3190,657 @@ begin
   end;
 end;
 
+{** HTML Parsing code for extracting Metadata.  It can also be the basis of a Full HTML parser ***}
+
+const
+ HTML_DOCWHITESPACE = #0+#9+#10+#13+#32;
+ HTML_ALLOWABLE_ALPHANUMBERIC = 'abcdefghijklmnopqrstuvwxyz'+
+         'ABCDEFGHIJKLMNOPQRSTUVWXYZ'+
+         '1234567890-';
+ HTML_QUOTECHARS = '''"';
+ HTML_MainDocParts : array [0..2] of string = ('TITLE','HEAD', 'BODY');
+ HTML_HeadDocAttrs : array [0..3] of string = ('META','TITLE','SCRIPT','LINK');
+
+procedure DiscardUntilEndOfTag(const AStr : String; var VPos : Integer; const ALen : Integer); {$IFDEF USE_INLINE}inline; {$ENDIF}
+begin
+  repeat
+    if VPos <= ALen then begin
+      if AStr[VPos] = '>' then begin
+        break;
+      end else begin
+        Inc(VPos);
+      end;
+    end else begin
+      break;
+    end;
+  until False;
+end;
+
+function ExtractDocWhiteSpace(const AStr : String; var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
+begin
+  Result := '';
+  repeat
+    //pass any whitespace
+    if VPos <= ALen then begin
+      if CharIsInSet(AStr,VPos,HTML_DOCWHITESPACE) then begin
+         Result := Result + AStr[VPos];
+         inc(VPos);
+       end else begin
+         break;
+       end;
+     end else begin
+        break;
+    end;
+  until False;
+end;
+
+procedure DiscardDocWhiteSpace(const AStr : String; var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+begin
+  repeat
+    //pass any whitespace
+    if VPos <= ALen then begin
+      if CharIsInSet(AStr,VPos,HTML_DOCWHITESPACE) then begin
+         inc(VPos);
+       end else begin
+         break;
+       end;
+     end else begin
+        break;
+    end;
+  until False;
+end;
+
+function ParseWord(const AStr : String; var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
+begin
+  Result := '';
+   repeat
+     if VPos <= ALen then begin
+      if CharIsInSet(AStr,VPos,HTML_ALLOWABLE_ALPHANUMBERIC) then begin
+         Result := Result + AStr[VPos];
+         inc(VPos);
+       end else begin
+         break;
+       end;
+     end else begin
+        break;
+     end;
+   until False;;
+end;
+
+function ParseUntil(const AStr : String; const AChar : Char;
+  var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
+
+begin
+  Result := '';
+  repeat
+    if VPos <= ALen then begin
+      if AStr[VPos] = AChar then begin
+         break;
+       end else begin
+         Result := Result + AStr[VPos];
+         inc(VPos);
+       end;
+     end else begin
+        break;
+    end;
+  until False;
+end;
+
+procedure DiscardUntil(const AStr : String; const AChar : Char;
+  var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+begin
+  repeat
+    if VPos <= ALen then begin
+      if AStr[VPos] = AChar then begin
+         break;
+       end else begin
+         inc(VPos);
+       end;
+     end else begin
+        break;
+    end;
+  until False;
+end;
+
+function ParseHTTPMetaEquiveData(const AStr : String; var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
+var LQuoteChar : Char;
+  LWord : String;
+begin
+  Result := '';
+  DiscardDocWhiteSpace(Astr,VPos,ALen);
+  if IdGlobal.CharIsInSet(AStr,VPos,HTML_QUOTECHARS) then begin
+    LQuoteChar := AStr[VPos];
+    Inc(VPos);
+  end else begin
+    LQuoteChar := ' ';
+  end;
+  if VPos > ALen then begin
+    exit;
+  end;
+  Result := ParseUntil(AStr,LQuoteChar,VPos,ALen)+':';
+  repeat
+    Inc(VPos);
+    DiscardDocWhiteSpace(Astr,VPos,ALen);
+    if AStr[VPos]='/' then begin
+      Inc(VPos);
+    end;
+    if AStr[VPos]='>' then begin
+      break;
+    end;
+    LWord := ParseWord(AStr,VPos,ALen);
+    if VPos > ALen then begin
+      break;
+    end;
+    if AStr[VPos]='=' then begin
+       Inc(VPos);
+       DiscardDocWhiteSpace(Astr,VPos,ALen);
+       if IdGlobal.CharIsInSet(AStr,VPos,HTML_QUOTECHARS) then begin
+         LQuoteChar := AStr[VPos];
+         Inc(VPos);
+       end else begin
+         LQuoteChar := ' ';
+       end;
+       if TextIsSame(LWord,'CONTENT') then begin
+         Result := Result + ' '+ParseUntil(AStr,LQuoteChar,VPos,ALen);
+       end else begin
+         DiscardUntil(AStr,LQuoteChar,VPos,ALen);
+       end;
+    end;
+  until False;
+end;
+
+function ParseForEndOfComment(const AStr : String; var VPos : Integer; const ALen : Integer) : String;   {$IFDEF USE_INLINE}inline; {$ENDIF}
+var i : Integer;
+  LTmp : String;
+begin
+  Result := ParseUntil(AStr,'-',VPos,ALen);
+  i := 0;
+  repeat
+    if VPos > ALen then begin
+      exit;
+    end;
+    if AStr[VPos]='-' then begin
+      Inc(i);
+      LTmp := LTmp + '-';
+      Inc(VPos);
+      if (i >= 2) and (AStr[VPos]='>') then begin
+        Delete(LTmp,1,2);
+        Result := Result + LTmp;
+        break;
+      end else begin
+        if AStr[VPos] <> '-' then begin
+           i := 0;
+           Result := Result + LTmp;
+        end;
+      end;
+    end else begin
+      Result := Result + AStr[VPos];
+      Inc(VPos);
+    end;
+  until False;
+end;
+
+procedure DiscardToEndOfComment(const AStr : String; var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+var i : Integer;
+begin
+  DiscardUntil(AStr,'-',VPos,ALen);
+  i := 0;
+  repeat
+    if VPos > ALen then begin
+      exit;
+    end;
+    if AStr[VPos]='-' then begin
+      Inc(i);
+      Inc(VPos);
+      if (i >= 2) and (AStr[VPos]='>') then begin
+        break;
+      end else begin
+        if AStr[VPos] <> '-' then begin
+           i := 0;
+        end;
+      end;
+    end else begin
+      Inc(VPos);
+    end;
+  until False;
+end;
+
+function ParseForCloseTag(const AStr, ATagWord : String; var VPos : Integer; const ALen : Integer) : String; {$IFDEF USE_INLINE}inline; {$ENDIF}
+var LWord, LTmp : String;
+begin
+  Result := '';
+  repeat
+    if VPos > ALen then begin
+      exit;
+    end;
+    Result := Result + ParseUntil(AStr,'<',VPos,ALen);
+    if AStr[VPos] = '<' then begin
+      Inc(VPos);
+    end;
+    LTmp := '<'+ExtractDocWhiteSpace(Astr,VPos,ALen);
+    if AStr[VPos] = '/' then begin
+      Inc(VPos);
+      LTmp := LTmp + '/';
+      LWord := ParseWord(AStr,VPos,ALen);
+      if TextIsSame(LWord,ATagWord) then begin
+        DiscardUntil(AStr,'>',VPos,ALen);
+        break;
+      end else begin
+        Result := Result + LTmp + LWord + ParseUntil(AStr,'>',VPos,ALen);
+        Inc(VPos);
+      end;
+    end else begin
+        Result := Result + LTmp + LWord + ParseUntil(AStr,'>',VPos,ALen);
+        Inc(VPos);
+    end;
+  until False;
+end;
+
+procedure DiscardUntilCloseTag(const AStr, ATagWord : String; var VPos : Integer;
+  const ALen : Integer; const AIsScript : Boolean = False);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+var LWord, LTmp : String;
+begin
+  repeat
+    if VPos > ALen then begin
+      exit;
+    end;
+    DiscardUntil(AStr,'<',VPos,ALen);
+    if AStr[VPos] = '<' then begin
+      Inc(VPos);
+    end;
+    LTmp := '<'+ExtractDocWhiteSpace(Astr,VPos,ALen);
+    if AStr[VPos] = '/' then begin
+      Inc(VPos);
+      LTmp := LTmp + '/';
+      LWord := ParseWord(AStr,VPos,ALen);
+      if TextIsSame(LWord,ATagWord) then begin
+       DiscardUntil(AStr,'>',VPos,ALen);
+        break;
+      end else begin
+        if not AIsScript then begin
+          DiscardUntil(AStr,'>',VPos,ALen);
+        end;
+        Inc(VPos);
+      end;
+    end else begin
+      if Not AIsScript then begin
+        DiscardUntil(AStr,'>',VPos,ALen);
+      end;
+      Inc(VPos);
+    end;
+  until False;
+end;
+
+procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings);
+type
+  TIdHTMLMode = (none,html,title,head,body,comment);
+
+var
+  LRawData : String;
+  LWord : String;
+  LMode : TIdHTMLMode;
+  LPos : Integer;
+  LLen : Integer;
+
+begin
+//  AStr.Clear;
+  AStream.Position := 0;
+  LRawData := ReadStringFromStream(AStream);
+  LMode := none;
+  LPos := 0;
+  LLen := Length(LRawData);
+  repeat
+    Inc(LPos);
+    if LPos > LLen then begin
+      break;
+    end;
+    if LRawData[LPos] = '<' then begin
+      Inc(LPos);
+      if LRawData[LPos] = '?' then begin
+        Inc(LPos);
+      end;
+      if LRawData[LPos] = '!' then begin
+        Inc(LPos);
+      end;
+      DiscardDocWhiteSpace(LRawData,LPos,LLen);
+      LWord := ParseWord(LRawData,LPos,LLen);
+      //we have to handle comments separately since they appear in any mode.
+      if TextStartsWith(LWord,'--') then begin
+        ParseForEndOfComment(LRawData,LPos,LLen);
+      end else begin
+        case LMode  of
+          none :
+          begin
+            DiscardUntilEndOfTag(LRawData,LPos,LLen);
+            if UpperCase(LWord) = 'HTML'  then begin
+               LMOde := html;
+            end;
+          end;
+          html :
+          begin
+            DiscardUntilEndOfTag(LRawData,LPos,LLen);
+            case PosInStrArray(LWord,HTML_MainDocParts,False) of
+              0 : LMode := title;//title
+              1 : LMode := head; //head
+              2 : LMode := body;
+            end;
+          end;
+          head :
+          begin
+            case IdGlobal.PosInStrArray(LWord,HTML_HeadDocAttrs,False) of
+              0 : //'META',
+              begin
+                DiscardDocWhiteSpace(LRawData,LPos,LLen);
+                LWord := ParseWord(LRawData,LPos,LLen);
+                if TextIsSame(LWord,'HTTP-EQUIV') then begin
+                  if LRawData[LPos]='=' then begin
+                    Inc(LPos);
+                    AStr.Add( ParseHTTPMetaEquiveData(LRawData,LPos,LLen));
+                  end;
+                end;
+              end;
+              1 :  //'TITLE'
+              begin
+                DiscardUntilEndOfTag(LRawData,LPos,LLen);
+                DiscardUntilCloseTag(LRawData,'TITLE',LPos,LLen);
+              end;
+              //'SCRIPT'
+              2 :
+              begin
+                DiscardUntilEndOfTag(LRawData,LPos,LLen);
+                DiscardUntilCloseTag(LRawData,'SCRIPT',LPos,LLen,True);
+              end;
+              //'LINK'
+              3 :
+              begin
+                DiscardUntilEndOfTag(LRawData,LPos,LLen);
+              end;
+            end;
+          end;
+          body: begin
+            exit;
+          end;
+        end;
+      end;
+    end;
+  until False;
+end;
+
+{*************************************************************************************************}
+
 // make sure that an RFC MsgID has angle brackets on it
 function EnsureMsgIDBrackets(const AMsgID: String): String;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := AMsgID;
   if Length(Result) > 0 then begin
-    if Result[1] <> #60 then begin
-      Result := '<' + Result;
+    if Result[1] <> '<' then begin {do not localize}
+      Result := '<' + Result; {do not localize}
     end;
-    if Result[Length(Result)] <> #62 then begin
-      Result := Result + '>';
+    if Result[Length(Result)] <> '>' then begin {do not localize}
+      Result := Result + '>'; {do not localize}
     end;
   end;
 end;
 
+function ExtractHeaderItem(const AHeaderLine: String): String;
+var
+  s: string;
+begin
+  // Store in s and not Result because of Fetch semantics
+  s := AHeaderLine;
+  Result := Trim(Fetch(s, ';')); {do not localize}
+end;
+
+const
+  QuoteSpecials: array[TIdHeaderQuotingType] of String = (
+    {Plain } '',                    {do not localize}
+    {RFC822} '()<>@,;:\"./',        {do not localize}
+    {MIME  } '()<>@,;:\"/[]?=',     {do not localize}
+    {HTTP  } '()<>@,;:\"/[]?={} '#9 {do not localize}
+    );
+
+procedure SplitHeaderSubItems(AHeaderLine: String; AItems: TStrings;
+  AQuoteType: TIdHeaderQuotingType);
+var
+  LName, LValue, LSep: String;
+  I: Integer;
+
+  function FetchQuotedString(var VHeaderLine: string): string;
+  begin
+    Result := '';
+    Delete(VHeaderLine, 1, 1);
+    I := 1;
+    while I <= Length(VHeaderLine) do begin
+      if VHeaderLine[I] = '\' then begin
+        // TODO: disable this logic for HTTP 1.0
+        if I < Length(VHeaderLine) then begin
+          Delete(VHeaderLine, I, 1);
+        end;
+      end
+      else if VHeaderLine[I] = '"' then begin
+        Result := Copy(VHeaderLine, 1, I-1);
+        VHeaderLine := Copy(VHeaderLine, I+1, MaxInt);
+        Break;
+      end;
+      Inc(I);
+    end;
+    Fetch(VHeaderLine, ';');
+  end;
+
+begin
+  Fetch(AHeaderLine, ';'); {do not localize}
+  LSep := CharRange(#0, #32) + QuoteSpecials[AQuoteType] + #127;
+  while AHeaderLine <> '' do
+  begin
+    AHeaderLine := TrimLeft(AHeaderLine);
+    if AHeaderLine = '' then begin
+      Exit;
+    end;
+    LName := Trim(Fetch(AHeaderLine, '=')); {do not localize}
+    AHeaderLine := TrimLeft(AHeaderLine);
+    if TextStartsWith(AHeaderLine, '"') then {do not localize}
+    begin
+      LValue := FetchQuotedString(AHeaderLine);
+    end else begin
+      I := FindFirstOf(LSep, AHeaderLine);
+      if I <> 0 then
+      begin
+        LValue := Copy(AHeaderLine, 1, I-1);
+        if AHeaderLine[I] = ';' then begin {do not localize}
+          Inc(I);
+        end;
+        Delete(AHeaderLine, 1, I-1);
+      end else begin
+        LValue := AHeaderLine;
+        AHeaderLine := '';
+      end;
+    end;
+    if (LName <> '') and (LValue <> '') then begin
+      AItems.Add(LName + '=' + LValue);
+    end;
+  end;
+end;
+
+function ExtractHeaderSubItem(const AHeaderLine, ASubItem: String;
+  AQuoteType: TIdHeaderQuotingType): String;
+var
+  LItems: TStringList;
+  {$IFNDEF HAS_TStringList_CaseSensitive}
+  I: Integer;
+  LTmp: string;
+  {$ENDIF}
+begin
+  Result := '';
+  LItems := TStringList.Create;
+  try
+    SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
+    {$IFDEF HAS_TStringList_CaseSensitive}
+    LItems.CaseSensitive := False;
+    Result := LItems.Values[ASubItem];
+    {$ELSE}
+    for I := 0 to LItems.Count-1 do
+    begin
+      if TextIsSame(LItems.Names[I], ASubItem) then
+      begin
+        LTmp := LItems.Strings[I];
+        Result := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {do not localize}
+        Break;
+      end;
+    end;
+    {$ENDIF}
+  finally
+    LItems.Free;
+  end;
+end;
+
+function ReplaceHeaderSubItem(const AHeaderLine, ASubItem, AValue: String;
+  AQuoteType: TIdHeaderQuotingType): String;
+var
+  LOld: String;
+begin
+  Result := ReplaceHeaderSubItem(AHeaderLine, ASubItem, AValue, LOld, AQuoteType);
+end;
+
+function ReplaceHeaderSubItem(const AHeaderLine, ASubItem, AValue: String;
+  var VOld: String; AQuoteType: TIdHeaderQuotingType): String;
+var
+  LItems: TStringList;
+  I: Integer;
+  {$IFNDEF HAS_TStrings_ValueFromIndex}
+  LTmp: string;
+  {$ENDIF}
+  LValue: string;
+
+  {$IFNDEF HAS_TStringList_CaseSensitive}
+  function FindIndexOfItem: Integer;
+  var
+    I: Integer;
+  begin
+    for I := 0 to LItems.Count-1 do
+    begin
+      if TextIsSame(LItems.Names[I], ASubItem) then
+      begin
+        Result := I;
+        Exit;
+      end;
+    end;
+    Result := -1;
+  end;
+  {$ENDIF}
+
+  function QuoteString(const S: String): String;
+  var
+    I: Integer;
+    LAddQuotes: Boolean;
+    LNeedQuotes, LNeedEscape: String;
+  begin
+    Result := '';
+    if Length(S) = 0 then begin
+      Exit;
+    end;
+    LAddQuotes := False;
+    LNeedQuotes := CharRange(#0, #32) + QuoteSpecials[AQuoteType] + #127;
+    // TODO: disable this logic for HTTP 1.0
+    LNeedEscape := '"\'; {Do not Localize}
+    if AQuoteType in [QuoteRFC822, QuoteMIME] then begin
+      LNeedEscape := LNeedEscape + CR; {Do not Localize}
+    end;
+    for I := 1 to Length(S) do begin
+      if CharIsInSet(S, I, LNeedEscape) then begin
+        LAddQuotes := True;
+        Result := Result + '\'; {do not localize}
+      end
+      else if CharIsInSet(S, I, LNeedQuotes) then begin
+        LAddQuotes := True;
+      end;
+      Result := Result + S[I];
+    end;
+    if LAddQuotes then begin
+      Result := '"' + Result + '"';
+    end;
+  end;
+
+begin
+  Result := '';
+  LItems := TStringList.Create;
+  try
+    SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
+    {$IFDEF HAS_TStringList_CaseSensitive}
+    LItems.CaseSensitive := False;
+    I := LItems.IndexOfName(ASubItem);
+    {$ELSE}
+    I := FindIndexOfItem;
+    {$ENDIF}
+    if I >= 0 then begin
+      VOld := LItems.Strings[I];
+      Fetch(VOld, '=');
+    end else begin
+      VOld := '';
+    end;
+    LValue := Trim(AValue);
+    if LValue <> '' then begin
+      if I < 0 then begin
+        I := LItems.Add('');
+      end;
+      LItems.Strings[I] := ASubItem + '=' + LValue; {do not localize}
+    end
+    else if I >= 0 then begin
+      LItems.Delete(I);
+    end;
+    Result := ExtractHeaderItem(AHeaderLine);
+    if Result <> '' then begin
+      for I := 0 to LItems.Count-1 do begin
+        {$IFDEF HAS_TStrings_ValueFromIndex}
+        Result := Result + '; ' + LItems.Names[I] + '=' + QuoteString(LItems.ValueFromIndex[I]); {do not localize}
+        {$ELSE}
+        LTmp := LItems.Strings[I];
+        Result := Result + '; ' + LItems.Names[I] + '=' + QuoteString(Copy(LTmp, Pos('=', LTmp)+1, MaxInt)); {do not localize}
+        {$ENDIF}
+      end;
+    end;
+  finally
+    LItems.Free;
+  end;
+end;
+
+function MediaTypeMatches(const AValue, AMediaType: String): Boolean;
+begin
+  if Pos('/', AMediaType) > 0 then begin {do not localize}
+    Result := TextIsSame(AValue, AMediaType);
+  end else begin
+    Result := TextStartsWith(AValue, AMediaType + '/'); {do not localize}
+  end;
+end;
+
+function IsHeaderMediaType(const AHeaderLine, AMediaType: String): Boolean;
+begin
+  Result := MediaTypeMatches(ExtractHeaderItem(AHeaderLine), AMediaType);
+end;
+
+function IsHeaderMediaTypes(const AHeaderLine: String; const AMediaTypes: array of String): Boolean;
+var
+  LHeader: String;
+  I: Integer;
+begin
+  Result := False;
+  LHeader := ExtractHeaderItem(AHeaderLine);
+  for I := Low(AMediaTypes) to High(AMediaTypes) do begin
+    if MediaTypeMatches(LHeader, AMediaTypes[I]) then begin
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+function IsHeaderValue(const AHeaderLine: String; const AValue: String): Boolean;
+begin
+  Result := TextIsSame(ExtractHeaderItem(AHeaderLine), AValue);
+end;
+
 function GetClockValue : Int64;
 {$IFDEF DOTNET}
-  {$IFDEF USEINLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 {$ENDIF}
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
 type
@@ -2835,8 +3855,10 @@ var
   LFTime : TFileTime;
 {$ENDIF}
 {$IFDEF UNIX}
+  {$IFNDEF USE_VCL_POSIX}
 var
   TheTms: tms;
+  {$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -2850,32 +3872,40 @@ begin
   {$ENDIF}
   {$IFDEF UNIX}
   //Is the following correct?
-  Result := {$IFDEF USEBASEUNIX}fptimes{$ELSE}Libc.Times{$ENDIF}(TheTms);
+    {$IFDEF USE_BASEUNIX}
+  Result := fptimes(TheTms);
+    {$ENDIF}
+    {$IFDEF KYLIXCOMPAT}
+  Result := Times(TheTms);
+    {$ENDIF}
+    {$IFDEF USE_VCL_POSIX}
+  Result := time(nil);
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF DOTNET}
   Result := System.DateTime.Now.Ticks;
   {$ENDIF}
 end;
 
-{$UNDEF DONTHAVENATIVEX86}
+{$UNDEF NO_NATIVE_X86}
 {$IFDEF DOTNET}
-  {$DEFINE DONTHAVENATIVEX86}
+  {$DEFINE NO_NATIVE_X86}
 {$ENDIF}
 {$IFDEF FPC}
   {$IFNDEF CPUI386}
-     {$DEFINE DONTHAVENATIVEX86}
+     {$DEFINE NO_NATIVE_X86}
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF DONTHAVENATIVEX86}
+{$IFDEF NO_NATIVE_X86}
 function ROL(const AVal: LongWord; AShift: Byte): LongWord;
-  {$IFDEF USEINLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
    Result := (AVal shl AShift) or (AVal shr (32 - AShift));
 end;
 
 function ROR(const AVal: LongWord; AShift: Byte): LongWord;
-  {$IFDEF USEINLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
    Result := (AVal shr AShift) or (AVal shl (32 - AShift)) ;
 end;
@@ -2898,11 +3928,11 @@ end;
 
 function IndyComputerName: string;
 {$IFDEF DOTNET}
-  {$IFDEF USEINLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 {$ENDIF}
 {$IFDEF UNIX}
 var
-  LHost: array[1..255] of Char;
+  LHost: array[1..255] of AnsiChar;
   i: LongWord;
 {$ENDIF}
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -2913,14 +3943,19 @@ begin
   {$IFDEF UNIX}
   //TODO: No need for LHost at all? Prob can use just Result
     {$IFDEF KYLIXCOMPAT}
-  if GetHostname(@LHost[1], 255) <> -1 then
-  begin
+  if GetHostname(@LHost[1], 255) <> -1 then begin
     i := IndyPos(#0, LHost);
-    SetLength(Result, i - 1);
-    Move(LHost, Result[1], i - 1);
+    SetString(Result, PAnsiChar(@LHost[1]), i-1);
   end;
-    {$ELSE}
-  Result := Unix.GetHostName;
+    {$ENDIF}
+    {$IFDEF USE_BASE_UNIX}
+  Result := GetHostName;
+    {$ENDIF}
+    {$IFDEF USE_VCL_POSIX}
+  if PosixUnistd.gethostname(@LHost[1], 255) <> -1 then begin
+    i := IndyPos(#0, String(LHost));
+    SetString(Result, PAnsiChar(@LHost[1]), i-1);
+  end;
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -2939,24 +3974,22 @@ begin
   {$ENDIF}
 end;
 
-function IsLeadChar(ACh : Char):Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF STRING_IS_ANSI}
+function IsLeadChar(ACh : Char): Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  {$IFDEF DOTNET}
-  Result := False;
-  {$ELSE}
   Result := ACh in LeadBytes;
-  {$ENDIF}
 end;
+{$ENDIF}
 
 function IdGetDefaultCharSet: TIdCharSet;
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF UNIX}
   Result := GIdDefaultCharSet;
   {$ENDIF}
   {$IFDEF DOTNET}
-  Result := idcsUNICODE_1_1;
+  Result := idcs_UNICODE_1_1;
   // not a particular Unicode encoding - just unicode in general
   // i.e. DotNet native string is 2 byte Unicode, we do not concern ourselves
   // with Byte order. (though we have to concern ourselves once we start
@@ -2968,23 +4001,32 @@ begin
   case SysLocale.PriLangID of
     LANG_CHINESE: begin
       if SysLocale.SubLangID = SUBLANG_CHINESE_SIMPLIFIED then begin
-        Result := idcsGB2312;
+        Result := idcs_GB2312;
       end else begin
-        Result := idcsBig5;
+        Result := idcs_Big5;
       end;
     end;
-    LANG_JAPANESE: Result := idcsISO_2022_JP;
-    LANG_KOREAN: Result := idcscsEUCKR;
+    LANG_JAPANESE: Result := idcs_ISO_2022_JP;
+    LANG_KOREAN: Result := idcs_csEUCKR;
     // Kudzu
     // 1251 is the Windows standard for Russian but its not used in emails.
     // KOI8-R is by far the most widely used and thus the default.
-    LANG_RUSSIAN: Result := idcsKOI8_R;
+    LANG_RUSSIAN: Result := idcs_KOI8_R;
     // Kudzu
     // Ukranian is about 50/50 KOI8u and 1251, but 1251 is the newer one and
     // the Windows one so we default to it.
-    LANG_UKRAINIAN: Result := idcswindows_1251;
+    LANG_UKRAINIAN: Result := idcs_windows_1251;
     else begin
-      Result := idcsISO_8859_1;
+      {$IFDEF STRING_IS_UNICODE}
+      Result := idcs_UNICODE_1_1;
+      // not a particular Unicode encoding - just unicode in general
+      // i.e. Delphi/C++Builder 2009+ native string is 2 byte Unicode,
+      // we do not concern ourselves with Byte order. (though we have
+      // to concern ourselves once we start writing to some stream or
+      // Bytes
+      {$ELSE}
+      Result := idcs_ISO_8859_1;
+      {$ENDIF}
     end;
   end;
   {$ENDIF}
@@ -2992,36 +4034,30 @@ end;
 
 //The following is for working on email headers and message part headers.
 //For example, to remove the boundary from the ContentType header, call
-//ContentType := RemoveHeaderEntry(ContentType, 'boundary');
-function RemoveHeaderEntry(AHeader, AEntry: string): string;
-var
-  LS: string;
-  LPos: integer;
-  LInQuotes: Boolean;
+//ContentType := RemoveHeaderEntry(ContentType, 'boundary', QuoteMIME);
+function RemoveHeaderEntry(const AHeader, AEntry: string;
+  AQuoteType: TIdHeaderQuotingType): string;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  LPos := Pos(LowerCase(AEntry), LowerCase(AHeader));
-  if LPos = 0 then begin
-    Result := AHeader;
-  end else
-  begin
-    Result := Copy(AHeader, 1, LPos-1);
-    LS := Copy(AHeader, LPos, MaxInt);
-    //See if there is a following ; that is not within quotes...
-    //LPos := Pos(';', LS);
-    for LPos := 1 to Length(LS) do
-    begin
-      LInQuotes := False;
-      if LS[LPos] = '"' then begin {do not localize}
-        LInQuotes := not LInQuotes;
-      end;
-      if (LS[LPos] = ';') and (not LInQuotes) then begin {do not localize}
-        Result := Result + Copy(LS, LPos+1, MaxInt);
-        Exit;
-      end;
-    end;
-    Result := Trim(Result);
-    if TextEndsWith(Result, ';') then begin {do not localize}
-      Delete(Result, Length(Result), 1);
+  Result := ReplaceHeaderSubItem(AHeader, AEntry, '', AQuoteType);
+end;
+
+function RemoveHeaderEntry(const AHeader, AEntry: string; var VOld: String;
+  AQuoteType: TIdHeaderQuotingType): string;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ReplaceHeaderSubItem(AHeader, AEntry, '', VOld, AQuoteType);
+end;
+
+function RemoveHeaderEntries(const AHeader: string; AEntries: array of string;
+  AQuoteType: TIdHeaderQuotingType): string;
+var
+  I: Integer;
+begin
+  Result := AHeader;
+  if Length(AEntries) > 0 then begin
+    for I := Low(AEntries) to High(AEntries) do begin
+      Result := ReplaceHeaderSubItem(Result, AEntries[I], '', AQuoteType);
     end;
   end;
 end;
@@ -3037,16 +4073,12 @@ var
   I, LLength, LPos: Integer;
 begin
   Result := 0;
-  if Length(AFind) > 0 then
-  begin
+  if Length(AFind) > 0 then begin
     LLength := IndyLength(AText, ALength, AStartPos);
-    if LLength > 0 then
-    begin
-      for I := 0 to LLength-1 do
-      begin
+    if LLength > 0 then begin
+      for I := 0 to LLength-1 do begin
         LPos := AStartPos + I;
-        if IndyPos(AText[LPos], AFind) <> 0 then
-        begin
+        if IndyPos(AText[LPos], AFind) <> 0 then begin
           Result := LPos;
           Exit;
         end;
@@ -3062,18 +4094,14 @@ var
 begin
   Result := 0;
   LLength := IndyLength(AText, ALength, AStartPos);
-  if LLength > 0 then
-  begin
-    if Length(AFind) = 0 then
-    begin
+  if LLength > 0 then begin
+    if Length(AFind) = 0 then begin
       Result := AStartPos;
       Exit;
     end;
-    for I := 0 to LLength-1 do
-    begin
+    for I := 0 to LLength-1 do begin
       LPos := AStartPos + I;
-      if IndyPos(AText[LPos], AFind) = 0 then
-      begin
+      if IndyPos(AText[LPos], AFind) = 0 then begin
         Result := LPos;
         Exit;
       end;
@@ -3087,10 +4115,8 @@ var
 begin
   Result := AText;
   Len := Length(Result);
-  while Len > 0 do
-  begin
-    if IndyPos(Result[1], ATrim) > 0 then
-    begin
+  while Len > 0 do begin
+    if IndyPos(Result[1], ATrim) > 0 then begin
       IdDelete(Result, 1, 1);
       Dec(Len);
     end else begin
@@ -3098,14 +4124,178 @@ begin
     end;
   end;
   while Len > 0 do begin
-    if IndyPos(Result[Len], ATrim) > 0 then
-    begin
+    if IndyPos(Result[Len], ATrim) > 0 then begin
       IdDelete(Result, Len, 1);
       Dec(Len);
     end else begin
       Break;
     end;
   end;
+end;
+
+function ContentTypeToEncoding(const AContentType: String;
+  AQuoteType: TIdHeaderQuotingType): TIdTextEncoding;
+var
+  LCharset: String;
+begin
+  LCharset := ExtractHeaderSubItem(AContentType, 'charset', AQuoteType);  {do not localize}
+  Result := CharsetToEncoding(LCharset);
+end;
+
+//TODO:  Figure out what should happen with Unicode content type.
+function CharsetToEncoding(const ACharset: String): TIdTextEncoding;
+{$IFNDEF DOTNET_OR_ICONV}
+var
+  CP: Word;
+{$ENDIF}
+begin
+  Result := nil;
+  if ACharSet <> '' then
+  begin
+    if Assigned(GEncodingNeeded) then begin
+      Result := GEncodingNeeded(ACharSet);
+      if Assigned(Result) then begin
+        Exit;
+      end;
+    end;
+    // RLebeau 3/13/09: if there is a problem initializing an encoding
+    // class for the requested charset, either because the charset is
+    // not known to Indy, or because the OS does not support it natively,
+    // just return the 8-bit encoding as a fallback for now.  The data
+    // being handled by it likely won't be encoded/decoded properly, but
+    // at least the error won't cause exceptions in the user's code, and
+    // maybe the user will know how to encode/decode the data manually
+    // as a workaround...
+    try
+      {$IFDEF DOTNET_OR_ICONV}
+      Result := TIdTextEncoding.GetEncoding(ACharset);
+      {$ELSE}
+      CP := CharsetToCodePage(ACharset);
+      if CP <> 0 then begin
+        Result := TIdTextEncoding.GetEncoding(CP);
+      end;
+      {$ENDIF}
+    except end;
+  end;
+
+  {JPM - I have decided to temporarily make this 8-bit because I'm concerned
+  about how binary files will be handled by the ASCII encoder (where there may
+  be 8bit byte-values.  In addition, there are numerous charsets for various
+  languages and code that does some special mapping for them would be a mess.}
+
+  {RLebeau: technically, we should be returning a 7-bit encoding, as the
+  default charset for "text/" content types is "us-ascii".}
+
+  if not Assigned(Result) then
+  begin
+    { TODO: finish implementing this
+    if PosInStrArray(
+      ACharSet,
+      ['ISO-2022-JP', 'ISO-2022-JP-1', 'ISO-2022-JP-2', 'ISO-2022-JP-3', 'ISO-2022-JP-2004'], {do not localize
+      False) <> -1 then
+    begin
+      Result := TIdTextEncoding_ISO2022JP.Create;
+      Exit;
+    end;
+    }
+    {$IFDEF DOTNET}
+    Result := Indy8BitEncoding;
+    {$ELSE}
+    {Rlebeau: Setting the AOwnedByIndy parameter of Indy8BitEncoding() to False.
+    This way, the caller does not have to figure out whether or not to free the
+    output TIdTextEncoding.  Standard TIdTextEncoding objects (ASCII, UTF8, etc)
+    are owned by the RTL, and the 8-bit encoding object that Indy8BitEncoding()
+    normally returns is owned by IdGlobal.pas, and thus should not be freed.
+    Objects returned by TIdTextEncoding.GetEncoding() and Indy8BitEncoding(False)
+    are not owned by anyone and must always be freed.}
+    Result := Indy8BitEncoding(False);
+    {$ENDIF}
+  end;
+end;
+
+function ReadStringAsContentType(AStream: TStream; const AContentType: String;
+  AQuoteType: TIdHeaderQuotingType
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+): String;
+var
+  LEncoding: TIdTextEncoding;
+begin
+  Result := '';
+  LEncoding := ContentTypeToEncoding(AContentType, AQuoteType);
+  {$IFNDEF DOTNET}
+  try
+  {$ENDIF}
+    Result := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  {$IFNDEF DOTNET}
+  finally
+    LEncoding.Free;
+  end;
+  {$ENDIF}
+end;
+
+procedure ReadStringsAsContentType(AStream: TStream; AStrings: TStrings;
+  const AContentType: String; AQuoteType: TIdHeaderQuotingType
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+);
+var
+  LEncoding: TIdTextEncoding;
+begin
+  LEncoding := ContentTypeToEncoding(AContentType, AQuoteType);
+  {$IFNDEF DOTNET}
+  try
+  {$ENDIF}
+    {$IFDEF HAS_TEncoding}
+    AStrings.LoadFromStream(AStream, LEncoding);
+    {$ELSE}
+    AStrings.Text := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    {$ENDIF}
+  {$IFNDEF DOTNET}
+  finally
+    LEncoding.Free;
+  end;
+  {$ENDIF}
+end;
+
+function ReadStringAsCharset(AStream: TStream; const ACharset: String
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+): String;
+//TODO:  Figure out what should happen with Unicode content type.
+var
+  LEncoding: TIdTextEncoding;
+begin
+  Result := '';
+  LEncoding := CharsetToEncoding(ACharset);
+  {$IFNDEF DOTNET}
+  try
+  {$ENDIF}
+    Result := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  {$IFNDEF DOTNET}
+  finally
+    LEncoding.Free;
+  end;
+  {$ENDIF}
+end;
+
+procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: String
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+);
+var
+  LEncoding: TIdTextEncoding;
+begin
+  LEncoding := CharsetToEncoding(ACharset);
+  {$IFNDEF DOTNET}
+  try
+  {$ENDIF}
+    {$IFDEF HAS_TEncoding}
+    AStrings.LoadFromStream(AStream, LEncoding);
+    {$ELSE}
+    AStrings.Text := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    {$ENDIF}
+  {$IFNDEF DOTNET}
+  finally
+    LEncoding.Free;
+  end;
+  {$ENDIF}
 end;
 
 { TIdInterfacedObject }
@@ -3136,5 +4326,4 @@ initialization
   IndyFalseBoolStrs[Low(IndyFalseBoolStrs)] := 'FALSE';    {Do not Localize}
   SetLength(IndyTrueBoolStrs, 1);
   IndyTrueBoolStrs[Low(IndyTrueBoolStrs)] := 'TRUE';    {Do not Localize}
-
 end.

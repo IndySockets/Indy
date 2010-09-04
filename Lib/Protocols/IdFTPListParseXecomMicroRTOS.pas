@@ -66,6 +66,10 @@ type
     class function GetIdent : String; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseXecomMicroRTOS"'*)
+
 implementation
 
 uses

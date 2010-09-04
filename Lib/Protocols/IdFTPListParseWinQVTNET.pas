@@ -65,6 +65,12 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
+  (*HPPEMIT '#pragma link "IdFTPListParseWinQVTNET"'*)
+
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseWinQVTNET"'*)
+
 implementation
 
 uses

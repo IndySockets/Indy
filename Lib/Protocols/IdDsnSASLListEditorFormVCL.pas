@@ -53,10 +53,10 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WIDGETKYLIX}
+  {$IFDEF WIDGET_KYLIX}
   QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList, QGraphics,
   {$ENDIF}
-  {$IFDEF WIDGETVCLLIKE}
+  {$IFDEF WIDGET_VCL_LIKE}
   Controls, Forms, StdCtrls, Buttons, ExtCtrls, ActnList, Graphics,
   {$ENDIF}
   Classes, IdSASLCollection;
@@ -68,7 +68,7 @@ type
     lbAssigned: TListBox;
     sbAdd: TSpeedButton;
     sbRemove: TSpeedButton;
-    {$IFDEF USETBITBTN}
+    {$IFDEF USE_TBitBtn}
     BtnCancel: TBitBtn;
     BtnOk: TBitBtn;
     {$ELSE}
@@ -108,7 +108,7 @@ type
 implementation
 
 uses
-  {$IFDEF WIDGETLCL}
+  {$IFDEF WIDGET_LCL}
   LResources,
   {$ENDIF}
   IdDsnCoreResourceStrings,
@@ -117,7 +117,7 @@ uses
 
 { TfrmSASLListEditorVCL }
 
-{$IFNDEF WIDGETLCL}
+{$IFNDEF WIDGET_LCL}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   {$R IdSASLListEditorForm.RES}
   {$ENDIF}
@@ -164,7 +164,7 @@ begin
   for i := 0 to SASLList.Count -1 do begin
     if Assigned(SASLList[i].SASL) then
     begin
-      lbAssigned.Items.AddObject(SASLList[i].SASL.Name + ': ' + SASLList[i].SASL.ServiceName, SASLList[i]);
+      lbAssigned.Items.AddObject(SASLList[i].SASL.Name + ': ' + String(SASLList[i].SASL.ServiceName), SASLList[i]);
     end;
   end;
   lbAvailable.Clear;
@@ -174,7 +174,7 @@ begin
       if SASLList.IndexOfComp(TIdSASL(l[i])) < 0 then begin
         if Assigned(l[i]) then
         begin
-          lbAvailable.Items.AddObject(TIdSASL(l[i]).Name + ': ' + TIdSASL(l[i]).ServiceName, TIdSASL(l[i]));
+          lbAvailable.Items.AddObject(TIdSASL(l[i]).Name + ': ' + String(TIdSASL(l[i]).ServiceName), TIdSASL(l[i]));
         end;
       end;
     end;
@@ -195,16 +195,16 @@ begin
   Left := 292;
   Top := 239;
 
-  {$IFDEF WIDGETKYLIX}
+  {$IFDEF WIDGET_KYLIX}
   BorderStyle := fbsDialog;
   {$ENDIF}
-  {$IFDEF WIDGETVCLLIKE}
+  {$IFDEF WIDGET_VCL_LIKE}
   BorderStyle := bsDialog;
   {$ENDIF}
 
   Caption := RSADlgSLCaption;
 
-  {$IFDEF USETBITBTN}
+  {$IFDEF USE_TBitBtn}
   ClientHeight := 349;
   {$ELSE}
   ClientHeight := 344;
@@ -254,10 +254,10 @@ begin
     Width := 57;
     Height := 25;
     ShowHint := True;
-    {$IFDEF WIDGETLCL}
+    {$IFDEF WIDGET_LCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
     {$ELSE}
-      {$IFDEF WIDGETVCLLIKEORKYLIX}
+      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
     Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
     NumGlyphs := 2;
       {$ENDIF}
@@ -275,10 +275,10 @@ begin
     Width := 57;
     Height := 25;
     ShowHint := True;
-    {$IFDEF WIDGETLCL}
+    {$IFDEF WIDGET_LCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
     {$ELSE}
-      {$IFDEF WIDGETVCLLIKEORKYLIX}
+      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
     Glyph.LoadFromResourceName(HInstance, 'ARROWLEFT'); {do not localize}
     NumGlyphs := 2;
       {$ENDIF}
@@ -320,10 +320,10 @@ begin
     Width := 23;
     Height := 22;
     ShowHint := True;
-     {$IFDEF WIDGETLCL}
+     {$IFDEF WIDGET_LCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
     {$ELSE}
-      {$IFDEF WIDGETVCLLIKEORKYLIX}
+      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
     Glyph.LoadFromResourceName(HInstance, 'ARROWUP'); {do not localize}
     NumGlyphs := 2;
       {$ENDIF}
@@ -342,10 +342,10 @@ begin
     Height := 22;
 
     ShowHint := True;
-    {$IFDEF WIDGETLCL}
+    {$IFDEF WIDGET_LCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
     {$ELSE}
-      {$IFDEF WIDGETVCLLIKEORKYLIX}
+      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
     Glyph.LoadFromResourceName(HInstance, 'ARROWDOWN'); {do not localize}
     NumGlyphs := 2;
       {$ENDIF}
@@ -378,7 +378,7 @@ begin
     TabOrder := 1;
   end;
 
-  {$IFDEF USETBITBTN}
+  {$IFDEF USE_TBitBtn}
   BtnCancel := TBitBtn.Create(Self);
   {$ELSE}
   BtnCancel := TButton.Create(Self);
@@ -390,7 +390,7 @@ begin
     Left := 368;
     Top := 312;
     Width := 75;
-    {$IFDEF WIDGETLCL}
+    {$IFDEF WIDGET_LCL}
     Height := 30;
     Kind := bkCancel;
     {$ELSE}
@@ -402,7 +402,7 @@ begin
     Parent := Self;
   end;
 
-  {$IFDEF USETBITBTN}
+  {$IFDEF USE_TBitBtn}
   BtnOk := TBitBtn.Create(Self);
   {$ELSE}
   BtnOk := TButton.Create(Self);
@@ -415,7 +415,7 @@ begin
     Left := 287;
     Top := 312;
     Width := 75;
-    {$IFDEF WIDGETLCL}
+    {$IFDEF WIDGET_LCL}
     Height := 30;
     Kind := bkOk;
     {$ELSE}
@@ -450,7 +450,7 @@ begin
    LEnabled := (lbAvailable.Items.Count <> 0) and
     (lbAvailable.ItemIndex <> -1);
 
-  {$IFDEF WIDGETLCL}
+  {$IFDEF WIDGET_LCL}
   if LEnabled <> actAdd.Enabled then
   begin
     if LEnabled then begin
@@ -484,7 +484,7 @@ begin
     (lbAssigned.ItemIndex <> -1) and
       (lbAssigned.ItemIndex < (lbAssigned.Items.Count - 1));
 
-  {$IFDEF WIDGETLCL}
+  {$IFDEF WIDGET_LCL}
   if LEnabled <> actMoveDown.Enabled then
   begin
     if LEnabled then begin
@@ -521,7 +521,7 @@ begin
   LEnabled := (lbAssigned.Items.Count > 1) and
     (lbAssigned.ItemIndex > 0); // -1 not selected and 0 = top
 
-  {$IFDEF WIDGETLCL}
+  {$IFDEF WIDGET_LCL}
   if LEnabled <> actMoveUp.Enabled then
   begin
     if LEnabled then begin
@@ -558,7 +558,7 @@ begin
   LEnabled := (lbAssigned.Items.Count <> 0) and
     (lbAssigned.ItemIndex <> -1);
 
-  {$IFDEF WIDGETLCL}
+  {$IFDEF WIDGET_LCL}
   if LEnabled <> actRemove.Enabled then
   begin
     if LEnabled then begin
@@ -577,7 +577,7 @@ begin
   Result := ShowModal = mrOk;
 end;
 
-{$IFDEF WIDGETLCL}
+{$IFDEF WIDGET_LCL}
 initialization
   {$I IdDsnSASLListEditorFormVCL.lrs}
 {$ENDIF}

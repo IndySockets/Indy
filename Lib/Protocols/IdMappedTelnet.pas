@@ -45,13 +45,15 @@ uses
   IdTCPServer;
 
 type
-  TIdMappedTelnetThread = class (TIdMappedPortContext)
+  TIdMappedTelnetContext = class(TIdMappedPortContext)
   protected
     FAllowedConnectAttempts: Integer;
+    FErrorMsg: String;
     //
     procedure OutboundConnect; override;
   public
-    property  AllowedConnectAttempts: Integer read FAllowedConnectAttempts;
+    property AllowedConnectAttempts: Integer read FAllowedConnectAttempts;
+    property ErrorMsg: String read FErrorMsg;
   end;
 
   TIdMappedTelnetCheckHostPort = procedure (AContext: TIdMappedPortContext; const AHostPort: String; var VHost, VPort: String) of object;
@@ -97,7 +99,7 @@ procedure TIdCustomMappedTelnet.InitComponent;
 begin
   inherited InitComponent;
   FAllowedConnectAttempts := -1;
-  FContextClass := TIdMappedTelnetThread;
+  FContextClass := TIdMappedTelnetContext;
   DefaultPort := IdPORT_TELNET;
   MappedPort := IdPORT_TELNET;
 end;
@@ -148,7 +150,7 @@ Begin
   end;
 end;
 
-procedure TIdMappedTelnetThread.OutboundConnect;
+procedure TIdMappedTelnetContext.OutboundConnect;
 var
   LHostPort: String;
 Begin
@@ -184,9 +186,9 @@ Begin
       except
         on E: Exception do // DONE: Handle connect failures
         begin
-          FNetData := 'ERROR: ['+E.ClassName+'] ' + E.Message;    {Do not Localize}
+          FErrorMsg := 'ERROR: ['+E.ClassName+'] ' + E.Message;    {Do not Localize}
           Self.DoException(E);
-          Connection.IOHandler.WriteLn(FNetData);
+          Connection.IOHandler.WriteLn(FErrorMsg);
         end;
       end;//trye
     until FOutboundClient.Connected or (FAllowedConnectAttempts = 0);

@@ -56,10 +56,17 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseAS400"'*)
+
 implementation
 
 uses
   IdGlobal, IdFTPCommon,  IdGlobalProtocols, SysUtils;
+
+const
+  DIR_TYPES : array [0..3] of string = ('*DIR','*DDIR','*LIB','*FLR');
 
 { TIdFTPLPAS400 }
 
@@ -69,13 +76,11 @@ var
   s : TStrings;
 begin
   Result := False;
-  if AListing.Count > 0 then
-  begin
+  if AListing.Count > 0 then begin
     s := TStringList.Create;
     try
       SplitColumns(AListing[0], s);
-      if s.Count > 4 then
-      begin
+      if s.Count > 4 then begin
         Result := (s[4][1]='*') or (s[4]='DIR');  {Do not translate}
       end;
     finally
@@ -103,6 +108,7 @@ var
   LObjType : String;
   LI : TIdOwnerFTPListItem;
 begin
+  try
 {  From:
 http://groups.google.com/groups?q=AS400+LISTFMT+%3D+0&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=9onmpt%24dhe%2402%241%40news.t-online.com&rnum=1
 
@@ -206,6 +212,38 @@ QSYS      5632  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLF.PRTF
 QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
 
 }
+{Notes from   Angus Robertson, Magenta Systems Ltd,
+
+MORE TYPES OF SHIT ON THE AS/400 FILE SYSTEM
+
+ Object types that are commonly used or that you are likely to see on
+ this display include the following:
+AUTL        Authorization list
+BLKSF       Block special file
+CFGL        Configuration list
+CLS         Class
+CMD         Command
+CTLD        Controller description
+DDIR        Distributed directory
+DEVD        Device description
+DIR         Directory
+DOC         Document
+DSTMF       Distributed stream file
+FILE        Database file or device file
+FLR         Folder
+JOBD        Job description
+JOBQ        Job queue
+LIB         Library
+LIND        Line description
+MSGQ        Message queue
+OUTQ        Output queue
+PGM         Program
+SBSD        Subsystem description
+SOMOBJ      System Object Model object
+STMF        Stream file
+SYMLNK      Symbolic link
+USRPRF      User profile
+}
   LI := AItem as TIdOwnerFTPListItem;
   LI.ModifiedAvail := False;
   LI.SizeAvail := False;
@@ -216,32 +254,26 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   LBuffer := TrimLeft(LBuffer);
   //we have to make sure that the size feild really exists or the
   //the parser is thrown off
-  if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
-  begin
+  if (LBuffer <> '') and (IsNumeric(LBuffer[1])) then begin
     LI.Size := IndyStrToInt64(FetchLength(LBuffer,9),0);
     LI.SizeAvail := True;
     LBuffer := TrimLeft(LBuffer);
   end;
   //Sometimes the date and time feilds will not present
-  if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
-  begin
+  if (LBuffer <> '') and (IsNumeric(LBuffer[1])) then begin
     LDate := Trim(StrPart(LBuffer, 8));
-    if (LBuffer <> '') and (LBuffer[1] <> ' ') then
-    begin
+    if (LBuffer <> '') and (LBuffer[1] <> ' ') then begin
       LDate := LDate + Fetch(LBuffer);
     end;
-    if LDate <> '' then
-    begin
+    if LDate <> '' then begin
       LI.ModifiedDate := AS400Date(LDate);
        LI.ModifiedAvail := True;
     end;
     LTime := Trim(StrPart(LBuffer, 8));
-    if (LBuffer <> '') and (LBuffer[1] <> ' ') then
-    begin
+    if (LBuffer <> '') and (LBuffer[1] <> ' ') then begin
       LTime := LTime + Fetch(LBuffer);
     end;
-    if LTime <> '' then
-    begin
+    if LTime <> '' then begin
       LI.ModifiedDate :=  LI.ModifiedDate + TimeHHMMSS(LTime);
     end;
   end;
@@ -251,22 +283,28 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   //A file object is something like a file but it can contain members - treat as dir.
   //  Odd, I know.
   //There are also several types of file objects
-  if TextStartsWith(LObjType, '*FILE') then {do not localize}
-  begin
+  //note that I'm not completely sure about this so it's commented out.  JPM
+
+//  if TextStartsWith(LObjType, '*FILE') then begin {do not localize}
+//    LI.ItemType := ditDirectory;
+//  end;
+  if IdGlobal.PosInStrArray(LObjType,DIR_TYPES)>-1 then begin {do not localize}
     LI.ItemType := ditDirectory;
-  end;
-  if LObjType = 'DIR' then  {do not localize}
-  begin
-    LI.ItemType := ditDirectory;
+    if TextEndsWith(LBuffer,'/') then begin
+      LBuffer := Fetch(LBuffer,'/');
+    end;
   end;
   LI.FileName := TrimLeft(LBuffer);
-  if LI.FileName = '' then
-  begin
+  if LI.FileName = '' then begin
     LI.FileName := LI.OwnerName;
     LI.OwnerName := '';
   end;
+
   LI.LocalFileName := LowerCase(StripPath(AItem.FileName, '/'));
   Result := True;
+  except
+    Result := False;
+  end;
 end;
 
 initialization

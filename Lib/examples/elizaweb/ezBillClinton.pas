@@ -18,8 +18,9 @@
 unit ezBillClinton;
 
 interface
-{$mode objfpc}{$H+}
-
+{$ifdef fpc}
+  {$mode objfpc}{$H+}
+{$endif}
 uses
   EZPersonality;
 

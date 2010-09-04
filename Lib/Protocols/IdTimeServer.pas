@@ -102,6 +102,9 @@ Type
 implementation
 
 uses
+  {$IFDEF USE_VCL_POSIX}
+  PosixTime,
+  {$ENDIF}
   IdGlobal, //here to facilitate inlining
   IdGlobalProtocols,
   SysUtils;

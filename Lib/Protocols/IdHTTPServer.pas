@@ -44,6 +44,7 @@ type
   TIdHTTPServer = class(TIdCustomHTTPServer)
   published
     property OnCreatePostStream;
+    property OnDoneWithPostStream;
     property OnCommandGet;
   end;
 

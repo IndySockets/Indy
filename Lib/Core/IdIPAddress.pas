@@ -106,7 +106,7 @@ uses
 //Much of this is based on http://www.pc-help.org/obscure.htm
 
 function CompareWord(const AWord1, AWord2 : Word) : Integer;
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 {
 AWord1 > AWord2	> 0
 AWord1 < AWord2	< 0
@@ -123,7 +123,7 @@ begin
 end;
 
 function CompareCardinal(const ACard1, ACard2 : Cardinal) : Integer; 
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 {
 ACard1 > ACard2	> 0
 ACard1 < ACard2	< 0

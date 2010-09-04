@@ -160,6 +160,7 @@ type
     FReadTimeout: Integer;
     FUsername: string;
     FReuseSocket: TIdReuseSocket;
+    FUseNagle: Boolean;
     //
     FOnBeforeBind: TNotifyEvent;
     FOnAfterBind: TNotifyEvent;
@@ -171,6 +172,7 @@ type
     procedure SetConnectTimeout(const AValue: Integer);
     procedure SetReadTimeout(const AValue: Integer);
     procedure SetReuseSocket(const AValue: TIdReuseSocket);
+    procedure SetUseNagle(const AValue: Boolean);
     procedure SetBoundIP(const AValue: String);
     procedure SetBoundPort(const AValue: TIdPort);
     procedure SetBoundPortMax(const AValue: TIdPort);
@@ -188,6 +190,7 @@ type
     //
     function GetReadTimeout: Integer;
     function GetReuseSocket: TIdReuseSocket;
+    function GetUseNagle: Boolean;
     //
     property Host: string read FHost write SetHost;
     property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
@@ -212,6 +215,7 @@ type
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
     property ReuseSocket: TIdReuseSocket read GetReuseSocket write SetReuseSocket default rsOSDependent;
+    property UseNagle: Boolean read GetUseNagle write SetUseNagle default True;
     //
     property OnBeforeBind: TNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
     property OnAfterBind: TNotifyEvent read FOnAfterBind write SetOnAfterBind;
@@ -231,6 +235,7 @@ type
     property Port;
     property ReadTimeout;
     property ReuseSocket;
+    property UseNagle;
 
     property OnBeforeBind;
     property OnAfterBind;
@@ -253,15 +258,22 @@ begin
   FBoundPort := DEF_PORT_ANY;
   FBoundPortMin := DEF_PORT_ANY;
   FBoundPortMax := DEF_PORT_ANY;
+  FUseNagle := True;
 end;
 
 procedure TIdTCPClientCustom.Connect;
 begin
   // Do not call Connected here, it will call CheckDisconnect
-  EIdAlreadyConnected.IfTrue(Connected, RSAlreadyConnected);
+  if Connected then begin
+    EIdAlreadyConnected.Toss(RSAlreadyConnected);
+  end;
 
-  EIdHostRequired.IfTrue(Host='');
-  EIdPortRequired.IfTrue(Port=0);
+  if Host = '' then begin
+    EIdHostRequired.Toss('');
+  end;
+  if Port = 0 then begin
+    EIdPortRequired.Toss('');
+  end;
 
   if IOHandler = nil then begin
     IOHandler := MakeImplicitClientHandler;
@@ -297,6 +309,7 @@ begin
       Socket.BoundPortMax := FBoundPortMax;
       Socket.IPVersion := FIPVersion;
       Socket.ReuseSocket := FReuseSocket;
+      Socket.UseNagle := FUseNagle;
       Socket.OnBeforeBind := FOnBeforeBind;
       Socket.OnAfterBind := FOnAfterBind;
       Socket.OnSocketAllocated := FOnSocketAllocated;
@@ -355,6 +368,14 @@ begin
   FReuseSocket := AValue;
   if Socket <> nil then begin
     Socket.ReuseSocket := AValue;
+  end;
+end;
+
+procedure TIdTCPClientCustom.SetUseNagle(const AValue: Boolean);
+begin
+  FUseNagle := AValue;
+  if Socket <> nil then begin
+    Socket.UseNagle := AValue;
   end;
 end;
 
@@ -456,6 +477,7 @@ begin
     Socket.BoundPortMax := FBoundPortMax;
     Socket.IPVersion := FIPVersion;
     Socket.ReuseSocket := FReuseSocket;
+    Socket.UseNagle := FUseNagle;
     Socket.OnBeforeBind := FOnBeforeBind;
     Socket.OnAfterBind := FOnAfterBind;
     Socket.OnSocketAllocated := FOnSocketAllocated;
@@ -495,6 +517,15 @@ begin
     Result := Socket.ReuseSocket;
   end else begin
     Result := FReuseSocket;
+  end;
+end;
+
+function TIdTCPClientCustom.GetUseNagle: Boolean;
+begin
+  if Socket <> nil then begin
+    Result := Socket.UseNagle;
+  end else begin
+    Result := FUseNagle;
   end;
 end;
 

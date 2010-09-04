@@ -138,8 +138,10 @@ unit IdCommandHandlers;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdBaseComponent, IdComponent, IdReply, IdGlobal,
@@ -192,9 +194,8 @@ type
   public
     function Check(const AData: string; AContext: TIdContext): boolean; virtual;
     procedure DoCommand(const AData: string; AContext: TIdContext; AUnparsedParams: string); virtual;
-    constructor Create(
-      ACollection: TCollection
-      ); override;
+    procedure DoParseParams(AUnparsedParams: string; AParams: TStrings); virtual;
+    constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
 //    function GetNamePath: string; override;
     function NameIs(const ACommand: string): Boolean;
@@ -210,7 +211,7 @@ type
     property Name: string read FName write FName;
     property NormalReply: TIdReply read FNormalReply write SetNormalReply;
     property ParamDelimiter: Char read FParamDelimiter write FParamDelimiter;
-    property ParseParams: Boolean read FParseParams write FParseParams default IdParseParamsDefault;
+    property ParseParams: Boolean read FParseParams write FParseParams;
     property Response: TStrings read FResponse write SetResponse;
     property Tag: Integer read FTag write FTag;
     //
@@ -230,6 +231,8 @@ type
     FOnAfterCommandHandler: TIdAfterCommandHandlerEvent;
     FOnBeforeCommandHandler: TIdBeforeCommandHandlerEvent;
     FOnCommandHandlersException: TIdCommandHandlersExceptionEvent;
+    FParseParamsDef: Boolean;
+    FPerformReplies: Boolean;
     FReplyClass: TIdReplyClass;
     FReplyTexts: TIdReplies;
     //
@@ -250,17 +253,16 @@ type
       AExceptionReply: TIdReply = nil;
       ACommandHandlerClass: TIdCommandHandlerClass = nil
       ); reintroduce;
-    function HandleCommand(
-      AContext: TIdContext;
-      var VCommand: string
-      ): Boolean;
-      virtual;
+    function HandleCommand(AContext: TIdContext; var VCommand: string): Boolean; virtual;
     //
     property Base: TIdComponent read FBase;
     property Items[AIndex: Integer]: TIdCommandHandler read GetItem write SetItem;
     // OwnedBy is used so as not to conflict with Owner in D6
- //   property OwnedBy: TIdPersistent read GetOwnedBy;
-    property ReplyClass : TIdReplyClass read FReplyClass;
+    //property OwnedBy: TIdPersistent read GetOwnedBy;
+    property ParseParamsDefault: Boolean read FParseParamsDef write FParseParamsDef;
+    property PerformReplies: Boolean read FPerformReplies write FPerformReplies;
+    property ReplyClass: TIdReplyClass read FReplyClass;
+    property ReplyTexts: TIdReplies read FReplyTexts;
     //
     property OnAfterCommandHandler: TIdAfterCommandHandlerEvent read FOnAfterCommandHandler
      write FOnAfterCommandHandler;
@@ -269,7 +271,6 @@ type
      write FOnBeforeCommandHandler;
     property OnCommandHandlersException: TIdCommandHandlersExceptionEvent read FOnCommandHandlersException
       write FOnCommandHandlersException;
-    property ReplyTexts: TIdReplies read FReplyTexts;
   end;
 
   { TIdCommand }
@@ -307,7 +308,9 @@ type
   end;//TIdCommand
 
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
 
 { TIdCommandHandlers }
 
@@ -320,12 +323,13 @@ constructor TIdCommandHandlers.Create(
   );
 begin
   if ACommandHandlerClass = nil then begin
-    inherited Create(ABase, TIdCommandHandler);
-  end else begin
-    inherited Create(ABase, ACommandHandlerClass);
+    ACommandHandlerClass := TIdCommandHandler;
   end;
+  inherited Create(ABase, ACommandHandlerClass);
   FBase := ABase;
   FExceptionReply := AExceptionReply;
+  FParseParamsDef := IdParseParamsDefault;
+  FPerformReplies := True;  // RLebeau: default to legacy behavior
   FReplyClass := AReplyClass;
   FReplyTexts := AReplyTexts;
 end;
@@ -335,10 +339,8 @@ begin
   Result := TIdCommandHandler(inherited Add);
 end;
 
-function TIdCommandHandlers.HandleCommand(
-  AContext: TIdContext;
-  var VCommand: string
-  ): Boolean;
+function TIdCommandHandlers.HandleCommand(AContext: TIdContext;
+  var VCommand: string): Boolean;
 var
   i, j: Integer;
 begin
@@ -413,22 +415,24 @@ begin
     FRawLine := AData;
     FContext := AContext;
     FUnparsedParams := AUnparsedParams;
-    Params.Clear;
 
     if ParseParams then begin
-      if Self.FParamDelimiter = #32 then begin
-        SplitColumnsNoTrim(AUnparsedParams, Params, #32);
-      end else begin
-        SplitColumns(AUnparsedParams, Params, Self.FParamDelimiter);
-      end;
+      DoParseParams(AUnparsedParams, Params);
     end;
-    PerformReply := True;
+
+    // RLebeau 2/21/08: for the IRC protocol, RFC 2812 section 2.4 says that
+    // clients are not allowed to issue numeric replies for server-issued
+    // commands.  Added the PerformReplies property so TIdIRC can specify
+    // that behavior.
+    if Self.Collection is TIdCommandHandlers then begin
+      PerformReply := TIdCommandHandlers(Self.Collection).PerformReplies;
+    end;
+
     try
-      if (LCommand.Reply.Code ='')  and (Self.NormalReply.Code<>'') then begin
-        if Reply.Code = '' then begin
-          Reply.Assign(Self.NormalReply);
-        end;
+      if (Reply.Code = '') and (Self.NormalReply.Code <> '') then begin
+        Reply.Assign(Self.NormalReply);
       end;
+
       //if code<>'' before DoCommand, then it breaks exception handling
       Assert(Reply.Code <> '');
       DoCommand;
@@ -447,22 +451,22 @@ begin
         // to catch it before it reaches us
         Reply.Clear;
         if PerformReply then begin
-        // Try from command handler first
+          // Try from command handler first
           if ExceptionReply.Code <> '' then begin
             Reply.Assign(ExceptionReply);
           // If still no go, from server
           // Can be nil though. Typically only servers pass it in
-          end else if (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
+          end else if (Collection is TIdCommandHandlers) and (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
             Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
           end;
           if Reply.Code <> '' then begin
-          //done this way in case an exception message has more than one line.
-          //otherwise you could get something like this:
-          //
-          // 550 System Error.  Code: 2
-          // The system cannot find the file specified
-          //
-          //and the second line would throw off some clients.
+            //done this way in case an exception message has more than one line.
+            //otherwise you could get something like this:
+            //
+            // 550 System Error.  Code: 2
+            // The system cannot find the file specified
+            //
+            //and the second line would throw off some clients.
             Reply.Text.Text := E.Message;
             //Reply.Text.Add(E.Message);
             SendReply;
@@ -491,7 +495,23 @@ begin
       if Disconnect then begin
         AContext.Connection.Disconnect;
       end;
-    finally Free; end;
+    finally
+      Free;
+    end;
+  end;
+end;
+
+procedure TIdCommandHandler.DoParseParams(AUnparsedParams: string; AParams: TStrings);
+// AUnparsedParams is not preparsed and is completely left up to the command handler. This will
+// allow for future expansion such as multiple delimiters etc, and allow the logic to properly
+// remain in each of the command handler implementations. In the future there may be a base type
+// and multiple descendants
+begin
+  AParams.Clear;
+  if FParamDelimiter = #32 then begin
+    SplitColumnsNoTrim(AUnparsedParams, AParams, #32);
+  end else begin
+    SplitColumns(AUnparsedParams, AParams, FParamDelimiter);
   end;
 end;
 
@@ -522,9 +542,7 @@ begin
   end;
 end;
 
-constructor TIdCommandHandler.Create(
-  ACollection: TCollection
-  );
+constructor TIdCommandHandler.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
 
@@ -537,7 +555,7 @@ begin
   FEnabled := IdEnabledDefault;
   FName := ClassName + IntToStr(ID);
   FParamDelimiter := #32;
-  FParseParams := IdParseParamsDefault;
+  FParseParams := TIdCommandHandlers(ACollection).ParseParamsDefault;
   FResponse := TStringList.Create;
   FDescription := TStringList.Create;
 

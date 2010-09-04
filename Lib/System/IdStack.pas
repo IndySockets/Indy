@@ -148,7 +148,8 @@ type
     FLastError: Integer;
   public
     // Params must be in this order to avoid conflict with CreateHelp
-    // constructor in CBuilder
+    // constructor in CBuilder as CB does not differentiate constructors
+    // by name as Delphi does
     constructor CreateError(const AErr: Integer; const AMsg: string); virtual;
     //
     property LastError: Integer read FLastError;
@@ -160,7 +161,11 @@ type
   {$IFDEF UNIX}
   EIdResolveError = class(EIdSocketError);
   EIdReverseResolveError = class(EIdSocketError);
+  EIdMaliciousPtrRecord = class(EIdReverseResolveError);
+  {$ELSE}
+  EIdMaliciousPtrRecord = class(EIdSocketError);
   {$ENDIF}
+
   EIdNotASocket = class(EIdSocketError);
 
   TIdServeFile = function(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
@@ -169,22 +174,29 @@ type
   protected
     FSourceIP: String;
     FSourcePort : TIdPort;
+    FSourceIF: LongWord;
+    FSourceIPVersion: TIdIPVersion;
     FDestIP: String;
     FDestPort : TIdPort;
-    FSourceIF: LongWord;
     FDestIF: LongWord;
+    FDestIPVersion: TIdIPVersion;
     FTTL: Byte;
   public
+    procedure Reset;
+
     property TTL : Byte read FTTL write FTTL;
     //The computer that sent it to you
     property SourceIP : String read FSourceIP write FSourceIP;
     property SourcePort : TIdPort read FSourcePort write FSourcePort;
     property SourceIF : LongWord read FSourceIF write FSourceIF;
-    //you, the receiver - this is provided for multihorned machines
+    property SourceIPVersion : TIdIPVersion read FSourceIPVersion write FSourceIPVersion;
+    //you, the receiver - this is provided for multihomed machines
     property DestIP : String read FDestIP write FDestIP;
     property DestPort : TIdPort read FDestPort write FDestPort;
     property DestIF : LongWord read FDestIF write FDestIF;
+    property DestIPVersion : TIdIPVersion read FDestIPVersion write FDestIPVersion;
   end;
+
   TIdSocketListClass = class of TIdSocketList;
 
   // Descend from only TObject. This objects is created a lot and should be fast
@@ -220,10 +232,8 @@ type
     procedure IPVersionUnsupported;
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
-
     function MakeCanonicalIPv6Address(const AAddr: string): string;
     function ReadHostName: string; virtual; abstract;
-    procedure PopulateLocalAddresses; virtual; abstract;
     function GetLocalAddress: string;
     function GetLocalAddresses: TStrings;
   public
@@ -235,17 +245,20 @@ type
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
               const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     constructor Create; virtual;
+    destructor Destroy; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); virtual; abstract;
-    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord; var arg: LongWord): Integer; virtual; abstract;
-    class procedure Make;
+    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
+      var arg: LongWord): Integer; virtual; abstract;
     class procedure IncUsage; //create stack if necessary and inc counter
     class procedure DecUsage; //decrement counter and free if it gets to zero
-    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort); overload;
-    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
-      var VIPVersion: TIdIPVersion); overload; virtual; abstract;
-    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort); overload;
-    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
-      var VIPVersion: TIdIPVersion); overload; virtual; abstract;
+    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
+      var VPort: TIdPort); overload;
+    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
+      var VPort: TIdPort; var VIPVersion: TIdIPVersion); overload; virtual; abstract;
+    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
+      var VPort: TIdPort); overload;
+    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
+      var VPort: TIdPort; var VIPVersion: TIdIPVersion); overload; virtual; abstract;
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
     function HostToNetwork(AValue: Word): Word; overload; virtual; abstract;
@@ -261,7 +274,7 @@ type
     function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload;
     procedure RaiseLastSocketError;
     procedure RaiseSocketError(AErr: integer); virtual;
-    function NewSocketHandle(const ASocketType:TIdSocketType; const AProtocol: TIdSocketProtocol;
+    function NewSocketHandle(const ASocketType: TIdSocketType; const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const AOverlapped: Boolean = False)
       : TIdStackSocketHandle; virtual; abstract;
     function NetworkToHost(AValue: Word): Word; overload; virtual; abstract;
@@ -285,16 +298,16 @@ type
       const AOffset: Integer = 0; const ASize: Integer = -1): Integer; virtual; abstract;
 
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
+      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer; virtual; abstract;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; overload;
+      const AOffset: Integer; const AIP: string; const APort: TIdPort;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; overload;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const ASize: Integer; const AIP: string;
-             const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; overload; virtual; abstract;
-    function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes; APkt: TIdPacketInfo;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; virtual; abstract;
+      const AOffset: Integer; const ASize: Integer; const AIP: string;
+      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION)
+      : Integer; overload; virtual; abstract;
+    function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
+      APkt: TIdPacketInfo): LongWord; virtual; abstract;
     function SupportsIPv6: Boolean; virtual; abstract;
 
     //multicast stuff Kudzu permitted me to add here.
@@ -312,21 +325,20 @@ type
     //packet checksum.  There is a reason for it though.  The reason is that
     //you need it for ICMPv6 and in Windows, you do that with some other stuff
     //in the stack descendants
-    function CalcCheckSum(const AData : TIdBytes): word; virtual;
+    function CalcCheckSum(const AData : TIdBytes): Word; virtual;
     //In Windows, this writes a checksum into a buffer.  In Linux, it would probably
     //simply have the kernal write the checksum with something like this (RFC 2292):
-//
-//    int  offset = 2;
-//    setsockopt(fd, IPPROTO_IPV6, IPV6_CHECKSUM, &offset, sizeof(offset));
-//
-//  Note that this should be called
+    //
+    //    int  offset = 2;
+    //    setsockopt(fd, IPPROTO_IPV6, IPV6_CHECKSUM, &offset, sizeof(offset));
+    //
+    //  Note that this should be called
     //IMMEDIATELY before you do a SendTo because the Local IPv6 address might change
     procedure WriteChecksum(s : TIdStackSocketHandle;
-      var VBuffer : TIdBytes;
-      const AOffset : Integer;
-      const AIP : String;
-      const APort : TIdPort;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
+      var VBuffer : TIdBytes; const AOffset : Integer; const AIP : String;
+      const APort : TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
+    //
+    procedure AddLocalAddressesToList(AAddresses: TStrings); virtual; abstract;
     //
     // Properties
     //
@@ -343,23 +355,28 @@ var
   GSocketListClass: TIdSocketListClass;
 
 // Procedures
-  function IdStackFactory : TIdStack;
   procedure SetStackClass( AStackClass: TIdStackClass );
 
 implementation
 
+{$O-}
+
 uses
   //done this way so we can have a separate stack for FPC under Unix systems
   {$IFDEF UNIX}
+    {$IFDEF USE_VCL_POSIX}
+  IdStackVCLPosix,
+    {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
-  IdStackLinux,
-    {$ELSE}
+  IdStackLibc,
+    {$ENDIF}
+    {$IFDEF USE_BASEUNIX}
   IdStackUnix,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    {$IFDEF USEINLINE}
-    Windows,
+    {$IFDEF USE_INLINE}
+  Windows,
     {$ENDIF}
   IdStackWindows,
   {$ENDIF}
@@ -372,22 +389,30 @@ var
   GStackClass: TIdStackClass = nil;
 
 var
-  GInstanceCount: Integer = 0;
-  GStackCriticalSection: TIdCriticalSection;
+  GInstanceCount: LongWord = 0;
+  GStackCriticalSection: TIdCriticalSection = nil;
 
 //for IPv4 Multicast address chacking
 const
   IPv4MCastLo = 224;
   IPv4MCastHi = 239;
 
-procedure SetStackClass( AStackClass: TIdStackClass );
+procedure SetStackClass(AStackClass: TIdStackClass);
 begin
   GStackClass := AStackClass;
 end;
 
-function IdStackFactory: TIdStack;
+procedure TIdPacketInfo.Reset;
 begin
-  Result := GStackClass.Create;
+  FSourceIP := '';
+  FSourcePort := 0;
+  FSourceIF := 0;
+  FSourceIPVersion := ID_DEFAULT_IP_VERSION;
+  FDestIP := '';
+  FDestPort:= 0;
+  FDestIF := 0;
+  FDestIPVersion := ID_DEFAULT_IP_VERSION;
+  FTTL := 0;
 end;
 
 { TIdSocketList }
@@ -426,12 +451,26 @@ begin
   FLock.Release;
 end;
 
+{ EIdSocketError }
+
+constructor EIdSocketError.CreateError(const AErr: Integer; const AMsg: string);
+begin
+  inherited Create(AMsg);
+  FLastError := AErr;
+end;
+
 { TIdStack }
 
 constructor TIdStack.Create;
 begin
   // Here for .net
   inherited Create;
+end;
+
+destructor TIdStack.Destroy;
+begin
+  FreeAndNil(FLocalAddresses);
+  inherited Destroy;
 end;
 
 procedure TIdStack.IPVersionUnsupported;
@@ -469,13 +508,30 @@ begin
     FLocalAddresses := TStringList.Create;
   end;
   FLocalAddresses.Clear;
-  PopulateLocalAddresses;
+  AddLocalAddressesToList(FLocalAddresses);
   Result := FLocalAddresses;
 end;
 
 function TIdStack.GetLocalAddress: string;
+var
+  LAddresses: TStringList;
 begin
-  Result := LocalAddresses[0];
+  // RLebeau: using a local TStringList, instead of the LocalAddresses
+  // property, so this method can be thread-safe...
+  //
+  // old code:
+  // Result := LocalAddresses[0];
+
+  Result := '';
+  LAddresses := TStringList.Create;
+  try
+    AddLocalAddressesToList(LAddresses);
+    if LAddresses.Count > 0 then begin
+      Result := LAddresses[0];
+    end;
+  finally
+    LAddresses.Free;
+  end;
 end;
 
 function TIdStack.IsIP(AIP: string): Boolean;
@@ -500,34 +556,31 @@ begin
   Result := IdGlobal.MakeCanonicalIPv6Address(AAddr);
 end;
 
-class procedure TIdStack.Make;
-begin
-  EIdException.IfTrue(GStackClass = nil, RSStackClassUndefined);
-  EIdException.IfTrue(GStack <> nil, RSStackAlreadyCreated);
-  GStack := IdStackFactory;
-end;
-
 function TIdStack.ResolveHost(const AHost: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 begin
   Result := '';
-  if AIPVersion = Id_IPv4 then begin
-    // Sometimes 95 forgets who localhost is
-    if TextIsSame(AHost, 'LOCALHOST') then begin    {Do not Localize}
-      Result := '127.0.0.1';    {Do not Localize}
-    end else if IsIP(AHost) then begin
-      Result := AHost;
-    end else begin
-      Result := HostByName(AHost, Id_IPv4);
+  case AIPVersion of
+    Id_IPv4: begin
+        // Sometimes 95 forgets who localhost is
+        if TextIsSame(AHost, 'LOCALHOST') then begin    {Do not Localize}
+          Result := '127.0.0.1';    {Do not Localize}
+        end else if IsIP(AHost) then begin
+          Result := AHost;
+        end else begin
+          Result := HostByName(AHost, Id_IPv4);
+        end;
+      end;
+    Id_IPv6: begin
+        Result := MakeCanonicalIPv6Address(AHost);
+        if Result = '' then begin
+          Result := HostByName(AHost, Id_IPv6);
+        end;
+      end;
+    else begin
+      IPVersionUnsupported;
     end;
-  end else if AIPVersion = Id_IPv6 then begin
-    Result := MakeCanonicalIPv6Address(AHost);
-    if Result = '' then begin
-      Result := HostByName(AHost, Id_IPv6);
-    end;
-  end //else IPVersionUnsupported; // IPVersionUnsupported is introduced in
-                                   // a decendant class, so we can't use it here,
-                                   // TODO: move it to this class
+  end;
 end;
 
 function TIdStack.SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
@@ -537,41 +590,47 @@ begin
   Result := SendTo(ASocket, ABuffer, AOffset, -1, AIP, APort, AIPVersion);
 end;
 
-constructor EIdSocketError.CreateError(const AErr: Integer; const AMsg: string);
-begin
-  inherited Create(AMsg);
-  FLastError := AErr;
-end;
-
 class procedure TIdStack.DecUsage;
 begin
   Assert(GStackCriticalSection<>nil);
-
-  GStackCriticalSection.Acquire; try
-    Dec(GInstanceCount);
-    if GInstanceCount = 0 then begin
-      // This CS will guarantee that during the FreeAndNil nobody will try to use
-      // or construct GStack
-      FreeAndNil(GStack);
+  GStackCriticalSection.Acquire;
+  try
+    // This CS will guarantee that during the FreeAndNil nobody
+    // will try to use or construct GStack
+    if GInstanceCount > 0 then begin
+      Dec(GInstanceCount);
+      if GInstanceCount = 0 then begin
+        FreeAndNil(GStack);
+      end;
     end;
-  finally GStackCriticalSection.Release; end;
+  finally
+    GStackCriticalSection.Release;
+  end;
 end;
 
 class procedure TIdStack.IncUsage;
 begin
   Assert(GStackCriticalSection<>nil);
-
-  GStackCriticalSection.Acquire; try
-    Inc(GInstanceCount);
-    if GInstanceCount = 1 then begin
-      TIdStack.Make;
+  GStackCriticalSection.Acquire;
+  try
+    if GInstanceCount = 0 then begin
+      if GStack <> nil then begin
+        EIdException.Toss(RSStackAlreadyCreated);
+      end;
+      if GStackClass = nil then begin
+        EIdException.Toss(RSStackClassUndefined);
+      end;
+      GStack := GStackClass.Create;
     end;
-  finally GStackCriticalSection.Release; end;
+    Inc(GInstanceCount);
+  finally
+    GStackCriticalSection.Release;
+  end;
 end;
 
 function TIdStack.CheckForSocketError(const AResult: Integer): Integer;
 begin
-  if AResult = Id_SOCKET_ERROR then begin
+  if AResult = Integer(Id_SOCKET_ERROR) then begin
     RaiseLastSocketError;
   end;
   Result := AResult;
@@ -584,7 +643,7 @@ var
   LLastError: Integer;
 begin
   Result := AResult;
-  if AResult = Id_SOCKET_ERROR then begin
+  if AResult = Integer(Id_SOCKET_ERROR) then begin
     LLastError := WSGetLastError;
     for i := Low(AIgnore) to High(AIgnore) do begin
       if LLastError = AIgnore[i] then begin
@@ -657,7 +716,6 @@ begin
     Id_WSAEFAULT: Result          := RSStackEFAULT;
     Id_WSAEINVAL: Result          := RSStackEINVAL;
     Id_WSAEMFILE: Result          := RSStackEMFILE;
-
     Id_WSAEWOULDBLOCK: Result     := RSStackEWOULDBLOCK;
     Id_WSAEINPROGRESS: Result     := RSStackEINPROGRESS;
     Id_WSAEALREADY: Result        := RSStackEALREADY;
@@ -695,7 +753,8 @@ begin
 end;
 
 function TIdStack.HostToNetwork(const AValue: TIdIPv6Address): TIdIPv6Address;
-var i : Integer;
+var
+  i : Integer;
 begin
   for i := 0 to 7 do begin
     Result[i] := HostToNetwork(AValue[i]);
@@ -703,7 +762,8 @@ begin
 end;
 
 function TIdStack.NetworkToHost(const AValue: TIdIPv6Address): TIdIPv6Address;
-var i : Integer;
+var
+  i : Integer;
 begin
   for i := 0 to 7 do begin
     Result[i] := NetworkToHost(AValue[i]);
@@ -712,38 +772,18 @@ end;
 
 function TIdStack.IsValidIPv4MulticastGroup(const Value: string): Boolean;
 var
-  ThisIP: string;
-  s1: string;
-  ip1: integer;
+  LIP: string;
+  LVal: Integer;
 begin
   Result := False;
-
-  if not GStack.IsIP(Value) then begin
-    Exit;
+  if GStack.IsIP(Value) then
+  begin
+    LIP := Value;
+    LVal := IndyStrToInt(Fetch(LIP, '.'));    {Do not Localize}
+    Result := (LVal >= IPv4MCastLo) and (LVal <= IPv4MCastHi);
   end;
-
-  ThisIP := Value;
-  s1 := Fetch(ThisIP, '.');    {Do not Localize}
-  ip1 := IndyStrToInt(s1);
-
-  if (ip1 < IPv4MCastLo) or (ip1 > IPv4MCastHi) then begin
-    Exit;
-  end;
-
-  Result := True;
 end;
 
-function TIdStack.IsValidIPv6MulticastGroup(const Value: string): Boolean;
-var
-  LTmp : String;
-begin
-  Result := False;
-  LTmp := MakeCanonicalIPv6Address(Value);
-  if LTmp = '' then
-  begin
-    //not valid IP
-    Exit;
-  end;
 { From "rfc 2373"
 
 2.7 Multicast Addresses
@@ -825,10 +865,20 @@ begin
    Multicast addresses must not be used as source addresses in IPv6
    packets or appear in any routing header.
 }
-   Result := TextStartsWith(LTmp, 'FF');
+function TIdStack.IsValidIPv6MulticastGroup(const Value: string): Boolean;
+var
+  LTmp : String;
+begin
+  LTmp := MakeCanonicalIPv6Address(Value);
+  if LTmp <> '' then
+  begin
+    Result := TextStartsWith(LTmp, 'FF');
+  end else begin
+    Result := False;
+  end;
 end;
 
-function TIdStack.CalcCheckSum(const AData: TIdBytes): word;
+function TIdStack.CalcCheckSum(const AData: TIdBytes): Word;
 var
   i : Integer;
   LSize : Integer;
@@ -837,19 +887,17 @@ begin
   LCRC := 0;
   i := 0;
   LSize := Length(AData);
-  while LSize >1 do
+  while LSize > 1 do
   begin
-    LCRC := LCRC + IdGlobal.BytesToWord(AData,i);
-    Dec(LSize,2);
-    inc(i,2);
+    LCRC := LCRC + IdGlobal.BytesToWord(AData, i);
+    Dec(LSize, 2);
+    Inc(i, 2);
   end;
-  if LSize>0 then
-  begin
+  if LSize > 0 then begin
     LCRC := LCRC + AData[i];
   end;
   LCRC := (LCRC shr 16) + (LCRC and $ffff);  //(LCRC >> 16)
   LCRC := LCRC + (LCRC shr 16);
-
   Result := not Word(LCRC);
 end;
 
@@ -857,10 +905,13 @@ initialization
   //done this way so we can have a separate stack just for FPC under Unix systems
   GStackClass :=
     {$IFDEF UNIX}
-      {$IFDEF KYLIXCOMPAT}
-      TIdStackLinux;
+      {$IFDEF USE_VCL_POSIX}
+      TIdStackVCLPosix;
       {$ENDIF}
-      {$IFDEF USEBASEUNIX}
+      {$IFDEF KYLIXCOMPAT}
+      TIdStackLibc;
+      {$ENDIF}
+      {$IFDEF USE_BASEUNIX}
       TIdStackUnix;
       {$ENDIF}
     {$ENDIF}
@@ -871,13 +922,15 @@ initialization
     TIdStackDotNet;
     {$ENDIF}
   GStackCriticalSection := TIdCriticalSection.Create;
-  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF DOTNET}
+    {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
   IndyRegisterExpectedMemoryLeak(GStackCriticalSection);
+    {$ENDIF}
   {$ENDIF}
 finalization
   // Dont Free. If shutdown is from another Init section, it can cause GPF when stack
   // tries to access it. App will kill it off anyways, so just let it leak
-  {$IFDEF IDFREEONFINAL}
+  {$IFDEF FREE_ON_FINAL}
   FreeAndNil(GStackCriticalSection);
   {$ENDIF}
 end.

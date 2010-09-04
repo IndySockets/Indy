@@ -63,6 +63,9 @@ type
 implementation
 
 uses
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysTime,
+  {$ENDIF}
   IdGlobalProtocols, IdStack, SysUtils;
 
 procedure TIdCustomTimeUDPServer.InitComponent;

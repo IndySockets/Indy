@@ -46,7 +46,9 @@ uses IdResourceStringsCore;
 procedure TIdTCPServer.CheckOkToBeActive;
 begin
   inherited CheckOkToBeActive;
-  EIdTCPNoOnExecute.IfFalse(Assigned(FOnExecute), RSNoOnExecute);
+  if not Assigned(FOnExecute) then begin
+    EIdTCPNoOnExecute.Toss(RSNoOnExecute);
+  end;
 end;
 
 end.

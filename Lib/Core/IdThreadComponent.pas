@@ -559,13 +559,17 @@ end;
 
 procedure TIdThreadComponent.SetLoop(const AValue: Boolean);
 begin
-  EIdException.IfTrue(IsRunning, RSThreadComponentLoopAlreadyRunning);
+  if IsRunning then begin
+    EIdException.Toss(RSThreadComponentLoopAlreadyRunning);
+  end;
   FLoop := AValue;
 end;
 
 procedure TIdThreadComponent.SetThreadName(const AValue: string);
 begin
-  EIdException.IfTrue(IsRunning, RSThreadComponentThreadNameAlreadyRunning);
+  if IsRunning then begin
+    EIdException.Toss(RSThreadComponentThreadNameAlreadyRunning);
+  end;
   FThreadName := AValue;
 end;
 

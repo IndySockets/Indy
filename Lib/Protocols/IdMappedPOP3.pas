@@ -56,10 +56,16 @@ uses
   IdTCPServer;
 
 type
-
-  TIdMappedPOP3Thread = class (TIdMappedTelnetThread)
+  TIdMappedPOP3Context = class (TIdMappedTelnetContext)
   protected
+    FErrorMsg: String;
+    FGreeting: String;
+    FUserName: String;
     procedure OutboundConnect; override;
+  public
+    property ErrorMsg: String read FErrorMsg;
+    property Greeting: String read FGreeting;
+    property UserName: String read FUsername write FUserName;
   end;
 
   TIdMappedPOP3 = class (TIdMappedTelnet)
@@ -109,7 +115,7 @@ Begin
 
   DefaultPort := IdPORT_POP3;
   MappedPort := IdPORT_POP3;
-  FContextClass := TIdMappedPOP3Thread;
+  FContextClass := TIdMappedPOP3Context;
 end;
 
 procedure TIdMappedPOP3.SetGreeting(AValue: TIdReplyPOP3);
@@ -122,11 +128,11 @@ begin
   FReplyUnknownCommand.Assign(AValue);
 end;
 
-{ TIdMappedPOP3Thread }
+{ TIdMappedPOP3Context }
 
-procedure TIdMappedPOP3Thread.OutboundConnect;
+procedure TIdMappedPOP3Context.OutboundConnect;
 var
-  LHostPort, LUserName, LPop3Cmd: String;
+  LHostPort, LPop3Cmd: String;
   LServer: TIdMappedPOP3;
 Begin
   //don`t call inherited, NEW behavior
@@ -141,7 +147,7 @@ Begin
       Host := MappedHost;
     end;//with
 
-    Self.FAllowedConnectAttempts := Lserver.AllowedConnectAttempts;
+    Self.FAllowedConnectAttempts := LServer.AllowedConnectAttempts;
     DoLocalClientConnect(Self);
 
     repeat
@@ -159,11 +165,9 @@ Begin
           Break;
         end else if TextIsSame(LPop3Cmd, 'USER') then    {Do not Localize}
         begin
-          LUserName := Fetch(LHostPort, FUserHostDelimiter, True, False);//?:CaseSensetive
-          FNetData := LUserName; //save for OnCheckHostPort
+          FUserName := Fetch(LHostPort, FUserHostDelimiter, True, False);//?:CaseSensetive
           LHostPort := TrimLeft(LHostPort); //TrimRight above
           ExtractHostAndPortFromLine(Self, LHostPort);
-          LUserName := FNetData; //allow username substitution
         end else begin
           Connection.IOHandler.Write(ReplyUnknownCommand.FormattedReply);
           Continue;
@@ -179,14 +183,15 @@ Begin
           Connect;
         end;
 
-        FNetData := FOutboundClient.IOHandler.ReadLn;//Read Pop3 Banner for OnOutboundClientConnect
-        FOutboundClient.IOHandler.WriteLn('USER ' + LUserName);    {Do not Localize}
+        //Read Pop3 Banner for OnOutboundClientConnect
+        Self.FGreeting := FOutboundClient.IOHandler.ReadLn;
+        FOutboundClient.IOHandler.WriteLn('USER ' + FUserName);    {Do not Localize}
       except
         on E: Exception do // DONE: Handle connect failures
         begin
-          FNetData := '-ERR [' + E.ClassName + '] ' + E.Message;    {Do not Localize}
+          FErrorMsg := '[' + E.ClassName + '] ' + E.Message;    {Do not Localize}
           Self.DoException(E);
-          Connection.IOHandler.WriteLn(FNetData);
+          Connection.IOHandler.WriteLn('-ERR ' + FErrorMsg);
         end;
       end;//trye
     until FOutboundClient.Connected or (Self.FAllowedConnectAttempts < 1);

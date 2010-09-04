@@ -74,6 +74,7 @@
 unit IdReplyFTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -98,6 +99,7 @@ type
     constructor CreateWithReplyTexts(ACollection: TCollection = nil; AReplyTexts: TIdReplies = nil); override;
     procedure Clear; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
+    class function IsEndReply(const AReplyCode, ALine: string): Boolean;
   published
     property ReplyFormat : TIdReplyRFCFormat read FReplyFormat write FReplyFormat default DEF_ReplyFormat;
   end;
@@ -110,6 +112,7 @@ type
 implementation
 
 uses
+  IdException,
   IdGlobal, SysUtils;
 
 { TIdReplyFTP }
@@ -177,12 +180,32 @@ class function TIdReplyFTP.IsEndMarker(const ALine: string): Boolean;
 begin
   // Use copy not ALine[4] as it might not be long enough for that reference
   // to be valid
+
+  // RLebeau 03/09/2009: noticed a Microsoft FTP server send multi-line
+  // text that had a "+44" at the beginning of a line.  That threw off
+  // IdGlobal.IsNumeric(String) because the compiler's Val() did not
+  // report an error for it.  We will use the overloaded version of
+  // IdGlobal.IsNumeric() now so that each character is validated
+  // individually to prevent that from happening again.
+
+  {
   Result := (Length(ALine) < 4) and IsNumeric(ALine);
-  if not Result then begin
+  if Result then begin
     //"     Version wu-2.6.2-11.73.1"  is not a end of reply
     //"211 End of status" is the end of a reply
-    Result := IsNumeric(Copy(ALine,1,3)) and (Copy(ALine, 4, 1) = ' ');
+    Result := IsNumeric(ALine, 3) and CharEquals(ALine, 4, ' ');
   end;
+  }
+
+  Result := (Length(ALine) >= 3) and IsNumeric(ALine, 3);
+  if Result then begin
+    Result := (Length(ALine) = 3) or CharEquals(ALine, 4, ' ');
+  end;
+end;
+
+class function TIdReplyFTP.IsEndReply(const AReplyCode, ALine: string): Boolean;
+begin
+  Result := IsEndMarker(ALine) and TextIsSame(Copy(ALine, 1, 3), AReplyCode);
 end;
 
 procedure TIdReplyFTP.SetFormattedReply(const AValue: TStrings);
@@ -194,10 +217,8 @@ begin
   if AValue.Count > 0 then begin
     // Get 4 chars - for POP3
     LCode := Trim(Copy(AValue[0], 1, 4));
-    if Length(LCode) = 4 then begin
-      if LCode[4] = '-' then begin
-        SetLength(LCode, 3);
-      end;
+    if CharEquals(LCode, 4, '-') then begin {do not localize}
+      SetLength(LCode, 3);
     end;
     Code := LCode;
     Text.Add(Copy(AValue[0], Length(LCode)+2, MaxInt));

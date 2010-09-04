@@ -91,6 +91,10 @@ const
   TOPS20_VOLPATH_SEP = ':<'; {do not localize}
   TOPS20_DIRFILE_SEP = '>';  {do not localize}
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseTOPS20"'*)
+
 implementation
 
 uses

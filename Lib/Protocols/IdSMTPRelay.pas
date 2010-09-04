@@ -208,10 +208,6 @@ type
     FStatusList: TIdSMTPRelayStatusList;
     FDNSServer: String;
     FOnDirectSMTPStatus: TIdSMTPRelayStatus;
-    FMailAgent: string;
-    FHeloName : String;
-    FPipeline : Boolean;
-    FUseEHLO : Boolean;
     FSSLOptions : TIdSSLSupportOptions;
     FRelaySender: String;
     procedure Connect(AEMailAddress : TIdEMailAddressItem); reintroduce;
@@ -374,21 +370,20 @@ var
   iPref: Word;
 begin
   { Get the list of MX Servers for a given domain into FMXServerList }
-  if Pos('@',AAddress) > 0 then
+  i := Pos('@', AAddress);
+  if i = 0 then
   begin
-     LDomain := Copy(AAddress, IndyPos('@',AAddress)+1, Length(AAddress)-Pos('@',AAddress));
-  end else begin
     raise EIdDirectSMTPCannotResolveMX.CreateFmt(RSDirSMTPInvalidEMailAddress, [AAddress]);
   end;
+  LDomain := Copy(AAddress, i+1, MaxInt);
   IdDNSResolver1 := TIdDNSResolver.Create(Self);
   try
     FMXServerList.Clear;
-    IdDNSResolver1.AllowRecursiveQueries:=True;
-    if Assigned(IOHandler) and (IOHandler.ReadTimeOut <> 0) then
+    IdDNSResolver1.AllowRecursiveQueries := True;
+    if Assigned(IOHandler) and (IOHandler.ReadTimeOut > 0) then
     begin
       //thirty seconds - maximum amount of time allowed for DNS query
       IdDNSResolver1.WaitingTime := IOHandler.ReadTimeout;
-      //30000;
     end else begin
       IdDNSResolver1.WaitingTime := 30000;
     end;
@@ -479,7 +474,7 @@ var
             end;
             if Trim(MailAgent) <> '' then
             begin
-              ALMsg.ExtraHeaders.Values[XMAILER_HEADER] := MailAgent;
+              ALMsg.Headers.Values[XMAILER_HEADER] := Trim(MailAgent);
             end;
             InternalSend(ALMsg, AFrom, AEmailAddresses);
             EMailSent := True;

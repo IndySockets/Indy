@@ -32,7 +32,7 @@ interface
 uses
   Classes,
   IdContainers,
-  IdCoreGlobal,
+  IdGlobalCore,
   IdIOHandler,
   IdIOHandlerSocket,
   IdIOHandlerStack,

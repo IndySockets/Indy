@@ -207,6 +207,9 @@ var
   nChars, C : TIdC_UINT;
   StreamEnd: Boolean;
 begin
+  // let the next Intercept in the chain decode its data first
+  inherited Receive(VBuffer);
+
   SetLength(LBuffer, 2048);
   if FCompressionLevel in [1..9] then
   begin
@@ -220,7 +223,7 @@ begin
       end;
       CopyTIdBytes(VBuffer, LPos, LBuffer, 0, nChars);
       Inc(LPos, nChars);
-      FDecompressRec.next_in := PChar(@LBuffer[0]);
+      FDecompressRec.next_in := PAnsiChar(@LBuffer[0]);
       FDecompressRec.avail_in := nChars;
       FDecompressRec.total_in := 0;
       while FDecompressRec.avail_in > 0 do
@@ -233,7 +236,7 @@ begin
           end;
           SetLength(FRecvBuf, FRecvSize);
         end;
-        FDecompressRec.next_out := PChar(@FRecvBuf[FRecvCount]);
+        FDecompressRec.next_out := PAnsiChar(@FRecvBuf[FRecvCount]);
         C := FRecvSize - FRecvCount;
         FDecompressRec.avail_out := C;
         FDecompressRec.total_out := 0;
@@ -279,7 +282,7 @@ begin
     // TODO: get rid of FSendBuf and use ABuffer directly
     FSendCount := LSize;
     CopyTIdBytes(VBuffer, 0, FSendBuf, 0, FSendCount);
-    FCompressRec.next_in := PChar(@FSendBuf[0]);
+    FCompressRec.next_in := PAnsiChar(@FSendBuf[0]);
     FCompressRec.avail_in := FSendCount;
     FCompressRec.avail_out := 0;
 
@@ -290,7 +293,7 @@ begin
     // As long as data is being outputted, keep compressing
     while FCompressRec.avail_out = 0 do
     begin
-      FCompressRec.next_out := PChar(@LBuffer[0]);
+      FCompressRec.next_out := PAnsiChar(@LBuffer[0]);
       FCompressRec.avail_out := Length(LBuffer);
       case deflate(FCompressRec, Z_SYNC_FLUSH) of
         Z_STREAM_ERROR,
@@ -303,6 +306,9 @@ begin
       CopyTIdBytes(LBuffer, 0, VBuffer, LLen, TIdC_UINT(Length(LBuffer)) - FCompressRec.avail_out);
     end;
   end;
+
+  // let the next Intercept in the chain encode its data next
+  inherited Send(VBuffer);
 end;
 
 procedure TIdCompressionIntercept.SetCompressionLevel(Value: TIdCompressionLevel);

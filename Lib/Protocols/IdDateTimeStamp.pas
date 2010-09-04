@@ -514,7 +514,7 @@ end;
 
 procedure ValidateTimeStamp(const ATimeStamp: TIdDateTimeStamp);
 begin
-  IdGlobal.ToDo;
+  IdGlobal.ToDo('ValidateTimeStamp() function in IdDateTimeStamp.pas is not implemented yet'); {do not localize}
 //  if (ATimeStamp.Time < 0) or (ATimeStamp.Date <= 0) then
 //    EIdExceptionBase.CreateFmt('''%d.%d'' is not a valid timestamp', [ATimeStamp.Date, ATimeStamp.Time]);
 end;

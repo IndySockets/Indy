@@ -65,16 +65,16 @@ type
 
   TIdTrivialFTPServer = class(TIdUDPServer)
   protected
-    FThreadList:TIdThreadSafeList;
+    FThreadList: TIdThreadSafeList;
     FOnTransferComplete: TTransferCompleteEvent;
     FOnReadFile,
     FOnWriteFile: TAccessFileEvent;
     function StrToMode(mode: string): TIdTFTPMode;
   protected
     procedure DoReadFile(FileName: String; const Mode: TIdTFTPMode;
-      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0); virtual;
+      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; IncludeTransferSize: Boolean); virtual;
     procedure DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
-      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0); virtual;
+      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize); virtual;
     procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; var SourceStream: TStream; const WriteOperation: Boolean); virtual;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
     procedure InitComponent; override;
@@ -92,9 +92,23 @@ implementation
 
 uses
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.Threading,
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Windows,
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysSelect,
+  PosixSysTime,
+  {$ENDIF}
+  {$IFDEF DOTNET}
+  IdStreamNET,
+  {$ELSE}
+  IdStreamVCL,
   {$ENDIF}
   IdExceptionCore,
   IdGlobalProtocols,
@@ -106,30 +120,53 @@ uses
 
 type
   TIdTFTPServerThread = class(TIdThread)
-  private
+  protected
     FStream: TStream;
-    FBlkCounter: Integer;
-    FResponse: String;
+    FBlkCounter: Word;
+    FResponse: TIdBytes;
     FRetryCtr: Integer;
     FUDPClient: TIdUDPClient;
     FRequestedBlkSize: Integer;
     FEOT, FFreeStrm: Boolean;
     FOwner: TIdTrivialFTPServer;
-    procedure TransferComplete;
-  protected
     procedure AfterRun; override;
     procedure BeforeRun; override;
     function HandleRunException(AException: Exception): Boolean; override;
+    procedure TransferComplete;
+  public
+    constructor Create(AOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode;
+      const PeerInfo: TPeerInfo; AStream: TStream; const FreeStreamOnTerminate: Boolean;
+      const RequestedBlockSize: Integer); reintroduce;
+    destructor Destroy; override;
+  end;
+
+  TIdTFTPServerSendFileThread = class(TIdTFTPServerThread)
+  private
+    FSendTransferSize: Boolean;
+  protected
+    procedure BeforeRun; override;
     procedure Run; override;
   public
     constructor Create(AOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; AStream: TStream; const FreeStreamOnTerminate: Boolean;
-      const RequestedBlockSize: Integer = 0); reintroduce; virtual;
-    destructor Destroy; override;
+      const RequestedBlockSize: Integer; SendTransferSize: Boolean); reintroduce;
   end;
 
-  TIdTFTPServerSendFileThread = class(TIdTFTPServerThread);
-  TIdTFTPServerReceiveFileThread = class(TIdTFTPServerThread);
+  TIdTFTPServerReceiveFileThread = class(TIdTFTPServerThread)
+  protected
+    FTransferSize: TIdStreamSize;
+    FReceivedSize: TIdStreamSize;
+  protected
+    procedure BeforeRun; override;
+    {$IFNDEF DOTNET}
+    function HandleRunException(AException: Exception): Boolean; override;
+    {$ENDIF}
+    procedure Run; override;
+  public
+    constructor Create(AOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode;
+      const PeerInfo: TPeerInfo; AStream: TStream; const FreeStreamOnTerminate: Boolean;
+      const RequestedBlockSize: Integer; const RequestedTransferSize: TIdStreamSize); reintroduce;
+  end;
 
 { TIdTrivialFTPServer }
 
@@ -141,7 +178,7 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoReadFile(FileName: String; const Mode: TIdTFTPMode;
-  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0);
+  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; IncludeTransferSize: Boolean);
 var
   CanRead,
   FreeOnComplete: Boolean;
@@ -165,7 +202,8 @@ begin
       LStream := TIdReadFileExclusiveStream.Create(FileName);
       FreeOnComplete := True;
     end;
-    TIdTFTPServerSendFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize);
+
+    TIdTFTPServerSendFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, IncludeTransferSize);
 
   {$IFNDEF DOTNET}
   except
@@ -191,16 +229,16 @@ procedure TIdTrivialFTPServer.DoUDPRead(AThread: TIdUDPListenerThread;
   const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
   wOp: Word;
-  s, FileName: String;
-  RequestedBlkSize: integer;
+  FileName, LOptName, LOptValue: String;
+  Idx, LOffset, RequestedBlkSize: Integer;
+  RequestedTxSize: Int64;
   Mode: TIdTFTPMode;
   PeerInfo: TPeerInfo;
 begin
   inherited DoUDPRead(AThread, AData, ABinding);
   try
     if Length(AData) > 1 then begin
-      wOp := BytesToWord(AData);
-      wOp := GStack.NetworkToHost(wOp);
+      wOp := GStack.NetworkToHost(BytesToWord(AData));
     end else begin
       wOp := 0;
     end;
@@ -209,22 +247,73 @@ begin
       raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
     end;
 
-    //omit wOp from the request.
-    s := BytesToString(AData, 2);
+    LOffset := 2;
 
-    FileName := Fetch(s, #0);
-    Mode := StrToMode(Fetch(s, #0));
-    RequestedBlkSize := 0;
-    if TextStartsWith(s, sBlockSize) then begin
-      Fetch(s, #0);
-      RequestedBlkSize := IndyStrToInt(Fetch(s, #0));
+    Idx := ByteIndex(0, AData, LOffset);
+    if Idx = -1 then begin
+      raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
     end;
+
+    FileName := BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+    LOffset := Idx+1;
+
+    Idx := ByteIndex(0, AData, LOffset);
+    if Idx = -1 then begin
+      raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
+    end;
+
+    Mode := StrToMode(BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII));
+    LOffset := Idx+1;
+
+    RequestedBlkSize := 512;
+    RequestedTxSize := -1;
+
+    while LOffset < Length(AData) do
+    begin
+      Idx := ByteIndex(0, AData, LOffset);
+      if Idx = -1 then begin
+        raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
+      end;
+
+      LOptName := BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+      LOffset := Idx+1;
+      
+      Idx := ByteIndex(0, AData, LOffset);
+      if Idx = -1 then begin
+        raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
+      end;
+
+      LOptValue := BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+      LOffset := Idx+1;
+
+      if TextStartsWith(LOptName, sBlockSize) then
+      begin
+        RequestedBlkSize := IndyStrToInt(LOptValue);
+        if (RequestedBlkSize < 8) or (RequestedBlkSize > 65464) then begin
+          raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
+        end;
+      end
+      else if TextStartsWith(LOptName, sTransferSize) then
+      begin
+        RequestedTxSize := IndyStrToInt64(LOptValue);
+        if wOp = TFTP_RRQ then begin
+          if RequestedTxSize <> 0 then begin
+            raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
+          end;
+        end
+        else if RequestedTxSize > High(TIdStreamSize) then begin
+          raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
+        end;
+      end;
+    end;
+
     PeerInfo.PeerIP := ABinding.PeerIP;
     PeerInfo.PeerPort := ABinding.PeerPort;
+
     if wOp = TFTP_RRQ then begin
-      DoReadFile(FileName, Mode, PeerInfo, RequestedBlkSize);
+      DoReadFile(FileName, Mode, PeerInfo, RequestedBlkSize, RequestedTxSize = 0);
     end else begin
-      DoWriteFile(FileName, Mode, PeerInfo, RequestedBlkSize);
+      DoWriteFile(FileName, Mode, PeerInfo, RequestedBlkSize, TIdStreamSize(RequestedTxSize));
     end;
   except
     on E: EIdTFTPException do begin
@@ -238,7 +327,7 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
-  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer);
+  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize);
 var
   CanWrite,
   FreeOnComplete: Boolean;
@@ -262,7 +351,17 @@ begin
       LStream := TIdFileCreateStream.Create(FileName);
       FreeOnComplete := True;
     end;
-    TIdTFTPServerReceiveFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize);
+
+    if RequestedTransferSize >= 0 then
+    begin
+      try
+        LStream.Size := RequestedTransferSize;
+      except
+        raise EIdTFTPAllocationExceeded.CreateFmt(RSTFTPDiskFull, [0]);
+      end;
+    end;
+
+    TIdTFTPServerReceiveFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, RequestedTransferSize);
 
   {$IFNDEF DOTNET}
   except
@@ -331,8 +430,7 @@ begin
     ReceiveTimeout := 1500;
     Host := PeerInfo.PeerIP;
     Port := PeerInfo.PeerPort;
-    BufferSize := 516;
-    FRequestedBlkSize := RequestedBlockSize;
+    BufferSize := RequestedBlockSize + 4;
   end;
   FOwner.FThreadList.Add(Self);
 end;
@@ -361,54 +459,89 @@ begin
   FBlkCounter := 0;
   FRetryCtr := 0;
   FEOT := False;
-  if FRequestedBlkSize > 0 then begin
-    FUDPClient.BufferSize := IndyMax(FRequestedBlkSize + hdrsize, FUDPClient.BufferSize);
-    FResponse := WordToStr(GStack.NetworkToHost(Word(TFTP_OACK))) + 'blksize'#0    {Do not Localize}
-     + IntToStr(FUDPClient.BufferSize - hdrsize) + #0#0;
+
+  if FUDPClient.BufferSize <> 516 then
+  begin
+    FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
+    AppendString(FResponse, sBlockSize, -1, TIdTextEncoding.ASCII);
+    AppendByte(FResponse, 0);
+    AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, TIdTextEncoding.ASCII);
+    AppendByte(FResponse, 0);
   end else begin
-    FResponse := '';    {Do not Localize}
+    SetLength(FResponse, 0);
   end;
 end;
 
 function TIdTFTPServerThread.HandleRunException(AException: Exception): Boolean;
 begin
   Result := False;
-  {$IFNDEF DOTNET}
-  // TODO: implement this in a platform-neutral manner.  EWriteError is VCL-specific
-  if AException is EWriteError then begin
-    SendError(FUDPClient, ErrAllocationExceeded, IndyFormat(RSTFTPDiskFull, [FStream.Position]));
-    Exit;
-  end;
-  {$ENDIF}
   SendError(FUDPClient, AException);
 end;
 
-procedure TIdTFTPServerThread.Run;
+procedure TIdTFTPServerThread.TransferComplete;
 var
-  Buffer, LBuf : string;
+  PeerInfo: TPeerInfo;
+begin
+  PeerInfo.PeerIP := FUDPClient.Host;
+  PeerInfo.PeerPort := FUDPClient.Port;
+  FOwner.DoTransferComplete(FEOT, PeerInfo, FStream, Self is TIdTFTPServerReceiveFileThread);
+end;
+
+{ TIdTFTPServerSendFileThread }
+
+constructor TIdTFTPServerSendFileThread.Create(AOwner: TIdTrivialFTPServer;
+  const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo; AStream: TStream;
+  const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer;
+  SendTransferSize: Boolean);
+begin
+  inherited Create(AOwner, Mode, PeerInfo, AStream, FreeStreamOnTerminate, RequestedBlockSize);
+  FSendTransferSize := SendTransferSize;
+end;
+
+procedure TIdTFTPServerSendFileThread.BeforeRun;
+begin
+  inherited BeforeRun;
+  if FSendTransferSize then
+  begin
+    if Length(FResponse) = 0 then begin
+      FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
+    end;
+    AppendString(FResponse, sTransferSize, -1, TIdTextEncoding.ASCII);
+    AppendByte(FResponse, 0);
+    AppendString(FResponse, IntToStr(FStream.Size - FStream.Position), -1, TIdTextEncoding.ASCII);
+    AppendByte(FResponse, 0);
+  end;
+end;
+
+procedure TIdTFTPServerSendFileThread.Run;
+var
+  Buffer: TIdBytes;
+  LPeerIP: string;
+  LPeerPort: TIdPort;
   i: Integer;
 begin
-  SetLength(Buffer, FUDPClient.BufferSize);
-  if FResponse = '' then begin // generate a new response packet for client    {Do not Localize}
-    if Self is TIdTFTPServerReceiveFileThread then begin
-      FResponse := MakeAckPkt(FBlkCounter);
-    end else begin
-      FBlkCounter := Word(succ(FBlkCounter));
-      FResponse := WordToStr(GStack.NetworkToHost(Word(TFTP_DATA))) +
-                   WordToStr(GStack.NetworkToHost(Word(FBlkCounter)));
-      LBuf := ReadStringFromStream(FStream, Length(FResponse) - hdrsize);
-      i := Length(LBuf);
-      FResponse := FResponse + LBuf;
-      FEOT := i < (FUDPClient.BufferSize - hdrsize);
+  if Length(FResponse) = 0 then begin // generate a new response packet for client
+    if FBlkCounter = High(Word) then begin
+      raise EIdTFTPAllocationExceeded.Create('');
+    end;
+    Inc(FBlkCounter);
+    SetLength(FResponse, FUDPClient.BufferSize);
+    CopyTIdWord(GStack.HostToNetwork(Word(TFTP_DATA)), FResponse, 0);
+    CopyTIdWord(GStack.HostToNetwork(FBlkCounter), FResponse, 2);
+    i := ReadTIdBytesFromStream(FStream, FResponse, FUDPClient.BufferSize - 4, 4);
+    SetLength(FResponse, 4 + i);
+    if i < (FUDPClient.BufferSize - 4) then begin
+      FEOT := True;
     end;
     FRetryCtr := 0;
   end;
   if FRetryCtr = 3 then begin
     raise EIdTFTPIllegalOperation.Create(RSTimeOut); // Timeout
   end;
-  FUDPClient.Send(FResponse);
-  Buffer := FUDPClient.ReceiveString;
-  if Buffer = '' then begin   {Do not Localize}
+  FUDPClient.SendBuffer(FResponse);
+  SetLength(Buffer, FUDPClient.BufferSize);
+  i := FUDPClient.ReceiveBuffer(Buffer, LPeerIP, LPeerPort);
+  if i <= 0 then begin
     if FEOT then begin
       Stop;
       Exit;
@@ -416,15 +549,14 @@ begin
     Inc(FRetryCtr);
     Exit;
   end;
-  case GStack.NetworkToHost(StrToWord(Buffer)) of
+  SetLength(Buffer, i);
+  // TODO: validate the correct peer is sending the data...
+  case GStack.NetworkToHost(BytesToWord(Buffer)) of
     TFTP_ACK:
       begin
-        if not (Self is TIdTFTPServerSendFileThread) then begin
-          raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]);
-        end;
-        i := GStack.NetworkToHost(StrToWord(Copy(Buffer, 3, 2)));
+        i := GStack.NetworkToHost(BytesToWord(Buffer, 2));
         if i = FBlkCounter then begin
-          FResponse := '';    {Do not Localize}
+          SetLength(FResponse, 0);
         end;
         if FEOT then begin
           Stop;
@@ -433,16 +565,7 @@ begin
       end;
     TFTP_DATA:
       begin
-        if not (Self is TIdTFTPServerReceiveFileThread) then begin
-          raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]);
-        end;
-        i := GStack.NetworkToHost(StrToWord(Copy(Buffer, 3, 2)));
-        if i = Word(FBlkCounter + 1) then begin
-          WriteStringToStream(FStream, Copy(Buffer, hdrsize+1, Length(Buffer)-hdrsize));
-          FResponse := '';    {Do not Localize}
-          FBlkCounter := Word(succ(FBlkCounter));
-        end;
-        FEOT := Length(Buffer) < FUDPClient.BufferSize;
+        raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]);
       end;
     TFTP_ERROR:
       begin
@@ -455,13 +578,114 @@ begin
   end;
 end;
 
-procedure TIdTFTPServerThread.TransferComplete;
-var
-  PeerInfo: TPeerInfo;
+{ TIdTFTPServerReceiveFileThread }
+
+constructor TIdTFTPServerReceiveFileThread.Create(AOwner: TIdTrivialFTPServer;
+  const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo; AStream: TStream;
+  const FreeStreamOnTerminate: Boolean; const RequestedBlockSize: Integer;
+  const RequestedTransferSize: TIdStreamSize);
 begin
-  PeerInfo.PeerIP := FUDPClient.Host;
-  PeerInfo.PeerPort := FUDPClient.Port;
-  FOwner.DoTransferComplete(FEOT, PeerInfo, FStream, Self is TIdTFTPServerReceiveFileThread);
+  inherited Create(AOwner, Mode, PeerInfo, AStream, FreeStreamOnTerminate, RequestedBlockSize);
+  FTransferSize := RequestedTransferSize;
+end;
+
+procedure TIdTFTPServerReceiveFileThread.BeforeRun;
+begin
+  inherited BeforeRun;
+  FReceivedSize := 0;
+  if FTransferSize <> -1 then
+  begin
+    if Length(FResponse) = 0 then begin
+      FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
+    end;
+    AppendString(FResponse, sTransferSize, -1, TIdTextEncoding.ASCII);
+    AppendByte(FResponse, 0);
+    AppendString(FResponse, IntToStr(FTransferSize), -1, TIdTextEncoding.ASCII);
+    AppendByte(FResponse, 0);
+  end;
+end;
+
+{$IFNDEF DOTNET}
+function TIdTFTPServerReceiveFileThread.HandleRunException(AException: Exception): Boolean;
+begin
+  // TODO: implement this in a platform-neutral manner.  EWriteError is VCL-specific
+  if AException is EWriteError then
+  begin
+    Result := False;
+    SendError(FUDPClient, ErrAllocationExceeded, IndyFormat(RSTFTPDiskFull, [FStream.Position]));
+    Exit;
+  end;
+  Result := inherited HandleRunException(AException);
+end;
+{$ENDIF}
+
+procedure TIdTFTPServerReceiveFileThread.Run;
+var
+  Buffer: TIdBytes;
+  LPeerIP: string;
+  LPeerPort: TIdPort;
+  i: TIdStreamSize;
+begin
+  if Length(FResponse) = 0 then begin
+    FResponse := MakeActPkt(FBlkCounter);
+    if FBlkCounter = High(Word) then begin
+      FEOT := True;
+    end else begin
+      Inc(FBlkCounter);
+    end;
+    FRetryCtr := 0;
+  end;
+  if FRetryCtr = 3 then begin
+    raise EIdTFTPIllegalOperation.Create(RSTimeOut); // Timeout
+  end;
+  FUDPClient.SendBuffer(FResponse);
+  SetLength(Buffer, FUDPClient.BufferSize);
+  i := FUDPClient.ReceiveBuffer(Buffer, LPeerIP, LPeerPort);
+  if i <= 0 then begin
+    if FEOT then begin
+      Stop;
+      Exit;
+    end;
+    Inc(FRetryCtr);
+    Exit;
+  end;
+  SetLength(Buffer, i);
+  // TODO: validate the correct peer is sending the data...
+  case GStack.NetworkToHost(BytesToWord(Buffer)) of
+    TFTP_ACK:
+      begin
+        raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]);
+      end;
+    TFTP_DATA:
+      begin
+        i := GStack.NetworkToHost(BytesToWord(Buffer, 2));
+        if i = FBlkCounter then
+        begin
+          if FEOT then begin
+            raise EIdTFTPAllocationExceeded.CreateFmt(RSTFTPDiskFull, [FStream.Position]);
+          end;
+          if (FTransferSize >= 0) and ((FTransferSize - FReceivedSize) < (Length(Buffer) - 4)) then
+          begin
+            WriteTIdBytesToStream(FStream, Buffer, FTransferSize - FReceivedSize, 4);
+            FReceivedSize := FTransferSize;
+            FEOT := True;
+            raise EIdTFTPAllocationExceeded.CreateFmt(RSTFTPDiskFull, [FStream.Position]);
+          end;
+          WriteTIdBytesToStream(FStream, Buffer, Length(Buffer) - 4, 4);
+          Inc(FReceivedSize, Length(Buffer) - 4);
+          SetLength(FResponse, 0);
+          FEOT := Length(Buffer) < (FUDPClient.BufferSize - 4);
+        end;
+      end;
+    TFTP_ERROR:
+      begin
+        Abort;
+      end;
+    else
+      begin
+        raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]);
+      end;
+  end;
 end;
 
 end.

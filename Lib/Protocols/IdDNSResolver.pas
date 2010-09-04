@@ -570,8 +570,17 @@ begin
   PackSize := Length(DNSStr);
   SavedIdx := -1;
 
-  repeat
+  while VPos < PackSize do // name field ends with nul byte
+  begin
     Len := DNSStr[VPos];
+
+    // RLebeau 5/4/2009: sometimes the first entry of a domain's record is
+    // not defined, so account for that here at the top of the loop instead
+    // of at the bottom, otherwise a Range Check error can occur when
+    // trying to access the non-existant data...
+    if Len = 0 then begin
+      Break;
+    end;
 
     while (Len and $C0) = $C0 do  // {!!0.01} added loop for pointer
     begin                         // that points to a pointer. Removed  >63 hack. Am I really that stupid?
@@ -594,14 +603,16 @@ begin
     end;
 
     Result := Result + LabelStr + '.';  // concat and add period.  {Do not Localize}
-
-  until (DNSStr[VPos] = 0) or (VPos >= Length(DNSStr)); // name field ends with nul byte
+  end;
 
   if TextEndsWith(Result, '.') then begin // remove final period    {Do not Localize}
     SetLength(Result, Length(Result) - 1);
   end;
 
-  if SavedIdx >= 0 then VPos := SavedIdx; // restore original Idx +1
+  if SavedIdx >= 0 then begin
+    VPos := SavedIdx; // restore original Idx +1
+  end;
+
   Inc(VPos); // set to first char of next item in the resource
 end;
 
@@ -1178,26 +1189,26 @@ begin
   //do not reverse the bytes because this is a bit set
   FDNSHeader.RD := Word(FAllowRecursiveQueries);
 
-  iQ := 0;
   // Iterate thru questions
   { TODO : Optimize for non-double loop }
-  if not ((qtAXFR in QueryType) and (qtIXFR in QueryType)) then begin
-    for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do begin
-      if ARecType in QueryType then begin
-        Inc(iQ);
-      end;
-    end;
-  end else
+  if (QueryType * [qtAXFR, qtIXFR]) <> [] then
   begin
     iQ := 1; // if exec AXFR, there can be only one Question.
     if qtIXFR in QueryType then begin
       // if exec IXFR, we must include a SOA record in Authority Section (RFC 1995)
-      if Assigned(SOARR) then begin
-        AAuthority := SOARR.BinQueryRecord('');
-      end else begin
+      if not Assigned(SOARR) then begin
         raise EIdDnsResolverError.Create(GetErrorStr(7, 3));
       end;
+      AAuthority := SOARR.BinQueryRecord('');
       FDNSHeader.AA := 1;
+    end;
+  end else
+  begin
+    iQ := 0;
+    for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do begin
+      if ARecType in QueryType then begin
+        Inc(iQ);
+      end;
     end;
   end;
 

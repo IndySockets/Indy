@@ -82,6 +82,12 @@ type
     class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseStratusVOS"'*)
+
+implementation
+
     {
 From:   Manual Name: VOS Reference Manual
 
@@ -158,8 +164,6 @@ hierarchy. A single period (.) also refers to the current directory
 and two periods (..) refers to the parent directory. Thus,
 change_current_dir .. is the same as the change_current_dir <.
     }
-
-implementation
 
 uses
   IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
@@ -281,7 +285,7 @@ begin
   end;
   s := TrimLeft(s);
   s2 := Fetch(s);
-  if not IsNumeric(Copy(s2, 1, 2)) then
+  if not IsNumeric(s2, 2) then
   begin
     s := TrimLeft(s);
     s2 := Fetch(s);

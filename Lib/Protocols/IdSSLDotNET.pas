@@ -87,7 +87,6 @@ type
 
   public
     procedure Close; override;
-    procedure Open; override;
     procedure StartSSL; override;
     function Clone : TIdSSLIOHandlerSocketBase; override;
 
@@ -364,16 +363,6 @@ begin
    (localCertificates.Count > 0) then
   begin
     Result :=  localCertificates[0];
-  end;
-end;
-
-procedure TIdSSLIOHandlerSocketNET.Open;
-begin
-  inherited;
-
-  if not Passthrough then
-  begin
-    OpenEncodedConnection;
   end;
 end;
 

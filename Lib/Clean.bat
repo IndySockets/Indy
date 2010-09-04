@@ -13,6 +13,11 @@ if exist %1*.lib del %1*.lib >nul
 if exist %1*.dcuil del %1*.dcuil >nul
 if exist %1*.dll del %1*.dll >nul
 if exist %1*.dcpil del %1*.dcpil >nul
+if exist %1*.dcuosx del %1.dcuosx > nul
+if exist %1*.lst del %1*.lst > nul
+if exist %1.ppu del %1.ppu > nul
+if exist %1.o del %1.o > nul
+if exist %1.rst del %1.rst > nul
 if exist %1*.identcache del %1*.identcache >nul
 if exist %1*.local del %1*.local >nul
 if exist %1*.pdb del %1*.pdb >nul
@@ -20,4 +25,5 @@ if exist %1Id*.o del %1Id*.o >nul
 if exist %1Id*.ppu del %1Id*.ppu >nul
 if exist %1*.~*  del %1*.~* >nul
 if exist %1setenv.bat del %1setenv.bat >nul
+if exist %1lib rmdir /S /Q %1lib > nul
 

@@ -126,6 +126,7 @@ type
 implementation
 
 uses
+  IdException,
   IdGlobal,
   IdGlobalProtocols;
 
@@ -183,6 +184,19 @@ var
     end;
   end;
 
+  procedure WriteByte(AValue: Byte; AWriteEOL: Boolean);
+  var
+    LTemp: TIdBytes;
+  begin
+    SetLength(LTemp, iif(AWriteEOL, 3, 1));
+    LTemp[0] := AValue;
+    if AWriteEOL then begin
+      LTemp[1] := Ord(CR);
+      LTemp[2] := Ord(LF);
+    end;
+    TIdStreamHelper.Write(FStream, LTemp);
+  end;
+
 begin
   LBufferLen := IndyLength(ASrcStream, ABytes);
   if LBufferLen <= 0 then begin
@@ -233,11 +247,13 @@ begin
         //if =20 + EOL, this is a hard line break after a space
         if (DecodedByte = 32) and (LBufferIndex < LBufferLen) and ByteIsInEOL(LBuffer, LBufferIndex) then begin
           if Assigned(FStream) then begin
-            WriteStringToStream(FStream, Char(DecodedByte) + EOL);
+            WriteByte(DecodedByte, True);
           end;
           StripEOLChars;
         end else begin
-          WriteStringToStream(FStream, Char(DecodedByte));
+          if Assigned(FStream) then begin
+            WriteByte(DecodedByte, False);
+          end;
         end;
       end else begin
         //ignore soft line breaks -
@@ -248,68 +264,49 @@ begin
 end;
 
 { TIdEncoderQuotedPrintable }
+
+function CharToHex(const AChar: Char): String;
+begin
+  Result := '=' + ByteToHex(Ord(AChar)); {do not localize}
+end;
+
 procedure TIdEncoderQuotedPrintable.Encode(ASrcStream, ADestStream: TStream; const ABytes: Integer = -1);
 const
-  SafeChars = [#33..#60, #62..#126];
-  HalfSafeChars = [#32, TAB];
+  SafeChars = '!"#$%&''()*+,-./0123456789:;<>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmonpqrstuvwxyz{|}~';
+  HalfSafeChars = #9' ';
   // Rule #2, #3
 var
-  CurrentLine: ShortString;
-  // this is a shortstring for performance reasons.
-  // the lines may never get longer than 76, so even if I go a bit
-  // further, they won't go longer than 80 or so
-  SourceLine: AnsiString;
-  CurrentPos: Integer;
-
-  procedure WriteToString(const s: ShortString);
-  var
-    SLen: Integer;
-  begin
-    SLen := Length(s);
-    MoveChars(s, 1, CurrentLine, CurrentPos, SLen);
-    Inc(CurrentPos, SLen);
-  end;
-
-  procedure FinishLine;
-  begin
-    WriteStringToStream(ADestStream, Copy(CurrentLine, 1, CurrentPos-1) + EOL);
-    CurrentPos := 1;
-  end;
-
-var
-  I: Integer;
-  LSourceSize: Integer;
+  I, CurrentLen: Integer;
+  LSourceSize: TIdStreamSize;
+  S, SourceLine: String;
 begin
-  SetLength(CurrentLine, 255);
   //ie while not eof
   LSourceSize := ASrcStream.Size;
   while ASrcStream.Position < LSourceSize do begin
-    SourceLine := ReadLnFromStream(ASrcStream, -1, False);
-    CurrentPos := 1;
-    for i := 1 to Length(SourceLine) do begin
-      if not (SourceLine[i] in SafeChars) then
+    SourceLine := ReadLnFromStream(ASrcStream, -1, False, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    CurrentLen := 0;
+    for I := 1 to Length(SourceLine) do begin
+      if not CharIsInSet(SourceLine, I, SafeChars) then
       begin
-        if (SourceLine[i] in HalfSafeChars) then begin
-          if i = Length(SourceLine) then begin
-            WriteToString(CharToHex('=', SourceLine[i]));
-          end else begin
-            WriteToString(SourceLine[i]);
-          end;
+        if CharIsInSet(SourceLine, I, HalfSafeChars) and (I < Length(SourceLine)) then begin
+          S := SourceLine[I];
         end else begin
-          WriteToString(CharToHex('=', SourceLine[i]));
+          S := CharToHex(SourceLine[I]);
         end;
       end
-      else if ((CurrentPos = 1) or (CurrentPos = 71)) and (SourceLine[i] = '.') then begin
-        WriteToString(CharToHex('=', SourceLine[i]));
+      else if ((CurrentLen = 0) or (CurrentLen >= 70)) and (SourceLine[I] = '.') then begin {do not localize}
+        S := CharToHex(SourceLine[I]);
       end else begin
-        WriteToString(SourceLine[i]);
+        S := SourceLine[I];
       end;
-      if CurrentPos > 70 then begin
-        WriteToString('=');  {Do not Localize}
-        FinishLine;
+      WriteStringToStream(ADestStream, S);
+      Inc(CurrentLen, Length(S));
+      if CurrentLen >= 70 then begin
+        WriteStringToStream(ADestStream, '='+EOL);  {Do not Localize}
+        CurrentLen := 0;
       end;
     end;
-    FinishLine;
+    WriteStringToStream(ADestStream, EOL);
   end;
 end;
 

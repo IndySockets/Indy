@@ -55,6 +55,10 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseSuperTCP"'*)
+
 implementation
 
 uses
@@ -139,7 +143,7 @@ end;
 class function TIdFTPLPSuperTCP.IsValidMSDOSFileName(const AFileName: String): Boolean;
 const
   VALID_DOS_CHARS =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtstuvwxyz0123456789_$~!#%&-{}()@'''+#180; {Do not localize}
+	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtstuvwxyz0123456789_$~!#%&-{}()@'''+Char(180); {Do not localize}
 var
   LFileName, LExt : String;
   i : Integer;
@@ -156,7 +160,7 @@ begin
   begin
     for i := 1 to Length(LFileName) do
     begin
-      if IndyPos(LFileName[i], VALID_DOS_CHARS) = 0 then begin
+	  if IndyPos(LFileName[i], VALID_DOS_CHARS) = 0 then begin
         Exit;
       end;
     end;

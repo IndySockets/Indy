@@ -39,8 +39,8 @@ type
           const AOffset: Integer = 0): Integer; static;
     class function Seek(
           const AStream: TStream;
-          const AOffset: Int64;
-          const AOrigin: TSeekOrigin) : Int64; static;
+          const AOffset: TIdStreamSize;
+          const AOrigin: TSeekOrigin) : TIdStreamSize; static;
   end;
 
 implementation
@@ -100,8 +100,8 @@ begin
   end;
 end;
 
-class function TIdStreamHelperNET.Seek(const AStream: TStream; const AOffset: Int64;
-  const AOrigin: TSeekOrigin): Int64;
+class function TIdStreamHelperNET.Seek(const AStream: TStream; const AOffset: TIdStreamSize;
+  const AOrigin: TSeekOrigin): TIdStreamSize;
 begin
   Result := AStream.Seek(AOffset, AOrigin);
 end;

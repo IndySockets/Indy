@@ -73,7 +73,7 @@ uses
 type
 //  TIdSyslogSeverity = ID_SYSLOG_SEVERITY_EMERGENCY..ID_SYSLOG_SEVERITY_DEBUG;
 //  TIdSyslogFacility = ID_SYSLOG_FACILITY_KERNEL..ID_SYSLOG_FACILITY_LOCAL7;
-  TIdSyslogPRI = 1..191;
+  TIdSyslogPRI = 0..191;
   TIdSyslogFacility = (sfKernel, { ID_SYSLOG_FACILITY_KERNEL}
                       sfUserLevel, { ID_SYSLOG_FACILITY_USER }
                       sfMailSystem, { ID_SYSLOG_FACILITY_MAIL }
@@ -118,10 +118,6 @@ type
     procedure SetProcess(const AValue: String);
     function GetText: String;
     procedure SetText(const AValue: String);
-    function GetMaxTagLength : Integer;
-    //extract the PID part into a SysLog PID including []
-    function PIDToStr(APID : Integer) : String; virtual;
-
   public
     procedure Assign(Source: TPersistent); override;
   published
@@ -160,13 +156,6 @@ type
     procedure UpdatePRI; virtual;
     function DecodeTimeStamp(TimeStampString: String): TDateTime; virtual;
     procedure InitComponent; override;
-//    function logFacilityToNo(AFac : TIdSyslogFacility) : Word; virtual;
-//    function NoToFacility(AFac : Word) : TIdSyslogFacility;  virtual;
-//    function logSeverityToNo(ASev :  TIdSyslogSeverity) : Word; virtual;
-//    function SeverityToString(ASec: TIdsyslogSeverity): string; virtual;
-//    function FacilityToString(AFac: TIdSyslogFacility): string; virtual;
-//    function NoToSeverity(ASev :  Word) : TIdSyslogSeverity; virtual;
-     //extract the PID part into a SysLog PID including []
   public
     procedure Assign(Source: TPersistent); override;
     destructor Destroy; override;
@@ -195,7 +184,7 @@ function logFacilityToNo(AFac : TIdSyslogFacility) : Word;
 implementation
 
 uses
-  IdAssignedNumbers, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdStackConsts, IdUDPClient, SysUtils;
+  IdAssignedNumbers, IdException, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdStackConsts, IdUDPClient, SysUtils;
 
 const
   // facility
@@ -332,83 +321,69 @@ end;
 
 function SeverityToString(ASec: TIdsyslogSeverity): string;
 begin
-  case ASec of    //
-    slEmergency:
-      result := STR_SYSLOG_SEVERITY_EMERGENCY;
-    slAlert:
-      result := STR_SYSLOG_SEVERITY_ALERT;
-    slCritical:
-      result := STR_SYSLOG_SEVERITY_CRITICAL;
-    slError:
-      result := STR_SYSLOG_SEVERITY_ERROR;
-    slWarning:
-      result := STR_SYSLOG_SEVERITY_WARNING;
-    slNotice:
-      result := STR_SYSLOG_SEVERITY_NOTICE;
-    slInformational:
-      result := STR_SYSLOG_SEVERITY_INFORMATIONAL;
-    slDebug:
-      result := STR_SYSLOG_SEVERITY_DEBUG;
-    else
-      result := STR_SYSLOG_SEVERITY_UNKNOWN;
-  end;    // case
+  case ASec of
+    slEmergency: Result := STR_SYSLOG_SEVERITY_EMERGENCY;
+    slAlert: Result := STR_SYSLOG_SEVERITY_ALERT;
+    slCritical: Result := STR_SYSLOG_SEVERITY_CRITICAL;
+    slError: Result := STR_SYSLOG_SEVERITY_ERROR;
+    slWarning: Result := STR_SYSLOG_SEVERITY_WARNING;
+    slNotice: Result := STR_SYSLOG_SEVERITY_NOTICE;
+    slInformational: Result := STR_SYSLOG_SEVERITY_INFORMATIONAL;
+    slDebug: Result := STR_SYSLOG_SEVERITY_DEBUG;
+  else
+    Result := STR_SYSLOG_SEVERITY_UNKNOWN;
+  end;
 end;
 
 function FacilityToString(AFac: TIdSyslogFacility): string;
 begin
-  case AFac of    //
-    sfKernel:
-      result := STR_SYSLOG_FACILITY_KERNEL;
-    sfUserLevel:
-      result := STR_SYSLOG_FACILITY_USER;
-    sfMailSystem:
-      result := STR_SYSLOG_FACILITY_MAIL;
-    sfSystemDaemon:
-      result := STR_SYSLOG_FACILITY_SYS_DAEMON;
-    sfSecurityOne:
-      result := STR_SYSLOG_FACILITY_SECURITY1;
-    sfSysLogInternal:
-      result := STR_SYSLOG_FACILITY_INTERNAL;
-    sfLPR:
-      result := STR_SYSLOG_FACILITY_LPR;
-    sfNNTP:
-      result := STR_SYSLOG_FACILITY_NNTP;
-    sfClockDaemonOne:
-      result := STR_SYSLOG_FACILITY_CLOCK1;
-    sfUUCP:
-      result := STR_SYSLOG_FACILITY_UUCP;
-    sfSecurityTwo:
-      result := STR_SYSLOG_FACILITY_SECURITY2;
-    sfFTPDaemon:
-      result := STR_SYSLOG_FACILITY_FTP;
-    sfNTP:
-      result := STR_SYSLOG_FACILITY_NTP;
-    sfLogAudit:
-      result := STR_SYSLOG_FACILITY_AUDIT;
-    sfLogAlert:
-      result := STR_SYSLOG_FACILITY_ALERT;
-    sfClockDaemonTwo:
-      result := STR_SYSLOG_FACILITY_CLOCK2;
-    sfLocalUseZero:
-      result := STR_SYSLOG_FACILITY_LOCAL0;
-    sfLocalUseOne:
-      result := STR_SYSLOG_FACILITY_LOCAL1;
-    sfLocalUseTwo:
-      result := STR_SYSLOG_FACILITY_LOCAL2;
-    sfLocalUseThree:
-      result := STR_SYSLOG_FACILITY_LOCAL3;
-    sfLocalUseFour:
-      result := STR_SYSLOG_FACILITY_LOCAL4;
-    sfLocalUseFive:
-      result := STR_SYSLOG_FACILITY_LOCAL5;
-    sfLocalUseSix:
-      result := STR_SYSLOG_FACILITY_LOCAL6;
-    sfLocalUseSeven:
-      result := STR_SYSLOG_FACILITY_LOCAL7;
-    else
-      result := STR_SYSLOG_FACILITY_UNKNOWN;
-  end;    // case
+  case AFac of
+    sfKernel: Result := STR_SYSLOG_FACILITY_KERNEL;
+    sfUserLevel: Result := STR_SYSLOG_FACILITY_USER;
+    sfMailSystem: Result := STR_SYSLOG_FACILITY_MAIL;
+    sfSystemDaemon: Result := STR_SYSLOG_FACILITY_SYS_DAEMON;
+    sfSecurityOne: Result := STR_SYSLOG_FACILITY_SECURITY1;
+    sfSysLogInternal: Result := STR_SYSLOG_FACILITY_INTERNAL;
+    sfLPR: Result := STR_SYSLOG_FACILITY_LPR;
+    sfNNTP: Result := STR_SYSLOG_FACILITY_NNTP;
+    sfClockDaemonOne: Result := STR_SYSLOG_FACILITY_CLOCK1;
+    sfUUCP: Result := STR_SYSLOG_FACILITY_UUCP;
+    sfSecurityTwo: Result := STR_SYSLOG_FACILITY_SECURITY2;
+    sfFTPDaemon: Result := STR_SYSLOG_FACILITY_FTP;
+    sfNTP: Result := STR_SYSLOG_FACILITY_NTP;
+    sfLogAudit: Result := STR_SYSLOG_FACILITY_AUDIT;
+    sfLogAlert: Result := STR_SYSLOG_FACILITY_ALERT;
+    sfClockDaemonTwo: Result := STR_SYSLOG_FACILITY_CLOCK2;
+    sfLocalUseZero: Result := STR_SYSLOG_FACILITY_LOCAL0;
+    sfLocalUseOne: Result := STR_SYSLOG_FACILITY_LOCAL1;
+    sfLocalUseTwo: Result := STR_SYSLOG_FACILITY_LOCAL2;
+    sfLocalUseThree: Result := STR_SYSLOG_FACILITY_LOCAL3;
+    sfLocalUseFour: Result := STR_SYSLOG_FACILITY_LOCAL4;
+    sfLocalUseFive: Result := STR_SYSLOG_FACILITY_LOCAL5;
+    sfLocalUseSix: Result := STR_SYSLOG_FACILITY_LOCAL6;
+    sfLocalUseSeven: Result := STR_SYSLOG_FACILITY_LOCAL7;
+  else
+    Result := STR_SYSLOG_FACILITY_UNKNOWN;
+  end;
 end;
+
+function ExtractAlphaNumericStr(var VString : String) : String;
+var
+  i, len : Integer;
+begin
+  len := 0;  
+  for i := 1 to IndyMin(Length(VString), 32) do begin
+    //numbers or alphabet only
+    if IsAlphaNumeric(VString[i]) then begin
+      Inc(len);
+    end else begin
+      Break;
+    end;
+  end;
+  Result := Copy(VString, 1, len);
+  VString := Copy(VString, len+1, MaxInt);
+end;
+
 { TIdSysLogMessage }
 
 procedure TIdSysLogMessage.Assign(Source: TPersistent);
@@ -428,8 +403,7 @@ begin
   end;
 end;
 
-function TIdSysLogMessage.DecodeTimeStamp(
-  TimeStampString: String): TDateTime;
+function TIdSysLogMessage.DecodeTimeStamp(TimeStampString: String): TDateTime;
 var
   AYear, AMonth, ADay, AHour, AMin, ASec: Word;
   LDate : TDateTime;
@@ -472,7 +446,8 @@ begin
 end;
 
 procedure TIdSysLogMessage.ReadFromBytes(const ASrc: TIdBytes; const APeer : String);
-const MSGLEN = 1024;
+const
+  MSGLEN = 1024;
 begin
   FPeer := APeer;
   RawMessage := BytesToString(ASrc, 0, MSGLEN);
@@ -504,9 +479,15 @@ begin
     end;    // while
 
     FHostname := Copy(FRawMessage, StartPos, AHostNameEnd - StartPos);
+
+    if Pos(':', FHostname) <> 0 then begin // check if the hostname doesn't contain a semicolon (so it's not a process)
+      FHostname := Peer;
+    end else begin
+      StartPos := AHostNameEnd + 1;
+    end;
+
     // SG 25/2/02: Check the ASCII range of host name
     CheckASCIIRange(FHostname);
-    StartPos := AHostNameEnd + 1;
   except
     on e: Exception do
     begin
@@ -532,22 +513,22 @@ begin
     // Read the PRI string
     // PRI must start with "less than" sign
     Buffer := '';    {Do not Localize}
-    if FRawMessage[StartPos] <> '<' then begin   {Do not Localize}
+    if not CharEquals(FRawMessage, StartPos, '<') then begin   {Do not Localize}
       raise EInvalidSyslogMessage.Create(RSInvalidSyslogPRI);
     end;
     repeat
       Inc(StartPos);
-      if FRawMessage[StartPos] = '>' then begin   {Do not Localize}
+      if CharEquals(FRawMessage, StartPos, '>') then begin   {Do not Localize}
         Break;
       end;
-      if not CharIsInSet(FRawMessage, StartPos, CharRange('0','9')) then begin   {Do not Localize}
+      if not IsNumeric(FRawMessage, 1, StartPos) then begin   {Do not Localize}
         raise EInvalidSyslogMessage.CreateFmt(RSInvalidSyslogPRINumber, [Buffer]);
       end;
       Buffer := Buffer + FRawMessage[StartPos];
     until StartPos = StartPosSave + 5;
 
     // PRI must end with "greater than" sign
-    if (FRawMessage[StartPos] <> '>') then begin   {Do not Localize}
+    if not CharEquals(FRawMessage, StartPos, '>') then begin   {Do not Localize}
       raise EInvalidSyslogMessage.Create(RSInvalidSyslogPRI);
     end;
     // Convert PRI to numerical value
@@ -659,26 +640,15 @@ begin
 end;
 
 procedure TIdSysLogMessage.InitComponent;
-var
-  bCreatedStack : Boolean;
 begin
   inherited;
   PRI := 13; //default
   {This stuff is necessary to prevent an AV in the IDE if GStack does not exist}
-  bCreatedStack := False;
-  if not Assigned(GStack) then
-  begin
-    GStack :=  IdStackFactory;
-    bCreatedStack := True;
-  end;
+  TIdStack.IncUsage;
   try
     Hostname := GStack.HostName;
   finally
-    {Free the stack ONLY if we created it to prevent a memory leak}
-    if bCreatedStack then
-    begin
-      FreeAndNil(GStack);
-    end;
+    TIdStack.DecUsage;
   end;
   FMsg := TIdSysLogMsgPart.Create;
 end;
@@ -737,20 +707,6 @@ begin
   end;
 end;
 
-function TIdSysLogMsgPart.GetMaxTagLength: Integer;
-begin
-  Result := 32 - Length(PIDToStr(PID));
-end;
-
-function TIdSysLogMsgPart.PIDToStr(APID: Integer): String;
-begin
-  if FPIDAvailable then begin
-    Result := IndyFormat('[%d]:', [APID]);    {Do not Localize}
-  end else begin
-    Result := ':';    {Do not Localize}
-  end;
-end;
-
 procedure TIdSysLogMsgPart.SetPID(AValue: Integer);
 begin
   FPID := AValue;
@@ -758,32 +714,24 @@ begin
 end;
 
 procedure TIdSysLogMsgPart.SetProcess(const AValue: String);
-
-  function AlphaNumericStr(const AString : String) : String;
-  var
-    i : Integer;
-  begin
-    for i := 1 to Length(AString) do begin
-      //numbers or alphabet only
-      if IsAlphaNumeric(AString[i]) then begin
-        Result := Result + AString[i];
-      end else begin
-        Break;
-      end;
-    end;
-  end;
-
+var
+  LTmp: String;
 begin
-  //we have to ensure that the TAG field will never be greater than 32 charactors
+  //we have to ensure that the TAG field will never be greater than 32 characters
   //and the program name must contain alphanumeric characters
-  FProcess := AlphaNumericStr(Copy(AValue, 1, GetMaxTagLength));
+  LTmp := AValue;
+  FProcess := ExtractAlphaNumericStr(LTmp);
 end;
 
 function TIdSysLogMsgPart.GetText: String;
 begin
-  Result := Process + PIDToStr(PID) + Content;
-  if (not PIDAvailable) and (Result = ':') then begin   {Do not Localize}
-    Result := '';    {Do not Localize}
+  Result := Process;
+  if FPIDAvailable then begin
+    Result := Result + IndyFormat('[%d]', [FPID]); {Do not Localize}
+  end;
+  Result := Result + ': ' + Content; {Do not Localize}
+  if Result = ': ' then begin {Do not Localize}
+    Result := '';
   end;
 end;
 
@@ -797,19 +745,21 @@ begin
   FContent := '';  {Do not Localize}
 
   SBuf := AValue;
-  if Pos(':', SBuf) > 1 then begin   {Do not Localize}
-    FProcess := Fetch(SBuf, ':');    {Do not Localize}
-    FContent := SBuf;
-    if Pos('[', FProcess) > 0 then begin   {Do not Localize}
-      SBuf := FProcess;
-      FProcess := Fetch(SBuf, '[');    {Do not Localize}
-      SBuf := Fetch(SBuf, ']');        {Do not Localize}
-      if Length(SBuf) > 0 then begin
-        FPID := IndyStrToInt(SBuf, -1);
-        FPIDAvailable := FPID <> -1;
-      end;
-    end;
+  FProcess := ExtractAlphaNumericStr(SBuf);
+
+  if TextStartsWith(SBuf, '[') then begin  {Do not Localize}
+    SBuf := Copy(SBuf, 2, MaxInt);
+    FPID := IndyStrToInt(Fetch(SBuf, ']'), -1);  {Do not Localize}
+    FPIDAvailable := FPID <> -1;
   end;
+  if TextStartsWith(SBuf, ': ') then begin  {Do not Localize}
+    SBuf := Copy(SBuf, 3, MaxInt);
+  end
+  else if TextStartsWith(SBuf, ':') or TextStartsWith(SBuf, ' ') then begin  {Do not Localize}
+    SBuf := Copy(SBuf, 2, MaxInt);
+  end;
+
+  FContent := SBuf;
 end;
 
 end.

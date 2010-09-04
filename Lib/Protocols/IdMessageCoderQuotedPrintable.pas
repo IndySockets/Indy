@@ -42,6 +42,7 @@
 unit IdMessageCoderQuotedPrintable;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 // Written by C Costelloe, 23rd September 2003
@@ -86,7 +87,7 @@ var
   LEncoder: TIdEncoderQuotedPrintable;
 begin
   LEncoder := TIdEncoderQuotedPrintable.Create(nil); try
-    WriteStringToStream(ADest, LEncoder.Encode(ASrc, ASrc.Size));
+    LEncoder.Encode(ASrc, ADest);
   finally FreeAndNil(LEncoder); end;
 end;
 

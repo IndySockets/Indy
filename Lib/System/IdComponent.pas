@@ -58,10 +58,11 @@
 unit IdComponent;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAntiFreezeBase, IdBaseComponent, IdGlobal, IdResourceStrings,
+  IdBaseComponent, IdGlobal, IdResourceStrings,
   IdStack;
 
 type
@@ -112,7 +113,7 @@ type
     FWorkTarget: TIdComponent;
     //
     procedure DoStatus(AStatus: TIdStatus); overload;
-    procedure DoStatus(AStatus: TIdStatus; const aaArgs: array of const); overload;
+    procedure DoStatus(AStatus: TIdStatus; const AArgs: array of const); overload;
     procedure InitComponent; override;
     //
     property OnWork: TWorkEvent read FOnWork write FOnWork;
@@ -145,17 +146,17 @@ begin
   DoStatus(AStatus, []);
 end;
 
-procedure TIdComponent.DoStatus(AStatus: TIdStatus; const aaArgs: array of const);
+procedure TIdComponent.DoStatus(AStatus: TIdStatus; const AArgs: array of const);
 begin
-//We do it this way because Format can sometimes cause
-//an AV if the variable array is blank and there is something
-//like a %s or %d.  This is why there was sometimes an AV
-//in TIdFTP
-  if assigned(OnStatus) then begin
-    if Length(aaArgs)=0 then
-      OnStatus(Self, AStatus, IndyFormat(IdStati[AStatus], ['']))  {Do not Localize}
-    else
-      OnStatus(Self, AStatus, IndyFormat(IdStati[AStatus], aaArgs));
+  // We do it this way because Format() can sometimes cause an AV if the
+  // variable array is blank and there is something like a %s or %d.  This
+  // is why there was sometimes an AV in TIdFTP
+  if Assigned(OnStatus) then begin
+    if Length(AArgs) = 0 then begin
+      OnStatus(Self, AStatus, IndyFormat(IdStati[AStatus], ['']));  {Do not Localize}
+    end else begin
+      OnStatus(Self, AStatus, IndyFormat(IdStati[AStatus], AArgs));
+    end;
   end;
 end;
 

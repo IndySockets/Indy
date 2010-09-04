@@ -159,7 +159,13 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
     class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
-
+  //these are anscestors for some listings with an optional heading
+   TIdFTPListBaseHeaderOpt = class(TIdFTPListBaseHeader)
+   protected
+    class function CheckListingAlt(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; virtual;
+   public
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+   end;
   //base class for line-by-line items where there is a file owner along with mod date and file size
   TIdFTPLineOwnedList = class(TIdFTPListBase)
   protected
@@ -321,11 +327,11 @@ begin
   VFormat := '';
   ADir.Clear;
 
-  // RLebeau 9/17/07: if something other than NLST was used, check to see
-  // that the user has included any of the IdFTPListParse... units in the
+  // RLebeau 9/17/07: if something other than NLST or MLST was used, check to
+  // see that the user has included any of the IdFTPListParse... units in the
   // app's uses clause.  If the user forgot to include any, warn them.
   // Otherwise, just move on and assume they know what they are doing...
-  
+
   if ADetails then begin
     HasExtraParsers := False;
     for I := 0 to Count-1 do
@@ -480,7 +486,7 @@ begin
 end;
 
 class function TIdFTPLPMList.ParseLine(const AItem: TIdFTPListItem;
-  const APath: String =''): Boolean;
+  const APath: String = ''): Boolean;
 var
   LFacts : TStrings;
   LBuffer : String;
@@ -492,7 +498,8 @@ begin
   LI := AItem as TIdMLSTFTPListItem;
   LFacts := TStringList.Create;
   try
-    LI.FileName := ParseFacts(AItem.Data, LFacts);
+    LI.FileName := ParseFactsMLS(AItem.Data, LFacts);
+
     LI.LocalFileName := AItem.FileName;
 
     LBuffer := LFacts.Values['type']; {do not localize}
@@ -501,11 +508,41 @@ begin
 //   pdir         -- a parent directory
 //   dir          -- a directory or sub-directory
 //   OS.name=type -- an OS or file system dependent file type
-
-    if PosInStrArray(LBuffer, ['cdir', 'pdir', 'dir']) <> -1 then begin {do not localize}
-      LI.ItemType := ditDirectory;
-    end else begin
-      LI.ItemType := ditFile;
+    case PosInStrArray(LBuffer,  ['cdir', 'pdir', 'dir',
+      'OS.unix=slink',
+      'OS.unix=socket',
+      'OS.unix=blk',
+      'OS.unix=chr',
+      'OS.unix=fifo']) of
+      0, 1, 2 : LI.ItemType := ditDirectory;
+      3 : LI.ItemType := ditSymbolicLink;
+      4 : LI.ItemType := ditSocket;
+      5 : LI.ItemType := ditBlockDev;
+      6 : LI.ItemType := ditCharDev;
+      7 : LI.ItemType := ditFIFO;
+    else
+      //PureFTPD may do something like this to report where a symbolic link points to:
+      //
+      // type=OS.unix=slink:.;size=1;modify=20090304221247;UNIX.mode=0777;unique=13g1f1fb23; pub
+      if TextStartsWith(LBuffer,'OS.unix=slink:') then begin
+         LI.ItemType := ditSymbolicLink;
+         Fetch(LBuffer,':');
+         LI.LinkedItemName := LBuffer;
+      end else begin
+        //tnftpd does something like this for block devices
+        //Type=OS.unix=blk-14/0;Modify=20100629203948;Perm=;Unique=dEcpCEoCAAAAAAAA; disk0
+        if TextStartsWith(LBuffer, 'OS.unix=blk-' ) then begin
+          LI.ItemType := ditBlockDev;
+        end else begin
+        //tnftpd does something like this for block devices
+        //Type=OS.unix=chr-19/0;Modify=20100630134139;Perm=;Unique=dEcpCGECAAAAAAAA; nsmb0
+          if TextStartsWith(LBuffer, 'OS.unix=chr-' ) then begin
+            LI.ItemType := ditCharDev;
+          end else begin
+            LI.ItemType := ditFile;
+          end;
+        end;
+      end;
     end;
     LBuffer := LFacts.Values['modify']; {do not localize}
     if LBuffer <> '' then begin
@@ -650,6 +687,23 @@ begin
     end;
   end;
   Result := True;
+end;
+
+{ TIdFTPListBaseHeaderOpt }
+
+class function TIdFTPListBaseHeaderOpt.CheckListing(AListing: TStrings;
+  const ASysDescript: String; const ADetails: Boolean): boolean;
+begin
+  Result := inherited CheckListing(AListing, ASysDescript,ADetails);
+  if not Result then begin
+    Result := CheckListingAlt(AListing, ASysDescript,ADetails);
+  end;
+end;
+
+class function TIdFTPListBaseHeaderOpt.CheckListingAlt(AListing: TStrings;
+  const ASysDescript: String; const ADetails: Boolean): boolean;
+begin
+  Result := False;
 end;
 
 { TIdFTPLineOwnedList }

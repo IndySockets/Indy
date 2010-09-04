@@ -160,8 +160,7 @@ interface
 uses
   Classes,
   IdGlobal, IdStack, IdStackConsts,
-  System.Collections,
-   System.IO, System.Net, System.Net.Sockets;
+  System.Collections, System.IO, System.Net, System.Net.Sockets;
 
 type
   TIdSocketListDotNet = class(TIdSocketList)
@@ -187,7 +186,7 @@ type
   TIdStackDotNet = class(TIdStack)
   protected
     //Stuff for ICMPv6
-    {$IFNDEF DOTNET1_1}
+    {$IFDEF DOTNET_2_OR_ABOVE}
     procedure QueryRoute(s : TIdStackSocketHandle; const AIP: String;
       const APort: TIdPort; var VSource, VDest : TIdBytes);
     procedure WriteChecksumIPv6(s: TIdStackSocketHandle;
@@ -197,7 +196,6 @@ type
     function ReadHostName: string; override;
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
-    procedure PopulateLocalAddresses; override;
     //internal IP Mutlicasting membership stuff
     procedure MembershipSockOpt(AHandle: TIdStackSocketHandle;
       const AGroupIP, ALocalIP : String; const ASockOpt : TIdSocketOption;
@@ -208,7 +206,7 @@ type
     constructor Create; override;
     destructor Destroy; override;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string; const APort: TIdPort;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
       const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
@@ -232,10 +230,9 @@ type
     function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
       var arg: LongWord): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      var VIP: string; var VPort: TIdPort;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
+      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; override;
+      APkt: TIdPacketInfo): LongWord; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       const AOffset: Integer; const ASize: Integer; const AIP: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
@@ -267,8 +264,9 @@ type
     procedure WriteChecksum(s : TIdStackSocketHandle; var VBuffer : TIdBytes;
       const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    procedure AddLocalAddressesToList(AAddresses: TStrings); override;
   end;
- {$IFDEF DOTNET1_1}
+ {$IFDEF DOTNET_1_1}
   EIdNotSupportedInMicrosoftNET11 = class(EIdStackError);
  {$ENDIF}
 
@@ -278,10 +276,7 @@ var
 implementation
 
 uses
- {$IFDEF DOTNET1_1}
- IdResourceStrings,
- {$ENDIF}
-  IdException;
+  IdException, IdResourceStrings;
 
 const
   IdIPFamily : array[TIdIPVersion] of AddressFamily = (AddressFamily.InterNetwork, AddressFamily.InterNetworkV6);
@@ -319,20 +314,26 @@ end;
 procedure TIdStackDotNet.Bind(ASocket: TIdStackSocketHandle; const AIP: string;
   const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
+  LIPAddr : IPAddress;
   LEndPoint : IPEndPoint;
   LIP: String;
 begin
   try
+    if not (AIPVersion in [Id_IPv4, Id_IPv6]) then
+    begin
+      IPVersionUnsupported;
+    end;
     LIP := AIP;
     if LIP = '' then begin
       if AIPVersion = Id_IPv4 then begin
-        LIP := '0.0.0.0'; {do not localize}
-      end
-      else if AIPVersion = Id_IPv6 then begin
-        LIP := '::'; {do not localize}
+        LIPAddr := IPAddress.Any;
+      end else begin
+        LIPAddr := IPAddress.IPv6Any;
       end;
+    end else begin
+      LIPAddr := IPAddress.Parse(LIP);
     end;
-    LEndPoint := IPEndPoint.Create(IPAddress.Parse(LIP), APort);
+    LEndPoint := IPEndPoint.Create(LIPAddr, APort);
     ASocket.Bind(LEndPoint);
   except
     on e: Exception do begin
@@ -477,10 +478,10 @@ begin
     'Resolve is obsoleted for this type, please use GetHostEntry instead.
     http://go.microsoft.com/fwlink/?linkid=14202'
     }
-    {$IFDEF DOTNET2_OR_ABOVE}
+    {$IFDEF DOTNET_2_OR_ABOVE}
     LIP := Dns.GetHostEntry(AHostName).AddressList;
     {$ENDIF}
-    {$IFDEF DOTNET1_1}
+    {$IFDEF DOTNET_1_1}
     LIP := Dns.Resolve(AHostName).AddressList;
     {$ENDIF}
     for a := Low(LIP) to High(LIP) do begin
@@ -501,10 +502,10 @@ function TIdStackDotNet.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 begin
   try
-    {$IFDEF DOTNET2_OR_ABOVE}
+    {$IFDEF DOTNET_2_OR_ABOVE}
     Result := Dns.GetHostEntry(AAddress).HostName;
     {$ENDIF}
-    {$IFDEF DOTNET1_1}
+    {$IFDEF DOTNET_1_1}
     Result := Dns.GetHostByAddress(AAddress).HostName;
     {$ENDIF}
   except
@@ -575,12 +576,19 @@ begin
 end;
 
 function TIdStackDotNet.ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-  var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer;
 var
+  LIPAddr : IPAddress;
   LEndPoint : EndPoint;
 begin
   Result := 0; // to make the compiler happy
-  LEndPoint := IPEndPoint.Create(IPAddress.Any, 0);
+  case ASocket.AddressFamily of
+    AddressFamily.InterNetwork:   LIPAddr := IPAddress.Any;
+    AddressFamily.InterNetworkV6: LIPAddr := IPAddress.IPv6Any;
+  else
+    IPVersionUnsupported;
+  end;
+  LEndPoint := IPEndPoint.Create(LIPAddr, 0);
   try
     try
       Result := ASocket.ReceiveFrom(VBuffer, SocketFlags.None, LEndPoint);
@@ -591,6 +599,10 @@ begin
     end;
     VIP := IPEndPoint(LEndPoint).Address.ToString;
     VPort := IPEndPoint(LEndPoint).Port;
+    case IPEndPoint(LEndPoint).AddressFamily of
+      AddressFamily.InterNetwork:    VIPVersion := Id_IPv4;
+      AddressFamily.InterNetworkV6:  VIPVersion := Id_IPv6;
+    end;
   finally
     LEndPoint.Free;
   end;
@@ -983,37 +995,42 @@ begin
   'SupportsIPv6 is obsoleted for this type, please use OSSupportsIPv6 instead.
   http://go.microsoft.com/fwlink/?linkid=14202'
   }
-  {$IFDEF DOTNET2_OR_ABOVE}
+  {$IFDEF DOTNET_2_OR_ABOVE}
   Result := Socket.OSSupportsIPv6;
   {$ENDIF}
-  {$IFDEF DOTNET1_1}
+  {$IFDEF DOTNET_1_1}
   Result := Socket.SupportsIPv6;
   {$ENDIF}
 end;
 
-procedure TIdStackDotNet.PopulateLocalAddresses;
+procedure TIdStackDotNet.AddLocalAddressesToList(AAddresses: TStrings);
 var
-  {$IFDEF DOTNET1_1}
+  {$IFDEF DOTNET_1_1}
   LAddr : IPAddress;
   {$ENDIF}
   LHost : IPHostEntry;
   i : Integer;
 begin
-  {$IFDEF DOTNET2_OR_ABOVE}
+  {$IFDEF DOTNET_2_OR_ABOVE}
   LHost := DNS.GetHostEntry(DNS.GetHostName);
   {$ENDIF}
-  {$IFDEF DOTNET1_1}
+  {$IFDEF DOTNET_1_1}
   LAddr := IPAddress.Any;
   LHost := DNS.GetHostByAddress(LAddr);
   {$ENDIF}
   if Length(LHost.AddressList) > 0 then
   begin
-    for i := Low(LHost.AddressList) to High(LHost.AddressList) do
-    begin
-      //This may be returning various types of addresses.
-      if LHost.AddressList[i].AddressFamily = AddressFamily.InterNetwork then begin
-        FLocalAddresses.Add(LHost.AddressList[i].ToString);
+    AAddresses.BeginUpdate;
+    try
+      for i := Low(LHost.AddressList) to High(LHost.AddressList) do
+      begin
+        //This may be returning various types of addresses.
+        if LHost.AddressList[i].AddressFamily = AddressFamily.InterNetwork then begin
+          AAddresses.Add(LHost.AddressList[i].ToString);
+        end;
       end;
+    finally
+      AAddresses.EndUpdate;
     end;
   end;
 end;
@@ -1074,50 +1091,56 @@ begin
   end;
 end;
 
-function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
-  var VBuffer: TIdBytes; APkt: TIdPacketInfo;
-  const AIPVersion: TIdIPVersion): LongWord;
+function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
+  APkt: TIdPacketInfo): LongWord;
 var
-  {$IFDEF DOTNET1_1}
+  {$IFDEF DOTNET_1_1}
   LIP : String;
   LPort : TIdPort;
+  LIPVersion: TIdIPVersion;
   {$ELSE}
   LSF : SocketFlags;
+  LIPAddr : IPAddress;
   LRemEP : EndPoint;
   LPki : IPPacketInformation;
   {$ENDIF}
 begin
-  {$IFDEF DOTNET1_1}
-  Result := ReceiveFrom(ASocket, VBuffer, LIP, LPort, AIPVersion);
+  {$IFDEF DOTNET_1_1}
+  Result := ReceiveFrom(ASocket, VBuffer, LIP, LPort, LIPVersion);
+  APkt.Reset;
   APkt.SourceIP := LIP;
   APkt.SourcePort := LPort;
+  APkt.SourceIPVersion := LIPVersion;
+  APkt.DestIPVersion := LIPVersion;
   {$ELSE}
   LSF := SocketFlags.None;
-  if not (AIPVersion in [Id_IPv4, Id_IPv6]) then
-  begin
-    IPVersionUnsupported;
-  end;
   {
   The AddressFamily of the EndPoint used in ReceiveFrom needs to match the
    AddressFamily of the EndPoint used in SendTo.
    }
-  if AIPVersion = Id_IPv4 then
-  begin
-    LRemEP := IPEndPoint.Create(IPAddress.Parse('0.0.0.0'),0);
-  end
-  else //Id_IPv6 :
-  begin
-    LRemEP := IPEndPoint.Create(IPAddress.Parse('::0'),0);
+  case ASocket.AddressFamily of
+    AddressFamily.InterNetwork:    LIPAddr := IPAddress.Any;
+    AddressFamily.InterNetworkV6:  LIPAddr := IPAddress.IPv6Any;
+  else
+    Result := 0; // keep the compiler happy
+    IPVersionUnsupported;
   end;
+  LRemEP := IPEndPoint.Create(LIPAddr, 0);
   Result := ASocket.ReceiveMessageFrom(VBuffer, 0, Length(VBUffer), LSF, LRemEP, lpki);
+  APkt.Reset;
   APkt.SourceIP := IPEndPoint(LRemEP).Address.ToString;
   APkt.SourcePort := IPEndPoint(LRemEP).Port;
+  case IPEndPoint(LRemEP).AddressFamily of
+    AddressFamily.InterNetwork:    APkt.SourceIPVersion := Id_IPv4;
+    AddressFamily.InterNetworkV6:  APkt.SourceIPVersion := Id_IPv6;
+  end;
   APkt.DestIP := LPki.Address.ToString;
   APkt.DestIF := LPki.&Interface;
+  APkt.DestIPVersion := APkt.SourceIPVersion;
   {$ENDIF}
 end;
 
-{$IFNDEF DOTNET1_1}
+{$IFDEF DOTNET_2_OR_ABOVE}
 const
   SIO_ROUTING_INTERFACE_QUERY = 3355443220;
 
@@ -1126,7 +1149,7 @@ This extracts an IP address as a series of bytes from a TIdBytes that contains
 one SockAddress structure.
 }
 procedure SockAddrToIPBytes(const ASockAddr : TIdBytes; var VIPAddr : TIdBytes);
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   case IdGlobal.BytesToWord(ASockAddr,0) of
     23 : //AddressFamily.InterNetworkV6 :
@@ -1268,7 +1291,7 @@ begin
     CopyTIdWord(CalcCheckSum(VBuffer), VBuffer, AOffset);
   end else
   begin
-    {$IFDEF DOTNET1_1}
+    {$IFDEF DOTNET_1_1}
     {This is a todo because to do a checksum for ICMPv6, you need to obtain
     the address for the IP the packet will come from (query the network interfaces).
     You then have to make a IPv6 pseudo header.  About the only other alternative is
@@ -1296,7 +1319,7 @@ begin
   Result := 0;
 end;
 
-{$IFDEF DOTNET2_OR_ABOVE}
+{$IFDEF DOTNET_2_OR_ABOVE}
 function ServeFile(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
 var
   LFile : FileInfo;
@@ -1309,7 +1332,7 @@ end;
 
 initialization
   GSocketListClass := TIdSocketListDotNet;
-  {$IFDEF DOTNET2_OR_ABOVE}
+  {$IFDEF DOTNET_2_OR_ABOVE}
   GServeFileProc := ServeFile;
   {$ENDIF}
 end.

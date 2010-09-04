@@ -58,19 +58,19 @@ type
   TIpProperty = class(TPersistent)
   protected
     FReadOnly: Boolean;
-    FByteArray: array[0..31] of Boolean;
-    FValue: TIdLongWord;
+    FBitArray: array[0..31] of Boolean;
+    FValue: array[0..3] of Byte;
     FOnChange: TNotifyEvent;
     function GetAddressType: TIdIPAddressType;
     function GetAsBinaryString: String;
     function GetAsDoubleWord: LongWord;
     function GetAsString: String;
-    function GetByteArray(Index: Byte): Boolean;
+    function GetBit(Index: Byte): Boolean;
     function GetByte(Index: Integer): Byte;
     procedure SetAsBinaryString(const Value: String);
     procedure SetAsDoubleWord(const Value: LongWord);
     procedure SetAsString(const Value: String);
-    procedure SetByteArray(Index: Byte; const Value: Boolean);
+    procedure SetBit(Index: Byte; const Value: Boolean);
     procedure SetByte(Index: Integer; const Value: Byte);
     //
     property IsReadOnly: Boolean read FReadOnly write FReadOnly default False;
@@ -81,8 +81,9 @@ type
     procedure SetAll(One, Two, Three, Four: Byte); virtual;
     procedure Assign(Source: TPersistent); override;
     //
-    property ByteArray[Index: Byte]: Boolean read GetByteArray write SetByteArray;
+    property Bits[Index: Byte]: Boolean read GetBit write SetBit;
     property AddressType: TIdIPAddressType read GetAddressType;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
   published
     property Byte1: Byte index 0 read GetByte write SetByte stored False;
     property Byte2: Byte index 1 read GetByte write SetByte stored False;
@@ -91,7 +92,6 @@ type
     property AsDoubleWord: LongWord read GetAsDoubleWord write SetAsDoubleWord stored False;
     property AsBinaryString: String read GetAsBinaryString write SetAsBinaryString stored False;
     property AsString: String read GetAsString write SetAsString;
-    property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
   TIdNetworkCalculator = class(TIdBaseComponent)
@@ -136,25 +136,19 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdException, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
 
-type
-  TIdLongWordIP = class(TIdLongWord)
-  protected
-    function GetByte(Index: Integer): Byte;
-    procedure SetByte(Index: Integer; const Value: Byte);
-  public
-    property ByteValue[Index: Integer]: Byte read GetByte write SetByte;
-  end;
-
-function TIdLongWordIP.GetByte(Index: Integer): Byte;
+function MakeLongWordIP(const One, Two, Three, Four: Byte): LongWord;
 begin
-  Result := FBuffer[Index];
+  Result := (LongWord(One) shl 24) or (LongWord(Two) shl 16) or (LongWord(Three) shl 8) or LongWord(Four);
 end;
 
-procedure TIdLongWordIP.SetByte(Index: Integer; const Value: Byte);
+procedure BreakupLongWordIP(const Value: LongWord; var One, Two, Three, Four: Byte);
 begin
-  FBuffer[Index] := Value;
+  One := Byte((Value and $FF000000) shr 24);
+  Two := Byte((Value and $00FF0000) shr 16);
+  Three := Byte((Value and $0000FF00) shr 8);
+  Four := Byte(Value and $000000FF);
 end;
 
 function StrToIP(const Value: string): LongWord;
@@ -162,6 +156,7 @@ var
   strBuffers: Array [0..3] of String;
   cardBuffers: Array[0..3] of LongWord;
   StrWork: String;
+  I: Integer;
 begin
   StrWork := Value;
   // Separate the strings
@@ -170,29 +165,21 @@ begin
   strBuffers[2] := Fetch(StrWork, '.', True);    {Do not Localize}
   strBuffers[3] := StrWork;
   try
-    cardBuffers[0] := IndyStrToInt(strBuffers[0]);
-    cardBuffers[1] := IndyStrToInt(strBuffers[1]);
-    cardBuffers[2] := IndyStrToInt(strBuffers[2]);
-    cardBuffers[3] := IndyStrToInt(strBuffers[3]);
+    for I := 0 to 3 do begin
+      cardBuffers[I] := IndyStrToInt(strBuffers[I]);
+    end;
   except
     on E: exception do begin
       raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
     end;
   end;
   // range check
-  if not(cardBuffers[0] in [0..255]) then begin
-    raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
+  for I := 0 to 3 do begin
+    if not (cardBuffers[I] in [0..255]) then begin
+      raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
+    end;
   end;
-  if not(cardBuffers[1] in [0..255]) then begin
-    raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
-  end;
-  if not(cardBuffers[2] in [0..255]) then begin
-    raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
-  end;
-  if not(cardBuffers[3] in [0..255]) then begin
-    raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
-  end;
-  Result := OrdFourByteToLongWord(cardBuffers[0], cardBuffers[1], cardBuffers[2], cardBuffers[3]);
+  Result := MakeLongWordIP(cardBuffers[0], cardBuffers[1], cardBuffers[2], cardBuffers[3]);
 end;
 
 { TIdNetworkCalculator }
@@ -221,7 +208,7 @@ procedure TIdNetworkCalculator.FillIPList;
 var
   i: LongWord;
   BaseIP: LongWord;
-  IPBytes: TIdBytes;
+  LByte1, LByte2, LByte3, LByte4: Byte;
 begin
   if FListIP.Count = 0 then
   begin
@@ -231,17 +218,15 @@ begin
     end else
     begin
       BaseIP := NetworkAddress.AsDoubleWord and NetworkMask.AsDoubleWord;
-      // preallocate the memory for the list
-      SetLength(IPBytes, 4);
-      FListIP.Capacity := NumIP;
       // Lock the list so we won't be "repainting" the whole time...    {Do not Localize}
       FListIP.BeginUpdate;
       try
+        FListIP.Capacity := NumIP;
         for i := 1 to (NumIP - 1) do
         begin
           Inc(BaseIP);
-          ToBytesF(IPBytes, BaseIP);
-          FListIP.append(IndyFormat('%d.%d.%d.%d', [IPBytes[0], IPBytes[1], IPBytes[2], IPBytes[3]]));    {Do not Localize}
+          BreakupLongWordIP(BaseIP, LByte1, LByte2, LByte3, LByte4);
+          FListIP.Append(IndyFormat('%d.%d.%d.%d', [LByte1, LByte2, LByte3, LByte4]));    {Do not Localize}
         end;
       finally
         FListIP.EndUpdate;
@@ -270,19 +255,19 @@ begin
   // RFC 1365
   if TextStartsWith(sBuffer, '0') then begin   {Do not Localize}
     fNetworkClass := ID_NET_CLASS_A;
-  end;
-  if TextStartsWith(sBuffer, '10') then begin   {Do not Localize}
+  end
+  else if TextStartsWith(sBuffer, '10') then begin   {Do not Localize}
     fNetworkClass := ID_NET_CLASS_B;
-  end;
-  if TextStartsWith(sBuffer, '110') then begin   {Do not Localize}
+  end
+  else if TextStartsWith(sBuffer, '110') then begin   {Do not Localize}
     fNetworkClass := ID_NET_CLASS_C;
-  end;
+  end
   // Network class D is reserved for multicast
-  if TextStartsWith(sBuffer, '1110') then begin   {Do not Localize}
+  else if TextStartsWith(sBuffer, '1110') then begin   {Do not Localize}
     fNetworkClass := ID_NET_CLASS_D;
-  end;
+  end
   // network class E is reserved and shouldn't be used    {Do not Localize}
-  if TextStartsWith(sBuffer, '1111') then begin   {Do not Localize}
+  else {if TextStartsWith(sBuffer, '1111') then} begin   {Do not Localize}
     fNetworkClass := ID_NET_CLASS_E;
   end;
   if Assigned(FOnChange) then begin
@@ -305,7 +290,7 @@ begin
   if IndyPos('1', sBuffer) > 0 then    {Do not Localize}
   begin
     NetworkMaskLength := InitialMaskLength;
-    raise EIdexception.Create(RSNETCALCInvalidNetworkMask); //  'Invalid network mask'    {Do not Localize}
+    raise EIdException.Create(RSNETCALCInvalidNetworkMask); //  'Invalid network mask'    {Do not Localize}
   end;
   // set the net mask length
   NetworkMaskLength := 32 - Length(sBuffer);
@@ -326,13 +311,18 @@ end;
 
 procedure TIdNetworkCalculator.SetNetworkMaskLength(const Value: LongWord);
 var
-  LBuffer: LongWord;
+  LBuffer, LValue: LongWord;
 begin
-  if FNetworkMaskLength <> Value then
+  if Value <= 32 then begin
+    LValue := Value;
+  end else begin
+    LValue := 32;
+  end;
+  if FNetworkMaskLength <> LValue then
   begin
-    FNetworkMaskLength := Value;
+    FNetworkMaskLength := LValue;
     if Value > 0 then begin
-      LBuffer := High(LongWord) shl (32 - Value);
+      LBuffer := High(LongWord) shl (32 - LValue);
     end else begin
       LBuffer := 0;
     end;
@@ -361,26 +351,26 @@ end;
 function TIdNetworkCalculator.EndIP: String;
 var
   IP: LongWord;
-  Byte1, Byte2, Byte3, Byte4: Byte;
+  LByte1, LByte2, LByte3, LByte4: Byte;
 begin
   IP := (NetworkAddress.AsDoubleWord and NetworkMask.AsDoubleWord) + (NumIP - 1);
-  LongWordToOrdFourByte(IP, Byte1, Byte2, Byte3, Byte4);
-  Result := IndyFormat('%d.%d.%d.%d', [Byte1, Byte2, Byte3, Byte4]);    {Do not Localize}
+  BreakupLongWordIP(IP, LByte1, LByte2, LByte3, LByte4);
+  Result := IndyFormat('%d.%d.%d.%d', [LByte1, LByte2, LByte3, LByte4]);    {Do not Localize}
 end;
 
 function TIdNetworkCalculator.NumIP: LongWord;
 begin
-  NumIP := 1 shl (32 - NetworkMaskLength);
+  Result := 1 shl (32 - NetworkMaskLength);
 end;
 
 function TIdNetworkCalculator.StartIP: String;
 var
   IP: LongWord;
-  Byte1, Byte2, Byte3, Byte4: Byte;
+  LByte1, LByte2, LByte3, LByte4: Byte;
 begin
   IP := NetworkAddress.AsDoubleWord and NetworkMask.AsDoubleWord;
-  LongWordToOrdFourByte(IP, Byte1, Byte2, Byte3, Byte4);
-  Result := IndyFormat('%d.%d.%d.%d', [Byte1, Byte2, Byte3, Byte4]);    {Do not Localize}
+  BreakupLongWordIP(IP, LByte1, LByte2, LByte3, LByte4);
+  Result := IndyFormat('%d.%d.%d.%d', [LByte1, LByte2, LByte3, LByte4]);    {Do not Localize}
 end;
 
 { TIpProperty }
@@ -388,12 +378,14 @@ end;
 constructor TIpProperty.Create;
 begin
   inherited Create;
-  FValue := TIdLongWordIP.Create;
+  FValue[0] := $0;
+  FValue[1] := $0;
+  FValue[2] := $0;
+  FValue[3] := $0;
 end;
 
 destructor TIpProperty.Destroy;
 begin
-  FreeAndNil(FValue);
   inherited Destroy;
 end;
 
@@ -409,23 +401,26 @@ begin
   end;
 end;
 
-function TIpProperty.GetByteArray(Index: Byte): boolean;
+function TIpProperty.GetBit(Index: Byte): boolean;
 begin
-  Result := FByteArray[index];
+  Result := FBitArray[index];
 end;
 
 procedure TIpProperty.SetAll(One, Two, Three, Four: Byte);
 var
-  i: Integer;
-  NewIP: LongWord;
+  i, j: Integer;
 begin
-  NewIP := OrdFourByteToLongWord(One, Two, Three, Four);
-  if NewIP <> FValue.s_l then
+  if (FValue[0] <> One) or (FValue[1] <> Two) or (FValue[2] <> Three) or (FValue[3] <> Four) then
   begin
-    FValue.s_l := NewIP;
+    FValue[0] := One;
+    FValue[1] := Two;
+    FValue[2] := Three;
+    FValue[3] := Four;
     // set the binary array
-    for i := 0 to 31 do begin
-      FByteArray[i] := ((NewIP shl i) shr 31) = 1;
+    for i := 0 to 3 do begin
+      for j := 0 to 7 do begin
+        FBitArray[(8*i)+j] := (FValue[i] and (1 shl (7-j))) <> 0;
+      end;
     end;
     if Assigned(FOnChange) then begin
       FOnChange(Self);
@@ -434,13 +429,14 @@ begin
 end;
 
 function TIpProperty.GetAsBinaryString: String;
-var i : Integer;
+var
+  i : Integer;
 begin
   // get the binary string
   SetLength(Result, 32);
   for i := 1 to 32 do
   begin
-    if FByteArray[i - 1] then begin
+    if FBitArray[i-1] then begin
       Result[i] := '1'    {Do not Localize}
     end else begin
       Result[i] := '0';    {Do not Localize}
@@ -450,13 +446,13 @@ end;
 
 function TIpProperty.GetAsDoubleWord: LongWord;
 begin
-  Result := FValue.s_l;
+  Result := MakeLongWordIP(FValue[0], FValue[1], FValue[2], FValue[3]);
 end;
 
 function TIpProperty.GetAsString: String;
 begin
   // Set the string
-  Result := IndyFormat('%d.%d.%d.%d', [FValue.s_b1, FValue.s_b2, FValue.s_b3, FValue.s_b4]);    {Do not Localize}
+  Result := IndyFormat('%d.%d.%d.%d', [FValue[0], FValue[1], FValue[2], FValue[3]]);    {Do not Localize}
 end;
 
 procedure TIpProperty.SetAsBinaryString(const Value: String);
@@ -476,7 +472,7 @@ begin
     for i := 1 to 32 do
     begin
       if Value[i] <> '0' then begin    {Do not Localize}
-        Inc(NewIP, 1 shl (32 - i));
+        NewIP := NewIP or (1 shl (32 - i));
       end;
     end;
     SetAsDoubleWord(NewIP);
@@ -485,7 +481,7 @@ end;
 
 function TIpProperty.GetByte(Index: Integer): Byte;
 begin
-  Result := TIdLongWordIP(FValue).ByteValue[Index];
+  Result := FValue[Index];
 end;
 
 procedure TIpProperty.SetAsDoubleWord(const Value: LongWord);
@@ -494,7 +490,7 @@ var
 begin
   if not IsReadOnly then
   begin
-    LongWordToOrdFourByte(Value, LByte1, LByte2, LByte3, LByte4);
+    BreakupLongWordIP(Value, LByte1, LByte2, LByte3, LByte4);
     SetAll(LByte1, LByte2, LByte3, LByte4);
   end;
 end;
@@ -504,20 +500,24 @@ begin
   SetAsDoubleWord(StrToIP(Value));
 end;
 
-procedure TIpProperty.SetByteArray(Index: Byte; const Value: Boolean);
+procedure TIpProperty.SetBit(Index: Byte; const Value: Boolean);
 var
-  NewIP: LongWord;
+  ByteIndex: Integer;
+  BitValue: Byte;
 begin
-  if (not IsReadOnly) and (FByteArray[Index] <> Value) then
+  if (not IsReadOnly) and (FBitArray[Index] <> Value) then
   begin
-    FByteArray[Index] := Value;
-    NewIP := FValue.s_l;
+    FBitArray[Index] := Value;
+    ByteIndex := Index div 8;
+    BitValue := Byte(1 shl (7-(Index mod 8)));
     if Value then begin
-      NewIP := NewIP + LongWord(1 shl index);
+      FValue[ByteIndex] := FValue[ByteIndex] or BitValue;
     end else begin
-      NewIP := NewIP - LongWord(1 shl index);
+      FValue[ByteIndex] := FValue[ByteIndex] and not BitValue;
     end;
-    SetAsDoubleWord(NewIP);
+    if Assigned(OnChange) then begin
+      OnChange(Self);
+    end;
   end;
 end;
 

@@ -1,0 +1,44 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{6bd7f574-171f-41eb-8309-00d113e9df7a}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Projects Include="Core\dclIndyCore110.dproj" />
+    <Projects Include="Protocols\dclIndyProtocols110.dproj" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+<BorlandProject xmlns=""><Default.Personality></Default.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="dclIndyCore110">
+    <MSBuild Projects="Core\dclIndyCore110.dproj" Targets="" />
+  </Target>
+  <Target Name="dclIndyCore110:Clean">
+    <MSBuild Projects="Core\dclIndyCore110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="dclIndyCore110:Make">
+    <MSBuild Projects="Core\dclIndyCore110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="dclIndyProtocols110">
+    <MSBuild Projects="Protocols\dclIndyProtocols110.dproj" Targets="" />
+  </Target>
+  <Target Name="dclIndyProtocols110:Clean">
+    <MSBuild Projects="Protocols\dclIndyProtocols110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="dclIndyProtocols110:Make">
+    <MSBuild Projects="Protocols\dclIndyProtocols110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="dclIndyCore110;dclIndyProtocols110" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="dclIndyCore110:Clean;dclIndyProtocols110:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="dclIndyCore110:Make;dclIndyProtocols110:Make" />
+  </Target>
+  <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
+</Project>

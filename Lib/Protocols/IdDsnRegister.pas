@@ -49,25 +49,25 @@ interface
 
 uses
   Classes,
-  {$IFDEF VCL9ORABOVE}
-     {$IFDEF DOTNET}
-      Borland.Vcl.Design.DesignIntF,
-      Borland.Vcl.Design.DesignEditors;
-     {$ELSE}
-      DesignIntf,
-      DesignEditors;
-     {$ENDIF}
+  {$IFDEF VCL_2005_OR_ABOVE}
+    {$IFDEF DOTNET}
+  Borland.Vcl.Design.DesignIntF,
+  Borland.Vcl.Design.DesignEditors;
+    {$ELSE}
+  DesignIntf,
+  DesignEditors;
+    {$ENDIF}
   {$ELSE}
-    {$IFDEF VCL6ORABOVE}
+    {$IFDEF VCL_6_OR_ABOVE}
       {$IFDEF FPC}
-      PropEdits,
-      ComponentEditors;
+  PropEdits,
+  ComponentEditors;
       {$ELSE}
-      DesignIntf,
-      DesignEditors;
+  DesignIntf,
+  DesignEditors;
       {$ENDIF}
     {$ELSE}
-       Dsgnintf;
+  Dsgnintf;
     {$ENDIF}
   {$ENDIF}
 // Procs
@@ -80,6 +80,18 @@ type
     function GetValue: string; override;
     procedure SetValue(const Value: string); override;
   end;
+  {$IFDEF TSelectionEditor}
+    {$IFDEF USEOPENSSL}
+  TIdOpenSSLSelectionEditor = class(TSelectionEditor)
+  public
+    procedure RequiresUnits(Proc: TGetStrProc); override;
+  end;
+    {$ENDIF}
+  TIdFTPServerSelectionEditor = class(TSelectionEditor)
+  public
+    procedure RequiresUnits(Proc: TGetStrProc); override;
+  end;
+  {$ENDIF}
 
 procedure Register;
 
@@ -87,12 +99,18 @@ implementation
 
 uses
   IdDsnResourceStrings,
-   {$IFDEF WidgetWinforms}
+  {$IFDEF WIDGET_WINFORMS}
   IdDsnSASLListEditorFormNET,
   {$R 'IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources' 'IdDsnSASLListEditorFormNET.resx'}
   {$ENDIF}
-  {$IFDEF WidgetVCLLikeOrKylix}
+  {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   IdDsnSASLListEditorFormVCL,
+  {$ENDIF}
+  {$IFDEF TSelectionEditor}
+    {$IFDEF USEOPENSSL}
+   IdSSLOpenSSL,
+    {$ENDIF}
+   IdFTPServer,
   {$ENDIF}
   IdSASL, IdSASLCollection,
   SysUtils, TypInfo;
@@ -100,7 +118,7 @@ uses
   {IdDsnNewMessagePart, }
 
 type
-  {$IFDEF WidgetWinforms}
+  {$IFDEF WIDGET_WINFORMS}
   //we make a create here because I'm not sure how the Visual Designer for WinForms
   //we behave in a package.  I know it can act weird if something is renamed
   TfrmSASLListEditor = class(IdDsnSASLListEditorFormNET.TfrmSASLListEditor)
@@ -108,16 +126,44 @@ type
     constructor Create(AOwner : TComponent);
   end;
   {$ENDIF}
-  {$IFDEF WidgetVCLLikeOrKylix}
+  {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   TfrmSASLListEditor = class(TfrmSASLListEditorVCL);
   {$ENDIF}
 
 { TfrmSASLListEditor }
-{$IFDEF WidgetWinForms}
+
+{$IFDEF WIDGET_WINFORMS}
 constructor TfrmSASLListEditor.Create(AOwner : TComponent);
 begin
   inherited Create;
 end;
+{$ENDIF}
+
+{$IFDEF TSelectionEditor}
+
+  {$IFDEF USEOPENSSL}
+
+  {TIdOpenSSLSelectionEditor}
+
+  procedure TIdOpenSSLSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+begin
+  inherited RequiresUnits(Proc);
+  //for new callback event
+  Proc('IdCTypes');
+  Proc('IdSSLOpenSSLHeaders');
+end;
+
+  {$ENDIF}
+
+  {TIdFTPServerSelectionEditor}
+
+procedure TIdFTPServerSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+begin
+  inherited RequiresUnits(Proc);
+  Proc('IdFTPListOutput');
+  Proc('IdFTPList');
+end;
+
 {$ENDIF}
 
 { TIdPropEdSASL }
@@ -166,6 +212,14 @@ end;
 procedure Register;
 begin
   RegisterPropertyEditor(TypeInfo(TIdSASLEntries), nil, '', TIdPropEdSASL);
+  {$IFDEF TSelectionEditor}
+     {$IFDEF USEOPENSSL}
+  RegisterSelectionEditor(TIdServerIOHandlerSSLOpenSSL, TIdOpenSSLSelectionEditor);
+  RegisterSelectionEditor(TIdSSLIOHandlerSocketOpenSSL, TIdOpenSSLSelectionEditor);
+
+     {$ENDIF}
+  RegisterSelectionEditor(TIdFTPServer,TIdFTPServerSelectionEditor);
+  {$ENDIF}
 end;
 
 end.

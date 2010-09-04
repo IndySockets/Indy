@@ -198,20 +198,15 @@ type
   http://www.ford-hutchinson.com/~fh-1-pfh/ftps-ext.html#bad
 }
 const
-   TLS_AUTH_NAMES : Array [0..3] of string =
-     ('TLS',    {implies clear data port in some implementations}  {Do not translate}
-      'SSL',    {implies private data port in some implementations}  {Do not translate}
-      'TLS-C',  {implies clear data port in some implementations} {Do not translate}
-      'TLS-P'); {implies private data port in some implementations} {Do not translate}
-
-
-
-
+  TLS_AUTH_NAMES : Array [0..3] of string =
+    ('TLS',    {implies clear data port in some implementations}  {Do not translate}
+     'SSL',    {implies private data port in some implementations}  {Do not translate}
+     'TLS-C',  {implies clear data port in some implementations} {Do not translate}
+     'TLS-P'); {implies private data port in some implementations} {Do not translate}
 
 {
 We hard-code these path specifiers because they are used for specific servers
 irregardless of what the client's Operating system is.  It's based on the server.
-
 }
 
 const
@@ -288,7 +283,8 @@ const
   VMS_BLOCK_SIZE = 512;
 
   //1/1/1970 - EPL time stamps are based on this value
-const EPLF_BASE_DATE = 25569;
+const
+  EPLF_BASE_DATE = 25569;
 
 const
   //Settings specified by
@@ -310,6 +306,7 @@ const
   DEF_ZLIB_MEM_LEVEL = 8; // Z_DEFLATED
   DEF_ZLIB_STRATAGY = 0; //Z_DEFAULT_STRATEGY - default
   DEF_ZLIB_METHOD = 8; // Z_DEFLATED
+
 type
   TIdVSEPQDisposition = (
        IdPQAppendable,
@@ -333,6 +330,7 @@ const
      '<Power Queues>',   {do not localize} // treat as dir
      '<VSAM Catalog>',   {do not localize} // treat as dir
      'Entry Seq VSAM');  {do not localize} // treat as file
+
   {From: http://groups.google.com/groups?q=MVS+JES+FTP+DIR+Output&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=4qf4b8%246i7%40dsk92.itg.ti.com&rnum=1}
   MVS_JES_Status : array [0..3] of string =
     ('INPUT',   {do not localize}  //job received but not run yet
@@ -395,12 +393,14 @@ I think it is done with a PALTER DISP=[disposition code] command but I'm not sur
 
 }
 
-const UnitreeStoreTypes : array [0..1] of string =
-  ('AR', 'DK'); {do not localize}
+const
+  UnitreeStoreTypes : array [0..1] of string =
+    ('AR', 'DK'); {do not localize}
 
 const
   UNIX_LINKTO_SYM = ' -> '; {do not localize} //indicates where a symbolic link points to
   CDATE_PART_SEP = '/-';  {Do not localize}
+
 {***
 Path conversions
 ***}
@@ -450,7 +450,6 @@ function IsSubDirContentsBanner(const AData: String): Boolean;
 {***
 Quoted strings
 ***}
-function UnquotedStr(const AStr : String): String;
 procedure ParseQuotedArgs(const AParams : String; AStrings : TStrings);
 
 {**
@@ -531,7 +530,8 @@ function TIdVSEPQDispositionDispositionCode(const ADisp : TIdVSEPQDisposition) :
 {EPLF and MLST/MLSD support}
 function ParseFacts(AData : String; AResults : TStrings;
   const AFactDelim : String = ';'; const ANameDelim : String=' '): String;
-
+function ParseFactsMLS(AData : String; AResults : TStrings;
+  const AFactDelim : String = ';'; const ANameDelim : String = ' '): String;
 {Sterling Commerce support routines}
 
 function IsValidSterCommFlags(const AString : String) : Boolean;
@@ -578,19 +578,229 @@ const
   IdS_IXOTH = IdS_IXGRP shr 3;  { Execute by others.  }
   { Read, write, and execute by others.  }
   IdS_IRWXO = IdS_IRWXG shr 3;
-  
+
+{Some stuff for internationalization provided by Craig Peterson}
+const
+{$IFDEF STRING_IS_ANSI}
+  // These are the CJK "month", "day", and "year" characters, which appear after
+  // a number in the listings.  Constants are UTF-8.  According to
+  // www.FileFormat.info the characters for KoreanTotal, KoreanMonth, and
+  // KoreanDay aren't valid Unicode, but that's what appears in the listing.
+  KoreanTotal = #$EC#$B4#$9D;    // #$CD1D
+  KoreanMonth = #$EC#$9B#$94;    // #$C6D4 Hangul Syllable Ieung Weo Rieul
+  KoreanDay = #$EC#$9D#$BC;      // #$C77C Hangul Syllable Ieung I Rieul
+  KoreanEUCMonth = #$EB#$BF#$B9; //#$BFF9
+  ChineseTotal = #$E6#$80#$BB + #$E6#$95#$B0;
+                                 // #$603B CJK Unified Ideograph Collect/Overall +
+                                 // #$6570 CJK Unified Ideograph Number/Several/Count
+  ChineseMonth = #$E6#$9C#$88;   // #$6708 CJK Unified Ideograph Month
+  ChineseDay = #$E6#$97#$A5;     // #$65E5 CJK Unified Ideograph Day
+  ChineseYear = #$E5#$B9#$B4;    // #$5E74 CJK Unified Ideograph Year
+
+  JapaneseTotal = #$E5#$90#$88 + #$E8#$A8#$88;
+                                 //@$5408
+                                 //
+  JapaneseMonth = #$E8#$B2#$8E;  // #$8c8e Japanse Month symbol
+  JapaneseDay = #$E9#$8F#$BA;    //93fa - Japanese Day Symbol - not valid Unicode
+  JapaneseYear = #$E9#$91#$8E;   //944e - Japanese Year symbol = not valid Unicode
+
+{$ELSE}
+  //These are in Unicode since the parsers receive data in Unicode form
+  KoreanTotal = #$CD1D;    // #$CD1D
+  KoreanMonth = #$C6D4;    // #$C6D4 Hangul Syllable Ieung Weo Rieul
+  KoreanDay = #$C77C;      // #$C77C Hangul Syllable Ieung I Rieul
+  KoreanEUCMonth = #$BFF9; // #$BFF9  EUC-KR Same as #$C6#$D4
+  ChineseTotal = #$603B + #$6570;
+                           // #$603B CJK Unified Ideograph Collect/Overall +
+                           // #$6570 CJK Unified Ideograph Number/Several/Count
+  ChineseMonth = #$6708;   // #$6708 CJK Unified Ideograph Month
+  ChineseDay = #$65E5;     // #$65E5 CJK Unified Ideograph Day
+  ChineseYear = #$5E74;    // #$5E74 CJK Unified Ideograph Year
+
+  JapaneseTotal = #$5408 + #$8A08;
+                           //#$5408
+                           //#$8a08
+  JapaneseMonth = #$8C8E;  // #$8c8e Japanse Day symbol
+  JapaneseDay = #$93FA;    //93fa - Japanese Day Symbol - not valid Unicode
+  JapaneseYear = #$944E;   //944e - Japanese Year symbol = not valid Unicode
+{$ENDIF}
+
+procedure DeleteSuffix(var VStr : String; const ASuffix : String); {$IFDEF USE_INLINE}inline;{$ENDIF}
+
+//WS_FTP Pro XAUT Support
+
+{
+Note that the XAUT Support is from a file located at:
+
+http://72.32.12.210/archives/fulldisclosure/2004-03/att-1088/xp_ws_ftp_server.zip
+
+ (c)2004 Hugh Mann hughmann@hotmail.com
+
+The code itself is designed to show a buffer overflow in a version of WS_FTP Server.
+I only translated the XAUT logic from that code into Pascal for use in Indy.  This
+will not exploit any known flaw in the server.
+
+I did verify that this works with "X2 WS_FTP Server 6.1.1".
+}
+function IsWSFTPServer(var VKey : Cardinal; const AGreeting : String) : Boolean;
+procedure xaut_encrypt(var VDest : TIdBytes; const ASrc : TIdBytes; const AKey : Cardinal);
+procedure xaut_unpack(var VDest : String; const ASrc : TIdBytes);
+procedure xaut_pack(var VDst : TIdBytes; const ASrc : String);
+function MakeXAUTCmd(const AGreeting, AUsername, APassword : String; const Ad : Cardinal = 2) : String;
+function ExtractAutInfoFromXAUT(const AXAutStr : String; const AKey : Cardinal) : String;
+function MakeXAUTKey : Cardinal;
+
+const
+  XAUT_2_KEY = $49327576;
+//end XAUT Stuff
+
 implementation
+uses 
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysTime,
+  PosixTime,
+  {$ENDIF}
+  IdException;
+
+{WS_FTP Pro XAUT Support}
+
+function IsWSFTPServer(var VKey : Cardinal; const AGreeting : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var LBuf : String;
+begin
+  Result := IndyPos('WS_FTP Server',AGreeting) > 0;  {Do not localize}
+  if Result then begin
+    LBuf := AGreeting;
+    Fetch(LBuf,'(');
+    LBuf := Fetch(LBuf,')');
+    Result := IsNumeric(LBuf);
+    if Result then begin
+      VKey := StrToIntDef(LBuf,0);
+    end;
+  end;
+end;
+
+procedure xaut_encrypt(var VDest : TIdBytes; const ASrc : TIdBytes; const AKey : Cardinal);
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var LBuf : TIdBytes;
+  i, l : Integer;
+begin
+
+   SetLength(LBuf,4);
+  LBuf[0] := AKey and $FF;
+  LBuf[1] := (AKey shr 8) and $FF;
+  LBuf[2] := (AKey shr 16) and $FF;
+  LBuf[3] := (AKey shr 24) and $FF;
+  l := Length(ASrc);
+  SetLength(VDest,l);
+  for i := 0 to l - 1 do begin
+    VDest[i] := ASrc[i] xor LBuf[i mod 4];
+  end;
+end;
+
+procedure xaut_unpack(var VDest : String; const ASrc : TIdBytes);
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  i, l : Integer;
+  LBuf : TIdBytes;
+begin
+   l := Length(ASrc);
+   SetLength(LBuf, l * 2);
+   for i := 0 to l-1 do begin
+   //  dest[i*2+0] = ((src[i] >> 4) & 0x0F) + 0x35;
+     LBuf[(i*2)] := ((ASrc[i] shr 4) and $0F) + $35;
+   //dst[i*2+1] = (src[i] & 0x0F) + 0x31;
+     LBuf[(i*2)+1] := ((ASrc[i] and $0F) + $31);
+   end;
+   VDest := BytesToString(LBuf);
+end;
+
+procedure xaut_pack(var VDst : TIdBytes; const ASrc : String);
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  i, l : Integer;
+  LSrc : TIdBytes;
+begin
+  LSrc := ToBytes(ASrc);
+  Assert(Length(LSrc) = Length(ASrc),'both LSRC and ASRC must be identical.');
+  l := Length(LSrc) div 2;
+  SetLength(VDst,l);
+  for i := 0 to l - 1 do  begin
+    VDst[i] := (((LSrc[ (i * 2)] - $35) shl 4)  +
+       (LSrc[ (i * 2)+1] - $31));
+  end;
+
+end;
+
+function MakeXAUTCmd(const AGreeting, AUsername, APassword : String; const Ad : Cardinal = 2) : String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var LKey : Cardinal;
+  LDst : TIdBytes;
+begin
+  Result := '';
+  if IsWSFTPServer(LKey,AGreeting) then begin
+    LDst := ToBytes(AUsername+':'+APassword);
+    if Ad = 2 then begin
+      xaut_encrypt(LDst,LDst,XAUT_2_KEY);
+    end;
+    xaut_encrypt(LDst,LDst,LKey);
+   // LCmd := 'XAUT 2 '+
+    xaut_unpack(Result,LDst);
+    Result := 'XAUT '+IntToStr(AD)+' '+ Result;
+  end;
+end;
+
+function ExtractAutInfoFromXAUT(const AXAutStr : String; const AKey : Cardinal) : String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LBuf : TIdBytes;
+  LNum : Cardinal;  //first param
+begin
+  Result := AXAutStr;
+
+  LNum := StrToIntDef(Fetch(Result),0);
+  xaut_pack(LBuf,Result);
+  xaut_encrypt(LBuf,LBuf, AKey );
+  if LNum = 2 then begin
+    xaut_encrypt(LBuf,LBuf,XAUT_2_KEY);
+  end;
+  Result := BytesToString(LBuf);
+end;
+
+function MakeXAUTKey : Cardinal;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Randomize;
+  repeat
+    Result := (Random($FF) shl 8) + (Random($FF) shl 16) + (Random($FF) shl 24) +
+      Random($FF);
+    //we probably should avoid numbers that use the 32nd bit to prevent them from
+    //being expressed negatively and because I'm not sure what integer type
+    //other programs us.  Note that I specifically use the value of MaxInt instead of
+    //MaxInt itself because MaxInt could possibly grow if the Pascal Integer type changes.
+    Result := Result and $7FFFFFFF;
+  until (Result <> XAUT_2_KEY ) and (Result <> 0)
+end;
 
 {Misc Parsing}
 
+procedure DeleteSuffix(var VStr : String; const ASuffix : String);
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  if IndyPos(ASuffix, VStr) = Length(VStr) - Length(ASuffix) + 1 then begin
+    Delete(VStr, Length(VStr) - Length(ASuffix) + 1, Length(ASuffix));
+  end;
+end;
+
 function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
   L: Cardinal;
 begin
   L := IndyMin(ASpaces, Length(AString));
   for i := 1 to L do begin
-    if Result[i] <> ' ' then begin
+    if AString[i] <> ' ' then begin
       Break;
     end;
   end;
@@ -602,6 +812,7 @@ begin
 end;
 
 function StripPath(const AFileName : String; const APathDelim : String = '/'): String;
+     {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf : String;
 begin
@@ -612,19 +823,20 @@ begin
 end;
 
 function CharsInStr(const ASearchChar : Char; const AString : String) : Integer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
 begin
   Result := 0;
   for i := 1 to Length(AString) do begin
-    if AString[i] = ASearchChar then
-    begin
+    if AString[i] = ASearchChar then begin
       Inc(Result);
     end;
   end;
 end;
 
 function PatternsInStr(const ASearchPattern, AString : String): Integer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf : String;
 begin
@@ -641,6 +853,7 @@ begin
 end;
 
 function UnfoldLines(const AData : String; ALine : Integer; AStrings : TStrings): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LFoldedLine : String;
 begin
@@ -662,6 +875,7 @@ begin
 end;
 
 function StrPart(var AInput: string; const AMaxLength : Integer; const ADelete: Boolean = IdFetchDeleteDefault) : String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := Copy(AInput, 1, AMaxLength);
   if ADelete then begin
@@ -671,6 +885,7 @@ end;
 
 function FetchLength(var AInput: string; const AMaxLength : Integer; const ADelim: string = IdFetchDelimDefault;
  const ADelete: Boolean = IdFetchDeleteDefault; const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
 begin
@@ -694,10 +909,16 @@ function IsLineStr(const AData : String): Boolean;
 //see if this is just a line with spaces, '-', or tabs so we
 //can skip it in the parser
 const
-//Note that there are two separate char codes are rended as '-' in the line below.
-//Be careful when editing because the codes are different.
-//  LineSet = [' ','-','–','+'];    {Do not Localize}
-  LineSet = ' -'+#$96+'+'; //BGO: for DotNet, what to do with this    {Do not Localize}
+  //Note that there are two separate char codes are rended as '-' in the line below.
+  //Be careful when editing because the codes are different.
+  //  LineSet = [' ','-','–','+'];    {Do not Localize}
+
+  // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
+  // may change characters >= #128 from their Ansi codepage value to their true
+  // Unicode codepoint value, depending on the codepage used for the source code.
+  // For instance, #128 may become #$20AC...
+
+  LineSet = ' -'+Char($96)+'+'; //BGO: for DotNet, what to do with this    {Do not Localize}
 var
   i: Integer;
   LLen: Integer;
@@ -711,14 +932,14 @@ Begin
         Exit;
       end;
     end;
-  end
-  else begin
+  end else begin
     Result := True; //empty
   end;
 end;
 
 {Number extraction}
 function FindDelimInNumbers(const AData : String) : String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
 begin
@@ -732,6 +953,7 @@ begin
 end;
 
 function ExtractNumber(const AData : String; const ARetZero : Boolean = True): Integer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
   LBuf : String;
@@ -753,6 +975,7 @@ begin
 end;
 
 function StripNo(const AData : String): String;
+ {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
   LPos : Integer;
@@ -760,7 +983,7 @@ begin
   LPos := 1;
   for i := 1 to Length(AData) do begin
     LPos := i;
-    if (not IsNumeric(AData[i])) and (AData[i] <> ',') then begin
+    if (not IsNumeric(AData[i])) and (not CharEquals(AData, i, ',')) then begin
       Break;
     end;
   end;
@@ -779,6 +1002,7 @@ client/server work.
 
 }
 function LastPathDelim(const APath : String):Integer;
+ {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
 begin
@@ -792,6 +1016,7 @@ begin
 end;
 
 function IndyGetFilePath(const AFileName : String):String;
+ {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
 begin
@@ -804,6 +1029,7 @@ begin
 end;
 
 function IndyGetFileName(const AFileName : String):String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
 begin
@@ -816,9 +1042,9 @@ begin
 end;
 
 function IndyIsRelativePath(const APathName : String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  if APathName <> '' then
-  begin
+  if APathName <> '' then begin
     Result := CharIsInSet(APathName, 1, PATH_SUBDIR_SEP_UNIX + PATH_SUBDIR_SEP_DOS);
   end else begin
     Result := False;
@@ -826,6 +1052,7 @@ begin
 end;
 
 function IndyGetFileExt(const AFileName : String) : String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 {
 Borland's ExtractFileExtension routine is not adiquate in some cases
 because it assumes that there will only be one extension.  Some files
@@ -851,6 +1078,7 @@ begin
 end;
 
 function StripInitPathDelim(const AStr : String): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := AStr;
   if Result <> '' then begin
@@ -862,6 +1090,7 @@ begin
 end;
 
 function IsNavPath(const APath : String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LTmp : String;
 begin
@@ -869,25 +1098,35 @@ begin
   Result := (LTmp = CUR_DIR) or (LTmp = PARENT_DIR);
 end;
 
+// RLebeau 10/26/09: RemoveDuplicatePathSyms() cannot be inlined if it uses
+// the const variables declared outside of it, as they are private to this unit
+// and not accessible during inlining!
+
+{
 const
   TrailingPathCorrectionOrg : array [0..3] of string =
     ('//','\\','/\','\/');
   TrailingPathCorrectionNew : array [0..3] of string =
     ('/','\','/','/');
+}
 
 function RemoveDuplicatePathSyms(APath : String): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := StringsReplace(APath, TrailingPathCorrectionOrg, TrailingPathCorrectionNew);
+  //Result := StringsReplace(APath, TrailingPathCorrectionOrg, TrailingPathCorrectionNew);
+  Result := StringsReplace(APath, ['//','\\','/\','\/'], ['/','\','/','/']); {do not localize}
 end;
 
 {Path conversion}
 
 function UnixPathToDOSPath(const APath : String):String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := StringReplace(APath, PATH_SUBDIR_SEP_UNIX, PATH_SUBDIR_SEP_DOS, [rfReplaceAll]);
 end;
 
 function DOSPathToUnixPath(const APath : String):String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := StringReplace(APath, PATH_SUBDIR_SEP_DOS, PATH_SUBDIR_SEP_UNIX, [rfReplaceAll]);
 end;
@@ -895,6 +1134,7 @@ end;
 {Pattern recognition}
 
 function IsSubDirContentsBanner(const AData: String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   //A line ending in : might be a standard Unix list item where the filename
   //ends with a ":".  Unix-xbox-MediaCenter.txt is an example.
@@ -902,24 +1142,22 @@ begin
 end;
 
 function IsTotalLine(const AData: String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   //just in case someone is doing a recursive listing and there's a dir with the name total
-  Result := TextStartsWith(AData, 'TOTAL') and (not TextEndsWith(AData, ':'));
+  Result := (not TextEndsWith(AData, ':')) and
+   (TextStartsWith(AData, 'TOTAL') or
+   TextStartsWith(AData, 'GESAMT') or // German
+   TextStartsWith(AData, 'INSGESAMT') or // German HPUX
+   (IndyPos(KoreanTotal, AData) = 1) or // Korean (Unicode)
+   (IndyPos(ChineseTotal, AData) = 1) or // Chinese (Unicode)
+   TextStartsWith(AData, JapaneseTotal));
 end;
 
 {Quoted strings}
 
-
-function UnquotedStr(const AStr : String): String;
-begin
-  Result := AStr;
-  if TextStartsWith(Result, '"') then begin
-    IdDelete(Result, 1, 1);
-    Result := Fetch(Result, '"');
-  end;
-end;
-
 procedure ParseQuotedArgs(const AParams : String; AStrings : TStrings);
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   lComma, LOpenQuote : Integer;
   LBuf : String;
@@ -965,6 +1203,7 @@ begin
 end;
 
 function EPLFDateToGMTDateTime(const AData: String): TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 {note - code stolen from TIdTime and modified for our needs.}
 var
   LSecs : Int64;
@@ -981,12 +1220,14 @@ begin
 end;
 
 function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := FloatToStr( Extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
 end;
 
 {Date routines}
 function IsValidTimeStamp(const AString : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMonth, LDay, LHour, LMin, LSec : Integer;
 begin
@@ -1018,6 +1259,7 @@ begin
 end;
 
 function IsMDTMDate(const ADate : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 {
 Note from FTP Voyager knowlege base:
 
@@ -1038,16 +1280,14 @@ var
 begin
   Result := False;
   LBuffer := ADate;
-  if IndyPos('-', LBuffer) > 0 then
-  begin
+  if IndyPos('-', LBuffer) > 0 then begin
     LMSecPart := LBuffer;
     LBuffer := Fetch(LMSecPart, '-');
     if not IsNumeric(LMSecPart) then begin
       Exit;
     end;
   end;
-  if IndyPos('+', LBuffer) > 0 then
-  begin
+  if IndyPos('+', LBuffer) > 0 then begin
     LMSecPart := LBuffer;
     LBuffer := Fetch(LMSecPart, '+');
     if not IsNumeric(LMSecPart) then begin
@@ -1070,6 +1310,7 @@ begin
 end;
 
 function MDTMOffset(const AOffs : String) : TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LOffs : Integer;
 begin
@@ -1082,6 +1323,7 @@ begin
 end;
 
 function MinutesFromGMT : Integer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LD : TDateTime;
   LHour, LMin, LSec, LMSec : Word;
@@ -1096,6 +1338,7 @@ begin
 end;
 
 function FTPDateTimeToMDTMD(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LYear, LMonth, LDay,
   LHour, LMin, LSec, LMSec : Word;
@@ -1119,6 +1362,7 @@ begin
 end;
 
 function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
   LBuffer : String;
@@ -1133,8 +1377,7 @@ begin
         LBuffer := Fetch(LOffset, '-');
         LOffset := '-' + LOffset;
       end;
-      if IndyPos('+', LBuffer) > 0 then
-      begin
+      if IndyPos('+', LBuffer) > 0 then begin
         LOffset := LBuffer;
         LBuffer := Fetch(LOffset, '+');
       end;
@@ -1160,6 +1403,7 @@ begin
 end;
 
 function IsYYYYMMDD(const AData : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 //Does it look something like this:
 //2002-09-02
 //
@@ -1170,17 +1414,18 @@ function IsYYYYMMDD(const AData : String) : Boolean;
 begin
   Result := CharIsInSet(AData, 5, '/-') and CharIsInSet(AData, 8, '/-');
   if Result then begin
-    Result := IsNumeric(Copy(AData, 1, 4)) and IsNumeric(Copy(AData, 6, 2)) and IsNumeric(Copy(AData, 9, 2));
+    Result := IsNumeric(AData, 4) and IsNumeric(AData, 2, 6) and IsNumeric(AData, 2, 9);
   end;
   if not Result then begin
     Result := CharIsInSet(AData, 3, CDATE_PART_SEP) and CharIsInSet(AData, 6, CDATE_PART_SEP);
     if Result then begin
-      Result := IsNumeric(Copy(AData, 1, 2)) and IsNumeric(Copy(AData, 4, 2)) and IsNumeric(Copy(AData, 7, 2));
+      Result := IsNumeric(AData, 2) and IsNumeric(AData, 2, 4) and IsNumeric(AData, 2, 7);
     end;
   end;
 end;
 
 function IsDDMonthYY(const AData : String; const ADelim : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf, LPt : String;
 begin
@@ -1202,6 +1447,7 @@ begin
 end;
 
 function IsMMDDYY(const AData : String; const ADelim : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf, LPt : String;
 begin
@@ -1209,8 +1455,7 @@ begin
   if PatternsInStr(ADelim, AData) = 2 then begin
     LBuf := AData;
     LPt := Fetch(LBuf, ADelim);
-    if (IndyStrToInt(LPt, 0) > 0) and (IndyStrToInt(LPt, 0) < 13) then
-    begin
+    if (IndyStrToInt(LPt, 0) > 0) and (IndyStrToInt(LPt, 0) < 13) then begin
       LPt := Fetch(LBuf, ADelim);
       if (IndyStrToInt(LPt, 0) > 0) and (IndyStrToInt(LPt, 0) < 33) then begin
         Result := IsNumeric(LBuf);
@@ -1220,21 +1465,36 @@ begin
 end;
 
 function Y2Year(const AYear : Integer): Integer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 {
 This function ensures that 2 digit dates returned
 by some FTP servers are interpretted just like Borland's year
 handling routines.
 }
+{$IFDEF HAS_TFormatSettings_Object}
+{For Delphi 2011, we have a format settings object that includes a member
+for two digit year processing.  Use that instead because that is thread-safe.
 
+Also note, that in this version, TFormatSettings is not an object at all, it's a
+record with associated functions and procedures plus a creator.  Since we allocate
+it on the stack with the definition, we can't "free" it with FreeAndNil.  }
+var
+  LFormatSettings: SysUtils.TFormatSettings;
+{$ENDIF}
 begin
   Result := AYear;
   //Y2K Complience for current code
   //Note that some OS/2 servers return years greater than 100 for
   //years such as 2000 and 2003
   if Result < 1000 then begin
-    if TwoDigitYearCenturyWindow > 0 then
-    begin
+    {$IFDEF HAS_TFormatSettings_Object}
+       LFormatSettings:= TFormatSettings.Create('');  //use default locale
+       if LFormatSettings.TwoDigitYearCenturyWindow > 0 then begin
+         if Result > LFormatSettings.TwoDigitYearCenturyWindow then begin
+    {$ELSE}
+    if TwoDigitYearCenturyWindow > 0 then begin
       if Result > TwoDigitYearCenturyWindow then begin
+    {$ENDIF}
         Inc(Result, ((IndyCurrentYear div 100)-1)*100);
       end else begin
         Inc(Result, (IndyCurrentYear div 100)*100);
@@ -1242,10 +1502,14 @@ begin
     end else begin
       Inc(Result, (IndyCurrentYear div 100)*100);
     end;
+    {$IFDEF HAS_TFormatSettings_Object}
+
+    {$ENDIF}
   end;
 end;
 
 function DateYYMMDD(const AData: String): TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMonth, LDay, LYear : Integer;
   LBuffer : String;
@@ -1261,6 +1525,7 @@ begin
 end;
 
 function DateYYStrMonthDD(const AData: String; const ADelim : String = '-'): TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMonth, LDay, LYear : Integer;
   LBuffer : String;
@@ -1274,6 +1539,7 @@ begin
 end;
 
 function DateStrMonthDDYY(const AData:String; const ADelim : String = '-'; const AAddMissingYear : Boolean = False): TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMonth, LDay, LYear : Integer;
   LBuffer : String;
@@ -1295,6 +1561,7 @@ begin
 end;
 
 function DateDDStrMonthYY(const AData: String; const ADelim : String='-'): TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMonth, LDay, LYear : Integer;
   LBuffer : String;
@@ -1308,6 +1575,7 @@ begin
 end;
 
 function DateMMDDYY(const AData: String): TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMonth, LDay, LYear : Integer;
   LBuffer : String;
@@ -1323,6 +1591,7 @@ begin
 end;
 
 function TimeHHMMSS(const AData : String):TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LCHour, LCMin, LCSec, LCMSec : Word;
   LHour, LMin, LSec, LMSec : Word;
@@ -1375,6 +1644,7 @@ begin
 end;
 
 function IsIn6MonthWindow(const AMDate : TDateTime):Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 //based on http://www.opengroup.org/onlinepubs/007908799/xbd/utilconv.html#usg
 //For dates, we display the time only if the date is within 6 monthes of the current
 //date.  Otherwise, we send the year.
@@ -1408,6 +1678,7 @@ begin
 end;
 
 function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LDay, LMonth, LYear : Word;
 begin
@@ -1419,6 +1690,7 @@ begin
 end;
 
 function IsHHMMSS(const AData : String; const ADelim : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 //This assumes hours in the form 0-23 instead of the 12 AM/PM hour system used in the US.
 var
   LBuf, LPt : String;
@@ -1443,6 +1715,7 @@ begin
 end;
 
 function MVSDate(const AData: String): TDateTime;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LYear, LMonth, LDay : Integer;
   LCYear, LCMonth, LCDay : Word;
@@ -1480,9 +1753,9 @@ var
   var
     LN : Integer;
   begin
-   LN := An2;
-   An2 := An1;
-   An1 := LN;
+    LN := An2;
+    An2 := An1;
+    An1 := LN;
   end;
 
 begin
@@ -1509,6 +1782,7 @@ end;
 //===== Unix
 
 function IsValidUnixPerms(AData : String; const AStrict : Boolean = False) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 //Stict mode is for things such as Novell Netware Unix Print Services FTP Deamon
 //which are not quite like Unix.
 //Non-strict mode is for Unix servers or servers that emulate Unix because some are broken.
@@ -1543,9 +1817,9 @@ begin
       }
       CharIsInSet(SData, 9, 'TSRWX-') and   {Do not Localize}
       CharIsInSet(SData, 10, 'TSRWX-');     {Do not Localize}
-  end else
-  begin
-    Result := CharIsInSet(AData, 1, 'd-') and   {Do not Localize}
+  end else begin
+    Result := (Length(SData) > 9) and
+      CharIsInSet(AData, 1, 'd-') and   {Do not Localize}
       CharIsInSet(AData, 2, 'tsrwx-') and    {Do not Localize}
       CharIsInSet(AData, 3, 'tsrwx-') and    {Do not Localize}
       CharIsInSet(AData, 4, 'tsrwx-') and    {Do not Localize}
@@ -1559,11 +1833,13 @@ begin
 end;
 
 function IsUnixLsErr(const AData: String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := TextStartsWith(AData, '/bin/ls:');  {do not localize}
 end;
 
 function IsUnixHiddenFile(const AFileName : String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LName : String;
 begin
@@ -1572,6 +1848,7 @@ begin
 end;
 
 function IsUnixExec(const LUPer, LGPer, LOPer : String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if (Length(LUPer) > 2) and (Length(LGPer) > 2) and (Length(LOPer) > 2) then begin
     Result := CharIsInSet(LUPer, 3, 'xSs') or {do not localize}
@@ -1583,6 +1860,7 @@ begin
 end;
 
 function PermStringToModeBits(const APerms : String): Cardinal;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := 0;
   //owner bits
@@ -1592,8 +1870,7 @@ begin
   if (Length(APerms) > 1) and (APerms[2] = 'w') then begin
     Result := Result or IdS_IWUSR;
   end;
-  if Length(APerms) > 2 then
-  begin
+  if Length(APerms) > 2 then begin
     case APerms[3] of
       'x' : //exec
         begin
@@ -1617,8 +1894,7 @@ begin
   if (Length(APerms) > 4) and (APerms[5] = 'w') then begin
     Result := Result or IdS_IWGRP;
   end;
-  if Length(APerms) > 5 then
-  begin
+  if Length(APerms) > 5 then begin
     case APerms[6] of
       'x' : //exec
         begin
@@ -1646,7 +1922,7 @@ begin
     case APerms[9] of
       'x' :
         begin
-	  Result := Result or IdS_IXOTH;
+	        Result := Result or IdS_IXOTH;
         end;
       't' :
         begin
@@ -1655,8 +1931,8 @@ begin
         end;
       'T' :
         begin
-	  Result := Result or IdS_ISVTX;
-	end;
+          Result := Result or IdS_ISVTX;
+        end;
     end;
   end;
 end;
@@ -1708,6 +1984,7 @@ begin
 end;
 
 function ModeBitsToChmodNo(const AMode : Cardinal): Integer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := 0;
   if (AMode and IdS_ISUID) = IdS_ISUID then begin
@@ -1749,6 +2026,7 @@ begin
 end;
 
 function ChmodNoToModeBits(const AModVal : Cardinal): Cardinal;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LSpecBits, LUBits, LGBits, LOBits : Cardinal;
   LTmp : Cardinal;
@@ -1807,11 +2085,13 @@ begin
 end;
 
 procedure ChmodNoToPerms(const AChmodNo : Integer; var VPermissions : String); overload;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   VPermissions := ModeBitsToPermString(ChmodNoToModeBits(AChmodNo));
 end;
 
 procedure ChmodNoToPerms(const AChmodNo : Integer; var VUser, VGroup, VOther : String);
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LPerms : String;
 begin
@@ -1822,6 +2102,7 @@ begin
 end;
 
 function PermsToChmodNo(const AUser, AGroup, AOther : String): Integer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := ModeBitsToChmodNo(PermStringToModeBits(AUser+AGroup+AOther));
 end;
@@ -1829,6 +2110,7 @@ end;
 //===== Novell Netware
 //ftp.sips.state.nc.us
 function IsNovelPSPattern(const AStr : String): Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   s : TStrings;
   LModStr : String;
@@ -1876,6 +2158,7 @@ begin
 end;
 
 function ExtractNovellPerms(const AData : String) : String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 //extract the Novell Netware permissions from the enclosing brackets
 var
   LOpen, LClose : Integer;
@@ -1892,6 +2175,7 @@ end;
 //===== QVT/NET
 
 function ExcludeQVNET(const AData : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 //A few tests will return a false positive with WinQVTNet
 //This function prevents this.
 begin
@@ -1900,6 +2184,7 @@ begin
 end;
 
 function ExtractQVNETFileName(const AData : String): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 //This is for WinQVT/Net v3.9 - note filenames are in a 8.3 format
 //but unlike the standard MS-DOS form, spaces will appear if running
 //on Win32 Operating systems and filenames have spaces.  Note that
@@ -1918,6 +2203,7 @@ end;
 
 //===== Mainframe support
 function ExtractRecFormat(const ARecFM : String): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := ARecFM;
   if TextStartsWith(Result, '<') then begin
@@ -1929,6 +2215,7 @@ begin
 end;
 //===== IBM VSE Power Queue
 function DispositionCodeToTIdVSEPQDisposition(const ADisp : Char) : TIdVSEPQDisposition;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   case ADisp of
     'A' : Result := IdPQAppendable;
@@ -1949,6 +2236,7 @@ begin
 end;
 
 function TIdVSEPQDispositionDispositionCode(const ADisp : TIdVSEPQDisposition) : Char;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   case ADisp of
     IdPQAppendable : Result := 'A';
@@ -1969,27 +2257,30 @@ begin
 end;
 
 function IsVMBFS(AData : String) : Boolean;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   s : TStrings;
 begin
   Result := False;
   s := TStringList.Create;
   try
-   SplitColumns(TrimRight(AData), s);
-   if s.Count > 4 then begin
-     Result := (s[2] = 'F') or (s[2] = 'D');
-     if Result then begin
-       Result := IsNumeric(s[4]) or (s[4] <> '-');
-     end;
+    SplitColumns(TrimRight(AData), s);
+    if s.Count > 4 then begin
+      Result := (s[2] = 'F') or (s[2] = 'D');
+      if Result then begin
+        Result := IsNumeric(s[4]) or (s[4] = '-');
+      end;
     end;
   finally
-   FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
-//===== MLST/MLSD and EPLF formats
+
+//===== EPLF formats
 function ParseFacts(AData : String; AResults : TStrings;
   const AFactDelim : String = ';'; const ANameDelim : String = ' '): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf : String;
 begin
@@ -2000,6 +2291,32 @@ begin
     AResults.Add(Fetch(LBuf, AFactDelim));
   until LBuf = '';
 end;
+
+//===== MLSD Parse facts, this has to be different because of different charsets
+function ParseFactsMLS(AData : String; AResults : TStrings;
+  const AFactDelim : String = ';'; const ANameDelim : String = ' '): String;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var LBuf : TIdBytes;
+  LCharSet : String;
+  LEncoding : TIdTextEncoding;
+begin
+  LBuf := ToBytes(ParseFacts(AData, AResults, AFactDelim, ANameDelim),Indy8bitEncoding);
+  LCharSet := AResults.Values['charset'];
+  if LCharSet = '' then begin
+    LCharSet := 'UTF-8';
+  end;
+  LEncoding := CharsetToEncoding(LCharSet);
+  try
+    try
+      Result := BytesToString(LBuf, LEncoding);
+    except
+      Result := BytesToString(LBuf, Indy8bitEncoding);
+    end;
+  finally
+    FreeAndNil(LEncoding);
+  end;
+end;
+
 
 {Sterling Commerce support routines}
 
@@ -2028,8 +2345,7 @@ begin
   if AString = '' then begin
     Exit;
   end;
-  if Length(AString) = 3 then
-  begin
+  if Length(AString) = 3 then begin
     if AString = '---' then begin
       Result := True;
     end;
@@ -2052,8 +2368,7 @@ begin
   if AString = '' then begin
     Exit;
   end;
-  for i := 1 to Length(AString) do
-  begin
+  for i := 1 to Length(AString) do begin
     if (IndyPos(AString[i], CValidFlags) = 0) and
       (IndyPos(AString[i], CWhiteSpace) = 0) then begin
       Exit;

@@ -85,7 +85,7 @@ type
   end;
 
   // Custom Peer thread class
-  TIdTelnetServerContext = class(TIdContext)
+  TIdTelnetServerContext = class(TIdServerContext)
   private
     FTelnetData: TTelnetData;
   public

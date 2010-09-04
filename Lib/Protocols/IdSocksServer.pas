@@ -136,7 +136,7 @@ type
   EIdSocksSvrUnexpectedClose = class(EIdSocksSvrException);
   EIdSocksSvrPeerMismatch = class(EIdSocksSvrException);
 
-  TIdSocksServerContext = class(TIdContext)
+  TIdSocksServerContext = class(TIdServerContext)
   protected
     FIPVersion: TIdIPVersion;
     FUsername: string;
@@ -471,7 +471,7 @@ begin
     3:
       begin
         AContext.Connection.IOHandler.ReadBytes(LData, AContext.Connection.IOHandler.ReadByte+2);
-        VHost := BytesToString(LData, Length(LData)-2);
+        VHost := BytesToString(LData, 0, Length(LData)-2);
         VPort := GStack.NetworkToHost(BytesToWord(LData, Length(LData)-2));
         if AContext.Connection.Socket <> nil then begin
           AContext.FIPVersion := AContext.Connection.Socket.IPVersion;
@@ -512,8 +512,8 @@ begin
 
   LContext.FSocksVersion := AContext.Connection.IOHandler.ReadByte;
 
-  if not ((LContext.SocksVersion = 4) and AllowSocks4) or
-    ((LContext.SocksVersion = 5) and AllowSocks5) then
+  if not (((LContext.SocksVersion = 4) and AllowSocks4) or
+    ((LContext.SocksVersion = 5) and AllowSocks5)) then
   begin
     EIdSocksSvrWrongSocksVer.Toss(RSSocksSvrWrongSocksVersion);
   end;

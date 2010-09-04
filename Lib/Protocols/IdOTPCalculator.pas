@@ -60,9 +60,10 @@ interface
 
 uses
   IdException;
-  
+
 type
   TIdOTPCalculator = class
+  public
     class function GenerateKeyMD4(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
     class function GenerateKeyMD5(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
     class function GenerateKeySHA1(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
@@ -80,10 +81,12 @@ implementation
 
 uses
   Classes,
+  IdFIPS,
   IdGlobal,
+  IdGlobalProtocols,
   IdHash,
   IdHashMessageDigest,
-  IdHashSHA1,
+  IdHashSHA,
   IdResourceStringsProtocols,
   SysUtils;
 
@@ -423,6 +426,7 @@ var
   L64Bit: Int64;
   LTempLongWord: LongWord;
 begin
+  CheckMD4Permitted;
   LMD4 := TIdHashMessageDigest4.Create;
   try
     L64Bit := Hash4ToInt64(LMD4.HashString(LowerCase(ASeed) + APassword));
@@ -456,6 +460,7 @@ var
   L64Bit: int64;
   LTempLongWord: LongWord;
 begin
+  CheckMD5Permitted;
   LMD5 := TIdHashMessageDigest5.Create;
   try
     L64Bit := Hash4ToInt64(LMD5.HashString(LowerCase(ASeed) + APassword));

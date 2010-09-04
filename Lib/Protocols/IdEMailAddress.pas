@@ -404,7 +404,12 @@ begin
   end;
 
   // Find the first known character type.
-  nFirst := FindFirstOf('("< @' + TAB, AText); {do not localize}
+  if Pos('<', AText) > 0 then begin
+    nFirst := FindFirstOf('("< ' + TAB, AText)   {Do not Localize}
+  end else begin
+    nFirst := FindFirstOf('(" @' + TAB, AText);   {Do not Localize}
+  end;
+
   if nFirst <> 0 then
   begin
     nBracketCount := 0;
@@ -590,7 +595,9 @@ begin
       end else if bInQuote then
       begin
       // Inside quotes, only the end quote and escape character are special.
-        nFirst := FindFirstOf('"\', AText); {do not localize}
+
+        // previously FindFirst. This fixes a bug in From: like: "This is "my" name" <address@domain.com> delivered from DecodeHeader
+        nFirst := LastDelimiter('"\', AText); {do not localize}
 
       // Check if after the @ of the address: domain.example>
       end else if bAfterAt then
@@ -836,13 +843,18 @@ var
 begin
   if Assigned(AStrings) then
   begin
-    AStrings.Clear;
-    for i := 0 to Count-1 do
-    begin
-      LCurDom := LowerCase(Items[i].Domain);
-      if AStrings.IndexOf(LCurDom) = -1 then begin
-        AStrings.Add(LCurDom);
+    AStrings.BeginUpdate;
+    try
+      AStrings.Clear;
+      for i := 0 to Count-1 do
+      begin
+        LCurDom := LowerCase(Items[i].Domain);
+        if AStrings.IndexOf(LCurDom) = -1 then begin
+          AStrings.Add(LCurDom);
+        end;
       end;
+    finally
+      AStrings.EndUpdate;
     end;
   end;
 end;

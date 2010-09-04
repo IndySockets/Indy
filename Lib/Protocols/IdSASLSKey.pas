@@ -56,6 +56,7 @@ type
   protected
     procedure InitComponent; override;
   public
+    function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : String) : String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
@@ -64,7 +65,7 @@ type
 implementation
 
 uses
-  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdUserPassProvider, SysUtils;
+  IdBaseComponent, IdFIPS, IdGlobal, IdGlobalProtocols, IdOTPCalculator,  IdUserPassProvider, SysUtils;
 
 const
   SKEYSERVICENAME = 'SKEY'; {do not localize}
@@ -87,6 +88,11 @@ begin
   inherited InitComponent;
   //less than 1000 because MD4 is broken and this is depreciated
   FSecurityLevel := 900;
+end;
+
+function TIdSASLSKey.IsReadyToStart: Boolean;
+begin
+  Result := not GetFIPSMode;
 end;
 
 class function TIdSASLSKey.ServiceName: TIdSASLServiceName;

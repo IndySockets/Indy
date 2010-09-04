@@ -27,6 +27,7 @@ uses
   IdCmdTCPServer,
   IdCommandHandlers,
   IdContext,
+  IdCustomTCPServer, //for TIdServerContext
   IdEMailAddress,
   IdException,
   IdExplicitTLSClientServerBase,
@@ -70,7 +71,7 @@ type
     property OnUserLogin : TOnUserLoginEvent read FOnUserLogin write FOnUserLogin;
     property DefaultPort default IdPORT_POP3;
   end;
-  TIdPOP4ServerContext = class(TIdContext)
+  TIdPOP4ServerContext = class(TIdServerContext)
   protected
     FPipeLining : Boolean;
     FState :TIdPOP4ServerState;
@@ -94,7 +95,7 @@ type
   end;
 
 implementation
-uses IdResourceStringsProtocols, IdGlobal, IdCoderMIME, IdSSL, SysUtils;
+uses IdResourceStringsProtocols, IdCoderMIME, IdGlobal, IdGlobalProtocols, IdSSL, SysUtils;
 
 { TIdPOP4Server }
 
@@ -356,16 +357,13 @@ end;
 
 procedure TIdPOP4ServerContext.SetPipeLining(const AValue: Boolean);
 begin
-  if AValue and (PipeLining = False) then
+  if AValue and (not PipeLining) then
   begin
     Connection.IOHandler.WriteBufferOpen;
   end
-  else
+  else if (not AValue) and PipeLining then
   begin
-    if (AValue=False) and PipeLining then
-    begin
-      Connection.IOHandler.WriteBufferClose;
-    end;
+    Connection.IOHandler.WriteBufferClose;
   end;
   FPipeLining := AValue;
 end;

@@ -84,16 +84,17 @@ type
   TIdMessagePart = class(TCollectionItem)
   protected
     FContentMD5: string;
-    FContentTransfer: string;
-    FContentType: string;
     FCharSet: string;
     FEndBoundary: string;
     FExtraHeaders: TIdHeaderList;
+    FFileName: String;
+    FName: String;
     FHeaders: TIdHeaderList;
     FIsEncoded: Boolean;
     FOnGetMessagePartStream: TOnGetMessagePartStream;
     FParentPart: Integer;
     //
+    function  GetContentDisposition: string; virtual;
     function  GetContentType: string; virtual;
     function  GetContentTransfer: string; virtual;
     function  GetContentID: string; virtual;
@@ -101,6 +102,7 @@ type
     function  GetContentDescription: string; virtual;
     function  GetMessageParts: TIdMessageParts;
     function  GetOwnerMessage: TPersistent;
+    procedure SetContentDisposition(const Value: string); virtual;
     procedure SetContentType(const Value: string); virtual;
     procedure SetContentTransfer(const Value: string); virtual;
     procedure SetExtraHeaders(const Value: TIdHeaderList);
@@ -121,13 +123,16 @@ type
     property OnGetMessagePartStream: TOnGetMessagePartStream read FOnGetMessagePartStream write FOnGetMessagePartStream;
     property Headers: TIdHeaderList read FHeaders;
   published
-    property ContentTransfer: string read FContentTransfer write FContentTransfer;
-    property ContentType: string read FContentType write FContentType;
     property CharSet: string read FCharSet write FCharSet;
-    property ExtraHeaders: TIdHeaderList read FExtraHeaders write SetExtraHeaders;
-    property ContentID: string read GetContentID write SetContentID;
     property ContentDescription: string read GetContentDescription write SetContentDescription;
+    property ContentDisposition: string read GetContentDisposition write SetContentDisposition;
+    property ContentID: string read GetContentID write SetContentID;
     property ContentLocation: string read GetContentLocation write SetContentLocation;
+    property ContentTransfer: string read GetContentTransfer write SetContentTransfer;
+    property ContentType: string read GetContentType write SetContentType;
+    property ExtraHeaders: TIdHeaderList read FExtraHeaders write SetExtraHeaders;
+    property FileName: String read FFileName write FFileName;
+    property Name: String read FName write FName;
     property ParentPart: integer read FParentPart write FParentPart;
   end;
 
@@ -161,13 +166,11 @@ type
 
   EIdCanNotCreateMessagePart = class(EIdMessageException);
 
-// Procs
-  function  ExtractHeaderSubItem(const AHeaderLine,ASubItem: String): String;
-
 implementation
 
 uses
-  IdMessage, IdGlobalProtocols, IdResourceStringsProtocols, IdMessageCoder, SysUtils;
+  IdMessage, IdGlobalProtocols, IdResourceStringsProtocols, IdMessageCoder, IdCoderHeader,
+  SysUtils;
 
 { TIdMessagePart }
 
@@ -179,8 +182,10 @@ begin
     mp := TIdMessagePart(Source);
     // RLebeau 10/17/2003
     Headers.Assign(mp.Headers);
-
     ExtraHeaders.Assign(mp.ExtraHeaders);
+    CharSet := mp.CharSet;
+    FileName := mp.FileName;
+    Name := mp.Name;
   end else begin
     inherited Assign(Source);
   end;
@@ -193,8 +198,8 @@ begin
     raise EIdCanNotCreateMessagePart.Create(RSTIdMessagePartCreate);
   end;
   FIsEncoded := False;
-  FHeaders := TIdHeaderList.Create;
-  FExtraHeaders := TIdHeaderList.Create;
+  FHeaders := TIdHeaderList.Create(QuoteRFC822);
+  FExtraHeaders := TIdHeaderList.Create(QuoteRFC822);
   FParentPart := -1;
 end;
 
@@ -203,6 +208,11 @@ begin
   FHeaders.Free;
   FExtraHeaders.Free;
   inherited Destroy;
+end;
+
+function TIdMessagePart.GetContentDisposition: string;
+begin
+  Result := Headers.Values['Content-Disposition']; {do not localize}
 end;
 
 function TIdMessagePart.GetContentID: string;
@@ -227,19 +237,18 @@ end;
 
 function TIdMessagePart.GetCharSet(AHeader: string): String;
 begin
-  Result := ExtractHeaderSubItem(AHeader, 'CHARSET='); {do not localize}
+  Result := ExtractHeaderSubItem(AHeader, 'charset', QuoteMIME); {do not localize}
 end;
 
 function TIdMessagePart.ResolveContentType(AContentType: string): string;
 var
-  LTemp: string;
   LMsg: TIdMessage;
   LParts: TIdMessageParts;
 begin
   //This extracts 'text/plain' from 'text/plain; charset="xyz"; boundary="123"'
   //or, if '', it finds the correct default value for MIME messages.
   if AContentType <> '' then begin
-    Result := Trim(Fetch(AContentType, ';'));  {do not localize}
+    Result := ExtractHeaderItem(AContentType);
   end else begin
     //If it is MIME, then we need to find the correct default...
     LParts := MessageParts;
@@ -248,16 +257,14 @@ begin
       if Assigned(LMsg) and (LMsg.Encoding = meMIME) then begin
         //There is an exception if we are a child of multipart/digest...
         if ParentPart <> -1 then begin
-          LTemp := LParts.Items[ParentPart].Headers.Values['Content-Type'];  {do not localize}
-        end else begin
-          LTemp := '';
+          AContentType := LParts.Items[ParentPart].Headers.Values['Content-Type'];  {do not localize}
+          if IsHeaderMediaType(AContentType, 'multipart/digest') then begin  {do not localize}
+            Result := 'message/rfc822';  {do not localize}
+            Exit;
+          end;
         end;
-        if TextStartsWith(LTemp, 'multipart/digest') then begin  {do not localize}
-          Result := 'message/rfc822';  {do not localize}
-        end else begin
-          //The default type...
-          Result := 'text/plain';      {do not localize}
-        end;
+        //The default type...
+        Result := 'text/plain';      {do not localize}
         Exit;
       end;
     end;
@@ -306,6 +313,20 @@ begin
   Headers.Values['Content-Description'] := Value; {do not localize}
 end;
 
+procedure TIdMessagePart.SetContentDisposition(const Value: string);
+var
+  LFileName: string;
+begin
+  Headers.Values['Content-Disposition'] := RemoveHeaderEntry(Value, 'filename', LFileName, QuoteMIME); {do not localize}
+  {RLebeau: override the current value only if the header specifies a new one}
+  if LFileName <> '' then begin
+    LFileName := DecodeHeader(LFileName);
+  end;
+  if LFileName <> '' then begin
+    FFileName := LFileName;
+  end;
+end;
+
 procedure TIdMessagePart.SetContentLocation(const Value: string);
 begin
   Headers.Values['Content-Location'] := Value; {do not localize}
@@ -317,8 +338,19 @@ begin
 end;
 
 procedure TIdMessagePart.SetContentType(const Value: string);
+var
+  LTmp, LCharSet, LName: string;
 begin
-  Headers.Values['Content-Type'] := Value; {do not localize}
+  LTmp := RemoveHeaderEntry(Value, 'charset', LCharSet, QuoteMIME);{do not localize}
+  LTmp := RemoveHeaderEntry(LTmp, 'name', LName, QuoteMIME);{do not localize}
+  Headers.Values['Content-Type'] := LTmp;
+  {RLebeau: override the current values only if the header specifies new ones}
+  if LCharSet <> '' then begin
+    FCharSet := LCharSet;
+  end;
+  if LName <> '' then begin
+    FName := LName;
+  end;
 end;
 
 procedure TIdMessagePart.SetExtraHeaders(const Value: TIdHeaderList);
@@ -392,22 +424,6 @@ end;
 procedure TIdMessageParts.SetItem(Index: Integer; const Value: TIdMessagePart);
 begin
   inherited SetItem(Index, Value);
-end;
-
-  // TODO: class function (used in TIdMessage too)
-function  ExtractHeaderSubItem(const AHeaderLine,ASubItem: String): String;
-var
-  S: String;
-begin
-  S := AHeaderLine;
-  FetchCaseInsensitive(S, ASubItem);    {do not localize}
-  if (S>'') and (S[1] = '"') then begin {do not localize}
-    Delete(s, 1, 1);
-    Result := Fetch(s, '"');            {do not localize}
-  // Sometimes its not in quotes
-  end else begin
-    Result := Fetch(s, ';');
-  end;
 end;
 
 end.

@@ -27,11 +27,16 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  IdFIPS,
+  IdGlobal,
   IdHash, IdHashMessageDigest, IdHMAC;
 
 type
   TIdHMACMD5 = class(TIdHMAC)
   protected
+    procedure SetHashVars; override;
+    function IsIntFAvail : Boolean; override;
+    function InitIntFInst(const AKey : TIdBytes) : TIdHMACIntCtx; override;
     procedure InitHash; override;
   end;
 
@@ -41,10 +46,24 @@ implementation
 
 procedure TIdHMACMD5.InitHash;
 begin
+  FHash := TIdHashMessageDigest5.Create;
+end;
+
+function TIdHMACMD5.InitIntFInst(const AKey: TIdBytes): TIdHMACIntCtx;
+begin
+  Result := GetHMACMD5HashInst(AKey);
+end;
+
+function TIdHMACMD5.IsIntFAvail: Boolean;
+begin
+  Result := inherited IsIntFAvail and IsHMACMD5Avail;
+end;
+
+procedure TIdHMACMD5.SetHashVars;
+begin
   FHashName := 'MD5';
   FHashSize := 16;
   FBlockSize := 64;
-  FHash := TIdHashMessageDigest5.Create;
 end;
 
 end.

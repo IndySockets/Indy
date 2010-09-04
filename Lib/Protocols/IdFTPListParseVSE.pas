@@ -139,9 +139,14 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseVSE"'*)
+
 implementation
 
 uses
+  IdException,
   IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPVSERootDir }
@@ -251,6 +256,7 @@ begin
     AItem.ModifiedDate := DateYYMMDD(LCols[1]);
     AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
     AItem.ItemType := ditFile;
+    AItem.SizeAvail := False;
   finally
     FreeAndNil(LCols);
   end;
@@ -341,6 +347,7 @@ begin
       LI.OwnerName := LCols[6];
     end;
     LI.ItemType := ditFile;
+    LI.ModifiedAvail := False;
   finally
     FreeAndNil(LCols);
   end;

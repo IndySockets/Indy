@@ -46,7 +46,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdGlobal, IdHash, Classes;
+  IdFIPS, IdGlobal, IdHash, Classes;
 
 type
   T4x4LongWordRecord = array[0..3] of LongWord;
@@ -57,7 +57,7 @@ type
   T384BitRecord = array[0..47] of Byte;
   T128BitRecord = array[0..15] of Byte;
 
-  TIdHashMessageDigest = class(TIdHash)
+  TIdHashMessageDigest = class(TIdHashNativeAndIntF)
   protected
     FCBuffer: TIdBytes;
     procedure MDCoder; virtual; abstract;
@@ -72,31 +72,48 @@ type
     procedure MDCoder; override;
     procedure Reset; override;
 
-    function GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
+    function InitHash : TIdHashIntCtx; override;
+    function NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
     constructor Create; override;
+    class function IsIntfAvailable: Boolean; override;
   end;
 
   TIdHashMessageDigest4 = class(TIdHashMessageDigest)
   protected
     FState: T4x4LongWordRecord;
 
-    function GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
+    function NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
 
     procedure MDCoder; override;
+
+    function InitHash : TIdHashIntCtx; override;
+
   public
     constructor Create; override;
+    class function IsIntfAvailable: Boolean; override;
   end;
 
   TIdHashMessageDigest5 = class(TIdHashMessageDigest4)
   protected
     procedure MDCoder; override;
+
+    function InitHash : TIdHashIntCtx; override;
+  public
+    class function IsIntfAvailable : Boolean; override;
   end;
 
 implementation
-uses IdGlobalProtocols;
+uses
+  {$IFDEF DOTNET}
+  System.Security.Cryptography,
+  IdStreamNET,
+  {$ELSE}
+  IdStreamVCL,
+  {$ENDIF}
+  IdGlobalProtocols;
 
 { TIdHashMessageDigest }
 
@@ -145,8 +162,7 @@ var
   LCheckSumScore: Byte;
 begin
   // Move the next 16 bytes into the second 16 bytes of X.
-  for i := 0 to 15 do
-  begin
+  for i := 0 to 15 do begin
     x := FCBuffer[i];
     FX[i + 16] := x;
     FX[i + 32] := x xor FX[i];
@@ -154,8 +170,7 @@ begin
 
   { Do 18 rounds. }
   T := 0;
-  for i := 0 to NumRounds - 1 do
-  begin
+  for i := 0 to NumRounds - 1 do begin
     for j := 0 to 47 do
     begin
       T := FX[j] xor MD2_PI_SUBST[T];
@@ -165,8 +180,7 @@ begin
   end;
 
   LCheckSumScore := FChecksum[15];
-  for i := 0 to 15 do
-  begin
+  for i := 0 to 15 do begin
     x := FCBuffer[i] xor LCheckSumScore;
     LCheckSumScore := FChecksum[i] xor MD2_PI_SUBST[x];
     FChecksum[i] := LCheckSumScore;
@@ -179,8 +193,7 @@ var
   I: Integer;
 begin
   inherited Reset;
-  for I := 0 to 15 do
-  begin
+  for I := 0 to 15 do begin
     FCheckSum[I] := 0;
     FX[I] := 0;
     FX[I+16] := 0;
@@ -188,7 +201,7 @@ begin
   end;
 end;
 
-function TIdHashMessageDigest2.GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes;
+function TIdHashMessageDigest2.NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes;
 var
   LStartPos: Integer;
   LSize: Integer;
@@ -199,8 +212,7 @@ begin
   Reset;
 
   // Code the entire file in complete 16-byte chunks.
-  while ASize >= 16 do
-  begin
+  while ASize >= 16 do begin
     LSize := ReadTIdBytesFromStream(AStream, FCBuffer, 16);
     // TODO: handle stream read error
     MDCoder;
@@ -232,9 +244,21 @@ begin
   end;
 end;
 
+
+
 function TIdHashMessageDigest2.HashToHex(const AHash: TIdBytes): String;
 begin
   Result := LongWordHashToHex(AHash, 4);
+end;
+
+function TIdHashMessageDigest2.InitHash: TIdHashIntCtx;
+begin
+  Result := GetMD2HashInst;
+end;
+
+class function TIdHashMessageDigest2.IsIntfAvailable: Boolean;
+begin
+  Result := IsHashingIntfAvail and  IsMD2HashIntfAvail;
 end;
 
 { TIdHashMessageDigest4 }
@@ -322,14 +346,15 @@ begin
 end;
 {$Q+}
 
-function TIdHashMessageDigest4.GetHashBytes(AStream: TStream; ASize: Int64): TidBytes;
+function TIdHashMessageDigest4.NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TidBytes;
 var
   LStartPos: Integer;
-  LBitSize, LSize: Int64;
+  LSize: TIdStreamSize;
+  LBitSize: Int64;
   I, LReadSize: Integer;
 begin
   Result := nil;
-  
+
   LSize := ASize;
 
   // A straight assignment would be by ref on dotNET.
@@ -348,7 +373,7 @@ begin
   // Read the last set of bytes.
   LStartPos := ReadTIdBytesFromStream(AStream, FCBuffer, 64);
   // TODO: handle stream read error
-  
+
   // Append one bit with value 1
   FCBuffer[LStartPos] := $80;
   Inc(LStartPos);
@@ -383,9 +408,19 @@ begin
   end;
 end;
 
+function TIdHashMessageDigest4.InitHash : TIdHashIntCtx;
+begin
+  Result := GetMD4HashInst;
+end;
+
 function TIdHashMessageDigest4.HashToHex(const AHash: TIdBytes): String;
 begin
   Result := LongWordHashToHex(AHash, 4);
+end;
+
+class function TIdHashMessageDigest4.IsIntfAvailable: Boolean;
+begin
+  Result := IsHashingIntfAvail and IsMD4HashIntfAvail ;
 end;
 
 { TIdHashMessageDigest5 }
@@ -411,6 +446,18 @@ const
   );
 
 {$Q-} // Arithmetic operations performed modulo $100000000
+
+
+function TIdHashMessageDigest5.InitHash: TIdHashIntCtx;
+begin
+  Result := GetMD5HashInst;
+end;
+
+class function TIdHashMessageDigest5.IsIntfAvailable: Boolean;
+begin
+  Result := IsHashingIntfAvail and IsMD5HashIntfAvail ;
+end;
+
 procedure TIdHashMessageDigest5.MDCoder;
 var
   A, B, C, D : LongWord;

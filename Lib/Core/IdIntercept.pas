@@ -175,12 +175,16 @@ Begin
     LIntercept := LIntercept.Intercept;
   end;
 
+  // remove self from the Intercept's free notification list    {Do not Localize}
+  if Assigned(FIntercept) then begin
+    FIntercept.RemoveFreeNotification(Self);
+  end;
   FIntercept := AValue;
   // add self to the Intercept's free notification list    {Do not Localize}
-  if Assigned(Intercept) then begin
-    Intercept.FreeNotification(Self);
+  if Assigned(FIntercept) then begin
+    FIntercept.FreeNotification(Self);
   end;
-End;
+end;
 
 procedure TIdConnectionIntercept.Notification(AComponent: TComponent; Operation: TOperation);
 begin

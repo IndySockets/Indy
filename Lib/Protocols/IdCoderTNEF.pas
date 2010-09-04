@@ -116,8 +116,8 @@ type
     procedure DoLog(const AMsg: String; const AAppendSize: Boolean = True);
     procedure DoLogFmt(const AFormat: string; const Args: array of const; AAppendSize: Boolean = True);
     //Low-level utility functions:
-    function  GetMultipleUnicodeOrString8String(AType: Word): WideString;
-    function  GetUnicodeOrString8String(AType: Word): WideString;
+    function  GetMultipleUnicodeOrString8String(AType: Word): TIdUnicodeString;
+    function  GetUnicodeOrString8String(AType: Word): TIdUnicodeString;
     function  GetByte: Byte;
     function  GetByteAsHexString: string; overload;
     function  GetByteAsHexString(AByte: Byte): string; overload;
@@ -189,7 +189,7 @@ type
 implementation
 
 uses
-  DateUtils, IdMessageClient, IdText, IdStreamVCL;
+  DateUtils, IdMessageClient, IdText, IdStream;
 
 const
   //Initial RTF-compression decode string...
@@ -1519,7 +1519,7 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetMultipleUnicodeOrString8String(AType: Word): WideString;
+function TIdCoderTNEF.GetMultipleUnicodeOrString8String(AType: Word): TIdUnicodeString;
 var
   LIndex, LCount: LongWord;
 begin
@@ -1539,33 +1539,24 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetUnicodeOrString8String(AType: Word): WideString;
+function TIdCoderTNEF.GetUnicodeOrString8String(AType: Word): TIdUnicodeString;
 var
   LIndex, LLength: LongWord;
+  LwsTemp: TIdUnicodeString;
   LpwTemp: PWideChar;
-  LwsTemp: WideString;
-  LsTemp: string;
-  LpTemp: PChar;
+  LsTemp: AnsiString;
+  LpTemp: PAnsiChar;
 begin
+  Result := '';
   LLength := GetLongWord;
   //Note the length count includes a terminating null.
   case AType of
     IdTNEF_PT_UNICODE: begin
-      SetLength(LwsTemp, LLength-1);
-      LpwTemp := PWideChar(FByte);
-      for LIndex := 1 to LLength-1 do begin
-        LwsTemp[LIndex] := LpwTemp^;
-        LpwTemp := LpwTemp+1;
-      end;
+      SetString(LwsTemp, PWideChar(FByte), LLength-1);
       Result := LwsTemp;
     end;
     IdTNEF_PT_STRING8: begin
-      SetLength(LsTemp, LLength-1);
-      LpTemp := PChar(FByte);
-      for LIndex := 1 to LLength-1 do begin
-        LsTemp[LIndex] := LpTemp^;
-        LpTemp := LpTemp+1;
-      end;
+      SetString(LsTemp, PAnsiChar(FByte), LLength-1);
       Result := LsTemp;
     end;
   end;
@@ -1744,7 +1735,7 @@ end;
 
 procedure TIdCoderTNEF.Parse(const AIn: TIdAttachment; AMsg: TIdMessage; ALog: Boolean = False);
 var
-  LTempStream: TIdStream;
+  LTempStream: TStream;
 begin
   LTempStream := AIn.OpenLoadStream;
   try
@@ -2142,8 +2133,7 @@ begin
         end;
         if FDoLogging then begin
           DoLogFmt('  Copying %d bytes from offset %d to %d destlen %d',   {Do not localize}
-            [LCodeLength, LCodePosition, LOutIndex, LOutBufferSize]),
-	    False);
+            [LCodeLength, LCodePosition, LOutIndex, LOutBufferSize], False);
         end;
         for LTemp := 0 to LCodeLength-1 do begin
           Result[LOutIndex] := Result[LCodePosition+LTemp];         //GPFs here
@@ -2665,7 +2655,7 @@ begin
       IdTNEFAtpTriples: begin
         if FDoLogging then begin
           DoLogFmt('     ParseAttribute found AtpTriples type, %s, length: %d',  {Do not localize}
-	    [GetStringForAttribute(LAttribute), LLength]);
+	          [GetStringForAttribute(LAttribute), LLength]);
         end;
         Skip(LLength);
       end;
@@ -2679,15 +2669,15 @@ begin
       IdTNEFAtpText: begin
         if FDoLogging then begin
           DoLogFmt('     ParseAttribute found AtpText type, %s, length: %d',  {Do not localize}
-	    [GetStringForAttribute(LAttribute), LLength]);
+            [GetStringForAttribute(LAttribute), LLength]);
         end;
         Skip(LLength);
       end;
       IdTNEFAtpDate: begin
         if FDoLogging then begin
-	  DoLogFtm('     ParseAttribute found AtpDate type, %s, length: %d',  {Do not localize}
+	        DoLogFmt('     ParseAttribute found AtpDate type, %s, length: %d',  {Do not localize}
             [GetStringForAttribute(LAttribute), LLength]);
- 	end;
+ 	      end;
         Skip(LLength);
       end;
       IdTNEFAtpShort: begin
@@ -2700,41 +2690,41 @@ begin
         if FDoLogging then begin
           DoLogFmt('     ParseAttribute found AtpLong type, %s, length: %d',  {Do not localize}
             [GetStringForAttribute(LAttribute), LLength]);
-         end;
+        end;
         Skip(LLength);
       end;
       IdTNEFAtpByte: begin
         if FDoLogging then begin
-	  DoLogFmt('     ParseAttribute found AtpByte type, %s, length: %d',  {Do not localize}
-	    [GetStringForAttribute(LAttribute), LLength]);
-	end;
+	        DoLogFmt('     ParseAttribute found AtpByte type, %s, length: %d',  {Do not localize}
+	          [GetStringForAttribute(LAttribute), LLength]);
+	      end;
         Skip(LLength);
       end;
       IdTNEFAtpWord: begin
         if FDoLogging then begin
-	  DoLogFmt('     ParseAttribute found AtpWord type, %s, length: %d',  {Do not localize}
-	    [GetStringForAttribute(LAttribute), LLength]);
+	        DoLogFmt('     ParseAttribute found AtpWord type, %s, length: %d',  {Do not localize}
+	          [GetStringForAttribute(LAttribute), LLength]);
         end;
         Skip(LLength);
       end;
       IdTNEFAtpDWord: begin
         if FDoLogging then begin
-	  DoLogFmt('     ParseAttribute found AtpDWord type, %s, length: %d',  {Do not localize}
-	    [GetStringForAttribute(LAttribute), LLength]);
+          DoLogFmt('     ParseAttribute found AtpDWord type, %s, length: %d',  {Do not localize}
+	          [GetStringForAttribute(LAttribute), LLength]);
         end;
         Skip(LLength);
       end;
       IdTNEFAtpMax: begin
         if FDoLogging then begin
-	  DoLogFmt('     ParseAttribute found AtpMax type, %s, length: %d',  {Do not localize}
-	    [GetStringForAttribute(LAttribute), LLength]);
+	        DoLogFmt('     ParseAttribute found AtpMax type, %s, length: %d',  {Do not localize}
+	          [GetStringForAttribute(LAttribute), LLength]);
         end;
         Skip(LLength);
       end;
     else
       if FDoLogging then begin
         DoLogFmt('     ParseAttribute found unknown type, %s, length: %d',  {Do not localize}
-	  [GetStringForAttribute(LAttribute), LLength]);
+           [GetStringForAttribute(LAttribute), LLength]);
       end;
       Skip(LLength);
     end;

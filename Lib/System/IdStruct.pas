@@ -76,12 +76,16 @@ type
   end;
 
 implementation
-  //facilitate inlining only.
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-     {$IFDEF USEINLINE}
-  uses Windows;
-     {$ENDIF}
+
+// This is here to facilitate inlining
+
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF USE_INLINE}
+uses
+  Windows;
   {$ENDIF}
+{$ENDIF}
+
 { TIdStruct }
 
 constructor TIdStruct.Create;

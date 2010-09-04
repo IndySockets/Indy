@@ -108,6 +108,10 @@ end;
 procedure TIdServerIOHandler.SetScheduler(AScheduler: TIdScheduler);
 begin
   if FScheduler <> AScheduler then begin
+    // Remove self from the Scheduler's notification list
+    if Assigned(FScheduler) then begin
+      FScheduler.RemoveFreeNotification(Self);
+    end;
     FScheduler := AScheduler;
     // Add self to the Scheduler's notification list
     if Assigned(FScheduler) then begin

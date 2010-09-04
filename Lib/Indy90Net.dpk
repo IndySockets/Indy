@@ -1,18 +1,13 @@
 package Indy90Net;
 
 {$ALIGN 0}
-{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -23,7 +18,7 @@ package Indy90Net;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Master'}
 {$RUNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
   Borland.Delphi,
@@ -92,6 +87,7 @@ contains
   IdException in 'System\IdException.pas',
   IdExceptionCore in 'Core\IdExceptionCore.pas',
   IdExplicitTLSClientServerBase in 'Protocols\IdExplicitTLSClientServerBase.pas',
+  IdFIPS in 'Protocols\IdFIPS.pas',
   IdFSP in 'Protocols\IdFSP.pas',
   IdFTP in 'Protocols\IdFTP.pas',
   IdFTPBaseFileSystem in 'Protocols\IdFTPBaseFileSystem.pas',
@@ -107,6 +103,7 @@ contains
   IdFTPListParseDistinctTCPIP in 'Protocols\IdFTPListParseDistinctTCPIP.pas',
   IdFTPListParseEPLF in 'Protocols\IdFTPListParseEPLF.pas',
   IdFTPListParseHellSoft in 'Protocols\IdFTPListParseHellSoft.pas',
+  IdFTPListParseIEFTPGateway in 'Protocols\IdFTPListParseIEFTPGateway.pas',
   IdFTPListParseKA9Q in 'Protocols\IdFTPListParseKA9Q.pas',
   IdFTPListParseMPEiX in 'Protocols\IdFTPListParseMPEiX.pas',
   IdFTPListParseMVS in 'Protocols\IdFTPListParseMVS.pas',
@@ -118,6 +115,7 @@ contains
   IdFTPListParseNovellNetwarePSU in 'Protocols\IdFTPListParseNovellNetwarePSU.pas',
   IdFTPListParseOS2 in 'Protocols\IdFTPListParseOS2.pas',
   IdFTPListParsePCNFSD in 'Protocols\IdFTPListParsePCNFSD.pas',
+  IdFTPListParsePCTCP in 'Protocols\IdFTPListParsePCTCP.pas',
   IdFTPListParseStercomOS390Exp in 'Protocols\IdFTPListParseStercomOS390Exp.pas',
   IdFTPListParseStercomUnixEnt in 'Protocols\IdFTPListParseStercomUnixEnt.pas',
   IdFTPListParseStratusVOS in 'Protocols\IdFTPListParseStratusVOS.pas',
@@ -157,7 +155,12 @@ contains
   IdHashCRC in 'Protocols\IdHashCRC.pas',
   IdHashElf in 'Protocols\IdHashElf.pas',
   IdHashMessageDigest in 'Protocols\IdHashMessageDigest.pas',
-  IdHashSHA1 in 'Protocols\IdHashSHA1.pas',
+  IdHashSHA in 'Protocols\IdHashSHA.pas',
+  IdHeaderCoder2022JP in 'Protocols\IdHeaderCoder2022JP.pas',
+  IdHeaderCoderBase in 'Protocols\IdHeaderCoderBase.pas',
+  IdHeaderCoderIndy in 'Protocols\IdHeaderCoderIndy.pas',
+  IdHeaderCoderPlain in 'Protocols\IdHeaderCoderPlain.pas',
+  IdHeaderCoderUTF in 'Protocols\IdHeaderCoderUTF.pas',
   IdHeaderCoder2022JP in 'Protocols\IdHeaderCoder2022JP.pas',
   IdHeaderCoderBase in 'Protocols\IdHeaderCoderBase.pas',
   IdHeaderCoderDotNet in 'Protocols\IdHeaderCoderDotNet.pas',
@@ -201,6 +204,7 @@ contains
   IdMessageBuilder in 'Protocols\IdMessageBuilder.pas',
   IdMessageClient in 'Protocols\IdMessageClient.pas',
   IdMessageCoder in 'Protocols\IdMessageCoder.pas',
+  IdMessageCoderBinHex4 in 'Protocols\IdMessageCoderBinHex4.pas',
   IdMessageCoderMIME in 'Protocols\IdMessageCoderMIME.pas',
   IdMessageCoderQuotedPrintable in 'Protocols\IdMessageCoderQuotedPrintable.pas',
   IdMessageCoderUUE in 'Protocols\IdMessageCoderUUE.pas',
@@ -263,7 +267,6 @@ contains
   IdScheduler in 'Core\IdScheduler.pas',
   IdSchedulerOfThread in 'Core\IdSchedulerOfThread.pas',
   IdSchedulerOfThreadDefault in 'Core\IdSchedulerOfThreadDefault.pas',
-  IdSchedulerOfThreadPool in 'Core\IdSchedulerOfThreadPool.pas',
   IdServerIOHandler in 'Core\IdServerIOHandler.pas',
   IdServerIOHandlerSocket in 'Core\IdServerIOHandlerSocket.pas',
   IdServerIOHandlerStack in 'Core\IdServerIOHandlerStack.pas',

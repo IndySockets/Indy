@@ -33,8 +33,13 @@ type
   public
     procedure Trace;
   published
+    {$IFDEF DOTNET_2_OR_ABOVE}
+    property IPVersion;
+    {$ENDIF}
+    property PacketSize;
+    property ReceiveTimeout;
     property ResolveHostNames : Boolean read FResolveHostNames write FResolveHostNames;
-    property OnReply: TOnReplyEvent read FOnReply write FOnReply;
+    property OnReply;
   end;
 
 implementation

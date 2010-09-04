@@ -19,15 +19,16 @@ uses
   Windows, SysUtils, Registry, Classes;
 
 type
-  TWhichOption = (woHppModify,woSetupD2,woSetupD3,woSetupD4,woSetupD5,woSetupD6,
-   woSetupD7,woSetupD8,woSetupD9,woSetupD10,woSetupD11,woSetupC1,woSetupC3,
+  TWhichOption = (
+   woHppModify,woSetupD2,woSetupD3,woSetupD4,woSetupD5,woSetupD6,woSetupD7,
+   woSetupD8,woSetupD9,woSetupD10,woSetupD11,woSetupD12,woSetupC1,woSetupC3,
    woSetupC4,woSetupC5,woSetupC6,woSetupC7,woSetupC8,woSetupC9,woInvalid);
 
 var
   Options: array[TWhichOption] of String = ('HppModify','SetupD2','SetupD3',
    'SetupD4','SetupD5','SetupD6','SetupD7','SetupD8','SetupD9','SetupD10',
-   'SetupD11','SetupC1','SetupC3','SetupC4','SetupC5','SetupC6','SetupC7',
-   'SetupC8','SetupC9','Invalid');
+   'SetupD11','SetupD12','SetupC1','SetupC3','SetupC4','SetupC5',
+   'SetupC6','SetupC7','SetupC8','SetupC9','Invalid');
   WhichOption: TWhichOption;
   CmdParam: string;
 
@@ -35,9 +36,9 @@ var
   var
     InFile: file;
     OutFile: text;
-    Line: string;
+    Line: AnsiString;
     Buffer: pointer;
-    BufPtr: PChar;
+    BufPtr: PAnsiChar;
     BufSize: longint;
     EOL: boolean;
   begin
@@ -93,18 +94,15 @@ var
   var
     CompilerFound: boolean;
     SysDirFound: boolean;
-    VarName: string;
     EnvList: TStringList;
     SysDir: string;
     ShortPath: string;
     LongPath: string;
   begin
-    VarName := EnvName;
-    CompilerFound := GetEnvironmentVariable(@VarName[1],nil,0) <> 0;
-    VarName := 'NDWINSYS';
-    SysDirFound := GetEnvironmentVariable(@VarName[1],nil,0) <> 0;
+    CompilerFound := GetEnvironmentVariable(PChar(EnvName), nil, 0) <> 0;
+    SysDirFound := GetEnvironmentVariable('NDWINSYS', nil, 0) <> 0;
 
-    If not CompilerFound or not SysDirFound then begin
+    If (not CompilerFound) or (not SysDirFound) then begin
       EnvList := TStringList.Create;
       try
         If FileExists('SetEnv.bat') then begin { Read in existing file }
@@ -114,7 +112,7 @@ var
         If not CompilerFound then begin { Get compiler path and add to string list }
           With TRegistry.Create do try
             RootKey := HKEY_LOCAL_MACHINE;
-            If OpenKey(RegRoot,false) and ValueExists('RootDir') then begin
+            If OpenKeyReadOnly(RegRoot) and ValueExists('RootDir') then begin
               LongPath := ReadString('RootDir');
               SetLength(ShortPath, MaxPathLen);	// when casting to a PChar, be sure the string is not empty
               SetLength(ShortPath, GetShortPathName(PChar(LongPath), PChar(ShortPath), MaxPathLen) );
@@ -133,10 +131,9 @@ var
         end; { if }
 
         If not SysDirFound then begin { Get System Directory and add to string list }
-          VarName := 'NDWINSYS';
-          If GetEnvironmentVariable(@VarName[1],nil,0) = 0 then begin { Not found }
-            SetLength(SysDir,255);
-            SetLength(SysDir,GetSystemDirectory(@SysDir[1],255));
+          If GetEnvironmentVariable('NDWINSYS', nil, 0) = 0 then begin { Not found }
+            SetLength(SysDir, 255);
+            SetLength(SysDir, GetSystemDirectory(PChar(SysDir), 255));
             EnvList.Add('SET NDWINSYS=' + SysDir);
             EnvList.SaveToFile('SetEnv.bat');
           end; { if }
@@ -170,6 +167,7 @@ begin
     woSetupD9:  SetPath('NDD9','Software\Borland\BDS\3.0');
     woSetupD10: SetPath('NDD10','Software\Borland\BDS\4.0');
     woSetupD11: SetPath('NDD11','Software\Borland\BDS\5.0');
+    woSetupD12: SetPath('NDD12','Software\CodeGear\BDS\6.0');
     woSetupC1:  SetPath('NDC1','Software\Borland\C++Builder\1.0');
     woSetupC3:  SetPath('NDC3','Software\Borland\C++Builder\3.0');
     woSetupC4:  SetPath('NDC4','Software\Borland\C++Builder\4.0');

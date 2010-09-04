@@ -143,6 +143,9 @@ begin
   AMsgEnd := False;
   Result := nil;
   LLine := ReadLnRFC(LMsgEnd);
+  if LMsgEnd then begin
+    Exit;
+  end;
   LDecoder := nil;
   if Length(LLine) > 0 then
   begin
@@ -169,17 +172,19 @@ begin
     if Assigned(LDecoder) then
     begin
       repeat
-        if (Length(Trim(LLine)) = 0) or (LLine = LDecoder.FillChar) then begin
+        if (Length(Trim(LLine)) = 0) or (LLine = String(LDecoder.FillChar)) then begin
           // UUE: Comes on the line before end. Supposed to be `, but some put a
           // blank line instead
         end else begin
           LDecoder.Decode(LLine);
         end;
         LLine := ReadLnRFC(LMsgEnd);
-      until TextIsSame(Trim(LLine), 'end');    {Do not Localize}
+      until TextIsSame(Trim(LLine), 'end') or LMsgEnd;    {Do not Localize}
       LDecoder.DecodeEnd;
     end;
-  finally FreeAndNil(LDecoder); end;
+  finally
+    FreeAndNil(LDecoder);
+  end;
 end;
 
 { TIdMessageEncoderInfoUUE }
@@ -199,8 +204,9 @@ begin
   ASrc.Position := 0;
   WriteStringToStream(ADest, 'begin ' + IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
   LEncoder := FEncoderClass.Create(nil); try
-    while ASrc.Position = (ASrc.Size - 1) do begin
-      WriteStringToStream(ADest, LEncoder.Encode(ASrc, 45) + EOL);
+    while ASrc.Position < ASrc.Size do begin
+      LEncoder.Encode(ASrc, ADest, 45);
+      WriteStringToStream(ADest, EOL);
     end;
     WriteStringToStream(ADest, LEncoder.FillChar + EOL + 'end' + EOL); {Do not Localize}
   finally FreeAndNil(LEncoder); end;

@@ -113,36 +113,37 @@ begin
   LSrc := nil; // keep the compiler happy
 
   LSize := Length(VBuffer);
-  if LSize = 0 then begin
-    Exit;
+  if LSize > 0 then begin
+    LSrc := VBuffer;
+
+    LMaxDataSize := FBlockSize - 1;
+    SetLength(VBuffer, ((LSize + LMaxDataSize - 1) div LMaxDataSize) * FBlockSize);
+    SetLength(LBlock, FBlockSize);
+
+    LCompleteBlocks := LSize div LMaxDataSize;
+    LRemaining := LSize mod LMaxDataSize;
+
+    //process all complete blocks
+    for LCount := 0 to LCompleteBlocks-1 do
+    begin
+      CopyTIdBytes(LSrc, LCount * LMaxDataSize, LBlock, 0, LMaxDataSize);
+      LBlock[LMaxDataSize] := LMaxDataSize;
+      Encrypt(LBlock);
+      CopyTIdBytes(LBlock, 0, VBuffer, LCount * FBlockSize, FBlockSize);
+    end;
+
+    //process the possible remaining bytes, ie less than a full block
+    if LRemaining > 0 then
+    begin
+      CopyTIdBytes(LSrc, LSize - LRemaining, LBlock, 0, LRemaining);
+      LBlock[LMaxDataSize] := LRemaining;
+      Encrypt(LBlock);
+      CopyTIdBytes(LBlock, 0, VBuffer, Length(VBuffer) - FBlockSize, FBlockSize);
+    end;
   end;
 
-  LSrc := VBuffer;
-
-  LMaxDataSize := FBlockSize - 1;
-  SetLength(VBuffer, ((LSize + LMaxDataSize - 1) div LMaxDataSize) * FBlockSize);
-  SetLength(LBlock, FBlockSize);
-
-  LCompleteBlocks := LSize div LMaxDataSize;
-  LRemaining := LSize mod LMaxDataSize;
-
-  //process all complete blocks
-  for LCount := 0 to LCompleteBlocks-1 do
-  begin
-    CopyTIdBytes(LSrc, LCount * LMaxDataSize, LBlock, 0, LMaxDataSize);
-    LBlock[LMaxDataSize] := LMaxDataSize;
-    Encrypt(LBlock);
-    CopyTIdBytes(LBlock, 0, VBuffer, LCount * FBlockSize, FBlockSize);
-  end;
-
-  //process the possible remaining bytes, ie less than a full block
-  if LRemaining > 0 then
-  begin
-    CopyTIdBytes(LSrc, LSize - LRemaining, LBlock, 0, LRemaining);
-    LBlock[LMaxDataSize] := LRemaining;
-    Encrypt(LBlock);
-    CopyTIdBytes(LBlock, 0, VBuffer, Length(VBuffer) - FBlockSize, FBlockSize);
-  end;
+  // let the next Intercept in the chain encode its data next
+  inherited Send(VBuffer);
 end;
 
 procedure TIdBlockCipherIntercept.Receive(var VBuffer: TIdBytes);
@@ -150,7 +151,10 @@ var
   LBlock : TIdBytes;
   LSize, LCount, LPos, LMaxDataSize, LCompleteBlocks: Integer;
   LRemaining: Integer;
-Begin
+begin
+  // let the next Intercept in the chain decode its data first
+  inherited Receive(VBuffer);
+
   LPos := 0;
   AppendBytes(FIncoming, VBuffer);
 

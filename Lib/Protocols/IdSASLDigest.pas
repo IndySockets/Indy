@@ -4,6 +4,7 @@ interface
 {$i IdCompilerDefines.inc}
 uses
   Classes,
+  SysUtils, //here to facilitate inline expansion
    IdSASL, IdSASLUserPass, IdUserPassProvider, IdException;
 
 type
@@ -14,7 +15,7 @@ type
     function StartAuthenticate(const AChallenge, AHost, AProtocolName:string) : String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; override;
     class function ServiceName: TIdSASLServiceName; override;
-
+    function IsReadyToStart: Boolean; override;
   published
     property authzid : String read Fauthzid write Fauthzid;
   end;
@@ -31,19 +32,19 @@ function CalcDigestResponse(const AUserName, APassword, ARealm, ANonce, ACNonce 
   const  AQop, ADigestURI : String; const AAuthzid : String = '') : String;
 
 implementation
-uses IdGlobal, IdHash, IdHashMessageDigest, IdResourceStringsProtocols, SysUtils;
+uses IdFIPS, IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, IdResourceStringsProtocols;
 
 const
   SASL_DIGEST_METHOD = 'AUTHENTICATE:';  {do not localize}
 
 function NCToStr(const AValue : Integer):String;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := IntToHex(AValue,8);
 end;
 
 function RemoveQuote(const aStr:string):string;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if (Length(aStr)>=2) and (aStr[1]='"') and (astr[Length(aStr)]='"') then begin
     Result := Copy(aStr, 2, Length(astr)-2)
@@ -54,7 +55,7 @@ end;
 
 //
 function HashResult(const AStr : String): TIdBytes;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   with TIdHashMessageDigest5.Create do
   try
@@ -65,7 +66,7 @@ begin
 end;
 
 function HashResultAsHex(const ABytes : TIdBytes) : String;  overload;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   with TIdHashMessageDigest5.Create do
   try
@@ -76,7 +77,7 @@ begin
 end;
 
 function HashResultAsHex(const AStr : String) : String; overload;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   with TIdHashMessageDigest5.Create do
   try
@@ -121,6 +122,11 @@ begin
   Result := '';
 end;
 
+function TIdSASLDigest.IsReadyToStart: Boolean;
+begin
+  Result := not GetFIPSMode;
+end;
+
 class function TIdSASLDigest.ServiceName: TIdSASLServiceName;
 
 begin
@@ -128,7 +134,8 @@ begin
 end;
 
 function TIdSASLDigest.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
-var LBuf : String;
+var
+  LBuf : String;
   LChallange: TStringList;
   LReply : TStringList;
   Lqop : String;
@@ -149,17 +156,16 @@ begin
   LQopOptions:= TStringList.Create;
   try
     LBuf := AChallenge;
-    repeat
-      if Length(LBuf)=0 then
-      begin
-        break;
-      end;
+    while Length(LBuf) > 0 do begin
       LChallange.Add(Fetch(LBuf,','));
-    until False;
+    end;
     for i := LChallange.Count-1 downto 0 do
     begin
-      LChallange.Values[LChallange.Names[i]] :=
-        RemoveQuote(LChallange.Values[LChallange.Names[i]]);
+      {$IFDEF HAS_TStrings_ValueFromIndex}
+      LChallange.ValueFromIndex[i] := RemoveQuote(LChallange.ValueFromIndex[i]);
+      {$ELSE}
+      LChallange.Values[LChallange.Names[i]] := RemoveQuote(LChallange.Values[LChallange.Names[i]]);
+      {$ENDIF}
     end;
     LQopOptions.CommaText := LChallange.Values['qop'];
     Lqop := 'auth';
@@ -168,13 +174,21 @@ begin
       Lqop := 'auth-int';
     end;
     if LQopOptions.IndexOf('auth-conf') > -1 then begin
-      EIdSASLDigestAuthConfNotSupported.IfFalse(LQopOptions.IndexOf('auth')>-1,RSSASLDigestAuthConfNotSupported);
+      if LQopOptions.IndexOf('auth') = -1 then begin
+        EIdSASLDigestAuthConfNotSupported.Toss(RSSASLDigestAuthConfNotSupported);
+      end;
     end;
     LNonce := LChallange.Values['nonce'];
     LRealm :=  LChallange.Values['realm'];
     LAlgorithm :=  LChallange.Values['algorithm'];
-    EIdSASLDigestChallNoAlgorithm.IfFalse(LAlgorithm<>'',RSSASLDigestMissingAlgorithm);
-//    EIdSASLDigestChallInvalidAlg.IfFalse(LAlgorithm = 'md5-sess',RSSASLDigestInvalidAlgorithm);
+    if LAlgorithm = '' then begin
+      EIdSASLDigestChallNoAlgorithm.Toss(RSSASLDigestMissingAlgorithm);
+    end;
+    {
+    if LAlgorithm <> 'md5-sess' then begin
+      EIdSASLDigestChallInvalidAlg.Toss(RSSASLDigestInvalidAlgorithm);
+    end;
+    }
 
     //Commented out for case test mentioned in RFC 2831
     LstrCNonce := HashResultAsHex(DateTimeToStr(Now));
@@ -186,15 +200,14 @@ begin
 
 
 //    if LQopOptions.IndexOf('auth-conf') > -1 then begin
-//      EIdSASLDigestAuthConfNotSupported.IfFalse(LQopOptions.IndexOf('auth')>-1,RSSASLDigestAuthConfNotSupported);
+//      if LQopOptions.IndexOf('auth') = -1 then begin
+//        EIdSASLDigestAuthConfNotSupported.Toss(RSSASLDigestAuthConfNotSupported);
+//      end;
 //    end;
 
-   if LCharset='' then
-   begin
+   if LCharset = '' then begin
      Result := '';
-   end
-   else
-   begin
+   end else begin
      Result := 'charset='+LCharset+',';
    end;
 {

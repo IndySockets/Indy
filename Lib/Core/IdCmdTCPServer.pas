@@ -151,8 +151,10 @@
 unit IdCmdTCPServer;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdCommandHandlers,
@@ -315,12 +317,14 @@ procedure TIdCmdTCPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: str
 var
   LReply: TIdReply;
 begin
-  LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts); try
-    LReply.Assign(ReplyUnknownCommand);
-    LReply.Text.Add(ALine);
-    AContext.Connection.IOHandler.Write(LReply.FormattedReply);
-  finally
-    FreeAndNil(LReply);
+  if CommandHandlers.PerformReplies then begin
+    LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts); try
+      LReply.Assign(ReplyUnknownCommand);
+      LReply.Text.Add(ALine);
+      AContext.Connection.IOHandler.Write(LReply.FormattedReply);
+    finally
+      FreeAndNil(LReply);
+    end;
   end;
 end;
 

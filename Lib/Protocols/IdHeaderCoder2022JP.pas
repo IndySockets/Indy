@@ -4,21 +4,35 @@ interface
 
 {$i IdCompilerDefines.inc}
 
+{RLebeau: TODO - move this logic into a TIdTextEncoding descendant class}
+
 uses
   IdGlobal, IdHeaderCoderBase;
 
 type
   TIdHeaderCoder2022JP = class(TIdHeaderCoder)
   public
-    class function Decode(const ACharSet, AData: String): String; override;
-    class function Encode(const ACharSet, AData: String): String; override;
+    class function Decode(const ACharSet: string; const AData: TIdBytes): String; override;
+    class function Encode(const ACharSet, AData: String): TIdBytes; override;
     class function CanHandle(const ACharSet: String): Boolean; override;
   end;
 
+  // RLebeau 4/17/10: this forces C++Builder to link to this unit so
+  // RegisterHeaderCoder can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdHeaderCoder2022JP"'*)
+
 implementation
 
+uses
+  SysUtils;
+
 const
-  kana_tbl : array[#$A1..#$DF] of Word = (
+  // RLebeau 1/7/09: using integers for #128-#255 because in D2009, the compiler
+  // may change characters >= #128 from their Ansi codepage value to their true
+  // Unicode codepoint value, depending on the codepage used for the source code.
+  // For instance, #128 may become #$20AC...
+
+  kana_tbl : array[161..223{#$A1..#$DF}] of Word = (
     $2123,$2156,$2157,$2122,$2126,$2572,$2521,$2523,$2525,$2527,
     $2529,$2563,$2565,$2567,$2543,$213C,$2522,$2524,$2526,$2528,
     $252A,$252B,$252D,$252F,$2531,$2533,$2535,$2537,$2539,$253B,
@@ -27,7 +41,7 @@ const
     $2562,$2564,$2566,$2568,$2569,$256A,$256B,$256C,$256D,$256F,
     $2573,$212B,$212C);
 
-  vkana_tbl : array[#$A1..#$DF] of Word = (
+  vkana_tbl : array[161..223{#$A1..#$DF}] of Word = (
     $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,
     $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$2574,$0000,
     $0000,$252C,$252E,$2530,$2532,$2534,$2536,$2538,$253A,$253C,
@@ -36,7 +50,7 @@ const
     $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,
     $0000,$0000,$0000);
 
-  sj1_tbl : array[#128..#255] of Byte = (
+  sj1_tbl : array[128..255{#128..#255}] of byte = (
     $00,$21,$23,$25,$27,$29,$2B,$2D,$2F,$31,$33,$35,$37,$39,$3B,$3D,
     $3F,$41,$43,$45,$47,$49,$4B,$4D,$4F,$51,$53,$55,$57,$59,$5B,$5D,
     $00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,
@@ -46,7 +60,7 @@ const
     $5F,$61,$63,$65,$67,$69,$6B,$6D,$6F,$71,$73,$75,$77,$79,$7B,$7D,
     $02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$02,$00,$00,$00);
 
-  sj2_tbl : array[#0..#255] of Word = (
+  sj2_tbl : array[0..255{#0..#255}] of Word = (
     $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,
     $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,
     $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,
@@ -74,7 +88,7 @@ const
     $0172,$0173,$0174,$0175,$0176,$0177,$0178,$0179,$017A,$017B,
     $017C,$017D,$017E,$0000,$0000,$0000);
 
-class function TIdHeaderCoder2022JP.Decode(const ACharSet, AData: String): String;
+class function TIdHeaderCoder2022JP.Decode(const ACharSet: String; const AData: TIdBytes): String;
 var
   T : string;
   I, L : Integer;
@@ -85,20 +99,18 @@ begin
   T := '';    {Do not Localize}
   isK := False;
   L := Length(AData);
-  I := 1;
-  while I <= L do
+  I := 0;
+  while I < L do
   begin
-    if AData[I] = #27 then
+    if AData[I] = 27 then
     begin
       Inc(I);
-      if (I+1) <= L then
+      if (I+1) < L then
       begin
-        if Copy(AData, I, 2) = '$B' then   {Do not Localize}
-        begin
+        if (AData[I] = Ord('$')) and (AData[I+1] = Ord('B')) then begin {do not localize}
           isK := True;
         end
-        else if Copy(AData, I, 2) = '(B' then    {Do not Localize}
-        begin
+        else if (AData[I] = Ord('(')) and (AData[I+1] = Ord('B')) then begin {do not localize}
           isK := False;
         end;
         Inc(I, 2);   { TODO -oTArisawa : Check RFC 1468}
@@ -106,10 +118,10 @@ begin
     end
     else if isK then
     begin
-      if (I+1) <= L then
+      if (I+1) < L then
       begin
-        K1 := Byte(AData[I]);
-        K2 := Byte(AData[I + 1]);
+        K1 := AData[I];
+        K2 := AData[I+1];
 
         K3 := (K1 - 1) shr 1;
         if K1 < 95 then begin
@@ -139,25 +151,25 @@ begin
     end
     else
     begin
-      T := T + AData[I];
+      T := T + Char(AData[I]);
       Inc(I);
     end;
   end;
   Result := T;
 end;
 
-class function TIdHeaderCoder2022JP.Encode(const ACharSet, AData: String): String;
+class function TIdHeaderCoder2022JP.Encode(const ACharSet, AData: String): TIdBytes;
 const
-  desig_asc = #27'(B';  {Do not Localize}
-  desig_jis = #27'$B';   {Do not Localize}
+  desig_asc: array[0..2] of Byte = (27, Ord('('), Ord('B'));  {Do not Localize}
+  desig_jis: array[0..2] of Byte = (27, Ord('$'), Ord('B'));  {Do not Localize}
 var
-  T: string;
+  T: TIdBytes;
   I, L: Integer;
   isK: Boolean;
   K1: Byte;
   K2, K3: Word;
 begin
-  T := '';    {Do not Localize}
+  SetLength(T, 0);
   isK := False;
   L := Length(AData);
   I := 1;
@@ -167,66 +179,82 @@ begin
     begin
       if isK then
       begin
-        T := T + desig_asc;
+        AppendByte(T, 27);
+        AppendByte(T, Ord('(')); {Do not Localize}
+        AppendByte(T, Ord('B')); {Do not Localize}
         isK := False;
       end;
-      T := T + AData[I];
-      INC(I);
+      AppendByte(T, Ord(AData[I]));
+      Inc(I);
     end else
     begin
-      K1 := sj1_tbl[AData[I]];
+      K1 := sj1_tbl[Ord(AData[I])];
       case K1 of
-      0: Inc(I);    { invalid SBCS }
-      2: Inc(I, 2); { invalid DBCS }
-      1:
-        begin { halfwidth katakana }
-          if not isK then begin
-            T := T + desig_jis;
-            isK := True;
-          end;
-          { simple SBCS -> DBCS conversion                         }
-          K2 := kana_tbl[AData[I]];
-          if (I < L) and (Ord(AData[I+1]) AND $FE = $DE) then
-          begin  { convert kana + voiced mark to voiced kana }
-            K3 := vkana_tbl[AData[I]];
-            // This is an if and not a case because of a D8 bug, return to
-            // case when d8 patch is released
-            if AData[I+1] = #$DE then begin  { voiced }
-              if K3 <> 0 then
-              begin
-                K2 := K3;
-                Inc(I);
-              end;
-            end
-            else if AData[I+1] = #$DF then begin  { semivoiced }
-              if (K3 >= $2550) and (K3 <= $255C) then
-              begin
-                K2 := K3 + 1;
-                Inc(I);
-              end;
-            end;
-          end;
-          T := T + Chr(K2 SHR 8) + Chr(K2 AND $FF);
-          INC(I);
-        end;
-      else { DBCS }
-        if (I < L) then begin
-          K2 := sj2_tbl[AData[I + 1]];
-          if K2 <> 0 then
-          begin
+        0: Inc(I);    { invalid SBCS }
+        2: Inc(I, 2); { invalid DBCS }
+        1:
+          begin { halfwidth katakana }
             if not isK then begin
-              T := T + desig_jis;
+              AppendByte(T, 27);
+              AppendByte(T, Ord('$')); {Do not Localize}
+              AppendByte(T, Ord('B')); {Do not Localize}
               isK := True;
             end;
-            T := T + Chr(K1 + K2 SHR 8) + Chr(K2 AND $FF);
+            { simple SBCS -> DBCS conversion }
+            K2 := kana_tbl[Ord(AData[I])];
+            if (I < L) and ((Ord(AData[I+1]) and $FE) = $DE) then
+            begin  { convert kana + voiced mark to voiced kana }
+              K3 := vkana_tbl[Ord(AData[I])];
+              // This is an if and not a case because of a D8 bug, return to
+              // case when d8 patch is released
+
+              // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
+              // may change characters >= #128 from their Ansi codepage value to their true
+              // Unicode codepoint value, depending on the codepage used for the source code.
+              // For instance, #128 may become #$20AC...
+
+              if AData[I+1] = Char($DE) then begin  { voiced }
+                if K3 <> 0 then
+                begin
+                  K2 := K3;
+                  Inc(I);
+                end;
+              end
+              else if AData[I+1] = Char($DF) then begin  { semivoiced }
+                if (K3 >= $2550) and (K3 <= $255C) then
+                begin
+                  K2 := K3 + 1;
+                  Inc(I);
+                end;
+              end;
+            end;
+            AppendByte(T, K2 shr 8);
+            AppendByte(T, K2 and $FF);
+            Inc(I);
           end;
+        else { DBCS }
+          if (I < L) then begin
+            K2 := sj2_tbl[Ord(AData[I+1])];
+            if K2 <> 0 then
+            begin
+              if not isK then begin
+                AppendByte(T, 27);
+                AppendByte(T, Ord('$')); {Do not Localize}
+                AppendByte(T, Ord('B')); {Do not Localize}
+                isK := True;
+              end;
+              AppendByte(T, K1 + K2 shr 8);
+              AppendByte(T, K2 and $FF);
+            end;
+          end;
+          Inc(I, 2);
         end;
-        Inc(I, 2);
       end;
-    end;
   end;
   if isK then begin
-    T := T + desig_asc;
+    AppendByte(T, 27);
+    AppendByte(T, Ord('(')); {Do not Localize}
+    AppendByte(T, Ord('B')); {Do not Localize}
   end;
   Result := T;
 end;

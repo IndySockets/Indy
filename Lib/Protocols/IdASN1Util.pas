@@ -291,9 +291,7 @@ begin
           begin
             c := Char(Buffer[Start]);
             Inc(Start);
-            if c <> #0 then begin
-              s := s + c;
-            end;
+            s := s + c;
           end;
           Result := s;
         end;

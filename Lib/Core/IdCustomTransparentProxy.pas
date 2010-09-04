@@ -76,6 +76,7 @@ uses
 type
   EIdTransparentProxyCircularLink = class(EIdException);
   EIdTransparentProxyUDPNotSupported = class(EIdException);
+
   TIdCustomTransparentProxyClass = class of TIdCustomTransparentProxy;
 
   TIdCustomTransparentProxy = class(TIdComponent)
@@ -97,7 +98,7 @@ type
     procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string = ''; const APort: TIdPort = 0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual;
     procedure CloseUDP(AHandle: TIdSocketHandle); virtual;
     function RecvFromUDP(AHandle: TIdSocketHandle; var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion;
+      var VPeerIP: string; var VPeerPort: TIdPort; var VIPVersion: TIdIPVersion;
        AMSec: Integer = IdTimeoutDefault): Integer; virtual;
     procedure SendToUDP(AHandle: TIdSocketHandle;
       const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion;
@@ -115,7 +116,7 @@ type
     property  IPVersion : TIdIPVersion read FIPVersion write FIPVersion default ID_DEFAULT_IP_VERSION;
     property  Username: String read FUsername write FUsername;
     property  ChainedProxy: TIdCustomTransparentProxy read FChainedProxy write SetChainedProxy;
-  End;//TIdCustomTransparentProxy
+  end;
 
 implementation
 
@@ -187,9 +188,12 @@ begin
     end;
     LNextValue := LNextValue.FChainedProxy;
   end;
+  if Assigned(FChainedProxy) then begin
+    FChainedProxy.RemoveFreeNotification(Self);
+  end;
   FChainedProxy := AValue;
-  if Assigned(AValue) then begin
-    AValue.FreeNotification(Self);
+  if Assigned(FChainedProxy) then begin
+    FChainedProxy.FreeNotification(Self);
   end;
 end;
 
@@ -207,7 +211,7 @@ end;
 
 function TIdCustomTransparentProxy.RecvFromUDP(AHandle: TIdSocketHandle;
   var ABuffer : TIdBytes; var VPeerIP: string; var VPeerPort: TIdPort;
-  const AIPVersion: TIdIPVersion; AMSec: Integer = IdTimeoutDefault): Integer;
+  var VIPVersion: TIdIPVersion; AMSec: Integer = IdTimeoutDefault): Integer;
 begin
    raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;

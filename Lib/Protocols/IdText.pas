@@ -51,10 +51,9 @@ type
   TIdText = class(TIdMessagePart)
   protected
     FBody: TStrings;
-    function  GetContentType: string; override; //Content-Type
+    function  GetContentDisposition: string; override;
+    function  GetContentType: string; override;
     procedure SetBody(const AStrs : TStrings); virtual;
-    procedure SetContentType(const AValue: string); override;
-    procedure SetCharSet(const AValue: String); virtual;
   public
     constructor Create(Collection: TIdMessageParts; ABody: TStrings = nil); reintroduce;
     destructor Destroy; override;
@@ -69,26 +68,18 @@ type
 implementation
 
 uses
-  IdGlobal,
+  IdGlobal, IdGlobalProtocols,
   SysUtils;
-
-const
-  SContentType = '%s; CHARSET="%s"';  {do not localize}
 
 { TIdText }
 
 procedure TIdText.Assign(Source: TPersistent);
 begin
   if Source is TIdText then begin
-    with Source as TIdText do begin
-      // RLebeau 10/17/2003
-      Self.Headers.Assign(Headers);
-      Self.ExtraHeaders.Assign(ExtraHeaders);
-      Self.Body.Assign(Body);
-    end;
-  end else begin
-    inherited Assign(Source);
+    Body.Assign((Source as TIdText).Body);
   end;
+  // allow TIdMessagePart to copy the headers
+  inherited Assign(Source);
 end;
 
 constructor TIdText.Create(Collection: TIdMessageParts; ABody: TStrings = nil);
@@ -107,12 +98,14 @@ begin
   inherited Destroy;
 end;
 
-function TIdText.GetContentType: string;
-var
-  S: String;
+function TIdText.GetContentDisposition: string;
 begin
-  S := inherited GetContentType;
-  Result := Fetch(S, ';');  {do not localize}
+  Result := ExtractHeaderItem(inherited GetContentDisposition);
+end;
+
+function TIdText.GetContentType: string;
+begin
+  Result := ExtractHeaderItem(inherited GetContentType);
 end;
 
 function TIdText.IsBodyEncodingRequired: Boolean;
@@ -140,16 +133,6 @@ end;
 procedure TIdText.SetBody(const AStrs: TStrings);
 begin
   FBody.Assign(AStrs);
-end;
-
-procedure TIdText.SetCharSet(const AValue: String);
-begin
-  inherited SetContentType(IndyFormat(SContentType, [GetContentType, AValue]));
-end;
-
-procedure TIdText.SetContentType(const AValue: string);
-begin
-  inherited SetContentType(IndyFormat(SContentType, [AValue, GetCharSet(Headers.Values['Content-Type'])]));  {do not localize}
 end;
 
 initialization

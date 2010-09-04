@@ -57,9 +57,14 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseBullGCOS7"'*)
+
 implementation
 
 uses
+  IdException,
   IdGlobal, IdFTPCommon, IdFTPListTypes, IdGlobalProtocols, IdStrings, SysUtils;
 
 { TIdFTPLPGOS7 }
@@ -82,7 +87,7 @@ var
     Result := True;
     for i := 1 to Length(ALine) do
     begin
-      if (not IsNumeric(ALine[i])) and (ALine[i] <> ' ') then
+      if (not IsNumeric(ALine[i])) and (not CharEquals(ALine, i, ' ')) then
       begin
         Result := False;
         Break;
@@ -92,7 +97,7 @@ var
 
 begin
   Result := False;
-  if AListing.Count >0 then
+  if AListing.Count > 0 then
   begin
     LData := AListing[0];
     Result := (Length(LData) > 54) and

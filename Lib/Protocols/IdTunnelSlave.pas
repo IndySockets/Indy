@@ -27,6 +27,7 @@
 unit IdTunnelSlave;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -746,7 +747,6 @@ begin
   OnlyOneThread.Enter;
   try
     if Assigned(SlaveThread) then begin
-//      if GetCurrentThreadID <> SlaveThread.ThreadID then begin
       if not IsCurrentThread(SlaveThread) then begin
         SlaveThread.TerminateAndWaitFor;
         SlaveThread.Free;
@@ -758,18 +758,6 @@ begin
   finally
     OnlyOneThread.Leave;
   end;
-
-{
-  if Assigned(SlaveThread) then begin
-    if not IsCurrentThread(SlaveThread) then begin
-      SlaveThread.TerminateAndWaitFor;
-//      SlaveThread.Terminate;
-      SlaveThread.Free;
-    end else begin
-      SlaveThread.FreeOnTerminate := True;
-    end;
-  end;
-}
 end;
 
 
@@ -779,49 +767,39 @@ var
   Thread: TIdPeerThread;
   user: TClientData;
 begin
-
-  if not StopTransmiting then begin
-
-    Thread := GetClientThread(UserID);
-    if Assigned(Thread) then begin
-      try
-        case Operation of
-          1:
-          begin
-            try
-              if Thread.Connection.Connected then begin
-                try
-                  Thread.Connection.Write(s);
-                except
-                  ;
-                end;
-              end;
-            except
+  if StopTransmiting then begin
+    Exit;
+  end;
+  Thread := GetClientThread(UserID);
+  if Assigned(Thread) then begin
+    try
+      case Operation of
+        1:
+        begin
+          try
+            if Thread.Connection.Connected then begin
               try
-                Thread.Connection.Disconnect;
+                Thread.Connection.Write(s);
               except
               end;
             end;
-          end;
-
-          2:
-          begin
-            user := TClientData(Thread.Data);
-            user.DisconnectedOnRequest := True;
-            Thread.Connection.Disconnect;
+          except
+            try
+              Thread.Connection.Disconnect;
+            except
+            end;
           end;
         end;
-
-      except
-        ;
+        2:
+        begin
+          user := TClientData(Thread.Data);
+          user.DisconnectedOnRequest := True;
+          Thread.Connection.Disconnect;
+        end;
       end;
-    end
-    else begin
-      ;
+    except
     end;
-
-  end; // if StopTransmiting
-
+  end;
 end;
 
 procedure TIdTunnelSlave.DisconectAllUsers;

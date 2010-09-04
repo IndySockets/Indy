@@ -354,7 +354,7 @@ irc             194/udp    Internet Relay Chat Protocol
   IdPORT_sgcp           = 440;//sgcp
   IdPORT_decvms_sysmgt  = 441;//decvms-sysmgt
   IdPORT_cvc_hostd      = 442;//cvc_hostd
-  IdPORT_SSL     = 443;
+  IdPORT_https     = 443;  //HTTPS
   IdPORT_npp2    = 444;//Simple Network Paging Protocol [RFC1568]
   IdPORT_microsoft_ds = 445;//Microsoft-DS
   IdPORT_ddm_rdb = 446; //DDM-RDB
@@ -1809,6 +1809,140 @@ Id_IPMC_ST_Routers = '224.0.0.7';         // ST Routers [RFC1190,KS14]          
 //  253        Reserved
 //  254-255    Reserved - To be assigned by the IANA
 
+//IPv6 Multicast addresses
+//http://www.iana.org/assignments/ipv6-multicast-addresses
+
+// Node-Local Scope
+// ----------------
+  Id_IPv6MC_NL_All_Nodes_Address = 'FF01:0:0:0:0:0:0:1';    // All Nodes Address                  [RFC4291]
+  Id_IPv6MC_NL_All_Routers_Address = 'FF01:0:0:0:0:0:0:2';    // All Routers Address                [RFC4291]
+  Id_IPv6MC_NL_mDNSv6 = 'FF01:0:0:0:0:0:0:FB';   // mDNSv6
+
+// Link-Local Scope
+// ----------------
+  Id_IPv6MC_LL_All_Nodes_Address = 'FF02:0:0:0:0:0:0:1';   //  All Nodes Address                  [RFC4291]
+  Id_IPv6MC_LL_All_Routers_Address = 'FF02:0:0:0:0:0:0:2';  //  All Routers Address                [RFC4291]
+//   'FF02:0:0:0:0:0:0:3';     Unassigned                         [JBP]
+  Id_IPv6MC_LL_DVMRP_Routers = 'FF02:0:0:0:0:0:0:4';   //  DVMRP Routers                      [RFC1075,JBP]
+  Id_IPv6MC_LL_OSPFIGP = 'FF02:0:0:0:0:0:0:5';   //  OSPFIGP                            [RFC2328,Moy]
+  Id_IPv6MC_LL_OSPFIGP_Designated_Routers = 'FF02:0:0:0:0:0:0:6';    // OSPFIGP Designated Routers         [RFC2328,Moy]
+  Id_IPv6MC_LL_ST_Routers = 'FF02:0:0:0:0:0:0:7';  //   ST Routers                         [RFC1190,KS14]
+  Id_IPv6MC_LL_ST_Hosts = 'FF02:0:0:0:0:0:0:8';  //   ST Hosts                           [RFC1190,KS14]
+  Id_IPv6MC_LL_RIP_Routers = 'FF02:0:0:0:0:0:0:9';   //  RIP Routers                        [RFC2080]
+  Id_IPv6MC_LL_EIGRP_Routers = 'FF02:0:0:0:0:0:0:A';   //  EIGRP Routers                      [Farinacci]
+  Id_IPv6MC_LL_Mobile_Agents = 'FF02:0:0:0:0:0:0:B';   // Mobile-Agents                      [Bill Simpson]
+  Id_IPv6MC_LL_SSDP = 'FF02:0:0:0:0:0:0:C';   //  SSDP                               [UPnP]
+  Id_IPv6MC_LL_All_PIM_Routers = 'FF02:0:0:0:0:0:0:D';    // All PIM Routers                    [Farinacci]
+  Id_IPv6MC_LL_RSVP_ENCAPSULATION = 'FF02:0:0:0:0:0:0:E';   //  RSVP-ENCAPSULATION                 [Braden]
+  Id_IPv6MC_LL_UPnP = 'FF02:0:0:0:0:0:0:F';    // UPnP                               [UPnP]
+  Id_IPv6MC_LL_All_MLDv2_capable_routers = 'FF02:0:0:0:0:0:0:16';   // All MLDv2-capable routers          [RFC3810]
+  Id_IPv6MC_LL_All_Snoopers = 'FF02:0:0:0:0:0:0:6A';   // All-Snoopers                       [RFC4286]
+  Id_IPv6MC_LL_PTP_pdelay = 'FF02:0:0:0:0:0:0:6B';   // PTP-pdelay                         [IEEE1588, K.Lee]  02 February 2007
+  Id_IPv6MC_LL_Saratoga = 'FF02:0:0:0:0:0:0:6C';  //  Saratoga                           [Wood]  30 August 2007
+  Id_IPv6MC_LL_LL_MANET_Routers = 'FF02:0:0:0:0:0:0:6D';  //  LL-MANET-Routers                   [RFC-ietf-manet-iana-07.txt]
+  Id_IPv6MC_LL_mDNSv6 = 'FF02:0:0:0:0:0:0:FB';  //  mDNSv6                             [Cheshire]
+
+  Id_IPv6MC_LL_Link_Name = 'FF02:0:0:0:0:0:1:1';   //  Link Name                          [Harrington]
+  Id_IPv6MC_LL_All_dhcp_agents = 'FF02:0:0:0:0:0:1:2';   //  All-dhcp-agents                    [RFC3315]
+  Id_IPv6MC_LL_Link_local_Multicast_Name_Resolution = 'FF02:0:0:0:0:0:1:3';   //  Link-local Multicast Name
+                    //      Resolution                         [RFC4795]
+  Id_IPv6MC_LL_DTCP_Announcement = 'FF02:0:0:0:0:0:1:4';    // DTCP Announcement
+
+// Site-Local Scope
+// ----------------
+  Id_IPv6MC_SL_All_Routers_Address = 'FF05:0:0:0:0:0:0:2';    //   All Routers Address              [RFC4291]
+  Id_IPv6MC_SL_mDNSv6 = 'FF05:0:0:0:0:0:0:FB'; //     mDNSv6                           [Cheshire]
+
+  Id_IPv6MC_SL_All_dhcp_servers = 'FF05:0:0:0:0:0:1:3'; //       All-dhcp-servers                 [RFC3315]
+  Id_IPv6MC_SL_Deprecated = 'FF05:0:0:0:0:0:1:4';   //    Deprecated (2003-03-12)
+
+//Variable Scope Multicast Addresses
+//----------------------------------
+//These permanently assigned multicast addresses are valid over all scope
+//ranges.  This is shown by an "X" in the scope field of the address that
+//means any legal scope value.
+
+//Note that, as defined in [RFC4291], IPv6 multicast addresses which
+//are only different in scope represent different groups.  Nodes must
+//join each group individually.
+
+//The IPv6 multicast addresses with variable scope are listed below.
+
+   Id_IPv6MC_V_Reserved_Multicast_Address = 'FF0X:0:0:0:0:0:0:0';   //  Reserved Multicast Address         [RFC4291]
+   Id_IPv6MC_V_SSDP = 'FF0X:0:0:0:0:0:0:C';    // SSDP                               [UPnP]
+   Id_IPv6MC_V_mDNSv6 = 'FF0X:0:0:0:0:0:0:FB';   // mDNSv6                             [Cheshire]
+
+   Id_IPv6MC_V_VMTP_Managers_Group = 'FF0X:0:0:0:0:0:0:100';  // VMTP Managers Group                [RFC1045,DRC3]
+   Id_IPv6MC_V_NTP = 'FF0X:0:0:0:0:0:0:101';   //Network Time Protocol (NTP)        [RFC1119,DLM1]
+   Id_IPv6MC_V_SGI_Dogfight = 'FF0X:0:0:0:0:0:0:102';  // SGI-Dogfight                       [AXC]
+   Id_IPv6MC_V_Rwhod = 'FF0X:0:0:0:0:0:0:103';  // Rwhod                              [SXD]
+   Id_IPv6MC_V_VMP = 'FF0X:0:0:0:0:0:0:104';  // VNP                                [DRC3]
+   Id_IPv6MC_V_Artificial_Horizons = 'FF0X:0:0:0:0:0:0:105';  // Artificial Horizons - Aviator      [BXF]
+   Id_IPv6MC_V_NSS = 'FF0X:0:0:0:0:0:0:106';  // NSS - Name Service Server          [BXS2]
+   Id_IPv6MC_V_AUDIONEWS = 'FF0X:0:0:0:0:0:0:107';   //AUDIONEWS - Audio News Multicast   [MXF2]
+   Id_IPv6MC_V_SUN_NIS_Plus = 'FF0X:0:0:0:0:0:0:108';  // SUN NIS+ Information Service       [CXM3]
+   Id_IPv6MC_V_MTP = 'FF0X:0:0:0:0:0:0:109';  // MTP Multicast Transport Protocol   [SXA]
+   Id_IPv6MC_V_IETF_1_LOW_AUDIO = 'FF0X:0:0:0:0:0:0:10A';  // IETF-1-LOW-AUDIO                   [SC3]
+   Id_IPv6MC_V_IETF_1_AUDIO = 'FF0X:0:0:0:0:0:0:10B';  // IETF-1-AUDIO                       [SC3]
+   Id_IPv6MC_V_IETF_1_VIDEO = 'FF0X:0:0:0:0:0:0:10C';  // IETF-1-VIDEO                       [SC3]
+   Id_IPv6MC_V_IETF_2_LOW_AUDIO = 'FF0X:0:0:0:0:0:0:10D'; //  IETF-2-LOW-AUDIO                   [SC3]
+   Id_IPv6MC_V_IETF_2_AUDIO = 'FF0X:0:0:0:0:0:0:10E';  // IETF-2-AUDIO                       [SC3]
+   Id_IPv6MC_V_IETF_2_VIDEO = 'FF0X:0:0:0:0:0:0:10F';  // IETF-2-VIDEO                       [SC3]
+
+   Id_IPv6MC_V_MUSIC_SERVICE = 'FF0X:0:0:0:0:0:0:110'; //  MUSIC-SERVICE                      [Guido van Rossum]
+   Id_IPv6MC_V_SEANET_TELEMETRY = 'FF0X:0:0:0:0:0:0:111';  // SEANET-TELEMETRY                   [Andrew Maffei]
+   Id_IPv6MC_V_SEANET_IMAGE = 'FF0X:0:0:0:0:0:0:112';  // SEANET-IMAGE                       [Andrew Maffei]
+   Id_IPv6MC_V_MLOADD = 'FF0X:0:0:0:0:0:0:113';//   MLOADD                             [Braden]
+   Id_IPv6MC_V_any_private_experiment = 'FF0X:0:0:0:0:0:0:114'; //   any private experiment             [JBP]
+   Id_IPv6MC_V_DVMRP_on_MOSPF = 'FF0X:0:0:0:0:0:0:115';  // DVMRP on MOSPF                     [Moy]
+   Id_IPv6MC_V_SVRLOC = 'FF0X:0:0:0:0:0:0:116';  // SVRLOC                             [Guttman]
+   Id_IPv6MC_V_XINGTV = 'FF0X:0:0:0:0:0:0:117';  // XINGTV                             <hgxing&aol.com>
+   Id_IPv6MC_V_microsoft_ds = 'FF0X:0:0:0:0:0:0:118';  // microsoft-ds                       <arnoldm&microsoft.com>
+   Id_IPv6MC_V_nbc_pro = 'FF0X:0:0:0:0:0:0:119';  // nbc-pro                            <bloomer&birch.crd.ge.com>
+   Id_IPv6MC_V_nbc_pfn = 'FF0X:0:0:0:0:0:0:11A';  // nbc-pfn                            <bloomer&birch.crd.ge.com>
+   Id_IPv6MC_V_lmsc_calren_1 = 'FF0X:0:0:0:0:0:0:11B';  // lmsc-calren-1                      [Uang]
+   Id_IPv6MC_V_lmsc_calren_2 = 'FF0X:0:0:0:0:0:0:11C';  // lmsc-calren-2                      [Uang]
+   Id_IPv6MC_V_lmsc_calren_3 = 'FF0X:0:0:0:0:0:0:11D';  // lmsc-calren-3                      [Uang]
+   Id_IPv6MC_V_lmsc_calren_4 = 'FF0X:0:0:0:0:0:0:11E';  // lmsc-calren-4                      [Uang]
+   Id_IPv6MC_V_ampr_info = 'FF0X:0:0:0:0:0:0:11F';  // ampr-info                          [Janssen]
+
+   Id_IPv6MC_V_mtrace = 'FF0X:0:0:0:0:0:0:120';  // mtrace                             [Casner]
+   Id_IPv6MC_V_RSVP_encap_1 = 'FF0X:0:0:0:0:0:0:121'; //  RSVP-encap-1                       [Braden]
+   Id_IPv6MC_V_RSVP_encap_2  = 'FF0X:0:0:0:0:0:0:122';  // RSVP-encap-2                       [Braden]
+   Id_IPv6MC_V_SVRLOC_DA = 'FF0X:0:0:0:0:0:0:123';  // SVRLOC-DA                          [Guttman]
+   Id_IPv6MC_V_rln_server = 'FF0X:0:0:0:0:0:0:124'; //   rln-server                         [Kean]
+   Id_IPv6MC_V_proshare_mc = 'FF0X:0:0:0:0:0:0:125'; //  proshare-mc                        [Lewis]
+   Id_IPv6MC_V_dantz = 'FF0X:0:0:0:0:0:0:126'; //  dantz                              [Yackle]
+   Id_IPv6MC_V_cisco_rp_announce = 'FF0X:0:0:0:0:0:0:127'; //   cisco-rp-announce                  [Farinacci]
+   Id_IPv6MC_V_cisco_rp_discovery  = 'FF0X:0:0:0:0:0:0:128'; //  cisco-rp-discovery                 [Farinacci]
+   Id_IPv6MC_V_gatekeeper = 'FF0X:0:0:0:0:0:0:129'; //  gatekeeper                         [Toga]
+   Id_IPv6MC_V_iberiagames = 'FF0X:0:0:0:0:0:0:12A'; //   iberiagames                        [Marocho]
+   Id_IPv6MC_V_X_Display = 'FF0X:0:0:0:0:0:0:12B';//   X Display                          [McKernan]
+   Id_IPv6MC_V_oap_multicast = 'FF0X:0:0:0:0:0:0:12C';  // oap-multicast                      [Eastham]
+   Id_IPv6MC_V_DvbServDisc = 'FF0X:0:0:0:0:0:0:12D';  // DvbServDisc                        [Willigen]
+   Id_IPv6MC_V_Ricoh_device_ctrl = 'FF0X:0:0:0:0:0:0:12E';  // Ricoh-device-ctrl                  [Ohhira]
+   Id_IPv6MC_V_Ricoh_device_ctrl2 = 'FF0X:0:0:0:0:0:0:12F';  // Ricoh-device-ctrl                  [Ohhira]
+
+   Id_IPv6MC_V_UPnP = 'FF0X:0:0:0:0:0:0:130';  // UPnP                               [UPnP]   21 September 2006
+   Id_IPv6MC_V_Systech_Mcast = 'FF0X:0:0:0:0:0:0:131'; //  Systech Mcast                      [Jakubiec]  21 September 2006
+   Id_IPv6MC_V_omasg = 'FF0X:0:0:0:0:0:0:132'; //  omasg                              [Lipford]   21 September 2006
+   
+   Id_IPv6MC_V_PTP_primary = 'FF0X:0:0:0:0:0:0:181';//   PTP-primary                        [IEEE1588, K.Lee]  02 February 2007
+   Id_IPv6MC_V_PTP_alternate1 = 'FF0X:0:0:0:0:0:0:182'; //  PTP-alternate1                     [IEEE1588, K.Lee]  02 February 2007
+   Id_IPv6MC_V_PTP_alternate2 = 'FF0X:0:0:0:0:0:0:183';  // PTP-alternate2                     [IEEE1588, K.Lee]  02 February 2007
+   Id_IPv6MC_V_PTP_alternate3 = 'FF0X:0:0:0:0:0:0:184';  // PTP-alternate3                     [IEEE1588, K.Lee]  02 February 2007
+
+
+   Id_IPv6MC_V_rwho_Group = 'FF0X:0:0:0:0:0:0:201'; // "rwho" Group (BSD) (unofficial)     [JBP]
+   Id_IPv6MC_V_SUN_RPC_PMAPPROC_CALLIT = 'FF0X:0:0:0:0:0:0:202';  // SUN RPC PMAPPROC_CALLIT            [BXE1]
+                          //1234
+   Id_IPv6MC_V_Mbus_ipv6 = 'FF0X:0:0:0:0:0:0:300';  // Mbus/Ipv6                          [RFC3259]
+
+//   FF0X:0:0:0:0:0:2:0000 -FF0X:0:0:0:0:0:2:7FFD  Multimedia Conference Calls      [SC3]
+   Id_IPv6MC_V_SAPv1_Announcements = 'FF0X:0:0:0:0:0:2:7FFE';   // SAPv1 Announcements              [SC3]
+   Id_IPv6MC_V_SAPv0_Announcements_deprecated = 'FF0X:0:0:0:0:0:2:7FFF';  //  SAPv0 Announcements (deprecated) [SC3]
+//   FF0X:0:0:0:0:0:2:8000 -FF0X:0:0:0:0:0:2:FFFF  SAP Dynamic Assignments          [SC3]
+ 
 implementation
 
 end.

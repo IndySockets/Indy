@@ -35,267 +35,294 @@ uses
   IdHTTP;
 
 const
-  Id_HTTPMethodPropFind = 'PROPFIND';
-  Id_HTTPMethodPropPatch = 'PROPPATCH';
-  Id_HTTPMethodOrderPatch = 'ORDERPATCH';
-  Id_HTTPMethodSearch = 'SEARCH';
-  Id_HTTPMethodMove = 'MOVE';
-  Id_HTTPMethodCopy = 'COPY';
-  Id_HTTPMethodCheckIn = 'CHECKIN';
-  Id_HTTPMethodCheckOut = 'CHECKOUT';
-  Id_HTTPMethodUnCheckOut = 'UNCHECKOUT';
-  Id_HTTPMethodLock = 'LOCK';
-  Id_HTTPMethodUnLock = 'UNLOCK';
-  Id_HTTPMethodReport = 'REPORT';
-  Id_HTTPMethodVersion = 'VERSION-CONTROL';
-  Id_HTTPMethodLabel = 'LABEL';
+  Id_HTTPMethodPropFind = 'PROPFIND';  {do not localize}
+  Id_HTTPMethodPropPatch = 'PROPPATCH';  {do not localize}
+  Id_HTTPMethodOrderPatch = 'ORDERPATCH';  {do not localize}
+  Id_HTTPMethodSearch = 'SEARCH';  {do not localize}
+  Id_HTTPMethodMKCol = 'MKCOL';  {do not localize}
+  Id_HTTPMethodMove = 'MOVE';  {do not localize}
+  Id_HTTPMethodCopy = 'COPY';  {do not localize}
+  Id_HTTPMethodCheckIn = 'CHECKIN';  {do not localize}
+  Id_HTTPMethodCheckOut = 'CHECKOUT';  {do not localize}
+  Id_HTTPMethodUnCheckOut = 'UNCHECKOUT';  {do not localize}
+  Id_HTTPMethodLock = 'LOCK';  {do not localize}
+  Id_HTTPMethodUnLock = 'UNLOCK';  {do not localize}
+  Id_HTTPMethodReport = 'REPORT';  {do not localize}
+  Id_HTTPMethodVersion = 'VERSION-CONTROL';  {do not localize}
+  Id_HTTPMethodLabel = 'LABEL';  {do not localize}
+  Id_HTTPMethodMakeCol = 'MKCOL';  {Do not localize}
 
 const
   //casing is according to rfc
-  cTimeoutInfinite='Infinite';
-  cDepthInfinity='infinity';
+  cTimeoutInfinite = 'Infinite';  {do not localize}
+  cDepthInfinity = 'infinity';  {do not localize}
 
 type
 
   TIdWebDAV = class(TIdHTTP)
   public
-    procedure DAVCheckIn(const AURL,AComment:string);
-    procedure DAVCheckOut(const AURL:string;const XMLQuery: TStream;const AComment:string);
-    procedure DAVCopy(const AURL, DURL: string;const AResponseContent:TStream;const AOverWrite:boolean=true;const ADepth:string=cDepthInfinity);
-    procedure DAVDelete(const AURL: string;const ALockToken:string);
-    procedure DAVLabel(const AURL: string;const XMLQuery:TStream);
-    procedure DAVLock(const AURL: string;const XMLQuery, AResponseContent: TStream;const LockToken, Tags:string;const TimeOut:string=cTimeoutInfinite;const MustExist:Boolean=False;const Depth:string='0');
-    procedure DAVMove(const AURL, DURL: string;const AResponseContent:TStream;const overwrite:boolean=true;const Depth:string=cDepthInfinity);
-    procedure DAVOrderPatch(const AURL: string;const XMLQuery: TStream);
-    procedure DAVPropFind(const AURL: string;const XMLQuery, AResponseContent: TStream;const Depth:string='0';const RangeFrom:integer=-1;const RangeTo:Integer=-1); //finds properties
-    procedure DAVPropPatch(const AURL: string;const XMLQuery, AResponseContent: TStream;const Depth:string='0'); //patches properties
-    procedure DAVPut(const AURL: string; const ASource: TStream;const LockToken:String);
-    procedure DAVReport(const AURL: string;const XMLQuery, AResponseContent:TStream);
-    procedure DAVSearch(const AURL: string;const rangeFrom, rangeTo:integer;const XMLQuery, AResponseContent: TStream;const Depth:string='0'); //performs a search
-    procedure DAVUnCheckOut(const AURL:String);
-    procedure DAVUnLock(const AURL: string;const LockToken:string);
+    procedure DAVCheckIn(const AURL, AComment: string);
+    procedure DAVCheckOut(const AURL: string; const AXMLQuery: TStream; const AComment: string);
+    procedure DAVCopy(const AURL, DURL: string; const AResponseContent: TStream; const AOverWrite: boolean = True; const ADepth: string = cDepthInfinity);
+    procedure DAVDelete(const AURL: string; const ALockToken: string);
+    procedure DAVLabel(const AURL: string; const AXMLQuery: TStream);
+    procedure DAVLock(const AURL: string; const AXMLQuery, AResponseContent: TStream; const ALockToken, ATags: string; const ATimeOut: string = cTimeoutInfinite; const AMustExist: Boolean = False; const ADepth: string = '0');  {do not localize}
+    procedure DAVMove(const AURL, DURL: string; const AResponseContent: TStream; const AOverWrite: Boolean = True; const ADepth: string = cDepthInfinity);
+    procedure DAVOrderPatch(const AURL: string; const AXMLQuery: TStream);
+    procedure DAVPropFind(const AURL: string; const AXMLQuery, AResponseContent: TStream; const ADepth: string = '0'; const ARangeFrom: Integer = -1; const ARangeTo: Integer = -1);  {do not localize}
+    procedure DAVPropPatch(const AURL: string; const AXMLQuery, AResponseContent: TStream; const ADepth: string = '0');  {do not localize}
+    procedure DAVPut(const AURL: string; const ASource: TStream; const ALockToken: String);
+    procedure DAVReport(const AURL: string; const AXMLQuery, AResponseContent: TStream);
+    procedure DAVSearch(const AURL: string; const ARangeFrom, ARangeTo: Integer; const AXMLQuery, AResponseContent: TStream; const ADepth: string = '0');  {do not localize}
+    procedure DAVUnCheckOut(const AURL: String);
+    procedure DAVUnLock(const AURL: string; const ALockToken: string);
     procedure DAVVersionControl(const AURL: string);
+    procedure DAVMakeCollection(const AURL: string);
   end;
 
 implementation
-uses IdGlobal, SysUtils;
 
-procedure TIdWebDAV.DAVProppatch(const AURL:string;const XMLQuery,AResponseContent:TStream;const Depth:string);
-begin
-  request.CustomHeaders.Add('Depth '+request.CustomHeaders.NameValueSeparator+' '+depth);
-  DoRequest(Id_HTTPMethodPropPatch, AURL, XMLQuery, AResponseContent,[]);
-  request.CustomHeaders.Delete(request.customHeaders.indexOfName('Depth'));
-end;
+uses
+  IdGlobal, SysUtils;
 
-procedure TIdWebDAV.DAVPropfind(const AURL: string;const XMLQuery, AResponseContent:TStream;const Depth:string;
-  const RangeFrom:Integer;const RangeTo:Integer);
+procedure TIdWebDAV.DAVPropPatch(const AURL: string; const AXMLQuery, AResponseContent: TStream;
+  const ADepth: string);
 begin
-  if rangeTo>-1 then
-    request.CustomHeaders.Add('Range'+request.CustomHeaders.NameValueSeparator+' Rows='+intToStr(rangeFrom)+'-'+IntToStr(rangeTo));
-  request.CustomHeaders.Add('Depth'+request.CustomHeaders.NameValueSeparator+' '+depth);
+  Request.CustomHeaders.Values['Depth'] := ADepth;  {do not localize}
   try
-    DoRequest(Id_HTTPMethodPropfind, AURL, XMLQuery, AResponseContent,[]);
+    DoRequest(Id_HTTPMethodPropPatch, AURL, AXMLQuery, AResponseContent, []);
   finally
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Depth'));
-    if rangeTo>-1 then
-      request.CustomHeaders.Delete(request.customHeaders.indexOfName('Range'));
+    Request.CustomHeaders.Values['Depth'] := '';  {do not localize}
   end;
 end;
 
-procedure TIdWebDAV.DAVORDERPATCH(const AURL: string;const XMLQuery : TStream);
+procedure TIdWebDAV.DAVPropFind(const AURL: string; const AXMLQuery, AResponseContent: TStream;
+  const ADepth: string; const ARangeFrom: Integer; const ARangeTo: Integer);
 begin
-  DoRequest(Id_HTTPMethodOrderPatch, AURL, XMLQuery, Nil, []);
+  if ARangeTo > -1 then begin
+    Request.CustomHeaders.Values['Range'] := 'Rows=' + IntToStr(ARangeFrom) + '-' + IntToStr(ARangeTo);  {do not localize}
+  end else begin
+    Request.CustomHeaders.Values['Range'] := '';  {do not localize}
+  end;
+  Request.CustomHeaders.Values['Depth'] := ADepth;  {do not localize}
+  try
+    DoRequest(Id_HTTPMethodPropfind, AURL, AXMLQuery, AResponseContent, []);
+  finally
+    Request.CustomHeaders.Values['Depth'] := '';  {do not localize}
+    if ARangeTo > -1 then begin
+      Request.CustomHeaders.Values['Range'] := '';  {do not localize}
+    end;
+  end;
 end;
 
-procedure TIdWebDAV.DAVSearch(const AURL: string;const rangeFrom, rangeTo:integer;const XMLQuery, AResponseContent: TStream;const Depth:string);
+procedure TIdWebDAV.DAVOrderPatch(const AURL: string; const AXMLQuery: TStream);
 begin
-  if rangeTo>-1 then
+  DoRequest(Id_HTTPMethodOrderPatch, AURL, AXMLQuery, nil, []);
+end;
+
+procedure TIdWebDAV.DAVSearch(const AURL: string; const ARangeFrom, ARangeTo: Integer;
+  const AXMLQuery, AResponseContent: TStream; const ADepth: string);
+begin
+  if ARangeTo > -1 then begin
+    Request.CustomHeaders.Values['Range'] := 'Rows=' + IntToStr(ARangeFrom) + '-' + IntToStr(ARangeTo);  {do not localize}
+  end else begin
+    Request.CustomHeaders.Values['Range'] := '';  {do not localize}
+  end;
+  Request.CustomHeaders.Values['Depth'] := ADepth;  {do not localize}
+  try
+    DoRequest(Id_HTTPMethodSearch, AURL, AXMLQuery, AResponseContent, []);
+  finally
+    Request.CustomHeaders.Values['Depth'] := '';  {do not localize}
+    if ARangeTo > -1 then begin
+      Request.CustomHeaders.Values['Range'] := '';  {do not localize}
+    end;
+  end;
+end;
+
+procedure TIdWebDAV.DAVMove(const AURL, DURL: string; const AResponseContent: TStream;
+  const AOverWrite: Boolean; const ADepth: string);
+begin
+  if not AOverWrite then begin
+    Request.CustomHeaders.Values['Overwrite'] := 'F';  {do not localize}
+  end else begin
+    Request.CustomHeaders.Values['Overwrite'] := '';  {do not localize}
+  end;
+  Request.CustomHeaders.Values['Destination'] := DURL;  {do not localize}
+  Request.CustomHeaders.Values['Depth'] := ADepth;  {do not localize}
+  try
+    DoRequest(Id_HTTPMethodMove, AURL, nil, AResponseContent, []);
+  finally
+    Request.CustomHeaders.Values['Destination'] := '';  {do not localize}
+    if not AOverWrite then begin
+      Request.CustomHeaders.Values['Overwrite'];  {do not localize}
+    end;
+    Request.CustomHeaders.Values['Depth'] := '';  {do not localize}
+  end;
+end;
+
+procedure TIdWebDAV.DAVCopy(const AURL, DURL: string; const AResponseContent: TStream;
+  const AOverWrite: Boolean; const ADepth: string);
+begin
+  Request.CustomHeaders.Values['Destination'] := DURL;  {do not localize}
+  Request.CustomHeaders.Values['Overwrite'] := iif(AOverWrite, 'T', 'F');  {do not localize}
+  Request.CustomHeaders.Values['Depth'] := ADepth;  {do not localize}
+  try
+    DoRequest(Id_HTTPMethodCopy, AURL, nil, AResponseContent, []);
+  finally
+    Request.CustomHeaders.Values['Destination'] := '';  {do not localize}
+    Request.CustomHeaders.Values['Overwrite'] := '';  {do not localize}
+    Request.CustomHeaders.Values['Depth'] := '';  {do not localize}
+  end;
+end;
+
+procedure TIdWebDAV.DAVCheckIn(const AURL, AComment: string);
+var
+  LXML: TMemoryStream;
+  s: string;
+begin
+  DoRequest(Id_HTTPMethodCheckIn, AURL, nil, nil, []);
+  if AComment <> '' then
   begin
-    request.CustomHeaders.Add('Range'+request.CustomHeaders.NameValueSeparator+' Rows='+IntToStr(rangeFrom)+'-'+IntToStr(rangeTo));
-  end;
-  request.CustomHeaders.Add('Depth'+request.CustomHeaders.NameValueSeparator+' '+depth);
-  try
-    DoRequest(Id_HTTPMethodSearch, AURL, XMLQuery, AResponseContent, []);
-  finally
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Depth'));
-    if rangeTo>-1 then
-      request.CustomHeaders.Delete(request.customHeaders.indexOfName('Range'));
-  end;
-end;
-
-procedure TIdWebDAV.DAVMove(const AURL, DURL: string;const AResponseContent:TStream;const overwrite:boolean;const Depth:string);
-var
- foverwrite:string;
-begin
-  if not overwrite then
-    begin
-      foverwrite:='F';
-      request.CustomHeaders.Add('Overwrite'+request.CustomHeaders.NameValueSeparator+' '+foverwrite);
+    s := '<?xml version="1.0" encoding="utf-8" ?>' +  {do not localize}
+         '<propertyupdate xmlns:D="DAV:"><set><prop>' +  {do not localize}
+         '<comment>' + AComment + '</comment></set></set></propertyupdate>';  {do not localize}
+    LXML := TMemoryStream.Create;
+    try
+      WriteStringToStream(LXML, s, TIdTextEncoding.UTF8);
+      LXML.Position := 0;
+      DoRequest(Id_HTTPMethodPropPatch, AURL, LXML, nil, []);
+    finally
+      LXML.Free;
     end;
-  request.CustomHeaders.Add('Destination'+request.CustomHeaders.NameValueSeparator+' '+DURL);
-
-  request.CustomHeaders.Add('Depth'+request.CustomHeaders.NameValueSeparator+' '+depth);
-  try
-    DoRequest(Id_HTTPMethodMove, AURL, Nil, AResponseContent, []);
-  finally
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Destination'));
-    if not overwrite then
-      request.CustomHeaders.Delete(request.customHeaders.indexOfName('Overwrite'));
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Depth'));
   end;
 end;
 
-procedure TIdWebDAV.DAVCopy(const AURL, DURL: string;const AResponseContent:TStream;const AOverWrite:Boolean;const ADepth:string);
+procedure TIdWebDAV.DAVCheckOut(const AURL: String; const AXMLQuery: TStream; const AComment: String);
 var
- foverwrite:string;
+  LXML: TMemoryStream;
+  s: string;
 begin
-  if AOverWrite then
-    foverwrite:='T'
-  else
-    foverwrite:='f';
-  request.CustomHeaders.Add('Destination'+request.CustomHeaders.NameValueSeparator+' '+DURL);
-  request.CustomHeaders.Add('Overwrite'+request.CustomHeaders.NameValueSeparator+' '+foverwrite);
-  request.CustomHeaders.Add('Depth'+request.CustomHeaders.NameValueSeparator+' '+aDepth);
-  try
-    DoRequest(Id_HTTPMethodCopy, AURL, Nil, AResponseContent, []);
-  finally
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Destination'));
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Overwrite'));
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Depth'));
-  end;
-end;
-
-procedure TIdWebDAV.DAVCheckIn(const AURL,AComment:string);
-var
-  xml:TMemoryStream;
-  s:string;
-begin
-  DoRequest(Id_HTTPMethodCheckIn, AURL, Nil, Nil, []);
-  if AComment<>'' then
-    begin
-      xml:=TMemoryStream.create;
-      try
-        s:=('<?xml version="1.0" encoding="utf-8" ?><propertyupdate xmlns:D="DAV:"><set><prop>'
-         +'<comment>'+AComment+'</comment></set></set></propertyupdate>');
-        WriteStringToStream(xml,s);
-        DoRequest(Id_HTTPMethodPropPatch, AURL, xml, Nil, []);
-      finally
-        xml.free;
-      end;
+  DoRequest(Id_HTTPMethodCheckOut, AURL, AXMLQuery, nil, []);
+  if AComment <> '' then
+  begin
+    s := '<?xml version="1.0" encoding="utf-8" ?>' +   {do not localize}
+         '<propertyupdate xmlns:D="DAV:"><set><prop>' +  {do not localize}
+         '<comment>' + AComment + '</comment></set></set></propertyupdate>';  {do not localize}
+    LXML := TMemoryStream.Create;
+    try
+      WriteStringToStream(LXML, s, TIdTextEncoding.UTF8);
+      LXML.Position := 0;
+      DoRequest(Id_HTTPMethodPropPatch, AURL, LXML, nil, []);
+    finally
+      LXML.Free;
     end;
-end;
-
-procedure TIdWebDAV.DAVCheckOut(const AURL:String;const XMLQuery: TStream;const AComment:String);
-var
-  xml:TMemoryStream;
-  s:string;
-begin
-  DoRequest(Id_HTTPMethodCheckOut, AURL, XMLQuery, nil, []);
-  if AComment<>'' then
-    begin
-      xml:=TMemoryStream.create;
-      try
-        s:=('<?xml version="1.0" encoding="utf-8" ?><propertyupdate xmlns:D="DAV:"><set><prop>'
-         +'<comment>'+AComment+'</comment></set></set></propertyupdate>');
-        WriteStringToStream(xml,s);
-        DoRequest(Id_HTTPMethodPropPatch, AURL, xml, Nil, []);
-      finally
-        xml.free;
-      end;
-    end;
-end;
-
-procedure TIdWebDAV.DAVUnCheckOut(const AURL:string);
-begin
-  DoRequest(Id_HTTPMethodUnCheckOut, AURL, Nil, Nil, []);
-end;
-
-procedure TIdWebDAV.DAVLock(
- const AURL: string;
- const XMLQuery, AResponseContent: TStream;
- const LockToken, Tags:string;
- const TimeOut:string;
- const MustExist:Boolean;
- const Depth:string);
-var
- index:integer;
-begin
-  //NOTE - do not specify a LockToken and Tags value.  If both exist then only LockToken will be used.  If you wish to use LockToken
-  //together with other tags then concatenate and send via Tags value
-  //Also note that specifying the lock token in a lock request facilitates a lock refresh
-  request.CustomHeaders.Add('Timeout'+request.CustomHeaders.NameValueSeparator+' '+TimeOut);
-  if mustExist then
-    request.CustomHeaders.Add('If-Match'+request.CustomHeaders.NameValueSeparator+' *')
-  else
-    request.CustomHeaders.Add('If-None-Match'+request.CustomHeaders.NameValueSeparator+' *');
-  request.CustomHeaders.Add('Depth'+request.CustomHeaders.NameValueSeparator+' '+depth);
-  if LockToken<>'' then
-    request.CustomHeaders.Add('If'+request.CustomHeaders.NameValueSeparator+' (<'+LockToken+'>)')
-  else
-    if Tags<>'' then
-      request.CustomHeaders.Add('If'+request.CustomHeaders.NameValueSeparator+' ('+Tags+')');
-  try
-    DoRequest(Id_HTTPMethodLock, AURL, XMLQuery, AResponseContent, []);
-  finally
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Timeout'));
-    index:=request.customHeaders.indexOfName('If-Match');
-    if index<>-1 then
-      request.CustomHeaders.Delete(index);
-    index:=request.customHeaders.indexOfName('If-None-Match');
-    if index<>-1 then
-      request.CustomHeaders.Delete(index);
-    request.CustomHeaders.Delete(request.customHeaders.indexOfName('Depth'));
-    index:=request.customHeaders.indexOfName('If');
-    if index<>-1 then
-      request.CustomHeaders.Delete(index);
   end;
 end;
 
-procedure TIdWebDAV.DAVUnLock(const AURL: string;const LockToken:string);
+procedure TIdWebDAV.DAVUnCheckOut(const AURL: string);
 begin
-  request.CustomHeaders.Add('Lock-Token'+request.CustomHeaders.NameValueSeparator+' <'+LockToken+'>');
-  DoRequest(Id_HTTPMethodUnLock, AURL, Nil, Nil, []);
-  request.CustomHeaders.Delete(request.customHeaders.indexOfName('Lock-Token'));
+  DoRequest(Id_HTTPMethodUnCheckOut, AURL, nil, nil, []);
 end;
 
-procedure TIdWebDAV.DAVReport(const AURL: string;const XMLQuery, AResponseContent:TStream);
+procedure TIdWebDAV.DAVLock(const AURL: string; const AXMLQuery, AResponseContent: TStream;
+  const ALockToken, ATags: string; const ATimeOut: string; const AMustExist: Boolean;
+  const ADepth: string);
 begin
-  DoRequest(Id_HTTPMethodReport, AURL, XMLQuery, AResponseContent, []);
+  //NOTE - do not specify a LockToken and Tags value.  If both exist then only
+  //LockToken will be used.  If you wish to use LockToken together with other
+  //tags then concatenate and send via Tags value.
+  //Also note that specifying the lock token in a lock request facilitates
+  //a lock refresh
+  Request.CustomHeaders.Values['Timeout'] := ATimeOut;  {do not localize}
+  if AMustExist then
+  begin
+    Request.CustomHeaders.Values['If-Match'] := '*';  {do not localize}
+    Request.CustomHeaders.Values['If-None-Match'] := '';  {do not localize}
+  end else
+  begin
+    Request.CustomHeaders.Values['If-Match'] := '';  {do not localize}
+    Request.CustomHeaders.Values['If-None-Match'] := '*';  {do not localize}
+  end;
+  Request.CustomHeaders.Values['Depth'] := ADepth;  {do not localize}
+  if ALockToken <> '' then begin
+    Request.CustomHeaders.Values['If'] := '(<'+ALockToken+'>)';  {do not localize}
+  end
+  else if ATags <> '' then begin
+    Request.CustomHeaders.Values['If'] := '('+ATags+')';  {do not localize}
+  end else begin
+    Request.CustomHeaders.Values['If'] := '';  {do not localize}
+  end;
+  try
+    DoRequest(Id_HTTPMethodLock, AURL, AXMLQuery, AResponseContent, []);
+  finally
+    Request.CustomHeaders.Values['Timeout'] := '';  {do not localize}
+    Request.CustomHeaders.Values['If-Match'] := '';  {do not localize}
+    Request.CustomHeaders.Values['If-None-Match'] := '';  {do not localize}
+    Request.CustomHeaders.Values['Depth'] := '';  {do not localize}
+    Request.CustomHeaders.Values['If'] := '';  {do not localize}
+  end;
+end;
+
+procedure TIdWebDAV.DAVUnLock(const AURL: string; const ALockToken: string);
+begin
+  Request.CustomHeaders.Values['Lock-Token'] := '<'+ALockToken+'>';  {do not localize}
+  try
+    DoRequest(Id_HTTPMethodUnLock, AURL, nil, nil, []);
+  finally
+    Request.CustomHeaders.Values['Lock-Token'] := '';  {do not localize}
+  end;
+end;
+
+procedure TIdWebDAV.DAVReport(const AURL: string; const AXMLQuery, AResponseContent: TStream);
+begin
+  DoRequest(Id_HTTPMethodReport, AURL, AXMLQuery, AResponseContent, []);
 end;
 
 procedure TIdWebDAV.DAVVersionControl(const AURL: string);
 begin
-  DoRequest(Id_HTTPMethodVersion, AURL, Nil, Nil, []);
+  DoRequest(Id_HTTPMethodVersion, AURL, nil, nil, []);
 end;
 
-procedure TIdWebDAV.DAVLabel(const AURL: string;const XMLQuery:TStream);
+procedure TIdWebDAV.DAVLabel(const AURL: string; const AXMLQuery: TStream);
 begin
-  DoRequest(Id_HTTPMethodLabel, AURL, XMLQuery, Nil, []);
+  DoRequest(Id_HTTPMethodLabel, AURL, AXMLQuery, nil, []);
 end;
 
-procedure TIdWebDAV.DAVPut(const AURL: string; const ASource: TStream;const LockToken:String);
+procedure TIdWebDAV.DAVPut(const AURL: string; const ASource: TStream; const ALockToken: String);
 begin
-  if lockToken<>'' then
-    Request.CustomHeaders.Add('If'+request.CustomHeaders.NameValueSeparator+' (<'+LockToken+'>)');
+  if ALockToken <> '' then begin
+    Request.CustomHeaders.Values['If'] := '(<'+ALockToken+'>)';  {do not localize}
+  end else begin
+    Request.CustomHeaders.Values['If'] := '';  {do not localize}
+  end;
   try
-    //possible conflicts with baseclass PUT?
-    DoRequest(Id_HTTPMethodPut, AURL, ASource, Nil, []);
+    inherited Put(AURL, ASource, nil);
   finally
-    if lockToken<>'' then
-      Request.CustomHeaders.Delete(request.customHeaders.indexOfName('If'));
+    if ALockToken <> '' then begin
+      Request.CustomHeaders.Values['If'] := '';  {do not localize}
+    end;
   end;
 end;
 
-procedure TIdWebDAV.DAVDelete(const AURL:string;const ALockToken:string);
+procedure TIdWebDAV.DAVDelete(const AURL: string; const ALockToken: string);
 begin
-  if ALockToken<>'' then
-    Request.CustomHeaders.Add('If'+request.CustomHeaders.NameValueSeparator+' (<'+ALockToken+'>)');
-  try
-    DoRequest(Id_HTTPMethodDelete, AURL, Nil, nil, []);
-  finally
-    if ALockToken<>'' then
-      Request.CustomHeaders.Delete(request.customHeaders.indexOfName('If'));
+  if ALockToken <> '' then begin
+    Request.CustomHeaders.Values['If'] := '(<'+ALockToken+'>)';  {do not localize}
+  end else begin
+    Request.CustomHeaders.Values['If'] := '';  {do not localize}
   end;
+  try
+    inherited Delete(AURL);
+  finally
+    if ALockToken <> '' then begin
+      Request.CustomHeaders.Values['If'] := '';  {do not localize}
+    end;
+  end;
+end;
+
+procedure TIdWebDAV.DAVMakeCollection(const AURL: string);
+begin
+  DoRequest(Id_HTTPMethodMakeCol, AURL, nil, nil, []);
 end;
 
 end.

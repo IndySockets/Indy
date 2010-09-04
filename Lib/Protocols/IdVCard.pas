@@ -444,6 +444,7 @@ implementation
 
 uses
   IdCoderQuotedPrintable,
+  IdException,
   IdGlobal,
   IdGlobalProtocols, SysUtils;
 

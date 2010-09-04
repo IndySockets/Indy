@@ -65,9 +65,14 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseNCSAForMACOS"'*)
+
 implementation
 
 uses
+  IdException,
   IdGlobal;
 
 { TIdFTPLPNCSAforMACOS }

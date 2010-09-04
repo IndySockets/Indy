@@ -88,18 +88,33 @@ uses
   {$IFDEF OS2}
   pmwsock;
   {$ENDIF}
+  {$IFDEF SOCKETTYPE_IS_CINT}
+  IdCTypes,
+  {$ENDIF}
   {$IFDEF NETWARE_CLIB}
   winsock; //not sure if this is correct
   {$ENDIF}
   {$IFDEF NETWARE_LIBC}
   winsock;  //not sure if this is correct
   {$ENDIF}
-  {$IFDEF MACOS}
+  {$IFDEF MACOS_CLASIC}
   {$ENDIF}
   {$IFDEF UNIX}
+    {$IFDEF USE_VCL_POSIX}
+	{
+	IMPORTANT!!!
+	
+	The new Posix units have platform specific stuff.  Since this code and 
+	the definitions are not intented to be compiled in non-Unix-like operating
+	systems, platform warnings are not going to be too helpful.
+	}
+     {$WARN SYMBOL_PLATFORM OFF}
+      PosixErrno,PosixNetDB, PosixNetinetIn, PosixSysSocket;
+    {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
     libc;
-    {$ELSE}
+    {$ENDIF}
+    {$IFDEF USE_BASEUNIX}
     Sockets, BaseUnix, Unix; // FPC "native" Unix units.
      //Marco may want to change the socket interface unit
      //so we don't use the libc header.
@@ -107,13 +122,22 @@ uses
   {$ENDIF}
 
 type
-  {$IFDEF USEUNIXBASE}
+  {$IFDEF USE_BASEUNIX}
   TSocket = cint;  // TSocket is afaik not POSIX, so we have to add it
                    // (Socket() returns a C int according to opengroup)
   {$ENDIF}
 
-  TIdStackSocketHandle = {$IFDEF DOTNET}Socket{$ELSE}TSocket{$ENDIF};
-  
+  TIdStackSocketHandle =
+  {$IFDEF DOTNET}
+     Socket
+  {$ELSE}
+    {$IFDEF USE_VCL_POSIX}
+    Integer
+    {$ELSE}
+    TSocket
+    {$ENDIF}
+  {$ENDIF};
+
 var
   Id_SO_True: Integer = 1;
   Id_SO_False: Integer = 0;
@@ -147,7 +171,7 @@ const
     // but they have different numbers in Linux, and possibly
     // also different behaviour?
       {$IFNDEF KYLIX}
-        {$IFDEF USEBASEUNIX}
+        {$IFDEF USE_BASEUNIX}
       //In Linux, the libc.pp header maps the old values to new ones,
       //probably for consistancy.  I'm doing this because we can't link
       //to Libc for Basic Unix stuff and some people may want to use this API
@@ -159,7 +183,9 @@ const
     {$ELSE}
       IPV6_ADD_MEMBERSHIP  = IPV6_JOIN_GROUP;
       IPV6_DROP_MEMBERSHIP = IPV6_LEAVE_GROUP;
+      {$IFNDEF USE_VCL_POSIX}
       IPV6_CHECKSUM        = 26;
+      {$ENDIF}
     {$ENDIF}
   Id_IPV6_ADD_MEMBERSHIP  = IPV6_ADD_MEMBERSHIP;
   Id_IPV6_DROP_MEMBERSHIP = IPV6_DROP_MEMBERSHIP;
@@ -169,6 +195,8 @@ const
   Id_IP_MULTICAST_LOOP    = IP_MULTICAST_LOOP; // TODO integrate into IdStackConsts
   Id_IP_ADD_MEMBERSHIP    = IP_ADD_MEMBERSHIP; // TODO integrate into IdStackConsts
   Id_IP_DROP_MEMBERSHIP   = IP_DROP_MEMBERSHIP; // TODO integrate into IdStackConsts
+
+  //In Windows CE 4.2, IP_HDRINCL may not be supported.
   Id_IP_HDR_INCLUDED      = IP_HDRINCL; // TODO integrate into IdStackConsts
   {$ENDIF}
 
@@ -211,14 +239,19 @@ const
   // Protocol Family
 
   {$IFNDEF DOTNET}
+    {$IFDEF USE_VCL_POSIX}
+  Id_PF_INET4 = AF_INET;
+  Id_PF_INET6 = AF_INET6;
+    {$ELSE}
   Id_PF_INET4 = PF_INET;
   Id_PF_INET6 = PF_INET6;
+     {$ENDIF}
   {$ELSE}
   Id_PF_INET4 = ProtocolFamily.InterNetwork;
   Id_PF_INET6 = ProtocolFamily.InterNetworkV6;
   {$ENDIF}
 
-  {$IFDEF USEBASEUNIX}
+  {$IFDEF USE_BASEUNIX}
   // These constants are actually WinSock specific, not std TCP/IP
   // FPC doesn't emulate WinSock.
   INVALID_SOCKET = -1;
@@ -227,29 +260,50 @@ const
 
 type
   // Socket Type
-  TIdSocketType = {$IFDEF DOTNET}SocketType{$ELSE}TSocket{$ENDIF};
+  {$IFDEF SOCKETTYPE_IS_CINT}
+  TIdSocketType = TIdC_INT;
+  {$ENDIF}
+  {$IFDEF SOCKETTYPE_IS___SOCKETTYPE}
+  TIdSocketType = __socket_type;
+  {$ENDIF}
+  {$IFDEF SOCKETTYPE_IS_LONGINT}
+  TIdSocketType = LongInt;
+  {$ENDIF}
+  {$IFDEF SOCKETTYPE_IS_SOCKETTYPE}
+  TIdSocketType = SocketType;
+  {$ENDIF}
 
 const
-  {$IFNDEF DOTNET}
-    {$IFDEF KYLIXCOMPAT}
-  Id_SOCK_STREAM     = TIdSocketType(SOCK_STREAM);      //1               /* stream socket */
-  Id_SOCK_DGRAM      = TIdSocketType(SOCK_DGRAM);       //2               /* datagram socket */
-  Id_SOCK_RAW        = TIdSocketType(SOCK_RAW);         //3               /* raw-protocol interface */
-  Id_SOCK_RDM        = TIdSocketType(SOCK_RDM);         //4               /* reliably-delivered message */
-  Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
-    {$ELSE}
-  Id_SOCK_STREAM     = SOCK_STREAM;      //1               /* stream socket */
-  Id_SOCK_DGRAM      = SOCK_DGRAM;       //2               /* datagram socket */
-  Id_SOCK_RAW        = SOCK_RAW;         //3               /* raw-protocol interface */
-  Id_SOCK_RDM        = SOCK_RDM;         //4               /* reliably-delivered message */
-  Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
-    {$ENDIF}
- {$ELSE}
+//  {$IFNDEF DOTNET}
+//    {$IFDEF KYLIXCOMPAT}
+//  Id_SOCK_STREAM     = TIdSocketType(SOCK_STREAM);      //1               /* stream socket */
+//  Id_SOCK_DGRAM      = TIdSocketType(SOCK_DGRAM);       //2               /* datagram socket */
+//  Id_SOCK_RAW        = TIdSocketType(SOCK_RAW);         //3               /* raw-protocol interface */
+//  Id_SOCK_RDM        = TIdSocketType(SOCK_RDM);         //4               /* reliably-delivered message */
+//  Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
+//    {$ELSE}
+//  Id_SOCK_STREAM     = SOCK_STREAM;      //1               /* stream socket */
+//  Id_SOCK_DGRAM      = SOCK_DGRAM;       //2               /* datagram socket */
+//  Id_SOCK_RAW        = SOCK_RAW;         //3               /* raw-protocol interface */
+//  Id_SOCK_RDM        = SOCK_RDM;         //4               /* reliably-delivered message */
+//  Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
+//    {$ENDIF}
+  {$IFDEF SOCKETTYPE_IS_SOCKETTYPE}
   Id_SOCK_STREAM     = SocketType.Stream;         // /* stream socket */
   Id_SOCK_DGRAM      = SocketType.Dgram;          // /* datagram socket */
   Id_SOCK_RAW        = SocketType.Raw;            // /* raw-protocol interface */
   Id_SOCK_RDM        = SocketType.Rdm;            // /* reliably-delivered message */
   Id_SOCK_SEQPACKET  = SocketType.Seqpacket;      // /* sequenced packet stream */
+  Id_SOCK_UNKNOWN    = SocketType.Unknown;        // /* unknown */
+  {$ELSE}
+  Id_SOCK_UNKNOWN    = TIdSocketType(0);
+  Id_SOCK_STREAM     = TIdSocketType(SOCK_STREAM);      //1               /* stream socket */
+  Id_SOCK_DGRAM      = TIdSocketType(SOCK_DGRAM);       //2               /* datagram socket */
+  Id_SOCK_RAW        = TIdSocketType(SOCK_RAW);         //3               /* raw-protocol interface */
+     {$IFNDEF USE_VCL_POSIX}
+  Id_SOCK_RDM        = TIdSocketType(SOCK_RDM);         //4               /* reliably-delivered message */
+     {$ENDIF}
+  Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
   {$ENDIF}
 
 type
@@ -257,7 +311,9 @@ type
   TIdSocketProtocol     = {$IFDEF DOTNET}ProtocolType{$ELSE}Integer{$ENDIF};
   TIdSocketOption       = {$IFDEF DOTNET}SocketOptionName{$ELSE}Integer{$ENDIF};
   TIdSocketOptionLevel  = {$IFDEF DOTNET}SocketOptionLevel{$ELSE}Integer{$ENDIF};
-  
+
+
+
 const
   {$IFNDEF DOTNET}
     {$IFDEF OS2}
@@ -268,8 +324,11 @@ const
     {$ENDIF}
   Id_IPPROTO_ICMP   = IPPROTO_ICMP;
   Id_IPPROTO_ICMPV6 = IPPROTO_ICMPV6;
+    {$IFNDEF USE_VCL_POSIX}
   Id_IPPROTO_IDP    = IPPROTO_IDP;
+
   Id_IPPROTO_IGMP   = IPPROTO_IGMP;
+  {$ENDIF}
   Id_IPPROTO_IP     = IPPROTO_IP;
   Id_IPPROTO_IPv6   = IPPROTO_IPV6;
   Id_IPPROTO_ND     = 77; //IPPROTO_ND; is not defined in some headers in FPC
@@ -281,9 +340,7 @@ const
   {$ELSE}
   Id_IPPROTO_GGP         = ProtocolType.Ggp;    //Gateway To Gateway Protocol.
   Id_IPPROTO_ICMP        = ProtocolType.Icmp; //Internet Control Message Protocol.
-  {$IFNDEF DOTNET1_1}
   Id_IPPROTO_ICMPv6      = ProtocolType.IcmpV6; //ICMP for IPv6
-  {$ENDIF}
   Id_IPPROTO_IDP         = ProtocolType.Idp;   //IDP Protocol.
   Id_IPPROTO_IGMP        = ProtocolType.Igmp; //Internet Group Management Protocol.
   Id_IPPROTO_IP          = ProtocolType.IP;     //Internet Protocol.
@@ -300,6 +357,8 @@ const
   Id_IPPROTO_UNSPECIFIED = ProtocolType.Unspecified; //unspecified protocol.
 //  Id_IPPROTO_MAX = ProtocolType.; ?????????????????????
   {$ENDIF}
+
+
 
   // Socket Option level
   {$IFNDEF DOTNET}
@@ -327,6 +386,7 @@ const
   Id_SO_RCVBUF           =  SO_RCVBUF;
   Id_SO_REUSEADDR        =  SO_REUSEADDR;
   Id_SO_SNDBUF           =  SO_SNDBUF;
+  Id_SO_TYPE             =  SO_TYPE;
   {$ELSE}
 {
 SocketOptionName.AcceptConnection;// Socket is listening.
@@ -380,6 +440,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   {$IFNDEF DOTNET}
   Id_SO_RCVTIMEO         = SO_RCVTIMEO;
   Id_SO_SNDTIMEO         = SO_SNDTIMEO;
+
   {$ELSE}
   Id_SO_RCVTIMEO         = SocketOptionName.ReceiveTimeout;
   Id_SO_SNDTIMEO         = SocketOptionName.SendTimeout;
@@ -387,26 +448,92 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
 
   {$IFNDEF DOTNET}
   Id_SO_IP_TTL              = IP_TTL;
+
   {$ELSE}
   Id_SO_IP_TTL              = SocketOptionName.IpTimeToLive; //  Set the IP header time-to-live field.
   {$ENDIF}
 
   {$IFNDEF DOTNET}
-  Id_INADDR_ANY  = INADDR_ANY;
+  {for some reason, the compiler doesn't accept  INADDR_ANY below saying a constant is expected. }
+   {$IFDEF USE_VCL_POSIX}
+  Id_INADDR_ANY  = 0;// INADDR_ANY;
+   {$ELSE}
+  Id_INADDR_ANY  =  INADDR_ANY;
+    {$ENDIF}
   Id_INADDR_NONE = INADDR_NONE;
   {$ENDIF}
 
   // TCP Options
   {$IFNDEF DOTNET}
+    {$IFDEF USE_VCL_POSIX}
+  INVALID_SOCKET = 0;
+  SOCKET_ERROR          = socklen_t(-1);
+    {$ENDIF}
   Id_TCP_NODELAY           = TCP_NODELAY;
   Id_INVALID_SOCKET        = INVALID_SOCKET;
   Id_SOCKET_ERROR          = SOCKET_ERROR;
   Id_SOCKETOPTIONLEVEL_TCP = Id_IPPROTO_TCP; // BGO: rename to Id_SOL_TCP
+     {$IFDEF HAS_TCP_CORK}
+  Id_TCP_CORK = TCP_CORK;
+     {$ENDIF}
   {$ELSE}
   Id_TCP_NODELAY           = SocketOptionName.NoDelay;
   Id_INVALID_SOCKET        = nil;
   Id_SOCKET_ERROR          = -1;
   Id_SOCKETOPTIONLEVEL_TCP = SocketOptionLevel.TCP; // BGO: rename to Id_SOL_TCP
+  {$ENDIF}
+
+  {$IFDEF USE_VCL_POSIX}
+  // Shutdown Options
+  Id_SD_Recv = SHUT_RD;
+  Id_SD_Send = SHUT_WR;
+  Id_SD_Both = SHUT_RDWR;
+  //
+  //Temp defines.  They should be in Delphi's PosixErrno.pas
+  ESOCKTNOSUPPORT	= 44;		//* Socket type not supported */
+  EPFNOSUPPORT = 46;		//* Protocol family not supported */
+  ESHUTDOWN = 58;		//* Can't send after socket shutdown */
+  ETOOMANYREFS = 59;		//* Too many references: can't splice */
+  EHOSTDOWN = 64;		//* Host is down */
+  //
+  Id_WSAEINTR           = EINTR;
+  Id_WSAEBADF           = EBADF;
+  Id_WSAEACCES          = EACCES;
+  Id_WSAEFAULT          = EFAULT;
+  Id_WSAEINVAL          = EINVAL;
+  Id_WSAEMFILE          = EMFILE;
+  Id_WSAEWOULDBLOCK     = EWOULDBLOCK;
+  Id_WSAEINPROGRESS     = EINPROGRESS;
+  Id_WSAEALREADY        = EALREADY;
+  Id_WSAENOTSOCK        = ENOTSOCK;
+  Id_WSAEDESTADDRREQ    = EDESTADDRREQ;
+  Id_WSAEMSGSIZE        = EMSGSIZE;
+  Id_WSAEPROTOTYPE      = EPROTOTYPE;
+  Id_WSAENOPROTOOPT     = ENOPROTOOPT;
+  Id_WSAEPROTONOSUPPORT = EPROTONOSUPPORT;
+  Id_WSAESOCKTNOSUPPORT = ESOCKTNOSUPPORT;
+  Id_WSAEOPNOTSUPP      = EOPNOTSUPP;
+  Id_WSAEPFNOSUPPORT    = EPFNOSUPPORT;
+  Id_WSAEAFNOSUPPORT    = EAFNOSUPPORT;
+  Id_WSAEADDRINUSE      = EADDRINUSE;
+  Id_WSAEADDRNOTAVAIL   = EADDRNOTAVAIL;
+  Id_WSAENETDOWN        = ENETDOWN;
+  Id_WSAENETUNREACH     = ENETUNREACH;
+  Id_WSAENETRESET       = ENETRESET;
+  Id_WSAECONNABORTED    = ECONNABORTED;
+  Id_WSAECONNRESET      = ECONNRESET;
+  Id_WSAENOBUFS         = ENOBUFS;
+  Id_WSAEISCONN         = EISCONN;
+  Id_WSAENOTCONN        = ENOTCONN;
+  Id_WSAESHUTDOWN       = ESHUTDOWN;
+  Id_WSAETOOMANYREFS    = ETOOMANYREFS;
+  Id_WSAETIMEDOUT       = ETIMEDOUT;
+  Id_WSAECONNREFUSED    = ECONNREFUSED;
+  Id_WSAELOOP           = ELOOP;
+  Id_WSAENAMETOOLONG    = ENAMETOOLONG;
+  Id_WSAEHOSTDOWN       = EHOSTDOWN;
+  Id_WSAEHOSTUNREACH    = EHOSTUNREACH;
+  Id_WSAENOTEMPTY       = ENOTEMPTY;
   {$ENDIF}
 
   {$IFDEF KYLIXCOMPAT}
@@ -455,7 +582,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_WSAENOTEMPTY       = ENOTEMPTY;
   {$ENDIF}
 
-  {$IFDEF USEBASEUNIX}
+  {$IFDEF USE_BASEUNIX}
   // Shutdown Options
   Id_SD_Recv = SHUT_RD;
   Id_SD_Send = SHUT_WR;
@@ -753,4 +880,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
                        
 implementation
 
+{$IFDEF USE_VCL_POSIX}
+  {$WARN SYMBOL_PLATFORM ON}
+{$ENDIF}
 end.

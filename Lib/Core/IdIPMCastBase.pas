@@ -34,8 +34,10 @@
 unit IdIPMCastBase;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //here to flip FPC into Delphi mode
+
 uses
   IdComponent, IdException, IdGlobal, IdSocketHandle,
   IdStack;
@@ -45,11 +47,30 @@ const
   IPMCastHi = 239;
 
 type
+  TIdIPMv6Scope = ( IdIPv6MC_InterfaceLocal,
+{  Interface-Local scope spans only a single interface on a node
+   and is useful only for loopback transmission of multicast.}
+   IdIPv6MC_LinkLocal,
+{  Link-Local multicast scope spans the same topological region as
+the corresponding unicast scope. }
+   IdIPv6MC_AdminLocal,
+{   Admin-Local scope is the smallest scope that must be
+administratively configured, i.e., not automatically derived
+from physical connectivity or other, non-multicast-related
+configuration.}
+    IdIPv6MC_SiteLocal,
+{    Site-Local scope is intended to span a single site.   }
+    IdIPv6MC_OrgLocal,
+{Organization-Local scope is intended to span multiple sites
+belonging to a single organization.}
+    IdIPv6MC_Global);
+  TIdIPMCValidScopes = 0..$F;
   TIdIPMCastBase = class(TIdComponent)
   protected
     FDsgnActive: Boolean;
     FMulticastGroup: String;
     FPort: Integer;
+    FIPVersion: TIdIPVersion;
     //
     procedure CloseBinding; virtual; abstract;
     function GetActive: Boolean; virtual;
@@ -58,13 +79,23 @@ type
     procedure SetActive(const Value: Boolean); virtual;
     procedure SetMulticastGroup(const Value: string); virtual;
     procedure SetPort(const Value: integer); virtual;
+    function GetIPVersion: TIdIPVersion; virtual;
+    procedure SetIPVersion(const AValue: TIdIPVersion); virtual;
     //
     property Active: Boolean read GetActive write SetActive Default False;
     property MulticastGroup: string read FMulticastGroup write SetMulticastGroup;
     property Port: Integer read FPort write SetPort;
+    property IPVersion: TIdIPVersion read GetIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
     procedure InitComponent; override;
   public
-    function IsValidMulticastGroup(Value: string): Boolean;
+    function IsValidMulticastGroup(const Value: string): Boolean;
+{These two items are helper functions that allow you to specify the scope for
+a Variable Scope Multicast Addresses.  Some are listed in IdAssignedNumbers
+as the Id_IPv6MC_V_ constants.  You can't use them out of the box in the
+MulticastGroup property because you need to specify the scope.  This provides
+you with more flexibility than you would get with IPv4 multicasting.}
+    class function SetIPv6AddrScope(const AVarIPv6Addr : String; const AScope : TIdIPMv6Scope ) : String; overload;
+    class function SetIPv6AddrScope(const AVarIPv6Addr : String; const AScope : TIdIPMCValidScopes): String; overload;
   published
   end;
 
@@ -72,6 +103,9 @@ type
   EIdMCastNoBindings = class(EIdMCastException);
   EIdMCastNotValidAddress = class(EIdMCastException);
   EIdMCastReceiveErrorZeroBytes = class(EIdMCastException);
+
+const
+  DEF_IPv6_MGROUP = 'FF01:0:0:0:0:0:0:1';
 
 implementation
 
@@ -81,10 +115,16 @@ uses
 
 { TIdIPMCastBase }
 
+function TIdIPMCastBase.GetIPVersion: TIdIPVersion;
+begin
+  Result := FIPVersion;
+end;
+
 procedure TIdIPMCastBase.InitComponent;
 begin
   inherited InitComponent;
   FMultiCastGroup := Id_IPMC_All_Systems;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
 end;
 
 function TIdIPMCastBase.GetActive: Boolean;
@@ -92,27 +132,14 @@ begin
   Result := FDsgnActive;
 end;
 
-function TIdIPMCastBase.IsValidMulticastGroup(Value: string): Boolean;
-var
-  ThisIP: string;
-  s1: string;
-  ip1: integer;
+function TIdIPMCastBase.IsValidMulticastGroup(const Value: string): Boolean;
 begin
-  Result := false;
-
-  if not GStack.IsIP(Value) then
-  begin
-    Exit;
+//just here to prevent a warning from Delphi about an unitialized result
+  Result := False;
+  case FIPVersion of
+     Id_IPv4 : Result := GStack.IsValidIPv4MulticastGroup(Value);
+     Id_IPv6 : Result := GStack.IsValidIPv6MulticastGroup(Value);
   end;
-  ThisIP := Value;
-  s1 := Fetch(ThisIP, '.');    {Do not Localize}
-  ip1 := IndyStrToInt(s1);
-
-  if ((ip1 < IPMCastLo) or (ip1 > IPMCastHi)) then
-  begin
-    Exit;
-  end;
-  Result := true;
 end;
 
 procedure TIdIPMCastBase.Loaded;
@@ -142,6 +169,42 @@ begin
   end;
 end;
 
+class function TIdIPMCastBase.SetIPv6AddrScope(const AVarIPv6Addr: String;
+  const AScope: TIdIPMv6Scope): String;
+begin
+
+  case AScope of
+   IdIPv6MC_InterfaceLocal : Result := SetIPv6AddrScope(AVarIPv6Addr,$1);
+        IdIPv6MC_LinkLocal : Result := SetIPv6AddrScope(AVarIPv6Addr,$2);
+       IdIPv6MC_AdminLocal : Result := SetIPv6AddrScope(AVarIPv6Addr,$4);
+        IdIPv6MC_SiteLocal : Result := SetIPv6AddrScope(AVarIPv6Addr,$5);
+         IdIPv6MC_OrgLocal : Result := SetIPv6AddrScope(AVarIPv6Addr,$8);
+           IdIPv6MC_Global : Result := SetIPv6AddrScope(AVarIPv6Addr,$E);
+  else
+    Result := AVarIPv6Addr;
+  end;
+end;
+
+class function TIdIPMCastBase.SetIPv6AddrScope(const AVarIPv6Addr: String;
+  const AScope: TIdIPMCValidScopes): String;
+begin
+   //Replace the X in the Id_IPv6MC_V_ constants with the specified scope
+   Result := StringReplace(AVarIPv6Addr,'X',IntToHex(AScope,1),[]);
+end;
+
+procedure TIdIPMCastBase.SetIPVersion(const AValue: TIdIPVersion);
+begin
+  if AValue <> IPVersion then
+  begin
+    Active := False;
+    FIPVersion := AValue;
+    case AValue of
+       Id_IPv4: FMulticastGroup := Id_IPMC_All_Systems;
+       Id_IPv6: FMulticastGroup := DEF_IPv6_MGROUP;
+    end;
+  end;
+end;
+
 procedure TIdIPMCastBase.SetMulticastGroup(const Value: string);
 begin
   if (FMulticastGroup <> Value) then begin
@@ -149,8 +212,7 @@ begin
     begin
       Active := False;
       FMulticastGroup := Value;
-    end
-    else
+    end else
     begin
       Raise EIdMCastNotValidAddress.Create(RSIPMCastInvalidMulticastAddress);
     end;

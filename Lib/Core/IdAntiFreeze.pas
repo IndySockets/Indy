@@ -81,17 +81,17 @@ type
 implementation
 
 uses
-  {$IFDEF WidgetKylix}
-    QForms,
+  {$IFDEF WIDGET_KYLIX}
+  QForms,
   {$ENDIF}
-  {$IFDEF WidgetVCLLike}
-    Forms,
+  {$IFDEF WIDGET_VCL_LIKE}
+  Forms,
   {$ENDIF}
   {$IFDEF WIN32}
   Messages,
   Windows,
   {$ENDIF}
-  {$IFDEF WidgetWinForms}
+  {$IFDEF WIDGET_WINFORMS}
   System.Windows.Forms,
   {$ENDIF}
   IdGlobal;
@@ -120,7 +120,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF WidgetWinForms}
+{$IFDEF WIDGET_WINFORMS}
 procedure TIdAntiFreeze.Process;
 begin
   //TODO: Handle ApplicationHasPriority

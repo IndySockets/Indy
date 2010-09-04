@@ -72,17 +72,17 @@ uses
 type
   TIdSchedulerOfThreadDefault = class(TIdSchedulerOfThread)
   public
-    function AcquireYarn
-      : TIdYarn;
-      override;
-    function NewThread
-      : TIdThreadWithTask;
-      override;
+    function AcquireYarn: TIdYarn; override;
+    procedure ReleaseYarn(AYarn: TIdYarn); override;
+    function NewThread: TIdThreadWithTask; override;
   end;
 
 implementation
 
 uses
+{$IFDEF USE_VCL_POSIX}
+  PosixGlue,
+{$ENDIF}
   IdGlobal;
 
 { TIdSchedulerOfThreadDefault }
@@ -93,10 +93,53 @@ begin
   ActiveYarns.Add(Result);
 end;
 
+type
+  TIdYarnOfThreadAccess = class(TIdYarnOfThread)
+  end;
+
+procedure TIdSchedulerOfThreadDefault.ReleaseYarn(AYarn: TIdYarn);
+//only gets called from YarnOf(Fiber/Thread).Destroy
+var
+  LThread: TIdThreadWithTask;
+begin
+  //take posession of the thread
+  LThread := TIdYarnOfThread(AYarn).Thread;
+  TIdYarnOfThreadAccess(AYarn).FThread := nil;
+  //Currently LThread can =nil. Is that a valid condition?
+  //Assert(LThread<>nil);
+
+  // inherited removes from ActiveYarns list
+  inherited ReleaseYarn(AYarn);
+
+  if LThread <> nil then begin
+    // need to destroy the thread
+    LThread.Yarn := nil; // Yarn is being destroyed, de-couple it from the thread
+    LThread.Terminate;
+    // RLebeau - ReleaseYarn() can be called in the context of
+    // the yarn's thread (when TIdThread.Cleanup() destroys the
+    // yarn between connnections), so have to check which context
+    // we're in here so as not to deadlock the thread!
+    if IsCurrentThread(LThread) then begin
+      LThread.FreeOnTerminate := True;
+    end else begin
+      {$IFDEF VCL_2010_OR_ABOVE}
+      LThread.Suspended := False;
+      {$ELSE}
+      LThread.Resume;
+      {$ENDIF}
+      LThread.WaitFor;
+      LThread.Free;
+    end;
+  end;
+end;
+
 function TIdSchedulerOfThreadDefault.NewThread: TIdThreadWithTask;
 begin
   Result := inherited NewThread;
-  Result.FreeOnTerminate := True;
+  // RLebeau 2/25/2010: do not let the thread free itself on termination yet.
+  // It can cause crashes during Yarn shutdown, so let the Scheduler decide
+  // what to do with the thread later...
+  //Result.FreeOnTerminate := True;
 end;
 
 end.

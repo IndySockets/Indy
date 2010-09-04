@@ -99,10 +99,18 @@ type
     function GetFullURI(const AOptionalFields: TIdURIOptionalFieldsSet = [ofAuthInfo, ofBookmark]): String;
     function GetPathAndParams: String;
     class procedure NormalizePath(var APath: string);
-    class function URLDecode(ASrc: string): string;
-    class function URLEncode(const ASrc: string): string;
-    class function ParamsEncode(const ASrc: string): string;
-    class function PathEncode(const ASrc: string): string;
+    class function URLDecode(ASrc: string; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string;
+    class function URLEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string;
+    class function ParamsEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string;
+    class function PathEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string;
     //
     property Bookmark : string read FBookmark write FBookMark;
     property Document: string read FDocument write FDocument;
@@ -122,7 +130,10 @@ type
 implementation
 
 uses
-  IdResourceStringsProtocols, IdGlobalProtocols, SysUtils;
+  IdGlobalProtocols, IdResourceStringsProtocols, IdUriUtils,
+  SysUtils;
+
+{ TIdURI }
 
 constructor TIdURI.Create(const AURI: string = '');    {Do not Localize}
 begin
@@ -137,16 +148,37 @@ var
   i: Integer;
 begin
   // Normalize the directory delimiters to follow the UNIX syntax
-  i := 1;
-  while i <= Length(APath) do begin
-    if IsLeadChar(APath[i]) then begin
-      inc(i, 2)
-    end else if APath[i] = '\' then begin    {Do not Localize}
-      APath[i] := '/';    {Do not Localize}
-      inc(i, 1);
-    end else begin
-      inc(i, 1);
+
+  // RLebeau 8/10/2010: only normalize within the actual path,
+  // nothing outside of it...
+
+  i := Pos(':', APath);  {do not localize}
+  if i > 0 then begin
+    Inc(i);
+    // if the path does not already begin with '//', then do not
+    // normalize the first two characters if they would produce
+    // '//', as that will change the semantics of the URL...
+    if CharIsInSet(APath, I, '\/') and CharIsInSet(APath, I+1, '\/') then begin
+      Inc(i, 2);
     end;
+  end else begin
+    i := 1;
+  end;
+
+  while i <= Length(APath) do begin
+    {$IFDEF STRING_IS_ANSI}
+    if IsLeadChar(APath[i]) then begin
+      Inc(i, 2)
+    end else
+    {$ENDIF}
+    if (APath[i] = '?') or (APath[i] = '#') then begin {Do not Localize}
+      // stop normalizing at query/fragment portion of the URL
+      Break;
+    end;
+    if APath[i] = '\' then begin    {Do not Localize}
+      APath[i] := '/';    {Do not Localize}
+    end;
+    Inc(i);
   end;
 end;
 
@@ -179,9 +211,10 @@ begin
     Delete(LURI, 1, LTokenPos + 2);
     // separate the path from the parameters
     LTokenPos := IndyPos('?', LURI);    {Do not Localize}
-    if LTokenPos = 0 then begin
-      LTokenPos := IndyPos('=', LURI);    {Do not Localize}
-    end;
+    // RLebeau: this is BAD! It messes up JSP and similar URLs that use '=' characters in the document
+    {if LTokenPos = 0 then begin
+      LTokenPos := IndyPos('=', LURI);    {Do not Localize
+    end;}
     if LTokenPos > 0 then begin
       FParams := Copy(LURI, LTokenPos + 1, MaxInt);
       LURI := Copy(LURI, 1, LTokenPos - 1);
@@ -221,9 +254,10 @@ begin
   end else begin
     // received an absolute path, not an URI
     LTokenPos := IndyPos('?', LURI);    {Do not Localize}
-    if LTokenPos = 0 then begin
-      LTokenPos := IndyPos('=', LURI);    {Do not Localize}
-    end;
+    // RLebeau: this is BAD! It messes up JSP and similar URLs that use '=' characters in the document
+    {if LTokenPos = 0 then begin
+      LTokenPos := IndyPos('=', LURI);    {Do not Localize
+    end;}
     if LTokenPos > 0 then begin // The case when there is parameters after the document name
       FParams := Copy(LURI, LTokenPos + 1, MaxInt);
       LURI := Copy(LURI, 1, LTokenPos - 1);
@@ -250,13 +284,19 @@ begin
   Result := GetFullURI([]);
 end;
 
-class function TIdURI.URLDecode(ASrc: string): string;
+class function TIdURI.URLDecode(ASrc: string; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   i: Integer;
-  ESC: string[4];
-  CharCode: Integer;
+  ESC: string;
+  LChars: TIdWideChars;
+  LBytes: TIdBytes;
 begin
   Result := '';    {Do not Localize}
+  LChars := nil;
+  LBytes := nil;
+  EnsureEncoding(AByteEncoding, encUTF8);
   // S.G. 27/11/2002: Spaces is NOT to be encoded as "+".
   // S.G. 27/11/2002: "+" is a field separator in query parameter, space is...
   // S.G. 27/11/2002: well, a space
@@ -264,7 +304,7 @@ begin
   i := 1;
   while i <= Length(ASrc) do begin
     if ASrc[i] <> '%' then begin  {do not localize}
-      Result := Result + ASrc[i]; // Copy the char
+      AppendByte(LBytes, Ord(ASrc[i])); // Copy the char
       Inc(i); // Then skip it
     end else begin
       Inc(i); // skip the % char
@@ -273,72 +313,178 @@ begin
         ESC := Copy(ASrc, i, 2); // Copy the escape code
         Inc(i, 2); // Then skip it.
         try
-          CharCode := IndyStrToInt('$' + ESC);  {do not localize}
-          Result := Result + Char(CharCode);
+          AppendByte(LBytes, Byte(IndyStrToInt('$' + ESC))); {do not localize}
         except end;
       end else
       begin
         // unicode ESC code
 
-        // RLebeau 5/10/2006: under Win32, the character will end
+        // RLebeau 5/10/2006: under Win32, the character will likely end
         // up as '?' in the Result when converted from Unicode to Ansi,
         // but at least the URL will be parsed properly
-        
+
         ESC := Copy(ASrc, i+1, 4); // Copy the escape code
         Inc(i, 5); // Then skip it.
         try
-          CharCode := IndyStrToInt('$' + ESC);  {do not localize}
-          Result := Result + WideChar(CharCode);
+          if LChars = nil then begin
+            SetLength(LChars, 1);
+          end;
+          LChars[0] := WideChar(IndyStrToInt('$' + ESC));  {do not localize}
+          AppendBytes(LBytes, AByteEncoding.GetBytes(LChars));
         except end;
       end;
     end;
   end;
+  {$IFDEF STRING_IS_ANSI}
+  EnsureEncoding(ADestEncoding, encOSDefault);
+  if AByteEncoding <> ADestEncoding then begin
+    LBytes := TIdTextEncoding.Convert(AByteEncoding, ADestEncoding, LBytes);
+  end;
+  SetString(Result, PAnsiChar(LBytes), Length(LBytes));
+  {$ELSE}
+  Result := AByteEncoding.GetString(LBytes);
+  {$ENDIF}
 end;
 
-class function TIdURI.ParamsEncode(const ASrc: string): string;
-var
-  i: Integer;
+class function TIdURI.ParamsEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 const
-  UnsafeChars = '*#%<> []';  {do not localize}
+  UnsafeChars: TIdUnicodeString = '*<>#%"{}|\^[]`';  {do not localize}
+var
+  I, J, Len: Integer;
+  Buf: TIdBytes;
+  {$IFDEF STRING_IS_ANSI}
+  LChars: TIdWideChars;
+  {$ENDIF}
+  LChar: WideChar;
 begin
   Result := '';    {Do not Localize}
-  for i := 1 to Length(ASrc) do
+
+  // keep the compiler happy
+  Buf := nil;
+  {$IFDEF STRING_IS_ANSI}
+  LChars := nil;
+  {$ENDIF}
+
+  if ASrc = '' then begin
+    Exit;
+  end;
+
+  EnsureEncoding(AByteEncoding, encUTF8);
+  {$IFDEF STRING_IS_ANSI}
+  EnsureEncoding(ASrcEncoding, encOSDefault);
+  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
+  {$ENDIF}
+
+  I := 0;
+  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
   begin
+    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+
     // S.G. 27/11/2002: Changed the parameter encoding: Even in parameters, a space
     // S.G. 27/11/2002: is much more likely to be meaning "space" than "this is
     // S.G. 27/11/2002: a new parameter"
     // S.G. 27/11/2002: ref: Message-ID: <3de30169@newsgroups.borland.com> borland.public.delphi.internet.winsock
     // S.G. 27/11/2002: Most low-ascii is actually Ok in parameters encoding.
-    if CharIsInSet(ASrc, i, UnsafeChars) or (not CharIsInSet(ASrc, i, CharRange(#33,#128))) then begin {do not localize}
-      Result := Result + '%' + IntToHex(Ord(ASrc[i]), 2);  {do not localize}
-    end else begin
-      Result := Result + ASrc[i];
+
+    // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
+    // may change characters >= #128 from their Ansi codepage value to their true
+    // Unicode codepoint value, depending on the codepage used for the source code.
+    // For instance, #128 may become #$20AC...
+
+    if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 128) then
+    begin
+      {$IFDEF STRING_IS_UNICODE}
+      Len := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
+      Buf := AByteEncoding.GetBytes(Copy(ASrc, I+1, Len)); // explicit Unicode->Ansi conversion
+      {$ELSE}
+      Len := CalcUTF16CharLength(LChars, I); // calculate length including surrogates
+      Buf := AByteEncoding.GetBytes(Copy(LChars, I, Len)); // explicit Unicode->Ansi conversion
+      {$ENDIF}
+      for J := 0 to Length(Buf)-1 do begin
+        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
+      end;
+      Inc(I, Len);
+    end else
+    begin
+      Result := Result + Char(LChar);
+      Inc(I);
     end;
   end;
 end;
 
-class function TIdURI.PathEncode(const ASrc: string): string;
+class function TIdURI.PathEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 const
-  UnsafeChars = '*#%<>+ []';  {do not localize}
+  UnsafeChars = '*<>#%"{}|\^[]`+';  {do not localize}
 var
-  i: Integer;
+  I, J, Len: Integer;
+  Buf: TIdBytes;
+  {$IFDEF STRING_IS_ANSI}
+  LChars: TIdWideChars;
+  {$ENDIF}
+  LChar: WideChar;
 begin
   Result := '';    {Do not Localize}
-  for i := 1 to Length(ASrc) do begin
-    if CharIsInSet(ASrc, i, UnsafeChars) or (not CharIsInSet(ASrc, i, CharRange(#32, #127))) then begin
-      Result := Result + '%' + IntToHex(Ord(ASrc[i]), 2);  {do not localize}
-    end else begin
-      Result := Result + ASrc[i];
+
+  // keep the compiler happy
+  Buf := nil;
+  {$IFDEF STRING_IS_ANSI}
+  LChars := nil;
+  {$ENDIF}
+
+  if ASrc = '' then begin
+    Exit;
+  end;
+
+  EnsureEncoding(AByteEncoding, encUTF8);
+  {$IFDEF STRING_IS_ANSI}
+  EnsureEncoding(ASrcEncoding, encOSDefault);
+  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
+  {$ENDIF}
+
+  I := 0;
+  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
+  begin
+    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+
+    if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
+    begin
+      {$IFDEF STRING_IS_UNICODE}
+      Len := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
+      Buf := AByteEncoding.GetBytes(Copy(ASrc, I+1, Len)); // explicit Unicode->Ansi conversion
+      {$ELSE}
+      Len := CalcUTF16CharLength(LChars, I); // calculate length including surrogates
+      Buf := AByteEncoding.GetBytes(Copy(LChars, I, Len)); // explicit Unicode->Ansi conversion
+      {$ENDIF}
+      for J := 0 to Length(Buf)-1 do begin
+        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
+      end;
+      Inc(I, Len);
+    end else
+    begin
+      Result := Result + Char(LChar);
+      Inc(I);
     end;
   end;
 end;
 
-class function TIdURI.URLEncode(const ASrc: string): string;
+class function TIdURI.URLEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 begin
   with TIdURI.Create(ASrc) do try
-    Path := PathEncode(Path);
-    Document := PathEncode(Document);
-    Params := ParamsEncode(Params);
+    Path := PathEncode(Path, AByteEncoding
+      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
+      );
+    Document := PathEncode(Document, AByteEncoding
+      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
+      );
+    Params := ParamsEncode(Params, AByteEncoding
+      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
+      );
     Result := URI;
   finally Free; end;
 end;

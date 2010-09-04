@@ -1,18 +1,13 @@
 package IndyCore100Net;
 
 {$ALIGN 0}
-{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -23,7 +18,7 @@ package IndyCore100Net;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Core'}
 {$RUNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
 Borland.Delphi,
@@ -68,7 +63,6 @@ contains
   IdScheduler in 'IdScheduler.pas',
   IdSchedulerOfThread in 'IdSchedulerOfThread.pas',
   IdSchedulerOfThreadDefault in 'IdSchedulerOfThreadDefault.pas',
-  IdSchedulerOfThreadPool in 'IdSchedulerOfThreadPool.pas',
   IdServerIOHandler in 'IdServerIOHandler.pas',
   IdServerIOHandlerSocket in 'IdServerIOHandlerSocket.pas',
   IdServerIOHandlerStack in 'IdServerIOHandlerStack.pas',

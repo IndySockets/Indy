@@ -1,18 +1,13 @@
 package dclIndyCore100;
 
 {$R *.res}
-{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -23,7 +18,7 @@ package dclIndyCore100;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Core Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
   designide,
@@ -34,6 +29,7 @@ contains
   IdAboutVCL in 'IdAboutVCL.pas',
   IdAntiFreeze in 'IdAntiFreeze.pas',
   IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
+  IdCoreSelectionEditors in 'IdCoreSelectionEditors.pas',
   IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
   IdDsnPropEdBindingVCL in 'IdDsnPropEdBindingVCL.pas',
   IdRegisterCore in 'IdRegisterCore.pas';

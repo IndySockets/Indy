@@ -23,6 +23,7 @@
 unit IdASN1Coder;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -157,7 +158,7 @@ function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 implementation
 
 uses
-  IdException;
+  IdException, SysUtils;
 
 function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 begin
@@ -248,8 +249,12 @@ end;
 
 procedure TIdASN1Encoder.WriteBoolean(bValue: Boolean);
 begin
+  // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
+  // may change characters >= #128 from their Ansi codepage value to their true
+  // Unicode codepoint value, depending on the codepage used for the source code.
+  // For instance, #128 may become #$20AC...
   if bValue then
-    AddEncoding(FormatEncoding(aicUniversal, False, TAGS_ASN1IDENTIFIERTYPE[aitBoolean], #$FF))
+    AddEncoding(FormatEncoding(aicUniversal, False, TAGS_ASN1IDENTIFIERTYPE[aitBoolean], Char($FF)))
   else
     AddEncoding(FormatEncoding(aicUniversal, False, TAGS_ASN1IDENTIFIERTYPE[aitBoolean], #$00));
 end;
@@ -387,8 +392,8 @@ end;
 
 function TIdASN1Decoder.DescribeIdentifier(const aId : TIdASN1Identifier) : String;
 begin
-  result := '[Pos '+Sys.IntToStr(aId.Position)+', Type '+NAMES_ASN1IDENTIFIERTYPE[aId.TagType]+', '+
-             'Tag '+Sys.IntToStr(aId.TagValue)+', Class '+NAMES_ASN1IDENTIFIERCLASS[aId.IdClass]+']';
+  result := '[Pos '+IntToStr(aId.Position)+', Type '+NAMES_ASN1IDENTIFIERTYPE[aId.TagType]+', '+
+             'Tag '+IntToStr(aId.TagValue)+', Class '+NAMES_ASN1IDENTIFIERCLASS[aId.IdClass]+']';
 end;
 
 Function TIdASN1Decoder.ReadByte : Byte;

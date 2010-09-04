@@ -49,6 +49,7 @@ uses
   IdEchoUDP,
   IdEchoUDPServer,
   IdExplicitTLSClientServerBase,
+  IdFIPS,
   IdFSP,
   IdFTP,
   IdFTPBaseFileSystem,
@@ -64,6 +65,7 @@ uses
   IdFTPListParseDistinctTCPIP,
   IdFTPListParseEPLF,
   IdFTPListParseHellSoft,
+  IdFTPListParseIEFTPGateway,
   IdFTPListParseKA9Q,
   IdFTPListParseMPEiX,
   IdFTPListParseMVS,
@@ -75,6 +77,7 @@ uses
   IdFTPListParseNovellNetwarePSU,
   IdFTPListParseOS2,
   IdFTPListParsePCNFSD,
+  IdFTPListParsePCTCP,
   IdFTPListParseStercomOS390Exp,
   IdFTPListParseStercomUnixEnt,
   IdFTPListParseStratusVOS,
@@ -113,11 +116,12 @@ uses
   IdHashCRC,
   IdHashElf,
   IdHashMessageDigest,
-  IdHashSHA1,
+  IdHashSHA,
   IdHeaderCoder2022JP,
   IdHeaderCoderBase,
+  IdHeaderCoderIndy,
   IdHeaderCoderPlain,
-  IdHeaderCoderUTF8,
+  IdHeaderCoderUTF,
   IdHeaderList,
   IdIMAP4,
   IdIMAP4Server,
@@ -138,6 +142,7 @@ uses
   IdMessageBuilder,
   IdMessageClient,
   IdMessageCoder,
+  IdMessageCoderBinHex4,
   IdMessageCoderMIME,
   IdMessageCoderQuotedPrintable,
   IdMessageCoderUUE,
@@ -225,4 +230,9 @@ uses
 
 implementation
 
+{
+disable hints about unused units.  This unit just causes
+FreePascal to compile implicitly listed units in a package.
+}
+{$hints off}
 end.

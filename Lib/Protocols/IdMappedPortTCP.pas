@@ -128,16 +128,18 @@ uses
 type
   TIdMappedPortTCP = class;
 
-  TIdMappedPortContext = class(TIdContext)
+  TIdMappedPortContext = class(TIdServerContext)
   protected
     FOutboundClient: TIdTCPConnection;//was TIdTCPClient
     FReadList: TIdSocketList;
     FDataAvailList: TIdSocketList;
-    FNetData: String; //data buf
     FConnectTimeOut: Integer;
+    FNetData: TIdBytes;
     FServer : TIdMappedPortTCP;
     //
     procedure CheckForData(DoRead: Boolean); virtual;
+    procedure HandleLocalClientData; virtual;
+    procedure HandleOutboundClientData; virtual;
     procedure OutboundConnect; virtual;
   public
     constructor Create(
@@ -149,7 +151,7 @@ type
     //
     property  Server : TIdMappedPortTCP Read FServer write FServer;
     property  ConnectTimeOut: Integer read FConnectTimeOut write FConnectTimeOut default IdTimeoutDefault;
-    property  NetData: String read FNetData write FNetData;
+    property  NetData: TIdBytes read FNetData write FNetData;
     property  OutboundClient: TIdTCPConnection read FOutboundClient write FOutboundClient;
   end;//TIdMappedPortContext
 
@@ -211,7 +213,7 @@ end;
 
 procedure TIdMappedPortTCP.ContextCreated(AContext: TIdContext);
 begin
-  (AContext As TIdMappedPortContext).Server := Self;
+  TIdMappedPortContext(AContext).Server := Self;
 end;
 
 procedure TIdMappedPortTCP.DoBeforeConnect(AContext: TIdContext);
@@ -278,8 +280,8 @@ begin
   //cache
   with TIdMappedPortContext(AContext).FReadList do begin
     Clear;
-    Add((AContext.Connection.IOHandler as TIdIOHandlerSocket).Binding.Handle);
-    Add((TIdMappedPortContext(AContext).FOutboundClient.IOHandler as TIdIOHandlerSocket).Binding.Handle);
+    Add(AContext.Connection.Socket.Binding.Handle);
+    Add(TIdMappedPortContext(AContext).FOutboundClient.Socket.Binding.Handle);
   end;
 end;
 
@@ -373,16 +375,28 @@ begin
   end;
   if not Connection.IOHandler.InputBufferIsEmpty then
   begin
-    FNetData := Connection.IOHandler.InputBufferAsString;
-    Server.DoLocalClientData(Self);
-    FOutboundClient.IOHandler.Write(FNetData);
+    HandleLocalClientData;
   end;
   if not FOutboundClient.IOHandler.InputBufferIsEmpty then
   begin
-    FNetData := FOutboundClient.IOHandler.InputBufferAsString;
-    Server.DoOutboundClientData(Self);
-    Connection.IOHandler.Write(FNetData);
+    HandleOutboundClientData;
   end;
+end;
+
+procedure TIdMappedPortContext.HandleLocalClientData;
+begin
+  SetLength(FNetData, 0);
+  Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
+  Server.DoLocalClientData(Self);
+  FOutboundClient.IOHandler.Write(FNetData);
+end;
+
+procedure TIdMappedPortContext.HandleOutboundClientData;
+begin
+  SetLength(FNetData, 0);
+  FOutboundClient.IOHandler.InputBuffer.ExtractToBytes(FNetData);
+  Server.DoOutboundClientData(Self);
+  Connection.IOHandler.Write(FNetData);
 end;
 
 procedure TIdMappedPortContext.OutboundConnect;

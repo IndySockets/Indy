@@ -101,10 +101,14 @@ type
 implementation
 
 uses
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Windows,
+    {$ENDIF}
+  {$ENDIF}
   IdGlobal, SysUtils;
 
 type
-
   TIdYarnOfThreadAccess = class(TIdYarnOfThread)
   end;
 
@@ -138,24 +142,34 @@ begin
   //Currently LThread can =nil. Is that a valid condition?
   //Assert(LThread<>nil);
 
-  // inherited removes from ActiveYarns list and destroys yarn
+  // inherited removes from ActiveYarns list
   inherited ReleaseYarn(AYarn);
 
-  with FThreadPool.LockList do try
-    if (Count < PoolSize) and (LThread <> nil) then begin
-      Add(LThread);
-      LThread := nil;
-    end;
-  finally FThreadPool.UnlockList; end;
-
-  // Was not redeposited to pool, need to destroy it
   if LThread <> nil then begin
-    with LThread do begin
-      Terminate;
-      Resume;
-      WaitFor;
+    // need to redeposit the thread in the pool or destroy it
+    LThread.Yarn := nil; // Yarn is being destroyed, de-couple it from the thread
+    with FThreadPool.LockList do try
+      if (Count < PoolSize) and (not LThread.Terminated) then begin
+        Add(LThread);
+        Exit;
+      end;
+    finally FThreadPool.UnlockList; end;
+    LThread.Terminate;
+    // RLebeau - ReleaseYarn() can be called in the context of
+    // the yarn's thread (when TIdThread.Cleanup() destroys the
+    // yarn between connnections), so have to check which context
+    // we're in here so as not to deadlock the thread!
+    if IsCurrentThread(LThread) then begin
+      LThread.FreeOnTerminate := True;
+    end else begin
+      {$IFDEF VCL_2010_OR_ABOVE}
+      LThread.Suspended := False;
+      {$ELSE}
+      LThread.Resume;
+      {$ENDIF}
+      LThread.WaitFor;
+      LThread.Free;
     end;
-    FreeAndNil(LThread);
   end;
 end;
 
@@ -170,7 +184,11 @@ begin
       while Count > 0 do begin
         with TIdThreadWithTask(Items[0]) do begin
           Terminate;
+          {$IFDEF VCL_2010_OR_ABOVE}
+          Suspended := False;
+          {$ELSE}
           Resume;
+          {$ENDIF}
           WaitFor;
           Free;
         end;

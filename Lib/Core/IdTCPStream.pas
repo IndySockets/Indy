@@ -85,6 +85,7 @@ type
 implementation
 
 uses
+  IdException,
   SysUtils;
 
 constructor TIdTCPStream.Create(AConnection: TIdTCPConnection);
@@ -96,7 +97,7 @@ end;
 function TIdTCPStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
   if AOffset <> 0 then begin
-    ToDo;
+    ToDo('IdRead() method of TIdTCPStream class does not support seeking'); {do not localized}
   end;
   Connection.IOHandler.ReadBytes(VBuffer, ACount, False);
   Result := ACount;

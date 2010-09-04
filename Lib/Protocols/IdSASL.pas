@@ -166,7 +166,7 @@ end;
 
 function TIdSASL.IsAuthProtocolAvailable(AFeatStrings: TStrings): Boolean;
 begin
-  Result := Assigned(AFeatStrings) and (AFeatStrings.IndexOf(ServiceName) > -1);
+  Result := Assigned(AFeatStrings) and (AFeatStrings.IndexOf(String(ServiceName)) > -1);
 end;
 
 function TIdSASL.IsReadyToStart;

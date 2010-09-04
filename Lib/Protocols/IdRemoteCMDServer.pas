@@ -39,6 +39,7 @@
 unit IdRemoteCMDServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -50,8 +51,8 @@ type
     FForcePortsInRange : Boolean;
     FStdErrorPortsInRange : Boolean;
     function DoExecute(AThread: TIdContext): boolean; override;
-    procedure DoCMD(AThread: TIdContext;
-        AStdError : TIdTCPClient; AParam1, AParam2, ACommand : String); virtual; abstract;
+    procedure DoCMD(AThread: TIdContext; AStdError : TIdTCPClient;
+        AParam1, AParam2, ACommand : String); virtual; abstract;
   public
     procedure SendError(AThread : TIdContext;AStdErr : TIdTCPClient; AMsg : String);
     procedure SendResults(AThread : TIdContext; AStdErr : TIdTCPClient; AMsg : String);
@@ -75,28 +76,27 @@ var
     try
      Result := True;
      StdError := nil;
-     ErrorPort := IndyStrToInt(AThread.Connection.IOHandler.ReadLn(#0),0);
+     ErrorPort := IndyStrToInt(AThread.Connection.IOHandler.ReadLn(#0), 0);
 
      if ErrorPort <> 0 then
      begin
        StdError := TIdTCPClient.Create(nil);
-       StdError.IOHandler := TIdIOHandlerStack.Create(nil);
        if FStdErrorPortsInRange then
        begin
-         TIdIOHandlerSocket(StdError.IOHandler).BoundPortMax := 1023;
-         TIdIOHandlerSocket(StdError.IOHandler).BoundPortMin := 512;
+         StdError.BoundPortMin := 512;
+         StdError.BoundPortMax := 1023;
        end;
-       TIdIOHandlerSocket(StdError.IOHandler).BoundIP := (AThread.Connection.IOHandler as TIdIOHandlerSocket).Binding.IP;
-       StdError.Host := (AThread.Connection.IOHandler as TIdIOHandlerSocket).Binding.PeerIP;
+       StdError.BoundIP := AThread.Connection.Socket.Binding.IP;
+       StdError.Host := AThread.Connection.Socket.Binding.PeerIP;
        StdError.Port := ErrorPort;
 
        repeat
          try
            StdError.Connect;
-           break;
+           Break;
          except
            on E: EIdSocketError do begin
-             // This will be uncommented after we have the fix into TIdTCPClient.Connect metod
+             // This will be uncommented after we have the fix into TIdTCPClient.Connect method
              // There is one extra line that has to be added in order to run this code
              //
              // except
@@ -117,7 +117,7 @@ var
                raise;
            end;
          end;
-       until false;
+       until False;
      end;
 
      Param1 := AThread.Connection.IOHandler.ReadLn(#0);
@@ -145,17 +145,18 @@ begin
     ExecuteCMD;
   end;
   AThread.Connection.Disconnect;
-  result:=false;// DoExecute does not have to be called again
+  Result := False;// DoExecute does not have to be called again
 end;
 
 procedure TIdRemoteCMDServer.SendError(AThread: TIdContext;
   AStdErr: TIdTCPClient; AMsg: String);
 begin
   AThread.Connection.IOHandler.Write(#1);
-  if Assigned(AStdErr) then
-    AStdErr.IOHandler.Write(AMsg)
-  else
+  if Assigned(AStdErr) then begin
+    AStdErr.IOHandler.Write(AMsg);
+  end else begin
     AThread.Connection.IOHandler.Write(AMsg);
+  end;
 end;
 
 procedure TIdRemoteCMDServer.SendResults(AThread: TIdContext;

@@ -52,8 +52,10 @@ unit IdIPMCastServer;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   IdComponent,
   IdGlobal,
@@ -68,6 +70,8 @@ type
   TIdIPMCastServer = class(TIdIPMCastBase)
   protected
     FBinding: TIdSocketHandle;
+    FBoundIP: String;
+    FBoundPort: TIdPort;
     FLoopback: Boolean;
     FTimeToLive: Byte;
     //
@@ -89,8 +93,11 @@ type
     property Binding: TIdSocketHandle read GetBinding;
   published
     property Active;
+    property BoundIP: String read FBoundIP write FBoundIP;
+    property BoundPort: TIdPort read FBoundPort write FBoundPort;
     property Loopback: Boolean read FLoopback write SetLoopback default DEF_IMP_LOOPBACK;
     property MulticastGroup;
+    property IPVersion;
     property Port;
     property TimeToLive: Byte read FTimeToLive write SetTTL default DEF_IMP_TTL;
   end;
@@ -124,7 +131,7 @@ end;
 
 destructor TIdIPMCastServer.Destroy;
 begin
-	Active := False;
+  Active := False;
   inherited Destroy;
 end;
 
@@ -132,16 +139,18 @@ procedure TIdIPMCastServer.CloseBinding;
 begin
   //Multicast.IMRMultiAddr := GBSDStack.StringToTIn4Addr(FMulticastGroup);
   //Hope the following is correct for StringToTIn4Addr(), should be checked...
-  if FBinding<>nil then
-    begin
-    GStack.DropMulticastMembership(FBinding.Handle,FMulticastGroup,FBinding.IP,FBinding.IPVersion);
-    FreeAndNil(FBinding);
+  if Assigned(FBinding) then
+  begin
+    if FBinding.HandleAllocated then begin
+      FBinding.DropMulticastMembership(FMulticastGroup);
     end;
+    FreeAndNil(FBinding);
+  end;
 end;
 
 function TIdIPMCastServer.GetActive: Boolean;
 begin
-  Result := inherited GetActive or (Assigned(FBinding) and FBinding.HandleAllocated);
+  Result := (inherited GetActive) or (Assigned(FBinding) and FBinding.HandleAllocated);
 end;
 
 function TIdIPMCastServer.GetBinding: TIdSocketHandle;
@@ -150,15 +159,18 @@ begin
     FBinding := TIdSocketHandle.Create(nil);
   end;
   if not FBinding.HandleAllocated then begin
-{$IFDEF LINUX}
+    FBinding.IPVersion := FIPVersion;
+    {$IFDEF LINUX}
     FBinding.AllocateSocket(LongInt(Id_SOCK_DGRAM));
-{$ELSE}
+    {$ELSE}
     FBinding.AllocateSocket(Id_SOCK_DGRAM);
-{$ENDIF}
+    {$ENDIF}
+    FBinding.IP := FBoundIP;
+    FBinding.Port := FBoundPort;
     FBinding.Bind;
     //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
     //Hope the following is correct for StringToTIn4Addr(), should be checked...
-    GStack.AddMulticastMembership(FBinding.Handle, FMulticastGroup, FBinding.IP, FBinding.IPVersion);
+    FBinding.AddMulticastMembership(FMulticastGroup);
     ApplyTimeToLive;
     ApplyLoopback;
   end;
@@ -168,8 +180,10 @@ end;
 procedure TIdIPMCastServer.MulticastBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
 begin
   // DS - if not IsValidMulticastGroup(FMulticastGroup) then
-  EIdMCastNotValidAddress.IfFalse(IsValidMulticastGroup(AHost), RSIPMCastInvalidMulticastAddress);
-  Binding.SendTo(AHost, APort, ABuffer);
+  if not IsValidMulticastGroup(AHost) then begin
+    EIdMCastNotValidAddress.Toss(RSIPMCastInvalidMulticastAddress);
+  end;
+  Binding.SendTo(AHost, APort, ABuffer, Binding.IPVersion);
 end;
 
 procedure TIdIPMCastServer.Send(const AData: string);
@@ -192,7 +206,7 @@ end;
 
 procedure TIdIPMCastServer.SetTTL(const AValue: Byte);
 begin
-  if (FTimeToLive <> AValue) then begin
+  if FTimeToLive <> AValue then begin
     FTimeToLive := AValue;
     ApplyTimeToLive;
   end;
@@ -201,14 +215,14 @@ end;
 procedure TIdIPMCastServer.ApplyLoopback;
 begin
   if Assigned(FBinding) and FBinding.HandleAllocated then begin
-    GStack.SetLoopBack(FBinding.Handle, FLoopback, FBinding.IPVersion);
+    FBinding.SetLoopBack(FLoopback);
   end;
 end;
 
 procedure TIdIPMCastServer.ApplyTimeToLive;
 begin
   if Assigned(FBinding) and FBinding.HandleAllocated then begin
-    GStack.SetMulticastTTL(FBinding.Handle, FTimeToLive, FBinding.IPVersion);
+    FBinding.SetMulticastTTL(FTimeToLive);
   end;
 end;
 

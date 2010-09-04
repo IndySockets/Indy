@@ -1081,7 +1081,7 @@ type
     Reserved4: PVOID;
     ExportSecurityContext: EXPORT_SECURITY_CONTEXT_FN;
     ImportSecurityContextW: IMPORT_SECURITY_CONTEXT_FN_W;
-    AddCredentialsW : ADD_CREDENTIALS_FN_W;
+    AddCredentialsW: ADD_CREDENTIALS_FN_W;
     Reserved8: PVOID;
     QuerySecurityContextToken: QUERY_SECURITY_CONTEXT_TOKEN_FN;
     EncryptMessage: ENCRYPT_MESSAGE_FN;
@@ -1094,7 +1094,7 @@ type
     EnumerateSecurityPackagesA: ENUMERATE_SECURITY_PACKAGES_FN_A;
     QueryCredentialsAttributesA: QUERY_CREDENTIALS_ATTRIBUTES_FN_A;
     AcquireCredentialsHandleA: ACQUIRE_CREDENTIALS_HANDLE_FN_A;
-    FreeCredentialHandle: FREE_CREDENTIALS_HANDLE_FN;
+    FreeCredentialsHandle: FREE_CREDENTIALS_HANDLE_FN;
     Reserved2: PVOID;
     InitializeSecurityContextA: INITIALIZE_SECURITY_CONTEXT_FN_A;
     AcceptSecurityContext: ACCEPT_SECURITY_CONTEXT_FN;
@@ -1112,7 +1112,7 @@ type
     Reserved4: PVOID;
     ExportSecurityContext: EXPORT_SECURITY_CONTEXT_FN;
     ImportSecurityContextA: IMPORT_SECURITY_CONTEXT_FN_A;
-    AddCredentialsA : ADD_CREDENTIALS_FN_A;
+    AddCredentialsA: ADD_CREDENTIALS_FN_A;
     Reserved8: PVOID;
     QuerySecurityContextToken: QUERY_SECURITY_CONTEXT_TOKEN_FN;
     EncryptMessage: ENCRYPT_MESSAGE_FN;

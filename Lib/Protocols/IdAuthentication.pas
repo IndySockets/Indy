@@ -82,7 +82,7 @@ type
     procedure Reset; virtual;
 
     function Authentication: String; virtual; abstract;
-    function KeepAlive: Boolean; virtual; abstract;
+    function KeepAlive: Boolean; virtual;
     function Next: TIdAuthWhatsNext;
 
     property AuthParams: TIdHeaderList read FAuthParams write SetAuthParams;
@@ -102,10 +102,7 @@ type
     function GetSteps: Integer; override;  // this function determines the number of steps that this
                                            // Authtentication needs take to suceed;
   public
-    constructor Create; override;
     function Authentication: String; override;
-    function KeepAlive: Boolean; override;
-    procedure Reset; override;
 
     property Realm: String read FRealm write FRealm;
   end;
@@ -120,34 +117,35 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdResourceStringsProtocols, SysUtils;
+  IdCoderMIME, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
 
 var
   AuthList: TStringList = nil;
 
 procedure RegisterAuthenticationMethod(const MethodName: String; const AuthClass: TIdAuthenticationClass);
+var
+  I: Integer;
 begin
   if not Assigned(AuthList) then begin
     AuthList := TStringList.Create;
   end;
-
-  if AuthList.IndexOf(MethodName) < 0 then begin
+  I := AuthList.IndexOf(MethodName);
+  if I < 0 then begin
     AuthList.AddObject(MethodName, TObject(AuthClass));
-  end
-  else begin
-    raise EIdAlreadyRegisteredAuthenticationMethod.CreateFmt(RSHTTPAuthAlreadyRegistered,
-      [AuthClass.ClassName]);
+  end else begin
+    //raise EIdAlreadyRegisteredAuthenticationMethod.CreateFmt(RSHTTPAuthAlreadyRegistered, [AuthClass.ClassName]);
+    AuthList.Objects[I] := TObject(AuthClass);
   end;
 end;
 
 procedure UnregisterAuthenticationMethod(const MethodName: String);
 var
-  i: Integer;
+  I: Integer;
 begin
   if Assigned(AuthList) then begin
-    i := AuthList.IndexOf(MethodName);
-    if i >= 0 then begin
-      AuthList.Delete(i);
+    I := AuthList.IndexOf(MethodName);
+    if I >= 0 then begin
+      AuthList.Delete(I);
     end;
   end;
 end;
@@ -169,8 +167,8 @@ end;
 constructor TIdAuthentication.Create;
 begin
   inherited Create;
-  FAuthParams := TIdHeaderList.Create;
-  FParams := TIdHeaderList.Create;
+  FAuthParams := TIdHeaderList.Create(QuoteHTTP);
+  FParams := TIdHeaderList.Create(QuoteHTTP);
   FCurrentStep := 0;
 end;
 
@@ -199,6 +197,11 @@ begin
   Result := '';  {Do not Localize}
 end;
 
+function TIdAuthentication.KeepAlive: Boolean;
+begin
+  Result := False;
+end;
+
 function TIdAuthentication.Next: TIdAuthWhatsNext;
 begin
   Result := DoNext;
@@ -206,7 +209,7 @@ end;
 
 procedure TIdAuthentication.Reset;
 begin
-  // 
+  FCurrentStep := 0;
 end;
 
 function TIdAuthentication.GetPassword: String;
@@ -235,12 +238,6 @@ begin
 end;
 
 { TIdBasicAuthentication }
-
-constructor TIdBasicAuthentication.Create;
-begin
-  inherited Create;
-  FCurrentStep := 0;
-end;
 
 function TIdBasicAuthentication.Authentication: String;
 begin
@@ -276,17 +273,6 @@ begin
   end else begin
     Result := wnFail;
   end;
-end;
-
-function TIdBasicAuthentication.KeepAlive: Boolean;
-begin
-  Result := False;
-end;
-
-procedure TIdBasicAuthentication.Reset;
-begin
-  inherited Reset;
-  FCurrentStep := 0;
 end;
 
 function TIdBasicAuthentication.GetSteps: Integer;

@@ -189,10 +189,12 @@ type
     procedure SetDestination(const AValue: string); override;
     function GetTransparentProxy: TIdCustomTransparentProxy; virtual;
     procedure SetTransparentProxy(AProxy: TIdCustomTransparentProxy); virtual;
+    function GetUseNagle: Boolean;
     procedure SetUseNagle(AValue: Boolean);
-    procedure SetNagleOpt(AEnabled: Boolean);
     //
     function SourceIsAvailable: Boolean; override;
+    function CheckForError(ALastResult: Integer): Integer; override;
+    procedure RaiseError(AError: Integer); override;
   public
     destructor Destroy; override;
     function BindingAllocated: Boolean;
@@ -210,12 +212,12 @@ type
     property OnSocketAllocated: TNotifyEvent read FOnSocketAllocated write FOnSocketAllocated;
   published
     property BoundIP: string read FBoundIP write FBoundIP;
-    property BoundPort: TIdPort read FBoundPort write FBoundPort default 0;
+    property BoundPort: TIdPort read FBoundPort write FBoundPort default IdBoundPortDefault;
     property DefaultPort: TIdPort read FDefaultPort write FDefaultPort;
     property IPVersion: TIdIPVersion read FIPVersion write FIPVersion default ID_DEFAULT_IP_VERSION;
     property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
     property TransparentProxy: TIdCustomTransparentProxy read GetTransparentProxy write SetTransparentProxy;
-    property UseNagle: boolean read FUseNagle write SetUseNagle default True;
+    property UseNagle: boolean read GetUseNagle write SetUseNagle default True;
   end;
 
 implementation
@@ -223,10 +225,13 @@ implementation
 uses
   //facilitate inlining only.
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
-    System.IO,
+    {$IFDEF USE_INLINE}
+  System.IO,
     {$ENDIF}
-  {$ENDIF}  
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64 }
+  Windows,
+  {$ENDIF}
   SysUtils,
   IdStack,
   IdStackConsts,
@@ -259,11 +264,11 @@ begin
     ClientPortMax := BoundPortMax;
     // Turn on Reuse if specified
     if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)) then begin
-      GStack.SetSocketOption(FBinding.Handle, Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
+      SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
     end;
     Bind;
     // Turn off Nagle if specified
-    SetNagleOpt(UseNagle);
+    UseNagle := Self.FUseNagle;
     DoAfterBind;
   end;
 end;
@@ -353,8 +358,16 @@ end;
 
 function TIdIOHandlerSocket.WriteFile(const AFile: String;
   AEnableTransferFile: Boolean): Int64;
+  {$IFDEF WIN32_OR_WIN64}
+var
+  LOldErrorMode : Integer;
+  {$ENDIF}
 begin
   Result := 0;
+  {$IFDEF WIN32_OR_WIN64}
+  LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
+  try
+  {$ENDIF}
   if FileExists(AFile) then begin
     if Assigned(GServeFileProc) and (not WriteBufferingActive)
      {and (Intercept = nil)} and AEnableTransferFile
@@ -367,6 +380,11 @@ begin
       Result := inherited WriteFile(AFile, AEnableTransferFile);
     end;
   end;
+  {$IFDEF WIN32_OR_WIN64}
+  finally
+    SetErrorMode(LOldErrorMode)
+  end;
+  {$ENDIF}
 end;
 
 procedure TIdIOHandlerSocket.SetTransparentProxy(AProxy : TIdCustomTransparentProxy);
@@ -381,6 +399,7 @@ begin
     if not Assigned(AProxy.Owner) then begin
       if Assigned(FTransparentProxy) then begin
         if Assigned(FTransparentProxy.Owner) then begin
+          FTransparentProxy.RemoveFreeNotification(Self);
           FTransparentProxy := nil;
         end;
       end;
@@ -393,17 +412,22 @@ begin
       end;
       FTransparentProxy.Assign(AProxy);
     end else begin
-      if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
-        FreeAndNil(FTransparentProxy);
+      if Assigned(FTransparentProxy) then begin
+        if not Assigned(FTransparentProxy.Owner) then begin
+          FreeAndNil(FTransparentProxy);
+        end else begin
+          FTransparentProxy.RemoveFreeNotification(Self);
+        end;
       end;
       FTransparentProxy := AProxy;
       FTransparentProxy.FreeNotification(Self);
     end;
   end
-  else begin
-    if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
+  else if Assigned(FTransparentProxy) then begin
+    if not Assigned(FTransparentProxy.Owner) then begin
       FreeAndNil(FTransparentProxy);
     end else begin
+      FTransparentProxy.RemoveFreeNotification(Self);
       FTransparentProxy := nil; //remove link
     end;
   end;
@@ -418,18 +442,20 @@ begin
   Result := FTransparentProxy;
 end;
 
-procedure TIdIOHandlerSocket.SetUseNagle(AValue: Boolean);
+function TIdIOHandlerSocket.GetUseNagle: Boolean;
 begin
-  if FUseNagle <> AValue then begin
-    FUseNagle := AValue;
-    SetNagleOpt(FUseNagle);
+  if FBinding <> nil then begin
+    Result := FBinding.UseNagle;
+  end else begin
+    Result := FUseNagle;
   end;
 end;
 
-procedure TIdIOHandlerSocket.SetNagleOpt(AEnabled: Boolean);
+procedure TIdIOHandlerSocket.SetUseNagle(AValue: Boolean);
 begin
-  if BindingAllocated then begin
-    GStack.SetSocketOption(FBinding.Handle, Id_SOCKETOPTIONLEVEL_TCP, Id_TCP_NODELAY, Integer(not AEnabled));
+  FUseNagle := AValue;
+  if FBinding <> nil then begin
+    FBinding.UseNagle := AValue;
   end;
 end;
 
@@ -451,6 +477,16 @@ end;
 function TIdIOHandlerSocket.SourceIsAvailable: Boolean;
 begin
   Result := BindingAllocated;
+end;
+
+function TIdIOHandlerSocket.CheckForError(ALastResult: Integer): Integer;
+begin
+  Result := GStack.CheckForSocketError(ALastResult, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED]);
+end;
+
+procedure TIdIOHandlerSocket.RaiseError(AError: Integer);
+begin
+  GStack.RaiseSocketError(AError);
 end;
 
 end.

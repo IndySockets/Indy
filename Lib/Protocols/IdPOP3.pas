@@ -266,13 +266,15 @@ type
 implementation
 
 uses
+  IdFIPS,
   IdHash,
   IdHashMessageDigest,
   IdTCPConnection,
   IdSSL,
   IdResourceStringsProtocols,
   IdReplyPOP3,
-  IdCoderMIME, SysUtils;
+  IdCoderMIME,
+  SysUtils;
 
 { TIdPOP3 }
 
@@ -311,6 +313,7 @@ begin
     patAPOP:  //APR
       begin
         if FHasAPOP then begin
+          CheckMD5Permitted;
           with TIdHashMessageDigest5.Create do
           try
             S := LowerCase(HashStringAsHex(FAPOPToken+Password));
@@ -329,7 +332,9 @@ begin
       end;//if APOP
     patSASL:
       begin
-        EIdSASLMechNeeded.IfTrue(FSASLMechanisms.Count = 0, RSASLRequired);
+        if FSASLMechanisms.Count = 0 then begin
+          EIdSASLMechNeeded.Toss(RSASLRequired);
+        end;
         FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
       end;
   end;

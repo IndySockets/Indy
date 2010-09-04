@@ -77,6 +77,7 @@ implicitunits=IdASN1Util \
   IdFTPListParseDistinctTCPIP \
   IdFTPListParseEPLF \
   IdFTPListParseHellSoft \
+  IdFTPListParseIEFTPGateway \
   IdFTPListParseKA9Q \
   IdFTPListParseMPEiX \
   IdFTPListParseMVS \
@@ -88,6 +89,7 @@ implicitunits=IdASN1Util \
   IdFTPListParseNovellNetwarePSU \
   IdFTPListParseOS2 \
   IdFTPListParsePCNFSD \
+  IdFTPListParsePCTCP \
   IdFTPListParseStercomOS390Exp \
   IdFTPListParseStercomUnixEnt \
   IdFTPListParseStratusVOS \
@@ -126,11 +128,12 @@ implicitunits=IdASN1Util \
   IdHashCRC \
   IdHashElf \
   IdHashMessageDigest \
-  IdHashSHA1 \
+  IdHashSHA \
   IdHeaderCoder2022JP \
   IdHeaderCoderBase \
+  IdHeaderCoderIndy \
   IdHeaderCoderPlain \
-  IdHeaderCoderUTF8 \
+  IdHeaderCoderUTF \
   IdHeaderList \
   IdIMAP4 \
   IdIMAP4Server \
@@ -151,6 +154,7 @@ implicitunits=IdASN1Util \
   IdMessageBuilder \
   IdMessageClient \
   IdMessageCoder \
+  IdMessageCoderBinHex4 \
   IdMessageCoderMIME \
   IdMessageCoderQuotedPrintable \
   IdMessageCoderUUE \

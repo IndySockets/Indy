@@ -200,7 +200,7 @@ type
     constructor Create(ACreateSuspended: Boolean = True;
      ALoop: Boolean = True; const AName: string = ''); virtual;
     destructor Destroy; override;
-    procedure Start; virtual;
+    procedure Start; {$IFDEF VCL_2010_OR_ABOVE}reintroduce;{$ENDIF} virtual;
     procedure Stop; virtual;
     procedure Synchronize(Method: TThreadMethod); overload;
 //BGO:TODO    procedure Synchronize(Method: TMethod); overload;
@@ -234,6 +234,7 @@ type
     procedure BeforeRun; override;
     procedure Run; override;
     procedure DoException(AException: Exception); override;
+    procedure SetTask(AValue: TIdTask);
   public
     // Defaults because
     // Must always create suspended so task can be set
@@ -246,7 +247,7 @@ type
     //
     // Must be writeable because tasks are often created after thread or
     // thread is pooled
-    property Task: TIdTask read FTask write FTask;
+    property Task: TIdTask read FTask write SetTask;
   end;
 
   TIdThreadClass = class of TIdThread;
@@ -265,9 +266,13 @@ implementation
 uses
   //facilitate inlining only.
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.Threading,
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysSelect,
+  PosixSysTime,
   {$ENDIF}
   IdResourceStringsCore;
 
@@ -332,7 +337,12 @@ begin
             if Terminated then begin
               Break;
             end;
-            Suspend; // Thread manager will revive us
+            // Thread manager will revive us
+            {$IFDEF VCL_2010_OR_ABOVE}
+            Suspended := True;
+            {$ELSE}
+            Suspend;
+            {$ENDIF}
             if Terminated then begin
               Break;
             end;
@@ -408,14 +418,18 @@ begin
   //
   {$IFDEF DOTNET}
   if not ACreateSuspended then begin
+    {$IFDEF VCL_2010_OR_ABOVE}
+    Suspended := False;
+    {$ELSE}
     Resume;
+    {$ENDIF}
   end;
   {$ELSE}
   //
   // Most things BEFORE inherited - inherited creates the actual thread and if
   // not suspended will start before we initialize
   inherited Create(ACreateSuspended);
-    {$IFNDEF VCL6ORABOVE}
+    {$IFNDEF VCL_6_OR_ABOVE}
     // Delphi 6 and above raise an exception when an error occures while
     // creating a thread (eg. not enough address space to allocate a stack)
     // Delphi 5 and below don't do that, which results in a TIdThread
@@ -469,7 +483,11 @@ begin
       end else begin
         Exclude(FOptions,itoStopped);
       end;
+      {$IFDEF VCL_2010_OR_ABOVE}
+      Suspended := False;
+      {$ELSE}
       Resume;
+      {$ENDIF}
       {APR: [in past] thread can be destroyed here! now Destroy wait FLock}
     end;
   finally FLock.Leave; end;
@@ -589,24 +607,47 @@ begin
   end;
 end;
 
+procedure TIdThreadWithTask.SetTask(AValue: TIdTask);
+begin
+  if FTask <> AValue then begin
+    FreeAndNil(FTask);
+    FTask := AValue;
+  end;
+end;
+
 {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
 type
   TIdThreadSafeIntegerAccess = class(TIdThreadSafeInteger);
 {$ENDIF}
   
 initialization
-  SetThreadName('Main');  {do not localize}
+  // RLebeau 7/19/09: According to RAID #271221:
+  //
+  // "Indy always names the main thread. It should not name the main thread,
+  // it should only name threads that it creates. This basically means that
+  // any app that uses Indy will end up with the main thread named "Main".
+  //
+  // The IDE currently names it's main thread, but because Indy is used by
+  // the dcldbx140.bpl package which gets loaded by the IDE, the name used
+  // for the main thread always ends up being overwritten with the name
+  // Indy gives it."
+  //
+  // So, DO NOT uncomment the following line...
+  // SetThreadName('Main');  {do not localize}
+
   GThreadCount := TIdThreadSafeInteger.Create;
-  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF FREE_ON_FINAL}
+    {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
   IndyRegisterExpectedMemoryLeak(GThreadCount);
   IndyRegisterExpectedMemoryLeak(TIdThreadSafeIntegerAccess(GThreadCount).FCriticalSection);
+    {$ENDIF}
   {$ENDIF}
 finalization
   // This call hangs if not all threads have been properly destroyed.
   // But without this, bad threads can often have worse results. Catch 22.
 //  TIdThread.WaitAllThreadsTerminated;
 
-  {$IFDEF IDFREEONFINAL}
+  {$IFDEF FREE_ON_FINAL}
   //only enable this if you know your code exits thread-clean
   FreeAndNil(GThreadCount);
   {$ENDIF}

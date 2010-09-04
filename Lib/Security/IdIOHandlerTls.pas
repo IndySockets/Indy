@@ -47,19 +47,19 @@ type
     FActiveStream: Stream;
     FOnValidateCertificate: CertificateValidationCallback;
     procedure InitComponent; override;
-    function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer; ARaiseExceptionOnTimeOut: Boolean) : Integer; override;
+    function RecvEnc(var ABuffer: TIdBytes): Integer; override;
+    function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     procedure SetPassThrough(const AValue: Boolean); override;
     procedure SetOnValidateCertificate(const Value: CertificateValidationCallback);
     procedure SetOptions(const Value: TIdTlsClientOptions);
   public
-    procedure CheckForDataOnSource(ATimeOut: Integer); override;
     procedure Open; override;
     procedure Close; override;
-    procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean; AIgnoreBuffer: Boolean); override;
+    procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
+     AIgnoreBuffer: Boolean = False); override;
     procedure StartSSL; override;
     function Clone : TIdSSLIOHandlerSocketBase; override;
     function Connected: Boolean; override;
-    procedure WriteDirect(var ABuffer: TIdBytes); override;
   published
     property Options: TIdTlsClientOptions read FOptions write SetOptions;
     property OnValidateCertificate: CertificateValidationCallback read FOnValidateCertificate write SetOnValidateCertificate;
@@ -136,85 +136,40 @@ begin
   end;
 end;
 
-function TIdIOHandlerTls.ReadFromSource(ARaiseExceptionIfDisconnected: Boolean;
-  ATimeout: Integer; ARaiseExceptionOnTimeOut: Boolean): Integer;
-var
-  TempBuff: TIdBytes;
-  TotalBytesRead: Integer;
-  StartTime: UInt32;
-  BytesRead: Integer;
-  TempBytes: TIdBytes;
+function TIdIOHandlerTls.RecvEnc(var VBuffer: TIdBytes): Integer;
 begin
-  if FInputBuffer = nil then
-  begin
+  if FActiveStream <> nil then begin
+    Result := FActiveStream.Read(VBuffer, 0, Length(VBuffer));
+  end else begin
     Result := 0;
-    Exit;
   end;
-  if FActiveStream <> nil then
-  begin
-    SetLength(TempBuff, RecvBufferSize);
-    TotalBytesRead := 0;
-    StartTime := Ticks;
-    repeat
-      BytesRead := FActiveStream.Read(TempBuff, 0, RecvBufferSize);
-      if BytesRead <> 0 then
-      begin
-        SetLength(TempBytes, BytesRead);
-        &Array.Copy(TempBuff, TempBytes, BytesRead);
-        FInputBuffer.Write(TempBytes);
-        Inc(TotalBytesRead, BytesRead);
-      end;
-      if BytesRead <> RecvBufferSize then
-      begin
-        Result := TotalBytesRead;
-        Exit;
-      end;
-      IndySleep(2);
-    until (   (Abs(GetTickDiff(StartTime, Ticks)) > ATimeOut)
-           and (not ((ATimeOut = IdTimeoutDefault) or (ATimeOut = IdTimeoutInfinite)))
-           );
-  	Result := TotalBytesRead;
-  end
-  else
-    Result := 0;
 end;
 
-procedure TIdIOHandlerTls.CheckForDisconnect(ARaiseExceptionIfDisconnected,
-  AIgnoreBuffer: Boolean);
+procedure TIdIOHandlerTls.CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
+  AIgnoreBuffer: Boolean = False);
 begin
   inherited;
   try
     if FActiveStream = nil then
     begin
-      if AIgnoreBuffer then
-        CloseGracefully
-      else
-        if FInputBuffer.Size = 0 then
-          CloseGracefully;
-    end
-    else
-      if (    (not FActiveStream.CanRead)
-          or  (not FActiveStream.CanWrite)
-          ) then
-      begin
-        if AIgnoreBuffer then
-          CloseGracefully
-        else
-          if FInputBuffer.Size = 0 then
-            CloseGracefully;
+      if AIgnoreBuffer or (FInputBuffer.Size = 0) then begin
+        CloseGracefully;
       end;
+    end
+    else if (not FActiveStream.CanRead) or (not FActiveStream.CanWrite) then
+    begin
+      if AIgnoreBuffer or (FInputBuffer.Size = 0) then begin
+        CloseGracefully;
+      end;
+    end;
   except
-    on E: Exception do
+    on E: Exception do begin
       CloseGracefully;
+    end;
   end;
-  if ARaiseExceptionIfDisconnected and ClosedGracefully then
+  if ARaiseExceptionIfDisconnected and ClosedGracefully then begin
     RaiseConnClosedGracefully;
-end;
-
-procedure TIdIOHandlerTls.CheckForDataOnSource(ATimeOut: Integer);
-begin
-  if Connected then
-    ReadFromSource(false, ATimeout, false);
+  end;
 end;
 
 procedure TIdIOHandlerTls.Close;
@@ -231,20 +186,16 @@ begin
   inherited;
 end;
 
-procedure TIdIOHandlerTls.WriteDirect(var ABuffer: TIdBytes);
+function TIdIOHandlerTls.SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer;
 begin
-  if Intercept <> nil then
-  begin
-    Intercept.Send(ABuffer);
-  end;
-
   if FActiveStream <> nil then
   begin
-    FActiveStream.Write(ABuffer, 0, Length(ABuffer));
+    FActiveStream.Write(ABuffer, AOffset, ALength);
     FActiveStream.Flush;
-  end
-  else
-    Console.WriteLine('TIdIOHandler.WriteDirect: FActiveStream = Nil!');
+    Result := ALength;
+  end else begin
+    Result := 0;
+  end;
 end;
 
 procedure TIdIOHandlerTls.SetPassThrough(const AValue: Boolean);
@@ -254,9 +205,9 @@ begin
   if PassThrough <> AValue then
   begin
     inherited;
-    if FCarrierStream = nil then
+    if FCarrierStream = nil then begin
       Exit;
-
+    end;
     if AValue then
     begin
       FActiveStream := FSocketStream;
@@ -265,14 +216,13 @@ begin
         FTlsStream.Close;
         FTlsStream := nil;
       end;
-    end
-    else
+    end else
     begin
-      FTlsStream := SslClientStream.Create(FCarrierStream, URIToCheck, true, FOptions.Protocol, FOptions.CertificateCollection);
+      FTlsStream := SslClientStream.Create(FCarrierStream, URIToCheck, True, FOptions.Protocol, FOptions.CertificateCollection);
       FTlsStream.ServerCertValidationDelegate := FOnValidateCertificate;
       GC.SuppressFinalize(FTlsStream);
       FActiveStream := FTlsStream;
-//      FTlsStream.Read(TempBuff, 0, 0);
+      //FTlsStream.Read(TempBuff, 0, 0);
     end;
   end;
 end;

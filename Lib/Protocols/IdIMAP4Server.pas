@@ -222,6 +222,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers,
+  IdCustomTCPServer, //for TIdServerContext
   IdCmdTCPServer,
   IdContext,
   IdCommandHandlers,
@@ -269,19 +270,14 @@ type
   EIdIMAP4ServerException = class(EIdException);
   EIdIMAP4ImplicitTLSRequiresSSL = class(EIdIMAP4ServerException);
 
-  { Tag object }
-  TIdIMAP4Tag = class(TObject)
-  public
-    IMAP4Tag: String;
-  end;
-
   { custom IMAP4 context }
-  TIdIMAP4PeerContext = class(TIdContext)
+  TIdIMAP4PeerContext = class(TIdServerContext)
   protected
     FConnectionState : TIdIMAP4ConnectionState;
     FLoginName: string;
     FMailBox: TIdMailBox;
-    FTagData: TIdIMAP4Tag;
+    FIMAP4Tag: String;
+    FLastCommand: TIdReplyIMAP4;  //Used to record the client command we are currently processing
     function GetUsingTLS: Boolean;
   public
     constructor Create(
@@ -292,15 +288,13 @@ type
     destructor Destroy; override;
     property ConnectionState: TIdIMAP4ConnectionState read FConnectionState;
     property UsingTLS : Boolean read GetUsingTLS;
-    property TagData: TIdIMAP4Tag read FTagData;
+    property IMAP4Tag: String read FIMAP4Tag;
     property MailBox: TIdMailBox read FMailBox;
     property LoginName: string read FLoginName write FLoginName;
   end;
 
   { TIdIMAP4Server }
   TIdIMAP4Server = class(TIdExplicitTLSServer)
-  private
-    FLastCommand: TIdReplyIMAP4;  //Used to record the client command we are currently processing
   protected
     //
     FSaferMode: Boolean;                                  //See IMPLEMENTATION NOTES above
@@ -553,12 +547,12 @@ end;
 
 procedure TIdIMAP4Server.SendOkReply(ASender: TIdCommand; const AText: string);
 begin
-  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' OK ' + AText); {Do not Localize}
+  DoSendReply(ASender.Context, TIdIMAP4PeerContext(ASender.Context).FLastCommand.SequenceNumber + ' OK ' + AText); {Do not Localize}
 end;
 
 procedure TIdIMAP4Server.SendBadReply(ASender: TIdCommand; const AText: string);
 begin
-  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' BAD ' + AText); {Do not Localize}
+  DoSendReply(ASender.Context, TIdIMAP4PeerContext(ASender.Context).FLastCommand.SequenceNumber + ' BAD ' + AText); {Do not Localize}
 end;
 
 procedure TIdIMAP4Server.SendBadReply(ASender: TIdCommand; const AFormat: string; const Args: array of const);
@@ -569,9 +563,9 @@ end;
 procedure TIdIMAP4Server.SendNoReply(ASender: TIdCommand; const AText: string = '');
 begin
   if AText <> '' then begin
-    DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO ' + AText); {Do not Localize}
+    DoSendReply(ASender.Context, TIdIMAP4PeerContext(ASender.Context).FLastCommand.SequenceNumber + ' NO ' + AText); {Do not Localize}
   end else begin
-    DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO'); {Do not Localize}
+    DoSendReply(ASender.Context, TIdIMAP4PeerContext(ASender.Context).FLastCommand.SequenceNumber + ' NO'); {Do not Localize}
   end;
 end;
 
@@ -596,13 +590,11 @@ begin
   FRootPath := GPathDelim + 'imapmail'; {Do not Localize}
 {$ENDIF}
   FDefaultPassword := 'admin'; {Do not Localize}
-  FLastCommand := TIdReplyIMAP4.Create(nil);
   FMailBoxSeparator := '.';   {Do not Localize}
 end;
 
 destructor TIdIMAP4Server.Destroy;
 begin
-  FreeAndNil(FLastCommand);
   inherited Destroy;
 end;
 
@@ -640,13 +632,13 @@ constructor TIdIMAP4PeerContext.Create(AConnection: TIdTCPConnection; AYarn: TId
 begin
   inherited Create(AConnection, AYarn, AList);
   FMailBox := TIdMailBox.Create;
-  FTagData := TIdIMAP4Tag.Create;
+  FLastCommand := TIdReplyIMAP4.Create(nil);
   FConnectionState := csAny;
 end;
 
 destructor TIdIMAP4PeerContext.Destroy;
 begin
-  FreeAndNil(FTagData);
+  FreeAndNil(FLastCommand);
   FreeAndNil(FMailBox);
   inherited Destroy;
 end;
@@ -665,7 +657,7 @@ procedure TIdIMAP4Server.DoReplyUnknownCommand(AContext: TIdContext; AText: stri
 var
   LText: string;
 begin
-  LText := FLastCommand.SequenceNumber;
+  LText := TIdIMAP4PeerContext(AContext).FLastCommand.SequenceNumber;
   if LText = '' then begin
     //This should not happen!
     LText := '*';    {Do not Localize}
@@ -1463,8 +1455,8 @@ end;
 procedure TIdIMAP4Server.DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string;
   AContext: TIdContext);
 begin
-  FLastCommand.ParseRequest(AData);  //Main purpose is to get sequence number, like C11 from 'C11 CAPABILITY'
-  TIdIMAP4PeerContext(AContext).TagData.IMAP4Tag := Fetch(AData, ' ');
+  TIdIMAP4PeerContext(AContext).FLastCommand.ParseRequest(AData);  //Main purpose is to get sequence number, like C11 from 'C11 CAPABILITY'
+  TIdIMAP4PeerContext(AContext).FIMAP4Tag := Fetch(AData, ' ');
   AData := Trim(AData);
   if Assigned(FOnBeforeCmd) then begin
     FOnBeforeCmd(ASender, AData, AContext);
@@ -1498,7 +1490,7 @@ end;
 procedure TIdIMAP4Server.DoCommandCAPABILITY(ASender: TIdCommand);
 begin
   if Assigned(FOnCommandCAPABILITY) then begin
-    OnCommandCAPABILITY(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandCAPABILITY(ASender.Context, TIdIMAP4PeerContext(ASender.Context).IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1511,7 +1503,7 @@ end;
 procedure TIdIMAP4Server.DoCommandNOOP(ASender: TIdCommand);
 begin
   if Assigned(FOnCommandNOOP) then begin
-    OnCommandNOOP(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandNOOP(ASender.Context, TIdIMAP4PeerContext(ASender.Context).IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1530,7 +1522,7 @@ var
 begin
   LContext := TIdIMAP4PeerContext(ASender.Context);
   if Assigned(FOnCommandLOGOUT) then begin
-    OnCommandLOGOUT(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandLOGOUT(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1558,7 +1550,7 @@ begin
     if (FUseTLS = utUseRequireTLS) and (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then begin
       MustUseTLS(ASender);
     end else begin
-      OnCommandAUTHENTICATE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
+      OnCommandAUTHENTICATE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).IMAP4Tag, ASender.UnparsedParams);
     end;
   end;
 end;
@@ -1588,7 +1580,7 @@ begin
     if (FUseTLS = utUseRequireTLS) and (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then begin
       MustUseTLS(ASender);
     end else begin
-      OnCommandLOGIN(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+      OnCommandLOGIN(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     end;
     Exit;
   end;
@@ -1654,7 +1646,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandSELECT) then begin
-    OnCommandSELECT(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandSELECT(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1681,7 +1673,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandEXAMINE) then begin
-    OnCommandEXAMINE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandEXAMINE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1715,7 +1707,7 @@ begin
   end;
   }
   if Assigned(FOnCommandCREATE) then begin
-    OnCommandCREATE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandCREATE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1772,7 +1764,7 @@ begin
   end;
   }
   if Assigned(FOnCommandDELETE) then begin
-    OnCommandDELETE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandDELETE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1834,7 +1826,7 @@ begin
   end;
   }
   if Assigned(FOnCommandRENAME) then begin
-    OnCommandRENAME(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandRENAME(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1897,7 +1889,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandSUBSCRIBE) then begin
-    OnCommandSUBSCRIBE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandSUBSCRIBE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1917,7 +1909,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandUNSUBSCRIBE) then begin
-    OnCommandUNSUBSCRIBE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandUNSUBSCRIBE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -1942,7 +1934,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandLIST) then begin
-    OnCommandLIST(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandLIST(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2011,7 +2003,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandLSUB) then begin
-    OnCommandLSUB(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandLSUB(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2079,7 +2071,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandSTATUS) then begin
-    OnCommandSTATUS(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandSTATUS(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2198,7 +2190,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandAPPEND) then begin
-    OnCommandAPPEND(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandAPPEND(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2315,7 +2307,7 @@ begin
     Exit;
   end;
   if Assigned(fOnCommandCHECK) then begin
-    OnCommandCHECK(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandCHECK(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2336,7 +2328,7 @@ begin
     Exit;
   end;
   if Assigned(fOnCommandCLOSE) then begin
-    OnCommandCLOSE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandCLOSE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2372,7 +2364,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandEXPUNGE) then begin
-    OnCommandEXPUNGE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandEXPUNGE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2400,7 +2392,7 @@ begin
     Exit;
   end;
   if Assigned(fOnCommandSEARCH) then begin
-    OnCommandSEARCH(ASender.Context, LContext.TagData.IMAP4Tag,  ASender.UnparsedParams);
+    OnCommandSEARCH(ASender.Context, LContext.IMAP4Tag,  ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2430,7 +2422,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandFETCH) then begin
-    OnCommandFETCH(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandFETCH(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2467,7 +2459,7 @@ begin
     Exit;
   end;
   if Assigned(fOnCommandSTORE) then begin
-    OnCommandSTORE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandSTORE(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2520,7 +2512,7 @@ begin
     Exit;
   end;
   if Assigned(FOnCommandCOPY) then begin
-    OnCommandCOPY(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandCOPY(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2555,7 +2547,7 @@ begin
     Exit;
   end;
   if Assigned(fOnCommandUID) then begin
-    OnCommandUID(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandUID(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if not FUseDefaultMechanismsForUnassignedCommands then begin
@@ -2621,7 +2613,7 @@ end;
 procedure TIdIMAP4Server.DoCommandX(ASender: TIdCommand);
 begin
   if not Assigned(fOnCommandX) then begin
-    OnCommandX(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandX(ASender.Context, TIdIMAP4PeerContext(ASender.Context).IMAP4Tag, ASender.UnparsedParams);
   end else if FUseDefaultMechanismsForUnassignedCommands then begin
     SendUnsupportedCommand(ASender);
   end;
@@ -2633,7 +2625,7 @@ var
 begin
   LContext := TIdIMAP4PeerContext(ASender.Context);
   if (not (IOHandler is TIdServerIOHandlerSSLBase)) or (not (FUseTLS in ExplicitTLSVals)) then begin
-    OnCommandError(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    OnCommandError(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
     Exit;
   end;
   if LContext.UsingTLS then begin // we are already using TLS

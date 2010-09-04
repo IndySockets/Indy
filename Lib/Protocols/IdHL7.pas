@@ -417,6 +417,13 @@ type
 implementation
 
 uses
+  {$IFDEF USE_VCL_POSIX}
+	  {$IFDEF DARWIN}
+ CoreServices,
+	  {$ENDIF}
+  PosixSysSelect,
+  PosixSysTime,
+  {$ENDIF}
   IdGlobalProtocols,
   IdResourceStringsProtocols;
 

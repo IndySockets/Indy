@@ -97,6 +97,9 @@ end;
 procedure TIdSASLUserPass.SetUserPassProvider(const Value: TIdUserPassProvider);
 begin
   if FUserPassProvider <> Value then begin
+    if Assigned(FUserPassProvider) then begin
+      FUserPassProvider.RemoveFreeNotification(Self);
+    end;
     FUserPassProvider := Value;
     if Assigned(FUserPassProvider) then begin
       FUserPassProvider.FreeNotification(Self);

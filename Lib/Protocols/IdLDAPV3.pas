@@ -821,8 +821,7 @@ end;
 procedure TIdLDAPV3Attribute.Clear;
 begin
   FType := '';
-  FVals.Free;
-  FVals := Nil;
+  FreeAndNil(FVals);
 end;
 
 destructor TIdLDAPV3Attribute.Destroy;
@@ -850,8 +849,7 @@ begin
   FMatchedDN := '';
   FErrorMessage := '';
   FResultCode := lrcSuccess;
-  FReferral.Free;
-  FReferral := Nil;
+  FreeAndNil(FReferral);
 end;
 
 destructor TIdLDAPV3LDAPResult.Destroy;
@@ -889,8 +887,7 @@ end;
 procedure TIdLDAPV3AuthenticationChoice.Clear;
 begin
   FSimple := '';
-  FSasl.Free;
-  FSasl := Nil;
+  FreeAndNil(FSasl);
 end;
 
 destructor TIdLDAPV3AuthenticationChoice.Destroy;
@@ -911,8 +908,7 @@ procedure TIdLDAPV3BindRequest.Clear;
 begin
   FVersion := 0;
   FName := '';
-  FAuthentication.Free;
-  FAuthentication := Nil;
+  FreeAndNil(FAuthentication);
 end;
 
 destructor TIdLDAPV3BindRequest.Destroy;
@@ -978,8 +974,7 @@ end;
 procedure TIdLDAPV3SubstringFilter.Clear;
 begin
   FType := '';
-  FSubstrings.Free;
-  FSubstrings := Nil;
+  FreeAndNil(FSubstrings);
 end;
 
 destructor TIdLDAPV3SubstringFilter.Destroy;
@@ -1019,24 +1014,15 @@ end;
 procedure TIdLDAPV3Filter.Clear;
 begin
   FPresent := '';
-  FEqualityMatch.Free;
-  FEqualityMatch := Nil;
-  FLessOrEqual.Free;
-  FLessOrEqual := Nil;
-  FgreaterOrEqual.Free;
-  FgreaterOrEqual := Nil;
-  FApproxMatch.Free;
-  FApproxMatch := Nil;
-  FNot.Free;
-  FNot := Nil;
-  F_Or.Free;
-  F_Or := Nil;
-  FAnd.Free;
-  FAnd := Nil;
-  FExtensibleMatch.Free;
-  FExtensibleMatch := Nil;
-  FSubstrings.Free;
-  FSubstrings := Nil;
+  FreeAndNil(FEqualityMatch);
+  FreeAndNil(FLessOrEqual);
+  FreeAndNil(FgreaterOrEqual);
+  FreeAndNil(FApproxMatch);
+  FreeAndNil(FNot);
+  FreeAndNil(F_Or);
+  FreeAndNil(FAnd);
+  FreeAndNil(FExtensibleMatch);
+  FreeAndNil(FSubstrings);
 end;
 
 destructor TIdLDAPV3Filter.Destroy;
@@ -1069,10 +1055,8 @@ begin
   FBaseObject := '';
   FDerefAliases := sdNeverDerefAliases;
   FScope := ssBaseObject;
-  FAttributes.Free;
-  FAttributes := Nil;
-  FFilter.Free;
-  FFilter := Nil;
+  FreeAndNil(FAttributes);
+  FreeAndNil(FFilter);
 end;
 
 destructor TIdLDAPV3SearchRequest.Destroy;
@@ -1092,8 +1076,7 @@ end;
 procedure TIdLDAPV3PartialAttribute.Clear;
 begin
   FType := '';
-  FVals.Free;
-  FVals := Nil;
+  FreeAndNil(FVals);
 end;
 
 destructor TIdLDAPV3PartialAttribute.Destroy;
@@ -1120,8 +1103,7 @@ end;
 procedure TIdLDAPV3SearchResultEntry.Clear;
 begin
   FObjectName := '';
-  FAttributes.Free;
-  FAttributes := Nil;
+  FreeAndNil(FAttributes);
 end;
 
 destructor TIdLDAPV3SearchResultEntry.Destroy;
@@ -1141,8 +1123,7 @@ end;
 procedure TIdLDAPV3AttributeTypeAndValues.Clear;
 begin
   FType := '';
-  FVals.Free;
-  FVals := Nil;
+  FreeAndNil(FVals);
 end;
 
 destructor TIdLDAPV3AttributeTypeAndValues.Destroy;
@@ -1162,8 +1143,7 @@ end;
 procedure TIdLDAPV3Modification.Clear;
 begin
   FOperation := moAdd;
-  FModification.Free;
-  FModification := Nil;
+  FreeAndNil(FModification);
 end;
 
 destructor TIdLDAPV3Modification.Destroy;
@@ -1190,8 +1170,7 @@ end;
 procedure TIdLDAPV3ModifyRequest.Clear;
 begin
   FObject := '';
-  FModifications.Free;
-  FModifications := Nil;
+  FreeAndNil(FModifications);
 end;
 
 destructor TIdLDAPV3ModifyRequest.Destroy;
@@ -1211,8 +1190,7 @@ end;
 procedure TIdLDAPV3AddRequest.Clear;
 begin
   FEntry := '';
-  FAttributes.Free;
-  FAttributes := Nil;
+  FreeAndNil(FAttributes);
 end;
 
 destructor TIdLDAPV3AddRequest.Destroy;
@@ -1271,8 +1249,7 @@ end;
 procedure TIdLDAPV3CompareRequest.Clear;
 begin
   FEntry := '';
-  FAva.Free;
-  FAva := Nil;
+  FreeAndNil(FAva);
 end;
 
 destructor TIdLDAPV3CompareRequest.Destroy;
@@ -1309,8 +1286,7 @@ end;
 
 procedure TIdLDAPV3SearchResultReference.Clear;
 begin
-  FRef.Free;
-  FRef := Nil;
+  FreeAndNil(FRef);
 end;
 
 destructor TIdLDAPV3SearchResultReference.Destroy;
@@ -1348,7 +1324,6 @@ end;
 procedure TIdLDAPV3ExtendedResponse.Clear;
 begin
   inherited;
-
   FResponse := '';
   FResponseName := '';
 end;
@@ -1368,48 +1343,27 @@ end;
 procedure TIdLDAPV3LDAPMessage.Clear;
 begin
   FMessageID := 0;
-  FAbandonRequest.Free;
-  FAbandonRequest := Nil;
-  FAddRequest.Free;
-  FAddRequest := Nil;
-  FAddResponse.Free;
-  FAddResponse := Nil;
-  FBindRequest.Free;
-  FBindRequest := Nil;
-  FBindResponse.Free;
-  FBindResponse := Nil;
-  FCompareRequest.Free;
-  FCompareRequest := Nil;
-  FCompareResponse.Free;
-  FCompareResponse := Nil;
-  FControls.Free;
-  FControls := Nil;
-  FDelRequest.Free;
-  FDelRequest := Nil;
-  FDelResponse.Free;
-  FDelResponse := Nil;
-  FExtendedReq.Free;
-  FExtendedReq := Nil;
-  FExtendedResp.Free;
-  FExtendedResp := Nil;
-  FModDNRequest.Free;
-  FModDNRequest := Nil;
-  FModDNResponse.Free;
-  FModDNResponse := Nil;
-  FModifyRequest.Free;
-  FModifyRequest := Nil;
-  FModifyResponse.Free;
-  FModifyResponse := Nil;
-  FSearchRequest.Free;
-  FSearchRequest := Nil;
-  FSearchResDone.Free;
-  FSearchResDone := Nil;
-  FSearchResEntry.Free;
-  FSearchResEntry := Nil;
-  FSearchResRef.Free;
-  FSearchResRef := Nil;
-  FUnbindRequest.Free;
-  FUnbindRequest := Nil;
+  FreeAndNil(FAbandonRequest);
+  FreeAndNil(FAddRequest);
+  FreeAndNil(FAddResponse);
+  FreeAndNil(FBindRequest);
+  FreeAndNil(FBindResponse);
+  FreeAndNil(FCompareRequest);
+  FreeAndNil(FCompareResponse);
+  FreeAndNil(FControls);
+  FreeAndNil(FDelRequest);
+  FreeAndNil(FDelResponse);
+  FreeAndNil(FExtendedReq);
+  FreeAndNil(FExtendedResp);
+  FreeAndNil(FModDNRequest);
+  FreeAndNil(FModDNResponse);
+  FreeAndNil(FModifyRequest);
+  FreeAndNil(FModifyResponse);
+  FreeAndNil(FSearchRequest);
+  FreeAndNil(FSearchResDone);
+  FreeAndNil(FSearchResEntry);
+  FreeAndNil(FSearchResRef);
+  FreeAndNil(FUnbindRequest);
 end;
 
 destructor TIdLDAPV3LDAPMessage.Destroy;

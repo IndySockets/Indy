@@ -97,7 +97,7 @@ type
   // We have the manditory items to make it harder for the user to mess up.
 
   TIdFTPFactOutput = (ItemType, Modify, Size, Perm, Unique, UnixMODE, UnixOwner,
-    UnixGroup, CreateTime, LastAccessTime, WinAttribs);
+    UnixGroup, CreateTime, LastAccessTime, WinAttribs,WinDriveType,WinDriveLabel);
 
   TIdFTPFactOutputs = set of TIdFTPFactOutput;
 
@@ -128,7 +128,11 @@ type
     FWinAttribs : Cardinal;
     //an error has been reported in the DIR listing itself for an item
     FDirError : Boolean;
+
+    FWinDriveType : Integer;
+    FWinDriveLabel : String;
   public
+    constructor Create(AOwner: TCollection); override;
     property NumberBlocks : Integer read FNumberBlocks write FNumberBlocks;
     property Inode : Integer read FInode write FInode;
     //Last Access time values are for MLSD data output and can be returned by the MLST command
@@ -150,6 +154,9 @@ type
     //On the server side, you deal with it as a number right from the Win32 FindFirst,
     //FindNext functions.  Easy
     property WinAttribs : Cardinal read FWinAttribs write FWinAttribs;
+
+    property WinDriveType : Integer read FWinDriveType write FWinDriveType;
+    property WinDriveLabel : String read FWinDriveLabel write FWinDriveLabel;
     //MLIST Permissions
     property MLISTPermissions : string read FMLISTPermissions write FMLISTPermissions;
     property UnixOwnerPermissions: string read FUnixOwnerPermissions write FUnixOwnerPermissions;
@@ -267,10 +274,15 @@ implementation
 
 uses
   //facilitate inlining only.
+  IdException,
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.IO,
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysTime,
+  PosixTime,
   {$ENDIF}
   IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
@@ -1059,12 +1071,15 @@ begin
           Result := Result + 'OS.unix=slink:' + AItem.FileName + ';';  {do not localize}
         end;
     end;
+
   end;
 
   if Perm in AMLstOpts then begin
     Result := Result + 'perm=' + AItem.MLISTPermissions + ';';  {do not localize}
   end;
-
+  if (winDriveType in AMLstOpts) and (AItem.WinDriveType<>-1) then begin
+       Result := Result + 'win32.dt='+IntToStr(AItem.WinDriveType  )+';';
+  end;
   if CreateTime in AMLstOpts then begin
     if AItem.CreationDateGMT <> 0 then begin
       Result := Result + 'create='+ FTPGMTDateTimeToMLS(AItem.CreationDateGMT) + ';';  {do not localize}
@@ -1111,6 +1126,12 @@ begin
 
   if WinAttribs in AMLstOpts then begin
     Result := Result + 'win32.ea=0x' + IntToHex(AItem.WinAttribs, 8) + ';'; {do not localize}
+  end;
+  if (AItem.WinDriveType > -1) and (WinDriveType in AMLstOpts)  then begin
+    Result := Result + 'Win32.dt='+IntToStr( AItem.WinDriveType ) + ';';
+  end;
+  if (AItem.WinDriveLabel <> '') and (WinDriveLabel in AMLstOpts) then begin
+    Result := Result + 'Win32.dl='+AItem.WinDriveLabel;
   end;
 
   Result := Result + ' ' + AItem.FileName;
@@ -1391,7 +1412,12 @@ begin
     LParentPart := StripInitPathDelim(IndyGetFilePath(APathName));
     LParentPart := IndyGetFileName(LParentPart);
     LDirEnt := TDirEntry.Create(APathName, ADirEnt);
-    FSubDirs.Add(LDirEnt);
+    try
+      FSubDirs.Add(LDirEnt);
+    except
+      LDirEnt.Free;
+      raise;
+    end;
     AddFileName(APathName, ADirEnt);
     Result := True;
     Exit;
@@ -1400,8 +1426,6 @@ begin
     for i := 0 to SubDirs.Count-1 do begin
       LDirEnt := TDirEntry(SubDirs[i]);
       LParentPart := StripInitPathDelim(IndyGetFilePath(LDirEnt.FDirListItem.FileName));
-      //  if Copy(APathName,1, Length(LParentPart))=
-      //    LParentPart then
       if TextStartsWith(APathName, LParentPart) then begin
         if LDirEnt.AddSubDir(APathName, ADirEnt) then begin
           Result := True;
@@ -1537,6 +1561,16 @@ begin
       TDirEntry(FSubDirs[i]).SortDescendSize;
     end;
   end;
+end;
+
+
+{ TIdFTPListOutputItem }
+
+constructor TIdFTPListOutputItem.Create(AOwner: TCollection);
+begin
+  inherited Create(AOwner);
+  //indicate that this fact is not applicable
+  FWinDriveType := -1;
 end;
 
 end.

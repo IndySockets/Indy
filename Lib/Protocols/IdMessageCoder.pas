@@ -79,7 +79,7 @@ uses
   IdBaseComponent;
 
 type
-  TIdMessageCoderPartType = (mcptUnknown, mcptText, mcptAttachment, mcptIgnore);
+  TIdMessageCoderPartType = (mcptText, mcptAttachment, mcptIgnore, mcptEOF);
 
   TIdMessageDecoder = class(TIdComponent)
   protected
@@ -95,11 +95,11 @@ type
     procedure ReadHeader; virtual;
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
-    function ReadLn(const ATerminator: string = LF; const AEncoding: TIdEncoding = en7Bit): string;
+    function ReadLn(const ATerminator: string = LF; AEncoding: TIdTextEncoding = nil): string;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean; const AEncoding: TIdEncoding = en7Bit): String; overload;
+    function ReadLnRFC(var VMsgEnd: Boolean; AEncoding: TIdTextEncoding = nil): String; overload;
     function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-      const ADelim: String = '.'; const AEncoding: TIdEncoding = en7Bit): String; overload; {do not localize}
+      const ADelim: String = '.'; AEncoding: TIdTextEncoding = nil): String; overload; {do not localize}
     destructor Destroy; override;
     //
     property Filename: string read FFilename;
@@ -136,6 +136,7 @@ type
     procedure InitComponent; override;
   public
     procedure Encode(const AFilename: string; ADest: TStream); overload;
+    procedure Encode(ASrc: TStream; ADest: TStrings); overload;
     procedure Encode(ASrc: TStream; ADest: TStream); overload; virtual; abstract;
   published
     property Filename: string read FFilename write FFilename;
@@ -178,9 +179,15 @@ var
 { TIdMessageDecoderList }
 
 class function TIdMessageDecoderList.ByName(const AName: string): TIdMessageDecoderInfo;
+var
+  I: Integer;
 begin
-  with GMessageDecoderList.FMessageCoders do begin
-    Result := TIdMessageDecoderInfo(Objects[IndexOf(AName)]);
+  Result := nil;
+  if GMessageDecoderList <> nil then begin
+    I := GMessageDecoderList.FMessageCoders.IndexOf(AName);
+    if I <> -1 then begin
+      Result := TIdMessageDecoderInfo(GMessageDecoderList.FMessageCoders.Objects[I]);
+    end;
   end;
   if Result = nil then begin
     raise EIdException.Create(RSMessageDecoderNotFound + ': ' + AName);    {Do not Localize}
@@ -192,11 +199,12 @@ var
   i: integer;
 begin
   Result := nil;
-  for i := 0 to GMessageDecoderList.FMessageCoders.Count - 1 do begin
-    Result := TIdMessageDecoderInfo(GMessageDecoderList.FMessageCoders.Objects[i]).CheckForStart(ASender
-     , ALine);
-    if Result <> nil then begin
-      Break;
+  if GMessageDecoderList <> nil then begin
+    for i := 0 to GMessageDecoderList.FMessageCoders.Count - 1 do begin
+      Result := TIdMessageDecoderInfo(GMessageDecoderList.FMessageCoders.Objects[i]).CheckForStart(ASender, ALine);
+      if Result <> nil then begin
+        Break;
+      end;
     end;
   end;
 end;
@@ -259,7 +267,7 @@ begin
 end;
 
 function TIdMessageDecoder.ReadLn(const ATerminator: string = LF;
-  const AEncoding: TIdEncoding = en7Bit): string;
+  AEncoding: TIdTextEncoding = nil): string;
 var
   LWasSplit: Boolean;  //Needed for lines > 16K, e.g. if Content-Transfer-Encoding is 'binary'
 begin
@@ -274,13 +282,13 @@ begin
 end;
 
 function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean;
-  const AEncoding: TIdEncoding = en7Bit): String;
+  AEncoding: TIdTextEncoding = nil): String;
 begin
   Result := ReadLnRFC(VMsgEnd, LF, '.', AEncoding); {do not localize}
 end;
 
 function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-  const ADelim: String = '.'; const AEncoding: TIdEncoding = en7Bit): String;
+  const ADelim: String = '.'; AEncoding: TIdTextEncoding = nil): String;
 begin
   Result := ReadLn(ALineTerminator, AEncoding);
   // Do not use ATerminator since always ends with . (standard)
@@ -311,9 +319,15 @@ end;
 { TIdMessageEncoderList }
 
 class function TIdMessageEncoderList.ByName(const AName: string): TIdMessageEncoderInfo;
+var
+  I: Integer;
 begin
-  with GMessageEncoderList.FMessageCoders do begin
-    Result := TIdMessageEncoderInfo(Objects[IndexOf(AName)]);
+  Result := nil;
+  if GMessageEncoderList <> nil then begin
+    I := GMessageEncoderList.FMessageCoders.IndexOf(AName);
+    if I <> -1 then begin
+      Result := TIdMessageEncoderInfo(GMessageEncoderList.FMessageCoders.Objects[I]);
+    end;
   end;
   if Result = nil then begin
     raise EIdException.Create(RSMessageEncoderNotFound + ': ' + AName);    {Do not Localize}
@@ -355,6 +369,17 @@ begin
   LSrcStream := TIdReadFileExclusiveStream.Create(AFileName); try
     Encode(LSrcStream, ADest);
   finally FreeAndNil(LSrcStream); end;
+end;
+
+procedure TIdMessageEncoder.Encode(ASrc: TStream; ADest: TStrings);
+var
+  LDestStream: TStream;
+begin
+  LDestStream := TMemoryStream.Create; try
+    Encode(ASrc, LDestStream);
+    LDestStream.Position := 0;
+    ADest.LoadFromStream(LDestStream);
+  finally FreeAndNil(LDestStream); end;
 end;
 
 procedure TIdMessageEncoder.InitComponent;

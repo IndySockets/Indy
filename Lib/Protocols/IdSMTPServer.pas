@@ -56,6 +56,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers,
+  IdCustomTCPServer, //for TIdServerContext
   IdCmdTCPServer,
   IdCommandHandlers,
   IdContext,
@@ -132,10 +133,12 @@ type
     var VAuthenticated: Boolean) of object;
   TOnSPFCheck = procedure(ASender: TIdSMTPServerContext; const AIP, ADomain, AIdentity: String;
     var VAction: TIdSPFReply) of object;
+  TOnDataStreamEvent = procedure(ASender: TIdSMTPServerContext; var VStream: TStream) of object;
   
   TIdSMTPServer = class(TIdExplicitTLSServer)
   protected
     //events
+    FOnBeforeMsg : TOnDataStreamEvent;
     FOnMailFrom : TOnMailFromEvent;
     FOnMsgReceive : TOnMsgReceive;
     FOnRcptTo : TOnRcptToEvent;
@@ -151,7 +154,7 @@ type
     function CreateGreeting: TIdReply; override;
     function CreateReplyUnknownCommand: TIdReply; override;
     //
-    procedure DoAuthLogin(ASender: TIdCommand; const Login: string);
+    procedure DoAuthLogin(ASender: TIdCommand; const Mechanism, InitialResponse: string);
     //
     //command handlers
     procedure CommandNOOP(ASender: TIdCommand);
@@ -164,6 +167,7 @@ type
     procedure CommandDATA(ASender: TIdCommand);
     procedure CommandRSET(ASender: TIdCommand);
     procedure CommandSTARTTLS(ASender: TIdCommand);
+    procedure CommandBDAT(ASender: TIdCommand);
     {
     Note that for SMTP, I make a lot of procedures for replies.
 
@@ -211,10 +215,13 @@ type
     procedure InitializeCommandHandlers; override;
     //
     procedure DoReset(AContext: TIdSMTPServerContext; AIsTLSReset: Boolean = False);
+    procedure MsgBegan(AContext: TIdSMTPServerContext; var VStream: TStream);
+    procedure MsgReceived(ASender: TIdCommand; AMsgData: TStream);
     procedure SetMaxMsgSize(AValue: Integer);
     function SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply; const ACmd, ADomain, AIdentity: String): Boolean;
   published
     //events
+    property OnBeforeMsg : TOnDataStreamEvent read FOnBeforeMsg write FOnBeforeMsg;
     property OnMailFrom : TOnMailFromEvent read FOnMailFrom write FOnMailFrom;
     property OnMsgReceive : TOnMsgReceive read FOnMsgReceive write FOnMsgReceive;
     property OnRcptTo : TOnRcptToEvent read FOnRcptTo write FOnRcptTo;
@@ -230,9 +237,10 @@ type
     property UseTLS;
   end;
 
-  TIdSMTPState = (idSMTPNone, idSMTPHelo, idSMTPMail, idSMTPRcpt, idSMTPData);
+  TIdSMTPState = (idSMTPNone, idSMTPHelo, idSMTPMail, idSMTPRcpt, idSMTPData, idSMTPBDat);
+  TIdSMTPBodyType = (idSMTP7Bit, idSMTP8BitMime, idSMTPBinaryMime);
 
-  TIdSMTPServerContext = class(TIdContext)
+  TIdSMTPServerContext = class(TIdServerContext)
   protected
     FSMTPState: TIdSMTPState;
     FFrom: string;
@@ -246,6 +254,8 @@ type
     FMsgSize: Integer;
     FPipeLining : Boolean;
     FFinalStage : Boolean;
+    FBDataStream: TStream;
+    FBodyType: TIdSMTPBodyType;
     function GetUsingTLS: Boolean;
     procedure SetPipeLining(const AValue : Boolean);
   public
@@ -354,9 +364,15 @@ begin
       ASender.Reply.Text.Add('PIPELINING'); {do not localize}
     end;
     ASender.Reply.Text.Add(IndyFormat('SIZE %d', [FMaxMsgSize])); {do not localize}
-    if (FUseTLS in ExplicitTLSVals) and (not LContext.UsingTLS) then begin
+    if (LContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and
+      (FUseTLS in ExplicitTLSVals) and
+      (not LContext.UsingTLS) then
+    begin
       ASender.Reply.Text.Add('STARTTLS');    {Do not Localize}
     end;
+    ASender.Reply.Text.Add('CHUNKING'); {do not localize}
+    ASender.Reply.Text.Add('8BITMIME'); {do not localize}
+    ASender.Reply.Text.Add('BINARYMIME'); {do not localize}
     LContext.SMTPState := idSMTPHelo;
   end;
 end;
@@ -398,27 +414,26 @@ begin
   LCmd.OnCommand := CommandEHLO;
   LCmd.NormalReply.NumericCode := 250;
   LCmd.ParseParams := True;
-  SetEnhReply(LCmd.ExceptionReply ,451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
+  SetEnhReply(LCmd.ExceptionReply, 451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
 
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'HELO';  {do not localize}
   LCmd.OnCommand := CommandHELO;
   LCmd.NormalReply.NumericCode := 250;
   LCmd.ParseParams := True;
-  SetEnhReply(LCmd.ExceptionReply ,451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
+  SetEnhReply(LCmd.ExceptionReply, 451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
 
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'AUTH';  {do not localize}
   LCmd.OnCommand := CommandAUTH;
-  LCmd.ParseParams := True;
-  SetEnhReply(LCmd.ExceptionReply ,451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
+  SetEnhReply(LCmd.ExceptionReply, 451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
 
   LCmd := CommandHandlers.Add;
   // NOOP
   LCmd.Command := 'NOOP';    {Do not Localize}
   SetEnhReply(LCmd.NormalReply ,250,Id_EHR_GENERIC_OK,RSSMTPSvrOk, True);
   LCmd.OnCommand := CommandNOOP;
-  SetEnhReply(LCmd.ExceptionReply ,451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
+  SetEnhReply(LCmd.ExceptionReply, 451,Id_EHR_PR_OTHER_TEMP, 'Internal Error', False); {do not localize}
 
   LCmd := CommandHandlers.Add;
   // QUIT
@@ -433,16 +448,16 @@ begin
   LCmd.Command := 'RCPT';    {Do not Localize}
   LCmd.CmdDelimiter := ' ';    {Do not Localize}
   LCmd.OnCommand := CommandRcpt;
-  SetEnhReply(LCmd.NormalReply, 250, Id_EHR_MSG_VALID_DEST,'', False);
-  SetEnhReply(LCmd.ExceptionReply,550,Id_EHR_MSG_BAD_DEST,'', False);
+  SetEnhReply(LCmd.NormalReply, 250, Id_EHR_MSG_VALID_DEST, '', False);
+  SetEnhReply(LCmd.ExceptionReply, 550, Id_EHR_MSG_BAD_DEST, '', False);
 
   LCmd := CommandHandlers.Add;
   // MAIL <SP> FROM:<reverse-path> <CRLF>
   LCmd.Command := 'MAIL';    {Do not Localize}
   LCmd.CmdDelimiter := ' ';    {Do not Localize}
   LCmd.OnCommand := CommandMail;
-  SetEnhReply(LCmd.NormalReply, 250, Id_EHR_MSG_OTH_OK,'',False);
-  SetEnhReply(LCmd.ExceptionReply,451,Id_EHR_MSG_BAD_SENDER_ADDR,'', False);
+  SetEnhReply(LCmd.NormalReply, 250, Id_EHR_MSG_OTH_OK, '', False);
+  SetEnhReply(LCmd.ExceptionReply, 451, Id_EHR_MSG_BAD_SENDER_ADDR, '', False);
 
   LCmd := CommandHandlers.Add;
   // DATA <CRLF>
@@ -462,6 +477,14 @@ begin
   LCmd.Command := 'STARTTLS';    {Do not Localize}
   SetEnhReply(LCmd.NormalReply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS, False);
   LCmd.OnCommand := CommandStartTLS;
+  
+  LCmd := CommandHandlers.Add;
+  // BDAT <SP> <chunk-size> [<SP> LAST] <CRLF>
+  LCmd.Command := 'BDAT'; {Do not Localize}
+  LCmd.OnCommand := CommandBDAT;
+  LCmd.ParseParams := True;
+  SetEnhReply(LCmd.NormalReply, 250, Id_EHR_GENERIC_OK, '', False);
+  SetEnhReply(LCmd.ExceptionReply, 451, Id_EHR_PR_OTHER_TEMP, 'Internal Error' , False); {do not localize}
 end;
 
 procedure TIdSMTPServer.MustUseTLS(ASender: TIdCommand);
@@ -473,6 +496,7 @@ end;
 procedure TIdSMTPServer.CommandAUTH(ASender: TIdCommand);
 var
   LContext: TIdSMTPServerContext;
+  S, LMech: String;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
   //Note you can not use PIPELINING with AUTH
@@ -490,7 +514,9 @@ begin
     Exit;
   end;
   if Length(ASender.UnparsedParams) > 0 then begin
-    DoAuthLogin(ASender, ASender.UnparsedParams);
+    S := ASender.UnparsedParams;
+    LMech := Fetch(S);
+    DoAuthLogin(ASender, LMech, Trim(S));
   end else begin
     CmdSyntaxError(ASender);
   end;
@@ -519,10 +545,9 @@ begin
   end;
 end;
 
-procedure TIdSMTPServer.DoAuthLogin(ASender: TIdCommand; const Login: string);
+procedure TIdSMTPServer.DoAuthLogin(ASender: TIdCommand; const Mechanism, InitialResponse: string);
 var
-  S: string;
-  LUsername, LPassword: string;
+  S, LUsername, LPassword: string;
   LAuthFailed: Boolean;
   LAccepted: Boolean;
   LContext : TIdSMTPServerContext;
@@ -530,45 +555,49 @@ var
   LDecoder: TIdDecoderMIME;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
-  LAuthFailed := False;
+  LAuthFailed := True;
   LContext.PipeLining := False;
-  if TextIsSame(Login, 'LOGIN') then begin   {Do not Localize}
+
+  if TextIsSame(Mechanism, 'LOGIN') then begin   {Do not Localize}
     // LOGIN USING THE LOGIN AUTH - BASE64 ENCODED
     try
       LEncoder := TIdEncoderMIME.Create;
       try
-        // Encoding a string literal?
-        s := LEncoder.Encode('Username:');     {Do not Localize}
-        //  s := SendRequest( '334 ' + s );    {Do not Localize}
-        ASender.Reply.SetReply(334, s);    {Do not Localize}
-        ASender.SendReply;
-        s := Trim(LContext.Connection.IOHandler.ReadLn);
-        if s <> '' then begin   {Do not Localize}
-          LDecoder := TIdDecoderMIME.Create;
-          try
-            LUsername := LDecoder.DecodeString(s);
-            // What? Encode this string literal?
-            s := LEncoder.Encode('Password:');    {Do not Localize}
-            ASender.Reply.SetReply(334, s);    {Do not Localize}
+        LDecoder := TIdDecoderMIME.Create;
+        try
+          if InitialResponse = '' then begin
+            // no [initial-response] parameter specified
+            // Encoding a string literal?
+            S := LEncoder.Encode('Username:');    {Do not Localize}
+            ASender.Reply.SetReply(334, S);       {Do not Localize}
             ASender.SendReply;
-            s := Trim(ASender.Context.Connection.IOHandler.ReadLn);
-            if s <> '' then begin
-              LPassword := LDecoder.DecodeString(s);
-            end else begin
-              LAuthFailed := True;
-            end;
-          // when TIdDecoderMime.DecodeString(s) raise a exception,catch it and set AuthFailed as true
-          finally
-            FreeAndNil(LDecoder);
+            S := Trim(LContext.Connection.IOHandler.ReadLn);
+          end
+          else if InitialResponse = '=' then begin    {Do not Localize}
+            // empty [initial-response] parameter value
+            S := '';
+          end else begin
+            S := InitialResponse;
           end;
-        end else begin
-          LAuthFailed := True;
+          if S <> '' then begin   {Do not Localize}
+            LUsername := LDecoder.DecodeString(S);
+          end;
+          // What? Encode this string literal?
+          S := LEncoder.Encode('Password:');    {Do not Localize}
+          ASender.Reply.SetReply(334, S);       {Do not Localize}
+          ASender.SendReply;
+          S := Trim(ASender.Context.Connection.IOHandler.ReadLn);
+          if S <> '' then begin
+            LPassword := LDecoder.DecodeString(S);
+          end;
+          LAuthFailed := False;
+        finally
+          FreeAndNil(LDecoder);
         end;
       finally
         FreeAndNil(LEncoder);
       end;
     except
-      LAuthFailed := True;
     end;
   end;
 
@@ -580,13 +609,14 @@ begin
       FOnUserLogin(LContext, LUsername, LPassword, LAccepted);
     end;
     LContext.LoggedIn := LAccepted;
-    LContext.Username := LUsername;
     if LAccepted then begin
+      LContext.Username := LUsername;
       SetEnhReply(ASender.Reply, 235, Id_EHR_SEC_OTHER_OK, ' welcome ' + Trim(LUsername), LContext.EHLO);    {Do not Localize}
       ASender.SendReply;
       Exit;
     end;
   end;
+
   AuthFailed(ASender);
 end;
 
@@ -737,6 +767,7 @@ var
   LParams: TStringList;
   S: String;
   LSize: Integer;
+  LBodyType: TIdSMTPBodyType;
 begin
   //Note that unlike other protocols, it might not be possible
   //to completely disable MAIL FROM for people not using SSL
@@ -758,13 +789,33 @@ begin
           try
             SplitColumns(S, LParams);
             // RLebeau: check the message size before accepting the message
-            LSize := IndyStrToInt(LParams.Values['SIZE'], 0);
-            if (FMaxMsgSize > 0) and (LSize > FMaxMsgSize) then begin
-              LM := mLimitExceeded;
-            end else begin
-              if Assigned(FOnMailFrom) then begin
-              FOnMailFrom(LContext, EMailAddress.Address, LParams, LM);
+            if LParams.IndexOfName('SIZE') <> -1 then
+            begin
+              LSize := IndyStrToInt(LParams.Values['SIZE']);
+              if (FMaxMsgSize > 0) and (LSize > FMaxMsgSize) then begin
+                MailSubmitLimitExceeded(ASender);
+                Exit;
               end;
+            end else begin
+              LSize := -1;
+            end;
+            // RLebeau: get the message encoding type and store it for later use
+            if LParams.IndexOfName('BODY') <> -1 then {do not localize}
+            begin
+              case PosInStrArray(LParams.Values['BODY'], ['7BIT', '8BITMIME', 'BINARYMIME'], False) of {do not localize}
+                0: LBodyType := idSMTP7Bit;
+                1: LBodyType := idSMTP8BitMime;
+                2: LBodyType := idSMTPBinaryMime;
+              else
+                InvalidSyntax(ASender);
+                Exit;
+              end;
+            end else begin
+              LBodyType := idSMTP8BitMime;
+            end;
+            // let the user perform custom validations
+            if Assigned(FOnMailFrom) then begin
+              FOnMailFrom(LContext, EMailAddress.Address, LParams, LM);
             end;
           finally
             FreeAndNil(LParams);
@@ -777,6 +828,7 @@ begin
               // RLebeau: store the message size in case the OnRCPT handler
               // wants to verify the size on a per-recipient basis
               LContext.MsgSize := LSize;
+              LContext.FBodyType := LBodyType;
               LContext.SMTPState := idSMTPMail;
             end;
             mReject :
@@ -909,7 +961,7 @@ begin
     BadSequenceError(ASender);
     Exit;
   end;
-  if FUseTLS in ExplicitTLSVals then begin
+  if (LContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS in ExplicitTLSVals) then begin
     if LContext.UsingTLS then begin // we are already using TLS
       BadSequenceError(ASender);
       Exit;
@@ -942,138 +994,104 @@ begin
   DoReset(TIdSMTPServerContext(ASender.Context));
 end;
 
+// RLebeau: if HostByAddress() fails, the received
+// message gets lost, so trapping any exceptions here
+function AddrFromHost(const AIP: String): String;
+begin
+  try
+    Result := GStack.HostByAddress(AIP);
+  except
+    Result := 'unknown'; {do not localize}
+  end;
+end;
+
 procedure TIdSMTPServer.CommandDATA(ASender: TIdCommand);
 var
   LContext : TIdSMTPServerContext;
   LStream: TStream;
-  AMsg : TStream;
-  LAction : TIdDataReply;
-  LReceivedString : String;
-
-  // RLebeau: if HostByAddress() fails, the received
-  // message gets lost, so trapping any exceptions here
-  function AddrFromHost(const AIP: String): String;
-  begin
-    try
-      Result := GStack.HostByAddress(AIP);
-    except
-      Result := 'unknown'; {do not localize}
-    end;
-  end;
-
-  // RLebeau: processing the tokens dynamically now
-  // so that only the tokens that are actually present
-  // will be processed.  This helps to avoid unnecessary
-  // lookups for tokens that are not actually used
-  procedure ReplaceReceivedTokens;
-  var
-    LTokens: TStringList;
-    i, LPos: Integer;
-    //we do it this way so we can take advantage of the StringBuilder in DotNET.
-    ReplaceOld, ReplaceNew: array of string;
-  begin
-    LTokens := TStringList.Create;
-    try
-      if Pos('$hostname', LReceivedString) <> 0 then begin                  {do not localize}
-        LTokens.Add('$hostname=' + AddrFromHost(LContext.Binding.PeerIP));  {do not localize}
-      end;
-
-      if Pos('$ipaddress', LReceivedString) <> 0 then begin                 {do not localize}
-        LTokens.Add('$ipaddress=' + LContext.Binding.PeerIP);               {do not localize}
-      end;
-
-      if Pos('$helo', LReceivedString) <> 0 then begin                      {do not localize}
-        LTokens.Add('$helo=' + LContext.HeloString);                        {do not localize}
-      end;
-
-      if Pos('$protocol', LReceivedString) <> 0 then begin                  {do not localize}
-        LTokens.Add('$protocol=' + iif(LContext.EHLO, 'esmtp', 'smtp'));    {do not localize}
-      end;
-
-      if Pos('$servername', LReceivedString) <> 0 then begin                {do not localize}
-        LTokens.Add('$servername=' + FServerName);                          {do not localize}
-      end;
-
-      if Pos('$svrhostname', LReceivedString) <> 0 then begin               {do not localize}
-        LTokens.Add('$svrhostname=' + AddrFromHost(LContext.Binding.IP));   {do not localize}
-      end;
-
-      if Pos('$svripaddress', LReceivedString) <> 0 then begin              {do not localize}
-        LTokens.Add('$svripaddress=' + LContext.Binding.IP);                {do not localize}
-      end;
-
-      if LTokens.Count > 0 then
-      begin
-        SetLength(ReplaceNew, LTokens.Count);
-        SetLength(ReplaceOld, LTokens.Count);
-
-        for i := 0 to LTokens.Count-1 do begin
-          LPos := Pos('=', LTokens.Strings[i]);
-          ReplaceOld[i] := Copy(LTokens.Strings[i], 1, LPos-1);
-          ReplaceNew[i] := Copy(LTokens.Strings[i], LPos+1, MaxInt);
-        end;
-
-        LReceivedString := StringsReplace(LReceivedString, ReplaceOld, ReplaceNew);
-      end;
-    finally
-      FreeAndNil(LTokens);
-    end;
-  end;
-
+  LEncoding: TIdTextEncoding;
 begin
-  LReceivedString := IdSMTPSvrReceivedString;
   LContext := TIdSMTPServerContext(ASender.Context);
   if LContext.SMTPState <> idSMTPRcpt then begin
     BadSequenceError(ASender);
     Exit;
   end;
   if LContext.HELO or LContext.EHLO then begin
-    SetEnhReply(ASender.Reply, 354, '', RSSMTPSvrStartData, LContext.EHLO);
-    ASender.SendReply;
-    LContext.PipeLining := False;
-    LStream := TMemoryStream.Create;
+    // BINARYMIME cannot be used with the DATA command
+    if LContext.FBodyType = idSMTPBinaryMime then begin
+      BadSequenceError(ASender);
+      Exit;
+    end;
+    MsgBegan(LContext, LStream);
     try
       // RLebeau: TODO - do not even create the stream if the OnMsgReceive
       // event is not assigned, or at least create a stream that discards
       // any data received...
-      AMsg := TMemoryStream.Create;
-      try
-        LAction := dOk;
-        LContext.Connection.IOHandler.Capture(LStream, '.', True);    {Do not Localize}
-        LStream.Position := 0;
-        if Assigned(FOnReceived) then begin
-          FOnReceived(LContext, LReceivedString);
-        end;
-        if LContext.FinalStage then begin
-          // If at the final delivery stage, add the Return-Path line for the received MAIL FROM line.
-          WriteStringToStream(AMsg, 'Received-Path: <' + LContext.From + '>' + EOL); {do not localize}
-        end;
-        if LReceivedString <> '' then begin
-          ReplaceReceivedTokens;
-          WriteStringToStream(AMsg, LReceivedString + EOL);
-        end;
-        AMsg.CopyFrom(LStream, 0); // Copy the contents that was captured to the new stream.
-        AMsg.Position := 0; // RLebeau: CopyFrom() does not reset the Position
-        // RLebeau: verify the message size now
-        if (FMaxMsgSize > 0) and (AMsg.Size > FMaxMsgSize) then begin
-          LAction := dLimitExceeded;
-        end
-        else if Assigned(FOnMsgReceive) then begin
-          FOnMsgReceive(LContext, AMsg, LAction);
-        end;
-      finally
-        FreeAndNil(AMsg);
+      if LContext.FBodyType = idSMTP7Bit then begin
+        LEncoding := TIdTextEncoding.ASCII;
+      end else begin
+        LEncoding := Indy8BitEncoding;
       end;
+      SetEnhReply(ASender.Reply, 354, '', RSSMTPSvrStartData, LContext.EHLO);
+      ASender.SendReply;
+      LContext.PipeLining := False;
+      LContext.Connection.IOHandler.Capture(LStream, '.', True, LEncoding);    {Do not Localize}
+      MsgReceived(ASender, LStream);
     finally
       FreeAndNil(LStream);
+      DoReset(LContext);
     end;
-    case LAction of
-    dOk                   : MailSubmitOk(ASender); //accept the mail message
-    dMBFull               : MailSubmitStorageExceededFull(ASender); //Mail box full
-    dSystemFull           : MailSubmitSystemFull(ASender); //no more space on server
-    dLocalProcessingError : MailSubmitLocalProcessingError(ASender); //local processing error
-    dTransactionFailed    : MailSubmitTransactionFailed(ASender); //transaction failed
-    dLimitExceeded        : MailSubmitLimitExceeded(ASender); //exceeded administrative limit
+  end else begin // No EHLO / HELO was received
+    NoHello(ASender);
+  end;
+  LContext.PipeLining := False;
+end;
+
+procedure TIdSMTPServer.CommandBDAT(ASender: TIdCommand);
+var
+  LContext : TIdSMTPServerContext;
+  LSize: TIdStreamSize;
+  LLast: Boolean;
+begin
+  LContext := TIdSMTPServerContext(ASender.Context);
+  if not (LContext.SMTPState in [idSMTPRcpt, idSMTPBDat]) then begin
+    BadSequenceError(ASender);
+    Exit;
+  end;
+  if LContext.HELO or LContext.EHLO then begin
+    LContext.PipeLining := False;
+    if ASender.Params.Count > 0 then begin
+      LSize := IndyStrToStreamSize(ASender.Params[0], -1);
+      if LSize < 0 then
+      begin
+        CmdSyntaxError(ASender);
+        Exit;
+      end;
+      if ASender.Params.Count > 1 then begin
+        if not TextIsSame(ASender.Params[1], 'LAST') then begin {do not localize}
+          LContext.Connection.IOHandler.Discard(LSize);
+          CmdSyntaxError(ASender);
+          Exit;
+        end;
+        LLast := True;
+      end else begin
+        LLast := False;
+      end;
+      LContext.SMTPState := idSMTPBDat;
+      if not Assigned(LContext.FBDataStream) then begin
+        MsgBegan(LContext, LContext.FBDataStream);
+      end;
+      LContext.Connection.IOHandler.ReadStream(LContext.FBDataStream, LSize, False);
+      if not LLast then begin
+        Exit;  // do not turn off pipelining yet
+      end;
+      try
+        MsgReceived(ASender, LContext.FBDataStream);
+      finally
+        DoReset(LContext);
+      end;
+    end else begin
+      CmdSyntaxError(ASender);
     end;
   end else begin // No EHLO / HELO was received
     NoHello(ASender);
@@ -1092,6 +1110,118 @@ end;
 procedure TIdSMTPServer.SetMaxMsgSize(AValue: Integer);
 begin
   FMaxMsgSize := IndyMax(AValue, 0);
+end;
+
+// RLebeau: processing the tokens dynamically now
+// so that only the tokens that are actually present
+// will be processed.  This helps to avoid unnecessary
+// lookups for tokens that are not actually used
+function ReplaceReceivedTokens(AContext: TIdSMTPServerContext; const AReceivedString: String): String;
+var
+  LTokens: TStringList;
+  i, LPos: Integer;
+  //we do it this way so we can take advantage of the StringBuilder in DotNET.
+  ReplaceOld, ReplaceNew: array of string;
+begin
+  Result := '';
+  LTokens := TStringList.Create;
+  try
+    if Pos('$hostname', AReceivedString) <> 0 then begin                  {do not localize}
+      LTokens.Add('$hostname=' + AddrFromHost(AContext.Binding.PeerIP));  {do not localize}
+    end;
+
+    if Pos('$ipaddress', AReceivedString) <> 0 then begin                 {do not localize}
+      LTokens.Add('$ipaddress=' + AContext.Binding.PeerIP);               {do not localize}
+    end;
+
+    if Pos('$helo', AReceivedString) <> 0 then begin                      {do not localize}
+      LTokens.Add('$helo=' + AContext.HeloString);                        {do not localize}
+    end;
+
+    if Pos('$protocol', AReceivedString) <> 0 then begin                  {do not localize}
+      LTokens.Add('$protocol=' + iif(AContext.EHLO, 'esmtp', 'smtp'));    {do not localize}
+    end;
+
+    if Pos('$servername', AReceivedString) <> 0 then begin                {do not localize}
+      LTokens.Add('$servername=' + TIdSMTPServer(AContext.Server).ServerName); {do not localize}
+    end;
+
+    if Pos('$svrhostname', AReceivedString) <> 0 then begin               {do not localize}
+      LTokens.Add('$svrhostname=' + AddrFromHost(AContext.Binding.IP));   {do not localize}
+    end;
+
+    if Pos('$svripaddress', AReceivedString) <> 0 then begin              {do not localize}
+      LTokens.Add('$svripaddress=' + AContext.Binding.IP);                {do not localize}
+    end;
+
+    if LTokens.Count > 0 then
+    begin
+      SetLength(ReplaceNew, LTokens.Count);
+      SetLength(ReplaceOld, LTokens.Count);
+
+      for i := 0 to LTokens.Count-1 do begin
+        LPos := Pos('=', LTokens.Strings[i]); {do not localize}
+        ReplaceOld[i] := Copy(LTokens.Strings[i], 1, LPos-1);
+        ReplaceNew[i] := Copy(LTokens.Strings[i], LPos+1, MaxInt);
+      end;
+
+      Result := StringsReplace(AReceivedString, ReplaceOld, ReplaceNew);
+    end;
+  finally
+    FreeAndNil(LTokens);
+  end;
+end;
+
+procedure TIdSMTPServer.MsgBegan(AContext: TIdSMTPServerContext; var VStream: TStream);
+var
+  LReceivedString: string;
+begin
+  VStream := nil;
+  if Assigned(FOnBeforeMsg) then begin
+    FOnBeforeMsg(AContext, VStream);
+  end;
+  if not Assigned(VStream) then begin
+    VStream := TMemoryStream.Create;
+  end;
+  try
+    LReceivedString := IdSMTPSvrReceivedString;
+    if Assigned(FOnReceived) then begin
+      FOnReceived(AContext, LReceivedString);
+    end;
+    if AContext.FinalStage then begin
+      // If at the final delivery stage, add the Return-Path line for the received MAIL FROM line.
+      WriteStringToStream(VStream, 'Received-Path: <' + AContext.From + '>' + EOL); {do not localize}
+    end;
+    if LReceivedString <> '' then begin
+      WriteStringToStream(VStream, ReplaceReceivedTokens(AContext, LReceivedString) + EOL);
+    end;
+  except
+    FreeAndNil(VStream);
+    raise;
+  end;
+end;
+
+procedure TIdSMTPServer.MsgReceived(ASender: TIdCommand; AMsgData: TStream);
+var
+  LAction: TIdDataReply;
+begin
+  LAction := dOk;
+  AMsgData.Position := 0;
+  // RLebeau: verify the message size now
+  if (FMaxMsgSize > 0) and (AMsgData.Size > FMaxMsgSize) then begin
+    LAction := dLimitExceeded;
+  end
+  else if Assigned(FOnMsgReceive) then begin
+    FOnMsgReceive(TIdSMTPServerContext(ASender.Context), AMsgData, LAction);
+  end;
+  case LAction of
+    dOk                   : MailSubmitOk(ASender); //accept the mail message
+    dMBFull               : MailSubmitStorageExceededFull(ASender); //Mail box full
+    dSystemFull           : MailSubmitSystemFull(ASender); //no more space on server
+    dLocalProcessingError : MailSubmitLocalProcessingError(ASender); //local processing error
+    dTransactionFailed    : MailSubmitTransactionFailed(ASender); //transaction failed
+    dLimitExceeded        : MailSubmitLimitExceeded(ASender); //exceeded administrative limit
+  end;
 end;
 
 function TIdSMTPServer.SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply;
@@ -1172,7 +1302,9 @@ begin
   FPassword := '';
   FLoggedIn := False;
   FMsgSize := 0;
+  FBodyType := idSMTP8BitMime;
   FFinalStage := False;
+  FreeAndNil(FBDataStream);
   CheckPipeLine;
 end;
 
@@ -1180,7 +1312,8 @@ procedure TIdSMTPServerContext.SetPipeLining(const AValue: Boolean);
 begin
   if AValue and (not PipeLining) then begin
     Connection.IOHandler.WriteBufferOpen;
-  end else if (not AValue) and PipeLining then begin
+  end
+  else if (not AValue) and PipeLining then begin
     Connection.IOHandler.WriteBufferClose;
   end;
   FPipeLining := AValue;

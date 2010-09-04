@@ -71,12 +71,15 @@ type
   public
     class function BuildKeydAuth(const APassword, AChallenge: string): string; override;
     class function ServiceName: TIdSASLServiceName; override;
+    function IsReadyToStart: Boolean; override;
   end;
 
 implementation
 
 uses
+  IdFIPS,
   IdGlobal,
+  IdGlobalProtocols,
   IdHMACMD5,
   SysUtils;
 
@@ -87,13 +90,18 @@ var
 begin
  LHash:=TIdHMACMD5.Create;
  try
-  LHash.Key:=ToBytes(APassword);
-  LBuffer:=ToBytes(AChallenge);
-  LBuffer:=LHash.HashValue(LBuffer);
-  Result:=LowerCase(ToHex(LBuffer));
+   LHash.Key:=ToBytes(APassword);
+   LBuffer:=ToBytes(AChallenge);
+   LBuffer:=LHash.HashValue(LBuffer);
+   Result:=LowerCase(ToHex(LBuffer));
  finally
   FreeAndNil(LHash);
  end;
+end;
+
+function TIdSASLCRAMMD5.IsReadyToStart: Boolean;
+begin
+  Result := not GetFIPSMode;
 end;
 
 class function TIdSASLCRAMMD5.ServiceName: TIdSASLServiceName;

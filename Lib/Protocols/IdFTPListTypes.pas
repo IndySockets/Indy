@@ -157,6 +157,7 @@ type
     FCreationDateGMT : TDateTime;
     FLastAccessDate: TDateTime;
     FLastAccessDateGMT : TDateTime;
+    FLinkedItemName : String;
     //Unique ID for an item to prevent yourself from downloading something twice
     FUniqueID : String;
     //MLIST things
@@ -180,6 +181,7 @@ type
     property Facts[const Name: string] : string read GetFact;
     property AttributesAvail : Boolean read FAttributesAvail write FAttributesAvail;
     property Attributes :  TIdWin32ea read FAttributes;
+    property LinkedItemName : String read FLinkedItemName write FLinkedItemName;
   end;
 
   //for some parsers that output an owner sometimes
@@ -253,6 +255,7 @@ const
 implementation
 
 uses
+  IdException,
   IdFTPCommon, IdGlobal, SysUtils;
 
 { TIdMinimalFTPListItem }

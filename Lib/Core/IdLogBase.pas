@@ -93,8 +93,8 @@ end;
 
 procedure TIdLogBase.Connect(AConnection: TComponent);
 begin
+  inherited Connect(AConnection);
   if FActive then begin
-    inherited Connect(AConnection);
     LogStatus(RSLogConnected);
   end;
 end;
@@ -109,8 +109,8 @@ procedure TIdLogBase.Disconnect;
 begin
   if FActive then begin
     LogStatus(RSLogDisconnected);
-    inherited Disconnect;
   end;
+  inherited Disconnect;
 end;
 
 procedure TIdLogBase.InitComponent;
@@ -135,13 +135,15 @@ var
   s: string;
   LMsg: string;
 begin
+  // let the next Intercept in the chain decode its data first
+  inherited Receive(ABuffer);
+
   if FActive then begin
-    inherited Receive(ABuffer);
     LMsg := '';
     if LogTime then begin
       LMsg := DateTimeToStr(Now);
     end;
-    s := BytesToString(ABuffer);
+    s := BytesToStringRaw(ABuffer);
     if FReplaceCRLF then begin
       s := ReplaceCR(S);
     end;
@@ -160,17 +162,19 @@ var
   LMsg: string;
 begin
   if FActive then begin
-    inherited Send(ABuffer);
     LMsg := '';
     if LogTime then begin
       LMsg := DateTimeToStr(Now);
     end;
-    s := BytesToString(ABuffer);
+    s := BytesToStringRaw(ABuffer);
     if FReplaceCRLF then begin
       s := ReplaceCR(S);
     end;
     LogSentData(LMsg, s);
   end;
+
+  // let the next Intercept in the chain encode its data next
+  inherited Send(ABuffer);
 end;
 
 procedure TIdLogBase.SetActive(AValue: Boolean);

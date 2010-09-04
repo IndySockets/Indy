@@ -405,20 +405,23 @@ type
     // GetInternalResponse is not in IOHandler as some protocols may need to
     // override it. It could be still moved and proxied from here, but at this
     // point it is here.
-    procedure GetInternalResponse; virtual;
+    procedure GetInternalResponse(AEncoding: TIdTextEncoding = nil); virtual;
     // Reads response using GetInternalResponse which each reply type can define
     // the behaviour. Then checks against expected Code.
     //
     // Seperate one for singles as one of the older Delphi compilers cannot
     // match a single number into an array. IIRC newer ones do.
-    function GetResponse(const AAllowedResponse: SmallInt = -1): SmallInt; overload;
-    function GetResponse(const AAllowedResponses: array of SmallInt): SmallInt; overload; virtual;
+    function GetResponse(const AAllowedResponse: SmallInt = -1;
+      AEncoding: TIdTextEncoding = nil): SmallInt; overload;
+    function GetResponse(const AAllowedResponses: array of SmallInt;
+      AEncoding: TIdTextEncoding = nil): SmallInt; overload; virtual;
     // No array type for strings as ones that use strings are usually bastard
     // protocols like POP3/IMAP which dont include proper substatus anyways.
     //
     // If a case can be made for some other condition this may be expanded
     // in the future
-    function GetResponse(const AAllowedResponse: string): string; overload; virtual;
+    function GetResponse(const AAllowedResponse: string;
+      AEncoding: TIdTextEncoding = nil): string; overload; virtual;
     //
     property Greeting: TIdReply read FGreeting write SetGreeting;
     // RaiseExceptionForCmdResult - Overload necesary as a exception as a default param doesnt work
@@ -426,9 +429,12 @@ type
     procedure RaiseExceptionForLastCmdResult(AException: TClassIdException);
      overload; virtual;
     // These are extended GetResponses, so see the comments for GetResponse
-    function SendCmd(AOut: string; const AResponse: SmallInt = -1): SmallInt; overload;
-    function SendCmd(AOut: string; const AResponse: array of SmallInt): SmallInt; overload; virtual;
-    function SendCmd(AOut: string; const AResponse: string): string; overload;
+    function SendCmd(AOut: string; const AResponse: SmallInt = -1;
+      AEncoding: TIdTextEncoding = nil): SmallInt; overload;
+    function SendCmd(AOut: string; const AResponse: array of SmallInt;
+      AEncoding: TIdTextEncoding = nil): SmallInt; overload; virtual;
+    function SendCmd(AOut: string; const AResponse: string;
+      AEncoding: TIdTextEncoding = nil): string; overload;
     //
     procedure WriteHeader(AHeader: TStrings);
     procedure WriteRFCStrings(AStrings: TStrings);
@@ -468,7 +474,9 @@ end;
 
 procedure TIdTCPConnection.CreateIOHandler(ABaseType:TIdIOHandlerClass=nil);
 begin
-  EIdException.IfTrue(Connected, RSIOHandlerCannotChange);
+  if Connected then begin
+    EIdException.Toss(RSIOHandlerCannotChange);
+  end;
   if Assigned(ABaseType) then begin
     IOHandler := TIdIOHandler.MakeIOHandler(ABaseType);
   end else begin
@@ -550,9 +558,10 @@ begin
   end;
 end;
 
-function TIdTCPConnection.GetResponse(const AAllowedResponses: array of SmallInt): SmallInt;
+function TIdTCPConnection.GetResponse(const AAllowedResponses: array of SmallInt;
+  AEncoding: TIdTextEncoding = nil): SmallInt;
 begin
-  GetInternalResponse;
+  GetInternalResponse(AEncoding);
   Result := CheckResponse(LastCmdResult.NumericCode, AAllowedResponses);
 end;
 
@@ -567,12 +576,13 @@ begin
   LastCmdResult.RaiseReplyError;
 end;
 
-function TIdTCPConnection.SendCmd(AOut: string; const AResponse: Array of SmallInt): SmallInt;
+function TIdTCPConnection.SendCmd(AOut: string; const AResponse: Array of SmallInt;
+  AEncoding: TIdTextEncoding = nil): SmallInt;
 begin
   CheckConnected;
   PrepareCmd(AOut);
-  IOHandler.WriteLn(AOut);
-  Result := GetResponse(AResponse);
+  IOHandler.WriteLn(AOut, AEncoding);
+  Result := GetResponse(AResponse, AEncoding);
 end;
 
 procedure TIdTCPConnection.Notification(AComponent: TComponent; Operation: TOperation);
@@ -593,25 +603,54 @@ procedure TIdTCPConnection.SetIntercept(AValue: TIdConnectionIntercept);
 begin
   if AValue <> FIntercept then
   begin
-    if Assigned(IOHandler) and Assigned(IOHandler.Intercept) and Assigned(AValue) then begin
-      EIdException.IfTrue(AValue <> IOHandler.Intercept, RSInterceptIsDifferent);
+    // RLebeau 8/25/09 - normally, short-circuit logic should skip all subsequent
+    // evaluations in a multi-condition statement once one of the conditions
+    // evaluates to False.  However, a user just ran into a situation where that
+    // was not the case!  It caused an AV in SetIOHandler() further below when
+    // AValue was nil (from Destroy() further above) because Assigned(AValue.Intercept)
+    // was still being evaluated even though Assigned(AValue) was returning False.
+    // SetIntercept() is using the same kind of short-circuit logic here as well.
+    // Let's not rely on short-circuiting anymore, just to be on the safe side.
+    //    
+    // old code: if Assigned(IOHandler) and Assigned(IOHandler.Intercept) and Assigned(AValue) and (AValue <> IOHandler.Intercept) then begin
+    //
+    if Assigned(IOHandler) and Assigned(AValue) then begin
+      if Assigned(IOHandler.Intercept) and (IOHandler.Intercept <> AValue) then begin
+        EIdException.Toss(RSInterceptIsDifferent);
+      end;
     end;
+    // remove self from the Intercept's free notification list
+    if Assigned(FIntercept) then begin
+      FIntercept.RemoveFreeNotification(Self);
+    end;
+    FIntercept := AValue;
     // add self to the Intercept's free notification list
-    if Assigned(AValue) then begin
-      AValue.FreeNotification(Self);
+    if Assigned(FIntercept) then begin
+      FIntercept.FreeNotification(Self);
     end;
     if Assigned(IOHandler) then begin
       IOHandler.Intercept := AValue;
     end;
-    FIntercept := AValue;
   end;
 end;
 
 procedure TIdTCPConnection.SetIOHandler(AValue: TIdIOHandler);
 begin
   if AValue <> FIOHandler then begin
-    if Assigned(AValue) and Assigned(AValue.Intercept) and Assigned(FIntercept) then begin
-      EIdException.IfTrue(AValue.Intercept <> FIntercept, RSInterceptIsDifferent);
+    // RLebeau 8/25/09 - normally, short-circuit logic should skip all subsequent
+    // evaluations in a multi-condition statement once one of the conditions
+    // evaluates to False.  However, a user just ran into a situation where that
+    // was not the case!  It caused an AV when AValue was nil (from Destroy()
+    // further above) because Assigned(AValue.Intercept) was still being evaluated
+    // even though Assigned(AValue) was returning False.  Let's not rely on
+    // short-circuiting anymore, just to be on the safe side.
+    //    
+    // old code: if Assigned(AValue) and Assigned(AValue.Intercept) and Assigned(FIntercept) and (AValue.Intercept <> FIntercept) then begin
+    //
+    if Assigned(AValue) and Assigned(FIntercept) then begin
+      if Assigned(AValue.Intercept) and (AValue.Intercept <> FIntercept) then begin
+        EIdException.Toss(RSInterceptIsDifferent);
+      end;
     end;
     if ManagedIOHandler and Assigned(FIOHandler) then begin
       FreeAndNil(FIOHandler);
@@ -624,6 +663,7 @@ begin
     // Clear out old values whether setting AValue to nil, or setting a new value
     if Assigned(FIOHandler) then begin
       FIOHandler.WorkTarget := nil;
+      FIOHandler.RemoveFreeNotification(Self);
     end;
     if Assigned(AValue) then begin
       // add self to the IOHandler's free notification list
@@ -647,26 +687,40 @@ end;
 procedure TIdTCPConnection.WriteHeader(AHeader: TStrings);
 var
   i: Integer;
+  LBufferingStarted: Boolean;
 begin
   CheckConnected;
-  with IOHandler do begin
-    WriteBufferOpen; try
+  with IOHandler do
+  begin
+    LBufferingStarted := not WriteBufferingActive;
+    if LBufferingStarted then begin
+      WriteBufferOpen;
+    end;
+    try
       for i := 0 to AHeader.Count -1 do begin
         // No ReplaceAll flag - we only want to replace the first one
         WriteLn(ReplaceOnlyFirst(AHeader[i], '=', ': '));
       end;
       WriteLn;
-    finally WriteBufferClose; end;
+      if LBufferingStarted then begin
+         WriteBufferClose;
+      end;
+    except
+      if LBufferingStarted then begin
+        WriteBufferCancel;
+      end;
+      raise;
+    end;
   end;
 end;
 
-function TIdTCPConnection.SendCmd(AOut: string; const AResponse: SmallInt)
- : SmallInt;
+function TIdTCPConnection.SendCmd(AOut: string; const AResponse: SmallInt = -1;
+  AEncoding: TIdTextEncoding = nil): SmallInt;
 begin
   if AResponse < 0 then begin
-    Result := SendCmd(AOut, []);
+    Result := SendCmd(AOut, [], AEncoding);
   end else begin
-    Result := SendCmd(AOut, [AResponse]);
+    Result := SendCmd(AOut, [AResponse], AEncoding);
   end;
 end;
 
@@ -700,7 +754,7 @@ begin
   Result := AResponse;
 end;
 
-procedure TIdTCPConnection.GetInternalResponse;
+procedure TIdTCPConnection.GetInternalResponse(AEncoding: TIdTextEncoding = nil);
 var
   LLine: string;
   LResponse: TStringList;
@@ -711,7 +765,7 @@ begin
     // ones, but I do remember we changed this for a reason
     // RLebeau 9/14/06: this can happen in between lines of the reply as well
     repeat
-      LLine := IOHandler.ReadLnWait;
+      LLine := IOHandler.ReadLnWait(MaxInt, AEncoding);
       LResponse.Add(LLine);
     until FLastCmdResult.IsEndMarker(LLine);
     //Note that FormattedReply uses an assign in it's property set method.
@@ -725,27 +779,30 @@ begin
   IOHandler.WriteRFCStrings(AStrings, True);
 end;
 
-function TIdTCPConnection.GetResponse(const AAllowedResponse: SmallInt): SmallInt;
+function TIdTCPConnection.GetResponse(const AAllowedResponse: SmallInt = -1;
+  AEncoding: TIdTextEncoding = nil): SmallInt;
 begin
   if AAllowedResponse < 0 then begin
-    Result := GetResponse([]);
+    Result := GetResponse([], AEncoding);
   end else begin
-    Result := GetResponse([AAllowedResponse]);
+    Result := GetResponse([AAllowedResponse], AEncoding);
   end;
 end;
 
-function TIdTCPConnection.GetResponse(const AAllowedResponse: string): string;
+function TIdTCPConnection.GetResponse(const AAllowedResponse: string;
+  AEncoding: TIdTextEncoding = nil): string;
 begin
-  GetInternalResponse;
+  GetInternalResponse(AEncoding);
   Result := CheckResponse(LastCmdResult.Code, AAllowedResponse);
 end;
 
-function TIdTCPConnection.SendCmd(AOut: string; const AResponse: string): string;
+function TIdTCPConnection.SendCmd(AOut: string; const AResponse: string;
+  AEncoding: TIdTextEncoding = nil): string;
 begin
   CheckConnected;
   PrepareCmd(AOut);
-  IOHandler.WriteLn(AOut);
-  Result := GetResponse(AResponse);
+  IOHandler.WriteLn(AOut, AEncoding);
+  Result := GetResponse(AResponse, AEncoding);
 end;
 
 function TIdTCPConnection.CheckResponse(const AResponse, AAllowedResponse: string): string;
@@ -784,7 +841,9 @@ end;
 
 procedure TIdTCPConnection.CheckConnected;
 begin
-  EIdNotConnected.IfNotAssigned(IOHandler, RSNotConnected);
+  if not Assigned(IOHandler) then begin
+    EIdNotConnected.Toss(RSNotConnected);
+  end;
 end;
 
 procedure TIdTCPConnection.SetGreeting(AValue: TIdReply);
@@ -804,8 +863,8 @@ end;
 
 procedure TIdTCPConnection.PrepareCmd(var aCmd: string);
 begin
-  //Leave this empty here.  It's for cases where we may need to override
-  //what is sent to a server in a transparent manner.
+  //Leave this empty here.  It's for cases where we may need to
+  // override what is sent to a server in a transparent manner.
 end;
 
 end.

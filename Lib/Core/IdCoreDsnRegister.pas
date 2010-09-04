@@ -38,7 +38,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF VCL8ORABOVE}
+  {$IFDEF VCL_8_OR_ABOVE}
      {$IFDEF DOTNET}
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
@@ -47,7 +47,7 @@ uses
       DesignEditors;
      {$ENDIF}
   {$ELSE}
-    {$IFDEF VCL6ORABOVE}
+    {$IFDEF VCL_6_OR_ABOVE}
       {$IFDEF FPC}
       PropEdits,
       ComponentEditors;
@@ -93,11 +93,10 @@ implementation
 
 uses
   Classes,
-  {$IFDEF WidgetWinForms}
+  {$IFDEF WIDGET_WINFORMS}
   IdDsnPropEdBindingNET,
   IdAboutDotNET,
-  {$ENDIF}
-  {$IFDEF WidgetVCLLikeOrKylix}
+  {$ELSE}
   IdDsnPropEdBindingVCL,
   IdAboutVCL,
   {$ENDIF}
@@ -130,10 +129,9 @@ uses
 }
 
 type
-  {$IFDEF WidgetWinForms}
+  {$IFDEF WIDGET_WINFORMS}
    TIdPropEdBindingEntry = TIdDsnPropEdBindingNET;
-  {$ENDIF}
-  {$IFDEF WidgetVCLLikeOrKylix}
+  {$ELSE}
   TIdPropEdBindingEntry = TIdDsnPropEdBindingVCL;
   {$ENDIF}
 

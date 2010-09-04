@@ -1,0 +1,27 @@
+<Project DefaultTargets="default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<BuildProject Condition=" '$(BuildProject)'=='' ">indy</BuildProject>
+	</PropertyGroup>
+	<Import Project="$(TPADDONS)\tpaddons.Targets"/>
+
+	<ItemGroup>
+
+		<Projects Include="
+				System\IndySystem120.proj;
+				Core\IndyCore120.proj;
+				Core\dclIndyCore120.proj;
+				Protocols\IndyProtocols120.proj;
+				Protocols\dclIndyProtocols120.proj
+		"/>
+		
+	</ItemGroup>
+	<Target Name="default" DependsOnTargets="buildprojects"/>
+	<Target Name="clean" DependsOnTargets="cleanall">
+		<MsBuild 
+			Projects="%(Projects.Identity)" 
+			Targets="clean">
+		</MsBuild>
+	</Target>
+
+
+</Project>

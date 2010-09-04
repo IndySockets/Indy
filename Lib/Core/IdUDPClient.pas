@@ -117,9 +117,9 @@ type
       var VPeerIP: string; var VPeerPort: TIdPort;
       AMSec: Integer = IdTimeoutDefault): integer; overload; override;
     function ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+      var VPeerIP: string; var VPeerPort: TIdPort; var VIPVersion: TIdIPVersion;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; override;
-    procedure Send(const AData: string); overload;
+    procedure Send(const AData: string; AEncoding: TIdTextEncoding = nil); overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; override;
     procedure SendBuffer(const ABuffer: TIdBytes); reintroduce; overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort;
@@ -283,9 +283,11 @@ end;
 
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
   const AMSec: Integer): Integer;
-var LMSec : Integer;
+var
+  LMSec : Integer;
   LHost : String;
   LPort : TIdPort;
+  LIPVersion: TIdIPVersion;
 begin
   Result := 0;
   if AMSec = IdTimeoutDefault then begin
@@ -301,7 +303,7 @@ begin
     if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
-    Result := FTransparentProxy.RecvFromUDP(Binding, ABuffer, LHost, LPort, IPVersion, LMSec);
+    Result := FTransparentProxy.RecvFromUDP(Binding, ABuffer, LHost, LPort, LIPVersion, LMSec);
   end else
   begin
     if Connected then begin
@@ -321,13 +323,15 @@ end;
 
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
   var VPeerIP: string; var VPeerPort: TIdPort; AMSec: Integer): integer;
+var
+  VoidIPVersion: TidIPVersion;
 begin
-  Result := ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, AMSec);
+  Result := ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, VoidIPVersion, AMSec);
 end;
 
-procedure TIdUDPClient.Send(const AData: string);
+procedure TIdUDPClient.Send(const AData: string; AEncoding: TIdTextEncoding = nil);
 begin
-  Send(Host, Port, AData);
+  Send(Host, Port, AData, AEncoding);
 end;
 
 procedure TIdUDPClient.SendBuffer(const ABuffer : TIdBytes);
@@ -395,6 +399,7 @@ begin
   if Assigned(AProxy) then begin
     if not Assigned(AProxy.Owner) then begin
       if Assigned(FTransparentProxy) and Assigned(FTransparentProxy.Owner) then begin
+        FTransparentProxy.RemoveFreeNotification(Self);
         FTransparentProxy := nil;
       end;
       LClass := TIdCustomTransparentProxyClass(AProxy.ClassType);
@@ -406,17 +411,22 @@ begin
       end;
       FTransparentProxy.Assign(AProxy);
     end else begin
-      if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
-        FreeAndNil(FTransparentProxy);
+      if Assigned(FTransparentProxy) then begin
+        if not Assigned(FTransparentProxy.Owner) then begin
+          FreeAndNil(FTransparentProxy);
+        end else begin
+          FTransparentProxy.RemoveFreeNotification(Self);
+        end;
       end;
       FTransparentProxy := AProxy;
       FTransparentProxy.FreeNotification(Self);
     end;
   end
-  else begin
-    if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
+  else if Assigned(FTransparentProxy) then begin
+    if not Assigned(FTransparentProxy.Owner) then begin
       FreeAndNil(FTransparentProxy);
     end else begin
+      FTransparentProxy.RemoveFreeNotification(Self);
       FTransparentProxy := nil; //remove link
     end;
   end;
@@ -443,8 +453,8 @@ begin
 end;
 
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
-  var VPeerIP: string; var VPeerPort: TIdPort;
-  const AIPVersion: TIdIPVersion; const AMSec: Integer): integer;
+  var VPeerIP: string; var VPeerPort: TIdPort; var VIPVersion: TIdIPVersion;
+  const AMSec: Integer): integer;
 var
   LMSec : Integer;
 begin
@@ -461,9 +471,9 @@ begin
     if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
-    Result := FTransparentProxy.RecvFromUDP(Binding, ABuffer, VPeerIP, VPeerPort, IPVersion, LMSec);
+    Result := FTransparentProxy.RecvFromUDP(Binding, ABuffer, VPeerIP, VPeerPort, VIPVersion, LMSec);
   end else begin
-    Result := inherited ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, LMSec);
+    Result := inherited ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, VIPVersion, LMSec);
   end;
 end;
 
@@ -474,7 +484,7 @@ begin
     if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
-    FTransparentProxy.SendToUDP(Binding, AHost, APort, IPVersion, ABuffer);
+    FTransparentProxy.SendToUDP(Binding, AHost, APort, AIPVersion, ABuffer);
   end else begin
     inherited SendBuffer(AHost, APort, AIPVersion, ABuffer);
   end;

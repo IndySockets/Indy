@@ -18,8 +18,9 @@
 unit ezEliza;
 
 interface
-{$mode objfpc}{$H+}
-
+{$ifdef fpc}
+  {$mode objfpc}{$H+}
+{$endif}
 uses
   EZPersonality;
 

@@ -41,6 +41,7 @@
 unit IdException;
 
 interface
+
 {$I IdCompilerDefines.inc}
 
 uses
@@ -57,34 +58,8 @@ type
     Otherwise, it will not compile in that IDE. Also it's overloaded so that it doesn't close
     the other methods declared by the DotNet exception (particularly InnerException constructors)
     }
-    constructor Create(
-      const AMsg: string
-      ); overload; virtual;
-    class procedure IfAssigned(
-      const ACheck: TObject;
-      const AMsg: string = ''
-      );
-    class procedure IfFalse(
-      const ACheck: Boolean;
-      const AMsg: string = ''
-      );
-    class procedure IfNotAssigned(
-      const ACheck: TObject;
-      const AMsg: string = ''
-      );
-    class procedure IfNotInRange(
-      const AValue: Integer;
-      const AMin: Integer;
-      const AMax: Integer;
-      const AMsg: string = ''
-      );
-    class procedure IfTrue(
-      const ACheck: Boolean;
-      const AMsg: string = ''
-      );
-    class procedure Toss(
-      const AMsg: string
-      );
+    constructor Create(const AMsg: string); overload; virtual;
+    class procedure Toss(const AMsg: string);
   end;
 
   TClassIdException = class of EIdException;
@@ -95,7 +70,8 @@ type
 
   // EIdConnClosedGracefully is raised when remote side closes connection normally
   EIdConnClosedGracefully = class(EIdSilentException);
-   {$IFDEF DOTNET}
+
+  {$IFDEF DOTNET}
   // This class used in DotNet. Under windows/linux, all errors that come out the
   // indy layer descend from IdException (actually not all errors in theory, but
   // certainly all errors in practice)
@@ -129,48 +105,6 @@ implementation
 constructor EIdException.Create(const AMsg : String);
 begin
   inherited Create(AMsg);
-end;
-
-class procedure EIdException.IfAssigned(const ACheck: TObject;
-  const AMsg: string);
-begin
-  if ACheck <> nil then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdException.IfFalse(const ACheck: Boolean; const AMsg: string);
-begin
-  if not ACheck then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdException.IfNotAssigned(const ACheck: TObject;
-  const AMsg: string);
-begin
-  if ACheck = nil then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdException.IfNotInRange(
-  const AValue: Integer;
-  const AMin: Integer;
-  const AMax: Integer;
-  const AMsg: string = ''
-  );
-begin
-  if (AValue < AMin) or (AValue > AMax) then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdException.IfTrue(const ACheck: Boolean; const AMsg: string);
-begin
-  if ACheck then begin
-    Toss(AMsg);
-  end;
 end;
 
 class procedure EIdException.Toss(const AMsg: string);

@@ -1,6 +1,7 @@
 program elizaweb;
-{$mode delphi}{$H+}
-//}
+{$ifdef fpc}
+  {$mode delphi}{$H+}
+{$endif}
 uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,

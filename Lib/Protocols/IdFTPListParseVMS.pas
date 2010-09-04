@@ -114,6 +114,10 @@ type
     class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseVMS"'*)
+
 implementation
 
 uses
@@ -179,7 +183,7 @@ begin
   if Result then
   begin
     Result := (IndyPos(' BLOCK', LData) > 9) and    {do not localize}
-              TextEndsWith(AData, '.') and          {do not localize}
+          //    TextEndsWith(AData, '.') and          {do not localize}
               (IndyPos(' FILE', LData) > 9);        {do not localize}
     if not Result then begin
       Result := Fetch(LData) = '*.*;';              {do not localize}
@@ -235,6 +239,15 @@ begin
   LBuffer := Fetch(LLine, ';'); {do not localize}
   LI.LocalFileName := LowerCase(LBuffer);
   LBuf2 := Fetch(LLine);
+  //Some FTP servers might follow the filename with a tab and than
+  //give an error such as this:
+  //1KBTEST.PTF;10#9No privilege for attempted operation
+  if IndyPos(#9,LBuf2) >0 then begin
+    LBuf2 := Fetch(LBuf2,#9);
+    LVMSError := True;
+
+  end;
+
   LI.Version := IndyStrToInt(LBuf2, 0);
   LBuffer := LBuffer + ';' + LBuf2; {do not localize}
 
@@ -266,7 +279,13 @@ begin
   if APath <> '' then begin
     AItem.FileName := APath + AItem.FileName;
   end;
-
+  if LVMSError then
+  begin
+    LI.ModifiedAvail := False;
+    LI.SizeAvail := False;
+    Result := True;
+    Exit;
+  end;
   LCols := TStringList.Create;
   try
     SplitColumns(LLine, LCols);
@@ -275,10 +294,11 @@ begin
     //is reported in the File list.  Do not parse the line further.
     if LCols.Count > 0 then
     begin
-      if IsNumeric(LCols[0]) then
+      LBuffer := LCols[0];
+      LBuffer := Fetch(LBuffer, '/');
+      if IsNumeric(LBuffer) then
       begin
         //File Size
-        LBuffer := LCols[0];
         LI.NumberBlocks :=  IndyStrToInt(LBuffer, 0);
         LI.BlockSize := VMS_BLOCK_SIZE;
         LI.Size := IndyStrToInt(LBuffer, 0) * VMS_BLOCK_SIZE; //512 is the size of a VMS block
@@ -287,7 +307,7 @@ begin
         //on the UCX VMS server, the file size might not be reported.  Probably the file owner
         if not TextStartsWith(LCols[0], '[') then {do not localize}
         begin
-          if not IsNumeric(LCols[0][1]) then
+          if not IsNumeric(LCols[0], 1, 1) then
           begin
             //the server probably reported an error in the FTP list such as no permission
             //we need to stop right there.

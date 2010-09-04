@@ -97,9 +97,18 @@ implementation
 uses
   //facilitate inlining only.
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.Threading,
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Windows,
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysSelect,
+  PosixSysTime,
   {$ENDIF}
   IdGlobal, SysUtils;
 
@@ -133,7 +142,7 @@ begin
   Assert(FActiveYarns<>nil);
 
   while True do begin
-    // Must unlock each time to allow yarns that are temrinating to remove themselves from the list
+    // Must unlock each time to allow yarns that are terminating to remove themselves from the list
     with FActiveYarns.LockList do try
       if Count = 0 then begin
         Break;

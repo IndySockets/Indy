@@ -45,25 +45,25 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF VCL9ORABOVE}
-     {$IFDEF DOTNET}
-      Borland.Vcl.Design.DesignIntf,
-      Borland.Vcl.Design.DesignEditors;
-     {$ELSE}
-      DesignIntf,
-      DesignEditors;
-     {$ENDIF}
+  {$IFDEF VCL_2005_OR_ABOVE}
+    {$IFDEF DOTNET}
+  Borland.Vcl.Design.DesignIntf,
+  Borland.Vcl.Design.DesignEditors;
+    {$ELSE}
+  DesignIntf,
+  DesignEditors;
+    {$ENDIF}
   {$ELSE}
-    {$IFDEF VCL6ORABOVE}
+    {$IFDEF VCL_6_OR_ABOVE}
       {$IFDEF FPC}
-      PropEdits,
-      ComponentEditors;
+  PropEdits,
+  ComponentEditors;
       {$ELSE}
-      DesignIntf,
-      DesignEditors;
+  DesignIntf,
+  DesignEditors;
       {$ENDIF}
     {$ELSE}
-       Dsgnintf;
+  Dsgnintf;
     {$ENDIF}
   {$ENDIF}
 

@@ -66,18 +66,32 @@ uses
 { TIdInterceptThrottler }
 
 procedure TIdInterceptThrottler.Receive(var ABuffer: TIdBytes);
+var
+  LInterval: Int64;
 begin
   inherited Receive(ABuffer);
   if RecvBitsPerSec > 0 then begin
-    TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div RecvBitsPerSec);
+    LInterval := (Int64(Length(ABuffer)) * 8 * 1000) div RecvBitsPerSec;
+    while LInterval > MaxInt do begin
+      TIdAntiFreezeBase.Sleep(MaxInt);
+      Dec(LInterval, MaxInt);
+    end;
+    TIdAntiFreezeBase.Sleep(Integer(LInterval));
   end;
 end;
 
 procedure TIdInterceptThrottler.Send(var ABuffer: TIdBytes);
+var
+  LInterval: Int64;
 begin
   inherited Send(ABuffer);
   if SendBitsPerSec > 0 then begin
-    TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div SendBitsPerSec);
+    LInterval := (Int64(Length(ABuffer)) * 8 * 1000) div SendBitsPerSec;
+    while LInterval > MaxInt do begin
+      TIdAntiFreezeBase.Sleep(MaxInt);
+      Dec(LInterval, MaxInt);
+    end;
+    TIdAntiFreezeBase.Sleep(Integer(LInterval));
   end;
 end;
 

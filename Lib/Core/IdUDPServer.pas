@@ -163,6 +163,11 @@ type
 implementation
 
 uses
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Windows,
+    {$ENDIF}
+  {$ENDIF}
   IdGlobalCore, SysUtils;
 
 procedure TIdUDPServer.BroadcastEnabledChanged;
@@ -171,7 +176,7 @@ var
 begin
   if Assigned(FCurrentBinding) then begin
     for i := 0 to Bindings.Count - 1 do begin
-      SetBroadcastFlag(BroadcastEnabled, Bindings[i]);
+      Bindings[i].BroadcastEnabled := BroadcastEnabled;
     end;
   end;
 end;
@@ -294,9 +299,13 @@ begin
     for i := 0 to Bindings.Count - 1 do begin
       LListenerThread := FThreadClass.Create(Self, Bindings[i]);
       LListenerThread.Name := Name + ' Listener #' + IntToStr(i + 1); {do not localize}
+      {$IFDEF DELPHI_CROSS}
+        {$IFNDEF MACOSX}
       //Todo: Implement proper priority handling for Linux
       //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
       LListenerThread.Priority := tpListener;
+        {$ENDIF}
+      {$ENDIF}
       FListenerThreads.Add(LListenerThread);
       LListenerThread.Start;
     end;
@@ -359,6 +368,7 @@ procedure TIdUDPListenerThread.Run;
 var
   PeerIP: string;
   PeerPort : TIdPort;
+  PeerIPVersion: TIdIPVersion;
   ByteCount: Integer;
 begin
   if FBinding.Select(AcceptWait) then try
@@ -366,13 +376,16 @@ begin
     // Depending on timing - may not reach here if it is in ancestor run when thread is stopped
     if not Stopped then begin
       SetLength(FBuffer, FServer.BufferSize);
-      ByteCount := GStack.ReceiveFrom(FBinding.Handle, FBuffer, PeerIP, PeerPort, FBinding.IPVersion);
-      SetLength(FBuffer, ByteCount);
-      FBinding.SetPeer(PeerIP, PeerPort, FBinding.IPVersion);
-      if FServer.ThreadedEvent then begin
-        UDPRead;
-      end else begin
-        Synchronize(UDPRead);
+      ByteCount := FBinding.RecvFrom(FBuffer, PeerIP, PeerPort, PeerIPVersion);
+      FBinding.SetPeer(PeerIP, PeerPort, PeerIPVersion);
+      if ByteCount > 0 then
+      begin
+        SetLength(FBuffer, ByteCount);
+        if FServer.ThreadedEvent then begin
+          UDPRead;
+        end else begin
+          Synchronize(UDPRead);
+        end;
       end;
     end;
   except

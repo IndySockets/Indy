@@ -110,6 +110,7 @@ type
     class function IsRegisteredUser(AUserAccess: TIdUserAccess): Boolean;
     procedure LogoffUser(AUserHandle: TIdUserHandle); virtual;
     procedure UserDisconnected(const AUser : String); virtual;
+    function SendsChallange : Boolean;  virtual;
   End;//TIdCustomUserManager
 
   //=============================================================================
@@ -211,15 +212,22 @@ type
   End;//TIdUserManager
 
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
 
 { How add UserAccounts to your component:
 1) property UserAccounts: TIdCustomUserManager read FUserAccounts write SetUserAccounts;
 2) procedure SetUserAccounts(const AValue: TIdCustomUserManager);
    begin
-     FUserAccounts := AValue;
-     if Assigned(FUserAccounts) then begin
-       FUserAccounts.FreeNotification(Self);
+     if FUserAccounts <> AValue then begin
+       if Assigned(FUserAccounts) then begin
+         FUserAccounts.RemoveFreeNotification(Self);
+       end;
+       FUserAccounts := AValue;
+       if Assigned(FUserAccounts) then begin
+         FUserAccounts.FreeNotification(Self);
+       end;
      end;
    end;
 3) procedure Notification(AComponent: TComponent; Operation: TOperation);
@@ -227,7 +235,7 @@ uses SysUtils;
      inherited Notification(AComponent, Operation);
      ...
      if (Operation = opRemove) and (AComponent = FUserAccounts) then begin
-       FUserAccounts := NIL;
+       FUserAccounts := nil;
      end;
    end;
 4) ... if Assigned(FUserAccounts) then begin
@@ -318,6 +326,11 @@ end;
 procedure TIdCustomUserManager.UserDisconnected(const AUser: String);
 begin
 
+end;
+
+function TIdCustomUserManager.SendsChallange : Boolean;
+begin
+  Result := False;
 end;
 
 { TIdUserAccount }

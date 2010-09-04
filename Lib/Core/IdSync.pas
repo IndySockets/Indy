@@ -67,23 +67,43 @@ interface
 
 {$i IdCompilerDefines.inc}
 
+{$UNDEF NotifyThreadNeeded}
+{$IFNDEF HAS_STATIC_TThread_Synchronize}
+  {$DEFINE NotifyThreadNeeded}
+{$ENDIF}
+{$IFNDEF HAS_STATIC_TThread_Queue}
+  {$DEFINE NotifyThreadNeeded}
+{$ENDIF}
+
 uses
   Classes,
-  IdGlobal, IdThread;
+  IdGlobal
+  {$IFDEF NotifyThreadNeeded}
+  , IdThread
+  {$ENDIF}
+  ;
 
 type
   TIdSync = class(TObject)
   protected
+    {$IFNDEF HAS_STATIC_TThread_Synchronize}
     FThread: TIdThread;
+    {$ENDIF}
     //
     procedure DoSynchronize; virtual; abstract;
   public
+    {$IFDEF HAS_STATIC_TThread_Synchronize}
+    constructor Create; virtual;
+    {$ELSE}
     constructor Create; overload; virtual;
     constructor Create(AThread: TIdThread); overload; virtual;
+    {$ENDIF}
     procedure Synchronize;
     class procedure SynchronizeMethod(AMethod: TThreadMethod);
     //
+    {$IFNDEF HAS_STATIC_TThread_Synchronize}
     property Thread: TIdThread read FThread;
+    {$ENDIF}
   end;
 
   TIdNotify = class(TObject)
@@ -94,8 +114,9 @@ type
   public
     constructor Create; virtual; // here to make virtual
     procedure Notify;
-    class procedure FreeThread;
+    {$IFNDEF HAS_STATIC_TThread_Queue}
     procedure WaitFor;
+    {$ENDIF}
     class procedure NotifyMethod(AMethod: TThreadMethod);
     //
     property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify;
@@ -109,24 +130,36 @@ type
   public
     constructor Create(AMethod: TThreadMethod); reintroduce; virtual;
   end;
-  
+
 implementation
 
 uses
   //facilitate inlining only.
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.Threading,
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Windows,
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixGlue,
+  PosixSysSelect,
+  PosixSysTime,
+  {$ENDIF}
   SysUtils;
 
+{$IFDEF NotifyThreadNeeded}
 type
   // This is done with a NotifyThread instead of PostMessage because starting
   // with D6/Kylix Borland radically modified the mecanisms for .Synchronize.
   // This is a bit more code in the end, but its source compatible and does not
   // rely on Indy directly accessing any OS APIs and performance is still more
   // than acceptable, especially considering Notifications are low priority.
+
   TIdNotifyThread = class(TIdThread)
   protected
     FEvent: TIdLocalEvent;
@@ -135,42 +168,66 @@ type
     procedure AddNotification(ASync: TIdNotify);
     constructor Create; reintroduce;
     destructor Destroy; override;
+    class procedure FreeThread;
     procedure Run; override;
   end;
 
 var
   GNotifyThread: TIdNotifyThread = nil;
 
+// RLebeau: this function has a race condition if it is called by multiple
+// threads at the same time and GNotifyThread has not been assigned yet!
 procedure CreateNotifyThread;
 begin
   if GNotifyThread = nil then begin
     GNotifyThread := TIdNotifyThread.Create;
   end;
 end;
+{$ENDIF}
 
 { TIdSync }
 
+{$IFNDEF HAS_STATIC_TThread_Synchronize}
 constructor TIdSync.Create(AThread: TIdThread);
 begin
   inherited Create;
   FThread := AThread;
 end;
+{$ENDIF}
 
 constructor TIdSync.Create;
 begin
+  {$IFDEF HAS_STATIC_TThread_Synchronize}
+  inherited Create;
+  {$ELSE}
+    {$IFDEF DOTNET}
+  inherited Create;
+  CreateNotifyThread;
+  FThread := GNotifyThread;
+    {$ELSE}
   CreateNotifyThread;
   Create(GNotifyThread);
+    {$ENDIF}
+  {$ENDIF}
 end;
 
 procedure TIdSync.Synchronize;
 begin
+  {$IFDEF HAS_STATIC_TThread_Synchronize}
+  TThread.Synchronize(nil, DoSynchronize);
+  {$ELSE}
   FThread.Synchronize(DoSynchronize);
+  {$ENDIF}
 end;
 
 class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
 begin
+  {$IFDEF HAS_STATIC_TThread_Synchronize}
+  TThread.Synchronize(nil, AMethod);
+  {$ELSE}
   CreateNotifyThread;
   GNotifyThread.Synchronize(AMethod);
+  {$ENDIF}
 end;
 
 { TIdNotify }
@@ -180,32 +237,53 @@ begin
   inherited Create;
 end;
 
-class procedure TIdNotify.FreeThread;
-begin
-  if GNotifyThread <> nil then begin
-    GNotifyThread.Stop;
-    GNotifyThread.FEvent.SetEvent;
-    GNotifyThread.WaitFor;
-    // Instead of FreeOnTerminate so we can set the reference to nil
-    FreeAndNil(GNotifyThread);
-  end;
-end;
-
 procedure TIdNotify.Notify;
 begin
   if InMainThread and (not MainThreadUsesNotify) then begin
     DoNotify;
     Free;
   end else begin
+    {$IFDEF HAS_STATIC_TThread_Queue}
+    TThread.Queue(nil, DoNotify);
+    {$ELSE}
     CreateNotifyThread;
     GNotifyThread.AddNotification(Self);
+    {$ENDIF}
   end;
 end;
 
 class procedure TIdNotify.NotifyMethod(AMethod: TThreadMethod);
 begin
+  {$IFDEF HAS_STATIC_TThread_Queue}
+  TThread.Queue(nil, AMethod);
+  {$ELSE}
   TIdNotifyMethod.Create(AMethod).Notify;
+  {$ENDIF}
 end;
+
+{$IFNDEF HAS_STATIC_TThread_Queue}
+// RLebeau: this method does not make sense.  The Self pointer is not
+// guaranteed to remain valid while this method is running since the
+// notify thread frees the object.  Also, this makes the calling thread
+// block, so TIdSync should be used instead...
+procedure TIdNotify.WaitFor;
+var
+  LNotifyIndex: Integer;
+begin
+  LNotifyIndex := 0;
+  repeat
+    with GNotifyThread.FNotifications.LockList do try
+      LNotifyIndex := IndexOf(Self);
+    finally GNotifyThread.FNotifications.UnlockList; end;
+    if LNotifyIndex = -1 then begin
+      Break;
+    end;
+    IndySleep(10);
+  until False;
+end;
+{$ENDIF}
+
+{$IFDEF NotifyThreadNeeded}
 
 { TIdNotifyThread }
 
@@ -236,6 +314,17 @@ begin
   FreeAndNil(FNotifications);
   FreeAndNil(FEvent);
   inherited Destroy;
+end;
+
+class procedure TIdNotifyThread.FreeThread;
+begin
+  if GNotifyThread <> nil then begin
+    GNotifyThread.Stop;
+    GNotifyThread.FEvent.SetEvent;
+    GNotifyThread.WaitFor;
+    // Instead of FreeOnTerminate so we can set the reference to nil
+    FreeAndNil(GNotifyThread);
+  end;
 end;
 
 procedure TIdNotifyThread.Run;
@@ -269,6 +358,8 @@ begin
   end;
 end;
 
+{$ENDIF} // NotifyThreadNeeded
+
 { TIdNotifyMethod }
 
 constructor TIdNotifyMethod.Create(AMethod: TThreadMethod);
@@ -282,21 +373,11 @@ begin
   FMethod;
 end;
 
-procedure TIdNotify.WaitFor;
-Var
-  LNotifyIndex: Integer;
-begin
-  LNotifyIndex := 0;
-  while LNotifyIndex <> -1 do begin
-    with GNotifyThread.FNotifications.LockList do try
-      LNotifyIndex := IndexOf(Self);
-    finally GNotifyThread.FNotifications.UnlockList; end;
-    IndySleep(10);
-  end;
-end;
-
+{$IFDEF NotifyThreadNeeded}
 initialization
 finalization
-  TIdNotify.FreeThread
+  TIdNotifyThread.FreeThread;
+{$ENDIF}
+
 end.
 

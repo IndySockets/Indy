@@ -62,8 +62,11 @@ Type
     constructor Create; override;
     function Authentication: String; override;
     function KeepAlive: Boolean; override;
-    procedure Reset; override;
   end;
+
+  // RLebeau 4/17/10: this forces C++Builder to link to this unit so
+  // RegisterAuthenticationMethod can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdAuthenticationNTLM"'*)
 
 implementation
 
@@ -120,11 +123,13 @@ begin
 end;
 
 function TIdNTLMAuthentication.Authentication: String;
-Var
-  S: String;
+var
+  buf: TIdBytes;
   Type2: type_2_message_header;
 begin
   Result := '';    {do not localize}
+  SetLength(buf, 0);
+
   case FCurrentStep of
     1:
       begin
@@ -146,26 +151,16 @@ begin
         end;
 
         with TIdDecoderMIME.Create do try
-          S := DecodeString(FNTLMInfo);
+          buf := DecodeBytes(FNTLMInfo);
         finally Free; end;
+        BytesToRaw(buf, Type2, SizeOf(Type2));
 
-        Move(S[1], type2, SizeOf(type2));
-        Delete(S, 1, SizeOf(type2));
-
-        S := Type2.Nonce;
-
-        S := BuildType3Message(FDomain, FHost, FUser, Password, Type2.Nonce);
-        Result := 'NTLM ' + S;    {do not localize}
+        buf := RawToBytes(Type2.Nonce, SizeOf(Type2.Nonce));
+        Result := 'NTLM ' + BuildType3Message(FDomain, FHost, FUser, Password, buf); {do not localize}
 
         FCurrentStep := 2;
       end;
   end;
-end;
-
-procedure TIdNTLMAuthentication.Reset;
-begin
-  inherited Reset;
-  FCurrentStep := 0;
 end;
 
 function TIdNTLMAuthentication.KeepAlive: Boolean;
@@ -179,24 +174,12 @@ begin
 end;
 
 procedure TIdNTLMAuthentication.SetUserName(const Value: String);
-var
- i: integer;
 begin
- if Value <> Username then
- begin
-   inherited SetUserName(Value);
-   i := Pos('\', Username);
-   if i > -1 then
-   begin
-     FDomain := Copy(Username, 1, i - 1);
-     FUser := Copy(Username, i + 1, Length(UserName));
-   end
-   else
-   begin
-     FDomain := ' ';         {do not localize}
-     FUser := UserName;
-   end;
- end;
+  if Value <> Username then
+  begin
+    inherited SetUserName(Value);
+    GetDomain(Username, FUser, FDomain);
+  end;
 end;
 
 initialization
@@ -204,4 +187,3 @@ initialization
 finalization
   UnregisterAuthenticationMethod('NTLM');                         {do not localize}
 end.
-

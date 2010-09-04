@@ -162,15 +162,23 @@ type
     FPort: TIdPort;
     FPeerPort: TIdPort;
     FReadSocketList: TIdSocketList;
+    FSocketType : TIdSocketType;
     FOverLapped: Boolean;
     FIPVersion: TIdIPVersion;
     FConnectionHandle: TIdCriticalSection;
+    FBroadcastEnabled: Boolean;
+    FUseNagle : Boolean;
     //
     function BindPortReserved: Boolean;
+    procedure BroadcastEnabledChanged;
+    procedure SetBroadcastEnabled(const AValue: Boolean);
+    procedure Disconnect; virtual;
+    procedure SetBroadcastFlag(const AEnabled: Boolean);
     procedure SetOverLapped(const AValue: Boolean);
     procedure SetHandle(AHandle: TIdStackSocketHandle);
     procedure SetIPVersion(const Value: TIdIPVersion);
-    function TryBind: Boolean;
+    procedure SetUseNagle(const AValue: Boolean);
+    function TryBind(APort: TIdPort): Boolean;
   public
     function Accept(ASocket: TIdStackSocketHandle): Boolean;
     procedure AllocateSocket(const ASocketType: TIdSocketType = Id_SOCK_STREAM;
@@ -178,39 +186,59 @@ type
     // Returns True if error was ignored (Matches iIgnore), false if no error occurred
     procedure Assign(Source: TPersistent); override;
     procedure Bind;
+    procedure Broadcast(const AData: string; const APort: TIdPort; const AIP: String = '';
+      AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ); overload;
+    procedure Broadcast(const AData: TIdBytes; const APort: TIdPort; const AIP: String = ''); overload;
     procedure CloseSocket; virtual;
     procedure Connect; virtual;
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
-//    procedure GetSockOpt(level, optname: Integer; optval: PChar; optlen: Integer);
     procedure Listen(const AQueueCount: Integer = 5);
     function Readable(AMSec: Integer = IdTimeoutDefault): boolean;
     function Receive(var VBuffer: TIdBytes): Integer;
     function RecvFrom(var ABuffer : TIdBytes; var VIP: string;
-      var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+      var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer;
     procedure Reset(const AResetLocal: boolean = True);
-    function Send(const ABuffer: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Integer;
+    function Send(const AData: String; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): Integer; overload;
+    function Send(const ABuffer: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Integer; overload;
+    procedure SendTo(const AIP: string; const APort: TIdPort; const AData: String;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ); overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AOffset: Integer; const ASize: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
     procedure SetPeer(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
     procedure SetBinding(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
-    procedure GetSockOpt(ALevel:TIdSocketOptionLevel; AOptName: TIdSocketOption; out VOptVal: Integer);
-    procedure SetSockOpt(ALevel:TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
+    procedure GetSockOpt(ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; out VOptVal: Integer);
+    procedure SetSockOpt(ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
     function Select(ATimeout: Integer = IdTimeoutInfinite): Boolean;
     procedure UpdateBindingLocal;
     procedure UpdateBindingPeer;
+    procedure AddMulticastMembership(const AGroupIP: String);
+    procedure DropMulticastMembership(const AGroupIP: String);
+    procedure SetLoopBack(const AValue: Boolean);
+    procedure SetMulticastTTL(const AValue: Byte);
+    procedure SetTTL(const AValue: Integer);
+    procedure SetNagleOpt(const AEnabled: Boolean);
     //
     property HandleAllocated: Boolean read FHandleAllocated;
     property Handle: TIdStackSocketHandle read FHandle;
-    property OverLapped:boolean read FOverLapped write SetOverLapped;
+    property OverLapped: Boolean read FOverLapped write SetOverLapped;
     property PeerIP: string read FPeerIP;
     property PeerPort: TIdPort read FPeerPort;
+    property SocketType : TIdSocketType read FSocketType;
   published
+    property BroadcastEnabled: Boolean read FBroadcastEnabled write SetBroadcastEnabled default False;
     property ClientPortMin : TIdPort read FClientPortMin write FClientPortMin default DEF_PORT_ANY;
     property ClientPortMax : TIdPort read FClientPortMax write FClientPortMax default DEF_PORT_ANY;
     property IP: string read FIP write FIP;
     property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
     property Port: TIdPort read FPort write FPort;
+    property UseNagle: Boolean read FUseNagle write SetUseNagle default True;
   end;
 
   TIdSocketHandleEvent = procedure(AHandle: TIdSocketHandle) of object;
@@ -234,6 +262,11 @@ begin
   SetHandle(GStack.NewSocketHandle(ASocketType, AProtocol, FIPVersion, FOverLapped));
 end;
 
+procedure TIdSocketHandle.Disconnect;
+begin
+  GStack.Disconnect(Handle);
+end;
+
 procedure TIdSocketHandle.CloseSocket;
 begin
   if HandleAllocated then begin
@@ -242,7 +275,7 @@ begin
       // may then call (in other threads) Connected, which in turn looks at
       // FHandleAllocated.
       FHandleAllocated := False;
-      GStack.Disconnect(Handle);
+      Disconnect;
       SetHandle(Id_INVALID_SOCKET);
     finally
       FConnectionHandle.Leave;
@@ -280,17 +313,32 @@ begin
   Result := GStack.Receive(Handle, VBuffer);
 end;
 
+function TIdSocketHandle.Send(const AData: String; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): Integer;
+begin
+  Result := Send(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
+end;
+
 function TIdSocketHandle.Send(const ABuffer: TIdBytes; const AOffset: Integer = 0;
   const ASize: Integer = -1): Integer;
 begin
   Result := GStack.Send(Handle, ABuffer, AOffset, ASize);
 end;
 
-procedure TIdSocketHandle.SetSockOpt(ALevel:TIdSocketOptionLevel;
+procedure TIdSocketHandle.SetSockOpt(ALevel: TIdSocketOptionLevel;
   AOptName: TIdSocketOption; AOptVal: Integer);
 begin
   GStack.SetSocketOption(Handle, ALevel, AOptName, AOptVal);
-////  (GStack as TIdStackBSDBase).WSSetSockOpt(Handle, level, optname, optval, optlen);
+end;
+
+procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort;
+  const AData: String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+  AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  );
+begin
+  SendTo(AIP, APort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}), AIPVersion);
 end;
 
 procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort;
@@ -307,9 +355,9 @@ begin
 end;
 
 function TIdSocketHandle.RecvFrom(var ABuffer : TIdBytes; var VIP: string;
- var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+ var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer;
 begin
-  Result := GStack.ReceiveFrom(Handle, ABuffer, VIP, VPort, AIPVersion);
+  Result := GStack.ReceiveFrom(Handle, ABuffer, VIP, VPort, VIPVersion);
 end;
 
 procedure TIdSocketHandle.Bind;
@@ -318,11 +366,40 @@ begin
     if (FClientPortMin > FClientPortMax) then begin
       raise EIdInvalidPortRange.CreateFmt(RSInvalidPortRange, [FClientPortMin, FClientPortMax]);
     end else if not BindPortReserved then begin
-      raise EIdCanNotBindPortInRange.CreateFmt(RSCanNotBindRange, [FClientPortMin, FClientPortMax]);
+      raise EIdCanNotBindPortInRange.CreateFmt(RSCannotBindRange, [FClientPortMin, FClientPortMax]);
     end;
-  end else if not TryBind then begin
+  end else if not TryBind(Port) then begin
     raise EIdCouldNotBindSocket.Create(RSCouldNotBindSocket);
   end;
+end;
+
+procedure TIdSocketHandle.Broadcast(const AData: string; const APort: TIdPort;
+  const AIP: String = ''; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  );
+begin
+  Broadcast(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}), APort, AIP);
+end;
+
+procedure TIdSocketHandle.Broadcast(const AData: TIdBytes; const APort: TIdPort;
+  const AIP: String = '');
+var
+  LIP: String;
+begin
+  LIP := Trim(AIP);
+  if LIP = '' then begin
+    LIP := '255.255.255.255'; {Do not Localize}
+  end else begin
+    LIP := GStack.ResolveHost(LIP, IPVersion);
+  end;
+  SetBroadcastFlag(True);
+  SendTo(LIP, APort, AData);
+  BroadcastEnabledChanged;
+end;
+
+procedure TIdSocketHandle.BroadcastEnabledChanged;
+begin
+  SetBroadcastFlag(FBroadcastEnabled);
 end;
 
 procedure TIdSocketHandle.SetPeer(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
@@ -337,6 +414,21 @@ begin
   FIP := AIP;
   FPort := APort;
   FIPVersion := AIPVersion;
+end;
+
+procedure TIdSocketHandle.SetBroadcastEnabled(const AValue: Boolean);
+begin
+  if FBroadCastEnabled <> AValue then begin
+    FBroadcastEnabled := AValue;
+    if HandleAllocated then begin
+      BroadcastEnabledChanged;
+    end;
+  end;
+end;
+
+procedure TIdSocketHandle.SetBroadcastFlag(const AEnabled: Boolean);
+begin
+  GStack.SetSocketOption(Handle, Id_SOL_SOCKET, Id_SO_BROADCAST, iif(AEnabled, 1, 0));
 end;
 
 procedure TIdSocketHandle.SetOverLapped(const AValue:boolean);
@@ -370,6 +462,7 @@ end;
 constructor TIdSocketHandle.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
+  FUseNagle := True;
   FConnectionHandle := TIdCriticalSection.Create;
   FReadSocketList := TIdSocketList.CreateSocketList;
   Reset;
@@ -385,7 +478,9 @@ function TIdSocketHandle.Readable(AMSec: Integer = IdTimeoutDefault): Boolean;
 
   function CheckIsReadable(ALMSec: Integer): Boolean;
   begin
-    EIdConnClosedGracefully.IfFalse(HandleAllocated, RSConnectionClosedGracefully);
+    if not HandleAllocated then begin
+      EIdConnClosedGracefully.Toss(RSConnectionClosedGracefully);
+    end;
     Result := Select(ALMSec);
   end;
 
@@ -449,10 +544,10 @@ begin
   FIPVersion := ID_DEFAULT_IP_VERSION;
 end;
 
-function TIdSocketHandle.TryBind: Boolean;
+function TIdSocketHandle.TryBind(APort: TIdPort): Boolean;
 begin
   try
-    GStack.Bind(Handle, FIP, FPort, FIPVersion);
+    GStack.Bind(Handle, FIP, APort, FIPVersion);
     Result := True;
     UpdateBindingLocal;
   except
@@ -464,19 +559,18 @@ function TIdSocketHandle.BindPortReserved: Boolean;
 var
   i : TIdPort;
 begin
-  Result := false;
+  Result := False;
   for i := FClientPortMax downto FClientPortMin do begin
-    FPort := i;
-    if TryBind then begin
+    if TryBind(i) then begin
       Result := True;
       Exit;
     end;
   end;
 end;
 
-procedure TIdSocketHandle.GetSockOpt(ALevel:TIdSocketOptionLevel; AOptName: TIdSocketOption; out VOptVal: Integer);
+procedure TIdSocketHandle.GetSockOpt(ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; out VOptVal: Integer);
 begin
-  GStack.GetSocketOption(Handle,ALevel,AOptName,VOptVal);
+  GStack.GetSocketOption(Handle, ALevel, AOptName, VOptVal);
 end;
 
 function TIdSocketHandle.Select(ATimeOut: Integer = IdTimeoutInfinite): Boolean;
@@ -486,6 +580,8 @@ begin
 end;
 
 procedure TIdSocketHandle.SetHandle(AHandle: TIdStackSocketHandle);
+var
+  LOpt: Integer;
 begin
   if FHandle <> Id_INVALID_SOCKET then begin
     FReadSocketList.Remove(FHandle);
@@ -494,6 +590,14 @@ begin
   FHandleAllocated := FHandle <> Id_INVALID_SOCKET;
   if FHandleAllocated then begin
     FReadSocketList.Add(FHandle);
+    GetSockOpt(Id_SOL_SOCKET, Id_SO_TYPE, FSocketType);
+    //Get the NODELAY Socket option if we have a TCP Socket.
+    if SocketType = Id_SOCK_STREAM then begin
+      GetSockOpt(Id_SOCKETOPTIONLEVEL_TCP, Id_TCP_NODELAY, LOpt);
+      FUseNagle := (LOpt = 0);
+    end;
+  end else begin
+    FSocketType := Id_SOCK_UNKNOWN;
   end;
 end;
 
@@ -504,6 +608,51 @@ begin
       raise EIdCannotSetIPVersionWhenConnected.Create(RSCannotSetIPVersionWhenConnected);
     end;
     FIPVersion := Value;
+  end;
+end;
+
+procedure TIdSocketHandle.AddMulticastMembership(const AGroupIP: String);
+begin
+  GStack.AddMulticastMembership(Handle, AGroupIP, FIP, FIPVersion);
+end;
+
+procedure TIdSocketHandle.DropMulticastMembership(const AGroupIP: String);
+begin
+  GStack.DropMulticastMembership(Handle, AGroupIP, FIP, FIPVersion);
+end;
+
+procedure TIdSocketHandle.SetLoopBack(const AValue: Boolean);
+begin
+  GStack.SetLoopBack(Handle, AValue, FIPVersion);
+end;
+
+procedure TIdSocketHandle.SetMulticastTTL(const AValue: Byte);
+begin
+  GStack.SetMulticastTTL(Handle, AValue, FIPVersion);
+end;
+
+procedure TIdSocketHandle.SetNagleOpt(const AEnabled: Boolean);
+begin
+  { You only want to set a Nagle option for TCP.}
+  if HandleAllocated and (SocketType = Id_SOCK_STREAM) then begin
+    SetSockOpt(Id_SOCKETOPTIONLEVEL_TCP, Id_TCP_NODELAY, Integer(not AEnabled));
+  end;
+end;
+
+procedure TIdSocketHandle.SetTTL(const AValue: Integer);
+begin
+  if FIPVersion = Id_IPv4 then begin
+    SetSockOpt(Id_SOL_IP, Id_SO_IP_TTL, AValue);
+  end else begin
+    SetSockOpt(Id_SOL_IPv6, Id_IPV6_UNICAST_HOPS, AValue);
+  end;
+end;
+
+procedure TIdSocketHandle.SetUseNagle(const AValue: Boolean);
+begin
+  if FUseNagle <> AValue then begin
+    FUseNagle := AValue;
+    SetNagleOpt(FUseNagle);
   end;
 end;
 
@@ -520,12 +669,11 @@ var
   i: integer;
 begin
   Result := nil;
-  i := Count - 1;
-  while (i >= 0) and (Items[i].Handle <> AHandle) do begin
-    dec(i);
-  end;
-  if i >= 0 then begin
-    Result := Items[i];
+  for i := Count-1 downto 0 do begin
+    if Items[i].Handle = AHandle then begin
+      Result := Items[i];
+      Exit;
+    end;
   end;
 end;
 

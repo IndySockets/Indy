@@ -48,33 +48,32 @@ uses
 type
   // Abstract ancestor class
   TCustomZlibStream = class(TIdBaseStream)
-  private
+  protected
     FStrm: TStream;
     FStrmPos: Integer;
     FOnProgress: TNotifyEvent;
     FZRec: TZStreamRec;
-    FBuffer: array [Word] of Char;
-    FNameBuffer: array [0..255] of Char;
+    FBuffer: array [Word] of AnsiChar;
+    FNameBuffer: array [0..255] of AnsiChar;
     FGZHeader : IdZLibHeaders.gz_header;
     FStreamType : TZStreamType;
-  protected
+
     procedure Progress; dynamic;
     procedure IdSetSize(ASize: Int64); override;
     property  OnProgress: TNotifyEvent read FOnProgress write FOnProgress;
 
   public
     constructor Create(Strm: TStream);
-    destructor  Destroy; override;
+    destructor Destroy; override;
 
-    property    GZHeader: gz_header read FGZHeader;
+    property GZHeader: gz_header read FGZHeader;
   end;
 
   TCompressionLevel = (clNone, clFastest, clDefault, clMax);
 
   TCompressionStream = class(TCustomZlibStream)
-  private
-    function GetCompressionRate: Single;
   protected
+    function GetCompressionRate: Single;
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
     function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
@@ -91,9 +90,8 @@ type
   end;
 
   TDecompressionStream = class(TCustomZlibStream)
-  private
-    FInitialPos : Int64;
   protected
+    FInitialPos : Int64;
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
     function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
@@ -114,11 +112,11 @@ procedure CompressBuf(const InBuf: Pointer; InBytes: Integer;
                       out OutBuf: Pointer; out OutBytes: TIdC_UINT);
 
 //generic read header from a buffer
-function  GetStreamType(InBuffer: Pointer; InCount: TIdC_UINT; gzheader: gz_headerp; out HeaderSize: TIdC_UINT): TZStreamType; overload;
+function GetStreamType(InBuffer: Pointer; InCount: TIdC_UINT; gzheader: gz_headerp; out HeaderSize: TIdC_UINT): TZStreamType; overload;
 
 //generic read header from a stream
 //the stream position is preserved
-function  GetStreamType(InStream: TStream; gzheader: gz_headerp; out HeaderSize: TIdC_UINT): TZStreamType; overload;
+function GetStreamType(InStream: TStream; gzheader: gz_headerp; out HeaderSize: TIdC_UINT): TZStreamType; overload;
 
 //Note that unlike other things in this unit, you specify things with number
 //values.  This is deliberate on my part because some things in Indy rely on
@@ -168,12 +166,12 @@ procedure DecompressToUserBuf(const InBuf: Pointer; InBytes: Integer;
 
 type
   EZlibError = class(Exception)
-  {JPM Additions, we need to be able to provide diangostic info
-  in an exception}
+  {JPM Additions, we need to be able to provide diagnostic info in an exception}
   protected
     FErrorCode : Integer;
   public
-    constructor CreateError(const AError : Integer);
+    class procedure RaiseException(const AError: Integer);
+    //
     property ErrorCode : Integer read FErrorCode;
   end;
   ECompressionError = class(EZlibError);
@@ -195,29 +193,27 @@ const
 implementation
 
 uses
-  IdStream, IdZLibConst;
+  IdGlobalProtocols, IdStream, IdZLibConst;
 
 const
   Levels: array [TCompressionLevel] of ShortInt =
     (Z_NO_COMPRESSION, Z_BEST_SPEED, Z_DEFAULT_COMPRESSION, Z_BEST_COMPRESSION);
 
 function CCheck(code: Integer): Integer;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := code;
   if code < 0 then begin
-    raise ECompressionError.CreateError(code);
+    ECompressionError.RaiseException(code);
   end;
-//    raise ECompressionError.Create('error'); //!!
 end;
 
 function DCheck(code: Integer): Integer;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := code;
   if code < 0 then begin
-    raise EDecompressionError.CreateError(code);
- //   raise EDecompressionError.Create('error');  //!!
+    EDecompressionError.RaiseException(code);
   end;
 end;
 
@@ -242,7 +238,7 @@ begin
         P := OutBuf;
         Inc(OutBytes, 256);
         ReallocMem(OutBuf, OutBytes);
-        strm.next_out := PChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
+        strm.next_out := PAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
         strm.avail_out := 256;
       end;
     finally
@@ -257,40 +253,37 @@ begin
 end;
 
 function DMAOfStream(AStream: TStream; out Available: TIdC_UINT): Pointer;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  if AStream.inheritsFrom(TCustomMemoryStream) then
-  begin
+  if AStream is TCustomMemoryStream then begin
     Result := TCustomMemoryStream(AStream).Memory;
   end
-  else 
-  begin
-    if AStream.inheritsFrom(TStringStream) then
-    begin
-      Result := Pointer(TStringStream(AStream).DataString);
-    end
-    else
-    begin
-      Result := nil;
-    end;
+  else if AStream is TStringStream then begin
+    Result := Pointer(TStringStream(AStream).DataString);
+  end else begin
+    Result := nil;
   end;
   if Result <> nil then
   begin
-    //what if integer overflow?
+    //handle integer overflow
+    {$IFDEF STREAM_SIZE_64}
+    Available := TIdC_UINT(IndyMin(AStream.Size - AStream.Position, High(TIdC_UINT)));
+    // TODO: account for a 64-bit position in a 32-bit environment
+    Inc(PtrInt(Result), AStream.Position);
+    {$ELSE}
     Available := AStream.Size - AStream.Position;
     Inc(PtrInt(Result), AStream.Position);
-  end
-  else
-  begin 
+    {$ENDIF}
+  end else begin
     Available := 0;
   end;
 end;
 
 function CanResizeDMAStream(AStream: TStream): boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := AStream.inheritsFrom(TMemoryStream) or
-            AStream.inheritsFrom(TStringStream);
+  Result := (AStream is TCustomMemoryStream) or
+            (AStream is TStringStream);
 end;
 
 ///tries to get the stream info
@@ -299,68 +292,78 @@ end;
 
 function TryStreamType(var strm: TZStreamRec; gzheader: PgzHeaderRec; const AWinBitsValue : Integer): boolean;
 var
-  InitBuf: PChar;
+  InitBuf: PAnsiChar;
   InitIn : TIdC_UINT;
 begin
-    InitBuf := strm.next_in;
-    InitIn  := strm.avail_in;
-  DCheck(inflateInit2_(strm, AWinBitsValue, zlib_version,SizeOf(TZStreamRec) ));
+  InitBuf := strm.next_in;
+  InitIn  := strm.avail_in;
+  DCheck(inflateInit2_(strm, AWinBitsValue, zlib_version, SizeOf(TZStreamRec)));
 
-  if (AWinBitsValue = GZIP_WINBITS) and (gzheader <> nil) then
+  if (AWinBitsValue = GZIP_WINBITS) and (gzheader <> nil) then begin
     DCheck(inflateGetHeader(strm, gzheader^));
+  end;
 
   Result := inflate(strm, Z_BLOCK) = Z_OK;
   DCheck(inflateEnd(strm));
 
-  if Result then
-  begin
-    exit;
+  if Result then begin
+    Exit;
   end;
-      //rollback
-      strm.next_in  := InitBuf;
-      strm.avail_in := InitIn;
+
+  //rollback
+  strm.next_in  := InitBuf;
+  strm.avail_in := InitIn;
 end;
 
 //tries to get the stream info
 //strm.next_in and available_in needs enough data!
 //strm should not contain an initialized inflate
-function  CheckInitInflateStream(var strm: TZStreamRec; gzheader: gz_headerp): TZStreamType; overload;
+function CheckInitInflateStream(var strm: TZStreamRec; gzheader: gz_headerp): TZStreamType; overload;
 var
-  InitBuf: PChar;
-  InitIn : integer;
-  function LocalTryStreamType(AStreamType: TZStreamType): boolean;
+  InitBuf: PAnsiChar;
+  InitIn: Integer;
+
+  function LocalTryStreamType(AStreamType: TZStreamType): Boolean;
   begin
     DCheck(inflateInitEx(strm, AStreamType));
 
-    if (AStreamType = zsGZip) and (gzheader <> nil) then
+    if (AStreamType = zsGZip) and (gzheader <> nil) then begin
       DCheck(inflateGetHeader(strm, gzheader^));
+    end;
 
     Result := inflate(strm, Z_BLOCK) = Z_OK;
     DCheck(inflateEnd(strm));
 
-    if Result then exit;
+    if Result then begin
+      Exit;
+    end;
+
     //rollback
     strm.next_in  := InitBuf;
     strm.avail_in := InitIn;
   end;
 
 begin
-  if strm.next_out = nil then
+  if strm.next_out = nil then begin
     //needed for reading, but not used
     strm.next_out := strm.next_in;
-
-  try
-    InitBuf := strm.next_in;
-    InitIn  := strm.avail_in;
-    for Result := zsZLib to zsGZip do
-      if LocalTryStreamType(Result) then exit;
-    Result := zsRaw;
-  finally
-    
   end;
+
+  InitBuf := strm.next_in;
+  InitIn  := strm.avail_in;
+
+  for Result := zsZLib to zsGZip do
+  begin
+    if LocalTryStreamType(Result) then begin
+      Exit;
+    end;
+  end;
+
+  Result := zsRaw;
 end;
 
-function  GetStreamType(InBuffer: Pointer; InCount: TIdC_UINT; gzheader: gz_headerp; out HeaderSize: TIdC_UINT): TZStreamType;
+function GetStreamType(InBuffer: Pointer; InCount: TIdC_UINT; gzheader: gz_headerp;
+  out HeaderSize: TIdC_UINT): TZStreamType;
 var
   strm : TZStreamRec;
 begin
@@ -371,34 +374,41 @@ begin
   HeaderSize    := InCount - strm.avail_in;
 end;
 
-function GetStreamType(InStream: TStream; gzheader: gz_headerp; out HeaderSize: TIdC_UINT): TZStreamType;
+function GetStreamType(InStream: TStream; gzheader: gz_headerp;
+  out HeaderSize: TIdC_UINT): TZStreamType;
 const
   StepSize = 20; //one step be enough, but who knows...
 var
   N       : TIdC_UINT;
-  Buff    : PChar;
-  UseBuffer: boolean;
+  Buff    : PAnsiChar;
+  UseBuffer: Boolean;
 begin
   Buff := DMAOfStream(InStream, N);
   UseBuffer := Buff = nil;
-  if UseBuffer then
+  if UseBuffer then begin
     GetMem(Buff, StepSize);
+  end;
   try
     repeat
-      if UseBuffer then
+      if UseBuffer then begin
         Inc(N, InStream.Read(Buff[N], StepSize));
-
+      end;
       Result := GetStreamType(Buff, N, gzheader, HeaderSize);
       //do we need more data?
       //N mod StepSize <> 0 means no more data available
-      if (HeaderSize < N) or (not UseBuffer) or (N mod StepSize <> 0) then break;
+      if (HeaderSize < N) or (not UseBuffer) or ((N mod StepSize) <> 0) then begin
+        Break;
+      end;
       ReallocMem(Buff, N + StepSize);
-    until false;
+    until False;
   finally
     if UseBuffer then
     begin
-      TIdStreamHelper.Seek(InStream, -N, soCurrent);
-      FreeMem(Buff);
+      try
+        TIdStreamHelper.Seek(InStream, -N, soCurrent);
+      finally
+        FreeMem(Buff);
+      end;
     end;
   end;
 end;
@@ -411,34 +421,40 @@ type
   TZBack = record
     InStream  : TStream;
     OutStream : TStream;
-    InMem     : PChar; //direct memory access
+    InMem     : PAnsiChar; //direct memory access
     InMemSize : TIdC_UINT;
-    ReadBuf   : array[word] of char;
-    Window    : array[0..WindowSize] of char;
+    ReadBuf   : array[Word] of AnsiChar;
+    Window    : array[0..WindowSize] of AnsiChar;
   end;
 
-function Strm_in_func(BackObj: PZBack; var buf: PByte): Integer; cdecl;
+function Strm_in_func(opaque: Pointer; var buf: PByte): TIdC_UNSIGNED; cdecl;
 var
   S : TStream;
+  BackObj : PZBack;
 begin
+   BackObj := PZBack( opaque );
   S := BackObj.InStream; //help optimizations
   if BackObj.InMem <> nil then
   begin
     //direct memory access if available!
     buf := Pointer(BackObj.InMem);
-    //what if integer overflow?
+    //handle integer overflow
+    {$IFDEF STREAM_SIZE_64}
+    Result := TIdC_UNSIGNED(IndyMin(S.Size - S.Position, High(TIdC_UNSIGNED)));
+    {$ELSE}
     Result := S.Size - S.Position;
+    {$ENDIF}
     TIdStreamHelper.Seek(S, Result, soCurrent);
   end else
   begin
-    buf    := @BackObj.ReadBuf;
+    buf    := PByte(@BackObj.ReadBuf);
     Result := S.Read(buf^, SizeOf(BackObj.ReadBuf));
   end;
 end;
 
-function Strm_out_func(BackObj: PZBack; buf: PByte; size: Integer): Integer; cdecl;
+function Strm_out_func(opaque: Pointer; buf: PByte; size: TIdC_UNSIGNED): TIdC_INT; cdecl;
 begin
-  Result := BackObj.OutStream.Write(buf^, size) - size;
+  Result := TIdC_INT(PZBack(opaque).OutStream.Write(buf^, size) - TIdC_SIGNED(size));
 end;
 
 procedure DecompressStream(InStream, OutStream: TStream);
@@ -457,7 +473,7 @@ begin
 
     //use our own function for reading
     strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
-    strm.next_out := @BackObj.Window;
+    strm.next_out := PAnsiChar(@BackObj.Window);
     strm.avail_out := 0;
 
     CheckInitInflateStream(strm, nil);
@@ -466,7 +482,8 @@ begin
     strm.avail_out := 0;
     DCheck(inflateBackInit(strm, MAX_WBITS, BackObj.Window));
     try
-      DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
+      DCheck(inflateBack(strm, Strm_in_func, BackObj, Strm_out_func, BackObj));
+    //  DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
       //seek back when unused data
       TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
       //now trailer can be checked
@@ -497,8 +514,9 @@ begin
 
     //use our own function for reading
     strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
-    strm.next_out := @BackObj.Window;
-     strm.avail_out := 0;
+    strm.next_out := PAnsiChar(@BackObj.Window);
+    strm.avail_out := 0;
+
     //note that you can not use a WinBits parameter greater than 32 with
     //InflateBackInit.  That was used in the inflate functions
     //for automatic detection of header bytes and trailer bytes.
@@ -506,27 +524,23 @@ begin
     if AWindowBits > 32 then
     begin
       LWindowBits := Abs(AWindowBits - 32);
-
-      if not TryStreamType(strm,nil,LWindowBits) then
+      if not TryStreamType(strm, nil, LWindowBits) then
       begin
-        if TryStreamType(strm,nil,LWindowBits + 16) then
+        if TryStreamType(strm, nil, LWindowBits + 16) then
         begin
-          LWindowBits := LWindowBits + 16;
-
-        end
-        else
+          Inc(LWindowBits, 16);
+        end else
         begin
-          TryStreamType(strm,nil,-LWindowBits );
-
+          TryStreamType(strm, nil, -LWindowBits);
         end;
       end;
     end;
     strm.next_out := nil;
     strm.avail_out := 0;
     DCheck(inflateBackInit_(strm,LWindowBits, BackObj.Window,
-      zlib_version,SizeOf( TZStreamRec )));
+      zlib_version, SizeOf(TZStreamRec)));
     try
-      DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
+      DCheck(inflateBack(strm, Strm_in_func, BackObj, Strm_out_func, BackObj));
       //seek back when unused data
       TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
       //now trailer can be checked
@@ -539,15 +553,16 @@ begin
 end;
 
 type
-  TMemStreamHack = class(TMemoryStream);
+  TMemStreamAccess = class(TMemoryStream);
 
-function ExpandStream(AStream: TStream; const ACapacity : Int64): boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+function ExpandStream(AStream: TStream; const ACapacity : TIdStreamSize): Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := true;
+  Result := True;
   AStream.Size := ACapacity;
-  if AStream.InheritsFrom(TMemoryStream) then
-    AStream.Size := TMemStreamHack(AStream).Capacity;
+  if AStream is TMemoryStream then begin
+    AStream.Size := TMemStreamAccess(AStream).Capacity;
+  end;
 end;
 
 procedure IndyCompressStream(InStream, OutStream: TStream;
@@ -559,11 +574,13 @@ procedure IndyCompressStream(InStream, OutStream: TStream;
 const
   //64 KB buffer
   BufSize = 65536;
+
 var
   strm   : TZStreamRec;
-  InBuf, OutBuf : PChar;
+  InBuf, OutBuf : PAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
+
   procedure WriteOut;
   begin
     if UseOutBuf then
@@ -574,10 +591,9 @@ var
       end;
       strm.avail_out := BufSize;
       strm.next_out  := OutBuf;
-    end
-    else
+    end else
     begin
-      if (strm.avail_out = 0) then
+      if strm.avail_out = 0 then
       begin
         ExpandStream(OutStream, OutStream.Size + BufSize);
       end;
@@ -587,10 +603,11 @@ var
     end;
     LastOutCount := strm.avail_out;
   end;
+
 var
   Finished : boolean;
 begin
-  FillChar(strm, sizeof(strm), 0);
+  FillChar(strm, SizeOf(strm), 0);
 
   InBuf          := nil;
   OutBuf         := nil;
@@ -599,64 +616,79 @@ begin
   strm.next_in   := DMAOfStream(InStream, strm.avail_in);
   UseInBuf := strm.next_in = nil;
 
-  if UseInBuf then
+  if UseInBuf then begin
     GetMem(InBuf, BufSize);
-
-  UseOutBuf := not ( CanResizeDMAStream(OutStream));
-  if UseOutBuf then GetMem(OutBuf, BufSize);
-
-  CCheck(deflateInit2_(strm, level, Z_DEFLATED, WinBits,MemLevel,Stratagy,zlib_version, SizeOf(TZStreamRec)));
-  try
-    repeat
-      if strm.avail_in = 0 then
-      begin
-        if UseInBuf then
-        begin
-          strm.avail_in := InStream.Read(InBuf^, BufSize);
-          strm.next_in  := InBuf;
-        end;
-        if strm.avail_in = 0 then break;
-      end;
-      if strm.avail_out = 0 then WriteOut;
-
-      CCheck(deflate(strm, Z_NO_FLUSH));
-    until false;
-
-    repeat
-      Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
-      WriteOut;
-    until Finished;
-
-    if not UseOutBuf then
-    begin
-      //truncate when using direct output
-      OutStream.Size := OutStream.Position;
-    end;
-
-    //adjust position of the input stream
-    if UseInBuf then begin
-      //seek back when unused data
-      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
-    end else begin
-      //simple seek
-      TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
-    end;
-
-    CCheck(deflateEnd(strm));
-  finally
-    if InBuf <> nil then FreeMem(InBuf);
-    if OutBuf <> nil then FreeMem(OutBuf);
   end;
 
+  try
+    UseOutBuf := not CanResizeDMAStream(OutStream);
+    if UseOutBuf then begin
+      GetMem(OutBuf, BufSize);
+    end;
+
+    try
+      CCheck(deflateInit2_(strm, level, Z_DEFLATED, WinBits, MemLevel, Stratagy, zlib_version, SizeOf(TZStreamRec)));
+      repeat
+        if strm.avail_in = 0 then
+        begin
+          if UseInBuf then
+          begin
+            strm.avail_in := InStream.Read(InBuf^, BufSize);
+            strm.next_in  := InBuf;
+          end;
+          if strm.avail_in = 0 then begin
+            Break;
+          end;
+        end;
+
+        if strm.avail_out = 0 then begin
+          WriteOut;
+        end;
+
+        CCheck(deflate(strm, Z_NO_FLUSH));
+      until False;
+
+      repeat
+        Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
+        WriteOut;
+      until Finished;
+
+      if not UseOutBuf then
+      begin
+        //truncate when using direct output
+        OutStream.Size := OutStream.Position;
+      end;
+
+      //adjust position of the input stream
+      if UseInBuf then begin
+        //seek back when unused data
+        TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
+      end else begin
+        //simple seek
+        TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
+      end;
+
+      CCheck(deflateEnd(strm));
+    finally
+      if OutBuf <> nil then begin
+        FreeMem(OutBuf);
+      end;
+    end;
+  finally
+    if InBuf <> nil then begin
+      FreeMem(InBuf);
+    end;
+  end;
 end;
 
-procedure DoCompressStreamEx(InStream, OutStream: TStream; level: TCompressionLevel; StreamType : TZStreamType; UseDirectOut: boolean);
+procedure DoCompressStreamEx(InStream, OutStream: TStream; level: TCompressionLevel;
+  StreamType : TZStreamType; UseDirectOut: boolean);
 const
   //64 KB buffer
   BufSize = 65536;
 var
   strm   : z_stream;
-  InBuf, OutBuf : PChar;
+  InBuf, OutBuf : PAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
 
@@ -664,15 +696,18 @@ var
   begin
     if UseOutBuf then
     begin
-      if LastOutCount > 0 then OutStream.Write(OutBuf^, LastOutCount - strm.avail_out);
+      if LastOutCount > 0 then begin
+        OutStream.Write(OutBuf^, LastOutCount - strm.avail_out);
+      end;
       strm.avail_out := BufSize;
       strm.next_out  := OutBuf;
-    end
-    else
+    end else
     begin
-      if (strm.avail_out = 0) then ExpandStream(OutStream, OutStream.Size + BufSize);
+      if strm.avail_out = 0 then begin
+        ExpandStream(OutStream, OutStream.Size + BufSize);
+      end;
       TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
-      strm.next_out  := DMAOfStream(OutStream, strm.avail_out);
+      strm.next_out := DMAOfStream(OutStream, strm.avail_out);
       //because we can't really know how much resize is increasing!
     end;
     LastOutCount := strm.avail_out;
@@ -681,7 +716,7 @@ var
 var
   Finished : boolean;
 begin
-  FillChar(strm, sizeof(strm), 0);
+  FillChar(strm, SizeOf(strm), 0);
 
   InBuf          := nil;
   OutBuf         := nil;
@@ -690,68 +725,83 @@ begin
   strm.next_in   := DMAOfStream(InStream, strm.avail_in);
   UseInBuf := strm.next_in = nil;
 
-  if UseInBuf then
+  if UseInBuf then begin
     GetMem(InBuf, BufSize);
+  end;
 
-  UseOutBuf := not (UseDirectOut and CanResizeDMAStream(OutStream));
-  if UseOutBuf then GetMem(OutBuf, BufSize);
-
-  CCheck(deflateInitEx(strm, Levels[level], StreamType));
   try
-    repeat
-      if strm.avail_in = 0 then
-      begin
-        if UseInBuf then
+    UseOutBuf := not (UseDirectOut and CanResizeDMAStream(OutStream));
+    if UseOutBuf then begin
+      GetMem(OutBuf, BufSize);
+    end;
+
+    try
+      CCheck(deflateInitEx(strm, Levels[level], StreamType));
+
+      repeat
+        if strm.avail_in = 0 then
         begin
-          strm.avail_in := InStream.Read(InBuf^, BufSize);
-          strm.next_in  := InBuf;
+          if UseInBuf then
+          begin
+            strm.avail_in := InStream.Read(InBuf^, BufSize);
+            strm.next_in  := InBuf;
+          end;
+          if strm.avail_in = 0 then begin
+            Break;
+          end;
         end;
-        if strm.avail_in = 0 then break;
-      end;
-      if strm.avail_out = 0 then WriteOut;
 
-      CCheck(deflate(strm, Z_NO_FLUSH));
-    until false;
+        if strm.avail_out = 0 then begin
+          WriteOut;
+        end;
 
-    repeat
-      if (strm.avail_in = 0) and (strm.avail_out = 0) then
-      begin
+        CCheck(deflate(strm, Z_NO_FLUSH));
+      until False;
+
+      repeat
+        if (strm.avail_in = 0) and (strm.avail_out = 0) then begin
+          WriteOut;
+        end;
+        Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
         WriteOut;
+      until Finished;
+
+      if not UseOutBuf then
+      begin
+        //truncate when using direct output
+        OutStream.Size := OutStream.Position;
       end;
-      Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
-      WriteOut;
-    until Finished;
 
-    if not UseOutBuf then
-    begin
-      //truncate when using direct output
-      OutStream.Size := OutStream.Position;
+      //adjust position of the input stream
+      if UseInBuf then begin
+        //seek back when unused data
+        TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
+      end else begin
+        //simple seek
+        TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
+      end;
+
+      CCheck(deflateEnd(strm));
+    finally
+      if OutBuf <> nil then begin
+        FreeMem(OutBuf);
+      end;
     end;
-
-    //adjust position of the input stream
-    if UseInBuf then begin
-      //seek back when unused data
-      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
-    end else begin
-      //simple seek
-      TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
-    end;
-
-    CCheck(deflateEnd(strm));
   finally
-    if InBuf <> nil then FreeMem(InBuf);
-    if OutBuf <> nil then FreeMem(OutBuf);
+    if InBuf <> nil then begin
+      FreeMem(InBuf);
+    end;
   end;
 end;
 
 procedure CompressStream(InStream, OutStream: TStream; level: TCompressionLevel; StreamType : TZStreamType);
 begin
-  DoCompressStreamEx(InStream, OutStream, level, StreamType, false);
+  DoCompressStreamEx(InStream, OutStream, level, StreamType, False);
 end;
 
 procedure CompressStreamEx(InStream, OutStream: TStream; level: TCompressionLevel; StreamType : TZStreamType);
 begin
-  DoCompressStreamEx(InStream, OutStream, level, StreamType, true);
+  DoCompressStreamEx(InStream, OutStream, level, StreamType, True);
 end;
 
 function CompressString(const InString: string; level: TCompressionLevel; StreamType : TZStreamType): string;
@@ -759,11 +809,17 @@ var
   S, D : TStringStream;
 begin
   S := TStringStream.Create(InString);
-  D := TStringStream.Create('');
-  CompressStream(S, D, level, StreamType);
-  Result := D.DataString;
-  D.Free;
-  S.Free;
+  try
+    D := TStringStream.Create('');
+    try
+      CompressStream(S, D, level, StreamType);
+      Result := D.DataString;
+    finally
+      D.Free;
+    end;
+  finally
+    S.Free;
+  end;
 end;
 
 procedure DecompressBuf(const InBuf: Pointer; InBytes: Integer;
@@ -773,12 +829,13 @@ var
   P: Pointer;
   BufInc: Integer;
 begin
-  FillChar(strm, sizeof(strm), 0);
+  FillChar(strm, SizeOf(strm), 0);
   BufInc := (InBytes + 255) and not 255;
-  if OutEstimate = 0 then
-    OutBytes := BufInc
-  else
+  if OutEstimate = 0 then begin
+    OutBytes := BufInc;
+  end else begin
     OutBytes := OutEstimate;
+  end;
   GetMem(OutBuf, OutBytes);
   try
     strm.next_in := InBuf;
@@ -792,7 +849,7 @@ begin
         P := OutBuf;
         Inc(OutBytes, BufInc);
         ReallocMem(OutBuf, OutBytes);
-        strm.next_out := PChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
+        strm.next_out := PAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
         strm.avail_out := BufInc;
       end;
     finally
@@ -802,7 +859,7 @@ begin
     OutBytes := strm.total_out;
   except
     FreeMem(OutBuf);
-    raise
+    raise;
   end;
 end;
 
@@ -811,15 +868,16 @@ procedure DecompressToUserBuf(const InBuf: Pointer; InBytes: Integer;
 var
   strm: z_stream;
 begin
-  FillChar(strm, sizeof(strm), 0);
+  FillChar(strm, SizeOf(strm), 0);
   strm.next_in := InBuf;
   strm.avail_in := InBytes;
   strm.next_out := OutBuf;
   strm.avail_out := BufSize;
   DCheck(inflateInit(strm));
   try
-    if DCheck(inflate(strm, Z_FINISH)) <> Z_STREAM_END then
-      raise EZlibError.CreateRes(@sTargetBufferTooSmall);
+    if DCheck(inflate(strm, Z_FINISH)) <> Z_STREAM_END then begin
+      raise EZlibError.Create(sTargetBufferTooSmall);
+    end;
   finally
     DCheck(inflateEnd(strm));
   end;
@@ -827,10 +885,13 @@ end;
 
 { EZlibError }
 
-constructor EZlibError.CreateError(const AError: Integer);
+class procedure EZlibError.RaiseException(const AError: Integer);
+var
+  LException: EZlibError;
 begin
-  inherited Create( Format(sZLibError,[AError]) );
-  FErrorCode := AError;
+  LException := CreateFmt(sZLibError, [AError]);
+  LException.FErrorCode := AError;
+  raise LException;
 end;
 
 // TCustomZlibStream
@@ -872,21 +933,48 @@ end;
 constructor TCompressionStream.CreateEx(CompressionLevel: TCompressionLevel;
   Dest: TStream; const StreamType: TZStreamType;
   const AName: string = ''; ATime: Integer = 0);
+var
+  LEncoding: TIdTextEncoding;
+  LBytes: TIdBytes;
+  LName: AnsiString;
 begin
   inherited Create(Dest);
+  LBytes := nil; // keep the compiler happy
   FZRec.next_out := FBuffer;
-  FZRec.avail_out := sizeof(FBuffer);
+  FZRec.avail_out := SizeOf(FBuffer);
   FStreamType := StreamType;
   CCheck(deflateInitEx(FZRec, Levels[CompressionLevel], StreamType));
   if StreamType = zsGZip then
   begin
     FGZHeader.time := ATime;
-    StrPLCopy(FGZHeader.name, AName, FGZHeader.name_max);
+    //zero-terminated file name
+    //RFC 1952
+    //                           The name must consist of ISO
+    //8859-1 (LATIN-1) characters; on operating systems using
+    //EBCDIC or any other character set for file names, the name
+    //must be translated to the ISO LATIN-1 character set.
+
+    // Rebeau 2/20/09: Indy's 8-bit encoding class currently uses ISO-8859-1
+    // so we could technically use that, but since the RFC is very specific
+    // about the charset, we'll force it here in case Indy's 8-bit encoding
+    // class is changed later on...
+    LEncoding := CharsetToEncoding('ISO-8859-1');
+    try
+      LBytes := TIdTextEncoding.Convert(
+        TIdTextEncoding.Unicode,
+        LEncoding,
+        TIdTextEncoding.Unicode.GetBytes(AName));
+    finally
+      LEncoding.Free;
+    end;
+    SetString(LName, PAnsiChar(LBytes), Length(LBytes));
+    StrPLCopy(FGZHeader.name, LName, FGZHeader.name_max);
     deflateSetHeader(FZRec, FGZHeader);
   end;
 end;
 
-constructor TCompressionStream.Create(CompressionLevel: TCompressionLevel; Dest: TStream; const AIncludeHeaders : Boolean = True);
+constructor TCompressionStream.Create(CompressionLevel: TCompressionLevel;
+  Dest: TStream; const AIncludeHeaders : Boolean = True);
 begin
   if AIncludeHeaders then begin
     CreateEx(CompressionLevel, Dest, zsZLib);
@@ -915,8 +1003,9 @@ begin
       FZRec.next_out := FBuffer;
       FZRec.avail_out := sizeof(FBuffer);
     end;
-    if FZRec.avail_out < sizeof(FBuffer) then
+    if FZRec.avail_out < sizeof(FBuffer) then begin
       FStrm.WriteBuffer(FBuffer, sizeof(FBuffer) - FZRec.avail_out);
+    end;
   finally
     deflateEnd(FZRec);
   end;
@@ -925,12 +1014,12 @@ end;
 
 function TCompressionStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  raise ECompressionError.CreateRes(@sInvalidStreamOp);
+ raise ECompressionError.Create(sInvalidStreamOp);
 end;
 
 function TCompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  FZRec.next_in := @ABuffer[AOffset];
+  FZRec.next_in := PAnsiChar(@ABuffer[AOffset]);
   FZRec.avail_in := ACount;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;
@@ -953,9 +1042,9 @@ end;
 function TCompressionStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
 begin
   if (AOffset = 0) and (AOrigin = soCurrent) then begin
-    Result := FZRec.total_in
+    Result := FZRec.total_in;
   end else begin
-    raise ECompressionError.CreateRes(@sInvalidStreamOp);
+    raise ECompressionError.Create(sInvalidStreamOp);
   end;
 end;
 
@@ -989,7 +1078,9 @@ var
   N, S : TIdC_UINT;
 begin
   //never call this after starting!
-  if FZRec.total_in > 0 then exit;
+  if FZRec.total_in > 0 then begin
+    Exit;
+  end;
 
   N := FStrm.Read(FBuffer, SizeOf(FBuffer));
   //64k should always be enough
@@ -1003,7 +1094,6 @@ begin
     FStreamType := GetStreamType(FStrm, @FGZHeader, S);
   end;
 
-
   //open
   FZRec.next_in  := FBuffer;
   FZRec.avail_in := N;
@@ -1014,7 +1104,7 @@ end;
 function TDecompressionStream.IdRead(var VBuffer: TIdBytes; AOffset,
   ACount: Integer): Longint;
 begin
-  FZRec.next_out := @VBuffer[AOffset];
+  FZRec.next_out := PAnsiChar(@VBuffer[AOffset]);
   FZRec.avail_out := ACount;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;
@@ -1043,13 +1133,13 @@ end;
 
 function TDecompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  raise EDecompressionError.CreateRes(@sInvalidStreamOp);
+  raise EDecompressionError.Create(sInvalidStreamOp);
 end;
 
 function TDecompressionStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
 var
   I: Integer;
-  Buf: array [0..4095] of Char;
+  Buf: array [0..4095] of AnsiChar;
   LOffset : Int64;
 begin
   if (AOffset = 0) and (AOrigin = soBeginning) then
@@ -1076,7 +1166,8 @@ begin
     end;
   end else
   begin
-    raise EDecompressionError.CreateRes(@sInvalidStreamOp);
+   // raise EDecompressionError.CreateRes(@sInvalidStreamOp);
+   raise EDecompressionError.Create(sInvalidStreamOp);
   end;
   Result := FZRec.total_out;
 end;

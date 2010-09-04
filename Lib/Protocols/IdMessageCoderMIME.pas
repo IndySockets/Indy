@@ -176,7 +176,7 @@ type
   public
     constructor Create(AOwner: TComponent; const ALine: string); reintroduce; overload;
     function ReadBody(ADestStream: TStream; var VMsgEnd: Boolean): TIdMessageDecoder; override;
-    procedure CheckAndSetType(const AContentType: string; AContentDisposition: string);
+    procedure CheckAndSetType(const AContentType, AContentDisposition: string);
     procedure ReadHeader; override;
     function GetAttachmentFilename(const AContentType, AContentDisposition: string): string;
     function RemoveInvalidCharsFromFilename(const AFilename: string): string;
@@ -206,19 +206,6 @@ type
     class function GenerateRandomChar: Char;
     class function GenerateBoundary: String;
   end;
-
-const
-  //NOTE: If you used IndyMIMEBoundary, just prefix it with "IdMIMEBoundaryStrings." now.
-  //IndyMIMEBoundary                 = '=_NextPart_2rfkindysadvnqw3nerasdf'; {do not localize}
-  //IndyMultiPartAlternativeBoundary = '=_NextPart_2altrfkindysadvnqw3nerasdf'; {do not localize}
-  //IndyMultiPartRelatedBoundary     = '=_NextPart_2relrfksadvnqindyw3nerasdf'; {do not localize}
-  MIMEGenericText = 'text/'; {do not localize}
-  MIMEGenericMultiPart = 'multipart/'; {do not localize}
-  MIME7Bit = '7bit'; {do not localize}
-  MIMEAttachment = 'attachment'; {do not localize}
-  MIMEInline = 'inline'; {do not localize}
-  // MtW: Inversed: see http://support.microsoft.com/default.aspx?scid=kb;en-us;207188
-  InvalidWindowsFilenameChars = '\/:*?"<>|'; {do not localize}
 
 implementation
 
@@ -303,12 +290,14 @@ begin
   if ASender.MIMEBoundary.Boundary <> '' then begin
     if TextIsSame(ALine, '--' + ASender.MIMEBoundary.Boundary) then begin    {Do not Localize}
       Result := TIdMessageDecoderMIME.Create(ASender);
-    end else if TextIsSame(ALine, '--' + ASender.MIMEBoundary.Boundary + '--') then begin    {Do not Localize}
+    end
+    else if TextIsSame(ALine, '--' + ASender.MIMEBoundary.Boundary + '--') then begin    {Do not Localize}
       ASender.MIMEBoundary.Pop;
       Result := TIdMessageDecoderMIMEIgnore.Create(ASender);
-    end else if PosInStrArray(ASender.ContentTransferEncoding, ['base64', 'quoted-printable'], False) <> -1 then begin {Do not localize}
-      Result := TIdMessageDecoderMIME.Create(ASender, ALine);
     end;
+  end;
+  if (Result = nil) and (PosInStrArray(ASender.ContentTransferEncoding, ['base64', 'quoted-printable'], False) <> -1) then begin {Do not localize}
+    Result := TIdMessageDecoderMIME.Create(ASender, ALine);
   end;
 end;
 
@@ -323,7 +312,7 @@ end;
 
 function TIdMessageDecoderMIME.ReadBody(ADestStream: TStream; var VMsgEnd: Boolean): TIdMessageDecoder;
 var
-  LContentTransferEncoding: string;
+  LContentType, LContentTransferEncoding: string;
   LDecoder: TIdDecoder;
   LLine: string;
   LBuffer: string;  //Needed for binhex4 because cannot decode line-by-line.
@@ -335,16 +324,35 @@ begin
   VMsgEnd := False;
   Result := nil;
   if FBodyEncoded then begin
+    LContentType := TIdMessage(Owner).ContentType;
     LContentTransferEncoding := TIdMessage(Owner).ContentTransferEncoding;
   end else begin
+    LContentType := FHeaders.Values['Content-Type']; {Do not Localize}
     LContentTransferEncoding := FHeaders.Values['Content-Transfer-Encoding']; {Do not Localize}
-    if LContentTransferEncoding = '' then begin
-      LContentTransferEncoding := FHeaders.Values['Content-Type']; {Do not Localize}
-      if TextStartsWith(LContentTransferEncoding, 'application/mac-binhex40') then begin  {Do not Localize}
-        LContentTransferEncoding := 'binhex40'; {do not localize}
-      end;
+  end;
+  if LContentTransferEncoding = '' then begin
+    if IsHeaderMediaType(LContentType, 'application/mac-binhex40') then begin  {Do not Localize}
+      LContentTransferEncoding := 'binhex40'; {do not localize}
     end;
   end;
+
+  // RLebeau 08/17/09 - According to RFC 2045 Section 6.4:
+  // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
+  // permitted to have any value other than "7bit", "8bit" or "binary"."
+  //
+  // However, came across one message where the "Content-Type" was set to
+  // "multipart/related" and the "Content-Transfer-Encoding" was set to
+  // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
+  // the message correctly, but Indy was not.  So let's check for that scenario
+  // and ignore illegal "Content-Transfer-Encoding" values if present...
+
+  if IsHeaderMediaType(LContentType, 'multipart') and (LContentTransferEncoding <> '') then {do not localize}
+  begin
+    if PosInStrArray(LContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1 then begin {do not localize}
+      LContentTransferEncoding := '';
+    end;
+  end;
+
   if TextIsSame(LContentTransferEncoding, 'base64') then begin {Do not Localize}
     LDecoder := TIdDecoderMIMELineByLine.Create(nil);
   end else if TextIsSame(LContentTransferEncoding, 'quoted-printable') then begin {Do not Localize}
@@ -359,15 +367,27 @@ begin
       LDecoder.DecodeBegin(ADestStream);
     end;
 
-    BoundaryStart := '--' + MIMEBoundary; {Do not Localize}
-    BoundaryEnd := BoundaryStart + '--'; {Do not Localize}
-    IsBinaryContentTransferEncoding := TextIsSame(LContentTransferEncoding, 'binary'); {do not localize}
+    if MIMEBoundary <> '' then begin
+      BoundaryStart := '--' + MIMEBoundary; {Do not Localize}
+      BoundaryEnd := BoundaryStart + '--'; {Do not Localize}
+    end;
+
+    case PosInStrArray(LContentTransferEncoding, ['7bit', 'quoted-printable', 'base64', '8bit', 'binary'], False) of {do not localize}
+      0..2: IsBinaryContentTransferEncoding := False;
+      3..4: IsBinaryContentTransferEncoding := True;
+    else
+      // According to RFC 2045 Section 6.4:
+      // "Any entity with an unrecognized Content-Transfer-Encoding must be
+      // treated as if it has a Content-Type of "application/octet-stream",
+      // regardless of what the Content-Type header field actually says."
+      IsBinaryContentTransferEncoding := True;
+    end;
 
     repeat
       if not FProcessFirstLine then begin
         if IsBinaryContentTransferEncoding then begin
           //For binary, need EOL because the default LF causes spurious CRs in the output...
-          LLine := ReadLnRFC(VMsgEnd, EOL);
+          LLine := ReadLnRFC(VMsgEnd, EOL, '.', Indy8BitEncoding); {do not localize}
         end else begin
           LLine := ReadLnRFC(VMsgEnd);
         end;
@@ -392,53 +412,43 @@ begin
         if TextIsSame(LLine, BoundaryStart) then begin
           Result := TIdMessageDecoderMIME.Create(Owner);
           Break;
-        // End of all coders (not quite ALL coders)
-        end
-        else if TextIsSame(LLine, BoundaryEnd) then begin
+          // End of all coders (not quite ALL coders)
+        end;
+        if TextIsSame(LLine, BoundaryEnd) then begin
           // POP the boundary
           if Owner is TIdMessage then begin
             TIdMessage(Owner).MIMEBoundary.Pop;
           end;
           Break;
-        // Data to save, but not decode
-        end else if LDecoder = nil then begin
-          if IsBinaryContentTransferEncoding then begin {do not localize}
-            //In this case, we have to make sure we dont write out an EOL at the
-            //end of the file.
-            if LIsThisTheFirstLine then begin
-              WriteStringToStream(ADestStream, LLine);
-              LIsThisTheFirstLine := False;
-            end else begin
-              WriteStringToStream(ADestStream, EOL);
-              WriteStringToStream(ADestStream, LLine);
-            end;
-          end else begin
-            LLine := LLine + EOL;
-            WriteStringToStream(ADestStream, LLine);
-          end;
-        // Data to decode
-        end else begin
-          // For TIdDecoderQuotedPrintable, we have to make sure all EOLs are
-          // intact
-          if LDecoder is TIdDecoderQuotedPrintable then begin
-            LDecoder.Decode(LLine + EOL);
-          end else if LDecoder is TIdDecoderBinHex4 then begin
-            //We cannot decode line-by-line because lines don't have a whole
-            //number of 4-byte blocks due to the : inserted at the start of
-            //the first line, so buffer the file...
-            LBuffer := LBuffer + LLine;
-          end else if LLine <> '' then begin
-            LDecoder.Decode(LLine);
-          end;
         end;
-      end else begin  {CC3: Added "else" for QP and base64 encoded message BODIES}
+      end;
+      if LDecoder = nil then begin
+        // Data to save, but not decode
+        if IsBinaryContentTransferEncoding then begin {do not localize}
+          //In this case, we have to make sure we dont write out an EOL at the
+          //end of the file.
+          if LIsThisTheFirstLine then begin
+            LIsThisTheFirstLine := False;
+          end else begin
+            WriteStringToStream(ADestStream, EOL, Indy8BitEncoding);
+          end;
+          WriteStringToStream(ADestStream, LLine, Indy8BitEncoding);
+        end else begin
+          WriteStringToStream(ADestStream, LLine + EOL);
+        end;
+      end
+      else begin
+        // Data to decode
         // For TIdDecoderQuotedPrintable, we have to make sure all EOLs are
         // intact
         if LDecoder is TIdDecoderQuotedPrintable then begin
+          // For TIdDecoderQuotedPrintable, we have to make sure all EOLs are intact
           LDecoder.Decode(LLine + EOL);
-        end else if LDecoder = nil then begin
-          LLine := LLine + EOL;
-          WriteStringToStream(ADestStream, LLine);
+        end else if LDecoder is TIdDecoderBinHex4 then begin
+          //We cannot decode line-by-line because lines don't have a whole
+          //number of 4-byte blocks due to the : inserted at the start of
+          //the first line, so buffer the file...
+          LBuffer := LBuffer + LLine;
         end else if LLine <> '' then begin
           LDecoder.Decode(LLine);
         end;
@@ -459,42 +469,21 @@ end;
 function TIdMessageDecoderMIME.GetAttachmentFilename(const AContentType, AContentDisposition: string): string;
 var
   LValue: string;
-  LPos: Integer;
 begin
-  LPos := IndyPos('FILENAME=', UpperCase(AContentDisposition));  {do not localize}
-  if LPos > 0 then begin
-    LValue := Trim(Copy(AContentDisposition, LPos + 9, MaxInt));
-  end else begin
-    LValue := ''; //FileName not found
-  end;
-  if Length(LValue) = 0 then begin
+  LValue := ExtractHeaderSubItem(AContentDisposition, 'filename', QuoteMIME); {do not localize}
+  if LValue = '' then begin
     // Get filename from Content-Type
-    LPos := IndyPos('NAME=', UpperCase(AContentType)); {do not localize}
-    if LPos > 0 then begin
-      LValue := Trim(Copy(AContentType, LPos + 5, MaxInt));    {do not localize}
-    end;
+    LValue := ExtractHeaderSubItem(AContentType, 'name', QuoteMIME); {do not localize}
   end;
   if Length(LValue) > 0 then begin
-    if LValue[1] = '"' then begin    {do not localize}
-      // RLebeau - shouldn't this code use AnsiExtractQuotedStr() instead?
-      Fetch(LValue, '"');    {do not localize}
-      Result := Fetch(LValue, '"');    {do not localize}
-    end else begin
-      // RLebeau - just in case the name is not the last field in the line
-      Result := Fetch(LValue, ';'); {do not localize}
-    end;
-    Result := RemoveInvalidCharsFromFilename(DecodeHeader(Result));
+    Result := RemoveInvalidCharsFromFilename(DecodeHeader(LValue));
   end else begin
     Result := '';
   end;
 end;
 
-procedure TIdMessageDecoderMIME.CheckAndSetType(const AContentType: string; AContentDisposition: string);
-var
-  LDisposition: string;
+procedure TIdMessageDecoderMIME.CheckAndSetType(const AContentType, AContentDisposition: string);
 begin
-  LDisposition := Fetch(AContentDisposition, ';');    {Do not Localize}
-
   {The new world order: Indy now defines a TIdAttachment as a part that either has
   a filename, or else does NOT have a ContentType starting with text/ or multipart/.
   Anything left is a TIdText.}
@@ -506,8 +495,8 @@ begin
   FFileName := GetAttachmentFilename(AContentType, AContentDisposition);
 
   {see what type the part is...}
-  if (TextStartsWith(AContentType, MIMEGenericText) or TextStartsWith(AContentType, MIMEGenericMultiPart)) and
-    (not TextIsSame(LDisposition, MIMEAttachment)) then
+  if IsHeaderMediaTypes(AContentType, ['text', 'multipart']) and {do not localize}
+    (not IsHeaderValue(AContentDisposition, 'attachment')) then {do not localize}
   begin
     FPartType := mcptText;
   end else begin
@@ -526,13 +515,15 @@ begin
   end;
 
   Idx := LPos - 1;
-  while (Idx > 0) and (Line[Idx] = ' ') do
+  while (Idx > 0) and (Line[Idx] = ' ') do begin
     Dec(Idx);
+  end;
 
   LLen := Length(Line);
   Inc(LPos);
-  while (LPos <= LLen) and (Line[LPos] = ' ') do
+  while (LPos <= LLen) and (Line[LPos] = ' ') do begin
     Inc(LPos);
+  end;
 
   Result := Copy(Line, 1, Idx) + '=' + Copy(Line, LPos, MaxInt);
 end;
@@ -546,13 +537,13 @@ var
 
 begin
   if FBodyEncoded then begin // Read header from the actual message since body parts don't exist    {Do not Localize}
-    CheckAndSetType(TIdMessage(Owner).ContentType, TIdMessage(OWner).ContentDisposition);
+    CheckAndSetType(TIdMessage(Owner).ContentType, TIdMessage(Owner).ContentDisposition);
   end else begin
     // Read header
     repeat
       LLine := ReadLnRFC(LMsgEnd);
       if LMsgEnd then begin // TODO: abnormal situation (Masters!)    {Do not Localize}
-        FPartType := mcptUnknown;
+        FPartType := mcptEOF;
         Exit;
       end;//if
       if LLine = '' then begin
@@ -573,8 +564,8 @@ begin
     s := FHeaders.Values['Content-Type'];    {do not localize}
     //CC: Need to detect on "multipart" rather than boundary, because only the
     //"multipart" bit will be visible later...
-    if TextStartsWith(s, 'multipart/') then begin  {do not localize}
-      ABoundary := TIdMIMEBoundary.FindBoundary(s);
+    if IsHeaderMediaType(s, 'multipart') then begin  {do not localize}
+      ABoundary := ExtractHeaderSubItem(s, 'boundary', QuoteMIME);  {do not localize}
       if Owner is TIdMessage then begin
         if Length(ABoundary) > 0 then begin
           TIdMessage(Owner).MIMEBoundary.Push(ABoundary, TIdMessage(Owner).MessageParts.Count);
@@ -593,6 +584,9 @@ begin
 end;
 
 function TIdMessageDecoderMIME.RemoveInvalidCharsFromFilename(const AFilename: string): string;
+const
+  // MtW: Inversed: see http://support.microsoft.com/default.aspx?scid=kb;en-us;207188
+  InvalidWindowsFilenameChars = '\/:*?"<>|'; {do not localize}
 var
   LN: integer;
 begin
@@ -607,7 +601,7 @@ begin
   //Now remove any invalid filename chars.
   //Hmm - this code will be less buggy if I just replace them with _
   for LN := 1 to Length(Result) do begin
-    // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin 
+    // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
     if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
       Result[LN] := '_';    {do not localize}
     end;
@@ -653,7 +647,7 @@ procedure TIdMessageEncoderMIME.Encode(ASrc: TStream; ADest: TStream);
 var
   s: string;
   LEncoder: TIdEncoderMIME;
-  LSPos, LSSize : Int64;
+  LSPos, LSSize : TIdStreamSize;
 begin
   ASrc.Position := 0;
   LSPos := 0;
@@ -686,10 +680,8 @@ begin
       {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
       set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
       the part header in plain-text.}
-      (not TextIsSame(TIdMessage(Owner).ContentTransferEncoding, '8bit')) and  {do not localize}
-      (not TextIsSame(TIdMessage(Owner).ContentTransferEncoding, '7bit')) and  {do not localize}
-      (not TextIsSame(TIdMessage(Owner).ContentTransferEncoding, 'binary'))    {do not localize}
-      then
+      (PosInStrArray(TIdMessage(Owner).ContentTransferEncoding, ['8bit', '7bit', 'binary'], False) = -1)    {do not localize}
+    then
     begin
       FBodyEncoded := True;
     end;

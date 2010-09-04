@@ -76,7 +76,8 @@ type
     function LoginSASL(const ACmd, AHost, AProtocolName: String; const AServiceName: String;
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH'): Boolean; overload;      {Do not Localize}
-    function ParseCapaReply(ACapaReply: TStrings; const AAuthString: String = 'AUTH') : TStrings; {do not localize}
+    function ParseCapaReply(ACapaReply: TStrings; const AAuthString: String = 'AUTH') : TStrings; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ParseCapaReplyToList()'{$ENDIF};{$ENDIF} {do not localize}
+    procedure ParseCapaReplyToList(ACapaReply, ADestList: TStrings; const AAuthString: String = 'AUTH'); {do not localize}
     function FindSASL(const AServiceName: String): TIdSASL;
     function Insert(Index: Integer): TIdSASLListEntry;
     procedure RemoveByComp(AComponent : TComponent);
@@ -115,7 +116,7 @@ end;
 function TIdSASLListEntry.GetDisplayName: String;
 begin
   if FSASL <> nil then begin
-    Result := FSASL.ServiceName;
+    Result := String(FSASL.ServiceName);
   end else begin
     Result := inherited GetDisplayName;
   end;
@@ -136,7 +137,7 @@ var
   S: String;
 begin
   Result := False;
-  AClient.SendCmd(ACmd + ' ' + ASASL.ServiceName, []);//[334, 504]);
+  AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName), []);//[334, 504]);
   if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
     Exit; // this mechanism is not supported
   end;
@@ -222,50 +223,49 @@ begin
   try
     LSASLList := TList.Create;
     try
-      LSupportedSASL := ParseCapaReply(ACapaReply, AAuthString);
+      LSupportedSASL := TStringList.Create;
       try
+        ParseCapaReplyToList(ACapaReply, LSupportedSASL, AAuthString);
         //create a list of supported mechanisms we also support
         for i := Count-1 downto 0 do begin
           LSASL := Items[i].SASL;
           if LSASL <> nil then begin
-            if LSupportedSASL <> nil then begin
-              if not LSASL.IsAuthProtocolAvailable(LSupportedSASL) then begin
-                Continue;
-              end;
+            if not LSASL.IsAuthProtocolAvailable(LSupportedSASL) then begin
+              Continue;
             end;
             if (LSASLList.IndexOf(LSASL) = -1) and LSASL.IsReadyToStart then begin
               LSASLList.Add(LSASL);
             end;
           end;
         end;
-        if LSASLList.Count > 0 then begin
-          //now do it
-          LE := TIdEncoderMIME.Create(nil);
-          try
-            LD := TIdDecoderMIME.Create(nil);
-            try
-              for i := 0 to LSASLList.Count-1 do begin
-                Result := PerformSASLLogin(ACmd, AHost, AProtocolName,TIdSASL(LSASLList.Items[i]),
-                  LE, LD, AOkReplies, AContinueReplies, AClient);
-                if Result then begin
-                  Exit;
-                end;
-                if not Assigned(LError) then begin
-                  LError := SetupErrorReply;
-                end;
-              end;
-            finally
-              FreeAndNil(LD);
-            end;
-          finally
-            FreeAndNil(LE);
-          end;
-          if Assigned(LError) then begin
-            LError.RaiseReplyError;
-          end;
-        end;
       finally
         FreeAndNil(LSupportedSASL);
+      end;
+      if LSASLList.Count > 0 then begin
+        //now do it
+        LE := TIdEncoderMIME.Create(nil);
+        try
+          LD := TIdDecoderMIME.Create(nil);
+          try
+            for i := 0 to LSASLList.Count-1 do begin
+              Result := PerformSASLLogin(ACmd, AHost, AProtocolName, TIdSASL(LSASLList.Items[i]),
+                LE, LD, AOkReplies, AContinueReplies, AClient);
+              if Result then begin
+                Exit;
+              end;
+              if not Assigned(LError) then begin
+                LError := SetupErrorReply;
+              end;
+            end;
+          finally
+            FreeAndNil(LD);
+          end;
+        finally
+          FreeAndNil(LE);
+        end;
+        if Assigned(LError) then begin
+          LError.RaiseReplyError;
+        end;
       end;
     finally
       FreeAndNil(LSASLList);
@@ -285,38 +285,49 @@ var
   LSASL : TIdSASL;
 begin
   Result := False;
-  LSupportedSASL := ParseCapaReply(ACapaReply, AAuthString);
+  LSupportedSASL := TStringList.Create;
   try
-    if LSupportedSASL <> nil then begin
-      if LSupportedSASL.IndexOf(AServiceName) = -1 then begin
-        Exit;
-      end;
-    end;
-    //determine if we also support the mechanism
-    LSASL := FindSASL(AServiceName);
-    if (LSASL <> nil) and LSASL.IsReadyToStart then begin
-      //now do it
-      LE := TIdEncoderMIME.Create(nil);
-      try
-        LD := TIdDecoderMIME.Create(nil);
-        try
-          Result := PerformSASLLogin(ACmd, AHost, AProtocolName, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient);
-          if not Result then begin
-            AClient.RaiseExceptionForLastCmdResult;
-          end;
-        finally
-          FreeAndNil(LD);
-        end;
-      finally
-        FreeAndNil(LE);
-      end;
+    ParseCapaReplyToList(ACapaReply, LSupportedSASL, AAuthString);
+    if LSupportedSASL.IndexOf(AServiceName) = -1 then begin
+      Exit;
     end;
   finally
     FreeAndNil(LSupportedSASL);
   end;
+  //determine if we also support the mechanism
+  LSASL := FindSASL(AServiceName);
+  if (LSASL <> nil) and LSASL.IsReadyToStart then begin
+    //now do it
+    LE := TIdEncoderMIME.Create(nil);
+    try
+      LD := TIdDecoderMIME.Create(nil);
+      try
+        Result := PerformSASLLogin(ACmd, AHost, AProtocolName, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient);
+        if not Result then begin
+          AClient.RaiseExceptionForLastCmdResult;
+        end;
+      finally
+        FreeAndNil(LD);
+      end;
+    finally
+      FreeAndNil(LE);
+    end;
+  end;
 end;
 
 function TIdSASLEntries.ParseCapaReply(ACapaReply: TStrings; const AAuthString: String): TStrings;
+begin
+  Result := TStringList.Create;
+  try
+    ParseCapaReplyToList(ACapaReply, Result, AAuthString);
+  except
+    FreeAndNil(Result);
+    raise;
+  end;
+end;
+
+procedure TIdSASLEntries.ParseCapaReplyToList(ACapaReply, ADestList: TStrings;
+  const AAuthString: String = 'AUTH'); {do not localize}
 const
   VALIDDELIMS: String = ' ='; {Do not Localize}
 var
@@ -324,12 +335,10 @@ var
   s: string;
   LEntry : String;
 begin
-  if ACapaReply = nil then
-  begin
-    Result := nil;
+  if ACapaReply = nil then begin
     Exit;
   end;
-  Result := TStringList.Create;
+  ADestList.BeginUpdate;
   try
     for i := 0 to ACapaReply.Count - 1 do
     begin
@@ -343,16 +352,15 @@ begin
           LEntry := Fetch(s, ' ');    {Do not Localize}
           if LEntry <> '' then
           begin
-            if Result.IndexOf(LEntry) = -1 then begin
-              Result.Add(LEntry);
+            if ADestList.IndexOf(LEntry) = -1 then begin
+              ADestList.Add(LEntry);
             end;
           end;
         end;
       end;
     end;
-  except
-    FreeAndNil(Result);
-    raise;
+  finally
+    ADestList.EndUpdate;
   end;
 end;
 
@@ -365,7 +373,7 @@ begin
   For i := 0 to Count-1 do begin
     LEntry := Items[i];
     if LEntry.SASL <> nil then begin
-      if TextIsSame(LEntry.SASL.ServiceName, AServiceName) then begin
+      if TextIsSame(String(LEntry.SASL.ServiceName), AServiceName) then begin
         Result := LEntry.SASL;
         Exit;
       end;

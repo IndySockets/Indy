@@ -12,13 +12,13 @@ FILESUBTYPE 0x0L
   BLOCK "000104E4"
   {
    VALUE "CompanyName", "Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
-   VALUE "FileDescription", "Internet Direct (Indy) 10.2.3 - System\0"
-   VALUE "FileVersion", "10.2.0.3\0"
+   VALUE "FileDescription", "Internet Direct (Indy) 10.5.1 - System\0"
+   VALUE "FileVersion", "10.5.0.1\0"
    VALUE "InternalName", "IndySystem50\0"
-   VALUE "LegalCopyright", "Copyright © 1993 - 2007 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
+   VALUE "LegalCopyright", "Copyright © 1993 - 2008 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
    VALUE "OriginalFilename", "IndySystem50.bpl\0"
    VALUE "ProductName", "Indy\0"
-   VALUE "ProductVersion", "10.2.0.3\0"
+   VALUE "ProductVersion", "10.5.0.1\0"
   }
 
  }

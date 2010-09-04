@@ -1,18 +1,13 @@
 package dclIndyProtocols70;
 
 {$R *.res}
-{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -23,14 +18,11 @@ package dclIndyProtocols70;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Protocols Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
-  rtl,
-  designide,
-  vclactnband,
-  vclx,
   vcl,
+  designide,
   IndyProtocols70,
   IndySystem70,
   IndyCore70,

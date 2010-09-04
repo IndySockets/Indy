@@ -161,7 +161,6 @@ begin
       {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocol);
       {$ENDIF}
-      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
     end else
     begin
       {$IFDEF LINUX}
@@ -169,21 +168,21 @@ begin
       {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
       {$ENDIF}
-      {$IFNDEF DOTNET1_1}
+      {$IFDEF DOTNET_2_OR_ABOVE}
       {
       Microsoft NET Framework 1.1 may actually have the packetinfo option but that
       will not do you any good because you need a RecvMsg function which is not
       in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
       }
       //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
-      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_PKTINFO, 1);
+      FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_PKTINFO, 1);
       {$ENDIF}
-      //set hop limit (or TTL as it was called in IPv4
-      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_UNICAST_HOPS, FTTL);
       {$IFNDEF DOTNET}
-      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_HOPLIMIT, 1);
+      FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_HOPLIMIT, 1);
       {$ENDIF}
     end;
+    //set hop limit (or TTL as it was called in IPv4
+    FBinding.SetTTL(FTTL);
   end;
   Result := FBinding;
 end;
@@ -192,6 +191,7 @@ function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1
 var
   LIP : String;
   LPort : TIdPort;
+  LIPVersion: TIdIPVersion;
 begin
   Result := 0;
   // TODO: pass flags to recv()
@@ -204,9 +204,12 @@ begin
     if FBinding.IPVersion = Id_IPv4 then
     begin
       if Binding.Readable(ATimeOut) then begin
-        Result := Binding.RecvFrom(VBuffer, LIP, LPort, FBinding.IPVersion);
+        Result := Binding.RecvFrom(VBuffer, LIP, LPort, LIPVersion);
+        FPkt.Reset;
         FPkt.SourceIP := LIP;
         FPkt.SourcePort := LPort;
+        FPkt.SourceIPVersion := LIPVersion;
+        FPkt.DestIPVersion := LIPVersion;
       end;
     end else
     begin
@@ -227,7 +230,7 @@ begin
       IP address and hopefully, the TTL (hop count).
       }
 
-      Result := GStack.ReceiveMsg(Binding.Handle, VBuffer, FPkt, Id_IPv6);
+      Result := GStack.ReceiveMsg(Binding.Handle, VBuffer, FPkt);
     end;
   end;
 end;
@@ -262,11 +265,7 @@ begin
     FTTL := Value;
     if FBinding.HandleAllocated then
     begin
-      if FBinding.IPVersion = Id_IPv4 then begin
-        GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
-      end else begin
-        GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_UNICAST_HOPS, FTTL);
-      end;
+      FBinding.SetTTL(FTTL);
     end;
   end;
 end;

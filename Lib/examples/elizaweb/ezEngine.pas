@@ -18,7 +18,9 @@
 unit EZEngine;
 
 interface
+{$ifdef fpc}
 {$mode objfpc}{$H+}
+{$endif}
 {
 ELIZA -- an interactive parroting
 

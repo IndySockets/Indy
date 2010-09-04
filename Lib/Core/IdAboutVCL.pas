@@ -5,21 +5,19 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-{$ifdef WidgetKylix}
-  QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics,  Qt,
-{$endif}
-{$ifdef WidgetVCLLike}
-   StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
-  {$ENDIF}
-{$ifdef Delphi6up}
-  types
-{$endif}
-
-
-  {$IFDEF WIDGETLCL}
-    LResources,
- {$ENDIF}
-  classes, sysutils;
+{$IFDEF WIDGET_KYLIX}
+  QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt,
+{$ENDIF}
+{$IFDEF WIDGET_VCL_LIKE}
+  StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
+{$ENDIF}
+{$IFDEF VCL_6_OR_ABOVE}
+  Types,
+{$ENDIF}
+{$IFDEF WIDGET_LCL}
+  LResources,
+{$ENDIF}
+  Classes, SysUtils;
 
 type
   TfrmAbout = class(TForm)
@@ -30,9 +28,9 @@ type
     FlblVersion : TLabel;
     FlblPleaseVisitUs : TLabel;
     FlblURL : TLabel;
-   //for LCL, we use a TBitBtn to be consistant with some GUI interfaces
-  //and the Lazarus IDE.
-    {$IFDEF UseTBitBtn}
+    //for LCL, we use a TBitBtn to be consistant with some GUI interfaces
+    //and the Lazarus IDE.
+    {$IFDEF USE_TBitBtn}
     FbbtnOk : TBitBtn;
     {$ELSE}
     FbbtnOk : TButton;
@@ -52,7 +50,8 @@ type
   end;
 
 implementation
-{$IFNDEF WidgetLCL}
+
+{$IFNDEF WIDGET_LCL}
   {$IFDEF WIN32}
   {$R IdAboutVCL.RES}
   {$ENDIF}
@@ -60,9 +59,10 @@ implementation
   {$R IdAboutVCL.RES}
   {$ENDIF}
 {$ENDIF}
+
 uses
   {$IFDEF WIN32}ShellApi, {$ENDIF}
-  {$IFNDEF WidgetLCL}
+  {$IFNDEF WIDGET_LCL}
    //done this way because we reference HInstance in Delphi for loading
    //resources.  Lazarus does something different.  
     {$IFDEF WIN32} 
@@ -84,7 +84,7 @@ begin
   FlblVersion := TLabel.Create(Self);
   FlblPleaseVisitUs := TLabel.Create(Self);
   FlblURL := TLabel.Create(Self);
-  {$IFDEF UseTBitBtn}
+  {$IFDEF USE_TBitBtn}
   FbbtnOk := TBitBtn.Create(Self);
   {$ELSE}
   FbbtnOk := TButton.Create(Self);
@@ -106,7 +106,7 @@ begin
     Font.Name := 'Tahoma';
     Font.Style := [];
     Position := poScreenCenter;
-    {$IFDEF WidgetVCL}
+    {$IFDEF WIDGET_VCL}
     Scaled := True;
     {$ENDIF}
     Self.Constraints.MinHeight := Height;
@@ -121,16 +121,13 @@ begin
     Width := 388;
     Height := 240;
 
-    {$IFDEF WidgetLCL}
-
-   Picture.Bitmap.LoadFromLazarusResource('IndyCar');//this is XPM format
-
+    {$IFDEF WIDGET_LCL}
+    Picture.Bitmap.LoadFromLazarusResource('IndyCar');//this is XPM format
     {$ENDIF}
-    {$IFDEF WidgetVCLLikeOrKylix}
+    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
     Picture.Bitmap.LoadFromResourceName(HInstance, 'INDYCAR');    {Do not Localize}
     Transparent := True;
     {$ENDIF}
-
   end;
 
   with FlblName do
@@ -144,7 +141,7 @@ begin
     Alignment := taCenter;
     AutoSize := False;
     Anchors := [akLeft, akTop, akRight];
-    {$IFDEF WidgetVCL}
+    {$IFDEF WIDGET_VCL}
     Font.Charset := DEFAULT_CHARSET;
     Transparent := True; 
     {$ENDIF}
@@ -166,7 +163,7 @@ begin
     Height := 40;
     Alignment := taCenter;
     AutoSize := False;
-    {$IFDEF WidgetVCL}
+    {$IFDEF WIDGET_VCL}
     Font.Charset := DEFAULT_CHARSET;
     Transparent := True;
     {$ENDIF}
@@ -190,7 +187,7 @@ begin
     Anchors := [akLeft, akTop, akRight];
     AutoSize := False;
     Caption := RSAAboutBoxCopyright;
-    {$IFDEF WidgetVCL}
+    {$IFDEF WIDGET_VCL}
     Font.Charset := DEFAULT_CHARSET;
     Transparent := True;
     {$ENDIF}
@@ -212,7 +209,7 @@ begin
     Height := 23;
     Alignment := taCenter;
     AutoSize := False;
-    {$IFDEF WidgetVCL}
+    {$IFDEF WIDGET_VCL}
     Font.Charset := DEFAULT_CHARSET;
     Transparent := True;
     {$ENDIF}
@@ -232,7 +229,7 @@ begin
     Cursor := crHandPoint;
     Alignment := taCenter;
     AutoSize := False;
-    {$IFDEF WidgetVCL}
+    {$IFDEF WIDGET_VCL}
     Font.Charset := DEFAULT_CHARSET;
     Transparent := True;
     {$ENDIF}
@@ -251,19 +248,19 @@ begin
     Name := 'bbtnOk';
 
     Left := 475;
-    {$IFDEF UseTBitBtn}
+    {$IFDEF USE_TBitBtn}
     Top := 297;
     {$ELSE}
-      Top := 302;
-      Height := 25;
+    Top := 302;
+    Height := 25;
     {$ENDIF}
     Width := 75;
 
     Anchors := [akRight, akBottom];
 
-    {$IFDEF UseTBitBtn}
+    {$IFDEF USE_TBitBtn}
      Kind := bkOk;
-     {$ELSE}
+    {$ELSE}
     Cancel := True;
     Default := True;
     ModalResult := 1;
@@ -327,7 +324,7 @@ begin
   Create(nil);
 end;
 
-{$IFDEF WidgetLCL}
+{$IFDEF WIDGET_LCL}
 initialization
   {$i IdAboutVCL.lrs}
 {$ENDIF}

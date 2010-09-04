@@ -61,13 +61,15 @@
 unit IdContainers;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
  Classes;
 
 type
-  TIdSortCompare = function(AItem1, AItem2 : TObject):Integer;
+  TIdSortCompare = function(AItem1, AItem2 : TObject): Integer;
+
   {TIdObjectList}
 
   TIdObjectList = class(TList)
@@ -76,7 +78,9 @@ type
   protected
     function GetItem(AIndex: Integer): TObject;
     procedure SetItem(AIndex: Integer; AObject: TObject);
-//    procedure Notify(AItemPtr: Pointer; AAction: TListNotification); override;
+    {$IFNDEF DOTNET}
+    procedure Notify(AItemPtr: Pointer; AAction: TListNotification); override;
+    {$ENDIF}
   public
     constructor Create; overload;
     constructor Create(AOwnsObjects: Boolean); overload;
@@ -92,6 +96,7 @@ type
   end;
 
   TIdStringListSortCompare = function(List: TStringList; Index1, Index2: Integer): Integer;
+
   TIdBubbleSortStringList = class(TStringList)
   public
     procedure BubbleSort(ACompare: TIdStringListSortCompare); virtual;
@@ -180,13 +185,15 @@ begin
   end;
 end;
 
-//procedure TIdObjectList.Notify(AItemPtr: Pointer; AAction: TListNotification);
-//begin
-////  if (OwnsObjects and (AAction = lnDeleted)) then
-////    TObject(AItemPtr).Free;
-//
-//  inherited Notify(AItemPtr, AAction);
-//end;
+{$IFNDEF DOTNET}
+procedure TIdObjectList.Notify(AItemPtr: Pointer; AAction: TListNotification);
+begin
+  if OwnsObjects and (AAction = lnDeleted) then begin
+    TObject(AItemPtr).Free;
+  end;
+  inherited Notify(AItemPtr, AAction);
+end;
+{$ENDIF}
 
 function TIdObjectList.Remove(AObject: TObject): Integer;
 begin

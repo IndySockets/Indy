@@ -215,7 +215,7 @@ type
 
   TIdNNTPLookupType = (ltLookupError, ltLookupByMsgId, ltLookupByMsgNo);
 
-  TIdNNTPContext = class(TIdContext)
+  TIdNNTPContext = class(TIdServerContext)
   protected
     FAuthenticated : Boolean;
     FAuthenticator: string;
@@ -430,6 +430,10 @@ type
 implementation
 
 uses
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysTime,
+  PosixTime,
+  {$ENDIF}
   IdGlobalProtocols,
   IdIOHandlerSocket,
   IdResourceStringsProtocols,
@@ -446,24 +450,20 @@ var
   LHr, LMn, LSec : Word;
   LTimeStr : String;
 begin
-  LTimeStr := ATimeStamp;
-  if LTimeStr <> '' then  {do not localize}
+  if ATimeStamp <> '' then  {do not localize}
   begin
-    LHr := IndyStrToInt(Copy(LTimeStr,1,2), 1);
-    Delete(LTimeStr,1,2);
-    LMn := IndyStrToInt(Copy(LTimeStr,1,2), 1);
-    Delete(LTimeStr,1,2);
-    LSec := IndyStrToInt(Copy(LTimeStr,1,2), 1);
-    Delete(LTimeStr,1,2);
+    LHr := IndyStrToInt(Copy(ATimeStamp,1,2), 1);
+    LMn := IndyStrToInt(Copy(ATimeStamp,3,4), 1);
+    LSec := IndyStrToInt(Copy(ATimeStamp,5,6), 1);
     Result := EncodeTime(LHr, LMn, LSec, 0);
-    LTimeStr := Trim(LTimeStr);
+    LTimeStr := Trim(Copy(ATimeStamp,7,MaxInt));
     if TextIsSame(LTimeStr, 'GMT') then  {do not localize}
     begin
       // Apply local offset
       Result := Result + OffsetFromUTC;
     end;
   end else begin
-    Result := 0;
+    Result := 0.0;
   end;
 end;
 
@@ -2091,7 +2091,9 @@ begin
         end;
       end;
     end else begin
-      EIdNNTPImplicitTLSRequiresSSL.IfTrue(AValue, RSNNTPSvrImplicitTLSRequiresSSL);
+      if AValue then begin
+        EIdNNTPImplicitTLSRequiresSSL.Toss(RSNNTPSvrImplicitTLSRequiresSSL);
+      end;
       FImplicitTLS := AValue;
     end;
   end;

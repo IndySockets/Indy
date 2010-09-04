@@ -49,11 +49,9 @@ const
   Wship6_dll =   'Wship6.dll';    {do not localize}
   iphlpapi_dll = 'iphlpapi.dll';  {do not localize}
   fwpuclnt_dll = 'Fwpuclnt.dll'; {Do not localize}
-//
-// Error codes from getaddrinfo().
-//
 
-const
+  // Error codes from getaddrinfo().
+
   //JPM
   //Note that I am adding a GIA_ prefix on my own because
   //some names here share some names defined in IdWinsock2 causing
@@ -81,17 +79,13 @@ const
   {$EXTERNALSYM GIA_EAI_SYSTEM}
   GIA_EAI_SYSTEM     = 11 ; // System error returned in errno.
 
-
-const
   {$EXTERNALSYM NI_MAXHOST}
   NI_MAXHOST  = 1025;      // Max size of a fully-qualified domain name.
   {$EXTERNALSYM NI_MAXSERV}
   NI_MAXSERV  =   32;      // Max size of a service name.
 
-//
-// Flags for getnameinfo().
-//
-const
+  // Flags for getnameinfo().
+
   {$EXTERNALSYM NI_NOFQDN}
   NI_NOFQDN       =   $1  ;  // Only return nodename portion for local hosts.
   {$EXTERNALSYM NI_NUMERICHOST}
@@ -103,10 +97,8 @@ const
   {$EXTERNALSYM NI_DGRAM}
   NI_DGRAM        =   $10 ;  // Service is a datagram service.
 
-//
-// Flag values for getipnodebyname().
-//
-const
+  // Flag values for getipnodebyname().
+
   {$EXTERNALSYM AI_V4MAPPED}
   AI_V4MAPPED    = 1 ;
   {$EXTERNALSYM AI_ALL}
@@ -116,7 +108,7 @@ const
   {$EXTERNALSYM AI_DEFAULT}
   AI_DEFAULT     = AI_V4MAPPED or AI_ADDRCONFIG ;
 
-const
+  //JPM - These may not be supported in WinCE 4.2
   {$EXTERNALSYM PROTECTION_LEVEL_RESTRICTED}
   PROTECTION_LEVEL_RESTRICTED   = 10;  //* for Intranet apps      /*
   {$EXTERNALSYM PROTECTION_LEVEL_DEFAULT}
@@ -137,14 +129,16 @@ const
 type
   // RLebeau: find a better place for this
   {$IFNDEF FPC}
-   {$IFNDEF VCL11ORABOVE}
+    {$IFNDEF VCL_2006_OR_ABOVE}
   {$EXTERNALSYM UINT64}
   UINT64 = Int64;
     {$ENDIF}
   {$ENDIF}
-
+  
   {$NODEFINE PPaddrinfo}
   PPaddrinfo = ^PAddrInfo;
+  {$NODEFINE PPaddrinfoW}
+  PPaddrinfoW = ^PAddrInfoW;
 
   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL}
@@ -208,17 +202,18 @@ type
 
 type
   {$EXTERNALSYM LPFN_GETADDRINFO}
-  LPFN_GETADDRINFO = function(NodeName: PChar; ServiceName: PChar; Hints: Paddrinfo; ppResult: PPaddrinfo): Integer; stdcall;
+  LPFN_GETADDRINFO = function(NodeName: PAnsiChar; ServiceName: PAnsiChar; Hints: Paddrinfo; ppResult: PPaddrinfo): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETADDRINFOW}
-  LPFN_GETADDRINFOW = function(NodeName: PWideChar; ServiceName: PWideChar; Hints: Paddrinfo; ppResult: PPaddrinfo): Integer; stdcall;
+  LPFN_GETADDRINFOW = function(NodeName: PWideChar; ServiceName: PWideChar; Hints: PaddrinfoW; ppResult: PPaddrinfoW): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFO}
-  LPFN_GETNAMEINFO = function(sa: psockaddr; salen: u_int; host: PChar; hostlen: u_int; serv: PChar; servlen: u_int; flags: Integer): Integer; stdcall;
+  LPFN_GETNAMEINFO = function(sa: psockaddr; salen: u_int; host: PAnsiChar; hostlen: u_int; serv: PAnsiChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFOW}
   LPFN_GETNAMEINFOW = function(sa: psockaddr; salen: u_int; host: PWideChar; hostlen: u_int; serv: PWideChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_FREEADDRINFO}
   LPFN_FREEADDRINFO = procedure(ai: Paddrinfo); stdcall;
   {$EXTERNALSYM LPFN_FREEADDRINFOW}
   LPFN_FREEADDRINFOW = procedure(ai: PaddrinfoW); stdcall;
+
 //function GetAdaptersAddresses( Family:cardinal; Flags:cardinal; Reserved:pointer; pAdapterAddresses: PIP_ADAPTER_ADDRESSES; pOutBufLen:pcardinal):cardinal;stdcall;  external iphlpapi_dll;
 
 { the following are not used, nor tested}
@@ -229,21 +224,20 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
 }
  {$IFNDEF UNDER_CE}  
   {$EXTERNALSYM LPFN_INET_PTON}
-  LPFN_INET_PTON = function (af:integer; const src:pchar; dst:pointer):integer;stdcall;
+  LPFN_INET_PTON = function (af: Integer; const src: PAnsiChar; dst: Pointer): Integer; stdcall;
   {$EXTERNALSYM LPFN_INET_PTONW}
-  LPFN_INET_PTONW = function (af:integer; const src:pWideChar; dst:pointer):integer;stdcall;
+  LPFN_INET_PTONW = function (af: Integer; const src: PWideChar; dst: Pointer): Integer; stdcall;
   {$EXTERNALSYM LPFN_INET_NTOP}
-  LPFN_INET_NTOP = function (af:integer; const src:pointer; dst:pchar;size:integer):pchar;stdcall;
+  LPFN_INET_NTOP = function (af: Integer; const src: Pointer; dst: PAnsiChar; size: Integer): PAnsiChar; stdcall;
   {$EXTERNALSYM LPFN_INET_NTOPW}
-  LPFN_INET_NTOPW = function (af:integer; const src:pointer; dst:PWideChar;size:integer):pchar;stdcall;
-
+  LPFN_INET_NTOPW = function (af: Integer; const src: Pointer; dst: PWideChar; size: Integer): PAnsiChar; stdcall;
 
 { end the following are not used, nor tested}
 //These are provided in case we need them later
 //Windows Vista
   {$EXTERNALSYM LPFN_GETADDRINFOEXA}
-  LPFN_GETADDRINFOEXA = function(pName : PChar; pServiceName : PChar;
-    const dwNameSpace: DWord; lpNspId : LPGUID;hints : PADDRINFOEXA;
+  LPFN_GETADDRINFOEXA = function(pName : PAnsiChar; pServiceName : PAnsiChar;
+    const dwNameSpace: DWord; lpNspId : LPGUID; hints : PADDRINFOEXA;
     ppResult : PADDRINFOEXA; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE;
     var lpNameHandle : THandle) : Integer; stdcall;
@@ -254,7 +248,7 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE;
     var lpNameHandle : THandle) : Integer; stdcall;
   {$EXTERNALSYM LPFN_SETADDRINFOEXA}
-  LPFN_SETADDRINFOEXA= function(pName : PChar; pServiceName : PChar;
+  LPFN_SETADDRINFOEXA= function(pName : PAnsiChar; pServiceName : PAnsiChar;
     pAddresses : PSOCKET_ADDRESS; const dwAddressCount : DWord; lpBlob : LPBLOB;
     const dwFlags : DWord; const dwNameSpace : DWord; lpNspId : LPGUID;
     timeout : Ptimeval;
@@ -302,8 +296,8 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
      Overlapped : LPWSAOVERLAPPED;  CompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAREVERTIMPERSONATION}
   LPFN_WSAREVERTIMPERSONATION = function : Integer; stdcall;
-  {$ENDIF}
-  
+{$ENDIF}
+
 const
   {$NODEFINE fn_GetAddrInfoEx}
   {$NODEFINE fn_SetAddrInfoEx}
@@ -325,7 +319,7 @@ const
      {$IFNDEF UNDER_CE}
   fn_inet_pton = 'InetPtonW';
   fn_inet_ntop = 'InetNtopW';
-     {$ENDIF}
+    {$ENDIF}
   {$ELSE}
      {$IFNDEF UNDER_CE}
   fn_GetAddrInfoEx = 'GetAddrInfoExA';
@@ -338,7 +332,7 @@ const
    {$IFNDEF UNDER_CE}
   fn_inet_pton = 'inet_pton';
   fn_inet_ntop = 'inet_ntop';
-     {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 
 var
@@ -364,7 +358,7 @@ var
   //These are here for completeness
   inet_pton : LPFN_inet_pton = nil;
   inet_ntop : LPFN_inet_ntop = nil;
-     {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   {$IFNDEF UNDER_CE}
   {

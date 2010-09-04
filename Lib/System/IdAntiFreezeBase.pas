@@ -49,7 +49,9 @@
 unit IdAntiFreezeBase;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   IdBaseComponent;
 
@@ -93,15 +95,25 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-     {$IFDEF USEINLINE}
-  Windows,
-     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+  {$IFDEF USE_INLINE}
+    {$IFDEF DOTNET}
   System.Threading,
     {$ENDIF}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF FPC}
+  windows,
+      {$ELSE}
+  Windows,
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_VCL_POSIX}
+  PosixGlue,
+  PosixSysSelect,
+  PosixSysTime,
+  {$ENDIF}
+  {$IFDEF KYLIXCOMPAT}
+  Libc,
   {$ENDIF}
   IdGlobal,
   IdResourceStrings,
@@ -111,7 +123,9 @@ uses
 
 destructor TIdAntiFreezeBase.Destroy;
 begin
-  GAntiFreeze := nil;
+  if GAntiFreeze = Self then begin
+    GAntiFreeze := nil;
+  end;
   inherited Destroy;
 end;
 
@@ -128,7 +142,9 @@ procedure TIdAntiFreezeBase.InitComponent;
 begin
   inherited InitComponent;
   if not IsDesignTime then begin
-    EIdException.IfAssigned(GAntiFreeze, RSAntiFreezeOnlyOne);
+    if Assigned(GAntiFreeze) then begin
+      EIdException.Toss(RSAntiFreezeOnlyOne);
+    end;
     GAntiFreeze := Self;
   end;
   FActive := ID_Default_TIdAntiFreezeBase_Active;

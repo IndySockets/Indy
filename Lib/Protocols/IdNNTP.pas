@@ -174,6 +174,7 @@ type
      ALineCount : Integer; AExtraData : String; var VCanContinue : Boolean) of object;
   TIdEventNewNewsList = procedure(AMsgID: string; var ACanContinue: Boolean) of object;
   TIdEventXHDREntry = procedure(AHeader : String; AMsg, AHeaderData : String; var ACanContinue: Boolean) of object;
+
   //TODO: Add a TranslateRFC822 Marker - probably need to do it in TCPConnection and modify Capture
   // Better yet, make capture an object
   TIdNNTP = class(TIdMessageClient)
@@ -263,7 +264,8 @@ type
     procedure ParseXHDRLine(ALine : String; out AMsg : String; out AHeaderData : String);
     procedure Post(AMsg: TIdMessage); overload;
     procedure Post(AStream: TStream); overload;
-    function SendCmd(AOut: string; const AResponse: array of SmallInt): SmallInt; override;
+    function SendCmd(AOut: string; const AResponse: array of SmallInt;
+      AEncoding: TIdTextEncoding = nil): SmallInt; override;
     function SelectArticle(AMsgNo: Integer): Boolean;
     procedure SelectGroup(AGroup: string);
     function TakeThis(AMsgID: string; AMsg: TStream): string;
@@ -368,15 +370,16 @@ begin
   FImplicitTLSProtPort := IdPORT_SNEWS;
 end;
 
-function TIdNNTP.SendCmd(AOut: string; const AResponse: Array of SmallInt): SmallInt;
+function TIdNNTP.SendCmd(AOut: string; const AResponse: Array of SmallInt;
+  AEncoding: TIdTextEncoding = nil): SmallInt;
 begin
   // NOTE: Responses must be passed as arrays so that the proper inherited SendCmd is called
   // and a stack overflow is not caused.
-  Result := inherited SendCmd(AOut, []);
+  Result := inherited SendCmd(AOut, [], AEncoding);
   if (Result = 480) or (Result = 450) then
   begin
     SendAuth;
-    Result := inherited SendCmd(AOut, AResponse);
+    Result := inherited SendCmd(AOut, AResponse, AEncoding);
   end else begin
     CheckResponse(Result, AResponse);
   end;
@@ -1214,12 +1217,18 @@ var
   i: Integer;
 begin
   FCapabilities.Clear;
-  if SendCmd('LIST EXTENSIONS') in [202, 215] then  {do not localize}
+  // try CAPABILITIES first, as it is a standard command introduced in RFC 3977
+  if SendCmd('CAPABILITIES') = 101 then {do not localize}
   begin
-    IOHandler.Capture(FCapabilities,'.');
+    IOHandler.Capture(FCapabilities, '.'); {do not localize}
+  end
+  // fall back to the previous non-standard approach
+  else if SendCmd('LIST EXTENSIONS') in [202, 215] then  {do not localize}
+  begin
+    IOHandler.Capture(FCapabilities, '.'); {do not localize}
   end;
   //flatten everything out for easy processing
-  for i := 0 to FCapabilities.Count -1 do
+  for i := 0 to FCapabilities.Count-1 do
   begin
     FCapabilities[i] := Trim(UpperCase(FCapabilities[i]));
   end;

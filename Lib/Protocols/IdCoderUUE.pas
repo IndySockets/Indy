@@ -56,7 +56,7 @@ type
 
 const
   // Note the embedded '
-  GUUECodeTable: string =
+  GUUECodeTable: AnsiString =
     '`!"#$%&''()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_'; {do not localize}
 
 var
@@ -73,7 +73,7 @@ procedure TIdEncoderUUE.InitComponent;
 begin
   inherited InitComponent;
   FCodingTable := GUUECodeTable;
-  FFillChar := FCodingTable[1];
+  FFillChar := GUUECodeTable[1];
 end;
 
 { TIdDecoderUUE }

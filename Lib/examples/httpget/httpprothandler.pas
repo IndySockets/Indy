@@ -1,17 +1,23 @@
 unit httpprothandler;
 interface
+{$IFDEF FPC}
 {$mode delphi}{$H+}
-
+{$ENDIF}
 {$ifdef unix}
   {$define usezlib}
   {$define useopenssl}
 {$endif}
+{$IFDEF POSIX}
+  {$define usezlib}
+  {$define useopenssl}
+{$ENDIF}
 {$ifdef win32}
   {$define usezlib}
   {$define useopenssl}
 {$endif}
 
 uses
+  {$IFNDEF NO_HTTP}
   {$ifdef usezlib}
     IdCompressorZLib,  //for deflate and gzip content encoding
   {$endif}
@@ -20,16 +26,19 @@ uses
     IdSSLOpenSSL,  //ssl
     IdAuthenticationNTLM, //NTLM - uses OpenSSL libraries
   {$endif}
-  prothandler,
   Classes, SysUtils, 
   IdHTTPHeaderInfo,    //for HTTP request and response info.
   IdHTTP,
+  {$ENDIF}
+  prothandler,
   IdURI;
 
 type
   THTTPProtHandler = class(TProtHandler)
   protected
+  {$IFNDEF NO_HTTP}
     function GetTargetFileName(AHTTP : TIdHTTP; AURI : TIdURI) : String;
+  {$ENDIF}
   public
     class function CanHandleURL(AURL : TIdURI) : Boolean; override;
     procedure GetFile(AURL : TIdURI); override;
@@ -39,16 +48,21 @@ implementation
 
 class function THTTPProtHandler.CanHandleURL(AURL : TIdURI) : Boolean;
 begin
+  {$IFNDEF NO_HTTP}
   Result := UpperCase(AURL.Protocol)='HTTP';
-  {$ifdef useopenssl}
+    {$ifdef useopenssl}
   if not Result then
   begin
     Result := UpperCase(AURL.Protocol)='HTTPS';
   end;
-  {$endif}
+    {$endif}
+  {$ELSE}
+  Result := False;
+  {$ENDIF}
 end;
 
 procedure THTTPProtHandler.GetFile(AURL : TIdURI); 
+  {$IFNDEF NO_HTTP}
 var
   {$ifdef useopenssl}
   LIO : TIdSSLIOHandlerSocketOpenSSL;
@@ -95,7 +109,7 @@ Mozilla/4.0 (compatible; MyProgram)
         FLogData.Add(LHTTP.Request.RawHeaders[i]);
         if FVerbose then
         begin
-          WriteLn(stdout,LHTTP.Request.RawHeaders[i]);
+          WriteLn({$IFDEF FPC}stdout{$ELSE}output{$ENDIF},LHTTP.Request.RawHeaders[i]);
         end;
       end;
       LHTTP.Get(AURL.URI,LStr);
@@ -104,7 +118,7 @@ Mozilla/4.0 (compatible; MyProgram)
         FLogData.Add(LHTTP.Response.RawHeaders[i]);       
         if FVerbose then
         begin
-          WriteLn(stdout,LHTTP.Response.RawHeaders[i]);
+          WriteLn({$IFDEF FPC}stdout{$ELSE}output{$ENDIF},LHTTP.Response.RawHeaders[i]);
         end;
       end;
       LFName := GetTargetFileName(LHTTP,AURL);
@@ -119,19 +133,19 @@ Mozilla/4.0 (compatible; MyProgram)
         if E is EIdHTTPProtocolException then
         begin
           LHE := E as EIdHTTPProtocolException;
-          WriteLn(stderr,'HTTP Protocol Error - '+IntToStr(LHE.ErrorCode));
-          WriteLn(stderr,LHE.ErrorMessage);
+          WriteLn({$IFDEF FPC}stderr{$ELSE}ErrOutput {$ENDIF},'HTTP Protocol Error - '+IntToStr(LHE.ErrorCode));
+          WriteLn({$IFDEF FPC}stderr{$ELSE}ErrOutput {$ENDIF},LHE.ErrorMessage);
           if Verbose = False then
           begin
             for i := 0 to FLogData.Count -1 do
             begin
-              Writeln(stderr,FLogData[i]);
+              Writeln({$IFDEF FPC}stderr{$ELSE}ErrOutput {$ENDIF},FLogData[i]);
             end;
           end;
         end
         else
         begin
-          Writeln(stderr,E.Message);
+          Writeln({$IFDEF FPC}stderr{$ELSE}ErrOutput {$ENDIF},E.Message);
         end;
       end;
     end;
@@ -145,9 +159,14 @@ Mozilla/4.0 (compatible; MyProgram)
     FreeAndNil(LC);
     {$endif}
   end;
+{$ELSE}
+begin
+{$ENDIF}
 end;
 
+{$IFNDEF NO_HTTP}
 function THTTPProtHandler.GetTargetFileName(AHTTP : TIdHTTP; AURI : TIdURI) : String;
+
 begin
 {
 We do things this way in case the server gave you a specific document type
@@ -168,5 +187,6 @@ Response: http://www.indyproject.org/index.html
       Result := 'index.html';
     end;
 end;
+{$ENDIF}
 
 end.

@@ -556,9 +556,9 @@ function TIdSNMP.SendQuery: Boolean;
 begin
   Reply.Clear;
   Query.Buffer := Query.EncodeBuf;
-  Send(Query.Host, Query.Port, Query.Buffer);
+  Send(Query.Host, Query.Port, Query.Buffer, Indy8BitEncoding);
   try
-    Reply.Buffer := ReceiveString(Query.Host, Query.Port, FReceiveTimeout);
+    Reply.Buffer := ReceiveString(Query.Host, Query.Port, FReceiveTimeout, Indy8BitEncoding);
   except
     on e : EIdSocketError do
     begin
@@ -613,7 +613,7 @@ function TIdSNMP.SendTrap: integer;
 begin
   Trap.PDUType := PDUTrap;
   Trap.EncodeTrap;
-  Send(Trap.Host, Trap.Port, Trap.Buffer);
+  Send(Trap.Host, Trap.Port, Trap.Buffer, Indy8BitEncoding);
   Result := 1;
 end;
 
@@ -621,10 +621,10 @@ function TIdSNMP.ReceiveTrap: integer;
 begin
   Trap.PDUType := PDUTrap;
   Result := 0;
-  Trap.Buffer := ReceiveString(Trap.Host, Trap.Port, FReceiveTimeout);
+  Trap.Buffer := ReceiveString(Trap.Host, Trap.Port, FReceiveTimeout, Indy8BitEncoding);
   if Trap.Buffer <> '' then begin    {Do not Localize}
-     Trap.DecodeTrap;
-     Result := 1;
+    Trap.DecodeTrap;
+    Result := 1;
   end;
 end;
 

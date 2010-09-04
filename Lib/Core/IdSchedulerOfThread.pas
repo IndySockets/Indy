@@ -168,6 +168,9 @@ type
 implementation
 
 uses
+  {$IFDEF KYLIXCOMPAT}
+  Libc,
+  {$ENDIF}
   IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore, SysUtils;
 
 { TIdSchedulerOfThread }
@@ -189,10 +192,9 @@ end;
 function TIdSchedulerOfThread.NewThread: TIdThreadWithTask;
 begin
   Assert(FThreadClass<>nil);
-
-  EIdSchedulerMaxThreadsExceeded.IfTrue(
-   (FMaxThreads <> 0) and (not ActiveYarns.IsCountLessThan(FMaxThreads + 1))
-   , RSchedMaxThreadEx);
+  if (FMaxThreads <> 0) and (not ActiveYarns.IsCountLessThan(FMaxThreads + 1)) then begin
+    EIdSchedulerMaxThreadsExceeded.Toss(RSchedMaxThreadEx);
+  end;
   Result := FThreadClass.Create(nil, IndyFormat('%s User', [Name])); {do not localize}
   if ThreadPriority <> tpNormal then begin
     IndySetThreadPriority(Result, ThreadPriority);
@@ -201,7 +203,9 @@ end;
 
 function TIdSchedulerOfThread.NewYarn(AThread: TIdThreadWithTask): TIdYarnOfThread;
 begin
-  EIdException.IfNotAssigned(AThread, RSThreadSchedulerThreadRequired);
+  if not Assigned(AThread) then begin
+    EIdException.Toss(RSThreadSchedulerThreadRequired);
+  end;
   // Create Yarn
   Result := TIdYarnOfThread.Create(Self, AThread);
 end;
@@ -212,18 +216,19 @@ var
 begin
   Assert(AYarn<>nil);
   LYarn := TIdYarnOfThread(AYarn);
-  if LYarn.Thread = nil then begin
-    FreeAndNil(LYarn);
-  end
-  else if LYarn.Thread.Suspended then begin
-    // If suspended, was created but never started
-    // ie waiting on connection accept
-    FreeAndNil(LYarn.FThread);
-  end else
-  begin
-    // Is already running and will free itself
+  if (LYarn.Thread <> nil) and (not LYarn.Thread.Suspended) then begin
+    // Is still running and will free itself
     LYarn.Thread.Stop;
     // Dont free the yarn. The thread frees it (IdThread.pas)
+  end else
+  begin
+    // If suspended, was created but never started
+    // ie waiting on connection accept
+
+    // RLebeau: free the yarn here as well. This allows TIdSchedulerOfThreadPool
+    // to put the suspended thread, if present, back in the pool.
+
+    FreeAndNil(LYarn);
   end;
 end;
 

@@ -68,14 +68,20 @@ type
 implementation
 
 uses
+  {$IFDEF USE_VCL_POSIX}
+  PosixUnistd,
+  {$ENDIF}
+  {$IFDEF KYLIXCOMPAT}
+  Libc,
+  {$ENDIF}
   //facilitate inlining only.
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-     {$IFDEF USEINLINE}
+    {$IFDEF VCL_2009_OR_ABOVE}
   Windows,
-     {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF DOTNET}
-    {$IFDEF USEINLINE}
+    {$IFDEF USE_INLINE}
   System.IO,
     {$ENDIF}
   {$ENDIF}
@@ -92,7 +98,7 @@ end;
 constructor TIdAttachmentFile.Create(Collection: TIdMessageParts; const AFileName: String = '');
 begin
   inherited Create(Collection);
-  FFilename := ExtractFilename(AFilename);
+  FFilename := ExtractFileName(AFilename);
   FTempFileStream := nil;
   FStoredPathName := AFileName;
   FFileIsTempFile := False;
@@ -101,7 +107,7 @@ end;
 destructor TIdAttachmentFile.Destroy;
 begin
   if FileIsTempFile then begin
-    DeleteFile(StoredPathName);
+    SysUtils.DeleteFile(StoredPathName);
   end;
   inherited Destroy;
 end;

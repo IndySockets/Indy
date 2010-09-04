@@ -95,6 +95,10 @@ const
   STIRCOMUNIXNS = STIRCOMUNIX + '$$'; {do not localize}  //dir with $$ parameter
   STIRCOMUNIXROOT = STIRCOMUNIX + ' ROOT';  {do not localize} //root dir for mailboxes
 
+  // RLebeau 2/14/09: this forces C++Builder to link to this unit so
+  // RegisterFTPListParser can be called correctly at program startup...
+  (*$HPPEMIT '#pragma link "IdFTPListParseStercomUnixEnt"'*)
+
 implementation
 
 uses

@@ -84,7 +84,14 @@ type
 implementation
 
 uses
-  IdGlobal,  IdStack;
+  {$IFDEF USE_VCL_POSIX}
+	  {$IFDEF DARWIN}
+    CoreServices,
+	  {$ENDIF}
+  PosixSysTime,
+  {$ENDIF}
+
+  IdGlobal,  IdStack, SysUtils; //Sysutils added to facilitate inlining.
 
 { TIdCustomTimeUDP }
 

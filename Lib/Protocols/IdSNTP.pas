@@ -88,9 +88,9 @@ const
   NTPMaxInt = 4294967297.0;
 
 type
-	// NTP Datagram format
-{  TNTPGram	= packed record
-    Head1: byte;
+  // NTP Datagram format
+  TNTPGram = packed record
+    Head1 : byte;
     Head2: byte;
     Head3: byte;
     Head4: byte;
@@ -105,45 +105,8 @@ type
     Rcv2: LongWord;
     Xmit1: LongWord;
     Xmit2: LongWord;
-  end;    }
-
-  TNTPGram	= class(TObject)
-  protected
-    FHead1 : byte;
-    FHead2: byte;
-    FHead3: byte;
-    FHead4: byte;
-    FRootDelay: LongWord;
-    FRootDispersion: LongWord;
-    FRefID: LongWord;
-    FRef1: LongWord;
-    FRef2: LongWord;
-    FOrg1: LongWord;
-    FOrg2: LongWord;
-    FRcv1: LongWord;
-    FRcv2: LongWord;
-    FXmit1: LongWord;
-    FXmit2: LongWord;
-        function GetBytes: TIdBytes;
-    procedure SetBytes(const AValue: TIdBytes);
-  public
-    property Bytes : TIdBytes read GetBytes write SetBytes;
-    property Head1: byte read FHead1 write FHead1;
-    property Head2: byte read FHead2 write FHead2;
-    property Head3: byte read FHead3 write FHead3;
-    property Head4: byte read FHead4 write FHead4;
-    property RootDelay: LongWord read FRootDelay write FRootDelay;
-    property RootDispersion: LongWord read FRootDispersion write FRootDispersion;
-    property RefID: LongWord read FRefID write FRefID;
-    property Ref1: LongWord read FRef1 write FRef1;
-    property Ref2: LongWord read FRef2 write FRef2;
-    property Org1: LongWord read FOrg1 write FOrg1;
-    property Org2: LongWord read FOrg2 write FOrg2;
-    property Rcv1: LongWord read FRcv1 write FRcv1;
-    property Rcv2: LongWord read FRcv2 write FRcv2;
-    property Xmit1: LongWord read FXmit1 write FXmit1;
-    property Xmit2: LongWord read FXmit2 write FXmit2;
   end;
+
   TIdSNTP = class(TIdUDPClient)
   protected
     FDestinationTimestamp: TDateTime;   // Destination Timestamp   T4   time reply received by client
@@ -154,10 +117,10 @@ type
     FTransmitTimestamp: TDateTime;      // Transmit Timestamp      T3   time reply sent by server
     FCheckStratum: Boolean;
     //
-    procedure DateTimeToNTP(ADateTime: TDateTime;var Second,Fraction: Cardinal);
+    procedure DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: LongWord);
     function NTPToDateTime(Second, Fraction: LongWord): TDateTime;
 
-    function Disregard(ANTPMessage: TNTPGram): Boolean;
+    function Disregard(const ANTPMessage: TNTPGram): Boolean;
     function GetAdjustmentTime: TDateTime;
     function GetDateTime: TDateTime;
     procedure InitComponent; override;
@@ -173,17 +136,18 @@ type
 implementation
 
 uses
+  {$IFDEF USE_VCL_POSIX}
+  PosixSysTime,
+  PosixTime,
+  {$ENDIF}
   IdGlobalProtocols,
   IdAssignedNumbers,
   IdStack,
   SysUtils;
 
-const NTGRAMSIZE = 48;
-
-procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime;var Second,Fraction: LongWord);
+procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: LongWord);
 var
-  Value1,
-  Value2: Double;
+  Value1, Value2: Double;
 begin
   Value1 := (ADateTime + TimeZoneBias - 2) * 86400;
   Value2 := Value1;
@@ -240,16 +204,15 @@ begin
 end;
 
 
-function TIdSNTP.Disregard(ANTPMessage: TNTPGram): Boolean;
+function TIdSNTP.Disregard(const ANTPMessage: TNTPGram): Boolean;
 var
-  LvStratum: Integer;
-  LvLeapIndicator: Integer;
+  LvStratum: Byte;
+  LvLeapIndicator: Byte;
 begin
-  LvLeapIndicator := (ANTPMessage.Head1 and 192 ) shr 6;
+  LvLeapIndicator := (ANTPMessage.Head1 and $C0) shr 6;
   LvStratum := ANTPMessage.Head2;
 
   Result := (LvLeapIndicator = 3) or
-    { (Stratum > 15) or (Stratum = 0) or }
     (((Int(FTransmitTimestamp)) = 0.0) and (Frac(FTransmitTimestamp) = 0.0));
 
   // DS ignore NTPGram when stratum is used, and value is reserved or unspecified
@@ -268,182 +231,69 @@ end;
 function TIdSNTP.GetDateTime: TDateTime;
 var
   LNTPDataGram: TNTPGram;
-  LResultStr : String;
+  LBuffer : TIdBytes;
 begin
-//  FillChar(NTPDataGram, SizeOf(NTPDataGram), 0);
-  LNTPDataGram := TNTPGram.Create;
+  // DS default result is an empty TDateTime value
+  Result := 0.0;
 
-  try
-    LNTPDataGram.Head1 := $1B;
-    DateTimeToNTP(Now, LNTPDataGram.FXmit1, LNTPDataGram.FXmit2);
-    LNTPDataGram.Xmit1 := GStack.HostToNetwork(LNTPDataGram.Xmit1);
-    LNTPDataGram.Xmit2 := GStack.HostToNetwork(LNTPDataGram.Xmit2);
+  SetLength(LBuffer, SizeOf(TNTPGram));
+  FillBytes(LBuffer, SizeOf(TNTPGram), $00);
 
-    LResultStr := BytesToString(LNTPDataGram.Bytes);
-    Send(LResultStr);
-    LResultStr := ReceiveString;
+  LBuffer[0] := $1B;
+  DateTimeToNTP(Now, LNTPDataGram.Xmit1, LNTPDataGram.Xmit2);
+  CopyTIdLongWord(GStack.HostToNetwork(LNTPDataGram.Xmit1), LBuffer, 40);
+  CopyTIdLongWord(GStack.HostToNetwork(LNTPDataGram.Xmit2), LBuffer, 44);
 
-    // DS default result is an empty TDateTime value
-    Result := 0.0;
+  SendBuffer(LBuffer);
+  ReceiveBuffer(LBuffer);
 
-    // DS response may contain optional NTP authentication scheme info not in NTPGram
-    if Length(LResultStr) >= NTGRAMSIZE then
-    begin
-      FDestinationTimeStamp := Now ;
+  // DS response may contain optional NTP authentication scheme info not in NTPGram
+  if Length(LBuffer) >= SizeOf(TNTPGram) then
+  begin
+    FDestinationTimeStamp := Now;
 
-      // DS copy result data back into NTPDataGram
-      // DS ignore optional NTP authentication scheme info in response
-      LNTPDataGram.Bytes := ToBytes(LResultStr);
+    // DS copy result data back into NTPDataGram
+    // DS ignore optional NTP authentication scheme info in response
 
-      FOriginateTimeStamp := NTPToDateTime(GStack.NetworkToHost(LNTPDataGram.FOrg1),
-        GStack.NetworkToHost(LNTPDataGram.FOrg2));
-      FReceiveTimestamp := NTPToDateTime(GStack.NetworkToHost(LNTPDataGram.FRcv1),
-        GStack.NetworkToHost(LNTPDataGram.FRcv2));
-      FTransmitTimestamp := NTPToDateTime(GStack.NetworkToHost(LNTPDataGram.FXmit1),
-        GStack.NetworkToHost(LNTPDataGram.FXmit2));
+    LNTPDataGram.Head1            := LBuffer[0];
+    LNTPDataGram.Head2            := LBuffer[1];
+    LNTPDataGram.Head3            := LBuffer[2];
+    LNTPDataGram.Head4            := LBuffer[3];
+    LNTPDataGram.RootDelay        := GStack.NetworkToHost(BytesToLongWord(LBuffer, 4));
+    LNTPDataGram.RootDispersion   := GStack.NetworkToHost(BytesToLongWord(LBuffer, 8));
+    LNTPDataGram.RefID            := GStack.NetworkToHost(BytesToLongWord(LBuffer, 12));
+    LNTPDataGram.Ref1             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 16));
+    LNTPDataGram.Ref2             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 20));
+    LNTPDataGram.Org1             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 24));
+    LNTPDataGram.Org2             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 28));
+    LNTPDataGram.Rcv1             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 32));
+    LNTPDataGram.Rcv2             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 36));
+    LNTPDataGram.Xmit1            := GStack.NetworkToHost(BytesToLongWord(LBuffer, 40));
+    LNTPDataGram.Xmit2            := GStack.NetworkToHost(BytesToLongWord(LBuffer, 44));
 
-      // corrected as per RFC 2030 errata
-      FRoundTripDelay := (FDestinationTimestamp - FOriginateTimestamp) -
-        (FTransmitTimestamp - FReceiveTimestamp);
+    FOriginateTimeStamp := NTPToDateTime(LNTPDataGram.Org1, LNTPDataGram.Org2);
+    FReceiveTimestamp := NTPToDateTime(LNTPDataGram.Rcv1, LNTPDataGram.Rcv2);
+    FTransmitTimestamp := NTPToDateTime(LNTPDataGram.Xmit1, LNTPDataGram.Xmit2);
 
-      FLocalClockOffset := ((FReceiveTimestamp - FOriginateTimestamp) +
-        (FTransmitTimestamp - FDestinationTimestamp)) / 2;
+    // corrected as per RFC 2030 errata
+    FRoundTripDelay := (FDestinationTimestamp - FOriginateTimestamp) -
+      (FTransmitTimestamp - FReceiveTimestamp);
 
-      // DS update date/time when NTP datagram is not ignored
-      if not Disregard(LNTPDataGram) then
-      begin
-        Result := NTPToDateTime(GStack.NetworkToHost(LNTPDataGram.FXmit1),
-          GStack.NetworkToHost(LNTPDataGram.FXmit2));
-      end;
+    FLocalClockOffset := ((FReceiveTimestamp - FOriginateTimestamp) +
+      (FTransmitTimestamp - FDestinationTimestamp)) / 2;
+
+    // DS update date/time when NTP datagram is not ignored
+    if not Disregard(LNTPDataGram) then begin
+      Result := FTransmitTimestamp;
     end;
-  finally
-    FreeAndNil(LNTPDataGram);
   end;
 end;
 
 function TIdSNTP.SyncTime: Boolean;
 begin
   Result := DateTime <> 0.0;
-
-  if Result then
-  begin
-    Result := IndySetLocalTime(FOriginateTimestamp + FLocalClockOffset
-      + FRoundTripDelay);
-  end;
-end;
-
-{ TNTPGram }
-
-
-function TNTPGram.GetBytes: TIdBytes;
-begin
-  SetLength(Result,0);
-  AppendByte(Result,Head1);
-  AppendByte(Result,Head2);
-  AppendByte(Result,Head3);
-  AppendByte(Result,Head4);
-  AppendBytes(Result,ToBytes(FRootDelay));
-  AppendBytes(Result,ToBytes(FRootDispersion));
-  AppendBytes(Result,ToBytes(FRefID));
-  AppendBytes(Result,ToBytes(FRef1));
-  AppendBytes(Result,ToBytes(FRef2));
-  AppendBytes(Result,ToBytes(FOrg1));
-  AppendBytes(Result,ToBytes(FOrg2));
-  AppendBytes(Result,ToBytes(FRcv1));
-  AppendBytes(Result,ToBytes(FRcv2));
-  AppendBytes(Result,ToBytes(FXmit1));
-  AppendBytes(Result,ToBytes(FXmit2));
-end;
-
-procedure TNTPGram.SetBytes(const AValue: TIdBytes);
-{  TNTPGram	= packed record
-    Head1: byte;                0
-    Head2: byte;                1
-    Head3: byte;                2
-    Head4: byte;                3
-    RootDelay: LongWord;      4567    4- 7
-    RootDispersion: LongWord; 8901    8-11
-    RefID: LongWord;          2345   12-15
-    Ref1: LongWord;           6789   16-19
-    Ref2: LongWord;           0123   20-23
-    Org1: LongWord;           4567   24-27
-    Org2: LongWord;           8901   28-31
-    Rcv1: LongWord;           2345   32-35
-    Rcv2: LongWord;           6789   36-39
-    Xmit1: LongWord;          0123   40-43
-    Xmit2: LongWord;          4567   44-47
-  end;    }
-begin
-  if Length(AValue)>0 then
-  begin
-    Head1 := AValue[0];
-  end;
-  if Length(AValue)>1 then
-  begin
-    Head2 := AValue[1];
-  end;
-  if Length(AValue)>2 then
-  begin
-    Head3 := AValue[2];
-  end;
-  if Length(AValue)>3 then
-  begin
-    Head4 := AValue[3];
-  end;
-  if Length(AValue)>6 then
-  begin
-    //4-7
-    FRootDelay      := OrdFourByteToLongWord(AValue[4],AValue[5],AValue[6],AValue[7]);
-  end;
-  if Length(AValue)>10 then
-  begin
-    //8-11
-    FRootDispersion := OrdFourByteToLongWord(AValue[8],AValue[9],AValue[10],AValue[11]);
-  end;
-  if Length(AValue)>14 then
-  begin
-    //12-16
-    FRefID         := OrdFourByteToLongWord(AValue[12],AValue[13],AValue[14],AValue[15]);
-  end;
-  if Length(AValue)>18 then
-  begin
-  //16-19
-    FRef1          := OrdFourByteToLongWord(AValue[16],AValue[17],AValue[18],AValue[19]);
-  end;
-  if Length(AValue)>22 then
-  begin
-    //20-23
-    FRef2          := OrdFourByteToLongWord(AValue[20],AValue[21],AValue[22],AValue[23]);
-  end;
-  if Length(AValue)>26 then
-  begin
-    //24-27
-    FOrg1          := OrdFourByteToLongWord(AValue[24],AValue[25],AValue[26],AValue[27]);
-  end;
-  if Length(AValue)>30 then
-  begin
-    //28-31
-    FOrg2          := OrdFourByteToLongWord(AValue[28],AValue[29],AValue[30],AValue[31]);
-  end;
-  if Length(AValue)>34 then
-  begin
-    //32-35
-    FRcv1          := OrdFourByteToLongWord(AValue[32],AValue[33],AValue[34],AValue[35]);
-  end;
-  if Length(AValue)>38 then
-  begin
-    //36-39
-    FRcv2          := OrdFourByteToLongWord(AValue[36],AValue[37],AValue[38],AValue[39]);
-  end;
-  if Length(AValue)>42 then
-  begin
-    //40-43
-    FXmit1         := OrdFourByteToLongWord(AValue[40],AValue[41],AValue[42],AValue[43]);
-  end;
-  if Length(AValue)>46 then
-  begin
-    //44-47
-    Xmit2         := OrdFourByteToLongWord(AValue[44],AValue[45],AValue[46],AValue[47]);
+  if Result then begin
+    Result := IndySetLocalTime(FOriginateTimestamp + FLocalClockOffset + FRoundTripDelay);
   end;
 end;
 

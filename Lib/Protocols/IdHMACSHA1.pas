@@ -27,11 +27,46 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdHash, IdHashSHA1, IdHMAC;
+  IdFIPS,
+  IdGlobal,
+  IdHash, IdHashSHA, IdHMAC;
 
 type
   TIdHMACSHA1 = class(TIdHMAC)
   protected
+      procedure SetHashVars; override;
+    function IsIntFAvail : Boolean; override;
+    function InitIntFInst(const AKey : TIdBytes) : TIdHMACIntCtx; override;
+    procedure InitHash; override;
+  end;
+  {$IFNDEF DOTNET}
+  TIdHMACSHA224 = class(TIdHMAC)
+  protected
+    procedure SetHashVars; override;
+    function IsIntFAvail : Boolean; override;
+    function InitIntFInst(const AKey : TIdBytes) : TIdHMACIntCtx; override;
+    procedure InitHash; override;
+  end;
+  {$ENDIF}
+  TIdHMACSHA256 = class(TIdHMAC)
+  protected
+    procedure SetHashVars; override;
+    function IsIntFAvail : Boolean; override;
+    function InitIntFInst(const AKey : TIdBytes) : TIdHMACIntCtx; override;
+    procedure InitHash; override;
+  end;
+  TIdHMACSHA384 = class(TIdHMAC)
+  protected
+    procedure SetHashVars; override;
+    function IsIntFAvail : Boolean; override;
+    function InitIntFInst(const AKey : TIdBytes) : TIdHMACIntCtx; override;
+    procedure InitHash; override;
+  end;
+  TIdHMACSHA512 = class(TIdHMAC)
+  protected
+    procedure SetHashVars; override;
+    function IsIntFAvail : Boolean; override;
+    function InitIntFInst(const AKey : TIdBytes) : TIdHMACIntCtx; override;
     procedure InitHash; override;
   end;
 
@@ -41,14 +76,124 @@ implementation
 
 procedure TIdHMACSHA1.InitHash;
 begin
-  inherited;
   FHash := TIdHashSHA1.Create;
+end;
+
+function TIdHMACSHA1.InitIntFInst(const AKey: TIdBytes): TIdHMACIntCtx;
+begin
+  Result := GetHMACSHA1HashInst(AKey);
+end;
+
+function TIdHMACSHA1.IsIntFAvail: Boolean;
+begin
+   Result := inherited IsIntFAvail and IsHMACSHA1Avail;
+end;
+
+procedure TIdHMACSHA1.SetHashVars;
+begin
   FHashSize := 20;
   FBlockSize := 64;
   FHashName := 'SHA1';
 end;
 
-initialization
-  // RLebeau: why do this?
-  TIdHMACSHA1.Create.Destroy;
+{ TIdHMACSHA224 }
+
+  {$IFNDEF DOTNET}
+procedure TIdHMACSHA224.InitHash;
+begin
+  FHash := TIdHashSHA224.Create;
+end;
+
+function TIdHMACSHA224.InitIntFInst(const AKey: TIdBytes): TIdHMACIntCtx;
+begin
+  Result := GetHMACSHA224HashInst(AKey);
+end;
+
+function TIdHMACSHA224.IsIntFAvail: Boolean;
+begin
+   Result := inherited IsIntFAvail and IsHMACSHA224Avail;
+end;
+
+procedure TIdHMACSHA224.SetHashVars;
+begin
+  FHashSize := 28;
+  FBlockSize := 64;
+  FHashName := 'SHA224';
+end;
+
+{$ENDIF}
+
+{ TIdHMACSHA256 }
+
+procedure TIdHMACSHA256.InitHash;
+begin
+  FHash := TIdHashSHA256.Create;
+end;
+
+function TIdHMACSHA256.InitIntFInst(const AKey: TIdBytes): TIdHMACIntCtx;
+begin
+  Result := GetHMACSHA256HashInst(AKey);
+end;
+
+function TIdHMACSHA256.IsIntFAvail: Boolean;
+begin
+   Result := inherited IsIntFAvail and IsHMACSHA256Avail;
+end;
+
+procedure TIdHMACSHA256.SetHashVars;
+begin
+  FHashSize := 32;
+  FBlockSize := 64;
+  FHashName := 'SHA256';
+end;
+
+{ TIdHMACSHA384 }
+
+procedure TIdHMACSHA384.InitHash;
+begin
+  FHash := TIdHashSHA384.Create;
+end;
+
+function TIdHMACSHA384.InitIntFInst(const AKey: TIdBytes): TIdHMACIntCtx;
+begin
+  Result := GetHMACSHA384HashInst(AKey);
+end;
+
+function TIdHMACSHA384.IsIntFAvail: Boolean;
+begin
+   Result := inherited IsIntFAvail and IsHMACSHA384Avail;
+end;
+
+procedure TIdHMACSHA384.SetHashVars;
+begin
+  FHashSize := 48;
+  FBlockSize := 128;
+  FHashName := 'SHA384';
+end;
+
+{ TIdHMACSHA512 }
+
+procedure TIdHMACSHA512.InitHash;
+begin
+
+  FHash := TIdHashSHA512.Create;
+end;
+
+function TIdHMACSHA512.InitIntFInst(const AKey: TIdBytes): TIdHMACIntCtx;
+begin
+  Result := GetHMACSHA512HashInst(AKey);
+end;
+
+function TIdHMACSHA512.IsIntFAvail: Boolean;
+begin
+   Result := inherited IsIntFAvail and IsHMACSHA512Avail;
+end;
+
+procedure TIdHMACSHA512.SetHashVars;
+begin
+  FHashSize := 64;
+  FBlockSize := 128;
+  FHashName := 'SHA512';
+end;
+
 end.

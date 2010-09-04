@@ -431,6 +431,7 @@ type
   end;
 
   TIdHTTPProtocol = class(TObject)
+  protected
     FHTTP: TIdCustomHTTP;
     FResponseCode: Integer;
     FRequest: TIdHTTPRequest;
@@ -470,6 +471,7 @@ type
     FOptions: TIdHTTPOptions;
     FURI: TIdURI;
     FHTTPProto: TIdHTTPProtocol;
+    FMetaHTTPEquiv :  TIdMetaHTTPEquiv;
     FProxyParameters: TIdProxyConnectionInfo;
     //
     FOnHeadersAvailable: TIdHTTPOnHeadersAvailable;
@@ -486,6 +488,7 @@ type
     procedure DoRequest(const AMethod: TIdHTTPMethod; AURL: string;
       ASource, AResponseContent: TStream; AIgnoreReplies: array of SmallInt); virtual;
     procedure InitComponent; override;
+    function InternalReadLn: String;
     procedure SetAuthenticationManager(Value: TIdAuthenticationManager);
     procedure SetCookieManager(ACookieManager: TIdCookieManager);
     procedure SetAllowCookies(AValue: Boolean);
@@ -510,8 +513,14 @@ type
 
     procedure CheckAndConnect(AResponse: TIdHTTPResponse);
     procedure DoOnDisconnected; override;
+
+    //misc internal stuff
+    function ResponseCharset : String;
   public
     destructor Destroy; override;
+
+    procedure Delete(AURL: string);
+
     procedure Options(AURL: string); overload;
     procedure Get(AURL: string; AResponseContent: TStream); overload;
     procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of SmallInt);
@@ -522,14 +531,15 @@ type
     function Trace(AURL: string): string; overload;
     procedure Head(AURL: string);
 
+    function Post(AURL: string; const ASourceFile: String): string; overload;
     function Post(AURL: string; ASource: TStrings): string; overload;
     function Post(AURL: string; ASource: TStream): string; overload;
     function Post(AURL: string; ASource: TIdMultiPartFormDataStream): string; overload;
-    procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TStream); overload;
-    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream); overload;
 
-    {Post data provided by a stream, this is for submitting data to a server}
+    procedure Post(AURL: string; const ASourceFile: String; AResponseContent: TStream); overload;
+    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream); overload;
     procedure Post(AURL: string; ASource, AResponseContent: TStream); overload;
+    procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TStream); overload;
 
     function Put(AURL: string; ASource: TStream): string; overload;
     procedure Put(AURL: string; ASource, AResponseContent: TStream); overload;
@@ -542,6 +552,7 @@ type
     {This is the text of the message such as "404 File Not Found here Sorry"}
     property ResponseText: string read GetResponseText;
     property Response: TIdHTTPResponse read GetResponseHeaders;
+    property MetaHTTPEquiv :  TIdMetaHTTPEquiv read FMetaHTTPEquiv;
     { This is the last processed URL }
     property URL: TIdURI read FURI;
     // number of retry attempts for Authentication
@@ -625,43 +636,16 @@ type
 implementation
 
 uses
+  {$IFNDEF DOTNET}
+  IdStreamVCL,
+  {$ENDIF}
   SysUtils,
   IdAllAuthentications, IdComponent, IdCoderMIME, IdTCPConnection,
-  IdResourceStringsProtocols, IdGlobalProtocols, IdIOHandler, IdIOHandlerSocket;
+  IdResourceStringsCore, IdResourceStringsProtocols, IdGlobalProtocols,
+  IdIOHandler, IdIOHandlerSocket;
 
 const
   ProtocolVersionString: array[TIdHTTPProtocolVersion] of string = ('1.0', '1.1'); {do not localize}
-
-{ TIdDiscardStream }
-
-type
-  TIdDiscardStream = class(TIdBaseStream)
-  protected
-    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
-    procedure IdSetSize(ASize: Int64); override;
-  end;
-
-function TIdDiscardStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
-begin
-  Result := 0;
-end;
-
-function TIdDiscardStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
-begin
-  Result := 0;
-end;
-
-procedure TIdDiscardStream.IdSetSize(ASize: Int64);
-begin
-//
-end;
-
-function TIdDiscardStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
-begin
-  Result := ACount;
-end;
 
 { EIdHTTPProtocolException }
 
@@ -674,13 +658,24 @@ end;
 
 { TIdHTTP }
 
+function IsContentTypeHtml(AInfo: TIdEntityHeaderInfo) : Boolean;
+begin
+  Result := IsHeaderMediaType(AInfo.ContentType, 'text/html'); {do not localize}
+end;
+
 destructor TIdCustomHTTP.Destroy;
 begin
   FreeAndNil(FHTTPProto);
   FreeAndNil(FURI);
   FreeAndNil(FProxyParameters);
   SetCookieManager(nil);
+  FreeAndNil(FMetaHTTPEquiv);
   inherited Destroy;
+end;
+
+procedure TIdCustomHTTP.Delete(AURL: string);
+begin
+  DoRequest(Id_HTTPMethodDelete, AURL, nil, nil, []);
 end;
 
 procedure TIdCustomHTTP.Options(AURL: string);
@@ -690,13 +685,11 @@ end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream);
 begin
-  Assert(AResponseContent<>nil);
   Get(AURL, AResponseContent, []);
 end;
 
 procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TStream);
 begin
-  Assert(AResponseContent<>nil);
   DoRequest(Id_HTTPMethodTrace, AURL, nil, AResponseContent, []);
 end;
 
@@ -709,9 +702,6 @@ procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TStream);
 var
   OldProtocol: TIdHTTPProtocolVersion;
 begin
-  Assert(ASource<>nil);
-  Assert(AResponseContent<>nil);
-
   // PLEASE READ CAREFULLY
 
   // Currently when issuing a POST, IdHTTP will automatically set the protocol
@@ -759,7 +749,7 @@ begin
   if Assigned(AStrings) then begin
     if hoForceEncodeParams in FOptions then begin
       EncodeRequestParams(AStrings);
-    end;
+        end;
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
       Result := StringReplace(Trim(AStrings.Text), sLineBreak, '&',[rfReplaceAll]);
@@ -771,74 +761,97 @@ begin
   end;
 end;
 
+function TIdCustomHTTP.Post(AURL: string; const ASourceFile: String): string;
+var
+  LSource: TIdReadFileExclusiveStream;
+begin
+  LSource := TIdReadFileExclusiveStream.Create(ASourceFile);
+  try
+    Result := Post(AURL, LSource);
+  finally
+    FreeAndNil(LSource);
+  end;
+end;
+
+procedure TIdCustomHTTP.Post(AURL: string; const ASourceFile: String; AResponseContent: TStream);
+var
+  LSource: TStream;
+begin
+  LSource := TIdReadFileExclusiveStream.Create(ASourceFile);
+  try
+    Post(AURL, LSource, AResponseContent);
+  finally
+    FreeAndNil(LSource);
+  end;
+end;
+
 procedure TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AResponseContent: TStream);
 var
-  LParams: TStringStream;
+  LParams: TMemoryStream;
 begin
-  Assert(ASource<>nil);
-  Assert(AResponseContent<>nil);
-
   // Usual posting request have default ContentType is application/x-www-form-urlencoded
-  if (Request.ContentType = '') or (TextIsSame(Request.ContentType, 'text/html')) then {do not localize}
+  if (Request.ContentType = '') or IsContentTypeHtml(Request) then begin
     Request.ContentType := 'application/x-www-form-urlencoded'; {do not localize}
+  end;
 
-  LParams := TStringStream.Create(SetRequestParams(ASource));
-  try
-    Post(AURL, LParams, AResponseContent);
-  finally
-    FreeAndNil(LParams);
+  if ASource <> nil then
+  begin
+    LParams := TMemoryStream.Create;
+    try
+      WriteStringToStream(LParams, SetRequestParams(ASource));
+      LParams.Position := 0;
+      Post(AURL, LParams, AResponseContent);
+    finally
+      FreeAndNil(LParams);
+    end;
+  end else begin
+    Post(AURL, TStream(nil), AResponseContent);
   end;
 end;
 
 function TIdCustomHTTP.Post(AURL: string; ASource: TStrings): string;
 var
-  LResponse: TStringStream;
+  LResponse: TMemoryStream;
 begin
-  Assert(ASource<>nil);
-
-  LResponse := TStringStream.Create('');
+  LResponse := TMemoryStream.Create;
   try
     Post(AURL, ASource, LResponse);
+    LResponse.Position := 0;
+    Result := ReadStringAsCharset(LResponse, ResponseCharset);
   finally
-    result := LResponse.DataString;
     FreeAndNil(LResponse);
   end;
 end;
 
 function TIdCustomHTTP.Post(AURL: string; ASource: TStream): string;
 var
-  LResponse: TStringStream;
+  LResponse: TMemoryStream;
 begin
-  Assert(ASource<>nil);
-
-  LResponse := TStringStream.Create('');
+  LResponse := TMemoryStream.Create;
   try
     Post(AURL, ASource, LResponse);
+    LResponse.Position := 0;
+    Result := ReadStringAsCharset(LResponse, ResponseCharset);
   finally
-    result := LResponse.DataString;
     FreeAndNil(LResponse);
   end;
 end;
 
 procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TStream);
 begin
-  Assert(ASource<>nil);
-  Assert(AResponseContent<>nil);
-
   DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
 function TIdCustomHTTP.Put(AURL: string; ASource: TStream): string;
 var
-  LResponse: TStringStream;
+  LResponse: TMemoryStream;
 begin
-  Assert(ASource<>nil);
-
-  LResponse := TStringStream.Create('');   {do not localize}
+  LResponse := TMemoryStream.Create;
   try
     Put(AURL, ASource, LResponse);
+    LResponse.Position := 0;
+    Result := ReadStringAsCharset(LResponse, ResponseCharset);
   finally
-    result := LResponse.DataString;
     FreeAndNil(LResponse);
   end;
 end;
@@ -850,14 +863,15 @@ end;
 
 function TIdCustomHTTP.Trace(AURL: string): string;
 var
-  Stream: TStringStream;
+  LResponse: TMemoryStream;
 begin
-  Stream := TStringStream.Create('');  {do not localize}
+  LResponse := TMemoryStream.Create;
   try
-    Trace(AURL, Stream);
-    Result := Stream.DataString;
+    Trace(AURL, LResponse);
+    LResponse.Position := 0;
+    Result := ReadStringAsCharset(LResponse, ResponseCharset);
   finally
-    FreeAndNil(Stream);
+    FreeAndNil(LResponse);
   end;
 end;
 
@@ -870,15 +884,14 @@ begin
 end;
 
 procedure TIdCustomHTTP.SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
-var
-  S: string;
 begin
-  if Assigned(FCookieManager) then begin
+  if Assigned(FCookieManager) then
+  begin
     // Send secure cookies only if we have Secured connection
-    S := FCookieManager.GenerateCookieList(AURL, (IOHandler is TIdSSLIOHandlerSocketBase));
-    if Length(S) > 0 then begin
-      ARequest.RawHeaders.Values['Cookie'] := S;  {do not localize}
-    end;
+    FCookieManager.GenerateClientCookies(
+      AURL,
+      TextIsSame(AURL.Protocol, 'HTTPS'), {do not localize}
+      ARequest.RawHeaders);
   end;
 end;
 
@@ -955,103 +968,170 @@ procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse;
   AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
 var
   LS: TStream;
+  LOrigStream : TStream;
   Size: Integer;
+  LParseHTML : Boolean;
+  LCreateTmpContent : Boolean;
   LDecMeth : Integer;
   //0 - no compression was used or we can't support that feature
   //1 - deflate
   //2 - gzip
+  LTrailHeader: String;
 
   function ChunkSize: integer;
   var
     j: Integer;
     s: string;
   begin
-    s := IOHandler.ReadLn;
-    j := IndyPos(' ', s);
+    s := InternalReadLn;
+    j := IndyPos(';', s); {do not localize}
     if j > 0 then begin
       s := Copy(s, 1, j - 1);
     end;
-    Result := IndyStrToInt('$' + s, 0);      {do not localize}
+    Result := IndyStrToInt('$' + Trim(s), 0);      {do not localize}
   end;
 
 begin
   LDecMeth := 0;
 
-  if Assigned(AResponse.ContentStream) then // Only for Get and Post
-  begin
-    //we need to determine what type of decompression may need to used
-    //before we read from the IOHandler.  If there is compression,
-    //then we use the LM stream to hold the compressed data that was downloaded
-    //and decompress it.  If no compression is used, LS will equal ContentStream
-    if Assigned(Compressor) and Compressor.IsReady then
-    begin
-       case PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) of  {do not localize}
-         0: LDecMeth := 1;
-         1: LDecMeth := 2;
-       end;
-    end;
+  // TODO: parse XML as well...
+  LParseHTML := IsContentTypeHtml(AResponse) and Assigned(AResponse.ContentStream);
+  LCreateTmpContent := LParseHTML and not (AResponse.ContentStream is TCustomMemoryStream);
 
-    if LDecMeth > 0 then begin
-      LS := TMemoryStream.Create;
-    end else begin
-      LS := AResponse.ContentStream;
+  LOrigStream := Response.ContentStream;
+  if LCreateTmpContent then begin
+    Response.ContentStream := TMemoryStream.Create;
+  end;
+
+  try
+    // we need to determine what type of decompression may need to be used
+    // before we read from the IOHandler.  If there is compression, then we
+    // use a local stream to download the compressed data and decompress it.
+    // If no compression is used, ContentStream will be used directly
+
+    if Assigned(AResponse.ContentStream) then begin
+      if Assigned(Compressor) and Compressor.IsReady then begin
+         case PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) of  {do not localize}
+           0: LDecMeth := 1;
+           1: LDecMeth := 2;
+         end;
+      end;
+      if LDecMeth > 0 then begin
+        LS := TMemoryStream.Create;
+      end else begin
+        LS := AResponse.ContentStream;
+      end;
+    end else
+    begin
+      LS := nil;
     end;
 
     try
-      if IndyPos('chunked', LowerCase(AResponse.RawHeaders.Values['Transfer-Encoding'])) > 0 then {do not localize}
-      begin // Chunked
+      if IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0 then begin {do not localize}
         DoStatus(hsStatusText, [RSHTTPChunkStarted]);
-        Size := ChunkSize;
-        while Size > 0 do
-        begin
-          IOHandler.ReadStream(LS, Size);
-          IOHandler.ReadLn; // blank line
+        BeginWork(wmRead);
+        try
           Size := ChunkSize;
+          while Size <> 0 do begin
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, Size);
+            end else begin
+              IOHandler.Discard(Size);
+            end;
+            InternalReadLn; // CRLF at end of chunk data
+            Size := ChunkSize;
+          end;
+          // read trailer headers
+          LTrailHeader := InternalReadLn;
+          while LTrailHeader <> '' do begin
+            AResponse.RawHeaders.Add(LTrailHeader);
+            LTrailHeader := InternalReadLn;
+          end;
+        finally
+          EndWork(wmRead);
         end;
-        IOHandler.ReadLn; // blank line
       end
-      else if AResponse.ContentLength > 0 then // If chunked then this is also 0
-      begin
+      else if AResponse.ContentLength > 0 then begin// If chunked then this is also 0
         // RLebeau 6/30/2006: DO NOT READ IF THE REQUEST IS HEAD!!!
         // The server is supposed to send a 'Content-Length' header
         // without sending the actual data...
         try
           if AUnexpectedContentTimeout > 0 then begin
-            IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
+            if IOHandler.InputBufferIsEmpty then begin
+              IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
+            end;
             if not IOHandler.InputBufferIsEmpty then begin
-              IOHandler.ReadStream(LS, AResponse.ContentLength);
+              if Assigned(LS) then begin
+                IOHandler.ReadStream(LS, AResponse.ContentLength);
+              end else begin
+                IOHandler.Discard(AResponse.ContentLength);
+              end;
             end;
           end else begin
-            IOHandler.ReadStream(LS, AResponse.ContentLength);
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, AResponse.ContentLength);
+            end else begin
+              IOHandler.Discard(AResponse.ContentLength);
+            end;
           end;
         except
           on E: EIdConnClosedGracefully do
         end;
       end
-      else if not AResponse.HasContentLength then
-      begin
-        // RLebeau 2/15/2006: only read if an entity body is actually expected
+      else if not AResponse.HasContentLength then begin
+      // RLebeau 2/15/2006: only read if an entity body is actually expected
         if AUnexpectedContentTimeout > 0 then begin
-          IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
+          if IOHandler.InputBufferIsEmpty then begin
+            IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
+          end;
           if not IOHandler.InputBufferIsEmpty then begin
-            IOHandler.ReadStream(LS, -1, True);
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, -1, True);
+            end else begin
+              IOHandler.DiscardAll;
+            end;
           end;
         end else begin
-          IOHandler.ReadStream(LS, -1, True);
+          if Assigned(LS) then begin
+            IOHandler.ReadStream(LS, -1, True);
+          end else begin
+            IOHandler.DiscardAll;
+          end;
         end;
       end;
       if LDecMeth > 0 then begin
         LS.Position := 0;
-      end;
-      case LDecMeth of
-        1 :  Compressor.DecompressDeflateStream(LS, AResponse.ContentStream);
-        2 :  Compressor.DecompressGZipStream(LS, AResponse.ContentStream);
+        case LDecMeth of
+          1 :  Compressor.DecompressDeflateStream(LS, AResponse.ContentStream);
+          2 :  Compressor.DecompressGZipStream(LS, AResponse.ContentStream);
+        end;
       end;
     finally
       if LDecMeth > 0 then begin
         FreeAndNil(LS);
       end;
     end;
+    if LParseHTML then begin
+      FMetaHTTPEquiv.ProcessMetaHTTPEquiv(Response.ContentStream);
+    end;
+  finally
+    if LCreateTmpContent then
+    begin
+      try
+        LOrigStream.CopyFrom(Response.ContentStream, 0);
+      finally
+        Response.ContentStream.Free;
+        Response.ContentStream := LOrigStream;
+      end;
+    end;
+  end;
+end;
+
+function TIdCustomHTTP.ResponseCharset: String;
+begin
+  Result := Response.CharSet;
+  if Result = '' then begin
+    Result := MetaHTTPEquiv.CharSet;
   end;
 end;
 
@@ -1062,8 +1142,7 @@ begin
   LURI := TIdURI.Create(ARequest.URL);
 
   try
-    if Length(LURI.Username) > 0 then
-    begin
+    if Length(LURI.Username) > 0 then begin
       ARequest.Username := LURI.Username;
       ARequest.Password := LURI.Password;
     end;
@@ -1093,29 +1172,23 @@ begin
     if Length(LURI.Port) > 0 then begin
       FURI.Port := LURI.Port;
     end
-    else begin
-      if TextIsSame(LURI.Protocol, 'http') then begin     {do not localize}
-        FURI.Port := IntToStr(IdPORT_HTTP);
-      end else begin
-        if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
-          FURI.Port := IntToStr(IdPORT_SSL);
-        end else begin
-          if Length(FURI.Port) > 0 then begin
-          {  FURI.Port:=FURI.Port; } // do nothing, as the port is already filled in.
-          end else begin
-            raise EIdUnknownProtocol.Create(RSHTTPUnknownProtocol);
-          end;
-        end;
-      end;
+    else if TextIsSame(LURI.Protocol, 'http') then begin     {do not localize}
+      FURI.Port := IntToStr(IdPORT_HTTP);
+    end
+    else if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
+      FURI.Port := IntToStr(IdPORT_https);
+    end
+    else if Length(FURI.Port) = 0 then begin
+      raise EIdUnknownProtocol.Create(RSHTTPUnknownProtocol);
     end;
 
     // The URL part is not URL encoded at this place
     ARequest.URL := URL.GetPathAndParams;
 
-    if ARequest.Method = Id_HTTPMethodOptions then
+    if TextIsSame(ARequest.Method, Id_HTTPMethodOptions) or
+      TextIsSame(ARequest.MethodOverride, Id_HTTPMethodOptions) then
     begin
-      if TextIsSame(LURI.Document, '*') then      {do not localize}
-      begin
+      if TextIsSame(LURI.Document, '*') then begin     {do not localize}
         ARequest.URL := LURI.Document;
       end;
     end;
@@ -1124,25 +1197,26 @@ begin
     FURI.IPVersion := ARequest.IPVersion;
 
     // Check for valid HTTP request methods
-    if PosInStrArray(ARequest.Method, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete], False) > -1 then
+    if (PosInStrArray(ARequest.Method, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete], False) > -1) or
+      (PosInStrArray(ARequest.MethodOverride, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete], False) > -1) then
     begin
-      if ProtocolVersion <> pv1_1 then
-      begin
+      if ProtocolVersion <> pv1_1 then  begin
         raise EIdException.Create(RSHTTPMethodRequiresVersion);
       end;
     end;
 
-    //IsStringInArray(ARequest.Method , [Id_HTTPMethodPost, Id_HTTPMethodPut]) then begin
     if Assigned(ARequest.Source) then begin
       ARequest.ContentLength := ARequest.Source.Size;
     end else begin
       ARequest.ContentLength := -1;
     end;
 
-    if FURI.Port <> IntToStr(IdPORT_HTTP) then begin
-      ARequest.Host := FURI.Host + ':' + FURI.Port;    {do not localize}
-    end else begin
+    if (TextIsSame(FURI.Protocol, 'http') and (FURI.Port = IntToStr(IdPORT_HTTP))) or  {do not localize}
+      (TextIsSame(FURI.Protocol, 'https') and (FURI.Port = IntToStr(IdPORT_https))) then  {do not localize}
+    begin
       ARequest.Host := FURI.Host;
+    end else begin
+      ARequest.Host := FURI.Host + ':' + FURI.Port;    {do not localize}
     end;
   finally
     FreeAndNil(LURI);  // Free URI Object
@@ -1155,6 +1229,10 @@ begin
 
   if not AResponse.KeepAlive then begin
     Disconnect;
+  end;
+
+  if Assigned(IOHandler) then begin
+    IOHandler.InputBuffer.Clear;
   end;
 
   CheckForGracefulDisconnect(False);
@@ -1197,44 +1275,44 @@ begin
   end;
 
   if Assigned(FCompressor) and FCompressor.IsReady then begin
-    if IndyPos('deflate', Request.AcceptEncoding) = 0 then  {do not localize}
+    if IndyPos('deflate', ARequest.AcceptEncoding) = 0 then  {do not localize}
     begin
-      if Request.AcceptEncoding <> '' then begin {do not localize}
-        Request.AcceptEncoding := Request.AcceptEncoding + ', deflate'; {do not localize}
+      if ARequest.AcceptEncoding <> '' then begin {do not localize}
+        ARequest.AcceptEncoding := ARequest.AcceptEncoding + ', deflate'; {do not localize}
       end else begin
-        Request.AcceptEncoding := 'deflate'; {do not localize}
+        ARequest.AcceptEncoding := 'deflate'; {do not localize}
       end;
     end;
-    if IndyPos('gzip', Request.AcceptEncoding) = 0 then {do not localize}
+    if IndyPos('gzip', ARequest.AcceptEncoding) = 0 then {do not localize}
     begin
-      if Request.AcceptEncoding <> '' then begin {do not localize}
-        Request.AcceptEncoding := Request.AcceptEncoding + ', gzip'; {do not localize}
+      if ARequest.AcceptEncoding <> '' then begin {do not localize}
+        ARequest.AcceptEncoding := ARequest.AcceptEncoding + ', gzip'; {do not localize}
       end else begin
-        Request.AcceptEncoding := 'gzip'; {do not localize}
+        ARequest.AcceptEncoding := 'gzip'; {do not localize}
       end;
     end;
   end;
 
-  if IndyPos('identity', Request.AcceptEncoding) = 0 then begin  {do not localize}
-    if Request.AcceptEncoding <> '' then begin
-      Request.AcceptEncoding := Request.AcceptEncoding + ', identity'; {do not localize}
+  if IndyPos('identity', ARequest.AcceptEncoding) = 0 then begin  {do not localize}
+    if ARequest.AcceptEncoding <> '' then begin
+      ARequest.AcceptEncoding := ARequest.AcceptEncoding + ', identity'; {do not localize}
     end else begin
-      Request.AcceptEncoding := 'identity'; {do not localize}
+      ARequest.AcceptEncoding := 'identity'; {do not localize}
     end;
   end;
 
-  if ARequest.UseProxy = ctSSLProxy then begin
+  if ARequest.UseProxy in [ctProxy, ctSSLProxy] then begin
     LLocalHTTP := TIdHTTPProtocol.Create(Self);
     try
       with LLocalHTTP do begin
         Request.UserAgent := ARequest.UserAgent;
         Request.Host := ARequest.Host;
-        Request.ContentLength := ARequest.ContentLength;
         Request.Pragma := 'no-cache';                       {do not localize}
         Request.URL := URL.Host + ':' + URL.Port;
         Request.Method := Id_HTTPMethodConnect;
         Request.ProxyConnection := 'keep-alive';            {do not localize}
 
+        // TODO: change this to nil so data is discarded without wasting memory?
         Response.ContentStream := TMemoryStream.Create;
         try
           try
@@ -1242,7 +1320,7 @@ begin
               CheckAndConnect(Response);
               BuildAndSendRequest(nil);
 
-              Response.ResponseText := IOHandler.ReadLn;
+              Response.ResponseText := InternalReadLn;
               if Length(Response.ResponseText) = 0 then begin
                 // Support for HTTP responses without status line and headers
                 Response.ResponseText := 'HTTP/1.0 200 OK'; {do not localize}
@@ -1252,10 +1330,9 @@ begin
                 ProcessCookies(Request, Response);
               end;
 
-              if Response.ResponseCode = 200 then
-              begin
+              if Response.ResponseCode = 200 then begin
                 // Connection established
-                if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+                if (ARequest.UseProxy = ctSSLProxy) and (IOHandler is TIdSSLIOHandlerSocketBase) then begin
                   TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
                 end;
                 Break;
@@ -1280,8 +1357,11 @@ begin
 
   FHTTPProto.BuildAndSendRequest(URL);
 
-  if PosInStrArray(ARequest.Method, [Id_HTTPMethodPost, Id_HTTPMethodPut], False) > -1 then
-  begin
+  // RLebeau 1/31/2008: in order for TIdWebDAV to post data correctly, don't
+  // restrict which HTTP methods can post (except logically for GET and HEAD),
+  // especially since TIdCustomHTTP.PrepareRequest() does not differentiate when
+  // setting up the 'Content-Length' header ...
+  if ARequest.Source <> nil then begin
     IOHandler.Write(ARequest.Source, 0, False);
   end;
 end;
@@ -1293,33 +1373,70 @@ end;
 
 procedure TIdCustomHTTP.ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
-  Cookies, Cookies2: TStringList;
-  i: Integer;
+  Temp, Cookies, Cookies2: TStringList;
+  i, j: Integer;
+  S, Cur: String;
+
+  // RLebeau: a single Set-Cookie header can have more than 1 cookie in it...
+  procedure ReadCookies(AHeaders: TIdHeaderList; const AHeader: String; ACookies: TStrings);
+  var
+    k: Integer;
+  begin
+    Temp.Clear;
+    AHeaders.Extract(AHeader, Temp);
+    for k := 0 to Temp.Count-1 do begin
+      S := Temp[k];
+      while ExtractNextCookie(S, Cur, True) do begin
+        ACookies.Add(Cur);
+      end;
+    end;
+  end;
+
 begin
+  Temp := nil;
   Cookies := nil;
   Cookies2 := nil;
   try
-    if not Assigned(FCookieManager) and AllowCookies then
-    begin
+    if (not Assigned(FCookieManager)) and AllowCookies then begin
       CookieManager := TIdCookieManager.Create(Self);
       FFreeCookieManager := True;
     end;
 
-    if Assigned(FCookieManager) then
-    begin
+    if Assigned(FCookieManager) then begin
+      Temp := TStringList.Create;
       Cookies := TStringList.Create;
       Cookies2 := TStringList.Create;
 
-      AResponse.RawHeaders.Extract('Set-cookie', Cookies);    {do not localize}
-      AResponse.RawHeaders.Extract('Set-cookie2', Cookies2);  {do not localize}
+      ReadCookies(AResponse.RawHeaders, 'Set-Cookie', Cookies);  {do not localize}
+      ReadCookies(AResponse.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
 
-      for i := 0 to Cookies.Count - 1 do
-        CookieManager.AddCookie(Cookies[i], FURI.Host);
+      ReadCookies(FMetaHTTPEquiv.RawHeaders, 'Set-Cookie', Cookies);    {do not localize}
+      ReadCookies(FMetaHTTPEquiv.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
 
-      for i := 0 to Cookies2.Count - 1 do
-        CookieManager.AddCookie2(Cookies2[i], FURI.Host);
+      // RLebeau: per RFC 2965:
+      //
+      // "User agents that receive in the same response both a
+      // Set-Cookie and Set-Cookie2 response header for the same
+      // cookie MUST discard the Set-Cookie information and use
+      // only the Set-Cookie2 information."
+      
+      for i := 0 to Cookies2.Count-1 do begin
+        j := Cookies.IndexOfName(Cookies2.Names[i]);
+        if j <> -1 then begin
+          Cookies.Delete(j);
+        end;
+      end;
+
+      for i := 0 to Cookies.Count - 1 do begin
+        CookieManager.AddServerCookie(Cookies[i], FURI);
+      end;
+
+      for i := 0 to Cookies2.Count - 1 do begin
+        CookieManager.AddServerCookie2(Cookies2[i], FURI);
+      end;
     end;
   finally
+    FreeAndNil(Temp);
     FreeAndNil(Cookies);
     FreeAndNil(Cookies2);
   end;
@@ -1328,8 +1445,7 @@ end;
 procedure TIdCustomHTTP.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
-  if Operation = opRemove then
-  begin
+  if Operation = opRemove then begin
     if (AComponent = FCookieManager) then begin
       FCookieManager := nil;
     end else if (AComponent = FAuthenticationManager) then begin
@@ -1342,18 +1458,21 @@ end;
 
 procedure TIdCustomHTTP.SetCookieManager(ACookieManager: TIdCookieManager);
 begin
-  if Assigned(FCookieManager) then
-  begin
-    if FFreeCookieManager then begin
-      FreeAndNil(FCookieManager);
+  if FCookieManager <> ACookieManager then begin
+    if Assigned(FCookieManager) then begin
+      if FFreeCookieManager then begin
+        FreeAndNil(FCookieManager);
+      end else begin
+        FCookieManager.RemoveFreeNotification(Self);
+      end;
     end;
-  end;
 
-  FCookieManager := ACookieManager;
-  FFreeCookieManager := False;
+    FCookieManager := ACookieManager;
+    FFreeCookieManager := False;
 
-  if Assigned(FCookieManager) then begin
-    FCookieManager.FreeNotification(Self);
+    if Assigned(FCookieManager) then begin
+      FCookieManager.FreeNotification(Self);
+    end;
   end;
 end;
 
@@ -1364,13 +1483,11 @@ var
   Auth: TIdAuthenticationClass;
 begin
   Inc(FAuthRetries);
-  if not Assigned(ARequest.Authentication) then
-  begin
+  if not Assigned(ARequest.Authentication) then begin
     // Find wich Authentication method is supported from us.
     Auth := nil;
 
-    for i := 0 to AResponse.WWWAuthenticate.Count - 1 do
-    begin
+    for i := 0 to AResponse.WWWAuthenticate.Count - 1 do begin
       S := AResponse.WWWAuthenticate[i];
       Auth := FindAuthClass(Fetch(S));
       if Assigned(Auth) then begin
@@ -1378,14 +1495,14 @@ begin
       end;
     end;
 
+    // let the user override us, if desired.
+    if Assigned(FOnSelectAuthorization) then begin
+      OnSelectAuthorization(Self, Auth, AResponse.WWWAuthenticate);
+    end;
+
     if not Assigned(Auth) then begin
       Result := False;
       Exit;
-    end;
-
-    if Assigned(FOnSelectAuthorization) then
-    begin
-      OnSelectAuthorization(Self, Auth, AResponse.WWWAuthenticate);
     end;
 
     ARequest.Authentication := Auth.Create;
@@ -1398,56 +1515,55 @@ begin
   end;}
   // S.G. 20/10/2003: Added part about the password. Not testing user name as some
   // S.G. 20/10/2003: web sites do not require user name, only password.
-  result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
+  Result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
 
-  if Result then
-  begin
-    with ARequest.Authentication do
-    begin
-      Username := ARequest.Username;
-      Password := ARequest.Password;
-      // S.G. 20/10/2003: ToDo: We need to have a marker here to prevent the code to test with the same username/password combo
-      // S.G. 20/10/2003: if they are picked up from properties.
-      Params.Values['Authorization'] := ARequest.Authentication.Authentication; {do not localize}
-      AuthParams := AResponse.WWWAuthenticate;
-    end;
+  if not Result then begin
+    Exit;
+  end;
+  
+  with ARequest.Authentication do begin
+    Username := ARequest.Username;
+    Password := ARequest.Password;
+    // S.G. 20/10/2003: ToDo: We need to have a marker here to prevent the code to test with the same username/password combo
+    // S.G. 20/10/2003: if they are picked up from properties.
+    Params.Values['Authorization'] := ARequest.Authentication.Authentication; {do not localize}
+    AuthParams := AResponse.WWWAuthenticate;
+  end;
 
-    Result := False;
+  Result := False;
 
-    repeat
-      case ARequest.Authentication.Next of
-        wnAskTheProgram:
-          begin // Ask the user porgram to supply us with authorization information
-            if Assigned(FOnAuthorization) then
-            begin
-              ARequest.Authentication.UserName := ARequest.Username;
-              ARequest.Authentication.Password := ARequest.Password;
+  repeat
+    case ARequest.Authentication.Next of
+      wnAskTheProgram:
+        begin // Ask the user porgram to supply us with authorization information
+          if Assigned(FOnAuthorization) then
+          begin
+            ARequest.Authentication.UserName := ARequest.Username;
+            ARequest.Authentication.Password := ARequest.Password;
 
-              OnAuthorization(Self, ARequest.Authentication, Result);
+            OnAuthorization(Self, ARequest.Authentication, Result);
 
-              if Result then begin
-                ARequest.BasicAuthentication := True;
-                ARequest.Username := ARequest.Authentication.UserName;
-                ARequest.Password := ARequest.Authentication.Password;
-              end
-              else begin
-                Break;
-              end;
+            if Result then begin
+              ARequest.BasicAuthentication := True;
+              ARequest.Username := ARequest.Authentication.UserName;
+              ARequest.Password := ARequest.Authentication.Password;
+            end else begin
+              Break;
             end;
           end;
-        wnDoRequest:
-          begin
-            Result := True;
-            Break;
-          end;
-        wnFail:
-          begin
-            Result := False;
-            Break;
-          end;
-      end;
-    until False;
-  end;
+        end;
+      wnDoRequest:
+        begin
+          Result := True;
+          Break;
+        end;
+      wnFail:
+        begin
+          Result := False;
+          Break;
+        end;
+    end;
+  until False;
 end;
 
 function TIdCustomHTTP.DoOnProxyAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean;
@@ -1457,12 +1573,11 @@ var
   Auth: TIdAuthenticationClass;
 begin
   Inc(FAuthProxyRetries);
-  if not Assigned(ProxyParams.Authentication) then
-  begin
+  if not Assigned(ProxyParams.Authentication) then begin
     // Find which Authentication method is supported from us.
     Auth := nil;
-    for i := 0 to AResponse.ProxyAuthenticate.Count-1 do
-    begin
+
+    for i := 0 to AResponse.ProxyAuthenticate.Count-1 do begin
       S := AResponse.ProxyAuthenticate[i];
       Auth := FindAuthClass(Fetch(S));
       if Assigned(Auth) then begin
@@ -1470,23 +1585,21 @@ begin
       end;
     end;
 
-    if not Assigned(Auth) then
-    begin
+    // let the user override us, if desired.
+    if Assigned(FOnSelectProxyAuthorization) then begin
+      OnSelectProxyAuthorization(self, Auth, AResponse.ProxyAuthenticate);
+    end;
+
+    if not Assigned(Auth) then begin
       Result := False;
       Exit;
     end;
 
-    if Assigned(FOnSelectProxyAuthorization) then
-    begin
-      OnSelectProxyAuthorization(self, Auth, AResponse.ProxyAuthenticate);
-    end;
-
-    if Assigned(Auth) then begin
-      ProxyParams.Authentication := Auth.Create;
-    end;
+    ProxyParams.Authentication := Auth.Create;
   end;
 
-  Result := Assigned(ProxyParams.Authentication) and Assigned(OnProxyAuthorization);
+  // RLebeau: should we be looking for a Password as well, like the OnAuthorization handling does?
+  Result := Assigned(OnProxyAuthorization) {or (Trim(ARequest.Password) <> '')};
 
   {
   this is commented out as it breaks SSPI proxy authentication.
@@ -1499,13 +1612,11 @@ begin
   end;
   }
 
-  if not Result then
-  begin
+  if not Result then begin
     Exit;
   end;
 
-  with ProxyParams.Authentication do
-  begin
+  with ProxyParams.Authentication do begin
     Username := ProxyParams.ProxyUsername;
     Password := ProxyParams.ProxyPassword;
     AuthParams := AResponse.ProxyAuthenticate;
@@ -1517,8 +1628,7 @@ begin
     case ProxyParams.Authentication.Next of
       wnAskTheProgram: // Ask the user porgram to supply us with authorization information
         begin
-          if Assigned(OnProxyAuthorization) then
-          begin
+          if Assigned(OnProxyAuthorization) then begin
             ProxyParams.Authentication.Username := ProxyParams.ProxyUsername;
             ProxyParams.Authentication.Password := ProxyParams.ProxyPassword;
 
@@ -1586,12 +1696,17 @@ end;
 
 procedure TIdCustomHTTP.SetAuthenticationManager(Value: TIdAuthenticationManager);
 begin
-  FAuthenticationManager := Value;
-  if Assigned(FAuthenticationManager) then
-  begin
-    FAuthenticationManager.FreeNotification(self);
+  if FAuthenticationManager <> Value then begin
+    if Assigned(FAuthenticationManager) then begin
+      FAuthenticationManager.RemoveFreeNotification(self);
+    end;
+    FAuthenticationManager := Value;
+    if Assigned(FAuthenticationManager) then begin
+      FAuthenticationManager.FreeNotification(Self);
+    end;
   end;
 end;
+
 {
 procedure TIdCustomHTTP.SetHost(const Value: string);
 begin
@@ -1605,28 +1720,26 @@ begin
   URL.Port := IntToStr(Value);
 end;
 }
-procedure TIdCustomHTTP.SetRequestHEaders(Value: TIdHTTPRequest);
+procedure TIdCustomHTTP.SetRequestHeaders(Value: TIdHTTPRequest);
 begin
   FHTTPProto.Request.Assign(Value);
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string;
-  ASource: TIdMultiPartFormDataStream; AResponseContent: TStream);
+procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream;
+  AResponseContent: TStream);
 begin
   Assert(ASource<>nil);
-  Assert(AResponseContent<>nil);
-
   Request.ContentType := ASource.RequestContentType;
+  // TODO: Request.CharSet := ASource.RequestCharSet;
   Post(AURL, TStream(ASource), AResponseContent);
 end;
 
-function TIdCustomHTTP.Post(AURL: string;
-  ASource: TIdMultiPartFormDataStream): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream): string;
 begin
   Assert(ASource<>nil);
-
   Request.ContentType := ASource.RequestContentType;
-  result := Post(AURL, TStream(ASource));
+  // TODO: Request.CharSet := ASource.RequestCharSet;
+  Result := Post(AURL, TStream(ASource));
 end;
 
 { TIdHTTPResponse }
@@ -1645,10 +1758,8 @@ var
 begin
   S := Copy(FResponseText, 6, 3);
 
-  for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do
-  begin
-    if TextIsSame(ProtocolVersionString[i], S) then
-    begin
+  for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do begin
+    if TextIsSame(ProtocolVersionString[i], S) then begin
       ResponseVersion := i;
       Break;
     end;
@@ -1726,6 +1837,7 @@ end;
 procedure TIdHTTPProtocol.BuildAndSendRequest(AURI: TIdURI);
 var
   i: Integer;
+  LBufferingStarted: Boolean;
 begin
   Request.SetHeaders;
   FHTTP.ProxyParams.SetHeaders(Request.RawHeaders);
@@ -1734,20 +1846,26 @@ begin
   end;
   // This is a workaround for some HTTP servers which do not implement
   // the HTTP protocol properly
-  FHTTP.IOHandler.WriteBufferOpen;
+  LBufferingStarted := not FHTTP.IOHandler.WriteBufferingActive;
+  if LBufferingStarted then begin
+    FHTTP.IOHandler.WriteBufferOpen;
+  end;
   try
     FHTTP.IOHandler.WriteLn(Request.Method + ' ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
     // write the headers
-    for i := 0 to Request.RawHeaders.Count - 1 do
-    begin
+    for i := 0 to Request.RawHeaders.Count - 1 do begin
       if Length(Request.RawHeaders.Strings[i]) > 0 then begin
         FHTTP.IOHandler.WriteLn(Request.RawHeaders.Strings[i]);
       end;
     end;
     FHTTP.IOHandler.WriteLn('');     {do not localize}
-    FHTTP.IOHandler.WriteBufferClose;
+    if LBufferingStarted then begin
+      FHTTP.IOHandler.WriteBufferClose;
+    end;
   except
-    FHTTP.IOHandler.WriteBufferCancel;
+    if LBufferingStarted then begin
+      FHTTP.IOHandler.WriteBufferCancel;
+    end;
     raise;
   end;
 end;
@@ -1762,14 +1880,14 @@ begin
   // Don't use Capture.
   // S.G. 6/4/2004: Added AmaxHeaderCount parameter to prevent the "header bombing" of the server
   Response.RawHeaders.Clear;
-  s := FHTTP.IOHandler.ReadLn;
+  s := FHTTP.InternalReadLn;
   try
     LHeaderCount := 0;
     while (s <> '') and ( (AMaxHeaderCount > 0) or (LHeaderCount < AMaxHeaderCount) ) do
     begin
       Response.RawHeaders.Add(S);
-      s := FHTTP.IOHandler.ReadLn;
-      inc(LHeaderCount);
+      s := FHTTP.InternalReadLn;
+      Inc(LHeaderCount);
     end;
   except
     on E: EIdConnClosedGracefully do begin
@@ -1787,41 +1905,43 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
     AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
     i: Integer;
-    LTempResponse: TStringStream;
+    LTempResponse: TMemoryStream;
     LTempStream: TStream;
   begin
-    LTempResponse := TStringStream.Create('');
-    LTempStream := Response.ContentStream;
-    Response.ContentStream := LTempResponse;
+    LTempResponse := TMemoryStream.Create;
     try
-      FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
-      if High(ALIgnoreReplies) > -1 then begin
-        for i := Low(ALIgnoreReplies) to High(ALIgnoreReplies) do begin
-          if AResponseCode = ALIgnoreReplies[i] then begin
-            Exit;
+      LTempStream := Response.ContentStream;
+      Response.ContentStream := LTempResponse;
+      try
+        FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
+        if High(ALIgnoreReplies) > -1 then begin
+          for i := Low(ALIgnoreReplies) to High(ALIgnoreReplies) do begin
+            if AResponseCode = ALIgnoreReplies[i] then begin
+              Exit;
+            end;
           end;
         end;
+        LTempResponse.Position := 0;
+        raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText,
+          ReadStringAsCharset(LTempResponse, FHTTP.Response.CharSet));
+      finally
+        Response.ContentStream := LTempStream;
       end;
-      raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText, LTempResponse.DataString);
     finally
-      Response.ContentStream := LTempStream;
       FreeAndNil(LTempResponse);
     end;
   end;
 
   procedure DiscardContent(AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
-    LTempResponse: TIdDiscardStream;
-    LTempStream: TStream;
+    LOrigStream: TStream;
   begin
-    LTempResponse := TIdDiscardStream.Create;
-    LTempStream := Response.ContentStream;
-    Response.ContentStream := LTempResponse;
+    LOrigStream := Response.ContentStream;
+    Response.ContentStream := nil;
     try
       FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
     finally
-      Response.ContentStream := LTempStream;
-      FreeAndNil(LTempResponse);
+      Response.ContentStream := LOrigStream;
     end;
   end;
 
@@ -1855,8 +1975,9 @@ begin
   LNeedAuth := False;
 
   // Handle Redirects
-  if ((LResponseDigit = 3) and (LResponseCode <> 304)) or (Response.Location <> '') then
-  begin
+  // RLebeau: All 3xx replies other than 304 are redirects.  Reply 201 has a Location header but is NOT a redirect!
+  if ((LResponseDigit = 3) and (LResponseCode <> 304))
+    or ((Response.Location <> '') and (LResponseCode <> 201)) then begin
     Inc(FHTTP.FRedirectCount);
 
     // LLocation := TIdURI.URLDecode(Response.Location);
@@ -1864,15 +1985,13 @@ begin
     LMethod := Request.Method;
 
     // fire the event
-    if not FHTTP.DoOnRedirect(LLocation, LMethod, FHTTP.FRedirectCount) then
-    begin
+    if not FHTTP.DoOnRedirect(LLocation, LMethod, FHTTP.FRedirectCount) then begin
       CheckException(LResponseCode, AIgnoreReplies);
       Result := wnJustExit;
       Exit;
     end;
 
-    if (FHTTP.FHandleRedirects) and (FHTTP.FRedirectCount < FHTTP.FRedirectMax) then
-    begin
+    if (FHTTP.FHandleRedirects) and (FHTTP.FRedirectCount < FHTTP.FRedirectMax) then begin
       Result := wnGoToURL;
       Request.URL := LLocation;
       // GDG 21/11/2003. If it's a 303, we should do a get this time
@@ -1891,6 +2010,7 @@ begin
       end;
       }
       Request.Method := LMethod;
+      Request.MethodOverride := '';
     end else begin
       Result := wnJustExit;
       Response.Location := LLocation;
@@ -1926,14 +2046,12 @@ begin
     // responses must include an entity body or a Content-Length header
     // field defined with a value of zero (0).
 
-    if LResponseDigit <> 2 then
-    begin
+    if LResponseDigit <> 2 then begin
       case LResponseCode of
         401:
           begin // HTTP Server authorization required
             if (FHTTP.AuthRetries >= FHTTP.MaxAuthRetries) or
-               (not FHTTP.DoOnAuthorization(Request, Response)) then
-            begin
+               (not FHTTP.DoOnAuthorization(Request, Response)) then begin
               if Assigned(Request.Authentication) then begin
                 Request.Authentication.Reset;
               end;
@@ -1947,8 +2065,7 @@ begin
         407:
           begin // Proxy Server authorization requered
             if (FHTTP.AuthProxyRetries >= FHTTP.MaxAuthRetries) or
-               (not FHTTP.DoOnProxyAuthorization(Request, Response)) then
-            begin
+               (not FHTTP.DoOnProxyAuthorization(Request, Response)) then begin
               if Assigned(FHTTP.ProxyParams.Authentication) then begin
                 FHTTP.ProxyParams.Authentication.Reset;
               end;
@@ -1976,7 +2093,10 @@ begin
       DiscardContent;
       Result := wnAuthRequest;
     end else begin
-      if (Request.Method = Id_HTTPMethodHead) or (LResponseCode = 204) then begin
+      if TextIsSame(Request.Method, Id_HTTPMethodHead) or
+        TextIsSame(Request.MethodOverride, Id_HTTPMethodHead) or
+        (LResponseCode = 204) then
+      begin
         // Have noticed one case where a non-conforming server did send an
         // entity body in response to a HEAD request, so just ignore anything
         // the server may send by accident
@@ -2009,8 +2129,19 @@ begin
   FProxyParameters := TIdProxyConnectionInfo.Create;
   FProxyParameters.Clear;
 
+  FMetaHTTPEquiv :=  TIdMetaHTTPEquiv.Create;
+
   FMaxAuthRetries := Id_TIdHTTP_MaxAuthRetries;
   FMaxHeaderLines := Id_TIdHTTP_MaxHeaderLines;
+end;
+
+function TIdCustomHTTP.InternalReadLn: String;
+begin
+  IOHandler.ReadTimeout := ConnectTimeout;
+  Result := IOHandler.ReadLn;
+  if IOHandler.ReadLnTimedout then begin
+    raise EIdReadTimeout.Create(RSReadTimeout);
+  end;
 end;
 
 function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of SmallInt): string;
@@ -2021,8 +2152,7 @@ begin
   try
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
-    // This is here instead of a TStringStream for .net conversions?
-    Result := ReadStringFromStream(LStream);
+    Result := ReadStringAsCharset(LStream, ResponseCharset);
   finally
     FreeAndNil(LStream);
   end;
@@ -2031,8 +2161,6 @@ end;
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream;
   AIgnoreReplies: array of SmallInt);
 begin
-  Assert(AResponseContent<>nil);
-
   DoRequest(Id_HTTPMethodGet, AURL, nil, AResponseContent, AIgnoreReplies);
 end;
 
@@ -2060,7 +2188,6 @@ begin
 
   try
     repeat
-
       PrepareRequest(Request);
       if IOHandler is TIdSSLIOHandlerSocketBase then begin
         TIdSSLIOHandlerSocketBase(IOHandler).URIToCheck := FURI.URI;
@@ -2071,7 +2198,7 @@ begin
       // This workaround is just for temporary use until we have final HTTP 1.1
       // realisation. HTTP 1.1 is ongoing because of all the buggy and conflicting servers.
       repeat
-        Response.ResponseText := IOHandler.ReadLn;
+        Response.ResponseText := InternalReadLn;
         FHTTPProto.RetrieveHeaders(MaxHeaderLines);
         ProcessCookies(Request, Response);
       until Response.ResponseCode <> 100;
