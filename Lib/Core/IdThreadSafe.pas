@@ -58,9 +58,6 @@ interface
 {$I IdCompilerDefines.inc}
 //we need to put this in Delphi mode to work
 uses
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  Windows,
-  {$ENDIF}
   Classes,
   IdGlobal;
 

@@ -1,7 +1,7 @@
 unit IdMessageBuilder;
 
 interface
-{$i IdCompilerDefines.inc}
+
 {$i IdCompilerDefines.inc}
 
 uses

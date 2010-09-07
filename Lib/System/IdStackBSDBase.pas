@@ -175,13 +175,7 @@ type
       LowPart: LongWord);
        {$ELSE}
       LowPart: LongWord;
-      HighPart: LongWord
-     {$endif}
-     {$ifdef ENDIAN_BIG}
-      HighPart: LongWord
-      LowPart: LongWord;
-      {$endif}
-      );
+      HighPart: LongWord);
       {$ENDIF}
     1: (
       QuadPart: Int64);

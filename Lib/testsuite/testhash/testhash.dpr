@@ -12,7 +12,10 @@ uses
   IdHash,
   IdHashCRC,
   IdHashMessageDigest,
-  IdHashSHA1,
+  IdHashSHA,
+  {$IFNDEF CIL}
+  IdSSLOpenSSLHeaders,
+  {$ENDIF}
   SysUtils;
 
 function Test(var VTime : Cardinal; var VRes : String; AHash : TIdHash; const AVal, AExpected : String): Boolean;
@@ -174,6 +177,9 @@ end;
 begin
   try
     { TODO -oUser -cConsole Main : Insert code here }
+  {$IFNDEF CIL}
+  IdSSLOpenSSLHeaders.Load;
+  {$ENDIF}
   WriteLn('===');
   WriteLn('CRC16 test cases - from http://users.physik.tu-muenchen.de/gammel/matpack/demos/Cryptography/MpCRC-demo.cpp - reflect_in+reflect_out');
   WriteLn('===');
@@ -247,4 +253,5 @@ begin
     on E:Exception do
       Writeln(E.Classname, ': ', E.Message);
   end;
+  ReadLn;
 end.

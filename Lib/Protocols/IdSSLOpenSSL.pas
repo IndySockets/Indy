@@ -607,8 +607,6 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
   EIdOSSLLoadingRootCertError = class(EIdOpenSSLAPICryptoError);
   EIdOSSLLoadingCertError = class(EIdOpenSSLAPICryptoError);
   EIdOSSLLoadingKeyError = class(EIdOpenSSLAPICryptoError);
-  EIdOSSLUnderlyingCryptoError = class(EIdOpenSSLAPICryptoError);
-
   EIdOSSLSettingCipherError = class(EIdOpenSSLError);
   EIdOSSLFDSetError = class(EIdOpenSSLAPISSLError);
   EIdOSSLDataBindingError = class(EIdOpenSSLAPISSLError);
@@ -1737,7 +1735,6 @@ begin
     Result := Result + IndyFormat('%.2x', [Byte(AMD.MD[i])]);
     { do not localize }
   end;
-  end;
 end;
 
 function LoadOpenSSLLibrary: Boolean;
@@ -2409,7 +2406,6 @@ begin
   end else begin
     error := SSL_CTX_set_cipher_list(fContext, SSL_DEFAULT_CIPHER_LIST);
   end;
-
   if error <= 0 then begin
     EIdOSSLLoadingKeyError.RaiseException(RSSSLSettingCipherError);
   end;
@@ -2729,7 +2725,6 @@ begin
       Result := ret;
     end;
     Exit;
-  until False;
   until False;
 end;
 

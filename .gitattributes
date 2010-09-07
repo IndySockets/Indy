@@ -960,7 +960,7 @@ Lib/FCL/Indy.Sockets.dpr -text
 Lib/FCL/Mono.Security.dll -text svneol=unset#unset
 Lib/FreeBSDPort/Makefile -text
 Lib/FreeBSDPort/distinfo -text
-Lib/FreeBSDPort/make-plist.sh -text svneol=LF#unset
+Lib/FreeBSDPort/make-plist.sh eol=lf
 Lib/FreeBSDPort/pkg-descr -text
 Lib/FreeBSDPort/pkg-plist -text
 Lib/FullD12.bat -text
@@ -1457,50 +1457,49 @@ Lib/Protocols/IndyProtocolsK3.dpk -text
 Lib/Protocols/Makefile.fpc -text
 Lib/Protocols/ZLib/ZLib.pas -text
 Lib/Protocols/ZLib/ZLibConst.pas -text
-Lib/Protocols/ZLib/adler32.c -text svneol=LF#unset
+Lib/Protocols/ZLib/adler32.c eol=lf
 Lib/Protocols/ZLib/adler32.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/build.bat eol=crlf
-Lib/Protocols/ZLib/compress.c -text svneol=LF#unset
+Lib/Protocols/ZLib/compress.c eol=lf
 Lib/Protocols/ZLib/compress.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/crc32.c -text svneol=LF#unset
-Lib/Protocols/ZLib/crc32.h -text svneol=LF#unset
+Lib/Protocols/ZLib/crc32.c eol=lf
+Lib/Protocols/ZLib/crc32.h eol=lf
 Lib/Protocols/ZLib/crc32.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/deflate.c -text svneol=LF#unset
-Lib/Protocols/ZLib/deflate.h -text svneol=LF#unset
+Lib/Protocols/ZLib/deflate.c eol=lf
+Lib/Protocols/ZLib/deflate.h eol=lf
 Lib/Protocols/ZLib/deflate.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/example.c -text svneol=LF#unset
+Lib/Protocols/ZLib/example.c eol=lf
 Lib/Protocols/ZLib/example.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/example.tds -text svneol=unset#unset
-Lib/Protocols/ZLib/gzio.c -text svneol=LF#unset
+Lib/Protocols/ZLib/gzio.c eol=lf
 Lib/Protocols/ZLib/gzio.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/infback.c -text svneol=LF#unset
+Lib/Protocols/ZLib/infback.c eol=lf
 Lib/Protocols/ZLib/infback.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/inffast.c -text svneol=LF#unset
-Lib/Protocols/ZLib/inffast.h -text svneol=LF#unset
+Lib/Protocols/ZLib/inffast.c eol=lf
+Lib/Protocols/ZLib/inffast.h eol=lf
 Lib/Protocols/ZLib/inffast.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/inffixed.h -text svneol=LF#unset
-Lib/Protocols/ZLib/inflate.c -text svneol=LF#unset
-Lib/Protocols/ZLib/inflate.h -text svneol=LF#unset
+Lib/Protocols/ZLib/inffixed.h eol=lf
+Lib/Protocols/ZLib/inflate.c eol=lf
+Lib/Protocols/ZLib/inflate.h eol=lf
 Lib/Protocols/ZLib/inflate.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/inftrees.c -text svneol=LF#unset
-Lib/Protocols/ZLib/inftrees.h -text svneol=LF#unset
+Lib/Protocols/ZLib/inftrees.c eol=lf
+Lib/Protocols/ZLib/inftrees.h eol=lf
 Lib/Protocols/ZLib/inftrees.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/minigzip.c -text svneol=LF#unset
+Lib/Protocols/ZLib/minigzip.c eol=lf
 Lib/Protocols/ZLib/minigzip.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/minigzip.tds -text svneol=unset#unset
-Lib/Protocols/ZLib/readme.txt -text svneol=native#unset
-Lib/Protocols/ZLib/trees.c -text svneol=LF#unset
-Lib/Protocols/ZLib/trees.h -text svneol=LF#unset
+Lib/Protocols/ZLib/trees.c eol=lf
+Lib/Protocols/ZLib/trees.h eol=lf
 Lib/Protocols/ZLib/trees.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/uncompr.c -text svneol=LF#unset
+Lib/Protocols/ZLib/uncompr.c eol=lf
 Lib/Protocols/ZLib/uncompr.obj -text svneol=unset#unset
-Lib/Protocols/ZLib/zconf.h -text svneol=LF#unset
-Lib/Protocols/ZLib/zconf.in.h -text svneol=LF#unset
-Lib/Protocols/ZLib/zlib.h -text svneol=LF#unset
+Lib/Protocols/ZLib/zconf.h eol=lf
+Lib/Protocols/ZLib/zconf.in.h eol=lf
+Lib/Protocols/ZLib/zlib.h eol=lf
 Lib/Protocols/ZLib/zlib.lib -text svneol=unset#unset
 Lib/Protocols/ZLib/zlibd32.mak -text
-Lib/Protocols/ZLib/zutil.c -text svneol=LF#unset
-Lib/Protocols/ZLib/zutil.h -text svneol=LF#unset
+Lib/Protocols/ZLib/zutil.c eol=lf
+Lib/Protocols/ZLib/zutil.h eol=lf
 Lib/Protocols/ZLib/zutil.obj -text svneol=unset#unset
 Lib/Protocols/adler32.obj -text svneol=unset#unset
 Lib/Protocols/compress.obj -text svneol=unset#unset
@@ -1714,7 +1713,7 @@ Lib/indymaster-Makefile.fpc -text
 Lib/lspFix.dpr -text
 Lib/lspFix.exe -text svneol=unset#unset
 Lib/makeD12.proj -text
-Lib/makeindyrpm.sh -text svneol=LF#unset
+Lib/makeindyrpm.sh eol=lf
 Lib/testsuite/Makefile.fpc -text
 Lib/testsuite/testhash/Makefile.fpc -text
 Lib/testsuite/testhash/testhash.dpr -text

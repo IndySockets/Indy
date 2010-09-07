@@ -360,7 +360,6 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 // "hpux-parisc-gcc","gcc:-O3 -DB_ENDIAN -DBN_DIV2W::-D_REENTRANT::-Wl,+s -ldld:BN_LLONG DES_PTR DES_UNROLL DES_RISC1:${no_asm}:dl:hpux-shared:-fPIC:-shared:.sl.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
 // "hpux-parisc2-gcc","gcc:-march=2.0 -O3 -DB_ENDIAN -D_REENTRANT::::-Wl,+s -ldld:SIXTY_FOUR_BIT RC4_CHAR RC4_CHUNK DES_PTR DES_UNROLL DES_RISC1::pa-risc2.o::::::::::dl:hpux-shared:-fPIC:-shared:.sl.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
 // "hpux64-parisc2-gcc","gcc:-O3 -DB_ENDIAN -D_REENTRANT::::-ldl:SIXTY_FOUR_BIT_LONG MD2_CHAR RC4_INDEX RC4_CHAR DES_UNROLL DES_RISC1 DES_INT::pa-risc2W.o::::::::::dlfcn:hpux-shared:-fpic:-shared:.sl.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
-//"netware-libc-bsdsock-gcc", "i586-netware-gcc:-nostdinc -I/ndk/libc/include -DNETWARE_BSDSOCK -DL_ENDIAN -DNETWARE_LIBC -DOPENSSL_SYSNAME_NETWARE -DTERMIO -O2 -Wall:::::BN_LLONG ${x86_gcc_opts}::",
 
 // # More attempts at unified 10.X and 11.X targets for HP C compiler.
 // #
@@ -1310,9 +1309,7 @@ const
   ASN1_R_ASN1_PARSE_ERROR= 198;
   {$EXTERNALSYM ASN1_R_ASN1_SIG_PARSE_ERROR}
   ASN1_R_ASN1_SIG_PARSE_ERROR = 199;
-  OPENSSL_BIO_TYPE_LINEBUFFER = 20 or $0200;
-  OPENSSL_BIO_TYPE_DGRAM = 21 or $0400 or $0100;
-  OPENSSL_BIO_TYPE_COMP = 23 or $0200;
+
   {$EXTERNALSYM ASN1_R_AUX_ERROR}
   ASN1_R_AUX_ERROR = 100;
   {$EXTERNALSYM ASN1_R_BAD_CLASS}
@@ -6442,9 +6439,6 @@ const
 //* status request value from RFC 3546 */
   {$EXTERNALSYM TLSEXT_STATUSTYPE_ocsp}
   TLSEXT_STATUSTYPE_ocsp = 1;
-//* status request value from RFC 3546 */
-  OPENSSL_TLSEXT_STATUSTYPE_ocsp = 1;
-
 {$IFNDEF OPENSSL_NO_TLSEXT}
   {$EXTERNALSYM TLSEXT_MAXLEN_host_name}
   TLSEXT_MAXLEN_host_name = 255;
@@ -6456,7 +6450,6 @@ const
   SSL_TLSEXT_ERR_ALERT_FATAL = 2;
   {$EXTERNALSYM SSL_TLSEXT_ERR_NOACK}
   SSL_TLSEXT_ERR_NOACK = 3;
-
 {$ENDIF}
   //
   {$EXTERNALSYM SSLEAY_VERSION_NUMBER}
@@ -10078,8 +10071,8 @@ type
     {$IFDEF RC4_CHUNK}
       {$EXTERNALSYM RC4_CHUNK}
   RC4_CHUNK = TIdC_ULONG;
-    {$ELSE}
-      {$IFDEF RC4_CHUNK_LL}
+      {$ELSE}
+        {$IFDEF RC4_CHUNK_LL}
         {$EXTERNALSYM RC4_CHUNK}
   RC4_CHUNK = TIdC_ULONGLONG;
       {$ELSE}
@@ -10856,7 +10849,6 @@ type
   //I think the DECLARE_STACK_OF macro is empty
   PSTACK_OF_ASN1_STRING_TABLE = PSTACK;
   {$ENDIF}
-
   {$IFNDEF OPENSSL_EXPORT_VAR_AS_FUNCTION}
   // ASN1_ITEM pointer exported type
   // typedef const ASN1_ITEM ASN1_ITEM_EXP;
@@ -13289,243 +13281,6 @@ type
   POCSP_SERVICELOC = ^OCSP_SERVICELOC;
   {$EXTERNALSYM PPOCSP_SERVICELOC}
   PPOCSP_SERVICELOC = ^POCSP_SERVICELOC;
- {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_OCSP_CERTID = record
-    _stack: stack;
-  end;
-  PSTACK_OF_OCSP_CERTID = ^STACK_OF_OCSP_CERTID;
-  {$ELSE}
-  //I think the DECLARE_STACK_OF macro is empty
-  PSTACK_OF_OCSP_CERTID = PSTACK;
-  {$ENDIF}
-
-
-// *   Request ::=     SEQUENCE {
-// *       reqCert                    CertID,
-// *       singleRequestExtensions    [0] EXPLICIT Extensions OPTIONAL }
-// */
-  OCSP_ONEREQ = record
-    reqCert : POCSP_CERTID;
-    singleRequestExtensions : PSTACK_OF_X509_EXTENSION;
-  end;
-  POCSP_ONEREQ = ^OCSP_ONEREQ;
-  PPOCSP_ONEREQ = ^POCSP_ONEREQ;
- {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_OCSP_ONEREQ = record
-    _stack: stack;
-  end;
-  PSTACK_OF_OCSP_ONEREQ = ^STACK_OF_OCSP_ONEREQ;
-  {$ELSE}
-  //I think the DECLARE_STACK_OF macro is empty
-  PSTACK_OF_OCSP_ONEREQ = PSTACK;
-  {$ENDIF}
-//*   TBSRequest      ::=     SEQUENCE {
-//*       version             [0] EXPLICIT Version DEFAULT v1,
-//*       requestorName       [1] EXPLICIT GeneralName OPTIONAL,
-//*       requestList             SEQUENCE OF Request,
-//*       requestExtensions   [2] EXPLICIT Extensions OPTIONAL }
-//*/
-  OCSP_REQINFO = record
-   	version : PASN1_INTEGER;
-    requestorName : PGENERAL_NAME;
-	  requestList : PSTACK_OF_OCSP_ONEREQ;
-	  requestExtensions : PSTACK_OF_X509_EXTENSION;
-  end;
-  POCSP_REQINFO = ^OCSP_REQINFO;
-  PPOCSP_REQINFO = ^POCSP_REQINFO;
-///*   Signature       ::=     SEQUENCE {
-// *       signatureAlgorithm   AlgorithmIdentifier,
-// *       signature            BIT STRING,
-// *       certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
-// */
-  OCSP_SIGNATURE = record
-	 signatureAlgorithm : PX509_ALGOR;
-	 signature : PASN1_BIT_STRING;
-  	certs : PSTACK_OF_X509;
-  end;
-  POCSP_SIGNATURE = ^OCSP_SIGNATURE;
-  PPOCSP_SIGNATURE = ^POCSP_SIGNATURE;
-///*   OCSPRequest     ::=     SEQUENCE {
-// *       tbsRequest                  TBSRequest,
-// *       optionalSignature   [0]     EXPLICIT Signature OPTIONAL }
-// */
-  OCSP_REQUEST = record
-	  tbsRequest : POCSP_REQINFO;
-	  optionalSignature : POCSP_SIGNATURE; //* OPTIONAL */
-	end;
-  POCSP_REQUEST = ^OCSP_REQUEST;
-  PPOCSP_REQUEST = ^POCSP_REQUEST;
-///*   OCSPResponseStatus ::= ENUMERATED {
-// *       successful            (0),      --Response has valid confirmations
-// *       malformedRequest      (1),      --Illegal confirmation request
-// *       internalError         (2),      --Internal error in issuer
-// *       tryLater              (3),      --Try again later
-// *                                       --(4) is not used
-// *       sigRequired           (5),      --Must sign the request
-// *       unauthorized          (6)       --Request unauthorized
-// *   }
-// */
-///*   ResponseBytes ::=       SEQUENCE {
-// *       responseType   OBJECT IDENTIFIER,
-// *       response       OCTET STRING }
-// */
-  OCSP_RESPBYTES = record
-	  responseType : PASN1_OBJECT;
-	  response : PASN1_OCTET_STRING;
-  end;
-  POCSP_RESPBYTES = ^OCSP_RESPBYTES;
-  PPOCSP_RESPBYTES = ^POCSP_RESPBYTES;
-///*   OCSPResponse ::= SEQUENCE {
-// *      responseStatus         OCSPResponseStatus,
-// *      responseBytes          [0] EXPLICIT ResponseBytes OPTIONAL }
-// */
-  OCSP_RESPONSE = record
-	 responseStatus : PASN1_ENUMERATED;
-	 responseBytes : POCSP_RESPBYTES;
-  end;
-  POCSP_RESPONSE = ^OCSP_RESPONSE;
-  PPOCSP_RESPONSE = ^POCSP_RESPONSE;
-// /*   ResponderID ::= CHOICE {
-// *      byName   [1] Name,
-// *      byKey    [2] KeyHash }
-// */
-  OCSP_RESPID_union = record
-    case Integer of
-      0 : (byName : PX509_NAME);
-      1 : (byKey : PASN1_OCTET_STRING);
-  end;
-  OCSP_RESPID = record
-    _type : TIdC_INT;
-    value : OCSP_RESPID_union;
-  end;
-  POCSP_RESPID = ^OCSP_RESPID;
-  PPOCSP_RESPID = ^POCSP_RESPID;
-  //*   KeyHash ::= OCTET STRING --SHA-1 hash of responder's public key
-  // *                            --(excluding the tag and length fields)
-  // */
-
-///*   RevokedInfo ::= SEQUENCE {
-// *       revocationTime              GeneralizedTime,
-// *       revocationReason    [0]     EXPLICIT CRLReason OPTIONAL }
-// */
-  OCSP_REVOKEDINFO = record
-	  revocationTime : PASN1_GENERALIZEDTIME;
-    revocationReason : PASN1_ENUMERATED;
-  end;
-  POCSP_REVOKEDINFO = ^OCSP_REVOKEDINFO;
-  PPOCSP_REVOKEDINFO = ^POCSP_REVOKEDINFO;
-
-///*   CertStatus ::= CHOICE {
-// *       good                [0]     IMPLICIT NULL,
-// *       revoked             [1]     IMPLICIT RevokedInfo,
-// *       unknown             [2]     IMPLICIT UnknownInfo }
-// */
-  OCSP_CERTSTATUS_union = record
-    case Integer of
-     0 : (good : PASN1_NULL);
-     1 : (revoked : POCSP_REVOKEDINFO);
-     2 : (unknown : PASN1_NULL);
-  end;
-  OCSP_CERTSTATUS = record
-    _type : TIdC_INT;
-    value : OCSP_CERTSTATUS_union;
-  end;
-  POCSP_CERTSTATUS = ^OCSP_CERTSTATUS;
-  PPOCSP_CERTSTATUS = ^POCSP_CERTSTATUS;
-///*   SingleResponse ::= SEQUENCE {
-// *      certID                       CertID,
-// *      certStatus                   CertStatus,
-// *      thisUpdate                   GeneralizedTime,
-// *      nextUpdate           [0]     EXPLICIT GeneralizedTime OPTIONAL,
-// *      singleExtensions     [1]     EXPLICIT Extensions OPTIONAL }
-// */
-  OCSP_SINGLERESP = record
-	  certId : POCSP_CERTID;
-	  certStatus : POCSP_CERTSTATUS;
-	  thisUpdate : PASN1_GENERALIZEDTIME;
-	  nextUpdate : PASN1_GENERALIZEDTIME;
-	  singleExtensions : PSTACK_OF_X509_EXTENSION;
-  end;
-  POCSP_SINGLERESP = ^OCSP_SINGLERESP;
-  PPOCSP_SINGLERESP = ^POCSP_SINGLERESP;
- {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_OCSP_SINGLERESP = record
-    _stack: stack;
-  end;
-  PSTACK_OF_OCSP_SINGLERESP = ^STACK_OF_OCSP_SINGLERESP;
-  {$ELSE}
-  //I think the DECLARE_STACK_OF macro is empty
-  PSTACK_OF_OCSP_SINGLERESP = PSTACK;
-  {$ENDIF}
-///*   ResponseData ::= SEQUENCE {
-// *      version              [0] EXPLICIT Version DEFAULT v1,
-// *      responderID              ResponderID,
-// *      producedAt               GeneralizedTime,
-// *      responses                SEQUENCE OF SingleResponse,
-// *      responseExtensions   [1] EXPLICIT Extensions OPTIONAL }
-// */
-  OCSP_RESPDATA = record
-	  version : PASN1_INTEGER;
-	  responderId : POCSP_RESPID;
-	  producedAt : PASN1_GENERALIZEDTIME;
-	  responses : PSTACK_OF_OCSP_SINGLERESP;
-	  responseExtensions : PSTACK_OF_X509_EXTENSION;
-	end;
-  POCSP_RESPDATA = ^OCSP_RESPDATA;
-  PPOCSP_RESPDATA = ^POCSP_RESPDATA;
-///*   BasicOCSPResponse       ::= SEQUENCE {
-// *      tbsResponseData      ResponseData,
-// *      signatureAlgorithm   AlgorithmIdentifier,
-// *      signature            BIT STRING,
-// *      certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
-// */
-//  /* Note 1:
-//     The value for "signature" is specified in the OCSP rfc2560 as follows:
-//     "The value for the signature SHALL be computed on the hash of the DER
-//     encoding ResponseData."  This means that you must hash the DER-encoded
-//     tbsResponseData, and then run it through a crypto-signing function, which
-//     will (at least w/RSA) do a hash-'n'-private-encrypt operation.  This seems
-//     a bit odd, but that's the spec.  Also note that the data structures do not
-//     leave anywhere to independently specify the algorithm used for the initial
-//     hash. So, we look at the signature-specification algorithm, and try to do
-//     something intelligent.	-- Kathy Weinhold, CertCo */
-//  /* Note 2:
-//     It seems that the mentioned passage from RFC 2560 (section 4.2.1) is open
-//     for interpretation.  I've done tests against another responder, and found
-//     that it doesn't do the double hashing that the RFC seems to say one
-//     should.  Therefore, all relevant functions take a flag saying which
-//     variant should be used.	-- Richard Levitte, OpenSSL team and CeloCom */
-  OCSP_BASICRESP = record
-	  tbsResponseData : POCSP_RESPDATA;
-	  signatureAlgorithm : PX509_ALGOR;
-	  signature : PASN1_BIT_STRING;
-	  certs : PSTACK_OF_X509;
-	end;
-  POCSP_BASICRESP = ^OCSP_BASICRESP;
-  PPOCSP_BASICRESP = ^POCSP_BASICRESP;
-  
-///* CrlID ::= SEQUENCE {
-// *     crlUrl               [0]     EXPLICIT IA5String OPTIONAL,
-// *     crlNum               [1]     EXPLICIT INTEGER OPTIONAL,
-// *     crlTime              [2]     EXPLICIT GeneralizedTime OPTIONAL }
-// */
-  OCSP_CRLID = record
-	  crlUrl : PASN1_IA5STRING;
-	  crlNum : PASN1_INTEGER;
-	  crlTime : PASN1_GENERALIZEDTIME;
-	end;
-  POCSP_CRLID = ^OCSP_CRLID;
-  PPOCSP_CRLID = ^POCSP_CRLID;
-///* ServiceLocator ::= SEQUENCE {
-// *      issuer    Name,
-// *      locator   AuthorityInfoAccessSyntax OPTIONAL }
-// */
-  OCSP_SERVICELOC = record
-	  issuer : PX509_NAME;
-	  locator : PSTACK_OF_ACCESS_DESCRIPTION;
-  end;
-  POCSP_SERVICELOC = ^OCSP_SERVICELOC;
-  PPOCSP_SERVICELOC = ^POCSP_SERVICELOC;
   //mdc2.h
   //MDC2_CTX = record
     //this is not defined in headers so it's best use functions in the API to access the structure.
@@ -14534,7 +14289,6 @@ _des_cblock = DES_cblock
     initial_ctx : PSSL_CTX; //* initial ctx, used to store sessions */
    {$DEFINE session_ctx} 
    {$DEFINE initial_ctx}
-
 {$ELSE}
    {$DEFINE ctx}
    {$DEFINE session_ctx}
@@ -14885,7 +14639,6 @@ type
     para3 : PAnsiChar; para4 : TIdC_INT; para5, para6 : TIdC_INT); cdecl;
   {$EXTERNALSYM TCRYPTO_THREADID_set_callback_threadid_func}
   TCRYPTO_THREADID_set_callback_threadid_func = procedure (id : PCRYPTO_THREADID) cdecl;
-
 
 var
   {$EXTERNALSYM OpenSSL_add_all_algorithms}
@@ -19314,7 +19067,7 @@ them in case we use them later.}
   fn_ERR_error_string = 'ERR_error_string';  {Do not localize}
   fn_ERR_error_string_n = 'ERR_error_string_n';  {Do not localize}
   fn_ERR_lib_error_string = 'ERR_lib_error_string';  {Do not localize}
-  fn_ERR_func_error_string = 'ERR_func_error_string'; {Do not localize}
+  fn_ERR_func_error_string = 'ERR_func_error_string';  {Do not localize}
   fn_ERR_reason_error_string = 'ERR_reason_error_string'; {Do not localize}
 {CH fn_ERR_print_errors_cb = 'ERR_print_errors_cb'; } {Do not localize}
   {$IFNDEF OPENSSL_NO_FP_API}
@@ -19683,11 +19436,6 @@ begin
   end;
   if hIdSSL = 0 then begin
     hIdSSL := LoadSSLLibrary;
-    //This is a workaround for mingw32-compiled SSL .DLL which
-    //might be named 'libssl32.dll'.
-    if hIdSSL = 0 then begin
-      hIdSSL := SafeLoadLibrary(SSL_DLL_name_alt);
-    end;    
   end else begin
     Exit;
   end;
@@ -20437,12 +20185,7 @@ var
   i, tz_dir: Integer;
   time_str: AnsiString;
 begin
-  if UCTtime^.length < 12 then begin
-    Exit;
-  end;
-
-  SetString(time_str, UCTtime^.data, UCTtime^.length);
-
+  Result := 1;
   if UCTtime^.length < 12 then begin
     Exit;
   end;
