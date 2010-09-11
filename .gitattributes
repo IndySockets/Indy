@@ -1471,8 +1471,6 @@ Lib/Protocols/ZLib/deflate.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/example.c eol=lf
 Lib/Protocols/ZLib/example.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/example.tds -text svneol=unset#unset
-Lib/Protocols/ZLib/gzio.c eol=lf
-Lib/Protocols/ZLib/gzio.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/infback.c eol=lf
 Lib/Protocols/ZLib/infback.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/inffast.c eol=lf
@@ -1494,7 +1492,6 @@ Lib/Protocols/ZLib/trees.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/uncompr.c eol=lf
 Lib/Protocols/ZLib/uncompr.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/zconf.h eol=lf
-Lib/Protocols/ZLib/zconf.in.h eol=lf
 Lib/Protocols/ZLib/zlib.h eol=lf
 Lib/Protocols/ZLib/zlib.lib -text svneol=unset#unset
 Lib/Protocols/ZLib/zlibd32.mak -text
