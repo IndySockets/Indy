@@ -255,7 +255,7 @@ var
 begin
   LStream := TMemoryStream.Create;
   try
-    WriteStringToStream(LStream, AText);
+    WriteStringToStream(LStream, AText, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
     LStream.Position := 0;
     InternalPrint(LStream);
   finally

@@ -1077,7 +1077,7 @@ begin
   if LGroupIP.AddressFamily = AddressFamily.InterNetworkV6 then
   begin
     LM6  := IPv6MulticastOption.Create(LGroupIP);
-    AHandle.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, LM6);
+    AHandle.SetSocketOption(SocketOptionLevel.IPv6, ASockOpt, LM6);
   end else
   begin
     if ALocalIP.Length = 0 then begin

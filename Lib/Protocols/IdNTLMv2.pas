@@ -6,7 +6,9 @@ interface
 
 uses
   IdGlobal,
-  IdStruct;
+  IdStruct
+  {$IFNDEF DOTNET}, IdCTypes, IdSSLOpenSSLHeaders{$ENDIF}
+  ;
 
 type
   ProtocolArray = array [ 1.. 8] of AnsiChar;
@@ -187,9 +189,7 @@ uses
   IdHash,
   IdHMACMD5,
   IdHashMessageDigest,
-  IdCoderMIME
-  {$IFNDEF DOTNET}, IdCTypes, IdSSLOpenSSLHeaders{$ENDIF}
-  ;
+  IdCoderMIME;
 
 const
 {$IFDEF DOTNET}

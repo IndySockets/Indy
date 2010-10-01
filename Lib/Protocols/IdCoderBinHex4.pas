@@ -327,7 +327,9 @@ begin
 
   //At this point, LOut[LN] points to the actual data (the data fork, if there
   //is one, or else the resource fork if there is no data fork).
-  TIdStreamHelper.Write(FStream, LOut, LForkLength, LN);
+  if Assigned(FStream) then begin
+    TIdStreamHelper.Write(FStream, LOut, LForkLength, LN);
+  end;
 end;
 
 { TIdEncoderBinHex4 }

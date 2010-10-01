@@ -259,7 +259,8 @@ type
     function TranslateTInAddrToString(var AInAddr; const AIPVersion: TIdIPVersion): string;
     procedure TranslateStringToTInAddr(const AIP: string; var AInAddr; const AIPVersion: TIdIPVersion);
     function WSGetServByName(const AServiceName: string): TIdPort; virtual; abstract;
-    function WSGetServByPort(const APortNumber: TIdPort): TStrings; virtual; abstract;
+    function WSGetServByPort(const APortNumber: TIdPort): TStrings; virtual; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use AddServByPortToList()'{$ENDIF};{$ENDIF}
+    procedure AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings); virtual; abstract;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var ABuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
       var VIPVersion: TIdIPVersion): Integer; virtual; abstract;
@@ -534,6 +535,17 @@ begin
     else begin
       IPVersionUnsupported;
     end;
+  end;
+end;
+
+function TIdStackBSDBase.WSGetServByPort(const APortNumber: TIdPort): TStrings;
+begin
+  Result := TStringList.Create;
+  try
+    AddServByPortToList(APortNumber, Result);
+  except
+    FreeAndNil(Result);
+    raise;
   end;
 end;
 

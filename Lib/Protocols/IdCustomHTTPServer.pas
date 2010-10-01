@@ -239,6 +239,8 @@ type
     FURI: string;
     FCommand: string;
     FVersion: string;
+    FVersionMajor: Integer;
+    FVersionMinor: Integer;
     FAuthUsername: string;
     FAuthPassword: string;
     FUnparsedParams: string;
@@ -250,6 +252,8 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
+    //
+    function IsVersionAtLeast(const AMajor, AMinor: Integer): Boolean;
     property Session: TIdHTTPSession read FSession;
     //
     property AuthExists: Boolean read FAuthExists;
@@ -268,6 +272,8 @@ type
     property FormParams: string read FFormParams write FFormParams; // writable for isapi compatibility. Use with care
     property QueryParams: string read FQueryParams write FQueryParams; // writable for isapi compatibility. Use with care
     property Version: string read FVersion;
+    property VersionMajor: Integer read FVersionMajor;
+    property VersionMinor: Integer read FVersionMinor;
   end;
 
   TIdHTTPResponseInfo = class(TIdResponseHeaderInfo)
@@ -284,6 +290,7 @@ type
     FResponseText: string;
     FHTTPServer: TIdCustomHTTPServer;
     FSession: TIdHTTPSession;
+    FRequestInfo: TIdHTTPRequestInfo;
     //
     procedure ReleaseContentStream;
     procedure SetCookies(const AValue: TIdCookies);
@@ -295,7 +302,7 @@ type
     procedure SetServer(const Value: string);
   public
     procedure CloseSession;
-    constructor Create(AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer ); reintroduce;
+    constructor Create(ARequestInfo: TIdHTTPRequestInfo; AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer ); reintroduce;
     destructor Destroy; override;
     procedure Redirect(const AURL: string);
     procedure WriteHeader;
@@ -454,7 +461,7 @@ type
      HTTPResponse: TIdHTTPResponseInfo;
      HTTPRequest: TIdHTTPRequestInfo): TIdHTTPSession;
     destructor Destroy; override;
-    function EndSession(const SessionName: string): boolean;
+    function EndSession(const SessionName: String; const RemoteIP: String = ''): Boolean;
     //
     property MIMETable: TIdThreadSafeMimeTable read FMIMETable;
     property SessionList: TIdHTTPCustomSessionList read FSessionList;
@@ -865,9 +872,6 @@ var
     try
       LRequestInfo.RawHeaders.Extract('Cookie', LRawCookies);    {Do not Localize}
       LRequestInfo.Cookies.AddClientCookies(LRawCookies);
-      LRawCookies.Clear;
-      LRequestInfo.RawHeaders.Extract('Cookie2', LRawCookies);    {Do not Localize}
-      LRequestInfo.Cookies.AddClientCookies2(LRawCookies);
     finally
       FreeAndNil(LRawCookies);
     end;
@@ -887,7 +891,6 @@ var
   var
     LResponseNo: Integer;
     LResponseText, LContentText, S: String;
-    LMajor, LMinor: Integer;
   begin
     // let the user decide if the request headers are acceptable
     Result := DoHeadersAvailable(AContext, LRequestInfo.URI, LRequestInfo.RawHeaders);
@@ -906,13 +909,9 @@ var
       Exit;
     end;
 
-    // get the HTTP version and check for v1.1 'Host' and 'Expect' headers...
-    S := LRequestInfo.Version;
-    Fetch(S, '/');  {Do not localize}
-    LMajor := IndyStrToInt(Fetch(S, '.'), -1);  {Do not Localize}
-    LMinor := IndyStrToInt(S, -1);
+    // check for HTTP v1.1 'Host' and 'Expect' headers...
 
-    if (LMajor < 1) or ((LMajor = 1) and (LMinor < 1)) then begin
+    if not LRequestInfo.IsVersionAtLeast(1, 1) then begin
       Exit;
     end;
 
@@ -1044,7 +1043,7 @@ begin
           end;
           LRequestInfo := TIdHTTPRequestInfo.Create;
           try
-            LResponseInfo := TIdHTTPResponseInfo.Create(AContext.Connection, Self);
+            LResponseInfo := TIdHTTPResponseInfo.Create(LRequestInfo, AContext.Connection, Self);
             try
               // SG 05.07.99
               // Set the ServerSoftware string to what it's supposed to be.    {Do not Localize}
@@ -1057,6 +1056,12 @@ begin
               // Retrieve the HTTP version
               LRawHTTPCommand := LInputLine;
               LRequestInfo.FVersion := Copy(LInputLine, i + 1, MaxInt);
+
+              s := LRequestInfo.Version;
+              Fetch(s, '/');  {Do not localize}
+              LRequestInfo.FVersionMajor := IndyStrToInt(Fetch(s, '.'), -1);  {Do not Localize}
+              LRequestInfo.FVersionMinor := IndyStrToInt(S, -1);
+
               SetLength(LInputLine, i - 1);
 
               // Retrieve the HTTP header
@@ -1241,11 +1246,11 @@ begin
   end;
 end;
 
-function TIdCustomHTTPServer.EndSession(const SessionName: string): boolean;
+function TIdCustomHTTPServer.EndSession(const SessionName: String; const RemoteIP: String = ''): Boolean;
 var
   ASession: TIdHTTPSession;
 begin
-  ASession := SessionList.GetSession(SessionName, '');    {Do not Localize}
+  ASession := SessionList.GetSession(SessionName, RemoteIP);    {Do not Localize}
   Result := Assigned(ASession);
   if Result then begin
     FreeAndNil(ASession);
@@ -1257,29 +1262,29 @@ function TIdCustomHTTPServer.GetSessionFromCookie(AContext: TIdContext;
   var VContinueProcessing: Boolean): TIdHTTPSession;
 var
   LIndex: Integer;
-  LSessionId: String;
+  LSessionID: String;
 begin
   Result := nil;
   VContinueProcessing := True;
   if SessionState then
   begin
-    LIndex := AHTTPRequest.Cookies.GetCookieIndex(0, GSessionIDCookie);
-    while (Result = nil) and (LIndex >= 0) and VContinueProcessing do
+    LIndex := AHTTPRequest.Cookies.GetCookieIndex(GSessionIDCookie);
+    while LIndex >= 0 do
     begin
-      LSessionId := AHTTPRequest.Cookies.Items[LIndex].Value;
-      Result := FSessionList.GetSession(LSessionID, AHTTPrequest.RemoteIP);
-      if not Assigned(Result) then begin
-        DoInvalidSession(AContext, AHTTPRequest, AHTTPResponse, VContinueProcessing, LSessionId);
-        if not VContinueProcessing then begin
-          Break;
-        end;
+      LSessionID := AHTTPRequest.Cookies[LIndex].Value;
+      Result := FSessionList.GetSession(LSessionID, AHTTPRequest.RemoteIP);
+      if Assigned(Result) then begin
+        Break;
       end;
-      Inc(LIndex);
-      LIndex := AHTTPRequest.Cookies.GetCookieIndex(LIndex, GSessionIDCookie);
+      DoInvalidSession(AContext, AHTTPRequest, AHTTPResponse, VContinueProcessing, LSessionID);
+      if not VContinueProcessing then begin
+        Break;
+      end;
+      LIndex := AHTTPRequest.Cookies.GetCookieIndex(GSessionIDCookie, LIndex+1);
     end;    { while }
     // check if a session was returned. If not and if AutoStartSession is set to
     // true, Create a new session
-    if FAutoStartSession and VContinueProcessing and (Result = nil) then begin
+    if (Result = nil) and VContinueProcessing and FAutoStartSession then begin
       Result := CreateSession(AContext, AHTTPResponse, AHTTPrequest);
     end;
   end;
@@ -1480,36 +1485,53 @@ begin
   inherited Destroy;
 end;
 
+function TIdHTTPRequestInfo.IsVersionAtLeast(const AMajor, AMinor: Integer): Boolean;
+begin
+  Result := (FVersionMajor > AMajor) or
+            ((FVersionMajor = AMajor) and (FVersionMinor >= AMinor));
+end;
+
 { TIdHTTPResponseInfo }
 
 procedure TIdHTTPResponseInfo.CloseSession;
 var
   i: Integer;
 begin
-  i := Cookies.GetCookieIndex(0, GSessionIDCookie);
-  if i > -1 then begin
+  i := Cookies.GetCookieIndex(GSessionIDCookie);
+  while i > -1 do begin
     Cookies.Delete(i);
+    i := Cookies.GetCookieIndex(GSessionIDCookie, i);
   end;
-  Cookies.Add.CookieName := GSessionIDCookie;
+  with Cookies.Add do begin
+    CookieName := GSessionIDCookie;
+    MaxAge := 0;
+    Expires := Date-7;
+  end;
   FreeAndNil(FSession);
 end;
 
-constructor TIdHTTPResponseInfo.Create(AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer);
+constructor TIdHTTPResponseInfo.Create(ARequestInfo: TIdHTTPRequestInfo;
+  AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer);
 begin
   inherited Create;
 
+  FRequestInfo := ARequestInfo;
+  FConnection := AConnection;
+  FHttpServer := AServer;
+
   FFreeContentStream := True;
+
+  ResponseNo := GResponseNo;
+  ContentType := ''; //GContentType;
   ContentLength := GFContentLength;
+
   {Some clients may not support folded lines}
   RawHeaders.FoldLines := False;
   FCookies := TIdCookies.Create(Self);
+
   {TODO Specify version - add a class method dummy that calls version}
   ServerSoftware := GServerSoftware;
-  ContentType := ''; //GContentType;
 
-  FConnection := AConnection;
-  FHttpServer := AServer;
-  ResponseNo := GResponseNo;
 end;
 
 destructor TIdHTTPResponseInfo.Destroy;
@@ -1705,7 +1727,7 @@ var
   i: Integer;
   LEncoding: TIdTextEncoding;
   LBufferingStarted: Boolean;
-  LCookie: TIdNetscapeCookie;
+  LCookie: TIdCookieRFC2109;
 begin
   if HeaderHasBeenWritten then begin
     EIdHTTPHeaderAlreadyWritten.Toss(RSHTTPHeaderAlreadyWritten);
@@ -1715,10 +1737,10 @@ begin
   if AuthRealm <> '' then
   begin
     ResponseNo := 401;
-    if (Length(ContentText) = 0) and not Assigned(ContentStream) then
+    if (Length(ContentText) = 0) and (not Assigned(ContentStream)) then
     begin
       ContentType := 'text/html; charset=utf-8';    {Do not Localize}
-      ContentText := '<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + RSHTTPUnauthorized + '</B></BODY></HTML>';    {Do not Localize}
+      ContentText := '<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText + '</B></BODY></HTML>';    {Do not Localize}
       ContentLength := -1; // calculated below
     end;
   end;
@@ -1768,8 +1790,6 @@ begin
   end;
   try
     // Write HTTP status response
-    // Client will be forced to close the connection. We are not going to support
-    // keep-alive feature for now
     FConnection.IOHandler.WriteLn('HTTP/1.1 ' + IntToStr(ResponseNo) + ' ' + ResponseText);    {Do not Localize}
     // Write headers
     FConnection.IOHandler.Write(RawHeaders);
@@ -1874,7 +1894,7 @@ begin
       ASession := TIdHTTPSession(ASessionList[i]);
       Assert(ASession <> nil);
       // the stale sessions check has been removed... the cleanup thread should suffice plenty
-      if TextIsSame(ASession.FSessionID, SessionID) and ((length(RemoteIP) = 0) or TextIsSame(ASession.RemoteHost, RemoteIP)) then
+      if TextIsSame(ASession.FSessionID, SessionID) and ((Length(RemoteIP) = 0) or TextIsSame(ASession.RemoteHost, RemoteIP)) then
       begin
         // Session found
         ASession.FLastTimeStamp := Now;

@@ -128,14 +128,45 @@ begin
   inherited Destroy;
 end;
 
+function SortCookiesFunc(Item1, Item2: TIdCookieRFC2109): Integer;
+begin
+  // using the algorithm defined in draft-08 section 5.4
+
+  if Item1 = Item2 then
+  begin
+    Result := 0;
+  end
+  else if Length(Item2.Path) > Length(Item1.Path) then
+  begin
+    Result := 1;
+  end
+  else if Length(Item1.Path) = Length(Item2.Path) then
+  begin
+    if Item2.CreatedAt < Item1.CreatedAt then begin
+      Result := 1;
+    end else begin
+      Result := -1;
+    end;
+  end else
+  begin
+    Result := -1;
+  end;
+end;
+
+type
+  TIdCookieRFC2109Access = class(TIdCookieRFC2109)
+  end;
+
 procedure TIdCookieManager.GenerateClientCookies(AURL: TIdURI; SecureOnly: Boolean;
   Headers: TIdHeaderList);
 var
-  I, J: Integer;
+  I: Integer;
   LCookieList: TIdCookieList;
   LResultList: TList;
-  LCookie: TIdNetscapeCookie;
-  LRFC2965Needed: Boolean;
+  LCookie: TIdCookieRFC2109;
+  LCookiesToSend: String;
+  LHighestCookieVersion: Integer;
+  LNow: TDateTime;
 begin
   {
   Per RFC 2109:
@@ -160,8 +191,8 @@ begin
       LResultList := TList.Create;
       try
         // Search for cookies for this domain and URI
-        for J := 0 to LCookieList.Count-1 do begin
-          LCookie := LCookieList.Cookies[J];
+        for I := 0 to LCookieList.Count-1 do begin
+          LCookie := LCookieList.Cookies[I];
           if LCookie.IsAllowed(AURL, SecureOnly) then begin
             LResultList.Add(LCookie);
           end;
@@ -169,7 +200,24 @@ begin
 
         if LResultList.Count > 0 then begin
           {
-          RLebeau: per RFC 2965:
+          RLebeau: Per RFC 2965 Section 3.3.5:
+
+          The Cookie2 request header facilitates interoperation between clients
+          and servers that understand different versions of the cookie specification.
+          When the client sends one or more cookies to an origin server, if at
+          least one of those cookies contains a $Version attribute whose value
+          is different from the version that the client understands, then the
+          client MUST also send a Cookie2 request header, the syntax for which is
+
+           cookie2 =       "Cookie2:" cookie-version
+
+          Here the value for cookie-version is the highest version of cookie
+          specification (currently 1) that the client understands.  The client
+          needs to send at most one such request header per request.
+          }
+
+          {
+          RLebeau: per RFC 2965 Section 9.1:
 
           A user agent that supports both this specification and Netscape-style
           cookies SHOULD send a Cookie request header that follows the older
@@ -187,20 +235,35 @@ begin
           request header.
           }
 
-          LRFC2965Needed := True;
-
+          // order cookies from most-specific path to least-specific path
+          LResultList.Sort(@SortCookiesFunc);
+          LNow := Now;
           for I := 0 to LResultList.Count-1 do begin
             LCookie := TIdCookieRFC2109(LResultList.Items[I]);
+            TIdCookieRFC2109Access(LCookie).FLastAccessed := LNow;
+          end;
+
+          LHighestCookieVersion := 0;
+          for I := 0 to LResultList.Count-1 do begin
+            LCookie := TIdCookieRFC2109(LResultList.Items[I]);
+            if LCookiesToSend <> '' then begin
+              LCookiesToSend := LCookiesToSend + '; '; {Do not Localize}
+            end;
+            LCookiesToSend := LCookiesToSend + LCookie.ClientCookie;
+            // draft-08 does away with attributes in the 'Cookie' header,
+            // but RFC 2965 still uses them, so look at the cookie versions
+            // only for RFC 2965 and later cookies...
             if LCookie is TIdCookieRFC2965 then begin
-              Headers.AddValue('Cookie2', LCookie.ClientCookie); {Do not Localize}
-              LRFC2965Needed := False;
-            end else begin
-              Headers.AddValue('Cookie', LCookie.ClientCookie); {Do not Localize}
+              LHighestCookieVersion := IndyMax(LCookie.Version, LHighestCookieVersion);
             end;
           end;
 
-          if LRFC2965Needed then begin
-            Headers.AddValue('Cookie2', '$Version="1"'); {Do not Localize}
+          if LCookiesToSend <> '' then begin
+            if LHighestCookieVersion > 0 then begin
+              LCookiesToSend := '$Version=' + IntToStr(LHighestCookieVersion) + '; ' + LCookiesToSend; {Do not Localize}
+            end;
+            Headers.AddValue('Cookie', LCookiesToSend); {Do not Localize}
+            Headers.AddValue('Cookie2', '$Version=1'); {Do not Localize}
           end;
         end;
       finally
@@ -221,9 +284,11 @@ begin
   begin
     if DoOnNewCookie(ACookie) then
     begin
-      FCookieCollection.AddCookie(ACookie);
-      Exit;
+      if FCookieCollection.AddCookie(ACookie) then begin
+        Exit;
+      end;
     end;
+
     ACookie.Collection := nil;
   end;
 
@@ -353,8 +418,9 @@ begin
     begin
       if DoOnNewCookie(LCookie) then
       begin
-        FCookieCollection.AddCookie(LCookie);
-        LCookie := nil;
+        if FCookieCollection.AddCookie(LCookie) then begin
+          LCookie := nil;
+        end;
       end;
     end;
   finally

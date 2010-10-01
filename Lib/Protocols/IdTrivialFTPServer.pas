@@ -603,6 +603,11 @@ begin
     AppendString(FResponse, IntToStr(FTransferSize), -1, TIdTextEncoding.ASCII);
     AppendByte(FResponse, 0);
   end;
+  if Length(FResponse) > 0 then begin
+    // RLebeau:  sending an OACK instead of an ACK, so expect
+    // the next packet received to be a DATA packet...
+    FBlkCounter := 1;
+  end;
 end;
 
 {$IFNDEF DOTNET}

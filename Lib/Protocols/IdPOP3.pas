@@ -353,8 +353,7 @@ end;
 
 function TIdPOP3.Delete(const MsgNum: Integer): Boolean;
 begin
-  SendCmd('DELE ' + IntToStr(MsgNum), ST_OK);   {do not localize}
-  Result := LastCmdResult.Code = ST_OK;
+  Result := (SendCmd('DELE ' + IntToStr(MsgNum), '') = ST_OK);   {do not localize}
 end;
 
 procedure TIdPOP3.DisconnectNotifyPeer;
@@ -375,8 +374,7 @@ end;
 
 function TIdPOP3.Reset: Boolean;
 begin
-  SendCmd('RSET', '');    {Do not Localize}
-  Result := LastCmdResult.Code = ST_OK;
+  Result := (SendCmd('RSET', '') = ST_OK);    {Do not Localize}
 end;
 
 function TIdPOP3.RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings):
@@ -399,7 +397,8 @@ end;
 
 function TIdPOP3.Retrieve(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
 begin
-  if SendCmd('RETR ' + IntToStr(MsgNum), '') = ST_OK then begin   {Do not Localize}
+  Result := (SendCmd('RETR ' + IntToStr(MsgNum), '') = ST_OK);   {Do not Localize}
+  if Result then begin
     AMsg.Clear;
     // This is because of a bug in Exchange? with empty messages. See comment in ReceiveHeader
     if ReceiveHeader(AMsg) = '' then begin
@@ -407,8 +406,6 @@ begin
       ReceiveBody(AMsg);
     end;
   end;
-  // Will only hit here if ok and NO exception, or IF is not executed
-  Result := LastCmdResult.Code = ST_OK;
 end;
 
 function TIdPOP3.RetrieveHeader(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
@@ -466,35 +463,34 @@ begin
 end;
 
 function TIdPOP3.UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
-Begin
+begin
   if AMsgNum >= 0 then begin
-    Result := SendCmd('UIDL ' + IntToStr(AMsgNum), '') = ST_OK;    {Do not Localize}
-    if Result then
-    begin
+    Result := (SendCmd('UIDL ' + IntToStr(AMsgNum), '') = ST_OK);    {Do not Localize}
+    if Result then begin
       ADest.Assign(LastCmdResult.Text);
     end;
   end
   else begin
-    Result := SendCmd('UIDL', '') = ST_OK;    {Do not Localize}
-    if Result then
-    begin
+    Result := (SendCmd('UIDL', '') = ST_OK);    {Do not Localize}
+    if Result then begin
       IOHandler.Capture(ADest);
     end;
   end;
-End;//TIdPOP3.GetUIDL
+end;
 
 function TIdPOP3.Top(const AMsgNum: Integer; const ADest: TStrings; const AMaxLines: Integer = 0): boolean;
+var
+  Cmd: String;
 begin
-  if AMaxLines = 0 then begin
-    Result := SendCmd('TOP ' + IntToStr(AMsgNum),'') = ST_OK; {Do not Localize}
-  end else begin
-    Result := SendCmd('TOP ' + IntToStr(AMsgNum) + ' ' + IntToStr(AMaxLines),'') = ST_OK; {Do not Localize}
+  Cmd := 'TOP ' + IntToStr(AMsgNum); {Do not Localize}
+  if AMaxLines <> 0 then begin
+    Cmd := Cmd + ' ' + IntToStr(AMaxLines); {Do not Localize}
   end;
+  Result := (SendCmd(Cmd,'') = ST_OK);
   if Result then begin
     IOHandler.Capture(ADest);
   end;
 end;
-
 
 destructor TIdPOP3.Destroy;
 begin
@@ -505,9 +501,8 @@ end;
 function TIdPOP3.CAPA: Boolean;
 begin
   FCapabilities.Clear;
-  Result := SendCmd('CAPA','') = ST_OK;    {Do not Localize}
-  if Result then
-  begin
+  Result := (SendCmd('CAPA','') = ST_OK);    {Do not Localize}
+  if Result then begin
     IOHandler.Capture(FCapabilities);
   end;
 // RLebeau - do not delete here!  The +OK reply line is handled

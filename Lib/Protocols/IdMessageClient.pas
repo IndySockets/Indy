@@ -646,16 +646,28 @@ var
   LPreviousParentPart: integer;
   LEncoding: TIdTextEncoding;
 
-  // TODO - move this procedure into TIdIOHandler as a new Capture method.
+  // TODO - move this procedure into TIdIOHandler as a new Capture method?
   procedure CaptureAndDecodeCharset(AByteEncoding: TIdTextEncoding);
   var
     LMStream: TMemoryStream;
+    {$IFDEF STRING_IS_ANSI}
+    LAnsiEncoding: TIdTextEncoding;
+    {$ENDIF}
   begin
     LMStream := TMemoryStream.Create;
     try
       IOHandler.Capture(LMStream, ADelim, True, AByteEncoding);
       LMStream.Position := 0;
-      ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet);
+      {$IFDEF STRING_IS_ANSI}
+      LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
+      try
+      {$ENDIF}
+        ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+      {$IFDEF STRING_IS_ANSI}
+      finally
+        LAnsiEncoding.Free;
+      end;
+      {$ENDIF}
     finally
       FreeAndNil(LMStream);
     end;
@@ -670,6 +682,9 @@ var
     LTxt : TIdText;
     LHdrs: TStrings;
     LNewDecoder: TIdMessageDecoder;
+    {$IFDEF STRING_IS_ANSI}
+    LAnsiEncoding: TIdTextEncoding;
+    {$ENDIF}
   begin
     LMStream := TMemoryStream.Create;
     try
@@ -678,11 +693,26 @@ var
       try
         LMStream.Position := 0;
         if AUseBodyAsTarget then begin
-          if AMsg.IsMsgSinglePartMime then begin
-            ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet);
-          end else begin
-            ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME);
+          {$IFDEF STRING_IS_ANSI}
+          LAnsiEncoding := nil;
+          try
+          {$ENDIF}
+            if AMsg.IsMsgSinglePartMime then begin
+              {$IFDEF STRING_IS_ANSI}
+              LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
+              {$ENDIF}
+              ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+            end else begin
+              {$IFDEF STRING_IS_ANSI}
+              LAnsiEncoding := ContentTypeToEncoding(VDecoder.Headers.Values[SContentType], QuoteMIME);
+              {$ENDIF}
+              ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+            end;
+          {$IFDEF STRING_IS_ANSI}
+          finally
+            LAnsiEncoding.Free;
           end;
+          {$ENDIF}
         end else begin
           if AMsg.IsMsgSinglePartMime then begin
             LHdrs := AMsg.Headers;
@@ -691,7 +721,16 @@ var
           end;
           LTxt := TIdText.Create(AMsg.MessageParts);
           try
-            ReadStringsAsContentType(LMStream, LTxt.Body, LHdrs.Values[SContentType], QuoteMIME);
+            {$IFDEF STRING_IS_ANSI}
+            LAnsiEncoding := ContentTypeToEncoding(LHdrs.Values[SContentType], QuoteMIME);
+            try
+            {$ENDIF}
+              ReadStringsAsContentType(LMStream, LTxt.Body, LHdrs.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+            {$IFDEF STRING_IS_ANSI}
+            finally
+              LAnsiEncoding.Free;
+            end;
+            {$ENDIF}
             RemoveLastBlankLine(LTxt.Body);
             LTxt.ContentType := LTxt.ResolveContentType(LHdrs.Values[SContentType]);
             LTxt.CharSet := LTxt.GetCharSet(LHdrs.Values[SContentType]);       {do not localize}
@@ -954,17 +993,21 @@ var
   LEncoder: TIdMessageEncoder;
   LLine: string;
 
-  procedure EncodeStrings(AStrings: TStrings; AEncoderClass: TIdMessageEncoderClass; AEncoding: TIdTextEncoding);
+  procedure EncodeStrings(AStrings: TStrings; AEncoderClass: TIdMessageEncoderClass; AByteEncoding: TIdTextEncoding
+    {$IFDEF STRING_IS_ANSI}; AAnsiEncoding: TIdTextEncoding{$ENDIF});
   var
     LStrings: TStringList;
   begin
+    {$IFDEF STRING_IS_ANSI}
+    EnsureEncoding(AAnsiEncoding, encOSDefault);
+    {$ENDIF}
     LStrings := TStringList.Create; try
       LEncoder := AEncoderClass.Create(Self); try
         LStrStream := TMemoryStream.Create; try
           {$IFDEF HAS_TEncoding}
-          AStrings.SaveToStream(LStrStream, AEncoding);
+          AStrings.SaveToStream(LStrStream, AByteEncoding);
           {$ELSE}
-          WriteStringToStream(LStrStream, AStrings.Text, AEncoding);
+          WriteStringToStream(LStrStream, AStrings.Text, AByteEncoding{$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF});
           {$ENDIF}
           LStrStream.Position := 0;
           LEncoder.Encode(LStrStream, LStrings);
@@ -1068,13 +1111,13 @@ var
     try
     {$ENDIF}
       if TextIsSame(ATextPart.ContentTransfer, 'quoted-printable') then begin {do not localize}
-        EncodeStrings(ATextPart.Body, TIdMessageEncoderQuotedPrintable, LEncoding);
+        EncodeStrings(ATextPart.Body, TIdMessageEncoderQuotedPrintable, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
       end
       else if TextIsSame(ATextPart.ContentTransfer, 'base64') then begin  {do not localize}
-        EncodeStrings(ATextPart.Body, TIdMessageEncoderMIME, LEncoding);
+        EncodeStrings(ATextPart.Body, TIdMessageEncoderMIME, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
       end else
       begin
-        IOHandler.WriteRFCStrings(ATextPart.Body, False, LEncoding);
+        IOHandler.WriteRFCStrings(ATextPart.Body, False, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
         { No test for last line break necessary because IOHandler.WriteRFCStrings() uses WriteLn(). }
       end;
     {$IFNDEF DOTNET}
@@ -1349,23 +1392,23 @@ begin
               2: EncodeAttachment(LAttachment, TIdMessageEncoderBinHex4);
               else
               begin
-                LAttachStream := LAttachment.OpenLoadStream;
+                LEncoding := CharsetToEncoding(LAttachment.Charset);
+                {$IFNDEF DOTNET}
                 try
-                  LEncoding := CharsetToEncoding(LAttachment.Charset);
-                  {$IFNDEF DOTNET}
+                {$ENDIF}
+                  LAttachStream := LAttachment.OpenLoadStream;
                   try
-                  {$ENDIF}
                     while ReadLnFromStream(LAttachStream, LLine, -1, LEncoding) do begin
                       IOHandler.WriteLnRFC(LLine, LEncoding);
                     end;
-                  {$IFNDEF DOTNET}
                   finally
-                    LEncoding.Free;
+                    LAttachment.CloseLoadStream;
                   end;
-                  {$ENDIF}
+                {$IFNDEF DOTNET}
                 finally
-                  LAttachment.CloseLoadStream;
+                  LEncoding.Free;
                 end;
+                {$ENDIF}
               end;
             end;
             IOHandler.WriteLn;

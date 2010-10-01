@@ -8,7 +8,7 @@
 {$DEFINE IdIPv4}
 
 {$DEFINE INDY100}
-{$DEFINE 10_5_7}  //so developers can IFDEF for this specific version
+{$DEFINE 10_5_8}  //so developers can IFDEF for this specific version
 
 {$IFDEF BCB}
   {$DEFINE CBUILDER}
@@ -51,6 +51,7 @@
 {$UNDEF HAS_TEncoding}
 {$UNDEF HAS_TCharacter}
 {$UNDEF HAS_TInterlocked}
+{$UNDEF TIdTextEncoding_IS_NATIVE}
 
 // Make sure that this is defined only for environments where we are using
 // the iconv library to charactor conversions.
@@ -154,8 +155,8 @@
   {$DEFINE HAS_OPTIONAL_PARAMS}
   {$DEFINE HAS_SAMETEXT}
   {$DEFINE HAS_NAMED_THREADS}
-  {.$DEFINE HAS_STATIC_TThread_Queue}
-  {.$DEFINE HAS_STATIC_TThread_Synchronize}
+  {.$DEFINE HAS_STATIC_TThread_Queue} // not implemented in D7
+  {$DEFINE HAS_STATIC_TThread_Synchronize}
   {$DEFINE HAS_TFormatSettings}
   {$DEFINE HAS_TSelectionEditor}
   {$DEFINE HAS_TStringList_CaseSensitive}
@@ -183,8 +184,8 @@
   {$DEFINE HAS_OPTIONAL_PARAMS}
   {$DEFINE HAS_SAMETEXT}
   {$DEFINE HAS_NAMED_THREADS}
-  {.$DEFINE HAS_STATIC_TThread_Queue}
-  {.$DEFINE HAS_STATIC_TThread_Synchronize}
+  {$DEFINE HAS_STATIC_TThread_Queue}
+  {.$DEFINE HAS_STATIC_TThread_Synchronize} // not implemented in D8
   {$DEFINE HAS_TFormatSettings}
   {$DEFINE HAS_TSelectionEditor}
   {$DEFINE HAS_TStringList_CaseSensitive}
@@ -210,8 +211,8 @@
   {$DEFINE HAS_OPTIONAL_PARAMS}
   {$DEFINE HAS_SAMETEXT}
   {$DEFINE HAS_NAMED_THREADS}
-  {.$DEFINE HAS_STATIC_TThread_Queue}
-  {.$DEFINE HAS_STATIC_TThread_Synchronize}
+  {$DEFINE HAS_STATIC_TThread_Queue}
+  {$DEFINE HAS_STATIC_TThread_Synchronize}
   {$DEFINE HAS_TFormatSettings}
   {$DEFINE HAS_TSelectionEditor}
   {$DEFINE HAS_TStringList_CaseSensitive}
@@ -405,6 +406,7 @@
     {$DEFINE VCL_60_PLUS}
     {$DEFINE HAS_TEncoding}
     {$DEFINE HAS_TCharacter}
+    {$DEFINE BROKEN_TEncoding_GetEncoding}
   {$ENDIF}
   {$DEFINE HAS_CLASSPROPERTIES}
   {$DEFINE HAS_CLASSVARS}
@@ -456,6 +458,7 @@
     {$DEFINE VCL_60_PLUS}
     {$DEFINE HAS_TEncoding}
     {$DEFINE HAS_TCharacter}
+    {$DEFINE BROKEN_TEncoding_GetEncoding}
   {$ENDIF}
   {$DEFINE HAS_CLASSPROPERTIES}
   {$DEFINE HAS_CLASSVARS}
@@ -468,7 +471,7 @@
   {$DEFINE HAS_TStrings_ValueFromIndex}
 {$ENDIF}
 
-//Delphi & C++Builder 2011 (Fulcrum)
+//Delphi & C++Builder XE (Fulcrum)
 {$IFDEF VER220}
 //REMOVE DCC DEFINE after the next Fulcrum beta.
 //It will be defined there.
@@ -485,12 +488,12 @@
   {$DEFINE VCL_2007_OR_ABOVE}
   {$DEFINE VCL_2009_OR_ABOVE}
   {$DEFINE VCL_2010_OR_ABOVE}
-  {$DEFINE VCL_2011_OR_ABOVE}
-  {$DEFINE VCL_2011}
+  {$DEFINE VCL_XE_OR_ABOVE}
+  {$DEFINE VCL_XE}
   {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_2011}
+    {$DEFINE CBUILDER_XE}
   {$ELSE}
-    {$DEFINE DELPHI_2011}
+    {$DEFINE DELPHI_XE}
   {$ENDIF}
   {$DEFINE HAS_OPTIONAL_PARAMS}
   {$DEFINE HAS_SAMETEXT}
@@ -773,7 +776,7 @@
   //important!!! iconv functions are defined in the libc.pas Novell Netware header.
   //Do not define USE_ICONVUNIT
   {$UNDEF USE_ICONV_UNIT}
-  {$UNDEF USE_ICONV_ENC}  
+  {$UNDEF USE_ICONV_ENC}
   {$DEFINE INT_THREAD_PRIORITY}
   {$DEFINE HAS_TInterlocked}
 {$ENDIF}
@@ -884,6 +887,13 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 
 {$IFDEF DOTNET}
   {$DEFINE DOTNET_OR_ICONV}
+  {$DEFINE TIdTextEncoding_IS_NATIVE}
+{$ELSE}
+  {$IFDEF HAS_TEncoding}
+    {$IFNDEF USE_ICONV}
+      {$DEFINE TIdTextEncoding_IS_NATIVE}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF USE_ICONV}
   {$DEFINE DOTNET_OR_ICONV}

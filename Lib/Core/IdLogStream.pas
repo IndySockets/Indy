@@ -92,14 +92,14 @@ end;
 procedure TIdLogStream.LogReceivedData(const AText, AData: string);
 begin
   if FReceiveStream <> nil then begin
-    WriteStringToStream(FReceiveStream, AData);
+    WriteStringToStream(FReceiveStream, AData, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   end;
 end;
 
 procedure TIdLogStream.LogSentData(const AText, AData: string);
 begin
   if FSendStream <> nil then begin
-    WriteStringToStream(FSendStream, AData);
+    WriteStringToStream(FSendStream, AData, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   end;
 end;
 

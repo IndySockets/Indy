@@ -221,6 +221,15 @@ begin
 03-20-03  07:59PM          <DIR>                  Windows
 "
 }
+
+{Treck Embedded FTP (treck.com) right-justifies <DIR>:
+
+         1         2         3         4         5
+1234567890123456789012345678901234567890123456789012345678901234567890
+
+07-24-10  10:12PM                <DIR> FOUND.000
+03-23-10  02:28PM                28674 4500PMOD.ZIP
+}
   Result := False;
   for i := 0 to AListing.Count - 1 do begin
     if (AListing[i] <> '') and (not IsSubDirContentsBanner(AListing[i])) then begin
@@ -302,7 +311,7 @@ var
   LBuffer: string;
   LPosMarker : Integer;
 begin
-  LPosMarker := 0;
+  LPosMarker := 1;
   //Note that there is quite a bit of duplicate code in this if.
   //That is because there are two similar forms but the dates are in
   //different forms and have to be processed differently.
@@ -356,9 +365,10 @@ begin
       AItem.ItemType := ditDirectory;
       //must contain 17 spaces for WinCE pattern
       if TextStartsWith(LBuffer,'                 ') then begin
-      //if it is this pattern, 8 needs to be the starting val for LPosMarker
-      //to extract the dirname.
-        LPosMarker := 8;
+        LPosMarker := 18;
+      //Treck FTP server doesn't do any padding;  all others must contain 9 spaces
+      end else if TextStartsWith(LBuffer,'         ') then begin
+        LPosMarker := 10;
       end;
       AItem.SizeAvail := False;
       Break;
@@ -374,12 +384,6 @@ begin
       end;
     end;
   until False;
-  //We do things this way because a space starting a file name is legel
-  if AItem.ItemType = ditDirectory then begin
-    LPosMarker := LPosMarker + 10;
-  end else begin
-    LPosMarker := LPosMarker + 1;
-  end;
 
   // Rest of the buffer is item name
   AItem.LocalFileName := LName;

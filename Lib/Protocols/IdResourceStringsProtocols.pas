@@ -268,6 +268,9 @@ resourcestring
   //HTTP Authentication Digeest
   RSHTTPAuthInvalidHash = 'Unsupported hash algorithm. This implementation supports only MD5 encoding.';
 
+  // HTTP Cookies
+  RSHTTPUnknownCookieVersion = 'Unsupported cookie version: %d';
+
   //SSPI Authentication
   {
   Note: CompleteToken is an API function Name:
@@ -901,7 +904,6 @@ resourcestring
   RSHL7SendMessage             = 'Send a message';
   RSHL7NoConnectionFound       = 'Server Connection not locatable when sending message';
   RSHL7WaitForAnswer           = 'You cannot send a message while you are still waiting for an answer';
-  RSMFDIvalidObjectType        = 'Unsupported object type. You can assign only one of the following types or their descendants: TStrings, TStream.';
   //TIdHL7 error messages
   RSHL7ErrInternalsrNone       =  'Internal error in IdHL7.pas: SynchronousSend returned srNone';
   RSHL7ErrNotConn              =   'Not connected';
@@ -909,6 +911,10 @@ resourcestring
   RSHL7ErrNoResponse           =  'No response from remote system';
   RSHL7ErrInternalUnknownVal   =  'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ';
   RSHL7Broken                  = 'IdHL7 is broken in Indy 10 for the present';
+
+  { TIdMultipartFormDataStream exceptions }
+  RSMFDInvalidObjectType        = 'Unsupported object type. You can assign only one of the following types or their descendants: TStrings, TStream.';
+  RSMFDInvalidTransfer          = 'Unsupported transfer type. You can assign only an empty string or one of the following types: 7bit, 8bit, binary, quoted-printable, base64.';
 
   { TIdURI exceptions }
   RSURINoProto                 = 'Protocol field is empty';
@@ -995,6 +1001,8 @@ resourcestring
 
   // Message Header Encoding
   RSHeaderEncodeError = 'Could not encode header data using charset "%s"';
+  RSHeaderDecodeError = 'Could not decode header data using charset "%s"';
+
   // message builder strings
   rsHtmlViewerNeeded = 'An HTML viewer is required to see this message';
   rsRtfViewerNeeded = 'An RTF viewer is required to see this message';  

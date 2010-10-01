@@ -562,7 +562,7 @@ end;
 
 procedure TIdEntityHeaderInfo.SetContentType(const AValue: String);
 var
-  LCharSet: string;
+  S, LCharSet: string;
 begin
   if AValue <> '' then begin
     FContentType := RemoveHeaderEntry(AValue, 'charset', LCharSet, QuoteHTTP); {do not localize}
@@ -575,9 +575,44 @@ begin
     // received via HTTP. Data in character sets other than "ISO-8859-1" or
     // its subsets MUST be labeled with an appropriate charset value. See
     // section 3.4.1 for compatibility problems.
+
+    // RLebeau: per RFC 3023 Sections 3.1, 3.3, and 3.6:
+    //
+    // Conformant with [RFC2046], if a text/xml entity is received with
+    // the charset parameter omitted, MIME processors and XML processors
+    // MUST use the default charset value of "us-ascii"[ASCII].  In cases
+    // where the XML MIME entity is transmitted via HTTP, the default
+    // charset value is still "us-ascii".  (Note: There is an
+    // inconsistency between this specification and HTTP/1.1, which uses
+    // ISO-8859-1[ISO8859] as the default for a historical reason.  Since
+    // XML is a new format, a new default should be chosen for better
+    // I18N.  US-ASCII was chosen, since it is the intersection of UTF-8
+    // and ISO-8859-1 and since it is already used by MIME.)
+    //
+    // ...
+    //
+    // The charset parameter of text/xml-external-parsed-entity is
+    // handled the same as that of text/xml as described in Section 3.1
+    //
+    // ...
+    //
+    // The following list applies to text/xml, text/xml-external-parsed-
+    // entity, and XML-based media types under the top-level type "text"
+    // that define the charset parameter according to this specification:
+    //
+    // - If the charset parameter is not specified, the default is "us-
+    //   ascii".  The default of "iso-8859-1" in HTTP is explicitly
+    //   overridden.
+
     if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
-      LCharSet := 'ISO-8859-1'; {do not localize}
+      S := ExtractHeaderMediaSubType(FContentType);
+      if (PosInStrArray(S, ['xml', 'xml-external-parsed-entity'], False) >= 0) or TextEndsWith(S, '+xml') then begin {do not localize}
+        LCharSet := 'us-ascii'; {do not localize}
+      end else begin
+        LCharSet := 'ISO-8859-1'; {do not localize}
+      end;
     end;
+
     {RLebeau: override the current CharSet only if the header specifies a new value}
     if LCharSet <> '' then begin
       FCharSet := LCharSet;

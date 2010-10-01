@@ -169,7 +169,7 @@ begin
         end;
       end;
     end else begin
-      Result.Add(LCode);
+      Result.Add(LCode + ' ');
     end;
   end else if Text.Count > 0 then begin
     Result.AddStrings(Text);

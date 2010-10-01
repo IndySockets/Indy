@@ -138,13 +138,24 @@ begin
   if Assigned(FCurrentBinding) then begin
     // Necessary here - cancels the recvfrom in the listener thread
     FListenerThread.Stop;
-    for i := 0 to Bindings.Count - 1 do begin
-      Bindings[i].DropMulticastMembership(FMulticastGroup);
-      Bindings[i].CloseSocket;
+    try
+      for i := 0 to Bindings.Count - 1 do begin
+        if Bindings[i].HandleAllocated then begin
+          // RLebeau: DropMulticastMembership() can raise an exception if
+          // the network cable has been pulled out...
+          // TODO: update DropMulticastMembership() to not raise an exception...
+          try
+            Bindings[i].DropMulticastMembership(FMulticastGroup);
+          except
+          end;
+        end;
+        Bindings[i].CloseSocket;
+      end;
+    finally
+      FListenerThread.WaitFor;
+      FreeAndNil(FListenerThread);
+      FCurrentBinding := nil;
     end;
-    FListenerThread.WaitFor;
-    FreeAndNil(FListenerThread);
-    FCurrentBinding := nil;
   end;
 end;
 

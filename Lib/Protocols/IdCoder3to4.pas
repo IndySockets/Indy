@@ -227,7 +227,9 @@ begin
     SetLength(LBuffer, LBufSize);
     TIdStreamHelper.ReadBytes(ASrcStream, LBuffer, LBufSize);
     LBuffer := InternalDecode(LBuffer);
-    TIdStreamHelper.Write(FStream, LBuffer);
+    if Assigned(FStream) then begin
+      TIdStreamHelper.Write(FStream, LBuffer);
+    end;
   end;
 end;
 

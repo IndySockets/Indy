@@ -216,7 +216,9 @@ var
   begin
     //TODO: this uses Array of Characters. Unless its dealing in Unicode or MBCS it should
     // be using TIdBuffer
-    ADestStream.Write(LOutputBuffer, LOutputBufferUsed);
+    if Assigned(ADestStream) then begin
+      ADestStream.Write(LOutputBuffer, LOutputBufferUsed);
+    end;
     LOutputBufferUsed := 0;
   end;
 

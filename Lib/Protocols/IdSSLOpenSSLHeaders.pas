@@ -796,12 +796,16 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 (*$HPPEMIT '	typedef void SSL;'*)
 (*$HPPEMIT '	typedef SSL* PSSL;'*)
 (*$HPPEMIT '	typedef void SSL_CTX;'*)
+(*$HPPEMIT '	typedef void* PSSL_CTX;'*)
+(*$HPPEMIT '	typedef void SSL_METHOD;'*)
 (*$HPPEMIT '	typedef void* PSSL_METHOD;'*)
 (*$HPPEMIT '	typedef void X509;'*)
 (*$HPPEMIT '	typedef X509* PX509;'*)
 (*$HPPEMIT '	typedef void X509_NAME;'*)
 (*$HPPEMIT '	typedef X509_NAME* PX509_NAME;'*)
 (*$HPPEMIT '}'*)
+(*$HPPEMIT 'struct RSA;'*)
+(*$HPPEMIT 'typedef RSA* PRSA;'*)
 
 uses
   IdException,
@@ -10029,7 +10033,7 @@ type
   PSTACK          = ^STACK;
   {$EXTERNALSYM PPSTACK}
   PPSTACK         =^PSTACK;
-  {$EXTERNALSYM PSSL}
+  {$NODEFINE PSSL}
   PSSL            = ^SSL;
   //opensslconf.h
   {$IFNDEF OPENSSL_NO_MD2}
@@ -11270,13 +11274,13 @@ type
   {$EXTERNALSYM PEVP_ENCODE_CTX}
   PEVP_ENCODE_CTX = ^EVP_ENCODE_CTX;
   //forward declarations from x509.h to make sure this compiles.
-  {$EXTERNALSYM PX509}
+  {$NODEFINE PX509}
   PX509 = ^X509;
   {$EXTERNALSYM PPX509}
   PPX509 = ^PX509;
   {$EXTERNALSYM PX509_CRL}
   PX509_CRL = ^X509_CRL;
-  {$EXTERNALSYM PX509_NAME}
+  {$NODEFINE PX509_NAME}
   PX509_NAME = ^X509_NAME;
   {$EXTERNALSYM PX509_NAME_ENTRY}
   PX509_NAME_ENTRY = ^X509_NAME_ENTRY;
@@ -12419,7 +12423,7 @@ type
     _set : TIdC_INT;
     size : TIdC_INT; // temp variable
   end;
-  {$EXTERNALSYM X509_NAME}
+  {$NODEFINE X509_NAME}
   X509_NAME = record
     entries : PSTACK_OF_X509_NAME_ENTRY;
     modified : TIdC_INT;  // true if 'bytes' needs to be built
@@ -12518,7 +12522,7 @@ type
   end;
   {$EXTERNALSYM PX509_CERT_AUX}
   PX509_CERT_AUX = ^X509_CERT_AUX;
-  {$EXTERNALSYM X509}
+  {$NODEFINE X509}
   X509 = record
     cert_info: PX509_CINF;
     sig_alg : PX509_ALGOR;
@@ -13913,13 +13917,13 @@ _des_cblock = DES_cblock
   {$EXTERNALSYM PSSL_SESSION}
   PSSL_SESSION = ^SSL_SESSION;
   // typedef struct ssl_method_st
-  {$EXTERNALSYM PSSL_CTX}
+  {$NODEFINE PSSL_CTX}
   PSSL_CTX = ^SSL_CTX;
   {$EXTERNALSYM SSL_METHOD_PROC}
   SSL_METHOD_PROC = procedure; cdecl;
-  {$EXTERNALSYM PSSL_METHOD}
+  {$NODEFINE PSSL_METHOD}
   PSSL_METHOD = ^SSL_METHOD;
-  {$EXTERNALSYM SSL_METHOD}
+  {$NODEFINE SSL_METHOD}
   SSL_METHOD = record
      version: TIdC_INT;
      ssl_new: function(s: PSSL): TIdC_INT; cdecl;
@@ -14023,7 +14027,7 @@ _des_cblock = DES_cblock
                           // supplying session-id's from other
                           // processes - spooky :-)
   end;
-  {$EXTERNALSYM SSL_CTX}
+  {$NODEFINE SSL_CTX}
   SSL_CTX = record
     method: PSSL_METHOD;
     cipher_list: PSTACK_OF_SSL_CIPHER;
@@ -14139,7 +14143,7 @@ _des_cblock = DES_cblock
   {$EXTERNALSYM PSSL_tlsext_debug_cb} 
   PSSL_tlsext_debug_cb = procedure (s : PSSL; client_server : TIdC_INT; 
     _type : TIdC_INT; data : PAnsiChar; len : TIdC_INT; arg : Pointer); cdecl;
-  {$EXTERNALSYM SSL}     
+  {$NODEFINE SSL}     
   SSL = record
     // protocol version
     // (one of SSL2_VERSION, SSL3_VERSION, TLS1_VERSION, DTLS1_VERSION)

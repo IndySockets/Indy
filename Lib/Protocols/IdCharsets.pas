@@ -1758,13 +1758,13 @@ type
       See (http://www.iana.org/assignments/charset-reg/Big5-HKSCS) }
 
     { MIB: 1013 }
-    idcs_UTF_16BE,                                      // Codepage: ?
+    idcs_UTF_16BE,                                      // Codepage: 1201
     { References: RFC2781 }
     { Source:
       RFC 2781 }
 
     { MIB: 1014 }
-    idcs_UTF_16LE,                                      // Codepage: ?
+    idcs_UTF_16LE,                                      // Codepage: 1200
     { References: RFC2781 }
     { Source:
       RFC 2781 }
@@ -1798,7 +1798,7 @@ type
       <http://www.unicode.org/unicode/reports/tr19/> }
 
     { MIB: 1019 }
-    idcs_UTF_32LE,                                      // Codepage: ?
+    idcs_UTF_32LE,                                      // Codepage: 12000
     { References: Davis }
     { Source:
       <http://www.unicode.org/unicode/reports/tr19/> }
@@ -4756,9 +4756,9 @@ const
 
     0,     // Big5-HKSCS
 
-    0,     // UTF-16BE
+    1201,  // UTF-16BE
 
-    0,     // UTF-16LE
+    1200,  // UTF-16LE
 
     1200,  // UTF-16
 
@@ -4769,7 +4769,7 @@ const
 
     12001, // UTF-32BE
 
-    0,     // UTF-32LE
+    12000, // UTF-32LE
 
     0,     // UNICODE-1-1-UTF-7
     0,     // csUnicode11UTF7

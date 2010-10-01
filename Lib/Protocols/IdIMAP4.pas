@@ -5651,7 +5651,8 @@ var
 const
   SContentType = 'Content-Type'; {do not localize}
 
-  procedure CaptureAndDecodeCharSet;
+  // TODO - move this procedure into TIdIOHandler as a new Capture method?
+  procedure CaptureAndDecodeCharset;
   var
     LMStream: TMemoryStream;
   begin
@@ -5789,7 +5790,7 @@ Begin
             line in an email that starts with '.' and the receiver is
             required to strip it off.  This ensures that the end-of-message
             line '.' cannot appear in the message body.}
-            if TextStartsWith(LLine, '.') then begin   {Do not Localize}
+            if TextStartsWith(LLine, '..') then begin   {Do not Localize}
               Delete(LLine,1,1);
             end;
             AMsg.Body.Add(LLine);

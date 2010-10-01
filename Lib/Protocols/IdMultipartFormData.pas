@@ -126,23 +126,17 @@ const
 type
   TIdMultiPartFormDataStream = class;
 
-  {
-    TODO:
-      Need to add ContentTransferEncoding property and arguments
-      for use in AddFile or AddObject for the multipart data stream.
-      Assumes the content transfer encoding has already been applied
-      to the contents of the TIdStream or the TIdStrings object.
-
-      Can implement when current TIdStreamX issues are resolved.
-  }
   TIdFormDataField = class(TCollectionItem)
   protected
     FFileName: string;
     FCharset: string;
     FContentType: string;
+    FContentTransfer: string;
     FFieldName: string;
     FFieldObject: TObject;
     FCanFreeFieldObject: Boolean;
+
+    function FormatHeader: string;
 
     function GetFieldSize: Int64;
     function GetFieldStream: TStream;
@@ -150,6 +144,7 @@ type
     function GetFieldValue: string;
     procedure SetCharset(const Value: string);
     procedure SetContentType(const Value: string);
+    procedure SetContentTransfer(const Value: string);
     procedure SetFieldName(const Value: string);
     procedure SetFieldStream(const Value: TStream);
     procedure SetFieldStrings(const Value: TStrings);
@@ -160,7 +155,7 @@ type
     constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
     // procedure Assign(Source: TPersistent); override;
-    function FormatHeader: string;
+    property ContentTransfer: string read FContentTransfer write SetContentTransfer;
     property ContentType: string read FContentType write SetContentType;
     property Charset: string read FCharset write SetCharset;
     property FieldName: string read FFieldName write SetFieldName;
@@ -209,9 +204,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    procedure AddFormField(const AFieldName, AFieldValue: string; const ACharset: string = '');
-    procedure AddObject(const AFieldName, AContentType, ACharset: string; AFileData: TObject; const AFileName: string = '');
-    procedure AddFile(const AFieldName, AFileName, AContentType: string);
+    function AddFormField(const AFieldName, AFieldValue: string; const ACharset: string = ''): TIdFormDataField;
+    function AddObject(const AFieldName, AContentType, ACharset: string; AFileData: TObject; const AFileName: string = ''): TIdFormDataField;
+    function AddFile(const AFieldName, AFileName: String; const AContentType: string = ''): TIdFormDataField;
 
     procedure Clear;
     
@@ -220,12 +215,15 @@ type
   end;
 
   EIdInvalidObjectType = class(EIdException);
+  EIdUnsupportedOperation = class(EIdException);
+  EIdUnsupportedTransfer = class(EIdException);
 
 implementation
 
 uses
   SysUtils,
   IdCoderQuotedPrintable,
+  IdCoderMIME,
   IdStream,
   IdGlobalProtocols;
 
@@ -247,13 +245,13 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdMultiPartFormDataStream.AddObject(const AFieldName,
-  AContentType, ACharset: string; AFileData: TObject; const AFileName: string = '');
+function TIdMultiPartFormDataStream.AddObject(const AFieldName,
+  AContentType, ACharset: string; AFileData: TObject; const AFileName: string = ''): TIdFormDataField;
 var
   LItem: TIdFormDataField;
 begin
   if not ((AFileData is TStream) or (AFileData is TStrings)) then begin
-    raise EIdInvalidObjectType.Create(RSMFDIvalidObjectType);
+    raise EIdInvalidObjectType.Create(RSMFDInvalidObjectType);
   end;
 
   LItem := FFields.Add;
@@ -266,11 +264,18 @@ begin
     if ACharset <> '' then begin
       FCharSet := ACharset;
     end;
+    if AFileData is TStream then begin
+      FContentTransfer := 'binary'; {do not localize}
+    end else begin
+      FContentTransfer := 'quoted-printable'; {do not localize}
+    end;
   end;
+
+  Result := LItem;
 end;
 
-procedure TIdMultiPartFormDataStream.AddFile(const AFieldName, AFileName,
-  AContentType: string);
+function TIdMultiPartFormDataStream.AddFile(const AFieldName, AFileName: String;
+  const AContentType: string = ''): TIdFormDataField;
 var
   LStream: TIdReadFileExclusiveStream;
   LItem: TIdFormDataField;
@@ -293,11 +298,14 @@ begin
     end else begin
       FContentType := GetMIMETypeFromFile(AFileName);
     end;
+    FContentTransfer := 'binary'; {do not localize}
   end;
+
+  Result := LItem;
 end;
 
-procedure TIdMultiPartFormDataStream.AddFormField(const AFieldName,
-  AFieldValue: string; const ACharset: string = '');
+function TIdMultiPartFormDataStream.AddFormField(const AFieldName,
+  AFieldValue: string; const ACharset: string = ''): TIdFormDataField;
 var
   LStrings: TStrings;
   LItem: TIdFormDataField;
@@ -317,7 +325,10 @@ begin
     FCanFreeFieldObject := True;
     FContentType := 'text/plain'; {do not localize}
     FCharset := ACharset;
+    FContentTransfer := 'quoted-printable'; {do not localize}
   end;
+
+  Result := LItem;
 end;
 
 procedure TIdMultiPartFormDataStream.Clear;
@@ -358,12 +369,13 @@ end;
 
 function TIdMultiPartFormDataStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 var
-  LTotalRead: Integer;
-  LCount: Integer;
-  LBufferCount: Integer;
-  LRemaining : Integer;
+  I, LTotalRead, LCount, LBufferCount, LRemaining : Integer;
   LItem: TIdFormDataField;
   LEncoding: TIdTextEncoding;
+  LStream: TStream;
+  {$IFNDEF HAS_TEncoding}
+  LBytes: TIdBytes;
+  {$ENDIF}
 begin
   if not FInitialized then begin
     FInitialized := True;
@@ -374,37 +386,97 @@ begin
   LTotalRead := 0;
   LBufferCount := 0;
 
-  while (LTotalRead < ACount) and ((Length(FInternalBuffer) > 0) or Assigned(FInputStream) or (FCurrentItem < FFields.Count)) do begin
-    if (Length(FInternalBuffer) = 0) and (not Assigned(FInputStream)) then begin
+  while (LTotalRead < ACount) and ((Length(FInternalBuffer) > 0) or Assigned(FInputStream) or (FCurrentItem < FFields.Count)) do
+  begin
+    if (Length(FInternalBuffer) = 0) and (not Assigned(FInputStream)) then
+    begin
       LItem := FFields.Items[FCurrentItem];
       AppendString(FInternalBuffer, LItem.FormatHeader);
 
       if (LItem.FieldObject is TStream) then begin
-        FInputStream := TStream(LItem.FieldObject);
-        FFreeInputStream := False;
-        FInputStream.Position := 0;
-      end
-      else if (LItem.FieldObject is TStrings) then begin
-        if TStrings(LItem.FieldObject).Count > 0 then begin
-          LEncoding := CharsetToEncoding(LItem.Charset);
-          {$IFNDEF DOTNET}
+        LStream := TStream(LItem.FieldObject);
+        LStream.Position := 0;
+        I := PosInStrArray(LItem.ContentTransfer, ['7bit', '8bit', 'binary', 'quoted-printable', 'base64'], False);
+        if I <= 2 then begin
+          FInputStream := LStream;
+          FFreeInputStream := False;
+        end
+        else begin
+          FInputStream := TMemoryStream.Create;
+          FFreeInputStream := True;
           try
-          {$ENDIF}
-            FInputStream := TMemoryStream.Create;
-            FFreeInputStream := True;
-            try
-              TIdEncoderQuotedPrintable.EncodeString(TStrings(LItem.FieldObject).Text, FInputStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
-            except
-              FreeAndNil(FInputStream);
-              FFreeInputStream := False;
-              raise;
+            if I = 3 then begin
+              TIdEncoderQuotedPrintable.EncodeStream(LStream, FInputStream);
+              // the encoded text always includes a CRLF at the end...
+            end else begin
+              TIdEncoderMime.EncodeStream(LStream, FInputStream);
+              // the encoded text does not include a CRLF at the end...
+              WriteStringToStream(FInputStream, CRLF);
             end;
-            FInputStream.Position := 0;
-          {$IFNDEF DOTNET}
-          finally
-            LEncoding.Free;
+          except
+            FreeAndNil(FInputStream);
+            FFreeInputStream := False;
+            raise;
           end;
-         {$ENDIF}
+          FInputStream.Position := 0;
+        end;
+      end
+      else if (LItem.FieldObject is TStrings) then
+      begin
+        if TStrings(LItem.FieldObject).Count > 0 then begin
+          FInputStream := TMemoryStream.Create;
+          FFreeInputStream := True;
+          try
+            LEncoding := CharsetToEncoding(LItem.Charset);
+            {$IFNDEF DOTNET}
+            try
+            {$ENDIF}
+              I := PosInStrArray(LItem.ContentTransfer, ['7bit', '8bit', 'binary', 'quoted-printable', 'base64'], False);
+              if I <= 0 then begin
+                {$IFDEF HAS_TEncoding}
+                TStrings(LItem.FieldObject).SaveToStream(FInputStream, TIdTextEncoding.ASCII);
+                {$ELSE}
+                if LEncoding <> TIdTextEncoding.ASCII then begin
+                  LBytes := TIdTextEncoding.Convert(
+                    LEncoding, TIdTextEncoding.ASCII,
+                    LEncoding.GetBytes(TStrings(LItem.FieldObject).Text)
+                    );
+                  WriteTIdBytesToStream(FInputStream, LBytes);
+                end else begin
+                  WriteStringToStream(FInputStream, TStrings(LItem.FieldObject).Text, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+                end;
+                {$ENDIF}
+                WriteStringToStream(FInputStream, CRLF);
+              end
+              else if (I >= 1) and (I <= 2) then begin
+                {$IFDEF HAS_TEncoding}
+                TStrings(LItem.FieldObject).SaveToStream(FInputStream, LEncoding);
+                {$ELSE}
+                WriteStringToStream(FInputStream, TStrings(LItem.FieldObject).Text, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+                {$ENDIF}
+                WriteStringToStream(FInputStream, CRLF);
+              end
+              else begin
+                if I = 3 then begin
+                  TIdEncoderQuotedPrintable.EncodeString(TStrings(LItem.FieldObject).Text, FInputStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+                  // the encoded text always includes a CRLF at the end...
+                end else begin
+                  TIdEncoderMIME.EncodeString(TStrings(LItem.FieldObject).Text, FInputStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+                  // the encoded text does not include a CRLF at the end...
+                  WriteStringToStream(FInputStream, CRLF);
+                end;
+              end;
+            {$IFNDEF DOTNET}
+            finally
+              LEncoding.Free;
+            end;
+           {$ENDIF}
+          except
+            FreeAndNil(FInputStream);
+            FFreeInputStream := False;
+            raise;
+          end;
+          FInputStream.Position := 0;
         end else begin
           AppendString(FInternalBuffer, CRLF);
           Inc(FCurrentItem);
@@ -490,12 +562,12 @@ end;
 
 function TIdMultiPartFormDataStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  raise EIdException.Create(RSUnsupportedOperation);
+  raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
 end;
 
 procedure TIdMultiPartFormDataStream.IdSetSize(ASize: Int64);
 begin
-  raise EIdException.Create(RSUnsupportedOperation);
+  raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
 end;
 
 { TIdFormDataFields }
@@ -577,21 +649,113 @@ begin
     Result := Result + CRLF;
   end;
 
-  Result := Result + IndyFormat(sContentTransferPlaceHolder + CRLF,
-    [iif(FieldObject is TStream, 'binary', 'quoted-printable')]);               {do not localize}
+  if Length(FContentTransfer) > 0 then begin
+    Result := Result + IndyFormat(sContentTransferPlaceHolder + CRLF, [FContentTransfer]);
+  end;
 
   Result := Result + CRLF;
+end;
+
+type
+  TIdCalculateSizeStream = class(TIdBaseStream)
+  protected
+    FPosition: Int64;
+    FSize: Int64;
+    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    procedure IdSetSize(ASize: Int64); override;
+  end;
+
+function TIdCalculateSizeStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+begin
+  Result := 0;
+end;
+
+function TIdCalculateSizeStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+var
+  I: Integer;
+begin
+  I := IndyLength(ABuffer, ACount, AOffset);
+  if I > 0 then begin
+    Inc(FPosition, I);
+    if FPosition > FSize then begin
+      FSize := FPosition;
+    end;
+  end;
+  Result := I;
+end;
+
+function TIdCalculateSizeStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+begin
+  case AOrigin of
+    soBeginning: begin
+      FPosition := AOffset;
+    end;
+    soCurrent: begin
+      FPosition := FPosition + AOffset;
+    end;
+    soEnd: begin
+      FPosition := FSize + AOffset;
+    end;
+  end;
+  if FPosition < 0 then begin
+    FPosition := 0;
+  end;
+  Result := FPosition;
+end;
+
+procedure TIdCalculateSizeStream.IdSetSize(ASize: Int64);
+begin
+  if ASize < 0 then begin
+    ASize := 0;
+  end;
+  if FSize <> ASize then begin
+    FSize := ASize;
+    if FSize < FPosition then begin
+      FPosition := FSize;
+    end;
+  end;
 end;
 
 function TIdFormDataField.GetFieldSize: Int64;
 var
   LEncoding: TIdTextEncoding;
   LStream: TStream;
+  LOldPos: TIdStreamSize;
+  {$IFNDEF HAS_TEncoding}
+  LBytes: TIdBytes;
+  {$ENDIF}
+  I: Integer;
 begin
   Result := Length(FormatHeader);
   if FieldObject is TStream then begin
-    // need to include an explicit CRLF at the end of the data
-    Result := Result + TStream(FieldObject).Size + 2{CRLF};
+    I := PosInStrArray(ContentTransfer, ['7bit', '8bit', 'binary', 'quoted-printable', 'base64'], False);
+    if I <= 2 then begin
+      // need to include an explicit CRLF at the end of the data
+      Result := Result + TStream(FieldObject).Size + 2{CRLF};
+    end else
+    begin
+      LStream := TIdCalculateSizeStream.Create;
+      try
+        LOldPos := TStream(FieldObject).Position;
+        try
+          if I = 3 then begin
+            TIdEncoderQuotedPrintable.EncodeStream(TStream(FieldObject), LStream);
+            // the encoded text always includes a CRLF at the end...
+            Result := Result + LStream.Size {+2};
+          end else begin
+            TIdEncoderMime.EncodeStream(TStream(FieldObject), LStream);
+            // the encoded text does not include a CRLF at the end...
+            Result := Result + LStream.Size + 2;
+          end;
+        finally
+          TStream(FieldObject).Position := LOldPos;
+        end;
+      finally
+        LStream.Free;
+      end;
+    end;
   end
   else if FieldObject is TStrings then begin
     if TStrings(FieldObject).Count > 0 then begin
@@ -599,13 +763,46 @@ begin
       {$IFNDEF DOTNET}
       try
       {$ENDIF}
-        LStream := TMemoryStream.Create;
-        try
-          TIdEncoderQuotedPrintable.EncodeString(TStrings(FieldObject).Text, LStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
-          // the encoded text always includes a CRLF at the end...
-          Result := Result + LStream.Size {+2};
-        finally
-          LStream.Free;
+        I := PosInStrArray(ContentTransfer, ['7bit', '8bit', 'binary', 'quoted-printable', 'base64'], False);
+        if I <= 0 then begin
+          {$IFDEF STRING_IS_UNICODE}
+          I := TIdTextEncoding.ASCII.GetByteCount(TStrings(FieldObject).Text);
+          {$ELSE}
+          if LEncoding <> TIdTextEncoding.ASCII then begin
+            // the methods useful for calculating a length without actually
+            // encoding are protected, so have to actually encode the
+            // string to find out the final length...
+            LBytes := TIdTextEncoding.Convert(
+              LEncoding, TIdTextEncoding.ASCII,
+              LEncoding.GetBytes(TStrings(FieldObject).Text)
+              );
+            I := Length(LBytes);
+          end else begin
+            I := LEncoding.GetByteCount(TStrings(FieldObject).Text);
+          end;
+          {$ENDIF}
+          // need to include an explicit CRLF at the end of the data
+          Result := Result + I + 2{CRLF};
+        end
+        else if (I >= 1) and (i <= 2) then begin
+          // need to include an explicit CRLF at the end of the data
+          Result := Result + LEncoding.GetByteCount(TStrings(FieldObject).Text) + 2{CRLF};
+        end else
+        begin
+          LStream := TIdCalculateSizeStream.Create;
+          try
+            if I = 3 then begin
+              TIdEncoderQuotedPrintable.EncodeString(TStrings(FieldObject).Text, LStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+              // the encoded text always includes a CRLF at the end...
+              Result := Result + LStream.Size {+2};
+            end else begin
+              TIdEncoderMIME.EncodeString(TStrings(FieldObject).Text, LStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+              // the encoded text does not include a CRLF at the end...
+              Result := Result + LStream.Size + 2;
+            end;
+          finally
+            LStream.Free;
+          end;
         end;
       {$IFNDEF DOTNET}
       finally
@@ -626,7 +823,7 @@ end;
 function TIdFormDataField.GetFieldStream: TStream;
 begin
   if not (FFieldObject is TStream) then begin
-    raise EIdInvalidObjectType.Create(RSMFDIvalidObjectType);
+    raise EIdInvalidObjectType.Create(RSMFDInvalidObjectType);
   end;
   Result := TStream(FFieldObject);
 end;
@@ -634,7 +831,7 @@ end;
 function TIdFormDataField.GetFieldStrings: TStrings;
 begin
   if not (FFieldObject is TStrings) then begin
-    raise EIdInvalidObjectType.Create(RSMFDIvalidObjectType);
+    raise EIdInvalidObjectType.Create(RSMFDInvalidObjectType);
   end;
   Result := TStrings(FFieldObject);
 end;
@@ -642,7 +839,7 @@ end;
 function TIdFormDataField.GetFieldValue: string;
 begin
   if not (FFieldObject is TStrings) then begin
-    raise EIdInvalidObjectType.Create(RSMFDIvalidObjectType);
+    raise EIdInvalidObjectType.Create(RSMFDInvalidObjectType);
   end;
   Result := TStrings(FFieldObject).Text;
 end;
@@ -650,6 +847,16 @@ end;
 procedure TIdFormDataField.SetCharset(const Value: string);
 begin
   FCharset := Value;
+end;
+
+procedure TIdFormDataField.SetContentTransfer(const Value: string);
+begin
+  if Length(Value) > 0 then begin
+    if PosInStrArray(Value, ['7bit', '8bit', 'binary', 'quoted-printable', 'base64'], False) = -1 then begin
+      raise EIdUnsupportedTransfer.Create(RSMFDInvalidTransfer);
+    end;
+  end;
+  FContentTransfer := Value;
 end;
 
 procedure TIdFormDataField.SetContentType(const Value: string);
@@ -702,7 +909,7 @@ end;
 procedure TIdFormDataField.SetFieldObject(const Value: TObject);
 begin
   if not ((Value is TStream) or (Value is TStrings)) then begin
-    raise EIdInvalidObjectType.Create(RSMFDIvalidObjectType);
+    raise EIdInvalidObjectType.Create(RSMFDInvalidObjectType);
   end;
 
   if Assigned(FFieldObject) and FCanFreeFieldObject then begin

@@ -142,7 +142,13 @@ begin
   if Assigned(FBinding) then
   begin
     if FBinding.HandleAllocated then begin
-      FBinding.DropMulticastMembership(FMulticastGroup);
+      // RLebeau: DropMulticastMembership() can raise an exception if
+      // the network cable has been pulled out.
+      // TODO: update DropMulticastMembership() to not raise an exception...
+      try
+        FBinding.DropMulticastMembership(FMulticastGroup);
+      except
+      end;
     end;
     FreeAndNil(FBinding);
   end;

@@ -297,7 +297,7 @@ begin
     VMsgEnd := True;
     Exit;
   end;
-  if TextStartsWith(Result, '.') then begin {do not localize}
+  if TextStartsWith(Result, '..') then begin {do not localize}
     IdDelete(Result, 1, 1);
   end;
   VMsgEnd := False;

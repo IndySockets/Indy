@@ -253,6 +253,7 @@ contains
   IdUnixTimeServer in 'IdUnixTimeServer.pas',
   IdUnixTimeUDP in 'IdUnixTimeUDP.pas',
   IdUnixTimeUDPServer in 'IdUnixTimeUDPServer.pas',
+  IdUriUtils in 'IdUriUtils.pas',
   IdUserAccounts in 'IdUserAccounts.pas',
   IdUserPassProvider in 'IdUserPassProvider.pas',
   IdVCard in 'IdVCard.pas',

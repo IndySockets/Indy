@@ -83,7 +83,8 @@ type
     {This deletes lines which were folded}
     Procedure DeleteFoldedLines(Index : Integer);
     {This folds one line into several lines}
-    function FoldLine(AString : string) : TStrings;
+    function FoldLine(AString : string): TStrings; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use FoldLineToList()'{$ENDIF};{$ENDIF}
+    procedure FoldLineToList(AString : string; ALines: TStrings);
     {Folds lines and inserts them into a position, Index}
     procedure FoldAndInsert(AString : String; Index : Integer);
     {Name property get method}
@@ -251,7 +252,7 @@ begin
           ADest.Add(GetValueFromLine(idx));
         end else begin
           SkipValueAtLine(idx);
-	end;
+        end;
       end;
     finally
       ADest.EndUpdate;
@@ -264,8 +265,9 @@ var
   LStrs : TStrings;
   idx : Integer;
 begin
-  LStrs := FoldLine(AString);
+  LStrs := TStringList.Create;
   try
+    FoldLineToList(AString, LStrs);
     idx := LStrs.Count - 1;
     Put(Index, LStrs[idx]);
     {We decrement by one because we put the last string into the HeaderList}
@@ -281,19 +283,31 @@ begin
 end;
 
 function TIdHeaderList.FoldLine(AString : string): TStrings;
-var
-  s : String;
 begin
   Result := TStringList.Create;
   try
-    {we specify a space so that starts a folded line}
-    s := IndyWrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
-    while s <> '' do begin  {Do not Localize}
-      Result.Add(TrimRight(Fetch(s, EOL)));
-    end; // while s <> '' do    {Do not Localize}
+    FoldLineToList(AString, Result);
   except
     FreeAndNil(Result);
     raise;
+  end;
+end;
+
+procedure TIdHeaderList.FoldLineToList(AString : string; ALines: TStrings);
+var
+  s : String;
+begin
+  {we specify a space so that starts a folded line}
+  s := IndyWrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
+  if s <> '' then begin
+    ALines.BeginUpdate;
+    try
+      repeat
+        ALines.Add(TrimRight(Fetch(s, EOL)));
+      until s = '';  {Do not Localize};
+    finally
+      ALines.EndUpdate;
+    end;
   end;
 end;
 

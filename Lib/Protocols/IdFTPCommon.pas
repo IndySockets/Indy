@@ -1472,7 +1472,7 @@ by some FTP servers are interpretted just like Borland's year
 handling routines.
 }
 {$IFDEF HAS_TFormatSettings_Object}
-{For Delphi 2011, we have a format settings object that includes a member
+{For Delphi XE, we have a format settings object that includes a member
 for two digit year processing.  Use that instead because that is thread-safe.
 
 Also note, that in this version, TFormatSettings is not an object at all, it's a

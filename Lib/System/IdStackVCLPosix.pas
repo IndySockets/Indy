@@ -87,7 +87,7 @@ type
     function WSGetLastError: Integer; override;
     procedure WSSetLastError(const AErr : Integer); override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
-    function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
+    procedure AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings); override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
       AOptval: PAnsiChar; var AOptlen: Integer); override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
@@ -1084,7 +1084,8 @@ begin
   end;
 end;
 
-function TIdStackVCLPosix.WSGetServByPort(const APortNumber: TIdPort): TStrings;
+procedure TIdStackVCLPosix.AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings);
+//function TIdStackVCLPosix.WSGetServByPort(const APortNumber: TIdPort): TStrings;
 type
   PPAnsiCharArray = ^TPAnsiCharArray;
   TPAnsiCharArray = packed array[0..(MaxLongint div SizeOf(PAnsiChar))-1] of PAnsiChar;
@@ -1093,22 +1094,15 @@ var
   Li: Integer;
   Lp: PPAnsiCharArray;
 begin
-  Result := TStringList.Create;
-
-  try
-    Lps := PosixNetDB.getservbyport(htons(APortNumber), nil);
-    if Lps <> nil then begin
-      Result.Add(String(Lps^.s_name));
-      Li := 0;
-      Lp := Pointer(Lps^.s_aliases);
-      while Lp[Li] <> nil do begin
-        Result.Add(String(Lp[Li]));
-        Inc(Li);
-      end;
+  Lps := PosixNetDB.getservbyport(htons(APortNumber), nil);
+  if Lps <> nil then begin
+    AAddresses.Add(String(Lps^.s_name));
+    Li := 0;
+    Lp := Pointer(Lps^.s_aliases);
+    while Lp[Li] <> nil do begin
+      AAddresses.Add(String(Lp[Li]));
+      Inc(Li);
     end;
-  except
-    FreeAndNil(Result);
-    raise;
   end;
 end;
 

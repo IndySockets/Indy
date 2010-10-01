@@ -68,7 +68,7 @@ uses
 {$IFDEF WIDGET_VCL_LIKE}
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
 {$ENDIF}
-{$IFDEF VCL6_OR_ABOVE}
+{$IFDEF VCL_6_OR_ABOVE}
   Types,
 {$ENDIF}
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -554,19 +554,22 @@ begin
 end;
 
 function TIdDsnPropEdBindingVCL.PortDescription(const PortNumber: integer): string;
+var
+  LList: TStringList;
 begin
-  with GBSDStack.WSGetServByPort(PortNumber) do try
-    if PortNumber = 0 then begin
-      Result := IndyFormat('%d: %s', [PortNumber, RSBindingAny]);
-    end else
-    begin
-      Result := '';    {Do not Localize}
-      if Count > 0 then begin
-        Result := Format('%d: %s', [PortNumber, CommaText]);    {Do not Localize}
+  if PortNumber = 0 then begin
+    Result := IndyFormat('%d: %s', [PortNumber, RSBindingAny]);
+  end else begin
+    Result := '';    {Do not Localize}
+    LList := TStringList.Create;
+    try
+      GBSDStack.AddServByPortToList(PortNumber, LList);
+      if LList.Count > 0 then begin
+        Result := Format('%d: %s', [PortNumber, LList.CommaText]);    {Do not Localize}
       end;
+    finally
+      Free;
     end;
-  finally
-    Free;
   end;
 end;
 

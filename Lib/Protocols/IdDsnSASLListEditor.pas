@@ -45,27 +45,23 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF VCL_2005_OR_ABOVE}
-    {$IFDEF DOTNET}
+  {$IFDEF DOTNET}
   Borland.Vcl.Design.DesignIntf,
-  Borland.Vcl.Design.DesignEditors;
-    {$ELSE}
-  DesignIntf,
-  DesignEditors;
-    {$ENDIF}
+  Borland.Vcl.Design.DesignEditors
   {$ELSE}
-    {$IFDEF VCL_6_OR_ABOVE}
-      {$IFDEF FPC}
+    {$IFDEF FPC}
   PropEdits,
-  ComponentEditors;
-      {$ELSE}
-  DesignIntf,
-  DesignEditors;
-      {$ENDIF}
+  ComponentEditors
     {$ELSE}
-  Dsgnintf;
+      {$IFDEF VCL_6_OR_ABOVE}
+  DesignIntf,
+  DesignEditors
+      {$ELSE}
+  Dsgnintf
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  ;
 
 type
   TIdPropEdSASL = class(TClassProperty)

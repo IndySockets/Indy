@@ -362,6 +362,7 @@ begin
   end else begin
     LDecoder := nil;
   end;
+
   try
     if LDecoder <> nil then begin
       LDecoder.DecodeBegin(ADestStream);
@@ -430,11 +431,17 @@ begin
           if LIsThisTheFirstLine then begin
             LIsThisTheFirstLine := False;
           end else begin
-            WriteStringToStream(ADestStream, EOL, Indy8BitEncoding);
+            if Assigned(ADestStream)  then begin
+              WriteStringToStream(ADestStream, EOL, Indy8BitEncoding);
+            end;
           end;
-          WriteStringToStream(ADestStream, LLine, Indy8BitEncoding);
+          if Assigned(ADestStream) then begin
+            WriteStringToStream(ADestStream, LLine, Indy8BitEncoding);
+          end;
         end else begin
-          WriteStringToStream(ADestStream, LLine + EOL);
+          if Assigned(ADestStream) then begin
+            WriteStringToStream(ADestStream, LLine + EOL);
+          end;
         end;
       end
       else begin

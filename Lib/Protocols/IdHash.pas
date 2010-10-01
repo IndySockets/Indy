@@ -71,8 +71,8 @@ type
   public
     constructor Create; virtual;
     class function IsAvailable : Boolean; virtual;
-    function HashString(const ASrc: string; AEncoding: TIdTextEncoding = nil): TIdBytes;
-    function HashStringAsHex(const AStr: String; AEncoding: TIdTextEncoding = nil): String;
+    function HashString(const ASrc: string; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): TIdBytes;
+    function HashStringAsHex(const AStr: String; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): String;
     function HashBytes(const ASrc: TIdBytes): TIdBytes;
     function HashBytesAsHex(const ASrc: TIdBytes): String;
     function HashStream(AStream: TStream): TIdBytes; overload;
@@ -86,7 +86,7 @@ type
     function GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
-    function HashValue(const ASrc: string; AEncoding: TIdTextEncoding = nil): Word; overload;
+    function HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): Word; overload;
     function HashValue(const ASrc: TIdBytes): Word; overload;
     function HashValue(AStream: TStream): Word; overload;
     function HashValue(AStream: TStream; const AStartPos, ASize: TIdStreamSize): Word; overload;
@@ -100,7 +100,7 @@ type
     function GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
-    function HashValue(const ASrc: string; AEncoding: TIdTextEncoding = nil): LongWord; overload;
+    function HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): LongWord; overload;
     function HashValue(const ASrc: TIdBytes): LongWord; overload;
     function HashValue(AStream: TStream): LongWord; overload;
     function HashValue(AStream: TStream; const AStartPos, ASize: TIdStreamSize): LongWord; overload;
@@ -151,20 +151,24 @@ begin
   inherited Create;
 end;
 
-function TIdHash.HashString(const ASrc: string; AEncoding: TIdTextEncoding = nil): TIdBytes;
+function TIdHash.HashString(const ASrc: string; ADestEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): TIdBytes;
 var
   LStream: TStream;  // not TIdStringStream -  Unicode on DotNet!
 begin
   LStream := TMemoryStream.Create; try
-    WriteStringToStream(LStream, ASrc, AEncoding);
+    WriteStringToStream(LStream, ASrc, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
     LStream.Position := 0;
     Result := HashStream(LStream);
   finally FreeAndNil(LStream); end;
 end;
 
-function TIdHash.HashStringAsHex(const AStr: String; AEncoding: TIdTextEncoding = nil): String;
+function TIdHash.HashStringAsHex(const AStr: String; ADestEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): String;
 begin
-  Result := HashToHex(HashString(AStr, AEncoding));
+  Result := HashToHex(HashString(AStr, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
 end;
 
 function TIdHash.HashBytes(const ASrc: TIdBytes): TIdBytes;
@@ -228,8 +232,7 @@ end;
 
 function TIdHash.LongWordHashToHex(const AHash: TIdBytes; const ACount: Integer): String;
 begin
-  Result := '';
-  Result := ToHex(AHash,ACount*SizeOf(LongWord));
+  Result := ToHex(AHash, ACount*SizeOf(LongWord));
 end;
 
 class function TIdHash.IsAvailable : Boolean;
@@ -280,9 +283,11 @@ procedure TIdHash16.HashEnd(var VRunningHash : Word);
 begin
 end;
 
-function TIdHash16.HashValue(const ASrc: string; AEncoding: TIdTextEncoding = nil): Word;
+function TIdHash16.HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): Word;
 begin
-  Result := BytesToWord(HashString(ASrc, AEncoding));
+  Result := BytesToWord(HashString(ASrc, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
 end;
 
 function TIdHash16.HashValue(const ASrc: TIdBytes): Word;
@@ -343,9 +348,11 @@ procedure TIdHash32.HashEnd(var VRunningHash : LongWord);
 begin
 end;
 
-function TIdHash32.HashValue(const ASrc: string; AEncoding: TIdTextEncoding = nil): LongWord;
+function TIdHash32.HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): LongWord;
 begin
-  Result := BytesToLongWord(HashString(ASrc, AEncoding));
+  Result := BytesToLongWord(HashString(ASrc, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
 end;
 
 function TIdHash32.HashValue(const ASrc: TIdBytes): LongWord;
@@ -371,14 +378,13 @@ function TIdHashIntf.FinalHash(ACtx: TIdHashIntCtx): TIdBytes;
 var
   LDummy : TIdBytes;
 {$ENDIF}
-
 begin
   {$IFDEF DOTNET}
   //This is a funny way of coding.  I have to pass a dummy value to
   //TransformFinalBlock so that things can work similarly to the OpenSSL
   //Crypto API.  You can't pass nul to TransformFinalBlock without an exception.
   SetLength(LDummy,0);
-   ACtx.TransformFinalBlock(LDummy,0,0);
+  ACtx.TransformFinalBlock(LDummy,0,0);
   Result := ACtx.Hash;
   {$ELSE}
   Result := IdFIPS.FinalHashInst(ACtx);
@@ -386,7 +392,8 @@ begin
 end;
 
 function TIdHashIntf.GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes;
-var LBuf : TIdBytes;
+var
+  LBuf : TIdBytes;
   LSize : Int64;
   LCtx : TIdHashIntCtx;
 begin
@@ -416,8 +423,6 @@ begin
   Result := ToHex(AHash);
 end;
 
-
-
 {$IFDEF DOTNET}
 class function TIdHashIntf.IsAvailable: Boolean;
 begin
@@ -446,11 +451,10 @@ end;
 
 procedure TIdHashIntf.UpdateHash(ACtx: TIdHashIntCtx; const AIn: TIdBytes);
 begin
-   UpdateHashInst(ACtx,AIn);
-   {$IFDEF DOTNET}
-   ACtx.TransformBlock(AIn,0,Length(AIn),AIn,0);
-   {$ELSE}
-
+  UpdateHashInst(ACtx,AIn);
+  {$IFDEF DOTNET}
+  ACtx.TransformBlock(AIn,0,Length(AIn),AIn,0);
+  {$ELSE}
   {$ENDIF}
 end;
 

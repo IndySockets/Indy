@@ -801,7 +801,7 @@ begin
     end;
     Values['Newsgroups'] := NewsGroups.CommaText; {do not localize}
 
-    // RLebeau: Delphi 2011 introduces a new TStrings.Encoding property,
+    // RLebeau: Delphi XE introduces a new TStrings.Encoding property,
     // so we have to qualify which Encoding property to access here...
     if Self.Encoding = meMIME then
     begin

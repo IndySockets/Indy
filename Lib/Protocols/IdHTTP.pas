@@ -366,7 +366,7 @@ type
   TIdHTTPConnectionType = (ctNormal, ctSSL, ctProxy, ctSSLProxy);
 
   // Protocol options
-  TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams);
+  TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams, hoNonSSLProxyUseConnectVerb);
   TIdHTTPOptions = set of TIdHTTPOption;
 
   // Must be documented
@@ -636,9 +636,6 @@ type
 implementation
 
 uses
-  {$IFNDEF DOTNET}
-  IdStreamVCL,
-  {$ENDIF}
   SysUtils,
   IdAllAuthentications, IdComponent, IdCoderMIME, IdTCPConnection,
   IdResourceStringsCore, IdResourceStringsProtocols, IdGlobalProtocols,
@@ -661,6 +658,20 @@ end;
 function IsContentTypeHtml(AInfo: TIdEntityHeaderInfo) : Boolean;
 begin
   Result := IsHeaderMediaType(AInfo.ContentType, 'text/html'); {do not localize}
+end;
+
+function IsContentTypeAppXml(AInfo: TIdEntityHeaderInfo) : Boolean;
+begin
+  Result := IsHeaderMediaTypes(AInfo.ContentType,
+    ['application/xml', 'application/xml-external-parsed-entity', 'application/xml-dtd'] {do not localize}
+    );
+  if not Result then
+  begin
+    Result := not IsHeaderMediaType(AInfo.ContentType, 'text'); {do not localize}
+    if Result then begin
+      Result := TextEndsWith(ExtractHeaderMediaSubType(AInfo.ContentType), '+xml') {do not localize}
+    end;
+  end;
 end;
 
 destructor TIdCustomHTTP.Destroy;
@@ -710,13 +721,13 @@ begin
   // particular, they don't respect sending/not sending the Expect: 100-Continue
   // header. Until we find an optimum solution that does NOT break the RFC, we
   // will restrict POSTS to version 1.0.
-  if Connected then begin
-    Disconnect;
-  end;
   OldProtocol := FProtocolVersion;
   try
     // If hoKeepOrigProtocol is SET, is possible to assume that the developer
     // is sure in operations of the server
+    if Connected then begin
+      Disconnect;
+    end;
     if not (hoKeepOrigProtocol in FOptions) then begin
       FProtocolVersion := pv1_0;
     end;
@@ -818,6 +829,7 @@ begin
     Post(AURL, ASource, LResponse);
     LResponse.Position := 0;
     Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
   end;
@@ -832,6 +844,7 @@ begin
     Post(AURL, ASource, LResponse);
     LResponse.Position := 0;
     Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
   end;
@@ -851,6 +864,7 @@ begin
     Put(AURL, ASource, LResponse);
     LResponse.Position := 0;
     Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
   end;
@@ -870,6 +884,7 @@ begin
     Trace(AURL, LResponse);
     LResponse.Position := 0;
     Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
   end;
@@ -994,7 +1009,6 @@ var
 begin
   LDecMeth := 0;
 
-  // TODO: parse XML as well...
   LParseHTML := IsContentTypeHtml(AResponse) and Assigned(AResponse.ContentStream);
   LCreateTmpContent := LParseHTML and not (AResponse.ContentStream is TCustomMemoryStream);
 
@@ -1127,11 +1141,211 @@ begin
   end;
 end;
 
+type
+  XmlEncoding = (xmlUCS4BE, xmlUCS4BEOdd, xmlUCS4LE, xmlUCS4LEOdd,
+                 xmlUTF16BE, xmlUTF16LE, xmlUTF8, xmlEBCDIC, xmlUnknown
+                 );
+
+  XmlBomInfo = record
+    Charset: String;
+    BOMLen: Integer;
+    BOM: LongWord;
+    BOMMask: LongWord;
+  end;
+
+  XmlNonBomInfo = record
+    CharLen: Integer;
+    FirstChar: LongWord;
+    LastChar: LongWord;
+    CharMask: LongWord;
+  end;
+
+const
+  XmlBOMs: array[xmlUCS4BE..xmlUTF8] of XmlBomInfo = (
+    (Charset: 'UCS-4BE';  BOMLen: 4; BOM: $0000FEFF; BOMMask: $FFFFFFFF), {do not localize}
+    (Charset: ''; {UCS-4} BOMLen: 4; BOM: $0000FFFE; BOMMask: $FFFFFFFF),
+    (Charset: 'UCS-4LE';  BOMLen: 4; BOM: $FFFE0000; BOMMask: $FFFFFFFF), {do not localize}
+    (Charset: ''; {UCS-4} BOMLen: 4; BOM: $FEFF0000; BOMMask: $FFFFFFFF),
+    (Charset: 'UTF-16BE'; BOMLen: 2; BOM: $FEFF0000; BOMMask: $FFFF0000), {do not localize}
+    (Charset: 'UTF-16LE'; BOMLen: 2; BOM: $FFFE0000; BOMMask: $FFFF0000), {do not localize}
+    (Charset: 'UTF-8';    BOMLen: 3; BOM: $EFBBBF00; BOMMask: $FFFFFF00)  {do not localize}
+    );
+
+  XmlNonBOMs: array[xmlUCS4BE..xmlEBCDIC] of XmlNonBomInfo = (
+    (CharLen: 4; FirstChar: $0000003C; LastChar: $0000003E; CharMask: $FFFFFFFF),
+    (CharLen: 4; FirstChar: $00003C00; LastChar: $00003E00; CharMask: $FFFFFFFF),
+    (CharLen: 4; FirstChar: $3C000000; LastChar: $3E000000; CharMask: $FFFFFFFF),
+    (CharLen: 4; FirstChar: $003C0000; LastChar: $003E0000; CharMask: $FFFFFFFF),
+    (CharLen: 2; FirstChar: $003C003F; LastChar: $003E0000; CharMask: $FFFF0000),
+    (CharLen: 2; FirstChar: $3C003F00; LastChar: $3E000000; CharMask: $FFFF0000),
+    (CharLen: 1; FirstChar: $3C3F786D; LastChar: $3E000000; CharMask: $FF000000),
+    (CharLen: 1; FirstChar: $4C6FA794; LastChar: $6E000000; CharMask: $FF000000)
+    );
+
+  XmlUCS4AsciiIndex: array[xmlUCS4BE..xmlUCS4LEOdd] of Integer = (3, 2, 0, 1);
+
+  // RLebeau: only interested in EBCDIC ASCII characters that are allowed in
+  // an XML declaration, we'll treat everything else as #01 for now...
+  XmlEBCDICTable: array[Byte] of Char = (
+  {     -0   -1   -2   -3   -4   -5   -6   -7   -8   -9   -A   -B   -C   -D   -E   -F }
+  {0-} #01, #01, #01, #01, #01, #09, #01, #01, #01, #01, #01, #01, #01, #13, #01, #01, {do not localize}
+  {1-} #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, {do not localize}
+  {2-} #01, #01, #01, #01, #01, #10, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, {do not localize}
+  {3-} #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, {do not localize}
+  {4-} ' ', #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, '.', '<', #01, #01, #01, {do not localize}
+  {5-} #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, {do not localize}
+  {6-} '-', #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, '_', '>', '?', {do not localize}
+  {7-} #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #27, '=', '"', {do not localize}
+  {8-} #01, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', #01, #01, #01, #01, #01, #01, {do not localize}
+  {9-} #01, 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', #01, #01, #01, #01, #01, #01, {do not localize}
+  {A-} #01, #01, 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', #01, #01, #01, #01, #01, #01, {do not localize}
+  {B-} #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, #01, {do not localize}
+  {C-} #01, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', #01, #01, #01, #01, #01, #01, {do not localize}
+  {D-} #01, 'J', 'K', 'L', 'N', 'N', 'O', 'P', 'Q', 'R', #01, #01, #01, #01, #01, #01, {do not localize}
+  {E-} #01, #01, 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', #01, #01, #01, #01, #01, #01, {do not localize}
+  {F-} '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', #01, #01, #01, #01, #01, #01  {do not localize}
+  );
+
+function DetectXmlCharset(AStream: TStream): String;
+var
+  Buffer: TIdBytes;
+  InBuf, StreamPos, CurPos: TIdStreamSize;
+  XmlDec: String;
+  I: Integer;
+  Enc: XmlEncoding;
+  Signature: LongWord;
+
+  function BufferToLongWord: LongWord;
+  begin
+    Result := (LongWord(Buffer[0]) shl 24) or
+              (LongWord(Buffer[1]) shl 16) or
+              (LongWord(Buffer[2]) shl 8) or
+              LongWord(Buffer[3]);
+  end;
+
+begin
+  Result := '';
+
+  StreamPos := AStream.Position;
+  try
+    AStream.Position := 0;
+
+    SetLength(Buffer, 4);
+    FillBytes(Buffer, 4, $00);
+
+    InBuf := ReadTIdBytesFromStream(AStream, Buffer, 4);
+    if InBuf < 3 then begin
+      Exit;
+    end;
+
+    Signature := BufferToLongWord;
+
+    // check for known BOMs first...
+
+    for Enc := Low(XmlBOMs) to High(XmlBOMs) do begin
+      if (Signature and XmlBOMs[Enc].BOMMask) = XmlBOMs[Enc].BOM then begin
+        Inc(StreamPos, XmlBOMs[Enc].BOMLen);
+        Result := XmlBOMs[Enc].Charset;
+        Exit;
+      end;
+    end;
+
+    // check for non-BOM'ed encodings now...
+
+    if InBuf <> 4 then begin
+      Exit;
+    end;
+
+    XmlDec := '';
+
+    for Enc := Low(XmlNonBOMs) to High(XmlNonBOMs) do begin
+      if Signature = XmlNonBOMs[Enc].FirstChar then begin
+        FillBytes(Buffer, 4, $00);
+        while (AStream.Size - AStream.Position) >= XmlNonBOMs[Enc].CharLen do
+        begin
+          ReadTIdBytesFromStream(AStream, Buffer, XmlNonBOMs[Enc].CharLen);
+          Signature := BufferToLongWord;
+          if (Signature and XmlNonBOMs[Enc].CharMask) = XmlNonBOMs[Enc].LastChar then
+          begin
+            CurPos := AStream.Position;
+            AStream.Position := 0;
+            case Enc of
+              xmlUCS4BE, xmlUCS4LE, xmlUCS4BEOdd, xmlUCS4LEOdd: begin
+                // TODO: implement a UCS-4 TIdTextEncoding class...
+                SetLength(XmlDec, CurPos div XmlNonBOMs[Enc].CharLen);
+                for I := 1 to Length(XmlDec) do begin
+                  ReadTIdBytesFromStream(AStream, Buffer, XmlNonBOMs[Enc].CharLen);
+                  XmlDec[I] := Char(Buffer[XmlUCS4AsciiIndex[Enc]]);
+                end;
+              end;
+              xmlUTF16BE: begin
+                XmlDec := ReadStringFromStream(AStream, CurPos, TIdTextEncoding.BigEndianUnicode);
+              end;
+              xmlUTF16LE: begin
+                XmlDec := ReadStringFromStream(AStream, CurPos, TIdTextEncoding.Unicode);
+              end;
+              xmlUTF8: begin
+                XmlDec := ReadStringFromStream(AStream, CurPos, Indy8BitEncoding);
+              end;
+              xmlEBCDIC: begin
+                // TODO: implement an EBCDIC TIdTextEncoding class...
+                XmlDec := ReadStringFromStream(AStream, CurPos, Indy8BitEncoding);
+                for I := 1 to Length(XmlDec) do begin
+                  XmlDec[I] := XmlEBCDICTable[Byte(XmlDec[I])];
+                end;
+              end;
+            end;
+            Break;
+          end;
+        end;
+        Break;
+      end;
+    end;
+
+    if XmlDec = '' then begin
+      Exit;
+    end;
+
+    I := Pos('encoding', XmlDec); {do not localize}
+    if I = 0 then begin
+      Exit;
+    end;
+
+    XmlDec := TrimLeft(Copy(XmlDec, I+8, Length(XmlDec)));
+    if not CharEquals(XmlDec, 1, '=') then begin {do not localize}
+      Exit;
+    end;
+
+    XmlDec := TrimLeft(Copy(XmlDec, 2, Length(XmlDec)));
+    if XmlDec = '' then begin
+      Exit;
+    end;
+
+    if XmlDec[1] = #27 then begin
+      XmlDec := Copy(XmlDec, 2, Length(XmlDec));
+      Result := Fetch(XmlDec, #27);
+    end
+    else if XmlDec[1] = '"' then begin
+      XmlDec := Copy(XmlDec, 2, Length(XmlDec));
+      Result := Fetch(XmlDec, '"');
+    end;
+  finally
+    AStream.Position := StreamPos;
+  end;
+end;
+
 function TIdCustomHTTP.ResponseCharset: String;
 begin
-  Result := Response.CharSet;
-  if Result = '' then begin
-    Result := MetaHTTPEquiv.CharSet;
+  if IsContentTypeAppXml(Response) then begin
+    // the media type is not a 'text/...' based XML type, so ignore the
+    // charset from the headers, if present, and parse the XML itself...
+    Result := DetectXmlCharset(Response.ContentStream);
+  end
+  else begin
+    Result := Response.CharSet;
+    if Result = '' then begin
+      Result := MetaHTTPEquiv.CharSet;
+    end;
   end;
 end;
 
@@ -1251,6 +1465,7 @@ end;
 procedure TIdCustomHTTP.ConnectToHost(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
   LLocalHTTP: TIdHTTPProtocol;
+  LUseConnectVerb: Boolean;
 begin
   ARequest.FUseProxy := SetHostAndPort;
 
@@ -1259,18 +1474,28 @@ begin
     ARequest.URL := FURI.URI;
   end;
 
+  LUseConnectVerb := False;
+
   case ARequest.UseProxy of
     ctNormal:
-      if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
       begin
-        ARequest.Connection := 'keep-alive';      {do not localize}
+        if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
+        begin
+          ARequest.Connection := 'keep-alive';      {do not localize}
+        end;
       end;
     ctSSL, ctSSLProxy:
-      ARequest.Connection := '';
-    ctProxy:
-      if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
       begin
-        ARequest.ProxyConnection := 'keep-alive'; {do not localize}
+        ARequest.Connection := '';
+        LUseConnectVerb := (ARequest.UseProxy = ctSSLProxy);
+      end;
+    ctProxy:
+      begin
+        if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
+        begin
+          ARequest.ProxyConnection := 'keep-alive'; {do not localize}
+        end;
+        LUseConnectVerb := hoNonSSLProxyUseConnectVerb in FOptions;
       end;
   end;
 
@@ -1301,7 +1526,7 @@ begin
     end;
   end;
 
-  if ARequest.UseProxy in [ctProxy, ctSSLProxy] then begin
+  if LUseConnectVerb then begin
     LLocalHTTP := TIdHTTPProtocol.Create(Self);
     try
       with LLocalHTTP do begin
@@ -1374,18 +1599,18 @@ end;
 procedure TIdCustomHTTP.ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
   Temp, Cookies, Cookies2: TStringList;
-  i, j: Integer;
+  i: Integer;
   S, Cur: String;
 
   // RLebeau: a single Set-Cookie header can have more than 1 cookie in it...
   procedure ReadCookies(AHeaders: TIdHeaderList; const AHeader: String; ACookies: TStrings);
   var
-    k: Integer;
+    j: Integer;
   begin
     Temp.Clear;
     AHeaders.Extract(AHeader, Temp);
-    for k := 0 to Temp.Count-1 do begin
-      S := Temp[k];
+    for j := 0 to Temp.Count-1 do begin
+      S := Temp[j];
       while ExtractNextCookie(S, Cur, True) do begin
         ACookies.Add(Cur);
       end;
@@ -1412,20 +1637,6 @@ begin
 
       ReadCookies(FMetaHTTPEquiv.RawHeaders, 'Set-Cookie', Cookies);    {do not localize}
       ReadCookies(FMetaHTTPEquiv.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
-
-      // RLebeau: per RFC 2965:
-      //
-      // "User agents that receive in the same response both a
-      // Set-Cookie and Set-Cookie2 response header for the same
-      // cookie MUST discard the Set-Cookie information and use
-      // only the Set-Cookie2 information."
-      
-      for i := 0 to Cookies2.Count-1 do begin
-        j := Cookies.IndexOfName(Cookies2.Names[i]);
-        if j <> -1 then begin
-          Cookies.Delete(j);
-        end;
-      end;
 
       for i := 0 to Cookies.Count - 1 do begin
         CookieManager.AddServerCookie(Cookies[i], FURI);
@@ -1923,7 +2134,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
         end;
         LTempResponse.Position := 0;
         raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText,
-          ReadStringAsCharset(LTempResponse, FHTTP.Response.CharSet));
+          ReadStringAsCharset(LTempResponse, FHTTP.ResponseCharSet));
       finally
         Response.ContentStream := LTempStream;
       end;
@@ -2153,6 +2364,7 @@ begin
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
     Result := ReadStringAsCharset(LStream, ResponseCharset);
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LStream);
   end;

@@ -32,26 +32,22 @@ unit IdDsnBaseCmpEdt;
 interface
 
 uses
-  {$IFDEF VCL_2005_OR_ABOVE}
-    {$IFDEF DOTNET}
+  {$IFDEF DOTNET}
   Borland.Vcl.Design.DesignIntF,
-  Borland.Vcl.Design.DesignEditors;
-    {$ELSE}
-  DesignIntf,
-  DesignEditors;
-    {$ENDIF}
+  Borland.Vcl.Design.DesignEditors
   {$ELSE}
-    {$IFDEF VCL_6_OR_ABOVE}
-      {$IFDEF FPC}
-  ComponentEditors;
-      {$ELSE}
-  DesignIntf,
-  DesignEditors;
-      {$ENDIF}
+    {$IFDEF FPC}
+  ComponentEditors
     {$ELSE}
-  Dsgnintf;
+      {$IFDEF VCL_6_OR_ABOVE}
+  DesignIntf,
+  DesignEditors
+      {$ELSE}
+  Dsgnintf
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  ;
 
 type
   {$IFDEF FPC}

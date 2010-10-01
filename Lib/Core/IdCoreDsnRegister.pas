@@ -38,27 +38,23 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF VCL_8_OR_ABOVE}
-     {$IFDEF DOTNET}
-      Borland.Vcl.Design.DesignIntF,
-      Borland.Vcl.Design.DesignEditors;
-     {$ELSE}
-      DesignIntf,
-      DesignEditors;
-     {$ENDIF}
+  {$IFDEF DOTNET}
+  Borland.Vcl.Design.DesignIntF,
+  Borland.Vcl.Design.DesignEditors
   {$ELSE}
-    {$IFDEF VCL_6_OR_ABOVE}
-      {$IFDEF FPC}
-      PropEdits,
-      ComponentEditors;
-      {$ELSE}
-      DesignIntf, 
-      DesignEditors;
-      {$ENDIF}
+    {$IFDEF FPC}
+  PropEdits,
+  ComponentEditors
     {$ELSE}
-       Dsgnintf;
+      {$IFDEF VCL_6_OR_ABOVE}
+  DesignIntf,
+  DesignEditors
+      {$ELSE}
+  Dsgnintf
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  ;
 
 type
   {$IFDEF FPC}
@@ -71,6 +67,7 @@ type
     function GetVerb(Index: Integer): string; override;
     function GetVerbCount: Integer; override;
   end;
+
   {$IFDEF FPC}
   TIdPropEdBinding = class(TPropertyEditor)
   protected
@@ -140,11 +137,6 @@ begin
   TfrmAbout.ShowAboutBox(AProductName, AProductVersion);
 end;
 
-
-
-
-
-  
 procedure TIdPropEdBinding.Edit;
 var
   pSockets: TIdSocketHandles;

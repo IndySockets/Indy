@@ -30,20 +30,23 @@
 unit IdResourceStrings;
 
 interface
+
 {$I IdCompilerDefines.inc}
 
-// RLebeau: TODO - fill these in...
 resourcestring
-  RSInvalidSourceArray = '';
-  RSInvalidDestinationArray = '';
-  RSCharIndexOutOfBounds = '%d';
-  RSInvalidCharCount = '%d';
-  RSInvalidDestinationIndex = '%d';
-  RSByteIndexOutOfBounds = '%d';
+  {$IFNDEF TIdTextEncoding_IS_NATIVE}
+  //TIdTextEncoding
+  RSInvalidSourceArray = 'Invalid source array';
+  RSInvalidDestinationArray = 'Invalid destination array';
+  RSCharIndexOutOfBounds = 'Character index out of bounds (%d)';
+  RSByteIndexOutOfBounds = 'Start index out of bounds (%d)';
+  RSInvalidCharCount = 'Invalid count (%d)';
+  RSInvalidDestinationIndex = 'Invalid destination index (%d)';
+  {$ENDIF}
 
-resourcestring
   RSInvalidCodePage = 'Invalid codepage (%d)';
   RSInvalidCharSet = 'Invalid character set (%s)';
+
   //IdIconv
   {$IFDEF USE_ICONV_UNIT}
   RSIconvCallError = 'Error on call to Iconv library function %s';
