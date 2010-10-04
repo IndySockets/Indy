@@ -84,6 +84,7 @@ uses
   {$IFDEF WIN32}
   Windows,
   {$ENDIF}
+  DB,
   SysUtils,
   Package in 'Package.pas',
   PackageVisualStudio in 'PackageVisualStudio.pas',
@@ -95,6 +96,8 @@ uses
   PackageFTPParsers in 'PackageFTPParsers.pas',
   PackageSecurity in 'PackageSecurity.pas',
   DModule in 'DModule.pas';
+
+
 
 procedure Main;
 begin
@@ -129,7 +132,7 @@ begin
 
       with TPackageSystem.Create do try
         Load(tablFile, 'VCL=True and Pkg=''System'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13]);
+        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2010, ctDelphi2011]);
         //
         Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''System'' and DesignUnit=False');
         Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
@@ -141,7 +144,7 @@ begin
 
       with TPackageCore.Create do try
         Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13]);
+        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2011, ctDelphi2011]);
         //
         Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Core'' and DesignUnit=False');
         Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
@@ -150,15 +153,16 @@ begin
         Generate([ctDelphi12Net,ctDelphi13Net]);
         //
         Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=True');
+
         GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,
-          ctDelphi11,ctDelphi12,ctDelphi13]);
+          ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2011]);
         Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=True');
         GenerateDT([ ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net,ctDelphi13Net]);
       finally Free; end;
 
       with TPackageProtocols.Create do try
         Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12]);
+        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2010,ctDelphi2011]);
 
         Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Protocols'' and DesignUnit=False');
         Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
@@ -167,7 +171,7 @@ begin
         Generate([ctDelphi12Net,ctDelphi13Net]);
 
         Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=True');
-        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005, ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13]);
+        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005, ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2010,ctDelphi2011]);
 
         Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Protocols'' and DesignUnit=True');
         GenerateDT([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
@@ -224,6 +228,7 @@ begin
         tablFile.Filter := 'Kylix=True and Pkg=' + chr(39) + 'Core' + chr(39) + ' and DesignUnit=True';
         tablFile.First;
         while not tablFile.EOF do begin
+
           AddUnit(tablFileFileName.Value);
           tablFile.Next;
         end;

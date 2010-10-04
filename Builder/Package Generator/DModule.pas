@@ -92,8 +92,31 @@ var
 var
   GIndyPath : String = 'W:\Source\Indy10\';
 
+procedure DumpData;
+
 implementation
 {$R *.dfm}
+
+procedure DumpDataFeild(AField : TField);
+begin
+  WriteLn(AField.FieldName + ' = "'+AField.AsString +'"');
+end;
+
+procedure DumpData;
+begin
+  DumpDataFeild(DM.tablFileFileID);
+  DumpDataFeild(DM.tablFileFileName);
+  DumpDataFeild(DM.tablFileDotNet);
+  DumpDataFeild(DM.tablFileVCL);
+  DumpDataFeild(DM.tablFileKylix);
+  DumpDataFeild(DM.tablFilePkg);
+  DumpDataFeild(DM.tablFileDesignUnit);
+  DumpDataFeild(DM.tablFileFTPParser);
+  DumpDataFeild(DM.tablFileDescrShort);
+  DumpDataFeild(DM.tablFileProtocol);
+  DumpDataFeild(DM.tablFileRelease);
+
+end;
 
 function UpTwoDirs(const APath : String):String;
 begin

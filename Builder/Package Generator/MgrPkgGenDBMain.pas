@@ -63,7 +63,7 @@ begin
    DM.tablFile.BeforeDelete := OnBeforeRecordDelete;
   Self.Caption := Self.Caption + ' - [' + DM.tablFile.DatabaseName + ']';
   Application.Title := Self.Caption;
-   DM.tablFile.TableName := 'File.DB';
+//   DM.tablFile.TableName := 'File.DB';
    DM.tablFile.Exclusive := True;
    DM.tablFile.Active := True;
 end;
@@ -91,8 +91,8 @@ begin
     on E : Exception do
     begin
         DM.tablFile.Cancel;
-      Application.MessageBox(PAnsiChar('Error "'+ E.Message +'"?'),
-    PAnsiChar('Error'),MB_OK);
+      Application.MessageBox(PChar('Error "'+ E.Message +'"?'),
+    PChar('Error'),MB_OK);
     end;
   end;
 end;
@@ -120,16 +120,16 @@ begin
     on E : Exception do
     begin
         DM.tablFile.Cancel;
-      Application.MessageBox(PAnsiChar('Error "'+ E.Message +'"?'),
-    PAnsiChar('Error'),MB_OK);
+      Application.MessageBox(PChar('Error "'+ E.Message +'"?'),
+    PChar('Error'),MB_OK);
     end;
   end;
 end;
 
 procedure TfrmPkgMain.OnBeforeRecordDelete(DataSet: TDataSet);
 begin
-  if Application.MessageBox(PAnsiChar('Delete "'+DM.tablFileFileName.Text+'"?'),
-    PAnsiChar('Warning'),MB_YESNO)=IDNO then
+  if Application.MessageBox(PChar('Delete "'+DM.tablFileFileName.Text+'"?'),
+    PChar('Warning'),MB_YESNO)=IDNO then
   begin
     Abort;
   end;

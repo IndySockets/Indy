@@ -72,6 +72,8 @@ type
    , ctDelphi12Net
    , ctDelphi13
    , ctDelphi13Net
+   , ctDelphi2010
+   , ctDelphi2011
    , ctDotNet // Visual Studio
    , ctKylix3);
 
@@ -125,6 +127,8 @@ const
    , '120Net'
    , '130'
    , '130Net'
+   , '140'
+   , '150'
    , ''
    , 'K3');
 
@@ -293,6 +297,7 @@ begin
   Code(FContainsClause);
   WritePreContains;
   for i := 0 to FUnits.Count - 1 do begin
+
     if APrefix <> '' then begin
       FUnits[i] := StringReplace(FUnits[i], 'Id', APrefix, []);
     end;
@@ -343,11 +348,11 @@ end;
 procedure TPackage.GenOptions(ADesignTime: Boolean = False);
 begin
   Code('');
-  if FCompiler in [ctDelphi2005] then begin
+  if FCompiler in [ctDelphi2005, ctDelphi2010, ctDelphi2011] then begin
     Code('{$R *.res}');
   end;
   // Align
-  if FCompiler in [ctDelphi2005] then begin
+  if FCompiler in [ctDelphi2005, ctDelphi2010, ctDelphi2011] then begin
     Code('{$ALIGN 8}');
   end
   else
@@ -380,7 +385,7 @@ begin
   Code('{$IMAGEBASE $400000}');
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(ADesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  Code('{$IMPLICITBUILD OFF}');
+  Code('{$IMPLICITBUILD ON}');
 end;
 
 procedure TPackage.Load(ATable: TTable; AWhere: string; const AUsePath: Boolean = False);

@@ -108,6 +108,7 @@ object DM: TDM
       end>
     IndexDefs = <
       item
+        Name = 'tablFileIndex1'
         Fields = 'FileName'
         Options = [ixPrimary, ixUnique]
       end>

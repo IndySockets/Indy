@@ -309,6 +309,11 @@ begin
      s.Add('');
      s.Add('implementation');
      s.Add('');
+     s.Add('{');
+     s.Add('disable hints about unused units.  This unit just causes');
+     s.Add('FreePascal to compile implicitly listed units in a package.');
+     s.Add('}');
+     s.Add('{$hints off}');
      s.Add('end.');
      WriteFile(s.text,AOutPath+ '\' + AFileName+'.pas');
   finally
