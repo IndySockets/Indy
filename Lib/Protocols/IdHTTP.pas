@@ -508,8 +508,7 @@ type
     function GetRequestHeaders: TIdHTTPRequest;
     procedure SetRequestHeaders(Value: TIdHTTPRequest);
 
-    procedure EncodeRequestParams(AStrings: TStrings);
-    function SetRequestParams(AStrings: TStrings): string;
+    function SetRequestParams(ASource: TStrings): string;
 
     procedure CheckAndConnect(AResponse: TIdHTTPResponse);
     procedure DoOnDisconnected; override;
@@ -737,35 +736,58 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.EncodeRequestParams(AStrings: TStrings);
+function TIdCustomHTTP.SetRequestParams(ASource: TStrings): string;
 var
   i: Integer;
   LPos: integer;
   LStr: string;
-begin
-  Assert(AStrings<>nil);
+  LTemp: TStringList;
 
-  for i := 0 to AStrings.Count - 1 do begin
-    //AStrings[i] := AStrings.Names[i] + AStrings.NameValueSeparator + TIdURI.ParamsEncode(AStrings.ValueFromIndex[i]);
-    LStr := AStrings[i];
-    LPos := IndyPos('=', LStr);
-    if LPos > 0 then begin
-      AStrings[i] := Copy(LStr, 1, LPos-1) + '=' + TIdURI.ParamsEncode(Copy(LStr, LPos+1, MAXINT));
-    end;
+  function EncodeParam(const S: String): String;
+  begin
+    Result := TIdURI.ParamsEncode(StringReplace(S, ' ', '&', [rfReplaceAll])); {do not localize}
   end;
-end;
-
-function TIdCustomHTTP.SetRequestParams(AStrings: TStrings): string;
-begin
-  if Assigned(AStrings) then begin
-    if hoForceEncodeParams in FOptions then begin
-      EncodeRequestParams(AStrings);
-        end;
+  
+  function EncodeLineBreaks(AStrings: TStrings): String;
+  begin
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
-      Result := StringReplace(Trim(AStrings.Text), sLineBreak, '&',[rfReplaceAll]);
+      Result := StringReplace(Trim(AStrings.Text), sLineBreak, '&', [rfReplaceAll]); {do not localize}
     end else begin
       Result := Trim(AStrings.Text);
+    end;
+  end;
+
+begin
+  if Assigned(ASource) then begin
+    if hoForceEncodeParams in FOptions then begin
+      // make a copy of ASource so the caller's TStrings object is not modified
+      LTemp := TStringList.Create;
+      try
+        LTemp.Assign(ASource);
+        for i := 0 to LTemp.Count - 1 do begin
+          LStr := LTemp[i];
+          LPos := IndyPos('=', LStr); {do not localize}
+          if LPos > 0 then begin
+            LTemp[i] := EncodeParam(LTemp.Names[i]) +
+                        '=' + {do not localize}
+                        EncodeParam(
+                          {$IFDEF HAS_TStrings_ValueFromIndex}
+                          LTemp.ValueFromIndex[i]
+                          {$ELSE}
+                          Copy(LStr, LPos+1, MaxInt)
+                          {$ENDIF}
+                        );
+          end else begin
+            LTemp[i] := EncodeParam(LStr);
+          end;
+        end;
+        Result := EncodeLineBreaks(LTemp);
+      finally
+        LTemp.Free;
+      end;
+    end else begin
+      Result := EncodeLineBreaks(ASource);
     end;
   end else begin
     Result := '';
