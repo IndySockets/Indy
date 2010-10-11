@@ -40,7 +40,7 @@ ECHO **************
 CD Core
 %NDD7%\Bin\dcc32.exe IndyCore70.dpk /Oobjs /m /h /w /N..\..\D7 /U..\..\D7 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDD7%\Bin\dcc32.exe dclIndyCore70.dpk /Oobjs /m /h /w /z /N..\..\D7 /U..\..\D7 -$d-l-n+p+r-s-t-w- %2 %3 %4
+%NDD7%\Bin\dcc32.exe dclIndyCore70.dpk /Oobjs /m /h /w /N..\..\D7 /U..\..\D7 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
 copy *70.bpl ..\..\D7 >nul
 copy *70.dcp ..\..\D7 >nul

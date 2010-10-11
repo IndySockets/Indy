@@ -1004,11 +1004,9 @@ var
     LStrings := TStringList.Create; try
       LEncoder := AEncoderClass.Create(Self); try
         LStrStream := TMemoryStream.Create; try
-          {$IFDEF HAS_TEncoding}
-          AStrings.SaveToStream(LStrStream, AByteEncoding);
-          {$ELSE}
+          // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
+          // anymore, as it may save a BOM which we do not want here...
           WriteStringToStream(LStrStream, AStrings.Text, AByteEncoding{$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF});
-          {$ENDIF}
           LStrStream.Position := 0;
           LEncoder.Encode(LStrStream, LStrings);
         finally FreeAndNil(LStrStream); end;
@@ -1156,9 +1154,9 @@ begin
       {$ENDIF}
         //CC2: Now output AMsg.Body in the chosen encoding...
         if TextIsSame(AMsg.ContentTransferEncoding, 'base64') then begin  {do not localize}
-          EncodeStrings(AMsg.Body, TIdMessageEncoderMIME, LEncoding);
+          EncodeStrings(AMsg.Body, TIdMessageEncoderMIME, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
         end else begin  {'quoted-printable'}
-          EncodeStrings(AMsg.Body, TIdMessageEncoderQuotedPrintable, LEncoding);
+          EncodeStrings(AMsg.Body, TIdMessageEncoderQuotedPrintable, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
         end;
       {$IFNDEF DOTNET}
       finally

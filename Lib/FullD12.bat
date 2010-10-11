@@ -65,7 +65,7 @@ call %BUILDROOT%\clean.bat
 %NDD12%\Tools\brcc32.exe dclIndyCore120.rc
 %D12DCC% IndyCore120.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
 if errorlevel 1 goto enderror
-%D12DCC% dclIndyCore120.dpk /Oobjs /m /h /w /z /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
+%D12DCC% dclIndyCore120.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
 if errorlevel 1 goto enderror
 move /y *120.bpl %BINOUTDIR% >nul
 REM copy *120.dcp ..\..\D120 >nul

@@ -24,7 +24,7 @@ interface
 {$IFDEF DCC}
   {$IFDEF WIN32}
 {
-For Delphi, we use some .obj files.  These .objs were compiled from the ZLib
+For Win32, we use some .obj files.  These .objs were compiled from the ZLib
 source-code folder with "make -f contrib\delphi\zlibd32.mak" using Borland's
 "make" and "bcc32".  The .objs are compiled with the
 "-DZEXPORT=__fastcall -DZEXPORTVA=__cdecl"  parameter.  Do NOT change
@@ -58,6 +58,23 @@ uses
   {$IFNDEF STATICLOAD_ZLIB}
   , IdException
   {$ENDIF};
+
+{$IFDEF STATICLOAD_ZLIB}
+(*$HPPEMIT '// For Win32, we use some .obj files.  These .objs were compiled from the ZLib'*)
+(*$HPPEMIT '// source-code folder with "make -f contrib\delphi\zlibd32.mak" using Borland's'*)
+(*$HPPEMIT '// "make" and "bcc32".  The .objs are compiled with the'*)
+(*$HPPEMIT '// "-DZEXPORT=__fastcall -DZEXPORTVA=__cdecl"  parameter.  Do NOT change'*)
+(*$HPPEMIT '// the function calling conventions unless you know what you are doing and'*)
+(*$HPPEMIT '// the C++ objects are compiled appropriately.'*)
+(*$HPPEMIT '//'*)
+(*$HPPEMIT '// The only things that still are cdecl are the callback functions.'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#define ZEXPORT __fastcall'*)
+{$ELSE}
+(*$HPPEMIT '#define ZEXPORT __cdecl'*)
+{$ENDIF}
+(*$HPPEMIT '#define ZEXPORTVA __cdecl'*)
+(*$HPPEMIT '#include "ZLib\zlib.h"'*)
 
 const
   {$EXTERNALSYM ZLIB_VERSION}

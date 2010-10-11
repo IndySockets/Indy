@@ -4315,11 +4315,9 @@ begin
   {$IFNDEF DOTNET}
   try
   {$ENDIF}
-    {$IFDEF HAS_TEncoding}
-    AStrings.SaveToStream(AStream, LEncoding);
-    {$ELSE}
-    WriteStringToStream(Astream, AStrings.Text, LEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
-    {$ENDIF}
+    // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
+    // anymore, as it may save a BOM which we do not want here...
+    WriteStringToStream(AStream, AStrings.Text, LEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
   {$IFNDEF DOTNET}
   finally
     LEncoding.Free;
@@ -4354,11 +4352,9 @@ begin
   {$IFNDEF DOTNET}
   try
   {$ENDIF}
-    {$IFDEF HAS_TEncoding}
-    AStrings.SaveToStream(AStream, LEncoding);
-    {$ELSE}
+    // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
+    // anymore, as it may save a BOM which we do not want here...
     WriteStringToStream(AStream, AStrings.Text, LEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
-    {$ENDIF}
   {$IFNDEF DOTNET}
   finally
     LEncoding.Free;

@@ -79,9 +79,9 @@ del *.obj > nul
 REM ***************************************************
 REM Compile Designtime Package dclIndyCore60
 REM ***************************************************
-%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
 ..\Lib\lspFix dclIndyCore60.lsp
 if errorlevel 1 goto enderror

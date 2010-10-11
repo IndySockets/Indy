@@ -127,7 +127,9 @@ type
       {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
       ); overload;
 
-    class function EncodeBytes(const ABytes: TIdBytes): string;
+    class function EncodeBytes(const ABytes: TIdBytes): string; overload;
+    class procedure EncodeBytes(const ABytes: TIdBytes; ADestStrings: TStrings); overload;
+    class procedure EncodeBytes(const ABytes: TIdBytes; ADestStream: TStream); overload;
 
     class function EncodeStream(ASrcStream: TStream; const ABytes: Integer = -1): string; overload;
     class procedure EncodeStream(ASrcStream: TStream; ADestStrings: TStrings; const ABytes: Integer = -1); overload;
@@ -387,6 +389,38 @@ begin
     end;
   end else begin
     Result := '';
+  end;
+end;
+
+class procedure TIdEncoder.EncodeBytes(const ABytes: TIdBytes; ADestStrings: TStrings);
+var
+  LStream: TMemoryStream;
+begin
+  if ABytes <> nil then begin
+    LStream := TMemoryStream.Create;
+    try
+      WriteTIdBytesToStream(LStream, ABytes);
+      LStream.Position := 0;
+      EncodeStream(LStream, ADestStrings);
+    finally
+      FreeAndNil(LStream);
+    end;
+  end;
+end;
+
+class procedure TIdEncoder.EncodeBytes(const ABytes: TIdBytes; ADestStream: TStream);
+var
+  LStream: TMemoryStream;
+begin
+  if ABytes <> nil then begin
+    LStream := TMemoryStream.Create;
+    try
+      WriteTIdBytesToStream(LStream, ABytes);
+      LStream.Position := 0;
+      EncodeStream(LStream, ADestStream);
+    finally
+      FreeAndNil(LStream);
+    end;
   end;
 end;
 
