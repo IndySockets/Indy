@@ -15,9 +15,11 @@ ABSOLUTELY NO CODE is permitted in this unit.
 // the units can register themselves correctly at program startup...
 (*$HPPEMIT '#pragma link "IdAllAuthentications"'*)
 
-implementation
+{This bit must always be between the "interface" and it's uses clause
+to work properly in FPC.}
+{$I IdCompilerDefines.inc}
 
-{$i IdCompilerDefines.inc}
+implementation
 
 uses
   {$IFNDEF DOTNET}
