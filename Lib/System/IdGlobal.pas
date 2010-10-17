@@ -546,8 +546,9 @@ uses
       PosixGlue, PosixSysTypes, PosixPthread, PosixTodo,
       {$ENDIF}
       {$IFDEF USE_BASEUNIX}
-      BaseUnix, Unix, Sockets, UnixType,
+      BaseUnix, Unix, Sockets, UnixType, 
       {$ENDIF}
+      {$IFDEF USE_ICONV_ENC}iconvenc, {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   IdException;
@@ -1557,7 +1558,6 @@ uses
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
   {$IFDEF VCL_6_OR_ABOVE}DateUtils,{$ENDIF}
   //do not bring in our IdIconv unit if we are using the libc unit directly.
-  {$IFDEF USE_ICONV_ENC}iconvenc, {$ENDIF}
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
   IdResourceStrings,
   IdStream;
@@ -2039,7 +2039,16 @@ begin
     // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
     // flag by default, which we do not want to use, so calling the
     // overloaded constructor that lets us override that behavior...
+    {$IFDEF USE_ICONV}
+    LEncoding := TIdMBCSEncoding.Create('UTF-8');
+    {$ELSE}
+      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
     LEncoding := TIdUTF8Encoding.Create(CP_UTF8, 0, 0);
+      {$ELSE}
+    ToDo('Default property of TIdTextEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
+    {$ENDIF}
+    
     if InterlockedCompareExchangePtr(Pointer(GIdUTF8Encoding), LEncoding, nil) <> nil then
       LEncoding.Free;
   end;
