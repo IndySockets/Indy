@@ -15,8 +15,99 @@ options=-gl
 [target]
 units=indyprotocolsfpc
 rsts=IdResourceStringsProtocols
+rsts_amiga=
+rsts_atari=
+rsts_beos=
+rsts_darwin=IdZLibConst
+rsts_emx=
+rsts_freebsd=IdZLibConst
+rsts_go32v1=
+rsts_go32v2=
+rsts_linux=IdZLibConst
+rsts_macos=
+rsts_morphos=
+rsts_netbsd=IdZLibConst
+rsts_netware=
+rsts_netwlibc=
+rsts_openbsd=IdZLibConst
+rsts_os2=
+rsts_palmos=
+rsts_qnx=IdZLibConst
+rsts_solaris=IdZLibConst
+rsts_watcom=
+rsts_win32=IdZLibConst
+rsts_win64=
+rsts_wince=
+rsts_gba=
 {%FILES}
-
+implicitunits_amiga=
+units_amiga=
+implicitunits_atari=
+units_atari=
+implicitunits_beos=
+units_beos=
+implicitunits_darwin=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_darwin=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_emx=
+units_emx=
+implicitunits_freebsd=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_freebsd=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_go_32v1=
+units_go32v1=
+implicitunits_go32v2=
+units_go32v2=
+implicitunits_linux=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_linux=IdCompressorZLib IdSSLOpenSSL \
+IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_macos=
+units_macos=
+implicitunits_morphos=
+units_morphos=
+implicitunits_netbsd=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_netbsd=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_netware=
+units_netware=
+implicitunits_netwlibc=
+units_netwlibc=
+implicitunits_openbsd=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_openbsd=IdCompressorZLib IdSSLOpenSSL \
+IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_os2=
+units_os2=
+implicitunits_palmos=
+units_palmos=
+implicitunits_qnx=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_qnx=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_solaris=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_solaris=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_watcom=
+units_watcom=
+implicitunits_win32=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM IdSSPI 
+units_win32=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM \
+             IdAuthenticationSSPI
+implicitunits_win64=IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM IdSSPI 
+units_win64=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM \
+             IdAuthenticationSSPI
+implicitunits_wince=
+units_wince=
+implicitunits_wdosx=
+units_wdosx=
+implicitunits_gba=
+units_gba=
 [requires]
 packages=indycorefpc
 packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)/:../Core/lib/$(CPU_TARGET)-$(OS_TARGET)/

@@ -220,6 +220,7 @@ uses
   IdUnixTimeServer,
   IdUnixTimeUDP,
   IdUnixTimeUDPServer,
+  IdUriUtils,
   IdUserAccounts,
   IdUserPassProvider,
   IdVCard,

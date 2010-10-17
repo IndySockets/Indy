@@ -2,18 +2,13 @@ package IndyProtocols140;
 
 {$R *.res}
 {$ALIGN 8}
-{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS OFF}
-{$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -35,6 +30,7 @@ contains
   IdASN1Util in 'IdASN1Util.pas',
   IdAllAuthentications in 'IdAllAuthentications.pas',
   IdAllFTPListParsers in 'IdAllFTPListParsers.pas',
+  IdAllHeaderCoders in 'IdAllHeaderCoders.pas',
   IdAttachment in 'IdAttachment.pas',
   IdAttachmentFile in 'IdAttachmentFile.pas',
   IdAttachmentMemory in 'IdAttachmentMemory.pas',
@@ -42,7 +38,6 @@ contains
   IdAuthenticationDigest in 'IdAuthenticationDigest.pas',
   IdAuthenticationManager in 'IdAuthenticationManager.pas',
   IdAuthenticationNTLM in 'IdAuthenticationNTLM.pas',
-  IdAuthenticationSSPI in 'IdAuthenticationSSPI.pas',
   IdBlockCipherIntercept in 'IdBlockCipherIntercept.pas',
   IdChargenServer in 'IdChargenServer.pas',
   IdChargenUDPServer in 'IdChargenUDPServer.pas',
@@ -82,7 +77,6 @@ contains
   IdEchoUDP in 'IdEchoUDP.pas',
   IdEchoUDPServer in 'IdEchoUDPServer.pas',
   IdExplicitTLSClientServerBase in 'IdExplicitTLSClientServerBase.pas',
-  IdFIPS in 'IdFIPS.pas',
   IdFSP in 'IdFSP.pas',
   IdFTP in 'IdFTP.pas',
   IdFTPBaseFileSystem in 'IdFTPBaseFileSystem.pas',
@@ -98,7 +92,6 @@ contains
   IdFTPListParseDistinctTCPIP in 'IdFTPListParseDistinctTCPIP.pas',
   IdFTPListParseEPLF in 'IdFTPListParseEPLF.pas',
   IdFTPListParseHellSoft in 'IdFTPListParseHellSoft.pas',
-  IdFTPListParseIEFTPGateway in 'IdFTPListParseIEFTPGateway.pas',
   IdFTPListParseKA9Q in 'IdFTPListParseKA9Q.pas',
   IdFTPListParseMPEiX in 'IdFTPListParseMPEiX.pas',
   IdFTPListParseMVS in 'IdFTPListParseMVS.pas',
@@ -110,7 +103,6 @@ contains
   IdFTPListParseNovellNetwarePSU in 'IdFTPListParseNovellNetwarePSU.pas',
   IdFTPListParseOS2 in 'IdFTPListParseOS2.pas',
   IdFTPListParsePCNFSD in 'IdFTPListParsePCNFSD.pas',
-  IdFTPListParsePCTCP in 'IdFTPListParsePCTCP.pas',
   IdFTPListParseStercomOS390Exp in 'IdFTPListParseStercomOS390Exp.pas',
   IdFTPListParseStercomUnixEnt in 'IdFTPListParseStercomUnixEnt.pas',
   IdFTPListParseStratusVOS in 'IdFTPListParseStratusVOS.pas',
@@ -149,6 +141,9 @@ contains
   IdHashElf in 'IdHashElf.pas',
   IdHashMessageDigest in 'IdHashMessageDigest.pas',
   IdHashSHA in 'IdHashSHA.pas',
+  IdHeaderCoder2022JP in 'IdHeaderCoder2022JP.pas',
+  IdHeaderCoderBase in 'IdHeaderCoderBase.pas',
+  IdHeaderCoderPlain in 'IdHeaderCoderPlain.pas',
   IdHeaderList in 'IdHeaderList.pas',
   IdIMAP4 in 'IdIMAP4.pas',
   IdIMAP4Server in 'IdIMAP4Server.pas',
@@ -169,7 +164,6 @@ contains
   IdMessageBuilder in 'IdMessageBuilder.pas',
   IdMessageClient in 'IdMessageClient.pas',
   IdMessageCoder in 'IdMessageCoder.pas',
-  IdMessageCoderBinHex4 in 'IdMessageCoderBinHex4.pas',
   IdMessageCoderMIME in 'IdMessageCoderMIME.pas',
   IdMessageCoderQuotedPrintable in 'IdMessageCoderQuotedPrintable.pas',
   IdMessageCoderUUE in 'IdMessageCoderUUE.pas',
@@ -224,7 +218,6 @@ contains
   IdSSL in 'IdSSL.pas',
   IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
   IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
-  IdSSPI in 'IdSSPI.pas',
   IdServerInterceptLogBase in 'IdServerInterceptLogBase.pas',
   IdServerInterceptLogEvent in 'IdServerInterceptLogEvent.pas',
   IdServerInterceptLogFile in 'IdServerInterceptLogFile.pas',
@@ -252,7 +245,6 @@ contains
   IdUnixTimeServer in 'IdUnixTimeServer.pas',
   IdUnixTimeUDP in 'IdUnixTimeUDP.pas',
   IdUnixTimeUDPServer in 'IdUnixTimeUDPServer.pas',
-  IdUriUtils in 'IdUriUtils.pas',
   IdUserAccounts in 'IdUserAccounts.pas',
   IdUserPassProvider in 'IdUserPassProvider.pas',
   IdVCard in 'IdVCard.pas',
@@ -265,4 +257,3 @@ contains
   IdZLibHeaders in 'IdZLibHeaders.pas';
 
 end.
-

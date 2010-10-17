@@ -63,6 +63,7 @@ contains
   IdScheduler in 'IdScheduler.pas',
   IdSchedulerOfThread in 'IdSchedulerOfThread.pas',
   IdSchedulerOfThreadDefault in 'IdSchedulerOfThreadDefault.pas',
+  IdSchedulerOfThreadPool in 'IdSchedulerOfThreadPool.pas',
   IdServerIOHandler in 'IdServerIOHandler.pas',
   IdServerIOHandlerSocket in 'IdServerIOHandlerSocket.pas',
   IdServerIOHandlerStack in 'IdServerIOHandlerStack.pas',

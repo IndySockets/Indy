@@ -89,6 +89,10 @@ begin
   Code('ABSOLELY NO CODE is permitted in this unit.');
   Code('');
   Code('}');
+  Code('// RLebeau 4/17/10: this forces C++Builder to link to this unit so');
+  Code('// the units can register themselves correctly at program startup...');
+  Code('');
+  Code('(*$HPPEMIT ''#pragma link "IdAllFTPListParsers"''*)');
   //Now add our units
    Code('');
   Code('implementation');

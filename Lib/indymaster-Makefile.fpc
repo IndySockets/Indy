@@ -4,6 +4,11 @@ version=10.2.0.1
 
 [require]
 packages=fcl-base
+packages_linux=iconvenc
+packages_freebsd=iconvenc
+packages_netbsd=iconvenc
+packages_openbsd=iconvenc
+packages_darwin=iconvenc
 fpcsubdir=packages/extra
 
 [target]
@@ -96,6 +101,7 @@ implicitunits=IdASN1Util \
   IdException \
   IdExceptionCore \
   IdExplicitTLSClientServerBase \
+  IdFIPS \
   IdFSP \
   IdFTP \
   IdFTPBaseFileSystem \
@@ -321,6 +327,7 @@ implicitunits=IdASN1Util \
   IdUnixTimeServer \
   IdUnixTimeUDP \
   IdUnixTimeUDPServer \
+  IdUriUtils \
   IdUserAccounts \
   IdUserPassProvider \
   IdVCard \
@@ -391,14 +398,16 @@ implicitunits_watcom=
 units_watcom=
 implicitunits_win32=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
              IdSSLOpenSSLHeaders IdZLibHeaders \
-             IdZLib IdZLibConst IdNTLM
+             IdZLib IdZLibConst IdNTLM IdSSPI 
 units_win32=IdCompressorZLib IdSSLOpenSSL \
-             IdCompressionIntercept IdAuthenticationNTLM
+             IdCompressionIntercept IdAuthenticationNTLM \
+             IdAuthenticationSSPI
 implicitunits_win64=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
              IdSSLOpenSSLHeaders IdZLibHeaders \
-             IdZLib IdZLibConst IdNTLM
+             IdZLib IdZLibConst IdNTLM IdSSPI 
 units_win64=IdCompressorZLib IdSSLOpenSSL \
-             IdCompressionIntercept IdAuthenticationNTLM
+             IdCompressionIntercept IdAuthenticationNTLM \
+             IdAuthenticationSSPI
 implicitunits_wince=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6
 units_wince=
 implicitunits_wdosx=
@@ -417,6 +426,6 @@ build=n
 BACKEND=IdStackUnix
 ifeq ($(FULL_TARGET),i386-linux)
 ifeq ($(findstring -dKYLIXCOMPAT,$(OPT)),-dKYLIXCOMPAT)
-BACKEND=IdStackLibc
+BACKEND=IdStackLinux
 endif
 endif

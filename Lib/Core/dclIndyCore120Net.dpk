@@ -30,7 +30,6 @@ contains
   IdAboutDotNET in 'IdAboutDotNET.pas',
   IdAntiFreeze in 'IdAntiFreeze.pas',
   IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
-  IdCoreSelectionEditors in 'IdCoreSelectionEditors.pas',
   IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
   IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas',
   IdRegisterCore in 'IdRegisterCore.pas';
