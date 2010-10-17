@@ -1790,38 +1790,43 @@ begin
     Result := Copy(AStr, LStrLen - Len+1, Len);
   end;
 end;
-
 function TimeZoneBias: TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFNDEF FPC}
   {$IFDEF UNIX}
 var
   T: Time_T;
   TV: TimeVal;
-      {$IFDEF USE_VCL_POSIX}
+    {$IFDEF USE_VCL_POSIX}
   UT: tm;
-      {$ELSE}
+    {$ELSE}
   UT: TUnixTime;
-      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
+{$ENDIF}
 begin
+{$IFNDEF FPC}
   {$IFDEF UNIX}
- {from http://edn.embarcadero.com/article/27890 }
+  {from http://edn.embarcadero.com/article/27890 }
   gettimeofday(TV, nil);
   T := TV.tv_sec;
     {$IFDEF USE_VCL_POSIX}
   localtime_r(T, UT);
-    // __tm_gmtoff is the bias in seconds from the UTC to the current time.
-    // so I multiply by -1 to compensate for this.
+// __tm_gmtoff is the bias in seconds from the UTC to the current time.
+// so I multiply by -1 to compensate for this.
   Result := (UT.tm_gmtoff / 60 / 60 / 24);
     {$ELSE}
   localtime_r(@T, UT);
-    // __tm_gmtoff is the bias in seconds from the UTC to the current time.
-    // so I multiply by -1 to compensate for this.
+// __tm_gmtoff is the bias in seconds from the UTC to the current time.
+// so I multiply by -1 to compensate for this.
   Result := (UT.__tm_gmtoff / 60 / 60 / 24);
     {$ENDIF}
   {$ELSE}
   Result := -OffsetFromUTC;
   {$ENDIF}
+{$ELSE}
+  Result := -OffsetFromUTC;
+{$ENDIF}
 end;
 
 function IndyStrToBool(const AString : String) : Boolean;
