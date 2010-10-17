@@ -822,6 +822,7 @@ uses
   {$ENDIF}
   {$IFDEF USE_BASEUNIX}
     baseunix,
+    sockets,
   {$ENDIF}
   SysUtils, 
   IdCTypes;
