@@ -2355,7 +2355,7 @@ begin
   FLargeStream := False;
   FReadTimeOut := IdTimeoutDefault;
   FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
-  FDefStringEncoding := TIdTextEncoding.ASCII;
+  FDefStringEncoding := IndyASCIIEncoding;
   {$IFDEF STRING_IS_ANSI}
   FDefAnsiEncoding := TIdTextEncoding.Default;
   {$ENDIF}
