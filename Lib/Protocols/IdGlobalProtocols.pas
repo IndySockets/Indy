@@ -4236,22 +4236,29 @@ begin
       {$ELSE}
       CP := CharsetToCodePage(ACharset);
       if CP <> 0 then begin
-        {$IFDEF USE_TIdTextEncoding_GetEncoding}
-        Result := TIdTextEncoding.GetEncoding(CP);
-        {$ELSE}
-        case CP of
-          1200:  Result := TIdUTF16LittleEndianEncoding.Create;
-          1201:  Result := TIdUTF16BigEndianEncoding.Create;
-          65000: Result := TIdUTF7Encoding.Create;
+        if CP = 20127 then begin
+          // RLebeau: 20127 is the official codepage for ASCII, but
+          // older OS versions do not support codepage 20127...
+          Result := IndyASCIIEncoding(False);
+        end else
+        begin
+          {$IFDEF USE_TIdTextEncoding_GetEncoding}
+          Result := TIdTextEncoding.GetEncoding(CP);
+          {$ELSE}
+          case CP of
+            1200:  Result := TIdUTF16LittleEndianEncoding.Create;
+            1201:  Result := TIdUTF16BigEndianEncoding.Create;
+            65000: Result := TIdUTF7Encoding.Create;
 
-          // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
-          // flag by default, which we do not want to use, so calling the
-          // overloaded constructor that lets us override that behavior...
-          65001: Result := TIdUTF8Encoding.Create(CP, 0, 0);
-        else
-          Result := TIdMBCSEncoding.Create(CP);
+            // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
+            // flag by default, which we do not want to use, so calling the
+            // overloaded constructor that lets us override that behavior...
+            65001: Result := TIdUTF8Encoding.Create(CP, 0, 0);
+          else
+            Result := TIdMBCSEncoding.Create(CP);
+          end;
+          {$ENDIF}
         end;
-        {$ENDIF}
       end;
       {$ENDIF}
     except end;

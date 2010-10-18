@@ -3599,7 +3599,7 @@ var
       if AContext.NLSTUtf8 then begin
         LEncoding := TIdTextEncoding.UTF8;
       end else begin
-        LEncoding := TIdTextEncoding.ASCII;
+        LEncoding := IndyASCIIEncoding;
       end;
     end else begin
       LEncoding := Indy8BitEncoding;
@@ -3804,7 +3804,7 @@ begin
         if TIdFTPServerContext(ASender.Context).NLSTUtf8 then begin
           LEncoding := TIdTextEncoding.UTF8;
         end else begin
-          LEncoding := TIdTextEncoding.ASCII;
+          LEncoding := IndyASCIIEncoding;
         end;
         LContext.Connection.IOHandler.Write(LStream, False, LEncoding);
         ASender.PerformReply := True;

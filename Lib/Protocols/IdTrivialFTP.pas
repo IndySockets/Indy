@@ -115,7 +115,7 @@ begin
         raise EIdTFTPOptionNegotiationFailed.Create('');
       end;
 
-      LOptName := BytesToString(OptionPacket, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+      LOptName := BytesToString(OptionPacket, LOffset, Idx-LOffset, IndyASCIIEncoding);
       LOffset := Idx+1;
 
       OptionIdx := PosInStrArray(LOptName, [sBlockSize, sTransferSize], False);
@@ -128,7 +128,7 @@ begin
         raise EIdTFTPOptionNegotiationFailed.Create('');
       end;
 
-      LOptValue := BytesToString(OptionPacket, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+      LOptValue := BytesToString(OptionPacket, LOffset, Idx-LOffset, IndyASCIIEncoding);
       LOffset := Idx+1;
 
       case OptionIdx of
@@ -463,7 +463,7 @@ procedure TIdTrivialFTP.RaiseError(const ErrorPacket: TIdBytes);
 var
   ErrMsg: string;
 begin
-  ErrMsg := BytesToString(ErrorPacket, 4, Length(ErrorPacket)-4, TIdTextEncoding.ASCII);
+  ErrMsg := BytesToString(ErrorPacket, 4, Length(ErrorPacket)-4, IndyASCIIEncoding);
   case GStack.NetworkToHost(BytesToWord(ErrorPacket, 2)) of
     ErrFileNotFound:            raise EIdTFTPFileNotFound.Create(ErrMsg);
     ErrAccessViolation:         raise EIdTFTPAccessViolation.Create(ErrMsg);

@@ -1638,9 +1638,9 @@ begin
   end;
 //  if ToHex(NTOWFv1('Password') ) <> UpperCase('e52cac67419a9a224a3b108f3fa6cb6d') then
   if ToHex(LMOWFv1(
-    TIdTextEncoding.ASCII.GetBytes(Uppercase( 'Password')),
-    TIdTextEncoding.ASCII.GetBytes(Uppercase( 'User')),
-    TIdTextEncoding.ASCII.GetBytes(Uppercase( 'Domain')))) <>
+    IndyASCIIEncoding.GetBytes(Uppercase( 'Password')),
+    IndyASCIIEncoding.GetBytes(Uppercase( 'User')),
+    IndyASCIIEncoding.GetBytes(Uppercase( 'Domain')))) <>
     Uppercase('e52cac67419a9a224a3b108f3fa6cb6d') then
 
   begin

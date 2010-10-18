@@ -1028,7 +1028,7 @@ begin
       // event is not assigned, or at least create a stream that discards
       // any data received...
       if LContext.FBodyType = idSMTP7Bit then begin
-        LEncoding := TIdTextEncoding.ASCII;
+        LEncoding := IndyASCIIEncoding;
       end else begin
         LEncoding := Indy8BitEncoding;
       end;

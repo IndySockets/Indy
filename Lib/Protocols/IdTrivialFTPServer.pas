@@ -254,7 +254,7 @@ begin
       raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
     end;
 
-    FileName := BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+    FileName := BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding);
     LOffset := Idx+1;
 
     Idx := ByteIndex(0, AData, LOffset);
@@ -262,7 +262,7 @@ begin
       raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
     end;
 
-    Mode := StrToMode(BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII));
+    Mode := StrToMode(BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding));
     LOffset := Idx+1;
 
     RequestedBlkSize := 512;
@@ -275,7 +275,7 @@ begin
         raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
       end;
 
-      LOptName := BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+      LOptName := BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding);
       LOffset := Idx+1;
       
       Idx := ByteIndex(0, AData, LOffset);
@@ -283,7 +283,7 @@ begin
         raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
       end;
 
-      LOptValue := BytesToString(AData, LOffset, Idx-LOffset, TIdTextEncoding.ASCII);
+      LOptValue := BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding);
       LOffset := Idx+1;
 
       if TextStartsWith(LOptName, sBlockSize) then
@@ -463,9 +463,9 @@ begin
   if FUDPClient.BufferSize <> 516 then
   begin
     FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
-    AppendString(FResponse, sBlockSize, -1, TIdTextEncoding.ASCII);
+    AppendString(FResponse, sBlockSize, -1, IndyASCIIEncoding);
     AppendByte(FResponse, 0);
-    AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, TIdTextEncoding.ASCII);
+    AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, IndyASCIIEncoding);
     AppendByte(FResponse, 0);
   end else begin
     SetLength(FResponse, 0);
@@ -506,9 +506,9 @@ begin
     if Length(FResponse) = 0 then begin
       FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
     end;
-    AppendString(FResponse, sTransferSize, -1, TIdTextEncoding.ASCII);
+    AppendString(FResponse, sTransferSize, -1, IndyASCIIEncoding);
     AppendByte(FResponse, 0);
-    AppendString(FResponse, IntToStr(FStream.Size - FStream.Position), -1, TIdTextEncoding.ASCII);
+    AppendString(FResponse, IntToStr(FStream.Size - FStream.Position), -1, IndyASCIIEncoding);
     AppendByte(FResponse, 0);
   end;
 end;
@@ -598,9 +598,9 @@ begin
     if Length(FResponse) = 0 then begin
       FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
     end;
-    AppendString(FResponse, sTransferSize, -1, TIdTextEncoding.ASCII);
+    AppendString(FResponse, sTransferSize, -1, IndyASCIIEncoding);
     AppendByte(FResponse, 0);
-    AppendString(FResponse, IntToStr(FTransferSize), -1, TIdTextEncoding.ASCII);
+    AppendString(FResponse, IntToStr(FTransferSize), -1, IndyASCIIEncoding);
     AppendByte(FResponse, 0);
   end;
   if Length(FResponse) > 0 then begin

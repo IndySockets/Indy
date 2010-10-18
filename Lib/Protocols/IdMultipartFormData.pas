@@ -378,8 +378,8 @@ begin
   end;
 end;
 
-// RLebeau - IdRead() should wrap multiple files using a single
-// "multipart/mixed" MIME part, as recommended by RFC 1867
+// RLebeau - IdRead() should wrap multiple files of the same field name 
+// using a single "multipart/mixed" MIME part, as recommended by RFC 1867
 
 function TIdMultiPartFormDataStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 var
@@ -686,14 +686,14 @@ begin
       I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
       if I <= 0 then begin
         {$IFDEF STRING_IS_UNICODE}
-        I := TIdTextEncoding.ASCII.GetByteCount(FFieldValue);
+        I := IndyASCIIEncoding.GetByteCount(FFieldValue);
         {$ELSE}
         // the methods useful for calculating a length without actually
         // encoding are protected, so have to actually encode the
         // string to find out the final length...
         LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
-        if LEncoding <> TIdTextEncoding.ASCII then begin
-          LBytes := TIdTextEncoding.Convert(LEncoding, TIdTextEncoding.ASCII, LBytes);
+        if LEncoding <> IndyASCIIEncoding then begin
+          LBytes := TIdTextEncoding.Convert(LEncoding, IndyASCIIEncoding, LBytes);
         end;
         I := Length(LBytes);
         {$ENDIF}
@@ -795,10 +795,10 @@ begin
         I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
         if I <= 0 then begin
           {$IFDEF STRING_IS_UNICODE}
-          WriteStringToStream(Result, FFieldValue, TIdTextEncoding.ASCII);
+          WriteStringToStream(Result, FFieldValue, IndyASCIIEncoding);
           {$ELSE}
-          if LEncoding <> TIdTextEncoding.ASCII then begin
-            LBytes := TIdTextEncoding.Convert(LEncoding, TIdTextEncoding.ASCII, LBytes);
+          if LEncoding <> IndyASCIIEncoding then begin
+            LBytes := TIdTextEncoding.Convert(LEncoding, IndyASCIIEncoding, LBytes);
           end;
           WriteTIdBytesToStream(Result, LBytes);
           {$ENDIF}

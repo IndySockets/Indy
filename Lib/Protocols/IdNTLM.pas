@@ -479,8 +479,8 @@ var
   buf: TIdBytes;
 begin
 
-  lDomain := ToBytes(UpperCase(ADomain), TIdTextEncoding.ASCII);
-  lHost := ToBytes(UpperCase(AHost), TIdTextEncoding.ASCII);
+  lDomain := ToBytes(UpperCase(ADomain), IndyASCIIEncoding);
+  lHost := ToBytes(UpperCase(AHost), IndyASCIIEncoding);
 
   FillChar(Type_1_Message, SizeOf(Type_1_Message), #0);
   with Type_1_Message do

@@ -898,7 +898,7 @@ begin
   end;
 
   case PosInStrArray(AMsg.ContentTransferEncoding, ['7bit', 'quoted-printable', 'base64', '8bit', 'binary'], False) of {do not localize}
-    0..2: LEncoding := TIdTextEncoding.ASCII;
+    0..2: LEncoding := IndyASCIIEncoding;
     3..4: LEncoding := Indy8BitEncoding();
   else
     // According to RFC 2045 Section 6.4:
