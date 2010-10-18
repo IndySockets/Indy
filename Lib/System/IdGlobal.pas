@@ -906,18 +906,15 @@ type
   // These are for backwards compatibility with past Indy 10 releases
   function enDefault: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use a nil TIdTextEncoding pointer'{$ENDIF};{$ENDIF}
   {$NODEFINE enDefault}
-  function en7Bit: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TIdTextEncoding.ASCII property'{$ENDIF};{$ENDIF}
+  function en7Bit: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyASCIIEncoding()'{$ENDIF};{$ENDIF}
   {$NODEFINE en7Bit}
   function en8Bit: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Indy8BitEncoding()'{$ENDIF};{$ENDIF}
   {$NODEFINE en8Bit}
   function enUTF8: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TIdTextEncoding.UTF8 property'{$ENDIF};{$ENDIF}
   {$NODEFINE enUTF8}
 
-  {$IFDEF DOTNET}
-  function Indy8BitEncoding: TIdTextEncoding;
-  {$ELSE}
-  function Indy8BitEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-  {$ENDIF}
+  function Indy8BitEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
+  function IndyASCIIEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
 
   (*$HPPEMIT '// These are helper macros to handle differences in "class" properties between different C++Builder versions'*)
   {$IFDEF HAS_CLASSPROPERTIES}
@@ -941,10 +938,11 @@ type
   (*$HPPEMIT '#define enDefault ( ( TIdTextEncoding* )NULL )'*)
   {$IFDEF DOTNET}
   (*$HPPEMIT '#define en8Bit Indy8BitEncoding()'*)
+  (*$HPPEMIT '#define en7Bit IndyASCIIEncoding()'*)
   {$ELSE}
   (*$HPPEMIT '#define en8Bit Indy8BitEncoding(true)'*)
+  (*$HPPEMIT '#define en7Bit IndyASCIIEncoding(true)'*)
   {$ENDIF}
-  (*$HPPEMIT '#define en7Bit TIdTextEncoding_ASCII'*)
   (*$HPPEMIT '#define enUTF8 TIdTextEncoding_UTF8'*)
   (*$HPPEMIT ''*)
 
@@ -1580,7 +1578,7 @@ begin
       ADefEncoding := GIdDefaultAnsiEncoding;
     end;
     case ADefEncoding of
-      encASCII: VEncoding := TIdTextEncoding.ASCII;
+      encASCII: VEncoding := IndyASCIIEncoding;
       encUTF7:  VEncoding := TIdTextEncoding.UTF7;
       encUTF8:  VEncoding := TIdTextEncoding.UTF8;
     else
@@ -1605,6 +1603,7 @@ end;
 var
   GIdPorts: TList = nil;
   GId8BitEncoding: TIdTextEncoding = nil;
+  GIdASCIIEncoding: TIdTextEncoding = nil;
 {$ENDIF}
 
 {$IFNDEF TIdTextEncoding_IS_NATIVE}
@@ -2544,7 +2543,7 @@ end;
 function en7Bit: TIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := TIdTextEncoding.ASCII;
+  Result := IndyASCIIEncoding;
 end;
 
 function en8Bit: TIdTextEncoding;
@@ -2561,19 +2560,25 @@ end;
 
 {$IFDEF DOTNET}
 
-// We need a charset that converts UTF-16 codeunits in the $00-$FF range
-// to/from their numeric values as-is.  Was previously using "Windows-1252"
-// which does so for most codeunits, however codeunits $80-$9F in
-// Windows-1252 map to different codepoints in Unicode, which we don't want.
-// "ISO-8859-1" aka "ISO_8859-1:1987" (not to be confused with the older
-// "ISO 8859-1" charset), on the other hand, treats codeunits $00-$FF as-is,
-// and seems to be just as widely supported as Windows-1252 on most systems,
-// so we'll use that for now...
-
 function Indy8BitEncoding: TIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
+  // We need a charset that converts UTF-16 codeunits in the $00-$FF range
+  // to/from their numeric values as-is.  Was previously using "Windows-1252"
+  // which does so for most codeunits, however codeunits $80-$9F in
+  // Windows-1252 map to different codepoints in Unicode, which we don't want.
+  // "ISO-8859-1" aka "ISO_8859-1:1987" (not to be confused with the older
+  // "ISO 8859-1" charset), on the other hand, treats codeunits $00-$FF as-is,
+  // and seems to be just as widely supported as Windows-1252 on most systems,
+  // so we'll use that for now...
+
   Result := TIdTextEncoding.GetEncoding('ISO-8859-1');
+end;
+
+function IndyASCIIEncoding: TIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TIdTextEncoding.ASCII;
 end;
 
 {$ELSE}
@@ -2666,6 +2671,43 @@ begin
       end;
     end;
     LEncoding := GId8BitEncoding;
+  end;
+  Result := LEncoding;
+end;
+
+function IndyASCIIEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+
+  function CreateASCIIEncoding: TIdTextEncoding;
+  begin
+    // RLebeau: 20127 is the official codepage for ASCII, but older OS
+    // versions do not support codepage 20127, so fallback to codepage
+    // 1252 if 20127 fails.  In non-native TIdTextEncoding implementations,
+    // TIdMBCSEncoding.Create() handles this internally...
+    {$IFDEF TIdTextEncoding_IS_NATIVE}
+    try
+    {$ENDIF}
+      Result := TIdMBCSEncoding.Create(20127);
+    {$IFDEF TIdTextEncoding_IS_NATIVE}
+    except
+      Result := TIdMBCSEncoding.Create(1252);
+    end;
+    {$ENDIF}
+  end;
+
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := CreateASCIIEncoding;
+  end else
+  begin
+    if GIdASCIIEncoding = nil then begin
+      LEncoding := CreateASCIIEncoding;
+      if InterlockedCompareExchangePtr(Pointer(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdASCIIEncoding;
   end;
   Result := LEncoding;
 end;
@@ -6496,6 +6538,7 @@ finalization
   {$IFNDEF DOTNET}
   FreeAndNil(GIdPorts);
   FreeAndNil(GId8BitEncoding);
+  FreeAndNil(GIdASCIIEncoding);
     {$IFNDEF HAS_TEncoding}
   TIdTextEncoding.FreeEncodings;
     {$ENDIF}
