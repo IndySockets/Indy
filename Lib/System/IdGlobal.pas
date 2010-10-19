@@ -1603,13 +1603,16 @@ end;
 var
   GIdPorts: TList = nil;
   GId8BitEncoding: TIdTextEncoding = nil;
+
+  // RLebeau: ASCII is handled separate from other standard encodings
+  // because we need to do special handling of its codepage regardless
+  // of whether TIdTextEncoding is implemented natively or manually...
   GIdASCIIEncoding: TIdTextEncoding = nil;
 {$ENDIF}
 
 {$IFNDEF TIdTextEncoding_IS_NATIVE}
 
 var
-  GIdASCIIEncoding: TIdTextEncoding = nil;
   GIdBEUTF16Encoding: TIdTextEncoding = nil;
   GIdDefaultEncoding: TIdTextEncoding = nil;
   GIdLEUTF16Encoding: TIdTextEncoding = nil;
@@ -1633,7 +1636,10 @@ end;
 class procedure TIdTextEncoding.FreeEncodings;
 begin
   FreeAndNil(GIdDefaultEncoding);
-  FreeAndNil(GIdASCIIEncoding);
+  // RLebeau: ASCII is handled separate from other standard encodings
+  // because we need to do special handling of its codepage regardless
+  // of whether TIdTextEncoding is implemented natively or manually...
+  //FreeAndNil(GIdASCIIEncoding);
   FreeAndNil(GIdUTF8Encoding);
   FreeAndNil(GIdUTF7Encoding);
   FreeAndNil(GIdLEUTF16Encoding);
@@ -1645,24 +1651,11 @@ class function TIdTextEncoding.GetASCII: TIdTextEncoding;
 {$ELSE}
 class function TIdTextEncoding.ASCII: TIdTextEncoding;
 {$ENDIF}
-var
-  LEncoding: TIdTextEncoding;
 begin
-  if GIdASCIIEncoding = nil then
-  begin
-    {$IFDEF USE_ICONV}
-    LEncoding := TIdMBCSEncoding.Create('ASCII');  {Do not localize}
-    {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    LEncoding := TIdMBCSEncoding.Create(20127, 0, 0);
-      {$ELSE}
-    ToDo('ASCII property of TIdTextEncoding class is not implemented for this platform yet'); {do not localize}
-      {$ENDIF}
-    {$ENDIF}
-    if InterlockedCompareExchangePtr(Pointer(GIdASCIIEncoding), LEncoding, nil) <> nil then
-      LEncoding.Free;
-  end;
-  Result := GIdASCIIEncoding;
+  // RLebeau: ASCII is handled separate from other standard encodings
+  // because we need to do special handling of its codepage regardless
+  // of whether TIdTextEncoding is implemented natively or manually...
+  Result := IndyASCIIEncoding(True);
 end;
 
 {$IFDEF HAS_CLASSPROPERTIES}
@@ -2675,24 +2668,41 @@ begin
   Result := LEncoding;
 end;
 
+{$UNDEF CP20127_WORKAROUND_NEEDED}
+{$IFNDEF USE_ICONV}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    // RLebeau: 20127 is the official codepage for ASCII, but older OS versions
+    // do not support codepage 20127.  SysUtils.TEncoding in D2009-XE do not
+    // handle this, so manually fallback to codepage 1252 if 20127 fails. When
+    // TIdTextEncoding is not a native implementation (pre-D2009, ICONV, FPC),
+    // TIdMBCSEncoding.Create() will handle this issue internally...
+    {$IFDEF TIdTextEncoding_IS_NATIVE}
+      {$IFDEF BROKEN_TMBCSEncoding_CP20127}
+        {$DEFINE CP20127_WORKAROUND_NEEDED}
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
+// TODO: implement a custom TIdASCIIEncoding class so we don't have to
+// deal with codepage issues in differrent OS versions anymore...
+
 function IndyASCIIEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
 var
   LEncoding: TIdTextEncoding;
 
   function CreateASCIIEncoding: TIdTextEncoding;
   begin
-    // RLebeau: 20127 is the official codepage for ASCII, but older OS
-    // versions do not support codepage 20127, so fallback to codepage
-    // 1252 if 20127 fails.  In non-native TIdTextEncoding implementations,
-    // TIdMBCSEncoding.Create() handles this internally...
-    {$IFDEF TIdTextEncoding_IS_NATIVE}
-    try
-    {$ENDIF}
-      Result := TIdMBCSEncoding.Create(20127);
-    {$IFDEF TIdTextEncoding_IS_NATIVE}
-    except
-      Result := TIdMBCSEncoding.Create(1252);
-    end;
+    {$IFDEF USE_ICONV}
+    Result := TIdMBCSEncoding.Create('ASCII');  {Do not localize}
+    {$ELSE}
+      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+        {$IFDEF CP20127_WORKAROUND_NEEDED}try{$ENDIF}
+    Result := TIdMBCSEncoding.Create(20127);
+        {$IFDEF CP20127_WORKAROUND_NEEDED}except Result := TIdMBCSEncoding.Create(1252); end;{$ENDIF}
+      {$ELSE}
+    ToDo('IndyASCIIEncoding() is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   end;
 
@@ -6534,15 +6544,15 @@ initialization
   end;
   {$ENDIF}
 
+{$IFNDEF DOTNET}
 finalization
-  {$IFNDEF DOTNET}
   FreeAndNil(GIdPorts);
   FreeAndNil(GId8BitEncoding);
   FreeAndNil(GIdASCIIEncoding);
-    {$IFNDEF HAS_TEncoding}
+  {$IFNDEF TIdTextEncoding_IS_NATIVE}
   TIdTextEncoding.FreeEncodings;
-    {$ENDIF}
   {$ENDIF}
+{$ENDIF}
 
 end.
 
