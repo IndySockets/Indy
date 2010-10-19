@@ -521,7 +521,6 @@
     {$DEFINE HAS_TEncoding}
     {$DEFINE HAS_TCharacter}
     {$DEFINE HAS_TInterlocked}
-    {$DEFINE BROKEN_TMBCSEncoding_CP20127}
   {$ENDIF}
   {$DEFINE HAS_CLASSPROPERTIES}
   {$DEFINE HAS_CLASSVARS}
