@@ -284,6 +284,7 @@ begin
   {$IFDEF HAS_TSelectionEditor}
   RegisterSelectionEditor(TIdTCPServer, TIdContextSelectionEditor);
   RegisterSelectionEditor(TIdCmdTCPClient, TIdContextSelectionEditor);
+  RegisterSelectionEditor(TIdUDPServer, TIdSocketHandleSelectionEditor);
   {$ENDIF}
 end;
 
