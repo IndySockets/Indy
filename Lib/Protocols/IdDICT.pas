@@ -132,7 +132,7 @@ begin
   FServer := '';
   try
     inherited Connect;
-    IOHandler.DefStringEncoding := TIdTextEncoding.UTF8;
+    IOHandler.DefStringEncoding := IndyUTF8Encoding;
     GetResponse(220);
     if LastCmdResult.Text.Count > 0 then begin
       // 220 pan.alephnull.com dictd 1.8.0/rf on Linux 2.4.18-14 <auth.mime> <258510.25288.1078409724@pan.alephnull.com>

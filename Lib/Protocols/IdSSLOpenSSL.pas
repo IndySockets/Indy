@@ -1577,7 +1577,7 @@ begin
         We could have used RawToBytes() but that would have made a copy of the
         output buffer.
         }
-        AOut.Text := TIdTextEncoding.UTF8.GetString( TIdBytes(LBufPtr^), 0, LLen);
+        AOut.Text := IndyUTF8Encoding.GetString( TIdBytes(LBufPtr^), 0, LLen);
       end;
     finally
       if Assigned(LMem) then begin

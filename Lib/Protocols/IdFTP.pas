@@ -2302,7 +2302,7 @@ begin
         Exit;
       end;
     end;
-    IOHandler.DefStringEncoding := TIdTextEncoding.UTF8;
+    IOHandler.DefStringEncoding := IndyUTF8Encoding;
   end;
 end;
 
