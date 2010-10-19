@@ -1554,7 +1554,6 @@ Lib/Protocols/ZLib/trees.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/uncompr.c eol=lf
 Lib/Protocols/ZLib/uncompr.obj -text svneol=unset#unset
 Lib/Protocols/ZLib/zconf.h eol=lf
-Lib/Protocols/ZLib/zlib.BAK -text
 Lib/Protocols/ZLib/zlib.h eol=lf
 Lib/Protocols/ZLib/zlib.lib -text svneol=unset#unset
 Lib/Protocols/ZLib/zlibd32.mak -text
