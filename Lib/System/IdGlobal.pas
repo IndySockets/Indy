@@ -910,11 +910,12 @@ type
   {$NODEFINE en7Bit}
   function en8Bit: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Indy8BitEncoding()'{$ENDIF};{$ENDIF}
   {$NODEFINE en8Bit}
-  function enUTF8: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TIdTextEncoding.UTF8 property'{$ENDIF};{$ENDIF}
+  function enUTF8: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyUTF8Encoding()'{$ENDIF};{$ENDIF}
   {$NODEFINE enUTF8}
 
   function Indy8BitEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
   function IndyASCIIEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
+  function IndyUTF8Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
 
   (*$HPPEMIT '// These are helper macros to handle differences in "class" properties between different C++Builder versions'*)
   {$IFDEF HAS_CLASSPROPERTIES}
@@ -939,11 +940,12 @@ type
   {$IFDEF DOTNET}
   (*$HPPEMIT '#define en8Bit Indy8BitEncoding()'*)
   (*$HPPEMIT '#define en7Bit IndyASCIIEncoding()'*)
+  (*$HPPEMIT '#define enUTF8 IndyUTF8Encoding()'*)
   {$ELSE}
   (*$HPPEMIT '#define en8Bit Indy8BitEncoding(true)'*)
   (*$HPPEMIT '#define en7Bit IndyASCIIEncoding(true)'*)
+  (*$HPPEMIT '#define enUTF8 IndyUTF8Encoding(true)'*)
   {$ENDIF}
-  (*$HPPEMIT '#define enUTF8 TIdTextEncoding_UTF8'*)
   (*$HPPEMIT ''*)
 
 type
@@ -1580,7 +1582,7 @@ begin
     case ADefEncoding of
       encASCII: VEncoding := IndyASCIIEncoding;
       encUTF7:  VEncoding := TIdTextEncoding.UTF7;
-      encUTF8:  VEncoding := TIdTextEncoding.UTF8;
+      encUTF8:  VEncoding := IndyUTF8Encoding;
     else
       VEncoding := TIdTextEncoding.Default;
     end;
@@ -1608,6 +1610,11 @@ var
   // because we need to do special handling of its codepage regardless
   // of whether TIdTextEncoding is implemented natively or manually...
   GIdASCIIEncoding: TIdTextEncoding = nil;
+
+  // RLebeau: UTF-8 is handled separate from other standard encodings
+  // because we need to avoid the MB_ERR_INVALID_CHARS flag regardless
+  // of whether TIdTextEncoding is implemented natively or manually...
+  GIdUTF8Encoding: TIdTextEncoding = nil;
 {$ENDIF}
 
 {$IFNDEF TIdTextEncoding_IS_NATIVE}
@@ -1617,7 +1624,6 @@ var
   GIdDefaultEncoding: TIdTextEncoding = nil;
   GIdLEUTF16Encoding: TIdTextEncoding = nil;
   GIdUTF7Encoding: TIdTextEncoding = nil;
-  GIdUTF8Encoding: TIdTextEncoding = nil;
 
 { TIdTextEncoding }
 
@@ -1636,11 +1642,17 @@ end;
 class procedure TIdTextEncoding.FreeEncodings;
 begin
   FreeAndNil(GIdDefaultEncoding);
+
   // RLebeau: ASCII is handled separate from other standard encodings
   // because we need to do special handling of its codepage regardless
   // of whether TIdTextEncoding is implemented natively or manually...
   //FreeAndNil(GIdASCIIEncoding);
-  FreeAndNil(GIdUTF8Encoding);
+
+  // RLebeau: UTF-8 is handled separate from other standard encodings
+  // because we need to avoid the MB_ERR_INVALID_CHARS flag regardless
+  // of whether TIdTextEncoding is implemented natively or manually...
+  //FreeAndNil(GIdUTF8Encoding);
+
   FreeAndNil(GIdUTF7Encoding);
   FreeAndNil(GIdLEUTF16Encoding);
   FreeAndNil(GIdBEUTF16Encoding);
@@ -1710,8 +1722,8 @@ begin
     else if ContainsPreamble(ABuffer, TIdTextEncoding.BigEndianUnicode.GetPreamble) then begin
       AEncoding := TIdTextEncoding.BigEndianUnicode;
     end
-    else if ContainsPreamble(ABuffer, TIdTextEncoding.UTF8.GetPreamble) then begin
-      AEncoding := TIdTextEncoding.UTF8;
+    else if ContainsPreamble(ABuffer, IndyUTF8Encoding.GetPreamble) then begin
+      AEncoding := IndyUTF8Encoding;
     end else
     begin
       AEncoding := TIdTextEncoding.Default;
@@ -2023,28 +2035,11 @@ class function TIdTextEncoding.GetUTF8: TIdTextEncoding;
 {$ELSE}
 class function TIdTextEncoding.UTF8: TIdTextEncoding;
 {$ENDIF}
-var
-  LEncoding: TIdTextEncoding;
 begin
-  if GIdUTF8Encoding = nil then
-  begin
-    // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
-    // flag by default, which we do not want to use, so calling the
-    // overloaded constructor that lets us override that behavior...
-    {$IFDEF USE_ICONV}
-    LEncoding := TIdMBCSEncoding.Create('UTF-8');
-    {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    LEncoding := TIdUTF8Encoding.Create(CP_UTF8, 0, 0);
-      {$ELSE}
-    ToDo('Default property of TIdTextEncoding class is not implemented for this platform yet'); {do not localize}
-      {$ENDIF}
-    {$ENDIF}
-    
-    if InterlockedCompareExchangePtr(Pointer(GIdUTF8Encoding), LEncoding, nil) <> nil then
-      LEncoding.Free;
-  end;
-  Result := GIdUTF8Encoding;
+  // RLebeau: UTF-8 is handled separate from other standard encodings
+  // because we need to avoid the MB_ERR_INVALID_CHARS flag regardless
+  // of whether TIdTextEncoding is implemented natively or manually...
+  Result := IndyUTF8Encoding(True);
 end;
 
 class function TIdTextEncoding.IsStandardEncoding(AEncoding: TIdTextEncoding): Boolean;
@@ -2548,7 +2543,7 @@ end;
 function enUTF8: TIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := TIdTextEncoding.UTF8;
+  Result := IndyUTF8Encoding;
 end;
 
 {$IFDEF DOTNET}
@@ -2572,6 +2567,12 @@ function IndyASCIIEncoding: TIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := TIdTextEncoding.ASCII;
+end;
+
+function IndyUTF8Encoding: TIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TIdTextEncoding.UTF8;
 end;
 
 {$ELSE}
@@ -2718,6 +2719,42 @@ begin
       end;
     end;
     LEncoding := GIdASCIIEncoding;
+  end;
+  Result := LEncoding;
+end;
+
+function IndyUTF8Encoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+
+  function CreateUTF8Encoding: TIdTextEncoding;
+  begin
+    {$IFDEF USE_ICONV}
+    Result := TIdMBCSEncoding.Create('UTF-8');
+    {$ELSE}
+      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
+    // flag by default, which we do not want to use, so calling the
+    // overloaded constructor that lets us override that behavior...
+    Result := TIdUTF8Encoding.Create(CP_UTF8, 0, 0);
+      {$ELSE}
+    ToDo('IndyUTF8Encoding() is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
+    {$ENDIF}
+  end;
+
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := CreateUTF8Encoding;
+  end else
+  begin
+    if GIdUTF8Encoding = nil then begin
+      LEncoding := CreateUTF8Encoding;
+      if InterlockedCompareExchangePtr(Pointer(GIdUTF8Encoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdUTF8Encoding;
   end;
   Result := LEncoding;
 end;
@@ -6549,6 +6586,7 @@ finalization
   FreeAndNil(GIdPorts);
   FreeAndNil(GId8BitEncoding);
   FreeAndNil(GIdASCIIEncoding);
+  FreeAndNil(GIdUTF8Encoding);
   {$IFNDEF TIdTextEncoding_IS_NATIVE}
   TIdTextEncoding.FreeEncodings;
   {$ENDIF}
