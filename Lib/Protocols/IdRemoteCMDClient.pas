@@ -134,68 +134,72 @@ var
   end;
 
 begin
-  IOHandler := TIdIOHandlerStack.Create(nil);
   Result := '';    {Do not Localize}
   if FUseReservedPorts then begin
-    TIdIOHandlerSocket(IOHandler).BoundPortMin := 512;
-    TIdIOHandlerSocket(IOHandler).BoundPortMax := 1023;
+    BoundPortMin := 512;
+    BoundPortMax := 1023;
   end else begin
-    TIdIOHandlerSocket(IOHandler).BoundPortMin := 0;
-    TIdIOHandlerSocket(IOHandler).BoundPortMax := 0;
+    BoundPortMin := 0;
+    BoundPortMax := 0;
   end;
-  {For RSH, we have to set the port the client to connect.  I don't    
+  if Socket = nil then begin
+    IOHandler := TIdIOHandlerStack.Create(Self);
+  end;
+  {For RSH, we have to set the port the client to connect.  I don't
    think it is required to this in Rexec.}
-   Connect; try
+  Connect;
+  try
     if FUseStdError then begin
       StdErr := TIdSimpleServer.Create(nil);
-      StdErr.CreateIOHandler;
       try
-        TIdIOHandlerSocket(IOHandler).BoundIP := (IOHandler as TIdIOHandlerSocket).Binding.IP;
-        StdErr.CreateBinding;
-        StdErr.Binding.ClientPortMin := TIdIOHandlerSocket(IOHandler).BoundPortMin;
-        StdErr.Binding.ClientPortMax := TIdIOHandlerSocket(IOHandler).BoundPortMax;
+        StdErr.BoundIP := Socket.Binding.IP;
+        StdErr.BoundPortMin := BoundPortMin;
+        StdErr.BoundPortMax := BoundPortMax;
         StdErr.BeginListen;
         thr := TIdStdErrThread.Create(StdErr, nil{, FLock});
-        SendAuthentication(StdErr.Binding.Port);
-        Thr.Start;
         try
-          FErrorReply := (IOHandler.ReadString(1) <> #0);
-          {Receive answers}
-          BeginWork(wmRead);
+          SendAuthentication(StdErr.Binding.Port);
+          Thr.Start;
           try
-            Result := IOHandler.AllData;
+            FErrorReply := (IOHandler.ReadString(1) <> #0);
+            {Receive answers}
+            BeginWork(wmRead);
+            try
+              Result := IOHandler.AllData;
+            finally
+              EndWork(wmRead);
+              FErrorMessage := thr.Output;
+            end;
           finally
-            EndWork(wmRead);
-            FErrorMessage := thr.Output;
+            StdErr.Abort;
+            thr.Terminate;
+            thr.WaitFor;
           end;
         finally
-          StdErr.Abort;
-          thr.Terminate;
-          thr.WaitFor;
+          FreeAndNil(thr);
         end;
       finally
         FreeAndNil(StdErr);
-        FreeAndNil(thr);
       end;
-    end
-    else
+    end else
     begin
       SendAuthentication(0);
       FErrorReply := (IOHandler.ReadString(1) <> #0);
       {Receive answers}
       BeginWork(wmRead);
       try
-        if FErrorReply then
-        begin
+        if FErrorReply then begin
           FErrorMessage := IOHandler.AllData;
-        end
-        else
+        end else begin
           Result := IOHandler.AllData;
+        end;
       finally
         EndWork(wmRead);
       end;
     end;
-  finally Disconnect; end;
+  finally
+    Disconnect;
+  end;
 end;
 
 { TIdStdErrThread }
