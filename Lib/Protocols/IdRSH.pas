@@ -56,6 +56,7 @@ type
     Function Execute(ACommand: String): String; override;
   published
     property ClientUserName : String read FClientUserName write FClientUserName;
+    property Host;
     property HostUserName : String read FHostUserName write FHostUserName;
     property Port default IdPORT_cmd;
     property UseReservedPorts: Boolean read FUseReservedPorts write FUseReservedPorts
