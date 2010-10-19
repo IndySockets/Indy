@@ -1879,6 +1879,7 @@ Test/TestDotNet/IdTest.pas -text
 Test/TestDotNet/IndyNetTest.bdsproj -text
 Test/TestDotNet/IndyNetTest.dpr -text
 Test/TestExample/IdTest.pas -text
+/fpmake.pp -text
 /getindy.sh -text
 icon16/Blank.bmp -text svneol=unset#unset
 icon16/BlankServer.bmp -text svneol=unset#unset
