@@ -724,8 +724,11 @@ begin
     Id_WSAEMSGSIZE: Result        := RSStackEMSGSIZE;
     Id_WSAEPROTOTYPE: Result      := RSStackEPROTOTYPE;
     Id_WSAENOPROTOOPT: Result     := RSStackENOPROTOOPT;
+
     Id_WSAEPROTONOSUPPORT: Result := RSStackEPROTONOSUPPORT;
+    {$IFNDEF BEOS}
     Id_WSAESOCKTNOSUPPORT: Result := RSStackESOCKTNOSUPPORT;
+    {$ENDIF}
     Id_WSAEOPNOTSUPP: Result      := RSStackEOPNOTSUPP;
     Id_WSAEPFNOSUPPORT: Result    := RSStackEPFNOSUPPORT;
     Id_WSAEAFNOSUPPORT: Result    := RSStackEAFNOSUPPORT;
@@ -740,7 +743,9 @@ begin
     Id_WSAEISCONN: Result         := RSStackEISCONN;
     Id_WSAENOTCONN: Result        := RSStackENOTCONN;
     Id_WSAESHUTDOWN: Result       := RSStackESHUTDOWN;
+    {$IFNDEF BEOS}
     Id_WSAETOOMANYREFS: Result    := RSStackETOOMANYREFS;
+    {$ENDIF}
     Id_WSAETIMEDOUT: Result       := RSStackETIMEDOUT;
     Id_WSAECONNREFUSED: Result    := RSStackECONNREFUSED;
     Id_WSAELOOP: Result           := RSStackELOOP;

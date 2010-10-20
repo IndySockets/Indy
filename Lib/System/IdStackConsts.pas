@@ -587,6 +587,17 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_SD_Recv = SHUT_RD;
   Id_SD_Send = SHUT_WR;
   Id_SD_Both = SHUT_RDWR;
+    {$IFDEF BEOS}
+  {work around incomplete definitions in BeOS FPC compiler.}
+  EDESTADDRREQ = (B_POSIX_ERROR_BASE + 48);
+  EHOSTDOWN = (B_POSIX_ERROR_BASE + 45);
+   
+  ESysENOTSOCK = ENOTSOCK;
+  ESysEDESTADDRREQ = EDESTADDRREQ;
+  ESysEMSGSIZE = EMSGSIZE;
+  ESysEOPNOTSUPP = EOPNOTSUPP;
+  ESysEHOSTDOWN = EHOSTDOWN;
+    {$ENDIF}
   //
   Id_WSAEINTR           = ESysEINTR;
   Id_WSAEBADF           = ESysEBADF;
@@ -603,7 +614,9 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_WSAEPROTOTYPE      = ESysEPROTOTYPE;
   Id_WSAENOPROTOOPT     = ESysENOPROTOOPT;
   Id_WSAEPROTONOSUPPORT = ESysEPROTONOSUPPORT;
+  {$IFNDEF BEOS}
   Id_WSAESOCKTNOSUPPORT = ESysESOCKTNOSUPPORT;
+  {$ENDIF}
   Id_WSAEOPNOTSUPP      = ESysEOPNOTSUPP;
   Id_WSAEPFNOSUPPORT    = ESysEPFNOSUPPORT;
   Id_WSAEAFNOSUPPORT    = ESysEAFNOSUPPORT;
@@ -618,7 +631,9 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_WSAEISCONN         = ESysEISCONN;
   Id_WSAENOTCONN        = ESysENOTCONN;
   Id_WSAESHUTDOWN       = ESysESHUTDOWN;
+  {$IFNDEF BEOS}
   Id_WSAETOOMANYREFS    = ESysETOOMANYREFS;
+  {$ENDIF}
   Id_WSAETIMEDOUT       = ESysETIMEDOUT;
   Id_WSAECONNREFUSED    = ESysECONNREFUSED;
   Id_WSAELOOP           = ESysELOOP;
