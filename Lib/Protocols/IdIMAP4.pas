@@ -1136,7 +1136,9 @@ uses
   IdBuffer,
   IdAttachmentMemory,
   IdReplyIMAP4,
-  IdTCPConnection, SysUtils;
+  IdTCPConnection,
+  IdSSL,
+  SysUtils;
 
 type
   TIdIMAP4FetchDataItem = (
@@ -1923,19 +1925,26 @@ begin
 end;
 
 procedure TIdIMAP4.Login;
+var
+  LIO: TIdSSLIOHandlerSocketBase;
 begin
   try
-    if UseTLS in ExplicitTLSVals then begin
-      if SupportsTLS then begin
-        if SendCmd(NewCmdCounter, 'STARTTLS', []) = IMAP_OK then begin  {Do not Localize}
-          TLSHandshake;
-          //obtain capabilities again - RFC2595
-          Capability(FCapabilities);
+    if (IOHandler is TIdSSLIOHandlerSocketBase) and (UseTLS in ExplicitTLSVals) then begin
+      LIO := TIdSSLIOHandlerSocketBase(IOHandler);
+      //we check passthrough because we can either be using TLS currently with
+      //implicit TLS support or because STARTLS was issued previously.
+      if LIO.PassThrough then begin
+        if SupportsTLS then begin
+          if SendCmd(NewCmdCounter, 'STARTTLS', []) = IMAP_OK then begin  {Do not Localize}
+            TLSHandshake;
+            //obtain capabilities again - RFC2595
+            Capability(FCapabilities);
+          end else begin
+            ProcessTLSNegCmdFailed;
+          end;
         end else begin
-          ProcessTLSNegCmdFailed;
+          ProcessTLSNotAvail;
         end;
-      end else begin
-        ProcessTLSNotAvail;
       end;
     end;
     if LastCmdResult.Code = IMAP_OK then begin
@@ -1949,18 +1958,15 @@ begin
         end;
         if LastCmdResult.Code = IMAP_OK then begin
           FConnectionState := csAuthenticated;
-          Capability(FCapabilities);
         end;
-      end else begin
-        if Capability(FCapabilities) then begin
-          FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, ['* OK'], ['* +'], Self, FCapabilities);     {Do not Localize}
-        end;
+      end
+      else if Capability(FCapabilities) then begin
+        FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, ['* OK'], ['* +'], Self, FCapabilities);     {Do not Localize}
       end;
-    end else begin
-      if LastCmdResult.Code = IMAP_PREAUTH then begin
-        FConnectionState := csAuthenticated;
-        FCmdCounter := 0;
-      end;
+    end
+    else if LastCmdResult.Code = IMAP_PREAUTH then begin
+      FConnectionState := csAuthenticated;
+      FCmdCounter := 0;
     end;
     Capability(FCapabilities);
   except
@@ -1975,31 +1981,31 @@ begin
   an unsuccessful connect after a previous successful connect (such as when a
   client program changes users) can leave it as csAuthenticated.}
   FConnectionState := csNonAuthenticated;
-  {CC2: Don't call Connect if already connected, this could be just a change of user}
-  if not Connected then begin
-    inherited Connect;
-  end;
   try
-    GetResponse;
-   // if PosInStrArray(LastCmdResult.Code, [IMAP_OK, IMAP_PREAUTH]) = -1 then begin
-      {Should have got OK or PREAUTH in the greeting.  Happened with some server,
-      may need further investigation and coding...}
-  //  end;
-    {CC7: Save FGreetingBanner so the user can use it to determine what type of
-    server he is connected to...}
-    if LastCmdResult.Text.Count > 0 then begin
-      FGreetingBanner := LastCmdResult.Text[0];
-    end else begin
-      FGreetingBanner := '';
+    {CC2: Don't call Connect if already connected, this could be just a change of user}
+    if not Connected then begin
+      inherited Connect;
+      GetResponse;
+       // if PosInStrArray(LastCmdResult.Code, [IMAP_OK, IMAP_PREAUTH]) = -1 then begin
+        {Should have got OK or PREAUTH in the greeting.  Happened with some server,
+        may need further investigation and coding...}
+      //  end;
+      {CC7: Save FGreetingBanner so the user can use it to determine what type of
+      server he is connected to...}
+      if LastCmdResult.Text.Count > 0 then begin
+        FGreetingBanner := LastCmdResult.Text[0];
+      end else begin
+        FGreetingBanner := '';
+      end;
     end;
     if AAutoLogin then begin
       Login;
     end;
-    Result := True;
   except
     Disconnect(False);
     raise;
   end;
+  Result := True;
 end;
 
 procedure TIdIMAP4.InitComponent;
