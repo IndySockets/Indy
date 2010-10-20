@@ -17,12 +17,17 @@ interface
   In addition, this unit provides a way of centralizing all hashing and HMAC
   functions and to control dependancies in Indy.
 }
-uses IdException, IdGlobal;
+uses
+  IdException, IdGlobal
+  {$IFDEF DOTNET}
+  , System.Security.Cryptography
+  {$ENDIF}
+  ;
 
 type
 {$IFDEF DOTNET}
-  TIdHashIntCtx = IntPtr;
-  TIdHMACIntCtx = IntPtr;
+  TIdHashIntCtx = System.Security.Cryptography.HashAlgorithm;
+  TIdHMACIntCtx = System.Security.Cryptography.HMAC;
 {$ELSE}
   TIdHashIntCtx = Pointer;
   TIdHMACIntCtx = Pointer;
@@ -86,7 +91,10 @@ var
 
 implementation
 
-uses IdResourceStringsProtocols, SysUtils;
+uses
+  IdResourceStringsProtocols, SysUtils;
+
+// TODO: for .NET, implement functions that use .NET Hash/HMAC classes
 
 procedure CheckMD2Permitted; {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
