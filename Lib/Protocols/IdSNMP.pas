@@ -187,9 +187,45 @@ begin
   Result := Result + Chr(i);
 end;
 
+function MibIntToASNObject(const OID: String; const Value: Integer; const ObjType: Integer = ASN1_INT): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ASNObject(MibToID(OID), ASN1_OBJID) + ASNObject(ASNEncInt(Value), ObjType);
+end;
+
+function MibUIntToASNObject(const OID: String; const Value, ObjType: Integer): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ASNObject(MibToID(OID), ASN1_OBJID) + ASNObject(ASNEncUInt(Value), ObjType);
+end;
+
+function MibObjIDToASNObject(const ObjID, Value: String): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ASNObject(MibToID(ObjID), ASN1_OBJID) + ASNObject(MibToID(Value), ASN1_OBJID);
+end;
+
+function MibIPAddrToASNObject(const OID, Value: String): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ASNObject(MibToID(OID), ASN1_OBJID) + ASNObject(IPToID(Value), ASN1_IPADDR);
+end;
+
+function MibNullToASNObject(const OID: String): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ASNObject(MibToID(OID), ASN1_OBJID) + ASNObject('', ASN1_NULL); {Do not Localize}
+end;
+
+function MibStrToASNObject(const OID, Value: String; const ObjType: Integer = ASN1_OCTSTR): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ASNObject(MibToID(OID), ASN1_OBJID) + ASNObject(Value, ObjType);
+end;
+
 {========================== SNMP INFO OBJECT ==================================}
 
-{ TIdSNMPInfo }
+{ TSNMPInfo }
 
 (*----------------------------------------------------------------------------*
  | constructor TSNMPInfo.Create ()                                            |
@@ -292,31 +328,28 @@ begin
     end;
     case objType of
       ASN1_INT:
-        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
-          ASNObject(ASNEncInt(IndyStrToInt(MIBValue[n], 0)), objType);
+        s := MibIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0));
       ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
-        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
-          ASNObject(ASNEncUInt(IndyStrToInt(MIBValue[n], 0)), objType);
+        s := MibUIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0), objType);
       ASN1_OBJID:
-        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
-          ASNObject(MibToID(MIBValue[n]), objType);
+        s := MibObjIDToASNObject(MIBOID[n], MIBValue[n]);
       ASN1_IPADDR:
-        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
-          ASNObject(IPToID(MIBValue[n]), objType);
+        s := MibIPAddrToASNObject(MIBOID[n], MIBValue[n]);
       ASN1_NULL:
-        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
-          ASNObject('', ASN1_NULL);    {Do not Localize}
+        s := MibNullToASNObject(MIBOID[n]);
       else
-        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
-          ASNObject(MIBValue[n], objType);
+        s := MibStrToASNObject(MIBOID[n], MIBValue[n], objType);
     end;
-    data := data + ASNObject(s, $30);
+    data := data + ASNObject(s, ASN1_SEQ);
   end;
-  data := ASNObject(data, $30);
-  data := ASNObject(char(ID),2)+ASNObject(char(ErrorStatus),2)
-         + ASNObject(char(ErrorIndex),2)+data;
-  data := ASNObject(char(Version),2)+ASNObject(Community,4)+ASNObject(data,PDUType);
-  data := ASNObject(data, $30);
+  data := ASNObject(char(ID), ASN1_INT)
+         + ASNObject(char(ErrorStatus), ASN1_INT)
+         + ASNObject(char(ErrorIndex), ASN1_INT)
+         + ASNObject(data, ASN1_SEQ);
+  data := ASNObject(char(Version), ASN1_INT)
+         + ASNObject(Community, ASN1_OCTSTR)
+         + ASNObject(data, PDUType);
+  data := ASNObject(data, ASN1_SEQ);
   Result := data;
 end;
 
@@ -424,22 +457,40 @@ function TSNMPInfo.EncodeTrap: Boolean;
 var
   s: string;
   n: integer;
+  objType: PtrUInt;
 begin
   Buffer := '';    {Do not Localize}
   for n := 0 to MIBOID.Count-1 do
   begin
-    s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID)
-      + ASNObject(MIBValue[n], ASN1_OCTSTR);
+    objType := PtrUInt(MIBValue.Objects[n]);
+    if objType = 0 then begin
+      objType := ASN1_OCTSTR;
+    end;
+    case objType of
+      ASN1_INT:
+        s := MibIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0));
+      ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
+        s := MibUIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0), objType);
+      ASN1_OBJID:
+        s := MibObjIDToASNObject(MIBOID[n], MIBValue[n]);
+      ASN1_IPADDR:
+        s := MibIPAddrToASNObject(MIBOID[n], MIBValue[n]);
+      ASN1_NULL:
+        s := MibNullToASNObject(MIBOID[n]);
+      else
+        s := MibStrToASNObject(MIBOID[n], MIBValue[n], objType);
+    end;
     Buffer := Buffer + ASNObject(s, ASN1_SEQ);
   end;
-  Buffer := ASNObject(Buffer, ASN1_SEQ);
-  Buffer := ASNObject(ASNEncInt(GenTrap), ASN1_INT)
-    + ASNObject(ASNEncInt(SpecTrap), ASN1_INT)
-    + ASNObject(ASNEncInt(TimeTicks), ASN1_TIMETICKS) + Buffer;
   Buffer := ASNObject(MibToID(Enterprise), ASN1_OBJID)
-    + ASNObject(IPToID(Host), ASN1_IPADDR) + Buffer;
+    + ASNObject(IPToID(Host), ASN1_IPADDR)
+    + ASNObject(ASNEncInt(GenTrap), ASN1_INT)
+    + ASNObject(ASNEncInt(SpecTrap), ASN1_INT)
+    + ASNObject(ASNEncInt(TimeTicks), ASN1_TIMETICKS)
+    + ASNObject(Buffer, ASN1_SEQ);
   Buffer := ASNObject(Char(Version), ASN1_INT)
-    + ASNObject(Community, ASN1_OCTSTR) + ASNObject(Buffer, PDUType);
+    + ASNObject(Community, ASN1_OCTSTR)
+    + ASNObject(Buffer, PDUType);
   Buffer := ASNObject(Buffer, ASN1_SEQ);
   Result := True;
 end;
