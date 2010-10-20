@@ -316,7 +316,7 @@ end;
 function TIdReply.GetFormattedReply: TStrings;
 begin
   // Overrides must call GetFormattedReplyStrings instead. This is just a base implementation
-  // This is done this way because otherise double generations can occur it more than one
+  // This is done this way because otherwise double generations can occur if more than one
   // ancestor overrides. Example: Reply--> RFC --> FTP. Calling inherited would cause both
   // FTP and RFC to generate.
   Result := GetFormattedReplyStrings;
