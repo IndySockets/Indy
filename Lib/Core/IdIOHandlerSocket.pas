@@ -481,7 +481,7 @@ end;
 
 function TIdIOHandlerSocket.CheckForError(ALastResult: Integer): Integer;
 begin
-  Result := GStack.CheckForSocketError(ALastResult, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED]);
+  Result := GStack.CheckForSocketError(ALastResult, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]);
 end;
 
 procedure TIdIOHandlerSocket.RaiseError(AError: Integer);
