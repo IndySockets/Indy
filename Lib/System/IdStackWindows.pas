@@ -823,6 +823,9 @@ begin
       AAddresses.BeginUpdate;
       try
         repeat
+          // TODO: gethostbynaame() might return other things besides IPv4
+          // addresses, so we should be validating the address type before
+          // attempting the conversion...
           AAddresses.Add(TranslateTInAddrToString(PAdrPtr^[I]^, Id_IPv4)); //BGO FIX
           Inc(I);
         until PAdrPtr^[i] = nil;
@@ -1190,6 +1193,9 @@ begin
           if LHost = nil then begin
             RaiseLastSocketError;
           end;
+          // TODO: gethostbyname() might return other things besides IPv4
+          // addresses, so we should be validating the address type before
+          // attempting the conversion...
           LPa := LHost^.h_address_list^;
           LSa.S_un_b.s_b1 := Ord(LPa[0]);
           LSa.S_un_b.s_b2 := Ord(LPa[1]);

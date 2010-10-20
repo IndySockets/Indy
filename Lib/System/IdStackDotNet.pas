@@ -1025,6 +1025,7 @@ begin
       for i := Low(LHost.AddressList) to High(LHost.AddressList) do
       begin
         //This may be returning various types of addresses.
+        // TODO: support IPv6 addresses
         if LHost.AddressList[i].AddressFamily = AddressFamily.InterNetwork then begin
           AAddresses.Add(LHost.AddressList[i].ToString);
         end;

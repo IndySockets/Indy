@@ -383,6 +383,9 @@ begin
       LHost := Libc.gethostbyname(
         PAnsiChar({$IFDEF STRING_IS_UNICODE}LAStr{$ELSE}AHostName{$ENDIF}));
       if LHost <> nil then begin
+        // TODO: gethostbynaame() might return other things besides IPv4
+        // addresses, so we should be validating the address type before
+        // attempting the conversion...
         Lpa := LHost^.h_addr_list^;
         Lsa.S_un_b.s_b1 := Ord(Lpa[0]);
         Lsa.S_un_b.s_b2 := Ord(Lpa[1]);
@@ -780,6 +783,9 @@ begin
       AAddresses.BeginUpdate;
       try
         repeat
+          // TODO: gethostbynaame() might return other things besides IPv4
+          // addresses, so we should be validating the address type before
+          // attempting the conversion...
           AAddresses.Add(TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4));
           Inc(Li);
         until LPAdrPtr^[Li] = nil;
