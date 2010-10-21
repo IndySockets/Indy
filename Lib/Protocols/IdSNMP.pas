@@ -605,7 +605,7 @@ begin
       {$ELSE}
       AllocateSocket(Id_SOCK_DGRAM);
       {$ENDIF}
-      IP := Self.BoundIP;
+      IP := Result.IP;
       Port := fTrapPort;
       IPVersion := Self.IPVersion;
       Bind;
