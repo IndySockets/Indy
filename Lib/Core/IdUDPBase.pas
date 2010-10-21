@@ -167,7 +167,9 @@ end;
 
 procedure TIdUDPBase.BroadcastEnabledChanged;
 begin
-  Binding.BroadcastEnabled := BroadcastEnabled;
+  if Assigned(FBinding) then begin
+    FBinding.BroadcastEnabled := BroadcastEnabled;
+  end;
 end;
 
 procedure TIdUDPBase.CloseBinding;
