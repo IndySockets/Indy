@@ -2147,11 +2147,16 @@ begin
 
   LError := not GetCPInfo(FCodePage, LCPInfo);
   if LError and (FCodePage = 20127) then begin
-    // RLebeau: 20127 is the official codepage for ASCII, but older
-    // OS versions do not support codepage 20127, so fallback to 1252...
+    // RLebeau: 20127 is the official codepage for ASCII, but not
+    // all OS versions support that codepage, so fallback to 1252
+    // or even 437...
     FCodePage := 1252;
     LError := not GetCPInfo(FCodePage, LCPInfo);
-  end;
+    // just in case...
+    if LError then begin
+      FCodePage := 437;
+      LError := not GetCPInfo(FCodePage, LCPInfo);
+    end;
   if LError then begin
     raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
   end;
