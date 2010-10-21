@@ -742,10 +742,12 @@ type
   Ansi-compatible encodings are being used with AnsiString values.
   }
 
+  {$UNDEF TIdASCIIEncoding_NEEDED}
   {$IFDEF TIdTextEncoding_IS_NATIVE}
     {$IFDEF DOTNET}
   TIdTextEncoding = System.Text.Encoding;
   //TIdMBCSEncoding = ?
+  TIdASCIIEncoding = System.Text.ASCIIEncoding;
   TIdUTF7Encoding = System.Text.UTF7Encoding;
   TIdUTF8Encoding = System.Text.UTF8Encoding;
   TIdUTF16LittleEndianEncoding = System.Text.UnicodeEncoding;
@@ -753,6 +755,7 @@ type
     {$ELSE}
   TIdTextEncoding = SysUtils.TEncoding;
   TIdMBCSEncoding = SysUtils.TMBCSEncoding;
+  {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
   TIdUTF7Encoding = SysUtils.TUTF7Encoding;
   TIdUTF8Encoding = SysUtils.TUTF8Encoding;
   TIdUTF16LittleEndianEncoding = SysUtils.TUnicodeEncoding;
@@ -861,6 +864,8 @@ type
     function GetPreamble: TIdBytes; override;
   end;
 
+  {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
+
   TIdUTF7Encoding = class(TIdMBCSEncoding)
   protected
     function GetByteCount(Chars: PWideChar; CharCount: Integer): Integer; overload; override;
@@ -899,6 +904,21 @@ type
     function GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer; overload; override;
     function GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar; CharCount: Integer): Integer; overload; override;
   public
+    function GetPreamble: TIdBytes; override;
+  end;
+  {$ENDIF}
+
+  {$IFDEF TIdASCIIEncoding_NEEDED}
+  TIdASCIIEncoding = class(TIdTextEncoding)
+  protected
+    function GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+    function GetBytes(AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetCharCount(ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetChars(ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+  public
+    constructor Create; virtual;
+    function GetMaxByteCount(ACharCount: Integer): Integer; override;
+    function GetMaxCharCount(AByteCount: Integer): Integer; override;
     function GetPreamble: TIdBytes; override;
   end;
   {$ENDIF}
@@ -2577,6 +2597,96 @@ end;
 
 {$ELSE}
 
+{ TIdASCIIEncoding }
+
+constructor TIdASCIIEncoding.Create;
+begin
+  FIsSingleByte := True;
+  FMaxCharSize := 1;
+end;
+
+function TIdASCIIEncoding.GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer;
+begin
+  Result := ACharCount;
+end;
+
+function TIdASCIIEncoding.GetBytes(AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
+var
+  i : Integer;
+begin
+  Result := IndyMin(ACharCount, AByteCount);
+  for i := 1 to Result do begin
+    // replace illegal characters > $7F
+    if Word(AChars^) > $007F then begin
+      ABytes^ := Byte(Ord('?'));
+    end else begin
+      ABytes^ := Byte(AChars^);
+    end;
+    //advance to next char
+    Inc(AChars);
+    Inc(ABytes);
+  end;
+end;
+
+function TIdASCIIEncoding.GetCharCount(ABytes: PByte; AByteCount: Integer): Integer;
+begin
+  Result := AByteCount;
+end;
+
+function TIdASCIIEncoding.GetChars(ABytes: PByte; AByteCount: Integer;
+  AChars: PIdWideChar; ACharCount: Integer): Integer;
+var
+  i : Integer;
+begin
+  Result := IndyMin(ACharCount, AByteCount);
+  for i := 1 to Result do begin
+    // This is an invalid byte in the ASCII encoding.
+    if ABytes^ > $7F then begin
+      Word(AChars^) := Ord('?');
+    end else begin
+      Word(AChars^) := ABytes^;
+    end;
+    //advance to next byte
+    Inc(AChars);
+    Inc(ABytes);
+  end;
+end;
+
+function TIdASCIIEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
+begin
+  Result := ACharCount;
+end;
+
+function TIdASCIIEncoding.GetMaxCharCount(AByteCount: Integer): Integer;
+begin
+  Result := AByteCount;
+end;
+
+function TIdASCIIEncoding.GetPreamble: TIdBytes;
+begin
+  SetLength(Result, 0);
+end;
+
+function IndyASCIIEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := TIdASCIIEncoding.Create;
+  end else
+  begin
+    if GIdASCIIEncoding = nil then begin
+      LEncoding := TIdASCIIEncoding.Create;
+      if InterlockedCompareExchangePtr(Pointer(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdASCIIEncoding;
+  end;
+  Result := LEncoding;
+end;
+
 { TId8BitEncoding }
 
 type
@@ -2587,10 +2697,17 @@ type
     function GetCharCount(ABytes: PByte; AByteCount: Integer): Integer; override;
     function GetChars(ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; override;
   public
+    constructor Create; virtual;
     function GetMaxByteCount(ACharCount: Integer): Integer; override;
     function GetMaxCharCount(AByteCount: Integer): Integer; override;
     function GetPreamble: TIdBytes; override;
   end;
+
+constructor TId8BitEncoding.Create;
+begin
+  FIsSingleByte := True;
+  FMaxCharSize := 1;
+end;
 
 function TId8BitEncoding.GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
@@ -2669,59 +2786,8 @@ begin
   Result := LEncoding;
 end;
 
-{$UNDEF CP20127_WORKAROUND_NEEDED}
-{$IFNDEF USE_ICONV}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    // RLebeau: 20127 is the official codepage for ASCII, but older OS versions
-    // do not support codepage 20127.  SysUtils.TEncoding in D2009-XE do not
-    // handle this, so manually fallback to codepage 1252 if 20127 fails. When
-    // TIdTextEncoding is not a native implementation (pre-D2009, ICONV, FPC),
-    // TIdMBCSEncoding.Create() will handle this issue internally...
-    {$IFDEF TIdTextEncoding_IS_NATIVE}
-      {$IFDEF BROKEN_TMBCSEncoding_CP20127}
-        {$DEFINE CP20127_WORKAROUND_NEEDED}
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
-
-// TODO: implement a custom TIdASCIIEncoding class so we don't have to
-// deal with codepage issues in differrent OS versions anymore...
-
-function IndyASCIIEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
-
-  function CreateASCIIEncoding: TIdTextEncoding;
-  begin
-    {$IFDEF USE_ICONV}
-    Result := TIdMBCSEncoding.Create('ASCII');  {Do not localize}
-    {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-        {$IFDEF CP20127_WORKAROUND_NEEDED}try{$ENDIF}
-    Result := TIdMBCSEncoding.Create(20127);
-        {$IFDEF CP20127_WORKAROUND_NEEDED}except Result := TIdMBCSEncoding.Create(1252); end;{$ENDIF}
-      {$ELSE}
-    ToDo('IndyASCIIEncoding() is not implemented for this platform yet'); {do not localize}
-      {$ENDIF}
-    {$ENDIF}
-  end;
-
-begin
-  if not AOwnedByIndy then begin
-    LEncoding := CreateASCIIEncoding;
-  end else
-  begin
-    if GIdASCIIEncoding = nil then begin
-      LEncoding := CreateASCIIEncoding;
-      if InterlockedCompareExchangePtr(Pointer(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdASCIIEncoding;
-  end;
-  Result := LEncoding;
-end;
+// TODO: implement a custom TIdUTF8Encoding class so we don't have to
+// deal with codepage issues...
 
 function IndyUTF8Encoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
 var
