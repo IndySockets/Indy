@@ -429,7 +429,9 @@ SocketOptionName.ReceiveTimeout;//  Receive time out. This option applies only t
 SocketOptionName.SendBuffer;//  Specifies the total per-socket buffer space reserved for sends. This is unrelated to the maximum message size or the size of a TCP window.
 SocketOptionName.SendLowWater;//  Specifies the total per-socket buffer space reserved for receives. This is unrelated to the maximum message size or the size of a TCP window.
 SocketOptionName.SendTimeout;//  Send timeout. This option applies only to synchronous methods; it has no effect on asynchronous methods such as BeginSend.
-SocketOptionName.Type;//  Get socket type.
+}
+  Id_SO_TYPE             = SocketOptionName.Type;//  Get socket type.
+{
 SocketOptionName.TypeOfService;//  Change the IP header type of service field.
 SocketOptionName.UnblockSource;//  Unblock a previously blocked source.
 SocketOptionName.UseLoopback;//  Bypass hardware when possible.
