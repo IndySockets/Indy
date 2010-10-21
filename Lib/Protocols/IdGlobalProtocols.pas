@@ -4230,34 +4230,49 @@ begin
     // at least the error won't cause exceptions in the user's code, and
     // maybe the user will know how to encode/decode the data manually
     // as a workaround...
+
+    // RLebeau: on non-DotNet systems, setting the AOwnedByIndy parameter
+    // of Indy...Encoding() to False so that the caller does not have to
+    // figure out whether or not to free the output TIdTextEncoding.
+    // Standard TIdTextEncoding objects are owned by the RTL, and the
+    // encoding objects that Indy...Encoding() normally return are owned
+    // by IdGlobal.pas, and thus should not be freed.  Objects returned
+    // by TIdTextEncoding.GetEncoding() and Indy...Encoding(False) are
+    // not owned by anyone and must always be freed.
+
     try
       {$IFDEF DOTNET_OR_ICONV}
       Result := TIdTextEncoding.GetEncoding(ACharset);
       {$ELSE}
       CP := CharsetToCodePage(ACharset);
-      if CP <> 0 then begin
-        if CP = 20127 then begin
-          // RLebeau: 20127 is the official codepage for ASCII, but
-          // older OS versions do not support codepage 20127...
+      case CP of
+        20127:
+          // RLebeau: 20127 is the official codepage for ASCII,
+          // but not all OS versions support that codepage...
           Result := IndyASCIIEncoding(False);
-        end else
+        65001:
+          // RLebeau: UTF-8 is handled separate from other standard
+          // encodings because we need to avoid the MB_ERR_INVALID_CHARS
+          // flag regardless of whether TIdTextEncoding is implemented
+          // natively or manually...
+          Result := IndyUTF8Encoding(False);
+        {$IFNDEF USE_TIdTextEncoding_GetEncoding}
+        1200:
+          Result := TIdUTF16LittleEndianEncoding.Create;
+        1201:
+          Result := TIdUTF16BigEndianEncoding.Create;
+        65000:
+          Result := TIdUTF7Encoding.Create;
+        {$ENDIF}
+      else
         begin
-          {$IFDEF USE_TIdTextEncoding_GetEncoding}
-          Result := TIdTextEncoding.GetEncoding(CP);
-          {$ELSE}
-          case CP of
-            1200:  Result := TIdUTF16LittleEndianEncoding.Create;
-            1201:  Result := TIdUTF16BigEndianEncoding.Create;
-            65000: Result := TIdUTF7Encoding.Create;
-
-            // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
-            // flag by default, which we do not want to use, so calling the
-            // overloaded constructor that lets us override that behavior...
-            65001: Result := TIdUTF8Encoding.Create(CP, 0, 0);
-          else
+          if CP <> 0 then begin
+            {$IFDEF USE_TIdTextEncoding_GetEncoding}
+            Result := TIdTextEncoding.GetEncoding(CP);
+            {$ELSE}
             Result := TIdMBCSEncoding.Create(CP);
+            {$ENDIF}
           end;
-          {$ENDIF}
         end;
       end;
       {$ENDIF}
@@ -4267,7 +4282,7 @@ begin
   {JPM - I have decided to temporarily make this 8-bit because I'm concerned
   about how binary files will be handled by the ASCII encoder (where there may
   be 8bit byte-values.  In addition, there are numerous charsets for various
-  languages and code that does some special mapping for them would be a mess.}
+  languages and codepages that do some special mapping for them would be a mess.}
 
   {RLebeau: technically, we should be returning a 7-bit encoding, as the
   default charset for "text/" content types is "us-ascii".}
@@ -4284,18 +4299,7 @@ begin
       Exit;
     end;
     }
-    {$IFDEF DOTNET}
-    Result := Indy8BitEncoding;
-    {$ELSE}
-    {Rlebeau: Setting the AOwnedByIndy parameter of Indy8BitEncoding() to False.
-    This way, the caller does not have to figure out whether or not to free the
-    output TIdTextEncoding.  Standard TIdTextEncoding objects (ASCII, UTF8, etc)
-    are owned by the RTL, and the 8-bit encoding object that Indy8BitEncoding()
-    normally returns is owned by IdGlobal.pas, and thus should not be freed.
-    Objects returned by TIdTextEncoding.GetEncoding() and Indy8BitEncoding(False)
-    are not owned by anyone and must always be freed.}
-    Result := Indy8BitEncoding(False);
-    {$ENDIF}
+    Result := Indy8BitEncoding{$IFNDEF DOTNET}(False){$ENDIF};
   end;
 end;
 
