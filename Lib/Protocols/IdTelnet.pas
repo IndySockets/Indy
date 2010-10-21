@@ -354,6 +354,7 @@ type
     procedure Connect; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure SendCh(Ch: Char);
+    procedure SendString(const S: String);
 
     property TelnetThread: TIdTelnetReadThread read FTelnetThread;
   published
@@ -392,7 +393,9 @@ begin
   // ensure that the OnTelnetCommand event handler is synchronized when
   // ThreadedEvent is false
 
-  FClient.IOHandler.CheckForDataOnSource(50);
+  if FClient.IOHandler.InputBufferIsEmpty then begin
+    FClient.IOHandler.CheckForDataOnSource(IdTimeoutInfinite);
+  end;
   if not FClient.IOHandler.InputBufferIsEmpty then begin
     if FClient.ThreadedEvent then begin
       FClient.Negotiate;
@@ -410,6 +413,26 @@ begin
   // this  code is necessary to allow the client to receive data properly
   // from a non-telnet server
   if Connected then begin
+    if (Ch <> CR) or IamTelnet then begin
+      IOHandler.Write(Ch);
+    end else begin
+      IOHandler.Write(EOL);
+    end;
+  end;
+end;
+
+procedure TIdTelnet.SendString(const S : String);
+var
+  I: Integer;
+  Ch: Char;
+begin
+  // this  code is necessary to allow the client to receive data properly
+  // from a non-telnet server
+  for I := 1 to Length(S) do begin
+    if not Connected then begin
+      Break;
+    end;
+    Ch := S[I];
     if (Ch <> CR) or IamTelnet then begin
       IOHandler.Write(Ch);
     end else begin
