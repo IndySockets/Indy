@@ -366,7 +366,7 @@ type
   TIdHTTPConnectionType = (ctNormal, ctSSL, ctProxy, ctSSLProxy);
 
   // Protocol options
-  TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams, hoNonSSLProxyUseConnectVerb);
+  TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams, hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv);
   TIdHTTPOptions = set of TIdHTTPOption;
 
   // Must be documented
@@ -914,6 +914,7 @@ end;
 
 function TIdCustomHTTP.DoOnRedirect(var Location: string; var VMethod: TIdHTTPMethod; RedirectCount: integer): boolean;
 begin
+  // TODO: convert relative URLs to full URLs here...
   Result := HandleRedirects;
   if Assigned(FOnRedirect) then begin
     FOnRedirect(Self, Location, RedirectCount, Result, VMethod);
@@ -1031,7 +1032,7 @@ var
 begin
   LDecMeth := 0;
 
-  LParseHTML := IsContentTypeHtml(AResponse) and Assigned(AResponse.ContentStream);
+  LParseHTML := IsContentTypeHtml(AResponse) and Assigned(AResponse.ContentStream) and not (hoNoParseMetaHTTPEquiv in FOptions);
   LCreateTmpContent := LParseHTML and not (AResponse.ContentStream is TCustomMemoryStream);
 
   LOrigStream := Response.ContentStream;
