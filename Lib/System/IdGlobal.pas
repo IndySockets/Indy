@@ -1991,11 +1991,16 @@ begin
     1200:  Result := TIdUTF16LittleEndianEncoding.Create;
     1201:  Result := TIdUTF16BigEndianEncoding.Create;
     65000: Result := TIdUTF7Encoding.Create;
-
-    // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
-    // flag by default, which we do not want to use, so calling the
-    // overloaded constructor that lets us override that behavior...
-    65001: Result := TIdUTF8Encoding.Create(ACodePage, 0, 0);
+    20127:
+      // RLebeau: 20127 is the official codepage for ASCII,
+      // but not all OS versions support that codepage...
+      Result := IndyASCIIEncoding(False);
+    65001:
+      // RLebeau: UTF-8 is handled separate from other standard
+      // encodings because we need to avoid the MB_ERR_INVALID_CHARS
+      // flag regardless of whether TIdTextEncoding is implemented
+      // natively or manually...
+      Result := IndyUTF8Encoding(False);
   else
     Result := TIdMBCSEncoding.Create(ACodePage);
   end;
@@ -2157,6 +2162,7 @@ begin
       FCodePage := 437;
       LError := not GetCPInfo(FCodePage, LCPInfo);
     end;
+  end;
   if LError then begin
     raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
   end;
