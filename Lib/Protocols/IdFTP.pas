@@ -729,6 +729,7 @@ type
     FUsingSFTP : Boolean; //enable SFTP internel flag
     FUsingCCC : Boolean; //are we using FTP with SSL on a clear control channel?
     FUseHOST: Boolean;
+    FServerHOST: String;
     FCanUseMLS : Boolean; //can we use MLISx instead of LIST
     FUsingExtDataPort : Boolean; //are NAT Extensions (RFC 2428 available) flag
     FUsingNATFastTrack : Boolean;//are we using NAT fastrack feature
@@ -858,6 +859,7 @@ type
     procedure SendEPort(AHandle: TIdSocketHandle); overload;
     procedure SendEPort(const AIP : String; const APort : TIdPort; const AIPVersion : TIdIPVersion); overload;
     procedure SendEPassive(var VIP: string; var VPort: TIdPort);
+    function SendHost: Smallint;
     procedure SetProxySettings(const Value: TIdFtpProxySettings);
     procedure SetClientInfo(const AValue: TIdFTPClientIdentifier);
     procedure SetCompressor(AValue: TIdZLibCompressorBase);
@@ -883,6 +885,7 @@ type
     function IsOldServU: Boolean;
     function IsBPFTP : Boolean;
     function IsTitan : Boolean;
+    function IsWSFTP : Boolean;
     function CheckAccount: Boolean;
     function IsAccountNeeded : Boolean;
     function GetSupportsVerification : Boolean;
@@ -1015,6 +1018,7 @@ type
     property Account: string read FAccount write FAccount;
     property ClientInfo : TIdFTPClientIdentifier read FClientInfo write SetClientInfo;
     property UseHOST: Boolean read FUseHOST write FUseHOST default DEF_Id_FTP_UseHOST;
+    property ServerHOST: String read FServerHOST write FServerHOST;
     property UseTLS;
     property OnTLSNotAvailable;
 
@@ -1232,12 +1236,30 @@ begin
     // 220 (success) and 500/502 (unsupported), but vsftpd returns 530, and
     // whatever ftp.microsoft.com is running returns 504.
     if UseHOST then begin
-      if FHost = Socket.Binding.PeerIP then begin
-        LBuf := 'HOST [' + FHost + ']';
+      if SendHost() <> 220 then begin
+        // RLebeau: WS_FTP Server 5.x disconnects if the command fails,
+        // whereas WS_FTP Server 6+ does not.  If the server disconnected
+        // here, let's mimic FTP Voyager by reconnecting without using
+        // the HOST command again...
+        if IsWSFTP then begin
+          try
+            IOHandler.CheckForDisconnect(True, True);
+          except
+            on E: EIdConnClosedGracefully do
+            begin
+              Disconnect(False);
+              IOHandler.InputBuffer.Clear;
+              UseHOST := False;
+              try
+                Connect;
+              finally
+                UseHOST := True;
+              end;
+              Exit;
+            end;
+          end;
+        end;
       end else begin
-        LBuf := 'HOST ' + FHost;
-      end;
-      if SendCmd(LBuf) = 220 then begin
         FGreeting.Assign(LastCmdResult);
       end;
     end;
@@ -1310,6 +1332,20 @@ begin
     Disconnect(LSendQuitOnError); // RLebeau: do not send the QUIT command if the greeting was not received
     raise;
   end;
+end;
+
+function TIdFTP.SendHost: Smallint;
+var
+  LHost: String;
+begin
+  LHost := FServerHOST;
+  if LHost = '' then begin
+    LHost := FHost;
+  end;
+  if LHost = Socket.Binding.PeerIP then begin
+    LHost := '[' + LHost + ']'; {do not localize}
+  end;
+  Result := SendCmd('HOST ' + LHost); {do not localize}
 end;
 
 procedure TIdFTP.SetTransferType(AValue: TIdFTPTransferType);
@@ -3648,6 +3684,11 @@ function TIdFTP.IsTitan : Boolean;
 begin
   Result := TextStartsWith(FGreeting.Text[0], 'TitanFTP server ') or {do not localize}
             TextStartsWith(FGreeting.Text[0], 'Titan FTP Server '); {do not localize}
+end;
+
+function TIdFTP.IsWSFTP : Boolean;
+begin
+  Result := IndyPos('WS_FTP Server', FGreeting.Text[0]) > 0; {do not localize}
 end;
 
 function TIdFTP.IsServerMDTZAndListTForm: Boolean;
