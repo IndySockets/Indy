@@ -1019,7 +1019,7 @@ var
   var
     LAttachStream: TStream;
   begin
-    LDestStream := TIdTCPStream.Create(Self); try
+    LDestStream := TIdTCPStream.Create(Self, 8192); try
       LEncoder := AEncoderClass.Create(Self); try
         LEncoder.Filename := AAttachment.Filename;
         LAttachStream := AAttachment.OpenLoadStream; try
