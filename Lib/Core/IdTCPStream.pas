@@ -73,12 +73,15 @@ type
   TIdTCPStream = class(TIdBaseStream)
   protected
     FConnection: TIdTCPConnection;
+    FWriteThreshold: Integer;
+    FWriteBuffering: Boolean;
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
     function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
     procedure IdSetSize(ASize: Int64); override;
   public
-    constructor Create(AConnection: TIdTCPConnection); reintroduce;
+    constructor Create(AConnection: TIdTCPConnection; const AWriteThreshold: Integer = 0); reintroduce;
+    destructor Destroy; override;
     property Connection: TIdTCPConnection read FConnection;
   end;
 
@@ -88,10 +91,19 @@ uses
   IdException,
   SysUtils;
 
-constructor TIdTCPStream.Create(AConnection: TIdTCPConnection);
+constructor TIdTCPStream.Create(AConnection: TIdTCPConnection; const AWriteThreshold: Integer = 0);
 begin
   inherited Create;
   FConnection := AConnection;
+  FWriteThreshold := AWriteThreshold;
+end;
+
+destructor TIdTCPStream.Destroy;
+begin
+  if FWriteBuffering then begin
+    Connection.IOHandler.WriteBufferClose;
+  end;
+  inherited Destroy;
 end;
 
 function TIdTCPStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
@@ -115,6 +127,10 @@ end;
 
 function TIdTCPStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
+  if (not FWriteBuffering) and (FWriteThreshold > 0) and (not Connection.IOHandler.WriteBufferingActive) then begin
+    Connection.IOHandler.WriteBufferOpen(FWriteThreshold);
+    FWriteBuffering := True;
+  end;
   Connection.IOHandler.Write(ABuffer, ACount, AOffset);
   Result := ACount;
 end;
