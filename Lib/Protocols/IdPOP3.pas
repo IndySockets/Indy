@@ -332,9 +332,6 @@ begin
       end;//if APOP
     patSASL:
       begin
-        if FSASLMechanisms.Count = 0 then begin
-          EIdSASLMechNeeded.Toss(RSASLRequired);
-        end;
         FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
       end;
   end;

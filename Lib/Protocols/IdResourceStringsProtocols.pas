@@ -168,9 +168,9 @@ resourcestring
   RSFSPPacketTooSmall = 'Packet too small';
 
   //SASL
-  RSASLNotSupported = 'Doesn''t support AUTH or the SASL handlers you specified!!';
-  RSASLRequired = 'Need SASL mechanisms to login with it!!';
-  RSASLNotValidForProt = 'Authentication Type not valid for this protocol.';
+  RSSASLNotReady = 'The specified SASL handlers are not ready!!';
+  RSSASLNotSupported = 'Doesn''t support AUTH or the specified SASL handlers!!';
+  RSSASLRequired = 'Need SASL mechanisms to login with it!!';
 
   //TIdSASLDigest
   RSSASLDigestMissingAlgorithm = 'missing algorithm in challange.';
