@@ -217,6 +217,7 @@ end;
 
 destructor TIdCmdTCPClient.Destroy;
 begin
+  Disconnect;
   FreeAndNil(FExceptionReply);
   FreeAndNil(FCommandHandlers);
   inherited Destroy;
