@@ -1214,7 +1214,7 @@ const
   ID_DEFAULT_IP_VERSION = Id_IPv4;
   {$ENDIF}
 
-  {$IFNDEF VCL6_OR_ABOVE}
+  {$IFNDEF VCL_6_OR_ABOVE}
   //Only D6 & Kylix have this constant
   sLineBreak = EOL;
   {$ENDIF}
