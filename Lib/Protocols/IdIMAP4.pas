@@ -708,6 +708,7 @@ varies between servers.  A typical line that gets parsed into this is:
     function  GetReplyClass:TIdReplyClass; override;
     function  CheckConnectionState(AAllowedState: TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
     function  CheckConnectionState(const AAllowedStates: array of TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
+    function  CheckReplyForCapabilities: Boolean;
     procedure BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
     procedure DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
     procedure EndWorkForPart(ASender: TObject; AWorkMode: TWorkMode);
@@ -793,6 +794,7 @@ varies between servers.  A typical line that gets parsed into this is:
     { TIdIMAP4 Commands }
     destructor Destroy; override;
     //Requests a listing of capabilities that the server supports...
+    function  Capability: Boolean; overload;
     function  Capability(ASlCapability: TStrings): Boolean; overload;
     function  FindHowServerCreatesFolders: TIdIMAP4FolderTreatment;
     procedure DoAlert(const AMsg: String);
@@ -1610,46 +1612,56 @@ begin
   raise EIdConnectionStateError.CreateFmt(RSIMAP4ConnectionStateError, [GetConnectionStateName]);
 end;
 
+function TIdIMAP4.CheckReplyForCapabilities: Boolean;
+var
+  I: Integer;
+begin
+  FCapabilities.Clear;
+  FHasCapa := False;
+  with TIdReplyIMAP4(FLastCmdResult).Extra do begin
+    for I := 0 to Count-1 do begin
+      if TextStartsWith(Strings[I], 'CAPABILITY ') then begin {Do not Localize}
+        BreakApart(Strings[I], ' ', FCapabilities);           {Do not Localize}
+        FCapabilities.Delete(0);
+        FHasCapa := True;
+        Break;
+      end;
+    end;
+  end;
+  Result := FHasCapa;
+end;
+
 function TIdIMAP4.FindHowServerCreatesFolders: TIdIMAP4FolderTreatment;
 var
   LUsersFolders: TStringList;
   LN: integer;
   LInbox: string;
   LTestFolder: string;
-  LFound: Boolean;
 begin
   LUsersFolders := TStringList.Create;
   try
+    {$IFDEF HAS_TStringList_CaseSensitive}
+    LUsersFolders.CaseSensitive := False;
+    {$ENDIF}
     //Get folder names...
     if (not ListMailBoxes(LUsersFolders)) or (LUsersFolders.Count = 0) then begin
       Result := ftCannotRetrieveAnyFolders;
       Exit;
     end;
+
     //Do we have an Inbox?
-    LInbox := '';
-    for LN := 0 to LUsersFolders.Count-1 do begin
-      if TextIsSame(LUsersFolders.Strings[LN], 'INBOX') then begin      {Do not Localize}
-        LInbox := LUsersFolders.Strings[LN];
-        break;
-      end;
-    end;
-    if LInbox = '' then begin
+    LN := IndyIndexOf(LUsersFolders, 'INBOX'); {Do not Localize}
+    if LN = -1 then begin
       Result := ftCannotTestBecauseHasNoInbox;
       Exit;
     end;
+    LInbox := LUsersFolders.Strings[LN];
 
     //Make sure our test folder does not already exist at the top level...
     LTestFolder := 'CiaransTestFolder';                     {Do not Localize}
-    repeat
-      LFound := False;
-      for LN := 0 to LUsersFolders.Count-1 do begin
-        if TextIsSame(LUsersFolders.Strings[LN], LTestFolder) then begin
-          LTestFolder := LTestFolder + '9';                 {Do not Localize}
-          LFound := True;
-          Break;
-        end;
-      end;
-    until not LFound;
+    while IndyIndexOf(LUsersFolders, LTestFolder) <> -1 do begin
+      LTestFolder := LTestFolder + '9';                 {Do not Localize}
+    end;
 
     //Try to create LTestFolder at the top level...
     if CreateMailbox(LTestFolder) then begin
@@ -1661,16 +1673,9 @@ begin
 
     //See if our test folder does not exist under INBOX...
     LTestFolder := LInbox + FMailBoxSeparator + 'CiaransTestFolder';      {Do not Localize}
-    repeat
-      LFound := False;
-      for LN := 0 to LUsersFolders.Count-1 do begin
-        if TextIsSame(LUsersFolders.Strings[LN], LTestFolder) then begin
-          LTestFolder := LTestFolder + '9';                 {Do not Localize}
-          LFound := True;
-          Break;
-        end;
-      end;
-    until not LFound;
+    while IndyIndexOf(LUsersFolders, LTestFolder) <> -1 do begin
+      LTestFolder := LTestFolder + '9';                 {Do not Localize}
+    end;
 
     //Try to create LTestFolder under Inbox...
     if CreateMailbox(LTestFolder) then begin
@@ -1938,7 +1943,7 @@ begin
           if SendCmd(NewCmdCounter, 'STARTTLS', []) = IMAP_OK then begin  {Do not Localize}
             TLSHandshake;
             //obtain capabilities again - RFC2595
-            Capability(FCapabilities);
+            Capability;
           end else begin
             ProcessTLSNegCmdFailed;
           end;
@@ -1947,28 +1952,26 @@ begin
         end;
       end;
     end;
-    if LastCmdResult.Code = IMAP_OK then begin
-      FConnectionState := csNonAuthenticated;
-      FCmdCounter := 0;
-      if FAuthType = iatUserPass then begin
-        if Length(Password) <> 0 then begin                              {Do not Localize}
-          SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username + ' ' + Password, []);   {Do not Localize}
-        end else begin
-          SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username, []);          {Do not Localize}
-        end;
-        if LastCmdResult.Code = IMAP_OK then begin
-          FConnectionState := csAuthenticated;
-        end;
-      end
-      else if Capability(FCapabilities) then begin
-        FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, ['* OK'], ['* +'], Self, FCapabilities);     {Do not Localize}
+    FConnectionState := csNonAuthenticated;
+    FCmdCounter := 0;
+    if FAuthType = iatUserPass then begin
+      if Length(Password) <> 0 then begin                              {Do not Localize}
+        SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username + ' ' + Password, ['OK']);   {Do not Localize}
+      end else begin
+        SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username, ['OK']);          {Do not Localize}
       end;
-    end
-    else if LastCmdResult.Code = IMAP_PREAUTH then begin
-      FConnectionState := csAuthenticated;
-      FCmdCounter := 0;
+    end else
+    begin
+      if not FHasCapa then begin
+        Capability;
+      end;
+      FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, ['* OK'], ['* +'], Self, FCapabilities);     {Do not Localize}
     end;
-    Capability(FCapabilities);
+    FConnectionState := csAuthenticated;
+    // RLebeau: check if the response includes new Capabilities, if not then query for them...
+    if not CheckReplyForCapabilities then begin
+      Capability;
+    end;
   except
     Disconnect;
     raise;
@@ -1997,6 +2000,11 @@ begin
       end else begin
         FGreetingBanner := '';
       end;
+      if LastCmdResult.Code = IMAP_PREAUTH then begin
+        FConnectionState := csAuthenticated;
+        FCmdCounter := 0;
+        Capability;
+      end;
     end;
     if AAutoLogin then begin
       Login;
@@ -2016,6 +2024,9 @@ begin
   Port := IdPORT_IMAP4;
   FLineStruct := TIdIMAPLineStruct.Create;
   FCapabilities := TStringList.Create;
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  TStringList(FCapabilities).CaseSensitive := False;
+  {$ENDIF}
   FMUTF7 := TIdMUTF7.Create;
 
   //Todo:  Not sure which number is appropriate.  Should be tested further.
@@ -2058,41 +2069,34 @@ begin
 end;
 
 function TIdIMAP4.IsCapabilityListed(ACapability: string):Boolean;
-var
-  LCapabilities: TStringList;
-  LN: Integer;
 begin
-  Result := False;
-  LCapabilities := TStringList.Create;
-  try
-    if Capability(LCapabilities) then begin
-      for LN := 0 to LCapabilities.Count-1 do begin
-        if TextIsSame(ACapability, LCapabilities.Strings[LN]) then begin
-          Result := True;
-          Exit;
-        end;
-      end;
-    end;
-  finally
-    FreeAndNil(LCapabilities);
+  if not FHasCapa then begin
+    Capability;
   end;
+  Result := IndyIndexOf(TStringList(FCapabilities), ACapability) <> -1;
 end;
 
+function TIdIMAP4.Capability: Boolean;
+begin
+  FHasCapa := Capability(FCapabilities);
+  Result := FHasCapa;
+end;
 
 function TIdIMAP4.Capability(ASlCapability: TStrings): Boolean;
 begin
   //Available in any state.
-  ASlCapability.Clear;
   Result := False;
+  ASlCapability.Clear;
   SendCmd(NewCmdCounter, (IMAP4Commands[CmdCapability]), [IMAP4Commands[CmdCapability]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if LastCmdResult.Text.Count > 0 then begin
       BreakApart(LastCmdResult.Text[0], ' ', ASlCapability);        {Do not Localize}
     end;
-    ASlCapability.Delete(0);
+    if ASlCapability.Count > 0 then begin
+      ASlCapability.Delete(0);
+    end;
     Result := True;
   end;
-  FHasCapa := Result;
 end;
 
 function TIdIMAP4.GetCmdCounter: String;
