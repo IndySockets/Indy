@@ -1541,6 +1541,16 @@ function Ticks: LongWord;
 procedure ToDo(const AMsg: string);
 function TwoByteToWord(AByte1, AByte2: Byte): Word;
 
+function IndyIndexOf(AStrings: TStrings; const AStr: string; const ACaseSensitive: Boolean = False): Integer;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
+{$IFDEF HAS_TStringList_CaseSensitive}
+function IndyIndexOf(AStrings: TStringList; const AStr: string; const ACaseSensitive: Boolean = False): Integer; overload;
+{$ENDIF}
+
+function IndyIndexOfName(AStrings: TStrings; const AStr: string; const ACaseSensitive: Boolean = False): Integer;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
+{$IFDEF HAS_TStringList_CaseSensitive}
+function IndyIndexOfName(AStrings: TStringList; const AStr: string; const ACaseSensitive: Boolean = False): Integer; overload;
+{$ENDIF}
+
 var
   {$IFDEF UNIX}
 
@@ -6644,6 +6654,100 @@ begin
   {$ENDIF}
 end;
   {$ENDIF}
+{$ENDIF}
+
+function InternalIndyIndexOf(AStrings: TStrings; const AStr: string;
+  const ACaseSensitive: Boolean = False): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to AStrings.Count - 1 do begin
+    if ACaseSensitive then begin
+      if AStrings[I] = AStr then begin
+        Result := I;
+        Exit;
+      end;
+    end else begin
+      if TextIsSame(AStrings[I], AStr) then begin
+        Result := I;
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+function IndyIndexOf(AStrings: TStrings; const AStr: string;
+  const ACaseSensitive: Boolean = False): Integer;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  if AStrings is TStringList then begin
+    Result := IndyIndexOf(TStringList(AStrings), AStr, ACaseSensitive);
+    Exit;
+  end;
+  {$ENDIF}
+  Result := InternalIndyIndexOf(AStrings, AStr, ACaseSensitive);
+end;
+
+{$IFDEF HAS_TStringList_CaseSensitive}
+function IndyIndexOf(AStrings: TStringList; const AStr: string;
+  const ACaseSensitive: Boolean = False): Integer;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if AStrings.CaseSensitive = ACaseSensitive then begin
+    Result := AStrings.IndexOf(AStr);
+  end else begin
+    Result := InternalIndyIndexOf(AStrings, AStr, ACaseSensitive);
+  end;
+end;
+{$ENDIF}
+
+function InternalIndyIndexOfName(AStrings: TStrings; const AStr: string;
+  const ACaseSensitive: Boolean = False): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to AStrings.Count - 1 do begin
+    if ACaseSensitive then begin
+      if AStrings.Names[I] = AStr then begin
+        Result := I;
+        Exit;
+      end;
+    end else begin
+      if TextIsSame(AStrings.Names[I], AStr) then begin
+        Result := I;
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+function IndyIndexOfName(AStrings: TStrings; const AStr: string;
+  const ACaseSensitive: Boolean = False): Integer;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  if AStrings is TStringList then begin
+    Result := IndyIndexOfName(TStringList(AStrings), AStr, ACaseSensitive);
+    Exit;
+  end;
+  {$ENDIF}
+  Result := InternalIndyIndexOfName(AStrings, AStr, ACaseSensitive);
+end;
+
+{$IFDEF HAS_TStringList_CaseSensitive}
+function IndyIndexOfName(AStrings: TStringList; const AStr: string;
+  const ACaseSensitive: Boolean = False): Integer;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if AStrings.CaseSensitive = ACaseSensitive then begin
+    Result := AStrings.IndexOfName(AStr);
+  end else begin
+    Result := IndyIndexOfName(TStrings(AStrings), AStr, ACaseSensitive);
+  end;
+end;
 {$ENDIF}
 
 initialization
