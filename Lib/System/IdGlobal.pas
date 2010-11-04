@@ -6658,6 +6658,7 @@ end;
 
 function InternalIndyIndexOf(AStrings: TStrings; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   I: Integer;
 begin
@@ -6679,7 +6680,6 @@ end;
 
 function IndyIndexOf(AStrings: TStrings; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF HAS_TStringList_CaseSensitive}
   if AStrings is TStringList then begin
@@ -6693,7 +6693,6 @@ end;
 {$IFDEF HAS_TStringList_CaseSensitive}
 function IndyIndexOf(AStrings: TStringList; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if AStrings.CaseSensitive = ACaseSensitive then begin
     Result := AStrings.IndexOf(AStr);
@@ -6705,6 +6704,7 @@ end;
 
 function InternalIndyIndexOfName(AStrings: TStrings; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   I: Integer;
 begin
@@ -6726,7 +6726,6 @@ end;
 
 function IndyIndexOfName(AStrings: TStrings; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF HAS_TStringList_CaseSensitive}
   if AStrings is TStringList then begin
@@ -6740,7 +6739,6 @@ end;
 {$IFDEF HAS_TStringList_CaseSensitive}
 function IndyIndexOfName(AStrings: TStringList; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if AStrings.CaseSensitive = ACaseSensitive then begin
     Result := AStrings.IndexOfName(AStr);
