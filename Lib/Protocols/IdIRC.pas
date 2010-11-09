@@ -519,7 +519,10 @@ end;
 
 function IRCQuote(const S: String): String;
 begin
-  Result := StringsReplace(S, [#0, LF, CR, MQuote], [MQuote+'0', MQuote+'n', MQuote+'r', MQuote+MQuote]);
+  // IMPORTANT! MQuote needs to be the first character in the replacement
+  // list, otherwise it will end up being double-escaped if the other
+  // character get replaced, which will produce the wrong output!!
+  Result := StringsReplace(S, [MQuote, #0, LF, CR], [MQuote+MQuote, MQuote+'0', MQuote+'n', MQuote+'r']);
 end;
 
 function IRCUnquote(const S: String): String;
