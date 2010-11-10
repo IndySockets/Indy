@@ -413,22 +413,22 @@ begin
 
               if not LContext.Connection.IOHandler.InputBufferIsEmpty then
               begin
-                LContext.Connection.IOHandler.ReadStream(LClientToServerStream, -1, True);
+                LContext.Connection.IOHandler.InputBuffer.ExtractToStream(LClientToServerStream);
               end;
               if not LContext.FOutboundClient.IOHandler.InputBufferIsEmpty then
               begin
-                LContext.FOutboundClient.IOHandler.ReadStream(LServerToClientStream, -1, True);
+                LContext.FOutboundClient.IOHandler.InputBuffer.ExtractToStream(LServerToClientStream);
               end;
-            end;        
+            end;
           end;
 
           if LContext.FOutboundClient.Connected and (not LContext.Connection.IOHandler.InputBufferIsEmpty) then
           begin
-            LContext.Connection.IOHandler.ReadStream(LClientToServerStream, -1, True);
+            LContext.Connection.IOHandler.InputBuffer.ExtractToStream(LClientToServerStream);
           end;
           if LContext.Connection.Connected and (not LContext.FOutboundClient.IOHandler.InputBufferIsEmpty) then
           begin
-            LContext.FOutboundClient.IOHandler.ReadStream(LServerToClientStream, -1, True);
+            LContext.FOutboundClient.IOHandler.InputBuffer.ExtractToStream(LServerToClientStream);
           end;
         finally
           LContext.FOutboundClient.Disconnect;
