@@ -701,32 +701,37 @@ type
   TIdWideChars = array of WideChar;
   {$ENDIF}
 
-  //needed so that in FreePascal, we can use pointers of different sizes
+  //NOTE:  The code below assumes a 32bit Linux architecture (such as target i386-linux)
+  {$UNDEF CPU32_OR_KYLIX}
   {$IFNDEF DOTNET}
     {$IFNDEF FPC}
-      {$IFDEF HAS_NativeInt}
-  PtrInt := NativeInt;
-      {$ELSE}
-        {$IFDEF CPU32}
-  PtrInt  = LongInt;
-        {$ENDIF}
-        {$IFDEF CPU64}
-  PtrInt  = Int64;
-        {$ENDIF}
-//NOTE:  The code below asumes a 32bit Linux architecture (such as target i386-linux)
-        {$IFDEF KYLIX}
-  PtrInt  = LongInt;
-        {$ENDIF}
+      {$IFDEF CPU32}
+        {$DEFINE CPU32_OR_KYLIX}
+      {$ENDIF}
+      {$IFDEF KYLIX}
+        {$DEFINE CPU32_OR_KYLIX}
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 
+  // native signed and unsigned integer sized pointer types
   {$IFNDEF DOTNET}
     {$IFNDEF FPC}
-      {$IFDEF HAS_NativeUInt}
-  PtrUInt := NativeUInt;
+      {$IFDEF HAS_NativeInt}
+  PtrInt = NativeInt;
       {$ELSE}
-        {$IFDEF CPU32}
+        {$IFDEF CPU32_OR_KYLIX}
+  PtrInt = LongInt;
+        {$ENDIF}
+        {$IFDEF CPU64}
+  PtrInt = Int64;
+        {$ENDIF}
+      {$ENDIF}
+
+      {$IFDEF HAS_NativeUInt}
+  PtrUInt = NativeUInt;
+      {$ELSE}
+        {$IFDEF CPU32_OR_KYLIX}
   PtrUInt = LongWord;
         {$ENDIF}
         {$IFDEF CPU64}
@@ -735,10 +740,6 @@ type
           {$ELSE}
   PtrUInt = Int64;
           {$ENDIF}
-        {$ENDIF}
-//NOTE:  The code below asumes a 32bit Linux architecture (such as target i386-linux)
-        {$IFDEF KYLIX}
-  PtrUInt = LongWord;
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
