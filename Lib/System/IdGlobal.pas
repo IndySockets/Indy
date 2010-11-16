@@ -701,23 +701,47 @@ type
   TIdWideChars = array of WideChar;
   {$ENDIF}
 
+  //needed so that in FreePascal, we can use pointers of different sizes
   {$IFNDEF DOTNET}
     {$IFNDEF FPC}
-      //needed so that in FreePascal, we can use pointers of different sizes
-      {$IFDEF CPU32}
-   PtrInt  = LongInt;
-   PtrUInt = LongWord;
-      {$ENDIF}
-      {$IFDEF CPU64}
-   PtrInt  = Int64;
-   PtrUInt = Int64;
-      {$ENDIF}
+      {$IFDEF HAS_NativeInt}
+  PtrInt := NativeInt;
+      {$ELSE}
+        {$IFDEF CPU32}
+  PtrInt  = LongInt;
+        {$ENDIF}
+        {$IFDEF CPU64}
+  PtrInt  = Int64;
+        {$ENDIF}
 //NOTE:  The code below asumes a 32bit Linux architecture (such as target i386-linux)
-      {$IFDEF KYLIX}
-   PtrInt  = LongInt;
-   PtrUInt = LongWord;
+        {$IFDEF KYLIX}
+  PtrInt  = LongInt;
+        {$ENDIF}
       {$ENDIF}
-     {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFNDEF DOTNET}
+    {$IFNDEF FPC}
+      {$IFDEF HAS_NativeUInt}
+  PtrUInt := NativeUInt;
+      {$ELSE}
+        {$IFDEF CPU32}
+  PtrUInt = LongWord;
+        {$ENDIF}
+        {$IFDEF CPU64}
+          {$IFDEF HAS_UInt64}
+  PtrUInt = UInt64;
+          {$ELSE}
+  PtrUInt = Int64;
+          {$ENDIF}
+        {$ENDIF}
+//NOTE:  The code below asumes a 32bit Linux architecture (such as target i386-linux)
+        {$IFDEF KYLIX}
+  PtrUInt = LongWord;
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF STREAM_SIZE_64}
@@ -5310,6 +5334,10 @@ function StringsReplace(const S: String; const OldPattern, NewPattern: array of 
 var
   i : Integer;
 begin
+  // TODO: re-write this to not use StringReplace() in a loop anymore.  If
+  // OldPattern contains multiple strings, a string appearing later in the
+  // list may be replaced multiple times by accident if it appears in the
+  // Result of an earlier string replacement.
   Result := s;
   for i := Low(OldPattern) to High(OldPattern) do begin
     Result := StringReplace(Result, OldPattern[i], NewPattern[i], [rfReplaceAll]);
