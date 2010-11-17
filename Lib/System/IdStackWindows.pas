@@ -305,6 +305,8 @@ type
       const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure AddLocalAddressesToList(AAddresses: TStrings); override;
+    procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
+      const AEnabled: Boolean; const ATimeMS, AInterval: Integer); override;
   end;
 
 var
@@ -1658,6 +1660,24 @@ begin
   end;
 end;
 {$ENDIF}
+
+procedure TIdStackWindows.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
+  const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
+var
+  ka: tcp_keepalive;
+  Bytes: DWORD;
+begin
+  // SIO_KEEPALIVE_VALS is supported on Win2K+ only
+  if AEnabled and (Win32MajorVersion >= 5) then
+  begin
+    ka.onoff := 1;
+    ka.keepalivetime := ATimeMS;
+    ka.keepaliveinterval := AInterval;
+    WSAIoctl(ASocket, SIO_KEEPALIVE_VALS, @ka, SizeOf(ka), nil, 0, @Bytes, nil, nil);
+  end else begin
+    SetSocketOption(ASocket, Id_SOL_SOCKET, Id_SO_KEEPALIVE, iif(AEnabled, 1, 0));
+  end;
+end;
 
 initialization
   GStarted := False;

@@ -313,6 +313,8 @@ type
     //multicast stuff Kudzu permitted me to add here.
     function IsValidIPv4MulticastGroup(const Value: string): Boolean;
     function IsValidIPv6MulticastGroup(const Value: string): Boolean;
+    procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
+      const AEnabled: Boolean; const ATimeMS, AInterval: Integer); virtual;
     procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
       const AValue : Byte; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean;
@@ -904,6 +906,12 @@ begin
   LCRC := (LCRC shr 16) + (LCRC and $ffff);  //(LCRC >> 16)
   LCRC := LCRC + (LCRC shr 16);
   Result := not Word(LCRC);
+end;
+
+procedure TIdStack.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
+  const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
+begin
+  SetSocketOption(ASocket, Id_SOL_SOCKET, Id_SO_KEEPALIVE, iif(AEnabled, 1, 0));
 end;
 
 initialization

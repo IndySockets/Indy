@@ -225,13 +225,9 @@ type
   {$EXTERNALSYM LPWSAEVENT}
   LPWSAEVENT = PWSAEVENT;
   {$IFNDEF FPC}
-  {$IFNDEF VCL_2007_OR_ABOVE}
-      {$EXTERNALSYM ULONG_PTR}
-      {$IFDEF CPU64}
-  ULONG_PTR = Int64;
-      {$ELSE}
-  ULONG_PTR = DWORD;
-      {$ENDIF}
+    {$IFNDEF VCL_2007_OR_ABOVE}
+  {$EXTERNALSYM ULONG_PTR}
+  ULONG_PTR = PtrUInt;
     {$ENDIF}
   {$ENDIF}
 
@@ -1790,9 +1786,9 @@ const
   SIO_ADDRESS_LIST_SORT               = DWORD(IOC_INOUT or IOC_WS2 or 25);
   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM SIO_RESERVED_1}
-  SIO_RESERVED_1 = DWORD(IOC_IN or IOC_WS2 or 26);
+  SIO_RESERVED_1                      = DWORD(IOC_IN or IOC_WS2 or 26);
   {$EXTERNALSYM SIO_RESERVED_2}
-  SIO_RESERVED_2 = DWORD(IOC_IN or IOC_WS2 or 33);
+  SIO_RESERVED_2                      = DWORD(IOC_IN or IOC_WS2 or 33);
   {$ENDIF}
 
 //  WinSock 2 extension -- manifest constants for SIO_TRANSLATE_HANDLE ioctl
@@ -5034,6 +5030,35 @@ const
   SIZE_GUID = DWORD(SizeOf(TGuid));
   {$EXTERNALSYM SIZE_INTEGER}
   SIZE_INTEGER = DWORD(SizeOf(Integer));
+
+//=============================================================
+
+//  Copyright (c) Microsoft Corporation. All rights reserved.
+//
+//  Module Name:
+//
+//    mstcpip.h
+//
+//  Abstract:
+//
+//    This module contains Microsoft-specific extensions to the core
+//    Winsock definitions.
+//
+//  Environment:
+//
+//    user mode or kernel mode
+
+type
+  {$EXTERNALSYM tcp_keepalive}
+  tcp_keepalive = record
+    onoff: u_long;
+    keepalivetime: u_long;
+    keepaliveinterval: u_long;
+  end;
+
+const
+  {$EXTERNALSYM SIO_KEEPALIVE_VALS}
+  SIO_KEEPALIVE_VALS = DWORD(IOC_IN or IOC_VENDOR or 4);
 
 //=============================================================
 implementation
