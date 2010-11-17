@@ -704,44 +704,47 @@ type
   //NOTE:  The code below assumes a 32bit Linux architecture (such as target i386-linux)
   {$UNDEF CPU32_OR_KYLIX}
   {$IFNDEF DOTNET}
-    {$IFNDEF FPC}
-      {$IFDEF CPU32}
-        {$DEFINE CPU32_OR_KYLIX}
-      {$ENDIF}
-      {$IFDEF KYLIX}
-        {$DEFINE CPU32_OR_KYLIX}
-      {$ENDIF}
+    {$IFDEF CPU32}
+      {$DEFINE CPU32_OR_KYLIX}
+    {$ENDIF}
+    {$IFDEF KYLIX}
+      {$DEFINE CPU32_OR_KYLIX}
     {$ENDIF}
   {$ENDIF}
 
   // native signed and unsigned integer sized pointer types
+
+  {$IFNDEF DOTNET}
+    {$IFDEF HAS_NativeInt}
+  TIdNativeInt = NativeInt;
+    {$ELSE}
+      {$IFDEF CPU32_OR_KYLIX}
+  TIdNativeInt = LongInt;
+      {$ENDIF}
+      {$IFDEF CPU64}
+  TIdNativeInt = Int64;
+      {$ENDIF}
+    {$ENDIF}
+    {$IFDEF HAS_NativeUInt}
+  TIdNativeUInt = NativeUInt;
+    {$ELSE}
+      {$IFDEF CPU32_OR_KYLIX}
+  TIdNativeUInt = LongWord;
+      {$ENDIF}
+      {$IFDEF CPU64}
+        {$IFDEF HAS_UInt64}
+  TIdNativeUInt = UInt64;
+        {$ELSE}
+  TIdNativeUInt = Int64;
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+
   {$IFNDEF DOTNET}
     {$IFNDEF FPC}
-      {$IFDEF HAS_NativeInt}
-  PtrInt = NativeInt;
-      {$ELSE}
-        {$IFDEF CPU32_OR_KYLIX}
-  PtrInt = LongInt;
-        {$ENDIF}
-        {$IFDEF CPU64}
-  PtrInt = Int64;
-        {$ENDIF}
-      {$ENDIF}
-
-      {$IFDEF HAS_NativeUInt}
-  PtrUInt = NativeUInt;
-      {$ELSE}
-        {$IFDEF CPU32_OR_KYLIX}
-  PtrUInt = LongWord;
-        {$ENDIF}
-        {$IFDEF CPU64}
-          {$IFDEF HAS_UInt64}
-  PtrUInt = UInt64;
-          {$ELSE}
-  PtrUInt = Int64;
-          {$ENDIF}
-        {$ENDIF}
-      {$ENDIF}
+  PtrInt = TIdNativeInt;
+  PtrUInt = TIdNativeUInt;
     {$ENDIF}
   {$ENDIF}
 
