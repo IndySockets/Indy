@@ -719,6 +719,19 @@ type
     property GMTOffsetAvailable : Boolean read FGMTOffsetAvailable write FGMTOffsetAvailable;
   end;
 
+  TIdFTPKeepAlive = class(TPersistent)
+  protected
+    FUseKeepAlive: Boolean;
+    FIdleTimeMS: Integer;
+    FIntervalMS: Integer;
+  public
+    procedure Assign(Source: TPersistent); override;
+  published
+    property UseKeepAlive: Boolean read FUseKeepAlive write FUseKeepAlive;
+    property IdleTimeMS: Integer read FIdleTimeMS write FIdleTimeMS;
+    property IntervalMS: Integer read FIntervalMS write FIntervalMS;
+  end;
+
   TIdFTP = class(TIdExplicitTLSClient)
   protected
     FAutoLogin: Boolean;
@@ -803,7 +816,11 @@ type
     FAbortFlag : TIdThreadSafeBoolean;
 
     FAccount: string;
+    FNATKeepAlive: TIdFTPKeepAlive;
     //
+    procedure DoOnDataChannelCreate;
+    procedure DoOnDataChannelDestroy;
+
     procedure DoOnRetrievedDir;
     procedure DoOnDirParseStart;
     procedure DoOnDirParseEnd;
@@ -880,6 +897,7 @@ type
     procedure SetDataPortProtection(AValue : TIdFTPDataPortSecurity);
     procedure SetAUTHCmd(const AValue : TAuthCmd);
     procedure SetUseCCC(const AValue: Boolean);
+    procedure SetNATKeepAlive(AValue: TIdFTPKeepAlive);
     procedure IssueFEAT;
     //specific server detection
     function IsOldServU: Boolean;
@@ -1014,6 +1032,7 @@ type
     property UseExtensionDataPort : Boolean read FUseExtensionDataPort write SetUseExtensionDataPort default DEF_Id_TIdFTP_UseExtendedData;
     property UseMLIS : Boolean read FUseMLIS write FUseMLIS default DEF_Id_TIdFTP_UseMIS;
     property TryNATFastTrack : Boolean read FTryNATFastTrack write SetTryNATFastTrack default Id_TIdFTP_UseNATFastTrack;
+    property NATKeepAlive: TIdFTPKeepAlive read FNATKeepAlive write SetNATKeepAlive;
     property ProxySettings: TIdFtpProxySettings read FProxySettings write SetProxySettings;
     property Account: string read FAccount write FAccount;
     property ClientInfo : TIdFTPClientIdentifier read FClientInfo write SetClientInfo;
@@ -1159,13 +1178,16 @@ begin
   //
   FAbortFlag := TIdThreadSafeBoolean.Create;
   FAbortFlag.Value := False;
-  {
-Soem firewalls don't handle control connections properly during long data transfers.
-They will timeout the control connection because it's idle and making it worse is that they
-will chop off a connection instead of closing it causing TIdFTP to wait forever for nothing.
 
+  {
+  Some firewalls don't handle control connections properly during long
+  data transfers. They will timeout the control connection because it
+  is idle and making it worse is that they will chop off a connection
+  instead of closing it, causing TIdFTP to wait forever for nothing.
   }
+  FNATKeepAlive := TIdFTPKeepAlive.Create;
   ReadTimeout := DEF_Id_FTP_READTIMEOUT;
+
   FAutoIssueFEAT := DEF_Id_FTP_AutoIssueFEAT;
 end;
 
@@ -1858,6 +1880,52 @@ begin
   end; }
 end;
 
+procedure TIdFTP.DoOnDataChannelCreate;
+begin
+  // While the Control Channel is idle, Enable/disable TCP/IP keepalives.
+  // They're very small (40-byte) packages and will be sent every
+  // NATKeepAlive.IntervalMS after the connection has been idle for
+  // NATKeepAlive.IdleTimeMS.  Prior to Windows 2000, the idle and
+  // timeout values are system wide and have to be set in the registry;
+  // the default is idle = 2 hours, interval = 1 second.
+  if (Socket <> nil) and NATKeepAlive.UseKeepAlive then begin
+    Socket.Binding.SetKeepAliveValues(True, NATKeepAlive.IdleTimeMS, NATKeepAlive.IntervalMS);
+  end;
+  if Assigned(FOnDataChannelCreate) then begin
+    OnDataChannelCreate(Self, FDataChannel);
+  end;
+end;
+
+procedure TIdFTP.DoOnDataChannelDestroy;
+begin
+  if Assigned(FOnDataChannelDestroy) then begin
+    OnDataChannelDestroy(Self, FDataChannel);
+  end;
+  if (Socket <> nil) and NATKeepAlive.UseKeepAlive then begin
+    Socket.Binding.SetKeepAliveValues(False, 0, 0);
+  end;
+end;
+
+procedure TIdFTP.SetNATKeepAlive(AValue: TIdFTPKeepAlive);
+begin
+  FNATKeepAlive.Assign(AValue);
+end;
+
+{ TIdFtpKeepAlive }
+
+procedure TIdFtpKeepAlive.Assign(Source: TPersistent);
+begin
+  if Source is TIdFTPKeepAlive then begin
+    with TIdFTPKeepAlive(Source) do begin
+      Self.FUseKeepAlive := UseKeepAlive;
+      Self.FIdleTimeMS := IdleTimeMS;
+      Self.FIntervalMS := IntervalMS;
+    end;
+  end else begin
+    inherited Assign(Source);
+  end;
+end;
+
 procedure TIdFTP.DisconnectNotifyPeer;
 begin
   if IOHandler.Connected then begin
@@ -2267,6 +2335,7 @@ begin
   FreeAndNil(FProxySettings); //APR
   FreeAndNil(FTZInfo);
   FreeAndNil(FAbortFlag);
+  FreeAndNil(FNATKeepAlive);
   inherited Destroy;
 end;
 
