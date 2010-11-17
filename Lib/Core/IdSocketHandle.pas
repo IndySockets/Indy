@@ -220,6 +220,7 @@ type
     procedure UpdateBindingPeer;
     procedure AddMulticastMembership(const AGroupIP: String);
     procedure DropMulticastMembership(const AGroupIP: String);
+    procedure SetKeepAliveValues(const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
     procedure SetLoopBack(const AValue: Boolean);
     procedure SetMulticastTTL(const AValue: Byte);
     procedure SetTTL(const AValue: Integer);
@@ -388,6 +389,7 @@ var
 begin
   LIP := Trim(AIP);
   if LIP = '' then begin
+    // TODO: on Windows, use WSAIoctl(SIO_GET_BROADCAST_ADDRESS) instead
     LIP := '255.255.255.255'; {Do not Localize}
   end else begin
     LIP := GStack.ResolveHost(LIP, IPVersion);
@@ -619,6 +621,12 @@ end;
 procedure TIdSocketHandle.DropMulticastMembership(const AGroupIP: String);
 begin
   GStack.DropMulticastMembership(Handle, AGroupIP, FIP, FIPVersion);
+end;
+
+procedure TIdSocketHandle.SetKeepAliveValues(const AEnabled: Boolean;
+  const ATimeMS, AInterval: Integer);
+begin
+  GStack.SetKeepAliveValues(Handle, AEnabled, ATimeMS, AInterval);
 end;
 
 procedure TIdSocketHandle.SetLoopBack(const AValue: Boolean);
