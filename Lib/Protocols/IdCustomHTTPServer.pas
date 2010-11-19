@@ -250,7 +250,7 @@ type
     //
     procedure DecodeAndSetParams(const AValue: String); virtual;
   public
-    constructor Create; override;
+    constructor Create(AOwner: TPersistent); override;
     destructor Destroy; override;
     //
     function IsVersionAtLeast(const AMajor, AMinor: Integer): Boolean;
@@ -302,7 +302,7 @@ type
     procedure SetServer(const Value: string);
   public
     procedure CloseSession;
-    constructor Create(ARequestInfo: TIdHTTPRequestInfo; AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer ); reintroduce;
+    constructor Create(AServer: TIdCustomHTTPServer; ARequestInfo: TIdHTTPRequestInfo; AConnection: TIdTCPConnection); reintroduce;
     destructor Destroy; override;
     procedure Redirect(const AURL: string);
     procedure WriteHeader;
@@ -1041,9 +1041,9 @@ begin
           if i = 0 then begin
             raise EIdHTTPErrorParsingCommand.Create(RSHTTPErrorParsingCommand);
           end;
-          LRequestInfo := TIdHTTPRequestInfo.Create;
+          LRequestInfo := TIdHTTPRequestInfo.Create(Self);
           try
-            LResponseInfo := TIdHTTPResponseInfo.Create(LRequestInfo, AContext.Connection, Self);
+            LResponseInfo := TIdHTTPResponseInfo.Create(Self, LRequestInfo, AContext.Connection);
             try
               // SG 05.07.99
               // Set the ServerSoftware string to what it's supposed to be.    {Do not Localize}
@@ -1410,8 +1410,9 @@ end;
 
 procedure TIdHTTPSession.DoSessionEnd;
 begin
-  if assigned(FOwner) and assigned(FOwner.FOnSessionEnd) then
-    FOwner.FOnSessionEnd(self);
+  if Assigned(FOwner) and Assigned(FOwner.FOnSessionEnd) then begin
+    FOwner.FOnSessionEnd(Self);
+  end;
 end;
 
 function TIdHTTPSession.IsSessionStale: boolean;
@@ -1438,9 +1439,9 @@ end;
 
 { TIdHTTPRequestInfo }
 
-constructor TIdHTTPRequestInfo.Create;
+constructor TIdHTTPRequestInfo.Create(AOwner: TPersistent);
 begin
-  inherited Create;
+  inherited Create(AOwner);
   FCommandType := hcUnknown;
   FCookies := TIdCookies.Create(Self);
   FParams  := TStringList.Create;
@@ -1510,10 +1511,10 @@ begin
   FreeAndNil(FSession);
 end;
 
-constructor TIdHTTPResponseInfo.Create(ARequestInfo: TIdHTTPRequestInfo;
-  AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer);
+constructor TIdHTTPResponseInfo.Create(AServer: TIdCustomHTTPServer;
+  ARequestInfo: TIdHTTPRequestInfo; AConnection: TIdTCPConnection);
 begin
-  inherited Create;
+  inherited Create(AServer);
 
   FRequestInfo := ARequestInfo;
   FConnection := AConnection;
@@ -1843,6 +1844,9 @@ begin
       if ASessionList[i] <> nil then
       begin
         TIdHTTPSession(ASessionList[i]).DoSessionEnd;
+        // must set the owner to nil or the session will try to fire the
+        // OnSessionEnd event again, and also remove itself from the session
+        // list and deadlock
         TIdHTTPSession(ASessionList[i]).FOwner := nil;
         TIdHTTPSession(ASessionList[i]).Free;
       end;
@@ -1872,7 +1876,7 @@ begin
   Result := CreateSession(RemoteIP, SessionID);
 end;
 
-destructor TIdHTTPDefaultSessionList.destroy;
+destructor TIdHTTPDefaultSessionList.Destroy;
 begin
   Clear;
   FreeAndNil(FSessionList);
@@ -1963,8 +1967,8 @@ procedure TIdHTTPDefaultSessionList.RemoveSessionFromLockedList(AIndex: Integer;
   ALockedSessionList: TList);
 begin
   TIdHTTPSession(ALockedSessionList[AIndex]).DoSessionEnd;
-  // must set the owner to nil or the session will try to remove itself from the
-  // session list and deadlock
+  // must set the owner to nil or the session will try to fire the OnSessionEnd
+  // event again, and also remove itself from the session list and deadlock
   TIdHTTPSession(ALockedSessionList[AIndex]).FOwner := nil;
   TIdHTTPSession(ALockedSessionList[AIndex]).Free;
   ALockedSessionList.Delete(AIndex);

@@ -77,6 +77,7 @@ uses
 type
   TIdEntityHeaderInfo = class(TPersistent)
   protected
+    FOwner: TPersistent;
     FCacheControl: String;
     FRawHeaders: TIdHeaderList;
     FCharSet: String;
@@ -104,6 +105,7 @@ type
     procedure ProcessHeaders; virtual;
     procedure SetHeaders; virtual;
     function GetOwner: TPersistent; override;
+    function GetOwnerComponent: TComponent;
 
     procedure SetContentLength(const AValue: Int64);
     procedure SetContentType(const AValue: String);
@@ -113,9 +115,10 @@ type
   public
     procedure AfterConstruction; override;
     procedure Clear; virtual;
-    constructor Create; virtual;
+    constructor Create(AOwner: TPersistent); virtual;
     destructor Destroy; override;
     //
+    property OwnerComponent: TComponent read GetOwnerComponent;
     property HasContentLength: Boolean read FHasContentLength;
     property HasContentRange: Boolean read GetHasContentRange;
     property HasContentRangeInstance: Boolean read GetHasContentRangeInstance;
@@ -232,7 +235,7 @@ type
     procedure SetRanges(AValue: TIdEntityRanges);
   public
     //
-    constructor Create; override;
+    constructor Create(AOwner: TPersistent); override;
     destructor Destroy; override;
     procedure Clear; override;
     property Authentication: TIdAuthentication read FAuthentication write FAuthentication;
@@ -272,7 +275,7 @@ type
   public
 
     procedure Clear; override;
-    constructor Create; override;
+    constructor Create(AOwner: TPersistent); override;
     destructor Destroy; override;
   published
     property AcceptRanges: string read FAcceptRanges write SetAcceptRanges;
@@ -282,6 +285,7 @@ type
     property Server: string read FServer write FServer;
     property WWWAuthenticate: TIdHeaderList read FWWWAuthenticate write SetWWWAuthenticate;
   end;
+
   TIdMetaHTTPEquiv = class(TIdEntityHeaderInfo)
   public
     procedure ProcessMetaHTTPEquiv(AStream: TStream);
@@ -563,9 +567,18 @@ end;
 procedure TIdEntityHeaderInfo.SetContentType(const AValue: String);
 var
   S, LCharSet: string;
+  LComp: TComponent;
 begin
   if AValue <> '' then begin
     FContentType := RemoveHeaderEntry(AValue, 'charset', LCharSet, QuoteHTTP); {do not localize}
+
+    {RLebeau: the ContentType property is streamed after the CharSet property,
+    so do not overwrite it during streaming}
+    LComp := OwnerComponent;
+    if Assigned(LComp) and (csReading in LComp.ComponentState) then begin
+      Exit;
+    end;
+
     // RLebeau: per RFC 2616 Section 3.7.1:
     //
     // The "charset" parameter is used with some media types to define the
@@ -635,7 +648,26 @@ end;
 
 function TIdEntityHeaderInfo.GetOwner: TPersistent;
 begin
-  Result := inherited GetOwner;
+  Result := FOwner;
+end;
+
+type
+  TPersistentAccess = class(TPersistent)
+  end;
+
+function TIdEntityHeaderInfo.GetOwnerComponent: TComponent;
+var
+  LOwner: TPersistent;
+begin
+  Result := nil;
+  LOwner := GetOwner;
+  while LOwner <> nil do begin
+    if LOwner is TComponent then begin
+      Result := TComponent(LOwner);
+      Exit;
+    end;
+    LOwner := TPersistentAccess(LOwner).GetOwner;
+  end;
 end;
 
 { TIdProxyConnectionInfo }
@@ -873,9 +905,9 @@ end;
 
 { TIdRequestHeaderInfo }
 
-constructor TIdRequestHeaderInfo.Create;
+constructor TIdRequestHeaderInfo.Create(AOwner: TPersistent);
 begin
-  inherited Create;
+  inherited Create(AOwner);
   FRanges := TIdEntityRanges.Create(Self);
 end;
 
@@ -1066,9 +1098,9 @@ end;
 
 { TIdResponseHeaderInfo }
 
-constructor TIdResponseHeaderInfo.Create;
+constructor TIdResponseHeaderInfo.Create(AOwner: TPersistent);
 begin
-  inherited Create;
+  inherited Create(AOwner);
   FContentType := 'text/html';  {do not localize}
   FCharSet := 'ISO-8859-1';  {do not localize}
   FWWWAuthenticate := TIdHeaderList.Create(QuoteHTTP);
