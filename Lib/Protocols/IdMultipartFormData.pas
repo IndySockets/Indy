@@ -679,7 +679,7 @@ begin
     end;
   end
   else if Length(FFieldValue) > 0 then begin
-    LEncoding := CharsetToEncoding(FCharset);
+    LEncoding := nil;
     {$IFNDEF DOTNET}
     try
     {$ENDIF}
@@ -691,6 +691,7 @@ begin
         // the methods useful for calculating a length without actually
         // encoding are protected, so have to actually encode the
         // string to find out the final length...
+        LEncoding := CharsetToEncoding(FCharset);
         LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
         if LEncoding <> IndyASCIIEncoding then begin
           LBytes := TIdTextEncoding.Convert(LEncoding, IndyASCIIEncoding, LBytes);
@@ -702,6 +703,7 @@ begin
       end
       else if (I >= 1) and (i <= 2) then begin
         {$IFDEF STRING_IS_UNICODE}
+        LEncoding := CharsetToEncoding(FCharset);
         I := LEncoding.GetByteCount(FFieldValue);
         {$ELSE}
         I := Length(FFieldValue);
@@ -712,7 +714,9 @@ begin
       begin
         LStream := TIdCalculateSizeStream.Create;
         try
-          {$IFDEF STRING_IS_ANSI}
+          {$IFDEF STRING_IS_UNICODE}
+          LEncoding := CharsetToEncoding(FCharset);
+          {$ELSE}
           LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
           {$ENDIF}
           if I = 3 then begin
@@ -785,7 +789,7 @@ begin
   else if Length(FFieldValue) > 0 then begin
     Result := TMemoryStream.Create;
     try
-      LEncoding := CharsetToEncoding(FCharset);
+      LEncoding := nil;
       {$IFNDEF DOTNET}
       try
       {$ENDIF}
@@ -797,6 +801,7 @@ begin
           {$IFDEF STRING_IS_UNICODE}
           WriteStringToStream(Result, FFieldValue, IndyASCIIEncoding);
           {$ELSE}
+          LEncoding := CharsetToEncoding(FCharset);
           if LEncoding <> IndyASCIIEncoding then begin
             LBytes := TIdTextEncoding.Convert(LEncoding, IndyASCIIEncoding, LBytes);
           end;
@@ -807,28 +812,34 @@ begin
         end
         else if (I >= 1) and (I <= 2) then begin
           {$IFDEF STRING_IS_UNICODE}
+          LEncoding := CharsetToEncoding(FCharset);
           WriteStringToStream(Result, FFieldValue, LEncoding);
           {$ELSE}
           WriteTIdBytesToStream(Result, LBytes);
           {$ENDIF}
           // need to include an explicit CRLF at the end of the data
           WriteStringToStream(Result, CRLF);
-        end
-        else if I = 3 then begin
+        end else
+        begin
           {$IFDEF STRING_IS_UNICODE}
-          TIdEncoderQuotedPrintable.EncodeString(FFieldValue, Result, LEncoding);
-          {$ELSE}
-          TIdEncoderQuotedPrintable.EncodeBytes(LBytes, Result);
+          LEncoding := CharsetToEncoding(FCharset);
           {$ENDIF}
-          // the encoded text always includes a CRLF at the end...
-        end else begin
-          {$IFDEF STRING_IS_UNICODE}
-          TIdEncoderMIME.EncodeString(FFieldValue, Result, LEncoding);
-          {$ELSE}
-          TIdEncoderMIME.EncodeBytes(LBytes, Result);
-          {$ENDIF}
-          // the encoded text does not include a CRLF at the end...
-          WriteStringToStream(Result, CRLF);
+          if I = 3 then begin
+            {$IFDEF STRING_IS_UNICODE}
+            TIdEncoderQuotedPrintable.EncodeString(FFieldValue, Result, LEncoding);
+            {$ELSE}
+            TIdEncoderQuotedPrintable.EncodeBytes(LBytes, Result);
+            {$ENDIF}
+            // the encoded text always includes a CRLF at the end...
+          end else begin
+            {$IFDEF STRING_IS_UNICODE}
+            TIdEncoderMIME.EncodeString(FFieldValue, Result, LEncoding);
+            {$ELSE}
+            TIdEncoderMIME.EncodeBytes(LBytes, Result);
+            {$ENDIF}
+            // the encoded text does not include a CRLF at the end...
+            WriteStringToStream(Result, CRLF);
+          end;
         end;
       {$IFNDEF DOTNET}
       finally
