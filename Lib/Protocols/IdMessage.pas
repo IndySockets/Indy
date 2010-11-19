@@ -1001,6 +1001,8 @@ begin
   if LMIMEVersion = '' then begin
     Encoding := mePlainText;
   end else begin
+    // TODO: this should be true if a MIME boundary is present.
+    // The MIME version is optional...
     Encoding := meMIME;
   end;
 end;
@@ -1045,9 +1047,17 @@ begin
   if AValue <> '' then
   begin
     FContentType := RemoveHeaderEntry(AValue, 'charset', LCharSet, QuoteMIME); {do not localize}
+
+    {RLebeau: the ContentType property is streamed after the CharSet property,
+    so do not overwrite it during streaming}
+    if csReading in ComponentState then begin
+      Exit;
+    end;
+
     if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
       LCharSet := 'us-ascii'; {do not localize}
     end;
+
     {RLebeau: override the current CharSet only if the header specifies a new value}
     if LCharSet <> '' then begin
       FCharSet := LCharSet;
@@ -1055,7 +1065,12 @@ begin
   end else
   begin
     FContentType := 'text/plain'; {do not localize}
-    FCharSet := 'us-ascii'; {do not localize}
+
+    {RLebeau: the ContentType property is streamed after the CharSet property,
+    so do not overwrite it during streaming}
+    if not (csReading in ComponentState) then begin
+      FCharSet := 'us-ascii'; {do not localize}
+    end;
   end;
 end;
 
