@@ -301,9 +301,10 @@ const
 
 { TIdEntityHeaderInfo }
 
-constructor TIdEntityHeaderInfo.Create;
+constructor TIdEntityHeaderInfo.Create(AOwner: TPersistent);
 begin
   inherited Create;
+  FOwner := AOwner;
   FRawHeaders := TIdHeaderList.Create(QuoteHTTP);
   FRawHeaders.FoldLength := 1024;
   FCustomHeaders := TIdHeaderList.Create(QuoteHTTP);
