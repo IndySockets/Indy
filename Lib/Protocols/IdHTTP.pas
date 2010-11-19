@@ -405,7 +405,7 @@ type
     function GetKeepAlive: Boolean;
     function GetResponseCode: Integer;
   public
-    constructor Create(AParent: TIdCustomHTTP); reintroduce; virtual;
+    constructor Create(AHTTP: TIdCustomHTTP); reintroduce; virtual;
     property KeepAlive: Boolean read GetKeepAlive write FKeepAlive;
     property ResponseText: string read FResponseText write FResponseText;
     property ResponseCode: Integer read GetResponseCode write FResponseCode;
@@ -1978,11 +1978,10 @@ end;
 
 { TIdHTTPResponse }
 
-constructor TIdHTTPResponse.Create(AParent: TIdCustomHTTP);
+constructor TIdHTTPResponse.Create(AHTTP: TIdCustomHTTP);
 begin
-  inherited Create;
-
-  FHTTP := AParent;
+  inherited Create(AHTTP);
+  FHTTP := AHTTP;
 end;
 
 function TIdHTTPResponse.GetKeepAlive: Boolean;
@@ -2043,8 +2042,7 @@ end;
 
 constructor TIdHTTPRequest.Create(AHTTP: TIdCustomHTTP);
 begin
-  inherited Create;
-
+  inherited Create(AHTTP);
   FHTTP := AHTTP;
   FUseProxy := ctNormal;
 end;
@@ -2363,7 +2361,7 @@ begin
   FProxyParameters := TIdProxyConnectionInfo.Create;
   FProxyParameters.Clear;
 
-  FMetaHTTPEquiv :=  TIdMetaHTTPEquiv.Create;
+  FMetaHTTPEquiv :=  TIdMetaHTTPEquiv.Create(Self);
 
   FMaxAuthRetries := Id_TIdHTTP_MaxAuthRetries;
   FMaxHeaderLines := Id_TIdHTTP_MaxHeaderLines;
