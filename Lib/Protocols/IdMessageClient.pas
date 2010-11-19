@@ -644,7 +644,7 @@ var
   LLine: string;
   LParentPart: integer;
   LPreviousParentPart: integer;
-  LEncoding: TIdTextEncoding;
+  LEncoding, LCharsetEncoding: TIdTextEncoding;
 
   // TODO - move this procedure into TIdIOHandler as a new Capture method?
   procedure CaptureAndDecodeCharset(AByteEncoding: TIdTextEncoding);
@@ -921,36 +921,50 @@ begin
          ) then begin
           {NOTE: You hit this code path with multipart MIME messages and with
           plain-text messages (which may have UUE or XXE attachments embedded).}
-          repeat
-            {CC: This code assumes the preamble text (before the first boundary)
-            is plain text.  I cannot imagine it not being, but if it arises, lines
-            will have to be decoded.}
-            LLine := IOHandler.ReadLnRFC(LMsgEnd, LF, ADelim, LEncoding);
-            if LMsgEnd then begin
-              Break;
-            end;
-            if LActiveDecoder = nil then begin
-              LActiveDecoder := TIdMessageDecoderList.CheckForStart(AMsg, LLine);
-            end;
-            // Check again, the if above can set it.
-            if LActiveDecoder = nil then begin
-              AMsg.Body.Add(LLine);
-            end else begin
-              RemoveLastBlankLine(AMsg.Body);
-              while LActiveDecoder <> nil do begin
-                LActiveDecoder.SourceStream := TIdTCPStream.Create(Self);
-                LPreviousParentPart := AMsg.MIMEBoundary.ParentPart;
-                LActiveDecoder.ReadHeader;
-                case LActiveDecoder.PartType of
-                  mcptText:       ProcessTextPart(LActiveDecoder, False);
-                  mcptAttachment: ProcessAttachment(LActiveDecoder);
-                  mcptIgnore:     FreeAndNil(LActiveDecoder);
-                  mcptEOF:        begin FreeAndNil(LActiveDecoder); LMsgEnd := True; end;
+          LCharsetEncoding := CharsetToEncoding(AMsg.CharSet);
+          {$IFNDEF DOTNET}
+          try
+          {$ENDIF}
+            repeat
+              {CC: This code assumes the preamble text (before the first boundary)
+              is plain text.  I cannot imagine it not being, but if it arises, lines
+              will have to be decoded.}
+
+              // TODO: need to figure out a way to handle both transfer encoding
+              // and charset encoding together!  Need to read the raw bytes into
+              // an intermediate buffer of some kind using the transfer encoding,
+              // and then decode the characters using the charset afterwards...
+              LLine := IOHandler.ReadLnRFC(LMsgEnd, LF, ADelim, LCharsetEncoding{$IFDEF STRING_IS_ANSI}, LCharsetEncoding{$ENDIF});
+              if LMsgEnd then begin
+                Break;
+              end;
+              if LActiveDecoder = nil then begin
+                LActiveDecoder := TIdMessageDecoderList.CheckForStart(AMsg, LLine);
+              end;
+              // Check again, the if above can set it.
+              if LActiveDecoder = nil then begin
+                AMsg.Body.Add(LLine);
+              end else begin
+                RemoveLastBlankLine(AMsg.Body);
+                while LActiveDecoder <> nil do begin
+                  LActiveDecoder.SourceStream := TIdTCPStream.Create(Self);
+                  LPreviousParentPart := AMsg.MIMEBoundary.ParentPart;
+                  LActiveDecoder.ReadHeader;
+                  case LActiveDecoder.PartType of
+                    mcptText:       ProcessTextPart(LActiveDecoder, False);
+                    mcptAttachment: ProcessAttachment(LActiveDecoder);
+                    mcptIgnore:     FreeAndNil(LActiveDecoder);
+                    mcptEOF:        begin FreeAndNil(LActiveDecoder); LMsgEnd := True; end;
+                  end;
                 end;
               end;
-            end;
-          until LMsgEnd;
-          RemoveLastBlankLine(AMsg.Body);
+            until LMsgEnd;
+            RemoveLastBlankLine(AMsg.Body);
+          {$IFNDEF DOTNET}
+          finally
+            LCharsetEncoding.Free;
+          end;
+          {$ENDIF}
         end else begin
           {These are single-part MIMEs, or else mePlainTexts with the body encoded QP/base64}
           AMsg.IsMsgSinglePartMime := True;
