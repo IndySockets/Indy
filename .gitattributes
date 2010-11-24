@@ -1024,7 +1024,13 @@ Lib/FreeBSDPort/distinfo -text
 Lib/FreeBSDPort/make-plist.sh eol=lf
 Lib/FreeBSDPort/pkg-descr -text
 Lib/FreeBSDPort/pkg-plist -text
+Lib/FullC4-15.bat -text
 Lib/FullD12.bat -text
+Lib/Fullc10.bat -text
+Lib/Fullc11.bat -text
+Lib/Fullc12.bat -text
+Lib/Fullc14.bat -text
+Lib/Fullc15.bat -text
 Lib/Fullc4.bat eol=crlf
 Lib/Fullc5.bat eol=crlf
 Lib/Fullc6.bat eol=crlf
