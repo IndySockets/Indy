@@ -885,16 +885,19 @@ Lib/Core/IndyCore130.rc -text
 Lib/Core/IndyCore130.rc.tmpl -text
 Lib/Core/IndyCore130.res -text
 Lib/Core/IndyCore130Net.dpk -text
+Lib/Core/IndyCore140.RES -text
 Lib/Core/IndyCore140.cfg1 -text
 Lib/Core/IndyCore140.cfg2 -text
 Lib/Core/IndyCore140.dpk -text
 Lib/Core/IndyCore140.rc -text
 Lib/Core/IndyCore140.rc.tmpl -text
+Lib/Core/IndyCore150.RES -text
 Lib/Core/IndyCore150.cfg1 -text
 Lib/Core/IndyCore150.cfg2 -text
 Lib/Core/IndyCore150.dpk -text
 Lib/Core/IndyCore150.rc -text
 Lib/Core/IndyCore150.rc.tmpl -text
+Lib/Core/IndyCore40.RES -text
 Lib/Core/IndyCore40.rc -text
 Lib/Core/IndyCore40.rc.tmpl -text
 Lib/Core/IndyCore50.RES -text svneol=unset#unset
@@ -1514,11 +1517,13 @@ Lib/Protocols/IndyProtocols130.rc -text
 Lib/Protocols/IndyProtocols130.rc.tmpl -text
 Lib/Protocols/IndyProtocols130.res -text
 Lib/Protocols/IndyProtocols130Net.dpk -text
+Lib/Protocols/IndyProtocols140.RES -text
 Lib/Protocols/IndyProtocols140.cfg1 -text
 Lib/Protocols/IndyProtocols140.cfg2 -text
 Lib/Protocols/IndyProtocols140.dpk -text
 Lib/Protocols/IndyProtocols140.rc -text
 Lib/Protocols/IndyProtocols140.rc.tmpl -text
+Lib/Protocols/IndyProtocols150.RES -text
 Lib/Protocols/IndyProtocols150.cfg1 -text
 Lib/Protocols/IndyProtocols150.cfg2 -text
 Lib/Protocols/IndyProtocols150.dpk -text
