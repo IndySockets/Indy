@@ -1,177 +1,226 @@
 @echo off
 
-if (%1)==() goto test_command
-if (%1)==(start) goto start
-goto endok
+REM ****************************************************************************
+REM 
+REM Author : Malcolm Smith, MJ freelancing
+REM          http://www.mjfreelancing.com
+REM 
+REM Pre-requisites:  \Lib\Protocols\ZLib must contain the ZLIB OBJ files
+REM                  \Lib\System contains the project / pas/ res files for IndySystem
+REM                  \Lib\Core contains the project / pas/ res files for IndyCore
+REM                  \Lib\Protocols contains the project / pas/ res files for IndyProtocols
+REM 
+REM ****************************************************************************
 
-:test_command
-if (%COMSPEC%)==() goto no_command
-%COMSPEC% /E:9216 /C %0 start %1 %2 %3
-goto endok
-
-:no_command
-echo No Command Interpreter found
-goto endok
-
-:start
-call clean.bat
 computil SetupC5
 if exist setenv.bat call setenv.bat
-if not exist ..\C5\*.* md ..\C5 > nul
+if exist setenv.bat del setenv.bat > nul
+
+if (%NDC5%)==() goto enderror
+if not exist %NDC5%\bin\dcc32.exe goto endnocompiler
+if not exist ..\C5\*.* md ..\C5 
 if exist ..\C5\*.* call clean.bat ..\C5\
-if (%NDC5%)==() goto enderrmsg
 
-REM ***************************************************
-REM Compile Runtime Package IndySystem50
-REM ***************************************************
 cd System
-copy *.pas ..\..\C5 > nul
-copy *.dpk ..\..\C5 > nul
-copy *.obj ..\..\C5 > nul
-copy *.inc ..\..\C5 > nul
+copy IndySystem50.dpk ..\..\C5 > nul
+copy *IndySystem50.cfg1 ..\..\C5 > nul
+copy *IndySystem50.cfg2 ..\..\C5 > nul
 copy *.res ..\..\C5 > nul
-copy *.dcr ..\..\C5 > nul
-copy *.rsp ..\..\C5 > nul
-if not exist .\objs\*.* md .\objs > nul
+copy *.pas ..\..\C5 > nul
+copy *.inc ..\..\C5 > nul
+
 cd ..\..\C5
-%NDC5%\bin\dcc32.exe IndySystem50.dpk /O..\Lib\System\objs /DBCB /M /H /W /JPHNE /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe IndySystem50.dpk /O..\Lib\System\objs /DBCB /M /H /W /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-..\Lib\lspFix IndySystem50.lsp
-if errorlevel 1 goto enderror
-%NDC5%\bin\tlib.exe IndySystem50.lib @IndySystem50.lsp /P64 > nul
 
-REM ***************************************************
-REM Clean-up IndySystem50
-REM ***************************************************
-del *.dcu > nul
-del *.pas > nul
-del *.dpk > nul
-del *.obj > nul
-del *.inc > nul
-del *.res > nul
-del *.dcr > nul
-del *.rsp > nul
 
-REM ***************************************************
-REM Compile Runtime Package IndyCore50
-REM ***************************************************
+REM ************************************************************
+REM Compile IndySystem50 - Round 1
+REM ************************************************************
+copy IndySystem50.cfg1 IndySystem50.cfg > nul
+%NDC5%\bin\dcc32.exe /B IndySystem50.dpk
+if errorlevel 1 goto enderror
+
+
+REM ************************************************************
+REM Compile IndySystem50 - Round 2
+REM ************************************************************
+del IndySystem50.cfg > nul
+copy IndySystem50.cfg2 IndySystem50.cfg > nul
+%NDC5%\bin\dcc32.exe /B IndySystem50.dpk
+if errorlevel 1 goto enderror
+
+
+REM ************************************************************
+REM Correct the LSP file (quote everything)
+REM ************************************************************
+..\Lib\LspFix.exe IndySystem50.lsp
+%NDC5%\bin\tlib.exe IndySystem50.lib @IndySystem50.lsp /P64
+if errorlevel 1 goto enderror
+
+
+
+REM ************************************************************
+REM Prepare to copy all CORE related files
+REM ************************************************************
+
 cd ..\Lib\Core
-copy *.pas ..\..\C5 > nul
-copy *.dpk ..\..\C5 > nul
-copy *.obj ..\..\C5 > nul
-copy *.inc ..\..\C5 > nul
+
+copy *IndyCore50.dpk ..\..\C5 > nul
+copy *IndyCore50.cfg1 ..\..\C5 > nul
+copy *IndyCore50.cfg2 ..\..\C5 > nul
 copy *.res ..\..\C5 > nul
+copy *.pas ..\..\C5 > nul
 copy *.dcr ..\..\C5 > nul
-copy *.rsp ..\..\C5 > nul
-if not exist .\objs\*.* md .\objs > nul
+copy *.inc ..\..\C5 > nul
+
+
 cd ..\..\C5
-%NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-..\Lib\lspFix IndyCore50.lsp
-if errorlevel 1 goto enderror
-%NDC5%\bin\tlib.exe IndyCore50.lib @IndyCore50.lsp /P64 > nul
-del *.obj > nul
 
-REM ***************************************************
-REM Compile Designtime Package dclIndyCore50
-REM ***************************************************
-%NDC5%\bin\dcc32.exe dclIndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe dclIndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-..\Lib\lspFix dclIndyCore50.lsp
-if errorlevel 1 goto enderror
-%NDC5%\bin\tlib.exe dclIndyCore50.lib @dclIndyCore50.lsp /P64 > nul
 
-REM ***************************************************
-REM Clean-up IndyCore50
-REM ***************************************************
-del *.dcu > nul
-del *.pas > nul
-del *.dpk > nul
-del *.obj > nul
-del *.inc > nul
-del *.res > nul
-del *.dcr > nul
-del *.rsp > nul
+REM ************************************************************
+REM Compile IndyCore50 - Round 1
+REM ************************************************************
+copy IndyCore50.cfg1 IndyCore50.cfg > nul
+%NDC5%\bin\dcc32.exe /B IndyCore50.dpk
+if errorlevel 1 goto enderror
 
-REM ***************************************************
-REM Compile Runtime Package IndyProtocols50
-REM ***************************************************
+
+REM ************************************************************
+REM Compile IndyCore50 - Round 2
+REM ************************************************************
+del IndyCore50.cfg > nul
+copy IndyCore50.cfg2 IndyCore50.cfg > nul
+%NDC5%\bin\dcc32.exe /B IndyCore50.dpk
+if errorlevel 1 goto enderror
+
+
+..\Lib\LspFix.exe IndyCore50.lsp
+%NDC5%\bin\tlib.exe IndyCore50.lib @IndyCore50.lsp /P64
+if errorlevel 1 goto enderror
+
+
+
+REM ************************************************************
+REM Compile dclIndyCore50 - Round 1
+REM ************************************************************
+copy dclIndyCore50.cfg1 dclIndyCore50.cfg > nul
+%NDC5%\bin\dcc32.exe /B dclIndyCore50.dpk
+if errorlevel 1 goto enderror
+
+
+REM ************************************************************
+REM Compile dclIndyCore50 - Round 2
+REM ************************************************************
+del dclIndyCore50.cfg > nul
+copy dclIndyCore50.cfg2 dclIndyCore50.cfg > nul
+%NDC5%\bin\dcc32.exe /B dclIndyCore50.dpk
+if errorlevel 1 goto enderror
+
+
+rem ..\Lib\LspFix.exe dclIndyCore50.lsp
+rem %NDC5%\bin\tlib.exe dclIndyCore50.lib @dclIndyCore50.lsp /P64
+rem if errorlevel 1 goto enderror
+
+
+REM ************************************************************
+REM Prepare to copy all PROTOCOLS related files
+REM ************************************************************
+
 cd ..\Lib\Protocols
-copy *.pas ..\..\C5 > nul
-copy *.dpk ..\..\C5 > nul
-copy *.obj ..\..\C5 > nul
-copy *.inc ..\..\C5 > nul
+
+
+copy zlib\*.obj ..\..\C5 > nul
+copy *IndyProtocols50.dpk ..\..\C5 > nul
+copy *IndyProtocols50.cfg1* ..\..\C5 > nul
+copy *IndyProtocols50.cfg2 ..\..\C5 > nul
 copy *.res ..\..\C5 > nul
+copy *.pas ..\..\C5 > nul
 copy *.dcr ..\..\C5 > nul
-copy *.rsp ..\..\C5 > nul
-if not exist .\objs\*.* md .\objs > nul
+copy *.inc ..\..\C5 > nul
+
 cd ..\..\C5
-%NDC5%\bin\dcc32.exe IndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe IndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+
+
+REM ************************************************************
+REM Compile IndyProtocols50 - Round 1a (dummy build to get headers)
+REM ************************************************************
+copy IndyProtocols50.cfg1a IndyProtocols50.cfg > nul
+%NDC5%\bin\dcc32.exe /B IndyProtocols50.dpk
 if errorlevel 1 goto enderror
 
-REM ***************************************************
-REM Delete third-party .obj files
-REM before compiling the .lib file
-REM ***************************************************
-del adler32.obj > nul
-del compress.obj > nul
-del crc32.obj > nul
-del deflate.obj > nul
-del example.obj > nul
-del gzio.obj > nul
-del infback.obj > nul
-del inffast.obj > nul
-del inflate.obj > nul
-del inftrees.obj > nul
-del minigzip.obj > nul
-del trees.obj > nul
-del uncompr.obj > nul
-del zutil.obj > nul
 
-..\Lib\lspFix IndyProtocols50.lsp
+REM ************************************************************
+REM Compile IndyProtocols50 - Round 1b (dummy build to get headers)
+REM ************************************************************
+del IndyProtocols50.cfg > nul
+copy IndyProtocols50.cfg1b IndyProtocols50.cfg > nul
+%NDC5%\bin\dcc32.exe /B IndyProtocols50.dpk
 if errorlevel 1 goto enderror
-%NDC5%\bin\tlib.exe IndyProtocols50.lib @IndyProtocols50.lsp /P64 > nul
-del *.obj > nul
 
-REM ***************************************************
-REM Compile Designtime Package dclIndyProtocols50
-REM ***************************************************
-%NDC5%\bin\dcc32.exe dclIndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe dclIndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-..\Lib\lspFix dclIndyProtocols50.lsp
-if errorlevel 1 goto enderror
-%NDC5%\bin\tlib.exe dclIndyProtocols50.lib @dclIndyProtocols50.lsp /P64 > nul
 
-REM ***************************************************
-REM Clean-up IndyProtocols50
-REM ***************************************************
-del *.dcu > nul
-del *.pas > nul
-del *.dpk > nul
-del *.obj > nul
-del *.inc > nul
-del *.res > nul
-del *.dcr > nul
-del *.rsp > nul
-cd ..\Lib
+REM ************************************************************
+REM Compile IndyProtocols50 - Round 2
+REM ************************************************************
+del IndyProtocols50.cfg > nul
+copy IndyProtocols50.cfg2 IndyProtocols50.cfg > nul
+%NDC5%\bin\dcc32.exe /B IndyProtocols50.dpk
+if errorlevel 1 goto enderror
+
+
+..\Lib\LspFix.exe IndyProtocols50.lsp
+%NDC5%\bin\tlib.exe IndyProtocols50.lib @IndyProtocols50.lsp /P64
+if errorlevel 1 goto enderror
+
+
+
+REM ************************************************************
+REM Compile dclIndyProtocols50 - Round 1
+REM ************************************************************
+copy dclIndyProtocols50.cfg1 dclIndyProtocols50.cfg > nul
+%NDC5%\bin\dcc32.exe /B dclIndyProtocols50.dpk
+if errorlevel 1 goto enderror
+
+
+REM ************************************************************
+REM Compile dclIndyProtocols50 - Round 2
+REM ************************************************************
+del dclIndyProtocols50.cfg > nul 
+copy dclIndyProtocols50.cfg2 dclIndyProtocols50.cfg > nul
+%NDC5%\bin\dcc32.exe /B dclIndyProtocols50.dpk
+if errorlevel 1 goto enderror
+
+
+
+
+REM ************************************************************
+REM Set all files we want to keep with the R attribute then 
+REM delete the rest before restoring the attribute
+REM ************************************************************
+attrib +r Id*.hpp
+attrib +r *.bpl
+attrib +r Indy*.bpi
+attrib +r Indy*.lib
+attrib +r indysystem50.res
+attrib +r indycore50.res
+attrib +r indyprotocols50.res
+del /Q /A:-R *.* > nul
+attrib -r Id*.hpp
+attrib -r *.bpl
+attrib -r Indy*.bpi
+attrib -r Indy*.lib
+attrib -r indysystem50.res
+attrib -r indycore50.res
+attrib -r indyprotocols50.res
+
 goto endok
 
 :enderror
-call ..\Lib\clean.bat
-cd ..\Lib
-
-:enderrmsg
 echo Error!
+goto endok
+
+:endnocompiler
+echo C++Builder 5 Compiler Not Present!
+goto endok
 
 :endok
-
+rem call clean
+cd ..\Lib

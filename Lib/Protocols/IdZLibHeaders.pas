@@ -33,7 +33,9 @@ the C++ objects are compiled appropriately.
 
 The only things that still are cdecl are the callback functions.
 }
-    {$DEFINE STATICLOAD_ZLIB}
+    {$IFNDEF BCB5_DUMMY_BUILD}
+      {$DEFINE STATICLOAD_ZLIB}
+    {$ENDIF}
     {$ALIGN OFF}
   {$ENDIF}
   {$IFDEF WIN64}
