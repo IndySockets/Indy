@@ -4775,12 +4775,12 @@ const
   {$EXTERNALSYM OBJ_R_UNKNOWN_NID}
   OBJ_R_UNKNOWN_NID = 101;
   {$EXTERNALSYM OPENSSL_VERSION_NUMBER}
-  OPENSSL_VERSION_NUMBER = $1000001f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
+  OPENSSL_VERSION_NUMBER = $1000002f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
   {$EXTERNALSYM OPENSSL_VERSION_TEXT}
 {$IFDEF OPENSSL_FIPS}
-  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0a-fips 1 Jun 2010'; {Do not localize}
+  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0b-fips 16 Nov 2010'; {Do not localize}
 {$ELSE}
-  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0a 1 Jun 2010';   {Do not localize}
+  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0b 16 Nov 2010';   {Do not localize}
 {$ENDIF}
   {$EXTERNALSYM OPENSSL_VERSION_PTEXT}
   OPENSSL_VERSION_PTEXT = ' part of '+ OPENSSL_VERSION_TEXT;  {Do not localize}
@@ -11129,6 +11129,7 @@ type
   EVP_PKEY_union = record
     case byte of
       0: (ptr : PAnsiChar);
+
       {$IFNDEF OPENSSL_NO_RSA}
       1: (rsa : PRSA);    // RSA
       {$ENDIF}
@@ -12512,6 +12513,7 @@ type
     issuerUID: PASN1_BIT_STRING; // [ 1 ] optional in v2
     subjectUID: PASN1_BIT_STRING; // [ 2 ] optional in v2
     extensions: PSTACK_OF_X509_EXTENSION;
+    enc : ASN1_ENCODING;
   end;
   {$EXTERNALSYM X509_CERT_AUX}
   X509_CERT_AUX = record
@@ -17428,6 +17430,7 @@ them in case we use them later.}
   {CH fn_BN_RECP_CTX_set = 'BN_RECP_CTX_set'; }  {Do not localize}
   {CH fn_BN_mod_mul_reciprocal = 'BN_mod_mul_reciprocal'; }  {Do not localize}
   {CH fn_BN_mod_exp_recp = 'BN_mod_exp_recp'; }  {Do not localize}
+
   {CH fn_BN_div_recp = 'BN_div_recp'; }  {Do not localize}
   {CH fn_BN_GF2m_add = 'BN_GF2m_add'; } {Do not localize}
   {CH fn_BN_GF2m_mod = 'BN_GF2m_mod'; } {Do not localize}
