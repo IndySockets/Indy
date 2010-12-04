@@ -745,7 +745,7 @@ var
 
   function EncodeParam(const S: String): String;
   begin
-    Result := TIdURI.ParamsEncode(StringReplace(S, ' ', '&', [rfReplaceAll])); {do not localize}
+    Result := TIdURI.ParamsEncode(StringReplace(S, ' ', '+', [rfReplaceAll])); {do not localize}
   end;
   
   function EncodeLineBreaks(AStrings: TStrings): String;
