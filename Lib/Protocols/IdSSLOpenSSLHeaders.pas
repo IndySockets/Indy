@@ -4775,12 +4775,12 @@ const
   {$EXTERNALSYM OBJ_R_UNKNOWN_NID}
   OBJ_R_UNKNOWN_NID = 101;
   {$EXTERNALSYM OPENSSL_VERSION_NUMBER}
-  OPENSSL_VERSION_NUMBER = $1000002f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
+  OPENSSL_VERSION_NUMBER = $1000003f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
   {$EXTERNALSYM OPENSSL_VERSION_TEXT}
 {$IFDEF OPENSSL_FIPS}
-  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0b-fips 16 Nov 2010'; {Do not localize}
+  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0c-fips 2 Dec 2010'; {Do not localize}
 {$ELSE}
-  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0b 16 Nov 2010';   {Do not localize}
+  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0c 2 Dec 2010';   {Do not localize}
 {$ENDIF}
   {$EXTERNALSYM OPENSSL_VERSION_PTEXT}
   OPENSSL_VERSION_PTEXT = ' part of '+ OPENSSL_VERSION_TEXT;  {Do not localize}
@@ -13368,6 +13368,7 @@ type
     //Since OpenSSL 0.9.7-dev, the OpenSSL  developers
     //dropped this member.  See:
     //http://marc.info/?l=openssl-dev&m=100342566217528&w=2
+
     weak_key: TIdC_INT;
   end;
   {$EXTERNALSYM des_key_schedule}
