@@ -1407,7 +1407,7 @@ procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
 
 procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Integer;
-  var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
+  var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
 
 procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer;
   ADestEncoding: TIdTextEncoding = nil
@@ -2853,6 +2853,7 @@ var
     // overloaded constructor that lets us override that behavior...
     Result := TIdUTF8Encoding.Create(CP_UTF8, 0, 0);
       {$ELSE}
+    Result := nil;
     ToDo('IndyUTF8Encoding() is not implemented for this platform yet'); {do not localize}
       {$ENDIF}
     {$ENDIF}
@@ -3486,7 +3487,7 @@ begin
 end;
 
 procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Integer;
-  var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
+  var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
 begin
   {$IFDEF DOTNET}
   System.array.Copy(ASource, ASourceIndex, VDest, ADestIndex, ALength);
