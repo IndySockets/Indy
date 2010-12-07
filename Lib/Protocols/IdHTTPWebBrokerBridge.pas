@@ -77,9 +77,11 @@ type
     FContentStream : TStream;
     FFreeContentStream : Boolean;
     //
+    function GetRemoteIP: string; override;
     function GetDateVariable(Index: Integer): TDateTime; override;
     function GetIntegerVariable(Index: Integer): Integer; override;
     function GetStringVariable(Index: Integer): AnsiString; override;
+    function GetRawPathInfo: AnsiString; override;
   public
     constructor Create(AThread: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
      AResponseInfo: TIdHTTPResponseInfo);
@@ -279,6 +281,16 @@ end;
 function TIdHTTPAppRequest.GetIntegerVariable(Index: Integer): Integer;
 begin
   Result := StrToIntDef(string(GetStringVariable(Index)), -1)
+end;
+
+function TIdHTTPAppRequest.GetRawPathInfo: AnsiString;
+begin
+  Result := AnsiString(FRequestInfo.URI);
+end;
+
+function TIdHTTPAppRequest.GetRemoteIP: string;
+begin
+  Result := String(FRequestInfo.RemoteIP);
 end;
 
 function TIdHTTPAppRequest.GetStringVariable(Index: Integer): AnsiString;

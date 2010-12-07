@@ -76,7 +76,20 @@ uses
 (*$HPPEMIT '#define ZEXPORT __cdecl'*)
 {$ENDIF}
 (*$HPPEMIT '#define ZEXPORTVA __cdecl'*)
+(*$HPPEMIT '#if !defined(__MACTYPES__)'*)
+(*$HPPEMIT '  // We are defining __MACTYPES__ in order to skip the declaration of "Byte" as it causes'*)
+(*$HPPEMIT '  // ambiguity with System::Byte'*)
+(*$HPPEMIT '  #define __MACTYPES__'*)
+(*$HPPEMIT '  #define __REMOVE_MACTYPES__'*)
+(*$HPPEMIT '#endif'*)
 (*$HPPEMIT '#include "ZLib\zlib.h"'*)
+(*$HPPEMIT '#if defined(__REMOVE_MACTYPES__)'*)
+(*$HPPEMIT '  // Cleanup workaround for "Byte" ambiguity'*)
+(*$HPPEMIT '  #if defined(__MACTYPES__)'*)
+(*$HPPEMIT '    #undef __MACTYPES__'*)
+(*$HPPEMIT '  #endif'*)
+(*$HPPEMIT '  #undef __REMOVE_MACTYPES__'*)
+(*$HPPEMIT '#endif'*)
 
 const
   {$EXTERNALSYM ZLIB_VERSION}
@@ -180,8 +193,6 @@ type
   TgzHeaderRec = gz_header;
 
 type
-{not sure if these should be externalsymed but might not be a bad idea}
-  {$EXTERNALSYM TZStreamType}
   TZStreamType = (
     zsZLib,  //standard zlib stream
     zsGZip,  //gzip stream
@@ -189,78 +200,78 @@ type
 
 (* constants *)
 const
-  {$EXTERNALSYM Z_NO_FLUSH}
   Z_NO_FLUSH      = 0;
-  {$EXTERNALSYM  Z_PARTIAL_FLUSH}
+  {$EXTERNALSYM Z_NO_FLUSH}
   Z_PARTIAL_FLUSH = 1;
   {$EXTERNALSYM Z_PARTIAL_FLUSH}
   Z_SYNC_FLUSH    = 2;
   {$EXTERNALSYM Z_SYNC_FLUSH}
   Z_FULL_FLUSH    = 3;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_FULL_FLUSH}
   Z_FINISH        = 4;
-  {$EXTERNALSYM Z_BLOCK}
+  {$EXTERNALSYM Z_FINISH}
   Z_BLOCK         = 5;
-  {$EXTERNALSYM Z_TREES}
+  {$EXTERNALSYM Z_BLOCK}
   Z_TREES         = 6;
-  {$EXTERNALSYM Z_OK}
+  {$EXTERNALSYM Z_TREES}
   Z_OK            =  0;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_OK}
   Z_STREAM_END    =  1;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_STREAM_END}
   Z_NEED_DICT     =  2;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_NEED_DICT}
   Z_ERRNO         = -1;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_ERRNO}
   Z_STREAM_ERROR  = -2;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_STREAM_ERROR}
   Z_DATA_ERROR    = -3;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_DATA_ERROR}
   Z_MEM_ERROR     = -4;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_MEM_ERROR}
   Z_BUF_ERROR     = -5;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_BUF_ERROR}
   Z_VERSION_ERROR = -6;
+  {$EXTERNALSYM Z_VERSION_ERROR}
 
-  {$EXTERNALSYM Z_FINISH}
   Z_NO_COMPRESSION       =  0;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_NO_COMPRESSION}
   Z_BEST_SPEED           =  1;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_BEST_SPEED}
   Z_BEST_COMPRESSION     =  9;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_BEST_COMPRESSION}
   Z_DEFAULT_COMPRESSION  = -1;
+  {$EXTERNALSYM Z_DEFAULT_COMPRESSION}
 
-  {$EXTERNALSYM Z_FINISH}
   Z_FILTERED            = 1;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_FILTERED}
   Z_HUFFMAN_ONLY        = 2;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_HUFFMAN_ONLY}
   Z_RLE                 = 3;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_RLE}
   Z_DEFAULT_STRATEGY    = 0;
+  {$EXTERNALSYM Z_DEFAULT_STRATEGY}
 
-  {$EXTERNALSYM Z_FINISH}
   Z_BINARY   = 0;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_BINARY}
   Z_TEXT     = 1;
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_TEXT}
   Z_ASCII    = Z_TEXT;   //* for compatibility with 1.2.2 and earlier */
-  {$EXTERNALSYM Z_FINISH}
+  {$EXTERNALSYM Z_ASCII}
   Z_UNKNOWN  = 2;
+  {$EXTERNALSYM Z_UNKNOWN}
 
-  {$EXTERNALSYM Z_DEFLATED}
   Z_DEFLATED = 8;
-  {$EXTERNALSYM Z_NULL}
+  {$EXTERNALSYM Z_DEFLATED}
   Z_NULL = 0;  //* for initializing zalloc, zfree, opaque */
+  {$EXTERNALSYM Z_NULL}
 
-  {$EXTERNALSYM MAX_WBITS}
   MAX_WBITS = 15; { 32K LZ77 window }
+  {$EXTERNALSYM MAX_WBITS}
 
-  {$EXTERNALSYM MAX_MEM_LEVEL}
   MAX_MEM_LEVEL = 9;
-  {$EXTERNALSYM DEF_MEM_LEVEL}
+  {$EXTERNALSYM MAX_MEM_LEVEL}
   DEF_MEM_LEVEL = 8; { if MAX_MEM_LEVEL > 8 }
+  {$EXTERNALSYM DEF_MEM_LEVEL}
 
 {$EXTERNALSYM inflateInit}
 function inflateInit(var strm: z_stream): TIdC_INT;

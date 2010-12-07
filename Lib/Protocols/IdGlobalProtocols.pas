@@ -3520,11 +3520,20 @@ begin
     end;
     if LRawData[LPos] = '<' then begin
       Inc(LPos);
+      if LPos > LLen then begin
+        break;
+      end;
       if LRawData[LPos] = '?' then begin
         Inc(LPos);
+        if LPos > LLen then begin
+          break;
+        end;
       end;
       if LRawData[LPos] = '!' then begin
         Inc(LPos);
+        if LPos > LLen then begin
+          break;
+        end;
       end;
       DiscardDocWhiteSpace(LRawData,LPos,LLen);
       LWord := ParseWord(LRawData,LPos,LLen);
@@ -3557,8 +3566,11 @@ begin
                 DiscardDocWhiteSpace(LRawData,LPos,LLen);
                 LWord := ParseWord(LRawData,LPos,LLen);
                 if TextIsSame(LWord,'HTTP-EQUIV') then begin
-                  if LRawData[LPos]='=' then begin
+                  if LRawData[LPos] = '=' then begin
                     Inc(LPos);
+                    if LPos > LLen then begin
+                      break;
+                    end;
                     AStr.Add( ParseHTTPMetaEquiveData(LRawData,LPos,LLen));
                   end;
                 end;

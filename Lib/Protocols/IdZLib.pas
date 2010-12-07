@@ -184,11 +184,14 @@ function CCheck(code: Integer): Integer;
 const
   //winbit constants
   MAX_WBITS = IdZLibHeaders.MAX_WBITS;
+  {$EXTERNALSYM MAX_WBITS}
   GZIP_WINBITS = MAX_WBITS + 16; //GZip format
+  {$EXTERNALSYM GZIP_WINBITS}
   //negative values mean do not add any headers
   //adapted from "Enhanced zlib implementation"
   //by Gabriel Corneanu <gabrielcorneanu(AT)yahoo.com>
   RAW_WBITS = -MAX_WBITS; //raw stream (without any header)
+  {$EXTERNALSYM RAW_WBITS}
 
 implementation
 
