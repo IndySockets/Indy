@@ -2175,7 +2175,7 @@ begin
   // Don't use Capture.
   // S.G. 6/4/2004: Added AmaxHeaderCount parameter to prevent the "header bombing" of the server
   Response.RawHeaders.Clear;
-  Response.MetaHTTPEquiv.RawHeaders.Clear;
+  Response.MetaHTTPEquiv.Clear;
   s := FHTTP.InternalReadLn;
   try
     LHeaderCount := 0;
