@@ -401,13 +401,18 @@ type
     FKeepAlive: Boolean;
     FContentStream: TStream;
     FResponseVersion: TIdHTTPProtocolVersion;
+    FMetaHTTPEquiv :  TIdMetaHTTPEquiv;
     //
     function GetKeepAlive: Boolean;
     function GetResponseCode: Integer;
+
+    procedure SetResponseText(const AValue: String);
   public
     constructor Create(AHTTP: TIdCustomHTTP); reintroduce; virtual;
+    destructor Destroy; override;
     property KeepAlive: Boolean read GetKeepAlive write FKeepAlive;
-    property ResponseText: string read FResponseText write FResponseText;
+    property MetaHTTPEquiv:  TIdMetaHTTPEquiv read FMetaHTTPEquiv;
+    property ResponseText: string read FResponseText write SetResponseText;
     property ResponseCode: Integer read GetResponseCode write FResponseCode;
     property ResponseVersion: TIdHTTPProtocolVersion read FResponseVersion write FResponseVersion;
     property ContentStream: TStream read FContentStream write FContentStream;
@@ -471,7 +476,6 @@ type
     FOptions: TIdHTTPOptions;
     FURI: TIdURI;
     FHTTPProto: TIdHTTPProtocol;
-    FMetaHTTPEquiv :  TIdMetaHTTPEquiv;
     FProxyParameters: TIdProxyConnectionInfo;
     //
     FOnHeadersAvailable: TIdHTTPOnHeadersAvailable;
@@ -504,43 +508,63 @@ type
     procedure ReadResult(AResponse: TIdHTTPResponse; AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
     procedure PrepareRequest(ARequest: TIdHTTPRequest);
     procedure ConnectToHost(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
-    function GetResponseHeaders: TIdHTTPResponse;
-    function GetRequestHeaders: TIdHTTPRequest;
-    procedure SetRequestHeaders(Value: TIdHTTPRequest);
+    function GetResponse: TIdHTTPResponse;
+    function GetRequest: TIdHTTPRequest;
+    function GetMetaHTTPEquiv: TIdMetaHTTPEquiv;
+    procedure SetRequest(Value: TIdHTTPRequest);
 
-    function SetRequestParams(ASource: TStrings): string;
+    function SetRequestParams(ASource: TStrings; AByteEncoding: TIdTextEncoding
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding{$ENDIF}
+      ): string;
 
     procedure CheckAndConnect(AResponse: TIdHTTPResponse);
     procedure DoOnDisconnected; override;
 
     //misc internal stuff
-    function ResponseCharset : String;
+    function ResponseCharset: String;
   public
     destructor Destroy; override;
 
     procedure Delete(AURL: string);
 
     procedure Options(AURL: string); overload;
+
     procedure Get(AURL: string; AResponseContent: TStream); overload;
-    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of SmallInt);
-     overload;
-    function Get(AURL: string): string; overload;
-    function Get(AURL: string; AIgnoreReplies: array of SmallInt): string; overload;
+    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of SmallInt); overload;
+    function Get(AURL: string
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
+    function Get(AURL: string; AIgnoreReplies: array of SmallInt
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
+
     procedure Trace(AURL: string; AResponseContent: TStream); overload;
-    function Trace(AURL: string): string; overload;
+    function Trace(AURL: string
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
     procedure Head(AURL: string);
 
-    function Post(AURL: string; const ASourceFile: String): string; overload;
-    function Post(AURL: string; ASource: TStrings): string; overload;
-    function Post(AURL: string; ASource: TStream): string; overload;
-    function Post(AURL: string; ASource: TIdMultiPartFormDataStream): string; overload;
+    function Post(AURL: string; const ASourceFile: String
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
+    function Post(AURL: string; ASource: TStrings; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil; ADestEncoding: TIdTextEncoding = nil{$ENDIF}): string; overload;
+    function Post(AURL: string; ASource: TStream
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
+    function Post(AURL: string; ASource: TIdMultiPartFormDataStream
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
 
     procedure Post(AURL: string; const ASourceFile: String; AResponseContent: TStream); overload;
-    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream); overload;
+    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}); overload;
     procedure Post(AURL: string; ASource, AResponseContent: TStream); overload;
     procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TStream); overload;
 
-    function Put(AURL: string; ASource: TStream): string; overload;
+    function Put(AURL: string; ASource: TStream
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
     procedure Put(AURL: string; ASource, AResponseContent: TStream); overload;
 
     {This is an object that can compress and decompress HTTP Deflate encoding}
@@ -550,8 +574,8 @@ type
     property ResponseCode: Integer read GetResponseCode;
     {This is the text of the message such as "404 File Not Found here Sorry"}
     property ResponseText: string read GetResponseText;
-    property Response: TIdHTTPResponse read GetResponseHeaders;
-    property MetaHTTPEquiv :  TIdMetaHTTPEquiv read FMetaHTTPEquiv;
+    property Response: TIdHTTPResponse read GetResponse;
+    property MetaHTTPEquiv: TIdMetaHTTPEquiv read GetMetaHTTPEquiv;
     { This is the last processed URL }
     property URL: TIdURI read FURI;
     // number of retry attempts for Authentication
@@ -573,7 +597,7 @@ type
     // S.G. 6/4/2004: This is to prevent the server from responding with too many header lines
     property MaxHeaderLines: integer read FMaxHeaderLines write FMaxHeaderLines default Id_TIdHTTP_MaxHeaderLines;
     property ProxyParams: TIdProxyConnectionInfo read FProxyParameters write FProxyParameters;
-    property Request: TIdHTTPRequest read GetRequestHeaders write SetRequestHeaders;
+    property Request: TIdHTTPRequest read GetRequest write SetRequest;
     property HTTPOptions: TIdHTTPOptions read FOptions write FOptions;
     //
     property OnHeadersAvailable: TIdHTTPOnHeadersAvailable read FOnHeadersAvailable write FOnHeadersAvailable;
@@ -679,7 +703,6 @@ begin
   FreeAndNil(FURI);
   FreeAndNil(FProxyParameters);
   SetCookieManager(nil);
-  FreeAndNil(FMetaHTTPEquiv);
   inherited Destroy;
 end;
 
@@ -736,7 +759,9 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.SetRequestParams(ASource: TStrings): string;
+function TIdCustomHTTP.SetRequestParams(ASource: TStrings; AByteEncoding: TIdTextEncoding
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding{$ENDIF}
+  ): string;
 var
   i: Integer;
   LPos: integer;
@@ -745,6 +770,7 @@ var
 
   function EncodeParam(const S: String): String;
   begin
+    // TODO: use AByteEncoding and ASrcEncoding parameters...
     Result := TIdURI.ParamsEncode(StringReplace(S, ' ', '+', [rfReplaceAll])); {do not localize}
   end;
   
@@ -794,13 +820,15 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; const ASourceFile: String): string;
+function TIdCustomHTTP.Post(AURL: string; const ASourceFile: String
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   LSource: TIdReadFileExclusiveStream;
 begin
   LSource := TIdReadFileExclusiveStream.Create(ASourceFile);
   try
-    Result := Post(AURL, LSource);
+    Result := Post(AURL, LSource{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
   finally
     FreeAndNil(LSource);
   end;
@@ -818,7 +846,10 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AResponseContent: TStream);
+procedure TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AResponseContent: TStream;
+  AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  );
 var
   LParams: TMemoryStream;
 begin
@@ -831,7 +862,7 @@ begin
   begin
     LParams := TMemoryStream.Create;
     try
-      WriteStringToStream(LParams, SetRequestParams(ASource));
+      WriteStringToStream(LParams, SetRequestParams(ASource, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
       LParams.Position := 0;
       Post(AURL, LParams, AResponseContent);
     finally
@@ -842,22 +873,26 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TStrings): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   LResponse: TMemoryStream;
 begin
   LResponse := TMemoryStream.Create;
   try
-    Post(AURL, ASource, LResponse);
+    Post(AURL, ASource, LResponse, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TStream): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TStream
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   LResponse: TMemoryStream;
 begin
@@ -865,7 +900,7 @@ begin
   try
     Post(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
@@ -877,7 +912,9 @@ begin
   DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Put(AURL: string; ASource: TStream): string;
+function TIdCustomHTTP.Put(AURL: string; ASource: TStream
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   LResponse: TMemoryStream;
 begin
@@ -885,19 +922,23 @@ begin
   try
     Put(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
   end;
 end;
 
-function TIdCustomHTTP.Get(AURL: string): string;
+function TIdCustomHTTP.Get(AURL: string
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 begin
-  Result := Get(AURL, []);
+  Result := Get(AURL, []{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
-function TIdCustomHTTP.Trace(AURL: string): string;
+function TIdCustomHTTP.Trace(AURL: string
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   LResponse: TMemoryStream;
 begin
@@ -905,7 +946,7 @@ begin
   try
     Trace(AURL, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset);
+    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
@@ -1149,7 +1190,7 @@ begin
       end;
     end;
     if LParseHTML then begin
-      FMetaHTTPEquiv.ProcessMetaHTTPEquiv(Response.ContentStream);
+      AResponse.MetaHTTPEquiv.ProcessMetaHTTPEquiv(Response.ContentStream);
     end;
   finally
     if LCreateTmpContent then
@@ -1658,8 +1699,8 @@ begin
       ReadCookies(AResponse.RawHeaders, 'Set-Cookie', Cookies);  {do not localize}
       ReadCookies(AResponse.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
 
-      ReadCookies(FMetaHTTPEquiv.RawHeaders, 'Set-Cookie', Cookies);    {do not localize}
-      ReadCookies(FMetaHTTPEquiv.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
+      ReadCookies(AResponse.MetaHTTPEquiv.RawHeaders, 'Set-Cookie', Cookies);    {do not localize}
+      ReadCookies(AResponse.MetaHTTPEquiv.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
 
       for i := 0 to Cookies.Count - 1 do begin
         CookieManager.AddServerCookie(Cookies[i], FURI);
@@ -1896,17 +1937,22 @@ end;
 
 function TIdCustomHTTP.GetResponseText: string;
 begin
-  Result := Response.FResponseText;
+  Result := Response.ResponseText;
 end;
 
-function TIdCustomHTTP.GetResponseHeaders: TIdHTTPResponse;
+function TIdCustomHTTP.GetResponse: TIdHTTPResponse;
 begin
   Result := FHTTPProto.Response;
 end;
 
-function TIdCustomHTTP.GetRequestHeaders: TIdHTTPRequest;
+function TIdCustomHTTP.GetRequest: TIdHTTPRequest;
 begin
   Result := FHTTPProto.Request;
+end;
+
+function TIdCustomHTTP.GetMetaHTTPEquiv: TIdMetaHTTPEquiv;
+begin
+  Result := Response.MetaHTTPEquiv;
 end;
 
 procedure TIdCustomHTTP.DoOnDisconnected;
@@ -1954,7 +2000,7 @@ begin
   URL.Port := IntToStr(Value);
 end;
 }
-procedure TIdCustomHTTP.SetRequestHeaders(Value: TIdHTTPRequest);
+procedure TIdCustomHTTP.SetRequest(Value: TIdHTTPRequest);
 begin
   FHTTPProto.Request.Assign(Value);
 end;
@@ -1968,12 +2014,14 @@ begin
   Post(AURL, TStream(ASource), AResponseContent);
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+): string;
 begin
   Assert(ASource<>nil);
   Request.ContentType := ASource.RequestContentType;
   // TODO: Request.CharSet := ASource.RequestCharSet;
-  Result := Post(AURL, TStream(ASource));
+  Result := Post(AURL, TStream(ASource){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
 { TIdHTTPResponse }
@@ -1982,29 +2030,26 @@ constructor TIdHTTPResponse.Create(AHTTP: TIdCustomHTTP);
 begin
   inherited Create(AHTTP);
   FHTTP := AHTTP;
+  FMetaHTTPEquiv := TIdMetaHTTPEquiv.Create(AHTTP);
+end;
+
+destructor TIdHTTPResponse.Destroy;
+begin
+  FreeAndNil(FMetaHTTPEquiv);
+  inherited Destroy;
 end;
 
 function TIdHTTPResponse.GetKeepAlive: Boolean;
-var
-  S: string;
-  i: TIdHTTPProtocolVersion;
 begin
-  S := Copy(FResponseText, 6, 3);
-
-  for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do begin
-    if TextIsSame(ProtocolVersionString[i], S) then begin
-      ResponseVersion := i;
-      Break;
-    end;
-  end;
-
   if FHTTP.Connected then begin
     FHTTP.IOHandler.CheckForDisconnect(False);
   end;
+
   FKeepAlive := FHTTP.Connected;
 
   if FKeepAlive then
-    case FHTTP.ProtocolVersion of
+  begin
+    case FHTTP.ProtocolVersion of // TODO: use ResponseVersion instead?
       pv1_1:
         { By default we assume that keep-alive is by default and will close
           the connection only there is "close" }
@@ -2024,6 +2069,8 @@ begin
               (Length(Trime(ProxyConnection)) = 0)) };
         end;
     end;
+  end;
+
   Result := FKeepAlive;
 end;
 
@@ -2036,6 +2083,22 @@ begin
   S := Trim(S);
   FResponseCode := IndyStrToInt(Fetch(S, ' ', False), -1);
   Result := FResponseCode;
+end;
+
+procedure TIdHTTPResponse.SetResponseText(const AValue: String);
+var
+  S: String;
+  i: TIdHTTPProtocolVersion;
+begin
+  FResponseText := AValue;
+  ResponseVersion := pv1_0; // default until determined otherwise...
+  S := Copy(FResponseText, 6, 3);
+  for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do begin
+    if TextIsSame(ProtocolVersionString[i], S) then begin
+      ResponseVersion := i;
+      Exit;
+    end;
+  end;
 end;
 
 { TIdHTTPRequest }
@@ -2112,6 +2175,7 @@ begin
   // Don't use Capture.
   // S.G. 6/4/2004: Added AmaxHeaderCount parameter to prevent the "header bombing" of the server
   Response.RawHeaders.Clear;
+  Response.MetaHTTPEquiv.RawHeaders.Clear;
   s := FHTTP.InternalReadLn;
   try
     LHeaderCount := 0;
@@ -2361,8 +2425,6 @@ begin
   FProxyParameters := TIdProxyConnectionInfo.Create;
   FProxyParameters.Clear;
 
-  FMetaHTTPEquiv :=  TIdMetaHTTPEquiv.Create(Self);
-
   FMaxAuthRetries := Id_TIdHTTP_MaxAuthRetries;
   FMaxHeaderLines := Id_TIdHTTP_MaxHeaderLines;
 end;
@@ -2375,7 +2437,9 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of SmallInt): string;
+function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of SmallInt
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   LStream: TMemoryStream;
 begin
@@ -2383,7 +2447,7 @@ begin
   try
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
-    Result := ReadStringAsCharset(LStream, ResponseCharset);
+    Result := ReadStringAsCharset(LStream, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LStream);
