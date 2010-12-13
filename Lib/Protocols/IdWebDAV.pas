@@ -296,7 +296,7 @@ begin
     Request.CustomHeaders.Values['If'] := '';  {do not localize}
   end;
   try
-    inherited Put(AURL, ASource, nil);
+    inherited Put(AURL, ASource, TStream(nil));
   finally
     if ALockToken <> '' then begin
       Request.CustomHeaders.Values['If'] := '';  {do not localize}
