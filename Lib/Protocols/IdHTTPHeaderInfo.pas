@@ -1,3 +1,4 @@
+
 {
   $Project$
   $Workfile$
@@ -809,13 +810,13 @@ begin
   begin
     S := Fetch(LValue, '-'); {do not localize}
     if S <> '' then begin
-      FStartPos := StrToIntDef(S, -1);
-      FEndPos := StrToIntDef(Fetch(LValue), -1);
+      FStartPos := StrToInt64Def(S, -1);
+      FEndPos := StrToInt64Def(Fetch(LValue), -1);
       FSuffixLength := -1;
     end else begin
       FStartPos := -1;
       FEndPos := -1;
-      FSuffixLength := StrToIntDef(Fetch(LValue), -1);
+      FSuffixLength := StrToInt64Def(Fetch(LValue), -1);
     end;
   end else begin
     FStartPos := -1;
@@ -869,20 +870,33 @@ end;
 
 procedure TIdEntityRanges.SetText(const AValue: String);
 var
-  LTmp: String;
+  LUnits, LTmp: String;
   LRanges: TStringList;
   I: Integer;
+  LRange: TIdEntityRange;
 begin
   LTmp := Trim(AValue);
   BeginUpdate;
   try
     Clear;
-    Units := Fetch(LTmp, '='); {do not localize}
+    if Pos('=', LTmp) > 0 then begin {do not localize}
+      LUnits := Fetch(LTmp, '='); {do not localize}
+    end;
+    SetUnits(LUnits);
     LRanges := TStringList.Create;
     try
       SplitColumns(LTmp, LRanges, ','); {do not localize}
       for I := 0 to LRanges.Count-1 do begin
-        Add.Text := LRanges[I];
+        LTmp := Trim(LRanges[I]);
+        if LTmp <> '' then begin
+          LRange := Add;
+          try
+            LRange.Text := LTmp;
+          except
+            LRange.Free;
+            raise;
+          end;
+        end;
       end;
     finally
       LRanges.Free;
