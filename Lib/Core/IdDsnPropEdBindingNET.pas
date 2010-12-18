@@ -299,7 +299,6 @@ begin
   // 
   Self.edtIPAddress.Anchor := (System.Windows.Forms.AnchorStyles(((System.Windows.Forms.AnchorStyles.Top 
     or System.Windows.Forms.AnchorStyles.Left) or System.Windows.Forms.AnchorStyles.Right)));
-  Self.edtIPAddress.DropDownStyle := System.Windows.Forms.ComboBoxStyle.DropDownList;
   Self.edtIPAddress.Location := System.Drawing.Point.Create(240, 24);
   Self.edtIPAddress.Name := 'edtIPAddress';
   Self.edtIPAddress.Size := System.Drawing.Size.Create(224, 21);
@@ -644,7 +643,11 @@ begin
         cboIPVersion.SelectedItem := cboIPVersion.Items[1];
       end;
     end;
-    edtIPAddress.SelectedIndex := edtIPAddress.Items.IndexOf(FCurrentHandle.IP);
+    if edtIPAddress.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown then begin
+      edtIPAddress.Text := FCurrentHandle.IP;
+    end else begin
+      edtIPAddress.SelectedIndex := edtIPAddress.Items.IndexOf(FCurrentHandle.IP);
+    end;
   end;
 
   lblIPAddress.Enabled := Assigned(FCurrentHandle);

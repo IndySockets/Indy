@@ -415,7 +415,6 @@ begin
     Top := 24;
     Width := 221;
     Height := 21;
-    Style := csDropDownList;
     Enabled := False;
     ItemHeight := 13;
     TabOrder := 3;
@@ -568,7 +567,7 @@ begin
         Result := Format('%d: %s', [PortNumber, LList.CommaText]);    {Do not Localize}
       end;
     finally
-      Free;
+      LList.Free;
     end;
   end;
 end;
@@ -614,7 +613,11 @@ begin
         edtIPAddress.Items.Assign(FIPv6Addresses);
       end;
     end;
-    edtIPAddress.ItemIndex := edtIPAddress.Items.IndexOf(FCurrentHandle.IP);
+    if edtIPAddress.Style = csDropDown then begin
+      edtIPAddress.Text := FCurrentHandle.IP;
+    end else begin
+      edtIPAddress.ItemIndex := edtIPAddress.Items.IndexOf(FCurrentHandle.IP);
+    end;
   end
   else
   begin
