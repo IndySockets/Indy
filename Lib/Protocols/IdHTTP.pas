@@ -341,7 +341,7 @@ uses
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
   IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication, IdAuthenticationManager,
-  IdMultipartFormData, IdGlobal, IdBaseComponent;
+  IdMultipartFormData, IdGlobal, IdBaseComponent, IdUriUtils;
 
 type
   // TO DOCUMENTATION TEAM
@@ -759,6 +759,120 @@ begin
   end;
 end;
 
+// RLebeau 12/21/2010: this is based on W3's HTML standards:
+//
+// HTML 4.01
+// http://www.w3.org/TR/html401/
+//
+// HTML 5
+// http://www.w3.org/TR/html5/
+
+function WWWFormUrlEncode(const ASrc: string; AByteEncoding: TIdTextEncoding
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding{$ENDIF}
+  ): string;
+const
+  // HTML 4.01 Section 17.13.4 ("Form content types") says:
+  //
+  //   application/x-www-form-urlencoded
+  //
+  //   Control names and values are escaped. Space characters are replaced by `+',
+  // and then reserved characters are escaped as described in [RFC1738], section
+  // 2.2: Non-alphanumeric characters are replaced by `%HH', a percent sign and
+  // two hexadecimal digits representing the ASCII code of the character. Line
+  // breaks are represented as "CR LF" pairs (i.e., `%0D%0A').
+  //
+  // On the other hand, HTML 5 Section 4.10.16.4 ("URL-encoded form data") says:
+  //
+  //   If the character isn't in the range U+0020, U+002A, U+002D, U+002E,
+  // U+0030 .. U+0039, U+0041 .. U+005A, U+005F, U+0061 .. U+007A then replace
+  // the character with a string formed as follows: Start with the empty string,
+  // and then, taking each byte of the character when expressed in the selected
+  // character encoding in turn, append to the string a U+0025 PERCENT SIGN
+  // character (%) followed by two characters in the ranges U+0030 DIGIT ZERO (0)
+  // to U+0039 DIGIT NINE (9) and U+0041 LATIN CAPITAL LETTER A to
+  // U+005A LATIN CAPITAL LETTER Z representing the hexadecimal value of the
+  // byte zero-padded if necessary).
+  //
+  //   If the character is a U+0020 SPACE character, replace it with a single
+  // U+002B PLUS SIGN character (+).
+  //
+  // So, lets err on the side of caution and use the HTML 5.x definition, as it
+  // encodes some of the characters that HTML 4.01 allows unencoded...
+  //
+  SafeChars: TIdUnicodeString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*-._'; {do not localize}
+var
+  I, J, CharLen, ByteLen: Integer;
+  Buf: TIdBytes;
+  {$IFDEF STRING_IS_ANSI}
+  LChars: TIdWideChars;
+  {$ENDIF}
+  LChar: WideChar;
+begin
+  Result := '';    {Do not Localize}
+
+  // keep the compiler happy
+  Buf := nil;
+  {$IFDEF STRING_IS_ANSI}
+  LChars := nil;
+  {$ENDIF}
+
+  if ASrc = '' then begin
+    Exit;
+  end;
+
+  EnsureEncoding(AByteEncoding, encUTF8);
+  {$IFDEF STRING_IS_ANSI}
+  EnsureEncoding(ASrcEncoding, encOSDefault);
+  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
+  {$ENDIF}
+
+  // 2 Chars to handle UTF-16 surrogates
+  SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
+
+  I := 0;
+  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
+  begin
+    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+
+    // RLebeau 1/7/09: using Ord() for #128-#255 because in D2009 and later, the
+    // compiler may change characters >= #128 from their Ansi codepage value to
+    // their true Unicode codepoint value, depending on the codepage used for
+    // the source code. For instance, #128 may become #$20AC...
+
+    if Ord(LChar) = 32 then {do not localize}
+    begin
+      Result := Result + '+'; {do not localize}
+      Inc(I);
+    end
+    else if WideCharIsInSet(SafeChars, LChar) then
+    begin
+      Result := Result + Char(LChar);
+      Inc(I);
+    end else
+    begin
+      // TODO: HTML 5 Section 4.10.16.4 says:
+      //
+      // For each character ... that cannot be expressed using the selected character
+      // encoding, replace the character by a string consisting of a U+0026 AMPERSAND
+      // character (&), a U+0023 NUMBER SIGN character (#), one or more characters in
+      // the range U+0030 DIGIT ZERO (0) to U+0039 DIGIT NINE (9) representing the
+      // Unicode code point of the character in base ten, and finally a U+003B
+      // SEMICOLON character (;).
+      //
+      CharLen := CalcUTF16CharLength(
+        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
+        ); // calculate length including surrogates
+      ByteLen := AByteEncoding.GetBytes(
+        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
+        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+      for J := 0 to ByteLen-1 do begin
+        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
+      end;
+      Inc(I, CharLen);
+    end;
+  end;
+end;
+
 function TIdCustomHTTP.SetRequestParams(ASource: TStrings; AByteEncoding: TIdTextEncoding
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding{$ENDIF}
   ): string;
@@ -768,12 +882,6 @@ var
   LStr: string;
   LTemp: TStringList;
 
-  function EncodeParam(const S: String): String;
-  begin
-    // TODO: use AByteEncoding and ASrcEncoding parameters...
-    Result := TIdURI.ParamsEncode(StringReplace(S, ' ', '+', [rfReplaceAll])); {do not localize}
-  end;
-  
   function EncodeLineBreaks(AStrings: TStrings): String;
   begin
     if AStrings.Count > 1 then begin
@@ -795,17 +903,18 @@ begin
           LStr := LTemp[i];
           LPos := IndyPos('=', LStr); {do not localize}
           if LPos > 0 then begin
-            LTemp[i] := EncodeParam(LTemp.Names[i]) +
-                        '=' + {do not localize}
-                        EncodeParam(
-                          {$IFDEF HAS_TStrings_ValueFromIndex}
-                          LTemp.ValueFromIndex[i]
-                          {$ELSE}
-                          Copy(LStr, LPos+1, MaxInt)
-                          {$ENDIF}
-                        );
+            LTemp[i] := WWWFormUrlEncode(LTemp.Names[i], AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF})
+                        + '=' {do not localize}
+                        + WWWFormUrlEncode(
+                            {$IFDEF HAS_TStrings_ValueFromIndex}
+                            LTemp.ValueFromIndex[i]
+                            {$ELSE}
+                            Copy(LStr, LPos+1, MaxInt)
+                            {$ENDIF}
+                            , AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
+                          );
           end else begin
-            LTemp[i] := EncodeParam(LStr);
+            LTemp[i] := WWWFormUrlEncode(LStr, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
           end;
         end;
         Result := EncodeLineBreaks(LTemp);

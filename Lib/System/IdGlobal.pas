@@ -5508,7 +5508,10 @@ begin
   begin
     EnsureEncoding(ADestEncoding);
     {$IFDEF STRING_IS_UNICODE}
-    Result := ADestEncoding.GetBytes(Copy(AValue, AIndex, LLength));
+    SetLength(Result, ADestEncoding.GetByteCount(AValue, AIndex, LLength));
+    if Length(Result) > 0 then begin
+      ADestEncoding.GetBytes(AValue, AIndex, LLength, Result, 0);
+    end;
     {$ELSE}
     EnsureEncoding(ASrcEncoding, encOSDefault);
     LBytes := RawToBytes(AValue[AIndex], LLength);

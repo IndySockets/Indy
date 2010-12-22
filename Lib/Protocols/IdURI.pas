@@ -352,7 +352,7 @@ class function TIdURI.ParamsEncode(const ASrc: string; AByteEncoding: TIdTextEnc
 const
   UnsafeChars: TIdUnicodeString = '*<>#%"{}|\^[]`';  {do not localize}
 var
-  I, J, Len: Integer;
+  I, J, CharLen, ByteLen: Integer;
   Buf: TIdBytes;
   {$IFDEF STRING_IS_ANSI}
   LChars: TIdWideChars;
@@ -376,6 +376,9 @@ begin
   EnsureEncoding(ASrcEncoding, encOSDefault);
   LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
   {$ENDIF}
+
+  // 2 Chars to handle UTF-16 surrogates
+  SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
 
   I := 0;
   while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
@@ -395,17 +398,16 @@ begin
 
     if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 128) then
     begin
-      {$IFDEF STRING_IS_UNICODE}
-      Len := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
-      Buf := AByteEncoding.GetBytes(Copy(ASrc, I+1, Len)); // explicit Unicode->Ansi conversion
-      {$ELSE}
-      Len := CalcUTF16CharLength(LChars, I); // calculate length including surrogates
-      Buf := AByteEncoding.GetBytes(Copy(LChars, I, Len)); // explicit Unicode->Ansi conversion
-      {$ENDIF}
-      for J := 0 to Length(Buf)-1 do begin
+      CharLen := CalcUTF16CharLength(
+        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
+        ); // calculate length including surrogates
+      ByteLen := AByteEncoding.GetBytes(
+        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
+        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+      for J := 0 to ByteLen-1 do begin
         Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
       end;
-      Inc(I, Len);
+      Inc(I, CharLen);
     end else
     begin
       Result := Result + Char(LChar);
@@ -420,7 +422,7 @@ class function TIdURI.PathEncode(const ASrc: string; AByteEncoding: TIdTextEncod
 const
   UnsafeChars = '*<>#%"{}|\^[]`+';  {do not localize}
 var
-  I, J, Len: Integer;
+  I, J, CharLen, ByteLen: Integer;
   Buf: TIdBytes;
   {$IFDEF STRING_IS_ANSI}
   LChars: TIdWideChars;
@@ -445,6 +447,9 @@ begin
   LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
   {$ENDIF}
 
+  // 2 Chars to handle UTF-16 surrogates
+  SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
+
   I := 0;
   while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
   begin
@@ -452,17 +457,16 @@ begin
 
     if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
     begin
-      {$IFDEF STRING_IS_UNICODE}
-      Len := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
-      Buf := AByteEncoding.GetBytes(Copy(ASrc, I+1, Len)); // explicit Unicode->Ansi conversion
-      {$ELSE}
-      Len := CalcUTF16CharLength(LChars, I); // calculate length including surrogates
-      Buf := AByteEncoding.GetBytes(Copy(LChars, I, Len)); // explicit Unicode->Ansi conversion
-      {$ENDIF}
-      for J := 0 to Length(Buf)-1 do begin
+      CharLen := CalcUTF16CharLength(
+        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
+        ); // calculate length including surrogates
+      ByteLen := AByteEncoding.GetBytes(
+        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
+        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+      for J := 0 to ByteLen-1 do begin
         Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
       end;
-      Inc(I, Len);
+      Inc(I, CharLen);
     end else
     begin
       Result := Result + Char(LChar);

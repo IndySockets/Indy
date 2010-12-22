@@ -314,6 +314,7 @@ contains
   IdUnixTimeServer in 'Protocols\IdUnixTimeServer.pas',
   IdUnixTimeUDP in 'Protocols\IdUnixTimeUDP.pas',
   IdUnixTimeUDPServer in 'Protocols\IdUnixTimeUDPServer.pas',
+  IdUriUtils in 'Protocols\IdUriUtils.pas',
   IdUserAccounts in 'Protocols\IdUserAccounts.pas',
   IdUserPassProvider in 'Protocols\IdUserPassProvider.pas',
   IdVCard in 'Protocols\IdVCard.pas',
