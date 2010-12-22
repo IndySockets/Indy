@@ -28,6 +28,7 @@ type
 // calculates character length, including surrogates
 function CalcUTF16CharLength(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF}; const AIndex: Integer): Integer;
 function WideCharIsInSet(const ASet: TIdUnicodeString; const AChar: WideChar): Boolean;
+function GetUTF16Codepoint(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF}; const AIndex: Integer): Integer;
 
 implementation
 
@@ -124,6 +125,61 @@ begin
       Exit;
     end;
   end;
+  {$ENDIF}
+end;
+
+function GetUTF16Codepoint(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF};
+  const AIndex: Integer): Integer;
+{$IFDEF DOTNET}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$ELSE}
+  {$IFDEF HAS_TCharacter}
+    {$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$ELSE}
+var
+  C, LowSurrogate, HighSurrogate: WideChar;
+  {$ENDIF}
+{$ENDIF}
+begin
+  {$IFDEF DOTNET}
+
+  Result := System.Char.ConvertToUtf32(AStr, AIndex-1);
+
+  {$ELSE}
+    {$IFDEF HAS_TCharacter}
+
+  //for D2009+, we use TCharacter.ConvertToUtf32() as-is
+  Result := TCharacter.ConvertToUtf32(AStr, AIndex);
+
+    {$ELSE}
+
+  if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
+     (AIndex > (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF})) then
+  begin
+    raise EIdUTF16IndexOutOfRange.CreateResFmt(@RSUTF16IndexOutOfRange, [AIndex, Length(AStr)]);
+  end;
+
+  C := AStr[AIndex];
+  if (C >= #$D800) and (C <= #$DFFF) then
+  begin
+    HighSurrogate := C;
+    if HighSurrogate > #$DBFF then begin
+      raise EIdUTF16InvalidHighSurrogate.CreateResFmt(@RSUTF16InvalidHighSurrogate, [AIndex]);
+    end;
+    if AIndex = (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF}) then begin
+      raise EIdUTF16MissingLowSurrogate.CreateRes(@RSUTF16MissingLowSurrogate);
+    end;
+    LowSurrogate := AStr[AIndex+1];
+    if (LowSurrogate < #$DC00) or (LowSurrogate > #$DFFF) then begin
+      raise EIdUTF16InvalidLowSurrogate.CreateResFmt(@RSUTF16InvalidLowSurrogate, [AIndex+1]);
+    end;
+    Result := (Integer(HighSurrogate - $D800) shl 10) or Integer(LowSurrogate - $DC00) + $10000;
+  end else begin
+    Result := Integer(C);
+  end;
+end;
+
+    {$ENDIF}
   {$ENDIF}
 end;
 

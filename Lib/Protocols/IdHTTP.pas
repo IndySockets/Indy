@@ -807,6 +807,7 @@ var
   LChars: TIdWideChars;
   {$ENDIF}
   LChar: WideChar;
+  Encoded: Boolean;
 begin
   Result := '';    {Do not Localize}
 
@@ -850,7 +851,7 @@ begin
       Inc(I);
     end else
     begin
-      // TODO: HTML 5 Section 4.10.16.4 says:
+      // HTML 5 Section 4.10.16.4 says:
       //
       // For each character ... that cannot be expressed using the selected character
       // encoding, replace the character by a string consisting of a U+0026 AMPERSAND
@@ -865,9 +866,27 @@ begin
       ByteLen := AByteEncoding.GetBytes(
         {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
         CharLen, Buf, 0); // explicit Unicode->Ansi conversion
-      for J := 0 to ByteLen-1 do begin
-        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
+
+      Encoded := (ByteLen > 0);
+      if Encoded and (LChar <> '?') then begin  {do not localize}
+        for J := 0 to ByteLen-1 do begin
+          if Buf[J] = Ord('?') then begin  {do not localize}
+            Encoded := False;
+            Break;
+          end;
+        end;
       end;
+
+      if Encoded then begin
+        for J := 0 to ByteLen-1 do begin
+          Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
+        end;
+      end else begin
+        J := GetUTF16Codepoint(
+          {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF});
+        Result := Result + '&#' + IntToStr(J) + ';';  {do not localize}
+      end;
+
       Inc(I, CharLen);
     end;
   end;
