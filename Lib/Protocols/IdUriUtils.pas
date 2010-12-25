@@ -137,7 +137,8 @@ function GetUTF16Codepoint(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TI
     {$IFDEF USE_INLINE}inline;{$ENDIF}
   {$ELSE}
 var
-  C, LowSurrogate, HighSurrogate: WideChar;
+  C: WideChar;
+  LowSurrogate, HighSurrogate: Integer;
   {$ENDIF}
 {$ENDIF}
 begin
@@ -162,22 +163,21 @@ begin
   C := AStr[AIndex];
   if (C >= #$D800) and (C <= #$DFFF) then
   begin
-    HighSurrogate := C;
-    if HighSurrogate > #$DBFF then begin
+    HighSurrogate := Integer(C);
+    if HighSurrogate > $DBFF then begin
       raise EIdUTF16InvalidHighSurrogate.CreateResFmt(@RSUTF16InvalidHighSurrogate, [AIndex]);
     end;
     if AIndex = (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF}) then begin
       raise EIdUTF16MissingLowSurrogate.CreateRes(@RSUTF16MissingLowSurrogate);
     end;
-    LowSurrogate := AStr[AIndex+1];
-    if (LowSurrogate < #$DC00) or (LowSurrogate > #$DFFF) then begin
+    LowSurrogate := Integer(AStr[AIndex+1]);
+    if (LowSurrogate < $DC00) or (LowSurrogate > $DFFF) then begin
       raise EIdUTF16InvalidLowSurrogate.CreateResFmt(@RSUTF16InvalidLowSurrogate, [AIndex+1]);
     end;
-    Result := (Integer(HighSurrogate - $D800) shl 10) or Integer(LowSurrogate - $DC00) + $10000;
+    Result := ((HighSurrogate - $D800) shl 10) or (LowSurrogate - $DC00) + $10000;
   end else begin
     Result := Integer(C);
   end;
-end;
 
     {$ENDIF}
   {$ENDIF}
