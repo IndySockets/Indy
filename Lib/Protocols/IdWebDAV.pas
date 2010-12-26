@@ -185,7 +185,7 @@ begin
   begin
     s := '<?xml version="1.0" encoding="utf-8" ?>' +  {do not localize}
          '<propertyupdate xmlns:D="DAV:"><set><prop>' +  {do not localize}
-         '<comment>' + AComment + '</comment></set></set></propertyupdate>';  {do not localize}
+         '<comment>' + AComment + '</comment></prop></set></propertyupdate>';  {do not localize}
     LXML := TMemoryStream.Create;
     try
       WriteStringToStream(LXML, s, IndyUTF8Encoding);
@@ -207,7 +207,7 @@ begin
   begin
     s := '<?xml version="1.0" encoding="utf-8" ?>' +   {do not localize}
          '<propertyupdate xmlns:D="DAV:"><set><prop>' +  {do not localize}
-         '<comment>' + AComment + '</comment></set></set></propertyupdate>';  {do not localize}
+         '<comment>' + AComment + '</comment></prop></set></propertyupdate>';  {do not localize}
     LXML := TMemoryStream.Create;
     try
       WriteStringToStream(LXML, s, IndyUTF8Encoding);
