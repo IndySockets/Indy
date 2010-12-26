@@ -3878,15 +3878,15 @@ end;
 
 procedure TIdFTP.DoOnDirParseEnd;
 begin
-  if Assigned(FOnDirParseStart) then begin
-    FOnDirParseStart(Self);
+  if Assigned(FOnDirParseEnd) then begin
+    FOnDirParseEnd(Self);
   end;
 end;
 
 procedure TIdFTP.DoOnDirParseStart;
 begin
-  if Assigned(FOnDirParseEnd) then begin
-    FOnDirParseEnd(Self);
+  if Assigned(FOnDirParseStart) then begin
+    FOnDirParseStart(Self);
   end;
 end;
 
