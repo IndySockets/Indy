@@ -866,7 +866,7 @@ type
     //for a discussion.
     procedure SendPret(const ACommand : String);
     procedure InternalGet(const ACommand: string; ADest: TStream; AResume: Boolean = false);
-    procedure InternalPut(const ACommand: string; ASource: TStream; AFromBeginning: Boolean = true);
+    procedure InternalPut(const ACommand: string; ASource: TStream; AFromBeginning: Boolean = True; AResume: Boolean = False);
 //    procedure SetOnParseCustomListFormat(const AValue: TIdOnParseCustomListFormat);
     procedure SendPassive(var VIP: string; var VPort: TIdPort);
     procedure SendPort(AHandle: TIdSocketHandle); overload;
@@ -945,11 +945,13 @@ type
     procedure MakeDir(const ADirName: string);
     procedure Noop;
     procedure SetCmdOpt(const ACMD, AOptions : String);
-    procedure Put(const ASource: TStream; const ADestFile: string; const AAppend: boolean = False); overload;
-    procedure Put(const ASourceFile: string; const ADestFile: string = ''; const AAppend: boolean = false); overload;
+    procedure Put(const ASource: TStream; const ADestFile: string;
+      const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1); overload;
+    procedure Put(const ASourceFile: string; const ADestFile: string = '';
+      const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1); overload;
 
-    procedure StoreUnique(const ASource: TStream); overload;
-    procedure StoreUnique(const ASourceFile: string); overload;
+    procedure StoreUnique(const ASource: TStream; const AStartPos: TIdStreamSize = -1); overload;
+    procedure StoreUnique(const ASourceFile: string; const AStartPos: TIdStreamSize = -1); overload;
 
     procedure SiteToSiteUpload(const AToSite : TIdFTP; const ASourceFile : String; const ADestFile : String = '');
     procedure SiteToSiteDownload(const AFromSite: TIdFTP; const ASourceFile : String; const ADestFile : String = '');
@@ -1610,7 +1612,8 @@ This is a bug fix for servers will do something like this:
   end;
 end;
 
-procedure TIdFTP.InternalPut(const ACommand: string; ASource: TStream; AFromBeginning: Boolean = True);
+procedure TIdFTP.InternalPut(const ACommand: string; ASource: TStream;
+  AFromBeginning: Boolean = True; AResume: Boolean = False);
 var
   LIP: string;
   LPort: TIdPort;
@@ -1640,6 +1643,9 @@ begin
       end else begin
         SendPassive(LIP, LPort);
       end;
+      if AResume then begin
+        Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
+      end;
       IOHandler.WriteLn(ACommand);
       FDataChannel := TIdTCPClient.Create(nil);
       LPasvCl := TIdTCPClient(FDataChannel);
@@ -1652,7 +1658,7 @@ begin
           //IP address every time.  This is the case where
           //the workload is distributed around several servers.
           //Besides, we already know the Peer's IP address so
-          //why waste time querying it.     
+          //why waste time querying it.
           LIP := Self.Socket.Binding.PeerIP;
         end;
 
@@ -1715,6 +1721,9 @@ begin
           SendEPort(LPortSv.Binding);
         end else begin
           SendPort(LPortSv.Binding);
+        end;
+        if AResume then begin
+          Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
         end;
         Self.SendCmd(ACommand, [125, 150]);
 
@@ -2023,21 +2032,26 @@ begin
   FDataChannel.WorkTarget := Self;
 end;
 
-procedure TIdFTP.Put(const ASource: TStream; const ADestFile: string; const AAppend: Boolean = False);
+procedure TIdFTP.Put(const ASource: TStream; const ADestFile: string;
+  const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1);
 begin
   if ADestFile = '' then begin
     EIdFTPUploadFileNameCanNotBeEmpty.Toss(RSFTPFileNameCanNotBeEmpty);
   end;
+  if AStartPos > -1 then begin
+    ASource.Position := AStartPos;
+  end;
   DoBeforePut(ASource); //APR);
   if AAppend then begin
-    InternalPut('APPE ' + ADestFile, ASource, false);  {Do not localize}
+    InternalPut('APPE ' + ADestFile, ASource, False, False);  {Do not localize}
   end else begin
-    InternalPut('STOR ' + ADestFile, ASource);  {Do not localize}
+    InternalPut('STOR ' + ADestFile, ASource, AStartPos = -1, AStartPos > -1);  {Do not localize}
   end;
   DoAfterPut;
 end;
 
-procedure TIdFTP.Put(const ASourceFile: string; const ADestFile: string = ''; const AAppend: Boolean = False);
+procedure TIdFTP.Put(const ASourceFile: string; const ADestFile: string = '';
+  const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1);
 var
   LSourceStream: TStream;
   LDestFileName : String;
@@ -2048,26 +2062,29 @@ begin
   end;
   LSourceStream := TIdReadFileNonExclusiveStream.Create(ASourceFile);
   try
-    Put(LSourceStream, LDestFileName, AAppend);
+    Put(LSourceStream, LDestFileName, AAppend, AStartPos);
   finally
     FreeAndNil(LSourceStream);
   end;
 end;
 
-procedure TIdFTP.StoreUnique(const ASource: TStream);
+procedure TIdFTP.StoreUnique(const ASource: TStream; const AStartPos: TIdStreamSize = -1);
 begin
+  if AStartPos > -1 then begin
+    ASource.Position := AStartPos;
+  end;
   DoBeforePut(ASource);
-  InternalPut('STOU', ASource);  {Do not localize}
+  InternalPut('STOU', ASource, AStartPos = -1, False);  {Do not localize}
   DoAfterPut;
 end;
 
-procedure TIdFTP.StoreUnique(const ASourceFile: string);
+procedure TIdFTP.StoreUnique(const ASourceFile: string; const AStartPos: TIdStreamSize = -1);
 var
   LSourceStream: TStream;
 begin
   LSourceStream := TIdReadFileExclusiveStream.Create(ASourceFile);
   try
-    StoreUnique(LSourceStream);
+    StoreUnique(LSourceStream, AStartPos);
   finally
     FreeAndNil(LSourceStream);
   end;
