@@ -339,12 +339,14 @@ end;
 
 function TIdNetworkCalculator.GetIsAddressRoutable: Boolean;
 begin
-  // RFC
+  // RFC 1918
   with NetworkAddress do
   begin
-    Result := (Byte1 = 10) or
-             ((Byte1 = 172) and (Byte2 in [16..31])) or
-             ((Byte1 = 192) and (Byte2 = 168));
+    Result := not (
+               (Byte1 = 10) or
+               ((Byte1 = 172) and (Byte2 in [16..31])) or
+               ((Byte1 = 192) and (Byte2 = 168))
+               );
   end;
 end;
 
