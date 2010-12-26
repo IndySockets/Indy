@@ -399,7 +399,7 @@ begin
     LQuoteType := FQuoteType;
     case LQuoteType of
       QuoteRFC822: begin
-        if PosInStrArray(AName, ['Content-Type', 'Content-Dosposition'], False) <> -1 then begin {Do not Localize}
+        if PosInStrArray(AName, ['Content-Type', 'Content-Disposition'], False) <> -1 then begin {Do not Localize}
           LQuoteType := QuoteMIME;
         end;
       end;
