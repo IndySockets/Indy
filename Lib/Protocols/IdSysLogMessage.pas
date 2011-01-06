@@ -692,7 +692,7 @@ begin
   if not Assigned(FUDPCliComp) then begin
     FUDPCliComp := TIdUDPClient.Create(Self);
   end;
-  (FUDPCliComp as TIdUDPClient).Send(Dest, IdPORT_syslog, EncodeMessage);
+  (FUDPCliComp as TIdUDPClient).Send(Dest, IdPORT_syslog, EncodeMessage, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
 { TIdSysLogMsgPart }

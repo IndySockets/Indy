@@ -96,7 +96,7 @@ begin
   if AAutoTimeStamp then begin
     AMsg.TimeStamp := Now;
   end;
-  Send(AMsg.EncodeMessage);
+  Send(AMsg.EncodeMessage, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
 

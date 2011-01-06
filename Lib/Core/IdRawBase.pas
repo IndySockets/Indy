@@ -125,9 +125,14 @@ type
     destructor Destroy; override;
 
     function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1): Integer;
-    procedure Send(const AData: string); overload; virtual;
+    procedure Send(const AData: string; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ); overload; virtual;
     procedure Send(const AData: TIdBytes); overload;  virtual;
-    procedure Send(const AHost: string; const APort: TIdPort; const AData: string); overload; virtual;
+    procedure Send(const AHost: string; const APort: TIdPort; const AData: string;
+      AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ); overload; virtual;
     procedure Send(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; virtual;
     //
     property Binding: TIdSocketHandle read GetBinding;
@@ -235,14 +240,20 @@ begin
   end;
 end;
 
-procedure TIdRawBase.Send(const AHost: string; const APort: TIdPort; const AData: string);
+procedure TIdRawBase.Send(const AHost: string; const APort: TIdPort; const AData: string;
+  AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  );
 begin
-  Send(AHost, APort, ToBytes(AData));
+  Send(AHost, APort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
 end;
 
-procedure TIdRawBase.Send(const AData: string);
+procedure TIdRawBase.Send(const AData: string;
+  AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  );
 begin
-  Send(ToBytes(AData));
+  Send(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
 end;
 
 procedure TIdRawBase.Send(const AData: TIdBytes);

@@ -25,7 +25,9 @@
 unit IdQOTDUDP;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
@@ -43,6 +45,9 @@ type
 
 implementation
 
+uses
+  IdGlobal;
+
 { TIdQOTDUDP }
 
 procedure TIdQOTDUDP.InitComponent;
@@ -55,7 +60,7 @@ function TIdQOTDUDP.GetQuote: String;
 begin
   //The string can be anything - The RFC says the server should discard packets
   Send(' ');    {Do not Localize}
-  Result := ReceiveString;
+  Result := ReceiveString(IdTimeoutDefault, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
 end.

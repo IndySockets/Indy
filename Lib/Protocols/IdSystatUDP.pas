@@ -83,17 +83,25 @@ begin
 end;
 
 procedure TIdSystatUDP.GetStat(ADest: TStrings);
-var s : String;
-    LTimeout : Integer;
+var
+  s : String;
+  LTimeout : Integer;
 begin
-  //we do things this way so that IdTimeoutInfinite can never be used.  Necessary
-  //because that will hang the code.
+  //we do things this way so that IdTimeoutInfinite can never be used.
+  // Necessary because that will hang the code.
+
+  // RLebeau 1/5/2011: this does not make sense. If ReceiveTimeout is
+  // IdTimeoutInfinite, then LTimeout will end up still being IdTimeoutInfinite
+  // because ReceiveTimeout is being read a second time.  Shouldn't this
+  // be specifying a real timeout value instead?
+
   LTimeout := ReceiveTimeout;
   if LTimeout = IdTimeoutInfinite then
   begin
     LTimeout := ReceiveTimeout;
   end;
-  ADest.Text := '';
+
+  ADest.Clear;
   //The string can be anything - The RFC says the server should discard packets
   Send(' ');    {Do not Localize}
   {  We do things this way because RFC 866 says:
@@ -103,15 +111,11 @@ begin
    a datagram.
   }
   repeat
-    s := ReceiveString(LTimeout);
-    if s = '' then
-    begin
+    s := ReceiveString(LTimeout, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    if s = '' then begin
       Break;
-    end
-    else
-    begin
-      ADest.Add(s);
     end;
+    ADest.Add(s);
   until False;
 end;
 

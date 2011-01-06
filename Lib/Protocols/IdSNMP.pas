@@ -650,9 +650,9 @@ function TIdSNMP.SendQuery: Boolean;
 begin
   Reply.Clear;
   Query.Buffer := Query.EncodeBuf;
-  Send(Query.Host, Query.Port, Query.Buffer, Indy8BitEncoding);
+  Send(Query.Host, Query.Port, Query.Buffer, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   try
-    Reply.Buffer := ReceiveString(Query.Host, Query.Port, FReceiveTimeout, Indy8BitEncoding);
+    Reply.Buffer := ReceiveString(Query.Host, Query.Port, FReceiveTimeout, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   except
     on e : EIdSocketError do
     begin

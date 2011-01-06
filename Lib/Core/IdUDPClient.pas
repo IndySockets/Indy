@@ -119,7 +119,9 @@ type
     function ReceiveBuffer(var ABuffer : TIdBytes;
       var VPeerIP: string; var VPeerPort: TIdPort; var VIPVersion: TIdIPVersion;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; override;
-    procedure Send(const AData: string; AEncoding: TIdTextEncoding = nil); overload;
+    procedure Send(const AData: string; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ); overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; override;
     procedure SendBuffer(const ABuffer: TIdBytes); reintroduce; overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort;
@@ -329,9 +331,11 @@ begin
   Result := ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, VoidIPVersion, AMSec);
 end;
 
-procedure TIdUDPClient.Send(const AData: string; AEncoding: TIdTextEncoding = nil);
+procedure TIdUDPClient.Send(const AData: string; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  );
 begin
-  Send(Host, Port, AData, AEncoding);
+  Send(Host, Port, AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 
 procedure TIdUDPClient.SendBuffer(const ABuffer : TIdBytes);
