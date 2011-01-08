@@ -997,7 +997,7 @@ type
   (*$HPPEMIT ''*)
 
 type
-  IdAnsiEncodingType = (encIndyDefault, encOSDefault, encASCII, encUTF7, encUTF8);
+  IdAnsiEncodingType = (encIndyDefault, encOSDefault, encASCII, encUTF7, encUTF8, enc8Bit);
 
 var
   {RLebeau: using ASCII by default because most Internet protocols that Indy
@@ -1641,6 +1641,7 @@ begin
       encASCII: VEncoding := IndyASCIIEncoding;
       encUTF7:  VEncoding := TIdTextEncoding.UTF7;
       encUTF8:  VEncoding := IndyUTF8Encoding;
+      enc8Bit:  VEncoding := Indy8BitEncoding;
     else
       VEncoding := TIdTextEncoding.Default;
     end;
