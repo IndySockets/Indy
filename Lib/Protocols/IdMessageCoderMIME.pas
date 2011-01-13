@@ -388,7 +388,7 @@ begin
       if not FProcessFirstLine then begin
         if IsBinaryContentTransferEncoding then begin
           //For binary, need EOL because the default LF causes spurious CRs in the output...
-          LLine := ReadLnRFC(VMsgEnd, EOL, '.', Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}); {do not localize}
+          LLine := ReadLnRFC(VMsgEnd, EOL, '.', Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF}); {do not localize}
         end else begin
           LLine := ReadLnRFC(VMsgEnd);
         end;
@@ -436,7 +436,7 @@ begin
             end;
           end;
           if Assigned(ADestStream) then begin
-            WriteStringToStream(ADestStream, LLine, Indy8BitEncoding{$IFDEF STRING_IS_ANSI});
+            WriteStringToStream(ADestStream, LLine, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
           end;
         end else begin
           if Assigned(ADestStream) then begin
