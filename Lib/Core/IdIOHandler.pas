@@ -1562,13 +1562,7 @@ begin
     ASize := AStream.Size;
     AStream.Position := 0;
   end;
-
-  //else ">0" ACount bytes
-  {$IFDEF STREAM_SIZE_64}
-  if (ASize > High(Integer)) and (not LargeStream) then begin
-    EIdIOHandlerRequiresLargeStream.Toss(RSRequiresLargeStream);
-  end;
-  {$ENDIF}
+  //else ">0" number of bytes
 
   // RLebeau 3/19/2006: DO NOT ENABLE WRITE BUFFERING IN THIS METHOD!
   //
@@ -1584,6 +1578,11 @@ begin
     if LargeStream then begin
       Write(Int64(ASize));
     end else begin
+      {$IFDEF STREAM_SIZE_64}
+      if ASize > High(Integer) then begin
+        EIdIOHandlerRequiresLargeStream.Toss(RSRequiresLargeStream);
+      end;
+      {$ENDIF}
       Write(Integer(ASize));
     end;
   end;
