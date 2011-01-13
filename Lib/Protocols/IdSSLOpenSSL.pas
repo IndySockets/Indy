@@ -191,6 +191,11 @@ unit IdSSLOpenSSL;
 
     Ciaran Costelloe, ccostelloe@flogas.ie
 }
+{
+RLebeau 1/12/2011: Breaking OnVerifyPeer event again, this time to add an
+additional AError parameter (patch courtesy of "jvlad", dmda@yandex.ru).
+This helps user code distinquish between Self-signed and invalid certificates.
+}
 
 interface
 
@@ -268,7 +273,7 @@ type
     const AWhere, Aret: TIdC_INT; const AType, AMsg : String ) of object;
   TPasswordEvent  = procedure(var Password: AnsiString) of object;
   TPasswordEventEx = procedure( ASender : TObject; var VPassword: AnsiString; const AIsWrite : Boolean) of object;
-  TVerifyPeerEvent  = function(Certificate: TIdX509; AOk: Boolean; ADepth: Integer): Boolean of object;
+  TVerifyPeerEvent  = function(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean of object;
   TIOHandlerNotify = procedure(ASender: TIdSSLIOHandlerSocketOpenSSL) of object;
 
   TIdSSLOptions = class(TPersistent)
@@ -399,7 +404,7 @@ type
     procedure DoGetPassword(var Password: AnsiString); virtual;
     procedure DoGetPasswordEx(var VPassword: AnsiString; const AIsWrite : Boolean); virtual;
 
-    function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth: Integer): Boolean; virtual;
+    function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean; virtual;
     function RecvEnc(var VBuffer: TIdBytes): Integer; override;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     procedure Init;
@@ -447,7 +452,7 @@ type
     procedure DoGetPassword(var Password: AnsiString); virtual;
 //TPasswordEventEx
     procedure DoGetPasswordEx(var VPassword: AnsiString; const AIsWrite : Boolean); virtual;
-    function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth: Integer): Boolean; virtual;
+    function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean; virtual;
     procedure InitComponent; override;
   public
     procedure Init; override;
@@ -857,7 +862,7 @@ var
   // str: String;
   VerifiedOK: Boolean;
   Depth: Integer;
-  // Error: Integer;
+  Error: Integer;
   LOk: Boolean;
 begin
   LockVerifyCB.Enter;
@@ -873,7 +878,7 @@ begin
       Certificate := TIdX509.Create(hcert, False); // the certificate is owned by the store
       try
         IdSSLSocket := TIdSSLSocket(SSL_get_app_data(hSSL));
-        X509_STORE_CTX_get_error(ctx);
+        Error := X509_STORE_CTX_get_error(ctx);
         Depth := X509_STORE_CTX_get_error_depth(ctx);
         if not ((Ok > 0) and (IdSSLSocket.fSSLContext.VerifyDepth >= Depth)) then begin
           Ok := 0;
@@ -886,10 +891,10 @@ begin
           LOk := True;
         end;
         if (IdSSLSocket.fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
-          VerifiedOK := TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk, Depth);
+          VerifiedOK := TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk, Depth, Error);
         end;
         if (IdSSLSocket.fParent is TIdServerIOHandlerSSLOpenSSL) then begin
-          VerifiedOK := TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk, Depth);
+          VerifiedOK := TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk, Depth, Error);
         end;
       finally
         FreeAndNil(Certificate);
@@ -1183,8 +1188,10 @@ var
   Lsk: PSTACK_OF_X509_NAME;
   LX: PX509;
   LXN, LXNDup: PX509_NAME;
+  Failed: Boolean;
 begin
   Result := nil;
+  Failed := False;
   LX := nil;
   Lsk := sk_X509_NAME_new(@xname_cmp);
   if Assigned(Lsk) then begin
@@ -1204,12 +1211,13 @@ begin
         LB := BIO_new_mem_buf(LM.Memory, LM.Size);
         if Assigned(LB) then begin
           try
-            while (PEM_read_bio_X509(LB, @LX, nil, nil) <> nil) do begin
-              try
+            try
+              while (PEM_read_bio_X509(LB, @LX, nil, nil) <> nil) do begin
                 if not Assigned(Result) then begin
                   Result := sk_X509_NAME_new_null;
                   if not Assigned(Result) then begin
                     SSLerr(SSL_F_SSL_LOAD_CLIENT_CA_FILE, ERR_R_MALLOC_FAILURE);
+                    Failed := True;
                     Exit;
                   end;
                 end;
@@ -1217,6 +1225,7 @@ begin
                 if not Assigned(LXN) then begin
                   // error
                   IndySSL_load_client_CA_file_err(Result);
+                  Failed := True;
                   Exit;
                 end;
                 // * check for duplicates */
@@ -1224,6 +1233,7 @@ begin
                 if not Assigned(LXNDup) then begin
                   // error
                   IndySSL_load_client_CA_file_err(Result);
+                  Failed := True;
                   Exit;
                 end;
                 if (sk_X509_NAME_find(Lsk, LXNDup) >= 0) then begin
@@ -1232,14 +1242,21 @@ begin
                   sk_X509_NAME_push(Lsk, LXNDup);
                   sk_X509_NAME_push(Result, LXNDup);
                 end;
-              finally
+              end;
+            finally
+              if Assigned(LX) then begin
                 X509_free(LX);
+              end;
+              if Failed and Assigned(Result) then begin
+                sk_X509_NAME_pop_free(Result, @X509_NAME_free);
+                Result := nil;
               end;
             end;
           finally
             BIO_free(LB);
           end;
-        end else begin
+        end
+        else begin
           SSLerr(SSL_F_SSL_LOAD_CLIENT_CA_FILE, ERR_R_MALLOC_FAILURE);
         end;
       finally
@@ -1248,7 +1265,8 @@ begin
     finally
       sk_X509_NAME_free(Lsk);
     end;
-  end else begin
+  end
+  else begin
     SSLerr(SSL_F_SSL_LOAD_CLIENT_CA_FILE, ERR_R_MALLOC_FAILURE);
   end;
   if Assigned(Result) then begin
@@ -1982,11 +2000,11 @@ begin
 end;
 
 function TIdServerIOHandlerSSLOpenSSL.DoVerifyPeer(Certificate: TIdX509;
-  AOk: Boolean; ADepth: Integer): Boolean;
+  AOk: Boolean; ADepth, AError: Integer): Boolean;
 begin
   Result := True;
   if Assigned(fOnVerifyPeer) then begin
-    Result := fOnVerifyPeer(Certificate, AOk, ADepth);
+    Result := fOnVerifyPeer(Certificate, AOk, ADepth, AError);
   end;
 end;
 
@@ -2229,11 +2247,11 @@ begin
 end;
 
 function TIdSSLIOHandlerSocketOpenSSL.DoVerifyPeer(Certificate: TIdX509;
-  AOk: Boolean; ADepth: Integer): Boolean;
+  AOk: Boolean; ADepth, AError: Integer): Boolean;
 begin
   Result := True;
   if Assigned(fOnVerifyPeer) then begin
-    Result := fOnVerifyPeer(Certificate, AOk, ADepth);
+    Result := fOnVerifyPeer(Certificate, AOk, ADepth, AError);
   end;
 end;
 

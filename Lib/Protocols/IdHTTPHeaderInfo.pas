@@ -1188,6 +1188,10 @@ begin
   begin
     RawHeaders.Values['Accept-Ranges'] := FAcceptRanges;
   end;
+  if FLastModified > 0 then
+  begin
+    RawHeaders.Values['Last-Modified'] := DateTimeGMTToHttpStr(FLastModified); {do not localize}
+  end;
 end;
 
 procedure TIdResponseHeaderInfo.Clear;

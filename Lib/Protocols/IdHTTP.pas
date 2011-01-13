@@ -366,7 +366,8 @@ type
   TIdHTTPConnectionType = (ctNormal, ctSSL, ctProxy, ctSSLProxy);
 
   // Protocol options
-  TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams, hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv);
+  TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams,
+    hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv, hoWaitForUnexpectedData);
   TIdHTTPOptions = set of TIdHTTPOption;
 
   // Must be documented
@@ -491,6 +492,7 @@ type
 }
     procedure DoRequest(const AMethod: TIdHTTPMethod; AURL: string;
       ASource, AResponseContent: TStream; AIgnoreReplies: array of SmallInt); virtual;
+    function CreateProtocol: TIdHTTPProtocol; virtual;
     procedure InitComponent; override;
     function InternalReadLn: String;
     procedure SetAuthenticationManager(Value: TIdAuthenticationManager);
@@ -747,10 +749,10 @@ begin
   try
     // If hoKeepOrigProtocol is SET, is possible to assume that the developer
     // is sure in operations of the server
-    if Connected then begin
-      Disconnect;
-    end;
     if not (hoKeepOrigProtocol in FOptions) then begin
+      if Connected then begin
+        Disconnect;
+      end;
       FProtocolVersion := pv1_0;
     end;
     DoRequest(Id_HTTPMethodPost, AURL, ASource, AResponseContent, []);
@@ -1217,10 +1219,7 @@ begin
 
     if Assigned(AResponse.ContentStream) then begin
       if Assigned(Compressor) and Compressor.IsReady then begin
-         case PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) of  {do not localize}
-           0: LDecMeth := 1;
-           1: LDecMeth := 2;
-         end;
+        LDecMeth := PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) + 1;  {do not localize}
       end;
       if LDecMeth > 0 then begin
         LS := TMemoryStream.Create;
@@ -1308,8 +1307,8 @@ begin
       if LDecMeth > 0 then begin
         LS.Position := 0;
         case LDecMeth of
-          1 :  Compressor.DecompressDeflateStream(LS, AResponse.ContentStream);
-          2 :  Compressor.DecompressGZipStream(LS, AResponse.ContentStream);
+          1 : Compressor.DecompressDeflateStream(LS, AResponse.ContentStream);
+          2 : Compressor.DecompressGZipStream(LS, AResponse.ContentStream);
         end;
       end;
     finally
@@ -1719,7 +1718,7 @@ begin
   end;
 
   if LUseConnectVerb then begin
-    LLocalHTTP := TIdHTTPProtocol.Create(Self);
+    LLocalHTTP := CreateProtocol;
     try
       with LLocalHTTP do begin
         Request.UserAgent := ARequest.UserAgent;
@@ -2501,11 +2500,13 @@ begin
             end;
           end;
         else begin
-          if (LResponseDigit = 1) or (LResponseCode = 304) then begin
-            CheckException(LResponseCode, AIgnoreReplies, 100);
-          end else begin
-            CheckException(LResponseCode, AIgnoreReplies);
-          end;
+          CheckException(LResponseCode, AIgnoreReplies,
+            iif(
+              ((LResponseDigit = 1) or (LResponseCode = 304))
+              and (hoWaitForUnexpectedData in FHTTP.HTTPOptions),
+                100,
+                IdTimeoutDefault)
+            );
           Result := wnJustExit;
           Exit;
         end;
@@ -2522,15 +2523,24 @@ begin
         (LResponseCode = 204) then
       begin
         // Have noticed one case where a non-conforming server did send an
-        // entity body in response to a HEAD request, so just ignore anything
-        // the server may send by accident
-        DiscardContent(100); // Lets wait for any kind of content
+        // entity body in response to a HEAD request.  If requested, ignore
+        // anything the server may send by accident
+         DiscardContent(
+          iif(hoWaitForUnexpectedData in FHTTP.HTTPOptions,
+            100,
+            IdTimeoutDefault)
+          );
       end else begin
         FHTTP.ReadResult(Response);
       end;
       Result := wnJustExit;
     end;
   end;
+end;
+
+function TIdCustomHTTP.CreateProtocol: TIdHTTPProtocol;
+begin
+  Result := TIdHTTPProtocol.Create(Self);
 end;
 
 procedure TIdCustomHTTP.InitComponent;
@@ -2549,7 +2559,7 @@ begin
   //
   FProtocolVersion := Id_TIdHTTP_ProtocolVersion;
 
-  FHTTPProto := TIdHTTPProtocol.Create(Self);
+  FHTTPProto := CreateProtocol;
   FProxyParameters := TIdProxyConnectionInfo.Create;
   FProxyParameters.Clear;
 
@@ -2592,7 +2602,7 @@ procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
   AURL: string; ASource, AResponseContent: TStream;
   AIgnoreReplies: array of SmallInt);
 var
-  LResponseLocation: Integer;
+  LResponseLocation: TIdStreamSize;
 begin
   //reset any counters
   FRedirectCount := 0;

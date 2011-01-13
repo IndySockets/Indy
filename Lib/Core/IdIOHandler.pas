@@ -1464,8 +1464,13 @@ begin
         if Opened then begin
           // No need to call AntiFreeze, the Readable does that.
           if SourceIsAvailable then begin
-            // TODO: Whey are we reallocating LBuffer every time? This should
-            // be a one time operation per connection.
+            // TODO: Whey are we reallocating LBuffer every time? This
+	    // should be a one time operation per connection.
+
+            // RLebeau: because the Intercept does not allow the buffer
+            // size to be specified, and the Intercept could potentially
+            // resize the buffer...
+
             SetLength(LBuffer, RecvBufferSize);
             try
               LByteCount := ReadDataFromSource(LBuffer);
@@ -1585,18 +1590,17 @@ begin
 
   BeginWork(wmWrite, ASize);
   try
+    SetLength(LBuffer, FSendBufferSize);
     while ASize > 0 do begin
-      SetLength(LBuffer, FSendBufferSize); //BGO: bad for speed
-      LBufSize := IndyMin(ASize, FSendBufferSize);
+      LBufSize := IndyMin(ASize, Length(LBuffer));
       // Do not use ReadBuffer. Some source streams are real time and will not
       // return as much data as we request. Kind of like recv()
       // NOTE: We use .Size - size must be supported even if real time
       LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
-      if LBufSize = 0 then begin
+      if LBufSize <= 0 then begin
         raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
-      SetLength(LBuffer, LBufSize);
-      Write(LBuffer);
+      Write(LBuffer, LBufSize);
       // RLebeau: DoWork() is called in WriteDirect()
       //DoWork(wmWrite, LBufSize);
       Dec(ASize, LBufSize);
@@ -2382,17 +2386,21 @@ var
 begin
   // Check if disconnected
   CheckForDisconnect(True, True);
-  // TODO: pass offset/size parameters to the Intercept
-  // so that a copy is no longer needed here
-  LTemp := ToBytes(ABuffer, ALength, AOffset);
   if Intercept <> nil then begin
+    // TODO: pass offset/size parameters to the Intercept
+    // so that a copy is no longer needed here
+    LTemp := ToBytes(ABuffer, ALength, AOffset);
     Intercept.Send(LTemp);
+    LSize := Length(LTemp);
+    LPos := 0;
+  end else begin
+    LTemp := ABuffer;
+    LSize := IndyLength(LTemp, ALength, AOffset);
+    LPos := AOffset;
   end;
-  LSize := Length(LTemp);
-  LPos := 0;
-  while LPos < LSize do
+  while LSize > 0 do
   begin
-    LByteCount := WriteDataToTarget(LTemp, LPos, LSize - LPos);
+    LByteCount := WriteDataToTarget(LTemp, LPos, LSize);
     if LByteCount < 0 then
     begin
       LLastError := GStack.CheckForSocketError(LByteCount, [ID_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]);
@@ -2410,6 +2418,7 @@ begin
     CheckForDisconnect;
     DoWork(wmWrite, LByteCount);
     Inc(LPos, LByteCount);
+    Dec(LSize, LByteCount);
   end;
 end;
 
