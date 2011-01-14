@@ -1654,7 +1654,8 @@ begin
   end;
   ContentLength := FileSizeByName(AFile);
   if Length(ContentDisposition) = 0 then begin
-    ContentDisposition := IndyFormat('attachment: filename="%s";', [ExtractFileName(AFile)]);
+    // TODO: use EncodeHeader() here...
+    ContentDisposition := IndyFormat('attachment; filename="%s";', [ExtractFileName(AFile)]);
   end;
   WriteHeader;
   EnableTransferFile := not (AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase);
