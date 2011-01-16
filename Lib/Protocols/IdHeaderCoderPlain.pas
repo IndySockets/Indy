@@ -26,7 +26,7 @@ uses
 
 class function TIdHeaderCoderPlain.Decode(const ACharSet: string; const AData: TIdBytes): String;
 begin
-  Result := BytesToString(AData, Indy8BitEncoding);
+  Result := BytesToStringRaw(AData);
 end;
 
 class function TIdHeaderCoderPlain.Encode(const ACharSet, AData: String): TIdBytes;

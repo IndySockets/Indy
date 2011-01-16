@@ -1,7 +1,9 @@
 unit IdSASL_NTLM;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdSASL,
   IdSASLUserPass;
@@ -45,30 +47,29 @@ Level        |	Sent by Client               |	Accepted by Server
   end;
 
 implementation
-uses IdFIPS, IdNTLMv2, IdGlobal;
+
+uses
+  IdFIPS, IdNTLMv2, IdGlobal;
+  
 //uses IdNTLM;
 
 { TIdSASLNTLM }
 
 function TIdSASLNTLM.ContinueAuthenticate(const ALastResponse, AHost,
   AProtocolName: String): string;
-var LMsg : TIdBytes;
+var
+  LMsg : TIdBytes;
   LNonce : TIdBytes; //this is also called the challange
   LTargetName, LTargetInfo : TIdBytes;
   LFlags : LongWord;
   LDomain, LUserName : String;
-  LLen : Integer;
-
 begin
-  LLen := Length(ALastResponse);
-  SetLength(LMsg,LLen);
-  CopyTIdString(ALastResponse, LMsg, 0, LLen, Indy8BitEncoding);
-
+  LMsg := ToBytes(ALastResponse, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   IdNTLMv2.ReadType2Msg(LMsg, LFlags, LTargetName, LTargetInfo, LNonce);
   IdGlobal.DebugOutput('Type 2 Flags = '+ DumpFlags(LFlags));
   GetDomain(GetUsername, LUsername, LDomain);
-  Result := BytesToString( BuildType3Msg(LDomain, LDomain, GetUsername, GetPassword,
-    LFlags, LNonce, LTargetName, LTargetInfo, FLMCompatibility ), Indy8BitEncoding);
+  Result := BytesToStringRaw( BuildType3Msg(LDomain, LDomain, GetUsername, GetPassword,
+    LFlags, LNonce, LTargetName, LTargetInfo, FLMCompatibility) );
 end;
 
 procedure TIdSASLNTLM.InitComponent;

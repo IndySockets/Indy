@@ -524,7 +524,7 @@ begin
 
   {Suggested by Andrew P.Rybin for easy 8bit support}
   if HeaderEncoding = '8' then begin {Do not Localize}
-    Result := BytesToString(Buf, Indy8BitEncoding);
+    Result := BytesToStringRaw(Buf);
     Exit;
   end;//if
 

@@ -415,7 +415,7 @@ begin
       Id_ICMP_ECHOREPLY, Id_ICMP_ECHO:
       begin
         FReplyStatus.ReplyStatusType := rsEcho;
-        FReplyData := BytesToString(FBufReceive, LIdx, -1, Indy8BitEncoding);
+        FReplyData := BytesToStringRaw(FBufReceive, LIdx, -1);
         // result is only valid if the seq. number is correct
       end;
       Id_ICMP_UNREACH:

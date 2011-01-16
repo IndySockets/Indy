@@ -483,7 +483,7 @@ begin
     try
       // Socks server replies on connect, this is the second part
       AIOHandler.ReadBytes(LResponse, 6, False); //overwrite the first part for now
-      TIdIOHandlerSocket(AIOHandler).Binding.SetBinding(IntToStr(LResponse[2])+'.'+IntToStr(LResponse[3])+'.'+IntToStr(LResponse[4])+'.'+IntToStr(LResponse[5]), LResponse[0]*256+LResponse[1]);
+      TIdIOHandlerSocket(AIOHandler).Binding.SetBinding(BytesToIPv4Str(LResponse, 2), LResponse[0]*256+LResponse[1]);
     except
       raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
     end;
@@ -644,7 +644,7 @@ begin
       case LType of
         1 : begin
               //IPv4
-              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[0])+'.'+IntToStr(LBuf[1])+'.'+IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3]), LBuf[4]*256+LBuf[5], Id_IPv4);
+              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf), LBuf[4]*256+LBuf[5], Id_IPv4);
             end;
         3 : begin
               TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2)), LBuf[4]*256+LBuf[5], TIdIOHandlerSocket(AIOHandler).IPVersion);
@@ -724,7 +724,7 @@ begin
     case LType of
       1 : begin
             //IPv4
-            TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[0])+'.'+IntToStr(LBuf[1])+'.'+IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3]), LBuf[4]*256+LBuf[5], Id_IPv4);
+            TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf), LBuf[4]*256+LBuf[5], Id_IPv4);
           end;
       3 : begin
             //FQN
@@ -759,7 +759,7 @@ begin
 
     // Socks server replies on connect, this is the second part
     AIOHandler.ReadBytes(LBuf, 6, False);      // just write it over the first part for now
-    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3])+'.'+IntToStr(LBuf[4])+'.'+IntToStr(LBuf[5]), LBuf[0]*256+LBuf[1]);
+    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf, 2), LBuf[0]*256+LBuf[1]);
   end;
 end;
 
@@ -889,7 +889,6 @@ function TIdSocksInfo.DisasmUDPReplyPacket(const APacket : TIdBytes;
 var
   LLen : Integer;
   LIP6 : TIdIPv6Address;
-  LHost : TIdBytes;
   i : Integer;
 begin
   if Length(APacket) < 5 then begin
@@ -900,7 +899,7 @@ begin
     // IP V4
     1: begin
          LLen := 4 + 4; //4 IPv4 address len, 4- 2 reserved, 1 frag, 1 atype
-         VHost := IntToStr(APacket[4])+'.'+IntToStr(APacket[5])+'.'+IntToStr(APacket[6])+'.'+IntToStr(APacket[7]);
+         VHost := BytesToIPv4Str(APacket, 4);
          VIPVersion := Id_IPv4;
        end;
     // FQDN
@@ -909,17 +908,13 @@ begin
          if Length(APacket)< (5+LLen) then begin
            Exit;
          end;
-         SetLength(LHost, APacket[4]);
-         CopyTIdBytes(APacket, 5, LHost, 0, APacket[4]);
-         VHost := BytesToString(LHost);
+         VHost := BytesToString(APacket, 5, APacket[4]);
          // VIPVersion is pre-initialized by the receiving socket before DisasmUDPReplyPacket() is called
        end;
     // IP V6  - 4:
     else begin
-      LLen := 16 + 4; // 16 is for address, 2 is for port length,4 - 2 reserved, 1 frag, 1 atype
-      SetLength(LHost,16);
-      CopyTIdBytes(APacket, 5, LHost, 0, 16);
-      BytesToIPv6(LHost,LIP6);
+      LLen := 16 + 4; // 16 is for address, 2 is for port length, 4 - 2 reserved, 1 frag, 1 atype
+      BytesToIPv6(APacket, LIP6, 5);
       for i := 0 to 7 do begin
         LIP6[i] := GStack.NetworkToHost(LIP6[i]);
       end;

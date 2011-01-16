@@ -836,7 +836,7 @@ end;
 function LongWordToFourChar(AValue : LongWord): string;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := BytesToString(ToBytes(AValue), Indy8BitEncoding);
+  Result := BytesToStringRaw(ToBytes(AValue));
 end;
 
 procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
@@ -866,7 +866,7 @@ function WordToStr(const Value: Word): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   {$IFDEF STRING_IS_UNICODE}
-  Result := BytesToString(ToBytes(Value), Indy8BitEncoding);
+  Result := BytesToStringRaw(ToBytes(Value));
   {$ELSE}
   SetLength(Result, SizeOf(Value));
   Move(Value, Result[1], SizeOf(Value));
