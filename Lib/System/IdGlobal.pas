@@ -1337,9 +1337,13 @@ function BytesToString(const AValue: TIdBytes; const AStartIndex: Integer;
   const ALength: Integer = -1; AByteEncoding: TIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
   ): string; overload;
+
+// BytesToStringRaw() differs from BytesToString() in that it stores the
+// byte octets as-is, whereas BytesToString() may decode character encodings
 function BytesToStringRaw(const AValue: TIdBytes): string; overload;
 function BytesToStringRaw(const AValue: TIdBytes; const AStartIndex: Integer;
   const ALength: Integer = -1): string; overload;
+
 function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0;
   AByteEncoding: TIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
@@ -2123,6 +2127,7 @@ end;
 constructor TIdMBCSEncoding.Create;
 begin
   {$IFDEF USE_ICONV}
+  // TODO: figure out a way to determine this dynamically, or let the user specify a default...
   Create('ASCII'); {do not localize}
   {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -2367,7 +2372,54 @@ end;
 
 function TIdMBCSEncoding.GetPreamble: TIdBytes;
 begin
+  {$IFDEF USE_ICONV}
+  case PosInStrArray(FCharSet, ['utf-8', 'utf-16', 'utf-16le', 'utf-16be'], False) of {do not localize}
+    0: begin
+      SetLength(Result, 3);
+      Result[0] := $EF;
+      Result[1] := $BB;
+      Result[2] := $BF;
+    end;
+    1, 2: begin
+      SetLength(Result, 2);
+      Result[0] := $FF;
+      Result[1] := $FE;
+    end;
+    3: begin
+      SetLength(Result, 2);
+      Result[0] := $FE;
+      Result[1] := $FF;
+    end;
+  else
+    SetLength(Result, 0);
+  end;
+  {$ELSE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  case FCodePage of
+    CP_UTF8: begin
+      SetLength(Result, 3);
+      Result[0] := $EF;
+      Result[1] := $BB;
+      Result[2] := $BF;
+    end;
+    1200: begin
+      SetLength(Result, 2);
+      Result[0] := $FF;
+      Result[1] := $FE;
+    end;
+    1201: begin
+      SetLength(Result, 2);
+      Result[0] := $FE;
+      Result[1] := $FF;
+    end;
+  else
+    SetLength(Result, 0);
+  end;
+    {$ELSE}
   SetLength(Result, 0);
+  ToDo('GetPreamble() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+    {$ENDIF}
+  {$ENDIF}
 end;
 
 { TIdUTF7Encoding }
