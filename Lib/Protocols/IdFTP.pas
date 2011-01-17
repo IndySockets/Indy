@@ -1512,6 +1512,7 @@ begin
     try
       InternalGet(Trim(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LDest); {do not localize}
       FreeAndNil(FDirectoryListing);
+      FDirFormat := '';
       LDest.Position := 0;
       {$IFDEF HAS_TEncoding}
       FListResult.LoadFromStream(LDest, IOHandler.DefStringEncoding);
@@ -1522,6 +1523,7 @@ begin
         FDetails := ADetails;
         FUsedMLS := False;
       end;
+      // FDirFormat will be updated in ParseFTPList...
     finally
       FreeAndNil(LDest);
     end;
@@ -2940,6 +2942,7 @@ begin
   try
     InternalGet(Trim('MLSD ' + ADirectory), LDest);  {do not localize}
     FreeAndNil(FDirectoryListing);
+    FDirFormat := '';
     DoOnRetrievedDir;
     LDest.Position := 0;
     // RLebeau: using Indy8BitEncoding() here.  TIdFTPListParseBase will
@@ -2953,6 +2956,7 @@ begin
       FDetails := True;
       FUsedMLS := True;
     end;
+    FDirFormat := MLST;
   finally
     FreeAndNil(LDest);
   end;
