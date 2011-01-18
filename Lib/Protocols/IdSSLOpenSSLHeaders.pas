@@ -15120,7 +15120,9 @@ var
   // SSL_set_app_data : function(s: PSSL; arg: Pointer): Integer cdecl = nil;
   // SSL_get_app_data : function(s: PSSL): Pointer cdecl = nil;
   {$EXTERNALSYM SSL_SESSION_get_id}
-  SSL_SESSION_get_id : function(const s: PSSL_SESSION; id: PPAnsiChar; length: PIdC_INT): PAnsiChar cdecl = nil;
+  SSL_SESSION_get_id : function(const s: PSSL_SESSION; length: PIdC_UINT): PAnsiChar cdecl = nil;
+  {$EXTERNALSYM SSL_copy_session_id}
+  SSL_copy_session_id : procedure(sslTo: PSSL; const sslFrom: PSSL) cdecl = nil;
   {$EXTERNALSYM X509_NAME_oneline}
   X509_NAME_oneline : function(a: PX509_NAME; buf: PAnsiChar; size: TIdC_INT): PAnsiChar cdecl = nil;
   {$EXTERNALSYM X509_NAME_cmp}
@@ -18887,7 +18889,7 @@ them in case we use them later.}
   {CH fn_SSL_SESSION_set_time = 'SSL_SESSION_set_time'; }  {Do not localize}
   {CH fn_SSL_SESSION_get_timeout = 'SSL_SESSION_get_timeout'; }  {Do not localize}
   {CH fn_SSL_SESSION_set_timeout = 'SSL_SESSION_set_timeout'; }  {Do not localize}
-  {CH fn_SSL_copy_session_id = 'SSL_copy_session_id'; }  {Do not localize}
+  fn_SSL_copy_session_id = 'SSL_copy_session_id'; {Do not localize}
   {CH fn_SSL_SESSION_new = 'SSL_SESSION_new'; }  {Do not localize}
   {CH fn_SSL_SESSION_hash = 'SSL_SESSION_hash'; }  {Do not localize}
   {CH fn_SSL_SESSION_cmp = 'SSL_SESSION_cmp'; }  {Do not localize}
@@ -19504,8 +19506,9 @@ begin
   @SSL_CTX_load_verify_locations := LoadFunction(fn_SSL_CTX_load_verify_locations);
   @SSL_get_session := LoadFunction(fn_SSL_get_session);
   @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);
-  @SSL_SESSION_get_id := LoadFunction(fn_SSL_SESSION_get_id,False);
-  // CRYPTO LIB
+  @SSL_SESSION_get_id := LoadFunction(fn_SSL_SESSION_get_id);
+  @SSL_copy_session_id := LoadFunction(fn_SSL_copy_session_id);
+   // CRYPTO LIB
   @_SSLeay_version := LoadFunctionCLib(fn_SSLeay_version);
   @SSLeay := LoadFunctionCLib(fn_SSLeay);
   @d2i_X509_NAME := LoadFunctionCLib(fn_d2i_X509_NAME);
@@ -19859,6 +19862,7 @@ begin
   @SSL_get_session := nil;
   @SSLeay_add_ssl_algorithms := nil;
   @SSL_SESSION_get_id := nil;
+  @SSL_copy_session_id := nil;
   // CRYPTO LIB
   @_SSLeay_version := nil;
   @SSLeay := nil;
