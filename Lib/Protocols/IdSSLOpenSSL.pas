@@ -261,8 +261,8 @@ type
   end;
 
   TIdSSLByteArray = record
-    Length: TIdC_INT;
-    Data: PAnsiChar;
+    Length: TIdC_UINT;
+    Data: PAnsiChar; // RLebeau: should be PByte, but not all Delphi versions support indexed access using PByte
   end;
 
   TIdX509 = class;
@@ -2770,17 +2770,15 @@ end;
 function TIdSSLSocket.GetSessionID: TIdSSLByteArray;
 var
   pSession: PSSL_SESSION;
-  tmpArray: TIdSSLByteArray;
 begin
   Result.Length := 0;
-  FillChar(tmpArray, SizeOf(TIdSSLByteArray), 0);
-  if Assigned(SSL_get_session) then
+  Result.Data := nil;
+  if Assigned(SSL_get_session) and Assigned(SSL_SESSION_get_id) then
   begin
-    if fSSL<>nil then begin
+    if fSSL <> nil then begin
       pSession := SSL_get_session(fSSL);
       if pSession <> nil then begin
-        SSL_SESSION_get_id(pSession, @tmpArray.Data, @tmpArray.Length);
-        Result := tmpArray;
+        Result.Data := SSL_SESSION_get_id(pSession, @Result.Length);
       end;
     end;
   end;
@@ -2789,12 +2787,14 @@ end;
 function  TIdSSLSocket.GetSessionIDAsString:String;
 var
   Data: TIdSSLByteArray;
-  i: Integer;
+  i: TIdC_UINT;
 begin
   Result := '';    {Do not Localize}
   Data := GetSessionID;
-  for i := 0 to Data.Length-1 do begin
-    Result := Result+IndyFormat('%.2x', [Byte(Data.Data[I])]);{do not localize}
+  if Data.Length > 0 then begin
+    for i := 0 to Data.Length-1 do begin
+      Result := Result + IndyFormat('%.2x', [Byte(Data.Data[I])]);{do not localize}
+    end;
   end;
 end;
 
