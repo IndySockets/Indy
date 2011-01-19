@@ -95,11 +95,17 @@ type
     procedure ReadHeader; virtual;
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
-    function ReadLn(const ATerminator: string = LF; AEncoding: TIdTextEncoding = nil): string;
+    function ReadLn(const ATerminator: string = LF; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean; AEncoding: TIdTextEncoding = nil): String; overload;
+    function ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): String; overload;
     function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-      const ADelim: String = '.'; AEncoding: TIdTextEncoding = nil): String; overload; {do not localize}
+      const ADelim: String = '.'; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): String; overload; {do not localize}
     destructor Destroy; override;
     //
     property Filename: string read FFilename;
@@ -267,30 +273,36 @@ begin
 end;
 
 function TIdMessageDecoder.ReadLn(const ATerminator: string = LF;
-  AEncoding: TIdTextEncoding = nil): string;
+  AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
 var
   LWasSplit: Boolean;  //Needed for lines > 16K, e.g. if Content-Transfer-Encoding is 'binary'
 begin
   Result := '';
   if SourceStream is TIdTCPStream then begin
     repeat
-      Result := Result + TIdTCPStream(SourceStream).Connection.IOHandler.ReadLnSplit(LWasSplit, ATerminator, IdTimeoutDefault, -1, AEncoding);
+      Result := Result + TIdTCPStream(SourceStream).Connection.IOHandler.ReadLnSplit(LWasSplit, ATerminator, IdTimeoutDefault, -1, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     until not LWasSplit;
   end else begin
-    Result := ReadLnFromStream(SourceStream, -1, False, AEncoding);
+    Result := ReadLnFromStream(SourceStream, -1, False, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
   end;
 end;
 
 function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean;
-  AEncoding: TIdTextEncoding = nil): String;
+  AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): String;
 begin
-  Result := ReadLnRFC(VMsgEnd, LF, '.', AEncoding); {do not localize}
+  Result := ReadLnRFC(VMsgEnd, LF, '.', AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}); {do not localize}
 end;
 
 function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-  const ADelim: String = '.'; AEncoding: TIdTextEncoding = nil): String;
+  const ADelim: String = '.'; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): String;
 begin
-  Result := ReadLn(ALineTerminator, AEncoding);
+  Result := ReadLn(ALineTerminator, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
   // Do not use ATerminator since always ends with . (standard)
   if Result = ADelim then {do not localize}
   begin
