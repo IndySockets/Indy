@@ -1954,17 +1954,22 @@ begin
   Assert(ASocket<>nil);
   Assert(fSSLContext<>nil);
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  LIO.PassThrough := True;
-  LIO.Open;
-  if LIO.Binding.Accept(ASocket.Handle) then begin
-    //we need to pass the SSLOptions for the socket from the server
-    FreeAndNil(LIO.fxSSLOptions);
-    LIO.IsPeer := True;
-    LIO.fxSSLOptions := fxSSLOptions;
-    LIO.fSSLSocket := TIdSSLSocket.Create(self);
-    LIO.fSSLContext := fSSLContext;
-  end else begin
-    FreeAndNil(LIO);
+  try
+    LIO.PassThrough := True;
+    LIO.Open;
+    if LIO.Binding.Accept(ASocket.Handle) then begin
+      //we need to pass the SSLOptions for the socket from the server
+      FreeAndNil(LIO.fxSSLOptions);
+      LIO.IsPeer := True;
+      LIO.fxSSLOptions := fxSSLOptions;
+      LIO.fSSLSocket := TIdSSLSocket.Create(Self);
+      LIO.fSSLContext := fSSLContext;
+    end else begin
+      FreeAndNil(LIO);
+    end;
+  except
+    LIO.Free;
+    raise;
   end;
   Result := LIO;
 end;
@@ -2013,14 +2018,19 @@ var
   LIO : TIdSSLIOHandlerSocketOpenSSL;
 begin
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  LIO.PassThrough := True;
-  LIO.OnGetPassword := DoGetPassword;
-  LIO.OnGetPasswordEx := OnGetPasswordEx;
-  //todo memleak here - setting IsPeer causes SSLOptions to not free
-  LIO.IsPeer := True;
-  LIO.SSLOptions.Assign(SSLOptions);
-  LIO.SSLOptions.Mode := sslmBoth;{doesn't really matter}
-  LIO.SSLContext := SSLContext;
+  try
+    LIO.PassThrough := True;
+    LIO.OnGetPassword := DoGetPassword;
+    LIO.OnGetPasswordEx := OnGetPasswordEx;
+    //todo memleak here - setting IsPeer causes SSLOptions to not free
+    LIO.IsPeer := True;
+    LIO.SSLOptions.Assign(SSLOptions);
+    LIO.SSLOptions.Mode := sslmBoth;{doesn't really matter}
+    LIO.SSLContext := SSLContext;
+  except
+    LIO.Free;
+    raise;
+  end;
   Result := LIO;
 end;
 
@@ -2035,14 +2045,19 @@ var
   LIO : TIdSSLIOHandlerSocketOpenSSL;
 begin
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  LIO.PassThrough := True;
-  LIO.OnGetPassword := DoGetPassword;
-  LIO.OnGetPasswordEx := OnGetPasswordEx;
-  //todo memleak here - setting IsPeer causes SSLOptions to not free
-  LIO.IsPeer := True;
-  LIO.SSLOptions.Assign(SSLOptions);
-  LIO.SSLOptions.Mode := sslmBoth;{or sslmServer}
-  LIO.SSLContext := nil;
+  try
+    LIO.PassThrough := True;
+    LIO.OnGetPassword := DoGetPassword;
+    LIO.OnGetPasswordEx := OnGetPasswordEx;
+    //todo memleak here - setting IsPeer causes SSLOptions to not free
+    LIO.IsPeer := True;
+    LIO.SSLOptions.Assign(SSLOptions);
+    LIO.SSLOptions.Mode := sslmBoth;{or sslmServer}
+    LIO.SSLContext := nil;
+  except
+    LIO.Free;
+    raise;
+  end;
   Result := LIO;
 end;
 
@@ -2055,15 +2070,20 @@ var
   LIO : TIdSSLIOHandlerSocketOpenSSL;
 begin
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  LIO.PassThrough := True;
-//  LIO.SSLOptions.Free;
-//  LIO.SSLOptions := SSLOptions;
-//  LIO.SSLContext := SSLContext;
-  LIO.SSLOptions.Assign(SSLOptions);
-//  LIO.SSLContext := SSLContext;
-  LIO.SSLContext := nil;//SSLContext.Clone; // BGO: clone does not work, it must be either NIL, or SSLContext
-  LIO.OnGetPassword := DoGetPassword;
-   LIO.OnGetPasswordEx := OnGetPasswordEx;
+  try
+    LIO.PassThrough := True;
+  //  LIO.SSLOptions.Free;
+  //  LIO.SSLOptions := SSLOptions;
+  //  LIO.SSLContext := SSLContext;
+    LIO.SSLOptions.Assign(SSLOptions);
+  //  LIO.SSLContext := SSLContext;
+    LIO.SSLContext := nil;//SSLContext.Clone; // BGO: clone does not work, it must be either NIL, or SSLContext
+    LIO.OnGetPassword := DoGetPassword;
+    LIO.OnGetPasswordEx := OnGetPasswordEx;
+  except
+    LIO.Free;
+    raise;
+  end;
   Result := LIO;
 end;
 
@@ -2294,10 +2314,16 @@ var
   LIO : TIdSSLIOHandlerSocketOpenSSL;
 begin
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
-  LIO.SSLOptions.Assign( SSLOptions );
-  LIO.OnStatusInfo := DoStatusInfo;
-  LIO.OnGetPassword := DoGetPassword;
-  LIO.OnVerifyPeer := DoVerifyPeer;
+  try
+    LIO.SSLOptions.Assign( SSLOptions );
+    LIO.OnStatusInfo := DoStatusInfo;
+    LIO.OnGetPassword := DoGetPassword;
+    LIO.OnVerifyPeer := DoVerifyPeer;
+    LIO.fSSLSocket := TIdSSLSocket.Create(Self);
+  except
+    LIO.Free;
+    raise;
+  end;
   Result := LIO;
 end;
 
@@ -2634,9 +2660,15 @@ procedure TIdSSLSocket.Accept(const pHandle: TIdStackSocketHandle);
 var
   error: Integer;
   StatusStr: String;
+  LParentIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
   Assert(fSSL=nil);
   Assert(fSSLContext<>nil);
+  if fParent is TIdSSLIOHandlerSocketOpenSSL then begin
+    LParentIO := fParent as TIdSSLIOHandlerSocketOpenSSL;
+  end else begin
+    LParentIO := nil;
+  end;
   fSSL := SSL_new(fSSLContext.fContext);
   if fSSL = nil then begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
@@ -2649,6 +2681,11 @@ begin
   if error <= 0 then begin
     EIdOSSLFDSetError.RaiseException(fSSL, error, RSSSLFDSetError);
   end;
+  if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
+     (LParentIO.fSSLSocket <> Self) then
+  begin
+    SSL_copy_session_id(fSSL, LParentIO.fSSLSocket.fSSL);
+  end;
   error := SSL_accept(fSSL);
   if error <= 0 then begin
     EIdOSSLAcceptError.RaiseException(fSSL, error, RSSSLAcceptError);
@@ -2657,8 +2694,8 @@ begin
                'description = ' + Cipher.Description + '; ' +    {Do not Localize}
                'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
                'version = ' + Cipher.Version + '; ';    {Do not Localize}
-  if fParent is TIdServerIOHandlerSSLOpenSSL then begin
-    (fParent as TIdServerIOHandlerSSLOpenSSL).DoStatusInfo(StatusStr);
+  if LParentIO <> nil then begin
+    LParentIO.DoStatusInfo(StatusStr);
   end;
 end;
 
@@ -2666,9 +2703,15 @@ procedure TIdSSLSocket.Connect(const pHandle: TIdStackSocketHandle);
 var
   error: Integer;
   StatusStr: String;
+  LParentIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
   Assert(fSSL=nil);
   Assert(fSSLContext<>nil);
+  if fParent is TIdSSLIOHandlerSocketOpenSSL then begin
+    LParentIO := fParent as TIdSSLIOHandlerSocketOpenSSL;
+  end else begin
+    LParentIO := nil;
+  end;
   fSSL := SSL_new(fSSLContext.fContext);
   if fSSL = nil then begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
@@ -2677,9 +2720,14 @@ begin
   if error <= 0 then begin
     EIdOSSLDataBindingError.RaiseException(fSSL, error, RSSSLDataBindingError);
   end;
-  error :=  SSL_set_fd(fSSL, pHandle);
+  error := SSL_set_fd(fSSL, pHandle);
   if error <= 0 then begin
     EIdOSSLFDSetError.RaiseException(fSSL, error, RSSSLFDSetError);
+  end;
+  if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
+     (LParentIO.fSSLSocket <> Self) then
+  begin
+    SSL_copy_session_id(fSSL, LParentIO.fSSLSocket.fSSL);
   end;
   error := SSL_connect(fSSL);
   if error <= 0 then begin
@@ -2689,8 +2737,8 @@ begin
                'description = ' + Cipher.Description + '; ' +    {Do not Localize}
                'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
                'version = ' + Cipher.Version + '; ';    {Do not Localize}
-  if fParent is TIdSSLIOHandlerSocketOpenSSL then begin
-    (fParent as TIdSSLIOHandlerSocketOpenSSL).DoStatusInfo(StatusStr);
+  if LParentIO <> nil then begin
+    LParentIO.DoStatusInfo(StatusStr);
   end;
 end;
 
