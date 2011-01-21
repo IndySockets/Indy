@@ -2349,7 +2349,7 @@ end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.RaiseError(AError: Integer);
 begin
-  if (PassThrough) or (AError = Id_WSAESHUTDOWN) or (AError = Id_WSAECONNABORTED) then begin
+  if (PassThrough) or (AError = Id_WSAESHUTDOWN) or (AError = Id_WSAECONNABORTED) or (AError = Id_WSAECONNRESET) then begin
     inherited RaiseError(AError);
   end else begin
     EIdOpenSSLAPISSLError.RaiseException(fSSLSocket.fSSL, AError, '');

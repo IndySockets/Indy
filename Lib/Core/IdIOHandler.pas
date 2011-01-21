@@ -2402,10 +2402,10 @@ begin
     LByteCount := WriteDataToTarget(LTemp, LPos, LSize);
     if LByteCount < 0 then
     begin
-      LLastError := GStack.CheckForSocketError(LByteCount, [ID_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]);
+      LLastError := CheckForError(LByteCount);
       FClosedGracefully := True;
       Close;
-      GStack.RaiseSocketError(LLastError);
+      RaiseError(LLastError);
     end;
     // TODO - Have a AntiFreeze param which allows the send to be split up so that process
     // can be called more. Maybe a prop of the connection, MaxSendSize?
