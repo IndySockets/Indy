@@ -706,6 +706,7 @@ varies between servers.  A typical line that gets parsed into this is:
     FCapabilities: TStrings;
     FLineStruct: TIdIMAPLineStruct;
     function  GetReplyClass:TIdReplyClass; override;
+    function  GetSupportsTLS: Boolean; override;
     function  CheckConnectionState(AAllowedState: TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
     function  CheckConnectionState(const AAllowedStates: array of TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
     function  CheckReplyForCapabilities: Boolean;
@@ -1590,6 +1591,11 @@ end;
 function TIdIMAP4.GetReplyClass:TIdReplyClass;
 begin
   Result := TIdReplyIMAP4;
+end;
+
+function TIdIMAP4.GetSupportsTLS: Boolean;
+begin
+  Result := IsCapabilityListed('STARTTLS'); //do not localize
 end;
 
 function TIdIMAP4.CheckConnectionState(AAllowedState: TIdIMAP4ConnectionState): TIdIMAP4ConnectionState;
