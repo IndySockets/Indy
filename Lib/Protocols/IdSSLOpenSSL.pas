@@ -2276,6 +2276,10 @@ begin
 end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.OpenEncodedConnection;
+{$IFDEF WIN32_OR_WIN64}
+var
+  LTimeout: Integer;
+{$ENDIF}
 begin
   Assert(Binding<>nil);
   if not Assigned(fSSLSocket) then begin
@@ -2284,15 +2288,19 @@ begin
   Assert(fSSLSocket.fSSLContext=nil);
   fSSLSocket.fSSLContext := fSSLContext;
   {$IFDEF WIN32_OR_WIN64}
-    // begin bug fix
-    if Win32MajorVersion >= 6 then
-    begin
-      // Note: Fix needed to allow SSL_Read and SSL_Write to timeout under
-      // Vista+ when connection is dropped
-      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, FReadTimeOut);
-      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, FReadTimeOut);
+  // begin bug fix
+  if Win32MajorVersion >= 6 then
+  begin
+    // Note: Fix needed to allow SSL_Read and SSL_Write to timeout under
+    // Vista+ when connection is dropped
+    LTimeout := FReadTimeOut;
+    if LTimeout <= 0 then begin
+      LTimeout := 30000; // 30 seconds
     end;
-    // end bug fix
+    Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, LTimeout);
+    Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, LTimeout);
+  end;
+  // end bug fix
   {$ENDIF}
   if IsPeer then begin
     fSSLSocket.Accept(Binding.Handle);
@@ -2681,11 +2689,9 @@ begin
   if error <= 0 then begin
     EIdOSSLFDSetError.RaiseException(fSSL, error, RSSSLFDSetError);
   end;
-  if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
-     (LParentIO.fSSLSocket <> Self) then
-  begin
-    SSL_copy_session_id(fSSL, LParentIO.fSSLSocket.fSSL);
-  end;
+  // RLebeau: if this socket's IOHandler was cloned, no need to reuse the
+  // original IOHandler's active session ID, since this is a server socket
+  // that generates its own sessions...
   error := SSL_accept(fSSL);
   if error <= 0 then begin
     EIdOSSLAcceptError.RaiseException(fSSL, error, RSSSLAcceptError);
@@ -2724,6 +2730,8 @@ begin
   if error <= 0 then begin
     EIdOSSLFDSetError.RaiseException(fSSL, error, RSSSLFDSetError);
   end;
+  // RLebeau: if this socket's IOHandler was cloned, reuse the
+  // original IOHandler's active session ID...
   if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
      (LParentIO.fSSLSocket <> Self) then
   begin
