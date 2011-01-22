@@ -270,7 +270,6 @@ procedure TIdNotify.WaitFor;
 var
   LNotifyIndex: Integer;
 begin
-  LNotifyIndex := 0;
   repeat
     with GNotifyThread.FNotifications.LockList do try
       LNotifyIndex := IndexOf(Self);

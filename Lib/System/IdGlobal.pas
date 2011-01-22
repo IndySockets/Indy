@@ -1776,6 +1776,7 @@ var
   Preamble: TIdBytes;
 begin
   Result := 0;
+  Preamble := nil; // keep the compiler happy
   if AEncoding = nil then
   begin
     // Find the appropriate encoding

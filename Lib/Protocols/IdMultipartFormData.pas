@@ -649,6 +649,9 @@ var
   {$ENDIF}
   I: Integer;
 begin
+  {$IFDEF STRING_IS_ANSI}
+  LBytes := nil; // keep the compiler happy
+  {$ENDIF}
   Result := Length(FormatHeader);
   if Assigned(FFieldStream) then begin
     I := PosInStrArray(ContentTransfer, cAllowedContentTransfers, False);
@@ -759,6 +762,9 @@ var
   LBytes: TIdBytes;
   {$ENDIF}
 begin
+  {$IFDEF STRING_IS_ANSI}
+  LBytes := nil; // keep the compiler happy
+  {$ENDIF}
   Result := nil;
   VCanFree := False;
 
