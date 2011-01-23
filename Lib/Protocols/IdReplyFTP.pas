@@ -98,6 +98,7 @@ type
   public
     constructor CreateWithReplyTexts(ACollection: TCollection = nil; AReplyTexts: TIdReplies = nil); override;
     procedure Clear; override;
+    procedure RaiseReplyError; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
     class function IsEndReply(const AReplyCode, ALine: string): Boolean;
   published
@@ -108,6 +109,8 @@ type
   public
     constructor Create(AOwner: TPersistent); override;
   end;
+
+  EIdFTPServiceNotAvailable = class(EIdReplyRFCError);
 
 implementation
 
@@ -240,6 +243,17 @@ begin
         Text.Add(LTemp);
       end;
     end;
+  end;
+end;
+
+procedure TIdReplyFTP.RaiseReplyError;
+begin
+  // any FTP command can return a 421 reply if the server is going to
+  // shut down the command connection...
+  if NumericCode = 421 then begin
+    raise EIdFTPServiceNotAvailable.CreateError(NumericCode, Text.Text);
+  end else begin
+    inherited;
   end;
 end;
 

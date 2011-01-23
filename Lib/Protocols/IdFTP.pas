@@ -909,6 +909,7 @@ type
     function GetSupportsVerification : Boolean;
   public
     procedure GetInternalResponse(AEncoding: TIdTextEncoding = nil); override;
+    function CheckResponse(const AResponse: SmallInt; const AAllowedResponses: array of SmallInt): SmallInt; override;
 
     function IsExtSupported(const ACmd : String):Boolean;
     procedure ExtractFeatFacts(const ACmd : String; AResults : TStrings);
@@ -1198,7 +1199,6 @@ var
   LHost: String;
   LPort: TIdPort;
   LBuf : String;
-  LCode: SmallInt;
   LSendQuitOnError: Boolean;
 begin
   LSendQuitOnError := False;
@@ -1244,12 +1244,16 @@ begin
     // reply and that the client should wait for the 220 reply when this 
     // happens.  Also, the RFC says that 120 should be used, but some
     // servers use other 1xx codes, such as 130, so handle 1xx generically
-    LCode := GetResponse;
-    if (LCode div 100) = 1 then begin
+
+    // calling GetInternalResponse() directly to avoid duplicate calls
+    // to CheckResponse() for the initial response if it is not 1xx
+    GetInternalResponse;
+    if (LastCmdResult.NumericCode div 100) = 1 then begin
       DoOnBannerWarning(LastCmdResult.FormattedReply);
-      LCode := GetResponse;
+      GetResponse(220);
+    end else begin
+      CheckResponse(LastCmdResult.NumericCode, [220]);
     end;
-    CheckResponse(LCode, [220]);
 
     LSendQuitOnError := True;
 
@@ -1366,8 +1370,10 @@ begin
   if LHost = '' then begin
     LHost := FHost;
   end;
-  if LHost = Socket.Binding.PeerIP then begin
-    LHost := '[' + LHost + ']'; {do not localize}
+  if Socket <> nil then begin
+    if LHost = Socket.Binding.PeerIP then begin
+      LHost := '[' + LHost + ']'; {do not localize}
+    end;
   end;
   Result := SendCmd('HOST ' + LHost); {do not localize}
 end;
@@ -1495,7 +1501,7 @@ var
   LTrans : TIdFTPTransferType;
 begin
   if ADetails and UseMLIS and FCanUseMLS then begin
-    ExtListDir(ADest);
+    ExtListDir(ADest, ASpecifier);
     Exit;
   end;
   // Note that for LIST, it might be best to put the connection in ASCII mode
@@ -1551,12 +1557,12 @@ procedure TIdFTP.FinalizeDataOperation;
 var
   LResponse : SmallInt;
 begin
-  if Assigned(FOnDataChannelDestroy) then begin
-    OnDataChannelDestroy(Self, FDataChannel);
+  DoOnDataChannelDestroy;
+  if FDataChannel <> nil then begin
+    FDataChannel.IOHandler.Free;
+    FDataChannel.IOHandler := nil;
+    FreeAndNil(FDataChannel);
   end;
-  FDataChannel.IOHandler.Free;
-  FDataChannel.IOHandler := nil;
-  FreeAndNil(FDataChannel);
   {
 This is a bug fix for servers will do something like this:
 
@@ -1649,12 +1655,18 @@ begin
         Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
       end;
       IOHandler.WriteLn(ACommand);
-      FDataChannel := TIdTCPClient.Create(nil);
+
+      if Socket <> nil then begin
+        FDataChannel := TIdTCPClient.Create(nil);
+      end else begin
+        FDataChannel := nil;
+      end;
+
       LPasvCl := TIdTCPClient(FDataChannel);
       try
         InitDataChannel;
 
-        if PassiveUseControlHost then begin
+        if (Self.Socket <> nil) and PassiveUseControlHost then begin
           //Do not use an assignment from Self.Host
           //because a DNS name may not resolve to the same
           //IP address every time.  This is the case where
@@ -1664,28 +1676,30 @@ begin
           LIP := Self.Socket.Binding.PeerIP;
         end;
 
-        LPasvCl.Host := LIP;
-        LPasvCl.Port := LPort;
+        if LPasvCl <> nil then begin
+          LPasvCl.Host := LIP;
+          LPasvCl.Port := LPort;
 
-        if Assigned(FOnDataChannelCreate) then begin
-          OnDataChannelCreate(Self, FDataChannel);
+          DoOnDataChannelCreate;
+
+          LPasvCl.Connect;
         end;
-
-        LPasvCl.Connect;
         try
           Self.GetResponse([110, 125, 150]);
           try
-            if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-              TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
-            end;
-            if FCurrentTransferMode = dmDeflate then begin
-              FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
-                FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
-            end else begin
-              if AFromBeginning then begin
-                FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
+            if FDataChannel <> nil then begin
+              if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
+                TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+              end;
+              if FCurrentTransferMode = dmDeflate then begin
+                FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
+                  FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
               end else begin
-                FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
+                if AFromBeginning then begin
+                  FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
+                end else begin
+                  FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
+                end;
               end;
             end;
           except
@@ -1698,49 +1712,68 @@ begin
             end;
           end;
         finally
-          LPasvCl.Disconnect(False);
+          if LPasvCl <> nil then begin
+            LPasvCl.Disconnect(False);
+          end;
         end;
       finally
         FinalizeDataOperation;
       end;
     end else begin
-      FDataChannel := TIdSimpleServer.Create(nil);
+      if Socket <> nil then begin
+        FDataChannel := TIdSimpleServer.Create(nil);
+      end else begin
+        FDataChannel := nil;
+      end;
+
       LPortSv := TIdSimpleServer(FDataChannel);
       try
         InitDataChannel;
 
-        LPortSv.BoundIP := (Self.IOHandler as TIdIOHandlerSocket).Binding.IP;
-        LPortSv.BoundPort := FDataPort;
-        LPortSv.BoundPortMin := FDataPortMin;
-        LPortSv.BoundPortMax := FDataPortMax;
+        if LPortSv <> nil then begin
+          LPortSv.BoundIP := Self.Socket.Binding.IP;
+          LPortSv.BoundPort := FDataPort;
+          LPortSv.BoundPortMin := FDataPortMin;
+          LPortSv.BoundPortMax := FDataPortMax;
 
-        if Assigned(FOnDataChannelCreate) then begin
-          OnDataChannelCreate(Self, FDataChannel);
-        end;
+          DoOnDataChannelCreate;
 
-        LPortSv.BeginListen;
-        if FUsingExtDataPort then begin
-          SendEPort(LPortSv.Binding);
+          LPortSv.BeginListen;
+          if FUsingExtDataPort then begin
+            SendEPort(LPortSv.Binding);
+          end else begin
+            SendPort(LPortSv.Binding);
+          end;
         end else begin
-          SendPort(LPortSv.Binding);
+          // TODO:
+          {
+          if FUsingExtDataPort then begin
+            SendEPort(?);
+          end else begin
+            SendPort(?);
+          end;
+          }
         end;
+
         if AResume then begin
           Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
         end;
         Self.SendCmd(ACommand, [125, 150]);
 
-        LPortSv.Listen(ListenTimeout);
-        if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-          TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
-        end;
-        if FCurrentTransferMode = dmDeflate then begin
-          FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
-            FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
-        end else begin
-          if AFromBeginning then begin
-            FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
+        if LPortSv <> nil then begin
+          LPortSv.Listen(ListenTimeout);
+          if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
+            TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
+          end;
+          if FCurrentTransferMode = dmDeflate then begin
+            FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
+              FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
           end else begin
-            FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
+            if AFromBeginning then begin
+              FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
+            end else begin
+              FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
+            end;
           end;
         end;
       finally
@@ -1793,12 +1826,18 @@ begin
     end else begin
       SendPassive(LIP, LPort);
     end;
-    FDataChannel := TIdTCPClient.Create(nil);
+
+    if Socket <> nil then begin
+      FDataChannel := TIdTCPClient.Create(nil);
+    end else begin
+      FDataChannel := nil;
+    end;
+
     LPasvCl := TIdTCPClient(FDataChannel);
     try
       InitDataChannel;
 
-      if PassiveUseControlHost then begin
+      if (Self.Socket <> nil) and PassiveUseControlHost then begin
         //Do not use an assignment from Self.Host
         //because a DNS name may not resolve to the same
         //IP address every time.  This is the case where
@@ -1808,14 +1847,14 @@ begin
         LIP := Self.Socket.Binding.PeerIP;
       end;
 
-      LPasvCl.Host := LIP;
-      LPasvCl.Port := LPort;
+      if LPasvCl <> nil then begin
+        LPasvCl.Host := LIP;
+        LPasvCl.Port := LPort;
 
-      if Assigned(FOnDataChannelCreate) then begin
-        OnDataChannelCreate(Self, FDataChannel);
+        DoOnDataChannelCreate;
+
+        LPasvCl.Connect;
       end;
-
-      LPasvCl.Connect;
       try
         if AResume then begin
           Self.SendCmd('REST ' + IntToStr(ADest.Position), [350]);   {do not localize}
@@ -1824,57 +1863,79 @@ begin
         //
         // RLebeau: some servers send 450 when no files are
         // present, so do not read the stream in that case
-        if Self.SendCmd(ACommand, [125, 150, 154, 450]) <> 450 then begin
-          if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-            TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
-          end;
-          if FCurrentTransferMode = dmDeflate then begin
-            FCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
-          end else begin
-            LPasvCl.IOHandler.ReadStream(ADest, -1, True);
+        if Self.SendCmd(ACommand, [125, 150, 154, 450]) <> 450 then
+        begin
+          if LPasvCl <> nil then begin
+            if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
+              TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+            end;
+            if FCurrentTransferMode = dmDeflate then begin
+              FCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
+            end else begin
+              LPasvCl.IOHandler.ReadStream(ADest, -1, True);
+            end;
           end;
         end;
       finally
-        LPasvCl.Disconnect(False);
+        if LPasvCl <> nil then begin
+          LPasvCl.Disconnect(False);
+        end;
       end;
     finally
       FinalizeDataOperation;
     end;
   end else begin
     // PORT or EPRT
-    FDataChannel := TIdSimpleServer.Create(nil);
+    if Socket <> nil then begin
+      FDataChannel := TIdSimpleServer.Create(nil);
+    end else begin
+      FDataChannel := nil;
+    end;
+
     LPortSv := TIdSimpleServer(FDataChannel);
     try
       InitDataChannel;
 
-      LPortSv.BoundIP := (Self.IOHandler as TIdIOHandlerSocket).Binding.IP;
-      LPortSv.BoundPort := FDataPort;
-      LPortSv.BoundPortMin := FDataPortMin;
-      LPortSv.BoundPortMax := FDataPortMax;
+      if LPortSv <> nil then begin
+        LPortSv.BoundIP := Self.Socket.Binding.IP;
+        LPortSv.BoundPort := FDataPort;
+        LPortSv.BoundPortMin := FDataPortMin;
+        LPortSv.BoundPortMax := FDataPortMax;
 
-      if Assigned(FOnDataChannelCreate) then begin
-        OnDataChannelCreate(Self, FDataChannel);
-      end;
+        DoOnDataChannelCreate;
 
-      LPortSv.BeginListen;
-      if FUsingExtDataPort then begin
-        SendEPort(LPortSv.Binding);
+        LPortSv.BeginListen;
+        if FUsingExtDataPort then begin
+          SendEPort(LPortSv.Binding);
+        end else begin
+          SendPort(LPortSv.Binding);
+        end;
       end else begin
-        SendPort(LPortSv.Binding);
+        // TODO:
+        {
+        if FUsingExtDataPort then begin
+          SendEPort(?);
+        end else begin
+          SendPort(?);
+        end;
+        }
       end;
+
       if AResume then begin
         SendCmd('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
       end;
       SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
 
-      LPortSv.Listen(ListenTimeout);
-      if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-        TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
-      end;
-      if FCurrentTransferMode = dmDeflate then begin
-        FCompressor.DecompressFTPFromIO(LPortSv.IOHandler, ADest, FZLibWindowBits);
-      end else begin
-        FDataChannel.IOHandler.ReadStream(ADest, -1, True);
+      if LPortSv <> nil then begin
+        LPortSv.Listen(ListenTimeout);
+        if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
+          TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
+        end;
+        if FCurrentTransferMode = dmDeflate then begin
+          FCompressor.DecompressFTPFromIO(LPortSv.IOHandler, ADest, FZLibWindowBits);
+        end else begin
+          FDataChannel.IOHandler.ReadStream(ADest, -1, True);
+        end;
       end;
     finally
       FinalizeDataOperation;
@@ -2007,6 +2068,9 @@ procedure TIdFTP.InitDataChannel;
 var
   LSSL : TIdSSLIOHandlerSocketBase;
 begin
+  if FDataChannel = nil then begin
+    Exit;
+  end;
   if FDataPortProtection = ftpdpsPrivate then begin
     LSSL := TIdSSLIOHandlerSocketBase(IOHandler);
     FDataChannel.IOHandler := LSSL.Clone;
@@ -2021,10 +2085,16 @@ begin
     //Now SocksInfo are multi-thread safe
     FDataChannel.IOHandler.ConnectTimeout := IOHandler.ConnectTimeout;
   end;
-  if Assigned(FDataChannel.Socket) and Assigned(Socket) then
+  if Assigned(FDataChannel.Socket) then
   begin
-    FDataChannel.Socket.TransparentProxy := Socket.TransparentProxy;
-    FDataChannel.Socket.IPVersion := Socket.IPVersion;
+    if Assigned(Socket) then
+    begin
+      FDataChannel.Socket.TransparentProxy := Socket.TransparentProxy;
+      FDataChannel.Socket.IPVersion := Socket.IPVersion;
+    end else
+    begin
+      FDataChannel.Socket.IPVersion := IPVersion;
+    end;
   end;
   FDataChannel.IOHandler.ReadTimeout := FTransferTimeout;
   FDataChannel.IOHandler.SendBufferSize := IOHandler.SendBufferSize;
@@ -2794,13 +2864,10 @@ end;
 procedure TIdFTP.SetIOHandler(AValue: TIdIOHandler);
 begin
   inherited SetIOHandler(AValue);
-  if (AValue <> nil) and (not (AValue is TIdIOHandlerSocket)) then begin
-    EIdFTPWrongIOHandler.Toss(RSFTPIOHandlerWrong); // RS + EXCEPTION {do not localize}
-  end;
-  if AValue <> nil then begin
-    // UseExtensionDataPort must be true for IPv6 connections.
-    // PORT and PASV can not communicate IPv6 Addresses
-    if TIdIOHandlerSocket(AValue).IPVersion = Id_IPv6 then begin
+  // UseExtensionDataPort must be true for IPv6 connections.
+  // PORT and PASV can not communicate IPv6 Addresses
+  if Socket <> nil then begin
+    if Socket.IPVersion = Id_IPv6 then begin
       FUseExtensionDataPort := True;
     end;
   end;
@@ -2950,7 +3017,7 @@ begin
     {$IFDEF HAS_TEncoding}
     FListResult.LoadFromStream(LDest, Indy8BitEncoding);
     {$ELSE}
-    FListResult.Text := ReadStringFromStream(LDest, -1, Indy8BitEncoding);
+    FListResult.Text := ReadStringFromStream(LDest, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
     {$ENDIF}
     with TIdFTPListResult(FListResult) do begin
       FDetails := True;
@@ -2968,9 +3035,15 @@ end;
 procedure TIdFTP.ExtListItem(ADest: TStrings; AFList : TIdFTPListItems; const AItem: string);
 var
   i : Integer;
+  LCmd: String;
 begin
   ADest.Clear;
-  SendCmd(Trim('MLST ' + AItem), 250);  {do not localize}
+  //SendCmd(Trim('MLST ' + AItem), 250);  {do not localize}
+  LCmd := Trim('MLST ' + AItem); {do not localize}
+  CheckConnected;
+  PrepareCmd(LCmd);
+  IOHandler.WriteLn(LCmd);
+  GetResponse(250, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   for i := 0 to LastCmdResult.Text.Count -1 do begin
     if IndyPos(';', LastCmdResult.Text[i]) > 0 then begin
       ADest.Add(LastCmdResult.Text[i]);
@@ -3289,6 +3362,40 @@ begin
   end;
 end;
 
+function TIdFTP.CheckResponse(const AResponse: SmallInt;
+  const AAllowedResponses: array of SmallInt): SmallInt;
+var
+  i: Integer;
+begin
+  // any FTP command can return a 421 reply if the server is going to shut
+  // down the command connection.  This way, we can close the connection
+  // immediately instead of waiting for a future action that would raise
+  // an EIdConnClosedGracefully exception instead...
+
+  if AResponse <> 421 then
+  begin
+    Result := inherited CheckResponse(AResponse, AAllowedResponses);
+    Exit;
+  end;
+
+  // check if the caller explicitally wants to handle 421 replies...
+  if High(AAllowedResponses) > -1 then begin
+    for i := Low(AAllowedResponses) to High(AAllowedResponses) do begin
+      if AResponse = AAllowedResponses[i] then begin
+        Result := AResponse;
+        Exit;
+      end;
+    end;
+  end;
+
+  Disconnect(False);
+  if IOHandler <> nil then begin
+    IOHandler.InputBuffer.Clear;
+  end;
+
+  RaiseExceptionForLastCmdResult;
+end;
+
 function TIdFTP.GetReplyClass: TIdReplyClass;
 begin
   Result := TIdReplyFTP;
@@ -3298,7 +3405,7 @@ procedure TIdFTP.SetIPVersion(const AValue: TIdIPVersion);
 begin
   if AValue <> FIPVersion then begin
     inherited SetIPVersion(AValue);
-    if AValue = Id_IPv6 then begin
+    if IPVersion = Id_IPv6 then begin
       UseExtensionDataPort := True;
     end;
   end;
@@ -3465,7 +3572,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.FXPSetTransferPorts(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv: Boolean);
+class procedure TIdFTP.FXPSetTransferPorts(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv: Boolean);
 var
   LIP : String;
   LPort : TIdPort;
