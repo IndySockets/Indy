@@ -3372,28 +3372,25 @@ begin
   // immediately instead of waiting for a future action that would raise
   // an EIdConnClosedGracefully exception instead...
 
-  if AResponse <> 421 then
+  if AResponse = 421 then
   begin
-    Result := inherited CheckResponse(AResponse, AAllowedResponses);
-    Exit;
-  end;
-
-  // check if the caller explicitally wants to handle 421 replies...
-  if High(AAllowedResponses) > -1 then begin
-    for i := Low(AAllowedResponses) to High(AAllowedResponses) do begin
-      if AResponse = AAllowedResponses[i] then begin
-        Result := AResponse;
-        Exit;
+    // check if the caller explicitally wants to handle 421 replies...
+    if High(AAllowedResponses) > -1 then begin
+      for i := Low(AAllowedResponses) to High(AAllowedResponses) do begin
+        if AResponse = AAllowedResponses[i] then begin
+          Result := AResponse;
+          Exit;
+        end;
       end;
     end;
+    Disconnect(False);
+    if IOHandler <> nil then begin
+      IOHandler.InputBuffer.Clear;
+    end;
+    RaiseExceptionForLastCmdResult;
   end;
 
-  Disconnect(False);
-  if IOHandler <> nil then begin
-    IOHandler.InputBuffer.Clear;
-  end;
-
-  RaiseExceptionForLastCmdResult;
+  Result := inherited CheckResponse(AResponse, AAllowedResponses);
 end;
 
 function TIdFTP.GetReplyClass: TIdReplyClass;
