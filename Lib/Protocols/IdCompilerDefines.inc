@@ -74,6 +74,7 @@
   {$DEFINE WIDGET_VCL_LIKE} // LCL included.
   {$DEFINE WIDGET_VCL}
   {$DEFINE WIDGET_VCL_LIKE_OR_KYLIX}
+  {$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$ENDIF}
 
 // C++Builder 4
@@ -90,6 +91,7 @@
   {$DEFINE WIDGET_VCL_LIKE} // LCL included.
   {$DEFINE WIDGET_VCL}
   {$DEFINE WIDGET_VCL_LIKE_OR_KYLIX}
+  {$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$ENDIF}
 
 // Delphi & C++Builder 5
@@ -113,6 +115,7 @@
   {$DEFINE WIDGET_VCL}
   {$DEFINE WIDGET_VCL_LIKE_OR_KYLIX}
   {$DEFINE HAS_REMOVEFREENOTIFICATION}
+  {$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$ENDIF}
 
 //Delphi & C++Builder 6
@@ -141,6 +144,7 @@
   {$DEFINE WIDGET_VCL_LIKE_OR_KYLIX}
   {$DEFINE HAS_DEPRECATED}
   {$DEFINE HAS_REMOVEFREENOTIFICATION}
+  {$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$ENDIF}
 
 //Delphi 7
@@ -169,6 +173,7 @@
   {$DEFINE VCL_60_PLUS}
   {$DEFINE HAS_DEPRECATED}
   {$DEFINE HAS_REMOVEFREENOTIFICATION}
+  {$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$ENDIF}
 
 //Delphi 8
@@ -195,6 +200,7 @@
   //Widget defines are omitted since D8 only supports NET
   {$DEFINE HAS_DEPRECATED}
   {$DEFINE HAS_REMOVEFREENOTIFICATION}
+  {$DEFINE HAS_InterlockedCompareExchange_Pointers} // unknown yet
 {$ENDIF}
 
 //Delphi 2005
@@ -224,6 +230,7 @@
     {$DEFINE WIDGET_VCL_LIKE_OR_KYLIX}
     {$DEFINE WIDGET_VCL}
     {$DEFINE VCL_60_PLUS}
+    {$DEFINE HAS_InterlockedCompareExchange_Pointers} // unknown yet
   {$ENDIF}
   {$DEFINE HAS_DEPRECATED}
   {$DEFINE HAS_REMOVEFREENOTIFICATION}
@@ -408,6 +415,7 @@
     {$DEFINE VCL_60_PLUS}
     {$DEFINE HAS_TEncoding}
     {$DEFINE HAS_TCharacter}
+    {$DEFINE HAS_InterlockedCompareExchangePointer}
     {$DEFINE BROKEN_TEncoding_GetEncoding}
     {$DEFINE BROKEN_TMBCSEncoding_CP20127}
   {$ENDIF}
@@ -462,6 +470,7 @@
     {$DEFINE VCL_60_PLUS}
     {$DEFINE HAS_TEncoding}
     {$DEFINE HAS_TCharacter}
+    {$DEFINE HAS_InterlockedCompareExchangePointer}
     {$DEFINE BROKEN_TEncoding_GetEncoding}
     {$DEFINE BROKEN_TMBCSEncoding_CP20127}
   {$ENDIF}
@@ -681,6 +690,9 @@
   {$DEFINE BYTE_COMPARE_SETS}
   {.$DEFINE HAS_DEPRECATED}
   {.$DEFINE HAS_REMOVEFREENOTIFICATION}
+
+  //TODO: FreePascal 2.2.0 has an overload for InterlockedCompareExchange that takes pointers.
+  {.$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$ENDIF}
 
 // Kylix

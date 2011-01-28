@@ -2994,85 +2994,99 @@ begin
   {$ENDIF}
 end;
 
-// RLebeau: InterlockedCompareExchange() is not available prior to
-// Win2K, so need to fallback to some other logic on older systems.
-// Not too many people still support those systems anymore, so we
-// will make this logic optional...
-
-{.$DEFINE DYNAMICLOAD_InterlockExchangeCompare}
-{$UNDEF InterlockExchangeCompare_NEEDED}
-{$UNDEF InterlockedCompareExchangePointer_NEEDED}
-
+{$UNDEF DYNAMICLOAD_InterlockedCompareExchange}
 {$IFNDEF HAS_TInterlocked}
   {$IFNDEF FPC}
-    // D2009+ has its own InterlockedCompareExchangePointer() function defined in Windows.pas
-    {$IFNDEF VCL_2009_OR_ABOVE}
-      {$DEFINE InterlockedCompareExchangePointer_NEEDED}
-      {$IFDEF DYNAMICLOAD_InterlockExchangeCompare}
-        {$DEFINE InterlockExchangeCompare_NEEDED}
-      {$ENDIF}
+    // RLebeau: InterlockedCompareExchange() is not available prior to Win2K,
+    // so need to fallback to some other logic on older systems.  Not too many
+    // people still support those systems anymore, so we will make this optional.
+    //
+    // InterlockedCompareExchange64(), on the other hand, is not available until
+    // Windows Vista (and not defined in any version of Windows.pas up to Delphi
+    // XE), so always dynamically load it in order to support WinXP 64-bit...
+
+    {$IFDEF EMB_CPU64} // TODO: what is Embarcadero's 64-bit define going to be?
+      {$DEFINE DYNAMICLOAD_InterlockedCompareExchange}
+    {$ELSE}
+      {.$DEFINE STATICLOAD_InterlockedCompareExchange}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF InterlockExchangeCompare_NEEDED}
+{$IFDEF DYNAMICLOAD_InterlockedCompareExchange}
+// See http://code.google.com/p/delphi-toolbox/source/browse/trunk/RTLEx/RTLEx.BasicOp.Atomic.pas
+// for how to perform interlocked operations in assembler...
+
 type
-  TInterlockedCompareExchangeFunc = function(var Destination: LongInt; Exchange, Comparand: LongInt): LongInt; stdcall;
+  TInterlockedCompareExchangeFunc = function(var Destination: PtrInt; Exchange, Comparand: PtrInt): PtrInt; stdcall;
 
 var
   InterlockedCompareExchange: TInterlockedCompareExchangeFunc = nil;
 
-function Impl_InterlockedCompareExchange(var Destination: LongInt; Exchange, Comparand: LongInt): LongInt; stdcall;
+function Impl_InterlockedCompareExchange(var Destination: PtrInt; Exchange, Comparand: PtrInt): LongInt; stdcall;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  // TODO: figure out how to make this more atomic...
+  // TODO: what is Embarcadero's 64-bit define going to be?
+  {$IFDEF EMB_CPU64}
+  // TODO: use LOCK CMPXCHG8B directly so this is more atomic...
+  end;
+  {$ELSE}
+  // TODO: use LOCK CMPXCHG directly so this is more atomic...
+  {$ENDIF}
   Result := Destination;
   if Destination = Comparand then begin
     Destination := Exchange;
   end;
 end;
 
-function GetInterlockedCompareExchangeImpl: TInterlockedCompareExchangeFunc;
-begin
-  Result := GetProcAddress(GetModuleHandle('KERNEL32'), 'InterlockedCompareExchange'); {do not localize}
-  if not Assigned(Result) then begin
-    Result := @Impl_InterlockedCompareExchange;
-  end;
-end;
+function Stub_InterlockedCompareExchange(var Destination: PtrInt; Exchange, Comparand: PtrInt): PtrInt; stdcall;
 
-function Stub_InterlockedCompareExchange(var Destination: LongInt; Exchange, Comparand: LongInt): LongInt; stdcall;
+  function GetImpl: Pointer;
+  const
+    cKernel32 = 'KERNEL32'; {do not localize}
+    // TODO: what is Embarcadero's 64-bit define going to be?
+    cInterlockedCompareExchange = {$IFDEF EMB_CPU64}'InterlockedCompareExchange64'{$ELSE}'InterlockedCompareExchange'{$ENDIF}; {do not localize}
+  begin
+    Result := GetProcAddress(GetModuleHandle(cKernel32), cInterlockedCompareExchange);
+    if Result = nil then begin
+      Result := @Impl_InterlockedCompareExchange;
+    end;
+  end;
+
 begin
-  @InterlockedCompareExchange := GetInterlockedCompareExchangeImpl();
+  @InterlockedCompareExchange := GetImpl();
   Result := InterlockedCompareExchange(Destination, Exchange, Comparand);
 end;
 {$ENDIF}
 
-{$IFDEF InterlockedCompareExchangePointer_NEEDED}
-function InterlockedCompareExchangePointer(var Destination: Pointer; Exchange: Pointer; Comperand: Pointer): Pointer;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  // TODO: support 64-bit pointers
-  Result := Pointer(InterlockedCompareExchange(Longint(Destination), Longint(Exchange), Longint(Comperand)));
-end;
-{$ENDIF}
-
 function InterlockedCompareExchangePtr(var VTarget: Pointer; const AValue, Compare: Pointer): Pointer;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFNDEF DYNAMICLOAD_InterlockedCompareExchange}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$ENDIF}
 begin
-  {$IFDEF HAS_TInterlocked}
-  Result := TInterlocked.CompareExchange(VTarget, AValue, Compare);
+  {$IFDEF DYNAMICLOAD_InterlockedCompareExchange}
+  Result := Pointer(IdGlobal.InterlockedCompareExchange(PtrInt(VTarget), PtrInt(AValue), PtrInt(Compare)));
   {$ELSE}
-    {$IFDEF FPC}
-    //FreePascal 2.2.0 has an overload for InterlockedCompareExchange that takes
-    // pointers.
-    //TODO: Figure out what to do about FreePascal 2.0.x but that might not be
-    //as important as older versions since you download and install FPC for free.
-  Result := Pointer(
-      {$IFDEF CPU64}InterlockedCompareExchange64{$ELSE}InterlockedCompareExchange{$ENDIF}
-      (PtrInt(VTarget), PtrInt(AValue), PtrInt(Compare))
-      );
+    {$IFDEF HAS_TInterlocked}
+  Result := TInterlocked.CompareExchange(VTarget, AValue, Compare);
     {$ELSE}
+      {$IFDEF HAS_InterlockedCompareExchangePointer}
   Result := InterlockedCompareExchangePointer(VTarget, AValue, Compare);
+      {$ELSE}
+        {$IFDEF HAS_InterlockedCompareExchange_Pointers}
+  Result := InterlockedCompareExchange(VTarget, AValue, Compare);
+        {$ELSE}
+          {$IFDEF FPC}
+  Result := Pointer(
+    {$IFDEF CPU64}InterlockedCompareExchange64{$ELSE}InterlockedCompareExchange{$ENDIF}
+    (PtrInt(VTarget), PtrInt(AValue), PtrInt(Compare))
+     );
+          {$ELSE}
+  // Delphi 64-bit is handled by HAS_InterlockedCompareExchangePointer
+  Result := Pointer(InterlockedCompareExchange(Longint(VTarget), Longint(AValue), Longint(Compare)));
+          {$ENDIF}
+        {$ENDIF}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
@@ -6902,7 +6916,7 @@ initialization
     IndyPos := InternalAnsiPos;
   end;
   {$ENDIF}
-  {$IFDEF InterlockExchangeCompare_NEEDED}
+  {$IFDEF DYNAMICLOAD_InterlockedCompareExchange}
   InterlockedCompareExchange := Stub_InterlockedCompareExchange;
   {$ENDIF}
 
