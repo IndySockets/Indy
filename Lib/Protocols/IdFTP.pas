@@ -886,11 +886,11 @@ type
     procedure DoBeforePut(AStream: TStream); virtual;
     procedure DoAfterGet(AStream: TStream); virtual; //APR
     procedure DoAfterPut; virtual;
-    procedure FXPSetTransferPorts(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv : Boolean);
-    procedure FXPSendFile(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String);
-    function InternalEncryptedTLSFXP(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean) : Boolean;
-    function InternalUnencryptedFXP(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean): Boolean;
-    function ValidateInternalIsTLSFXP(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv : Boolean): Boolean;
+    class procedure FXPSetTransferPorts(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv : Boolean);
+    class procedure FXPSendFile(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String);
+    class function InternalEncryptedTLSFXP(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean) : Boolean;
+    class function InternalUnencryptedFXP(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean): Boolean;
+    class function ValidateInternalIsTLSFXP(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv : Boolean): Boolean;
     procedure InitComponent; override;
     procedure SetUseTLS(AValue : TIdUseTLS); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -3105,7 +3105,8 @@ begin
   end;
 end;
 
-procedure TIdFTP.SiteToSiteUpload(const AToSite: TIdFTP; const ASourceFile, ADestFile: String);
+procedure TIdFTP.SiteToSiteUpload(const AToSite : TIdFTP; const ASourceFile : String;
+  const ADestFile : String = '');
 {
 SiteToSiteUpload
 
@@ -3125,7 +3126,8 @@ begin
   end;
 end;
 
-procedure TIdFTP.SiteToSiteDownload(const AFromSite: TIdFTP; const ASourceFile, ADestFile: String);
+procedure TIdFTP.SiteToSiteDownload(const AFromSite: TIdFTP; const ASourceFile : String;
+  const ADestFile : String = '');
 {
  The only use of this function is to get the passive mode on the other connection.
  Because not all hosts allow it. This way you get a second chance.
@@ -3408,7 +3410,7 @@ begin
   end;
 end;
 
-function TIdFTP.InternalEncryptedTLSFXP(AFromSite, AToSite: TIdFTP;
+class function TIdFTP.InternalEncryptedTLSFXP(AFromSite, AToSite: TIdFTP;
   const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean): Boolean;
 {
 
@@ -3461,7 +3463,7 @@ begin
   FXPSendFile(AFromSite, AToSite, ASourceFile, ADestFile);
 end;
 
-function TIdFTP.InternalUnencryptedFXP(AFromSite, AToSite: TIdFTP;
+class function TIdFTP.InternalUnencryptedFXP(AFromSite, AToSite: TIdFTP;
   const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean): Boolean;
 {
 SiteToSiteUpload
@@ -3480,7 +3482,7 @@ begin
   Result := True;
 end;
 
-function TIdFTP.ValidateInternalIsTLSFXP(AFromSite, AToSite: TIdFTP;
+class function TIdFTP.ValidateInternalIsTLSFXP(AFromSite, AToSite: TIdFTP;
   const ATargetUsesPasv : Boolean): Boolean;
 {
 SiteToSiteUpload
@@ -3543,10 +3545,9 @@ begin
   end;
 end;
 
-procedure TIdFTP.FXPSendFile(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String);
+class procedure TIdFTP.FXPSendFile(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String);
 var
   LDestFile : String;
-  LToReply, LFromReply: SmallInt;
 begin
   LDestFile := ADestFile;
   if LDestFile = '' then begin
@@ -3559,14 +3560,10 @@ begin
     AToSite.Abort;
     raise;
   end;
-  LToReply := AToSite.GetResponse;
-  LFromReply := AFromSite.GetResponse;
-  if not (LToReply in [225, 226, 250]) then begin
-    AToSite.RaiseExceptionForLastCmdResult;
-  end;
-  if not (LFromReply in [225, 226, 250]) then begin
-    AFromSite.RaiseExceptionForLastCmdResult;
-  end;
+  AToSite.GetInternalResponse;
+  AFromSite.GetInternalResponse;
+  AToSite.CheckResponse(AToSite.LastCmdResult.NumericCode, [225, 226, 250]);
+  AFromSite.CheckResponse(AFromSite.LastCmdResult.NumericCode, [225, 226, 250]);
 end;
 
 class procedure TIdFTP.FXPSetTransferPorts(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv: Boolean);
@@ -3590,10 +3587,10 @@ begin
     if AToSite.UsingExtDataPort then begin
       AToSite.SendEPassive(LIP, LPort);
     end else begin
-      AToSite.SendPassive(LIP,LPort);
+      AToSite.SendPassive(LIP, LPort);
     end;
     if AFromSite.UsingExtDataPort then begin
-      AFromSite.SendEPort(LIP, LPort, IPVersion);
+      AFromSite.SendEPort(LIP, LPort, AToSite.IPVersion);
     end else begin
       AFromSite.SendPort(LIP, LPort);
     end;
@@ -3604,7 +3601,7 @@ begin
       AFromSite.SendPassive(LIP, LPort);
     end;
     if AToSite.UsingExtDataPort then begin
-      AToSite.SendEPort(LIP, LPort, IPVersion);
+      AToSite.SendEPort(LIP, LPort, AFromSite.IPVersion);
     end else begin
       AToSite.SendPort(LIP, LPort);
     end;
@@ -4196,9 +4193,10 @@ begin
   if SendCmd(LCmd) = 250 then begin
     LRemoteCRC := Trim(LastCmdResult.Text.Text);
     IdDelete(LRemoteCRC, 1, IndyPos(' ', LRemoteCRC)); // delete the response
+    Result := TextIsSame(LLocalCRC, LRemoteCRC);
+  end else begin
+    Result := False;
   end;
-
-  Result := TextIsSame(LLocalCRC, LRemoteCRC);
 end;
 
 end.
