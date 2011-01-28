@@ -265,6 +265,8 @@ type
       const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure AddLocalAddressesToList(AAddresses: TStrings); override;
+    procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
+      const AEnabled: Boolean; const ATimeMS, AInterval: Integer); override;
   end;
  {$IFDEF DOTNET_1_1}
   EIdNotSupportedInMicrosoftNET11 = class(EIdStackError);
@@ -1141,10 +1143,6 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF DOTNET_2_OR_ABOVE}
-const
-  SIO_ROUTING_INTERFACE_QUERY = 3355443220;
-
 {
 This extracts an IP address as a series of bytes from a TIdBytes that contains
 one SockAddress structure.
@@ -1178,6 +1176,10 @@ end;
 
 procedure TIdStackDotNet.QueryRoute(s : TIdStackSocketHandle; const AIP: String;
   const APort: TIdPort; var VSource, VDest : TIdBytes);
+{$IFDEF DOTNET_2_OR_ABOVE}
+const
+  SIO_ROUTING_INTERFACE_QUERY = 3355443220;
+{$ENDIF}
 var
   LEP : IPEndPoint;
   LDestIF : SocketAddress;
@@ -1330,6 +1332,31 @@ begin
   Result := LFile.Length;
 end;
 {$ENDIF}
+
+procedure TIdStackDotNet.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
+  const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
+{$IFNDEF DOTNET_2_OR_ABOVE}
+const
+  SIO_KEEPALIVE_VALS = 2550136836;
+{$ENDIF}
+var
+  LBuf: TIdBytes;
+begin
+  // SIO_KEEPALIVE_VALS is supported on Win2K+ only
+  if AEnabled and (System.OperatingSystem.Version.Major >= 5) then
+  begin
+    SetLength(LBuf, 12);
+    CopyTIdLongWord(1, LBuf, 0);
+    CopyTIdLongWord(ATimeMS, LBuf, 4);
+    CopyTIdLongWord(AInterval, LBuf, 8);
+    ASocket.IOControl(
+      {$IFDEF DOTNET_2_OR_ABOVE}IOControlCode.KeepAliveValues{$ELSE}SIO_KEEPALIVE_VALS{$ENDIF},
+      LBuf, nil);
+  end else begin
+    LBuf := nil;
+    ASocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, iif(AEnabled, 1, 0));
+  end;
+end;
 
 initialization
   GSocketListClass := TIdSocketListDotNet;
