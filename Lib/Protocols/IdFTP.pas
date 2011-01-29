@@ -3035,15 +3035,9 @@ end;
 procedure TIdFTP.ExtListItem(ADest: TStrings; AFList : TIdFTPListItems; const AItem: string);
 var
   i : Integer;
-  LCmd: String;
 begin
   ADest.Clear;
-  //SendCmd(Trim('MLST ' + AItem), 250);  {do not localize}
-  LCmd := Trim('MLST ' + AItem); {do not localize}
-  CheckConnected;
-  PrepareCmd(LCmd);
-  IOHandler.WriteLn(LCmd);
-  GetResponse(250, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  SendCmd(Trim('MLST ' + AItem), 250, Indy8BitEncoding);  {do not localize}
   for i := 0 to LastCmdResult.Text.Count -1 do begin
     if IndyPos(';', LastCmdResult.Text[i]) > 0 then begin
       ADest.Add(LastCmdResult.Text[i]);
