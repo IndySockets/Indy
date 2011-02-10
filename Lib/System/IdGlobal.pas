@@ -3005,7 +3005,7 @@ end;
     // Windows Vista (and not defined in any version of Windows.pas up to Delphi
     // XE), so always dynamically load it in order to support WinXP 64-bit...
 
-    {$IFDEF EMB_CPU64} // TODO: what is Embarcadero's 64-bit define going to be?
+    {$IFDEF CPU64}
       {$DEFINE DYNAMICLOAD_InterlockedCompareExchange}
     {$ELSE}
       {.$DEFINE STATICLOAD_InterlockedCompareExchange}
@@ -3026,8 +3026,7 @@ var
 function Impl_InterlockedCompareExchange(var Destination: PtrInt; Exchange, Comparand: PtrInt): LongInt; stdcall;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  // TODO: what is Embarcadero's 64-bit define going to be?
-  {$IFDEF EMB_CPU64}
+  {$IFDEF CPU64}
   // TODO: use LOCK CMPXCHG8B directly so this is more atomic...
   end;
   {$ELSE}
@@ -3045,7 +3044,7 @@ function Stub_InterlockedCompareExchange(var Destination: PtrInt; Exchange, Comp
   const
     cKernel32 = 'KERNEL32'; {do not localize}
     // TODO: what is Embarcadero's 64-bit define going to be?
-    cInterlockedCompareExchange = {$IFDEF EMB_CPU64}'InterlockedCompareExchange64'{$ELSE}'InterlockedCompareExchange'{$ENDIF}; {do not localize}
+    cInterlockedCompareExchange = {$IFDEF CPU64}'InterlockedCompareExchange64'{$ELSE}'InterlockedCompareExchange'{$ENDIF}; {do not localize}
   begin
     Result := GetProcAddress(GetModuleHandle(cKernel32), cInterlockedCompareExchange);
     if Result = nil then begin
@@ -4456,7 +4455,7 @@ begin
       haddoublecolon := True;
       fillzeros := 8 - colons;
       if dots > 0 then begin
-        Dec(fillzeros, 2);
+        Dec(fillzeros);
       end;
       for i := 1 to fillzeros do begin
         Result := Result + '0:'; {do not localize}
@@ -5396,11 +5395,19 @@ begin
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
     TIME_ZONE_ID_UNKNOWN  :
        iBias := tmez.Bias;
-    TIME_ZONE_ID_DAYLIGHT :
-      iBias := tmez.Bias + tmez.DaylightBias;
-    TIME_ZONE_ID_STANDARD :
-      iBias := tmez.Bias + tmez.StandardBias;
-    else
+    TIME_ZONE_ID_DAYLIGHT : begin
+      iBias := tmez.Bias;
+      if tmez.DaylightDate.wMonth <> 0 then begin
+        iBias := iBias + tmez.DaylightBias;
+      end;
+    end;
+    TIME_ZONE_ID_STANDARD : begin
+      iBias := tmez.Bias;
+      if tmez.StandardDate.wMonth <> 0 then begin
+        iBias := iBias + tmez.StandardBias;
+      end;
+    end
+  else
     begin
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
     end;
