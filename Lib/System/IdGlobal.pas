@@ -1216,6 +1216,14 @@ type
     property OnSetSize: TIdStreamSetSizeEvent read FOnSetSize write FOnSetSize;
   end;
 
+  {$IFNDEF DOTNET} // what is the .NET equivilent?
+  TIdMemoryBufferStream = class(TCustomMemoryStream)
+  public
+    constructor Create(APtr: Pointer; ASize: Longint);
+    function Write(const Buffer; Count: Longint): Longint; override;
+  end;
+  {$ENDIF}
+
 const
   {$IFDEF UNIX}
   GOSType = otUnix;
@@ -1449,13 +1457,13 @@ function CurrentProcessId: TIdPID;
 
 // RLebeau: the input of these two functions must be in GMT
 function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
-function DateTimeGMTToCookieStr(const GMTValue: TDateTime) : String;
+function DateTimeGMTToCookieStr(const GMTValue: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
 
 // RLebeau: the input of these functions must be in local time
 function DateTimeToInternetStr(const Value: TDateTime; const AUseGMTStr: Boolean = False) : String; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use LocalDateTimeToGMT()'{$ENDIF};{$ENDIF}
 function DateTimeToGmtOffSetStr(ADateTime: TDateTime; const AUseGMTStr: Boolean = False): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UTCOffsetToStr()'{$ENDIF};{$ENDIF}
 function LocalDateTimeToHttpStr(const Value: TDateTime) : String;
-function LocalDateTimeToCookieStr(const Value: TDateTime) : String;
+function LocalDateTimeToCookieStr(const Value: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
 function LocalDateTimeToGMT(const Value: TDateTime; const AUseGMTStr: Boolean = False) : String;
 
 procedure DebugOutput(const AText: string);
@@ -5282,17 +5290,30 @@ begin
                     wYear, FormatDateTime('HH":"nn":"ss',GMTValue), 'GMT']);  {do not localize}
 end;
 
-function DateTimeGMTToCookieStr(const GMTValue: TDateTime) : String;
-// Wdy, DD-Mon-YY HH:MM:SS GMT
+function DateTimeGMTToCookieStr(const GMTValue: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
 var
-  wDay,
-  wMonth,
-  wYear: Word;
+  wDay, wMonth, wYear: Word;
+  LDelim: Char;
 begin
   DecodeDate(GMTValue, wYear, wMonth, wDay);
-  Result := IndyFormat('%s, %.2d-%s-%.2d %s %s',    {do not localize}
-                   [wdays[DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
-                    wYear, FormatDateTime('HH":"nn":"ss',GMTValue), 'GMT']);  {do not localize}
+  // RLebeau: cookie draft-21 requires HTTP servers to format an Expires value as follows:
+  //
+  // Wdy, DD Mon YYYY HH:MM:SS GMT
+  //
+  // However, Netscape style formatting, which RFCs 2109 and 2965 allow
+  // (but draft-21 obsoletes), are more common:
+  //
+  // Wdy, DD-Mon-YY HH:MM:SS GMT   (original)
+  // Wdy, DD-Mon-YYYY HH:MM:SS GMT (RFC 1123)
+  //
+  if AUseNetscapeFmt then begin
+    LDelim := '-';    {do not localize}
+  end else begin
+    LDelim := ' ';    {do not localize}
+  end;
+  Result := IndyFormat('%s, %.2d%c%s%c%.4d %s %s',    {do not localize}
+                   [wdays[DayOfWeek(GMTValue)], wDay, LDelim, monthnames[wMonth], LDelim, wYear,
+                   FormatDateTime('HH":"nn":"ss',GMTValue), 'GMT']);  {do not localize}
 end;
 
 function LocalDateTimeToHttpStr(const Value: TDateTime) : String;
@@ -5301,10 +5322,10 @@ begin
   Result := DateTimeGMTToHttpStr(Value - OffsetFromUTC);
 end;
 
-function LocalDateTimeToCookieStr(const Value: TDateTime) : String;
+function LocalDateTimeToCookieStr(const Value: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DateTimeGMTToCookieStr(Value - OffsetFromUTC);
+  Result := DateTimeGMTToCookieStr(Value - OffsetFromUTC, AUseNetscapeFmt);
 end;
 
 function DateTimeToInternetStr(const Value: TDateTime; const AUseGMTStr : Boolean = False) : String;
@@ -6340,6 +6361,31 @@ begin
     FOnSetSize(ASize);
   end;
 end;
+
+{$IFNDEF DOTNET}
+constructor TIdMemoryBufferStream.Create(APtr: Pointer; ASize: Longint);
+begin
+  inherited Create;
+  SetPointer(APtr, ASize);
+end;
+
+function TIdMemoryBufferStream.Write(const Buffer; Count: Longint): Longint;
+var
+  LNumToCopy: Longint;
+begin
+  Result := 0;
+  if (Position >= 0) and (Size > 0) and (Count > 0) then
+  begin
+    LNumToCopy := IndyMin(Size - Position, Count);
+    if LNumToCopy > 0 then
+    begin
+      System.Move(Buffer, Pointer(PtrInt(Memory) + Position)^, Count);
+      TIdStreamHelper.Seek(Self, LNumToCopy, soCurrent);
+      Result := LNumToCopy;
+    end;
+  end;
+end;
+{$ENDIF}
 
 procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0; const ALength: Integer = -1);
 var

@@ -682,7 +682,7 @@ end;
 
 function IsContentTypeHtml(AInfo: TIdEntityHeaderInfo) : Boolean;
 begin
-  Result := IsHeaderMediaType(AInfo.ContentType, 'text/html'); {do not localize}
+  Result := IsHeaderMediaTypes(AInfo.ContentType, ['text/html', 'text/html-sandboxed']); {do not localize}
 end;
 
 function IsContentTypeAppXml(AInfo: TIdEntityHeaderInfo) : Boolean;
@@ -1094,7 +1094,7 @@ end;
 
 procedure TIdCustomHTTP.SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
 begin
-  if Assigned(FCookieManager) then
+  if Assigned(FCookieManager) and AllowCookies then
   begin
     // Send secure cookies only if we have Secured connection
     FCookieManager.GenerateClientCookies(
@@ -1789,58 +1789,22 @@ end;
 
 procedure TIdCustomHTTP.ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
-  Temp, Cookies, Cookies2: TStringList;
-  i: Integer;
-  S, Cur: String;
-
-  // RLebeau: a single Set-Cookie header can have more than 1 cookie in it...
-  procedure ReadCookies(AHeaders: TIdHeaderList; const AHeader: String; ACookies: TStrings);
-  var
-    j: Integer;
-  begin
-    Temp.Clear;
-    AHeaders.Extract(AHeader, Temp);
-    for j := 0 to Temp.Count-1 do begin
-      S := Temp[j];
-      while ExtractNextCookie(S, Cur, True) do begin
-        ACookies.Add(Cur);
-      end;
-    end;
+  LCookies: TStringList;
+begin
+  if (not Assigned(FCookieManager)) and AllowCookies then begin
+    CookieManager := TIdCookieManager.Create(Self);
+    FFreeCookieManager := True;
   end;
 
-begin
-  Temp := nil;
-  Cookies := nil;
-  Cookies2 := nil;
-  try
-    if (not Assigned(FCookieManager)) and AllowCookies then begin
-      CookieManager := TIdCookieManager.Create(Self);
-      FFreeCookieManager := True;
+  if Assigned(FCookieManager) then begin
+    LCookies := TStringList.Create;
+    try
+      AResponse.RawHeaders.Extract('Set-Cookie', LCookies);  {do not localize}
+      AResponse.MetaHTTPEquiv.RawHeaders.Extract('Set-Cookie', LCookies);    {do not localize}
+      CookieManager.AddServerCookies(LCookies, FURI);
+    finally
+      FreeAndNil(LCookies);
     end;
-
-    if Assigned(FCookieManager) then begin
-      Temp := TStringList.Create;
-      Cookies := TStringList.Create;
-      Cookies2 := TStringList.Create;
-
-      ReadCookies(AResponse.RawHeaders, 'Set-Cookie', Cookies);  {do not localize}
-      ReadCookies(AResponse.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
-
-      ReadCookies(AResponse.MetaHTTPEquiv.RawHeaders, 'Set-Cookie', Cookies);    {do not localize}
-      ReadCookies(AResponse.MetaHTTPEquiv.RawHeaders, 'Set-Cookie2', Cookies2);  {do not localize}
-
-      for i := 0 to Cookies.Count - 1 do begin
-        CookieManager.AddServerCookie(Cookies[i], FURI);
-      end;
-
-      for i := 0 to Cookies2.Count - 1 do begin
-        CookieManager.AddServerCookie2(Cookies2[i], FURI);
-      end;
-    end;
-  finally
-    FreeAndNil(Temp);
-    FreeAndNil(Cookies);
-    FreeAndNil(Cookies2);
   end;
 end;
 

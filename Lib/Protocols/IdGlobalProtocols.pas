@@ -485,6 +485,7 @@ type
   function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
   function GmtOffsetStrToDateTime(const S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
+  function CookieStrToLocalDateTime(S: string): TDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: LongWord): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
@@ -855,7 +856,7 @@ begin
     {$IFDEF STRING_IS_UNICODE}
     Result := TwoCharToWord(Value[1], Value[2]);
     {$ELSE}
-    Result := Word(Pointer(Value)^);
+    Result := PWord(Pointer(Value))^;
     {$ENDIF}
   end else begin
     Result := 0;
@@ -2348,6 +2349,231 @@ begin
   end;
 end;
 
+{ Using the algorithm defined in cookie-draft-21 section 5.1.1 }
+function CookieStrToLocalDateTime(S: string): TDateTime;
+const
+  {
+  delimiter       = %x09 / %x20-2F / %x3B-40 / %x5B-60 / %x7B-7E
+  non-delimiter   = %x00-08 / %x0A-1F / DIGIT / ":" / ALPHA / %x7F-FF
+  }
+  cDelimiters = #9' !"#$%&''()*+,-./;<=>?@[\]^_`{|}~';
+var
+  LTokens: TStringList;
+  LStartPos, LEndPos, I: Integer;
+  LFoundTime, LFoundDayOfMonth, LFoundMonth, LFoundYear: Boolean;
+  LHour, LMinute, LSecond: Integer;
+  LYear, LMonth, LDayOfMonth: Integer;
+
+  function ExtractDigits(var AStr: String; MinDigits, MaxDigits: Integer): String;
+  var
+    LLength: Integer;
+  begin
+    Result := '';
+    LLength := 0;
+    while (LLength < Length(AStr)) and (LLength < MaxDigits) do
+    begin
+      if IsNumeric(AStr[LLength+1]) then begin
+        Inc(LLength);
+      end else begin
+        Break;
+      end;
+    end;
+    if (LLength > 0) and (LLength >= MinDigits) then begin
+      Result := Copy(AStr, 1, LLength);
+      AStr := Copy(AStr, LLength+1, MaxInt);
+    end;
+  end;
+
+  function ParseTime(const AStr: String): Boolean;
+  var
+    S, LTemp: String;
+  begin
+    {
+    non-digit       = %x00-2F / %x3A-FF
+    time            = hms-time ( non-digit *OCTET )
+    hms-time        = time-field ":" time-field ":" time-field
+    time-field      = 1*2DIGIT
+    }
+    Result := False;
+    S := AStr;
+
+    LTemp := ExtractDigits(S, 1, 2);
+    if (LTemp = '') or (not CharEquals(S, 1, ':')) then begin
+      Exit;
+    end;
+    if not TryStrToInt(LTemp, LHour) then begin
+      Exit;
+    end;
+    IdDelete(S, 1, 1);
+
+    LTemp := ExtractDigits(S, 1, 2);
+    if (LTemp = '') or (not CharEquals(S, 1, ':')) then begin
+      Exit;
+    end;
+    if not TryStrToInt(LTemp, LMinute) then begin
+      Exit;
+    end;
+    IdDelete(S, 1, 1);
+
+    LTemp := ExtractDigits(S, 1, 2);
+    if LTemp = '' then begin
+      Exit;
+    end;
+    if S <> '' then begin
+      if IsNumeric(S, 1, 1) then begin
+        raise Exception.Create('Invalid Cookie Time');
+      end;
+    end;
+    if not TryStrToInt(LTemp, LSecond) then begin
+      Exit;
+    end;
+
+    if LHour > 23 then begin
+      raise Exception.Create('Invalid Cookie Time');
+    end;
+    if LMinute > 59 then begin
+      raise Exception.Create('Invalid Cookie Time');
+    end;
+    if LSecond > 59 then begin
+      raise Exception.Create('Invalid Cookie Time');
+    end;
+
+    Result := True;
+  end;
+
+  function ParseDayOfMonth(const AStr: String): Boolean;
+  var
+    S, LTemp: String;
+  begin
+    {
+    non-digit       = %x00-2F / %x3A-FF
+    day-of-month    = 1*2DIGIT ( non-digit *OCTET )
+    }
+    Result := False;
+    S := AStr;
+
+    LTemp := ExtractDigits(S, 1, 2);
+    if LTemp = '' then begin
+      Exit;
+    end;
+    if S <> '' then begin
+      if IsNumeric(AStr, 1, 3) then begin
+        raise Exception.Create('Invalid Cookie Day of Month');
+      end;
+    end;
+    if not TryStrToInt(LTemp, LDayOfMonth) then begin
+      Exit;
+    end;
+    if (LDayOfMonth < 1) or (LDayOfMonth > 31) then begin
+      raise Exception.Create('Invalid Cookie Day of Month');
+    end;
+
+    Result := True;
+  end;
+
+  function ParseMonth(const AStr: String): Boolean;
+  begin
+    {
+    month           = ( "jan" / "feb" / "mar" / "apr" /
+                       "may" / "jun" / "jul" / "aug" /
+                       "sep" / "oct" / "nov" / "dec" ) *OCTET
+    }
+    LMonth := PosInStrArray(Copy(AStr, 1, 3), ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'], False) + 1;
+    Result := LMonth <> 0;
+  end;
+
+  function ParseYear(const AStr: String): Boolean;
+  var
+    S, LTemp: String;
+  begin
+    // year            = 2*4DIGIT ( non-digit *OCTET )
+    Result := False;
+    S := AStr;
+
+    LTemp := ExtractDigits(S, 2, 4);
+    if (LTemp = '') or IsNumeric(S, 1, 1) then begin
+      Exit;
+    end;
+    if not TryStrToInt(AStr, LYear) then begin
+      Exit;
+    end;
+    if (LYear >= 70) and (LYear <= 99) then begin
+      Inc(LYear, 1900);
+    end
+    else if (LYear >= 0) and (LYear <= 69) then begin
+      Inc(LYear, 2000);
+    end;
+    if LYear < 1601 then begin
+      raise Exception.Create('Invalid Cookie Year');
+    end;
+
+    Result := True;
+  end;
+
+begin
+  LFoundTime := False;
+  LFoundDayOfMonth := False;
+  LFoundMonth := False;
+  LFoundYear := False;
+
+  try
+    // TODO: don't use a TStringList anymore
+    LTokens := TStringList.Create;
+    try
+      LEndPos := 0;
+      repeat
+        LStartPos := FindFirstNotOf(cDelimiters, S, -1, LEndPos+1);
+        if LStartPos = 0 then begin
+          Break;
+        end;
+        LEndPos := FindFirstOf(cDelimiters, S, -1, LStartPos+1);
+        if LEndPos = 0 then begin
+          LTokens.Add(Copy(S, LStartPos, MaxInt));
+          Break;
+        end;
+        LTokens.Add(Copy(S, LStartPos, LEndPos-LStartPos));
+      until False;
+
+      for I := 0 to LTokens.Count-1 do begin
+        if not LFoundTime then begin
+          if ParseTime(LTokens[I]) then begin
+            LFoundTime := True;
+            Continue;
+          end;
+        end;
+        if not LFoundDayOfMonth then begin
+          if ParseDayOfMonth(LTokens[I]) then begin
+            LFoundDayOfMonth := True;
+            Continue;
+          end;
+        end;
+        if not LFoundMonth then begin
+          if ParseMonth(LTokens[I]) then begin
+            LFoundMonth := True;
+            Continue;
+          end;
+        end;
+        if not LFoundYear then begin
+          if ParseYear(LTokens[I]) then begin
+            LFoundYear := True;
+            Continue;
+          end;
+        end;
+      end;
+    finally
+      LTokens.Free;
+    end;
+
+    if (not LFoundDayOfMonth) or (not LFoundMonth) or (not LFoundYear) or (not LFoundTime) then begin
+      raise Exception.Create('Cookie Date not Found');
+    end;
+
+    Result := EncodeDate(LYear, LMonth, LDayOfMonth) + EncodeTime(LHour, LMinute, LSecond, 0) + OffsetFromUTC;
+  except
+    Result := 0.0;
+  end;
+end;
+
 { Takes a cardinal (DWORD)  value and returns the string representation of it's binary value}    {Do not Localize}
 function IntToBin(Value: LongWord): string;
 var
@@ -3217,385 +3443,399 @@ end;
 {** HTML Parsing code for extracting Metadata.  It can also be the basis of a Full HTML parser ***}
 
 const
- HTML_DOCWHITESPACE = #0+#9+#10+#13+#32;
- HTML_ALLOWABLE_ALPHANUMBERIC = 'abcdefghijklmnopqrstuvwxyz'+
-         'ABCDEFGHIJKLMNOPQRSTUVWXYZ'+
-         '1234567890-';
- HTML_QUOTECHARS = '''"';
- HTML_MainDocParts : array [0..2] of string = ('TITLE','HEAD', 'BODY');
- HTML_HeadDocAttrs : array [0..3] of string = ('META','TITLE','SCRIPT','LINK');
+ HTML_DOCWHITESPACE = #0+#9+#10+#13+#32;                       {do not localize}
+ HTML_ALLOWABLE_ALPHANUMBERIC = 'abcdefghijklmnopqrstuvwxyz'+  {do not localize}
+         'ABCDEFGHIJKLMNOPQRSTUVWXYZ'+                         {do not localize}
+         '1234567890-';                                        {do not localize}
+ HTML_QUOTECHARS = '''"';                                      {do not localize}
+ HTML_MainDocParts : array [0..2] of string = ('TITLE','HEAD', 'BODY'); {do not localize}
+ HTML_HeadDocAttrs : array [0..3] of string = ('META','TITLE','SCRIPT','LINK'); {do not localize}
+ HTML_MetaAttrs : array [0..1] of string = ('HTTP-EQUIV', 'charset'); {do not localize}
 
-procedure DiscardUntilEndOfTag(const AStr : String; var VPos : Integer; const ALen : Integer); {$IFDEF USE_INLINE}inline; {$ENDIF}
+function ParseUntilEndOfTag(const AStr : String; var VPos : Integer;
+  const ALen : Integer): String; {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  LStart: Integer;
 begin
-  repeat
-    if VPos <= ALen then begin
-      if AStr[VPos] = '>' then begin
-        break;
-      end else begin
-        Inc(VPos);
-      end;
-    end else begin
-      break;
+  LStart := VPos;
+  while VPos <= ALen do begin
+    if AStr[VPos] = '>' then begin {do not localize}
+      Break;
     end;
-  until False;
+    Inc(VPos);
+  end;
+  Result := Copy(AStr, LStart, VPos - LStart);
 end;
 
-function ExtractDocWhiteSpace(const AStr : String; var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
+procedure DiscardUntilEndOfTag(const AStr : String; var VPos : Integer;
+  const ALen : Integer); {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := '';
-  repeat
-    //pass any whitespace
-    if VPos <= ALen then begin
-      if CharIsInSet(AStr,VPos,HTML_DOCWHITESPACE) then begin
-         Result := Result + AStr[VPos];
-         inc(VPos);
-       end else begin
-         break;
-       end;
-     end else begin
-        break;
+  while VPos <= ALen do begin
+    if AStr[VPos] = '>' then begin {do not localize}
+      Break;
     end;
-  until False;
+    Inc(VPos);
+  end;
+end;
+
+function ExtractDocWhiteSpace(const AStr : String; var VPos : Integer;
+  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  LStart: Integer;
+begin
+  LStart := VPos;
+  while VPos <= ALen do begin
+    if not CharIsInSet(AStr, VPos, HTML_DOCWHITESPACE) then begin
+      Break;
+    end;
+    Inc(VPos);
+  end;
+  Result := Copy(AStr, LStart, VPos-LStart);
 end;
 
 procedure DiscardDocWhiteSpace(const AStr : String; var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
 begin
-  repeat
-    //pass any whitespace
-    if VPos <= ALen then begin
-      if CharIsInSet(AStr,VPos,HTML_DOCWHITESPACE) then begin
-         inc(VPos);
-       end else begin
-         break;
-       end;
-     end else begin
-        break;
+  while VPos <= ALen do begin
+    if not CharIsInSet(AStr, VPos, HTML_DOCWHITESPACE) then begin
+      Break;
     end;
-  until False;
+    Inc(VPos);
+  end;
 end;
 
-function ParseWord(const AStr : String; var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
+function ParseWord(const AStr : String; var VPos : Integer;
+  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  LStart: Integer;
 begin
-  Result := '';
-   repeat
-     if VPos <= ALen then begin
-      if CharIsInSet(AStr,VPos,HTML_ALLOWABLE_ALPHANUMBERIC) then begin
-         Result := Result + AStr[VPos];
-         inc(VPos);
-       end else begin
-         break;
-       end;
-     end else begin
-        break;
-     end;
-   until False;;
+  LStart := VPos;
+  while VPos <= ALen do begin
+    if not CharIsInSet(AStr, VPos, HTML_ALLOWABLE_ALPHANUMBERIC) then begin
+      Break;
+    end;
+    Inc(VPos);
+  end;
+  Result := Copy(AStr, LStart, VPos-LStart);
+end;
+
+procedure DiscardWord(const AStr : String; var VPos : Integer;
+  const ALen : Integer);  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  while VPos <= ALen do begin
+    if not CharIsInSet(AStr, VPos, HTML_ALLOWABLE_ALPHANUMBERIC) then begin
+      Break;
+    end;
+    Inc(VPos);
+  end;
 end;
 
 function ParseUntil(const AStr : String; const AChar : Char;
-  var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
-
+  var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  LStart: Integer;
 begin
-  Result := '';
-  repeat
-    if VPos <= ALen then begin
-      if AStr[VPos] = AChar then begin
-         break;
-       end else begin
-         Result := Result + AStr[VPos];
-         inc(VPos);
-       end;
-     end else begin
-        break;
+  LStart := VPos;
+  while VPos <= ALen do begin
+    if AStr[VPos] = AChar then begin
+      Break;
     end;
-  until False;
+    Inc(VPos);
+  end;
+  Result := Copy(AStr, LStart, VPos-LStart);
 end;
 
 procedure DiscardUntil(const AStr : String; const AChar : Char;
-  var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+  var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  repeat
-    if VPos <= ALen then begin
-      if AStr[VPos] = AChar then begin
-         break;
-       end else begin
-         inc(VPos);
-       end;
-     end else begin
-        break;
+  while VPos <= ALen do begin
+    if AStr[VPos] = AChar then begin
+      Break;
     end;
-  until False;
+    Inc(VPos);
+  end;
 end;
 
-function ParseHTTPMetaEquiveData(const AStr : String; var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline; {$ENDIF}
-var LQuoteChar : Char;
+function ParseHTTPMetaEquiveData(const AStr : String; var VPos : Integer;
+  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  LQuoteChar : Char;
   LWord : String;
 begin
   Result := '';
-  DiscardDocWhiteSpace(Astr,VPos,ALen);
-  if IdGlobal.CharIsInSet(AStr,VPos,HTML_QUOTECHARS) then begin
+  DiscardDocWhiteSpace(AStr, VPos, ALen);
+  if CharIsInSet(AStr, VPos, HTML_QUOTECHARS) then begin
     LQuoteChar := AStr[VPos];
     Inc(VPos);
-  end else begin
-    LQuoteChar := ' ';
-  end;
-  if VPos > ALen then begin
-    exit;
-  end;
-  Result := ParseUntil(AStr,LQuoteChar,VPos,ALen)+':';
-  repeat
-    Inc(VPos);
-    DiscardDocWhiteSpace(Astr,VPos,ALen);
-    if AStr[VPos]='/' then begin
-      Inc(VPos);
-    end;
-    if AStr[VPos]='>' then begin
-      break;
-    end;
-    LWord := ParseWord(AStr,VPos,ALen);
     if VPos > ALen then begin
-      break;
+      Exit;
     end;
-    if AStr[VPos]='=' then begin
-       Inc(VPos);
-       DiscardDocWhiteSpace(Astr,VPos,ALen);
-       if IdGlobal.CharIsInSet(AStr,VPos,HTML_QUOTECHARS) then begin
-         LQuoteChar := AStr[VPos];
-         Inc(VPos);
-       end else begin
-         LQuoteChar := ' ';
-       end;
-       if TextIsSame(LWord,'CONTENT') then begin
-         Result := Result + ' '+ParseUntil(AStr,LQuoteChar,VPos,ALen);
-       end else begin
-         DiscardUntil(AStr,LQuoteChar,VPos,ALen);
-       end;
+    LWord := ParseUntil(AStr, LQuoteChar, VPos, ALen);
+    Inc(VPos);
+  end else begin
+    if VPos > ALen then begin
+      Exit;
+    end;
+    LWord := ParseWord(AStr, VPos, ALen);
+  end;
+  Result := LWord + ':'; {do not localize}
+  repeat
+    DiscardDocWhiteSpace(AStr, VPos, ALen);
+    if VPos > ALen then begin
+      Break;
+    end;
+    if AStr[VPos] = '/' then begin {do not localize}
+      Inc(VPos);
+      if VPos > ALen then begin
+        Break;
+      end;
+    end;
+    if AStr[VPos] = '>' then begin {do not localize}
+      Break;
+    end;
+    LWord := ParseWord(AStr, VPos, ALen);
+    if VPos > ALen then begin
+      Break;
+    end;
+    if AStr[VPos] = '=' then begin {do not localize}
+      Inc(VPos);
+      DiscardDocWhiteSpace(AStr, VPos, ALen);
+      if CharIsInSet(AStr, VPos, HTML_QUOTECHARS) then begin
+        LQuoteChar := AStr[VPos];
+        Inc(VPos);
+        if TextIsSame(LWord, 'CONTENT') then begin
+          Result := Result + ' ' + ParseUntil(AStr, LQuoteChar, VPos, ALen);
+        end else begin
+          DiscardUntil(AStr, LQuoteChar, VPos, ALen);
+        end;
+        Inc(VPos);
+      end else begin
+        if TextIsSame(LWord, 'CONTENT') then begin
+          Result := Result + ' ' + ParseWord(AStr, VPos, ALen);
+        end else begin
+          DiscardWord(AStr, VPos, ALen);
+        end;
+      end;
     end;
   until False;
 end;
 
-function ParseForEndOfComment(const AStr : String; var VPos : Integer; const ALen : Integer) : String;   {$IFDEF USE_INLINE}inline; {$ENDIF}
-var i : Integer;
-  LTmp : String;
+function ParseMetaCharsetData(const AStr : String; var VPos : Integer;
+  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  LQuoteChar : Char;
+  LWord : String;
 begin
-  Result := ParseUntil(AStr,'-',VPos,ALen);
-  i := 0;
-  repeat
+  Result := '';
+  DiscardDocWhiteSpace(AStr, VPos, ALen);
+  if CharIsInSet(AStr, VPos, HTML_QUOTECHARS) then begin
+    LQuoteChar := AStr[VPos];
+    Inc(VPos);
     if VPos > ALen then begin
-      exit;
+      Exit;
     end;
-    if AStr[VPos]='-' then begin
-      Inc(i);
-      LTmp := LTmp + '-';
-      Inc(VPos);
-      if (i >= 2) and (AStr[VPos]='>') then begin
-        Delete(LTmp,1,2);
-        Result := Result + LTmp;
-        break;
-      end else begin
-        if AStr[VPos] <> '-' then begin
-           i := 0;
-           Result := Result + LTmp;
-        end;
-      end;
-    end else begin
-      Result := Result + AStr[VPos];
-      Inc(VPos);
+    LWord := ParseUntil(AStr, LQuoteChar, VPos, ALen);
+    Inc(VPos);
+  end else begin
+    if VPos > ALen then begin
+      Exit;
     end;
-  until False;
+    LWord := ParseWord(AStr, VPos, ALen);
+  end;
+  DiscardUntilEndOfTag(AStr, VPos, ALen);
+  Result := 'Content-Type: text/html; charset="' + LWord + '"'; {do not localize}
 end;
 
 procedure DiscardToEndOfComment(const AStr : String; var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
-var i : Integer;
+var
+  i : Integer;
 begin
-  DiscardUntil(AStr,'-',VPos,ALen);
+  DiscardUntil(AStr, '-', VPos, ALen); {do not localize}
   i := 0;
-  repeat
-    if VPos > ALen then begin
-      exit;
-    end;
-    if AStr[VPos]='-' then begin
-      Inc(i);
-      Inc(VPos);
-      if (i >= 2) and (AStr[VPos]='>') then begin
-        break;
-      end else begin
-        if AStr[VPos] <> '-' then begin
-           i := 0;
-        end;
+  while VPos <= ALen do begin
+    if AStr[VPos] = '-' then begin {do not localize}
+      if i < 2 then begin
+        Inc(i);
       end;
     end else begin
-      Inc(VPos);
+      if (AStr[VPos] = '>') and (i = 2) then begin {do not localize}
+        Break;
+      end;
+      i := 0;
     end;
-  until False;
+    Inc(VPos);
+  end;
 end;
 
 function ParseForCloseTag(const AStr, ATagWord : String; var VPos : Integer; const ALen : Integer) : String; {$IFDEF USE_INLINE}inline; {$ENDIF}
-var LWord, LTmp : String;
+var
+  LWord, LTmp : String;
 begin
   Result := '';
-  repeat
-    if VPos > ALen then begin
-      exit;
-    end;
-    Result := Result + ParseUntil(AStr,'<',VPos,ALen);
+  while VPos <= ALen do begin
+    Result := Result + ParseUntil(AStr, '<', VPos, ALen); {do not localize}
     if AStr[VPos] = '<' then begin
       Inc(VPos);
     end;
-    LTmp := '<'+ExtractDocWhiteSpace(Astr,VPos,ALen);
-    if AStr[VPos] = '/' then begin
+    LTmp := '<' + ExtractDocWhiteSpace(AStr, VPos, ALen); {do not localize}
+    if AStr[VPos] = '/' then begin {do not localize}
       Inc(VPos);
-      LTmp := LTmp + '/';
-      LWord := ParseWord(AStr,VPos,ALen);
-      if TextIsSame(LWord,ATagWord) then begin
-        DiscardUntil(AStr,'>',VPos,ALen);
-        break;
-      end else begin
-        Result := Result + LTmp + LWord + ParseUntil(AStr,'>',VPos,ALen);
-        Inc(VPos);
+      LTmp := LTmp + '/'; {do not localize}
+      LWord := ParseWord(AStr, VPos, ALen);
+      if TextIsSame(LWord, ATagWord) then begin
+        DiscardUntilEndOfTag(AStr, VPos, ALen);
+        Break;
       end;
-    end else begin
-        Result := Result + LTmp + LWord + ParseUntil(AStr,'>',VPos,ALen);
-        Inc(VPos);
     end;
-  until False;
+    Result := Result + LTmp + LWord + ParseUntilEndOfTag(AStr, VPos, ALen); {do not localize}
+    Inc(VPos);
+  end;
 end;
 
 procedure DiscardUntilCloseTag(const AStr, ATagWord : String; var VPos : Integer;
   const ALen : Integer; const AIsScript : Boolean = False);  {$IFDEF USE_INLINE}inline; {$ENDIF}
-var LWord, LTmp : String;
+var
+  LWord, LTmp : String;
 begin
-  repeat
-    if VPos > ALen then begin
-      exit;
-    end;
-    DiscardUntil(AStr,'<',VPos,ALen);
-    if AStr[VPos] = '<' then begin
+  while VPos <= ALen do begin
+    DiscardUntil(AStr, '<', VPos, ALen); {do not localize}
+    if AStr[VPos] = '<' then begin {do not localize}
       Inc(VPos);
     end;
-    LTmp := '<'+ExtractDocWhiteSpace(Astr,VPos,ALen);
-    if AStr[VPos] = '/' then begin
+    LTmp := '<' + ExtractDocWhiteSpace(AStr, VPos, ALen);
+    if AStr[VPos] = '/' then begin {do not localize}
       Inc(VPos);
-      LTmp := LTmp + '/';
-      LWord := ParseWord(AStr,VPos,ALen);
-      if TextIsSame(LWord,ATagWord) then begin
-       DiscardUntil(AStr,'>',VPos,ALen);
-        break;
-      end else begin
-        if not AIsScript then begin
-          DiscardUntil(AStr,'>',VPos,ALen);
-        end;
-        Inc(VPos);
+      LTmp := LTmp + '/'; {do not localize}
+      LWord := ParseWord(AStr, VPos, ALen);
+      if TextIsSame(LWord, ATagWord) then begin
+        DiscardUntilEndOfTag(AStr, VPos, ALen);
+        Break;
       end;
-    end else begin
-      if Not AIsScript then begin
-        DiscardUntil(AStr,'>',VPos,ALen);
-      end;
-      Inc(VPos);
     end;
-  until False;
+    if not AIsScript then begin
+      DiscardUntilEndOfTag(AStr, VPos, ALen);
+    end;
+    Inc(VPos);
+  end;
 end;
 
 procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings);
 type
-  TIdHTMLMode = (none,html,title,head,body,comment);
-
+  TIdHTMLMode = (none, html, title, head, body, comment);
 var
   LRawData : String;
   LWord : String;
   LMode : TIdHTMLMode;
   LPos : Integer;
   LLen : Integer;
-
 begin
 //  AStr.Clear;
   AStream.Position := 0;
-  LRawData := ReadStringFromStream(AStream);
+  LRawData := ReadStringFromStream(AStream, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   LMode := none;
   LPos := 0;
   LLen := Length(LRawData);
   repeat
     Inc(LPos);
     if LPos > LLen then begin
-      break;
+      Break;
     end;
-    if LRawData[LPos] = '<' then begin
+    if LRawData[LPos] = '<' then begin {do not localize}
       Inc(LPos);
       if LPos > LLen then begin
-        break;
+        Break;
       end;
-      if LRawData[LPos] = '?' then begin
+      if LRawData[LPos] = '?' then begin {do not localize}
         Inc(LPos);
         if LPos > LLen then begin
-          break;
+          Break;
         end;
-      end;
-      if LRawData[LPos] = '!' then begin
+      end
+      else if LRawData[LPos] = '!' then begin {do not localize}
         Inc(LPos);
         if LPos > LLen then begin
-          break;
+          Break;
+        end;
+        //we have to handle comments separately since they appear in any mode.
+        if Copy(LRawData, LPos, 2) = '--' then begin {do not localize}
+          Inc(LPos, 2);
+          DiscardToEndOfComment(LRawData, LPos, LLen);
+          Continue;
         end;
       end;
-      DiscardDocWhiteSpace(LRawData,LPos,LLen);
-      LWord := ParseWord(LRawData,LPos,LLen);
-      //we have to handle comments separately since they appear in any mode.
-      if TextStartsWith(LWord,'--') then begin
-        ParseForEndOfComment(LRawData,LPos,LLen);
-      end else begin
-        case LMode  of
-          none :
-          begin
-            DiscardUntilEndOfTag(LRawData,LPos,LLen);
-            if UpperCase(LWord) = 'HTML'  then begin
-               LMOde := html;
-            end;
+      DiscardDocWhiteSpace(LRawData, LPos, LLen);
+      LWord := ParseWord(LRawData, LPos, LLen);
+      case LMode of
+        none :
+        begin
+          DiscardUntilEndOfTag(LRawData, LPos, LLen);
+          if TextIsSame(LWord, 'HTML') then begin
+            LMode := html;
           end;
-          html :
-          begin
-            DiscardUntilEndOfTag(LRawData,LPos,LLen);
-            case PosInStrArray(LWord,HTML_MainDocParts,False) of
-              0 : LMode := title;//title
-              1 : LMode := head; //head
-              2 : LMode := body;
-            end;
+        end;
+        html :
+        begin
+          DiscardUntilEndOfTag(LRawData, LPos, LLen);
+          case PosInStrArray(LWord, HTML_MainDocParts, False) of
+            0 : LMode := title;//title
+            1 : LMode := head; //head
+            2 : LMode := body; //body
           end;
-          head :
-          begin
-            case IdGlobal.PosInStrArray(LWord,HTML_HeadDocAttrs,False) of
-              0 : //'META',
-              begin
-                DiscardDocWhiteSpace(LRawData,LPos,LLen);
-                LWord := ParseWord(LRawData,LPos,LLen);
-                if TextIsSame(LWord,'HTTP-EQUIV') then begin
-                  if LRawData[LPos] = '=' then begin
+        end;
+        head :
+        begin
+          case PosInStrArray(LWord, HTML_HeadDocAttrs, False) of
+            0 : //'META'
+            begin
+              DiscardDocWhiteSpace(LRawData, LPos, LLen);
+              LWord := ParseWord(LRawData, LPos, LLen);
+              // '<meta http-equiv="..." content="...">'
+              // '<meta charset="...">' (used in HTML5)
+              // TODO: use ParseUntilEndOfTag() here
+              case PosInStrArray(LWord, HTML_MetaAttrs, False) of {do not localize}
+                0: // HTTP-EQUIV
+                begin
+                  DiscardDocWhiteSpace(LRawData, LPos, LLen);
+                  if LRawData[LPos] = '=' then begin {do not localize}
                     Inc(LPos);
                     if LPos > LLen then begin
-                      break;
+                      Break;
                     end;
-                    AStr.Add( ParseHTTPMetaEquiveData(LRawData,LPos,LLen));
+                    AStr.Add( ParseHTTPMetaEquiveData(LRawData, LPos, LLen) );
                   end;
                 end;
-              end;
-              1 :  //'TITLE'
-              begin
-                DiscardUntilEndOfTag(LRawData,LPos,LLen);
-                DiscardUntilCloseTag(LRawData,'TITLE',LPos,LLen);
-              end;
-              //'SCRIPT'
-              2 :
-              begin
-                DiscardUntilEndOfTag(LRawData,LPos,LLen);
-                DiscardUntilCloseTag(LRawData,'SCRIPT',LPos,LLen,True);
-              end;
-              //'LINK'
-              3 :
-              begin
-                DiscardUntilEndOfTag(LRawData,LPos,LLen);
+                1: // charset
+                begin
+                  DiscardDocWhiteSpace(LRawData, LPos, LLen);
+                  if LRawData[LPos] = '=' then begin {do not localize}
+                    Inc(LPos);
+                    if LPos > LLen then begin
+                      Break;
+                    end;
+                    AStr.Add( ParseMetaCharsetData(LRawData, LPos, LLen) );
+                  end;
+                end;
+              else
+                DiscardUntilEndOfTag(LRawData, LPos, LLen);
               end;
             end;
+            1 :  //'TITLE'
+            begin
+              DiscardUntilEndOfTag(LRawData, LPos, LLen);
+              DiscardUntilCloseTag(LRawData, 'TITLE', LPos, LLen); {do not localize}
+            end;
+            2 : //'SCRIPT'
+            begin
+              DiscardUntilEndOfTag(LRawData, LPos, LLen);
+              DiscardUntilCloseTag(LRawData, 'SCRIPT', LPos, LLen, True); {do not localize}
+            end;
+            3 : //'LINK'
+            begin
+              DiscardUntilEndOfTag(LRawData, LPos, LLen); {do not localize}
+            end;
           end;
-          body: begin
-            exit;
-          end;
+        end;
+        body: begin
+          Exit;
         end;
       end;
     end;

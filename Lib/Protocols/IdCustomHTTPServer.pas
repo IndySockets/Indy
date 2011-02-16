@@ -507,6 +507,24 @@ type
     function GetSession(const SessionID, RemoteIP: string): TIdHTTPSession; override;
   end;
 
+  TIdHTTPRangeStream = class(TIdBaseStream)
+  private
+    FSourceStream: TStream;
+    FRangeStart, FRangeEnd: Int64;
+    FResponseCode: Integer;
+  protected
+    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    procedure IdSetSize(ASize: Int64); override;
+  public
+    constructor Create(ASource: TStream; ARangeStart, ARangeEnd: Int64);
+    property ResponseCode: Integer read FResponseCode;
+    property RangeStart: Int64 read FRangeStart;
+    property RangeEnd: Int64 read FRangeEnd;
+    property SourceStream: TStream read FSourceStream;
+  end;
+
 implementation
 
 uses
@@ -532,7 +550,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   IdCoderMIME, IdResourceStringsProtocols, IdURI, IdIOHandler, IdIOHandlerSocket,
-  IdSSL, IdResourceStringsCore;
+  IdSSL, IdResourceStringsCore, IdStream;
 
 const
   SessionCapacity = 128;
@@ -702,6 +720,87 @@ begin
   inherited Unlock;
 end;
 
+{ TIdHTTPRangeStream }
+
+constructor TIdHTTPRangeStream.Create(ASource: TStream; ARangeStart, ARangeEnd: Int64);
+var
+  LSize: Int64;
+begin
+  inherited Create;
+  FSourceStream := ASource;
+  FResponseCode := 200;
+  if (ARangeStart > -1) or (ARangeEnd > -1) then begin
+    LSize := ASource.Size;
+    if ARangeStart > -1 then begin
+      // requesting prefix range from BOF
+      if ARangeStart >= LSize then begin
+        // range unsatisfiable
+        FResponseCode := 416;
+        Exit;
+      end;
+      if ARangeEnd > -1 then begin
+        if ARangeEnd < ARangeStart then begin
+          // invalid syntax
+          Exit;
+        end;
+        ARangeEnd := IndyMin(ARangeEnd, LSize-1);
+      end else begin
+        ARangeEnd := LSize-1;
+      end;
+    end else begin
+      // requesting suffix range from EOF
+      if ARangeEnd = 0 then begin
+        // range unsatisfiable
+        FResponseCode := 416;
+        Exit;
+      end;
+      ARangeStart := IndyMax(LSize - ARangeEnd, 0);
+      ARangeEnd := LSize-1;
+    end;
+    FResponseCode := 206;
+    FRangeStart := ARangeStart;
+    FRangeEnd := ARangeEnd;
+  end;
+end;
+
+function TIdHTTPRangeStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+begin
+  if FResponseCode = 206 then begin
+    ACount := Longint(IndyMin(Int64(ACount), (FRangeEnd+1) - FSourceStream.Position));
+  end;
+  Result := TIdStreamHelper.ReadBytes(FSourceStream, VBuffer, ACount, AOffset);
+end;
+
+function TIdHTTPRangeStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+var
+  LOffset: Int64;
+begin
+  if FResponseCode = 206 then begin
+    case AOrigin of
+      soBeginning: LOffset := FRangeStart + AOffset;
+      soCurrent: LOffset := FSourceStream.Position + AOffset;
+      soEnd: LOffset := (FRangeEnd+1) + AOffset;
+    else
+      // TODO: move this into IdResourceStringsProtocols.pas
+      raise EIdException.Create('Unknown Seek Origin'); {do not localize}
+    end;
+    LOffset := IndyMax(LOffset, FRangeStart);
+    LOffset := IndyMin(LOffset, FRangeEnd+1);
+    Result := TIdStreamHelper.Seek(FSourceStream, LOffset, soBeginning) - FRangeStart;
+  end else begin
+    Result := TIdStreamHelper.Seek(FSourceStream, AOffset, AOrigin);
+  end;
+end;
+
+function TIdHTTPRangeStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+begin
+  Result := 0;
+end;
+
+procedure TIdHTTPRangeStream.IdSetSize(ASize: Int64);
+begin
+end;
+
 { TIdCustomHTTPServer }
 
 procedure TIdCustomHTTPServer.InitComponent;
@@ -762,7 +861,7 @@ begin
       CookieName := GSessionIDCookie;
       Value := Result.SessionID;
       Path := '/';    {Do not Localize}
-      MaxAge := -1; // By default the cookies wil be valid until the user has closed his browser window.
+      // By default the cookie will be valid until the user has closed his browser window.
       // MaxAge := SessionTimeOut div 1000;
     end;
     HTTPResponse.FSession := Result;
@@ -1069,6 +1168,7 @@ begin
               IOHandler.Capture(LRequestInfo.RawHeaders, '', False);    {Do not Localize}
               LRequestInfo.ProcessHeaders;
 
+              // TODO: HTTP 1.1 connections are keep-alive by default
               LResponseInfo.CloseConnection := not (FKeepAlive and
                 TextIsSame(LRequestInfo.Connection, 'Keep-alive')); {Do not Localize}
 
@@ -1308,7 +1408,7 @@ begin
       // Session events
       FSessionList.OnSessionStart := FOnSessionStart;
       FSessionList.OnSessionEnd := FOnSessionEnd;
-      // If session handeling is enabled, create the housekeeper thread
+      // If session handling is enabled, create the housekeeper thread
       if SessionState then
         FSessionCleanupThread := TIdHTTPSessionCleanerThread.Create(FSessionList);
     end else
@@ -1505,7 +1605,6 @@ begin
   end;
   with Cookies.Add do begin
     CookieName := GSessionIDCookie;
-    MaxAge := 0;
     Expires := Date-7;
   end;
   FreeAndNil(FSession);
@@ -1729,7 +1828,6 @@ var
   i: Integer;
   LEncoding: TIdTextEncoding;
   LBufferingStarted: Boolean;
-  LCookie: TIdCookieRFC2109;
 begin
   if HeaderHasBeenWritten then begin
     EIdHTTPHeaderAlreadyWritten.Toss(RSHTTPHeaderAlreadyWritten);
@@ -1797,12 +1895,7 @@ begin
     FConnection.IOHandler.Write(RawHeaders);
     // Write cookies
     for i := 0 to Cookies.Count - 1 do begin
-      LCookie := Cookies[i];
-      if LCookie is TIdCookieRFC2965 then begin
-        FConnection.IOHandler.WriteLn('Set-Cookie2: ' + LCookie.ServerCookie);    {Do not Localize}
-      end else begin
-        FConnection.IOHandler.WriteLn('Set-Cookie: ' + LCookie.ServerCookie);    {Do not Localize}
-      end;
+      FConnection.IOHandler.WriteLn('Set-Cookie: ' + Cookies[i].ServerCookie);    {Do not Localize}
     end;
     // HTTP headers end with a double CR+LF
     FConnection.IOHandler.WriteLn;
