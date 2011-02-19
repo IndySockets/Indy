@@ -287,12 +287,14 @@ type
     fVerifyDepth: Integer;
     fVerifyMode: TIdSSLVerifyModeSet;
     //fVerifyFile,
-    fVerifyDirs, fCipherList: AnsiString;
+    fVerifyDirs: String;
+    fCipherList: AnsiString;
     procedure AssignTo(ASource: TPersistent); override;
     procedure SetSSLVersions(const AValue : TIdSSLVersions);
     procedure SetMethod(const AValue : TIdSSLVersion);
   public
     constructor Create;
+    // procedure Assign(ASource: TPersistent); override;
   published
     property RootCertFile: String read fsRootCertFile write fsRootCertFile;
     property CertFile: String read fsCertFile write fsCertFile;
@@ -303,10 +305,8 @@ type
     property VerifyMode: TIdSSLVerifyModeSet read fVerifyMode write fVerifyMode;
     property VerifyDepth: Integer read fVerifyDepth write fVerifyDepth;
 //    property VerifyFile: String read fVerifyFile write fVerifyFile;
-    property VerifyDirs: AnsiString read fVerifyDirs write fVerifyDirs;
+    property VerifyDirs: String read fVerifyDirs write fVerifyDirs;
     property CipherList: AnsiString read fCipherList write fCipherList;
-  public
-    // procedure Assign(ASource: TPersistent); override;
   end;
 
   TIdSSLContext = class(TObject)
@@ -349,10 +349,14 @@ type
     property Mode: TIdSSLMode read fMode write fMode;
     property RootCertFile: String read fsRootCertFile write fsRootCertFile;
     property CertFile: String read fsCertFile write fsCertFile;
+    property CipherList: AnsiString read fCipherList write fCipherList;
     property KeyFile: String read fsKeyFile write fsKeyFile;
 //    property VerifyMode: TIdSSLVerifyModeSet read GetVerifyMode write SetVerifyMode;
+//    property VerifyFile: String read fVerifyFile write fVerifyFile;
+    property VerifyDirs: String read fVerifyDirs write fVerifyDirs;
     property VerifyMode: TIdSSLVerifyModeSet read fVerifyMode write fVerifyMode;
     property VerifyDepth: Integer read fVerifyDepth write fVerifyDepth;
+
   end;
 
   TIdSSLSocket = class(TObject)
@@ -1932,8 +1936,8 @@ begin
     fVerifyDepth := SSLOptions.fVerifyDepth;
     fVerifyMode := SSLOptions.fVerifyMode;
     // fVerifyFile := SSLOptions.fVerifyFile;
-    fVerifyDirs := String(SSLOptions.fVerifyDirs);
-    fCipherList := AnsiString(SSLOptions.fCipherList);
+    fVerifyDirs := SSLOptions.fVerifyDirs;
+    fCipherList := SSLOptions.fCipherList;
     VerifyOn := Assigned(fOnVerifyPeer);
     StatusInfoOn := Assigned(fOnStatusInfo) or Assigned(FOnStatusInfoEx);
     //PasswordRoutineOn := Assigned(fOnGetPassword);
@@ -2221,8 +2225,8 @@ begin
       fVerifyDepth := SSLOptions.fVerifyDepth;
       fVerifyMode := SSLOptions.fVerifyMode;
       // fVerifyFile := SSLOptions.fVerifyFile;
-      fVerifyDirs := String(SSLOptions.fVerifyDirs);
-      fCipherList := AnsiString(SSLOptions.fCipherList);
+      fVerifyDirs := SSLOptions.fVerifyDirs;
+      fCipherList := SSLOptions.fCipherList;
       VerifyOn := Assigned(fOnVerifyPeer);
       StatusInfoOn := Assigned(fOnStatusInfo) or Assigned(fOnStatusInfoEx);
       //PasswordRoutineOn := Assigned(fOnGetPassword);
@@ -2434,7 +2438,7 @@ begin
 //  end;
   SSL_CTX_set_default_verify_paths(fContext);
   // load key and certificate files
-  if RootCertFile <> '' then begin    {Do not Localize}
+  if (RootCertFile <> '') or (VerifyDirs <> '') then begin    {Do not Localize}
     if not LoadRootCert then begin
        EIdOSSLLoadingRootCertError.RaiseException(RSSSLLoadingRootCertError);
     end;
@@ -2551,7 +2555,7 @@ begin
     Result := IndySSL_CTX_load_verify_locations(
                    fContext,
                    RootCertFile,
-                   '') > 0;
+                   VerifyDirs) > 0;
 end;
 
 function TIdSSLContext.LoadCert: Boolean;
