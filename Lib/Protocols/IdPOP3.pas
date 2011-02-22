@@ -379,7 +379,7 @@ function TIdPOP3.RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings):
 begin
   Result := (SendCmd('RETR ' + IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
-    IOHandler.Capture(aDest);
+    IOHandler.Capture(aDest, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   end;
 end;
 
@@ -388,7 +388,7 @@ function TIdPOP3.RetrieveRaw(const aMsgNo: Integer;
 begin
   Result := (SendCmd('RETR ' + IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
-    IOHandler.Capture(aDest);
+    IOHandler.Capture(aDest, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   end;
 end;
 
@@ -470,7 +470,7 @@ begin
   else begin
     Result := (SendCmd('UIDL', '') = ST_OK);    {Do not Localize}
     if Result then begin
-      IOHandler.Capture(ADest);
+      IOHandler.Capture(ADest, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
     end;
   end;
 end;
@@ -485,7 +485,7 @@ begin
   end;
   Result := (SendCmd(Cmd,'') = ST_OK);
   if Result then begin
-    IOHandler.Capture(ADest);
+    IOHandler.Capture(ADest, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   end;
 end;
 

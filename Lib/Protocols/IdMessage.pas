@@ -742,6 +742,8 @@ begin
       end;
     end;
   end;
+  {RLebeau: should we validate the TIdMessage.ContentTransferEncoding property as well?}
+  
   {CC2: We dont support attachments in an encoded body.
   Change it to a supported combination...}
   if MessageParts.Count > 0 then begin
@@ -968,6 +970,7 @@ begin
   {CC2: Added support for BCCList...}
   BCCList.EMailAddresses := DecodeHeader(Headers.Values['Bcc']); {do not localize}
   Organization := Headers.Values['Organization']; {do not localize}
+  InReplyTo := Headers.Values['In-Reply-To']; {do not localize}
 
   ReceiptRecipient.Text := Headers.Values['Disposition-Notification-To']; {do not localize}
   if Length(ReceiptRecipient.Text) = 0 then begin
