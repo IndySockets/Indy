@@ -1768,19 +1768,29 @@ var
   LReqDate : TDateTime;
 begin
   LFileDate := IndyFileAge(AFile);
-  LReqDate := GMTToLocalDateTime(ARequestInfo.RawHeaders.Values['If-Modified-Since']);  {do not localize}
-
-  // if the file date in the If-Modified-Since header is within 2 seconds of the
-  // actual file, then we will send a 304. We don't use the ETag - offers nothing
-  // over the file date for static files on windows. Linux: consider using iNode
-  if (LReqDate <> 0) and (abs(LReqDate - LFileDate) < 2 * (1 / (24 * 60 * 60))) then
+  if (LFileDate = 0.0) and (not FileExists(AFile)) then
   begin
-    ResponseNo := 304;
+    ResponseNo := 404;
     Result := 0;
   end else
   begin
-    Date := LFileDate;
-    Result := ServeFile(AContext, AFile);
+    LReqDate := GMTToLocalDateTime(ARequestInfo.RawHeaders.Values['If-Modified-Since']);  {do not localize}
+    // if the file date in the If-Modified-Since header is within 2 seconds of the
+    // actual file, then we will send a 304. We don't use the ETag - offers nothing
+    // over the file date for static files on windows. Linux: consider using iNode
+
+    // RLebeau 2/21/2011: TODO - make use of ETag. It is supposed to be updated
+    // whenever the file contents change, regardless of the file's timestamps.
+
+    if (LReqDate <> 0) and (abs(LReqDate - LFileDate) < 2 * (1 / (24 * 60 * 60))) then
+    begin
+      ResponseNo := 304;
+      Result := 0;
+    end else
+    begin
+      Date := LFileDate;
+      Result := ServeFile(AContext, AFile);
+    end;
   end;
 end;
 
