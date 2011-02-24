@@ -1966,6 +1966,9 @@ begin
       end else begin
         SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username, ['OK']);          {Do not Localize}
       end;
+      if LastCmdResult.Code <> IMAP_OK then begin
+        RaiseExceptionForLastCmdResult;
+      end;
     end else
     begin
       if not FHasCapa then begin

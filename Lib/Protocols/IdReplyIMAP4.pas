@@ -239,7 +239,7 @@ end;
 
 procedure TIdReplyIMAP4.RaiseReplyError;
 begin
-  raise EIdReplyIMAP4Error.Create('Default RaiseReply error'); {do not localize}
+  raise EIdReplyIMAP4Error.Create(Extra.Text); {do not localize}
 end;
 
 {CC: The following decides if AValue is a valid command sequence number like C41...}
