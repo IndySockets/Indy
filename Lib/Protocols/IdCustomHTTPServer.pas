@@ -510,6 +510,7 @@ type
   TIdHTTPRangeStream = class(TIdBaseStream)
   private
     FSourceStream: TStream;
+    FOwnsSource: Boolean;
     FRangeStart, FRangeEnd: Int64;
     FResponseCode: Integer;
   protected
@@ -518,7 +519,8 @@ type
     function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
     procedure IdSetSize(ASize: Int64); override;
   public
-    constructor Create(ASource: TStream; ARangeStart, ARangeEnd: Int64);
+    constructor Create(ASource: TStream; ARangeStart, ARangeEnd: Int64; AOwnsSource: Boolean = True);
+    destructor Destroy; override;
     property ResponseCode: Integer read FResponseCode;
     property RangeStart: Int64 read FRangeStart;
     property RangeEnd: Int64 read FRangeEnd;
@@ -722,12 +724,14 @@ end;
 
 { TIdHTTPRangeStream }
 
-constructor TIdHTTPRangeStream.Create(ASource: TStream; ARangeStart, ARangeEnd: Int64);
+constructor TIdHTTPRangeStream.Create(ASource: TStream; ARangeStart, ARangeEnd: Int64;
+  AOwnsSource: Boolean = True);
 var
   LSize: Int64;
 begin
   inherited Create;
   FSourceStream := ASource;
+  FOwnsSource := AOwnsSource;
   FResponseCode := 200;
   if (ARangeStart > -1) or (ARangeEnd > -1) then begin
     LSize := ASource.Size;
@@ -761,6 +765,14 @@ begin
     FRangeStart := ARangeStart;
     FRangeEnd := ARangeEnd;
   end;
+end;
+
+destructor TIdHTTPRangeStream.Destroy;
+begin
+  if FOwnsSource then begin
+    FSourceStream.Free;
+  end;
+  inherited Destroy;
 end;
 
 function TIdHTTPRangeStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
