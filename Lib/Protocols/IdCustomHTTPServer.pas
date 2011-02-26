@@ -1801,6 +1801,7 @@ begin
     end else
     begin
       Date := LFileDate;
+      LastModified := LFileDate;
       Result := ServeFile(AContext, AFile);
     end;
   end;
