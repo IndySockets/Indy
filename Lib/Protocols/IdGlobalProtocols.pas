@@ -2349,6 +2349,16 @@ begin
   end;
 end;
 
+{$IFNDEF VCL_6_OR_ABOVE}
+function TryStrToInt(const S: string; out Value: Integer): Boolean;
+var
+  E: Integer;
+begin
+  Val(S, Value, E);
+  Result := E = 0;
+end;
+{$ENDIF}
+
 { Using the algorithm defined in cookie-draft-21 section 5.1.1 }
 function CookieStrToLocalDateTime(S: string): TDateTime;
 const
