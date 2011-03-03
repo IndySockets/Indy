@@ -5311,7 +5311,7 @@ begin
   end else begin
     LDelim := ' ';    {do not localize}
   end;
-  Result := IndyFormat('%s, %.2d%c%s%c%.4d %s %s',    {do not localize}
+  Result := IndyFormat('%s, %.2d%s%s%s%.4d %s %s',    {do not localize}
                    [wdays[DayOfWeek(GMTValue)], wDay, LDelim, monthnames[wMonth], LDelim, wYear,
                    FormatDateTime('HH":"nn":"ss',GMTValue), 'GMT']);  {do not localize}
 end;
