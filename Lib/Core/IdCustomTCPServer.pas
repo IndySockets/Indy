@@ -317,6 +317,7 @@ type
     FReuseSocket: TIdReuseSocket;
     FTerminateWaitTime: Integer;
     FContexts: TThreadList;
+    FOnContextCreated: TIdServerThreadEvent;
     FOnConnect: TIdServerThreadEvent;
     FOnDisconnect: TIdServerThreadEvent;
     FOnException: TIdServerThreadExceptionEvent;
@@ -385,6 +386,7 @@ type
     property OnBeforeBind: TIdSocketHandleEvent read FOnBeforeBind write FOnBeforeBind;
     property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
     property OnBeforeListenerRun: TIdNotifyThreadEvent read FOnBeforeListenerRun write FOnBeforeListenerRun;
+    property OnContextCreated: TIdServerThreadEvent read FOnContextCreated write FOnContextCreated;
     // Occurs in the context of the peer thread
     property OnConnect: TIdServerThreadEvent read FOnConnect write FOnConnect;
     // Occurs in the context of the peer thread
@@ -431,7 +433,9 @@ end;
 
 procedure TIdCustomTCPServer.ContextCreated(AContext: TIdContext);
 begin
-//
+  if Assigned(FOnContextCreated) then begin
+    FOnContextCreated(AContext);
+  end;
 end;
 
 destructor TIdCustomTCPServer.Destroy;
