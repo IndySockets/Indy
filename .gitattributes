@@ -925,6 +925,7 @@ Lib/Core/IndyCore90Net.bdsproj -text
 Lib/Core/IndyCore90Net.dpk -text
 Lib/Core/IndyCoreK3.dpk -text
 Lib/Core/Makefile.fpc -text
+Lib/Core/Makefile.fpc.tmpl -text
 Lib/Core/Res/IdCreditsBitmap.RES -text svneol=unset#unset
 Lib/Core/Res/IdCreditsBitmap.rc -text
 Lib/Core/Res/Maint/1sink.jpg -text svneol=unset#image/jpeg
@@ -1019,6 +1020,7 @@ Lib/Design/IdDsnPropEdBindingNET.pas -text
 Lib/Design/IdDsnPropEdBindingNET.resx -text
 Lib/FCL/IdCompilerDefines.inc -text
 Lib/FCL/IdVers.inc -text
+Lib/FCL/IdVers.inc.tmpl -text
 Lib/FCL/Indy.Sockets.bdsproj -text
 Lib/FCL/Indy.Sockets.dpr -text
 Lib/FCL/Mono.Security.dll -text svneol=unset#unset
@@ -1559,6 +1561,7 @@ Lib/Protocols/IndyProtocols90Net.bdsproj -text
 Lib/Protocols/IndyProtocols90Net.dpk -text
 Lib/Protocols/IndyProtocolsK3.dpk -text
 Lib/Protocols/Makefile.fpc -text
+Lib/Protocols/Makefile.fpc.tmpl -text
 Lib/Protocols/ZLib/ZLib.pas -text
 Lib/Protocols/ZLib/ZLibConst.pas -text
 Lib/Protocols/ZLib/adler32.c eol=lf
@@ -1843,6 +1846,7 @@ Lib/System/IndySystem90Net.bdsproj -text
 Lib/System/IndySystem90Net.dpk -text
 Lib/System/IndySystemK3.dpk -text
 Lib/System/Makefile.fpc -text
+Lib/System/Makefile.fpc.tmpl -text
 Lib/System/indysystemfpc.pas -text
 Lib/buildres.bat -text
 Lib/dclIndy110.groupproj -text
@@ -1889,11 +1893,14 @@ Lib/fpcnotes/COPYING.modifiedBSD -text
 Lib/fpcnotes/README -text
 Lib/indy-fpc.spec.template -text
 Lib/indylaz.lpk -text
+Lib/indylaz.lpk.tmpl -text
 Lib/indymaster-Makefile.fpc -text
+Lib/indymaster-Makefile.fpc.tmpl -text
 Lib/lspFix.dpr -text
 Lib/lspFix.exe -text svneol=unset#unset
 Lib/makeD12.proj -text
 Lib/makeindyrpm.sh eol=lf
+Lib/makeindyrpm.sh.tmpl -text
 Lib/testsuite/Makefile.fpc -text
 Lib/testsuite/testhash/Makefile.fpc -text
 Lib/testsuite/testhash/testhash.dpr -text

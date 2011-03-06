@@ -1,20 +1,21 @@
-#   Makefile.fpc for indycorefpc 10.5.8.0
-
 [package]
-name=indyprotocolsfpc
-version=10.5.8.0
-main=indy
+name=indy
+version=10.5.8.$WCREV$
 
-[compiler]
-includedir=../Inc
-unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
-unitdir=../System/lib/$(CPU_TARGET)-$(OS_TARGET) \
-        ../Core/lib/$(CPU_TARGET)-$(OS_TARGET)
-options=-gl
+[require]
+packages=fcl-base
+packages_linux=iconvenc
+packages_freebsd=iconvenc
+packages_netbsd=iconvenc
+packages_openbsd=iconvenc
+packages_darwin=iconvenc
+fpcsubdir=packages/extra
 
 [target]
-units=indyprotocolsfpc
-rsts=IdResourceStringsProtocols
+options=-gl
+exampledirs=examples
+units=indysystemfpc indycorefpc indyprotocolsfpc
+rsts=IdResourceStrings IdResourceStringsCore IdResourceStringsProtocols
 rsts_amiga=
 rsts_atari=
 rsts_beos=
@@ -43,16 +44,23 @@ implicitunits=IdASN1Util \
   IdAllAuthentications \
   IdAllFTPListParsers \
   IdAllHeaderCoders \
+  IdAntiFreezeBase \
+  IdAssignedNumbers \
   IdAttachment \
   IdAttachmentFile \
   IdAttachmentMemory \
   IdAuthentication \
   IdAuthenticationDigest \
   IdAuthenticationManager \
+  IdBaseComponent \
   IdBlockCipherIntercept \
+  IdBuffer \
+  IdCTypes \
   IdChargenServer \
   IdChargenUDPServer \
   IdCharsets \
+  IdCmdTCPClient \
+  IdCmdTCPServer \
   IdCoder \
   IdCoder00E \
   IdCoder3to4 \
@@ -62,11 +70,16 @@ implicitunits=IdASN1Util \
   IdCoderQuotedPrintable \
   IdCoderUUE \
   IdCoderXXE \
+  IdCommandHandlers \
+  IdComponent \
   IdConnectThroughHttpProxy \
   IdContainers \
+  IdContext \
   IdCookie \
   IdCookieManager \
   IdCustomHTTPServer \
+  IdCustomTCPServer \
+  IdCustomTransparentProxy \
   IdDICT \
   IdDICTCommon \
   IdDICTServer \
@@ -85,6 +98,8 @@ implicitunits=IdASN1Util \
   IdEchoServer \
   IdEchoUDP \
   IdEchoUDPServer \
+  IdException \
+  IdExceptionCore \
   IdExplicitTLSClientServerBase \
   IdFIPS \
   IdFSP \
@@ -137,6 +152,8 @@ implicitunits=IdASN1Util \
   IdFTPServerContextBase \
   IdFinger \
   IdFingerServer \
+  IdGlobal \
+  IdGlobalCore \
   IdGlobalProtocols \
   IdGopher \
   IdGopherConsts \
@@ -162,13 +179,30 @@ implicitunits=IdASN1Util \
   IdHeaderList \
   IdIMAP4 \
   IdIMAP4Server \
+  IdIOHandler \
+  IdIOHandlerSocket \
+  IdIOHandlerStack \
+  IdIOHandlerStream \
   IdIPAddrMon \
+  IdIPAddress \
+  IdIPMCastBase \
+  IdIPMCastClient \
+  IdIPMCastServer \
   IdIPWatch \
   IdIRC \
+  IdIcmpClient \
   IdIdent \
   IdIdentServer \
+  IdIntercept \
+  IdInterceptSimLog \
+  IdInterceptThrottler \
   IdIrcServer \
   IdLPR \
+  IdLogBase \
+  IdLogDebug \
+  IdLogEvent \
+  IdLogFile \
+  IdLogStream \
   IdMailBox \
   IdMappedFTP \
   IdMappedPOP3 \
@@ -201,12 +235,20 @@ implicitunits=IdASN1Util \
   IdQotdServer \
   IdRSH \
   IdRSHServer \
+  IdRawBase \
+  IdRawClient \
+  IdRawFunctions \
+  IdRawHeaders \
   IdRemoteCMDClient \
   IdRemoteCMDServer \
+  IdReply \
   IdReplyFTP \
   IdReplyIMAP4 \
   IdReplyPOP3 \
+  IdReplyRFC \
   IdReplySMTP \
+  IdResourceStrings \
+  IdResourceStringsCore \
   IdResourceStringsProtocols \
   IdRexec \
   IdRexecServer \
@@ -231,10 +273,26 @@ implicitunits=IdASN1Util \
   IdSNPP \
   IdSNTP \
   IdSSL \
+  IdScheduler \
+  IdSchedulerOfThread \
+  IdSchedulerOfThreadDefault \
+  IdSchedulerOfThreadPool \
+  IdServerIOHandler \
+  IdServerIOHandlerSocket \
+  IdServerIOHandlerStack \
   IdServerInterceptLogBase \
   IdServerInterceptLogEvent \
   IdServerInterceptLogFile \
+  IdSimpleServer \
+  IdSocketHandle \
+  IdSocks \
+  IdStack \
+  IdStackConsts \
+  IdStream \
+  IdStreamVCL \
   IdStrings \
+  IdStruct \
+  IdSync \
   IdSysLog \
   IdSysLogMessage \
   IdSysLogServer \
@@ -242,16 +300,28 @@ implicitunits=IdASN1Util \
   IdSystatServer \
   IdSystatUDP \
   IdSystatUDPServer \
+  IdTCPClient \
+  IdTCPConnection \
+  IdTCPServer \
+  IdTCPStream \
+  IdTask \
   IdTelnet \
   IdTelnetServer \
   IdText \
+  IdThread \
+  IdThreadComponent \
+  IdThreadSafe \
   IdTime \
   IdTimeServer \
   IdTimeUDP \
   IdTimeUDPServer \
+  IdTraceRoute \
   IdTrivialFTP \
   IdTrivialFTPBase \
   IdTrivialFTPServer \
+  IdUDPBase \
+  IdUDPClient \
+  IdUDPServer \
   IdURI \
   IdUnixTime \
   IdUnixTimeServer \
@@ -264,6 +334,7 @@ implicitunits=IdASN1Util \
   IdWebDAV \
   IdWhoIsServer \
   IdWhois \
+  IdYarn \
   IdZLibCompressorBase
 
 implicitunits_amiga=
@@ -272,12 +343,14 @@ implicitunits_atari=
 units_atari=
 implicitunits_beos=
 units_beos=
-implicitunits_darwin=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_darwin=IdStackUnix IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_darwin=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_emx=
 units_emx=
-implicitunits_freebsd=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_freebsd=IdStackUnix IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_freebsd=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
@@ -285,7 +358,8 @@ implicitunits_go_32v1=
 units_go32v1=
 implicitunits_go32v2=
 units_go32v2=
-implicitunits_linux=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_linux=$(BACKEND) IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_linux=IdCompressorZLib IdSSLOpenSSL \
 IdCompressionIntercept IdAuthenticationNTLM
@@ -293,7 +367,8 @@ implicitunits_macos=
 units_macos=
 implicitunits_morphos=
 units_morphos=
-implicitunits_netbsd=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_netbsd=IdStackUnix IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_netbsd=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
@@ -301,7 +376,8 @@ implicitunits_netware=
 units_netware=
 implicitunits_netwlibc=
 units_netwlibc=
-implicitunits_openbsd=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_openbsd=IdStackUnix IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_openbsd=IdCompressorZLib IdSSLOpenSSL \
 IdCompressionIntercept IdAuthenticationNTLM
@@ -309,38 +385,47 @@ implicitunits_os2=
 units_os2=
 implicitunits_palmos=
 units_palmos=
-implicitunits_qnx=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_qnx=IdStackUnix IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_qnx=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
-implicitunits_solaris=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_solaris=IdStackUnix IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_solaris=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_watcom=
 units_watcom=
-implicitunits_win32=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_win32=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM IdSSPI 
 units_win32=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM \
              IdAuthenticationSSPI
-implicitunits_win64=IdSSLOpenSSLHeaders IdZLibHeaders \
+implicitunits_win64=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM IdSSPI 
 units_win64=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM \
              IdAuthenticationSSPI
-implicitunits_wince=
+implicitunits_wince=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6
 units_wince=
 implicitunits_wdosx=
 units_wdosx=
 implicitunits_gba=
 units_gba=
-[requires]
-packages=indycorefpc
-packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)/:../Core/lib/$(CPU_TARGET)-$(OS_TARGET)/
 
 [install]
 fpcpackage=y
-fpcsubdir=packages/extra
 
-[shared]	
+[shared]
 build=n
+
+[prerules]
+# KYLIXCOMPAT option for using the Kylix i386 compatability layer
+BACKEND=IdStackUnix
+ifeq ($(FULL_TARGET),i386-linux)
+ifeq ($(findstring -dKYLIXCOMPAT,$(OPT)),-dKYLIXCOMPAT)
+BACKEND=IdStackLinux
+endif
+endif
