@@ -2991,7 +2991,14 @@ function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: PtrUInt)
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF HAS_TInterlocked}
+    {$IFDEF THANDLE_32}
   Result := TInterlocked.Exchange(LongInt(VTarget), AValue);
+     {$ENDIF}
+  //Temporary workaround.  TInterlocked for Emb really should accept 64 bit unsigned values as set of parameters
+  //for TInterlocked.Exchange since 64-bit wide integers are common on 64 bit platforms.
+     {$IFDEF THANDLE_64}
+  Result := TInterlocked.Exchange(Int64(VTarget), AValue);
+     {$ENDIF}
   {$ELSE}
     {$IFDEF THANDLE_32}
   Result := InterlockedExchange(LongInt(VTarget), AValue);

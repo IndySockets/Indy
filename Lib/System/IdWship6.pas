@@ -42,6 +42,9 @@ interface
 {$ENDIF}
 
 uses
+  {$IFDEF HAS_TInterlocked}
+  syncobjs, //here to facilitate inlining with Delphi
+  {$ENDIF}
   Windows,
   IdWinsock2;
 
