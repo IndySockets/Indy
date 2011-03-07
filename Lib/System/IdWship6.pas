@@ -100,24 +100,13 @@ const
   {$EXTERNALSYM NI_DGRAM}
   NI_DGRAM        =   $10 ;  // Service is a datagram service.
 
-  // Flag values for getipnodebyname().
-
-  {$EXTERNALSYM AI_V4MAPPED}
-  AI_V4MAPPED    = 1 ;
-  {$EXTERNALSYM AI_ALL}
-  AI_ALL         = 2 ;
-  {$EXTERNALSYM AI_ADDRCONFIG}
-  AI_ADDRCONFIG  = 4 ;
-  {$EXTERNALSYM AI_DEFAULT}
-  AI_DEFAULT     = AI_V4MAPPED or AI_ADDRCONFIG ;
-
   //JPM - These may not be supported in WinCE 4.2
   {$EXTERNALSYM PROTECTION_LEVEL_RESTRICTED}
-  PROTECTION_LEVEL_RESTRICTED   = 10;  //* for Intranet apps      /*
+  PROTECTION_LEVEL_RESTRICTED   = 30;  //* for Intranet apps      /*
   {$EXTERNALSYM PROTECTION_LEVEL_DEFAULT}
   PROTECTION_LEVEL_DEFAULT      = 20;  //* default level          /*
   {$EXTERNALSYM PROTECTION_LEVEL_UNRESTRICTED}
-  PROTECTION_LEVEL_UNRESTRICTED = 30;  //* for peer-to-peer apps  /*
+  PROTECTION_LEVEL_UNRESTRICTED = 10;  //* for peer-to-peer apps  /*
 
   {$EXTERNALSYM SOCKET_SETTINGS_GUARANTEE_ENCRYPTION}
   SOCKET_SETTINGS_GUARANTEE_ENCRYPTION = $00000001;
@@ -137,11 +126,6 @@ type
   UINT64 = Int64;
     {$ENDIF}
   {$ENDIF}
-  
-  {$NODEFINE PPaddrinfo}
-  PPaddrinfo = ^PAddrInfo;
-  {$NODEFINE PPaddrinfoW}
-  PPaddrinfoW = ^PAddrInfoW;
 
   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL}

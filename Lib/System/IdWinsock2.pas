@@ -167,12 +167,16 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
     {$PACKRECORDS C}
   {$ENDIF}
 {$ELSE}
-   {$MINENUMSIZE 4}
-  {$IFDEF REQUIRES_PROPER_ALIGNMENT}
-   {$ALIGN ON}
+  {$IFDEF WIN64}
+     {$ALIGN ON}
   {$ELSE}
-    {$ALIGN OFF}
-    {$WRITEABLECONST OFF}
+    {$MINENUMSIZE 4}
+    {$IFDEF REQUIRES_PROPER_ALIGNMENT}
+       {$ALIGN ON}
+    {$ELSE}
+      {$ALIGN OFF}
+      {$WRITEABLECONST OFF}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -3901,13 +3905,17 @@ const
 type
   {$NODEFINE PAddrInfo}
   PAddrInfo = ^ADDRINFO;
+  {$NODEFINE PPaddrinfo}
+  PPaddrinfo = ^PAddrInfo;
+  {$NODEFINE PPaddrinfoW}
+  PPaddrinfoW = ^PAddrInfoW;
   {$EXTERNALSYM ADDRINFO}
   ADDRINFO = record
     ai_flags        : Integer;      // AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST
     ai_family       : Integer;      // PF_xxx
     ai_socktype     : Integer;      // SOCK_xxx
     ai_protocol     : Integer;      // 0 or IPPROTO_xxx for IPv4 and IPv6
-    ai_addrlen      : ULONG;        // Length of ai_addr
+    ai_addrlen      : size_t;        // Length of ai_addr
     ai_canonname    : PAnsiChar;    // Canonical name for nodename
     ai_addr         : PSOCKADDR;    // Binary address
     ai_next         : PAddrInfo;    // Next structure in linked list
@@ -3925,7 +3933,7 @@ type
     ai_family       : Integer;      // PF_xxx
     ai_socktype     : Integer;      // SOCK_xxx
     ai_protocol     : Integer;      // 0 or IPPROTO_xxx for IPv4 and IPv6
-    ai_addrlen      : ULONG;        // Length of ai_addr
+    ai_addrlen      : size_t;        // Length of ai_addr
     ai_canonname    : PWideChar;    // Canonical name for nodename
     ai_addr         : PSOCKADDR;    // Binary address
     ai_next         : PAddrInfoW;   // Next structure in linked list
@@ -3938,15 +3946,17 @@ type
 // Flags used in "hints" argument to getaddrinfo()
 const
   {$EXTERNALSYM AI_PASSIVE}
-  AI_PASSIVE            = $1;   // Socket address will be used in bind() call
+  AI_PASSIVE            = $00000001;   // Socket address will be used in bind() call
   {$EXTERNALSYM AI_CANONNAME}
-  AI_CANONNAME          = $2;   // Return canonical name in first ai_canonname
+  AI_CANONNAME          = $00000002;   // Return canonical name in first ai_canonname
   {$EXTERNALSYM AI_NUMERICHOST}
-  AI_NUMERICHOST        = $4;   // Nodename must be a numeric address string
+  AI_NUMERICHOST        = $00000004;   // Nodename must be a numeric address string
   {$EXTERNALSYM AI_NUMERICSERV}
   AI_NUMERICSERV        = $00000008;  // Servicename must be a numeric port number
   {$EXTERNALSYM AI_ALL}
   AI_ALL                = $00000100;  // Query both IP6 and IP4 with AI_V4MAPPED
+  {$EXTERNALSYM AI_ADDRCONFIG}
+  AI_ADDRCONFIG         = $00000400;  // Resolution only if global address configured
   {$EXTERNALSYM AI_V4MAPPED}
   AI_V4MAPPED           = $00000800;  // On v6 failure, query v4 and convert to V4MAPPED format (Vista or later)
   {$EXTERNALSYM AI_NON_AUTHORITATIVE}
@@ -3970,11 +3980,11 @@ type
     ai_family : Integer;      // PF_xxx
     ai_socktype : Integer;    // SOCK_xxx
     ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
-    ai_addrlen : Integer; // size_t;     // Length of ai_addr
+    ai_addrlen : size_t;     // Length of ai_addr
     ai_canonname : PAnsiChar;   // Canonical name for nodename
     ai_addr : Psockaddr;        // Binary address
     ai_blob : Pointer;
-    ai_bloblen : Integer;  //size_t
+    ai_bloblen : size_t;
     ai_provider : LPGUID;
     ai_next : PADDRINFOEXA;        // Next structure in linked list
   end;
@@ -3991,11 +4001,11 @@ type
     ai_family : Integer;      // PF_xxx
     ai_socktype : Integer;    // SOCK_xxx
     ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
-    ai_addrlen : Integer; // size_t;     // Length of ai_addr
+    ai_addrlen : size_t;     // Length of ai_addr
     ai_canonname : PWideChar;   // Canonical name for nodename
     ai_addr : Psockaddr;        // Binary address
     ai_blob : Pointer;
-    ai_bloblen : Integer;  //size_t
+    ai_bloblen : size_t;
     ai_provider : LPGUID;
     ai_next : PADDRINFOEXW;        // Next structure in linked list
   end;
