@@ -36,7 +36,7 @@ unit IdZLib;
 
 interface
 
-{$i IdCompilerDefines.inc}
+{$I IdCompilerDefines.inc}
 
 uses
   SysUtils,

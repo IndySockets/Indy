@@ -16,10 +16,13 @@ different platforms in one file.
 
 interface
 
-{$i IdCompilerDefines.inc}
+{$I IdCompilerDefines.inc}
 
 {$WRITEABLECONST OFF}
-
+{
+TODO:  Wait for Emb to decide how to approach ZLib for there 64-bit support
+before we proceed at our end.
+}
 {$UNDEF STATICLOAD_ZLIB}
 {$IFDEF DCC}
   {$IFDEF WIN32}
@@ -121,6 +124,7 @@ type
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   z_off_t = TIdC_LONG;
   {$ENDIF}
+
   {$EXTERNALSYM alloc_func}
   alloc_func = function(opaque: Pointer; items, size: TIdC_UINT): Pointer;  cdecl;
   {$EXTERNALSYM TAlloc}

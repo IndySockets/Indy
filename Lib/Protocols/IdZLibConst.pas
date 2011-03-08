@@ -11,11 +11,15 @@ unit IdZLibConst;
 
 interface
 
-{$i IdCompilerDefines.inc}
+{$I IdCompilerDefines.inc}
 
 {$UNDEF STATICLOAD_ZLIB}
-{$IFNDEF FPC}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{
+TODO:  Wait for Emb to decide how to approach ZLib for there 64-bit support
+before we proceed at our end.
+}
+{$IFDEF DCC}
+  {$IFDEF WIN32}
     {$IFNDEF BCB5_DUMMY_BUILD}
       {$DEFINE STATICLOAD_ZLIB}
     {$ENDIF}
