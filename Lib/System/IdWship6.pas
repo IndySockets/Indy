@@ -193,6 +193,8 @@ type
   {$EXTERNALSYM LPFN_GETADDRINFOW}
   LPFN_GETADDRINFOW = function(NodeName: PWideChar; ServiceName: PWideChar; Hints: PaddrinfoW; ppResult: PPaddrinfoW): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFO}
+  //The IPv6 preview for Win2K defines hostlen and servelen as size_t but do not use them
+  //for these definitions as the newer SDK's define those as DWORD.
   LPFN_GETNAMEINFO = function(sa: psockaddr; salen: u_int; host: PAnsiChar; hostlen: u_int; serv: PAnsiChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFOW}
   LPFN_GETNAMEINFOW = function(sa: psockaddr; salen: u_int; host: PWideChar; hostlen: u_int; serv: PWideChar; servlen: u_int; flags: Integer): Integer; stdcall;
@@ -215,9 +217,9 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
   {$EXTERNALSYM LPFN_INET_PTONW}
   LPFN_INET_PTONW = function (af: Integer; const src: PWideChar; dst: Pointer): Integer; stdcall;
   {$EXTERNALSYM LPFN_INET_NTOP}
-  LPFN_INET_NTOP = function (af: Integer; const src: Pointer; dst: PAnsiChar; size: Integer): PAnsiChar; stdcall;
+  LPFN_INET_NTOP = function (af: Integer; const src: Pointer; dst: PAnsiChar; size: size_t): PAnsiChar; stdcall;
   {$EXTERNALSYM LPFN_INET_NTOPW}
-  LPFN_INET_NTOPW = function (af: Integer; const src: Pointer; dst: PWideChar; size: Integer): PAnsiChar; stdcall;
+  LPFN_INET_NTOPW = function (af: Integer; const src: Pointer; dst: PWideChar; size: size_t): PAnsiChar; stdcall;
 
 { end the following are not used, nor tested}
 //These are provided in case we need them later

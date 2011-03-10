@@ -2418,7 +2418,7 @@ type
 
   {$EXTERNALSYM WSACMSGHDR}
   WSACMSGHDR = record
-    cmsg_len: UINT;
+    cmsg_len: SIZE_T;
     cmsg_level: Integer;
     cmsg_type: Integer;
     { followed by UCHAR cmsg_data[] }
@@ -3223,9 +3223,9 @@ var
   {$EXTERNALSYM WSA_CMSG_DATA}
   function WSA_CMSG_DATA(const cmsg: LPWSACMSGHDR): PByte;
   {$EXTERNALSYM WSA_CMSG_SPACE}
-  function WSA_CMSG_SPACE(const Alength: PtrUInt): PtrUInt;
+  function WSA_CMSG_SPACE(const Alength: SIZE_T): SIZE_T;
   {$EXTERNALSYM WSA_CMSG_LEN}
-  function WSA_CMSG_LEN(const Alength: PtrUInt): PtrUInt;
+  function WSA_CMSG_LEN(const Alength: SIZE_T): SIZE_T;
   {$ENDIF}
 
 //=============================================================
@@ -6233,7 +6233,7 @@ begin
   FDSet.fd_count := 0;
 end;
 
-function WSA_CMSGHDR_ALIGN(const Alength: PtrUint): PtrUInt;
+function WSA_CMSGHDR_ALIGN(const Alength: SIZE_T): SIZE_T;
 type
   {$IFDEF WIN32}
   {$ALIGN ON}
@@ -6250,7 +6250,7 @@ type
   end;  
   {$ENDIF}
 var
-  Alignment: PtrUInt;
+  Alignment: SIZE_T;
   Tmp: ^TempRec;
 begin
   Tmp := nil;
@@ -6300,7 +6300,7 @@ begin
   Result := WSA_CMSGDATA_ALIGN(PtrUInt(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(Alength)));
 end;
 
-function WSA_CMSG_LEN(const Alength: PtrUInt): PtrUInt;
+function WSA_CMSG_LEN(const Alength: SIZE_T): SIZE_T;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + Alength);
