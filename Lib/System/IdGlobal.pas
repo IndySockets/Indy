@@ -1529,7 +1529,7 @@ function IsNumeric(const AString: string; const ALength: Integer; const AIndex: 
 function IsOctal(const AChar: Char): Boolean; overload;
 function IsOctal(const AString: string; const ALength: Integer = -1; const AIndex: Integer = 1): Boolean; overload;
 {$IFNDEF DOTNET}
-function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: PtrUInt): THandle;
+function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: THandle): THandle;
 function InterlockedCompareExchangePtr(var VTarget: Pointer; const AValue, Compare: Pointer): Pointer;
 {$ENDIF}
 function MakeCanonicalIPv4Address(const AAddr: string): string;
