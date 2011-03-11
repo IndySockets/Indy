@@ -13,7 +13,7 @@ uses
   {$IFDEF USE_BASEUNIX}
   ,UnixType
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   ,Windows
   {$ENDIF}
   ;
@@ -21,7 +21,7 @@ uses
 {.$DEFINE STATICLOAD_ICONV}
 //These should be defined in libc.pas.
 type
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   {$EXTERNALSYM SIZE_T}
     {$IFDEF CPU64}
   size_t = QWord;
@@ -180,7 +180,7 @@ const
   LICONV = 'libiconv.so';  {Do not localize}
   {$ELSE}
   // TODO: support static linking, such as via the "win_iconv" library
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   //http://yukihiro.nakadaira.googlepages.com/ seems to use the iconv.dll name.
   LICONV = 'iconv.dll';   {Do not localize}
   LICONV_ALT = 'libiconv.dll';   {Do not localize}
@@ -337,7 +337,7 @@ begin
   if not Loaded then begin
     //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
     //call because LoadLibrary messes with the FPU control word.
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
     hIconv := SafeLoadLibrary(LICONV);
     if hIconv = 0 then begin
       hIconv := SafeLoadLibrary(LICONV_ALT);

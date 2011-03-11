@@ -1107,7 +1107,7 @@ uses
   PosixSysTime,
   PosixUnistd,
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   //facilitate inlining only.
   Windows,
   {$ENDIF}

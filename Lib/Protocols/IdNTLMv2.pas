@@ -178,7 +178,7 @@ uses
     {$IFDEF FPC}
   DynLibs,  // better add DynLibs only for fpc
     {$ENDIF}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
     //Windows should really not be included but this protocol does use
     //some windows internals and is Windows-based.
   Windows,
@@ -208,7 +208,7 @@ const
 {$IFNDEF DOTNET}
 type
   Pdes_key_schedule = ^des_key_schedule;
-  {$IFNDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFNDEF WINDOWS}
   FILETIME = record
     dwLowDateTime : LongWord;
     dwHighDateTime : LongWord;
@@ -277,7 +277,7 @@ var
   {$ENDIF}
 {$ENDIF}
 begin
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF WINCE}
     // TODO
     {$ELSE}

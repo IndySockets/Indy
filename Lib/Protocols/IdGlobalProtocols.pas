@@ -325,7 +325,7 @@ interface
 
 uses
   Classes,
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
   IdCharsets,
@@ -381,7 +381,7 @@ type
     function _Release: Integer;
   end;
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   TIdWin32Type = (Win32s,
     WindowsNT40PreSP6Workstation, WindowsNT40PreSP6Server, WindowsNT40PreSP6AdvancedServer,
     WindowsNT40Workstation, WindowsNT40Server, WindowsNT40AdvancedServer,
@@ -469,7 +469,7 @@ type
   function ExtractHeaderMediaSubType(const AHeaderLine: String): String;
   function IsHeaderValue(const AHeaderLine: String; const AValue: String): Boolean;
   function FileSizeByName(const AFilename: TIdFileName): Int64;
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   function IsVolume(const APathName : TIdFileName) : Boolean;
   {$ENDIF}
   //MLIST FTP DateTime conversion functions
@@ -611,7 +611,7 @@ uses
     PosixSysStat, PosixSysTime, PosixTime, PosixUnistd,
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Messages,
   Registry,
   {$ENDIF}
@@ -750,7 +750,7 @@ begin
 {$ENDIF}
 end;
 
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
 var
   ATempPath: TIdFileName;
 {$ENDIF}
@@ -1390,7 +1390,7 @@ end;
   {$DEFINE NATIVEFILEAPI}
   {$DEFINE NATIVECOPYAPI}
 {$ENDIF}
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
   {$DEFINE NATIVEFILEAPI}
   {$DEFINE NATIVECOPYAPI}
 {$ENDIF}
@@ -1416,7 +1416,7 @@ begin
   System.IO.File.Copy(Source, Destination, True);
   Result := True; // or you'll get an exception
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try
@@ -1468,7 +1468,7 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
 function TempPath: TIdFileName;
 var
   i: Integer;
@@ -1497,7 +1497,7 @@ begin
   lExt := '.tmp';
   {$ENDIF}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   if lPath = '' then begin
     lPath := ATempPath;
   end;
@@ -1594,7 +1594,7 @@ begin
   end;
 end;
 
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
 function IsVolume(const APathName : TIdFileName) : Boolean;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -1610,7 +1610,7 @@ var
   LFile : System.IO.FileInfo;
 {$ELSE}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
 var
   LHandle : THandle;
   LRec : TWin32FindData;
@@ -1640,7 +1640,7 @@ begin
     Result := LFile.Length;
   end;
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     Result := -1;
   //check to see if something like "a:\" is specified and fail in that case.
   //FindFirstFile would probably succede even though a drive is not a proper
@@ -1696,7 +1696,7 @@ begin
 end;
 
 function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
 var
   LRec : TWin32FindData;
   LHandle : THandle;
@@ -1723,7 +1723,7 @@ var
 {$ENDIF}
 begin
   Result := -1;
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   if not IsVolume(AFileName) then begin
     {$IFDEF WIN32_OR_WIN64}
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
@@ -1849,7 +1849,7 @@ begin
 end;
 
 function IndySetLocalTime(Value: TDateTime): Boolean;
-{$IFNDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFNDEF WINDOWS}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
 var
@@ -1869,7 +1869,7 @@ begin
   //TODO: Figure out how to do this
   {$ENDIF}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   {I admit that this routine is a little more complicated than the one
   in Indy 8.0.  However, this routine does support Windows NT privileges
   meaning it will work if you have administrative rights under that OS
@@ -2649,7 +2649,7 @@ end;
 {$ENDIF}
 
 procedure FillMimeTable(const AMIMEList: TStrings; const ALoadFromOS: Boolean = True);
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
 var
   reg: TRegistry;
   KeyList: TStringList;
@@ -3084,7 +3084,7 @@ begin
     Exit;
   end;
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   // Build the file type/MIME type map
   Reg := TRegistry.Create;
   try
@@ -4156,7 +4156,7 @@ function GetClockValue : Int64;
 {$IFDEF DOTNET}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 {$ENDIF}
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
 type
   TLong64Rec = record
     case LongInt of
@@ -4175,7 +4175,7 @@ var
   {$ENDIF}
 {$ENDIF}
 begin
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF WINCE}
     // TODO
     {$ELSE}
@@ -4249,7 +4249,7 @@ var
   LHost: array[1..255] of AnsiChar;
   i: LongWord;
 {$ENDIF}
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
 var
   i: LongWord;
 {$ENDIF}
@@ -4272,7 +4272,7 @@ begin
   end;
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF WINCE}
       {$WARNING To Do - find some way to get the Computer Name.}
     {$ELSE}
@@ -4309,7 +4309,7 @@ begin
   // with Byte order. (though we have to concern ourselves once we start
   // writing to some stream or Bytes
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   // Many defaults are set here when the choice is ambiguous. However for
   // IdMessage OnInitializeISO can be used by user to choose other.
   case SysLocale.PriLangID of
@@ -4746,7 +4746,7 @@ begin
 end;
 
 initialization
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   ATempPath := TempPath;
   {$ENDIF}
   SetLength(IndyFalseBoolStrs, 1);

@@ -75,7 +75,7 @@ uses
   Libc,
   {$ENDIF}
   //facilitate inlining only.
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF VCL_2009_OR_ABOVE}
   Windows,
     {$ENDIF}

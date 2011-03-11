@@ -813,7 +813,7 @@ uses
   {$IFDEF KYLIXCOMPAT}
    libc,
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   IdWinsock2,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
@@ -15950,7 +15950,7 @@ uses
   {$IFDEF FPC}
     , DynLibs  // better add DynLibs only for fpc
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   , Windows
   {$ENDIF};
 
@@ -16489,7 +16489,7 @@ const
   SSLCLIB_DLL_name     = 'libcrypto'; {Do not localize}
   SSLDLLVers : array [0..4] of string = ('','0.9.9','.0.9.8','.0.9.7','0.9.6');
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   SSL_DLL_name       = 'ssleay32.dll';  {Do not localize}
   //The following is a workaround for an alternative name for
   //one of the OpenSSL .DLL's.  If you compile the .DLL's using
@@ -19332,7 +19332,7 @@ pass a constant anyway.
 }
 function LoadFunction(const FceName: {$IFDEF UNDER_CE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WIN32_OR_WIN64_OR_WINCE}Windows.{$ENDIF}GetProcAddress(hIdSSL, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdSSL, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
   if ACritical then
   begin
     if Result = nil then begin
@@ -19343,7 +19343,7 @@ end;
 
 function LoadFunctionCLib(const FceName: {$IFDEF UNDER_CE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WIN32_OR_WIN64_OR_WINCE}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
   if ACritical then
   begin
     if Result = nil then begin
@@ -19363,9 +19363,9 @@ The OpenSSL developers changed that interface to a new "des_*" API.  They have s
 }
 function LoadOldCLib(const AOldName, ANewName : {$IFDEF UNDER_CE}TIdUnicodeString{$ELSE}String{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WIN32_OR_WIN64_OR_WINCE}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(AOldName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(AOldName));
   if Result = nil then begin
-     Result := {$IFDEF WIN32_OR_WIN64_OR_WINCE}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
+     Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
      if ACritical then begin
         if Result = nil then begin
             FFailedFunctionLoadList.Add(AOldName);
@@ -19398,7 +19398,7 @@ begin
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := HackLoad(SSLCLIB_DLL_name, SSLDLLVers);
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(SSLCLIB_DLL_name);
@@ -19418,7 +19418,7 @@ begin
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := HackLoad(SSL_DLL_name, SSLDLLVers);
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(SSL_DLL_name);
@@ -20157,11 +20157,11 @@ begin
   end;
   EVP_cleanup;
   if hIdSSL > 0 then begin
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}Windows.{$ENDIF}FreeLibrary(hIdSSL);
+    {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdSSL);
     hIdSSL := 0;
   end;
   if hIdCrypto > 0 then begin
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}Windows.{$ENDIF}FreeLibrary(hIdCrypto);
+    {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdCrypto);
     hIdCrypto := 0;
   end;
   {$IFDEF USE_INVALIDATE_MOD_CACHE}

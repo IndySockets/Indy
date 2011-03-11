@@ -121,7 +121,7 @@ type
   {$IFDEF USE_BASEUNIX}
   z_off_t = off_t;
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   z_off_t = TIdC_LONG;
   {$ENDIF}
 
@@ -630,7 +630,7 @@ uses
     {$IFDEF FPC}
   , DynLibs // better add DynLibs only for fpc
     {$ENDIF}	
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   , Windows
     {$ENDIF}
   {$ENDIF};
@@ -1172,7 +1172,7 @@ begin
   if not Loaded then begin
     //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
     //call because LoadLibrary messes with the FPU control word.
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
     hZLib := SafeLoadLibrary(libzlib);
     {$ELSE}
       {$IFDEF UNIX}

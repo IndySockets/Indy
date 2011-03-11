@@ -1100,7 +1100,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   //facilitate inlining only.
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF USE_INLINE}
   Windows,
     {$ELSE}

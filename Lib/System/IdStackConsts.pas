@@ -81,7 +81,7 @@ uses
   {$ENDIF}
   //TODO:  I'm not really sure how other platforms are supported with asockets header
   //Do I use the sockets unit or do something totally different for each platform
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   IdWship6, //for some constants that supplement IdWinsock
   IdWinsock2;
   {$ENDIF}
@@ -200,7 +200,7 @@ const
   Id_IP_HDR_INCLUDED      = IP_HDRINCL; // TODO integrate into IdStackConsts
   {$ENDIF}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Id_IPV6_HDRINCL         = IPV6_HDRINCL;
   Id_IPV6_UNICAST_HOPS    = IPV6_UNICAST_HOPS;
   Id_IPV6_MULTICAST_IF    = IPV6_MULTICAST_IF;
@@ -645,7 +645,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_WSAENOTEMPTY       = ESysENOTEMPTY;
   {$ENDIF}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   // Shutdown Options
   Id_SD_Recv = 0;
   Id_SD_Send = 1;

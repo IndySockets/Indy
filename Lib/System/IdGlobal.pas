@@ -525,7 +525,7 @@ uses
   System.IO,
   System.Text,
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF FPC}
   windows,
     {$ELSE}
@@ -657,7 +657,7 @@ type
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   TIdPID = LongWord;
   TIdThreadId = LongWord;
   TIdThreadHandle = THandle;
@@ -829,7 +829,7 @@ type
     {$IFDEF USE_ICONV}
     class function GetEncoding(const ACharSet: String): TIdTextEncoding;
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
     class function GetEncoding(ACodePage: Integer): TIdTextEncoding;
       {$ENDIF}
     {$ENDIF}
@@ -865,7 +865,7 @@ type
     FToUTF16 : iconv_t;
     FFromUTF16 : iconv_t;
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
     FCodePage: Cardinal;
     FMBToWCharFlags: Cardinal;
     FWCharToMBFlags: Cardinal;
@@ -882,7 +882,7 @@ type
     constructor Create(const CharSet : AnsiString); overload; virtual;
     destructor Destroy; override;
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
     constructor Create(CodePage: Integer); overload; virtual;
     constructor Create(CodePage, MBToWCharFlags, WCharToMBFlags: Integer); overload; virtual;
       {$ENDIF}
@@ -1137,7 +1137,7 @@ type
   {$IFDEF DOTNET}
   THandle = Integer;
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
 //  THandle = Windows.THandle;
      {$ENDIF}
   {$ENDIF}
@@ -1231,7 +1231,7 @@ const
   INFINITE = LongWord($FFFFFFFF);     { Infinite timeout }
   {$ENDIF}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   GOSType = otWindows;
   GPathDelim = '\'; {do not localize}
   Infinite = Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
@@ -1661,7 +1661,7 @@ begin
 end;
 
 {$IFDEF FPC}
-   {$IFNDEF WIN32_OR_WIN64_OR_WINCE}
+   {$IFNDEF WINDOWS}
 //FreePascal may not define this for non-Windows systems.
 //#define MAKEWORD(a, b)      ((WORD)(((BYTE)(a)) | ((WORD)((BYTE)(b))) << 8))
 function MakeWord(const a, b : Byte) : Word;
@@ -2018,7 +2018,7 @@ begin
     {$IFDEF USE_ICONV}
     LEncoding := TIdMBCSEncoding.Create('ASCII');
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
     LEncoding := TIdMBCSEncoding.Create(CP_ACP, 0, 0);
       {$ELSE}
     ToDo('Default property of TIdTextEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2036,7 +2036,7 @@ begin
   Result := TIdMBCSEncoding.Create(ACharSet);
 end;
 {$ELSE}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
 class function TIdTextEncoding.GetEncoding(ACodePage: Integer): TIdTextEncoding;
 begin
   case ACodePage of
@@ -2139,7 +2139,7 @@ begin
   // TODO: figure out a way to determine this dynamically, or let the user specify a default...
   Create('ASCII'); {do not localize}
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   Create(CP_ACP, 0, 0);
     {$ELSE}
   ToDo('Constructor of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2188,7 +2188,7 @@ begin
   inherited;
 end;
 {$ELSE}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
 constructor TIdMBCSEncoding.Create(CodePage: Integer);
 begin
   Create(CodePage, 0, 0);
@@ -2257,7 +2257,7 @@ begin
     Inc(Result, SizeOf(LBytes)-LByteCount);
   end;
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, Chars, CharCount, nil, 0, nil, nil);
     {$ELSE}
   ToDo('GetByteCount() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2289,7 +2289,7 @@ begin
   // LByteCount was decremented by the number of bytes stored in the output buffer
   Result := ByteCount-LByteCount;
   {$ELSE}
-    {$IFDEF  WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF  WINDOWS}
   Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, Chars, CharCount, PAnsiChar(Bytes), ByteCount, nil, nil);
     {$ELSE}
   ToDo('GetBytes() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2328,7 +2328,7 @@ begin
     Inc(Result, (SizeOf(LChars)-LCharsSize) div SizeOf(WideChar));
   end;
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(Bytes), ByteCount, nil, 0);
     {$ELSE}
   ToDo('GetCharCount() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2361,7 +2361,7 @@ begin
   // LCharCount was decremented by the number of bytes stored in the output buffer
   Inc(Result, (LMaxCharsSize-LCharsSize) div SizeOf(WideChar));
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(Bytes), ByteCount, Chars, CharCount);
     {$ELSE}
   ToDo('GetChars() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2403,7 +2403,7 @@ begin
     SetLength(Result, 0);
   end;
   {$ELSE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   case FCodePage of
     CP_UTF8: begin
       SetLength(Result, 3);
@@ -2438,7 +2438,7 @@ begin
 {$IFDEF USE_ICONV}
   inherited Create('UTF-7');
 {$ELSE}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   inherited Create(CP_UTF7);
   {$ELSE}
   ToDo('Construtor of TIdUTF7Encoding class is not implemented for this platform yet'); {do not localize}
@@ -2485,7 +2485,7 @@ begin
 {$IFDEF USE_ICONV}
   inherited Create('UTF-8');
 {$ELSE}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   inherited Create(CP_UTF8, 0, 0);
   {$ELSE}
   ToDo('Constructor of TIdUTF8Encoding class is not implemented for this platform yet'); {do not localize}
@@ -2909,7 +2909,7 @@ var
     {$IFDEF USE_ICONV}
     Result := TIdMBCSEncoding.Create('UTF-8');
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
     // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
     // flag by default, which we do not want to use, so calling the
     // overloaded constructor that lets us override that behavior...
@@ -3672,7 +3672,7 @@ begin
 end;
 
 procedure DebugOutput(const AText: string);
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
   {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
 var
   LTemp: WideString;
@@ -3688,7 +3688,7 @@ begin
   __write(stderr, EOL, Length(EOL));
   {$ENDIF}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
   LTemp := WideString(AText); // explicit convert to Unicode
   OutputDebugString(PWideChar(LTemp));
@@ -3745,7 +3745,7 @@ begin
   Result := fpgetpid;
   {$ENDIF}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Result := GetCurrentProcessID;
   {$ENDIF}
   {$IFDEF DOTNET}
@@ -3820,7 +3820,7 @@ begin
   {$IFDEF UNIX}
   Result := AThread.ThreadID; // RLebeau: is it right to return an ID where a thread object handle is expected instead?
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Result := AThread.Handle;
   {$ENDIF}
   {$IFDEF DOTNET}
@@ -3841,7 +3841,7 @@ var
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
   {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
 var
   nTime, freq: {$IFDEF WINCE}LARGE_INTEGER{$ELSE}Int64{$ENDIF};
@@ -3874,7 +3874,7 @@ begin
     }
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     // S.G. 27/11/2002: Changed to use high-performance counters as per suggested
     // S.G. 27/11/2002: by David B. Ferguson (david.mcs@ns.sympatico.ca)
 
@@ -4783,7 +4783,7 @@ begin
   end;
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   AThread.Priority := APriority;
   {$ENDIF}
   {$IFDEF DOTNET}
@@ -4823,7 +4823,7 @@ begin
   fpSelect(0, nil, nil, nil, @LTime);
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Windows.Sleep(ATime);
   {$ENDIF}
   {$IFDEF DOTNET}
@@ -4890,7 +4890,7 @@ procedure SetThreadName(const AName: string; AThreadID: LongWord = $FFFFFFFF);
     {$IFDEF HAS_TThread_NameThreadForDebugging}
       {$IFDEF USE_INLINE}inline;{$ENDIF}
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
 const
   MS_VC_EXCEPTION = $406D1388;
 type
@@ -4910,7 +4910,7 @@ begin
     {$IFDEF HAS_TThread_NameThreadForDebugging}
   TThread.NameThreadForDebugging(AnsiString(AName), AThreadID);
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
   with LThreadNameInfo do begin
     RecType := $1000;
     Name := {$IFDEF STRING_IS_UNICODE}PAnsiChar(AnsiString(AName)){$ELSE}PChar(AName){$ENDIF};
@@ -5362,7 +5362,7 @@ function OffsetFromUTC: TDateTime;
 {$IFDEF DOTNET}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
 var
   iBias: Integer;
   tmez: TTimeZoneInformation;
@@ -5417,7 +5417,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   case GetTimeZoneInformation({$IFDEF WIN32_OR_WIN64}tmez{$ELSE}@tmez{$ENDIF}) of
     TIME_ZONE_ID_INVALID  :
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
@@ -6521,7 +6521,7 @@ end;
 function TextStartsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
   LS, LSub: WideString;
   P1, P2: PWideChar;
@@ -6537,7 +6537,7 @@ begin
     {$IFDEF DOTNET}
     Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
         {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
     // convert to Unicode
     LS := S;
@@ -6559,7 +6559,7 @@ end;
 function TextEndsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
   LS, LSubS: WideString;
   P1, P2: PWideChar;
@@ -6575,7 +6575,7 @@ begin
     {$IFDEF DOTNET}
     Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
     {$ELSE}
-      {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+      {$IFDEF WINDOWS}
         {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
     // convert to Unicode
     LS := S;

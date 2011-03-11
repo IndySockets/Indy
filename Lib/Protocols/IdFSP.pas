@@ -414,7 +414,7 @@ uses
   PosixSysTime,
   PosixUnistd,
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
     {$IFDEF USE_INLINE}
   Windows,
     {$ELSE}

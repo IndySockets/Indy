@@ -209,7 +209,7 @@ interface
 
 uses
   //facilitate inlining only.
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
   Classes,
@@ -945,7 +945,7 @@ function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
 
 {$IFDEF STRING_IS_UNICODE}
 
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
 
 function Indy_unicode_X509_load_cert_crl_file(ctx: PX509_LOOKUP; const AFileName: String;
   const _type: TIdC_INT): TIdC_INT; forward;
@@ -1433,7 +1433,7 @@ begin
   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
 end;
 
-  {$ENDIF} // WIN32_OR_WIN64_OR_WINCE
+  {$ENDIF} // WINDOWS
 
   {$IFDEF UNIX}
 
