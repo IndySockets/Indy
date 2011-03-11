@@ -2416,20 +2416,25 @@ type
   {$EXTERNALSYM LPWSAMSG}
   LPWSAMSG = PWSAMSG;
 
-  {$EXTERNALSYM WSACMSGHDR}
-  WSACMSGHDR = record
+  {$EXTERNALSYM _WSACMSGHDR}
+  _WSACMSGHDR = record
     cmsg_len: SIZE_T;
     cmsg_level: Integer;
     cmsg_type: Integer;
     { followed by UCHAR cmsg_data[] }
   end;
+  {$EXTERNALSYM WSACMSGHDR}
+  WSACMSGHDR = _WSACMSGHDR;
+  {$EXTERNALSYM cmsghdr}
+  cmsghdr = _WSACMSGHDR;
   {$NODEFINE TWSACMsgHdr}
   TWSACMsgHdr = WSACMSGHDR;
   {$EXTERNALSYM PWSACMSGHDR}
   PWSACMSGHDR = ^TWSACMsgHdr;
   {$EXTERNALSYM LPWSACMSGHDR}
   LPWSACMSGHDR = PWSACMSGHDR;
-
+  {$EXTERNALSYM  CMSGHDR}
+  PCMSGHDR = ^CMSGHDR;
 {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSAPOLLFD}
   WSAPOLLFD = record
@@ -3212,14 +3217,36 @@ var
   procedure FD_ZERO(var FDSet: TFDSet);
 
   {$IFNDEF UNDER_CE}
+//Posix aliases for helper macros
+//    #define CMSGHDR_ALIGN WSA_CMSGHDR_ALIGN
+  {$EXTERNALSYM CMSGHDR_ALIGN}
+  function CMSGHDR_ALIGN(const Alength: SIZE_T): SIZE_T;
+// #define CMSGDATA_ALIGN WSA_CMSGDATA_ALIGN
+  {$EXTERNALSYM CMSGDATA_ALIGN}
+  function CMSGDATA_ALIGN(const Alength: PtrUInt): PtrUInt;
+//#define CMSG_FIRSTHDR WSA_CMSG_FIRSTHDR
+  {$EXTERNALSYM CMSG_FIRSTHDR}
+  function CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
+// #define CMSG_NXTHDR WSA_CMSG_NXTHDR
+  {$EXTERNALSYM CMSG_NXTHDR}
+  function CMSG_NXTHDR(const msg: LPWSAMSG; const cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
+// #define CMSG_SPACE WSA_CMSG_SPACE
+  {$EXTERNALSYM CMSG_SPACE}
+  function CMSG_SPACE(const Alength: PtrUInt): PtrUInt;
+// #define CMSG_LEN WSA_CMSG_LEN
+  {$EXTERNALSYM CMSG_LEN}
+  function CMSG_LEN(const Alength: SIZE_T): SIZE_T;
+//
   {$EXTERNALSYM WSA_CMSGHDR_ALIGN}
   function WSA_CMSGHDR_ALIGN(const Alength: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSGDATA_ALIGN}
   function WSA_CMSGDATA_ALIGN(const Alength: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_FIRSTHDR}
   function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
+// #define CMSG_FIRSTHDR WSA_CMSG_FIRSTHDR
   {$EXTERNALSYM WSA_CMSG_NXTHDR}
   function WSA_CMSG_NXTHDR(const msg: LPWSAMSG; const cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
+
   {$EXTERNALSYM WSA_CMSG_DATA}
   function WSA_CMSG_DATA(const cmsg: LPWSACMSGHDR): PByte;
   {$EXTERNALSYM WSA_CMSG_SPACE}
@@ -6233,6 +6260,50 @@ begin
   FDSet.fd_count := 0;
 end;
 
+//Posix aliases
+//    #define CMSGHDR_ALIGN WSA_CMSGHDR_ALIGN
+function CMSGHDR_ALIGN(const Alength: SIZE_T): SIZE_T;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := WSA_CMSGHDR_ALIGN(Alength);
+end;
+
+// #define CMSGDATA_ALIGN WSA_CMSGDATA_ALIGN
+function CMSGDATA_ALIGN(const Alength: PtrUInt): PtrUInt;
+ {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := WSA_CMSGDATA_ALIGN(Alength);
+end;
+
+//#define CMSG_FIRSTHDR WSA_CMSG_FIRSTHDR
+function CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := WSA_CMSG_FIRSTHDR(msg);
+end;
+
+// #define CMSG_NXTHDR WSA_CMSG_NXTHDR
+function CMSG_NXTHDR(const msg: LPWSAMSG; const cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := WSA_CMSG_NXTHDR(msg, cmsg);
+end;
+
+// #define CMSG_SPACE WSA_CMSG_SPACE
+function CMSG_SPACE(const Alength: PtrUInt): PtrUInt;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := WSA_CMSG_SPACE(ALength);
+end;
+
+// #define CMSG_LEN WSA_CMSG_LEN
+function CMSG_LEN(const Alength: SIZE_T): SIZE_T;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := WSA_CMSG_LEN(ALength);
+end;
+
+//
 function WSA_CMSGHDR_ALIGN(const Alength: SIZE_T): SIZE_T;
 type
   {$IFDEF WIN32}
