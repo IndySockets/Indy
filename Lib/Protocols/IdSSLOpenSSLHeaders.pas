@@ -189,7 +189,7 @@ CFLAG= /MD /Ox /W3 /Gs0 /GF /Gy /nologo
 
 interface
 
-{$i IdCompilerDefines.inc}
+{$I IdCompilerDefines.inc}
 
 {$IFNDEF USE_OPENSSL}
   {$message error Should not compile if USE_OPENSSL is not defined!!!}
@@ -199,9 +199,13 @@ interface
 {$IFNDEF FPC}
   {$IFDEF WIN32}
     {$ALIGN OFF}
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF WIN64}
+    {$ALIGN ON}
+  {$ENDIF}
+  {$IFNDEF WIN32_OR_WIN64}
     {$IFNDEF VCL_CROSS_COMPILE}
-      {$message error alignment!}
+      {$message error error alignment!}
     {$ENDIF}
   {$ENDIF}
 {$ELSE}
@@ -814,6 +818,7 @@ uses
    libc,
   {$ENDIF}
   {$IFDEF WINDOWS}
+  Windows,
   IdWinsock2,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
@@ -10008,15 +10013,11 @@ type
 //to ensure that they had a value that is always 64bit.
 //In Pascal, this is not a problem since Delphi and FreePascla have this in some form.
   {$EXTERNALSYM PQ_64BIT}
-  {$EXTERNALSYM size_t}
   {$IFDEF FPC}
   PQ_64BIT = QWord;
-  size_t = PtrUInt;
   {$ELSE}
   PQ_64BIT = Int64;
-  size_t = LongWord;
   {$ENDIF}
-  {$NODEFINE size_t}
 // RLebeau - the following value was conflicting with iphlpapi.h under C++Builder
 // (and possibly other headers) so using the HPPEMIT further above as a workaround
   {$EXTERNALSYM time_t}
@@ -10144,6 +10145,7 @@ type
   BN_LONG = TIdC_LONG;
   {$ENDIF}
   {$IFDEF SIXTY_FOUR_BIT}
+  BN_ULLONG = TIdC_ULONGLONG;
   BN_LONG = TIdC_LONGLONG;
   BN_ULONG = TIdC_ULONGLONG;
   {$ENDIF}
@@ -15949,9 +15951,6 @@ uses
   IdStack
   {$IFDEF FPC}
     , DynLibs  // better add DynLibs only for fpc
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-  , Windows
   {$ENDIF};
 
 {$IFNDEF OPENSSL_NO_HMAC}
