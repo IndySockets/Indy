@@ -754,6 +754,13 @@ type
   TIdStreamSize = Integer;
   {$ENDIF}
 
+  {$IFNDEF HAS_SIZE_T}
+  {$NODEFINE size_t}
+// RLebeau - the following value was conflicting with iphlpapi.h under C++Builder
+// (and possibly other headers) so using the HPPEMIT further above as a workaround
+
+  size_t = PtrUInt;
+  {$ENDIF}
   {
   Delphi/C++Builder 2009+ have a TEncoding class which mirrors System.Text.Encoding
   in .NET, but does not have a TDecoder class which mirrors System.Text.Decoder
