@@ -755,10 +755,11 @@ type
   {$ENDIF}
 
   {$IFNDEF HAS_SIZE_T}
+
   {$NODEFINE size_t}
 // RLebeau - the following value was conflicting with iphlpapi.h under C++Builder
 // (and possibly other headers) so using the HPPEMIT further above as a workaround
-
+   {$EXTERNALSYM size_t}
   size_t = PtrUInt;
   {$ENDIF}
   {

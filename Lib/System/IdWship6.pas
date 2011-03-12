@@ -45,6 +45,9 @@ uses
   {$IFDEF HAS_TInterlocked}
   syncobjs, //here to facilitate inlining with Delphi
   {$ENDIF}
+  {$IFNDEF HAS_SIZE_T}
+  IdGlobal,
+  {$ENDIF}
   Windows,
   IdWinsock2;
 
@@ -395,7 +398,10 @@ procedure CloseLibrary;
 implementation
 
 uses
-  SysUtils, IdGlobal;
+  SysUtils
+  {$IFDEF HAS_SIZE_T}
+  , IdGlobal
+  {$ENDIF};
 
 var
   hWship6Dll : THandle = 0; // Wship6.dll handle
