@@ -3580,7 +3580,12 @@ type
   function IN6ADDR_ISANY(sa: PSockAddrIn6): Boolean;
   {$EXTERNALSYM IN6ADDR_ISLOOPBACK}
   function IN6ADDR_ISLOOPBACK(sa: PSockAddrIn6): Boolean;
-
+  {$EXTERNALSYM IN6_IS_ADDR_SUBNET_ROUTER_ANYCAST}
+  function IN6_IS_ADDR_SUBNET_ROUTER_ANYCAST(const a : PIn6Addr) : Boolean;
+  {$EXTERNALSYM IN6_IS_ADDR_SUBNET_RESERVED_ANYCAST}
+  function IN6_IS_ADDR_SUBNET_RESERVED_ANYCAST(const a: PIn6Addr) : Boolean;
+  {$EXTERNALSYM IN6_IS_ADDR_ANYCAST}
+  function IN6_IS_ADDR_ANYCAST(const a: PIn6Addr) : Boolean;
   {$EXTERNALSYM IN6_ADDR_EQUAL}
   function IN6_ADDR_EQUAL(const a: PIn6Addr; const b: PIn6Addr): Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_UNSPECIFIED}
@@ -3589,6 +3594,9 @@ type
   function IN6_IS_ADDR_LOOPBACK(const a: PIn6Addr): Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_MULTICAST}
   function IN6_IS_ADDR_MULTICAST(const a: PIn6Addr): Boolean;
+  {$EXTERNALSYM IN6_IS_ADDR_EUI64}
+  function IN6_IS_ADDR_EUI64(const a : PIn6Addr) : Boolean;
+
   {$EXTERNALSYM IN6_IS_ADDR_LINKLOCAL}
   function IN6_IS_ADDR_LINKLOCAL(const a: PIn6Addr): Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_SITELOCAL}
@@ -3607,6 +3615,9 @@ type
   function IN6_IS_ADDR_MC_ORGLOCAL(const a: PIn6Addr): Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_MC_GLOBAL}
   function IN6_IS_ADDR_MC_GLOBAL(const a: PIn6Addr): Boolean;
+
+  {$EXTERNALSYM IN6_SET_ADDR_UNSPECIFIED}
+  procedure IN6_SET_ADDR_UNSPECIFIED(a : PIN6_ADDR);
 
 // Possible flags for the  iiFlags - bitmask
 const
@@ -6500,6 +6511,56 @@ begin
   end;
 end;
 
+function IN6_IS_ADDR_EUI64(const a : PIn6Addr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+    //
+    // Format prefixes 001 through 111, except for multicast.
+    //
+begin
+  if a <> nil then begin
+    Result := ((a^.s6_addr[0] and $e0) <> 0 ) and (not IN6_IS_ADDR_MULTICAST(a));
+  end else begin
+    Result := False;
+  end;
+end;
+
+function IN6_IS_ADDR_SUBNET_ROUTER_ANYCAST(const a : PIn6Addr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+//
+//  Is this the subnet router anycast address?
+//  See RFC 2373.
+//
+begin
+  if a <> nil then begin
+    Result := IN6_IS_ADDR_EUI64(a) and (a^.word[4] = 0) and
+      (a^.word[5] = 0) and (a^.word[6]=0) and (a^.word[7]=0);
+  end else begin
+    Result := False;
+  end;
+end;
+
+function IN6_IS_ADDR_SUBNET_RESERVED_ANYCAST(const a: PIn6Addr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+   if a <> nil then begin
+     Result := IN6_IS_ADDR_EUI64(a) and (a^.word[4] = $fffd) and
+       (a^.word[5] = $ffff) and (a^.word[6] = $ffff) and
+       ((a^.word[7] and $80ff) = $80ff);
+   end else begin
+     Result := False;
+   end;
+end;
+
+function IN6_IS_ADDR_ANYCAST(const a: PIn6Addr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if a <> nil then begin
+    Result := IN6_IS_ADDR_SUBNET_RESERVED_ANYCAST(a) or IN6_IS_ADDR_SUBNET_ROUTER_ANYCAST(a);
+  end else begin
+    Result := False;
+  end;
+end;
+
 function IN6_IS_ADDR_LINKLOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -6604,6 +6665,19 @@ begin
   end else begin
     Result := False;
   end;
+end;
+
+procedure IN6_SET_ADDR_UNSPECIFIED(a : PIN6_ADDR);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+   system.FillChar(a^.s6_addr, SizeOf(IN6_ADDR), 0 );
+end;
+
+procedure IN6_SET_ADDR_LOOPBACK(a : PIN6_ADDR);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  system.FillChar(a^.s6_addr, SizeOf(IN6_ADDR), 0 );
+  a^.s6_addr[15] := 1;
 end;
 
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
