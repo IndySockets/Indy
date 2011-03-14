@@ -3101,7 +3101,8 @@ begin
   Result := InterlockedCompareExchangePointer(VTarget, AValue, Compare);
       {$ELSE}
         {$IFDEF HAS_InterlockedCompareExchange_Pointers}
-  Result := InterlockedCompareExchange(VTarget, AValue, Compare);
+        //work around a conflicting definition for InterlockedCompareExchange
+  Result := {$IFDEF FPC}system.{$ENDIF}InterlockedCompareExchange(VTarget, AValue, Compare);
         {$ELSE}
           {$IFDEF FPC}
   Result := Pointer(
