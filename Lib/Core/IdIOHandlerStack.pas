@@ -311,7 +311,7 @@ begin
       if Assigned(OnStatus) then begin
         DoStatus(hsResolving, [LHost]);
       end;
-      LIP := GStack.ResolveHost(LHost, FIPVersion);
+      LIP := GStack.ResolveHost(LHost, LIPVersion);
     end else begin
       LIP := LHost;
     end;

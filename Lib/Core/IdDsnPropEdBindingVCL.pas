@@ -68,10 +68,10 @@ uses
 {$IFDEF WIDGET_VCL_LIKE}
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
 {$ENDIF}
-{$IFDEF VCL_6_OR_ABOVE}
+{$IFDEF HAS_UNIT_Types}
   Types,
 {$ENDIF}
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
   Windows,
 {$ENDIF}
 {$IFDEF LCL}
@@ -523,7 +523,7 @@ begin
   try
     edtPort.Items.Add(PortDescription(0));
     for i := 0 to IdPorts.Count - 1 do begin
-      edtPort.Items.Add(PortDescription(Integer(IdPorts[i])));
+      edtPort.Items.Add(PortDescription(PtrInt(IdPorts[i])));
     end;
   finally
     edtPort.Items.EndUpdate;

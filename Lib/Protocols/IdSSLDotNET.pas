@@ -112,6 +112,7 @@ type
     property OnValidatePeerCertificate : TOnValidatePeerCertificate
       read FOnValidatePeerCertificate write FOnValidatePeerCertificate;
   end;
+
   TIdServerIOHandlerSSLNET = class(TIdServerIOHandlerSSLBase)
   protected
     FOnValidatePeerCertificate : TOnValidatePeerCertificate;

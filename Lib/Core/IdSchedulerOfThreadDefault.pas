@@ -122,7 +122,7 @@ begin
     if IsCurrentThread(LThread) then begin
       LThread.FreeOnTerminate := True;
     end else begin
-      {$IFDEF VCL_2010_OR_ABOVE}
+      {$IFDEF DEPRECATED_TThread_SuspendResume}
       LThread.Suspended := False;
       {$ELSE}
       LThread.Resume;

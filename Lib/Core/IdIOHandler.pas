@@ -754,9 +754,9 @@ uses
   Windows,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-	  {$IFDEF DARWIN}
+    {$IFDEF DARWIN}
     CoreServices,
-	  {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   IdStack, IdStackConsts, IdResourceStrings, SysUtils;
 

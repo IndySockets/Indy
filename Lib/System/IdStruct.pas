@@ -79,7 +79,7 @@ implementation
 
 // This is here to facilitate inlining
 
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+{$IFDEF WINDOWS}
   {$IFDEF USE_INLINE}
 uses
   Windows;

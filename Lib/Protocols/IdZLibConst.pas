@@ -15,7 +15,7 @@ interface
 
 {$UNDEF STATICLOAD_ZLIB}
 {
-TODO:  Wait for Emb to decide how to approach ZLib for there 64-bit support
+TODO:  Wait for Emb to decide how to approach ZLib for their 64-bit support
 before we proceed at our end.
 }
 {$IFDEF DCC}

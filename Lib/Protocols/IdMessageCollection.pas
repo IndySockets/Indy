@@ -103,6 +103,12 @@ procedure TIdMessageCollection.SetIdMessage(index: Integer; const Value: TIdMess
 begin
   //I think it should be freed before the new value is assigned or else the
   //pointer will be lost.
+
+  // RLebeau 6/3/2010: this is taking ownership of the input TIdMessage
+  // pointer!  We should probably be calling Assign() instead, and let
+  // the caller manage its TIdMessage object separately.  Or else make
+  // the Messages[] property read-only instead...
+
   TIdMessageItem(Items[index]).Msg.Free;
   TIdMessageItem(Items[index]).Msg := Value;
 end;

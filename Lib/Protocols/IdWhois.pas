@@ -56,7 +56,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-	IdAssignedNumbers,
+  IdAssignedNumbers,
   IdTCPClient;
 
 type

@@ -11,11 +11,11 @@ headers, the types may not always be the same as they would for Win32 on x86
 Intel architecture.  We also want to be completely compatiable with Borland
 Delphi for Win32.}
 
-{$IFDEF FPC}
+{$IFDEF HAS_UNIT_ctypes}
 uses
   ctypes;
 {$ENDIF}
-  
+
 {
 IMPORTANT!!!
 
@@ -78,9 +78,10 @@ type
   PIdC_LONGDOUBLE =  pclongdouble;
 
   {$ELSE}
+
   //this is necessary because Borland still doesn't support QWord
   // (unsigned 64bit type).
-  qword = Int64;
+  qword = {$IFDEF HAS_UInt64}UInt64{$ELSE}Int64{$ENDIF};
 
   TIdC_LONG  = LongInt;
   PIdC_LONG  = ^TIdC_LONG;
@@ -134,14 +135,13 @@ type
   TIdC_LONGDOUBLE = extended;
   PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE;
 
-    {$IFNDEF VCL_6_OR_ABOVE}
-    //Some headers require this in D5 or earlier.
-    //FreePascal already has this in its system unit.
-  PByte = ^Byte;
-  PWord = ^Word;
-    {$ENDIF}
+  //Some headers require this in D5 or earlier.
+  //FreePascal already has this in its system unit.
+  {$IFNDEF HAS_PByte}PByte = ^Byte;{$ENDIF}
+  {$IFNDEF HAS_PWord}PWord = ^Word;{$ENDIF}
+
   {$ENDIF}
-    
+
 implementation
 
 end.

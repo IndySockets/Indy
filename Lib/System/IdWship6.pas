@@ -123,14 +123,17 @@ const
 
 type
   // RLebeau: find a better place for this
-  {$IFNDEF FPC}
-    {$IFNDEF VCL_2006_OR_ABOVE}
+  {$IFNDEF HAS_UInt64}
   {$EXTERNALSYM UINT64}
   UINT64 = Int64;
-    {$ENDIF}
   {$ENDIF}
 
-  {$IFNDEF UNDER_CE}
+  {$NODEFINE PPaddrinfo}
+  PPaddrinfo = ^PAddrInfo;
+  {$NODEFINE PPaddrinfoW}
+  PPaddrinfoW = ^PAddrInfoW;
+
+  {$IFNDEF WINCE}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_DEFAULT}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_IPSEC}
@@ -214,7 +217,7 @@ procedure freehostent(ptr:phostent);stdcall; external Wship6_dll;
 function inet_pton(af:integer; const src:pchar; dst:pointer):integer;stdcall; external Wship6_dll;
 function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;stdcall; external Wship6_dll;
 }
- {$IFNDEF UNDER_CE}  
+ {$IFNDEF WINCE}
   {$EXTERNALSYM LPFN_INET_PTON}
   LPFN_INET_PTON = function (af: Integer; const src: PAnsiChar; dst: Pointer): Integer; stdcall;
   {$EXTERNALSYM LPFN_INET_PTONW}
@@ -300,7 +303,7 @@ const
   {$NODEFINE fn_inet_pton}
   {$NODEFINE fn_inet_ntop}
   {$IFDEF UNICODE}
-     {$IFNDEF UNDER_CE}
+     {$IFNDEF WINCE}
   fn_GetAddrInfoEx = 'GetAddrInfoExW';
   fn_SetAddrInfoEx = 'SetAddrInfoExW';
   fn_FreeAddrInfoEx = 'FreeAddrInfoExW';
@@ -308,12 +311,12 @@ const
   fn_GetAddrInfo = 'GetAddrInfoW';
   fn_getnameinfo = 'GetNameInfoW';
   fn_freeaddrinfo = 'FreeAddrInfoW';
-     {$IFNDEF UNDER_CE}
+     {$IFNDEF WINCE}
   fn_inet_pton = 'InetPtonW';
   fn_inet_ntop = 'InetNtopW';
     {$ENDIF}
   {$ELSE}
-     {$IFNDEF UNDER_CE}
+     {$IFNDEF WINCE}
   fn_GetAddrInfoEx = 'GetAddrInfoExA';
   fn_SetAddrInfoEx = 'SetAddrInfoExA';
   fn_FreeAddrInfoEx = 'FreeAddrInfoEx';
@@ -321,7 +324,7 @@ const
   fn_GetAddrInfo = 'getaddrinfo';
   fn_getnameinfo = 'getnameinfo';
   fn_freeaddrinfo = 'freeaddrinfo';
-   {$IFNDEF UNDER_CE}
+   {$IFNDEF WINCE}
   fn_inet_pton = 'inet_pton';
   fn_inet_ntop = 'inet_ntop';
     {$ENDIF}
@@ -337,7 +340,7 @@ var
   getaddrinfo: LPFN_GETADDRINFOW = nil;
   getnameinfo: LPFN_GETNAMEINFOW = nil;
   freeaddrinfo: LPFN_FREEADDRINFOW = nil;
-    {$IFNDEF UNDER_CE}
+    {$IFNDEF WINCE}
   //These are here for completeness
   inet_pton : LPFN_inet_ptonW = nil;
   inet_ntop : LPFN_inet_ntopW = nil;
@@ -346,13 +349,13 @@ var
   getaddrinfo: LPFN_GETADDRINFO = nil;
   getnameinfo: LPFN_GETNAMEINFO = nil;
   freeaddrinfo: LPFN_FREEADDRINFO = nil;
-      {$IFNDEF UNDER_CE}
+      {$IFNDEF WINCE}
   //These are here for completeness
   inet_pton : LPFN_inet_pton = nil;
   inet_ntop : LPFN_inet_ntop = nil;
     {$ENDIF}
   {$ENDIF}
-  {$IFNDEF UNDER_CE}
+  {$IFNDEF WINCE}
   {
   IMPORTANT!!!
 
@@ -407,7 +410,7 @@ var
   hWship6Dll : THandle = 0; // Wship6.dll handle
   //Use this instead of hWship6Dll because this will point to the correct lib.
   hProcHandle : THandle = 0;
-  {$IFNDEF UNDER_CE}
+  {$IFNDEF WINCE}
   hfwpuclntDll : THandle = 0;
   {$ENDIF}
 
@@ -453,7 +456,7 @@ begin
   if h <> 0 then begin
     FreeLibrary(h);
   end;
-  {$IFNDEF UNDER_CE}
+  {$IFNDEF WINCE}
   h := InterlockedExchangeTHandle(hfwpuclntDll, 0);
   if h <> 0 then begin
     FreeLibrary(h);
@@ -464,7 +467,7 @@ begin
   getaddrinfo := nil;
   getnameinfo := nil;
   freeaddrinfo := nil;
-  {$IFNDEF UNDER_CE}
+  {$IFNDEF WINCE}
   WSASetSocketPeerTargetName := nil;
   WSADeleteSocketPeerTargetName := nil;
   WSAImpersonateSocketPeer := nil;
@@ -523,7 +526,7 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
         GIdIPv6FuncsAvailable := True;
 
         //Additional functions should be initialized here.
-        {$IFNDEF UNDER_CE}
+        {$IFNDEF WINCE}
         inet_pton := GetProcAddress(hProcHandle, fn_inet_pton);  {do not localize}
         inet_ntop := GetProcAddress(hProcHandle, fn_inet_ntop);  {do not localize}
         GetAddrInfoEx := GetProcAddress(hProcHandle, fn_GetAddrInfoEx); {Do not localize}

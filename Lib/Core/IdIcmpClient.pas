@@ -206,7 +206,7 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
@@ -479,7 +479,7 @@ begin
         RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIpHeaderLen+8+8), Ticks); //pOriginalICMP^.icmp_dun.ts.otime;
 
         // move to offset
-        // pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
+        // pOriginalICMP := Pointer(PtrUInt(pOriginalIP) + (iIpHeaderLen));
         // extract information from original ICMP frame
         // ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
         // RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;

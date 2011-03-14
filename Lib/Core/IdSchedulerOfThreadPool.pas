@@ -102,7 +102,7 @@ implementation
 
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   Windows,
     {$ENDIF}
   {$ENDIF}
@@ -162,7 +162,7 @@ begin
     if IsCurrentThread(LThread) then begin
       LThread.FreeOnTerminate := True;
     end else begin
-      {$IFDEF VCL_2010_OR_ABOVE}
+      {$IFDEF DEPRECATED_TThread_SuspendResume}
       LThread.Suspended := False;
       {$ELSE}
       LThread.Resume;
@@ -184,7 +184,7 @@ begin
       while Count > 0 do begin
         with TIdThreadWithTask(Items[0]) do begin
           Terminate;
-          {$IFDEF VCL_2010_OR_ABOVE}
+          {$IFDEF DEPRECATED_TThread_SuspendResume}
           Suspended := False;
           {$ELSE}
           Resume;

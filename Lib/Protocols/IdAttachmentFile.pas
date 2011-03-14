@@ -75,13 +75,11 @@ uses
   Libc,
   {$ENDIF}
   //facilitate inlining only.
-  {$IFDEF WINDOWS}
-    {$IFDEF VCL_2009_OR_ABOVE}
+  {$IFDEF USE_INLINE}
+    {$IFDEF WINDOWS}
   Windows,
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
+    {$IFDEF DOTNET}
   System.IO,
     {$ENDIF}
   {$ENDIF}

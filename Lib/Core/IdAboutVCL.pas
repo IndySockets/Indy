@@ -11,7 +11,7 @@ uses
 {$IFDEF WIDGET_VCL_LIKE}
   StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
 {$ENDIF}
-{$IFDEF VCL_6_OR_ABOVE}
+{$IFDEF HAS_UNIT_Types}
   Types,
 {$ENDIF}
 {$IFDEF WIDGET_LCL}

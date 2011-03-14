@@ -9995,15 +9995,13 @@ const
 {$endif}
 
 type
-  {$IFNDEF FPC}
-     {$IFNDEF VCL_2007_OR_ABOVE}
+  {$IFNDEF HAS_PPAnsiChar}
   {$EXTERNALSYM PPAnsiChar}
-  PPAnsiChar    =^PAnsiChar;
-     {$ENDIF}
+  PPAnsiChar = ^PAnsiChar;
   {$ENDIF}
   {$EXTERNALSYM PPByte}
-  PPByte    =^PByte;
-  {$IFNDEF VCL_6_OR_ABOVE}
+  PPByte = ^PByte;
+  {$IFNDEF HAS_PPointer}
   {$EXTERNALSYM PPointer}
   PPointer = ^Pointer;
   {$ENDIF}
@@ -10011,12 +10009,12 @@ type
 //This is just a synthasis since Pascal probably has what we need.
 //In C, the OpenSSL developers were using the PQ_64BIT moniker
 //to ensure that they had a value that is always 64bit.
-//In Pascal, this is not a problem since Delphi and FreePascla have this in some form.
+//In Pascal, this is not a problem since Delphi and FreePascal have this in some form.
   {$EXTERNALSYM PQ_64BIT}
   {$IFDEF FPC}
   PQ_64BIT = QWord;
   {$ELSE}
-  PQ_64BIT = Int64;
+  PQ_64BIT = {$IFDEF HAS_UInt64}UInt64{$ELSE}Int64{$ENDIF};
   {$ENDIF}
 // RLebeau - the following value was conflicting with iphlpapi.h under C++Builder
 // (and possibly other headers) so using the HPPEMIT further above as a workaround
@@ -10145,7 +10143,6 @@ type
   BN_LONG = TIdC_LONG;
   {$ENDIF}
   {$IFDEF SIXTY_FOUR_BIT}
-  BN_ULLONG = TIdC_ULONGLONG;
   BN_LONG = TIdC_LONGLONG;
   BN_ULONG = TIdC_ULONGLONG;
   {$ENDIF}
@@ -19329,9 +19326,9 @@ a version of GetProcAddress in the FreePascal dynlibs unit but that does a
 conversion from ASCII to Unicode which might not be necessary since most calls
 pass a constant anyway.
 }
-function LoadFunction(const FceName: {$IFDEF UNDER_CE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadFunction(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdSSL, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdSSL, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
   if ACritical then
   begin
     if Result = nil then begin
@@ -19340,9 +19337,9 @@ begin
   end;
 end;
 
-function LoadFunctionCLib(const FceName: {$IFDEF UNDER_CE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadFunctionCLib(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
   if ACritical then
   begin
     if Result = nil then begin
@@ -19360,11 +19357,11 @@ The OpenSSL developers changed that interface to a new "des_*" API.  They have s
  "_ossl_old_des_*" for backwards compatability with the old functions
  which are defined in des_old.h. 
 }
-function LoadOldCLib(const AOldName, ANewName : {$IFDEF UNDER_CE}TIdUnicodeString{$ELSE}String{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadOldCLib(const AOldName, ANewName : {$IFDEF WINCE}TIdUnicodeString{$ELSE}String{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(AOldName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AOldName));
   if Result = nil then begin
-     Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF UNDER_CE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
+     Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
      if ACritical then begin
         if Result = nil then begin
             FFailedFunctionLoadList.Add(AOldName);

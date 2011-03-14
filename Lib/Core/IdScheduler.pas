@@ -102,7 +102,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINDOWS}
   Windows,
     {$ENDIF}
   {$ENDIF}

@@ -715,14 +715,14 @@ begin
 end;
 
 function IndyCurrentYear : Integer;
-{$IFDEF VCL_2007_OR_ABOVE}
+{$IFDEF HAS_CurrentYear}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 {$ELSE}
 var
   LYear, LMonth, LDay : Word;
 {$ENDIF}
 begin
-  {$IFDEF VCL_2007_OR_ABOVE}
+  {$IFDEF HAS_CurrentYear}
   Result := CurrentYear;
   {$ELSE}
   DecodeDate(Now, LYear, LMonth, LDay);
@@ -1808,6 +1808,7 @@ var
 begin
 {$IFNDEF FPC}
   {$IFDEF UNIX}
+  // TODO: use -OffsetFromUTC here. It has this same Unix logic in it
   {from http://edn.embarcadero.com/article/27890 }
   gettimeofday(TV, nil);
   T := TV.tv_sec;
@@ -2349,8 +2350,9 @@ begin
   end;
 end;
 
-{$IFNDEF VCL_6_OR_ABOVE}
+{$IFNDEF HAS_TryStrToInt}
 function TryStrToInt(const S: string; out Value: Integer): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   E: Integer;
 begin
@@ -4207,7 +4209,7 @@ end;
 {$ENDIF}
 {$IFDEF FPC}
   {$IFNDEF CPUI386}
-     {$DEFINE NO_NATIVE_X86}
+    {$DEFINE NO_NATIVE_X86}
   {$ENDIF}
 {$ENDIF}
 

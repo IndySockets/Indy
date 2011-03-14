@@ -562,8 +562,7 @@ const
   //by the package builder.
   {$I IdVers.inc}
 
-  {$IFNDEF DOTNET}
-    {$IFNDEF VCL_2007_OR_ABOVE}
+  {$IFNDEF HAS_TIMEUNITS}
   HoursPerDay   = 24;
   MinsPerHour   = 60;
   SecsPerMin    = 60;
@@ -571,7 +570,6 @@ const
   MinsPerDay    = HoursPerDay * MinsPerHour;
   SecsPerDay    = MinsPerDay * SecsPerMin;
   MSecsPerDay   = SecsPerDay * MSecsPerSec;
-    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF DOTNET}
@@ -687,18 +685,26 @@ const
   DEF_PORT_ANY = 0;
 
 type
-  {$IFDEF VCL_2009_OR_ABOVE}
+  {$IFDEF STRING_IS_UNICODE}
   TIdUnicodeString = String;
   TIdWideChar = Char;
   PIdWideChar = PChar;
-  TIdBytes = TBytes;
-  TIdWideChars = {$IFDEF DOTNET}array of Char{$ELSE}TCharArray{$ENDIF};
   {$ELSE}
   TIdUnicodeString = {$IFDEF DOTNET}System.String{$ELSE}WideString{$ENDIF};
   TIdWideChar = WideChar;
   PIdWideChar = PWideChar;
+  {$ENDIF}
+
+  {$IFDEF HAS_TBytes}
+  TIdBytes = TBytes;
+  {$ELSE}
   TIdBytes = array of Byte;
-  TIdWideChars = array of WideChar;
+  {$ENDIF}
+
+  {$IFDEF HAS_WIDE_TCharArray}
+  TIdWideChars = TCharArray;
+  {$ELSE}
+  TIdWideChars = array of TIdWideChar;
   {$ENDIF}
 
   //NOTE:  The code below assumes a 32bit Linux architecture (such as target i386-linux)
@@ -718,7 +724,7 @@ type
     {$IFDEF HAS_NativeInt}
   TIdNativeInt = NativeInt;
     {$ELSE}
-      {$IFDEF CPU32_OR_KYLIX}
+      {$IFDEF CPU32}
   TIdNativeInt = LongInt;
       {$ENDIF}
       {$IFDEF CPU64}
@@ -728,7 +734,7 @@ type
     {$IFDEF HAS_NativeUInt}
   TIdNativeUInt = NativeUInt;
     {$ELSE}
-      {$IFDEF CPU32_OR_KYLIX}
+      {$IFDEF CPU32}
   TIdNativeUInt = LongWord;
       {$ENDIF}
       {$IFDEF CPU64}
@@ -742,8 +748,10 @@ type
   {$ENDIF}
 
   {$IFNDEF DOTNET}
-    {$IFNDEF FPC}
+    {$IFNDEF HAS_PtrInt}
   PtrInt = TIdNativeInt;
+    {$ENDIF}
+    {$IFNDEF HAS_PtrUInt}
   PtrUInt = TIdNativeUInt;
     {$ENDIF}
   {$ENDIF}
@@ -755,11 +763,7 @@ type
   {$ENDIF}
 
   {$IFNDEF HAS_SIZE_T}
-
-  {$NODEFINE size_t}
-// RLebeau - the following value was conflicting with iphlpapi.h under C++Builder
-// (and possibly other headers) so using the HPPEMIT further above as a workaround
-   {$EXTERNALSYM size_t}
+  {$EXTERNALSYM size_t}
   size_t = PtrUInt;
   {$ENDIF}
   {
@@ -1095,8 +1099,8 @@ type
     {$ENDIF}
   {$ENDIF}
 
-  {$IFDEF VCL_4_OR_ABOVE}
-    {$IFNDEF VCL_6_OR_ABOVE} // Delphi 6 has PCardinal
+  {$IFNDEF DOTNET}
+    {$IFNDEF HAS_PCardinal}
   PCardinal = ^Cardinal;
     {$ENDIF}
   {$ENDIF}
@@ -1149,13 +1153,14 @@ type
 //  THandle = Windows.THandle;
      {$ENDIF}
   {$ENDIF}
+
   TPosProc = function(const substr, str: String): LongInt;
   {$IFNDEF DOTNET}
   TStrScanProc = function(Str: PChar; Chr: Char): PChar;
   {$ENDIF}
   TIdReuseSocket = (rsOSDependent, rsTrue, rsFalse);
 
-  {$IFNDEF VCL_6_OR_ABOVE}
+  {$IFNDEF HAS_TList_Assign}
   TIdExtList = class(TList) // We use this hack-class, because TList has no .assign on Delphi 5.
   public                      // Do NOT add DataMembers to this class !!!
     procedure Assign(AList: TList);
@@ -1258,9 +1263,9 @@ const
   ID_DEFAULT_IP_VERSION = Id_IPv4;
   {$ENDIF}
 
-  {$IFNDEF VCL_6_OR_ABOVE}
+  {$IFNDEF HAS_sLineBreak}
   //Only D6 & Kylix have this constant
-  sLineBreak = EOL;
+  sLineBreak = CR + LF;
   {$ENDIF}
 
 //The power constants are for processing IP addresses
@@ -1634,7 +1639,7 @@ uses
     {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
   {$ENDIF}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
-  {$IFDEF VCL_6_OR_ABOVE}DateUtils,{$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
   IdResourceStrings,
@@ -2987,7 +2992,7 @@ end;
 procedure IndyRaiseLastError;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFNDEF VCL_6_OR_ABOVE}
+  {$IFNDEF HAS_RaiseLastOSError}
   RaiseLastWin32Error;
   {$ELSE}
   RaiseLastOSError;
@@ -3000,19 +3005,19 @@ function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: THandle)
 begin
   {$IFDEF HAS_TInterlocked}
     {$IFDEF THANDLE_32}
-  Result := TInterlocked.Exchange(LongInt(VTarget), AValue);
-     {$ENDIF}
+  Result := THandle(TInterlocked.Exchange(LongInt(VTarget), LongInt(AValue)));
+    {$ENDIF}
   //Temporary workaround.  TInterlocked for Emb really should accept 64 bit unsigned values as set of parameters
   //for TInterlocked.Exchange since 64-bit wide integers are common on 64 bit platforms.
-     {$IFDEF THANDLE_64}
-  Result := TInterlocked.Exchange(Int64(VTarget), Int64(AValue));
-     {$ENDIF}
+    {$IFDEF THANDLE_64}
+  Result := THandle(TInterlocked.Exchange(Int64(VTarget), Int64(AValue)));
+    {$ENDIF}
   {$ELSE}
     {$IFDEF THANDLE_32}
-  Result := InterlockedExchange(LongInt(VTarget), AValue);
+  Result := THandle(InterlockedExchange(LongInt(VTarget), LongInt(AValue)));
     {$ENDIF}
     {$IFDEF THANDLE_64}
-  Result := InterlockedExchange64(Int64(VTarget), AValue);
+  Result := THandle(InterlockedExchange64(Int64(VTarget), Int64(AValue)));
     {$ENDIF}
   {$ENDIF}
 end;
@@ -3970,11 +3975,8 @@ end;
 function IdPorts: TList;
 var
   s: string;
-  {$IFDEF BYTE_COMPARE_SETS}
-  idx, i, iPrev, iPosSlash: Byte;
-  {$ELSE}
-  idx, i, iPrev, iPosSlash: Integer;
-  {$ENDIF}
+  idx, iPosSlash: {$IFDEF BYTE_COMPARE_SETS}Byte{$ELSE}Integer{$ENDIF};
+  i, iPrev: PtrInt;
   sl: TStringList;
 begin
   if GIdPorts = nil then
@@ -4000,7 +4002,7 @@ begin
           until Ord(s[i]) in IdWhiteSpace;
           i := IndyStrToInt(Copy(s, i+1, iPosSlash-i-1));
           if i <> iPrev then begin
-            GIdPorts.Add(TObject(i));
+            GIdPorts.Add(Pointer(i));
           end;
           iPrev := i;
         end;
@@ -4237,8 +4239,8 @@ We had to adapt it to work with Int64 because the one with Integers
 can not deal with anything greater than MaxInt and IP addresses are
 always $0-$FFFFFFFF (unsigned)
 }
-{$IFNDEF VCL_2007_OR_ABOVE}
-function StrToInt64Def(const S: string; Default: Integer): Int64;
+{$IFNDEF HAS_StrToInt64Def}
+function StrToInt64Def(const S: string; const Default: Integer): Int64;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   E: Integer;
@@ -5088,7 +5090,7 @@ end;
 
 { TIdList }
 
-{$IFNDEF VCL_6_OR_ABOVE}
+{$IFNDEF HAS_TList_Assign}
 procedure TIdExtList.Assign(AList: TList);
 var
   I: Integer;
@@ -5311,12 +5313,12 @@ var
   LDelim: Char;
 begin
   DecodeDate(GMTValue, wYear, wMonth, wDay);
-  // RLebeau: cookie draft-21 requires HTTP servers to format an Expires value as follows:
+  // RLebeau: cookie draft-23 requires HTTP servers to format an Expires value as follows:
   //
   // Wdy, DD Mon YYYY HH:MM:SS GMT
   //
   // However, Netscape style formatting, which RFCs 2109 and 2965 allow
-  // (but draft-21 obsoletes), are more common:
+  // (but draft-23 obsoletes), are more common:
   //
   // Wdy, DD-Mon-YY HH:MM:SS GMT   (original)
   // Wdy, DD-Mon-YYYY HH:MM:SS GMT (RFC 1123)
@@ -5426,7 +5428,7 @@ begin
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
   {$ENDIF}
   {$IFDEF WINDOWS}
-  case GetTimeZoneInformation({$IFDEF WIN32_OR_WIN64}tmez{$ELSE}@tmez{$ENDIF}) of
+  case GetTimeZoneInformation({$IFDEF WINCE}@{$ENDIF}tmez) of
     TIME_ZONE_ID_INVALID  :
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
     TIME_ZONE_ID_UNKNOWN  :
@@ -5482,7 +5484,7 @@ end;
 function IndyIncludeTrailingPathDelimiter(const S: string): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF VCL_6_OR_ABOVE}
+  {$IFDEF HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
   Result := SysUtils.IncludeTrailingPathDelimiter(S);
   {$ELSE}
   Result := SysUtils.IncludeTrailingBackslash(S);
@@ -5492,7 +5494,7 @@ end;
 function IndyExcludeTrailingPathDelimiter(const S: string): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF VCL_6_OR_ABOVE}
+  {$IFDEF HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
   Result := SysUtils.ExcludeTrailingPathDelimiter(S);
   {$ELSE}
   Result := SysUtils.ExcludeTrailingBackslash(S);
@@ -5557,14 +5559,14 @@ begin
 end;
 
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
-{$IFDEF VCL_6_OR_ABOVE}
+{$IFDEF HAS_UNIT_DateUtils}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
 var
   LTM : TTimeStamp;
 {$ENDIF}
 begin
-  {$IFDEF VCL_6_OR_ABOVE}
+  {$IFDEF HAS_UNIT_DateUtils}
   Result := DateUtils.IncMilliSecond(ADateTime, AMSec);
   {$ELSE}
   LTM := DateTimeToTimeStamp(ADateTime);
@@ -5574,21 +5576,30 @@ begin
 end;
 
 function IndyFileAge(const AFileName: string): TDateTime;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFDEF HAS_2PARAM_FileAge}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$ELSE}
+var
+  LAge: Integer;
+{$ENDIF}
 begin
-    {$IFDEF VCL_2006_OR_ABOVE}
+  {$IFDEF HAS_2PARAM_FileAge}
   //single-parameter fileage is deprecated in d2006 and above
   if not FileAge(AFileName, Result) then begin
     Result := 0;
   end;
-
-    {$ELSE}
-  Result := FileDateToDateTime(SysUtils.FileAge(AFileName));
-    {$ENDIF}
+  {$ELSE}
+  LAge := SysUtils.FileAge(AFileName);
+  if LAge <> -1 then begin
+    Result := FileDateToDateTime(LAge);
+  end else begin
+    Result := 0.0;
+  end;
+  {$ENDIF}
 end;
 
 function IndyDirectoryExists(const ADirectory: string): Boolean;
-{$IFDEF VCL_6_OR_ABOVE}
+{$IFDEF HAS_SysUtils_DirectoryExists}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
 var
@@ -5598,7 +5609,7 @@ var
   {$ENDIF}
 {$ENDIF}
 begin
-  {$IFDEF VCL_6_OR_ABOVE}
+  {$IFDEF HAS_SysUtils_DirectoryExists}
   Result := SysUtils.DirectoryExists(ADirectory);
   {$ELSE}
   // RLebeau 2/16/2006: Removed dependency on the FileCtrl unit
@@ -6853,7 +6864,7 @@ begin
   // advanced debugging features, so check for that first...
   Result := FastMM4.RegisterExpectedMemoryLeak(AAddress);
   {$ELSE}
-    {$IFDEF VCL_2006_OR_ABOVE}
+    {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
   // RLebeau 4/21/08: not quite sure what the difference is between the
   // SysRegisterExpectedMemoryLeak() and RegisterExpectedMemoryLeak()
   // functions in the System unit, but calling RegisterExpectedMemoryLeak()

@@ -261,9 +261,17 @@ begin
   if AStream is TCustomMemoryStream then begin
     Result := TCustomMemoryStream(AStream).Memory;
   end
+  {$IFDEF STRING_IS_ANSI}
+  // In D2009, the DataString property was changed to use a getter method
+  // that returns a temporary string, so it is not a direct access to the
+  // stream contents anymore.  TStringStream was updated to derive from
+  // TBytesStream now, which is a TCustomMemoryStream descendant, and so
+  // will be handled above...
   else if AStream is TStringStream then begin
     Result := Pointer(TStringStream(AStream).DataString);
-  end else begin
+  end
+  {$ENDIF}
+  else begin
     Result := nil;
   end;
   if Result <> nil then

@@ -272,9 +272,16 @@ end;
 function TIdIOHandlerStream.Readable(AMSec: Integer): Boolean;
 begin
   Result := Assigned(ReceiveStream);
+  // RLebeau: not checking the Position anymore. Was
+  // causing deadlocks when trying to read past EOF.
+  // This way, when EOF is reached, ReadFromSource()
+  // will return 0, which will be interpretted as the
+  // connnection being closed...
+  {
   if Result then begin
     Result := ReceiveStream.Position < ReceiveStream.Size;
   end;
+  }
 end;
 
 function TIdIOHandlerStream.ReadDataFromSource(var VBuffer: TIdBytes): Integer;

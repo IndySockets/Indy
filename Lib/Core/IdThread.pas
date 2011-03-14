@@ -200,7 +200,7 @@ type
     constructor Create(ACreateSuspended: Boolean = True;
      ALoop: Boolean = True; const AName: string = ''); virtual;
     destructor Destroy; override;
-    procedure Start; {$IFDEF VCL_2010_OR_ABOVE}reintroduce;{$ENDIF} virtual;
+    procedure Start; {$IFDEF DEPRECATED_TThread_SuspendResume}reintroduce;{$ENDIF} virtual;
     procedure Stop; virtual;
     procedure Synchronize(Method: TThreadMethod); overload;
 //BGO:TODO    procedure Synchronize(Method: TMethod); overload;
@@ -338,7 +338,7 @@ begin
               Break;
             end;
             // Thread manager will revive us
-            {$IFDEF VCL_2010_OR_ABOVE}
+            {$IFDEF DEPRECATED_TThread_SuspendResume}
             Suspended := True;
             {$ELSE}
             Suspend;
@@ -418,7 +418,7 @@ begin
   //
   {$IFDEF DOTNET}
   if not ACreateSuspended then begin
-    {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF DEPRECATED_TThread_SuspendResume}
     Suspended := False;
     {$ELSE}
     Resume;
@@ -483,7 +483,7 @@ begin
       end else begin
         Exclude(FOptions,itoStopped);
       end;
-      {$IFDEF VCL_2010_OR_ABOVE}
+      {$IFDEF DEPRECATED_TThread_SuspendResume}
       Suspended := False;
       {$ELSE}
       Resume;
