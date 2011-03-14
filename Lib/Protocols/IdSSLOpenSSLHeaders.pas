@@ -16496,8 +16496,8 @@ const
   SSLCLIB_DLL_name   = 'libeay32.dll';  {Do not localize}
   {$ENDIF}
 var
-  hIdSSL    : Integer = 0;
-  hIdCrypto : Integer = 0;
+  hIdSSL    : HMODULE = 0;
+  hIdCrypto : HMODULE = 0;
 
   FFailedFunctionLoadList : TStringList;
 
@@ -19389,7 +19389,7 @@ end;
   {$DEFINE USE_BASEUNIX_OR_VCL_POSIX}
 {$ENDIF}
 
-function LoadSSLCryptoLibrary: Integer;
+function LoadSSLCryptoLibrary: HMODULE;
 begin
   {$IFDEF KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
@@ -19409,7 +19409,7 @@ begin
   {$ENDIF}
 end;
 
-function LoadSSLLibrary: Integer;
+function LoadSSLLibrary: HMODULE;
 begin
   {$IFDEF KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
