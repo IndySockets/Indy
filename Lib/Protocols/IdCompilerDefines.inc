@@ -197,14 +197,14 @@
   {$ENDIF}
 {$ENDIF}
 
-//Delphi & CBuilder 2012 (Pulsar - public name pending)
+//Delphi & CBuilder XE2 (Pulsar)
 {$IFDEF VER230}
   // DCC is now defined by the compiler
-  {$DEFINE VCL_PULSAR}
+  {$DEFINE VCL_XE2}
   {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_PULSAR}
+    {$DEFINE CBUILDER_XE2}
   {$ELSE}
-    {$DEFINE DELPHI_PULSAR}
+    {$DEFINE DELPHI_XE2}
   {$ENDIF}
 {$ENDIF}
 
@@ -319,11 +319,11 @@
 
 // end FPC
 
-{$IFDEF VCL_PULSAR}
-  {$DEFINE VCL_PULSAR_OR_ABOVE}
+{$IFDEF VCL_XE2}
+  {$DEFINE VCL_XE2_OR_ABOVE}
 {$ENDIF}
 
-{$IFDEF VCL_PULSAR_OR_ABOVE}
+{$IFDEF VCL_XE2_OR_ABOVE}
   {$DEFINE VCL_XE_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_XE}
@@ -462,7 +462,7 @@
     {$DEFINE WINDOWS}
   {$ENDIF}
   // TODO: map Pulsar's non-Windows platform defines...
-  {$IFDEF VCL_PULSAR_OR_ABOVE}
+  {$IFDEF VCL_XE2_OR_ABOVE}
     {$IFDEF CPU386}
       //any 32-bit CPU
       {$DEFINE CPU32}
@@ -580,6 +580,9 @@
     // class properties are broken in C++Builder 2007, causing AVs at compile-time
     {$DEFINE HAS_CLASSPROPERTIES}
   {$ENDIF}
+  // Native(U)Int existed but were buggy, so do not use them yet
+  {.$DEFINE HAS_NativeInt}
+  {.$DEFINE HAS_NativeUInt}
   {$DEFINE HAS_StrToInt64Def}
   {$DEFINE HAS_ULONG_PTR}
   {$DEFINE HAS_PGUID}
@@ -612,14 +615,14 @@
   {$DEFINE HAS_CLASSVARS}
   {$DEFINE HAS_DEPRECATED_MSG}
   {$DEFINE HAS_TBytes}
+  {$DEFINE HAS_NativeInt}
+  {$DEFINE HAS_NativeUInt}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
   {$DEFINE HAS_CLASSCONSTRUCTOR}
   {$DEFINE HAS_CLASSDESTRUCTOR}
   {$DEFINE HAS_DELAYLOAD}
-  {$DEFINE HAS_NativeInt}
-  {$DEFINE HAS_NativeUInt}
   {$DEFINE HAS_TStrings_ValueFromIndex}
   {$DEFINE HAS_TThread_NameThreadForDebugging}
   {$DEFINE DEPRECATED_TThread_SuspendResume}
@@ -632,7 +635,7 @@
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF VCL_PULSAR_OR_ABOVE}
+{$IFDEF VCL_XE2_OR_ABOVE}
   {$DEFINE HAS_SIZE_T}
 {$ENDIF}
 
