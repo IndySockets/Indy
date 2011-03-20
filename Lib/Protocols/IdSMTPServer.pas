@@ -257,6 +257,8 @@ type
     FBDataStream: TStream;
     FBodyType: TIdSMTPBodyType;
     function GetUsingTLS: Boolean;
+    function GetCanUseExplicitTLS: Boolean;
+    function GetTLSIsRequired: Boolean;
     procedure SetPipeLining(const AValue : Boolean);
   public
     constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
@@ -277,6 +279,8 @@ type
     property MsgSize: Integer read FMsgSize write FMsgSize;
     property FinalStage: Boolean read FFinalStage write FFinalStage;
     property UsingTLS: Boolean read GetUsingTLS;
+    property CanUseExplicitTLS: Boolean read GetCanUseExplicitTLS;
+    property TLSIsRequired: Boolean read GetTLSIsRequired;
     property PipeLining: Boolean read FPipeLining write SetPipeLining;
     //
   end;
@@ -364,10 +368,7 @@ begin
       ASender.Reply.Text.Add('PIPELINING'); {do not localize}
     end;
     ASender.Reply.Text.Add(IndyFormat('SIZE %d', [FMaxMsgSize])); {do not localize}
-    if (LContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and
-      (FUseTLS in ExplicitTLSVals) and
-      (not LContext.UsingTLS) then
-    begin
+    if LContext.CanUseExplicitTLS and (not LContext.UsingTLS) then begin
       ASender.Reply.Text.Add('STARTTLS');    {Do not Localize}
     end;
     ASender.Reply.Text.Add('CHUNKING'); {do not localize}
@@ -505,7 +506,7 @@ begin
     BadSequenceError(ASender);
     Exit;
   end;
-  if (FUseTLS = utUseRequireTLS) and (not LContext.UsingTLS) then begin
+  if LContext.TLSIsRequired then begin
     MustUseTLS(ASender);
     Exit;
   end;
@@ -961,19 +962,18 @@ begin
     BadSequenceError(ASender);
     Exit;
   end;
-  if (LContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS in ExplicitTLSVals) then begin
-    if LContext.UsingTLS then begin // we are already using TLS
-      BadSequenceError(ASender);
-      Exit;
-    end;
-    SetEnhReply(ASender.Reply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS, LContext.EHLO);
-    ASender.SendReply;
-    TIdSSLIOHandlerSocketBase(LContext.Connection.IOHandler).PassThrough := False;
-    DoReset(LContext, True);
-  end else begin
+  if not LContext.CanUseExplicitTLS then begin
     CmdSyntaxError(ASender);
     LContext.PipeLining := False;
   end;
+  if LContext.UsingTLS then begin // we are already using TLS
+    BadSequenceError(ASender);
+    Exit;
+  end;
+  SetEnhReply(ASender.Reply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS, LContext.EHLO);
+  ASender.SendReply;
+  TIdSSLIOHandlerSocketBase(LContext.Connection.IOHandler).PassThrough := False;
+  DoReset(LContext, True);
 end;
 
 procedure TIdSMTPServer.CommandNOOP(ASender: TIdCommand);
@@ -1283,6 +1283,22 @@ begin
   Result := Connection.IOHandler is TIdSSLIOHandlerSocketBase;
   if Result then begin
     Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  end;
+end;
+
+function TIdSMTPServerContext.GetCanUseExplicitTLS: Boolean;
+begin
+  Result := Connection.IOHandler is TIdSSLIOHandlerSocketBase;
+  if Result then begin
+    Result := TIdSMTPServer(Server).UseTLS in ExplicitTLSVals;
+  end;
+end;
+
+function TIdSMTPServerContext.GetTLSIsRequired: Boolean;
+begin
+  Result := TIdSMTPServer(Server).UseTLS = utUseRequireTLS;
+  if Result then begin
+    Result := not UsingTLS;
   end;
 end;
 
