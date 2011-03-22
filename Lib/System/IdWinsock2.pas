@@ -169,6 +169,7 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
 {$ELSE}
   {$IFDEF WIN64}
     {$ALIGN ON}
+    {$MINENUMSIZE 4}
   {$ELSE}
     {$MINENUMSIZE 4}
     {$IFDEF REQUIRES_PROPER_ALIGNMENT}

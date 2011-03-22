@@ -34,11 +34,26 @@ interface
 
 {$I IdCompilerDefines.inc}
 
-{$IFDEF REQUIRES_PROPER_ALIGNMENT}
-   {$ALIGN ON}
+{$IFDEF FPC}
+  {$IFDEF WIN32}
+    {$ALIGN OFF}
+  {$ELSE}
+    //It turns out that Win64 and WinCE require record alignment
+    {$PACKRECORDS C}
+  {$ENDIF}
 {$ELSE}
-  {$ALIGN OFF}
-  {$WRITEABLECONST OFF}
+  {$IFDEF WIN64}
+    {$ALIGN ON}
+    {$MINENUMSIZE 4}
+  {$ELSE}
+    {$MINENUMSIZE 4}
+    {$IFDEF REQUIRES_PROPER_ALIGNMENT}
+      {$ALIGN ON}
+    {$ELSE}
+      {$ALIGN OFF}
+      {$WRITEABLECONST OFF}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 
 uses
