@@ -9,6 +9,8 @@ uses
   {$IFNDEF DOTNET}
     {$IFNDEF HAS_TCharacter}
   , IdException
+    {$ELSE}
+  , Character
     {$ENDIF}
   {$ENDIF}
   ;
@@ -33,13 +35,10 @@ function GetUTF16Codepoint(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TI
 implementation
 
 {$IFNDEF DOTNET}
+  {$IFNDEF HAS_TCharacter}
 uses
-  {$IFDEF HAS_TCharacter}
-  Character
-  {$ELSE}
-  IdResourceStringsProtocols
+  IdResourceStringsProtocols;
   {$ENDIF}
-  ;
 {$ENDIF}
 
 function CalcUTF16CharLength(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF};
@@ -64,15 +63,11 @@ begin
   end else begin
     Result := 1;
   end;
-
   {$ELSE}
     {$IFDEF HAS_TCharacter}
-
   //for D2009+, we use TCharacter.ConvertToUtf32() as-is
   TCharacter.ConvertToUtf32(AStr, AIndex, Result);
-
     {$ELSE}
-
   if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
      (AIndex > (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF})) then
   begin
@@ -143,15 +138,11 @@ var
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
-
   Result := System.Char.ConvertToUtf32(AStr, AIndex-1);
-
   {$ELSE}
     {$IFDEF HAS_TCharacter}
-
   //for D2009+, we use TCharacter.ConvertToUtf32() as-is
   Result := TCharacter.ConvertToUtf32(AStr, AIndex);
-
     {$ELSE}
 
   if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
