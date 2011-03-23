@@ -43,6 +43,10 @@ The only things that still are cdecl are the callback functions.
   {$ENDIF}
   {$IFDEF WIN64}
     {$ALIGN ON}
+    {$MINENUMSIZE 4}
+    {$IFNDEF BCB5_DUMMY_BUILD}
+      {$DEFINE STATICLOAD_ZLIB}
+    {$ENDIF}
   {$ENDIF}
 {$ELSE}
   {$packrecords C}
@@ -629,13 +633,18 @@ uses
     {$ENDIF}
     {$IFDEF FPC}
   , DynLibs // better add DynLibs only for fpc
-    {$ENDIF}	
+    {$ENDIF}
     {$IFDEF WINDOWS}
   , Windows
     {$ENDIF}
+  {$ELSE}
+      {$IFDEF VCL_XE2_OR_ABOVE}
+  , WinCrtl {$NOINCLUDE WinCrtl}
+      {$ENDIF}
   {$ENDIF};
 
 {$IFDEF STATICLOAD_ZLIB}
+{$IFNDEF VCL_XE2_OR_ABOVE}
 {$L adler32.obj}
 {$L compress.obj}
 {$L crc32.obj}
@@ -647,6 +656,43 @@ uses
 {$L trees.obj}
 {$L uncompr.obj}
 {$L zutil.obj}
+{$ELSE}
+  {$IFDEF WIN32}
+    {$L ZLib\i386-Win32-ZLib\zlibudec.obj} // undecorated stubs which are not needed for x64 compilation
+    {$L ZLib\i386-Win32-ZLib\deflate.obj}
+    {$L ZLib\i386-Win32-ZLib\inflate.obj}
+    {$L ZLib\i386-Win32-ZLib\infback.obj}
+    {$L ZLib\i386-Win32-ZLib\inffast.obj}
+    {$L ZLib\i386-Win32-ZLib\inftrees.obj}
+    {$L ZLib\i386-Win32-ZLib\trees.obj}
+    {$L ZLib\i386-Win32-ZLib\compress.obj}
+    {$L ZLib\i386-Win32-ZLib\uncompr.obj}
+    {$L ZLib\i386-Win32-ZLib\adler32.obj}
+    {$L ZLib\i386-Win32-ZLib\crc32.obj}
+    {$L ZLib\i386-Win32-ZLib\zutil.obj}
+
+    {$L ZLib\i386-Win32-ZLib\gzclose.obj}
+    {$L ZLib\i386-Win32-ZLib\gzread.obj}
+    {$L ZLib\i386-Win32-ZLib\gzwrite.obj}
+    {$L ZLib\i386-Win32-ZLib\gzlib.obj}
+  {$ELSE}
+    {$L ZLib\x86_64-Win64-ZLib\deflate.obj}
+    {$L ZLib\x86_64-Win64-ZLib\inflate.obj}
+    {$L ZLib\x86_64-Win64-ZLib\infback.obj}
+    {$L ZLib\x86_64-Win64-ZLib\inffast.obj}
+    {$L ZLib\x86_64-Win64-ZLib\inftrees.obj}
+    {$L ZLib\x86_64-Win64-ZLib\trees.obj}
+    {$L ZLib\x86_64-Win64-ZLib\compress.obj}
+    {$L ZLib\x86_64-Win64-ZLib\uncompr.obj}
+    {$L ZLib\x86_64-Win64-ZLib\adler32.obj}
+    {$L ZLib\x86_64-Win64-ZLib\crc32.obj}
+    {$L ZLib\x86_64-Win64-ZLib\zutil.obj}
+    {$L ZLib\x86_64-Win64-ZLib\gzclose.obj}
+    {$L ZLib\x86_64-Win64-ZLib\gzread.obj}
+    {$L ZLib\x86_64-Win64-ZLib\gzwrite.obj}
+    {$L ZLib\x86_64-Win64-ZLib\gzlib.obj}
+  {$ENDIF}
+{$ENDIF}
 
 function adler32; external;
 function adler32_combine; external;
@@ -1213,6 +1259,7 @@ initialization
 
 finalization
   Unload;
+  InitializeStubs;
 {$ENDIF}
 
 end.
