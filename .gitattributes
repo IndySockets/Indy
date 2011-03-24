@@ -1600,6 +1600,7 @@ Lib/Protocols/ZLib/i386-Win32-ZLib/inflate.obj -text
 Lib/Protocols/ZLib/i386-Win32-ZLib/inftrees.obj -text
 Lib/Protocols/ZLib/i386-Win32-ZLib/trees.obj -text
 Lib/Protocols/ZLib/i386-Win32-ZLib/uncompr.obj -text
+Lib/Protocols/ZLib/i386-Win32-ZLib/zlibudec.obj -text
 Lib/Protocols/ZLib/i386-Win32-ZLib/zutil.obj -text
 Lib/Protocols/ZLib/infback.c eol=lf
 Lib/Protocols/ZLib/infback.obj -text svneol=unset#unset
