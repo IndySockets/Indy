@@ -80,6 +80,7 @@ type
     destructor Destroy; override;
 
     procedure Reset; virtual;
+    procedure SetRequest(const AMethod, AUri: String); virtual;
 
     function Authentication: String; virtual; abstract;
     function KeepAlive: Boolean; virtual;
@@ -210,6 +211,11 @@ end;
 procedure TIdAuthentication.Reset;
 begin
   FCurrentStep := 0;
+end;
+
+procedure TIdAuthentication.SetRequest(const AMethod, AUri: String);
+begin
+  // empty here, descendants can override as needed...
 end;
 
 function TIdAuthentication.GetPassword: String;

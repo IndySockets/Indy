@@ -1796,7 +1796,7 @@ begin
     FFreeCookieManager := True;
   end;
 
-  if Assigned(FCookieManager) then begin
+  if Assigned(FCookieManager) and AllowCookies then begin
     LCookies := TStringList.Create;
     try
       AResponse.RawHeaders.Extract('Set-Cookie', LCookies);  {do not localize}
@@ -2225,6 +2225,12 @@ var
   i: Integer;
   LBufferingStarted: Boolean;
 begin
+  // needed for Digest authentication, but maybe others as well...
+  if Assigned(Request.Authentication) then begin
+    // TODO: include entity body for Digest "auth-int" qop...
+    Request.Authentication.SetRequest(Request.Method, Request.URL);
+  end;
+
   Request.SetHeaders;
   FHTTP.ProxyParams.SetHeaders(Request.RawHeaders);
   if Assigned(AURI) then begin
@@ -2514,7 +2520,7 @@ begin
 
   FAuthRetries := 0;
   FAuthProxyRetries := 0;
-  AllowCookies := true;
+  AllowCookies := True;
   FFreeCookieManager := False;
   FOptions := [hoForceEncodeParams];
 

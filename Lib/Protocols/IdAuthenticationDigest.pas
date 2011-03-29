@@ -66,11 +66,11 @@ type
     FStale: Boolean;
     FOpaque: String;
     FDomain: TStringList;
-    Fnonce: String;
-    FNoncecount: integer;
+    FNonce: String;
+    FNonceCount: integer;
     FAlgorithm: String;
-    FMethod, FUri: string; //needed for digest, Somebody make this nice :D
-    FPostbody: TStringList; //needed voor auth-int, Somebody make this nice :D
+    FMethod, FUri: string; //needed for digest
+    FEntityBody: String; //needed for auth-int, Somebody make this nice :D
     FQopOptions: TStringList;
     FOther: TStringList;
     function DoNext: TIdAuthWhatsNext; override;
@@ -79,9 +79,10 @@ type
     constructor Create; override;
     destructor Destroy; override;
     function Authentication: String; override;
+    procedure SetRequest(const AMethod, AUri: String); override;
     property Method: String read FMethod write FMethod;
     property Uri: String read FUri write FUri;
-    property Postbody: TStringList read FPostbody write FPostbody;
+    property EntityBody: String read FEntityBody write FEntityBody;
   end;
 
   // RLebeau 4/17/10: this forces C++Builder to link to this unit so
@@ -109,9 +110,15 @@ begin
   inherited Destroy;
 end;
 
+procedure TIdDigestAuthentication.SetRequest(const AMethod, AUri: String);
+begin
+  FMethod := AMethod;
+  FUri := AUri;
+end;
+
 function TIdDigestAuthentication.Authentication: String;
 
-  function ResultString(const S: String): String;
+  function Hash(const S: String): String;
   begin
     with TIdHashMessageDigest5.Create do try
       Result := LowerCase(HashStringAsHex(S));
@@ -119,7 +126,7 @@ function TIdDigestAuthentication.Authentication: String;
   end;
 
 var
-  LstrA1, LstrA2, LstrCNonce, LstrResponse: string;
+  LA1, LA2, LCNonce, LResponse, LQop: string;
 begin
   Result := '';    {do not localize}
 
@@ -133,68 +140,78 @@ begin
       begin
         //Build request
 
-        LstrCNonce := ResultString(DateTimeToStr(Now));
+        LCNonce := Hash(DateTimeToStr(Now));
 
-        LstrA1 := ResultString(Username + ':' + FRealm + ':' + Password); {do not localize}
-        if TextIsSame(FAlgorithm, 'MD5-sess') then begin
-          LstrA1 := ResultString(LstrA1 + ':' + Fnonce + ':' + LstrCNonce); {do not localize}
+        LA1 := Username + ':' + FRealm + ':' + Password; {do not localize}
+        if TextIsSame(FAlgorithm, 'MD5-sess') then begin {do not localize}
+          LA1 := Hash(LA1) + ':' + FNonce + ':' + LCNonce; {do not localize}
         end;
-        if FQopOptions.IndexOf('auth-int') > -1 then begin {do not localize}
-          LstrA2 := ResultString(FMethod + ':' + FUri + ':' + ResultString(FPostbody.CommaText)) {do not localize}
-        end else begin
-          LstrA2 := ResultString(FMethod + ':' + FUri); {do not localize}
-        end;
-        LstrResponse := LstrA1 + ':' + Fnonce + ':'; {do not localize}
+
+        LA2 := FMethod + ':' + FUri; {do not localize}
         //Qop header present
-        if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then begin {do not localize}
-          LstrResponse := LstrResponse + IntToHex(FNoncecount, 8) + ':' + LstrCNonce + ':'; {do not localize}
-          if FQopOptions.IndexOf('auth-int') > -1 then begin {do not localize}
-            LstrResponse := LstrResponse + 'auth-int:'; {do not localize}
-          end else begin
-            LstrResponse := LstrResponse + 'auth:'; {do not localize}
-          end;
+        if FQopOptions.IndexOf('auth-int') > -1 then begin {do not localize}
+          LQop := 'auth-int'; {do not localize}
+          LA2 := LA2 + ':' + Hash(FEntityBody); {do not localize}
+        end
+        else if FQopOptions.IndexOf('auth') > -1 then begin {do not localize}
+          LQop := 'auth'; {do not localize}
         end;
-        LstrResponse := LstrResponse + LstrA2;
-        LstrResponse := ResultString(LStrResponse);
+
+        if LQop <> '' then begin
+          LResponse := IntToHex(FNonceCount, 8) + ':' + LCNonce + ':' + LQop + ':'; {do not localize}
+        end;
+        LResponse := Hash( Hash(LA1) + ':' + FNonce + ':' + LResponse + Hash(LA2) ); {do not localize}
 
         Result := 'Digest ' + {do not localize}
           'username="' + Username + '", ' + {do not localize}
           'realm="' + FRealm + '", ' +  {do not localize}
           'nonce="' + FNonce + '", ' + {do not localize}
           'algorithm="' + FAlgorithm + '", ' + {do not localize}
-          'uri="' + Furi + '", ';
+          'uri="' + FUri + '", ';
+
         //Qop header present
-        if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then begin {do not localize}
-          if FQopOptions.IndexOf('auth-int') > -1 then begin {do not localize}
-            Result := Result + 'qop="auth-int", '; {do not localize}
-          end else begin
-            Result := Result + 'qop="auth", '; {do not localize}
-          end;
-          Result := Result + 'nc=' + IntToHex(FNoncecount, 8) + ', ' + {do not localize}
-            'cnonce="' + LstrCNonce + '", '; {do not localize}
+        if LQop <> '' then begin {do not localize}
+          Result := Result +
+            'qop="' + LQop + '", ' + {do not localize}
+            'nc=' + IntToHex(FNonceCount, 8) + ', ' + {do not localize}
+            'cnonce="' + LCNonce + '", '; {do not localize}
         end;
-        Result := Result + 'response="' + LstrResponse + '"'; {do not localize}
+
+        Result := Result + 'response="' + LResponse + '"'; {do not localize}
+
         if FOpaque <> '' then begin
           Result := Result + ', opaque="' + FOpaque + '"'; {do not localize}
         end;
-        Inc(FNoncecount);
+
+        Inc(FNonceCount);
         FCurrentStep := 0;
       end;
   end;
 end;
 
-function RemoveQuote(const aStr: string):string;
+function Unquote(var S: String): String;
+var
+  I, Len: Integer;
 begin
-  if (Length(aStr) >= 2) and (aStr[1] = '"') and (aStr[Length(aStr)] = '"') then begin {do not localize}
-    Result := Copy(aStr, 2, Length(aStr)-2);
-  end else begin
-    Result := aStr;
+  Len := Length(S);
+  I := 2; // skip first quote
+  while I <= Len do
+  begin
+    if S[I] = '"' then begin
+      Break;
+    end;
+    if S[I] = '\' then begin
+      Inc(I);
+    end;
+    Inc(I);
   end;
+  Result := Copy(S, 2, I-2);
+  S := Copy(S, I+1, MaxInt);
 end;
 
 function TIdDigestAuthentication.DoNext: TIdAuthWhatsNext;
 var
-  S, LstrTempNonce: String;
+  S, LName, LValue, LTempNonce: String;
   LParams: TStringList;
   i: Integer;
 begin
@@ -223,24 +240,24 @@ begin
         try
           while Length(S) > 0 do begin
             // RLebeau: Apache sends a space after each comma, but IIS does not!
-            LParams.Add(Trim(Fetch(S, ','))); {do not localize}
-          end;
-
-          for i := LParams.Count-1 downto 0 do
-          begin
-            {$IFDEF HAS_TStrings_ValueFromIndex}
-            LParams.ValueFromIndex[i] := RemoveQuote(LParams.ValueFromIndex[i]);
-            {$ELSE}
-            LParams.Values[LParams.Names[i]] := RemoveQuote(LParams.Values[LParams.Names[i]]);
-            {$ENDIF}
+            LName := Trim(Fetch(S, '=')); {do not localize}
+            S := TrimLeft(S);
+            if TextStartsWith(S, '"') then begin {do not localize}
+              LValue := Unquote(S); {do not localize}
+              Fetch(S, ','); {do not localize}
+            end else begin
+              LValue := Trim(Fetch(S, ','));
+            end;
+            LParams.Add(LName + '=' + LValue);
+            S := TrimLeft(S);
           end;
 
           FRealm := LParams.Values['realm']; {do not localize}
-          LStrTempnonce := LParams.Values['nonce']; {do not localize}
-          if FNonce <> LstrTempNonce then
+          LTempNonce := LParams.Values['nonce']; {do not localize}
+          if FNonce <> LTempNonce then
           begin
-            FnonceCount := 1;
-            FNonce := LstrTempNonce;
+            FNonceCount := 1;
+            FNonce := LTempNonce;
           end;
 
           S := LParams.Values['domain']; {do not localize}
