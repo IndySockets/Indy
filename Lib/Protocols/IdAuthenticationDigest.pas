@@ -213,7 +213,6 @@ function TIdDigestAuthentication.DoNext: TIdAuthWhatsNext;
 var
   S, LName, LValue, LTempNonce: String;
   LParams: TStringList;
-  i: Integer;
 begin
   Result := wnDoRequest;
 
