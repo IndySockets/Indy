@@ -19,6 +19,7 @@ type
   published
     property authzid : String read Fauthzid write Fauthzid;
   end;
+
   EIdSASLDigestException = class(EIdException);
   EIdSASLDigestChallException = class(EIdSASLDigestException);
   EIdSASLDigestChallNoAlgorithm = class(EIdSASLDigestChallException);
@@ -32,7 +33,9 @@ function CalcDigestResponse(const AUserName, APassword, ARealm, ANonce, ACNonce 
   const  AQop, ADigestURI : String; const AAuthzid : String = '') : String;
 
 implementation
-uses IdFIPS, IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, IdResourceStringsProtocols;
+
+uses
+  IdFIPS, IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, IdResourceStringsProtocols;
 
 const
   SASL_DIGEST_METHOD = 'AUTHENTICATE:';  {do not localize}
@@ -43,14 +46,25 @@ begin
   Result := IntToHex(AValue,8);
 end;
 
-function RemoveQuote(const aStr:string):string;
+function Unquote(var S: String): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  I, Len: Integer;
 begin
-  if (Length(aStr)>=2) and (aStr[1]='"') and (astr[Length(aStr)]='"') then begin
-    Result := Copy(aStr, 2, Length(astr)-2)
-  end else begin
-    Result := aStr;
+  Len := Length(S);
+  I := 2; // skip first quote
+  while I <= Len do
+  begin
+    if S[I] = '"' then begin
+      Break;
+    end;
+    if S[I] = '\' then begin
+      Inc(I);
+    end;
+    Inc(I);
   end;
+  Result := Copy(S, 2, I-2);
+  S := Copy(S, I+1, MaxInt);
 end;
 
 //
@@ -140,7 +154,6 @@ var
   LReply : TStringList;
   Lqop : String;
   LstrCNonce : String;
-  i : Integer;
   LstrResponse : String;
   LURL : String;
   LCharset : String;
@@ -148,7 +161,7 @@ var
   LAlgorithm : String;
   LNonce : String;
   LRealm: String;
-
+  LName, LValue: String;
 begin
   LURL := AProtocolName+'/'+AHost;
   LReply := TStringList.Create;
@@ -158,20 +171,22 @@ begin
     LBuf := AChallenge;
     while Length(LBuf) > 0 do begin
       LChallange.Add(Fetch(LBuf,','));
-    end;
-    for i := LChallange.Count-1 downto 0 do
-    begin
-      {$IFDEF HAS_TStrings_ValueFromIndex}
-      LChallange.ValueFromIndex[i] := RemoveQuote(LChallange.ValueFromIndex[i]);
-      {$ELSE}
-      LChallange.Values[LChallange.Names[i]] := RemoveQuote(LChallange.Values[LChallange.Names[i]]);
-      {$ENDIF}
+      LName := Trim(Fetch(LBuf, '=')); {do not localize}
+      LBuf := TrimLeft(LBuf);
+      if TextStartsWith(LBuf, '"') then begin {do not localize}
+        LValue := Unquote(LBuf); {do not localize}
+        Fetch(LBuf, ','); {do not localize}
+      end else begin
+        LValue := Trim(Fetch(LBuf, ','));
+      end;
+      LChallange.Add(LName + '=' + LValue);
+      LBuf := TrimLeft(LBuf);
     end;
     LQopOptions.CommaText := LChallange.Values['qop'];
-    Lqop := 'auth';
-    if LQopOptions.IndexOf('auth-int') > -1 then
-    begin
+    if LQopOptions.IndexOf('auth-int') > -1 then begin
       Lqop := 'auth-int';
+    end else begin
+      Lqop := 'auth';
     end;
     if LQopOptions.IndexOf('auth-conf') > -1 then begin
       if LQopOptions.IndexOf('auth') = -1 then begin
