@@ -772,13 +772,13 @@ function MakeXAUTKey : Cardinal;
 begin
   Randomize;
   repeat
-    Result := (Random($FF) shl 8) + (Random($FF) shl 16) + (Random($FF) shl 24) +
-      Random($FF);
-    //we probably should avoid numbers that use the 32nd bit to prevent them from
-    //being expressed negatively and because I'm not sure what integer type
-    //other programs us.  Note that I specifically use the value of MaxInt instead of
-    //MaxInt itself because MaxInt could possibly grow if the Pascal Integer type changes.
-    Result := Result and $7FFFFFFF;
+    //we probably should avoid numbers that use the high bit to prevent them
+    //from being expressed negatively and because I'm not sure what integer
+    //type other programs us.
+    Result := (Cardinal(Random($7F)) shl 24) or
+              (Cardinal(Random($FF)) shl 16) or
+              (Cardinal(Random($FF)) shl 8) or
+              Cardinal(Random($FF));
   until (Result <> XAUT_2_KEY ) and (Result <> 0)
 end;
 
