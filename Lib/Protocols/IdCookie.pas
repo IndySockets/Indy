@@ -76,9 +76,9 @@ REFERENCES
             May 16, 2003,
             http://kristol.org/cookie/errata.html
 
- [DRAFT-COOKIE-21] Barth, A, "HTTP State Management Mechanism",
-            Internet-Draft, January 20, 2011.
-            http://www.ietf.org/id/draft-ietf-httpstate-cookie-21.txt
+ [DRAFT-COOKIE-23] Barth, A, "HTTP State Management Mechanism",
+            Internet-Draft, March 1, 2011.
+            http://www.ietf.org/id/draft-ietf-httpstate-cookie-23.txt
 
  [DRAFT-ORIGIN-01] Pettersen, Y, "Identifying origin server of HTTP Cookies",
             Internet-Draft, March 07, 2010.
@@ -109,7 +109,7 @@ type
     property Cookies[Index: Integer]: TIdCookie read GetCookie write SetCookie; default;
   end;
 
-  { Base Cookie class as described in [draft-21] }
+  { Base Cookie class as described in [draft-23] }
   TIdCookie = class(TCollectionItem)
   protected
     FDomain: String;
@@ -124,6 +124,8 @@ type
     FLastAccessed: TDateTime;
     FPersistent: Boolean;
 
+    function GetIsExpired: Boolean;
+
     function GetServerCookie: String; virtual;
     function GetClientCookie: String; virtual;
 
@@ -136,7 +138,6 @@ type
     procedure Assign(Source: TPersistent); override;
 
     function IsAllowed(AURI: TIdURI; SecureOnly: Boolean): Boolean; virtual;
-    function IsRejected(AURI: TIdURI): Boolean; virtual;
 
     function ParseClientCookie(const ACookieText: String): Boolean; virtual;
     function ParseServerCookie(const ACookieText: String; AURI: TIdURI): Boolean; virtual;
@@ -154,7 +155,8 @@ type
 
     property MaxAge: Int64 read GetMaxAge;
 
-    property CreatedAt: TDateTime read FCreatedAt;
+    property CreatedAt: TDateTime read FCreatedAt write FCreatedAt;
+    property IsExpired: Boolean read GetIsExpired;
     property HostOnly: Boolean read FHostOnly write FHostOnly;
     property LastAccessed: TDateTime read FLastAccessed write FLastAccessed;
     property Persistent: Boolean read FPersistent write FPersistent;
@@ -171,6 +173,7 @@ type
     FCookieList: TIdCookieList;
     FRWLock: TMultiReadExclusiveWriteSynchronizer;
 
+    function GetCookieByNameAndDomain(const AName, ADomain: string): TIdCookie;
     function GetCookie(Index: Integer): TIdCookie;
     procedure SetCookie(Index: Integer; const Value: TIdCookie);
 
@@ -194,10 +197,12 @@ type
     procedure Clear; reintroduce;
 
     function GetCookieIndex(const AName: string; FirstIndex: Integer = 0): Integer; overload;
+    function GetCookieIndex(const AName, ADomain: string; FirstIndex: integer = 0): Integer; overload;
 
     function LockCookieList(AAccessType: TIdCookieAccess): TIdCookieList;
     procedure UnlockCookieList(AAccessType: TIdCookieAccess);
 
+    property Cookie[const AName, ADomain: string]: TIdCookie read GetCookieByNameAndDomain;
     property Cookies[Index: Integer]: TIdCookie read GetCookie write SetCookie; Default;
   end;
 
@@ -229,6 +234,8 @@ function CanonicalizeHostName(const AHost: String): String;
 begin
   // TODO: implement this
   {
+  Per draft-23 Section 5.1.2:
+
    1.  Convert the host name to a sequence of individual domain name
        labels.
 
@@ -249,7 +256,7 @@ var
   LHost, LDomain: String;
 begin
   {
-  Per draft-21:
+  Per draft-23 Section 5.1.3:
 
    A string domain-matches a given domain string if at least one of the
    following conditions hold:
@@ -287,6 +294,8 @@ end;
 function IsPathMatch(const AUriPath, ACookiePath: String): Boolean;
 begin
   {
+  Per draft-23 Section 5.1.4:
+
    A request-path path-matches a given cookie-path if at least one of
    the following conditions hold:
 
@@ -317,7 +326,7 @@ end;
 { base functions used for construction of Cookie text }
 
 procedure AddCookieProperty(var VCookie: String;
-  const AProperty, AValue: String; AQuoted: Boolean = True);
+  const AProperty, AValue: String);
 begin
   if Length(AValue) > 0 then
   begin
@@ -325,7 +334,7 @@ begin
       VCookie := VCookie + '; '; {Do not Localize}
     end;
     // TODO: encode illegal characters?
-    VCookie := VCookie + AProperty + '=' + iif(AQuoted, '"' + AValue + '"', AValue); {Do not Localize}
+    VCookie := VCookie + AProperty + '=' + AValue; {Do not Localize}
   end;
 end;
 
@@ -424,26 +433,22 @@ function TIdCookie.IsAllowed(AURI: TIdURI; SecureOnly: Boolean): Boolean;
   end;
 
 begin
-  // using the algorithm defined in draft-21 section 5.4...
+  // using the algorithm defined in draft-23 section 5.4...
   Result := MatchesHost and IsPathMatch(AURI.Path, Path) and
             ((not Secure) or (Secure and SecureOnly)) and
             ((not HttpOnly) or (HttpOnly and IsHTTP(AURI.Protocol)));
 end;
 
-function TIdCookie.IsRejected(AURI: TIdURI): Boolean;
+{$IFNDEF HAS_TryStrToInt64}
+function TryStrToInt64(const S: string; out Value: Int64): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  E: Integer;
 begin
-  Result := True;
-
-  if not IsDomainMatch(AURI.Host, Domain) then begin
-    Exit;
-  end;
-
-  if HttpOnly and (not IsHTTP(AURI.Protocol)) then begin
-    Exit;
-  end;
-
-  Result := False;
+  Val(S, Value, E);
+  Result := E = 0;
 end;
+{$ENDIF}
 
 function TIdCookie.ParseServerCookie(const ACookieText: String; AURI: TIdURI): Boolean;
 const
@@ -456,6 +461,7 @@ var
   procedure SplitCookieText;
   var
     LNameValue, LAttrs, LAttr, LName, LValue: String;
+    LExpiryTime: TDateTime;
     i: Integer;
   begin
     I := Pos(';', ACookieText);
@@ -463,12 +469,6 @@ var
     begin
       LNameValue := Copy(ACookieText, 1, I-1);
       LAttrs := Copy(ACookieText, I, MaxInt);
-      // RLebeau: draft-21 does not differentiate between quoted and
-      // unquoted values here.  Cookie values are opaque.  If quotes
-      // are present, they are technically part of the cookie value.
-      // If the server did not intent that, no foul here since they
-      // will be sent back as-is in the "Cookie:" header, and the
-      // server will simply think we quoted its quote-extracted data...
     end else
     begin
       LNameValue := ACookieText;
@@ -486,6 +486,11 @@ var
     end;
 
     LValue := Trim(Copy(LNameValue, I+1, MaxInt));
+    if TextStartsWith(LValue, '"') then begin
+      IdDelete(LValue, 1, 1);
+      LNameValue := LValue;
+      LValue := Fetch(LNameValue, '"');
+    end;
     CookieProp.Add(LName + '=' + LValue);
 
     while LAttrs <> '' do
@@ -503,8 +508,7 @@ var
       if I > 0 then begin
         LName := Trim(Copy(LAttr, 1, I-1));
         LValue := Trim(Copy(LAttr, I+1, MaxInt));
-
-        // RLebeau: draft-21 does not (yet?) account for quoted attribute
+        // RLebeau: draft-23 does not (yet?) account for quoted attribute
         // values, despite several complaints asking for it.  We'll do it
         // anyway in the hopes that the draft will "do the right thing" by
         // the time it is finalized...
@@ -513,7 +517,6 @@ var
           LNameValue := LValue;
           LValue := Fetch(LNameValue, '"');
         end;
-
       end else begin
         LName := Trim(LAttr);
         LValue := '';
@@ -521,23 +524,31 @@ var
 
       case PosInStrArray(LName, ['Expires', 'Max-Age', 'Domain', 'Path', 'Secure', 'HttpOnly'], False) of
         0: begin
-          if not IsNumeric(LValue) then begin
-            if CookieStrToLocalDateTime(LValue) = 0.0 then begin
-              LValue := '';
+          if TryStrToInt64(LValue, LSecs) then begin
+            // Not in the RFCs, but some servers specify Expires as an
+            // integer number in seconds instead of using Max-Age...
+            if LSecs >= 0 then begin
+              LExpiryTime := (Now + LSecs * 1000 / MSecsPerDay);
+            end else begin
+              LExpiryTime := EncodeDate(1, 1, 1);
             end;
-          end;
-          if LValue <> '' then begin
-            CookieProp.Add('EXPIRES=' + LValue);
+            CookieProp.Add('EXPIRES=' + FloatToStr(LExpiryTime));
+          end else
+          begin
+            LExpiryTime := CookieStrToLocalDateTime(LValue);
+            if LExpiryTime <> 0.0 then begin
+              CookieProp.Add('EXPIRES=' + FloatToStr(LExpiryTime));
+            end;
           end;
         end;
         1: begin
-          try
-            IndyStrToInt64(LValue);
-          except
-            LValue := '';
-          end;
-          if LValue <> '' then begin
-            CookieProp.Add('MAX-AGE=' + LValue);
+          if TryStrToInt64(LValue, LSecs) then begin
+            if LSecs >= 0 then begin
+              LExpiryTime := (Now + LSecs * 1000 / MSecsPerDay);
+            end else begin
+              LExpiryTime := EncodeDate(1, 1, 1);
+            end;
+            CookieProp.Add('MAX-AGE=' + FloatToStr(LExpiryTime));
           end;
         end;
         2: begin
@@ -573,7 +584,6 @@ var
     end;
   end;
 
-
   function GetLastValueOf(const AName: String; var VValue: String): Boolean;
   var
     I: Integer;
@@ -597,7 +607,7 @@ var
 begin
   Result := False;
 
-  // using the algorithm defined in draft-21 section 5.1.3...
+  // using the algorithm defined in draft-23 section 5.1.3...
 
   CookieProp := TStringList.Create;
   try
@@ -618,63 +628,85 @@ begin
     FCreatedAt := Now;
     FLastAccessed := FCreatedAt;
 
-    // using the parsing algorithms defined in draft-21 section 5.2...
+    // using the algorithms defined in draft-23 section 5.3...
 
     if GetLastValueOf('MAX-AGE', S) then begin {Do not Localize}
       FPersistent := True;
-      LSecs := IndyStrToInt64(S); {Do not Localize}
-      if LSecs >= 0 then begin
-        FExpires := (Now + LSecs * 1000 / MSecsPerDay);
-      end else begin
-        FExpires := EncodeDate(1, 1, 1);
-      end;
+      FExpires := StrToFloat(S);
     end
     else if GetLastValueOf('EXPIRES', S) then {Do not Localize}
     begin
       FPersistent := True;
-      if IsNumeric(S) then
-      begin
-        // This happens when expires is an integer number in seconds
-        LSecs := IndyStrToInt64(S);
-        if LSecs >= 0 then begin
-          FExpires := (Now + LSecs * 1000 / MSecsPerDay);
-        end else begin
-          FExpires := EncodeDate(1, 1, 1);
-        end;
-      end else
-      begin
-        FExpires := CookieStrToLocalDateTime(S);
-      end;
+      FExpires := StrToFloat(S);
     end else
     begin
       FPersistent := False;
       FExpires := EncodeDate(9999, 12, 31) + EncodeTime(23, 59, 59, 999);
     end;
 
-    if GetLastValueOf('DOMAIN', FDomain) then {Do not Localize}
+    if GetLastValueOf('DOMAIN', S) then {Do not Localize}
     begin
-      // TODO: support "public suffix" handling...
+      // TODO
+      {
+        If the user agent is configured to reject "public suffixes" and
+        the domain-attribute is a public suffix:
+
+           If the domain-attribute is identical to the canonicalized
+           request-host:
+
+              Let the domain-attribute be the empty string.
+
+           Otherwise:
+
+              Ignore the cookie entirely and abort these steps.
+
+           NOTE: A "public suffix" is a domain that is controlled by a
+           public registry, such as "com", "co.uk", and "pvt.k12.wy.us".
+           This step is essential for preventing attacker.com from
+           disrupting the integrity of example.com by setting a cookie
+           with a Domain attribute of "com".  Unfortunately, the set of
+           public suffixes (also known as "registry controlled domains")
+           changes over time.  If feasible, user agents SHOULD use an
+           up-to-date public suffix list, such as the one maintained by
+           the Mozilla project at <http://publicsuffix.org/>.
+      }
     end;
 
-    if Length(FDomain) > 0 then begin
+    if Length(S) > 0 then
+    begin
+      if not IsDomainMatch(AURI.Host, S) then begin
+        Exit;
+      end;
       FHostOnly := False;
+      FDomain := S;
     end else
     begin
       FHostOnly := True;
       FDomain := CanonicalizeHostName(AURI.Host);
     end;
 
-    if not GetLastValueOf('PATH', FPath) then begin {Do not Localize}
+    if GetLastValueOf('PATH', S) then begin {Do not Localize}
+      FPath := S;
+    end else begin
       FPath := GetDefaultPath(AURI);
     end;
 
     FSecure := CookieProp.IndexOfName('SECURE') <> -1; { Do not Localize }
     FHttpOnly := CookieProp.IndexOfName('HTTPONLY') <> -1; { Do not Localize }
 
+    if FHttpOnly and (not IsHTTP(AURI.Protocol)) then begin
+      Exit;
+    end;
+
     Result := True;
   finally
     FreeAndNil(CookieProp);
   end;
+end;
+
+function TIdCookie.GetIsExpired: Boolean;
+begin
+  Result := (FExpires <> 0.0) and (FExpires < Now);
 end;
 
 function TIdCookie.GetMaxAge: Int64;
@@ -687,32 +719,37 @@ begin
 end;
 
 {
-set-cookie-header = "Set-Cookie:" SP set-cookie-string
-set-cookie-string = cookie-pair *( ";" SP cookie-av )
-cookie-pair       = cookie-name "=" cookie-value
-cookie-name       = token
-cookie-value      = token / ""
-token             = <token, defined in [RFC2616], Section 2.2>
+ set-cookie-header = "Set-Cookie:" SP set-cookie-string
+ set-cookie-string = cookie-pair *( ";" SP cookie-av )
+ cookie-pair       = cookie-name "=" cookie-value
+ cookie-name       = token
+ cookie-value      = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
+ cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
+                       ; US-ASCII characters excluding CTLs,
+                       ; whitespace DQUOTE, comma, semicolon,
+                       ; and backslash
+ token             = <token, defined in [RFC2616], Section 2.2>
 
-cookie-av         = expires-av / max-age-av / domain-av /
-                    path-av / secure-av / httponly-av /
-                    extension-av
-expires-av        = "Expires=" sane-cookie-date
-sane-cookie-date  = <rfc1123-date, defined in [RFC2616], Section 3.3.1>
-max-age-av        = "Max-Age=" non-zero-digit *DIGIT
-                      ; In practice, both expires-av and max-age-av are limited
-                      ; to dates representable by the user agent.
-non-zero-digit    = %x31-39
-                      ; digits 1 through 9
-domain-av         = "Domain=" domain-value
-domain-value      = <subdomain>
-                      ; defined in [RFC1034], Section 3.5, as
-                      ; enhanced by [RFC1123], Section 2.1
-path-av           = "Path=" path-value
-path-value        = <any CHAR except CTLs or ";">
-secure-av         = "Secure"
-httponly-av       = "HttpOnly"
-extension-av      = <any CHAR except CTLs or ";">
+ cookie-av         = expires-av / max-age-av / domain-av /
+                     path-av / secure-av / httponly-av /
+                     extension-av
+ expires-av        = "Expires=" sane-cookie-date
+ sane-cookie-date  = <rfc1123-date, defined in [RFC2616], Section 3.3.1>
+ max-age-av        = "Max-Age=" non-zero-digit *DIGIT
+                       ; In practice, both expires-av and max-age-av
+                       ; are limited to dates representable by the
+                       ; user agent.
+ non-zero-digit    = %x31-39
+                       ; digits 1 through 9
+ domain-av         = "Domain=" domain-value
+ domain-value      = <subdomain>
+                       ; defined in [RFC1034], Section 3.5, as
+                       ; enhanced by [RFC1123], Section 2.1
+ path-av           = "Path=" path-value
+ path-value        = <any CHAR except CTLs or ";">
+ secure-av         = "Secure"
+ httponly-av       = "HttpOnly"
+ extension-av      = <any CHAR except CTLs or ";">
 }
 function TIdCookie.GetServerCookie: String;
 var
@@ -720,8 +757,8 @@ var
   LMaxAge: Int64;
 begin
   Result := FName + '=' + FValue; {Do not Localize}
-  AddCookieProperty(Result, 'Path', FPath, False); {Do not Localize}
-  AddCookieProperty(Result, 'Domain', FDomain, False); {Do not Localize}
+  AddCookieProperty(Result, 'Path', FPath); {Do not Localize}
+  AddCookieProperty(Result, 'Domain', FDomain); {Do not Localize}
   if FSecure then begin
     AddCookieFlag(Result, 'Secure'); {Do not Localize}
   end;
@@ -730,11 +767,11 @@ begin
   end;
   LMaxAge := MaxAge;
   if LMaxAge >= 0 then begin
-    AddCookieProperty(Result, 'Max-Age', IntToStr(LMaxAge), False); {Do not Localize}
+    AddCookieProperty(Result, 'Max-Age', IntToStr(LMaxAge)); {Do not Localize}
   end;
   LExpires := Expires;
   if LExpires <> 0.0 then begin
-    AddCookieProperty(Result, 'Expires', LocalDateTimeToCookieStr(LExpires), False); {Do not Localize}
+    AddCookieProperty(Result, 'Expires', LocalDateTimeToCookieStr(LExpires)); {Do not Localize}
   end;
 end;
 
@@ -861,21 +898,17 @@ begin
         if ((AURI <> nil) and (not IsHTTP(AURI.Protocol))) and LOldCookie.HttpOnly then begin
           Exit;
         end;
-        if (ACookie.Expires <> 0.0) and (ACookie.Expires < Now) then begin
-          FCookieList.Delete(I);
-        end else
-        begin
-          ACookie.FCreatedAt := LOldCookie.CreatedAt;
-          FCookieList[I] := ACookie;
-          Result := True;
-        end;
+        ACookie.FCreatedAt := LOldCookie.CreatedAt;
+        FCookieList.Delete(I);
         LOldCookie.Collection := nil;
         LOldCookie.Free;
-        Exit;
+        Break;
       end;
     end;
-    FCookieList.Add(ACookie);
-    Result := True;
+    if not ACookie.IsExpired then begin
+      FCookieList.Add(ACookie);
+      Result := True;
+    end;
   finally
     UnlockCookieList(caReadWrite);
   end;
@@ -1034,6 +1067,18 @@ begin
   end;
 end;
 
+function TIdCookies.GetCookieByNameAndDomain(const AName, ADomain: string): TIdCookie;
+var
+  i: Integer;
+begin
+  i := GetCookieIndex(AName, ADomain);
+  if i = -1 then begin
+    Result := nil;
+  end else begin
+    Result := Cookies[i];
+  end;
+end;
+
 function TIdCookies.GetCookieIndex(const AName: string; FirstIndex: Integer = 0): Integer;
 var
   i: Integer;
@@ -1042,6 +1087,24 @@ begin
   for i := FirstIndex to Count - 1 do
   begin
     if TextIsSame(Cookies[i].CookieName, AName) then
+    begin
+      Result := i;
+      Exit;
+    end;
+  end;
+end;
+
+function TIdCookies.GetCookieIndex(const AName, ADomain: string; FirstIndex: Integer = 0): Integer;
+var
+  LCookie: TIdCookie;
+  i: Integer;
+begin
+  Result := -1;
+  for i := FirstIndex to Count - 1 do
+  begin
+    LCookie := Cookies[i];
+    if TextIsSame(LCookie.CookieName, AName) and
+       TextIsSame(CanonicalizeHostName(LCookie.Domain), CanonicalizeHostName(ADomain)) then
     begin
       Result := i;
       Exit;

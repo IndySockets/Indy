@@ -123,7 +123,7 @@ end;
 
 function SortCookiesFunc(Item1, Item2: TIdCookie): Integer;
 begin
-  // using the algorithm defined in draft-21 section 5.4
+  // using the algorithm defined in draft-23 section 5.4
 
   if Item1 = Item2 then
   begin
@@ -173,25 +173,21 @@ begin
         end;
 
         if LResultList.Count > 0 then begin
-          // order cookies from most-specific path to least-specific path
-          LResultList.Sort(@SortCookiesFunc);
+          if LResultList.Count > 1 then begin
+            LResultList.Sort(@SortCookiesFunc);
+          end;
+
           LNow := Now;
           for I := 0 to LResultList.Count-1 do begin
-            LCookie := TIdCookie(LResultList.Items[I]);
-            LCookie.LastAccessed := LNow;
+            TIdCookie(LResultList.Items[I]).LastAccessed := LNow;
           end;
 
-          for I := 0 to LResultList.Count-1 do begin
-            LCookie := TIdCookie(LResultList.Items[I]);
-            if LCookiesToSend <> '' then begin
-              LCookiesToSend := LCookiesToSend + '; '; {Do not Localize}
-            end;
-            LCookiesToSend := LCookiesToSend + LCookie.ClientCookie;
+          LCookiesToSend := TIdCookie(LResultList.Items[0]).ClientCookie;
+          for I := 1 to LResultList.Count-1 do begin
+            LCookiesToSend := LCookiesToSend + '; ' + TIdCookie(LResultList.Items[I]).ClientCookie; {Do not Localize}
           end;
 
-          if LCookiesToSend <> '' then begin
-            Headers.AddValue('Cookie', LCookiesToSend); {Do not Localize}
-          end;
+          Headers.AddValue('Cookie', LCookiesToSend); {Do not Localize}
         end;
       finally
         LResultList.Free;
@@ -201,50 +197,6 @@ begin
     CookieCollection.UnlockCookieList(caRead);
   end;
 end;
-
-{
-procedure SplitCookies(const ACookie: String; ACookies: TStrings);
-var
-  LTemp: String;
-  I, LStart: Integer;
-begin
-  LTemp := Trim(ACookie);
-  I := 1;
-  LStart := 1;
-  while I <= Length(LTemp) do
-  begin
-    I := FindFirstOf('=;,', LTemp, -1, I); {do not localize
-    if I = 0 then begin
-      Break;
-    end;
-    if LTemp[I] = '=' then begin {Do not Localize
-      I := FindFirstOf('";,', LTemp, -1, I+1); {do not localize
-      if I = 0 then begin
-        Break;
-      end;
-      if LTemp[I] = '"' then begin {Do not Localize
-        I := FindFirstOf('"', LTemp, -1, I+1); {do not localize
-        if I <> 0 then begin
-          I := FindFirstOf(';,', LTemp, -1, I+1); {do not localize
-        end;
-        if I = 0 then begin
-          Break;
-        end;
-      end;
-    end;
-    if LTemp[I] = ';' then begin
-      Inc(I);
-      Continue;
-    end;
-    ACookies.Add(Copy(LTemp, LStart, LStart-I));
-    Inc(I);
-    LStart := I;
-  end;
-  if LStart <= Length(LTemp) then begin
-    ACookies.Add(Copy(LTemp, LStart, MaxInt));
-  end;
-end;
-}
 
 procedure TIdCookieManager.AddServerCookie(const ACookie: String; AURL: TIdURI);
 var
@@ -259,14 +211,11 @@ begin
   try
     if LCookie.ParseServerCookie(ACookie, AURL) then
     begin
-      if not LCookie.IsRejected(AURL) then
+      if DoOnNewCookie(LCookie) then
       begin
-        if DoOnNewCookie(LCookie) then
-        begin
-          if FCookieCollection.AddCookie(LCookie, AURL) then begin
-            LCookie := nil;
-            Exit;
-          end;
+        if FCookieCollection.AddCookie(LCookie, AURL) then begin
+          LCookie := nil;
+          Exit;
         end;
       end;
     end;
@@ -345,7 +294,6 @@ end;
 
 procedure TIdCookieManager.CleanupCookieList;
 var
-  LExpires: TDateTime;
   i, LLastCount: Integer;
   LCookieList: TIdCookieList;
 begin
@@ -353,8 +301,7 @@ begin
   try
     for i := LCookieList.Count-1 downto 0 do
     begin
-      LExpires := LCookieList.Cookies[i].Expires;
-      if (LExpires <> 0.0) and (LExpires < Now) then
+      if LCookieList.Cookies[i].IsExpired then
       begin
         // The Cookie has expired. It has to be removed from the collection
         LLastCount := LCookieList.Count; // RLebeau
