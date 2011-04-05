@@ -824,6 +824,7 @@ uses
   {$IFDEF USE_VCL_POSIX}
   PosixSysSocket,
   PosixSysTime,
+  PosixSysTypes,
   {$ENDIF}
   {$IFDEF USE_BASEUNIX}
     baseunix,
