@@ -2928,8 +2928,12 @@ var
     // overloaded constructor that lets us override that behavior...
     Result := TIdUTF8Encoding.Create(CP_UTF8, 0, 0);
       {$ELSE}
+        {$IFDEF USE_VCL_POSIX}
+    Result := TIdUTF8Encoding.Create;
+        {$ELSE}
     Result := nil;
     ToDo('IndyUTF8Encoding() is not implemented for this platform yet'); {do not localize}
+        {$ENDIF}
       {$ENDIF}
     {$ENDIF}
   end;
