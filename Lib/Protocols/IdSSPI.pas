@@ -40,6 +40,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  IdGlobal,
   Windows;
 
 type
@@ -112,9 +113,11 @@ type
 //
 
 type
-
+  {$IFDEF UNICODE}
   SECURITY_PSTR = ^SEC_WCHAR;
-
+  {$ELSE}
+  SECURITY_PSTR = ^SEC_CHAR;
+  {$ENDIF}
 //
 // Okay, security specific types:
 //
@@ -122,9 +125,10 @@ type
 type
 
   PSecHandle = ^SecHandle;
+  //Define ULONG_PTR as PtrUInt so we can use this unit in FreePascal.
   SecHandle = record
-    dwLower: ULONG;
-    dwUpper: ULONG;
+    dwLower: PtrUInt; // ULONG_PTR
+    dwUpper: PtrUInt; // ULONG_PTR
   end;
 
   CredHandle = SecHandle;
@@ -139,9 +143,9 @@ type
   PTimeStamp = ^TimeStamp;
   TimeStamp = SECURITY_INTEGER;
 
-  procedure SecInvalidateHandle(var x: SecHandle);
-
-  function SEC_SUCCESS(Status: SECURITY_STATUS): Boolean;
+  procedure SecInvalidateHandle(var x: SecHandle);  {$IFDEF USE_INLINE} inline; {$ENDIF}
+  function SecIsValidHandle(x : SecHandle) : Boolean; {$IFDEF USE_INLINE} inline; {$ENDIF}
+  function SEC_SUCCESS(Status: SECURITY_STATUS): Boolean;  {$IFDEF USE_INLINE} inline; {$ENDIF}
 
 type
 
@@ -265,9 +269,15 @@ const
   SECBUFFER_STREAM             = 10;  // whole encrypted message
   SECBUFFER_MECHLIST           = 11;
   SECBUFFER_MECHLIST_SIGNATURE = 12;
+  SECBUFFER_TARGET           = 13;  // obsolete
+  SECBUFFER_CHANNEL_BINDINGS = 14;
+  SECBUFFER_CHANGE_PASS_RESPONSE = 15;
+  SECBUFFER_TARGET_HOST      = 16;
+  SECBUFFER_ALERT            = 17;
 
   SECBUFFER_ATTRMASK           = $F0000000;
   SECBUFFER_READONLY           = $80000000;  // Buffer is read-only
+  SECBUFFER_READONLY_WITH_CHECKSUM = $10000000;  // Buffer is read-only, and checksummed;
   SECBUFFER_RESERVED           = $40000000;
 
 type
@@ -302,11 +312,26 @@ const
   SECPKG_CRED_RESERVED        = $F0000000;
 
 //
-//  InitializeSecurityContext Requirement and return flags:
+//  SSP SHOULD prompt the user for credentials/consent, independent
+//  of whether credentials to be used are the 'logged on' credentials
+//  or retrieved from credman.
+//
+//  An SSP may choose not to prompt, however, in circumstances determined
+//  by the SSP.
 //
 
-const
+  SECPKG_CRED_AUTOLOGON_RESTRICTED    = $00000010;
 
+//
+// auth will always fail, ISC() is called to process policy data only
+//
+
+  SECPKG_CRED_PROCESS_POLICY_ONLY     = $00000020;
+
+const
+//
+//  InitializeSecurityContext Requirement and return flags:
+//
   ISC_REQ_DELEGATE                = $00000001;
   ISC_REQ_MUTUAL_AUTH             = $00000002;
   ISC_REQ_REPLAY_DETECT           = $00000004;
@@ -329,6 +354,10 @@ const
   ISC_REQ_MANUAL_CRED_VALIDATION  = $00080000;
   ISC_REQ_RESERVED1               = $00100000;
   ISC_REQ_FRAGMENT_TO_FIT         = $00200000;
+// This exists only in Windows Vista and greater
+  ISC_REQ_FORWARD_CREDENTIALS     = $00400000;
+  ISC_REQ_NO_INTEGRITY            = $00800000; // honored only by SPNEGO
+  ISC_REQ_USE_HTTP_STYLE          = $01000000;
 
   ISC_RET_DELEGATE                = $00000001;
   ISC_RET_MUTUAL_AUTH             = $00000002;
@@ -352,6 +381,12 @@ const
   ISC_RET_MANUAL_CRED_VALIDATION  = $00080000;
   ISC_RET_RESERVED1               = $00100000;
   ISC_RET_FRAGMENT_ONLY           = $00200000;
+// This exists only in Windows Vista and greater
+  ISC_RET_FORWARD_CREDENTIALS     = $00400000;
+
+  ISC_RET_USED_HTTP_STYLE         = $01000000;
+  ISC_RET_NO_ADDITIONAL_TOKEN     = $02000000;  // *INTERNAL*
+  ISC_RET_REAUTHENTICATION        = $08000000;  // *INTERNAL*
 
   ASC_REQ_DELEGATE                = $00000001;
   ASC_REQ_MUTUAL_AUTH             = $00000002;
@@ -374,6 +409,10 @@ const
   ASC_REQ_ALLOW_CONTEXT_REPLAY    = $00400000;
   ASC_REQ_FRAGMENT_TO_FIT         = $00800000;
   ASC_REQ_FRAGMENT_SUPPLIED       = $00002000;
+  ASC_REQ_NO_TOKEN                = $01000000;
+  ASC_REQ_PROXY_BINDINGS          = $04000000;
+//      SSP_RET_REAUTHENTICATION        = $08000000;  // *INTERNAL*
+  ASC_REQ_ALLOW_MISSING_BINDINGS  = $10000000;
 
   ASC_RET_DELEGATE                = $00000001;
   ASC_RET_MUTUAL_AUTH             = $00000002;
@@ -396,14 +435,18 @@ const
   ASC_RET_ALLOW_NON_USER_LOGONS   = $00200000;
   ASC_RET_ALLOW_CONTEXT_REPLAY    = $00400000;
   ASC_RET_FRAGMENT_ONLY           = $00800000;
-
+  ASC_RET_NO_TOKEN                = $01000000;
+  ASC_RET_NO_ADDITIONAL_TOKEN     = $02000000;  // *INTERNAL*
+  ASC_RET_NO_PROXY_BINDINGS       = $04000000;
+//  SSP_RET_REAUTHENTICATION        = $08000000;  // *INTERNAL*
+  ASC_RET_MISSING_BINDINGS        = $10000000;
 //
 //  Security Credentials Attributes:
 //
 
 const
-
   SECPKG_CRED_ATTR_NAMES = 1;
+  SECPKG_CRED_ATTR_SSI_PROVIDER = 2;
 
 type
 
@@ -446,6 +489,31 @@ const
   SECPKG_ATTR_NEGOTIATION_INFO = 12;
   SECPKG_ATTR_NATIVE_NAMES     = 13;
   SECPKG_ATTR_FLAGS            = 14;
+// These attributes exist only in Win XP and greater
+  SECPKG_ATTR_USE_VALIDATED   = 15;
+  SECPKG_ATTR_CREDENTIAL_NAME = 16;
+  SECPKG_ATTR_TARGET_INFORMATION = 17;
+  SECPKG_ATTR_ACCESS_TOKEN    = 18;
+// These attributes exist only in Win2K3 and greater
+  SECPKG_ATTR_TARGET          = 19;
+  SECPKG_ATTR_AUTHENTICATION_ID  = 20;
+// These attributes exist only in Win2K3SP1 and greater
+  SECPKG_ATTR_LOGOFF_TIME     = 21;
+//
+// win7 or greater
+//
+  SECPKG_ATTR_NEGO_KEYS         = 22;
+  SECPKG_ATTR_PROMPTING_NEEDED  = 24;
+  SECPKG_ATTR_UNIQUE_BINDINGS   = 25;
+  SECPKG_ATTR_ENDPOINT_BINDINGS = 26;
+  SECPKG_ATTR_CLIENT_SPECIFIED_TARGET = 27;
+
+  SECPKG_ATTR_LAST_CLIENT_TOKEN_STATUS = 30;
+  SECPKG_ATTR_NEGO_PKG_INFO        = 31; // contains nego info of packages
+  SECPKG_ATTR_NEGO_STATUS          = 32; // contains the last error
+  SECPKG_ATTR_CONTEXT_DELETED      = 33; // a context has been deleted
+
+  SECPKG_ATTR_SUBJECT_SECURITY_ATTRIBUTES = 128;
 
 type
 
@@ -627,6 +695,7 @@ const
   SECPKG_NEGOTIATION_OPTIMISTIC   = 1;
   SECPKG_NEGOTIATION_IN_PROGRESS  = 2;
   SECPKG_NEGOTIATION_DIRECT       = 3;
+  SECPKG_NEGOTIATION_TRY_MULTICRED = 4;
 
 type
 
@@ -666,6 +735,9 @@ const
 
   SECPKG_CONTEXT_EXPORT_RESET_NEW   = $00000001;  // New context is reset to initial state
   SECPKG_CONTEXT_EXPORT_DELETE_OLD  = $00000002;  // Old context is deleted during export
+  // This is only valid in W2K3SP1 and greater
+  SECPKG_CONTEXT_EXPORT_TO_KERNEL   = $00000004;      // Context is to be transferred to the kernel
+
 
 type
 
@@ -1613,8 +1685,15 @@ implementation
 procedure SecInvalidateHandle(Var x: SecHandle);
 begin
   with x do begin
-    dwLower := ULONG(-1);
-    dwUpper := ULONG(-1);
+    dwLower := PtrUInt(-1);
+    dwUpper := PtrUInt(-1);
+  end;
+end;
+
+function SecIsValidHandle(x : SecHandle) : Boolean;
+begin
+  with x do begin
+    Result := (dwLower <> PtrUInt(-1)) and (dwUpper <> PtrUInt(-1));
   end;
 end;
 

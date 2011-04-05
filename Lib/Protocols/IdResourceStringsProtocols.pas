@@ -272,6 +272,7 @@ resourcestring
   RSHTTPUnknownCookieVersion = 'Unsupported cookie version: %d';
 
   //SSPI Authentication
+    {$IFDEF USE_SSPI}
   {
   Note: CompleteToken is an API function Name:
   }
@@ -316,6 +317,49 @@ resourcestring
   RSHTTPSSPIDecryptionFailure = 'The specified data could not be decrypted.';
   RSHTTPSSPIAlgorithmMismatch = 'The client and server cannot communicate, because they do not possess a common algorithm.';
   RSHTTPSSPISecurityQOSFailure = 'The security context could not be established due to a failure in the requested quality of service (e.g. mutual authentication or delegation).';
+  RSHTTPSSPISecCtxWasDelBeforeUpdated = 'A security context was deleted before the context was completed. This is considered a logon failure.';
+  RSHTTPSSPIClientNoTGTReply = 'The client is trying to negotiate a context and the server requires user-to-user but didn''t send a TGT reply.';
+  RSHTTPSSPILocalNoIPAddr = 'Unable to accomplish the requested task because the local machine does not have any IP addresses.';
+  RSHTTPSSPIWrongCredHandle = 'The supplied credential handle does not match the credential associated with the security context.';
+  RSHTTPSSPICryptoSysInvalid = 'The crypto system or checksum function is invalid because a required function is unavailable.';
+  RSHTTPSSPIMaxTicketRef = 'The number of maximum ticket referrals has been exceeded.';
+  RSHTTPSSPIMustBeKDC = 'The local machine must be a Kerberos KDC (domain controller) and it is not.';
+  RSHTTPSSPIStrongCryptoNotSupported = 'The other end of the security negotiation is requires strong crypto but it is not supported on the local machine.';
+  RSHTTPSSPIKDCReplyTooManyPrincipals = 'The KDC reply contained more than one principal name.';
+  RSHTTPSSPINoPAData = 'Expected to find PA data for a hint of what etype to use, but it was not found.';
+  RSHTTPSSPIPKInitNameMismatch = 'The client certificate does not contain a valid UPN, or does not match the client name in the logon request. Please contact your administrator.';
+  RSHTTPSSPISmartcardLogonReq = 'Smartcard logon is required and was not used.';
+  RSHTTPSSPISysShutdownInProg = 'A system shutdown is in progress.';
+  RSHTTPSSPIKDCInvalidRequest = 'An invalid request was sent to the KDC.';
+  RSHTTPSSPIKDCUnableToRefer = 'The KDC was unable to generate a referral for the service requested.';
+  RSHTTPSSPIKDCETypeUnknown = 'The encryption type requested is not supported by the KDC.';
+  RSHTTPSSPIUnsupPreauth = 'An unsupported preauthentication mechanism was presented to the Kerberos package.';
+  RSHTTPSSPIDeligationReq = 'The requested operation cannot be completed. The computer must be trusted for delegation and the current user account must be configured to allow delegation.';
+  RSHTTPSSPIBadBindings = 'Client''s supplied SSPI channel bindings were incorrect.';
+  RSHTTPSSPIMultipleAccounts = 'The received certificate was mapped to multiple accounts.';
+  RSHTTPSSPINoKerbKey = 'SEC_E_NO_KERB_KEY';
+  RSHTTPSSPICertWrongUsage = 'The certificate is not valid for the requested usage.';
+  RSHTTPSSPIDowngradeDetected = 'The system detected a possible attempt to compromise security. Please ensure that you can contact the server that authenticated you.';
+  RSHTTPSSPISmartcardCertRevoked = 'The smartcard certificate used for authentication has been revoked. Please contact your system administrator. There may be additional information in the event log.';
+  RSHTTPSSPIIssuingCAUntrusted = 'An untrusted certificate authority was detected While processing the smartcard certificate used for authentication. Please contact your system administrator.';
+  RSHTTPSSPIRevocationOffline = 'The revocation status of the smartcard certificate used for authentication could not be determined. Please contact your system administrator.';
+  RSHTTPSSPIPKInitClientFailure = 'The smartcard certificate used for authentication was not trusted. Please contact your system administrator.';
+  RSHTTPSSPISmartcardExpired = 'The smartcard certificate used for authentication has expired. Please contact your system administrator.';
+  RSHTTPSSPINoS4UProtSupport = 'The Kerberos subsystem encountered an error. A service for user protocol request was made against a domain controller which does not support service for user.';
+  RSHTTPSSPICrossRealmDeligationFailure = 'An attempt was made by this server to make a Kerberos constrained delegation request for a target outside of the server''s realm. This is not supported, and indicates a misconfiguration on this server''s allowed'+
+    ' to delegate to list. Please contact your administrator.';
+  RSHTTPSSPIRevocationOfflineKDC = 'The revocation status of the domain controller certificate used for smartcard authentication could not be determined. There is additional information in the system event log. Please contact your system administrator.';
+  RSHTTPSSPICAUntrustedKDC = 'An untrusted certificate authority was detected while processing the domain controller certificate used for authentication. There is additional information in the system event log. Please contact your system administrator.';
+  RSHTTPSSPIKDCCertExpired = 'The domain controller certificate used for smartcard logon has expired. Please contact your system administrator with the contents of your system event log.';
+  RSHTTPSSPIKDCCertRevoked = 'The domain controller certificate used for smartcard logon has been revoked. Please contact your system administrator with the contents of your system event log.';
+  RSHTTPSSPISignatureNeeded = 'A signature operation must be performed before the user can authenticate.';
+  RSHTTPSSPIInvalidParameter = 'One or more of the parameters passed to the function was invalid.';
+  RSHTTPSSPIDeligationPolicy = 'Client policy does not allow credential delegation to target server.';
+  RSHTTPSSPIPolicyNTLMOnly = 'Client policy does not allow credential delegation to target server with NLTM only authentication.';
+  RSHTTPSSPINoRenegotiation = 'The recipient rejected the renegotiation request.';
+  RSHTTPSSPINoContext = 'The required security context does not exist.';
+  RSHTTPSSPIPKU2UCertFailure = 'The PKU2U protocol encountered an error while attempting to utilize the associated certificates.';
+  RSHTTPSSPIMutualAuthFailed = 'The identity of the server computer could not be verified.';
   RSHTTPSSPIUnknwonError = 'Unknown error';
   {
   Note to translators - the parameters for the next message are below:
@@ -335,7 +379,7 @@ resourcestring
   RSHTTPSSPIUnknwonCredentialUse = 'Unknown credentials use';
   RSHTTPSSPIDoAuquireCredentialHandle = 'Do AcquireCredentialsHandle first';
   RSHTTPSSPICompleteTokenNotSupported = 'CompleteAuthToken is not supported';
-
+    {$ENDIF}
   //Block Cipher Intercept
   RSBlockIncorrectLength = 'Incorrect length in received block (%d)';
 
