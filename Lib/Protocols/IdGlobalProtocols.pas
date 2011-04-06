@@ -2361,7 +2361,7 @@ begin
 end;
 {$ENDIF}
 
-{ Using the algorithm defined in cookie-draft-21 section 5.1.1 }
+{ Using the algorithm defined in cookie-draft-23 section 5.1.1 }
 function CookieStrToLocalDateTime(S: string): TDateTime;
 const
   {
@@ -2370,8 +2370,7 @@ const
   }
   cDelimiters = #9' !"#$%&''()*+,-./;<=>?@[\]^_`{|}~';
 var
-  LTokens: TStringList;
-  LStartPos, LEndPos, I: Integer;
+  LStartPos, LEndPos: Integer;
   LFoundTime, LFoundDayOfMonth, LFoundMonth, LFoundYear: Boolean;
   LHour, LMinute, LSecond: Integer;
   LYear, LMonth, LDayOfMonth: Integer;
@@ -2384,11 +2383,10 @@ var
     LLength := 0;
     while (LLength < Length(AStr)) and (LLength < MaxDigits) do
     begin
-      if IsNumeric(AStr[LLength+1]) then begin
-        Inc(LLength);
-      end else begin
+      if not IsNumeric(AStr[LLength+1]) then begin
         Break;
       end;
+      Inc(LLength);
     end;
     if (LLength > 0) and (LLength >= MinDigits) then begin
       Result := Copy(AStr, 1, LLength);
@@ -2522,6 +2520,34 @@ var
     Result := True;
   end;
 
+  procedure ProcessToken(const AStr: String);
+  begin
+    if not LFoundTime then begin
+      if ParseTime(AStr) then begin
+        LFoundTime := True;
+        Exit;
+      end;
+    end;
+    if not LFoundDayOfMonth then begin
+      if ParseDayOfMonth(AStr) then begin
+        LFoundDayOfMonth := True;
+        Exit;
+      end;
+    end;
+    if not LFoundMonth then begin
+      if ParseMonth(AStr) then begin
+        LFoundMonth := True;
+        Exit;
+      end;
+    end;
+    if not LFoundYear then begin
+      if ParseYear(AStr) then begin
+        LFoundYear := True;
+        Exit;
+      end;
+    end;
+  end;
+
 begin
   LFoundTime := False;
   LFoundDayOfMonth := False;
@@ -2529,55 +2555,22 @@ begin
   LFoundYear := False;
 
   try
-    // TODO: don't use a TStringList anymore
-    LTokens := TStringList.Create;
-    try
-      LEndPos := 0;
-      repeat
-        LStartPos := FindFirstNotOf(cDelimiters, S, -1, LEndPos+1);
-        if LStartPos = 0 then begin
-          Break;
-        end;
-        LEndPos := FindFirstOf(cDelimiters, S, -1, LStartPos+1);
-        if LEndPos = 0 then begin
-          LTokens.Add(Copy(S, LStartPos, MaxInt));
-          Break;
-        end;
-        LTokens.Add(Copy(S, LStartPos, LEndPos-LStartPos));
-      until False;
-
-      for I := 0 to LTokens.Count-1 do begin
-        if not LFoundTime then begin
-          if ParseTime(LTokens[I]) then begin
-            LFoundTime := True;
-            Continue;
-          end;
-        end;
-        if not LFoundDayOfMonth then begin
-          if ParseDayOfMonth(LTokens[I]) then begin
-            LFoundDayOfMonth := True;
-            Continue;
-          end;
-        end;
-        if not LFoundMonth then begin
-          if ParseMonth(LTokens[I]) then begin
-            LFoundMonth := True;
-            Continue;
-          end;
-        end;
-        if not LFoundYear then begin
-          if ParseYear(LTokens[I]) then begin
-            LFoundYear := True;
-            Continue;
-          end;
-        end;
+    LEndPos := 0;
+    repeat
+      LStartPos := FindFirstNotOf(cDelimiters, S, -1, LEndPos+1);
+      if LStartPos = 0 then begin
+        Break;
       end;
-    finally
-      LTokens.Free;
-    end;
+      LEndPos := FindFirstOf(cDelimiters, S, -1, LStartPos+1);
+      if LEndPos = 0 then begin
+        ProcessToken(Copy(S, LStartPos, MaxInt));
+        Break;
+      end;
+      ProcessToken(Copy(S, LStartPos, LEndPos-LStartPos));
+    until False;
 
     if (not LFoundDayOfMonth) or (not LFoundMonth) or (not LFoundYear) or (not LFoundTime) then begin
-      raise Exception.Create('Cookie Date not Found');
+      raise Exception.Create('Invalid Cookie Date format');
     end;
 
     Result := EncodeDate(LYear, LMonth, LDayOfMonth) + EncodeTime(LHour, LMinute, LSecond, 0) + OffsetFromUTC;
