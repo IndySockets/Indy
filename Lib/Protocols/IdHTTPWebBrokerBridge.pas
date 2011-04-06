@@ -680,19 +680,24 @@ begin
 end;
 
 procedure TIdHTTPAppResponse.MoveCookiesAndCustomHeaders;
-Var
+var
   i: Integer;
+  LSrcCookie: TCookie;
+  LDestCookie: TIdCookie;
 begin
   for i := 0 to Cookies.Count - 1 do begin
-    with FResponseInfo.Cookies.Add do begin
-      CookieText := string(Cookies[i].HeaderValue);
-    end;
+    LSrcCookie := Cookies[i];
+    LDestCookie := FResponseInfo.Cookies.Add;
+    LDestCookie.CookieName := HTTPEncode(LSrcCookie.Name);
+    LDestCookie.Value := HTTPEncode(LSrcCookie.Value);
+    LDestCookie.Domain := LSrcCookie.Domain;
+    LDestCookie.Path := LSrcCookie.Path;
+    LDestCookie.Expires := LSrcCookie.Expires;
+    LDestCookie.Secure := LSrcCookie.Secure;
+    // TODO: LDestCookie.HttpOnly := LSrcCookie.HttpOnly;
   end;
   FResponseInfo.CustomHeaders.Clear;
-  for i := 0 to CustomHeaders.Count - 1 do begin
-    FResponseInfo.CustomHeaders.Values[CustomHeaders.Names[i]] :=
-      CustomHeaders.Values[CustomHeaders.Names[i]];
-  end;
+  FResponseInfo.CustomHeaders.AddStdValues(CustomHeaders);
 end;
 
 { TIdHTTPWebBrokerBridge }

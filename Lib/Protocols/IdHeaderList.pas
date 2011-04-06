@@ -154,11 +154,21 @@ uses
 procedure TIdHeaderList.AddStdValues(ASrc: TStrings);
 var
   i: integer;
+  LValue: string;
+  {$IFNDEF HAS_TStrings_ValueFromIndex}
+  LTmp: string;
+  {$ENDIF}
 begin
   BeginUpdate;
   try
     for i := 0 to ASrc.Count - 1 do begin
-      Add(ReplaceOnlyFirst(ASrc[i], '=', NameValueSeparator));    {Do not Localize}
+      {$IFDEF HAS_TStrings_ValueFromIndex}
+      LValue := ASrc.ValueFromIndex[i];
+      {$ELSE}
+      LTmp := ASrc.Strings[i];
+      LValue := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {do not localize}
+      {$ENDIF}
+      AddValue(ASrc.Names[i], LValue);
     end;
   finally
     EndUpdate;
