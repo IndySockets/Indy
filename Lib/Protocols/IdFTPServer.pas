@@ -3494,7 +3494,6 @@ const
   DEF_BLOCKSIZE = 10*10240;
   {CH DEF_CHECKCMD_WAIT = 1; }
 var
-  LMemStream: TStream;
   LContext : TIdFTPServerContext;
   LCmdQueue : TStringList;
   LLine : String;
@@ -3673,13 +3672,13 @@ begin
                   end;
                 ftpStor:
                   if Assigned(LContext.FDataChannel.Data) then begin
-                    LMemStream := TMemoryStream.Create;
+                    LStrm := TMemoryStream.Create;
                     try
                       ReadFromStream(LContext, LCmdQueue, LStrm);
                       //TODO;
-                     // SplitLines(LMemStream.Memory, LMemStream.Size, TStrings(LContext.FDataChannel.FData));
+                     // SplitLines(TMemoryStream(LStrm).Memory, LMemStream.Size, LContext.FDataChannel.FData as TStrings);
                     finally
-                      FreeAndNil(LMemStream);
+                      FreeAndNil(LStrm);
                     end;
                   end;//ftpStor
               end;//case
