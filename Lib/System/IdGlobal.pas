@@ -874,6 +874,7 @@ type
   TIdMBCSEncoding = class(TIdTextEncoding)
   private
     {$IFDEF USE_ICONV}
+    FCharSet: AnsiString;
     FToUTF16 : iconv_t;
     FFromUTF16 : iconv_t;
     {$ELSE}
@@ -2171,6 +2172,7 @@ const
 begin
   inherited Create;
 
+  FCharSet := CharSet;
   FToUTF16 := iconv_open(PAnsiChar(CharSet), 'UTF-16');    {do not localize}
   FFromUTF16 := iconv_open('UTF-16', PAnsiChar(CharSet));  {do not localize}
 
