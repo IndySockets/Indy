@@ -219,15 +219,41 @@ uses
   IdAssignedNumbers, IdResourceStringsProtocols;
 
 function GetDefaultPath(const AURL: TIdURI): String;
+var
+  Idx: Integer;
 begin
-  if not TextStartsWith(AURL.Path, '/') then begin {do not localize}
-    Result := '/'; {do not localize}
-  end
-  else if AURL.Path = '/' then begin {do not localize}
-    Result := '/'; {do not localize}
-  end else begin
-    Result := Copy(AURL.Path, 1, RPos('/', AURL.Path)-1);
+  {
+  Per draft-23, Section 5.1.4:
+
+     The user agent MUST use an algorithm equivalent to the following
+     algorithm to compute the default-path of a cookie:
+
+     1.  Let uri-path be the path portion of the request-uri if such a
+         portion exists (and empty otherwise).  For example, if the
+         request-uri contains just a path (and optional query string),
+         then the uri-path is that path (without the %x3F ("?") character
+         or query string), and if the request-uri contains a full
+         absoluteURI, the uri-path is the path component of that URI.
+
+     2.  If the uri-path is empty or if the first character of the uri-
+         path is not a %x2F ("/") character, output %x2F ("/") and skip
+         the remaining steps.
+
+     3.  If the uri-path contains only a single %x2F ("/") character,
+         output %x2F ("/") and skip the remaining steps.
+
+     4.  Output the characters of the uri-path from the first character up
+         to, but not including, the right-most %x2F ("/").
+  }
+
+  if TextStartsWith(AURL.Path, '/') then begin {do not localize}
+    Idx := RPos('/', AURL.Path); {do not localize}
+    if Idx > 1 then begin
+      Result := Copy(AURL.Path, 1, Idx-1);
+      Exit;
+    end;
   end;
+  Result := '/'; {do not localize}
 end;
 
 function CanonicalizeHostName(const AHost: String): String;
