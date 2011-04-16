@@ -77,11 +77,13 @@ type
     FContentStream : TStream;
     FFreeContentStream : Boolean;
     //
-    function GetRemoteIP: string; override;
     function GetDateVariable(Index: Integer): TDateTime; override;
     function GetIntegerVariable(Index: Integer): Integer; override;
     function GetStringVariable(Index: Integer): AnsiString; override;
+    {$IFDEF VCL_XE_OR_ABOVE}
+    function GetRemoteIP: string; override;
     function GetRawPathInfo: AnsiString; override;
+    {$ENDIF}
   public
     constructor Create(AThread: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
      AResponseInfo: TIdHTTPResponseInfo);
@@ -149,8 +151,10 @@ type
      AResponseInfo: TIdHTTPResponseInfo); override;
     procedure InitComponent; override;
   public
-
     procedure RegisterWebModuleClass(AClass: TComponentClass);
+  published
+    // ZLib compression library object for use with deflate and gzip encoding
+    property Compressor;
   end;
 
 implementation
@@ -283,6 +287,7 @@ begin
   Result := StrToIntDef(string(GetStringVariable(Index)), -1)
 end;
 
+{$IFDEF VCL_XE_OR_ABOVE}
 function TIdHTTPAppRequest.GetRawPathInfo: AnsiString;
 begin
   Result := AnsiString(FRequestInfo.URI);
@@ -292,6 +297,7 @@ function TIdHTTPAppRequest.GetRemoteIP: string;
 begin
   Result := String(FRequestInfo.RemoteIP);
 end;
+{$ENDIF}
 
 function TIdHTTPAppRequest.GetStringVariable(Index: Integer): AnsiString;
 var
