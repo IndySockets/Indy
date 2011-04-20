@@ -416,6 +416,7 @@ type
   TIdIOHandlerStreamMsg = class(TIdIOHandlerStream)
   protected
     FTerminatorWasRead: Boolean;
+    FEscapeLines: Boolean;
     FLastByteRecv: Byte;
     function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
   public
@@ -425,6 +426,11 @@ type
       ASendStream: TStream = nil
     ); override;  //Should this be reintroduce instead of override?
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; override;
+    function ReadLn(ATerminator: string; ATimeout: Integer = IdTimeoutDefault;
+      AMaxLineLength: Integer = -1; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      ): string; override;
+    property EscapeLines: Boolean read FEscapeLines write FEscapeLines;
   end;
 
   TIdMessageClient = class(TIdExplicitTLSClient)
@@ -532,6 +538,7 @@ constructor TIdIOHandlerStreamMsg.Create(
 begin
   inherited Create(AOwner, AReceiveStream, ASendStream);
   FTerminatorWasRead := False;
+  FEscapeLines := False; // do not set this to True! This is for users to set manually...
   FLastByteRecv := 0;
 end;
 
@@ -582,6 +589,19 @@ begin
     Result := Length(LTerminator);
   end else begin;
     Result := 0;
+  end;
+end;
+
+function TIdIOHandlerStreamMsg.ReadLn(ATerminator: string;
+  ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1;
+  AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
+begin
+  Result := inherited ReadLn(ATerminator, ATimeout, AMaxLineLength,
+    AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  if FEscapeLines and TextStartsWith(Result, '.') and (not FTerminatorWasRead) then begin {Do not Localize}
+    Result := '.' + Result; {Do not Localize}
   end;
 end;
 
