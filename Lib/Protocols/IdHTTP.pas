@@ -439,7 +439,6 @@ type
   TIdHTTPProtocol = class(TObject)
   protected
     FHTTP: TIdCustomHTTP;
-    FResponseCode: Integer;
     FRequest: TIdHTTPRequest;
     FResponse: TIdHTTPResponse;
   public
@@ -449,7 +448,6 @@ type
     procedure BuildAndSendRequest(AURI: TIdURI);
     procedure RetrieveHeaders(AMaxHeaderCount: integer);
     //
-    property ResponseCode: Integer read FResponseCode;
     property Request: TIdHTTPRequest read FRequest;
     property Response: TIdHTTPResponse read FResponse;
   end;
@@ -507,7 +505,7 @@ type
     procedure ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function SetHostAndPort: TIdHTTPConnectionType;
     procedure SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
-    procedure ReadResult(AResponse: TIdHTTPResponse; AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
+    procedure ReadResult(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     procedure PrepareRequest(ARequest: TIdHTTPRequest);
     procedure ConnectToHost(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function GetResponse: TIdHTTPResponse;
@@ -1173,8 +1171,7 @@ begin
   Port := LPort;
 end;
 
-procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse;
-  AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
+procedure TIdCustomHTTP.ReadResult(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
   LS: TStream;
   LOrigStream : TStream;
@@ -1200,7 +1197,55 @@ var
     Result := IndyStrToInt('$' + Trim(s), 0);      {do not localize}
   end;
 
+  function CheckForPendingData(ATimeout: Integer): Boolean;
+  begin
+    if IOHandler.InputBufferIsEmpty then begin
+      IOHandler.CheckForDataOnSource(ATimeout);
+    end;
+    Result := not IOHandler.InputBufferIsEmpty;
+  end;
+
+  function ShouldRead: Boolean;
+  begin
+    Result := False;
+    if (IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0) or {do not localize}
+       (AResponse.ContentLength > 0) or // If chunked then this is also 0
+       (not AResponse.HasContentLength) then
+    begin
+      // DO NOT READ IF THE REQUEST IS HEAD!!!
+      // The server is supposed to send a 'Content-Length' header without sending
+      // the actual data. 1xx, 204, and 304 replies are not supposed to contain
+      // entity bodies, either...
+      if TextIsSame(ARequest.Method, Id_HTTPMethodHead) or
+         TextIsSame(ARequest.MethodOverride, Id_HTTPMethodHead) or
+         ((AResponse.ResponseCode div 100) = 1) or
+         (AResponse.ResponseCode = 204) or
+         (AResponse.ResponseCode = 304) then
+      begin
+        // Have noticed one case where a non-conforming server did send an
+        // entity body in response to a HEAD request.  If requested, ignore
+        // anything the server may send by accident
+        if not (hoWaitForUnexpectedData in FOptions) then begin
+          Exit;
+        end;
+        Result := CheckForPendingData(100);
+      end
+      else if (AResponse.ResponseCode div 100) = 3 then
+      begin
+        // This is a workaround for buggy HTTP 1.1 servers which
+        // does not return any body with 302 response code
+        Result := CheckForPendingData(5000);
+      end else begin
+        Result := True;
+      end;
+    end;
+  end;
+
 begin
+  if not ShouldRead then begin
+    Exit;
+  end;
+
   LDecMeth := 0;
 
   LParseHTML := IsContentTypeHtml(AResponse) and Assigned(AResponse.ContentStream) and not (hoNoParseMetaHTTPEquiv in FOptions);
@@ -1257,51 +1302,21 @@ begin
         end;
       end
       else if AResponse.ContentLength > 0 then begin// If chunked then this is also 0
-        // RLebeau 6/30/2006: DO NOT READ IF THE REQUEST IS HEAD!!!
-        // The server is supposed to send a 'Content-Length' header
-        // without sending the actual data...
         try
-          if AUnexpectedContentTimeout > 0 then begin
-            if IOHandler.InputBufferIsEmpty then begin
-              IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
-            end;
-            if not IOHandler.InputBufferIsEmpty then begin
-              if Assigned(LS) then begin
-                IOHandler.ReadStream(LS, AResponse.ContentLength);
-              end else begin
-                IOHandler.Discard(AResponse.ContentLength);
-              end;
-            end;
+          if Assigned(LS) then begin
+            IOHandler.ReadStream(LS, AResponse.ContentLength);
           end else begin
-            if Assigned(LS) then begin
-              IOHandler.ReadStream(LS, AResponse.ContentLength);
-            end else begin
-              IOHandler.Discard(AResponse.ContentLength);
-            end;
+            IOHandler.Discard(AResponse.ContentLength);
           end;
         except
           on E: EIdConnClosedGracefully do
         end;
       end
       else if not AResponse.HasContentLength then begin
-      // RLebeau 2/15/2006: only read if an entity body is actually expected
-        if AUnexpectedContentTimeout > 0 then begin
-          if IOHandler.InputBufferIsEmpty then begin
-            IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
-          end;
-          if not IOHandler.InputBufferIsEmpty then begin
-            if Assigned(LS) then begin
-              IOHandler.ReadStream(LS, -1, True);
-            end else begin
-              IOHandler.DiscardAll;
-            end;
-          end;
+        if Assigned(LS) then begin
+          IOHandler.ReadStream(LS, -1, True);
         end else begin
-          if Assigned(LS) then begin
-            IOHandler.ReadStream(LS, -1, True);
-          end else begin
-            IOHandler.DiscardAll;
-          end;
+          IOHandler.DiscardAll;
         end;
       end;
       if LDecMeth > 0 then begin
@@ -2121,6 +2136,7 @@ constructor TIdHTTPResponse.Create(AHTTP: TIdCustomHTTP);
 begin
   inherited Create(AHTTP);
   FHTTP := AHTTP;
+  FResponseCode := -1;
   FMetaHTTPEquiv := TIdMetaHTTPEquiv.Create(AHTTP);
 end;
 
@@ -2169,10 +2185,13 @@ function TIdHTTPResponse.GetResponseCode: Integer;
 var
   S: string;
 begin
-  S := FResponseText;
-  Fetch(S);
-  S := Trim(S);
-  FResponseCode := IndyStrToInt(Fetch(S, ' ', False), -1);
+  if FResponseCode = -1 then
+  begin
+    S := FResponseText;
+    Fetch(S);
+    S := Trim(S);
+    FResponseCode := IndyStrToInt(Fetch(S, ' ', False), -1);
+  end;
   Result := FResponseCode;
 end;
 
@@ -2182,6 +2201,7 @@ var
   i: TIdHTTPProtocolVersion;
 begin
   FResponseText := AValue;
+  FResponseCode := -1; // re-parse the next time it is accessed
   ResponseVersion := pv1_0; // default until determined otherwise...
   S := Copy(FResponseText, 6, 3);
   for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do begin
@@ -2293,9 +2313,10 @@ begin
 end;
 
 function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TIdHTTPWhatsNext;
+var
+  LResponseCode, LResponseDigit: Integer;
 
-  procedure CheckException(AResponseCode: Integer; ALIgnoreReplies: array of Smallint;
-    AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
+  procedure CheckException;
   var
     i: Integer;
     LTempResponse: TMemoryStream;
@@ -2306,16 +2327,16 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
       LTempStream := Response.ContentStream;
       Response.ContentStream := LTempResponse;
       try
-        FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
-        if High(ALIgnoreReplies) > -1 then begin
-          for i := Low(ALIgnoreReplies) to High(ALIgnoreReplies) do begin
-            if AResponseCode = ALIgnoreReplies[i] then begin
+        FHTTP.ReadResult(Request, Response);
+        if High(AIgnoreReplies) > -1 then begin
+          for i := Low(AIgnoreReplies) to High(AIgnoreReplies) do begin
+            if LResponseCode = AIgnoreReplies[i] then begin
               Exit;
             end;
           end;
         end;
         LTempResponse.Position := 0;
-        raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText,
+        raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText,
           ReadStringAsCharset(LTempResponse, FHTTP.ResponseCharSet));
       finally
         Response.ContentStream := LTempStream;
@@ -2325,14 +2346,14 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
     end;
   end;
 
-  procedure DiscardContent(AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
+  procedure DiscardContent;
   var
     LOrigStream: TStream;
   begin
     LOrigStream := Response.ContentStream;
     Response.ContentStream := nil;
     try
-      FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
+      FHTTP.ReadResult(Request, Response);
     finally
       Response.ContentStream := LOrigStream;
     end;
@@ -2350,7 +2371,6 @@ var
   LLocation: string;
   LMethod: TIdHTTPMethod;
   LNeedAuth: Boolean;
-  LResponseCode, LResponseDigit: Integer;
   //LTemp: Integer;
 begin
 
@@ -2368,9 +2388,24 @@ begin
   LNeedAuth := False;
 
   // Handle Redirects
-  // RLebeau: All 3xx replies other than 304 are redirects.  Reply 201 has a Location header but is NOT a redirect!
-  if ((LResponseDigit = 3) and (LResponseCode <> 304))
-    or ((Response.Location <> '') and (LResponseCode <> 201)) then begin
+  // RLebeau: All 3xx replies other than 304 are redirects. Reply 201 has a
+  // Location header but is NOT a redirect!
+
+  // RLebeau 4/21/2011: Amazon S3 includes a Location header in its 200 reply
+  // to some PUT requests.  Not sure if this is a bug or intentional, but we
+  // should NOT perform a redirect for any replies other than 3xx. Amazon S3
+  // does NOT include a Location header in its 301 reply, though!  This is
+  // intentional, per Amazon's documentation, as a way for developers to
+  // detect when URLs are addressed incorrectly...
+
+  if (LResponseDigit = 3) and (LResponseCode <> 304) then
+  begin
+    if Response.Location = '' then begin
+      CheckException;
+      Result := wnJustExit;
+      Exit;
+    end;
+
     Inc(FHTTP.FRedirectCount);
 
     // LLocation := TIdURI.URLDecode(Response.Location);
@@ -2379,7 +2414,7 @@ begin
 
     // fire the event
     if not FHTTP.DoOnRedirect(LLocation, LMethod, FHTTP.FRedirectCount) then begin
-      CheckException(LResponseCode, AIgnoreReplies);
+      CheckException;
       Result := wnJustExit;
       Exit;
     end;
@@ -2412,7 +2447,7 @@ begin
     if FHTTP.Connected then begin
       // This is a workaround for buggy HTTP 1.1 servers which
       // does not return any body with 302 response code
-      DiscardContent(5000); // Lets wait for any kind of content
+      DiscardContent; // may wait a few seconds for any kind of content
     end;
   end else begin
     //Ciaran, 30th Nov 2004: I commented out the following code.  When a https server
@@ -2448,7 +2483,7 @@ begin
               if Assigned(Request.Authentication) then begin
                 Request.Authentication.Reset;
               end;
-              CheckException(LResponseCode, AIgnoreReplies);
+              CheckException;
               Result := wnJustExit;
               Exit;
             end else begin
@@ -2458,11 +2493,12 @@ begin
         407:
           begin // Proxy Server authorization requered
             if (FHTTP.AuthProxyRetries >= FHTTP.MaxAuthRetries) or
-               (not FHTTP.DoOnProxyAuthorization(Request, Response)) then begin
+               (not FHTTP.DoOnProxyAuthorization(Request, Response)) then
+            begin
               if Assigned(FHTTP.ProxyParams.Authentication) then begin
                 FHTTP.ProxyParams.Authentication.Reset;
               end;
-              CheckException(LResponseCode, AIgnoreReplies);
+              CheckException;
               Result := wnJustExit;
               Exit;
             end else begin
@@ -2470,13 +2506,7 @@ begin
             end;
           end;
         else begin
-          CheckException(LResponseCode, AIgnoreReplies,
-            iif(
-              ((LResponseDigit = 1) or (LResponseCode = 304))
-              and (hoWaitForUnexpectedData in FHTTP.HTTPOptions),
-                100,
-                IdTimeoutDefault)
-            );
+          CheckException;
           Result := wnJustExit;
           Exit;
         end;
@@ -2484,24 +2514,24 @@ begin
     end;
 
     if LNeedAuth then begin
-      // Read the content of Error message in temporary stream
+      // discard the content of Error message
       DiscardContent;
       Result := wnAuthRequest;
-    end else begin
+    end else
+    begin
+      // RLebeau 6/30/2006: DO NOT READ IF THE REQUEST IS HEAD!!!
+      // The server is supposed to send a 'Content-Length' header
+      // without sending the actual data...
       if TextIsSame(Request.Method, Id_HTTPMethodHead) or
-        TextIsSame(Request.MethodOverride, Id_HTTPMethodHead) or
-        (LResponseCode = 204) then
+         TextIsSame(Request.MethodOverride, Id_HTTPMethodHead) or
+         (LResponseCode = 204) then
       begin
         // Have noticed one case where a non-conforming server did send an
         // entity body in response to a HEAD request.  If requested, ignore
         // anything the server may send by accident
-         DiscardContent(
-          iif(hoWaitForUnexpectedData in FHTTP.HTTPOptions,
-            100,
-            IdTimeoutDefault)
-          );
+        DiscardContent;
       end else begin
-        FHTTP.ReadResult(Response);
+        FHTTP.ReadResult(Request, Response);
       end;
       Result := wnJustExit;
     end;
@@ -2614,7 +2644,7 @@ begin
           end;
         wnReadAndGo:
           begin
-            ReadResult(Response);
+            ReadResult(Request, Response);
             if Assigned(AResponseContent) then begin
               AResponseContent.Position := LResponseLocation;
               AResponseContent.Size := LResponseLocation;
