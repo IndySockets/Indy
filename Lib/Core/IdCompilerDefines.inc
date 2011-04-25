@@ -300,15 +300,28 @@
   {$DEFINE DELPHI_7}
 
   // FPC_FULLVERSION was added in FPC 2.2.4
-  // Have to use Declared() or else Delphi compiler chokes, since it
-  // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
-  {$IF DECLARED(FPC_FULLVERSION) and (FPC_FULLVERSION >= 20402)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20402)}
     {$DEFINE FPC_2_4_2_OR_ABOVE}
   {$IFEND}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
+    {$DEFINE FPC_2_2_4_OR_ABOVE}
+  {$IFEND}
+
+  {$IFDEF FPC_2_4_2} // just in case
+    {$DEFINE FPC_2_4_2_OR_ABOVE}
+  {$ENDIF}
 
   {$IFDEF FPC_2_4_2_OR_ABOVE}
+    {$DEFINE FPC_2_2_4_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_2_4}
+      {$DEFINE FPC_2_2_4_OR_ABOVE}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_2_4_OR_ABOVE}
     {$DEFINE FPC_2_2_0_OR_ABOVE}
   {$ELSE}
     {$IFDEF VER2_2}
@@ -552,9 +565,11 @@
     // not implemented in D7
     {$DEFINE HAS_STATIC_TThread_Queue}
   {$ENDIF}
-  {$IFNDEF VCL_80}
-    // not implemented in D8
-    {$DEFINE HAS_STATIC_TThread_Synchronize}
+  {$IFNDEF CIL}
+    {$IFNDEF VCL_80}
+      // not implemented in D8 or .NET
+      {$DEFINE HAS_STATIC_TThread_Synchronize}
+    {$ENDIF}
   {$ENDIF}
 {$ELSE}
   {$IFDEF CBUILDER_6}
@@ -679,6 +694,10 @@
   {$IFDEF FPC_2_2_0_OR_ABOVE}
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
   {$ENDIF}
+  // FreePascal 2.2.4 has UInt64
+  {$IFDEF FPC_2_2_4_OR_ABOVE} // TODO: when was UInt64 introduced?
+    {$DEFINE HAS_UInt64}
+  {$ENDIF}
   {$DEFINE HAS_PtrInt}
   {$DEFINE HAS_PtrUInt}
   {$DEFINE HAS_PGUID}
@@ -689,8 +708,8 @@
     {$DEFINE HAS_ULONG_PTR}
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
-  // FreePascal 2.4.2 has size_t
-  {$IFDEF FPC_2_4_2_OR_ABOVE}
+  // FreePascal 2.2.4 has size_t
+  {$IFDEF FPC_2_2_4_OR_ABOVE}
     {$DEFINE HAS_SIZE_T}
   {$ENDIF}
 {$ENDIF}
