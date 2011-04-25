@@ -720,7 +720,10 @@ type
 
   // native signed and unsigned integer sized pointer types
 
-  {$IFNDEF DOTNET}
+  {$IFDEF DOTNET}
+  TIdNativeInt  = IntPtr;
+  TIdNativeUInt = UIntPtr;
+  {$ELSE}
     {$IFDEF HAS_NativeInt}
   TIdNativeInt = NativeInt;
     {$ELSE}
@@ -747,13 +750,11 @@ type
     {$ENDIF}
   {$ENDIF}
 
-  {$IFNDEF DOTNET}
-    {$IFNDEF HAS_PtrInt}
+  {$IFNDEF HAS_PtrInt}
   PtrInt = TIdNativeInt;
-    {$ENDIF}
-    {$IFNDEF HAS_PtrUInt}
+  {$ENDIF}
+  {$IFNDEF HAS_PtrUInt}
   PtrUInt = TIdNativeUInt;
-    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF STREAM_SIZE_64}
