@@ -7,7 +7,6 @@ uses
   Windows,
   Classes,
   SysUtils,
-  DBTables,
   DModule in 'DModule.pas' {DM: TDataModule};
 
 {
@@ -111,64 +110,58 @@ const
   EOL = CR + LF;
   
 //i is a var that this procedure will cmanage for the main loop.
-procedure WriteLRSEntry(var VEntryCount : Integer; var VOutput : String);
-var s : String;
+procedure WriteLRSEntry(const AFile: String; var VEntryCount : Integer; var VOutput : String);
+var
+  s : String;
 begin
   Inc(VEntryCount);
   s := '      <Item'+IntToStr(VEntryCount)+'>'+EOL;
-  s := s +'        <Filename Value="' +DM.tablFileFileName.Value + '.pas"/>'+EOL;
-  if DM.tablFileFPCHasRegProc.Value then
+  s := s +'        <Filename Value="' + AFile + '.pas"/>'+EOL;
+  if StrToBoolDef(DM.Ini.ReadString(AFile, 'FPCHasRegProc', ''), False) then
   begin
     s := s +'        <HasRegisterProc Value="True"/>'+EOL;
   end;
-  s := s +'        <UnitName Value="'+ DM.tablFileFileName.Value + '"/>'+EOL;
+  s := s +'        <UnitName Value="'+ AFile + '"/>'+EOL;
   s := s +'      </Item'+IntToStr(VEntryCount)+'>'+EOL;
-  if DM.tablFileFPCHasLRSFile.Value then
+  if StrToBoolDef(DM.Ini.ReadString(AFile, 'FPCHasLRSFile', ''), False) then
   begin
     Inc(VEntryCount);
     s := s +'      <Item'+IntToStr(VEntryCount)+'>'+EOL;
-    s := s +'        <Filename Value="'+DM.tablFileFileName.Value +'.lrs"/>'+EOL;
+    s := s +'        <Filename Value="' + AFile +'.lrs"/>'+EOL;
     s := s +'        <Type Value="LRS"/>'+EOL;
     s := s +'      </Item'+IntToStr(VEntryCount)+'>'+EOL;
   end;
-  VOUtput := VOUtput + s;
+  VOutput := VOutput + s;
 end;
 
-function MakeLRS(const AWhere: string; const APackageName : String; const AFileName : String) : String;
-var i : Integer;
+function MakeLRS(const ACriteria: string; const AFileName : String) : String;
+var
+  i, cnt : Integer;
   s : String;
-  LS : TStrings;
+  LFiles, LS : TStringList;
 begin
   LS := TStringList.Create;
   try
-    LS.LoadFromFile(DM.OutputPath+ '\Builder\Package Generator\LazTemplates\'+AFileName);
+    LS.LoadFromFile(DM.OutputPath+ '\Builder\Package Generator\LazTemplates\' + AFileName);
     Result := LS.Text;
   finally
-    FreeAndNil(LS);
+    LS.Free;
   end;
-  i := 0;
+  cnt := 0;
   s := '';
-  DM.tablFile.Filter := AWhere;
-  DM.tablFile.Filtered := True;
-  DM.tablFile.First;
-  while not DM.tablFile.EOF do begin
-    if APackageName<>'' then
+  LFiles := TStringList.Create;
+  try
+    DM.GetFileList(ACriteria, LFiles);
+    for I := 0 to LFiles.Count-1 do
     begin
-      if DM.tablFilePkg.Value = APackageName then
-      begin
-        WriteLRSEntry(i,s);
-      end;
-    end
-    else
-    begin
-        WriteLRSEntry(i,s);
+      WriteLRSEntry(LFiles[i], cnt, s);
     end;
-    DM.tablFile.Next;
+  finally
+    LFiles.Free;
   end;
-  DM.tablFile.Filtered := False;
-  s := '    <Files Count="'+IntToStr(i)+'">'+ EOL +
+  s := '    <Files Count="'+IntToStr(cnt)+'">'+ EOL +
     s +'    </Files>';
-  Result := StringReplace(Result,'{%FILES}',s,[rfReplaceAll]);
+  Result := StringReplace(Result,'{%FILES}', s, [rfReplaceAll]);
 end;
 
 procedure WriteFile(const AContents, AFileName : String);
@@ -189,222 +182,200 @@ begin
       Text := AContents;
       SaveToFile(AFileName);
     finally Free; end;
+    WriteLn('Generated ' + AFileName);
   end;
 end;
 
-procedure MakeFPCMasterPackage(const AWhere: string; const AFileName : String;
-   const AOutPath : String);
-var s, LS : TStringList;
+procedure MakeFPCMasterPackage(const ACriteria: string; const AFileName : String;
+  const AOutPath : String);
+var
+  LFiles, LS : TStringList;
   Lst : String;
   i : Integer;
   LTemp : String;
 begin
-  DM.tablFile.Filter := AWhere;
-  DM.tablFile.Filtered := True;
-  DM.tablFile.First;
-  s := TStringList.Create;
+  LFiles := TStringList.Create;
   try
-    while not DM.tablFile.Eof do
-    begin
-      s.Add(DM.tablFileFileName.Value );
-      DM.tablFile.Next;
-    end;
+    DM.GetFileList(ACriteria, LFiles);
     //construct our make file
     LS := TStringList.Create;
     try
-      LS.LoadFromFile(DM.OutputPath+ '\Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
+      LS.LoadFromFile(DM.OutputPath + '\Builder\Package Generator\LazTemplates\' + AFileName + '-Makefile.fpc');
       LTemp := LS.Text;
     finally
       FreeAndNil(LS);
     end;
     Lst := '';
-     for i := 0 to s.Count -1 do
-     begin
-       if (i = s.Count -1) then
-       begin
-           LSt := Lst +'  '+s[i]+EOL;
-       end
-       else
-       begin
-          LSt := Lst + '  '+s[i]+' \'+EOL;
-       end;
-     end;
-
-     Lst := 'implicitunits='+TrimLeft(Lst);
-     LTemp := StringReplace(LTemp,'{%FILES}',LSt,[rfReplaceAll]);
-     WriteFile(LTemp,AOutPath+'\'+AFileName+'-Makefile.fpc');
+    for i := 0 to LFiles.Count -1 do
+    begin
+      if (i = LFiles.Count -1) then
+      begin
+        LSt := Lst + '  ' + LFiles[i] + EOL;
+      end else begin
+        LSt := Lst + '  ' + LFiles[i] + ' \' + EOL;
+      end;
+    end;
+    Lst := 'implicitunits=' + TrimLeft(Lst);
+    LTemp := StringReplace(LTemp, '{%FILES}', LSt, [rfReplaceAll]);
+    WriteFile(LTemp, AOutPath + '\' + AFileName + '-Makefile.fpc');
   finally
-    FreeAndNil(s);
+    LFiles.Free;
   end;
-  DM.tablFile.Filtered := False;
 end;
 
-procedure MakeFPCPackage(const AWhere: string; const AFileName : String;
-  const APkgName : String; const AOutPath : String);
-var s, LS : TStringList;
+procedure MakeFPCPackage(const ACriteria: string; const AFileName : String;
+  const AOutPath : String);
+var
+  LCode, LS : TStringList;
   Lst : String;
   i : Integer;
   LTemp : String;
-
 begin
-  DM.tablFile.Filter := AWhere;
-  DM.tablFile.Filtered := True;
-  DM.tablFile.First;
-  s := TStringList.Create;
+  LCode := TStringList.Create;
   try
-    while not DM.tablFile.Eof do
-    begin
-      if DM.tablFilePkg.Value = APkgName then
-      begin
-        s.Add(DM.tablFileFileName.Value );
-      end;
-      DM.tablFile.Next;
-    end;
+    DM.GetFileList(ACriteria, LCode);
+
     //construct our make file
     LS := TStringList.Create;
     try
-      LS.LoadFromFile(GIndyPath+ 'Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
+      LS.LoadFromFile(GIndyPath + 'Builder\Package Generator\LazTemplates\' + AFileName + '-Makefile.fpc');
       LTemp := LS.Text;
     finally
-      FreeAndNil(LS);
+      LS.Free;
     end;
 
     //now make our package file.  This is basically a dummy unit that lists
 
-     Lst := '';
-     for i := 0 to s.Count -1 do
-     begin
-       if (i = s.Count -1) then
-       begin
-           LSt := Lst +'  '+s[i]+EOL;
-       end
-       else
-       begin
-          LSt := Lst + '  '+s[i]+' \'+EOL;
-       end;
-     end;
+    Lst := '';
+    for i := 0 to LCode.Count -1 do
+    begin
+      if (i = LCode.Count -1) then
+      begin
+        LSt := Lst + '  ' + LCode[i] + EOL;
+      end else begin
+        LSt := Lst + '  ' + LCode[i]+ ' \' + EOL;
+      end;
+    end;
 
-     Lst := 'implicitunits='+TrimLeft(Lst);
-     LTemp := StringReplace(LTemp,'{%FILES}',LSt,[rfReplaceAll]);
-     WriteFile(LTemp,AOutPath+ '\Makefile.fpc');
+    Lst := 'implicitunits=' + TrimLeft(Lst);
+    LTemp := StringReplace(LTemp, '{%FILES}', LSt, [rfReplaceAll]);
+    WriteFile(LTemp, AOutPath + '\Makefile.fpc');
 
     //all of the files.
-     for i := 0 to s.Count -1 do
-     begin
-       if (i = s.Count -1)  then
-       begin
-         s[i] := '  '+s[i]+';';
-       end
-       else
-       begin
-          s[i] := '  '+s[i]+',';
-       end;
-     end;
+    for i := 0 to LCode.Count -1 do
+    begin
+      if (i = LCode.Count-1)  then
+      begin
+        LCode[i] := '  ' + LCode[i] + ';';
+      end else begin
+        LCode[i] := '  ' + LCode[i] + ',';
+      end;
+    end;
 
-     s.Insert(0,'uses');
-     s.Insert(0,'');
-     s.Insert(0,'interface');
-     s.Insert(0,'unit '+AFileName+';');
-     //
-     s.Add('');
-     s.Add('implementation');
-     s.Add('');
-     s.Add('{');
-     s.Add('disable hints about unused units.  This unit just causes');
-     s.Add('FreePascal to compile implicitly listed units in a package.');
-     s.Add('}');
-     s.Add('{$hints off}');
-     s.Add('end.');
-     WriteFile(s.text,AOutPath+ '\' + AFileName+'.pas');
+    LCode.Insert(0, 'uses');
+    LCode.Insert(0, '');
+    LCode.Insert(0, 'interface');
+    LCode.Insert(0, '');
+    LCode.Insert(0, 'unit ' + AFileName + ';');
+    //
+    LCode.Add('');
+    LCode.Add('implementation');
+    LCode.Add('');
+    LCode.Add('{');
+    LCode.Add('disable hints about unused units.  This unit just causes');
+    LCode.Add('FreePascal to compile implicitly listed units in a package.');
+    LCode.Add('}');
+    LCode.Add('{$hints off}');
+    LCode.Add('');
+    LCode.Add('end.');
+    WriteFile(LCode.Text, AOutPath + '\' + AFileName + '.pas');
   finally
-    FreeAndNil(s);
+    LCode.Free;
   end;
-  DM.tablFile.Filtered := False;
 end;
 
-procedure Writelpk(const AWhere: string; const AFileName : String; const APkgName : String; const AOutPath : String);
-var
-  LCodeOld: string;
-  LNewCode : String;
-  LPathname: string;
+procedure WriteLPK(const ACriteria: string; const AFileName : String; const AOutPath : String);
 begin
-  LPathname := AOutPath + '\' + AFileName;
-
-  LNewCode := MakeLRS(AWhere,APkgName,AFileName);
-  WriteFile(LNewCode,LPathName);
+  WriteFile(MakeLRS(ACriteria, AFileName), AOutPath + '\' + AFileName);
 end;
-
 
 procedure MakeFileDistList;
-var s : TStringList;
-  Lst : String;
+var
+  LFiles, s : TStringList;
+  i: Integer;
 begin
-  DM.tablFile.Filter := 'FPC=True and DesignUnit=False';
-  DM.tablFile.Filtered := True;
-  DM.tablFile.First;
   s := TStringList.Create;
   try
-    while not DM.tablFile.Eof do
-    begin
-      LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.pas';
-      s.Add(LSt);
-      if DM.tablFile.FieldByName('FPCHasLRSFile').AsBoolean then
+    LFiles := TStringList.Create;
+    try
+      DM.GetFileList('FPC=True, DesignUnit=False', LFiles);
+      for i := 0 to LFiles.Count-1  do
       begin
-        LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.lrs';
-        s.Add(LSt);
+        s.Add(DM.Ini.ReadString(LFiles[i], 'Pkg', '') + '\' + LFiles[i] + '.pas');
+        if StrToBoolDef(DM.Ini.ReadString(LFiles[i], 'FPCHasLRSFile', ''), False) then
+        begin
+          s.Add(DM.Ini.ReadString(LFiles[i], 'Pkg', '') + '\' + LFiles[i] + '.lrs');
+        end;
       end;
-      DM.tablFile.Next;
-    end;
-    s.SaveToFile(DM.OutputPath+ '\lib\RTFileList.txt');
-
-  finally
-    FreeAndNil(s);
-  end;
-  DM.tablFile.Filtered := False;
-  DM.tablFile.Filter := 'FPC=True and DesignUnit=True';
-  DM.tablFile.Filtered := True;
-  DM.tablFile.First;
-  s := TStringList.Create;
-  try
-    while not DM.tablFile.Eof do
-    begin
-      LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.pas';
-      s.Add(LSt);
-      if DM.tablFile.FieldByName('FPCHasLRSFile').AsBoolean then
+      s.SaveToFile(DM.OutputPath + '\Lib\RTFileList.txt');
+      s.Clear;
+      DM.GetFileList('FPC=True, DesignUnit=True', LFiles);
+      for i := 0 to LFiles.Count-1 do
       begin
-        LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.lrs';
-        s.Add(LSt);
+        s.Add(DM.Ini.ReadString(LFiles[i], 'Pkg', '') + '\' + LFiles[i] + '.pas');
+        if StrToBoolDef(DM.Ini.ReadString(LFiles[i], 'FPCHasLRSFile', ''), False) then
+        begin
+          s.Add(DM.Ini.ReadString(LFiles[i], 'Pkg', '') + '\' + LFiles[i] + '.lrs');
+        end;
       end;
-      DM.tablFile.Next;
+      s.SaveToFile(DM.OutputPath + '\Lib\DTFileList.txt');
+    finally
+      LFiles.Free;
     end;
-    s.SaveToFile(DM.OutputPath+ '\lib\DTFileList.txt');
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
+procedure Main;
 begin
-
   { TODO -oUser -cConsole Main : Insert code here }
   DM := TDM.Create(nil); try
     with DM do begin
-   //our path settings in the module are created in its constructor now.
-   //we use the defaults it provides so we can use this in various pathes
-   //in subversion.
-      WriteLn( DM.tablFile.DatabaseName );
-      tablFile.Open;
-      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False', 'indysystemfpc','System',DM.OutputPath+ '\Lib\System');
-   //   WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=False','indysystemlaz.lpk','System',GIndyPath+ 'Lib\System');
-      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core',DM.OutputPath+ '\Lib\Core');
-//    WriteLPK      ('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core',GIndyPath+ 'Lib\Core');
-      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindycorelaz.lpk', 'Core',DM.OutputPath+ '\Lib\Core');
-      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indyprotocolsfpc',  'Protocols', DM.OutputPath+ '\Lib\Protocols');
-      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindyprotocolslaz.lpk','Protocols', DM.OutputPath+ '\Lib\Protocols');
-      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','indylaz.lpk','', DM.OutputPath+ '\Lib');
+      WriteLn('Path: '+ Ini.FileName );
+      ValidateFiles;
+
+      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemfpc', OutputPath + '\Lib\System');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemlaz.lpk', OutputPath + '\Lib\System');
+
+      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Core', 'indycorefpc', OutputPath + '\Lib\Core');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Core', 'indycorelaz.lpk', OutputPath + '\Lib\Core');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True, Pkg=Core', 'dclindycorelaz.lpk', OutputPath + '\Lib\Core');
+
+      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Protocols', 'indyprotocolsfpc', OutputPath + '\Lib\Protocols');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Protocols', 'indyprotocolslaz.lpk', OutputPath + '\Lib\Protocols');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True, Pkg=Protocols', 'dclindyprotocolslaz.lpk', OutputPath + '\Lib\Protocols');
+
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True', 'indylaz.lpk', OutputPath + '\Lib');
+
       MakeFileDistList;
-      MakeFPCMasterPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indymaster',DM.OutputPath+  '\Lib');
+      MakeFPCMasterPackage('FPC=True, FPCListInPkg=True, DesignUnit=False', 'indymaster', OutputPath + '\Lib');
     end;
   finally
     FreeAndNil(DM);
   end;
+end;
+
+begin
+  try
+    Main;
+  except
+    on E: Exception do begin
+      WriteLn(E.Message);
+   //   raise;
+    end;
+  end;
+
+  WriteLn('Done! Press ENTER to exit...');
+  ReadLn;
 end.

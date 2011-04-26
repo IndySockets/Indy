@@ -1,8 +1,8 @@
-#   Makefile.fpc for IndyLaz 10.2.0.1
+#   Makefile.fpc for IndyLaz 10.5.8.0
 
 [package]
 name=indylaz
-version=10.2.0.1
+version=10.5.8.0
 
 [compiler]
 unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)

@@ -1,6 +1,6 @@
 [package]
 name=indy
-version=10.2.0.1
+version=10.5.8.0
 
 [require]
 packages=fcl-base

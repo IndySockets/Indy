@@ -38,13 +38,13 @@ No personal names or organizations names associated with the Indy project may be
 
 THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &quot;AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "/>
-    <Version Major="10" Minor="2"/>
+    <Version Major="10" Minor="5" Release="8"/>
 {%FILES}
     <RequiredPkgs Count="2">
       <Item1>
         <PackageName Value="indysystemlaz"/>
-        <MaxVersion Major="10" Minor="3" Valid="True"/>
-        <MinVersion Major="10" Minor="2" Valid="True"/>
+        <MaxVersion Major="10" Minor="6" Valid="True"/>
+        <MinVersion Major="10" Minor="5" Release="8" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="FCL"/>
