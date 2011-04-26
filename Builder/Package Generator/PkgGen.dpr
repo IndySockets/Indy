@@ -102,177 +102,121 @@ uses
 procedure Main;
 begin
   DM := TDM.Create(nil); try
-    WriteLn(' Path '+ DM.tablFile.DatabaseName );
     with DM do begin
-    //The pathes are now managed in the data module and are
-    //based on a path provided or a from where the program
-    //is launched.  That should be more friendly to subversion.
-      // Default Output Path is w:\source\Indy10
-    //  DM.OutputPath := 'w:\source\Indy10';
-      // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
-    //  DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
-      tablFile.Open;
+      WriteLn('Path: '+ Ini.FileName );
+
+      if FindCmdLineSwitch('checkini') then begin
+        CheckForMissingFiles;
+        Exit;
+      end;
 
       with TPackageVisualStudio.Create do try
-        Load(tablFile, 'DotNet=True and DesignUnit=False', True);
+        Load('DotNet=True, DesignUnit=False', True);
         Generate(ctDotNet);
       finally Free; end;
 
       // Debug version
       with TPackageVisualStudio.Create do try
         Debug := True;
-        Load(tablFile, 'DotNet=True and DesignUnit=False', True);
+        Load('DotNet=True, DesignUnit=False', True);
         Generate(ctDotNet);
       finally Free; end;
 
       with TPackageD8Master.Create do try
-        Load(tablFile, 'DelphiDotNet=True and DesignUnit=False', True);
-        Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net,ctDelphi12Net,ctDelphi13Net]);
+        Load('DelphiDotNet=True, DesignUnit=False', True);
+        Generate(DelphiNet);
       finally Free; end;
 
       with TPackageSystem.Create do try
-        Load(tablFile, 'VCL=True and Pkg=''System'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2010, ctDelphi2011]);
+        Load('VCL=True, Pkg=System, DesignUnit=False');
+        Generate(DelphiNative);
         //
-        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''System'' and DesignUnit=False');
-        Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
+        Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=System, DesignUnit=False');
+        Generate(DelphiNet1_1);
          //
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''System'' and DesignUnit=False');
-        Generate([ctDelphi12Net,ctDelphi13Net]);
-
+        Load('DelphiDotNet=True, Pkg=System, DesignUnit=False');
+        Generate(DelphiNet2OrLater);
+        //
+        Load('Kylix=True, Pkg=System');
+        Generate(ctKylix3);
       finally Free; end;
 
       with TPackageCore.Create do try
-        Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2011, ctDelphi2011]);
+        Load('VCL=True, Pkg=Core, DesignUnit=False');
+        Generate(DelphiNative);
         //
-        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Core'' and DesignUnit=False');
-        Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
+        Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=Core, DesignUnit=False');
+        Generate(DelphiNet1_1);
         //
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=False');
-        Generate([ctDelphi12Net,ctDelphi13Net]);
+        Load('DelphiDotNet=True, Pkg=Core, DesignUnit=False');
+        Generate(DelphiNet2OrLater);
         //
-        Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=True');
-
-        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,
-          ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2011]);
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=True');
-        GenerateDT([ ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net,ctDelphi13Net]);
+        Load('Kylix=True, Pkg=Core, DesignUnit=False');
+        Generate(ctKylix3);
+        //
+        Load('VCL=True, Pkg=Core, DesignUnit=True');
+        GenerateDT(DelphiNative);
+        //
+        Load('DelphiDotNet=True, Pkg=Core, DesignUnit=True');
+        GenerateDT(DelphiNet);
+        //
+        Load('Kylix=True, Pkg=Core, DesignUnit=True');
+        GenerateDT(ctKylix3);
       finally Free; end;
 
       with TPackageProtocols.Create do try
-        Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=False');
-        Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005,ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2010,ctDelphi2011]);
-
-        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Protocols'' and DesignUnit=False');
-        Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
-
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Protocols'' and DesignUnit=False');
-        Generate([ctDelphi12Net,ctDelphi13Net]);
-
-        Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=True');
-        GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005, ctDelphi10,ctDelphi11,ctDelphi12,ctDelphi13,ctDelphi2010,ctDelphi2011]);
-
-        Load(tablFile, 'DelphiDotNet=True and DotNet2_0OrAboveOnly=False and Pkg=''Protocols'' and DesignUnit=True');
-        GenerateDT([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
-
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Protocols'' and DesignUnit=True');
-        GenerateDT([ctDelphi12Net,ctDelphi13Net]);
+        Load('VCL=True, Pkg=Protocols, DesignUnit=False');
+        Generate(DelphiNative);
+        //
+        Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=Protocols, DesignUnit=False');
+        Generate(DelphiNet1_1);
+        //
+        Load('DelphiDotNet=True, Pkg=Protocols, DesignUnit=False');
+        Generate(DelphiNet2OrLater);
+        //
+        Load('Kylix=True, Pkg=Protocols, DesignUnit=False');
+        Generate(ctKylix3);
+        //
+        Load('VCL=True, Pkg=Protocols, DesignUnit=True');
+        GenerateDT(DelphiNative);
+        //
+        Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=Protocols, DesignUnit=True');
+        GenerateDT(DelphiNet1_1);
+        //
+        Load('DelphiDotNet=True, Pkg=Protocols, DesignUnit=True');
+        GenerateDT(DelphiNet2OrLater);
+        //
+        Load('Kylix=True, Pkg=Protocols, DesignUnit=True');
+        GenerateDT(ctKylix3);
       finally Free; end;
 
       with TPackageSecurity.Create do try
         //We are not going to support the Security package in NET 2.0.
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Security'' and DesignUnit=False');
-        Generate([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
-
-        Load(tablFile, 'DelphiDotNet=True and Pkg=''Security'' and DesignUnit=True');
-
-        GenerateDT([ctDelphi2005Net,ctDelphi10Net,ctDelphi11Net]);
+        Load('DelphiDotNet=True, Pkg=Security, DesignUnit=False');
+        Generate(DelphiNet1_1);
+        //
+        Load('DelphiDotNet=True, Pkg=Security, DesignUnit=True');
+        GenerateDT(DelphiNet1_1);
       finally Free; end;
 
       with TPackageSuperCore.Create do try
-        tablFile.First;
-        while not tablFile.EOF do begin
-          if tablFileVCL.Value
-           and AnsiSameText(tablFilePkg.Value, 'SuperCore') then begin
-            AddUnit(tablFileFileName.Value);
-          end;
-          tablFile.Next;
-        end;
+        Load('VCL=True, Pkg=SuperCore');
         Generate(ctDelphi7);
-      finally Free; end;
-
-      //Kylix 3...
-      with TPackageSystem.Create do try
-        tablFile.First;
-        while not tablFile.EOF do begin
-          if tablFileKylix.Value
-           and AnsiSameText(tablFilePkg.Value, 'System') then begin
-            AddUnit(tablFileFileName.Value);
-          end;
-          tablFile.Next;
-        end;
-        Generate(ctKylix3);
-      finally Free; end;
-
-      with TPackageCore.Create do try
-        tablFile.Filter := 'Kylix=True and Pkg=' + chr(39) + 'Core' + Chr(39) + ' and DesignUnit=False';
-        tablFile.Filtered := True;
-        tablFile.First;
-        while not tablFile.EOF do begin
-          AddUnit(tablFileFileName.Value);
-          tablFile.Next;
-        end;
-        Generate(ctKylix3);
-        Clear;
-        tablFile.Filter := 'Kylix=True and Pkg=' + chr(39) + 'Core' + chr(39) + ' and DesignUnit=True';
-        tablFile.First;
-        while not tablFile.EOF do begin
-
-          AddUnit(tablFileFileName.Value);
-          tablFile.Next;
-        end;
-        GenerateDT(ctKylix3);
-      finally Free; end;
-
-      with TPackageProtocols.Create do try
-        tablFile.Filter := 'Kylix=True and Pkg=' + chr(39) + 'Protocols' + Chr(39) + ' and DesignUnit=False';
-        tablFile.Filtered := True;
-        tablFile.First;
-        while not tablFile.EOF do begin
-          AddUnit(tablFileFileName.Value);
-          tablFile.Next;
-        end;
-        Generate(ctKylix3);
-        Clear;
-        tablFile.Filter := 'Kylix=True and Pkg=' + chr(39) + 'Protocols' + Chr(39) + ' and DesignUnit=True';
-        tablFile.First;
-        while not tablFile.EOF do begin
-          AddUnit(tablFileFileName.Value);
-          tablFile.Next;
-        end;
-        GenerateDT(ctKylix3);
       finally Free; end;
 
       // FTP Parsers
       with TFTPParsers.Create do try
-        tablFile.Filter := 'VCL=True and Pkg=' + chr(39) + 'Protocols' + Chr(39) + ' and DesignUnit=False';
-        DM.tablFile.First;
-        while not DM.tablFile.EOF do begin
-          if DM.tablFileFTPParser.Value then begin
-            AddUnit(tablFileFileName.Value);
-          end;
-          tablFile.Next;
-        end;
+        Load('VCL=True, Pkg=Protocols, FTPParser=True, DesignUnit=False');
         Generate(ctDelphi7);
       finally Free; end;
     end;
-  finally FreeAndNil(DM); end;
+  finally
+    FreeAndNil(DM);
+  end;
 end;
 
 begin
   try
-
     Main;
   except
     on E: Exception do begin
@@ -280,5 +224,7 @@ begin
    //   raise;
     end;
   end;
+
+  WriteLn('Done! Press ENTER to exit...');
   ReadLn;
 end.

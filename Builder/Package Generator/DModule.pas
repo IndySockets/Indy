@@ -47,43 +47,23 @@ unit DModule;
 interface
 
 uses
-  SysUtils, Classes, DB, DBTables;
+  SysUtils, Classes, IniFiles;
 
 type
   TDM = class(TDataModule)
-    tablFile: TTable;
-    tablFileFileID: TAutoIncField;
-    tablFileFileName: TStringField;
-    tablFileDotNet: TBooleanField;
-    tablFileDelphiDotNet: TBooleanField;
-    tablFileVCL: TBooleanField;
-    tablFileKylix: TBooleanField;
-    tablFilePkg: TStringField;
-    tablFileDesignUnit: TBooleanField;
-    tablFileFTPParser: TBooleanField;
-    tablFileDescrShort: TStringField;
-    tablFileProtocol: TStringField;
-    tablFileRelease: TBooleanField;
-    tablFileReleaseNative: TBooleanField;
-    tablFileReleaseDotNet: TBooleanField;
-    tablFileReleaseComment: TStringField;
-    tablFileBubbleExists: TBooleanField;
-    tablFileIFDEFPermitted: TBooleanField;
-    tablFileOwners: TStringField;
-    tablFileFPC: TBooleanField;
-    tablFileFPCListInPkg: TBooleanField;
-    tablFileFPCHasRegProc: TBooleanField;
-    tablFileFPCHasLRSFile: TBooleanField;
-    tablFileDotNet2_0OrAboveOnly: TBooleanField;
   private
   protected
     FDataPath : String;
     FOutputPath : String;
+    FIni: TMemIniFile;
     procedure SetDataPath(const AValue : String);
   public
     constructor Create(AOwner: TComponent); override;
+    procedure CheckForMissingFiles;
+    procedure GetFileList(const ACriteria: String; AFiles: TStrings);
     property DataPath : String read FDataPath write SetDataPath;
     property OutputPath : String read FOutputPath write FOutputPath;
+    property Ini: TMemIniFile read FIni;
   end;
 
 var
@@ -92,37 +72,32 @@ var
 var
   GIndyPath : String = 'W:\Source\Indy10\';
 
-procedure DumpData;
+procedure DumpData(const AFile: String);
 
 implementation
+
 {$R *.dfm}
 
-procedure DumpDataFeild(AField : TField);
+procedure DumpData(const AFile: String);
+var
+  LNames: TStringList;
+  I: Integer;
 begin
-  WriteLn(AField.FieldName + ' = "'+AField.AsString +'"');
-end;
-
-procedure DumpData;
-begin
-  DumpDataFeild(DM.tablFileFileID);
-  DumpDataFeild(DM.tablFileFileName);
-  DumpDataFeild(DM.tablFileDotNet);
-  DumpDataFeild(DM.tablFileVCL);
-  DumpDataFeild(DM.tablFileKylix);
-  DumpDataFeild(DM.tablFilePkg);
-  DumpDataFeild(DM.tablFileDesignUnit);
-  DumpDataFeild(DM.tablFileFTPParser);
-  DumpDataFeild(DM.tablFileDescrShort);
-  DumpDataFeild(DM.tablFileProtocol);
-  DumpDataFeild(DM.tablFileRelease);
-
+  LNames := TStringList.Create;
+  try
+    DM.Ini.ReadSection(AFile, LNames);
+    for I := 0 to LNames.Count-1 do
+      WriteLn(LNames[I] + ' = "' + DM.Ini.ReadString(AFile, LNames[I], '') + '"');
+  finally
+    LNames.Free;
+  end;
 end;
 
 function UpTwoDirs(const APath : String):String;
 begin
-  Result := SysUtils.ExcludeTrailingPathDelimiter( APath);
+  Result := SysUtils.ExcludeTrailingPathDelimiter(APath);
   Result := ExtractFilePath(Result);
-  Result := SysUtils.ExcludeTrailingPathDelimiter( Result);
+  Result := SysUtils.ExcludeTrailingPathDelimiter(Result);
   Result := ExtractFilePath(Result);
 end;
 
@@ -132,26 +107,144 @@ constructor TDM.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   // Default Output Path is w:\source\Indy10
-  OutputPath := SysUtils.ExcludeTrailingPathDelimiter( GIndyPath );
+  OutputPath := SysUtils.ExcludeTrailingPathDelimiter(GIndyPath);
   // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
-  DataPath   := GIndyPath+ 'builder\Package Generator\Data';
+  DataPath   := GIndyPath + 'Builder\Package Generator\Data';
+end;
 
+procedure TDM.CheckForMissingFiles;
+var
+  SR: TSearchRec;
+  UnitName: String;
+begin
+  if FindFirst(GIndyPath + 'Lib\System\*.pas', faAnyFile, SR) = 0 then
+  try
+    repeat
+      UnitName := ChangeFileExt(SR.Name, '');
+      if not FIni.SectionExists(UnitName) then
+      begin
+        FIni.WriteString(UnitName, 'Pkg', 'System');
+        FIni.WriteBool(UnitName, 'SettingsNeeded', True);
+        WriteLn('Missing settings for: System\' + UnitName);
+      end;
+    until FindNext(SR) <> 0;
+  finally
+    FindClose(SR);
+  end;
+
+  if FindFirst(GIndyPath + 'Lib\Core\*.pas', faAnyFile, SR) = 0 then
+  try
+    repeat
+      UnitName := ChangeFileExt(SR.Name, '');
+      if not FIni.SectionExists(UnitName) then
+      begin
+        FIni.WriteString(UnitName, 'Pkg', 'Core');
+        FIni.WriteBool(UnitName, 'SettingsNeeded', True);
+        WriteLn('Missing settings for: Core\' + UnitName);
+      end;
+    until FindNext(SR) <> 0;
+  finally
+    FindClose(SR);
+  end;
+
+  if FindFirst(GIndyPath + 'Lib\Protocols\*.pas', faAnyFile, SR) = 0 then
+  try
+    repeat
+      UnitName := ChangeFileExt(SR.Name, '');
+      if not FIni.SectionExists(UnitName) then
+      begin
+        FIni.WriteString(UnitName, 'Pkg', 'Protocols');
+        FIni.WriteBool(UnitName, 'SettingsNeeded', True);
+        WriteLn('Missing settings for: Protocols\' + UnitName);
+      end;
+    until FindNext(SR) <> 0;
+  finally
+    FindClose(SR);
+  end;
+
+  if FindFirst(GIndyPath + 'Lib\Protocols\IdFTPListParse*.pas', faAnyFile, SR) = 0 then
+  try
+    repeat
+      UnitName := ChangeFileExt(SR.Name, '');
+      if not FIni.SectionExists(UnitName) then
+      begin
+        FIni.WriteString(UnitName, 'Pkg', 'Protocols');
+        FIni.WriteBool(UnitName, 'SettingsNeeded', True);
+        WriteLn('Missing settings for: Protocols\' + UnitName);
+      end;
+    until FindNext(SR) <> 0;
+  finally
+    FindClose(SR);
+  end;
+end;
+
+procedure TDM.GetFileList(const ACriteria: String; AFiles: TStrings);
+var
+  LFiles: TStringList;
+  LCriteria: TStringList;
+  I, J: Integer;
+  LMatches: Boolean;
+  LCriteriaName, LCriteriaValue, LFileValue: String;
+begin
+  AFiles.Clear;
+  LFiles := TStringList.Create;
+  try
+    FIni.ReadSections(LFiles);
+    LCriteria := TStringList.Create;
+    try
+      LCriteria.CommaText := ACriteria;
+      for I := 0 to LFiles.Count-1 do
+      begin
+        LMatches := True;
+        for J := 0 to LCriteria.Count-1 do
+        begin
+          LCriteriaName := LCriteria.Names[J];
+          LCriteriaValue := LCriteria.ValueFromIndex[J];
+          LFileValue := FIni.ReadString(LFiles[I], LCriteriaName, '');
+          if LFileValue <> LCriteriaValue then
+          begin
+            LMatches := False;
+            Break;
+          end;
+        end;
+        if LMatches then
+        begin
+          AFiles.Add(LFiles[I]);
+        end;
+      end;
+    finally
+      LCriteria.Free;
+    end;
+  finally
+    LFiles.Free;
+  end;
 end;
 
 procedure TDM.SetDataPath(const AValue: String);
 begin
   FDataPath := AValue;
-  if not tablFile.Active then
-  begin
-    tablFile.DatabaseName := AValue;
+  FreeAndNil(FIni);
+  FIni := TMemIniFile.Create(SysUtils.IncludeTrailingPathDelimiter(AValue) + 'File.ini');
+end;
+
+procedure SetIndyPath;
+var
+  Param: String;
+  I: Integer;
+begin
+  if ParamCount > 0 then  begin
+    for I := 1 to ParamCount do begin
+      Param := ParamStr(I);
+      if not CharInSet(Param[1], ['/', '-']) then begin
+        GIndyPath := IncludeTrailingPathDelimiter(Param);
+        Exit;
+      end;
+    end;
   end;
+  GIndyPath := UpTwoDirs(ExtractFilePath(ParamStr(0)));
 end;
 
 initialization
-  if ParamCount > 0 then  begin
-     GIndyPath := IncludeTrailingPathDelimiter(ParamStr(1));
-  end else begin
-    GIndyPath := UpTwoDirs(ExtractFilePath(ParamStr(0)));
-  end;
+  SetIndyPath;
 end.
- 
+

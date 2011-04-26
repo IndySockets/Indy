@@ -94,18 +94,14 @@ begin
   GenOptions;
   Code('');
   Code('requires');
-  if ACompiler = ctDelphi5 then
-  begin
+  if ACompiler in DelphiNet then begin
+    Code('Borland.Delphi,');
+    Code('Borland.VclRtl,');
   end
-  else
-  begin
-    if ACompiler in DelphiNet then begin
-     // Code('  System.Windows.Forms,');
-      Code('  Borland.Delphi,');
-      Code('  Borland.VclRtl,');
-    end else begin
-      Code('  rtl,');
-    end;
+  else if ACompiler = ctDelphi5 then begin
+    Code('  Vcl50,');
+  end else begin
+    Code('  rtl,');
   end;
   Code('  IndySystem' + GCompilerID[Compiler] + ',');
   Code('  IndyCore' + GCompilerID[Compiler] + ';');
@@ -128,44 +124,22 @@ begin
   GenOptions(True);
   Code('');
   Code('requires');
-  if ACompiler in [ctDelphi5] then begin
+  if ACompiler in DelphiNet then
+  begin
+    Code('  System.Windows.Forms,');
+    Code('  Borland.Studio.Vcl.Design,');
+  end
+  else if ACompiler = ctDelphi5 then
+  begin
     Code('  Vcl50,');
-  end else if ACompiler in [ctDelphi6, ctDelphi7] then begin
-    Code('  vcl,');
-  end;
-  if not (ACompiler in [ctDelphi5]) then begin
-    if ACompiler in DelphiNet then
+  end else
+  begin
+    if ACompiler in [ctDelphi6, ctDelphi7] then
     begin
-      Code('  System.Windows.Forms,');
-      Code('  Borland.Studio.Vcl.Design,');
-    end
-    else
-    begin
-      Code('  designide,');
+      Code('  vcl,');
     end;
+    Code('  designide,');
   end;
-{  case ACompiler of
-    ctDelphi2005Net:
-    begin
-      Code('  Borland.Delphi,');
-      Code('  Borland.VclRtl,');
-      Code('  Borland.Studio.Vcl.Design,');
-    end;
-    ctDelphi5: Code('  Vcl50,');
-    ctDelphi6:
-      begin
-        Code('  Vcl,');
-        Code('  designide,');
-      end;
-    ctDelphi7:
-      begin
-        Code('  rtl,');
-        Code('  designide,');
-        Code('  vclactnband,');
-        Code('  vclx,');
-        Code('  vcl,');
-      end;
-  end;    }
   Code('  IndyProtocols' + GCompilerID[Compiler] + ',');
   Code('  IndySystem' + GCompilerID[Compiler] + ',');
   Code('  IndyCore' + GCompilerID[Compiler] + ',');

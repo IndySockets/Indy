@@ -45,14 +45,13 @@ uses
 
 type
   TFTPParsers = class(TPackage)
-  protected
-    function ExtractNoExt(const AFileName : String) : String;
   public
     constructor Create; override;
     procedure Generate(ACompiler: TCompiler); override;
   end;
 
 implementation
+
 uses
   SysUtils, DModule;
 
@@ -65,15 +64,9 @@ begin
   FExt := '.pas';
 end;
 
-function TFTPParsers.ExtractNoExt(const AFileName: String): String;
-begin
-  Result := AFileName;
-  Result := Fetch(Result,'.',False);
-end;
-
 procedure TFTPParsers.Generate(ACompiler: TCompiler);
 var
-    i: Integer;
+  i: Integer;
 begin
   inherited;
   //We don't call many of the inherited Protected methods because
@@ -81,6 +74,7 @@ begin
   Code('unit IdAllFTPListParsers;');
   Code('');
   Code('interface');
+  Code('');
   Code('{');
   Code('Note that is unit is simply for listing ALL FTP List parsers in Indy.');
   Code('The user could then add this unit to a uses clause in their program and');
@@ -94,13 +88,14 @@ begin
   Code('');
   Code('(*$HPPEMIT ''#pragma link "IdAllFTPListParsers"''*)');
   //Now add our units
-   Code('');
+  Code('');
   Code('implementation');
+  Code('');
   Code('uses');
   for i := 0 to FUnits.Count - 1 do begin
-    Code('  ' + ExtractNoExt( FUnits[i]) + iif(i < FUnits.Count - 1, ',', ';'));
+    Code('  ' + ChangeFileExt(FUnits[i], '') + iif(i < FUnits.Count - 1, ',', ';'));
   end;
-//
+  //
   Code('');
   Code('{dee-duh-de-duh, that''s all folks.}');
   WriteFile(DM.OutputPath + '\Lib\Protocols\');

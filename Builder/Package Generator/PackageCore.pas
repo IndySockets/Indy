@@ -75,11 +75,12 @@ begin
   GenOptions;
   Code('');
   Code('requires');
-  if ACompiler = ctDelphi5 then begin
-    Code('  Vcl50,');
-  end else if ACompiler in DelphiNet then begin
+  if ACompiler in DelphiNet then begin
     Code('Borland.Delphi,');
     Code('Borland.VclRtl,');
+  end
+  else if ACompiler = ctDelphi5 then begin
+    Code('  Vcl50,');
   end else begin
     Code('  rtl,');
   end;
@@ -103,21 +104,19 @@ begin
   GenOptions(True);
   Code('');
   Code('requires');
-  if ACompiler in [ctDelphi5] then begin
+  if ACompiler = ctDelphi5 then begin
     Code('  Vcl50,');
   end else if ACompiler in [ctDelphi6, ctDelphi7] then begin
     Code('  vcl,');
   end;
-  if not (ACompiler in [ctDelphi5]) then begin
-    if ACompiler in DelphiNet then
-    begin
-      Code('  System.Windows.Forms,');
-      Code('  Borland.Studio.Vcl.Design,');
-    end
-    else
-    begin
-      Code('  designide,');
-    end;
+  if ACompiler in DelphiNet then
+  begin
+    Code('  System.Windows.Forms,');
+    Code('  Borland.Studio.Vcl.Design,');
+  end
+  else if ACompiler <> ctDelphi5 then
+  begin
+    Code('  designide,');
   end;
   Code('  IndySystem' + GCompilerID[Compiler] + ',');
   Code('  IndyCore' + GCompilerID[Compiler] + ';');

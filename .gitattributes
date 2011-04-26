@@ -633,6 +633,7 @@ Builder/Package[!!-~]Generator/Data/File.FAM -text svneol=unset#unset
 Builder/Package[!!-~]Generator/Data/File.PX -text svneol=unset#unset
 Builder/Package[!!-~]Generator/Data/File.TV -text svneol=unset#unset
 Builder/Package[!!-~]Generator/Data/File.VAL -text svneol=unset#unset
+Builder/Package[!!-~]Generator/Data/File.ini -text
 Builder/Package[!!-~]Generator/DistPasFileList.bdsproj -text
 Builder/Package[!!-~]Generator/DistPasFileList.dpr -text
 Builder/Package[!!-~]Generator/DistPasFileList.exe -text svneol=unset#unset

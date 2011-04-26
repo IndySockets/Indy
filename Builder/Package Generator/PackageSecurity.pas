@@ -26,6 +26,7 @@
 unit PackageSecurity;
 
 interface
+
 uses
   Package;
 
@@ -37,78 +38,70 @@ type
   end;
 
 implementation
-uses DModule;
+
+uses
+  DModule;
 
 { TPackageSecurity }
 
-procedure TPackageSecurity.GenerateDT(ACompiler: TCompiler);
-begin
-  if ACompiler in DelphiNet then
-  begin
-    inherited;
-    FName := 'dclIndySecurity' + GCompilerID[Compiler];
-    FDesc := 'Security';
-    GenHeader;
-    GenOptions(True);
-    Code('');
-    Code('requires');
-    if ACompiler in DelphiNet then begin
-      Code('  Borland.Studio.Vcl.Design,');
-    end;
-
-    Code('  IndySystem' + GCompilerID[Compiler] + ',');
-    Code('  IndyCore' + GCompilerID[Compiler] + ',');
-    Code('  IndyProtocols'+ GCompilerID[Compiler] + ',');
-    Code('  IndySecurity'+ GCompilerID[Compiler] + ',');
-    Code('  dclIndyCore' + GCompilerID[Compiler]+',');
-    Code('  dclIndyProtocols' + GCompilerID[Compiler]+',');
-    Code('  Mono.Security,');
-    Code('  System,');
-    Code('  System.Data,');
-    Code('  System.XML;');
-    GenContains;
-    //back door for embedding version information into an assembly
-    //without having to do anything to the package directly.
-    if ACompiler in DelphiNet then
-    begin
-      Code('{$I IddclSecurity90ASM90.inc}');
-    end;
-    WriteFile(DM.OutputPath + '\Lib\Security\');
-  end;
-end;
-
 procedure TPackageSecurity.Generate(ACompiler: TCompiler);
 begin
-  if ACompiler in DelphiNet then
+  if not (ACompiler in DelphiNet) then
   begin
-    inherited;
-    FName := 'IndySecurity' + GCompilerID[Compiler];
-    FDesc := 'Security';
-    GenHeader;
-    GenOptions;
-    Code('');
-    Code('requires');
-    if ACompiler in DelphiNet then begin
-      Code('  Borland.Delphi,');
-      Code('  Borland.VclRtl,');
-    end;
-
-    Code('  IndySystem' + GCompilerID[Compiler] + ',');
-    Code('  IndyCore' + GCompilerID[Compiler] + ',');
-    Code('  IndyProtocols'+ GCompilerID[Compiler] + ',');
-    Code('  Mono.Security,');
-    Code('  System,');
-    Code('  System.Data,');
-    Code('  System.XML;');
-    GenContains;
-    //back door for embedding version information into an assembly
-    //without having to do anything to the package directly.
-    if ACompiler in DelphiNet then
-    begin
-      Code('{$I IdSecurity90ASM90.inc}');
-    end;
-    WriteFile(DM.OutputPath + '\Lib\Security\');
+    Exit;
   end;
+  inherited;
+  FName := 'IndySecurity' + GCompilerID[Compiler];
+  FDesc := 'Security';
+  GenHeader;
+  GenOptions;
+  Code('');
+  Code('requires');
+  Code('  Borland.Delphi,');
+  Code('  Borland.VclRtl,');
+  Code('  IndySystem' + GCompilerID[Compiler] + ',');
+  Code('  IndyCore' + GCompilerID[Compiler] + ',');
+  Code('  IndyProtocols'+ GCompilerID[Compiler] + ',');
+  Code('  Mono.Security,');
+  Code('  System,');
+  Code('  System.Data,');
+  Code('  System.XML;');
+  GenContains;
+  //back door for embedding version information into an assembly
+  //without having to do anything to the package directly.
+  Code('{$I IdSecurity90ASM90.inc}');
+  WriteFile(DM.OutputPath + '\Lib\Security\');
+end;
+
+procedure TPackageSecurity.GenerateDT(ACompiler: TCompiler);
+begin
+  if not (ACompiler in DelphiNet) then
+  begin
+    Exit;
+  end;
+  inherited;
+  FName := 'dclIndySecurity' + GCompilerID[Compiler];
+  FDesc := 'Security';
+  GenHeader;
+  GenOptions(True);
+  Code('');
+  Code('requires');
+  Code('  Borland.Studio.Vcl.Design,');
+  Code('  IndySystem' + GCompilerID[Compiler] + ',');
+  Code('  IndyCore' + GCompilerID[Compiler] + ',');
+  Code('  IndyProtocols'+ GCompilerID[Compiler] + ',');
+  Code('  IndySecurity'+ GCompilerID[Compiler] + ',');
+  Code('  dclIndyCore' + GCompilerID[Compiler]+',');
+  Code('  dclIndyProtocols' + GCompilerID[Compiler]+',');
+  Code('  Mono.Security,');
+  Code('  System,');
+  Code('  System.Data,');
+  Code('  System.XML;');
+  GenContains;
+  //back door for embedding version information into an assembly
+  //without having to do anything to the package directly.
+  Code('{$I IddclSecurity90ASM90.inc}');
+  WriteFile(DM.OutputPath + '\Lib\Security\');
 end;
 
 end.

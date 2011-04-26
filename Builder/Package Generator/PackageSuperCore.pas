@@ -48,7 +48,8 @@ type
 
 implementation
 
-uses DModule;
+uses
+  DModule;
 
 { TPackageSuperCore }
 

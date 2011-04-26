@@ -56,7 +56,8 @@ type
 
 implementation
 
-uses DModule;
+uses
+  DModule;
 
 { TPackageD7Core }
 
@@ -69,12 +70,14 @@ begin
   GenOptions;
   Code('');
   Code('requires');
-  if ACompiler = ctDelphi5 then begin
+  if ACompiler in DelphiNet then begin
+    Code('  Borland.Delphi,');
+    Code('  Borland.VclRtl;');
+  end
+  else if ACompiler = ctDelphi5 then begin
     Code('  Vcl50;');
-  end else if ACompiler in DelphiNet then begin
-    Code('Borland.Delphi,');
-    Code('Borland.VclRtl;');
-  end else begin
+  end else
+  begin
     Code('  rtl;');
   end;
   GenContains;
@@ -84,9 +87,6 @@ begin
   //without having to do anything to the package directly.
 
     Code('{$I IdSystem90ASM90.inc}');
-  end
-  else
-  begin
   end;
   WriteFile(DM.OutputPath + '\Lib\System\');
 end;

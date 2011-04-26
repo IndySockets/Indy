@@ -56,31 +56,34 @@ unit Package;
 interface
 
 uses
-  Classes
-  , DBTables;
+  Classes, IniFiles;
 
 type
   TCompiler =(
-   ctUnknown
-   , ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005
-   , ctDelphi2005Net
-   , ctDelphi10
-   , ctDelphi10Net
-   , ctDelphi11
-   , ctDelphi11Net
-   , ctDelphi12
-   , ctDelphi12Net
-   , ctDelphi13
-   , ctDelphi13Net
-   , ctDelphi2010
-   , ctDelphi2011
-   , ctDotNet // Visual Studio
-   , ctKylix3);
+   ctUnknown,
+   ctDelphi5,
+   ctDelphi6,
+   ctDelphi7,
+   ctDelphi8, ctDelphi8Net,
+   ctDelphi2005, ctDelphi2005Net,
+   ctDelphi2006, ctDelphi2006Net,
+   ctDelphi2007, ctDelphi2007Net,
+   ctDelphi2009, ctDelphi2009Net,
+   ctDelphi13, ctDelphi13Net, // was not released, skipped to v14 (D2010)
+   ctDelphi2010,
+   ctDelphiXE,
+   ctDelphiXE2,
+   ctDotNet, // Visual Studio
+   ctKylix3);
+
+  TCompilers = Set of TCompiler;
 
 const
-   DelphiNet = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net,ctDelphi13Net];
-   DelphiNet2OrLater = [ctDelphi12Net,ctDelphi13Net];
-   DelphiNet1_1 = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net];
+  DelphiNet = [ctDelphi8Net, ctDelphi2005Net, ctDelphi2006Net, ctDelphi2007Net, ctDelphi2009Net, ctDelphi13Net];
+  DelphiNet1_1 = [ctDelphi8Net, ctDelphi2005Net, ctDelphi2006Net];
+  DelphiNet2OrLater = [ctDelphi2007Net, ctDelphi2009Net, ctDelphi13Net];
+  DelphiNative = [ctDelphi5..ctDelphiXE2] - DelphiNet;
+  DelphiNativeAlign8 = DelphiNative - [ctDelphi5..ctDelphi13] + [ctDelphi2005];
 
 type
   TPackage = class
@@ -107,31 +110,31 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     procedure Generate(ACompiler: TCompiler); overload; virtual;
-    procedure Generate(ACompilers: array of TCompiler); overload; virtual;
+    procedure Generate(ACompilers: TCompilers); overload; virtual;
     procedure GenerateDT(ACompiler: TCompiler); overload; virtual;
-    procedure GenerateDT(ACompilers: array of TCompiler); overload; virtual;
-    procedure Load(ATable: TTable; AWhere: string; const AUsePath: Boolean = False);
+    procedure GenerateDT(ACompilers: TCompilers); overload; virtual;
+    procedure Load(const ACriteria: string; const AUsePath: Boolean = False);
     //
     property Compiler: TCompiler read FCompiler;
   end;
 
 const
-  GCompilerID: array[TCompiler] of string
-   = ('', '50', '60', '70', '90'
-   , '90Net'
-   , '100'
-   , '100Net'
-   , '110'
-   , '110Net'
-   , '120'
-   , '120Net'
-   , '130'
-   , '130Net'
-   , '140'
-   , '150'
-   , ''
-   , 'K3');
-
+  GCompilerID: array[TCompiler] of string = (
+    '',
+    '50',
+    '60',
+    '70',
+    '80', '80Net',
+    '90', '90Net',    // 2005
+    '100', '100Net',  // 2006
+    '110', '110Net',  // 2007
+    '120', '120Net',  // 2009
+    '130', '130Net',  // was not released, skipped to v14 (D2010)
+    '140',            // 2010
+    '150',            // XE
+    '160',            // XE2
+    '',
+    'K3');
 
    //Fetch Defaults
   IdFetchDelimDefault = ' ';    {Do not Localize}
@@ -142,83 +145,10 @@ function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integ
 function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string; overload;
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 
-function FetchCaseInsensitive(var AInput: string; const ADelim: string;
-  const ADelete: Boolean): string;
-function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
-  const ADelete: Boolean = IdFetchDeleteDefault;
-  const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): string;
-
 implementation
 
 uses
-  SysUtils;
-
-type
-  TPosProc = function(const substr, str: String): LongInt;
-  
-var
-  IndyPos: TPosProc = nil;
-
-function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
-  const ADelete: Boolean = IdFetchDeleteDefault;
-  const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): string;
-{$IFDEF USEINLINE}inline;{$ENDIF}
-var
-  LPos: Integer;
-begin
-  if ACaseSensitive then begin
-    if ADelim = #0 then begin
-      // AnsiPos does not work with #0
-      LPos := Pos(ADelim, AInput);
-    end else begin
-      LPos := IndyPos(ADelim, AInput);
-    end;
-    if LPos = 0 then begin
-      Result := AInput;
-      if ADelete then begin
-        AInput := '';    {Do not Localize}
-      end;
-    end
-    else begin
-      Result := Copy(AInput, 1, LPos - 1);
-      if ADelete then begin
-        //slower Delete(AInput, 1, LPos + Length(ADelim) - 1); because the
-        //remaining part is larger than the deleted
-        AInput := Copy(AInput, LPos + Length(ADelim), MaxInt);
-      end;
-    end;
-  end else begin
-    Result := FetchCaseInsensitive(AInput, ADelim, ADelete);
-  end;
-end;
-
-function FetchCaseInsensitive(var AInput: string; const ADelim: string;
-  const ADelete: Boolean): string;
-{$IFDEF USEINLINE}inline;{$ENDIF}
-var
-  LPos: Integer;
-begin
-  if ADelim = #0 then begin
-    // AnsiPos does not work with #0
-    LPos := Pos(ADelim, AInput);
-  end else begin
-    //? may be AnsiUpperCase?
-    LPos := IndyPos(UpperCase(ADelim), UpperCase(AInput));
-  end;
-  if LPos = 0 then begin
-    Result := AInput;
-    if ADelete then begin
-      AInput := '';    {Do not Localize}
-    end;
-  end else begin
-    Result := Copy(AInput, 1, LPos - 1);
-    if ADelete then begin
-      //faster than Delete(AInput, 1, LPos + Length(ADelim) - 1); because the
-      //remaining part is larger than the deleted
-      AInput := Copy(AInput, LPos + Length(ADelim), MaxInt);
-    end;
-  end;
-end;
+  SysUtils, DModule;
 
 function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
@@ -297,7 +227,6 @@ begin
   Code(FContainsClause);
   WritePreContains;
   for i := 0 to FUnits.Count - 1 do begin
-
     if APrefix <> '' then begin
       FUnits[i] := StringReplace(FUnits[i], 'Id', APrefix, []);
     end;
@@ -316,12 +245,14 @@ begin
   FCode.Clear;
 end;
 
-procedure TPackage.Generate(ACompilers: array of TCompiler);
+procedure TPackage.Generate(ACompilers: TCompilers);
 var
-  i: Integer;
+  LCompiler: TCompiler;
 begin
-  for i := Low(ACompilers) to High(ACompilers) do begin
-    Generate(ACompilers[i]);
+  for LCompiler := Low(TCompiler) to High(TCompiler) do begin
+    if LCompiler in ACompilers then begin
+      Generate(LCompiler);
+    end;
   end;
 end;
 
@@ -331,12 +262,14 @@ begin
   FCode.Clear;
 end;
 
-procedure TPackage.GenerateDT(ACompilers: array of TCompiler);
+procedure TPackage.GenerateDT(ACompilers: TCompilers);
 var
-  i: Integer;
+  LCompiler: TCompiler;
 begin
-  for i := Low(ACompilers) to High(ACompilers) do begin
-    GenerateDT(ACompilers[i]);
+  for LCompiler := Low(TCompiler) to High(TCompiler) do begin
+    if LCompiler in ACompilers then begin
+      GenerateDT(LCompiler);
+    end;
   end;
 end;
 
@@ -348,21 +281,14 @@ end;
 procedure TPackage.GenOptions(ADesignTime: Boolean = False);
 begin
   Code('');
-  if FCompiler in [ctDelphi2005, ctDelphi2010, ctDelphi2011] then begin
+  if FCompiler in DelphiNet then begin
+    Code('{$ALIGN 0}');
+  end else begin
     Code('{$R *.res}');
-  end;
-  // Align
-  if FCompiler in [ctDelphi2005, ctDelphi2010, ctDelphi2011] then begin
-    Code('{$ALIGN 8}');
-  end
-  else
-    if FCompiler in DelphiNet then begin
-      Code('{$ALIGN 0}');
-    end
-    else
-    begin
-      Code('{$R *.res}');
+    if FCompiler in DelphiNativeAlign8 then begin
+      Code('{$ALIGN 8}');
     end;
+  end;
 //  Code('{$ASSERTIONS ON}');
   Code('{$BOOLEVAL OFF}');
 //  Code('{$DEBUGINFO ON}');
@@ -388,21 +314,26 @@ begin
   Code('{$IMPLICITBUILD ON}');
 end;
 
-procedure TPackage.Load(ATable: TTable; AWhere: string; const AUsePath: Boolean = False);
+procedure TPackage.Load(const ACriteria: string; const AUsePath: Boolean = False);
+var
+  LFiles: TStringList;
+  I: Integer;
 begin
   Clear;
-  ATable.Filter := AWhere;
-  ATable.Filtered := True;
-  ATable.First;
-  while not ATable.EOF do begin
-    if AUsePath then begin
-      AddUnit(ATable.FieldByName('FileName').AsString, ATable.FieldByName('Pkg').AsString);
-    end else begin
-      AddUnit(ATable.FieldByName('FileName').AsString);
+  LFiles := TStringList.Create;
+  try
+    DM.GetFileList(ACriteria, LFiles);
+    for I := 0 to LFiles.Count - 1 do
+    begin
+      if AUsePath then begin
+        AddUnit(LFiles[I], DM.Ini.ReadString(LFiles[I], 'Pkg', ''));
+      end else begin
+        AddUnit(LFiles[I]);
+      end;
     end;
-    ATable.Next;
+  finally
+    LFiles.Free;
   end;
-  ATable.Filtered := False;
 end;
 
 procedure TPackage.WriteFile(const APath: string);
@@ -432,29 +363,4 @@ procedure TPackage.WritePreContains;
 begin
 end;
 
-function SBPos(const Substr, S: string): LongInt;
-{$IFDEF USEINLINE}inline;{$ENDIF}
-begin
-  // Necessary because of "Compiler magic"
-  Result := Pos(Substr, S);
-end;
-
-//Don't rename this back to AnsiPos because that conceals a symbol in Windows
-function InternalAnsiPos(const Substr, S: string): LongInt;
-{$IFDEF USEINLINE}inline;{$ENDIF}
-begin
-  Result := SysUtils.AnsiPos(Substr, S);
-end;
-
-initialization
-  // AnsiPos does not handle strings with #0 and is also very slow compared to Pos
-  {$IFDEF DOTNET}
-  IndyPos := SBPos;
-  {$ELSE}
-  if LeadBytes = [] then begin
-    IndyPos := SBPos;
-  end else begin
-    IndyPos := InternalAnsiPos;
-  end;
-  {$ENDIF}
 end.
