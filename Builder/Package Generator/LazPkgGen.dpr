@@ -343,7 +343,10 @@ begin
   DM := TDM.Create(nil); try
     with DM do begin
       WriteLn('Path: '+ Ini.FileName );
-      ValidateFiles;
+      if FindCmdLineSwitch('checkini') then begin
+        CheckForMissingFiles;
+        Exit;
+      end;
 
       MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemfpc', OutputPath + '\Lib\System');
       WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemlaz.lpk', OutputPath + '\Lib\System');
