@@ -2174,8 +2174,8 @@ begin
   inherited Create;
 
   FCharSet := CharSet;
-  FToUTF16 := iconv_open(PAnsiChar(CharSet), 'UTF-16');    {do not localize}
-  FFromUTF16 := iconv_open('UTF-16', PAnsiChar(CharSet));  {do not localize}
+  FToUTF16 := iconv_open('UTF-16', PAnsiChar(CharSet));    {do not localize}
+  FFromUTF16 := iconv_open(PAnsiChar(CharSet), 'UTF-16');  {do not localize}
 
   if (FToUTF16 = iconv_t(-1)) or (FFromUTF16 = iconv_t(-1)) then begin
     if FToUTF16 <> iconv_t(-1) then begin
