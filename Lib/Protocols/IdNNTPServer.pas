@@ -431,8 +431,8 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-  PosixSysTime,
-  PosixTime,
+  Posix.SysTime,
+  Posix.Time,
   {$ENDIF}
   IdGlobalProtocols,
   IdIOHandlerSocket,

@@ -109,7 +109,7 @@ uses
 	systems, platform warnings are not going to be too helpful.
 	}
      {$WARN SYMBOL_PLATFORM OFF}
-      PosixErrno,PosixNetDB, PosixNetinetIn, PosixSysSocket;
+      Posix.Errno,Posix.NetDB, Posix.NetinetIn, Posix.SysSocket;
     {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
     libc;
@@ -491,7 +491,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_SD_Send = SHUT_WR;
   Id_SD_Both = SHUT_RDWR;
   //
-  //Temp defines.  They should be in Delphi's PosixErrno.pas
+  //Temp defines.  They should be in Delphi's Posix.Errno.pas
   ESOCKTNOSUPPORT	= 44;		//* Socket type not supported */
   EPFNOSUPPORT = 46;		//* Protocol family not supported */
   ESHUTDOWN = 58;		//* Can't send after socket shutdown */

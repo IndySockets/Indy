@@ -81,7 +81,7 @@ implementation
 
 uses
 {$IFDEF USE_VCL_POSIX}
-  PosixGlue,
+  Posix.Glue,
 {$ENDIF}
   IdGlobal;
 

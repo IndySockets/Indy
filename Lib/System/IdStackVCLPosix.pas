@@ -18,9 +18,9 @@ ways.
 uses
   Classes,
   IdCTypes,
-    PosixSysSelect,
-  PosixSysSocket,
-  PosixSysTime,
+  Posix.SysSelect,
+  Posix.SysSocket,
+  Posix.SysTime,
   IdStack,
   IdStackConsts,
   IdGlobal,
@@ -147,15 +147,15 @@ uses
   IdResourceStrings,
   IdException,
   IdVCLPosixSupplemental,
-  PosixBase,
-  PosixArpaInet,
-  PosixErrno,
-  PosixNetDB,
-  PosixNetinetIn,
-  PosixStrOpts,
-  PosixSysTypes,
-  PosixSysUio,
-  PosixUnistd,
+  Posix.Base,
+  Posix.ArpaInet,
+  Posix.Errno,
+  Posix.NetDB,
+  Posix.NetinetIn,
+  Posix.StrOpts,
+  Posix.SysTypes,
+  Posix.SysUio,
+  Posix.Unistd,
   SysUtils;
 
   {$UNDEF HAS_MSG_NOSIGNAL}
@@ -283,7 +283,7 @@ begin
     LTime.tv_usec := (ATimeout mod 1000) * 1000;
     LTimePtr := @LTime;
   end;
-  Result := PosixSysSelect.select(MaxLongint, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  Result := Posix.SysSelect.select(MaxLongint, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 
 procedure TIdSocketListVCLPosix.GetFDSet(var VSet: fd_set);
@@ -444,7 +444,7 @@ var
   LAddr : sockaddr absolute LAddrStore;
 
 begin
-  Result := PosixSysSocket.accept(ASocket, LAddr, LN);
+  Result := Posix.SysSocket.accept(ASocket, LAddr, LN);
   if Result <> -1 then begin
     case LAddr.sa_family of
       Id_PF_INET4: begin
@@ -531,7 +531,7 @@ begin
           TranslateStringToTInAddr(AIP, LAddrIPv4.sin_addr, Id_IPv4);
         end;
         LAddrIPv4.sin_port := htons(APort);
-        CheckForSocketError(PosixSysSocket.bind(ASocket, LAddr,SizeOf(LAddrIPv4)));
+        CheckForSocketError(Posix.SysSocket.bind(ASocket, LAddr,SizeOf(LAddrIPv4)));
       end;
     Id_IPv6: begin
         InitSockAddr_in6(LAddrIPv6);
@@ -539,7 +539,7 @@ begin
           TranslateStringToTInAddr(AIP, LAddrIPv6.sin6_addr, Id_IPv6);
         end;
         LAddrIPv6.sin6_port := htons(APort);
-        CheckForSocketError(PosixSysSocket.bind(ASocket,LAddr, SizeOf(LAddrIPv6)));
+        CheckForSocketError(Posix.SysSocket.bind(ASocket,LAddr, SizeOf(LAddrIPv6)));
       end;
     else begin
       IPVersionUnsupported;
@@ -573,7 +573,7 @@ begin
       InitSockAddr_In(LAddrIPv4);
       TranslateStringToTInAddr(AIP, LAddrIPv4.sin_addr, Id_IPv4);
       LAddrIPv4.sin_port := htons(APort);
-      CheckForSocketError(PosixSysSocket.connect(
+      CheckForSocketError(Posix.SysSocket.connect(
         ASocket,LAddr,SizeOf(LAddrIPv4)));
     end;
     Id_IPv6: begin
@@ -581,7 +581,7 @@ begin
       TranslateStringToTInAddr(AIP, LAddrIPv6.sin6_addr, Id_IPv6);
       LAddrIPv6.sin6_port := htons(APort);
       CheckForSocketError(
-        PosixSysSocket.connect( ASocket, LAddr, SizeOf(LAddrIPv6) ));
+        Posix.SysSocket.connect( ASocket, LAddr, SizeOf(LAddrIPv6) ));
     end;
     else begin
       IPVersionUnsupported;
@@ -623,7 +623,7 @@ var
   LAddr : sockaddr absolute LAddrStore;
 begin
   i := SizeOf(LAddrStore);
-  CheckForSocketError(PosixSysSocket.getpeername(ASocket, LAddr, i));
+  CheckForSocketError(Posix.SysSocket.getpeername(ASocket, LAddr, i));
   case LAddr.sa_family of
     Id_PF_INET4: begin
       VIP := TranslateTInAddrToString(LAddrIPv4.sin_addr, Id_IPv4);
@@ -825,7 +825,7 @@ end;
 procedure TIdStackVCLPosix.Listen(ASocket: TIdStackSocketHandle;
   ABackLog: Integer);
 begin
-  CheckForSocketError(PosixSysSocket.listen(ASocket, ABacklog));
+  CheckForSocketError(Posix.SysSocket.listen(ASocket, ABacklog));
 end;
 
 function TIdStackVCLPosix.NetworkToHost(AValue: LongWord): LongWord;
@@ -968,7 +968,7 @@ var
 
 begin
   LiSize := SizeOf(sockaddr_storage);
-  Result := PosixSysSocket.recvfrom(ASocket,VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, psockaddr(@LAddr)^, LiSize);
+  Result := Posix.SysSocket.recvfrom(ASocket,VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, psockaddr(@LAddr)^, LiSize);
   if Result >= 0 then
   begin
     case LAddr.sa_family of
@@ -1006,13 +1006,13 @@ end;
 procedure TIdStackVCLPosix.SetSocketOption(ASocket: TIdStackSocketHandle;
   ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
 begin
-  CheckForSocketError(PosixSysSocket.setsockopt(ASocket, ALevel, AOptName, AOptVal, SizeOf(AOptVal)));
+  CheckForSocketError(Posix.SysSocket.setsockopt(ASocket, ALevel, AOptName, AOptVal, SizeOf(AOptVal)));
 end;
 
 procedure TIdStackVCLPosix.SetSocketOption(const ASocket: TIdStackSocketHandle;
   const Alevel, Aoptname: Integer; Aoptval: PAnsiChar; const Aoptlen: Integer);
 begin
-  CheckForSocketError(PosixSysSocket.setsockopt(ASocket, ALevel, Aoptname, Aoptval, Aoptlen));
+  CheckForSocketError(Posix.SysSocket.setsockopt(ASocket, ALevel, Aoptname, Aoptval, Aoptlen));
 end;
 
 function TIdStackVCLPosix.SupportsIPv6: Boolean;
@@ -1070,7 +1070,7 @@ var
   LAStr: AnsiString;
 begin
   LAStr := AnsiString(AServiceName); // explicit convert to Ansi
-  Lps := PosixNetDB.getservbyname( PAnsiChar(LAStr), nil);
+  Lps := Posix.NetDB.getservbyname( PAnsiChar(LAStr), nil);
   if Lps <> nil then begin
     Result := ntohs(Lps^.s_port);
   end else begin
@@ -1094,7 +1094,7 @@ var
   Li: Integer;
   Lp: PPAnsiCharArray;
 begin
-  Lps := PosixNetDB.getservbyport(htons(APortNumber), nil);
+  Lps := Posix.NetDB.getservbyport(htons(APortNumber), nil);
   if Lps <> nil then begin
     AAddresses.Add(String(Lps^.s_name));
     Li := 0;
@@ -1110,7 +1110,7 @@ procedure TIdStackVCLPosix.WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel,
   AOptname: Integer; AOptval: PAnsiChar; var AOptlen: Integer);
 var s : socklen_t;
 begin
-  CheckForSocketError(PosixSysSocket.getsockopt(ASocket, ALevel, AOptname, AOptval, s));
+  CheckForSocketError(Posix.SysSocket.getsockopt(ASocket, ALevel, AOptname, AOptval, s));
   AOptlen := s;
 end;
 
@@ -1118,7 +1118,7 @@ function TIdStackVCLPosix.WSRecv(ASocket: TIdStackSocketHandle; var ABuffer;
   const ABufferLength, AFlags: Integer): Integer;
 begin
   //IdStackWindows is just: Result := Recv(ASocket, ABuffer, ABufferLength, AFlags);
-  Result := PosixSysSocket.Recv(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL);
+  Result := Posix.SysSocket.Recv(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL);
 
 end;
 
@@ -1127,7 +1127,7 @@ function TIdStackVCLPosix.WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
 begin
   //CC: Should Id_MSG_NOSIGNAL be included?
   //  Result := Send(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL);
-  Result := CheckForSocketError(PosixSysSocket.send(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL));
+  Result := CheckForSocketError(Posix.SysSocket.send(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL));
 
 end;
 
@@ -1158,7 +1158,7 @@ begin
    LiSize := 0; // avoid warning
    IPVersionUnsupported;
  end;
-  LiSize := PosixSysSocket.sendto(
+  LiSize := Posix.SysSocket.sendto(
     ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, LAddr,LiSize);
   if LiSize = Id_SOCKET_ERROR then begin
     // TODO: move this into RaiseLastSocketError directly
@@ -1182,13 +1182,13 @@ end;
 function TIdStackVCLPosix.WSShutdown(ASocket: TIdStackSocketHandle;
   AHow: Integer): Integer;
 begin
-  Result := PosixSysSocket.shutdown(ASocket, AHow);
+  Result := Posix.SysSocket.shutdown(ASocket, AHow);
 end;
 
 function TIdStackVCLPosix.WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
       const AOverlapped: Boolean = False): TIdStackSocketHandle;
 begin
-  Result := PosixSysSocket.socket(AFamily, AStruct, AProtocol);
+  Result := Posix.SysSocket.socket(AFamily, AStruct, AProtocol);
   if Result <> INVALID_SOCKET then begin
     Self.SetSocketOption(Result,SOL_SOCKET,SO_NOSIGPIPE,1);
   end;

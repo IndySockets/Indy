@@ -694,10 +694,10 @@ begin
   for i := 0 to Cookies.Count - 1 do begin
     LSrcCookie := Cookies[i];
     LDestCookie := FResponseInfo.Cookies.Add;
-    LDestCookie.CookieName := HTTPEncode(LSrcCookie.Name);
-    LDestCookie.Value := HTTPEncode(LSrcCookie.Value);
-    LDestCookie.Domain := LSrcCookie.Domain;
-    LDestCookie.Path := LSrcCookie.Path;
+    LDestCookie.CookieName := String(HTTPEncode(LSrcCookie.Name));
+    LDestCookie.Value := String(HTTPEncode(LSrcCookie.Value));
+    LDestCookie.Domain := String(LSrcCookie.Domain);
+    LDestCookie.Path := String(LSrcCookie.Path);
     LDestCookie.Expires := LSrcCookie.Expires;
     LDestCookie.Secure := LSrcCookie.Secure;
     // TODO: LDestCookie.HttpOnly := LSrcCookie.HttpOnly;

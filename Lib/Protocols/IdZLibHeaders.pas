@@ -58,7 +58,7 @@ uses
   libc,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysTypes,
+  Posix.SysTypes,
   {$ENDIF}
   {$IFDEF USE_BASEUNIX}
   baseunix,
@@ -89,7 +89,100 @@ uses
 (*$HPPEMIT '  #define __MACTYPES__'*)
 (*$HPPEMIT '  #define __REMOVE_MACTYPES__'*)
 (*$HPPEMIT '#endif'*)
-(*$HPPEMIT '#include "ZLib\zlib.h"'*)
+(*$HPPEMIT '#if defined(__USE_ZLIBH__)'*)
+(*$HPPEMIT '  #include "ZLib\zlib.h"'*)
+(*$HPPEMIT '#else'*)
+(*$HPPEMIT 'typedef void * __cdecl (*alloc_func)(void * opaque, unsigned items, unsigned size);'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT 'typedef void __cdecl (*free_func)(void * opaque, void * address);'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#pragma pack(push,1)'*)
+(*$HPPEMIT 'struct DECLSPEC_DRECORD z_stream'*)
+(*$HPPEMIT '{'*)
+(*$HPPEMIT '	'*)
+(*$HPPEMIT 'public:'*)
+(*$HPPEMIT '	char *next_in;'*)
+(*$HPPEMIT '	unsigned avail_in;'*)
+(*$HPPEMIT '	unsigned total_in;'*)
+(*$HPPEMIT '	char *next_out;'*)
+(*$HPPEMIT '	unsigned avail_out;'*)
+(*$HPPEMIT '	unsigned total_out;'*)
+(*$HPPEMIT '	char *msg;'*)
+(*$HPPEMIT '	void *state;'*)
+(*$HPPEMIT '	alloc_func zalloc;'*)
+(*$HPPEMIT '	free_func zfree;'*)
+(*$HPPEMIT '	void *opaque;'*)
+(*$HPPEMIT '	int data_type;'*)
+(*$HPPEMIT '	unsigned adler;'*)
+(*$HPPEMIT '	unsigned reserved;'*)
+(*$HPPEMIT '};'*)
+(*$HPPEMIT '#pragma pack(pop)'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if !defined(__CPP__)'*)
+(*$HPPEMIT '#if sizeof(z_stream) < 56'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ size mismatch: (C++) sizeof(z_stream) < (Pascal) [size: 56, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#pragma sizeof(z_stream)'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if sizeof(z_stream) > 56'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ size mismatch: (C++) sizeof(z_stream) > (Pascal) [size: 56, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#pragma sizeof(z_stream)'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if alignof(z_stream) < 1'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(z_stream) < (Pascal) [size: 56, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if alignof(z_stream) > 1'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(z_stream) > (Pascal) [size: 56, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT 'struct gz_header;'*)
+(*$HPPEMIT 'typedef gz_header *gz_headerp;'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#pragma pack(push,1)'*)
+(*$HPPEMIT 'struct DECLSPEC_DRECORD gz_header'*)
+(*$HPPEMIT '{'*)
+(*$HPPEMIT '	'*)
+(*$HPPEMIT 'public:'*)
+(*$HPPEMIT '	int text;'*)
+(*$HPPEMIT '	unsigned time;'*)
+(*$HPPEMIT '	int xflags;'*)
+(*$HPPEMIT '	int os;'*)
+(*$HPPEMIT '	System::Byte *extra;'*)
+(*$HPPEMIT '	unsigned extra_len;'*)
+(*$HPPEMIT '	unsigned extra_max;'*)
+(*$HPPEMIT '	char *name;'*)
+(*$HPPEMIT '	unsigned name_max;'*)
+(*$HPPEMIT '	char *comment;'*)
+(*$HPPEMIT '	unsigned comm_max;'*)
+(*$HPPEMIT '	int hcrc;'*)
+(*$HPPEMIT '	int done;'*)
+(*$HPPEMIT '};'*)
+(*$HPPEMIT '#pragma pack(pop)'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if !defined(__CPP__)'*)
+(*$HPPEMIT '#if sizeof(gz_header) < 52'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ size mismatch: (C++) sizeof(gz_header) < (Pascal) [size: 52, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#pragma sizeof(gz_header)'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if sizeof(gz_header) > 52'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ size mismatch: (C++) sizeof(gz_header) > (Pascal) [size: 52, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#pragma sizeof(gz_header)'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if alignof(gz_header) < 1'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(gz_header) < (Pascal) [size: 52, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '#if alignof(gz_header) > 1'*)
+(*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(gz_header) > (Pascal) [size: 52, align: 1] (WARNING)"'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT '#endif'*)
+(*$HPPEMIT '#endif'*)
 (*$HPPEMIT '#if defined(__REMOVE_MACTYPES__)'*)
 (*$HPPEMIT '  // Cleanup workaround for "Byte" ambiguity'*)
 (*$HPPEMIT '  #if defined(__MACTYPES__)'*)
@@ -658,40 +751,24 @@ uses
 {$L zutil.obj}
 {$ELSE}
   {$IFDEF WIN32}
-    {$L ZLib\i386-Win32-ZLib\zlibudec.obj} // undecorated stubs which are not needed for x64 compilation
-    {$L ZLib\i386-Win32-ZLib\deflate.obj}
-    {$L ZLib\i386-Win32-ZLib\inflate.obj}
-    {$L ZLib\i386-Win32-ZLib\infback.obj}
-    {$L ZLib\i386-Win32-ZLib\inffast.obj}
-    {$L ZLib\i386-Win32-ZLib\inftrees.obj}
-    {$L ZLib\i386-Win32-ZLib\trees.obj}
-    {$L ZLib\i386-Win32-ZLib\compress.obj}
-    {$L ZLib\i386-Win32-ZLib\uncompr.obj}
-    {$L ZLib\i386-Win32-ZLib\adler32.obj}
-    {$L ZLib\i386-Win32-ZLib\crc32.obj}
-    {$L ZLib\i386-Win32-ZLib\zutil.obj}
-
-    {$L ZLib\i386-Win32-ZLib\gzclose.obj}
-    {$L ZLib\i386-Win32-ZLib\gzread.obj}
-    {$L ZLib\i386-Win32-ZLib\gzwrite.obj}
-    {$L ZLib\i386-Win32-ZLib\gzlib.obj}
-  {$ELSE}
-    {$L ZLib\x86_64-Win64-ZLib\deflate.obj}
-    {$L ZLib\x86_64-Win64-ZLib\inflate.obj}
-    {$L ZLib\x86_64-Win64-ZLib\infback.obj}
-    {$L ZLib\x86_64-Win64-ZLib\inffast.obj}
-    {$L ZLib\x86_64-Win64-ZLib\inftrees.obj}
-    {$L ZLib\x86_64-Win64-ZLib\trees.obj}
-    {$L ZLib\x86_64-Win64-ZLib\compress.obj}
-    {$L ZLib\x86_64-Win64-ZLib\uncompr.obj}
-    {$L ZLib\x86_64-Win64-ZLib\adler32.obj}
-    {$L ZLib\x86_64-Win64-ZLib\crc32.obj}
-    {$L ZLib\x86_64-Win64-ZLib\zutil.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzclose.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzread.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzwrite.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzlib.obj}
+    {$L zlibudec.obj} // undecorated stubs which are not needed for x64 compilation
   {$ENDIF}
+  {$L deflate.obj}
+  {$L inflate.obj}
+  {$L infback.obj}
+  {$L inffast.obj}
+  {$L inftrees.obj}
+  {$L trees.obj}
+  {$L compress.obj}
+  {$L uncompr.obj}
+  {$L adler32.obj}
+  {$L crc32.obj}
+  {$L zutil.obj}
+
+  {$L gzclose.obj}
+  {$L gzread.obj}
+  {$L gzwrite.obj}
+  {$L gzlib.obj}
 {$ENDIF}
 
 function adler32; external;

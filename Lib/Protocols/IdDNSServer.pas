@@ -616,8 +616,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysSelect,
-  PosixSysTime,
+  Posix.SysSelect,
+  Posix.SysTime,
   {$ENDIF}
   IdIOHandler,
   IdStack,

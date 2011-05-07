@@ -103,7 +103,7 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-  PosixTime,
+  Posix.Time,
   {$ENDIF}
   IdGlobal, //here to facilitate inlining
   IdGlobalProtocols,

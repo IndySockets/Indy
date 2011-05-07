@@ -1272,8 +1272,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysSelect,
-  PosixSysTime,
+  Posix.SysSelect,
+  Posix.SysTime,
   {$ENDIF}
   IdFIPS,
   IdHash, IdHashCRC, IdHashMessageDigest, IdHashSHA, IdIOHandlerSocket,

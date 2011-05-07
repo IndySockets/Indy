@@ -1096,7 +1096,7 @@ uses
   {$IFDEF KYLIXCOMPAT}
   Libc,
     {$IFDEF MACOSX}
-  PosixUnistd,
+  Posix.Unistd,
     {$ENDIF}
   {$ENDIF}
   //facilitate inlining only.

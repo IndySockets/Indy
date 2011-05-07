@@ -135,10 +135,10 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-	  {$IFDEF DARWIN}
-    CoreServices,
-	  {$ENDIF}
-  PosixSysTime,
+    {$IFDEF DARWIN}
+  CoreServices,
+    {$ENDIF}
+  Posix.SysTime,
   {$ENDIF}
   IdGlobal, IdTCPConnection;
 

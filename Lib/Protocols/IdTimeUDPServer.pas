@@ -64,7 +64,7 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-  PosixSysTime,
+  Posix.SysTime,
   {$ENDIF}
   IdGlobalProtocols, IdStack, SysUtils;
 

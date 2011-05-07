@@ -410,9 +410,9 @@ uses
   Libc,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysSelect,
-  PosixSysTime,
-  PosixUnistd,
+  Posix.SysSelect,
+  Posix.SysTime,
+  Posix.Unistd,
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFDEF USE_INLINE}

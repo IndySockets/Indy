@@ -608,7 +608,7 @@ uses
     CoreServices,
       {$ENDIF}
     DateUtils,
-    PosixSysStat, PosixSysTime, PosixTime, PosixUnistd,
+    Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WINDOWS}
@@ -4261,7 +4261,7 @@ begin
   Result := GetHostName;
     {$ENDIF}
     {$IFDEF USE_VCL_POSIX}
-  if PosixUnistd.gethostname(@LHost[1], 255) <> -1 then begin
+  if Posix.Unistd.gethostname(@LHost[1], 255) <> -1 then begin
     i := IndyPos(#0, String(LHost));
     SetString(Result, PAnsiChar(@LHost[1]), i-1);
   end;

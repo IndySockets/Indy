@@ -629,10 +629,10 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-  PosixGlue,
-  PosixSysTime,
-  PosixTime,
-  PosixUnistd,
+  Posix.Glue,
+  Posix.SysTime,
+  Posix.Time,
+  Posix.Unistd,
   {$ENDIF}
   IdFIPS,
   IdResourceStringsCore,
@@ -1730,7 +1730,7 @@ end;
 function BytesToHexString(APtr: Pointer; ALen: Integer): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
-  i: PtrInt;
+  i: Integer;
   LPtr: PByte;
 begin
   Result := '';

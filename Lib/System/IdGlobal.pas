@@ -543,7 +543,7 @@ uses
       DynLibs, // better add DynLibs only for fpc
       {$ENDIF}
       {$IFDEF USE_VCL_POSIX}
-      PosixGlue, PosixSysTypes, PosixPthread, PosixTodo,
+      Posix.Glue, Posix.SysTypes, Posix.Pthread, Posix.Todo,
       {$ENDIF}
       {$IFDEF USE_BASEUNIX}
       BaseUnix, Unix, Sockets, UnixType, 
@@ -1127,11 +1127,11 @@ type
   (*$HPPEMIT '{'*)
   (*$HPPEMIT '    struct TIdIPv6Address'*)
   (*$HPPEMIT '    {'*)
-  (*$HPPEMIT '        Word data[8];'*)
-  (*$HPPEMIT '        Word& operator[](int index) { return data[index]; }'*)
-  (*$HPPEMIT '        const Word& operator[](int index) const { return data[index]; }'*)
-  (*$HPPEMIT '        operator const Word*() const { return data; }'*)
-  (*$HPPEMIT '        operator Word*() { return data; }'*)
+  (*$HPPEMIT '        ::System::Word data[8];'*)
+  (*$HPPEMIT '        ::System::Word& operator[](int index) { return data[index]; }'*)
+  (*$HPPEMIT '        const ::System::Word& operator[](int index) const { return data[index]; }'*)
+  (*$HPPEMIT '        operator const ::System::Word*() const { return data; }'*)
+  (*$HPPEMIT '        operator ::System::Word*() { return data; }'*)
   (*$HPPEMIT '    };'*)
   (*$HPPEMIT '}'*)
 
@@ -1628,9 +1628,9 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-  PosixSysSelect,
-  PosixSysSocket,
-  PosixTime, PosixSysTime,
+  Posix.SysSelect,
+  Posix.SysSocket,
+  Posix.Time, Posix.SysTime,
   {$ENDIF}
   {$IFDEF VCL_CROSS_COMPILE}
     {$IFDEF MACOSX}

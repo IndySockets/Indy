@@ -108,9 +108,9 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixGlue,
-  PosixSysSelect,
-  PosixSysTime,
+  Posix.Glue,
+  Posix.SysSelect,
+  Posix.SysTime,
   {$ENDIF}
   {$IFDEF KYLIXCOMPAT}
   Libc,

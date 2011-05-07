@@ -1103,9 +1103,9 @@ uses
 
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysSelect,
-  PosixSysTime,
-  PosixUnistd,
+  Posix.SysSelect,
+  Posix.SysTime,
+  Posix.Unistd,
   {$ENDIF}
   {$IFDEF WINDOWS}
   //facilitate inlining only.
@@ -1239,6 +1239,9 @@ begin
 
     // RLebeau: must not send/receive UTF-8 before negotiating for it...
     IOHandler.DefStringEncoding := Indy8BitEncoding;
+    {$IFDEF STRING_IS_ANSI}
+    IOHandler.DefAnsiEncoding := TIdTextEncoding.Default;
+    {$ENDIF}
 
     // RLebeau: RFC 959 says that the greeting can be preceeded by a 1xx
     // reply and that the client should wait for the 220 reply when this 
@@ -1523,7 +1526,7 @@ begin
       {$IFDEF HAS_TEncoding}
       FListResult.LoadFromStream(LDest, IOHandler.DefStringEncoding);
       {$ELSE}
-      FListResult.Text := ReadStringFromStream(LDest, -1, IOHandler.DefStringEncoding);
+      FListResult.Text := ReadStringFromStream(LDest, -1, IOHandler.DefStringEncoding{$IFDEF STRING_IS_ANSI}, IOHandler.DefAnsiEncoding{$ENDIF});
       {$ENDIF}
       with TIdFTPListResult(FListResult) do begin
         FDetails := ADetails;
@@ -2101,6 +2104,7 @@ begin
   FDataChannel.IOHandler.RecvBufferSize := IOHandler.RecvBufferSize;
   FDataChannel.IOHandler.LargeStream := True;
  // FDataChannel.IOHandler.DefStringEncoding := Indy8BitEncoding;
+ // FDataChannel.IOHandler.DefAnsiEncoding := TIdTextEncoding.Default;
   FDataChannel.WorkTarget := Self;
 end;
 
@@ -2333,6 +2337,9 @@ begin
     FSystemDesc := '';
     FTransferType := Id_TIdFTP_TransferType;
     IOHandler.DefStringEncoding := Indy8BitEncoding;
+    {$IFDEF STRING_IS_ANSI}
+    IOHandler.DefAnsiEncoding := TIdTextEncoding.Default;
+    {$ENDIF}
     if FUsingSFTP and (FUseTLS <> utUseImplicitTLS) then begin
       (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
       FUsingSFTP := False;

@@ -102,10 +102,10 @@ uses
   Windows,
 {$ENDIF}
 {$IFDEF USE_VCL_POSIX}
-  PosixGlue,
-  PosixSysTime,
-  PosixTime,
-  PosixUnistd,
+  Posix.Glue,
+  Posix.SysTime,
+  Posix.Time,
+  Posix.Unistd,
 {$ENDIF}
   IdGlobal,
   IdGlobalProtocols,

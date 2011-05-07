@@ -69,7 +69,7 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-  PosixUnistd,
+  Posix.Unistd,
   {$ENDIF}
   {$IFDEF KYLIXCOMPAT}
   Libc,

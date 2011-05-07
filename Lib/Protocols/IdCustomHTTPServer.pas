@@ -534,8 +534,8 @@ uses
   Libc,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysSelect,
-  PosixSysTime,
+  Posix.SysSelect,
+  Posix.SysTime,
   {$ENDIF}
   {$IFDEF DOTNET}
     {$IFDEF USE_INLINE}

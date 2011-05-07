@@ -822,9 +822,9 @@ uses
   IdWinsock2,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysSocket,
-  PosixSysTime,
-  PosixSysTypes,
+  Posix.SysSocket,
+  Posix.SysTime,
+  Posix.SysTypes,
   {$ENDIF}
   {$IFDEF USE_BASEUNIX}
     baseunix,
