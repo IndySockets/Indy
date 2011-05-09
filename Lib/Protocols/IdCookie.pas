@@ -670,6 +670,7 @@ begin
       FExpires := EncodeDate(9999, 12, 31) + EncodeTime(23, 59, 59, 999);
     end;
 
+    S := '';
     if GetLastValueOf('DOMAIN', S) then {Do not Localize}
     begin
       // TODO
@@ -695,6 +696,14 @@ begin
            changes over time.  If feasible, user agents SHOULD use an
            up-to-date public suffix list, such as the one maintained by
            the Mozilla project at <http://publicsuffix.org/>.
+      }
+      {
+      if RejectPublicSuffixes and IsPublicSuffix(S) then begin
+        if S <> CanonicalizeHostName(AURI.Host) then begin
+          Exit;
+        end;
+        S := '';
+      end;
       }
     end;
 
