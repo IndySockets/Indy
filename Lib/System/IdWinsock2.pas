@@ -1462,6 +1462,7 @@ const
 type
   {$EXTERNALSYM GROUP}
   GROUP = DWORD;
+  PGROUP = ^GROUP;
 
 //  WinSock 2 extension -- data type for WSAEnumNetworkEvents()
   {$EXTERNALSYM WSANETWORKEVENTS}
@@ -2454,10 +2455,10 @@ type
 type
   {$EXTERNALSYM LPCONDITIONPROC}
   LPCONDITIONPROC = function(lpCallerId: LPWSABUF; lpCallerData: LPWSABUF; lpSQOS, pGQOS: LPQOS;
-    lpCalleeId,lpCalleeData: LPWSABUF; g: GROUP; dwCallbackData: DWORD): Integer; stdcall;
+    lpCalleeId,lpCalleeData: LPWSABUF; g: PGROUP; dwCallbackData: DWORD_PTR): Integer; stdcall;
   {$EXTERNALSYM LPWSAOVERLAPPED_COMPLETION_ROUTINE}
-  LPWSAOVERLAPPED_COMPLETION_ROUTINE = procedure(const dwError, cbTransferred: DWORD;
-    const lpOverlapped : LPWSAOVERLAPPED; const dwFlags: DWORD); stdcall;
+  LPWSAOVERLAPPED_COMPLETION_ROUTINE = procedure(dwError, cbTransferred: DWORD;
+    lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD); stdcall;
 
   {$EXTERNALSYM WSACOMPLETIONTYPE}
   {$EXTERNALSYM NSP_NOTIFY_IMMEDIATELY}
@@ -6234,7 +6235,14 @@ begin
   i := 0;
   while i < FDSet.fd_count do
   begin
+    // RLebeau: workaround for a bug in D2009. Comparing PtrUInt values does not always work correctly.
+    // Sometimes it causes "W1023 Comparing signed and unsigned types" warnings, other times it causes
+    // "F2084 Internal Error: C12079" errors
+    {$IFDEF VCL_2009}
+    if Integer(FDSet.fd_array[i]) = Integer(ASocket) then
+    {$ELSE}
     if FDSet.fd_array[i] = ASocket then
+    {$ENDIF}
     begin
       while i < FDSet.fd_count - 1 do
       begin

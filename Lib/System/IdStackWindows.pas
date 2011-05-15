@@ -363,7 +363,14 @@ var
 begin
   LSize := SizeOf(LAddr);
   Result := IdWinsock2.accept(ASocket, PSOCKADDR(@LAddr), @LSize);
+  // RLebeau: workaround for a bug in D2009. Comparing PtrUInt values does not always work correctly.
+  // Sometimes it causes "W1023 Comparing signed and unsigned types" warnings, other times it causes
+  // "F2084 Internal Error: C12079" errors
+  {$IFDEF VCL_2009}
+  if Integer(Result) <> Integer(INVALID_SOCKET) then begin
+  {$ELSE}
   if Result <> INVALID_SOCKET then begin
+  {$ENDIF}
     case LAddr.sin6_family of
       Id_PF_INET4: begin
         with PSOCKADDR(@LAddr)^ do
@@ -993,7 +1000,14 @@ begin
     begin
       for i:= 0 to FFDSet.fd_count - 1 do
       begin
+        // RLebeau: workaround for a bug in D2009. Comparing PtrUInt values does not always work correctly.
+        // Sometimes it causes "W1023 Comparing signed and unsigned types" warnings, other times it causes
+        // "F2084 Internal Error: C12079" errors
+        {$IFDEF VCL_2009}
+        if Integer(FFDSet.fd_array[i]) = Integer(AHandle) then
+        {$ELSE}
         if FFDSet.fd_array[i] = AHandle then
+        {$ENDIF}
         begin
           Dec(FFDSet.fd_count);
           FFDSet.fd_array[i] := FFDSet.fd_array[FFDSet.fd_count];
@@ -1605,7 +1619,14 @@ var
   LTmpSocket: TIdStackSocketHandle;
 begin
   LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Id_SOCK_STREAM, Id_IPPROTO_IP);
+  // RLebeau: workaround for a bug in D2009. Comparing PtrUInt values does not always work correctly.
+  // Sometimes it causes "W1023 Comparing signed and unsigned types" warnings, other times it causes
+  // "F2084 Internal Error: C12079" errors
+  {$IFDEF VCL_2009}
+  Result := Integer(LTmpSocket) <> Integer(Id_INVALID_SOCKET);
+  {$ELSE}
   Result := LTmpSocket <> Id_INVALID_SOCKET;
+  {$ENDIF}
   if Result then begin
     WSCloseSocket(LTmpSocket);
   end;
