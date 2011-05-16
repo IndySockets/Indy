@@ -176,7 +176,7 @@ implementation
 
 uses
   IdException, IdResourceStringsProtocols,
-  IdTCPStream, SysUtils;
+  IdTCPStream, IdBuffer, SysUtils;
 
 var
   GMessageDecoderList: TIdMessageDecoderList = nil;
@@ -272,20 +272,116 @@ procedure TIdMessageDecoder.ReadHeader;
 begin
 end;
 
+// this is copied from TIdIOHandler.ReadLn() and then adjusted to read from
+// a TStream, with the same sematics as Idglobal.ReadLnFromStream() but with
+// support for searching for a caller-specified terminator.
+function DoReadLnFromStream(AStream: TStream; ATerminator: string;
+  AMaxLineLength: Integer = -1; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  ): string;
+const
+  LBUFMAXSIZE = 2048;
+var
+  LBuffer: TIdBuffer;
+  LSize: Integer;
+  LStartPos: Integer;
+  LTermPos: Integer;
+  LTerm, LTemp: TIdBytes;
+  LStrmStartPos, LStrmPos, LStrmSize: TIdStreamSize;
+begin
+  Assert(AStream<>nil);
+
+  { we store the stream size for the whole routine to prevent
+  so do not incur a performance penalty with TStream.Size.  It has
+  to use something such as Seek each time the size is obtained}
+  {4 seek vs 3 seek}
+  LStrmStartPos := AStream.Position;
+  LStrmPos := LStrmStartPos;
+  LStrmSize := AStream.Size;
+
+  if LStrmPos >= LStrmSize then begin
+    Result := '';
+    Exit;
+  end;
+
+  SetLength(LTemp, LBUFMAXSIZE);
+  LBuffer := TIdBuffer.Create;
+  try
+    EnsureEncoding(AByteEncoding);
+    {$IFDEF STRING_IS_ANSI}
+    EnsureEncoding(ADestEncoding, encOSDefault);
+    {$ENDIF}
+    if AMaxLineLength < 0 then begin
+      AMaxLineLength := MaxInt;
+    end;
+    // User may pass '' if they need to pass arguments beyond the first.
+    if ATerminator = '' then begin
+      ATerminator := LF;
+    end;
+    LTerm := ToBytes(ATerminator, AByteEncoding
+      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
+      );
+    LTermPos := -1;
+    LStartPos := 0;
+    repeat
+      LSize := IndyMin(LStrmSize - LStrmPos, LBUFMAXSIZE);
+      LSize := ReadTIdBytesFromStream(AStream, LTemp, LSize);
+      if LSize < 1 then begin
+        LStrmPos := LStrmStartPos + LBuffer.Size;
+        Break;
+      end;
+      Inc(LStrmPos, LSize);
+      LBuffer.Write(LTemp, LSize, 0);
+
+      LTermPos := LBuffer.IndexOf(LTerm, LStartPos);
+      if LTermPos > -1 then begin
+        if (AMaxLineLength > 0) and (LTermPos > AMaxLineLength) then begin
+          LStrmPos := LStrmStartPos + AMaxLineLength;
+          LTermPos := AMaxLineLength;
+        end else begin
+          LStrmPos := LStrmStartPos + LTermPos + Length(LTerm);
+        end;
+        Break;
+      end;
+
+      LStartPos := IndyMax(LBuffer.Size-(Length(LTerm)-1), 0);
+      if (AMaxLineLength > 0) and (LStartPos >= AMaxLineLength) then begin
+        LStrmPos := LStrmStartPos + AMaxLineLength;
+        LTermPos := AMaxLineLength;
+        Break;
+      end;
+    until LStrmPos >= LStrmSize;
+
+    // Extract actual data
+    if (ATerminator = LF) and (LTermPos > 0) and (LTermPos < LBuffer.Size) then begin
+      if (LBuffer.PeekByte(LTermPos) = Ord(LF)) and
+         (LBuffer.PeekByte(LTermPos-1) = Ord(CR)) then begin
+        Dec(LTermPos);
+      end;
+    end;
+
+    AStream.Position := LStrmPos;
+    Result := LBuffer.ExtractToString(LTermPos, AByteEncoding
+      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
+      );
+  finally
+    LBuffer.Free;
+  end;
+end;
+
 function TIdMessageDecoder.ReadLn(const ATerminator: string = LF;
   AByteEncoding: TIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
   ): string;
-var
-  LWasSplit: Boolean;  //Needed for lines > 16K, e.g. if Content-Transfer-Encoding is 'binary'
 begin
-  Result := '';
   if SourceStream is TIdTCPStream then begin
-    repeat
-      Result := Result + TIdTCPStream(SourceStream).Connection.IOHandler.ReadLnSplit(LWasSplit, ATerminator, IdTimeoutDefault, -1, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
-    until not LWasSplit;
+    Result := TIdTCPStream(SourceStream).Connection.IOHandler.ReadLn(
+      ATerminator, IdTimeoutDefault, -1, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
+      );
   end else begin
-    Result := ReadLnFromStream(SourceStream, -1, False, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := DoReadLnFromStream(SourceStream, ATerminator, -1, AByteEncoding
+      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
+      );
   end;
 end;
 
