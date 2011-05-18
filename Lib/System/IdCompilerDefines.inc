@@ -599,6 +599,7 @@
   {.$DEFINE HAS_NativeInt}
   {.$DEFINE HAS_NativeUInt}
   {$DEFINE HAS_StrToInt64Def}
+  {$DEFINE HAS_DWORD_PTR}
   {$DEFINE HAS_ULONG_PTR}
   {$DEFINE HAS_PGUID}
   {$DEFINE HAS_PPAnsiChar}
@@ -799,7 +800,7 @@
 {$IFDEF NETWARELIBC}
   {$DEFINE USE_ICONV}
   //important!!! iconv functions are defined in the libc.pas Novell Netware header.
-  //Do not define USE_ICONVUNIT
+  //Do not define USE_ICONV_UNIT
   {$UNDEF USE_ICONV_UNIT}
   {$UNDEF USE_ICONV_ENC}
 {$ENDIF}

@@ -235,6 +235,11 @@ type
   ULONG_PTR = PtrUInt;
   {$ENDIF}
 
+  {$IFNDEF HAS_DWORD_PTR}
+  {$EXTERNALSYM DWORD_PTR}
+  DWORD_PTR = PtrUInt;
+  {$ENDIF}
+
 const
   {$EXTERNALSYM FD_SETSIZE}
   FD_SETSIZE     =   64;
