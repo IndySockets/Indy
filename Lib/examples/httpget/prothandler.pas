@@ -16,6 +16,10 @@ uses
   {$define usezlib}
   {$define useopenssl}
 {$ENDIF}
+{$IFDEF WIN64}
+  {$define usezlib}
+  {$define useopenssl}
+{$ENDIF}
   Classes, SysUtils, IdURI;
 type
   TProtHandler = class(TObject)

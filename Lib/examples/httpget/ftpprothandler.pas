@@ -12,6 +12,7 @@ uses
   IdFTPListTypes, //needed for ref. to TIdUnixBaseFTPListItem property
   IdFTPListParseVMS, //needed for ref. to TIdVMSFTPListItem property ;
     IdIOHandler,
+    IdTCPConnection,
   IdIOHandlerStack,
     {$ifdef usezlib}
     IdCompressorZLib,  //for deflate FTP support
@@ -39,6 +40,10 @@ type
     procedure OnSent(ASender: TComponent; const AText: string; const AData: string);
     procedure OnReceived(ASender: TComponent; const AText: string; const AData: string);
     procedure MakeHTMLDirTable(AURL : TIdURI; AFTP : TIdFTP);
+    procedure OnDataChannelCreating(ASender: TObject; ADataChannel: TIdTCPConnection);
+    procedure OnDataChannelDestroy(ASender: TObject; ADataChannel: TIdTCPConnection);
+    procedure OnDirParseStart(ASender : TObject);
+    procedure OnDirParseEnd(ASender : TObject);
   {$ENDIF}
   public
      class function CanHandleURL(AURL : TIdURI) : Boolean; override;
@@ -48,6 +53,7 @@ type
   end;
 
 implementation
+uses IdGlobal;
 
 class function TFTPProtHandler.CanHandleURL(AURL : TIdURI) : Boolean;
 begin
@@ -88,7 +94,9 @@ begin
   
   {$ifdef  usezlib}
   LC := TIdCompressorZLib.Create;
-  LF.Compressor := LC;
+  if LC.IsReady then begin
+    LF.Compressor := LC;
+  end;
   {$endif}
   try
     LDI.Active := True;
@@ -99,14 +107,12 @@ begin
     LIO := TIdIOHandlerStack.Create;
     LIO.Intercept := LDI;
     LF.IOHandler := LIO;
-    {$ifdef  usezlib}
-    LF.Compressor := LC;
-    {$endif}
     LF.Passive := not FPort;
     LF.UseMLIS := True;
 
     LF.Host := AURL.Host;
-    LF.Username := AURL.Username;
+    LF.Password := AURL.URLDecode(AURL.Password);
+    LF.Username := AURL.URLDecode(AURL.Username);
     LF.IPVersion := AURL.IPVersion;
 	LF.Password := AURL.Password;;
 	if LF.Username = '' then
@@ -119,6 +125,12 @@ begin
       LIsDir := True;
     end;
     LStr := TMemoryStream.Create;
+    if FVerbose  then begin
+      LF.OnDataChannelCreate := OnDataChannelCreating;
+      LF.OnDataChannelDestroy := OnDataChannelDestroy;
+      LF.OnDirParseStart := OnDirParseStart;
+      LF.OnDirParseEnd := OnDirParseEnd;
+    end;
     LF.Connect;
     try
       LF.ChangeDir(AURL.Path);
@@ -291,12 +303,38 @@ begin
 end;
 
 procedure TFTPProtHandler.OnSent(ASender: TComponent; const AText: string; const AData: string);
+var LData : String;
 begin
-  FLogData.Text := FLogData.Text + AData;
-  if FVerbose then
-  begin
-    Write({$IFDEF FPC}stdout{$ELSE}output{$ENDIF},AData);
+  LData := AData;
+  if TextStartsWith(LData,'PASS ') then begin
+    FLogData.Text := FLogData.Text + 'PASS ****';
   end;
+  FLogData.Text := FLogData.Text + LData;
+  if FVerbose then begin
+      Write({$IFDEF FPC}stdout{$ELSE}output{$ENDIF},LData);
+  end;
+end;
+
+procedure TFTPProtHandler.OnDataChannelCreating(ASender: TObject;
+  ADataChannel: TIdTCPConnection);
+begin
+  WriteLn({$IFDEF FPC}stdout{$ELSE}output{$ENDIF},'Opening Data Channel');
+end;
+
+procedure TFTPProtHandler.OnDataChannelDestroy(ASender: TObject;
+  ADataChannel: TIdTCPConnection);
+begin
+   WriteLn({$IFDEF FPC}stdout{$ELSE}output{$ENDIF},'Closing Data Channel');
+end;
+
+procedure TFTPProtHandler.OnDirParseEnd(ASender: TObject);
+begin
+  WriteLn({$IFDEF FPC}stdout{$ELSE}output{$ENDIF},'DIR Parsing finished');
+end;
+
+procedure TFTPProtHandler.OnDirParseStart(ASender: TObject);
+begin
+  WriteLn('Dir Parsing Started');
 end;
 
 procedure TFTPProtHandler.OnReceived(ASender: TComponent; const AText: string; const AData: string);

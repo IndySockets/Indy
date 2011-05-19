@@ -15,6 +15,10 @@ interface
   {$define usezlib}
   {$define useopenssl}
 {$endif}
+{$ifdef win64}
+  {$define usezlib}
+  {$define useopenssl}
+{$endif}
 
 uses
   {$IFNDEF NO_HTTP}
