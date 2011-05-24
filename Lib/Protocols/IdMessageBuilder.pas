@@ -92,7 +92,7 @@ type
     property HtmlCharSet: String read FHtmlCharSet write FHtmlCharSet;
     property HtmlContentTransfer: String read FHtmlContentTransfer write FHtmlContentTransfer;
     property HtmlFiles: TIdMessageBuilderAttachments read FHtmlFiles write SetHtmlFiles;
-    property HtmlViewerNeededMsg: String read FHtmlViewerNeededMsg write FHtmlViewerNeededMsg; 
+    property HtmlViewerNeededMsg: String read FHtmlViewerNeededMsg write FHtmlViewerNeededMsg;
   end;
 
   TIdMessageBuilderRtfType = (idMsgBldrRtfMS, idMsgBldrRtfEnriched, idMsgBldrRtfRichtext);
@@ -490,7 +490,10 @@ begin
   // "multipart/alternative" piece is needed to wrap them if
   // non-related attachments are also present...
   //
-  if LUsePlain and LUseHtml and LUseAttachments then
+  // RLebeau 5/23/2011: need to output the Alternative piece if
+  // the "HTML Viewer is needed" text is going to be used...
+  //
+  if {LUsePlain and} LUseHtml and LUseAttachments then
   begin
     with TIdText.Create(AMsg.MessageParts, nil) do
     begin
