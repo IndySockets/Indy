@@ -1659,7 +1659,6 @@ Lib/Protocols/ZLib/zconf.h eol=lf
 Lib/Protocols/ZLib/zlib.h eol=lf
 Lib/Protocols/ZLib/zlib.lib -text svneol=unset#unset
 Lib/Protocols/ZLib/zlibd32.mak -text
-Lib/Protocols/ZLib/zlibudec.obj -text
 Lib/Protocols/ZLib/zutil.c eol=lf
 Lib/Protocols/ZLib/zutil.h eol=lf
 Lib/Protocols/ZLib/zutil.obj -text svneol=unset#unset

@@ -196,18 +196,47 @@ const
 
   Z_DEFLATED = 8;
 
-
-{$L adler32.obj}
-{$L compress.obj}
-{$L crc32.obj}
-{$L deflate.obj}
-{$L infback.obj}
-{$L inffast.obj}
-{$L inflate.obj}
-{$L inftrees.obj}
-{$L trees.obj}
-{$L uncompr.obj}
-{$L zutil.obj}
+{$IFNDEF VCL_XE2_OR_ABOVE}
+  {$L adler32.obj}
+  {$L compress.obj}
+  {$L crc32.obj}
+  {$L deflate.obj}
+  {$L infback.obj}
+  {$L inffast.obj}
+  {$L inflate.obj}
+  {$L inftrees.obj}
+  {$L trees.obj}
+  {$L uncompr.obj}
+  {$L zutil.obj}
+{$ELSE}
+  {$IFDEF WIN32}
+    {$L i386-Win32-ZLib\adler32.obj}
+    {$L i386-Win32-ZLib\compress.obj}
+    {$L i386-Win32-ZLib\crc32.obj}
+    {$L i386-Win32-ZLib\deflate.obj}
+    {$L i386-Win32-ZLib\infback.obj}
+    {$L i386-Win32-ZLib\inffast.obj}
+    {$L i386-Win32-ZLib\inflate.obj}
+    {$L i386-Win32-ZLib\inftrees.obj}
+    {$L i386-Win32-ZLib\trees.obj}
+    {$L i386-Win32-ZLib\uncompr.obj}
+    {$L i386-Win32-ZLib\zlibudec.obj} // undecorated stubs which are not needed for x64 compilation
+    {$L i386-Win32-ZLib\zutil.obj}
+  {$ENDIF}
+  {$IFDEF WIN64}
+    {$L x86_64-Win64-ZLib\adler32.obj}
+    {$L x86_64-Win64-ZLib\compress.obj}
+    {$L x86_64-Win64-ZLib\crc32.obj}
+    {$L x86_64-Win64-ZLib\deflate.obj}
+    {$L x86_64-Win64-ZLib\infback.obj}
+    {$L x86_64-Win64-ZLib\inffast.obj}
+    {$L x86_64-Win64-ZLib\inflate.obj}
+    {$L x86_64-Win64-ZLib\inftrees.obj}
+    {$L x86_64-Win64-ZLib\trees.obj}
+    {$L x86_64-Win64-ZLib\uncompr.obj}
+    {$L x86_64-Win64-ZLib\zutil.obj}
+  {$ENDIF}
+{$ENDIF}
 
 procedure adler32; external;
 procedure compressBound; external;
