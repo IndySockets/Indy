@@ -64,7 +64,7 @@ to be statically compiled into the code }
 
 {$I IdCompilerDefines.inc}
 
-{$IFDEF WIN32}
+{$IFDEF WINDOWS}
 {$HPPEMIT '#pragma link "IdAntiFreeze.obj"'}    {Do not Localize}
 {$ENDIF}
 
@@ -87,7 +87,7 @@ uses
   {$IFDEF WIDGET_VCL_LIKE}
   Forms,
   {$ENDIF}
-  {$IFDEF WIN32}
+  {$IFDEF WINDOWS}
   Messages,
   Windows,
   {$ENDIF}
@@ -104,7 +104,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF WIN32}
+{$IFDEF WINDOWS}
 procedure TIdAntiFreeze.Process;
 var
   LMsg: TMsg;
