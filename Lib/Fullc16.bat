@@ -5,8 +5,10 @@ REM
 REM Author : Malcolm Smith, MJ freelancing
 REM          http://www.mjfreelancing.com
 REM 
-REM Pre-requisites:  \Lib\Protocols\ZLib must contain the ZLIB OBJ files
-REM                  \Lib\System contains the project / pas/ res files for IndySystem
+REM Note: This batch file copies the ZLIB OBJ files from \Lib\Protocols\ZLib\i386-Win32-ZLib
+REM       (Update to \Lib\Protocols\ZLib\x86_64-Win64-ZLib if required)
+REM
+REM Pre-requisites:  \Lib\System contains the project / pas/ res files for IndySystem
 REM                  \Lib\Core contains the project / pas/ res files for IndyCore
 REM                  \Lib\Protocols contains the project / pas/ res files for IndyProtocols
 REM 
@@ -104,7 +106,7 @@ REM ************************************************************
 cd ..\Lib\Protocols
 
 
-copy zlib\*.obj ..\..\C16 > nul
+copy zlib\i386-Win32-ZLib\*.obj ..\..\C16 > nul
 copy *IndyProtocols160.dpk ..\..\C16 > nul
 copy *IndyProtocols160.cfg1 ..\..\C16 > nul
 copy *IndyProtocols160.cfg2 ..\..\C16 > nul

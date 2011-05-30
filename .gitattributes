@@ -1042,6 +1042,7 @@ Lib/FreeBSDPort/make-plist.sh eol=lf
 Lib/FreeBSDPort/pkg-descr -text
 Lib/FreeBSDPort/pkg-plist -text
 Lib/FullC4-15.bat -text
+Lib/FullC4-16.bat -text
 Lib/FullD12.bat -text
 Lib/Fullc10.bat -text
 Lib/Fullc11.bat -text
