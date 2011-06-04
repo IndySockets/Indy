@@ -10135,26 +10135,32 @@ type
     status : function : TIdC_INT cdecl;
   end;
   //bn.h
-  {$EXTERNALSYM BN_ULLONG}
-  {$EXTERNALSYM BN_ULONG}
-  {$EXTERNALSYM BN_LONG}
   {$IFDEF SIXTY_FOUR_BIT_LONG}
-  BN_ULLONG = TIdC_LONGLONG;
-  BN_ULONG = TIdC_ULONG;
-  BN_LONG = TIdC_LONG;
+    {$EXTERNALSYM BN_ULLONG}
+    BN_ULLONG = TIdC_LONGLONG;
+    {$EXTERNALSYM BN_ULONG}
+    BN_ULONG = TIdC_ULONG;
+    {$EXTERNALSYM BN_LONG}
+    BN_LONG = TIdC_LONG;
   {$ENDIF}
   {$IFDEF SIXTY_FOUR_BIT}
-  BN_ULLONG = TIdC_ULONGLONG;
-  BN_LONG = TIdC_LONGLONG;
-  BN_ULONG = TIdC_ULONGLONG;
+    {$EXTERNALSYM BN_ULLONG}
+    BN_ULLONG = TIdC_ULONGLONG;
+    {$EXTERNALSYM BN_LONG}
+    BN_LONG = TIdC_LONGLONG;
+    {$EXTERNALSYM BN_ULONG}
+    BN_ULONG = TIdC_ULONGLONG;
   {$ENDIF}
   {$IFDEF THIRTY_TWO_BIT}
+    {$EXTERNALSYM BN_ULLONG}
     {$IFDEF BN_LLONG}
     BN_ULLONG = TIdC_INT64;
     {$ELSE}
     BN_ULLONG = TIdC_ULONGLONG;
     {$ENDIF}
+    {$EXTERNALSYM BN_LONG}
     BN_LONG = TIdC_LONG;
+    {$EXTERNALSYM BN_ULONG}
     BN_ULONG = TIdC_ULONG;
   {$ENDIF}
   {$EXTERNALSYM PBN_LONG}
@@ -15059,7 +15065,7 @@ var
   {$EXTERNALSYM SSL_write}
   SSL_write : function(ssl: PSSL; const buf: Pointer; num: TIdC_INT): TIdC_INT cdecl = nil;
   {$EXTERNALSYM SSL_pending}
-  SSL_pending : function(ssl : PSSL) : TIdC_INT; cdecl;
+  SSL_pending : function(ssl : PSSL) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM SSL_CTX_ctrl}
   //long  SSL_CTX_ctrl(SSL_CTX *ctx,int cmd, long larg, void *parg);
   SSL_CTX_ctrl : function(ssl: PSSL_CTX; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl = nil;
@@ -15995,7 +16001,7 @@ function IsOpenSSL_1x : Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if Assigned( SSLeay ) then begin
-    Result := SSLeay and $F0000000 = $10000000;
+    Result := (SSLeay and $F0000000) = $10000000;
   end else begin
     Result := False;
   end;
@@ -20140,25 +20146,25 @@ procedure Unload;
 var
   LStack: Pointer;
 begin
-  //this is a workaround for a known leak in the openssl library
-  //present in 0.9.8a
-  if SSLeay = $0090801f then begin //0x0090801fL
-    LStack := SSL_COMP_get_compression_methods;
-    sk_pop_free(LStack, @CRYPTO_free);
-  end;
-  CRYPTO_cleanup_all_ex_data;
-  ERR_free_strings;
-  if Assigned(ERR_remove_thread_state) then begin
-    ERR_remove_thread_state(nil);
-  end else begin
-    ERR_remove_state(0);
-  end;
-  EVP_cleanup;
-  if hIdSSL > 0 then begin
+  if hIdSSL <> 0 then begin
+    //this is a workaround for a known leak in the openssl library
+    //present in 0.9.8a
+    if SSLeay = $0090801f then begin //0x0090801fL
+      LStack := SSL_COMP_get_compression_methods;
+      sk_pop_free(LStack, @CRYPTO_free);
+    end;
+    CRYPTO_cleanup_all_ex_data;
+    ERR_free_strings;
+    if Assigned(ERR_remove_thread_state) then begin
+      ERR_remove_thread_state(nil);
+    end else begin
+      ERR_remove_state(0);
+    end;
+    EVP_cleanup;
     {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdSSL);
     hIdSSL := 0;
   end;
-  if hIdCrypto > 0 then begin
+  if hIdCrypto <> 0 then begin
     {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdCrypto);
     hIdCrypto := 0;
   end;
