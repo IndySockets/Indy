@@ -152,9 +152,6 @@ type
     procedure InitComponent; override;
   public
     procedure RegisterWebModuleClass(AClass: TComponentClass);
-  published
-    // ZLib compression library object for use with deflate and gzip encoding
-    property Compressor;
   end;
 
 implementation
