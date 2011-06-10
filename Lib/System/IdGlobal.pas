@@ -543,7 +543,7 @@ uses
       DynLibs, // better add DynLibs only for fpc
       {$ENDIF}
       {$IFDEF USE_VCL_POSIX}
-      Posix.Glue, Posix.SysTypes, Posix.Pthread, Posix.Todo,
+      Posix.Glue, Posix.SysTypes, Posix.Pthread, Posix.Unistd,
       {$ENDIF}
       {$IFDEF USE_BASEUNIX}
       BaseUnix, Unix, Sockets, UnixType, 
