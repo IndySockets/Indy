@@ -10,6 +10,8 @@
 {$DEFINE INDY100}
 {$DEFINE 10_5_8}  //so developers can IFDEF for this specific version
 
+// When invoking DCC on the command-line, use the -DBCB
+// parameter when generating C++Builder output files!
 {$IFDEF BCB}
   {$DEFINE CBUILDER}
 {$ELSE}
@@ -577,6 +579,12 @@
   {$ENDIF}
 {$ENDIF}
 
+{$IFNDEF VCL_2005_OR_ABOVE}
+  {$IFDEF DCC}
+    {$DEFINE HAS_InterlockedCompareExchange_Pointers}
+  {$ENDIF}
+{$ENDIF}
+
 {$IFDEF VCL_2006_OR_ABOVE}
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
@@ -586,8 +594,6 @@
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
   {$ENDIF}
-{$ELSE}
-  {$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$ENDIF}
 
 {$IFDEF VCL_2007_OR_ABOVE}
@@ -595,7 +601,7 @@
     // class properties are broken in C++Builder 2007, causing AVs at compile-time
     {$DEFINE HAS_CLASSPROPERTIES}
   {$ENDIF}
-  // Native(U)Int existed but were buggy, so do not use them yet
+  // Native(U)Int exist but are buggy, so do not use them yet
   {.$DEFINE HAS_NativeInt}
   {.$DEFINE HAS_NativeUInt}
   {$DEFINE HAS_StrToInt64Def}
@@ -631,8 +637,9 @@
   {$DEFINE HAS_CLASSVARS}
   {$DEFINE HAS_DEPRECATED_MSG}
   {$DEFINE HAS_TBytes}
-  {$DEFINE HAS_NativeInt}
-  {$DEFINE HAS_NativeUInt}
+  // Native(U)Int are still buggy, so do not use them yet
+  {.$DEFINE HAS_NativeInt}
+  {.$DEFINE HAS_NativeUInt}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -642,6 +649,9 @@
   {$DEFINE HAS_TStrings_ValueFromIndex}
   {$DEFINE HAS_TThread_NameThreadForDebugging}
   {$DEFINE DEPRECATED_TThread_SuspendResume}
+  // Native(U)Int are finally ok to use now
+  {$DEFINE HAS_NativeInt}
+  {$DEFINE HAS_NativeUInt}
 {$ENDIF}
 
 {$IFDEF VCL_XE_OR_ABOVE}
