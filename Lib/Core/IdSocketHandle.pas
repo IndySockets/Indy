@@ -678,15 +678,7 @@ var
 begin
   Result := nil;
   for i := Count-1 downto 0 do begin
-    // RLebeau: workaround for a bug in D2009. Comparing PtrUInt values does not always work correctly.
-    // Sometimes it causes "W1023 Comparing signed and unsigned types" warnings, other times it causes
-    // "F2084 Internal Error: C12079" errors
-    {$IFDEF VCL_2009}
-    if Integer(Items[i].Handle) = Integer(AHandle) then
-    {$ELSE}
-    if Items[i].Handle = AHandle then
-    {$ENDIF}
-    begin
+    if Items[i].Handle = AHandle then begin
       Result := Items[i];
       Exit;
     end;
