@@ -52,6 +52,8 @@ uses
 
 type
   TIdConnectThroughHttpProxy = class(TIdCustomTransparentProxy)
+  private
+    FAuthorizationRequired: Boolean;
   protected
     FEnabled: Boolean;
     function  GetEnabled: Boolean; override;
@@ -109,7 +111,19 @@ begin
       Fetch(LStatus);// to remove the http/1.0 or http/1.1
       LResponseCode := IndyStrToInt(Fetch(LStatus, ' ', False), 200); // if invalid response then we assume it succeeded
       if (LResponseCode = 407) and (Length(Username) > 0) and (not ALogin) then begin // authorization required
-        DoMakeConnection(AIOHandler, AHost, APort, True);// try again, but with login
+        if TextIsSame(LHeaders.Values['Proxy-Connection'], 'close') then begin {do not localize}
+          // need to reconnect before trying again with login
+          AIOHandler.Close;
+          FAuthorizationRequired := True;
+          try
+            AIOHandler.Open;
+          finally
+            FAuthorizationRequired := False;
+          end;
+        end else begin
+          // still connected so try again with login
+          DoMakeConnection(AIOHandler, AHost, APort, True);
+        end;
       end
       else if not (LResponseCode in [200]) then begin // maybe more responsecodes to add
         raise EIdHttpProxyError.Create(LStatus);//BGO: TODO: maybe split into more exceptions?
@@ -123,7 +137,7 @@ end;
 procedure TIdConnectThroughHttpProxy.MakeConnection(AIOHandler: TIdIOHandler;
   const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  DoMakeConnection(AIOHandler, AHost, APort, False);
+  DoMakeConnection(AIOHandler, AHost, APort, FAuthorizationRequired);
 end;
 
 procedure TIdConnectThroughHttpProxy.SetEnabled(AValue: Boolean);
