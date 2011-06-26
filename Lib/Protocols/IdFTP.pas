@@ -4074,6 +4074,7 @@ var
   LRemoteCRC : String;
   LLocalCRC : String;
   LCmd : String;
+  LRemoteFile: String;
   LStartPoint : TIdStreamSize;
   LByteCount : TIdStreamSize;  //used instead of AByteCount so we don't exceed the file size
   LHashClass: TIdHashClass;
@@ -4091,35 +4092,33 @@ begin
   if (LByteCount > AByteCount) and (AByteCount > 0) then begin
     LByteCount := AByteCount;
   end;
+
+  //just in case the server doesn't support file names in quotes.
+  if IndyPos(' ', ARemoteFile) > 0 then begin
+    LRemoteFile := '"' + ARemoteFile + '"';
+  end else begin
+    LRemoteFile := ARemoteFile;
+  end;
+
   if TIdHashSHA512.IsAvailable and IsExtSupported('XSHA512') then begin
     //XSHA256 <sp> pathname [<sp> startposition <sp> endposition]
-    LCmd := 'XSHA512 "' + ARemoteFile + '"';
+    LCmd := 'XSHA512 ' + LRemoteFile;
     if AByteCount > 0 then begin
       LCmd := LCmd + ' ' + IntToStr(LStartPoint) + ' ' + IntToStr(LByteCount);
     end
     else if AStartPoint > 0 then begin
       LCmd := LCmd + ' ' + IntToStr(LStartPoint);
-    end else begin
-      //just in case the server doesn't support file names in quotes.
-      if IndyPos(' ', ARemoteFile) = 0 then begin
-        LCmd := 'XSHA512 ' + ARemoteFile;
-      end;
     end;
     LHashClass := TIdHashSHA512;
   end
   else if TIdHashSHA256.IsAvailable and IsExtSupported('XSHA256') then begin
     //XSHA256 <sp> pathname [<sp> startposition <sp> endposition]
-    LCmd := 'XSHA256 "'+ARemoteFile+'"';
+    LCmd := 'XSHA256 ' + LRemoteFile;
     if AByteCount > 0 then begin
       LCmd := LCmd + ' ' + IntToStr(LStartPoint) + ' ' + IntToStr(LByteCount);
     end
     else if AStartPoint > 0 then begin
       LCmd := LCmd + ' ' + IntToStr(LStartPoint);
-    end else begin
-      //just in case the server doesn't support file names in quotes.
-      if IndyPos(' ', ARemoteFile) = 0 then begin
-        LCmd := 'XSHA256 ' + ARemoteFile;
-      end;
     end;
     LHashClass := TIdHashSHA256;
   end
@@ -4134,16 +4133,16 @@ begin
     //XCRC "filename" [startpos] [number of bytes to calc]
 
     if IndexOfFeatLine('XSHA1 filename;start;end') > -1 then begin
-      LCmd := 'XSHA1 "' + ARemoteFile + '" ' + IntToStr(LStartPoint) + ' ' + IntToStr(LStartPoint + LByteCount-1);
+      LCmd := 'XSHA1 ' + LRemoteFile + ' ' + IntToStr(LStartPoint) + ' ' + IntToStr(LStartPoint + LByteCount-1);
     end else
     begin
       //BlackMoon FTP Server uses this one.
-      if LStartPoint > 0 then begin
-        LCmd := LCmd + ' ' + IntToStr(LByteCount);
-      end else begin
-        //IMPORTANT!!!  Some servers do not support a startpos parameter so do
-        //not attempt to use it if we want to checksum the entire file.
-        LCmd := 'XSHA1 "' + ARemoteFile + '"'
+      LCmd := 'XSHA1 ' + LRemoteFile;
+      if AByteCount > 0 then begin
+        LCmd := LCmd + ' ' + IntToStr(LStartPoint) + ' ' + IntToStr(LByteCount);
+      end
+      else if AStartPoint > 0 then begin
+        LCmd := LCmd + ' ' + IntToStr(LStartPoint);
       end;
     end;
     LHashClass := TIdHashSHA1;
@@ -4159,11 +4158,11 @@ begin
     //XCRC "filename" [startpos] [number of bytes to calc]
 
     if IndexOfFeatLine('XMD5 filename;start;end') > -1 then begin
-      LCmd := 'XMD5 "' + ARemoteFile + '" ' + IntToStr(LStartPoint) + ' ' + IntToStr(LStartPoint + LByteCount-1);
+      LCmd := 'XMD5 ' + LRemoteFile + ' ' + IntToStr(LStartPoint) + ' ' + IntToStr(LStartPoint + LByteCount-1);
     end else
     begin
       //BlackMoon FTP Server uses this one.
-      LCmd := 'XMD5 "' + ARemoteFile + '"';
+      LCmd := 'XMD5 ' + LRemoteFile;
       if AByteCount > 0 then begin
         LCmd := LCmd + ' ' + IntToStr(LStartPoint) + ' ' + IntToStr(LByteCount);
       end
@@ -4174,7 +4173,7 @@ begin
     LHashClass := TIdHashMessageDigest5;
   end else
   begin
-    LCmd := 'XCRC "' + ARemoteFile + '"';
+    LCmd := 'XCRC ' + LRemoteFile;
     if AByteCount > 0 then begin
       LCmd := LCmd + ' ' + IntToStr(LStartPoint) + ' ' + IntToStr(LByteCount);
     end
