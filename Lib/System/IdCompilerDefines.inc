@@ -521,6 +521,18 @@
 
 // Check for available features
 
+{$IFDEF CBUILDER}
+  // When generating a C++ HPP file, if a class has no explicit constructor
+  // defined and contains compiler-managed members (xxxString, TDateTime,
+  // Variant, DelphiInterface, etc), the HPP will contain a forwarding
+  // inline constructor that implicitally initializes those managed members,
+  // which will overwrite any non-default initializations performed inside
+  // of InitComponent() overrides! In this situation, the workaround is to
+  // define an explicit constructor that forwards to the base class constructor
+  // manually.
+  {$DEFINE WORKAROUND_INLINE_CONSTRUCTORS}
+{$ENDIF}
+
 {$IFDEF VCL_5_OR_ABOVE}
   {$IFNDEF FPC}
     {$IFNDEF KYLIX}

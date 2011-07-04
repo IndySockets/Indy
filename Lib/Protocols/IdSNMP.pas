@@ -145,6 +145,9 @@ type
     Query : TSNMPInfo;
     Reply : TSNMPInfo;
     Trap  : TSNMPInfo;
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
     function SendQuery : Boolean;
     function QuickSend(const Mib, DestCommunity, DestHost: string; var Value: string):Boolean;
@@ -558,6 +561,13 @@ end;
  | Parameters:                                                                |
  |   aOwner : TComponent                                                      |
  *----------------------------------------------------------------------------*)
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdSNMP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
+
 procedure TIdSNMP.InitComponent;
 begin
   inherited InitComponent;

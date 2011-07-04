@@ -51,6 +51,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdAssignedNumbers,
   IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,
   IdTCPServer;
@@ -77,6 +80,9 @@ type
     procedure SetGreeting(AValue: TIdReplyPOP3);
     procedure SetReplyUnknownCommand(const AValue: TIdReplyPOP3);
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
   published
     property Greeting : TIdReplyPOP3 read FGreeting write SetGreeting;
@@ -94,6 +100,13 @@ uses
   IdTCPClient, IdTCPConnection, SysUtils;
 
 { TIdMappedPOP3 }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdMappedPOP3.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 destructor TIdMappedPOP3.Destroy;
 begin

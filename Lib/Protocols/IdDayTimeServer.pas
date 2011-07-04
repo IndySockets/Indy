@@ -50,6 +50,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -61,6 +64,10 @@ Type
     //
     function DoExecute(AContext:TIdContext): boolean; override;
     procedure InitComponent; override;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   published
     property TimeZone: String read FTimeZone write FTimeZone;
     property DefaultPort default IdPORT_DAYTIME;
@@ -70,6 +77,13 @@ implementation
 
 uses
   IdGlobal, SysUtils;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdDayTimeServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdDayTimeServer.InitComponent;
 begin

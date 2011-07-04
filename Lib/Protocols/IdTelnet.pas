@@ -350,6 +350,9 @@ type
     procedure InitComponent; override;
   public
     //
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
@@ -440,6 +443,13 @@ begin
     end;
   end;
 end;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdTelnet.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdTelnet.InitComponent;
 begin

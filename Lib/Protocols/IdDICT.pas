@@ -85,6 +85,9 @@ type
     procedure InternalGetList(const ACmd : String; AENtries : TCollection);
     procedure InternalGetStrs(const ACmd : String; AStrs : TStrings);
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
     procedure Connect; override;
     procedure DisconnectNotifyPeer; override;
@@ -119,6 +122,13 @@ const
   DEF_CLIENT_FMT = 'Indy Library %s'; {do not localize}
 
 { TIdDICT }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdDICT.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdDICT.Connect;
 var

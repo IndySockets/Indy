@@ -448,6 +448,9 @@ type
     procedure WriteFoldedLine(const ALine : string);
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
     procedure ProcessMessage(AMsg: TIdMessage; AHeaderOnly: Boolean = False); overload;
     procedure ProcessMessage(AMsg: TIdMessage; AStream: TStream; AHeaderOnly: Boolean = False); overload;
@@ -608,6 +611,13 @@ end;
 ///////////////////
 // TIdMessageClient
 ///////////////////
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdMessageClient.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdMessageClient.InitComponent;
 begin

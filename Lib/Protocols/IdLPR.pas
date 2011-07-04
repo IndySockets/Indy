@@ -163,6 +163,9 @@ type
     function GetControlData: String;
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
     procedure Connect; override;
     procedure Print(const AText: String); overload;
@@ -195,6 +198,13 @@ uses
   SysUtils;
 
 { TIdLPR }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdLPR.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdLPR.InitComponent;
 begin

@@ -113,6 +113,9 @@ type
     procedure DoConnect(AContext: TIdContext); override;
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     function DoAuthenticate(AContext: TIdContext; const AUsername, APassword: string)
      : boolean; virtual;
     procedure DoNegotiate(AContext: TIdContext); virtual;
@@ -129,6 +132,13 @@ implementation
 
 uses
   IdException, IdGlobal, IdResourceStringsProtocols, SysUtils;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdTelnetServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdTelnetServer.InitComponent;
 begin

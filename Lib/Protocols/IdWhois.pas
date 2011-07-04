@@ -56,6 +56,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdAssignedNumbers,
   IdTCPClient;
 
@@ -64,6 +67,9 @@ type
   protected
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     function WhoIs(const ADomain: string): string;
   published
     property Port default IdPORT_WHOIS;
@@ -77,6 +83,13 @@ uses
   IdTCPConnection;
 
 { TIdWHOIS }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdWHOIS.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdWHOIS.InitComponent;
 begin

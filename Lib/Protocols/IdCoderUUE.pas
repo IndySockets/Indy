@@ -41,17 +41,28 @@ unit IdCoderUUE;
 interface
 
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdCoder00E, IdCoder3to4;
 
 type
   TIdDecoderUUE = class(TIdDecoder00E)
   protected
     procedure InitComponent; override;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   end;
 
   TIdEncoderUUE = class(TIdEncoder00E)
   protected
     procedure InitComponent; override;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   end;
 
 const
@@ -69,6 +80,13 @@ uses
 
 { TIdEncoderUUE }
 
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdEncoderUUE.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
+
 procedure TIdEncoderUUE.InitComponent;
 begin
   inherited InitComponent;
@@ -77,6 +95,13 @@ begin
 end;
 
 { TIdDecoderUUE }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdDecoderUUE.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdDecoderUUE.InitComponent;
 begin

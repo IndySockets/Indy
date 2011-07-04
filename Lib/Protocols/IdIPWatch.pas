@@ -110,6 +110,9 @@ type
     procedure SetWatchInterval(Value: Cardinal);
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
     function ForceCheck: Boolean;
     procedure LoadHistory;
@@ -235,6 +238,13 @@ begin
   except
   end;
 end;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdIPWatch.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdIPWatch.InitComponent;
 begin

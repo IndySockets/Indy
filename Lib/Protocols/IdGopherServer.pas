@@ -87,6 +87,9 @@ type
     function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     function ReturnGopherItem(ItemType : Char;
       UserFriendlyName, RealResourceName : String;
       HostServer : String; HostPort : TIdPort): String;
@@ -108,6 +111,13 @@ implementation
 
 uses
   IdGopherConsts, IdResourceStringsProtocols, SysUtils;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdGopherServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdGopherServer.InitComponent;
 begin

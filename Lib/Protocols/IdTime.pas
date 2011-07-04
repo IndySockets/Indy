@@ -87,10 +87,12 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdAssignedNumbers, IdGlobalProtocols, IdTCPClient;
 
 const
-
   TIME_TIMEOUT = 2500;
 
 type
@@ -104,6 +106,9 @@ type
     function GetDateTime: TDateTime;
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     {This synchronizes the local clock with the Time Server}
     function SyncTime: Boolean;
     {This is the number of seconds since 12:00 AM, 1900 - Jan-1}
@@ -143,6 +148,13 @@ uses
   IdGlobal, IdTCPConnection;
 
 { TIdCustomTime }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdCustomTime.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdCustomTime.InitComponent;
 begin

@@ -134,7 +134,7 @@ type
   TOnSPFCheck = procedure(ASender: TIdSMTPServerContext; const AIP, ADomain, AIdentity: String;
     var VAction: TIdSPFReply) of object;
   TOnDataStreamEvent = procedure(ASender: TIdSMTPServerContext; var VStream: TStream) of object;
-  
+
   TIdSMTPServer = class(TIdExplicitTLSServer)
   protected
     //events
@@ -219,6 +219,10 @@ type
     procedure MsgReceived(ASender: TIdCommand; AMsgData: TStream);
     procedure SetMaxMsgSize(AValue: Integer);
     function SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply; const ACmd, ADomain, AIdentity: String): Boolean;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   published
     //events
     property OnBeforeMsg : TOnDataStreamEvent read FOnBeforeMsg write FOnBeforeMsg;
@@ -297,6 +301,13 @@ uses
   IdSSL, SysUtils;
 
 { TIdSMTPServer }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdSMTPServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string;
   const AReply: TIdReply);

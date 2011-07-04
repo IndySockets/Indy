@@ -432,6 +432,9 @@ type
     //
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
   published
     property SaferMode: Boolean read FSaferMode write FSaferMode default False;
@@ -573,6 +576,13 @@ procedure TIdIMAP4Server.SendNoReply(ASender: TIdCommand; const AFormat: string;
 begin
   SendNoReply(ASender, IndyFormat(AFormat, Args));
 end;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdIMAP4Server.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdIMAP4Server.InitComponent;
 begin

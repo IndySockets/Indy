@@ -38,16 +38,24 @@ uses
   Classes,
   IdCoder3to4,
   IdGlobal;
-  
+
 type
   TIdEncoderMIME = class(TIdEncoder3to4)
   protected
     procedure InitComponent; override;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   end;
 
   TIdDecoderMIME = class(TIdDecoder4to3)
   protected
     procedure InitComponent; override;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   end;
 
   {WARNING: This is not a general-purpose decoder.  It is used, for example, by
@@ -143,6 +151,13 @@ end;
 
 { TIdDecoderMIME }
 
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdDecoderMIME.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
+
 procedure TIdDecoderMIME.InitComponent;
 begin
   inherited InitComponent;
@@ -152,6 +167,13 @@ begin
 end;
 
 { TIdEncoderMIME }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdEncoderMIME.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdEncoderMIME.InitComponent;
 begin

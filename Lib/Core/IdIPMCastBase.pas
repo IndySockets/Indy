@@ -39,6 +39,9 @@ interface
 //here to flip FPC into Delphi mode
 
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdComponent, IdException, IdGlobal, IdSocketHandle,
   IdStack;
 
@@ -64,7 +67,9 @@ configuration.}
 {Organization-Local scope is intended to span multiple sites
 belonging to a single organization.}
     IdIPv6MC_Global);
+
   TIdIPMCValidScopes = 0..$F;
+
   TIdIPMCastBase = class(TIdComponent)
   protected
     FDsgnActive: Boolean;
@@ -88,6 +93,9 @@ belonging to a single organization.}
     property IPVersion: TIdIPVersion read GetIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     function IsValidMulticastGroup(const Value: string): Boolean;
 {These two items are helper functions that allow you to specify the scope for
 a Variable Scope Multicast Addresses.  Some are listed in IdAssignedNumbers
@@ -114,6 +122,13 @@ uses
   IdResourceStringsCore, IdStackConsts, SysUtils;
 
 { TIdIPMCastBase }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdIPMCastBase.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 function TIdIPMCastBase.GetIPVersion: TIdIPVersion;
 begin

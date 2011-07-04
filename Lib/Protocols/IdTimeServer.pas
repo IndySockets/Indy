@@ -74,6 +74,9 @@ Original Author: Ozz Nixon
 }
 
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -85,9 +88,13 @@ Type
     //
     function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   published
-
   end;
+
   TIdTimeServer = class(TIdCustomTimeServer)
   published
     property DefaultPort default IdPORT_TIME;
@@ -109,13 +116,20 @@ uses
   IdGlobalProtocols,
   SysUtils;
 
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdCustomTimeServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
+
 procedure TIdCustomTimeServer.InitComponent;
 begin
   inherited;
   DefaultPort := IdPORT_TIME;
     {This indicates that the default date is Jan 1, 1900 which was specified
     by RFC 868.}
-  FBaseDate := 2;
+  FBaseDate := TIME_BASEDATE;
 end;
 
 function TIdCustomTimeServer.DoExecute(AContext: TIdContext): Boolean;

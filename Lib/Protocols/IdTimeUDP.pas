@@ -45,7 +45,11 @@ unit IdTimeUDP;
 interface
 {$i IdCompilerDefines.inc}
 
-uses IdAssignedNumbers, IdUDPBase, IdGlobalProtocols, IdUDPClient;
+uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
+  IdAssignedNumbers, IdUDPBase, IdGlobalProtocols, IdUDPClient;
 
 type
   TIdCustomTimeUDP = class(TIdUDPClient)
@@ -57,6 +61,9 @@ type
     function GetDateTime: TDateTime;
     procedure InitComponent; override;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     {This synchronizes the local clock with the Time Server}
     function SyncTime: Boolean;
     {This is the number of seconds since 12:00 AM, 1900 - Jan-1}
@@ -94,6 +101,13 @@ uses
   IdGlobal,  IdStack, SysUtils; //Sysutils added to facilitate inlining.
 
 { TIdCustomTimeUDP }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdCustomTimeUDP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdCustomTimeUDP.InitComponent;
 begin

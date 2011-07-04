@@ -23,8 +23,13 @@
 unit IdUnixTimeUDP;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  Classes,
+  {$ENDIF}
   IdAssignedNumbers, IdTimeUDP, IdUDPClient;
 
 {
@@ -53,19 +58,32 @@ type
   TIdUnixTimeUDP = class(TIdCustomTimeUDP)
   protected
     procedure InitComponent; override;
+  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+  public
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+  {$ENDIF}
   published
     property Port default IdPORT_utime;
   end;
+
 implementation
+
 uses IdGlobalProtocols;
 
 { TIdTUniximeUDP }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdUnixTimeUDP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdUnixTimeUDP.InitComponent;
 begin
   inherited;
   Port := IdPORT_utime;
-  FBaseDate := UnixStartDate;
+  FBaseDate := UNIXSTARTDATE;
 end;
 
 end.
