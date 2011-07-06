@@ -591,7 +591,7 @@ begin
     // its subsets MUST be labeled with an appropriate charset value. See
     // section 3.4.1 for compatibility problems.
 
-    // RLebeau: per RFC 3023 Sections 3.1, 3.3, and 3.6:
+    // RLebeau: per RFC 3023 Sections 3.1, 3.3, 3.6, and 8.5:
     //
     // Conformant with [RFC2046], if a text/xml entity is received with
     // the charset parameter omitted, MIME processors and XML processors
@@ -618,6 +618,13 @@ begin
     // - If the charset parameter is not specified, the default is "us-
     //   ascii".  The default of "iso-8859-1" in HTTP is explicitly
     //   overridden.
+    //
+    // ...
+    //
+    // Omitting the charset parameter is NOT RECOMMENDED for text/xml.  For
+    // example, even if the contents of the XML MIME entity are UTF-16 or
+    // UTF-8, or the XML MIME entity has an explicit encoding declaration,
+    // XML and MIME processors MUST assume the charset is "us-ascii".
 
     if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
       S := ExtractHeaderMediaSubType(FContentType);
