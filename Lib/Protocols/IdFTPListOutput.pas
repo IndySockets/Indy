@@ -281,8 +281,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  PosixSysTime,
-  PosixTime,
+  Posix.SysTime,
   {$ENDIF}
   IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 

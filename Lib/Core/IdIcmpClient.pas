@@ -211,7 +211,7 @@ uses
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF DARWIN}
-    CoreServices,
+    Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,

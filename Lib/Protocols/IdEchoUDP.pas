@@ -54,7 +54,7 @@ implementation
 uses
   {$IFDEF USE_VCL_POSIX}
 	  {$IFDEF DARWIN}
-    CoreServices,
+  Macapi.CoreServices,
 	  {$ENDIF}
   {$ENDIF}
   IdGlobal;

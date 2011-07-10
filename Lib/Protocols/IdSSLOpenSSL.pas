@@ -629,7 +629,6 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-  Posix.Glue,
   Posix.SysTime,
   Posix.Time,
   Posix.Unistd,

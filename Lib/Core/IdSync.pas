@@ -146,7 +146,6 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
-  Posix.Glue,
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}

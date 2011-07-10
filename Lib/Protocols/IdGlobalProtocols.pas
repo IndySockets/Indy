@@ -605,7 +605,7 @@ uses
     {$ENDIF}
     {$IFDEF USE_VCL_POSIX}
       {$IFDEF DARWIN}
-    CoreServices,
+    Macapi.CoreServices,
       {$ENDIF}
     DateUtils,
     Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
