@@ -5395,7 +5395,7 @@ var
     {$IFDEF USE_BASEUNIX}
  var
    timeval: TTimeVal;
-   timezone: PTimeZone;
+   timezone: TTimeZone;
     {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
 var
@@ -5417,8 +5417,8 @@ begin
   Result := -1*(UT.tm_gmtoff / 60 / 60 / 24);
     {$ENDIF}
     {$IFDEF USE_BASEUNIX}
-  fpGetTimeOfDay (@TimeVal, TimeZone);
-  Result := -1 * (timezone^.tz_minuteswest /60 / 60 / 24)
+  fpGetTimeOfDay (@TimeVal, @TimeZone);
+  Result := -1 * (timezone.tz_minuteswest /60 / 60 / 24)
     {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
   {from http://edn.embarcadero.com/article/27890 }
@@ -5907,7 +5907,7 @@ function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0;
   ): Char; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  BytesToChar(AValue, Result, AIndex, AByteEncoding);
+  BytesToChar(AValue, Result, AIndex, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
 function BytesToChar(const AValue: TIdBytes; var VChar: Char; const AIndex: Integer = 0;
