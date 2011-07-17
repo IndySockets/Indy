@@ -135,6 +135,7 @@ type
     property Host;
     property Port;
     property ReceiveTimeout;
+    property ReuseSocket;
     property TransparentProxy: TIdCustomTransparentProxy read GetTransparentProxy write SetTransparentProxy;
     property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
     property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
@@ -248,6 +249,7 @@ begin
       ClientPortMin := FBoundPortMin;
       ClientPortMax := FBoundPortMax;
       IPVersion := FIPVersion;
+      ReuseSocket := Self.FReuseSocket;
       Bind;
       BroadcastEnabledChanged;
     end;

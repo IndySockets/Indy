@@ -394,7 +394,7 @@ type
     // Occurs in the context of the peer thread
     property OnException: TIdServerThreadExceptionEvent read FOnException write FOnException;
     property OnListenException: TIdListenExceptionEvent read FOnListenException write FOnListenException;
-    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
+    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent; // {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TIdSocketHandle.ReuseSocket'{$ENDIF};{$ENDIF}
 //UseNagle should be set to true in most cases.
 //See: http://tangentsoft.net/wskfaq/intermediate.html#disable-nagle and
 //   http://tangentsoft.net/wskfaq/articles/lame-list.html#item19
@@ -695,8 +695,9 @@ begin
       while I < Bindings.Count do begin
         with Bindings[I] do begin
           AllocateSocket;
-          if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)) then begin
-            SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
+          // do not overwrite if the default. This allows ReuseSocket to be set per binding
+          if Self.FReuseSocket <> rsOSDependent then begin
+            ReuseSocket := Self.FReuseSocket;
           end;
           DoBeforeBind(Bindings[I]);
           Bind;
@@ -872,11 +873,13 @@ begin
   if Bindings.Count = 0 then begin
     // TODO: on systems that support dual-stack sockets, create a single
     // Binding object that supports both IPv4 and IPv6 on the same socket...
-    Bindings.Add; // IPv4
+    Bindings.Add; // IPv4 by default
+    {$IFNDEF IdIPv6}
     if GStack.SupportsIPv6 then begin
       // maybe add a property too, so the developer can switch it on/off
       Bindings.Add.IPVersion := Id_IPv6;
     end;
+    {$ENDIF}
   end;
 
   // Setup IOHandler

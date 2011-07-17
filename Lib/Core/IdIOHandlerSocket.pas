@@ -187,6 +187,8 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetDestination: string; override;
     procedure SetDestination(const AValue: string); override;
+    function GetReuseSocket: TIdReuseSocket;
+    procedure SetReuseSocket(AValue: TIdReuseSocket);
     function GetTransparentProxy: TIdCustomTransparentProxy; virtual;
     procedure SetTransparentProxy(AProxy: TIdCustomTransparentProxy); virtual;
     function GetUseNagle: Boolean;
@@ -215,7 +217,7 @@ type
     property BoundPort: TIdPort read FBoundPort write FBoundPort default IdBoundPortDefault;
     property DefaultPort: TIdPort read FDefaultPort write FDefaultPort;
     property IPVersion: TIdIPVersion read FIPVersion write FIPVersion default ID_DEFAULT_IP_VERSION;
-    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
+    property ReuseSocket: TIdReuseSocket read GetReuseSocket write SetReuseSocket default rsOSDependent;
     property TransparentProxy: TIdCustomTransparentProxy read GetTransparentProxy write SetTransparentProxy;
     property UseNagle: boolean read GetUseNagle write SetUseNagle default True;
   end;
@@ -262,10 +264,7 @@ begin
     Port := BoundPort;
     ClientPortMin := BoundPortMin;
     ClientPortMax := BoundPortMax;
-    // Turn on Reuse if specified
-    if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)) then begin
-      SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
-    end;
+    ReuseSocket := Self.FReuseSocket;
     Bind;
     // Turn off Nagle if specified
     UseNagle := Self.FUseNagle;
@@ -385,6 +384,23 @@ begin
     SetErrorMode(LOldErrorMode)
   end;
   {$ENDIF}
+end;
+
+function TIdIOHandlerSocket.GetReuseSocket: TIdReuseSocket;
+begin
+  if FBinding <> nil then begin
+    Result := FBinding.ReuseSocket;
+  end else begin
+    Result := FReuseSocket;
+  end;
+end;
+
+procedure TIdIOHandlerSocket.SetReuseSocket(AValue: TIdReuseSocket);
+begin
+  FReuseSocket := AValue;
+  if FBinding <> nil then begin
+    FBinding.ReuseSocket := AValue;
+  end;
 end;
 
 procedure TIdIOHandlerSocket.SetTransparentProxy(AProxy : TIdCustomTransparentProxy);

@@ -150,6 +150,7 @@ type
   published
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
     property DefaultPort: TIdPort read GetDefaultPort write SetDefaultPort;
+    property ReuseSocket;
     property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default False;
     //
     property OnBeforeBind: TIdSocketHandleEvent read FOnBeforeBind write FOnBeforeBind;
@@ -263,11 +264,13 @@ var
 begin
   if FCurrentBinding = nil then begin
     if Bindings.Count = 0 then begin
-      Bindings.Add; // IPv4
+      Bindings.Add; // IPv4 by default
+      {$IFNDEF IdIPv6}
       if GStack.SupportsIPv6 then begin
         // maybe add a property too, so the developer can switch it on/off
         Bindings.Add.IPVersion := Id_IPv6;
       end;
+      {$ENDIF}
     end;
 
     // Set up listener threads
@@ -280,6 +283,10 @@ begin
 {$ELSE}
           AllocateSocket(Id_SOCK_DGRAM);
 {$ENDIF}
+          // do not overwrite if the default. This allows ReuseSocket to be set per binding
+          if Self.FReuseSocket <> rsOSDependent then begin
+            ReuseSocket := Self.FReuseSocket;
+          end;
           DoBeforeBind(Bindings[i]);
           Bind;
         end;

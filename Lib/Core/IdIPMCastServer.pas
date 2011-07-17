@@ -101,6 +101,7 @@ type
     property MulticastGroup;
     property IPVersion;
     property Port;
+    property ReuseSocket;
     property TimeToLive: Byte read FTimeToLive write SetTTL default DEF_IMP_TTL;
   end;
 
@@ -175,6 +176,7 @@ begin
     {$ENDIF}
     FBinding.IP := FBoundIP;
     FBinding.Port := FBoundPort;
+    FBinding.ReuseSocket := FReuseSocket;
     FBinding.Bind;
     //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
     //Hope the following is correct for StringToTIn4Addr(), should be checked...

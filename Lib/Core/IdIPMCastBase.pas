@@ -76,6 +76,7 @@ belonging to a single organization.}
     FMulticastGroup: String;
     FPort: Integer;
     FIPVersion: TIdIPVersion;
+    FReuseSocket: TIdReuseSocket;
     //
     procedure CloseBinding; virtual; abstract;
     function GetActive: Boolean; virtual;
@@ -104,6 +105,8 @@ MulticastGroup property because you need to specify the scope.  This provides
 you with more flexibility than you would get with IPv4 multicasting.}
     class function SetIPv6AddrScope(const AVarIPv6Addr : String; const AScope : TIdIPMv6Scope ) : String; overload;
     class function SetIPv6AddrScope(const AVarIPv6Addr : String; const AScope : TIdIPMCValidScopes): String; overload;
+    //
+    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
   published
   end;
 
@@ -140,6 +143,7 @@ begin
   inherited InitComponent;
   FMultiCastGroup := Id_IPMC_All_Systems;
   FIPVersion := ID_DEFAULT_IP_VERSION;
+  FReuseSocket := rsOSDependent;
 end;
 
 function TIdIPMCastBase.GetActive: Boolean;

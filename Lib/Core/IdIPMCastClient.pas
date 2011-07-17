@@ -86,7 +86,6 @@ type
     FCurrentBinding: TIdSocketHandle;
     FListenerThread: TIdIPMCastListenerThread;
     FOnIPMCastRead: TIPMCastReadEvent;
-    FReuseSocket: TIdReuseSocket;
     FThreadedEvent: boolean;
     //
     procedure CloseBinding; override;
@@ -108,7 +107,7 @@ type
     property BufferSize: Integer read FBufferSize write FBufferSize default ID_UDP_BUFFERSIZE;
     property DefaultPort: integer read GetDefaultPort write SetDefaultPort;
     property MulticastGroup;
-    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
+    property ReuseSocket;
     property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default DEF_IMP_THREADEDEVENT;
     property OnIPMCastRead: TIPMCastReadEvent read FOnIPMCastRead write FOnIPMCastRead;
   end;
@@ -193,8 +192,9 @@ begin
 {$ELSE}
       Bindings[i].AllocateSocket(Id_SOCK_DGRAM);
 {$ENDIF}
-      if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)) then begin
-        Bindings[i].SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
+      // do not overwrite if the default. This allows ReuseSocket to be set per binding
+      if FReuseSocket <> rsOSDependent then begin
+        Bindings[i].ReuseSocket := FReuseSocket;
       end;
       Bindings[i].Bind;
       Bindings[i].AddMulticastMembership(FMulticastGroup);

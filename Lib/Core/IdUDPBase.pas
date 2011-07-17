@@ -93,6 +93,7 @@ type
     FHost: String;
     FPort: TIdPort;
     FReceiveTimeout: Integer;
+    FReuseSocket: TIdReuseSocket;
     FIPVersion: TIdIPVersion;
     //
     FBroadcastEnabled: Boolean;
@@ -146,6 +147,7 @@ type
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer: TIdBytes); overload; virtual;
     //
     property ReceiveTimeout: Integer read FReceiveTimeout write FReceiveTimeout default IdTimeoutInfinite;
+    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
   published
     property Active: Boolean read GetActive write SetActive Default False;
     property BufferSize: Integer read FBufferSize write FBufferSize default ID_UDP_BUFFERSIZE;
@@ -227,6 +229,7 @@ begin
   inherited InitComponent;
   BufferSize := ID_UDP_BUFFERSIZE;
   FReceiveTimeout := IdTimeoutInfinite;
+  FReuseSocket := rsOSDependent;
   FIPVersion := ID_DEFAULT_IP_VERSION;
 end;
 
