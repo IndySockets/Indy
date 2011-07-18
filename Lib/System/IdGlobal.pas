@@ -1,4 +1,3 @@
-
 {
   $Project$
   $Workfile$
@@ -589,6 +588,11 @@ const
   {$ENDIF}
   LF = #10;
   CR = #13;
+
+  // RLebeau: EOL is NOT to be used as a platform-specific line break!  Most
+  // text-based protocols that Indy implements are defined to use CRLF line
+  // breaks. DO NOT change this!  If you need a platform-based line break,
+  // use sLineBreak instead.
   EOL = CR + LF;
   //
   CHAR0 = #0;
@@ -1266,8 +1270,11 @@ const
   {$ENDIF}
 
   {$IFNDEF HAS_sLineBreak}
-  //Only D6 & Kylix have this constant
+    {$IFDEF WINDOWS}
   sLineBreak = CR + LF;
+    {$ELSE}
+  sLineBreak = LF;
+    {$ENDIF}
   {$ENDIF}
 
 //The power constants are for processing IP addresses

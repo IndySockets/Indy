@@ -735,6 +735,7 @@
   {$IFDEF FPC_2_2_4_OR_ABOVE}
     {$DEFINE HAS_SIZE_T}
   {$ENDIF}
+  {$DEFINE HAS_sLineBreak}
 {$ENDIF}
 
 {$IFDEF DOTNET}
