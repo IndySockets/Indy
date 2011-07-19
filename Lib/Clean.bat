@@ -26,4 +26,12 @@ if exist %1Id*.ppu del %1Id*.ppu >nul
 if exist %1*.~*  del %1*.~* >nul
 if exist %1setenv.bat del %1setenv.bat >nul
 if exist %1lib rmdir /S /Q %1lib > nul
+if exist %1Debug\Win32 rmdir /S /Q %1Debug\Win32 > nul
+if exist %1Release\Win32 rmdir /S /Q %1Release\Win32 > nul
+if exist %1Debug\Win64 rmdir /S /Q %1Debug\Win64 > nul
+if exist %1Release\Win64 rmdir /S /Q %1Release\Win64 > nul
+if exist %1Debug\OSX32 rmdir /S /Q %1Debug\OSX32 > nul
+if exist %1Release\OSX32 rmdir /S /Q %1Release\OSX32 > nul
+
+
 
