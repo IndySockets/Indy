@@ -15946,6 +15946,16 @@ type
 
 function IsOpenSSL_1x : Boolean;
 
+function RAND_bytes(buf : PAnsiChar; num : integer) : integer;
+function RAND_pseudo_bytes(buf : PAnsiChar; num : integer) : integer;
+procedure RAND_seed(buf : PAnsiChar; num : integer);
+procedure RAND_add(buf : PAnsiChar; num : integer; entropy : integer);
+function RAND_status() : integer;
+{$IFDEF SYS_WIN}
+function RAND_event(iMsg : UINT; wp : wparam; lp : lparam) : integer;
+procedure RAND_screen();
+{$ENDIF}
+
 implementation
 
 uses
@@ -16485,6 +16495,16 @@ begin
   raise LException;
 end;
 
+type
+  TRAND_bytes = function(buf : PAnsiChar; num : integer) : integer; cdecl;
+  TRAND_pseudo_bytes = function(buf : PAnsiChar; num : integer) : integer; cdecl;
+  TRAND_seed = procedure(buf : PAnsiChar; num : integer); cdecl;
+  TRAND_add = procedure(buf : PAnsiChar; num : integer; entropy : integer); cdecl;
+  TRAND_status = function() : integer; cdecl;
+  {$IFDEF SYS_WIN}
+  TRAND_event = function(iMsg : UINT; wp : wparam; lp : lparam) : integer; cdecl;
+  {$ENDIF}
+
 const
   {$IFDEF UNIX}
   {This is a workaround for some Linux distributions and a few other things
@@ -16508,9 +16528,15 @@ var
 
   FFailedFunctionLoadList : TStringList;
 
+  _RAND_bytes : TRAND_bytes = nil;
+  _RAND_pseudo_bytes : TRAND_pseudo_bytes = nil;
+  _RAND_seed : TRAND_seed = nil;
+  _RAND_add : TRAND_add = nil;
+  _RAND_status : TRAND_status = nil;
   {$IFDEF SYS_WIN}
   // LIBEAY functions - open SSL 0.9.6a
-  RAND_screen : procedure cdecl = nil;
+  _RAND_screen : procedure cdecl = nil;
+  _RAND_event : TRAND_event = nil;
   {$ENDIF}
 
 function GetCryptLibHandle : Integer;
@@ -19049,14 +19075,14 @@ them in case we use them later.}
   {$ENDIF}
   {CH fn_RAND_SSLeay = 'RAND_SSLeay'; } {Do not localize}
   {CH fn_RAND_cleanup = 'RAND_cleanup'; } {Do not localize}
-  {CH fn_RAND_bytes = 'RAND_bytes'; } {Do not localize}
-  {CH fn_RAND_pseudo_bytes = 'RAND_pseudo_bytes'; } {Do not localize}
-  {CH fn_RAND_seed = 'RAND_seed'; } {Do not localize}
-  {CH fn_RAND_add = 'RAND_add'; } {Do not localize}
+  fn_RAND_bytes = 'RAND_bytes'; {Do not localize}
+  fn_RAND_pseudo_bytes = 'RAND_pseudo_bytes'; {Do not localize}
+  fn_RAND_seed = 'RAND_seed'; {Do not localize}
+  fn_RAND_add = 'RAND_add'; {Do not localize}
   {CH fn_RAND_load_file = 'RAND_load_file'; } {Do not localize}
   {CH fn_RAND_write_file = 'RAND_write_file'; } {Do not localize}
   {CH fn_RAND_file_name = 'RAND_file_name'; } {Do not localize}
-  {CH fn_RAND_status = 'RAND_status'; } {Do not localize}
+  fn_RAND_status = 'RAND_status'; {Do not localize}
   {CH fn_RAND_query_egd_bytes = 'RAND_query_egd_bytes'; } {Do not localize}
   {CH fn_RAND_egd = 'RAND_egd'; } {Do not localize}
   {CH fn_RAND_egd_bytes = 'RAND_egd_bytes'; } {Do not localize}
@@ -19064,7 +19090,7 @@ them in case we use them later.}
   {$IFDEF SYS_WIN}
   //GREGOR
   fn_RAND_screen = 'RAND_screen';  {Do not localize}
-  {CH fn_RAND_event = 'RAND_event'; } {Do not localize}
+  fn_RAND_event = 'RAND_event'; {Do not localize}
   {$ENDIF}
   {CH fn_ERR_load_RAND_strings = 'ERR_load_RAND_strings'; } {Do not localize}
   //experimental
@@ -19551,8 +19577,14 @@ begin
   //X509_print
   @X509_print := LoadFunctionCLib(fn_X509_print, False );
   {$ENDIF}
+  @_RAND_bytes := LoadFunctionCLib(fn_RAND_bytes);
+  @_RAND_pseudo_bytes := LoadFunctionCLib(fn_RAND_pseudo_bytes);
+  @_RAND_seed := LoadFunctionCLib(fn_RAND_seed);
+  @_RAND_add := LoadFunctionCLib(fn_RAND_add);
+  @_RAND_status := LoadFunctionCLib(fn_RAND_status);
   {$IFDEF SYS_WIN}
-  @RAND_screen := LoadFunctionCLib(fn_RAND_screen);
+  @_RAND_screen := LoadFunctionCLib(fn_RAND_screen);
+  @_RAND_event := LoadFunctionCLib(fn_RAND_event);
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_DES}
   // 3DES
@@ -19899,8 +19931,14 @@ begin
   //X509_print
   @X509_print := nil;
   {$ENDIF}
+  @_RAND_bytes := nil;
+  @_RAND_pseudo_bytes := nil;
+  @_RAND_seed := nil;
+  @_RAND_add := nil;
+  @_RAND_status := nil;
   {$IFDEF SYS_WIN}
-  @RAND_screen := nil;
+  @_RAND_screen := nil;
+  @_RAND_event := nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_DES}
   // 3DES
@@ -20255,8 +20293,8 @@ end;
 procedure InitializeRandom;
 begin
   {$IFDEF SYS_WIN}
-  if @RAND_screen <> nil then begin
-    RAND_screen;
+  if @_RAND_screen <> nil then begin
+    _RAND_screen;
   end;
   {$ENDIF}
 end;
@@ -21926,6 +21964,65 @@ function X509_LOOKUP_add_dir(x : PX509_LOOKUP; name : PAnsiChar; _type : TIdC_LO
 begin
   Result := X509_LOOKUP_ctrl(x, X509_L_ADD_DIR, name, _type, nil);
 end;
+
+function RAND_bytes(buf : PAnsiChar; num : integer) : integer;
+begin
+  if @_RAND_bytes <> nil then begin
+    Result := _RAND_bytes(buf, num);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function RAND_pseudo_bytes(buf : PAnsiChar; num : integer) : integer;
+begin
+  if @_RAND_pseudo_bytes <> nil then begin
+    Result := _RAND_pseudo_bytes(buf, num);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+procedure RAND_seed(buf : PAnsiChar; num : integer);
+begin
+  if @_RAND_seed <> nil then begin
+    _RAND_seed(buf, num);
+  end;
+end;
+
+procedure RAND_add(buf : PAnsiChar; num : integer; entropy : integer);
+begin
+  if @_RAND_add <> nil then begin
+    _RAND_add(buf, num, entropy);
+  end;
+end;
+
+function RAND_status() : integer;
+begin
+  if @_RAND_status <> nil then begin
+    Result := _RAND_status();
+  end else begin
+    Result := 0;
+  end;
+end;
+
+{$IFDEF SYS_WIN}
+function RAND_event(iMsg : UINT; wp : wparam; lp : lparam) : integer;
+begin
+  if @_RAND_event <> nil then begin
+    Result := _RAND_event(iMsg, wp, lp);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+procedure RAND_screen();
+begin
+  if @_RAND_screen <> nil then begin
+    _RAND_screen();
+  end;
+end;
+{$ENDIF}
 
 initialization
   FFailedFunctionLoadList := TStringList.Create;
