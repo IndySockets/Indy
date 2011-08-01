@@ -732,7 +732,7 @@ uses
     {$ENDIF}
   {$ELSE}
       {$IFDEF VCL_XE2_OR_ABOVE}
-  , WinCrtl {$NOINCLUDE WinCrtl}
+  , System.Win.Crtl {$NOINCLUDE System.Win.Crtl}
       {$ENDIF}
   {$ENDIF};
 
