@@ -1556,7 +1556,7 @@ begin
 end;
 
 function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;
-  const AFileName: String, AType: Integer): TIdC_INT;
+  const AFileName: String; AType: Integer): TIdC_INT;
 var
   B: PBIO;
   LDH: PDH;
@@ -1652,7 +1652,7 @@ begin
 end;
 
 function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;
-  const AFileName: String, AType: Integer): TIdC_INT;
+  const AFileName: String; AType: Integer): TIdC_INT;
 var
   B: PBIO;
   LDH: PDH;
