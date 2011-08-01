@@ -567,6 +567,7 @@ resourcestring
   RSSSLLoadingRootCertError = 'Could not load root certificate.';
   RSSSLLoadingCertError = 'Could not load certificate.';
   RSSSLLoadingKeyError = 'Could not load key, check password.';
+  RSSSLLoadingDHParamsError = 'Could not load DH Parameters.';
   RSSSLGetMethodError = 'Error geting SSL method.';
   RSSSLFDSetError = 'Error setting File Descriptor for SSL';
   RSSSLDataBindingError = 'Error binding data to SSL socket.';

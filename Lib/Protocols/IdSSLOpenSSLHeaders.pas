@@ -14773,6 +14773,8 @@ var
   BN_hex2bn: function(var n:PBIGNUM; const Str: PAnsiChar): TIdC_INT cdecl = nil;
   {$EXTERNALSYM BN_bn2hex}
   BN_bn2hex: function(const n:PBIGNUM): PAnsiChar cdecl = nil;
+  {$EXTERNALSYM DH_free}
+  DH_free : procedure(dh: PDH) cdecl = nil;
 
 
   {$IFNDEF SSLEAY_MACROS}
@@ -17139,7 +17141,7 @@ them in case we use them later.}
   {CH fn_DH_new_method = 'DH_new_method'; } {Do not localize}
   {CH fn_DH_new = 'DH_new'; }  {Do not localize}
   {CH fn_DH_up_ref = 'DH_up_ref'; } {Do not localize}
-  {CH fn_DH_free = 'DH_free'; }  {Do not localize}
+  fn_DH_free = 'DH_free';   {Do not localize}
   {CH fn_DH_size = 'DH_size'; }  {Do not localize}
     {$IFNDEF OPENSSL_NO_DEPRECATED}
   {CH fn_DH_generate_parameters = 'DH_generate_parameters'; }  {Do not localize}
@@ -19653,6 +19655,8 @@ we have to handle both cases.
   @RSA_size := LoadFunctionCLib(fn_RSA_size);
   @RSA_private_decrypt := LoadFunctionCLib(fn_RSA_private_decrypt);
   @RSA_public_encrypt := LoadFunctionCLib(fn_RSA_public_encrypt);
+  //DH
+  @DH_free := LoadFunctionCLib(fn_DH_free);
   //BN
   @BN_hex2bn := LoadFunctionCLib(fn_BN_hex2bn);
   @BN_bn2hex := LoadFunctionCLib(fn_BN_bn2hex);
@@ -19997,6 +20001,8 @@ begin
   @RSA_check_key := nil;
   @RSA_private_decrypt := nil;
   @RSA_public_encrypt := nil;
+  //DH
+  @DH_free := nil;
   //BIO
   @BIO_new := nil;
   @BIO_free := nil;

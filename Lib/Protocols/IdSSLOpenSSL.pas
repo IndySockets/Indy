@@ -280,7 +280,8 @@ type
   protected
     fsRootCertFile,
     fsCertFile,
-    fsKeyFile: String;
+    fsKeyFile,
+    fsDHParamsFile: String;
     fMethod: TIdSSLVersion;
     fSSLVersions : TIdSSLVersions;
     fMode: TIdSSLMode;
@@ -299,6 +300,7 @@ type
     property RootCertFile: String read fsRootCertFile write fsRootCertFile;
     property CertFile: String read fsCertFile write fsCertFile;
     property KeyFile: String read fsKeyFile write fsKeyFile;
+    property DHParamsFile: String read fsDHParamsFile write fsDHParamsFile;
     property Method: TIdSSLVersion read fMethod write SetMethod default DEF_SSLVERSION;
     property SSLVersions : TIdSSLVersions read fSSLVersions write SetSSLVersions default DEF_SSLVERSIONS;
     property Mode: TIdSSLMode read fMode write fMode;
@@ -314,7 +316,7 @@ type
     fMethod: TIdSSLVersion;
     fSSLVersions : TIdSSLVersions;
     fMode: TIdSSLMode;
-    fsRootCertFile, fsCertFile, fsKeyFile: String;
+    fsRootCertFile, fsCertFile, fsKeyFile, fsDHParamsFile: String;
     fVerifyDepth: Integer;
     fVerifyMode: TIdSSLVerifyModeSet;
 //    fVerifyFile: String;
@@ -339,6 +341,7 @@ type
     function LoadRootCert: Boolean;
     function LoadCert: Boolean;
     function LoadKey: Boolean;
+    function LoadDHParams: Boolean;
     property StatusInfoOn: Boolean read fStatusInfoOn write fStatusInfoOn;
 //    property PasswordRoutineOn: Boolean read fPasswordRoutineOn write fPasswordRoutineOn;
     property VerifyOn: Boolean read fVerifyOn write fVerifyOn;
@@ -351,6 +354,7 @@ type
     property CertFile: String read fsCertFile write fsCertFile;
     property CipherList: AnsiString read fCipherList write fCipherList;
     property KeyFile: String read fsKeyFile write fsKeyFile;
+    property DHParamsFile: String read fsDHParamsFile write fsDHParamsFile;
 //    property VerifyMode: TIdSSLVerifyModeSet read GetVerifyMode write SetVerifyMode;
 //    property VerifyFile: String read fVerifyFile write fVerifyFile;
     property VerifyDirs: String read fVerifyDirs write fVerifyDirs;
@@ -616,6 +620,7 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
   EIdOSSLLoadingRootCertError = class(EIdOpenSSLAPICryptoError);
   EIdOSSLLoadingCertError = class(EIdOpenSSLAPICryptoError);
   EIdOSSLLoadingKeyError = class(EIdOpenSSLAPICryptoError);
+  EIdOSSLLoadingDHParamsError = class(EIdOpenSSLAPICryptoError);
   EIdOSSLSettingCipherError = class(EIdOpenSSLError);
   EIdOSSLFDSetError = class(EIdOpenSSLAPISSLError);
   EIdOSSLDataBindingError = class(EIdOpenSSLAPISSLError);
@@ -930,6 +935,16 @@ function IndyX509_STORE_load_locations(ctx: PX509_STORE;
   const AFileName, APathName: String): TIdC_INT; forward;
 function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
   const ACAFile, ACAPath: String): TIdC_INT; forward;
+function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;
+  const AFileName: String; AType: Integer): TIdC_INT; forward;
+
+// TODO
+{
+function d2i_DHparams_bio(bp: PBIO; x: PPointer): PDH; inline;
+begin
+  Result := PDH(ASN1_d2i_bio(@DH_new, @d2i_DHparams, bp, x));
+end;
+}
 
 {
   IMPORTANT!!!
@@ -1432,6 +1447,69 @@ begin
   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
 end;
 
+function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;
+  const AFileName: String; AType: Integer): TIdC_INT;
+var
+  LM: TMemoryStream;
+  B: PBIO;
+  LDH: PDH;
+  j: Integer;
+begin
+  Result := 0;
+
+  LM := nil;
+  try
+    LM := TMemoryStream.Create;
+    LM.LoadFromFile(AFileName);
+  except
+    // Surpress exception here since it's going to be called by the OpenSSL .DLL
+    // Follow the OpenSSL .DLL Error conventions.
+    SSLerr(SSL_F_SSL3_CTRL, ERR_R_SYS_LIB);
+    LM.Free;
+    Exit;
+  end;
+
+  try
+    B := BIO_new_mem_buf(LM.Memory, LM.Size);
+    if not Assigned(B) then begin
+      SSLerr(SSL_F_SSL3_CTRL, ERR_R_BUF_LIB);
+      Exit;
+    end;
+    try
+      case AType of
+        // TODO
+        {
+        SSL_FILETYPE_ASN1:
+          begin
+            j := ERR_R_ASN1_LIB;
+            LDH := d2i_DHparams_bio(B, nil);
+          end;
+        }
+        SSL_FILETYPE_PEM:
+          begin
+            j := ERR_R_DH_LIB;
+            LDH := PEM_read_bio_DHparams(B, nil, ctx^.default_passwd_callback,
+              ctx^.default_passwd_callback_userdata);
+          end
+        else begin
+          SSLerr(SSL_F_SSL3_CTRL, SSL_R_BAD_SSL_FILETYPE);
+          Exit;
+        end;
+      end;
+      if not Assigned(LDH) then begin
+        SSLerr(SSL_F_SSL3_CTRL, j);
+        Exit;
+      end;
+      Result := SSL_CTX_set_tmp_dh(ctx, LDH);
+      DH_free(LDH);
+    finally
+      BIO_free(B);
+    end;
+  finally
+    FreeAndNil(LM);
+  end;
+end;
+
   {$ENDIF} // WINDOWS
 
   {$IFDEF UNIX}
@@ -1475,6 +1553,49 @@ function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
+end;
+
+function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;
+  const AFileName: String, AType: Integer): TIdC_INT;
+var
+  B: PBIO;
+  LDH: PDH;
+  j: Integer;
+begin
+  Result := 0;
+  B := BIO_new_file(PAnsiChar(UTF8String(AFileName)), 'r');
+  if Assigned(B) then begin
+    try
+      case AType of
+        // TODO
+        {
+        SSL_FILETYPE_ASN1:
+          begin
+            j := ERR_R_ASN1_LIB;
+            LDH := d2i_DHparams_bio(B, nil);
+          end;
+        }
+        SSL_FILETYPE_PEM:
+          begin
+            j := ERR_R_DH_LIB;
+            LDH := PEM_read_bio_DHparams(B, nil, ctx^.default_passwd_callback,
+              ctx^.default_passwd_callback_userdata);
+          end
+        else begin
+          SSLerr(SSL_F_SSL3_CTRL, SSL_R_BAD_SSL_FILETYPE);
+          Exit;
+        end;
+      end;
+      if not Assigned(LDH) then begin
+        SSLerr(SSL_F_SSL3_CTRL, j);
+        Exit;
+      end;
+      Result := SSL_CTX_set_tmp_dh(ctx, LDH);
+      DH_free(LDH);
+    finally
+      BIO_free(B);
+    end;
+  end;
 end;
 
   {$ENDIF} // UNIX
@@ -1528,6 +1649,49 @@ begin
   Result := SSL_CTX_load_verify_locations(ctx,
     PAnsiChar(Pointer(ACAFile)),
     PAnsiChar(Pointer(ACAPath)));
+end;
+
+function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;
+  const AFileName: String, AType: Integer): TIdC_INT;
+var
+  B: PBIO;
+  LDH: PDH;
+  j: Integer;
+begin
+  Result := 0;
+  B := BIO_new_file(PAnsiChar(AFileName), 'r');
+  if Assigned(B) then begin
+    try
+      case AType of
+        // TODO
+        {
+        SSL_FILETYPE_ASN1:
+          begin
+            j := ERR_R_ASN1_LIB;
+            LDH := d2i_DHparams_bio(B, nil);
+          end;
+        }
+        SSL_FILETYPE_PEM:
+          begin
+            j := ERR_R_DH_LIB;
+            LDH := PEM_read_bio_DHparams(B, nil, ctx^.default_passwd_callback,
+              ctx^.default_passwd_callback_userdata);
+          end
+        else begin
+          SSLerr(SSL_F_SSL3_CTRL, SSL_R_BAD_SSL_FILETYPE);
+          Exit;
+        end;
+      end;
+      if not Assigned(LDH) then begin
+        SSLerr(SSL_F_SSL3_CTRL, j);
+        Exit;
+      end;
+      Result := SSL_CTX_set_tmp_dh(ctx, LDH);
+      DH_free(LDH);
+    finally
+      BIO_free(B);
+    end;
+  end;
 end;
 
 {$ENDIF}
@@ -1891,6 +2055,7 @@ begin
       RootCertFile := Self.RootCertFile;
       CertFile := Self.CertFile;
       KeyFile := Self.KeyFile;
+      DHParamsFile := Self.DHParamsFile;
       Method := Self.Method;
       SSLVersions := Self.SSLVersions;
       Mode := Self.Mode;
@@ -1932,6 +2097,7 @@ begin
     RootCertFile := SSLOptions.RootCertFile;
     CertFile := SSLOptions.CertFile;
     KeyFile := SSLOptions.KeyFile;
+    DHParamsFile := SSLOptions.DHParamsFile;
     fVerifyDepth := SSLOptions.fVerifyDepth;
     fVerifyMode := SSLOptions.fVerifyMode;
     // fVerifyFile := SSLOptions.fVerifyFile;
@@ -2221,6 +2387,7 @@ begin
       RootCertFile := SSLOptions.RootCertFile;
       CertFile := SSLOptions.CertFile;
       KeyFile := SSLOptions.KeyFile;
+      DHParamsFile := SSLOptions.DHParamsFile;
       fVerifyDepth := SSLOptions.fVerifyDepth;
       fVerifyMode := SSLOptions.fVerifyMode;
       // fVerifyFile := SSLOptions.fVerifyFile;
@@ -2452,6 +2619,11 @@ begin
       EIdOSSLLoadingKeyError.RaiseException(RSSSLLoadingKeyError);
     end;
   end;
+  if DHParamsFile <> '' then begin     {Do not Localize}
+    if not LoadDHParams then begin
+      EIdOSSLLoadingDHParamsError.RaiseException(RSSSLLoadingDHParamsError);
+    end;
+  end;
   if StatusInfoOn then begin
     SSL_CTX_set_info_callback(fContext, InfoCallback);
   end;
@@ -2568,6 +2740,11 @@ begin
   if Result then begin
     Result := SSL_CTX_check_private_key(fContext) > 0;
   end;
+end;
+
+function TIdSSLContext.LoadDHParams: Boolean;
+begin
+  Result := IndySSL_CTX_use_DHparams_file(fContext, fsDHParamsFile, SSL_FILETYPE_PEM) > 0;
 end;
 
 //////////////////////////////////////////////////////////////
