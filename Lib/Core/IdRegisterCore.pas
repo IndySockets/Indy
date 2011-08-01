@@ -116,6 +116,9 @@ implementation
 {$I IdCompilerDefines.inc}
 
 uses
+  {$IFDEF FMX}
+  Controls,
+  {$ENDIF}
   {$IFDEF FPC}
   LResources,
   {$ENDIF}
@@ -232,6 +235,18 @@ begin
    ,TIdLogFile
    ,TIdLogStream
   ]);
+
+  {$IFDEF FMX}
+  // RLebeau 8/1/2011 - FireMonkey has problems resolving references to
+  // TIdAntiFreeze correctly because it is implemented in a design-time
+  // package and not a run-time package.  Until we can fix that properly,
+  // we'll group TIdAntiFreeze with TControl so the IDE can filter out
+  // TIdAntiFreeze from appearing at design-time in FireMoney projects.
+  // Users will have to instantiate TIdAntiFreeze in code. This does not
+  // affect VCL projects.
+  GroupDescendentsWith(TIdAntiFreeze, TControl);
+  {$ENDIF}
+
   RegisterComponents(RSRegIndyMisc, [
    TIdSocksInfo,
    TIdAntiFreeze,
