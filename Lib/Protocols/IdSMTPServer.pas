@@ -994,9 +994,13 @@ begin
 end;
 
 procedure TIdSMTPServer.CommandQUIT(ASender: TIdCommand);
+var
+  LContext: TIdSMTPServerContext;
 begin
 //clear pipelining before exit
-  TIdSMTPServerContext(ASender.Context).PipeLining := False;
+  LContext := TIdSMTPServerContext(ASender.Context);
+  LContext.PipeLining := False;
+  DoReset(LContext);
   ASender.SendReply;
 end;
 
@@ -1046,7 +1050,7 @@ begin
       SetEnhReply(ASender.Reply, 354, '', RSSMTPSvrStartData, LContext.EHLO);
       ASender.SendReply;
       LContext.PipeLining := False;
-      LContext.Connection.IOHandler.Capture(LStream, '.', True, LEncoding);    {Do not Localize}
+      LContext.Connection.IOHandler.Capture(LStream, '.', True, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});    {Do not Localize}
       MsgReceived(ASender, LStream);
     finally
       FreeAndNil(LStream);
@@ -1315,19 +1319,23 @@ end;
 
 procedure TIdSMTPServerContext.Reset(AIsTLSReset: Boolean = False);
 begin
+  // RLebeau: do not reset the user authentication except for STARTTLS!  A
+  // normal reset (RSET, HELO/EHLO after a session is started, and QUIT)
+  // should only abort the current mail transaction and clear its buffers
+  // and state tables, nothing more
   if (not AIsTLSReset) and (FEHLO or FHELO) then begin
     FSMTPState := idSMTPHelo;
   end else begin
     FSMTPState := idSMTPNone;
     FEHLO := False;
     FHELO := False;
+    FHeloString := '';
+    FUsername := '';
+    FPassword := '';
+    FLoggedIn := False;
   end;
   FFrom := '';
-  FHeloString := '';
   FRCPTList.Clear;
-  FUsername := '';
-  FPassword := '';
-  FLoggedIn := False;
   FMsgSize := 0;
   FBodyType := idSMTP8BitMime;
   FFinalStage := False;

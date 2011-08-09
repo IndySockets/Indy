@@ -5620,7 +5620,7 @@ const
   begin
     LMStream := TMemoryStream.Create;
     try
-      IOHandler.Capture(LMStream, LDelim, True, Indy8BitEncoding());
+      IOHandler.Capture(LMStream, LDelim, True, Indy8BitEncoding(){$IFDEF STRING_IS_ANSI}, Indy8BitEncoding(){$ENDIF});
       LMStream.Position := 0;
       ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding(){$ENDIF});
     finally

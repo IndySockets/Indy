@@ -686,7 +686,7 @@ var
   begin
     LMStream := TMemoryStream.Create;
     try
-      IOHandler.Capture(LMStream, ADelim, True, AByteEncoding);
+      IOHandler.Capture(LMStream, ADelim, True, AByteEncoding{$IFDEF STRING_IS_ANSI}, AByteEncoding{$ENDIF});
       LMStream.Position := 0;
       {$IFDEF STRING_IS_ANSI}
       LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
