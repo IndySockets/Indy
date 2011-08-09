@@ -689,12 +689,20 @@ const
   DEF_PORT_ANY = 0;
 
 type
+  {$IFDEF DOTNET}
+  TIdUnicodeString = System.String;
+  {$ELSE}
+    {$IFDEF HAS_UnicodeString}
+  TIdUnicodeString = UnicodeString;
+    {$ELSE}
+  TIdUnicodeString = WideString;
+    {$ENDIF}
+  {$ENDIF}
+
   {$IFDEF STRING_IS_UNICODE}
-  TIdUnicodeString = String;
   TIdWideChar = Char;
   PIdWideChar = PChar;
   {$ELSE}
-  TIdUnicodeString = {$IFDEF DOTNET}System.String{$ELSE}WideString{$ENDIF};
   TIdWideChar = WideChar;
   PIdWideChar = PWideChar;
   {$ENDIF}

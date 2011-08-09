@@ -304,6 +304,9 @@
   // FPC_FULLVERSION was added in FPC 2.2.4
 
   {$MACRO ON} // must be on in order to use versioning macros
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20404)}
+    {$DEFINE FPC_2_4_4_OR_ABOVE}
+  {$IFEND}
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20402)}
     {$DEFINE FPC_2_4_2_OR_ABOVE}
   {$IFEND}
@@ -311,8 +314,19 @@
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$IFEND}
 
+  {$IFDEF FPC_2_4_4} // just in case
+    {$DEFINE FPC_2_4_4_OR_ABOVE}
+  {$ENDIF}
   {$IFDEF FPC_2_4_2} // just in case
     {$DEFINE FPC_2_4_2_OR_ABOVE}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_4_4_OR_ABOVE}
+    {$DEFINE FPC_2_4_2_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_4_2}
+      {$DEFINE FPC_2_4_2_OR_ABOVE}
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF FPC_2_4_2_OR_ABOVE}
@@ -630,6 +644,7 @@
 {$IFDEF VCL_2009_OR_ABOVE}
   {$IFNDEF DOTNET}
     {$DEFINE STRING_IS_UNICODE}
+    {$DEFINE HAS_UnicodeString}
     {$DEFINE HAS_TEncoding}
     {$DEFINE HAS_TCharacter}
     {$DEFINE HAS_InterlockedCompareExchangePointer}
@@ -713,12 +728,11 @@
   {$DEFINE FPC_CIRCULAR_BUG}
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
-  // FreePascal 2.2.0 has an overload for InterlockedCompareExchange that takes pointers.
   {$IFDEF FPC_2_2_0_OR_ABOVE}
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
   {$ENDIF}
-  // FreePascal 2.2.4 has UInt64
   {$IFDEF FPC_2_2_4_OR_ABOVE} // TODO: when was UInt64 introduced?
+    {$DEFINE HAS_SIZE_T}
     {$DEFINE HAS_UInt64}
   {$ENDIF}
   {$DEFINE HAS_PtrInt}
@@ -731,11 +745,13 @@
     {$DEFINE HAS_ULONG_PTR}
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
-  // FreePascal 2.2.4 has size_t
-  {$IFDEF FPC_2_2_4_OR_ABOVE}
-    {$DEFINE HAS_SIZE_T}
-  {$ENDIF}
   {$DEFINE HAS_sLineBreak}
+  {$DEFINE HAS_DEPRECATED}
+  {$IFDEF FPC_2_4_4_OR_ABOVE}
+    {$DEFINE DEPRECATED_TThread_SuspendResume}
+    {$DEFINE HAS_DEPRECATED_MSG}
+    {$DEFINE HAS_UnicodeString} // TODO: when was UnicodeString introduced?
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF DOTNET}
