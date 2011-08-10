@@ -962,13 +962,13 @@ begin
   ContentTransferEncoding := Headers.Values['Content-Transfer-Encoding']; {do not localize}
   ContentDisposition := Headers.Values['Content-Disposition'];  {do not localize}
   Subject := DecodeHeader(Headers.Values['Subject']); {do not localize}
-  FromList.EMailAddresses := DecodeHeader(Headers.Values['From']); {do not localize}
+  DecodeAddresses(Headers.Values['From'], FromList); {do not localize}
   MsgId := Headers.Values['Message-Id']; {do not localize}
   CommaSeparatedToStringList(Newsgroups, Headers.Values['Newsgroups']); {do not localize}
-  Recipients.EMailAddresses := DecodeHeader(Headers.Values['To']); {do not localize}
-  CCList.EMailAddresses := DecodeHeader(Headers.Values['Cc']); {do not localize}
+  DecodeAddresses(Headers.Values['To'], Recipients); {do not localize}
+  DecodeAddresses(Headers.Values['Cc'], CCList); {do not localize}
   {CC2: Added support for BCCList...}
-  BCCList.EMailAddresses := DecodeHeader(Headers.Values['Bcc']); {do not localize}
+  DecodeAddresses(Headers.Values['Bcc'], BCCList); {do not localize}
   Organization := Headers.Values['Organization']; {do not localize}
   InReplyTo := Headers.Values['In-Reply-To']; {do not localize}
 
@@ -979,9 +979,9 @@ begin
 
   References := Headers.Values['References']; {do not localize}
 
-  ReplyTo.EmailAddresses := Headers.Values['Reply-To']; {do not localize}
+  DecodeAddresses(Headers.Values['Reply-To'], ReplyTo); {do not localize}
   if Length(ReplyTo.EmailAddresses) = 0 then begin
-    ReplyTo.EmailAddresses := Headers.Values['Return-Path'];
+    DecodeAddresses(Headers.Values['Return-Path'], ReplyTo); {do not localize}
   end;
 
   Date := GMTToLocalDateTime(Headers.Values['Date']); {do not localize}

@@ -374,7 +374,7 @@ end;
 
 procedure DecodeAddress(EMailAddr : TIdEmailAddressItem);
 begin
-  EMailAddr.Name := DecodeHeader(EMailAddr.Name);
+  EMailAddr.Name := UnquotedStr(DecodeHeader(EMailAddr.Name));
 end;
 
 procedure DecodeAddresses(AEMails : String; EMailAddr: TIdEmailAddressList);
