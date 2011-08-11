@@ -14651,7 +14651,7 @@ type
   Tsk_pop_free_func = procedure (p : Pointer); cdecl;
   {$EXTERNALSYM SSL_callback_ctrl_fp}
   SSL_callback_ctrl_fp = procedure (para1 : PBIO; para2 : TIdC_INT;
-    para3 : PAnsiChar; para4 : TIdC_INT; para5, para6 : TIdC_INT); cdecl;
+    para3 : PAnsiChar; para4 : TIdC_INT; para5, para6 : TIdC_LONG); cdecl;
   {$EXTERNALSYM TCRYPTO_THREADID_set_callback_threadid_func}
   TCRYPTO_THREADID_set_callback_threadid_func = procedure (id : PCRYPTO_THREADID) cdecl;
 
@@ -14760,7 +14760,7 @@ var
     {$EXTERNALSYM BIO_int_ctrl}
   BIO_int_ctrl : function(bp : PBIO; cmd : TIdC_INT; larg : TIdC_LONG; iArg : TIdC_INT) : TIdC_LONG cdecl = nil;
     {$EXTERNALSYM BIO_callback_ctrl}
-  BIO_callback_ctrl : function(b : PBIO; cmd : TIdC_INT; fp : SSL_callback_ctrl_fp ) : TIdC_INT cdecl = nil;
+  BIO_callback_ctrl : function(b : PBIO; cmd : TIdC_INT; fp : SSL_callback_ctrl_fp ) : TIdC_LONG cdecl = nil;
     {$EXTERNALSYM BIO_new_file}
   BIO_new_file : function(const filename: PAnsiChar; const mode: PAnsiChar): PBIO cdecl = nil;
     {$EXTERNALSYM BIO_puts}
