@@ -231,7 +231,8 @@ const
   FD_SETSIZE = FD_MAXFDSET;
   __FD_SETSIZE = FD_MAXFDSET;
   {$IFDEF DARWIN}
-  Id_MSG_NOSIGNAL = SO_NOSIGPIPE;
+  { MSG_NOSIGNAL does not exist in OS X. Instead we have SO_NOSIGPIPE, which we set in Connect. }
+  Id_MSG_NOSIGNAL = 0;
   {$ELSE}
   Id_MSG_NOSIGNAL = MSG_NOSIGNAL;
   {$ENDIF}
@@ -398,6 +399,9 @@ begin
       IPVersionUnsupported;
     end;
   end;
+  {$IFDEF DARWIN}
+  SetSocketOption(ASocket, Id_SOL_SOCKET, SO_NOSIGPIPE, 1);
+  {$ENDIF}
 end;
 
 function TIdStackUnix.HostByName(const AHostName: string;
