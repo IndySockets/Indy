@@ -2296,11 +2296,12 @@ end;
 function ParseFactsMLS(AData : String; AResults : TStrings;
   const AFactDelim : String = ';'; const ANameDelim : String = ' '): String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
-var LBuf : TIdBytes;
+var
+  LBuf : TIdBytes;
   LCharSet : String;
   LEncoding : TIdTextEncoding;
 begin
-  LBuf := ToBytes(ParseFacts(AData, AResults, AFactDelim, ANameDelim),Indy8bitEncoding);
+  LBuf := ToBytes(ParseFacts(AData, AResults, AFactDelim, ANameDelim), Indy8bitEncoding{$IFDEF STRING_IS_ANSI}, Indy8bitEncoding{$ENDIF});
   LCharSet := AResults.Values['charset'];
   if LCharSet = '' then begin
     LCharSet := 'UTF-8';
