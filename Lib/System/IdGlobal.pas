@@ -1246,7 +1246,7 @@ type
   {$IFNDEF DOTNET} // what is the .NET equivilent?
   TIdMemoryBufferStream = class(TCustomMemoryStream)
   public
-    constructor Create(APtr: Pointer; ASize: Longint);
+    constructor Create(APtr: Pointer; ASize: TIdNativeInt);
     function Write(const Buffer; Count: Longint): Longint; override;
   end;
   {$ENDIF}
@@ -6412,7 +6412,7 @@ begin
 end;
 
 {$IFNDEF DOTNET}
-constructor TIdMemoryBufferStream.Create(APtr: Pointer; ASize: Longint);
+constructor TIdMemoryBufferStream.Create(APtr: Pointer; ASize: TIdNativeInt);
 begin
   inherited Create;
   SetPointer(APtr, ASize);
