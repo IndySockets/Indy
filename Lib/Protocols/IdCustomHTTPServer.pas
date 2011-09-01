@@ -1248,8 +1248,8 @@ begin
               if LRequestInfo.PostStream <> nil then begin
                 if TextIsSame(LContentType, ContentTypeFormUrlencoded) then
                 begin
-                  // TODO: need to decode percent-encoded octets before the CharSet can then be applied...
-                  LRequestInfo.FormParams := ReadStringAsCharSet(LRequestInfo.PostStream, LRequestInfo.CharSet);
+                  // decoding percent-encoded octets and applying the CharSet is handled by DecodeAndSetParams() further below...
+                  LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
                   DoneWithPostStream(AContext, LRequestInfo); // don't need the PostStream anymore
                 end;
               end;
@@ -1564,27 +1564,36 @@ procedure TIdHTTPRequestInfo.DecodeAndSetParams(const AValue: String);
 var
   i, j : Integer;
   s: string;
+  LEncoding: TIdTextEncoding;
 begin
   // Convert special characters
   // ampersand '&' separates values    {Do not Localize}
-  // TODO: need to decode UTF-8 octets...
   Params.BeginUpdate;
   try
     Params.Clear;
-    i := 1;
-    while i <= Length(AValue) do
-    begin
-      j := i;
-      while (j <= Length(AValue)) and (AValue[j] <> '&') do {do not localize}
+    LEncoding := CharsetToEncoding(CharSet);
+    {$IFNDEF DOTNET}
+    try
+    {$ENDIF}
+      i := 1;
+      while i <= Length(AValue) do
       begin
-        Inc(j);
+        j := i;
+        while (j <= Length(AValue)) and (AValue[j] <> '&') do {do not localize}
+        begin
+          Inc(j);
+        end;
+        s := Copy(AValue, i, j-i);
+        // See RFC 1866 section 8.2.1. TP
+        s := StringReplace(s, '+', ' ', [rfReplaceAll]);  {do not localize}
+        Params.Add(TIdURI.URLDecode(s, LEncoding));
+        i := j + 1;
       end;
-      s := Copy(AValue, i, j-i);
-      // See RFC 1866 section 8.2.1. TP
-      s := StringReplace(s, '+', ' ', [rfReplaceAll]);  {do not localize}
-      Params.Add(TIdURI.URLDecode(s));
-      i := j + 1;
+    {$IFNDEF DOTNET}
+    finally
+      LEncoding.Free;
     end;
+    {$ENDIF}
   finally
     Params.EndUpdate;
   end;
