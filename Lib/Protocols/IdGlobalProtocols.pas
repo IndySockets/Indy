@@ -3451,7 +3451,7 @@ const
  HTML_DOCWHITESPACE = #0+#9+#10+#13+#32;                       {do not localize}
  HTML_ALLOWABLE_ALPHANUMBERIC = 'abcdefghijklmnopqrstuvwxyz'+  {do not localize}
          'ABCDEFGHIJKLMNOPQRSTUVWXYZ'+                         {do not localize}
-         '1234567890-';                                        {do not localize}
+         '1234567890-_:.';                                     {do not localize}
  HTML_QUOTECHARS = '''"';                                      {do not localize}
  HTML_MainDocParts : array [0..2] of string = ('TITLE','HEAD', 'BODY'); {do not localize}
  HTML_HeadDocAttrs : array [0..3] of string = ('META','TITLE','SCRIPT','LINK'); {do not localize}
@@ -3560,6 +3560,32 @@ begin
   end;
 end;
 
+function ParseUntilCharOrEndOfTag(const AStr : String; const AChar: Char;
+  var VPos : Integer; const ALen : Integer): String; {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  LStart: Integer;
+begin
+  LStart := VPos;
+  while VPos <= ALen do begin
+    if (AStr[VPos] = AChar) or (AStr[VPos] = '>') then begin {do not localize}
+      Break;
+    end;
+    Inc(VPos);
+  end;
+  Result := Copy(AStr, LStart, VPos - LStart);
+end;
+
+procedure DiscardUntilCharOrEndOfTag(const AStr : String; const AChar: Char;
+  var VPos : Integer; const ALen : Integer); {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  while VPos <= ALen do begin
+    if (AStr[VPos] = AChar) or (AStr[VPos] = '>') then begin {do not localize}
+      Break;
+    end;
+    Inc(VPos);
+  end;
+end;
+
 function ParseHTTPMetaEquiveData(const AStr : String; var VPos : Integer;
   const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
@@ -3615,9 +3641,9 @@ begin
         Inc(VPos);
       end else begin
         if TextIsSame(LWord, 'CONTENT') then begin
-          Result := Result + ' ' + ParseWord(AStr, VPos, ALen);
+          Result := Result + ' ' + ParseUntilCharOrEndOfTag(AStr, ' ', VPos, ALen); {do not localize}
         end else begin
-          DiscardWord(AStr, VPos, ALen);
+          DiscardUntilCharOrEndOfTag(AStr, ' ', VPos, ALen); {do not localize}
         end;
       end;
     end;
