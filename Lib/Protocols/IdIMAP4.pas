@@ -544,7 +544,8 @@ type
     function  GetItem(Index: Integer): TIdImapMessagePart;
     procedure SetItem(Index: Integer; const Value: TIdImapMessagePart);
   public
-    function  Add: TIdImapMessagePart;
+    constructor Create(AOwner: TPersistent); reintroduce;
+    function  Add: TIdImapMessagePart; reintroduce;
     property  Items[Index: Integer]: TIdImapMessagePart read GetItem write SetItem; default;
   end;
 
@@ -1525,6 +1526,11 @@ begin
   inherited Create(Collection);
   FParentPart := -1;
   FBoundary := '';          {Do not Localize}
+end;
+
+constructor TIdImapMessageParts.Create(AOwner: TPersistent);
+begin
+  inherited Create(AOwner, TIdImapMessagePart);
 end;
 
 function TIdImapMessageParts.GetItem(Index: Integer): TIdImapMessagePart;
