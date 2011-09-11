@@ -3066,7 +3066,7 @@ begin
   if AUseFirstPartInsteadOfText then begin
     {In this case, we need the body structure to find out what
     encoding has been applied to part 1...}
-    LParts := TIdImapMessageParts.Create(nil, TIdImapMessagePart);
+    LParts := TIdImapMessageParts.Create(nil);
     try
       if AUseUID then begin
         if not UIDRetrieveStructure(IntToStr(AMsgNum), LParts) then begin
