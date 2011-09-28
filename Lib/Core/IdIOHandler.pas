@@ -1218,7 +1218,7 @@ function TIdIOHandler.ReadLongWord(AConvert: Boolean): LongWord;
 var
   LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(LBytes), False);
+  ReadBytes(LBytes, SizeOf(LongWord), False);
   Result := BytesToLongWord(LBytes);
   if AConvert then begin
     Result := GStack.NetworkToHost(Result);
