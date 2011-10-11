@@ -2735,6 +2735,7 @@ begin
     Add('.targa=image/x-targa');    {Do not Localize}
     Add('.tif=image/x-tiff');    {Do not Localize}
     Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
+    Add('.webp=image/webp'); {Do not localize}
     Add('.xbm=image/xbm');    {Do not Localize}
     Add('.xbm=image/x-xbitmap');    {Do not Localize}
     Add('.xpm=image/x-xpixmap');    {Do not Localize}
@@ -2773,6 +2774,7 @@ begin
     Add('.mpa=video/mpeg');    {Do not Localize}
     Add('.mpe=video/mpeg');    {Do not Localize}
     Add('.mpg=video/mpeg');    {Do not Localize}
+    Add('.ogv=video/ogg');    {Do not Localize}
     Add('.moov=video/quicktime');     {Do not Localize}
     Add('.mov=video/quicktime');    {Do not Localize}
     Add('.mxu=video/vnd.mpegurl');   {Do not Localize}
@@ -2780,6 +2782,7 @@ begin
     Add('.qtc=video/x-qtc'); {Do not loccalize}
     Add('.rv=video/vnd.rn-realvideo');    {Do not Localize}
     Add('.ivf=video/x-ivf');    {Do not Localize}
+    Add('.webm=video/webm');    {Do not Localize}
     Add('.wm=video/x-ms-wm');    {Do not Localize}
     Add('.wmp=video/x-ms-wmp');    {Do not Localize}
     Add('.wmv=video/x-ms-wmv');    {Do not Localize}
@@ -3067,6 +3070,11 @@ begin
     Add('.js=text/javascript');    {Do not Localize}
     Add('.htm=text/html');    {Do not Localize}
     Add('.html=text/html');    {Do not Localize}
+    Add('.xhtml=application/xhtml+xml'); {Do not localize}
+    Add('.xht=application/xhtml+xml'); {Do not localize}
+    Add('.rdf=application/rdf+xml'); {Do not localize}
+    Add('.rss=application/rss+xml'); {Do not localize}
+
     Add('.ls=text/javascript');    {Do not Localize}
     Add('.mocha=text/javascript');    {Do not Localize}
     Add('.shtml=server-parsed-html');    {Do not Localize}

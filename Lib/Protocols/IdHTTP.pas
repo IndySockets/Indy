@@ -680,7 +680,7 @@ end;
 
 function IsContentTypeHtml(AInfo: TIdEntityHeaderInfo) : Boolean;
 begin
-  Result := IsHeaderMediaTypes(AInfo.ContentType, ['text/html', 'text/html-sandboxed']); {do not localize}
+  Result := IsHeaderMediaTypes(AInfo.ContentType, ['text/html', 'text/html-sandboxed','application/xhtml+xml']); {do not localize}
 end;
 
 function IsContentTypeAppXml(AInfo: TIdEntityHeaderInfo) : Boolean;
