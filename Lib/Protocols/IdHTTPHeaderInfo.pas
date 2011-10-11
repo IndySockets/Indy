@@ -993,7 +993,7 @@ end;
 
 procedure TIdRequestHeaderInfo.Clear;
 begin
-  FAccept := 'text/html, */*'; {do not localize}
+  FAccept := 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'; // 'text/html, */*'; {do not localize}
   FAcceptCharSet := '';
   FUserAgent := DefaultUserAgent;
   FBasicByDefault := false;
