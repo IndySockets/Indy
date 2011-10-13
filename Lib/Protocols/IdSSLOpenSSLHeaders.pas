@@ -4781,12 +4781,12 @@ const
   {$EXTERNALSYM OBJ_R_UNKNOWN_NID}
   OBJ_R_UNKNOWN_NID = 101;
   {$EXTERNALSYM OPENSSL_VERSION_NUMBER}
-  OPENSSL_VERSION_NUMBER = $1000004f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
+  OPENSSL_VERSION_NUMBER = $1000005f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
   {$EXTERNALSYM OPENSSL_VERSION_TEXT}
 {$IFDEF OPENSSL_FIPS}
-  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0d-fips 8 Feb 2011'; {Do not localize}
+  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0e-fips 6 Sep 2011'; {Do not localize}
 {$ELSE}
-  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0d 8 Feb 2011';   {Do not localize}
+  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0e 6 Sep 2011';   {Do not localize}
 {$ENDIF}
   {$EXTERNALSYM OPENSSL_VERSION_PTEXT}
   OPENSSL_VERSION_PTEXT = ' part of '+ OPENSSL_VERSION_TEXT;  {Do not localize}
@@ -15382,10 +15382,17 @@ type
   Tsk_X509_NAME_find = function (sk : PSTACK_OF_X509_NAME; val : PX509_NAME) : TIdC_INT cdecl;
  {$EXTERNALSYM Tsk_X509_NAME_pop_free}
    Tsk_X509_NAME_pop_free = procedure (sk : PSTACK_OF_X509_NAME; func: Tsk_pop_free_func) cdecl;
+
  {$EXTERNALSYM Tsk_X509_INFO_num}
   Tsk_X509_INFO_num = function (const sk : PSTACK_OF_X509_INFO) : TIdC_INT cdecl;
  {$EXTERNALSYM Tsk_X509_INFO_value}
   Tsk_X509_INFO_value = function (const sk : PSTACK_OF_X509_INFO; i : TIdC_INT) : PX509_INFO cdecl;
+ {$EXTERNALSYM Tsk_X509_INFO_push}
+  Tsk_X509_INFO_push = function (sk : PSTACK_OF_X509_INFO; st : PX509_INFO) : TIdC_INT cdecl;
+ {$EXTERNALSYM Tsk_X509_INFO_dup}
+  Tsk_X509_INFO_dup = function (sk : PSTACK_OF_X509_INFO) : PSTACK_OF_X509_INFO cdecl;
+ {$EXTERNALSYM Tsk_X509_NAME_find}
+  Tsk_X509_INFO_find = function (sk : PSTACK_OF_X509_INFO; val : PX509_INFO) : TIdC_INT cdecl;
  {$EXTERNALSYM Tsk_X509_INFO_pop_free}
   Tsk_X509_INFO_pop_free = procedure (sk : PSTACK_OF_X509_INFO; func: Tsk_pop_free_func) cdecl;
 
@@ -15412,6 +15419,12 @@ var
   sk_X509_INFO_num : Tsk_X509_INFO_num absolute sk_num;
  {$EXTERNALSYM sk_X509_INFO_value}
   sk_X509_INFO_value : Tsk_X509_INFO_value absolute sk_value;
+ {$EXTERNALSYM sk_X509_NAME_push}
+  sk_X509_INFO_push : Tsk_X509_INFO_push absolute sk_push;
+ {$EXTERNALSYM sk_X509_NAME_dup}
+  sk_X509_INFO_dup : Tsk_X509_INFO_dup absolute sk_dup;
+ {$EXTERNALSYM sk_X509_NAME_find}
+  sk_X509_INFO_find : Tsk_X509_INFO_find absolute sk_find;
  {$EXTERNALSYM sk_X509_INFO_pop_free}
   sk_X509_INFO_pop_free : Tsk_X509_INFO_pop_free absolute sk_free;
 {end}
