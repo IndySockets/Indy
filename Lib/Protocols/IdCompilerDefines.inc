@@ -731,9 +731,9 @@
   {$IFDEF FPC_2_2_0_OR_ABOVE}
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
   {$ENDIF}
-  {$IFDEF FPC_2_2_4_OR_ABOVE} // TODO: when was UInt64 introduced?
+  {$IFDEF FPC_2_2_4_OR_ABOVE}
     {$DEFINE HAS_SIZE_T}
-    {$DEFINE HAS_UInt64}
+    {$DEFINE HAS_UInt64} // TODO: when was UInt64 introduced?
   {$ENDIF}
   {$DEFINE HAS_PtrInt}
   {$DEFINE HAS_PtrUInt}
@@ -746,11 +746,13 @@
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
-  {$DEFINE HAS_DEPRECATED}
   {$IFDEF FPC_2_4_4_OR_ABOVE}
     {$DEFINE DEPRECATED_TThread_SuspendResume}
+    {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced?
     {$DEFINE HAS_DEPRECATED_MSG}
     {$DEFINE HAS_UnicodeString} // TODO: when was UnicodeString introduced?
+    {$DEFINE HAS_NativeInt}
+    {$DEFINE HAS_NativeUInt}
   {$ENDIF}
 {$ENDIF}
 

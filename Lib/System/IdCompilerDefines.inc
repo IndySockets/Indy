@@ -751,6 +751,8 @@
     {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced?
     {$DEFINE HAS_DEPRECATED_MSG}
     {$DEFINE HAS_UnicodeString} // TODO: when was UnicodeString introduced?
+    {$DEFINE HAS_NativeInt}
+    {$DEFINE HAS_NativeUInt}
   {$ENDIF}
 {$ENDIF}
 
