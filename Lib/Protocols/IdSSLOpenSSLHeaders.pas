@@ -15381,7 +15381,7 @@ type
  {$EXTERNALSYM Tsk_X509_NAME_find}
   Tsk_X509_NAME_find = function (sk : PSTACK_OF_X509_NAME; val : PX509_NAME) : TIdC_INT cdecl;
  {$EXTERNALSYM Tsk_X509_NAME_pop_free}
-   Tsk_X509_NAME_pop_free = procedure (sk : PSTACK_OF_X509_NAME; func: Tsk_pop_free_func) cdecl;
+ Tsk_X509_NAME_pop_free = procedure (sk : PSTACK_OF_X509_NAME; func: Tsk_pop_free_func) cdecl;
 
  {$EXTERNALSYM Tsk_X509_INFO_num}
   Tsk_X509_INFO_num = function (const sk : PSTACK_OF_X509_INFO) : TIdC_INT cdecl;
@@ -15391,7 +15391,7 @@ type
   Tsk_X509_INFO_push = function (sk : PSTACK_OF_X509_INFO; st : PX509_INFO) : TIdC_INT cdecl;
  {$EXTERNALSYM Tsk_X509_INFO_dup}
   Tsk_X509_INFO_dup = function (sk : PSTACK_OF_X509_INFO) : PSTACK_OF_X509_INFO cdecl;
- {$EXTERNALSYM Tsk_X509_NAME_find}
+ {$EXTERNALSYM Tsk_X509_INFO_find}
   Tsk_X509_INFO_find = function (sk : PSTACK_OF_X509_INFO; val : PX509_INFO) : TIdC_INT cdecl;
  {$EXTERNALSYM Tsk_X509_INFO_pop_free}
   Tsk_X509_INFO_pop_free = procedure (sk : PSTACK_OF_X509_INFO; func: Tsk_pop_free_func) cdecl;
