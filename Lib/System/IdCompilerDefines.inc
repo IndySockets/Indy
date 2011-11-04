@@ -62,6 +62,7 @@
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
 
+{$UNDEF ComponentPlatformsAttribute}
 // detect compiler versions
 
 // Delphi 4
@@ -190,7 +191,6 @@
 {$IFDEF VER220}
 //REMOVE DCC DEFINE after the next Fulcrum beta.
 //It will be defined there.
-  {$DEFINE DCC}
   {$DEFINE VCL_XE}
   {$IFDEF CBUILDER}
     {$DEFINE CBUILDER_XE}
@@ -208,6 +208,7 @@
   {$ELSE}
     {$DEFINE DELPHI_XE2}
   {$ENDIF}
+  {$DEFINE ComponentPlatformsAttribute}
 {$ENDIF}
 
 // Delphi.NET

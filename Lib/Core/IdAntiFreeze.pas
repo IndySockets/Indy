@@ -73,6 +73,9 @@ to be statically compiled into the code }
 {$ENDIF}
 
 type
+  {$IFDEF ComponentPlatformsAttribute}
+  [ComponentPlatformsAttribute(pidWin32 or pidWin64 or pidOSX32)]
+  {$ENDIF}
   TIdAntiFreeze = class(TIdAntiFreezeBase)
   public
     procedure Process; override;
