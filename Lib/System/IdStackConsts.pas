@@ -493,10 +493,15 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   //
   //Temp defines.  They should be in Delphi's Posix.Errno.pas
   ESOCKTNOSUPPORT	= 44;		//* Socket type not supported */
+  {$EXTERNALSYM ESOCKTNOSUPPORT}
   EPFNOSUPPORT = 46;		//* Protocol family not supported */
+  {$EXTERNALSYM EPFNOSUPPORT}
   ESHUTDOWN = 58;		//* Can't send after socket shutdown */
+  {$EXTERNALSYM ESHUTDOWN}
   ETOOMANYREFS = 59;		//* Too many references: can't splice */
+  {$EXTERNALSYM ETOOMANYREFS}
   EHOSTDOWN = 64;		//* Host is down */
+  {$EXTERNALSYM EHOSTDOWN}
   //
   Id_WSAEINTR           = EINTR;
   Id_WSAEBADF           = EBADF;
@@ -592,8 +597,9 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
     {$IFDEF BEOS}
   {work around incomplete definitions in BeOS FPC compiler.}
   EDESTADDRREQ = (B_POSIX_ERROR_BASE + 48);
+  {$EXTERNALSYM EDESTADDRREQ}
   EHOSTDOWN = (B_POSIX_ERROR_BASE + 45);
-   
+  {$EXTERNALSYM EHOSTDOWN}
   ESysENOTSOCK = ENOTSOCK;
   ESysEDESTADDRREQ = EDESTADDRREQ;
   ESysEMSGSIZE = EMSGSIZE;
