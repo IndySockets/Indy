@@ -62,7 +62,7 @@
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
 
-{$UNDEF ComponentPlatformsAttribute}
+{$UNDEF HAS_ComponentPlatformsAttribute}
 // detect compiler versions
 
 // Delphi 4
@@ -208,7 +208,7 @@
   {$ELSE}
     {$DEFINE DELPHI_XE2}
   {$ENDIF}
-  {$DEFINE ComponentPlatformsAttribute}
+  {$DEFINE HAS_ComponentPlatformsAttribute}
 {$ENDIF}
 
 // Delphi.NET
