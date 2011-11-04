@@ -542,7 +542,7 @@ uses
       DynLibs, // better add DynLibs only for fpc
       {$ENDIF}
       {$IFDEF USE_VCL_POSIX}
-       Posix.SysTypes, Posix.Pthread, Posix.Unistd,
+      Posix.SysTypes, Posix.Pthread, Posix.Unistd,
       {$ENDIF}
       {$IFDEF USE_BASEUNIX}
       BaseUnix, Unix, Sockets, UnixType, 
@@ -663,7 +663,9 @@ type
   TIdPID = LongWord;
   TIdThreadId = LongWord;
   TIdThreadHandle = THandle;
+  {$WARN SYMBOL_PLATFORM OFF}
   TIdThreadPriority = TThreadPriority;
+  {$WARN SYMBOL_PLATFORM ON}
   {$ENDIF}
 
   {$IFDEF INT_THREAD_PRIORITY}
