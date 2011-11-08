@@ -2776,6 +2776,10 @@ end;
 destructor TIdSSLSocket.Destroy;
 begin
   if fSSL <> nil then begin
+    if (fSSLContext <> nil) and (fSSLContext.StatusInfoOn) and
+       (fSSLContext.fContext <> nil) then begin
+      SSL_CTX_set_info_callback(fSSLContext.fContext, nil);
+    end;
     //SSL_set_shutdown(fSSL, SSL_SENT_SHUTDOWN);
     SSL_shutdown(fSSL);
     SSL_free(fSSL);
