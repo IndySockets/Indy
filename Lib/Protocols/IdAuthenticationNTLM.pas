@@ -98,11 +98,11 @@ begin
     0:
       begin
         if Length(UserName) > 0 then begin
+          FCurrentStep := 1;
           Result := wnDoRequest;
         end else begin
           Result := wnAskTheProgram;
         end;
-        FCurrentStep := 1;
       end;
     1:
       begin
