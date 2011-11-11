@@ -139,6 +139,8 @@ type
     FFieldStream: TStream;
     FFieldValue: String;
     FCanFreeFieldStream: Boolean;
+    FHeaderCharSet: string;
+    FHeaderEncoding: Char;
 
     function FormatHeader: string;
     function PrepareDataStream(var VCanFree: Boolean): TStream;
@@ -153,6 +155,8 @@ type
     procedure SetFieldStream(const Value: TStream);
     procedure SetFieldValue(const Value: string);
     procedure SetFileName(const Value: string);
+    procedure SetHeaderCharSet(const Value: string);
+    procedure SetHeaderEncoding(const Value: Char);
   public
     constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
@@ -165,6 +169,8 @@ type
     property FileName: string read FFileName write SetFileName;
     property FieldValue: string read GetFieldValue write SetFieldValue;
     property FieldSize: Int64 read GetFieldSize;
+    property HeaderCharSet: string read FHeaderCharSet write SetHeaderCharSet;
+    property HeaderEncoding: Char read FHeaderEncoding write SetHeaderEncoding;
   end;
 
   TIdFormDataFields = class(TCollection)
@@ -218,6 +224,7 @@ type
   EIdInvalidObjectType = class(EIdException);
   EIdUnsupportedOperation = class(EIdException);
   EIdUnsupportedTransfer = class(EIdException);
+  EIdUnsupportedEncoding = class(EIdException);
 
 implementation
 
@@ -231,6 +238,10 @@ uses
 const
   cAllowedContentTransfers: array[0..4] of String = (
     '7bit', '8bit', 'binary', 'quoted-printable', 'base64' {do not localize}
+    );
+
+  cAllowedHeaderEncodings: array[0..2] of String = (
+    'Q', 'B', '8' {do not localize}
     );
 
 { TIdMultiPartFormDataStream }
@@ -512,6 +523,8 @@ end;
 { TIdFormDataField }
 
 constructor TIdFormDataField.Create(Collection: TCollection);
+var
+  LDefCharset: TIdCharSet;
 begin
   inherited Create(Collection);
   FFieldStream := nil;
@@ -519,6 +532,29 @@ begin
   FFieldName := '';
   FContentType := '';
   FCanFreeFieldStream := False;
+
+  // it's not clear when FHeaderEncoding should be Q not B.
+  // Comments welcome on atozedsoftware.indy.general
+
+  LDefCharset := IdGetDefaultCharSet;
+
+  case LDefCharset of
+    idcs_ISO_8859_1:
+      begin
+        FHeaderEncoding := 'Q';     { quoted-printable }    {Do not Localize}
+        FHeaderCharSet := IdCharsetNames[LDefCharset];
+      end;
+    idcs_UNICODE_1_1:
+      begin
+        FHeaderEncoding := 'B';     { base64 }    {Do not Localize}
+        FHeaderCharSet := IdCharsetNames[idcs_UTF_8];
+      end;
+  else
+    begin
+      FHeaderEncoding := 'B';     { base64 }    {Do not Localize}
+      FHeaderCharSet := IdCharsetNames[LDefCharset];
+    end;
+  end;
 end;
 
 destructor TIdFormDataField.Destroy;
@@ -534,30 +570,15 @@ end;
 function TIdFormDataField.FormatHeader: string;
 var
   LBoundary: string;
-  LHeaderEncoding: Char;
-  LCharSet: String;
 begin
   LBoundary := '--' + TIdFormDataFields(Collection).MultipartFormDataStream.Boundary; {do not localize}
 
-  LHeaderEncoding := 'B';     { base64 / quoted-printable }    {Do not Localize}
-  LCharSet := IdCharsetNames[IdGetDefaultCharSet];
-
-  // it's not clear when VHeaderEncoding should be Q not B.
-  // Comments welcome on atozedsoftware.indy.general
-
-  case IdGetDefaultCharSet of
-    idcs_ISO_8859_1  : LHeaderEncoding := 'Q';    {Do not Localize}
-    idcs_UNICODE_1_1 : LCharSet := IdCharsetNames[idcs_UTF_8];
-  else
-    // nothing
-  end;
-
   Result := IndyFormat('%s' + CRLF + sContentDispositionPlaceHolder,
-    [LBoundary, EncodeHeader(FieldName, '', LHeaderEncoding, LCharSet)]);       {do not localize}
+    [LBoundary, EncodeHeader(FieldName, '', FHeaderEncoding, FHeaderCharSet)]);       {do not localize}
 
   if Length(FileName) > 0 then begin
     Result := Result + IndyFormat(sFileNamePlaceHolder,
-      [EncodeHeader(FileName, '', LHeaderEncoding, LCharSet)]);                 {do not localize}
+      [EncodeHeader(FileName, '', FHeaderEncoding, FHeaderCharSet)]);                 {do not localize}
   end;
 
   Result := Result + CRLF;
@@ -971,5 +992,19 @@ begin
   FFileName := ExtractFileName(Value);
 end;
 
-end.
+procedure TIdFormDataField.SetHeaderCharSet(const Value: string);
+begin
+  FHeaderCharset := Value;
+end;
 
+procedure TIdFormDataField.SetHeaderEncoding(const Value: Char);
+begin
+  if FHeaderEncoding <> Value then begin
+    if PosInStrArray(Value, cAllowedHeaderEncodings, False) = -1 then begin
+      raise EIdUnsupportedEncoding.Create(RSMFDInvalidEncoding);
+    end;
+    FHeaderEncoding := Value;
+  end;
+end;
+
+end.
