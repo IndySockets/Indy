@@ -280,9 +280,8 @@ begin
           FreeAndNil(LParams);
         end;
 
-        FCurrentStep := 1;
-
         if Length(Username) > 0 then begin
+          FCurrentStep := 1;
           Result := wnDoRequest;
         end else begin
           Result := wnAskTheProgram;
