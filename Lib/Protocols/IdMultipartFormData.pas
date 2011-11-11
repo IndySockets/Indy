@@ -411,7 +411,7 @@ begin
     if (Length(FInternalBuffer) = 0) and (not Assigned(FInputStream)) then
     begin
       LItem := FFields.Items[FCurrentItem];
-      AppendString(FInternalBuffer, LItem.FormatHeader);
+      AppendString(FInternalBuffer, LItem.FormatHeader, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 
       FInputStream := LItem.PrepareDataStream(FFreeInputStream);
       if not Assigned(FInputStream) then begin
