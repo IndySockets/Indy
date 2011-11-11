@@ -59,10 +59,10 @@
 // the iconv library to charactor conversions.
 {.$UNDEF USE_ICONV}
 
-//Define for Delphi cross-compiler targetting Posix
+//Define for Delphi cross-compiler
 {$UNDEF USE_VCL_POSIX}
-
 {$UNDEF HAS_ComponentPlatformsAttribute}
+
 // detect compiler versions
 
 // Delphi 4
@@ -208,7 +208,6 @@
   {$ELSE}
     {$DEFINE DELPHI_XE2}
   {$ENDIF}
-  {$DEFINE HAS_ComponentPlatformsAttribute}
 {$ENDIF}
 
 // Delphi.NET
@@ -691,6 +690,7 @@
 
 {$IFDEF VCL_XE2_OR_ABOVE}
   {$DEFINE HAS_SIZE_T}
+  {$DEFINE HAS_ComponentPlatformsAttribute}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
