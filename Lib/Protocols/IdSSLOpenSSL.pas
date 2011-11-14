@@ -630,6 +630,8 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
 function LoadOpenSSLLibrary: Boolean;
 procedure UnLoadOpenSSLLibrary;
 
+function OpenSSLVersion: string;
+
 implementation
 
 uses
@@ -2001,6 +2003,15 @@ begin
     FreeAndNil(CallbackLockList);
   end;
   SSLIsLoaded.Value := False;
+end;
+
+function OpenSSLVersion: string;
+begin
+  Result := '';
+  if IdSSLOpenSSL.LoadOpenSSLLibrary then
+  begin
+    Result := _SSLeay_version(SSLEAY_VERSION);
+  end;
 end;
 
 //////////////////////////////////////////////////////
