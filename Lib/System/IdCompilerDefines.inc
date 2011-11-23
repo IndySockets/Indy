@@ -590,6 +590,7 @@
     {$DEFINE HAS_TStringList_CaseSensitive}
     {$IFNDEF KYLIX}
       {$DEFINE HAS_DEPRECATED}
+      {$DEFINE HAS_SYMBOL_PLATFORM}
     {$ENDIF}
   {$ENDIF}
   {$IFNDEF DOTNET}

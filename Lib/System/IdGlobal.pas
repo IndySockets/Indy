@@ -663,9 +663,13 @@ type
   TIdPID = LongWord;
   TIdThreadId = LongWord;
   TIdThreadHandle = THandle;
-  {$WARN SYMBOL_PLATFORM OFF}
+    {$IFDEF HAS_SYMBOL_PLATFORM}
+      {$WARN SYMBOL_PLATFORM OFF}
+    {$ENDIF}
   TIdThreadPriority = TThreadPriority;
-  {$WARN SYMBOL_PLATFORM ON}
+    {$IFDEF HAS_SYMBOL_PLATFORM}
+      {$WARN SYMBOL_PLATFORM ON}
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF INT_THREAD_PRIORITY}
