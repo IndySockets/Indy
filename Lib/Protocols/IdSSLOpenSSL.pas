@@ -2010,7 +2010,7 @@ begin
   Result := '';
   if IdSSLOpenSSL.LoadOpenSSLLibrary then
   begin
-    Result := _SSLeay_version(SSLEAY_VERSION);
+    Result := String(_SSLeay_version(SSLEAY_VERSION));
   end;
 end;
 
