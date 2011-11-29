@@ -20,7 +20,11 @@ if exist setenv.bat del setenv.bat > nul
 
 if (%NDC16%)==() goto enderror
 if not exist %NDC16%\bin\dcc32.exe goto endnocompiler
-if not exist ..\C16\*.* md ..\C16 >nul
+if not exist ..\C16\*.* md ..\C16 > nul
+if not exist ..\C16\ZLib\*.* md ..\C16\ZLib > nul
+if not exist ..\C16\ZLib\i386-Win32-ZLib\*.* md ..\C16\ZLib\i386-Win32-ZLib > nul
+if not exist ..\C16\ZLib\x86_64-Win64-ZLib\*.* md ..\C16\ZLib\x86_64-Win64-ZLib > nul
+
 if exist ..\C16\*.* call clean.bat ..\C16\
 
 cd System
@@ -105,8 +109,8 @@ REM ************************************************************
 
 cd ..\Lib\Protocols
 
-
-copy zlib\i386-Win32-ZLib\*.obj ..\..\C16 > nul
+copy zlib\i386-Win32-ZLib\*.obj ..\..\C16\ZLib\i386-Win32-ZLib > nul
+copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C16\ZLib\x86_64-Win64-ZLib > nul
 copy *IndyProtocols160.dpk ..\..\C16 > nul
 copy *IndyProtocols160.cfg1 ..\..\C16 > nul
 copy *IndyProtocols160.cfg2 ..\..\C16 > nul
@@ -149,6 +153,16 @@ REM ************************************************************
 REM Set all files we want to keep with the R attribute then 
 REM delete the rest before restoring the attribute
 REM ************************************************************
+cd ZLib\i386-Win32-ZLib
+del /Q *.* > nul
+cd..
+rd i386-Win32-ZLib
+cd x86_64-Win64-ZLib
+del /Q *.* > nul
+cd..
+rd x86_64-Win64-ZLib
+cd..
+rd ZLib
 attrib +r Id*.hpp
 attrib +r *.bpl
 attrib +r Indy*.bpi

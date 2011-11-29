@@ -45,3 +45,8 @@
 -w-UNSAFE_TYPE
 -w-UNSAFE_CODE
 -w-UNSAFE_CAST
+-NSSystem
+-NSSystem.Win
+-NSWinAPI
+-NSVcl
+
