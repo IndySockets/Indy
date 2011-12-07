@@ -184,7 +184,7 @@ type
     FCodingTable: AnsiString;
     FDecodeTable: TIdDecodeTable;
     FFillChar: AnsiChar;
-    function InternalDecode(const ABuffer: TIdBytes): TIdBytes;
+    function InternalDecode(const ABuffer: TIdBytes; const AIgnoreFiller: Boolean = False): TIdBytes;
   public
     class procedure ConstructDecodeTable(const ACodingTable: AnsiString; var ADecodeArray: TIdDecodeTable);
     procedure Decode(ASrcStream: TStream; const ABytes: Integer = -1); override;
@@ -233,21 +233,17 @@ begin
   end;
 end;
 
-function TIdDecoder4to3.InternalDecode(const ABuffer: TIdBytes): TIdBytes;
+function TIdDecoder4to3.InternalDecode(const ABuffer: TIdBytes; const AIgnoreFiller: Boolean): TIdBytes;
 var
   LInBufSize: Integer;
   LEmptyBytes: Integer;
-  LInBytes: TIdBytes;
+  LInBytes: array[0..3] of Byte;
   LOutPos: Integer;
   LOutSize: Integer;
   LInLimit: Integer;
   LInPos: Integer;
   LFillChar: Byte; // local copy of FFillChar
 begin
-  SetLength(LInBytes, 4);
-
-  LFillChar := Byte(FillChar);
-  LEmptyBytes := 0;
   LInPos := 0;
 
   LInBufSize := Length(ABuffer);
@@ -289,23 +285,21 @@ begin
     //
     // Because of this we watch for early ends beyond what we originally
     // estimated.
+  end;
 
-    // RLebeau: normally, the FillChar does not appear inside the encoded bytes,
-    // however UUE/XXE does allow it, so do not break the loop when the FillChar 
-    // is encountered...
-    if LInBytes[3] = LFillChar then begin
-      if LInBytes[2] = LFillChar then begin
+  // RLebeau: normally, the FillChar does not appear inside the encoded bytes,
+  // however UUE/XXE does allow it, where encoded lines are prefixed with the
+  //  unencoded data lengths instead...
+  if (not AIgnoreFiller) and (LInPos > 0) then begin
+    LFillChar := Byte(FillChar);
+    if ABuffer[LInPos-1] = LFillChar then begin
+      if ABuffer[LInPos-2] = LFillChar then begin
         LEmptyBytes := 2;
       end else begin
         LEmptyBytes := 1;
       end;
-    end else begin
-      LEmptyBytes := 0;
+      SetLength(Result, LOutSize - LEmptyBytes);
     end;
-  end;
-
-  if LEmptyBytes > 0 then begin
-    SetLength(Result, LOutSize - LEmptyBytes);
   end;
 end;
 

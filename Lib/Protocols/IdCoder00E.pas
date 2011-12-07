@@ -66,6 +66,7 @@ procedure TIdDecoder00E.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
 var
   LBuf: TIdBytes;
   LSize: TIdStreamSize;
+  LDataLen: Integer;
 begin
   LSize := IndyLength(ASrcStream, ABytes);
   if LSize > 0 then begin
@@ -74,7 +75,13 @@ begin
     //Param 3 - Get output length of input. This is length in bytes,
     // not encoded chars. DO NOT include fill chars in calculation
     {Assert(Ord(FDecodeTable[LBuf[0]]) = (((LSize-1) div 4) * 3));}
-    inherited Decode(ASrcStream, LSize-1);
+    LDataLen := FDecodeTable[LBuf[0]];
+    SetLength(LBuf, LSize-1);
+    TIdStreamHelper.ReadBytes(ASrcStream, LBuf, LSize-1);
+    LBuf := InternalDecode(LBuf, True);
+    if Assigned(FStream) then begin
+      TIdStreamHelper.Write(FStream, LBuf, LDataLen);
+    end;
   end;
 end;
 

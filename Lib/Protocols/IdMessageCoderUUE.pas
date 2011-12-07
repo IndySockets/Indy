@@ -142,7 +142,7 @@ var
 begin
   AMsgEnd := False;
   Result := nil;
-  LLine := ReadLnRFC(LMsgEnd);
+  LLine := ReadLnRFC(LMsgEnd, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
   if LMsgEnd then begin
     Exit;
   end;
@@ -178,7 +178,7 @@ begin
         end else begin
           LDecoder.Decode(LLine);
         end;
-        LLine := ReadLnRFC(LMsgEnd);
+        LLine := ReadLnRFC(LMsgEnd, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
       until TextIsSame(Trim(LLine), 'end') or LMsgEnd;    {Do not Localize}
       LDecoder.DecodeEnd;
     end;

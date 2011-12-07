@@ -217,7 +217,7 @@ var
     //TODO: this uses Array of Characters. Unless its dealing in Unicode or MBCS it should
     // be using TIdBuffer
     if Assigned(ADestStream) then begin
-      ADestStream.Write(LOutputBuffer, LOutputBufferUsed);
+      WriteTIdBytesToStream(ADestStream, LOutputBuffer, LOutputBufferUsed);
     end;
     LOutputBufferUsed := 0;
   end;
@@ -247,7 +247,7 @@ begin
     // break something, and storing in an extra buffer will just eat space
     while True do
     begin
-      LLine := ReadLnRFC(LMsgEnd, Indy8BitEncoding);
+      LLine := ReadLnRFC(LMsgEnd, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
       if (IndyPos('=yend', LowerCase(LLine)) <> 0) or LMsgEnd then {Do not Localize}
       begin
         Break;
@@ -266,10 +266,10 @@ begin
               EIdMessageYencCorruptionException.Toss(RSYencFileCorrupted);
             end;
             Inc(LLinePos);
-            LChar := Byte(LLine[LLinePos]) - 42 - 64;
-          end else begin
-            LChar := Byte(LChar) - 42;
+            LChar := Byte(LLine[LLinePos]);
+            Dec(LChar, 64);
           end;
+          Dec(LChar, 42);
           AddByteToOutputBuffer(LChar);
           LH.HashByte(LHash, LChar);
           Inc(LLinePos);
@@ -318,7 +318,6 @@ var
   i, LSSize: TIdStreamSize;
   LInput: Byte;
   LOutput: Byte;
-  LEscape : Byte;
   LCurrentLineLength: Integer;
 
   LOutputBuffer: TIdBytes;
@@ -360,7 +359,6 @@ begin
   SetLength(LInputBuffer, BUFLEN);
   LSSize := IndyLength(ASrc);
   LCurrentLineLength := 0;
-  LEscape := B_EQUALS;
   LOutputBufferUsed := 0;
 
   LH := TIdHashCRC32.Create;
@@ -374,14 +372,15 @@ begin
     begin
       LInput := ReadByteFromInputBuffer;
       Inc(i);
-      LOutput := Byte(LInput) + 42;
+      LH.HashByte(LHash, LInput);
+      LOutput := LInput;
+      Inc(LOutput, 42);
       if LOutput in [B_NUL, B_LF, B_CR, B_EQUALS, B_TAB, B_PERIOD] then begin {do not localize}
-        AddByteToOutputBuffer(LEscape);
-        LOutput := LOutput + 64;
+        AddByteToOutputBuffer(B_EQUALS);
         Inc(LCurrentLineLength);
+        Inc(LOutput, 64);
       end;
       AddByteToOutputBuffer(LOutput);
-      LH.HashByte(LHash, LOutput);
       Inc(LCurrentLineLength);
       if LCurrentLineLength = 1 then begin
         if LOutput = B_PERIOD then begin
