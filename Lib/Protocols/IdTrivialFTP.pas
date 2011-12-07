@@ -118,11 +118,6 @@ begin
       LOptName := BytesToString(OptionPacket, LOffset, Idx-LOffset, IndyASCIIEncoding);
       LOffset := Idx+1;
 
-      OptionIdx := PosInStrArray(LOptName, [sBlockSize, sTransferSize], False);
-      if OptionIdx = -1 then begin
-        raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOption, [LOptName]);
-      end;
-
       Idx := ByteIndex(0, OptionPacket, LOffset);
       if Idx = -1 then begin
         raise EIdTFTPOptionNegotiationFailed.Create('');
@@ -130,6 +125,15 @@ begin
 
       LOptValue := BytesToString(OptionPacket, LOffset, Idx-LOffset, IndyASCIIEncoding);
       LOffset := Idx+1;
+
+      OptionIdx := PosInStrArray(LOptName, [sBlockSize, sTransferSize], False);
+      if OptionIdx = -1 then begin
+        // RLebeau 12/6/2011: workaround for bug in PicoMOD3 devices
+        if (LOptName = '') and (LOptValue = '') then begin
+          Continue;
+        end;
+        raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOption, [LOptName]);
+      end;
 
       case OptionIdx of
         0:
@@ -147,7 +151,7 @@ begin
               // TODO
               {
               if (IndyStrToInt(LOptValue) is not available) then begin
-                raise raise EIdTFTPAllocationExceeded.Create('');
+                raise EIdTFTPAllocationExceeded.Create('');
               end;
               }
             end;
