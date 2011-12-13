@@ -4371,6 +4371,7 @@ var
   LDescription: string;
   LTemp: string;
   LSize: integer;
+  LPos: Integer;
 begin
   {Individual parameters may be strings like "text", NIL, a number, or bracketted pairs like
   ("CHARSET" "US-ASCII" "NAME" "cc.tif" "format" "flowed")...}
@@ -4405,12 +4406,17 @@ begin
 
     {Find and clean up the filename, if present...}
     LFilename := ''; {Do not Localize}
-    if IndyPos('"NAME"', UpperCase(APartString)) > 0 then begin {Do not Localize}
-      LTemp := Copy(APartString, IndyPos('"NAME" ', UpperCase(APartString))+7, MaxInt); {Do not Localize}
+    LPos := IndyPos('"NAME"', UpperCase(APartString)); {Do not Localize}
+    if LPos > 0 then begin
+      LTemp := Copy(APartString, LPos+7, MaxInt);
       LFilename := GetNextQuotedParam(LTemp, False);
-    end else if IndyPos('"FILENAME"', UpperCase(APartString)) > 0 then begin {Do not Localize}
-      LTemp := Copy(APartString, IndyPos('"FILENAME" ', UpperCase(APartString))+11, MaxInt); {Do not Localize}
-      LFilename := GetNextQuotedParam(LTemp, False);
+    end else
+    begin
+      LPos := IndyPos('"FILENAME"', UpperCase(APartString)); {Do not Localize}
+      if LPos > 0 then begin
+        LTemp := Copy(APartString, LPos+11, MaxInt);
+        LFilename := GetNextQuotedParam(LTemp, False);
+      end;
     end;
     {If the filename starts and ends with double-quotes, remove them...}
     if Length(LFilename) > 1 then begin
@@ -4865,8 +4871,8 @@ var Ln: Integer;
   LSlSearch: TStringList;
 begin
   LSlSearch := TStringList.Create;
-  SetLength(AMB.SearchResult, 0);
   try
+    SetLength(AMB.SearchResult, 0);
     if ACmdResultDetails.Count > 0 then begin
       if Pos(IMAP4Commands[cmdSearch], ACmdResultDetails[0]) > 0 then begin
         BreakApart(ACmdResultDetails[0], ' ', LSlSearch); {Do not Localize}
@@ -4934,77 +4940,77 @@ begin
 end;
 
 procedure TIdIMAP4.ParseSelectResult(AMB : TIdMailBox; ACmdResultDetails: TStrings);
-var Ln : Integer;
+var
+  Ln : Integer;
   LStr : String;
   LFlags: TIdMessageFlagsSet;
+  LLine: String;
+  LPos: Integer;
 begin
   AMB.Clear;
   for Ln := 0 to ACmdResultDetails.Count - 1 do begin
-    if Pos('EXISTS', ACmdResultDetails[Ln] ) > 0 then begin {Do not Localize}
-      AMB.TotalMsgs := IndyStrToInt(Copy(ACmdResultDetails[Ln], 0,
-       (Pos('EXISTS', ACmdResultDetails[Ln] ) - 1))); {Do not Localize}
+    LLine := ACmdResultDetails[Ln];
+    LPos := Pos(' EXISTS', LLine); {Do not Localize}
+    if LPos > 0 then begin
+      AMB.TotalMsgs := IndyStrToInt(Copy(LLine, 1, LPos - 1));
+      Continue;
     end;
-    if Pos('RECENT', ACmdResultDetails[Ln] ) > 0 then begin {Do not Localize}
-      AMB.RecentMsgs := IndyStrToInt(Copy(ACmdResultDetails[Ln], 0,
-       (Pos('RECENT', ACmdResultDetails[Ln]) - 1))); {Do not Localize}
+    LPos := Pos(' RECENT', LLine); {Do not Localize}
+    if LPos > 0 then begin
+      AMB.RecentMsgs := IndyStrToInt(Copy(LLine, 1, LPos - 1)); {Do not Localize}
+      Continue;
     end;
-    if Pos('[UIDVALIDITY', ACmdResultDetails[Ln]) > 0 then begin {Do not Localize}
-      AMB.UIDValidity := Trim(Copy(ACmdResultDetails[Ln],
-       (Pos('[UIDVALIDITY', ACmdResultDetails[Ln]) + {Do not Localize}
-       Length('[UIDVALIDITY')), {Do not Localize}
-       (Pos(']', ACmdResultDetails[Ln]) -  {Do not Localize}
-       (Pos('[UIDVALIDITY', ACmdResultDetails[Ln]) +  {Do not Localize}
-       Length('[UIDVALIDITY'))))); {Do not Localize}
+    LPos := Pos('[UIDVALIDITY ', LLine); {Do not Localize}
+    if LPos > 0 then begin
+      Inc(LPos, 13);
+      AMB.UIDValidity := Trim(Copy(LLine, LPos, (PosIdx(']', LLine, LPos) - LPos))); {Do not Localize}
+      Continue;
     end;
-    if Pos('[UIDNEXT', ACmdResultDetails[Ln]) > 0 then begin {Do not Localize}
-      AMB.UIDNext := Trim(Copy(ACmdResultDetails[Ln],
-       (Pos('[UIDNEXT', ACmdResultDetails[Ln]) + {Do not Localize}
-       Length('[UIDNEXT')), {Do not Localize}
-       (Pos(']', ACmdResultDetails[Ln]) -  {Do not Localize}
-       (Pos('[UIDNEXT', ACmdResultDetails[Ln]) +  {Do not Localize}
-       Length('[UIDNEXT')) - 1))); {Do not Localize}
+    LPos := Pos('[UIDNEXT ', LLine); {Do not Localize}
+    if LPos > 0 then begin
+      Inc(LPos, 9);
+      AMB.UIDNext := Trim(Copy(LLine, LPos, (PosIdx(']', LLine, LPos) - LPos))); {Do not Localize}
+      Continue;
     end;
-    if Pos('FLAGS', ACmdResultDetails[Ln]) > 0 then begin {Do not Localize}
-      ParseMessageFlagString(Copy(ACmdResultDetails[Ln],
-       (Pos('(', ACmdResultDetails[Ln]) + 1), {Do not Localize}
-       (Pos(')', ACmdResultDetails[Ln]) -  {Do not Localize}
-       Pos('(', ACmdResultDetails[Ln]) - 1)), LFlags); {Do not Localize}
-      AMB.Flags := LFlags;
-    end;
-    if Pos('[PERMANENTFLAGS', ACmdResultDetails[Ln]) > 0 then begin {Do not Localize}
-      ParseMessageFlagString(Copy(ACmdResultDetails[Ln],
-       (Pos('(', ACmdResultDetails[Ln]) + 1), {Do not Localize}
-       (Pos(')', ACmdResultDetails[Ln]) -  {Do not Localize}
-       Pos('(', ACmdResultDetails[Ln]) - 1)), {Do not Localize}
-       LFlags);
+    LPos := Pos('[PERMANENTFLAGS ', LLine); {Do not Localize}
+    if LPos > 0 then begin {Do not Localize}
+      LPos := PosIdx('(', LLine, LPos + 16) + 1; {Do not Localize}
+      ParseMessageFlagString(Copy(LLine, LPos, PosIdx(')', LLine, LPos) - LPos), LFlags); {Do not Localize}
       AMB.ChangeableFlags := LFlags;
+      Continue;
     end;
-    if Pos('[UNSEEN', ACmdResultDetails[Ln]) > 0 then begin {Do not Localize}
-      AMB.FirstUnseenMsg := IndyStrToInt(Copy(ACmdResultDetails[Ln],
-       (Pos('[UNSEEN', ACmdResultDetails[Ln]) + {Do not Localize}
-       Length('[UNSEEN')), {Do not Localize}
-       (Pos(']', ACmdResultDetails[Ln]) -  {Do not Localize}
-       (Pos('[UNSEEN', ACmdResultDetails[Ln]) +  {Do not Localize}
-       Length('[UNSEEN'))))); {Do not Localize}
+    LPos := Pos('FLAGS ', LLine); {Do not Localize}
+    if LPos > 0 then begin
+      LPos := PosIdx('(', LLine, LPos + 6) + 1; {Do not Localize}
+      ParseMessageFlagString(Copy(LLine, LPos, (PosIdx(')', LLine, LPos) - LPos)), LFlags); {Do not Localize}
+      AMB.Flags := LFlags;
+      Continue;
     end;
-    if Pos('[READ-', ACmdResultDetails[Ln]) > 0 then begin {Do not Localize}
-      LStr := Trim(Copy(ACmdResultDetails[Ln],
-       (Pos('[', ACmdResultDetails[Ln])), {Do not Localize}
-       (Pos(']', ACmdResultDetails[Ln]) - Pos ('[', ACmdResultDetails[Ln] ) + 1))); {Do not Localize}
+    LPos := Pos('[UNSEEN ', LLine); {Do not Localize}
+    if LPos> 0 then begin
+      Inc(LPos, 8);
+      AMB.FirstUnseenMsg := IndyStrToInt(Copy(LLine, LPos, (PosIdx(']', LLine, LPos) - LPos))); {Do not Localize}
+      Continue;
+    end;
+    LPos := Pos('[READ-', LLine); {Do not Localize}
+    if LPos > 0 then begin
+      Inc(LPos, 6);
+      LStr := Trim(Copy(LLine, LPos, PosIdx(']', LLine, LPos) - LPos)); {Do not Localize}
       {CCB: AMB.State ambiguous unless coded response received - default to msReadOnly...}
-      if TextIsSame(LStr, '[READ-WRITE]') then begin {Do not Localize}
+      if TextIsSame(LStr, 'WRITE') then begin {Do not Localize}
         AMB.State := msReadWrite;
-      end else {if TextIsSame(LStr, '[READ-ONLY]') then} begin {Do not Localize}
+      end else {if TextIsSame(LStr, 'ONLY') then} begin {Do not Localize}
         AMB.State := msReadOnly;
       end;
+      Continue;
     end;
-    if Pos('[ALERT]', ACmdResultDetails[Ln]) > 0 then begin {Do not Localize}
-      LStr := Trim(Copy(ACmdResultDetails[Ln],
-       (Pos('[ALERT]', ACmdResultDetails[Ln]) + {Do not Localize}
-       Length('[ALERT]')), MaxInt)); {Do not Localize}
-      if Length(LStr) <> 0 then begin  {Do not Localize}
+    LPos := Pos('[ALERT]', LLine); {Do not Localize}
+    if LPos > 0 then begin
+      LStr := Trim(Copy(LLine, LPos + 7, MaxInt));
+      if Length(LStr) <> 0 then begin
         DoAlert(LStr);
       end;
+      Continue;
     end;
   end;
 end;
