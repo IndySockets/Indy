@@ -105,7 +105,11 @@ uses
 (*$HPPEMIT 'typedef void __cdecl (*free_func)(void * opaque, void * address);'*)
 (*$HPPEMIT ''*)
 (*$HPPEMIT '#pragma pack(push,1)'*)
+{$IFDEF VCL_XE_OR_ABOVE}
 (*$HPPEMIT 'struct DECLSPEC_DRECORD z_stream'*)
+{$ELSE}
+(*$HPPEMIT 'struct z_stream'*)
+{$ENDIF}
 (*$HPPEMIT '{'*)
 (*$HPPEMIT '	'*)
 (*$HPPEMIT 'public:'*)
@@ -151,7 +155,11 @@ uses
 (*$HPPEMIT 'typedef gz_header *gz_headerp;'*)
 (*$HPPEMIT ''*)
 (*$HPPEMIT '#pragma pack(push,1)'*)
+{$IFDEF VCL_XE_OR_ABOVE}
 (*$HPPEMIT 'struct DECLSPEC_DRECORD gz_header'*)
+{$ELSE}
+(*$HPPEMIT 'struct gz_header'*)
+{$ENDIF}
 (*$HPPEMIT '{'*)
 (*$HPPEMIT '	'*)
 (*$HPPEMIT 'public:'*)
