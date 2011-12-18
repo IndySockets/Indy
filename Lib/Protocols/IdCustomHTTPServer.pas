@@ -404,6 +404,7 @@ type
     FServerSoftware: string;
     FMIMETable: TIdThreadSafeMimeTable;
     FSessionList: TIdHTTPCustomSessionList;
+    FImplicitSessionList: Boolean;
     FSessionState: Boolean;
     FSessionTimeOut: Integer;
     //
@@ -447,11 +448,13 @@ type
     function DoExecute(AContext:TIdContext): Boolean; override;
     //
     procedure SetActive(AValue: Boolean); override;
+    procedure SetSessionList(const AValue: TIdHTTPCustomSessionList);
     procedure SetSessionState(const Value: Boolean);
     function GetSessionFromCookie(AContext:TIdContext;
      AHTTPrequest: TIdHTTPRequestInfo; AHTTPResponse: TIdHTTPResponseInfo;
      var VContinueProcessing: Boolean): TIdHTTPSession;
     procedure InitComponent; override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     { to be published in TIdHTTPServer}
     property OnCreatePostStream: TIdHTTPCreatePostStream read FOnCreatePostStream write FOnCreatePostStream;
     property OnDoneWithPostStream: TIdHTTPDoneWithPostStream read FOnDoneWithPostStream write FOnDoneWithPostStream;
@@ -464,7 +467,7 @@ type
     function EndSession(const SessionName: String; const RemoteIP: String = ''): Boolean;
     //
     property MIMETable: TIdThreadSafeMimeTable read FMIMETable;
-    property SessionList: TIdHTTPCustomSessionList read FSessionList;
+    property SessionList: TIdHTTPCustomSessionList read FSessionList write SetSessionList;
   published
     property AutoStartSession: boolean read FAutoStartSession write FAutoStartSession default Id_TId_HTTPAutoStartSession;
     property DefaultPort default IdPORT_HTTP;
@@ -821,12 +824,20 @@ begin
   FSessionState := Id_TId_HTTPServer_SessionState;
   DefaultPort := IdPORT_HTTP;
   ParseParams := Id_TId_HTTPServer_ParseParams;
-  FSessionList := TIdHTTPDefaultSessionList.Create(Self);
   FMIMETable := TIdThreadSafeMimeTable.Create(False);
   FSessionTimeOut := Id_TId_HTTPSessionTimeOut;
   FAutoStartSession := Id_TId_HTTPAutoStartSession;
   FKeepAlive := Id_TId_HTTPServer_KeepAlive;
   FMaximumHeaderLineCount := Id_TId_HTTPMaximumHeaderLineCount;
+end;
+
+procedure TIdCustomHTTPServer.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent = FSessionList) then begin
+    FSessionList := nil;
+    FImplicitSessionList := False;
+  end;
 end;
 
 function TIdCustomHTTPServer.DoParseAuthentication(ASender: TIdContext;
@@ -1412,6 +1423,10 @@ begin
     begin
       // starting server
       // set the session timeout and options
+      if not Assigned(FSessionList) then begin
+        FSessionList := TIdHTTPDefaultSessionList.Create(Self);
+        FImplicitSessionList := True;
+      end;
       if FSessionTimeOut <> 0 then begin
         FSessionList.FSessionTimeout := FSessionTimeOut;
       end else begin
@@ -1421,22 +1436,64 @@ begin
       FSessionList.OnSessionStart := FOnSessionStart;
       FSessionList.OnSessionEnd := FOnSessionEnd;
       // If session handling is enabled, create the housekeeper thread
-      if SessionState then
+      if SessionState then begin
         FSessionCleanupThread := TIdHTTPSessionCleanerThread.Create(FSessionList);
+      end;
     end else
     begin
       // Stopping server
       // Boost the clear thread priority to give it a good chance to terminate
-      if assigned(FSessionCleanupThread) then begin
+      if Assigned(FSessionCleanupThread) then begin
         IndySetThreadPriority(FSessionCleanupThread, tpNormal);
         FSessionCleanupThread.TerminateAndWaitFor;
         FreeAndNil(FSessionCleanupThread);
       end;
       FSessionCleanupThread := nil;
-      FSessionList.Clear;
+      if FImplicitSessionList then begin
+        SessionList := nil;
+      end else begin
+        FSessionList.Clear;
+      end;
     end;
   end;
   inherited SetActive(AValue);
+end;
+
+procedure TIdCustomHTTPServer.SetSessionList(const AValue: TIdHTTPCustomSessionList);
+var
+  LSessionList: TIdHTTPCustomSessionList;
+begin
+  // RLebeau - is this really needed?  What should happen if this
+  // gets called by Notification() if the sessionList is freed while
+  // the server is still Active?
+  if Active then begin
+    EIdException.Toss(RSHTTPCannotSwitchSessionListWhenActive);
+  end;
+
+  // If implicit one already exists free it
+  // Free the default SessionList
+  if FImplicitSessionList then begin
+    // Under D8 notification gets called after .Free of FreeAndNil, but before
+    // its set to nil with a side effect of IDisposable. To counteract this we
+    // set it to nil first.
+    // -Kudzu
+    LSessionList := FSessionList;
+    FSessionList := nil;
+    FreeAndNil(LSessionList);
+    //
+    FImplicitSessionList := False;
+  end;
+
+  // Ensure we will no longer be notified when the component is freed
+  if FSessionList <> nil then begin
+    FSessionList.RemoveFreeNotification(Self);
+  end;
+  FSessionList := AValue;
+  // Ensure we will be notified when the component is freed, even is it's on
+  // another form
+  if FSessionList <> nil then begin
+    FSessionList.FreeNotification(Self);
+  end;
 end;
 
 procedure TIdCustomHTTPServer.SetSessionState(const Value: Boolean);

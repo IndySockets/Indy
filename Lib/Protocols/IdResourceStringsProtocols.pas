@@ -261,6 +261,7 @@ resourcestring
   RSHTTPErrorParsingCommand = 'Error in parsing command.';
   RSHTTPUnsupportedAuthorisationScheme = 'Unsupported authorization scheme.';
   RSHTTPCannotSwitchSessionStateWhenActive = 'Cannot change session state when the server is active.';
+  RSHTTPCannotSwitchSessionListWhenActive = 'Cannot change session list when the server is active.';
 
   //HTTP Authentication
   RSHTTPAuthAlreadyRegistered = 'This authentication method is already registered with class name %s.';
