@@ -589,8 +589,17 @@ begin
   end else if FActive <> AValue then begin
     if AValue then begin
       CheckOkToBeActive;
-      Startup;
+      try
+        Startup;
+      except
+        FActive := True;
+        SetActive(False); // allow descendants to clean up
+        raise;
+      end;
+      FActive := True;
     end else begin
+      // Must set to False here. Shutdown() implementations call property setters that check this
+      FActive := False;
       Shutdown;
     end;
   end;
@@ -845,9 +854,6 @@ end;
 
 procedure TIdCustomTCPServer.Shutdown;
 begin
-  // Must set to False here. SetScheduler checks this
-  FActive := False;
-
   // tear down listening threads
   StopListening;
 
@@ -898,14 +904,7 @@ begin
   end;
   FScheduler.Init;
 
-  try
-    StartListening;
-  except
-    FActive := True;
-    SetActive(False); // allow descendants to clean up
-    raise;
-  end;
-  FActive := True;
+  StartListening;
 end;
 
 procedure TIdCustomTCPServer.CheckOkToBeActive;

@@ -922,7 +922,7 @@ begin
             rAddressOk :
             begin
               AddrValid(ASender, EMailAddress.Address);
-              LContext.RCPTList.Add.Text := EMailAddress.Text;
+              LContext.RCPTList.Add.Assign(EMailAddress);
               LContext.SMTPState := idSMTPRcpt;
             end;
             rRelayDenied :
@@ -935,7 +935,7 @@ begin
               if LForward <> '' then begin
                 LContext.RCPTList.Add.Text := LForward;
               end else begin
-                LContext.RCPTList.Add.Text := EMailAddress.Text;
+                LContext.RCPTList.Add.Assign(EMailAddress);
               end;
               LContext.SMTPState := idSMTPRcpt;
             end;

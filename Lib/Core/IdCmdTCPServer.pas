@@ -213,7 +213,7 @@ type
     // This is used by command handlers as the only input. This can be overriden to filter, modify,
     // or preparse the input.
     function ReadCommandLine(AContext: TIdContext): string; virtual;
-    procedure SetActive(AValue: Boolean); override;
+    procedure Startup; override;
     procedure SetCommandHandlers(AValue: TIdCommandHandlers);
     procedure SetExceptionReply(AValue: TIdReply);
     procedure SetGreeting(AValue: TIdReply);
@@ -359,15 +359,15 @@ begin
   AIOHandler.Write(MaxConnectionReply.FormattedReply);
 end;
 
-procedure TIdCmdTCPServer.SetActive(AValue: Boolean);
+procedure TIdCmdTCPServer.Startup;
 var
   i, j: Integer;
   LDescr: TStrings;
   LHelpList: TStringList;
   LHandler: TIdCommandHandler;
 begin
-  if (not IsDesignTime) and (not IsLoading)
-   and (not FActive) and (AValue) and (not FCommandHandlersInitialized) then begin
+  inherited Startup;
+  if not FCommandHandlersInitialized then begin
     // InitializeCommandHandlers must be called only at runtime, and only after streaming
     // has occured. This used to be in .Loaded and that worked for forms. It failed
     // for dynamically created instances and also for descendant classes.
@@ -401,7 +401,6 @@ begin
       end;
     end;
   end;
-  inherited SetActive(AValue);
 end;
 
 procedure TIdCmdTCPServer.SetCommandHandlers(AValue: TIdCommandHandlers);

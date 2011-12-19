@@ -429,16 +429,17 @@ end;
 
 procedure TIdThreadComponent.SetActive(const AValue: Boolean);
 begin
-  if (not IsDesignTime) and (not IsLoading) then begin
-    if Active <> AValue then begin
-      if AValue then begin
-        Start;
-      end else begin
-        Stop;
-      end;
+  if IsDesignTime or IsLoading then begin
+    FActive := AValue;
+  end
+  else if Active <> AValue then begin
+    if AValue then begin
+      Start;
+    end else begin
+      Stop;
     end;
+    FActive := AValue;
   end;
-  FActive := AValue;
 end;
 
 procedure TIdThreadComponent.SetData(const AValue: TObject);

@@ -131,6 +131,7 @@ type
 
   protected
     procedure InitComponent; override;
+    procedure Loaded; override;
 
   public
     destructor Destroy; override;
@@ -190,6 +191,16 @@ begin
   // FThread freed on Terminate
 
   inherited Destroy;
+end;
+
+procedure TIdIPAddrMon.Loaded;
+begin
+  inherited Loaded;
+  // Active = True must not be performed before all other props are loaded
+  if Active then begin
+    FActive := False;
+    Active := True;
+  end;
 end;
 
 procedure TIdIPAddrMon.CheckAdapters(Sender: TObject);
@@ -300,7 +311,7 @@ begin
       // get initial addresses at start-up and allow display in IDE
       GetAdapterAddresses;
     end;
-    if not IsDesignTime then
+    if (not IsDesignTime) and (not IsLoading) then
     begin
       if Value then
       begin

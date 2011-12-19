@@ -444,10 +444,13 @@ type
     function DoHeaderExpectations(ASender: TIdContext; const AExpectations: String): Boolean; virtual;
     function DoParseAuthentication(ASender: TIdContext; const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean;
     function DoQuerySSLPort(APort: TIdPort): Boolean; virtual;
+    procedure DoSessionEnd(Sender: TIdHTTPSession); virtual;
+    procedure DoSessionStart(Sender: TIdHTTPSession); virtual;
     //
     function DoExecute(AContext:TIdContext): Boolean; override;
     //
-    procedure SetActive(AValue: Boolean); override;
+    procedure Startup; override;
+    procedure Shutdown; override;
     procedure SetSessionList(const AValue: TIdHTTPCustomSessionList);
     procedure SetSessionState(const Value: Boolean);
     function GetSessionFromCookie(AContext:TIdContext;
@@ -1386,6 +1389,20 @@ begin
   end;
 end;
 
+procedure TIdCustomHTTPServer.DoSessionEnd(Sender: TIdHTTPSession);
+begin
+  if Assigned(FOnSessionEnd) then begin
+    FOnSessionEnd(Sender);
+  end;
+end;
+
+procedure TIdCustomHTTPServer.DoSessionStart(Sender: TIdHTTPSession);
+begin
+  if Assigned(FOnSessionStart) then begin
+    FOnSessionStart(Sender);
+  end;
+end;
+
 function TIdCustomHTTPServer.GetSessionFromCookie(AContext: TIdContext;
   AHTTPRequest: TIdHTTPRequestInfo; AHTTPResponse: TIdHTTPResponseInfo;
   var VContinueProcessing: Boolean): TIdHTTPSession;
@@ -1421,48 +1438,50 @@ begin
   AHTTPResponse.FSession := Result;
 end;
 
-procedure TIdCustomHTTPServer.SetActive(AValue: Boolean);
+procedure TIdCustomHTTPServer.Startup;
 begin
-  if (not IsDesignTime) and (FActive <> AValue)
-      and (not IsLoading) then begin
-    if AValue then
-    begin
-      // starting server
-      // set the session timeout and options
-      if not Assigned(FSessionList) then begin
-        FSessionList := TIdHTTPDefaultSessionList.Create(Self);
-        FImplicitSessionList := True;
-      end;
-      if FSessionTimeOut <> 0 then begin
-        FSessionList.FSessionTimeout := FSessionTimeOut;
-      end else begin
-        FSessionState := False;
-      end;
-      // Session events
-      FSessionList.OnSessionStart := FOnSessionStart;
-      FSessionList.OnSessionEnd := FOnSessionEnd;
-      // If session handling is enabled, create the housekeeper thread
-      if SessionState then begin
-        FSessionCleanupThread := TIdHTTPSessionCleanerThread.Create(FSessionList);
-      end;
-    end else
-    begin
-      // Stopping server
-      // Boost the clear thread priority to give it a good chance to terminate
-      if Assigned(FSessionCleanupThread) then begin
-        IndySetThreadPriority(FSessionCleanupThread, tpNormal);
-        FSessionCleanupThread.TerminateAndWaitFor;
-        FreeAndNil(FSessionCleanupThread);
-      end;
-      FSessionCleanupThread := nil;
-      if FImplicitSessionList then begin
-        SessionList := nil;
-      end else begin
-        FSessionList.Clear;
-      end;
-    end;
+  inherited Startup;
+
+  // set the session timeout and options
+  if not Assigned(FSessionList) then begin
+    FSessionList := TIdHTTPDefaultSessionList.Create(Self);
+    FImplicitSessionList := True;
   end;
-  inherited SetActive(AValue);
+
+  if FSessionTimeOut <> 0 then begin
+    FSessionList.FSessionTimeout := FSessionTimeOut;
+  end else begin
+    FSessionState := False;
+  end;
+
+  // Session events
+  FSessionList.OnSessionStart := DoSessionStart;
+  FSessionList.OnSessionEnd := DoSessionEnd;
+
+  // If session handling is enabled, create the housekeeper thread
+  if SessionState then begin
+    FSessionCleanupThread := TIdHTTPSessionCleanerThread.Create(FSessionList);
+  end;
+end;
+
+procedure TIdCustomHTTPServer.Shutdown;
+var
+  LSessionList: TIdHTTPCustomSessionList;
+begin
+  // Boost the clear thread priority to give it a good chance to terminate
+  if Assigned(FSessionCleanupThread) then begin
+    IndySetThreadPriority(FSessionCleanupThread, tpNormal);
+    FSessionCleanupThread.TerminateAndWaitFor;
+    FreeAndNil(FSessionCleanupThread);
+  end;
+
+  if FImplicitSessionList then begin
+    SessionList := nil;
+  end else begin
+    FSessionList.Clear;
+  end;
+
+  inherited Shutdown;
 end;
 
 procedure TIdCustomHTTPServer.SetSessionList(const AValue: TIdHTTPCustomSessionList);
