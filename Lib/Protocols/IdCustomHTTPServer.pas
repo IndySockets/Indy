@@ -1191,9 +1191,15 @@ begin
               IOHandler.Capture(LRequestInfo.RawHeaders, '', False);    {Do not Localize}
               LRequestInfo.ProcessHeaders;
 
-              // TODO: HTTP 1.1 connections are keep-alive by default
-              LResponseInfo.CloseConnection := not (FKeepAlive and
-                TextIsSame(LRequestInfo.Connection, 'Keep-alive')); {Do not Localize}
+              // HTTP 1.1 connections are keep-alive by default
+              if not FKeepAlive then begin
+                LResponseInfo.CloseConnection := True;
+              end
+              else if LRequestInfo.IsVersionAtLeast(1, 1) then begin
+                LResponseInfo.CloseConnection := TextIsSame(LRequestInfo.Connection, 'close'); {Do not Localize}
+              end else begin
+                LResponseInfo.CloseConnection := not TextIsSame(LRequestInfo.Connection, 'keep-alive'); {Do not Localize}
+              end;
 
               {TODO Check for 1.0 only at this point}
               LCmd := UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
