@@ -1465,8 +1465,6 @@ begin
 end;
 
 procedure TIdCustomHTTPServer.Shutdown;
-var
-  LSessionList: TIdHTTPCustomSessionList;
 begin
   // Boost the clear thread priority to give it a good chance to terminate
   if Assigned(FSessionCleanupThread) then begin
