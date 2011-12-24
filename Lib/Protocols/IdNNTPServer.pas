@@ -208,7 +208,6 @@ const
 
 type
   EIdNNTPServerException = class(EIdException);
-  EIdNNTPImplicitTLSRequiresSSL = class(EIdNNTPServerException);
 
   TIdNNTPAuthType = (atUserPass, atSimple, atGeneric);
   TIdNNTPAuthTypes = set of TIdNNTPAuthType;
@@ -222,12 +221,14 @@ type
     FAuthEmail: String;
     FAuthParams: string;
     FAuthType: TIdNNTPAuthType;
-    FCurrentArticle: Integer;
+    FCurrentArticle: Int64;
     FCurrentGroup: string;
     FModeReader: Boolean;
     FPassword: string;
     FUserName: string;
     function GetUsingTLS: Boolean;
+    function GetCanUseExplicitTLS: Boolean;
+    function GetTLSIsRequired: Boolean;
     procedure GenerateAuthEmail;
   public
     constructor Create(
@@ -241,45 +242,46 @@ type
     property AuthEmail: String read FAuthEmail;
     property AuthParams: string read FAuthParams;
     property AuthType: TIdNNTPAuthType read FAuthType;
-    property CurrentArticle: Integer read FCurrentArticle;
+    property CurrentArticle: Int64 read FCurrentArticle;
     property CurrentGroup: string read FCurrentGroup;
     property ModeReader: Boolean read FModeReader;
     property Password: string read FPassword;
     property UserName: string read FUserName;
     property UsingTLS : Boolean read GetUsingTLS;
+    property CanUseExplicitTLS: Boolean read GetCanUseExplicitTLS;
+    property TLSIsRequired: Boolean read GetTLSIsRequired;
   end;
 
   TIdNNTPOnAuth = procedure(AContext: TIdNNTPContext; var VAccept: Boolean) of object;
   TIdNNTPOnNewGroupsList = procedure(AContext: TIdNNTPContext; const ADateStamp : TDateTime; const ADistributions : String) of object;
   TIdNNTPOnNewNews = procedure(AContext: TIdNNTPContext; const Newsgroups : String; const ADateStamp : TDateTime; const ADistributions : String) of object;
   TIdNNTPOnIHaveCheck = procedure(AContext: TIdNNTPContext; const AMsgID : String; VAccept : Boolean) of object;
-  TIdNNTPOnMsgDataByNo = procedure(AContext: TIdNNTPContext; const AMsgNo: Integer) of object;
+  TIdNNTPOnMsgDataByNo = procedure(AContext: TIdNNTPContext; const AMsgNo: Int64) of object;
   TIdNNTPOnMsgDataByID = procedure(AContext: TIdNNTPContext; const AMsgID: string) of object;
-  TIdNNTPOnCheckMsgNo = procedure(AContext: TIdNNTPContext; const AMsgNo: Integer;
+  TIdNNTPOnCheckMsgNo = procedure(AContext: TIdNNTPContext; const AMsgNo: Int64;
    var VMsgID: string) of object;
-  TIdNNTPOnCheckMsgID = procedure(AContext: TIdNNTPContext; const AMsgId : string; var VMsgNo : Integer) of object;
+  TIdNNTPOnCheckMsgID = procedure(AContext: TIdNNTPContext; const AMsgId : string; var VMsgNo : Int64) of object;
   //this has to be a separate event type in case a NNTP client selects a message
   //by Message ID instead of Index number.  If that happens, the user has to
   //to return the index number.  NNTP Clients setting STAT by Message ID is not
   //a good idea but is valid.
-  TIdNNTPOnMovePointer = procedure(AContext: TIdNNTPContext; var AMsgNo: Integer; var VMsgID: string) of object;
+  TIdNNTPOnMovePointer = procedure(AContext: TIdNNTPContext; var AMsgNo: Int64; var VMsgID: string) of object;
   TIdNNTPOnPost = procedure(AContext: TIdNNTPContext; var VPostOk: Boolean; var VErrorText: string) of object;
   TIdNNTPOnSelectGroup = procedure(AContext: TIdNNTPContext; const AGroup: string;
-   var VMsgCount: Integer; var VMsgFirst: Integer; var VMsgLast: Integer;
+   var VMsgCount: Int64; var VMsgFirst: Int64; var VMsgLast: Int64;
    var VGroupExists: Boolean) of object;
   TIdNNTPOnCheckListGroup = procedure(AContext: TIdNNTPContext; const AGroup: string;
-   var VCanJoin : Boolean; var VFirstArticle : Integer) of object;
+   var VCanJoin : Boolean; var VFirstArticle : Int64) of object;
   TIdNNTPOnXHdr = procedure(AContext: TIdNNTPContext; const AHeaderName : String;
-   const AMsgFirst: Integer; const AMsgLast: Integer; const AMsgID: String) of object;
-  TIdNNTPOnXOver = procedure(AContext: TIdNNTPContext; const AMsgFirst: Integer; const AMsgLast: Integer) of object;
-  TIdNNTPOnXPat = procedure(AContext: TIdNNTPContext; const AHeaderName : String; const AMsgFirst: Integer;
-   const AMsgLast: Integer; const AMsgID: String; const AHeaderPattern: String) of object;
+   const AMsgFirst: Int64; const AMsgLast: Int64; const AMsgID: String) of object;
+  TIdNNTPOnXOver = procedure(AContext: TIdNNTPContext; const AMsgFirst: Int64; const AMsgLast: Int64) of object;
+  TIdNNTPOnXPat = procedure(AContext: TIdNNTPContext; const AHeaderName : String; const AMsgFirst: Int64;
+   const AMsgLast: Int64; const AMsgID: String; const AHeaderPattern: String) of object;
   TIdNNTPOnAuthRequired = procedure(AContext: TIdNNTPContext; const ACommand, AParams : string; var VRequired: Boolean) of object;
   TIdNNTPOnListPattern = procedure(AContext: TIdNNTPContext; const AGroupPattern: String) of object;
 
   TIdNNTPServer = class(TIdExplicitTLSServer)
   protected
-    FImplicitTLS: Boolean;
     FHelp: TStrings;
     FDistributionPatterns: TStrings;
     FOverviewFormat: TStrings;
@@ -322,8 +324,8 @@ type
 
     function SecLayerRequired(ASender: TIdCommand) : Boolean;
     function AuthRequired(ASender: TIdCommand): Boolean;
-    function DoCheckMsgID(AContext: TIdNNTPContext; const AMsgID: String): Integer;
-    function DoCheckMsgNo(AContext: TIdNNTPContext; const AMsgNo: Integer): String;
+    function DoCheckMsgID(AContext: TIdNNTPContext; const AMsgID: String): Int64;
+    function DoCheckMsgNo(AContext: TIdNNTPContext; const AMsgNo: Int64): String;
     //return MsgID - AThread.CurrentArticlePointer already set
     function RawNavigate(AContext: TIdNNTPContext; AEvent : TIdNNTPOnMovePointer) : String;
     procedure CommandArticle(ASender: TIdCommand);
@@ -363,29 +365,30 @@ type
     procedure CommandSTARTTLS(ASender: TIdCommand);
 
     procedure DoListGroups(AContext: TIdNNTPContext);
-    procedure DoSelectGroup(AContext: TIdNNTPContext; const AGroup: string; var VMsgCount: Integer;
-     var VMsgFirst: Integer; var VMsgLast: Integer; var VGroupExists: Boolean);
+    procedure DoSelectGroup(AContext: TIdNNTPContext; const AGroup: string; var VMsgCount: Int64;
+     var VMsgFirst: Int64; var VMsgLast: Int64; var VGroupExists: Boolean);
     procedure InitializeCommandHandlers; override;
     procedure SetDistributionPatterns(AValue: TStrings);
     procedure SetHelp(AValue: TStrings);
     procedure SetOverviewFormat(AValue: TStrings);
-    procedure SetIOHandler(const AValue: TIdServerIOHandler); override;
+    function GetImplicitTLS: Boolean;
     procedure SetImplicitTLS(const AValue: Boolean);
     procedure InitComponent; override;
-    function LookupMessage(ASender : TidCommand; var VNo : Integer; var VId : string) : TIdNNTPLookupType;
+    function LookupMessage(ASender : TidCommand; var VNo : Int64; var VId : string) : TIdNNTPLookupType;
     function LookupMessageRange(ASender: TIdCommand; const AData: String;
-      var VMsgFirst: Integer; var VMsgLast: Integer) : Boolean;
+      var VMsgFirst: Int64; var VMsgLast: Int64) : Boolean;
     function LookupMessageRangeOrID(ASender: TIdCommand; const AData: String;
-      var VMsgFirst: Integer; var VMsgLast: Integer; var VMsgID: String) : Boolean;
+      var VMsgFirst: Int64; var VMsgLast: Int64; var VMsgID: String) : Boolean;
   public
     destructor Destroy; override;
     class function NNTPTimeToTime(const ATimeStamp : String): TDateTime;
     class function NNTPDateTimeToDateTime(const ATimeStamp: string): TDateTime;
   published
-    property DefaultPort default IdPORT_NNTP;
     property DistributionPatterns: TStrings read FDistributionPatterns write SetDistributionPatterns;
     property Help: TStrings read FHelp write SetHelp;
-    property ImplicitTLS : Boolean read FImplicitTLS write SetImplicitTLS default DEF_NNTP_IMPLICIT_TLS;
+    property ImplicitTLS : Boolean read GetImplicitTLS write SetImplicitTLS default DEF_NNTP_IMPLICIT_TLS; // deprecated 'Use UseTLS property';
+    property DefaultPort default IdPORT_NNTP;
+    property UseTLS;
     property OverviewFormat: TStrings read FOverviewFormat write SetOverviewFormat;
     property SupportedAuthTypes: TIdNNTPAuthTypes read FSupportedAuthTypes write FSupportedAuthTypes;
     property OnArticleById: TIdNNTPOnMsgDataById read FOnArticleById write FOnArticleById;
@@ -584,7 +587,7 @@ end;
 procedure TIdNNTPServer.CommandArticle(ASender: TIdCommand);
 var
   LMsgID: string;
-  LMsgNo: Integer;
+  LMsgNo: Int64;
 begin
   if not SecLayerRequired(ASender) then begin
     if not AuthRequired(ASender) then begin
@@ -617,7 +620,7 @@ end;
 procedure TIdNNTPServer.CommandBody(ASender: TIdCommand);
 var
   LMsgID: string;
-  LMsgNo: Integer;
+  LMsgNo: Int64;
 begin
   if not SecLayerRequired(ASender) then begin
     if not AuthRequired(ASender) then begin
@@ -722,9 +725,9 @@ procedure TIdNNTPServer.CommandGroup(ASender: TIdCommand);
 var
   LGroup: string;
   LGroupExists: Boolean;
-  LMsgCount: Integer;
-  LMsgFirst: Integer;
-  LMsgLast: Integer;
+  LMsgCount: Int64;
+  LMsgFirst: Int64;
+  LMsgLast: Int64;
   LContext: TIdNNTPContext;
 begin
   if not SecLayerRequired(ASender) then begin
@@ -744,7 +747,7 @@ procedure TIdNNTPServer.CommandHead(ASender: TIdCommand);
 // Note - we dont diffentiate between 423 and 430, we always return 430
 var
   LMsgID: string;
-  LMsgNo: Integer;
+  LMsgNo: Int64;
 begin
   if not SecLayerRequired(ASender) then begin
     if not AuthRequired(ASender) then begin
@@ -806,7 +809,7 @@ end;
 
 procedure TIdNNTPServer.CommandLast(ASender: TIdCommand);
 var
-  LMsgNo: Integer;
+  LMsgNo: Int64;
   LContext: TIdNNTPContext;
   LMsgID : String;
 begin
@@ -1216,7 +1219,7 @@ procedure TIdNNTPServer.CommandListExtensions(ASender: TIdCommand);
 begin
   ASender.Reply.SetReply(202, 'Extensions supported:'); {do not localize}
   ASender.SendReply;
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (not ImplicitTLS) then begin
+  if TIdNNTPContext(ASender.Context).CanUseExplicitTLS then begin
     ASender.Context.Connection.IOHandler.WriteLn(' STARTTLS');  {do not localize}
   end;
   if Assigned(FOnXHdr) then begin
@@ -1265,7 +1268,7 @@ procedure TIdNNTPServer.CommandListGroup(ASender: TIdCommand);
 var
   LContext : TIdNNTPContext;
   LGroup : String;
-  LFirstIdx : Integer;
+  LFirstIdx : Int64;
   LCanJoin : Boolean;
 begin
   if not SecLayerRequired(ASender) then begin
@@ -1604,7 +1607,7 @@ end;
 
 procedure TIdNNTPServer.CommandNext(ASender: TIdCommand);
 var
-  LMsgNo: Integer;
+  LMsgNo: Int64;
   LContext: TIdNNTPContext;
   LMsgID : String;
 begin
@@ -1721,7 +1724,7 @@ end;
 procedure TIdNNTPServer.CommandStat(ASender: TIdCommand);
 var
   LMsgID: string;
-  LMsgNo: Integer;
+  LMsgNo: Int64;
 begin
   if not SecLayerRequired(ASender) then begin
     if not AuthRequired(ASender) then begin
@@ -1753,8 +1756,8 @@ end;
 procedure TIdNNTPServer.CommandXHdr(ASender: TIdCommand);
 var
   s: String;
-  LFirstMsg: Integer;
-  LLastMsg: Integer;
+  LFirstMsg: Int64;
+  LLastMsg: Int64;
   LMsgID: String;
   LContext: TIdNNTPContext;
 begin
@@ -1847,8 +1850,8 @@ end;
 *)
 procedure TIdNNTPServer.CommandXOver(ASender: TIdCommand);
 var
-  LFirstMsg: Integer;
-  LLastMsg: Integer;
+  LFirstMsg: Int64;
+  LLastMsg: Int64;
   LContext: TIdNNTPContext;
 begin
   if not SecLayerRequired(ASender) then begin
@@ -1910,8 +1913,8 @@ end;
 *)
 procedure TIdNNTPServer.CommandXROver(ASender: TIdCommand);
 var
-  LFirstMsg: Integer;
-  LLastMsg: Integer;
+  LFirstMsg: Int64;
+  LLastMsg: Int64;
   LContext: TIdNNTPContext;
 begin
   if not SecLayerRequired(ASender) then begin
@@ -1973,8 +1976,8 @@ end;
 procedure TIdNNTPServer.CommandXPat(ASender: TIdCommand);
 var
   i: Integer;
-  LFirstMsg: Integer;
-  LLastMsg: Integer;
+  LFirstMsg: Int64;
+  LLastMsg: Int64;
   LMsgID: String;
   LPattern: string;
   LContext: TIdNNTPContext;
@@ -2057,7 +2060,7 @@ begin
 end;
 
 procedure TIdNNTPServer.DoSelectGroup(AContext: TIdNNTPContext; const AGroup: string;
-  var VMsgCount, VMsgFirst, VMsgLast: Integer; var VGroupExists: Boolean);
+  var VMsgCount, VMsgFirst, VMsgLast: Int64; var VGroupExists: Boolean);
 begin
   VMsgCount := 0;
   VMsgFirst := 0;
@@ -2068,33 +2071,21 @@ begin
   end;
 end;
 
-procedure TIdNNTPServer.SetIOHandler(const AValue: TIdServerIOHandler);
+function TIdNNTPServer.GetImplicitTLS: Boolean;
 begin
-  inherited SetIOHandler(AValue);
-  if not (IOHandler is TIdServerIOHandlerSSLBase) then begin
-    ImplicitTLS := False;
-  end;
+  Result := UseTLS = utUseImplicitTLS;
 end;
 
 procedure TIdNNTPServer.SetImplicitTLS(const AValue: Boolean);
 begin
-  if AValue <> FImplicitTLS then begin
-    if (IOHandler is TIdServerIOHandlerSSLBase) then begin
-      FImplicitTLS := AValue;
-      if AValue then begin
-        if DefaultPort = IdPORT_NNTP then begin
-          DefaultPort := IdPORT_SNEWS;
-        end;
-      end else begin
-        if DefaultPort = IdPORT_SNEWS then begin
-          DefaultPort := IdPORT_NNTP;
-        end;
-      end;
+  if AValue <> ImplicitTLS then begin
+    if AValue then begin
+      UseTLS := utUseImplicitTLS;
+    end
+    else if IOHandler is TIdServerIOHandlerSSLBase then begin
+      UseTLS := utUseExplicitTLS;
     end else begin
-      if AValue then begin
-        EIdNNTPImplicitTLSRequiresSSL.Toss(RSNNTPSvrImplicitTLSRequiresSSL);
-      end;
-      FImplicitTLS := AValue;
+      UseTLS := utNoTLSSupport;
     end;
   end;
 end;
@@ -2104,8 +2095,8 @@ var
   LIO : TIdSSLIOHandlerSocketBase;
   LContext: TIdNNTPContext;
 begin
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (not ImplicitTLS) then begin
-    LContext := TIdNNTPContext(ASender.Context);
+  LContext := TIdNNTPContext(ASender.Context);
+  if LContext.CanUseExplicitTLS then begin
     if not LContext.UsingTLS then begin
       ASender.Reply.NumericCode := 382;
       ASender.SendReply;
@@ -2413,7 +2404,7 @@ begin
   end;
 end;
 
-function TIdNNTPServer.DoCheckMsgID(AContext: TIdNNTPContext; const AMsgID: String): Integer;
+function TIdNNTPServer.DoCheckMsgID(AContext: TIdNNTPContext; const AMsgID: String): Int64;
 begin
   Result := 0;
   if Assigned(FOnCheckMsgId) then begin
@@ -2421,7 +2412,7 @@ begin
   end;
 end;
 
-function TIdNNTPServer.DoCheckMsgNo(AContext: TIdNNTPContext; const AMsgNo: Integer): String;
+function TIdNNTPServer.DoCheckMsgNo(AContext: TIdNNTPContext; const AMsgNo: Int64): String;
 begin
   Result := '';
   if Assigned(FOnCheckMsgNo) then begin
@@ -2431,7 +2422,7 @@ end;
 
 function TIdNNTPServer.RawNavigate(AContext: TIdNNTPContext; AEvent: TIdNNTPOnMovePointer): String;
 var
-  LMsgNo : Integer;
+  LMsgNo : Int64;
 begin
   Result := '';
   LMsgNo := AContext.CurrentArticle;
@@ -2499,6 +2490,22 @@ begin
   Result := (Connection.IOHandler is TIdSSLIOHandlerSocketBase);
   if Result then begin
     Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  end;
+end;
+
+function TIdNNTPContext.GetCanUseExplicitTLS: Boolean;
+begin
+  Result := (Connection.IOHandler is TIdSSLIOHandlerSocketBase);
+  if Result then begin
+    Result := (TIdNNTPServer(Server).UseTLS in ExplicitTLSVals);
+  end;
+end;
+
+function TIdNNTPContext.GetTLSIsRequired: Boolean;
+begin
+  Result := (TIdNNTPServer(Server).UseTLS = utUseRequireTLS);
+  if Result then begin
+    Result := not UsingTLS;
   end;
 end;
 
@@ -2815,16 +2822,13 @@ end;
 
 function TIdNNTPServer.SecLayerRequired(ASender: TIdCommand): Boolean;
 begin
-  Result := (ASender.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase);
+  Result := TIdNNTPContext(ASender.Context).TLSIsRequired;
   if Result then begin
-    Result := (FUseTLS = utUseRequireTLS) and TIdSSLIOHandlerSocketBase(ASender.Context.Connection.IOHandler).PassThrough;
-    if Result then begin
-      ASender.Reply.NumericCode := 483;
-    end;
+    ASender.Reply.NumericCode := 483;
   end;
 end;
 
-function TIdNNTPServer.LookupMessage(ASender: TIdCommand; var VNo: Integer; var VId: string): TIdNNTPLookupType;
+function TIdNNTPServer.LookupMessage(ASender: TIdCommand; var VNo: Int64; var VId: string): TIdNNTPLookupType;
 var
   s : string;
   LContext : TidNNTPContext;
@@ -2866,7 +2870,7 @@ begin
       end;
     end
     else begin
-      VNo := IndyStrToInt(s, 0);
+      VNo := IndyStrToInt64(s, 0);
       if VNo > 0 then begin
         VId := DoCheckMsgNo(LContext, VNo);
       end;
@@ -2881,7 +2885,7 @@ begin
 end;
 
 function TIdNNTPServer.LookupMessageRange(ASender: TIdCommand; const AData: String;
-  var VMsgFirst: Integer; var VMsgLast: Integer): Boolean;
+  var VMsgFirst: Int64; var VMsgLast: Int64): Boolean;
 var
   s: String;
   LContext: TIdNNTPContext;
@@ -2903,9 +2907,9 @@ begin
   end else begin
     IsRange := IndyPos('-', s) > 1;
     if IsRange then begin
-      VMsgFirst := IndyStrToInt(Fetch(s, '-'), 0);
+      VMsgFirst := IndyStrToInt64(Fetch(s, '-'), 0);
     end else begin
-      VMsgFirst := IndyStrToInt(s, 0);
+      VMsgFirst := IndyStrToInt64(s, 0);
     end;
   end;
 
@@ -2919,7 +2923,7 @@ begin
     if Length(s) = 0 then begin
       VMsgLast := 0;  // return all from VMsgFirst onwards
     end else begin
-      VMsgLast := IndyStrToInt(s, 0);
+      VMsgLast := IndyStrToInt64(s, 0);
       if VMsgLast < VMsgFirst then begin
         ASender.Reply.NumericCode := 501;
         Exit;
@@ -2933,10 +2937,10 @@ begin
 end;
 
 function TIdNNTPServer.LookupMessageRangeOrID(ASender: TIdCommand; const AData: String;
-  var VMsgFirst: Integer; var VMsgLast: Integer; var VMsgID: String): Boolean;
+  var VMsgFirst: Int64; var VMsgLast: Int64; var VMsgID: String): Boolean;
 var
   s: String;
-  LFirstMsg: Integer;
+  LFirstMsg: Int64;
   LContext: TIdNNTPContext;
 begin
   Result := False;

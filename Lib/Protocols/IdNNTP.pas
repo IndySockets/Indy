@@ -167,9 +167,9 @@ type
   TIdEventStreaming = procedure (AMesgID: string; var AAccepted: Boolean)of object;
   TIdNewsTransporTIdEvent = procedure (AMsg: TStrings) of object;
    //AMsg can be an index number or a message ID depending upon the parameters of XHDR
-  TIdEvenTIdNewsgroupList = procedure(ANewsgroup: string; ALow, AHigh: Integer;
+  TIdEvenTIdNewsgroupList = procedure(ANewsgroup: string; ALow, AHigh: Int64;
    AType: string; var ACanContinue: Boolean) of object;
-  TIdEventXOVER = procedure(AArticleIndex : Integer; ASubject,
+  TIdEventXOVER = procedure(AArticleIndex : Int64; ASubject,
      AFrom : String; ADate : TDateTime; AMsgId, AReferences : String; AByteCount,
      ALineCount : Integer; AExtraData : String; var VCanContinue : Boolean) of object;
   TIdEventNewNewsList = procedure(AMsgID: string; var ACanContinue: Boolean) of object;
@@ -180,9 +180,9 @@ type
   TIdNNTP = class(TIdMessageClient)
   protected
     FGreetingCode : Integer;
-    FMsgHigh: Integer;
-    FMsgLow: Integer;
-    FMsgCount: Integer;
+    FMsgHigh: Int64;
+    FMsgLow: Int64;
+    FMsgCount: Int64;
     FNewsAgent: string;
     FOnNewsgroupList,
     FOnNewGroupsList: TIdEvenTIdNewsgroupList;
@@ -214,31 +214,31 @@ type
     destructor Destroy; override;
     procedure DisconnectNotifyPeer; override;
     function GetArticle(AMsg: TIdMessage): Boolean; overload;
-    function GetArticle(AMsgNo: Integer; AMsg: TIdMessage): Boolean; overload;
+    function GetArticle(AMsgNo: Int64; AMsg: TIdMessage): Boolean; overload;
     function GetArticle(AMsgID: string; AMsg: TIdMessage): Boolean; overload;
     function GetArticle(AMsg: TStrings): Boolean; overload;
-    function GetArticle(AMsgNo: Integer; AMsg: TStrings): Boolean; overload;
+    function GetArticle(AMsgNo: Int64; AMsg: TStrings): Boolean; overload;
     function GetArticle(AMsgID: string; AMsg: TStrings): Boolean; overload;
     function GetArticle(AMsg: TStream): Boolean; overload;
-    function GetArticle(AMsgNo: Integer; AMsg: TStream): Boolean; overload;
+    function GetArticle(AMsgNo: Int64; AMsg: TStream): Boolean; overload;
     function GetArticle(AMsgID: string; AMsg: TStream): Boolean; overload;
     function GetBody(AMsg: TIdMessage): Boolean; overload;
-    function GetBody(AMsgNo: Integer; AMsg: TIdMessage): Boolean; overload;
+    function GetBody(AMsgNo: Int64; AMsg: TIdMessage): Boolean; overload;
     function GetBody(AMsgID: string; AMsg: TIdMessage): Boolean; overload;
     function GetBody(AMsg: TStrings): Boolean; overload;
-    function GetBody(AMsgNo: Integer; AMsg: TStrings): Boolean; overload;
+    function GetBody(AMsgNo: Int64; AMsg: TStrings): Boolean; overload;
     function GetBody(AMsgID: string; AMsg: TStrings): Boolean; overload;
     function GetBody(AMsg: TStream): Boolean; overload;
-    function GetBody(AMsgNo: Integer; AMsg: TStream): Boolean; overload;
+    function GetBody(AMsgNo: Int64; AMsg: TStream): Boolean; overload;
     function GetBody(AMsgID: string; AMsg: TStream): Boolean; overload;
     function GetHeader(AMsg: TIdMessage): Boolean; overload;
-    function GetHeader(AMsgNo: Integer; AMsg: TIdMessage): Boolean; overload;
+    function GetHeader(AMsgNo: Int64; AMsg: TIdMessage): Boolean; overload;
     function GetHeader(AMsgID: string; AMsg: TIdMessage): Boolean; overload;
     function GetHeader(AMsg: TStrings): Boolean; overload;
-    function GetHeader(AMsgNo: Integer; AMsg: TStrings): Boolean; overload;
+    function GetHeader(AMsgNo: Int64; AMsg: TStrings): Boolean; overload;
     function GetHeader(AMsgID: string; AMsg: TStrings): Boolean; overload;
     function GetHeader(AMsg: TStream): Boolean; overload;
-    function GetHeader(AMsgNo: Integer; AMsg: TStream): Boolean; overload;
+    function GetHeader(AMsgNo: Int64; AMsg: TStream): Boolean; overload;
     function GetHeader(AMsgID: string; AMsg: TStream): Boolean; overload;
     procedure GetNewsgroupList; overload;
     procedure GetNewsgroupList(AList: TStrings); overload;
@@ -256,17 +256,17 @@ type
     procedure IHAVE(AMsg: TStrings);
     function Next: Boolean;
     function Previous: Boolean;
-    procedure ParseXOVER(Aline: String; var AArticleIndex : Integer; var ASubject,
+    procedure ParseXOVER(Aline: String; var AArticleIndex : Int64; var ASubject,
      AFrom : String; var ADate : TDateTime; var AMsgId, AReferences : String; var AByteCount,
      ALineCount : Integer; var AExtraData : String);
-    procedure ParseNewsGroup(ALine : String; out ANewsGroup: string; out AHi, ALo : Integer;
+    procedure ParseNewsGroup(ALine : String; out ANewsGroup: string; out AHi, ALo : Int64;
      out AStatus : String);
     procedure ParseXHDRLine(ALine : String; out AMsg : String; out AHeaderData : String);
     procedure Post(AMsg: TIdMessage); overload;
     procedure Post(AStream: TStream); overload;
     function SendCmd(AOut: string; const AResponse: array of SmallInt;
       AEncoding: TIdTextEncoding = nil): SmallInt; override;
-    function SelectArticle(AMsgNo: Integer): Boolean;
+    function SelectArticle(AMsgNo: Int64): Boolean;
     procedure SelectGroup(AGroup: string);
     function TakeThis(AMsgID: string; AMsg: TStream): string;
     procedure XHDR(AHeader: string; AParam: string; AResponse: TStrings); overload;
@@ -277,9 +277,9 @@ type
     procedure SendAuth;
     //
     property ModeResult: TIdModeSetResult read FModeResult write FModeResult;
-    property MsgCount: Integer read FMsgCount;
-    property MsgHigh: Integer read FMsgHigh;
-    property MsgLow: Integer read FMsgLow;
+    property MsgCount: Int64 read FMsgCount;
+    property MsgHigh: Int64 read FMsgHigh;
+    property MsgLow: Int64 read FMsgLow;
     property Permission: TIdNNTPPermission read FPermission;
   published
     property NewsAgent: string read FNewsAgent write FNewsAgent;
@@ -317,7 +317,7 @@ uses
   IdSSL, SysUtils;
 
 procedure TIdNNTP.ParseXOVER(Aline : String;
-  var AArticleIndex : Integer;
+  var AArticleIndex : Int64;
   var ASubject,
       AFrom : String;
   var ADate : TDateTime;
@@ -331,7 +331,7 @@ begin
   {Strip backspace and tab junk sequences which occur after a tab separator so they don't throw off any code}
   ALine := StringReplace(ALine, #9#8#9, #9, [rfReplaceAll]);
   {Article Index}
-  AArticleIndex := IndyStrToInt(Fetch(ALine, #9), 0);
+  AArticleIndex := IndyStrToInt64(Fetch(ALine, #9), 0);
   {Subject}
   ASubject := Fetch(ALine, #9);
   {From}
@@ -351,11 +351,11 @@ begin
 end;
 
 procedure TIdNNTP.ParseNewsGroup(ALine : String; out ANewsGroup : String;
-  out AHi, ALo : Integer; out AStatus : String);
+  out AHi, ALo : Int64; out AStatus : String);
 begin
   ANewsgroup := Fetch(ALine, ' ');
-  AHi := IndyStrToInt(Fetch(Aline, ' '), 0);
-  ALo := IndyStrToInt(Fetch(ALine, ' '), 0);
+  AHi := IndyStrToInt64(Fetch(Aline, ' '), 0);
+  ALo := IndyStrToInt64(Fetch(ALine, ' '), 0);
   AStatus := ALine;
 end;
 
@@ -468,9 +468,9 @@ var
 begin
   SendCmd('Group ' + AGroup, [211]);  {do not localize}
   s := LastCmdResult.Text[0];
-  FMsgCount := IndyStrToInt(Fetch(s), 0);
-  FMsgLow := IndyStrToInt(Fetch(s), 0);
-  FMsgHigh := IndyStrToInt(Fetch(s), 0);
+  FMsgCount := IndyStrToInt64(Fetch(s), 0);
+  FMsgLow := IndyStrToInt64(Fetch(s), 0);
+  FMsgHigh := IndyStrToInt64(Fetch(s), 0);
 end;
 
 { This method will send messages via the IHAVE command.
@@ -664,7 +664,7 @@ procedure TIdNNTP.ProcessGroupList(ACmd: string; AResponse: integer;
  ALisTIdEvent: TIdEvenTIdNewsgroupList);
 var
   s1, sNewsgroup: string;
-  lLo, lHi: Integer;
+  lLo, lHi: Int64;
   sStatus: string;
   LCanContinue: Boolean;
 begin
@@ -788,7 +788,7 @@ begin
   Result := SendCmd('LAST', [223, 422]) = 223;  {do not localize}
 end;
 
-function TIdNNTP.SelectArticle(AMsgNo: Integer): Boolean;
+function TIdNNTP.SelectArticle(AMsgNo: Int64): Boolean;
 begin
   Result := SendCmd('STAT ' + IntToStr(AMsgNo), [223, 423]) = 223;  {do not localize}
 end;
@@ -921,7 +921,7 @@ begin
   end;
 end;
 
-function TIdNNTP.GetArticle(AMsgNo: Integer; AMsg: TIdMessage): Boolean;
+function TIdNNTP.GetArticle(AMsgNo: Int64; AMsg: TIdMessage): Boolean;
 begin
   Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
   if Result then begin
@@ -957,7 +957,7 @@ begin
   IOHandler.Capture(AMsg, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
-function TIdNNTP.GetArticle(AMsgNo: Integer; AMsg: TStrings): Boolean;
+function TIdNNTP.GetArticle(AMsgNo: Int64; AMsg: TStrings): Boolean;
 begin
   Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
   if Result then begin
@@ -988,7 +988,7 @@ begin
   IOHandler.Capture(AMsg, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
-function TIdNNTP.GetArticle(AMsgNo: Integer; AMsg: TStream): Boolean;
+function TIdNNTP.GetArticle(AMsgNo: Int64; AMsg: TStream): Boolean;
 begin
   Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
   if Result then begin
@@ -1018,7 +1018,7 @@ begin
   end;
 end;
 
-function TIdNNTP.GetBody(AMsgNo: Integer; AMsg: TIdMessage): Boolean;
+function TIdNNTP.GetBody(AMsgNo: Int64; AMsg: TIdMessage): Boolean;
 begin
   Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
   if Result then begin
@@ -1044,7 +1044,7 @@ begin
   IOHandler.Capture(AMsg, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
-function TIdNNTP.GetBody(AMsgNo: Integer; AMsg: TStrings): Boolean;
+function TIdNNTP.GetBody(AMsgNo: Int64; AMsg: TStrings): Boolean;
 begin
   Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
   if Result then begin
@@ -1069,7 +1069,7 @@ begin
   IOHandler.Capture(AMsg, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
-function TIdNNTP.GetBody(AMsgNo: Integer; AMsg: TStream): Boolean;
+function TIdNNTP.GetBody(AMsgNo: Int64; AMsg: TStream): Boolean;
 begin
   Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
   if Result then begin
@@ -1093,7 +1093,7 @@ begin
   ReceiveHeader(AMsg);
 end;
 
-function TIdNNTP.GetHeader(AMsgNo: Integer; AMsg: TIdMessage): Boolean;
+function TIdNNTP.GetHeader(AMsgNo: Int64; AMsg: TIdMessage): Boolean;
 begin
   Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
   if Result then begin
@@ -1121,7 +1121,7 @@ begin
   IOHandler.Capture(AMsg, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
-function TIdNNTP.GetHeader(AMsgNo: Integer; AMsg: TStrings): Boolean;
+function TIdNNTP.GetHeader(AMsgNo: Int64; AMsg: TStrings): Boolean;
 begin
   Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
   if Result then begin
@@ -1152,7 +1152,7 @@ begin
   IOHandler.Capture(AMsg, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
 end;
 
-function TIdNNTP.GetHeader(AMsgNo: Integer; AMsg: TStream): Boolean;
+function TIdNNTP.GetHeader(AMsgNo: Int64; AMsg: TStream): Boolean;
 begin
   Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
   if Result then begin
@@ -1330,7 +1330,7 @@ procedure TIdNNTP.XOVER(AParam: string);
 var
   LLine : String;
   //for our XOVER data
-  LArticleIndex : Integer;
+  LArticleIndex : Int64;
   LSubject,
   LFrom : String;
   LDate : TDateTime;
