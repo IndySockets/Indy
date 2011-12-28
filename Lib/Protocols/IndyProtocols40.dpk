@@ -153,7 +153,6 @@ contains
   IdHeaderCoderBase in 'IdHeaderCoderBase.pas',
   IdHeaderCoderIndy in 'IdHeaderCoderIndy.pas',
   IdHeaderCoderPlain in 'IdHeaderCoderPlain.pas',
-  IdHeaderCoderUTF in 'IdHeaderCoderUTF.pas',
   IdHeaderList in 'IdHeaderList.pas',
   IdIMAP4 in 'IdIMAP4.pas',
   IdIMAP4Server in 'IdIMAP4Server.pas',
@@ -271,6 +270,6 @@ contains
   IdZLib in 'IdZLib.pas',
   IdZLibCompressorBase in 'IdZLibCompressorBase.pas',
   IdZLibConst in 'IdZLibConst.pas',
-  IdZLibHeaders in 'IdZLibHeaders.pas';
+  IdZLibHeaders in 'IdZLibHeaders.pas'
 
 end.

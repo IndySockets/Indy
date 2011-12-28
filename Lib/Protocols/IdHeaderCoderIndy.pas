@@ -33,29 +33,25 @@ uses
 class function TIdHeaderCoderIndy.Decode(const ACharSet: string; const AData: TIdBytes): String;
 var
   LEncoding: TIdTextEncoding;
-  LBytes: TIdBytes;
   {$IFNDEF DOTNET_OR_ICONV}
   CP: Word;
   {$ENDIF}
 begin
   Result := '';
-  LBytes := nil;
   try
     {$IFDEF DOTNET_OR_ICONV}
     LEncoding := TIdTextEncoding.GetEncoding(ACharSet);
     {$ELSE}
     CP := CharsetToCodePage(ACharSet);
-    Assert(CP <> 0);
+    if CP = 0 then begin
+      Exit;
+    end;
     LEncoding := TIdTextEncoding.GetEncoding(CP);
     {$ENDIF}
     {$IFNDEF DOTNET}
     try
     {$ENDIF}
-      LBytes := AData;
-      if LEncoding <> TIdTextEncoding.Unicode then begin
-        LBytes := TIdTextEncoding.Convert(LEncoding, TIdTextEncoding.Unicode, LBytes);
-      end;
-      Result := TIdTextEncoding.Unicode.GetString(LBytes, 0, Length(LBytes));
+      Result := LEncoding.GetString(AData);
     {$IFNDEF DOTNET}
     finally
       LEncoding.Free;
@@ -68,29 +64,25 @@ end;
 class function TIdHeaderCoderIndy.Encode(const ACharSet, AData: String): TIdBytes;
 var
   LEncoding: TIdTextEncoding;
-  LBytes: TIdBytes;
   {$IFNDEF DOTNET_OR_ICONV}
   CP: Word;
   {$ENDIF}
 begin
   Result := nil;
-  LBytes := nil;
   try
     {$IFDEF DOTNET_OR_ICONV}
     LEncoding := TIdTextEncoding.GetEncoding(ACharSet);
     {$ELSE}
     CP := CharsetToCodePage(ACharSet);
-    Assert(CP <> 0);
+    if CP = 0 then begin
+      Exit;
+    end;
     LEncoding := TIdTextEncoding.GetEncoding(CP);
     {$ENDIF}
     {$IFNDEF DOTNET}
     try
     {$ENDIF}
-      LBytes := TIdTextEncoding.Unicode.GetBytes(AData);
-      if LEncoding <> TIdTextEncoding.Unicode then begin
-        LBytes := TIdTextEncoding.Convert(TIdTextEncoding.Unicode, LEncoding, LBytes);
-      end;
-      Result := LBytes;
+      Result := LEncoding.GetBytes(AData);
     {$IFNDEF DOTNET}
     finally
       LEncoding.Free;

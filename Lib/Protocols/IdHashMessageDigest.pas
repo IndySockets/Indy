@@ -219,7 +219,8 @@ begin
     Dec(ASize, LSize);
   end;
 
-  LStartPos := ReadTIdBytesFromStream(AStream, FCBuffer, 16);
+  // Read the last set of bytes.
+  LStartPos := ReadTIdBytesFromStream(AStream, FCBuffer, ASize);
   // TODO: handle stream read error
   Pad := 16 - LStartPos;
 
@@ -371,7 +372,7 @@ begin
   end;
 
   // Read the last set of bytes.
-  LStartPos := ReadTIdBytesFromStream(AStream, FCBuffer, 64);
+  LStartPos := ReadTIdBytesFromStream(AStream, FCBuffer, ASize);
   // TODO: handle stream read error
 
   // Append one bit with value 1

@@ -121,7 +121,6 @@ uses
   IdHeaderCoderBase,
   IdHeaderCoderIndy,
   IdHeaderCoderPlain,
-  IdHeaderCoderUTF,
   IdHeaderList,
   IdIMAP4,
   IdIMAP4Server,
