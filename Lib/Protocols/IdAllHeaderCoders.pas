@@ -22,9 +22,6 @@ implementation
 uses
   IdHeaderCoderPlain,
   IdHeaderCoder2022JP,
-  {$IFNDEF DOTNET}
-  IdHeaderCoderUTF,
-  {$ENDIF}
   IdHeaderCoderIndy;
 
 {dee-duh-de-duh, that's all folks.}
