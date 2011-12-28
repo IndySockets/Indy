@@ -1362,7 +1362,6 @@ Lib/Protocols/IdHeaderCoderBase.pas -text
 Lib/Protocols/IdHeaderCoderBig5.pas -text
 Lib/Protocols/IdHeaderCoderIndy.pas -text
 Lib/Protocols/IdHeaderCoderPlain.pas -text
-Lib/Protocols/IdHeaderCoderUTF.pas -text
 Lib/Protocols/IdHeaderList.pas -text
 Lib/Protocols/IdHostnameServer.pas -text
 Lib/Protocols/IdIMAP4.pas -text
