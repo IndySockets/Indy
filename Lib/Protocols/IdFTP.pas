@@ -3644,13 +3644,11 @@ end;
 procedure TIdFTPClientIdentifier.SetClientName(const AValue: String);
 begin
   FClientName := Trim(AValue);
-  FClientName := Fetch(FClientName);
 end;
 
 procedure TIdFTPClientIdentifier.SetClientVersion(const AValue: String);
 begin
   FClientVersion := Trim(AValue);
-  FClientVersion := Fetch(FClientVersion);
 end;
 
 procedure TIdFTPClientIdentifier.SetPlatformDescription(const AValue: String);
