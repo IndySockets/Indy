@@ -528,7 +528,7 @@ end;
 
 procedure TIdCmdTCPServer.CheckOkToBeActive;
 begin
-  if CommandHandlers.Count = 0 then begin
+  if (CommandHandlers.Count = 0) and FCommandHandlersInitialized then begin
     inherited CheckOkToBeActive;
   end;
 end;
