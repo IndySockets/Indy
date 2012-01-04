@@ -263,7 +263,6 @@ end;
 
 procedure TIdTCPClientCustom.Connect;
 begin
-  // Do not call Connected here, it will call CheckDisconnect
   if Connected then begin
     EIdAlreadyConnected.Toss(RSAlreadyConnected);
   end;
