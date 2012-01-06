@@ -111,11 +111,14 @@ type
     FMainThreadUsesNotify: Boolean;
     //
     procedure DoNotify; virtual; abstract;
+    {$IFDEF HAS_STATIC_TThread_Queue}
+    procedure InternalDoNotify;
+    {$ENDIF}
   public
     constructor Create; virtual; // here to make virtual
     procedure Notify;
     {$IFNDEF HAS_STATIC_TThread_Queue}
-    procedure WaitFor;
+    procedure WaitFor; {$IFDEF HAS_DEPRECATED}deprecated;{$ENDIF}
     {$ENDIF}
     class procedure NotifyMethod(AMethod: TThreadMethod);
     //
@@ -129,7 +132,7 @@ type
     procedure DoNotify; override;
   public
     constructor Create(AMethod: TThreadMethod); reintroduce; virtual;
-  end;
+  end {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TIdNotify.NotifyMethod()'{$ENDIF}{$ENDIF};
 
 implementation
 
@@ -154,7 +157,7 @@ uses
 {$IFDEF NotifyThreadNeeded}
 type
   // This is done with a NotifyThread instead of PostMessage because starting
-  // with D6/Kylix Borland radically modified the mecanisms for .Synchronize.
+  // with D6/Kylix Borland radically modified the mechanisms for .Synchronize.
   // This is a bit more code in the end, but its source compatible and does not
   // rely on Indy directly accessing any OS APIs and performance is still more
   // than acceptable, especially considering Notifications are low priority.
@@ -239,17 +242,36 @@ end;
 procedure TIdNotify.Notify;
 begin
   if InMainThread and (not MainThreadUsesNotify) then begin
-    DoNotify;
-    Free;
+    try
+      DoNotify;
+    finally
+      Free;
+    end;
   end else begin
-    {$IFDEF HAS_STATIC_TThread_Queue}
-    TThread.Queue(nil, DoNotify);
-    {$ELSE}
-    CreateNotifyThread;
-    GNotifyThread.AddNotification(Self);
-    {$ENDIF}
+    try
+      {$IFDEF HAS_STATIC_TThread_Queue}
+      TThread.Queue(nil, InternalDoNotify);
+      {$ELSE}
+      CreateNotifyThread;
+      GNotifyThread.AddNotification(Self);
+      {$ENDIF}
+    except
+      Free;
+      raise;
+    end;
   end;
 end;
+
+{$IFDEF HAS_STATIC_TThread_Queue}
+procedure TIdNotify.InternalDoNotify;
+begin
+  try
+    DoNotify;
+  finally
+    Free;
+  end;
+end;
+{$ENDIF}
 
 class procedure TIdNotify.NotifyMethod(AMethod: TThreadMethod);
 begin
