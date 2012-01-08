@@ -743,9 +743,9 @@ begin
   Result := LSB.ToString;
 {$ELSE}
 begin
-  Result := '';
+  SetLength(Result, Ord(AMax) - Ord(AMin) + 1);
   for i := AMin to AMax do begin
-    Result := Result + i;
+    Result[Ord(i) - Ord(AMin) + 1] := i;
   end;
 {$ENDIF}
 end;
