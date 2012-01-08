@@ -227,7 +227,7 @@ begin
         begin
           LBuf := s[6];
           LBuf := Fetch(LBuf, ','); {do not localize}
-          Result := IsNumeric(LBuf);
+          Result := IsNumeric(LBuf) and IsNumeric(s[7]) and CharEquals(s[8], 3, ':');
           if Result then begin
             Result := StrToMonth(s[5]) > 0;
           end;
