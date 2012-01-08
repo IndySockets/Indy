@@ -589,6 +589,7 @@ const
   KoreanTotal = #$EC#$B4#$9D;    // #$CD1D
   KoreanMonth = #$EC#$9B#$94;    // #$C6D4 Hangul Syllable Ieung Weo Rieul
   KoreanDay = #$EC#$9D#$BC;      // #$C77C Hangul Syllable Ieung I Rieul
+  KoreanYear = #$EB#$85#$84;    // #$B144 Hangul Syllable Nieun Yeo Nieun
   KoreanEUCMonth = #$EB#$BF#$B9; //#$BFF9
   ChineseTotal = #$E6#$80#$BB + #$E6#$95#$B0;
                                  // #$603B CJK Unified Ideograph Collect/Overall +
@@ -610,6 +611,7 @@ const
   KoreanMonth = #$C6D4;    // #$C6D4 Hangul Syllable Ieung Weo Rieul
   KoreanDay = #$C77C;      // #$C77C Hangul Syllable Ieung I Rieul
   KoreanEUCMonth = #$BFF9; // #$BFF9  EUC-KR Same as #$C6#$D4
+  KoreanYear = #$B144;     // #$B144 Hangul Syllable Nieun Yeo Nieun
   ChineseTotal = #$603B + #$6570;
                            // #$603B CJK Unified Ideograph Collect/Overall +
                            // #$6570 CJK Unified Ideograph Number/Several/Count
@@ -1681,10 +1683,11 @@ function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LDay, LMonth, LYear : Word;
+  DT: TDateTime;
 begin
   DecodeDate(Now, LYear, LMonth, LDay);
   Result := LYear;
-  if (LMonth < AMonth) or (LMonth = AMonth) and (ADay > LDay) then begin
+  if TryEncodeDate(LYear, AMonth, ADay, DT) and (DT > Trunc(Now + 1)) then begin
     Result := LYear - 1;
   end;
 end;
@@ -1792,11 +1795,15 @@ begin
   if not AStrict then begin
     SData := UpperCase(AData);
     Result := (Length(SData) > 9) and
-      CharIsInSet(SData, 1, 'LD-BCPS') and   {Do not Localize}
+      {LynxOS may report "f" or "r" for a regular file, "+" for a contiguous file,
+      "i" for a non-persistent ipc special file, and "I" for a persistent ipc
+      special file.  The Linux manpage for stat also reports "m" for XENIX shared
+      data subtype of IFNAM, and "w" for a BSD whiteout}
+      CharIsInSet(SData, 1, 'LD-BCPS+IMW') and   {Do not Localize}
       CharIsInSet(SData, 2, 'TSRWX-') and    {Do not Localize}
       {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'A" here }
       CharIsInSet(SData, 3, 'TSRWX-A') and   {Do not Localize}
-      CharIsInSet(SData, 4, 'TSRWX-') and    {Do not Localize}
+      CharIsInSet(SData, 4, 'TSRWX-L') and    {Do not Localize}
       {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'H" here for hidden files}
       CharIsInSet(SData, 5, 'TSRWX-H') and   {Do not Localize}
       CharIsInSet(SData, 6, 'TSRWX-') and    {Do not Localize}
@@ -1806,7 +1813,8 @@ begin
       Copyright Ó 1996 - 1998 by Distinct Corporation
       All rights reserved
       }
-      CharIsInSet(SData, 7, 'TSRWX-Y') and   {Do not Localize}
+      {Solaris returns "L" instead of "S" for setgid without group execute (mandatory locking)}
+      CharIsInSet(SData, 7, 'TSRWX-YL') and   {Do not Localize}
       CharIsInSet(SData, 8, 'TSRWX-A') and   {Do not Localize}
       {VxWorks 5.3.1 FTP Server has a quirk where a "A" is in the permissions
       See:
