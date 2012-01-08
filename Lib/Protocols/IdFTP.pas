@@ -739,6 +739,7 @@ type
     FCurrentTransferMode : TIdFTPTransferMode;
     FClientInfo : TIdFTPClientIdentifier;
 
+    FDataSettingsSent: Boolean; // only send SSL data settings once per connection
     FUsingSFTP : Boolean; //enable SFTP internel flag
     FUsingCCC : Boolean; //are we using FTP with SSL on a clear control channel?
     FUseHOST: Boolean;
@@ -758,6 +759,7 @@ type
     FDataPort: TIdPort;
     FDataPortMin: TIdPort;
     FDataPortMax: TIdPort;
+    FDefStringEncoding: TIdTextEncoding;
     FExternalIP : String;
     FResumeTested: Boolean;
     FSystemDesc: string;
@@ -896,6 +898,7 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetDataPortProtection(AValue : TIdFTPDataPortSecurity);
     procedure SetAUTHCmd(const AValue : TAuthCmd);
+    procedure SetDefStringEncoding(AValue: TIdTextEncoding);
     procedure SetUseCCC(const AValue: Boolean);
     procedure SetNATKeepAlive(AValue: TIdFTPKeepAlive);
     procedure IssueFEAT;
@@ -904,6 +907,7 @@ type
     function IsBPFTP : Boolean;
     function IsTitan : Boolean;
     function IsWSFTP : Boolean;
+    function IsIIS: Boolean;
     function CheckAccount: Boolean;
     function IsAccountNeeded : Boolean;
     function GetSupportsVerification : Boolean;
@@ -1025,6 +1029,7 @@ type
     property DataPort: TIdPort read FDataPort write FDataPort default 0;
     property DataPortMin: TIdPort read FDataPortMin write FDataPortMin default 0;
     property DataPortMax: TIdPort read FDataPortMax write FDataPortMax default 0;
+    property DefStringEncoding : TIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
     property ExternalIP : String read FExternalIP write FExternalIP;
     property Password;
     property TransferType: TIdFTPTransferType read FTransferType write SetTransferType default Id_TIdFTP_TransferType;
@@ -1156,6 +1161,7 @@ begin
   FDataPort := 0;
   FDataPortMin := 0;
   FDataPortMax := 0;
+  FDefStringEncoding := Indy8BitEncoding;
   FUseExtensionDataPort := DEF_Id_TIdFTP_UseExtendedData;
   FTryNATFastTrack := Id_TIdFTP_UseNATFastTrack;
   FTransferType := Id_TIdFTP_TransferType;
@@ -1200,6 +1206,7 @@ var
   LPort: TIdPort;
   LBuf : String;
   LSendQuitOnError: Boolean;
+  LOffs: Integer;
 begin
   LSendQuitOnError := False;
 
@@ -1209,6 +1216,7 @@ begin
   FSSCNOn := False;
   FUsingSFTP := False;
   FUsingCCC := False;
+  FDataSettingsSent := False;
   if FUseExtensionDataPort then begin
     FUsingExtDataPort := True;
   end;
@@ -1238,7 +1246,7 @@ begin
     end;
 
     // RLebeau: must not send/receive UTF-8 before negotiating for it...
-    IOHandler.DefStringEncoding := Indy8BitEncoding;
+    IOHandler.DefStringEncoding := FDefStringEncoding;
     {$IFDEF STRING_IS_ANSI}
     IOHandler.DefAnsiEncoding := TIdTextEncoding.Default;
     {$ENDIF}
@@ -1334,11 +1342,17 @@ begin
             // "UTC-300", specifying the number of minutes from UTC.  Other
             // servers (Apache) use a GMT offset string instead, ie "-0300".
             if TextStartsWith(LBuf, 'UTC-') then begin {do not localize}
-              FTZInfo.GMTOffset := MDTMOffset(Copy(LBuf, 4, MaxInt));
+              // Titan FTP 6.26.634 incorrectly returns UTC-2147483647 when it's
+              // first installed.
+              FTZInfo.FGMTOffsetAvailable :=
+                TryStrToInt(Copy(LBuf, 4, MaxInt), LOffs) and
+                TryEncodeTime(Abs(LOffs) div 60, Abs(LOffs) mod 60, 0, 0, FTZInfo.FGMTOffset);
+              if FTZInfo.FGMTOffsetAvailable and (LOffs < 0) then
+                FTZInfo.FGMTOffset := -FTZInfo.FGMTOffset
             end else begin
+              FTZInfo.FGMTOffsetAvailable := True;
               FTZInfo.GMTOffset := GmtOffsetStrToDateTime(LBuf);
             end;
-            FTZInfo.FGMTOffsetAvailable := True;
           end;
         end;
       end;
@@ -1625,6 +1639,29 @@ end;
 
 procedure TIdFTP.InternalPut(const ACommand: string; ASource: TStream;
   AFromBeginning: Boolean = True; AResume: Boolean = False);
+    {$IFNDEF MSWINDOWS}
+    procedure WriteStreamFromBeginning;
+    var
+      LBuffer: TIdBytes;
+      LBufSize: Integer;
+    begin
+      // Copy entire stream without relying on ASource.Size so Unix-to-DOS
+      // conversion can be done on the fly.
+      BeginWork(wmWrite, ASource.Size);
+      try
+        SetLength(LBuffer, FDataChannel.IOHandler.SendBufferSize);
+        while True do begin
+          LBufSize := ASource.Read(LBuffer[0], Length(LBuffer));
+          if LBufSize > 0 then
+            FDataChannel.IOHandler.Write(LBuffer, LBufSize)
+          else
+            Break;
+        end;
+      finally
+        EndWork(wmWrite);
+      end;
+    end;
+    {$ENDIF}
 var
   LIP: string;
   LPort: TIdPort;
@@ -1646,7 +1683,7 @@ begin
   //submits data through a data port where the SSCN setting is ignored.
   ClearSSCN;
   DoStatus(ftpTransfer, [RSFTPStatusStartTransfer]);
-  try
+  // try
     if FPassive then begin
       SendPret(ACommand);
       if FUsingExtDataPort then begin
@@ -1699,7 +1736,11 @@ begin
                   FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
               end else begin
                 if AFromBeginning then begin
+                  {$IFNDEF MSWINDOWS}
+                  WriteStreamFromBeginning;
+                  {$ELSE}
                   FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
+                  {$ENDIF}
                 end else begin
                   FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
                 end;
@@ -1773,7 +1814,11 @@ begin
               FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
           end else begin
             if AFromBeginning then begin
+              {$IFNDEF MSWINDOWS}
+              WriteStreamFromBeginning;
+              {$ELSE}
               FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
+              {$ENDIF}
             end else begin
               FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
             end;
@@ -1783,12 +1828,14 @@ begin
         FinalizeDataOperation;
       end;
     end;
+  { This will silently ignore the STOR request if the server has forcibly disconnected 
+    (kicked or timed out) before the request starts
   except
     //Note that you are likely to get an exception you abort a transfer
     //hopefully, this will make things work better.
     on E: EIdConnClosedGracefully do begin
     end;
-  end;
+  end;}
 
 { commented out because we might need to revert back to this
   if new code fails.
@@ -2085,6 +2132,7 @@ begin
   end;
   if FDataChannel is TIdTCPClient then
   begin
+    TIdTCPClient(FDataChannel).ReadTimeout := FTransferTimeout;
     //Now SocksInfo are multi-thread safe
     FDataChannel.IOHandler.ConnectTimeout := IOHandler.ConnectTimeout;
   end;
@@ -2168,6 +2216,17 @@ end;
 
 procedure TIdFTP.SendInternalPassive(const ACmd: String; var VIP: string;
   var VPort: TIdPort);
+
+  function IsRoutableAddress(AIP: string): Boolean;
+  begin
+  Result := not TextStartsWith(AIP, '127') and              // Loopback   127.0.0.0-127.255.255.255
+     not TextStartsWith(AIP, '10.') and                     // Private    10.0.0.0-10.255.255.255
+     not TextStartsWith(AIP, '169.254') and                 // Link-local 169.254.0.0-169.254.255.255
+     not TextStartsWith(AIP, '192.168') and                 // Private    192.168.0.0-192.168.255.255
+     not (TextStartsWith(AIP, '172') and (AIP[7] = '.') and // Private    172.16.0.0-172.31.255.255
+      (IndyStrToInt(Copy(AIP, 5, 2)) in [16..31]))
+  end;
+
 var
   i, bLeft, bRight: integer;
   s: string;
@@ -2179,19 +2238,21 @@ begin
   // 227 Entering passive mode(100,1,1,1,23,45)
   bLeft := IndyPos('(', s);   {do not localize}
   bRight := IndyPos(')', s);  {do not localize}
-  if (bLeft = 0) or (bRight = 0) then begin
-    // Case 2
-    // 227 Entering passive mode on 100,1,1,1,23,45
-    bLeft := RPos(#32, s);
-    s := Copy(s, bLeft + 1, Length(s) - bLeft);
-  end else begin
-    s := Copy(s, bLeft + 1, bRight - bLeft - 1);
-  end;
+  // Microsoft FTP Service may include a leading ( but not a trailing ),
+  // so handle any combination of "(..)", "(..", "..)", and ".."
+  if bLeft = 0 then bLeft := RPos(#32, S);
+  if bRight = 0 then bRight := Length(S) + 1;
+  S := Copy(S, bLeft + 1, bRight - bLeft - 1);
   VIP := '';                 {do not localize}
   for i := 1 to 4 do begin
     VIP := VIP + '.' + Fetch(s, ','); {do not localize}
   end;
   IdDelete(VIP, 1, 1);
+  // Server sent an unroutable address (private/reserved/etc).  Use the IP we
+  // connected to instead
+  if not IsRoutableAddress(VIP) and IsRoutableAddress(Socket.Binding.PeerIP) then begin
+    VIP := Socket.Binding.PeerIP;
+  end;
   // Determine port
   VPort := TIdPort(IndyStrToInt(Fetch(s, ',')) and $FF) shl 8;   {do not localize}
   //use trim as one server sends something like this:
@@ -2235,7 +2296,8 @@ end;
 
 procedure TIdFTP.Delete(const AFilename: string);
 begin
-  SendCmd('DELE ' + AFilename, 250); {do not localize}
+  // Linksys NSLU2 NAS returns 200, Ultimodule IDAL returns 257
+  SendCmd('DELE ' + AFilename, [200, 250, 257]); {do not localize}
 end;
 
 (*
@@ -2254,7 +2316,7 @@ CWD
 *)
 procedure TIdFTP.ChangeDir(const ADirName: string);
 begin
-  SendCmd('CWD ' + ADirName, [200, 250]); //APR: Ericsson Switch FTP     {do not localize}
+  SendCmd('CWD ' + ADirName, [200, 250, 257]); //APR: Ericsson Switch FTP     {do not localize}
 end;
 
 (*
@@ -2855,7 +2917,8 @@ end;
 procedure TIdFTP.SendDataSettings;
 begin
   if FUsingSFTP then begin
-    if not FUsingCCC then begin
+    if not FDataSettingsSent then begin
+      FDataSettingsSent := True;
       SendPBSZ;
       SendPROT;
       if FUseCCC then begin
@@ -3644,6 +3707,7 @@ end;
 procedure TIdFTPClientIdentifier.SetClientName(const AValue: String);
 begin
   FClientName := Trim(AValue);
+  // Don't call Fetch;  it prevents multi-word client names
 end;
 
 procedure TIdFTPClientIdentifier.SetClientVersion(const AValue: String);
@@ -3700,42 +3764,37 @@ and time is GMT (UTC).
 procedure TIdFTP.SetModTime(const AFileName: String; const ALocalTime: TDateTime);
 var
   LCmd: String;
-  LSuccessReply: SmallInt;
 begin
   //use MFMT instead of MDTM because that always takes the time as Universal
   //time (the most accurate).
   if IsExtSupported('MFMT') then begin {do not localize}
-    LCmd := 'MFMT ' + FTPLocalDateTimeToMLS(ALocalTime) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 213;
+    LCmd := 'MFMT ' + FTPLocalDateTimeToMLS(ALocalTime, False) + ' ' + AFileName; {do not localize}
   end
-  
+
   //Syntax 1 - MDTM [Time in GMT format] Filename
-  else if IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ];filename') > 0 then begin {do not localize}
+  else if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ];filename') > 0) or IsIIS then begin {do not localize}
     //we use the new method
     LCmd := 'MDTM ' + FTPLocalDateTimeToMLS(ALocalTime, False) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253;
   end
-  
+
   //Syntax 2 -  MDTM yyyymmddhhmmss[+-minutes from Universal Time] Filename
   //use old method for old versions of Serv-U and BPFTP Server
   else if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ] filename') > 0) or IsOldServU or IsBPFTP then begin {do not localize}
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(ALocalTime, False, True) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253;
   end
 
   //syntax 3 - MDTM [local timestamp] Filename
   else if FTZInfo.FGMTOffsetAvailable then begin
     //send it relative to the server's time-zone
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(ALocalTime - OffSetFromUTC + FTZInfo.FGMTOffset, False, False) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253; 
   end
   
   else begin
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(ALocalTime, False, False) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253;
   end;
 
-  SendCmd(LCmd, LSuccessReply);
+  // When using MDTM, Titan FTP 5 returns 200 and vsFTPd returns 213
+  SendCmd(LCmd, [200, 213, 253]);
 end;
 
 {
@@ -3754,42 +3813,37 @@ and time is GMT (UTC).
 procedure TIdFTP.SetModTimeGMT(const AFileName : String; const AGMTTime: TDateTime);
 var
   LCmd: String;
-  LSuccessReply: SmallInt;
 begin
   //use MFMT instead of MDTM because that always takes the time as Universal
   //time (the most accurate).
   if IsExtSupported('MFMT') then begin {do not localize}
     LCmd := 'MFMT ' + FTPGMTDateTimeToMLS(AGMTTime) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 213;
   end
 
   //Syntax 1 - MDTM [Time in GMT format] Filename
-  else if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ];filename') > 0) then begin {do not localize}
+  else if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ];filename') > 0) or IsIIS then begin {do not localize}
     //we use the new method
     LCmd := 'MDTM ' + FTPGMTDateTimeToMLS(AGMTTime, False) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253;
   end
   
   //Syntax 2 -  MDTM yyyymmddhhmmss[+-minutes from Universal Time] Filename
   //use old method for old versions of Serv-U and BPFTP Server
   else if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ] filename') > 0) or IsOldServU or IsBPFTP then begin {do not localize}
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC, False, True) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253;
   end
   
   //syntax 3 - MDTM [local timestamp] Filename
   else if FTZInfo.FGMTOffsetAvailable then begin
     //send it relative to the server's time-zone
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(AGMTTime + FTZInfo.FGMTOffset, False, False) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253;
   end
 
   else begin
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC, False, False) + ' ' + AFileName; {do not localize}
-    LSuccessReply := 253;
   end;
 
-  SendCmd(LCmd, LSuccessReply);
+  // When using MDTM, Titan FTP 5 returns 200 and vsFTPd returns 213
+  SendCmd(LCmd, [200, 213, 253]);
 end;
 
 {Improvement from Tobias Giesen http://www.superflexible.com
@@ -3881,6 +3935,10 @@ begin
   Result := IndyPos('WS_FTP Server', FGreeting.Text[0]) > 0; {do not localize}
 end;
 
+function TIdFTP.IsIIS: Boolean;
+begin
+  Result := TextStartsWith(FGreeting.Text[0], 'Microsoft FTP Service');
+end;
 function TIdFTP.IsServerMDTZAndListTForm: Boolean;
 begin
   Result := IsOldServU or IsBPFTP or IsTitan;
@@ -3966,6 +4024,14 @@ begin
       EIdFTPCanNotSetAUTHCon.Toss(RSFTPNoAUTHCon);
     end;
     FAUTHCmd := AValue;
+  end;
+end;
+
+procedure TIdFTP.SetDefStringEncoding(AValue: TIdTextEncoding);
+begin
+  FDefStringEncoding := AValue;
+  if IOHandler <> nil then begin
+    IOHandler.DefStringEncoding := FDefStringEncoding;
   end;
 end;
 
