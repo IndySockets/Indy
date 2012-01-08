@@ -277,6 +277,12 @@ begin
         //URL: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf
         if IsNumeric(s[2], 1, 1) then
         begin
+          // If the number of extents is greater than 99 it can run into the date column:
+          // SM6009 3380   2010/03/09123 2415  U    18432 18432  PO  LOADLIB 
+          if Length(s[2]) > 10 then begin
+            s.Insert(3, Copy(S[2], 11, MaxInt));
+            s[2] := Copy(S[2], 1, 10);
+          end;
           LI.ModifiedDate := MVSDate(s[2]);
           LI.ModifiedAvail := True;
         end;
