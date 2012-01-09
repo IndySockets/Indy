@@ -4782,12 +4782,12 @@ const
   {$EXTERNALSYM OBJ_R_UNKNOWN_NID}
   OBJ_R_UNKNOWN_NID = 101;
   {$EXTERNALSYM OPENSSL_VERSION_NUMBER}
-  OPENSSL_VERSION_NUMBER = $1000005f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
+  OPENSSL_VERSION_NUMBER = $1000006f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
   {$EXTERNALSYM OPENSSL_VERSION_TEXT}
 {$IFDEF OPENSSL_FIPS}
-  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0e-fips 6 Sep 2011'; {Do not localize}
+  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0f-fips 4 Jan 2012'; {Do not localize}
 {$ELSE}
-  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0e 6 Sep 2011';   {Do not localize}
+  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0f 4 Jan 2012';   {Do not localize}
 {$ENDIF}
   {$EXTERNALSYM OPENSSL_VERSION_PTEXT}
   OPENSSL_VERSION_PTEXT = ' part of '+ OPENSSL_VERSION_TEXT;  {Do not localize}
@@ -6096,6 +6096,20 @@ const
   SSL3_FLAGS_POP_BUFFER = $0004;
   {$EXTERNALSYM TLS1_FLAGS_TLS_PADDING_BUG}
   TLS1_FLAGS_TLS_PADDING_BUG = $0008;
+  {$EXTERNALSYM TLS1_FLAGS_SKIP_CERT_VERIFY}
+  TLS1_FLAGS_SKIP_CERT_VERIFY = $0010;
+
+  {* SSL3_FLAGS_SGC_RESTART_DONE is set when we
+ * restart a handshake because of MS SGC and so prevents us
+ * from restarting the handshake in a loop. It's reset on a
+ * renegotiation, so effectively limits the client to one restart
+ * per negotiation. This limits the possibility of a DDoS
+ * attack where the client handshakes in a loop using SGC to
+ * restart. Servers which permit renegotiation can still be
+ * effected, but we can't prevent that.
+ *}
+  {$EXTERNALSYM SSL3_FLAGS_SGC_RESTART_DONE}
+  SSL3_FLAGS_SGC_RESTART_DONE = $0040;
 
   {$EXTERNALSYM SSL3_MASTER_SECRET_SIZE}
   SSL3_MASTER_SECRET_SIZE = 48;
@@ -6829,6 +6843,8 @@ const
   SSL_F_SSL3_CHANGE_CIPHER_STATE = 129;
   {$EXTERNALSYM SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM}
   SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM = 130;
+  {$EXTERNALSYM SSL_F_SSL3_CHECK_CLIENT_HELLO}
+  SSL_F_SSL3_CHECK_CLIENT_HELLO = 304;
   {$EXTERNALSYM SSL_F_SSL3_CLIENT_HELLO}
   SSL_F_SSL3_CLIENT_HELLO = 131;
   {$EXTERNALSYM SSL_F_SSL3_CONNECT}
@@ -7324,6 +7340,8 @@ const
   SSL_R_MISSING_TMP_RSA_PKEY = 173;
   {$EXTERNALSYM SSL_R_MISSING_VERIFY_MESSAGE}
   SSL_R_MISSING_VERIFY_MESSAGE = 174;
+  {$EXTERNALSYM SSL_R_MULTIPLE_SGC_RESTARTS}
+  SSL_R_MULTIPLE_SGC_RESTARTS = 346;
   {$EXTERNALSYM SSL_R_NON_SSLV2_INITIAL_PACKET}
   SSL_R_NON_SSLV2_INITIAL_PACKET = 175;
   {$EXTERNALSYM SSL_R_NO_CERTIFICATES_RETURNED}
@@ -10531,6 +10549,34 @@ type
     num_write : TIdC_ULONG;
     ex_data : CRYPTO_EX_DATA;
   end;
+  {$EXTERNALSYM BIO_F_BUFFER_CTX}
+  BIO_F_BUFFER_CTX = record
+	{
+	/* Buffers are setup like this:
+	 *
+	 * <---------------------- size ----------------------->
+	 * +---------------------------------------------------+
+	 * | consumed | remaining          | free space        |
+	 * +---------------------------------------------------+
+	 * <-- off --><------- len ------->
+	 *}
+
+	//* BIO *bio; */ /* this is now in the BIO struct */
+    ibuf_size : TIdC_INT;	//* how big is the input buffer */
+   	obuf_size : TIdC_INT;	//* how big is the output buffer */
+
+	  ibuf : PAnsiChar;		//* the char array */
+   	ibuf_len : TIdC_INT;		//* how many bytes are in it */
+	  ibuf_off : TIdC_INT;		//* write/read offset */
+
+	  obuf : PAnsiChar;		//* the char array */
+	  obuf_len : TIdC_INT;		//* how many bytes are in it */
+	  obuf_off : TIdC_INT;		//* write/read offset */
+  end;
+  {$EXTERNALSYM PBIO_F_BUFFER_CTX}
+  PBIO_F_BUFFER_CTX = ^BIO_F_BUFFER_CTX;
+  //* Prefix and suffix callback in ASN1 BIO *//
+  asn1_ps_function = function (b : PBIO; pbuf : PPChar; plen : PIdC_INT; parg : Pointer) : TIdC_INT cdecl;
   //struct from engine.h
 //  ENGINE = record
     //I don't have any info about record fields.
