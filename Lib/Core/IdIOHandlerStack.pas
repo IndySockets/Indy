@@ -217,6 +217,7 @@ type
     FBinding: TIdSocketHandle;
     FLastSocketError: Integer;
     FExceptionMessage: string;
+    FExceptionOccured: Boolean;
     procedure Execute; override;
     procedure DoTerminate; override;
   public
@@ -266,7 +267,7 @@ procedure TIdIOHandlerStack.ConnectClient;
       end;
 
       if LThread.Terminated then begin
-        if LThread.FExceptionMessage <> '' then begin
+        if LThread.FExceptionOccured then begin
           if LThread.FLastSocketError <> 0 then begin
             raise EIdSocketError.CreateError(LThread.FLastSocketError, LThread.FExceptionMessage);
           end;
@@ -409,20 +410,15 @@ end;
 procedure TIdConnectThread.Execute;
 begin
   try
-    try
-      FBinding.Connect;
-    except
-      on E: EIdSocketError do begin
-        if (E.LastError <> Id_WSAEBADF) and (E.LastError <> Id_WSAENOTSOCK) then begin
-          raise;
-        end;
-      end;
-    end;
+    FBinding.Connect;
   except
     on E: Exception do begin
+      FExceptionOccured := True;
       FExceptionMessage := E.Message;
       if E is EIdSocketError then begin
-        FLastSocketError := EIdSocketError(E).LastError;
+        if (EIdSocketError(E).LastError <> Id_WSAEBADF) and (EIdSocketError(E).LastError <> Id_WSAENOTSOCK) then begin
+          FLastSocketError := EIdSocketError(E).LastError;
+        end;
       end;
     end;
   end;
