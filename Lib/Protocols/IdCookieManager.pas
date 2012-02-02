@@ -49,9 +49,9 @@
 unit IdCookieManager;
 
 {
-  Implementation of the HTTP State Management Mechanism as specified in RFC 2109, 2965.
+  Implementation of the HTTP State Management Mechanism as specified in RFC 6265.
 
-  Author: Doychin Bondzhev (doychin@dsoft-bg.com)
+  Author: Remy Lebeau (remy@lebeausoftware.org)
   Copyright: (c) Chad Z. Hower and The Indy Team.
 }
 
@@ -123,7 +123,7 @@ end;
 
 function SortCookiesFunc(Item1, Item2: TIdCookie): Integer;
 begin
-  // using the algorithm defined in draft-23 section 5.4
+  // using the algorithm defined in RFC 6265 section 5.4
 
   if Item1 = Item2 then
   begin
