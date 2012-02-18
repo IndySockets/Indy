@@ -172,19 +172,18 @@ begin
   //The bottum banner may be in the following forms:
   //Total of 1 file, 0 blocks.
   //Total of 6 Files, 1582 Blocks.
+  //Total of 90 files.
   //Grand total of 87 directories, 2593 files, 2220036 blocks.
   //*.*;               <%RMS-E-FNF, file not found>
 
-  //VMS returns TOTAL at the end.  We test for "blocks." at the end of the line
+  //VMS returns TOTAL at the end.  We test for " files" at the end of the line
   //so we don't break something with another parser.
   LData := UpperCase(AData);
   Result := TextStartsWith(LData, 'TOTAL OF ') or {do not localize}
             TextStartsWith(LData, 'GRAND TOTAL OF '); {do not localize}
   if Result then
   begin
-    Result := (IndyPos(' BLOCK', LData) > 9) and    {do not localize}
-          //    TextEndsWith(AData, '.') and          {do not localize}
-              (IndyPos(' FILE', LData) > 9);        {do not localize}
+    Result := (IndyPos(' FILE', LData) > 9);        {do not localize}
     if not Result then begin
       Result := Fetch(LData) = '*.*;';              {do not localize}
     end;
@@ -231,6 +230,8 @@ begin
   LVMSError := False;
 
   LLine := LI.Data;
+  // Charon VAX 5.4.2 uses tabs between some of its columns and spaces between others
+  LLine := StringReplace(LLine, #9, ' ', [rfReplaceAll]);
   //File Name
   //We do this in a roundabout way because spaces in VMS files may actually
   //be legal and that throws of a typical non-position based column parser.
@@ -242,12 +243,6 @@ begin
   //Some FTP servers might follow the filename with a tab and than
   //give an error such as this:
   //1KBTEST.PTF;10#9No privilege for attempted operation
-  if IndyPos(#9,LBuf2) >0 then begin
-    LBuf2 := Fetch(LBuf2,#9);
-    LVMSError := True;
-
-  end;
-
   LI.Version := IndyStrToInt(LBuf2, 0);
   LBuffer := LBuffer + ';' + LBuf2; {do not localize}
 
@@ -278,13 +273,6 @@ begin
   end;
   if APath <> '' then begin
     AItem.FileName := APath + AItem.FileName;
-  end;
-  if LVMSError then
-  begin
-    LI.ModifiedAvail := False;
-    LI.SizeAvail := False;
-    Result := True;
-    Exit;
   end;
   LCols := TStringList.Create;
   try
