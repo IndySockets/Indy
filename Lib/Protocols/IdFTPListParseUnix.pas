@@ -192,6 +192,7 @@ implementation
 uses
   IdException,
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
+  {$IFDEF VCL_6_OR_ABOVE}DateUtils,{$ENDIF}
   SysUtils;
 
 { TIdFTPLPUnix }
@@ -335,11 +336,13 @@ var
   LInode, LBlocks, LDir, LGPerm, LOPerm, LUPerm, LCount, LOwner, LGroup: String;
   LName, LSize, LLinkTo: String;
   wYear, wMonth, wDay: Word;
+  wCurrYear, wCurrMonth, wCurrDay: Word;
  // wYear, LCurrentMonth, wMonth, wDay: Word;
   wHour, wMin, wSec, wMSec: Word;
   ADate: TDateTime;
   i: Integer;
   LI : TIdUnixFTPListItem;
+  wDayStr: string;
 
   function IsGOSwitches(const AString : String) : Boolean;
   var
@@ -709,7 +712,39 @@ begin
   LI.OwnerName := LOwner;
   LI.GroupName := LGroup;
   LI.Size := IndyStrToInt64(LSize, 0);
-  LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
+  if (wMonth = 2) and (wDay = 29) and (not IsLeapYear(wYear)) then
+  begin
+    {temporary workaround for Leap Year, February 29th. Encode with day - 1, but do NOT decrement wDay since this will give us the wrong day when we adjust/re-calculate the date later}
+    LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay - 1) + EncodeTime(wHour, wMin, wSec, wMSec);
+  end else begin
+    LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
+  end;
+
+  {PATCH: If Indy incorrectly decremented the year then it will be almost a year behind.
+  Certainly well past 90 days and so we will have the day and year in the raw data.
+  (Files that are from within the last 90 days do not show the year as part of the date.)}
+  wdayStr := IntToStr(wDay);
+  while Length(wDayStr) < 2 do begin
+   wDayStr := '0' + wDayStr; {do not localize}
+  end;
+  DecodeDate(Now, wCurrYear, wCurrMonth, wCurrDay);
+  if (wYear < wCurrYear) and ((Now-LI.ModifiedDate) > 90) and
+     (Pos(IntToStr(wMonth) + '  ' + IntToStr(wYear), LI.Data) = 0) and
+     (Pos(IntToStr(wMonth) + ' ' + wDayStr + '  ' + IntToStr(wYear), LI.Data) = 0) and
+     (Pos(monthNames[wMonth] + '  ' + IntToStr(wYear), LI.Data) = 0) and
+     (Pos(monthNames[wMonth] + ' ' + wDayStr + '  ' + IntToStr(wYear), LI.Data) = 0) then
+  begin
+    {sanity check to be sure we aren't making future dates!!}
+    {$IFDEF VCL_6_OR_ABOVE}
+    if IncYear(LI.ModifiedDate) <= (Now + 7) then
+    {$ELSE}
+    if IncMonth(LI.ModifiedDate,12) <= (Now + 7) then
+    {$ENDIF}
+    begin
+      Inc(wYear);
+      LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
+    end;
+  end;
 
   if LI.ItemType = ditSymbolicLink then begin
     i := IndyPos(UNIX_LINKTO_SYM, LName);
