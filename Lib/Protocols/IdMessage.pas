@@ -585,8 +585,12 @@ end;
 
 procedure TIdMIMEBoundary.Pop;
 begin
-  FBoundaryList.Delete(0);
-  FParentPartList.Delete(0);
+  if FBoundaryList.Count > 0 then begin
+    FBoundaryList.Delete(0);
+  end;
+  if FParentPartList.Count > 0 then begin
+    FParentPartList.Delete(0);
+  end;
 end;
 
 procedure TIdMIMEBoundary.Push(ABoundary: string; AParentPart: integer);
