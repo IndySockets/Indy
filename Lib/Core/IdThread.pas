@@ -352,8 +352,8 @@ begin
         Include(FOptions, itoReqCleanup);
         try
           try
-            BeforeRun;
             try
+              BeforeRun;
               if Loop then begin
                 while not Stopped do begin
                   try
