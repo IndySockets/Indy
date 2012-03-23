@@ -543,17 +543,13 @@ begin
     BadSequenceError(ASender);
     Exit;
   end;
-  if Length(ASender.UnparsedParams) > 0 then begin
-    DoReset(LContext);
-    LContext.HeloString := ASender.UnparsedParams;
-    LContext.HELO := True;
-    if SPFAuthOk(LContext, ASender.Reply, 'HELO', DomainName(ASender.UnparsedParams), ASender.UnparsedParams) then {do not localize}
-    begin
-      ASender.Reply.SetReply(250, IndyFormat(RSSMTPSvrHello, [ASender.UnparsedParams]));
-      LContext.SMTPState := idSMTPHelo;
-    end;
-  end else begin
-    ASender.Reply.SetReply(501, RSSMTPSvrParmErr);
+  DoReset(LContext);
+  LContext.HeloString := ASender.UnparsedParams;
+  LContext.HELO := True;
+  if SPFAuthOk(LContext, ASender.Reply, 'HELO', DomainName(ASender.UnparsedParams), ASender.UnparsedParams) then {do not localize}
+  begin
+    ASender.Reply.SetReply(250, IndyFormat(RSSMTPSvrHello, [ASender.UnparsedParams]));
+    LContext.SMTPState := idSMTPHelo;
   end;
 end;
 
