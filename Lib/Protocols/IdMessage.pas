@@ -925,6 +925,9 @@ var
     begin
       s := Trim(APriority);
       Num := IndyStrToInt(Fetch(s, ' '), 3); {do not localize}
+      if (Num < 1) or (Num > 5) then begin
+        Num := 3;
+      end;
       Result := TIdMessagePriority(Num - 1);
     end;
   end;
