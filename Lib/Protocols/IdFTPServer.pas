@@ -3647,8 +3647,8 @@ begin
   try
     LCmdQueue := TStringList.Create;
     try
+      LContext.FDataChannel.InitOperation(AConnectMode);
       try
-        LContext.FDataChannel.InitOperation(AConnectMode);
         try
           try
             if LContext.FDataChannel.Data is TStream then begin
