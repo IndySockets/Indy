@@ -19531,15 +19531,22 @@ end;
 
 function Load: Boolean;
 begin
-  Result := True;
+  Result := False;
+
   Assert(FFailedFunctionLoadList<>nil);
   FFailedFunctionLoadList.Clear;
+
   if hIdCrypto = 0 then begin
     hIdCrypto := LoadSSLCryptoLibrary;
   end;
+
+  if hIdSSL <> 0 then begin
+    Result := True;
+    Exit;
+  end;
+
+  hIdSSL := LoadSSLLibrary;
   if hIdSSL = 0 then begin
-    hIdSSL := LoadSSLLibrary;
-  end else begin
     Exit;
   end;
 

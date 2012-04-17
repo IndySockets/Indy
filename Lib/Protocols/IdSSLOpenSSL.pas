@@ -1098,7 +1098,7 @@ begin
             end;
             Inc(count);
             X509_Free(LX);
-            until False;
+          until False;
           Result := count;
         end;
       X509_FILETYPE_ASN1:
@@ -1232,7 +1232,11 @@ begin
         if Assigned(LB) then begin
           try
             try
-              while (PEM_read_bio_X509(LB, @LX, nil, nil) <> nil) do begin
+              repeat
+                LX := PEM_read_bio_X509(LB, nil, nil, nil);
+                if LX = nil then begin
+                  Break;
+                end;
                 if not Assigned(Result) then begin
                   Result := sk_X509_NAME_new_null;
                   if not Assigned(Result) then begin
@@ -1262,7 +1266,9 @@ begin
                   sk_X509_NAME_push(Lsk, LXNDup);
                   sk_X509_NAME_push(Result, LXNDup);
                 end;
-              end;
+                X509_free(LX);
+                LX := nil;
+              until False;
             finally
               if Assigned(LX) then begin
                 X509_free(LX);
