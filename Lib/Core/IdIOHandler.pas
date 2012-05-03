@@ -1812,6 +1812,7 @@ begin
             if (E is EIdConnClosedGracefully) and AReadUntilDisconnect then begin
               Break;
             end else begin
+              // TODO: check for socket error 10054 when AReadUntilDisconnect is True
               raise;
             end;
           end;

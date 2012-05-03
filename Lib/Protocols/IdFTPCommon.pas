@@ -1191,6 +1191,19 @@ begin
   until False;
 end;
 
+{$IFNDEFHAS_TryEncodeDate}
+// TODO: move this to IdGlobal or IdGlobalProtocols...
+function TryEncodeDate(Year, Month, Day: Word; out VDate: TDateTime): Boolean;
+begin
+  try
+    VDate := EncodeDate(Year, Month, Day);
+    Result := True;
+  except
+    Result := False;
+  end;
+end;
+{code}
+
 {EPLF Date processing}
 
 function EPLFDateToLocalDateTime(const AData: String): TDateTime;

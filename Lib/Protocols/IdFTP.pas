@@ -1200,6 +1200,31 @@ begin
   FAutoIssueFEAT := DEF_Id_FTP_AutoIssueFEAT;
 end;
 
+{$IFNDEF HAS_TryEncodeTime}
+// TODO: move this to IdGlobal or IdGlobalProtocols...
+function TryEncodeTime(Hour, Min, Sec, MSec: Word; out VTime: TDateTime): Boolean;
+begin
+  try
+    VTime := EncodeTime(Hour, Min, Sec, MSec);
+    Result := True;
+  except
+    Result := False;
+  end;
+end;
+{$ENDIF}
+
+{$IFNDEF HAS_TryStrToInt}
+// TODO: use the implementation already in IdGlobalProtocols...
+function TryStrToInt(const S: string; out Value: Integer): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  E: Integer;
+begin
+  Val(S, Value, E);
+  Result := E = 0;
+end;
+{$ENDIF}
+
 procedure TIdFTP.Connect;
 var
   LHost: String;

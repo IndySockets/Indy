@@ -584,6 +584,8 @@
   {$DEFINE HAS_UNIT_Types}
   {$DEFINE HAS_TryStrToInt}
   {$DEFINE HAS_TryStrToInt64}
+  {$DEFINE HAS_TryEncodeDate}
+  {$DEFINE HAS_TryEncodeTime}
   {$DEFINE HAS_ENUM_ELEMENT_VALUES}
   {$IFNDEF FPC}
     {$DEFINE HAS_TSelectionEditor}

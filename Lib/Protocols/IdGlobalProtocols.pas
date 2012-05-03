@@ -2351,6 +2351,7 @@ begin
 end;
 
 {$IFNDEF HAS_TryStrToInt}
+// TODO: declare this in the interface section...
 function TryStrToInt(const S: string; out Value: Integer): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
