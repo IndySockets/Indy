@@ -1191,7 +1191,7 @@ begin
   until False;
 end;
 
-{$IFNDEFHAS_TryEncodeDate}
+{$IFNDEF HAS_TryEncodeDate}
 // TODO: move this to IdGlobal or IdGlobalProtocols...
 function TryEncodeDate(Year, Month, Day: Word; out VDate: TDateTime): Boolean;
 begin
@@ -1202,7 +1202,7 @@ begin
     Result := False;
   end;
 end;
-{code}
+{$ENDIF}
 
 {EPLF Date processing}
 
