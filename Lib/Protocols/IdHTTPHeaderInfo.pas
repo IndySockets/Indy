@@ -266,7 +266,6 @@ type
     FProxyConnection: string;
     FProxyAuthenticate: TIdHeaderList;
     FWWWAuthenticate: TIdHeaderList;
-    FMetaHTTPEquiv : TIdHeaderList;
     //
     procedure SetProxyAuthenticate(const Value: TIdHeaderList);
     procedure SetWWWAuthenticate(const Value: TIdHeaderList);
@@ -1127,13 +1126,11 @@ begin
   FCharSet := 'ISO-8859-1';  {do not localize}
   FWWWAuthenticate := TIdHeaderList.Create(QuoteHTTP);
   FProxyAuthenticate := TIdHeaderList.Create(QuoteHTTP);
-  FMetaHTTPEquiv := TIdHeaderList.Create(QuoteHTTP);
   FAcceptRanges := '';
 end;
 
 destructor TIdResponseHeaderInfo.Destroy;
 begin
-  FreeAndNil(FMetaHTTPEquiv);
   FreeAndNil(FWWWAuthenticate);
   FreeAndNil(FProxyAuthenticate);
   inherited Destroy;
@@ -1233,7 +1230,7 @@ end;
 
 procedure TIdMetaHTTPEquiv.ProcessMetaHTTPEquiv(AStream: TStream);
 begin
-  ParseMetaHTTPEquiv(AStream, RawHeaders );
+  ParseMetaHTTPEquiv(AStream, RawHeaders);
   if FRawHeaders.Count > 0 then begin
     ProcessHeaders;
   end;

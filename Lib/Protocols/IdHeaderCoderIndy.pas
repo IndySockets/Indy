@@ -30,6 +30,8 @@ uses
   ;
 {$ENDIF}
 
+// TODO: re-write this unit to use IdGlobalProtocol.CharsetToEncoding() instead of TIdTextEncoding.GetEncoding() directly...
+
 class function TIdHeaderCoderIndy.Decode(const ACharSet: string; const AData: TIdBytes): String;
 var
   LEncoding: TIdTextEncoding;

@@ -248,7 +248,7 @@ begin
   //This extracts 'text/plain' from 'text/plain; charset="xyz"; boundary="123"'
   //or, if '', it finds the correct default value for MIME messages.
   if AContentType <> '' then begin
-    Result := ExtractHeaderItem(AContentType);
+    Result := AContentType;
   end else begin
     //If it is MIME, then we need to find the correct default...
     LParts := MessageParts;

@@ -56,9 +56,6 @@ uses
 
 type
   TIdAttachment = class(TIdMessagePart)
-  protected
-    function  GetContentDisposition: string; override;
-    function  GetContentType: String; override;
   public
     // here the methods you have to override...
 
@@ -98,16 +95,6 @@ uses
   SysUtils;
 
 { TIdAttachment }
-
-function TIdAttachment.GetContentDisposition: string;
-begin
-  Result := ExtractHeaderItem(inherited GetContentDisposition);
-end;
-
-function TIdAttachment.GetContentType: String;
-Begin
-  Result := ExtractHeaderItem(inherited GetContentType);
-End;//
 
 class function TIdAttachment.PartType: TIdMessagePartType;
 begin

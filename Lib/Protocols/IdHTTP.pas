@@ -408,9 +408,11 @@ type
     function GetResponseCode: Integer;
 
     procedure SetResponseText(const AValue: String);
+    procedure ProcessMetaHTTPEquiv;
   public
     constructor Create(AHTTP: TIdCustomHTTP); reintroduce; virtual;
     destructor Destroy; override;
+    procedure Clear; override;
     property KeepAlive: Boolean read GetKeepAlive write FKeepAlive;
     property MetaHTTPEquiv:  TIdMetaHTTPEquiv read FMetaHTTPEquiv;
     property ResponseText: string read FResponseText write SetResponseText;
@@ -1251,9 +1253,9 @@ begin
   LParseHTML := IsContentTypeHtml(AResponse) and Assigned(AResponse.ContentStream) and not (hoNoParseMetaHTTPEquiv in FOptions);
   LCreateTmpContent := LParseHTML and not (AResponse.ContentStream is TCustomMemoryStream);
 
-  LOrigStream := Response.ContentStream;
+  LOrigStream := AResponse.ContentStream;
   if LCreateTmpContent then begin
-    Response.ContentStream := TMemoryStream.Create;
+    AResponse.ContentStream := TMemoryStream.Create;
   end;
 
   try
@@ -1332,16 +1334,16 @@ begin
       end;
     end;
     if LParseHTML then begin
-      AResponse.MetaHTTPEquiv.ProcessMetaHTTPEquiv(Response.ContentStream);
+      AResponse.ProcessMetaHTTPEquiv;
     end;
   finally
     if LCreateTmpContent then
     begin
       try
-        LOrigStream.CopyFrom(Response.ContentStream, 0);
+        LOrigStream.CopyFrom(AResponse.ContentStream, 0);
       finally
-        Response.ContentStream.Free;
-        Response.ContentStream := LOrigStream;
+        AResponse.ContentStream.Free;
+        AResponse.ContentStream := LOrigStream;
       end;
     end;
   end;
@@ -1548,10 +1550,9 @@ begin
     Result := DetectXmlCharset(Response.ContentStream);
   end
   else begin
+    // RLebeau 1/30/2012: Response.CharSet is now updated at the time
+    // when HTML content is parsed for <meta> tags ...
     Result := Response.CharSet;
-    if Result = '' then begin
-      Result := MetaHTTPEquiv.CharSet;
-    end;
   end;
 end;
 
@@ -2146,6 +2147,46 @@ begin
   inherited Destroy;
 end;
 
+procedure TIdHTTPResponse.Clear;
+begin
+  inherited Clear;
+  FMetaHTTPEquiv.Clear;
+end;
+
+procedure TIdHTTPResponse.ProcessMetaHTTPEquiv;
+var
+  StdValues: TStringList;
+  I: Integer;
+  Name, Value: String;
+  {$IFNDEF HAS_TStrings_ValueFromIndex}
+  LTmp: String;
+  {$ENDIF}
+begin
+  FMetaHTTPEquiv.ProcessMetaHTTPEquiv(ContentStream);
+  if FMetaHTTPEquiv.RawHeaders.Count > 0 then begin
+    // TODO: optimize this
+    StdValues := TStringList.Create;
+    try
+      FMetaHTTPEquiv.RawHeaders.ConvertToStdValues(StdValues);
+      for I := 0 to StdValues.Count-1 do begin
+        Name := StdValues.Names[I];
+        if Name <> '' then begin
+          {$IFDEF HAS_TStrings_ValueFromIndex}
+          Value := StdValues.ValueFromIndex[I];
+          {$ELSE}
+          LTmp := StdValues.Strings[I];
+          Value := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {do not localize}
+          {$ENDIF}
+          RawHeaders.Values[Name] := Value;
+        end;
+      end;
+    finally
+      StdValues.Free;
+    end;
+    ProcessHeaders;
+  end;
+end;
+
 function TIdHTTPResponse.GetKeepAlive: Boolean;
 begin
   if FHTTP.Connected then begin
@@ -2291,8 +2332,7 @@ begin
   // Clear headers
   // Don't use Capture.
   // S.G. 6/4/2004: Added AmaxHeaderCount parameter to prevent the "header bombing" of the server
-  Response.RawHeaders.Clear;
-  Response.MetaHTTPEquiv.Clear;
+  Response.Clear;
   s := FHTTP.InternalReadLn;
   try
     LHeaderCount := 0;

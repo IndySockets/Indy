@@ -51,8 +51,6 @@ type
   TIdText = class(TIdMessagePart)
   protected
     FBody: TStrings;
-    function  GetContentDisposition: string; override;
-    function  GetContentType: string; override;
     procedure SetBody(const AStrs : TStrings); virtual;
   public
     constructor Create(Collection: TIdMessageParts; ABody: TStrings = nil); reintroduce;
@@ -96,16 +94,6 @@ destructor TIdText.Destroy;
 begin
   FreeAndNil(FBody);
   inherited Destroy;
-end;
-
-function TIdText.GetContentDisposition: string;
-begin
-  Result := ExtractHeaderItem(inherited GetContentDisposition);
-end;
-
-function TIdText.GetContentType: string;
-begin
-  Result := ExtractHeaderItem(inherited GetContentType);
 end;
 
 function TIdText.IsBodyEncodingRequired: Boolean;
