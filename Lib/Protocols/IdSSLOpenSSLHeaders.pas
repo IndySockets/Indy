@@ -11660,6 +11660,7 @@ type
   {$EXTERNALSYM PBIO_F_BUFFER_CTX}
   PBIO_F_BUFFER_CTX = ^BIO_F_BUFFER_CTX;
   //* Prefix and suffix callback in ASN1 BIO *//
+  {$EXTERNALSYM asn1_ps_function}
   asn1_ps_function = function (b : PBIO; pbuf : PPAnsiChar; plen : PIdC_INT; parg : Pointer) : TIdC_INT cdecl;
   //struct from engine.h
 //  ENGINE = record
