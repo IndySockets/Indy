@@ -1312,7 +1312,7 @@ begin
       // ReadLn needs to call this as data may exist in the buffer, but no EOL yet disconnected
       CheckForDisconnect(True, True);
       // Can only return -1 if timeout
-      FReadLnTimedOut := ReadFromSource(True, ATimeout, ATimeout = IdTimeoutDefault) = -1;
+      FReadLnTimedOut := ReadFromSource(True, ATimeout, False) = -1;
       if (not FReadLnTimedOut) and (ATimeout >= 0) then begin
         if GetTickDiff(LReadLnStartTime, Ticks) >= LongWord(ATimeout) then begin
           FReadLnTimedOut := True;
@@ -1465,7 +1465,7 @@ begin
           // No need to call AntiFreeze, the Readable does that.
           if SourceIsAvailable then begin
             // TODO: Whey are we reallocating LBuffer every time? This
-	    // should be a one time operation per connection.
+            // should be a one time operation per connection.
 
             // RLebeau: because the Intercept does not allow the buffer
             // size to be specified, and the Intercept could potentially
