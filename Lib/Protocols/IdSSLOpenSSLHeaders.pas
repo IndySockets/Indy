@@ -2531,7 +2531,7 @@ const
 ///* The following flag controls the translation of symbol names to upper
 // * case.  This is currently only being implemented for OpenVMS.
 // */
-  {$EXTERNALSYM DSO_CTRL_GET_FLAGS}
+  {$EXTERNALSYM DSO_FLAG_UPCASE_SYMBOL}
   DSO_FLAG_UPCASE_SYMBOL		 = $10;
 
 //* This flag loads the library with public symbols.
@@ -3270,7 +3270,7 @@ const
   EVP_CIPH_CFB_MODE	= $3;
   {$EXTERNALSYM EVP_CIPH_OFB_MODE}
   EVP_CIPH_OFB_MODE	= $4;
-  {$EXTERNALSYM EVP_CIPH_OFB_MODE}
+  {$EXTERNALSYM EVP_CIPH_CTR_MODE}
   EVP_CIPH_CTR_MODE	= $5;
   {$EXTERNALSYM EVP_CIPH_GCM_MODE}
   EVP_CIPH_GCM_MODE	=	$6;
@@ -3320,9 +3320,9 @@ const
 ///* Cipher handles any and all padding logic as well
 // * as finalisation.
 // */
-  {$EXTERNALSYM EVP_CIPH_RAND_KEY}
+  {$EXTERNALSYM EVP_CIPH_FLAG_CUSTOM_CIPHER}
   EVP_CIPH_FLAG_CUSTOM_CIPHER	= $100000;
-  {$EXTERNALSYM EVP_CIPH_RAND_KEY}
+  {$EXTERNALSYM EVP_CIPH_FLAG_AEAD_CIPHER}
   EVP_CIPH_FLAG_AEAD_CIPHER = $200000;
 
   {$EXTERNALSYM EVP_CTRL_INIT}
@@ -3349,7 +3349,7 @@ const
   EVP_CTRL_GCM_GET_TAG = $10;
   {$EXTERNALSYM EVP_CTRL_GCM_SET_TAG}
   EVP_CTRL_GCM_SET_TAG = $11;
-  {$EXTERNALSYM EVP_CTRL_GCM_GET_TAG}
+  {$EXTERNALSYM EVP_CTRL_GCM_SET_IV_FIXED}
   EVP_CTRL_GCM_SET_IV_FIXED = $12;
   {$EXTERNALSYM EVP_CTRL_GCM_IV_GEN}
   EVP_CTRL_GCM_IV_GEN = $13;
@@ -3509,7 +3509,7 @@ const
   EVP_F_ALG_MODULE_INIT	= 138;
   {$EXTERNALSYM EVP_F_AES_XTS}
   EVP_F_AES_XTS = 172;
-  {$EXTERNALSYM EVP_F_ALG_MODULE_INIT}
+  {$EXTERNALSYM EVP_F_AES_XTS_CIPHER}
   EVP_F_AES_XTS_CIPHER = 175;
   {$EXTERNALSYM EVP_F_CAMELLIA_INIT_KEY}
   EVP_F_CAMELLIA_INIT_KEY = 159;
@@ -3760,7 +3760,7 @@ const
   EVP_R_TOO_LARGE	= 164;
   {$EXTERNALSYM EVP_R_UNKNOWN_CIPHER}
   EVP_R_UNKNOWN_CIPHER = 160;
-  {$EXTERNALSYM EVP_R_TOO_LARGE}
+  {$EXTERNALSYM EVP_R_UNKNOWN_DIGEST}
   EVP_R_UNKNOWN_DIGEST = 161;
   {$EXTERNALSYM EVP_R_UNKNOWN_OPTION}
   EVP_R_UNKNOWN_OPTION				= 149;
@@ -6555,7 +6555,7 @@ const
   DTLS1_SCTP_ST_CW_WRITE_SOCK	=	$310 or SSL_ST_CONNECT;
   {$EXTERNALSYM DTLS1_SCTP_ST_CR_READ_SOCK}
   DTLS1_SCTP_ST_CR_READ_SOCK = $320 or SSL_ST_CONNECT;
-{$endif|
+{$endif}
   {$EXTERNALSYM SSL3_ST_CW_CLNT_HELLO_A}
   SSL3_ST_CW_CLNT_HELLO_A = $110 or SSL_ST_CONNECT;
   {$EXTERNALSYM SSL3_ST_CW_CLNT_HELLO_B}
@@ -9136,7 +9136,7 @@ TLS1_TXT_DHE_RSA_WITH_AES_256_GCM_SHA384 = 'DHE-RSA-AES256-GCM-SHA384';
   X509_R_NO_CERT_SET_FOR_US_TO_VERIFY = 105;
   {$EXTERNALSYM X509_R_PUBLIC_KEY_DECODE_ERROR}
   X509_R_PUBLIC_KEY_DECODE_ERROR = 125;
-  {$EXTERNALSYM X509_R_PUBLIC_KEY_DECODE_ERROR}
+  {$EXTERNALSYM X509_R_PUBLIC_KEY_ENCODE_ERROR}
   X509_R_PUBLIC_KEY_ENCODE_ERROR = 126;
   {$EXTERNALSYM X509_R_SHOULD_RETRY}
   X509_R_SHOULD_RETRY = 106;
@@ -10621,7 +10621,7 @@ TLS1_TXT_DHE_RSA_WITH_AES_256_GCM_SHA384 = 'DHE-RSA-AES256-GCM-SHA384';
   DSO_R_FILENAME_TOO_BIG = 101;
   {$EXTERNALSYM DSO_R_FINISH_FAILED}
   DSO_R_FINISH_FAILED	= 102;
-  {$EXTERNALSYM DSO_R_FILENAME_TOO_BIG}
+  {$EXTERNALSYM DSO_R_INCORRECT_FILE_SYNTAX}
   DSO_R_INCORRECT_FILE_SYNTAX = 115;
   {$EXTERNALSYM DSO_R_LOAD_FAILED}
   DSO_R_LOAD_FAILED	= 103;
@@ -10631,11 +10631,11 @@ TLS1_TXT_DHE_RSA_WITH_AES_256_GCM_SHA384 = 'DHE-RSA-AES256-GCM-SHA384';
   DSO_R_NO_FILENAME	= 111;
   {$EXTERNALSYM DSO_R_NO_FILE_SPECIFICATION}
   DSO_R_NO_FILE_SPECIFICATION	= 116;
-  {$EXTERNALSYM DSO_R_NAME_TRANSLATION_FAILED}
+  {$EXTERNALSYM DSO_R_NULL_HANDLE}
   DSO_R_NULL_HANDLE			 = 104;
-  {$EXTERNALSYM DSO_R_NAME_TRANSLATION_FAILED}
+  {$EXTERNALSYM DSO_R_SET_FILENAME_FAILED}
   DSO_R_SET_FILENAME_FAILED		 = 112;
-  {$EXTERNALSYM DSO_R_NAME_TRANSLATION_FAILED}
+  {$EXTERNALSYM DSO_R_STACK_ERROR}
   DSO_R_STACK_ERROR			 = 105;
    {$EXTERNALSYM DSO_R_SYM_FAILURE}
   DSO_R_SYM_FAILURE	= 106;
@@ -10650,7 +10650,7 @@ TLS1_TXT_DHE_RSA_WITH_AES_256_GCM_SHA384 = 'DHE-RSA-AES256-GCM-SHA384';
    SRP_NO_ERROR = 0;
    {$EXTERNALSYM SRP_ERR_VBASE_INCOMPLETE_FILE}
    SRP_ERR_VBASE_INCOMPLETE_FILE = 1;
-   {$EXTERNALSYM SRP_NO_ERROR}
+   {$EXTERNALSYM SRP_ERR_VBASE_BN_LIB}
    SRP_ERR_VBASE_BN_LIB = 2;
    {$EXTERNALSYM SRP_ERR_OPEN_FILE}
    SRP_ERR_OPEN_FILE = 3;
@@ -10661,7 +10661,7 @@ TLS1_TXT_DHE_RSA_WITH_AES_256_GCM_SHA384 = 'DHE-RSA-AES256-GCM-SHA384';
    DB_srptype	= 0;
    {$EXTERNALSYM DB_srpverifier}
    DB_srpverifier	= 1;
-   {$EXTERNALSYM DB_srpverifier}
+   {$EXTERNALSYM DB_srpsalt}
    DB_srpsalt = 2;
    {$EXTERNALSYM DB_srpid}
    DB_srpid = 3;
@@ -12092,6 +12092,7 @@ type
   end;
   {$ENDIF}
   //dso.h
+  {$EXTERNALSYM PDSO}
   PDSO = ^DSO;
 ///* The function prototype used for method functions (or caller-provided
 // * callbacks) that transform filenames. They are passed a DSO structure pointer
@@ -12099,8 +12100,11 @@ type
 // * filename to transform. They should either return NULL (if there is an error
 // * condition) or a newly allocated string containing the transformed form that
 // * the caller will need to free with OPENSSL_free() when done. */
+  {$EXTERNALSYM DSO_NAME_CONVERTER_FUNC}
   DSO_NAME_CONVERTER_FUNC = function (dso : PDSO; para1 : PAnsiChar) : PAnsiChar cdecl;
+  {$EXTERNALSYM PDSO_METHOD}
   PDSO_METHOD = ^DSO_METHOD;
+  {$EXTERNALSYM DSO_FUNC_TYPE}
   DSO_FUNC_TYPE = procedure cdecl;
 ///* The function prototype used for method functions (or caller-provided
 // * callbacks) that merge two file specifications. They are passed a
@@ -12117,7 +12121,9 @@ type
 // * it as the first specification is the one given by the user and the
 // * second being a bunch of defaults to add on if they're missing in the
 // * first. */
+  {$EXTERNALSYM DSO_MERGER_FUNC}
   DSO_MERGER_FUNC = function (DSO : PDSO; para1, para2 : PAnsiChar) : PAnsiChar stdcall;
+  {$EXTERNALSYM DSO_METHOD}
   DSO_METHOD = record
     name : PAnsiChar;
 	///* Loads a shared library, NB: new DSO_METHODs must ensure that a
@@ -12155,6 +12161,7 @@ type
 	//* Perform global symbol lookup, i.e. among *all* modules */
     globallookup : function (symname : PAnsiChar) : Pointer stdcall;
   end;
+  {$EXTERNALSYM DSO}
   DSO = record
 	  meth : PDSO_METHOD;
 	///* Standard dlopen uses a (void *). Win32 uses a HANDLE. VMS
@@ -13435,11 +13442,15 @@ type
   STACK_OF_GENERAL_NAMES = record
     _stack: stack;
   end;
+  {$EXTERNALSYM PSTACK_OF_CMS_SignerInfo}
   PSTACK_OF_CMS_SignerInfo = ^STACK_OF_CMS_SignerInfo;
+  {$EXTERNALSYM PSTACK_OF_GENERAL_NAMES}
   PSTACK_OF_GENERAL_NAMES = ^STACK_OF_GENERAL_NAMES;
     {$ELSE}
   //I think the DECLARE_STACK_OF macro is empty
+  {$EXTERNALSYM PSTACK_OF_CMS_SignerInfo}
   PSTACK_OF_CMS_SignerInfo = PSTACK;
+  {$EXTERNALSYM PSTACK_OF_GENERAL_NAMES}
   PSTACK_OF_GENERAL_NAMES = PSTACK;
     {$ENDIF}
   {.$ENDIF}
@@ -13984,6 +13995,7 @@ type
     method_data : PAnsiChar;          // method data
     store_ctx : PX509_STORE;      // who owns us
   end;
+  {$EXTERNALSYM PX509_POLICY_TREE}
   PX509_POLICY_TREE = Pointer;
   {$EXTERNALSYM PPSTACK_OF_X509_LOOKUP}
   PPSTACK_OF_X509_LOOKUP = ^PSTACK_OF_X509_LOOKUP;
@@ -15213,7 +15225,7 @@ _des_cblock = DES_cblock
     g : PBIGNUM;
     N : PBIGNUM;
   end;
-  {$EXTERNALSYM SRP_gN}
+  {$EXTERNALSYM PSRP_gN}
 	PSRP_gN = ^SRP_gN;
 
    {$EXTERNALSYM PSTACK_OF_SRP_gN}
@@ -15356,6 +15368,7 @@ _des_cblock = DES_cblock
 
 {$ifndef OPENSSL_NO_SSL_INTERN}
 
+  {$EXTERNALSYM SRP_CTX}
   SRP_CTX = record
 	//* param for all the callbacks */
 	  SRP_cb_arg : Pointer;
@@ -15396,7 +15409,9 @@ _des_cblock = DES_cblock
   end;
   {$EXTERNALSYM PSRTP_PROTECTION_PROFILE}
   PSRTP_PROTECTION_PROFILE = ^SRTP_PROTECTION_PROFILE;
+  {$EXTERNALSYM tls_session_ticket_ext_cb_fn}
   tls_session_ticket_ext_cb_fn = function(S : PSSL; data : PAnsiChar; len : TIdC_INT; arg : Pointer) : TIdC_INT cdecl;
+  {$EXTERNALSYM tls_session_secret_cb_fn}
   tls_session_secret_cb_fn = function(S : PSSL;
     secret : Pointer;
     var secret_len : TIdC_INT;
@@ -15511,11 +15526,14 @@ _des_cblock = DES_cblock
                           // supplying session-id's from other
                           // processes - spooky :-)
   end;
+  {$EXTERNALSYM lash_of_SSL_SESSION}
   lash_of_SSL_SESSION = record
    dummy : TIdC_INT;
   end;
+  {$EXTERNALSYM Plash_of_SSL_SESSION}
   Plash_of_SSL_SESSION = ^lash_of_SSL_SESSION;
 {$ifndef OPENSSL_NO_BUF_FREELISTS}
+  {$EXTERNALSYM Pssl3_buf_freelist_st}
   Pssl3_buf_freelist_st = Pointer;
 {$endif}
 
@@ -17071,11 +17089,11 @@ var
   sk_X509_INFO_num : Tsk_X509_INFO_num absolute sk_num;
  {$EXTERNALSYM sk_X509_INFO_value}
   sk_X509_INFO_value : Tsk_X509_INFO_value absolute sk_value;
- {$EXTERNALSYM sk_X509_NAME_push}
+ {$EXTERNALSYM sk_X509_INFO_push}
   sk_X509_INFO_push : Tsk_X509_INFO_push absolute sk_push;
- {$EXTERNALSYM sk_X509_NAME_dup}
+ {$EXTERNALSYM sk_X509_INFO_dup}
   sk_X509_INFO_dup : Tsk_X509_INFO_dup absolute sk_dup;
- {$EXTERNALSYM sk_X509_NAME_find}
+ {$EXTERNALSYM sk_X509_INFO_find}
   sk_X509_INFO_find : Tsk_X509_INFO_find absolute sk_find;
  {$EXTERNALSYM sk_X509_INFO_pop_free}
   sk_X509_INFO_pop_free : Tsk_X509_INFO_pop_free absolute sk_free;
@@ -17260,6 +17278,7 @@ function SSL_get_tlsext_status_ocsp_resp(ssl : PSSL; arg : Pointer) : TIdC_LONG;
 function SSL_set_tlsext_status_ocsp_resp(ssl : PSSL; arg : Pointer; arglen : TIdC_LONG) : TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_set_tlsext_servername_callback}
 function SSL_CTX_set_tlsext_servername_callback(ctx : PSSL_CTX; cb :SSL_callback_ctrl_fp):TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_get_tlsext_ticket_keys}
 function SSL_CTX_get_tlsext_ticket_keys(ctx : PSSL_CTX; keys : PAnsiChar; keylen : TIdC_LONG ) : TIdC_LONG;
 {$ENDIF}
  {$EXTERNALSYM SSL_CTX_get_version}
