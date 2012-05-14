@@ -249,6 +249,9 @@ type
 implementation
 
 uses
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.SyncObjs,
+  {$ENDIF}
   IdAntiFreezeBase, IdComponent, IdResourceStrings, SysUtils;
 
 { TIdSocketHandle }

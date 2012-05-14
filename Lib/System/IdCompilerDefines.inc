@@ -1,3 +1,11 @@
+{$IFDEF CONDITIONALEXPRESSIONS}
+
+
+  // Must be at the top...
+  {$IF COMPILERVERSION >= 24.0}
+    {$LEGACYIFEND ON}
+  {$IFEND}
+{$ENDIF}
 // General
 
 // Make this $DEFINE to use the 16 color icons required by Borland
@@ -210,6 +218,17 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi & CBuilder XE3 (Waterdragon)
+{$IFDEF VER240}
+  // DCC is now defined by the compiler
+  {$DEFINE VCL_XE3}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_XE3}
+  {$ELSE}
+    {$DEFINE DELPHI_XE3}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi.NET
 // Covers D8+
 {$IFDEF CIL}
@@ -363,8 +382,20 @@
 
 // end FPC
 
+{$IFDEF VCL_XE3}
+  {$DEFINE VCL_XE3_OR_ABOVE}
+{$ENDIF}
+
 {$IFDEF VCL_XE2}
   {$DEFINE VCL_XE2_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_XE3_OR_ABOVE}
+  {$DEFINE VCL_XE2_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_XE2}
+    {$DEFINE VCL_XE_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_XE2_OR_ABOVE}

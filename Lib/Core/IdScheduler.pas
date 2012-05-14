@@ -110,6 +110,10 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Classes,
+  System.Types,
+  {$ENDIF}
   IdGlobal, SysUtils;
 
 { TIdScheduler }

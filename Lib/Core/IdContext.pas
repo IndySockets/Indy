@@ -119,6 +119,9 @@ implementation
 { TIdContext }
 
 uses
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Types,
+  {$ENDIF}
   IdGlobal,
   IdIOHandlerSocket;
 

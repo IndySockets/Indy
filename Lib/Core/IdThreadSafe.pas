@@ -213,6 +213,9 @@ uses
   Windows,
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.SyncObjs,
+  {$ENDIF}
   SysUtils;
 
 { TIdThreadSafe }

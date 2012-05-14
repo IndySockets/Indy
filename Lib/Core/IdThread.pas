@@ -274,6 +274,9 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.SyncObjs,
+  {$ENDIF}
   IdResourceStringsCore;
 
 class procedure TIdThread.WaitAllThreadsTerminated(AMSec: Integer = IdWaitAllThreadsTerminatedCount);

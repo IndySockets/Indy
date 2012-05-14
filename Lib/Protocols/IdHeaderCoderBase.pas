@@ -35,6 +35,9 @@ procedure UnregisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
 implementation
 
 uses
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Types,
+  {$ENDIF}
   SysUtils, IdResourceStringsProtocols;
 
 type
