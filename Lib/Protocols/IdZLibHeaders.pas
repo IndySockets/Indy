@@ -627,6 +627,8 @@ var
   deflateSetHeader : LPN_deflateSetHeader = nil;
   inflateGetHeader : LPN_inflateGetHeader = nil;
 
+procedure IdZLibSetLibPath(const APath: String);
+
 {$ELSE}
 
 (* basic functions *)
@@ -1321,19 +1323,32 @@ begin
   Result := True;
 end;
 {$ELSE}
+
+var
+  GIdZLibPath: String = '';
+
+procedure IdZLibSetLibPath(const APath: String);
+begin
+  if APath <> '' then begin
+    GIdZLibPath := IndyIncludeTrailingPathDelimiter(APath);
+  end else begin
+    GIdZLibPath := '';
+  end;
+end;
+
 function Load : Boolean;
 begin
-  Result := True;
-  if not Loaded then begin
+  Result := Loaded;
+  if not Result then begin
     //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
     //call because LoadLibrary messes with the FPU control word.
     {$IFDEF WINDOWS}
-    hZLib := SafeLoadLibrary(libzlib);
+    hZLib := SafeLoadLibrary(GIdZLibPath + libzlib);
     {$ELSE}
       {$IFDEF UNIX}
-    hZLib := HackLoad(libzlib, libvers);
+    hZLib := HackLoad(GIdZLibPath + libzlib, libvers);
       {$ELSE}
-    hZLib := LoadLibrary(libzlib);
+    hZLib := LoadLibrary(GIdZLibPath + libzlib);
         {$IFDEF USE_INVALIDATE_MOD_CACHE}
     InvalidateModuleCache;
         {$ENDIF}

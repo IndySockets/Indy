@@ -17643,6 +17643,8 @@ function RAND_event(iMsg : UINT; wp : wparam; lp : lparam) : integer;
 procedure RAND_screen();
 {$ENDIF}
 
+procedure IdOpenSSLSetLibPath(const APath: String);
+
 implementation
 
 uses
@@ -21116,19 +21118,31 @@ end;
   {$DEFINE USE_BASEUNIX_OR_VCL_POSIX}
 {$ENDIF}
 
+var
+  GIdOpenSSLPath: String = '';
+
+procedure IdOpenSSLSetLibPath(const APath: String);
+begin
+  if APath <> '' then begin
+    GIdOpenSSLPath := IndyIncludeTrailingPathDelimiter(APath);
+  end else begin
+    GIdOpenSSLPath := '';
+  end;
+end;
+
 function LoadSSLCryptoLibrary: HMODULE;
 begin
   {$IFDEF KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(SSLCLIB_DLL_name, SSLDLLVers);
+  Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers);
   {$ELSE}
     {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
-  Result := SafeLoadLibrary(SSLCLIB_DLL_name);
+  Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
     {$ELSE}
       {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
-  Result := HMODULE(HackLoad(SSLCLIB_DLL_name, SSLDLLVers));
+  Result := HMODULE(HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers));
       {$ELSE}
   Result := 0;
       {$ENDIF}
@@ -21140,20 +21154,20 @@ function LoadSSLLibrary: HMODULE;
 begin
   {$IFDEF KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(SSL_DLL_name, SSLDLLVers);
+  Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers);
   {$ELSE}
     {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
-  Result := SafeLoadLibrary(SSL_DLL_name);
+  Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name);
   //This is a workaround for mingw32-compiled SSL .DLL which
   //might be named 'libssl32.dll'.
   if Result = 0 then begin
-    Result := SafeLoadLibrary(SSL_DLL_name_alt);
+    Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
   end;
     {$ELSE}
       {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
-  Result := HMODULE(HackLoad(SSL_DLL_name, SSLDLLVers));
+  Result := HMODULE(HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers));
       {$ELSE}
   Result := 0;
       {$ENDIF}
@@ -21941,7 +21955,7 @@ function WhichFailedToLoad: string;
 begin
   Assert(FFailedFunctionLoadList<>nil);
   if hIdSSL = 0 then begin
-    Result := 'Failed to load ' + SSL_DLL_name + '.'  {Do not localize}
+    Result := 'Failed to load ' + GIdOpenSSLPath + SSL_DLL_name + '.'  {Do not localize}
   end else begin
     Result := FFailedFunctionLoadList.CommaText;
   end;
