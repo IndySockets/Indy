@@ -172,6 +172,9 @@ type
 implementation
 
 uses
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Classes,
+  {$ENDIF}
   IdAssignedNumbers, IdException, IdGlobal,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,

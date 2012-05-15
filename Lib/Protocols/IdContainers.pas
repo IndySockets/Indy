@@ -103,7 +103,10 @@ type
   end;
 
 implementation
-
+  {$IFDEF VCL_XE3_OR_ABOVE}
+uses
+  System.Types;
+  {$ENDIF}
 { TIdObjectList }
 
 constructor TIdObjectList.Create;

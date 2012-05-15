@@ -217,6 +217,9 @@ const
 implementation
 
 uses
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Types,
+  {$ENDIF}
   IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols,
   IdResourceStringsProtocols, IdStrings, SysUtils;
 

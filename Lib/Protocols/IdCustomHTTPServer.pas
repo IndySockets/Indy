@@ -536,6 +536,9 @@ type
 implementation
 
 uses
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.SyncObjs,
+  {$ENDIF}
   {$IFDEF KYLIXCOMPAT}
   Libc,
   {$ENDIF}

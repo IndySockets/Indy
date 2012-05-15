@@ -608,6 +608,9 @@ function PosBytes(const SubBytes, SBytes: TIdBytes): Integer;
 implementation
 
 uses
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.SyncObjs,
+  {$ENDIF}
   IdException,
   {$IFDEF DOTNET}
     {$IFDEF USE_INLINE}
