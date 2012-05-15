@@ -222,7 +222,7 @@ begin
     // Get the user name, password, host and the port number
     LBuffer := Fetch(LURI, '/', True);    {Do not Localize}
     // Get username and password
-    LTokenPos := IndyPos('@', LBuffer);    {Do not Localize}
+    LTokenPos := RPos('@', LBuffer);    {Do not Localize}
     if LTokenPos > 0 then begin
       FPassword := Copy(LBuffer, 1, LTokenPos  - 1);
       Delete(LBuffer, 1, LTokenPos);
