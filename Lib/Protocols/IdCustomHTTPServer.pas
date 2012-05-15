@@ -1960,6 +1960,14 @@ begin
     end;
   end;
 
+  // RLebeau 5/15/2012: for backwards compatibility. We really should
+  // make the user set this every time instead...
+  if ContentType = '' then begin
+    if (ContentText <> '') or (Assigned(ContentStream)) then begin
+      ContentType := 'text/html; charset=ISO-8859-1'; {Do not Localize}
+    end;
+  end;
+
   // RLebeau: according to RFC 2616 Section 4.4:
   //
   // If a Content-Length header field (section 14.13) is present, its

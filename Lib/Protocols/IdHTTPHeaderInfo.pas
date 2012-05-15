@@ -1122,8 +1122,9 @@ end;
 constructor TIdResponseHeaderInfo.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner);
-  FContentType := 'text/html';  {do not localize}
-  FCharSet := 'ISO-8859-1';  {do not localize}
+  // RLebeau 5/15/2012: don't set any default ContentType, make the user set it...
+  FContentType := '';
+  FCharSet := '';
   FWWWAuthenticate := TIdHeaderList.Create(QuoteHTTP);
   FProxyAuthenticate := TIdHeaderList.Create(QuoteHTTP);
   FAcceptRanges := '';
@@ -1202,9 +1203,9 @@ procedure TIdResponseHeaderInfo.Clear;
 begin
   inherited Clear;
 
-  // S.G. 20/4/2003: Default to text/HTML
-  FContentType := 'text/html';  {do not localize}
-  FCharSet := 'ISO-8859-1';  {do not localize}
+  // RLebeau 5/15/2012: don't set any default ContentType, make the user set it...
+  FContentType := '';
+  FCharSet := '';
 
   FLocation := '';
   FServer := '';
