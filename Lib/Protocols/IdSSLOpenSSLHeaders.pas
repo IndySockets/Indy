@@ -5010,12 +5010,12 @@ const
   {$EXTERNALSYM OBJ_R_UNKNOWN_NID}
   OBJ_R_UNKNOWN_NID = 101;
   {$EXTERNALSYM OPENSSL_VERSION_NUMBER}
-  OPENSSL_VERSION_NUMBER = $1000006f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
+  OPENSSL_VERSION_NUMBER = $1000103f;   // MMNNFFPPS Major, Minor, Fix, Patch, Status
   {$EXTERNALSYM OPENSSL_VERSION_TEXT}
 {$IFDEF OPENSSL_FIPS}
-  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.0f-fips 4 Jan 2012'; {Do not localize}
+  OPENSSL_VERSION_TEXT	= 'OpenSSL 1.0.1c-fips 10 May 2012'; {Do not localize}
 {$ELSE}
-  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.0f 4 Jan 2012';   {Do not localize}
+  OPENSSL_VERSION_TEXT = 'OpenSSL 1.0.1c 10 May 2012';   {Do not localize}
 {$ENDIF}
   {$EXTERNALSYM OPENSSL_VERSION_PTEXT}
   OPENSSL_VERSION_PTEXT = ' part of '+ OPENSSL_VERSION_TEXT;  {Do not localize}
@@ -17280,7 +17280,29 @@ function SSL_set_tlsext_status_ocsp_resp(ssl : PSSL; arg : Pointer; arglen : TId
 function SSL_CTX_set_tlsext_servername_callback(ctx : PSSL_CTX; cb :SSL_callback_ctrl_fp):TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_get_tlsext_ticket_keys}
 function SSL_CTX_get_tlsext_ticket_keys(ctx : PSSL_CTX; keys : PAnsiChar; keylen : TIdC_LONG ) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_tlsext_status_cb}
+function SSL_CTX_set_tlsext_status_cb(ssl : PSSL_CTX; cb : TSSL_CTX_set_tlsext_status_cb) :TIdC_LONG;
+ {$EXTERNALSYM SSL_set_tlsext_opaque_prf_input}
+function SSL_set_tlsext_opaque_prf_input(s : PSSL; src : PAnsiChar; len : TIdC_LONG ) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_tlsext_opaque_prf_input_callback}
+function SSL_CTX_set_tlsext_opaque_prf_input_callback(ctx : PSSL_CTX; cb : TSSL_CTX_set_tlsext_opaque_prf_input_callback_cb) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_tlsext_opaque_prf_input_callback_arg}
+function SSL_CTX_set_tlsext_opaque_prf_input_callback_arg(ctx : PSSL_CTX; arg : Pointer) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set_tlsext_ticket_key_cb}
+function SSL_CTX_set_tlsext_ticket_key_cb(ssl : PSSL_CTX; cb : TSSL_CTX_set_tlsext_ticket_key_cb_fp) : TIdC_LONG;
+{$ifndef OPENSSL_NO_HEARTBEATS}
+ {$EXTERNALSYM SSL_heartbeat}
+function SSL_heartbeat(ssl : PSSL) : TIdC_LONG;
+ {$EXTERNALSYM SSL_get_tlsext_heartbeat_pending}
+function SSL_get_tlsext_heartbeat_pending(ssl : PSSL) : TIdC_LONG;
+ {$EXTERNALSYM SSL_set_tlsext_heartbeat_no_requests}
+function SSL_set_tlsext_heartbeat_no_requests(ssl : PSSL; arg : TIdC_LONG) : TIdC_LONG;
+{$endif}
 {$ENDIF}
+ {$EXTERNALSYM TLS1_get_version}
+function TLS1_get_version(s : PSSL) : TIdC_INT;
+ {$EXTERNALSYM TLS1_get_client_version}
+function TLS1_get_client_version(s : PSSL) : TIdC_INT;
  {$EXTERNALSYM SSL_CTX_get_version}
 function SSL_CTX_get_version(ctx: PSSL_CTX):TIdC_INT;
 //* BIO_s_connect() and BIO_s_socks4a_connect() */
@@ -22615,6 +22637,7 @@ end;
 {$ENDIF}
 
 function TLS1_get_version(s : PSSL) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if (s.version shr 8) = TLS1_VERSION_MAJOR then
      Result := s.version
