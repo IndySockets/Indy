@@ -109,6 +109,7 @@ uses
 	systems, platform warnings are not going to be too helpful.
 	}
      {$WARN SYMBOL_PLATFORM OFF}
+      IdVCLPosixSupplemental,
       Posix.Errno,Posix.NetDB, Posix.NetinetIn, Posix.SysSocket;
     {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
@@ -479,8 +480,12 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_TCP_CORK = TCP_CORK;
      {$ENDIF}
      {$IFDEF UNIX}
+       {$IFDEF HAS_TCP_KEEPIDLE}
   Id_TCP_KEEPIDLE          = TCP_KEEPIDLE;
+       {$ENDIF}
+       {$IFDEF HAS_TCP_KEEPINTVL}
   Id_TCP_KEEPINTVL         = TCP_KEEPINTVL;
+       {$ENDIF}
      {$ENDIF}
   {$ELSE}
   Id_TCP_NODELAY           = SocketOptionName.NoDelay;
