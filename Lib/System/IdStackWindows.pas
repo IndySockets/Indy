@@ -316,6 +316,9 @@ var
 implementation
 
 uses
+  {$IFNDEF WINCE}
+  IdIDN,
+  {$ENDIF}
   IdResourceStrings, IdWship6;
 
 {$IFNDEF WINCE}
@@ -339,6 +342,9 @@ begin
     try
       InitializeWinSock;
       IdWship6.InitLibrary;
+      {$IFNDEF WINCE}
+      IdIDN.InitIDNLibrary;
+      {$ENDIF}
     except
       on E: Exception do begin
         raise EIdStackInitializationFailed.Create(E.Message);
@@ -806,7 +812,6 @@ var
     {$ENDIF}
   {$ENDIF}
 begin
-  LHostName := HostName;
 
   {$IFNDEF WINCE}
   if not GIdIPv6FuncsAvailable then
@@ -1227,10 +1232,13 @@ begin
   {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
   LTemp := WideString(AHostName); // explicit convert to Unicode
   {$ENDIF}
-
-  RetVal := getaddrinfo(
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}PWideChar(LTemp){$ELSE}PChar(AHostName){$ENDIF},
-    nil, @Hints, @LAddrInfo);
+  if UseIDNAPI then begin
+   RetVal := getaddrinfo(PWideChar(IDNToPunnyCode(AHostName)), nil, @Hints, @LAddrInfo);
+  end else begin
+    RetVal := getaddrinfo(
+      {$IFDEF UNICODE_BUT_STRING_IS_ANSI}PWideChar(LTemp){$ELSE}PChar(AHostName){$ENDIF},
+      nil, @Hints, @LAddrInfo);
+  end;
   if RetVal <> 0 then begin
     RaiseSocketError(gaiErrorToWsaError(RetVal));
   end;
