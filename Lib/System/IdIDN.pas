@@ -32,7 +32,17 @@ AI_DISABLE_IDN_ENCODING flag discussed below.
 
    }
 interface
-uses Windows;
+
+{$I IdCompilerDefines.inc}
+
+uses
+  IdGlobal
+  {$IFNDEF WINCE}
+  , Windows
+  {$ENDIF}
+  ;
+
+{$IFNDEF WINCE}
 {
 
 }
@@ -175,79 +185,128 @@ const
   fn_IdnToNameprepUnicode = 'IdnToNameprepUnicode';
   fn_IdnToAscii = 'IdnToAscii';
 
-var
-  hIdnDL : THandle = 0;
-  hNormaliz : THandle = 0;
+{$ENDIF} // {$IFNDEF WINCE}
 
-var
-  GIDNFuncsAvailable: Boolean = False;
-
-function UseIDNAPI : Boolean; {$IFDEF USEINLINE}inline; {$ENDIF}
-function IDNToPunnyCode(const AIDN : String) : String; inline;
-function PunnyCodeToIDN(const APunnyCode : String) : String;
+function UseIDNAPI : Boolean;
+function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
+function PunnyCodeToIDN(const APunnyCode : String) : TIdUnicodeString;
 
 procedure InitIDNLibrary;
 procedure CloseIDNLibrary;
 
 implementation
-uses IdGlobal, SysUtils;
 
-const
-  IDN_MAX_LENGTH = 255;
+{$IFNDEF WINCE}
+
+uses
+  SysUtils;
+
+var
+  hIdnDL : THandle = 0;
+  hNormaliz : THandle = 0;
 
 function UseIDNAPI : Boolean;
 begin
-  if (Win32MajorVersion > 6) then begin
-    Result := False;
-  end else begin
-    Result := Win32MinorVersion < 2;
-  end;
+  Result := (Win32MajorVersion < 6) or ((Win32MajorVersion = 6) and (Win32MinorVersion < 2));
   if Result then begin
-    Result := Assigned( IdnToAscii );
+    Result := Assigned( IdnToAscii ) and Assigned( IdnToUnicode );
   end;
 end;
 
-function PunnyCodeToIDN(const APunnyCode : String) : String;
+function PunnyCodeToIDN(const APunnyCode : String) : TIdUnicodeString;
 var
-  pRes : array [0..IDN_MAX_LENGTH] of WideChar;
+  {$IFNDEF STRING_IS_UNICODE}
+  LTemp: TIdUnicodeString;
+  {$ENDIF}
+  LIDN : TIdUnicodeString;
   Len : Integer;
 begin
   Result := '';
-  len := IdnToUnicode(0, PWideChar(APunnyCode), -1, pRes, IDN_MAX_LENGTH);
-  if (Len = 0) then begin
-     SysUtils.RaiseLastOSError;
+  if Assigned(IdnToUnicode) then
+  begin
+    {$IFNDEF STRING_IS_UNICODE}
+    LTemp := TIdUnicodeString(APunnyCode); // explicit convert to Unicode
+    {$ENDIF}
+    Len := IdnToUnicode(0,
+      {$IFDEF STRING_IS_UNICODE}
+      PIdWideChar(APunnyCode), Length(APunnyCode)
+      {$ELSE}
+      PIdWideChar(LTemp), Length(LTemp)
+      {$ENDIF},
+      nil, 0);
+    if Len = 0 then begin
+       SysUtils.RaiseLastOSError;
+    end;
+    SetLength(LIDN, Len);
+    Len := IdnToUnicode(0,
+      {$IFDEF STRING_IS_UNICODE}
+      PIdWideChar(APunnyCode), Length(APunnyCode)
+      {$ELSE}
+      PIdWideChar(LTemp), Length(LTemp)
+      {$ENDIF},
+      PIdWideChar(LIDN), Len);
+    if Len = 0 then begin
+       SysUtils.RaiseLastOSError;
+    end;
+    Result := LIDN;
   end else begin
-     Result := PWideChar(@pRes);
+    // TODO: manual implementation here ...
   end;
 end;
 
-function IDNToPunnyCode(const AIDN : String) : String;
+function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
 var
-  pPunycode : array [0..IDN_MAX_LENGTH] of WideChar;
+  LPunnyCode : TIdUnicodeString;
   Len : Integer;
 begin
   Result := '';
-  Len := IdnToAscii(0, PWideChar(AIDN), -1, pPunycode, IDN_MAX_LENGTH);
-  if (Len = 0) then begin
-     SysUtils.RaiseLastOSError;
-  end else begin
-     Result := PWideChar(@pPunycode);
+  if Assigned(IdnToAscii) then
+  begin
+    Len := IdnToAscii(0, PIdWideChar(AIDN), Length(AIDN), nil, 0);
+    if Len = 0 then begin
+       SysUtils.RaiseLastOSError;
+    end;
+    SetLength(LPunnyCode, Len);
+    Len := IdnToAscii(0, PIdWideChar(AIDN), Length(AIDN), PIdWideChar(LPunnyCode), Len);
+    if Len = 0 then begin
+       SysUtils.RaiseLastOSError;
+    end;
+    {$IFDEF STRING_IS_ANSI}
+    Result := AnsiString(LPunnyCode); // explicit convert to Ansi (no data loss because content is ASCII)
+    {$ELSE}
+    Result := LPunnyCode;
+    {$ENDIF}
+  end else
+  begin
+    // TODO: manual implementation here ...
   end;
 end;
 
 procedure InitIDNLibrary;
 begin
-  hIdnDL := SafeLoadLibrary(LibNDL);
-  DownlevelGetLocaleScripts := GetProcAddress(hIdnDL, fn_DownlevelGetLocaleScripts);
-  DownlevelGetStringScripts := GetProcAddress(hIdnDL, fn_DownlevelGetStringScripts);
-  DownlevelVerifyScripts := GetProcAddress(hIdnDL, fn_DownlevelVerifyScripts);
+  if hIdnDL = 0 then
+  begin
+    hIdnDL := SafeLoadLibrary(LibNDL);
+    if hIdnDL <> 0 then
+    begin
+      DownlevelGetLocaleScripts := GetProcAddress(hIdnDL, fn_DownlevelGetLocaleScripts);
+      DownlevelGetStringScripts := GetProcAddress(hIdnDL, fn_DownlevelGetStringScripts);
+      DownlevelVerifyScripts := GetProcAddress(hIdnDL, fn_DownlevelVerifyScripts);
+    end;
+  end;
 
-  hNormaliz := SafeLoadLibrary(LibNormaliz);
-  IdnToUnicode := GetProcAddress(hNormaliz, fn_IdnToUnicode);
-  IdnToNameprepUnicode := GetProcAddress(hNormaliz, fn_IdnToNameprepUnicode);
-  IdnToAscii := GetProcAddress(hNormaliz, fn_IdnToAscii);
-  IsNormalizedString := GetProcAddress(hNormaliz,fn_IsNormalizedString);
-  NormalizeString := GetProcAddress(hNormaliz, fn_NormalizeString);
+  if hNormaliz = 0 then
+  begin
+    hNormaliz := SafeLoadLibrary(LibNormaliz);
+    if hNormaliz <> 0 then
+    begin
+      IdnToUnicode := GetProcAddress(hNormaliz, fn_IdnToUnicode);
+      IdnToNameprepUnicode := GetProcAddress(hNormaliz, fn_IdnToNameprepUnicode);
+      IdnToAscii := GetProcAddress(hNormaliz, fn_IdnToAscii);
+      IsNormalizedString := GetProcAddress(hNormaliz,fn_IsNormalizedString);
+      NormalizeString := GetProcAddress(hNormaliz, fn_NormalizeString);
+    end;
+  end;
 end;
 
 procedure CloseIDNLibrary;
@@ -258,10 +317,12 @@ begin
   if h <> 0 then begin
     FreeLibrary(h);
   end;
+
   h := InterlockedExchangeTHandle(hNormaliz, 0);
   if h <> 0 then begin
     FreeLibrary(h);
   end;
+
   IsNormalizedString := nil;
   NormalizeString := nil;
 
@@ -269,6 +330,33 @@ begin
   IdnToNameprepUnicode := nil;
   IdnToAscii := nil;
 end;
+
+{$ELSE}
+
+function UseIDNAPI : Boolean;
+begin
+  Result := False;
+end;
+
+function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
+begin
+  Todo;
+end;
+
+function PunnyCodeToIDN(const APunnyCode : String) : TIdUnicodeString;
+begin
+  Todo;
+end;
+
+procedure InitIDNLibrary;
+begin
+end;
+
+procedure CloseIDNLibrary;
+begin
+end;
+
+{$ENDIF} // {$IFNDEF WINCE}
 
 initialization
 finalization

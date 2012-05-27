@@ -33,6 +33,7 @@ contains
   IdComponent in 'IdComponent.pas',
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
+  IdIDN in 'IdIDN.pas',
   IdResourceStrings in 'IdResourceStrings.pas',
   IdStack in 'IdStack.pas',
   IdStackBSDBase in 'IdStackBSDBase.pas',
