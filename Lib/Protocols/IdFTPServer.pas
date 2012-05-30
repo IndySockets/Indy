@@ -812,12 +812,16 @@ type
     procedure SetOKReply(const AValue: TIdReplyRFC);
     function GetPeerIP: String;
     function GetPeerPort: TIdPort;
+    function GetLocalIP: String;
+    function GetLocalPort: TIdPort;
   public
     constructor Create(APASV: Boolean; AControlContext: TIdFTPServerContext; const ARequirePASVFromSameIP : Boolean; AServer : TIdFTPServer); reintroduce;
     destructor Destroy; override;
     procedure InitOperation(const AConnectMode : Boolean = False);
     property PeerIP : String read GetPeerIP;
     property PeerPort : TIdPort read GetPeerPort;
+    property LocalIP : String read GetLocalIP;
+    property LocalPort : TIdPort read GetLocalPort;
     property Stopped : Boolean read FStopped write FStopped;
     property Data : TObject read FData write FData;
     property Server : TIdFTPServer read FServer;
@@ -7025,11 +7029,35 @@ end;
 
 function TIdDataChannel.GetPeerPort: TIdPort;
 begin
-  result := 0;
+  Result := 0;
   if Assigned(FDataChannel) then begin
     if Assigned(FDataChannel.Socket) then begin
       if Assigned(FDataChannel.Socket.Binding) then begin
         Result := FDataChannel.Socket.Binding.PeerPort;
+      end;
+    end;
+  end;
+end;
+
+function TIdDataChannel.GetLocalIP: String;
+begin
+  Result := '';
+  if Assigned(FDataChannel) then begin
+    if Assigned(FDataChannel.Socket) then begin
+      if Assigned(FDataChannel.Socket.Binding) then begin
+        Result := FDataChannel.Socket.Binding.IP;
+      end;
+    end;
+  end;
+end;
+
+function TIdDataChannel.GetLocalPort: TIdPort;
+begin
+  Result := 0;
+  if Assigned(FDataChannel) then begin
+    if Assigned(FDataChannel.Socket) then begin
+      if Assigned(FDataChannel.Socket.Binding) then begin
+        Result := FDataChannel.Socket.Binding.Port;
       end;
     end;
   end;
