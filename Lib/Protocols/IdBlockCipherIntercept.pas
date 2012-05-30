@@ -143,7 +143,16 @@ begin
   end;
 
   // let the next Intercept in the chain encode its data next
-  inherited Send(VBuffer);
+
+  // RLebeau: DO NOT call inherited!  It will trigger the OnSend event
+  // again with the entire altered buffer as input, which can cause user
+  // code to re-encrypt the already-encrypted data.  We do not want that
+  // here! Just call the next Intercept directly...
+
+  //inherited Send(VBuffer);
+  if Intercept <> nil then begin
+    Intercept.Send(VBuffer);
+  end;
 end;
 
 procedure TIdBlockCipherIntercept.Receive(var VBuffer: TIdBytes);
@@ -153,7 +162,16 @@ var
   LRemaining: Integer;
 begin
   // let the next Intercept in the chain decode its data first
-  inherited Receive(VBuffer);
+
+  // RLebeau: DO NOT call inherited!  It will trigger the OnReceive event
+  // with the entire decoded buffer as input, which can cause user
+  // code to decrypt data prematurely/incorrectly.  We do not want that
+  // here! Just call the next Intercept directly...
+
+  //inherited Receive(VBuffer);
+  if Intercept <> nil then begin
+    Intercept.Receive(VBuffer);
+  end;
 
   LPos := 0;
   AppendBytes(FIncoming, VBuffer);
