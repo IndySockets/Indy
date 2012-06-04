@@ -466,7 +466,7 @@ procedure TIdNNTP.SelectGroup(AGroup: string);
 var
   s: string;
 begin
-  SendCmd('Group ' + AGroup, [211]);  {do not localize}
+  SendCmd('GROUP ' + AGroup, [211]);  {do not localize}
   s := LastCmdResult.Text[0];
   FMsgCount := IndyStrToInt64(Fetch(s), 0);
   FMsgLow := IndyStrToInt64(Fetch(s), 0);
