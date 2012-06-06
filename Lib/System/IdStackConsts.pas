@@ -470,24 +470,24 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   {$IFNDEF DOTNET}
     {$IFDEF USE_VCL_POSIX}
   INVALID_SOCKET = 0;
-  SOCKET_ERROR          = socklen_t(-1);
+  SOCKET_ERROR             = socklen_t(-1);
     {$ENDIF}
   Id_TCP_NODELAY           = TCP_NODELAY;
   Id_INVALID_SOCKET        = INVALID_SOCKET;
   Id_SOCKET_ERROR          = SOCKET_ERROR;
   Id_SOCKETOPTIONLEVEL_TCP = Id_IPPROTO_TCP; // BGO: rename to Id_SOL_TCP
-     {$IFDEF HAS_TCP_CORK}
+    {$IFDEF HAS_TCP_CORK}
   Id_TCP_CORK = TCP_CORK;
-     {$ENDIF}
-     {$IFDEF TCP_NOPUSH}
+    {$ENDIF}
+    {$IFDEF HAS_TCP_NOPUSH}
   Id_TCP_NOPUSH = TCP_NOPUSH;
-     {$ENDIF}
-     {$IFDEF HAS_TCP_KEEPIDLE}
+    {$ENDIF}
+    {$IFDEF HAS_TCP_KEEPIDLE}
   Id_TCP_KEEPIDLE          = TCP_KEEPIDLE;
-     {$ENDIF}
-     {$IFDEF HAS_TCP_KEEPINTVL}
+    {$ENDIF}
+    {$IFDEF HAS_TCP_KEEPINTVL}
   Id_TCP_KEEPINTVL         = TCP_KEEPINTVL;
-      {$ENDIF}
+    {$ENDIF}
   {$ELSE}
   Id_TCP_NODELAY           = SocketOptionName.NoDelay;
   Id_INVALID_SOCKET        = nil;
