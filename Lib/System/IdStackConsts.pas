@@ -479,14 +479,15 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
      {$IFDEF HAS_TCP_CORK}
   Id_TCP_CORK = TCP_CORK;
      {$ENDIF}
-     {$IFDEF UNIX}
-       {$IFDEF HAS_TCP_KEEPIDLE}
-  Id_TCP_KEEPIDLE          = TCP_KEEPIDLE;
-       {$ENDIF}
-       {$IFDEF HAS_TCP_KEEPINTVL}
-  Id_TCP_KEEPINTVL         = TCP_KEEPINTVL;
-       {$ENDIF}
+     {$IFDEF TCP_NOPUSH}
+  Id_TCP_NOPUSH = TCP_NOPUSH;
      {$ENDIF}
+     {$IFDEF HAS_TCP_KEEPIDLE}
+  Id_TCP_KEEPIDLE          = TCP_KEEPIDLE;
+     {$ENDIF}
+     {$IFDEF HAS_TCP_KEEPINTVL}
+  Id_TCP_KEEPINTVL         = TCP_KEEPINTVL;
+      {$ENDIF}
   {$ELSE}
   Id_TCP_NODELAY           = SocketOptionName.NoDelay;
   Id_INVALID_SOCKET        = nil;

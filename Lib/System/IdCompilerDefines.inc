@@ -1131,23 +1131,32 @@ They work somewhat similarly but there's a key difference.
 In Linux, TCP_CORK is turned on to send fixed packet sizes and
 when turned-off (uncorked), any remaining data is sent. With 
 TCP_NOPUSH, this might not happen and remaining data is only sent
-before disconnect.}
+before disconnect.  TCP_KEEPIDLE and TCP_KEEPINTVL so the IFDEF LINUX and IFDEF
+SOLARIS instead of IFDEF UNIX is not an error, it's deliberate.}
 {$UNDEF HAS_TCP_NOPUSH}
 {$UNDEF HAS_TCP_CORK}
-  {$UNDEF HAS_TCP_KEEPIDLE}
-  {$UNDEF TCP_KEEPINTVL}
+{$UNDEF HAS_TCP_KEEPIDLE}
+{$UNDEF HAS_TCP_KEEPINTVL}
 {$IFDEF BSD}
+  {$DEFINE HAS_TCP_NOPUSH}
+{$ENDIF}
+{$IFDEF HAIKU}
   {$DEFINE HAS_TCP_NOPUSH}
 {$ENDIF}
 {$IFDEF LINUX}
   {$DEFINE HAS_TCP_CORK}
   {$DEFINE HAS_TCP_KEEPIDLE}
-  {$DEFINE TCP_KEEPINTVL}
+  {$DEFINE HAS_TCP_KEEPINTVL}
 {$ENDIF}
 {$IFDEF SOLARIS}
   {$DEFINE HAS_TCP_CORK}
 {$ENDIF}
-
+{$IFDEF NETBSD}
+  {$DEFINE HAS_TCP_CORK}
+  {$DEFINE HAS_TCP_KEEPIDLE}
+  {$DEFINE HAS_TCP_KEEPINTVL}
+{$ENDIF}
+{end Unix OS specific stuff}
 {$IFDEF DEBUG}
   {$UNDEF USE_INLINE}
 {$ENDIF}
