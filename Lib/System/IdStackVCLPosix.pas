@@ -820,7 +820,7 @@ end;
 function TIdStackVCLPosix.IOControl(const s: TIdStackSocketHandle;
   const cmd: LongWord; var arg: LongWord): Integer;
 begin
-  Result := ioctl(s, cmd, @LArg);
+  Result := ioctl(s, cmd, @arg);
 end;
 
 procedure TIdStackVCLPosix.Listen(ASocket: TIdStackSocketHandle;
