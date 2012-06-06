@@ -1004,11 +1004,8 @@ end;
 
 function TIdStackLinux.IOControl(const s: TIdStackSocketHandle;
   const cmd: LongWord; var arg: LongWord): Integer;
-var
-  LArg : PtrUInt;
 begin
-  LArg := arg;
-  Result := ioctl(s, cmd, Pointer(LArg));
+  Result := ioctl(s, cmd, @arg);
 end;
 
 { TIdSocketListLinux }
@@ -1175,9 +1172,15 @@ begin
   //
   Result := FDSelect(LPReadSet, LPWriteSet, LPExceptSet, ATimeout) >0;
   //
-  TIdSocketListLinux(AReadList).SetFDSet(LReadSet);
-  TIdSocketListLinux(AWriteList).SetFDSet(LWriteSet);
-  TIdSocketListLinux(AExceptList).SetFDSet(LExceptSet);
+  if AReadList <> nil then begin
+    TIdSocketListLinux(AReadList).SetFDSet(LReadSet);
+  end;
+  if AWriteList <> nil then begin
+    TIdSocketListLinux(AWriteList).SetFDSet(LWriteSet);
+  end;
+  if AExceptList <> nil then begin
+    TIdSocketListLinux(AExceptList).SetFDSet(LExceptSet);
+  end;
 end;
 
 function TIdSocketListLinux.SelectRead(const ATimeout: Integer): Boolean;

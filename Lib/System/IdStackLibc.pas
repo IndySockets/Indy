@@ -1009,11 +1009,8 @@ end;
 
 function TIdStackLibc.IOControl(const s: TIdStackSocketHandle;
   const cmd: LongWord; var arg: LongWord): Integer;
-var
-  LArg : PtrUInt;
 begin
-  LArg := arg;
-  Result := ioctl(s, cmd, Pointer(LArg));
+  Result := ioctl(s, cmd, @arg);
 end;
 
 procedure TIdStackLibc.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
@@ -1190,9 +1187,15 @@ begin
   //
   Result := FDSelect(LPReadSet, LPWriteSet, LPExceptSet, ATimeout) >0;
   //
-  TIdSocketListLibc(AReadList).SetFDSet(LReadSet);
-  TIdSocketListLibc(AWriteList).SetFDSet(LWriteSet);
-  TIdSocketListLibc(AExceptList).SetFDSet(LExceptSet);
+  if AReadList <> nil then begin
+    TIdSocketListLibc(AReadList).SetFDSet(LReadSet);
+  end;
+  if AWriteList <> nil then begin
+    TIdSocketListLibc(AWriteList).SetFDSet(LWriteSet);
+  end;
+  if AExceptList <> nil then begin
+    TIdSocketListLibc(AExceptList).SetFDSet(LExceptSet);
+  end;
 end;
 
 function TIdSocketListLibc.SelectRead(const ATimeout: Integer): Boolean;

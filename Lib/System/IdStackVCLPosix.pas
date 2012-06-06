@@ -360,9 +360,15 @@ begin
   //
   Result := FDSelect(LPReadSet, LPWriteSet, LPExceptSet, ATimeout) >0;
   //
-  TIdSocketListVCLPosix(AReadList).SetFDSet(LReadSet);
-  TIdSocketListVCLPosix(AWriteList).SetFDSet(LWriteSet);
-  TIdSocketListVCLPosix(AExceptList).SetFDSet(LExceptSet);
+  if AReadList <> nil then begin
+    TIdSocketListVCLPosix(AReadList).SetFDSet(LReadSet);
+  end;
+  if AWriteList <> nil then begin
+    TIdSocketListVCLPosix(AWriteList).SetFDSet(LWriteSet);
+  end;
+  if AExceptList <> nil then begin
+    TIdSocketListVCLPosix(AExceptList).SetFDSet(LExceptSet);
+  end;
 end;
 
 function TIdSocketListVCLPosix.SelectRead(const ATimeout: Integer): Boolean;
@@ -489,7 +495,7 @@ begin
   LHostName := AnsiString(HostName);
   LRetVal := getaddrinfo( PAnsiChar(LHostName), nil, Hints, LAddrList);
   if LRetVal <> 0 then begin
-    EIdReverseResolveError.CreateFmt(RSReverseResolveError, [LHostName, gai_strerror(LRetVal), LRetVal]);
+    raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [LHostName, gai_strerror(LRetVal), LRetVal]);
   end;
   try
     AAddresses.BeginUpdate;
@@ -719,9 +725,9 @@ begin
     if LRet = EAI_SYSTEM then begin
       RaiseLastOSError;
     end else begin
-      EIdReverseResolveError.CreateFmt(RSReverseResolveError, [AAddress, gai_strerror(LRet), LRet]);
+      raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [AAddress, gai_strerror(LRet), LRet]);
     end;
-  end else begin
+  end;
 {
 IMPORTANT!!!
 
@@ -735,18 +741,16 @@ and trick a caller into beleiving the socket address is 10.1.1.1 instead of
 127.0.0.1.  If there is a numeric host in LAddr, than this is the case and
 we disregard the result and raise an exception.
 }
-    FillChar(LHints,SizeOf(LHints),0);
-	LHints.ai_socktype := SOCK_DGRAM; //*dummy*/
-	LHints.ai_flags := AI_NUMERICHOST;
-	if (getaddrinfo(PAnsiChar(LHostName), '0', LHints, LAddrInfo)=0) then begin
-	  freeaddrinfo(LAddrInfo^);
-	  Result := '';
-	  raise EIdMaliciousPtrRecord.Create(RSMaliciousPtrRecord);
-	end else begin
-	  Result := String(LHostName);
-	end;
+  FillChar(LHints,SizeOf(LHints),0);
+  LHints.ai_socktype := SOCK_DGRAM; //*dummy*/
+  LHints.ai_flags := AI_NUMERICHOST;
+  if (getaddrinfo(PAnsiChar(LHostName), '0', LHints, LAddrInfo)=0) then begin
+    freeaddrinfo(LAddrInfo^);
+    Result := '';
+    raise EIdMaliciousPtrRecord.Create(RSMaliciousPtrRecord);
   end;
 
+  Result := String(LHostName);
 end;
 
 function TIdStackVCLPosix.HostByName(const AHostName: string;
@@ -775,7 +779,7 @@ begin
     if LRetVal = EAI_SYSTEM then begin
       RaiseLastOSError;
     end else begin
-      EIdResolveError.CreateFmt(RSReverseResolveError, [LHost, gai_strerror(LRetVal), LRetVal]);
+      raise EIdResolveError.CreateFmt(RSReverseResolveError, [LHost, gai_strerror(LRetVal), LRetVal]);
     end;
   end;
   try
@@ -815,11 +819,8 @@ end;
 
 function TIdStackVCLPosix.IOControl(const s: TIdStackSocketHandle;
   const cmd: LongWord; var arg: LongWord): Integer;
-var
-  LArg : PtrUInt;
 begin
-  LArg := arg;
-  Result := ioctl(s, cmd, Pointer(LArg));
+  Result := ioctl(s, cmd, @LArg);
 end;
 
 procedure TIdStackVCLPosix.Listen(ASocket: TIdStackSocketHandle;
