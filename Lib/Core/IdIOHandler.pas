@@ -1523,7 +1523,7 @@ begin
     until (LByteCount <> 0) or (not SourceIsAvailable);
   end
   else if ARaiseExceptionIfDisconnected then begin
-    raise EIdException.Create(RSNotConnected);
+    raise EIdNotConnected.Create(RSNotConnected);
   end;
 end;
 
