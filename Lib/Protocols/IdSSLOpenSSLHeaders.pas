@@ -780,7 +780,7 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 // the following emits are a workaround to a
 // name conflict with Win32 API header files
 (*$HPPEMIT '#include <time.h>'*)
-{$IFDEF OPENSSL_SYS_WIN32}
+{$IFDEF SYS_WIN}
 (*$HPPEMIT '#undef X509_NAME'*)
 (*$HPPEMIT '#undef X509_EXTENSIONS'*)
 (*$HPPEMIT '#undef X509_CERT_PAIR'*)
