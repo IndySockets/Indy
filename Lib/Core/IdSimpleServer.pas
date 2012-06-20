@@ -189,7 +189,7 @@ begin
   with Binding do begin
     try
       DoBeforeBind;
-      IPVersion := FIPVersion;  // needs to be before AllocateSocket, because AllocateSocket uses this
+      IPVersion := Self.FIPVersion;  // needs to be before AllocateSocket, because AllocateSocket uses this
       AllocateSocket;
       FListenHandle := Handle;
       IP := BoundIP;

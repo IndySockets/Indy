@@ -610,6 +610,7 @@ begin
   with fTrapRecvBinding do
   begin
     if (not HandleAllocated) and (fTrapPort <> 0) then begin
+      IPVersion := Self.IPVersion;
       {$IFDEF LINUX}
       AllocateSocket(LongInt(Id_SOCK_DGRAM));
       {$ELSE}
@@ -617,7 +618,6 @@ begin
       {$ENDIF}
       IP := Result.IP;
       Port := fTrapPort;
-      IPVersion := Self.IPVersion;
       Bind;
     end;
   end;

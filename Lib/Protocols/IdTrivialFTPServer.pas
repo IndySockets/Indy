@@ -427,6 +427,7 @@ begin
   FOwner := AOwner;
   with FUDPClient do
   begin
+    IPVersion := FOwner.IPVersion;
     ReceiveTimeout := 1500;
     Host := PeerInfo.PeerIP;
     Port := PeerInfo.PeerPort;

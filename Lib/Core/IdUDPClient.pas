@@ -239,6 +239,7 @@ begin
   with FBinding do
   begin
     if not HandleAllocated then begin
+      IPVersion := Self.FIPVersion;
       {$IFDEF LINUX}
       AllocateSocket(LongInt(Id_SOCK_DGRAM));
       {$ELSE}
@@ -248,7 +249,6 @@ begin
       Port := FBoundPort;
       ClientPortMin := FBoundPortMin;
       ClientPortMax := FBoundPortMax;
-      IPVersion := FIPVersion;
       ReuseSocket := Self.FReuseSocket;
       Bind;
       BroadcastEnabledChanged;
