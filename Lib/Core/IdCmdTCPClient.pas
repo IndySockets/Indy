@@ -210,7 +210,9 @@ begin
     FClient.DoReplyUnknownCommand(FContext, FRecvData);
   end;
   //Synchronize(?);
-  FClient.IOHandler.CheckForDisconnect;
+  if not Terminated then begin
+    FClient.IOHandler.CheckForDisconnect;
+  end;
 end;
 
 { TIdCmdTCPClient }
