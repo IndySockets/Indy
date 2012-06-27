@@ -243,10 +243,10 @@ begin
   try
     inherited Disconnect(ANotifyPeer);
   finally
-    if Assigned(FListeningThread) then begin
+    if Assigned(FListeningThread) and not IsCurrentThread(FListeningThread) then begin
       FListeningThread.WaitFor;
+      FreeAndNil(FListeningThread);
     end;
-    FreeAndNil(FListeningThread);
   end;
 end;
 
