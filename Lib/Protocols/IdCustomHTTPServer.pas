@@ -904,7 +904,7 @@ destructor TIdCustomHTTPServer.Destroy;
 begin
   Active := False; // Set Active to false in order to close all active sessions.
   FreeAndNil(FMIMETable);
-  FreeAndNil(FSessionList);
+  FreeAndNil(FSessionList); // RLebeau: remove this? It frees  the USER'S component if still assigned...
   inherited Destroy;
 end;
 
@@ -1476,9 +1476,12 @@ begin
     FreeAndNil(FSessionCleanupThread);
   end;
 
+  // RLebeau: FSessionList might not be assignd yet if Shutdown() is being
+  // called due to an exception raised in Startup()...
   if FImplicitSessionList then begin
     SessionList := nil;
-  end else begin
+  end
+  else if Assigned(FSessionList) then begin
     FSessionList.Clear;
   end;
 
