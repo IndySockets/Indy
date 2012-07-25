@@ -235,7 +235,7 @@ begin
       {$ENDIF},
       nil, 0);
     if Len = 0 then begin
-       SysUtils.RaiseLastOSError;
+      IndyRaiseLastError;
     end;
     SetLength(LIDN, Len);
     Len := IdnToUnicode(0,
@@ -246,7 +246,7 @@ begin
       {$ENDIF},
       PIdWideChar(LIDN), Len);
     if Len = 0 then begin
-       SysUtils.RaiseLastOSError;
+      IndyRaiseLastError;
     end;
     Result := LIDN;
   end else begin
@@ -264,12 +264,12 @@ begin
   begin
     Len := IdnToAscii(0, PIdWideChar(AIDN), Length(AIDN), nil, 0);
     if Len = 0 then begin
-       SysUtils.RaiseLastOSError;
+      IndyRaiseLastError;
     end;
     SetLength(LPunnyCode, Len);
     Len := IdnToAscii(0, PIdWideChar(AIDN), Length(AIDN), PIdWideChar(LPunnyCode), Len);
     if Len = 0 then begin
-       SysUtils.RaiseLastOSError;
+      IndyRaiseLastError;
     end;
     {$IFDEF STRING_IS_ANSI}
     Result := AnsiString(LPunnyCode); // explicit convert to Ansi (no data loss because content is ASCII)
