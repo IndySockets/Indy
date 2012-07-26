@@ -385,14 +385,14 @@ end;
 
 procedure TIdSocksInfo.MakeSocks5Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
-  pos: Integer;
+  Lpos: Integer;
   LBuf: TIdBytes;
 begin
   AuthenticateSocks5Connection(AIOHandler);
   SetLength(LBuf, 255);
-  MakeSocks5Request(AIOHandler, AHost, APort, $01, LBuf, Pos);
+  MakeSocks5Request(AIOHandler, AHost, APort, $01, LBuf, Lpos);
 
-  LBuf := ToBytes(LBuf, Pos);
+  LBuf := ToBytes(LBuf, Lpos);
   AIOHandler.WriteDirect(LBuf); // send the connection packet
   try
     AIOHandler.ReadBytes(LBuf, 5, False);    // Socks server replies on connect, this is the first part
@@ -417,17 +417,17 @@ begin
   // type of destination address is domain name
   case LBuf[3] of
     // IP V4
-    1: pos := 4 + 2; // 4 is for address and 2 is for port length
+    1: Lpos := 4 + 2; // 4 is for address and 2 is for port length
     // FQDN
-    3: pos := LBuf[4] + 2; // 2 is for port length
+    3: Lpos := LBuf[4] + 2; // 2 is for port length
     // IP V6
-    4: pos := 16 + 2; // 16 is for address and 2 is for port length
+    4: Lpos := 16 + 2; // 16 is for address and 2 is for port length
   end;
 
   try
     // Socks server replies on connect, this is the second part
     // RLebeau: why -1?
-    AIOHandler.ReadBytes(LBuf, pos-1, False);      // just write it over the first part for now
+    AIOHandler.ReadBytes(LBuf, Lpos-1, False);      // just write it over the first part for now
   except
     raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
   end;
@@ -497,7 +497,7 @@ end;
 procedure TIdSocksInfo.AuthenticateSocks5Connection(
   AIOHandler: TIdIOHandler);
 var
-  pos: Integer;
+  Lpos: Integer;
   LBuf,
   LUsername,
   LPassword : TIdBytes;
@@ -506,7 +506,12 @@ var
   LUsernameLen,
   LPasswordLen : Byte;
 begin
+  // keep the compiler happy
+  LUsername := nil;
+  LPassword := nil;
+
   SetLength(LBuf, 3);
+
   // defined in rfc 1928
   if Authentication = saNoAuthentication then begin
     LBuf[2] := $0   // No authentication
@@ -540,15 +545,15 @@ begin
     SetLength(LBuf, 3 + LUsernameLen + LPasswordLen);
     LBuf[0] := 1; // version of subnegotiation
     LBuf[1] := LUsernameLen;
-    pos := 2;
+    Lpos := 2;
     if LUsernameLen > 0 then begin
-      CopyTIdBytes(LUsername, 0, LBuf, pos, LUsernameLen);
-      pos := pos + LUsernameLen;
+      CopyTIdBytes(LUsername, 0, LBuf, Lpos, LUsernameLen);
+      Lpos := Lpos + LUsernameLen;
     end;
-    LBuf[pos] := LPasswordLen;
-    pos := pos + 1;
+    LBuf[Lpos] := LPasswordLen;
+    Lpos := Lpos + 1;
     if LPasswordLen > 0 then begin
-      CopyTIdBytes(LPassword, 0, LBuf, pos, LPasswordLen);
+      CopyTIdBytes(LPassword, 0, LBuf, Lpos, LPasswordLen);
     end;
 
     AIOHandler.WriteDirect(LBuf); // send the username and password
