@@ -1039,6 +1039,23 @@ var
 
   GIdDefaultAnsiEncoding: IdAnsiEncodingType = encASCII;
 
+  {$IFDEF USE_ICONV}
+  // This indicates whether TIdTextEncoding.Default should map to an OS dependant
+  // Ansi locale or to ASCII.  Defaulting to ASCII for now to maintain compatibility
+  // with earlier Indy 10 releases...
+  GIdIconvUseLocaleDependantAnsiEncoding: Boolean = False;
+
+  // This indicates whether Iconv should ignore characters that cannot be
+  // converted.  Defaulting to alse for now to maintain compatibility with
+  // earlier Indy 10 releases...
+  GIdIconvIgnoreIllegalChars: Boolean = False;
+
+  // This indicates whether Iconv should transliterate characters that cannot
+  // be converted.  Defaulting to alse for now to maintain compatibility with
+  // earlier Indy 10 releases...
+  GIdIconvUseTransliteration: Boolean = False;
+  {$ENDIF}
+
 procedure EnsureEncoding(var VEncoding : TIdTextEncoding; ADefEncoding: IdAnsiEncodingType = encIndyDefault);
 
 type
@@ -2051,15 +2068,7 @@ var
 begin
   if GIdDefaultEncoding = nil then
   begin
-    {$IFDEF USE_ICONV}
-    LEncoding := TIdMBCSEncoding.Create('ASCII');
-    {$ELSE}
-      {$IFDEF WINDOWS}
-    LEncoding := TIdMBCSEncoding.Create(CP_ACP, 0, 0);
-      {$ELSE}
-    ToDo('Default property of TIdTextEncoding class is not implemented for this platform yet'); {do not localize}
-      {$ENDIF}
-    {$ENDIF}
+    LEncoding := TIdMBCSEncoding.Create;
     if InterlockedCompareExchangePtr(Pointer(GIdDefaultEncoding), LEncoding, nil) <> nil then
       LEncoding.Free;
   end;
@@ -2172,8 +2181,7 @@ end;
 constructor TIdMBCSEncoding.Create;
 begin
   {$IFDEF USE_ICONV}
-  // TODO: figure out a way to determine this dynamically, or let the user specify a default...
-  Create('ASCII'); {do not localize}
+  Create(iif(GIdIconvUseLocaleDependantAnsiEncoding, 'char', 'ASCII')); {do not localize}
   {$ELSE}
     {$IFDEF WINDOWS}
   Create(CP_ACP, 0, 0);
@@ -2191,14 +2199,37 @@ const
   // an actual Unicode codepoint.  We'll encode the largest codepoint that
   // UTF-16 supports, $10FFFD, for now...
   cValue: array[0..1] of Word = ($DBFF, $DFFD);
+var
+  LCharSet: String;
+  LMaxCharSize: Integer;
+  LError: Boolean;
 begin
   inherited Create;
 
-  FCharSet := CharSet;
-  FToUTF16 := iconv_open('UTF-16', PAnsiChar(CharSet));    {do not localize}
-  FFromUTF16 := iconv_open(PAnsiChar(CharSet), 'UTF-16');  {do not localize}
+  LCharSet := CharSet;
+  // on some systems, //IGNORE must be specified before //TRANSLIT if they
+  // are used together, otherwise //IGNORE gets ignored!
+  if GIdIconvIgnoreIllegalChars then begin
+    if IndyPos('//IGNORE', UpperCase(LCharSet)) = 0 then begin {do not localize}
+      LCharSet := LCharSet + '//IGNORE'; {do not localize}
+    end;
+  end;
+  if GIdIconvUseTransliteration then begin
+    if IndyPos('//TRANSLIT', UpperCase(LCharSet)) = 0 then begin {do not localize}
+      LCharSet := LCharSet + '//TRANSLIT'; {do not localize}
+    end;
+  end;
 
-  if (FToUTF16 = iconv_t(-1)) or (FFromUTF16 = iconv_t(-1)) then begin
+  FCharSet := CharSet;
+  FToUTF16 := iconv_open('UTF-16', PAnsiChar(LCharSet));    {do not localize}
+  FFromUTF16 := iconv_open(PAnsiChar(LCharSet), 'UTF-16');  {do not localize}
+
+  LError := (FToUTF16 = iconv_t(-1)) or (FFromUTF16 = iconv_t(-1));
+  if not LError then begin
+    LMaxCharSize := GetByteCount(PWideChar(@cValue[0]), 2);
+    LError := (LMaxCharSize < 1);
+  end;
+  if LError then begin
     if FToUTF16 <> iconv_t(-1) then begin
       iconv_close(FToUTF16);
       FToUTF16 := iconv_t(-1);
@@ -2210,8 +2241,8 @@ begin
     raise EIdException.CreateResFmt(@RSInvalidCharSet, [CharSet]);
   end;
 
-  FMaxCharSize := GetByteCount(PWideChar(@cValue[0]), 2);
-  FIsSingleByte := FMaxCharSize = 1;
+  FMaxCharSize := LMaxCharSize;
+  FIsSingleByte := (FMaxCharSize = 1);
 end;
 
 destructor TIdMBCSEncoding.Destroy;
@@ -2258,7 +2289,7 @@ begin
   end;
 
   FMaxCharSize := LCPInfo.MaxCharSize;
-  FIsSingleByte := FMaxCharSize = 1;
+  FIsSingleByte := (FMaxCharSize = 1);
 end;
   {$ENDIF}
 {$ENDIF}
