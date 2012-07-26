@@ -2200,7 +2200,7 @@ const
   // UTF-16 supports, $10FFFD, for now...
   cValue: array[0..1] of Word = ($DBFF, $DFFD);
 var
-  LCharSet: String;
+  LCharSet: AnsiString;
   LMaxCharSize: Integer;
   LError: Boolean;
 begin
