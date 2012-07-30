@@ -1046,12 +1046,12 @@ var
   GIdIconvUseLocaleDependantAnsiEncoding: Boolean = False;
 
   // This indicates whether Iconv should ignore characters that cannot be
-  // converted.  Defaulting to alse for now to maintain compatibility with
+  // converted.  Defaulting to false for now to maintain compatibility with
   // earlier Indy 10 releases...
   GIdIconvIgnoreIllegalChars: Boolean = False;
 
   // This indicates whether Iconv should transliterate characters that cannot
-  // be converted.  Defaulting to alse for now to maintain compatibility with
+  // be converted.  Defaulting to false for now to maintain compatibility with
   // earlier Indy 10 releases...
   GIdIconvUseTransliteration: Boolean = False;
   {$ENDIF}
@@ -2210,7 +2210,7 @@ const
   // Delphi uses UTF-16LE, but what does FreePascal use? Let's err on the
   // side of caution until we know otherwise...
   //
-  cUTF16CharSet = {$IFDEF ENDIAN_BIG}'UTF-16BE'{$ELSE}'UTF-16LE'{$ENDIF};
+  cUTF16CharSet = {$IFDEF ENDIAN_BIG}'UTF-16BE'{$ELSE}'UTF-16LE'{$ENDIF}; {do not localize}
 var
   LFlags: AnsiString;
   LMaxCharSize: Integer;
@@ -2229,8 +2229,8 @@ begin
   end;
 
   FCharSet := CharSet;
-  FToUTF16 := iconv_open(cUTF16CharSet, PAnsiChar(CharSet + LFlags));    {do not localize}
-  FFromUTF16 := iconv_open(PAnsiChar(CharSet), PAnsiChar(cUTF16CharSet + LFlags));  {do not localize}
+  FToUTF16 := iconv_open(PAnsiChar(cUTF16CharSet + LFlags), PAnsiChar(CharSet));
+  FFromUTF16 := iconv_open(PAnsiChar(CharSet + LFlags), cUTF16CharSet);
 
   LError := (FToUTF16 = iconv_t(-1)) or (FFromUTF16 = iconv_t(-1));
   if not LError then begin
