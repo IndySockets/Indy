@@ -2198,31 +2198,39 @@ const
   // Microsoft does, so have to determine the max bytes by manually encoding
   // an actual Unicode codepoint.  We'll encode the largest codepoint that
   // UTF-16 supports, $10FFFD, for now...
+  //
   cValue: array[0..1] of Word = ($DBFF, $DFFD);
+
+  // RLebeau: iconv() outputs a UTF-16 BOM if data is converted to the generic
+  // "UTF-16" charset.  We do not want that, so we will use the "UTF-16LE/BE"
+  // charset explicitally instead so no BOM is outputted. This also saves us
+  // from having to manually detect the presense of a BOM and strip it out.
+  //
+  // TODO: should we be using UTF-16LE or UTF-16BE on big-endian systems?
+  // Delphi uses UTF-16LE, but what does FreePascal use? Let's err on the
+  // side of caution until we know otherwise...
+  //
+  cUTF16CharSet = {$IFDEF ENDIAN_BIG}'UTF-16BE'{$ELSE}'UTF-16LE'{$ENDIF};
 var
-  LCharSet: AnsiString;
+  LFlags: AnsiString;
   LMaxCharSize: Integer;
   LError: Boolean;
 begin
   inherited Create;
 
-  LCharSet := CharSet;
   // on some systems, //IGNORE must be specified before //TRANSLIT if they
   // are used together, otherwise //IGNORE gets ignored!
+  LFlags := '';
   if GIdIconvIgnoreIllegalChars then begin
-    if IndyPos('//IGNORE', UpperCase(LCharSet)) = 0 then begin {do not localize}
-      LCharSet := LCharSet + '//IGNORE'; {do not localize}
-    end;
+    LFlags := LFlags + '//IGNORE'; {do not localize}
   end;
   if GIdIconvUseTransliteration then begin
-    if IndyPos('//TRANSLIT', UpperCase(LCharSet)) = 0 then begin {do not localize}
-      LCharSet := LCharSet + '//TRANSLIT'; {do not localize}
-    end;
+    LFlags := LFlags + '//TRANSLIT'; {do not localize}
   end;
 
   FCharSet := CharSet;
-  FToUTF16 := iconv_open('UTF-16', PAnsiChar(LCharSet));    {do not localize}
-  FFromUTF16 := iconv_open(PAnsiChar(LCharSet), 'UTF-16');  {do not localize}
+  FToUTF16 := iconv_open(cUTF16CharSet, PAnsiChar(CharSet + LFlags));    {do not localize}
+  FFromUTF16 := iconv_open(PAnsiChar(CharSet), PAnsiChar(cUTF16CharSet + LFlags));  {do not localize}
 
   LError := (FToUTF16 = iconv_t(-1)) or (FFromUTF16 = iconv_t(-1));
   if not LError then begin
