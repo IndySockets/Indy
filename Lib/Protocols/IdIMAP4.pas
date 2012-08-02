@@ -2931,7 +2931,7 @@ number sequence: if not, pass in an empty AMsgList and copy the results to your
 own AMsgList.}
 var
   Ln: Integer;
-  LMsgItem: TIdMessageItem;
+  LMsg: TIdMessage;
 begin
   Result := False;
   {CC2: This is one of the few cases where the server can return only "OK completed"
@@ -2943,11 +2943,11 @@ begin
     for Ln := 0 to LastCmdResult.Text.Count-1 do begin
       if ParseLastCmdResult(LastCmdResult.Text[Ln], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
         if LN >= AMsgList.Count then begin
-          LMsgItem := AMsgList.Add;
-          ParseEnvelopeResult(LMsgItem.Msg, FLineStruct.IMAPValue);
+          LMsg := AMsgList.Add.Msg;
         end else begin
-          ParseEnvelopeResult(AMsgList.Messages[LN], FLineStruct.IMAPValue);
+          LMsg := AMsgList.Messages[LN];
         end;
+        ParseEnvelopeResult(LMsg, FLineStruct.IMAPValue);
       end;
     end;
     Result := True;
@@ -2961,7 +2961,7 @@ number sequence: if not, pass in an empty AMsgList and copy the results to your
 own AMsgList.}
 var
   Ln: Integer;
-  LMsgItem: TIdMessageItem;
+  LMsg: TIdMessage;
 begin
   Result := False;
   {CC2: This is one of the few cases where the server can return only "OK completed"
@@ -2973,15 +2973,13 @@ begin
     for Ln := 0 to LastCmdResult.Text.Count-1 do begin
       if ParseLastCmdResult(LastCmdResult.Text[Ln], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
         if LN >= AMsgList.Count then begin
-          LMsgItem := AMsgList.Add;
-          ParseEnvelopeResult(LMsgItem.Msg, FLineStruct.IMAPValue);
-          LMsgItem.Msg.UID := FLineStruct.UID;
-          LMsgItem.Msg.Flags := FLineStruct.Flags;
+          LMsg := AMsgList.Add.Msg;
         end else begin
-          ParseEnvelopeResult(AMsgList.Messages[LN], FLineStruct.IMAPValue);
-          AMsgList.Messages[LN].UID := FLineStruct.UID;
-          AMsgList.Messages[LN].Flags := FLineStruct.Flags;
+          LMsg := AMsgList.Messages[LN];
         end;
+        ParseEnvelopeResult(LMsg, FLineStruct.IMAPValue);
+        LMsg.UID := FLineStruct.UID;
+        LMsg.Flags := FLineStruct.Flags;
       end;
     end;
     Result := True;

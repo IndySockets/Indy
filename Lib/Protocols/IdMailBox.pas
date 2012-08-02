@@ -143,7 +143,7 @@ end;
 procedure TIdMailBox.InitComponent;
 begin
   inherited InitComponent;
-  FMessageList := TIdMessageCollection.Create(TIdMessageItem);
+  FMessageList := TIdMessageCollection.Create;
   Clear;
 end;
 
