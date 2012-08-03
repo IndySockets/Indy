@@ -82,12 +82,12 @@ uses
 constructor TIdMessageItem.Create(Collection: TCollection);
 begin
   inherited Create(Collection);
-  Msg := TIdMessage.Create(nil);
+  FMsg := TIdMessage.Create(nil);
 end;
 
 destructor TIdMessageItem.Destroy;
 begin
-  FreeAndNil(Msg);
+  FreeAndNil(FMsg);
   inherited Destroy;
 end;
 
@@ -118,8 +118,8 @@ begin
   // the caller manage its TIdMessage object separately.  Or else make
   // the Messages[] property read-only instead...
 
-  TIdMessageItem(Items[index]).Msg.Free;
-  TIdMessageItem(Items[index]).Msg := Value;
+  TIdMessageItem(Items[index]).FMsg.Free;
+  TIdMessageItem(Items[index]).FMsg := Value;
 end;
 
 end.

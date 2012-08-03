@@ -37,12 +37,13 @@ interface
 
 uses
   IdGlobal
-  {$IFNDEF WINCE}
+  {$IFDEF WIN32_OR_WIN64}
   , Windows
   {$ENDIF}
   ;
 
-{$IFNDEF WINCE}
+{$IFDEF WIN32_OR_WIN64}
+
 {
 
 }
@@ -185,7 +186,7 @@ const
   fn_IdnToNameprepUnicode = 'IdnToNameprepUnicode';
   fn_IdnToAscii = 'IdnToAscii';
 
-{$ENDIF} // {$IFNDEF WINCE}
+{$ENDIF} // {$IFDEF WIN32_OR_WIN64}
 
 function UseIDNAPI : Boolean;
 function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
@@ -196,7 +197,7 @@ procedure CloseIDNLibrary;
 
 implementation
 
-{$IFNDEF WINCE}
+{$IFDEF WIN32_OR_WIN64}
 
 uses
   SysUtils;
@@ -340,12 +341,12 @@ end;
 
 function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
 begin
-  Todo;
+  Todo('IDNToPunnyCode() is not implemented for this platform');
 end;
 
 function PunnyCodeToIDN(const APunnyCode : String) : TIdUnicodeString;
 begin
-  Todo;
+  Todo('PunnyCodeToIDN() is not implemented for this platform');
 end;
 
 procedure InitIDNLibrary;
@@ -356,9 +357,10 @@ procedure CloseIDNLibrary;
 begin
 end;
 
-{$ENDIF} // {$IFNDEF WINCE}
+{$ENDIF} // {$IFDEF WIN32_OR_WIN64}
 
 initialization
 finalization
   CloseIDNLibrary;
+
 end.
