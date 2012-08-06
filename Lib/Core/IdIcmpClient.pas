@@ -153,7 +153,7 @@ type
     FOnReply: TOnReplyEvent;
     FReplydata: String;
     //
-    {$IFDEF DOTNET_2_OR_ABOVE}
+    {$IFNDEF DOTNET_1_1}
     function DecodeIPv6Packet(BytesRead: LongWord): Boolean;
     {$ENDIF}
     function DecodeIPv4Packet(BytesRead: LongWord): Boolean;
@@ -161,7 +161,7 @@ type
     procedure DoReply; virtual;
     procedure GetEchoReply;
     procedure InitComponent; override;
-    {$IFDEF DOTNET_2_OR_ABOVE}
+    {$IFNDEF DOTNET_1_1}
     procedure PrepareEchoRequestIPv6(const ABuffer: String);
     {$ENDIF}
     procedure PrepareEchoRequestIPv4(const ABuffer: String);
@@ -194,7 +194,7 @@ type
     property ReplyStatus;
   published
     property Host;
-    {$IFDEF DOTNET_2_OR_ABOVE}
+    {$IFNDEF DOTNET_1_1}
     property IPVersion;
     {$ENDIF}
     property PacketSize;
@@ -221,7 +221,7 @@ uses
 
 procedure TIdCustomIcmpClient.PrepareEchoRequest(const ABuffer: String);
 begin
-  {$IFDEF DOTNET_2_OR_ABOVE}
+  {$IFNDEF DOTNET_1_1}
   if IPVersion = Id_IPv6 then begin
     PrepareEchoRequestIPv6(ABuffer);
     Exit;
@@ -310,7 +310,7 @@ begin
   end else
   begin
     FReplyStatus.ReplyStatusType := rsError;
-    {$IFDEF DOTNET_2_OR_ABOVE}
+    {$IFNDEF DOTNET_1_1}
     if IPVersion = Id_IPv6 then begin
       Result := DecodeIPv6Packet(BytesRead);
       Exit;
@@ -373,7 +373,7 @@ begin
   inherited InitComponent;
   FReplyStatus:= TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
-  {$IFDEF DOTNET_2_OR_ABOVE}
+  {$IFNDEF DOTNET_1_1}
   ProtocolIPv6 := Id_IPPROTO_ICMPv6;
   {$ENDIF}
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
@@ -628,7 +628,7 @@ begin
   end;
 end;
 
-{$IFDEF DOTNET_2_OR_ABOVE}
+{$IFNDEF DOTNET_1_1}
 procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const ABuffer: String);
 var
   LIcmp : TIdicmp6_hdr;
