@@ -13431,9 +13431,9 @@ type
 	  onlyattr : TIdC_INT;
   end;
  {$EXTERNALSYM PSTACK_OF_GENERAL_NAMES}
- {$EXTERNALSYM STACK_OF_CMS_SignerInfo}
-   {$IFDEF DEBUG_SAFESTACK}
 
+   {$IFDEF DEBUG_SAFESTACK}
+ {$EXTERNALSYM STACK_OF_CMS_SignerInfo}
   //These are cut and paste but the duplication is for type checking.
   STACK_OF_CMS_SignerInfo = record
     _stack: stack;
