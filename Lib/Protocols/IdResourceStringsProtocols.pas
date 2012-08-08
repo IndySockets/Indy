@@ -1052,8 +1052,17 @@ resourcestring
 
   // message builder strings
   rsHtmlViewerNeeded = 'An HTML viewer is required to see this message';
-  rsRtfViewerNeeded = 'An RTF viewer is required to see this message';  
-  
+  rsRtfViewerNeeded = 'An RTF viewer is required to see this message';
+
+  // HTTP Web Broker Bridge strings
+  RSWBBInvalidIdxGetDateVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetDateVariable';
+  RSWBBInvalidIdxSetDateVariable = 'Invalid Index %s in TIdHTTPAppResponse.SetDateVariable';
+  RSWBBInvalidIdxGetIntVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetIntegerVariable';
+  RSWBBInvalidIdxSetIntVariable = 'Invalid Index %s in TIdHTTPAppResponse.SetIntegerVariable';
+  RSWBBInvalidIdxGetStrVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetStringVariable';
+  RSWBBInvalidStringVar = 'TIdHTTPAppResponse.SetStringVariable: Cannot set the version';
+  RSWBBInvalidIdxSetStringVar = 'Invalid Index %s in TIdHTTPAppResponse.SetStringVariable';
+
 implementation
 
 end.

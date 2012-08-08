@@ -2309,46 +2309,51 @@ end;
   {$ENDIF}
 {$ENDIF}
 
+{$IFDEF USE_ICONV}
+function CalcUTF16ByteSize(AChars: PWideChar; ACharCount: Integer): Integer;
+var
+  C: WideChar;
+  LCount: Integer;
+begin
+  C := AChars^;
+  if (C >= #$D800) and (C <= #$DFFF) then
+  begin
+    Result := 0;
+    if C > #$DBFF then begin
+      // invalid high surrogate
+      Exit;
+    end;
+    if ACharCount = 1 then begin
+      // missing low surrogate
+      Exit;
+    end;
+    Inc(AChars);
+    C := AChars^;
+    if (C < #$DC00) or (C > #$DFFF) then begin
+      // invalid low surrogate
+      Exit;
+    end;
+    LCount := 2;
+  end else begin
+    LCount := 1;
+  end;
+  Result := LCount * SizeOf(WideChar);
+end;
+{$ENDIF}
+
 function TIdMBCSEncoding.GetByteCount(Chars: PWideChar; CharCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
   LBytes: array[0..3] of Byte;
   LCharsPtr, LBytesPtr: PAnsiChar;
   LSrcCharSize, LCharSize, LByteSize: size_t;
-
-  function CalcUTF16ByteSize(AChars: PWideChar; ACharCount: Integer): Integer;
-  var
-    C: WideChar;
-    LCount: Integer;
-  begin
-    C := AChars^;
-    if (C >= #$D800) and (C <= #$DFFF) then
-    begin
-      Result := 0;
-      if C > #$DBFF then begin
-        // invalid high surrogate
-        Exit;
-      end;
-      if ACharCount = 1 then begin
-        // missing low surrogate
-        Exit;
-      end;
-      Inc(AChars);
-      C := AChars^;
-      if (C < #$DC00) or (C > #$DFFF) then begin
-        // invalid low surrogate
-        Exit;
-      end;
-      LCount := 2;
-    end else begin
-      LCount := 1;
-    end;
-    Result := LCount * SizeOf(WideChar);
-  end;
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
+  if (Chars = nil) or (CharCount = 0) then begin
+    Exit;
+  end;
 
   // RLebeau: iconv() does not allow for querying a pre-calculated byte size
   // for the input like Microsoft does, so have to determine the max bytes
@@ -2368,12 +2373,15 @@ begin
   end;
 
   // do the conversion
-  while CharCount > 0 do
-  begin
-    LSrcCharSize := CalcUTF16ByteSize(Chars, CharCount);
-    if LSrcCharSize = 0 then begin
-      Result := 0;
-      Exit;
+  repeat
+    if Chars <> nil then begin
+      LSrcCharSize := CalcUTF16ByteSize(Chars, CharCount);
+      if LSrcCharSize = 0 then begin
+        Result := 0;
+        Exit;
+      end;
+    end else begin
+      LSrcCharSize := 0;
     end;
 
     LCharsPtr := PAnsiChar(Chars);
@@ -2388,22 +2396,20 @@ begin
 
     // LByteSize was decremented by the number of bytes stored in the output buffer
     Inc(Result, SizeOf(LBytes)-LByteSize);
+    if Chars = nil then begin
+      Exit;
+    end;
 
     // LCharSize was decremented by the number of bytes read from the input buffer
     Inc(Chars, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
     Dec(CharCount, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
-  end;
-
-  // save final state
-  LBytesPtr := PAnsiChar(@LBytes[0]);
-  LByteSize := SizeOf(LBytes);
-  if iconv(FFromUTF16, nil, nil, @LBytesPtr, {$IFNDEF KYLIX}@{$ENDIF}LByteSize) = size_t(-1) then begin
-    Exit;
-  end;
-
-  // LByteSize were decremented by the number of bytes stored in the output buffer
-  Inc(Result, SizeOf(LBytes)-LByteSize);
-
+    if CharCount < 1 then
+    begin
+      // After all characters are handled, the output buffer has to be flushed
+      // This is done by running one more iteration, without an input buffer
+      Chars := nil;
+    end;
+  until False;
   {$ELSE}
     {$IFDEF WINDOWS}
   Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, Chars, CharCount, nil, 0, nil, nil);
@@ -2418,11 +2424,14 @@ function TIdMBCSEncoding.GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: P
 {$IFDEF USE_ICONV}
 var
   LCharsPtr, LBytesPtr: PAnsiChar;
-  LCharSize, LByteSize: size_t;
+  LSrcCharSize, LCharSize, LByteSize: size_t;
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
+  if (Chars = nil) or (CharCount = 0) then begin
+    Exit;
+  end;
   Assert (Bytes <> nil, 'TIdMBCSEncoding.GetBytes Bytes can not be nil');
 
   //Kylix has an odd definition in iconv.  In Kylix, __outbytesleft is defined as a var
@@ -2436,25 +2445,44 @@ begin
   end;
 
   // do the conversion
-  LCharsPtr := PAnsiChar(Chars);
-  LCharSize := CharCount * SizeOf(WideChar);
-  LBytesPtr := PAnsiChar(Bytes);
-  LByteSize := ByteCount;
-  if iconv(FFromUTF16, @LCharsPtr, @LCharSize, @LBytesPtr, {$IFNDEF KYLIX}@{$ENDIF}LByteSize) = size_t(-1) then
-  begin
-    Exit;
-  end;
+  repeat
+    if Chars <> nil then begin
+      LSrcCharSize := CalcUTF16ByteSize(Chars, CharCount);
+      if LSrcCharSize = 0 then begin
+        Result := 0;
+        Exit;
+      end;
+    end else begin
+      LSrcCharSize := 0;
+    end;
 
-  // save final state
-  if iconv(FFromUTF16, nil, nil, @LBytesPtr, {$IFNDEF KYLIX}@{$ENDIF}LByteSize) = size_t(-1) then begin
-    Exit;
-  end;
+    LCharsPtr := PAnsiChar(Chars);
+    LCharSize := LSrcCharSize;
+    LBytesPtr := PAnsiChar(Bytes);
+    LByteSize := ByteCount;
+    if iconv(FFromUTF16, @LCharsPtr, @LCharSize, @LBytesPtr, {$IFNDEF KYLIX}@{$ENDIF}LByteSize) = size_t(-1) then
+    begin
+      Exit;
+    end;
 
-  // LByteSize was decremented by the number of bytes stored in the output buffer
-  Result := ByteCount-LByteSize;
+    // LByteSize was decremented by the number of bytes stored in the output buffer
+    Inc(Result, SizeOf(LBytes)-LByteSize);
+    if Chars = nil then begin
+      Exit;
+    end;
 
+    // LCharSize was decremented by the number of bytes read from the input buffer
+    Inc(Chars, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
+    Dec(CharCount, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
+    if CharCount < 1 then
+    begin
+      // After all characters are handled, the output buffer has to be flushed
+      // This is done by running one more iteration, without an input buffer
+      Chars := nil;
+    end;
+  until False;
   {$ELSE}
-    {$IFDEF  WINDOWS}
+    {$IFDEF WINDOWS}
   Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, Chars, CharCount, PAnsiChar(Bytes), ByteCount, nil, nil);
     {$ELSE}
   ToDo('GetBytes() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2470,11 +2498,13 @@ var
   LByteSize, LCharsSize: size_t;
   I, LMaxBytesSize: Integer;
   LConverted: Boolean;
-
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
+  if (Bytes = nil) or (ByteCount = 0) then begin
+    Exit;
+  end;
 
   // RLebeau: iconv() does not allow for querying a pre-calculated character count
   // for the input like Microsoft does, so have to determine the max characters
@@ -2495,8 +2525,24 @@ begin
   end;
 
   // do the conversion
-  while ByteCount > 0 do
-  begin
+  repeat
+    if Bytes = nil then
+    begin
+      LBytesPtr := nil;
+      LByteSize := 0;
+      LCharsPtr := PAnsiChar(@LChars[0]);
+      LCharsSize := SizeOf(LChars);
+      if iconv(FToUTF16, @LBytesPtr, @LByteSize, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) = size_t(-1) then
+      begin
+        Result := 0;
+      end else
+      begin
+        // LCharsSize was decremented by the number of bytes stored in the output buffer
+        Inc(Result, (SizeOf(LChars)-LCharsSize) div SizeOf(WideChar));
+      end;
+      Exit;
+    end;
+
     // TODO: figure out a better way to calculate the number of input bytes
     // needed to generate a single UTF-16 output sequence...
     LMaxBytesSize := IndyMin(ByteCount, FMaxCharSize);
@@ -2509,14 +2555,23 @@ begin
       LCharsSize := SizeOf(LChars);
       if iconv(FToUTF16, @LBytesPtr, @LByteSize, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) <> size_t(-1) then
       begin
+        LConverted := True;
+
         // LCharsSize was decremented by the number of bytes stored in the output buffer
         Inc(Result, (SizeOf(LChars)-LCharsSize) div SizeOf(WideChar));
+        if Bytes = nil then begin
+          Exit;
+        end;
 
         // LByteSize was decremented by the number of bytes read from the input buffer
         Inc(Bytes, I-LByteSize);
         Dec(ByteCount, I-LByteSize);
+        if ByteCount < 1 then begin
+          // After all bytes are handled, the output buffer has to be flushed
+          // This is done by running one more iteration, without an input buffer
+          Bytes := nil;
+        end;
 
-        LConverted := True;
         Break;
       end;
     end;
@@ -2525,18 +2580,7 @@ begin
       Result := 0;
       Exit;
     end;
-  end;
-
-  // save final state
-  LCharsPtr := PAnsiChar(@LChars[0]);
-  LCharsSize := SizeOf(LChars);
-  if iconv(FFromUTF16, nil, nil, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) = size_t(-1) then begin
-    Exit;
-  end;
-
-  // LCharsSize were decremented by the number of bytes stored in the buffer
-  Inc(Result, (SizeOf(LChars)-LCharsSize) div SizeOf(WideChar));
-  
+  until False;
   {$ELSE}
     {$IFDEF WINDOWS}
   Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(Bytes), ByteCount, nil, 0);
@@ -2551,12 +2595,24 @@ function TIdMBCSEncoding.GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWide
 {$IFDEF USE_ICONV}
 var
   LBytesPtr, LCharsPtr: PAnsiChar;
-  LByteSize, LCharsSize, LMaxCharsSize: size_t;
+  LByteSize, LCharsSize: size_t;
+  I, LDestCharSize, LMaxBytesSize, LCharsWritten: Integer;
+  LConverted: Boolean;
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
-  Assert (Chars <> nil, 'TIdMBCSEncoding.GetChars Chars can not be nil');
+  if (Bytes = nil) or (ByteCount = 0) then begin
+    Exit;
+  end;
+
+  // RLebeau: iconv() does not allow for querying a pre-calculated character count
+  // for the input like Microsoft does, so have to determine the max characters
+  // by actually encoding the Ansi data to a real buffer.  We'll encode to a
+  // small local buffer so we don't have to use a lot of memory.  We also
+  // have to encode the input 1 Unicode codepoint at a time to avoid iconv()
+  // returning an E2BIG error if multiple MBCS sequences were decoded to
+  // a length that would exceed the size of the local buffer.
 
   //Kylix has an odd definition in iconv.  In Kylix, __outbytesleft is defined as a var
   //while in FreePascal's libc and our IdIconv units define it as a pSize_t
@@ -2568,27 +2624,69 @@ begin
     Exit;
   end;
 
-  LMaxCharsSize := CharCount * SizeOf(WideChar);
-
   // do the conversion
-  LBytesPtr := PAnsiChar(Bytes);
-  LByteSize := ByteCount;
-  LCharsPtr := PAnsiChar(Chars);
-  LCharsSize := LMaxCharsSize;
-  if iconv(FToUTF16, @LBytesPtr, @LByteSize, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) = size_t(-1) then
-  begin
-    Exit;
-  end;
+  repeat
+    LMaxBytesSize := IndyMin(ByteCount, FMaxCharSize);
+    LDestCharSize := CharCount * SizeOf(WideChar);
 
-  // save final state
-  if iconv(FToUTF16, nil, nil, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) = size_t(-1) then
-  begin
-    Exit;
-  end;
-  
-  // LCharsSize was decremented by the number of bytes stored in the output buffer
-  Result := (LMaxCharsSize-LCharsSize) div SizeOf(WideChar);
+    if Bytes = nil then
+    begin
+      LBytesPtr := nil;
+      LByteSize := 0;
+      LCharsPtr := PAnsiChar(Chars);
+      LCharsSize := LDestCharSize;
+      if iconv(FToUTF16, @LBytesPtr, @LByteSize, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) = size_t(-1) then
+      begin
+        Result := 0;
+      end else
+      begin
+        // LCharsSize was decremented by the number of bytes stored in the output buffer
+        Inc(Result, (LDestCharSize-LCharsSize) div SizeOf(WideChar));
+      end;
+      Exit;
+    end;
 
+    // TODO: figure out a better way to calculate the number of input bytes
+    // needed to generate a single UTF-16 output sequence...
+    LMaxBytesSize := IndyMin(ByteCount, FMaxCharSize);
+    LConverted := False;
+    for I := 1 to LMaxBytesSize do
+    begin
+      LBytesPtr := PAnsiChar(Bytes);
+      LByteSize := I;
+      LCharsPtr := PAnsiChar(Chars);
+      LCharsSize := LDestCharSize;
+      if iconv(FToUTF16, @LBytesPtr, @LByteSize, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) <> size_t(-1) then
+      begin
+        LConverted := True;
+
+        // LCharsSize was decremented by the number of bytes stored in the output buffer
+        LCharsWritten := (LDestCharSize-LCharsSize) div SizeOf(WideChar);
+        Inc(Result, LCharsWritten);
+        if Bytes = nil then begin
+          Exit;
+        end;
+        Inc(Chars, LCharsWritten);
+        Dec(CharCount, LCharsWritten);
+
+        // LByteSize was decremented by the number of bytes read from the input buffer
+        Inc(Bytes, I-LByteSize);
+        Dec(ByteCount, I-LByteSize);
+        if ByteCount < 1 then begin
+          // After all bytes are handled, the output buffer has to be flushed
+          // This is done by running one more iteration, without an input buffer
+          Bytes := nil;
+        end;
+
+        Break;
+      end;
+    end;
+
+    if not LConverted then begin
+      Result := 0;
+      Exit;
+    end;
+  until False;
   {$ELSE}
     {$IFDEF WINDOWS}
   Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(Bytes), ByteCount, Chars, CharCount);

@@ -4961,39 +4961,39 @@ begin
     LPos := Pos('[UIDVALIDITY ', LLine); {Do not Localize}
     if LPos > 0 then begin
       Inc(LPos, 13);
-      AMB.UIDValidity := Trim(Copy(LLine, LPos, (PosIdx(']', LLine, LPos) - LPos))); {Do not Localize}
+      AMB.UIDValidity := Trim(Copy(LLine, LPos, (Integer(PosIdx(']', LLine, LPos)) - LPos))); {Do not Localize}
       Continue;
     end;
     LPos := Pos('[UIDNEXT ', LLine); {Do not Localize}
     if LPos > 0 then begin
       Inc(LPos, 9);
-      AMB.UIDNext := Trim(Copy(LLine, LPos, (PosIdx(']', LLine, LPos) - LPos))); {Do not Localize}
+      AMB.UIDNext := Trim(Copy(LLine, LPos, (Integer(PosIdx(']', LLine, LPos)) - LPos))); {Do not Localize}
       Continue;
     end;
     LPos := Pos('[PERMANENTFLAGS ', LLine); {Do not Localize}
     if LPos > 0 then begin {Do not Localize}
       LPos := PosIdx('(', LLine, LPos + 16) + 1; {Do not Localize}
-      ParseMessageFlagString(Copy(LLine, LPos, PosIdx(')', LLine, LPos) - LPos), LFlags); {Do not Localize}
+      ParseMessageFlagString(Copy(LLine, LPos, Integer(PosIdx(')', LLine, LPos)) - LPos), LFlags); {Do not Localize}
       AMB.ChangeableFlags := LFlags;
       Continue;
     end;
     LPos := Pos('FLAGS ', LLine); {Do not Localize}
     if LPos > 0 then begin
       LPos := PosIdx('(', LLine, LPos + 6) + 1; {Do not Localize}
-      ParseMessageFlagString(Copy(LLine, LPos, (PosIdx(')', LLine, LPos) - LPos)), LFlags); {Do not Localize}
+      ParseMessageFlagString(Copy(LLine, LPos, (Integer(PosIdx(')', LLine, LPos)) - LPos)), LFlags); {Do not Localize}
       AMB.Flags := LFlags;
       Continue;
     end;
     LPos := Pos('[UNSEEN ', LLine); {Do not Localize}
     if LPos> 0 then begin
       Inc(LPos, 8);
-      AMB.FirstUnseenMsg := IndyStrToInt(Copy(LLine, LPos, (PosIdx(']', LLine, LPos) - LPos))); {Do not Localize}
+      AMB.FirstUnseenMsg := IndyStrToInt(Copy(LLine, LPos, (Integer(PosIdx(']', LLine, LPos)) - LPos))); {Do not Localize}
       Continue;
     end;
     LPos := Pos('[READ-', LLine); {Do not Localize}
     if LPos > 0 then begin
       Inc(LPos, 6);
-      LStr := Trim(Copy(LLine, LPos, PosIdx(']', LLine, LPos) - LPos)); {Do not Localize}
+      LStr := Trim(Copy(LLine, LPos, Integer(PosIdx(']', LLine, LPos)) - LPos)); {Do not Localize}
       {CCB: AMB.State ambiguous unless coded response received - default to msReadOnly...}
       if TextIsSame(LStr, 'WRITE') then begin {Do not Localize}
         AMB.State := msReadWrite;

@@ -3,16 +3,16 @@
 set -x
 #set -e
 echo "Extracting Program and RPM Values:"
-INDYVERSION=10.5.8.$WCREV$
+INDYVERSION=10.5.9.$WCREV$
 # You actually should use three version values.
 # FPCVer is for the value reported by fpc for some path specs.
 # FPCRPMVER is used for our "Requires section so that this is
 # tied to the EXACT version of the fpc RPM you used to build
 # this.
 # FPCSRCRPMVER is used for our "Requires section so that this
-# is tied to the EXACT version of the fpc-src RPM you used 
+# is tied to the EXACT version of the fpc-src RPM you used
 # you have to prevent errors.
-INDYRELNO=8
+INDYRELNO=9
 FPCVER=`fpc -iV`
 FPCRPMVER=$(rpm -qa | egrep '^fpc-[0-9]')
 FPCRPMVER=${FPCRPMVER:4}

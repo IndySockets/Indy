@@ -1,0 +1,84 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{FB5D40D5-0FF6-417D-A77E-D7F5B9A6511E}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="System\IndySystem160.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Core\IndyCore160.dproj">
+				<Dependencies>System\IndySystem160.dproj</Dependencies>
+			</Projects>
+			<Projects Include="Protocols\IndyProtocols160.dproj">
+				<Dependencies>System\IndySystem160.dproj;Core\IndyCore160.dproj</Dependencies>
+			</Projects>
+			<Projects Include="Core\dclIndyCore160.dproj">
+				<Dependencies>System\IndySystem160.dproj;Core\IndyCore160.dproj</Dependencies>
+			</Projects>
+			<Projects Include="Protocols\dclIndyProtocols160.dproj">
+				<Dependencies>System\IndySystem160.dproj;Core\IndyCore160.dproj;Protocols\IndyProtocols160.dproj;Core\dclIndyCore160.dproj</Dependencies>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="IndySystem160">
+			<MSBuild Projects="System\IndySystem160.dproj"/>
+		</Target>
+		<Target Name="IndySystem160:Clean">
+			<MSBuild Projects="System\IndySystem160.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="IndySystem160:Make">
+			<MSBuild Projects="System\IndySystem160.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="IndyCore160" DependsOnTargets="IndySystem160">
+			<MSBuild Projects="Core\IndyCore160.dproj"/>
+		</Target>
+		<Target Name="IndyCore160:Clean" DependsOnTargets="IndySystem160:Clean">
+			<MSBuild Projects="Core\IndyCore160.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="IndyCore160:Make" DependsOnTargets="IndySystem160:Make">
+			<MSBuild Projects="Core\IndyCore160.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="IndyProtocols160" DependsOnTargets="IndySystem160;IndyCore160">
+			<MSBuild Projects="Protocols\IndyProtocols160.dproj"/>
+		</Target>
+		<Target Name="IndyProtocols160:Clean" DependsOnTargets="IndySystem160:Clean;IndyCore160:Clean">
+			<MSBuild Projects="Protocols\IndyProtocols160.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="IndyProtocols160:Make" DependsOnTargets="IndySystem160:Make;IndyCore160:Make">
+			<MSBuild Projects="Protocols\IndyProtocols160.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="dclIndyCore160" DependsOnTargets="IndySystem160;IndyCore160">
+			<MSBuild Projects="Core\dclIndyCore160.dproj"/>
+		</Target>
+		<Target Name="dclIndyCore160:Clean" DependsOnTargets="IndySystem160:Clean;IndyCore160:Clean">
+			<MSBuild Projects="Core\dclIndyCore160.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="dclIndyCore160:Make" DependsOnTargets="IndySystem160:Make;IndyCore160:Make">
+			<MSBuild Projects="Core\dclIndyCore160.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="dclIndyProtocols160" DependsOnTargets="IndySystem160;IndyCore160;IndyProtocols160;dclIndyCore160">
+			<MSBuild Projects="Protocols\dclIndyProtocols160.dproj"/>
+		</Target>
+		<Target Name="dclIndyProtocols160:Clean" DependsOnTargets="IndySystem160:Clean;IndyCore160:Clean;IndyProtocols160:Clean;dclIndyCore160:Clean">
+			<MSBuild Projects="Protocols\dclIndyProtocols160.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="dclIndyProtocols160:Make" DependsOnTargets="IndySystem160:Make;IndyCore160:Make;IndyProtocols160:Make;dclIndyCore160:Make">
+			<MSBuild Projects="Protocols\dclIndyProtocols160.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="IndySystem160;IndyCore160;IndyProtocols160;dclIndyCore160;dclIndyProtocols160"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="IndySystem160:Clean;IndyCore160:Clean;IndyProtocols160:Clean;dclIndyCore160:Clean;dclIndyProtocols160:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="IndySystem160:Make;IndyCore160:Make;IndyProtocols160:Make;dclIndyCore160:Make;dclIndyProtocols160:Make"/>
+		</Target>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
+	</Project>

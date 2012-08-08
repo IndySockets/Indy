@@ -901,9 +901,17 @@ Lib/Core/IndyCore150.rc.tmpl -text
 Lib/Core/IndyCore160.cfg1 -text
 Lib/Core/IndyCore160.cfg2 -text
 Lib/Core/IndyCore160.dpk -text
+Lib/Core/IndyCore160.dproj -text
 Lib/Core/IndyCore160.rc -text
 Lib/Core/IndyCore160.rc.tmpl -text
 Lib/Core/IndyCore160.res -text
+Lib/Core/IndyCore170.cfg1 -text
+Lib/Core/IndyCore170.cfg2 -text
+Lib/Core/IndyCore170.dpk -text
+Lib/Core/IndyCore170.dproj -text
+Lib/Core/IndyCore170.rc -text
+Lib/Core/IndyCore170.rc.tmpl -text
+Lib/Core/IndyCore170.res -text
 Lib/Core/IndyCore40.RES -text
 Lib/Core/IndyCore40.rc -text
 Lib/Core/IndyCore40.rc.tmpl -text
@@ -931,6 +939,7 @@ Lib/Core/IndyCore90.rc.tmpl -text
 Lib/Core/IndyCore90Net.bdsproj -text
 Lib/Core/IndyCore90Net.dpk -text
 Lib/Core/IndyCoreK3.dpk -text
+Lib/Core/IndyCore_Icon.ico -text
 Lib/Core/Makefile.fpc -text
 Lib/Core/Makefile.fpc.tmpl -text
 Lib/Core/Res/IdCreditsBitmap.RES -text svneol=unset#unset
@@ -985,9 +994,16 @@ Lib/Core/dclIndyCore150.rc -text
 Lib/Core/dclIndyCore150.rc.tmpl -text
 Lib/Core/dclIndyCore160.cfg1 -text
 Lib/Core/dclIndyCore160.dpk -text
+Lib/Core/dclIndyCore160.dproj -text
 Lib/Core/dclIndyCore160.rc -text
 Lib/Core/dclIndyCore160.rc.tmpl -text
 Lib/Core/dclIndyCore160.res -text
+Lib/Core/dclIndyCore170.cfg1 -text
+Lib/Core/dclIndyCore170.dpk -text
+Lib/Core/dclIndyCore170.dproj -text
+Lib/Core/dclIndyCore170.rc -text
+Lib/Core/dclIndyCore170.rc.tmpl -text
+Lib/Core/dclIndyCore170.res -text
 Lib/Core/dclIndyCore40.RES -text
 Lib/Core/dclIndyCore40.dpk -text
 Lib/Core/dclIndyCore40.rc -text
@@ -1016,6 +1032,7 @@ Lib/Core/dclIndyCore90.rc.tmpl -text
 Lib/Core/dclIndyCore90.res -text svneol=unset#unset
 Lib/Core/dclIndyCore90Net.bdsproj -text
 Lib/Core/dclIndyCore90Net.dpk -text
+Lib/Core/dclIndyCore_Icon.ico -text
 Lib/Core/dclindycorek3.dpk -text
 Lib/Core/dclindycorek3.dpkl -text
 Lib/Core/dclindycorek3.res -text svneol=unset#unset
@@ -1041,7 +1058,7 @@ Lib/FreeBSDPort/distinfo -text
 Lib/FreeBSDPort/make-plist.sh eol=lf
 Lib/FreeBSDPort/pkg-descr -text
 Lib/FreeBSDPort/pkg-plist -text
-Lib/FullC4-16.bat -text
+Lib/FullC4-17.bat -text
 Lib/FullD12.bat -text
 Lib/Fullc10.bat -text
 Lib/Fullc11.bat -text
@@ -1049,6 +1066,7 @@ Lib/Fullc12.bat -text
 Lib/Fullc14.bat -text
 Lib/Fullc15.bat -text
 Lib/Fullc16.bat -text
+Lib/Fullc17.bat -text
 Lib/Fullc4.bat eol=crlf
 Lib/Fullc5.bat eol=crlf
 Lib/Fullc6.bat eol=crlf
@@ -1065,6 +1083,8 @@ Lib/Indy.SocketsDebug.dpr -text
 Lib/Indy100Net.dpk -text
 Lib/Indy110.groupproj -text
 Lib/Indy110Net.dpk -text
+Lib/Indy160.groupproj -text
+Lib/Indy170.groupproj -text
 Lib/Indy90Net.dpk -text
 Lib/Protocols/DelphiZLib.lib -text svneol=unset#unset
 Lib/Protocols/IconsDotNet/TIdBlockCipherIntercept.bmp -text svneol=unset#unset
@@ -1546,9 +1566,17 @@ Lib/Protocols/IndyProtocols150.rc.tmpl -text
 Lib/Protocols/IndyProtocols160.cfg1 -text
 Lib/Protocols/IndyProtocols160.cfg2 -text
 Lib/Protocols/IndyProtocols160.dpk -text
+Lib/Protocols/IndyProtocols160.dproj -text
 Lib/Protocols/IndyProtocols160.rc -text
 Lib/Protocols/IndyProtocols160.rc.tmpl -text
 Lib/Protocols/IndyProtocols160.res -text
+Lib/Protocols/IndyProtocols170.cfg1 -text
+Lib/Protocols/IndyProtocols170.cfg2 -text
+Lib/Protocols/IndyProtocols170.dpk -text
+Lib/Protocols/IndyProtocols170.dproj -text
+Lib/Protocols/IndyProtocols170.rc -text
+Lib/Protocols/IndyProtocols170.rc.tmpl -text
+Lib/Protocols/IndyProtocols170.res -text
 Lib/Protocols/IndyProtocols40.dpk -text
 Lib/Protocols/IndyProtocols40.rc -text
 Lib/Protocols/IndyProtocols40.rc.tmpl -text
@@ -1578,6 +1606,7 @@ Lib/Protocols/IndyProtocols90.res -text svneol=unset#unset
 Lib/Protocols/IndyProtocols90Net.bdsproj -text
 Lib/Protocols/IndyProtocols90Net.dpk -text
 Lib/Protocols/IndyProtocolsK3.dpk -text
+Lib/Protocols/IndyProtocols_Icon.ico -text
 Lib/Protocols/Makefile.fpc -text
 Lib/Protocols/Makefile.fpc.tmpl -text
 Lib/Protocols/ZLib/ZLib.pas -text
@@ -1704,9 +1733,15 @@ Lib/Protocols/dclIndyProtocols150.rc -text
 Lib/Protocols/dclIndyProtocols150.rc.tmpl -text
 Lib/Protocols/dclIndyProtocols160.cfg1 -text
 Lib/Protocols/dclIndyProtocols160.dpk -text
+Lib/Protocols/dclIndyProtocols160.dproj -text
 Lib/Protocols/dclIndyProtocols160.rc -text
 Lib/Protocols/dclIndyProtocols160.rc.tmpl -text
 Lib/Protocols/dclIndyProtocols160.res -text
+Lib/Protocols/dclIndyProtocols170.cfg1 -text
+Lib/Protocols/dclIndyProtocols170.dpk -text
+Lib/Protocols/dclIndyProtocols170.dproj -text
+Lib/Protocols/dclIndyProtocols170.rc -text
+Lib/Protocols/dclIndyProtocols170.rc.tmpl -text
 Lib/Protocols/dclIndyProtocols40.RES -text
 Lib/Protocols/dclIndyProtocols40.dpk -text
 Lib/Protocols/dclIndyProtocols40.rc -text
@@ -1735,6 +1770,7 @@ Lib/Protocols/dclIndyProtocols90.res -text svneol=unset#unset
 Lib/Protocols/dclIndyProtocols90Net.bdsproj -text
 Lib/Protocols/dclIndyProtocols90Net.dpk -text
 Lib/Protocols/dclIndyProtocolsK3.dpk -text
+Lib/Protocols/dclIndyProtocols_Icon.ico -text
 Lib/Protocols/dclindyprotocolslaz.lpk -text
 Lib/Protocols/deflate.obj -text svneol=unset#unset
 Lib/Protocols/example.obj -text
@@ -1873,9 +1909,17 @@ Lib/System/IndySystem150.rc.tmpl -text
 Lib/System/IndySystem160.cfg1 -text
 Lib/System/IndySystem160.cfg2 -text
 Lib/System/IndySystem160.dpk -text
+Lib/System/IndySystem160.dproj -text
 Lib/System/IndySystem160.rc -text
 Lib/System/IndySystem160.rc.tmpl -text
 Lib/System/IndySystem160.res -text
+Lib/System/IndySystem170.cfg1 -text
+Lib/System/IndySystem170.cfg2 -text
+Lib/System/IndySystem170.dpk -text
+Lib/System/IndySystem170.dproj -text
+Lib/System/IndySystem170.rc -text
+Lib/System/IndySystem170.rc.tmpl -text
+Lib/System/IndySystem170.res -text
 Lib/System/IndySystem40.dpk -text
 Lib/System/IndySystem40.rc -text
 Lib/System/IndySystem40.rc.tmpl -text
@@ -1906,6 +1950,7 @@ Lib/System/IndySystem90.res -text svneol=unset#unset
 Lib/System/IndySystem90Net.bdsproj -text
 Lib/System/IndySystem90Net.dpk -text
 Lib/System/IndySystemK3.dpk -text
+Lib/System/IndySystem_Icon.ico -text
 Lib/System/Makefile.fpc -text
 Lib/System/Makefile.fpc.tmpl -text
 Lib/System/indysystemfpc.pas -text

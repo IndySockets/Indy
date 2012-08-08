@@ -1,11 +1,10 @@
 {$IFDEF CONDITIONALEXPRESSIONS}
-
-
   // Must be at the top...
   {$IF COMPILERVERSION >= 24.0}
     {$LEGACYIFEND ON}
   {$IFEND}
 {$ENDIF}
+
 // General
 
 // Make this $DEFINE to use the 16 color icons required by Borland
@@ -227,6 +226,7 @@
   {$ELSE}
     {$DEFINE DELPHI_XE3}
   {$ENDIF}
+  {$LEGACYIFEND ON}
 {$ENDIF}
 
 // Delphi.NET

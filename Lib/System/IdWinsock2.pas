@@ -1467,6 +1467,7 @@ const
 type
   {$EXTERNALSYM GROUP}
   GROUP = DWORD;
+  {$EXTERNALSYM PGROUP}
   PGROUP = ^GROUP;
 
 //  WinSock 2 extension -- data type for WSAEnumNetworkEvents()
@@ -2402,6 +2403,7 @@ type
 //} //DSCP_TRAFFIC_TYPE;
 const
   NumDSCPTrafficTypes : DSCP_TRAFFIC_TYPE = DSCPControl;
+
 type
   {$ENDIF}
 
@@ -2494,7 +2496,7 @@ type
   {$EXTERNALSYM WSACOMPLETION_PORT}
   WSACOMPLETION_PORT = record
     lpOverlapped : LPWSAOVERLAPPED;
-    hPort : THANDLE;
+    hPort : THandle;
     Key : ULONG_PTR;
   end;
   {$EXTERNALSYM WSACOMPLETION_UNION}
@@ -3484,7 +3486,7 @@ type
   {$NODEFINE PIn6Addr}
   PIn6Addr   = ^TIn6Addr;
   {$EXTERNALSYM PIN6_ADDR}
-  PIN6_ADDR  = ^PIn6Addr;
+  PIN6_ADDR  = PIn6Addr;
   {$EXTERNALSYM LPIN6_ADDR}
   LPIN6_ADDR = PIN6_ADDR;
 
@@ -3587,6 +3589,7 @@ type
   function IN6ADDR_ISANY(sa: PSockAddrIn6): Boolean;
   {$EXTERNALSYM IN6ADDR_ISLOOPBACK}
   function IN6ADDR_ISLOOPBACK(sa: PSockAddrIn6): Boolean;
+
   {$EXTERNALSYM IN6_IS_ADDR_SUBNET_ROUTER_ANYCAST}
   function IN6_IS_ADDR_SUBNET_ROUTER_ANYCAST(const a : PIn6Addr) : Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_SUBNET_RESERVED_ANYCAST}
@@ -6334,7 +6337,7 @@ type
   TempRec = record
     x: AnsiChar;
     test: WSACMSGHDR;
-  end;  
+  end;
   {$ENDIF}
 var
   Alignment: SIZE_T;

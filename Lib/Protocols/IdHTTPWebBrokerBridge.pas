@@ -157,21 +157,10 @@ type
 implementation
 
 uses
+  IdResourceStringsProtocols,
   IdBuffer, IdHTTPHeaderInfo, IdGlobal, IdGlobalProtocols, IdCookie, IdStream,
   {$IFDEF STRING_IS_UNICODE}IdCharsets,{$ENDIF}
   SysUtils, Math;
-
-//TODO:  Not sure where these really should go.  They should not be in the main packages
-//because this is dependant upon something that those really arent.
-
-resourcestring
-  RSWBBInvalidIdxGetDateVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetDateVariable';
-  RSWBBInvalidIdxSetDateVariable = 'Invalid Index %s in TIdHTTPAppResponse.SetDateVariable';
-  RSWBBInvalidIdxGetIntVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetIntegerVariable';
-  RSWBBInvalidIdxSetIntVariable = 'Invalid Index %s in TIdHTTPAppResponse.SetIntegerVariable';
-  RSWBBInvalidIdxGetStrVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetStringVariable';
-  RSWBBInvalidStringVar = 'TIdHTTPAppResponse.SetStringVariable: Cannot set the version';
-  RSWBBInvalidIdxSetStringVar = 'Invalid Index %s in TIdHTTPAppResponse.SetStringVariable';
 
 type
   // Make HandleRequest accessible

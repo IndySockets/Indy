@@ -971,10 +971,7 @@ begin
     // class is changed later on...
     LEncoding := CharsetToEncoding('ISO-8859-1');
     try
-      LBytes := TIdTextEncoding.Convert(
-        TIdTextEncoding.Unicode,
-        LEncoding,
-        TIdTextEncoding.Unicode.GetBytes(AName));
+      LBytes := LEncoding.GetBytes(AName);
     finally
       LEncoding.Free;
     end;

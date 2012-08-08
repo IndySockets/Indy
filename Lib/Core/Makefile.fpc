@@ -1,15 +1,15 @@
-#   Makefile.fpc for indycorefpc 10.5.8.0
+#   Makefile.fpc for indycorefpc 10.5.9.0
 
 [package]
 name=indycorefpc
-version=10.5.8.0
+version=10.5.9.0
 main=indy
 
 
 [compiler]
 includedir=../Inc
 unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
-unitdir=../System/lib/$(CPU_TARGET)-$(OS_TARGET) 
+unitdir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)
 options=-gl
 
 [target]

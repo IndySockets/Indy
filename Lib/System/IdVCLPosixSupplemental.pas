@@ -2,6 +2,7 @@
 
 interface
 {$I IdCompilerDefines.inc}
+{$WARN SYMBOL_PLATFORM OFF}
 
 uses
 {$IFDEF DARWIN}
