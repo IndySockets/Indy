@@ -33,12 +33,12 @@ REM *** as expected!
 IF (%2)==() GOTO UseIndyLib
 
 ECHO Scanning for Update Templates in %2
-FOR /R %2 %%I IN (*.tmpl) DO SubWCRev %IndyLib% %%~dpnsI.tmpl %%~dpnsI
+FOR /R %2 %%I IN (*.tmpl) DO SubWCRev %IndyLib% "%%~dpnI.tmpl" "%%~dpnI"
 GOTO Done
 
 :UseIndyLib
 ECHO Scanning for Update Templates in %IndyLib%
-FOR /R %IndyLib% %%I IN (*.tmpl) DO SubWCRev %IndyLib% %%~dpnsI.tmpl %%~dpnsI
+FOR /R %IndyLib% %%I IN (*.tmpl) DO SubWCRev %IndyLib% "%%~dpnI.tmpl" "%%~dpnI"
 
 :Done
 REM *** This Line re-compiles .res files from updated .rc files
