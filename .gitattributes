@@ -1737,6 +1737,7 @@ Lib/Protocols/dclIndyProtocols160.dproj -text
 Lib/Protocols/dclIndyProtocols160.rc -text
 Lib/Protocols/dclIndyProtocols160.rc.tmpl -text
 Lib/Protocols/dclIndyProtocols160.res -text
+Lib/Protocols/dclIndyProtocols170.RES -text
 Lib/Protocols/dclIndyProtocols170.cfg1 -text
 Lib/Protocols/dclIndyProtocols170.dpk -text
 Lib/Protocols/dclIndyProtocols170.dproj -text
