@@ -25,7 +25,7 @@ type
 {stuff that may be needed for various socket functions.  Much of this may be
 platform specific.  Defined in netinet/tcp.h}
 const
-  {$IFDEF BSD}
+{$IFDEF BSD}
   //for BSD-based operating systems such as FreeBSD and Mac OS X
   {$EXTERNALSYM TCP_MAXSEG}
 	TCP_MAXSEG              = $02;    //* set maximum segment size */
@@ -33,9 +33,9 @@ const
   TCP_NOPUSH              = $04 platform;   //* don't push last block of write */
   {$EXTERNALSYM TCP_NOOPT}
   TCP_NOOPT               = $08;    //* don't use TCP options */
-  {$ENDIF}
+{$ENDIF}
 
-  {$IFDEF FREEBSD}
+{$IFDEF FREEBSD}
   //specific to FreeBSD
   {$EXTERNALSYM TCP_MD5SIG}
   TCP_MD5SIG              = $10 platform;    //* use MD5 digests (RFC2385) */
@@ -43,9 +43,9 @@ const
   TCP_INFO                = $20 platform;  //* retrieve tcp_info structure */
   {$EXTERNALSYM TCP_CONGESTION}
   TCP_CONGESTION          = $40 platform;   //* get/set congestion control algorithm */
-  {$ENDIF}
+{$ENDIF}
 
-  {$IFDEF DARWIN}
+{$IFDEF DARWIN}
   //specific to Mac OS X
   {$EXTERNALSYM TCP_KEEPALIVE}
   TCP_KEEPALIVE           = $10 platform;    //* idle time used when SO_KEEPALIVE is enabled */
@@ -170,9 +170,9 @@ const
   TCP_MAXBURST	 =	4 platform;	//* maximum segments in a burst */
   {$EXTERNALSYM TCP_MAXHLEN}
   TCP_MAXHLEN    = ($f shl 2) platform;	//* max length of header in bytes */
-  {$ENDIF}
+{$ENDIF}
 
-  {$IFDEF LINUX}
+{$IFDEF LINUX}
   //specific to Linux
   {$EXTERNALSYM TCP_MAXSEG}
   TCP_MAXSEG             = 2;       //* Limit MSS */
@@ -215,15 +215,15 @@ const
   TCPI_OPT_WSCALE	= 4;
   {$EXTERNALSYM TCPI_OPT_ECN}
   TCPI_OPT_ECN	  = 8;
-  {$ENDIF}
-//udp.h
+{$ENDIF}
 
-  {$IFDEF DARWIN}
+//udp.h
+{$IFDEF DARWIN}
   {$EXTERNALSYM UDP_NOCKSUM}
   UDP_NOCKSUM            = $01;    //* don't checksum outbound payloads */
-  {$ENDIF}
+{$ENDIF}
 
-  {$IFDEF DARWIN}
+{$IFDEF DARWIN}
 ///Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Headers/MacErrors.h
 
 //enum {
@@ -5595,9 +5595,9 @@ const
   {$EXTERNALSYM kPOSIXErrorEOPNOTSUPP}
   kPOSIXErrorEOPNOTSUPP         = 100102; //* Operation not supported on socket */
 //};
-
 {$ENDIF}
-  {$IFDEF LINUX}
+
+{$IFDEF LINUX}
   //* UDP socket options */
   {$EXTERNALSYM UDP_CORK}
   UDP_CORK	= 1;	//* Never send partially complete segments */
@@ -5609,16 +5609,18 @@ const
   UDP_ENCAP_ESPINUDP_NON_IKE =	1; //* draft-ietf-ipsec-nat-t-ike-00/01 */
     {$EXTERNALSYM UDP_ENCAP_ESPINUDP}
   UDP_ENCAP_ESPINUDP	= 2; //* draft-ietf-ipsec-udp-encaps-06 */
-  {$ENDIF}
+{$ENDIF}
 
 implementation
 
-function  TCPOPT_CC_HDR(const ccopt : Integer) : Integer; inline;
+{$IFDEF DARWIN}
+function TCPOPT_CC_HDR(const ccopt : Integer) : Integer; inline;
 begin
     Result := (TCPOPT_NOP shl 24) or
       (TCPOPT_NOP shl 16) or
       (ccopt shl 8) or
       TCPOLEN_CC;
 end;
+{$ENDIF}
 
 end.
