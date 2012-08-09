@@ -633,7 +633,7 @@ procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const ABuffer: String);
 var
   LIcmp : TIdicmp6_hdr;
   LIdx : LongWord;
-  LLen : LongWord;
+  LBuffer: TIdBytes;
 begin
   SetLength(FBufIcmp, ICMP_MIN + SizeOf(LongWord) + FPacketSize);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
@@ -650,9 +650,9 @@ begin
     LIcmp.WriteStruct(FBufIcmp, LIdx);
     CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
     Inc(LIdx, 4);
-    LLen := Length(ABuffer);
-    if LLen > 0 then begin
-      CopyTIdString(ABuffer, FBufIcmp, LIdx, IndyMin(LLen, FPacketSize));
+    if Length(ABuffer) > 0 then begin
+      LBuffer := ToBytes(ABuffer, Indy8BitEncoding);
+      CopyTIdBytes(LBuffer, 0, FBufIcmp, LIdx, IndyMin(Length(LBuffer), FPacketSize));
     end;
   finally
     FreeAndNil(LIcmp);

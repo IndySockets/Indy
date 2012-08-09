@@ -173,16 +173,19 @@ begin
       {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
       {$ENDIF}
-      {$IFDEF DOTNET_2_OR_ABOVE}
+      {$IFDEF DOTNET}
+        {$IFDEF DOTNET_2_OR_ABOVE}
       {
       Microsoft NET Framework 1.1 may actually have the packetinfo option but that
       will not do you any good because you need a RecvMsg function which is not
       in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
       }
-      //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
+      //indicate we want packet information with RecvMsg calls
       FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_PKTINFO, 1);
-      {$ENDIF}
-      {$IFNDEF DOTNET}
+        {$ENDIF}
+      {$ELSE}
+      //indicate we want packet information with RecvMsg WSARecvMsg calls
+      FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_PKTINFO, 1);
       FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_HOPLIMIT, 1);
       {$ENDIF}
     end;
