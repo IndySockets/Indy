@@ -1526,7 +1526,6 @@ begin
     LMsgBuf.buf := PAnsiChar(Pointer(VBuffer)); // @VMsgData[0];
 
     FillChar(LMsg, SIZE_TWSAMSG, 0);
-    FillChar(LAddr, SizeOf(LAddr), 0);
 
     LMsg.lpBuffers := @LMsgBuf;
     LMsg.dwBufferCount := 1;
