@@ -1,8 +1,6 @@
-brc32 IdRegister.rc -rv -foIdRegisterCool.dcr
-copy IdRegisterCool.dcr ..\lib\Protocols
-copy IdRegisterCool.dcr ..\..\branches\Tiburon\Lib\Protocols
-brc32 IdCoreRegister.rc -rv -foIdCoreRegisterCool.dcr
-copy IdCoreRegisterCool.dcr ..\lib\Core
-copy IdCoreRegisterCool.dcr ..\..\branches\Tiburon\Lib\Core
-brc32 IdSuperCoreRegister.rc -rv -foIdSuperCoreRegisterCool.dcr
-copy IdSuperCoreRegisterCool.dcr ..\lib\SuperCore
+brc32 IdRegister.rc -r -foIdRegister.dcr
+copy IdRegister.dcr ..\Lib\Protocols
+brc32 IdCoreRegister.rc -r -foIdCoreRegister.dcr
+copy IdCoreRegister.dcr ..\Lib\Core
+brc32 IdSuperCoreRegister.rc -r -foIdSuperCoreRegister.dcr
+copy IdSuperCoreRegister.dcr ..\Lib\SuperCore
