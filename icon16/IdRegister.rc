@@ -37,6 +37,7 @@ TIdTimeUDP                             BITMAP "TIdTimeUDP.bmp"
 TIDTRIVIALFTP                          BITMAP "TIDTRIVIALFTP.BMP"
 TIdUnixTime                            BITMAP "TIdUnixTime.bmp"
 TIdUnixTimeUDP                         BITMAP "TIdUnixTimeUDP.bmp"
+TIdWebDav                              BITMAP "TIdWebDAV.bmp"
 TIDWHOIS                               BITMAP "TIDWHOIS.BMP"
 TIdSMTPRelay                           BITMAP "TIdSMTPRelay.bmp"
 
