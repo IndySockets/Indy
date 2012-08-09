@@ -553,7 +553,6 @@ begin
    //TODO: TIdTunnelSlave,
    TIdUnixTimeServer,
    TIdUnixTimeUDPServer,
-   TIdWebDAV,
    TIdWhoIsServer
    ]);
 
