@@ -18232,7 +18232,7 @@ begin
     begin
       LErrQueue := ERR_get_error;
       if LErrQueue <> 0 then begin
-        EIdOSSLUnderlyingCryptoError.RaiseExceptionCode(LErrQueue, LErrStr + AMsg);
+        EIdOSSLUnderlyingCryptoError.RaiseExceptionCode(LErrQueue, AMsg);
       end;
       if ARetCode = 0 then begin
         LException := Create(LErrStr + RSSSLEOFViolation);
@@ -18247,7 +18247,7 @@ begin
       end;
     end;
     SSL_ERROR_SSL : begin
-      EIdOSSLUnderlyingCryptoError.RaiseException(LErrStr + AMsg);
+      EIdOSSLUnderlyingCryptoError.RaiseException(AMsg);
     end
   end;
   // everything else...
