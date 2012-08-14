@@ -15,7 +15,7 @@
 {$DEFINE IdIPv4}
 
 {$DEFINE INDY100}
-{$DEFINE 10_5_8}  //so developers can IFDEF for this specific version
+{$DEFINE 10_5_9}  //so developers can IFDEF for this specific version
 
 // When invoking DCC on the command-line, use the -DBCB
 // parameter when generating C++Builder output files!
