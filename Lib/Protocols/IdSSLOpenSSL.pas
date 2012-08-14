@@ -2638,11 +2638,19 @@ begin
   if not (sslvTLSv1 in SSLVersions) then begin
     SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1);
   end;
-  if not ( sslvTLSv1_1 in SSLVersions) then begin
-    SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_1);
+{IMPORTANT!!!  Do not set SSL_CTX_set_options SSL_OP_NO_TLSv1_1 and
+SSL_OP_NO_TLSv1_2 if that functionality is not available.  OpenSSL 1.0 and
+earlier do not support those flags.  Those flags would only cause
+an invalid MAC when doing SSL.}
+  if IsTLSv1_1Available then begin
+    if not ( sslvTLSv1_1 in SSLVersions) then begin
+      SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_1);
+    end;
   end;
-  if not ( sslvTLSv1_2 in SSLVersions) then begin
-    SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_2);
+  if IsTLSv1_2Available then begin
+    if not ( sslvTLSv1_2 in SSLVersions) then begin
+      SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_2);
+    end;
   end;
   SSL_CTX_set_mode(fContext, SSL_MODE_AUTO_RETRY);
   // assign a password lookup routine
@@ -2731,6 +2739,7 @@ begin
 end;
 }
 function SelectTLS1Method(const AMode : TIdSSLMode) : PSSL_METHOD;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   case AMode of
     sslmServer : Result := TLSv1_server_method;
@@ -2767,6 +2776,12 @@ begin
       else
         Result := SSLv3_method;
       end;
+{IMPORTANT!!!  fallback to TLS 1.0 if TLS 1.1 or 1.2 is not available.
+This is important because OpenSSL earlier than 1.0.1 does not support this
+functionality.
+
+Todo:  Figure out a better fallback.
+}
     sslvTLSv1:
       Result :=  SelectTLS1Method(fMode);
     sslvTLSv1_1 :
