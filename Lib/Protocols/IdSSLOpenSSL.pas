@@ -2730,6 +2730,16 @@ begin
   Result := True;
 end;
 }
+function SelectTLS1Method(const AMode : TIdSSLMode) : PSSL_METHOD;
+begin
+  case AMode of
+    sslmServer : Result := TLSv1_server_method;
+    sslmClient : Result := TLSv1_client_method;
+  else
+    Result := TLSv1_method;
+  end;
+end;
+
 function TIdSSLContext.SetSSLMethod: PSSL_METHOD;
 begin
   if fMode = sslmUnassigned then begin
@@ -2758,26 +2768,30 @@ begin
         Result := SSLv3_method;
       end;
     sslvTLSv1:
-      case fMode of
-        sslmServer : Result := TLSv1_server_method;
-        sslmClient : Result := TLSv1_client_method;
-      else
-        Result := TLSv1_method;
-      end;
+      Result :=  SelectTLS1Method(fMode);
     sslvTLSv1_1 :
-      case fMode of
-        sslmServer : Result := TLSv1_1_server_method;
-        sslmClient : Result := TLSv1_1_client_method;
-      else
-        Result := TLSv1_1_method;
+      if IsTLSv1_1Available then begin
+        case fMode of
+          sslmServer : Result := TLSv1_1_server_method;
+          sslmClient : Result := TLSv1_1_client_method;
+        else
+          Result := TLSv1_1_method;
+        end;
+      end else begin
+        Result :=  SelectTLS1Method(fMode);
       end;
     sslvTLSv1_2 :
-      case fMode of
-        sslmServer : Result := TLSv1_2_server_method;
-        sslmClient : Result := TLSv1_2_client_method;
-      else
-        Result := TLSv1_2_method;
-      end;
+      if IsTLSv1_2Available then begin
+
+        case fMode of
+          sslmServer : Result := TLSv1_2_server_method;
+          sslmClient : Result := TLSv1_2_client_method;
+        else
+          Result := TLSv1_2_method;
+        end;
+      end else begin
+        Result :=  SelectTLS1Method(fMode);
+      end
   else
     raise EIdOSSLGetMethodError.Create(RSSSLGetMethodError);
   end;
