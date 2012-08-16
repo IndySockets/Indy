@@ -4231,17 +4231,17 @@ begin
   {$ENDIF}
 end;
 
-{$UNDEF NO_NATIVE_X86}
+{$UNDEF NO_NATIVE_ASM}
 {$IFDEF DOTNET}
-  {$DEFINE NO_NATIVE_X86}
+  {$DEFINE NO_NATIVE_ASM}
 {$ENDIF}
 {$IFDEF FPC}
   {$IFNDEF CPUI386}
-    {$DEFINE NO_NATIVE_X86}
+    {$DEFINE NO_NATIVE_ASM}
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF NO_NATIVE_X86}
+{$IFDEF NO_NATIVE_ASM}
 function ROL(const AVal: LongWord; AShift: Byte): LongWord;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
@@ -4256,15 +4256,22 @@ end;
 
 {$ELSE}
 
-// Arg1=EAX, Arg2=DL
+// 32-bit: Arg1=EAX, Arg2=DL
+// 64-bit: Arg1=ECX, Arg2=DL
 function ROL(const AVal: LongWord; AShift: Byte): LongWord; assembler;
 asm
+  {$IFDEF CPU64}
+  mov eax, ecx
+  {$ENDIF}
   mov  cl, dl
   rol  eax, cl
 end;
 
 function ROR(const AVal: LongWord; AShift: Byte): LongWord; assembler;
 asm
+  {$IFDEF CPU64}
+  mov eax, ecx
+  {$ENDIF}
   mov  cl, dl
   ror  eax, cl
 end;
