@@ -289,7 +289,7 @@ begin
         //File Size
         LI.NumberBlocks :=  IndyStrToInt(LBuffer, 0);
         LI.BlockSize := VMS_BLOCK_SIZE;
-        LI.Size := IndyStrToInt(LBuffer, 0) * VMS_BLOCK_SIZE; //512 is the size of a VMS block
+        LI.Size := IndyStrToInt64(LBuffer, 0) * VMS_BLOCK_SIZE; //512 is the size of a VMS block
       end else
       begin
         //on the UCX VMS server, the file size might not be reported.  Probably the file owner

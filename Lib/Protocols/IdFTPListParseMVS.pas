@@ -305,7 +305,8 @@ begin
       if s.Count > 8 then
       begin
         LI.Org := s[8];
-        if LI.Org = 'PO' then begin {do not localize}
+        // TODO: use PosInStrArray() instead?
+        if (LI.Org = 'PO') or (LI.Org = 'PO-E') then begin {do not localize}
           LI.ItemType :=  ditDirectory;
         end else begin
           LI.ItemType :=  ditFile;
