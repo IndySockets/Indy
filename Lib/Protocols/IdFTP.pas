@@ -762,6 +762,7 @@ type
     FDefStringEncoding: TIdTextEncoding;
     FExternalIP : String;
     FResumeTested: Boolean;
+    FServerDesc: string;
     FSystemDesc: string;
     FTransferType: TIdFTPTransferType;
     FTransferTimeout : Integer;
@@ -1294,6 +1295,13 @@ begin
     LSendQuitOnError := True;
 
     FGreeting.Assign(LastCmdResult);
+    // Save initial greeting for server identification in case FGreeting changes
+    // in response to the HOST command
+    if FGreeting.Text.Count > 0 then begin
+      FServerDesc := FGreeting.Text[0];
+    end else begin
+      FServerDesc := '';
+    end;
     // Implement HOST command as specified by
     // http://tools.ietf.org/html/draft-hethmon-mcmurray-ftp-hosts-01
     // Do not check the response for failures.  The draft suggests allowing
@@ -3941,28 +3949,28 @@ end;
 
 function TIdFTP.IsOldServU: Boolean;
 begin
-  Result := TextStartsWith(FGreeting.Text[0], 'Serv-U ');  {do not localize}
+  Result := TextStartsWith(FServerDesc, 'Serv-U ');  {do not localize}
 end;
 
 function TIdFTP.IsBPFTP : Boolean;
 begin
-  Result := TextStartsWith(FGreeting.Text[0], 'BPFTP Server ');  {do not localize}
+  Result := TextStartsWith(FServerDesc, 'BPFTP Server ');  {do not localize}
 end;
 
 function TIdFTP.IsTitan : Boolean;
 begin
-  Result := TextStartsWith(FGreeting.Text[0], 'TitanFTP server ') or {do not localize}
-            TextStartsWith(FGreeting.Text[0], 'Titan FTP Server '); {do not localize}
+  Result := TextStartsWith(FServerDesc, 'TitanFTP server ') or {do not localize}
+            TextStartsWith(FServerDesc, 'Titan FTP Server '); {do not localize}
 end;
 
 function TIdFTP.IsWSFTP : Boolean;
 begin
-  Result := IndyPos('WS_FTP Server', FGreeting.Text[0]) > 0; {do not localize}
+  Result := IndyPos('WS_FTP Server', FServerDesc) > 0; {do not localize}
 end;
 
 function TIdFTP.IsIIS: Boolean;
 begin
-  Result := TextStartsWith(FGreeting.Text[0], 'Microsoft FTP Service');
+  Result := TextStartsWith(FServerDesc, 'Microsoft FTP Service'); {do not localize}
 end;
 function TIdFTP.IsServerMDTZAndListTForm: Boolean;
 begin
