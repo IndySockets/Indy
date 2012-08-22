@@ -1702,6 +1702,7 @@ begin
    and Opened;
 end;
 
+// TODO: move this into IdGlobal.pas
 procedure AdjustStreamSize(const AStream: TStream; const ASize: TIdStreamSize);
 var
   LStreamPos: TIdStreamSize;
