@@ -1347,7 +1347,9 @@ begin
           //Now need to generate a new boundary...
           LBoundary := TIdMIMEBoundaryStrings.GenerateBoundary;
           AMsg.MIMEBoundary.Push(LBoundary, i);
-          IOHandler.WriteLn('Content-Type: ' + LLine + ';');            {do not localize}
+          //Make sure the header does not already have a pre-existing
+          //boundary since we just generated a new one...
+          IOHandler.WriteLn('Content-Type: ' + RemoveHeaderEntry(LLine, 'boundary', QuoteMIME) + ';');            {do not localize}
           IOHandler.WriteLn(TAB + 'boundary="' + LBoundary + '"');  {do not localize}
           IOHandler.WriteLn;
         end
