@@ -812,6 +812,8 @@ type
   TIdUTF16LittleEndianEncoding = System.Text.UnicodeEncoding;
   TIdUTF16BigEndianEncoding = System.Text.UnicodeEncoding;
     {$ELSE}
+  TIdTextEncodingBytes = SysUtils.TBytes;
+  TIdTextEncodingWideChars = SysUtils.TCharArray;
   TIdTextEncoding = SysUtils.TEncoding;
   TIdMBCSEncoding = SysUtils.TMBCSEncoding;
   {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
@@ -821,6 +823,8 @@ type
   TIdUTF16BigEndianEncoding = SysUtils.TBigEndianUnicodeEncoding;
     {$ENDIF}
   {$ELSE}
+  TIdTextEncodingBytes = TIdBytes;
+  TIdTextEncodingWideChars = TIdWideChars;
   TIdTextEncoding = class
   {$IFDEF HAS_CLASSPROPERTIES}
   private
@@ -839,24 +843,24 @@ type
     function GetCharCount(ABytes: PByte; AByteCount: Integer): Integer; overload; virtual; abstract;
     function GetChars(ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload; virtual; abstract;
   public
-    class function Convert(ASource, ADestination: TIdTextEncoding; const ABytes: TIdBytes): TIdBytes; overload;
-    class function Convert(ASource, ADestination: TIdTextEncoding; const ABytes: TIdBytes; AStartIndex, ACount: Integer): TIdBytes; overload;
+    class function Convert(ASource, ADestination: TIdTextEncoding; const ABytes: TIdTextEncodingBytes): TIdTextEncodingBytes; overload;
+    class function Convert(ASource, ADestination: TIdTextEncoding; const ABytes: TIdTextEncodingBytes; AStartIndex, ACount: Integer): TIdTextEncodingBytes; overload;
     class procedure FreeEncodings;
     class function IsStandardEncoding(AEncoding: TIdTextEncoding): Boolean;
-    class function GetBufferEncoding(const ABuffer: TIdBytes; var AEncoding: TIdTextEncoding): Integer;
-    function GetByteCount(const AChars: TIdWideChars): Integer; overload;
-    function GetByteCount(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): Integer; overload;
+    class function GetBufferEncoding(const ABuffer: TIdTextEncodingBytes; var AEncoding: TIdTextEncoding): Integer;
+    function GetByteCount(const AChars: TIdTextEncodingWideChars): Integer; overload;
+    function GetByteCount(const AChars: TIdTextEncodingWideChars; ACharIndex, ACharCount: Integer): Integer; overload;
     function GetByteCount(const AStr: TIdUnicodeString): Integer; overload;
     function GetByteCount(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): Integer; overload;
-    function GetBytes(const AChars: TIdWideChars): TIdBytes; overload;
-    function GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
-    function GetBytes(const AStr: TIdUnicodeString): TIdBytes; overload;
-    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
-    function GetCharCount(const ABytes: TIdBytes): Integer; overload;
-    function GetCharCount(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): Integer; overload;
-    function GetChars(const ABytes: TIdBytes): TIdWideChars; overload;
-    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdWideChars; overload;
-    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer; overload;
+    function GetBytes(const AChars: TIdTextEncodingWideChars): TIdTextEncodingBytes; overload;
+    function GetBytes(const AChars: TIdTextEncodingWideChars; ACharIndex, ACharCount: Integer; var VBytes: TIdTextEncodingBytes; AByteIndex: Integer): Integer; overload;
+    function GetBytes(const AStr: TIdUnicodeString): TIdTextEncodingBytes; overload;
+    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer; var VBytes: TIdTextEncodingBytes; AByteIndex: Integer): Integer; overload;
+    function GetCharCount(const ABytes: TIdTextEncodingBytes): Integer; overload;
+    function GetCharCount(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer): Integer; overload;
+    function GetChars(const ABytes: TIdTextEncodingBytes): TIdTextEncodingWideChars; overload;
+    function GetChars(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer): TIdTextEncodingWideChars; overload;
+    function GetChars(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer; var VChars: TIdTextEncodingWideChars; ACharIndex: Integer): Integer; overload;
     {$IFDEF USE_ICONV}
     class function GetEncoding(const ACharSet: String): TIdTextEncoding;
     {$ELSE}
@@ -866,9 +870,9 @@ type
     {$ENDIF}
     function GetMaxByteCount(ACharCount: Integer): Integer; virtual; abstract;
     function GetMaxCharCount(AByteCount: Integer): Integer; virtual; abstract;
-    function GetPreamble: TIdBytes; virtual; abstract;
-    function GetString(const ABytes: TIdBytes): TIdUnicodeString; overload;
-    function GetString(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString; overload;
+    function GetPreamble: TIdTextEncodingBytes; virtual; abstract;
+    function GetString(const ABytes: TIdTextEncodingBytes): TIdUnicodeString; overload;
+    function GetString(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString; overload;
     {$IFDEF HAS_CLASSPROPERTIES}
     class property ASCII: TIdTextEncoding read GetASCII;
     class property BigEndianUnicode: TIdTextEncoding read GetBigEndianUnicode;
@@ -921,7 +925,7 @@ type
     {$ENDIF}
     function GetMaxByteCount(CharCount: Integer): Integer; override;
     function GetMaxCharCount(ByteCount: Integer): Integer; override;
-    function GetPreamble: TIdBytes; override;
+    function GetPreamble: TIdTextEncodingBytes; override;
   end;
 
   {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
@@ -943,7 +947,7 @@ type
     constructor Create; override;
     function GetMaxByteCount(CharCount: Integer): Integer; override;
     function GetMaxCharCount(ByteCount: Integer): Integer; override;
-    function GetPreamble: TIdBytes; override;
+    function GetPreamble: TIdTextEncodingBytes; override;
   end;
 
   TIdUTF16LittleEndianEncoding = class(TIdTextEncoding)
@@ -956,7 +960,7 @@ type
     constructor Create; virtual;
     function GetMaxByteCount(CharCount: Integer): Integer; override;
     function GetMaxCharCount(ByteCount: Integer): Integer; override;
-    function GetPreamble: TIdBytes; override;
+    function GetPreamble: TIdTextEncodingBytes; override;
   end;
 
   TIdUTF16BigEndianEncoding = class(TIdUTF16LittleEndianEncoding)
@@ -964,7 +968,7 @@ type
     function GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer; overload; override;
     function GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar; CharCount: Integer): Integer; overload; override;
   public
-    function GetPreamble: TIdBytes; override;
+    function GetPreamble: TIdTextEncodingBytes; override;
   end;
   {$ENDIF}
 
@@ -979,7 +983,7 @@ type
     constructor Create; virtual;
     function GetMaxByteCount(ACharCount: Integer): Integer; override;
     function GetMaxCharCount(AByteCount: Integer): Integer; override;
-    function GetPreamble: TIdBytes; override;
+    function GetPreamble: TIdTextEncodingBytes; override;
   end;
   {$ENDIF}
 
@@ -1695,7 +1699,7 @@ const
 {$ENDIF}
 
 procedure EnsureEncoding(var VEncoding : TIdTextEncoding; ADefEncoding: IdAnsiEncodingType = encIndyDefault);
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if VEncoding = nil then
   begin
@@ -3101,7 +3105,7 @@ begin
   Result := AByteCount;
 end;
 
-function TIdASCIIEncoding.GetPreamble: TIdBytes;
+function TIdASCIIEncoding.GetPreamble: TIdTextEncodingBytes;
 begin
   SetLength(Result, 0);
 end;
@@ -3138,7 +3142,7 @@ type
     constructor Create; virtual;
     function GetMaxByteCount(ACharCount: Integer): Integer; override;
     function GetMaxCharCount(AByteCount: Integer): Integer; override;
-    function GetPreamble: TIdBytes; override;
+    function GetPreamble: TIdTextEncodingBytes; override;
   end;
 
 constructor TId8BitEncoding.Create;
@@ -3200,7 +3204,7 @@ begin
   Result := AByteCount;
 end;
 
-function TId8BitEncoding.GetPreamble: TIdBytes;
+function TId8BitEncoding.GetPreamble: TIdTextEncodingBytes;
 begin
   SetLength(Result, 0);
 end;
@@ -3840,7 +3844,7 @@ procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
   );
 var
-  LChars: {$IFDEF DOTNET}array[0..0] of Char{$ELSE}TIdWideChars{$ENDIF};
+  LChars: {$IFDEF DOTNET}array[0..0] of Char{$ELSE}TIdTextEncodingWideChars{$ENDIF};
 begin
   EnsureEncoding(ADestEncoding);
   {$IFDEF STRING_IS_UNICODE}
@@ -3984,7 +3988,7 @@ procedure CopyTIdString(const ASource: String; const ASourceIndex: Integer;
 var
   LLength: Integer;
   {$IFDEF STRING_IS_ANSI}
-  LTmp: TIdWideChars;
+  LTmp: TIdTextEncodingWideChars;
   {$ENDIF}
 begin
   {$IFDEF STRING_IS_ANSI}
@@ -6230,7 +6234,7 @@ var
   {$IFDEF DOTNET}
   LChars: array[0..1] of Char;
   {$ELSE}
-  LChars: TIdWideChars;
+  LChars: TIdTextEncodingWideChars;
     {$IFDEF STRING_IS_ANSI}
   LWTmp: WideString;
   LATmp: TIdBytes;
@@ -6478,7 +6482,7 @@ var
   {$IFDEF DOTNET}
   LChars: array[0..1] of Char;
   {$ELSE}
-  LChars: TIdWideChars;
+  LChars: TIdTextEncodingWideChars;
     {$IFDEF STRING_IS_ANSI}
   LWTmp: WideString;
   LATmp: TIdBytes;

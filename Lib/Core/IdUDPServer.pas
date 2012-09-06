@@ -117,7 +117,17 @@ type
   
   //Exception is used instead of EIdException because the exception could be from somewhere else
   TIdUDPExceptionEvent = procedure(AThread: TIdUDPListenerThread; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass) of object;
-  TUDPReadEvent = procedure(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle) of object;
+
+  // RLebeau 9/5/2010: in D2009+, TIdBytes is an alias for SysUtils.TBytes, which
+  // is an alias for System.TArray, which has some different semantics than plain
+  // dynamic arrays.  In Delphi, those differences are more subtle than in C++,
+  // where they are major, in particular for event handlers that were previously
+  // using TIdBytes parameters.  The C++ IDE simply can't cope with TArray in RTTI
+  // correctly yet, so it produces bad HPP and Event Handler code that causes errors.
+  // In this situation, we will use an open array instead, which still accomplishes
+  // what we need and is compatible with both Delphi and C++...
+  //
+  TUDPReadEvent = procedure(AThread: TIdUDPListenerThread; const AData: {TIdBytes}array of Byte; ABinding: TIdSocketHandle) of object;
 
   TIdUDPServer = class(TIdUDPBase)
   protected
@@ -337,7 +347,7 @@ end;
 
 procedure TIdUDPServer.SetBindings(const Value: TIdSocketHandles);
 begin
-  // TODO: update the listener threads as well
+                                              
   FBindings.Assign(Value);
 end;
 
