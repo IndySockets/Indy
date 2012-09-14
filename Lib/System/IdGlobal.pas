@@ -2072,7 +2072,16 @@ var
 begin
   if GIdDefaultEncoding = nil then
   begin
+    {$IFDEF USE_ICONV}
+    // weird, but not all systems appear to support 'ASCII' so we will just use our own...
+    if not GIdIconvUseLocaleDependantAnsiEncoding then begin
+      LEncoding := TIdASCIIEncoding.Create;
+    end else begin
+      LEncoding := TIdMBCSEncoding.Create;
+    end;
+    {$ELSE}
     LEncoding := TIdMBCSEncoding.Create;
+    {$ENDIF}
     if InterlockedCompareExchangePtr(Pointer(GIdDefaultEncoding), LEncoding, nil) <> nil then
       LEncoding.Free;
   end;
@@ -2082,6 +2091,13 @@ end;
 {$IFDEF USE_ICONV}
 class function TIdTextEncoding.GetEncoding(const ACharSet: String): TIdTextEncoding;
 begin
+  if TextIsSame(ACharSet, 'ASCII') then begin {do not localize}
+    // weird, but not all systems appear to support 'ASCII' so we will just use our own...
+    if not GIdIconvUseLocaleDependantAnsiEncoding then begin
+      Result := TIdASCIIEncoding.Create;
+      Exit;
+    end;
+  end;
   Result := TIdMBCSEncoding.Create(ACharSet);
 end;
 {$ELSE}
@@ -2208,7 +2224,7 @@ const
   // RLebeau: iconv() does not provide a maximum character byte size like
   // Microsoft does, so have to determine the max bytes by manually encoding
   // an actual Unicode codepoint.  We'll encode the largest codepoint that
-  // UTF-16 supports, $10FFFD, for now...
+  // UTF-16 supports, U+10FFFF, for now...
   //
   cValue: array[0..1] of Word = ($DBFF, $DFFD);
 
@@ -2257,7 +2273,11 @@ begin
       iconv_close(FFromUTF16);
       FFromUTF16 := iconv_t(-1);
     end;
-    raise EIdException.CreateResFmt(@RSInvalidCharSet, [CharSet]);
+    if LFlags <> '' then begin
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConvWithFlags, [CharSet, cUTF16CharSet, LFlags]);
+    end else begin
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [CharSet, cUTF16CharSet]);
+    end;
   end;
 
   FMaxCharSize := LMaxCharSize;
@@ -2470,10 +2490,11 @@ begin
     end;
 
     // LByteSize was decremented by the number of bytes stored in the output buffer
-    Inc(Result, SizeOf(LBytes)-LByteSize);
+    Inc(Result, ByteCount-LByteSize);
     if Chars = nil then begin
       Exit;
     end;
+    ByteCount := LByteSize;
 
     // LCharSize was decremented by the number of bytes read from the input buffer
     Inc(Chars, (LSrcCharSize-LCharSize) div SizeOf(WideChar));

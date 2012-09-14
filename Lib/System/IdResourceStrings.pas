@@ -46,6 +46,8 @@ resourcestring
 
   RSInvalidCodePage = 'Invalid codepage (%d)';
   RSInvalidCharSet = 'Invalid character set (%s)';
+  RSInvalidCharSetConv = 'Invalid character set conversion (%s <-> %s)';
+  RSInvalidCharSetConvWithFlags = 'Invalid character set conversion (%s <-> %s, %s)';
 
   //IdIconv
   {$IFDEF USE_ICONV_UNIT}
