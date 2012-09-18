@@ -294,9 +294,7 @@ var
   function SetupErrorReply: TIdReplySMTP;
   begin
     Result := TIdReplySMTP.Create(nil);
-    Result.Text.Text := LastCmdResult.Text.Text;
-    Result.NumericCode := LastCmdResult.NumericCode;
-    Result.EnhancedCode.ReplyAsStr := (LastCmdResult as TIdReplySMTP).EnhancedCode.ReplyAsStr;
+    Result.Assign(LastCmdResult);
   end;
 
 begin
