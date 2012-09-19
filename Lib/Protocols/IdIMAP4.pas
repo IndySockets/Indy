@@ -758,7 +758,7 @@ varies between servers.  A typical line that gets parsed into this is:
     function  InternalRetrievePart(const AMsgNum: Integer; const APartNum: string;
           AUseUID: Boolean; AUsePeek: Boolean;
           ADestStream: TStream;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; {NOTE: var args cannot have default params}
           ADestFileNameAndPath: string = '';                     {Do not Localize}
           AContentTransferEncoding: string = 'text'): Boolean;             {Do not Localize}
@@ -904,11 +904,11 @@ varies between servers.  A typical line that gets parsed into this is:
           ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  RetrievePart(const AMsgNum: Integer; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  RetrievePart(const AMsgNum: Integer; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
@@ -917,12 +917,12 @@ varies between servers.  A typical line that gets parsed into this is:
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
@@ -994,11 +994,11 @@ varies between servers.  A typical line that gets parsed into this is:
           var ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePart(const AMsgUID: String; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
@@ -1006,11 +1006,11 @@ varies between servers.  A typical line that gets parsed into this is:
           var ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePartToFile(const AMsgUID: String; const APartNum: Integer;
@@ -3206,15 +3206,19 @@ end;
 function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: string;
   ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
   IsNumberValid(AMsgNum);
+  if ADestStream = nil then begin
+    Result := False;
+    Exit;
+  end;
   Result := InternalRetrievePart(AMsgNum, APartNum, False, False, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
@@ -3223,7 +3227,7 @@ end;
 
 // Retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(AMsgNum);
@@ -3234,15 +3238,19 @@ end;
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
   ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
   IsNumberValid(AMsgNum);
+  if ADestStream = nil then begin
+    Result := False;
+    Exit;
+  end;
   Result := InternalRetrievePart(AMsgNum, APartNum, False, True, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
@@ -3251,7 +3259,7 @@ end;
 
 //Retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(AMsgNum);
@@ -3262,15 +3270,19 @@ end;
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: string;
   var ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
   IsUIDValid(AMsgUID);
+  if ADestStream = nil then begin
+    Result := False;
+    Exit;
+  end;
   Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, False, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
@@ -3279,7 +3291,7 @@ end;
 
 // Retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsUIDValid(AMsgUID);
@@ -3290,15 +3302,19 @@ end;
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
   var ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
   IsUIDValid(AMsgUID);
+  if ADestStream = nil then begin
+    Result := False;
+    Exit;
+  end;
   Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, True, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
@@ -3306,7 +3322,7 @@ begin
 end;
 
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
   //Retrieve a specific individual part of a message
 begin
@@ -3325,7 +3341,7 @@ end;
 function TIdIMAP4.RetrievePartToFile(const AMsgNum: Integer; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
   IsNumberValid(AMsgNum);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -3347,7 +3363,7 @@ end;
 function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: Integer; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
   IsNumberValid(AMsgNum);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -3369,7 +3385,7 @@ end;
 function TIdIMAP4.UIDRetrievePartToFile(const AMsgUID: String; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
   IsUIDValid(AMsgUID);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -3391,7 +3407,7 @@ end;
 function TIdIMAP4.UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNum: {Integer} string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
   IsUIDValid(AMsgUID);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -3403,9 +3419,10 @@ begin
 end;
 
 // retrieve a specific individual part of a message
+// TODO: remove the ABufferLength output parameter under DOTNET, it is redundant...
 function TIdIMAP4.InternalRetrievePart(const AMsgNum: Integer; const APartNum: {Integer} string;
   AUseUID: Boolean; AUsePeek: Boolean; ADestStream: TStream;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PChar{$ENDIF};
+  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; {NOTE: var args cannot have default params}
   ADestFileNameAndPath: string;
   AContentTransferEncoding: string): Boolean;
@@ -3413,21 +3430,20 @@ var
   LCmd: string;
   bCreatedStream: Boolean;
   LDestStream: TStream;
-  LMemoryStream: TMemoryStream;
 //  LPartSizeParam: string;
   LHelper: TIdIMAP4WorkHelper;
 
-  procedure DoDecode(ATargetStream: TStream; ADecoderClass: TIdDecoderClass = nil; AStripCRLFs: Boolean = False);
+  procedure DoDecode(ADecoderClass: TIdDecoderClass = nil; AStripCRLFs: Boolean = False);
   var
     LDecoder: TIdDecoder;
     LStream: TStream;
     LStrippedStream: TStringStream;
     LUnstrippedStream: TStringStream;
   begin
-    if ATargetStream = nil then begin
+    if LDestStream = nil then begin
       LStream := TMemoryStream.Create;
     end else begin
-      LStream := ATargetStream;
+      LStream := LDestStream;
     end;
     try
       if ADecoderClass <> nil then begin
@@ -3462,23 +3478,28 @@ var
           FreeAndNil(LDecoder);
         end;
       end else begin
-        IOHandler.ReadStream(ADestStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+        IOHandler.ReadStream(LStream, ABufferLength); //ReadStream uses OnWork, most other methods dont
       end;
-      if ATargetStream = nil then begin
-        ABufferLength := ADestStream.Size;
+      if LDestStream = nil then begin
+        ABufferLength := LStream.Size;
         {$IFDEF DOTNET}
         //ABuffer is a TIdBytes.
         SetLength(ABuffer, ABufferLength);
-        LMemoryStream.Position := 0;
-        ReadTIdBytesFromStream(LMemoryStream, ABuffer, ABufferLength);
+        if ABufferLength > 0 then begin
+          LStream.Position := 0;
+          ReadTIdBytesFromStream(LStream, ABuffer, ABufferLength);
+        end;
         {$ELSE}
-        //ABuffer is a PChar.
+        //ABuffer is a PByte.
         GetMem(ABuffer, ABufferLength);
-        Move(LMemoryStream.Memory, ABuffer, ABufferLength);
+        if ABufferLength > 0 then begin
+          LStream.Position := 0;
+          LStream.ReadBuffer(ABuffer^, ABufferLength);
+        end;
         {$ENDIF}
       end;
     finally
-      if ATargetStream = nil then begin
+      if LDestStream = nil then begin
         FreeAndNil(LStream);
       end;
     end;
@@ -3523,14 +3544,16 @@ begin
       ABufferLength := FLineStruct.ByteCount;
       bCreatedStream := False;
 
-      if (Length(ADestFileNameAndPath) = 0) and (ADestStream = nil) then begin
-        {User wants to write it to a memory block...}
-        LDestStream := nil;
-      end
-      else if ADestStream = nil then begin
-        {User wants to write it to a file...}
-        LDestStream := TIdFileCreateStream.Create(ADestFileNameAndPath);
-        bCreatedStream := True;
+      if ADestStream = nil then
+      begin
+        if Length(ADestFileNameAndPath) = 0 then begin
+          {User wants to write it to a memory block...}
+          LDestStream := nil;
+        end else begin
+          {User wants to write it to a file...}
+          LDestStream := TIdFileCreateStream.Create(ADestFileNameAndPath);
+          bCreatedStream := True;
+        end;
       end else
       begin
         {User wants to write it to a stream ...}
@@ -3540,14 +3563,14 @@ begin
         LHelper := TIdIMAP4WorkHelper.Create(Self);
         try
           if TextIsSame(AContentTransferEncoding, 'base64') then begin  {Do not Localize}
-            DoDecode(LDestStream, TIdDecoderMIME, True);
+            DoDecode(TIdDecoderMIME, True);
           end else if TextIsSame(AContentTransferEncoding, 'quoted-printable') then begin  {Do not Localize}
-            DoDecode(LDestStream, TIdDecoderQuotedPrintable);
+            DoDecode(TIdDecoderQuotedPrintable);
           end else if TextIsSame(AContentTransferEncoding, 'binhex40') then begin  {Do not Localize}
-            DoDecode(LDestStream, TIdDecoderBinHex4);
+            DoDecode(TIdDecoderBinHex4);
           end else begin
             {Assume no encoding or something we cannot decode...}
-            DoDecode(LDestStream);
+            DoDecode;
           end;
         finally
           FreeAndNil(LHelper);
@@ -5218,12 +5241,12 @@ begin
     end else begin
       I := Pos('" ', ACmdResultStr);             {Do not Localize}
       LTemp := Copy(ACmdResultStr, 1, I);
-{$IFDEF DOTNET}
+      {$IFDEF DOTNET}
       LStr := Copy(LTemp, 2, Length(LTemp)-2);
-{$ELSE}
+      {$ELSE}
       LPChar := PChar(LTemp);
       LStr := AnsiExtractQuotedStr(LPChar, '"');                       {Do not Localize}
-{$ENDIF}
+      {$ENDIF}
       AMsg.Subject := LStr;
       ACmdResultStr := Copy(ACmdResultStr, I+2, MaxInt);       {Do not Localize}
     end;
