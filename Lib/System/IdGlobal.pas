@@ -2091,14 +2091,15 @@ end;
 {$IFDEF USE_ICONV}
 class function TIdTextEncoding.GetEncoding(const ACharSet: String): TIdTextEncoding;
 begin
-  if TextIsSame(ACharSet, 'ASCII') then begin {do not localize}
-    // weird, but not all systems appear to support 'ASCII' so we will just use our own...
-    if not GIdIconvUseLocaleDependantAnsiEncoding then begin
-      Result := TIdASCIIEncoding.Create;
-      Exit;
-    end;
+  case PosInStrArray(ACharSet, ['utf-16', 'utf-16le', 'utf-16be', 'utf-8', 'utf-7', 'ascii'], False) of {do not localize}
+    0, 1: Result := TIdUTF16LittleEndianEncoding.Create;
+    2:    Result := TIdUTF16BigEndianEncoding.Create;
+    3:    Result := IndyUTF8Encoding(False);
+    4:    Result := TIdUTF7Encoding.Create;
+    5:    Result := IndyASCIIEncoding(False);
+  else
+    Result := TIdMBCSEncoding.Create(ACharSet);
   end;
-  Result := TIdMBCSEncoding.Create(ACharSet);
 end;
 {$ELSE}
   {$IFDEF WINDOWS}
