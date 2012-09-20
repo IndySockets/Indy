@@ -4850,6 +4850,7 @@ const
 //enum {
   {$EXTERNALSYM notAQTVRMovieErr}
   notAQTVRMovieErr              = -30540;
+  {$EXTERNALSYM constraintReachedErr}
   constraintReachedErr          = -30541;
   {$EXTERNALSYM callNotSupportedByNodeErr}
   callNotSupportedByNodeErr     = -30542;
