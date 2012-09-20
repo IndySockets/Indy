@@ -124,7 +124,9 @@ end;
 
 procedure TIdLogFile.LogWriteString(const AText: string);
 begin
-  WriteStringToStream(FFileStream, AText, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  if Assigned(FFileStream) then begin
+    WriteStringToStream(FFileStream, AText, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  end;
 end;
 
 procedure TIdLogFile.LogFormat(const AFormat: string; const AArgs: array of const);
