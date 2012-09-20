@@ -179,7 +179,7 @@ end;
 
 procedure TIdLogBase.SetActive(AValue: Boolean);
 begin
-  if IsLoading then begin
+  if IsDesignTime or IsLoading then begin
     FStreamedActive := AValue;
   end
   else if FActive <> AValue then
