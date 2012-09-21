@@ -558,10 +558,10 @@ begin
       end;
       if CharIsInSet(LLine, 1, LWS) then begin
         if FHeaders.Count > 0 then begin
-          FHeaders[FHeaders.Count - 1] := FHeaders[FHeaders.Count - 1] + ' ' + Copy(LLine, 2, MaxInt);    {Do not Localize}
+          FHeaders[FHeaders.Count - 1] := FHeaders[FHeaders.Count - 1] + ' ' + TrimLeft(LLine);    {Do not Localize}
         end else begin
           //Make sure you change 'Content-Type :' to 'Content-Type:'
-          FHeaders.Add(GetProperHeaderItem(Copy(LLine, 2, MaxInt))); {Do not Localize}
+          FHeaders.Add(GetProperHeaderItem(TrimLeft(LLine))); {Do not Localize}
         end;
       end else begin
         //Make sure you change 'Content-Type :' to 'Content-Type:'
