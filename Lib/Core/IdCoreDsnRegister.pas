@@ -144,7 +144,13 @@ begin
   inherited Edit;
 
   {$IFNDEF DOTNET}
-  pSockets := TIdSocketHandles(GetOrdValue);
+  pSockets := TIdSocketHandles(
+    {$IFDEF CPU64}
+    GetInt64Value
+    {$ELSE}
+    GetOrdValue
+    {$ENDIF}
+  );
   {$ELSE}
   pSockets := GetObjValue as TIdSocketHandles;
   {$ENDIF}
@@ -175,7 +181,13 @@ var
   pSockets: TIdSocketHandles;
 begin
   {$IFNDEF DOTNET}
-  pSockets := TIdSocketHandles(GetOrdValue);
+  pSockets := TIdSocketHandles(
+    {$IFDEF CPU64}
+    GetInt64Value
+    {$ELSE}
+    GetOrdValue
+    {$ENDIF}
+  );
   {$ELSE}
   pSockets := GetObjValue as TIdSocketHandles;
   {$ENDIF}
@@ -188,7 +200,13 @@ var
 begin
   inherited SetValue(Value);
   {$IFNDEF DOTNET}
-  pSockets := TIdSocketHandles(GetOrdValue);
+  pSockets := TIdSocketHandles(
+    {$IFDEF CPU64}
+    GetInt64Value
+    {$ELSE}
+    GetOrdValue
+    {$ENDIF}
+  );
   {$ELSE}
   pSockets := GetObjValue as TIdSocketHandles;
   {$ENDIF}
