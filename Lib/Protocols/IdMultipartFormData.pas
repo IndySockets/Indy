@@ -598,68 +598,6 @@ begin
   Result := Result + CRLF;
 end;
 
-type
-  TIdCalculateSizeStream = class(TIdBaseStream)
-  protected
-    FPosition: Int64;
-    FSize: Int64;
-    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
-    procedure IdSetSize(ASize: Int64); override;
-  end;
-
-function TIdCalculateSizeStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
-begin
-  Result := 0;
-end;
-
-function TIdCalculateSizeStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
-var
-  I: Integer;
-begin
-  I := IndyLength(ABuffer, ACount, AOffset);
-  if I > 0 then begin
-    Inc(FPosition, I);
-    if FPosition > FSize then begin
-      FSize := FPosition;
-    end;
-  end;
-  Result := I;
-end;
-
-function TIdCalculateSizeStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
-begin
-  case AOrigin of
-    soBeginning: begin
-      FPosition := AOffset;
-    end;
-    soCurrent: begin
-      FPosition := FPosition + AOffset;
-    end;
-    soEnd: begin
-      FPosition := FSize + AOffset;
-    end;
-  end;
-  if FPosition < 0 then begin
-    FPosition := 0;
-  end;
-  Result := FPosition;
-end;
-
-procedure TIdCalculateSizeStream.IdSetSize(ASize: Int64);
-begin
-  if ASize < 0 then begin
-    ASize := 0;
-  end;
-  if FSize <> ASize then begin
-    FSize := ASize;
-    if FSize < FPosition then begin
-      FPosition := FSize;
-    end;
-  end;
-end;
-
 function TIdFormDataField.GetFieldSize: Int64;
 var
   LEncoding: TIdTextEncoding;
