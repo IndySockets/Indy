@@ -553,7 +553,7 @@ constructor EIdSMTPReplyError.CreateError(const AErrCode: Integer;
 begin
   inherited CreateError(AErrCode,AReplyMessage);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
-  FEnhancedCode.ReplyAsStr := AEnhanced.ReplyAsStr;
+  FEnhancedCode.Assign(AEnhanced);
 end;
 
 destructor EIdSMTPReplyError.Destroy;

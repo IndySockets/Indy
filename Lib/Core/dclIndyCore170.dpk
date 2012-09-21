@@ -1,7 +1,6 @@
 package dclIndyCore170;
 
 {$R *.res}
-{$R *.otares}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
