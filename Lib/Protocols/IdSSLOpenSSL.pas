@@ -1953,11 +1953,11 @@ begin
   try
     if SSLIsLoaded.Value then begin
       Result := True;
-      exit;
+      Exit;
     end;
     Result := IdSSLOpenSSLHeaders.Load;
     if not Result then begin
-      exit;
+      Exit;
     end;
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
     // has to be done before anything that uses memory
@@ -1972,7 +1972,7 @@ begin
     // Successful loading if true
     Result := SSLeay_add_ssl_algorithms > 0;
     if not Result then begin
-      exit;
+      Exit;
     end;
     // Create locking structures, we need them for callback routines
     Assert(LockInfoCB = nil);
@@ -2005,23 +2005,26 @@ var
 begin
   // ssl was never loaded
   if LockInfoCB = nil then begin
-    exit;
+    Exit;
   end;
-  CRYPTO_set_locking_callback(nil);
+  if Assigned(CRYPTO_set_locking_callback) then begin
+    CRYPTO_set_locking_callback(nil);
+  end;
   IdSSLOpenSSLHeaders.Unload;
   FreeAndNil(LockInfoCB);
   FreeAndNil(LockPassCB);
   FreeAndNil(LockVerifyCB);
   if Assigned(CallbackLockList) then begin
-    with CallbackLockList.LockList do
+    with CallbackLockList.LockList do begin
       try
         for i := 0 to Count - 1 do begin
-          TObject(Items[i]).free;
+          TObject(Items[i]).Free;
         end;
         Clear;
       finally
         CallbackLockList.UnlockList;
       end;
+    end;
     FreeAndNil(CallbackLockList);
   end;
   SSLIsLoaded.Value := False;

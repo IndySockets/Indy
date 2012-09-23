@@ -569,7 +569,7 @@ resourcestring
   RSSSLLoadingCertError = 'Could not load certificate.';
   RSSSLLoadingKeyError = 'Could not load key, check password.';
   RSSSLLoadingDHParamsError = 'Could not load DH Parameters.';
-  RSSSLGetMethodError = 'Error geting SSL method.';
+  RSSSLGetMethodError = 'Error getting SSL method.';
   RSSSLFDSetError = 'Error setting File Descriptor for SSL';
   RSSSLDataBindingError = 'Error binding data to SSL socket.';
   RSSSLEOFViolation = 'EOF was observed that violates the protocol';
@@ -650,6 +650,7 @@ resourcestring
 
   {$IFDEF USE_OPENSSL}
   {IdOpenSSL}
+  RSOSSFailedToLoad = 'Failed to load %s.';
   RSOSSLModeNotSet = 'Mode has not been set.';
   RSOSSLCouldNotLoadSSLLibrary = 'Could not load SSL library.';
   RSOSSLStatusString = 'SSL status: "%s"';

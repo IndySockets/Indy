@@ -21132,22 +21132,16 @@ pass a constant anyway.
 function LoadFunction(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
   Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdSSL, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
-  if ACritical then
-  begin
-    if Result = nil then begin
-      FFailedFunctionLoadList.Add(FceName);
-    end;
+  if (Result = nil) and ACritical then begin
+    FFailedFunctionLoadList.Add(FceName); {do not localize}
   end;
 end;
 
 function LoadFunctionCLib(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
   Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
-  if ACritical then
-  begin
-    if Result = nil then begin
-      FFailedFunctionLoadList.Add(FceName);
-    end;
+  if (Result = nil) and ACritical then begin
+    FFailedFunctionLoadList.Add(FceName); {do not localize}
   end;
 end;
 
@@ -21164,12 +21158,10 @@ function LoadOldCLib(const AOldName, ANewName : {$IFDEF WINCE}TIdUnicodeString{$
 begin
   Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AOldName));
   if Result = nil then begin
-     Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
-     if ACritical then begin
-        if Result = nil then begin
-            FFailedFunctionLoadList.Add(AOldName);
-        end;
-     end;
+    Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
+    if (Result = nil) and ACritical then begin
+      FFailedFunctionLoadList.Add(AOldName);
+    end;
   end;
 end;
 
@@ -21251,22 +21243,27 @@ end;
 function Load: Boolean;
 begin
   Result := False;
-
   Assert(FFailedFunctionLoadList<>nil);
-  FFailedFunctionLoadList.Clear;
 
-  if hIdCrypto = 0 then begin
-    hIdCrypto := LoadSSLCryptoLibrary;
-  end;
-
-  if hIdSSL <> 0 then begin
+  if (hIdCrypto <> 0) and (hIdSSL <> 0) and (FFailedFunctionLoadList.Count = 0) then begin
     Result := True;
     Exit;
   end;
 
-  hIdSSL := LoadSSLLibrary;
+  FFailedFunctionLoadList.Clear;
+
+  if hIdCrypto = 0 then begin
+    hIdCrypto := LoadSSLCryptoLibrary;
+    if hIdCrypto = 0 then begin
+      Exit;
+    end;
+  end;
+
   if hIdSSL = 0 then begin
-    Exit;
+    hIdSSL := LoadSSLLibrary;
+    if hIdSSL = 0 then begin
+      Exit;
+    end;
   end;
 
   @SSL_CTX_set_cipher_list := LoadFunction(fn_SSL_CTX_set_cipher_list);
@@ -21355,8 +21352,8 @@ begin
   @X509_STORE_CTX_get_error_depth := LoadFunctionCLib(fn_X509_STORE_CTX_get_error_depth);
   @X509_STORE_CTX_get_current_cert := LoadFunctionCLib(fn_X509_STORE_CTX_get_current_cert);
   @X509_STORE_add_lookup := LoadFunctionCLib(fn_X509_STORE_add_lookup);
-  @X509_STORE_load_locations := LoadFunctionClib(fn_X509_STORE_load_locations);
-  @i2d_DSAPrivateKey := LoadFunctionClib(fn_i2d_DSAPrivateKey);
+  @X509_STORE_load_locations := LoadFunctionCLib(fn_X509_STORE_load_locations);
+  @i2d_DSAPrivateKey := LoadFunctionCLib(fn_i2d_DSAPrivateKey);
   @d2i_DSAPrivateKey := LoadFunctionCLib(fn_d2i_DSAPrivateKey);
   @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);
   @d2i_PrivateKey_bio := LoadFunctionCLib(fn_d2i_PrivateKey_bio);
@@ -21415,8 +21412,10 @@ we have to handle both cases.
   @CRYPTO_THREADID_set_callback := LoadFunctionCLib(fn_CRYPTO_THREADID_set_callback,False);
   @CRYPTO_THREADID_set_numeric := LoadFunctionClib(fn_CRYPTO_THREADID_set_numeric,False);
   @CRYPTO_THREADID_set_pointer := LoadFunctionClib(fn_CRYPTO_THREADID_set_pointer,False);  {Do not localize}
-  if not assigned(CRYPTO_THREADID_set_callback) then begin
+  if not Assigned(CRYPTO_THREADID_set_callback) then begin
     @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback);
+  end else begin
+    @CRYPTO_set_id_callback := nil;
   end;
   {$ENDIF}
   @ERR_put_error := LoadFunctionCLib(fn_ERR_put_error);
@@ -21435,13 +21434,15 @@ we have to handle both cases.
   @ERR_remove_thread_state := LoadFunctionCLib(fn_ERR_remove_thread_state,False);
   if not Assigned(ERR_remove_thread_state) then begin
     @ERR_remove_state := LoadFunctionCLib(fn_ERR_remove_state);
+  end else begin
+    @ERR_remove_state := nil;
   end;
   @CRYPTO_cleanup_all_ex_data := LoadFunctionCLib(fn_CRYPTO_cleanup_all_ex_data);
   @SSL_COMP_get_compression_methods := LoadFunction(fn_SSL_COMP_get_compression_methods);
   @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free);
   //RSA
   @RSA_free := LoadFunctionCLib(fn_RSA_free);
-  @RSA_generate_key := LoadFunctionClib(fn_RSA_generate_key);
+  @RSA_generate_key := LoadFunctionCLib(fn_RSA_generate_key);
   @RSA_check_key := LoadFunctionCLib(fn_RSA_check_key);
   @RSA_generate_key_ex := LoadFunctionCLib(fn_RSA_generate_key_ex);
   @RSA_new := LoadFunctionCLib(fn_RSA_new);
@@ -21470,28 +21471,28 @@ we have to handle both cases.
   @i2d_X509_bio := LoadFunctionCLib(fn_i2d_X509_bio);
   @i2d_PrivateKey_bio := LoadFunctionCLib(fn_i2d_PrivateKey_bio);
   @d2i_X509_bio := LoadFunctionCLib(fn_d2i_X509_bio);
-  @i2d_X509_REQ_bio := LoadFunctionClib(fn_i2d_X509_REQ_bio);
-  @i2d_PKCS7 := LoadFunctionClib(fn_i2d_PKCS7);
+  @i2d_X509_REQ_bio := LoadFunctionCLib(fn_i2d_X509_REQ_bio);
+  @i2d_PKCS7 := LoadFunctionCLib(fn_i2d_PKCS7);
   @d2i_PKCS7 := LoadFunctionCLib(fn_d2i_PKCS7);
   @i2d_X509 := LoadFunctionCLib(fn_i2d_X509);
-  @d2i_X509 := LoadFunctionClib(fn_d2i_X509);
-  @i2d_X509_REQ := LoadFunctionClib(fn_i2d_X509_REQ);
-  @d2i_X509_REQ := LoadFunctionClib(fn_d2i_X509_REQ );
-  @i2d_X509_CRL := LoadFunctionClib(fn_i2d_X509_CRL );
-  @d2i_X509_CRL := LoadFunctionClib(fn_d2i_X509_CRL );
+  @d2i_X509 := LoadFunctionCLib(fn_d2i_X509);
+  @i2d_X509_REQ := LoadFunctionCLib(fn_i2d_X509_REQ);
+  @d2i_X509_REQ := LoadFunctionCLib(fn_d2i_X509_REQ );
+  @i2d_X509_CRL := LoadFunctionCLib(fn_i2d_X509_CRL );
+  @d2i_X509_CRL := LoadFunctionCLib(fn_d2i_X509_CRL );
   @i2d_RSAPrivateKey := LoadFunctionCLib(fn_i2d_RSAPrivateKey );
   @d2i_RSAPrivateKey := LoadFunctionCLib(fn_d2i_RSAPrivateKey );
   @i2d_RSAPublicKey := LoadFunctionCLib(fn_i2d_RSAPublicKey);
-  @d2i_RSAPublicKey := LoadFunctionClib(fn_d2i_RSAPublicKey);
+  @d2i_RSAPublicKey := LoadFunctionCLib(fn_d2i_RSAPublicKey);
   @i2d_PrivateKey := LoadFunctionCLib(fn_i2d_PrivateKey);
   @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);
 
   @i2d_DSAparams := LoadFunctionCLib(fn_i2d_DSAparams);
-  @d2i_DSAparams := LoadFunctionClib(fn_d2i_DSAparams);
+  @d2i_DSAparams := LoadFunctionCLib(fn_d2i_DSAparams);
   @i2d_DHparams := LoadFunctionCLib(fn_i2d_DHparams);
-  @d2i_DHparams := LoadFunctionClib(fn_d2i_DHparams);
-  @i2d_NETSCAPE_CERT_SEQUENCE := LoadFunctionClib(fn_i2d_NETSCAPE_CERT_SEQUENCE);
-  @d2i_NETSCAPE_CERT_SEQUENCE := LoadFunctionClib(fn_i2d_NETSCAPE_CERT_SEQUENCE);
+  @d2i_DHparams := LoadFunctionCLib(fn_d2i_DHparams);
+  @i2d_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE);
+  @d2i_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE);
 
   //X509
   @X509_get_default_cert_file := LoadFunctionCLib(fn_X509_get_default_cert_file);
@@ -21515,26 +21516,26 @@ we have to handle both cases.
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := LoadFunctionCLib(fn_PEM_read_bio_X509, False);
-  @_PEM_read_bio_X509_REQ := LoadFunctionClib(fn_PEM_read_bio_X509_REQ, False);
-  @_PEM_read_bio_X509_CRL := LoadFunctionClib(fn_PEM_read_bio_X509_CRL, False);
+  @_PEM_read_bio_X509_REQ := LoadFunctionCLib(fn_PEM_read_bio_X509_REQ, False);
+  @_PEM_read_bio_X509_CRL := LoadFunctionCLib(fn_PEM_read_bio_X509_CRL, False);
   @_PEM_read_bio_RSAPrivateKey := LoadFunctionCLib(fn_PEM_read_bio_RSAPrivateKey, False);
   @_PEM_read_bio_RSAPublicKey := LoadFunctionCLib(fn_PEM_read_bio_RSAPublicKey, False);
   @_PEM_read_bio_DSAPrivateKey :=  LoadFunctionCLib(fn_PEM_read_bio_DSAPrivateKey, False);
-  @_PEM_read_bio_PrivateKey := LoadFunctionClib (fn_PEM_read_bio_PrivateKey,False);
-  @_PEM_read_bio_PKCS7 := LoadFunctionClib (fn_PEM_read_bio_PKCS7, False);
+  @_PEM_read_bio_PrivateKey := LoadFunctionCLib (fn_PEM_read_bio_PrivateKey,False);
+  @_PEM_read_bio_PKCS7 := LoadFunctionCLib (fn_PEM_read_bio_PKCS7, False);
   @_PEM_read_bio_DHparams := LoadFunctionCLib(fn_PEM_read_bio_DHparams, False);
-  @_PEM_read_bio_DSAparams := LoadFunctionClib(fn_PEM_read_bio_DSAparams, False);
-  @_PEM_read_bio_NETSCAPE_CERT_SEQUENCE := LoadFunctionClib(fn_PEM_read_bio_NETSCAPE_CERT_SEQUENCE,False);
+  @_PEM_read_bio_DSAparams := LoadFunctionCLib(fn_PEM_read_bio_DSAparams, False);
+  @_PEM_read_bio_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_PEM_read_bio_NETSCAPE_CERT_SEQUENCE,False);
   @_PEM_write_bio_X509 := LoadFunctionCLib(fn_PEM_write_bio_X509,False);
   @_PEM_write_bio_X509_REQ := LoadFunctionCLib(fn_PEM_write_bio_X509_REQ,False);
   @_PEM_write_bio_X509_CRL := LoadFunctionCLib( fn_PEM_write_bio_X509_CRL,False);
   @_PEM_write_bio_RSAPublicKey := LoadFunctionCLib( fn_PEM_write_bio_RSAPublicKey,False);
   @_PEM_write_bio_DSAPrivateKey := LoadFunctionCLib( fn_PEM_write_bio_DSAPrivateKey,False);
-  @_PEM_write_bio_PrivateKey := LoadFunctionClib( fn_PEM_write_bio_PrivateKey,False);
+  @_PEM_write_bio_PrivateKey := LoadFunctionCLib( fn_PEM_write_bio_PrivateKey,False);
   @_PEM_write_bio_PKCS7 := LoadFunctionCLib( fn_PEM_write_bio_PKCS7,False);
   @_PEM_write_bio_DHparams := LoadFunctionCLib(fn_PEM_write_bio_DHparams,False);
-  @_PEM_write_bio_DSAparams := LoadFunctionClib(fn_PEM_write_bio_DSAparams,False);
-  @_PEM_write_bio_NETSCAPE_CERT_SEQUENCE := LoadFunctionClib(fn_PEM_write_bio_NETSCAPE_CERT_SEQUENCE,False);
+  @_PEM_write_bio_DSAparams := LoadFunctionCLib(fn_PEM_write_bio_DSAparams,False);
+  @_PEM_write_bio_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_PEM_write_bio_NETSCAPE_CERT_SEQUENCE,False);
   @_PEM_write_bio_PKCS8PrivateKey := LoadFunctionCLib(fn_PEM_write_bio_PKCS8PrivateKey,False);
   {$ELSE}
   @PEM_ASN1_write_bio := LoadFunctionCLib(fn_PEM_ASN1_write_bio,False);
@@ -21568,7 +21569,7 @@ we have to handle both cases.
   {$ENDIF}
   @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init);
   @EVP_DigestInit_ex := LoadFunctionCLib(fn_EVP_DigestInit_ex);
-  @EVP_DigestUpdate := LoadFunctionClib(fn_EVP_DigestUpdate);
+  @EVP_DigestUpdate := LoadFunctionCLib(fn_EVP_DigestUpdate);
   @EVP_DigestFinal_ex := LoadFunctionCLib(fn_EVP_DigestFinal_ex);
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
   @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
@@ -21580,6 +21581,9 @@ we have to handle both cases.
   {$IFNDEF OPENSSL_NO_HMAC}
   @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init);
   if IsOpenSSL_1x then begin
+    @_HMAC_Init_ex := nil;
+    @_HMAC_Update := nil;
+    @_HMAC_Final := nil;
     @_1_0_HMAC_Init_ex :=  LoadFunctionCLib(fn_HMAC_Init_ex);
     @_1_0_HMAC_Update  := LoadFunctionCLib(fn_HMAC_Update);
     @_1_0_HMAC_Final := LoadFunctionCLib(fn_HMAC_Final);
@@ -21587,6 +21591,9 @@ we have to handle both cases.
     @_HMAC_Init_ex := LoadFunctionCLib(fn_HMAC_Init_ex);
     @_HMAC_Update := LoadFunctionCLib(fn_HMAC_Update);
     @_HMAC_Final := LoadFunctionCLib(fn_HMAC_Final);
+    @_1_0_HMAC_Init_ex :=  nil;
+    @_1_0_HMAC_Update  := nil;
+    @_1_0_HMAC_Final := nil;
   end;
   @HMAC_CTX_cleanup := LoadFunctionCLib(fn_HMAC_CTX_cleanup);
   {$ENDIF}
@@ -21992,18 +21999,32 @@ begin
   if hIdSSL <> 0 then begin
     //this is a workaround for a known leak in the openssl library
     //present in 0.9.8a
-    if SSLeay = $0090801f then begin //0x0090801fL
-      LStack := SSL_COMP_get_compression_methods;
-      sk_pop_free(LStack, @CRYPTO_free);
+    if Assigned(SSLeay) then begin
+      if SSLeay = $0090801f then begin
+        if Assigned(SSL_COMP_get_compression_methods) and
+           Assigned(sk_pop_free) and
+           Assigned(CRYPTO_free) then
+        begin
+          LStack := SSL_COMP_get_compression_methods;
+          sk_pop_free(LStack, @CRYPTO_free);
+        end;
+      end;
     end;
-    CRYPTO_cleanup_all_ex_data;
-    ERR_free_strings;
+    if Assigned(CRYPTO_cleanup_all_ex_data) then begin
+      CRYPTO_cleanup_all_ex_data;
+    end;
+    if Assigned(ERR_free_strings) then begin
+      ERR_free_strings;
+    end;
     if Assigned(ERR_remove_thread_state) then begin
       ERR_remove_thread_state(nil);
-    end else begin
+    end
+    else if Assigned(ERR_remove_state) then begin
       ERR_remove_state(0);
     end;
-    EVP_cleanup;
+    if Assigned(EVP_cleanup) then begin
+      EVP_cleanup;
+    end;
     {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdSSL);
     hIdSSL := 0;
   end;
@@ -22028,10 +22049,14 @@ function WhichFailedToLoad: string;
 begin
   Assert(FFailedFunctionLoadList<>nil);
   if hIdSSL = 0 then begin
-    Result := 'Failed to load ' + GIdOpenSSLPath + SSL_DLL_name + '.'  {Do not localize}
-  end else begin
+    Result := IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSL_DLL_name]);
+  end
+  else if hIdCrypto = 0 then begin
+    Result := IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSLCLIB_DLL_name]);
+  end
+  else begin
     Result := FFailedFunctionLoadList.CommaText;
-  end;
+ end;
 end;
 
 // Author : Gregor Ibich (gregor.ibic@intelicom.si)
