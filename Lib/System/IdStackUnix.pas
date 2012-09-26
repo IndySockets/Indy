@@ -153,6 +153,7 @@ type
     procedure WSSetLastError(const AErr : Integer); override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
     function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
+    procedure AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings); override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
       AOptval: PAnsiChar; var AOptlen: Integer); override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
@@ -897,6 +898,16 @@ var
 begin
   LP := AOptLen;
   CheckForSocketError(fpGetSockOpt(ASocket, ALevel, AOptname, AOptval, @LP));
+end;
+
+procedure TIdStackUnix.AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings);
+var LS : TServiceEntry;
+begin
+  WriteLn('TIdStackUnix.AddServByPortToList start');
+  if GetServiceByPort(APortNumber, '',LS) then begin
+    AAddresses.Add(LS.Name);
+  end;
+  WriteLn('TIdStackUnix.AddServByPortToList end');
 end;
 
 procedure TIdStackUnix.GetSocketOption(ASocket: TIdStackSocketHandle;
