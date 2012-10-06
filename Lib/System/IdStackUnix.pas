@@ -152,7 +152,6 @@ type
     function WSGetLastError: Integer; override;
     procedure WSSetLastError(const AErr : Integer); override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
-    function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
     procedure AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings); override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
       AOptval: PAnsiChar; var AOptlen: Integer); override;
@@ -698,21 +697,6 @@ begin
   end;
 end;
 
-function TIdStackUnix.WSGetServByPort(const APortNumber: TIdPort): TStrings;
-var
-  LS : TServiceEntry;
-begin
-  Result := TStringList.Create;
-  try
-    if GetServiceByPort(APortNumber, '', LS) then begin
-      Result.Add(LS.Name);
-    end;
-  except
-    FreeAndNil(Result);
-    raise;
-  end;
-end;
-
 function TIdStackUnix.HostToNetwork(AValue: Word): Word;
 begin
   Result := htons(AValue);
@@ -901,13 +885,12 @@ begin
 end;
 
 procedure TIdStackUnix.AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings);
-var LS : TServiceEntry;
+var
+  LS : TServiceEntry;
 begin
-  WriteLn('TIdStackUnix.AddServByPortToList start');
-  if GetServiceByPort(APortNumber, '',LS) then begin
+  if GetServiceByPort(APortNumber, '', LS) then begin
     AAddresses.Add(LS.Name);
   end;
-  WriteLn('TIdStackUnix.AddServByPortToList end');
 end;
 
 procedure TIdStackUnix.GetSocketOption(ASocket: TIdStackSocketHandle;
