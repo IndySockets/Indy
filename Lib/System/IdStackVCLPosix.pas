@@ -283,7 +283,7 @@ begin
     LTime.tv_usec := (ATimeout mod 1000) * 1000;
     LTimePtr := @LTime;
   end;
-  Result := Posix.SysSelect.select(MaxLongint, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  Result := Posix.SysSelect.select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 
 procedure TIdSocketListVCLPosix.GetFDSet(var VSet: fd_set);
