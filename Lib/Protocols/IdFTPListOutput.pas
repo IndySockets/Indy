@@ -1471,7 +1471,9 @@ procedure TDirEntry.SortAscendMTime;
 var
   i : Integer;
 begin
-  FFileList.BubbleSort(StrSortAscMTime);
+  if Assigned(FFileList) then begin
+    FFileList.BubbleSort(StrSortAscMTime);
+  end;
   if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortAscMTime);
     for i := 0 to FSubDirs.Count-1 do begin
@@ -1484,7 +1486,9 @@ procedure TDirEntry.SortDescendMTime;
 var
   i : Integer;
 begin
-  FFileList.BubbleSort(StrSortDescMTime);
+  if Assigned(FFileList) then begin
+    FFileList.BubbleSort(StrSortDescMTime);
+  end;
   if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortDescMTime);
     for i := 0 to FSubDirs.Count -1 do begin
@@ -1503,7 +1507,9 @@ begin
       TDirEntry(FSubDirs[i]).SortDescendFName;
     end;
   end;
-  FFileList.BubbleSort(StrSortDescFName);
+  if Assigned(FFileList) then begin
+    FFileList.BubbleSort(StrSortDescFName);
+  end;  
 end;
 
 procedure TDirEntry.SortAscendFNameExt;
@@ -1540,7 +1546,9 @@ procedure TDirEntry.SortAscendSize;
 var
   i : Integer;
 begin
-  FFileList.BubbleSort(StrSortAscSize);
+  if Assigned(FFileList) then begin
+    FFileList.BubbleSort(StrSortAscSize);
+  end;
   if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortAscMTime);
     for i := 0 to FSubDirs.Count-1 do begin
@@ -1553,7 +1561,9 @@ procedure TDirEntry.SortDescendSize;
 var
   i : Integer;
 begin
-  FFileList.BubbleSort(StrSortDescSize);
+  if Assigned(FFileList) then begin
+    FFileList.BubbleSort(StrSortDescSize);
+  end;
   if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortDescFName);
     for i := 0 to FSubDirs.Count-1 do begin

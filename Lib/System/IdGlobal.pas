@@ -1819,8 +1819,9 @@ begin
   if GIdBEUTF16Encoding = nil then
   begin
     LEncoding := TIdUTF16BigEndianEncoding.Create;
-    if InterlockedCompareExchangePtr(Pointer(GIdBEUTF16Encoding), LEncoding, nil) <> nil then
+    if InterlockedCompareExchangePtr(Pointer(GIdBEUTF16Encoding), LEncoding, nil) <> nil then begin
       LEncoding.Free;
+    end;
   end;
   Result := GIdBEUTF16Encoding;
 end;
@@ -2092,8 +2093,9 @@ begin
     {$ELSE}
     LEncoding := TIdMBCSEncoding.Create;
     {$ENDIF}
-    if InterlockedCompareExchangePtr(Pointer(GIdDefaultEncoding), LEncoding, nil) <> nil then
+    if InterlockedCompareExchangePtr(Pointer(GIdDefaultEncoding), LEncoding, nil) <> nil then begin
       LEncoding.Free;
+    end;
   end;
   Result := GIdDefaultEncoding;
 end;
@@ -2160,8 +2162,9 @@ begin
   if GIdLEUTF16Encoding = nil then
   begin
     LEncoding := TIdUTF16LittleEndianEncoding.Create;
-    if InterlockedCompareExchangePtr(Pointer(GIdLEUTF16Encoding), LEncoding, nil) <> nil then
+    if InterlockedCompareExchangePtr(Pointer(GIdLEUTF16Encoding), LEncoding, nil) <> nil then begin
       LEncoding.Free;
+    end;
   end;
   Result := GIdLEUTF16Encoding;
 end;
@@ -2177,8 +2180,9 @@ begin
   if GIdUTF7Encoding = nil then
   begin
     LEncoding := TIdUTF7Encoding.Create;
-    if InterlockedCompareExchangePtr(Pointer(GIdUTF7Encoding), LEncoding, nil) <> nil then
+    if InterlockedCompareExchangePtr(Pointer(GIdUTF7Encoding), LEncoding, nil) <> nil then begin
       LEncoding.Free;
+    end;
   end;
   Result := GIdUTF7Encoding;
 end;

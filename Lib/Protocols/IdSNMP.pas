@@ -363,10 +363,10 @@ end;
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.Clear;
 begin
-  Version:=0;
+  Version := 0;
   fCommunity := Owner.Community;
   if Self = fOwner.Trap then begin
-    Port := Owner.TrapPort
+    Port := Owner.TrapPort;
   end else begin
     Port := Owner.Port;
   end;
@@ -763,8 +763,11 @@ begin
   Trap.Enterprise := Enterprise;
   Trap.GenTrap := Generic;
   Trap.SpecTrap := Specific;
-  for i := 0 to MIBName.Count-1 do
+  Trap.MIBOID.Clear;
+  Trap.MIBValue.Clear;
+  for i := 0 to MIBName.Count-1 do begin
     Trap.MIBAdd(MIBName[i], MIBValue[i], PtrUInt(MibValue.Objects [i]));
+  end;
   Result := SendTrap;
 end;
 
