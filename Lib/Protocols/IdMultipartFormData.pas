@@ -646,7 +646,8 @@ begin
     try
     {$ENDIF}
       I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
-      if I <= 0 then begin
+      if I = 0 then begin
+        // 7bit
         {$IFDEF STRING_IS_UNICODE}
         I := IndyASCIIEncoding.GetByteCount(FFieldValue);
         {$ELSE}
@@ -663,7 +664,8 @@ begin
         // need to include an explicit CRLF at the end of the data
         Result := Result + I + 2{CRLF};
       end
-      else if (I >= 1) and (i <= 2) then begin
+      else if (I = -1) or (I = 1) or (I = 2) then begin
+        // 8bit/binary
         {$IFDEF STRING_IS_UNICODE}
         LEncoding := CharsetToEncoding(FCharset);
         I := LEncoding.GetByteCount(FFieldValue);
@@ -682,6 +684,7 @@ begin
           LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
           {$ENDIF}
           if I = 3 then begin
+            // quoted-printable
             {$IFDEF STRING_IS_UNICODE}
             TIdEncoderQuotedPrintable.EncodeString(FFieldValue, LStream, LEncoding);
             {$ELSE}
@@ -690,6 +693,7 @@ begin
             // the encoded text always includes a CRLF at the end...
             Result := Result + LStream.Size {+2};
           end else begin
+            // base64
             {$IFDEF STRING_IS_UNICODE}
             TIdEncoderMIME.EncodeString(FFieldValue, LStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
             {$ELSE}
@@ -762,7 +766,8 @@ begin
         LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
         {$ENDIF}
         I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
-        if I <= 0 then begin
+        if I = 0 then begin
+          // 7bit
           {$IFDEF STRING_IS_UNICODE}
           WriteStringToStream(Result, FFieldValue, IndyASCIIEncoding);
           {$ELSE}
@@ -775,7 +780,8 @@ begin
           // need to include an explicit CRLF at the end of the data
           WriteStringToStream(Result, CRLF);
         end
-        else if (I >= 1) and (I <= 2) then begin
+        else if (I = -1) or (I = 1) or (I = 2) then begin
+          // 8bit/binary
           {$IFDEF STRING_IS_UNICODE}
           LEncoding := CharsetToEncoding(FCharset);
           WriteStringToStream(Result, FFieldValue, LEncoding);
@@ -790,6 +796,7 @@ begin
           LEncoding := CharsetToEncoding(FCharset);
           {$ENDIF}
           if I = 3 then begin
+            // quoted-printable
             {$IFDEF STRING_IS_UNICODE}
             TIdEncoderQuotedPrintable.EncodeString(FFieldValue, Result, LEncoding);
             {$ELSE}
@@ -797,6 +804,7 @@ begin
             {$ENDIF}
             // the encoded text always includes a CRLF at the end...
           end else begin
+            // base64
             {$IFDEF STRING_IS_UNICODE}
             TIdEncoderMIME.EncodeString(FFieldValue, Result, LEncoding);
             {$ELSE}
