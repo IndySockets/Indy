@@ -7389,7 +7389,7 @@ begin
   if AStrings.CaseSensitive = ACaseSensitive then begin
     Result := AStrings.IndexOfName(AStr);
   end else begin
-    Result := IndyIndexOfName(TStrings(AStrings), AStr, ACaseSensitive);
+    Result := InternalIndyIndexOfName(AStrings, AStr, ACaseSensitive);
   end;
 end;
 {$ENDIF}
