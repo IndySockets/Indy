@@ -3121,7 +3121,7 @@ begin
   for i := 1 to Result do begin
     // This is an invalid byte in the ASCII encoding.
     if ABytes^ > $7F then begin
-      Word(AChars^) := Ord('?');
+      Word(AChars^) := $FFFD;
     end else begin
       Word(AChars^) := ABytes^;
     end;
@@ -6266,7 +6266,7 @@ function BytesToChar(const AValue: TIdBytes; var VChar: Char; const AIndex: Inte
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
   ): Integer; overload;
 var
-  I, NumChars, NumBytes: Integer;
+  I, J, NumChars, NumBytes: Integer;
   {$IFDEF DOTNET}
   LChars: array[0..1] of Char;
   {$ELSE}
@@ -6292,7 +6292,22 @@ begin
       NumChars := AByteEncoding.GetChars(AValue, AIndex, I, LChars, 0);
       Inc(Result);
       if NumChars > 0 then begin
-        Break;
+        // RLebeau 10/19/2012: when Indy switched to its own UTF-8 implementation
+        // to avoid the MB_ERR_INVALID_CHARS flag on Windows, it accidentally broke
+        // this loop!  Since this is not commonly used, this was not noticed until
+        // now.  On Windows at least, GetChars() now returns >0 for an invalid
+        // sequence, so we have to check if any of the returned characters are the
+        // Unicode U+FFFD character, indicating bad data...
+        for J := 0 to NumChars-1 do begin
+          if LChars[J] = TIdWideChar($FFFD) then begin
+            // keep reading...
+            NumChars := 0;
+            Break;
+          end;
+        end;
+        if NumChars > 0 then begin
+          Break;
+        end;
       end;
     end;
   end;
@@ -6513,7 +6528,7 @@ function ReadCharFromStream(AStream: TStream; var VChar: Char;
 var
   StartPos: TIdStreamSize;
   Lb: Byte;
-  NumChars, NumBytes: Integer;
+  I, NumChars, NumBytes: Integer;
   LBytes: TIdBytes;
   {$IFDEF DOTNET}
   LChars: array[0..1] of Char;
@@ -6558,7 +6573,25 @@ begin
     repeat
       LBytes[Result-1] := Lb;
       NumChars := AByteEncoding.GetChars(LBytes, 0, Result, LChars, 0);
-      if (NumChars > 0) or (Result = NumBytes) then begin
+      if NumChars > 0 then begin
+        // RLebeau 10/19/2012: when Indy switched to its own UTF-8 implementation
+        // to avoid the MB_ERR_INVALID_CHARS flag on Windows, it accidentally broke
+        // this loop!  Since this is not commonly used, this was not noticed until
+        // now.  On Windows at least, GetChars() now returns >0 for an invalid
+        // sequence, so we have to check if any of the returned characters are the
+        // Unicode U+FFFD character, indicating bad data...
+        for I := 0 to NumChars-1 do begin
+          if LChars[I] = TIdWideChar($FFFD) then begin
+            // keep reading...
+            NumChars := 0;
+            Break;
+          end;
+        end;
+        if NumChars > 0 then begin
+          Break;
+        end;
+      end;
+      if Result = NumBytes then begin
         Break;
       end;
       Lb := ReadByte;

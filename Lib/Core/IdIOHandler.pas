@@ -1130,7 +1130,7 @@ function TIdIOHandler.ReadChar(AByteEncoding: TIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
   ): Char;
 var
-  I, NumChars, NumBytes: Integer;
+  I, J, NumChars, NumBytes: Integer;
   LBytes: TIdBytes;
   {$IFDEF DOTNET}
   LChars: array[0..1] of Char;
@@ -1160,7 +1160,22 @@ begin
       LBytes[I-1] := ReadByte;
       NumChars := AByteEncoding.GetChars(LBytes, 0, I, LChars, 0);
       if NumChars > 0 then begin
-        Break;
+        // RLebeau 10/19/2012: when Indy switched to its own UTF-8 implementation
+        // to avoid the MB_ERR_INVALID_CHARS flag on Windows, it accidentally broke
+        // this loop!  Since this is not commonly used, this was not noticed until
+        // now.  On Windows at least, GetChars() now returns >0 for an invalid
+        // sequence, so we have to check if any of the returned characters are the
+        // Unicode U+FFFD character, indicating bad data...
+        for J := 0 to NumChars-1 do begin
+          if LChars[J] = TIdWideChar($FFFD) then begin
+            // keep reading...
+            NumChars := 0;
+            Break;
+          end;
+        end;
+        if NumChars > 0 then begin
+          Break;
+        end;
       end;
     end;
   end;
