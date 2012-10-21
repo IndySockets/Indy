@@ -235,7 +235,6 @@ var
   y, n: Integer;
   x: byte;
   s: string;
-  c: char;
   neg: Boolean;
   l: Integer;
   z: Int64;
@@ -287,21 +286,21 @@ begin
         end;
       ASN1_OCTSTR, ASN1_OPAQUE:
         begin
+          SetLength(s, ASNSize);
           for n := 1 to ASNSize do
           begin
-            c := Char(Buffer[Start]);
+            s[n] := Char(Buffer[Start]);
             Inc(Start);
-            s := s + c;
           end;
           Result := s;
         end;
       ASN1_OBJID:
         begin
+          SetLength(s, ASNSize);
           for n := 1 to ASNSize do
           begin
-            c := Char(Buffer[Start]);
+            s[n] := Char(Buffer[Start]);
             Inc(Start);
-            s := s + c;
           end;
           Result := IdToMib(s);
         end;
@@ -321,15 +320,15 @@ begin
       ASN1_NULL:
         begin
           Result := '';
-          Start := Start + ASNSize;
+          Inc(Start, ASNSize);
         end;
     else // unknown
       begin
+        SetLength(s, ASNSize);
         for n := 1 to ASNSize do
         begin
-          c := Char(Buffer[Start]);
+          s[n] := Char(Buffer[Start]);
           Inc(Start);
-          s := s + c;
         end;
         Result := s;
       end;

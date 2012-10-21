@@ -122,9 +122,6 @@ uses
   {$IFDEF FPC}
   LResources,
   {$ENDIF}
-  {$IFNDEF DOTNET}
-  IdIcmpClient,
-  {$ENDIF}
   IdSocks,
   {$IFDEF HAS_TSelectionEditor}
     {$IFDEF FPC}
@@ -139,6 +136,9 @@ uses
   IdCmdTCPClient,
   IdCmdTCPServer,
   IdIOHandlerStream,
+  {$IFNDEF DOTNET}
+  IdIcmpClient,
+  {$ENDIF}
   IdInterceptSimLog,
   IdInterceptThrottler,
   IdIPMCastClient,
@@ -154,6 +154,9 @@ uses
   IdServerIOHandlerStack,
   IdSimpleServer,
   IdThreadComponent,
+  {$IFNDEF DOTNET}
+  IdTraceRoute,
+  {$ENDIF}
   IdUDPClient,
   IdUDPServer,
   IdIOHandlerSocket,
@@ -212,6 +215,7 @@ begin
    ,TIdIPMCastClient
    {$IFNDEF DOTNET}
    ,TIdIcmpClient
+   ,TIdTraceRoute
    {$ENDIF}
   ]);
   RegisterComponents(RSRegIndyServers, [
@@ -265,6 +269,7 @@ begin
    ,TIdIPMCastClient
    {$IFNDEF DOTNET}
    ,TIdIcmpClient
+   ,TIdTraceRoute*
    {$ENDIF}
   ]);
   RegisterComponents(RSRegIndyServers+CoreSuffix, [

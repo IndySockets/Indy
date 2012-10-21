@@ -313,7 +313,7 @@ type
     property DirListItem : TIdFTPListOutputItem read FDirListItem;
   end;
 
-function RawSortAscFName(AItem1, AItem2: TObject; const ASubDirs : Boolean = True): Integer;
+function RawSortAscFName(AItem1, AItem2: TIdFTPListItem; const ASubDirs : Boolean = True): Integer;
 var
 {
 > 0 (positive)  Item1 is less than Item2
@@ -323,8 +323,8 @@ var
   LTmpPath1, LTmpPath2 : String;
   LPath1Dot, LPath2Dot : Boolean;
 begin
-  LTmpPath1 := IndyGetFileName(TIdFTPListItem(AItem1).FileName);
-  LTmpPath2 := IndyGetFileName(TIdFTPListItem(AItem2).FileName);
+  LTmpPath1 := IndyGetFileName(AItem1.FileName);
+  LTmpPath2 := IndyGetFileName(AItem2.FileName);
 
   //periods are always greater then letters in dir lists
   LPath1Dot := TextStartsWith(LTmpPath1, '.');
@@ -359,12 +359,12 @@ begin
   Result := -IndyCompareStr(LTmpPath1, LTmpPath2);
 end;
 
-function RawSortDescFName(AItem1, AItem2: TObject): Integer;
+function RawSortDescFName(AItem1, AItem2: TIdFTPListItem): Integer;
 begin
   Result := -RawSortAscFName(AItem1, AItem2);
 end;
 
-function RawSortAscFNameExt(AItem1, AItem2: TObject; const ASubDirs : Boolean = True): Integer;
+function RawSortAscFNameExt(AItem1, AItem2: TIdFTPListItem; const ASubDirs : Boolean = True): Integer;
 var
 {
 > 0 (positive)  Item1 is less than Item2
@@ -373,35 +373,30 @@ var
 }
   LTmpPath1, LTmpPath2 : String;
 begin
-  LTmpPath1 := ExtractFileExt(TIdFTPListItem(AItem1).FileName);
-  LTmpPath2 := ExtractFileExt(TIdFTPListItem(AItem2).FileName);
+  LTmpPath1 := ExtractFileExt(AItem1.FileName);
+  LTmpPath2 := ExtractFileExt(AItem2.FileName);
   Result := -IndyCompareStr(LTmpPath1, LTmpPath2);
   if Result = 0 then begin
     Result := RawSortAscFName(AItem1, AItem2);
   end;
 end;
 
-function RawSortDescFNameExt(AItem1, AItem2: TObject): Integer;
+function RawSortDescFNameExt(AItem1, AItem2: TIdFTPListItem): Integer;
 begin
   Result := -RawSortAscFNameExt(AItem1, AItem2, False);
 end;
 
-function RawSortAscMTime(AItem1, AItem2: TObject): Integer;
-var
-  LItem1, LItem2 : TIdFTPListItem;
+function RawSortAscMTime(AItem1, AItem2: TIdFTPListItem): Integer;
+begin
 {
 > 0 (positive)  Item1 is less than Item2
   0             Item1 is equal to Item2
 < 0 (negative)  Item1 is greater than Item2
 }
-
-begin
-  LItem1 := TIdFTPListItem(AItem1);
-  LItem2 := TIdFTPListItem(AItem2);
-  if LItem1.ModifiedDate < LItem2.ModifiedDate then begin
+  if AItem1.ModifiedDate < AItem2.ModifiedDate then begin
     Result := -1;
   end
-  else if LItem1.ModifiedDate > LItem2.ModifiedDate then begin
+  else if AItem1.ModifiedDate > AItem2.ModifiedDate then begin
     Result := 1;
   end
   else begin
@@ -409,14 +404,13 @@ begin
   end;
 end;
 
-function RawSortDescMTime(AItem1, AItem2: TObject): Integer;
+function RawSortDescMTime(AItem1, AItem2: TIdFTPListItem): Integer;
 begin
   Result := -RawSortAscMTime(AItem1, AItem2);
 end;
 
-function RawSortAscSize(AItem1, AItem2: TObject; const ASubDirs : Boolean = True): Integer;
+function RawSortAscSize(AItem1, AItem2: TIdFTPListItem; const ASubDirs : Boolean = True): Integer;
 var
-  LItem1, LItem2 : TIdFTPListItem;
   LSize1, LSize2 : Int64;
 {
 > 0 (positive)  Item1 is less than Item2
@@ -424,15 +418,13 @@ var
 < 0 (negative)  Item1 is greater than Item2
 }
 begin
-  LItem1 := TIdFTPListItem(AItem1);
-  LItem2 := TIdFTPListItem(AItem2);
-  LSize1 := LItem1.Size;
-  LSize2 := LItem2.Size;
-  if TIdFTPListOutput(LItem1.Collection).DirFormat = doUnix then begin
-    if LItem1.ItemType = ditDirectory then begin
+  LSize1 := AItem1.Size;
+  LSize2 := AItem2.Size;
+  if TIdFTPListOutput(AItem1.Collection).DirFormat = doUnix then begin
+    if AItem1.ItemType = ditDirectory then begin
       LSize1 := UNIX_DIR_SIZE;
     end;
-    if LItem2.ItemType = ditDirectory then begin
+    if AItem2.ItemType = ditDirectory then begin
       LSize2 := UNIX_DIR_SIZE;
     end;
   end;
@@ -446,18 +438,18 @@ begin
   end;
 end;
 
-function RawSortDescSize(AItem1, AItem2: TObject): Integer;
+function RawSortDescSize(AItem1, AItem2: TIdFTPListItem): Integer;
 begin
   Result := -RawSortAscSize(AItem1, AItem2, False);
 end;
 
 {DirEntry objects}
-function DESortAscFName(AItem1, AItem2: TObject): Integer;
+function DESortAscFName(AItem1, AItem2: TDirEntry): Integer;
 begin
-  Result := -IndyCompareStr(TDirEntry(AItem1).PathName, TDirEntry(AItem2).PathName);
+  Result := -IndyCompareStr(AItem1.PathName, AItem2.PathName);
 end;
 
-function DESortAscMTime(AItem1, AItem2: TObject): Integer;
+function DESortAscMTime(AItem1, AItem2: TDirEntry): Integer;
 var
   L1, L2 : TIdFTPListItem;
 {
@@ -466,8 +458,8 @@ var
 < 0 (negative)  Item1 is greater than Item2
 }
 begin
-  L1 := TDirEntry(AItem1).DirListItem;
-  L2 := TDirEntry(AItem2).DirListItem;
+  L1 := AItem1.DirListItem;
+  L2 := AItem2.DirListItem;
   if L1.ModifiedDate > L2.ModifiedDate then begin
     Result := -1;
   end
@@ -478,12 +470,12 @@ begin
   end;
 end;
 
-function DESortDescMTime(AItem1, AItem2: TObject): Integer;
+function DESortDescMTime(AItem1, AItem2: TDirEntry): Integer;
 begin
   Result := -DESortAscMTime(AItem1, AItem2);
 end;
 
-function DESortDescFName(AItem1, AItem2: TObject): Integer;
+function DESortDescFName(AItem1, AItem2: TDirEntry): Integer;
 begin
   Result := -DESortAscFName(AItem1, AItem2);
 end;
@@ -1460,7 +1452,7 @@ begin
     FFileList.BubbleSort(StrSortAscFName);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortAscFName);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscFName));
     for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendFName;
     end;
@@ -1475,7 +1467,7 @@ begin
     FFileList.BubbleSort(StrSortAscMTime);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortAscMTime);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscMTime));
     for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendMTime;
     end;
@@ -1490,7 +1482,7 @@ begin
     FFileList.BubbleSort(StrSortDescMTime);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortDescMTime);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortDescMTime));
     for i := 0 to FSubDirs.Count -1 do begin
       TDirEntry(FSubDirs[i]).SortDescendMTime;
     end;
@@ -1502,7 +1494,7 @@ var
   i : Integer;
 begin
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortDescFName);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortDescFName));
     for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortDescendFName;
     end;
@@ -1520,7 +1512,7 @@ begin
     FFileList.BubbleSort(StrSortAscFNameExt);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortAscFName);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscFName));
     for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendFNameExt;
     end;
@@ -1535,7 +1527,7 @@ begin
     FFileList.BubbleSort(StrSortDescFNameExt);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortAscFName);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscFName));
     for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortDescendFNameExt;
     end;
@@ -1550,7 +1542,7 @@ begin
     FFileList.BubbleSort(StrSortAscSize);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortAscMTime);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscMTime));
     for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendSize;
     end;
@@ -1565,7 +1557,7 @@ begin
     FFileList.BubbleSort(StrSortDescSize);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(DESortDescFName);
+    FSubDirs.BubbleSort(TIdSortCompare(@DESortDescFName));
     for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortDescendSize;
     end;

@@ -352,8 +352,6 @@ begin
   with ActionList1 do
   begin
     Name := 'ActionList1';  {do not localize}
-    Left := 152;
-    Top := 32;
   end;
 
   with btnBindingsNew do
