@@ -209,36 +209,36 @@ begin
   end;
   if Length(VBuffer) > 0 then
   begin
-    if FBinding.IPVersion = Id_IPv4 then
-    begin
-      if Binding.Readable(ATimeOut) then begin
+    if Binding.Readable(ATimeOut) then begin
+      if FBinding.IPVersion = Id_IPv4 then
+      begin
         Result := Binding.RecvFrom(VBuffer, LIP, LPort, LIPVersion);
         FPkt.Reset;
         FPkt.SourceIP := LIP;
         FPkt.SourcePort := LPort;
         FPkt.SourceIPVersion := LIPVersion;
         FPkt.DestIPVersion := LIPVersion;
+      end else
+      begin
+        {
+        IMPORTANT!!!!
+
+        Do NOT call GStack.ReceiveMsg unless it is absolutely necessary.
+        The reasons are:
+
+        1) WSARecvMsg is only supported on WindowsXP or later.  I think Linux
+        might have a RecvMsg function as well but I'm not sure.
+        2) GStack.ReceiveMsg is not supported in the Microsoft NET framework 1.1.
+        It may be supported in later versions.
+
+        For IPv4 and raw sockets, it usually isn't because we get the raw header itself.
+
+        For IPv6 and raw sockets, we call this to get information about the destination
+        IP address and hopefully, the TTL (hop count).
+        }
+
+        Result := GStack.ReceiveMsg(Binding.Handle, VBuffer, FPkt);
       end;
-    end else
-    begin
-      {
-      IMPORTANT!!!!
-
-      Do NOT call GStack.ReceiveMsg unless it is absolutely necessary.
-      The reasons are:
-
-      1) WSARecvMsg is only supported on WindowsXP or later.  I think Linux
-      might have a RecvMsg function as well but I'm not sure.
-      2) GStack.ReceiveMsg is not supported in the Microsoft NET framework 1.1.
-      It may be supported in later versions.
-
-      For IPv4 and raw sockets, it usually isn't because we get the raw header itself.
-
-      For IPv6 and raw sockets, we call this to get information about the destination
-      IP address and hopefully, the TTL (hop count).
-      }
-
-      Result := GStack.ReceiveMsg(Binding.Handle, VBuffer, FPkt);
     end;
   end;
 end;
