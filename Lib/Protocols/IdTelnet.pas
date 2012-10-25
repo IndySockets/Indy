@@ -310,16 +310,16 @@ type
   {Commands to telnet client from server}
   TIdTelnetCommand = (tncNoLocalEcho, tncLocalEcho, tncEcho);
 
-  // RLebeau 9/5/2010: in D2009+, TIdBytes is an alias for SysUtils.TBytes, which
+  // RLebeau 9/5/2012: in D2009+, TIdBytes is an alias for SysUtils.TBytes, which
   // is an alias for System.TArray<Byte>, which has some different semantics than
   // plain dynamic arrays.  In Delphi, those differences are more subtle than in
   // C++, where they are major, in particular for event handlers that were previously
   // using TIdBytes parameters.  The C++ IDE simply can't cope with TArray<Byte>
   // in RTTI correctly yet, so it produces bad HPP and Event Handler code that
-  // causes errors.  In this situation, we will use an open array instead, which
+  // causes errors.  In this situation, we will use TIdDynByteArray instead, which
   // still accomplishes what we need and is compatible with both Delphi and C++...
   //
-  TIdTelnetDataAvailEvent = procedure (Sender: TIdTelnet; Buffer: {TIdBytes}array of Byte) of object;
+  TIdTelnetDataAvailEvent = procedure (Sender: TIdTelnet; const Buffer: {$IFDEF HAS_TBytes}TIdDynByteArray{$ELSE}TIdBytes{$ENDIF}) of object;
 
   TIdTelnetCommandEvent = procedure(Sender: TIdTelnet; Status: TIdTelnetCommand) of object;
 
@@ -494,7 +494,13 @@ end;
 procedure TIdTelnet.DoOnDataAvailable(const Buf: TIdBytes);
 begin
   if Assigned(FOnDataAvailable) then begin
-    OnDataAvailable(Self, Buf);
+    OnDataAvailable(Self,
+      {$IFDEF HAS_TBytes}
+      PIdDynByteArray(@Buf)^
+      {$ELSE}
+      Buf
+      {$ENDIF}
+    );
   end else begin
     raise EIdTelnetServerOnDataAvailableIsNil.Create(RSTELNETSRVOnDataAvailableIsNil);
   end;

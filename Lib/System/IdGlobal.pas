@@ -715,6 +715,11 @@ type
 
   {$IFDEF HAS_TBytes}
   TIdBytes = TBytes;
+  // temporary workaround for a compatibility issue in TIdUDPServer, TIdIPMCastClient, and TIdTelnet in C++
+  TIdDynByteArray = array of Byte;
+    {$IFNDEF DOTNET}
+  PIdDynByteArray = ^TIdDynByteArray;
+    {$ENDIF}
   {$ELSE}
   TIdBytes = array of Byte;
   {$ENDIF}
