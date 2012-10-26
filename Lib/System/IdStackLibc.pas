@@ -1003,8 +1003,7 @@ begin
 //is sent.  All of the parameters required are because Windows is bonked
 //because it doesn't have the IPV6CHECKSUM socket option meaning we have
 //to querry the network interface in TIdStackWindows -- yuck!!
-  LOffset := AOffset;
-  CheckForSocketError(Libc.setsockopt(s, IPPROTO_IPV6, IPV6_CHECKSUM, @LOffset, SizeOf(LOffset)));
+  SetSocketOption(s, IPPROTO_IPV6, IPV6_CHECKSUM, AOffset);
 end;
 
 function TIdStackLibc.IOControl(const s: TIdStackSocketHandle;

@@ -1440,7 +1440,6 @@ var
   LTmp : TIdBytes;
   LIdx : Integer;
   LC : LongWord;
-  LW : Word;
 {
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
@@ -1466,7 +1465,7 @@ var
 }
 begin
   WSQuerryIPv6Route(s, AIP, APort, LSource, LDest);
-  SetLength(LTmp, Length(VBuffer)+40);
+  SetLength(LTmp, 40+Length(VBuffer));
 
   //16
   Move(LSource, LTmp[0], SIZE_TSOCKADDRIN6);
@@ -1485,14 +1484,12 @@ begin
   //next header (protocol type determines it
   LTmp[LIdx] := Id_IPPROTO_ICMPV6; // Id_IPPROTO_ICMP6;
   Inc(LIdx);
-  //zero our checksum feild for now
-  VBuffer[2] := 0;
-  VBuffer[3] := 0;
   //combine the two
   CopyTIdBytes(VBuffer, 0, LTmp, LIdx, Length(VBuffer));
-  LW := CalcCheckSum(LTmp);
+  //zero out the checksum field
+  CopyTIdWord(0, LTmp, LIdx+AOffset);
 
-  CopyTIdWord(HostToLittleEndian(LW), VBuffer, AOffset);
+  CopyTIdWord(HostToLittleEndian(CalcCheckSum(LTmp)), VBuffer, AOffset);
 end;
 
 function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer : TIdBytes;

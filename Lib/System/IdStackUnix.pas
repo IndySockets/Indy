@@ -962,15 +962,12 @@ end;
 procedure TIdStackUnix.WriteChecksumIPv6(s: TIdStackSocketHandle;
   var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
   const APort: TIdPort);
-var
-  LOffset : Integer;
 begin
 //we simply request that the kernal write the checksum when the data
 //is sent.  All of the parameters required are because Windows is bonked
 //because it doesn't have the IPV6CHECKSUM socket option meaning we have
 //to querry the network interface in TIdStackWindows -- yuck!!
-  LOffset := AOffset;
-  CheckForSocketError(fpsetsockopt(s, Id_IPPROTO_IPV6, IPV6_CHECKSUM, @Loffset, SizeOf(Loffset)));
+  SetSocketOption(s, Id_IPPROTO_IPV6, IPV6_CHECKSUM, AOffset);
 end;
 
 function TIdStackUnix.IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;

@@ -1229,7 +1229,6 @@ var
   LTmp : TIdBytes;
   LIdx : Integer;
   LC : LongWord;
-  LW : Word;
 {
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
@@ -1256,7 +1255,7 @@ var
 begin
 
   QueryRoute(s, AIP, APort, LSource, LDest);
-  SetLength(LTmp, Length(VBuffer)+40);
+  SetLength(LTmp, 40+Length(VBuffer));
   System.&Array.Clear(LTmp,0,Length(LTmp));
   //16
   CopyTIdBytes(LSource, 0, LTmp, 0, 16);
@@ -1275,14 +1274,12 @@ begin
   //next header (protocol type determines it
   LTmp[LIdx] := Ord(Id_IPPROTO_ICMPv6);
   Inc(LIdx);
-  //zero our checksum feild for now
-  VBuffer[2] := 0;
-  VBuffer[3] := 0;
   //combine the two
   CopyTIdBytes(VBuffer, 0, LTmp, LIdx, Length(VBuffer));
-  LW := CalcCheckSum(LTmp);
+  //zero out the checksum field
+  CopyTIdWord(0, LTmp, LIdx+AOffset);
 
-  CopyTIdWord(HostToLittleEndian(LW), VBuffer, AOffset);
+  CopyTIdWord(HostToLittleEndian(CalcCheckSum(LTmp)), VBuffer, AOffset);
 end;
 {$ENDIF}
 
