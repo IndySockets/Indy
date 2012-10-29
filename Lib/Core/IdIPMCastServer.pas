@@ -140,21 +140,7 @@ end;
 
 procedure TIdIPMCastServer.CloseBinding;
 begin
-  //Multicast.IMRMultiAddr := GBSDStack.StringToTIn4Addr(FMulticastGroup);
-  //Hope the following is correct for StringToTIn4Addr(), should be checked...
-  if Assigned(FBinding) then
-  begin
-    if FBinding.HandleAllocated then begin
-      // RLebeau: DropMulticastMembership() can raise an exception if
-      // the network cable has been pulled out.
-      // TODO: update DropMulticastMembership() to not raise an exception...
-      try
-        FBinding.DropMulticastMembership(FMulticastGroup);
-      except
-      end;
-    end;
-    FreeAndNil(FBinding);
-  end;
+  FreeAndNil(FBinding);
 end;
 
 function TIdIPMCastServer.GetActive: Boolean;
@@ -178,9 +164,6 @@ begin
     FBinding.Port := FBoundPort;
     FBinding.ReuseSocket := FReuseSocket;
     FBinding.Bind;
-    //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
-    //Hope the following is correct for StringToTIn4Addr(), should be checked...
-    FBinding.AddMulticastMembership(FMulticastGroup);
     ApplyTimeToLive;
     ApplyLoopback;
   end;
