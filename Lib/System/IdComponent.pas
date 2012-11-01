@@ -62,6 +62,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdBaseComponent, IdGlobal, IdResourceStrings,
   IdStack;
 
@@ -115,6 +116,8 @@ type
     procedure DoStatus(AStatus: TIdStatus); overload;
     procedure DoStatus(AStatus: TIdStatus; const AArgs: array of const); overload;
     procedure InitComponent; override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure SetWorkTarget(AValue: TIdComponent);
     //
     property OnWork: TWorkEvent read FOnWork write FOnWork;
     property OnWorkBegin: TWorkBeginEvent read FOnWorkBegin write FOnWorkBegin;
@@ -125,7 +128,7 @@ type
     procedure DoWork(AWorkMode: TWorkMode; const ACount: Int64); virtual;
     procedure EndWork(AWorkMode: TWorkMode); virtual;
     //
-    property WorkTarget: TIdComponent read FWorkTarget write FWorkTarget;
+    property WorkTarget: TIdComponent read FWorkTarget write SetWorkTarget;
   published
     property OnStatus: TIdStatusEvent read FOnStatus write FOnStatus;
   end;
@@ -208,6 +211,28 @@ procedure TIdComponent.InitComponent;
 begin
   inherited InitComponent;
   TIdStack.IncUsage;
+end;
+
+procedure TIdComponent.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  if (Operation = opRemove) and (AComponent = FWorkTarget) then begin
+      FWorkTarget := nil;
+    end;
+  end;
+  inherited Notification(AComponent, Operation);
+end;
+
+procedure TIdComponent.SetWorkTarget(AValue: TIdComponent);
+begin
+  if FWorkTarget <> AValue then begin
+    if Assigned(FWorkTarget) then begin
+      FWorkTarget.RemoveFreeNotification(Self);
+    end;
+    FWorkTarget := AValue;
+    if Assigned(FWorkTarget) then begin
+      FWorkTarget.FreeNotification(Self);
+    end;
+  end;
 end;
 
 end.
