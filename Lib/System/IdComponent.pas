@@ -217,7 +217,6 @@ procedure TIdComponent.Notification(AComponent: TComponent; Operation: TOperatio
 begin
   if (Operation = opRemove) and (AComponent = FWorkTarget) then begin
       FWorkTarget := nil;
-    end;
   end;
   inherited Notification(AComponent, Operation);
 end;
