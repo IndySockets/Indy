@@ -126,7 +126,7 @@ var
 procedure TestNTLM;
 {$ENDIF}
 
-function BuildType1Msg(const ADomain : AnsiString = ''; const AHost : AnsiString = ''; const ALMCompatibility : LongWord = 0) : TIdBytes;
+function BuildType1Msg(const ADomain : String = ''; const AHost : String = ''; const ALMCompatibility : LongWord = 0) : TIdBytes;
 procedure ReadType2Msg(const AMsg : TIdBytes; var VFlags : LongWord; var VTargetName : TIdBytes; var VTargetInfo : TIdBytes; var VNonce : TIdBytes );
 function BuildType3Msg(const ADomain, AHost, AUsername, APassword : String;
   const AFlags : LongWord; const AServerNonce : TIdBytes;
@@ -226,7 +226,8 @@ end;
 //===================
 {$IFDEF DOTNET}
 function Int64ToFileTime(const AInt64 : Int64) : System.Runtime.InteropServices.ComTypes.FILETIME;
-var LBytes : TIdBytes;
+var
+  LBytes : TIdBytes;
 begin
   LBytes := BitConverter.GetBytes(AInt64);
   Result.dwLowDateTime := BitConverter.ToInt32(Lbytes, 0);
@@ -249,7 +250,8 @@ boundery.
 {$ENDIF}
 
 function UnixTimeToFileTime(const AUnixTime : LongWord) : FILETIME;
-var i : Int64;
+var
+  i : Int64;
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -309,7 +311,8 @@ begin
 end;
 
 procedure CharArrayToBytes(const AArray : Array of char;  var VBytes : TIdBytes; const AIndex : Integer=0);
-var i, ll, lh : Integer;
+var
+  i, ll, lh : Integer;
 begin
   ll :=  Low( AArray);
   lh := High( AArray);
@@ -319,7 +322,8 @@ begin
 end;
 
 procedure BytesToCharArray(const ABytes : TIdBytes; var VArray : Array of char; const AIndex : Integer=0);
-var i, ll, lh : Integer;
+var
+  i, ll, lh : Integer;
 begin
   ll :=  Low( VArray);
   lh := High( Varray);
@@ -329,7 +333,8 @@ begin
 end;
 
 procedure BytesToByteArray(const ABytes : TIdBytes; var VArray : Array of byte; const AIndex : Integer=0);
-var i, ll, lh : Integer;
+var
+  i, ll, lh : Integer;
 begin
   ll :=  Low(VArray);
   lh := High(Varray);
@@ -339,7 +344,8 @@ begin
 end;
 
 procedure ByteArrayToBytes(const VArray : array of byte; const ABytes : TIdBytes; const AIndex : Integer=0);
-var i, ll, lh : Integer;
+var
+  i, ll, lh : Integer;
 begin
   ll :=  Low( VArray);
   lh := High( Varray);
@@ -501,7 +507,8 @@ Microsoft.NET does not have this functionality when it really should have it.
 
 procedure SetDesKeyOddParity(var VKey : TIdBytes);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
-var i, l : Integer;
+var
+  i, l : Integer;
 begin
   l := Length( VKey);
   for i := 0 to l - 1 do begin
@@ -512,7 +519,8 @@ end;
 
 procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
-var i : Integer;
+var
+  i : Integer;
 begin
 {
 Can be like this:
@@ -600,7 +608,7 @@ end;
  */}
 procedure setup_des_key(key_56: des_cblock; Var ks: des_key_schedule);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
-Var
+var
   key: des_cblock;
 begin
   key[0] := key_56[0];
@@ -619,7 +627,8 @@ end;
 
 //Returns 8 bytes in length
 procedure _DES(var Res : TIdBytes; const Akey, AData : array of byte; const AKeyIdx, ADataIdx, AResIdx : Integer);
-var Lks: des_key_schedule;
+var
+  Lks: des_key_schedule;
 begin
   setup_des_key(pdes_cblock(@Akey[AKeyIdx])^, Lks);
   DES_ecb_encrypt(@AData[ADataIdx], Pconst_DES_cblock(@Res[AResIdx]), Lks, DES_ENCRYPT);
@@ -629,7 +638,8 @@ end;
 function LMOWFv1(const Passwd, User, UserDom : TIdBytes) : TIdBytes;
 //       ConcatenationOf( DES( UpperCase( Passwd)[0..6],"KGS!@#$%"),
 //                 DES( UpperCase( Passwd)[7..13],"KGS!@#$%"))
-var LBuf : TIdBytes;
+var
+  LBuf : TIdBytes;
 begin
   SetLength(Result,16);
   SetLength(LBuf,14);
@@ -648,7 +658,7 @@ end;
 procedure DESL(const Akeys: TIdBytes; const AServerNonce: TIdBytes; out results: TIdBytes);
 //procedure DESL(keys: TIdBytes; AServerNonce: TIdBytes; results: TIdBytes);
 //procedure DESL(keys: TIdBytes; AServerNonce: TIdBytes; results: Pdes_key_schedule);
-Var
+var
   ks: des_key_schedule;
 begin
   SetLength(Results,24);
@@ -670,7 +680,6 @@ var
   lm_hpw : TIdBytes;
   lm_pw : TIdBytes;
   ks: des_key_schedule;
-
 begin
   SetLength( lm_hpw,21);
   FillBytes( lm_hpw, 14, 0);
@@ -724,13 +733,11 @@ var
   nt_pw : TIdBytes;
   nt_hpw : array [ 1.. 21] of AnsiChar;
   nt_hpw128 : TIdBytes;
-
 begin
   CheckMD4Permitted;
   SetLength(Result,24);
   nt_pw := TIdTextEncoding.Unicode.GetBytes(APassword);
   with TIdHashMessageDigest4.Create do try
-
     nt_hpw128 := HashBytes(nt_pw);//HashString( nt_pw);
   finally
     Free;
@@ -844,7 +851,8 @@ end;
 
 procedure AddWord(var VBytes: TIdBytes; const AWord : Word);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
-var LBytes : TIdBytes;
+var
+  LBytes : TIdBytes;
 begin
   SetLength(LBytes,SizeOf(AWord));
   CopyTIdWord(HostToLittleEndian(AWord),LBytes,0);
@@ -853,7 +861,8 @@ end;
 
 procedure AddLongWord(var VBytes: TIdBytes; const ALongWord : LongWord);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
-var LBytes : TIdBytes;
+var
+  LBytes : TIdBytes;
 begin
   SetLength(LBytes,SizeOf(ALongWord));
   CopyTIdLongWord(HostToLittleEndian(ALongWord),LBytes,0);
@@ -861,7 +870,8 @@ begin
 end;
 
 procedure AddInt64(var VBytes: TIdBytes; const AInt64 : Int64);
-var LBytes : TIdBytes;
+var
+  LBytes : TIdBytes;
 begin
   SetLength(LBytes,SizeOf(AInt64));
   {$IFDEF ENDIAN_LITTLE}
@@ -908,7 +918,8 @@ begin
 end;
 
 procedure AddByteArray(var VBytes : TIdBytes; const AToAdd : array of byte; const AIndex: Integer = 0);
-var LOldLen, LAddLen : Integer;
+var
+  LOldLen, LAddLen : Integer;
 begin
   LAddLen := IndyByteArrayLength(AToAdd, -1, AIndex);
 
@@ -960,7 +971,7 @@ function InternalCreateNTLMv2Response(var Vntlm2hash : TIdBytes;
   const ATargetInfo : TIdBytes;
   const ATimestamp : FILETIME;
   const cnonce, nonce : TIdBytes): TIdBytes;
-Var
+var
   LLmUserDom : TIdBytes;
   Blob : TIdBytes;
 begin
@@ -997,7 +1008,6 @@ function LMUserSessionKey(const AHash : TIdBytes) : TIdBytes;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 //   1. The 16-byte LM hash (calculated previously) is truncated to 8 bytes.
 //   2. This is null-padded to 16 bytes. This value is the LM User Session Key.
-
 begin
   SetLength(Result,16);
   FillBytes(Result,16,0);
@@ -1017,7 +1027,8 @@ end;
 
 function UserLMv2SessionKey(const AHash : TIdBytes; const ABlob : TIdBytes; ACNonce : TIdBytes) : TIdBytes;
  {$IFDEF USE_INLINE} inline; {$ENDIF}
-var LBuf : TIdBytes;
+var
+  LBuf : TIdBytes;
 begin
   LBuf := ABlob;
   AppendBytes(LBuf,ACNonce);
@@ -1050,7 +1061,8 @@ begin
 end;
 
 function LanManagerSessionKey(const ALMHash : TIdBytes) : TIdBytes;
-var LKey : TIdBytes;
+var
+  LKey : TIdBytes;
   ks : des_key_schedule;
   LHash8 : TIdBytes;
 begin
@@ -1069,7 +1081,7 @@ begin
 end;
 
 function SetupLMv2Response(var VntlmHash : TIdBytes; const AUsername, ADomain : String; const APassword : String; cnonce, AServerNonce : TIdBytes): TIdBytes;
-Var
+var
   LLmUserDom : TIdBytes;
   LChall : TIdBytes;
 begin
@@ -1138,25 +1150,29 @@ begin
 end;
 
 
-function BuildType1Msg(const ADomain : AnsiString = ''; const AHost : AnsiString = ''; const ALMCompatibility : LongWord = 0) : TIdBytes;
-var LDomLen, LWorkStationLen : Word;
+function BuildType1Msg(const ADomain : String = ''; const AHost : String = ''; const ALMCompatibility : LongWord = 0) : TIdBytes;
+var
+  LDomain, LWorkStation: TIdBytes;
+  LDomLen, LWorkStationLen: Word;
   LFlags : LongWord;
 begin
   SetLength(Result,0);
-  LDomLen := Length(ADomain);
+
+  LDomain := TIdTextEncoding.Default.GetBytes(ADomain); //UpperCase(ADomain));
+  LWorkStation := TIdTextEncoding.Default.GetBytes(AHost); //UpperCase(AHost));
+
   LFlags := IdNTLM_TYPE1_FLAGS_LC2;
   case ALMCompatibility of
     0, 1 : LFlags := IdNTLM_TYPE1_FLAGS;
   end;
 
-  if LDomLen > 0 then
-  begin
+  LDomLen := Length(LDomain);
+  if LDomLen > 0 then begin
     LFlags := LFlags or IdNTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED;
   end;
-  LWorkStationLen := Length(AHost);
 
-  if LWorkStationLen > 0 then
-  begin
+  LWorkStationLen := Length(LWorkStation);
+  if LWorkStationLen > 0 then begin
     LFlags := LFlags or IdNTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED;
   end;
   //signature
@@ -1185,16 +1201,17 @@ begin
   end;
   // Supplied Workstation  (host)
   if LWorkStationLen > 0 then begin
-    AppendString(Result,String(AHost)); //UpperCase(AHost));
+    AppendBytes(Result,LWorkStation,0,LWorkStationLen);
   end;
   // Supplied Domain
   if LDomLen > 0 then begin
-    AppendString(Result,String(ADomain)); //UpperCase(ADomain));
+    AppendBytes(Result,LDomain,0,LDomLen);
   end;
 end;
 
 procedure ReadType2Msg(const AMsg : TIdBytes; var VFlags : LongWord; var VTargetName : TIdBytes; var VTargetInfo : TIdBytes; var VNonce : TIdBytes );
-var LLen : Word;
+var
+  LLen : Word;
   LOfs : LongWord;
 begin
   //extract flags
@@ -1228,7 +1245,8 @@ end;
 function CreateData(const ABytes : TIdBytes; const AOffset : LongWord; var VBuffer : TIdBytes) : LongWord;
 //returns the next buffer value
 //adds security value ptr to Vbuffer
-var LLen : Word;
+var
+  LLen : Word;
 begin
   LLen := Length(ABytes);
   //   - length
@@ -1264,7 +1282,8 @@ function BuildType3Msg(const ADomain, AHost, AUsername, APassword : String;
   const AFlags : LongWord; const AServerNonce : TIdBytes;
   const ATargetName, ATargetInfo : TIdBytes;
   const ALMCompatibility : LongWord = 0) : TIdBytes;
-var LDom, LHost, LUser, LLMData, LNTLMData, LCNonce : TIdBytes;
+var
+  LDom, LHost, LUser, LLMData, LNTLMData, LCNonce : TIdBytes;
   llmhash, lntlmhash : TIdBytes;
   ll_len, ln_len, ld_len, lh_len, lu_len : Word;
   ll_ofs, ln_ofs, ld_ofs, lh_ofs, lu_ofs : LongWord;
@@ -1474,7 +1493,8 @@ const
   $00,$00);
 
 {function StrToHex(const AStr : AnsiString) : AnsiString;
-var i : Integer;
+var
+  i : Integer;
 begin
   Result := '';
   for i := 1 to Length(AStr) do begin
@@ -1483,7 +1503,8 @@ begin
 end;  }
 
 function BytesToHex(const ABytes : array of byte) : String;
-var i : Integer;
+var
+  i : Integer;
 begin
   for i := Low(ABytes) to High(ABytes) do
   begin
@@ -1492,8 +1513,8 @@ begin
 end;
 
 procedure DoDavePortTests;
-
-var LNonce,LCNonce, lmhash : TIdBytes;
+var
+  LNonce,LCNonce, lmhash : TIdBytes;
   LMResp : TIdBytes;
   LTargetINfo : TIdBytes;
   Ltst : String;
@@ -1561,7 +1582,8 @@ begin
 end;
 
 function ConstArray(const AArray : array of byte) : TIdBytes;
-var i : Integer;
+var
+  i : Integer;
 begin
   SetLength(Result,0);
   for i := Low(AArray) to High(AArray) do begin
@@ -1624,7 +1646,6 @@ NTLMv1 data flags
 procedure DoMSTests;
 var
   LFlags : LongWord;
-  LHash : TIdBytes;
 begin
   LFlags := IdNTLMSSP_NEGOTIATE_KEY_EXCH or
     IdNTLMSSP_NEGOTIATE_56 or IdNTLMSSP_NEGOTIATE_128 or

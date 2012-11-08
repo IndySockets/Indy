@@ -893,11 +893,11 @@ end;
 function FixupStub(hDll: THandle; const AName: string): Pointer;
 begin
   if hDll = 0 then begin
-    EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
+    raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
   end;
   Result := GetProcAddress(hDll, PChar(AName));
   if Result = nil then begin
-    EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 10022);
+    raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 10022);
   end;
 end;
  
