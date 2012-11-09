@@ -269,7 +269,7 @@ begin
    ,TIdIPMCastClient
    {$IFNDEF DOTNET}
    ,TIdIcmpClient
-   ,TIdTraceRoute*
+   ,TIdTraceRoute
    {$ENDIF}
   ]);
   RegisterComponents(RSRegIndyServers+CoreSuffix, [
