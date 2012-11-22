@@ -643,6 +643,7 @@ uses
   IdFIPS,
   IdResourceStringsCore,
   IdResourceStringsProtocols,
+  IdResourceStringsOpenSSL,
   IdStack,
   IdStackBSDBase,
   IdAntiFreezeBase,

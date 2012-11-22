@@ -349,7 +349,7 @@ uses
   IdGlobalProtocols,
   IdException,
   IdCoderMIME,
-  IdResourceStringsProtocols,
+  IdResourceStringsSSPI,
   IdHeaderList;
 
 var

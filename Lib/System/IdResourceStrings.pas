@@ -31,28 +31,12 @@ unit IdResourceStrings;
 
 interface
 
-{$I IdCompilerDefines.inc}
-
 resourcestring
-  {$IFNDEF TIdTextEncoding_IS_NATIVE}
-  //TIdTextEncoding
-  RSInvalidSourceArray = 'Invalid source array';
-  RSInvalidDestinationArray = 'Invalid destination array';
-  RSCharIndexOutOfBounds = 'Character index out of bounds (%d)';
-  RSByteIndexOutOfBounds = 'Start index out of bounds (%d)';
-  RSInvalidCharCount = 'Invalid count (%d)';
-  RSInvalidDestinationIndex = 'Invalid destination index (%d)';
-  {$ENDIF}
-
   RSInvalidCodePage = 'Invalid codepage (%d)';
   RSInvalidCharSet = 'Invalid character set (%s)';
   RSInvalidCharSetConv = 'Invalid character set conversion (%s <-> %s)';
   RSInvalidCharSetConvWithFlags = 'Invalid character set conversion (%s <-> %s, %s)';
 
-  //IdIconv
-  {$IFDEF USE_ICONV_UNIT}
-  RSIconvCallError = 'Error on call to Iconv library function %s';
-  {$ENDIF} 
   //IdSys
   RSFailedTimeZoneInfo = 'Failed attempting to retrieve time zone information.';
   // Winsock
@@ -107,14 +91,6 @@ resourcestring
   RSStackEHOSTUNREACH = 'No route to host.';
   RSStackENOTEMPTY = 'Directory not empty';
   RSStackHOST_NOT_FOUND = 'Host not found.';
-  {$IFDEF KYLIXCOMPAT}
-  RSStackTRY_AGAIN = 'Non-authoritative response (try again or check DNS setup).'; 
-  RSStackNO_RECOVERY = 'Non-recoverable errors: FORMERR, REFUSED, NOTIMP.'; 
-  RSStackNO_DATA = 'Valid name, no data record (check DNS setup).'; 
-  {$ENDIF}
-  {$IFDEF UNIX}
-  RSStackNotSupportedOnUnix = 'Non-blocking not supported on Unix-like operating systems.';
-  {$ENDIF}
   RSStackClassUndefined = 'Stack Class is undefined.';
   RSStackAlreadyCreated = 'Stack already created.';
   // Other
@@ -136,20 +112,8 @@ resourcestring
   {CH RSStreamNotEnoughBytes = 'Not enough bytes read from stream.'; }
   RSEndOfStream = 'End of stream: Class %s at %d';
 
- //DNS Resolution error messages
-  {$IFDEF UNIX}
-  RSResolveError = 'Error resolving host %s: %s (%d)'; { hostname, errorstring, errornumber }
-    {$IFDEF KYLIXCOMPAT}
-  RSReverseResolveError = 'Error resolving Address %s: %s (%d)'; { address, errorstring, errornumber }
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
-  RSReverseResolveError = 'Error resolving Address %s: %s (%d)'; { address, errorstring, errornumber }
-    {$ENDIF}
-  {$ENDIF}
- RSMaliciousPtrRecord = 'Malicious PTR Record';
- {$IFDEF DOTNET_1_1}
- RSNotSupportedInMicrosoftNET11 = 'Not Supported in Microsoft.NET 1.1';
- {$ENDIF}
+  //DNS Resolution error messages
+  RSMaliciousPtrRecord = 'Malicious PTR Record';
 
 implementation
 

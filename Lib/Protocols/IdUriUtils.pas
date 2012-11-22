@@ -37,7 +37,8 @@ implementation
 {$IFNDEF DOTNET}
   {$IFNDEF HAS_TCharacter}
 uses
-  IdResourceStringsProtocols;
+  IdResourceStringsProtocols,
+  IdResourceStringsUriUtils;
   {$ENDIF}
 {$ENDIF}
 

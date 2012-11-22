@@ -278,7 +278,12 @@ var
 implementation
 
 uses
-  IdException, IdResourceStrings;
+  IdException,
+  IdResourceStrings
+  {$IFDEF DOTNET_1_1}
+  , IdResourceStringsDotNet11
+  {$ENDIF}
+  ;
 
 const
   IdIPFamily : array[TIdIPVersion] of AddressFamily = (AddressFamily.InterNetwork, AddressFamily.InterNetworkV6);

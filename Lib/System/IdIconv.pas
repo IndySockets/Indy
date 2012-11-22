@@ -231,7 +231,8 @@ implementation
 
 {$IFNDEF STATICLOAD_ICONV}
 uses
-  IdResourceStrings, SysUtils;
+  IdResourceStringsIconv,
+  SysUtils;
 
 var
   {$IFDEF UNIX}

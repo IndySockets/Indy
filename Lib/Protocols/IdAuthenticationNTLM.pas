@@ -75,7 +75,7 @@ uses
   IdGlobalProtocols,
   IdException,
   IdCoderMIME,
-  IdResourceStringsProtocols,
+  IdResourceStringsOpenSSL,
   IdSSLOpenSSLHeaders,
   IdSSLOpenSSL,
   IdNTLM,

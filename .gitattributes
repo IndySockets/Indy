@@ -1442,7 +1442,11 @@ Lib/Protocols/IdReplyFTP.pas -text
 Lib/Protocols/IdReplyIMAP4.pas -text
 Lib/Protocols/IdReplyPOP3.pas -text
 Lib/Protocols/IdReplySMTP.pas -text
+Lib/Protocols/IdResourceStringsOpenSSL.pas -text
 Lib/Protocols/IdResourceStringsProtocols.pas -text
+Lib/Protocols/IdResourceStringsSSLDotNet.pas -text
+Lib/Protocols/IdResourceStringsSSPI.pas -text
+Lib/Protocols/IdResourceStringsUriUtils.pas -text
 Lib/Protocols/IdRexec.pas -text
 Lib/Protocols/IdRexecServer.pas -text
 Lib/Protocols/IdSASL.pas -text
@@ -1844,6 +1848,12 @@ Lib/System/IdGlobal.pas -text
 Lib/System/IdIDN.pas -text
 Lib/System/IdIconv.pas -text
 Lib/System/IdResourceStrings.pas -text
+Lib/System/IdResourceStringsDotNet11.pas -text
+Lib/System/IdResourceStringsIconv.pas -text
+Lib/System/IdResourceStringsKylixCompat.pas -text
+Lib/System/IdResourceStringsTextEncoding.pas -text
+Lib/System/IdResourceStringsUnix.pas -text
+Lib/System/IdResourceStringsVCLPosix.pas -text
 Lib/System/IdStack.pas -text
 Lib/System/IdStackBSDBase.pas -text
 Lib/System/IdStackConsts.pas -text

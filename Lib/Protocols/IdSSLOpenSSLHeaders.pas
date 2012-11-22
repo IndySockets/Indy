@@ -17725,6 +17725,7 @@ uses
   IdFIPS,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
+  IdResourceStringsOpenSSL,
   IdStack
   {$IFDEF FPC}
     , DynLibs  // better add DynLibs only for fpc

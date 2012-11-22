@@ -88,7 +88,7 @@ type
   // Other shared exceptions
   EIdSocketHandleError = class(EIdException);
   {$IFDEF UNIX}
-  EIdBlockingNotSupported = class(EIdException);
+  EIdNonBlockingNotSupported = class(EIdException);
   {$ENDIF}
   EIdPackageSizeTooBig = class(EIdSocketHandleError);
   EIdNotAllBytesSent = class (EIdSocketHandleError);

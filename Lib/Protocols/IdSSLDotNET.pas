@@ -151,9 +151,11 @@ type
   EIdSSLNotAuthenticated = class(EIdSSLNetException);
 
 implementation
+
 uses
-  IdResourceStringsProtocols,
-  IdStack, SysUtils;
+  IdResourceStringsSSLDotNet,
+  IdStack,
+  SysUtils;
 
 { TIdSSLIOHandlerSocketNET }
 

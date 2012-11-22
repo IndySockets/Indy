@@ -1702,6 +1702,9 @@ uses
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
   IdResourceStrings,
+  {$IFNDEF TIdTextEncoding_IS_NATIVE}
+  IdResourceStringsTextEncoding,
+  {$ENDIF}
   IdStream;
 
 {$IFDEF FPC}
