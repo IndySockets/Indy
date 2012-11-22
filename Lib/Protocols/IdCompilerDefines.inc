@@ -632,6 +632,7 @@
   {$IFNDEF FPC}
     {$DEFINE HAS_UInt64}
     {$DEFINE HAS_NAMED_THREADS}
+    {$DEFINE HAS_TStrings_ValueFromIndex}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
   {$IFNDEF VCL_70}
@@ -718,7 +719,6 @@
   {$DEFINE HAS_CLASSCONSTRUCTOR}
   {$DEFINE HAS_CLASSDESTRUCTOR}
   {$DEFINE HAS_DELAYLOAD}
-  {$DEFINE HAS_TStrings_ValueFromIndex}
   {$DEFINE HAS_TThread_NameThreadForDebugging}
   {$DEFINE DEPRECATED_TThread_SuspendResume}
   // Native(U)Int are finally ok to use now
