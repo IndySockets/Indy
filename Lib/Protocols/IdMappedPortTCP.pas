@@ -356,7 +356,7 @@ end;
 
 procedure TIdMappedPortContext.CheckForData(DoRead: Boolean);
 begin
-  if DoRead then
+  if DoRead and Connection.IOHandler.InputBufferIsEmpty and FOutboundClient.IOHandler.InputBufferIsEmpty then
   begin
     if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then
     begin
