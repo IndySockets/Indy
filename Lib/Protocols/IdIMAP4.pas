@@ -432,6 +432,7 @@ Project -> Options -> Directories/Conditionals -> Search Path}
 
 uses
   Classes,
+  {$IFDEF CBUILDER_5}IdCTypes,{$ENDIF}
   IdMessage,
   IdAssignedNumbers,
   IdMailBox,
@@ -648,7 +649,11 @@ varies between servers.  A typical line that gets parsed into this is:
     skUndraft,   //Messages that do not have the \Draft flag set.
     skUnflagged, //Messages that do not have the \Flagged flag set.
     skUnKeyWord, //Messages that do not have the specified keyword set.
-    skUnseen
+    skUnseen,
+    skGmailRaw, //Gmail-specific extension toaccess full Gmail search syntax
+    skGmailMsgID, //Gmail-specific unique message identifier
+    skGmailThreadID, //Gmail-specific thread identifier
+    skGmailLabels //Gmail-specific labels
   );
 
   TIdIMAP4SearchKeyArray = array of TIdIMAP4SearchKey;
@@ -1168,74 +1173,80 @@ type
                      //the syntax of the resulting untagged FETCH data
                      //(RFC822.TEXT is returned).
     fdHeader,        //CC: Added to get the header of a part
-    fdUID            //The unique identifier for the message.
+    fdUID,           //The unique identifier for the message.
+    fdGmailMsgID,    //Gmail-specific unique identifier for the message.
+    fdGmailThreadID, //Gmail-specific thread identifier for the message.
+    fdGmailLabels    //Gmail-specific labels for the message.
   );
 
 const
-  IMAP4Commands : array [cmdCapability..cmdXCmd] of String = (
+  IMAP4Commands : array [TIdIMAP4Commands] of String = (
     { Client Commands - Any State}
     'CAPABILITY',     {Do not Localize}
-    'NOOP',       {Do not Localize}
-    'LOGOUT',       {Do not Localize}
+    'NOOP',           {Do not Localize}
+    'LOGOUT',         {Do not Localize}
     { Client Commands - Non Authenticated State}
     'AUTHENTICATE',   {Do not Localize}
-    'LOGIN',      {Do not Localize}
+    'LOGIN',          {Do not Localize}
     { Client Commands - Authenticated State}
-    'SELECT',       {Do not Localize}
-    'EXAMINE',      {Do not Localize}
-    'CREATE',       {Do not Localize}
-    'DELETE',       {Do not Localize}
-    'RENAME',       {Do not Localize}
-    'SUBSCRIBE',    {Do not Localize}
+    'SELECT',         {Do not Localize}
+    'EXAMINE',        {Do not Localize}
+    'CREATE',         {Do not Localize}
+    'DELETE',         {Do not Localize}
+    'RENAME',         {Do not Localize}
+    'SUBSCRIBE',      {Do not Localize}
     'UNSUBSCRIBE',    {Do not Localize}
-    'LIST',       {Do not Localize}
-    'LSUB',       {Do not Localize}
-    'STATUS',       {Do not Localize}
-    'APPEND',       {Do not Localize}
+    'LIST',           {Do not Localize}
+    'LSUB',           {Do not Localize}
+    'STATUS',         {Do not Localize}
+    'APPEND',         {Do not Localize}
     { Client Commands - Selected State}
-    'CHECK',      {Do not Localize}
-    'CLOSE',      {Do not Localize}
-    'EXPUNGE',      {Do not Localize}
-    'SEARCH',       {Do not Localize}
-    'FETCH',      {Do not Localize}
-    'STORE',      {Do not Localize}
-    'COPY',       {Do not Localize}
-    'UID',        {Do not Localize}
+    'CHECK',          {Do not Localize}
+    'CLOSE',          {Do not Localize}
+    'EXPUNGE',        {Do not Localize}
+    'SEARCH',         {Do not Localize}
+    'FETCH',          {Do not Localize}
+    'STORE',          {Do not Localize}
+    'COPY',           {Do not Localize}
+    'UID',            {Do not Localize}
     { Client Commands - Experimental/ Expansion}
-    'X'         {Do not Localize}
+    'X'               {Do not Localize}
   );
 
-  IMAP4FetchDataItem : array [fdAll..fdUID] of String = (
-    'ALL',       {Do not Localize}   //Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE)
-    'BODY',      {Do not Localize}   //Non-extensible form of BODYSTRUCTURE.
+  IMAP4FetchDataItem : array [TIdIMAP4FetchDataItem] of String = (
+    'ALL',           {Do not Localize} //Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE)
+    'BODY',          {Do not Localize} //Non-extensible form of BODYSTRUCTURE.
     'BODY[%s]<%s>',  {Do not Localize}
     'BODY.PEEK[]',   {Do not Localize}
-    'BODYSTRUCTURE',   {Do not Localize}   //The [MIME-IMB] body structure of the message.  This
-                       //is computed by the server by parsing the [MIME-IMB]
-                       //header fields in the [RFC-822] header and [MIME-IMB] headers.
-    'ENVELOPE',    {Do not Localize}   //The envelope structure of the message.  This is
-                      //computed by the server by parsing the [RFC-822]
-                      //header into the component parts, defaulting various
-                      //fields as necessary.
-    'FAST',      {Do not Localize}   //Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE)
-    'FLAGS',       {Do not Localize}   //The flags that are set for this message.
-    'FULL',      {Do not Localize}   //Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY)
-    'INTERNALDATE',  {Do not Localize}   //The internal date of the message.
-    'RFC822',      {Do not Localize}   //Functionally equivalent to BODY[], differing in the
-                      //syntax of the resulting untagged FETCH data (RFC822
-                      //is returned).
-    'RFC822.HEADER',   {Do not Localize}   //Functionally equivalent to BODY.PEEK[HEADER],
-                      //differing in the syntax of the resulting untagged
-                      //FETCH data (RFC822.HEADER is returned).
-    'RFC822.SIZE',   {Do not Localize}   //The [RFC-822] size of the message.
-    'RFC822.TEXT',   {Do not Localize}   //Functionally equivalent to BODY[TEXT], differing in
-                      //the syntax of the resulting untagged FETCH data
-                      //(RFC822.TEXT is returned).
-    'HEADER',      {Do not Localize}   //CC: Added to get the header of a part
-    'UID'        {Do not Localize}   //The unique identifier for the message.
+    'BODYSTRUCTURE', {Do not Localize} //The [MIME-IMB] body structure of the message.  This
+                                       //is computed by the server by parsing the [MIME-IMB]
+                                       //header fields in the [RFC-822] header and [MIME-IMB] headers.
+    'ENVELOPE',      {Do not Localize} //The envelope structure of the message.  This is
+                                       //computed by the server by parsing the [RFC-822]
+                                       //header into the component parts, defaulting various
+                                       //fields as necessary.
+    'FAST',          {Do not Localize} //Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE)
+    'FLAGS',         {Do not Localize} //The flags that are set for this message.
+    'FULL',          {Do not Localize} //Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY)
+    'INTERNALDATE',  {Do not Localize} //The internal date of the message.
+    'RFC822',        {Do not Localize} //Functionally equivalent to BODY[], differing in the
+                                       //syntax of the resulting untagged FETCH data (RFC822
+                                       //is returned).
+    'RFC822.HEADER', {Do not Localize} //Functionally equivalent to BODY.PEEK[HEADER],
+                                       //differing in the syntax of the resulting untagged
+                                       //FETCH data (RFC822.HEADER is returned).
+    'RFC822.SIZE',   {Do not Localize} //The [RFC-822] size of the message.
+    'RFC822.TEXT',   {Do not Localize} //Functionally equivalent to BODY[TEXT], differing in
+                                       //the syntax of the resulting untagged FETCH data
+                                       //(RFC822.TEXT is returned).
+    'HEADER',        {Do not Localize} //CC: Added to get the header of a part
+    'UID',           {Do not Localize} //The unique identifier for the message.
+    'X-GM-MSGID',    {Do not Localize} //Gmail-specific unique identifier for the message.
+    'X-GM-THRID',    {Do not Localize} //Gmail-specific thread identifier for the message.
+    'X-GM-LABELS'    {Do not Localize} //Gmail-specific labels for the message.    
   );
 
-  IMAP4SearchKeys : array [skAll..skUnseen] of String = (
+  IMAP4SearchKeys : array [TIdIMAP4SearchKey] of String = (
     'ALL',       {Do not Localize}   //All messages in the mailbox; the default initial key for ANDing.
     'ANSWERED',  {Do not Localize}   //Messages with the \Answered flag set.
     'BCC',       {Do not Localize}   //Messages that contain the specified string in the envelope structure's BCC field.
@@ -1273,10 +1284,14 @@ const
     'UNDRAFT',   {Do not Localize}   //Messages that do not have the \Draft flag set.
     'UNFLAGGED', {Do not Localize}   //Messages that do not have the \Flagged flag set.
     'UNKEYWORD', {Do not Localize}   //Messages that do not have the specified keyword set.
-    'UNSEEN'     {Do not Localize}
+    'UNSEEN',    {Do not Localize}
+    'X-GM-RAW',  {Do not Localize}   //Gmail extension to SEARCH command to allow full access to Gmail search syntax
+    'X-GM-MSGID',{Do not Localize}   //Gmail extension to SEARCH command to allow access to Gmail message identifier
+    'X-GM-THRID',{Do not Localize}   //Gmail extension to SEARCH command to allow access to Gmail thread identifier
+    'X-GM-LABELS'{Do not Localize}   //Gmail extension to SEARCH command to allow access to Gmail labels
   );
 
-  IMAP4StoreDataItem : array [sdReplace..sdRemoveSilent] of String = (
+  IMAP4StoreDataItem : array [TIdIMAP4StoreDataItem] of String = (
     'FLAGS',         {Do not Localize}
     'FLAGS.SILENT',  {Do not Localize}
     '+FLAGS',        {Do not Localize}
@@ -1285,7 +1300,7 @@ const
     '-FLAGS.SILENT'  {Do not Localize}
   );
 
-  IMAP4StatusDataItem : array [mdMessages..mdUnseen] of String = (
+  IMAP4StatusDataItem : array [TIdIMAP4StatusDataItem] of String = (
     'MESSAGES',      {Do not Localize}
     'RECENT',        {Do not Localize}
     'UIDNEXT',       {Do not Localize}
@@ -2378,6 +2393,14 @@ begin
         Result := Result + IMAP4SearchKeys[skUnKeyWord] + ' ';                            {Do not Localize}
       skUnseen:
         Result := Result + IMAP4SearchKeys[skUnseen] + ' ';                             {Do not Localize}
+      skGmailRaw:
+        Result := Result + IMAP4SearchKeys[skGmailRaw] + ' "' + ASearchInfo[Ln].Text + '" ';               {Do not Localize}
+      skGmailMsgID:
+        Result := Result + IMAP4SearchKeys[skGmailMsgID] + ' ' + ASearchInfo[Ln].Text + ' ';               {Do not Localize}
+      skGmailThreadID:
+        Result := Result + IMAP4SearchKeys[skGmailThreadID] + ' ' + ASearchInfo[Ln].Text + ' ';               {Do not Localize}
+      skGmailLabels:
+        Result := Result + IMAP4SearchKeys[skGmailLabels] + ' ' + ASearchInfo[Ln].Text + ' ';               {Do not Localize}
     end;
   end;
   Result := TrimRight(Result);
