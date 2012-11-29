@@ -432,7 +432,7 @@ Project -> Options -> Directories/Conditionals -> Search Path}
 
 uses
   Classes,
-  {$IFDEF CBUILDER_5}IdCTypes,{$ENDIF}
+  {$IFNDEF VCL_6_OR_ABOVE}IdCTypes,{$ENDIF}
   IdMessage,
   IdAssignedNumbers,
   IdMailBox,
