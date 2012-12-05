@@ -778,25 +778,32 @@ var
 begin
   // this won't get IPv6 addresses as I didn't find a way
   // to enumerate IPv6 addresses on a linux machine
+
+  // TODO: use getifaddrs() on platforms that support it
+
   LHostName := HostName;
   LAHost := Libc.gethostbyname(PAnsiChar(LHostName));
   if LAHost = nil then begin
     RaiseLastSocketError;
   end else begin
-    LPAdrPtr := PAPInAddr(LAHost^.h_addr_list);
-    Li := 0;
-    if LPAdrPtr^[Li] <> nil then begin
-      AAddresses.BeginUpdate;
-      try
-        repeat
-          // TODO: gethostbyname() might return other things besides IPv4
-          // addresses, so we should be validating the address type before
-          // attempting the conversion...
-          AAddresses.Add(TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4));
-          Inc(Li);
-        until LPAdrPtr^[Li] = nil;
-      finally
-        AAddresses.EndUpdate;
+    // gethostbyname() might return other things besides IPv4 addresses, so we
+    // need to validate the address type before attempting the conversion...
+
+    // TODO: support IPv6 addresses
+    if LAHost^.h_addrtype = Id_PF_INET4 then
+    begin
+      LPAdrPtr := PAPInAddr(LAHost^.h_addr_list);
+      Li := 0;
+      if LPAdrPtr^[Li] <> nil then begin
+        AAddresses.BeginUpdate;
+        try
+          repeat
+            AAddresses.Add(TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4));
+            Inc(Li);
+          until LPAdrPtr^[Li] = nil;
+        finally
+          AAddresses.EndUpdate;
+        end;
       end;
     end;
   end;

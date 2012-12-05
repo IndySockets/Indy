@@ -485,14 +485,15 @@ var
   LHostName: AnsiString;
   Hints: AddrInfo;
   LAddrList, LAddrInfo: pAddrInfo;
-
 begin
+  // TODO: use getifaddrs() on platforms that support it
+
   //IMPORTANT!!!
   //
   //The Hints structure must be zeroed out or you might get an AV.
   //I've seen this in Mac OS X
   FillChar(Hints, SizeOf(Hints), 0);
-  Hints.ai_family := PF_UNSPEC; // TODO: support IPv6 addresses
+  Hints.ai_family := PF_UNSPEC; // returns both IPv4 and IPv6 addresses
   Hints.ai_socktype := SOCK_STREAM;
 
   LHostName := AnsiString(HostName);

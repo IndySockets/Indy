@@ -807,6 +807,8 @@ var
     {$ENDIF}
   {$ENDIF}
 begin
+  // TODO: use GetAdaptersInfo() or GetAdapterAddress() instead...
+  
   LHostName := HostName;
 
   {$IFNDEF WINCE}
@@ -820,20 +822,24 @@ begin
     if AHost = nil then begin
       RaiseLastSocketError;
     end;
-    PAdrPtr := PAPInAddr(AHost^.h_address_list);
-    i := 0;
-    if PAdrPtr^[i] <> nil then begin
-      AAddresses.BeginUpdate;
-      try
-        repeat
-          // TODO: gethostbynaame() might return other things besides IPv4
-          // addresses, so we should be validating the address type before
-          // attempting the conversion...
-          AAddresses.Add(TranslateTInAddrToString(PAdrPtr^[I]^, Id_IPv4)); //BGO FIX
-          Inc(I);
-        until PAdrPtr^[i] = nil;
-      finally
-        AAddresses.EndUpdate;
+    // gethostbyname() might return other things besides IPv4 addresses, so we
+    // need to validate the address type before attempting the conversion...
+
+    // TODO: support IPv6 addresses
+    if AHost^.h_addrtype = AF_INET then
+    begin
+      PAdrPtr := PAPInAddr(AHost^.h_address_list);
+      i := 0;
+      if PAdrPtr^[i] <> nil then begin
+        AAddresses.BeginUpdate;
+        try
+          repeat
+            AAddresses.Add(TranslateTInAddrToString(PAdrPtr^[I]^, Id_IPv4)); //BGO FIX
+            Inc(I);
+          until PAdrPtr^[i] = nil;
+        finally
+          AAddresses.EndUpdate;
+        end;
       end;
     end;
     Exit;
