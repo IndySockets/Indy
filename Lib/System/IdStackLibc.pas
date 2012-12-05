@@ -777,7 +777,14 @@ begin
   // this won't get IPv6 addresses as I didn't find a way
   // to enumerate IPv6 addresses on a linux machine
 
-  // TODO: use getifaddrs() on platforms that support it
+  // TODO: Using gethostname() and gethostbyname() like this may not always
+  // return just the machine's IP addresses. Technically speaking, they will
+  // return the local hostname, and then return the address(es) to which that
+  // hostname resolves. It is possible for a machine to (a) be configured such
+  // that its name does not resolve to an IP, or (b) be configured such that
+  // its name resolves to multiple IPs, only one of which belongs to the local
+  // machine. For better results, we should use getifaddrs() on platforms that
+  // support it...
 
   LHostName := AnsiString(HostName);
   LAHost := Libc.gethostbyname(PAnsiChar(LHostName));

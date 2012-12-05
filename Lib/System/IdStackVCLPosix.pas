@@ -486,7 +486,13 @@ var
   Hints: AddrInfo;
   LAddrList, LAddrInfo: pAddrInfo;
 begin
-  // TODO: use getifaddrs() on platforms that support it
+  // TODO: Using gethostname() and getaddrinfo() like this may not always return just
+  // the machine's IP addresses. Technically speaking, they will return the local
+  // hostname, and then return the address(es) to which that hostname resolves.
+  // It is possible for a machine to (a) be configured such that its name does
+  // not resolve to an IP, or (b) be configured such that its name resolves to
+  // multiple IPs, only one of which belongs to the local machine. For better
+  // results, we should use getifaddrs() on platforms that support it...
 
   //IMPORTANT!!!
   //

@@ -1019,6 +1019,9 @@ var
   i : Integer;
 begin
   {$IFDEF DOTNET_2_OR_ABOVE}
+  // TODO: use NetworkInterface.GetAllNetworkInterfaces() instead.
+  // See this article for an example:
+  // http://blogs.msdn.com/b/dgorti/archive/2005/10/04/477078.aspx
   LHost := DNS.GetHostEntry(DNS.GetHostName);
   {$ENDIF}
   {$IFDEF DOTNET_1_1}
