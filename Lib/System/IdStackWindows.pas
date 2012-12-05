@@ -807,7 +807,16 @@ var
     {$ENDIF}
   {$ENDIF}
 begin
-  // TODO: use GetAdaptersInfo() or GetAdapterAddress() instead...
+  // TODO: Using gethostname() and gethostbyname/getaddrinfo() like this may
+  // not always return just the machine's IP addresses. Technically speaking,
+  // they will return the local hostname, and then return the address(es) to
+  // which that hostname resolves. It is possible for a machine to (a) be
+  // configured such that its name does not resolve to an IP, or (b) be
+  // configured such that its name resolves to multiple IPs, only one of which
+  // belongs to the local machine. For better results, we should use the Win32
+  // API GetAdaptersInfo() and/or GetAdaptersAddresses() functions instead.
+  // GetAdaptersInfo() only supports IPv4, but GetAdaptersAddresses() supports
+  // both IPv4 and IPv6...
   
   LHostName := HostName;
 
