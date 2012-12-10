@@ -2679,6 +2679,8 @@ var
   LHelper: TIdIMAP4WorkHelper;
   LLengthOfAMsgHeaders: integer;
   LLengthOfFileHeaders: TIdStreamSize;
+  LMsgClient: TIdMessageClient;
+  LMsgIO: TIdIOHandlerStreamMsg;
 begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
@@ -2716,7 +2718,34 @@ begin
 
     LStream := TMemoryStream.Create;
     try
-      AMsg.SaveToStream(LStream);
+      {RLebeau 12/09/2012: this is a workaround to a design limitation in
+      TIdMessage.SaveToStream().  It always outputs the stream data in an
+      escaped format using SMTP dot transparency, but that is not used in
+      IMAP! Until this design is corrected, we have to use a workaround
+      for now.  This logic is copied from TIdMessage.SaveToSteam() and
+      slightly tweaked...}
+
+      //AMsg.SaveToStream(LStream);
+      LMsgClient := TIdMessageClient.Create(nil);
+      try
+        LMsgIO := TIdIOHandlerStreamMsg.Create(nil, nil, LStream);
+        try
+          LMsgIO.FreeStreams := False;
+          LMsgIO.UnescapeLines := True; // this is the key piece that makes it work!
+          LMsgClient.IOHandler := LMsgIO;
+          try
+            LMsgClient.SendMsg(AMsg, False);
+          finally
+            LMsgClient.IOHandler := nil;
+          end;
+        finally
+          LMsgIO.Free;
+        end;
+      finally
+        LMsgClient.Free;
+      end;
+      // end workaround
+
       LStream.Position := 0;
       LLength := LStream.Size;
       {Get the size of the headers which SaveToStream may have generated,
@@ -3812,6 +3841,11 @@ begin
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
     if InternalRetrieve(AMsgNum, False, False, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
       LMsg.SaveToFile(ADestFile);
       Result := True;
     end;
@@ -3832,6 +3866,11 @@ begin
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
     if InternalRetrieve(AMsgNum, False, False, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
       LMsg.SaveToStream(AStream);
       Result := True;
     end;
@@ -3864,6 +3903,11 @@ begin
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
     if InternalRetrieve(IndyStrToInt(AMsgUID), True, False, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
       LMsg.SaveToFile(ADestFile);
       Result := True;
     end;
@@ -3884,6 +3928,11 @@ begin
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
     if InternalRetrieve(IndyStrToInt(AMsgUID), True, False, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
       LMsg.SaveToStream(AStream);
       Result := True;
     end;
@@ -3904,6 +3953,8 @@ var
   LCmd: string;
   LDestStream: TStream;
   LHelper: TIdIMAP4WorkHelper;
+  LMsgClient: TIdMessageClient;
+  LMsgIO: TIdIOHandlerStreamMsg;
 begin
   Result := False;
   CheckConnectionState(csSelected);
@@ -3944,7 +3995,35 @@ begin
         end;
         {Feed stream into the standard message parser...}
         LDestStream.Position := 0;
-        AMsg.LoadFromStream(LDestStream);
+
+        {RLebeau 12/09/2012: this is a workaround to a design limitation in
+        TIdMessage.LoadFromStream().  It assumes the stream data is always
+        in an escaped format using SMTP dot transparency, but that is not
+        the case in IMAP! Until this design is corrected, we have to use a
+        workaround for now.  This logic is copied from TIdMessage.LoadFromStream()
+        and slightly tweaked...}
+
+        //AMsg.LoadFromStream(LDestStream);
+        LMsgClient := TIdMessageClient.Create(nil);
+        try
+          LMsgIO := TIdIOHandlerStreamMsg.Create(nil, LDestStream);
+          try
+            LMsgIO.FreeStreams := False;
+            LMsgIO.EscapeLines := True; // this is the key piece that makes it work!
+            LMsgClient.IOHandler := LMsgIO;
+            try
+              LMsgIO.Open;
+              LMsgClient.ProcessMessage(AMsg, False);
+            finally
+              LMsgClient.IOHandler := nil;
+            end;
+          finally
+            LMsgIO.Free;
+          end;
+        finally
+          LMsgClient.Free;
+        end;
+        // end workaround
       finally
         FreeAndNil(LDestStream);
       end;

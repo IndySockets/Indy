@@ -417,6 +417,7 @@ type
   protected
     FTerminatorWasRead: Boolean;
     FEscapeLines: Boolean;
+    FUnescapeLines: Boolean;
     FLastByteRecv: Byte;
     function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
   public
@@ -430,7 +431,11 @@ type
       AMaxLineLength: Integer = -1; AByteEncoding: TIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
       ): string; override;
+    procedure WriteLn(const AOut: string; AByteEncoding: TIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      ); override;
     property EscapeLines: Boolean read FEscapeLines write FEscapeLines;
+    property UnescapeLines: Boolean read FUnescapeLines write FUnescapeLines;
   end;
 
   TIdMessageClient = class(TIdExplicitTLSClient)
@@ -542,6 +547,7 @@ begin
   inherited Create(AOwner, AReceiveStream, ASendStream);
   FTerminatorWasRead := False;
   FEscapeLines := False; // do not set this to True! This is for users to set manually...
+  FUnescapeLines := False; // do not set this to True! This is for users to set manually...
   FLastByteRecv := 0;
 end;
 
@@ -606,6 +612,19 @@ begin
   if FEscapeLines and TextStartsWith(Result, '.') and (not FTerminatorWasRead) then begin {Do not Localize}
     Result := '.' + Result; {Do not Localize}
   end;
+end;
+
+procedure TIdIOHandlerStreamMsg.WriteLn(const AOut: string; AByteEncoding: TIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  );
+var
+  LOut: String;
+begin
+  LOut := AOut;
+  if FUnescapeLines and TextStartsWith(LOut, '..') then begin {Do not Localize}
+    IdDelete(LOut, 1, 1);
+  end;
+  inherited WriteLn(LOut, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 
 ///////////////////
