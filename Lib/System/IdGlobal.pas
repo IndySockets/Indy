@@ -2472,6 +2472,7 @@ function TIdMBCSEncoding.GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: P
 var
   LCharsPtr, LBytesPtr: PAnsiChar;
   LSrcCharSize, LCharSize, LByteSize: size_t;
+  LCharsRead, LBytesWritten: Integer;
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
@@ -2513,15 +2514,18 @@ begin
     end;
 
     // LByteSize was decremented by the number of bytes stored in the output buffer
-    Inc(Result, ByteCount-LByteSize);
+    LBytesWritten := ByteCount - LByteSize;
+    Inc(Result, LBytesWritten);
     if Chars = nil then begin
       Exit;
     end;
-    ByteCount := LByteSize;
+    Inc(Bytes, LBytesWritten);
+    Dec(ByteCount, LBytesWritten);
 
     // LCharSize was decremented by the number of bytes read from the input buffer
-    Inc(Chars, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
-    Dec(CharCount, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
+    LCharsRead := (LSrcCharSize-LCharSize) div SizeOf(WideChar);
+    Inc(Chars, LCharsRead);
+    Dec(CharCount, LCharsRead);
     if CharCount < 1 then
     begin
       // After all characters are handled, the output buffer has to be flushed
@@ -2644,7 +2648,7 @@ function TIdMBCSEncoding.GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWide
 var
   LBytesPtr, LCharsPtr: PAnsiChar;
   LByteSize, LCharsSize: size_t;
-  I, LDestCharSize, LMaxBytesSize, LCharsWritten: Integer;
+  I, LDestCharSize, LMaxBytesSize, LBytesRead, LCharsWritten: Integer;
   LConverted: Boolean;
 {$ENDIF}
 begin
@@ -2718,8 +2722,9 @@ begin
         Dec(CharCount, LCharsWritten);
 
         // LByteSize was decremented by the number of bytes read from the input buffer
-        Inc(Bytes, I-LByteSize);
-        Dec(ByteCount, I-LByteSize);
+        LBytesRead := I - LByteSize;
+        Inc(Bytes, LBytesRead);
+        Dec(ByteCount, LBytesRead);
         if ByteCount < 1 then begin
           // After all bytes are handled, the output buffer has to be flushed
           // This is done by running one more iteration, without an input buffer
