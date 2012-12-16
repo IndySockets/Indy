@@ -2394,6 +2394,7 @@ var
   LBytes: array[0..3] of Byte;
   LCharsPtr, LBytesPtr: PAnsiChar;
   LSrcCharSize, LCharSize, LByteSize: size_t;
+  LCharsRead: Integer;
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
@@ -2448,8 +2449,9 @@ begin
     end;
 
     // LCharSize was decremented by the number of bytes read from the input buffer
-    Inc(Chars, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
-    Dec(CharCount, (LSrcCharSize-LCharSize) div SizeOf(WideChar));
+    LCharsRead := (LSrcCharSize-LCharSize) div SizeOf(WideChar);
+    Inc(Chars, LCharsRead);
+    Dec(CharCount, LCharsRead);
     if CharCount < 1 then
     begin
       // After all characters are handled, the output buffer has to be flushed
@@ -2548,7 +2550,7 @@ var
   LChars: array[0..3] of WideChar;
   LBytesPtr, LCharsPtr: PAnsiChar;
   LByteSize, LCharsSize: size_t;
-  I, LMaxBytesSize: Integer;
+  I, LMaxBytesSize, LBytesRead: Integer;
   LConverted: Boolean;
 {$ENDIF}
 begin
@@ -2616,8 +2618,9 @@ begin
         end;
 
         // LByteSize was decremented by the number of bytes read from the input buffer
-        Inc(Bytes, I-LByteSize);
-        Dec(ByteCount, I-LByteSize);
+        LBytesRead := I - LByteSize;
+        Inc(Bytes, LBytesRead);
+        Dec(ByteCount, LBytesRead);
         if ByteCount < 1 then begin
           // After all bytes are handled, the output buffer has to be flushed
           // This is done by running one more iteration, without an input buffer
