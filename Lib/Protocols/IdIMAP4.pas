@@ -2408,30 +2408,51 @@ end;
 
 function TIdIMAP4.SearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec): Boolean;
 var
-  LSearchStr : String;
+  LCmd: String;
 begin
   Result := False;
-  LSearchStr := SearchRecToStr(ASearchInfo);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdSearch] + ' ' + LSearchStr), [IMAP4Commands[cmdSearch]]);           {Do not Localize}
-  if LastCmdResult.Code = IMAP_OK then begin
-    ParseSearchResult(FMailBox, LastCmdResult.Text);
-    Result := True;
+  LCmd := NewCmdCounter + ' ' + IMAP4Commands[cmdSearch] + ' CHARSET utf-8 ' + SearchRecToStr(ASearchInfo); {Do not Localize}
+  {CC3: Catch "Connection reset by peer"...}
+  try
+    IOHandler.WriteLn(LCmd, IndyUTF8Encoding);
+    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch]], False) = IMAP_OK then begin
+      ParseSearchResult(FMailBox, LastCmdResult.Text);
+      Result := True;
+    end;
+  except
+    on E: EIdSocketError do begin
+      if E.LastError = Id_WSAECONNRESET then begin
+        //Connection reset by peer...
+        FConnectionState := csUnexpectedlyDisconnected;
+      end;
+      raise;
+    end;
   end;
 end;
 
 function TIdIMAP4.UIDSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec) : Boolean;
 var
-  LSearchStr : String;
+  LCmd: String;
 begin
   Result := False;
-  LSearchStr := SearchRecToStr(ASearchInfo);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdSearch] + ' ' + LSearchStr),          {Do not Localize}
-    [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]]);                                     {Do not Localize}
-  if LastCmdResult.Code = IMAP_OK then begin
-    ParseSearchResult(FMailBox, LastCmdResult.Text);
-    Result := True;
+  LCmd := NewCmdCounter + ' ' + IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdSearch] + ' CHARSET utf-8 ' + SearchRecToStr(ASearchInfo); {Do not Localize}
+  {CC3: Catch "Connection reset by peer"...}
+  try
+    IOHandler.WriteLn(LCmd, IndyUTF8Encoding);
+    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+      ParseSearchResult(FMailBox, LastCmdResult.Text);
+      Result := True;
+    end;
+  except
+    on E: EIdSocketError do begin
+      if E.LastError = Id_WSAECONNRESET then begin
+        //Connection reset by peer...
+        FConnectionState := csUnexpectedlyDisconnected;
+      end;
+      raise;
+    end;
   end;
 end;
 
