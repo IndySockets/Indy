@@ -367,7 +367,8 @@ type
 
   // Protocol options
   TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams,
-    hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv, hoWaitForUnexpectedData);
+    hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv, hoWaitForUnexpectedData,
+    hoTreat302Like303);
   TIdHTTPOptions = set of TIdHTTPOption;
 
   // Must be documented
@@ -2202,19 +2203,21 @@ begin
         { By default we assume that keep-alive is by default and will close
           the connection only there is "close" }
         begin
-          FKeepAlive :=
-            not (TextIsSame(Trim(Connection), 'CLOSE') or   {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'CLOSE'));    {do not localize}
+          FKeepAlive := not (
+            TextIsSame(Trim(Connection), 'CLOSE') or   {do not localize}
+            TextIsSame(Trim(ProxyConnection), 'CLOSE') {do not localize}
+          );
         end;
       pv1_0:
         { By default we assume that keep-alive is not by default and will keep
           the connection only if there is "keep-alive" }
         begin
-          FKeepAlive := TextIsSame(Trim(Connection), 'KEEP-ALIVE') or  {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE')            {do not localize}
+          FKeepAlive :=
+            TextIsSame(Trim(Connection), 'KEEP-ALIVE') or   {do not localize}
+            TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE') {do not localize}
             { or ((ResponseVersion = pv1_1) and
-              (Length(Trime(Connection)) = 0) and
-              (Length(Trime(ProxyConnection)) = 0)) };
+              (Length(Trim(Connection)) = 0) and
+              (Length(Trim(ProxyConnection)) = 0)) };
         end;
     end;
   end;
@@ -2462,22 +2465,33 @@ begin
     if (FHTTP.FHandleRedirects) and (FHTTP.FRedirectCount < FHTTP.FRedirectMax) then begin
       Result := wnGoToURL;
       Request.URL := LLocation;
+
       // GDG 21/11/2003. If it's a 303, we should do a get this time
+
       // RLebeau 7/15/2004 - do a GET on 302 as well, as mentioned in RFC 2616
-      // RLebeau 1/11/2008 - turns out both situations are WRONG! RFCs 2068 an
+
+      // RLebeau 1/11/2008 - turns out both situations are WRONG! RFCs 2068 and
       // 2616 specifically state that changing the method to GET in response
       // to 302 and 303 is errorneous.  Indy 9 did it right by reusing the
       // original method and source again and only changing the URL, so lets
       // revert back to that same behavior!
-      {
-      if (LResponseCode = 302) or (LResponseCode = 303) then begin
+
+      // RLebeau 12/28/2012 - one more time. RFCs 2068 and 2616 actually say that
+      // changing the method in response to 302 is erroneous, but changing the
+      // method to GET in response to 303 is intentional and why 303 was introduced
+      // in the first place. Erroneous clients treat 302 as 303, though.  Now
+      // encountering servers that actually expect this 303 behavior, so we have
+      // to enable it again! Adding an optional HTTPOption flag so clients can
+      // enable the erroneous 302 behavior if they really need it.
+
+      if ((LResponseCode = 302) and (hoTreat302Like303 in FHTTP.HTTPOptions)) or
+          (LResponseCode = 303) then
+      begin
         Request.Source := nil;
         Request.Method := Id_HTTPMethodGet;
       end else begin
         Request.Method := LMethod;
       end;
-      }
-      Request.Method := LMethod;
       Request.MethodOverride := '';
     end else begin
       Result := wnJustExit;
