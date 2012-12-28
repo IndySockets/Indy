@@ -1114,7 +1114,7 @@ end;
 function RawStrInternetToDateTime(var Value: string; var VDateTime: TDateTime): Boolean;
 var
   i: Integer;
-  Dt, Mo, Yr, Ho, Min, Sec: Word;
+  Dt, Mo, Yr, Ho, Min, Sec, MSec: Word;
   sYear, sTime, sDelim: string;
   //flags for if AM/PM marker found
   LAM, LPM : Boolean;
@@ -1131,12 +1131,104 @@ var
     Value := TrimLeft(Value);
   end;
 
+  function ParseISO8601: Boolean;
+  var
+    S: String;
+    Len, Offset, Found: Integer;
+  begin
+    Result := False;
+
+    S := Value;
+    Len := Length(S);
+
+    if not IsNumeric(S, 4) then begin
+      Exit;
+    end;
+
+    // defaults for omitted values
+    Dt := 1;
+    Mo := 1;
+    Ho := 0;
+    Min := 0;
+    Sec := 0;
+    MSec := 0;
+
+    Yr := IndyStrToInt( Copy(S, 1, 4) );
+    Offset := 5;
+
+    if Offset <= Len then
+    begin
+      if (not CharEquals(S, Offset, '-')) or (not IsNumeric(S, 2, Offset+1)) then begin
+        Exit;
+      end;
+      Mo := IndyStrToInt( Copy(S, Offset+1, 2) );
+      Inc(Offset, 3);
+
+      if Offset <= Len then
+      begin
+        if (not CharEquals(S, Offset, '-')) or {Do not Localize}
+           (not IsNumeric(S, 2, Offset+1)) then
+        begin
+          Exit;
+        end;
+        Dt := IndyStrToInt( Copy(S, Offset+1, 2) );
+        Inc(Offset, 3);
+
+        if Offset <= Len then
+        begin
+          if (not CharEquals(S, Offset, 'T')) or     {Do not Localize}
+             (not IsNumeric(S, 2, Offset+1)) or
+             (not CharEquals(S, Offset+3, ':')) then   {Do not Localize}
+          begin
+            Exit;
+          end;
+          Ho := IndyStrToInt( Copy(S, Offset+1, 2) );
+          Inc(Offset, 4);
+
+          if not IsNumeric(S, 2, Offset) then begin
+            Exit;
+          end;
+          Min := IndyStrToInt( Copy(S, Offset, 2) );
+          Inc(Offset, 2);
+
+          if Offset > Len then begin
+            Exit;
+          end;
+
+          if CharEquals(S, Offset, ':') then {Do not Localize}
+          begin
+            if not IsNumeric(S, 2, Offset+1) then begin
+              Exit;
+            end;
+            Sec := IndyStrToInt( Copy(S, Offset+1, 2) );
+            Inc(Offset, 3);
+
+            if Offset > Len then begin
+              Exit;
+            end;
+
+            if CharEquals(S, Offset, '.') then {Do not Localize}
+            begin
+              Found := FindFirstNotOf('0123456789', S, -1, Offset+1); {Do not Localize}
+              if Found = 0 then begin
+                Exit;
+              end;
+              MSec := IndyStrToInt( Copy(S, Offset+1, Found-Offset-1) );
+              Inc(Offset, Found-Offset+1);
+            end;
+          end;
+        end;
+      end;
+    end;
+
+    VDateTime := EncodeDate(Yr, Mo, Dt) + EncodeTime(Ho, Min, Sec, MSec);
+    Value := Copy(S, Offset, MaxInt);
+    Result := True;
+  end;
+
 begin
   Result := False;
   VDateTime := 0.0;
-
-  LAM := False;
-  LPM := False;
 
   Value := Trim(Value);
   if Length(Value) = 0 then begin
@@ -1144,6 +1236,13 @@ begin
   end;
 
   try
+    // RLebeau: have noticed some HTTP servers deliver dates using ISO-8601
+    // format even though this is in violation of the HTTP specs!
+    if ParseISO8601 then begin
+      Result := True;
+      Exit;
+    end;
+
     {Day of Week}
     if StrToDay(Copy(Value, 1, 3)) > 0 then begin
       //workaround in case a space is missing after the initial column
@@ -1208,14 +1307,20 @@ begin
     end;
 
     VDateTime := EncodeDate(Yr, Mo, Dt);
+
     // SG 26/9/00: Changed so that ANY time format is accepted
     if IndyPos('AM', Value) > 0 then begin{do not localize}
       LAM := True;
+      LPM := False;
       Value := Fetch(Value, 'AM');  {do not localize}
     end
     else if IndyPos('PM', Value) > 0 then begin {do not localize}
+      LAM := False;
       LPM := True;
       Value := Fetch(Value, 'PM');  {do not localize}
+    end else begin
+      LAM := False;
+      LPM := False;
     end;
 
     // RLebeau 03/04/2009: some countries use dot instead of colon
@@ -1236,6 +1341,7 @@ begin
       Min := IndyStrToInt( Fetch(sTime, sDelim), 0);
       {Second}
       Sec := IndyStrToInt( Fetch(sTime), 0);
+      MSec := 0; // TODO
       {AM/PM part if present}
       Value := TrimLeft(Value);
       if LAM then begin
@@ -1252,7 +1358,7 @@ begin
         end;
       end;
       {The date and time stamp returned}
-      VDateTime := VDateTime + EncodeTime(Ho, Min, Sec, 0);
+      VDateTime := VDateTime + EncodeTime(Ho, Min, Sec, MSec);
     end;
     Value := TrimLeft(Value);
     Result := True;
@@ -2316,18 +2422,25 @@ begin
   sTmp := Trim(S);
   sTmp := Fetch(sTmp);
   if Length(sTmp) > 0 then begin
-    if (sTmp[1] <> '-') and (sTmp[1] <> '+') then begin {do not localize}
+    if not CharIsInSet(sTmp, 1, '-+') then begin {do not localize}
       sTmp := TimeZoneToGmtOffsetStr(sTmp);
-    end;
-    if (Length(sTmp) = 5) and ((sTmp[1] = '-') or (sTmp[1] = '+')) then begin  {do not localize}
-      try
-        Result := EncodeTime(IndyStrToInt(Copy(sTmp, 2, 2)), IndyStrToInt(Copy(sTmp, 4, 2)), 0, 0);
-        if sTmp[1] = '-' then begin  {do not localize}
-          Result := -Result;
-        end;
-      except
-        Result := 0.0;
+    end else
+    begin
+      if (Length(sTmp) = 6) and CharEquals(sTmp, 4, ':') then begin {do not localize}
+        // ISO 8601 has a colon in the middle, ignore it
+        IdDelete(sTmp, 4, 1);
       end;
+      if (Length(sTmp) <> 5) or (not IsNumeric(sTmp, 2, 2)) or (not IsNumeric(sTmp, 2, 4)) then begin
+        Exit;
+      end;
+    end;
+    try
+      Result := EncodeTime(IndyStrToInt(Copy(sTmp, 2, 2)), IndyStrToInt(Copy(sTmp, 4, 2)), 0, 0);
+      if CharEquals(sTmp, 1, '-') then begin  {do not localize}
+        Result := -Result;
+      end;
+    except
+      Result := 0.0;
     end;
   end;
 end;
