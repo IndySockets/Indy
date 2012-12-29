@@ -380,6 +380,7 @@ const
   {$IFNDEF DOTNET}
   Id_SO_BROADCAST        =  SO_BROADCAST;
   Id_SO_DEBUG            =  SO_DEBUG;
+  Id_SO_DONTLINGER       =  SO_DONTLINGER;
   Id_SO_DONTROUTE        =  SO_DONTROUTE;
   Id_SO_KEEPALIVE        =  SO_KEEPALIVE;
   Id_SO_LINGER	         =  SO_LINGER;
@@ -402,8 +403,10 @@ SocketOptionName.BsdUrgent;//  Use urgent data as defined in RFC-1222. This opti
 SocketOptionName.ChecksumCoverage;//  Set or get UDP checksum coverage.
 SocketOptionName.Debug;//  Record debugging information.
 SocketOptionName.DontFragment;//  Do not fragment IP datagrams.
-SocketOptionName.DontLinger;//  Close socket gracefully without lingering.
-SocketOptionName.DontRoute;//  Do not route; send directly to interface addresses.
+}
+  Id_SO_DONTLINGER       =  SocketOptionName.DontLinger;//  Close socket gracefully without lingering.
+  Id_SO_DONTROUTE        =  SocketOptionName.DontRoute;//  Do not route; send directly to interface addresses.
+{
 SocketOptionName.DropMembership;//  Drop an IP group membership.
 SocketOptionName.DropSourceMembership;//  Drop a source group.
 SocketOptionName.Error;//  Get error status and clear.
@@ -411,23 +414,29 @@ SocketOptionName.ExclusiveAddressUse;//  Enables a socket to be bound for exclus
 SocketOptionName.Expedited;//  Use expedited data as defined in RFC-1222. This option can be set only once, and once set, cannot be turned off.
 SocketOptionName.HeaderIncluded;//  Indicates application is providing the IP header for outgoing datagrams.
 SocketOptionName.IPOptions;//  Specifies IP options to be inserted into outgoing datagrams.
-SocketOptionName.KeepAlive;//  Send keep-alives.
-SocketOptionName.Linger;//  Linger on close if unsent data is present.
+}
+  Id_SO_KEEPALIVE        =  SocketOptionName.KeepAlive;//  Send keep-alives.
+  Id_SO_LINGER           =  SocketOptionName.Linger;//  Linger on close if unsent data is present.
+{
 SocketOptionName.MaxConnections;//  Maximum queue length that can be specified by Listen.
 SocketOptionName.MulticastInterface;//  Set the interface for outgoing multicast packets.
 SocketOptionName.MulticastLoopback;//  IP multicast loopback.
 SocketOptionName.MulticastTimeToLive;//  IP multicast time to live.
 SocketOptionName.NoChecksum;//  Send UDP datagrams with checksum set to zero.
 SocketOptionName.NoDelay;//  Disables the Nagle algorithm for send coalescing.
-SocketOptionName.OutOfBandInline;//  Receives out-of-band data in the normal data stream.
+}
+  Id_SO_OOBINLINE        =  SocketOptionName.OutOfBandInline;//  Receives out-of-band data in the normal data stream.
+{
 SocketOptionName.PacketInformation;//  Return information about received packets.
-SocketOptionName.ReceiveBuffer;//  Send low water mark.
+}
+  Id_SO_RCVBUF           =  SocketOptionName.ReceiveBuffer;//  Specifies the total per-socket buffer space reserved for receives. This is unrelated to the maximum message size or the size of a TCP window.
+{
 SocketOptionName.ReceiveLowWater;//  Receive low water mark.
 SocketOptionName.ReceiveTimeout;//  Receive time out. This option applies only to synchronous methods; it has no effect on asynchronous methods such as BeginSend.
 }
   Id_SO_REUSEADDR        =  SocketOptionName.ReuseAddress;//  Allows the socket to be bound to an address that is already in use.
+  Id_SO_SNDBUF           =  SocketOptionName.SendBuffer;//  Specifies the total per-socket buffer space reserved for sends. This is unrelated to the maximum message size or the size of a TCP window.
 {
-SocketOptionName.SendBuffer;//  Specifies the total per-socket buffer space reserved for sends. This is unrelated to the maximum message size or the size of a TCP window.
 SocketOptionName.SendLowWater;//  Specifies the total per-socket buffer space reserved for receives. This is unrelated to the maximum message size or the size of a TCP window.
 SocketOptionName.SendTimeout;//  Send timeout. This option applies only to synchronous methods; it has no effect on asynchronous methods such as BeginSend.
 }
@@ -443,7 +452,6 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   {$IFNDEF DOTNET}
   Id_SO_RCVTIMEO         = SO_RCVTIMEO;
   Id_SO_SNDTIMEO         = SO_SNDTIMEO;
-
   {$ELSE}
   Id_SO_RCVTIMEO         = SocketOptionName.ReceiveTimeout;
   Id_SO_SNDTIMEO         = SocketOptionName.SendTimeout;
@@ -451,7 +459,6 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
 
   {$IFNDEF DOTNET}
   Id_SO_IP_TTL              = IP_TTL;
-
   {$ELSE}
   Id_SO_IP_TTL              = SocketOptionName.IpTimeToLive; //  Set the IP header time-to-live field.
   {$ENDIF}
