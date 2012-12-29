@@ -1895,7 +1895,7 @@ begin
       Result := 0;
     end else
     begin
-      Date := LFileDate;
+      Date := Now;
       LastModified := LFileDate;
       Result := ServeFile(AContext, AFile);
     end;
@@ -2006,6 +2006,10 @@ begin
     end else begin
       ContentLength := 0;
     end;
+  end;
+
+  if Date <= 0 then begin
+    Date := Now;
   end;
 
   SetHeaders;
