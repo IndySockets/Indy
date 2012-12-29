@@ -21,35 +21,16 @@ type
 
 implementation
 
-{$IFNDEF DOTNET_OR_ICONV}
 uses
-  IdCharsets
-  {$IFDEF MSWINDOWS}
-  , Windows
-  {$ENDIF}
-  ;
-{$ENDIF}
-
-// TODO: re-write this unit to use IdGlobalProtocol.CharsetToEncoding() instead of TIdTextEncoding.GetEncoding() directly...
+  IdGlobalProtocols;
 
 class function TIdHeaderCoderIndy.Decode(const ACharSet: string; const AData: TIdBytes): String;
 var
   LEncoding: TIdTextEncoding;
-  {$IFNDEF DOTNET_OR_ICONV}
-  CP: Word;
-  {$ENDIF}
 begin
   Result := '';
   try
-    {$IFDEF DOTNET_OR_ICONV}
-    LEncoding := TIdTextEncoding.GetEncoding(ACharSet);
-    {$ELSE}
-    CP := CharsetToCodePage(ACharSet);
-    if CP = 0 then begin
-      Exit;
-    end;
-    LEncoding := TIdTextEncoding.GetEncoding(CP);
-    {$ENDIF}
+    LEncoding := CharsetToEncoding(ACharSet);
     {$IFNDEF DOTNET}
     try
     {$ENDIF}
@@ -66,21 +47,10 @@ end;
 class function TIdHeaderCoderIndy.Encode(const ACharSet, AData: String): TIdBytes;
 var
   LEncoding: TIdTextEncoding;
-  {$IFNDEF DOTNET_OR_ICONV}
-  CP: Word;
-  {$ENDIF}
 begin
   Result := nil;
   try
-    {$IFDEF DOTNET_OR_ICONV}
-    LEncoding := TIdTextEncoding.GetEncoding(ACharSet);
-    {$ELSE}
-    CP := CharsetToCodePage(ACharSet);
-    if CP = 0 then begin
-      Exit;
-    end;
-    LEncoding := TIdTextEncoding.GetEncoding(CP);
-    {$ENDIF}
+    LEncoding := CharsetToEncoding(ACharSet);
     {$IFNDEF DOTNET}
     try
     {$ENDIF}
@@ -95,32 +65,20 @@ begin
 end;
 
 class function TIdHeaderCoderIndy.CanHandle(const ACharSet: String): Boolean;
-{$IFDEF DOTNET_OR_ICONV}
 var
   LEncoding: TIdTextEncoding;
-{$ELSE}
-  {$IFDEF MSWINDOWS}
-var
-  CP: Word;
-  LCPInfo: TCPInfo;
-  {$ENDIF}
-{$ENDIF}
 begin
-  Result := False;
-  {$IFDEF DOTNET_OR_ICONV}
   try
-    LEncoding := TIdTextEncoding.GetEncoding(ACharSet);
+    LEncoding := CharsetToEncoding(ACharSet);
     Result := Assigned(LEncoding);
-  except
-  end;
-  {$ELSE}
-    {$IFDEF MSWINDOWS}
-  CP := CharsetToCodePage(ACharSet);
-  if CP <> 0 then begin
-    Result := GetCPInfo(CP, LCPInfo);
-  end;
+    {$IFNDEF DOTNET}
+    if Result then begin
+      LEncoding.Free;
+    end;
     {$ENDIF}
-  {$ENDIF}
+  except
+    Result := False;
+  end;
 end;
 
 initialization
