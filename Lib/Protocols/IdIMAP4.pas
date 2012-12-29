@@ -514,6 +514,7 @@ type
     FFileName: string;
     FDescription: string;
     FEncoding: TIdMessageEncoding;
+    FCharSet: string;
     FContentTransferEncoding: string;
     FSize: integer;
     FUnparsedEntry: string; {Text returned from server: useful for debugging or workarounds}
@@ -527,6 +528,7 @@ type
     property FileName : String read FFileName write FFileName;
     property Description : String read FDescription write FDescription;
     property Encoding: TIdMessageEncoding read FEncoding write FEncoding;
+    property CharSet: string read FCharSet write FCharSet;
     property ContentTransferEncoding : String read FContentTransferEncoding write FContentTransferEncoding;
     property Size : integer read FSize write FSize;
     property UnparsedEntry : string read FUnparsedEntry write FUnparsedEntry;
@@ -771,6 +773,7 @@ varies between servers.  A typical line that gets parsed into this is:
     function  InternalRetrieveHeaders(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
     //Retrieves the specified number of messages of the selected mailbox to the specified TIdMessageCollection.
     function  InternalRetrieveMsgs(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+    function  InternalSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec; AUseUID: Boolean; const ACharSet: string): Boolean;
     function  ParseBodyStructureSectionAsEquates(AParam: string): string;
     function  ParseBodyStructureSectionAsEquates2(AParam: string): string;
     function  InternalRetrieveText(const AMsgNum: Integer; var AText: string;
@@ -855,7 +858,7 @@ varies between servers.  A typical line that gets parsed into this is:
     function  RenameMailBox(const AOldMBName, ANewMBName: String): Boolean;
     //Searches the current selected mailbox for messages matching the SearchRec and
     //returns the results to the mailbox SearchResults array.
-    function  SearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec): Boolean;
+    function  SearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec; const ACharSet: string = ''): Boolean;
     //Selects the current a mailbox in the account.
     function  SelectMailBox(const AMBName: String): Boolean;
     //Retrieves the status of the indicated mailbox.
@@ -1048,7 +1051,7 @@ varies between servers.  A typical line that gets parsed into this is:
     function  UIDRetrievePeek(const AMsgUID: String; AMsg: TIdMessage): Boolean;
     //Searches the current selected mailbox for messages matching the SearchRec and
     //returnes the results as UIDs to the mailbox SearchResults array.
-    function  UIDSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec): Boolean;
+    function  UIDSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec; const ACharSet: String = ''): Boolean;
     //Changes (adds or removes) message flags.
     function  UIDStoreFlags(const AMsgUID: String; const AStoreMethod: TIdIMAP4StoreDataItem;
           const AFlags: TIdMessageFlagsSet): Boolean; overload;
@@ -1061,8 +1064,10 @@ varies between servers.  A typical line that gets parsed into this is:
     function  GetInternalResponse(const ATag: String; AExpectedResponses: array of String; ASingleLineMode: Boolean;
           ASingleLineMayBeSplit: Boolean = False): string; reintroduce; overload;
     function  GetResponse: string; reintroduce; overload;
-    function  SendCmd(const AOut: string; AExpectedResponses: array of String): string; overload;
-    function  SendCmd(const ATag, AOut: string; AExpectedResponses: array of String): string; overload;
+    function  SendCmd(const AOut: string; AExpectedResponses: array of String;
+      ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string; reintroduce; overload;
+    function  SendCmd(const ATag, AOut: string; AExpectedResponses: array of String;
+      ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string; overload;
     function  ReadLnWait: string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.ReadLnWait()'{$ENDIF};{$ENDIF}
     procedure WriteLn(const AOut: string = ''); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.WriteLn()'{$ENDIF};{$ENDIF}
   { IdTCPConnection Commands }
@@ -1133,6 +1138,7 @@ uses
   IdGlobalProtocols,
   IdExceptionCore,
   IdStack,
+  IdStackConsts,
   IdStream,
   IdTCPStream,
   IdText,
@@ -1767,8 +1773,9 @@ begin
   CheckConnectionState(csSelected);
   {Some servers return NO if the requested message number is not present
   (e.g. Cyrus), others return OK but no data (CommuniGate).}
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + {Do not Localize}
-    ' (' + IMAP4FetchDataItem[fdUID] + ')' ), [IMAP4Commands[cmdFetch]]);   {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdUID] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     //Might as well leave 3rd param as [] because ParseLastCmdResult always grabs the UID...
     if LastCmdResult.Text.Count > 0 then begin
@@ -1825,6 +1832,7 @@ var
   LResponse: TStringList;
   LWord: string;
   LPos: integer;
+  LStrippedLineLength: Integer;
   LGotALineWithAnExpectedResponse: Boolean;
   LStrippedLine: string;
   LSplitLine: string;
@@ -1862,11 +1870,20 @@ begin
               //It is split.
               //First, remove the byte count...
               LPos := Length(LStrippedLine)-1;
-              while LStrippedLine[LPos] <> '{' do begin
+              while LPos >= 1 do begin
+                if LStrippedLine[LPos] = '{' then begin
+                  Break;
+                end;
                 Dec(LPos);
               end;
+              LStrippedLineLength := StrToInt(Copy(LStrippedLine, LPos+1, (Length(LStrippedLine)-LPos)-1));
               LStrippedLine := Copy(LStrippedLine, 1, LPos-1);
               //The rest of the reply is on the following line...
+              LSplitLine := IOHandler.ReadString(LStrippedLineLength);
+              // At this point LSplitLine should be parsed and the following characters should be escaped... " CR LF.
+              LResponse.Add(LSplitLine);
+              LStrippedLine := LStrippedLine + LSplitLine;
+
               LSplitLine := IOHandler.ReadLnWait;  //Cannot thrash LLine, need it later
               LResponse.Add(LSplitLine);
               LStrippedLine := LStrippedLine + LSplitLine;
@@ -1900,41 +1917,39 @@ begin
   end;
 end;
 
-function TIdIMAP4.SendCmd(const AOut: string; AExpectedResponses: array of String): string;
+function TIdIMAP4.SendCmd(const AOut: string; AExpectedResponses: array of String;
+  ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string;
 begin
-  Result := SendCmd(NewCmdCounter, AOut, AExpectedResponses);
+  Result := SendCmd(NewCmdCounter, AOut, AExpectedResponses, ASingleLineMode, ASingleLineMayBeSplit);
 end;
 
-function TIdIMAP4.SendCmd(const ATag, AOut: string; AExpectedResponses: array of String): string;
+function TIdIMAP4.SendCmd(const ATag, AOut: string; AExpectedResponses: array of String;
+  ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string;
 var
-  LDataInBuffer: Boolean;
   LCmd: String;
 begin
-  if (AOut <> #0) then begin
-    repeat
+  {CC3: Catch "Connection reset by peer"...}
+  try
+    if (AOut <> #0) then begin
       //Remove anything that may be unprocessed from a previous (probably failed) command...
-      LDataInBuffer := IOHandler.Readable(MilliSecsToWaitToClearBuffer);
-      if LDataInBuffer then begin
-        IOHandler.ReadLnWait;
-      end;
-    until not LDataInBuffer;
-    LCmd := ATag + ' ' + AOut;
-    {CC3: Catch "Connection reset by peer"...}
-    try
+      repeat
+        IOHandler.InputBuffer.Clear;
+      until not IOHandler.CheckForDataOnSource(MilliSecsToWaitToClearBuffer);
+      LCmd := ATag + ' ' + AOut;
       CheckConnected;
       PrepareCmd(LCmd);
-      IOHandler.WriteLn(LCmd);                     {Do not Localize}
-    except
-      on E: EIdSocketError do begin
-        if E.LastError = 10054 then begin
-          //Connection reset by peer...
-          FConnectionState := csUnexpectedlyDisconnected;
-          raise;
-        end;
+      IOHandler.WriteLn(LCmd);
+    end;
+    Result := GetInternalResponse(ATag, AExpectedResponses, ASingleLineMode, ASingleLineMayBeSplit);
+  except
+    on E: EIdSocketError do begin
+      if E.LastError = Id_WSAECONNRESET then begin
+        //Connection reset by peer...
+        FConnectionState := csUnexpectedlyDisconnected;
       end;
+      raise;
     end;
   end;
-  Result := GetInternalResponse(ATag , AExpectedResponses, False);
 end;
 
 { ...IdTCPConnection Commands }
@@ -2117,7 +2132,7 @@ begin
   //Available in any state.
   Result := False;
   ASlCapability.Clear;
-  SendCmd(NewCmdCounter, (IMAP4Commands[CmdCapability]), [IMAP4Commands[CmdCapability]]);
+  SendCmd(NewCmdCounter, IMAP4Commands[CmdCapability], [IMAP4Commands[CmdCapability]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if LastCmdResult.Text.Count > 0 then begin
       BreakApart(LastCmdResult.Text[0], ' ', ASlCapability);        {Do not Localize}
@@ -2160,8 +2175,9 @@ function TIdIMAP4.SelectMailBox(const AMBName: String): Boolean;
 begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdSelect] + ' "' + DoMUTFEncode(AMBName) + '"'),    {Do not Localize}
-    ['FLAGS', 'OK', 'EXISTS', 'RECENT', '[READ-WRITE]', '[ALERT]']);               {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdSelect] + ' "' + DoMUTFEncode(AMBName) + '"', {Do not Localize}
+    ['FLAGS', 'OK', 'EXISTS', 'RECENT', '[READ-WRITE]', '[ALERT]']); {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     //Put the parse in the IMAP Class and send the MB;
     ParseSelectResult(FMailBox, LastCmdResult.Text);
@@ -2180,8 +2196,9 @@ begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
   //TO DO: Check that Examine's expected responses really are STATUS, FLAGS and OK...
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdExamine] + ' "' + DoMUTFEncode(AMBName) + '"'),     {Do not Localize}
-    ['STATUS', 'FLAGS', 'OK', 'EXISTS', 'RECENT', '[READ-WRITE]', '[ALERT]']);           {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdExamine] + ' "' + DoMUTFEncode(AMBName) + '"', {Do not Localize}
+    ['STATUS', 'FLAGS', 'OK', 'EXISTS', 'RECENT', '[READ-WRITE]', '[ALERT]']); {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     ParseSelectResult(AMB, LastCmdResult.Text);
     AMB.Name := AMBName;
@@ -2208,7 +2225,7 @@ begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
   {CC5: The NO response is typically due to Permission Denied}
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdCreate] + ' "' + DoMUTFEncode(AMBName) + '"'), []);   {Do not Localize}
+  SendCmd(NewCmdCounter, IMAP4Commands[cmdCreate] + ' "' + DoMUTFEncode(AMBName) + '"', []); {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2220,7 +2237,7 @@ begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
   {CC5: The NO response is typically due to Permission Denied}
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdDelete] + ' "' + DoMUTFEncode(AMBName) + '"'), []);   {Do not Localize}
+  SendCmd(NewCmdCounter, IMAP4Commands[cmdDelete] + ' "' + DoMUTFEncode(AMBName) + '"', []); {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2232,8 +2249,9 @@ begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
   {CC5: The NO response is typically due to Permission Denied}
-  SendCmd(NewCmdCounter, ( IMAP4Commands[cmdRename] + ' "' +               {Do not Localize}
-    DoMUTFEncode(AOldMBName) + '" "' + DoMUTFEncode(ANewMBName) + '"'), []);       {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdRename] + ' "' + DoMUTFEncode(AOldMBName) + '" "' + DoMUTFEncode(ANewMBName) + '"', {Do not Localize}
+    []);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2273,8 +2291,9 @@ begin
       mdUnseen:      LDataItems := LDataItems + IMAP4StatusDataItem[mdUnseen] + ' ';        {Do not Localize}
     end;
   end;
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdStatus] + ' "' + DoMUTFEncode(AMBName) + '" (' +    {Do not Localize}
-    Trim(LDataItems) + ')'), [IMAP4Commands[cmdStatus]]);                    {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdStatus] + ' "' + DoMUTFEncode(AMBName) + '" (' + Trim(LDataItems) + ')', {Do not Localize}
+    [IMAP4Commands[cmdStatus]]);
   if LastCmdResult.Code = IMAP_OK then begin
     ParseStatusResult(AMB, LastCmdResult.Text);
     Result := True;
@@ -2320,147 +2339,232 @@ begin
   Result := IndyFormat('%.2d-%s-%.4d', [LDay, UpperCase(monthnames[LMonth]), LYear]);  {Do not Localize}
 end;
 
-function SearchRecToStr(const ASearchInfo: array of TIdIMAP4SearchRec) : String;
+function TIdIMAP4.InternalSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec;
+  AUseUID: Boolean; const ACharSet: string): Boolean;
 var
+  LCmd: String;
   Ln : Integer;
-begin
-  Result := '';
-  for Ln := Low(ASearchInfo) to High(ASearchInfo) do begin
-    case ASearchInfo[Ln].SearchKey of
-      skAll:
-        Result := Result + IMAP4SearchKeys[skAll] + ' ';                             {Do not Localize}
-      skAnswered:
-        Result := Result + IMAP4SearchKeys[skAnswered] + ' ';                             {Do not Localize}
-      skBcc:
-        Result := Result + IMAP4SearchKeys[skBcc] + ' "' + ASearchInfo[Ln].Text + '" ';               {Do not Localize}
-      skBefore:
-        Result := Result + IMAP4SearchKeys[skBefore] + ' ' + DateToIMAPDateStr ( ASearchInfo[Ln].Date ) + ' ';    {Do not Localize}
-      skBody:
-        Result := Result + IMAP4SearchKeys[skBody] + ' "' + ASearchInfo[Ln].Text + '" ';              {Do not Localize}
-      skCc:
-        Result := Result + IMAP4SearchKeys[skCc] + ' "' + ASearchInfo[Ln].Text + '" ';                {Do not Localize}
-      skDeleted:
-        Result := Result + IMAP4SearchKeys[skDeleted] + ' ';                            {Do not Localize}
-      skDraft:
-        Result := Result + IMAP4SearchKeys[skDraft] + ' ';                              {Do not Localize}
-      skFlagged:
-        Result := Result + IMAP4SearchKeys[skFlagged] + ' ';                            {Do not Localize}
-      skFrom:
-        Result := Result + IMAP4SearchKeys[skFrom] + ' "' + ASearchInfo[Ln].Text + '" ';              {Do not Localize}
-      skLarger:
-        Result := Result + IMAP4SearchKeys[skLarger] + ' ' + IntToStr ( ASearchInfo[Ln].Size ) + ' ';         {Do not Localize}
-      skNew:
-        Result := Result + IMAP4SearchKeys[skNew] + ' ';                              {Do not Localize}
-      skNot:
-        Result := Result + IMAP4SearchKeys[skNot] + ' ';                              {Do not Localize}
-      skOld:
-        Result := Result + IMAP4SearchKeys[skOld] + ' ';                              {Do not Localize}
-      skOn:
-        Result := Result + IMAP4SearchKeys[skOn] + ' ' + DateToIMAPDateStr ( ASearchInfo[Ln].Date ) + ' ';      {Do not Localize}
-      skOr:
-        Result := Result + IMAP4SearchKeys[skOr] + ' ';                               {Do not Localize}
-      skRecent:
-        Result := Result + IMAP4SearchKeys[skRecent] + ' ';                             {Do not Localize}
-      skSeen:
-        Result := Result + IMAP4SearchKeys[skSeen] + ' ';                               {Do not Localize}
-      skSentBefore:
-        Result := Result + IMAP4SearchKeys[skSentBefore] + ' ' + DateToIMAPDateStr ( ASearchInfo[Ln].Date ) + ' ';  {Do not Localize}
-      skSentOn:
-        Result := Result + IMAP4SearchKeys[skSentOn] + ' ' + DateToIMAPDateStr ( ASearchInfo[Ln].Date ) + ' ';    {Do not Localize}
-      skSentSince:
-        Result := Result + IMAP4SearchKeys[skSentSince] + ' ' + DateToIMAPDateStr ( ASearchInfo[Ln].Date ) + ' ';   {Do not Localize}
-      skSince:
-        Result := Result + IMAP4SearchKeys[skSince] + ' ' + DateToIMAPDateStr ( ASearchInfo[Ln].Date ) + ' ';     {Do not Localize}
-      skSmaller:
-        Result := Result + IMAP4SearchKeys[skSmaller] + ' ' + IntToStr ( ASearchInfo[Ln].Size ) + ' ';        {Do not Localize}
-      skSubject:
-        Result := Result + IMAP4SearchKeys[skSubject] + ' "' + ASearchInfo[Ln].Text + '" ';             {Do not Localize}
-      skText:
-        Result := Result + IMAP4SearchKeys[skText] + ' "' + ASearchInfo[Ln].Text + '" ';              {Do not Localize}
-      skTo:
-        Result := Result + IMAP4SearchKeys[skTo] + ' "' + ASearchInfo[Ln].Text + '" ';                {Do not Localize}
-      skUID:
-        Result := Result + IMAP4SearchKeys[skUID] + ' ' + ASearchInfo[Ln].Text + ' ';                 {Do not Localize}
-      skUnanswered:
-        Result := Result + IMAP4SearchKeys[skUnanswered] + ' ';                           {Do not Localize}
-      skUndeleted:
-        Result := Result + IMAP4SearchKeys[skUndeleted] + ' ';                            {Do not Localize}
-      skUndraft:
-        Result := Result + IMAP4SearchKeys[skUndraft] + ' ';                            {Do not Localize}
-      skUnflagged:
-        Result := Result + IMAP4SearchKeys[skUnflagged] + ' ';                            {Do not Localize}
-      skUnKeyWord:
-        Result := Result + IMAP4SearchKeys[skUnKeyWord] + ' ';                            {Do not Localize}
-      skUnseen:
-        Result := Result + IMAP4SearchKeys[skUnseen] + ' ';                             {Do not Localize}
-      skGmailRaw:
-        Result := Result + IMAP4SearchKeys[skGmailRaw] + ' "' + ASearchInfo[Ln].Text + '" ';               {Do not Localize}
-      skGmailMsgID:
-        Result := Result + IMAP4SearchKeys[skGmailMsgID] + ' ' + ASearchInfo[Ln].Text + ' ';               {Do not Localize}
-      skGmailThreadID:
-        Result := Result + IMAP4SearchKeys[skGmailThreadID] + ' ' + ASearchInfo[Ln].Text + ' ';               {Do not Localize}
-      skGmailLabels:
-        Result := Result + IMAP4SearchKeys[skGmailLabels] + ' ' + ASearchInfo[Ln].Text + ' ';               {Do not Localize}
+  LTextBuf: TIdBytes;
+  LCharSet: string;
+  LEncoding: TIdTextEncoding;
+  LLiteral: string;
+  LUseNonSyncLiteral: Boolean;
+  LUseUTF8QuotedString: Boolean;
+
+  function RequiresEncoding(const S: String): Boolean;
+  var
+    I: Integer;
+  begin
+    Result := False;
+    for I := 1 to Length(S) do begin
+      if Ord(S[I]) > $7F then begin
+        Result := True;
+        Exit;
+      end;
     end;
   end;
-  Result := TrimRight(Result);
-end;
 
-function TIdIMAP4.SearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec): Boolean;
-var
-  LCmd: String;
+  function IsCharsetNeeded: Boolean;
+  var
+    I : Integer;
+  begin
+    Result := False;
+    for I := Low(ASearchInfo) to High(ASearchInfo) do begin
+      case ASearchInfo[I].SearchKey of
+        skBcc,
+        skBody,
+        skCc,
+        skFrom,
+        skSubject,
+        skText,
+        skTo,
+        skUID,
+        skGmailRaw,
+        skGmailMsgID,
+        skGmailThreadID,
+        skGmailLabels:
+          if RequiresEncoding(ASearchInfo[I].Text) then begin
+            Result  := True;
+            Exit;
+          end;
+      end;
+    end;
+  end;
+
 begin
   Result := False;
   CheckConnectionState(csSelected);
-  LCmd := NewCmdCounter + ' ' + IMAP4Commands[cmdSearch] + ' CHARSET utf-8 ' + SearchRecToStr(ASearchInfo); {Do not Localize}
-  {CC3: Catch "Connection reset by peer"...}
-  try
-    IOHandler.WriteLn(LCmd, IndyUTF8Encoding);
-    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch]], False) = IMAP_OK then begin
-      ParseSearchResult(FMailBox, LastCmdResult.Text);
-      Result := True;
-    end;
-  except
-    on E: EIdSocketError do begin
-      if E.LastError = Id_WSAECONNRESET then begin
-        //Connection reset by peer...
-        FConnectionState := csUnexpectedlyDisconnected;
+
+  LCmd := NewCmdCounter + ' ';                    {Do not Localize}
+  if AUseUID then begin
+    LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';   {Do not Localize}
+  end;
+  LCmd := LCmd + IMAP4Commands[cmdSearch];
+  if IsCharsetNeeded then begin
+    LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');         {Do not localize}
+    LUseUTF8QuotedString := IsCapabilityListed('UTF8=ACCEPT') or  {Do not localize}
+                            IsCapabilityListed('UTF8=ONLY') or    {Do not localize}
+                            IsCapabilityListed('UTF8=ALL');       {Do not localize}
+    if LUseUTF8QuotedString then begin
+      LCharSet := 'UTF-8'; {Do not Localize}
+    end else begin
+      LCharSet := Trim(ACharSet);
+      if LCharSet = '' then begin
+        LCharSet := 'UTF-8'; {Do not Localize}
       end;
-      raise;
+    end;
+    LCmd := LCmd + ' CHARSET ' + LCharSet;        {Do not localize}
+    LEncoding := CharsetToEncoding(LCharSet);
+  end else begin
+    LUseNonSyncLiteral := False;
+    LUseUTF8QuotedString := False;
+    LEncoding := nil;
+  end;
+
+  {$IFNDEF DOTNET}
+  try
+  {$ENDIF}
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      //Remove anything that may be unprocessed from a previous (probably failed) command...
+      repeat
+        IOHandler.InputBuffer.Clear;
+      until not IOHandler.CheckForDataOnSource(MilliSecsToWaitToClearBuffer);
+      CheckConnected;
+      //IMAP.PrepareCmd(LCmd);
+
+      // now encode the search values. Most values are ASCII and do not need
+      // special encoding.  For text values that do need to be encoded, IMAP
+      // string literals have to be used in order to support 8-bit octets in
+      // charset encoded payloads...
+      for Ln := Low(ASearchInfo) to High(ASearchInfo) do begin
+        case ASearchInfo[Ln].SearchKey of
+          skAll,
+          skAnswered,
+          skDeleted,
+          skDraft,
+          skFlagged,
+          skNew,
+          skNot,
+          skOld,
+          skOr,
+          skRecent,
+          skSeen,
+          skUnanswered,
+          skUndeleted,
+          skUndraft,
+          skUnflagged,
+          skUnKeyWord,
+          skUnseen:
+            LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey]; {Do not Localize}
+
+          skBcc,
+          skBody,
+          skCc,
+          skFrom,
+          skSubject,
+          skText,
+          skTo,
+          skUID,
+          skGmailRaw,
+          skGmailMsgID,
+          skGmailThreadID,
+          skGmailLabels:
+          begin
+            // TODO: support RFC 5738 to allow for UTF-8 encoded quoted strings
+            if not RequiresEncoding(ASearchInfo[Ln].Text) then begin
+              LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' "' + ASearchInfo[Ln].Text + '"'; {Do not Localize}
+            end else
+            begin
+              LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+              if LUseUTF8QuotedString then begin
+                LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' *"'; {Do not Localize}
+                IOHandler.Write(LCmd);
+                IOHandler.Write(LTextBuf);
+                IOHandler.Write('"'); {Do not Localize}
+              end else
+              begin
+                if LUseNonSyncLiteral then begin
+                  LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
+                end else begin
+                  LLiteral := '{' + IntToStr(Length(LTextBuf)) + '}';  {Do not Localize}
+                end;
+                LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + LLiteral; {Do not Localize}
+                IOHandler.WriteLn(LCmd);
+                if not LUseNonSyncLiteral then begin
+                  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) <> IMAP_CONT then begin
+                    RaiseExceptionForLastCmdResult;
+                  end;
+                end;
+                IOHandler.Write(LTextBuf);
+              end;
+              LTextBuf := nil;
+              LCmd := '';
+            end;
+          end;
+
+          skBefore,
+          skOn,
+          skSentBefore,
+          skSentOn,
+          skSentSince,
+          skSince:
+            LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + DateToIMAPDateStr(ASearchInfo[Ln].Date); {Do not Localize}
+
+          skLarger,
+          skSmaller:
+            LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + IntToStr(ASearchInfo[Ln].Size); {Do not Localize}
+        end;
+      end;
+
+      if LCmd <> '' then begin
+        IOHandler.Write(LCmd);
+      end;
+
+      // After we send the last of the data, we need to send an EXTRA CRLF to terminates the SEARCH command...
+      IOHandler.WriteLn;
+
+      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+        ParseSearchResult(FMailBox, LastCmdResult.Text);
+        Result := True;
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
+        end;
+        raise;
+      end;
+    end;
+  {$IFNDEF DOTNET}
+  finally
+    if LEncoding <> nil then begin
+      LEncoding.Free;
     end;
   end;
+  {$ENDIF}
 end;
 
-function TIdIMAP4.UIDSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec) : Boolean;
-var
-  LCmd: String;
+function TIdIMAP4.SearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec;
+  const ACharSet: string = ''): Boolean;
 begin
-  Result := False;
-  CheckConnectionState(csSelected);
-  LCmd := NewCmdCounter + ' ' + IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdSearch] + ' CHARSET utf-8 ' + SearchRecToStr(ASearchInfo); {Do not Localize}
-  {CC3: Catch "Connection reset by peer"...}
-  try
-    IOHandler.WriteLn(LCmd, IndyUTF8Encoding);
-    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
-      ParseSearchResult(FMailBox, LastCmdResult.Text);
-      Result := True;
-    end;
-  except
-    on E: EIdSocketError do begin
-      if E.LastError = Id_WSAECONNRESET then begin
-        //Connection reset by peer...
-        FConnectionState := csUnexpectedlyDisconnected;
-      end;
-      raise;
-    end;
-  end;
+  Result := InternalSearchMailBox(ASearchInfo, False, ACharSet);
+end;
+
+function TIdIMAP4.UIDSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec;
+  const ACharSet: string = '') : Boolean;
+begin
+  Result := InternalSearchMailBox(ASearchInfo, True, ACharSet);
 end;
 
 function TIdIMAP4.SubscribeMailBox(const AMBName: String): Boolean;
 begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdSubscribe] + ' "' + DoMUTFEncode(AMBName) + '"'), []);      {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdSubscribe] + ' "' + DoMUTFEncode(AMBName) + '"', {Do not Localize}
+    []);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2470,7 +2574,9 @@ function TIdIMAP4.UnsubscribeMailBox(const AMBName: String): Boolean;
 begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUnsubscribe] + ' "' + DoMUTFEncode(AMBName) + '"' ), []);     {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUnsubscribe] + ' "' + DoMUTFEncode(AMBName) + '"', {Do not Localize}
+    []);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2482,7 +2588,7 @@ begin
   {CC2: This is one of the few cases where the server can return only "OK completed"
   meaning that the user has no mailboxes.}
   CheckConnectionState([csAuthenticated, csSelected]);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdList] + ' "" *'), [IMAP4Commands[cmdList]]);      {Do not Localize}
+  SendCmd(NewCmdCounter, IMAP4Commands[cmdList] + ' "" *', [IMAP4Commands[cmdList]]); {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     ParseListResult(AMailBoxList, LastCmdResult.Text);
     Result := True;
@@ -2499,7 +2605,7 @@ begin
   meaning that the user has no inferior mailboxes.}
   CheckConnectionState([csAuthenticated, csSelected]);
   if AMailBoxList = nil then begin
-    SendCmd(NewCmdCounter, (IMAP4Commands[cmdList] + ' "" %'), [IMAP4Commands[cmdList]]);    {Do not Localize}
+    SendCmd(NewCmdCounter, IMAP4Commands[cmdList] + ' "" %', [IMAP4Commands[cmdList]]); {Do not Localize}
     if LastCmdResult.Code = IMAP_OK then begin
       ParseListResult(AInferiorMailBoxList, LastCmdResult.Text);
       //The INBOX mailbox is added because I think it always has to exist
@@ -2511,8 +2617,9 @@ begin
     try
       AInferiorMailBoxList.Clear;
       for Ln := 0 to AMailBoxList.Count - 1 do begin
-        SendCmd(NewCmdCounter, ( IMAP4Commands[cmdList] + ' "" "' +            {Do not Localize}
-          DoMUTFEncode(AMailBoxList[Ln]) + FMailBoxSeparator + '%"'), [IMAP4Commands[cmdList]]);     {Do not Localize}
+        SendCmd(NewCmdCounter,
+          IMAP4Commands[cmdList] + ' "" "' + DoMUTFEncode(AMailBoxList[Ln]) + FMailBoxSeparator + '%"',     {Do not Localize}
+          [IMAP4Commands[cmdList]]);
         if LastCmdResult.Code = IMAP_OK then begin
           ParseListResult(LAuxMailBoxList, LastCmdResult.Text);
           AInferiorMailBoxList.AddStrings(LAuxMailBoxList);
@@ -2533,7 +2640,7 @@ begin
   meaning that the user has no subscribed mailboxes.}
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdLSub] + ' "" *'), [IMAP4Commands[cmdList], IMAP4Commands[cmdLSub]]);   {Do not Localize}
+  SendCmd(NewCmdCounter, IMAP4Commands[cmdLSub] + ' "" *', [IMAP4Commands[cmdList], IMAP4Commands[cmdLSub]]);   {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     // ds - fixed bug # 506026
     ParseLSubResult(AMailBoxList, LastCmdResult.Text);
@@ -2558,8 +2665,9 @@ begin
     end;
     LFlags := MessageFlagSetToStr(AFlags);
     CheckConnectionState(csSelected);
-    SendCmd(NewCmdCounter, (IMAP4Commands[cmdStore] + ' ' + LMsgSet + ' ' +      {Do not Localize}
-      LDataItem + ' (' + Trim ( LFlags ) + ')'), []);                {Do not Localize}
+    SendCmd(NewCmdCounter,
+      IMAP4Commands[cmdStore] + ' ' + LMsgSet + ' ' + LDataItem + ' (' + LFlags + ')', {Do not Localize}
+      []);
     if LastCmdResult.Code = IMAP_OK then begin
       Result := True;
     end;
@@ -2581,8 +2689,9 @@ begin
   end;
   LFlags := MessageFlagSetToStr(AFlags);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' +  {Do not Localize}
-    AMsgUID + ' ' + LDataItem + ' (' + Trim ( LFlags ) + ')'), []);            {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' + AMsgUID + ' ' + LDataItem + ' (' + LFlags + ')', {Do not Localize}
+    []);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2612,8 +2721,9 @@ begin
   end;
   LFlags := MessageFlagSetToStr(AFlags);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' +  {Do not Localize}
-    LMsgSet + ' ' + LDataItem + ' (' + Trim ( LFlags ) + ')'), []);            {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' + LMsgSet + ' ' + LDataItem + ' (' + LFlags + ')', {Do not Localize}
+    []);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2627,7 +2737,7 @@ begin
   if Length(AMsgNumList) > 0 then begin
     LMsgSet := ArrayToNumberStr ( AMsgNumList );
     CheckConnectionState(csSelected);
-    SendCmd(NewCmdCounter, ( IMAP4Commands[cmdCopy] + ' ' + LMsgSet + ' "' + DoMUTFEncode(AMBName) + '"' ), []);  {Do not Localize}
+    SendCmd(NewCmdCounter, IMAP4Commands[cmdCopy] + ' ' + LMsgSet + ' "' + DoMUTFEncode(AMBName) + '"', []);  {Do not Localize}
     if LastCmdResult.Code = IMAP_OK then begin
       Result := True;
     end;
@@ -2643,6 +2753,7 @@ begin
   if AMsgUIDList.Count > 0 then begin
     LCmd := IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdCopy] + ' ';   {Do not Localize}
     for LN := 0 to AMsgUIDList.Count-1 do begin
+      IsUIDValid(AMsgUIDList.Strings[LN]);
       if LN = 0 then begin
         LCmd := LCmd + AMsgUIDList.Strings[LN];
       end else begin
@@ -2664,7 +2775,7 @@ begin
   Result := False;
   IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdCopy] + ' ' + IntToStr(AMsgNum) + ' "' + DoMUTFEncode(AMBName) + '"' ), []);  {Do not Localize}
+  SendCmd(NewCmdCounter, IMAP4Commands[cmdCopy] + ' ' + IntToStr(AMsgNum) + ' "' + DoMUTFEncode(AMBName) + '"', []);  {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2676,7 +2787,7 @@ begin
   Result := False;
   IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdCopy] + ' ' + AMsgUID + ' "' + DoMUTFEncode(AMBName) + '"'), []); {Do not Localize}
+  SendCmd(NewCmdCounter, IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdCopy] + ' ' + AMsgUID + ' "' + DoMUTFEncode(AMBName) + '"', []); {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -2692,14 +2803,15 @@ function TIdIMAP4.AppendMsg(const AMBName: String; AMsg: TIdMessage; AAlternativ
 var
   LFlags,
   LMsgLiteral: String;
+  LUseNonSyncLiteral: Boolean;
   Ln: Integer;
   LCmd: string;
   LLength: TIdStreamSize;
+  LHeadersToSend: TIdHeaderList;
   LHeadersAsString: string;
+  LHeadersAsBytes: TIdBytes;
   LStream: TStream;
   LHelper: TIdIMAP4WorkHelper;
-  LLengthOfAMsgHeaders: integer;
-  LLengthOfFileHeaders: TIdStreamSize;
   LMsgClient: TIdMessageClient;
   LMsgIO: TIdIOHandlerStreamMsg;
 begin
@@ -2707,24 +2819,9 @@ begin
   CheckConnectionState([csAuthenticated, csSelected]);
   if Length(AMBName) <> 0 then begin
     LFlags := MessageFlagSetToStr(AFlags);
-    if Length(LFlags) <> 0 then begin                        {Do not Localize}
-      LFlags := '(' + Trim (LFlags) + ')';                     {Do not Localize}
+    if LFlags <> '' then begin                                {Do not Localize}
+      LFlags := '(' + LFlags + ')';                           {Do not Localize}
     end;
-    {We are better off making up the headers as a string first rather than predicting
-    its length.  Slightly wasteful of memory, but it will not take up much.}
-    LHeadersAsString := '';                              {Do not Localize}
-    if AAlternativeHeaders = nil then begin
-      {Use the headers that are in the message AMsg...}
-      for Ln := 0 to Pred (AMsg.Headers.Count) do begin
-        LHeadersAsString := LHeadersAsString + AMsg.Headers[Ln] + EOL;       {Do not Localize}
-      end;
-    end else begin
-      {Use the headers that the user has passed to us...}
-      for Ln := 0 to Pred (AAlternativeHeaders.Count) do begin
-        LHeadersAsString := LHeadersAsString + AAlternativeHeaders[Ln] + EOL;  {Do not Localize}
-      end;
-    end;
-    LLengthOfAMsgHeaders := Length(LHeadersAsString);
     {CC8: In Indy 10, we want to support attachments (previous versions did
     not).  The problem is that we have to know the size of the message
     in advance of sending it for the IMAP APPEND command.
@@ -2768,16 +2865,40 @@ begin
       // end workaround
 
       LStream.Position := 0;
-      LLength := LStream.Size;
-      {Get the size of the headers which SaveToStream may have generated,
-      and will be different from the ones in AMsg...}
+      {We are better off making up the headers as a string first rather than predicting
+      its length.  Slightly wasteful of memory, but it will not take up much.}
+      LHeadersAsString := '';
+      if AAlternativeHeaders <> nil then begin
+        {Use the headers that the user has passed to us...}
+        LHeadersToSend := AAlternativeHeaders;
+      end
+      else if AMsg.NoEncode then begin
+        {Use the headers that are in the message AMsg...}
+        LHeadersToSend := AMsg.Headers;
+      end else begin
+        {Use the headers that SaveToStream() generated...}
+        LHeadersToSend := AMsg.LastGeneratedHeaders;
+      end;
+      // not using LHeadersToSend.Text because it uses platform-specific line breaks
+      for Ln := 0 to Pred(LHeadersToSend.Count) do begin
+        LHeadersAsString := LHeadersAsString + LHeadersToSend[Ln] + EOL;
+      end;
+      LHeadersAsBytes := ToBytes(LHeadersAsString + EOL);
+      LHeadersAsString := '';
+
+      {Get the size of the headers we are sending...}
       repeat until Length(ReadLnFromStream(LStream)) = 0;
-      LLengthOfFileHeaders := LStream.Position-2;
       {We have to subtract the size of the headers in the file and
       add back the size of the headers we are to use
       to get the size of the message we are going to send...}
-      LLength := LLength - LLengthOfFileHeaders + LLengthOfAMsgHeaders;
-      LMsgLiteral := '{' + IntToStr ( LLength ) + '}';            {Do not Localize}
+      LLength := Length(LHeadersAsBytes) + (LStream.Size - LStream.Position);
+
+      LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');         {Do not Localize}
+      if LUseNonSyncLiteral then begin
+        LMsgLiteral := '{' + IntToStr ( LLength ) + '+}';           {Do not Localize}
+      end else begin
+        LMsgLiteral := '{' + IntToStr ( LLength ) + '}';            {Do not Localize}
+      end;
       {CC: The original code sent the APPEND command first, then followed it with the
       message.  Maybe this worked with some server, but most send a
       response like "+ Send the additional command..." between the two,
@@ -2790,18 +2911,25 @@ begin
       end;
       LCmd := LCmd + LMsgLiteral;                       {Do not Localize}
 
-      {Used to add the message to LCmd here.  Try sending the APPEND command, get
-      the + response, then send the message...}
-      SendCmd (NewCmdCounter, LCmd, []);
-      if LastCmdResult.Code = IMAP_CONT then begin
+      {CC3: Catch "Connection reset by peer"...}
+      try
+        if LUseNonSyncLiteral then begin
+          {Send the APPEND command and the message immediately, no + response needed...}
+          IOHandler.WriteLn(NewCmdCounter + ' ' + LCmd);
+        end else begin
+          {Try sending the APPEND command, get the + response, then send the message...}
+          SendCmd(NewCmdCounter, LCmd, []);
+          if LastCmdResult.Code <> IMAP_CONT then begin
+            Exit;
+          end;
+        end;
+
         LHelper := TIdIMAP4WorkHelper.Create(Self);
         try
-          IOHandler.Write(LHeadersAsString);
-          //Change from CopyFrom to WriteStream (I think) to get OnWork invoked, as we do elsewhere
-          //with LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);
-          //ReadStream uses OnWork, most other methods dont
-          LStream.Position := LLengthOfFileHeaders;
-          IOHandler.Write(LStream, LStream.Size - LLengthOfFileHeaders);
+          IOHandler.Write(LHeadersAsBytes);
+          {RLebeau: passing -1 to TIdIOHandler.Write(TStream) will send the
+          rest of the stream starting at its current Position...}
+          IOHandler.Write(LStream, -1, False);
         finally
           FreeAndNil(LHelper);
         end;
@@ -2812,6 +2940,14 @@ begin
         IOHandler.WriteLn;
         if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdAppend]], False) = IMAP_OK then begin
           Result := True;
+        end;
+      except
+        on E: EIdSocketError do begin
+          if E.LastError = Id_WSAECONNRESET then begin
+            //Connection reset by peer...
+            FConnectionState := csUnexpectedlyDisconnected;
+          end;
+          raise;
         end;
       end;
     finally
@@ -2837,6 +2973,7 @@ const
   cTerminator: array[0..4] of Byte = (13, 10, Ord('.'), 13, 10);
 var
   LFlags, LMsgLiteral: String;
+  LUseNonSyncLiteral: Boolean;
   I: Integer;
   LFound: Boolean;
   LCmd: string;
@@ -2850,7 +2987,7 @@ begin
   if Length(AMBName) <> 0 then begin                      {Do not Localize}
     LFlags := MessageFlagSetToStr(AFlags);
     if LFlags <> '' then begin                        {Do not Localize}
-      LFlags := '(' + Trim (LFlags) + ')';                {Do not Localize}
+      LFlags := '(' + LFlags + ')';                   {Do not Localize}
     end;
     LLength := AStream.Size;
     LTempStream := TMemoryStream.Create;
@@ -2885,7 +3022,13 @@ begin
         TIdStreamHelper.Seek(LTempStream, -4, soCurrent);
       until False;
 
-      LMsgLiteral := '{' + IntToStr(LLength) + '}';           {Do not Localize}
+      LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');     {Do not Localize}
+      if LUseNonSyncLiteral then begin
+        LMsgLiteral := '{' + IntToStr(LLength) + '+}';          {Do not Localize}
+      end else begin
+        LMsgLiteral := '{' + IntToStr(LLength) + '}';           {Do not Localize}
+      end;
+
       {CC: The original code sent the APPEND command first, then followed it with the
       message.  Maybe this worked with some server, but most send a
       response like "+ Send the additional command..." between the two,
@@ -2898,10 +3041,19 @@ begin
       end;
       LCmd := LCmd + LMsgLiteral;                   {Do not Localize}
 
-      {Used to add the message to LCmd here.  Try sending the APPEND command, get
-      the + response, then send the message...}
-      SendCmd(NewCmdCounter, LCmd, []);
-      if LastCmdResult.Code = IMAP_CONT then begin
+      {CC3: Catch "Connection reset by peer"...}
+      try
+        if LUseNonSyncLiteral then begin
+          {Send the APPEND command and the message immediately, no + response needed...}
+          IOHandler.WriteLn(NewCmdCounter + ' ' + LCmd);
+        end else begin
+          {Try sending the APPEND command, get the + response, then send the message...}
+          SendCmd(NewCmdCounter, LCmd, []);
+          if LastCmdResult.Code <> IMAP_CONT then begin
+            Exit;
+          end;
+        end;
+
         LTempStream.Position := 0;
         LHelper := TIdIMAP4WorkHelper.Create(Self);
         try
@@ -2916,6 +3068,14 @@ begin
         IOHandler.WriteLn;
         if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdAppend]], False) = IMAP_OK then begin
           Result := True;
+        end;
+      except
+        on E: EIdSocketError do begin
+          if E.LastError = Id_WSAECONNRESET then begin
+            //Connection reset by peer...
+            FConnectionState := csUnexpectedlyDisconnected;
+          end;
+          raise;
         end;
       end;
     finally
@@ -2942,9 +3102,9 @@ begin
   CheckConnectionState(csSelected);
   {Some servers return NO if the requested message number is not present
   (e.g. Cyrus), others return OK but no data (CommuniGate).}
-  SendCmd(NewCmdCounter, ( IMAP4Commands[cmdFetch] + ' ' +          {Do not Localize}
-    IntToStr ( AMsgNum ) + ' (' +                       {Do not Localize}
-    IMAP4FetchDataItem[fdEnvelope] + ')'), [IMAP4Commands[cmdFetch]]);    {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdEnvelope] + ')',    {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if LastCmdResult.Text.Count > 0 then begin
       if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
@@ -2979,8 +3139,9 @@ begin
   CheckConnectionState(csSelected);
   {Some servers return NO if the requested message number is not present
   (e.g. Cyrus), others return OK but no data (CommuniGate).}
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' +               {Do not Localize}
-    AMsgUID + ' (' + IMAP4FetchDataItem[fdEnvelope] + ')'), [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);  {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdEnvelope] + ')',  {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if LastCmdResult.Text.Count > 0 then begin
       if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
@@ -3010,8 +3171,9 @@ begin
   {CC2: This is one of the few cases where the server can return only "OK completed"
   meaning that the user has no envelopes.}
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdFetch] + ' 1:* (' +         {Do not Localize}
-    IMAP4FetchDataItem[fdEnvelope] + ')'), [IMAP4Commands[cmdFetch]]); {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' 1:* (' + IMAP4FetchDataItem[fdEnvelope] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     for Ln := 0 to LastCmdResult.Text.Count-1 do begin
       if ParseLastCmdResult(LastCmdResult.Text[Ln], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
@@ -3040,8 +3202,9 @@ begin
   {CC2: This is one of the few cases where the server can return only "OK completed"
   meaning that the user has no envelopes.}
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, ( IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' 1:* (' +  {Do not Localize}
-    IMAP4FetchDataItem[fdEnvelope] + ' ' + IMAP4FetchDataItem[fdFlags] + ')'), [IMAP4Commands[cmdFetch]]); {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' 1:* (' + IMAP4FetchDataItem[fdEnvelope] + ' ' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     for Ln := 0 to LastCmdResult.Text.Count-1 do begin
       if ParseLastCmdResult(LastCmdResult.Text[Ln], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
@@ -3119,16 +3282,78 @@ function TIdIMAP4.InternalRetrieveText(const AMsgNum: Integer; var AText: string
   AUseUID: Boolean; AUsePeek: Boolean; AUseFirstPartInsteadOfText: Boolean): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 var
-  LText: string;
   LCmd: string;
-  LTextLength: Integer;
   LParts: TIdImapMessageParts;
   LThePart: TIdImapMessagePart;
+  LCharSet: String;
   LContentTransferEncoding: string;
-  LBase64Decoder: TIdDecoderMIME;
-  LQuotedPrintableDecoder: TIdDecoderQuotedPrintable;
   LTextPart: integer;
   LHelper: TIdIMAP4WorkHelper;
+
+  procedure DoDecode(ADecoderClass: TIdDecoderClass = nil; AStripCRLFs: Boolean = False);
+  var
+    LDecoder: TIdDecoder;
+    LStream: TStream;
+    LStrippedStream: TStringStream;
+    LUnstrippedStream: TStringStream;
+    LEncoding: TIdTextEncoding;
+  begin
+    LStream := TMemoryStream.Create;
+    try
+      if ADecoderClass <> nil then begin
+        LDecoder := ADecoderClass.Create(Self);
+        try
+          LDecoder.DecodeBegin(LStream);
+          try
+            LUnstrippedStream := TStringStream.Create('');
+            try
+              IOHandler.ReadStream(LUnstrippedStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
+              {This is more complicated than quoted-printable because we
+              have to strip CRLFs that have been inserted by the MTA to
+              avoid overly long lines...}
+              if AStripCRLFs then begin
+                LStrippedStream := TStringStream.Create('');
+                try
+                  StripCRLFs(LUnstrippedStream, LStrippedStream);
+                  LDecoder.Decode(LStrippedStream.DataString);
+                finally
+                  FreeAndNil(LStrippedStream);
+                end;
+              end else begin
+                LDecoder.Decode(LUnstrippedStream.DataString);
+              end;
+            finally
+              FreeAndNil(LUnstrippedStream);
+            end;
+          finally
+            LDecoder.DecodeEnd;
+          end;
+        finally
+          FreeAndNil(LDecoder);
+        end;
+      end else begin
+        IOHandler.ReadStream(LStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
+      end;
+      LStream.Position := 0;
+      if LCharSet <> '' then begin
+        LEncoding := CharsetToEncoding(LCharSet);
+        {$IFNDEF DOTNET}
+        try
+        {$ENDIF}
+          AText := ReadStringFromStream(LStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+        {$IFNDEF DOTNET}
+        finally
+          LEncoding.Free;
+        end;
+        {$ENDIF}
+      end else begin
+        AText := ReadStringFromStream(LStream, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+      end;
+    finally
+      FreeAndNil(LStream);
+    end;
+  end;
+
 begin
   Result := False;
   AText := '';                                {Do not Localize}
@@ -3163,16 +3388,19 @@ begin
         end;
       until False;
 
+      LCharSet := LThePart.CharSet;
       LContentTransferEncoding := LThePart.ContentTransferEncoding;
     finally
       FreeAndNil(LParts);
     end;
+  end else begin
+    // TODO: detect LCharSet and LContentTransferEncoding...
   end;
-  LCmd :=  NewCmdCounter + ' ';                         {Do not Localize}
+  LCmd := '';
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';               {Do not Localize}
   end;
-  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) + ' ('; {Do not Localize}
+  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' ('; {Do not Localize}
   if AUsePeek then begin
     LCmd := LCmd + IMAP4FetchDataItem[fdBody]+'.PEEK';            {Do not Localize}
   end else begin
@@ -3181,57 +3409,51 @@ begin
   if not AUseFirstPartInsteadOfText then begin
     LCmd := LCmd + '[TEXT])';                         {Do not Localize}
   end else begin
-    LCmd := LCmd + '[' +IntToStr(LTextPart+1)+ '])';            {Do not Localize}
+    LCmd := LCmd + '[' + IntToStr(LTextPart+1) + '])';            {Do not Localize}
   end;
-  IOHandler.WriteLn(LCmd);
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True) = IMAP_OK then begin
-    {For an invalid request (non-existent part or message), NIL is returned as the size...}
-    if (LastCmdResult.Text.Count < 1)
-      or (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch],
-        [IMAP4FetchDataItem[fdBody]+'['+'TEXT'+']' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
-      or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1) {do not localize}
-      or (FLineStruct.ByteCount < 1) then
-    begin
-      GetInternalResponse ( GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False );
-      Result := False;
-      Exit;
-    end;
-    LTextLength := FLineStruct.ByteCount;
-    SetLength(LText, LTextLength);
-    LHelper := TIdIMAP4WorkHelper.Create(Self);
+
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  if LastCmdResult.Code = IMAP_OK then begin
     try
-      BeginWork(wmRead, LTextLength); //allow ReadString to use OnWork
-      try
-        LText := IOHandler.ReadString(LTextLength);
-      finally
-        EndWork(wmRead);
+      {For an invalid request (non-existent part or message), NIL is returned as the size...}
+      if (LastCmdResult.Text.Count < 1)
+        or (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch],
+          [IMAP4FetchDataItem[fdBody]+'['+'TEXT'+']' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
+        or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1) {do not localize}
+        or (FLineStruct.ByteCount < 1) then
+      begin
+        GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False);
+        Result := False;
+        Exit;
       end;
-    finally
-      FreeAndNil(LHelper);
-    end;
-    if TextIsSame(LContentTransferEncoding, 'base64') then begin             {Do not Localize}
-      LBase64Decoder := TIdDecoderMIME.Create(Self);
+
+      LHelper := TIdIMAP4WorkHelper.Create(Self);
       try
-        {Strip out any embedded CRLFs which are inserted by MTAs to ensure
-        the line-length limit is not exceeded...}
-        StripCRLFs(LText);
-        AText := LBase64Decoder.DecodeString(LText);
+        if TextIsSame(LContentTransferEncoding, 'base64') then begin  {Do not Localize}
+          DoDecode(TIdDecoderMIME, True);
+        end else if TextIsSame(LContentTransferEncoding, 'quoted-printable') then begin  {Do not Localize}
+          DoDecode(TIdDecoderQuotedPrintable);
+        end else if TextIsSame(LContentTransferEncoding, 'binhex40') then begin  {Do not Localize}
+          DoDecode(TIdDecoderBinHex4);
+        end else begin
+          {Assume no encoding (8bit) or something we cannot decode...}
+          DoDecode();
+        end;
       finally
-        FreeAndNil(LBase64Decoder);
+        FreeAndNil(LHelper);
       end;
-    end else if TextIsSame(LContentTransferEncoding, 'quoted-printable') then begin  {Do not Localize}
-      LQuotedPrintableDecoder := TIdDecoderQuotedPrintable.Create(Self);
-      try
-        AText := LQuotedPrintableDecoder.DecodeString(LText);
-      finally
-        FreeAndNil(LQuotedPrintableDecoder);
+      IOHandler.ReadLnWait;  {Remove last line, ')' or 'UID 1)'}
+      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+        Result := True;
       end;
-    end else begin
-      AText := LText;
-    end;
-    IOHandler.ReadLnWait;  {Remove last line, ')' or 'UID 1)'}
-    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
-      Result := True;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
+        end;
+        raise;
+      end;
     end;
   end;
 end;
@@ -3254,22 +3476,32 @@ var
 begin
   Result := False;
   CheckConnectionState(csSelected);
-  IOHandler.WriteLn(NewCmdCounter + ' ' + (                       {Do not Localize}
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) + ' (' +       {Do not Localize}
-    IMAP4FetchDataItem[fdBodyStructure] + ')' ));               {Do not Localize}
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], True) = IMAP_OK then begin
-    if LastCmdResult.Text.Count > 0 then begin
-      if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdBodyStructure]]) then begin
-        if AMsg <> nil then begin
-          LTheParts := AMsg.MessageParts;
-          ParseBodyStructureResult(FLineStruct.IMAPValue, LTheParts, nil);
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdBodyStructure] + ')',
+    [IMAP4Commands[cmdFetch]], True);
+  if LastCmdResult.Code = IMAP_OK then begin
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      if LastCmdResult.Text.Count > 0 then begin
+        if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdBodyStructure]]) then begin
+          if AMsg <> nil then begin
+            LTheParts := AMsg.MessageParts;
+          end else begin
+            LTheParts := nil;
+          end;
+          ParseBodyStructureResult(FLineStruct.IMAPValue, LTheParts, AParts);
+          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
+            Result := True;
+          end;
         end;
-        if AParts <> nil then begin
-          ParseBodyStructureResult(FLineStruct.IMAPValue, nil, AParts);
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
         end;
-        if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
-          Result := True;
-        end;
+        raise;
       end;
     end;
   end;
@@ -3585,28 +3817,32 @@ begin
   ABuffer := nil;
   ABufferLength := 0;
   CheckConnectionState(csSelected);
-  LCmd :=  NewCmdCounter + ' ';                         {Do not Localize}
+  LCmd := '';
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';               {Do not Localize}
   end;
-  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) + ' ('; {Do not Localize}
+  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' ('; {Do not Localize}
   if AUsePeek then begin
     LCmd := LCmd + IMAP4FetchDataItem[fdBody]+'.PEEK';            {Do not Localize}
   end else begin
     LCmd := LCmd + IMAP4FetchDataItem[fdBody];
   end;
   LCmd := LCmd + '[' + APartNum + '])';                     {Do not Localize}
-  IOHandler.WriteLn(LCmd);
-  {CC7: wsBAD added because Ipswitch's IMAP server sometimes returns it here...}
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True) = IMAP_OK then begin
-  //  LPartSizeParam := '';                                               {Do not Localize}
-    if ( (LastCmdResult.Text.Count < 1) or
-      (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], []))
-      or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1)    {do not localize}
-      or (FLineStruct.ByteCount < 1) ) then begin
-      GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False);
-      Result := False;
-    end else begin
+
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  if LastCmdResult.Code = IMAP_OK then begin
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      //LPartSizeParam := '';                                               {Do not Localize}
+      if ( (LastCmdResult.Text.Count < 1) or
+        (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], []))
+        or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1)    {do not localize}
+        or (FLineStruct.ByteCount < 1) ) then
+      begin
+        GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False);
+        Result := False;
+        Exit;
+      end;
       {CC4: Some messages have an empty first part.  These respond as:
          17 FETCH (BODY[1] "" UID 20)
        instead of the more normal:
@@ -3642,7 +3878,7 @@ begin
           end else if TextIsSame(AContentTransferEncoding, 'binhex40') then begin  {Do not Localize}
             DoDecode(TIdDecoderBinHex4);
           end else begin
-            {Assume no encoding or something we cannot decode...}
+            {Assume no encoding (8bit) or something we cannot decode...}
             DoDecode;
           end;
         finally
@@ -3656,6 +3892,14 @@ begin
       IOHandler.ReadLnWait;  {Remove last line, ')' or 'UID 1)'}
       if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
         Result := True;
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
+        end;
+        raise;
       end;
     end;
   end;
@@ -3681,24 +3925,36 @@ var
 begin
   Result := False;
   CheckConnectionState(csSelected);
-  IOHandler.WriteLn(NewCmdCounter + ' ' + ( IMAP4Commands[cmdUID] + ' ' +                  {Do not Localize}
-    IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' +                       {Do not Localize}
-    IMAP4FetchDataItem[fdBodyStructure] + ')' ));                        {Do not Localize}
+
   //Note: The normal single-line response may be split for huge bodystructures,
   //allow for this by setting ASingleLineMayBeSplit to True...
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, True) = IMAP_OK then begin
-    if LastCmdResult.Text.Count > 0 then begin
-      if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdBodyStructure]]) then begin
-        if AMsg <> nil then begin
-          LTheParts := AMsg.MessageParts;
-          ParseBodyStructureResult(FLineStruct.IMAPValue, LTheParts, nil);
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdBodyStructure] + ')',  {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]],
+    True, True);
+  if LastCmdResult.Code = IMAP_OK then begin
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      if LastCmdResult.Text.Count > 0 then begin
+        if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdBodyStructure]]) then begin
+          if AMsg <> nil then begin
+            LTheParts := AMsg.MessageParts;
+          end else begin
+            LTheParts := nil;
+          end;
+          ParseBodyStructureResult(FLineStruct.IMAPValue, LTheParts, AParts);
+          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+            Result := True;
+          end;
         end;
-        if AParts <> nil then begin
-          ParseBodyStructureResult(FLineStruct.IMAPValue, nil, AParts);
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
         end;
-        if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
-          Result := True;
-        end;
+        raise;
       end;
     end;
   end;
@@ -3711,28 +3967,40 @@ begin
   Result := False;
   IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
-  IOHandler.WriteLn(NewCmdCounter + ' ' + (                       {Do not Localize}
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) + ' (' +       {Do not Localize}
-    IMAP4FetchDataItem[fdRFC822Header] + ')'));                 {Do not Localize}
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], True ) = IMAP_OK then begin
-    if LastCmdResult.Text.Count > 0 then begin
-      if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Header]])
-        and (FLineStruct.ByteCount > 0) then begin
-        BeginWork(wmRead, FLineStruct.ByteCount);  //allow ReadString to use OnWork
-        try
-          LStr := IOHandler.ReadString(FLineStruct.ByteCount);
-        finally
-          EndWork(wmRead);
+
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdRFC822Header] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch]], True);
+  if LastCmdResult.Code = IMAP_OK then begin
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      if LastCmdResult.Text.Count > 0 then begin
+        if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Header]])
+          and (FLineStruct.ByteCount > 0) then begin
+          BeginWork(wmRead, FLineStruct.ByteCount);  //allow ReadString to use OnWork
+          try
+            LStr := IOHandler.ReadString(FLineStruct.ByteCount);
+          finally
+            EndWork(wmRead);
+          end;
+          {CC2: Clear out body so don't get multiple copies of bodies}
+          AMsg.Clear;
+          AMsg.Headers.Text := LStr;
+          AMsg.ProcessHeaders;
+          LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
+          ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
+          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
+            Result := True;
+          end;
         end;
-        {CC2: Clear out body so don't get multiple copies of bodies}
-        AMsg.Clear;
-        AMsg.Headers.Text := LStr;
-        AMsg.ProcessHeaders;
-        LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
-        ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
-        if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
-          Result := True;
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
         end;
+        raise;
       end;
     end;
   end;
@@ -3745,27 +4013,39 @@ begin
   Result := False;
   IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
-  IOHandler.WriteLn(NewCmdCounter + ' ' + (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' +                 {Do not Localize}
-    AMsgUID + ' (' + IMAP4FetchDataItem[fdRFC822Header] + ')'));                               {Do not Localize}
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True) = IMAP_OK then begin
-    if LastCmdResult.Text.Count > 0 then begin
-      if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Header]])
-        and (FLineStruct.ByteCount > 0) then begin
-        BeginWork(wmRead, FLineStruct.ByteCount); //allow ReadString to use OnWork
-        try
-          LStr := IOHandler.ReadString(FLineStruct.ByteCount);
-        finally
-          EndWork(wmRead);
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdRFC822Header] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  if LastCmdResult.Code = IMAP_OK then begin
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      if LastCmdResult.Text.Count > 0 then begin
+        if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Header]])
+          and (FLineStruct.ByteCount > 0) then begin
+          BeginWork(wmRead, FLineStruct.ByteCount); //allow ReadString to use OnWork
+          try
+            LStr := IOHandler.ReadString(FLineStruct.ByteCount);
+          finally
+            EndWork(wmRead);
+          end;
+          {CC2: Clear out body so don't get multiple copies of bodies}
+          AMsg.Clear;
+          AMsg.Headers.Text := LStr;
+          AMsg.ProcessHeaders;
+          LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
+          ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
+          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+            Result := True;
+          end;
         end;
-        {CC2: Clear out body so don't get multiple copies of bodies}
-        AMsg.Clear;
-        AMsg.Headers.Text := LStr;
-        AMsg.ProcessHeaders;
-        LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
-        ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
-        if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
-          Result := True;
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
         end;
+        raise;
       end;
     end;
   end;
@@ -3790,39 +4070,48 @@ var
 begin
   Result := False;
   CheckConnectionState(csSelected);
-  LCmd :=  NewCmdCounter + ' ';                    {Do not Localize}
+  LCmd := '';
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';          {Do not Localize}
   end;
-  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' +           {Do not Localize}
-    IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdBody] +      {Do not Localize}
-    '[' + APartNum + '.' + IMAP4FetchDataItem[fdHeader] + ']' +    {Do not Localize}
-    ')';                               {Do not Localize}
-  IOHandler.WriteLn(LCmd);                           {Do not Localize}
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True) = IMAP_OK then begin
-    if LastCmdResult.Text.Count > 0 then begin
-      if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [])
-        and (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) = -1)
-        and (FLineStruct.ByteCount > 0) then
-      begin
-        {CC4: Some messages have an empty first part.  These respond as:
-         17 FETCH (BODY[1] "" UID 20)
-         instead of the more normal:
-           17 FETCH (BODY[1] {11}        {This bracket is not part of the response!
-           ...
-           UID 20)
-        }
-        BeginWork(wmRead, FLineStruct.ByteCount); //allow ReadString to use OnWork
-        try
-          AHeaders.Text := IOHandler.ReadString(FLineStruct.ByteCount);
-        finally
-          EndWork(wmRead);
+  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdBody] + '[' + APartNum + '.' + IMAP4FetchDataItem[fdHeader] + '])'; {Do not Localize}
+
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  if LastCmdResult.Code = IMAP_OK then begin
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      if LastCmdResult.Text.Count > 0 then begin
+        if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [])
+          and (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) = -1)
+          and (FLineStruct.ByteCount > 0) then
+        begin
+          {CC4: Some messages have an empty first part.  These respond as:
+           17 FETCH (BODY[1] "" UID 20)
+           instead of the more normal:
+             17 FETCH (BODY[1] {11}        {This bracket is not part of the response!
+             ...
+             UID 20)
+          }
+          BeginWork(wmRead, FLineStruct.ByteCount); //allow ReadString to use OnWork
+          try
+            AHeaders.Text := IOHandler.ReadString(FLineStruct.ByteCount);
+          finally
+            EndWork(wmRead);
+          end;
         end;
       end;
-    end;
-    IOHandler.ReadLnWait;
-    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
-      Result := True;
+      IOHandler.ReadLnWait;
+      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+        Result := True;
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
+        end;
+        raise;
+      end;
     end;
   end;
 end;
@@ -3979,7 +4268,7 @@ var
 begin
   Result := False;
   CheckConnectionState(csSelected);
-  LCmd := NewCmdCounter + ' ';                        {Do not Localize}
+  LCmd := '';
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';               {Do not Localize}
   end;
@@ -3990,71 +4279,84 @@ begin
     LCmd := LCmd + IMAP4FetchDataItem[fdRFC822];              {Do not Localize}
   end;
   LCmd := LCmd + ')';                             {Do not Localize}
-  IOHandler.WriteLn(LCmd);
-  if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True) = IMAP_OK then begin
-    //Leave 3rd param as [] because ParseLastCmdResult can get a number of odd
-    //replies ( variants on Body[] )...
-    if (LastCmdResult.Text.Count < 1) or
-      (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [])) then begin
-      Exit;
-    end;
-    {CC8: Retrieve via byte count instead of looking for terminator,
-    which was impossible to get working with all the different IMAP
-    servers because some left the terminator (LExpectedResponse) at
-    the end of a message line, so you could not decide if it was
-    part of the message or the terminator.}
-    AMsg.Clear;
-    if FLineStruct.ByteCount > 0 then begin
-      {Use a temporary memory block to suck the message into...}
-      LDestStream := TMemoryStream.Create;
-      try
-        LHelper := TIdIMAP4WorkHelper.Create(Self);
-        try
-          IOHandler.ReadStream(LDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
-        finally
-          FreeAndNil(LHelper);
-        end;
-        {Feed stream into the standard message parser...}
-        LDestStream.Position := 0;
 
-        {RLebeau 12/09/2012: this is a workaround to a design limitation in
-        TIdMessage.LoadFromStream().  It assumes the stream data is always
-        in an escaped format using SMTP dot transparency, but that is not
-        the case in IMAP! Until this design is corrected, we have to use a
-        workaround for now.  This logic is copied from TIdMessage.LoadFromStream()
-        and slightly tweaked...}
-
-        //AMsg.LoadFromStream(LDestStream);
-        LMsgClient := TIdMessageClient.Create(nil);
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  if LastCmdResult.Code = IMAP_OK then begin
+    {CC3: Catch "Connection reset by peer"...}
+    try
+      //Leave 3rd param as [] because ParseLastCmdResult can get a number of odd
+      //replies ( variants on Body[] )...
+      if (LastCmdResult.Text.Count < 1) or
+        (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [])) then
+      begin
+        Exit;
+      end;
+      {CC8: Retrieve via byte count instead of looking for terminator,
+      which was impossible to get working with all the different IMAP
+      servers because some left the terminator (LExpectedResponse) at
+      the end of a message line, so you could not decide if it was
+      part of the message or the terminator.}
+      AMsg.Clear;
+      if FLineStruct.ByteCount > 0 then begin
+        {Use a temporary memory block to suck the message into...}
+        LDestStream := TMemoryStream.Create;
         try
-          LMsgIO := TIdIOHandlerStreamMsg.Create(nil, LDestStream);
+          LHelper := TIdIMAP4WorkHelper.Create(Self);
           try
-            LMsgIO.FreeStreams := False;
-            LMsgIO.EscapeLines := True; // this is the key piece that makes it work!
-            LMsgClient.IOHandler := LMsgIO;
+            IOHandler.ReadStream(LDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
+          finally
+            FreeAndNil(LHelper);
+          end;
+          {Feed stream into the standard message parser...}
+          LDestStream.Position := 0;
+
+          {RLebeau 12/09/2012: this is a workaround to a design limitation in
+          TIdMessage.LoadFromStream().  It assumes the stream data is always
+          in an escaped format using SMTP dot transparency, but that is not
+          the case in IMAP! Until this design is corrected, we have to use a
+          workaround for now.  This logic is copied from TIdMessage.LoadFromStream()
+          and slightly tweaked...}
+
+          //AMsg.LoadFromStream(LDestStream);
+          LMsgClient := TIdMessageClient.Create(nil);
+          try
+            LMsgIO := TIdIOHandlerStreamMsg.Create(nil, LDestStream);
             try
-              LMsgIO.Open;
-              LMsgClient.ProcessMessage(AMsg, False);
+              LMsgIO.FreeStreams := False;
+              LMsgIO.EscapeLines := True; // this is the key piece that makes it work!
+              LMsgClient.IOHandler := LMsgIO;
+              try
+                LMsgIO.Open;
+                LMsgClient.ProcessMessage(AMsg, False);
+              finally
+                LMsgClient.IOHandler := nil;
+              end;
             finally
-              LMsgClient.IOHandler := nil;
+              LMsgIO.Free;
             end;
           finally
-            LMsgIO.Free;
+            LMsgClient.Free;
           end;
+          // end workaround
         finally
-          LMsgClient.Free;
+          FreeAndNil(LDestStream);
         end;
-        // end workaround
-      finally
-        FreeAndNil(LDestStream);
       end;
-    end;
-    LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
-    ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
-    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
-      AMsg.UID := FLineStruct.UID;
-      AMsg.Flags := FLineStruct.Flags;
-      Result := True;
+      LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
+      ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
+      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+        AMsg.UID := FLineStruct.UID;
+        AMsg.Flags := FLineStruct.Flags;
+        Result := True;
+      end;
+    except
+      on E: EIdSocketError do begin
+        if E.LastError = Id_WSAECONNRESET then begin
+          //Connection reset by peer...
+          FConnectionState := csUnexpectedlyDisconnected;
+        end;
+        raise;
+      end;
     end;
   end;
 end;
@@ -4148,8 +4450,9 @@ begin
   {CC2: This should not be checking FMailBox.TotalMsgs because the server may
   have added messages to the mailbox unknown to us, and we are going to ask the
   server anyway (if it's empty, we will return 0 anyway}
-  SendCmd(NewCmdCounter, ( IMAP4Commands[cmdFetch] + ' 1:*' +            {Do not Localize}
-    ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')' ), [IMAP4Commands[cmdFetch]]);   {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' 1:*' + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')',   {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := 0;
     for Ln := 0 to FMailBox.TotalMsgs - 1 do begin
@@ -4173,8 +4476,9 @@ begin
   {CC2: This should not be checking FMailBox.TotalMsgs because the server may
   have added messages to the mailbox unknown to us, and we are going to ask the
   server anyway (if it's empty, we will return 0 anyway}
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' 1:*' +        {Do not Localize}
-    ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')' ), [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]); {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' 1:*' + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := 0;
     for Ln := 0 to FMailBox.TotalMsgs - 1 do begin
@@ -4194,8 +4498,9 @@ begin
   Result := -1;
   IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, ( IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) +     {Do not Localize}
-    ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')' ), [IMAP4Commands[cmdFetch]]);      {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')',      {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Size]]) then begin
@@ -4209,8 +4514,9 @@ begin
   IsUIDValid(AMsgUID);
   Result := -1;
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] +  {Do not Localize}
-    ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')' ), [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]); {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Size]]) then begin
@@ -4226,8 +4532,9 @@ begin
   IsNumberValid(AMsgNum);
   Result := False;
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + {Do not Localize}
-    ' (' + IMAP4FetchDataItem[fdFlags] + ')' ), [IMAP4Commands[cmdFetch]]); {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
@@ -4249,8 +4556,9 @@ begin
   Some servers return nothing at all if no flags set (the better ones return an empty set).}
   Result := False;
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' +  {Do not Localize}
-    AMsgUID + ' (' + IMAP4FetchDataItem[fdFlags] + ')'), [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]); {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
@@ -4269,8 +4577,9 @@ begin
   {CC: Empty set to avoid returning resuts from a previous call if call fails}
   AFlags := [];
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdFetch] + ' ' + IntToStr (AMsgNum) + {Do not Localize}
-    ' (' + IMAP4FetchDataItem[fdFlags] + ')'), [IMAP4Commands[cmdFetch]]); {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr (AMsgNum) + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
@@ -4287,8 +4596,9 @@ begin
   {BUG FIX: Empty set to avoid returning resuts from a previous call if call fails}
   AFlags := [];
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, (IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' +  {Do not Localize}
-    AMsgUID + ' (' + IMAP4FetchDataItem[fdFlags] + ')' ), [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);  {Do not Localize}
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdFlags] + ')',  {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
@@ -4305,6 +4615,7 @@ begin
     csNonAuthenticated : Result := RSIMAP4ConnectionStateNonAuthenticated;
     csAuthenticated : Result := RSIMAP4ConnectionStateAuthenticated;
     csSelected : Result := RSIMAP4ConnectionStateSelected;
+    csUnexpectedlyDisconnected : Result := RSIMAP4ConnectionStateUnexpectedlyDisconnected;
   end;
 end;
 
@@ -4511,6 +4822,7 @@ procedure TIdIMAP4.ParseBodyStructurePart(APartString: string; AThePart: TIdMess
 var
   LParams: TStringList;
 //  LContentDispositionStuff: string;
+  LCharSet: String;
   LFilename: string;
   LDescription: string;
   LTemp: string;
@@ -4573,6 +4885,12 @@ begin
       LFilename := DecodeHeader(LFilename);
     end;
 
+    LCharSet := '';
+    if IndyPos('"CHARSET"', UpperCase(LParams[2])) > 0 then begin {Do not Localize}
+      LTemp := Copy(LParams[2], IndyPos('"CHARSET" ', UpperCase(LParams[2]))+10, MaxInt); {Do not Localize}
+      LCharSet := GetNextQuotedParam(LTemp, True);
+    end;
+
     LSize := 0;
     if (not TextIsSame(LParams[6], 'NIL')) and (Length(LParams[6]) <> 0) then begin
       LSize := IndyStrToInt(LParams[6]); {Do not Localize}
@@ -4584,6 +4902,7 @@ begin
     end else if (LParams.Count > 8) and (not TextIsSame(LParams[8], 'NIL')) then begin  {Do not Localize}
       LDescription := GetNextQuotedParam(LParams[8], False);
     end;
+
     if AThePart <> nil then begin
       {Put into the same format as TIdMessage MessageParts...}
       AThePart.ContentType := LParams[0]+'/'+LParams[1]+ParseBodyStructureSectionAsEquates(LParams[2]);  {Do not Localize}
@@ -4594,11 +4913,13 @@ begin
       end;
       AThePart.DisplayName := LFilename;
     end;
+
     if AImapPart <> nil then begin
       AImapPart.FBodyType := LParams[0];
       AImapPart.FBodySubType := LParams[1];
       AImapPart.FFileName := LFilename;
       AImapPart.FDescription := LDescription;
+      AImapPart.FCharSet := LCharSet;
       AImapPart.FContentTransferEncoding := LParams[5];
       AImapPart.FSize := LSize;
       //Watch out for BinHex4.0, the encoding is inferred from the Content-Type...
@@ -5679,7 +6000,10 @@ end;
 
 function TIdIMAP4.MessageFlagSetToStr(const AFlags: TIdMessageFlagsSet): String;
 begin
-  Result := '';                                           {Do not Localize}
+  Result := '';
+  if AFlags = [] then begin
+    Exit;
+  end;
   if mfAnswered in AFlags then begin
     Result := Result + MessageFlags[mfAnswered] + ' ';                      {Do not Localize}
   end;
@@ -5695,6 +6019,7 @@ begin
   if mfSeen in AFlags then begin
     Result := Result + MessageFlags[mfSeen] + ' ';                        {Do not Localize}
   end;
+  Result := Trim(Result);
 end;
 
 procedure TIdIMAP4.StripCRLFs(ASourceStream, ADestStream: TStream);
