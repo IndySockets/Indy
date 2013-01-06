@@ -170,7 +170,6 @@ begin
   try
     LBuf := AChallenge;
     while Length(LBuf) > 0 do begin
-      LChallange.Add(Fetch(LBuf,','));
       LName := Trim(Fetch(LBuf, '=')); {do not localize}
       LBuf := TrimLeft(LBuf);
       if TextStartsWith(LBuf, '"') then begin {do not localize}
