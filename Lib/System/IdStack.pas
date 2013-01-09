@@ -908,9 +908,29 @@ begin
   Result := not Word(LCRC);
 end;
 
+{$UNDEF HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
+{$IFDEF HAS_TCP_KEEPIDLE}
+  {$DEFINE HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
+{$ENDIF}
+{$IFDEF HAS_TCP_KEEPINTVL}
+  {$DEFINE HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
+{$ENDIF}
+
 procedure TIdStack.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 begin
+  {$IFDEF HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
+  if AEnabled then
+  begin
+    {$IFDEF HAS_TCP_KEEPIDLE}
+    SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS);
+    {$ENDIF}
+    {$IFDEF HAS_TCP_KEEPINTVL}
+    SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval);
+    {$ENDIF}
+    Exit;
+  end;
+  {$ENDIF}
   SetSocketOption(ASocket, Id_SOL_SOCKET, Id_SO_KEEPALIVE, iif(AEnabled, 1, 0));
 end;
 
