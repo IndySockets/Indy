@@ -6279,6 +6279,8 @@ begin
   FDSet.fd_count := 0;
 end;
 
+{$IFNDEF WINCE}
+
 //Posix aliases
 //    #define CMSGHDR_ALIGN WSA_CMSGHDR_ALIGN
 function CMSGHDR_ALIGN(const Alength: SIZE_T): SIZE_T;
@@ -6395,6 +6397,8 @@ function WSA_CMSG_LEN(const Alength: SIZE_T): SIZE_T;
 begin
   Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + Alength);
 end;
+
+{$ENDIF} // {$IFNDEF WINCE}
 
 function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
