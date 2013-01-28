@@ -1314,6 +1314,11 @@ const
     'UNSEEN'         {Do not Localize}
   );
 
+function IMAPQuotedStr(const S: String): String;
+begin
+  Result := '"' + StringsReplace(S, ['\', '"'], ['\\', '\"']) + '"'; {Do not Localize}
+end;
+
 { TIdIMAP4WorkHelper }
 
 type
@@ -1595,6 +1600,8 @@ end;
 //The following call FMUTF7 but do exception-handling on invalid strings...
 function TIdIMAP4.DoMUTFEncode(const aString : String): String;
 begin
+  // TODO: if the server advertises the "UTF8=ACCEPT" capability, use
+  // a UTF-8 quoted string instead of IMAP's Modified UTF-7...
   try
     Result := String(FMUTF7.Encode(TIdUnicodeString(aString)));
   except
@@ -1998,7 +2005,7 @@ begin
     FCmdCounter := 0;
     if FAuthType = iatUserPass then begin
       if Length(Password) <> 0 then begin                              {Do not Localize}
-        SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username + ' "' + Password + '"', ['OK']);   {Do not Localize}
+        SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username + ' ' + IMAPQuotedStr(Password), ['OK']);   {Do not Localize}
       end else begin
         SendCmd(NewCmdCounter, IMAP4Commands[cmdLogin] + ' ' + Username, ['OK']);          {Do not Localize}
       end;
@@ -2384,7 +2391,7 @@ var
         skGmailThreadID,
         skGmailLabels:
           if RequiresEncoding(ASearchInfo[I].Text) then begin
-            Result  := True;
+            Result := True;
             Exit;
           end;
       end;
@@ -2473,17 +2480,16 @@ begin
           begin
             // TODO: support RFC 5738 to allow for UTF-8 encoded quoted strings
             if not RequiresEncoding(ASearchInfo[Ln].Text) then begin
-              LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' "' + ASearchInfo[Ln].Text + '"'; {Do not Localize}
+              LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + IMAPQuotedStr(ASearchInfo[Ln].Text); {Do not Localize}
             end else
             begin
-              LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
               if LUseUTF8QuotedString then begin
-                LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' *"'; {Do not Localize}
+                LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' *'; {Do not Localize}
                 IOHandler.Write(LCmd);
-                IOHandler.Write(LTextBuf);
-                IOHandler.Write('"'); {Do not Localize}
+                IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
               end else
               begin
+                LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
                 if LUseNonSyncLiteral then begin
                   LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
                 end else begin
