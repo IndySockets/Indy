@@ -3326,11 +3326,11 @@ end;
 {$IFDEF UNIX}
 function HackLoadFileName(const ALibName, ALibVer : String) : string;  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
- {$IFDEF DARWIN}
+  {$IFDEF DARWIN}
   Result := ALibName+ALibVer+LIBEXT;
- {$ELSE}
+  {$ELSE}
   Result := ALibName+LIBEXT+ALibVer;
- {$ENDIF}
+  {$ENDIF}
 end;
 
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
@@ -3532,7 +3532,7 @@ begin
   Result := AValue;
     {$ENDIF}
     {$IFDEF ENDIAN_BIG}
-  Result := swap(AValue shr 16) or (Longint(swap(AValue and $FFFF)) shl 16);
+  Result := swap(AValue shr 16) or (LongWord(swap(AValue and $FFFF)) shl 16);
     {$ENDIF}
   {$ENDIF}
 end;
@@ -3573,14 +3573,14 @@ function LittleEndianToHost(const AValue : Longword): Longword;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
-  //I think that is Little ENdian but I'm not completely sure
+  //I think that is Little Endian but I'm not completely sure
   Result := AValue;
   {$ELSE}
     {$IFDEF ENDIAN_LITTLE}
   Result := AValue;
     {$ENDIF}
     {$IFDEF ENDIAN_BIG}
-  Result := swap(AValue shr 16) or (Longint(swap(AValue and $FFFF)) shl 16);
+  Result := swap(AValue shr 16) or (LongWord(swap(AValue and $FFFF)) shl 16);
     {$ENDIF}
   {$ENDIF}
 end;
@@ -3589,7 +3589,7 @@ function LittleEndianToHost(const AValue : Integer): Integer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
-  //I think that is Little ENdian but I'm not completely sure
+  //I think that is Little Endian but I'm not completely sure
   Result := AValue;
   {$ELSE}
     {$IFDEF ENDIAN_LITTLE}
