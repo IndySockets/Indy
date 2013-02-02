@@ -239,13 +239,6 @@ uses
 const
   DEF_IMAP4_IMPLICIT_TLS = False;
 
-{
-resourcestring
-  RSIMAP4SvrBeginTLSNegotiation = 'Begin TLS negotiation now';
-  RSIMAP4SvrNotPermittedWithTLS = 'Command not permitted when TLS active';
-  RSIMAP4SvrImplicitTLSRequiresSSL = 'Implicit IMAP4 requires that IOHandler be set to a TIdServerIOHandlerSSLBase.';
-}
-
 type
   TIMAP4CommandEvent = procedure(AContext: TIdContext; const ATag, ACmd: String) of object;
   TIdIMAP4CommandBeforeEvent = procedure(ASender: TIdCommandHandlers; var AData: string; AContext: TIdContext) of object;

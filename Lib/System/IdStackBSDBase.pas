@@ -214,6 +214,9 @@ type
     0: (s6_addr: packed array [0..16-1] of Byte);
     1: (s6_addr16: packed array [0..8-1] of Word);
   end;
+  (*$HPPEMIT '#ifdef s6_addr'*)
+  (*$HPPEMIT '  #undef s6_addr'*)
+  (*$HPPEMIT '#endif'*)
 
   PIdInAddr = ^TIdInAddr;
   TIdInAddr = {$IFDEF IPv6} TIdIn6Addr; {$ELSE} TIdIn4Addr; {$ENDIF}
