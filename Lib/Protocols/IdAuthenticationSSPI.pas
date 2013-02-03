@@ -902,19 +902,19 @@ begin
   if (Length(aDomain) > 0) and (Length(aUserName) > 0) then begin
     with ai do begin
       {$IFDEF SSPI_UNICODE}
-      User := PWideChar(aUserName);
+      User := PUSHORT(PWideChar(aUserName));
       UserLength := Length(aUserName);
-      Domain := PWideChar(aDomain);
+      Domain := PUSHORT(PWideChar(aDomain));
       DomainLength := Length(aDomain);
-      Password := PWideChar(aPassword);
+      Password := PUSHORT(PWideChar(aPassword));
       PasswordLength := Length(aPassword);
       Flags := SEC_WINNT_AUTH_IDENTITY_UNICODE;
       {$ELSE}
-      User := PAnsiChar(aUserName);
+      User := PUCHAR(PAnsiChar(aUserName));
       UserLength := Length(aUserName);
-      Domain := PAnsiChar(aDomain);
+      Domain := PUCHAR(PAnsiChar(aDomain));
       DomainLength := Length(aDomain);
-      Password := PAnsiChar(aPassword);
+      Password := PUCHAR(PAnsiChar(aPassword));
       PasswordLength := Length(aPassword);
       Flags := SEC_WINNT_AUTH_IDENTITY_ANSI;
       {$ENDIF}
