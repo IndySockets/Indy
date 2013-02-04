@@ -1274,7 +1274,7 @@ begin
     // RLebeau: must not send/receive UTF-8 before negotiating for it...
     IOHandler.DefStringEncoding := FDefStringEncoding;
     {$IFDEF STRING_IS_ANSI}
-    IOHandler.DefAnsiEncoding := TIdTextEncoding.Default;
+    IOHandler.DefAnsiEncoding := IndyOSDefaultEncoding;
     {$ENDIF}
 
     // RLebeau: RFC 959 says that the greeting can be preceeded by a 1xx
@@ -2185,7 +2185,7 @@ begin
   FDataChannel.IOHandler.RecvBufferSize := IOHandler.RecvBufferSize;
   FDataChannel.IOHandler.LargeStream := True;
  // FDataChannel.IOHandler.DefStringEncoding := Indy8BitEncoding;
- // FDataChannel.IOHandler.DefAnsiEncoding := TIdTextEncoding.Default;
+ // FDataChannel.IOHandler.DefAnsiEncoding := IndyOSDefaultEncoding;
   FDataChannel.WorkTarget := Self;
 end;
 
@@ -2433,7 +2433,7 @@ begin
     FTransferType := Id_TIdFTP_TransferType;
     IOHandler.DefStringEncoding := Indy8BitEncoding;
     {$IFDEF STRING_IS_ANSI}
-    IOHandler.DefAnsiEncoding := TIdTextEncoding.Default;
+    IOHandler.DefAnsiEncoding := IndyOSDefaultEncoding;
     {$ENDIF}
     if FUsingSFTP and (FUseTLS <> utUseImplicitTLS) then begin
       (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;

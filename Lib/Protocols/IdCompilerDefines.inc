@@ -60,7 +60,6 @@
 {$UNDEF HAS_TEncoding}
 {$UNDEF HAS_TCharacter}
 {$UNDEF HAS_TInterlocked}
-{$UNDEF TIdTextEncoding_IS_NATIVE}
 
 // Make sure that this is defined only for environments where we are using
 // the iconv library to charactor conversions.
@@ -1046,13 +1045,6 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 
 {$IFDEF DOTNET}
   {$DEFINE DOTNET_OR_ICONV}
-  {$DEFINE TIdTextEncoding_IS_NATIVE}
-{$ELSE}
-  {$IFDEF HAS_TEncoding}
-    {$IFNDEF USE_ICONV}
-      {$DEFINE TIdTextEncoding_IS_NATIVE}
-    {$ENDIF}
-  {$ENDIF}
 {$ENDIF}
 {$IFDEF USE_ICONV}
   {$DEFINE DOTNET_OR_ICONV}

@@ -4615,7 +4615,7 @@ end;
   // SysUtils.TEncoding.GetEncoding() in Delphi 2009 and 2010 does not
   // implement UTF-7 and UTF-16 correctly.  This was fixed in Delphi XE...
   {$DEFINE USE_TIdTextEncoding_GetEncoding}
-  {$IFDEF TIdTextEncoding_IS_NATIVE}
+  {$IFDEF HAS_TEncoding}
     {$IFDEF BROKEN_TEncoding_GetEncoding}
       {$UNDEF USE_TIdTextEncoding_GetEncoding}
     {$ENDIF}
@@ -4658,9 +4658,12 @@ begin
     // not owned by anyone and must always be freed.
 
     try
-      {$IFDEF DOTNET_OR_ICONV}
+      {$IFDEF DOTNET}
       Result := TIdTextEncoding.GetEncoding(ACharset);
       {$ELSE}
+        {$IFDEF USE_ICONV}
+      Result := TIdMBCSEncoding.Create(ACharset);
+        {$ELSE}
       CP := CharsetToCodePage(ACharset);
       case CP of
         20127:
@@ -4673,14 +4676,12 @@ begin
           // flag regardless of whether TIdTextEncoding is implemented
           // natively or manually...
           Result := IndyUTF8Encoding(False);
-        {$IFNDEF USE_TIdTextEncoding_GetEncoding}
         1200:
-          Result := TIdUTF16LittleEndianEncoding.Create;
+          Result := IndyUTF16LittleEndianEncoding(False);
         1201:
-          Result := TIdUTF16BigEndianEncoding.Create;
+          Result := IndyUTF16BigEndianEncoding(False);
         65000:
-          Result := TIdUTF7Encoding.Create;
-        {$ENDIF}
+          Result := IndyUTF7Encoding(False);
       else
         begin
           if CP <> 0 then begin
@@ -4692,6 +4693,7 @@ begin
           end;
         end;
       end;
+        {$ENDIF}
       {$ENDIF}
     except end;
   end;

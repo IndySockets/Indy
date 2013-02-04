@@ -430,9 +430,9 @@ var
 {$ENDIF}
 begin
   {$IFDEF STRING_IS_UNICODE}
-  Result := TIdTextEncoding.Unicode.GetBytes(S);
+  Result := IndyUTF16LittleEndianEncoding.GetBytes(S);
   {$ELSE}
-  // RLebeau: TODO - should this use TIdTextEncoding.Unicode.GetBytes()
+  // RLebeau: TODO - should this use IndyUTF16LittleEndianEncoding.GetBytes()
   // as well?  This logic will not produce a valid Unicode string if
   // non-ASCII characters are present!
   SetLength(Result, Length(S) * SizeOf(WideChar));
@@ -454,7 +454,7 @@ begin
   with TIdHashMessageDigest4.Create do
   try
     {$IFDEF STRING_IS_UNICODE}
-    nt_hpw128 := HashString(APassword, TIdTextEncoding.Unicode);
+    nt_hpw128 := HashString(APassword, IndyUTF16LittleEndianEncoding);
     {$ELSE}
     nt_hpw128 := HashBytes(BuildUnicode(APassword));
     {$ENDIF}

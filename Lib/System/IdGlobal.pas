@@ -806,9 +806,15 @@ type
   Ansi-compatible encodings are being used with AnsiString values.
   }
 
+  {$UNDEF TIdTextEncoding_NEEDED}
+  {$UNDEF TIdMBCSEncoding_NEEDED}
   {$UNDEF TIdASCIIEncoding_NEEDED}
-  {$IFDEF TIdTextEncoding_IS_NATIVE}
-    {$IFDEF DOTNET}
+  {$UNDEF TIdUTF7Encoding_NEEDED}
+  {$UNDEF TIdUTF8Encoding_NEEDED}
+  {$UNDEF TIdUTF16LittleEndianEncoding_NEEDED}
+  {$UNDEF TIdUTF16BigEndianEncoding_NEEDED}
+
+  {$IFDEF DOTNET}
   TIdTextEncoding = System.Text.Encoding;
   //TIdMBCSEncoding = ?
   TIdASCIIEncoding = System.Text.ASCIIEncoding;
@@ -816,20 +822,39 @@ type
   TIdUTF8Encoding = System.Text.UTF8Encoding;
   TIdUTF16LittleEndianEncoding = System.Text.UnicodeEncoding;
   TIdUTF16BigEndianEncoding = System.Text.UnicodeEncoding;
-    {$ELSE}
+  {$ELSE}
+    {$IFDEF HAS_TEncoding}
   TIdTextEncodingBytes = SysUtils.TBytes;
   TIdTextEncodingWideChars = SysUtils.TCharArray;
   TIdTextEncoding = SysUtils.TEncoding;
-  TIdMBCSEncoding = SysUtils.TMBCSEncoding;
   {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
+      {$IFDEF USE_ICONV}
+  {$DEFINE TIdMBCSEncoding_NEEDED} // see further below
+  {$DEFINE TIdUTF7Encoding_NEEDED} // see further below
+  {$DEFINE TIdUTF8Encoding_NEEDED} // see further below
+  {$DEFINE TIdUTF16LittleEndianEncoding_NEEDED} // see further below
+  {$DEFINE TIdUTF16BigEndianEncoding_NEEDED} // see further below
+      {$ELSE}
+  TIdMBCSEncoding = SysUtils.TMBCSEncoding;
   TIdUTF7Encoding = SysUtils.TUTF7Encoding;
   TIdUTF8Encoding = SysUtils.TUTF8Encoding;
   TIdUTF16LittleEndianEncoding = SysUtils.TUnicodeEncoding;
   TIdUTF16BigEndianEncoding = SysUtils.TBigEndianUnicodeEncoding;
-    {$ENDIF}
-  {$ELSE}
+      {$ENDIF}
+    {$ELSE}
   TIdTextEncodingBytes = TIdBytes;
   TIdTextEncodingWideChars = TIdWideChars;
+  {$DEFINE TIdTextEncoding_NEEDED} // see further below
+  {$DEFINE TIdMBCSEncoding_NEEDED} // see further below
+  {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
+  {$DEFINE TIdUTF7Encoding_NEEDED} // see further below
+  {$DEFINE TIdUTF8Encoding_NEEDED} // see further below
+  {$DEFINE TIdUTF16LittleEndianEncoding_NEEDED} // see further below
+  {$DEFINE TIdUTF16BigEndianEncoding_NEEDED} // see further below
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF TIdTextEncoding_NEEDED}
   TIdTextEncoding = class
   {$IFDEF HAS_CLASSPROPERTIES}
   private
@@ -898,11 +923,13 @@ type
     class function UTF8: TIdTextEncoding;
     {$ENDIF}
   end;
+  {$ENDIF}
 
+  {$IFDEF TIdMBCSEncoding_NEEDED}
   TIdMBCSEncoding = class(TIdTextEncoding)
   private
     {$IFDEF USE_ICONV}
-    FCharSet: AnsiString;
+    FCharSet: String;
     {$ELSE}
       {$IFDEF WINDOWS}
     FCodePage: Cardinal;
@@ -918,7 +945,7 @@ type
   public
     constructor Create; overload; virtual;
     {$IFDEF USE_ICONV}
-    constructor Create(const CharSet : AnsiString); overload; virtual;
+    constructor Create(const CharSet: String); overload; virtual;
     {$ELSE}
       {$IFDEF WINDOWS}
     constructor Create(CodePage: Integer); overload; virtual;
@@ -929,9 +956,9 @@ type
     function GetMaxCharCount(ByteCount: Integer): Integer; override;
     function GetPreamble: TIdTextEncodingBytes; override;
   end;
+  {$ENDIF}
 
-  {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
-
+  {$IFDEF TIdUTF7Encoding_NEEDED}
   TIdUTF7Encoding = class(TIdMBCSEncoding)
   protected
     function GetByteCount(Chars: PWideChar; CharCount: Integer): Integer; overload; override;
@@ -943,7 +970,9 @@ type
     function GetMaxByteCount(CharCount: Integer): Integer; override;
     function GetMaxCharCount(ByteCount: Integer): Integer; override;
   end;
+  {$ENDIF}
 
+  {$IFDEF TIdUTF8Encoding_NEEDED}
   TIdUTF8Encoding = class(TIdUTF7Encoding)
   public
     constructor Create; override;
@@ -951,7 +980,9 @@ type
     function GetMaxCharCount(ByteCount: Integer): Integer; override;
     function GetPreamble: TIdTextEncodingBytes; override;
   end;
+  {$ENDIF}
 
+  {$IFDEF TIdUTF16LittleEndianEncoding_NEEDED}
   TIdUTF16LittleEndianEncoding = class(TIdTextEncoding)
   protected
     function GetByteCount(Chars: PWideChar; CharCount: Integer): Integer; overload; override;
@@ -964,7 +995,9 @@ type
     function GetMaxCharCount(ByteCount: Integer): Integer; override;
     function GetPreamble: TIdTextEncodingBytes; override;
   end;
+  {$ENDIF}
 
+  {$IFDEF TIdUTF16BigEndianEncoding_NEEDED}
   TIdUTF16BigEndianEncoding = class(TIdUTF16LittleEndianEncoding)
   protected
     function GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer; overload; override;
@@ -1001,37 +1034,26 @@ type
 
   function Indy8BitEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
   function IndyASCIIEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
+  function IndyUTF16BigEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
+  function IndyUTF16LittleEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
+  function IndyOSDefaultEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
+  function IndyUTF7Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
   function IndyUTF8Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
 
   (*$HPPEMIT '// These are helper macros to handle differences in "class" properties between different C++Builder versions'*)
-  {$IFDEF HAS_CLASSPROPERTIES}
-  (*$HPPEMIT '#define TIdTextEncoding_ASCII TIdTextEncoding::ASCII'*)
-  (*$HPPEMIT '#define TIdTextEncoding_BigEndianUnicode TIdTextEncoding::BigEndianUnicode'*)
-  (*$HPPEMIT '#define TIdTextEncoding_Default TIdTextEncoding::Default'*)
-  (*$HPPEMIT '#define TIdTextEncoding_Unicode TIdTextEncoding::Unicode'*)
-  (*$HPPEMIT '#define TIdTextEncoding_UTF7 TIdTextEncoding::UTF7'*)
-  (*$HPPEMIT '#define TIdTextEncoding_UTF8 TIdTextEncoding::UTF8'*)
-  {$ELSE}
-  (*$HPPEMIT '#define TIdTextEncoding_ASCII TIdTextEncoding::ASCII(__classid(TIdTextEncoding))'*)
-  (*$HPPEMIT '#define TIdTextEncoding_BigEndianUnicode TIdTextEncoding::BigEndianUnicode(__classid(TIdTextEncoding))'*)
-  (*$HPPEMIT '#define TIdTextEncoding_Default TIdTextEncoding::Default(__classid(TIdTextEncoding))'*)
-  (*$HPPEMIT '#define TIdTextEncoding_Unicode TIdTextEncoding::Unicode(__classid(TIdTextEncoding))'*)
-  (*$HPPEMIT '#define TIdTextEncoding_UTF7 TIdTextEncoding::UTF7(__classid(TIdTextEncoding))'*)
-  (*$HPPEMIT '#define TIdTextEncoding_UTF8 TIdTextEncoding::UTF8(__classid(TIdTextEncoding))'*)
-  {$ENDIF}
+  (*$HPPEMIT '#define TIdTextEncoding_ASCII IndyASCIIEncoding()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_BigEndianUnicode IndyUTF16BigEndianEncoding()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_Default IndyOSDefaultEncoding()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_Unicode IndyUTF16LittleEndianEncoding()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_UTF7 IndyUTF7Encoding()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_UTF8 IndyUTF8Encoding()'*)
   (*$HPPEMIT ''*)
 
   (*$HPPEMIT '// These are for backwards compatibility with earlier Indy 10 releases'*)
   (*$HPPEMIT '#define enDefault ( ( TIdTextEncoding* )NULL )'*)
-  {$IFDEF DOTNET}
   (*$HPPEMIT '#define en8Bit Indy8BitEncoding()'*)
   (*$HPPEMIT '#define en7Bit IndyASCIIEncoding()'*)
   (*$HPPEMIT '#define enUTF8 IndyUTF8Encoding()'*)
-  {$ELSE}
-  (*$HPPEMIT '#define en8Bit Indy8BitEncoding(true)'*)
-  (*$HPPEMIT '#define en7Bit IndyASCIIEncoding(true)'*)
-  (*$HPPEMIT '#define enUTF8 IndyUTF8Encoding(true)'*)
-  {$ENDIF}
   (*$HPPEMIT ''*)
 
 type
@@ -1042,7 +1064,6 @@ var
   implements are based on ASCII specifically, not Ansi.  Non-ASCII data has
   to be explicitally allowed by RFCs, in which case the caller should not be
   using nil TIdTextEncoding objects to begin with...}
-
   GIdDefaultAnsiEncoding: IdAnsiEncodingType = encASCII;
 
   {$IFDEF USE_ICONV}
@@ -1699,8 +1720,10 @@ uses
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
   IdResourceStrings,
-  {$IFNDEF TIdTextEncoding_IS_NATIVE}
+  {$IFNDEF DOTNET}
+    {$IFNDEF HAS_TEncoding}
   IdResourceStringsTextEncoding,
+    {$ENDIF}
   {$ENDIF}
   IdStream;
 
@@ -1723,11 +1746,11 @@ begin
     end;
     case ADefEncoding of
       encASCII: VEncoding := IndyASCIIEncoding;
-      encUTF7:  VEncoding := TIdTextEncoding.UTF7;
+      encUTF7:  VEncoding := IndyUTF7Encoding;
       encUTF8:  VEncoding := IndyUTF8Encoding;
       enc8Bit:  VEncoding := Indy8BitEncoding;
     else
-      VEncoding := TIdTextEncoding.Default;
+      VEncoding := IndyOSDefaultEncoding;
     end;
   end;
 end;
@@ -1747,29 +1770,19 @@ end;
 {$IFNDEF DOTNET}
 var
   GIdPorts: TList = nil;
+
+  GIdDefaultEncoding: TIdTextEncoding = nil;
   GId8BitEncoding: TIdTextEncoding = nil;
-
-  // RLebeau: ASCII is handled separate from other standard encodings
-  // because we need to do special handling of its codepage regardless
-  // of whether TIdTextEncoding is implemented natively or manually...
   GIdASCIIEncoding: TIdTextEncoding = nil;
-
-  // RLebeau: UTF-8 is handled separate from other standard encodings
-  // because we need to avoid the MB_ERR_INVALID_CHARS flag regardless
-  // of whether TIdTextEncoding is implemented natively or manually...
+  GIdBEUTF16Encoding: TIdTextEncoding = nil;
+  GIdLEUTF16Encoding: TIdTextEncoding = nil;
+  GIdUTF7Encoding: TIdTextEncoding = nil;
   GIdUTF8Encoding: TIdTextEncoding = nil;
 {$ENDIF}
 
-{$IFNDEF TIdTextEncoding_IS_NATIVE}
-
-var
-  GIdBEUTF16Encoding: TIdTextEncoding = nil;
-  GIdDefaultEncoding: TIdTextEncoding = nil;
-  GIdLEUTF16Encoding: TIdTextEncoding = nil;
-  GIdUTF7Encoding: TIdTextEncoding = nil;
-
 { TIdTextEncoding }
 
+{$IFDEF TIdTextEncoding_NEEDED}
 class function TIdTextEncoding.Convert(ASource, ADestination: TIdTextEncoding;
   const ABytes: TIdBytes): TIdBytes;
 begin
@@ -1785,20 +1798,11 @@ end;
 class procedure TIdTextEncoding.FreeEncodings;
 begin
   FreeAndNil(GIdDefaultEncoding);
-
-  // RLebeau: ASCII is handled separate from other standard encodings
-  // because we need to do special handling of its codepage regardless
-  // of whether TIdTextEncoding is implemented natively or manually...
-  //FreeAndNil(GIdASCIIEncoding);
-
-  // RLebeau: UTF-8 is handled separate from other standard encodings
-  // because we need to avoid the MB_ERR_INVALID_CHARS flag regardless
-  // of whether TIdTextEncoding is implemented natively or manually...
-  //FreeAndNil(GIdUTF8Encoding);
-
-  FreeAndNil(GIdUTF7Encoding);
-  FreeAndNil(GIdLEUTF16Encoding);
+  FreeAndNil(GIdASCIIEncoding);
   FreeAndNil(GIdBEUTF16Encoding);
+  FreeAndNil(GIdLEUTF16Encoding);
+  FreeAndNil(GIdUTF7Encoding);
+  FreeAndNil(GIdUTF8Encoding);
 end;
 
 {$IFDEF HAS_CLASSPROPERTIES}
@@ -1818,17 +1822,8 @@ class function TIdTextEncoding.GetBigEndianUnicode: TIdTextEncoding;
 {$ELSE}
 class function TIdTextEncoding.BigEndianUnicode: TIdTextEncoding;
 {$ENDIF}
-var
-  LEncoding: TIdTextEncoding;
 begin
-  if GIdBEUTF16Encoding = nil then
-  begin
-    LEncoding := TIdUTF16BigEndianEncoding.Create;
-    if InterlockedCompareExchangePtr(Pointer(GIdBEUTF16Encoding), LEncoding, nil) <> nil then begin
-      LEncoding.Free;
-    end;
-  end;
-  Result := GIdBEUTF16Encoding;
+  Result := IndyUTF16BigEndianEncoding(True);
 end;
 
 class function TIdTextEncoding.GetBufferEncoding(const ABuffer: TIdBytes; var AEncoding: TIdTextEncoding): Integer;
@@ -1861,17 +1856,17 @@ begin
   if AEncoding = nil then
   begin
     // Find the appropriate encoding
-    if ContainsPreamble(ABuffer, TIdTextEncoding.Unicode.GetPreamble) then begin
-      AEncoding := TIdTextEncoding.Unicode;
+    if ContainsPreamble(ABuffer, IndyUTF16LittleEndianEncoding.GetPreamble) then begin
+      AEncoding := IndyUTF16LittleEndianEncoding;
     end
-    else if ContainsPreamble(ABuffer, TIdTextEncoding.BigEndianUnicode.GetPreamble) then begin
-      AEncoding := TIdTextEncoding.BigEndianUnicode;
+    else if ContainsPreamble(ABuffer, IndyUTF16BigEndianEncoding.GetPreamble) then begin
+      AEncoding := IndyUTF16BigEndianEncoding;
     end
     else if ContainsPreamble(ABuffer, IndyUTF8Encoding.GetPreamble) then begin
       AEncoding := IndyUTF8Encoding;
     end else
     begin
-      AEncoding := TIdTextEncoding.Default;
+      AEncoding := IndyOSDefaultEncoding;
     end;
     Result := Length(AEncoding.GetPreamble);
   end else
@@ -2083,36 +2078,18 @@ class function TIdTextEncoding.GetDefault: TIdTextEncoding;
 {$ELSE}
 class function TIdTextEncoding.Default: TIdTextEncoding;
 {$ENDIF}
-var
-  LEncoding: TIdTextEncoding;
 begin
-  if GIdDefaultEncoding = nil then
-  begin
-    {$IFDEF USE_ICONV}
-    // weird, but not all systems appear to support 'ASCII' so we will just use our own...
-    if not GIdIconvUseLocaleDependantAnsiEncoding then begin
-      LEncoding := TIdASCIIEncoding.Create;
-    end else begin
-      LEncoding := TIdMBCSEncoding.Create;
-    end;
-    {$ELSE}
-    LEncoding := TIdMBCSEncoding.Create;
-    {$ENDIF}
-    if InterlockedCompareExchangePtr(Pointer(GIdDefaultEncoding), LEncoding, nil) <> nil then begin
-      LEncoding.Free;
-    end;
-  end;
-  Result := GIdDefaultEncoding;
+  Result := IndyOSDefaultEncoding(True);
 end;
 
 {$IFDEF USE_ICONV}
 class function TIdTextEncoding.GetEncoding(const ACharSet: String): TIdTextEncoding;
 begin
   case PosInStrArray(ACharSet, ['utf-16', 'utf-16le', 'utf-16be', 'utf-8', 'utf-7', 'ascii'], False) of {do not localize}
-    0, 1: Result := TIdUTF16LittleEndianEncoding.Create;
-    2:    Result := TIdUTF16BigEndianEncoding.Create;
+    0, 1: Result := IndyUTF16LittleEndianEncoding(False);
+    2:    Result := IndyUTF16BigEndianEncoding(False);
     3:    Result := IndyUTF8Encoding(False);
-    4:    Result := TIdUTF7Encoding.Create;
+    4:    Result := IndyUTF7Encoding(False);
     5:    Result := IndyASCIIEncoding(False);
   else
     Result := TIdMBCSEncoding.Create(ACharSet);
@@ -2123,19 +2100,11 @@ end;
 class function TIdTextEncoding.GetEncoding(ACodePage: Integer): TIdTextEncoding;
 begin
   case ACodePage of
-    1200:  Result := TIdUTF16LittleEndianEncoding.Create;
-    1201:  Result := TIdUTF16BigEndianEncoding.Create;
-    65000: Result := TIdUTF7Encoding.Create;
-    20127:
-      // RLebeau: 20127 is the official codepage for ASCII,
-      // but not all OS versions support that codepage...
-      Result := IndyASCIIEncoding(False);
-    65001:
-      // RLebeau: UTF-8 is handled separate from other standard
-      // encodings because we need to avoid the MB_ERR_INVALID_CHARS
-      // flag regardless of whether TIdTextEncoding is implemented
-      // natively or manually...
-      Result := IndyUTF8Encoding(False);
+    1200:  Result := IndyUTF16LittleEndianEncoding(False);
+    1201:  Result := IndyUTF16BigEndianEncoding(False);
+    65000: Result := IndyUTF7Encoding(False);
+    20127: Result := IndyASCIIEncoding(False);
+    65001: Result := IndyUTF8Encoding(False);
   else
     Result := TIdMBCSEncoding.Create(ACodePage);
   end;
@@ -2161,17 +2130,8 @@ class function TIdTextEncoding.GetUnicode: TIdTextEncoding;
 {$ELSE}
 class function TIdTextEncoding.Unicode: TIdTextEncoding;
 {$ENDIF}
-var
-  LEncoding: TIdTextEncoding;
 begin
-  if GIdLEUTF16Encoding = nil then
-  begin
-    LEncoding := TIdUTF16LittleEndianEncoding.Create;
-    if InterlockedCompareExchangePtr(Pointer(GIdLEUTF16Encoding), LEncoding, nil) <> nil then begin
-      LEncoding.Free;
-    end;
-  end;
-  Result := GIdLEUTF16Encoding;
+  Result := IndyUTF16LittleEndianEncoding(True);
 end;
 
 {$IFDEF HAS_CLASSPROPERTIES}
@@ -2179,17 +2139,8 @@ class function TIdTextEncoding.GetUTF7: TIdTextEncoding;
 {$ELSE}
 class function TIdTextEncoding.UTF7: TIdTextEncoding;
 {$ENDIF}
-var
-  LEncoding: TIdTextEncoding;
 begin
-  if GIdUTF7Encoding = nil then
-  begin
-    LEncoding := TIdUTF7Encoding.Create;
-    if InterlockedCompareExchangePtr(Pointer(GIdUTF7Encoding), LEncoding, nil) <> nil then begin
-      LEncoding.Free;
-    end;
-  end;
-  Result := GIdUTF7Encoding;
+  Result := IndyUTF7Encoding(True);
 end;
 
 {$IFDEF HAS_CLASSPROPERTIES}
@@ -2198,9 +2149,6 @@ class function TIdTextEncoding.GetUTF8: TIdTextEncoding;
 class function TIdTextEncoding.UTF8: TIdTextEncoding;
 {$ENDIF}
 begin
-  // RLebeau: UTF-8 is handled separate from other standard encodings
-  // because we need to avoid the MB_ERR_INVALID_CHARS flag regardless
-  // of whether TIdTextEncoding is implemented natively or manually...
   Result := IndyUTF8Encoding(True);
 end;
 
@@ -2215,13 +2163,19 @@ begin
     (AEncoding = GIdUTF8Encoding)
   );
 end;
+{$ENDIF}
 
 { TIdMBCSEncoding }
 
+{$IFDEF TIdMBCSEncoding_NEEDED}
 constructor TIdMBCSEncoding.Create;
 begin
   {$IFDEF USE_ICONV}
-  Create(iif(GIdIconvUseLocaleDependantAnsiEncoding, 'char', 'ASCII')); {do not localize}
+  if GIdIconvUseLocaleDependantAnsiEncoding then begin
+    Create('char'); {do not localize}
+  end else begin
+    Create('ASCII'); {do not localize}
+  end;
   {$ELSE}
     {$IFDEF WINDOWS}
   Create(CP_ACP, 0, 0);
@@ -2232,47 +2186,7 @@ begin
 end;
 
 {$IFDEF USE_ICONV}
-function CreateIconvHandle(const ACharSet: AnsiString; AToUTF16: Boolean): iconv_t;
-const
-  // RLebeau: iconv() outputs a UTF-16 BOM if data is converted to the generic
-  // "UTF-16" charset.  We do not want that, so we will use the "UTF-16LE/BE"
-  // charset explicitally instead so no BOM is outputted. This also saves us
-  // from having to manually detect the presense of a BOM and strip it out.
-  //
-  // TODO: should we be using UTF-16LE or UTF-16BE on big-endian systems?
-  // Delphi uses UTF-16LE, but what does FreePascal use? Let's err on the
-  // side of caution until we know otherwise...
-  //
-  cUTF16CharSet = {$IFDEF ENDIAN_BIG}'UTF-16BE'{$ELSE}'UTF-16LE'{$ENDIF}; {do not localize}
-var
-  LFlags: AnsiString;
-begin
-  // on some systems, //IGNORE must be specified before //TRANSLIT if they
-  // are used together, otherwise //IGNORE gets ignored!
-  LFlags := '';
-  if GIdIconvIgnoreIllegalChars then begin
-    LFlags := LFlags + '//IGNORE'; {do not localize}
-  end;
-  if GIdIconvUseTransliteration then begin
-    LFlags := LFlags + '//TRANSLIT'; {do not localize}
-  end;
-
-  if AToUTF16 then begin
-    Result := iconv_open(PAnsiChar(cUTF16CharSet + LFlags), PAnsiChar(ACharSet));
-  end else begin
-    Result := iconv_open(PAnsiChar(ACharSet + LFlags), cUTF16CharSet);
-  end;
-
-  if Result = iconv_t(-1) then begin
-    if LFlags <> '' then begin
-      raise EIdException.CreateResFmt(@RSInvalidCharSetConvWithFlags, [ACharSet, cUTF16CharSet, LFlags]);
-    end else begin
-      raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
-    end;
-  end;
-end;
-
-constructor TIdMBCSEncoding.Create(const CharSet: AnsiString);
+constructor TIdMBCSEncoding.Create(const CharSet: String);
 const
   // RLebeau: iconv() does not provide a maximum character byte size like
   // Microsoft does, so have to determine the max bytes by manually encoding
@@ -2330,6 +2244,64 @@ end;
 {$ENDIF}
 
 {$IFDEF USE_ICONV}
+function CreateIconvHandle(const ACharSet: String; AToUTF16: Boolean): iconv_t;
+const
+  // RLebeau: iconv() outputs a UTF-16 BOM if data is converted to the generic
+  // "UTF-16" charset.  We do not want that, so we will use the "UTF-16LE/BE"
+  // charset explicitally instead so no BOM is outputted. This also saves us
+  // from having to manually detect the presense of a BOM and strip it out.
+  //
+  // TODO: should we be using UTF-16LE or UTF-16BE on big-endian systems?
+  // Delphi uses UTF-16LE, but what does FreePascal use? Let's err on the
+  // side of caution until we know otherwise...
+  //
+  cUTF16CharSet = {$IFDEF ENDIAN_BIG}'UTF-16BE'{$ELSE}'UTF-16LE'{$ENDIF}; {do not localize}
+var
+  LToCharSet, LFromCharSet, LFlags: String;
+begin
+  // on some systems, //IGNORE must be specified before //TRANSLIT if they
+  // are used together, otherwise //IGNORE gets ignored!
+  LFlags := '';
+  if GIdIconvIgnoreIllegalChars then begin
+    LFlags := LFlags + '//IGNORE'; {do not localize}
+  end;
+  if GIdIconvUseTransliteration then begin
+    LFlags := LFlags + '//TRANSLIT'; {do not localize}
+  end;
+
+  if AToUTF16 then begin
+    LToCharSet := cUTF16CharSet + LFlags;
+    LFromCharSet := ACharSet;
+  end else begin
+    LToCharSet := ACharSet + LFlags;
+    LFromCharSet := cUTF16CharSet;
+  end;
+
+  Result := iconv_open(
+    PAnsiChar(
+      {$IFDEF STRING_IS_ANSI}
+      LToCharSet
+      {$ELSE}
+      AnsiString(LToCharSet) // explicit convert to Ansi
+      {$ENDIF}
+    ),
+    PAnsiChar(
+      {$IFDEF STRING_IS_ANSI}
+      LFromCharSet
+      {$ELSE}
+      AnsiString(LFromCharSet) // explicit convert to Ansi
+      {$ENDIF}
+    )
+  );
+  if Result = iconv_t(-1) then begin
+    if LFlags <> '' then begin
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConvWithFlags, [ACharSet, cUTF16CharSet, LFlags]);
+    end else begin
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+    end;
+  end;
+end;
+
 function CalcUTF16ByteSize(AChars: PWideChar; ACharCount: Integer): Integer;
 var
   C: WideChar;
@@ -2675,7 +2647,6 @@ begin
 
     // do the conversion
     repeat
-      LMaxBytesSize := IndyMin(ByteCount, FMaxCharSize);
       LDestCharSize := CharCount * SizeOf(WideChar);
 
       if Bytes = nil then
@@ -2810,9 +2781,84 @@ begin
     {$ENDIF}
   {$ENDIF}
 end;
+{$ENDIF}
+
+{ TIdASCIIEncoding }
+
+{$IFDEF TIdASCIIEncoding_NEEDED}
+constructor TIdASCIIEncoding.Create;
+begin
+  FIsSingleByte := True;
+  FMaxCharSize := 1;
+end;
+
+function TIdASCIIEncoding.GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer;
+begin
+  Result := ACharCount;
+end;
+
+function TIdASCIIEncoding.GetBytes(AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
+var
+  i : Integer;
+begin
+  Result := IndyMin(ACharCount, AByteCount);
+  for i := 1 to Result do begin
+    // replace illegal characters > $7F
+    if Word(AChars^) > $007F then begin
+      ABytes^ := Byte(Ord('?'));
+    end else begin
+      ABytes^ := Byte(AChars^);
+    end;
+    //advance to next char
+    Inc(AChars);
+    Inc(ABytes);
+  end;
+end;
+
+function TIdASCIIEncoding.GetCharCount(ABytes: PByte; AByteCount: Integer): Integer;
+begin
+  Result := AByteCount;
+end;
+
+function TIdASCIIEncoding.GetChars(ABytes: PByte; AByteCount: Integer;
+  AChars: PIdWideChar; ACharCount: Integer): Integer;
+var
+  i : Integer;
+begin
+  Result := IndyMin(ACharCount, AByteCount);
+  for i := 1 to Result do begin
+    // This is an invalid byte in the ASCII encoding.
+    if ABytes^ > $7F then begin
+      Word(AChars^) := $FFFD;
+    end else begin
+      Word(AChars^) := ABytes^;
+    end;
+    //advance to next byte
+    Inc(AChars);
+    Inc(ABytes);
+  end;
+end;
+
+function TIdASCIIEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
+begin
+  Result := ACharCount;
+end;
+
+function TIdASCIIEncoding.GetMaxCharCount(AByteCount: Integer): Integer;
+begin
+  Result := AByteCount;
+end;
+
+function TIdASCIIEncoding.GetPreamble: TIdTextEncodingBytes;
+begin
+  SetLength(Result, 0);
+end;
+{$ENDIF}
 
 { TIdUTF7Encoding }
 
+{$IFDEF TIdUTF7Encoding_NEEDED}
 constructor TIdUTF7Encoding.Create;
 begin
 {$IFDEF USE_ICONV}
@@ -2857,9 +2903,11 @@ function TIdUTF7Encoding.GetMaxCharCount(ByteCount: Integer): Integer;
 begin
   Result := ByteCount;
 end;
+{$ENDIF}
 
 { TIdUTF8Encoding }
 
+{$IFDEF TIdUTF8Encoding_NEEDED}
 constructor TIdUTF8Encoding.Create;
 begin
 {$IFDEF USE_ICONV}
@@ -2890,9 +2938,11 @@ begin
   Result[1] := $BB;
   Result[2] := $BF;
 end;
+{$ENDIF}
 
 { TIdUTF16LittleEndianEncoding }
 
+{$IFDEF TIdUTF16LittleEndianEncoding_NEEDED}
 constructor TIdUTF16LittleEndianEncoding.Create;
 begin
   FIsSingleByte := False;
@@ -2973,9 +3023,11 @@ begin
   Result[0] := $FF;
   Result[1] := $FE;
 end;
+{$ENDIF}
 
 { TIdUTF16BigEndianEncoding }
 
+{$IFDEF TIdUTF16BigEndianEncoding_NEEDED}
 function TIdUTF16BigEndianEncoding.GetBytes(Chars: PWideChar; CharCount: Integer;
   Bytes: PByte; ByteCount: Integer): Integer;
 {$IFDEF ENDIAN_LITTLE}
@@ -3030,8 +3082,7 @@ begin
   Result[0] := $FE;
   Result[1] := $FF;
 end;
-
-{$ENDIF} // end of {$IFNDEF TIdTextEncoding_IS_NATIVE}
+{$ENDIF}
 
 function enDefault: TIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -3080,6 +3131,30 @@ begin
   Result := TIdTextEncoding.ASCII;
 end;
 
+function IndyUTF16BigEndianEncoding: TIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TIdTextEncoding.BigEndianUnicode;
+end;
+
+function IndyUTF16LittleEndianEncoding: TIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TIdTextEncoding.Unicode;
+end;
+
+function IndyOSDefaultEncoding: TIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TIdTextEncoding.Default;
+end;
+
+function IndyUTF7Encoding: TIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TIdTextEncoding.UTF7;
+end;
+
 function IndyUTF8Encoding: TIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -3087,96 +3162,6 @@ begin
 end;
 
 {$ELSE}
-
-{ TIdASCIIEncoding }
-
-constructor TIdASCIIEncoding.Create;
-begin
-  FIsSingleByte := True;
-  FMaxCharSize := 1;
-end;
-
-function TIdASCIIEncoding.GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer;
-begin
-  Result := ACharCount;
-end;
-
-function TIdASCIIEncoding.GetBytes(AChars: PIdWideChar; ACharCount: Integer;
-  ABytes: PByte; AByteCount: Integer): Integer;
-var
-  i : Integer;
-begin
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
-    // replace illegal characters > $7F
-    if Word(AChars^) > $007F then begin
-      ABytes^ := Byte(Ord('?'));
-    end else begin
-      ABytes^ := Byte(AChars^);
-    end;
-    //advance to next char
-    Inc(AChars);
-    Inc(ABytes);
-  end;
-end;
-
-function TIdASCIIEncoding.GetCharCount(ABytes: PByte; AByteCount: Integer): Integer;
-begin
-  Result := AByteCount;
-end;
-
-function TIdASCIIEncoding.GetChars(ABytes: PByte; AByteCount: Integer;
-  AChars: PIdWideChar; ACharCount: Integer): Integer;
-var
-  i : Integer;
-begin
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
-    // This is an invalid byte in the ASCII encoding.
-    if ABytes^ > $7F then begin
-      Word(AChars^) := $FFFD;
-    end else begin
-      Word(AChars^) := ABytes^;
-    end;
-    //advance to next byte
-    Inc(AChars);
-    Inc(ABytes);
-  end;
-end;
-
-function TIdASCIIEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
-begin
-  Result := ACharCount;
-end;
-
-function TIdASCIIEncoding.GetMaxCharCount(AByteCount: Integer): Integer;
-begin
-  Result := AByteCount;
-end;
-
-function TIdASCIIEncoding.GetPreamble: TIdTextEncodingBytes;
-begin
-  SetLength(Result, 0);
-end;
-
-function IndyASCIIEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
-begin
-  if not AOwnedByIndy then begin
-    LEncoding := TIdASCIIEncoding.Create;
-  end else
-  begin
-    if GIdASCIIEncoding = nil then begin
-      LEncoding := TIdASCIIEncoding.Create;
-      if InterlockedCompareExchangePtr(Pointer(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdASCIIEncoding;
-  end;
-  Result := LEncoding;
-end;
 
 { TId8BitEncoding }
 
@@ -3273,6 +3258,120 @@ begin
       end;
     end;
     LEncoding := GId8BitEncoding;
+  end;
+  Result := LEncoding;
+end;
+
+function IndyASCIIEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := TIdASCIIEncoding.Create;
+  end else
+  begin
+    if GIdASCIIEncoding = nil then begin
+      LEncoding := TIdASCIIEncoding.Create;
+      if InterlockedCompareExchangePtr(Pointer(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdASCIIEncoding;
+  end;
+  Result := LEncoding;
+end;
+
+function IndyUTF16BigEndianEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := TIdUTF16BigEndianEncoding.Create;
+  end else
+  begin
+    if GIdBEUTF16Encoding = nil then
+    begin
+      LEncoding := TIdUTF16BigEndianEncoding.Create;
+      if InterlockedCompareExchangePtr(Pointer(GIdBEUTF16Encoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdBEUTF16Encoding;
+  end;
+  Result := LEncoding;
+end;
+
+function IndyUTF16LittleEndianEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := TIdUTF16LittleEndianEncoding.Create;
+  end else
+  begin
+    if GIdLEUTF16Encoding = nil then
+    begin
+      LEncoding := TIdUTF16LittleEndianEncoding.Create;
+      if InterlockedCompareExchangePtr(Pointer(GIdLEUTF16Encoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdLEUTF16Encoding;
+  end;
+  Result := LEncoding;
+end;
+
+function IndyOSDefaultEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+
+  function CreateOSDefaultEncoding: TIdTextEncoding;
+  begin
+    {$IFDEF USE_ICONV}
+    // weird, but not all systems appear to support 'ASCII' so we will just use our own...
+    if not GIdIconvUseLocaleDependantAnsiEncoding then begin
+      Result := TIdASCIIEncoding.Create;
+    end else begin
+      Result := TIdMBCSEncoding.Create;
+    end;
+    {$ELSE}
+    Result := TIdMBCSEncoding.Create;
+    {$ENDIF}
+  end;
+
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := CreateOSDefaultEncoding;
+  end else
+  begin
+    if GIdDefaultEncoding = nil then
+    begin
+      LEncoding := CreateOSDefaultEncoding;
+      if InterlockedCompareExchangePtr(Pointer(GIdDefaultEncoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdDefaultEncoding;
+  end;
+  Result := LEncoding;
+end;
+
+function IndyUTF7Encoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
+var
+  LEncoding: TIdTextEncoding;
+begin
+  if not AOwnedByIndy then begin
+    LEncoding := TIdUTF7Encoding.Create;
+  end else
+  begin
+    if GIdUTF7Encoding = nil then
+    begin
+      LEncoding := TIdUTF7Encoding.Create;
+      if InterlockedCompareExchangePtr(Pointer(GIdUTF7Encoding), LEncoding, nil) <> nil then begin
+        LEncoding.Free;
+      end;
+    end;
+    LEncoding := GIdUTF7Encoding;
   end;
   Result := LEncoding;
 end;
@@ -7459,11 +7558,12 @@ initialization
 finalization
   FreeAndNil(GIdPorts);
   FreeAndNil(GId8BitEncoding);
+  FreeAndNil(GIdDefaultEncoding);
   FreeAndNil(GIdASCIIEncoding);
   FreeAndNil(GIdUTF8Encoding);
-  {$IFNDEF TIdTextEncoding_IS_NATIVE}
-  TIdTextEncoding.FreeEncodings;
-  {$ENDIF}
+  FreeAndNil(GIdUTF7Encoding);
+  FreeAndNil(GIdLEUTF16Encoding);
+  FreeAndNil(GIdBEUTF16Encoding);
 {$ENDIF}
 
 end.

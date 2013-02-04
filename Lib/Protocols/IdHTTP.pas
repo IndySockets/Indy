@@ -1488,10 +1488,10 @@ begin
                 end;
               end;
               xmlUTF16BE: begin
-                XmlDec := ReadStringFromStream(AStream, CurPos, TIdTextEncoding.BigEndianUnicode);
+                XmlDec := ReadStringFromStream(AStream, CurPos, IndyUTF16BigEndianEncoding);
               end;
               xmlUTF16LE: begin
-                XmlDec := ReadStringFromStream(AStream, CurPos, TIdTextEncoding.Unicode);
+                XmlDec := ReadStringFromStream(AStream, CurPos, IndyUTF16LittleEndianEncoding);
               end;
               xmlUTF8: begin
                 XmlDec := ReadStringFromStream(AStream, CurPos, Indy8BitEncoding);

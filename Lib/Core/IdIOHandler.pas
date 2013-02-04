@@ -2377,7 +2377,7 @@ begin
   FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
   FDefStringEncoding := IndyASCIIEncoding;
   {$IFDEF STRING_IS_ANSI}
-  FDefAnsiEncoding := TIdTextEncoding.Default;
+  FDefAnsiEncoding := IndyOSDefaultEncoding;
   {$ENDIF}
 end;
 

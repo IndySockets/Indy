@@ -106,9 +106,9 @@ var
   StartTime: Cardinal;
 begin
   {$IFDEF STRING_IS_UNICODE}
-  LEncoding := TIdTextEncoding.Unicode;
+  LEncoding := IndyUTF16LittleEndianEncoding;
   {$ELSE}
-  LEncoding := TIdTextEncoding.Default;
+  LEncoding := IndyOSDefaultEncoding;
   {$ENDIF}
   {Send time monitoring}
   LBuffer := ToBytes(AText, LEncoding);

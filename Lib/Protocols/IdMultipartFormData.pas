@@ -695,7 +695,7 @@ begin
           end else begin
             // base64
             {$IFDEF STRING_IS_UNICODE}
-            TIdEncoderMIME.EncodeString(FFieldValue, LStream, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+            TIdEncoderMIME.EncodeString(FFieldValue, LStream, LEncoding{$IFDEF STRING_IS_ANSI}, IndyOSDefaultEncoding{$ENDIF});
             {$ELSE}
             TIdEncoderMIME.EncodeBytes(LBytes, LStream);
             {$ENDIF}

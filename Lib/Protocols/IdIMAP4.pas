@@ -2486,10 +2486,10 @@ begin
               if LUseUTF8QuotedString then begin
                 LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' *'; {Do not Localize}
                 IOHandler.Write(LCmd);
-                IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+                IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding{$IFDEF STRING_IS_ANSI}, IndyOSDefaultEncoding{$ENDIF});
               end else
               begin
-                LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+                LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, IndyOSDefaultEncoding{$ENDIF});
                 if LUseNonSyncLiteral then begin
                   LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
                 end else begin
@@ -3346,7 +3346,7 @@ var
         {$IFNDEF DOTNET}
         try
         {$ENDIF}
-          AText := ReadStringFromStream(LStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, TIdTextEncoding.Default{$ENDIF});
+          AText := ReadStringFromStream(LStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, IndyOSDefaultEncoding{$ENDIF});
         {$IFNDEF DOTNET}
         finally
           LEncoding.Free;
