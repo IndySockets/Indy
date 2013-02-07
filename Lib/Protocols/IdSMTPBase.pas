@@ -258,7 +258,7 @@ procedure TIdSMTPBase.SendNoPipelining(AMsg: TIdMessage; const AFrom: String; AR
 var
   LCmd: string;
 begin
-  LCmd := MAILFROM_CMD + ' <' + AFrom + '>';    {Do not Localize}
+  LCmd := MAILFROM_CMD + '<' + AFrom + '>';    {Do not Localize}
   if FUseVerp then begin
     if Capabilities.IndexOf(CAPAVERP) > -1 then begin
       LCmd := LCmd + ' VERP';                   {Do not Localize}
@@ -299,7 +299,7 @@ var
 
 begin
   LError := nil;
-  LCmd := MAILFROM_CMD + ' <' + AFrom + '>';    {Do not Localize}
+  LCmd := MAILFROM_CMD + '<' + AFrom + '>';    {Do not Localize}
   if FUseVerp then begin
     if Capabilities.IndexOf(CAPAVERP) > -1 then begin
       LCmd := LCmd + ' VERP';                   {Do not Localize}
