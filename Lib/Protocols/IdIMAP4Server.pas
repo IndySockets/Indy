@@ -604,31 +604,31 @@ end;
 function TIdIMAP4Server.CreateExceptionReply: TIdReply;
 begin
   Result := TIdReplyIMAP4.CreateWithReplyTexts(nil, ReplyTexts);
-  Result.SetReply('BAD', 'Unknown Internal Error'); {do not localize}
+  Result.SetReply(IMAP_BAD, 'Unknown Internal Error'); {do not localize}
 end;
 
 function TIdIMAP4Server.CreateGreeting: TIdReply;
 begin
   Result := TIdReplyIMAP4.CreateWithReplyTexts(nil, ReplyTexts);
-  Result.SetReply('OK', 'Welcome'); {do not localize}
+  Result.SetReply(IMAP_OK, 'Welcome'); {do not localize}
 end;
 
 function TIdIMAP4Server.CreateHelpReply: TIdReply;
 begin
   Result := TIdReplyIMAP4.CreateWithReplyTexts(nil, ReplyTexts);
-  Result.SetReply('OK', 'Help follows'); {do not localize}
+  Result.SetReply(IMAP_OK, 'Help follows'); {do not localize}
 end;
 
 function TIdIMAP4Server.CreateMaxConnectionReply: TIdReply;
 begin
   Result := TIdReplyIMAP4.CreateWithReplyTexts(nil, ReplyTexts);
-  Result.SetReply('BAD', 'Too many connections. Try again later.'); {do not localize}
+  Result.SetReply(IMAP_BAD, 'Too many connections. Try again later.'); {do not localize}
 end;
 
 function TIdIMAP4Server.CreateReplyUnknownCommand: TIdReply;
 begin
   Result := TIdReplyIMAP4.CreateWithReplyTexts(nil, ReplyTexts);
-  Result.SetReply('BAD', 'Unknown command'); {do not localize}
+  Result.SetReply(IMAP_BAD, 'Unknown command'); {do not localize}
 end;
 
 constructor TIdIMAP4PeerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
@@ -1308,13 +1308,13 @@ begin
           end;
           case LStoreMethod of
             sdAdd, sdReplace:
-	      begin
-	        LMessage.Flags := LMessage.Flags + [LCMsgFlags[LFlag]];
-	      end;
+            begin
+              LMessage.Flags := LMessage.Flags + [LCMsgFlags[LFlag]];
+            end;
             sdRemove:
-	      begin
-	        LMessage.Flags := LMessage.Flags - [LCMsgFlags[LFlag]];
-	      end;
+            begin
+              LMessage.Flags := LMessage.Flags - [LCMsgFlags[LFlag]];
+            end;
           end;
         end;
         if not LSilent then begin
@@ -1346,106 +1346,132 @@ begin
   with CommandHandlers.Add do begin
     Command := 'CAPABILITY';  {do not localize}
     OnCommand := DoCommandCAPABILITY;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'NOOP';  {do not localize}
     OnCommand := DoCommandNOOP;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'LOGOUT';  {do not localize}
     OnCommand := DoCommandLOGOUT;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'AUTHENTICATE';  {do not localize}
     OnCommand := DoCommandAUTHENTICATE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'LOGIN'; {do not localize}
     OnCommand := DoCommandLOGIN;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'SELECT';  {do not localize}
     OnCommand := DoCommandSELECT;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'EXAMINE'; {do not localize}
     OnCommand := DoCommandEXAMINE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'CREATE';  {do not localize}
     OnCommand := DoCommandCREATE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'DELETE';  {do not localize}
     OnCommand := DoCommandDELETE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'RENAME';  {do not localize}
     OnCommand := DoCommandRENAME;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'SUBSCRIBE'; {do not localize}
     OnCommand := DoCommandSUBSCRIBE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'UNSUBSCRIBE'; {do not localize}
     OnCommand := DoCommandUNSUBSCRIBE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'LIST';  {do not localize}
     OnCommand := DoCommandLIST;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'LSUB';  {do not localize}
     OnCommand := DoCommandLSUB;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'STATUS';  {do not localize}
     OnCommand := DoCommandSTATUS;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'APPEND';  {do not localize}
     OnCommand := DoCommandAPPEND;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'CHECK'; {do not localize}
     OnCommand := DoCommandCHECK;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'CLOSE'; {do not localize}
     OnCommand := DoCommandCLOSE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'EXPUNGE'; {do not localize}
     OnCommand := DoCommandEXPUNGE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'SEARCH';  {do not localize}
     OnCommand := DoCommandSEARCH;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'FETCH'; {do not localize}
     OnCommand := DoCommandFETCH;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'STORE'; {do not localize}
     OnCommand := DoCommandSTORE;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'COPY';  {do not localize}
     OnCommand := DoCommandCOPY;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'UID'; {do not localize}
     OnCommand := DoCommandUID;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'X'; {do not localize}
     OnCommand := DoCommandX;
+    NormalReply.Code := IMAP_OK;
   end;
   with CommandHandlers.Add do begin
     Command := 'STARTTLS';  {do not localize}
     OnCommand := DoCommandSTARTTLS;
+    NormalReply.Code := IMAP_OK;
   end;
   with FCommandHandlers do begin
     OnBeforeCommandHandler := DoBeforeCmd;
