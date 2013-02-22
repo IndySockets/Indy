@@ -78,7 +78,7 @@ type
   end;
 
   {$IFDEF TSelectionEditor}
-    {$IFDEF USEOPENSSL}
+    {$IFDEF USE_OPENSSL}
   TIdOpenSSLSelectionEditor = class(TSelectionEditor)
   public
     procedure RequiresUnits(Proc: TGetStrProc); override;
@@ -104,7 +104,7 @@ uses
   IdDsnSASLListEditorFormVCL,
   {$ENDIF}
   {$IFDEF TSelectionEditor}
-    {$IFDEF USEOPENSSL}
+    {$IFDEF USE_OPENSSL}
    IdSSLOpenSSL,
     {$ENDIF}
    IdFTPServer,
@@ -138,11 +138,11 @@ end;
 
 {$IFDEF TSelectionEditor}
 
-  {$IFDEF USEOPENSSL}
+  {$IFDEF USE_OPENSSL}
 
-  {TIdOpenSSLSelectionEditor}
+{TIdOpenSSLSelectionEditor}
 
-  procedure TIdOpenSSLSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+procedure TIdOpenSSLSelectionEditor.RequiresUnits(Proc: TGetStrProc);
 begin
   inherited RequiresUnits(Proc);
   //for new callback event
@@ -152,7 +152,7 @@ end;
 
   {$ENDIF}
 
-  {TIdFTPServerSelectionEditor}
+{TIdFTPServerSelectionEditor}
 
 procedure TIdFTPServerSelectionEditor.RequiresUnits(Proc: TGetStrProc);
 begin
@@ -174,8 +174,13 @@ begin
   inherited Edit;
 
   LComp := GetComponent(0);
+
   //done this way to prevent invalid typecast error.
-  LList := TIdSASLEntries(TObject(GetOrdProp(LComp, GetPropInfo)));
+  {$IFDEF HAS_GetObjectProp}
+  LList := TIdSASLEntries(GetObjectProp(LComp, GetPropInfo, TIdSASLEntries));
+  {$ELSE}
+  LList := TObject(GetOrdProp(LComp, GetPropInfo))) as TIdSASLEntries;
+  {$ENDIF}
 
   LF := TfrmSASLListEditor.Create(nil);
   try
@@ -210,11 +215,10 @@ procedure Register;
 begin
   RegisterPropertyEditor(TypeInfo(TIdSASLEntries), nil, '', TIdPropEdSASL);
   {$IFDEF TSelectionEditor}
-     {$IFDEF USEOPENSSL}
+    {$IFDEF USE_OPENSSL}
   RegisterSelectionEditor(TIdServerIOHandlerSSLOpenSSL, TIdOpenSSLSelectionEditor);
   RegisterSelectionEditor(TIdSSLIOHandlerSocketOpenSSL, TIdOpenSSLSelectionEditor);
-
-     {$ENDIF}
+    {$ENDIF}
   RegisterSelectionEditor(TIdFTPServer,TIdFTPServerSelectionEditor);
   {$ENDIF}
 end;
