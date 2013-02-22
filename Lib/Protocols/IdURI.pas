@@ -515,7 +515,12 @@ begin
     LURI := LURI + '@';    {Do not Localize}
   end;
 
-  LURI := LURI + FHost;
+  if IPVersion = Id_IPv6 then begin
+    LURI := LURI + '[' + FHost + ']';    {Do not Localize}
+  end else begin
+    LURI := LURI + FHost;
+  end;
+
   if FPort <> '' then begin
     case PosInStrArray(FProtocol, ['HTTP', 'HTTPS', 'FTP'], False) of {Do not Localize}
       0:
