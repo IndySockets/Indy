@@ -368,7 +368,7 @@ type
   // Protocol options
   TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams,
     hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv, hoWaitForUnexpectedData,
-    hoTreat302Like303);
+    hoTreat302Like303, hoNoProtocolErrorException);
   TIdHTTPOptions = set of TIdHTTPOption;
 
   // Must be documented
@@ -2371,6 +2371,9 @@ var
       Response.ContentStream := LTempResponse;
       try
         FHTTP.ReadResult(Request, Response);
+        if hoNoProtocolErrorException in FHTTP.HTTPOptions then begin
+          Exit;
+        end;
         if High(AIgnoreReplies) > -1 then begin
           for i := Low(AIgnoreReplies) to High(AIgnoreReplies) do begin
             if LResponseCode = AIgnoreReplies[i] then begin
