@@ -2596,14 +2596,39 @@ var
   end;
 
   function ParseMonth(const AStr: String): Boolean;
+  var
+    S, LTemp: String;
   begin
     {
     month           = ( "jan" / "feb" / "mar" / "apr" /
                        "may" / "jun" / "jul" / "aug" /
                        "sep" / "oct" / "nov" / "dec" ) *OCTET
     }
+    Result := False;
+
     LMonth := PosInStrArray(Copy(AStr, 1, 3), ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'], False) + 1;
-    Result := LMonth <> 0;
+    if LMonth = 0 then begin
+      // RLebeau: per JP, some cookies have been encountered that use numbers
+      // instead of names, even though this is not allowed by various RFCs...
+      S := AStr;
+      LTemp := ExtractDigits(S, 1, 2);
+      if LTemp = '' then begin
+        Exit;
+      end;
+      if S <> '' then begin
+        if IsNumeric(AStr, 1, 3) then begin
+          raise Exception.Create('Invalid Cookie Month');
+        end;
+      end;
+      if not TryStrToInt(LTemp, LMonth) then begin
+        Exit;
+      end;
+      if (LMonth < 1) or (LMonth > 12) then begin
+        raise Exception.Create('Invalid Cookie Month');
+      end;
+    end;
+
+    Result := True;
   end;
 
   function ParseYear(const AStr: String): Boolean;
