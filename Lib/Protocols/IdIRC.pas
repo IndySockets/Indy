@@ -452,7 +452,7 @@ uses
 
 const
   IdIRCCTCP: array[0..10] of String = ('ACTION', 'SOUND', 'PING', 'FINGER', {do not localize}
-    'USERINFO', 'VERSION', 'CLIENTINFO', 'TIME', 'ERROR', 'DCC', 'SED');  {do not localize}
+    'USERINFO', 'VERSION', 'CLIENTINFO', 'TIME', 'ERROR', 'DCC', 'SED', 'ERRMSG');  {do not localize}
 
   MQuote = #16;
   XDelim = #1;
@@ -1337,7 +1337,7 @@ begin
   471  ERR_CHANNELISFULL  RFC1459  <channel> :<reason>  Returned when attempting to join a channel which is set +l and is already full  
   472  ERR_UNKNOWNMODE  RFC1459  <char> :<reason>  Returned when a given mode is unknown  
   473  ERR_INVITEONLYCHAN  RFC1459  <channel> :<reason>  Returned when attempting to join a channel which is invite only without an invitation  
-  474  ERR_BANNEDFROMCHAN  RFC1459  <channel> :<reason>  Returned when attempting to join a channel a user is banned from  
+  474  ERR_BANNEDFROMCHAN  RFC1459  <channel> :<reason>  Returned when attempting to join a channel a user is banned from
   475  ERR_BADCHANNELKEY  RFC1459  <channel> :<reason>  Returned when attempting to join a key-locked channel either without a key or with the wrong key  
   476  ERR_BADCHANMASK  RFC2812  <channel> :<reason>  The given channel mask was invalid
   478  ERR_BANLISTFULL  RFC2812  <channel> <char> :<reason>  Returned when a channel access list (i.e. ban list etc) is full and cannot be added to
@@ -1421,7 +1421,7 @@ begin
   712  ERR_TOOMANYKNOCK  RatBox  <channel> :<text>  Message returned when too many KNOCKs for a channel have been sent by a user  
   713  ERR_CHANOPEN  RatBox  <channel> :<text>  Message returned from KNOCK when the channel can be freely joined by the user  
   714  ERR_KNOCKONCHAN  RatBox  <channel> :<text>  Message returned from KNOCK when the user has used KNOCK on a channel they have already joined  
-  715  ERR_KNOCKDISABLED  RatBox  :<text>  Returned from KNOCK when the command has been disabled  
+  715  ERR_KNOCKDISABLED  RatBox  :<text>  Returned from KNOCK when the command has been disabled
   716  RPL_TARGUMODEG  RatBox  <nick> :<info>  Sent to indicate the given target is set +g (server-side ignore)  
   717  RPL_TARGNOTIFY  RatBox  <nick> :<info>  Sent following a PRIVMSG/NOTICE to indicate the target has been notified of an attempt to talk to them while they are set +g  
   718  RPL_UMODEGMSG  RatBox  <nick> <user>@<host> :<info>  Sent to a user who is +g to inform them that someone has attempted to talk to them (via PRIVMSG/NOTICE), and that they will need to be accepted (via the ACCEPT command) before being able to talk to them  
@@ -1540,7 +1540,8 @@ begin
               if Assigned(FOnCTCPQry) then begin
                 FOnCTCPQry(ASender.Context, FSenderNick, FSenderHost, LTarget, LCTCP, LData);
               end;
-              CTCPReply(FSenderNick, 'ERRMSG', LCTCP +' ' + LData + ' unknown query'); {do not localize}
+              // RLebeau: CTCP ACTION does not send a reply back
+              //CTCPReply(FSenderNick, 'ERRMSG', LCTCP +' ' + LData + ' unknown query'); {do not localize}
             end;
           1: { SOUND }
             begin
@@ -1609,6 +1610,10 @@ begin
                 FOnCTCPQry(ASender.Context, FSenderNick, FSenderHost, LTarget, LCTCP, LData);
               end;
               CTCPReply(FSenderNick, LCTCP, LData + ' unknown query'); {do not localize}
+            end;
+          11: { ERRMSG }
+            begin
+              CTCPReply(FSenderNick, LCTCP, LData + ' No Error'); {do not localize}
             end;
           else
             begin
