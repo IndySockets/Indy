@@ -3782,10 +3782,22 @@ begin
         Inc(VPos);
         if TextIsSame(LWord, 'CONTENT') then begin
           Result := Result + ' ' + ParseUntil(AStr, LQuoteChar, VPos, ALen);
+          Inc(VPos);
+          // RLebeau: this is a special case for handling a malformed tag
+          // that was encountered in the wild:
+          // <meta http-equiv="Content-Type" content="text/html; charset="window-1255">
+          if VPos > ALen then begin
+            Break;
+          end;
+          if CharIsInSet(AStr, VPos, HTML_DOCWHITESPACE + '/>') then begin
+            Continue;
+          end;
+          Result := Result + ParseUntil(AStr, LQuoteChar, VPos, ALen);
+          Inc(VPos);
         end else begin
           DiscardUntil(AStr, LQuoteChar, VPos, ALen);
+          Inc(VPos);
         end;
-        Inc(VPos);
       end else begin
         if TextIsSame(LWord, 'CONTENT') then begin
           Result := Result + ' ' + ParseUntilCharOrEndOfTag(AStr, ' ', VPos, ALen); {do not localize}
@@ -3793,6 +3805,8 @@ begin
           DiscardUntilCharOrEndOfTag(AStr, ' ', VPos, ALen); {do not localize}
         end;
       end;
+    end else begin
+      Inc(VPos);
     end;
   until False;
 end;
