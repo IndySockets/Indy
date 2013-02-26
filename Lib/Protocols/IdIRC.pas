@@ -451,7 +451,7 @@ uses
   IdStack, IdBaseComponent, SysUtils;
 
 const
-  IdIRCCTCP: array[0..10] of String = ('ACTION', 'SOUND', 'PING', 'FINGER', {do not localize}
+  IdIRCCTCP: array[0..11] of String = ('ACTION', 'SOUND', 'PING', 'FINGER', {do not localize}
     'USERINFO', 'VERSION', 'CLIENTINFO', 'TIME', 'ERROR', 'DCC', 'SED', 'ERRMSG');  {do not localize}
 
   MQuote = #16;
