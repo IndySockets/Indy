@@ -174,7 +174,7 @@ begin
 
         if LResultList.Count > 0 then begin
           if LResultList.Count > 1 then begin
-            LResultList.Sort(@SortCookiesFunc);
+            LResultList.Sort(TListSortCompare(@SortCookiesFunc));
           end;
 
           LNow := Now;
