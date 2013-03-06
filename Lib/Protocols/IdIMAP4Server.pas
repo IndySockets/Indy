@@ -1526,7 +1526,8 @@ begin
     Exit;
   end;
   {Tell the client our capabilities...}
-  SendOkReply(ASender, 'IMAP4rev1 AUTH=PLAIN'); {Do not Localize}
+  DoSendReply(ASender.Context, '* CAPABILITY IMAP4rev1 AUTH=PLAIN'); {Do not Localize}
+  SendOkReply(ASender, 'Completed'); {Do not Localize}
 end;
 
 procedure TIdIMAP4Server.DoCommandNOOP(ASender: TIdCommand);

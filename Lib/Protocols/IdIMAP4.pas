@@ -2305,10 +2305,8 @@ begin
   ASlCapability.Clear;
   SendCmd(NewCmdCounter, IMAP4Commands[CmdCapability], [IMAP4Commands[CmdCapability]]);
   if LastCmdResult.Code = IMAP_OK then begin
-    // RLebeau: logically, the text should go in LastCmdResult.Text,
-    // but it actually ends up in TIdReplyIMAP4.Extra instead...
-    if TIdReplyIMAP4(LastCmdResult).Extra.Count > 0 then begin
-      BreakApart(TIdReplyIMAP4(LastCmdResult).Extra[0], ' ', ASlCapability);        {Do not Localize}
+    if LastCmdResult.Text.Count > 0 then begin
+      BreakApart(LastCmdResult.Text[0], ' ', ASlCapability);        {Do not Localize}
     end;
     // RLebeau: do not delete the first item anymore! It specifies the IMAP
     // version/revision, which is needed to support certain extensions, like
