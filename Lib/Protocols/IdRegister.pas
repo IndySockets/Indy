@@ -726,6 +726,7 @@ begin
    TIdServerCompressionIntercept,
    {$ENDIF}
    TIdBlockCipherIntercept,
+   TIdServerBlockCipherIntercept,
    TIdServerInterceptLogEvent,
    TIdServerInterceptLogFile
    ]);
