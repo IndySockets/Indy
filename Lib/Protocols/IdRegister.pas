@@ -558,6 +558,7 @@ begin
 
   RegisterComponents(RSRegIndyIntercepts, [
    TIdBlockCipherIntercept,
+   TIdServerBlockCipherIntercept,
    {$IFDEF USE_ZLIB_UNIT}
    TIdCompressionIntercept,
    TIdServerCompressionIntercept,

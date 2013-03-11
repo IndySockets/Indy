@@ -79,6 +79,17 @@ type
     property  BlockSize: Integer read FBlockSize write SetBlockSize default IdBlockCipherBlockSizeDefault;
   end;
 
+  TIdServerBlockCipherIntercept = class(TIdServerIntercept)
+  protected
+    FBlockSize: Integer;
+    procedure InitComponent; override;
+  public
+    procedure Init; override;
+    function Accept(AConnection: TComponent): TIdConnectionIntercept; override;
+  published
+    property BlockSize: Integer read FBlockSize write FBlockSize default IdBlockCipherBlockSizeDefault;
+  end;
+
   EIdBlockCipherInterceptException = EIdException; {block length}
 
 implementation
@@ -86,6 +97,8 @@ implementation
 uses
   IdResourceStrings,
   SysUtils;
+
+{ TIdBlockCipherIntercept }
 
 //const
 //  bitLongTail = $80; //future: for IdBlockCipherBlockSizeMax>256
@@ -231,6 +244,24 @@ begin
   inherited InitComponent;
   FBlockSize := IdBlockCipherBlockSizeDefault;
   SetLength(FIncoming, 0);
+end;
+
+{ TIdServerBlockCipherIntercept }
+
+procedure TIdServerBlockCipherIntercept.InitComponent;
+begin
+  inherited InitComponent;
+  FBlockSize := IdBlockCipherBlockSizeDefault;
+end;
+
+procedure TIdServerBlockCipherIntercept.Init;
+begin
+end;
+
+function TIdServerBlockCipherIntercept.Accept(AConnection: TComponent): TIdConnectionIntercept;
+begin
+  Result := TIdBlockCipherIntercept.Create(nil);
+  TIdBlockCipherIntercept(Result).BlockSize := BlockSize;
 end;
 
 end.
