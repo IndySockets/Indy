@@ -114,6 +114,7 @@ type
     FResponseInfo: TIdHTTPResponseInfo;
     FSent: Boolean;
     FThread: TIdContext;
+    FContentType: AnsiString; // Workaround to preserve value of ContentType property
     //
     function GetContent: AnsiString; override;
     function GetDateVariable(Index: Integer): TDateTime; override;
@@ -487,10 +488,7 @@ begin
     {$IFNDEF DOTNET}
   try
     {$ENDIF}
-    LBytes := TIdTextEncoding.Unicode.GetBytes(FResponseInfo.ContentText);
-    if LEncoding <> TIdTextEncoding.Unicode then begin
-      LBytes := TIdTextEncoding.Convert(TIdTextEncoding.Unicode, LEncoding, LBytes);
-    end;
+    LBytes := LEncoding.GetBytes(FResponseInfo.ContentText);
     {$IFDEF DOTNET}
     // RLebeau: how to handle this correctly in .NET?
     Result := AnsiString(BytesToStringRaw(LBytes));
@@ -590,7 +588,13 @@ begin
     INDEX_RESP_Allow             :Result := AnsiString(FResponseInfo.CustomHeaders.Values['Allow']);        {do not localize}
     INDEX_RESP_Location          :Result := AnsiString(FResponseInfo.Location);
     INDEX_RESP_ContentEncoding   :Result := AnsiString(FResponseInfo.ContentEncoding);
-    INDEX_RESP_ContentType       :Result := AnsiString(FResponseInfo.ContentType);
+    INDEX_RESP_ContentType       :
+    begin
+      if FContentType <> '' then begin
+        Result := FContentType;
+      end else begin
+        Result := AnsiString(FResponseInfo.ContentType);
+    end;
     INDEX_RESP_ContentVersion    :Result := AnsiString(FResponseInfo.ContentVersion);
     INDEX_RESP_DerivedFrom       :Result := AnsiString(FResponseInfo.CustomHeaders.Values['Derived-From']); {do not localize}
     INDEX_RESP_Title             :Result := AnsiString(FResponseInfo.CustomHeaders.Values['Title']);        {do not localize}
@@ -611,7 +615,11 @@ begin
     INDEX_RESP_Allow             :FResponseInfo.CustomHeaders.Values['Allow'] := string(Value); {do not localize}
     INDEX_RESP_Location          :FResponseInfo.Location := string(Value);
     INDEX_RESP_ContentEncoding   :FResponseInfo.ContentEncoding := string(Value);
-    INDEX_RESP_ContentType       :FResponseInfo.ContentType := string(Value);
+    INDEX_RESP_ContentType       :
+    begin
+      FResponseInfo.ContentType := string(Value);
+      FContentType := Value;
+    end;
     INDEX_RESP_ContentVersion    :FResponseInfo.ContentVersion := string(Value);
     INDEX_RESP_DerivedFrom       :FResponseInfo.CustomHeaders.Values['Derived-From'] := string(Value);  {do not localize}
     INDEX_RESP_Title             :FResponseInfo.CustomHeaders.Values['Title'] := string(Value); {do not localize}
@@ -648,9 +656,31 @@ end;
 
 procedure TIdHTTPAppResponse.SetContent(const AValue: AnsiString);
 var
- LValue : string;
+  LValue : string;
+  {$IFDEF STRING_IS_UNICODE}
+  LEncoding: TIdTextEncoding;
+  {$ENDIF}
 begin
+  {$IFDEF STRING_IS_UNICODE}
+  // RLebeau 3/28/2013: decode the content using the specified charset.
+  if FResponseInfo.CharSet <> '' then begin
+    LEncoding := CharsetToEncoding(FResponseInfo.CharSet);
+    {$IFNDEF DOTNET}
+    try
+    {$ENDIF}
+      // AValue contains Encoded bytes
+      LValue := LEncoding.GetString(BytesOf(AValue));
+    {$IFNDEF DOTNET}
+    finally
+      LEncoding.Free;
+    end;
+    {$ENDIF}
+  end else begin
+    LValue := string(AValue);
+  end;
+  {$ELSE}
   LValue := string(AValue);
+  {$ENDIF}
   FResponseInfo.ContentText := LValue;
   FResponseInfo.ContentLength := Length(LValue);
 end;
