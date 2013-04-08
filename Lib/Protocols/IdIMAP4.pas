@@ -5117,16 +5117,33 @@ var
   LBracketLevel: Integer;
   Ln: Integer;
   LInQuotesInsideBrackets: Boolean;
+  LInQuotedSpecial: Boolean;
+
+  function ResolveQuotedSpecials(const AParam: string): string;
+  begin
+    // Handle quoted_specials, RFC1730
+    // \ with other chars than " or \ after, looks illegal in RFC1730, but leave them untouched
+    Result := StringReplace(AParam, '\"', '"', [rfReplaceAll]);
+    Result := StringReplace(Result, '\\', '\', [rfReplaceAll]);
+  end;
+
 begin
   LStartPos := 0; {Stop compiler whining}
   LBracketLevel := 0; {Stop compiler whining}
   LInQuotesInsideBrackets := False;  {Stop compiler whining}
+  LInQuotedSpecial := False; {Stop compiler whining}
   LInPart := 0;   {0 is not in a part, 1 is in a quote-delimited part, 2 is in a bracketted parameter-pair list}
   for Ln := 1 to Length(APartString) do begin
     if LInPart = 1 then begin
-      if APartString[Ln] = '"' then begin {Do not Localize}
+      if LInQuotedSpecial then begin
+        LInQuotedSpecial := False;
+      end
+      else if APartString[Ln] = '\' then begin {Do not Localize}
+        LInQuotedSpecial := True;
+      end
+      else if APartString[Ln] = '"' then begin {Do not Localize}
         LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-        AParams.Add(LParamater);
+        AParams.Add(ResolveQuotedSpecials(LParamater));
         LInPart := 0;
       end;
     end else if LInPart = 2 then begin
