@@ -271,9 +271,17 @@ begin
   end;
   // Get the document
   FDocument := LURI;
-  // Parse the # bookmark from the document
-  FBookmark := FDocument;
-  FDocument := Fetch(FBookmark, '#');    {Do not Localize}
+  // Parse the # bookmark as needed
+  // RLebeau: if FParams is not blank then the bookmark is at the end
+  // of FParams, otherwise it is at the end of FDocument instead...
+  if IndyPos('#', FParams) > 0 then begin   {Do not Localize}
+    FBookmark := FParams;
+    FParams := Fetch(FBookmark, '#');       {Do not Localize}
+  end
+  else if IndyPos('#', FDocument) > 0 then begin  {Do not Localize}
+    FBookmark := FDocument;
+    FDocument := Fetch(FBookmark, '#');    {Do not Localize}
+  end;
 end;
 
 function TIdURI.GetURI: String;
