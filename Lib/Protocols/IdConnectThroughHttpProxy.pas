@@ -110,7 +110,7 @@ begin
       end;
       Fetch(LStatus);// to remove the http/1.0 or http/1.1
       LResponseCode := IndyStrToInt(Fetch(LStatus, ' ', False), 200); // if invalid response then we assume it succeeded
-      if (LResponseCode = 407) and (not ALogin) and ((Length(Username) > 0) or Length(Password) > 0) then begin // authorization required
+      if (LResponseCode = 407) and (not ALogin) and ((Length(Username) > 0) or (Length(Password) > 0)) then begin // authorization required
         if TextIsSame(LHeaders.Values['Proxy-Connection'], 'close') or {do not localize}
            TextIsSame(LHeaders.Values['Connection'], 'close') then begin {do not localize}
           // need to reconnect before trying again with login
