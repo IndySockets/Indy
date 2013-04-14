@@ -218,6 +218,19 @@ begin
     if LTokenPos > 0 then begin
       FParams := Copy(LURI, LTokenPos + 1, MaxInt);
       LURI := Copy(LURI, 1, LTokenPos - 1);
+      // separate the bookmark from the parameters
+      LTokenPos := IndyPos('#', FParams);    {Do not Localize}
+      if LTokenPos > 0 then begin   {Do not Localize}
+        FBookmark := FParams;
+        FParams := Fetch(FBookmark, '#');       {Do not Localize}
+      end;
+    end else begin
+      // separate the path from the bookmark
+      LTokenPos := IndyPos('#', LURI);    {Do not Localize}
+      if LTokenPos > 0 then begin   {Do not Localize}
+        FBookmark := Copy(LURI, LTokenPos + 1, MaxInt);
+        LURI := Copy(LURI, 1, LTokenPos - 1);
+      end;
     end;
     // Get the user name, password, host and the port number
     LBuffer := Fetch(LURI, '/', True);    {Do not Localize}
@@ -261,6 +274,19 @@ begin
     if LTokenPos > 0 then begin // The case when there is parameters after the document name
       FParams := Copy(LURI, LTokenPos + 1, MaxInt);
       LURI := Copy(LURI, 1, LTokenPos - 1);
+      // separate the bookmark from the parameters
+      LTokenPos := IndyPos('#', FParams);    {Do not Localize}
+      if LTokenPos > 0 then begin
+        FBookmark := FParams;
+        FParams := Fetch(FBookmark, '#');       {Do not Localize}
+      end;
+    end else begin
+      // separate the bookmark from the path
+      LTokenPos := IndyPos('#', LURI);    {Do not Localize}
+      if LTokenPos > 0 then begin // The case when there is a bookmark after the document name
+        FBookmark := Copy(LURI, LTokenPos + 1, MaxInt);
+        LURI := Copy(LURI, 1, LTokenPos - 1);
+      end;
     end;
     // Get the path
     LTokenPos := RPos('/', LURI, -1);    {Do not Localize}
@@ -271,17 +297,6 @@ begin
   end;
   // Get the document
   FDocument := LURI;
-  // Parse the # bookmark as needed
-  // RLebeau: if FParams is not blank then the bookmark is at the end
-  // of FParams, otherwise it is at the end of FDocument instead...
-  if IndyPos('#', FParams) > 0 then begin   {Do not Localize}
-    FBookmark := FParams;
-    FParams := Fetch(FBookmark, '#');       {Do not Localize}
-  end
-  else if IndyPos('#', FDocument) > 0 then begin  {Do not Localize}
-    FBookmark := FDocument;
-    FDocument := Fetch(FBookmark, '#');    {Do not Localize}
-  end;
 end;
 
 function TIdURI.GetURI: String;
