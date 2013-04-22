@@ -63,8 +63,7 @@ type
   end;
 
 const
-  GXXECodeTable: AnsiString =
-    '+-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'; {do not localize}
+  GXXECodeTable: string = '+-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'; {do not localize}
 
 var
   GXXEDecodeTable: TIdDecodeTable;
@@ -86,7 +85,7 @@ end;
 procedure TIdEncoderXXE.InitComponent;
 begin
   inherited InitComponent;
-  FCodingTable := GXXECodeTable;
+  FCodingTable := ToBytes(GXXECodeTable);
   FFillChar := GXXECodeTable[1];
 end;
 

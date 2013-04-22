@@ -324,29 +324,29 @@ begin
 end;
 
 procedure TIdEntityHeaderInfo.AssignTo(Destination: TPersistent);
+var
+  LDest: TIdEntityHeaderInfo;
 begin
   if Destination is TIdEntityHeaderInfo then
   begin
-    with Destination as TIdEntityHeaderInfo do
-    begin
-      FRawHeaders.Assign(Self.FRawHeaders);
-      FCacheControl := Self.FCacheControl;
-      FCharSet := Self.FCharSet;
-      FContentDisposition := Self.FContentDisposition;
-      FContentEncoding := Self.FContentEncoding;
-      FContentLanguage := Self.FContentLanguage;
-      FContentType := Self.FContentType;
-      FContentVersion := Self.FContentVersion;
-      FContentLength := Self.FContentLength;
-      FContentRangeEnd:= Self.FContentRangeEnd;
-      FContentRangeStart:= Self.FContentRangeStart;
-      FContentRangeInstanceLength := Self.FContentRangeInstanceLength;
-      FContentRangeUnits := Self.FContentRangeUnits;
-      FDate := Self.FDate;
-      FETag := Self.FETag;
-      FExpires := Self.FExpires;
-      FLastModified := Self.FLastModified;
-    end;
+    LDest := TIdEntityHeaderInfo(Destination);
+    LDest.FRawHeaders.Assign(FRawHeaders);
+    LDest.FCacheControl := FCacheControl;
+    LDest.FCharSet := FCharSet;
+    LDest.FContentDisposition := FContentDisposition;
+    LDest.FContentEncoding := FContentEncoding;
+    LDest.FContentLanguage := FContentLanguage;
+    LDest.FContentType := FContentType;
+    LDest.FContentVersion := FContentVersion;
+    LDest.FContentLength := FContentLength;
+    LDest.FContentRangeEnd:= FContentRangeEnd;
+    LDest.FContentRangeStart:= FContentRangeStart;
+    LDest.FContentRangeInstanceLength := FContentRangeInstanceLength;
+    LDest.FContentRangeUnits := FContentRangeUnits;
+    LDest.FDate := FDate;
+    LDest.FETag := FETag;
+    LDest.FExpires := FExpires;
+    LDest.FLastModified := FLastModified;
   end else
   begin
     inherited AssignTo(Destination);
@@ -392,165 +392,160 @@ var
   lCRange: string;
   lILength: string;
 begin
-  with FRawHeaders do
+  FCacheControl := FRawHeaders.Values['Cache-control']; {do not localize}
+  FConnection := FRawHeaders.Values['Connection']; {do not localize}
+  FContentVersion := FRawHeaders.Values['Content-Version']; {do not localize}
+  FContentDisposition := FRawHeaders.Values['Content-Disposition']; {do not localize}
+  FContentEncoding := FRawHeaders.Values['Content-Encoding']; {do not localize}
+  FContentLanguage := FRawHeaders.Values['Content-Language']; {do not localize}
+  ContentType := FRawHeaders.Values['Content-Type']; {do not localize}
+  FContentLength := IndyStrToInt64(FRawHeaders.Values['Content-Length'], -1); {do not localize}
+  FHasContentLength := FContentLength >= 0;
+
+  FContentRangeStart := -1;
+  FContentRangeEnd := -1;
+  FContentRangeInstanceLength := -1;
+  FContentRangeUnits := '';
+
+  {
+   handle content-range headers, like:
+
+   content-range: bytes 1-65536/102400
+   content-range: bytes */102400
+   content-range: bytes 1-65536/*
+  }
+  lValue := FRawHeaders.Values['Content-Range']; {do not localize}
+  if lValue <> '' then
   begin
-    FCacheControl := Values['Cache-control']; {do not localize}
-    FConnection := Values['Connection']; {do not localize}
-    FContentVersion := Values['Content-Version']; {do not localize}
-    FContentDisposition := Values['Content-Disposition']; {do not localize}
-    FContentEncoding := Values['Content-Encoding']; {do not localize}
-    FContentLanguage := Values['Content-Language']; {do not localize}
-    ContentType := Values['Content-Type']; {do not localize}
-    FContentLength := IndyStrToInt64(Values['Content-Length'], -1); {do not localize}
-    FHasContentLength := FContentLength >= 0;
+    // strip the bytes unit, and keep the range and instance info
+    FContentRangeUnits := Fetch(lValue);
+    lCRange := Fetch(lValue, '/');
+    lILength := Fetch(lValue);
 
-    FContentRangeStart := -1;
-    FContentRangeEnd := -1;
-    FContentRangeInstanceLength := -1;
-    FContentRangeUnits := '';
-
-    {
-     handle content-range headers, like:
-
-     content-range: bytes 1-65536/102400
-     content-range: bytes */102400
-     content-range: bytes 1-65536/*
-    }
-    lValue := Values['Content-Range']; {do not localize}
-    if lValue <> '' then
-    begin
-      // strip the bytes unit, and keep the range and instance info
-      FContentRangeUnits := Fetch(lValue);
-      lCRange := Fetch(lValue, '/');
-      lILength := Fetch(lValue);
-
-      FContentRangeStart := IndyStrToInt64(Fetch(lCRange, '-'), -1);
-      FContentRangeEnd := IndyStrToInt64(lCRange, -1);
-      FContentRangeInstanceLength := IndyStrToInt64(lILength, -1);
-    end;
-
-    // RLebeau 03/04/2009: RFC 2616 Section 14.18 says:
-    //    
-    // "A received message that does not have a Date header field MUST be
-    // assigned one by the recipient if the message will be cached by that
-    // recipient or gatewayed via a protocol which requires a Date."
-   
-    lValue := Values['Date']; {do not localize}
-    if lValue <> '' then
-    begin
-      FDate := GMTToLocalDateTime(lValue);
-    end else
-    begin
-      FDate := Now;
-    end;
-
-    FLastModified := GMTToLocalDateTime(Values['Last-Modified']); {do not localize}
-
-    // RLebeau 01/23/2006 - IIS fix
-    lValue := Values['Expires']; {do not localize}
-    if IsNumeric(lValue) then
-    begin
-      // This is happening when expires is an integer number in seconds
-      LSecs := IndyStrToInt64(lValue);
-      // RLebeau 01/23/2005 - IIS sometimes sends an 'Expires: -1' header
-      // should we be handling it as actually meaning "Now minus 1 second" instead?
-      if LSecs >= 0 then begin
-        FExpires := Now + (LSecs / SecsPerDay);
-      end else begin
-        FExpires := 0.0;
-      end;
-    end else
-    begin
-      // RLebeau 03/04/2009: RFC 2616 Section 14.21 says:
-      //
-      // "The format is an absolute date and time as defined by HTTP-date in
-      //  section 3.3.1; it MUST be in RFC 1123 date format:
-      //
-      //   Expires = "Expires" ":" HTTP-date
-      //
-      // HTTP/1.1 clients and caches MUST treat other invalid date formats,
-      // especially including the value "0", as in the past (i.e., "already
-      // expired")."
-
-      try
-        FExpires := GMTToLocalDateTime(lValue);
-      except
-        FExpires := Now - (1 / SecsPerDay);
-      end;
-    end;
-
-    FETag := Values['ETag'];  {do not localize}
-    FPragma := Values['Pragma'];  {do not localize}
-    FTransferEncoding := Values['Transfer-Encoding']; {do not localize}
+    FContentRangeStart := IndyStrToInt64(Fetch(lCRange, '-'), -1);
+    FContentRangeEnd := IndyStrToInt64(lCRange, -1);
+    FContentRangeInstanceLength := IndyStrToInt64(lILength, -1);
   end;
+
+  // RLebeau 03/04/2009: RFC 2616 Section 14.18 says:
+  //
+  // "A received message that does not have a Date header field MUST be
+  // assigned one by the recipient if the message will be cached by that
+  // recipient or gatewayed via a protocol which requires a Date."
+
+  lValue := FRawHeaders.Values['Date']; {do not localize}
+  if lValue <> '' then
+  begin
+    FDate := GMTToLocalDateTime(lValue);
+  end else
+  begin
+    FDate := Now;
+  end;
+
+  FLastModified := GMTToLocalDateTime(FRawHeaders.Values['Last-Modified']); {do not localize}
+
+  // RLebeau 01/23/2006 - IIS fix
+  lValue := FRawHeaders.Values['Expires']; {do not localize}
+  if IsNumeric(lValue) then
+  begin
+    // This is happening when expires is an integer number in seconds
+    LSecs := IndyStrToInt64(lValue);
+    // RLebeau 01/23/2005 - IIS sometimes sends an 'Expires: -1' header
+    // should we be handling it as actually meaning "Now minus 1 second" instead?
+    if LSecs >= 0 then begin
+      FExpires := Now + (LSecs / SecsPerDay);
+    end else begin
+      FExpires := 0.0;
+    end;
+  end else
+  begin
+    // RLebeau 03/04/2009: RFC 2616 Section 14.21 says:
+    //
+    // "The format is an absolute date and time as defined by HTTP-date in
+    //  section 3.3.1; it MUST be in RFC 1123 date format:
+    //
+    //   Expires = "Expires" ":" HTTP-date
+    //
+    // HTTP/1.1 clients and caches MUST treat other invalid date formats,
+    // especially including the value "0", as in the past (i.e., "already
+    // expired")."
+
+    try
+      FExpires := GMTToLocalDateTime(lValue);
+    except
+      FExpires := Now - (1 / SecsPerDay);
+    end;
+  end;
+
+  FETag := FRawHeaders.Values['ETag'];  {do not localize}
+  FPragma := FRawHeaders.Values['Pragma'];  {do not localize}
+  FTransferEncoding := FRawHeaders.Values['Transfer-Encoding']; {do not localize}
 end;
 
 procedure TIdEntityHeaderInfo.SetHeaders;
 begin
-  RawHeaders.Clear;
-  with RawHeaders do
+  FRawHeaders.Clear;
+  if Length(FConnection) > 0 then
   begin
-    if Length(FConnection) > 0 then
-    begin
-      Values['Connection'] := FConnection; {do not localize}
-    end;
-    if Length(FContentVersion) > 0 then
-    begin
-      Values['Content-Version'] := FContentVersion; {do not localize}
-    end;
-    if Length(FContentDisposition) > 0 then
-    begin
-     Values['Content-Disposition'] := FContentDisposition; {do not localize}
-    end;
-    if Length(FContentEncoding) > 0 then
-    begin
-      Values['Content-Encoding'] := FContentEncoding; {do not localize}
-    end;
-    if Length(FContentLanguage) > 0 then
-    begin
-      Values['Content-Language'] := FContentLanguage; {do not localize}
-    end;
-    if Length(FContentType) > 0 then
-    begin
-      Values['Content-Type'] := FContentType; {do not localize}
-      Params['Content-Type', 'charset'] := FCharSet; {do not localize}
-    end;
-    if FContentLength >= 0 then
-    begin
-      Values['Content-Length'] := IntToStr(FContentLength); {do not localize}
-    end;
+    FRawHeaders.Values['Connection'] := FConnection; {do not localize}
+  end;
+  if Length(FContentVersion) > 0 then
+  begin
+    FRawHeaders.Values['Content-Version'] := FContentVersion; {do not localize}
+  end;
+  if Length(FContentDisposition) > 0 then
+  begin
+    FRawHeaders.Values['Content-Disposition'] := FContentDisposition; {do not localize}
+  end;
+  if Length(FContentEncoding) > 0 then
+  begin
+    FRawHeaders.Values['Content-Encoding'] := FContentEncoding; {do not localize}
+  end;
+  if Length(FContentLanguage) > 0 then
+  begin
+    FRawHeaders.Values['Content-Language'] := FContentLanguage; {do not localize}
+  end;
+  if Length(FContentType) > 0 then
+  begin
+    FRawHeaders.Values['Content-Type'] := FContentType; {do not localize}
+    FRawHeaders.Params['Content-Type', 'charset'] := FCharSet; {do not localize}
+  end;
+  if FContentLength >= 0 then
+  begin
+    FRawHeaders.Values['Content-Length'] := IntToStr(FContentLength); {do not localize}
+  end;
 
-    { removed setting Content-Range header for entities... deferred to response }
+  { removed setting Content-Range header for entities... deferred to response }
 
-    if Length(FCacheControl) > 0 then
-    begin
-      Values['Cache-control'] := FCacheControl; {do not localize}
-    end;
-    if FDate > 0 then
-    begin
-      Values['Date'] := LocalDateTimeToHttpStr(FDate); {do not localize}
-    end;
-    if Length(FETag) > 0 then
-    begin
-      Values['ETag'] := FETag; {do not localize}
-    end;
-    if FExpires > 0 then
-    begin
-      Values['Expires'] := LocalDateTimeToHttpStr(FExpires); {do not localize}
-    end;
-    if Length(FPragma) > 0 then
-    begin
-      Values['Pragma'] := FPragma; {do not localize}
-    end;
-    if Length(FTransferEncoding) > 0 then
-    begin
-      Values['Transfer-Encoding'] := FTransferEncoding; {do not localize}
-    end;
-    if FCustomHeaders.Count > 0 then
-    begin
-      // append custom headers
-      Text := Text + FCustomHeaders.Text;
-    end;
+  if Length(FCacheControl) > 0 then
+  begin
+    FRawHeaders.Values['Cache-control'] := FCacheControl; {do not localize}
+  end;
+  if FDate > 0 then
+  begin
+    FRawHeaders.Values['Date'] := LocalDateTimeToHttpStr(FDate); {do not localize}
+  end;
+  if Length(FETag) > 0 then
+  begin
+    FRawHeaders.Values['ETag'] := FETag; {do not localize}
+  end;
+  if FExpires > 0 then
+  begin
+    FRawHeaders.Values['Expires'] := LocalDateTimeToHttpStr(FExpires); {do not localize}
+  end;
+  if Length(FPragma) > 0 then
+  begin
+    FRawHeaders.Values['Pragma'] := FPragma; {do not localize}
+  end;
+  if Length(FTransferEncoding) > 0 then
+  begin
+    FRawHeaders.Values['Transfer-Encoding'] := FTransferEncoding; {do not localize}
+  end;
+  if FCustomHeaders.Count > 0 then
+  begin
+    // append custom headers
+    // TODO: use AddStrings() instead?
+    FRawHeaders.Text := FRawHeaders.Text + FCustomHeaders.Text;
   end;
 end;
 
@@ -698,19 +693,18 @@ begin
 end;
 
 procedure TIdProxyConnectionInfo.AssignTo(Destination: TPersistent);
+var
+  LDest: TIdProxyConnectionInfo;
 begin
   if Destination is TIdProxyConnectionInfo then
   begin
-    with Destination as TIdProxyConnectionInfo do
-    begin
-      FPassword := Self.FPassword;
-      FPort := Self.FPort;
-      FServer := Self.FServer;
-      FUsername := Self.FUsername;
-      FBasicByDefault := Self.FBasicByDefault;
-    end;
-  end
-  else
+    LDest := TIdProxyConnectionInfo(Destination);
+    LDest.FPassword := FPassword;
+    LDest.FPort := FPort;
+    LDest.FServer := FServer;
+    LDest.FUsername := FUsername;
+    LDest.FBasicByDefault := FBasicByDefault;
+  end else
   begin
     inherited AssignTo(Destination);
   end;
@@ -725,38 +719,23 @@ begin
 end;
 
 procedure TIdProxyConnectionInfo.SetHeaders(Headers: TIdHeaderList);
-Var
+var
   S: String;
 begin
-  with Headers do
-  begin
-    if Assigned(Authentication) then
-    begin
-      S := Authentication.Authentication;
-      if Length(S) > 0 then
-      begin
-        Values['Proxy-Authorization'] := S;             {do not localize}
-      end;
-    end
-    else
-    begin
-      // Use Basic authentication by default
-      if FBasicByDefault then
-      begin
-        FAuthentication := TIdBasicAuthentication.Create;
-        with Authentication do
-        begin
-          Params.Values['Username'] := Self.FUsername;  {do not localize}
-          Params.Values['Password'] := Self.FPassword;  {do not localize}
-          S := Authentication;
-        end;
-
-        if Length(S) > 0 then
-        begin
-          Values['Proxy-Authorization'] := S;           {do not localize}
-        end;
-      end;
-    end;
+  if Assigned(Authentication) then begin
+    S := Authentication.Authentication;
+  end
+  // Use Basic authentication by default
+  else if FBasicByDefault then begin
+    FAuthentication := TIdBasicAuthentication.Create;
+    FAuthentication.Params.Values['Username'] := FUsername;  {do not localize}
+    FAuthentication.Params.Values['Password'] := FPassword;  {do not localize}
+    S := FAuthentication.Authentication;
+  end else begin
+    S := '';
+  end;
+  if Length(S) > 0 then begin
+    Headers.Values['Proxy-Authorization'] := S;             {do not localize}
   end;
 end;
 
@@ -891,7 +870,7 @@ begin
     SetUnits(LUnits);
     LRanges := TStringList.Create;
     try
-      SplitColumns(LTmp, LRanges, ','); {do not localize}
+      SplitDelimitedString(LTmp, LRanges, True, ','); {do not localize}
       for I := 0 to LRanges.Count-1 do begin
         LTmp := Trim(LRanges[I]);
         if LTmp <> '' then begin
@@ -943,49 +922,44 @@ procedure TIdRequestHeaderInfo.ProcessHeaders;
 begin
   inherited ProcessHeaders;
 
-  with FRawHeaders do
-  begin
-    FAccept := Values['Accept'];                    {do not localize}
-    FAcceptCharSet := Values['Accept-Charset'];     {do not localize}
-    FAcceptEncoding := Values['Accept-Encoding'];   {do not localize}
-    FAcceptLanguage := Values['Accept-Language'];   {do not localize}
-    FHost := Values['Host'];                        {do not localize}
-    FFrom := Values['From'];                        {do not localize}
-    FReferer := Values['Referer'];                  {do not localize}
-    FUserAgent := Values['User-Agent'];             {do not localize}
-    FRanges.Text := Values['Range'];                {do not localize}
-    FMethodOverride := Values['X-HTTP-Method-Override']; {do not localize}
-  end;
+  FAccept := FRawHeaders.Values['Accept'];                    {do not localize}
+  FAcceptCharSet := FRawHeaders.Values['Accept-Charset'];     {do not localize}
+  FAcceptEncoding := FRawHeaders.Values['Accept-Encoding'];   {do not localize}
+  FAcceptLanguage := FRawHeaders.Values['Accept-Language'];   {do not localize}
+  FHost := FRawHeaders.Values['Host'];                        {do not localize}
+  FFrom := FRawHeaders.Values['From'];                        {do not localize}
+  FReferer := FRawHeaders.Values['Referer'];                  {do not localize}
+  FUserAgent := FRawHeaders.Values['User-Agent'];             {do not localize}
+  FRanges.Text := FRawHeaders.Values['Range'];                {do not localize}
+  FMethodOverride := FRawHeaders.Values['X-HTTP-Method-Override']; {do not localize}
 end;
 
 procedure TIdRequestHeaderInfo.AssignTo(Destination: TPersistent);
+var
+  LDest: TIdRequestHeaderInfo;
 begin
   if Destination is TIdRequestHeaderInfo then
   begin
-    with Destination as TIdRequestHeaderInfo do
-    begin
-      FAccept := Self.FAccept;
-      FAcceptCharSet := Self.FAcceptCharset;
-      FAcceptEncoding := Self.FAcceptEncoding;
-      FAcceptLanguage := Self.FAcceptLanguage;
+    LDest := TIdRequestHeaderInfo(Destination);
+    LDest.FAccept := FAccept;
+    LDest.FAcceptCharSet := FAcceptCharset;
+    LDest.FAcceptEncoding := FAcceptEncoding;
+    LDest.FAcceptLanguage := FAcceptLanguage;
 
-      FFrom := Self.FFrom;
-      FUsername := Self.FUsername;
-      FPassword := Self.FPassword;
-      FReferer := Self.FReferer;
-      FUserAgent := Self.FUserAgent;
-      FBasicByDefault := Self.FBasicByDefault;
+    LDest.FFrom := FFrom;
+    LDest.FUsername := FUsername;
+    LDest.FPassword := FPassword;
+    LDest.FReferer := FReferer;
+    LDest.FUserAgent := FUserAgent;
+    LDest.FBasicByDefault := FBasicByDefault;
 
-      FRanges.Assign(Self.FRanges);
-      FMethodOverride := Self.FMethodOverride;
+    LDest.FRanges.Assign(FRanges);
+    LDest.FMethodOverride := FMethodOverride;
 
-      // TODO: omitted intentionally?
-      // FHost := Self.FHost;
-      // FProxyConnection := Self.FProxyConnection;
-    end;
-  end
-  else
-  begin
+    // TODO: omitted intentionally?
+    // LDest.FHost := FHost;
+    // LDest.FProxyConnection := FProxyConnection;
+  end else begin
     inherited AssignTo(Destination);
   end;
 end;
@@ -1033,87 +1007,74 @@ var
 begin
   inherited SetHeaders;
 
-  with RawHeaders do
+  if Length(FProxyConnection) > 0 then
   begin
-    if Length(FProxyConnection) > 0 then
-    begin
-      Values['Proxy-Connection'] := FProxyConnection; {do not localize}
-    end;
-    if Length(FHost) > 0 then
-    begin
-      Values['Host'] := FHost; {do not localize}
-    end;
-    if Length(FAccept) > 0 then
-    begin
-      Values['Accept'] := FAccept; {do not localize}
-    end;
-    if Length(FAcceptCharset) > 0 then
-    begin
-      Values['Accept-Charset'] := FAcceptCharSet;   {do not localize}
-    end;
-    if Length(FAcceptEncoding) > 0 then
-    begin
-      Values['Accept-Encoding'] := FAcceptEncoding; {do not localize}
-    end;
-    if Length(FAcceptLanguage) > 0 then
-    begin
-      Values['Accept-Language'] := FAcceptLanguage; {do not localize}
-    end;
-    if Length(FFrom) > 0 then
-    begin
-      Values['From'] := FFrom;                      {do not localize}
-    end;
-    if Length(FReferer) > 0 then
-    begin
-      Values['Referer'] := FReferer;                {do not localize}
-    end;
-    if Length(FUserAgent) > 0 then
-    begin
-      Values['User-Agent'] := FUserAgent;           {do not localize}
-    end;
-    S := FRanges.Text;
-    if Length(S) > 0 then
-    begin
-      Values['Range'] := S; {do not localize}
-    end;
+    FRawHeaders.Values['Proxy-Connection'] := FProxyConnection; {do not localize}
+  end;
+  if Length(FHost) > 0 then
+  begin
+    FRawHeaders.Values['Host'] := FHost; {do not localize}
+  end;
+  if Length(FAccept) > 0 then
+  begin
+    FRawHeaders.Values['Accept'] := FAccept; {do not localize}
+  end;
+  if Length(FAcceptCharset) > 0 then
+  begin
+    FRawHeaders.Values['Accept-Charset'] := FAcceptCharSet;   {do not localize}
+  end;
+  if Length(FAcceptEncoding) > 0 then
+  begin
+    FRawHeaders.Values['Accept-Encoding'] := FAcceptEncoding; {do not localize}
+  end;
+  if Length(FAcceptLanguage) > 0 then
+  begin
+    FRawHeaders.Values['Accept-Language'] := FAcceptLanguage; {do not localize}
+  end;
+  if Length(FFrom) > 0 then
+  begin
+    FRawHeaders.Values['From'] := FFrom;                      {do not localize}
+  end;
+  if Length(FReferer) > 0 then
+  begin
+    FRawHeaders.Values['Referer'] := FReferer;                {do not localize}
+  end;
+  if Length(FUserAgent) > 0 then
+  begin
+    FRawHeaders.Values['User-Agent'] := FUserAgent;           {do not localize}
+  end;
+  S := FRanges.Text;
+  if Length(S) > 0 then
+  begin
+    FRawHeaders.Values['Range'] := S; {do not localize}
+  end;
 
-    // use 'Last-Modified' entity header in the conditional request
-    if FLastModified > 0 then
-    begin
-      Values['If-Modified-Since'] := LocalDateTimeToHttpStr(FLastModified); {do not localize}
-    end;
+  // use 'Last-Modified' entity header in the conditional request
+  if FLastModified > 0 then
+  begin
+    FRawHeaders.Values['If-Modified-Since'] := LocalDateTimeToHttpStr(FLastModified); {do not localize}
+  end;
 
-    if Assigned(Authentication) then
-    begin
-      S := Authentication.Authentication;
-      if Length(S) > 0 then
-      begin
-        Values['Authorization'] := S; {do not localize}
-      end;
-    end
-    else
-    begin
-      if FBasicByDefault then
-      begin
-        Authentication := TIdBasicAuthentication.Create;
-        with Authentication do
-        begin
-          Params.Values['Username'] := Self.FUserName;  {do not localize}
-          Params.Values['Password'] := Self.FPassword;  {do not localize}
-          S := Authentication;
-        end;
+  if Assigned(Authentication) then
+  begin
+    S := Authentication.Authentication;
+  end
+  else if FBasicByDefault then begin
+    FAuthentication := TIdBasicAuthentication.Create;
+    FAuthentication.Params.Values['Username'] := FUserName;  {do not localize}
+    FAuthentication.Params.Values['Password'] := FPassword;  {do not localize}
+    S := FAuthentication.Authentication;
+  end else begin
+    S := '';
+  end;
+  if Length(S) > 0 then
+  begin
+    FRawHeaders.Values['Authorization'] := S;                 {do not localize}
+  end;
 
-        if Length(S) > 0 then
-        begin
-          Values['Authorization'] := S;                 {do not localize}
-        end;
-      end;
-    end;
-
-    if Length(FMethodOverride) > 0 then
-    begin
-      Values['X-HTTP-Method-Override'] := FMethodOverride; {Do not Localize}
-    end;
+  if Length(FMethodOverride) > 0 then
+  begin
+    FRawHeaders.Values['X-HTTP-Method-Override'] := FMethodOverride; {Do not Localize}
   end;
 end;
 
@@ -1150,20 +1111,17 @@ end;
 procedure TIdResponseHeaderInfo.ProcessHeaders;
 begin
   inherited ProcessHeaders;
-  with FRawHeaders do
-  begin;
-    FLocation := Values['Location'];                  {do not localize}
-    FServer := Values['Server'];                      {do not localize}
-    FProxyConnection := Values['Proxy-Connection'];   {do not localize}
+  FLocation := FRawHeaders.Values['Location'];                  {do not localize}
+  FServer := FRawHeaders.Values['Server'];                      {do not localize}
+  FProxyConnection := FRawHeaders.Values['Proxy-Connection'];   {do not localize}
 
-    FWWWAuthenticate.Clear;
-    Extract('WWW-Authenticate', FWWWAuthenticate);    {do not localize}
+  FWWWAuthenticate.Clear;
+  FRawHeaders.Extract('WWW-Authenticate', FWWWAuthenticate);    {do not localize}
 
-    FProxyAuthenticate.Clear;
-    Extract('Proxy-Authenticate', FProxyAuthenticate);{do not localize}
+  FProxyAuthenticate.Clear;
+  FRawHeaders.Extract('Proxy-Authenticate', FProxyAuthenticate);{do not localize}
 
-    FAcceptRanges := Values['Accept-Ranges'];         {do not localize}
-  end;
+  FAcceptRanges := FRawHeaders.Values['Accept-Ranges'];         {do not localize}
 end;
 
 procedure TIdResponseHeaderInfo.SetHeaders;

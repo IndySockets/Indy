@@ -146,7 +146,7 @@ type
     {$IFNDEF DOTNET}
     constructor Create(AOwner: TComponent); reintroduce; overload;
     {$ENDIF}
-    {$IFNDEF HAS_REMOVEFREENOTIFICATION}
+    {$IFNDEF HAS_RemoveFreeNotification}
     procedure RemoveFreeNotification(AComponent: TComponent);
     {$ENDIF}
     property Version: string read GetIndyVersion;
@@ -305,7 +305,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFNDEF HAS_REMOVEFREENOTIFICATION}
+{$IFNDEF HAS_RemoveFreeNotification}
 procedure TIdBaseComponent.RemoveFreeNotification(AComponent: TComponent);
 begin
   // this is a no-op for now, as we can't access the private TComponent.FFreeNotifies list

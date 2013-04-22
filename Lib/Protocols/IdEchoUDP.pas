@@ -70,12 +70,14 @@ end;
 function TIdEchoUDP.Echo(AText: String): String;
 var
   StartTime: Cardinal;
+  LEncoding: IIdTextEncoding;
 begin
   StartTime := Ticks;
-  Send(AText, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
-  Result := ReceiveString(IdTimeoutDefault, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  Send(AText, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  Result := ReceiveString(IdTimeoutDefault, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   {This is just in case the TickCount rolled back to zero}
-  FEchoTime :=  GetTickDiff(StartTime,Ticks);
+  FEchoTime := GetTickDiff(StartTime,Ticks);
 end;
 
 end.

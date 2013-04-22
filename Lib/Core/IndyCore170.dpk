@@ -30,7 +30,9 @@ package IndyCore170;
 {$IMPLICITBUILD ON}
 
 requires
+  {$IFNDEF NEXTGEN}
   rtl,
+  {$ENDIF}
   IndySystem170;
 
 contains

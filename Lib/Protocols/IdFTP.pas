@@ -759,7 +759,7 @@ type
     FDataPort: TIdPort;
     FDataPortMin: TIdPort;
     FDataPortMax: TIdPort;
-    FDefStringEncoding: TIdTextEncoding;
+    FDefStringEncoding: IIdTextEncoding;
     FExternalIP : String;
     FResumeTested: Boolean;
     FServerDesc: string;
@@ -799,7 +799,7 @@ type
 
     FTZInfo : TIdFTPTZInfo;
 
-    FCompressor : TIdZLibCompressorBase;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FCompressor : TIdZLibCompressorBase;
     //ZLib settings
     FZLibCompressionLevel : Integer; //7
     FZLibWindowBits : Integer; //-15
@@ -899,7 +899,7 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetDataPortProtection(AValue : TIdFTPDataPortSecurity);
     procedure SetAUTHCmd(const AValue : TAuthCmd);
-    procedure SetDefStringEncoding(AValue: TIdTextEncoding);
+    procedure SetDefStringEncoding(AValue: IIdTextEncoding);
     procedure SetUseCCC(const AValue: Boolean);
     procedure SetNATKeepAlive(AValue: TIdFTPKeepAlive);
     procedure IssueFEAT;
@@ -913,7 +913,7 @@ type
     function IsAccountNeeded : Boolean;
     function GetSupportsVerification : Boolean;
   public
-    procedure GetInternalResponse(AEncoding: TIdTextEncoding = nil); override;
+    procedure GetInternalResponse(AEncoding: IIdTextEncoding = nil); override;
     function CheckResponse(const AResponse: SmallInt; const AAllowedResponses: array of SmallInt): SmallInt; override;
 
     function IsExtSupported(const ACmd : String):Boolean;
@@ -1030,7 +1030,7 @@ type
     property DataPort: TIdPort read FDataPort write FDataPort default 0;
     property DataPortMin: TIdPort read FDataPortMin write FDataPortMin default 0;
     property DataPortMax: TIdPort read FDataPortMax write FDataPortMax default 0;
-    property DefStringEncoding : TIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
+    property DefStringEncoding : IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
     property ExternalIP : String read FExternalIP write FExternalIP;
     property Password;
     property TransferType: TIdFTPTransferType read FTransferType write SetTransferType default Id_TIdFTP_TransferType;
@@ -1162,7 +1162,7 @@ begin
   FDataPort := 0;
   FDataPortMin := 0;
   FDataPortMax := 0;
-  FDefStringEncoding := Indy8BitEncoding;
+  FDefStringEncoding := IndyTextEncoding_8Bit;
   FUseExtensionDataPort := DEF_Id_TIdFTP_UseExtendedData;
   FTryNATFastTrack := Id_TIdFTP_UseNATFastTrack;
   FTransferType := Id_TIdFTP_TransferType;
@@ -1274,7 +1274,7 @@ begin
     // RLebeau: must not send/receive UTF-8 before negotiating for it...
     IOHandler.DefStringEncoding := FDefStringEncoding;
     {$IFDEF STRING_IS_ANSI}
-    IOHandler.DefAnsiEncoding := IndyOSDefaultEncoding;
+    IOHandler.DefAnsiEncoding := IIdTextEncoding.Default;
     {$ENDIF}
 
     // RLebeau: RFC 959 says that the greeting can be preceeded by a 1xx
@@ -1570,15 +1570,9 @@ begin
       FreeAndNil(FDirectoryListing);
       FDirFormat := '';
       LDest.Position := 0;
-      {$IFDEF HAS_TEncoding}
-      FListResult.LoadFromStream(LDest, IOHandler.DefStringEncoding);
-      {$ELSE}
       FListResult.Text := ReadStringFromStream(LDest, -1, IOHandler.DefStringEncoding{$IFDEF STRING_IS_ANSI}, IOHandler.DefAnsiEncoding{$ENDIF});
-      {$ENDIF}
-      with TIdFTPListResult(FListResult) do begin
-        FDetails := ADetails;
-        FUsedMLS := False;
-      end;
+      TIdFTPListResult(FListResult).FDetails := ADetails;
+      TIdFTPListResult(FListResult).FUsedMLS := False;
       // FDirFormat will be updated in ParseFTPList...
     finally
       FreeAndNil(LDest);
@@ -1609,7 +1603,9 @@ var
 begin
   DoOnDataChannelDestroy;
   if FDataChannel <> nil then begin
+    {$IFNDEF USE_OBJECT_ARC}
     FDataChannel.IOHandler.Free;
+    {$ENDIF}
     FDataChannel.IOHandler := nil;
     FreeAndNil(FDataChannel);
   end;
@@ -1700,14 +1696,18 @@ var
   LPort: TIdPort;
   LPasvCl : TIdTCPClient;
   LPortSv : TIdSimpleServer;
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LCompressor : TIdZLibCompressorBase;
 begin
   FAbortFlag.Value := False;
+  LCompressor := nil;
 
   if FCurrentTransferMode = dmDeflate then begin
-    if not Assigned(FCompressor) then begin
+    LCompressor := FCompressor;
+    if not Assigned(LCompressor) then begin
       raise EIdFTPMissingCompressor.Create(RSFTPMissingCompressor);
     end;
-    if not FCompressor.IsReady then begin
+    if not LCompressor.IsReady then begin
       raise EIdFTPCompressorNotReady.Create(RSFTPCompressorNotReady);
     end;
   end;
@@ -1764,8 +1764,8 @@ begin
               if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
                 TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
               end;
-              if FCurrentTransferMode = dmDeflate then begin
-                FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
+              if Assigned(LCompressor) then begin
+                LCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
                   FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
               end else begin
                 if AFromBeginning then begin
@@ -1842,8 +1842,8 @@ begin
           if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
             TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
           end;
-          if FCurrentTransferMode = dmDeflate then begin
-            FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
+          if Assigned(LCompressor) then begin
+            LCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
               FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
           end else begin
             if AFromBeginning then begin
@@ -1888,14 +1888,18 @@ var
   LPort: TIdPort;
   LPasvCl : TIdTCPClient;
   LPortSv : TIdSimpleServer;
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LCompressor: TIdZLibCompressorBase;
 begin
   FAbortFlag.Value := False;
+  LCompressor := nil;
 
   if FCurrentTransferMode = dmDeflate then begin
-    if not Assigned(FCompressor) then begin
+    LCompressor := FCompressor;
+    if not Assigned(LCompressor) then begin
       raise EIdFTPMissingCompressor.Create(RSFTPMissingCompressor);
     end;
-    if not FCompressor.IsReady then begin
+    if not LCompressor.IsReady then begin
       raise EIdFTPCompressorNotReady.Create(RSFTPCompressorNotReady);
     end;
   end;
@@ -1952,8 +1956,8 @@ begin
             if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
               TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
             end;
-            if FCurrentTransferMode = dmDeflate then begin
-              FCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
+            if Assigned(LCompressor) then begin
+              LCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
             end else begin
               LPasvCl.IOHandler.ReadStream(ADest, -1, True);
             end;
@@ -2014,8 +2018,8 @@ begin
         if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
           TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
         end;
-        if FCurrentTransferMode = dmDeflate then begin
-          FCompressor.DecompressFTPFromIO(LPortSv.IOHandler, ADest, FZLibWindowBits);
+        if Assigned(LCompressor) then begin
+          LCompressor.DecompressFTPFromIO(LPortSv.IOHandler, ADest, FZLibWindowBits);
         end else begin
           FDataChannel.IOHandler.ReadStream(ADest, -1, True);
         end;
@@ -2069,13 +2073,14 @@ end;
 { TIdFtpKeepAlive }
 
 procedure TIdFtpKeepAlive.Assign(Source: TPersistent);
+var
+  LSource: TIdFTPKeepAlive;
 begin
   if Source is TIdFTPKeepAlive then begin
-    with TIdFTPKeepAlive(Source) do begin
-      Self.FUseKeepAlive := UseKeepAlive;
-      Self.FIdleTimeMS := IdleTimeMS;
-      Self.FIntervalMS := IntervalMS;
-    end;
+    LSource := TIdFTPKeepAlive(Source);
+    FUseKeepAlive := LSource.UseKeepAlive;
+    FIdleTimeMS := LSource.IdleTimeMS;
+    FIntervalMS := LSource.IntervalMS;
   end else begin
     inherited Assign(Source);
   end;
@@ -2184,8 +2189,8 @@ begin
   FDataChannel.IOHandler.SendBufferSize := IOHandler.SendBufferSize;
   FDataChannel.IOHandler.RecvBufferSize := IOHandler.RecvBufferSize;
   FDataChannel.IOHandler.LargeStream := True;
- // FDataChannel.IOHandler.DefStringEncoding := Indy8BitEncoding;
- // FDataChannel.IOHandler.DefAnsiEncoding := IndyOSDefaultEncoding;
+ // FDataChannel.IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
+ // FDataChannel.IOHandler.DefAnsiEncoding := IndyTextEncoding_OSDefault;
   FDataChannel.WorkTarget := Self;
 end;
 
@@ -2431,9 +2436,9 @@ begin
     FResumeTested := False;
     FSystemDesc := '';
     FTransferType := Id_TIdFTP_TransferType;
-    IOHandler.DefStringEncoding := Indy8BitEncoding;
+    IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
     {$IFDEF STRING_IS_ANSI}
-    IOHandler.DefAnsiEncoding := IndyOSDefaultEncoding;
+    IOHandler.DefAnsiEncoding := IndyTextEncoding_OSDefault;
     {$ENDIF}
     if FUsingSFTP and (FUseTLS <> utUseImplicitTLS) then begin
       (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
@@ -2598,7 +2603,7 @@ begin
         Exit;
       end;
     end;
-    IOHandler.DefStringEncoding := IndyUTF8Encoding;
+    IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
   end;
 end;
 
@@ -2913,15 +2918,16 @@ end;
 { TIdFtpProxySettings }
 
 procedure TIdFtpProxySettings.Assign(Source: TPersistent);
+var
+  LSource: TIdFtpProxySettings;
 begin
   if Source is TIdFtpProxySettings then begin
-    with Source as TIdFtpProxySettings do begin
-      Self.FProxyType := ProxyType;
-      Self.FHost := Host;
-      Self.FUserName := UserName;
-      Self.FPassword := Password;
-      Self.FPort := Port;
-    end;
+    LSource := TIdFtpProxySettings(Source);
+    FProxyType := LSource.ProxyType;
+    FHost := LSource.Host;
+    FUserName := LSource.UserName;
+    FPassword := LSource.Password;
+    FPort := LSource.Port;
   end else begin
     inherited Assign(Source);
   end;
@@ -3094,6 +3100,7 @@ end;
 procedure TIdFTP.ExtListDir(ADest: TStrings = nil; const ADirectory: string = '');
 var
   LDest: TMemoryStream;
+  LEncoding: IIdTextEncoding;
 begin
   // RLebeau 6/4/2009: According to RFC 3659 Section 7.2:
   //
@@ -3115,17 +3122,13 @@ begin
     FDirFormat := '';
     DoOnRetrievedDir;
     LDest.Position := 0;
-    // RLebeau: using Indy8BitEncoding() here.  TIdFTPListParseBase will
+    // RLebeau: using IndyTextEncoding_8Bit here.  TIdFTPListParseBase will
     // decode UTF-8 sequences later on...
-    {$IFDEF HAS_TEncoding}
-    FListResult.LoadFromStream(LDest, Indy8BitEncoding);
-    {$ELSE}
-    FListResult.Text := ReadStringFromStream(LDest, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
-    {$ENDIF}
-    with TIdFTPListResult(FListResult) do begin
-      FDetails := True;
-      FUsedMLS := True;
-    end;
+    LEncoding := IndyTextEncoding_8Bit;
+    FListResult.Text := ReadStringFromStream(LDest, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    LEncoding := nil;
+    TIdFTPListResult(FListResult).FDetails := True;
+    TIdFTPListResult(FListResult).FUsedMLS := True;
     FDirFormat := MLST;
   finally
     FreeAndNil(LDest);
@@ -3140,7 +3143,7 @@ var
   i : Integer;
 begin
   ADest.Clear;
-  SendCmd(Trim('MLST ' + AItem), 250, Indy8BitEncoding);  {do not localize}
+  SendCmd(Trim('MLST ' + AItem), 250, IndyTextEncoding_8Bit);  {do not localize}
   for i := 0 to LastCmdResult.Text.Count -1 do begin
     if IndyPos(';', LastCmdResult.Text[i]) > 0 then begin
       ADest.Add(LastCmdResult.Text[i]);
@@ -3407,14 +3410,27 @@ begin
 end;
 
 procedure TIdFTP.SetCompressor(AValue: TIdZLibCompressorBase);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LCompressor: TIdZLibCompressorBase;
 begin
-  if FCompressor <> AValue then begin
-    if Assigned(FCompressor) then begin
-      FCompressor.RemoveFreeNotification(Self);
+  LCompressor := FCompressor;
+
+  if LCompressor <> AValue then begin
+    // under ARC, all weak references to a freed object get nil'ed automatically
+
+    {$IFNDEF USE_OBJECT_ARC}
+    if Assigned(LCompressor) then begin
+      LCompressor.RemoveFreeNotification(Self);
     end;
+    {$ENDIF}
+
     FCompressor := AValue;
-    if Assigned(FCompressor) then begin
-      FCompressor.FreeNotification(Self);
+
+    if Assigned(AValue) then begin
+      {$IFNDEF USE_OBJECT_ARC}
+      AValue.FreeNotification(Self);
+      {$ENDIF}
     end
     else if Connected then begin
       TransferMode(dmStream);
@@ -3422,7 +3438,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.GetInternalResponse(AEncoding: TIdTextEncoding = nil);
+procedure TIdFTP.GetInternalResponse(AEncoding: IIdTextEncoding = nil);
 var
   LLine: string;
   LResponse: TStringList;
@@ -3708,13 +3724,14 @@ end;
 { TIdFTPClientIdentifier }
 
 procedure TIdFTPClientIdentifier.Assign(Source: TPersistent);
+var
+  LSource: TIdFTPClientIdentifier;
 begin
   if Source is TIdFTPClientIdentifier then begin
-    with Source as TIdFTPClientIdentifier do begin
-      Self.ClientName  := ClientName;
-      Self.ClientVersion := ClientVersion;
-      Self.PlatformDescription := PlatformDescription;
-    end;
+    LSource := TIdFTPClientIdentifier(Source);
+    ClientName  := LSource.ClientName;
+    ClientVersion := LSource.ClientVersion;
+    PlatformDescription := LSource.PlatformDescription;
   end else begin
     inherited Assign(Source);
   end;
@@ -3907,12 +3924,13 @@ end;
 { TIdFTPTZInfo }
 
 procedure TIdFTPTZInfo.Assign(Source: TPersistent);
+var
+  LSource: TIdFTPTZInfo;
 begin
   if Source is TIdFTPTZInfo then begin
-    with Source as TIdFTPTZInfo do begin
-      Self.FGMTOffset := GMTOffset;
-      Self.FGMTOffsetAvailable := GMTOffsetAvailable;
-    end;
+    LSource := TIdFTPTZInfo(Source);
+    FGMTOffset := LSource.GMTOffset;
+    FGMTOffsetAvailable := LSource.GMTOffsetAvailable;
   end else begin
     inherited Assign(Source);
   end;
@@ -3979,10 +3997,10 @@ end;
 
 procedure TIdFTP.Notification(AComponent: TComponent; Operation: TOperation);
 begin
-  inherited Notification(AComponent, Operation);
   if (Operation = opRemove) and (AComponent = FCompressor) then begin
     SetCompressor(nil);
   end;
+  inherited Notification(AComponent, Operation);
 end;
 
 procedure TIdFTP.SendPret(const ACommand: String);
@@ -4060,7 +4078,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.SetDefStringEncoding(AValue: TIdTextEncoding);
+procedure TIdFTP.SetDefStringEncoding(AValue: IIdTextEncoding);
 begin
   FDefStringEncoding := AValue;
   if IOHandler <> nil then begin
@@ -4175,6 +4193,7 @@ var
   LStartPoint : TIdStreamSize;
   LByteCount : TIdStreamSize;  //used instead of AByteCount so we don't exceed the file size
   LHashClass: TIdHashClass;
+  LHash: TIdHash;
 begin
   LLocalCRC := '';
   LRemoteCRC := '';
@@ -4280,11 +4299,11 @@ begin
     LHashClass := TIdHashCRC32;
   end;
 
-  with LHashClass.Create do
+  LHash := LHashClass.Create;
   try
-    LLocalCRC := HashStreamAsHex(ALocalFile, LStartPoint, LByteCount);
+    LLocalCRC := LHash.HashStreamAsHex(ALocalFile, LStartPoint, LByteCount);
   finally
-    Free;
+    LHash.Free;
   end;
 
   if SendCmd(LCmd) = 250 then begin

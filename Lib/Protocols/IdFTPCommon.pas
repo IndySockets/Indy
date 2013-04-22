@@ -1976,32 +1976,99 @@ function ModeBitsToPermString(const AMode : Cardinal) : String;
       Result := GetPerm1Bit(ABit2, AIfBit2Set);
     end;
   end;
-  
+
+var
+  LPerm: Char;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(9);
+  {$ELSE}
   SetLength(Result, 9);
+  {$ENDIF}
+
   //owner Permissions
   //read by owner
-  Result[1] := GetPerm1Bit(IdS_IRUSR, 'r');
+  LPerm := GetPerm1Bit(IdS_IRUSR, 'r');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[1] := LPerm;
+  {$ENDIF}
+
   //write by owner
-  Result[2] := GetPerm1Bit(IdS_IWUSR, 'w');
+  LPerm := GetPerm1Bit(IdS_IWUSR, 'w');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[2] := LPerm;
+  {$ENDIF}
+
   //execute by owner
-  Result[3] := GetPerm2Bits(IdS_ISUID, IdS_IXUSR, 's', 'x');
+  LPerm := GetPerm2Bits(IdS_ISUID, IdS_IXUSR, 's', 'x');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[3] := LPerm;
+  {$ENDIF}
+
   //group permissions
   //read by group
-  Result[4] := GetPerm1Bit(IdS_IRGRP, 'r');
+  LPerm := GetPerm1Bit(IdS_IRGRP, 'r');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[4] := LPerm;
+  {$ENDIF}
+
   //write by group
-  Result[5] := GetPerm1Bit(IdS_IWGRP, 'w');
+  LPerm := GetPerm1Bit(IdS_IWGRP, 'w');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[5] := LPerm;
+  {$ENDIF}
+
   //execute by group
-  Result[6] := GetPerm2Bits(IdS_ISGID, IdS_IXGRP, 's', 'x');
+  LPerm := GetPerm2Bits(IdS_ISGID, IdS_IXGRP, 's', 'x');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[6] := LPerm;
+  {$ENDIF}
+
   //other's permissions
   //read by others
-  Result[7] := GetPerm1Bit(IdS_IROTH, 'r');
+  LPerm := GetPerm1Bit(IdS_IROTH, 'r');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[7] := LPerm;
+  {$ENDIF}
+
   //write by others
-  Result[8] := GetPerm1Bit(IdS_IWOTH, 'w');
+  LPerm := GetPerm1Bit(IdS_IWOTH, 'w');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[8] := LPerm;
+  {$ENDIF}
+
   //execute by others
   //Sticky bit - only owner can delete files in dir.
   //on older systems, it means to keep the file in memory as a "cache"
-  Result[9] := GetPerm2Bits(IdS_ISVTX, IdS_IXOTH, 't', 'x');
+  LPerm := GetPerm2Bits(IdS_ISVTX, IdS_IXOTH, 't', 'x');
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB.Append(LPerm);
+  {$ELSE}
+  Result[9] := LPerm;
+  {$ENDIF}
+
+  {$IFDEF STRING_IS_IMMUTABLE}
+  Result := LSB.ToString;
+  {$ENDIF}
 end;
 
 function ModeBitsToChmodNo(const AMode : Cardinal): Integer;
@@ -2133,7 +2200,7 @@ end;
 function IsNovelPSPattern(const AStr : String): Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
-  s : TStrings;
+  s : TStringList;
   LModStr : String;
 begin
   LModStr := AStr;
@@ -2142,7 +2209,7 @@ begin
   end;
   s := TStringList.Create;
   try
-    SplitColumns(LModStr, s);
+    SplitDelimitedString(LModStr, s, True);
      //0-type
      //1-permissions
      //2-owner
@@ -2280,12 +2347,12 @@ end;
 function IsVMBFS(AData : String) : Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
-  s : TStrings;
+  s : TStringList;
 begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(TrimRight(AData), s);
+    SplitDelimitedString(AData, s, True);
     if s.Count > 4 then begin
       Result := (s[2] = 'F') or (s[2] = 'D');
       if Result then begin
@@ -2320,22 +2387,18 @@ function ParseFactsMLS(AData : String; AResults : TStrings;
 var
   LBuf : TIdBytes;
   LCharSet : String;
-  LEncoding : TIdTextEncoding;
+  LEncoding: IIdTextEncoding;
 begin
-  LBuf := ToBytes(ParseFacts(AData, AResults, AFactDelim, ANameDelim), Indy8bitEncoding{$IFDEF STRING_IS_ANSI}, Indy8bitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  LBuf := ToBytes(ParseFacts(AData, AResults, AFactDelim, ANameDelim), LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   LCharSet := AResults.Values['charset'];
   if LCharSet = '' then begin
     LCharSet := 'UTF-8';
   end;
-  LEncoding := CharsetToEncoding(LCharSet);
   try
-    try
-      Result := BytesToString(LBuf, LEncoding);
-    except
-      Result := BytesToString(LBuf, Indy8bitEncoding);
-    end;
-  finally
-    FreeAndNil(LEncoding);
+    Result := BytesToString(LBuf, CharsetToEncoding(LCharSet));
+  except
+    Result := BytesToString(LBuf, LEncoding);
   end;
 end;
 

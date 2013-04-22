@@ -167,29 +167,29 @@ type
 
   TIdEncoder3to4 = class(TIdEncoder)
   protected
-    FCodingTable: AnsiString;
-    FFillChar: AnsiChar;
+    FCodingTable: TIdBytes;
+    FFillChar: Char;
     function InternalEncode(const ABuffer: TIdBytes): TIdBytes;
   public
     procedure Encode(ASrcStream: TStream; ADestStream: TStream; const ABytes: Integer = -1); override;
   published
-    property CodingTable: AnsiString read FCodingTable;
-    property FillChar: AnsiChar read FFillChar write FFillChar;
+    property CodingTable: TIdBytes read FCodingTable;
+    property FillChar: Char read FFillChar write FFillChar;
   end;
 
   TIdEncoder3to4Class = class of TIdEncoder3to4;
 
   TIdDecoder4to3 = class(TIdDecoder)
   protected
-    FCodingTable: AnsiString;
+    FCodingTable: TIdBytes;
     FDecodeTable: TIdDecodeTable;
-    FFillChar: AnsiChar;
+    FFillChar: Char;
     function InternalDecode(const ABuffer: TIdBytes; const AIgnoreFiller: Boolean = False): TIdBytes;
   public
-    class procedure ConstructDecodeTable(const ACodingTable: AnsiString; var ADecodeArray: TIdDecodeTable);
+    class procedure ConstructDecodeTable(const ACodingTable: String; var ADecodeArray: TIdDecodeTable);
     procedure Decode(ASrcStream: TStream; const ABytes: Integer = -1); override;
   published
-    property FillChar: AnsiChar read FFillChar write FFillChar;
+    property FillChar: Char read FFillChar write FFillChar;
   end;
 
 implementation
@@ -197,21 +197,30 @@ implementation
 uses
   IdException, IdResourceStrings, IdStream;
 
+// RLebeau 10/31/2012: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
+
 { TIdDecoder4to3 }
 
-class procedure TIdDecoder4to3.ConstructDecodeTable(const ACodingTable: AnsiString;
+class procedure TIdDecoder4to3.ConstructDecodeTable(const ACodingTable: string;
   var ADecodeArray: TIdDecodeTable);
 var
-  i: integer;
+  c, i: integer;
 begin
   //TODO: See if we can find an efficient way, or maybe an option to see if the requested
   //decode char is valid, that is it returns a 255 from the DecodeTable, or at maybe
   //check its presence in the encode table.
   for i := Low(ADecodeArray) to High(ADecodeArray) do begin
-    ADecodeArray[i] := 255;
+    ADecodeArray[i] := $FF;
   end;
+  c := 0;
   for i := 1 to Length(ACodingTable) do begin
-    ADecodeArray[Ord(ACodingTable[i])] := i - 1;
+    ADecodeArray[Ord(ACodingTable[i])] := c;
+    Inc(c);
   end;
 end;
 
@@ -237,13 +246,14 @@ function TIdDecoder4to3.InternalDecode(const ABuffer: TIdBytes; const AIgnoreFil
 var
   LInBufSize: Integer;
   LEmptyBytes: Integer;
-  LInBytes: array[0..3] of Byte;
+  LInBytes: TIdBytes;
   LOutPos: Integer;
   LOutSize: Integer;
   LInLimit: Integer;
   LInPos: Integer;
-  LFillChar: Byte; // local copy of FFillChar
 begin
+  SetLength(LInBytes, 4);
+
   LInPos := 0;
 
   LInBufSize := Length(ABuffer);
@@ -289,11 +299,10 @@ begin
 
   // RLebeau: normally, the FillChar does not appear inside the encoded bytes,
   // however UUE/XXE does allow it, where encoded lines are prefixed with the
-  //  unencoded data lengths instead...
+  // unencoded data lengths instead...
   if (not AIgnoreFiller) and (LInPos > 0) then begin
-    LFillChar := Byte(FillChar);
-    if ABuffer[LInPos-1] = LFillChar then begin
-      if ABuffer[LInPos-2] = LFillChar then begin
+    if ABuffer[LInPos-1] = Ord(FillChar) then begin
+      if ABuffer[LInPos-2] = Ord(FillChar) then begin
         LEmptyBytes := 2;
       end else begin
         LEmptyBytes := 1;
@@ -376,16 +385,16 @@ begin
 
     //possible to do a better assert than this?
     Assert(Length(FCodingTable)>0);
-    Result[LLen]     := Byte(FCodingTable[((LIn1 shr 2) and 63) + 1]);
-    Result[LLen + 1] := Byte(FCodingTable[((((LIn1 and 3) shl 4) or ((LIn2 shr 4) and 15)) and 63) + 1]);
-    Result[LLen + 2] := Byte(FCodingTable[((((LIn2 and 15) shl 2) or ((LIn3 shr 6) and 3)) and 63) + 1]);
-    Result[LLen + 3] := Byte(FCodingTable[(LIn3 and 63) + 1]);
+    Result[LLen]     := FCodingTable[(LIn1 shr 2) and 63];
+    Result[LLen + 1] := FCodingTable[(((LIn1 and 3) shl 4) or ((LIn2 shr 4) and 15)) and 63];
+    Result[LLen + 2] := FCodingTable[(((LIn2 and 15) shl 2) or ((LIn3 shr 6) and 3)) and 63];
+    Result[LLen + 3] := FCodingTable[LIn3 and 63];
     Inc(LLen, 4);
 
     if LSize < 3 then begin
-      Result[LLen-1] := Byte(FillChar);
+      Result[LLen-1] := Ord(FillChar);
       if LSize = 1 then begin
-         Result[LLen-2] := Byte(FillChar);
+         Result[LLen-2] := Ord(FillChar);
       end;
     end;
   end;

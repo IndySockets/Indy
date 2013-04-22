@@ -118,18 +118,39 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdCoderMIME, IdGlobalProtocols, IdResourceStringsProtocols,
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
+  {$IFDEF HAS_UNIT_Generics_Defaults}
+  System.Generics.Defaults,
+  {$ENDIF}
+  SysUtils;
 
 var
-  AuthList: TStringList = nil;
+  AuthList: {$IFDEF HAS_GENERICS_TDictionary}TDictionary<String, TIdAuthenticationClass>{$ELSE}TStringList{$ENDIF} = nil;
 
 procedure RegisterAuthenticationMethod(const MethodName: String; const AuthClass: TIdAuthenticationClass);
+{$IFNDEF HAS_GENERICS_TDictionary}
 var
   I: Integer;
+{$ENDIF}
 begin
   if not Assigned(AuthList) then begin
+    {$IFDEF HAS_GENERICS_TDictionary}
+    AuthList := TDictionary<String, TIdAuthenticationClass>.Create(TIStringComparer.Ordinal);
+    {$ELSE}
     AuthList := TStringList.Create;
+    {$ENDIF}
   end;
+  {$IFDEF HAS_GENERICS_TDictionary}
+  if not AuthList.ContainsKey(MethodName) then begin
+    AuthList.Add(MethodName, AuthClass);
+  end else begin
+    //raise EIdAlreadyRegisteredAuthenticationMethod.CreateFmt(RSHTTPAuthAlreadyRegistered, [AuthClass.ClassName]);
+    AuthList.Items[MethodName] := AuthClass;
+  end;
+  {$ELSE}
   I := AuthList.IndexOf(MethodName);
   if I < 0 then begin
     AuthList.AddObject(MethodName, TObject(AuthClass));
@@ -137,30 +158,46 @@ begin
     //raise EIdAlreadyRegisteredAuthenticationMethod.CreateFmt(RSHTTPAuthAlreadyRegistered, [AuthClass.ClassName]);
     AuthList.Objects[I] := TObject(AuthClass);
   end;
+  {$ENDIF}
 end;
 
 procedure UnregisterAuthenticationMethod(const MethodName: String);
+{$IFNDEF HAS_GENERICS_TDictionary}
 var
   I: Integer;
+{$ENDIF}
 begin
   if Assigned(AuthList) then begin
+    {$IFDEF HAS_GENERICS_TDictionary}
+    if AuthList.ContainsKey(MethodName) then begin
+      AuthList.Remove(MethodName);
+    end;
+    {$ELSE}
     I := AuthList.IndexOf(MethodName);
-    if I >= 0 then begin
+    if I > 0 then begin
       AuthList.Delete(I);
     end;
+    {$ENDIF}
   end;
 end;
 
 function FindAuthClass(const AuthName: String): TIdAuthenticationClass;
+{$IFNDEF HAS_GENERICS_TDictionary}
 var
   I: Integer;
+{$ENDIF}
 begin
+  Result := nil;
+  {$IFDEF HAS_GENERICS_TDictionary}
+  if AuthList.ContainsKey(AuthName) then begin
+    Result := AuthList.Items[AuthName];
+  end;
+  {$ELSE}
   I := AuthList.IndexOf(AuthName);
   if I > -1 then begin
     Result := TIdAuthenticationClass(AuthList.Objects[I]);
-  end else begin
-    Result := nil;
   end;
+  {$ENDIF}
 end;
 
 { TIdAuthentication }
@@ -246,10 +283,15 @@ end;
 { TIdBasicAuthentication }
 
 function TIdBasicAuthentication.Authentication: String;
+var
+  LEncoder: TIdEncoderMIME;
 begin
-  with TIdEncoderMIME.Create do try
-    Result := 'Basic ' + Encode(Username + ':' + Password); {do not localize}
-  finally Free; end;
+  LEncoder := TIdEncoderMIME.Create;
+  try
+    Result := 'Basic ' + LEncoder.Encode(Username + ':' + Password); {do not localize}
+  finally
+    LEncoder.Free;
+  end;
 end;
 
 function TIdBasicAuthentication.DoNext: TIdAuthWhatsNext;
@@ -260,11 +302,9 @@ begin
   Fetch(S);
 
   while Length(S) > 0 do begin
-    with Params do begin
-      // realm have 'realm="SomeRealmValue"' format    {Do not Localize}
-      // FRealm never assigned without StringReplace
-      Add(ReplaceOnlyFirst(Fetch(S, ', '), '=', NameValueSeparator));  {do not localize}
-    end;
+    // realm have 'realm="SomeRealmValue"' format    {Do not Localize}
+    // FRealm never assigned without StringReplace
+    Params.Add(ReplaceOnlyFirst(Fetch(S, ', '), '=', Params.NameValueSeparator));  {do not localize}
   end;
 
   FRealm := Copy(Params.Values['realm'], 2, Length(Params.Values['realm']) - 2);   {Do not Localize}

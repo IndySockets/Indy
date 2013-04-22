@@ -92,11 +92,14 @@ end;
 
 
 procedure TIdSysLog.SendLogMessage(const AMsg: TIdSyslogMessage; const AAutoTimeStamp: Boolean = true);
+var
+  LEncoding: IIdTextEncoding;
 begin
   if AAutoTimeStamp then begin
     AMsg.TimeStamp := Now;
   end;
-  Send(AMsg.EncodeMessage, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  Send(AMsg.EncodeMessage, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
 end;
 
 

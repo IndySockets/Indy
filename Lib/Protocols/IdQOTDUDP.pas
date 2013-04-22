@@ -57,10 +57,13 @@ begin
 end;
 
 function TIdQOTDUDP.GetQuote: String;
+var
+  LEncoding: IIdTextEncoding;
 begin
   //The string can be anything - The RFC says the server should discard packets
   Send(' ');    {Do not Localize}
-  Result := ReceiveString(IdTimeoutDefault, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  Result := ReceiveString(IdTimeoutDefault, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
 end;
 
 end.

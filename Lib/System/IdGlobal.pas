@@ -523,6 +523,10 @@ uses
   System.Threading,
   System.IO,
   System.Text,
+  {$ELSE}
+    {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFDEF FPC}
@@ -534,7 +538,6 @@ uses
   Classes,
   syncobjs,
   {$IFDEF UNIX}
-
     {$IFDEF KYLIXCOMPAT}
     Libc,
     {$ELSE}
@@ -705,6 +708,33 @@ type
     {$ENDIF}
   {$ENDIF}
 
+  // the Delphi next-gen compiler eliminates AnsiString/AnsiChar/PAnsiChar,
+  // but we still need to deal with Ansi data. Unfortunately, the compiler
+  // won't let us use its secret _AnsiChr types either, so we have to use
+  // Byte instead unless we can find a better solution...
+
+  {$IFDEF HAS_AnsiChar}
+  TIdAnsiChar = AnsiChar;
+  {$ELSE}
+  TIdAnsiChar = Byte;
+  {$ENDIF}
+
+  {$IFDEF HAS_PAnsiChar}
+  PIdAnsiChar = PAnsiChar;
+  {$ELSE}
+    {$IFDEF HAS_MarshaledAString}
+  PIdAnsiChar = MarshaledAString;
+    {$ELSE}
+  PIdAnsiChar = PByte;
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF HAS_PPAnsiChar}
+  PPIdAnsiChar = PPAnsiChar;
+  {$ELSE}
+  PPIdAnsiChar = ^PIdAnsiChar;
+  {$ENDIF}
+
   {$IFDEF STRING_IS_UNICODE}
   TIdWideChar = Char;
   PIdWideChar = PChar;
@@ -713,22 +743,8 @@ type
   PIdWideChar = PWideChar;
   {$ENDIF}
 
-  {$IFDEF HAS_TBytes}
-  TIdBytes = TBytes;
-  // temporary workaround for a compatibility issue in TIdUDPServer, TIdIPMCastClient, and TIdTelnet in C++
-  TIdDynByteArray = array of Byte;
-    {$IFNDEF DOTNET}
-  PIdDynByteArray = ^TIdDynByteArray;
-    {$ENDIF}
-  {$ELSE}
   TIdBytes = array of Byte;
-  {$ENDIF}
-
-  {$IFDEF HAS_WIDE_TCharArray}
-  TIdWideChars = TCharArray;
-  {$ELSE}
   TIdWideChars = array of TIdWideChar;
-  {$ENDIF}
 
   //NOTE:  The code below assumes a 32bit Linux architecture (such as target i386-linux)
   {$UNDEF CPU32_OR_KYLIX}
@@ -790,12 +806,21 @@ type
   {$EXTERNALSYM size_t}
   size_t = PtrUInt;
   {$ENDIF}
+
+  {$IFDEF STRING_IS_IMMUTABLE}
+  // In .NET and Delphi next-gen, strings are immutable (and zero-indexed), so we
+  // need to use a StringBuilder whenever we need to modify individual characters
+  // of a string...
+  TIdStringBuilder = {$IFDEF DOTNET}System.Text.StringBuilder{$ELSE}TStringBuilder{$ENDIF};
+  {$ENDIF}
+
   {
   Delphi/C++Builder 2009+ have a TEncoding class which mirrors System.Text.Encoding
   in .NET, but does not have a TDecoder class which mirrors System.Text.Decoder
-  in .NET.  For earlier versions, or when the libiconv library is enabled,
-  TIdTextEncoding is a wrapper class, otherwise it maps directly to the OS/RTL's
-  encoding class.
+  in .NET.  TEncoding's interface changes from version to version, in some ways
+  that cause compatibility issues when trying to write portable code, so we will
+  not rely on it.  IIdTextEncoding is our own wrapper so we have control over
+  text encodings.
 
   This way, Indy can have a unified internal interface for String<->Byte conversions
   without using IFDEFs everywhere.
@@ -806,269 +831,117 @@ type
   Ansi-compatible encodings are being used with AnsiString values.
   }
 
-  {$UNDEF TIdTextEncoding_NEEDED}
-  {$UNDEF TIdMBCSEncoding_NEEDED}
-  {$UNDEF TIdASCIIEncoding_NEEDED}
-  {$UNDEF TIdUTF7Encoding_NEEDED}
-  {$UNDEF TIdUTF8Encoding_NEEDED}
-  {$UNDEF TIdUTF16LittleEndianEncoding_NEEDED}
-  {$UNDEF TIdUTF16BigEndianEncoding_NEEDED}
 
-  {$IFDEF DOTNET}
-  TIdTextEncoding = System.Text.Encoding;
-  //TIdMBCSEncoding = ?
-  TIdASCIIEncoding = System.Text.ASCIIEncoding;
-  TIdUTF7Encoding = System.Text.UTF7Encoding;
-  TIdUTF8Encoding = System.Text.UTF8Encoding;
-  TIdUTF16LittleEndianEncoding = System.Text.UnicodeEncoding;
-  TIdUTF16BigEndianEncoding = System.Text.UnicodeEncoding;
-  {$ELSE}
-    {$IFDEF HAS_TEncoding}
-  TIdTextEncodingBytes = SysUtils.TBytes;
-  TIdTextEncodingWideChars = SysUtils.TCharArray;
-  TIdTextEncoding = SysUtils.TEncoding;
-  {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
-      {$IFDEF USE_ICONV}
-  {$DEFINE TIdMBCSEncoding_NEEDED} // see further below
-  {$DEFINE TIdUTF7Encoding_NEEDED} // see further below
-  {$DEFINE TIdUTF8Encoding_NEEDED} // see further below
-  {$DEFINE TIdUTF16LittleEndianEncoding_NEEDED} // see further below
-  {$DEFINE TIdUTF16BigEndianEncoding_NEEDED} // see further below
-      {$ELSE}
-  TIdMBCSEncoding = SysUtils.TMBCSEncoding;
-  TIdUTF7Encoding = SysUtils.TUTF7Encoding;
-  TIdUTF8Encoding = SysUtils.TUTF8Encoding;
-  TIdUTF16LittleEndianEncoding = SysUtils.TUnicodeEncoding;
-  TIdUTF16BigEndianEncoding = SysUtils.TBigEndianUnicodeEncoding;
-      {$ENDIF}
-    {$ELSE}
-  TIdTextEncodingBytes = TIdBytes;
-  TIdTextEncodingWideChars = TIdWideChars;
-  {$DEFINE TIdTextEncoding_NEEDED} // see further below
-  {$DEFINE TIdMBCSEncoding_NEEDED} // see further below
-  {$DEFINE TIdASCIIEncoding_NEEDED} // see further below
-  {$DEFINE TIdUTF7Encoding_NEEDED} // see further below
-  {$DEFINE TIdUTF8Encoding_NEEDED} // see further below
-  {$DEFINE TIdUTF16LittleEndianEncoding_NEEDED} // see further below
-  {$DEFINE TIdUTF16BigEndianEncoding_NEEDED} // see further below
+  IIdTextEncoding = interface(IInterface)
+  ['{FA87FAE5-E3E3-4632-8FCA-2FB786848655}']
+    function GetByteCount(const AChars: TIdWideChars): Integer; overload;
+    function GetByteCount(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): Integer; overload;
+    {$IFNDEF DOTNET}
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; overload;
     {$ENDIF}
-  {$ENDIF}
-
-  {$IFDEF TIdTextEncoding_NEEDED}
-  TIdTextEncoding = class
-  {$IFDEF HAS_CLASSPROPERTIES}
-  private
-    class function GetASCII: TIdTextEncoding; static;
-    class function GetBigEndianUnicode: TIdTextEncoding; static;
-    class function GetDefault: TIdTextEncoding; static;
-    class function GetUnicode: TIdTextEncoding; static;
-    class function GetUTF7: TIdTextEncoding; static;
-    class function GetUTF8: TIdTextEncoding; static;
-  {$ENDIF}
-  protected
-    FIsSingleByte: Boolean;
-    FMaxCharSize: Integer;
-    function GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer; overload; virtual; abstract;
-    function GetBytes(AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; overload; virtual; abstract;
-    function GetCharCount(ABytes: PByte; AByteCount: Integer): Integer; overload; virtual; abstract;
-    function GetChars(ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload; virtual; abstract;
-  public
-    class function Convert(ASource, ADestination: TIdTextEncoding; const ABytes: TIdTextEncodingBytes): TIdTextEncodingBytes; overload;
-    class function Convert(ASource, ADestination: TIdTextEncoding; const ABytes: TIdTextEncodingBytes; AStartIndex, ACount: Integer): TIdTextEncodingBytes; overload;
-    class procedure FreeEncodings;
-    class function IsStandardEncoding(AEncoding: TIdTextEncoding): Boolean;
-    class function GetBufferEncoding(const ABuffer: TIdTextEncodingBytes; var AEncoding: TIdTextEncoding): Integer;
-    function GetByteCount(const AChars: TIdTextEncodingWideChars): Integer; overload;
-    function GetByteCount(const AChars: TIdTextEncodingWideChars; ACharIndex, ACharCount: Integer): Integer; overload;
     function GetByteCount(const AStr: TIdUnicodeString): Integer; overload;
     function GetByteCount(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): Integer; overload;
-    function GetBytes(const AChars: TIdTextEncodingWideChars): TIdTextEncodingBytes; overload;
-    function GetBytes(const AChars: TIdTextEncodingWideChars; ACharIndex, ACharCount: Integer; var VBytes: TIdTextEncodingBytes; AByteIndex: Integer): Integer; overload;
-    function GetBytes(const AStr: TIdUnicodeString): TIdTextEncodingBytes; overload;
-    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer; var VBytes: TIdTextEncodingBytes; AByteIndex: Integer): Integer; overload;
-    function GetCharCount(const ABytes: TIdTextEncodingBytes): Integer; overload;
-    function GetCharCount(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer): Integer; overload;
-    function GetChars(const ABytes: TIdTextEncodingBytes): TIdTextEncodingWideChars; overload;
-    function GetChars(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer): TIdTextEncodingWideChars; overload;
-    function GetChars(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer; var VChars: TIdTextEncodingWideChars; ACharIndex: Integer): Integer; overload;
-    {$IFDEF USE_ICONV}
-    class function GetEncoding(const ACharSet: String): TIdTextEncoding;
-    {$ELSE}
-      {$IFDEF WINDOWS}
-    class function GetEncoding(ACodePage: Integer): TIdTextEncoding;
-      {$ENDIF}
+    function GetBytes(const AChars: TIdWideChars): TIdBytes; overload;
+    function GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    {$IFNDEF DOTNET}
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; overload;
     {$ENDIF}
-    function GetMaxByteCount(ACharCount: Integer): Integer; virtual; abstract;
-    function GetMaxCharCount(AByteCount: Integer): Integer; virtual; abstract;
-    function GetPreamble: TIdTextEncodingBytes; virtual; abstract;
-    function GetString(const ABytes: TIdTextEncodingBytes): TIdUnicodeString; overload;
-    function GetString(const ABytes: TIdTextEncodingBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString; overload;
-    {$IFDEF HAS_CLASSPROPERTIES}
-    class property ASCII: TIdTextEncoding read GetASCII;
-    class property BigEndianUnicode: TIdTextEncoding read GetBigEndianUnicode;
-    class property Default: TIdTextEncoding read GetDefault;
-    {$ELSE}
-    class function ASCII: TIdTextEncoding;
-    class function BigEndianUnicode: TIdTextEncoding;
-    class function Default: TIdTextEncoding;
+    function GetBytes(const AStr: TIdUnicodeString): TIdBytes; overload;
+    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    function GetCharCount(const ABytes: TIdBytes): Integer; overload;
+    function GetCharCount(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): Integer; overload;
+    {$IFNDEF DOTNET}
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; overload;
     {$ENDIF}
-    property IsSingleByte: Boolean read FIsSingleByte;
-    {$IFDEF HAS_CLASSPROPERTIES}
-    class property Unicode: TIdTextEncoding read GetUnicode;
-    class property UTF7: TIdTextEncoding read GetUTF7;
-    class property UTF8: TIdTextEncoding read GetUTF8;
-    {$ELSE}
-    class function Unicode: TIdTextEncoding;
-    class function UTF7: TIdTextEncoding;
-    class function UTF8: TIdTextEncoding;
+    function GetChars(const ABytes: TIdBytes): TIdWideChars; overload;
+    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdWideChars; overload;
+    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer; overload;
+    {$IFNDEF DOTNET}
+    function GetChars(const ABytes: PByte; AByteCount: Integer): TIdWideChars; overload;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer; overload;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload;
     {$ENDIF}
-  end;
-  {$ENDIF}
-
-  {$IFDEF TIdMBCSEncoding_NEEDED}
-  TIdMBCSEncoding = class(TIdTextEncoding)
-  private
-    {$IFDEF USE_ICONV}
-    FCharSet: String;
-    {$ELSE}
-      {$IFDEF WINDOWS}
-    FCodePage: Cardinal;
-    FMBToWCharFlags: Cardinal;
-    FWCharToMBFlags: Cardinal;
-      {$ENDIF}
+    function GetIsSingleByte: Boolean;
+    function GetMaxByteCount(ACharCount: Integer): Integer;
+    function GetMaxCharCount(AByteCount: Integer): Integer;
+    function GetPreamble: TIdBytes;
+    function GetString(const ABytes: TIdBytes): TIdUnicodeString; overload;
+    function GetString(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString; overload;
+    {$IFNDEF DOTNET}
+    function GetString(const ABytes: PByte; AByteCount: Integer): TIdUnicodeString; overload;
     {$ENDIF}
-  protected
-    function GetByteCount(Chars: PWideChar; CharCount: Integer): Integer; overload; override;
-    function GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer; overload; override;
-    function GetCharCount(Bytes: PByte; ByteCount: Integer): Integer; overload; override;
-    function GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar; CharCount: Integer): Integer; overload; override;
-  public
-    constructor Create; overload; virtual;
-    {$IFDEF USE_ICONV}
-    constructor Create(const CharSet: String); overload; virtual;
-    {$ELSE}
-      {$IFDEF WINDOWS}
-    constructor Create(CodePage: Integer); overload; virtual;
-    constructor Create(CodePage, MBToWCharFlags, WCharToMBFlags: Integer); overload; virtual;
-      {$ENDIF}
-    {$ENDIF}
-    function GetMaxByteCount(CharCount: Integer): Integer; override;
-    function GetMaxCharCount(ByteCount: Integer): Integer; override;
-    function GetPreamble: TIdTextEncodingBytes; override;
+    property IsSingleByte: Boolean read GetIsSingleByte;
   end;
+
+  IdTextEncodingType = (encIndyDefault, encOSDefault, enc8Bit, encASCII, encUTF16BE, encUTF16LE, encUTF7, encUTF8);
+
+  function IndyTextEncoding(AType: IdTextEncodingType): IIdTextEncoding; overload;
+  function IndyTextEncoding(ACodepage: Word): IIdTextEncoding; overload;
+  function IndyTextEncoding(const ACharSet: String): IIdTextEncoding; overload;
+  {$IFDEF DOTNET}
+  function IndyTextEncoding(AEncoding: System.Text.Encoding): IIdTextEncoding; overload;
+  {$ENDIF}
+  {$IFDEF HAS_TEncoding}
+  function IndyTextEncoding(AEncoding: TEncoding): IIdTextEncoding; overload;
   {$ENDIF}
 
-  {$IFDEF TIdUTF7Encoding_NEEDED}
-  TIdUTF7Encoding = class(TIdMBCSEncoding)
-  protected
-    function GetByteCount(Chars: PWideChar; CharCount: Integer): Integer; overload; override;
-    function GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer; overload; override;
-    function GetCharCount(Bytes: PByte; ByteCount: Integer): Integer; overload; override;
-    function GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar; CharCount: Integer): Integer; overload; override;
-  public
-    constructor Create; override;
-    function GetMaxByteCount(CharCount: Integer): Integer; override;
-    function GetMaxCharCount(ByteCount: Integer): Integer; override;
-  end;
-  {$ENDIF}
-
-  {$IFDEF TIdUTF8Encoding_NEEDED}
-  TIdUTF8Encoding = class(TIdUTF7Encoding)
-  public
-    constructor Create; override;
-    function GetMaxByteCount(CharCount: Integer): Integer; override;
-    function GetMaxCharCount(ByteCount: Integer): Integer; override;
-    function GetPreamble: TIdTextEncodingBytes; override;
-  end;
-  {$ENDIF}
-
-  {$IFDEF TIdUTF16LittleEndianEncoding_NEEDED}
-  TIdUTF16LittleEndianEncoding = class(TIdTextEncoding)
-  protected
-    function GetByteCount(Chars: PWideChar; CharCount: Integer): Integer; overload; override;
-    function GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer; overload; override;
-    function GetCharCount(Bytes: PByte; ByteCount: Integer): Integer; overload; override;
-    function GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar; CharCount: Integer): Integer; overload; override;
-  public
-    constructor Create; virtual;
-    function GetMaxByteCount(CharCount: Integer): Integer; override;
-    function GetMaxCharCount(ByteCount: Integer): Integer; override;
-    function GetPreamble: TIdTextEncodingBytes; override;
-  end;
-  {$ENDIF}
-
-  {$IFDEF TIdUTF16BigEndianEncoding_NEEDED}
-  TIdUTF16BigEndianEncoding = class(TIdUTF16LittleEndianEncoding)
-  protected
-    function GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer; overload; override;
-    function GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar; CharCount: Integer): Integer; overload; override;
-  public
-    function GetPreamble: TIdTextEncodingBytes; override;
-  end;
-  {$ENDIF}
-
-  {$IFDEF TIdASCIIEncoding_NEEDED}
-  TIdASCIIEncoding = class(TIdTextEncoding)
-  protected
-    function GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer; override;
-    function GetBytes(AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; override;
-    function GetCharCount(ABytes: PByte; AByteCount: Integer): Integer; override;
-    function GetChars(ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; override;
-  public
-    constructor Create; virtual;
-    function GetMaxByteCount(ACharCount: Integer): Integer; override;
-    function GetMaxCharCount(AByteCount: Integer): Integer; override;
-    function GetPreamble: TIdTextEncodingBytes; override;
-  end;
-  {$ENDIF}
+  function IndyTextEncoding_Default: IIdTextEncoding;
+  function IndyTextEncoding_OSDefault: IIdTextEncoding;
+  function IndyTextEncoding_8Bit: IIdTextEncoding;
+  function IndyTextEncoding_ASCII: IIdTextEncoding;
+  function IndyTextEncoding_UTF16BE: IIdTextEncoding;
+  function IndyTextEncoding_UTF16LE: IIdTextEncoding;
+  function IndyTextEncoding_UTF7: IIdTextEncoding;
+  function IndyTextEncoding_UTF8: IIdTextEncoding;
 
   // These are for backwards compatibility with past Indy 10 releases
-  function enDefault: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use a nil TIdTextEncoding pointer'{$ENDIF};{$ENDIF}
+  function enDefault: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_Default() or a nil IIdTextEncoding pointer'{$ENDIF};{$ENDIF}
   {$NODEFINE enDefault}
-  function en7Bit: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyASCIIEncoding()'{$ENDIF};{$ENDIF}
+  function en7Bit: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_ASCII()'{$ENDIF};{$ENDIF}
   {$NODEFINE en7Bit}
-  function en8Bit: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Indy8BitEncoding()'{$ENDIF};{$ENDIF}
+  function en8Bit: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_8Bit()'{$ENDIF};{$ENDIF}
   {$NODEFINE en8Bit}
-  function enUTF8: TIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyUTF8Encoding()'{$ENDIF};{$ENDIF}
+  function enUTF8: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_UTF8()'{$ENDIF};{$ENDIF}
   {$NODEFINE enUTF8}
 
-  function Indy8BitEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
-  function IndyASCIIEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
-  function IndyUTF16BigEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
-  function IndyUTF16LittleEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
-  function IndyOSDefaultEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
-  function IndyUTF7Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
-  function IndyUTF8Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: TIdTextEncoding;
+  function Indy8BitEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_8Bit()'{$ENDIF};{$ENDIF}
+  function IndyASCIIEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_ASCII()'{$ENDIF};{$ENDIF}
+  function IndyUTF16BigEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_UTF16BE()'{$ENDIF};{$ENDIF}
+  function IndyUTF16LittleEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_UTF16LE()'{$ENDIF};{$ENDIF}
+  function IndyOSDefaultEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_OSDefault()'{$ENDIF};{$ENDIF}
+  function IndyUTF7Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_UTF7()'{$ENDIF};{$ENDIF}
+  function IndyUTF8Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IndyTextEncoding_UTF8()'{$ENDIF};{$ENDIF}
 
-  (*$HPPEMIT '// These are helper macros to handle differences in "class" properties between different C++Builder versions'*)
-  (*$HPPEMIT '#define TIdTextEncoding_ASCII IndyASCIIEncoding()'*)
-  (*$HPPEMIT '#define TIdTextEncoding_BigEndianUnicode IndyUTF16BigEndianEncoding()'*)
-  (*$HPPEMIT '#define TIdTextEncoding_Default IndyOSDefaultEncoding()'*)
-  (*$HPPEMIT '#define TIdTextEncoding_Unicode IndyUTF16LittleEndianEncoding()'*)
-  (*$HPPEMIT '#define TIdTextEncoding_UTF7 IndyUTF7Encoding()'*)
-  (*$HPPEMIT '#define TIdTextEncoding_UTF8 IndyUTF8Encoding()'*)
+  (*$HPPEMIT '// These are helper macros to handle differences between C++Builder versions'*)
+  (*$HPPEMIT '#define TIdTextEncoding_ASCII IndyTextEncoding_ASCII()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_BigEndianUnicode IndyTextEncoding_UTF16BE()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_Default IndyTextEncoding_OSDefault()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_Unicode IndyTextEncoding_UTF16LE()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_UTF7 IndyTextEncoding_UTF7()'*)
+  (*$HPPEMIT '#define TIdTextEncoding_UTF8 IndyTextEncoding_UTF8()'*)
   (*$HPPEMIT ''*)
 
   (*$HPPEMIT '// These are for backwards compatibility with earlier Indy 10 releases'*)
-  (*$HPPEMIT '#define enDefault ( ( TIdTextEncoding* )NULL )'*)
-  (*$HPPEMIT '#define en8Bit Indy8BitEncoding()'*)
-  (*$HPPEMIT '#define en7Bit IndyASCIIEncoding()'*)
-  (*$HPPEMIT '#define enUTF8 IndyUTF8Encoding()'*)
+  (*$HPPEMIT '#define enDefault ( ( IIdTextEncoding* )NULL )'*)
+  (*$HPPEMIT '#define en8Bit IndyTextEncoding_8Bit()'*)
+  (*$HPPEMIT '#define en7Bit IndyTextEncoding_ASCII()'*)
+  (*$HPPEMIT '#define enUTF8 IndyTextEncoding_UTF8()'*)
   (*$HPPEMIT ''*)
-
-type
-  IdAnsiEncodingType = (encIndyDefault, encOSDefault, encASCII, encUTF7, encUTF8, enc8Bit);
 
 var
   {RLebeau: using ASCII by default because most Internet protocols that Indy
   implements are based on ASCII specifically, not Ansi.  Non-ASCII data has
   to be explicitally allowed by RFCs, in which case the caller should not be
-  using nil TIdTextEncoding objects to begin with...}
-  GIdDefaultAnsiEncoding: IdAnsiEncodingType = encASCII;
+  using nil IIdTextEncoding objects to begin with...}
+  GIdDefaultTextEncoding: IdTextEncodingType = encASCII;
 
   {$IFDEF USE_ICONV}
-  // This indicates whether TIdTextEncoding.Default should map to an OS dependant
-  // Ansi locale or to ASCII.  Defaulting to ASCII for now to maintain compatibility
+  // This indicates whether encOSDefault should map to an OS dependant Ansi
+  // locale or to ASCII.  Defaulting to ASCII for now to maintain compatibility
   // with earlier Indy 10 releases...
   GIdIconvUseLocaleDependantAnsiEncoding: Boolean = False;
 
@@ -1083,7 +956,8 @@ var
   GIdIconvUseTransliteration: Boolean = False;
   {$ENDIF}
 
-procedure EnsureEncoding(var VEncoding : TIdTextEncoding; ADefEncoding: IdAnsiEncodingType = encIndyDefault);
+procedure EnsureEncoding(var VEncoding : IIdTextEncoding; ADefEncoding: IdTextEncodingType = encIndyDefault);
+procedure CheckByteEncoding(var VBytes: TIdBytes; ASrcEncoding, ADestEncoding: IIdTextEncoding);
 
 type
   TIdAppendFileStream = class(TFileStream)
@@ -1223,15 +1097,6 @@ type
   TStrScanProc = function(Str: PChar; Chr: Char): PChar;
   {$ENDIF}
   TIdReuseSocket = (rsOSDependent, rsTrue, rsFalse);
-
-  {$IFNDEF HAS_TList_Assign}
-  TIdExtList = class(TList) // We use this hack-class, because TList has no .assign on Delphi 5.
-  public                      // Do NOT add DataMembers to this class !!!
-    procedure Assign(AList: TList);
-  end;
-  {$ELSE}
-  TIdExtList = class(TList);
-  {$ENDIF}
 
   {$IFNDEF STREAM_SIZE_64}
   type
@@ -1385,15 +1250,15 @@ function IndyStrToStreamSize(const S: string): TIdStreamSize; overload;
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
 
 // To and From Bytes conversion routines
-function ToBytes(const AValue: string; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function ToBytes(const AValue: string; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes; overload;
 function ToBytes(const AValue: string; const ALength: Integer; const AIndex: Integer = 1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes; overload;
-function ToBytes(const AValue: Char; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function ToBytes(const AValue: Char; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes; overload;
 function ToBytes(const AValue: LongInt): TIdBytes; overload;
 function ToBytes(const AValue: Short): TIdBytes; overload;
@@ -1410,8 +1275,8 @@ function RawToBytes(const AValue; const ASize: Integer): TIdBytes;
 
 // The following functions are faster but except that Bytes[] must have enough
 // space for at least SizeOf(AValue) bytes.
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: LongInt); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Short); overload;
@@ -1428,12 +1293,12 @@ procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
 
 function ToHex(const AValue: TIdBytes; const ACount: Integer = -1; const AIndex: Integer = 0): string; overload;
 function ToHex(const AValue: array of LongWord): string; overload; // for IdHash
-function BytesToString(const AValue: TIdBytes; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+function BytesToString(const AValue: TIdBytes; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string; overload;
 function BytesToString(const AValue: TIdBytes; const AStartIndex: Integer;
-  const ALength: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  const ALength: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string; overload;
 
 // BytesToStringRaw() differs from BytesToString() in that it stores the
@@ -1443,12 +1308,12 @@ function BytesToStringRaw(const AValue: TIdBytes; const AStartIndex: Integer;
   const ALength: Integer = -1): string; overload;
 
 function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Char; overload;
 function BytesToChar(const AValue: TIdBytes; var VChar: Char; const AIndex: Integer = 0;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Integer; overload;
 function BytesToShort(const AValue: TIdBytes; const AIndex: Integer = 0): Short;
 function BytesToWord(const AValue: TIdBytes; const AIndex : Integer = 0): Word;
@@ -1465,8 +1330,8 @@ procedure BytesToRaw(const AValue: TIdBytes; var VBuffer; const ASize: Integer);
 procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0; const ALength: Integer = -1);
 procedure AppendByte(var VBytes: TIdBytes; const AByte: Byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; const ALength: Integer = -1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 procedure ExpandBytes(var VBytes: TIdBytes; const AIndex: Integer; const ACount: Integer; const AFillByte: Byte = 0);
 procedure InsertBytes(var VBytes: TIdBytes; const ADestIndex: Integer; const ASource: TIdBytes; const ASourceIndex: Integer = 0);
@@ -1475,25 +1340,25 @@ procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex:
 
 // Common Streaming routines
 function ReadLnFromStream(AStream: TStream; var VLine: String; AMaxLineLength: Integer = -1;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Boolean; overload;
 function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1;
-  AExceptionIfEOF: Boolean = False; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AExceptionIfEOF: Boolean = False; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string; overload;
-function ReadStringFromStream(AStream: TStream; ASize: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+function ReadStringFromStream(AStream: TStream; ASize: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string; overload;
-procedure WriteStringToStream(AStream: TStream; const AStr: string; ADestEncoding: TIdTextEncoding
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+procedure WriteStringToStream(AStream: TStream; const AStr: string; ADestEncoding: IIdTextEncoding
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ); overload;
 procedure WriteStringToStream(AStream: TStream; const AStr: string; const ALength: Integer = -1;
-  const AIndex: Integer = 1; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  const AIndex: Integer = 1; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ); overload;
-function ReadCharFromStream(AStream: TStream; var VChar: Char; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+function ReadCharFromStream(AStream: TStream; var VChar: Char; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Integer;
 function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes;
   const Count: TIdStreamSize; const AIndex: Integer = 0): TIdStreamSize;
@@ -1512,8 +1377,8 @@ procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Int
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
 
 procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 procedure CopyTIdShort(const ASource: Short; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex: Integer);
@@ -1522,20 +1387,27 @@ procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const AD
 procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer;
-  const ALength: Integer = -1; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  const ALength: Integer = -1; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ); overload;
 procedure CopyTIdString(const ASource: String; const ASourceIndex: Integer;
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ); overload;
 
 // Need to change prob not to use this set
-function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
-function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet: String): Boolean;
-function CharIsInEOL(const AString: string; const ACharPos: Integer): Boolean;
-function CharEquals(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
+function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer; {$IFDEF STRING_IS_IMMUTABLE}overload;{$ENDIF}
+function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet: String): Boolean; {$IFDEF STRING_IS_IMMUTABLE}overload;{$ENDIF}
+function CharIsInEOL(const AString: string; const ACharPos: Integer): Boolean; {$IFDEF STRING_IS_IMMUTABLE}overload;{$ENDIF}
+function CharEquals(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean; {$IFDEF STRING_IS_IMMUTABLE}overload;{$ENDIF}
+
+{$IFDEF STRING_IS_IMMUTABLE}
+function CharPosInSet(const ASB: TIdStringBuilder; const ACharPos: Integer; const ASet: String): Integer; overload;
+function CharIsInSet(const ASB: TIdStringBuilder; const ACharPos: Integer; const ASet: String): Boolean; overload;
+function CharIsInEOL(const ASB: TIdStringBuilder; const ACharPos: Integer): Boolean; overload;
+function CharEquals(const ASB: TIdStringBuilder; const ACharPos: Integer; const AValue: Char): Boolean; overload;
+{$ENDIF}
 
 function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
 function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
@@ -1572,13 +1444,24 @@ function GetThreadHandle(AThread: TThread): TIdThreadHandle;
 function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord; //IdICMP uses it
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
 procedure IdInsert(const Source: string; var S: string; Index: Integer);
+
 {$IFNDEF DOTNET}
-function IdPorts: TList;
+type
+  // TODO: use "array of Integer" instead?
+  {$IFDEF HAS_GENERICS_TList}
+  TIdPortList = TList<Integer>; // TODO: use TIdPort instead?
+  {$ELSE}
+  // TODO: flesh out to match TList<Integer> for non-Generics compilers
+  TIdPortList = TList;
+  {$ENDIF}
+
+function IdPorts: TIdPortList;
 {$ENDIF}
+
 function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer; overload;
 function iif(ATest: Boolean; const ATrue: string; const AFalse: string = ''): string; overload; { do not localize }
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
-function iif(const AEncoding, ADefEncoding: TIdTextEncoding; ADefEncodingType: IdAnsiEncodingType = encASCII): TIdTextEncoding; overload;
+function iif(const AEncoding, ADefEncoding: IIdTextEncoding; ADefEncodingType: IdTextEncodingType = encASCII): IIdTextEncoding; overload;
 
 function InMainThread: Boolean;
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
@@ -1621,6 +1504,8 @@ function IsOctal(const AString: string; const ALength: Integer = -1; const AInde
 {$IFNDEF DOTNET}
 function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: THandle): THandle;
 function InterlockedCompareExchangePtr(var VTarget: Pointer; const AValue, Compare: Pointer): Pointer;
+function InterlockedCompareExchangeObj(var VTarget: TObject; const AValue, Compare: TObject): TObject;
+function InterlockedCompareExchangeIntf(var VTarget: IInterface; const AValue, Compare: IInterface): IInterface;
 {$ENDIF}
 function MakeCanonicalIPv4Address(const AAddr: string): string;
 function MakeCanonicalIPv6Address(const AAddr: string): string;
@@ -1655,9 +1540,28 @@ function ServicesFilePath: string;
 procedure IndySetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 procedure SetThreadName(const AName: string; {$IFDEF DOTNET}AThread: System.Threading.Thread = nil{$ELSE}AThreadID: LongWord = $FFFFFFFF{$ENDIF});
 procedure IndySleep(ATime: LongWord);
-//in Integer(Strings.Objects[i]) - column position in AData
-procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
-procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
+
+// TODO: create TIdStringPositionList for non-Nextgen compilers...
+{$IFDEF USE_OBJECT_ARC}
+type
+  TIdStringPosition = record
+    Value: String;
+    Position: Integer;
+    constructor Create(const AValue: String; const APosition: Integer);
+  end;
+  TIdStringPositionList = TList<TIdStringPosition>;
+{$ENDIF}
+
+//For non-Nextgen compilers: Integer(TStrings.Objects[i]) = column position in AData
+//For Nextgen compilers: use SplitDelimitedString() if column positions are needed
+procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' '); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use SplitDelimitedString()'{$ENDIF};{$ENDIF} {Do not Localize}
+procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string = ' '); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use SplitDelimitedString()'{$ENDIF};{$ENDIF}  {Do not Localize}
+
+procedure SplitDelimitedString(const AData: string; AStrings: TStrings; ATrim: Boolean; const ADelim: string = ' '{$IFNDEF USE_OBJECT_ARC}; AIncludePositions: Boolean = False{$ENDIF}); {$IFDEF USE_OBJECT_ARC}overload;{$ENDIF}  {Do not Localize}
+{$IFDEF USE_OBJECT_ARC}
+procedure SplitDelimitedString(const AData: string; AStrings: TIdStringPositionList; ATrim: Boolean; const ADelim: string = ' '); overload;  {Do not Localize}
+{$ENDIF}
+
 function StartsWithACE(const ABytes: TIdBytes): Boolean;
 function StringsReplace(const S: String; const OldPattern, NewPattern: array of string): string;
 function ReplaceOnlyFirst(const S, OldPattern, NewPattern: string): string;
@@ -1695,7 +1599,11 @@ const
   {$IFDEF DARWIN}
   LIBEXT = '.dylib'; {do not localize}
   {$ELSE}
+    {$IFDEF DCC_NEXTGEN}
+  LIBEXT = '.dylib'; {do not localize}
+    {$ELSE}
   LIBEXT = '.so'; {do not localize}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -1707,9 +1615,9 @@ uses
   Posix.SysSocket,
   Posix.Time, Posix.SysTime,
   {$ENDIF}
-  {$IFDEF VCL_CROSS_COMPILE}
-    {$IFDEF MACOSX}
-  CoreServices,
+  {$IFDEF USE_VCL_POSIX}
+    {$IFDEF DARWIN}
+  Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
@@ -1720,12 +1628,13 @@ uses
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
   IdResourceStrings,
-  {$IFNDEF DOTNET}
-    {$IFNDEF HAS_TEncoding}
-  IdResourceStringsTextEncoding,
-    {$ENDIF}
+  IdStream,
+  {$IFDEF DOTNET}
+  IdStreamNET
+  {$ELSE}
+  IdStreamVCL
   {$ENDIF}
-  IdStream;
+  ;
 
 {$IFDEF FPC}
   {$IFDEF WINCE}
@@ -1736,448 +1645,733 @@ const
   {$ENDIF}
 {$ENDIF}
 
-procedure EnsureEncoding(var VEncoding : TIdTextEncoding; ADefEncoding: IdAnsiEncodingType = encIndyDefault);
+// RLebeau 10/31/2012: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
+
+procedure EnsureEncoding(var VEncoding : IIdTextEncoding; ADefEncoding: IdTextEncodingType = encIndyDefault);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  if VEncoding = nil then
-  begin
-    if ADefEncoding = encIndyDefault then begin
-      ADefEncoding := GIdDefaultAnsiEncoding;
-    end;
-    case ADefEncoding of
-      encASCII: VEncoding := IndyASCIIEncoding;
-      encUTF7:  VEncoding := IndyUTF7Encoding;
-      encUTF8:  VEncoding := IndyUTF8Encoding;
-      enc8Bit:  VEncoding := Indy8BitEncoding;
-    else
-      VEncoding := IndyOSDefaultEncoding;
-    end;
+  if VEncoding = nil then begin
+    VEncoding := IndyTextEncoding(ADefEncoding);
   end;
 end;
 
-{$IFDEF FPC}
-   {$IFNDEF WINDOWS}
+procedure CheckByteEncoding(var VBytes: TIdBytes; ASrcEncoding, ADestEncoding: IIdTextEncoding);
+begin
+  if ASrcEncoding <> ADestEncoding then begin
+    VBytes := ADestEncoding.GetBytes(ASrcEncoding.GetChars(VBytes));
+  end;
+end;
+
+{$IFNDEF WINDOWS}
 //FreePascal may not define this for non-Windows systems.
 //#define MAKEWORD(a, b)      ((WORD)(((BYTE)(a)) | ((WORD)((BYTE)(b))) << 8))
 function MakeWord(const a, b : Byte) : Word;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := (a) or (b shl 8);
+  Result := Word(a) or (Word(b) shl 8);
 end;
-   {$ENDIF}
 {$ENDIF}
 
 {$IFNDEF DOTNET}
 var
-  GIdPorts: TList = nil;
+  // TODO: use "array of Integer" instead?
+  GIdPorts: TIdPortList = nil;
 
-  GIdDefaultEncoding: TIdTextEncoding = nil;
-  GId8BitEncoding: TIdTextEncoding = nil;
-  GIdASCIIEncoding: TIdTextEncoding = nil;
-  GIdBEUTF16Encoding: TIdTextEncoding = nil;
-  GIdLEUTF16Encoding: TIdTextEncoding = nil;
-  GIdUTF7Encoding: TIdTextEncoding = nil;
-  GIdUTF8Encoding: TIdTextEncoding = nil;
+  GIdOSDefaultEncoding: IIdTextEncoding = nil;
+  GId8BitEncoding: IIdTextEncoding = nil;
+  GIdASCIIEncoding: IIdTextEncoding = nil;
+  GIdUTF16BigEndianEncoding: IIdTextEncoding = nil;
+  GIdUTF16LittleEndianEncoding: IIdTextEncoding = nil;
+  GIdUTF7Encoding: IIdTextEncoding = nil;
+  GIdUTF8Encoding: IIdTextEncoding = nil;
 {$ENDIF}
 
-{ TIdTextEncoding }
+{ IIdTextEncoding implementations }
 
-{$IFDEF TIdTextEncoding_NEEDED}
-class function TIdTextEncoding.Convert(ASource, ADestination: TIdTextEncoding;
-  const ABytes: TIdBytes): TIdBytes;
+{$IFDEF DOTNET}
+type
+  TIdDotNetEncoding = class(TInterfacedObject, IIdTextEncoding)
+  protected
+    FEncoding: System.Text.Encoding;
+  public
+    constructor Create(AEncoding: System.Text.Encoding); overload;
+    constructor Create(const ACharset: String); overload;
+    constructor Create(const ACodepage: Word); overload;
+    function GetByteCount(const AChars: TIdWideChars): Integer; overload;
+    function GetByteCount(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): Integer; overload;
+    function GetByteCount(const AStr: TIdUnicodeString): Integer; overload;
+    function GetByteCount(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): Integer; overload;
+    function GetBytes(const AChars: TIdWideChars): TIdBytes; overload;
+    function GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    function GetBytes(const AStr: TIdUnicodeString): TIdBytes; overload;
+    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    function GetCharCount(const ABytes: TIdBytes): Integer; overload;
+    function GetCharCount(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): Integer; overload;
+    function GetChars(const ABytes: TIdBytes): TIdWideChars; overload;
+    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdWideChars; overload;
+    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer; overload;
+    function GetIsSingleByte: Boolean;
+    function GetMaxByteCount(ACharCount: Integer): Integer;
+    function GetMaxCharCount(AByteCount: Integer): Integer;
+    function GetPreamble: TIdBytes;
+    function GetString(const ABytes: TIdBytes): TIdUnicodeString; overload;
+    function GetString(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString; overload;
+  end;
+
+constructor TIdDotNetEncoding.Create(AEncoding: System.Text.Encoding);
 begin
-  Result := ADestination.GetBytes(ASource.GetChars(ABytes));
+  FEncoding := AEncoding;
 end;
 
-class function TIdTextEncoding.Convert(ASource, ADestination: TIdTextEncoding;
-  const ABytes: TIdBytes; AStartIndex, ACount: Integer): TIdBytes;
+constructor TIdDotNetEncoding.Create(const ACharset: String);
 begin
-  Result := ADestination.GetBytes(ASource.GetChars(ABytes, AStartIndex, ACount));
+  FEncoding := System.Text.Encoding.GetEncoding(ACharset);
 end;
 
-class procedure TIdTextEncoding.FreeEncodings;
+constructor TIdDotNetEncoding.Create(const ACodepage: Word);
 begin
-  FreeAndNil(GIdDefaultEncoding);
-  FreeAndNil(GIdASCIIEncoding);
-  FreeAndNil(GIdBEUTF16Encoding);
-  FreeAndNil(GIdLEUTF16Encoding);
-  FreeAndNil(GIdUTF7Encoding);
-  FreeAndNil(GIdUTF8Encoding);
+  FEncoding := System.Text.Encoding.GetEncoding(ACodepage);
 end;
 
-{$IFDEF HAS_CLASSPROPERTIES}
-class function TIdTextEncoding.GetASCII: TIdTextEncoding;
+function TIdDotNetEncoding.GetByteCount(const AChars: TIdWideChars): Integer;
+begin
+  Result := FEncoding.GetByteCount(AChars);
+end;
+
+function TIdDotNetEncoding.GetByteCount(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): Integer;
+begin
+  Result := FEncoding.GetByteCount(AChars, ACharIndex, ACharCount);
+end;
+
+function TIdDotNetEncoding.GetByteCount(const AStr: TIdUnicodeString): Integer;
+begin
+  Result := FEncoding.GetByteCount(AStr);
+end;
+
+function TIdDotNetEncoding.GetByteCount(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): Integer;
+begin
+  Result := FEncoding.GetByteCount(AStr.Substring(ACharIndex-1, ACharCount));
+end;
+
+function TIdDotNetEncoding.GetBytes(const AChars: TIdWideChars): TIdBytes;
+begin
+  Result := FEncoding.GetBytes(AChars);
+end;
+
+function TIdDotNetEncoding.GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): TIdBytes;
+begin
+  Result := FEncoding.GetBytes(AChars, ACharIndex, ACharCount);
+end;
+
+function TIdDotNetEncoding.GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer;
+begin
+  Result := FEncoding.GetBytes(AChars, ACharIndex, ACharCount, VBytes, AByteIndex);
+end;
+
+function TIdDotNetEncoding.GetBytes(const AStr: TIdUnicodeString): TIdBytes;
+begin
+  Result := FEncoding.GetBytes(AStr);
+end;
+
+function TIdDotNetEncoding.GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): TIdBytes;
+begin
+  Result := FEncoding.GetByteCount(AStr.Substring(ACharIndex-1, ACharCount));
+end;
+
+function TIdDotNetEncoding.GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer;
+begin
+  Result := FEncoding.GetBytes(AStr, ACharIndex-1, ACharCount, VBytes, AByteIndex);
+end;
+
+function TIdDotNetEncoding.GetCharCount(const ABytes: TIdBytes): Integer;
+begin
+  Result := FEncoding.GetCharCount(ABytes);
+end;
+
+function TIdDotNetEncoding.GetCharCount(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): Integer;
+begin
+  Result := FEncoding.GetCharCount(ABytes, AByteIndex, AByteCount);
+end;
+
+function TIdDotNetEncoding.GetChars(const ABytes: TIdBytes): TIdWideChars;
+begin
+  Result := FEncoding.GetChars(ABytes);
+end;
+
+function TIdDotNetEncoding.GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdWideChars;
+begin
+  Result := FEncoding.GetChars(ABytes, AByteIndex, AByteCount);
+end;
+
+function TIdDotNetEncoding.GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer;
+begin
+  Result := FEncoding.GetChars(ABytes, AByteIndex, AByteCount, VChars, ACharIndex);
+end;
+
+function TIdDotNetEncoding.GetIsSingleByte: Boolean;
+begin
+  Result := FEncoding.IsSingleByte;
+end;
+
+function TIdDotNetEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
+begin
+  Result := FEncoding.GetMaxByteCount(ACharCount);
+end;
+
+function TIdDotNetEncoding.GetMaxCharCount(AByteCount: Integer): Integer;
+begin
+  Result := FEncoding.GetMaxCharCount(AByteCount);
+end;
+
+function TIdDotNetEncoding.GetPreamble: TIdBytes;
+begin
+  Result := fEncoding.GetPreamble;
+end;
+
+function TIdDotNetEncoding.GetString(const ABytes: TIdBytes): TIdUnicodeString;
+begin
+  Result := FEncoding.GetString(ABytes);
+end;
+
+function TIdDotNetEncoding.GetString(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString;
+begin
+  Result := FEncoding.GetString(ABytes, AByteIndex, AByteCount);
+end;
+
 {$ELSE}
-class function TIdTextEncoding.ASCII: TIdTextEncoding;
-{$ENDIF}
-begin
-  // RLebeau: ASCII is handled separate from other standard encodings
-  // because we need to do special handling of its codepage regardless
-  // of whether TIdTextEncoding is implemented natively or manually...
-  Result := IndyASCIIEncoding(True);
-end;
 
-{$IFDEF HAS_CLASSPROPERTIES}
-class function TIdTextEncoding.GetBigEndianUnicode: TIdTextEncoding;
-{$ELSE}
-class function TIdTextEncoding.BigEndianUnicode: TIdTextEncoding;
-{$ENDIF}
-begin
-  Result := IndyUTF16BigEndianEncoding(True);
-end;
-
-class function TIdTextEncoding.GetBufferEncoding(const ABuffer: TIdBytes; var AEncoding: TIdTextEncoding): Integer;
-
-  function ContainsPreamble(const Buffer, Signature: TIdBytes): Boolean;
-  var
-    I: Integer;
-  begin
-    if Length(Buffer) >= Length(Signature) then
-    begin
-      Result := True;
-      for I := 0 to Length(Signature)-1 do
-      begin
-        if Buffer[I] <> Signature [I] then
-        begin
-          Result := False;
-          Break;
-        end;
-      end;
-    end else begin
-      Result := False;
-    end;
+type
+  TIdTextEncodingBase = class(TInterfacedObject, IIdTextEncoding)
+  protected
+    FIsSingleByte: Boolean;
+    FMaxCharSize: Integer;
+  public
+    function GetByteCount(const AChars: TIdWideChars): Integer; overload;
+    function GetByteCount(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): Integer; overload;
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; overload; virtual; abstract;
+    function GetByteCount(const AStr: TIdUnicodeString): Integer; overload;
+    function GetByteCount(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): Integer; overload;
+    function GetBytes(const AChars: TIdWideChars): TIdBytes; overload;
+    function GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; overload; virtual; abstract;
+    function GetBytes(const AStr: TIdUnicodeString): TIdBytes; overload;
+    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): TIdBytes; overload;
+    function GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer; overload;
+    function GetCharCount(const ABytes: TIdBytes): Integer; overload;
+    function GetCharCount(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): Integer; overload;
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; overload; virtual; abstract;
+    function GetChars(const ABytes: TIdBytes): TIdWideChars; overload;
+    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdWideChars; overload;
+    function GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer; overload;
+    function GetChars(const ABytes: PByte; AByteCount: Integer): TIdWideChars; overload;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer; overload;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload; virtual; abstract;
+    function GetIsSingleByte: Boolean;
+    function GetMaxByteCount(ACharCount: Integer): Integer; virtual; abstract;
+    function GetMaxCharCount(AByteCount: Integer): Integer; virtual; abstract;
+    function GetPreamble: TIdBytes; virtual;
+    function GetString(const ABytes: TIdBytes): TIdUnicodeString; overload;
+    function GetString(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString; overload;
+    function GetString(const ABytes: PByte; AByteCount: Integer): TIdUnicodeString; overload;
   end;
 
+  {$UNDEF SUPPORTS_CODEPAGE_ENCODING}
+  {$IFNDEF USE_ICONV}
+    {$IFDEF WINDOWS}
+      {$DEFINE SUPPORTS_CODEPAGE_ENCODING}
+    {$ENDIF}
+    {$IFDEF HAS_LocaleCharsFromUnicode}
+      {$DEFINE SUPPORTS_CODEPAGE_ENCODING}
+    {$ENDIF}
+  {$ENDIF}
+
+  TIdMBCSEncoding = class(TIdTextEncodingBase)
+  private
+    {$IFDEF USE_ICONV}
+    FCharSet: String;
+    {$ELSE}
+      {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
+    FCodePage: Cardinal;
+    FMBToWCharFlags: Cardinal;
+    FWCharToMBFlags: Cardinal;
+      {$ENDIF}
+    {$ENDIF}
+  public
+    constructor Create; overload; virtual;
+    {$IFDEF USE_ICONV}
+    constructor Create(const CharSet: String); overload; virtual;
+    {$ELSE}
+      {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
+    constructor Create(CodePage: Integer); overload; virtual;
+    constructor Create(CodePage, MBToWCharFlags, WCharToMBFlags: Integer); overload; virtual;
+      {$ENDIF}
+    {$ENDIF}
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; overload; override;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; overload; override;
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; overload; override;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload; override;
+    function GetMaxByteCount(CharCount: Integer): Integer; override;
+    function GetMaxCharCount(ByteCount: Integer): Integer; override;
+    function GetPreamble: TIdBytes; override;
+  end;
+
+  TIdUTF7Encoding = class(TIdMBCSEncoding)
+  public
+    constructor Create; override;
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; overload; override;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; overload; override;
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; overload; override;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload; override;
+    function GetMaxByteCount(CharCount: Integer): Integer; override;
+    function GetMaxCharCount(ByteCount: Integer): Integer; override;
+  end;
+
+  TIdUTF8Encoding = class(TIdUTF7Encoding)
+  public
+    constructor Create; override;
+    function GetMaxByteCount(CharCount: Integer): Integer; override;
+    function GetMaxCharCount(ByteCount: Integer): Integer; override;
+    function GetPreamble: TIdBytes; override;
+  end;
+
+  TIdUTF16LittleEndianEncoding = class(TIdTextEncodingBase)
+  public
+    constructor Create; virtual;
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; overload; override;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; overload; override;
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; overload; override;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload; override;
+    function GetMaxByteCount(CharCount: Integer): Integer; override;
+    function GetMaxCharCount(ByteCount: Integer): Integer; override;
+    function GetPreamble: TIdBytes; override;
+  end;
+
+  TIdUTF16BigEndianEncoding = class(TIdUTF16LittleEndianEncoding)
+  public
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; overload; override;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; overload; override;
+    function GetPreamble: TIdBytes; override;
+  end;
+
+  TIdASCIIEncoding = class(TIdTextEncodingBase)
+  public
+    constructor Create; virtual;
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+    function GetMaxByteCount(ACharCount: Integer): Integer; override;
+    function GetMaxCharCount(AByteCount: Integer): Integer; override;
+  end;
+
+  TId8BitEncoding = class(TIdTextEncodingBase)
+  public
+    constructor Create; virtual;
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+    function GetMaxByteCount(ACharCount: Integer): Integer; override;
+    function GetMaxCharCount(AByteCount: Integer): Integer; override;
+  end;
+
+  {$IFDEF HAS_TEncoding}
+  TIdVCLEncoding = class(TIdTextEncodingBase)
+  protected
+    FEncoding: TEncoding;
+  public
+    constructor Create(AEncoding: TEncoding);
+    function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+    function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; override;
+    function GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; override;
+    function GetMaxByteCount(ACharCount: Integer): Integer; override;
+    function GetMaxCharCount(AByteCount: Integer): Integer; override;
+  end;
+  {$ENDIF}
+
+{ TIdTextEncodingBase }
+
+function ValidateChars(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer): PIdWideChar;
 var
-  Preamble: TIdBytes;
+  Len: Integer;
 begin
-  Result := 0;
-  Preamble := nil; // keep the compiler happy
-  if AEncoding = nil then
-  begin
-    // Find the appropriate encoding
-    if ContainsPreamble(ABuffer, IndyUTF16LittleEndianEncoding.GetPreamble) then begin
-      AEncoding := IndyUTF16LittleEndianEncoding;
-    end
-    else if ContainsPreamble(ABuffer, IndyUTF16BigEndianEncoding.GetPreamble) then begin
-      AEncoding := IndyUTF16BigEndianEncoding;
-    end
-    else if ContainsPreamble(ABuffer, IndyUTF8Encoding.GetPreamble) then begin
-      AEncoding := IndyUTF8Encoding;
-    end else
-    begin
-      AEncoding := IndyOSDefaultEncoding;
-    end;
-    Result := Length(AEncoding.GetPreamble);
-  end else
-  begin
-    Preamble := AEncoding.GetPreamble;
-    if ContainsPreamble(ABuffer, Preamble) then
-      Result := Length(Preamble);
-  end;
-end;
-
-function TIdTextEncoding.GetByteCount(const AChars: TIdWideChars): Integer;
-begin
-  Result := GetByteCount(AChars, 0, Length(AChars));
-end;
-
-function TIdTextEncoding.GetByteCount(const AChars: TIdWideChars; ACharIndex,
-  ACharCount: Integer): Integer;
-begin
-  if ACharIndex < 0 then
+  Len := Length(AChars);
+  if (ACharIndex < 0) or (ACharIndex >= Len) then begin
     raise Exception.CreateResFmt(@RSCharIndexOutOfBounds, [ACharIndex]);
-  if ACharCount < 0 then
+  end;
+  if ACharCount < 0 then begin
     raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-  if (Length(AChars) - ACharIndex) < ACharCount then
+  end;
+  if (Len - ACharIndex) < ACharCount then begin
     raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-
+  end;
   if ACharCount > 0 then begin
-    Result := GetByteCount(@AChars[ACharIndex], ACharCount);
+    Result := @AChars[ACharIndex];
   end else begin
-    Result := 0;
+    Result := nil;
   end;
 end;
 
-function TIdTextEncoding.GetByteCount(const AStr: TIdUnicodeString): Integer;
-begin
-  Result := GetByteCount(PWideChar(AStr), Length(AStr));
-end;
-
-function TIdTextEncoding.GetByteCount(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): Integer;
-begin
-  if ACharIndex < 1 then
-    raise Exception.CreateResFmt(@RSCharIndexOutOfBounds, [ACharIndex]);
-  if ACharCount < 0 then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-  if (Length(AStr) - ACharIndex + 1) < ACharCount then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-
-  if ACharCount > 0 then begin
-    Result := GetByteCount(PWideChar(@AStr[ACharIndex]), ACharCount);
-  end else begin
-    Result := 0;
-  end;
-end;
-
-function TIdTextEncoding.GetBytes(const AChars: TIdWideChars): TIdBytes;
+function ValidateBytes(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): PByte; overload;
 var
   Len: Integer;
 begin
-  Len := GetByteCount(AChars);
-  SetLength(Result, Len);
-  if Len > 0 then begin
-    GetBytes(AChars, 0, Length(AChars), Result, 0);
-  end;
-end;
-
-function TIdTextEncoding.GetBytes(const AChars: TIdWideChars; ACharIndex, ACharCount: Integer;
-  var VBytes: TIdBytes; AByteIndex: Integer): Integer;
-var
-  Len: Integer;
-begin
-  if (AChars = nil) and (ACharCount <> 0) then
-    raise Exception.CreateRes(@RSInvalidSourceArray);
-  if (VBytes = nil) and (ACharCount <> 0) then
-    raise Exception.CreateRes(@RSInvalidDestinationArray);
-  if ACharIndex < 0 then
-    raise Exception.CreateResFmt(@RSCharIndexOutOfBounds, [ACharIndex]);
-  if ACharCount < 0 then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-  if (Length(AChars) - ACharIndex) < ACharCount then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-  Len := Length(VBytes);
-  if (AByteIndex < 0) or (AByteIndex > Len) then
+  Len := Length(ABytes);
+  if (AByteIndex < 0) or (AByteIndex >= Len) then begin
     raise Exception.CreateResFmt(@RSInvalidDestinationIndex, [AByteIndex]);
-  if Len - AByteIndex < GetByteCount(AChars, ACharIndex, ACharCount) then
+  end;
+  if (Len - AByteIndex) < AByteCount then begin
     raise Exception.CreateRes(@RSInvalidDestinationArray);
-
-  Len := Len - AByteIndex;
-  if (ACharCount > 0) and (Len > 0) then begin
-    Result := GetBytes(@AChars[ACharIndex], ACharCount, @VBytes[AByteIndex], Len);
-  end else begin
-    Result := 0;
   end;
-end;
-
-function TIdTextEncoding.GetBytes(const AStr: TIdUnicodeString): TIdBytes;
-var
-  Len: Integer;
-begin
-  Len := GetByteCount(AStr);
-  SetLength(Result, Len);
-  if Len > 0 then begin
-    GetBytes(AStr, 1, Length(AStr), Result, 0);
-  end;
-end;
-
-function TIdTextEncoding.GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer;
-  var VBytes: TIdBytes; AByteIndex: Integer): Integer;
-var
-  Len: Integer;
-begin
-  if (VBytes = nil) and (ACharCount <> 0) then
-    raise Exception.CreateRes(@RSInvalidSourceArray);
-  if ACharIndex < 1 then
-    raise Exception.CreateResFmt(@RSCharIndexOutOfBounds, [ACharIndex]);
-  if ACharCount < 0 then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-  if (Length(AStr) - ACharIndex + 1) < ACharCount then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
-  Len := Length(VBytes);
-  if (AByteIndex < 0) or (AByteIndex > Len) then
-    raise Exception.CreateResFmt(@RSInvalidDestinationIndex, [AByteIndex]);
-  if Len - AByteIndex < GetByteCount(AStr, ACharIndex, ACharCount) then
-    raise Exception.CreateRes(@RSInvalidDestinationArray);
-
-  Len := Len - AByteIndex;
-  if (ACharCount > 0) and (Len > 0) then begin
-    Result := GetBytes(@AStr[ACharIndex], ACharCount, @VBytes[AByteIndex], Len);
-  end else begin
-    Result := 0
-  end;
-end;
-
-function TIdTextEncoding.GetCharCount(const ABytes: TIdBytes): Integer;
-begin
-  Result := GetCharCount(ABytes, 0, Length(ABytes));
-end;
-
-function TIdTextEncoding.GetCharCount(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): Integer;
-begin
-  if (ABytes = nil) and (AByteCount <> 0) then
-    raise Exception.CreateRes(@RSInvalidSourceArray);
-  if AByteIndex < 0 then
-    raise Exception.CreateResFmt(@RSByteIndexOutOfBounds, [AByteIndex]);
-  if AByteCount < 0 then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [AByteCount]);
-  if (Length(ABytes) - AByteIndex) < AByteCount then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [AByteCount]);
-
   if AByteCount > 0 then begin
-    Result := GetCharCount(@ABytes[AByteIndex], AByteCount);
+    Result := @ABytes[AByteIndex];
   end else begin
-    Result := 0
+    Result := nil;
   end;
 end;
 
-function TIdTextEncoding.GetChars(const ABytes: TIdBytes): TIdWideChars;
-begin
-  Result := GetChars(ABytes, 0, Length(ABytes));
-end;
-
-function TIdTextEncoding.GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdWideChars;
+function ValidateBytes(const ABytes: TIdBytes; AByteIndex, AByteCount, ANeeded: Integer): PByte; overload;
 var
   Len: Integer;
 begin
-  if (ABytes = nil) and (AByteCount <> 0) then
-    raise Exception.CreateRes(@RSInvalidSourceArray);
-  if AByteIndex < 0 then
-    raise Exception.CreateResFmt(@RSByteIndexOutOfBounds, [AByteIndex]);
-  if AByteCount < 0 then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [AByteCount]);
-  if (Length(ABytes) - AByteIndex) < AByteCount then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [AByteCount]);
-
-  Len := GetCharCount(ABytes, AByteIndex, AByteCount);
-  SetLength(Result, Len);
-  if Len > 0 then begin
-    GetChars(@ABytes[AByteIndex], AByteCount, PWideChar(Result), Len);
+  Len := Length(ABytes);
+  if (AByteIndex < 0) or (AByteIndex >= Len) then begin
+    raise Exception.CreateResFmt(@RSInvalidDestinationIndex, [AByteIndex]);
+  end;
+  if (Len - AByteIndex) < ANeeded then begin
+    raise Exception.CreateRes(@RSInvalidDestinationArray);
+  end;
+  if AByteCount > 0 then begin
+    Result := @ABytes[AByteIndex];
+  end else begin
+    Result := nil;
   end;
 end;
 
-function TIdTextEncoding.GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer;
+function ValidateStr(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): PIdWideChar;
+begin
+  if ACharIndex < 1 then begin
+    raise Exception.CreateResFmt(@RSCharIndexOutOfBounds, [ACharIndex]);
+  end;
+  if ACharCount < 0 then begin
+    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+  end;
+  if (Length(AStr) - ACharIndex + 1) < ACharCount then begin
+    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+  end;
+  if ACharCount > 0 then begin
+    Result := @AStr[ACharIndex];
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TIdTextEncodingBase.GetByteCount(const AChars: TIdWideChars): Integer;
+begin
+  if AChars <> nil then begin
+    Result := GetByteCount(PIdWideChar(AChars), Length(AChars));
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetByteCount(const AChars: TIdWideChars;
+  ACharIndex, ACharCount: Integer): Integer;
+var
+  LChars: PIdWideChar;
+begin
+  LChars := ValidateChars(AChars, ACharIndex, ACharCount);
+  if LChars <> nil then begin
+    Result := GetByteCount(LChars, ACharCount);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetByteCount(const AStr: TIdUnicodeString): Integer;
+begin
+  if AStr <> '' then begin
+    Result := GetByteCount(PIdWideChar(AStr), Length(AStr));
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetByteCount(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): Integer;
+var
+  LChars: PIdWideChar;
+begin
+  LChars := ValidateStr(AStr, ACharIndex, ACharCount);
+  if LChars <> nil then begin
+    Result := GetByteCount(LChars, ACharCount);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetBytes(const AChars: TIdWideChars): TIdBytes;
+begin
+  if AChars <> nil then begin
+    Result := GetBytes(PIdWideChar(AChars), Length(AChars));
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TIdTextEncodingBase.GetBytes(const AChars: TIdWideChars;
+  ACharIndex, ACharCount: Integer): TIdBytes;
+var
+  Len: Integer;
+begin
+  Result := nil;
+  Len := GetByteCount(AChars, ACharIndex, ACharCount);
+  if Len > 0 then begin
+    SetLength(Result, Len);
+    GetBytes(@AChars[ACharIndex], ACharCount, PByte(Result), Len);
+  end;
+end;
+
+function TIdTextEncodingBase.GetBytes(const AChars: TIdWideChars;
+  ACharIndex, ACharCount: Integer; var VBytes: TIdBytes; AByteIndex: Integer): Integer;
+begin
+  Result := GetBytes(
+    ValidateChars(AChars, ACharIndex, ACharCount),
+    ACharCount, VBytes, AByteIndex);
+end;
+
+function TIdTextEncodingBase.GetBytes(const AChars: PIdWideChar; ACharCount: Integer): TIdBytes;
+var
+  Len: Integer;
+begin
+  Result := nil;
+  Len := GetByteCount(AChars, ACharCount);
+  if Len > 0 then begin
+    SetLength(Result, Len);
+    GetBytes(AChars, ACharCount, PByte(Result), Len);
+  end;
+end;
+
+function TIdTextEncodingBase.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
+  var VBytes: TIdBytes; AByteIndex: Integer): Integer;
+var
+  Len, LByteCount: Integer;
+  LBytes: PByte;
+begin
+  if (AChars = nil) and (ACharCount <> 0) then begin
+    raise Exception.CreateRes(@RSInvalidSourceArray);
+  end;
+  if (VBytes = nil) and (ACharCount <> 0) then begin
+    raise Exception.CreateRes(@RSInvalidDestinationArray);
+  end;
+  if ACharCount < 0 then begin
+    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+  end;
+  Len := Length(VBytes);
+  LByteCount := GetByteCount(AChars, ACharCount);
+  LBytes := ValidateBytes(VBytes, AByteIndex, Len, LByteCount);
+  Dec(Len, AByteIndex);
+  if (ACharCount > 0) and (Len > 0) then begin
+    Result := GetBytes(AChars, ACharCount, LBytes, LByteCount);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetBytes(const AStr: TIdUnicodeString): TIdBytes;
+var
+  Len: Integer;
+begin
+  Result := nil;
+  Len := GetByteCount(AStr);
+  if Len > 0 then begin
+    SetLength(Result, Len);
+    GetBytes(PIdWideChar(AStr), Length(AStr), PByte(Result), Len);
+  end;
+end;
+
+function TIdTextEncodingBase.GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): TIdBytes;
+var
+  Len: Integer;
+  LChars: PIdWideChar;
+begin
+  Result := nil;
+  LChars := ValidateStr(AStr, ACharIndex, ACharCount);
+  if LChars <> nil then begin
+    Len := GetByteCount(LChars, ACharCount);
+    if Len > 0 then begin
+      SetLength(Result, Len);
+      GetBytes(LChars, ACharCount, PByte(Result), Len);
+    end;
+  end;
+end;
+
+function TIdTextEncodingBase.GetBytes(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer;
+  var VBytes: TIdBytes; AByteIndex: Integer): Integer;
+var
+  LChars: PIdWideChar;
+begin
+  LChars := ValidateStr(AStr, ACharIndex, ACharCount);
+  if LChars <> nil then begin
+    Result := GetBytes(LChars, ACharCount, VBytes, AByteIndex);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetCharCount(const ABytes: TIdBytes): Integer;
+begin
+  if ABytes <> nil then begin
+    Result := GetCharCount(PByte(ABytes), Length(ABytes));
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetCharCount(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): Integer;
+var
+  LBytes: PByte;
+begin
+  LBytes := ValidateBytes(ABytes, AByteIndex, AByteCount);
+  if LBytes <> nil then begin
+    Result := GetCharCount(LBytes, AByteCount);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetChars(const ABytes: TIdBytes): TIdWideChars;
+begin
+  if ABytes <> nil then begin
+    Result := GetChars(PByte(ABytes), Length(ABytes));
+  end else begin
+    Result := nil;
+  end;
+end;
+
+function TIdTextEncodingBase.GetChars(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdWideChars;
+var
+  Len: Integer;
+begin
+  Result := nil;
+  Len := GetCharCount(ABytes, AByteIndex, AByteCount);
+  if Len > 0 then begin
+    SetLength(Result, Len);
+    GetChars(@ABytes[AByteIndex], AByteCount, PIdWideChar(Result), Len);
+  end;
+end;
+
+function TIdTextEncodingBase.GetChars(const ABytes: TIdBytes;
+  AByteIndex, AByteCount: Integer; var VChars: TIdWideChars; ACharIndex: Integer): Integer;
+var
+  LBytes: PByte;
+begin
+  LBytes := ValidateBytes(ABytes, AByteIndex, AByteCount);
+  if LBytes <> nil then begin
+    Result := GetChars(LBytes, AByteCount, VChars, ACharIndex);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdTextEncodingBase.GetChars(const ABytes: PByte; AByteCount: Integer): TIdWideChars;
+var
+  Len: Integer;
+begin
+  Len := GetCharCount(ABytes, AByteCount);
+  if Len > 0 then begin
+    SetLength(Result, Len);
+    GetChars(ABytes, AByteCount, PIdWideChar(Result), Len);
+  end;
+end;
+
+function TIdTextEncodingBase.GetChars(const ABytes: PByte; AByteCount: Integer;
   var VChars: TIdWideChars; ACharIndex: Integer): Integer;
 var
   LCharCount: Integer;
 begin
-  if (ABytes = nil) and (AByteCount <> 0) then
+  if (ABytes = nil) and (AByteCount <> 0) then begin
     raise Exception.CreateRes(@RSInvalidSourceArray);
-  if AByteIndex < 0 then
-    raise Exception.CreateResFmt(@RSByteIndexOutOfBounds, [AByteIndex]);
-  if AByteCount < 0 then
+  end;
+  if AByteCount < 0 then begin
     raise Exception.CreateResFmt(@RSInvalidCharCount, [AByteCount]);
-  if (Length(ABytes) - AByteIndex) < AByteCount then
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [AByteCount]);
-
-  LCharCount := GetCharCount(ABytes, AByteIndex, AByteCount);
-  if (ACharIndex < 0) or (ACharIndex > Length(VChars)) then
+  end;
+  if (ACharIndex < 0) or (ACharIndex > Length(VChars)) then begin
     raise Exception.CreateResFmt(@RSInvalidDestinationIndex, [ACharIndex]);
-  if ACharIndex + LCharCount > Length(VChars) then
-    raise Exception.CreateRes(@RSInvalidDestinationArray);
-
-  if (AByteCount > 0) and (LCharCount > 0) then begin
-    Result := GetChars(@ABytes[AByteIndex], AByteCount, @VChars[ACharIndex], LCharCount);
+  end;
+  LCharCount := GetCharCount(ABytes, AByteCount);
+  if LCharCount > 0 then begin
+    if (ACharIndex + LCharCount) > Length(VChars) then begin
+      raise Exception.CreateRes(@RSInvalidDestinationArray);
+    end;
+    Result := GetChars(ABytes, AByteCount, @VChars[ACharIndex], LCharCount);
   end else begin
-    Result := 0
+    Result := 0;
   end;
 end;
 
-{$IFDEF HAS_CLASSPROPERTIES}
-class function TIdTextEncoding.GetDefault: TIdTextEncoding;
-{$ELSE}
-class function TIdTextEncoding.Default: TIdTextEncoding;
-{$ENDIF}
+function TIdTextEncodingBase.GetIsSingleByte: Boolean;
 begin
-  Result := IndyOSDefaultEncoding(True);
+  Result := FIsSingleByte;
 end;
 
-{$IFDEF USE_ICONV}
-class function TIdTextEncoding.GetEncoding(const ACharSet: String): TIdTextEncoding;
+function TIdTextEncodingBase.GetPreamble: TIdBytes;
 begin
-  case PosInStrArray(ACharSet, ['utf-16', 'utf-16le', 'utf-16be', 'utf-8', 'utf-7', 'ascii'], False) of {do not localize}
-    0, 1: Result := IndyUTF16LittleEndianEncoding(False);
-    2:    Result := IndyUTF16BigEndianEncoding(False);
-    3:    Result := IndyUTF8Encoding(False);
-    4:    Result := IndyUTF7Encoding(False);
-    5:    Result := IndyASCIIEncoding(False);
-  else
-    Result := TIdMBCSEncoding.Create(ACharSet);
+  SetLength(Result, 0);
+end;
+
+function TIdTextEncodingBase.GetString(const ABytes: TIdBytes): TIdUnicodeString;
+begin
+  if ABytes <> nil then begin
+    Result := GetString(PByte(ABytes), Length(ABytes));
+  end else begin
+    Result := '';
   end;
 end;
-{$ELSE}
-  {$IFDEF WINDOWS}
-class function TIdTextEncoding.GetEncoding(ACodePage: Integer): TIdTextEncoding;
-begin
-  case ACodePage of
-    1200:  Result := IndyUTF16LittleEndianEncoding(False);
-    1201:  Result := IndyUTF16BigEndianEncoding(False);
-    65000: Result := IndyUTF7Encoding(False);
-    20127: Result := IndyASCIIEncoding(False);
-    65001: Result := IndyUTF8Encoding(False);
-  else
-    Result := TIdMBCSEncoding.Create(ACodePage);
-  end;
-end;
-  {$ENDIF}
-{$ENDIF}
 
-function TIdTextEncoding.GetString(const ABytes: TIdBytes): TIdUnicodeString;
-begin
-  Result := GetString(ABytes, 0, Length(ABytes));
-end;
-
-function TIdTextEncoding.GetString(const ABytes: TIdBytes; AByteIndex, AByteCount: Integer): TIdUnicodeString;
+function TIdTextEncodingBase.GetString(const ABytes: TIdBytes;
+  AByteIndex, AByteCount: Integer): TIdUnicodeString;
 var
-  LChars: TIdWideChars;
+  Len: Integer;
 begin
-  LChars := GetChars(ABytes, AByteIndex, AByteCount);
-  SetString(Result, PWideChar(LChars), Length(LChars));
+  Result := '';
+  Len := GetCharCount(ABytes, AByteIndex, AByteCount);
+  if Len > 0 then begin
+    SetLength(Result, Len);
+    GetChars(@ABytes[AByteIndex], AByteCount, PIdWideChar(Result), Len);
+  end;
 end;
 
-{$IFDEF HAS_CLASSPROPERTIES}
-class function TIdTextEncoding.GetUnicode: TIdTextEncoding;
-{$ELSE}
-class function TIdTextEncoding.Unicode: TIdTextEncoding;
-{$ENDIF}
+function TIdTextEncodingBase.GetString(const ABytes: PByte; AByteCount: Integer): TIdUnicodeString;
+var
+  Len: Integer;
 begin
-  Result := IndyUTF16LittleEndianEncoding(True);
+  Result := '';
+  Len := GetCharCount(ABytes, AByteCount);
+  if Len > 0 then begin
+    SetLength(Result, Len);
+    GetChars(ABytes, AByteCount, PIdWideChar(Result), Len);
+  end;
 end;
-
-{$IFDEF HAS_CLASSPROPERTIES}
-class function TIdTextEncoding.GetUTF7: TIdTextEncoding;
-{$ELSE}
-class function TIdTextEncoding.UTF7: TIdTextEncoding;
-{$ENDIF}
-begin
-  Result := IndyUTF7Encoding(True);
-end;
-
-{$IFDEF HAS_CLASSPROPERTIES}
-class function TIdTextEncoding.GetUTF8: TIdTextEncoding;
-{$ELSE}
-class function TIdTextEncoding.UTF8: TIdTextEncoding;
-{$ENDIF}
-begin
-  Result := IndyUTF8Encoding(True);
-end;
-
-class function TIdTextEncoding.IsStandardEncoding(AEncoding: TIdTextEncoding): Boolean;
-begin
-  Result := Assigned(AEncoding) and (
-    (AEncoding = GIdASCIIEncoding) or
-    (AEncoding = GIdBEUTF16Encoding) or
-    (AEncoding = GIdDefaultEncoding) or
-    (AEncoding = GIdLEUTF16Encoding) or
-    (AEncoding = GIdUTF7Encoding) or
-    (AEncoding = GIdUTF8Encoding)
-  );
-end;
-{$ENDIF}
 
 { TIdMBCSEncoding }
 
-{$IFDEF TIdMBCSEncoding_NEEDED}
 constructor TIdMBCSEncoding.Create;
 begin
   {$IFDEF USE_ICONV}
-  if GIdIconvUseLocaleDependantAnsiEncoding then begin
-    Create('char'); {do not localize}
-  end else begin
-    Create('ASCII'); {do not localize}
-  end;
+  Create(iif(GIdIconvUseLocaleDependantAnsiEncoding, 'char', 'ASCII')); {do not localize}
   {$ELSE}
-    {$IFDEF WINDOWS}
+    {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
   Create(CP_ACP, 0, 0);
     {$ELSE}
   ToDo('Constructor of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
@@ -2193,33 +2387,39 @@ const
   // an actual Unicode codepoint.  We'll encode the largest codepoint that
   // UTF-16 supports, U+10FFFF, for now...
   //
-  // TODO: should we be using UTF-16LE or UTF-16BE on big-endian systems?
-  // Delphi uses UTF-16LE, but what does FreePascal use? Let's err on the
-  // side of caution until we know otherwise...
-  //
   cValue: array[0..3] of Byte = ({$IFDEF ENDIAN_BIG}$DB, $FF, $DF, $FF{$ELSE}$FF, $DB, $FF, $DF{$ENDIF});
 begin
   inherited Create;
   FCharSet := CharSet;
-  FMaxCharSize := GetByteCount(PWideChar(@cValue[0]), 2);
+  FMaxCharSize := GetByteCount(PIdWideChar(@cValue[0]), 2);
   FIsSingleByte := (FMaxCharSize = 1);
 end;
 {$ELSE}
-  {$IFDEF WINDOWS}
+  {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
 constructor TIdMBCSEncoding.Create(CodePage: Integer);
 begin
   Create(CodePage, 0, 0);
 end;
 
 constructor TIdMBCSEncoding.Create(CodePage, MBToWCharFlags, WCharToMBFlags: Integer);
+{$IFNDEF WINDOWS}
+const
+  // RLebeau: have to determine the max bytes by manually encoding an actual
+  // Unicode codepoint.  We'll encode the largest codepoint that UTF-16 supports,
+  // U+10FFFF, for now...
+  //
+  cValue: array[0..1] of Word = ($DBFF, $DFFD);
+{$ELSE}
 var
   LCPInfo: TCPInfo;
   LError: Boolean;
+{$ENDIF}
 begin
   FCodePage := CodePage;
   FMBToWCharFlags := MBToWCharFlags;
   FWCharToMBFlags := WCharToMBFlags;
 
+  {$IFDEF WINDOWS}
   LError := not GetCPInfo(FCodePage, LCPInfo);
   if LError and (FCodePage = 20127) then begin
     // RLebeau: 20127 is the official codepage for ASCII, but not
@@ -2236,8 +2436,13 @@ begin
   if LError then begin
     raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
   end;
-
   FMaxCharSize := LCPInfo.MaxCharSize;
+  {$ELSE}
+  FMaxCharSize := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, @cValue[0], 2, nil, 0, nil, nil);
+  if FMaxCharSize < 1 then begin
+    raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
+  end;
+  {$ENDIF}
   FIsSingleByte := (FMaxCharSize = 1);
 end;
   {$ENDIF}
@@ -2258,6 +2463,9 @@ const
   cUTF16CharSet = {$IFDEF ENDIAN_BIG}'UTF-16BE'{$ELSE}'UTF-16LE'{$ENDIF}; {do not localize}
 var
   LToCharSet, LFromCharSet, LFlags: String;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+  {$ENDIF}
 begin
   // on some systems, //IGNORE must be specified before //TRANSLIT if they
   // are used together, otherwise //IGNORE gets ignored!
@@ -2270,14 +2478,18 @@ begin
   end;
 
   if AToUTF16 then begin
-    LToCharSet := cUTF16CharSet + LFlags;
-    LFromCharSet := ACharSet;
+    LToCharSet := cUTF16CharSet + LFlags; // explicit convert to Ansi
+    LFromCharSet := ACharSet; // explicit convert to Ansi
   end else begin
-    LToCharSet := ACharSet + LFlags;
+    LToCharSet := ACharSet + LFlags; // explicit convert to Ansi
     LFromCharSet := cUTF16CharSet;
   end;
 
   Result := iconv_open(
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(LToCharSet).ToPointer,
+    M.AsAnsi(LFromCharSet).ToPointer
+    {$ELSE}
     PAnsiChar(
       {$IFDEF STRING_IS_ANSI}
       LToCharSet
@@ -2292,6 +2504,7 @@ begin
       AnsiString(LFromCharSet) // explicit convert to Ansi
       {$ENDIF}
     )
+    {$ENDIF}
   );
   if Result = iconv_t(-1) then begin
     if LFlags <> '' then begin
@@ -2333,10 +2546,10 @@ begin
 end;
 {$ENDIF}
 
-function TIdMBCSEncoding.GetByteCount(Chars: PWideChar; CharCount: Integer): Integer;
+function TIdMBCSEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
-  LBytes: array[0..5] of Byte;
+  LBytes: array[0..3] of Byte;
   LCharsPtr, LBytesPtr: PAnsiChar;
   LSrcCharSize, LCharSize, LByteSize: size_t;
   LCharsRead: Integer;
@@ -2345,7 +2558,7 @@ var
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
-  if (Chars = nil) or (CharCount = 0) then begin
+  if (AChars = nil) or (ACharCount = 0) then begin
     Exit;
   end;
 
@@ -2370,8 +2583,8 @@ begin
 
     // do the conversion
     repeat
-      if Chars <> nil then begin
-        LSrcCharSize := CalcUTF16ByteSize(Chars, CharCount);
+      if AChars <> nil then begin
+        LSrcCharSize := CalcUTF16ByteSize(AChars, ACharCount);
         if LSrcCharSize = 0 then begin
           Result := 0;
           Exit;
@@ -2380,7 +2593,7 @@ begin
         LSrcCharSize := 0;
       end;
 
-      LCharsPtr := PAnsiChar(Chars);
+      LCharsPtr := PAnsiChar(AChars);
       LCharSize := LSrcCharSize;
       LBytesPtr := PAnsiChar(@LBytes[0]);
       LByteSize := SizeOf(LBytes);
@@ -2398,29 +2611,33 @@ begin
 
       // LCharSize was decremented by the number of bytes read from the input buffer
       LCharsRead := (LSrcCharSize-LCharSize) div SizeOf(WideChar);
-      Inc(Chars, LCharsRead);
-      Dec(CharCount, LCharsRead);
-      if CharCount < 1 then
+      Inc(AChars, LCharsRead);
+      Dec(ACharCount, LCharsRead);
+      if ACharCount < 1 then
       begin
         // After all characters are handled, the output buffer has to be flushed
         // This is done by running one more iteration, without an input buffer
-        Chars := nil;
+        AChars := nil;
       end;
     until False;
   finally
     iconv_close(LIconv);
   end;
   {$ELSE}
-    {$IFDEF WINDOWS}
-  Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, Chars, CharCount, nil, 0, nil, nil);
+    {$IFDEF HAS_LocaleCharsFromUnicode}
+  Result := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, AChars, ACharCount, nil, 0, nil, nil);
     {$ELSE}
+      {$IFDEF WINDOWS}
+  Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, AChars, ACharCount, nil, 0, nil, nil);
+      {$ELSE}
   ToDo('GetByteCount() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
 
-function TIdMBCSEncoding.GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte;
-  ByteCount: Integer): Integer;
+function TIdMBCSEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte;
+  AByteCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
   LCharsPtr, LBytesPtr: PAnsiChar;
@@ -2431,10 +2648,10 @@ var
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
-  if (Chars = nil) or (CharCount = 0) then begin
+  if (AChars = nil) or (ACharCount = 0) then begin
     Exit;
   end;
-  Assert (Bytes <> nil, 'TIdMBCSEncoding.GetBytes Bytes can not be nil');
+  Assert (ABytes <> nil, 'TIdMBCSEncoding.GetBytes Bytes can not be nil');
 
   LIconv := CreateIconvHandle(FCharSet, False);
   try
@@ -2450,8 +2667,8 @@ begin
 
     // do the conversion
     repeat
-      if Chars <> nil then begin
-        LSrcCharSize := CalcUTF16ByteSize(Chars, CharCount);
+      if AChars <> nil then begin
+        LSrcCharSize := CalcUTF16ByteSize(AChars, ACharCount);
         if LSrcCharSize = 0 then begin
           Result := 0;
           Exit;
@@ -2460,48 +2677,53 @@ begin
         LSrcCharSize := 0;
       end;
 
-      LCharsPtr := PAnsiChar(Chars);
+      LCharsPtr := PAnsiChar(AChars);
       LCharSize := LSrcCharSize;
-      LBytesPtr := PAnsiChar(Bytes);
-      LByteSize := ByteCount;
+      LBytesPtr := PAnsiChar(ABytes);
+      LByteSize := AByteCount;
       if iconv(LIconv, @LCharsPtr, @LCharSize, @LBytesPtr, {$IFNDEF KYLIX}@{$ENDIF}LByteSize) = size_t(-1) then
       begin
         Exit;
       end;
 
       // LByteSize was decremented by the number of bytes stored in the output buffer
-      LBytesWritten := ByteCount - LByteSize;
+      LBytesWritten := AByteCount - LByteSize;
       Inc(Result, LBytesWritten);
-      if Chars = nil then begin
+      if AChars = nil then begin
         Exit;
       end;
-      Inc(Bytes, LBytesWritten);
-      Dec(ByteCount, LBytesWritten);
+      Inc(ABytes, LBytesWritten);
+      Dec(AByteCount, LBytesWritten);
 
       // LCharSize was decremented by the number of bytes read from the input buffer
       LCharsRead := (LSrcCharSize-LCharSize) div SizeOf(WideChar);
-      Inc(Chars, LCharsRead);
-      Dec(CharCount, LCharsRead);
-      if CharCount < 1 then
+      Inc(AChars, LCharsRead);
+      Dec(ACharCount, LCharsRead);
+      if ACharCount < 1 then
       begin
         // After all characters are handled, the output buffer has to be flushed
         // This is done by running one more iteration, without an input buffer
-        Chars := nil;
+        AChars := nil;
       end;
     until False;
   finally
-    iconv_close(LIconv);
+    iconv_close(Liconv);
   end;
   {$ELSE}
-    {$IFDEF WINDOWS}
-  Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, Chars, CharCount, PAnsiChar(Bytes), ByteCount, nil, nil);
+    {$IFDEF HAS_LocaleCharsFromUnicode}
+  Result := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, AChars, ACharCount, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, nil, nil);
     {$ELSE}
+      {$IFDEF WINDOWS}
+  Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, AChars, ACharCount, PAnsiChar(ABytes), AByteCount, nil, nil);
+      {$ELSE}
+  Result := 0;
   ToDo('GetBytes() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
 
-function TIdMBCSEncoding.GetCharCount(Bytes: PByte; ByteCount: Integer): Integer;
+function TIdMBCSEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
   LChars: array[0..3] of WideChar;
@@ -2514,7 +2736,7 @@ var
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
-  if (Bytes = nil) or (ByteCount = 0) then begin
+  if (ABytes = nil) or (AByteCount = 0) then begin
     Exit;
   end;
 
@@ -2540,7 +2762,7 @@ begin
 
     // do the conversion
     repeat
-      if Bytes = nil then
+      if ABytes = nil then
       begin
         LBytesPtr := nil;
         LByteSize := 0;
@@ -2559,11 +2781,11 @@ begin
 
       // TODO: figure out a better way to calculate the number of input bytes
       // needed to generate a single UTF-16 output sequence...
-      LMaxBytesSize := IndyMin(ByteCount, FMaxCharSize);
+      LMaxBytesSize := IndyMin(AByteCount, FMaxCharSize);
       LConverted := False;
       for I := 1 to LMaxBytesSize do
       begin
-        LBytesPtr := PAnsiChar(Bytes);
+        LBytesPtr := PAnsiChar(ABytes);
         LByteSize := I;
         LCharsPtr := PAnsiChar(@LChars[0]);
         LCharsSize := SizeOf(LChars);
@@ -2573,18 +2795,18 @@ begin
 
           // LCharsSize was decremented by the number of bytes stored in the output buffer
           Inc(Result, (SizeOf(LChars)-LCharsSize) div SizeOf(WideChar));
-          if Bytes = nil then begin
+          if ABytes = nil then begin
             Exit;
           end;
 
           // LByteSize was decremented by the number of bytes read from the input buffer
           LBytesRead := I - LByteSize;
-          Inc(Bytes, LBytesRead);
-          Dec(ByteCount, LBytesRead);
-          if ByteCount < 1 then begin
+          Inc(ABytes, LBytesRead);
+          Dec(AByteCount, LBytesRead);
+          if AByteCount < 1 then begin
             // After all bytes are handled, the output buffer has to be flushed
             // This is done by running one more iteration, without an input buffer
-            Bytes := nil;
+            ABytes := nil;
           end;
 
           Break;
@@ -2600,16 +2822,21 @@ begin
     iconv_close(LIconv);
   end;
   {$ELSE}
-    {$IFDEF WINDOWS}
-  Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(Bytes), ByteCount, nil, 0);
+    {$IFDEF HAS_UnicodeFromLocaleChars}
+  Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, nil, 0);
     {$ELSE}
+      {$IFDEF WINDOWS}
+  Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(ABytes), AByteCount, nil, 0);
+      {$ELSE}
+  Result := 0;
   ToDo('GetCharCount() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
 
-function TIdMBCSEncoding.GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar;
-  CharCount: Integer): Integer;
+function TIdMBCSEncoding.GetChars(const ABytes: PByte; AByteCount: Integer; AChars: PWideChar;
+  ACharCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
   LBytesPtr, LCharsPtr: PAnsiChar;
@@ -2621,7 +2848,7 @@ var
 begin
   {$IFDEF USE_ICONV}
   Result := 0;
-  if (Bytes = nil) or (ByteCount = 0) then begin
+  if (ABytes = nil) or (AByteCount = 0) then begin
     Exit;
   end;
 
@@ -2647,13 +2874,14 @@ begin
 
     // do the conversion
     repeat
-      LDestCharSize := CharCount * SizeOf(WideChar);
+      LMaxBytesSize := IndyMin(AByteCount, FMaxCharSize);
+      LDestCharSize := ACharCount * SizeOf(WideChar);
 
-      if Bytes = nil then
+      if ABytes = nil then
       begin
         LBytesPtr := nil;
         LByteSize := 0;
-        LCharsPtr := PAnsiChar(Chars);
+        LCharsPtr := PAnsiChar(AChars);
         LCharsSize := LDestCharSize;
         if iconv(LIconv, @LBytesPtr, @LByteSize, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) = size_t(-1) then
         begin
@@ -2668,13 +2896,13 @@ begin
 
       // TODO: figure out a better way to calculate the number of input bytes
       // needed to generate a single UTF-16 output sequence...
-      LMaxBytesSize := IndyMin(ByteCount, FMaxCharSize);
+      LMaxBytesSize := IndyMin(AByteCount, FMaxCharSize);
       LConverted := False;
       for I := 1 to LMaxBytesSize do
       begin
-        LBytesPtr := PAnsiChar(Bytes);
+        LBytesPtr := PAnsiChar(ABytes);
         LByteSize := I;
-        LCharsPtr := PAnsiChar(Chars);
+        LCharsPtr := PAnsiChar(AChars);
         LCharsSize := LDestCharSize;
         if iconv(LIconv, @LBytesPtr, @LByteSize, @LCharsPtr, {$IFNDEF KYLIX}@{$ENDIF}LCharsSize) <> size_t(-1) then
         begin
@@ -2683,20 +2911,20 @@ begin
           // LCharsSize was decremented by the number of bytes stored in the output buffer
           LCharsWritten := (LDestCharSize-LCharsSize) div SizeOf(WideChar);
           Inc(Result, LCharsWritten);
-          if Bytes = nil then begin
+          if ABytes = nil then begin
             Exit;
           end;
-          Inc(Chars, LCharsWritten);
-          Dec(CharCount, LCharsWritten);
+          Inc(AChars, LCharsWritten);
+          Dec(ACharCount, LCharsWritten);
 
           // LByteSize was decremented by the number of bytes read from the input buffer
           LBytesRead := I - LByteSize;
-          Inc(Bytes, LBytesRead);
-          Dec(ByteCount, LBytesRead);
-          if ByteCount < 1 then begin
+          Inc(ABytes, LBytesRead);
+          Dec(AByteCount, LBytesRead);
+          if AByteCount < 1 then begin
             // After all bytes are handled, the output buffer has to be flushed
             // This is done by running one more iteration, without an input buffer
-            Bytes := nil;
+            ABytes := nil;
           end;
 
           Break;
@@ -2712,10 +2940,15 @@ begin
     iconv_close(LIconv);
   end;
   {$ELSE}
-    {$IFDEF WINDOWS}
-  Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(Bytes), ByteCount, Chars, CharCount);
+    {$IFDEF HAS_UnicodeFromLocaleChars}
+  Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, AChars, ACharCount);
     {$ELSE}
+      {$IFDEF WINDOWS}
+  Result := MultiByteToWideChar(FCodePage, FMBToWCharFlags, PAnsiChar(ABytes), AByteCount, AChars, ACharCount);
+      {$ELSE}
+  Result := 0;
   ToDo('GetChars() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
@@ -2781,117 +3014,42 @@ begin
     {$ENDIF}
   {$ENDIF}
 end;
-{$ENDIF}
-
-{ TIdASCIIEncoding }
-
-{$IFDEF TIdASCIIEncoding_NEEDED}
-constructor TIdASCIIEncoding.Create;
-begin
-  FIsSingleByte := True;
-  FMaxCharSize := 1;
-end;
-
-function TIdASCIIEncoding.GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer;
-begin
-  Result := ACharCount;
-end;
-
-function TIdASCIIEncoding.GetBytes(AChars: PIdWideChar; ACharCount: Integer;
-  ABytes: PByte; AByteCount: Integer): Integer;
-var
-  i : Integer;
-begin
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
-    // replace illegal characters > $7F
-    if Word(AChars^) > $007F then begin
-      ABytes^ := Byte(Ord('?'));
-    end else begin
-      ABytes^ := Byte(AChars^);
-    end;
-    //advance to next char
-    Inc(AChars);
-    Inc(ABytes);
-  end;
-end;
-
-function TIdASCIIEncoding.GetCharCount(ABytes: PByte; AByteCount: Integer): Integer;
-begin
-  Result := AByteCount;
-end;
-
-function TIdASCIIEncoding.GetChars(ABytes: PByte; AByteCount: Integer;
-  AChars: PIdWideChar; ACharCount: Integer): Integer;
-var
-  i : Integer;
-begin
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
-    // This is an invalid byte in the ASCII encoding.
-    if ABytes^ > $7F then begin
-      Word(AChars^) := $FFFD;
-    end else begin
-      Word(AChars^) := ABytes^;
-    end;
-    //advance to next byte
-    Inc(AChars);
-    Inc(ABytes);
-  end;
-end;
-
-function TIdASCIIEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
-begin
-  Result := ACharCount;
-end;
-
-function TIdASCIIEncoding.GetMaxCharCount(AByteCount: Integer): Integer;
-begin
-  Result := AByteCount;
-end;
-
-function TIdASCIIEncoding.GetPreamble: TIdTextEncodingBytes;
-begin
-  SetLength(Result, 0);
-end;
-{$ENDIF}
 
 { TIdUTF7Encoding }
 
-{$IFDEF TIdUTF7Encoding_NEEDED}
 constructor TIdUTF7Encoding.Create;
 begin
-{$IFDEF USE_ICONV}
+  {$IFDEF USE_ICONV}
   inherited Create('UTF-7');
-{$ELSE}
-  {$IFDEF WINDOWS}
-  inherited Create(CP_UTF7);
   {$ELSE}
+    {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
+  inherited Create(CP_UTF7);
+    {$ELSE}
   ToDo('Construtor of TIdUTF7Encoding class is not implemented for this platform yet'); {do not localize}
+    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 end;
 
-function TIdUTF7Encoding.GetByteCount(Chars: PWideChar; CharCount: Integer): Integer;
+function TIdUTF7Encoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
-  Result := inherited GetByteCount(Chars, CharCount);
+  Result := inherited GetByteCount(AChars, ACharCount);
 end;
 
-function TIdUTF7Encoding.GetBytes(Chars: PWideChar; CharCount: Integer; Bytes: PByte;
-  ByteCount: Integer): Integer;
+function TIdUTF7Encoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
 begin
-  Result := inherited GetBytes(Chars, CharCount, Bytes, ByteCount);
+  Result := inherited GetBytes(AChars, ACharCount, ABytes, AByteCount);
 end;
 
-function TIdUTF7Encoding.GetCharCount(Bytes: PByte; ByteCount: Integer): Integer;
+function TIdUTF7Encoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 begin
-  Result := inherited GetCharCount(Bytes, ByteCount);
+  Result := inherited GetCharCount(ABytes, AByteCount);
 end;
 
-function TIdUTF7Encoding.GetChars(Bytes: PByte; ByteCount: Integer; Chars: PWideChar;
-  CharCount: Integer): Integer;
+function TIdUTF7Encoding.GetChars(const ABytes: PByte; AByteCount: Integer;
+  AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
-  Result := inherited GetChars(Bytes, ByteCount, Chars, CharCount);
+  Result := inherited GetChars(ABytes, AByteCount, AChars, ACharCount);
 end;
 
 function TIdUTF7Encoding.GetMaxByteCount(CharCount: Integer): Integer;
@@ -2903,22 +3061,22 @@ function TIdUTF7Encoding.GetMaxCharCount(ByteCount: Integer): Integer;
 begin
   Result := ByteCount;
 end;
-{$ENDIF}
 
 { TIdUTF8Encoding }
 
-{$IFDEF TIdUTF8Encoding_NEEDED}
+// TODO: implement UTF-8 manually so we don't have to deal with codepage issues...
+
 constructor TIdUTF8Encoding.Create;
 begin
-{$IFDEF USE_ICONV}
+  {$IFDEF USE_ICONV}
   inherited Create('UTF-8');
-{$ELSE}
-  {$IFDEF WINDOWS}
-  inherited Create(CP_UTF8, 0, 0);
   {$ELSE}
+    {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
+  inherited Create(CP_UTF8, 0, 0);
+    {$ELSE}
   ToDo('Constructor of TIdUTF8Encoding class is not implemented for this platform yet'); {do not localize}
+    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 end;
 
 function TIdUTF8Encoding.GetMaxByteCount(CharCount: Integer): Integer;
@@ -2938,72 +3096,77 @@ begin
   Result[1] := $BB;
   Result[2] := $BF;
 end;
-{$ENDIF}
 
 { TIdUTF16LittleEndianEncoding }
 
-{$IFDEF TIdUTF16LittleEndianEncoding_NEEDED}
 constructor TIdUTF16LittleEndianEncoding.Create;
 begin
   FIsSingleByte := False;
   FMaxCharSize := 4;
 end;
 
-function TIdUTF16LittleEndianEncoding.GetByteCount(Chars: PWideChar; CharCount: Integer): Integer;
+function TIdUTF16LittleEndianEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
-  Result := CharCount * SizeOf(WideChar);
+  // TODO: verify UTF-16 sequences
+  Result := ACharCount * SizeOf(WideChar);
 end;
 
-function TIdUTF16LittleEndianEncoding.GetBytes(Chars: PWideChar; CharCount: Integer;
-  Bytes: PByte; ByteCount: Integer): Integer;
+function TIdUTF16LittleEndianEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
 {$IFDEF ENDIAN_BIG}
 var
   I: Integer;
+  LChars: PIdWideChar;
 {$ENDIF}
 begin
+  // TODO: verify UTF-16 sequences
   {$IFDEF ENDIAN_BIG}
-  for I := CharCount - 1 downto 0 do
+  LChars := AChars;
+  for I := ACharCount - 1 downto 0 do
   begin
-    Bytes^ := Hi(Word(Chars^));
-    Inc(Bytes);
-    Bytes^ := Lo(Word(Chars^));
-    Inc(Bytes);
-    Inc(Chars);
+    ABytes^ := Hi(Word(LChars^));
+    Inc(ABytes);
+    ABytes^ := Lo(Word(LChars^));
+    Inc(ABytes);
+    Inc(LChars);
   end;
-  Result := CharCount * SizeOf(WideChar);
+  Result := ACharCount * SizeOf(WideChar);
   {$ELSE}
-  Result := CharCount * SizeOf(WideChar);
-  Move(Chars^, Bytes^, Result);
+  Result := ACharCount * SizeOf(WideChar);
+  Move(AChars^, ABytes^, Result);
   {$ENDIF}
 end;
 
-function TIdUTF16LittleEndianEncoding.GetCharCount(Bytes: PByte; ByteCount: Integer): Integer;
+function TIdUTF16LittleEndianEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 begin
-  Result := ByteCount div SizeOf(WideChar);
+  // TODO: verify UTF-16 sequences
+  Result := AByteCount div SizeOf(WideChar);
 end;
 
-function TIdUTF16LittleEndianEncoding.GetChars(Bytes: PByte; ByteCount: Integer;
-  Chars: PWideChar; CharCount: Integer): Integer;
+function TIdUTF16LittleEndianEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
+  AChars: PIdWideChar; ACharCount: Integer): Integer;
 {$IFDEF ENDIAN_BIG}
 var
-  P: PByte;
+  LBytes1, LBytes2: PByte;
   I: Integer;
 {$ENDIF}
 begin
+  // TODO: verify UTF-16 sequences
   {$IFDEF ENDIAN_BIG}
-  P := Bytes;
-  Inc(P);
-  for I := 0 to CharCount - 1 do
+  LBytes1 := ABytes;
+  LBytes2 := ABytes;
+  Inc(LBytes2);
+  for I := 0 to ACharCount - 1 do
   begin
-    Chars^ := WideChar(MakeWord(P^, Bytes^));
-    Inc(Bytes, 2);
-    Inc(P, 2);
-    Inc(Chars);
+    AChars^ := WideChar(MakeWord(LBytes2^, LBytes1^));
+    Inc(LBytes1, 2);
+    Inc(LBytes2, 2);
+    Inc(AChars);
   end;
-  Result := CharCount;
+  Result := ACharCount;
   {$ELSE}
-  Result := ByteCount div SizeOf(WideChar);
-  Move(Bytes^, Chars^, Result * SizeOf(WideChar));
+  Result := AByteCount div SizeOf(WideChar);
+  Move(ABytes^, AChars^, Result * SizeOf(WideChar));
   {$ENDIF}
 end;
 
@@ -3023,56 +3186,57 @@ begin
   Result[0] := $FF;
   Result[1] := $FE;
 end;
-{$ENDIF}
 
 { TIdUTF16BigEndianEncoding }
 
-{$IFDEF TIdUTF16BigEndianEncoding_NEEDED}
-function TIdUTF16BigEndianEncoding.GetBytes(Chars: PWideChar; CharCount: Integer;
-  Bytes: PByte; ByteCount: Integer): Integer;
+function TIdUTF16BigEndianEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
 {$IFDEF ENDIAN_LITTLE}
 var
   I: Integer;
+  P: PIdWideChar;
 {$ENDIF}
 begin
   {$IFDEF ENDIAN_LITTLE}
-  for I := CharCount - 1 downto 0 do
+  P := AChars;
+  for I := ACharCount - 1 downto 0 do
   begin
-    Bytes^ := Hi(Word(Chars^));
-    Inc(Bytes);
-    Bytes^ := Lo(Word(Chars^));
-    Inc(Bytes);
-    Inc(Chars);
+    ABytes^ := Hi(Word(P^));
+    Inc(ABytes);
+    ABytes^ := Lo(Word(P^));
+    Inc(ABytes);
+    Inc(P);
   end;
-  Result := CharCount * SizeOf(WideChar);
+  Result := ACharCount * SizeOf(WideChar);
   {$ELSE}
-  Result := CharCount * SizeOf(WideChar);
-  Move(Chars^, Bytes^, Result);
+  Result := ACharCount * SizeOf(WideChar);
+  Move(AChars^, ABytes^, Result);
   {$ENDIF}
 end;
 
-function TIdUTF16BigEndianEncoding.GetChars(Bytes: PByte; ByteCount: Integer;
-  Chars: PWideChar; CharCount: Integer): Integer;
+function TIdUTF16BigEndianEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
+  AChars: PIdWideChar; ACharCount: Integer): Integer;
 {$IFDEF ENDIAN_LITTLE}
 var
-  P: PByte;
+  P1, P2: PByte;
   I: Integer;
 {$ENDIF}
 begin
   {$IFDEF ENDIAN_LITTLE}
-  P := Bytes;
-  Inc(P);
-  for I := 0 to CharCount - 1 do
+  P1 := ABytes;
+  P2 := P1;
+  Inc(P1);
+  for I := 0 to ACharCount - 1 do
   begin
-    Chars^ := WideChar(MakeWord(P^, Bytes^));
-    Inc(Bytes, 2);
-    Inc(P, 2);
-    Inc(Chars);
+    AChars^ := WideChar(MakeWord(P1^, P2^));
+    Inc(P2, 2);
+    Inc(P1, 2);
+    Inc(AChars);
   end;
-  Result := CharCount;
+  Result := ACharCount;
   {$ELSE}
-  Result := ByteCount div SizeOf(WideChar);
-  Move(Bytes^, Chars^, Result * SizeOf(WideChar));
+  Result := AByteCount div SizeOf(WideChar);
+  Move(ABytes^, AChars^, Result * SizeOf(WideChar));
   {$ENDIF}
 end;
 
@@ -3082,102 +3246,78 @@ begin
   Result[0] := $FE;
   Result[1] := $FF;
 end;
-{$ENDIF}
 
-function enDefault: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+{ TIdASCIIEncoding }
+
+constructor TIdASCIIEncoding.Create;
 begin
-  Result := nil;
+  FIsSingleByte := True;
+  FMaxCharSize := 1;
 end;
 
-function en7Bit: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+function TIdASCIIEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
-  Result := IndyASCIIEncoding;
+  Result := ACharCount;
 end;
 
-function en8Bit: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+function TIdASCIIEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
+var
+  P: PIdWideChar;
+  i : Integer;
 begin
-  Result := Indy8BitEncoding;
+  P := AChars;
+  Result := IndyMin(ACharCount, AByteCount);
+  for i := 1 to Result do begin
+    // replace illegal characters > $7F
+    if Word(P^) > $007F then begin
+      ABytes^ := Byte(Ord('?'));
+    end else begin
+      ABytes^ := Byte(P^);
+    end;
+    //advance to next char
+    Inc(P);
+    Inc(ABytes);
+  end;
 end;
 
-function enUTF8: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+function TIdASCIIEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 begin
-  Result := IndyUTF8Encoding;
+  Result := AByteCount;
 end;
 
-{$IFDEF DOTNET}
-
-function Indy8BitEncoding: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+function TIdASCIIEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
+  AChars: PIdWideChar; ACharCount: Integer): Integer;
+var
+  P: PByte;
+  i : Integer;
 begin
-  // We need a charset that converts UTF-16 codeunits in the $00-$FF range
-  // to/from their numeric values as-is.  Was previously using "Windows-1252"
-  // which does so for most codeunits, however codeunits $80-$9F in
-  // Windows-1252 map to different codepoints in Unicode, which we don't want.
-  // "ISO-8859-1" aka "ISO_8859-1:1987" (not to be confused with the older
-  // "ISO 8859-1" charset), on the other hand, treats codeunits $00-$FF as-is,
-  // and seems to be just as widely supported as Windows-1252 on most systems,
-  // so we'll use that for now...
-
-  Result := TIdTextEncoding.GetEncoding('ISO-8859-1');
+  P := ABytes;
+  Result := IndyMin(ACharCount, AByteCount);
+  for i := 1 to Result do begin
+    // This is an invalid byte in the ASCII encoding.
+    if P^ > $7F then begin
+      Word(AChars^) := $FFFD;
+    end else begin
+      Word(AChars^) := P^;
+    end;
+    //advance to next byte
+    Inc(AChars);
+    Inc(P);
+  end;
 end;
 
-function IndyASCIIEncoding: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+function TIdASCIIEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
 begin
-  Result := TIdTextEncoding.ASCII;
+  Result := ACharCount;
 end;
 
-function IndyUTF16BigEndianEncoding: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+function TIdASCIIEncoding.GetMaxCharCount(AByteCount: Integer): Integer;
 begin
-  Result := TIdTextEncoding.BigEndianUnicode;
+  Result := AByteCount;
 end;
-
-function IndyUTF16LittleEndianEncoding: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  Result := TIdTextEncoding.Unicode;
-end;
-
-function IndyOSDefaultEncoding: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  Result := TIdTextEncoding.Default;
-end;
-
-function IndyUTF7Encoding: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  Result := TIdTextEncoding.UTF7;
-end;
-
-function IndyUTF8Encoding: TIdTextEncoding;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  Result := TIdTextEncoding.UTF8;
-end;
-
-{$ELSE}
 
 { TId8BitEncoding }
-
-type
-  TId8BitEncoding = class(TIdTextEncoding)
-  protected
-    function GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer; override;
-    function GetBytes(AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; override;
-    function GetCharCount(ABytes: PByte; AByteCount: Integer): Integer; override;
-    function GetChars(ABytes: PByte; AByteCount: Integer; AChars: PIdWideChar; ACharCount: Integer): Integer; override;
-  public
-    constructor Create; virtual;
-    function GetMaxByteCount(ACharCount: Integer): Integer; override;
-    function GetMaxCharCount(AByteCount: Integer): Integer; override;
-    function GetPreamble: TIdTextEncodingBytes; override;
-  end;
 
 constructor TId8BitEncoding.Create;
 begin
@@ -3185,46 +3325,50 @@ begin
   FMaxCharSize := 1;
 end;
 
-function TId8BitEncoding.GetByteCount(AChars: PIdWideChar; ACharCount: Integer): Integer;
+function TId8BitEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
   Result := ACharCount;
 end;
 
-function TId8BitEncoding.GetBytes(AChars: PIdWideChar; ACharCount: Integer;
+function TId8BitEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
   ABytes: PByte; AByteCount: Integer): Integer;
 var
+  P: PIdWideChar;
   i : Integer;
 begin
+  P := AChars;
   Result := IndyMin(ACharCount, AByteCount);
   for i := 1 to Result do begin
     // replace illegal characters > $FF
-    if Word(AChars^) > $00FF then begin
+    if Word(P^) > $00FF then begin
       ABytes^ := Byte(Ord('?'));
     end else begin
-      ABytes^ := Byte(AChars^);
+      ABytes^ := Byte(P^);
     end;
     //advance to next char
-    Inc(AChars);
+    Inc(P);
     Inc(ABytes);
   end;
 end;
 
-function TId8BitEncoding.GetCharCount(ABytes: PByte; AByteCount: Integer): Integer;
+function TId8BitEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 begin
   Result := AByteCount;
 end;
 
-function TId8BitEncoding.GetChars(ABytes: PByte; AByteCount: Integer;
+function TId8BitEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
   AChars: PIdWideChar; ACharCount: Integer): Integer;
 var
+  P: PByte;
   i : Integer;
 begin
+  P := ABytes;
   Result := IndyMin(ACharCount, AByteCount);
   for i := 1 to Result do begin
-    Word(AChars^) := ABytes^;
+    Word(AChars^) := P^;
     //advance to next char
     Inc(AChars);
-    Inc(ABytes);
+    Inc(P);
   end;
 end;
 
@@ -3238,189 +3382,422 @@ begin
   Result := AByteCount;
 end;
 
-function TId8BitEncoding.GetPreamble: TIdTextEncodingBytes;
-begin
-  SetLength(Result, 0);
-end;
+{ TIdVCLEncoding }
 
-function Indy8BitEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
-begin
-  if not AOwnedByIndy then begin
-    LEncoding := TId8BitEncoding.Create;
-  end else
-  begin
-    if GId8BitEncoding = nil then begin
-      LEncoding := TId8BitEncoding.Create;
-      if InterlockedCompareExchangePtr(Pointer(GId8BitEncoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GId8BitEncoding;
+{$IFDEF HAS_TEncoding}
+
+type
+  TEncodingAccess = class(TEncoding)
+  public
+    function IndyGetByteCount(Chars: PChar; CharCount: Integer): Integer;
+    function IndyGetBytes(Chars: PChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer;
+    function IndyGetCharCount(Bytes: PByte; ByteCount: Integer): Integer;
+    function IndyGetChars(Bytes: PByte; ByteCount: Integer; Chars: PChar; CharCount: Integer): Integer;
   end;
-  Result := LEncoding;
-end;
 
-function IndyASCIIEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
+function TEncodingAccess.IndyGetByteCount(Chars: PChar; CharCount: Integer): Integer;
 begin
-  if not AOwnedByIndy then begin
-    LEncoding := TIdASCIIEncoding.Create;
-  end else
-  begin
-    if GIdASCIIEncoding = nil then begin
-      LEncoding := TIdASCIIEncoding.Create;
-      if InterlockedCompareExchangePtr(Pointer(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdASCIIEncoding;
-  end;
-  Result := LEncoding;
+  Result := GetByteCount(Chars, CharCount);
 end;
 
-function IndyUTF16BigEndianEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
+function TEncodingAccess.IndyGetBytes(Chars: PChar; CharCount: Integer; Bytes: PByte; ByteCount: Integer): Integer;
 begin
-  if not AOwnedByIndy then begin
-    LEncoding := TIdUTF16BigEndianEncoding.Create;
-  end else
-  begin
-    if GIdBEUTF16Encoding = nil then
-    begin
-      LEncoding := TIdUTF16BigEndianEncoding.Create;
-      if InterlockedCompareExchangePtr(Pointer(GIdBEUTF16Encoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdBEUTF16Encoding;
-  end;
-  Result := LEncoding;
+  Result := GetBytes(Chars, CharCount, Bytes, ByteCount);
 end;
 
-function IndyUTF16LittleEndianEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
+function TEncodingAccess.IndyGetCharCount(Bytes: PByte; ByteCount: Integer): Integer;
 begin
-  if not AOwnedByIndy then begin
-    LEncoding := TIdUTF16LittleEndianEncoding.Create;
-  end else
-  begin
-    if GIdLEUTF16Encoding = nil then
-    begin
-      LEncoding := TIdUTF16LittleEndianEncoding.Create;
-      if InterlockedCompareExchangePtr(Pointer(GIdLEUTF16Encoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdLEUTF16Encoding;
-  end;
-  Result := LEncoding;
+  Result := GetCharCount(Bytes, ByteCount);
 end;
 
-function IndyOSDefaultEncoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
+function TEncodingAccess.IndyGetChars(Bytes: PByte; ByteCount: Integer;
+  Chars: PChar; CharCount: Integer): Integer;
+begin
+  Result := GetChars(Bytes, ByteCount, Chars, CharCount);
+end;
 
-  function CreateOSDefaultEncoding: TIdTextEncoding;
-  begin
-    {$IFDEF USE_ICONV}
-    // weird, but not all systems appear to support 'ASCII' so we will just use our own...
-    if not GIdIconvUseLocaleDependantAnsiEncoding then begin
-      Result := TIdASCIIEncoding.Create;
-    end else begin
-      Result := TIdMBCSEncoding.Create;
-    end;
+constructor TIdVCLEncoding.Create(AEncoding: TEncoding);
+begin
+  FEncoding := AEncoding;
+  FIsSingleByte := FEncoding.IsSingleByte;
+end;
+
+function TIdVCLEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
+begin
+  Result := TEncodingAccess(FEncoding).IndyGetByteCount(AChars, ACharCount);
+end;
+
+function TIdVCLEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
+begin
+  Result := TEncodingAccess(FEncoding).IndyGetBytes(AChars, ACharCount, ABytes, AByteCount);
+end;
+
+function TIdVCLEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
+begin
+  Result := TEncodingAccess(FEncoding).IndyGetCharCount(ABytes, AByteCount);
+end;
+
+function TIdVCLEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
+  AChars: PIdWideChar; ACharCount: Integer): Integer;
+begin
+  Result := TEncodingAccess(FEncoding).IndyGetChars(ABytes, AByteCount, AChars, ACharCount);
+end;
+
+function TIdVCLEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
+begin
+  Result := FEncoding.GetMaxByteCount(ACharCount);
+end;
+
+function TIdVCLEncoding.GetMaxCharCount(AByteCount: Integer): Integer;
+begin
+  Result := FEncoding.GetMaxCharCount(AByteCount);
+end;
+{$ENDIF}
+
+{$ENDIF}
+
+function IndyTextEncoding(AType: IdTextEncodingType): IIdTextEncoding;
+begin
+  case AType of
+    encIndyDefault: Result := IndyTextEncoding_Default;
+    // encOSDefault handled further below
+    enc8Bit:        Result := IndyTextEncoding_8Bit;
+    encASCII:       Result := IndyTextEncoding_ASCII;
+    encUTF16BE:     Result := IndyTextEncoding_UTF16BE;
+    encUTF16LE:     Result := IndyTextEncoding_UTF16LE;
+    encUTF7:        Result := IndyTextEncoding_UTF7;
+    encUTF8:        Result := IndyTextEncoding_UTF8;
+  else
+    // encOSDefault
+    Result := IndyTextEncoding_OSDefault;
+  end;
+end;
+
+function IndyTextEncoding(ACodepage: Word): IIdTextEncoding;
+begin
+  {$IFDEF DOTNET}
+  Result := TIdDotNetEncoding.Create(ACodepage);
+  {$ELSE}
+  case ACodepage of
+    20127, 1252, 437:
+      // RLebeau: 20127 is the official codepage for ASCII,
+      // but not all OS versions support that codepage,
+      // so fallback to 1252 or even 437...
+      Result := IndyTextEncoding_ASCII;
+    1200:
+      Result := IndyTextEncoding_UTF16LE;
+    1201:
+      Result := IndyTextEncoding_UTF16BE;
+    65000:
+      Result := IndyTextEncoding_UTF7;
+    65001:
+      Result := IndyTextEncoding_UTF8;
+  else
+    Result := TIdMBCSEncoding.Create(ACodepage);
+  end;
+  {$ENDIF}
+end;
+
+function IndyTextEncoding(const ACharSet: String): IIdTextEncoding;
+begin
+  // TODO: move IdCharsets unit into IndySystem package so the
+  // IdGlobalProtocols.CharsetToEncoding() function can be moved
+  // into this unit...
+  case PosInStrArray(ACharSet, ['ascii', 'us-ascii', 'utf-16be', 'utf-16le', 'utf-16', 'utf-7', 'utf-8'], False) of {do not localize}
+    0, 1: Result := IndyTextEncoding_ASCII;
+    2:    Result := IndyTextEncoding_UTF16BE;
+    3, 4: Result := IndyTextEncoding_UTF16LE;
+    5:    Result := IndyTextEncoding_UTF7;
+    6:    Result := IndyTextEncoding_UTF8;
+  else
+    {$IFDEF DOTNET}
+    Result := TIdDotNetEncoding.Create(ACharSet);
     {$ELSE}
-    Result := TIdMBCSEncoding.Create;
-    {$ENDIF}
-  end;
-
-begin
-  if not AOwnedByIndy then begin
-    LEncoding := CreateOSDefaultEncoding;
-  end else
-  begin
-    if GIdDefaultEncoding = nil then
-    begin
-      LEncoding := CreateOSDefaultEncoding;
-      if InterlockedCompareExchangePtr(Pointer(GIdDefaultEncoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdDefaultEncoding;
-  end;
-  Result := LEncoding;
-end;
-
-function IndyUTF7Encoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
-begin
-  if not AOwnedByIndy then begin
-    LEncoding := TIdUTF7Encoding.Create;
-  end else
-  begin
-    if GIdUTF7Encoding = nil then
-    begin
-      LEncoding := TIdUTF7Encoding.Create;
-      if InterlockedCompareExchangePtr(Pointer(GIdUTF7Encoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdUTF7Encoding;
-  end;
-  Result := LEncoding;
-end;
-
-// TODO: implement a custom TIdUTF8Encoding class so we don't have to
-// deal with codepage issues...
-
-function IndyUTF8Encoding(const AOwnedByIndy: Boolean = True): TIdTextEncoding;
-var
-  LEncoding: TIdTextEncoding;
-
-  function CreateUTF8Encoding: TIdTextEncoding;
-  begin
-    {$IFDEF USE_ICONV}
-    Result := TIdMBCSEncoding.Create('UTF-8');
-    {$ELSE}
-      {$IFDEF WINDOWS}
-    // RLebeau: SysUtils.TUTF8Encoding uses the MB_ERR_INVALID_CHARS
-    // flag by default, which we do not want to use, so calling the
-    // overloaded constructor that lets us override that behavior...
-    Result := TIdUTF8Encoding.Create(CP_UTF8, 0, 0);
+      {$IFDEF USE_ICONV}
+    Result := TIdMBCSEncoding.Create(ACharSet);
       {$ELSE}
-        {$IFDEF USE_VCL_POSIX}
-    Result := TIdUTF8Encoding.Create;
-        {$ELSE}
     Result := nil;
-    ToDo('IndyUTF8Encoding() is not implemented for this platform yet'); {do not localize}
-        {$ENDIF}
+    raise EIdException.CreateResFmt(@RSInvalidCharSet, [ACharSet]);
       {$ENDIF}
     {$ENDIF}
   end;
-
-begin
-  if not AOwnedByIndy then begin
-    LEncoding := CreateUTF8Encoding;
-  end else
-  begin
-    if GIdUTF8Encoding = nil then begin
-      LEncoding := CreateUTF8Encoding;
-      if InterlockedCompareExchangePtr(Pointer(GIdUTF8Encoding), LEncoding, nil) <> nil then begin
-        LEncoding.Free;
-      end;
-    end;
-    LEncoding := GIdUTF8Encoding;
-  end;
-  Result := LEncoding;
 end;
 
+{$IFDEF DOTNET}
+function IndyTextEncoding(AEncoding: System.Text.Encoding): IIdTextEncoding;
+begin
+  Result := TIdDotNetEncoding.Create(AEncoding);
+end;
 {$ENDIF}
+
+{$IFDEF HAS_TEncoding}
+function IndyTextEncoding(AEncoding: TEncoding): IIdTextEncoding;
+begin
+  Result := TIdVCLEncoding.Create(AEncoding);
+end;
+{$ENDIF}
+
+function IndyTextEncoding_Default: IIdTextEncoding;
+var
+  LType: IdTextEncodingType;
+begin
+  LType := GIdDefaultTextEncoding;
+  if LType = encIndyDefault then begin
+    LType := encASCII;
+  end;
+  Result := IndyTextEncoding(LType);
+end;
+
+function IndyTextEncoding_OSDefault: IIdTextEncoding;
+{$IFNDEF DOTNET}
+var
+  LEncoding: IIdTextEncoding;
+{$ENDIF}
+begin
+  if GIdOSDefaultEncoding = nil then begin
+    {$IFDEF DOTNET}
+    // TODO: use thread-safe assignment
+    GIdOSDefaultEncoding := TIdDotNetEncoding.Create(System.Text.Encoding.Default);
+    {$ELSE}
+    LEncoding := TIdMBCSEncoding.Create;
+    if InterlockedCompareExchangeIntf(IInterface(GIdOSDefaultEncoding), LEncoding, nil) <> nil then begin
+      LEncoding := nil;
+    end;
+    {$ENDIF}
+  end;
+  Result := GIdOSDefaultEncoding;
+end;
+
+function IndyTextEncoding_8Bit: IIdTextEncoding;
+{$IFNDEF DOTNET}
+var
+  LEncoding: IIdTextEncoding;
+{$ENDIF}
+begin
+  if GId8BitEncoding = nil then begin
+    {$IFDEF DOTNET}
+    // We need a charset that converts UTF-16 codeunits in the $00-$FF range
+    // to/from their numeric values as-is.  Was previously using "Windows-1252"
+    // which does so for most codeunits, however codeunits $80-$9F in
+    // Windows-1252 map to different codepoints in Unicode, which we don't want.
+    // "ISO-8859-1" aka "ISO_8859-1:1987" (not to be confused with the older
+    // "ISO 8859-1" charset), on the other hand, treats codeunits $00-$FF as-is,
+    // and seems to be just as widely supported as Windows-1252 on most systems,
+    // so we'll use that for now...
+
+    // TODO: use thread-safe assignment
+    GId8BitEncoding := TIdDotNetEncoding.Create('ISO-8859-1');
+    {$ELSE}
+    LEncoding := TId8BitEncoding.Create;
+    if InterlockedCompareExchangeIntf(IInterface(GId8BitEncoding), LEncoding, nil) <> nil then begin
+      LEncoding := nil;
+    end;
+    {$ENDIF}
+  end;
+  Result := GId8BitEncoding;
+end;
+
+function IndyTextEncoding_ASCII: IIdTextEncoding;
+{$IFNDEF DOTNET}
+var
+  LEncoding: IIdTextEncoding;
+{$ENDIF}
+begin
+  if GIdASCIIEncoding = nil then begin
+    {$IFDEF DOTNET}
+    // TODO: use thread-safe assignment
+    GIdASCIIEncoding := TIdDotNetEncoding.Creeate(System.Text.Encoding.ASCII);
+    {$ELSE}
+    LEncoding := TIdASCIIEncoding.Create;
+    if InterlockedCompareExchangeIntf(IInterface(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
+      LEncoding := nil;
+    end;
+    {$ENDIF}
+  end;
+  Result := GIdASCIIEncoding;
+end;
+
+function IndyTextEncoding_UTF16BE: IIdTextEncoding;
+{$IFNDEF DOTNET}
+var
+  LEncoding: IIdTextEncoding;
+{$ENDIF}
+begin
+  if GIdUTF16BigEndianEncoding = nil then begin
+    {$IFDEF DOTNET}
+    // TODO: use thread-safe assignment
+    GIdUTF16BigEndianEncoding := TIdDotNetEncoding.Create(System.Text.Encoding.BigEndianUnicode);
+    {$ELSE}
+    LEncoding := TIdUTF16BigEndianEncoding.Create;
+    if InterlockedCompareExchangeIntf(IInterface(GIdUTF16BigEndianEncoding), LEncoding, nil) <> nil then begin
+      LEncoding := nil;
+    end;
+    {$ENDIF}
+  end;
+  Result := GIdUTF16BigEndianEncoding;
+end;
+
+function IndyTextEncoding_UTF16LE: IIdTextEncoding;
+{$IFNDEF DOTNET}
+var
+  LEncoding: IIdTextEncoding;
+{$ENDIF}
+begin
+  if GIdUTF16LittleEndianEncoding = nil then begin
+    {$IFDEF DOTNET}
+    // TODO: use thread-safe assignment
+    GIdUTF16LittleEndianEncoding := TIdDotNetEncoding.Create(System.Text.Encoding.Unicode);
+    {$ELSE}
+    LEncoding := TIdUTF16LittleEndianEncoding.Create;
+    if InterlockedCompareExchangeIntf(IInterface(GIdUTF16LittleEndianEncoding), LEncoding, nil) <> nil then begin
+      LEncoding := nil;
+    end;
+    {$ENDIF}
+  end;
+  Result := GIdUTF16LittleEndianEncoding;
+end;
+
+function IndyTextEncoding_UTF7: IIdTextEncoding;
+{$IFNDEF DOTNET}
+var
+  LEncoding: IIdTextEncoding;
+{$ENDIF}
+begin
+  if GIdUTF7Encoding = nil then begin
+    {$IFDEF DOTNET}
+    // TODO: use thread-safe assignment
+    GIdUTF7Encoding := TIdDotNetEncoding.Create(System.Text.Encoding.UTF7);
+    {$ELSE}
+    LEncoding := TIdUTF7Encoding.Create;
+    if InterlockedCompareExchangeIntf(IInterface(GIdUTF7Encoding), LEncoding, nil) <> nil then begin
+      LEncoding := nil;
+    end;
+    {$ENDIF}
+  end;
+  Result := GIdUTF7Encoding;
+end;
+
+function IndyTextEncoding_UTF8: IIdTextEncoding;
+{$IFNDEF DOTNET}
+var
+  LEncoding: IIdTextEncoding;
+{$ENDIF}
+begin
+  if GIdUTF8Encoding = nil then begin
+    {$IFDEF DOTNET}
+    // TODO: use thread-safe assignment
+    GIdUTF8Encoding := TIdDotNetEncoding.Create(System.Text.Encoding.UTF8);
+    {$ELSE}
+    LEncoding := TIdUTF8Encoding.Create;
+    if InterlockedCompareExchangeIntf(IInterface(GIdUTF8Encoding), LEncoding, nil) <> nil then begin
+      LEncoding := nil;
+    end;
+    {$ENDIF}
+  end;
+  Result := GIdUTF8Encoding;
+end;
+
+function enDefault: IIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := nil;
+end;
+
+function en7Bit: IIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IndyTextEncoding_ASCII;
+end;
+
+function en8Bit: IIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IndyTextEncoding_8Bit;
+end;
+
+function enUTF8: IIdTextEncoding;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IndyTextEncoding_UTF8;
+end;
+
+function Indy8BitEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+begin
+  {$IFNDEF DOTNET}
+  if not AOwnedByIndy then begin
+    Result := TId8BitEncoding.Create;
+    Exit;
+  end;
+  {$ENDIF}
+  Result := IndyTextEncoding_8Bit;
+end;
+
+function IndyASCIIEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+begin
+  {$IFNDEF DOTNET}
+  if not AOwnedByIndy then begin
+    Result := TIdASCIIEncoding.Create;
+    Exit;
+  end;
+  {$ENDIF}
+  Result := IndyTextEncoding_ASCII;
+end;
+
+function IndyUTF16BigEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+begin
+  {$IFNDEF DOTNET}
+  if not AOwnedByIndy then begin
+    Result := TIdUTF16BigEndianEncoding.Create;
+    Exit;
+  end;
+  {$ENDIF}
+  Result := IndyTextEncoding_UTF16BE;
+end;
+
+function IndyUTF16LittleEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+begin
+  {$IFNDEF DOTNET}
+  if not AOwnedByIndy then begin
+    Result := TIdUTF16LittleEndianEncoding.Create;
+    Exit;
+  end;
+  {$ENDIF}
+  Result := IndyTextEncoding_UTF16LE;
+end;
+
+function IndyOSDefaultEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+begin
+  {$IFNDEF DOTNET}
+  if not AOwnedByIndy then begin
+    Result := TIdMBCSEncoding.Create;
+    Exit;
+  end;
+  {$ENDIF}
+  Result := IndyTextEncoding_OSDefault;
+end;
+
+function IndyUTF7Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+begin
+  {$IFNDEF DOTNET}
+  if not AOwnedByIndy then begin
+    Result := TIdUTF7Encoding.Create;
+    Exit;
+  end;
+  {$ENDIF}
+  Result := IndyTextEncoding_UTF7;
+end;
+
+function IndyUTF8Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+begin
+  {$IFNDEF DOTNET}
+  if not AOwnedByIndy then begin
+    Result := TIdUTF8Encoding.Create;
+    Exit;
+  end;
+  {$ENDIF}
+  Result := IndyTextEncoding_UTF8;
+end;
 
 {$IFDEF UNIX}
 function HackLoadFileName(const ALibName, ALibVer : String) : string;  {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -3428,7 +3805,11 @@ begin
   {$IFDEF DARWIN}
   Result := ALibName+ALibVer+LIBEXT;
   {$ELSE}
+    {$IFDEF IOS}
+  Result := ALibName+ALibVer+LIBEXT;
+    {$ELSE}
   Result := ALibName+LIBEXT+ALibVer;
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -3526,7 +3907,6 @@ function Impl_InterlockedCompareExchange(var Destination: PtrInt; Exchange, Comp
 begin
   {$IFDEF CPU64}
   // TODO: use LOCK CMPXCHG8B directly so this is more atomic...
-  end;
   {$ELSE}
   // TODO: use LOCK CMPXCHG directly so this is more atomic...
   {$ENDIF}
@@ -3587,6 +3967,31 @@ begin
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+end;
+
+function InterlockedCompareExchangeObj(var VTarget: TObject; const AValue, Compare: TObject): TObject;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF USE_OBJECT_ARC}
+  // for ARC, we have to use the TObject overload of TInterlocked to ensure
+  // that the reference counts of the objects are managed correctly...
+  Result := TInterlocked.CompareExchange(VTarget, AValue, Compare);
+  {$ELSE}
+  Result := TObject(InterlockedCompareExchangePtr(Pointer(VTarget), Pointer(AValue), Pointer(Compare)));
+  {$ENDIF}
+end;
+
+function InterlockedCompareExchangeIntf(var VTarget: IInterface; const AValue, Compare: IInterface): IInterface;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  // we have to ensure that the reference counts of the interfaces are managed correctly...
+  if AValue <> nil then begin
+    AValue._AddRef;
+  end;
+  Result := IInterface(InterlockedCompareExchangePtr(Pointer(VTarget), Pointer(AValue), Pointer(Compare)));
+  if (AValue <> nil) and (Pointer(Result) <> Pointer(Compare)) then begin
+    AValue._Release;
+  end;
 end;
 {$ENDIF}
 
@@ -3815,19 +4220,25 @@ function StartsWithACE(const ABytes: TIdBytes): Boolean;
 const
   cDash = Ord('-');
 var
-  LS: string;
+  LS: {$IFDEF STRING_IS_IMMUTABLE}TIdStringBuilder{$ELSE}string{$ENDIF};
 begin
   Result := False;
-  if Length(ABytes) > 4 then
+  if Length(ABytes) >= 4 then
   begin
     if (ABytes[2] = cDash) and (ABytes[3] = cDash) then
     begin
+      // TODO: just do byte comparisons so String conversions are not needed...
+      {$IFDEF STRING_IS_IMMUTABLE}
+      LS := TIdStringBuilder.Create(2);
+      LS.Append(Char(ABytes[0]));
+      LS.Append(Char(ABytes[1]));
+      {$ELSE}
       SetLength(LS, 2);
-      LS[1] := Char(ABytes[2]);
-      LS[2] := Char(ABytes[3]);
-      if PosInStrArray(LS, ['bl','bq','dq','lq','mq','ra','wq','zq'], False) > -1 then begin {do not localize}
-        Result := True;
-      end;
+      LS[1] := Char(ABytes[0]);
+      LS[2] := Char(ABytes[1]);
+      {$ENDIF}
+      Result := PosInStrArray(LS{$IFDEF STRING_IS_IMMUTABLE}.ToString{$ENDIF},
+        ['bl','bq','dq','lq','mq','ra','wq','zq'], False) > -1;{do not localize}
     end;
   end;
 end;
@@ -3862,10 +4273,21 @@ end;
 //IPv4 address conversion
 function ByteToHex(const AByte: Byte): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFDEF STRING_IS_IMMUTABLE}
+var
+  LSB: TIdStringBuilder;
+{$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(2);
+  LSB.Append(IdHexDigits[(AByte and $F0) shr 4]);
+  LSB.Append(IdHexDigits[AByte and $F]);
+  Result := LSB.ToString;
+  {$ELSE}
   SetLength(Result, 2);
   Result[1] := IdHexDigits[(AByte and $F0) shr 4];
   Result[2] := IdHexDigits[AByte and $F];
+  {$ENDIF}
 end;
 
 function LongWordToHex(const ALongWord : LongWord) : String;
@@ -3882,14 +4304,29 @@ function ToHex(const AValue: TIdBytes; const ACount: Integer = -1;
  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   I, LCount: Integer;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
   LCount := IndyLength(AValue, ACount, AIndex);
   if LCount > 0 then begin
+    {$IFDEF STRING_IS_IMMUTABLE}
+    LSB := TIdStringBuilder.Create(LCount*2);
+    {$ELSE}
     SetLength(Result, LCount*2);
+    {$ENDIF}
     for I := 0 to LCount-1 do begin
+      {$IFDEF STRING_IS_IMMUTABLE}
+      LSB.Append(IdHexDigits[(AValue[AIndex+I] and $F0) shr 4]);
+      LSB.Append(IdHexDigits[AValue[AIndex+I] and $F]);
+      {$ELSE}
       Result[I*2+1] := IdHexDigits[(AValue[AIndex+I] and $F0) shr 4];
       Result[I*2+2] := IdHexDigits[AValue[AIndex+I] and $F];
+      {$ENDIF}
     end;
+    {$IFDEF STRING_IS_IMMUTABLE}
+    Result := LSB.ToString;
+    {$ENDIF}
   end else begin
     Result := '';
   end;
@@ -3897,25 +4334,38 @@ end;
 
 function ToHex(const AValue: array of LongWord): string;
 var
-{$IFNDEF DOTNET}
-  P: PByteArray;
-{$ENDIF}
-  i: Integer;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
+  P: {$IFDEF DOTNET}TIdBytes{$ELSE}PByteArray{$ENDIF};
+  i, j: Integer;
 begin
   Result := '';
   if Length(AValue) > 0 then
   begin
-    {$IFNDEF DOTNET}
-    P := PByteArray(@AValue[0]);
-    SetString(Result, nil, Length(AValue)*4*2);//40
-    for i := 0 to Length(AValue)*4-1 do begin
-      Result[i*2+1] := IdHexDigits[(P^[i] and $F0) shr 4];
-      Result[i*2+2] := IdHexDigits[P^[i] and $F];
-    end;//for
+    {$IFDEF STRING_IS_IMMUTABLE}
+    LSB := TIdStringBuilder.Create(Length(AValue)*SizeOf(LongWord)*2);
     {$ELSE}
-    for i := 0 to Length(AValue)-1 do begin
-      Result := Result + ToHex(ToBytes(AValue[i]));
-    end;
+    SetLength(Result, Length(AValue)*SizeOf(LongWord)*2);
+    {$ENDIF}
+    for i := 0 to High(AValue) do begin
+      {$IFDEF DOTNET}
+      P := ToBytes(AValue[i]);
+      {$ELSE}
+      P := PByteArray(@AValue[i]);
+      {$ENDIF}
+      for j := 0 to SizeOf(LongWord)-1 do begin
+        {$IFDEF STRING_IS_IMMUTABLE}
+        LSB.Append(IdHexDigits[(P[j] and $F0) shr 4]);
+        LSB.Append(IdHexDigits[P[j] and $F]);
+        {$ELSE}
+        Result[(i*SizeOf(LongWord))+(j*2)+1] := IdHexDigits[(P^[j] and $F0) shr 4];
+        Result[(i*SizeOf(LongWord))+(j*2)+2] := IdHexDigits[P^[j] and $F];
+        {$ENDIF}
+      end;
+    end;//for
+    {$IFDEF STRING_IS_IMMUTABLE}
+    Result := LSB.ToString;
     {$ENDIF}
   end;
 end;
@@ -3951,14 +4401,33 @@ end;
 
 function ByteToOctal(const AByte: Byte): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFDEF STRING_IS_IMMUTABLE}
+var
+  LSB: TIdStringBuilder;
+  C: Char;
+{$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  C := IdOctalDigits[(AByte shr 6) and $7];
+  if C <> '0' then begin
+    LSB := TIdStringBuilder.Create(4);
+    LSB.Append(Char('0')); {do not localize}
+  end else begin
+    LSB := TIdStringBuilder.Create(3);
+  end;
+  LSB.Append(C);
+  LSB.Append(IdOctalDigits[(AByte shr 3) and $7]);
+  LSB.Append(IdOctalDigits[AByte and $7]);
+  Result := LSB.ToString;
+  {$ELSE}
   SetLength(Result, 3);
   Result[1] := IdOctalDigits[(AByte shr 6) and $7];
   Result[2] := IdOctalDigits[(AByte shr 3) and $7];
   Result[3] := IdOctalDigits[AByte and $7];
-  if Result[1] <> '0' then begin
-    Result := '0' + Result;
+  if Result[1] <> '0' then begin {do not localize}
+    Result := '0' + Result; {do not localize}
   end;
+  {$ENDIF}
 end;
 
 function IPv4ToOctal(const AIPAddress: string): string;
@@ -3988,11 +4457,11 @@ begin
 end;
 
 procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 var
-  LChars: {$IFDEF DOTNET}array[0..0] of Char{$ELSE}TIdTextEncodingWideChars{$ENDIF};
+  LChars: {$IFDEF DOTNET}array[0..0] of Char{$ELSE}TIdWideChars{$ENDIF};
 begin
   EnsureEncoding(ADestEncoding);
   {$IFDEF STRING_IS_UNICODE}
@@ -4117,8 +4586,8 @@ end;
 
 procedure CopyTIdString(const ASource: String; var VDest: TIdBytes;
   const ADestIndex: Integer; const ALength: Integer = -1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ); overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -4129,14 +4598,14 @@ end;
 
 procedure CopyTIdString(const ASource: String; const ASourceIndex: Integer;
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ); overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LLength: Integer;
   {$IFDEF STRING_IS_ANSI}
-  LTmp: TIdTextEncodingWideChars;
+  LTmp: TIdWideChars;
   {$ENDIF}
 begin
   {$IFDEF STRING_IS_ANSI}
@@ -4146,7 +4615,7 @@ begin
   if LLength > 0 then begin
     EnsureEncoding(ADestEncoding);
     {$IFDEF STRING_IS_UNICODE}
-    ADestEncoding.GetBytes(ASource, ASourceIndex{$IFDEF DOTNET}-1{$ENDIF}, LLength, VDest, ADestIndex);
+    ADestEncoding.GetBytes(ASource, ASourceIndex, LLength, VDest, ADestIndex);
     {$ELSE}
     EnsureEncoding(ASrcEncoding, encOSDefault);
     LTmp := ASrcEncoding.GetChars(RawToBytes(ASource[ASourceIndex], LLength)); // convert to Unicode
@@ -4443,16 +4912,17 @@ end;
 
 {$IFNDEF DOTNET}
 // IdPorts returns a list of defined ports in /etc/services
-function IdPorts: TList;
+function IdPorts: TIdPortList;
 var
   s: string;
   idx, iPosSlash: {$IFDEF BYTE_COMPARE_SETS}Byte{$ELSE}Integer{$ENDIF};
-  i, iPrev: PtrInt;
+  i: {$IFDEF HAS_GENERICS_TList}Integer{$ELSE}PtrInt{$ENDIF};
+  iPrev: PtrInt;
   sl: TStringList;
 begin
   if GIdPorts = nil then
   begin
-    GIdPorts := TList.Create;
+    GIdPorts := TIdPortList.Create;
     sl := TStringList.Create;
     try
       sl.LoadFromFile(ServicesFilePath);  {do not localize}
@@ -4473,7 +4943,9 @@ begin
           until Ord(s[i]) in IdWhiteSpace;
           i := IndyStrToInt(Copy(s, i+1, iPosSlash-i-1));
           if i <> iPrev then begin
-            GIdPorts.Add(Pointer(i));
+            GIdPorts.Add(
+              {$IFDEF HAS_GENERICS_TList}i{$ELSE}Pointer(i){$ENDIF}
+            );
           end;
           iPrev := i;
         end;
@@ -4516,7 +4988,7 @@ begin
   end;
 end;
 
-function iif(const AEncoding, ADefEncoding: TIdTextEncoding; ADefEncodingType: IdAnsiEncodingType = encASCII): TIdTextEncoding;
+function iif(const AEncoding, ADefEncoding: IIdTextEncoding; ADefEncodingType: IdTextEncodingType = encASCII): IIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := AEncoding;
@@ -4568,6 +5040,7 @@ end;
 function IsAlpha(const AChar: Char): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
+  // TODO: under XE3.5+, use TCharHelper.IsLetter() instead
   // TODO: under D2009+, use TCharacter.IsLetter() instead
 
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
@@ -4698,6 +5171,7 @@ end;
 function IsNumeric(const AChar: Char): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
+  // TODO: under XE3.5+, use TCharHelper.IsDigit() instead
   // TODO: under D2009+, use TCharacter.IsDigit() instead
 
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
@@ -4787,8 +5261,8 @@ begin
   // S.G. 11/8/2003: Added overflow checking disabling and change multiplys by SHLs.
   // Locally disable overflow checking so we can safely use SHL and SHR
   {$IFOPT Q+} // detect overflow checking
-  {$DEFINE _QPlusWasEnabled}
-  {$Q-}
+    {$DEFINE _QPlusWasEnabled}
+    {$Q-}
   {$ENDIF}
   L256Power := 4;
   LBuf2 := AIPAddress;
@@ -4831,8 +5305,8 @@ begin
   VErr := False;
   // Restore overflow checking
   {$IFDEF _QPlusWasEnabled} // detect previous setting
-  {$UNDEF _QPlusWasEnabled}
-  {$Q+}
+    {$UNDEF _QPlusWasEnabled}
+    {$Q+}
   {$ENDIF}
 {$ENDIF}
 end;
@@ -5312,47 +5786,159 @@ begin
   {$ENDIF}
 end;
 
-procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string);
+procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' ');
+begin
+  SplitDelimitedString(AData, AStrings, False, ADelim{$IFNDEF USE_OBJECT_ARC}, True{$ENDIF});
+end;
+
+procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string = ' ');
+begin
+  SplitDelimitedString(AData, AStrings, True, ADelim{$IFNDEF USE_OBJECT_ARC}, True{$ENDIF});
+end;
+
+procedure SplitDelimitedString(const AData: string; AStrings: TStrings; ATrim: Boolean;
+  const ADelim: string = ' '{$IFNDEF USE_OBJECT_ARC}; AIncludePositions: Boolean = False{$ENDIF});
 var
   i: Integer;
+  LData: string;
   LDelim: Integer; //delim len
   LLeft: string;
-  {$IFDEF DOTNET}
-  LLastPos: Integer;
-  {$ELSE}
-  LLastPos: PtrInt;
-  //note that we use PtrInt instead of Integer because in FPC,
-  //you can't assume a pointer will be exactly 4 bytes.  It could be 8 or possibly
-  //2 bytes.  Remember that that supports operating systems with versions for different
-  //architectures
-  {$ENDIF}
+  LLastPos, LLeadingSpaceCnt: PtrInt;
 begin
   Assert(Assigned(AStrings));
   AStrings.Clear;
   LDelim := Length(ADelim);
   LLastPos := 1;
 
-  i := Pos(ADelim, AData);
-  while I > 0 do begin
-    LLeft := Copy(AData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
-    if LLeft <> '' then begin    {Do not Localize}
-      {$IFDEF DOTNET}
-      AStrings.AddObject(LLeft, TObject(LLastPos));
-      {$ELSE}
-      AStrings.AddObject(LLeft, TObject(PtrInt(LLastPos)));
-      {$ENDIF}
+  if ATrim then begin
+    LData := Trim(AData);
+    if LData = '' then begin //if WhiteStr
+      Exit;
     end;
-    LLastPos := I + LDelim; //first char after Delim
-    i := PosIdx(ADelim, AData, LLastPos);
-  end;
-  if LLastPos <= Length(AData) then begin
-    {$IFDEF DOTNET}
-    AStrings.AddObject(Copy(AData, LLastPos, MaxInt), TObject(LLastPos));
-    {$ELSE}
-    AStrings.AddObject(Copy(AData, LLastPos, MaxInt), TObject(PtrInt(LLastPos)));
-    {$ENDIF}
+
+    LLeadingSpaceCnt := 0;
+    while AData[LLeadingSpaceCnt + 1] <= #32 do begin
+      Inc(LLeadingSpaceCnt);
+    end;
+
+    i := Pos(ADelim, LData);
+    while I > 0 do begin
+      LLeft := Copy(LData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
+      if LLeft > '' then begin    {Do not Localize}
+        {$IFNDEF USE_OBJECT_ARC}
+        if AIncludePositions then begin
+          AStrings.AddObject(Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
+        end else
+        {$ENDIF}
+        begin
+          AStrings.Add(Trim(LLeft));
+        end;
+      end;
+      LLastPos := I + LDelim; //first char after Delim
+      i := PosIdx(ADelim, LData, LLastPos);
+    end;//while found
+    if LLastPos <= Length(LData) then begin
+      {$IFNDEF USE_OBJECT_ARC}
+      if AIncludePositions then begin
+        AStrings.AddObject(Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
+      end else
+      {$ENDIF}
+      begin
+        AStrings.Add(Trim(Copy(LData, LLastPos, MaxInt)));
+      end;
+    end;
+  end else
+  begin
+    i := Pos(ADelim, AData);
+    while I > 0 do begin
+      LLeft := Copy(AData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
+      if LLeft <> '' then begin    {Do not Localize}
+        {$IFNDEF USE_OBJECT_ARC}
+        if AIncludePositions then begin
+          AStrings.AddObject(LLeft, TObject(LLastPos));
+        end else
+        {$ENDIF}
+        begin
+          AStrings.Add(LLeft);
+        end;
+      end;
+      LLastPos := I + LDelim; //first char after Delim
+      i := PosIdx(ADelim, AData, LLastPos);
+    end;
+    if LLastPos <= Length(AData) then begin
+      {$IFNDEF USE_OBJECT_ARC}
+      if AIncludePositions then begin
+        AStrings.AddObject(Copy(AData, LLastPos, MaxInt), TObject(LLastPos));
+      end else
+      {$ENDIF}
+      begin
+        AStrings.Add(Copy(AData, LLastPos, MaxInt));
+      end;
+    end;
   end;
 end;
+
+{$IFDEF USE_OBJECT_ARC}
+constructor TIdStringPosition.Create(const AValue: String; const APosition: Integer);
+begin
+  Value := AValue;
+  Position := APosition;
+end;
+
+procedure SplitDelimitedString(const AData: string; AStrings: TIdStringPositionList;
+  ATrim: Boolean; const ADelim: string = ' ');
+var
+  i: Integer;
+  LData: string;
+  LDelim: Integer; //delim len
+  LLeft: string;
+  LLastPos, LLeadingSpaceCnt: Integer;
+begin
+  Assert(Assigned(AStrings));
+  AStrings.Clear;
+  LDelim := Length(ADelim);
+  LLastPos := 1;
+
+  if ATrim then begin
+    LData := Trim(AData);
+    if LData = '' then begin //if WhiteStr
+      Exit;
+    end;
+
+    LLeadingSpaceCnt := 0;
+    while AData[LLeadingSpaceCnt + 1] <= #32 do begin
+      Inc(LLeadingSpaceCnt);
+    end;
+
+    i := Pos(ADelim, LData);
+    while I > 0 do begin
+      LLeft := Copy(LData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
+      if LLeft > '' then begin    {Do not Localize}
+        AStrings.Add(TIdStringPosition.Create(Trim(LLeft), LLastPos + LLeadingSpaceCnt));
+      end;
+      LLastPos := I + LDelim; //first char after Delim
+      i := PosIdx(ADelim, LData, LLastPos);
+    end;//while found
+    if LLastPos <= Length(LData) then begin
+      AStrings.Add(TIdStringPosition.Create(Trim(Copy(LData, LLastPos, MaxInt)), LLastPos + LLeadingSpaceCnt));
+    end;
+  end else
+  begin
+    i := Pos(ADelim, AData);
+    while I > 0 do begin
+      LLeft := Copy(AData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
+      if LLeft <> '' then begin    {Do not Localize}
+        AStrings.Add(TIdStringPosition.Create(LLeft, LLastPos));
+      end;
+      LLastPos := I + LDelim; //first char after Delim
+      i := PosIdx(ADelim, AData, LLastPos);
+    end;
+    if LLastPos <= Length(AData) then begin
+      AStrings.Add(TIdStringPosition.Create(Copy(AData, LLastPos, MaxInt), LLastPos));
+    end;
+  end;
+end;
+{$ENDIF}
 
 {$IFDEF DOTNET}
 procedure SetThreadName(const AName: string; AThread: System.Threading.Thread = nil);
@@ -5382,6 +5968,9 @@ type
     Flags: LongWord;    // Reserved for future use. Must be zero
   end;
 var
+        {$IFDEF STRING_IS_UNICODE}
+  LName: AnsiString;
+        {$ENDIF}
   LThreadNameInfo: TThreadNameInfo;
       {$ENDIF}
     {$ENDIF}
@@ -5389,15 +5978,23 @@ var
 begin
   {$IFDEF HAS_NAMED_THREADS}
     {$IFDEF HAS_TThread_NameThreadForDebugging}
-  TThread.NameThreadForDebugging(AnsiString(AName), AThreadID);
+  TThread.NameThreadForDebugging(
+      {$IFDEF HAS_AnsiString}
+    AnsiString(AName) // explicit convert to Ansi
+      {$ELSE}
+    AName
+      {$ENDIF},
+    AThreadID
+  );
     {$ELSE}
       {$IFDEF WINDOWS}
-  with LThreadNameInfo do begin
-    RecType := $1000;
-    Name := {$IFDEF STRING_IS_UNICODE}PAnsiChar(AnsiString(AName)){$ELSE}PChar(AName){$ENDIF};
-    ThreadID := AThreadID;
-    Flags := 0;
-  end;
+        {$IFDEF STRING_IS_UNICODE}
+  LName := AnsiString(AName); // explicit convert to Ansi
+        {$ENDIF}
+  LThreadNameInfo.RecType := $1000;
+  LThreadNameInfo.Name := PAnsiChar({$IFDEF STRING_IS_UNICODE}LName{$ELSE}AName{$ENDIF});
+  LThreadNameInfo.ThreadID := AThreadID;
+  LThreadNameInfo.Flags := 0;
   try
     // This is a wierdo Windows way to pass the info in
     RaiseException(MS_VC_EXCEPTION, 0, SizeOf(LThreadNameInfo) div SizeOf(LongWord),
@@ -5411,44 +6008,6 @@ begin
   {$ENDIF}
 end;
 {$ENDIF}
-
-procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string);
-var
-  i: Integer;
-  LData: string;
-  LDelim: Integer; //delim len
-  LLeft: string;
-  LLastPos: Integer;
-  LLeadingSpaceCnt: Integer;
-Begin
-  Assert(Assigned(AStrings));
-  AStrings.Clear;
-  LDelim := Length(ADelim);
-  LLastPos := 1;
-  LData := Trim(AData);
-
-  if LData = '' then begin //if WhiteStr
-    Exit;
-  end;
-
-  LLeadingSpaceCnt := 0;
-  while AData[LLeadingSpaceCnt + 1] <= #32 do begin
-    Inc(LLeadingSpaceCnt);
-  end;
-
-  i := Pos(ADelim, LData);
-  while I > 0 do begin
-    LLeft := Copy(LData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
-    if LLeft > '' then begin    {Do not Localize}
-      AStrings.AddObject(Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
-    end;
-    LLastPos := I + LDelim; //first char after Delim
-    i := PosIdx(ADelim, LData, LLastPos);
-  end;//while found
-  if LLastPos <= Length(LData) then begin
-    AStrings.AddObject(Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
-  end;
-end;
 
 {$IFDEF DOTNET}
   {$IFNDEF DOTNET_2_OR_ABOVE}
@@ -5558,20 +6117,6 @@ function TIdLocalEvent.WaitForEver: TWaitResult;
 begin
   Result := WaitFor(Infinite);
 end;
-
-{ TIdList }
-
-{$IFNDEF HAS_TList_Assign}
-procedure TIdExtList.Assign(AList: TList);
-var
-  I: Integer;
-begin
-  Clear;
-  Capacity := AList.Capacity;
-  for I := 0 to AList.Count - 1 do
-    Add(AList.Items[I]);
-end;
-{$ENDIF}
 
 procedure ToDo(const AMsg: string);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -5936,6 +6481,9 @@ end;
 function UTCOffsetToStr(const AOffset: TDateTime; const AUseGMTStr: Boolean = False): string;
 var
   AHour, AMin, ASec, AMSec: Word;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
   if (AOffset = 0.0) and AUseGMTStr then
   begin
@@ -5943,12 +6491,23 @@ begin
   end else
   begin
     DecodeTime(AOffset, AHour, AMin, ASec, AMSec);
+    {$IFDEF STRING_IS_IMMUTABLE}
+    LSB := TIdStringBuilder.Create(5);
+    LSB.Append(IndyFormat(' %0.2d%0.2d', [AHour, AMin])); {do not localize}
+    if AOffset < 0.0 then begin
+      LSB[0] := '-'; {do not localize}
+    end else begin
+      LSB[0] := '+'; {do not localize}
+    end;
+    Result := LSB.ToString;
+    {$ELSE}
     Result := IndyFormat(' %0.2d%0.2d', [AHour, AMin]); {do not localize}
     if AOffset < 0.0 then begin
       Result[1] := '-'; {do not localize}
     end else begin
       Result[1] := '+';  {do not localize}
     end;
+    {$ENDIF}
   end;
 end;
 
@@ -6126,8 +6685,8 @@ begin
   {$ENDIF}
 end;
 
-function ToBytes(const AValue: string; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function ToBytes(const AValue: string; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -6137,8 +6696,8 @@ begin
 end;
 
 function ToBytes(const AValue: string; const ALength: Integer; const AIndex: Integer = 1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes; overload;
 var
   LLength: Integer;
@@ -6161,9 +6720,7 @@ begin
     {$ELSE}
     EnsureEncoding(ASrcEncoding, encOSDefault);
     LBytes := RawToBytes(AValue[AIndex], LLength);
-    if ASrcEncoding <> ADestEncoding then begin
-      LBytes := TIdTextEncoding.Convert(ASrcEncoding, ADestEncoding, LBytes);
-    end;
+    EnsureByteEncoding(LBytes, ASrcEncoding, ADestEncoding);
     Result := LBytes;
     {$ENDIF}
   end else begin
@@ -6171,8 +6728,8 @@ begin
   end;
 end;
 
-function ToBytes(const AValue: Char; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function ToBytes(const AValue: Char; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes; overload;
 var
 {$IFDEF STRING_IS_UNICODE}
@@ -6191,9 +6748,7 @@ begin
   {$ELSE}
   EnsureEncoding(ASrcEncoding, encOSDefault);
   LBytes := RawToBytes(AValue, 1);
-  if ASrcEncoding <> ADestEncoding then begin
-    LBytes := TIdTextEncoding.Convert(ASrcEncoding, ADestEncoding, LBytes);
-  end;
+  CheckByteEncoding(LBytes, ASrcEncoding, ADestEncoding);
   Result := LBytes;
   {$ENDIF}
 end;
@@ -6283,8 +6838,8 @@ begin
 end;
 {$ENDIF}
 
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
@@ -6365,8 +6920,8 @@ end;
 {$ENDIF}
 
 function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Char; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -6374,15 +6929,15 @@ begin
 end;
 
 function BytesToChar(const AValue: TIdBytes; var VChar: Char; const AIndex: Integer = 0;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Integer; overload;
 var
   I, J, NumChars, NumBytes: Integer;
   {$IFDEF DOTNET}
   LChars: array[0..1] of Char;
   {$ELSE}
-  LChars: TIdTextEncodingWideChars;
+  LChars: TIdWideChars;
     {$IFDEF STRING_IS_ANSI}
   LWTmp: WideString;
   LATmp: TIdBytes;
@@ -6527,8 +7082,8 @@ begin
   {$ENDIF}
 end;
 
-function BytesToString(const AValue: TIdBytes; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+function BytesToString(const AValue: TIdBytes; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -6538,8 +7093,8 @@ begin
 end;
 
 function BytesToString(const AValue: TIdBytes; const AStartIndex: Integer;
-  const ALength: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  const ALength: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string; overload;
 var
   LLength: Integer;
@@ -6558,9 +7113,7 @@ begin
     {$ELSE}
     EnsureEncoding(ADestEncoding);
     LBytes := Copy(AValue, AStartIndex, LLength);
-    if AByteEncoding <> ADestEncoding then begin
-      LBytes := TIdTextEncoding.Convert(AByteEncoding, ADestEncoding, LBytes);
-    end;
+    CheckByteEncoding(LBytes, AByteEncoding, ADestEncoding);
     SetString(Result, PAnsiChar(LBytes), Length(LBytes));
     {$ENDIF}
   end else begin
@@ -6582,7 +7135,7 @@ begin
   LLength := IndyLength(AValue, ALength, AStartIndex);
   if LLength > 0 then begin
     {$IFDEF STRING_IS_UNICODE}
-    Result := Indy8BitEncoding.GetString(AValue, AStartIndex, LLength);
+    Result := IndyTextEncoding_8Bit.GetString(AValue, AStartIndex, LLength);
     {$ELSE}
     SetString(Result, PAnsiChar(@AValue[AStartIndex]), LLength);
     {$ENDIF}
@@ -6614,8 +7167,8 @@ begin
 end;
 
 function ReadStringFromStream(AStream: TStream; ASize: Integer = -1;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
   LBytes: TIdBytes;
@@ -6634,8 +7187,8 @@ begin
 end;
 
 function ReadCharFromStream(AStream: TStream; var VChar: Char;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Integer;
 var
   StartPos: TIdStreamSize;
@@ -6645,7 +7198,7 @@ var
   {$IFDEF DOTNET}
   LChars: array[0..1] of Char;
   {$ELSE}
-  LChars: TIdTextEncodingWideChars;
+  LChars: TIdWideChars;
     {$IFDEF STRING_IS_ANSI}
   LWTmp: WideString;
   LATmp: TIdBytes;
@@ -6743,8 +7296,8 @@ begin
 end;
 
 procedure WriteStringToStream(AStream: TStream; const AStr: string;
-  ADestEncoding: TIdTextEncoding
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -6755,8 +7308,8 @@ end;
 
 procedure WriteStringToStream(AStream: TStream; const AStr: string;
   const ALength: Integer = -1; const AIndex: Integer = 1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
@@ -6990,8 +7543,8 @@ begin
 end;
 
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; const ALength: Integer = -1;
-  ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 var
   LBytes: TIdBytes;
@@ -7242,7 +7795,7 @@ end;
 function CharIsInEOL(const AString: string; const ACharPos: Integer): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := CharIsInSet(AString, ACharPos, EOL);
+  Result := CharPosInSet(AString, ACharPos, EOL) > 0;
 end;
 
 function CharEquals(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
@@ -7256,6 +7809,75 @@ begin
     Result := AString[ACharPos] = AValue;
   end;
 end;
+
+{$IFDEF STRING_IS_IMMUTABLE}
+
+{$IFDEF DOTNET}
+  {$DEFINE HAS_String_IndexOf}
+{$ENDIF}
+{$IFDEF HAS_SysUtils_TStringHelper}
+  {$DEFINE HAS_String_IndexOf}
+{$ENDIF}
+
+function CharPosInSet(const ASB: TIdStringBuilder; const ACharPos: Integer; const ASet: String): Integer;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFNDEF HAS_String_IndexOf}
+var
+  LChar: Char;
+  I: Integer;
+{$ENDIF}
+begin
+  Result := 0;
+  if ACharPos < 1 then begin
+    EIdException.Toss('Invalid ACharPos');{ do not localize }
+  end;
+  if ACharPos <= ASB.Length then begin
+    {$IFDEF HAS_String_IndexOf}
+    Result := ASet.IndexOf(ASB[ACharPos-1]) + 1;
+    {$ELSE}
+    // RLebeau 5/8/08: Calling Pos() with a Char as input creates a temporary
+    // String.  Normally this is fine, but profiling reveils this to be a big
+    // bottleneck for code that makes a lot of calls to CharIsInSet(), so need
+    // to scan through ASet looking for the character without a conversion...
+    //
+    // Result := IndyPos(ASB[ACharPos-1], ASet);
+    //
+    LChar := ASB[ACharPos-1];
+    for I := 1 to Length(ASet) do begin
+      if ASet[I] = LChar then begin
+        Result := I;
+        Exit;
+      end;
+    end;
+    {$ENDIF}
+  end;
+end;
+
+function CharIsInSet(const ASB: TIdStringBuilder; const ACharPos: Integer; const ASet:  String): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := CharPosInSet(ASB, ACharPos, ASet) > 0;
+end;
+
+function CharIsInEOL(const ASB: TIdStringBuilder; const ACharPos: Integer): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := CharPosInSet(ASB, ACharPos, EOL) > 0;
+end;
+
+function CharEquals(const ASB: TIdStringBuilder; const ACharPos: Integer; const AValue: Char): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if ACharPos < 1 then begin
+    EIdException.Toss('Invalid ACharPos');{ do not localize }
+  end;
+  Result := ACharPos <= ASB.Length;
+  if Result then begin
+    Result := ASB[ACharPos-1] = AValue;
+  end;
+end;
+
+{$ENDIF}
 
 function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
 var
@@ -7300,8 +7922,8 @@ begin
 end;
 
 function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1;
-  AExceptionIfEOF: Boolean = False; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AExceptionIfEOF: Boolean = False; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string; overload;
 begin
   if (not ReadLnFromStream(AStream, Result, AMaxLineLength, AByteEncoding
@@ -7314,8 +7936,8 @@ end;
 
 //TODO: Continue to optimize this function. Its performance severely impacts the coders
 function ReadLnFromStream(AStream: TStream; var VLine: String; AMaxLineLength: Integer = -1;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Boolean; overload;
 const
   LBUFMAXSIZE = 2048;
@@ -7557,13 +8179,6 @@ initialization
 {$IFNDEF DOTNET}
 finalization
   FreeAndNil(GIdPorts);
-  FreeAndNil(GId8BitEncoding);
-  FreeAndNil(GIdDefaultEncoding);
-  FreeAndNil(GIdASCIIEncoding);
-  FreeAndNil(GIdUTF8Encoding);
-  FreeAndNil(GIdUTF7Encoding);
-  FreeAndNil(GIdLEUTF16Encoding);
-  FreeAndNil(GIdBEUTF16Encoding);
 {$ENDIF}
 
 end.

@@ -108,9 +108,7 @@ begin
     i := LClient.ReceiveBuffer(LData);
     if i > 0 then begin
       SetLength(LData, i);
-      with ABinding do begin
-        SendTo(PeerIP, PeerPort, LData, 0, i);
-      end;
+      ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, LData, 0, i);
     end;
   finally
     FreeAndNil(LClient);

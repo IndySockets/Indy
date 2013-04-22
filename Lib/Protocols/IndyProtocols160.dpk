@@ -1,22 +1,30 @@
 package IndyProtocols160;
 
 {$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
+{$ASSERTIONS ON}
 {$BOOLEVAL OFF}
+{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
+{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
@@ -198,9 +206,7 @@ contains
   IdReplyIMAP4 in 'IdReplyIMAP4.pas',
   IdReplyPOP3 in 'IdReplyPOP3.pas',
   IdReplySMTP in 'IdReplySMTP.pas',
-  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
   IdResourceStringsProtocols in 'IdResourceStringsProtocols.pas',
-  IdResourceStringsSSPI in 'IdResourceStringsSSPI.pas',
   IdRexec in 'IdRexec.pas',
   IdRexecServer in 'IdRexecServer.pas',
   IdSASL in 'IdSASL.pas',

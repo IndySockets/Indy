@@ -65,13 +65,41 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
- Classes;
+  Classes
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  , System.Generics.Collections
+  {$ELSE}
+    {$IFDEF HAS_TObjectList}
+  , Contnrs
+    {$ENDIF}
+  {$ENDIF}
+  ;
 
 type
+  {$IFDEF HAS_GENERICS_TObjectList}
+  TIdSortCompare<T: class> = function(AItem1, AItem2 : T): Integer;
+  {$ELSE}
   TIdSortCompare = function(AItem1, AItem2 : TObject): Integer;
+  {$ENDIF}
 
   {TIdObjectList}
 
+  {$IFDEF HAS_GENERICS_TObjectList}
+  TIdObjectList<T: class> = class(TObjectList<T>)
+  public
+    procedure BubbleSort(ACompare : TIdSortCompare<T>);
+    procedure Assign(Source: TIdObjectList<T>);
+  end;
+  {$ELSE}
+    {$IFDEF HAS_TObjectList}
+  TIdObjectList = class(TObjectList)
+  public
+    procedure BubbleSort(ACompare : TIdSortCompare);
+    // Delphi 5 does not have TList.Assign.
+    // This is a simplyfied Assign method that does only support the copy operation.
+    procedure Assign(Source: TIdObjectList); {$IFDEF VCL_6_OR_ABOVE}reintroduce;{$ENDIF}
+  end;
+    {$ELSE}
   TIdObjectList = class(TList)
   private
     FOwnsObjects: Boolean;
@@ -94,6 +122,8 @@ type
     property Items[AIndex: Integer]: TObject read GetItem write SetItem; default;
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
+    {$ENDIF}
+  {$ENDIF}
 
   TIdStringListSortCompare = function(List: TStringList; Index1, Index2: Integer): Integer;
 
@@ -103,11 +133,16 @@ type
   end;
 
 implementation
-  {$IFDEF VCL_XE3_OR_ABOVE}
+
+{$IFDEF VCL_XE3_OR_ABOVE}
 uses
   System.Types;
-  {$ENDIF}
+{$ENDIF}
+
 { TIdObjectList }
+
+{$IFNDEF HAS_GENERICS_TObjectList}
+  {$IFNDEF HAS_TObjectList}
 
 constructor TIdObjectList.Create;
 begin
@@ -124,18 +159,6 @@ end;
 function TIdObjectList.Add(AObject: TObject): Integer;
 begin
   Result := inherited Add(AObject);
-end;
-
-procedure TIdObjectList.BubbleSort(ACompare: TIdSortCompare);
-var i, j : Integer;
-begin
-  for I := Count -1 downto 0 do begin
-    for J := 0 to Count - 1 - 1 do begin
-      if ACompare(Items[J] , Items[J + 1])< 0 then begin
-        Exchange(J, J + 1);
-      end;
-    end;
-  end;
 end;
 
 function TIdObjectList.FindInstanceOf(AClassRef: TClass;
@@ -175,19 +198,6 @@ begin
   inherited Insert(AIndex, AObject);
 end;
 
-procedure TIdObjectList.Assign(Source: TIdObjectList);
-var
-  I: Integer;
-begin
-  // Delphi 5 does not have TList.Assign.
-  // This is a simplyfied Assign method that does only support the copy operation.
-  Clear;
-  Capacity := Source.Capacity;
-  for I := 0 to Source.Count - 1 do begin
-    Add(Source[I]);
-  end;
-end;
-
 {$IFNDEF DOTNET}
 procedure TIdObjectList.Notify(AItemPtr: Pointer; AAction: TListNotification);
 begin
@@ -206,6 +216,43 @@ end;
 procedure TIdObjectList.SetItem(AIndex: Integer; AObject: TObject);
 begin
   inherited Items[AIndex] := AObject;
+end;
+
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF HAS_GENERICS_TObjectList}
+procedure TIdObjectList<T>.BubbleSort(ACompare: TIdSortCompare<T>);
+{$ELSE}
+procedure TIdObjectList.BubbleSort(ACompare: TIdSortCompare);
+{$ENDIF}
+var
+  i, j : Integer;
+begin
+  for I := Count -1 downto 0 do begin
+    for J := 0 to Count - 1 - 1 do begin
+      if ACompare(Items[J] , Items[J + 1])< 0 then begin
+        Exchange(J, J + 1);
+      end;
+    end;
+  end;
+end;
+
+{$IFDEF HAS_GENERICS_TObjectList}
+procedure TIdObjectList<T>.Assign(Source: TIdObjectList<T>);
+{$ELSE}
+procedure TIdObjectList.Assign(Source: TIdObjectList);
+{$ENDIF}
+var
+  I: Integer;
+begin
+  // Delphi 5 does not have TList.Assign.
+  // This is a simplyfied Assign method that does only support the copy operation.
+  Clear;
+  Capacity := Source.Capacity;
+  for I := 0 to Source.Count - 1 do begin
+    Add(Source[I]);
+  end;
 end;
 
 { TIdBubbleSortStringList }

@@ -286,18 +286,16 @@ begin
     raise;
   end;
 
-  with LItem do begin
-    FFieldName := AFieldName;
-    FFileName := ExtractFileName(AFileName);
-    FFieldStream := LStream;
-    FCanFreeFieldStream := True;
-    if AContentType <> '' then begin
-      FContentType := AContentType;
-    end else begin
-      FContentType := GetMIMETypeFromFile(AFileName);
-    end;
-    FContentTransfer := sContentTransferBinary;
+  LItem.FFieldName := AFieldName;
+  LItem.FFileName := ExtractFileName(AFileName);
+  LItem.FFieldStream := LStream;
+  LItem.FCanFreeFieldStream := True;
+  if AContentType <> '' then begin
+    LItem.ContentType := AContentType;
+  end else begin
+    LItem.FContentType := GetMIMETypeFromFile(AFileName);
   end;
+  LItem.FContentTransfer := sContentTransferBinary;
 
   Result := LItem;
 end;
@@ -309,20 +307,18 @@ var
 begin
   LItem := FFields.Add;
 
-  with LItem do begin
-    FFieldName := AFieldName;
-    FFileName := ExtractFileName(AFileName);
-    FFieldValue := AFieldValue;
-    if AContentType <> '' then begin
-      ContentType := AContentType;
-    end else begin
-      FContentType := sContentTypeTextPlain;
-    end;
-    if ACharset <> '' then begin
-      FCharset := ACharset;
-    end;
-    FContentTransfer := sContentTransferQuotedPrintable;
+  LItem.FFieldName := AFieldName;
+  LItem.FFileName := ExtractFileName(AFileName);
+  LItem.FFieldValue := AFieldValue;
+  if AContentType <> '' then begin
+    LItem.ContentType := AContentType;
+  end else begin
+    LItem.FContentType := sContentTypeTextPlain;
   end;
+  if ACharset <> '' then begin
+    LItem.FCharset := ACharset;
+  end;
+  LItem.FContentTransfer := sContentTransferQuotedPrintable;
 
   Result := LItem;
 end;
@@ -338,20 +334,18 @@ begin
 
   LItem := FFields.Add;
 
-  with LItem do begin
-    FFieldName := AFieldName;
-    FFileName := ExtractFileName(AFileName);
-    FFieldStream := AFieldValue;
-    if AContentType <> '' then begin
-      ContentType := AContentType;
-    end else begin
-      FContentType := GetMIMETypeFromFile(AFileName);
-    end;
-    if ACharset <> '' then begin
-      FCharSet := ACharset;
-    end;
-    FContentTransfer := sContentTransferBinary;
+  LItem.FFieldName := AFieldName;
+  LItem.FFileName := ExtractFileName(AFileName);
+  LItem.FFieldStream := AFieldValue;
+  if AContentType <> '' then begin
+    LItem.ContentType := AContentType;
+  end else begin
+    LItem.FContentType := GetMIMETypeFromFile(AFileName);
   end;
+  if ACharset <> '' then begin
+    LItem.FCharSet := ACharset;
+  end;
+  LItem.FContentTransfer := sContentTransferBinary;
 
   Result := LItem;
 end;
@@ -389,13 +383,14 @@ begin
   end;
 end;
 
-// RLebeau - IdRead() should wrap multiple files of the same field name 
+// RLebeau - IdRead() should wrap multiple files of the same field name
 // using a single "multipart/mixed" MIME part, as recommended by RFC 1867
 
 function TIdMultiPartFormDataStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 var
   LTotalRead, LCount, LBufferCount, LRemaining : Integer;
   LItem: TIdFormDataField;
+  LEncoding: IIdTextEncoding;
 begin
   if not FInitialized then begin
     FInitialized := True;
@@ -411,7 +406,8 @@ begin
     if (Length(FInternalBuffer) = 0) and (not Assigned(FInputStream)) then
     begin
       LItem := FFields.Items[FCurrentItem];
-      AppendString(FInternalBuffer, LItem.FormatHeader, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+      EnsureEncoding(LEncoding, enc8Bit);
+      AppendString(FInternalBuffer, LItem.FormatHeader, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
 
       FInputStream := LItem.PrepareDataStream(FFreeInputStream);
       if not Assigned(FInputStream) then begin
@@ -600,7 +596,6 @@ end;
 
 function TIdFormDataField.GetFieldSize: Int64;
 var
-  LEncoding: TIdTextEncoding;
   LStream: TStream;
   LOldPos: TIdStreamSize;
   {$IFDEF STRING_IS_ANSI}
@@ -641,76 +636,61 @@ begin
     end;
   end
   else if Length(FFieldValue) > 0 then begin
-    LEncoding := nil;
-    {$IFNDEF DOTNET}
-    try
-    {$ENDIF}
-      I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
-      if I = 0 then begin
-        // 7bit
-        {$IFDEF STRING_IS_UNICODE}
-        I := IndyASCIIEncoding.GetByteCount(FFieldValue);
-        {$ELSE}
-        // the methods useful for calculating a length without actually
-        // encoding are protected, so have to actually encode the
-        // string to find out the final length...
-        LEncoding := CharsetToEncoding(FCharset);
+    I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
+    if I = 0 then begin
+      // 7bit
+      {$IFDEF STRING_IS_UNICODE}
+      I := IndyTextEncoding_ASCII.GetByteCount(FFieldValue);
+      {$ELSE}
+      // the methods useful for calculating a length without actually
+      // encoding are protected, so have to actually encode the
+      // string to find out the final length...
+      LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
+      CheckByteEncoding(LBytes, CharsetToEncoding(FCharset), IndyTextEncoding_ASCII);
+      I := Length(LBytes);
+      {$ENDIF}
+      // need to include an explicit CRLF at the end of the data
+      Result := Result + I + 2{CRLF};
+    end
+    else if (I = -1) or (I = 1) or (i = 2) then begin
+      // 8bit/binary
+      {$IFDEF STRING_IS_UNICODE}
+      I := CharsetToEncoding(FCharset).GetByteCount(FFieldValue);
+      {$ELSE}
+      I := Length(FFieldValue);
+      {$ENDIF}
+      // need to include an explicit CRLF at the end of the data
+      Result := Result + I + 2{CRLF};
+    end else
+    begin
+      LStream := TIdCalculateSizeStream.Create;
+      try
+        {$IFNDEF STRING_IS_UNICODE}
         LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
-        if LEncoding <> IndyASCIIEncoding then begin
-          LBytes := TIdTextEncoding.Convert(LEncoding, IndyASCIIEncoding, LBytes);
-        end;
-        I := Length(LBytes);
         {$ENDIF}
-        // need to include an explicit CRLF at the end of the data
-        Result := Result + I + 2{CRLF};
-      end
-      else if (I = -1) or (I = 1) or (I = 2) then begin
-        // 8bit/binary
-        {$IFDEF STRING_IS_UNICODE}
-        LEncoding := CharsetToEncoding(FCharset);
-        I := LEncoding.GetByteCount(FFieldValue);
-        {$ELSE}
-        I := Length(FFieldValue);
-        {$ENDIF}
-        // need to include an explicit CRLF at the end of the data
-        Result := Result + I + 2{CRLF};
-      end else
-      begin
-        LStream := TIdCalculateSizeStream.Create;
-        try
+        if I = 3 then begin
+          // quoted-printable
           {$IFDEF STRING_IS_UNICODE}
-          LEncoding := CharsetToEncoding(FCharset);
+          TIdEncoderQuotedPrintable.EncodeString(FFieldValue, LStream, CharsetToEncoding(FCharset));
           {$ELSE}
-          LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
+          TIdEncoderQuotedPrintable.EncodeBytes(LBytes, LStream);
           {$ENDIF}
-          if I = 3 then begin
-            // quoted-printable
-            {$IFDEF STRING_IS_UNICODE}
-            TIdEncoderQuotedPrintable.EncodeString(FFieldValue, LStream, LEncoding);
-            {$ELSE}
-            TIdEncoderQuotedPrintable.EncodeBytes(LBytes, LStream);
-            {$ENDIF}
-            // the encoded text always includes a CRLF at the end...
-            Result := Result + LStream.Size {+2};
-          end else begin
-            // base64
-            {$IFDEF STRING_IS_UNICODE}
-            TIdEncoderMIME.EncodeString(FFieldValue, LStream, LEncoding{$IFDEF STRING_IS_ANSI}, IndyOSDefaultEncoding{$ENDIF});
-            {$ELSE}
-            TIdEncoderMIME.EncodeBytes(LBytes, LStream);
-            {$ENDIF}
-            // the encoded text does not include a CRLF at the end...
-            Result := Result + LStream.Size + 2;
-          end;
-        finally
-          LStream.Free;
+          // the encoded text always includes a CRLF at the end...
+          Result := Result + LStream.Size {+2};
+        end else begin
+          // base64
+          {$IFDEF STRING_IS_UNICODE}
+          TIdEncoderMIME.EncodeString(FFieldValue, LStream, CharsetToEncoding(FCharset){$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+          {$ELSE}
+          TIdEncoderMIME.EncodeBytes(LBytes, LStream);
+          {$ENDIF}
+          // the encoded text does not include a CRLF at the end...
+          Result := Result + LStream.Size + 2;
         end;
+      finally
+        LStream.Free;
       end;
-    {$IFNDEF DOTNET}
-    finally
-      LEncoding.Free;
     end;
-    {$ENDIF}
   end else begin
     // need to include an explicit CRLF at the end of blank text
     Result := Result + 2{CRLF};
@@ -720,7 +700,6 @@ end;
 function TIdFormDataField.PrepareDataStream(var VCanFree: Boolean): TStream;
 var
   I: Integer;
-  LEncoding: TIdTextEncoding;
   {$IFDEF STRING_IS_ANSI}
   LBytes: TIdBytes;
   {$ENDIF}
@@ -758,67 +737,51 @@ begin
   else if Length(FFieldValue) > 0 then begin
     Result := TMemoryStream.Create;
     try
-      LEncoding := nil;
-      {$IFNDEF DOTNET}
-      try
+      {$IFDEF STRING_IS_ANSI}
+      LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
       {$ENDIF}
-        {$IFDEF STRING_IS_ANSI}
-        LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
+      I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
+      if I = 0 then begin
+        // 7bit
+        {$IFDEF STRING_IS_UNICODE}
+        WriteStringToStream(Result, FFieldValue, IndyTextEncoding_ASCII);
+        {$ELSE}
+        CheckByteEncoding(VBytes, CharsetToEncoding(FCharset), IndyTextEncoding_ASCII);
+        WriteTIdBytesToStream(Result, LBytes);
         {$ENDIF}
-        I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
-        if I = 0 then begin
-          // 7bit
+        // need to include an explicit CRLF at the end of the data
+        WriteStringToStream(Result, CRLF);
+      end
+      else if (I = -1) or (I = 1) or (I = 2) then begin
+        // 8bit/binary
+        {$IFDEF STRING_IS_UNICODE}
+        WriteStringToStream(Result, FFieldValue, CharsetToEncoding(FCharset));
+        {$ELSE}
+        WriteTIdBytesToStream(Result, LBytes);
+        {$ENDIF}
+        // need to include an explicit CRLF at the end of the data
+        WriteStringToStream(Result, CRLF);
+      end else
+      begin
+        if I = 3 then begin
+          // quoted-printable
           {$IFDEF STRING_IS_UNICODE}
-          WriteStringToStream(Result, FFieldValue, IndyASCIIEncoding);
+          TIdEncoderQuotedPrintable.EncodeString(FFieldValue, Result, CharsetToEncoding(FCharset));
           {$ELSE}
-          LEncoding := CharsetToEncoding(FCharset);
-          if LEncoding <> IndyASCIIEncoding then begin
-            LBytes := TIdTextEncoding.Convert(LEncoding, IndyASCIIEncoding, LBytes);
-          end;
-          WriteTIdBytesToStream(Result, LBytes);
+          TIdEncoderQuotedPrintable.EncodeBytes(LBytes, Result);
           {$ENDIF}
-          // need to include an explicit CRLF at the end of the data
-          WriteStringToStream(Result, CRLF);
-        end
-        else if (I = -1) or (I = 1) or (I = 2) then begin
-          // 8bit/binary
+          // the encoded text always includes a CRLF at the end...
+        end else begin
+          // base64
           {$IFDEF STRING_IS_UNICODE}
-          LEncoding := CharsetToEncoding(FCharset);
-          WriteStringToStream(Result, FFieldValue, LEncoding);
+          TIdEncoderMIME.EncodeString(FFieldValue, Result, CharsetToEncoding(FCharset));
           {$ELSE}
-          WriteTIdBytesToStream(Result, LBytes);
+          TIdEncoderMIME.EncodeBytes(LBytes, Result);
           {$ENDIF}
-          // need to include an explicit CRLF at the end of the data
+          // the encoded text does not include a CRLF at the end...
           WriteStringToStream(Result, CRLF);
-        end else
-        begin
-          {$IFDEF STRING_IS_UNICODE}
-          LEncoding := CharsetToEncoding(FCharset);
-          {$ENDIF}
-          if I = 3 then begin
-            // quoted-printable
-            {$IFDEF STRING_IS_UNICODE}
-            TIdEncoderQuotedPrintable.EncodeString(FFieldValue, Result, LEncoding);
-            {$ELSE}
-            TIdEncoderQuotedPrintable.EncodeBytes(LBytes, Result);
-            {$ENDIF}
-            // the encoded text always includes a CRLF at the end...
-          end else begin
-            // base64
-            {$IFDEF STRING_IS_UNICODE}
-            TIdEncoderMIME.EncodeString(FFieldValue, Result, LEncoding);
-            {$ELSE}
-            TIdEncoderMIME.EncodeBytes(LBytes, Result);
-            {$ENDIF}
-            // the encoded text does not include a CRLF at the end...
-            WriteStringToStream(Result, CRLF);
-          end;
         end;
-      {$IFNDEF DOTNET}
-      finally
-        LEncoding.Free;
       end;
-     {$ENDIF}
     except
       FreeAndNil(Result);
       raise;

@@ -38,10 +38,13 @@ uses
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Types,
   {$ENDIF}
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   SysUtils, IdResourceStringsProtocols;
 
 type
-  TIdHeaderCoderList = class(TList)
+  TIdHeaderCoderList = class(TList{$IFDEF HAS_GENERICS_TList}<TIdHeaderCoderClass>{$ENDIF})
   public
     function ByCharSet(const ACharSet: String): TIdHeaderCoderClass;
   end;
@@ -139,15 +142,24 @@ end;
 
 procedure RegisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
 begin
-  if Assigned(ACoder) and Assigned(GHeaderCoderList) and (GHeaderCoderList.IndexOf(TObject(ACoder)) = -1) then begin
-    GHeaderCoderList.Add(TObject(ACoder));
+  if Assigned(ACoder) and
+     Assigned(GHeaderCoderList) and
+     (GHeaderCoderList.IndexOf(
+        {$IFDEF HAS_GENERICS_TList}ACoder{$ELSE}TObject(ACoder){$ENDIF}
+     ) = -1) then
+  begin
+    GHeaderCoderList.Add(
+      {$IFDEF HAS_GENERICS_TList}ACoder{$ELSE}TObject(ACoder){$ENDIF}
+    );
   end;
 end;
 
 procedure UnregisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
 begin
   if Assigned(GHeaderCoderList) then begin
-    GHeaderCoderList.Remove(TObject(ACoder));
+    GHeaderCoderList.Remove(
+      {$IFDEF HAS_GENERICS_TList}ACoder{$ELSE}TObject(ACoder){$ENDIF}
+    );
   end;
 end;
 

@@ -340,14 +340,11 @@ end;
 function TIdNetworkCalculator.GetIsAddressRoutable: Boolean;
 begin
   // RFC 1918
-  with NetworkAddress do
-  begin
-    Result := not (
-               (Byte1 = 10) or
-               ((Byte1 = 172) and (Byte2 in [16..31])) or
-               ((Byte1 = 192) and (Byte2 = 168))
-               );
-  end;
+  Result := not (
+             (FNetworkAddress.Byte1 = 10) or
+             ((FNetworkAddress.Byte1 = 172) and (FNetworkAddress.Byte2 in [16..31])) or
+             ((FNetworkAddress.Byte1 = 192) and (FNetworkAddress.Byte2 = 168))
+             );
 end;
 
 function TIdNetworkCalculator.EndIP: String;
@@ -392,12 +389,13 @@ begin
 end;
 
 procedure TIpProperty.Assign(Source: TPersistent);
+var
+  LSource: TIpProperty;
 begin
   if Source is TIpProperty then
   begin
-    with Source as TIpProperty do begin
-      Self.SetAll(Byte1, Byte2, Byte3, Byte4);
-    end;
+    LSource := TIpProperty(Source);
+    SetAll(LSource.Byte1, LSource.Byte2, LSource.Byte3, LSource.Byte4);
   end else begin
     inherited Assign(Source);
   end;
@@ -433,17 +431,35 @@ end;
 function TIpProperty.GetAsBinaryString: String;
 var
   i : Integer;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
   // get the binary string
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(32);
+  {$ELSE}
   SetLength(Result, 32);
+  {$ENDIF}
   for i := 1 to 32 do
   begin
     if FBitArray[i-1] then begin
-      Result[i] := '1'    {Do not Localize}
+      {$IFDEF STRING_IS_IMMUTABLE}
+      LSB.Append(Char('1'));    {Do not Localize}
+      {$ELSE}
+      Result[i] := '1';         {Do not Localize}
+      {$ENDIF}
     end else begin
-      Result[i] := '0';    {Do not Localize}
+      {$IFDEF STRING_IS_IMMUTABLE}
+      LSB.Append(Char('0'));    {Do not Localize}
+      {$ELSE}
+      Result[i] := '0';         {Do not Localize}
+      {$ENDIF}
     end;
   end;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  Result := LSB.ToString;
+  {$ENDIF}
 end;
 
 function TIpProperty.GetAsDoubleWord: LongWord;

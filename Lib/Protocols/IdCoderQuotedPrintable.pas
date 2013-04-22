@@ -279,11 +279,13 @@ var
   I, CurrentLen: Integer;
   LSourceSize: TIdStreamSize;
   S, SourceLine: String;
+  LEncoding: IIdTextEncoding;
 begin
   //ie while not eof
   LSourceSize := ASrcStream.Size;
   while ASrcStream.Position < LSourceSize do begin
-    SourceLine := ReadLnFromStream(ASrcStream, -1, False, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    EnsureEncoding(LEncoding, enc8Bit);
+    SourceLine := ReadLnFromStream(ASrcStream, -1, False, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
     CurrentLen := 0;
     for I := 1 to Length(SourceLine) do begin
       if not CharIsInSet(SourceLine, I, SafeChars) then

@@ -122,8 +122,8 @@ type
     //
     property Binding: TIdSocketHandle read GetBinding;
     procedure Broadcast(const AData: string; const APort: TIdPort; const AIP: String = '';
-      AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ); overload;
     procedure Broadcast(const AData: TIdBytes; const APort: TIdPort; const AIP: String = ''); overload;
     function ReceiveBuffer(var ABuffer : TIdBytes; var VPeerIP: string; var VPeerPort: TIdPort;
@@ -132,16 +132,16 @@ type
       var VIPVersion: TIdIPVersion; const AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
     function ReceiveBuffer(var ABuffer : TIdBytes;
      const AMSec: Integer = IdTimeoutDefault): Integer; overload;  virtual;
-    function ReceiveString(const AMSec: Integer = IdTimeoutDefault; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+    function ReceiveString(const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
     function ReceiveString(var VPeerIP: string; var VPeerPort: TIdPort;
-     const AMSec: Integer = IdTimeoutDefault; AByteEncoding: TIdTextEncoding = nil
-     {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+     const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil
+     {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
      ): string; overload;
     procedure Send(const AHost: string; const APort: TIdPort; const AData: string;
-      AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       );
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes); overload; virtual;
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer: TIdBytes); overload; virtual;
@@ -166,8 +166,8 @@ uses
 { TIdUDPBase }
 
 procedure TIdUDPBase.Broadcast(const AData: string; const APort: TIdPort;
-  const AIP: String = ''; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
+  const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 begin
   Binding.Broadcast(AData, APort, AIP, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
@@ -288,8 +288,8 @@ begin
 end;
 
 function TIdUDPBase.ReceiveString(var VPeerIP: string; var VPeerPort: TIdPort;
-  const AMSec: Integer = IdTimeoutDefault; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
   i: Integer;
@@ -301,8 +301,8 @@ begin
 end;
 
 function TIdUDPBase.ReceiveString(const AMSec: Integer = IdTimeoutDefault;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}): string;
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): string;
 var
   VoidIP: string;
   VoidPort: TIdPort;
@@ -311,8 +311,8 @@ begin
 end;
 
 procedure TIdUDPBase.Send(const AHost: string; const APort: TIdPort; const AData: string;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 begin
   SendBuffer(AHost, APort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));

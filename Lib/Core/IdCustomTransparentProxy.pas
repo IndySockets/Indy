@@ -86,12 +86,14 @@ type
     FPort: TIdPort;
     FIPVersion : TIdIPVersion;
     FUsername: String;
-    FChainedProxy: TIdCustomTransparentProxy;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FChainedProxy: TIdCustomTransparentProxy;
     //
     function  GetEnabled: Boolean; virtual; abstract;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
+    {$IFNDEF USE_OBJECT_ARC}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$ENDIF}
     procedure SetChainedProxy(const AValue: TIdCustomTransparentProxy);
   public
     procedure Assign(ASource: TPersistent); override;
@@ -126,25 +128,30 @@ uses
 { TIdCustomTransparentProxy }
 
 procedure TIdCustomTransparentProxy.Assign(ASource: TPersistent);
+var
+  LSource: TIdCustomTransparentProxy;
 Begin
   if ASource is TIdCustomTransparentProxy then begin
-    with TIdCustomTransparentProxy(ASource) do begin
-      Self.FHost := Host;
-      Self.FPassword := Password;
-      Self.FPort := Port;
-      Self.FIPVersion := IPVersion;
-      Self.FUsername := Username;
-    end
+    LSource := TIdCustomTransparentProxy(ASource);
+    FHost := LSource.Host;
+    FPassword := LSource.Password;
+    FPort := LSource.Port;
+    FIPVersion := LSource.IPVersion;
+    FUsername := LSource.Username;
   end else begin
     inherited Assign(ASource);
   end;
 End;//
 
 procedure TIdCustomTransparentProxy.Connect(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LChainedProxy: TIdCustomTransparentProxy;
 begin
-  if Assigned(FChainedProxy) and FChainedProxy.Enabled then begin
-    MakeConnection(AIOHandler, FChainedProxy.Host, FChainedProxy.Port);
-    FChainedProxy.Connect(AIOHandler, AHost, APort, AIPVersion);
+  LChainedProxy := FChainedProxy;
+  if Assigned(LChainedProxy) and LChainedProxy.Enabled then begin
+    MakeConnection(AIOHandler, LChainedProxy.Host, LChainedProxy.Port);
+    LChainedProxy.Connect(AIOHandler, AHost, APort, AIPVersion);
   end else begin
     MakeConnection(AIOHandler, AHost, APort, AIPVersion);
   end;
@@ -169,6 +176,8 @@ procedure TIdCustomTransparentProxy.SetEnabled(AValue: Boolean);
 Begin
 End;
 
+// under ARC, all weak references to a freed object get nil'ed automatically
+{$IFNDEF USE_OBJECT_ARC}
 procedure TIdCustomTransparentProxy.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FChainedProxy) then begin
@@ -176,24 +185,41 @@ begin
   end;
   inherited Notification(AComponent,Operation);
 end;
+{$ENDIF}
 
 procedure TIdCustomTransparentProxy.SetChainedProxy(const AValue: TIdCustomTransparentProxy);
 var
   LNextValue: TIdCustomTransparentProxy;
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LChainedProxy: TIdCustomTransparentProxy;
 begin
-  LNextValue := AValue;
-  while Assigned(LNextValue) do begin
-    if LNextValue = Self then begin
-      raise EIdTransparentProxyCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]);// -> One EIDCircularLink exception
+  LChainedProxy := FChainedProxy;
+
+  if LChainedProxy <> AValue then
+  begin
+    LNextValue := AValue;
+    while Assigned(LNextValue) do begin
+      if LNextValue = Self then begin
+        raise EIdTransparentProxyCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]);// -> One EIDCircularLink exception
+      end;
+      LNextValue := LNextValue.ChainedProxy;
     end;
-    LNextValue := LNextValue.FChainedProxy;
-  end;
-  if Assigned(FChainedProxy) then begin
-    FChainedProxy.RemoveFreeNotification(Self);
-  end;
-  FChainedProxy := AValue;
-  if Assigned(FChainedProxy) then begin
-    FChainedProxy.FreeNotification(Self);
+
+    // under ARC, all weak references to a freed object get nil'ed automatically
+
+    {$IFNDEF USE_OBJECT_ARC}
+    if Assigned(LChainedProxy) then begin
+      LChainedProxy.RemoveFreeNotification(Self);
+    end;
+    {$ENDIF}
+
+    FChainedProxy := AValue;
+
+    {$IFNDEF USE_OBJECT_ARC}
+    if Assigned(AValue) then begin
+      AValue.FreeNotification(Self);
+    end;
+    {$ENDIF}
   end;
 end;
 

@@ -121,29 +121,25 @@ begin
     LResults := TStringList.Create;
     try
       FOnSystat(ABinding, LResults);
-      with ABinding do
+      s := '';
+      for i := 0 to LResults.Count - 1 do
       begin
-        s := '';
-        for i := 0 to LResults.Count - 1 do
-        begin
-          {enure that one line will never exceed the maximum packet size }
-          s2 := s + EOL + MaxLenStr(LResults[i]);
-          if Length(s2) > Max_UDPPacket then
-          begin
-            s := TrimLeft(s);
-            SendTo(PeerIP, PeerPort, ToBytes(s));
-            s := MaxLenStr(LResults[i]);
-          end
-          else
-          begin
-            s := s2;
-          end;
-        end;
-        if s <> '' then
+        {enure that one line will never exceed the maximum packet size }
+        s2 := s + EOL + MaxLenStr(LResults[i]);
+        if Length(s2) > Max_UDPPacket then
         begin
           s := TrimLeft(s);
-          SendTo(PeerIP, PeerPort, ToBytes(s));
+          ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
+          s := MaxLenStr(LResults[i]);
+        end else
+        begin
+          s := s2;
         end;
+      end;
+      if s <> '' then
+      begin
+        s := TrimLeft(s);
+        ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
       end;
     finally
       FreeAndNil(LResults);

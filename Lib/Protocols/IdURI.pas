@@ -99,17 +99,17 @@ type
     function GetFullURI(const AOptionalFields: TIdURIOptionalFieldsSet = [ofAuthInfo, ofBookmark]): String;
     function GetPathAndParams: String;
     class procedure NormalizePath(var APath: string);
-    class function URLDecode(ASrc: string; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+    class function URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
-    class function URLEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+    class function URLEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
-    class function ParamsEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+    class function ParamsEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
-    class function PathEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+    class function PathEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
     //
     property Bookmark : string read FBookmark write FBookMark;
@@ -133,6 +133,13 @@ uses
   IdGlobalProtocols, IdResourceStringsProtocols, IdUriUtils,
   SysUtils;
 
+// RLebeau 10/31/2012: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
+
 { TIdURI }
 
 constructor TIdURI.Create(const AURI: string = '');    {Do not Localize}
@@ -146,7 +153,15 @@ end;
 class procedure TIdURI.NormalizePath(var APath: string);
 var
   i: Integer;
+  LChar: Char;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := nil;
+  {$ENDIF}
+
   // Normalize the directory delimiters to follow the UNIX syntax
 
   // RLebeau 8/10/2010: only normalize within the actual path,
@@ -166,20 +181,35 @@ begin
   end;
 
   while i <= Length(APath) do begin
+    LChar := APath[i];
     {$IFDEF STRING_IS_ANSI}
-    if IsLeadChar(APath[i]) then begin
-      Inc(i, 2)
-    end else
+    if IsLeadChar(LChar) then begin
+      Inc(i, 2);
+      Continue;
+    end;
     {$ENDIF}
-    if (APath[i] = '?') or (APath[i] = '#') then begin {Do not Localize}
+    if (LChar = '?') or (LChar = '#') then begin {Do not Localize}
       // stop normalizing at query/fragment portion of the URL
       Break;
     end;
-    if APath[i] = '\' then begin    {Do not Localize}
+    if LChar = '\' then begin    {Do not Localize}
+      {$IFDEF STRING_IS_IMMUTABLE}
+      if LSB = nil then begin
+        LSB := TIdStringBuilder.Create(APath);
+      end;
+      LSB[i-1] := '/';    {Do not Localize}
+      {$ELSE}
       APath[i] := '/';    {Do not Localize}
+      {$ENDIF}
     end;
     Inc(i);
   end;
+
+  {$IFDEF STRING_IS_IMMUTABLE}
+  if LSB <> nil then begin
+    APath := LSB.ToString;
+  end;
+  {$ENDIF}
 end;
 
 procedure TIdURI.SetURI(const Value: String);
@@ -307,8 +337,8 @@ begin
   Result := GetFullURI([]);
 end;
 
-class function TIdURI.URLDecode(ASrc: string; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+class function TIdURI.URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
   i: Integer;
@@ -360,17 +390,15 @@ begin
   end;
   {$IFDEF STRING_IS_ANSI}
   EnsureEncoding(ADestEncoding, encOSDefault);
-  if AByteEncoding <> ADestEncoding then begin
-    LBytes := TIdTextEncoding.Convert(AByteEncoding, ADestEncoding, LBytes);
-  end;
+  CheckByteEncoding(LBytes, AByteEncoding, ADestEncoding);
   SetString(Result, PAnsiChar(LBytes), Length(LBytes));
   {$ELSE}
   Result := AByteEncoding.GetString(LBytes);
   {$ENDIF}
 end;
 
-class function TIdURI.ParamsEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+class function TIdURI.ParamsEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 const
   UnsafeChars: TIdUnicodeString = '*<>#%"{}|\^[]`';  {do not localize}
@@ -439,8 +467,8 @@ begin
   end;
 end;
 
-class function TIdURI.PathEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+class function TIdURI.PathEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 const
   UnsafeChars = '*<>#%"{}|\^[]`+';  {do not localize}
@@ -498,22 +526,27 @@ begin
   end;
 end;
 
-class function TIdURI.URLEncode(const ASrc: string; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+class function TIdURI.URLEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
+var
+  LUri: TIdURI;
 begin
-  with TIdURI.Create(ASrc) do try
-    Path := PathEncode(Path, AByteEncoding
+  LUri := TIdURI.Create(ASrc);
+  try
+    LUri.Path := PathEncode(LUri.Path, AByteEncoding
       {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
       );
-    Document := PathEncode(Document, AByteEncoding
+    LUri.Document := PathEncode(LUri.Document, AByteEncoding
       {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
       );
-    Params := ParamsEncode(Params, AByteEncoding
+    LUri.Params := ParamsEncode(LUri.Params, AByteEncoding
       {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
       );
-    Result := URI;
-  finally Free; end;
+    Result := LUri.URI;
+  finally
+    LUri.Free;
+  end;
 end;
 
 function TIdURI.GetFullURI(const AOptionalFields: TIdURIOptionalFieldsSet): String;

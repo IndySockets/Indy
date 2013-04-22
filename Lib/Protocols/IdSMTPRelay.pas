@@ -341,18 +341,17 @@ end;
 procedure TIdSMTPRelay.ProcessException(AException: Exception; AEMailAddress : TIdEMailAddressItem);
 var
   LE: EIdSMTPReplyError;
+  LStatus: TIdSMTPRelayStatusItem;
 begin
-  with FStatusList.Add do
+  LStatus := FStatusList.Add;
+  LStatus.EmailAddress := AEmailAddress.Address;
+  LStatus.Sent := False;
+  LStatus.ExceptionMessage := AException.Message;
+  if AException is EIdSMTPReplyError then
   begin
-    EmailAddress := AEmailAddress.Address;
-    Sent := False;
-    ExceptionMessage := AException.Message;
-    if AException is EIdSMTPReplyError then
-    begin
-      LE := AException as EIdSMTPReplyError;
-      ReplyCode :=  LE.ErrorCode;
-      EnhancedCode.ReplyAsStr := LE.EnhancedCode.ReplyAsStr;
-    end;
+    LE := AException as EIdSMTPReplyError;
+    LStatus.ReplyCode :=  LE.ErrorCode;
+    LStatus.EnhancedCode.ReplyAsStr := LE.EnhancedCode.ReplyAsStr;
   end;
   if Assigned(FOnDirectSMTPStatus) then
   begin
@@ -432,6 +431,7 @@ var
   var
     ServerIndex:Integer;
     EMailSent: Boolean;
+    LStatusItem: TIdSMTPRelayStatusItem;
   begin
     if AEmailAddresses.Count = 0 then
     begin
@@ -478,11 +478,9 @@ var
             end;
             InternalSend(ALMsg, AFrom, AEmailAddresses);
             EMailSent := True;
-            with FStatusList.Add do
-            begin
-              EmailAddress := AEmailAddresses[0].Address;
-              Sent := True;
-            end;
+            LStatusItem := FStatusList.Add;
+            LStatusItem.EmailAddress := AEmailAddresses[0].Address;
+            LStatusItem.Sent := True;
             if Assigned(FOnDirectSMTPStatus) then
             begin
               FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmWorkEndOK);

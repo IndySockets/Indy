@@ -167,7 +167,7 @@ begin
   Result := False;
   LCols := TStringList.Create;
   try
-     SplitColumns(Trim(AData), LCols);
+     SplitDelimitedString(AData, LCols, True);
      if LCols.Count = 7 then
      begin
        Result := (LCols[0] = 'File') and            {do not localize}

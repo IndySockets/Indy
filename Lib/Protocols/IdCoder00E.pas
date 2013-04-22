@@ -103,7 +103,7 @@ begin
       LEncodeSize := IndyMin(LSize, Length(FCodingTable)-1);
       inherited Encode(ASrcStream, LStream, LEncodeSize);
       Dec(LSize, LEncodeSize);
-      LBuf[0] := Ord(FCodingTable[Integer(LEncodeSize)+1]);
+      LBuf[0] := FCodingTable[Integer(LEncodeSize)];
       TIdStreamHelper.Write(ADestStream, LBuf, 1);
       LStream.Position := 0;
       ADestStream.CopyFrom(LStream, 0);

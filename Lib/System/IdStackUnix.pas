@@ -120,8 +120,6 @@ type
 
   TIdStackUnix = class(TIdStackBSDBase)
   protected
-//    procedure SetSocketOption(ASocket: TIdStackSocketHandle;
-//      ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
     procedure WriteChecksumIPv6(s: TIdStackSocketHandle; var VBuffer: TIdBytes;
       const AOffset: Integer; const AIP: String; const APort: TIdPort);
     function GetLastError: Integer;
@@ -153,11 +151,6 @@ type
     procedure WSSetLastError(const AErr : Integer); override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
     procedure AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings); override;
-    procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
-      AOptval: PAnsiChar; var AOptlen: Integer); override;
-    procedure GetSocketOption(ASocket: TIdStackSocketHandle;
-      ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
-      out AOptVal: Integer); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
@@ -180,10 +173,10 @@ type
     function WSSocket(AFamily, AStruct, AProtocol: Integer;
      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
+    procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
-      AOptName: TIdSocketOption; AOptVal: Integer); overload;override;
-    procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
-      const Alevel, Aoptname: Integer; Aoptval: PAnsiChar; const Aoptlen: Integer); overload; override;
+      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
     procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
       const AEnabled: Boolean; const ATimeMS, AInterval: Integer); override;
     function SupportsIPv6: Boolean; overload; override;
@@ -655,16 +648,22 @@ begin
   end;
 end;
 
-procedure TIdStackUnix.SetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
+procedure TIdStackUnix.GetSocketOption(ASocket: TIdStackSocketHandle;
+  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; var AOptVal;
+  var AOptLen: Integer);
+var
+  LLen : TSockLen;
 begin
-  CheckForSocketError(fpSetSockOpt(ASocket, ALevel, AOptName, PAnsiChar(@AOptVal), SizeOf(AOptVal)));
+  LLen := AOptLen;
+  CheckForSocketError(fpGetSockOpt(ASocket, ALevel, AOptName, PAnsiChar(@AOptVal), @LLen));
+  AOptLen := LLen;
 end;
 
-procedure TIdStackUnix.SetSocketOption(const ASocket: TIdStackSocketHandle;
-  const Alevel, Aoptname: Integer; Aoptval: PAnsiChar; const Aoptlen: Integer);
+procedure TIdStackUnix.SetSocketOption(ASocket: TIdStackSocketHandle;
+  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; const AOptVal;
+  const AOptLen: Integer);
 begin
-  CheckForSocketError(fpsetsockopt(ASocket, ALevel, Aoptname, Aoptval, Aoptlen));
+  CheckForSocketError(fpSetSockOpt(ASocket, ALevel, AOptName, PAnsiChar(@AOptVal), AOptLen));
 end;
 
 function TIdStackUnix.WSGetLastError: Integer;
@@ -875,15 +874,6 @@ begin
   end;
 end;
 
-procedure TIdStackUnix.WSGetSockOpt(ASocket: TIdStackSocketHandle;
-  ALevel, AOptname: Integer; AOptval: PAnsiChar; var AOptlen: Integer);
-var
-  LP : TSockLen;
-begin
-  LP := AOptLen;
-  CheckForSocketError(fpGetSockOpt(ASocket, ALevel, AOptname, AOptval, @LP));
-end;
-
 procedure TIdStackUnix.AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings);
 var
   LS : TServiceEntry;
@@ -892,19 +882,6 @@ begin
     AAddresses.Add(LS.Name);
   end;
 end;
-
-procedure TIdStackUnix.GetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
-  out AOptVal: Integer);
-var
-  LLen : Integer;
-  LBuf : Integer;
-begin
-  LLen := SizeOf(Integer);
-  WSGetSockOpt(ASocket, ALevel, AOptName, PAnsiChar(@LBuf), LLen);
-  AOptVal := LBuf;
-end;
-
 
 function TIdStackUnix.WSTranslateSocketErrorMsg(const AErr: Integer): string;
 begin

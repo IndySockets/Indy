@@ -113,11 +113,12 @@ end;
 
 procedure TIdAuthenticationManager.AddAuthentication(
   AAuthentication: TIdAuthentication; AURL: TIdURI);
+var
+  LItem: TIdAuthenticationItem;
 begin
-  with Authentications.Add do begin
-    URL.URI := AURL.URI;
-    Params.Assign(AAuthentication.Params);
-  end;
+  LItem := Authentications.Add;
+  LItem.URL.URI := AURL.URI;
+  LItem.Params.Assign(AAuthentication.Params);
 end;
 
 destructor TIdAuthenticationManager.Destroy;
@@ -149,12 +150,13 @@ begin
 end;
 
 procedure TIdAuthenticationItem.Assign(Source: TPersistent);
+var
+  LSource: TIdAuthenticationItem;
 begin
   if Source is TIdAuthenticationItem then begin
-    with TIdAuthenticationItem(Source) do begin
-      Self.URL.URI := URL.URI;
-      Self.Params.Assign(Params);
-    end;
+    LSource := TIdAuthenticationItem(Source);
+    URL.URI := LSource.URL.URI;
+    Params.Assign(LSource.Params);
   end else begin
     inherited Assign(Source);
   end;

@@ -79,9 +79,9 @@ begin
   if AListing.Count > 0 then begin
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0], s);
+      SplitDelimitedString(AListing[0], s, True);
       if s.Count > 4 then begin
-        Result := (s[4][1]='*') or (s[4]='DIR');  {Do not translate}
+        Result := CharEquals(s[4], 1, '*') or (s[4]='DIR');  {Do not localize}
       end;
     finally
       FreeAndNil(s);

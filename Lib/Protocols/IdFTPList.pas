@@ -523,16 +523,16 @@ begin
 end;
 
 procedure TIdFTPListItem.Assign(Source: TPersistent);
+var
+  LSource: TIdFTPListItem;
 begin
   if Source is TIdFTPListItem then begin
-    with Source as TIdFTPListItem do
-    begin
-      Self.Data := Data;
-      Self.ItemType := ItemType;
-      Self.Size := Size;
-      Self.ModifiedDate := ModifiedDate;
-      Self.FileName := FileName;
-    end;
+    LSource := TIdFTPListItem(Source);
+    Data := LSource.Data;
+    ItemType := LSource.ItemType;
+    Size := LSource.Size;
+    ModifiedDate := LSource.ModifiedDate;
+    FileName := LSource.FileName;
   end else begin
     inherited Assign(Source);
   end;

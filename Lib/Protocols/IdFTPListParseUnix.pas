@@ -259,7 +259,7 @@ begin
     //to a Unix listing.  Beware.
     s := TStringList.Create;
     try
-      SplitColumns(LCData, s);
+      SplitDelimitedString(LCData, s, True);
       if s.Count > 9 then begin
         Result := PosInStrArray(s[9], ['AM', 'PM']) = -1; {do not localize}
         if Result then begin
@@ -276,7 +276,7 @@ begin
     //These are specified with the -i and -s parameters.
     s := TStringList.Create;
     try
-      SplitColumns(LCData, s);
+      SplitDelimitedString(LCData, s, True);
       if s.Count > 3 then begin
         if IsNumeric(s[0]) then begin
           Result :=  IsValidUnixPerms(S[1]);
@@ -297,7 +297,7 @@ var
 begin
   s := TStringList.Create;
   try
-    SplitColumns(AData, s);
+    SplitDelimitedString(AData, s, True);
     Result := (s.Count > 4) and (PosInStrArray(s[4], UnitreeStoreTypes) <> -1);
     if not Result then begin
       Result := IsUnitreeBanner(AData);
@@ -354,7 +354,7 @@ var
     Result := False;
     s := TStringList.Create;
     try
-      SplitColumns(AString, s);
+      SplitDelimitedString(AString, s, True);
       if s.Count > 2 then begin
         //if either inode or block count were given
         if IsNumeric(s[0]) then begin

@@ -167,7 +167,8 @@ implementation
 uses
   IdGlobal,
   IdIPAddress,
-  IdDsnCoreResourceStrings, IdStack,
+  IdDsnCoreResourceStrings,
+  IdStack,
   IdStackBSDBase,
   SysUtils;
 
@@ -196,6 +197,7 @@ var
   LIPVersion: TIdIPVersion;
   LAddr, LText: string;
   LPort: integer;
+  LSocket: TIdSocketHandle;
 begin
   ADest.Clear;
   LItems := TStringList.Create;
@@ -218,11 +220,10 @@ begin
           //Note that 0 is legal and indicates the server binds to a random port
         end;
         if IsValidIP(LAddr) and (LPort > -1) and (LPort < 65536) then begin
-          with ADest.Add do begin
-            IPVersion := LIPVersion;
-            IP := LAddr;
-            Port := LPort;
-          end;
+          LSocket := ADest.Add;
+          LSocket.IPVersion := LIPVersion;
+          LSocket.IP := LAddr;
+          LSocket.Port := LPort;
         end;
       end;
     end;
@@ -325,184 +326,146 @@ begin
   btnCancel := TButton.Create(Self);
   {$ENDIF}
 
-  with lblBindings do
-  begin
-    Name := 'lblBindings';  {do not localize}
-    Parent := Self;
-    Left := 8;
-    Top := 8;
-    Width := 35;
-    Height := 13;
-    Caption := '&Binding';  {do not localize}
-  end;
+  lblBindings.Name := 'lblBindings';  {do not localize}
+  lblBindings.Parent := Self;
+  lblBindings.Left := 8;
+  lblBindings.Top := 8;
+  lblBindings.Width := 35;
+  lblBindings.Height := 13;
+  lblBindings.Caption := '&Binding';  {do not localize}
 
-  with lbBindings do
-  begin
-    Name := 'lbBindings';   {do not localize}
-    Parent := Self;
-    Left := 8;
-    Top := 24;
-    Width := 137;
-    Height := 161;
-    ItemHeight := 13;
-    TabOrder := 8;
-    OnClick := lbBindingsClick;
-  end;
+  lbBindings.Name := 'lbBindings';   {do not localize}
+  lbBindings.Parent := Self;
+  lbBindings.Left := 8;
+  lbBindings.Top := 24;
+  lbBindings.Width := 137;
+  lbBindings.Height := 161;
+  lbBindings.ItemHeight := 13;
+  lbBindings.TabOrder := 8;
+  lbBindings.OnClick := lbBindingsClick;
 
-  with ActionList1 do
-  begin
-    Name := 'ActionList1';  {do not localize}
-  end;
+  ActionList1.Name := 'ActionList1';  {do not localize}
+  {
+  ActionList1.Left := 152;
+  ActionList1.Top := 32;
+  }
 
-  with btnBindingsNew do
-  begin
-    Name := 'btnBindingsNew'; {do not localize}
-    Caption := RSBindingNewCaption;
-    OnExecute := btnBindingsNewExecute;
-  end;
+  btnBindingsNew.Name := 'btnBindingsNew'; {do not localize}
+  btnBindingsNew.Caption := RSBindingNewCaption;
+  btnBindingsNew.OnExecute := btnBindingsNewExecute;
 
-  with btnBindingsDelete do
-  begin
-    Name := 'btnBindingsDelete';  {do not localize}
-    Caption := RSBindingDeleteCaption;
-    OnExecute := btnBindingsDeleteExecute;
-    OnUpdate := btnBindingsDeleteUpdate;
-  end;
+  btnBindingsDelete.Name := 'btnBindingsDelete';  {do not localize}
+  btnBindingsDelete.Caption := RSBindingDeleteCaption;
+  btnBindingsDelete.OnExecute := btnBindingsDeleteExecute;
+  btnBindingsDelete.OnUpdate := btnBindingsDeleteUpdate;
 
-  with btnNew do
-  begin
-    Name := 'btnNew'; {do not localize}
-    Parent := Self;
-    Left := 152;
-    Top := 72;
-    Width := 75;
-    Height := 25;
-    Action := btnBindingsNew;
-    TabOrder := 6;
-  end;
+  btnNew.Name := 'btnNew'; {do not localize}
+  btnNew.Parent := Self;
+  btnNew.Left := 152;
+  btnNew.Top := 72;
+  btnNew.Width := 75;
+  btnNew.Height := 25;
+  btnNew.Action := btnBindingsNew;
+  btnNew.TabOrder := 6;
 
-  with btnDelete do
-  begin
-    Name := 'btnDelete';  {do not localize}
-    Parent := Self;
-    Left := 152;
-    Top := 104;
-    Width := 75;
-    Height := 25;
-    Action := btnBindingsDelete;
-    TabOrder := 7;
-  end;
+  btnDelete.Name := 'btnDelete';  {do not localize}
+  btnDelete.Parent := Self;
+  btnDelete.Left := 152;
+  btnDelete.Top := 104;
+  btnDelete.Width := 75;
+  btnDelete.Height := 25;
+  btnDelete.Action := btnBindingsDelete;
+  btnDelete.TabOrder := 7;
 
-  with lblIPAddress do
-  begin
-    Name := 'lblIPAddress'; {do not localize}
-    Parent := Self;
-    Left := 240;
-    Top := 8;
-    Width := 54;
-    Height := 13;
-    Caption := RSBindingHostnameLabel;
-    Enabled := False;
-  end;
+  lblIPAddress.Name := 'lblIPAddress'; {do not localize}
+  lblIPAddress.Parent := Self;
+  lblIPAddress.Left := 240;
+  lblIPAddress.Top := 8;
+  lblIPAddress.Width := 54;
+  lblIPAddress.Height := 13;
+  lblIPAddress.Caption := RSBindingHostnameLabel;
+  lblIPAddress.Enabled := False;
 
-  with edtIPAddress do
-  begin
-    Name := 'edtIPAddress'; {do not localize}
-    Parent := Self;
-    Left := 240;
-    Top := 24;
-    Width := 221;
-    Height := 21;
-    Enabled := False;
-    ItemHeight := 13;
-    TabOrder := 3;
-    OnChange := edtIPAddressChange;
-  end;
+  edtIPAddress.Name := 'edtIPAddress'; {do not localize}
+  edtIPAddress.Parent := Self;
+  edtIPAddress.Left := 240;
+  edtIPAddress.Top := 24;
+  edtIPAddress.Width := 221;
+  edtIPAddress.Height := 21;
+  edtIPAddress.Enabled := False;
+  edtIPAddress.ItemHeight := 13;
+  edtIPAddress.TabOrder := 3;
+  edtIPAddress.OnChange := edtIPAddressChange;
 
-  with lblPort do
-  begin
-    Name := 'lblPort';  {do not localize}
-    Parent := Self;
-    Left := 240;
-    Top := 56;
-    Width := 22;
-    Height := 13;
-    Caption := RSBindingPortLabel;
-    Enabled := False;
-    FocusControl := edtPort;
-  end;
+  lblPort.Name := 'lblPort';  {do not localize}
+  lblPort.Parent := Self;
+  lblPort.Left := 240;
+  lblPort.Top := 56;
+  lblPort.Width := 22;
+  lblPort.Height := 13;
+  lblPort.Caption := RSBindingPortLabel;
+  lblPort.Enabled := False;
+  lblPort.FocusControl := edtPort;
 
-  with edtPort do
-  begin
-    Name := 'edtPort';  {do not localize}
-    Parent := Self;
-    Left := 240;
-    Top := 72;
-    Width := 221;
-    Height := 21;
-    Enabled := False;
-    ItemHeight := 13;
-    TabOrder := 4;
-    OnChange := edtPortChange;
-    OnKeyPress := edtPortKeyPress;
-  end;
+  edtPort.Name := 'edtPort';  {do not localize}
+  edtPort.Parent := Self;
+  edtPort.Left := 240;
+  edtPort.Top := 72;
+  edtPort.Width := 221;
+  edtPort.Height := 21;
+  edtPort.Enabled := False;
+  edtPort.ItemHeight := 13;
+  edtPort.TabOrder := 4;
+  edtPort.OnChange := edtPortChange;
+  edtPort.OnKeyPress := edtPortKeyPress;
 
-  with rdoBindingType do
-  begin
-    Name := 'rdoBindingType'; {do not localize}
-    Parent := Self;
-    Left := 240;
-    Top := 120;
-    Width := 221;
-    Height := 65;
-    Caption := RSBindingIPVerLabel;
-    Enabled := False;
-    Items.Add(RSBindingIPV4Item);
-    Items.Add(RSBindingIPV6Item);
-    TabOrder := 5;
-    OnClick := rdoBindingTypeClick;
-  end;
+  rdoBindingType.Name := 'rdoBindingType'; {do not localize}
+  rdoBindingType.Parent := Self;
+  rdoBindingType.Left := 240;
+  rdoBindingType.Top := 120;
+  rdoBindingType.Width := 221;
+  rdoBindingType.Height := 65;
+  rdoBindingType.Caption := RSBindingIPVerLabel;
+  rdoBindingType.Enabled := False;
+  rdoBindingType.Items.Add(RSBindingIPV4Item);
+  rdoBindingType.Items.Add(RSBindingIPV6Item);
+  rdoBindingType.TabOrder := 5;
+  rdoBindingType.OnClick := rdoBindingTypeClick;
 
-  with btnOk do
-  begin
-    Name := 'btnOk';  {do not localize}
-    Parent := Self;
-    Anchors := [akRight, akBottom];
-    Left := 306;
-    Top := 193;
-    Width := 75;
-    {$IFDEF USE_TBitBtn}
-    Height := 30;
-    Kind := bkOk;
-    {$ELSE}
-    Height := 25;
-    Caption := RSOk;
-    Default := True;
-    ModalResult := 1;
-    {$ENDIF}
-    TabOrder := 0;
-  end;
+  btnOk.Name := 'btnOk';  {do not localize}
+  btnOk.Parent := Self;
+  btnOk.Anchors := [akRight, akBottom];
+  btnOk.Left := 306;
+  btnOk.Top := 193;
+  btnOk.Width := 75;
+  {$IFDEF USE_TBitBtn}
+  btnOk.Height := 30;
+  btnOk.Kind := bkOk;
+  {$ELSE}
+  btnOk.Height := 25;
+  btnOk.Caption := RSOk;
+  btnOk.Default := True;
+  btnOk.ModalResult := 1;
+  {$ENDIF}
+  btnOk.TabOrder := 0;
 
-  with btnCancel do
-  begin
-    Name := 'btnCancel';  {do not localize}
-    Parent := Self;
-    Anchors := [akRight, akBottom];
-    Left := 386;
-    Top := 193;
-    Width := 75;
-    {$IFDEF USE_TBitBtn}
-    Height := 30;
-    Kind := bkCancel;
-    {$ELSE}
-    Height := 25;
-    Cancel := True;
-    Caption := RSCancel;
-    ModalResult := 2;
-    {$ENDIF}
-    Anchors := [akRight, akBottom];
-    TabOrder := 1;
-  end;
+  btnCancel.Name := 'btnCancel';  {do not localize}
+  btnCancel.Parent := Self;
+  btnCancel.Anchors := [akRight, akBottom];
+  btnCancel.Left := 386;
+  btnCancel.Top := 193;
+  btnCancel.Width := 75;
+  {$IFDEF USE_TBitBtn}
+  btnCancel.Height := 30;
+  btnCancel.Kind := bkCancel;
+  {$ELSE}
+  btnCancel.Height := 25;
+  btnCancel.Cancel := True;
+  btnCancel.Caption := RSCancel;
+  btnCancel.ModalResult := 2;
+  {$ENDIF}
+  btnCancel.Anchors := [akRight, akBottom];
+  btnCancel.TabOrder := 1;
 
   FHandles := TIdSocketHandles.Create(nil);
   FIPv4Addresses := TStringList.Create;

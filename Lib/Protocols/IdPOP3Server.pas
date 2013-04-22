@@ -347,107 +347,106 @@ begin
 end;
 
 procedure TIdPOP3Server.InitializeCommandHandlers;
+var
+  LCommandHandler: TIdCommandHandler;
 begin
   inherited;
-  with CommandHandlers.Add do begin
-    Command := 'USER';  {do not localize}
-    OnCommand := CommandUSER;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'PASS';  {do not localize}
-    OnCommand := CommandPass;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'LIST';  {do not localize}
-    OnCommand := CommandList;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'RETR';  {do not localize}
-    OnCommand := CommandRetr;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'DELE';  {do not localize}
-    OnCommand := CommandDele;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'UIDL';  {do not localize}
-    OnCommand := CommandUIDL;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'STAT';  {do not localize}
-    OnCommand := CommandSTAT;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'TOP'; {do not localize}
-    OnCommand := CommandTOP;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'NOOP';  {do not localize}
-    NormalReply.SetReply(ST_OK, RSPOP3SvrNoOp);
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'APOP';  {do not localize}
-    OnCommand := CommandAPOP;
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'RSET';  {do not localize}
-    NormalReply.SetReply(ST_OK, RSPOP3SvrReset);
-    ExceptionReply.Code := ST_ERR;
-    OnCommand := CommandRset;
-    ParseParams := False;
-  end;
 
-  with CommandHandlers.Add do begin
-    Command := 'QUIT';  {do not localize}
-    OnCommand := CommandQuit;
-    Disconnect := True;
-    NormalReply.SetReply(ST_OK, RSPOP3SvrClosingConnection);
-    ExceptionReply.Code := ST_ERR;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'USER';  {do not localize}
+  LCommandHandler.OnCommand := CommandUSER;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
 
-  with CommandHandlers.Add do begin
-    Command := 'STLS';  {do not localize}
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    OnCommand := CommandSTLS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PASS';  {do not localize}
+  LCommandHandler.OnCommand := CommandPass;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
 
-  with CommandHandlers.Add do begin
-    Command := 'CAPA';  {do not localize}
-    NormalReply.Code := ST_OK;
-    ExceptionReply.Code := ST_ERR;
-    OnCommand := CommandCAPA;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LIST';  {do not localize}
+  LCommandHandler.OnCommand := CommandList;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'RETR';  {do not localize}
+  LCommandHandler.OnCommand := CommandRetr;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'DELE';  {do not localize}
+  LCommandHandler.OnCommand := CommandDele;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'UIDL';  {do not localize}
+  LCommandHandler.OnCommand := CommandUIDL;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'STAT';  {do not localize}
+  LCommandHandler.OnCommand := CommandSTAT;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'TOP'; {do not localize}
+  LCommandHandler.OnCommand := CommandTOP;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NOOP';  {do not localize}
+  LCommandHandler.NormalReply.SetReply(ST_OK, RSPOP3SvrNoOp);
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'APOP';  {do not localize}
+  LCommandHandler.OnCommand := CommandAPOP;
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'RSET';  {do not localize}
+  LCommandHandler.NormalReply.SetReply(ST_OK, RSPOP3SvrReset);
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.OnCommand := CommandRset;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'QUIT';  {do not localize}
+  LCommandHandler.OnCommand := CommandQuit;
+  LCommandHandler.Disconnect := True;
+  LCommandHandler.NormalReply.SetReply(ST_OK, RSPOP3SvrClosingConnection);
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'STLS';  {do not localize}
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.OnCommand := CommandSTLS;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'CAPA';  {do not localize}
+  LCommandHandler.NormalReply.Code := ST_OK;
+  LCommandHandler.ExceptionReply.Code := ST_ERR;
+  LCommandHandler.OnCommand := CommandCAPA;
 
 end;
 
@@ -522,6 +521,7 @@ var
   LContext: TIdPOP3ServerContext;
   LValidPassword : String;
   LValidHash : String;
+  LMD5: TIdHashMessageDigest5;
 begin
   LContext := TIdPOP3ServerContext(aCmd.Context);
   if LContext.Authenticated then
@@ -540,10 +540,12 @@ begin
     Exit;
   end;
   OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
-  with TIdHashMessageDigest5.Create do
+  LMD5 := TIdHashMessageDigest5.Create;
   try
-    LValidHash := IndyLowerCase(HashStringAsHex(LContext.APOP3Challenge + LValidPassword));
-  finally Free; end;
+    LValidHash := IndyLowerCase(LMD5.HashStringAsHex(LContext.APOP3Challenge + LValidPassword));
+  finally
+    LMD5.Free;
+  end;
 
   LContext.fAuthenticated := (LValidHash = aCmd.Params[1]);
 

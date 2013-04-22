@@ -86,8 +86,8 @@ type
     procedure SetTTL(const AValue: Byte); virtual;
     procedure InitComponent; override;
   public
-    procedure Send(const AData: string; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+    procedure Send(const AData: string; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ); overload;
     procedure Send(const ABuffer : TIdBytes); overload;
     destructor Destroy; override;
@@ -179,8 +179,8 @@ begin
   Binding.SendTo(AHost, APort, ABuffer, Binding.IPVersion);
 end;
 
-procedure TIdIPMCastServer.Send(const AData: string; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+procedure TIdIPMCastServer.Send(const AData: string; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 begin
   MulticastBuffer(FMulticastGroup, FPort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));

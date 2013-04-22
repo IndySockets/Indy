@@ -153,52 +153,49 @@ end;
 procedure TIdMappedTelnetContext.OutboundConnect;
 var
   LHostPort: String;
-Begin
+  LServer: TIdCustomMappedTelnet;
+  LClient: TIdTCPClient;
+begin
   //don`t call inherited, NEW behavior
+  LServer := TIdCustomMappedTelnet(Server);
   FOutboundClient := TIdTCPClient.Create(nil);
-  with TIdCustomMappedTelnet(Server) do
-  begin
-    with TIdTcpClient(FOutboundClient) do begin
-      Port := MappedPort;
-      Host := MappedHost;
-    end;//with
+  LClient := TIdTCPClient(FOutboundClient);
 
-    Self.FAllowedConnectAttempts := AllowedConnectAttempts;
-    DoLocalClientConnect(Self);
+  LClient.Port := LServer.MappedPort;
+  LClient.Host := LServer.MappedHost;
 
-    repeat
-      if FAllowedConnectAttempts > 0 then begin
-        Dec(FAllowedConnectAttempts);
-      end;
-      try
-        LHostPort := Trim(Connection.IOHandler.InputLn); //~telnet input
-        ExtractHostAndPortFromLine(Self, LHostPort);
+  FAllowedConnectAttempts := LServer.AllowedConnectAttempts;
+  LServer.DoLocalClientConnect(Self);
 
-        if Length(TIdTcpClient(FOutboundClient).Host) < 1 then begin
-          raise EIdException.Create(RSEmptyHost);
-        end;
-
-        with TIdTcpClient(FOutboundClient) do
-        begin
-          ConnectTimeout := Self.FConnectTimeOut;
-          Connect;
-         end;
-      except
-        on E: Exception do // DONE: Handle connect failures
-        begin
-          FErrorMsg := 'ERROR: ['+E.ClassName+'] ' + E.Message;    {Do not Localize}
-          Self.DoException(E);
-          Connection.IOHandler.WriteLn(FErrorMsg);
-        end;
-      end;//trye
-    until FOutboundClient.Connected or (FAllowedConnectAttempts = 0);
-
-    if FOutboundClient.Connected then begin
-      DoOutboundClientConnect(Self);
-    end else begin
-      Connection.Disconnect; //prevent all next work
+  repeat
+    if FAllowedConnectAttempts > 0 then begin
+      Dec(FAllowedConnectAttempts);
     end;
-  end;//with
+    try
+      LHostPort := Trim(Connection.IOHandler.InputLn); //~telnet input
+      LServer.ExtractHostAndPortFromLine(Self, LHostPort);
+
+      if Length(LClient.Host) < 1 then begin
+        raise EIdException.Create(RSEmptyHost);
+      end;
+
+      LClient.ConnectTimeout := Self.FConnectTimeOut;
+      LClient.Connect;
+    except
+      on E: Exception do // DONE: Handle connect failures
+      begin
+        FErrorMsg := 'ERROR: ['+E.ClassName+'] ' + E.Message;    {Do not Localize}
+        DoException(E);
+        Connection.IOHandler.WriteLn(FErrorMsg);
+      end;
+    end;//trye
+  until FOutboundClient.Connected or (FAllowedConnectAttempts = 0);
+
+  if FOutboundClient.Connected then begin
+    LServer.DoOutboundClientConnect(Self);
+  end else begin
+    Connection.Disconnect; //prevent all next work
+  end;
 end;
 
 procedure TIdCustomMappedTelnet.SetAllowedConnectAttempts(const Value: Integer);

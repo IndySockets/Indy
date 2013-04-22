@@ -166,11 +166,20 @@ type
   TIdNotifyThreadEvent = procedure(AThread: TIdThread) of object;
   TIdSynchronizeThreadEvent = procedure(AThread: TIdThread; AData: Pointer) of object;
 
+  // Note: itoDataOwner doesn't make sense in DCC nextgen when AutoRefCounting is enabled...
   TIdThreadOptions = set of (itoStopped, itoReqCleanup, itoDataOwner, itoTag);
 
   TIdThread = class(TThread)
   protected
+    {$IFDEF USE_OBJECT_ARC}
+    // When ARC is enabled, object references MUST be valid objects.
+    // It is common for users to store non-object values, though, so
+    // we will provide separate properties for those purposes
+    FDataObject: TObject;
+    FDataValue: PtrInt;
+    {$ELSE}
     FData: TObject;
+    {$ENDIF}
     FLock: TIdCriticalSection;
     FLoop: Boolean;
     FName: string;
@@ -208,7 +217,12 @@ type
     procedure Terminate; virtual;
     procedure TerminateAndWaitFor; virtual;
     //
+    {$IFDEF USE_OBJECT_ARC}
+    property DataObject: TObject read FDataObject write FDataObject;
+    property DataValue: PtrInt read FDataValue write FDataValue;
+    {$ELSE}
     property Data: TObject read FData write FData;
+    {$ENDIF}
     property Loop: Boolean read FLoop write FLoop;
     property Name: string read FName write FName;
     property ReturnValue;
@@ -551,8 +565,11 @@ begin
   Exclude(FOptions, itoReqCleanup);
   FreeAndNil(FYarn);
   if itoDataOwner in FOptions then begin
-    FreeAndNil(FData);
+    FreeAndNil({$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF});
   end;
+  {$IFDEF USE_OBJECT_ARC}
+  FDataValue := 0;
+  {$ENDIF}
 end;
 
 function TIdThread.HandleRunException(AException: Exception): Boolean;

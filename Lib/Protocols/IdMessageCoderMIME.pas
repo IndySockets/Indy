@@ -263,22 +263,41 @@ begin
   Result := Chr(LOrd);
 end;
 
-class function TIdMIMEBoundaryStrings.GenerateBoundary: String;
 {This generates a random MIME boundary.}
+class function TIdMIMEBoundaryStrings.GenerateBoundary: String;
+const
+  {Generate a string 34 characters long (34 is a whim, not a requirement)...}
+  BoundaryLength = 34;
 var
   LN: Integer;
   LFloat: Double;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
-  {Generate a string 34 characters long (34 is a whim, not a requirement)...}
-  Result := '1234567890123456789012345678901234';  {do not localize}
-  for LN := 1 to Length(Result) do begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(BoundaryLength);
+  {$ELSE}
+  Result := StringOfChar(' ', BoundaryLength);
+  {$ENDIF}
+  for LN := 1 to BoundaryLength do begin
+    {$IFDEF STRING_IS_IMMUTABLE}
+    LSB.Append(GenerateRandomChar);
+    {$ELSE}
     Result[LN] := GenerateRandomChar;
+    {$ENDIF}
   end;
   {CC2: RFC 2045 recommends including "=_" in the boundary, insert in random location...}
-  LFloat := (Random * (Length(Result)-2)) + 1.5;  //Gives us 1.5 to Length-0.5
+  LFloat := (Random * (BoundaryLength-2)) + 1.5;  //Gives us 1.5 to Length-0.5
   LN := Trunc(LFloat);  // 1 to Length-1 (we are inserting a 2-char string)
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB[LN-1] := '=';
+  LSB[LN] := '_';
+  Result := LSB.ToString;
+  {$ELSE}
   Result[LN] := '=';
   Result[LN+1] := '_';
+  {$ENDIF}
 end;
 
 { TIdMessageDecoderInfoMIME }
@@ -319,6 +338,7 @@ var
   LIsThisTheFirstLine: Boolean; //Needed for binary encoding
   BoundaryStart, BoundaryEnd: string;
   IsBinaryContentTransferEncoding: Boolean;
+  LEncoding: IIdTextEncoding;
 begin
   LIsThisTheFirstLine := True;
   VMsgEnd := False;
@@ -388,7 +408,8 @@ begin
       if not FProcessFirstLine then begin
         if IsBinaryContentTransferEncoding then begin
           //For binary, need EOL because the default LF causes spurious CRs in the output...
-          LLine := ReadLnRFC(VMsgEnd, EOL, '.', Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF}); {do not localize}
+          EnsureEncoding(LEncoding, enc8Bit);
+          LLine := ReadLnRFC(VMsgEnd, EOL, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
         end else begin
           LLine := ReadLnRFC(VMsgEnd);
         end;
@@ -428,15 +449,18 @@ begin
         if IsBinaryContentTransferEncoding then begin {do not localize}
           //In this case, we have to make sure we dont write out an EOL at the
           //end of the file.
+          if Assigned(ADestStream) then begin
+            EnsureEncoding(LEncoding, enc8Bit);
+          end;
           if LIsThisTheFirstLine then begin
             LIsThisTheFirstLine := False;
           end else begin
-            if Assigned(ADestStream)  then begin
-              WriteStringToStream(ADestStream, EOL, Indy8BitEncoding);
+            if Assigned(ADestStream) then begin
+              WriteStringToStream(ADestStream, EOL, LEncoding);
             end;
           end;
           if Assigned(ADestStream) then begin
-            WriteStringToStream(ADestStream, LLine, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+            WriteStringToStream(ADestStream, LLine, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
           end;
         end else begin
           if Assigned(ADestStream) then begin
@@ -596,6 +620,9 @@ const
   InvalidWindowsFilenameChars = '\/:*?"<>|'; {do not localize}
 var
   LN: integer;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
   Result := AFilename;
   //First, strip any Windows or Unix path...
@@ -607,12 +634,22 @@ begin
   end;
   //Now remove any invalid filename chars.
   //Hmm - this code will be less buggy if I just replace them with _
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(Result);
+  for LN := 0 to LSB.Length-1 do begin
+    // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
+    if Pos(LSB[LN], InvalidWindowsFilenameChars) > 0 then begin
+      LSB[LN] := '_';    {do not localize}
+    end;
+  end;
+  {$ELSE}
   for LN := 1 to Length(Result) do begin
     // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
     if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
       Result[LN] := '_';    {do not localize}
     end;
   end;
+  {$ENDIF}
 end;
 
 { TIdMessageEncoderInfoMIME }

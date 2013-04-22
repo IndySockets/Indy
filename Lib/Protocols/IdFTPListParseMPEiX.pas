@@ -159,17 +159,14 @@ begin
   begin
     LCols := TStringList.Create;
     try
-      SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LCols);
-      if not Result then
-      begin
-        Result := (LCols.Count > 3) and
-                  (LCols[0] = 'FILENAME') and   {do not localize}
-                  (LCols[1] = 'CODE') and       {do not localize}
-                  (LCols[2] = 'LOGICAL') and    {do not localize}
-                  (LCols[3] = 'RECORD');        {do not localize}
-        if Result and (LCols.Count = 5) then begin
-          Result := (LCols[4] = 'SPACE');       {do not localize}
-        end;
+      SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LCols, True);
+      Result := (LCols.Count > 3) and
+                (LCols[0] = 'FILENAME') and   {do not localize}
+                (LCols[1] = 'CODE') and       {do not localize}
+                (LCols[2] = 'LOGICAL') and    {do not localize}
+                (LCols[3] = 'RECORD');        {do not localize}
+      if Result and (LCols.Count = 5) then begin
+        Result := (LCols[4] = 'SPACE');       {do not localize}
       end;
       if not Result then begin
         Result := IsSecondHeader(LCols);
@@ -197,7 +194,7 @@ begin
     if (Length(LBuf) > 0) and (LBuf[1] <> ' ') then begin
       Fetch(LBuf);
     end;
-    SplitColumns(Trim(LBuf), LCols);
+    SplitDelimitedString(LBuf, LCols, True);
     if LCols.Count > 1 then begin
       LI.Size := ExtractNumber(LCols[1]);
     end;
@@ -263,7 +260,7 @@ begin
   begin
     LCols := TStringList.Create;
     try
-      SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LCols);
+      SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LCols, True);
       Result := (LCols.Count = 5) and
                 (LCols[0] = 'CODE') and       {do not localize}
                 (LCols[1] = 'LOGICAL') and    {do not localize}
@@ -288,7 +285,7 @@ begin
   LI := AItem as TIdMPiXFTPListItem;
   LCols := TStringList.Create;
   try
-    SplitColumns(Trim(AItem.Data), LCols);
+    SplitDelimitedString(AItem.Data, LCols, True);
     if LCols.Count > 0 then begin
       LI.Size := ExtractNumber(LCols[0]);
     end;

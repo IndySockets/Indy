@@ -87,7 +87,7 @@ var
 begin
   LWords := TStringList.Create;
   try
-    SplitColumns(AData, LWords);
+    SplitDelimitedString(AData, LWords, True);
     Result := (LWords.Count > 7) and
       ((LWords[0] = 'File') and         {do not localize}
       (LWords[1] = 'name') and          {do not localize}

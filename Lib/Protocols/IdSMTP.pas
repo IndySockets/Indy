@@ -298,6 +298,7 @@ end;
 function TIdSMTP.Authenticate : Boolean;
 var
   s : TStrings;
+  LEncoder: TIdEncoderMIME;
 begin
   if FDidAuthenticate then
   begin
@@ -335,13 +336,14 @@ begin
               FreeAndNil(s);
             end;
           end;
-          with TIdEncoderMIME.Create(nil) do try
+          LEncoder := TIdEncoderMIME.Create(nil);
+          try
             SendCmd('AUTH LOGIN', 334);
-            if SendCmd(Encode(Username), [235, 334]) = 334 then begin
-              SendCmd(Encode(Password), 235);
+            if SendCmd(LEncoder.Encode(Username), [235, 334]) = 334 then begin
+              SendCmd(LEncoder.Encode(Password), 235);
             end;
           finally
-            Free;
+            LEncoder.Free;
           end;
           FDidAuthenticate := True;
         end;
@@ -402,25 +404,31 @@ var
   LSMTP: TIdSMTP;
   LMsg: TIdMessage;
 begin
-  LSMTP := TIdSMTP.Create(nil); try
-    LMsg := TIdMessage.Create(LSMTP); try
-      with LMsg do begin
-        Subject := ASubject;
-        Recipients.EMailAddresses := ATo;
-        From.Text := AFrom;
-        Body.Text := AText;
-        ContentType := AContentType;
-        CharSet := ACharset;
-        ContentTransferEncoding := AContentTransferEncoding;
+  LSMTP := TIdSMTP.Create(nil);
+  try
+    LMsg := TIdMessage.Create(nil);
+    try
+      LMsg.Subject := ASubject;
+      LMsg.Recipients.EMailAddresses := ATo;
+      LMsg.From.Text := AFrom;
+      LMsg.Body.Text := AText;
+      LMsg.ContentType := AContentType;
+      LMsg.CharSet := ACharset;
+      LMsg.ContentTransferEncoding := AContentTransferEncoding;
+
+      LSMTP.Host := AHost;
+      LSMTP.Connect;
+      try;
+        LSMTP.Send(LMsg);
+      finally
+        LSMTP.Disconnect;
       end;
-      with LSMTP do begin
-        Host := AHost;
-        Connect; try;
-          Send(LMsg);
-        finally Disconnect; end;
-      end;
-    finally FreeAndNil(LMsg); end;
-  finally FreeAndNil(LSMTP); end;
+    finally
+      FreeAndNil(LMsg);
+    end;
+  finally
+    FreeAndNil(LSMTP);
+  end;
 end;
 
 class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText: String);

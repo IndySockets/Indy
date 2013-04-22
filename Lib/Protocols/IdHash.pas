@@ -71,8 +71,8 @@ type
   public
     constructor Create; virtual;
     class function IsAvailable : Boolean; virtual;
-    function HashString(const ASrc: string; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): TIdBytes;
-    function HashStringAsHex(const AStr: String; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): String;
+    function HashString(const ASrc: string; ADestEncoding: IIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}): TIdBytes;
+    function HashStringAsHex(const AStr: String; ADestEncoding: IIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}): String;
     function HashBytes(const ASrc: TIdBytes): TIdBytes;
     function HashBytesAsHex(const ASrc: TIdBytes): String;
     function HashStream(AStream: TStream): TIdBytes; overload;
@@ -86,7 +86,7 @@ type
     function GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
-    function HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): Word; overload;
+    function HashValue(const ASrc: string; ADestEncoding: IIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}): Word; overload;
     function HashValue(const ASrc: TIdBytes): Word; overload;
     function HashValue(AStream: TStream): Word; overload;
     function HashValue(AStream: TStream; const AStartPos, ASize: TIdStreamSize): Word; overload;
@@ -100,7 +100,7 @@ type
     function GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
-    function HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}): LongWord; overload;
+    function HashValue(const ASrc: string; ADestEncoding: IIdTextEncoding = nil{$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}): LongWord; overload;
     function HashValue(const ASrc: TIdBytes): LongWord; overload;
     function HashValue(AStream: TStream): LongWord; overload;
     function HashValue(AStream: TStream; const AStartPos, ASize: TIdStreamSize): LongWord; overload;
@@ -151,8 +151,8 @@ begin
   inherited Create;
 end;
 
-function TIdHash.HashString(const ASrc: string; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function TIdHash.HashString(const ASrc: string; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes;
 var
   LStream: TStream;  // not TIdStringStream -  Unicode on DotNet!
@@ -164,8 +164,8 @@ begin
   finally FreeAndNil(LStream); end;
 end;
 
-function TIdHash.HashStringAsHex(const AStr: String; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function TIdHash.HashStringAsHex(const AStr: String; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): String;
 begin
   Result := HashToHex(HashString(AStr, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
@@ -283,8 +283,8 @@ procedure TIdHash16.HashEnd(var VRunningHash : Word);
 begin
 end;
 
-function TIdHash16.HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function TIdHash16.HashValue(const ASrc: string; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Word;
 begin
   Result := BytesToWord(HashString(ASrc, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
@@ -348,8 +348,8 @@ procedure TIdHash32.HashEnd(var VRunningHash : LongWord);
 begin
 end;
 
-function TIdHash32.HashValue(const ASrc: string; ADestEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function TIdHash32.HashValue(const ASrc: string; ADestEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): LongWord;
 begin
   Result := BytesToLongWord(HashString(ASrc, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));

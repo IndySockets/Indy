@@ -119,7 +119,7 @@ begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(AData, s);
+    SplitDelimitedString(AData, s, True);
     if s.Count = 4 then
     begin
       if (s[1] = 'Files') or (s[1] = 'File') then begin {Do not localize}
@@ -138,7 +138,7 @@ begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(AData, s);
+    SplitDelimitedString(AData, s, True);
     if s.Count > 2 then begin
       Result := (s[0] = 'Report') and (s[1] = 'for:');
     end;
@@ -163,7 +163,7 @@ begin
   LI.ItemType := ditFile;
   s := TStringList.Create;
   try
-    SplitColumns(LI.Data, s);
+    SplitDelimitedString(LI.Data, s, True);
     if s.Count > 4 then
     begin
       LI.FileName := s[0];
@@ -186,7 +186,7 @@ begin
       end;
       s.Clear;
       //remove path from localFileName
-      SplitColumns(LI.FileName, s, '/'); {Do not localize}
+      SplitDelimitedString(LI.FileName, s, True, '/'); {Do not localize}
       if s.Count > 0 then begin
         LI.LocalFileName := s[s.Count-1];
       end else begin

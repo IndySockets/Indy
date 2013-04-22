@@ -410,37 +410,37 @@ type
   procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
   function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
 
-  function ContentTypeToEncoding(const AContentType: string; AQuoteType: TIdHeaderQuotingType): TIdTextEncoding;
-  function CharsetToEncoding(const ACharset: string): TIdTextEncoding;
+  function ContentTypeToEncoding(const AContentType: string; AQuoteType: TIdHeaderQuotingType): IIdTextEncoding;
+  function CharsetToEncoding(const ACharset: string): IIdTextEncoding;
 
   function ReadStringAsContentType(AStream: TStream; const AContentType: String;
     AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}): String;
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): String;
 
   procedure ReadStringsAsContentType(AStream: TStream; AStrings: TStrings;
     const AContentType: String; AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF});
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF});
 
   procedure WriteStringAsContentType(AStream: TStream; const AStr, AContentType: String;
     AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
+    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 
   procedure WriteStringsAsContentType(AStream: TStream; const AStrings: TStrings;
     const AContentType: String; AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
+    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 
   procedure WriteStringAsCharset(AStream: TStream; const AStr, ACharset: string
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
+    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 
   procedure WriteStringsAsCharset(AStream: TStream; const AStrings: TStrings;
     const ACharset: string
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
+    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 
   function ReadStringAsCharset(AStream: TStream; const ACharset: String
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}): String;
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): String;
 
   procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: string
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF});
+    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF});
 
   {
   These are for handling binary values that are in Network Byte order.  They call
@@ -503,7 +503,6 @@ type
   function IsTopDomain(const AStr: string): Boolean;
   function IsValidIP(const S: String): Boolean;
   function MakeTempFilename(const APath: TIdFileName = ''): TIdFileName;
-  procedure MoveChars(const ASource: ShortString; ASourceStart: integer; var ADest: ShortString; ADestStart, ALen: integer);
   function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
   procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 
@@ -557,7 +556,7 @@ type
   procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings);
 
 type
-  TIdEncodingNeededEvent = function(const ACharset: String): TIdTextEncoding;
+  TIdEncodingNeededEvent = function(const ACharset: String): IIdTextEncoding;
 
 var
   {$IFDEF UNIX}
@@ -586,9 +585,9 @@ const
 implementation
 
 uses
-  {$IFDEF DELPHI_CROSS}
-    {$IFDEF MACOSX}
-  CoreServices,
+  {$IFDEF USE_VCL_POSIX}
+    {$IFDEF DARWIN}
+  Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
   IdIPAddress,
@@ -604,9 +603,6 @@ uses
       {$ENDIF}
     {$ENDIF}
     {$IFDEF USE_VCL_POSIX}
-      {$IFDEF DARWIN}
-  Macapi.CoreServices,
-      {$ENDIF}
   DateUtils,
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
     {$ENDIF}
@@ -623,6 +619,13 @@ uses
   IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack;
+
+// RLebeau 12/28/2012: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
 
 //
 
@@ -733,21 +736,22 @@ end;
 function CharRange(const AMin, AMax : Char): String;
 var
   i : Char;
-{$IFDEF DOTNET}
-  LSB : System.Text.StringBuilder;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB : TIdStringBuilder;
+  {$ENDIF}
 begin
-  LSB := System.Text.StringBuilder.Create;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(Ord(AMax) - Ord(AMin) + 1);
   for i := AMin to AMax do begin
     LSB.Append(i);
   end;
   Result := LSB.ToString;
-{$ELSE}
-begin
+  {$ELSE}
   SetLength(Result, Ord(AMax) - Ord(AMin) + 1);
   for i := AMin to AMax do begin
     Result[Ord(i) - Ord(AMin) + 1] := i;
   end;
-{$ENDIF}
+  {$ENDIF}
 end;
 
 {$IFDEF WINDOWS}
@@ -812,26 +816,6 @@ procedure CopyTIdNetworkLongWord(const ASource: LongWord;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   CopyTIdLongWord(GStack.HostToNetwork(ASource),VDest,ADestIndex);
-end;
-
-// BGO: TODO: Move somewhere else
-procedure MoveChars(const ASource: ShortString; ASourceStart: integer;
-  var ADest: ShortString; ADestStart, ALen: integer);
-{$IFDEF DOTNET}
-var
-  a: Integer;
-{$ENDIF}
-//Inline function must not have open array arguement.
-begin
-  {$IFDEF DOTNET}
-  for a := 1 to ALen do begin
-    ADest[ADestStart] := ASource[ASourceStart];
-    inc(ADestStart);
-    inc(ASourceStart);
-  end;
-  {$ELSE}
-  Move(ASource[ASourceStart], ADest[ADestStart], ALen);
-  {$ENDIF}
 end;
 
 function LongWordToFourChar(AValue : LongWord): string;
@@ -1728,6 +1712,9 @@ var
 var
     {$IFDEF USE_VCL_POSIX}
   LRec : _Stat;
+      {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+      {$ENDIF}
     {$ELSE}
       {$IFDEF KYLIXCOMPAT}
   LRec : TStatBuf;
@@ -1737,17 +1724,21 @@ var
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  {$IFNDEF NATIVEFILEAPI}
+var
+  LStream: TIdReadFileExclusiveStream;
+  {$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
-    Result := -1;
+  Result := -1;
   LFile := System.IO.FileInfo.Create(AFileName);
   if LFile.Exists then begin
     Result := LFile.Length;
   end;
   {$ENDIF}
   {$IFDEF WINDOWS}
-    Result := -1;
+  Result := -1;
   //check to see if something like "a:\" is specified and fail in that case.
   //FindFirstFile would probably succede even though a drive is not a proper
   //file.
@@ -1779,24 +1770,48 @@ begin
   {$ENDIF}
   {$IFDEF UNIX}
   Result := -1;
-      {$IFDEF USE_VCL_POSIX}
+    {$IFDEF USE_VCL_POSIX}
   //This is messy with IFDEF's but I want to be able to handle 63 bit file sizes.
-   if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
-      Result := LRec.st_size;
-   end;
+  if stat(
+      {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AFileName).ToPointer
       {$ELSE}
-    //Note that we can use stat here because we are only looking at the date.
-  if {$IFDEF KYLIXCOMPAT}stat{$ELSE}fpstat{$ENDIF}(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
-      Result := LRec.st_Size;
+    PAnsiChar(
+        {$IFDEF STRING_IS_ANSI}
+      AFileName
+        {$ELSE}
+      AnsiString(AFileName) // explicit convert to Ansi
+        {$ENDIF}
+    )
+      {$ENDIF}
+    , LRec) = 0 then
+  begin
+    Result := LRec.st_size;
+  end;
+    {$ELSE}
+  //Note that we can use stat here because we are only looking at the date.
+  if {$IFDEF KYLIXCOMPAT}stat{$ELSE}fpstat{$ENDIF}(
+    PAnsiChar(
+      {$IFDEF STRING_IS_ANSI}
+      AFileName
+      {$ELSE}
+      AnsiString(AFileName) // explicit convert to Ansi
+      {$ENDIF}
+    ), LRec) = 0 then
+  begin
+    Result := LRec.st_Size;
   end;
     {$ENDIF}
   {$ENDIF}
   {$IFNDEF NATIVEFILEAPI}
   Result := -1;
   if FileExists(AFilename) then begin
-    with TIdReadFileExclusiveStream.Create(AFilename) do try
-      Result := Size;
-    finally Free; end;
+    LStream := TIdReadFileExclusiveStream.Create(AFilename);
+    try
+      Result := LStream.Size;
+    finally
+      LStream.Free;
+    end;
   end;
   {$ENDIF}
 end;
@@ -1816,7 +1831,9 @@ var
   LTime : Integer;
   {$IFDEF USE_VCL_POSIX}
   LRec : _Stat;
-
+    {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF KYLIXCOMPAT}
   LRec : TStatBuf;
@@ -1861,14 +1878,27 @@ begin
   {$IFDEF UNIX}
   //Note that we can use stat here because we are only looking at the date.
     {$IFDEF USE_BASEUNIX}
-  if fpstat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+  if fpstat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
     {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
-  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
     {$ENDIF}
     {$IFDEF USE_VCL_POSIX}
-  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then begin
+  if stat(
+      {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AFileName).ToPointer
+      {$ELSE}
+    PAnsiChar(
+        {$IFDEF STRING_IS_ANSI}
+      AFileName
+        {$ELSE}
+      AnsiString(AFileName) // explicit convert to Ansi
+        {$ENDIF}
+    )
+      {$ENDIF}
+    , LRec) = 0 then
     {$ENDIF}
+  begin
     LTime := LRec.st_mtime;
     {$IFDEF KYLIXCOMPAT}
     gmtime_r(@LTime, LU);
@@ -2099,11 +2129,24 @@ end;
 
 function UpCaseFirst(const AStr: string): string;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFDEF STRING_IS_IMMUTABLE}
+var
+  LSB: TIdStringBuilder;
+{$ENDIF}
 begin
+  // TODO: support Unicode surrogates in the first position?
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(LowerCase(TrimLeft(AStr)));
+  if LSB.Length > 0 then begin   {Do not Localize}
+    LSB[0] := UpCase(LSB[0]);
+  end;
+  Result := LSB.ToString;
+  {$ELSE}
   Result := LowerCase(TrimLeft(AStr));
   if Result <> '' then begin   {Do not Localize}
     Result[1] := UpCase(Result[1]);
   end;
+  {$ENDIF}
 end;
 
 function UpCaseFirstWord(const AStr: string): string;
@@ -2722,15 +2765,33 @@ end;
 function IntToBin(Value: LongWord): string;
 var
   i: Integer;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TStringBuilder;
+  {$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TStringBuilder.Create(32);
+  {$ELSE}
   SetLength(Result, 32);
+  {$ENDIF}
   for i := 1 to 32 do begin
     if ((Value shl (i-1)) shr 31) = 0 then begin
-      Result[i] := '0'  {do not localize}
+      {$IFDEF STRING_IS_IMMUTABLE}
+      LSB.Append(Char('0'));  {do not localize}
+      {$ELSE}
+      Result[i] := '0';  {do not localize}
+      {$ENDIF}
     end else begin
-      Result[i] := '1'; {do not localize}
+      {$IFDEF STRING_IS_IMMUTABLE}
+      LSB.Append(Char('1'));  {do not localize}
+      {$ELSE}
+      Result[i] := '1';  {do not localize}
+      {$ENDIF}
     end;
   end;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  Result := LSB.ToString;
+  {$ENDIF}
 end;
 
 { TIdMimeTable }
@@ -2798,429 +2859,427 @@ begin
   if AMIMEList.Count > 0 then begin
     Exit;
   end;
-  with AMIMEList do begin
-    {NOTE:  All of these strings should never be translated
-    because they are protocol specific and are important for some
-    web-browsers}
+  {NOTE:  All of these strings should never be translated
+  because they are protocol specific and are important for some
+  web-browsers}
 
-    { Animation }
-    Add('.nml=animation/narrative');    {Do not Localize}
+  { Animation }
+  AMIMEList.Add('.nml=animation/narrative');    {Do not Localize}
 
-    { Audio }
-    Add('.aac=audio/mp4');
-    Add('.aif=audio/x-aiff');    {Do not Localize}
-    Add('.aifc=audio/x-aiff');    {Do not Localize}
-    Add('.aiff=audio/x-aiff');    {Do not Localize}
+  { Audio }
+  AMIMEList.Add('.aac=audio/mp4');
+  AMIMEList.Add('.aif=audio/x-aiff');    {Do not Localize}
+  AMIMEList.Add('.aifc=audio/x-aiff');    {Do not Localize}
+  AMIMEList.Add('.aiff=audio/x-aiff');    {Do not Localize}
 
-    Add('.au=audio/basic');    {Do not Localize}
-    Add('.gsm=audio/x-gsm');    {Do not Localize}
-    Add('.kar=audio/midi');    {Do not Localize}
-    Add('.m3u=audio/mpegurl');    {Do not Localize}
-    Add('.m4a=audio/x-mpg');    {Do not Localize}
-    Add('.mid=audio/midi');    {Do not Localize}
-    Add('.midi=audio/midi');    {Do not Localize}
-    Add('.mpega=audio/x-mpg');    {Do not Localize}
-    Add('.mp2=audio/x-mpg');    {Do not Localize}
-    Add('.mp3=audio/x-mpg');    {Do not Localize}
-    Add('.mpga=audio/x-mpg');    {Do not Localize}
-    Add('.m3u=audio/x-mpegurl');    {Do not Localize}
-    Add('.pls=audio/x-scpls');   {Do not Localize}
-    Add('.qcp=audio/vnd.qcelp');    {Do not Localize}
-    Add('.ra=audio/x-realaudio');    {Do not Localize}
-    Add('.ram=audio/x-pn-realaudio');    {Do not Localize}
-    Add('.rm=audio/x-pn-realaudio');    {Do not Localize}
-    Add('.sd2=audio/x-sd2');    {Do not Localize}
-    Add('.sid=audio/prs.sid');   {Do not Localize}
-    Add('.snd=audio/basic');   {Do not Localize}
-    Add('.wav=audio/x-wav');    {Do not Localize}
-    Add('.wax=audio/x-ms-wax');    {Do not Localize}
-    Add('.wma=audio/x-ms-wma');    {Do not Localize}
+  AMIMEList.Add('.au=audio/basic');    {Do not Localize}
+  AMIMEList.Add('.gsm=audio/x-gsm');    {Do not Localize}
+  AMIMEList.Add('.kar=audio/midi');    {Do not Localize}
+  AMIMEList.Add('.m3u=audio/mpegurl');    {Do not Localize}
+  AMIMEList.Add('.m4a=audio/x-mpg');    {Do not Localize}
+  AMIMEList.Add('.mid=audio/midi');    {Do not Localize}
+  AMIMEList.Add('.midi=audio/midi');    {Do not Localize}
+  AMIMEList.Add('.mpega=audio/x-mpg');    {Do not Localize}
+  AMIMEList.Add('.mp2=audio/x-mpg');    {Do not Localize}
+  AMIMEList.Add('.mp3=audio/x-mpg');    {Do not Localize}
+  AMIMEList.Add('.mpga=audio/x-mpg');    {Do not Localize}
+  AMIMEList.Add('.m3u=audio/x-mpegurl');    {Do not Localize}
+  AMIMEList.Add('.pls=audio/x-scpls');   {Do not Localize}
+  AMIMEList.Add('.qcp=audio/vnd.qcelp');    {Do not Localize}
+  AMIMEList.Add('.ra=audio/x-realaudio');    {Do not Localize}
+  AMIMEList.Add('.ram=audio/x-pn-realaudio');    {Do not Localize}
+  AMIMEList.Add('.rm=audio/x-pn-realaudio');    {Do not Localize}
+  AMIMEList.Add('.sd2=audio/x-sd2');    {Do not Localize}
+  AMIMEList.Add('.sid=audio/prs.sid');   {Do not Localize}
+  AMIMEList.Add('.snd=audio/basic');   {Do not Localize}
+  AMIMEList.Add('.wav=audio/x-wav');    {Do not Localize}
+  AMIMEList.Add('.wax=audio/x-ms-wax');    {Do not Localize}
+  AMIMEList.Add('.wma=audio/x-ms-wma');    {Do not Localize}
 
-    Add('.mjf=audio/x-vnd.AudioExplosion.MjuiceMediaFile');    {Do not Localize}
+  AMIMEList.Add('.mjf=audio/x-vnd.AudioExplosion.MjuiceMediaFile');    {Do not Localize}
 
-    { Image }
-    Add('.art=image/x-jg');    {Do not Localize}
-    Add('.bmp=image/bmp');    {Do not Localize}
-    Add('.cdr=image/x-coreldraw');    {Do not Localize}
-    Add('.cdt=image/x-coreldrawtemplate');    {Do not Localize}
-    Add('.cpt=image/x-corelphotopaint');    {Do not Localize}
-    Add('.djv=image/vnd.djvu');    {Do not Localize}
-    Add('.djvu=image/vnd.djvu');    {Do not Localize}
-    Add('.gif=image/gif');    {Do not Localize}
-    Add('.ief=image/ief');    {Do not Localize}
-    Add('.ico=image/x-icon');    {Do not Localize}
-    Add('.jng=image/x-jng');    {Do not Localize}
-    Add('.jpg=image/jpeg');    {Do not Localize}
-    Add('.jpeg=image/jpeg');    {Do not Localize}
-    Add('.jpe=image/jpeg');    {Do not Localize}
-    Add('.pat=image/x-coreldrawpattern');   {Do not Localize}
-    Add('.pcx=image/pcx');    {Do not Localize}
-    Add('.pbm=image/x-portable-bitmap');    {Do not Localize}
-    Add('.pgm=image/x-portable-graymap');    {Do not Localize}
-    Add('.pict=image/x-pict');    {Do not Localize}
-    Add('.png=image/x-png');    {Do not Localize}
-    Add('.pnm=image/x-portable-anymap');    {Do not Localize}
-    Add('.pntg=image/x-macpaint');    {Do not Localize}
-    Add('.ppm=image/x-portable-pixmap');    {Do not Localize}
-    Add('.psd=image/x-psd');    {Do not Localize}
-    Add('.qtif=image/x-quicktime');    {Do not Localize}
-    Add('.ras=image/x-cmu-raster');    {Do not Localize}
-    Add('.rf=image/vnd.rn-realflash');    {Do not Localize}
-    Add('.rgb=image/x-rgb');    {Do not Localize}
-    Add('.rp=image/vnd.rn-realpix');    {Do not Localize}
-    Add('.sgi=image/x-sgi');    {Do not Localize}
-    Add('.svg=image/svg-xml');    {Do not Localize}
-    Add('.svgz=image/svg-xml');    {Do not Localize}
-    Add('.targa=image/x-targa');    {Do not Localize}
-    Add('.tif=image/x-tiff');    {Do not Localize}
-    Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
-    Add('.webp=image/webp'); {Do not localize}
-    Add('.xbm=image/xbm');    {Do not Localize}
-    Add('.xbm=image/x-xbitmap');    {Do not Localize}
-    Add('.xpm=image/x-xpixmap');    {Do not Localize}
-    Add('.xwd=image/x-xwindowdump');    {Do not Localize}
+  { Image }
+  AMIMEList.Add('.art=image/x-jg');    {Do not Localize}
+  AMIMEList.Add('.bmp=image/bmp');    {Do not Localize}
+  AMIMEList.Add('.cdr=image/x-coreldraw');    {Do not Localize}
+  AMIMEList.Add('.cdt=image/x-coreldrawtemplate');    {Do not Localize}
+  AMIMEList.Add('.cpt=image/x-corelphotopaint');    {Do not Localize}
+  AMIMEList.Add('.djv=image/vnd.djvu');    {Do not Localize}
+  AMIMEList.Add('.djvu=image/vnd.djvu');    {Do not Localize}
+  AMIMEList.Add('.gif=image/gif');    {Do not Localize}
+  AMIMEList.Add('.ief=image/ief');    {Do not Localize}
+  AMIMEList.Add('.ico=image/x-icon');    {Do not Localize}
+  AMIMEList.Add('.jng=image/x-jng');    {Do not Localize}
+  AMIMEList.Add('.jpg=image/jpeg');    {Do not Localize}
+  AMIMEList.Add('.jpeg=image/jpeg');    {Do not Localize}
+  AMIMEList.Add('.jpe=image/jpeg');    {Do not Localize}
+  AMIMEList.Add('.pat=image/x-coreldrawpattern');   {Do not Localize}
+  AMIMEList.Add('.pcx=image/pcx');    {Do not Localize}
+  AMIMEList.Add('.pbm=image/x-portable-bitmap');    {Do not Localize}
+  AMIMEList.Add('.pgm=image/x-portable-graymap');    {Do not Localize}
+  AMIMEList.Add('.pict=image/x-pict');    {Do not Localize}
+  AMIMEList.Add('.png=image/x-png');    {Do not Localize}
+  AMIMEList.Add('.pnm=image/x-portable-anymap');    {Do not Localize}
+  AMIMEList.Add('.pntg=image/x-macpaint');    {Do not Localize}
+  AMIMEList.Add('.ppm=image/x-portable-pixmap');    {Do not Localize}
+  AMIMEList.Add('.psd=image/x-psd');    {Do not Localize}
+  AMIMEList.Add('.qtif=image/x-quicktime');    {Do not Localize}
+  AMIMEList.Add('.ras=image/x-cmu-raster');    {Do not Localize}
+  AMIMEList.Add('.rf=image/vnd.rn-realflash');    {Do not Localize}
+  AMIMEList.Add('.rgb=image/x-rgb');    {Do not Localize}
+  AMIMEList.Add('.rp=image/vnd.rn-realpix');    {Do not Localize}
+  AMIMEList.Add('.sgi=image/x-sgi');    {Do not Localize}
+  AMIMEList.Add('.svg=image/svg-xml');    {Do not Localize}
+  AMIMEList.Add('.svgz=image/svg-xml');    {Do not Localize}
+  AMIMEList.Add('.targa=image/x-targa');    {Do not Localize}
+  AMIMEList.Add('.tif=image/x-tiff');    {Do not Localize}
+  AMIMEList.Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
+  AMIMEList.Add('.webp=image/webp'); {Do not localize}
+  AMIMEList.Add('.xbm=image/xbm');    {Do not Localize}
+  AMIMEList.Add('.xbm=image/x-xbitmap');    {Do not Localize}
+  AMIMEList.Add('.xpm=image/x-xpixmap');    {Do not Localize}
+  AMIMEList.Add('.xwd=image/x-xwindowdump');    {Do not Localize}
 
-    { Text }
-    Add('.323=text/h323');    {Do not Localize}
+  { Text }
+  AMIMEList.Add('.323=text/h323');    {Do not Localize}
 
-    Add('.xml=text/xml');    {Do not Localize}
-    Add('.uls=text/iuls');    {Do not Localize}
-    Add('.txt=text/plain');    {Do not Localize}
-    Add('.rtx=text/richtext');    {Do not Localize}
-    Add('.wsc=text/scriptlet');    {Do not Localize}
-    Add('.rt=text/vnd.rn-realtext');    {Do not Localize}
-    Add('.htt=text/webviewhtml');    {Do not Localize}
-    Add('.htc=text/x-component');    {Do not Localize}
-    Add('.vcf=text/x-vcard');    {Do not Localize}
+  AMIMEList.Add('.xml=text/xml');    {Do not Localize}
+  AMIMEList.Add('.uls=text/iuls');    {Do not Localize}
+  AMIMEList.Add('.txt=text/plain');    {Do not Localize}
+  AMIMEList.Add('.rtx=text/richtext');    {Do not Localize}
+  AMIMEList.Add('.wsc=text/scriptlet');    {Do not Localize}
+  AMIMEList.Add('.rt=text/vnd.rn-realtext');    {Do not Localize}
+  AMIMEList.Add('.htt=text/webviewhtml');    {Do not Localize}
+  AMIMEList.Add('.htc=text/x-component');    {Do not Localize}
+  AMIMEList.Add('.vcf=text/x-vcard');    {Do not Localize}
 
-    { Video }
-    Add('.asf=video/x-ms-asf');    {Do not Localize}
-    Add('.asx=video/x-ms-asf');    {Do not Localize}
-    Add('.avi=video/x-msvideo');    {Do not Localize}
-    Add('.dl=video/dl');    {Do not Localize}
-    Add('.dv=video/dv');  {Do not Localize}
-    Add('.flc=video/flc');    {Do not Localize}
-    Add('.fli=video/fli');    {Do not Localize}
-    Add('.gl=video/gl');    {Do not Localize}
-    Add('.lsf=video/x-la-asf');    {Do not Localize}
-    Add('.lsx=video/x-la-asf');    {Do not Localize}
-    Add('.mng=video/x-mng');    {Do not Localize}
+  { Video }
+  AMIMEList.Add('.asf=video/x-ms-asf');    {Do not Localize}
+  AMIMEList.Add('.asx=video/x-ms-asf');    {Do not Localize}
+  AMIMEList.Add('.avi=video/x-msvideo');    {Do not Localize}
+  AMIMEList.Add('.dl=video/dl');    {Do not Localize}
+  AMIMEList.Add('.dv=video/dv');  {Do not Localize}
+  AMIMEList.Add('.flc=video/flc');    {Do not Localize}
+  AMIMEList.Add('.fli=video/fli');    {Do not Localize}
+  AMIMEList.Add('.gl=video/gl');    {Do not Localize}
+  AMIMEList.Add('.lsf=video/x-la-asf');    {Do not Localize}
+  AMIMEList.Add('.lsx=video/x-la-asf');    {Do not Localize}
+  AMIMEList.Add('.mng=video/x-mng');    {Do not Localize}
 
-    Add('.mp2=video/mpeg');    {Do not Localize}
-    Add('.mp3=video/mpeg');    {Do not Localize}
-    Add('.mp4=video/mpeg');    {Do not Localize}
-    Add('.mpeg=video/x-mpeg2a');    {Do not Localize}
-    Add('.mpa=video/mpeg');    {Do not Localize}
-    Add('.mpe=video/mpeg');    {Do not Localize}
-    Add('.mpg=video/mpeg');    {Do not Localize}
-    Add('.ogv=video/ogg');    {Do not Localize}
-    Add('.moov=video/quicktime');     {Do not Localize}
-    Add('.mov=video/quicktime');    {Do not Localize}
-    Add('.mxu=video/vnd.mpegurl');   {Do not Localize}
-    Add('.qt=video/quicktime');    {Do not Localize}
-    Add('.qtc=video/x-qtc'); {Do not loccalize}
-    Add('.rv=video/vnd.rn-realvideo');    {Do not Localize}
-    Add('.ivf=video/x-ivf');    {Do not Localize}
-    Add('.webm=video/webm');    {Do not Localize}
-    Add('.wm=video/x-ms-wm');    {Do not Localize}
-    Add('.wmp=video/x-ms-wmp');    {Do not Localize}
-    Add('.wmv=video/x-ms-wmv');    {Do not Localize}
-    Add('.wmx=video/x-ms-wmx');    {Do not Localize}
-    Add('.wvx=video/x-ms-wvx');    {Do not Localize}
-    Add('.rms=video/vnd.rn-realvideo-secure');    {Do not Localize}
-    Add('.asx=video/x-ms-asf-plugin');    {Do not Localize}
-    Add('.movie=video/x-sgi-movie');    {Do not Localize}
+  AMIMEList.Add('.mp2=video/mpeg');    {Do not Localize}
+  AMIMEList.Add('.mp3=video/mpeg');    {Do not Localize}
+  AMIMEList.Add('.mp4=video/mpeg');    {Do not Localize}
+  AMIMEList.Add('.mpeg=video/x-mpeg2a');    {Do not Localize}
+  AMIMEList.Add('.mpa=video/mpeg');    {Do not Localize}
+  AMIMEList.Add('.mpe=video/mpeg');    {Do not Localize}
+  AMIMEList.Add('.mpg=video/mpeg');    {Do not Localize}
+  AMIMEList.Add('.ogv=video/ogg');    {Do not Localize}
+  AMIMEList.Add('.moov=video/quicktime');     {Do not Localize}
+  AMIMEList.Add('.mov=video/quicktime');    {Do not Localize}
+  AMIMEList.Add('.mxu=video/vnd.mpegurl');   {Do not Localize}
+  AMIMEList.Add('.qt=video/quicktime');    {Do not Localize}
+  AMIMEList.Add('.qtc=video/x-qtc'); {Do not loccalize}
+  AMIMEList.Add('.rv=video/vnd.rn-realvideo');    {Do not Localize}
+  AMIMEList.Add('.ivf=video/x-ivf');    {Do not Localize}
+  AMIMEList.Add('.webm=video/webm');    {Do not Localize}
+  AMIMEList.Add('.wm=video/x-ms-wm');    {Do not Localize}
+  AMIMEList.Add('.wmp=video/x-ms-wmp');    {Do not Localize}
+  AMIMEList.Add('.wmv=video/x-ms-wmv');    {Do not Localize}
+  AMIMEList.Add('.wmx=video/x-ms-wmx');    {Do not Localize}
+  AMIMEList.Add('.wvx=video/x-ms-wvx');    {Do not Localize}
+  AMIMEList.Add('.rms=video/vnd.rn-realvideo-secure');    {Do not Localize}
+  AMIMEList.Add('.asx=video/x-ms-asf-plugin');    {Do not Localize}
+  AMIMEList.Add('.movie=video/x-sgi-movie');    {Do not Localize}
 
-    { Application }
-    Add('.7z=application/x-7z-compressed');   {Do not Localize}
-    Add('.a=application/x-archive');   {Do not Localize}
-    Add('.aab=application/x-authorware-bin');    {Do not Localize}
-    Add('.aam=application/x-authorware-map');    {Do not Localize}
-    Add('.aas=application/x-authorware-seg');    {Do not Localize}
-    Add('.abw=application/x-abiword');    {Do not Localize}
-    Add('.ace=application/x-ace-compressed');  {Do not Localize}
-    Add('.ai=application/postscript');    {Do not Localize}
-    Add('.alz=application/x-alz-compressed');    {Do not Localize}
-    Add('.ani=application/x-navi-animation');   {Do not Localize}
-    Add('.arj=application/x-arj');    {Do not Localize}
-    Add('.asf=application/vnd.ms-asf');    {Do not Localize}
-    Add('.bat=application/x-msdos-program');    {Do not Localize}
-    Add('.bcpio=application/x-bcpio');    {Do not Localize}
-    Add('.boz=application/x-bzip2');     {Do not Localize}
-    Add('.bz=application/x-bzip');
-    Add('.bz2=application/x-bzip2');    {Do not Localize}
-    Add('.cab=application/vnd.ms-cab-compressed');    {Do not Localize}
-    Add('.cat=application/vnd.ms-pki.seccat');    {Do not Localize}
-    Add('.ccn=application/x-cnc');    {Do not Localize}
-    Add('.cco=application/x-cocoa');    {Do not Localize}
-    Add('.cdf=application/x-cdf');    {Do not Localize}
-    Add('.cer=application/x-x509-ca-cert');    {Do not Localize}
-    Add('.chm=application/vnd.ms-htmlhelp');    {Do not Localize}
-    Add('.chrt=application/vnd.kde.kchart');    {Do not Localize}
-    Add('.cil=application/vnd.ms-artgalry');    {Do not Localize}
-    Add('.class=application/java-vm');    {Do not Localize}
-    Add('.com=application/x-msdos-program');    {Do not Localize}
-    Add('.clp=application/x-msclip');    {Do not Localize}
-    Add('.cpio=application/x-cpio');    {Do not Localize}
-    Add('.cpt=application/mac-compactpro');    {Do not Localize}
-    Add('.cqk=application/x-calquick');    {Do not Localize}
-    Add('.crd=application/x-mscardfile');    {Do not Localize}
-    Add('.crl=application/pkix-crl');    {Do not Localize}
-    Add('.csh=application/x-csh');    {Do not Localize}
-    Add('.dar=application/x-dar');    {Do not Localize}
-    Add('.dbf=application/x-dbase');    {Do not Localize}
-    Add('.dcr=application/x-director');    {Do not Localize}
-    Add('.deb=application/x-debian-package');    {Do not Localize}
-    Add('.dir=application/x-director');    {Do not Localize}
-    Add('.dist=vnd.apple.installer+xml');    {Do not Localize}
-    Add('.distz=vnd.apple.installer+xml');    {Do not Localize}
-    Add('.dll=application/x-msdos-program');    {Do not Localize}
-    Add('.dmg=application/x-apple-diskimage');    {Do not Localize}
-    Add('.doc=application/msword');    {Do not Localize}
-    Add('.dot=application/msword');    {Do not Localize}
-    Add('.dvi=application/x-dvi');    {Do not Localize}
-    Add('.dxr=application/x-director');    {Do not Localize}
-    Add('.ebk=application/x-expandedbook');    {Do not Localize}
-    Add('.eps=application/postscript');    {Do not Localize}
-    Add('.evy=application/envoy');    {Do not Localize}
-    Add('.exe=application/x-msdos-program');    {Do not Localize}
-    Add('.fdf=application/vnd.fdf');    {Do not Localize}
-    Add('.fif=application/fractals');    {Do not Localize}
-    Add('.flm=application/vnd.kde.kivio');    {Do not Localize}
-    Add('.fml=application/x-file-mirror-list');    {Do not Localize}
-    Add('.gzip=application/x-gzip');  {Do not Localize}
-    Add('.gnumeric=application/x-gnumeric');    {Do not Localize}
-    Add('.gtar=application/x-gtar');    {Do not Localize}
-    Add('.gz=application/x-gzip');    {Do not Localize}
-    Add('.hdf=application/x-hdf');    {Do not Localize}
-    Add('.hlp=application/winhlp');    {Do not Localize}
-    Add('.hpf=application/x-icq-hpf');    {Do not Localize}
-    Add('.hqx=application/mac-binhex40');    {Do not Localize}
-    Add('.hta=application/hta');    {Do not Localize}
-    Add('.ims=application/vnd.ms-ims');    {Do not Localize}
-    Add('.ins=application/x-internet-signup');    {Do not Localize}
-    Add('.iii=application/x-iphone');    {Do not Localize}
-    Add('.iso=application/x-iso9660-image');    {Do not Localize}
-    Add('.jar=application/java-archive');    {Do not Localize}
-    Add('.karbon=application/vnd.kde.karbon');    {Do not Localize}
-    Add('.kfo=application/vnd.kde.kformula');    {Do not Localize}
-    Add('.kon=application/vnd.kde.kontour');    {Do not Localize}
-    Add('.kpr=application/vnd.kde.kpresenter');    {Do not Localize}
-    Add('.kpt=application/vnd.kde.kpresenter');    {Do not Localize}
-    Add('.kwd=application/vnd.kde.kword');    {Do not Localize}
-    Add('.kwt=application/vnd.kde.kword');    {Do not Localize}
-    Add('.latex=application/x-latex');    {Do not Localize}
-    Add('.lha=application/x-lzh');    {Do not Localize}
-    Add('.lcc=application/fastman');    {Do not Localize}
-    Add('.lrm=application/vnd.ms-lrm');    {Do not Localize}
-    Add('.lz=application/x-lzip');    {Do not Localize}
-    Add('.lzh=application/x-lzh');    {Do not Localize}
-    Add('.lzma=application/x-lzma');  {Do not Localize}
-    Add('.lzo=application/x-lzop'); {Do not Localize}
-    Add('.lzx=application/x-lzx');
-    Add('.m13=application/x-msmediaview');    {Do not Localize}
-    Add('.m14=application/x-msmediaview');    {Do not Localize}
-    Add('.mpp=application/vnd.ms-project');    {Do not Localize}
-    Add('.mvb=application/x-msmediaview');    {Do not Localize}
-    Add('.man=application/x-troff-man');    {Do not Localize}
-    Add('.mdb=application/x-msaccess');    {Do not Localize}
-    Add('.me=application/x-troff-me');    {Do not Localize}
-    Add('.ms=application/x-troff-ms');    {Do not Localize}
-    Add('.msi=application/x-msi');    {Do not Localize}
-    Add('.mpkg=vnd.apple.installer+xml');    {Do not Localize}
-    Add('.mny=application/x-msmoney');    {Do not Localize}
-    Add('.nix=application/x-mix-transfer');    {Do not Localize}
-    Add('.o=application/x-object');    {Do not Localize}
-    Add('.oda=application/oda');    {Do not Localize}
-    Add('.odb=application/vnd.oasis.opendocument.database');    {Do not Localize}
-    Add('.odc=application/vnd.oasis.opendocument.chart');    {Do not Localize}
-    Add('.odf=application/vnd.oasis.opendocument.formula');    {Do not Localize}
-    Add('.odg=application/vnd.oasis.opendocument.graphics');    {Do not Localize}
-    Add('.odi=application/vnd.oasis.opendocument.image');    {Do not Localize}
-    Add('.odm=application/vnd.oasis.opendocument.text-master');    {Do not Localize}
-    Add('.odp=application/vnd.oasis.opendocument.presentation');    {Do not Localize}
-    Add('.ods=application/vnd.oasis.opendocument.spreadsheet');    {Do not Localize}
-    Add('.ogg=application/ogg');    {Do not Localize}
-    Add('.odt=application/vnd.oasis.opendocument.text');    {Do not Localize}
-    Add('.otg=application/vnd.oasis.opendocument.graphics-template');    {Do not Localize}
-    Add('.oth=application/vnd.oasis.opendocument.text-web');    {Do not Localize}
-    Add('.otp=application/vnd.oasis.opendocument.presentation-template');    {Do not Localize}
-    Add('.ots=application/vnd.oasis.opendocument.spreadsheet-template');    {Do not Localize}
-    Add('.ott=application/vnd.oasis.opendocument.text-template');    {Do not Localize}
-    Add('.p10=application/pkcs10');    {Do not Localize}
-    Add('.p12=application/x-pkcs12');    {Do not Localize}
-    Add('.p7b=application/x-pkcs7-certificates');    {Do not Localize}
-    Add('.p7m=application/pkcs7-mime');    {Do not Localize}
-    Add('.p7r=application/x-pkcs7-certreqresp');    {Do not Localize}
-    Add('.p7s=application/pkcs7-signature');    {Do not Localize}
-    Add('.package=application/vnd.autopackage');    {Do not Localize}
-    Add('.pfr=application/font-tdpfr');    {Do not Localize}
-    Add('.pkg=vnd.apple.installer+xml');    {Do not Localize}
-    Add('.pdf=application/pdf');    {Do not Localize}
-    Add('.pko=application/vnd.ms-pki.pko');    {Do not Localize}
-    Add('.pl=application/x-perl');    {Do not Localize}
-    Add('.pnq=application/x-icq-pnq');    {Do not Localize}
-    Add('.pot=application/mspowerpoint');    {Do not Localize}
-    Add('.pps=application/mspowerpoint');    {Do not Localize}
-    Add('.ppt=application/mspowerpoint');    {Do not Localize}
-    Add('.ppz=application/mspowerpoint');    {Do not Localize}
-    Add('.ps=application/postscript');    {Do not Localize}
-    Add('.pub=application/x-mspublisher');    {Do not Localize}
-    Add('.qpw=application/x-quattropro');    {Do not Localize}
-    Add('.qtl=application/x-quicktimeplayer');    {Do not Localize}
-    Add('.rar=application/rar');    {Do not Localize}
-    Add('.rdf=application/rdf+xml');    {Do not Localize}
-    Add('.rjs=application/vnd.rn-realsystem-rjs');    {Do not Localize}
-    Add('.rm=application/vnd.rn-realmedia');    {Do not Localize}
-    Add('.rmf=application/vnd.rmf');    {Do not Localize}
-    Add('.rmp=application/vnd.rn-rn_music_package');    {Do not Localize}
-    Add('.rmx=application/vnd.rn-realsystem-rmx');    {Do not Localize}
-    Add('.rnx=application/vnd.rn-realplayer');    {Do not Localize}
-    Add('.rpm=application/x-redhat-package-manager');
-    Add('.rsml=application/vnd.rn-rsml');    {Do not Localize}
-    Add('.rtsp=application/x-rtsp');    {Do not Localize}
-    Add('.rss=application/rss+xml');    {Do not Localize}
-    Add('.scm=application/x-icq-scm');    {Do not Localize}
-    Add('.ser=application/java-serialized-object');    {Do not Localize}
-    Add('.scd=application/x-msschedule');    {Do not Localize}
-    Add('.sda=application/vnd.stardivision.draw');    {Do not Localize}
-    Add('.sdc=application/vnd.stardivision.calc');    {Do not Localize}
-    Add('.sdd=application/vnd.stardivision.impress');    {Do not Localize}
-    Add('.sdp=application/x-sdp');    {Do not Localize}
-    Add('.setpay=application/set-payment-initiation');    {Do not Localize}
-    Add('.setreg=application/set-registration-initiation');    {Do not Localize}
-    Add('.sh=application/x-sh');    {Do not Localize}
-    Add('.shar=application/x-shar');    {Do not Localize}
-    Add('.shw=application/presentations');    {Do not Localize}
-    Add('.sit=application/x-stuffit');    {Do not Localize}
-    Add('.sitx=application/x-stuffitx');  {Do not localize}
-    Add('.skd=application/x-koan');    {Do not Localize}
-    Add('.skm=application/x-koan');    {Do not Localize}
-    Add('.skp=application/x-koan');    {Do not Localize}
-    Add('.skt=application/x-koan');    {Do not Localize}
-    Add('.smf=application/vnd.stardivision.math');    {Do not Localize}
-    Add('.smi=application/smil');    {Do not Localize}
-    Add('.smil=application/smil');    {Do not Localize}
-    Add('.spl=application/futuresplash');    {Do not Localize}
-    Add('.ssm=application/streamingmedia');    {Do not Localize}
-    Add('.sst=application/vnd.ms-pki.certstore');    {Do not Localize}
-    Add('.stc=application/vnd.sun.xml.calc.template');    {Do not Localize}
-    Add('.std=application/vnd.sun.xml.draw.template');    {Do not Localize}
-    Add('.sti=application/vnd.sun.xml.impress.template');    {Do not Localize}
-    Add('.stl=application/vnd.ms-pki.stl');    {Do not Localize}
-    Add('.stw=application/vnd.sun.xml.writer.template');    {Do not Localize}
-    Add('.svi=application/softvision');    {Do not Localize}
-    Add('.sv4cpio=application/x-sv4cpio');    {Do not Localize}
-    Add('.sv4crc=application/x-sv4crc');    {Do not Localize}
-    Add('.swf=application/x-shockwave-flash');    {Do not Localize}
-    Add('.swf1=application/x-shockwave-flash');    {Do not Localize}
-    Add('.sxc=application/vnd.sun.xml.calc');    {Do not Localize}
-    Add('.sxi=application/vnd.sun.xml.impress');    {Do not Localize}
-    Add('.sxm=application/vnd.sun.xml.math');    {Do not Localize}
-    Add('.sxw=application/vnd.sun.xml.writer');    {Do not Localize}
-    Add('.sxg=application/vnd.sun.xml.writer.global');    {Do not Localize}
-    Add('.t=application/x-troff');    {Do not Localize}
-    Add('.tar=application/x-tar');    {Do not Localize}
-    Add('.tcl=application/x-tcl');    {Do not Localize}
-    Add('.tex=application/x-tex');    {Do not Localize}
-    Add('.texi=application/x-texinfo');    {Do not Localize}
-    Add('.texinfo=application/x-texinfo');    {Do not Localize}
-    Add('.tbz=application/x-bzip-compressed-tar');   {Do not Localize}
-    Add('.tbz2=application/x-bzip-compressed-tar');   {Do not Localize}
-    Add('.tgz=application/x-compressed-tar');    {Do not Localize}
-    Add('.tlz=application/x-lzma-compressed-tar');    {Do not Localize}
-    Add('.tr=application/x-troff');    {Do not Localize}
-    Add('.trm=application/x-msterminal');    {Do not Localize}
-    Add('.troff=application/x-troff');    {Do not Localize}
-    Add('.tsp=application/dsptype');    {Do not Localize}
-    Add('.torrent=application/x-bittorrent');    {Do not Localize}
-    Add('.ttz=application/t-time');    {Do not Localize}
-    Add('.txz=application/x-xz-compressed-tar'); {Do not localize}
-    Add('.udeb=application/x-debian-package');    {Do not Localize}
+  { Application }
+  AMIMEList.Add('.7z=application/x-7z-compressed');   {Do not Localize}
+  AMIMEList.Add('.a=application/x-archive');   {Do not Localize}
+  AMIMEList.Add('.aab=application/x-authorware-bin');    {Do not Localize}
+  AMIMEList.Add('.aam=application/x-authorware-map');    {Do not Localize}
+  AMIMEList.Add('.aas=application/x-authorware-seg');    {Do not Localize}
+  AMIMEList.Add('.abw=application/x-abiword');    {Do not Localize}
+  AMIMEList.Add('.ace=application/x-ace-compressed');  {Do not Localize}
+  AMIMEList.Add('.ai=application/postscript');    {Do not Localize}
+  AMIMEList.Add('.alz=application/x-alz-compressed');    {Do not Localize}
+  AMIMEList.Add('.ani=application/x-navi-animation');   {Do not Localize}
+  AMIMEList.Add('.arj=application/x-arj');    {Do not Localize}
+  AMIMEList.Add('.asf=application/vnd.ms-asf');    {Do not Localize}
+  AMIMEList.Add('.bat=application/x-msdos-program');    {Do not Localize}
+  AMIMEList.Add('.bcpio=application/x-bcpio');    {Do not Localize}
+  AMIMEList.Add('.boz=application/x-bzip2');     {Do not Localize}
+  AMIMEList.Add('.bz=application/x-bzip');
+  AMIMEList.Add('.bz2=application/x-bzip2');    {Do not Localize}
+  AMIMEList.Add('.cab=application/vnd.ms-cab-compressed');    {Do not Localize}
+  AMIMEList.Add('.cat=application/vnd.ms-pki.seccat');    {Do not Localize}
+  AMIMEList.Add('.ccn=application/x-cnc');    {Do not Localize}
+  AMIMEList.Add('.cco=application/x-cocoa');    {Do not Localize}
+  AMIMEList.Add('.cdf=application/x-cdf');    {Do not Localize}
+  AMIMEList.Add('.cer=application/x-x509-ca-cert');    {Do not Localize}
+  AMIMEList.Add('.chm=application/vnd.ms-htmlhelp');    {Do not Localize}
+  AMIMEList.Add('.chrt=application/vnd.kde.kchart');    {Do not Localize}
+  AMIMEList.Add('.cil=application/vnd.ms-artgalry');    {Do not Localize}
+  AMIMEList.Add('.class=application/java-vm');    {Do not Localize}
+  AMIMEList.Add('.com=application/x-msdos-program');    {Do not Localize}
+  AMIMEList.Add('.clp=application/x-msclip');    {Do not Localize}
+  AMIMEList.Add('.cpio=application/x-cpio');    {Do not Localize}
+  AMIMEList.Add('.cpt=application/mac-compactpro');    {Do not Localize}
+  AMIMEList.Add('.cqk=application/x-calquick');    {Do not Localize}
+  AMIMEList.Add('.crd=application/x-mscardfile');    {Do not Localize}
+  AMIMEList.Add('.crl=application/pkix-crl');    {Do not Localize}
+  AMIMEList.Add('.csh=application/x-csh');    {Do not Localize}
+  AMIMEList.Add('.dar=application/x-dar');    {Do not Localize}
+  AMIMEList.Add('.dbf=application/x-dbase');    {Do not Localize}
+  AMIMEList.Add('.dcr=application/x-director');    {Do not Localize}
+  AMIMEList.Add('.deb=application/x-debian-package');    {Do not Localize}
+  AMIMEList.Add('.dir=application/x-director');    {Do not Localize}
+  AMIMEList.Add('.dist=vnd.apple.installer+xml');    {Do not Localize}
+  AMIMEList.Add('.distz=vnd.apple.installer+xml');    {Do not Localize}
+  AMIMEList.Add('.dll=application/x-msdos-program');    {Do not Localize}
+  AMIMEList.Add('.dmg=application/x-apple-diskimage');    {Do not Localize}
+  AMIMEList.Add('.doc=application/msword');    {Do not Localize}
+  AMIMEList.Add('.dot=application/msword');    {Do not Localize}
+  AMIMEList.Add('.dvi=application/x-dvi');    {Do not Localize}
+  AMIMEList.Add('.dxr=application/x-director');    {Do not Localize}
+  AMIMEList.Add('.ebk=application/x-expandedbook');    {Do not Localize}
+  AMIMEList.Add('.eps=application/postscript');    {Do not Localize}
+  AMIMEList.Add('.evy=application/envoy');    {Do not Localize}
+  AMIMEList.Add('.exe=application/x-msdos-program');    {Do not Localize}
+  AMIMEList.Add('.fdf=application/vnd.fdf');    {Do not Localize}
+  AMIMEList.Add('.fif=application/fractals');    {Do not Localize}
+  AMIMEList.Add('.flm=application/vnd.kde.kivio');    {Do not Localize}
+  AMIMEList.Add('.fml=application/x-file-mirror-list');    {Do not Localize}
+  AMIMEList.Add('.gzip=application/x-gzip');  {Do not Localize}
+  AMIMEList.Add('.gnumeric=application/x-gnumeric');    {Do not Localize}
+  AMIMEList.Add('.gtar=application/x-gtar');    {Do not Localize}
+  AMIMEList.Add('.gz=application/x-gzip');    {Do not Localize}
+  AMIMEList.Add('.hdf=application/x-hdf');    {Do not Localize}
+  AMIMEList.Add('.hlp=application/winhlp');    {Do not Localize}
+  AMIMEList.Add('.hpf=application/x-icq-hpf');    {Do not Localize}
+  AMIMEList.Add('.hqx=application/mac-binhex40');    {Do not Localize}
+  AMIMEList.Add('.hta=application/hta');    {Do not Localize}
+  AMIMEList.Add('.ims=application/vnd.ms-ims');    {Do not Localize}
+  AMIMEList.Add('.ins=application/x-internet-signup');    {Do not Localize}
+  AMIMEList.Add('.iii=application/x-iphone');    {Do not Localize}
+  AMIMEList.Add('.iso=application/x-iso9660-image');    {Do not Localize}
+  AMIMEList.Add('.jar=application/java-archive');    {Do not Localize}
+  AMIMEList.Add('.karbon=application/vnd.kde.karbon');    {Do not Localize}
+  AMIMEList.Add('.kfo=application/vnd.kde.kformula');    {Do not Localize}
+  AMIMEList.Add('.kon=application/vnd.kde.kontour');    {Do not Localize}
+  AMIMEList.Add('.kpr=application/vnd.kde.kpresenter');    {Do not Localize}
+  AMIMEList.Add('.kpt=application/vnd.kde.kpresenter');    {Do not Localize}
+  AMIMEList.Add('.kwd=application/vnd.kde.kword');    {Do not Localize}
+  AMIMEList.Add('.kwt=application/vnd.kde.kword');    {Do not Localize}
+  AMIMEList.Add('.latex=application/x-latex');    {Do not Localize}
+  AMIMEList.Add('.lha=application/x-lzh');    {Do not Localize}
+  AMIMEList.Add('.lcc=application/fastman');    {Do not Localize}
+  AMIMEList.Add('.lrm=application/vnd.ms-lrm');    {Do not Localize}
+  AMIMEList.Add('.lz=application/x-lzip');    {Do not Localize}
+  AMIMEList.Add('.lzh=application/x-lzh');    {Do not Localize}
+  AMIMEList.Add('.lzma=application/x-lzma');  {Do not Localize}
+  AMIMEList.Add('.lzo=application/x-lzop'); {Do not Localize}
+  AMIMEList.Add('.lzx=application/x-lzx');
+  AMIMEList.Add('.m13=application/x-msmediaview');    {Do not Localize}
+  AMIMEList.Add('.m14=application/x-msmediaview');    {Do not Localize}
+  AMIMEList.Add('.mpp=application/vnd.ms-project');    {Do not Localize}
+  AMIMEList.Add('.mvb=application/x-msmediaview');    {Do not Localize}
+  AMIMEList.Add('.man=application/x-troff-man');    {Do not Localize}
+  AMIMEList.Add('.mdb=application/x-msaccess');    {Do not Localize}
+  AMIMEList.Add('.me=application/x-troff-me');    {Do not Localize}
+  AMIMEList.Add('.ms=application/x-troff-ms');    {Do not Localize}
+  AMIMEList.Add('.msi=application/x-msi');    {Do not Localize}
+  AMIMEList.Add('.mpkg=vnd.apple.installer+xml');    {Do not Localize}
+  AMIMEList.Add('.mny=application/x-msmoney');    {Do not Localize}
+  AMIMEList.Add('.nix=application/x-mix-transfer');    {Do not Localize}
+  AMIMEList.Add('.o=application/x-object');    {Do not Localize}
+  AMIMEList.Add('.oda=application/oda');    {Do not Localize}
+  AMIMEList.Add('.odb=application/vnd.oasis.opendocument.database');    {Do not Localize}
+  AMIMEList.Add('.odc=application/vnd.oasis.opendocument.chart');    {Do not Localize}
+  AMIMEList.Add('.odf=application/vnd.oasis.opendocument.formula');    {Do not Localize}
+  AMIMEList.Add('.odg=application/vnd.oasis.opendocument.graphics');    {Do not Localize}
+  AMIMEList.Add('.odi=application/vnd.oasis.opendocument.image');    {Do not Localize}
+  AMIMEList.Add('.odm=application/vnd.oasis.opendocument.text-master');    {Do not Localize}
+  AMIMEList.Add('.odp=application/vnd.oasis.opendocument.presentation');    {Do not Localize}
+  AMIMEList.Add('.ods=application/vnd.oasis.opendocument.spreadsheet');    {Do not Localize}
+  AMIMEList.Add('.ogg=application/ogg');    {Do not Localize}
+  AMIMEList.Add('.odt=application/vnd.oasis.opendocument.text');    {Do not Localize}
+  AMIMEList.Add('.otg=application/vnd.oasis.opendocument.graphics-template');    {Do not Localize}
+  AMIMEList.Add('.oth=application/vnd.oasis.opendocument.text-web');    {Do not Localize}
+  AMIMEList.Add('.otp=application/vnd.oasis.opendocument.presentation-template');    {Do not Localize}
+  AMIMEList.Add('.ots=application/vnd.oasis.opendocument.spreadsheet-template');    {Do not Localize}
+  AMIMEList.Add('.ott=application/vnd.oasis.opendocument.text-template');    {Do not Localize}
+  AMIMEList.Add('.p10=application/pkcs10');    {Do not Localize}
+  AMIMEList.Add('.p12=application/x-pkcs12');    {Do not Localize}
+  AMIMEList.Add('.p7b=application/x-pkcs7-certificates');    {Do not Localize}
+  AMIMEList.Add('.p7m=application/pkcs7-mime');    {Do not Localize}
+  AMIMEList.Add('.p7r=application/x-pkcs7-certreqresp');    {Do not Localize}
+  AMIMEList.Add('.p7s=application/pkcs7-signature');    {Do not Localize}
+  AMIMEList.Add('.package=application/vnd.autopackage');    {Do not Localize}
+  AMIMEList.Add('.pfr=application/font-tdpfr');    {Do not Localize}
+  AMIMEList.Add('.pkg=vnd.apple.installer+xml');    {Do not Localize}
+  AMIMEList.Add('.pdf=application/pdf');    {Do not Localize}
+  AMIMEList.Add('.pko=application/vnd.ms-pki.pko');    {Do not Localize}
+  AMIMEList.Add('.pl=application/x-perl');    {Do not Localize}
+  AMIMEList.Add('.pnq=application/x-icq-pnq');    {Do not Localize}
+  AMIMEList.Add('.pot=application/mspowerpoint');    {Do not Localize}
+  AMIMEList.Add('.pps=application/mspowerpoint');    {Do not Localize}
+  AMIMEList.Add('.ppt=application/mspowerpoint');    {Do not Localize}
+  AMIMEList.Add('.ppz=application/mspowerpoint');    {Do not Localize}
+  AMIMEList.Add('.ps=application/postscript');    {Do not Localize}
+  AMIMEList.Add('.pub=application/x-mspublisher');    {Do not Localize}
+  AMIMEList.Add('.qpw=application/x-quattropro');    {Do not Localize}
+  AMIMEList.Add('.qtl=application/x-quicktimeplayer');    {Do not Localize}
+  AMIMEList.Add('.rar=application/rar');    {Do not Localize}
+  AMIMEList.Add('.rdf=application/rdf+xml');    {Do not Localize}
+  AMIMEList.Add('.rjs=application/vnd.rn-realsystem-rjs');    {Do not Localize}
+  AMIMEList.Add('.rm=application/vnd.rn-realmedia');    {Do not Localize}
+  AMIMEList.Add('.rmf=application/vnd.rmf');    {Do not Localize}
+  AMIMEList.Add('.rmp=application/vnd.rn-rn_music_package');    {Do not Localize}
+  AMIMEList.Add('.rmx=application/vnd.rn-realsystem-rmx');    {Do not Localize}
+  AMIMEList.Add('.rnx=application/vnd.rn-realplayer');    {Do not Localize}
+  AMIMEList.Add('.rpm=application/x-redhat-package-manager');
+  AMIMEList.Add('.rsml=application/vnd.rn-rsml');    {Do not Localize}
+  AMIMEList.Add('.rtsp=application/x-rtsp');    {Do not Localize}
+  AMIMEList.Add('.rss=application/rss+xml');    {Do not Localize}
+  AMIMEList.Add('.scm=application/x-icq-scm');    {Do not Localize}
+  AMIMEList.Add('.ser=application/java-serialized-object');    {Do not Localize}
+  AMIMEList.Add('.scd=application/x-msschedule');    {Do not Localize}
+  AMIMEList.Add('.sda=application/vnd.stardivision.draw');    {Do not Localize}
+  AMIMEList.Add('.sdc=application/vnd.stardivision.calc');    {Do not Localize}
+  AMIMEList.Add('.sdd=application/vnd.stardivision.impress');    {Do not Localize}
+  AMIMEList.Add('.sdp=application/x-sdp');    {Do not Localize}
+  AMIMEList.Add('.setpay=application/set-payment-initiation');    {Do not Localize}
+  AMIMEList.Add('.setreg=application/set-registration-initiation');    {Do not Localize}
+  AMIMEList.Add('.sh=application/x-sh');    {Do not Localize}
+  AMIMEList.Add('.shar=application/x-shar');    {Do not Localize}
+  AMIMEList.Add('.shw=application/presentations');    {Do not Localize}
+  AMIMEList.Add('.sit=application/x-stuffit');    {Do not Localize}
+  AMIMEList.Add('.sitx=application/x-stuffitx');  {Do not localize}
+  AMIMEList.Add('.skd=application/x-koan');    {Do not Localize}
+  AMIMEList.Add('.skm=application/x-koan');    {Do not Localize}
+  AMIMEList.Add('.skp=application/x-koan');    {Do not Localize}
+  AMIMEList.Add('.skt=application/x-koan');    {Do not Localize}
+  AMIMEList.Add('.smf=application/vnd.stardivision.math');    {Do not Localize}
+  AMIMEList.Add('.smi=application/smil');    {Do not Localize}
+  AMIMEList.Add('.smil=application/smil');    {Do not Localize}
+  AMIMEList.Add('.spl=application/futuresplash');    {Do not Localize}
+  AMIMEList.Add('.ssm=application/streamingmedia');    {Do not Localize}
+  AMIMEList.Add('.sst=application/vnd.ms-pki.certstore');    {Do not Localize}
+  AMIMEList.Add('.stc=application/vnd.sun.xml.calc.template');    {Do not Localize}
+  AMIMEList.Add('.std=application/vnd.sun.xml.draw.template');    {Do not Localize}
+  AMIMEList.Add('.sti=application/vnd.sun.xml.impress.template');    {Do not Localize}
+  AMIMEList.Add('.stl=application/vnd.ms-pki.stl');    {Do not Localize}
+  AMIMEList.Add('.stw=application/vnd.sun.xml.writer.template');    {Do not Localize}
+  AMIMEList.Add('.svi=application/softvision');    {Do not Localize}
+  AMIMEList.Add('.sv4cpio=application/x-sv4cpio');    {Do not Localize}
+  AMIMEList.Add('.sv4crc=application/x-sv4crc');    {Do not Localize}
+  AMIMEList.Add('.swf=application/x-shockwave-flash');    {Do not Localize}
+  AMIMEList.Add('.swf1=application/x-shockwave-flash');    {Do not Localize}
+  AMIMEList.Add('.sxc=application/vnd.sun.xml.calc');    {Do not Localize}
+  AMIMEList.Add('.sxi=application/vnd.sun.xml.impress');    {Do not Localize}
+  AMIMEList.Add('.sxm=application/vnd.sun.xml.math');    {Do not Localize}
+  AMIMEList.Add('.sxw=application/vnd.sun.xml.writer');    {Do not Localize}
+  AMIMEList.Add('.sxg=application/vnd.sun.xml.writer.global');    {Do not Localize}
+  AMIMEList.Add('.t=application/x-troff');    {Do not Localize}
+  AMIMEList.Add('.tar=application/x-tar');    {Do not Localize}
+  AMIMEList.Add('.tcl=application/x-tcl');    {Do not Localize}
+  AMIMEList.Add('.tex=application/x-tex');    {Do not Localize}
+  AMIMEList.Add('.texi=application/x-texinfo');    {Do not Localize}
+  AMIMEList.Add('.texinfo=application/x-texinfo');    {Do not Localize}
+  AMIMEList.Add('.tbz=application/x-bzip-compressed-tar');   {Do not Localize}
+  AMIMEList.Add('.tbz2=application/x-bzip-compressed-tar');   {Do not Localize}
+  AMIMEList.Add('.tgz=application/x-compressed-tar');    {Do not Localize}
+  AMIMEList.Add('.tlz=application/x-lzma-compressed-tar');    {Do not Localize}
+  AMIMEList.Add('.tr=application/x-troff');    {Do not Localize}
+  AMIMEList.Add('.trm=application/x-msterminal');    {Do not Localize}
+  AMIMEList.Add('.troff=application/x-troff');    {Do not Localize}
+  AMIMEList.Add('.tsp=application/dsptype');    {Do not Localize}
+  AMIMEList.Add('.torrent=application/x-bittorrent');    {Do not Localize}
+  AMIMEList.Add('.ttz=application/t-time');    {Do not Localize}
+  AMIMEList.Add('.txz=application/x-xz-compressed-tar'); {Do not localize}
+  AMIMEList.Add('.udeb=application/x-debian-package');    {Do not Localize}
 
-    Add('.uin=application/x-icq');    {Do not Localize}
-    Add('.urls=application/x-url-list');    {Do not Localize}
-    Add('.ustar=application/x-ustar');    {Do not Localize}
-    Add('.vcd=application/x-cdlink');    {Do not Localize}
-    Add('.vor=application/vnd.stardivision.writer');    {Do not Localize}
-    Add('.vsl=application/x-cnet-vsl');    {Do not Localize}
-    Add('.wcm=application/vnd.ms-works');    {Do not Localize}
-    Add('.wb1=application/x-quattropro');    {Do not Localize}
-    Add('.wb2=application/x-quattropro');    {Do not Localize}
-    Add('.wb3=application/x-quattropro');    {Do not Localize}
-    Add('.wdb=application/vnd.ms-works');    {Do not Localize}
-    Add('.wks=application/vnd.ms-works');    {Do not Localize}
-    Add('.wmd=application/x-ms-wmd');    {Do not Localize}
-    Add('.wms=application/x-ms-wms');    {Do not Localize}
-    Add('.wmz=application/x-ms-wmz');    {Do not Localize}
-    Add('.wp5=application/wordperfect5.1');    {Do not Localize}
-    Add('.wpd=application/wordperfect');    {Do not Localize}
-    Add('.wpl=application/vnd.ms-wpl');    {Do not Localize}
-    Add('.wps=application/vnd.ms-works');    {Do not Localize}
-    Add('.wri=application/x-mswrite');    {Do not Localize}
-    Add('.xfdf=application/vnd.adobe.xfdf');    {Do not Localize}
-    Add('.xls=application/x-msexcel');    {Do not Localize}
-    Add('.xlb=application/x-msexcel');     {Do not Localize}
-    Add('.xpi=application/x-xpinstall');    {Do not Localize}
-    Add('.xps=application/vnd.ms-xpsdocument');    {Do not Localize}
-    Add('.xsd=application/vnd.sun.xml.draw');    {Do not Localize}
-    Add('.xul=application/vnd.mozilla.xul+xml');    {Do not Localize}
-    Add('.z=application/x-compress');    {Do not Localize}
-    Add('.zoo=application/x-zoo');    {Do not Localize}
-    Add('.zip=application/x-zip-compressed');    {Do not Localize}
+  AMIMEList.Add('.uin=application/x-icq');    {Do not Localize}
+  AMIMEList.Add('.urls=application/x-url-list');    {Do not Localize}
+  AMIMEList.Add('.ustar=application/x-ustar');    {Do not Localize}
+  AMIMEList.Add('.vcd=application/x-cdlink');    {Do not Localize}
+  AMIMEList.Add('.vor=application/vnd.stardivision.writer');    {Do not Localize}
+  AMIMEList.Add('.vsl=application/x-cnet-vsl');    {Do not Localize}
+  AMIMEList.Add('.wcm=application/vnd.ms-works');    {Do not Localize}
+  AMIMEList.Add('.wb1=application/x-quattropro');    {Do not Localize}
+  AMIMEList.Add('.wb2=application/x-quattropro');    {Do not Localize}
+  AMIMEList.Add('.wb3=application/x-quattropro');    {Do not Localize}
+  AMIMEList.Add('.wdb=application/vnd.ms-works');    {Do not Localize}
+  AMIMEList.Add('.wks=application/vnd.ms-works');    {Do not Localize}
+  AMIMEList.Add('.wmd=application/x-ms-wmd');    {Do not Localize}
+  AMIMEList.Add('.wms=application/x-ms-wms');    {Do not Localize}
+  AMIMEList.Add('.wmz=application/x-ms-wmz');    {Do not Localize}
+  AMIMEList.Add('.wp5=application/wordperfect5.1');    {Do not Localize}
+  AMIMEList.Add('.wpd=application/wordperfect');    {Do not Localize}
+  AMIMEList.Add('.wpl=application/vnd.ms-wpl');    {Do not Localize}
+  AMIMEList.Add('.wps=application/vnd.ms-works');    {Do not Localize}
+  AMIMEList.Add('.wri=application/x-mswrite');    {Do not Localize}
+  AMIMEList.Add('.xfdf=application/vnd.adobe.xfdf');    {Do not Localize}
+  AMIMEList.Add('.xls=application/x-msexcel');    {Do not Localize}
+  AMIMEList.Add('.xlb=application/x-msexcel');     {Do not Localize}
+  AMIMEList.Add('.xpi=application/x-xpinstall');    {Do not Localize}
+  AMIMEList.Add('.xps=application/vnd.ms-xpsdocument');    {Do not Localize}
+  AMIMEList.Add('.xsd=application/vnd.sun.xml.draw');    {Do not Localize}
+  AMIMEList.Add('.xul=application/vnd.mozilla.xul+xml');    {Do not Localize}
+  AMIMEList.Add('.z=application/x-compress');    {Do not Localize}
+  AMIMEList.Add('.zoo=application/x-zoo');    {Do not Localize}
+  AMIMEList.Add('.zip=application/x-zip-compressed');    {Do not Localize}
     
-    { WAP }
-    Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
-    Add('.wml=text/vnd.wap.wml');    {Do not Localize}
-    Add('.wmlc=application/vnd.wap.wmlc');    {Do not Localize}
-    Add('.wmls=text/vnd.wap.wmlscript');    {Do not Localize}
-    Add('.wmlsc=application/vnd.wap.wmlscriptc');    {Do not Localize}
+  { WAP }
+  AMIMEList.Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
+  AMIMEList.Add('.wml=text/vnd.wap.wml');    {Do not Localize}
+  AMIMEList.Add('.wmlc=application/vnd.wap.wmlc');    {Do not Localize}
+  AMIMEList.Add('.wmls=text/vnd.wap.wmlscript');    {Do not Localize}
+  AMIMEList.Add('.wmlsc=application/vnd.wap.wmlscriptc');    {Do not Localize}
 
-    { Non-web text}
-    {
-    IMPORTANT!!
+  { Non-web text}
+  {
+  IMPORTANT!!
 
-    You should not use a text MIME type definition unless you are 
-    extremely certain that the file will NOT be a binary.  Some browsers 
-    will display the text instead of saving to disk and it looks ugly
-    if a web-browser shows all of the 8bit charactors.
-    }
-    //of course, we have to add this :-).
-    Add('.asm=text/x-asm');   {Do not Localize}
-    Add('.p=text/x-pascal');    {Do not Localize}
-    Add('.pas=text/x-pascal');    {Do not Localize}
+  You should not use a text MIME type definition unless you are
+  extremely certain that the file will NOT be a binary.  Some browsers
+  will display the text instead of saving to disk and it looks ugly
+  if a web-browser shows all of the 8bit charactors.
+  }
+  //of course, we have to add this :-).
+  AMIMEList.Add('.asm=text/x-asm');   {Do not Localize}
+  AMIMEList.Add('.p=text/x-pascal');    {Do not Localize}
+  AMIMEList.Add('.pas=text/x-pascal');    {Do not Localize}
 
-    Add('.cs=text/x-csharp'); {Do not Localize}
+  AMIMEList.Add('.cs=text/x-csharp'); {Do not Localize}
 
-    Add('.c=text/x-csrc');    {Do not Localize}
-    Add('.c++=text/x-c++src');    {Do not Localize}
-    Add('.cpp=text/x-c++src');    {Do not Localize}
-    Add('.cxx=text/x-c++src');    {Do not Localize}
-    Add('.cc=text/x-c++src');    {Do not Localize}
-    Add('.h=text/x-chdr'); {Do not localize}
-    Add('.h++=text/x-c++hdr');    {Do not Localize}
-    Add('.hpp=text/x-c++hdr');    {Do not Localize}
-    Add('.hxx=text/x-c++hdr');    {Do not Localize}
-    Add('.hh=text/x-c++hdr');    {Do not Localize}
-    Add('.java=text/x-java');    {Do not Localize}
+  AMIMEList.Add('.c=text/x-csrc');    {Do not Localize}
+  AMIMEList.Add('.c++=text/x-c++src');    {Do not Localize}
+  AMIMEList.Add('.cpp=text/x-c++src');    {Do not Localize}
+  AMIMEList.Add('.cxx=text/x-c++src');    {Do not Localize}
+  AMIMEList.Add('.cc=text/x-c++src');    {Do not Localize}
+  AMIMEList.Add('.h=text/x-chdr'); {Do not localize}
+  AMIMEList.Add('.h++=text/x-c++hdr');    {Do not Localize}
+  AMIMEList.Add('.hpp=text/x-c++hdr');    {Do not Localize}
+  AMIMEList.Add('.hxx=text/x-c++hdr');    {Do not Localize}
+  AMIMEList.Add('.hh=text/x-c++hdr');    {Do not Localize}
+  AMIMEList.Add('.java=text/x-java');    {Do not Localize}
 
-    { WEB }
-    Add('.css=text/css');    {Do not Localize}
-    Add('.js=text/javascript');    {Do not Localize}
-    Add('.htm=text/html');    {Do not Localize}
-    Add('.html=text/html');    {Do not Localize}
-    Add('.xhtml=application/xhtml+xml'); {Do not localize}
-    Add('.xht=application/xhtml+xml'); {Do not localize}
-    Add('.rdf=application/rdf+xml'); {Do not localize}
-    Add('.rss=application/rss+xml'); {Do not localize}
+  { WEB }
+  AMIMEList.Add('.css=text/css');    {Do not Localize}
+  AMIMEList.Add('.js=text/javascript');    {Do not Localize}
+  AMIMEList.Add('.htm=text/html');    {Do not Localize}
+  AMIMEList.Add('.html=text/html');    {Do not Localize}
+  AMIMEList.Add('.xhtml=application/xhtml+xml'); {Do not localize}
+  AMIMEList.Add('.xht=application/xhtml+xml'); {Do not localize}
+  AMIMEList.Add('.rdf=application/rdf+xml'); {Do not localize}
+  AMIMEList.Add('.rss=application/rss+xml'); {Do not localize}
 
-    Add('.ls=text/javascript');    {Do not Localize}
-    Add('.mocha=text/javascript');    {Do not Localize}
-    Add('.shtml=server-parsed-html');    {Do not Localize}
-    Add('.xml=text/xml');    {Do not Localize}
-    Add('.sgm=text/sgml');    {Do not Localize}
-    Add('.sgml=text/sgml');    {Do not Localize}
-  end;
+  AMIMEList.Add('.ls=text/javascript');    {Do not Localize}
+  AMIMEList.Add('.mocha=text/javascript');    {Do not Localize}
+  AMIMEList.Add('.shtml=server-parsed-html');    {Do not Localize}
+  AMIMEList.Add('.xml=text/xml');    {Do not Localize}
+  AMIMEList.Add('.sgm=text/sgml');    {Do not Localize}
+  AMIMEList.Add('.sgml=text/sgml');    {Do not Localize}
 
   if not ALoadFromOS then begin
     Exit;
@@ -3919,10 +3978,13 @@ var
   LMode : TIdHTMLMode;
   LPos : Integer;
   LLen : Integer;
+  LEncoding: IIdTextEncoding;
 begin
 //  AStr.Clear;
   AStream.Position := 0;
-  LRawData := ReadStringFromStream(AStream, -1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  LRawData := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  LEncoding := nil;
   LMode := none;
   LPos := 0;
   LLen := Length(LRawData);
@@ -4440,29 +4502,47 @@ function IndyComputerName: string;
 {$ENDIF}
 {$IFDEF UNIX}
 var
-  LHost: array[1..255] of AnsiChar;
-  i: LongWord;
+  LHost: array[0..256] of TIdAnsiChar;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  LHostPtr: TPtrWrapper;
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF WINDOWS}
 var
+  LHost: array[0..MAX_COMPUTERNAME_LENGTH] of Char;
   i: LongWord;
 {$ENDIF}
 begin
+  Result := '';
+
   {$IFDEF UNIX}
   //TODO: No need for LHost at all? Prob can use just Result
     {$IFDEF KYLIXCOMPAT}
-  if GetHostname(@LHost[1], 255) <> -1 then begin
-    i := IndyPos(#0, LHost);
-    SetString(Result, PAnsiChar(@LHost[1]), i-1);
+  if GetHostname(LHost, 255) <> -1 then begin
+    Result := String(LHost);
   end;
     {$ENDIF}
     {$IFDEF USE_BASE_UNIX}
   Result := GetHostName;
     {$ENDIF}
     {$IFDEF USE_VCL_POSIX}
-  if Posix.Unistd.gethostname(@LHost[1], 255) <> -1 then begin
-    i := IndyPos(#0, String(LHost));
-    SetString(Result, PAnsiChar(@LHost[1]), i-1);
+      {$IFDEF USE_MARSHALLED_PTRS}
+  LHostPtr := TPtrWrapper.Create(@LHost[0]);
+      {$ENDIF}
+  if Posix.Unistd.gethostname(
+    {$IFDEF USE_MARSHALLED_PTRS}
+    LHostPtr.ToPointer
+    {$ELSE}
+    LHost
+    {$ENDIF},
+    255) <> -1 then
+  begin
+    {$IFDEF USE_MARSHALLED_PTRS}
+    Result := TMarshal.ReadStringAsAnsiUpTo(DefaultSystemCodePage, LHostPtr, 255);
+    {$ELSE}
+    LHost[256] := TIdAnsiChar(0);
+    Result := String(LHost);
+    {$ENDIF}
   end;
     {$ENDIF}
   {$ENDIF}
@@ -4470,10 +4550,9 @@ begin
     {$IFDEF WINCE}
       {$WARNING To Do - find some way to get the Computer Name.}
     {$ELSE}
-  SetLength(Result, MAX_COMPUTERNAME_LENGTH + 1);
-  i := Length(Result);
-  if GetComputerName(PChar(Result), i) then begin
-    SetLength(Result, i);
+  i := MAX_COMPUTERNAME_LENGTH;
+  if GetComputerName(LHost, i) then begin
+    SetString(Result, LHost, i);
   end;
     {$ENDIF}
   {$ENDIF}
@@ -4642,7 +4721,7 @@ begin
 end;
 
 function ContentTypeToEncoding(const AContentType: String;
-  AQuoteType: TIdHeaderQuotingType): TIdTextEncoding;
+  AQuoteType: TIdHeaderQuotingType): IIdTextEncoding;
 var
   LCharset: String;
 begin
@@ -4650,18 +4729,7 @@ begin
   Result := CharsetToEncoding(LCharset);
 end;
 
-{$IFNDEF DOTNET_OR_ICONV}
-  // SysUtils.TEncoding.GetEncoding() in Delphi 2009 and 2010 does not
-  // implement UTF-7 and UTF-16 correctly.  This was fixed in Delphi XE...
-  {$DEFINE USE_TIdTextEncoding_GetEncoding}
-  {$IFDEF HAS_TEncoding}
-    {$IFDEF BROKEN_TEncoding_GetEncoding}
-      {$UNDEF USE_TIdTextEncoding_GetEncoding}
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
-
-function CharsetToEncoding(const ACharset: String): TIdTextEncoding;
+function CharsetToEncoding(const ACharset: String): IIdTextEncoding;
 {$IFNDEF DOTNET_OR_ICONV}
 var
   CP: Word;
@@ -4687,52 +4755,14 @@ begin
     // maybe the user will know how to encode/decode the data manually
     // as a workaround...
 
-    // RLebeau: on non-DotNet systems, setting the AOwnedByIndy parameter
-    // of Indy...Encoding() to False so that the caller does not have to
-    // figure out whether or not to free the output TIdTextEncoding.
-    // Standard TIdTextEncoding objects are owned by the RTL, and the
-    // encoding objects that Indy...Encoding() normally return are owned
-    // by IdGlobal.pas, and thus should not be freed.  Objects returned
-    // by TIdTextEncoding.GetEncoding() and Indy...Encoding(False) are
-    // not owned by anyone and must always be freed.
-
     try
-      {$IFDEF DOTNET}
-      Result := TIdTextEncoding.GetEncoding(ACharset);
+      {$IFDEF DOTNET_OR_ICONV}
+      Result := IndyTextEncoding(ACharset);
       {$ELSE}
-        {$IFDEF USE_ICONV}
-      Result := TIdMBCSEncoding.Create(ACharset);
-        {$ELSE}
       CP := CharsetToCodePage(ACharset);
-      case CP of
-        20127:
-          // RLebeau: 20127 is the official codepage for ASCII,
-          // but not all OS versions support that codepage...
-          Result := IndyASCIIEncoding(False);
-        65001:
-          // RLebeau: UTF-8 is handled separate from other standard
-          // encodings because we need to avoid the MB_ERR_INVALID_CHARS
-          // flag regardless of whether TIdTextEncoding is implemented
-          // natively or manually...
-          Result := IndyUTF8Encoding(False);
-        1200:
-          Result := IndyUTF16LittleEndianEncoding(False);
-        1201:
-          Result := IndyUTF16BigEndianEncoding(False);
-        65000:
-          Result := IndyUTF7Encoding(False);
-      else
-        begin
-          if CP <> 0 then begin
-            {$IFDEF USE_TIdTextEncoding_GetEncoding}
-            Result := TIdTextEncoding.GetEncoding(CP);
-            {$ELSE}
-            Result := TIdMBCSEncoding.Create(CP);
-            {$ENDIF}
-          end;
-        end;
+      if CP <> 0 then begin
+        Result := IndyTextEncoding(CP);
       end;
-        {$ENDIF}
       {$ENDIF}
     except end;
   end;
@@ -4757,168 +4787,70 @@ begin
       Exit;
     end;
     }
-    Result := Indy8BitEncoding{$IFNDEF DOTNET}(False){$ENDIF};
+    Result := IndyTextEncoding_8Bit;
   end;
 end;
 
 procedure WriteStringAsContentType(AStream: TStream; const AStr, AContentType: String;
   AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
-var
-  LEncoding: TIdTextEncoding;
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 begin
-  LEncoding := ContentTypeToEncoding(AContentType, AQuoteType);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    WriteStringToStream(AStream, AStr, LEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  WriteStringToStream(AStream, AStr, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 
 procedure WriteStringsAsContentType(AStream: TStream; const AStrings: TStrings;
   const AContentType: String; AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
-var
-  LEncoding: TIdTextEncoding;
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 begin
-  LEncoding := ContentTypeToEncoding(AContentType, AQuoteType);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
-    // anymore, as it may save a BOM which we do not want here...
-    WriteStringToStream(AStream, AStrings.Text, LEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
+  // anymore, as it may save a BOM which we do not want here...
+  WriteStringToStream(AStream, AStrings.Text, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 
 procedure WriteStringAsCharset(AStream: TStream; const AStr, ACharset: string
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
-var
-  LEncoding: TIdTextEncoding;
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 begin
-  LEncoding := CharsetToEncoding(ACharset);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    WriteStringToStream(AStream, AStr, LEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  WriteStringToStream(AStream, AStr, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 
 procedure WriteStringsAsCharset(AStream: TStream; const AStrings: TStrings;
   const ACharset: string
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF});
-var
-  LEncoding: TIdTextEncoding;
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
 begin
-  LEncoding := CharsetToEncoding(ACharset);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
-    // anymore, as it may save a BOM which we do not want here...
-    WriteStringToStream(AStream, AStrings.Text, LEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
+  // anymore, as it may save a BOM which we do not want here...
+  WriteStringToStream(AStream, AStrings.Text, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 
 function ReadStringAsContentType(AStream: TStream; const AContentType: String;
   AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
 ): String;
-var
-  LEncoding: TIdTextEncoding;
 begin
-  Result := '';
-  LEncoding := ContentTypeToEncoding(AContentType, AQuoteType);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    Result := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  Result := ReadStringFromStream(AStream, -1, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
 procedure ReadStringsAsContentType(AStream: TStream; AStrings: TStrings;
   const AContentType: String; AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
 );
-var
-  LEncoding: TIdTextEncoding;
 begin
-  LEncoding := ContentTypeToEncoding(AContentType, AQuoteType);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    {$IFDEF HAS_TEncoding}
-    AStrings.LoadFromStream(AStream, LEncoding);
-    {$ELSE}
-    AStrings.Text := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
-    {$ENDIF}
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  AStrings.Text := ReadStringFromStream(AStream, -1, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
 function ReadStringAsCharset(AStream: TStream; const ACharset: String
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
 ): String;
-//TODO:  Figure out what should happen with Unicode content type.
-var
-  LEncoding: TIdTextEncoding;
 begin
-  Result := '';
-  LEncoding := CharsetToEncoding(ACharset);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    Result := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  //TODO: Figure out what should happen with Unicode content type.
+  Result := ReadStringFromStream(AStream, -1, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
 procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: String
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
 );
-var
-  LEncoding: TIdTextEncoding;
 begin
-  LEncoding := CharsetToEncoding(ACharset);
-  {$IFNDEF DOTNET}
-  try
-  {$ENDIF}
-    {$IFDEF HAS_TEncoding}
-    AStrings.LoadFromStream(AStream, LEncoding);
-    {$ELSE}
-    AStrings.Text := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
-    {$ENDIF}
-  {$IFNDEF DOTNET}
-  finally
-    LEncoding.Free;
-  end;
-  {$ENDIF}
+  AStrings.Text := ReadStringFromStream(AStream, -1, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
 { TIdInterfacedObject }

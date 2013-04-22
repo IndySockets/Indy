@@ -654,14 +654,15 @@ end;
 { TMXRecord }
 
 procedure TMXRecord.Assign(Source: TPersistent);
+var
+  LSource: TMXRecord;
 begin
   inherited Assign(Source);
   if Source is TMXRecord then
   begin
-    with Source as TMXRecord do begin
-      Self.FExchangeServer := ExchangeServer;
-      Self.FPreference := Preference;
-    end;
+    LSource := TMXRecord(Source);
+    FExchangeServer := LSource.ExchangeServer;
+    FPreference := LSource.Preference;
   end;
 end;
 
@@ -827,18 +828,19 @@ end;
 { TResultRecord }
 
 procedure TResultRecord.Assign(Source: TPersistent);
+var
+  LSource: TResultRecord;
 begin
   if Source is TResultRecord then
   begin
-    with Source as TResultRecord do begin
-      Self.FRecType := RecType;
-      Self.FRecClass := RecClass;
-      Self.FName := Name;
-      Self.FTTL := TTL;
-      Self.FRDataLength := RDataLength;
-      Self.FRData := ToBytes(RData, Length(RData));
-      Self.FSection := Section;
-    end;
+    LSource := TResultRecord(Source);
+    FRecType := LSource.RecType;
+    FRecClass := LSource.RecClass;
+    FName := LSource.Name;
+    FTTL := LSource.TTL;
+    FRDataLength := LSource.RDataLength;
+    FRData := Copy(LSource.RData, 0, Length(LSource.RData));
+    FSection := LSource.Section;
   end else begin
     inherited Assign(Source);
   end;
@@ -951,18 +953,19 @@ end;
 { TSOARecord }
 
 procedure TSOARecord.Assign(Source: TPersistent);
+var
+  LSource: TSOARecord;
 begin
   inherited Assign(Source);
   if Source is TSOARecord then begin
-    with Source as TSOARecord do begin
-      Self.FSerial := Serial;
-      Self.FMinimumTTL := MinimumTTL;
-      Self.FRefresh := Refresh;
-      Self.FRetry := Retry;
-      Self.FMNAME := FMNAME;
-      Self.FRNAME := FRNAME;
-      Self.FExpire := Expire;
-    end;
+    LSource := TSOARecord(Source);
+    FSerial := LSource.Serial;
+    FMinimumTTL := LSource.MinimumTTL;
+    FRefresh := LSource.Refresh;
+    FRetry := LSource.Retry;
+    FMNAME := LSource.FMNAME;
+    FRNAME := LSource.FRNAME;
+    FExpire := LSource.Expire;
   end;
 end;
 
@@ -991,15 +994,16 @@ end;
 { TWKSRecord }
 
 procedure TWKSRecord.Assign(Source: TPersistent);
+var
+  LSource: TWKSRecord;
 begin
   inherited Assign(Source);
   if Source is TWKSRecord then begin
-    with Source as TWKSRecord do begin
-      Self.FIPAddress := IPAddress;
-      Self.FProtocol := Protocol;
-      Self.FByteCount := ByteCount;
-      Self.FData := ToBytes(FData, Length(FData));
-    end;
+    LSource := TWKSRecord(Source);
+    FIPAddress := LSource.IPAddress;
+    FProtocol := LSource.Protocol;
+    FByteCount := LSource.ByteCount;
+    FData := Copy(LSource.FData, 0, Length(LSource.FData));
   end;
 end;
 
@@ -1019,14 +1023,15 @@ end;
 { TMINFORecord }
 
 procedure TMINFORecord.Assign(Source: TPersistent);
+var
+  LSource: TMINFORecord;
 begin
   inherited Assign(Source);
   if Source is TMINFORecord then
   begin
-    with Source as TMINFORecord do begin
-      Self.FResponsiblePerson := ResponsiblePersonMailbox;
-      Self.FErrorMailbox := ErrorMailbox;
-    end;
+    LSource := TMINFORecord(Source);
+    FResponsiblePerson := LSource.ResponsiblePersonMailbox;
+    FErrorMailbox := LSource.ErrorMailbox;
   end;
 end;
 
@@ -1040,15 +1045,15 @@ end;
 { THINFORecord }
 
 procedure THINFORecord.Assign(Source: TPersistent);
+var
+  LSource: THINFORecord;
 begin
   inherited Assign(Source);
   if Source is THINFORecord then
   begin
-    with Source as THINFORecord do
-    begin
-      Self.FCPU := CPU;
-      Self.FOS := OS;
-    end;
+    LSource := THINFORecord(Source);
+    FCPU := LSource.CPU;
+    FOS := LSource.OS;
   end;
 end;
 
@@ -1611,19 +1616,19 @@ begin
 end;
 
 procedure TSRVRecord.Assign(Source: TPersistent);
+var
+  LSource: TSRVRecord;
 begin
   inherited Assign(Source);
   if Source is TSRVRecord then
   begin
-    with Source as TSRVRecord do
-    begin
-      Self.FService := Service;
-      Self.FProtocol := Protocol;
-      Self.FPriority := Priority;
-      Self.FWeight := Weight;
-      Self.FPort := Port;
-      Self.FTarget := Target;
-    end;
+    LSource := TSRVRecord(Source);
+    FService := LSource.Service;
+    FProtocol := LSource.Protocol;
+    FPriority := LSource.Priority;
+    FWeight := LSource.Weight;
+    FPort := LSource.Port;
+    FTarget := LSource.Target;
   end;
 end;
 
@@ -1669,20 +1674,20 @@ begin
 end;
 
 procedure TNAPTRRecord.Assign(Source: TPersistent);
+var
+  LSource: TNAPTRRecord;
 begin
- inherited Assign(Source);
- if Source is TNAPTRRecord then
- begin
-   with Source as TNAPTRRecord do
+  inherited Assign(Source);
+  if Source is TNAPTRRecord then
   begin
-     Self.FOrder := Order;
-     Self.FPreference := Preference;
-     Self.FFlags := FFlags;
-     Self.FService := Service;
-     Self.FRegExp := RegExp;
-     Self.FReplacement := Replacement;
+    LSource := TNAPTRRecord(Source);
+    FOrder := LSource.Order;
+    FPreference := LSource.Preference;
+    FFlags := LSource.FFlags;
+    FService := LSource.Service;
+    FRegExp := LSource.RegExp;
+    FReplacement := LSource.Replacement;
   end;
- end;
 end;
 
 procedure TNAPTRRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);

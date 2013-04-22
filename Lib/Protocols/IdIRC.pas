@@ -525,14 +525,53 @@ begin
   Result := StringsReplace(S, [MQuote, #0, LF, CR], [MQuote+MQuote, MQuote+'0', MQuote+'n', MQuote+'r']);
 end;
 
+{$IFDEF STRING_IS_IMMUTABLE}
+function FindCharInSB(const ASB: TIdStringBuilder; AChar: Char; AStart: Integer): Integer;
+begin
+  for Result := AStart to ASB.Length-1 do begin
+    if ASB[Result] = AChar then begin
+      Exit;
+    end;
+  end;
+  Result := -1;
+end;
+{$ENDIF}
+
 function IRCUnquote(const S: String): String;
 var
   I, L: Integer;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
+
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(S);
+  L := LSB.Length;
+  I := 0;
+  while I < L do begin
+    I := FindCharInSB(LSB, MQuote, I);
+    if I = -1 then begin
+      Break;
+    end;
+    LSB.Remove(I, 1);
+    Dec(L);
+    if I >= L then begin
+      Break;
+    end;
+    case LSB[I] of
+      '0': LSB[I] := #0;
+      'n': LSB[I] := LF;
+      'r': LSB[I] := CR;
+    end;
+    Inc(I);
+  end;
+  Result := LSB.ToString;
+  {$ELSE}
   Result := S;
   L := Length(Result);
   I := 1;
-  repeat
+  while I <= L do begin
     I := PosIdx(MQuote, Result, I);
     if I = 0 then begin
       Break;
@@ -548,7 +587,8 @@ begin
       'r': Result[I] := CR;
     end;
     Inc(I);
-  until False;
+  end;
+  {$ENDIF}
 end;
 
 function CTCPQuote(const S: String): String;
@@ -559,11 +599,35 @@ end;
 function CTCPUnquote(const S: String): String;
 var
   I, L: Integer;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(S);
+  L := LSB.Length;
+  I := 0;
+  while I < L do begin
+    I := FindCharInSB(LSB, XQuote, I);
+    if I = -1 then begin
+      Break;
+    end;
+    LSB.Remove(I, 1);
+    Dec(L);
+    if I >= L then begin
+      Break;
+    end;
+    if LSB[I] = 'a' then begin
+      LSB[I] := XDelim;
+    end;
+    Inc(I);
+  end;
+  Result := LSB.ToString;
+  {$ELSE}
   Result := S;
   L := Length(Result);
   I := 1;
-  repeat
+  while I <= L do begin
     I := PosIdx(XQuote, Result, I);
     if I = 0 then begin
       Break;
@@ -577,7 +641,8 @@ begin
       Result[I] := XDelim;
     end;
     Inc(I);
-  until False;
+  end;
+  {$ENDIF}
 end;
 
 procedure ExtractCTCPs(var AText: String; CTCPs: TStrings);
@@ -720,138 +785,119 @@ begin
 end;
 
 procedure TIdIRC.AssignIRCClientCommands;
+var
+  LCommandHandler: TIdCommandHandler;
 begin
   { Text commands }
   //PRIVMSG Nickname/#channel :message
-  with CommandHandlers.Add do
-  begin
-    Command := 'PRIVMSG'; {do not localize}
-    OnCommand := CommandPRIVMSG;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PRIVMSG'; {do not localize}
+  LCommandHandler.OnCommand := CommandPRIVMSG;
+  LCommandHandler.ParseParams := False;
+
   //NOTICE Nickname/#channel :message
-  with CommandHandlers.Add do
-  begin
-    Command := 'NOTICE';  {do not localize}
-    OnCommand := CommandNOTICE;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NOTICE';  {do not localize}
+  LCommandHandler.OnCommand := CommandNOTICE;
+  LCommandHandler.ParseParams := False;
+
   //JOIN #channel
-  with CommandHandlers.Add do
-  begin
-    Command := 'JOIN';  {do not localize}
-    OnCommand := CommandJOIN;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'JOIN';  {do not localize}
+  LCommandHandler.OnCommand := CommandJOIN;
+
   //PART #channel
-  with CommandHandlers.Add do
-  begin
-    Command := 'PART';  {do not localize}
-    OnCommand := CommandPART;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PART';  {do not localize}
+  LCommandHandler.OnCommand := CommandPART;
+
   //KICK #channel target :reason
-  with CommandHandlers.Add do
-  begin
-    Command := 'KICK';  {do not localize}
-    OnCommand := CommandKICK;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'KICK';  {do not localize}
+  LCommandHandler.OnCommand := CommandKICK;
+
   //MODE Nickname/#channel +/-modes parameters...
-  with CommandHandlers.Add do
-  begin
-    Command := 'MODE';  {do not localize}
-    OnCommand := CommandMODE;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'MODE';  {do not localize}
+  LCommandHandler.OnCommand := CommandMODE;
+  LCommandHandler.ParseParams := False;
+
   //NICK newNickname
-  with CommandHandlers.Add do
-  begin
-    Command := 'NICK';  {do not localize}
-    OnCommand := CommandNICK;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NICK';  {do not localize}
+  LCommandHandler.OnCommand := CommandNICK;
+
   //QUIT :reason
-  with CommandHandlers.Add do
-  begin
-    Command := 'QUIT';  {do not localize}
-    OnCommand := CommandQUIT;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'QUIT';  {do not localize}
+  LCommandHandler.OnCommand := CommandQUIT;
+
   //SQUIT server :reason
-  with CommandHandlers.Add do
-  begin
-    Command := 'SQUIT';  {do not localize}
-    OnCommand := CommandSQUIT;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'SQUIT';  {do not localize}
+  LCommandHandler.OnCommand := CommandSQUIT;
+
   //INVITE Nickname :#channel
-  with CommandHandlers.Add do
-  begin
-    Command := 'INVITE';  {do not localize}
-    OnCommand := CommandINVITE;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'INVITE';  {do not localize}
+  LCommandHandler.OnCommand := CommandINVITE;
+
   //KILL Nickname :reason
-  with CommandHandlers.Add do
-  begin
-    Command := 'KILL';  {do not localize}
-    OnCommand := CommandKILL;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'KILL';  {do not localize}
+  LCommandHandler.OnCommand := CommandKILL;
+
   //PING server
-  with CommandHandlers.Add do
-  begin
-    Command := 'PING';  {do not localize}
-    OnCommand := CommandPING;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PING';  {do not localize}
+  LCommandHandler.OnCommand := CommandPING;
+
   //WALLOPS :message
-  with CommandHandlers.Add do
-  begin
-    Command := 'WALLOPS'; {do not localize}
-    OnCommand := CommandWALLOPS;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'WALLOPS'; {do not localize}
+  LCommandHandler.OnCommand := CommandWALLOPS;
+  LCommandHandler.ParseParams := False;
+
   //TOPIC
-  with CommandHandlers.Add do
-  begin
-    Command := 'TOPIC'; {do not localize}
-    OnCommand := CommandTOPIC;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'TOPIC'; {do not localize}
+  LCommandHandler.OnCommand := CommandTOPIC;
+
   //ERROR message
-  with CommandHandlers.Add do
-  begin
-    Command := 'ERROR'; {do not localize}
-    OnCommand := CommandERROR;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'ERROR'; {do not localize}
+  LCommandHandler.OnCommand := CommandERROR;
+  LCommandHandler.ParseParams := False;
 
   { Numeric commands, refer to http://www.alien.net.au/irc/irc2numerics.html }
   //RPL_WELCOME
-  with CommandHandlers.Add do
-  begin
-    Command := '001'; {do not localize}
-    OnCommand := CommandWELCOME;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '001'; {do not localize}
+  LCommandHandler.OnCommand := CommandWELCOME;
+  LCommandHandler.ParseParams := False;
+
   //RPL_YOURHOST
-  with CommandHandlers.Add do
-  begin
-    Command := '002'; {do not localize}
-    OnCommand := CommandYOURHOST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '002'; {do not localize}
+  LCommandHandler.OnCommand := CommandYOURHOST;
+
   //RPL_CREATED
-  with CommandHandlers.Add do
-  begin
-    Command := '003'; {do not localize}
-    OnCommand := CommandCREATED;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '003'; {do not localize}
+  LCommandHandler.OnCommand := CommandCREATED;
+
   //RPL_MYINFO
-  with CommandHandlers.Add do
-  begin
-    Command := '004'; {do not localize}
-    OnCommand := CommandMYINFO;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '004'; {do not localize}
+  LCommandHandler.OnCommand := CommandMYINFO;
+  LCommandHandler.ParseParams := False;
+
   //RPL_BOUNCE (deprecated), RPL_ISUPPORT (new)
-  with CommandHandlers.Add do
-  begin
-    Command := '005'; {do not localize}
-    //OnCommand := CommandBOUNCE; // deprecated
-    OnCommand := CommandISUPPORT;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '005'; {do not localize}
+  //LCommandHandler.OnCommand := CommandBOUNCE; // deprecated
+  LCommandHandler.OnCommand := CommandISUPPORT;
+
   { TODO:
   008  RPL_SNOMASK  ircu   Server notice mask (hex)
   009  RPL_STATMEMTOT  ircu
@@ -883,32 +929,28 @@ begin
   218  RPL_STATSYLINE
   }
   // RPL_BOUNCE (new)
-  with CommandHandlers.Add do
-  begin
-    Command := '010'; {do not localize}
-    OnCommand := CommandBOUNCE;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '010'; {do not localize}
+  LCommandHandler.OnCommand := CommandBOUNCE;
+
   //RPL_ENDOFSTATS
-  with CommandHandlers.Add do
-  begin
-    Command := '219'; {do not localize}
-    OnCommand := CommandENDOFSTATS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '219'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFSTATS;
+
   {TODO:
   221  RPL_UMODEIS  RFC1459  <user_modes> [<user_mode_params>]  Information about a user's own modes. Some daemons have extended the mode command and certain modes take parameters (like channel modes).
   }
   //RPL_SERVLIST
-  with CommandHandlers.Add do
-  begin
-    Command := '234'; {do not localize}
-    OnCommand := CommandSERVLIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '234'; {do not localize}
+  LCommandHandler.OnCommand := CommandSERVLIST;
+
   //RPL_SERVLISTEND
-  with CommandHandlers.Add do
-  begin
-    Command := '235'; {do not localize}
-    OnCommand := CommandSERVLISTEND;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '235'; {do not localize}
+  LCommandHandler.OnCommand := CommandSERVLISTEND;
+
   {TODO:
   236  RPL_STATSVERBOSE  ircu   Verbose server list?
   237  RPL_STATSENGINE  ircu   Engine name?
@@ -948,119 +990,101 @@ begin
   300  RPL_NONE  RFC1459   Dummy reply, supposedly only used for debugging/testing new features, however has appeared in production daemons.
   }
   //RPL_AWAY
-  with CommandHandlers.Add do
-  begin
-    Command := '301'; {do not localize}
-    OnCommand := CommandAWAY;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '301'; {do not localize}
+  LCommandHandler.OnCommand := CommandAWAY;
+
   //RPL_USERHOST
-  with CommandHandlers.Add do
-  begin
-    Command := '302'; {do not localize}
-    OnCommand := CommandUSERHOST;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '302'; {do not localize}
+  LCommandHandler.OnCommand := CommandUSERHOST;
+  LCommandHandler.ParseParams := False;
+
   //RPL_ISON
-  with CommandHandlers.Add do
-  begin
-    Command := '303'; {do not localize}
-    OnCommand := CommandISON;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '303'; {do not localize}
+  LCommandHandler.OnCommand := CommandISON;
+
   //RPL_UNAWAY
-  with CommandHandlers.Add do
-  begin
-    Command := '305'; {do not localize}
-    OnCommand := CommandAWAY;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '305'; {do not localize}
+  LCommandHandler.OnCommand := CommandAWAY;
+
   //RPL_NOWAWAY
-  with CommandHandlers.Add do
-  begin
-    Command := '306'; {do not localize}
-    OnCommand := CommandAWAY;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '306'; {do not localize}
+  LCommandHandler.OnCommand := CommandAWAY;
+
   //RPL_WHOISUSER
-  with CommandHandlers.Add do
-  begin
-    Command := '311'; {do not localize}
-    OnCommand := CommandWHOIS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '311'; {do not localize}
+  LCommandHandler.OnCommand := CommandWHOIS;
+
   //RPL_WHOISSERVER
-  with CommandHandlers.Add do
-  begin
-    Command := '312'; {do not localize}
-    OnCommand := CommandWHOIS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '312'; {do not localize}
+  LCommandHandler.OnCommand := CommandWHOIS;
+
   //RPL_WHOISOPERATOR
-  with CommandHandlers.Add do
-  begin
-    Command := '313'; {do not localize}
-    OnCommand := CommandWHOIS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '313'; {do not localize}
+  LCommandHandler.OnCommand := CommandWHOIS;
+
   //RPL_WHOWASUSER
-  with CommandHandlers.Add do
-  begin
-    Command := '314';
-    OnCommand := CommandWHOWAS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '314';
+  LCommandHandler.OnCommand := CommandWHOWAS;
+
   //RPL_ENDOFWHO
-  with CommandHandlers.Add do
-  begin
-    Command := '315'; {do not localize}
-    OnCommand := CommandENDOFWHO;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '315'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFWHO;
+
   //RPL_WHOISIDLE
-  with CommandHandlers.Add do
-  begin
-    Command := '317'; {do not localize}
-    OnCommand := CommandWHOIS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '317'; {do not localize}
+  LCommandHandler.OnCommand := CommandWHOIS;
+
   //RPL_ENDOFWHOIS
-  with CommandHandlers.Add do
-  begin
-    Command := '318'; {do not localize}
-    OnCommand := CommandENDOFWHOIS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '318'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFWHOIS;
+
   //RPL_WHOISCHANNELS
-  with CommandHandlers.Add do
-  begin
-    Command := '319'; {do not localize}
-    OnCommand := CommandWHOIS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '319'; {do not localize}
+  LCommandHandler.OnCommand := CommandWHOIS;
+
   {TODO:
   320  RPL_WHOISVIRT  AustHex
   320  RPL_WHOIS_HIDDEN  Anothernet
   320  RPL_WHOISSPECIAL  Unreal
   }
   //RPL_LISTSTART
-  with CommandHandlers.Add do
-  begin
-    Command := '321'; {do not localize}
-    OnCommand := CommandLISTSTART;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '321'; {do not localize}
+  LCommandHandler.OnCommand := CommandLISTSTART;
+
   //RPL_LIST
-  with CommandHandlers.Add do
-  begin
-    Command := '322'; {do not localize}
-    OnCommand := CommandLIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '322'; {do not localize}
+  LCommandHandler.OnCommand := CommandLIST;
+
   //RPL_LISTEND
-  with CommandHandlers.Add do
-  begin
-    Command := '323'; {do not localize}
-    OnCommand := CommandLISTEND;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '323'; {do not localize}
+  LCommandHandler.OnCommand := CommandLISTEND;
+
   //RPL_CHANMODEIS
-  with CommandHandlers.Add do
-  begin
-    Command := '324'; {do not localize}
-    OnCommand := CommandCHANMODE;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '324'; {do not localize}
+  LCommandHandler.OnCommand := CommandCHANMODE;
+
   //RPL_UNIQOPIS
-  with CommandHandlers.Add do
-  begin
-    Command := '325'; {do not localize}
-    //OnCommand := CommandUNIQOP;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '325'; {do not localize}
+  //LCommandHandler.OnCommand := CommandUNIQOP;
+
   {TODO:
   326  RPL_NOCHANPASS
   327  RPL_CHPASSUNKNOWN
@@ -1068,211 +1092,180 @@ begin
   329  RPL_CREATIONTIME  Bahamut
   }
   //RPL_NOTOPIC
-  with CommandHandlers.Add do
-  begin
-    Command := '331'; {do not localize}
-    OnCommand := CommandTOPIC;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '331'; {do not localize}
+  LCommandHandler.OnCommand := CommandTOPIC;
+
   //RPL_TOPIC
-  with CommandHandlers.Add do
-  begin
-    Command := '332';
-    OnCommand := CommandTOPIC;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '332';
+  LCommandHandler.OnCommand := CommandTOPIC;
+
   {TODO:
   333  RPL_TOPICWHOTIME  ircu
   339  RPL_BADCHANPASS
   340  RPL_USERIP  ircu
   }
   //RPL_INVITING
-  with CommandHandlers.Add do
-  begin
-    Command := '341'; {do not localize}
-    OnCommand := CommandINVITING;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '341'; {do not localize}
+  LCommandHandler.OnCommand := CommandINVITING;
+
   //RPL_SUMMONING
-  with CommandHandlers.Add do
-  begin
-    Command := '342'; {do not localize}
-    OnCommand := CommandSUMMONING;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '342'; {do not localize}
+  LCommandHandler.OnCommand := CommandSUMMONING;
+
   {TODO:
   345  RPL_INVITED  GameSurge  <channel> <user being invited> <user issuing invite> :<user being invited> has been invited by <user issuing invite>  Sent to users on a channel when an INVITE command has been issued
   }
   //RPL_INVITELIST
-  with CommandHandlers.Add do
-  begin
-    Command := '346'; {do not localize}
-    OnCommand := CommandINVITELIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '346'; {do not localize}
+  LCommandHandler.OnCommand := CommandINVITELIST;
+
   //RPL_ENDOFINVITELIST
-  with CommandHandlers.Add do
-  begin
-    Command := '347'; {do not localize}
-    OnCommand := CommandENDOFINVITELIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '347'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFINVITELIST;
+
   //RPL_EXCEPTLIST
-  with CommandHandlers.Add do
-  begin
-    Command := '348'; {do not localize}
-    OnCommand := CommandEXCEPTLIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '348'; {do not localize}
+  LCommandHandler.OnCommand := CommandEXCEPTLIST;
+
   //RPL_ENDOFEXCEPTLIST
-  with CommandHandlers.Add do
-  begin
-    Command := '349'; {do not localize}
-    OnCommand := CommandENDOFEXCEPTLIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '349'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFEXCEPTLIST;
+
   //RPL_VERSION
-  with CommandHandlers.Add do
-  begin
-    Command := '351'; {do not localize}
-    OnCommand := CommandVERSION;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '351'; {do not localize}
+  LCommandHandler.OnCommand := CommandVERSION;
+
   //RPL_WHOREPLY
-  with CommandHandlers.Add do
-  begin
-    Command := '352'; {do not localize}
-    OnCommand := CommandWHOREPLY;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '352'; {do not localize}
+  LCommandHandler.OnCommand := CommandWHOREPLY;
+
   //RPL_NAMEREPLY
-  with CommandHandlers.Add do
-  begin
-    Command := '353'; {do not localize}
-    OnCommand := CommandNAMEREPLY;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '353'; {do not localize}
+  LCommandHandler.OnCommand := CommandNAMEREPLY;
+
   { TODO:
   354  RPL_WHOSPCRPL  ircu   Reply to WHO, however it is a 'special' reply because it is returned using a non-standard (non-RFC1459) format. The format is dictated by the command given by the user, and can vary widely. When this is used, the WHO command was invoked in its 'extended' form, as announced by the 'WHOX' ISUPPORT tag.
   355  RPL_NAMREPLY_  QuakeNet  ( '=' / '*' / '@' ) <channel> ' ' : [ '@' / '+' ] <nick> *( ' ' [ '@' / '+' ] <nick> )  Reply to the "NAMES -d" command - used to show invisible users (when the channel is set +D, QuakeNet relative). The proper define name for this numeric is unknown at this time Also see #353.
   }
   //RPL_LINKS
-  with CommandHandlers.Add do
-  begin
-    Command := '364'; {do not localize}
-    OnCommand := CommandLINKS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '364'; {do not localize}
+  LCommandHandler.OnCommand := CommandLINKS;
+
   //RPL_ENDOFLINKS
-  with CommandHandlers.Add do
-  begin
-    Command := '365'; {do not localize}
-    OnCommand := CommandENDOFLINKS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '365'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFLINKS;
+
   //RPL_ENDOFNAMES
-  with CommandHandlers.Add do
-  begin
-    Command := '366'; {do not localize}
-    OnCommand := CommandENDOFNAMES;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '366'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFNAMES;
+
   // RPL_BANLIST
-  with CommandHandlers.Add do
-  begin
-    Command := '367'; {do not localize}
-    OnCommand := CommandBANLIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '367'; {do not localize}
+  LCommandHandler.OnCommand := CommandBANLIST;
+
   //RPL_ENDOFBANLIST
-  with CommandHandlers.Add do
-  begin
-    Command := '368'; {do not localize}
-    OnCommand := CommandENDOFBANLIST;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '368'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFBANLIST;
+
   //RPL_ENDOFWHOWAS
-  with CommandHandlers.Add do
-  begin
-    Command := '369'; {do not localize}
-    OnCommand := CommandENDOFWHOWAS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '369'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFWHOWAS;
+
   //RPL_INFO
-  with CommandHandlers.Add do
-  begin
-    Command := '371'; {do not localize}
-    OnCommand := CommandINFO;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '371'; {do not localize}
+  LCommandHandler.OnCommand := CommandINFO;
+
   //RPL_MOTD
-  with CommandHandlers.Add do
-  begin
-    Command := '372'; {do not localize}
-    OnCommand := CommandMOTD;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '372'; {do not localize}
+  LCommandHandler.OnCommand := CommandMOTD;
+
   //RPL_ENDOFINFO
-  with CommandHandlers.Add do
-  begin
-    Command := '374'; {do not localize}
-    OnCommand := CommandENDOFINFO;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '374'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFINFO;
+  LCommandHandler.ParseParams := False;
+
   //RPL_MOTDSTART
-  with CommandHandlers.Add do
-  begin
-    Command := '375'; {do not localize}
-    OnCommand := CommandMOTD;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '375'; {do not localize}
+  LCommandHandler.OnCommand := CommandMOTD;
+
   //RPL_ENDOFMOTD
-  with CommandHandlers.Add do
-  begin
-    Command := '376'; {do not localize}
-    OnCommand := CommandENDOFMOTD;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '376'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFMOTD;
+
   //RPL_YOUREOPER
-  with CommandHandlers.Add do
-  begin
-    Command := '381'; {do not localize}
-    //OnCommand := CommandYOUAREOPER;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '381'; {do not localize}
+  //LCommandHandler.OnCommand := CommandYOUAREOPER;
+
   //RPL_REHASHING
-  with CommandHandlers.Add do
-  begin
-    Command := '382'; {do not localize}
-    OnCommand := CommandREHASHING;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '382'; {do not localize}
+  LCommandHandler.OnCommand := CommandREHASHING;
+
   //RPL_YOUARESERVICE
-  with CommandHandlers.Add do
-  begin
-    Command := '383'; {do not localize}
-    OnCommand := CommandSERVICE;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '383'; {do not localize}
+  LCommandHandler.OnCommand := CommandSERVICE;
+
   {TODO:
   385  RPL_NOTOPERANYMORE  AustHex, Hybrid, Unreal
   388  RPL_ALIST  Unreal
   389  RPL_ENDOFALIST  Unreal
   }
   //RPL_TIME
-  with CommandHandlers.Add do
-  begin
-    Command := '391'; {do not localize}
-    OnCommand := CommandTIME;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '391'; {do not localize}
+  LCommandHandler.OnCommand := CommandTIME;
+
   //RPL_USERSSTART
-  with CommandHandlers.Add do
-  begin
-    Command := '392'; {do not localize}
-    OnCommand := CommandUSERSSTART;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '392'; {do not localize}
+  LCommandHandler.OnCommand := CommandUSERSSTART;
+
   //RPL_USERS
-  with CommandHandlers.Add do
-  begin
-    Command := '393'; {do not localize}
-    OnCommand := CommandUSERS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '393'; {do not localize}
+  LCommandHandler.OnCommand := CommandUSERS;
+
   //RPL_ENDOFUSERS
-  with CommandHandlers.Add do
-  begin
-    Command := '394'; {do not localize}
-    OnCommand := CommandENDOFUSERS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '394'; {do not localize}
+  LCommandHandler.OnCommand := CommandENDOFUSERS;
+
   //RPL_NOUSERS
-  with CommandHandlers.Add do
-  begin
-    Command := '395'; {do not localize}
-    OnCommand := CommandUSERS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '395'; {do not localize}
+  LCommandHandler.OnCommand := CommandUSERS;
+
   //ERR_NICKNAMEINUSE
-  with CommandHandlers.Add do
-  begin
-    // 433  ERR_NICKNAMEINUSE  RFC1459  <nick> :<reason>
-    // Returned by the NICK command when the given nickname is already in use
-    Command := '433'; {do not localize}
-    OnCommand := CommandNICKINUSE;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  // 433  ERR_NICKNAMEINUSE  RFC1459  <nick> :<reason>
+  // Returned by the NICK command when the given nickname is already in use
+  LCommandHandler.Command := '433'; {do not localize}
+  LCommandHandler.OnCommand := CommandNICKINUSE;
+
   {TODO:
   396  RPL_HOSTHIDDEN  Undernet   Reply to a user when user mode +x (host masking) was set successfully
   400  ERR_UNKNOWNERROR   <command> [<?>] :<info>  Sent when an error occured executing a command, but it is not specifically known why the command could not be executed.

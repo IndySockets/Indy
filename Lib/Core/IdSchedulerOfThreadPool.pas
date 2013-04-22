@@ -71,18 +71,30 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ELSE}
+  Classes,
+  {$ENDIF}
   IdContext,
   IdScheduler,
   IdSchedulerOfThread,
   IdThread,
-  IdThreadSafe,
+  //IdThreadSafe,
   IdYarn;
 
 type
+  {$IFDEF HAS_GENERICS_TThreadList}
+  TIdPoolThreadList = TThreadList<TIdThreadWithTask>;
+  {$ELSE}
+  // TODO: flesh out to match TThreadList<TIdThreadWithTask> for non-Generics compilers
+  TIdPoolThreadList = TThreadList;
+  {$ENDIF}
+
   TIdSchedulerOfThreadPool = class(TIdSchedulerOfThread)
   protected
     FPoolSize: Integer;
-    FThreadPool: TIdThreadSafeList;
+    FThreadPool: TIdPoolThreadList;
     procedure InitComponent; override;
   public
     destructor Destroy; override;
@@ -122,11 +134,24 @@ end;
 function TIdSchedulerOfThreadPool.AcquireYarn: TIdYarn;
 var
   LThread: TIdThreadWithTask;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
 begin
-  LThread := TIdThreadWithTask(FThreadPool.Pull);
+  LList := FThreadPool.LockList;
+  try
+    if LList.Count > 0 then begin
+      LThread := {$IFDEF HAS_GENERICS_TList}LList.Items[0]{$ELSE}TIdThreadWithTask(LList.Items[0]){$ENDIF};
+      LList.Delete(0);
+    end else begin
+      LThread := nil;
+    end;
+  finally
+    FThreadPool.UnlockList;
+  end;
+
   if LThread = nil then begin
     LThread := NewThread;
   end;
+
   Result := NewYarn(LThread);
   ActiveYarns.Add(Result);
 end;
@@ -135,6 +160,7 @@ procedure TIdSchedulerOfThreadPool.ReleaseYarn(AYarn: TIdYarn);
 //only gets called from YarnOf(Fiber/Thread).Destroy
 var
   LThread: TIdThreadWithTask;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
 begin
   //take posession of the thread
   LThread := TIdYarnOfThread(AYarn).Thread;
@@ -148,12 +174,15 @@ begin
   if LThread <> nil then begin
     // need to redeposit the thread in the pool or destroy it
     LThread.Yarn := nil; // Yarn is being destroyed, de-couple it from the thread
-    with FThreadPool.LockList do try
-      if (Count < PoolSize) and (not LThread.Terminated) then begin
-        Add(LThread);
+    LList := FThreadPool.LockList;
+    try
+      if (LList.Count < PoolSize) and (not LThread.Terminated) then begin
+        LList.Add(LThread);
         Exit;
       end;
-    finally FThreadPool.UnlockList; end;
+    finally
+      FThreadPool.UnlockList;
+    end;
     LThread.Terminate;
     // RLebeau - ReleaseYarn() can be called in the context of
     // the yarn's thread (when TIdThread.Cleanup() destroys the
@@ -174,42 +203,52 @@ begin
 end;
 
 procedure TIdSchedulerOfThreadPool.TerminateAllYarns;
+var
+  LThread: TIdThreadWithTask;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
 begin
   // inherited will kill off ActiveYarns
   inherited TerminateAllYarns;
   // ThreadPool is nil if never Initted
   if FThreadPool <> nil then begin
     // Now we have to kill off the pooled threads
-    with FThreadPool.LockList do try
-      while Count > 0 do begin
-        with TIdThreadWithTask(Items[0]) do begin
-          Terminate;
-          {$IFDEF DEPRECATED_TThread_SuspendResume}
-          Suspended := False;
-          {$ELSE}
-          Resume;
-          {$ENDIF}
-          WaitFor;
-          Free;
-        end;
-        Delete(0);
+    LList := FThreadPool.LockList;
+    try
+      while LList.Count > 0 do begin
+        LThread := {$IFDEF HAS_GENERICS_TList}LList.Items[0]{$ELSE}TIdThreadWithTask(LList.Items[0]){$ENDIF};
+        LThread.Terminate;
+        {$IFDEF DEPRECATED_TThread_SuspendResume}
+        LThread.Suspended := False;
+        {$ELSE}
+        LThread.Resume;
+        {$ENDIF}
+        LThread.WaitFor;
+        LThread.Free;
+        LList.Delete(0);
       end;
-    finally FThreadPool.UnlockList; end;
+    finally
+      FThreadPool.UnlockList;
+    end;
   end;
 end;
 
 procedure TIdSchedulerOfThreadPool.Init;
+var
+  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
 begin
   inherited Init;
   Assert(FThreadPool<>nil);
 
   if not IsDesignTime then begin
     if PoolSize > 0 then begin
-      with FThreadPool.LockList do try
-        while Count < PoolSize do begin
-          Add(NewThread);
+      LList := FThreadPool.LockList;
+      try
+        while LList.Count < PoolSize do begin
+          LList.Add(NewThread);
         end;
-      finally FThreadPool.UnlockList; end;
+      finally
+        FThreadPool.UnlockList;
+      end;
     end;
   end;
 end;
@@ -223,7 +262,7 @@ end;
 procedure TIdSchedulerOfThreadPool.InitComponent;
 begin
   inherited;
-  FThreadPool := TIdThreadSafeList.Create;
+  FThreadPool := TIdPoolThreadList.Create;
 end;
 
 end.

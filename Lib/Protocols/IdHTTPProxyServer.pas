@@ -140,7 +140,7 @@ type
     FTransferMode: TIdHTTPProxyTransferMode;
     FTransferSource: TIdHTTPProxyTransferSource;
   public
-    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList = nil); override;
     destructor Destroy; override;
     property Headers: TIdHeaderList read FHeaders;
     property Command: String read FCommand;
@@ -185,7 +185,7 @@ uses
   IdResourceStrings, IdReplyRFC, IdTCPClient, IdURI, IdGlobalProtocols, IdStack, IdTCPStream, SysUtils;
 
 constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TThreadList = nil);
+  AYarn: TIdYarn; AList: TIdContextThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FHeaders := TIdHeaderList.Create(QuoteHTTP);
@@ -200,35 +200,34 @@ end;
 { TIdHTTPProxyServer }
 
 procedure TIdHTTPProxyServer.InitializeCommandHandlers;
+var
+  LCommandHandler: TIdCommandHandler;
 begin
   inherited;
-  with CommandHandlers.Add do begin
-    Command := 'GET';             {do not localize}
-    OnCommand := CommandPassThrough;
-    ParseParams := True;
-    Disconnect := True;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'POST';            {do not localize}
-    OnCommand := CommandPassThrough;
-    ParseParams := True;
-    Disconnect := True;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'HEAD';            {do not localize}
-    OnCommand := CommandPassThrough;
-    ParseParams := True;
-    Disconnect := True;
-  end;
-  with CommandHandlers.Add do 
-  begin
-    Command := 'CONNECT';         {do not localize}
-    OnCommand := CommandCONNECT;
-    ParseParams := True;
-    Disconnect := True;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'GET';             {do not localize}
+  LCommandHandler.OnCommand := CommandPassThrough;
+  LCommandHandler.ParseParams := True;
+  LCommandHandler.Disconnect := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'POST';            {do not localize}
+  LCommandHandler.OnCommand := CommandPassThrough;
+  LCommandHandler.ParseParams := True;
+  LCommandHandler.Disconnect := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'HEAD';            {do not localize}
+  LCommandHandler.OnCommand := CommandPassThrough;
+  LCommandHandler.ParseParams := True;
+  LCommandHandler.Disconnect := True;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'CONNECT';         {do not localize}
+  LCommandHandler.OnCommand := CommandCONNECT;
+  LCommandHandler.ParseParams := True;
+  LCommandHandler.Disconnect := True;
+
   //HTTP Servers/Proxies do not send a greeting
   Greeting.Clear;
 end;

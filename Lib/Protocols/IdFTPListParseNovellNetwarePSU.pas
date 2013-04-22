@@ -221,7 +221,7 @@ begin
     begin
       s := TStringList.Create;
       try
-        SplitColumns(LBuf, s);
+        SplitDelimitedString(LBuf, s, True);
         Result := (s.Count > 9) and (PosInStrArray(s[9], ['AM', 'PM'], False) <> -1); {do not localize}
         if Result then
         begin

@@ -278,12 +278,7 @@ var
 implementation
 
 uses
-  IdException,
-  IdResourceStrings
-  {$IFDEF DOTNET_1_1}
-  , IdResourceStringsDotNet11
-  {$ENDIF}
-  ;
+  IdException, IdResourceStrings;
 
 const
   IdIPFamily : array[TIdIPVersion] of AddressFamily = (AddressFamily.InterNetwork, AddressFamily.InterNetworkV6);
@@ -1016,8 +1011,11 @@ var
   LAddr : IPAddress;
   {$ENDIF}
   LHost : IPHostEntry;
+  LIPAddresses: array of IPAddress;
+  LIPAddress: IPAddress;
   i : Integer;
 begin
+  // TODO: support IPv6 addresses
   {$IFDEF DOTNET_2_OR_ABOVE}
   // TODO: use NetworkInterface.GetAllNetworkInterfaces() instead.
   // See this article for an example:
@@ -1028,16 +1026,17 @@ begin
   LAddr := IPAddress.Any;
   LHost := DNS.GetHostByAddress(LAddr);
   {$ENDIF}
-  if Length(LHost.AddressList) > 0 then
+  LIPAddresses := LHost.AddressList;
+  if Length(LIPAddresses) > 0 then
   begin
     AAddresses.BeginUpdate;
     try
-      for i := Low(LHost.AddressList) to High(LHost.AddressList) do
+      for i := Low(LIPAddresses) to High(LIPAddresses) do
       begin
+        LIPAddress := LIPAddresses[i];
         //This may be returning various types of addresses.
-        // TODO: support IPv6 addresses
-        if LHost.AddressList[i].AddressFamily = AddressFamily.InterNetwork then begin
-          AAddresses.Add(LHost.AddressList[i].ToString);
+        if LIPAddress.AddressFamily = AddressFamily.InterNetwork then begin
+          AAddresses.Add(LIPAddress.ToString);
         end;
       end;
     finally
@@ -1273,7 +1272,7 @@ begin
   Inc(LIdx, 16);
   //use a word so you don't wind up using the wrong network byte order function
   LC := Length(VBuffer);
-  CopyTIdLongWord(GStack.HostToNetwork(LC), LTmp, LIdx);
+  CopyTIdLongWord(HostToNetwork(LC), LTmp, LIdx);
   Inc(LIdx, 4);
   //36
   //zero the next three bytes

@@ -143,7 +143,7 @@ type
     FPassword: string;
     FSocksVersion: Byte; // either 4 or 5, or 0 when version not known yet
   public
-    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList = nil); override;
     property IPVersion: TIdIPVersion read FIPVersion;
     property Username: string read FUsername;
     property Password: string read FPassword;
@@ -702,7 +702,7 @@ end;
 
 { TIdSocksServerContext }
 
-constructor TIdSocksServerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
+constructor TIdSocksServerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FIPVersion := ID_DEFAULT_IP_VERSION;

@@ -85,10 +85,7 @@ var
 begin
   inherited DoUDPRead(AThread, AData, ABinding);
   s := FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Now) + ' -' + FTimeZone;  {Do not Localize}
-  with ABinding do
-  begin
-    SendTo(PeerIP, PeerPort, ToBytes(s));
-  end;
+  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
 end;
 
 end.

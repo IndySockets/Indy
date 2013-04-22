@@ -45,12 +45,19 @@ interface
 
 uses
   Classes,
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   IdAssignedNumbers,
   IdGlobal,
   IdThreadSafe,
   IdTrivialFTPBase,
   IdSocketHandle,
-  IdUDPServer;
+  IdUDPServer
+  {$IFDEF HAS_GENERICS_TObjectList}
+  , IdThread
+  {$ENDIF}
+  ;
 
 type
   TPeerInfo = record
@@ -63,9 +70,11 @@ type
   TTransferCompleteEvent = procedure (Sender: TObject; const Success: Boolean;
     const PeerInfo: TPeerInfo; var AStream: TStream; const WriteOperation: Boolean) of object;
 
+  TIdTFTPThreadList = TIdThreadSafeObjectList{$IFDEF HAS_GENERICS_TObjectList}<TIdThread>{$ENDIF};
+
   TIdTrivialFTPServer = class(TIdUDPServer)
   protected
-    FThreadList: TIdThreadSafeList;
+    FThreadList: TIdTFTPThreadList;
     FOnTransferComplete: TTransferCompleteEvent;
     FOnReadFile,
     FOnWriteFile: TAccessFileEvent;
@@ -114,7 +123,9 @@ uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdStack,
+  {$IFNDEF HAS_GENERICS_TObjectList}
   IdThread,
+  {$ENDIF}
   IdUDPClient,
   SysUtils;
 
@@ -174,7 +185,7 @@ procedure TIdTrivialFTPServer.InitComponent;
 begin
   inherited InitComponent;
   DefaultPort := IdPORT_TFTP;
-  FThreadList := TIdThreadSafeList.Create;
+  FThreadList := TIdTFTPThreadList.Create;
 end;
 
 procedure TIdTrivialFTPServer.DoReadFile(FileName: String; const Mode: TIdTFTPMode;
@@ -254,7 +265,7 @@ begin
       raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
     end;
 
-    FileName := BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding);
+    FileName := BytesToString(AData, LOffset, Idx-LOffset, IndyTextEncoding_ASCII);
     LOffset := Idx+1;
 
     Idx := ByteIndex(0, AData, LOffset);
@@ -262,7 +273,7 @@ begin
       raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
     end;
 
-    Mode := StrToMode(BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding));
+    Mode := StrToMode(BytesToString(AData, LOffset, Idx-LOffset, IndyTextEncoding_ASCII));
     LOffset := Idx+1;
 
     RequestedBlkSize := 512;
@@ -275,7 +286,7 @@ begin
         raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
       end;
 
-      LOptName := BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding);
+      LOptName := BytesToString(AData, LOffset, Idx-LOffset, IndyTextEncoding_ASCII);
       LOffset := Idx+1;
       
       Idx := ByteIndex(0, AData, LOffset);
@@ -283,7 +294,7 @@ begin
         raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
       end;
 
-      LOptValue := BytesToString(AData, LOffset, Idx-LOffset, IndyASCIIEncoding);
+      LOptValue := BytesToString(AData, LOffset, Idx-LOffset, IndyTextEncoding_ASCII);
       LOffset := Idx+1;
 
       if TextStartsWith(LOptName, sBlockSize) then
@@ -436,16 +447,13 @@ begin
   FreeOnTerminate := True;
   FStream := AStream;
   FFreeStrm := FreeStreamOnTerminate;
-  FUDPClient := TIdUDPClient.Create(nil);
   FOwner := AOwner;
-  with FUDPClient do
-  begin
-    IPVersion := FOwner.IPVersion;
-    ReceiveTimeout := 1500;
-    Host := PeerInfo.PeerIP;
-    Port := PeerInfo.PeerPort;
-    BufferSize := RequestedBlockSize + 4;
-  end;
+  FUDPClient := TIdUDPClient.Create(nil);
+  FUDPClient.IPVersion := FOwner.IPVersion;
+  FUDPClient.ReceiveTimeout := 1500;
+  FUDPClient.Host := PeerInfo.PeerIP;
+  FUDPClient.Port := PeerInfo.PeerPort;
+  FUDPClient.BufferSize := RequestedBlockSize + 4;
   FOwner.FThreadList.Add(Self);
 end;
 
@@ -477,9 +485,9 @@ begin
   if FUDPClient.BufferSize <> 516 then
   begin
     FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
-    AppendString(FResponse, sBlockSize, -1, IndyASCIIEncoding);
+    AppendString(FResponse, sBlockSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
-    AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, IndyASCIIEncoding);
+    AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
   end else begin
     SetLength(FResponse, 0);
@@ -520,9 +528,9 @@ begin
     if Length(FResponse) = 0 then begin
       FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
     end;
-    AppendString(FResponse, sTransferSize, -1, IndyASCIIEncoding);
+    AppendString(FResponse, sTransferSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
-    AppendString(FResponse, IntToStr(FStream.Size - FStream.Position), -1, IndyASCIIEncoding);
+    AppendString(FResponse, IntToStr(FStream.Size - FStream.Position), -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
   end;
 end;
@@ -612,9 +620,9 @@ begin
     if Length(FResponse) = 0 then begin
       FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
     end;
-    AppendString(FResponse, sTransferSize, -1, IndyASCIIEncoding);
+    AppendString(FResponse, sTransferSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
-    AppendString(FResponse, IntToStr(FTransferSize), -1, IndyASCIIEncoding);
+    AppendString(FResponse, IntToStr(FTransferSize), -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
   end;
   if Length(FResponse) > 0 then begin

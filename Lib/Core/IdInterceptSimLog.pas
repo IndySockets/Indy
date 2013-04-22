@@ -148,10 +148,10 @@ begin
     end else begin
       WriteLn(ATag + ':Bytes:' + IntToStr(LSize));  {do not localize}
     end;
-    WriteStringToStream(FStream, '');
-    WriteTIdBytesToStream(FStream, ABuffer, LSize);
-    WriteStringToStream(FStream, EOL);
   end;
+  WriteStringToStream(FStream, '');
+  WriteTIdBytesToStream(FStream, ABuffer, LSize);
+  WriteStringToStream(FStream, EOL);
 end;
 
 end.

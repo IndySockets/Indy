@@ -147,7 +147,7 @@ begin
   LI := AItem as TIdSterCommExpOS390FTPListItem;
   s := TStringList.Create;
   try
-    SplitColumns(AItem.Data, s);
+    SplitDelimitedString(AItem.Data, s, True);
     if s.Count > 3 then
     begin
       if s[3] <> '-' then begin {do not localize}

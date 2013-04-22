@@ -107,7 +107,7 @@ begin
 //"  Filename (MSGKEY)        Sender      Class   Size       Date   Time"
   s := TStringList.Create;
   try
-    SplitColumns(AData, s);
+    SplitDelimitedString(AData, s, True);
     if s.Count >=6 then begin
       Result := (s[0] = 'Filename') and (s[1]='(MSGKEY)')
             and (s[2]='Sender') and (s[3]='Class')
@@ -140,7 +140,7 @@ begin
   li.ItemType := ditFile;
   s := TStringList.Create;
   try
-    SplitColumns(li.Data, s);
+    SplitDelimitedString(li.Data, s, True);
     li.FileName := s[0];
     li.SenderAcct := s[1];
     li.SenderUserID := s[2];
@@ -253,7 +253,7 @@ begin
 //"Access    Owner    Account Size  Last updated         Name"
   s := TStringList.Create;
   try
-    SplitColumns(AData, s);
+    SplitDelimitedString(AData, s, True);
     if s.Count >=6 then begin
       Result := (s[0] = 'Access') and (s[1]='Owner')
             and (s[2]='Account') and (s[3]='Size')

@@ -87,12 +87,7 @@ interface
 
 uses
   Classes,
-  IdSocketHandle,
-  {$IFDEF WIDGET_WINFORMS}
-  IdDsnPropEdBindingNET;
-  {$ELSE}
-  IdDsnPropEdBindingVCL;
-  {$ENDIF}
+  IdSocketHandle;
 
 {
 Design Note:  It turns out that in DotNET, there are no services file functions and IdPorts
@@ -114,17 +109,18 @@ we can't offer anything from the services file in DotNET.
 TODO:  Maybe there might be a way to find the location in a more eligant
 manner than what I described.
 }
-type
-  {$IFDEF WIDGET_WINFORMS}
-   TIdPropEdBindingEntry = TIdDsnPropEdBindingNET;
-  {$ELSE}
-  TIdPropEdBindingEntry = TIdDsnPropEdBindingVCL;
-  {$ENDIF}
 
 procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 function GetListValues(const ASocketHandles : TIdSocketHandles) : String;
 
 implementation
+
+uses
+  {$IFDEF WIDGET_WINFORMS}
+  IdDsnPropEdBindingNET;
+  {$ELSE}
+  IdDsnPropEdBindingVCL;
+  {$ENDIF}
 
 procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 begin

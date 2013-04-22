@@ -95,7 +95,7 @@ begin
       LData := AListing[i];
       s := TStringList.Create;
       try
-        SplitColumns(LData, s);
+        SplitDelimitedString(LData, s, True);
         if s.Count = 4 then
         begin
           Result := ((s[1] = '<DIR>') or IsNumeric(s[1])) and  {do not localize}
@@ -125,7 +125,7 @@ begin
   Result := False;
   LWords := TStringList.Create;
   try
-    SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LWords);
+    SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LWords, True);
     while LWords.Count > 2 do begin
       LWords.Delete(0);
     end;

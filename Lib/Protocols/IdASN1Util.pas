@@ -185,19 +185,43 @@ function ASNEncInt(Value: Integer): string;
 var
   x, y: Cardinal;
   neg: Boolean;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
   neg := Value < 0;
   x := Abs(Value);
-  if neg then
+  if neg then begin
     x := not (x - 1);
+  end;
   Result := '';  {Do not Localize}
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create;
+  {$ENDIF}
   repeat
     y := x mod 256;
     x := x div 256;
+    {$IFDEF STRING_IS_IMMUTABLE}
+    LSB.Insert(0, Char(y));
+    {$ELSE}
     Result := Char(y) + Result;
+    {$ENDIF}
   until x = 0;
-  if (not neg) and (Result[1] > #$7F) then
-    Result := #0 + Result;
+  if (not neg) then
+  begin
+    {$IFDEF STRING_IS_IMMUTABLE}
+    if (LSB[0] > #$7F) then begin
+      LSB.Insert(0, #0);
+    end;
+    {$ELSE}
+    if (Result[1] > #$7F) then begin
+      Result := #0 + Result;
+    end;
+    {$ENDIF}
+  end;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  Result := LSB.ToString;
+  {$ENDIF}
 end;
 
 {==============================================================================}
@@ -205,19 +229,38 @@ function ASNEncUInt(Value: Integer): string;
 var
   x, y: Integer;
   neg: Boolean;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
   neg := Value < 0;
   x := Value;
-  if neg then
+  if neg then begin
     x := x and $7FFFFFFF;
+  end;
   Result := '';     {Do not Localize}
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create;
+  {$ENDIF}
   repeat
     y := x mod 256;
     x := x div 256;
+    {$IFDEF STRING_IS_IMMUTABLE}
+    LSB.Insert(0, Char(y));
+    {$ELSE}
     Result := Char(y) + Result;
+    {$ENDIF}
   until x = 0;
-  if neg then
+  if neg then begin
+    {$IFDEF STRING_IS_IMMUTABLE}
+    LSB[0] := Char(Ord(LSB[0]) or $80);
+    {$ELSE}
     Result[1] := Char(Ord(Result[1]) or $80);
+    {$ENDIF}
+  end;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  Result := LSB.ToString;
+  {$ENDIF}
 end;
 
 {==============================================================================}
@@ -234,7 +277,11 @@ var
   ASNSize: Integer;
   y, n: Integer;
   x: byte;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ELSE}
   s: string;
+  {$ENDIF}
   neg: Boolean;
   l: Integer;
   z: Int64;
@@ -243,17 +290,20 @@ begin
   Result := '';              {Do not Localize}
   ValueType := ASN1_NULL;
   l := Length(Buffer);
-  if l < (Start + 1) then
+  if l < (Start + 1) then begin
     Exit;
+  end;
   ASNType := Ord(Buffer[Start]);
   ValueType := ASNType;
   Inc(Start);
   ASNSize := ASNDecLen(Start, Buffer);
-  if (Start + ASNSize - 1) > l then
+  if (Start + ASNSize - 1) > l then begin
     Exit;
-  if (ASNType and $20) > 0 then
+  end;
+  if (ASNType and $20) > 0 then begin
     Result := '$' + IntToHex(ASNType, 2)     {Do not Localize}
-  else
+  end else
+  begin
     case ASNType of
       ASN1_INT:
         begin
@@ -262,15 +312,18 @@ begin
           for n := 1 to ASNSize do
           begin
             x := Ord(Buffer[Start]);
-            if (n = 1) and (x > $7F) then
+            if (n = 1) and (x > $7F) then begin
               neg := True;
-            if neg then
+            end;
+            if neg then begin
               x := not x;
+            end;
             y := y * 256 + x;
             Inc(Start);
           end;
-          if neg then
+          if neg then begin
             y := -(y + 1);
+          end;
           Result := IntToStr(y);
         end;
       ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:  //Typically a 32-bit _unsigned_ number
@@ -286,36 +339,79 @@ begin
         end;
       ASN1_OCTSTR, ASN1_OPAQUE:
         begin
+          {$IFDEF STRING_IS_IMMUTABLE}
+          LSB := TIdStringBuilder.Create(ASNSize);
+          {$ELSE}
           SetLength(s, ASNSize);
+          {$ENDIF}
           for n := 1 to ASNSize do
           begin
+            {$IFDEF STRING_IS_IMMUTABLE}
+            LSB.Append(Char(Buffer[Start]));
+            {$ELSE}
             s[n] := Char(Buffer[Start]);
+            {$ENDIF}
             Inc(Start);
           end;
+          {$IFDEF STRING_IS_IMMUTABLE}
+          Result := LSB.ToString;
+          {$ELSE}
           Result := s;
+          {$ENDIF}
         end;
       ASN1_OBJID:
         begin
+          {$IFDEF STRING_IS_IMMUTABLE}
+          LSB := TIdStringBuilder.Create(ASNSize);
+          {$ELSE}
           SetLength(s, ASNSize);
+          {$ENDIF}
           for n := 1 to ASNSize do
           begin
+            {$IFDEF STRING_IS_IMMUTABLE}
+            LSB.Append(Char(Buffer[Start]));
+            {$ELSE}
             s[n] := Char(Buffer[Start]);
+            {$ENDIF}
             Inc(Start);
           end;
-          Result := IdToMib(s);
+          Result := IdToMib(
+            {$IFDEF STRING_IS_IMMUTABLE}
+            LSB.ToString
+            {$ELSE}
+            s
+            {$ENDIF}
+          );
         end;
       ASN1_IPADDR:
         begin
+          {$IFDEF STRING_IS_IMMUTABLE}
+          LSB := TIdStringBuilder.Create(15);
+          {$ELSE}
           s := '';               {Do not Localize}
+          {$ENDIF}
           for n := 1 to ASNSize do
           begin
-            if (n <> 1) then
-              s := s + '.';     {Do not Localize}
+            if (n <> 1) then begin
+              {$IFDEF STRING_IS_IMMUTABLE}
+              LSB.Append('.');   {Do not Localize}
+              {$ELSE}
+              s := s + '.';      {Do not Localize}
+              {$ENDIF}
+            end;
             y := Ord(Buffer[Start]);
             Inc(Start);
+            {$IFDEF STRING_IS_IMMUTABLE}
+            LSB.Append(y);
+            {$ELSE}
             s := s + IntToStr(y);
+            {$ENDIF}
           end;
+          {$IFDEF STRING_IS_IMMUTABLE}
+          Result := LSB.ToString;
+          {$ELSE}
           Result := s;
+          {$ENDIF}
         end;
       ASN1_NULL:
         begin
@@ -324,15 +420,28 @@ begin
         end;
     else // unknown
       begin
+        {$IFDEF STRING_IS_IMMUTABLE}
+        LSB := TIdStringBuilder.Create(ASNSize);
+        {$ELSE}
         SetLength(s, ASNSize);
+        {$ENDIF}
         for n := 1 to ASNSize do
         begin
+          {$IFDEF STRING_IS_IMMUTABLE}
+          LSB.Append(Char(Buffer[Start]));
+          {$ELSE}
           s[n] := Char(Buffer[Start]);
+          {$ENDIF}
           Inc(Start);
         end;
+        {$IFDEF STRING_IS_IMMUTABLE}
+        Result := LSB.ToString;
+        {$ELSE}
         Result := s;
+        {$ENDIF}
       end;
     end;
+  end;
 end;
 
 {==============================================================================}
@@ -397,8 +506,9 @@ var
   n, y: Integer;
 begin
   y := 0;
-  for n := 1 to Length(Value) - 1 do
+  for n := 1 to Length(Value) - 1 do begin
     y := y * 256 + Ord(Value[n]);
+  end;
   Result := IntToStr(y);
 end;
 

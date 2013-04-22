@@ -153,9 +153,7 @@ begin
   if FConnection is TIdTCPConnection then begin
     LSocket := TIdTCPConnection(FConnection).Socket;
     if (LSocket <> nil) and (LSocket.Binding <> nil) then begin
-      with LSocket.Binding do begin
-        Result := PeerIP + ':' + IntToStr(PeerPort);
-      end;
+      Result := LSocket.Binding.PeerIP + ':' + IntToStr(LSocket.Binding.PeerPort);
       Exit;
     end;
   end;

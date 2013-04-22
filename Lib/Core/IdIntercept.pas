@@ -79,9 +79,17 @@ type
   TIdConnectionIntercept = class(TIdBaseComponent)
   protected
     FConnection: TComponent;
-    FIntercept: TIdConnectionIntercept;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdConnectionIntercept;
     FIsClient: Boolean;
+    {$IFDEF USE_OBJECT_ARC}
+    // When AutoRefCounting is enabled, object references MUST be valid objects.
+    // It is common for users to store non-object values, though, so we will
+    // provide separate properties for those purposes
+    FDataObject: TObject;
+    FDataValue: PtrInt;
+    {$ELSE}
     FData: TObject;
+    {$ENDIF}
 
     FOnConnect: TIdInterceptNotifyEvent;
     FOnDisconnect: TIdInterceptNotifyEvent;
@@ -89,7 +97,9 @@ type
     FOnSend: TIdInterceptStreamEvent;
     //
     procedure InitComponent; override;
+    {$IFNDEF USE_OBJECT_ARC}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$ENDIF}
     procedure SetIntercept(AValue: TIdConnectionIntercept);
     //
   public
@@ -100,7 +110,14 @@ type
     //
     property Connection: TComponent read FConnection;
     property IsClient: Boolean read FIsClient;
-    property Data: TObject read FData write FData; // user can use this to keep context
+
+    // user can use this to keep context
+    {$IFDEF USE_OBJECT_ARC}
+    property DataObject: TObject read FDataObject write FDataObject;
+    property DataValue: PtrInt read FDataValue write FDataValue;
+    {$ELSE}
+    property Data: TObject read FData write FData;
+    {$ENDIF}
   published
     property Intercept: TIdConnectionIntercept read FIntercept write SetIntercept;
     property OnConnect: TIdInterceptNotifyEvent read FOnConnect write FOnConnect;
@@ -122,9 +139,13 @@ uses
 { TIdIntercept }
 
 procedure TIdConnectionIntercept.Disconnect;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIntercept: TIdConnectionIntercept;
 begin
-  if Intercept <> nil then begin
-    Intercept.Disconnect;
+  LIntercept := Intercept;
+  if LIntercept <> nil then begin
+    LIntercept.Disconnect;
   end;
   if Assigned(OnDisconnect) then begin
     OnDisconnect(Self);
@@ -133,20 +154,28 @@ begin
 end;
 
 procedure TIdConnectionIntercept.Connect(AConnection: TComponent);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIntercept: TIdConnectionIntercept;
 begin
   FConnection := AConnection;
   if Assigned(OnConnect) then begin
     OnConnect(Self);
   end;
-  if Intercept <> nil then begin
-    Intercept.Connect(AConnection);
+  LIntercept := Intercept;
+  if LIntercept <> nil then begin
+    LIntercept.Connect(AConnection);
   end;
 end;
 
 procedure TIdConnectionIntercept.Receive(var VBuffer: TIdBytes);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIntercept: TIdConnectionIntercept;
 begin
-  if Intercept <> nil then begin
-    Intercept.Receive(VBuffer);
+  LIntercept := Intercept;
+  if LIntercept <> nil then begin
+    LIntercept.Receive(VBuffer);
   end;
   if Assigned(OnReceive) then begin
     OnReceive(Self, VBuffer);
@@ -154,45 +183,66 @@ begin
 end;
 
 procedure TIdConnectionIntercept.Send(var VBuffer: TIdBytes);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIntercept: TIdConnectionIntercept;
 begin
   if Assigned(OnSend) then begin
     OnSend(Self, VBuffer);
   end;
-  if Intercept <> nil then begin
-    Intercept.Send(VBuffer);
+  LIntercept := Intercept;
+  if LIntercept <> nil then begin
+    LIntercept.Send(VBuffer);
   end;
 end;
 
 procedure TIdConnectionIntercept.SetIntercept(AValue: TIdConnectionIntercept);
 var
+  // under ARC, convert a weak reference to a strong reference before working with it
   LIntercept: TIdConnectionIntercept;
-Begin
-  LIntercept := AValue;
-  while Assigned(LIntercept) do begin
-    if LIntercept = Self then begin //recursion
-      raise EIdInterceptCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]); // TODO: Resource string and more english
+  LNextValue: TIdConnectionIntercept;
+begin
+  LIntercept := FIntercept;
+  if LIntercept <> AValue then
+  begin
+    LNextValue := AValue;
+    while Assigned(LNextValue) do begin
+      if LNextValue = Self then begin //recursion
+        raise EIdInterceptCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]); // TODO: Resource string and more english
+      end;
+      LNextValue := LNextValue.Intercept;
     end;
-    LIntercept := LIntercept.Intercept;
-  end;
 
-  // remove self from the Intercept's free notification list    {Do not Localize}
-  if Assigned(FIntercept) then begin
-    FIntercept.RemoveFreeNotification(Self);
-  end;
-  FIntercept := AValue;
-  // add self to the Intercept's free notification list    {Do not Localize}
-  if Assigned(FIntercept) then begin
-    FIntercept.FreeNotification(Self);
+    // under ARC, all weak references to a freed object get nil'ed automatically
+
+    {$IFNDEF USE_OBJECT_ARC}
+    // remove self from the Intercept's free notification list    {Do not Localize}
+    if Assigned(LIntercept) then begin
+      LIntercept.RemoveFreeNotification(Self);
+    end;
+    {$ENDIF}
+
+    FIntercept := AValue;
+
+    {$IFNDEF USE_OBJECT_ARC}
+    // add self to the Intercept's free notification list    {Do not Localize}
+    if Assigned(AValue) then begin
+      AValue.FreeNotification(Self);
+    end;
+    {$ENDIF}
   end;
 end;
 
+// under ARC, all weak references to a freed object get nil'ed automatically
+{$IFNDEF USE_OBJECT_ARC}
 procedure TIdConnectionIntercept.Notification(AComponent: TComponent; Operation: TOperation);
 begin
-  inherited Notification(AComponent, OPeration);
   if (Operation = opRemove) and (AComponent = Intercept) then begin
     FIntercept := nil;
   end;
+  inherited Notification(AComponent, OPeration);
 end;
+{$ENDIF}
 
 procedure TIdConnectionIntercept.InitComponent;
 begin

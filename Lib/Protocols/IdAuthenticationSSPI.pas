@@ -685,30 +685,28 @@ function TSSPIInterface.IsAvailable: Boolean;
       fPFunctionTable := entrypoint();
       { let's see what SSPI functions are available
         and if we can continue on with the set }
-      with fPFunctionTable^ do begin
-        fIsAvailable :=
-          Assigned({$IFDEF SSPI_UNICODE}QuerySecurityPackageInfoW{$ELSE}QuerySecurityPackageInfoA{$ENDIF}) and
-          Assigned(FreeContextBuffer) and
-          Assigned(DeleteSecurityContext) and
-          Assigned(FreeCredentialsHandle) and
-          Assigned({$IFDEF SSPI_UNICODE}AcquireCredentialsHandleW{$ELSE}AcquireCredentialsHandleA{$ENDIF}) and
-          Assigned({$IFDEF SSPI_UNICODE}InitializeSecurityContextW{$ELSE}InitializeSecurityContextA{$ENDIF}) and
-          Assigned(AcceptSecurityContext) and
-          Assigned(ImpersonateSecurityContext) and
-          Assigned(RevertSecurityContext) and
-          Assigned({$IFDEF SSPI_UNICODE}QueryContextAttributesW{$ELSE}QueryContextAttributesA{$ENDIF}) and
-          Assigned(MakeSignature) and
-          Assigned(VerifySignature);
-        {$IFDEF SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
-        { fudge for Encrypt/DecryptMessage }
-        if not Assigned(EncryptMessage) then begin
-          EncryptMessage := GetProcAddress(fDLLHandle, ENCRYPT_MESSAGE);
-        end;
-        if not Assigned(DecryptMessage) then begin
-          DecryptMessage := GetProcAddress(fDLLHandle, DECRYPT_MESSAGE);
-        end;
-        {$ENDIF}
+      fIsAvailable :=
+        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.QuerySecurityPackageInfoW{$ELSE}fPFunctionTable^.QuerySecurityPackageInfoA{$ENDIF}) and
+        Assigned(fPFunctionTable^.FreeContextBuffer) and
+        Assigned(fPFunctionTable^.DeleteSecurityContext) and
+        Assigned(fPFunctionTable^.FreeCredentialsHandle) and
+        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.AcquireCredentialsHandleW{$ELSE}fPFunctionTable^.AcquireCredentialsHandleA{$ENDIF}) and
+        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.InitializeSecurityContextW{$ELSE}fPFunctionTable^.InitializeSecurityContextA{$ENDIF}) and
+        Assigned(fPFunctionTable^.AcceptSecurityContext) and
+        Assigned(fPFunctionTable^.ImpersonateSecurityContext) and
+        Assigned(fPFunctionTable^.RevertSecurityContext) and
+        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.QueryContextAttributesW{$ELSE}fPFunctionTable^.QueryContextAttributesA{$ENDIF}) and
+        Assigned(fPFunctionTable^.MakeSignature) and
+        Assigned(fPFunctionTable^.VerifySignature);
+      {$IFDEF SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
+      { fudge for Encrypt/DecryptMessage }
+      if not Assigned(fPFunctionTable^.EncryptMessage) then begin
+        fPFunctionTable^.EncryptMessage := GetProcAddress(fDLLHandle, ENCRYPT_MESSAGE);
       end;
+      if not Assigned(fPFunctionTable^.DecryptMessage) then begin
+        fPFunctionTable^.DecryptMessage := GetProcAddress(fDLLHandle, DECRYPT_MESSAGE);
+      end;
+      {$ENDIF}
     end;
   end;
 
@@ -900,25 +898,23 @@ var
 begin
   Use := aUse;
   if (Length(aDomain) > 0) and (Length(aUserName) > 0) then begin
-    with ai do begin
-      {$IFDEF SSPI_UNICODE}
-      User := PUSHORT(PWideChar(aUserName));
-      UserLength := Length(aUserName);
-      Domain := PUSHORT(PWideChar(aDomain));
-      DomainLength := Length(aDomain);
-      Password := PUSHORT(PWideChar(aPassword));
-      PasswordLength := Length(aPassword);
-      Flags := SEC_WINNT_AUTH_IDENTITY_UNICODE;
-      {$ELSE}
-      User := PUCHAR(PAnsiChar(aUserName));
-      UserLength := Length(aUserName);
-      Domain := PUCHAR(PAnsiChar(aDomain));
-      DomainLength := Length(aDomain);
-      Password := PUCHAR(PAnsiChar(aPassword));
-      PasswordLength := Length(aPassword);
-      Flags := SEC_WINNT_AUTH_IDENTITY_ANSI;
-      {$ENDIF}
-    end;
+    {$IFDEF SSPI_UNICODE}
+    ai.User := PUSHORT(PWideChar(aUserName));
+    ai.UserLength := Length(aUserName);
+    ai.Domain := PUSHORT(PWideChar(aDomain));
+    ai.DomainLength := Length(aDomain);
+    ai.Password := PUSHORT(PWideChar(aPassword));
+    ai.PasswordLength := Length(aPassword);
+    ai.Flags := SEC_WINNT_AUTH_IDENTITY_UNICODE;
+    {$ELSE}
+    ai.User := PUCHAR(PAnsiChar(aUserName));
+    ai.UserLength := Length(aUserName);
+    ai.Domain := PUCHAR(PAnsiChar(aDomain));
+    ai.DomainLength := Length(aDomain);
+    ai.Password := PUCHAR(PAnsiChar(aPassword));
+    ai.PasswordLength := Length(aPassword);
+    ai.Flags := SEC_WINNT_AUTH_IDENTITY_ANSI;
+    {$ENDIF}
     pai := @ai;
   end else
   begin
@@ -1093,9 +1089,7 @@ begin
       (fStatus = SEC_I_COMPLETE_AND_CONTINUE) or
       (fOutBuff.cbBuffer > 0);
     if Result then begin
-      with fOutBuff do begin
-        aToPeerToken := RawToBytes(pvBuffer^, cbBuffer);
-      end;
+      aToPeerToken := RawToBytes(fOutBuff.pvBuffer^, fOutBuff.cbBuffer);
     end;
   finally
     FreeMem(fOutBuff.pvBuffer);
@@ -1105,18 +1099,15 @@ end;
 constructor TCustomSSPIConnectionContext.Create(aCredentials: TSSPICredentials);
 begin
   inherited Create(aCredentials);
-  with fInBuff do begin
-    BufferType := SECBUFFER_TOKEN;
-  end;
-  with fInBuffDesc do begin
-    ulVersion := SECBUFFER_VERSION;
-    cBuffers := 1;
-    pBuffers := @fInBuff;
-  end;
-  with fOutBuffDesc do begin
-    ulVersion := SECBUFFER_VERSION;
-    cBuffers := 1;
-  end;
+
+  fInBuff.BufferType := SECBUFFER_TOKEN;
+
+  fInBuffDesc.ulVersion := SECBUFFER_VERSION;
+  fInBuffDesc.cBuffers := 1;
+  fInBuffDesc.pBuffers := @fInBuff;
+
+  fOutBuffDesc.ulVersion := SECBUFFER_VERSION;
+  fOutBuffDesc.cBuffers := 1;
 end;
 
 { TSSPIClientConnectionContext }

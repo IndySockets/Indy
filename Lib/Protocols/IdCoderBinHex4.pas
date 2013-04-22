@@ -188,7 +188,7 @@ type
 
 const
   //Note the 7th characeter is a ' which is represented in a string as ''
-  GBinHex4CodeTable: AnsiString = '!"#$%&''()*+,-012345689@ABCDEFGHIJKLMNPQRSTUVXYZ[`abcdefhijklmpqr';    {Do not Localize}
+  GBinHex4CodeTable: string = '!"#$%&''()*+,-012345689@ABCDEFGHIJKLMNPQRSTUVXYZ[`abcdefhijklmpqr';    {Do not Localize}
   GBinHex4IdentificationString: string = '(This file must be converted with BinHex 4.0)';             {Do not Localize}
 
 type
@@ -216,7 +216,7 @@ procedure TIdDecoderBinHex4.InitComponent;
 begin
   inherited InitComponent;
   FDecodeTable := GBinHex4DecodeTable;
-  FCodingTable := GBinHex4CodeTable;
+  FCodingTable := ToBytes(GBinHex4CodeTable);
   FFillChar := '=';  {Do not Localize}
 end;
 
@@ -357,7 +357,7 @@ end;
 procedure TIdEncoderBinHex4.InitComponent;
 begin
   inherited InitComponent;
-  FCodingTable := GBinHex4CodeTable;
+  FCodingTable := ToBytes(GBinHex4CodeTable);
   FFillChar := '=';   {Do not Localize}
 end;
 
@@ -401,7 +401,7 @@ var
   LBlocks: Integer;
   LOut: TIdBytes;
   LSSize, LTemp: Integer;
-  LFileName: AnsiString;
+  LFileName: {$IFDEF HAS_AnsiString}AnsiString{$ELSE}TIdBytes{$ENDIF};
   LCRC: word;
   LRemainder: integer;
 begin
@@ -412,10 +412,14 @@ begin
   LSSize := IndyLength(ASrcStream, ABytes);
   //BinHex4.0 allows filenames to be only 255 bytes long (because the length
   //is stored in a byte), so truncate the filename to 255 bytes...
-  {$IFDEF STRING_IS_UNICODE}
-  LFileName := AnsiString(FFileName); // explicit convert to Ansi
+  {$IFNDEF HAS_AnsiString}
+  LFileName := IndyTextEncoding_OSDefault.GetBytes(FFileName);
   {$ELSE}
+    {$IFDEF STRING_IS_UNICODE}
+  LFileName := AnsiString(FFileName); // explicit convert to Ansi
+    {$ELSE}
   LFileName := FFileName;
+    {$ENDIF}
   {$ENDIF}
   if Length(FFileName) > 255 then begin
     SetLength(LFileName, 255);
@@ -424,7 +428,7 @@ begin
   SetLength(LOut, 1+Length(LFileName)+1+4+4+2+4+4+2+LSSize+2);
   LOut[0] := Length(LFileName);               //Length of filename in 1st byte
   for LN := 1 to Length(LFileName) do begin
-    LOut[LN] := Byte(LFileName[LN]);
+    LOut[LN] := {$IFNDEF HAS_AnsiString}LFileName[LN-1]{$ELSE}Byte(LFileName[LN]){$ENDIF};
   end;
   LOffset := 1+Length(LFileName);             //Points to byte after filename
   LOut[LOffset] := 0;                         //Version

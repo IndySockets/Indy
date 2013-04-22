@@ -119,8 +119,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdAttachment, IdAttachmentFile, IdAttachmentMemory, 
-  IdResourceStringsProtocols, IdText, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdMessageParts, IdAttachment, IdAttachmentFile,
+  IdAttachmentMemory, IdResourceStringsProtocols, IdText, SysUtils;
 
 const
   cTextPlain = 'text/plain'; {do not localize}
@@ -133,18 +133,18 @@ const
 { TIdMessageBuilderAttachment }
 
 procedure TIdMessageBuilderAttachment.Assign(Source: TPersistent);
+var
+  LSource: TIdMessageBuilderAttachment;
 begin
   if Source is TIdMessageBuilderAttachment then
   begin
-    with TIdMessageBuilderAttachment(Source) do
-    begin
-      Self.FContentID := FContentID;
-      Self.FContentTransfer := FContentTransfer;
-      Self.FContentType := FContentType;
-      Self.FData := FData;
-      Self.FFileName := FFileName;
-      Self.FName := FName;
-    end;
+    LSource := TIdMessageBuilderAttachment(Source);
+    FContentID := LSource.FContentID;
+    FContentTransfer := LSource.FContentTransfer;
+    FContentType := LSource.FContentType;
+    FData := LSource.FData;
+    FFileName := LSource.FFileName;
+    FName := LSource.FName;
   end else begin
     inherited Assign(Source);
   end;
@@ -343,6 +343,8 @@ begin
 end;
 
 procedure TIdCustomMessageBuilder.FillHeaders(AMsg: TIdMessage);
+var
+  LPart: TIdMessagePart;
 begin
   if FAttachments.Count > 0 then
   begin
@@ -357,12 +359,10 @@ begin
     begin
       // no plain text or formatting, only 1 non-related attachment
       //
-      with AMsg.MessageParts[0] do
-      begin
-        AMsg.ContentType := ContentType;
-        AMsg.CharSet := CharSet;
-        AMsg.ContentTransferEncoding := ContentTransfer;
-      end;
+      LPart := AMsg.MessageParts[0];
+      AMsg.ContentType := LPart.ContentType;
+      AMsg.CharSet := LPart.CharSet;
+      AMsg.ContentTransferEncoding := LPart.ContentTransfer;
     end;
   end else
   begin
@@ -380,6 +380,8 @@ end;
 { TIdMessageBuilderPlain }
 
 procedure TIdMessageBuilderPlain.FillBody(AMsg: TIdMessage);
+var
+  LTextPart: TIdText;
 begin
   // Is plain text present?
   //
@@ -395,12 +397,10 @@ begin
       // At this point, multiple pieces will be present in the message
       // body, so everything must be stored in the MessageParts collection...
       //
-      with TIdText.Create(AMsg.MessageParts, FPlainText) do
-      begin
-        ContentType := cTextPlain;
-        CharSet := FPlainTextCharSet;
-        ContentTransfer := FPlainTextContentTransfer;
-      end;
+      LTextPart := TIdText.Create(AMsg.MessageParts, FPlainText);
+      LTextPart.ContentType := cTextPlain;
+      LTextPart.CharSet := FPlainTextCharSet;
+      LTextPart.ContentTransfer := FPlainTextContentTransfer;
     end;
   end;
 end;
@@ -450,6 +450,7 @@ procedure TIdMessageBuilderHtml.FillBody(AMsg: TIdMessage);
 var
   LUsePlain, LUseHtml, LUseHtmlFiles, LUseAttachments: Boolean;
   LAlternativeIndex, LRelatedIndex: Integer;
+  LTextPart: TIdText;
 begin
   // Cache these for better performance
   //
@@ -495,27 +496,25 @@ begin
   //
   if {LUsePlain and} LUseHtml and LUseAttachments then
   begin
-    with TIdText.Create(AMsg.MessageParts, nil) do
-    begin
-      ContentType := cMultipartAlternative;
-      LAlternativeIndex := Index;
-    end;
+    LTextPart := TIdText.Create(AMsg.MessageParts, nil);
+    LTextPart.ContentType := cMultipartAlternative;
+    LAlternativeIndex := LTextPart.Index;
   end;
 
   // Is plain text present?
   //
   if LUsePlain or LUseHtml then
   begin
-    with TIdText.Create(AMsg.MessageParts, FPlainText) do
+    LTextPart := TIdText.Create(AMsg.MessageParts, FPlainText);
     begin
       if LUseHtml and (not LUsePlain) then
       begin
-        Body.Text := FHtmlViewerNeededMsg;
+        LTextPart.Body.Text := FHtmlViewerNeededMsg;
       end;
-      ContentType := cTextPlain;
-      CharSet := FPlainTextCharSet;
-      ContentTransfer := FPlainTextContentTransfer;
-      ParentPart := LAlternativeIndex;
+      LTextPart.ContentType := cTextPlain;
+      LTextPart.CharSet := FPlainTextCharSet;
+      LTextPart.ContentTransfer := FPlainTextContentTransfer;
+      LTextPart.ParentPart := LAlternativeIndex;
     end;
   end;
 
@@ -532,26 +531,22 @@ begin
     //
     if LUseHtmlFiles then
     begin
-      with TIdText.Create(AMsg.MessageParts, nil) do
-      begin
-        ContentType := cMultipartRelatedHtml;
-        ParentPart := LAlternativeIndex;
-        LRelatedIndex := Index;
-      end;
+      LTextPart := TIdText.Create(AMsg.MessageParts, nil);
+      LTextPart.ContentType := cMultipartRelatedHtml;
+      LTextPart.ParentPart := LAlternativeIndex;
+      LRelatedIndex := LTextPart.Index;
     end;
 
     // Add HTML
     //
-    with TIdText.Create(AMsg.MessageParts, FHtml) do
-    begin
-      ContentType := cTextHtml;
-      CharSet := FHtmlCharSet;
-      ContentTransfer := FHtmlContentTransfer;
-      if LRelatedIndex <> -1 then begin
-        ParentPart := LRelatedIndex; // plain text and related attachments
-      end else begin
-        ParentPart := LAlternativeIndex; // plain text and optional non-related attachments
-      end;
+    LTextPart := TIdText.Create(AMsg.MessageParts, FHtml);
+    LTextPart.ContentType := cTextHtml;
+    LTextPart.CharSet := FHtmlCharSet;
+    LTextPart.ContentTransfer := FHtmlContentTransfer;
+    if LRelatedIndex <> -1 then begin
+      LTextPart.ParentPart := LRelatedIndex; // plain text and related attachments
+    end else begin
+      LTextPart.ParentPart := LAlternativeIndex; // plain text and optional non-related attachments
     end;
 
     // Are related attachments present?
@@ -634,6 +629,7 @@ procedure TIdMessageBuilderRtf.FillBody(AMsg: TIdMessage);
 var
   LUsePlain, LUseRtf, LUseAttachments: Boolean;
   LAlternativeIndex: Integer;
+  LTextPart: TIdText;
 begin
   // Cache these for better performance
   //
@@ -673,26 +669,22 @@ begin
   //
   if LUsePlain and LUseRtf and LUseAttachments then
   begin
-    with TIdText.Create(AMsg.MessageParts, nil) do
-    begin
-      ContentType := cMultipartAlternative;
-      LAlternativeIndex := Index;
-    end;
+    LTextPart := TIdText.Create(AMsg.MessageParts, nil);
+    LTextPart.ContentType := cMultipartAlternative;
+    LAlternativeIndex := LTextPart.Index;
   end;
 
   // Is plain text present?
   //
   if LUsePlain or LUseRtf then
   begin
-    with TIdText.Create(AMsg.MessageParts, FPlainText) do
+    LTextPart := TIdText.Create(AMsg.MessageParts, FPlainText);
+    if LUseRtf and (not LUsePlain) then
     begin
-      if LUseRtf and (not LUsePlain) then
-      begin
-        Body.Text := FRtfViewerNeededMsg;
-      end;
-      ContentType := cTextPlain;
-      ParentPart := LAlternativeIndex;
+      LTextPart.Body.Text := FRtfViewerNeededMsg;
     end;
+    LTextPart.ContentType := cTextPlain;
+    LTextPart.ParentPart := LAlternativeIndex;
   end;
 
   // Is RTF present?
@@ -701,11 +693,9 @@ begin
   begin
     // Add RTF
     //
-    with TIdText.Create(AMsg.MessageParts, FRtf) do
-    begin
-      ContentType := cTextRtf[FRtfType];
-      ParentPart := LAlternativeIndex; // plain text and optional non-related attachments
-    end;
+    LTextPart := TIdText.Create(AMsg.MessageParts, FRtf);
+    LTextPart.ContentType := cTextRtf[FRtfType];
+    LTextPart.ParentPart := LAlternativeIndex; // plain text and optional non-related attachments
   end;
 end;
 

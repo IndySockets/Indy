@@ -42,6 +42,7 @@ unit IdChargenServer;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -60,6 +61,9 @@ Type
 
 implementation
 
+uses
+ IdIOHandler;
+
 { TIdChargenServer }
 
 procedure TIdChargenServer.InitComponent;
@@ -71,28 +75,28 @@ end;
 function TIdChargenServer.DoExecute(AContext:TIdContext): boolean;
 var
   Counter, Width, Base: integer;
+  LIOHandler: TIdIOHandler;
 begin
+  Result := true;
   Base := 0;
-  result := true;
   Counter := 1;
   Width := 1;
-  with AContext.Connection do begin
-    while Connected do begin
-      Write(Chr(Counter + 31));
-      Inc(Counter);
-      Inc(Width);
-      if Width = 72 then begin
-        Writeln('');  {Do not Localize}
-        Width := 1;
-        Inc(Base);
-        if Base = 95 then begin
-          Base := 1;
-        end;
-        Counter := Base;
-      End;
-      if Counter = 95 then begin
-        Counter := 1;
+  LIOHandler := AContext.Connection.IOHandler;
+  while LIOHandler.Connected do begin
+    LIOHandler.Write(Chr(Counter + 31));
+    Inc(Counter);
+    Inc(Width);
+    if Width = 72 then begin
+      LIOHandler.WriteLn;  {Do not Localize}
+      Width := 1;
+      Inc(Base);
+      if Base = 95 then begin
+        Base := 1;
       end;
+      Counter := Base;
+    end;
+    if Counter = 95 then begin
+      Counter := 1;
     end;
   end;
 end;

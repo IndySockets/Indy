@@ -256,7 +256,10 @@ interface
 
 uses
   Classes,
-  IdBaseComponent, 
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
+  IdBaseComponent,
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
   IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
@@ -288,6 +291,13 @@ type
     property OnBeforeRun: TIdNotifyThreadEvent read FOnBeforeRun write FOnBeforeRun;
   End;
 
+  {$IFDEF HAS_GENERICS_TThreadList}
+  TIdListenerThreadList = TThreadList<TIdListenerThread>;
+  {$ELSE}
+  // TODO: flesh out to match TThreadList<TIdListenerThread> for non-Generics compilers
+  TIdListenerThreadList = TThreadList;
+  {$ENDIF}
+
   TIdListenExceptionEvent = procedure(AThread: TIdListenerThread; AException: Exception) of object;
   TIdServerThreadExceptionEvent = procedure(AContext: TIdContext; AException: Exception) of object;
   TIdServerThreadEvent = procedure(AContext: TIdContext) of object;
@@ -304,19 +314,19 @@ type
   TIdCustomTCPServer = class(TIdComponent)
   protected
     FActive: Boolean;
-    FScheduler: TIdScheduler;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FScheduler: TIdScheduler;
     FBindings: TIdSocketHandles;
     FContextClass: TIdServerContextClass;
     FImplicitScheduler: Boolean;
     FImplicitIOHandler: Boolean;
-    FIntercept: TIdServerIntercept;
-    FIOHandler: TIdServerIOHandler;
-    FListenerThreads: TThreadList;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdServerIntercept;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIOHandler: TIdServerIOHandler;
+    FListenerThreads: TIdListenerThreadList;
     FListenQueue: integer;
     FMaxConnections: Integer;
     FReuseSocket: TIdReuseSocket;
     FTerminateWaitTime: Integer;
-    FContexts: TThreadList;
+    FContexts: TIdContextThreadList;
     FOnContextCreated: TIdServerThreadEvent;
     FOnConnect: TIdServerThreadEvent;
     FOnDisconnect: TIdServerThreadEvent;
@@ -347,8 +357,7 @@ type
     function GetDefaultPort: TIdPort;
     procedure InitComponent; override;
     procedure Loaded; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation);
-     override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     // This is needed for POP3's APOP authentication.  For that,
     // you send a unique challenge to the client dynamically.
     procedure SendGreeting(AContext: TIdContext; AGreeting: TIdReply); virtual;
@@ -370,7 +379,7 @@ type
     procedure StartListening;
     procedure StopListening;
     //
-    property Contexts: TThreadList read FContexts;
+    property Contexts: TIdContextThreadList read FContexts;
     property ContextClass: TIdServerContextClass read FContextClass write FContextClass;
     property ImplicitIOHandler: Boolean read FImplicitIOHandler;
     property ImplicitScheduler: Boolean read FImplicitScheduler;
@@ -442,13 +451,7 @@ destructor TIdCustomTCPServer.Destroy;
 begin
   Active := False;
 
-  if FIOHandler <> nil then begin
-    if FImplicitIOHandler then begin
-      FreeAndNil(FIOHandler);
-    end else begin
-      FIOHandler := nil;
-    end;
-  end;
+  SetIOHandler(nil);
 
   // Destroy bindings first
   FreeAndNil(FBindings);
@@ -479,24 +482,36 @@ begin
 end;
 
 procedure TIdCustomTCPServer.ContextConnected(AContext: TIdContext);
+var
+  // under ARC, convert weak references to strong references before working with them
+  LServerIntercept: TIdServerIntercept;
+  LConnIntercept: TIdConnectionIntercept;
 begin
-  if Assigned(Intercept) then begin
-    AContext.Connection.IOHandler.Intercept := Intercept.Accept(AContext.Connection);
-    if Assigned(AContext.Connection.IOHandler.Intercept) then begin
-      AContext.Connection.IOHandler.Intercept.Connect(AContext.Connection);
+  LServerIntercept := Intercept;
+  if Assigned(LServerIntercept) then begin
+    LConnIntercept := LServerIntercept.Accept(AContext.Connection);
+    AContext.Connection.IOHandler.Intercept := LConnIntercept;
+    if Assigned(LConnIntercept) then begin
+      LConnIntercept.Connect(AContext.Connection);
     end;
   end;
   DoConnect(AContext);
 end;
 
 procedure TIdCustomTCPServer.ContextDisconnected(AContext: TIdContext);
+var
+  // under ARC, convert weak references to strong references before working with them
+  LIOHandler: TIdIOHandler;
+  LIntercept: TIdConnectionIntercept;
 begin
   DoDisconnect(AContext);
-  if Assigned(AContext.Connection.IOHandler) then begin
-    if Assigned(AContext.Connection.IOHandler.Intercept) then begin
-      AContext.Connection.IOHandler.Intercept.Disconnect;
-      AContext.Connection.IOHandler.Intercept.Free;
-      AContext.Connection.IOHandler.Intercept := nil;
+  LIOHandler := AContext.Connection.IOHandler;
+  if Assigned(LIOHandler) then begin
+    LIntercept := LIOHandler.Intercept;
+    if Assigned(LIntercept) then begin
+      LIntercept.Disconnect;
+      FreeAndNil(LIntercept);
+      LIOHandler.Intercept := nil;
     end;
   end;
 end;
@@ -562,21 +577,25 @@ begin
   end;
 end;
 
+// under ARC, all weak references to a freed object get nil'ed automatically
+// so this is mostly redundant
 procedure TIdCustomTCPServer.Notification(AComponent: TComponent; Operation: TOperation);
 begin
-  inherited Notification(AComponent, Operation);
   // Remove the reference to the linked components if they are deleted
   if (Operation = opRemove) then begin
     if (AComponent = FScheduler) then begin
       FScheduler := nil;
       FImplicitScheduler := False;
-    end else if (AComponent = FIntercept) then begin
+    end
+    else if (AComponent = FIntercept) then begin
       FIntercept := nil;
-    end else if (AComponent = FIOHandler) then begin
+    end
+    else if (AComponent = FIOHandler) then begin
       FIOHandler := nil;
       FImplicitIOHandler := False;
     end;
   end;
+  inherited Notification(AComponent, Operation);
 end;
 
 procedure TIdCustomTCPServer.SetActive(AValue: Boolean);
@@ -617,7 +636,12 @@ end;
 
 procedure TIdCustomTCPServer.SetIntercept(const AValue: TIdServerIntercept);
 begin
-  if FIntercept <> AValue then begin
+  {$IFDEF USE_OBJECT_ARC}
+  // under ARC, all weak references to a freed object get nil'ed automatically
+  FIntercept := AValue;
+  {$ELSE}
+  if FIntercept <> AValue then
+  begin
     // Remove self from the intercept's notification list
     if Assigned(FIntercept) then begin
       FIntercept.RemoveFreeNotification(Self);
@@ -628,73 +652,115 @@ begin
       FIntercept.FreeNotification(Self);
     end;
   end;
+  {$ENDIF}
 end;
 
 procedure TIdCustomTCPServer.SetScheduler(const AValue: TIdScheduler);
 var
+  // under ARC, convert weak references to strong references before working with them
   LScheduler: TIdScheduler;
+  LIOHandler: TIdServerIOHandler;
 begin
-  // RLebeau - is this really needed?  What should happen if this
-  // gets called by Notification() if the Scheduler is freed while
-  // the server is still Active?
-  if Active then begin
-    EIdException.Toss(RSTCPServerSchedulerAlreadyActive);
-  end;
+  LScheduler := FScheduler;
 
-  // If implicit one already exists free it
-  // Free the default Thread manager
-  if ImplicitScheduler then begin
-    // Under D8 notification gets called after .Free of FreeAndNil, but before
-    // its set to nil with a side effect of IDisposable. To counteract this we
-    // set it to nil first.
-    // -Kudzu
-    LScheduler := FScheduler;
-    FScheduler := nil;
-    FreeAndNil(LScheduler);
-    //
-    FImplicitScheduler := False;
-  end;
+  if LScheduler <> AValue then
+  begin
+    // RLebeau - is this really needed?  What should happen if this
+    // gets called by Notification() if the Scheduler is freed while
+    // the server is still Active?
+    if Active then begin
+      EIdException.Toss(RSTCPServerSchedulerAlreadyActive);
+    end;
 
-  // Ensure we will no longer be notified when the component is freed
-  if FScheduler <> nil then begin
-    FScheduler.RemoveFreeNotification(Self);
-  end;
-  FScheduler := AValue;
-  // Ensure we will be notified when the component is freed, even is it's on
-  // another form
-  if FScheduler <> nil then begin
-    FScheduler.FreeNotification(Self);
-  end;
+    // under ARC, all weak references to a freed object get nil'ed automatically
 
-  if FIOHandler <> nil then begin
-    FIOHandler.SetScheduler(FScheduler);
+    // If implicit one already exists free it
+    // Free the default Thread manager
+    if FImplicitScheduler then begin
+      // Under D8 notification gets called after .Free of FreeAndNil, but before
+      // its set to nil with a side effect of IDisposable. To counteract this we
+      // set it to nil first.
+      // -Kudzu
+      FScheduler := nil;
+      FImplicitScheduler := False;
+      {$IFDEF USE_OBJECT_ARC}
+      // have to remove the Owner's strong references so it can be freed
+      RemoveComponent(LScheduler);
+      {$ENDIF}
+      FreeAndNil(LScheduler);
+    end;
+
+    {$IFNDEF USE_OBJECT_ARC}
+    // Ensure we will no longer be notified when the component is freed
+    if LScheduler <> nil then begin
+      LScheduler.RemoveFreeNotification(Self);
+    end;
+    {$ENDIF}
+
+    FScheduler := AValue;
+
+    {$IFNDEF USE_OBJECT_ARC}
+    // Ensure we will be notified when the component is freed, even is it's on
+    // another form
+    if AValue <> nil then begin
+      AValue.FreeNotification(Self);
+    end;
+    {$ENDIF}
+
+    LIOHandler := FIOHandler;
+    if LIOHandler <> nil then begin
+      LIOHandler.SetScheduler(AValue);
+    end;
   end;
 end;
 
 procedure TIdCustomTCPServer.SetIOHandler(const AValue: TIdServerIOHandler);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdServerIOHandler;
 begin
-  if FIOHandler <> AValue then begin
-    if Assigned(FIOHandler) then begin
-      if FImplicitIOHandler then begin
-        FImplicitIOHandler := False;
-        FreeAndNil(FIOHandler);
-      end else begin
-        FIOHandler.RemoveFreeNotification(Self);
-      end;
+  LIOHandler := FIOHandler;
+
+  if LIOHandler <> AValue then begin
+    if FImplicitIOHandler then begin
+      FIOHandler := nil;
+      FImplicitIOHandler := False;
+      {$IFDEF USE_OBJECT_ARC}
+      // have to remove the Owner's strong references so it can be freed
+      RemoveComponent(LIOHandler);
+      {$ENDIF}
+      FreeAndNil(LIOHandler);
     end;
+
+    {$IFNDEF USE_OBJECT_ARC}
+    // Ensure we will no longer be notified when the component is freed
+    if Assigned(LIOHandler) then begin
+      LIOHandler.RemoveFreeNotification(Self);
+    end;
+    {$ENDIF}
+
     FIOHandler := AValue;
-    if FIOHandler <> nil then begin
-      FIOHandler.FreeNotification(Self);
-      FIOHandler.SetScheduler(FScheduler);
+
+    if AValue <> nil then begin
+      {$IFNDEF USE_OBJECT_ARC}
+      // Ensure we will be notified when the component is freed, even is it's on
+      // another form
+      AValue.FreeNotification(Self);
+      {$ENDIF}
+      AValue.SetScheduler(FScheduler);
     end;
   end;
 end;
 
+type
+  TIdListenerList = TList{$IFDEF HAS_GENERICS_TList}<TIdListenerThread>{$ENDIF};
+
 procedure TIdCustomTCPServer.StartListening;
 var
-  LListenerThreads: TList;
+  LListenerThreads: TIdListenerList;
   LListenerThread: TIdListenerThread;
   I: Integer;
+  LBinding: TIdSocketHandle;
 begin
   LListenerThreads := FListenerThreads.LockList;
   try
@@ -702,16 +768,15 @@ begin
     I := LListenerThreads.Count;
     try
       while I < Bindings.Count do begin
-        with Bindings[I] do begin
-          AllocateSocket;
-          // do not overwrite if the default. This allows ReuseSocket to be set per binding
-          if Self.FReuseSocket <> rsOSDependent then begin
-            ReuseSocket := Self.FReuseSocket;
-          end;
-          DoBeforeBind(Bindings[I]);
-          Bind;
-          UseNagle := Self.FUseNagle;
+        LBinding := Bindings[I];
+        LBinding.AllocateSocket;
+        // do not overwrite if the default. This allows ReuseSocket to be set per binding
+        if FReuseSocket <> rsOSDependent then begin
+          LBinding.ReuseSocket := FReuseSocket;
         end;
+        DoBeforeBind(LBinding);
+        LBinding.Bind;
+        LBinding.UseNagle := FUseNagle;
         Inc(I);
       end;
     except
@@ -730,8 +795,9 @@ begin
     // Set up any threads that are not already running
     for I := LListenerThreads.Count to Bindings.Count - 1 do
     begin
-      Bindings[I].Listen(FListenQueue);
-      LListenerThread := TIdListenerThread.Create(Self, Bindings[I]);
+      LBinding := Bindings[I];
+      LBinding.Listen(FListenQueue);
+      LListenerThread := TIdListenerThread.Create(Self, LBinding);
       try
         LListenerThread.Name := Name + ' Listener #' + IntToStr(I + 1); {do not localize}
         LListenerThread.OnBeforeRun := DoBeforeListenerRun;
@@ -740,7 +806,7 @@ begin
         LListenerThread.Priority := tpListener;
         LListenerThreads.Add(LListenerThread);
       except
-        Bindings[I].CloseSocket;
+        LBinding.CloseSocket;
         FreeAndNil(LListenerThread);
         raise;
       end;
@@ -754,19 +820,19 @@ end;
 //APR-011207: for safe-close Ex: SQL Server ShutDown 1) stop listen 2) wait until all clients go out
 procedure TIdCustomTCPServer.StopListening;
 var
-  LListenerThreads: TList;
+  LListenerThreads: TIdListenerList;
+  LListener: TIdListenerThread;
 begin
   LListenerThreads := FListenerThreads.LockList;
   try
     while LListenerThreads.Count > 0 do begin
-      with TIdListenerThread(LListenerThreads[0]) do begin
-        // Stop listening
-        Terminate;
-        Binding.CloseSocket;
-        // Tear down Listener thread
-        WaitFor;
-        Free;
-      end;
+      LListener := {$IFDEF HAS_GENERICS_TThreadList}LListenerThreads[0]{$ELSE}TIdListenerThread(LListenerThreads[0]){$ENDIF};
+      // Stop listening
+      LListener.Terminate;
+      LListener.Binding.CloseSocket;
+      // Tear down Listener thread
+      LListener.WaitFor;
+      LListener.Free;
       LListenerThreads.Delete(0); // RLebeau 2/17/2006
     end;
   finally
@@ -787,6 +853,10 @@ procedure TIdCustomTCPServer.TerminateAllThreads;
 var
   i: Integer;
   LContext: TIdContext;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdContext>{$ENDIF};
+
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LScheduler: TIdScheduler;
 begin
   // TODO:  reimplement support for TerminateWaitTimeout
 
@@ -794,9 +864,10 @@ begin
   //Kudzu: Its because of notifications. It calls shutdown when the Scheduler is
   // set to nil and then again on destroy.
   if Contexts <> nil then begin
-    with Contexts.LockList do try
-      for i := 0 to Count - 1 do begin
-        LContext := TIdContext(Items[i]);
+    LList := Contexts.LockList;
+    try
+      for i := 0 to LList.Count - 1 do begin
+        LContext := {$IFDEF HAS_GENERICS_TList}LList.Items[i]{$ELSE}TIdContext(LList.Items[i]){$ENDIF};
         Assert(LContext<>nil);
         {$IFDEF STRING_IS_UNICODE}
         AssertClassName(LContext.Connection<>nil, LContext.ClassName);
@@ -808,13 +879,17 @@ begin
         // active data transfer on a separate asociated connection
         DoTerminateContext(LContext);
       end;
-    finally Contexts.UnLockList; end;
+    finally
+      Contexts.UnLockList;
+    end;
   end;
 
   // Scheduler may be nil during destroy which calls TerminateAllThreads
   // This happens with explicit schedulers
-  if Assigned(FScheduler) then begin
-    FScheduler.TerminateAllYarns;
+
+  LScheduler := FScheduler;
+  if Assigned(LScheduler) then begin
+    LScheduler.TerminateAllYarns;
   end;
 end;
 
@@ -841,18 +916,21 @@ procedure TIdCustomTCPServer.InitComponent;
 begin
   inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
-  FContexts := TThreadList.Create;
+  FContexts := TIdContextThreadList.Create;
   FContextClass := TIdServerContext;
   //
   FTerminateWaitTime := 5000;
   FListenQueue := IdListenQueueDefault;
-  FListenerThreads := TThreadList.Create;
+  FListenerThreads := TIdListenerThreadList.Create;
   //TODO: When reestablished, use a sleeping thread instead
 //  fSessionTimer := TTimer.Create(self);
   FUseNagle := true; // default
 end;
 
 procedure TIdCustomTCPServer.Shutdown;
+var
+  // under ARC, convert the weak reference to a strong reference before working with it
+  LIOHandler: TIdServerIOHandler;
 begin
   // tear down listening threads
   StopListening;
@@ -861,19 +939,23 @@ begin
   try
     TerminateAllThreads;
   finally
-    {//bgo TODO: fix this: and TIdThreadSafeList(Threads).IsCountLessThan(1)}
+    {//bgo TODO: fix this: and Threads.IsCountLessThan(1)}
     // DONE -oAPR: BUG! Threads still live, Mgr dead ;-(
     if ImplicitScheduler then begin
-      Scheduler := nil;
+      SetScheduler(nil);
     end;
   end;
 
-  if IOHandler <> nil then begin
-    IOHandler.Shutdown;
+  LIOHandler := IOHandler;
+  if LIOHandler <> nil then begin
+    LIOHandler.Shutdown;
   end;
 end;
 
 procedure TIdCustomTCPServer.Startup;
+var
+  LScheduler: TIdScheduler;
+  LIOHandler: TIdServerIOHandler;
 begin
   // Set up bindings
   if Bindings.Count = 0 then begin
@@ -889,20 +971,24 @@ begin
   end;
 
   // Setup IOHandler
-  if not Assigned(FIOHandler) then begin
-    IOHandler := TIdServerIOHandlerStack.Create(Self);
+  LIOHandler := FIOHandler;
+  if not Assigned(LIOHandler) then begin
+    LIOHandler := TIdServerIOHandlerStack.Create(Self);
+    SetIOHandler(LIOHandler);
     FImplicitIOHandler := True;
   end;
-  IOHandler.Init;
+  LIOHandler.Init;
 
   // Set up scheduler
+  LScheduler := FScheduler;
   if not Assigned(FScheduler) then begin
-    Scheduler := TIdSchedulerOfThreadDefault.Create(Self);
-    // Useful in debugging and for thread names
-    FScheduler.Name := Name + 'Scheduler';   {do not localize}
+    LScheduler := TIdSchedulerOfThreadDefault.Create(Self);
+    SetScheduler(LScheduler);
     FImplicitScheduler := True;
+    // Useful in debugging and for thread names
+    LScheduler.Name := Name + 'Scheduler';   {do not localize}
   end;
-  FScheduler.Init;
+  LScheduler.Init;
 
   StartListening;
 end;
@@ -978,7 +1064,7 @@ begin
     // ProcessingTimeout := False;
 
     // Check MaxConnections
-    if (Server.MaxConnections > 0) and (not TIdThreadSafeList(Server.Contexts).IsCountLessThan(Server.MaxConnections)) then begin
+    if (Server.MaxConnections > 0) and (not Server.Contexts.IsCountLessThan(Server.MaxConnections)) then begin
       FServer.DoMaxConnectionsExceeded(LIOHandler);
       LPeer.Disconnect;
       Abort;

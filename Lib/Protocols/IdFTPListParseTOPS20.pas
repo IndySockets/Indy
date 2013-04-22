@@ -121,7 +121,7 @@ begin
     begin
       LParts := TStringList.Create;
       try
-        SplitColumnsNoTrim(AListing[0], LParts, ','); {do not localize}
+        SplitDelimitedString(AListing[0], LParts, False, ','); {do not localize}
         if LParts.Count > 0 then
         begin
           if PatternsInStr(';', LParts[0]) = 2 then {do not localize}
@@ -160,7 +160,7 @@ begin
                 Result := IndyPos(' ', AListing[i]) = 0; {do not localize}
                 if Result then
                 begin
-                  SplitColumnsNoTrim(AListing[i], LParts, '.'); {do not localize}
+                  SplitDelimitedString(AListing[i], LParts, False, '.'); {do not localize}
                   if LParts.Count = 3 then begin
                     Result := IsNumeric(LParts[2]);
                   end;

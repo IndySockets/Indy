@@ -95,16 +95,16 @@ type
     procedure ReadHeader; virtual;
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
-    function ReadLn(const ATerminator: string = LF; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+    function ReadLn(const ATerminator: string = LF; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+    function ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): String; overload;
     function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-      const ADelim: String = '.'; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+      const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): String; overload; {do not localize}
     destructor Destroy; override;
     //
@@ -222,12 +222,16 @@ begin
 end;
 
 destructor TIdMessageDecoderList.Destroy;
+{$IFNDEF USE_OBJECT_ARC}
 var
   i: integer;
+{$ENDIF}
 begin
+  {$IFNDEF USE_OBJECT_ARC}
   for i := 0 to FMessageCoders.Count - 1 do begin
     TIdMessageDecoderInfo(FMessageCoders.Objects[i]).Free;
   end;
+  {$ENDIF}
   FreeAndNil(FMessageCoders);
   inherited Destroy;
 end;
@@ -276,8 +280,8 @@ end;
 // a TStream, with the same sematics as Idglobal.ReadLnFromStream() but with
 // support for searching for a caller-specified terminator.
 function DoReadLnFromStream(AStream: TStream; ATerminator: string;
-  AMaxLineLength: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 const
   LBUFMAXSIZE = 2048;
@@ -370,8 +374,8 @@ begin
 end;
 
 function TIdMessageDecoder.ReadLn(const ATerminator: string = LF;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 begin
   if SourceStream is TIdTCPStream then begin
@@ -386,16 +390,16 @@ begin
 end;
 
 function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): String;
 begin
   Result := ReadLnRFC(VMsgEnd, LF, '.', AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}); {do not localize}
 end;
 
 function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-  const ADelim: String = '.'; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+  const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): String;
 begin
   Result := ReadLn(ALineTerminator, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
@@ -449,12 +453,16 @@ begin
 end;
 
 destructor TIdMessageEncoderList.Destroy;
+{$IFNDEF USE_OBJECT_ARC}
 var
   i: integer;
+{$ENDIF}
 begin
+  {$IFNDEF USE_OBJECT_ARC}
   for i := 0 to FMessageCoders.Count - 1 do begin
     TIdMessageEncoderInfo(FMessageCoders.Objects[i]).Free;
   end;
+  {$ENDIF}
   FreeAndNil(FMessageCoders);
   inherited Destroy;
 end;

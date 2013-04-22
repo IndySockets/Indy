@@ -98,8 +98,6 @@ type
 
   TIdStackLinux = class(TIdStackBSDBase)
   private
-//    procedure SetSocketOption(ASocket: TIdStackSocketHandle;
-//      ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
     procedure WriteChecksumIPv6(s: TIdStackSocketHandle;
       var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
       const APort: TIdPort);
@@ -131,11 +129,6 @@ type
     procedure WSSetLastError(const AErr : Integer);  override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
     function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
-    procedure WSGetSockOpt(ASocket: TIdStackSocketHandle;
-      Alevel, AOptname: Integer; AOptval: PAnsiChar; var AOptlen: Integer); override;
-    procedure GetSocketOption(ASocket: TIdStackSocketHandle;
-      ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
-      out AOptVal: Integer); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
@@ -158,10 +151,10 @@ type
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
       const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
-    procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
-      AOptName: TIdSocketOption; AOptVal: Integer); overload;override;
-    procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
-      const Alevel, Aoptname: Integer; Aoptval: PAnsiChar; const Aoptlen: Integer ); overload; override;
+    procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
+    procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
     function SupportsIPv6: Boolean; overload; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     constructor Create; override;
@@ -635,16 +628,22 @@ begin
   end;
 end;
 
-procedure TIdStackLinux.SetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
+procedure TIdStackLinux.GetSocketOption(ASocket: TIdStackSocketHandle;
+  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; var AOptVal;
+  var AOptLen: Integer);
+var
+  LLen: LongWord;
 begin
-  CheckForSocketError(Libc.setsockopt(ASocket, ALevel, AOptName, PAnsiChar(@AOptVal), SizeOf(AOptVal)));
+  LLen := AOptLen;
+  CheckForSocketError(Libc.getsockopt(ASocket, ALevel, AOptName, PAnsiChar(@AOptVal), LLen));
+  AOptLen := LLen;
 end;
 
-procedure TIdStackLinux.SetSocketOption(const ASocket: TIdStackSocketHandle;
-  const Alevel, Aoptname: Integer; Aoptval: PAnsiChar; const Aoptlen: Integer);
+procedure TIdStackLinux.SetSocketOption(ASocket: TIdStackSocketHandle;
+  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; const AOptVal;
+  const AOptLen: Integer);
 begin
-  CheckForSocketError(Libc.setsockopt(ASocket, ALevel, Aoptname, Aoptval, Aoptlen));
+  CheckForSocketError(Libc.setsockopt(ASocket, ALevel, AOptName, PAnsiChar(@AOptVal), AOptLen));
 end;
 
 function TIdStackLinux.WSGetLastError: Integer;
@@ -767,18 +766,21 @@ begin
 end;
 
 procedure TIdStackLinux.AddLocalAddressesToList(AAddresses: TStrings);
+{$IFNDEF HAS_getifaddrs}
 type
   TaPInAddr = array[0..250] of PInAddr;
   PaPInAddr = ^TaPInAddr;
+{$ENDIF}
 var
+  {$IFDEF HAS_getifaddrs}
+  LAddrList, LAddrInfo: pifaddrs;
+  {$ELSE}
   Li: Integer;
   LAHost: PHostEnt;
   LPAdrPtr: PaPInAddr;
   LHostName: AnsiString;
+  {$ENDIF}
 begin
-  // this won't get IPv6 addresses as I didn't find a way
-  // to enumerate IPv6 addresses on a linux machine
-
   // TODO: Using gethostname() and gethostbyname() like this may not always
   // return just the machine's IP addresses. Technically speaking, they will
   // return the local hostname, and then return the address(es) to which that
@@ -788,32 +790,67 @@ begin
   // machine. For better results, we should use getifaddrs() on platforms that
   // support it...
 
+  {$IFDEF HAS_getifaddrs}
+
+  if getifaddrs(@LAddrList) = 0 then // TODO: raise an exception if it fails
+  try
+    AAddresses.BeginUpdate;
+    try
+      LAddrInfo := LAddrList;
+      repeat
+        if (LAddrInfo^.ifa_addr <> nil) and ((LAddrInfo^.ifa_flags and IFF_LOOPBACK) = 0) then
+        begin
+          case LAddrInfo^.ifa_addr^.sa_family of
+            Id_PF_INET4: begin
+              AAddresses.Add(TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4));
+            end;
+            Id_PF_INET6: begin
+              AAddresses.Add(TranslateTInAddrToString(PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+            end;
+          end;
+        end;
+        LAddrInfo := LAddrInfo^.ifa_next;
+      until LAddrInfo = nil;
+    finally
+      AAddresses.EndUpdate;
+    end;
+  finally
+    freeifaddrs(LAddrList);
+  end;
+
+  {$ELSE}
+
+  // this won't get IPv6 addresses as I didn't find a way
+  // to enumerate IPv6 addresses on a linux machine
+
   LHostName := HostName;
   LAHost := Libc.gethostbyname(PAnsiChar(LHostName));
   if LAHost = nil then begin
     RaiseLastSocketError;
-  end else begin
-    // gethostbyname() might return other things besides IPv4 addresses, so we
-    // need to validate the address type before attempting the conversion...
+  end;
 
-    // TODO: support IPv6 addresses
-    if LAHost^.h_addrtype = Id_PF_INET4 then
-    begin
-      LPAdrPtr := PAPInAddr(LAHost^.h_addr_list);
-      Li := 0;
-      if LPAdrPtr^[Li] <> nil then begin
-        AAddresses.BeginUpdate;
-        try
-          repeat
-            AAddresses.Add(TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4));
-            Inc(Li);
-          until LPAdrPtr^[Li] = nil;
-        finally
-          AAddresses.EndUpdate;
-        end;
+  // gethostbyname() might return other things besides IPv4 addresses, so we
+  // need to validate the address type before attempting the conversion...
+
+  // TODO: support IPv6 addresses
+  if LAHost^.h_addrtype = Id_PF_INET4 then
+  begin
+    LPAdrPtr := PAPInAddr(LAHost^.h_addr_list);
+    Li := 0;
+    if LPAdrPtr^[Li] <> nil then begin
+      AAddresses.BeginUpdate;
+      try
+        repeat
+          AAddresses.Add(TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4));
+          Inc(Li);
+        until LPAdrPtr^[Li] = nil;
+      finally
+        AAddresses.EndUpdate;
       end;
     end;
   end;
+
+  {$ENDIF}
 end;
 
 function TIdStackLinux.HostByAddress(const AAddress: string;
@@ -953,23 +990,6 @@ begin
       IPVersionUnsupported;
     end;
   end;
-end;
-
-procedure TIdStackLinux.WSGetSockOpt(ASocket: TIdStackSocketHandle; ALevel,
-  AOptname: Integer; AOptval: PAnsiChar; var AOptlen: Integer);
-begin
-  CheckForSocketError(Libc.getsockopt(ASocket, ALevel, AOptname, AOptval, LongWord(AOptlen)));
-end;
-
-procedure TIdStackLinux.GetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; out AOptVal: Integer);
-var
-  LLen : Integer;
-  LBuf : Integer;
-begin
-  LLen := SizeOf(Integer);
-  WSGetSockOpt(ASocket, ALevel, AOptName, PAnsiChar(@LBuf), LLen);
-  AOptVal := LBuf;
 end;
 
 function TIdStackLinux.WouldBlock(const AResult: Integer): Boolean;

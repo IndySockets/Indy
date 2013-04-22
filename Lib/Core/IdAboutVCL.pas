@@ -89,189 +89,166 @@ begin
   {$ELSE}
   FbbtnOk := TButton.Create(Self);
   {$ENDIF}
-    Name := 'formAbout';
-    Left := 0;
-    Top := 0;
-    Anchors := [];//[akLeft, akTop, akRight,akBottom];
-    BorderIcons := [biSystemMenu];
-    BorderStyle := bsDialog;
 
-    Caption := RSAAboutFormCaption;
-    ClientHeight := 336;
-    ClientWidth := 554;
-    Color := clBtnFace;
+  Name := 'formAbout';
+  Left := 0;
+  Top := 0;
+  Anchors := [];//[akLeft, akTop, akRight,akBottom];
+  BorderIcons := [biSystemMenu];
+  BorderStyle := bsDialog;
 
-    Font.Color := clBtnText;
-    Font.Height := -11;
-    Font.Name := 'Tahoma';
-    Font.Style := [];
-    Position := poScreenCenter;
-    {$IFDEF WIDGET_VCL}
-    Scaled := True;
-    {$ENDIF}
-    Self.Constraints.MinHeight := Height;
-     Self.Constraints.MinWidth := Width;
+  Caption := RSAAboutFormCaption;
+  ClientHeight := 336;
+  ClientWidth := 554;
+  Color := clBtnFace;
+
+  Font.Color := clBtnText;
+  Font.Height := -11;
+  Font.Name := 'Tahoma';
+  Font.Style := [];
+  Position := poScreenCenter;
+  {$IFDEF WIDGET_VCL}
+  Scaled := True;
+  {$ENDIF}
+  Constraints.MinHeight := Height;
+  Constraints.MinWidth := Width;
   //  PixelsPerInch := 96;
-  with FimLogo do
-  begin
-    Name := 'imLogo';
-    Parent := Self;
-    Left := 0;
-    Top := 0;
-    Width := 388;
-    Height := 240;
 
-    {$IFDEF WIDGET_LCL}
-    Picture.Bitmap.LoadFromLazarusResource('IndyCar');//this is XPM format
-    {$ENDIF}
-    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
-    Picture.Bitmap.LoadFromResourceName(HInstance, 'INDYCAR');    {Do not Localize}
-    Transparent := True;
-    {$ENDIF}
-  end;
+  FimLogo.Name := 'imLogo';
+  FimLogo.Parent := Self;
+  FimLogo.Left := 0;
+  FimLogo.Top := 0;
+  FimLogo.Width := 388;
+  FimLogo.Height := 240;
 
-  with FlblName do
-  begin
-    Name := 'lblName';
-    Parent := Self;
-    Left := 390;
-    Top := 8;
-    Width := 160;
-    Height := 104;
-    Alignment := taCenter;
-    AutoSize := False;
-    Anchors := [akLeft, akTop, akRight];
-    {$IFDEF WIDGET_VCL}
-    Font.Charset := DEFAULT_CHARSET;
-    Transparent := True; 
-    {$ENDIF}
-    Font.Color := clBtnText;
-    Font.Height := -16;
-    Font.Name := 'Verdana';
-    Font.Style := [fsBold];
-    ParentFont := False;
-    WordWrap := True;
-  end;
+  {$IFDEF WIDGET_LCL}
+  FimLogo.Picture.Bitmap.LoadFromLazarusResource('IndyCar');//this is XPM format
+  {$ENDIF}
+  {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
+  FimLogo.Picture.Bitmap.LoadFromResourceName(HInstance, 'INDYCAR');    {Do not Localize}
+  FimLogo.Transparent := True;
+  {$ENDIF}
 
-  with FlblVersion do
-  begin
-    Name := 'lblVersion';
-    Parent := Self;
-    Left := 390;
-    Top := 72;
-    Width := 160;
-    Height := 40;
-    Alignment := taCenter;
-    AutoSize := False;
-    {$IFDEF WIDGET_VCL}
-    Font.Charset := DEFAULT_CHARSET;
-    Transparent := True;
-    {$ENDIF}
-    Font.Color := clBtnText;
-    Font.Height := -15;
-    Font.Name := 'Verdana';
-    Font.Style := [fsBold];
-    ParentFont := False;
-    Anchors := [akLeft, akTop, akRight];
-  end;
+  FlblName.Name := 'lblName';
+  FlblName.Parent := Self;
+  FlblName.Left := 390;
+  FlblName.Top := 8;
+  FlblName.Width := 160;
+  FlblName.Height := 104;
+  FlblName.Alignment := taCenter;
+  FlblName.AutoSize := False;
+  FlblName.Anchors := [akLeft, akTop, akRight];
+  {$IFDEF WIDGET_VCL}
+  FlblName.Font.Charset := DEFAULT_CHARSET;
+  FlblName.Transparent := True;
+  {$ENDIF}
+  FlblName.Font.Color := clBtnText;
+  FlblName.Font.Height := -16;
+  FlblName.Font.Name := 'Verdana';
+  FlblName.Font.Style := [fsBold];
+  FlblName.ParentFont := False;
+  FlblName.WordWrap := True;
 
-  with FlblCopyRight do
-  begin
-    Name := 'lblCopyRight';
-    Parent := Self;
-    Left := 390;
-    Top := 128;
-    Width := 160;
-    Height := 112;
-    Alignment := taCenter;
-    Anchors := [akLeft, akTop, akRight];
-    AutoSize := False;
-    Caption := RSAAboutBoxCopyright;
-    {$IFDEF WIDGET_VCL}
-    Font.Charset := DEFAULT_CHARSET;
-    Transparent := True;
-    {$ENDIF}
-    Font.Color := clBtnText;
-    Font.Height := -13;
-    Font.Name := 'Verdana';
-    Font.Style := [fsBold];
-    ParentFont := False;
-    WordWrap := True;
-  end;
+  FlblVersion.Name := 'lblVersion';
+  FlblVersion.Parent := Self;
+  FlblVersion.Left := 390;
+  FlblVersion.Top := 72;
+  FlblVersion.Width := 160;
+  FlblVersion.Height := 40;
+  FlblVersion.Alignment := taCenter;
+  FlblVersion.AutoSize := False;
+  {$IFDEF WIDGET_VCL}
+  FlblVersion.Font.Charset := DEFAULT_CHARSET;
+  FlblVersion.Transparent := True;
+  {$ENDIF}
+  FlblVersion.Font.Color := clBtnText;
+  FlblVersion.Font.Height := -15;
+  FlblVersion.Font.Name := 'Verdana';
+  FlblVersion.Font.Style := [fsBold];
+  FlblVersion.ParentFont := False;
+  FlblVersion.Anchors := [akLeft, akTop, akRight];
 
-  with FlblPleaseVisitUs do
-  begin
-    Name := 'lblPleaseVisitUs';
-    Parent := Self;
-    Left := 8;
-    Top := 244;
-    Width := 540;
-    Height := 23;
-    Alignment := taCenter;
-    AutoSize := False;
-    {$IFDEF WIDGET_VCL}
-    Font.Charset := DEFAULT_CHARSET;
-    Transparent := True;
-    {$ENDIF}
-    Font.Height := -13;
-    Font.Name := 'Verdana';
-    Caption := RSAAboutBoxPleaseVisit;
-    Anchors := [akLeft, akTop, akRight];
-  end;
-  with FlblURL do
-  begin
-    Name := 'lblURL';
-    Left := 8;
-    Top := 260;
-    Width := 540;
-    Height := 23;
+  FlblCopyRight.Name := 'lblCopyRight';
+  FlblCopyRight.Parent := Self;
+  FlblCopyRight.Left := 390;
+  FlblCopyRight.Top := 128;
+  FlblCopyRight.Width := 160;
+  FlblCopyRight.Height := 112;
+  FlblCopyRight.Alignment := taCenter;
+  FlblCopyRight.Anchors := [akLeft, akTop, akRight];
+  FlblCopyRight.AutoSize := False;
+  FlblCopyRight.Caption := RSAAboutBoxCopyright;
+  {$IFDEF WIDGET_VCL}
+  FlblCopyRight.Font.Charset := DEFAULT_CHARSET;
+  FlblCopyRight.Transparent := True;
+  {$ENDIF}
+  FlblCopyRight.Font.Color := clBtnText;
+  FlblCopyRight.Font.Height := -13;
+  FlblCopyRight.Font.Name := 'Verdana';
+  FlblCopyRight.Font.Style := [fsBold];
+  FlblCopyRight.ParentFont := False;
+  FlblCopyRight.WordWrap := True;
 
-    Cursor := crHandPoint;
-    Alignment := taCenter;
-    AutoSize := False;
-    {$IFDEF WIDGET_VCL}
-    Font.Charset := DEFAULT_CHARSET;
-    Transparent := True;
-    {$ENDIF}
-    Font.Color := clBlue;
-    Font.Height := -13;
-    Font.Name := 'Verdana';
-    Font.Style := [fsUnderline];
-    ParentFont := False;
-    OnClick := lblURLClick;
-    Caption := RSAAboutBoxIndyWebsite;
-    Anchors := [akLeft, akTop, akRight];
-    Parent := Self;
-  end;
-  with FbbtnOk do
-  begin
-    Name := 'bbtnOk';
+  FlblPleaseVisitUs.Name := 'lblPleaseVisitUs';
+  FlblPleaseVisitUs.Parent := Self;
+  FlblPleaseVisitUs.Left := 8;
+  FlblPleaseVisitUs.Top := 244;
+  FlblPleaseVisitUs.Width := 540;
+  FlblPleaseVisitUs.Height := 23;
+  FlblPleaseVisitUs.Alignment := taCenter;
+  FlblPleaseVisitUs.AutoSize := False;
+  {$IFDEF WIDGET_VCL}
+  FlblPleaseVisitUs.Font.Charset := DEFAULT_CHARSET;
+  FlblPleaseVisitUs.Transparent := True;
+  {$ENDIF}
+  FlblPleaseVisitUs.Font.Height := -13;
+  FlblPleaseVisitUs.Font.Name := 'Verdana';
+  FlblPleaseVisitUs.Caption := RSAAboutBoxPleaseVisit;
+  FlblPleaseVisitUs.Anchors := [akLeft, akTop, akRight];
 
-    Left := 475;
-    {$IFDEF USE_TBitBtn}
-    Top := 297;
-    {$ELSE}
-    Top := 302;
-    Height := 25;
-    {$ENDIF}
-    Width := 75;
+  FlblURL.Name := 'lblURL';
+  FlblURL.Left := 8;
+  FlblURL.Top := 260;
+  FlblURL.Width := 540;
+  FlblURL.Height := 23;
+  FlblURL.Cursor := crHandPoint;
+  FlblURL.Alignment := taCenter;
+  FlblURL.AutoSize := False;
+  {$IFDEF WIDGET_VCL}
+  FlblURL.Font.Charset := DEFAULT_CHARSET;
+  FlblURL.Transparent := True;
+  {$ENDIF}
+  FlblURL.Font.Color := clBlue;
+  FlblURL.Font.Height := -13;
+  FlblURL.Font.Name := 'Verdana';
+  FlblURL.Font.Style := [fsUnderline];
+  FlblURL.ParentFont := False;
+  FlblURL.OnClick := lblURLClick;
+  FlblURL.Caption := RSAAboutBoxIndyWebsite;
+  FlblURL.Anchors := [akLeft, akTop, akRight];
+  FlblURL.Parent := Self;
 
-    Anchors := [akRight, akBottom];
-
-    {$IFDEF USE_TBitBtn}
-     Kind := bkOk;
-    {$ELSE}
-    Cancel := True;
-    Default := True;
-    ModalResult := 1;
-    Caption := RSOk;
-    {$ENDIF}
-
-    TabOrder := 0;
-    Anchors := [akLeft, akTop, akRight];
-    Parent := Self;
-
-  end;
+  FbbtnOk.Name := 'bbtnOk';
+  FbbtnOk.Left := 475;
+  {$IFDEF USE_TBitBtn}
+  FbbtnOk.Top := 297;
+  {$ELSE}
+  FbbtnOk.Top := 302;
+  FbbtnOk.Height := 25;
+  {$ENDIF}
+  FbbtnOk.Width := 75;
+  FbbtnOk.Anchors := [akRight, akBottom];
+  {$IFDEF USE_TBitBtn}
+  FbbtnOk.Kind := bkOk;
+  {$ELSE}
+  FbbtnOk.Cancel := True;
+  FbbtnOk.Default := True;
+  FbbtnOk.ModalResult := 1;
+  FbbtnOk.Caption := RSOk;
+  {$ENDIF}
+  FbbtnOk.TabOrder := 0;
+  FbbtnOk.Anchors := [akLeft, akTop, akRight];
+  FbbtnOk.Parent := Self;
 end;
 
 function TfrmAbout.GetVersion: String;
@@ -287,7 +264,7 @@ end;
 procedure TfrmAbout.lblURLClick(Sender: TObject);
 begin
   {$IFDEF WIN32}
-  ShellAPI.shellExecute(Handle,PChar('open'),PChar(FlblURL.Caption),nil,nil, 0);    {Do not Localize}
+  ShellAPI.ShellExecute(Handle, PChar('open'), PChar(FlblURL.Caption), nil, nil, 0);    {Do not Localize}
   FlblURL.Font.Color := clPurple;
   {$ENDIF}
 end;
@@ -303,15 +280,21 @@ begin
 end;
 
 class procedure TfrmAbout.ShowAboutBox(const AProductName, AProductVersion: String);
+var
+  LFrm: TfrmAbout;
 begin
-  with TfrmAbout.Create do
+  LFrm := TfrmAbout.Create;
+  {$IFNDEF USE_OBJECT_ARC}
   try
-     Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
-     ProductName := AProductName;
-     ShowModal;
+  {$ENDIF}
+     LFrm.Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
+     LFrm.ProductName := AProductName;
+     LFrm.ShowModal;
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LFrm.Free;
   end;
+  {$ENDIF}
 end;
 
 class procedure TfrmAbout.ShowDlg;

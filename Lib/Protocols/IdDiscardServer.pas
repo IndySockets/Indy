@@ -90,10 +90,8 @@ function TIdDISCARDServer.DoExecute(AContext:TIdContext): Boolean;
 begin
   Result := True;
   // Discard it
-  with AContext.Connection.IOHandler do begin
-    CheckForDataOnSource;
-    InputBuffer.Clear;
-  end;
+  AContext.Connection.IOHandler.CheckForDataOnSource;
+  AContext.Connection.IOHandler.InputBuffer.Clear;
 end;
 
 end.

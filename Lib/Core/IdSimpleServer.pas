@@ -185,23 +185,24 @@ begin
 end;
 
 procedure TIdSimpleServer.Bind;
+var
+  LBinding: TIdSocketHandle;
 begin
-  with Binding do begin
-    try
-      DoBeforeBind;
-      IPVersion := Self.FIPVersion;  // needs to be before AllocateSocket, because AllocateSocket uses this
-      AllocateSocket;
-      FListenHandle := Handle;
-      IP := BoundIP;
-      Port := BoundPort;
-      ClientPortMin := BoundPortMin;
-      ClientPortMax := BoundPortMax;
-      Bind;
-      DoAfterBind;
-    except
-      FListenHandle := Id_INVALID_SOCKET;
-      raise;
-    end;
+  LBinding := Binding;
+  try
+    DoBeforeBind;
+    LBinding.IPVersion := FIPVersion;  // needs to be before AllocateSocket, because AllocateSocket uses this
+    LBinding.AllocateSocket;
+    FListenHandle := LBinding.Handle;
+    LBinding.IP := BoundIP;
+    LBinding.Port := BoundPort;
+    LBinding.ClientPortMin := BoundPortMin;
+    LBinding.ClientPortMax := BoundPortMax;
+    LBinding.Bind;
+    DoAfterBind;
+  except
+    FListenHandle := Id_INVALID_SOCKET;
+    raise;
   end;
 end;
 

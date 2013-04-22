@@ -31,7 +31,7 @@ end;
 
 class function TIdHeaderCoderPlain.Encode(const ACharSet, AData: String): TIdBytes;
 begin
-  Result := ToBytes(AData, Indy8BitEncoding);
+  Result := ToBytes(AData, IndyTextEncoding_8Bit);
 end;
 
 class function TIdHeaderCoderPlain.CanHandle(const ACharSet: String): Boolean;

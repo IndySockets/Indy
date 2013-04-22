@@ -90,14 +90,18 @@ var
   LResponseCode: Integer;
   LHeaders: TIdHeaderList;
   LContentLength: Int64;
+  LEncoder: TIdEncoderMIME;
 begin
   LHeaders := TIdHeaderList.Create(QuoteHTTP);
   try
     AIOHandler.WriteLn(IndyFormat('CONNECT %s:%d HTTP/1.0', [AHost,APort])); {do not localize}
     if ALogin then begin
-      with TIdEncoderMIME.Create do try
-        AIOHandler.WriteLn('Proxy-Authorization: Basic ' + Encode(Username + ':' + Password));  {do not localize}
-      finally Free; end;
+      LEncoder := TIdEncoderMIME.Create;
+      try
+        AIOHandler.WriteLn('Proxy-Authorization: Basic ' + LEncoder.Encode(Username + ':' + Password));  {do not localize}
+      finally
+        LEncoder.Free;
+      end;
     end;
     AIOHandler.WriteLn;
     LStatus := AIOHandler.ReadLn;

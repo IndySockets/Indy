@@ -32,6 +32,13 @@ unit IdResourceStrings;
 interface
 
 resourcestring
+  //IIdTextEncoding
+  RSInvalidSourceArray = 'Invalid source array';
+  RSInvalidDestinationArray = 'Invalid destination array';
+  RSCharIndexOutOfBounds = 'Character index out of bounds (%d)';
+  RSInvalidCharCount = 'Invalid count (%d)';
+  RSInvalidDestinationIndex = 'Invalid destination index (%d)';
+
   RSInvalidCodePage = 'Invalid codepage (%d)';
   RSInvalidCharSet = 'Invalid character set (%s)';
   RSInvalidCharSetConv = 'Invalid character set conversion (%s <-> %s)';

@@ -286,11 +286,19 @@ uses
   IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 type
+  {$IFDEF HAS_GENERICS_TObjectList}
+  TDirEntry = class;
+  TDirEntryList = TIdObjectList<TDirEntry>;
+  {$ELSE}
+  // TODO: flesh out to match TIdObjectList<TDirEntry> for non-Generics compilers
+  TDirEntryList = TIdObjectList;
+  {$ENDIF}
+
   TDirEntry = class(TObject)
   protected
     FPathName : String;
     FDirListItem : TIdFTPListOutputItem;
-    FSubDirs : TIdObjectList;
+    FSubDirs : TDirEntryList;
     FFileList : TIdBubbleSortStringList;
 
   public
@@ -307,7 +315,7 @@ type
     procedure SortDescendFNameExt;
     function AddSubDir(const APathName : String; ADirEnt : TIdFTPListOutputItem) : Boolean;
     function AddFileName(const APathName : String; ADirEnt : TIdFTPListOutputItem) : Boolean;
-    property SubDirs : TIdObjectList read FSubDirs;
+    property SubDirs : TDirEntryList read FSubDirs;
     property FileList : TIdBubbleSortStringList read FFileList;
     property PathName : String read FPathName;
     property DirListItem : TIdFTPListOutputItem read FDirListItem;
@@ -387,12 +395,13 @@ begin
 end;
 
 function RawSortAscMTime(AItem1, AItem2: TIdFTPListItem): Integer;
-begin
 {
 > 0 (positive)  Item1 is less than Item2
   0             Item1 is equal to Item2
 < 0 (negative)  Item1 is greater than Item2
 }
+
+begin
   if AItem1.ModifiedDate < AItem2.ModifiedDate then begin
     Result := -1;
   end
@@ -1398,7 +1407,7 @@ begin
   LParentPart := StripInitPathDelim(IndyGetFilePath(APathName));
   if LParentPart = PathName then begin
     if not Assigned(FSubDirs) then begin
-      FSubDirs := TIdObjectList.Create;
+      FSubDirs := TDirEntryList.Create;
     end;
     LParentPart := StripInitPathDelim(IndyGetFilePath(APathName));
     LParentPart := IndyGetFileName(LParentPart);
@@ -1434,7 +1443,7 @@ begin
   FFileList := TIdBubbleSortStringList.Create;
   FDirListItem := ADirListItem;
   //create that only when necessary;
-  FSubDirs := TIdObjectList.Create;
+  FSubDirs := TDirEntryList.Create;
 end;
 
 destructor TDirEntry.Destroy;
@@ -1447,14 +1456,22 @@ end;
 procedure TDirEntry.SortAscendFName;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortAscFName);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscFName));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortAscFName
+      {$ELSE}
+      TIdSortCompare(@DESortAscFName)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count-1 do begin
-      TDirEntry(FSubDirs[i]).SortAscendFName;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortAscendFName;
     end;
   end;
 end;
@@ -1462,14 +1479,22 @@ end;
 procedure TDirEntry.SortAscendMTime;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortAscMTime);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscMTime));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortAscMTime
+      {$ELSE}
+      TIdSortCompare(@DESortAscMTime)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count-1 do begin
-      TDirEntry(FSubDirs[i]).SortAscendMTime;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortAscendMTime;
     end;
   end;
 end;
@@ -1477,14 +1502,22 @@ end;
 procedure TDirEntry.SortDescendMTime;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortDescMTime);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortDescMTime));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortDescMTime
+      {$ELSE}
+      TIdSortCompare(@DESortDescMTime)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count -1 do begin
-      TDirEntry(FSubDirs[i]).SortDescendMTime;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortDescendMTime;
     end;
   end;
 end;
@@ -1492,29 +1525,45 @@ end;
 procedure TDirEntry.SortDescendFName;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortDescFName));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortDescFName
+      {$ELSE}
+      TIdSortCompare(@DESortDescFName)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count-1 do begin
-      TDirEntry(FSubDirs[i]).SortDescendFName;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortDescendFName;
     end;
   end;
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortDescFName);
-  end;  
+  end;
 end;
 
 procedure TDirEntry.SortAscendFNameExt;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortAscFNameExt);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscFName));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortAscFName
+      {$ELSE}
+      TIdSortCompare(@DESortAscFName)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count-1 do begin
-      TDirEntry(FSubDirs[i]).SortAscendFNameExt;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortAscendFNameExt;
     end;
   end;
 end;
@@ -1522,14 +1571,22 @@ end;
 procedure TDirEntry.SortDescendFNameExt;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortDescFNameExt);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscFName));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortAscFName
+      {$ELSE}
+      TIdSortCompare(@DESortAscFName)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count-1 do begin
-      TDirEntry(FSubDirs[i]).SortDescendFNameExt;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortDescendFNameExt;
     end;
   end;
 end;
@@ -1537,14 +1594,22 @@ end;
 procedure TDirEntry.SortAscendSize;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortAscSize);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortAscMTime));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortAscMTime
+      {$ELSE}
+      TIdSortCompare(@DESortAscMTime)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count-1 do begin
-      TDirEntry(FSubDirs[i]).SortAscendSize;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortAscendSize;
     end;
   end;
 end;
@@ -1552,18 +1617,25 @@ end;
 procedure TDirEntry.SortDescendSize;
 var
   i : Integer;
+  LSubDir: TDirEntry;
 begin
   if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortDescSize);
   end;
   if Assigned(FSubDirs) then begin
-    FSubDirs.BubbleSort(TIdSortCompare(@DESortDescFName));
+    FSubDirs.BubbleSort(
+      {$IFDEF HAS_GENERICS_TObjectList}
+      DESortDescFName
+      {$ELSE}
+      TIdSortCompare(@DESortDescFName)
+      {$ENDIF}
+    );
     for i := 0 to FSubDirs.Count-1 do begin
-      TDirEntry(FSubDirs[i]).SortDescendSize;
+      LSubDir := {$IFDEF HAS_GENERICS_TObjectList}FSubDirs[i]{$ELSE}TDirEntry(FSubDirs[i]){$ENDIF};
+      LSubDir.SortDescendSize;
     end;
   end;
 end;
-
 
 { TIdFTPListOutputItem }
 

@@ -32,7 +32,6 @@ contains
   IdGlobal in 'IdGlobal.pas',
   IdIDN in 'IdIDN.pas',
   IdResourceStrings in 'IdResourceStrings.pas',
-  IdResourceStringsTextEncoding in 'IdResourceStringsTextEncoding.pas',
   IdStack in 'IdStack.pas',
   IdStackBSDBase in 'IdStackBSDBase.pas',
   IdStackConsts in 'IdStackConsts.pas',

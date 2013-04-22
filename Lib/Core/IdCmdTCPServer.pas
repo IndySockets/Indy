@@ -364,7 +364,7 @@ var
   i, j: Integer;
   LDescr: TStrings;
   LHelpList: TStringList;
-  LHandler: TIdCommandHandler;
+  LHandler, LAddedHandler: TIdCommandHandler;
 begin
   inherited Startup;
   if not FCommandHandlersInitialized then begin
@@ -374,30 +374,29 @@ begin
     FCommandHandlersInitialized := True;
     InitializeCommandHandlers;
     if HelpReply.Code <> '' then begin
-      with CommandHandlers.Add do begin
-        Command := 'Help'; {do not localize}
-        Description.Text := 'Displays commands that the servers supports.'; {do not localize}
-        NormalReply.Assign(HelpReply);
-        LHelpList := TStringList.Create; try
-          for i := 0 to CommandHandlers.Count - 1 do begin
-            LHandler := CommandHandlers.Items[i];
-            if LHandler.HelpVisible then
-            begin
-              LHelpList.AddObject(LHandler.Command+LHandler.HelpSuperScript, LHandler);
-            end;
+      LAddedHandler := CommandHandlers.Add;
+      LAddedHandler.Command := 'Help'; {do not localize}
+      LAddedHandler.Description.Text := 'Displays commands that the servers supports.'; {do not localize}
+      LAddedHandler.NormalReply.Assign(HelpReply);
+      LHelpList := TStringList.Create;
+      try
+        for i := 0 to CommandHandlers.Count - 1 do begin
+          LHandler := CommandHandlers.Items[i];
+          if LHandler.HelpVisible then begin
+            LHelpList.AddObject(LHandler.Command+LHandler.HelpSuperScript, LHandler);
           end;
-          LHelpList.Sort;
-          for i := 0 to LHelpList.Count - 1 do begin
-            Response.Add(LHelpList[i]);
-            LDescr := TIdCommandHandler(LHelpList.Objects[i]).Description;
-            for j := 0 to LDescr.Count - 1 do begin
-              Response.Add('  ' + LDescr[j]); {do not localize}
-            end;
-            Response.Add(''); {do not localize}
-          end;
-        finally
-          FreeAndNil(LHelpList);
         end;
+        LHelpList.Sort;
+        for i := 0 to LHelpList.Count - 1 do begin
+          LAddedHandler.Response.Add(LHelpList[i]);
+          LDescr := TIdCommandHandler(LHelpList.Objects[i]).Description;
+          for j := 0 to LDescr.Count - 1 do begin
+            LAddedHandler.Response.Add('  ' + LDescr[j]); {do not localize}
+          end;
+          LAddedHandler.Response.Add(''); {do not localize}
+        end;
+      finally
+        FreeAndNil(LHelpList);
       end;
     end;
   end;

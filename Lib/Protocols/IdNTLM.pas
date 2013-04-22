@@ -190,7 +190,7 @@ type
   end;
 {$ELSE}
   type_1_message_header = packed record
-    protocol: array [1..8] of AnsiChar; // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
+    protocol: array [1..8] of Byte; // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
     _type: Byte;                        // 0x01
     pad  : packed Array[1..3] of Byte;  // 0x0
     flags: Word;                        // 0xb203
@@ -205,7 +205,7 @@ type
   end;
 
   type_2_message_header = packed record
-    protocol: packed array [1..8] of AnsiChar;  // 'N', 'T', 'L', 'M', 'S', 'S', 'P', #0    {Do not Localize}
+    protocol: packed array [1..8] of Byte;  // 'N', 'T', 'L', 'M', 'S', 'S', 'P', #0    {Do not Localize}
     _type: Byte;                                // $2
     Pad: packed Array[1..3] of Byte;
     host_len1: Word;
@@ -221,7 +221,7 @@ type
   end;
 
   type_3_message_header = packed record
-    protocol: array [1..8] of AnsiChar; // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
+    protocol: array [1..8] of Byte; // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'    {Do not Localize}
     _type: LongWord;                    // 0x03
 
     lm_resp_len1: Word;                 // LanManager response length (always 0x18)
@@ -276,7 +276,7 @@ const
 implementation
 
 uses
-  {$IFDEF STRING_IS_UNICODE}
+  {$IFDEF HAS_UNIT_AnsiStrings}
   AnsiStrings,
   {$ENDIF}
   SysUtils,
@@ -295,7 +295,7 @@ type
   Pdes_key_schedule = ^des_key_schedule;
 
 const
-  cProtocolStr: AnsiString = 'NTLMSSP'#0; {Do not Localize}
+  cProtocolStr: string = 'NTLMSSP'#0; {Do not Localize}
 
 procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -382,43 +382,43 @@ Const
 //* setup LanManager password */
 function SetupLanManagerPassword(const APassword: String; const ANonce: TIdBytes): TIdBytes;
 var
-  lm_hpw: array[1..21] of AnsiChar;
-  lm_pw: array[1..14] of AnsiChar;
+  lm_hpw: array[0..20] of Byte;
+  lm_pw: array[0..13] of Byte;
   idx, len: Integer;
   ks: des_key_schedule;
-  lm_resp: array [1..24] of AnsiChar;
-  lPassword: AnsiString;
+  lm_resp: array [0..23] of Byte;
+  lPassword: {$IFDEF STRING_IS_UNICODE}TIdBytes{$ELSE}AnsiString{$ENDIF};
 begin
   {$IFDEF STRING_IS_UNICODE}
-  lPassword := AnsiString(UpperCase(APassword)); // explicit convert to Ansi
+  lPassword := IndyTextEncoding_OSDefault.GetBytes(UpperCase(APassword));
   {$ELSE}
   lPassword := UpperCase(APassword);
   {$ENDIF}
-  lPassword := Copy(lPassword, 1, 14);
-  len := Length(lPassword);
+
+  len := IndyMin(Length(lPassword), 14);
   if len > 0 then begin
-    Move(lPassword[1], lm_pw, len);
+    Move(lPassword[{$IFDEF STRING_IS_UNICODE}0{$ELSE}1{$ENDIF}], lm_pw[0], len);
   end;
   if len < 14 then begin
-    for idx := len + 1 to 14 do begin
-      lm_pw[idx] := #0;
+    for idx := len to 13 do begin
+      lm_pw[idx] := $0;
     end;
   end;
 
   //* create LanManager hashed password */
 
-  setup_des_key(pdes_cblock(@lm_pw[1])^, ks);
-  des_ecb_encrypt(@magic, Pconst_DES_cblock(@lm_hpw[1]), ks, DES_ENCRYPT);
+  setup_des_key(pdes_cblock(@lm_pw[0])^, ks);
+  des_ecb_encrypt(@magic, Pconst_DES_cblock(@lm_hpw[0]), ks, DES_ENCRYPT);
 
-  setup_des_key(pdes_cblock(PtrUInt(@lm_pw[1]) + 7)^, ks);
-  des_ecb_encrypt(@magic, Pconst_DES_cblock(PtrUInt(@lm_hpw[1]) + 8), ks, DES_ENCRYPT);
+  setup_des_key(pdes_cblock(PtrUInt(@lm_pw[0]) + 7)^, ks);
+  des_ecb_encrypt(@magic, Pconst_DES_cblock(PtrUInt(@lm_hpw[0]) + 8), ks, DES_ENCRYPT);
 
-  FillChar(lm_hpw[17], 5, 0);
+  FillChar(lm_hpw[16], 5, 0);
 
-  calc_resp(PDes_cblock(@lm_hpw[1]), ANonce, Pdes_key_schedule(@lm_resp[1]));
+  calc_resp(PDes_cblock(@lm_hpw[0]), ANonce, Pdes_key_schedule(@lm_resp[0]));
 
   SetLength(Result, SizeOf(lm_resp));
-  Move(lm_resp[1], Result[0], SizeOf(lm_resp));
+  Move(lm_resp[0], Result[0], SizeOf(lm_resp));
 end;
 
 function BuildUnicode(const S: String): TIdBytes;
@@ -430,11 +430,10 @@ var
 {$ENDIF}
 begin
   {$IFDEF STRING_IS_UNICODE}
-  Result := IndyUTF16LittleEndianEncoding.GetBytes(S);
+  Result := IndyTextEncoding_UTF16LE.GetBytes(S);
   {$ELSE}
-  // RLebeau: TODO - should this use IndyUTF16LittleEndianEncoding.GetBytes()
-  // as well?  This logic will not produce a valid Unicode string if
-  // non-ASCII characters are present!
+  // RLebeau: TODO - should this use encUTF16LE as well?  This logic will
+  // not produce a valid Unicode string if non-ASCII characters are present!
   SetLength(Result, Length(S) * SizeOf(WideChar));
   for i := 0 to Length(S)-1 do begin
     Result[i*2] := Byte(S[i+1]);
@@ -446,20 +445,21 @@ end;
 //* create NT hashed password */
 function CreateNTPassword(const APassword: String; const ANonce: TIdBytes): TIdBytes;
 var
-  nt_hpw: array [1..21] of AnsiChar;
+  nt_hpw: array [1..21] of Byte;
   nt_hpw128: TIdBytes;
-  nt_resp: array [1..24] of AnsiChar;
+  nt_resp: array [1..24] of Byte;
+  LMD4: TIdHashMessageDigest4;
 begin
   CheckMD4Permitted;
-  with TIdHashMessageDigest4.Create do
+  LMD4 := TIdHashMessageDigest4.Create;
   try
     {$IFDEF STRING_IS_UNICODE}
-    nt_hpw128 := HashString(APassword, IndyUTF16LittleEndianEncoding);
+    nt_hpw128 := LMD4.HashString(APassword, IndyTextEncoding_UTF16LE);
     {$ELSE}
-    nt_hpw128 := HashBytes(BuildUnicode(APassword));
+    nt_hpw128 := LMD4.HashBytes(BuildUnicode(APassword));
     {$ENDIF}
   finally
-    Free;
+    LMD4.Free;
   end;
 
   Move(nt_hpw128[0], nt_hpw[1], 16);
@@ -473,40 +473,39 @@ end;
 
 function BuildType1Message(const ADomain, AHost: String): String;
 var
+  LEncoding: IIdTextEncoding;
   Type_1_Message: type_1_message_header;
   lDomain: TIdBytes;
   lHost: TIdBytes;
   buf: TIdBytes;
 begin
-
-  lDomain := ToBytes(UpperCase(ADomain), IndyASCIIEncoding);
-  lHost := ToBytes(UpperCase(AHost), IndyASCIIEncoding);
+  LEncoding := IndyTextEncoding_ASCII;
+  lDomain := ToBytes(UpperCase(ADomain), LEncoding);
+  lHost := ToBytes(UpperCase(AHost), LEncoding);
+  LEncoding := nil;
 
   FillChar(Type_1_Message, SizeOf(Type_1_Message), #0);
-  with Type_1_Message do
-  begin
-    StrPLCopy(@protocol[1], cProtocolStr, 8);
-    _type := 1;
+  StrPLCopy(@Type_1_Message.protocol[1], cProtocolStr, 8);
+  Type_1_Message._type := 1;
 
-    // S.G. 12/7/2002: Changed the flag to $B207 (from BugID 577895 and packet trace)
-    flags := MSG1_FLAGS; //was $A000B207;     //b203;
+  // S.G. 12/7/2002: Changed the flag to $B207 (from BugID 577895 and packet trace)
+  Type_1_Message.flags := MSG1_FLAGS; //was $A000B207;     //b203;
 
-    dom_len1 := Word(Length(lDomain));
-    // dom_off := 0;
-    dom_off := 32;
+  Type_1_Message.dom_len1 := Word(Length(lDomain));
+  // dom_off := 0;
+  Type_1_Message.dom_off := 32;
 
-    host_len1 := Word(Length(lHost));
-    host_off := LongWord(dom_off + dom_len1);
+  Type_1_Message.host_len1 := Word(Length(lHost));
+  Type_1_Message.host_off := LongWord(Type_1_Message.dom_off + Type_1_Message.dom_len1);
 
-    _type := HostToLittleEndian(_type);
-    flags := HostToLittleEndian(flags);
-    dom_len1 := HostToLittleEndian(dom_len1);
-    dom_len2 := dom_len1;
-    dom_off := HostToLittleEndian(dom_off);
-    host_len1 := HostToLittleEndian(host_len1);
-    host_len2 := host_len1;
-    host_off := HostToLittleEndian(host_off);
-  end;
+  Type_1_Message._type := HostToLittleEndian(Type_1_Message._type);
+  Type_1_Message.flags := HostToLittleEndian(Type_1_Message.flags);
+  Type_1_Message.dom_len1 := HostToLittleEndian(Type_1_Message.dom_len1);
+  Type_1_Message.dom_len2 := Type_1_Message.dom_len1;
+  Type_1_Message.dom_off := HostToLittleEndian(Type_1_Message.dom_off);
+  Type_1_Message.host_len1 := HostToLittleEndian(Type_1_Message.host_len1);
+  Type_1_Message.host_len2 := Type_1_Message.host_len1;
+  Type_1_Message.host_off := HostToLittleEndian(Type_1_Message.host_off);
 
   buf := RawToBytes(Type_1_Message, SizeOf(Type_1_Message));
   AppendBytes(buf, lDomain);
@@ -533,51 +532,49 @@ begin
   lHost := BuildUnicode(UpperCase(AHost));
   lUsername := BuildUnicode(AUsername);
 
-  with Type3 do begin
-    StrPLCopy(@protocol[1], cProtocolStr, 8);
-    _type := 3;
+  StrPLCopy(@Type3.protocol[1], cProtocolStr, 8);
+  Type3._type := 3;
 
-    lm_resp_len1 := Word(Length(lm_password));
-    lm_resp_off := $40;
+  Type3.lm_resp_len1 := Word(Length(lm_password));
+  Type3.lm_resp_off := $40;
 
-    nt_resp_len1 := Word(Length(nt_password));
-    nt_resp_off := LongWord(lm_resp_off + lm_resp_len1);
+  Type3.nt_resp_len1 := Word(Length(nt_password));
+  Type3.nt_resp_off := LongWord(Type3.lm_resp_off + Type3.lm_resp_len1);
 
-    dom_len1 := Word(Length(lDomain));
-    dom_off :=  LongWord(nt_resp_off + nt_resp_len1);
+  Type3.dom_len1 := Word(Length(lDomain));
+  Type3.dom_off :=  LongWord(Type3.nt_resp_off + Type3.nt_resp_len1);
 
-    user_len1 := Word(Length(lUsername));
-    user_off := LongWord(dom_off + dom_len1);
+  Type3.user_len1 := Word(Length(lUsername));
+  Type3.user_off := LongWord(Type3.dom_off + Type3.dom_len1);
 
-    host_len1 := Word(Length(lHost));
-    host_off := LongWord(user_off + user_len1);
+  Type3.host_len1 := Word(Length(lHost));
+  Type3.host_off := LongWord(Type3.user_off + Type3.user_len1);
 
-    key_len1 := 0;
-    key_off := LongWord(user_len1 + host_len1);
+  Type3.key_len1 := 0;
+  Type3.key_off := LongWord(Type3.user_len1 + Type3.host_len1);
 
-    flags := MSG3_FLAGS;
+  Type3.flags := MSG3_FLAGS;
 
-    _type := HostToLittleEndian(_type);
-    lm_resp_len1 := HostToLittleEndian(lm_resp_len1);
-    lm_resp_len2 := lm_resp_len1;
-    lm_resp_off := HostToLittleEndian(lm_resp_off);
-    nt_resp_len1 := HostToLittleEndian(nt_resp_len1);
-    nt_resp_len2 := nt_resp_len1;
-    nt_resp_off := HostToLittleEndian(nt_resp_off);
-    dom_len1 := HostToLittleEndian(dom_len1);
-    dom_len2 := dom_len1;
-    dom_off := HostToLittleEndian(dom_off);
-    user_len1 := HostToLittleEndian(user_len1);
-    user_len2 := user_len1;
-    user_off := HostToLittleEndian(user_off);
-    host_len1 := HostToLittleEndian(host_len1);
-    host_len2 := host_len1;
-    host_off := HostToLittleEndian(host_off);
-    key_len1 := HostToLittleEndian(key_len1);
-    key_len2 := key_len1;
-    key_off := HostToLittleEndian(key_off);
-    flags := HostToLittleEndian(flags);
-  end;
+  Type3._type := HostToLittleEndian(Type3._type);
+  Type3.lm_resp_len1 := HostToLittleEndian(Type3.lm_resp_len1);
+  Type3.lm_resp_len2 := Type3.lm_resp_len1;
+  Type3.lm_resp_off := HostToLittleEndian(Type3.lm_resp_off);
+  Type3.nt_resp_len1 := HostToLittleEndian(Type3.nt_resp_len1);
+  Type3.nt_resp_len2 := Type3.nt_resp_len1;
+  Type3.nt_resp_off := HostToLittleEndian(Type3.nt_resp_off);
+  Type3.dom_len1 := HostToLittleEndian(Type3.dom_len1);
+  Type3.dom_len2 := Type3.dom_len1;
+  Type3.dom_off := HostToLittleEndian(Type3.dom_off);
+  Type3.user_len1 := HostToLittleEndian(Type3.user_len1);
+  Type3.user_len2 := Type3.user_len1;
+  Type3.user_off := HostToLittleEndian(Type3.user_off);
+  Type3.host_len1 := HostToLittleEndian(Type3.host_len1);
+  Type3.host_len2 := Type3.host_len1;
+  Type3.host_off := HostToLittleEndian(Type3.host_off);
+  Type3.key_len1 := HostToLittleEndian(Type3.key_len1);
+  Type3.key_len2 := Type3.key_len1;
+  Type3.key_off := HostToLittleEndian(Type3.key_off);
+  Type3.flags := HostToLittleEndian(Type3.flags);
 
   buf := RawToBytes(Type3, SizeOf(Type3));
   AppendBytes(buf, lm_password);

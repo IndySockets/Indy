@@ -109,6 +109,9 @@ Type
 implementation
 
 uses
+  {$IFDEF HAS_UNIT_Generics_Defaults}
+  System.Generics.Defaults,
+  {$ENDIF}
   IdAssignedNumbers, IdException, IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdCookieManager }
@@ -121,7 +124,7 @@ begin
   inherited Destroy;
 end;
 
-function SortCookiesFunc(Item1, Item2: TIdCookie): Integer;
+function SortCookiesFunc({$IFDEF HAS_GENERICS_TList}const {$ENDIF}Item1, Item2: TIdCookie): Integer;
 begin
   // using the algorithm defined in RFC 6265 section 5.4
 
@@ -151,7 +154,7 @@ procedure TIdCookieManager.GenerateClientCookies(AURL: TIdURI; SecureOnly: Boole
 var
   I: Integer;
   LCookieList: TIdCookieList;
-  LResultList: TList;
+  LResultList: TIdCookieList;
   LCookie: TIdCookie;
   LCookiesToSend: String;
   LNow: TDateTime;
@@ -162,11 +165,11 @@ begin
   LCookieList := CookieCollection.LockCookieList(caRead);
   try
     if LCookieList.Count > 0 then begin
-      LResultList := TList.Create;
+      LResultList := TIdCookieList.Create;
       try
         // Search for cookies for this domain and URI
         for I := 0 to LCookieList.Count-1 do begin
-          LCookie := LCookieList.Cookies[I];
+          LCookie := LCookieList[I];
           if LCookie.IsAllowed(AURL, SecureOnly) then begin
             LResultList.Add(LCookie);
           end;
@@ -174,17 +177,23 @@ begin
 
         if LResultList.Count > 0 then begin
           if LResultList.Count > 1 then begin
-            LResultList.Sort(TListSortCompare(@SortCookiesFunc));
+            LResultList.Sort(
+              {$IFDEF HAS_GENERICS_TList}
+              TComparer<TIdCookie>.Construct(SortCookiesFunc)
+              {$ELSE}
+              TListSortCompare(@SortCookiesFunc)
+              {$ENDIF}
+            );
           end;
 
           LNow := Now;
           for I := 0 to LResultList.Count-1 do begin
-            TIdCookie(LResultList.Items[I]).LastAccessed := LNow;
+            LResultList[I].LastAccessed := LNow;
           end;
 
-          LCookiesToSend := TIdCookie(LResultList.Items[0]).ClientCookie;
+          LCookiesToSend := LResultList[0].ClientCookie;
           for I := 1 to LResultList.Count-1 do begin
-            LCookiesToSend := LCookiesToSend + '; ' + TIdCookie(LResultList.Items[I]).ClientCookie; {Do not Localize}
+            LCookiesToSend := LCookiesToSend + '; ' + LResultList[I].ClientCookie; {Do not Localize}
           end;
 
           Headers.AddValue('Cookie', LCookiesToSend); {Do not Localize}
@@ -302,11 +311,13 @@ begin
   try
     for i := LCookieList.Count-1 downto 0 do
     begin
-      LCookie := LCookieList.Cookies[i];
+      LCookie := LCookieList[i];
       if LCookie.IsExpired then
       begin
         // The Cookie has expired. It has to be removed from the collection
         LCookieList.Delete(i);
+        // must set the Collection to nil or the cookie will try to remove
+        // itself from the cookie collection and deadlock
         LCookie.Collection := nil;
         LCookie.Free;
       end;

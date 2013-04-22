@@ -135,6 +135,7 @@ var
   LBuf : String;
   LFeat : String;
   s : String;
+  LMD5: TIdHashMessageDigest5;
 begin
   LBuf := '';
   FCapabilities.Clear;
@@ -142,7 +143,7 @@ begin
   FServer := '';
   try
     inherited Connect;
-    IOHandler.DefStringEncoding := IndyUTF8Encoding;
+    IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
     GetResponse(220);
     if LastCmdResult.Text.Count > 0 then begin
       // 220 pan.alephnull.com dictd 1.8.0/rf on Linux 2.4.18-14 <auth.mime> <258510.25288.1078409724@pan.alephnull.com>
@@ -166,11 +167,11 @@ begin
     if FAuthType = datDefault then begin
       if IsCapaSupported('auth') then begin {do not localize}
         if GetFIPSMode and (FPassword <> '') and (FUserName <> '') then begin
-          with TIdHashMessageDigest5.Create do
+          LMD5 := TIdHashMessageDigest5.Create;
           try
-            S := LowerCase(HashStringAsHex(LBuf+Password));
+            S := LowerCase(LMD5.HashStringAsHex(LBuf+Password));
           finally
-            Free;
+            LMD5.Free;
           end;//try
           SendCmd('AUTH ' + Username + ' ' + S, 230); {do not localize}
         end;

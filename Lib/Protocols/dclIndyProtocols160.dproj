@@ -3,7 +3,7 @@
 			<ProjectGuid>{686983CE-837E-42D6-B871-F173242DFA3E}</ProjectGuid>
 			<MainSource>dclIndyProtocols160.dpk</MainSource>
 			<Base>True</Base>
-			<Config Condition="'$(Config)'==''">Release</Config>
+			<Config Condition="'$(Config)'==''">Debug</Config>
 			<TargetedPlatforms>1</TargetedPlatforms>
 			<AppType>Package</AppType>
 			<FrameworkType>None</FrameworkType>
@@ -55,12 +55,12 @@
 			<DCC_K>false</DCC_K>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win64)'!=''">
-			<Icon_MainIcon>dclIndyProtocols_Icon.ico</Icon_MainIcon>
+			<Icon_MainIcon>dclIndyProtocols160_Icon.ico</Icon_MainIcon>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win32)'!=''">
 			<DCC_UsePackage>IndyCore160;IndySystem160;IndyProtocols160;$(DCC_UsePackage)</DCC_UsePackage>
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;Vcl;$(DCC_Namespace)</DCC_Namespace>
-			<Icon_MainIcon>dclIndyProtocols_Icon.ico</Icon_MainIcon>
+			<Icon_MainIcon>dclIndyProtocols160_Icon.ico</Icon_MainIcon>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -85,7 +85,6 @@
 			<DCCReference Include="IndyProtocols160.dcp"/>
 			<DCCReference Include="IndySystem160.dcp"/>
 			<DCCReference Include="IndyCore160.dcp"/>
-			<DCCReference Include="dclIndyCore160.dcp"/>
 			<DCCReference Include="IdDsnRegister.pas"/>
 			<DCCReference Include="IdDsnResourceStrings.pas"/>
 			<DCCReference Include="IdDsnSASLListEditorFormVCL.pas"/>

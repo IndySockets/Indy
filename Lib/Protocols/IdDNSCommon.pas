@@ -374,36 +374,40 @@ type
     property TTL : integer read FTTL write SetTTL;
     property TimeOut : string read FTimeOut write FTimeOut;
     function ifAddFullName(AFullName: string; AGivenName: string = ''): boolean;
-    function GetValue(const AName: String): AnsiString;
-    procedure SetValue(const AName: String; const AValue: AnsiString);
+    function GetValue(const AName: String): String;
+    procedure SetValue(const AName: String; const AValue: String);
     function ItemCount : Integer;
     function BinQueryRecord(AFullName: string): TIdBytes; virtual;
     function TextRecord(AFullName: string): string; virtual;
     procedure ClearAnswer;
   end;
 
-  TIdTextModeRRs = class(TIdObjectList)
+  TIdTextModeRRs = class(TIdObjectList{$IFDEF HAS_GENERICS_TObjectList}<TIdTextModeResourceRecord>{$ENDIF})
   private
     FItemNames : TStrings;
+    {$IFNDEF HAS_GENERICS_TObjectList}
     function GetItem(Index: Integer): TIdTextModeResourceRecord;
     procedure SetItem(Index: Integer; const Value: TIdTextModeResourceRecord);
+    {$ENDIF}
     procedure SetItemNames(const Value: TStrings);
   public
     constructor Create;
     destructor Destroy; override;
 
     property ItemNames : TStrings read FItemNames write SetItemNames;
+    {$IFNDEF HAS_GENERICS_TObjectList}
     property Items[Index: Integer]: TIdTextModeResourceRecord read GetItem write SetItem; default;
+    {$ENDIF}
   end;
 
 
   TIdRR_CName = class(TIdTextModeResourceRecord)
   protected
-    function GetCName: AnsiString;
-    procedure SetCName(const Value: AnsiString);
+    function GetCName: String;
+    procedure SetCName(const Value: String);
   public
     constructor Create;
-    property CName : AnsiString read GetCName write SetCName;
+    property CName : String read GetCName write SetCName;
     function BinQueryRecord(AFullName: string): TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -411,14 +415,14 @@ type
 
   TIdRR_HINFO = class(TIdTextModeResourceRecord)
   protected
-    procedure SetCPU(const Value: AnsiString);
-    function GetCPU: AnsiString;
-    function GetOS: AnsiString;
-    procedure SetOS(const Value: AnsiString);
+    procedure SetCPU(const Value: String);
+    function GetCPU: String;
+    function GetOS: String;
+    procedure SetOS(const Value: String);
   public
     constructor Create;
-    property CPU : AnsiString read GetCPU write SetCPU;
-    property OS : AnsiString read GetOS write SetOS;
+    property CPU : String read GetCPU write SetCPU;
+    property OS : String read GetOS write SetOS;
     function BinQueryRecord(AFullName : string): TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -426,11 +430,11 @@ type
 
   TIdRR_MB = class(TIdTextModeResourceRecord)
   protected
-    function GetMADName: AnsiString;
-    procedure SetMADName(const Value: AnsiString);
+    function GetMADName: String;
+    procedure SetMADName(const Value: String);
   public
     constructor Create;
-    property MADName : AnsiString read GetMADName write SetMADName;
+    property MADName : String read GetMADName write SetMADName;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -438,11 +442,11 @@ type
 
   TIdRR_MG = class(TIdTextModeResourceRecord)
   protected
-    function GetMGMName: AnsiString;
-    procedure SetMGMName(const Value: AnsiString);
+    function GetMGMName: String;
+    procedure SetMGMName(const Value: String);
   public
     constructor Create;
-    property MGMName : AnsiString read GetMGMName write SetMGMName;
+    property MGMName : String read GetMGMName write SetMGMName;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -450,14 +454,14 @@ type
 
   TIdRR_MINFO = class(TIdTextModeResourceRecord)
   protected
-    procedure SetErrorHandle_Mail(const Value: AnsiString);
-    procedure SetResponsible_Mail(const Value: AnsiString);
-    function GetEMail: AnsiString;
-    function GetRMail: AnsiString;
+    procedure SetErrorHandle_Mail(const Value: String);
+    procedure SetResponsible_Mail(const Value: String);
+    function GetEMail: String;
+    function GetRMail: String;
   public
     constructor Create;
-    property Responsible_Mail : AnsiString read GetRMail write SetResponsible_Mail;
-    property ErrorHandle_Mail : AnsiString read GetEMail write SetErrorHandle_Mail;
+    property Responsible_Mail : String read GetRMail write SetResponsible_Mail;
+    property ErrorHandle_Mail : String read GetEMail write SetErrorHandle_Mail;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -465,11 +469,11 @@ type
 
   TIdRR_MR = class(TIdTextModeResourceRecord)
   protected
-    function GetNewName: AnsiString;
-    procedure SetNewName(const Value: AnsiString);
+    function GetNewName: String;
+    procedure SetNewName(const Value: String);
   public
     constructor Create;
-    property NewName : AnsiString read GetNewName write SetNewName;
+    property NewName : String read GetNewName write SetNewName;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -477,14 +481,14 @@ type
 
   TIdRR_MX = class(TIdTextModeResourceRecord)
   protected
-    function GetExchang: AnsiString;
-    procedure SetExchange(const Value: AnsiString);
-    function GetPref: AnsiString;
-    procedure SetPref(const Value: AnsiString);
+    function GetExchang: String;
+    procedure SetExchange(const Value: String);
+    function GetPref: String;
+    procedure SetPref(const Value: String);
   public
     constructor Create;
-    property Exchange : AnsiString read GetExchang write SetExchange;
-    property Preference : AnsiString read GetPref write SetPref;
+    property Exchange : String read GetExchang write SetExchange;
+    property Preference : String read GetPref write SetPref;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -492,11 +496,11 @@ type
 
   TIdRR_NS = class(TIdTextModeResourceRecord)
   protected
-    function GetNS: AnsiString;
-    procedure SetNS(const Value: AnsiString);
+    function GetNS: String;
+    procedure SetNS(const Value: String);
   public
     constructor Create;
-    property NSDName : AnsiString read GetNS write SetNS;
+    property NSDName : String read GetNS write SetNS;
     function BinQueryRecord(AFullName : string): TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -504,11 +508,11 @@ type
 
   TIdRR_PTR = class(TIdTextModeResourceRecord)
   protected
-    function GetPTRName: AnsiString;
-    procedure SetPTRName(const Value: AnsiString);
+    function GetPTRName: String;
+    procedure SetPTRName(const Value: String);
   public
     constructor Create;
-    property PTRDName : AnsiString read GetPTRName write SetPTRName;
+    property PTRDName : String read GetPTRName write SetPTRName;
     function BinQueryRecord(AFullName : string): TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -516,31 +520,31 @@ type
 
   TIdRR_SOA = class(TIdTextModeResourceRecord)
   protected
-    function GetName(const CLabel : String):AnsiString;
-    procedure SetName(const CLabel: String; const Value : AnsiString);
-    function GetMName: AnsiString;
-    function GetRName: AnsiString;
-    procedure SetMName(const Value: AnsiString);
-    procedure SetRName(const Value: AnsiString);
-    function GetMin: AnsiString;
-    function GetRefresh: AnsiString;
-    function GetRetry: AnsiString;
-    function GetSerial: AnsiString;
-    procedure SetMin(const Value: AnsiString);
-    procedure SetRefresh(const Value: AnsiString);
-    procedure SetRetry(const Value: AnsiString);
-    procedure SetSerial(const Value: AnsiString);
-    function GetExpire: AnsiString;
-    procedure SetExpire(const Value: AnsiString);
+    function GetName(const CLabel : String): String;
+    procedure SetName(const CLabel: String; const Value : String);
+    function GetMName: String;
+    function GetRName: String;
+    procedure SetMName(const Value: String);
+    procedure SetRName(const Value: String);
+    function GetMin: String;
+    function GetRefresh: String;
+    function GetRetry: String;
+    function GetSerial: String;
+    procedure SetMin(const Value: String);
+    procedure SetRefresh(const Value: String);
+    procedure SetRetry(const Value: String);
+    procedure SetSerial(const Value: String);
+    function GetExpire: String;
+    procedure SetExpire(const Value: String);
   public
     constructor Create;
-    property MName : AnsiString read GetMName write SetMName;
-    property RName : AnsiString read GetRName write SetRName;
-    property Serial : AnsiString read GetSerial write SetSerial;
-    property Refresh : AnsiString read GetRefresh write SetRefresh;
-    property Retry : AnsiString read GetRetry write SetRetry;
-    property Expire : AnsiString read GetExpire write SetExpire;
-    property Minimum : AnsiString read GetMin write SetMin;
+    property MName : String read GetMName write SetMName;
+    property RName : String read GetRName write SetRName;
+    property Serial : String read GetSerial write SetSerial;
+    property Refresh : String read GetRefresh write SetRefresh;
+    property Retry : String read GetRetry write SetRetry;
+    property Expire : String read GetExpire write SetExpire;
+    property Minimum : String read GetMin write SetMin;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -548,22 +552,22 @@ type
 
   TIdRR_A = class(TIdTextModeResourceRecord)
   protected
-    function GetA: AnsiString;
-    procedure SetA(const Value: AnsiString);
+    function GetA: String;
+    procedure SetA(const Value: String);
   public
     constructor Create;
-    property Address : AnsiString read GetA write SetA;
+    property Address : String read GetA write SetA;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
 
   TIdRR_AAAA = class(TIdTextModeResourceRecord)
   protected
-    function GetA: AnsiString;
-    procedure SetA(const Value: AnsiString);
+    function GetA: String;
+    procedure SetA(const Value: String);
   public
      constructor Create;
-     property Address : AnsiString read GetA write SetA;
+     property Address : String read GetA write SetA;
      function BinQueryRecord(AFullName : string) : TIdBytes; override;
      function TextRecord(AFullName : string) : string; override;
   end;
@@ -576,11 +580,11 @@ type
 
   TIdRR_TXT = class(TIdTextModeResourceRecord)
   protected
-    function GetTXT: AnsiString;
-    procedure SetTXT(const Value: AnsiString);
+    function GetTXT: String;
+    procedure SetTXT(const Value: String);
   public
     constructor Create;
-    property TXT : AnsiString read GetTXT write SetTXT;
+    property TXT : String read GetTXT write SetTXT;
     function BinQueryRecord(AFullName : string) : TIdBytes; override;
     function TextRecord(AFullName : string) : string; override;
   end;
@@ -590,12 +594,7 @@ type
     constructor Create;
   end;
 
-{$IFDEF STRING_IS_UNICODE}
-function DomainNameToDNSStr(const ADomain : AnsiString): TIdBytes; overload;
-function DomainNameToDNSStr(const ADomain : TIdUnicodeString): TIdBytes; overload;
-{$ELSE}
 function DomainNameToDNSStr(const ADomain : String): TIdBytes;
-{$ENDIF}
 function NormalStrToDNSStr(const Str : String): TIdBytes;
 function IPAddrToDNSStr(const IPAddress : String): TIdBytes;
 function IsValidIPv6(const v6Address : String): Boolean;
@@ -610,7 +609,12 @@ function IsBig5(ch1, ch2: Char) : Boolean;
 implementation
 
 uses
-  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  //System.Contnrs,
+  {$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}
+  DateUtils,
+  {$ENDIF}
   IdGlobalProtocols,
   IdStack, SysUtils;
 
@@ -635,17 +639,7 @@ begin
   Inc(VDestIndex, SizeOf(LongWord));
 end;
 
-{$IFDEF STRING_IS_UNICODE}
-function DomainNameToDNSStr(const ADomain : AnsiString): TIdBytes;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  Result := DomainNameToDNSStr(TIdUnicodeString(ADomain));
-end;
-
-function DomainNameToDNSStr(const ADomain : TIdUnicodeString): TIdBytes;
-{$ELSE}
 function DomainNameToDNSStr(const ADomain : string): TIdBytes;
-{$ENDIF}
 var
   BufStr, LDomain : String;
   LIdx : Integer;
@@ -654,6 +648,7 @@ begin
   if Length(ADomain) = 0 then begin
     SetLength(Result, 0);
   end else begin
+    // TODO: ned to re-write this...
     SetLength(Result, Length(ADomain)+1);
     LIdx := 0;
     LDomain := ADomain;
@@ -672,11 +667,13 @@ end;
 function NormalStrToDNSStr(const Str : String): TIdBytes;
 var
   LLen: Byte;
+  LStr: TIdBytes;
 begin
-  LLen := Length(Str);
+  LStr := ToBytes(Str);
+  LLen := IndyMin(Length(LStr), $FF);
   SetLength(Result, 1 + LLen);
   Result[0] := LLen;
-  CopyTIdString(Str, Result, 1, LLen);
+  CopyTIdBytes(LStr, 0, Result, 1, LLen);
 end;
 
 function IPAddrToDNSStr(const IPAddress : String): TIdBytes;
@@ -1254,22 +1251,14 @@ begin
   IdBytesCopyBytes(ARRData, Result, LIdx);
 end;
 
-function TIdTextModeResourceRecord.GetValue(const AName: String): AnsiString;
+function TIdTextModeResourceRecord.GetValue(const AName: String): String;
 begin
-  {$IFDEF STRING_IS_UNICODE}
-  Result := AnsiString(RRDatas.Values[AName]); // explicit convert to Ansi
-  {$ELSE}
   Result := RRDatas.Values[AName];
-  {$ENDIF}
 end;
 
-procedure TIdTextModeResourceRecord.SetValue(const AName: String; const AValue: AnsiString);
+procedure TIdTextModeResourceRecord.SetValue(const AName: String; const AValue: String);
 begin
-  {$IFDEF STRING_IS_UNICODE}
-  RRDatas.Values[AName] := String(AValue); // explicit convert to Unicode
-  {$ELSE}
   RRDatas.Values[AName] := AValue;
-  {$ENDIF}
 end;
 
 function TIdTextModeResourceRecord.ifAddFullName(AFullName, AGivenName: string): boolean;
@@ -1339,6 +1328,7 @@ begin
   inherited Destroy;
 end;
 
+{$IFNDEF HAS_GENERICS_TObjectList}
 function TIdTextModeRRs.GetItem(Index: Integer): TIdTextModeResourceRecord;
 begin
   Result := TIdTextModeResourceRecord(inherited GetItem(Index));
@@ -1348,6 +1338,7 @@ procedure TIdTextModeRRs.SetItem(Index: Integer; const Value: TIdTextModeResourc
 begin
   inherited SetItem(Index, Value);
 end;
+{$ENDIF}
 
 procedure TIdTextModeRRs.SetItemNames(const Value: TStrings);
 begin
@@ -1374,25 +1365,19 @@ begin
   CName := '';
 end;
 
-function TIdRR_CName.GetCName: AnsiString;
+function TIdRR_CName.GetCName: String;
 begin
   Result := GetValue('CName'); {do not localize}
 end;
 
-procedure TIdRR_CName.SetCName(const Value: AnsiString);
+procedure TIdRR_CName.SetCName(const Value: String);
 begin
   SetValue('CName', Value);  {do not localize}
 end;
 
 function TIdRR_CName.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'CNAME' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(CName) // explicit convert to Unicode
-    {$ELSE}
-    + CName
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'CNAME' + Chr(9) + CName + EOL;  {do not localize}
 end;
 
 { TIdRR_HINFO }
@@ -1402,14 +1387,8 @@ var
   RRData: TIdBytes;
 begin
   if Length(FAnswer) = 0 then begin
-    {$IFDEF STRING_IS_UNICODE}
-    // explicit convert to Unicode
-    RRData := NormalStrToDNSStr(String(CPU));
-    AppendBytes(RRData, NormalStrToDNSStr(String(OS)));
-    {$ELSE}
     RRData := NormalStrToDNSStr(CPU);
     AppendBytes(RRData, NormalStrToDNSStr(OS));
-    {$ENDIF}
     FAnswer := FormatRecord(AFullName, RRData);
   end;
   Result := ToBytes(FAnswer, Length(FAnswer));
@@ -1422,41 +1401,30 @@ begin
   OS := '';
 end;
 
-function TIdRR_HINFO.GetCPU: AnsiString;
+function TIdRR_HINFO.GetCPU: String;
 begin
   Result := GetValue('CPU'); {do not localize}
 end;
 
-function TIdRR_HINFO.GetOS: AnsiString;
+function TIdRR_HINFO.GetOS: String;
 begin
   Result := GetValue('OS');  {do not localize}
 end;
 
-procedure TIdRR_HINFO.SetCPU(const Value: AnsiString);
+procedure TIdRR_HINFO.SetCPU(const Value: String);
 begin
   SetValue('CPU', Value);  {do not localize}
 end;
 
-procedure TIdRR_HINFO.SetOS(const Value: AnsiString);
+procedure TIdRR_HINFO.SetOS(const Value: String);
 begin
   SetValue('OS', Value); {do not localize}
 end;
 
 function TIdRR_HINFO.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'HINFO' + Chr(9) + '"' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(CPU) // explicit convert to Unicode
-    {$ELSE}
-    + CPU
-    {$ENDIF}
-    + '" "' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(OS) // explicit convert to Unicode
-    {$ELSE}
-    + OS
-    {$ENDIF}
-    + '"' + EOL; {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'HINFO' + Chr(9)
+    + '"' + CPU + '" "' + OS + '"' + EOL; {do not localize}
 end;
 
 { TIdRR_MB }
@@ -1479,25 +1447,19 @@ begin
   MADName := '';
 end;
 
-function TIdRR_MB.GetMADName: AnsiString;
+function TIdRR_MB.GetMADName: String;
 begin
   Result := GetValue('MADNAME'); {do not localize}
 end;
 
-procedure TIdRR_MB.SetMADName(const Value: AnsiString);
+procedure TIdRR_MB.SetMADName(const Value: String);
 begin
   SetValue('MADNAME', Value);  {do not localize}
 end;
 
 function TIdRR_MB.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MB' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(MADName) // explicit convert to Unicode
-    {$ELSE}
-    + MADName
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MB' + Chr(9) + MADName + EOL;  {do not localize}
 end;
 
 { TIdRR_MG }
@@ -1520,25 +1482,19 @@ begin
   MGMName := '';
 end;
 
-function TIdRR_MG.GetMGMName: AnsiString;
+function TIdRR_MG.GetMGMName: String;
 begin
   Result := GetValue('MGMNAME'); {do not localize}
 end;
 
-procedure TIdRR_MG.SetMGMName(const Value: AnsiString);
+procedure TIdRR_MG.SetMGMName(const Value: String);
 begin
   SetValue('MGMNAME', Value);  {do not localize}
 end;
 
 function TIdRR_MG.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MG' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(MGMName) // explicit convert to Unicode
-    {$ELSE}
-    + MGMName
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MG' + Chr(9) + MGMName + EOL; {do not localize}
 end;
 
 { TIdRR_MINFO }
@@ -1572,22 +1528,22 @@ begin
   ErrorHandle_Mail := '';
 end;
 
-function TIdRR_MINFO.GetEMail: AnsiString;
+function TIdRR_MINFO.GetEMail: String;
 begin
   Result := GetValue('EMAILBX'); {do not localize}
 end;
 
-function TIdRR_MINFO.GetRMail: AnsiString;
+function TIdRR_MINFO.GetRMail: String;
 begin
   Result := GetValue('RMAILBX'); {do not localize}
 end;
 
-procedure TIdRR_MINFO.SetErrorHandle_Mail(const Value: AnsiString);
+procedure TIdRR_MINFO.SetErrorHandle_Mail(const Value: String);
 begin
   SetValue('EMAILBX', Value);  {do not localize}
 end;
 
-procedure TIdRR_MINFO.SetResponsible_Mail(const Value: AnsiString);
+procedure TIdRR_MINFO.SetResponsible_Mail(const Value: String);
 begin
   SetValue('RMAILBX', Value);  {do not localize}
 end;
@@ -1595,18 +1551,7 @@ end;
 function TIdRR_MINFO.TextRecord(AFullName: string): string;
 begin
   Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MINFO' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Responsible_Mail) // explicit convert to Unicode
-    {$ELSE}
-    + Responsible_Mail
-    {$ENDIF}
-    + ' '  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(ErrorHandle_Mail) // explicit convert to Unicode
-    {$ELSE}
-    + ErrorHandle_Mail
-    {$ENDIF}
-    + EOL;
+    + Responsible_Mail + ' ' + ErrorHandle_Mail + EOL; {do not localize}
 end;
 
 { TIdRR_MR }
@@ -1629,25 +1574,19 @@ begin
   NewName := '';
 end;
 
-function TIdRR_MR.GetNewName: AnsiString;
+function TIdRR_MR.GetNewName: String;
 begin
   Result := GetValue('NewName'); {do not localize}
 end;
 
-procedure TIdRR_MR.SetNewName(const Value: AnsiString);
+procedure TIdRR_MR.SetNewName(const Value: String);
 begin
   SetValue('NewName', Value);  {do not localize}
 end;
 
 function TIdRR_MR.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MR' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(NewName) // explicit convert to Unicode
-    {$ELSE}
-    + NewName
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MR' + Chr(9) + NewName + EOL; {do not localize}
 end;
 
 { TIdRR_MX }
@@ -1659,23 +1598,9 @@ var
 begin
   Tmp := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-    Pref := IndyStrToInt(
-      {$IFDEF STRING_IS_UNICODE}
-      String(Preference) // explicit convert to Unicode
-      {$ELSE}
-      Preference
-      {$ENDIF}
-    );
+    Pref := IndyStrToInt(Preference);
     RRData := ToBytes(SmallInt(Pref));
-    Tmp := DomainNameToDNSStr(
-      FormatQName(
-        {$IFDEF STRING_IS_UNICODE}
-        String(Exchange), // explicit convert to Unicode
-        {$ELSE}
-        Exchange,
-        {$ENDIF}
-        AFullName)
-      );
+    Tmp := DomainNameToDNSStr(FormatQName(Exchange,AFullName));
     AppendBytes(RRData, Tmp);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1688,22 +1613,22 @@ begin
   Exchange := '';
 end;
 
-function TIdRR_MX.GetExchang: AnsiString;
+function TIdRR_MX.GetExchang: String;
 begin
   Result := GetValue('EXCHANGE');  {do not localize}
 end;
 
-function TIdRR_MX.GetPref: AnsiString;
+function TIdRR_MX.GetPref: String;
 begin
   Result := GetValue('PREF');  {do not localize}
 end;
 
-procedure TIdRR_MX.SetExchange(const Value: AnsiString);
+procedure TIdRR_MX.SetExchange(const Value: String);
 begin
   SetValue('EXCHANGE', Value); {do not localize}
 end;
 
-procedure TIdRR_MX.SetPref(const Value: AnsiString);
+procedure TIdRR_MX.SetPref(const Value: String);
 begin
   SetValue('PREF', Value); {do not localize}
 end;
@@ -1711,18 +1636,7 @@ end;
 function TIdRR_MX.TextRecord(AFullName: string): string;
 begin
   Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MX' + Chr(9) {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Preference) // explicit convert to Unicode
-    {$ELSE}
-    + Preference
-    {$ENDIF}
-    + ' ' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Exchange) // explicit convert to Unicode
-    {$ELSE}
-    + Exchange
-    {$ENDIF}
-    + EOL;
+    + Preference + ' ' + Exchange + EOL; {do not localize}
 end;
 
 { TIdRR_NS }
@@ -1745,25 +1659,19 @@ begin
   NSDName := '';
 end;
 
-function TIdRR_NS.GetNS: AnsiString;
+function TIdRR_NS.GetNS: String;
 begin
   Result := GetValue('NSDNAME'); {do not localize}
 end;
 
-procedure TIdRR_NS.SetNS(const Value: AnsiString);
+procedure TIdRR_NS.SetNS(const Value: String);
 begin
   SetValue('NSDNAME', Value);  {do not localize}
 end;
 
 function TIdRR_NS.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'NS' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(NSDName) // explicit convert to Unicode
-    {$ELSE}
-    + NSDName
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'NS' + Chr(9) + NSDName + EOL; {do not localize}
 end;
 
 { TIdRR_PTR }
@@ -1786,25 +1694,19 @@ begin
   PTRDName := '';
 end;
 
-function TIdRR_PTR.GetPTRName: AnsiString;
+function TIdRR_PTR.GetPTRName: String;
 begin
   Result := GetValue('PTRDNAME');  {do not localize}
 end;
 
-procedure TIdRR_PTR.SetPTRName(const Value: AnsiString);
+procedure TIdRR_PTR.SetPTRName(const Value: String);
 begin
   SetValue('PTRDNAME', Value); {do not localize}
 end;
 
 function TIdRR_PTR.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'PTR' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(PTRDName) // explicit convert to Unicode
-    {$ELSE}
-    + PTRDName
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'PTR' + Chr(9) + PTRDName + EOL; {do not localize}
 end;
 
 { TIdRR_SOA }
@@ -1829,20 +1731,11 @@ begin
     IdBytesCopyBytes(LMName, RRData, LIdx);
     IdBytesCopyBytes(LRName, RRData, LIdx);
 
-    {$IFDEF STRING_IS_UNICODE}
-    // explicit convert to Unicode
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(String(Serial)))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(String(Refresh)))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(String(Retry)))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(String(Expire)))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(String(Minimum)))), RRData, LIdx);
-    {$ELSE}
     IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Serial))), RRData, LIdx);
     IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Refresh))), RRData, LIdx);
     IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Retry))), RRData, LIdx);
     IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Expire))), RRData, LIdx);
     IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Minimum))), RRData, LIdx);
-    {$ENDIF}
 
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1861,82 +1754,82 @@ begin
   Minimum := '';
 end;
 
-function TIdRR_SOA.GetExpire: AnsiString;
+function TIdRR_SOA.GetExpire: String;
 begin
   Result := GetName('EXPIRE'); {do not localize}
 end;
 
-function TIdRR_SOA.GetMin: AnsiString;
+function TIdRR_SOA.GetMin: String;
 begin
   Result := GetName('MINIMUM');  {do not localize}
 end;
 
-function TIdRR_SOA.GetMName: AnsiString;
+function TIdRR_SOA.GetMName: String;
 begin
   Result := GetName('MNAME');  {do not localize}
 end;
 
-function TIdRR_SOA.GetName(const CLabel: String): AnsiString;
+function TIdRR_SOA.GetName(const CLabel: String): String;
 begin
   Result := GetValue(CLabel);
 end;
 
-function TIdRR_SOA.GetRefresh: AnsiString;
+function TIdRR_SOA.GetRefresh: String;
 begin
   Result := GetName('REFRESH');  {do not localize}
 end;
 
-function TIdRR_SOA.GetRetry: AnsiString;
+function TIdRR_SOA.GetRetry: String;
 begin
   Result := GetName('RETRY');  {do not localize}
 end;
 
-function TIdRR_SOA.GetRName: AnsiString;
+function TIdRR_SOA.GetRName: String;
 begin
   Result := GetName('RNAME');  {do not localize}
 end;
 
-function TIdRR_SOA.GetSerial: AnsiString;
+function TIdRR_SOA.GetSerial: String;
 begin
   Result := GetName('SERIAL'); {do not localize}
 end;
 
-procedure TIdRR_SOA.SetExpire(const Value: AnsiString);
+procedure TIdRR_SOA.SetExpire(const Value: String);
 begin
   SetName('EXPIRE', Value);  {do not localize}
 end;
 
-procedure TIdRR_SOA.SetMin(const Value: AnsiString);
+procedure TIdRR_SOA.SetMin(const Value: String);
 begin
   SetName('MINIMUM', Value); {do not localize}
 end;
 
-procedure TIdRR_SOA.SetMName(const Value: AnsiString);
+procedure TIdRR_SOA.SetMName(const Value: String);
 begin
   SetName('MNAME', Value); {do not localize}
 end;
 
-procedure TIdRR_SOA.SetName(const CLabel: String; const Value: AnsiString);
+procedure TIdRR_SOA.SetName(const CLabel: String; const Value: String);
 begin
   SetValue(CLabel, Value);
 end;
 
-procedure TIdRR_SOA.SetRefresh(const Value: AnsiString);
+procedure TIdRR_SOA.SetRefresh(const Value: String);
 begin
   SetName('REFRESH', Value); {do not localize}
 end;
 
-procedure TIdRR_SOA.SetRetry(const Value: AnsiString);
+procedure TIdRR_SOA.SetRetry(const Value: String);
 begin
   SetName('RETRY', Value); {do not localize}
 end;
 
-procedure TIdRR_SOA.SetRName(const Value: AnsiString);
+procedure TIdRR_SOA.SetRName(const Value: String);
 begin
   SetName('RNAME', Value); {do not localize}
 end;
 
-procedure TIdRR_SOA.SetSerial(const Value: AnsiString);
+procedure TIdRR_SOA.SetSerial(const Value: String);
 begin
   SetName('SERIAL', Value);  {do not localize}
 end;
@@ -1944,48 +1837,8 @@ end;
 function TIdRR_SOA.TextRecord(AFullName: string): string;
 begin
   Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'SOA' + Chr(9) {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(MName) // explicit convert to Unicode
-    {$ELSE}
-    + MName
-    {$ENDIF}
-    + ' ' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(RName) // explicit convert to Unicode
-    {$ELSE}
-    + RName
-    {$ENDIF}
-    + ' ' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Serial) // explicit convert to Unicode
-    {$ELSE}
-    + Serial
-    {$ENDIF}
-    + ' ' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Refresh) // explicit convert to Unicode
-    {$ELSE}
-    + Refresh
-    {$ENDIF}
-    + ' ' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Retry) // explicit convert to Unicode
-    {$ELSE}
-    + Retry
-    {$ENDIF}
-    + ' ' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Expire) // explicit convert to Unicode
-    {$ELSE}
-    + Expire
-    {$ENDIF}
-    + ' ' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Minimum) // explicit convert to Unicode
-    {$ELSE}
-    + Minimum
-    {$ENDIF}
-    + EOL;
+    + MName + ' ' + RName + ' ' + Serial + ' ' + Refresh + ' ' + Retry + ' ' {do not localize}
+    + Expire + ' ' + Minimum + EOL; {do not localize}
 end;
 
 { TIdRR_A }
@@ -1996,13 +1849,7 @@ var
 begin
   RRData := nil; // keep the compiler happy
   if Length(Self.FAnswer) = 0 then begin
-    RRData := IPAddrToDNSStr(
-      {$IFDEF STRING_IS_UNICODE}
-      String(Address) // explicit convert to Unicode
-      {$ELSE}
-      Address
-      {$ENDIF}
-    );
+    RRData := IPAddrToDNSStr(Address);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
   Result := ToBytes(FAnswer, Length(FAnswer));
@@ -2014,25 +1861,19 @@ begin
   Address := '';
 end;
 
-function TIdRR_A.GetA: AnsiString;
+function TIdRR_A.GetA: String;
 begin
   Result := GetValue('A'); {do not localize}
 end;
 
-procedure TIdRR_A.SetA(const Value: AnsiString);
+procedure TIdRR_A.SetA(const Value: String);
 begin
   SetValue('A', Value);  {do not localize}
 end;
 
 function TIdRR_A.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'A' + Chr(9) {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Address) // explicit convert to Unicode
-    {$ELSE}
-    + Address
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'A' + Chr(9) + Address + EOL; {do not localize}
 end;
 
 { TIdRR_AAAA }
@@ -2043,13 +1884,7 @@ var
 begin
   RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-    RRData := IPv6AAAAToDNSStr(
-      {$IFDEF STRING_IS_UNICODE}
-      String(Address) // explicit convert to Unicode
-      {$ELSE}
-      Address
-      {$ENDIF}
-      );
+    RRData := IPv6AAAAToDNSStr(Address);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
   Result := ToBytes(FAnswer, Length(FAnswer));
@@ -2061,25 +1896,19 @@ begin
   Address := '';
 end;
 
-function TIdRR_AAAA.GetA: AnsiString;
+function TIdRR_AAAA.GetA: String;
 begin
   Result := GetValue('AAAA');  {do not localize}
 end;
 
-procedure TIdRR_AAAA.SetA(const Value: AnsiString);
+procedure TIdRR_AAAA.SetA(const Value: String);
 begin
   SetValue('AAAA', Value); {do not localize}
 end;
 
 function TIdRR_AAAA.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'AAAA' + Chr(9)  {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(Address) // explicit convert to Unicode
-    {$ELSE}
-    + Address
-    {$ENDIF}
-    + EOL;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'AAAA' + Chr(9) + Address + EOL; {do not localize}
 end;
 
 { TIdRR_TXT }
@@ -2092,13 +1921,7 @@ begin
   if Length(FAnswer) = 0 then begin
     //Fix here, make the RRData being DNSStr.
     //Fixed in 2005 Jan 25.
-    RRData := NormalStrToDNSStr(
-      {$IFDEF STRING_IS_UNICODE}
-      String(TXT) // explicit convert to Unicode
-      {$ELSE}
-      TXT
-      {$ENDIF}
-      );
+    RRData := NormalStrToDNSStr(TXT);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
   Result := ToBytes(FAnswer, Length(FAnswer));
@@ -2110,25 +1933,20 @@ begin
   TXT := '';
 end;
 
-function TIdRR_TXT.GetTXT: AnsiString;
+function TIdRR_TXT.GetTXT: String;
 begin
   Result := GetValue('TXT'); {do not localize}
 end;
 
-procedure TIdRR_TXT.SetTXT(const Value: AnsiString);
+procedure TIdRR_TXT.SetTXT(const Value: String);
 begin
   SetValue('TXT', Value);  {do not localize}
 end;
 
 function TIdRR_TXT.TextRecord(AFullName: string): string;
 begin
-  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'TXT' + Chr(9) + '"' {do not localize}
-    {$IFDEF STRING_IS_UNICODE}
-    + String(TXT) // explicit convert to Unicode
-    {$ELSE}
-    + TXT
-    {$ENDIF}
-    + '"' + EOL; {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'TXT' + Chr(9) {do not localize}
+    + '"' + TXT + '"' + EOL; {do not localize}
 end;
 
 { TIdRR_WKS }

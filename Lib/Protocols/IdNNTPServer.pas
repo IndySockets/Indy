@@ -234,7 +234,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdContextThreadList = nil
       ); override;
     //
     property Authenticated: Boolean read FAuthenticated;
@@ -2013,17 +2013,15 @@ begin
 
   FDistributionPatterns := TStringList.Create;
   FHelp := TStringList.Create;
-  FOverviewFormat := TStringList.Create;
 
-  with FOverviewFormat do begin
-    Add('Subject:');      {do not localize}
-    Add('From:');         {do not localize}
-    Add('Date:');         {do not localize}
-    Add('Message-ID:');   {do not localize}
-    Add('References:');   {do not localize}
-    Add('Bytes:');        {do not localize}
-    Add('Lines:');        {do not localize}
-  end;
+  FOverviewFormat := TStringList.Create;
+  FOverviewFormat.Add('Subject:');      {do not localize}
+  FOverviewFormat.Add('From:');         {do not localize}
+  FOverviewFormat.Add('Date:');         {do not localize}
+  FOverviewFormat.Add('Message-ID:');   {do not localize}
+  FOverviewFormat.Add('References:');   {do not localize}
+  FOverviewFormat.Add('Bytes:');        {do not localize}
+  FOverviewFormat.Add('Lines:');        {do not localize}
 
   FContextClass := TIdNNTPContext;
   FRegularProtPort := IdPORT_NNTP;
@@ -2120,131 +2118,134 @@ begin
 end;
 
 procedure TIdNNTPServer.InitializeCommandHandlers;
+var
+  LCommandHandler: TIdCommandHandler;
 begin
   inherited InitializeCommandHandlers;
-  with CommandHandlers.Add do begin
-    Command := 'ARTICLE'; {do not localize}
-    OnCommand := CommandArticle;
-    NormalReply.NumericCode := 500;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'AUTHINFO USER'; {do not localize}
-    OnCommand := CommandAuthInfoUser;
-    NormalReply.NumericCode := 502;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'AUTHINFO PASS'; {do not localize}
-    OnCommand := CommandAuthInfoPassword;
-    NormalReply.NumericCode := 502;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'AUTHINFO SIMPLE'; {do not localize}
-    OnCommand := CommandAuthInfoSimple;
-    NormalReply.NumericCode := 350;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'AUTHINFO GENERIC';  {do not localize}
-    OnCommand := CommandAuthInfoGeneric;
-    NormalReply.NumericCode := 501;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'BODY';  {do not localize}
-    OnCommand := CommandBody;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'DATE';  {do not localize}
-    OnCommand := CommandDate;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'HEAD';  {do not localize}
-    OnCommand := CommandHead;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'HELP';  {do not localize}
-    OnCommand := CommandHelp;
-    NormalReply.NumericCode := 100;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'GROUP'; {do not localize}
-    OnCommand := CommandGroup;
-    NormalReply.NumericCode := 411;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'IHAVE'; {do not localize}
-    OnCommand := CommandIHave;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'LAST';  {do not localize}
-    OnCommand := CommandLast;
-    ParseParams := False;
-  end;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'ARTICLE'; {do not localize}
+  LCommandHandler.OnCommand := CommandArticle;
+  LCommandHandler.NormalReply.NumericCode := 500;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'AUTHINFO USER'; {do not localize}
+  LCommandHandler.OnCommand := CommandAuthInfoUser;
+  LCommandHandler.NormalReply.NumericCode := 502;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'AUTHINFO PASS'; {do not localize}
+  LCommandHandler.OnCommand := CommandAuthInfoPassword;
+  LCommandHandler.NormalReply.NumericCode := 502;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'AUTHINFO SIMPLE'; {do not localize}
+  LCommandHandler.OnCommand := CommandAuthInfoSimple;
+  LCommandHandler.NormalReply.NumericCode := 350;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'AUTHINFO GENERIC';  {do not localize}
+  LCommandHandler.OnCommand := CommandAuthInfoGeneric;
+  LCommandHandler.NormalReply.NumericCode := 501;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'BODY';  {do not localize}
+  LCommandHandler.OnCommand := CommandBody;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'DATE';  {do not localize}
+  LCommandHandler.OnCommand := CommandDate;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'HEAD';  {do not localize}
+  LCommandHandler.OnCommand := CommandHead;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'HELP';  {do not localize}
+  LCommandHandler.OnCommand := CommandHelp;
+  LCommandHandler.NormalReply.NumericCode := 100;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'GROUP'; {do not localize}
+  LCommandHandler.OnCommand := CommandGroup;
+  LCommandHandler.NormalReply.NumericCode := 411;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'IHAVE'; {do not localize}
+  LCommandHandler.OnCommand := CommandIHave;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LAST';  {do not localize}
+  LCommandHandler.OnCommand := CommandLast;
+  LCommandHandler.ParseParams := False;
+
   // Before LIST
-  with CommandHandlers.Add do begin
-    Command := 'LIST Overview.fmt'; {do not localize}
-    OnCommand := CommandListOverview;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LIST Overview.fmt'; {do not localize}
+  LCommandHandler.OnCommand := CommandListOverview;
+  LCommandHandler.ParseParams := False;
+
   // Before LIST
   //TODO: This needs implemented as events to allow return data
   // RFC 2980 - NNTP Extension
-  with CommandHandlers.Add do begin
-    Command := 'LIST NEWSGROUPS'; {do not localize}
-    //ReplyNormal.NumericCode := 503;
-    NormalReply.NumericCode := 215;
-    Response.Add('.');
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LIST NEWSGROUPS'; {do not localize}
+  //LCommandHandler.ReplyNormal.NumericCode := 503;
+  LCommandHandler.NormalReply.NumericCode := 215;
+  LCommandHandler.Response.Add('.');
+  LCommandHandler.ParseParams := False;
+
   {
   From: http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-17.txt
   }
-  with CommandHandlers.Add do begin
-    Command := 'LIST EXTENSIONS'; {do not localize}
-    OnCommand := CommandListExtensions;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'LIST';  {do not localize}
-    OnCommand := CommandList;
-    NormalReply.NumericCode := 215;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'LISTGROUP'; {do not localize}
-    OnCommand := CommandListGroup;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'MODE READER'; {do not localize}
-    OnCommand := CommandModeReader;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'NEWGROUPS'; {do not localize}
-    OnCommand := CommandNewGroups;
-    NormalReply.NumericCode := 231;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'NEWNEWS'; {do not localize}
-    OnCommand := CommandNewNews;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'NEXT';  {do not localize}
-    OnCommand := CommandNext;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'POST';  {do not localize}
-    OnCommand := CommandPost;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LIST EXTENSIONS'; {do not localize}
+  LCommandHandler.OnCommand := CommandListExtensions;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LIST';  {do not localize}
+  LCommandHandler.OnCommand := CommandList;
+  LCommandHandler.NormalReply.NumericCode := 215;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LISTGROUP'; {do not localize}
+  LCommandHandler.OnCommand := CommandListGroup;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'MODE READER'; {do not localize}
+  LCommandHandler.OnCommand := CommandModeReader;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NEWGROUPS'; {do not localize}
+  LCommandHandler.OnCommand := CommandNewGroups;
+  LCommandHandler.NormalReply.NumericCode := 231;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NEWNEWS'; {do not localize}
+  LCommandHandler.OnCommand := CommandNewNews;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NEXT';  {do not localize}
+  LCommandHandler.OnCommand := CommandNext;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'POST';  {do not localize}
+  LCommandHandler.OnCommand := CommandPost;
+  LCommandHandler.ParseParams := False;
+
   (*
   3.11.  The QUIT command
 
@@ -2265,119 +2266,116 @@ begin
 
      205 closing connection - goodbye!
   *)
-  with CommandHandlers.Add do begin
-    Command := 'QUIT';  {do not localize}
-    Disconnect := True;
-    NormalReply.NumericCode := 205;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'SLAVE'; {do not localize}
-    OnCommand := CommandSlave;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'STAT';  {do not localize}
-    OnCommand := CommandStat;
-    ParseParams := False;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'XHDR';  {do not localize}
-    OnCommand := CommandXHdr;
-    ParseParams := True;
-    NormalReply.NumericCode := 221;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'HDR'; {do not localize}
-    OnCommand := CommandXHdr;
-    ParseParams := True;
-    NormalReply.NumericCode := 225;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'XOVER'; {do not localize}
-    OnCommand := CommandXOver;
-    NormalReply.NumericCode := 224;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'QUIT';  {do not localize}
+  LCommandHandler.Disconnect := True;
+  LCommandHandler.NormalReply.NumericCode := 205;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'SLAVE'; {do not localize}
+  LCommandHandler.OnCommand := CommandSlave;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'STAT';  {do not localize}
+  LCommandHandler.OnCommand := CommandStat;
+  LCommandHandler.ParseParams := False;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'XHDR';  {do not localize}
+  LCommandHandler.OnCommand := CommandXHdr;
+  LCommandHandler.ParseParams := True;
+  LCommandHandler.NormalReply.NumericCode := 221;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'HDR'; {do not localize}
+  LCommandHandler.OnCommand := CommandXHdr;
+  LCommandHandler.ParseParams := True;
+  LCommandHandler.NormalReply.NumericCode := 225;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'XOVER'; {do not localize}
+  LCommandHandler.OnCommand := CommandXOver;
+  LCommandHandler.NormalReply.NumericCode := 224;
+  LCommandHandler.ParseParams := False;
+
   //from http://www.ietf.org/internet-drafts/draft-ietf-nntpext-tls-nntp-00.txt
-  with CommandHandlers.Add do begin
-    Command := 'OVER';  {do not localize}
-    OnCommand := CommandXOver;
-    NormalReply.NumericCode := 224;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'OVER';  {do not localize}
+  LCommandHandler.OnCommand := CommandXOver;
+  LCommandHandler.NormalReply.NumericCode := 224;
+  LCommandHandler.ParseParams := False;
+
   // RFC 2980 - NNTP Extensions
-  with CommandHandlers.Add do begin
-    Command := 'XROVER';
-    OnCommand := CommandXROver;
-    NormalReply.NumericCode := 500;
-    ParseParams := False;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'XROVER';
+  LCommandHandler.OnCommand := CommandXROver;
+  LCommandHandler.NormalReply.NumericCode := 500;
+  LCommandHandler.ParseParams := False;
+
   // RFC 2980 - NNTP Extensions
-  with CommandHandlers.Add do begin
-    Command := 'XPAT';  {do not localize}
-    OnCommand := CommandXPat;
-    NormalReply.NumericCode := 500;
-    ParseParams := True;
-  end;
-  with CommandHandlers.Add do begin
-    Command := 'STARTTLS';  {do not localize}
-    OnCommand := CommandSTARTTLS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'XPAT';  {do not localize}
+  LCommandHandler.OnCommand := CommandXPat;
+  LCommandHandler.NormalReply.NumericCode := 500;
+  LCommandHandler.ParseParams := True;
 
-  with ReplyTexts do begin
-    // 100s
-    Add(100, 'help text follows');                                          {do not localize}
-    Add(199, 'debug output');                                               {do not localize}
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'STARTTLS';  {do not localize}
+  LCommandHandler.OnCommand := CommandSTARTTLS;
 
-    // 200s
-    Add(200, 'server ready - posting allowed');                             {do not localize}
-    Add(201, 'server ready - no posting allowed');                          {do not localize}
-    Add(202, 'slave status noted');                                         {do not localize}
-    Add(205, 'closing connection - goodbye!');                              {do not localize}
-    Add(215, 'list of newsgroups follows');                                 {do not localize}
-    Add(221, 'Headers follow');                                             {do not localize}
-    Add(224, 'Overview information follows');                               {do not localize}
-    Add(225, 'Headers follow');                                             {do not localize}
-    Add(231, 'list of new newsgroups follows');                             {do not localize}
-    Add(235, 'article transferred ok');                                     {do not localize}
-    Add(240, 'article posted ok');                                          {do not localize}
-    Add(281,'Authentication accepted');                                     {do not localize}
+  // 100s
+  FReplyTexts.Add(100, 'help text follows');                                          {do not localize}
+  FReplyTexts.Add(199, 'debug output');                                               {do not localize}
 
-    // 300s
-    Add(335, 'send article to be transferred. End with <CR-LF>.<CR-LF>');   {do not localize}
-    Add(340, 'send article to be posted. End with <CR-LF>.<CR-LF>');        {do not localize}
-    Add(381, 'More authentication information required');                   {do not localize}
-    Add(382,'Continue with TLS negotiation');                               {do not localize}
+  // 200s
+  FReplyTexts.Add(200, 'server ready - posting allowed');                             {do not localize}
+  FReplyTexts.Add(201, 'server ready - no posting allowed');                          {do not localize}
+  FReplyTexts.Add(202, 'slave status noted');                                         {do not localize}
+  FReplyTexts.Add(205, 'closing connection - goodbye!');                              {do not localize}
+  FReplyTexts.Add(215, 'list of newsgroups follows');                                 {do not localize}
+  FReplyTexts.Add(221, 'Headers follow');                                             {do not localize}
+  FReplyTexts.Add(224, 'Overview information follows');                               {do not localize}
+  FReplyTexts.Add(225, 'Headers follow');                                             {do not localize}
+  FReplyTexts.Add(231, 'list of new newsgroups follows');                             {do not localize}
+  FReplyTexts.Add(235, 'article transferred ok');                                     {do not localize}
+  FReplyTexts.Add(240, 'article posted ok');                                          {do not localize}
+  FReplyTexts.Add(281,'Authentication accepted');                                     {do not localize}
 
-    // 400s
-    Add(400, 'service discontinued');                                       {do not localize}
-    Add(403, 'TLS temporarily not available');                              {do not localize}
-    Add(411, 'no such news group');                                         {do not localize}
-    Add(412, 'no newsgroup has been selected');                             {do not localize}
-    Add(420, 'no current article has been selected');                       {do not localize}
-    Add(421, 'no next article in this group');                              {do not localize}
-    Add(422, 'no previous article in this group');                          {do not localize}
-    Add(423, 'no such article number in this group');                       {do not localize}
-    Add(430, 'no such article found');                                      {do not localize}
-    Add(435, 'article not wanted - do not send it');                        {do not localize}
-    Add(436, 'transfer failed - try again later');                          {do not localize}
-    Add(437, 'article rejected - do not try again.');                       {do not localize}
-    Add(440, 'posting not allowed');                                        {do not localize}
-    Add(441, 'posting failed');                                             {do not localize}
-    Add(450, 'Authorization required for this command');                    {do not localize}
-    Add(452, 'Authorization rejected');                                     {do not localize}
-    Add(480, 'Authentication required');                                    {do not localize}
-    Add(482, 'Authentication rejected');                                    {do not localize}
-    Add(483, 'Strong encryption layer is required');                        {do not localize}
+  // 300s
+  FReplyTexts.Add(335, 'send article to be transferred. End with <CR-LF>.<CR-LF>');   {do not localize}
+  FReplyTexts.Add(340, 'send article to be posted. End with <CR-LF>.<CR-LF>');        {do not localize}
+  FReplyTexts.Add(381, 'More authentication information required');                   {do not localize}
+  FReplyTexts.Add(382,'Continue with TLS negotiation');                               {do not localize}
 
-    // 500s
-    Add(500, 'command not recognized');                                     {do not localize}
-    Add(501, 'command syntax error');                                       {do not localize}
-    Add(502, 'access restriction or permission denied');                    {do not localize}
-    Add(503, 'program fault - command not performed');                      {do not localize}
-    Add(580, 'Security layer already active');                              {do not localize}
-  end;
+  // 400s
+  FReplyTexts.Add(400, 'service discontinued');                                       {do not localize}
+  FReplyTexts.Add(403, 'TLS temporarily not available');                              {do not localize}
+  FReplyTexts.Add(411, 'no such news group');                                         {do not localize}
+  FReplyTexts.Add(412, 'no newsgroup has been selected');                             {do not localize}
+  FReplyTexts.Add(420, 'no current article has been selected');                       {do not localize}
+  FReplyTexts.Add(421, 'no next article in this group');                              {do not localize}
+  FReplyTexts.Add(422, 'no previous article in this group');                          {do not localize}
+  FReplyTexts.Add(423, 'no such article number in this group');                       {do not localize}
+  FReplyTexts.Add(430, 'no such article found');                                      {do not localize}
+  FReplyTexts.Add(435, 'article not wanted - do not send it');                        {do not localize}
+  FReplyTexts.Add(436, 'transfer failed - try again later');                          {do not localize}
+  FReplyTexts.Add(437, 'article rejected - do not try again.');                       {do not localize}
+  FReplyTexts.Add(440, 'posting not allowed');                                        {do not localize}
+  FReplyTexts.Add(441, 'posting failed');                                             {do not localize}
+  FReplyTexts.Add(450, 'Authorization required for this command');                    {do not localize}
+  FReplyTexts.Add(452, 'Authorization rejected');                                     {do not localize}
+  FReplyTexts.Add(480, 'Authentication required');                                    {do not localize}
+  FReplyTexts.Add(482, 'Authentication rejected');                                    {do not localize}
+  FReplyTexts.Add(483, 'Strong encryption layer is required');                        {do not localize}
+
+  // 500s
+  FReplyTexts.Add(500, 'command not recognized');                                     {do not localize}
+  FReplyTexts.Add(501, 'command syntax error');                                       {do not localize}
+  FReplyTexts.Add(502, 'access restriction or permission denied');                    {do not localize}
+  FReplyTexts.Add(503, 'program fault - command not performed');                      {do not localize}
+  FReplyTexts.Add(580, 'Security layer already active');                              {do not localize}
 end;
 
 function TIdNNTPServer.AuthRequired(ASender: TIdCommand): Boolean;
@@ -2451,7 +2449,7 @@ end;
 constructor TIdNNTPContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TThreadList = nil
+  AList: TIdContextThreadList = nil
   );
 begin
   inherited Create(AConnection, AYarn, AList);

@@ -216,64 +216,54 @@ end;
 
 
 procedure TIdDICTServer.InitializeCommandHandlers;
+var
+  LCommandHandler: TIdCommandHandler;
 begin
-  with CommandHandlers.Add do
-  begin
-    Command := 'AUTH';  {do not localize}
-    OnCommand := DoOnCommandAUTH;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'CLIENT';  {do not localize}
-    OnCommand := DoOnCommandCLIENT;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'DEFINE';  {do not localize}
-    OnCommand := DoOnCommandDEFINE;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'HELP';  {do not localize}
-    OnCommand := DoOnCommandHELP;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'MATCH'; {do not localize}
-    OnCommand := DoOnCommandMATCH;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'OPTION';  {do not localize}
-    OnCommand := DoOnCommandOPTION;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'QUIT';  {do not localize}
-    OnCommand := DoOnCommandQUIT;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'SASLAUTH';  {do not localize}
-    OnCommand := DoOnCommandSASLAUTH;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'SHOW';  {do not localize}
-    OnCommand := DoOnCommandSHOW;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'STATUS';  {do not localize}
-    OnCommand := DoOnCommandSTAT;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'AUTH';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandAUTH;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'CLIENT';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandCLIENT;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'DEFINE';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandDEFINE;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'HELP';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandHELP;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'MATCH'; {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandMATCH;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'OPTION';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandOPTION;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'QUIT';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandQUIT;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'SASLAUTH';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandSASLAUTH;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'SHOW';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandSHOW;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'STATUS';  {do not localize}
+  LCommandHandler.OnCommand := DoOnCommandSTAT;
+
   { Other }
-  with CommandHandlers.Add do
-  begin
-    Command := '';
-    //OnCommand :=;
-    //OnException :=;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '';
+  //LCommandHandler.OnCommand :=;
+  //LCommandHandler.OnException :=;
 end;
 
 end.

@@ -182,11 +182,12 @@ begin
 end;
 
 procedure TIdSchedulerOfThread.StartYarn(AYarn: TIdYarn; ATask: TIdTask);
+var
+  LThread: TIdThreadWithTask;
 begin
-  with TIdYarnOfThread(AYarn).Thread do begin
-    Task := ATask;
-    Start;
-  end;
+  LThread := TIdYarnOfThread(AYarn).Thread;
+  LThread.Task := ATask;
+  LThread.Start;
 end;
 
 function TIdSchedulerOfThread.NewThread: TIdThreadWithTask;

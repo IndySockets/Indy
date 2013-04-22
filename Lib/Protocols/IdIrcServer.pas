@@ -242,212 +242,172 @@ begin
 end;
 
 procedure TIdIRCServer.InitializeCommandHandlers;
+var
+  LCommandHandler: TIdCommandHandler;
 begin
-  with CommandHandlers.Add do
-  begin
-    Command := 'ADMIN'; {do not localize}
-    OnCommand := DoCommandADMIN;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'AWAY';  {do not localize}
-    OnCommand := DoCommandAWAY;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'CONNECT'; {do not localize}
-    OnCommand := DoCommandCONNECT;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'ERROR'; {do not localize}
-    OnCommand := DoCommandERROR;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'INFO';  {do not localize}
-    OnCommand := DoCommandINFO;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'INVITE';  {do not localize}
-    OnCommand := DoCommandINVITE;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'ISON';  {do not localize}
-    OnCommand := DoCommandISON;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'JOIN';  {do not localize}
-    OnCommand := DoCommandJOIN;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'KICK';  {do not localize}
-    OnCommand := DoCommandKICK;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'KILL';  {do not localize}
-    OnCommand := DoCommandKILL;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'LINKS'; {do not localize}
-    OnCommand := DoCommandLINKS;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'LIST';  {do not localize}
-    OnCommand := DoCommandLIST;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'MODE';  {do not localize}
-    OnCommand := DoCommandMODE;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'NAMES'; {do not localize}
-    OnCommand := DoCommandNAMES;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'NICK';  {do not localize}
-    OnCommand := DoCommandNICK;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'NOTICE';  {do not localize}
-    OnCommand := DoCommandNOTICE;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'OPER';  {do not localize}
-    OnCommand := DoCommandOPER;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'PART';  {do not localize}
-    OnCommand := DoCommandPART;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'PASS';  {do not localize}
-    OnCommand := DoCommandPASS;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'PING';  {do not localize}
-    OnCommand := DoCommandPING;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'PONG';  {do not localize}
-    OnCommand := DoCommandPONG;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'PRIVMSG'; {do not localize}
-    OnCommand := DoCommandPRIVMSG;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'QUIT';  {do not localize}
-    OnCommand := DoCommandQUIT;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'REHASH';  {do not localize}
-    OnCommand := DoCommandREHASH;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'RESTART'; {do not localize}
-    OnCommand := DoCommandRESTART;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'SERVER';  {do not localize}
-    OnCommand := DoCommandSERVER;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'SQUIT'; {do not localize}
-    OnCommand := DoCommandSQUIT;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'STATS'; {do not localize}
-    OnCommand := DoCommandSTATS;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'SUMMON';  {do not localize}
-    OnCommand := DoCommandSUMMON;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'TIME';  {do not localize}
-    OnCommand := DoCommandTIME;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'TOPIC'; {do not localize}
-    OnCommand := DoCommandTOPIC;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'TRACE'; {do not localize}
-    OnCommand := DoCommandTRACE;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'USER';  {do not localize}
-    OnCommand := DoCommandUSER;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'USERHOST';  {do not localize}
-    OnCommand := DoCommandUSERHOST;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'USERS'; {do not localize}
-    OnCommand := DoCommandUSERS;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'VERSION'; {do not localize}
-    OnCommand := DoCommandVERSION;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'WALLOPS'; {do not localize}
-    OnCommand := DoCommandWALLOPS;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'WHO'; {do not localize}
-    OnCommand := DoCommandWHO;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'WHOIS'; {do not localize}
-    OnCommand := DoCommandWHOIS;
-  end;
-  with CommandHandlers.Add do
-  begin
-    Command := 'WHOWAS';  {do not localize}
-    OnCommand := DoCommandWHOWAS;
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'ADMIN'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandADMIN;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'AWAY';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandAWAY;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'CONNECT'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandCONNECT;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'ERROR'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandERROR;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'INFO';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandINFO;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'INVITE';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandINVITE;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'ISON';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandISON;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'JOIN';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandJOIN;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'KICK';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandKICK;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'KILL';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandKILL;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LINKS'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandLINKS;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'LIST';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandLIST;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'MODE';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandMODE;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NAMES'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandNAMES;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NICK';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandNICK;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'NOTICE';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandNOTICE;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'OPER';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandOPER;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PART';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandPART;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PASS';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandPASS;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PING';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandPING;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PONG';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandPONG;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'PRIVMSG'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandPRIVMSG;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'QUIT';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandQUIT;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'REHASH';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandREHASH;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'RESTART'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandRESTART;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'SERVER';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandSERVER;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'SQUIT'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandSQUIT;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'STATS'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandSTATS;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'SUMMON';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandSUMMON;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'TIME';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandTIME;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'TOPIC'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandTOPIC;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'TRACE'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandTRACE;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'USER';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandUSER;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'USERHOST';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandUSERHOST;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'USERS'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandUSERS;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'VERSION'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandVERSION;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'WALLOPS'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandWALLOPS;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'WHO'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandWHO;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'WHOIS'; {do not localize}
+  LCommandHandler.OnCommand := DoCommandWHOIS;
+
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := 'WHOWAS';  {do not localize}
+  LCommandHandler.OnCommand := DoCommandWHOWAS;
+
   { OTHER }
-  with CommandHandlers.Add do
-  begin
-    Command := '*^*';  {do not localize} // does not exist - so use it to handle errors
-  end;
+  LCommandHandler := CommandHandlers.Add;
+  LCommandHandler.Command := '*^*';  {do not localize} // does not exist - so use it to handle errors
 end;
 
 

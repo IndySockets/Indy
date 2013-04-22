@@ -99,13 +99,10 @@ const
   IdIPAddrMonInterval = 500;
 
 type
-
-  TIdIPAddrMonEvent =
-    procedure(ASender: TObject; AAdapter: Integer; AOldIP, ANewIP: string) of object;
+  TIdIPAddrMonEvent = procedure(ASender: TObject; AAdapter: Integer; AOldIP, ANewIP: string) of object;
 
   TIdIPAddrMonThread = class(TIdThread)
   protected
-    FOwner: TObject;
     FInterval: Cardinal;
     FOnTimerEvent: TNotifyEvent;
 
@@ -316,13 +313,9 @@ begin
       if Value then
       begin
         FThread := TIdIPAddrMonThread.Create(True);
-        with FThread do
-        begin
-          FOwner := Self;
-          FOnTimerEvent := CheckAdapters;
-          FInterval := Self.Interval;
-          Start;
-        end;
+        FThread.FOnTimerEvent := CheckAdapters;
+        FThread.FInterval := Self.Interval;
+        FThread.Start;
       end else
       begin
         if FThread <> nil then begin
@@ -373,7 +366,7 @@ end;
 procedure TIdIPAddrMonThread.DoTimerEvent;
 begin
   if Assigned(FOnTimerEvent) then begin
-    FOnTimerEvent(FOwner);
+    FOnTimerEvent(Self);
   end;
 end;
 

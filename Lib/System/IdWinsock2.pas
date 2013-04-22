@@ -230,6 +230,8 @@ type
   {$EXTERNALSYM LPWSAEVENT}
   LPWSAEVENT = PWSAEVENT;
 
+  // Must define the following types because the older versions of Delphi do not support them
+
   {$IFNDEF HAS_ULONG_PTR}
   {$EXTERNALSYM ULONG_PTR}
   ULONG_PTR = PtrUInt;
@@ -238,6 +240,26 @@ type
   {$IFNDEF HAS_DWORD_PTR}
   {$EXTERNALSYM DWORD_PTR}
   DWORD_PTR = PtrUInt;
+  {$ENDIF}
+
+  {$IFNDEF HAS_USHORT}
+  {$EXTERNALSYM USHORT}
+  USHORT = Word;
+  {$ENDIF}
+
+  {$IFNDEF HAS_PVOID}
+  {$EXTERNALSYM PVOID}
+  PVOID = Pointer;
+  {$ENDIF}
+
+  {$IFNDEF HAS_ULONG64}
+  {$EXTERNALSYM ULONG64}
+  ULONG64 = UInt64;
+  {$ENDIF}
+
+  {$IFNDEF HAS_LONG}
+  {$EXTERNALSYM LONG}
+  LONG = Longint;
   {$ENDIF}
 
 const
@@ -384,7 +406,14 @@ type
   TProtoEnt = protoent;
   {$NODEFINE PProtoEnt}
   PProtoEnt = ^TProtoEnt;
-
+  {$EXTERNALSYM NL_ADDRESS_TYPE}
+  NL_ADDRESS_TYPE = (
+    NlatUnspecified,
+    NlatUnicast,
+    NlatAnycast,
+    NlatMulticast,
+    NlatBroadcast,
+    NlatInvalid);
 // Constants and structures defined by the internet system,
 // Per RFC 790, September 1981, taken from the BSD file netinet/in.h.
 const
@@ -843,7 +872,8 @@ type
   TSockAddrIn = sockaddr_in;
   {$NODEFINE PSockAddrIn}
   PSockAddrIn = ^TSockAddrIn;
-
+  {$NODEFINE PSockAddr_In}
+  PSockAddr_In = PSockAddrIn;
   {$NODEFINE TSockAddr}
   TSockAddr   = TSockAddrIn;
   {$EXTERNALSYM SOCKADDR}
@@ -1370,7 +1400,9 @@ type
   {$EXTERNALSYM WSC_PROVIDER_INFO_TYPE}
   {$EXTERNALSYM PROVIDERINFOLSPCATEGORIES}
   {$EXTERNALSYM PROVIDERINFOAUDIT}
-  WSC_PROVIDER_INFO_TYPE = (ProviderInfoLspCategories, ProviderInfoAudit);
+  WSC_PROVIDER_INFO_TYPE = (
+    ProviderInfoLspCategories,
+    ProviderInfoAudit);
   {$ENDIF}
 
 { WinSock 2 extension -- WSABUF and QOS struct, include qos.h }
@@ -1794,6 +1826,9 @@ const
   SIO_NSP_NOTIFY_CHANGE               =  DWORD(IOC_IN or IOC_WS2 or 25);
   {$EXTERNALSYM SIO_ADDRESS_LIST_SORT}
   SIO_ADDRESS_LIST_SORT               = DWORD(IOC_INOUT or IOC_WS2 or 25);
+  {$EXTERNALSYM SIO_QUERY_RSS_PROCESSOR_INFO}
+  SIO_QUERY_RSS_PROCESSOR_INFO        = DWORD(IOC_INOUT or IOC_WS2 or 37);
+
   {$IFNDEF WINCE}
   {$EXTERNALSYM SIO_RESERVED_1}
   SIO_RESERVED_1                      = DWORD(IOC_IN or IOC_WS2 or 26);
@@ -1823,6 +1858,46 @@ type
   {$ENDIF}
   {$EXTERNALSYM LPBLOB}
   LPBLOB = PBLOB;
+
+  {$EXTERNALSYM RIO_BUFFERID}
+  RIO_BUFFERID = Pointer;
+  {$EXTERNALSYM RIO_CQ}
+  RIO_CQ = Pointer;
+  {$EXTERNALSYM RIO_RQ}
+  RIO_RQ = Pointer;
+
+  {$EXTERNALSYM PRIO_BUFFERID}
+  PRIO_BUFFERID = ^RIO_BUFFERID;
+  {$EXTERNALSYM _RIORESULT}
+  _RIORESULT = record
+    Status : LONG;
+    BytesTransferred : ULONG;
+    SocketContext : ULONGLONG;
+    RequestContext : ULONGLONG;
+  end;
+  {$EXTERNALSYM RIORESULT}
+  RIORESULT = _RIORESULT;
+  {$EXTERNALSYM PRIORESULT}
+  PRIORESULT = ^RIORESULT;
+  {$EXTERNALSYM _RIO_BUF}
+  _RIO_BUF = record
+    BufferId : RIO_BUFFERID;
+    Offset : ULONG;
+    Length : ULONG;
+  end;
+  {$EXTERNALSYM RIO_BUF}
+  RIO_BUF = _RIO_BUF;
+  {$EXTERNALSYM PRIO_BUF}
+  PRIO_BUF = ^RIO_BUF;
+  {$EXTERNALSYM _RIO_CMSG_BUFFER}
+  _RIO_CMSG_BUFFER = record
+    TotalLength : ULONG;
+    //* followed by CMSG_HDR */
+  end;
+  {$EXTERNALSYM RIO_CMSG_BUFFER}
+  RIO_CMSG_BUFFER = _RIO_CMSG_BUFFER;
+  {$EXTERNALSYM PRIO_CMSG_BUFFER}
+  PRIO_CMSG_BUFFER = ^RIO_CMSG_BUFFER;
 
 //  Service Install Flags
 
@@ -1900,6 +1975,25 @@ const
   RES_FLUSH_CACHE = $00000002;
   {$EXTERNALSYM RES_SERVICE}
   RES_SERVICE     = $00000004;
+  {$EXTERNALSYM RIO_MSG_DONT_NOTIFY}
+  RIO_MSG_DONT_NOTIFY          = $00000001;
+  {$EXTERNALSYM RIO_MSG_DEFER}
+  RIO_MSG_DEFER                = $00000002;
+  {$EXTERNALSYM RIO_MSG_WAITALL}
+  RIO_MSG_WAITALL              = $00000004;
+  {$EXTERNALSYM RIO_MSG_COMMIT_ONLY}
+  RIO_MSG_COMMIT_ONLY          = $00000008;
+
+  {$EXTERNALSYM RIO_INVALID_BUFFERID}
+  RIO_INVALID_BUFFERID         = RIO_BUFFERID($FFFFFFFF);
+  {$EXTERNALSYM RIO_INVALID_CQ}
+  RIO_INVALID_CQ               = RIO_CQ(0);
+  {$EXTERNALSYM RIO_INVALID_RQ}
+  RIO_INVALID_RQ               = RIO_RQ(0);
+  {$EXTERNALSYM RIO_MAX_CQ_SIZE}
+  RIO_MAX_CQ_SIZE              = $8000000;
+  {$EXTERNALSYM RIO_CORRUPT_CQ}
+  RIO_CORRUPT_CQ               = $FFFFFFFF;
 
 { Well known value names for Service Types }
   {$EXTERNALSYM SERVICE_TYPE_VALUE_IPXPORTA}
@@ -2473,7 +2567,8 @@ type
   {$EXTERNALSYM NSP_NOTIFY_EVENT}
   {$EXTERNALSYM NSP_NOTIFY_PORT}
   {$EXTERNALSYM NSP_NOTIFY_APC}
-  WSACOMPLETIONTYPE = (NSP_NOTIFY_IMMEDIATELY,
+  WSACOMPLETIONTYPE = (
+    NSP_NOTIFY_IMMEDIATELY,
     NSP_NOTIFY_HWND,
     NSP_NOTIFY_EVENT,
     NSP_NOTIFY_PORT,
@@ -2516,6 +2611,58 @@ type
   PWSACOMPLETION = ^WSACOMPLETION;
   {$EXTERNALSYM LPWSACOMPLETION}
   LPWSACOMPLETION = PWSACOMPLETION;
+{$IFNDEF WINCE}
+  {$EXTERNALSYM _RIO_NOTIFICATION_COMPLETION_TYPE}
+  {$EXTERNALSYM RIO_EVENT_COMPLETION}
+  {$EXTERNALSYM RIO_IOCP_COMPLETION}
+  {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
+    {$NODEFINE rnctUnused}
+  {$ENDIF}
+  // The Pascal compiler in Delphi/BCB prior to v6 does not
+  // support specifying values for individual enum items
+  _RIO_NOTIFICATION_COMPLETION_TYPE = (
+    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
+    RIO_EVENT_COMPLETION      = 1,
+    RIO_IOCP_COMPLETION       = 2
+    {$ELSE}
+    rnctUnused,   // do not use
+    RIO_EVENT_COMPLETION,
+    RIO_IOCP_COMPLETION
+    {$ENDIF}
+  );
+  {$EXTERNALSYM RIO_NOTIFICATION_COMPLETION_TYPE}
+  RIO_NOTIFICATION_COMPLETION_TYPE = _RIO_NOTIFICATION_COMPLETION_TYPE;
+  {$EXTERNALSYM PRIO_NOTIFICATION_COMPLETION_TYPE}
+  PRIO_NOTIFICATION_COMPLETION_TYPE = ^RIO_NOTIFICATION_COMPLETION_TYPE;
+  {$EXTERNALSYM _RIO_NOTIFICATION_COMPLETION}
+  {$EXTERNALSYM RIO_NOTIFICATION_COMPLETION}
+  {$EXTERNALSYM PRIO_NOTIFICATION_COMPLETION}
+  {$EXTERNALSYM _RIO_NOTIFICATION_COMPLETION_UNION}
+  {$EXTERNALSYM _RIO_NOTIFICATION_COMPLETION_IOCP}
+  {$EXTERNALSYM _RIO_NOTIFICATION_COMPLETION_EVENT}
+  _RIO_NOTIFICATION_COMPLETION_EVENT = record
+    EventHandle : THandle;
+    NotifyReset : BOOL;
+  end;
+  _RIO_NOTIFICATION_COMPLETION_IOCP = record
+    IocpHandle : THANDLE;
+    CompletionKey : PVOID;
+    Overlapped : PVOID;
+  end;
+  _RIO_NOTIFICATION_COMPLETION_UNION = record
+    case Integer of
+      0 : (Event : _RIO_NOTIFICATION_COMPLETION_EVENT);
+      1 : (Iocp : _RIO_NOTIFICATION_COMPLETION_IOCP);
+  end;
+  _RIO_NOTIFICATION_COMPLETION = record
+    _Type : RIO_NOTIFICATION_COMPLETION_TYPE;
+    a : _RIO_NOTIFICATION_COMPLETION_UNION;
+  end;
+  {$EXTERNALSYM RIO_NOTIFICATION_COMPLETION}
+  RIO_NOTIFICATION_COMPLETION = _RIO_NOTIFICATION_COMPLETION;
+  {$EXTERNALSYM PRIO_NOTIFICATION_COMPLETION}
+  PRIO_NOTIFICATION_COMPLETION = ^RIO_NOTIFICATION_COMPLETION;
+{$ENDIF}
 
 type
 {$IFDEF INCL_WINSOCK_API_TYPEDEFS}
@@ -2908,6 +3055,73 @@ type
   LPFN_WSASENDMSG = function(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAPOLL}
   LPFN_WSAPOLL = function(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
+  {$EXTERNALSYM LPFN_RIORECEIVE}
+  LPFN_RIORECEIVE = function (SocketQueue : RIO_RQ;
+    pData : PRIO_BUF;
+    const DataBufferCount : ULONG;
+    Flags : DWORD;
+    RequestContext : PVOID) : BOOL stdcall;
+  {$EXTERNALSYM LPFN_RIORECEIVEEX}
+  LPFN_RIORECEIVEEX = function (SocketQueu : RIO_RQ;
+    pData : PRIO_BUF;
+    const DataBufferCount : ULONG;
+    pLocalAddress, pRemoteAddress, pControlContext, pFlags : PRIO_BUF;
+    const Flags : DWORD; RequestContext : PVOID) : Integer stdcall;
+  {$EXTERNALSYM LPFN_RIOSEND}
+  LPFN_RIOSEND = function(SocketQueue : RIO_RQ;
+    pData : PRIO_BUF;
+    const DataBufferCount : ULONG;
+    const Flags : DWORD;
+    const RequestContext : PVOID) : Boolean stdcall;
+  {$EXTERNALSYM LPFN_RIOSENDEX}
+  LPFN_RIOSENDEX = function (SocketQueue : RIO_RQ;
+    pData : PRIO_BUF;
+    const DataBufferCount : ULONG;
+    pLocalAddress, pRemoteAddress, pControlContext, pFlags : PRIO_BUF;
+    const Flags : DWORD;
+    RequestContext : PVOID) : Boolean stdcall;
+  {$EXTERNALSYM LPFN_RIOCREATECOMPLETIONQUEUE}
+  LPFN_RIOCREATECOMPLETIONQUEUE = function (const QueueSize : DWORD;
+    NotificationCompletion : PRIO_NOTIFICATION_COMPLETION) : RIO_CQ stdcall;
+  {$EXTERNALSYM LPFN_RIOCREATEREQUESTQUEUE}
+  LPFN_RIOCREATEREQUESTQUEUE = function (const Socket : TSOCKET;
+    const MaxOutstandingReceive, MaxReceiveDataBuffers, MaxOutstandingSend, MaxSendDataBuffers : ULONG;
+    const ReceiveCQ, SendCQ : RIO_CQ; SocketContext : PVOID) : RIO_RQ stdcall;
+  {$EXTERNALSYM LPFN_RIODEQUEUECOMPLETION}
+  LPFN_RIODEQUEUECOMPLETION = function (const CQ : RIO_CQ; _Array : PRIORESULT; const ArraySize : ULONG) : ULONG stdcall;
+  {$EXTERNALSYM LPFN_RIODEREGISTERBUFFER}
+  LPFN_RIODEREGISTERBUFFER = procedure (const BufferId : RIO_BUFFERID) stdcall;
+  {$EXTERNALSYM LPFN_RIONOTIFY}
+  LPFN_RIONOTIFY = function (CQ : RIO_CQ) : Integer stdcall;
+  {$EXTERNALSYM LPFN_RIOREGISTERBUFFER}
+  LPFN_RIOREGISTERBUFFER = function (DataBuffer : PAnsiChar;  const DataLength : DWORD) : BOOL stdcall;
+  {$EXTERNALSYM LPFN_RIORESIZECOMPLETIONQUEUE}
+  LPFN_RIORESIZECOMPLETIONQUEUE = function(const CQ : RIO_CQ; const QueueSize : DWORD) : BOOL stdcall;
+  {$EXTERNALSYM LPFN_RIORESIZEREQUESTQUEUE}
+  LPFN_RIORESIZEREQUESTQUEUE = function(const RQ : RIO_RQ; const MaxOutstandingReceive, MaxOutstandingSend : DWORD) : BOOL stdcall;
+  {$EXTERNALSYM LPFN_RIOCLOSECOMPLETIONQUEUE}
+  LPFN_RIOCLOSECOMPLETIONQUEUE = procedure (const CQ : RIO_CQ) stdcall;
+  {$EXTERNALSYM _RIO_EXTENSION_FUNCTION_TABLE}
+  _RIO_EXTENSION_FUNCTION_TABLE = record
+    cbSize : DWORD;
+    RIOReceive : LPFN_RIORECEIVE;
+    RIOReceiveEx : LPFN_RIORECEIVEEX;
+    RIOSend : LPFN_RIOSEND;
+    RIOSendEx : LPFN_RIOSENDEX;
+    RIOCloseCompletionQueue : LPFN_RIOCLOSECOMPLETIONQUEUE;
+    RIOCreateCompletionQueue : LPFN_RIOCREATECOMPLETIONQUEUE;
+    RIOCreateRequestQueue : LPFN_RIOCREATEREQUESTQUEUE;
+    RIODequeueCompletion : LPFN_RIODEQUEUECOMPLETION;
+    RIODeregisterBuffer : LPFN_RIODEREGISTERBUFFER;
+    RIONotify : LPFN_RIONOTIFY;
+    RIORegisterBuffer : LPFN_RIOREGISTERBUFFER;
+    RIOResizeCompletionQueue : LPFN_RIORESIZECOMPLETIONQUEUE;
+    RIOResizeRequestQueue : LPFN_RIORESIZEREQUESTQUEUE;
+  end;
+  {$EXTERNALSYM RIO_EXTENSION_FUNCTION_TABLE}
+  RIO_EXTENSION_FUNCTION_TABLE = _RIO_EXTENSION_FUNCTION_TABLE;
+  {$EXTERNALSYM PRIO_EXTENSION_FUNCTION_TABLE}
+  PRIO_EXTENSION_FUNCTION_TABLE = ^RIO_EXTENSION_FUNCTION_TABLE;
 {$ENDIF} // $IFDEF INCL_WINSOCK_API_TYPEDEFS
 
 
@@ -2934,6 +3148,8 @@ const
 {$IFNDEF WINCE}
   {$EXTERNALSYM WSAID_WSASENDMSG}
   WSAID_WSASENDMSG : TGuid = (D1:$a441e712;D2:$754f;D3:$43ca;D4:($84,$a7,$0d,$ee,$44,$cf,$60,$6d));
+  {$EXTERNALSYM WSAID_MULTIPLE_RIO}
+  WSAID_MULTIPLE_RIO : TGuid = (D1:$8509e081;D2:$96dd;D3:$4005;D4:($b1,$65,$9e,$2e,$e8,$c7,$9e,$3f));
 {$ENDIF}
 
 {$IFDEF WS2_DLL_FUNC_VARS}
@@ -3478,8 +3694,8 @@ type
   {$EXTERNALSYM IN6_ADDR}
   IN6_ADDR = record
     case Integer of
-      0: (s6_addr: array[0..15] of u_char);
-      1: (word: array[0..7] of u_short);
+      0: (s6_bytes: array[0..15] of u_char);
+      1: (s6_words: array[0..7] of u_short);
   end;
   {$NODEFINE TIn6Addr}
   TIn6Addr   = IN6_ADDR;
@@ -3504,7 +3720,39 @@ type
   PIPv6_MReq = ^TIPv6_MReq;  
   {$ENDIF}
 {$ENDIF}
-
+  {$EXTERNALSYM SCOPE_LEVEL}
+  // The Pascal compiler in Delphi/BCB prior to v6 does not
+  // support specifying values for individual enum items
+  SCOPE_LEVEL = (
+    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
+    ScopeLevelInterface    = 1,
+    ScopeLevelLink         = 2,
+    ScopeLevelSubnet       = 3,
+    ScopeLevelAdmin        = 4,
+    ScopeLevelSite         = 5,
+    ScopeLevelOrganization = 8,
+    ScopeLevelGlobal       = 14,
+    ScopeLevelCount        = 16
+    {$ELSE}
+    slUnused0,               // do not use
+    ScopeLevelInterface,
+    ScopeLevelLink,
+    ScopeLevelSubnet,
+    ScopeLevelAdmin,
+    ScopeLevelSite,
+    slUnused6,               // do not use
+    slUnused7,               // do not use
+    ScopeLevelOrganization,
+    slUnused9,               // do not use
+    slUnused10,              // do not use
+    slUnused11,              // do not use
+    slUnused12,              // do not use
+    slUnused13,              // do not use
+    ScopeLevelGlobal,
+    slUnused15,              // do not use
+    ScopeLevelCount
+    {$ENDIF}
+  );
   // Old IPv6 socket address structure (retained for sockaddr_gen definition below)
   {$EXTERNALSYM sockaddr_in6_old}
   sockaddr_in6_old = record
@@ -3515,6 +3763,7 @@ type
   end;
 
 // IPv6 socket address structure, RFC 2553
+{$IFDEF WINCE}
   {$EXTERNALSYM SOCKADDR_IN6}
   SOCKADDR_IN6 = record
     sin6_family   : Smallint;         // AF_INET6
@@ -3523,6 +3772,64 @@ type
     sin6_addr     : TIn6Addr;         // IPv6 address
     sin6_scope_id : u_long;           // set of interfaces for a scope
   end;
+{$ELSE}
+  {$EXTERNALSYM ADDRESS_FAMILY}
+  ADDRESS_FAMILY = USHORT;
+//
+// IPv6 socket address structure, RFC 3493.
+//
+
+//
+// NB: The LH version of sockaddr_in6 has the struct tag sockaddr_in6 rather
+// than sockaddr_in6_lh.  This is to make sure that standard sockets apps
+// that conform to RFC 2553 (Basic Socket Interface Extensions for IPv6).
+//
+  {$EXTERNALSYM SCOPE_ID}
+  SCOPE_ID = record
+//    union {
+//        struct {
+//            ULONG Zone : 28;
+//            ULONG Level : 4;
+//        };
+//        ULONG Value;
+//    };
+    Value : ULONG;
+  end;
+  {$EXTERNALSYM PSCOPE_ID}
+  PSCOPE_ID = ^SCOPE_ID;
+
+  {$EXTERNALSYM SCOPEID_UNSPECIFIED_INIT}
+  function SCOPEID_UNSPECIFIED_INIT: SCOPE_ID;
+
+type
+  {$EXTERNALSYM sockaddr_in6_union}
+  sockaddr_in6_union = record
+    case Integer of
+      0 : (sin6_scope_id : ULONG);     // Set of interfaces for a scope.
+      1 : (sin6_scope_struct : SCOPE_ID);
+  end;
+  {$EXTERNALSYM SOCKADDR_IN6_LH}
+  SOCKADDR_IN6_LH = record
+    sin6_family : ADDRESS_FAMILY; // AF_INET6.
+    sin6_port : USHORT;           // Transport level port number.
+    sin6_flowinfo : ULONG;       // IPv6 flow information.
+    sin6_addr : IN6_ADDR;         // IPv6 address.
+    a : sockaddr_in6_union;
+  end;
+  {$EXTERNALSYM SOCKADDR_IN6_W2KSP1}
+  SOCKADDR_IN6_W2KSP1 = record
+    sin6_family : short;        //* AF_INET6 */
+    sin6_port : USHORT;         //* Transport level port number */
+    sin6_flowinfo : ULONG;      //* IPv6 flow information */
+    sin6_addr : in6_addr;       //* IPv6 address */
+    sin6_scope_id : ULONG;      //* set of interfaces for a scope */
+  end;
+  {$EXTERNALSYM PSOCKADDR_IN6_LH}
+  PSOCKADDR_IN6_LH = SOCKADDR_IN6_LH;
+  {$EXTERNALSYM SOCKADDR_IN6}
+  SOCKADDR_IN6 = SOCKADDR_IN6_LH;
+{$ENDIF}
+
   {$NODEFINE TSockAddrIn6}
   TSockAddrIn6   = SOCKADDR_IN6;
   {$NODEFINE PSockAddrIn6}
@@ -3580,6 +3887,20 @@ type
   function IN6ADDR_ANY_INIT: TIn6Addr;
   {$EXTERNALSYM IN6ADDR_LOOPBACK_INIT}
   function IN6ADDR_LOOPBACK_INIT: TIn6Addr;
+  {$EXTERNALSYM IN6ADDR_ALLNODESONNODE_INIT}
+  function IN6ADDR_ALLNODESONNODE_INIT : TIn6Addr;
+  {$EXTERNALSYM IN6ADDR_ALLNODESONLINK_INIT}
+  function IN6ADDR_ALLNODESONLINK_INIT : TIn6Addr;
+  {$EXTERNALSYM IN6ADDR_ALLROUTERSONLINK_INIT}
+  function IN6ADDR_ALLROUTERSONLINK_INIT : TIn6Addr;
+  {$EXTERNALSYM IN6ADDR_ALLMLDV2ROUTERSONLINK_INIT}
+  function IN6ADDR_ALLMLDV2ROUTERSONLINK_INIT : TIn6Addr;
+  {$EXTERNALSYM IN6ADDR_TEREDOINITIALLINKLOCALADDRESS_INIT}
+  function IN6ADDR_TEREDOINITIALLINKLOCALADDRESS_INIT : TIn6Addr;
+  {$EXTERNALSYM IN6ADDR_TEREDOOLDLINKLOCALADDRESSXP_INIT}
+  function IN6ADDR_TEREDOOLDLINKLOCALADDRESSXP_INIT : TIn6Addr;
+  {$EXTERNALSYM IN6ADDR_TEREDOOLDLINKLOCALADDRESSVISTA_INIT}
+  function IN6ADDR_TEREDOOLDLINKLOCALADDRESSVISTA_INIT : TIn6Addr;
 
   {$EXTERNALSYM IN6ADDR_SETANY}
   procedure IN6ADDR_SETANY(sa: PSockAddrIn6);
@@ -3615,6 +3936,8 @@ type
   function IN6_IS_ADDR_V4MAPPED(const a: PIn6Addr): Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_V4COMPAT}
   function IN6_IS_ADDR_V4COMPAT(const a: PIn6Addr): Boolean;
+  {$EXTERNALSYM IN6_IS_ADDR_V4TRANSLATED}
+  function IN6_IS_ADDR_V4TRANSLATED(const a: PIn6Addr): Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_MC_NODELOCAL}
   function IN6_IS_ADDR_MC_NODELOCAL(const a: PIn6Addr): Boolean;
   {$EXTERNALSYM IN6_IS_ADDR_MC_LINKLOCAL}
@@ -3704,13 +4027,19 @@ type
   {$EXTERNALSYM NAPI_PROVIDER_TYPE}
   {$EXTERNALSYM ProviderType_Application}
   {$EXTERNALSYM ProviderType_Service}
+  {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
+    {$NODEFINE nptUnused}
+  {$ENDIF}
   // The Pascal compiler in Delphi/BCB prior to v6 does not
   // support specifying values for individual enum items
+  NAPI_PROVIDER_TYPE = (
   {$IFDEF HAS_ENUM_ELEMENT_VALUES}
-  NAPI_PROVIDER_TYPE = (ProviderType_Application = 1, ProviderType_Service);
+    ProviderType_Application = 1,
   {$ELSE}
-  NAPI_PROVIDER_TYPE = (nptUnused, ProviderType_Application, ProviderType_Service);
+    nptUnused,  // Do not use
+    ProviderType_Application,
   {$ENDIF}
+    ProviderType_Service);
   {$EXTERNALSYM NAPI_DOMAIN_DESCRIPTION_BLOB}
   NAPI_DOMAIN_DESCRIPTION_BLOB = record
     AuthLevel : DWORD;
@@ -3725,7 +4054,11 @@ type
   {$EXTERNALSYM PROVIDERLEVEL_NONE}
   {$EXTERNALSYM PROVIDERLEVEL_SECONDARY}
   {$EXTERNALSYM PROVIDERLEVEL_PRIMARY}
-  NAPI_PROVIDER_LEVEL = (PROVIDERLEVEL_NONE, PROVIDERLEVEL_SECONDARY,PROVIDERLEVEL_PRIMARY);
+  NAPI_PROVIDER_LEVEL = (
+    PROVIDERLEVEL_NONE,
+    PROVIDERLEVEL_SECONDARY,
+    PROVIDERLEVEL_PRIMARY
+  );
 
   {$EXTERNALSYM NAPI_PROVIDER_INSTALLATION_BLOB}
   NAPI_PROVIDER_INSTALLATION_BLOB = record
@@ -3842,14 +4175,27 @@ type
 
   {$EXTERNALSYM SOCKET_USAGE_TYPE}
   {$EXTERNALSYM SYSTEM_CRITICAL_SOCKET}
+  {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
+    {$NODEFINE sutUnused}
+  {$ENDIF}
   // The Pascal compiler in Delphi/BCB prior to v6 does not
   // support specifying values for individual enum items
+  SOCKET_USAGE_TYPE = (
   {$IFDEF HAS_ENUM_ELEMENT_VALUES}
-  SOCKET_USAGE_TYPE = (SYSTEM_CRITICAL_SOCKET = 1);
+    SYSTEM_CRITICAL_SOCKET = 1
   {$ELSE}
-  SOCKET_USAGE_TYPE = (sutUnused, SYSTEM_CRITICAL_SOCKET);
+    sutUnused,  // do not use
+    SYSTEM_CRITICAL_SOCKET
   {$ENDIF}
-
+  );
+  {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL}
+  {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_DEFAULT}
+  {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_IPSEC}
+  {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_IPSEC2}
+  SOCKET_SECURITY_PROTOCOL = (
+    SOCKET_SECURITY_PROTOCOL_DEFAULT,
+    SOCKET_SECURITY_PROTOCOL_IPSEC,
+    SOCKET_SECURITY_PROTOCOL_IPSEC2);
   {$IFNDEF NO_REDECLARE}
   {$EXTERNALSYM SERVICE_INFO}
     {$IFDEF UNICODE}
@@ -4015,6 +4361,8 @@ const
   AI_FQDN                   = $00020000;  // Return the FQDN in ai_canonname  (Windows 7 or later)
   {$EXTERNALSYM AI_FILESERVER}
   AI_FILESERVER             = $00040000;  // Resolving fileserver name resolution (Windows 7 or later)
+  {$EXTERNALSYM AI_DISABLE_IDN_ENCODING}
+  AI_DISABLE_IDN_ENCODING = $00080000;  // Disable Internationalized Domain Names handling
 
 
 type
@@ -4060,11 +4408,99 @@ type
   {$EXTERNALSYM LPADDRINFOEXW}
   LPADDRINFOEXW = PADDRINFOEXW;
 
+  {$EXTERNALSYM Paddrinfoex2A}
+  Paddrinfoex2A = ^addrinfoex2A;
+  {$EXTERNALSYM addrinfoex2A}
+  addrinfoex2A = record
+    ai_flags : Integer;       // AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST
+    ai_family : Integer;      // PF_xxx
+    ai_socktype : Integer;    // SOCK_xxx
+    ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
+    ai_addrlen : size_t;     // Length of ai_addr
+    ai_canonname : PAnsiChar;   // Canonical name for nodename
+    ai_addr : Psockaddr;        // Binary address
+    ai_blob : Pointer;
+    ai_bloblen : size_t;
+    ai_provider : LPGUID;
+    ai_next : Paddrinfoex2A;        // Next structure in linked list
+    ai_version : Integer;
+    ai_fqdn : PAnsiChar;
+  end;
+  {$NODEFINE TAddrInfoEx2A}
+  TAddrInfoEx2A = addrinfoex2A;
+  {$EXTERNALSYM LPADDRINFOEX2A}
+  LPADDRINFOEX2A = Paddrinfoex2A;
+
+  {$EXTERNALSYM Paddrinfoex2W}
+  Paddrinfoex2W = ^addrinfoex2W;
+  {$EXTERNALSYM addrinfoex2W}
+  addrinfoex2W = record
+    ai_flags : Integer;       // AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST
+    ai_family : Integer;      // PF_xxx
+    ai_socktype : Integer;    // SOCK_xxx
+    ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
+    ai_addrlen : size_t;     // Length of ai_addr
+    ai_canonname : PWideChar;   // Canonical name for nodename
+    ai_addr : Psockaddr; //_Field_size_bytes_(ai_addrlen)       // Binary address
+    ai_blob : Pointer; //_Field_size_(ai_bloblen)
+    ai_bloblen : size_t;
+    ai_provider : LPGUID;
+    ai_next : Paddrinfoex2W;        // Next structure in linked list
+    ai_version : Integer;
+    ai_fqdn : PWideChar;
+  end;
+  {$NODEFINE TAddrInfoEx2W}
+  TAddrInfoEx2W = addrinfoex2W;
+  {$EXTERNALSYM LPADDRINFOEX2W}
+  LPADDRINFOEX2W = Paddrinfoex2W;
+
 var
+  {$EXTERNALSYM scopeid_unspecified}
+  scopeid_unspecified: SCOPE_ID;
+
+  // RLebeau: the in4addr_any, _in4addr_loopback, and _in4addr_broadcast variables
+  // clash with the IN4ADDR_ANY, IN4ADDR_LOOPBACK, and IN4ADDR_BROADCAST constants
+  {$EXTERNALSYM in4addr_any}
+  {$NODEFINE _in4addr_any}
+  _in4addr_any: TInAddr;
+  {$EXTERNALSYM in4addr_loopback}
+  {$NODEFINE _in4addr_loopback}
+  _in4addr_loopback: TInAddr;
+  {$EXTERNALSYM in4addr_broadcast}
+  {$NODEFINE _in4addr_broadcast}
+  _in4addr_broadcast: TInAddr;
+
+  {$EXTERNALSYM in4addr_allnodesonlink}
+  in4addr_allnodesonlink: TInAddr;
+  {$EXTERNALSYM in4addr_allroutersonlink}
+  in4addr_allroutersonlink: TInAddr;
+  {$EXTERNALSYM in4addr_alligmpv3routersonlink}
+  in4addr_alligmpv3routersonlink: TInAddr;
+  {$EXTERNALSYM in4addr_allteredohostsonlink}
+  in4addr_allteredohostsonlink: TInAddr;
+  {$EXTERNALSYM in4addr_linklocalprefix}
+  in4addr_linklocalprefix: TInAddr;
+  {$EXTERNALSYM in4addr_multicastprefix}
+  in4addr_multicastprefix: TInAddr;
+
   {$EXTERNALSYM in6addr_any}
   in6addr_any: TIn6Addr;
   {$EXTERNALSYM in6addr_loopback}
   in6addr_loopback: TIn6Addr;
+  {$EXTERNALSYM in6addr_allnodesonnode}
+  in6addr_allnodesonnode: TIn6Addr;
+  {$EXTERNALSYM in6addr_allnodesonlink}
+  in6addr_allnodesonlink: TIn6Addr;
+  {$EXTERNALSYM in6addr_allroutersonlink}
+  in6addr_allroutersonlink: TIn6Addr;
+  {$EXTERNALSYM in6addr_solicitednodemulticastprefix}
+  in6addr_solicitednodemulticastprefix: TIn6Addr;
+  {$EXTERNALSYM in6addr_v4mappedprefix}
+  in6addr_v4mappedprefix: TIn6Addr;
+  {$EXTERNALSYM in6addr_6to4prefix}
+  in6addr_6to4prefix: TIn6Addr;
+  {$EXTERNALSYM in6addr_teredoprefix}
+  in6addr_teredoprefix: TIn6Addr;
 
 //=============================================================
 
@@ -4618,11 +5054,19 @@ type
   LPSOCKADDR_ATM = PSOCKADDR_ATM;
 
   {$EXTERNALSYM Q2931_IE_TYPE}
-  Q2931_IE_TYPE = (IE_AALParameters, IE_TrafficDescriptor,
-    IE_BroadbandBearerCapability, IE_BHLI, IE_BLLI,IE_CalledPartyNumber,
-    IE_CalledPartySubaddress, IE_CallingPartyNumber, IE_CallingPartySubaddress,
-    IE_Cause, IE_QOSClass, IE_TransitNetworkSelection
-  );
+  Q2931_IE_TYPE = (
+    IE_AALParameters,
+    IE_TrafficDescriptor,
+    IE_BroadbandBearerCapability,
+    IE_BHLI,
+    IE_BLLI,
+    IE_CalledPartyNumber,
+    IE_CalledPartySubaddress,
+    IE_CallingPartyNumber,
+    IE_CallingPartySubaddress,
+    IE_Cause,
+    IE_QOSClass,
+    IE_TransitNetworkSelection);
 
   {$EXTERNALSYM Q2931_IE}
   Q2931_IE = record
@@ -5105,23 +5549,347 @@ const
 //    user mode or kernel mode
 
 type
+  {$EXTERNALSYM TRANSPORT_SETTING_ID}
+  TRANSPORT_SETTING_ID = record
+    Guid : TGUID;
+  end;
+  {$EXTERNALSYM PTRANSPORT_SETTING_ID}
+  PTRANSPORT_SETTING_ID = ^TRANSPORT_SETTING_ID;
   {$EXTERNALSYM tcp_keepalive}
   tcp_keepalive = record
     onoff: u_long;
     keepalivetime: u_long;
     keepaliveinterval: u_long;
   end;
+  {$EXTERNALSYM TCP_INITIAL_RTO_PARAMETERS}
+  TCP_INITIAL_RTO_PARAMETERS = record
+    //
+    // Supplies the initial RTT in milliseconds.
+    //
+    Rtt : USHORT;
+
+    //
+    // Supplies the number of retransmissions attempted before the connection
+    // setup fails.
+    //
+
+    MaxSynRetransmissions : UCHAR;
+  end;
+  {$EXTERNALSYM PTCP_INITIAL_RTO_PARAMETERS}
+  PTCP_INITIAL_RTO_PARAMETERS = ^TCP_INITIAL_RTO_PARAMETERS;
+  {$EXTERNALSYM _INET_PORT_RANGE}
+  _INET_PORT_RANGE  = record
+    StartPort : USHORT;
+    NumberOfPorts : USHORT;
+  end;
+  {$EXTERNALSYM INET_PORT_RANGE}
+  INET_PORT_RANGE = _INET_PORT_RANGE;
+  {$EXTERNALSYM PINET_PORT_RANGE}
+  PINET_PORT_RANGE = ^INET_PORT_RANGE;
+  {$EXTERNALSYM INET_PORT_RESERVATION}
+  INET_PORT_RESERVATION = _INET_PORT_RANGE;
+  {$EXTERNALSYM PINET_PORT_RESERVATION}
+  PINET_PORT_RESERVATION = ^INET_PORT_RESERVATION;
+  {$EXTERNALSYM INET_PORT_RESERVATION_TOKEN}
+  INET_PORT_RESERVATION_TOKEN = record
+    Token : ULONG64;
+  end;
+  {$EXTERNALSYM PINET_PORT_RESERVATION_TOKEN}
+  PINET_PORT_RESERVATION_TOKEN = ^INET_PORT_RESERVATION_TOKEN;
+  {$EXTERNALSYM INET_PORT_RESERVATION_INSTANCE}
+  INET_PORT_RESERVATION_INSTANCE = record
+    Reservation : INET_PORT_RESERVATION;
+    Token : INET_PORT_RESERVATION_TOKEN;
+  end;
+  {$EXTERNALSYM PINET_PORT_RESERVATION_INSTANCE}
+  PINET_PORT_RESERVATION_INSTANCE = ^INET_PORT_RESERVATION_INSTANCE;
+
+  {$EXTERNALSYM INET_PORT_RESERVATION_INFORMATION}
+  INET_PORT_RESERVATION_INFORMATION = record
+    AssignmentCount : ULONG;
+    OwningPid : ULONG;
+  end;
+  {$EXTERNALSYM PINET_PORT_RESERVATION_INFORMATION}
+  PINET_PORT_RESERVATION_INFORMATION = ^INET_PORT_RESERVATION_INFORMATION;
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS}
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_INVALID}
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_SOFTWARE_SLOT_ALLOCATED}
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_HARDWARE_SLOT_ALLOCATED}
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_POLICY_ERROR}
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_SYSTEM_ERROR}
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_TRANSPORT_DISCONNECTED}
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_SERVICE_UNAVAILABLE}
+  CONTROL_CHANNEL_TRIGGER_STATUS = (
+    CONTROL_CHANNEL_TRIGGER_STATUS_INVALID,
+    CONTROL_CHANNEL_TRIGGER_STATUS_SOFTWARE_SLOT_ALLOCATED,
+    CONTROL_CHANNEL_TRIGGER_STATUS_HARDWARE_SLOT_ALLOCATED,
+    CONTROL_CHANNEL_TRIGGER_STATUS_POLICY_ERROR,
+    CONTROL_CHANNEL_TRIGGER_STATUS_SYSTEM_ERROR,
+    CONTROL_CHANNEL_TRIGGER_STATUS_TRANSPORT_DISCONNECTED,
+    CONTROL_CHANNEL_TRIGGER_STATUS_SERVICE_UNAVAILABLE);
+  {$EXTERNALSYM PCONTROL_CHANNEL_TRIGGER_STATUS}
+  PCONTROL_CHANNEL_TRIGGER_STATUS = ^CONTROL_CHANNEL_TRIGGER_STATUS;
+  {$EXTERNALSYM REAL_TIME_NOTIFICATION_SETTING_INPUT}
+  REAL_TIME_NOTIFICATION_SETTING_INPUT = record
+    TransportSettingId : TRANSPORT_SETTING_ID;
+    BrokerEventGuid : TGUID;
+  end;
+  {$EXTERNALSYM PREAL_TIME_NOTIFICATION_SETTING_INPUT}
+  PREAL_TIME_NOTIFICATION_SETTING_INPUT = ^REAL_TIME_NOTIFICATION_SETTING_INPUT;
+  {$EXTERNALSYM REAL_TIME_NOTIFICATION_SETTING_OUTPUT}
+  REAL_TIME_NOTIFICATION_SETTING_OUTPUT = record
+    ChannelStatus : CONTROL_CHANNEL_TRIGGER_STATUS;
+  end;
+  {$EXTERNALSYM PREAL_TIME_NOTIFICATION_SETTING_OUTPUT}
+  PREAL_TIME_NOTIFICATION_SETTING_OUTPUT = ^REAL_TIME_NOTIFICATION_SETTING_OUTPUT;
+  {$EXTERNALSYM RCVALL_VALUE}
+  {$EXTERNALSYM RCVALL_OFF}
+  {$EXTERNALSYM RCVALL_ON}
+  {$EXTERNALSYM RCVALL_SOCKETLEVELONLY}
+  {$EXTERNALSYM RCVALL_IPLEVEL}
+  RCVALL_VALUE = (
+    RCVALL_OFF,
+    RCVALL_ON,
+    RCVALL_SOCKETLEVELONLY,
+    RCVALL_IPLEVEL
+  );
+  {$EXTERNALSYM PRCVALL_VALUE}
+  PRCVALL_VALUE = ^RCVALL_VALUE;
+  {$EXTERNALSYM RCVALL_IF}
+  RCVALL_IF = record
+    Mode : RCVALL_VALUE;
+    _Interface : ULONG;
+  end;
+  {$EXTERNALSYM PRCVALL_IF}
+  PRCVALL_IF = ^RCVALL_IF;
+  {$EXTERNALSYM SOCKET_SECURITY_QUERY_INFO_IPSEC2}
+  SOCKET_SECURITY_QUERY_INFO_IPSEC2 = record
+    SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
+    Flags : ULONG;
+    PeerApplicationAccessTokenHandle : UINT64;
+    PeerMachineAccessTokenHandle : UINT64;
+    MmSaId : UINT64;
+    QmSaId : UINT64;
+    NegotiationWinerr : UINT32;
+    SaLookupContext : TGuid;
+  end;
+  {$EXTERNALSYM PSOCKET_SECURITY_QUERY_INFO_IPSEC2}
+  PSOCKET_SECURITY_QUERY_INFO_IPSEC2 = ^SOCKET_SECURITY_QUERY_INFO_IPSEC2;
+  {$EXTERNALSYM RSS_SCALABILITY_INFO}
+  RSS_SCALABILITY_INFO = record
+    RssEnabled : BOOL;
+  end;
+  {$EXTERNALSYM PRSS_SCALABILITY_INFO}
+  PRSS_SCALABILITY_INFO = ^RSS_SCALABILITY_INFO;
 
 const
+//
+// Argument structures for SIO_QUERY_TRANSPORT_SETTING and
+// SIO_QUERY_TRANSPORT_SETTING.
+//
+
+  {$EXTERNALSYM CONTROL_CHANNEL_TRIGGER_STATUS_MAX}
+  CONTROL_CHANNEL_TRIGGER_STATUS_MAX = CONTROL_CHANNEL_TRIGGER_STATUS_SYSTEM_ERROR;
+
+//
+// New WSAIoctl Options
+//
+  {$EXTERNALSYM SIO_RCVALL}
+  SIO_RCVALL                          = (IOC_IN or IOC_VENDOR or 1);
+  {$EXTERNALSYM SIO_RCVALL_MCAST}
+  SIO_RCVALL_MCAST                    = (IOC_IN or IOC_VENDOR or 2);
+  {$EXTERNALSYM SIO_RCVALL_IGMPMCAST}
+  SIO_RCVALL_IGMPMCAST                = (IOC_IN or IOC_VENDOR or 3);
   {$EXTERNALSYM SIO_KEEPALIVE_VALS}
-  SIO_KEEPALIVE_VALS = DWORD(IOC_IN or IOC_VENDOR or 4);
+  SIO_KEEPALIVE_VALS                  = (IOC_IN or IOC_VENDOR or 4);
+  {$EXTERNALSYM SIO_ABSORB_RTRALERT}
+  SIO_ABSORB_RTRALERT                 = (IOC_IN or IOC_VENDOR or 5);
+  {$EXTERNALSYM SIO_UCAST_IF}
+  SIO_UCAST_IF                        = (IOC_IN or IOC_VENDOR or 6);
+  {$EXTERNALSYM SIO_LIMIT_BROADCASTS}
+  SIO_LIMIT_BROADCASTS                = (IOC_IN or IOC_VENDOR or 7);
+  {$EXTERNALSYM SIO_INDEX_BIND}
+  SIO_INDEX_BIND                      = (IOC_IN or IOC_VENDOR or 8);
+  {$EXTERNALSYM SIO_INDEX_MCASTIF}
+  SIO_INDEX_MCASTIF                   = (IOC_IN or IOC_VENDOR or 9);
+  {$EXTERNALSYM SIO_INDEX_ADD_MCAST}
+  SIO_INDEX_ADD_MCAST                 = (IOC_IN or IOC_VENDOR or 10);
+  {$EXTERNALSYM SIO_INDEX_DEL_MCAST}
+  SIO_INDEX_DEL_MCAST                 = (IOC_IN or IOC_VENDOR or 11);
+//      SIO_UDP_CONNRESET                   = _WSAIOW(IOC_VENDOR,12)
+  {$EXTERNALSYM SIO_RCVALL_MCAST_IF}
+  SIO_RCVALL_MCAST_IF                 = (IOC_IN or IOC_VENDOR or 13);
+  {$EXTERNALSYM SIO_RCVALL_IF}
+  SIO_RCVALL_IF                       = (IOC_IN or IOC_VENDOR or 14);
+  {$EXTERNALSYM SIO_LOOPBACK_FAST_PATH}
+  SIO_LOOPBACK_FAST_PATH              = (IOC_IN or IOC_VENDOR or 16);
+  {$EXTERNALSYM SIO_TCP_INITIAL_RTO}
+  SIO_TCP_INITIAL_RTO                 = (IOC_IN or IOC_VENDOR or 17);
+  {$EXTERNALSYM SIO_APPLY_TRANSPORT_SETTING}
+  SIO_APPLY_TRANSPORT_SETTING         = (IOC_IN or IOC_VENDOR or 19);
+  {$EXTERNALSYM SIO_QUERY_TRANSPORT_SETTING}
+  SIO_QUERY_TRANSPORT_SETTING         = (IOC_IN or IOC_VENDOR or 20);
+//
+// Values for use with SIO_RCVALL* options
+//
+  {$EXTERNALSYM RCVALL_MAX}
+  RCVALL_MAX = RCVALL_IPLEVEL;
+//
+// Parameters to configure the initial RTT.
+//
+  {$EXTERNALSYM TCP_INITIAL_RTO_UNSPECIFIED_RTT}
+  TCP_INITIAL_RTO_UNSPECIFIED_RTT = USHORT(-1);
+  {$EXTERNALSYM TCP_INITIAL_RTO_UNSPECIFIED_MAX_SYN_RETRANSMISSIONS}
+  TCP_INITIAL_RTO_UNSPECIFIED_MAX_SYN_RETRANSMISSIONS = UCHAR(-1);
+  {$EXTERNALSYM TCP_INITIAL_RTO_DEFAULT_RTT}
+  TCP_INITIAL_RTO_DEFAULT_RTT = (0);
+  {$EXTERNALSYM TCP_INITIAL_RTO_DEFAULT_MAX_SYN_RETRANSMISSIONS}
+  TCP_INITIAL_RTO_DEFAULT_MAX_SYN_RETRANSMISSIONS = (0);
+
+//
+// TCP/UDP port management definitions.
+//
+  {$EXTERNALSYM SIO_ACQUIRE_PORT_RESERVATION}
+  SIO_ACQUIRE_PORT_RESERVATION    = (IOC_IN or IOC_VENDOR or 100);
+  {$EXTERNALSYM SIO_RELEASE_PORT_RESERVATION}
+  SIO_RELEASE_PORT_RESERVATION    = (IOC_IN or IOC_VENDOR or 101);
+  {$EXTERNALSYM SIO_ASSOCIATE_PORT_RESERVATION}
+  SIO_ASSOCIATE_PORT_RESERVATION  = (IOC_IN or IOC_VENDOR or 102);
+
+  {$EXTERNALSYM INVALID_PORT_RESERVATION_TOKEN}
+  INVALID_PORT_RESERVATION_TOKEN = ULONG64(0);
+
+//
+// Secure socket API type definitions.
+//
+  {$EXTERNALSYM SIO_SET_SECURITY}
+  SIO_SET_SECURITY             = (IOC_IN or IOC_VENDOR or 200);
+  {$EXTERNALSYM SIO_QUERY_SECURITY}
+  SIO_QUERY_SECURITY           = (IOC_INOUT or IOC_VENDOR or 201);
+  {$EXTERNALSYM SIO_SET_PEER_TARGET_NAME}
+  SIO_SET_PEER_TARGET_NAME     = (IOC_IN or IOC_VENDOR or 202);
+  {$EXTERNALSYM SIO_DELETE_PEER_TARGET_NAME}
+  SIO_DELETE_PEER_TARGET_NAME  = (IOC_IN or IOC_VENDOR or 203);
+
+//
+// WFP Proxy Connection Tracking API type definitions.
+//
+  {$EXTERNALSYM SIO_QUERY_WFP_CONNECTION_REDIRECT_RECORDS}
+  SIO_QUERY_WFP_CONNECTION_REDIRECT_RECORDS = (IOC_IN or IOC_VENDOR or 220);
+  {$EXTERNALSYM SIO_QUERY_WFP_CONNECTION_REDIRECT_CONTEXT}
+  SIO_QUERY_WFP_CONNECTION_REDIRECT_CONTEXT = (IOC_IN or IOC_VENDOR or 221);
+  {$EXTERNALSYM SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS}
+  SIO_SET_WFP_CONNECTION_REDIRECT_RECORDS   = (IOC_IN or IOC_VENDOR or 222);
+
+  {$EXTERNALSYM SIO_SOCKET_USAGE_NOTIFICATION}
+  SIO_SOCKET_USAGE_NOTIFICATION = (IOC_IN or IOC_VENDOR or 204);
+// Flags for generic security settings
+  {$EXTERNALSYM SOCKET_SETTINGS_GUARANTEE_ENCRYPTION}
+  SOCKET_SETTINGS_GUARANTEE_ENCRYPTION = $1;
+  {$EXTERNALSYM SOCKET_SETTINGS_ALLOW_INSECURE}
+  SOCKET_SETTINGS_ALLOW_INSECURE = $2;
+
+// Flags specific to IPsec security settings.
+// NOTE: these flags must be specified under the
+// SOCKET_SECURITY_SETTINGS_IPSEC->IpsecFlags field.
+  {$EXTERNALSYM SOCKET_SETTINGS_IPSEC_SKIP_FILTER_INSTANTIATION}
+  SOCKET_SETTINGS_IPSEC_SKIP_FILTER_INSTANTIATION = $1;
+  {$EXTERNALSYM SOCKET_SETTINGS_IPSEC_OPTIONAL_PEER_NAME_VERIFICATION}
+  SOCKET_SETTINGS_IPSEC_OPTIONAL_PEER_NAME_VERIFICATION = $2;
+  {$EXTERNALSYM SOCKET_SETTINGS_IPSEC_ALLOW_FIRST_INBOUND_PKT_UNENCRYPTED}
+  SOCKET_SETTINGS_IPSEC_ALLOW_FIRST_INBOUND_PKT_UNENCRYPTED = $4;
+  {$EXTERNALSYM SOCKET_SETTINGS_IPSEC_PEER_NAME_IS_RAW_FORMAT}
+  SOCKET_SETTINGS_IPSEC_PEER_NAME_IS_RAW_FORMAT = $8;
+  {$EXTERNALSYM SOCKET_QUERY_IPSEC2_ABORT_CONNECTION_ON_FIELD_CHANGE}
+  SOCKET_QUERY_IPSEC2_ABORT_CONNECTION_ON_FIELD_CHANGE = $1;
+  {$EXTERNALSYM SOCKET_QUERY_IPSEC2_FIELD_MASK_MM_SA_ID}
+  SOCKET_QUERY_IPSEC2_FIELD_MASK_MM_SA_ID = $1;
+  {$EXTERNALSYM SOCKET_QUERY_IPSEC2_FIELD_MASK_QM_SA_ID}
+  SOCKET_QUERY_IPSEC2_FIELD_MASK_QM_SA_ID = $2;
+// Flags corresponding to the security query info
+  {$EXTERNALSYM SOCKET_INFO_CONNECTION_SECURED}
+  SOCKET_INFO_CONNECTION_SECURED = $1;
+  {$EXTERNALSYM SOCKET_INFO_CONNECTION_ENCRYPTED}
+  SOCKET_INFO_CONNECTION_ENCRYPTED = $2;
+  {$EXTERNALSYM SOCKET_INFO_CONNECTION_IMPERSONATED}
+  SOCKET_INFO_CONNECTION_IMPERSONATED = $4;
+//
+// WFP ALE endpoint handle query type definition
+//
+  {$EXTERNALSYM SIO_QUERY_WFP_ALE_ENDPOINT_HANDLE}
+  SIO_QUERY_WFP_ALE_ENDPOINT_HANDLE = (IOC_OUT or IOC_VENDOR or 205);
+  //
+// Scalability type definitions
+//
+  {$EXTERNALSYM SIO_QUERY_RSS_SCALABILITY_INFO}
+  SIO_QUERY_RSS_SCALABILITY_INFO = (IOC_OUT or IOC_VENDOR or 210);
+// GUID definition for use with Secure Sockets API
+// aec2ef9c-3a4d-4d3e-8842-239942e39a47
+  {$EXTERNALSYM SOCKET_DEFAULT2_QM_POLICY}
+  SOCKET_DEFAULT2_QM_POLICY : TGuid = (D1:$aec2ef9c;D2:$3a4d;D3:$4d3e;D4:($88,$42,$23,$99,$42,$e3,$9a,$47));
+// GUID definition for use with Real Time Notification setting API.
+// 6b59819a-5cae-492d-a901-2a3c2c50164f
+  {$EXTERNALSYM REAL_TIME_NOTIFICATION_CAPABILITY)}
+  REAL_TIME_NOTIFICATION_CAPABILITY : TGuid = (D1:$6b59819a;D2:$5cae;D3:$492d;D4:($a9, $01, $2a, $3c, $2c, $50, $16, $4f));
+
+//
+// Microsoft-specific IPv4 definitions.
+//
+  {$EXTERNALSYM IN4ADDR_ANY}
+  IN4ADDR_ANY = INADDR_ANY;
+  {$EXTERNALSYM IN4ADDR_LOOPBACK}
+  IN4ADDR_LOOPBACK = $0100007f;
+  {$EXTERNALSYM IN4ADDR_BROADCAST}
+  IN4ADDR_BROADCAST = INADDR_BROADCAST;
+  {$EXTERNALSYM IN4ADDR_NONE}
+  IN4ADDR_NONE = INADDR_NONE;
+
+  {$EXTERNALSYM IN4ADDR_ANY_INIT}
+  function IN4ADDR_ANY_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_LOOPBACK_INIT}
+  function IN4ADDR_LOOPBACK_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_BROADCAST_INIT}
+  function IN4ADDR_BROADCAST_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_ALLNODESONLINK_INIT}
+  function IN4ADDR_ALLNODESONLINK_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_ALLROUTERSONLINK_INIT}
+  function IN4ADDR_ALLROUTERSONLINK_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_ALLIGMPV3ROUTERSONLINK_INIT}
+  function IN4ADDR_ALLIGMPV3ROUTERSONLINK_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_ALLTEREDONODESONLINK_INIT}
+  function IN4ADDR_ALLTEREDONODESONLINK_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_LINKLOCALPREFIX_INIT}
+  function IN4ADDR_LINKLOCALPREFIX_INIT: TInAddr;
+  {$EXTERNALSYM IN4ADDR_MULTICASTPREFIX_INIT}
+  function IN4ADDR_MULTICASTPREFIX_INIT: TInAddr;
+
+const
+  {$EXTERNALSYM IN4ADDR_LOOPBACKPREFIX_LENGTH}
+  IN4ADDR_LOOPBACKPREFIX_LENGTH = 8;
+  {$EXTERNALSYM IN4ADDR_LINKLOCALPREFIX_LENGTH}
+  IN4ADDR_LINKLOCALPREFIX_LENGTH = 16;
+  {$EXTERNALSYM IN4ADDR_MULTICASTPREFIX_LENGTH}
+  IN4ADDR_MULTICASTPREFIX_LENGTH = 4;
+
+  {$EXTERNALSYM IN6ADDR_LINKLOCALPREFIX_LENGTH}
+  IN6ADDR_LINKLOCALPREFIX_LENGTH = 64;
+  {$EXTERNALSYM IN6ADDR_SOLICITEDNODEMULTICASTPREFIX_LENGTH}
+  IN6ADDR_SOLICITEDNODEMULTICASTPREFIX_LENGTH = 104;
+  {$EXTERNALSYM IN6ADDR_V4MAPPEDPREFIX_LENGTH}
+  IN6ADDR_V4MAPPEDPREFIX_LENGTH = 96;
+  {$EXTERNALSYM IN6ADDR_6TO4PREFIX_LENGTH}
+  IN6ADDR_6TO4PREFIX_LENGTH = 16;
+  {$EXTERNALSYM IN6ADDR_TEREDOPREFIX_LENGTH}
+  IN6ADDR_TEREDOPREFIX_LENGTH = 32;
 
 //=============================================================
 implementation
 //=============================================================
 
 uses
-  IdResourceStrings;
+  IdResourceStrings
+  {$IFDEF HAS_AnsiStrings_StrLen}, AnsiStrings{$ENDIF}
+  ;
   // (c) March 2001,  "Alex Konshin"<alexk@mtgroup.ru>
 
 var
@@ -6416,36 +7184,1212 @@ begin
   end;
 end;
 
+//
+// Microsoft-specific IPv4 definitions.
+//
+function IN4_CLASSA(const i : Cardinal) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((i and $00000080) = 0);
+end;
+
+function IN4_CLASSB(const i : Cardinal) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((i and $000000c0) = $00000080);
+end;
+
+function IN4_CLASSC(const i : Cardinal) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((i and $000000e0) = $000000c0);
+end;
+
+function IN4_CLASSD(const i : Cardinal) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((i and $000000f0) = $000000e0);
+end;
+
+function IN4_MULTICAST(const i : Cardinal) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN4_CLASSD(i);
+end;
+
+function IN4_ADDR_EQUAL(const a, b : PInAddr ) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := a^.S_addr = b^.S_addr;
+end;
+
+function IN4_UNALIGNED_ADDR_EQUAL(const a, b : PInAddr  ) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := a^.S_addr = b^.S_addr
+end;
+
+function IN4_IS_ADDR_UNSPECIFIED(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := a^.S_addr = IN4ADDR_ANY;
+end;
+
+function IN4_IS_UNALIGNED_ADDR_UNSPECIFIED(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := a^.S_addr = IN4ADDR_ANY;
+end;
+
+function IN4_IS_ADDR_LOOPBACK(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := PByte(a)^ = $7f; // 127/8
+end;
+
+function IN4_IS_UNALIGNED_ADDR_LOOPBACK(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := PByte(a)^ = $7f; // 127/8
+end;
+
+function IN4_IS_ADDR_BROADCAST(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := a^.S_addr = IN4ADDR_BROADCAST;
+end;
+
+function IN4_IS_UNALIGNED_ADDR_BROADCAST(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := a^.S_addr = IN4ADDR_BROADCAST;
+end;
+
+function IN4_IS_ADDR_MULTICAST(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN4_MULTICAST(a^.S_addr);
+end;
+
+function IN4_IS_UNALIGNED_ADDR_MULTICAST(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN4_MULTICAST(a^.S_addr);
+end;
+
+function IN4_IS_ADDR_LINKLOCAL(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((a^.s_addr and $ffff) = $fea9); // 169.254/16
+end;
+
+function IN4_IS_UNALIGNED_ADDR_LINKLOCAL(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((a^.s_addr and $ffff) = $fea9); // 169.254/16
+end;
+
+function IN4_IS_ADDR_SITELOCAL(const a :PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  //UNREFERENCED_PARAMETER(a);
+  //
+  // For existing scenarios (e.g. ICS) to work as expected, RFC-1918 prefixes
+  // are deemed to be global scoped.  When appropriate, site border routers
+  // must explicitly filter packets with these addresses.
+  //
+  Result := False;
+end;
+
+function IN4_IS_UNALIGNED_ADDR_SITELOCAL(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN4_IS_ADDR_SITELOCAL(a);
+end;
+
+function IN4_IS_ADDR_RFC1918(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := (((a^.s_addr and $00ff) = $0a) or // 10/8
+   ((a^.s_addr and $f0ff) = $10ac) or // 172.16/12
+   ((a^.s_addr and $ffff) = $a8c0)); // 192.168/16
+end;
+
+function IN4_IS_UNALIGNED_ADDR_RFC1918(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Ipv4Address : IN_ADDR;
+begin
+  //JPM Notes:  Done this way because pointers may not be aligned at all.
+  Ipv4Address := a^;
+  Result := IN4_IS_ADDR_RFC1918( @Ipv4Address );
+end;
+
+function IN4_IS_ADDR_MC_LINKLOCAL(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((a^.s_addr and $ffffff) = $e0); // 224.0.0/24
+end;
+
+function IN4_IS_ADDR_MC_ADMINLOCAL(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((a^.s_addr and $ffff) = $ffef); // 239.255/16
+end;
+
+function IN4_IS_ADDR_MC_SITELOCAL(const a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((a^.s_addr and $ff) = $ef) and
+    (not IN4_IS_ADDR_MC_ADMINLOCAL(a));
+end;
+
+function SCOPEID_UNSPECIFIED_INIT: SCOPE_ID;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.Value := 0;
+end;
+
+function IN4ADDR_ANY_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_addr := 0;
+end;
+
+function IN4ADDR_LOOPBACK_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $7f;
+  Result.S_un_b.s_b2 := $00;
+  Result.S_un_b.s_b3 := $00;
+  Result.S_un_b.s_b4 := $01;
+end;
+
+function IN4ADDR_BROADCAST_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $ff;
+  Result.S_un_b.s_b2 := $ff;
+  Result.S_un_b.s_b3 := $ff;
+  Result.S_un_b.s_b4 := $ff;
+end;
+
+function IN4ADDR_ALLNODESONLINK_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $e0;
+  Result.S_un_b.s_b2 := $00;
+  Result.S_un_b.s_b3 := $00;
+  Result.S_un_b.s_b4 := $01;
+end;
+
+function IN4ADDR_ALLROUTERSONLINK_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $e0;
+  Result.S_un_b.s_b2 := $00;
+  Result.S_un_b.s_b3 := $00;
+  Result.S_un_b.s_b4 := $02;
+end;
+
+function IN4ADDR_ALLIGMPV3ROUTERSONLINK_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $e0;
+  Result.S_un_b.s_b2 := $00;
+  Result.S_un_b.s_b3 := $00;
+  Result.S_un_b.s_b4 := $16;
+end;
+
+function IN4ADDR_ALLTEREDONODESONLINK_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $e0;
+  Result.S_un_b.s_b2 := $00;
+  Result.S_un_b.s_b3 := $00;
+  Result.S_un_b.s_b4 := $fd;
+end;
+
+function IN4ADDR_LINKLOCALPREFIX_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $a9;
+  Result.S_un_b.s_b2 := $fe;
+  Result.S_un_b.s_b3 := $00;
+  Result.S_un_b.s_b4 := $00;
+end;
+
+function IN4ADDR_MULTICASTPREFIX_INIT: TInAddr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result.S_un_b.s_b1 := $e0;
+  Result.S_un_b.s_b2 := $00;
+  Result.S_un_b.s_b3 := $00;
+  Result.S_un_b.s_b4 := $00;
+end;
+
+procedure IN4ADDR_SETSOCKADDR(a : PSockAddrIn; const addr : PInAddr; const port : USHORT);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  a^.sin_family := AF_INET;
+  a^.sin_port := port;
+  a^.sin_addr.S_addr := addr^.S_addr;
+  FillChar(a^.sin_zero,SizeOf(a^.sin_zero),0);
+end;
+
+procedure IN4ADDR_SETANY(a : PSockAddrIn);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  a^.sin_family := AF_INET;
+  a^.sin_port := 0;
+  a^.sin_addr.S_addr := IN4ADDR_ANY;
+  FillChar(a^.sin_zero,SizeOf(a^.sin_zero),0);
+end;
+
+procedure IN4ADDR_SETLOOPBACK(a : PSockAddrIn);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  a^.sin_family := AF_INET;
+  a^.sin_port := 0;
+  a^.sin_addr.S_addr := IN4ADDR_LOOPBACK;
+  FillChar(a^.sin_zero,SizeOf(a^.sin_zero),0);
+end;
+
+function IN4ADDR_ISANY(const a : PSockAddrIn) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin_family = AF_INET);
+  Result := IN4_IS_ADDR_UNSPECIFIED(@a^.sin_addr );
+end;
+
+function IN4ADDR_ISLOOPBACK(const a : PSockAddrIn) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin_family = AF_INET);
+  Result := IN4_IS_ADDR_LOOPBACK(@a^.sin_addr);
+end;
+
+function IN4ADDR_SCOPE_ID(const a : PSockAddrIn) : SCOPE_ID;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  //SCOPE_ID UnspecifiedScopeId = {0};
+  //UNREFERENCED_PARAMETER(a);
+  //return UnspecifiedScopeId;
+  FillChar(Result,SizeOf(Result),0);
+end;
+
+function IN4ADDR_ISEQUAL(a, b : PSockAddrIn) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin_family = AF_INET);
+  Result := (IN4ADDR_SCOPE_ID(a).Value = IN4ADDR_SCOPE_ID(b).Value) and
+    IN4_ADDR_EQUAL(@a^.sin_addr , @b^.sin_addr);
+end;
+
+function IN4ADDR_ISUNSPECIFIED(a : PSockAddrIn) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin_family = AF_INET);
+  Result := (IN4ADDR_SCOPE_ID(a).Value = 0) and
+    IN4_IS_ADDR_UNSPECIFIED(@a^.sin_addr);
+end;
+
+{Important!!! INET_IS_ALIGNED doesn't seem to translate well to
+Delphi.  The best I could think of is to make a function
+for testing with specific types.  I wish Pascal had an AlignOf function}
+
+//#define INET_IS_ALIGNED(Pointer, Type) \
+//   (((ULONG_PTR)Pointer & (__builtin_alignof(Type)-1)) == 0)
+
+
+function INET_IS_ALIGNED_IN_ADDR(Ptr : Pointer) : Boolean;
+type
+  {$IFDEF WIN32}
+  {$ALIGN ON}
+  TempRec = record
+    test: IN_ADDR;
+  end;
+  {$ALIGN OFF}
+  {$ELSE}
+  //Win64 and WinCE seem to require alignment for API records
+  TempRec = record
+    test: IN_ADDR;
+  end;
+  {$ENDIF}
+var
+  Alignment : SIZE_T;
+begin
+  Alignment := SizeOf(TempRec);
+  Result := ((ULONG_PTR(Ptr) and (Alignment - 1)) = 0);
+end;
+
+
+function INET_IS_ALIGNED_IN6_ADDR(Ptr : Pointer) : Boolean;
+type
+  {$IFDEF WIN32}
+  {$ALIGN ON}
+  TempRec = record
+    test: IN6_ADDR;
+  end;
+  {$ALIGN OFF}
+  {$ELSE}
+  //Win64 and WinCE seem to require alignment for API records
+  TempRec = record
+    test: IN6_ADDR;
+  end;
+  {$ENDIF}
+var
+  Alignment : SIZE_T;
+begin
+  Alignment := SizeOf(TempRec);
+  Result := ((ULONG_PTR(Ptr) and (Alignment - 1)) = 0);
+end;
+
+{
+
+Routine Description:
+
+    Determines the scope of an IPv4 unicast address.
+
+    For existing scenarios (e.g. ICS) to work as expected, RFC-1918 prefixes
+    are deemed to be global scoped.  When appropriate, site border routers
+    must explicitly filter packets with these addresses.
+
+Arguments:
+
+    Address - Supplies the IPv4 unicast address.
+
+Return Value:
+
+    Returns the scope level of the address.
+
+Caller IRQL:
+
+    May be called at PASSIVE through DISPATCH level.
+
+--*/
+}
+
+function Ipv4UnicastAddressScope(const Address : PUChar) : SCOPE_LEVEL;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Ipv4Address : IN_ADDR;
+  AddrPtr: PInAddr;
+begin
+  if not INET_IS_ALIGNED_IN_ADDR(Address) then begin
+    Ipv4Address := PInAddr(Address)^;
+    AddrPtr := @Ipv4Address;
+  end else begin
+    AddrPtr := PInAddr(Address);
+  end;
+  if IN4_IS_ADDR_LINKLOCAL(AddrPtr) or
+     IN4_IS_ADDR_LOOPBACK(AddrPtr) then
+  begin
+    Result := ScopeLevelLink;
+  end else begin
+    Result := ScopeLevelGlobal;
+  end;
+end;
+
+{
+/*++
+
+Routine Description:
+
+    Determines the scope of an IPv4 multicast address.
+    See RFC 2365.
+
+Arguments:
+
+    Address - Supplies the IPv4 multicast address.
+
+Return Value:
+
+    Returns the scope level of the multicast address.
+
+Caller IRQL:
+
+    May be called at PASSIVE through DISPATCH level.
+
+--*/
+}
+function Ipv4MulticastAddressScope(const Address : PUCHAR) : SCOPE_LEVEL;
+var
+  Ipv4Address : IN_ADDR;
+  AddrPtr : PInAddr;
+begin
+  if not INET_IS_ALIGNED_IN_ADDR(Address) then begin
+    Ipv4Address := PInAddr(Address)^;
+    AddrPtr := @Ipv4Address;
+  end else begin
+    AddrPtr := PInAddr(Address);
+  end;
+  if IN4_IS_ADDR_MC_LINKLOCAL(AddrPtr) then begin
+    Result := ScopeLevelLink;
+  end
+  else if IN4_IS_ADDR_MC_ADMINLOCAL(AddrPtr) then begin
+    Result := ScopeLevelAdmin;
+  end
+  else if IN4_IS_ADDR_MC_SITELOCAL(AddrPtr) then begin
+    Result := ScopeLevelSite;
+  end else begin
+    Result := ScopeLevelGlobal;
+  end;
+end;
+
+{
+/*++
+
+Routine Description:
+
+    Examines an IPv4 address and determines its scope.
+
+Arguments:
+
+    Address - Supplies the address to test.
+
+Return Value:
+
+    Returns the scope level of the address.
+
+Caller IRQL:
+
+    May be called at PASSIVE through DISPATCH level.
+
+--*/
+}
+function Ipv4AddressScope(Address : PUChar) : SCOPE_LEVEL;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Ipv4Address : IN_ADDR;
+begin
+  Ipv4Address := PInAddr(Address)^;
+  if IN4_IS_ADDR_BROADCAST(@Ipv4Address) then begin
+    Result := ScopeLevelLink;
+  end
+  else if IN4_IS_ADDR_MULTICAST(@Ipv4Address) then begin
+    Result := Ipv4MulticastAddressScope(PUCHAR(@Ipv4Address));
+  end else begin
+    Result := Ipv4UnicastAddressScope(PUCHAR(@Ipv4Address));
+  end;
+end;
+
+function Ipv4AddressType(Address : PUChar) : NL_ADDRESS_TYPE;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Ipv4Address : TInAddr;
+begin
+  Ipv4Address := PInAddr(Address)^;
+  if IN4_IS_ADDR_MULTICAST(@Ipv4Address) then begin
+    Result := NlatMulticast;
+    Exit;
+  end;
+  if IN4_IS_ADDR_BROADCAST(@Ipv4Address) then begin
+    Result := NlatBroadcast;
+    Exit;
+  end;
+  if IN4_IS_ADDR_UNSPECIFIED(@Ipv4Address) then begin
+    Result := NlatUnspecified;
+    Exit;
+  end;
+  //
+  // Following prefixes are invalid:
+  // 1. 0.0.0.0/8 (except 0.0.0.0/32).
+  // 2. 240.0.0.0/4 (except 255.255.255.255/32).
+  //
+  if ((Ipv4Address.s_addr and $000000ff) = 0) or
+     ((Ipv4Address.s_addr and $000000f0) = 240) then
+  begin
+    Result := NlatInvalid;
+    Exit;
+  end;
+  //
+  // Loopback and anycast addresses are treated as unicast.
+  //
+  Result := NlatUnicast;
+end;
+
+//  SCOPE_ID = record
+//    union {
+//        struct {
+//            ULONG Zone : 28;
+//            ULONG Level : 4;
+//        };
+//        ULONG Value;
+//    };
+//    Value : ULONG;
+//  end;
+
+function SCOPE_ID_GetZone(const ScopeId : SCOPE_ID) : ULONG;
+begin
+  Result := (ScopeId.Value and $FFFFFFF0) shr 4;
+end;
+
+procedure SCOPE_ID_SetZone(var ScopeId : SCOPE_ID; Value: ULONG);
+begin
+  ScopeId.Value := ((Value and $0FFFFFFF) shl 4) or (ScopeId.Value and $F);
+end;
+
+function SCOPE_ID_GetLevel(const ScopeId : SCOPE_ID) : SCOPE_LEVEL;
+begin
+  Result := SCOPE_LEVEL(ScopeId.Value and $F);
+end;
+
+procedure SCOPE_ID_SetLevel(var ScopeId : SCOPE_ID; Value: ULONG);
+begin
+  ScopeId.Value := (ScopeId.Value and $FFFFFFF0) or (Value and $F);
+end;
+
+procedure IN4_UNCANONICALIZE_SCOPE_ID(Address : PInAddr; ScopeId : PSCOPE_ID);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  ScopeLevel : SCOPE_LEVEL;
+begin
+  ScopeLevel := Ipv4AddressScope(PUCHAR(Address));
+  if IN4_IS_ADDR_LOOPBACK(Address) or (ScopeLevel = ScopeLevelGlobal) then begin
+    ScopeId^.Value := 0;
+  end;
+  if SCOPE_ID_GetLevel(ScopeId^) = ScopeLevel then begin
+    SCOPE_ID_SetLevel(ScopeId^, 0);
+  end;
+end;
+
+function IN4_IS_ADDR_6TO4ELIGIBLE(a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := (Ipv4AddressType(PUChar(a)) = NlatUnicast) and
+            (not (IN4_IS_ADDR_LOOPBACK(a) or
+                  IN4_IS_ADDR_LINKLOCAL(a) or
+                  IN4_IS_ADDR_SITELOCAL(a) or
+                  IN4_IS_ADDR_RFC1918(a)));
+end;
+
+function IN4_IS_UNALIGNED_ADDR_6TO4ELIGIBLE(a : PInAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Ipv4Address : TInAddr;
+begin
+  Ipv4Address := a^;
+  Result := IN4_IS_ADDR_6TO4ELIGIBLE(@Ipv4Address);
+end;
+
+//
+// Microsoft-specific IPv6 definitions.
+//
+
+function IN6_PREFIX_EQUAL(const a, b : PIN6_ADDR; const len : UINT8) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Bytes : UINT8;
+  Bits : UINT8;
+  Mask : UINT8;
+begin
+  Bytes := len div 8;
+  Bits := len mod 8;
+  Mask := $ff shl (8 - Bits);
+  ASSERT(len <= (SizeOf(IN6_ADDR) * 8));
+  Result := CompareMem(a,b,len) and ((Bits = 0) or ((a^.s6_bytes[Bytes] or Mask) = (b^.s6_bytes[Bytes] or Mask)));
+end;
+
+function IN6_IS_ADDR_ALLNODESONNODE(a : PIN6_ADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN6_ADDR_EQUAL(a, @in6addr_allnodesonnode);
+end;
+
+function IN6_IS_ADDR_ALLNODESONLINK(a : PIN6_ADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN6_ADDR_EQUAL(a, @in6addr_allnodesonlink);
+end;
+
+function IN6_IS_ADDR_ALLROUTERSONLINK(a : PIN6_ADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN6_ADDR_EQUAL(a, @in6addr_allroutersonlink);
+end;
+
+function IN6_IS_ADDR_SOLICITEDNODE(a : PIN6_ADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := IN6_PREFIX_EQUAL(
+    a,
+    @in6addr_solicitednodemulticastprefix,
+    IN6ADDR_SOLICITEDNODEMULTICASTPREFIX_LENGTH);
+end;
+
+function IN6_IS_ADDR_ISATAP(a : PIN6_ADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  //
+  // Disregard the u/g bit and compare the first byte of the interface id.
+  //
+  Result := ((a^.s6_words[4] and $fffd) = $0000) and (a^.s6_words[5] = $fe5e);
+end;
+
+function IN6_IS_ADDR_6TO4(a : PIN6_ADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  //C_ASSERT(IN6ADDR_6TO4PREFIX_LENGTH = RTL_BITS_OF(USHORT));
+  Result := (a^.s6_words[0] = in6addr_6to4prefix.s6_words[0]);
+end;
+
+function IN6_IS_ADDR_TEREDO(a : PIN6_ADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  //C_ASSERT(IN6ADDR_TEREDOPREFIX_LENGTH == 2 * RTL_BITS_OF(USHORT));
+  Result := (a^.s6_words[0] = in6addr_teredoprefix.s6_words[0]) and
+            (a^.s6_words[1] = in6addr_teredoprefix.s6_words[1]);
+end;
+
+function IN6ADDR_ISV4MAPPED(a : PSOCKADDR_IN6) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin6_family = AF_INET6);
+  Result := IN6_IS_ADDR_V4MAPPED(@a^.sin6_addr);
+end;
+
+function IN6ADDR_ISISATAP(a : PSOCKADDR_IN6) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin6_family = AF_INET6);
+  Result := IN6_IS_ADDR_ISATAP(@a^.sin6_addr);;
+end;
+
+function IN6ADDR_IS6TO4(a : PSOCKADDR_IN6) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin6_family = AF_INET6);
+  Result := IN6_IS_ADDR_6TO4(@a^.sin6_addr);
+end;
+
+function IN6ADDR_ISTEREDO(a : PSOCKADDR_IN6) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin6_family = AF_INET6);
+  Result := IN6_IS_ADDR_TEREDO(@a^.sin6_addr);
+end;
+
+function IN6_GET_ADDR_V4MAPPED(Ipv6Address : PIN6_ADDR) : PUCHAR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := PUChar(@Ipv6Address^.s6_words[6]);
+end;
+
+function IN6_GET_ADDR_V4COMPAT(Ipv6Address : PIN6_ADDR) : PUCHAR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := PUChar(@Ipv6Address^.s6_words[6]);
+end;
+
+function IN6_EXTRACT_V4ADDR_FROM_ISATAP(Ipv6Address : PIN6_ADDR) : PUCHAR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+   Result := PUChar(@Ipv6Address^.s6_words[6]);
+end;
+
+function IN6_EXTRACT_V4ADDR_FROM_6TO4(Ipv6Address : PIN6_ADDR) : PUCHAR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+   Result := PUChar(@Ipv6Address^.s6_words[1]);
+end;
+
+procedure IN6_SET_ADDR_V4MAPPED(out a6 : IN6_ADDR; a4 : PInAddr );
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  a6 := in6addr_v4mappedprefix;
+  a6.s6_bytes[12] := a4^.S_un_b.s_b1;
+  a6.s6_bytes[13] := a4^.S_un_b.s_b2;
+  a6.s6_bytes[14] := a4^.S_un_b.s_b3;
+  a6.s6_bytes[15] := a4^.S_un_b.s_b4;
+end;
+
+procedure IN6_SET_ADDR_V4COMPAT(out a6 : IN6_ADDR; a4 : PInAddr );
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  a6 := in6addr_any;
+  a6.s6_bytes[12] := a4^.S_un_b.s_b1;
+  a6.s6_bytes[13] := a4^.S_un_b.s_b2;
+  a6.s6_bytes[14] := a4^.S_un_b.s_b3;
+  a6.s6_bytes[15] := a4^.S_un_b.s_b4;
+end;
+
+procedure IN6_SET_ADDR_SOLICITEDNODE(out Multicast : IN6_ADDR; Unicast : PIN6_ADDR);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Multicast := in6addr_solicitednodemulticastprefix;
+  Multicast.s6_bytes[13] := Unicast^.s6_bytes[13];
+  Multicast.s6_bytes[14] := Unicast^.s6_bytes[14];
+  Multicast.s6_bytes[15] := Unicast^.s6_bytes[15];
+end;
+
+procedure IN6_SET_ISATAP_IDENTIFIER(Ipv6Address : PIN6_ADDR; Ipv4Address : PInAddr);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if IN4_IS_ADDR_6TO4ELIGIBLE(Ipv4Address) then begin
+    Ipv6Address^.s6_words[4] := $0002;
+  end else begin
+    Ipv6Address^.s6_words[4] := $0000;
+  end;
+  //
+  // 24-bit IANA OUI 00-00-5E and the 8-bit hex value 0xFE.
+  // See section 6.1 of RFC 4214.
+  //
+  Ipv6Address^.s6_words[5] := $FE5E;
+  PInAddr(@Ipv6Address^.s6_words[6])^ := Ipv4Address^;
+end;
+
+procedure IN6_SET_6TO4_PREFIX(Ipv6Address : PIN6_ADDR; Ipv4Address : PInAddr);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Ipv6Address^.s6_words[0] := $0220;
+  PInAddr(@Ipv6Address^.s6_words[1])^ := Ipv4Address^;
+  Ipv6Address^.s6_words[3] := $0000;
+end;
+
+function Ipv6UnicastAddressScope(const Address : PUChar) : SCOPE_LEVEL;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+{*++
+
+Routine Description:
+
+    Examines a unicast address and determines its scope.
+
+    Note that v4-compatible and 6to4 addresses are deemed to have global scope;
+    it is not legal to derive them from non IN4_IS_ADDR_6TO4ELIGIBLE addresses
+    (IPv4 loopback, link-local, site-local, and RFC-1918 addresses).
+
+Arguments:
+
+    Address - Supplies an IPv6 unicast address.
+
+Return Value:
+
+    Returns the scope level of the address.
+
+Caller IRQL:
+
+    May be called at PASSIVE through DISPATCH level.
+
+--*}
+var
+  Ipv6Address : TIn6Addr;
+  AddrPtr : PIn6Addr;
+begin
+  if not INET_IS_ALIGNED_IN6_ADDR(Address) then begin
+    Ipv6Address := PIn6Addr(Address)^;
+    AddrPtr := @Ipv6Address;
+  end else begin
+    AddrPtr := PIn6Addr(Address);
+  end;
+  if IN6_IS_ADDR_LINKLOCAL(AddrPtr) or
+     IN6_IS_ADDR_LOOPBACK(AddrPtr) then
+  begin
+    Result := ScopeLevelLink;
+  end
+  else if IN6_IS_ADDR_SITELOCAL(AddrPtr) then begin
+    Result := ScopeLevelSite;
+  end else begin
+    Result := ScopeLevelGlobal;
+  end;
+end;
+
+function IN6_MULTICAST_SCOPE(Address : PUCHAR ) : SCOPE_LEVEL;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Ipv6Address : PIN6_ADDR;
+begin
+  Ipv6Address := PIN6_ADDR(Address);
+  Result := SCOPE_LEVEL(Ipv6Address^.s6_bytes[1] and $f);
+end;
+
+function Ipv6AddressScope(Address : PUCHAR ) : SCOPE_LEVEL;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+{*++
+
+Routine Description:
+
+    Examines an IPv6 address and determines its scope.
+
+Arguments:
+
+    Address - Supplies an IPv6 address.
+
+Return Value:
+
+    Returns the scope level of the address.
+
+Caller IRQL:
+
+    May be called at PASSIVE through DISPATCH level.
+
+--*}
+begin
+  if IN6_IS_ADDR_MULTICAST(PIn6Addr(Address)) then begin
+    Result := IN6_MULTICAST_SCOPE(Address);
+  end else begin
+    Result := Ipv6UnicastAddressScope(Address);
+  end;
+end;
+
+function Ipv6AddressType( Address : PUCHAR) : NL_ADDRESS_TYPE;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  Ipv6Address : PIN6_ADDR;
+  Ipv4Address : PUCHAR;
+begin
+  Ipv6Address := PIN6_ADDR(Address);
+  if IN6_IS_ADDR_MULTICAST(Ipv6Address) then begin
+    Result := NlatMulticast;
+    Exit;
+  end;
+  if IN6_IS_ADDR_UNSPECIFIED(Ipv6Address) then begin
+    Result := NlatUnspecified;
+    Exit;
+  end;
+
+  //
+  // Extract embedded IPv4 address, if any.
+  //
+  if IN6_IS_ADDR_ISATAP(Ipv6Address) or
+     IN6_IS_ADDR_V4COMPAT(Ipv6Address) or
+     IN6_IS_ADDR_V4MAPPED(Ipv6Address) or
+     IN6_IS_ADDR_V4TRANSLATED(Ipv6Address) then
+  begin
+    Ipv4Address := IN6_EXTRACT_V4ADDR_FROM_ISATAP(Ipv6Address);
+  end
+  else if IN6_IS_ADDR_6TO4(Ipv6Address) then begin
+    Ipv4Address := IN6_EXTRACT_V4ADDR_FROM_6TO4(Ipv6Address);
+  end else begin
+    //
+    // Anycast and loopback addresses are treated unicast address.
+    //
+    Result := NlatUnicast;
+    Exit;
+  end;
+  //
+  // Ensure that the embedded IPv4 address is unicast.
+  //
+  if Ipv4AddressType(Ipv4Address) <> NlatUnicast then begin
+    Result := NlatInvalid;
+    Exit;
+  end;
+  Result := NlatUnicast;
+end;
+
+procedure IN6_UNCANONICALIZE_SCOPE_ID(Address : PIN6_ADDR; ScopeId : PSCOPE_ID);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  ScopeLevel : SCOPE_LEVEL;
+begin
+  ScopeLevel := Ipv6AddressScope(PUCHAR(Address));
+  if IN6_IS_ADDR_LOOPBACK(Address) or (ScopeLevel = ScopeLevelGlobal) then begin
+    ScopeId^.Value := 0;
+  end;
+  if (SCOPE_LEVEL(ScopeId^.Value shr 28) = ScopeLevel)  then begin
+    SCOPE_ID_SetLevel(ScopeId^, 0);
+  end;
+end;
+
+procedure IN6ADDR_SETSOCKADDR(a : PSOCKADDR_IN6; addr : PIN6_ADDR;
+  const scope : SCOPE_ID; const port : USHORT );
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  a^.sin6_family := AF_INET6;
+  a^.sin6_port := port;
+  a^.sin6_flowinfo := 0;
+  a^.sin6_addr := addr^;
+  a^.a.sin6_scope_struct := scope;
+  IN6_UNCANONICALIZE_SCOPE_ID(@a^.sin6_addr, @a^.a.sin6_scope_struct);
+end;
+
+procedure IN6ADDR_SETV4MAPPED(a6 : PSOCKADDR_IN6; a4 : PInAddr;
+  const scope : SCOPE_ID; const port : USHORT );
+begin
+  a6^.sin6_family := AF_INET6;
+  a6^.sin6_port := port;
+  a6^.sin6_flowinfo := 0;
+  IN6_SET_ADDR_V4MAPPED(a6^.sin6_addr, a4);
+  a6^.a.sin6_scope_struct := scope;
+  IN4_UNCANONICALIZE_SCOPE_ID(a4, @a6^.a.sin6_scope_struct);
+end;
+
+//
+// Define address-family-independent routines.
+//
+function INET_ADDR_EQUAL(const af : ADDRESS_FAMILY;
+  const a, b : Pointer) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := IN6_ADDR_EQUAL(PIN6_ADDR(a), PIN6_ADDR(b));
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := IN4_ADDR_EQUAL(PInAddr(a), PInAddr(b));
+  end;
+end;
+
+function INET_UNALIGNED_ADDR_EQUAL(const af : ADDRESS_FAMILY; const a, b : Pointer ) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := IN6_ADDR_EQUAL(PIN6_ADDR(a), PIN6_ADDR(b));
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := IN4_UNALIGNED_ADDR_EQUAL(PInAddr(a), PInAddr(b));
+  end;
+end;
+
+function INET_IS_ADDR_UNSPECIFIED(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := IN6_IS_ADDR_UNSPECIFIED(PIN6_ADDR(a));
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := IN4_IS_ADDR_UNSPECIFIED(PInAddr(a));
+  end;
+end;
+
+function INET_IS_UNALIGNED_ADDR_UNSPECIFIED(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := IN6_IS_ADDR_LOOPBACK(PIN6_ADDR(a));
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := IN4_IS_ADDR_LOOPBACK(PInAddr(a));
+  end;
+end;
+
+function INET_IS_ADDR_LOOPBACK(const af: ADDRESS_FAMILY; CONST a: Pointer): Boolean;
+begin
+  if (af = AF_INET6) then begin
+    Result := IN6_IS_ADDR_LOOPBACK(PIn6Addr(a));
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := IN4_IS_ADDR_LOOPBACK(PInAddr(a));
+  end;
+end;
+
+function INET_IS_ADDR_BROADCAST(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := False;
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := IN4_IS_ADDR_BROADCAST(PInAddr(a));
+  end;
+end;
+
+function INET_IS_ADDR_MULTICAST(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := IN6_IS_ADDR_MULTICAST(PIN6_ADDR(a));
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := IN4_IS_ADDR_MULTICAST(PInAddr(a));
+  end;
+end;
+
+function INET_ADDR_UNSPECIFIED(const af :  ADDRESS_FAMILY) : PUCHAR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := PUCHAR(@in6addr_any);
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := PUCHAR(@_in4addr_any);
+  end;
+end;
+
+procedure INET_SET_ADDRESS( Family : ADDRESS_FAMILY; Address : PUCHAR; Value : PUCHAR);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (Family = AF_INET6) then begin
+    PIn6Addr(Address)^ := PIn6Addr(Value)^;
+  end else begin
+    ASSERT(Family = AF_INET);
+    PInAddr(Address)^ := PInAddr(Value)^;
+  end;
+end;
+
+function INET_ADDR_LENGTH(const af : ADDRESS_FAMILY ) : Size_t;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := SizeOf(IN6_ADDR);
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := SizeOf(IN_ADDR);
+  end;
+end;
+
+function INET_SOCKADDR_LENGTH(const af : ADDRESS_FAMILY) : Size_t;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (af = AF_INET6) then begin
+    Result := SizeOf(SOCKADDR_IN6);
+  end else begin
+    ASSERT(af = AF_INET);
+    Result := SizeOf(SOCKADDR_IN);
+  end;
+end;
+//
 function IN6ADDR_ANY_INIT: TIn6Addr;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  with Result do begin
-    System.FillChar(s6_addr, SIZE_TIN6ADDR, 0);    {Do not Localize}
-  end;
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
 end;
 
 function IN6ADDR_LOOPBACK_INIT: TIn6Addr;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  with Result do begin
-    System.FillChar(s6_addr, SIZE_TIN6ADDR, 0);    {Do not Localize}
-    s6_addr[15] := 1;
-  end;
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+  Result.s6_bytes[15] := 1;
+end;
+
+function IN6ADDR_ALLNODESONNODE_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $ff;
+  Result.s6_bytes[1] := $01;
+  Result.s6_bytes[15] := $01;
+end;
+
+function IN6ADDR_ALLNODESONLINK_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $ff;
+  Result.s6_bytes[1] := $02;
+  Result.s6_bytes[15] := $01;
+end;
+
+function IN6ADDR_ALLROUTERSONLINK_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $ff;
+  Result.s6_bytes[1] := $02;
+  Result.s6_bytes[15] := $02;
+end;
+
+function IN6ADDR_ALLMLDV2ROUTERSONLINK_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $ff;
+  Result.s6_bytes[1] := $02;
+  Result.s6_bytes[15] := $16;
+end;
+
+function IN6ADDR_TEREDOINITIALLINKLOCALADDRESS_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $fe;
+  Result.s6_bytes[1] := $80;
+
+  Result.s6_bytes[10] := $ff;
+  Result.s6_bytes[11] := $ff;
+  Result.s6_bytes[12] := $ff;
+  Result.s6_bytes[13] := $ff;
+  Result.s6_bytes[14] := $ff;
+  Result.s6_bytes[15] := $fe;
+end;
+
+//
+// The old link local address for XP-SP2/Win2K3 machines.
+//
+function IN6ADDR_TEREDOOLDLINKLOCALADDRESSXP_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $fe;
+  Result.s6_bytes[1] := $80;
+
+  Result.s6_bytes[10] := Ord('T');
+  Result.s6_bytes[11] := Ord('E');
+  Result.s6_bytes[12] := Ord('R');
+  Result.s6_bytes[13] := Ord('E');
+  Result.s6_bytes[14] := Ord('D');
+  Result.s6_bytes[15] := Ord('O');
+end;
+
+//
+// The old link local address for Vista Beta-2 and earlier machines.
+//
+function IN6ADDR_TEREDOOLDLINKLOCALADDRESSVISTA_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $fe;
+  Result.s6_bytes[1] := $80;
+
+  Result.s6_bytes[10] := $ff;
+  Result.s6_bytes[11] := $ff;
+  Result.s6_bytes[12] := $ff;
+  Result.s6_bytes[13] := $ff;
+  Result.s6_bytes[14] := $ff;
+  Result.s6_bytes[15] := $ff;
+end;
+
+function IN6ADDR_SOLICITEDNODEMULTICASTPREFIX_INIT : IN6_ADDR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+  Result.s6_bytes[0] := $FF;
+  Result.s6_bytes[1] := $02;
+  Result.s6_bytes[11] := $01;
+  Result.s6_bytes[12] := $ff;
+end;
+
+function IN6ADDR_V4MAPPEDPREFIX_INIT : TIn6Addr;
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+  Result.s6_bytes[10] := $ff;
+  Result.s6_bytes[11] := $ff;
+end;
+
+function IN6ADDR_6TO4PREFIX_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+
+  Result.s6_bytes[0] := $20;
+  Result.s6_bytes[1] := $02;
+end;
+
+function IN6ADDR_TEREDOPREFIX_INIT : TIn6Addr;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
+  Result.s6_bytes[0] := $20;
+  Result.s6_bytes[0] := $01;
 end;
 
 procedure IN6ADDR_SETANY(sa: PSockAddrIn6);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if sa <> nil then begin
-    with sa^ do begin
-      sin6_family := AF_INET6;
-      sin6_port := 0;
-      sin6_flowinfo := 0;
-      PULONG(@sin6_addr.s6_addr[0])^ := 0;
-      PULONG(@sin6_addr.s6_addr[4])^ := 0;
-      PULONG(@sin6_addr.s6_addr[8])^ := 0;
-      PULONG(@sin6_addr.s6_addr[12])^ := 0;
-    end;
+    sa^.sin6_family := AF_INET6;
+    sa^.sin6_port := 0;
+    sa^.sin6_flowinfo := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[0])^ := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[4])^ := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[8])^ := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[12])^ := 0;
   end;
 end;
 
@@ -6453,15 +8397,13 @@ procedure IN6ADDR_SETLOOPBACK(sa: PSockAddrIn6);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if sa <> nil then begin
-    with sa^ do begin
-      sin6_family := AF_INET6;
-      sin6_port := 0;
-      sin6_flowinfo := 0;
-      PULONG(@sin6_addr.s6_addr[0])^ := 0;
-      PULONG(@sin6_addr.s6_addr[4])^ := 0;
-      PULONG(@sin6_addr.s6_addr[8])^ := 0;
-      PULONG(@sin6_addr.s6_addr[12])^ := 1;
-    end;
+    sa^.sin6_family := AF_INET6;
+    sa^.sin6_port := 0;
+    sa^.sin6_flowinfo := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[0])^ := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[4])^ := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[8])^ := 0;
+    PULONG(@sa^.sin6_addr.s6_bytes[12])^ := 1;
   end;
 end;
 
@@ -6469,13 +8411,11 @@ function IN6ADDR_ISANY(sa: PSockAddrIn6): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if sa <> nil then begin
-    with sa^ do begin
-      Result := (sin6_family = AF_INET6) and
-                (PULONG(@sin6_addr.s6_addr[0])^ = 0) and
-                (PULONG(@sin6_addr.s6_addr[4])^ = 0) and
-                (PULONG(@sin6_addr.s6_addr[8])^ = 0) and
-                (PULONG(@sin6_addr.s6_addr[12])^ = 0);
-    end;
+    Result := (sa^.sin6_family = AF_INET6) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[0])^ = 0) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[4])^ = 0) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[8])^ = 0) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[12])^ = 0);
   end else begin
     Result := False;
   end;
@@ -6485,13 +8425,11 @@ function IN6ADDR_ISLOOPBACK(sa: PSockAddrIn6): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if sa <> nil then begin
-    with sa^ do begin
-      Result := (sin6_family = AF_INET6) and
-                (PULONG(@sin6_addr.s6_addr[0])^ = 0) and
-                (PULONG(@sin6_addr.s6_addr[4])^ = 0) and
-                (PULONG(@sin6_addr.s6_addr[8])^ = 0) and
-                (PULONG(@sin6_addr.s6_addr[12])^ = 1);
-    end;
+    Result := (sa^.sin6_family = AF_INET6) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[0])^ = 0) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[4])^ = 0) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[8])^ = 0) and
+              (PULONG(@sa^.sin6_addr.s6_bytes[12])^ = 1);
   end else begin
     Result := False;
   end;
@@ -6519,7 +8457,7 @@ function IN6_IS_ADDR_MULTICAST(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := (a^.s6_addr[0] = $FF);
+    Result := (a^.s6_bytes[0] = $FF);
   end else begin
     Result := False;
   end;
@@ -6532,7 +8470,7 @@ function IN6_IS_ADDR_EUI64(const a : PIn6Addr) : Boolean;
     //
 begin
   if a <> nil then begin
-    Result := ((a^.s6_addr[0] and $e0) <> 0 ) and (not IN6_IS_ADDR_MULTICAST(a));
+    Result := ((a^.s6_bytes[0] and $e0) <> 0 ) and (not IN6_IS_ADDR_MULTICAST(a));
   end else begin
     Result := False;
   end;
@@ -6546,8 +8484,8 @@ function IN6_IS_ADDR_SUBNET_ROUTER_ANYCAST(const a : PIn6Addr) : Boolean;
 //
 begin
   if a <> nil then begin
-    Result := IN6_IS_ADDR_EUI64(a) and (a^.word[4] = 0) and
-      (a^.word[5] = 0) and (a^.word[6]=0) and (a^.word[7]=0);
+    Result := IN6_IS_ADDR_EUI64(a) and (a^.s6_words[4] = 0) and
+      (a^.s6_words[5] = 0) and (a^.s6_words[6]=0) and (a^.s6_words[7]=0);
   end else begin
     Result := False;
   end;
@@ -6557,9 +8495,9 @@ function IN6_IS_ADDR_SUBNET_RESERVED_ANYCAST(const a: PIn6Addr) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
    if a <> nil then begin
-     Result := IN6_IS_ADDR_EUI64(a) and (a^.word[4] = $fffd) and
-       (a^.word[5] = $ffff) and (a^.word[6] = $ffff) and
-       ((a^.word[7] and $80ff) = $80ff);
+     Result := IN6_IS_ADDR_EUI64(a) and (a^.s6_words[4] = $fffd) and
+       (a^.s6_words[5] = $ffff) and (a^.s6_words[6] = $ffff) and
+       ((a^.s6_words[7] and $80ff) = $80ff);
    end else begin
      Result := False;
    end;
@@ -6579,7 +8517,7 @@ function IN6_IS_ADDR_LINKLOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := (a^.s6_addr[0] = $FE) and ((a^.s6_addr[1] and $C0) = $80);
+    Result := (a^.s6_bytes[0] = $FE) and ((a^.s6_bytes[1] and $C0) = $80);
   end else begin
     Result := False;
   end;
@@ -6589,7 +8527,7 @@ function IN6_IS_ADDR_SITELOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := (a^.s6_addr[0] = $FE) and ((a^.s6_addr[1] and $C0) = $C0);
+    Result := (a^.s6_bytes[0] = $FE) and ((a^.s6_bytes[1] and $C0) = $C0);
   end else begin
     Result := False;
   end;
@@ -6599,14 +8537,12 @@ function IN6_IS_ADDR_V4MAPPED(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    with a^ do begin
-      Result := (word[0] = 0) and
-                (word[1] = 0) and
-                (word[2] = 0) and
-                (word[3] = 0) and
-                (word[4] = 0) and
-                (word[5] = $FFFF);
-    end;
+    Result := (a^.s6_words[0] = 0) and
+              (a^.s6_words[1] = 0) and
+              (a^.s6_words[2] = 0) and
+              (a^.s6_words[3] = 0) and
+              (a^.s6_words[4] = 0) and
+              (a^.s6_words[5] = $FFFF);
   end else begin
     Result := False;
   end;
@@ -6616,18 +8552,214 @@ function IN6_IS_ADDR_V4COMPAT(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    with a^ do begin
-      Result := (word[0] = 0) and
-                (word[1] = 0) and
-                (word[2] = 0) and
-                (word[3] = 0) and
-                (word[4] = 0) and
-                (word[5] = 0) and
-                not ((word[6] = 0) and (s6_addr[14] = 0) and
-                ((s6_addr[15] = 0) or (s6_addr[15] = 1)));
-    end;
+    Result := (a^.s6_words[0] = 0) and
+              (a^.s6_words[1] = 0) and
+              (a^.s6_words[2] = 0) and
+              (a^.s6_words[3] = 0) and
+              (a^.s6_words[4] = 0) and
+              (a^.s6_words[5] = 0) and
+              not ((a^.s6_words[6] = 0) and (a^.s6_bytes[14] = 0) and
+                  ((a^.s6_bytes[15] = 0) or (a^.s6_bytes[15] = 1)));
   end else begin
     Result := False;
+  end;
+end;
+
+function IN6_IS_ADDR_V4TRANSLATED(const a: PIn6Addr): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result :=  ((a^.s6_words[0] = 0) and
+              (a^.s6_words[1] = 0) and
+              (a^.s6_words[2] = 0) and
+              (a^.s6_words[3] = 0) and
+              (a^.s6_words[4] = $ffff) and
+              (a^.s6_words[5] = 0));
+end;
+
+procedure INETADDR_SETSOCKADDR(const af : ADDRESS_FAMILY; a : PSOCKADDR;
+  addr : Pointer; const scope : SCOPE_ID; const port : USHORT);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  addr4 : IN_ADDR;
+begin
+  if (af = AF_INET6) then begin
+    IN6ADDR_SETSOCKADDR(PSOCKADDR_IN6( a), PIN6_ADDR( addr ), scope, port);
+  end else begin
+    addr4 := PInAddr(addr)^;
+    ASSERT(af = AF_INET);
+    IN4ADDR_SETSOCKADDR(PSockAddrIn(a),PInAddr( @addr4), port);
+  end;
+end;
+
+procedure INETADDR_SETANY(a : PSOCKADDR);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    IN6ADDR_SETANY(PSOCKADDR_IN6(a));
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    IN4ADDR_SETANY(PSockAddrIn(a));
+  end;
+end;
+
+procedure INETADDR_SETLOOPBACK(a : PSOCKADDR);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    IN6ADDR_SETLOOPBACK(PSOCKADDR_IN6(a));
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    IN4ADDR_SETLOOPBACK(PSockAddrIn(a));
+  end;
+end;
+
+function INETADDR_ISANY(const a : PSOCKADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := IN6ADDR_ISANY(PSOCKADDR_IN6(a));
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    Result := IN4ADDR_ISANY(PSockAddrIn(a));
+  end;
+end;
+
+function INETADDR_ISLOOPBACK(const a : PSockAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := IN6ADDR_ISLOOPBACK(PSOCKADDR_IN6(a));
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    Result := IN4ADDR_ISLOOPBACK(PSockAddrIn(a));
+  end;
+end;
+
+function INETADDR_ISV4MAPPED(const a : PSockAddr) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := IN6ADDR_ISV4MAPPED(PSOCKADDR_IN6(a));
+  end else begin
+    Result := False;
+  end;
+end;
+
+function NL_ADDR_EQUAL(const af : ADDRESS_FAMILY;
+  const sa : SCOPE_ID;
+  const aa : PUCHAR;
+  const sb :SCOPE_ID;
+  const ab : PUCHAR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((sa.Value = sb.Value) and INET_ADDR_EQUAL(af, aa, ab));
+end;
+
+function NL_IS_ADDR_UNSPECIFIED(const af : ADDRESS_FAMILY;
+  const s : SCOPE_ID;
+  const a : PUCHAR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((s.Value = 0) and INET_IS_ADDR_UNSPECIFIED(af, a));
+end;
+
+function IN6ADDR_ISEQUAL(const a,b : PSOCKADDR_IN6 ) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin6_family = AF_INET6);
+  Result := (a^.a.sin6_scope_id = b^.a.sin6_scope_id) and
+                     IN6_ADDR_EQUAL(@a^.sin6_addr, @b^.sin6_addr);
+end;
+
+function INETADDR_ISEQUAL(const a,b : PSOCKADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := (b^.sa_family = AF_INET6) and
+               IN6ADDR_ISEQUAL(PSOCKADDR_IN6(a), PSOCKADDR_IN6(b));
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    Result := (b^.sa_family = AF_INET) and
+               IN4ADDR_ISEQUAL(PSOCKADDR_IN(a), PSOCKADDR_IN(b));
+  end;
+end;
+
+function IN6ADDR_ISUNSPECIFIED(a : PSOCKADDR_IN6) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  ASSERT(a^.sin6_family = AF_INET6);
+  Result := (a^.a.sin6_scope_id = 0) and
+             IN6_IS_ADDR_UNSPECIFIED(@a^.sin6_addr);
+end;
+
+function INETADDR_ISUNSPECIFIED(const a : PSOCKADDR) : Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := IN6ADDR_ISUNSPECIFIED( PSOCKADDR_IN6(a));
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    Result := IN4ADDR_ISUNSPECIFIED(PSOCKADDR_IN(a));
+  end;
+end;
+
+function INETADDR_SCOPE_ID(const a : PSOCKADDR) : SCOPE_ID;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := PSOCKADDR_IN6(a)^.a.sin6_scope_struct;
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    Result := IN4ADDR_SCOPE_ID(PSOCKADDR_IN(a));
+  end;
+end;
+
+function INETADDR_PORT(const a : PSOCKADDR) : USHORT;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := PSOCKADDR_IN6(a)^.sin6_port;
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    Result := PSOCKADDR_IN(a)^.sin_port;
+  end;
+end;
+
+function INETADDR_ADDRESS(const a : PSOCKADDR) : PUCHAR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    Result := PUCHAR(@(PSOCKADDR_IN6(a))^.sin6_addr);
+  end else begin
+    ASSERT(a^.sa_family = AF_INET);
+    Result := PUCHAR(@(PSOCKADDR_IN(a))^.sin_addr);
+  end;
+end;
+
+procedure INETADDR_SET_PORT(const a : PSOCKADDR; Port : USHORT);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  a^.sin_port := Port;
+end;
+
+procedure INETADDR_SET_ADDRESS(const a : PSOCKADDR; Address : PUCHAR);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (a^.sa_family = AF_INET6) then begin
+    PSOCKADDR_IN6(a)^.sin6_addr := PIN6_ADDR(Address)^;
+  end else begin
+    ASSERT(PSOCKADDR_IN(a)^.sa_family = AF_INET);
+    PSOCKADDR_IN(a)^.sin_addr := PInAddr(Address)^;
+  end;
+end;
+
+procedure INET_UNCANONICALIZE_SCOPE_ID( AddressFamily : ADDRESS_FAMILY; Address : PUCHAR; ScopeId : PSCOPE_ID);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (AddressFamily = AF_INET6) then begin
+    IN6_UNCANONICALIZE_SCOPE_ID(PIn6Addr( Address), ScopeId);
+  end else begin
+    IN4_UNCANONICALIZE_SCOPE_ID(PInAddr( Address), ScopeId);
   end;
 end;
 
@@ -6635,7 +8767,7 @@ function IN6_IS_ADDR_MC_NODELOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 1);
+    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_bytes[1] and $F) = 1);
   end else begin
     Result := False;
   end;
@@ -6645,7 +8777,7 @@ function IN6_IS_ADDR_MC_LINKLOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 2);
+    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_bytes[1] and $F) = 2);
   end else begin
     Result := False;
   end;
@@ -6655,7 +8787,7 @@ function IN6_IS_ADDR_MC_SITELOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 5);
+    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_bytes[1] and $F) = 5);
   end else begin
     Result := False;
   end;
@@ -6665,7 +8797,7 @@ function IN6_IS_ADDR_MC_ORGLOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 8);
+    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_bytes[1] and $F) = 8);
   end else begin
     Result := False;
   end;
@@ -6675,7 +8807,7 @@ function IN6_IS_ADDR_MC_GLOBAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if a <> nil then begin
-    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = $E);
+    Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_bytes[1] and $F) = $E);
   end else begin
     Result := False;
   end;
@@ -6684,53 +8816,66 @@ end;
 procedure IN6_SET_ADDR_UNSPECIFIED(a : PIN6_ADDR);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-   system.FillChar(a^.s6_addr, SizeOf(IN6_ADDR), 0 );
+  System.FillChar(a^.s6_bytes, SizeOf(IN6_ADDR), 0 );
 end;
 
 procedure IN6_SET_ADDR_LOOPBACK(a : PIN6_ADDR);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  system.FillChar(a^.s6_addr, SizeOf(IN6_ADDR), 0 );
-  a^.s6_addr[15] := 1;
+  System.FillChar(a^.s6_bytes, SizeOf(IN6_ADDR), 0 );
+  a^.s6_bytes[15] := 1;
 end;
 
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
 procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PAnsiChar; const Port : AnsiChar);
 var
-  {$IFDEF FPC}
-  len : sizeint;
-  {$ELSE}
-  len : DWord;
-  {$ENDIF}
+  len : {$IFDEF FPC}sizeint{$ELSE}DWord{$ENDIF};
 begin
   if snb <> nil then begin
-    with snb^ do begin
-      snb_family := AF_NETBIOS;
-      snb_type := SnbType;
-      len := StrLen(Name);
-      if len >= NETBIOS_NAME_LENGTH-1 then begin
-        System.Move(Name^, snb_name, NETBIOS_NAME_LENGTH-1);
-      end else begin
-        if len > 0 then begin
-          System.Move(Name^, snb_name, LongInt(len));
-        end;
-        System.FillChar((PAnsiChar(@snb_name)+len)^, NETBIOS_NAME_LENGTH-1-len, ' ');    {Do not Localize}
+    snb^.snb_family := AF_NETBIOS;
+    snb^.snb_type := SnbType;
+    len := {$IFDEF HAS_AnsiStrings_StrLen}AnsiStrings.{$ENDIF}StrLen(Name);
+    if len >= NETBIOS_NAME_LENGTH-1 then begin
+      System.Move(Name^, snb^.snb_name, NETBIOS_NAME_LENGTH-1);
+    end else begin
+      if len > 0 then begin
+        System.Move(Name^, snb^.snb_name, LongInt(len));
       end;
-      snb_name[NETBIOS_NAME_LENGTH-1] := Port;
+      System.FillChar((PAnsiChar(@snb^.snb_name)+len)^, NETBIOS_NAME_LENGTH-1-len, ' ');    {Do not Localize}
     end;
+    snb^.snb_name[NETBIOS_NAME_LENGTH-1] := Port;
   end;
 end;
 
 function GROUP_FILTER_SIZE(const numsrc : DWord) : PtrUInt;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-   Result := (SIZE_GROUP_FILTER - SIZE_SOCKADDR_STORAGE) +
-     (numsrc * SIZE_SOCKADDR_STORAGE);
+  Result := (SIZE_GROUP_FILTER - SIZE_SOCKADDR_STORAGE) + (numsrc * SIZE_SOCKADDR_STORAGE);
 end;
 
 initialization
+  scopeid_unspecified                   := SCOPEID_UNSPECIFIED_INIT;
+
+  _in4addr_any                          := IN4ADDR_ANY_INIT;
+  _in4addr_loopback                     := IN4ADDR_LOOPBACK_INIT;
+  _in4addr_broadcast                    := IN4ADDR_BROADCAST_INIT;
+  in4addr_allnodesonlink                := IN4ADDR_ALLNODESONLINK_INIT;
+  in4addr_allroutersonlink              := IN4ADDR_ALLROUTERSONLINK_INIT;
+  in4addr_alligmpv3routersonlink        := IN4ADDR_ALLIGMPV3ROUTERSONLINK_INIT;
+  in4addr_allteredohostsonlink          := IN4ADDR_ALLTEREDONODESONLINK_INIT;
+  in4addr_linklocalprefix               := IN4ADDR_LINKLOCALPREFIX_INIT;
+  in4addr_multicastprefix               := IN4ADDR_MULTICASTPREFIX_INIT;
+
   in6addr_any := IN6ADDR_ANY_INIT;
   in6addr_loopback := IN6ADDR_LOOPBACK_INIT;
+  in6addr_allnodesonnode                := IN6ADDR_ALLNODESONNODE_INIT;
+  in6addr_allnodesonlink                := IN6ADDR_ALLNODESONLINK_INIT;
+  in6addr_allroutersonlink              := IN6ADDR_ALLROUTERSONLINK_INIT;
+  in6addr_solicitednodemulticastprefix  := IN6ADDR_SOLICITEDNODEMULTICASTPREFIX_INIT;
+  in6addr_v4mappedprefix                := IN6ADDR_V4MAPPEDPREFIX_INIT;
+  in6addr_6to4prefix                    := IN6ADDR_6TO4PREFIX_INIT;
+  in6addr_teredoprefix                  := IN6ADDR_TEREDOPREFIX_INIT;
+
   InitializeStubs;
 
 end.

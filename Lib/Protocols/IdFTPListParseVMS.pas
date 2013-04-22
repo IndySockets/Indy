@@ -276,7 +276,7 @@ begin
   end;
   LCols := TStringList.Create;
   try
-    SplitColumns(LLine, LCols);
+    SplitDelimitedString(LLine, LCols, True);
     LOwnerIdx := 3;
     //if this isn't numeric, there may be an error that is
     //is reported in the File list.  Do not parse the line further.

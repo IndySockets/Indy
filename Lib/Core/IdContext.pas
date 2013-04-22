@@ -70,7 +70,8 @@ interface
 
 uses
   Classes,
-  IdSocketHandle, IdTCPConnection, IdTask, IdYarn, SysUtils;
+  IdSocketHandle, IdTCPConnection, IdTask, IdYarn, IdThreadSafe,
+  SysUtils;
 
 type
   TIdContext = class;
@@ -79,11 +80,13 @@ type
   TIdContextEvent = procedure(AContext: TIdContext) of object;
   TIdContextExceptionEvent = procedure(AContext: TIdContext; AException: Exception) of object;
 
+  TIdContextThreadList = TIdThreadSafeObjectList{$IFDEF HAS_GENERICS_TThreadList}<TIdContext>{$ENDIF};
+
   TIdContext = class(TIdTask)
   protected
     // A list in which this context is registered, this can be nil, and should
     // therefore not be used
-    FContextList: TThreadList;
+    FContextList: TIdContextThreadList;
     FConnection: TIdTCPConnection;
     FOwnsConnection: Boolean;
     FOnRun: TIdContextRun;
@@ -100,7 +103,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdContextThreadList = nil
       ); reintroduce; virtual;
     destructor Destroy; override;
     procedure RemoveFromList;
@@ -125,7 +128,8 @@ uses
   IdGlobal,
   IdIOHandlerSocket;
 
-constructor TIdContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
+constructor TIdContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn;
+  AList: TIdContextThreadList = nil);
 begin
   inherited Create(AYarn);
   FConnection := AConnection;

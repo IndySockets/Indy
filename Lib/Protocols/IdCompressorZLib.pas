@@ -109,7 +109,7 @@ procedure TIdCompressorZLib.InternalDecompressStream(
 {Note that much of this is taken from the ZLibEx unit and adapted to use the IOHandler}
 var
   zresult  : Integer;
-  outBuffer: Array [0..bufferSize-1] of AnsiChar;
+  outBuffer: Array [0..bufferSize-1] of TIdAnsiChar;
   inSize   : Integer;
   outSize  : Integer;
   LBuf : TIdBytes;
@@ -161,11 +161,11 @@ begin
       Break;
     end;
 
-    LZstream.next_in := PAnsiChar(@LBuf[0]);
+    LZstream.next_in := PIdAnsiChar(@LBuf[0]);
     LZstream.avail_in := inSize;
 
     repeat
-      LZstream.next_out := outBuffer;
+      LZstream.next_out := @outBuffer[0];
       LZstream.avail_out := bufferSize;
       DCheck(inflate(LZstream,Z_NO_FLUSH));
       outSize := bufferSize - LZstream.avail_out;
@@ -186,7 +186,7 @@ begin
     when strm.avail_out returns with zero.
 }
   repeat
-    LZstream.next_out := outBuffer;
+    LZstream.next_out := @outBuffer[0];
     LZstream.avail_out := bufferSize;
 
     zresult := inflate(LZstream, Z_FINISH);
@@ -243,8 +243,8 @@ var
   LCompressRec : TZStreamRec;
 
   zresult  : Integer;
-  inBuffer : Array [0..bufferSize-1] of AnsiChar;
-  outBuffer: Array [0..bufferSize-1] of AnsiChar;
+  inBuffer : Array [0..bufferSize-1] of TIdAnsiChar;
+  outBuffer: Array [0..bufferSize-1] of TIdAnsiChar;
   inSize   : Integer;
   outSize  : Integer;
 begin
@@ -258,11 +258,11 @@ begin
 
     while inSize > 0 do
     begin
-      LCompressRec.next_in := inBuffer;
+      LCompressRec.next_in := @inBuffer[0];
       LCompressRec.avail_in := inSize;
 
       repeat
-        LCompressRec.next_out := outBuffer;
+        LCompressRec.next_out := @outBuffer[0];
         LCompressRec.avail_out := bufferSize;
 
         CCheck(deflate(LCompressRec,Z_NO_FLUSH));
@@ -279,7 +279,7 @@ begin
     end;
 
     repeat
-      LCompressRec.next_out := outBuffer;
+      LCompressRec.next_out := @outBuffer[0];
       LCompressRec.avail_out := bufferSize;
 
       zresult := CCheck(deflate(LCompressRec,Z_FINISH));

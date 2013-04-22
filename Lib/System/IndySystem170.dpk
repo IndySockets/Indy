@@ -5,32 +5,34 @@ package IndySystem170;
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO OFF}
+{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
-{$LOCALSYMBOLS OFF}
+{$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
-{$REFERENCEINFO OFF}
+{$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE RELEASE}
+{$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 System'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
+{$IFNDEF NEXTGEN}
 requires
   rtl;
+{$ENDIF}
 
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
@@ -44,11 +46,20 @@ contains
   IdStack in 'IdStack.pas',
   IdStackBSDBase in 'IdStackBSDBase.pas',
   IdStackConsts in 'IdStackConsts.pas',
+  {$IFDEF NEXTGEN}
+  IdStackVCLPosix in 'IdStackVCLPosix.pas',
+  {$ELSE}
   IdStackWindows in 'IdStackWindows.pas',
+  {$ENDIF}
   IdStream in 'IdStream.pas',
   IdStreamVCL in 'IdStreamVCL.pas',
   IdStruct in 'IdStruct.pas',
+  {$IFDEF NEXTGEN}
+  IdVCLPosixSupplemental in 'IdVCLPosixSupplemental.pas'
+  {$ELSE}
   IdWinsock2 in 'IdWinsock2.pas',
-  IdWship6 in 'IdWship6.pas';
+  IdWship6 in 'IdWship6.pas'
+  {$ENDIF}
+  ;
 
 end.

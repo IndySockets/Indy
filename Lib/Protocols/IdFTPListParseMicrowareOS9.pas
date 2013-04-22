@@ -102,7 +102,7 @@ begin
   LWrds := TStringList.Create;
   try
     Result := False;
-    SplitColumns(AData, LWrds);
+    SplitDelimitedString(AData, LWrds, True);
     if LWrds.Count > 2 then
     begin
       Result := (LWrds[0] = 'Directory') and (LWrds[1] = 'of') and  {do not localize}

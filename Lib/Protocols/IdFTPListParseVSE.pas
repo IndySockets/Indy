@@ -218,7 +218,7 @@ begin
     LData := AListing[0];
     s := TStringList.Create;
     try
-      SplitColumns(LData, s);
+      SplitDelimitedString(LData, s, True);
       if s.Count = 5 then begin
         Result := (IndyPos(s[4], ValidFileTypeSet) > 0) and IsNumeric(s[3]);
       end;
@@ -251,7 +251,7 @@ begin
     // 2 - Modified Time
     // 3 - logical length of records
     // 4 - file type (S for Sequential, D for BDAM, V for VSAM, I for ISAM, U for Undefined)
-    SplitColumns(Trim(AItem.Data), LCols);
+    SplitDelimitedString(AItem.Data, LCols, True);
     AItem.FileName := LCols[0];
     AItem.ModifiedDate := DateYYMMDD(LCols[1]);
     AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
@@ -277,7 +277,7 @@ begin
     s := TStringList.Create;
     try
       LData := AListing[0];
-      SplitColumns(LData, s);
+      SplitDelimitedString(LData, s, True);
       if (s.Count = 6) or (s.Count = 7) then
       begin
         //There must be three subentries in the first col separated by
@@ -319,7 +319,7 @@ begin
   LI := AItem as TIdVSEPowerQueueFTPListItem;
   LCols := TStringList.Create;
   try
-    SplitColumns(Trim(AItem.Data), LCols);
+    SplitDelimitedString(AItem.Data, LCols, True);
     //0 - Job name, job number, and job suffix. This information is contained in
     //   one string, with the three subfields separated by dots.
     //1 - records in file
@@ -373,7 +373,7 @@ begin
     LData := AListing[0];
     s := TStringList.Create;
     try
-      SplitColumns(LData, s);
+      SplitDelimitedString(LData, s, True);
       if s.Count = 5 then begin
         Result := (IndyPos(s[4], ValidFileTypeSet) > 0) and IsNumeric(s[3]);
       end;
@@ -410,7 +410,7 @@ begin
     // 2 - Modified Time
     // 3 - Number of records (might be reported in Unix emulation mode as size)
     // 4 - file type (E for ESDS,  K for KSDS,   R for RRDS)
-    SplitColumns(Trim(AItem.Data), LCols);
+    SplitDelimitedString(AItem.Data, LCols, True);
     LI.FileName := LCols[0];
     LI.ModifiedDate := DateYYMMDD(LCols[1]);
     LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
@@ -468,7 +468,7 @@ begin
   Fetch(LBuffer, '>');  //This is always <Sub Library> {do not localize}
   LCols := TStringList.Create;
   try
-    SplitColumns(Trim(LBuffer), LCols);
+    SplitDelimitedString(LBuffer, LCols, True);
     //0 - number of members - used as file size when emulating Unix, I think
     //1 - number of blocks
     //2 - date
@@ -514,7 +514,7 @@ begin
     begin
       s := TStringList.Create;
       try
-        SplitColumns(LData, s);
+        SplitDelimitedString(LData, s, True);
         Result := (s.Count > 4) and
                   (IndyPos('/', s[3]) > 0) and {do not localize}
                   (IndyPos(':', s[4]) > 0) and {do not localize}
@@ -555,7 +555,7 @@ begin
   LBuffer := Copy(LBuffer, 1, Length(LBuffer)-1);
   LCols := TStringList.Create;
   try
-    SplitColumns(Trim(LBuffer), LCols);
+    SplitDelimitedString(LBuffer, LCols, True);
     //0 - file name
     //1 - records in file - might be reported as size in Unix emulation
     //2 - number of library blocks

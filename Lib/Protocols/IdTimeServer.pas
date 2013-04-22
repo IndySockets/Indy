@@ -135,10 +135,8 @@ end;
 function TIdCustomTimeServer.DoExecute(AContext: TIdContext): Boolean;
 begin
   Result := true;
-  with AContext.Connection do begin
-    IOHandler.Write(LongWord(Trunc(extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60)));
-    Disconnect;
-  end;
+  AContext.Connection.IOHandler.Write(LongWord(Trunc(Extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60)));
+  AContext.Connection.Disconnect;
 end;
 
 end.

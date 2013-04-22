@@ -145,7 +145,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdContextThreadList = nil
       ); override;
     destructor Destroy; override;
     //
@@ -271,32 +271,35 @@ begin
 end;
 
 procedure TIdMappedPortTCP.DoConnect(AContext: TIdContext);
+var
+  LContext: TIdMappedPortContext;
 begin
   DoBeforeConnect(AContext);
 
+  LContext := TIdMappedPortContext(AContext);
+
   //WARNING: Check TIdTCPServer.DoConnect and synchronize code. Don't call inherited!=> OnConnect in OutboundConnect    {Do not Localize}
-  TIdMappedPortContext(AContext).OutboundConnect;
+  LContext.OutboundConnect;
 
   //cache
-  with TIdMappedPortContext(AContext).FReadList do begin
-    Clear;
-    Add(AContext.Connection.Socket.Binding.Handle);
-    Add(TIdMappedPortContext(AContext).FOutboundClient.Socket.Binding.Handle);
-  end;
+  LContext.FReadList.Clear;
+  LContext.FReadList.Add(AContext.Connection.Socket.Binding.Handle);
+  LContext.FReadList.Add(LContext.FOutboundClient.Socket.Binding.Handle);
 end;
 
 function TIdMappedPortTCP.DoExecute(AContext: TIdContext): Boolean;
+var
+  LContext: TIdMappedPortContext;
 begin
-  with TIdMappedPortContext(AContext) do begin
-    try
-      CheckForData(True);
-    finally
-      if not FOutboundClient.Connected then begin
-        Result := False;
-        DoOutboundDisconnect(AContext); //&Connection.Disconnect
-      end else begin;
-        Result := AContext.Connection.Connected;
-      end;
+  LContext := TIdMappedPortContext(AContext);
+  try
+    LContext.CheckForData(True);
+  finally
+    if not LContext.FOutboundClient.Connected then begin
+      Result := False;
+      DoOutboundDisconnect(AContext); //&Connection.Disconnect
+    end else begin;
+      Result := AContext.Connection.Connected;
     end;
   end;
 end;
@@ -337,7 +340,7 @@ end;
 constructor TIdMappedPortContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TThreadList = nil
+  AList: TIdContextThreadList = nil
   );
 begin
   inherited Create(AConnection, AYarn, AList);
@@ -400,34 +403,33 @@ begin
 end;
 
 procedure TIdMappedPortContext.OutboundConnect;
+var
+  LServer: TIdMappedPortTCP;
+  LClient: TIdTCPClient;
 begin
   FOutboundClient := TIdTCPClient.Create(nil);
-  with TIdMappedPortTCP(Server) do
-  begin
-    try
-      with TIdTcpClient(FOutboundClient) do
-      begin
-        Port := MappedPort;
-        Host := MappedHost;
-      end;
-      DoLocalClientConnect(Self);
+  LServer := TIdMappedPortTCP(Server);
+  try
+    LClient := TIdTCPClient(FOutboundClient);
 
-      with TIdTcpClient(FOutboundClient) do
-      begin
-        ConnectTimeout := Self.FConnectTimeOut;
-        Connect;
-      end;
-      DoOutboundClientConnect(Self);
+    LClient.Port := LServer.MappedPort;
+    LClient.Host := LServer.MappedHost;
 
-      //APR: buffer can contain data from prev (users) read op.
-      CheckForData(False);
-    except
-      on E: Exception do
-      begin
-        Self.DoException(E);// DONE: Handle connect failures
-        Connection.Disconnect; //req IdTcpServer with "Stop this thread if we were disconnected"
-        raise;
-      end;
+    LServer.DoLocalClientConnect(Self);
+
+    LClient.ConnectTimeout := FConnectTimeOut;
+    LClient.Connect;
+
+    LServer.DoOutboundClientConnect(Self);
+
+    //APR: buffer can contain data from prev (users) read op.
+    CheckForData(False);
+  except
+    on E: Exception do
+    begin
+      DoException(E);// DONE: Handle connect failures
+      Connection.Disconnect; //req IdTcpServer with "Stop this thread if we were disconnected"
+      raise;
     end;
   end;
 end;

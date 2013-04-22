@@ -352,23 +352,30 @@ type
     property DomainName : string read FDomainName write FDomainName;
   end;
 
-  TIdDNSMap = class(TIdObjectList)
+  TIdDNSMap = class(TIdObjectList{$IFDEF HAS_GENERICS_TObjectList}<TIdDomainNameServerMapping>{$ENDIF})
   private
     FServer: TIdDNS_UDPServer;
+    {$IFNDEF HAS_GENERICS_TObjectList}
     function GetItem(Index: Integer): TIdDomainNameServerMapping;
     procedure SetItem(Index: Integer; const Value: TIdDomainNameServerMapping);
+    {$ENDIF}
     procedure SetServer(const Value: TIdDNS_UDPServer);
   public
     constructor Create(Server: TIdDNS_UDPServer);
+    {$IFNDEF USE_OBJECT_ARC}
     destructor Destroy; override;
+    {$ENDIF}
     property Server : TIdDNS_UDPServer read FServer write SetServer;
+    {$IFNDEF HAS_GENERICS_TObjectList}
     property Items[Index: Integer]: TIdDomainNameServerMapping read GetItem write SetItem; default;
+    {$ENDIF}
   end;
 
   TIdMWayTreeNodeClass = class of TIdMWayTreeNode;
+  // TODO: derive from TObjectList instead and remove SubTree member?
   TIdMWayTreeNode = class(TObject)
   private
-    SubTree : TIdObjectList;
+    SubTree : TIdObjectList{$IFDEF HAS_GENERICS_TObjectList}<TIdMWayTreeNode>{$ENDIF};
     FFundmentalClass: TIdMWayTreeNodeClass;
     function GetTreeNode(Index: Integer): TIdMWayTreeNode;
     procedure SetFundmentalClass(const Value: TIdMWayTreeNodeClass);
@@ -600,15 +607,11 @@ type
      property UDPTunnel : TIdDNS_UDPServer read FUDPTunnel write FUDPTunnel;
   end;
 
-// CompareItems is to compare TIdDNTreeNode
-function CompareItems(Item1, Item2: TObject): Integer;
-function FetchBytes(var AInput: TIdBytes; const ADelim: TIdBytes; const ADelete: Boolean = IdFetchDeleteDefault): TIdBytes;
-function PosBytes(const SubBytes, SBytes: TIdBytes): Integer;
-
 implementation
 
 uses
   {$IFDEF VCL_XE3_OR_ABOVE}
+  //System.Contnrs,
   System.SyncObjs,
   {$ENDIF}
   IdException,
@@ -627,7 +630,8 @@ uses
   SysUtils;
 
 {Common Utilities}
-function CompareItems(Item1, Item2: TObject): Integer;
+
+function CompareItems(Item1, Item2: {$IFDEF HAS_GENERICS_TObjectList}TIdMWayTreeNode{$ELSE}TObject{$ENDIF}): Integer;
 var
   LObj1, LObj2 : TIdDNTreeNode;
 begin
@@ -636,6 +640,7 @@ begin
   Result := CompareStr(LObj1.CLabel, LObj2.CLabel);
 end;
 
+// TODO: move to IdGlobal.pas
 function PosBytes(const SubBytes, SBytes: TIdBytes): Integer;
 var
   LSubLen, LBytesLen, I: Integer;
@@ -663,6 +668,7 @@ begin
   Result := -1;
 end;
 
+// TODO: move to IdGlobal.pas
 function FetchBytes(var AInput: TIdBytes; const ADelim: TIdBytes;
   const ADelete: Boolean = IdFetchDeleteDefault): TIdBytes;
 var
@@ -701,7 +707,7 @@ constructor TIdMWayTreeNode.Create(NodeClass : TIdMWayTreeNodeClass);
 begin
   inherited Create;
   FundmentalClass := NodeClass;
-  SubTree := TIdObjectList.Create;
+  SubTree := TIdObjectList{$IFDEF HAS_GENERICS_TObjectList}<TIdMWayTreeNode>{$ENDIF}.Create;
 end;
 
 destructor TIdMWayTreeNode.Destroy;
@@ -712,7 +718,7 @@ end;
 
 function TIdMWayTreeNode.GetTreeNode(Index: Integer): TIdMWayTreeNode;
 begin
-  Result := TIdMWayTreeNode(SubTree.Items[Index]);
+  Result := {$IFDEF HAS_GENERICS_TObjectList}SubTree.Items[Index]{$ELSE}TIdMWayTreeNode(SubTree.Items[Index]){$ENDIF};
 end;
 
 function TIdMWayTreeNode.InsertChild(Index: Integer): TIdMWayTreeNode;
@@ -738,7 +744,9 @@ end;
 
 procedure TIdMWayTreeNode.SetTreeNode(Index: Integer; const Value: TIdMWayTreeNode);
 begin
+  {$IFNDEF USE_OBJECT_ARC}
   SubTree.Items[Index].Free;
+  {$ENDIF}
   SubTree.Items[Index] := Value;
 end;
 
@@ -897,9 +905,12 @@ end;
 procedure TIdDNTreeNode.SetCLabel(const Value: String);
 begin
   FCLabel := Value;
-  if ParentNode <> nil then
+  if ParentNode <> nil then begin
      ParentNode.ChildIndex.Insert(ParentNode.SubTree.IndexOf(Self), Value);
-  if AutoSortChild then SortChildren;
+  end;
+  if AutoSortChild then begin
+    SortChildren;
+  end;
 end;
 
 procedure TIdDNTreeNode.SetNode(Index: Integer; const Value: TIdDNTreeNode);
@@ -1578,11 +1589,7 @@ var
                       begin
                         LLRR_A := TIdRR_A.Create;
                         LLRR_A.RRName := SingleHostName;
-                        {$IFDEF STRING_IS_UNICODE}
-                        LLRR_A.Address := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                        {$ELSE}
                         LLRR_A.Address := EachLinePart.Strings[TagField + 1];
-                        {$ENDIF}
                         LLRR_A.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_A);
@@ -1596,11 +1603,7 @@ var
                       begin
                         LLRR_AAAA := TIdRR_AAAA.Create;
                         LLRR_AAAA.RRName := SingleHostName;
-                        {$IFDEF STRING_IS_UNICODE}
-                        LLRR_AAAA.Address := AnsiString(ConvertToValidv6IP(EachLinePart.Strings[TagField + 1])); // explicit convert to Ansi
-                        {$ELSE}
                         LLRR_AAAA.Address := ConvertToValidv6IP(EachLinePart.Strings[TagField + 1]);
-                        {$ENDIF}
                         LLRR_AAAA.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_AAAA);
@@ -1615,17 +1618,9 @@ var
                         LLRR_Name := TIdRR_CName.Create;
                         LLRR_Name.RRName := SingleHostName;
                         if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_Name.CName := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_Name.CName := EachLinePart.Strings[TagField + 1];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_Name.CName := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit conver to Ansi
-                          {$ELSE}
                           LLRR_Name.CName := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
                         LLRR_Name.TTL := LastTTL;
 
@@ -1640,17 +1635,9 @@ var
                         LLRR_NS := TIdRR_NS.Create;
                         LLRR_NS.RRName := SingleHostName;
                         if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_NS.NSDName := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_NS.NSDName := EachLinePart.Strings[TagField + 1];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_NS.NSDName := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_NS.NSDName := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
                         LLRR_NS.TTL := LastTTL;
 
@@ -1665,17 +1652,9 @@ var
                         LLRR_MR := TIdRR_MR.Create;
                         LLRR_MR.RRName := SingleHostName;
                         if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MR.NewName := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MR.NewName := EachLinePart.Strings[TagField + 1];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MR.NewName := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MR.NewName := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
                         LLRR_MR.TTL := LastTTL;
 
@@ -1690,17 +1669,9 @@ var
                         LLRR_MB := TIdRR_MB.Create;
                         LLRR_MB.RRName := SingleHostName;
                         if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MB.MADName := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MB.MADName := EachLinePart.Strings[TagField + 1];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MB.MADName := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MB.MADName := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
                         LLRR_MB.TTL := LastTTL;
 
@@ -1715,17 +1686,9 @@ var
                         LLRR_MG := TIdRR_MG.Create;
                         LLRR_MG.RRName := SingleHostName;
                         if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MG.MGMName := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MG.MGMName := EachLinePart.Strings[TagField + 1];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MG.MGMName := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MG.MGMName := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
                         LLRR_MG.TTL := LastTTL;
 
@@ -1740,11 +1703,7 @@ var
                       begin
                         LLRR_TXT := TIdRR_TXT.Create;
                         LLRR_TXT.RRName := SingleHostName;
-                        {$IFDEF STRING_IS_UNICODE}
-                        LLRR_TXT.TXT := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit cconvert to Ansi
-                        {$ELSE}
                         LLRR_TXT.TXT := EachLinePart.Strings[TagField + 1];
-                        {$ENDIF}
                         LLRR_TXT.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_TXT);
@@ -1759,17 +1718,9 @@ var
                         LLRR_PTR := TIdRR_PTR.Create;
                         LLRR_PTR.RRName := SingleHostName;
                         if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_PTR.PTRDName := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_PTR.PTRDName := EachLinePart.Strings[TagField + 1];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_PTR.PTRDName := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_PTR.PTRDName := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
                         LLRR_PTR.TTL := LastTTL;
 
@@ -1787,14 +1738,8 @@ var
 
                         LLRR_HINFO := TIdRR_HINFO.Create;
                         LLRR_HINFO.RRName := SingleHostName;
-                        {$IFDEF STRING_IS_UNICODE}
-                        // explicit convert to Ansi
-                        LLRR_HINFO.CPU := AnsiString(EachLinePart.Strings[TagField + 1]);
-                        LLRR_HINFO.OS := AnsiString(EachLinePart.Strings[TagField + 2]);
-                        {$ELSE}
                         LLRR_HINFO.CPU := EachLinePart.Strings[TagField + 1];
                         LLRR_HINFO.OS := EachLinePart.Strings[TagField + 2];
-                        {$ENDIF}
                         LLRR_HINFO.TTL := LastTTL;
 
                         UpdateTree(TreeRoot, LLRR_HINFO);
@@ -1810,31 +1755,15 @@ var
                         LLRR_MINFO := TIdRR_MINFO.Create;
                         LLRR_MINFO.RRName := SingleHostName;
                         if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MINFO.Responsible_Mail := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MINFO.Responsible_Mail := EachLinePart.Strings[TagField + 1];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MINFO.Responsible_Mail := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MINFO.Responsible_Mail := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
 
                         if TextEndsWith(EachLinePart.Strings[TagField + 2], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MINFO.ErrorHandle_Mail := AnsiString(EachLinePart.Strings[TagField + 2]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MINFO.ErrorHandle_Mail := EachLinePart.Strings[TagField + 2];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MINFO.ErrorHandle_Mail := AnsiString(EachLinePart.Strings[TagField + 2] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MINFO.ErrorHandle_Mail := EachLinePart.Strings[TagField + 2] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
 
                         LLRR_MINFO.TTL := LastTTL;
@@ -1851,23 +1780,11 @@ var
                       begin
                         LLRR_MX := TIdRR_MX.Create;
                         LLRR_MX.RRName := SingleHostName;
-                        {$IFDEF STRING_IS_UNICODE}
-                        LLRR_MX.Preference := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                        {$ELSE}
                         LLRR_MX.Preference := EachLinePart.Strings[TagField + 1];
-                        {$ENDIF}
                         if TextEndsWith(EachLinePart.Strings[TagField + 2], '.') then begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MX.Exchange := AnsiString(EachLinePart.Strings[TagField + 2]); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MX.Exchange := EachLinePart.Strings[TagField + 2];
-                          {$ENDIF}
                         end else begin
-                          {$IFDEF STRING_IS_UNICODE}
-                          LLRR_MX.Exchange := AnsiString(EachLinePart.Strings[TagField + 2] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                          {$ELSE}
                           LLRR_MX.Exchange := EachLinePart.Strings[TagField + 2] + '.' + LastDenotedDomain;
-                          {$ENDIF}
                         end;
                         LLRR_MX.TTL := LastTTL;
 
@@ -1883,17 +1800,9 @@ var
                           LLRR_SOA := TIdRR_SOA.Create;
 
                           if TextEndsWith(EachLinePart.Strings[TagField + 1], '.') then begin
-                            {$IFDEF STRING_IS_UNICODE}
-                            LLRR_SOA.MName := AnsiString(EachLinePart.Strings[TagField + 1]); // explicit convert to Ansi
-                            {$ELSE}
                             LLRR_SOA.MName := EachLinePart.Strings[TagField + 1];
-                            {$ENDIF}
                           end else begin
-                            {$IFDEF STRING_IS_UNICODE}
-                            LLRR_SOA.MName := AnsiString(EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                            {$ELSE}
                             LLRR_SOA.MName := EachLinePart.Strings[TagField + 1] + '.' + LastDenotedDomain;
-                            {$ENDIF}
                           end;
 
                           //LLRR_SOA.RRName:= LLRR_SOA.MName;
@@ -1931,17 +1840,9 @@ var
                           //LastDenotedDomain := LLRR_SOA.RRName;
 
                           if TextEndsWith(EachLinePart.Strings[TagField + 2], '.') then begin
-                            {$IFDEF STRING_IS_UNICODE}
-                            LLRR_SOA.RName := AnsiString(EachLinePart.Strings[TagField + 2]); // explicit convert to Ansi
-                            {$ELSE}
                             LLRR_SOA.RName := EachLinePart.Strings[TagField + 2];
-                            {$ENDIF}
                           end else begin
-                            {$IFDEF STRING_IS_UNICODE}
-                            LLRR_SOA.RName := AnsiString(EachLinePart.Strings[TagField + 2] + '.' + LastDenotedDomain); // explicit convert to Ansi
-                            {$ELSE}
                             LLRR_SOA.RName := EachLinePart.Strings[TagField + 2] + '.' + LastDenotedDomain;
-                            {$ENDIF}
                           end;
 
                           Checks := TStringList.Create;
@@ -1963,31 +1864,17 @@ var
                               end;
                             end;
 
-                            {$IFDEF STRING_IS_UNICODE}
-                            LLRR_SOA.RName := AnsiString(RName); // explicit convert to Ansi
-                            {$ELSE}
                             LLRR_SOA.RName := RName;
-                            {$ENDIF}
                           finally
                             FreeAndNil(Checks);
                           end;
 
-                          {$IFDEF STRING_IS_UNICODE}
-                          // explicit convert to Ansi
-                          LLRR_SOA.Serial := AnsiString(EachLinePart.Strings[TagField + 3]);
-                          LLRR_SOA.Refresh := AnsiString(EachLinePart.Strings[TagField + 4]);
-                          LLRR_SOA.Retry := AnsiString(EachLinePart.Strings[TagField + 5]);
-                          LLRR_SOA.Expire := AnsiString(EachLinePart.Strings[TagField + 6]);
-                          LLRR_SOA.Minimum := AnsiString(EachLinePart.Strings[TagField + 7]);
-                          LastTTL := IndyStrToInt(String(LLRR_SOA.Expire));
-                          {$ELSE}
                           LLRR_SOA.Serial := EachLinePart.Strings[TagField + 3];
                           LLRR_SOA.Refresh := EachLinePart.Strings[TagField + 4];
                           LLRR_SOA.Retry := EachLinePart.Strings[TagField + 5];
                           LLRR_SOA.Expire := EachLinePart.Strings[TagField + 6];
                           LLRR_SOA.Minimum := EachLinePart.Strings[TagField + 7];
                           LastTTL := IndyStrToInt(LLRR_SOA.Expire);
-                          {$ENDIF}
                           LLRR_SOA.TTL := LastTTL;
                           UpdateTree(TreeRoot, LLRR_SOA);
 
@@ -2219,11 +2106,7 @@ begin
           end;
 
           LRR_A.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_A.Address := AnsiString(TARecord(RR).IPAddress); // explicit convert to Ansi
-          {$ELSE}
           LRR_A.Address := TARecord(RR).IPAddress;
-          {$ENDIF}
           LRR_A.TTL := TARecord(RR).TTL;
 
           if LRR_A.ifAddFullName(NodeCursor.FullName) then begin
@@ -2241,11 +2124,7 @@ begin
           end;
 
           LRR_AAAA.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_AAAA.Address := AnsiString(TAAAARecord(RR).Address); // explicit convert to Ansi
-          {$ELSE}
           LRR_AAAA.Address := TAAAARecord(RR).Address;
-          {$ENDIF}
           LRR_AAAA.TTL := TAAAARecord(RR).TTL;
 
           if LRR_AAAA.ifAddFullName(NodeCursor.FullName) then begin
@@ -2263,11 +2142,7 @@ begin
           end;
 
           LRR_NS.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_NS.NSDName := AnsiString(TNSRecord(RR).HostName); // explicit convert to Ansi
-          {$ELSE}
           LRR_NS.NSDName := TNSRecord(RR).HostName;
-          {$ENDIF}
           LRR_NS.TTL := TNSRecord(RR).TTL;
 
           if LRR_NS.ifAddFullName(NodeCursor.FullName) then begin
@@ -2285,11 +2160,7 @@ begin
           end;
 
           LRR_MB.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_MB.MADName := AnsiString(TNAMERecord(RR).HostName); // explicit convert to Ansi
-          {$ELSE}
           LRR_MB.MADName := TNAMERecord(RR).HostName;
-          {$ENDIF}
           LRR_MB.TTL := TNAMERecord(RR).TTL;
 
           if LRR_MB.ifAddFullName(NodeCursor.FullName) then begin
@@ -2307,11 +2178,7 @@ begin
           end;
 
           LRR_Name.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_Name.CName := AnsiString(TNAMERecord(RR).HostName); // explicit convert to Ansi
-          {$ELSE}
           LRR_Name.CName := TNAMERecord(RR).HostName;
-          {$ENDIF}
           LRR_Name.TTL:= TNAMERecord(RR).TTL;
 
           if LRR_Name.ifAddFullName(NodeCursor.FullName) then begin
@@ -2330,16 +2197,6 @@ begin
 
           LRR_SOA.RRName := RRName;
 
-          {$IFDEF STRING_IS_UNICODE}
-          // explicit convert to Ansi
-          LRR_SOA.MName := AnsiString(TSOARecord(RR).Primary);
-          LRR_SOA.RName := AnsiString(TSOARecord(RR).ResponsiblePerson);
-          LRR_SOA.Serial := AnsiString(IntToStr(TSOARecord(RR).Serial));
-          LRR_SOA.Minimum := AnsiString(IntToStr(TSOARecord(RR).MinimumTTL));
-          LRR_SOA.Refresh := AnsiString(IntToStr(TSOARecord(RR).Refresh));
-          LRR_SOA.Retry := AnsiString(IntToStr(TSOARecord(RR).Retry));
-          LRR_SOA.Expire := AnsiString(IntToStr(TSOARecord(RR).Expire));
-          {$ELSE}
           LRR_SOA.MName := TSOARecord(RR).Primary;
           LRR_SOA.RName := TSOARecord(RR).ResponsiblePerson;
           LRR_SOA.Serial := IntToStr(TSOARecord(RR).Serial);
@@ -2347,7 +2204,6 @@ begin
           LRR_SOA.Refresh := IntToStr(TSOARecord(RR).Refresh);
           LRR_SOA.Retry := IntToStr(TSOARecord(RR).Retry);
           LRR_SOA.Expire := IntToStr(TSOARecord(RR).Expire);
-          {$ENDIF}
           LRR_SOA.TTL:= TSOARecord(RR).TTL;
 
           if LRR_SOA.ifAddFullName(NodeCursor.FullName) then begin
@@ -2368,11 +2224,7 @@ begin
           end;
 
           LRR_MG.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_MG.MGMName := AnsiString(TNAMERecord(RR).HostName); // explicit convert to Ansi
-          {$ELSE}
           LRR_MG.MGMName := TNAMERecord(RR).HostName;
-          {$ENDIF}
           LRR_MG.TTL := TNAMERecord(RR).TTL;
 
           if LRR_MG.ifAddFullName(NodeCursor.FullName) then begin
@@ -2390,11 +2242,7 @@ begin
           end;
 
           LRR_MR.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_MR.NewName := AnsiString(TNAMERecord(RR).HostName); // explicit convert to Ansi
-          {$ELSE}
           LRR_MR.NewName := TNAMERecord(RR).HostName;
-          {$ENDIF}
           LRR_MR.TTL := TNAMERecord(RR).TTL;
 
           if LRR_MR.ifAddFullName(NodeCursor.FullName) then begin
@@ -2415,11 +2263,7 @@ begin
           end;
 
           LRR_PTR.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_PTR.PTRDName := AnsiString(TPTRRecord(RR).HostName); // explicit convert to Ansi
-          {$ELSE}
           LRR_PTR.PTRDName := TPTRRecord(RR).HostName;
-          {$ENDIF}
           LRR_PTR.TTL := TPTRRecord(RR).TTL;
 
           if LRR_PTR.ifAddFullName(NodeCursor.FullName) then begin
@@ -2437,14 +2281,8 @@ begin
           end;
 
           LRR_HINFO.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          // explicit convert to Ansi
-          LRR_HINFO.CPU :=  AnsiString(THINFORecord(RR).CPU);
-          LRR_HINFO.OS := AnsiString(THINFORecord(RR).OS);
-          {$ELSE}
           LRR_HINFO.CPU :=  THINFORecord(RR).CPU;
           LRR_HINFO.OS := THINFORecord(RR).OS;
-          {$ENDIF}
           LRR_HINFO.TTL := THINFORecord(RR).TTL;
 
           if LRR_HINFO.ifAddFullName(NodeCursor.FullName) then begin
@@ -2462,14 +2300,8 @@ begin
           end;
 
           LRR_MINFO.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          // explicit convert to Ansi
-          LRR_MINFO.Responsible_Mail := AnsiString(TMINFORecord(RR).ResponsiblePersonMailbox);
-          LRR_MINFO.ErrorHandle_Mail := AnsiString(TMINFORecord(RR).ErrorMailbox);
-          {$ELSE}
           LRR_MINFO.Responsible_Mail := TMINFORecord(RR).ResponsiblePersonMailbox;
           LRR_MINFO.ErrorHandle_Mail := TMINFORecord(RR).ErrorMailbox;
-          {$ENDIF}
           LRR_MINFO.TTL := TMINFORecord(RR).TTL;
 
           if LRR_MINFO.ifAddFullName(NodeCursor.FullName) then begin
@@ -2487,14 +2319,8 @@ begin
           end;
 
           LRR_MX.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          // explicit convert to Ansi
-          LRR_MX.Exchange := AnsiString(TMXRecord(RR).ExchangeServer);
-          LRR_MX.Preference := AnsiString(IntToStr(TMXRecord(RR).Preference));
-          {$ELSE}
           LRR_MX.Exchange := TMXRecord(RR).ExchangeServer;
           LRR_MX.Preference := IntToStr(TMXRecord(RR).Preference);
-          {$ENDIF}
           LRR_MX.TTL := TMXRecord(RR).TTL;
 
           if LRR_MX.ifAddFullName(NodeCursor.FullName) then begin
@@ -2512,11 +2338,7 @@ begin
           end;
 
           LRR_TXT.RRName := RRName;
-          {$IFDEF STRING_IS_UNICODE}
-          LRR_TXT.TXT := AnsiString(TTextRecord(RR).Text.Text); // explicit convert to Ansi
-          {$ELSE}
           LRR_TXT.TXT := TTextRecord(RR).Text.Text;
-          {$ENDIF}
           LRR_TXT.TTL := TTextRecord(RR).TTL;
 
           if LRR_TXT.ifAddFullName(NodeCursor.FullName) then begin
@@ -2832,22 +2654,11 @@ var
   Stop, Extra, IsMyDomains, ifAdditional : Boolean;
   LDNSResolver : TIdDNSResolver;
 
-  procedure CheckMoreAddrSearch(const AStr: AnsiString);
-  {$IFDEF STRING_IS_UNICODE}
-  var
-    LStr: String;
-  {$ENDIF}
+  procedure CheckMoreAddrSearch(const AStr: String);
   begin
-    {$IFDEF STRING_IS_UNICODE}
-    LStr := String(AStr); // explicit convert to Unicode
-    if (not IsValidIP(LStr)) and IsHostName(LStr) then begin
-      MoreAddrSearch.Add(LStr);
-    end;
-    {$ELSE}
     if (not IsValidIP(AStr)) and IsHostName(AStr) then begin
       MoreAddrSearch.Add(AStr);
     end;
-    {$ENDIF}
   end;
 
 begin
@@ -3762,11 +3573,7 @@ begin
 
         if not NotThis then begin
           Dec(TIndex);
-          {$IFDEF STRING_IS_UNICODE}
-          NeedUpdated := (TNode.RRs.Items[TIndex] as TIdRR_SOA).Serial = AnsiString(IntToStr(TSOARecord(RR).Serial)); // explicit convert to Ansi
-          {$ELSE}
           NeedUpdated := (TNode.RRs.Items[TIndex] as TIdRR_SOA).Serial = IntToStr(TSOARecord(RR).Serial);
-          {$ENDIF}
         end else begin
           NeedUpdated := True;
         end;
@@ -3798,6 +3605,7 @@ begin
   FServer := Server;
 end;
 
+{$IFNDEF USE_OBJECT_ARC}
 destructor TIdDNSMap.Destroy;
 var
   I : Integer;
@@ -3812,7 +3620,9 @@ begin
   end;
   inherited Destroy;
 end;
+{$ENDIF}
 
+{$IFNDEF HAS_GENERICS_TObjectList}
 function TIdDNSMap.GetItem(Index: Integer): TIdDomainNameServerMapping;
 begin
    Result := TIdDomainNameServerMapping(inherited GetItem(Index));
@@ -3822,6 +3632,7 @@ procedure TIdDNSMap.SetItem(Index: Integer; const Value: TIdDomainNameServerMapp
 begin
   inherited SetItem(Index, Value);
 end;
+{$ENDIF}
 
 procedure TIdDNSMap.SetServer(const Value: TIdDNS_UDPServer);
 begin

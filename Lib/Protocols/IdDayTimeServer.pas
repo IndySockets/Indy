@@ -95,10 +95,8 @@ end;
 function TIdDayTimeServer.DoExecute(AContext:TIdContext ): boolean;
 begin
   Result := True;
-  with AContext.Connection do begin
-    IOHandler.WriteLn(FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Now) + '-' + FTimeZone);    {Do not Localize}
-    Disconnect;
-  end;
+  AContext.Connection.IOHandler.WriteLn(FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Now) + '-' + FTimeZone);    {Do not Localize}
+  AContext.Connection.Disconnect;
 end;
 
 end.

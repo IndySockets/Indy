@@ -92,7 +92,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdContextThreadList = nil
       ); override;
     destructor Destroy; override;
     Property TelnetData: TTelnetData read FTelnetData;
@@ -215,7 +215,7 @@ end;
 { TIdTelnetServerContext }
 
 constructor TIdTelnetServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TThreadList = nil);
+  AYarn: TIdYarn; AList: TIdContextThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FTelnetData := TTelnetData.Create;

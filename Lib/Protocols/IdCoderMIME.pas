@@ -71,7 +71,7 @@ type
   end;
 
 const
-  GBase64CodeTable: AnsiString =
+  GBase64CodeTable: string =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';    {Do not Localize}
 
 var
@@ -162,7 +162,7 @@ procedure TIdDecoderMIME.InitComponent;
 begin
   inherited InitComponent;
   FDecodeTable := GBase64DecodeTable;
-  FCodingTable := GBase64CodeTable;
+  FCodingTable := ToBytes(GBase64CodeTable);
   FFillChar := '=';  {Do not Localize}
 end;
 
@@ -178,7 +178,7 @@ end;
 procedure TIdEncoderMIME.InitComponent;
 begin
   inherited InitComponent;
-  FCodingTable := GBase64CodeTable;
+  FCodingTable := ToBytes(GBase64CodeTable);
   FFillChar := '=';   {Do not Localize}
 end;
 

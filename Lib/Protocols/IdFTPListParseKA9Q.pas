@@ -97,7 +97,7 @@ begin
     Result := False;
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0], s);
+      SplitDelimitedString(AListing[0], s, True);
       if s.Count > 2 then
       begin
         if TextEndsWith(s[0], '/') then
@@ -136,7 +136,7 @@ begin
   end;
   LWords := TStringList.Create;
   try
-    SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LWords);
+    SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LWords, True);
     if LWords.Count > 1 then
     begin
       Result := (LWords[1] = 'files.') or (LWords[1] = 'file.') or  {do not localize}

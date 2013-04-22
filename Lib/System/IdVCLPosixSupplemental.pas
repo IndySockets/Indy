@@ -1,14 +1,20 @@
 ﻿unit IdVCLPosixSupplemental;
 
 interface
+
 {$I IdCompilerDefines.inc}
-{$WARN SYMBOL_PLATFORM OFF}
+
+{$IFDEF HAS_SYMBOL_PLATFORM}
+  {$WARN SYMBOL_PLATFORM OFF}
+{$ENDIF}
 
 uses
-{$IFDEF DARWIN}
+  {$IFDEF USE_VCL_POSIX}
+    {$IFDEF DARWIN}
   Macapi.CoreFoundation,
   Macapi.CoreServices,
-{$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
   IdCTypes;
 
 //tcp.hh

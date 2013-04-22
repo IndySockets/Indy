@@ -345,7 +345,7 @@ AUTHORS            A1 DIR    -      -      -       9/20/99   10:31:11
     //Note that the start position in one server it's column 44 while in others, it's column 54
     // handle both cases.
     LBuffer := Trim(Copy(AItem.Data, LPCol, MaxInt));
-    SplitColumns(LBuffer,LCols);
+    SplitDelimitedString(LBuffer, LCols, True);
     //LCols - 0 - Date
     //LCols - 1 - Time
     //LCols - 2 - Owner if present
@@ -412,7 +412,7 @@ begin
     end;
     s := TStringList.Create;
     try
-      SplitColumns(TrimRight(AListing[0]), s);
+      SplitDelimitedString(AListing[0], s, True);
       if s.Count > 4 then begin
         if not IsMMDDYY(s[0], '/') then begin {do not localize}
           Exit;
@@ -455,7 +455,7 @@ begin
   LBuffer := AItem.Data;
   LCols := TStringList.Create;
   try
-    SplitColumns(Fetch(LBuffer, ''''), LCols); {do not localize}
+    SplitDelimitedString(Fetch(LBuffer, #39), LCols, True); {do not localize}
     //0 - date
     //1 - time
     //2 - (D) dir or file (F)
@@ -506,7 +506,7 @@ begin
   if AListing.Count > 0 then begin
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0], s);
+      SplitDelimitedString(AListing[0], s, True);
       if s.Count > 2 then begin
         if (Length(s[0]) = 4) and IsNumeric(s[0]) then begin
           Result := (Length(s[2]) = 8) and (IsNumeric(s[2]));
@@ -553,7 +553,7 @@ begin
     //Col 4 - time
     //Col 5 - filename
     //Col 6 - file type
-    SplitColumns(AItem.Data, LCols);
+    SplitDelimitedString(AItem.Data, LCols, True);
     if LCols.Count > 5 then begin
       LI.FileName := LCols[5];
     end;

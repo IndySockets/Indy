@@ -126,6 +126,7 @@ function TIdNTLMAuthentication.Authentication: String;
 var
   buf: TIdBytes;
   Type2: type_2_message_header;
+  LDecoder: TIdDecoderMIME;
 begin
   Result := '';    {do not localize}
   SetLength(buf, 0);
@@ -150,9 +151,12 @@ begin
           Abort;
         end;
 
-        with TIdDecoderMIME.Create do try
-          buf := DecodeBytes(FNTLMInfo);
-        finally Free; end;
+        LDecoder := TIdDecoderMIME.Create;
+        try
+          buf := LDecoder.DecodeBytes(FNTLMInfo);
+        finally
+          LDecoder.Free;
+        end;
         BytesToRaw(buf, Type2, SizeOf(Type2));
 
         buf := RawToBytes(Type2.Nonce, SizeOf(Type2.Nonce));

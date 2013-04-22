@@ -257,12 +257,12 @@ type
 
   TIdSSLEVP_MD = record
     Length: TIdC_UINT;
-    MD: Array [0 .. EVP_MAX_MD_SIZE - 1] of AnsiChar;
+    MD: Array [0 .. EVP_MAX_MD_SIZE - 1] of TIdAnsiChar;
   end;
 
   TIdSSLByteArray = record
     Length: TIdC_UINT;
-    Data: PAnsiChar; // RLebeau: should be PByte, but not all Delphi versions support indexed access using PByte
+    Data: PByte;
   end;
 
   TIdX509 = class;
@@ -271,8 +271,8 @@ type
   TCallbackEvent  = procedure(const AMsg: String) of object;
   TCallbackExEvent = procedure(ASender : TObject; const AsslSocket: PSSL;
     const AWhere, Aret: TIdC_INT; const AType, AMsg : String ) of object;
-  TPasswordEvent  = procedure(var Password: AnsiString) of object;
-  TPasswordEventEx = procedure( ASender : TObject; var VPassword: AnsiString; const AIsWrite : Boolean) of object;
+  TPasswordEvent  = procedure(var Password: String) of object;
+  TPasswordEventEx = procedure( ASender : TObject; var VPassword: String; const AIsWrite : Boolean) of object;
   TVerifyPeerEvent  = function(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean of object;
   TIOHandlerNotify = procedure(ASender: TIdSSLIOHandlerSocketOpenSSL) of object;
 
@@ -289,8 +289,8 @@ type
     fVerifyMode: TIdSSLVerifyModeSet;
     //fVerifyFile,
     fVerifyDirs: String;
-    fCipherList: AnsiString;
-    procedure AssignTo(ASource: TPersistent); override;
+    fCipherList: String;
+    procedure AssignTo(Destination: TPersistent); override;
     procedure SetSSLVersions(const AValue : TIdSSLVersions);
     procedure SetMethod(const AValue : TIdSSLVersion);
   public
@@ -308,7 +308,7 @@ type
     property VerifyDepth: Integer read fVerifyDepth write fVerifyDepth;
 //    property VerifyFile: String read fVerifyFile write fVerifyFile;
     property VerifyDirs: String read fVerifyDirs write fVerifyDirs;
-    property CipherList: AnsiString read fCipherList write fCipherList;
+    property CipherList: String read fCipherList write fCipherList;
   end;
 
   TIdSSLContext = class(TObject)
@@ -321,7 +321,7 @@ type
     fVerifyMode: TIdSSLVerifyModeSet;
 //    fVerifyFile: String;
     fVerifyDirs: String;
-    fCipherList: AnsiString;
+    fCipherList: String;
     fContext: PSSL_CTX;
     fStatusInfoOn: Boolean;
 //    fPasswordRoutineOn: Boolean;
@@ -352,7 +352,7 @@ type
     property Mode: TIdSSLMode read fMode write fMode;
     property RootCertFile: String read fsRootCertFile write fsRootCertFile;
     property CertFile: String read fsCertFile write fsCertFile;
-    property CipherList: AnsiString read fCipherList write fCipherList;
+    property CipherList: String read fCipherList write fCipherList;
     property KeyFile: String read fsKeyFile write fsKeyFile;
     property DHParamsFile: String read fsDHParamsFile write fsDHParamsFile;
 //    property VerifyMode: TIdSSLVerifyModeSet read GetVerifyMode write SetVerifyMode;
@@ -409,8 +409,8 @@ type
     procedure DoStatusInfo(const AMsg: String); virtual;
     procedure DoStatusInfoEx(const AsslSocket: PSSL;
     const AWhere, Aret: TIdC_INT; const AWhereStr, ARetStr : String );
-    procedure DoGetPassword(var Password: AnsiString); virtual;
-    procedure DoGetPasswordEx(var VPassword: AnsiString; const AIsWrite : Boolean); virtual;
+    procedure DoGetPassword(var Password: String); virtual;
+    procedure DoGetPasswordEx(var VPassword: String; const AIsWrite : Boolean); virtual;
 
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean; virtual;
     function RecvEnc(var VBuffer: TIdBytes): Integer; override;
@@ -457,9 +457,9 @@ type
     procedure DoStatusInfo(const AMsg: String); virtual;
     procedure DoStatusInfoEx(const AsslSocket: PSSL;
       const AWhere, Aret: TIdC_INT; const AWhereStr, ARetStr : String );
-    procedure DoGetPassword(var Password: AnsiString); virtual;
+    procedure DoGetPassword(var Password: String); virtual;
 //TPasswordEventEx
-    procedure DoGetPasswordEx(var VPassword: AnsiString; const AIsWrite : Boolean); virtual;
+    procedure DoGetPasswordEx(var VPassword: String; const AIsWrite : Boolean); virtual;
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean; virtual;
     procedure InitComponent; override;
   public
@@ -635,6 +635,9 @@ function OpenSSLVersion: string;
 implementation
 
 uses
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   Posix.Time,
@@ -653,12 +656,23 @@ uses
   SysUtils,
   SyncObjs;
 
+type
+  // TODO: TIdThreadSafeObjectList instead?
+  {$IFDEF HAS_GENERICS_TThreadList}
+  TIdCriticalSectionThreadList = TThreadList<TIdCriticalSection>;
+  TIdCriticalSectionList = TList<TIdCriticalSection>;
+  {$ELSE}
+  // TODO: flesh out to match TThreadList<TIdCriticalSection> and TList<TIdCriticalSection> on non-Generics compilers
+  TIdCriticalSectionThreadList = TThreadList;
+  TIdCriticalSectionList = TList;
+  {$ENDIF}
+
 var
   SSLIsLoaded: TIdThreadSafeBoolean = nil;
   LockInfoCB: TIdCriticalSection = nil;
   LockPassCB: TIdCriticalSection = nil;
   LockVerifyCB: TIdCriticalSection = nil;
-  CallbackLockList: TThreadList = nil;
+  CallbackLockList: TIdCriticalSectionThreadList = nil;
 
 procedure GetStateVars(const sslSocket: PSSL; AWhere, Aret: TIdC_INT; var VTypeStr, VMsg : String);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -767,9 +781,16 @@ begin
   end;          }
 end;
 
-function PasswordCallback(buf: PAnsiChar; size: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl;
+function PasswordCallback(buf: PIdAnsiChar; size: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl;
+{$IFDEF USE_MARSHALLED_PTRS}
+type
+  TBytesPtr = ^TBytes;
+{$ENDIF}
 var
-  Password: AnsiString;
+  Password: String;
+  {$IFDEF STRING_IS_UNICODE}
+  LPassword: TIdBytes;
+  {$ENDIF}
   IdSSLContext: TIdSSLContext;
   LErr : Integer;
 begin
@@ -794,8 +815,20 @@ begin
         end;
       end;
       FillChar(buf^, size, 0);
+      {$IFDEF STRING_IS_UNICODE}
+      LPassword := IndyTextEncoding_OSDefault.GetBytes(Password);
+      if Length(LPassword) > 0 then begin
+        {$IFDEF USE_MARSHALLED_PTRS}
+        TMarshal.Copy(TBytesPtr(@LPassword)^, 0, TPtrWrapper.Create(buf), IndyMin(Length(LPassword), size));
+        {$ELSE}
+        Move(LPassword[0], buf^, IndyMin(Length(LPassword), size));
+        {$ENDIF}
+      end;
+      Result := Length(LPassword);
+      {$ELSE}
       StrPLCopy(buf, Password, size);
       Result := Length(Password);
+      {$ENDIF}
       buf[size-1] := #0; // RLebeau: truncate the password if needed
     finally
       LockPassCB.Leave;
@@ -824,9 +857,8 @@ JPM.
   try
     LockInfoCB.Enter;
     try
-      IdSSLSocket := TIdSSLSocket(
-      SSL_get_app_data(sslSocket));
-      StatusStr := IndyFormat(RSOSSLStatusString, [StrPas(SSL_state_string_long(sslSocket))]);
+      IdSSLSocket := TIdSSLSocket(SSL_get_app_data(sslSocket));
+      StatusStr := IndyFormat(RSOSSLStatusString, [String(SSL_state_string_long(sslSocket))]);
       if (IdSSLSocket.fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
         TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoStatusInfo(StatusStr);
         if Assigned(TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).fOnStatusInfoEx) then begin
@@ -1524,27 +1556,61 @@ end;
   {$IFDEF UNIX}
 
 function IndySSL_load_client_CA_file(const AFileName: String) : PSTACK_OF_X509_NAME;
+{$IFDEF USE_MARSHALLED_PTRS}
+var
+  M: TMarshaller;
+{$ENDIF}
 begin
-  Result := SSL_load_client_CA_file(PAnsiChar(UTF8String(AFileName)));
+  Result := SSL_load_client_CA_file(
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    {$ELSE}
+    PAnsiChar(UTF8String(AFileName))
+    {$ENDIF}
+  );
 end;
 
 function IndySSL_CTX_use_PrivateKey_file(ctx: PSSL_CTX; const AFileName: String;
   AType: Integer): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFDEF USE_MARSHALLED_PTRS}
+var
+  M: TMarshaller;
+{$ENDIF}
 begin
-  Result := SSL_CTX_use_PrivateKey_file(ctx, PAnsiChar(UTF8String(AFileName)), AType);
+  Result := SSL_CTX_use_PrivateKey_file(ctx,
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    {$ELSE}
+    PAnsiChar(UTF8String(AFileName))
+    {$ENDIF}
+    , AType);
 end;
 
 function IndySSL_CTX_use_certificate_file(ctx: PSSL_CTX;
   const AFileName: String; AType: Integer): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFDEF USE_MARSHALLED_PTRS}
+var
+  M: TMarshaller;
+{$ENDIF}
 begin
-  Result := SSL_CTX_use_certificate_file(ctx, PAnsiChar(UTF8String(AFileName)), AType);
+  Result := SSL_CTX_use_certificate_file(ctx,
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    {$ELSE}
+    PAnsiChar(UTF8String(AFileName))
+    {$ENDIF}
+    , AType);
 end;
 
 function IndyX509_STORE_load_locations(ctx: PX509_STORE;
   const AFileName, APathName: String): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFDEF USE_MARSHALLED_PTRS}
+var
+  M: TMarshaller;
+{$ENDIF}
 begin
   // RLebeau 4/18/2010: X509_STORE_load_locations() expects nil pointers
   // for unused values, but casting a string directly to a PAnsiChar
@@ -1553,8 +1619,14 @@ begin
   // PAnsiChar cast is applied to the raw data and thus can be nil...
   //
   Result := X509_STORE_load_locations(ctx,
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AFileName, CP_UTF8).ToPointer,
+    M.AsAnsi(APathName, CP_UTF8).ToPointer
+    {$ELSE}
     PAnsiChar(Pointer(UTF8String(AFileName))),
-    PAnsiChar(Pointer(UTF8String(APathName))));
+    PAnsiChar(Pointer(UTF8String(APathName)))
+    {$ENDIF}
+  );
 end;
 
 function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
@@ -1570,9 +1642,18 @@ var
   B: PBIO;
   LDH: PDH;
   j: Integer;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+  {$ENDIF}
 begin
   Result := 0;
-  B := BIO_new_file(PAnsiChar(UTF8String(AFileName)), 'r');
+  B := BIO_new_file(
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    {$ELSE}
+    PAnsiChar(UTF8String(AFileName))
+    {$ENDIF}
+    , 'r');
   if Assigned(B) then begin
     try
       case AType of
@@ -1783,11 +1864,7 @@ begin
       X509_print(LMem, AX509);
       LLen := BIO_get_mem_data( LMem, LBufPtr);
       if (LLen > 0) and Assigned(LBufPtr) then begin
-        {
-        We could have used RawToBytes() but that would have made a copy of the
-        output buffer.
-        }
-        AOut.Text := IndyUTF8Encoding.GetString( TIdBytes(LBufPtr^), 0, LLen);
+        AOut.Text := IndyTextEncoding_UTF8.GetString(PByte(LBufPtr), LLen);
       end;
     finally
       if Assigned(LMem) then begin
@@ -1821,22 +1898,23 @@ begin
 end;
 {$ENDIF}
 
-procedure SslLockingCallback(mode, n: TIdC_INT; Afile: PAnsiChar;
+procedure SslLockingCallback(mode, n: TIdC_INT; Afile: PIdAnsiChar;
   line: TIdC_INT)cdecl;
 var
   Lock: TIdCriticalSection;
+  LList: TIdCriticalSectionList;
 begin
   Assert(CallbackLockList <> nil);
   Lock := nil;
 
-  with CallbackLockList.LockList do
-    try
-      if n < Count then begin
-        Lock := TIdCriticalSection(Items[n]);
-      end;
-    finally
-      CallbackLockList.UnlockList;
+  LList := CallbackLockList.LockList;
+  try
+    if n < LList.Count then begin
+      Lock := {$IFDEF HAS_GENERICS_TList}LList.Items[n]{$ELSE}TIdCriticalSection(LList.Items[n]){$ENDIF};
     end;
+  finally
+    CallbackLockList.UnlockList;
+  end;
   Assert(Lock <> nil);
   if (mode and CRYPTO_LOCK) = CRYPTO_LOCK then begin
     Lock.Acquire;
@@ -1849,22 +1927,23 @@ procedure PrepareOpenSSLLocking;
 var
   i, cnt: Integer;
   Lock: TIdCriticalSection;
+  LList: TIdCriticalSectionList;
 begin
-  with CallbackLockList.LockList do
-    try
-      cnt := _CRYPTO_num_locks;
-      for i := 0 to cnt - 1 do begin
-        Lock := TIdCriticalSection.Create;
-        try
-          Add(Lock);
-        except
-          Lock.free;
-          raise ;
-        end;
+  LList := CallbackLockList.LockList;
+  try
+    cnt := _CRYPTO_num_locks;
+    for i := 0 to cnt - 1 do begin
+      Lock := TIdCriticalSection.Create;
+      try
+        LList.Add(Lock);
+      except
+        Lock.Free;
+        raise;
       end;
-    finally
-      CallbackLockList.UnlockList;
     end;
+  finally
+    CallbackLockList.UnlockList;
+  end;
 end;
 
 // Note that I define UCTTime as  PASN1_STRING
@@ -1954,11 +2033,11 @@ begin
   try
     if SSLIsLoaded.Value then begin
       Result := True;
-      Exit;
+      exit;
     end;
     Result := IdSSLOpenSSLHeaders.Load;
     if not Result then begin
-      Exit;
+      exit;
     end;
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
     // has to be done before anything that uses memory
@@ -1973,7 +2052,7 @@ begin
     // Successful loading if true
     Result := SSLeay_add_ssl_algorithms > 0;
     if not Result then begin
-      Exit;
+      exit;
     end;
     // Create locking structures, we need them for callback routines
     Assert(LockInfoCB = nil);
@@ -1981,7 +2060,7 @@ begin
     LockPassCB := TIdCriticalSection.Create;
     LockVerifyCB := TIdCriticalSection.Create;
     // Handle internal OpenSSL locking
-    CallbackLockList := TThreadList.Create;
+    CallbackLockList := TIdCriticalSectionThreadList.Create;
     PrepareOpenSSLLocking;
     CRYPTO_set_locking_callback(@SslLockingCallback);
 {$IFNDEF WIN32_OR_WIN64}
@@ -2001,31 +2080,37 @@ end;
 procedure UnLoadOpenSSLLibrary;
 // allow the user to call unload directly?
 // will then need to implement reference count
+{$IFNDEF USE_OBJECT_ARC}
 var
   i: Integer;
+  LList: TIdCriticalSectionList;
+{$ENDIF}
 begin
   // ssl was never loaded
   if LockInfoCB = nil then begin
-    Exit;
+    exit;
   end;
-  if Assigned(CRYPTO_set_locking_callback) then begin
-    CRYPTO_set_locking_callback(nil);
-  end;
+  CRYPTO_set_locking_callback(nil);
   IdSSLOpenSSLHeaders.Unload;
   FreeAndNil(LockInfoCB);
   FreeAndNil(LockPassCB);
   FreeAndNil(LockVerifyCB);
   if Assigned(CallbackLockList) then begin
-    with CallbackLockList.LockList do begin
+    {$IFDEF USE_OBJECT_ARC}
+    CallbackLockList.Clear; // Items are auto-freed
+    {$ELSE}
+    LList := CallbackLockList.LockList;
+    begin
       try
-        for i := 0 to Count - 1 do begin
-          TObject(Items[i]).Free;
+        for i := 0 to LList.Count - 1 do begin
+          {$IFDEF HAS_GENERICS_TList}LList.Items[i]{$ELSE}TIdCriticalSection(LList.Items[i]){$ENDIF}.Free;
         end;
-        Clear;
+        LList.Clear;
       finally
         CallbackLockList.UnlockList;
       end;
     end;
+    {$ENDIF}
     FreeAndNil(CallbackLockList);
   end;
   SSLIsLoaded.Value := False;
@@ -2094,24 +2179,26 @@ begin
   end;
 end;
 
-procedure TIdSSLOptions.AssignTo(ASource: TPersistent);
+procedure TIdSSLOptions.AssignTo(Destination: TPersistent);
+var
+  LDest: TIdSSLOptions;
 begin
-  if ASource is TIdSSLOptions then
-    with TIdSSLOptions(ASource) do begin
-      RootCertFile := Self.RootCertFile;
-      CertFile := Self.CertFile;
-      KeyFile := Self.KeyFile;
-      DHParamsFile := Self.DHParamsFile;
-      Method := Self.Method;
-      SSLVersions := Self.SSLVersions;
-      Mode := Self.Mode;
-      VerifyMode := Self.VerifyMode;
-      VerifyDepth := Self.VerifyDepth;
-      VerifyDirs := Self.VerifyDirs;
-      CipherList := Self.CipherList;
-    end
-  else
-    inherited AssignTo(ASource);
+  if Destination is TIdSSLOptions then begin
+    LDest := TIdSSLOptions(Destination);
+    LDest.RootCertFile := RootCertFile;
+    LDest.CertFile := CertFile;
+    LDest.KeyFile := KeyFile;
+    LDest.DHParamsFile := DHParamsFile;
+    LDest.Method := Method;
+    LDest.SSLVersions := SSLVersions;
+    LDest.Mode := Mode;
+    LDest.VerifyMode := VerifyMode;
+    LDest.VerifyDepth := VerifyDepth;
+    LDest.VerifyDirs := VerifyDirs;
+    LDest.CipherList := CipherList;
+  end else begin
+    inherited AssignTo(Destination);
+  end;
 end;
 
 ///////////////////////////////////////////////////////
@@ -2138,26 +2225,24 @@ begin
   //ensure Init isn't called twice
   Assert(fSSLContext = nil);
   fSSLContext := TIdSSLContext.Create;
-  with fSSLContext do begin
-    Parent := Self;
-    RootCertFile := SSLOptions.RootCertFile;
-    CertFile := SSLOptions.CertFile;
-    KeyFile := SSLOptions.KeyFile;
-    DHParamsFile := SSLOptions.DHParamsFile;
-    fVerifyDepth := SSLOptions.fVerifyDepth;
-    fVerifyMode := SSLOptions.fVerifyMode;
-    // fVerifyFile := SSLOptions.fVerifyFile;
-    fVerifyDirs := SSLOptions.fVerifyDirs;
-    fCipherList := SSLOptions.fCipherList;
-    VerifyOn := Assigned(fOnVerifyPeer);
-    StatusInfoOn := Assigned(fOnStatusInfo) or Assigned(FOnStatusInfoEx);
-    //PasswordRoutineOn := Assigned(fOnGetPassword);
-    fMethod :=  SSLOptions.Method;
-    fMode := SSLOptions.Mode;
-    fSSLVersions := SSLOptions.SSLVersions;
+  fSSLContext.Parent := Self;
+  fSSLContext.RootCertFile := SSLOptions.RootCertFile;
+  fSSLContext.CertFile := SSLOptions.CertFile;
+  fSSLContext.KeyFile := SSLOptions.KeyFile;
+  fSSLContext.DHParamsFile := SSLOptions.DHParamsFile;
+  fSSLContext.fVerifyDepth := SSLOptions.fVerifyDepth;
+  fSSLContext.fVerifyMode := SSLOptions.fVerifyMode;
+  // fSSLContext.fVerifyFile := SSLOptions.fVerifyFile;
+  fSSLContext.fVerifyDirs := SSLOptions.fVerifyDirs;
+  fSSLContext.fCipherList := SSLOptions.fCipherList;
+  fSSLContext.VerifyOn := Assigned(fOnVerifyPeer);
+  fSSLContext.StatusInfoOn := Assigned(fOnStatusInfo) or Assigned(FOnStatusInfoEx);
+  //fSSLContext.PasswordRoutineOn := Assigned(fOnGetPassword);
+  fSSLContext.fMethod :=  SSLOptions.Method;
+  fSSLContext.fMode := SSLOptions.Mode;
+  fSSLContext.fSSLVersions := SSLOptions.SSLVersions;
 
-    fSSLContext.InitContext(sslCtxServer);
-  end;
+  fSSLContext.InitContext(sslCtxServer);
 end;
 
 function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
@@ -2204,7 +2289,7 @@ begin
   end;
 end;
 
-procedure TIdServerIOHandlerSSLOpenSSL.DoGetPassword(var Password: AnsiString);
+procedure TIdServerIOHandlerSSLOpenSSL.DoGetPassword(var Password: String);
 begin
   if Assigned(fOnGetPassword) then  begin
     fOnGetPassword(Password);
@@ -2212,7 +2297,7 @@ begin
 end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.DoGetPasswordEx(
-  var VPassword: AnsiString; const AIsWrite: Boolean);
+  var VPassword: String; const AIsWrite: Boolean);
 begin
   if Assigned(fOnGetPasswordEx) then begin
     fOnGetPasswordEx(Self,VPassword,AIsWrite);
@@ -2428,25 +2513,23 @@ procedure TIdSSLIOHandlerSocketOpenSSL.Init;
 begin
   if not Assigned(fSSLContext) then begin
     fSSLContext := TIdSSLContext.Create;
-    with fSSLContext do begin
-      Parent := Self;
-      RootCertFile := SSLOptions.RootCertFile;
-      CertFile := SSLOptions.CertFile;
-      KeyFile := SSLOptions.KeyFile;
-      DHParamsFile := SSLOptions.DHParamsFile;
-      fVerifyDepth := SSLOptions.fVerifyDepth;
-      fVerifyMode := SSLOptions.fVerifyMode;
-      // fVerifyFile := SSLOptions.fVerifyFile;
-      fVerifyDirs := SSLOptions.fVerifyDirs;
-      fCipherList := SSLOptions.fCipherList;
-      VerifyOn := Assigned(fOnVerifyPeer);
-      StatusInfoOn := Assigned(fOnStatusInfo) or Assigned(fOnStatusInfoEx);
-      //PasswordRoutineOn := Assigned(fOnGetPassword);
-      fMethod :=  SSLOptions.Method;
-      fSSLVersions := SSLOptions.SSLVersions;
-      fMode := SSLOptions.Mode;
-      fSSLContext.InitContext(sslCtxClient);
-    end;
+    fSSLContext.Parent := Self;
+    fSSLContext.RootCertFile := SSLOptions.RootCertFile;
+    fSSLContext.CertFile := SSLOptions.CertFile;
+    fSSLContext.KeyFile := SSLOptions.KeyFile;
+    fSSLContext.DHParamsFile := SSLOptions.DHParamsFile;
+    fSSLContext.fVerifyDepth := SSLOptions.fVerifyDepth;
+    fSSLContext.fVerifyMode := SSLOptions.fVerifyMode;
+    // fSSLContext.fVerifyFile := SSLOptions.fVerifyFile;
+    fSSLContext.fVerifyDirs := SSLOptions.fVerifyDirs;
+    fSSLContext.fCipherList := SSLOptions.fCipherList;
+    fSSLContext.VerifyOn := Assigned(fOnVerifyPeer);
+    fSSLContext.StatusInfoOn := Assigned(fOnStatusInfo) or Assigned(fOnStatusInfoEx);
+    //fSSLContext.PasswordRoutineOn := Assigned(fOnGetPassword);
+    fSSLContext.fMethod :=  SSLOptions.Method;
+    fSSLContext.fSSLVersions := SSLOptions.SSLVersions;
+    fSSLContext.fMode := SSLOptions.Mode;
+    fSSLContext.InitContext(sslCtxClient);
   end;
 end;
 //}
@@ -2467,14 +2550,14 @@ begin
   end;
 end;
 
-procedure TIdSSLIOHandlerSocketOpenSSL.DoGetPassword(var Password: AnsiString);
+procedure TIdSSLIOHandlerSocketOpenSSL.DoGetPassword(var Password: String);
 begin
   if Assigned(fOnGetPassword) then begin
     fOnGetPassword(Password);
   end;
 end;
 
-procedure TIdSSLIOHandlerSocketOpenSSL.DoGetPasswordEx(var VPassword: AnsiString;
+procedure TIdSSLIOHandlerSocketOpenSSL.DoGetPasswordEx(var VPassword: String;
   const AIsWrite: Boolean);
 begin
   if Assigned(fOnGetPasswordEx) then begin
@@ -2614,7 +2697,9 @@ var
   SSLMethod: PSSL_METHOD;
   error: TIdC_INT;
 //  pCAname: PSTACK_X509_NAME;
-
+  {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+  {$ENDIF}
 begin
   // Destroy the context first
   DestroyContext;
@@ -2689,9 +2774,27 @@ an invalid MAC when doing SSL.}
   end;
   //if_SSL_CTX_set_tmp_rsa_callback(hSSLContext, @RSACallback);
   if fCipherList <> '' then begin    {Do not Localize}
-    error := SSL_CTX_set_cipher_list(fContext, PAnsiChar(fCipherList));
+    error := SSL_CTX_set_cipher_list(fContext,
+      {$IFDEF USE_MARSHALLED_PTRS}
+      M.AsAnsi(fCipherList).ToPointer
+      {$ELSE}
+      PAnsiChar(
+        {$IFDEF STRING_IS_ANSI}
+        fCipherList
+        {$ELSE}
+        AnsiString(fCipherList) // explicit cast to Ansi
+        {$ENDIF}
+      )
+      {$ENDIF}
+    );
   end else begin
-    error := SSL_CTX_set_cipher_list(fContext, SSL_DEFAULT_CIPHER_LIST);
+    error := SSL_CTX_set_cipher_list(fContext,
+      {$IFDEF USE_MARSHALLED_PTRS}
+      M.AsAnsi(SSL_DEFAULT_CIPHER_LIST).ToPointer
+      {$ELSE}
+      SSL_DEFAULT_CIPHER_LIST
+      {$ENDIF}
+    );
   end;
   if error <= 0 then begin
     EIdOSSLLoadingKeyError.RaiseException(RSSSLSettingCipherError);
@@ -2734,7 +2837,7 @@ begin
   Result := False;
 
   if (Dirs <> '') or (FileName <> '') then begin
-    if SSL_CTX_load_verify_locations(fContext, PAnsiChar(FileName), PAnsiChar(Dirs)) <= 0 then begin
+    if IndySSL_CTX_load_verify_locations(fContext, FileName, Dirs) <= 0 then begin
       raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
     end;
   end;
@@ -3113,7 +3216,7 @@ begin
     if fSSL <> nil then begin
       pSession := SSL_get_session(fSSL);
       if pSession <> nil then begin
-        Result.Data := SSL_SESSION_get_id(pSession, @Result.Length);
+        Result.Data := PByte(SSL_SESSION_get_id(pSession, @Result.Length));
       end;
     end;
   end;
@@ -3123,12 +3226,16 @@ function  TIdSSLSocket.GetSessionIDAsString:String;
 var
   Data: TIdSSLByteArray;
   i: TIdC_UINT;
+  LDataPtr: PByte;
 begin
   Result := '';    {Do not Localize}
   Data := GetSessionID;
   if Data.Length > 0 then begin
     for i := 0 to Data.Length-1 do begin
-      Result := Result + IndyFormat('%.2x', [Byte(Data.Data[I])]);{do not localize}
+      // RLebeau: not all Delphi versions support indexed access using PByte
+      LDataPtr := Data.Data;
+      Inc(LDataPtr, I);
+      Result := Result + IndyFormat('%.2x', [LDataPtr^]);{do not localize}
     end;
   end;
 end;
@@ -3153,12 +3260,12 @@ end;
 
 function TIdX509Name.CertInOneLine: String;
 var
-  LOneLine: array[0..2048] of AnsiChar;
+  LOneLine: array[0..2048] of TIdAnsiChar;
 begin
   if FX509Name = nil then begin
     Result := '';    {Do not Localize}
   end else begin
-    Result := String(StrPas(X509_NAME_oneline(FX509Name, PAnsiChar(@LOneLine), SizeOf(LOneLine))));
+    Result := String(X509_NAME_oneline(FX509Name, @LOneLine[0], SizeOf(LOneLine)));
   end;
 end;
 
@@ -3442,14 +3549,14 @@ end;
 
 function TIdSSLCipher.GetDescription;
 var
-  Buf: Array[0..1024] of AnsiChar;
+  Buf: array[0..1024] of TIdAnsiChar;
 begin
-  Result := String(StrPas(SSL_CIPHER_description(SSL_get_current_cipher(FSSLSocket.fSSL), PAnsiChar(@Buf[0]), SizeOf(Buf)-1)));
+  Result := String(SSL_CIPHER_description(SSL_get_current_cipher(FSSLSocket.fSSL), @Buf[0], SizeOf(Buf)-1));
 end;
 
 function TIdSSLCipher.GetName:String;
 begin
-  Result := String(StrPas(SSL_CIPHER_get_name(SSL_get_current_cipher(FSSLSocket.fSSL))));
+  Result := String(SSL_CIPHER_get_name(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
 
 function TIdSSLCipher.GetBits:TIdC_INT;
@@ -3459,7 +3566,7 @@ end;
 
 function TIdSSLCipher.GetVersion:String;
 begin
-  Result := String(StrPas(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL))));
+  Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
 
 initialization

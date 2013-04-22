@@ -303,7 +303,7 @@ var
           VDecoded := RawToBytes(AData[1], Length(AData));
         end;
         {$ELSE}
-        VDecoded := Indy8BitEncoding.GetBytes(AData);
+        VDecoded := IndyTextEncoding_8Bit.GetBytes(AData);
         {$ENDIF}
         Result := True;
       end;
@@ -544,7 +544,7 @@ begin
   AppendBytes(csNoReqQuote, CreateEncodeRange(64, 94));
   AppendBytes(csNoReqQuote, CreateEncodeRange(96, 126));
 
-  csSpecials := ToBytes(Specials, Indy8BitEncoding);
+  csSpecials := ToBytes(Specials, IndyTextEncoding_8Bit);
 
   BeginEncode := '=?' + MimeCharSet + '?' + HeaderEncoding + '?';    {Do not Localize}
   EndEncode := '?=';  {Do not Localize}

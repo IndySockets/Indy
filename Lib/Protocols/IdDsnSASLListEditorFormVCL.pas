@@ -244,189 +244,156 @@ begin
   actMoveDown.OnUpdate  := actMoveDownUpdate;
 
   sbAdd := TSpeedButton.Create(Self);
-  with sbAdd do
-  begin
-    Name := 'sbAdd';  {do not localize}
-    Parent := Self;
-    Action := actAdd;
-    Left := 184;
-    Top := 88;
-    Width := 57;
-    Height := 25;
-    ShowHint := True;
-    {$IFDEF WIDGET_LCL}
-    Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
-    {$ELSE}
-      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
-    Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
-    NumGlyphs := 2;
-      {$ENDIF}
+  sbAdd.Name := 'sbAdd';  {do not localize}
+  sbAdd.Parent := Self;
+  sbAdd.Action := actAdd;
+  sbAdd.Left := 184;
+  sbAdd.Top := 88;
+  sbAdd.Width := 57;
+  sbAdd.Height := 25;
+  sbAdd.ShowHint := True;
+  {$IFDEF WIDGET_LCL}
+  sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
+  {$ELSE}
+    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
+  sbAdd.Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
+  sbAdd.NumGlyphs := 2;
     {$ENDIF}
-  end;
+  {$ENDIF}
 
   sbRemove := TSpeedButton.Create(Self);
-  with sbRemove do
-  begin
-    Name := 'sbRemove'; {do not localize}
-    Parent := Self;
-    Action := actRemove;
-    Left := 184;
-    Top := 128;
-    Width := 57;
-    Height := 25;
-    ShowHint := True;
-    {$IFDEF WIDGET_LCL}
-    Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
-    {$ELSE}
-      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
-    Glyph.LoadFromResourceName(HInstance, 'ARROWLEFT'); {do not localize}
-    NumGlyphs := 2;
-      {$ENDIF}
+  sbRemove.Name := 'sbRemove'; {do not localize}
+  sbRemove.Parent := Self;
+  sbRemove.Action := actRemove;
+  sbRemove.Left := 184;
+  sbRemove.Top := 128;
+  sbRemove.Width := 57;
+  sbRemove.Height := 25;
+  sbRemove.ShowHint := True;
+  {$IFDEF WIDGET_LCL}
+  sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
+  {$ELSE}
+    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
+  sbRemove.Glyph.LoadFromResourceName(HInstance, 'ARROWLEFT'); {do not localize}
+  sbRemove.NumGlyphs := 2;
     {$ENDIF}
-  end;
+  {$ENDIF}
 
   Label1 := TLabel.Create(Self);
-  with Label1 do
-  begin
-    Name := 'Label1'; {do not localize}
-    Parent := Self;
-    Left := 8;
-    Top := 8;
-    Width := 42;
-    Height := 13;
-    Caption :=  RSADlgSLAvailable;
-  end;
+  Label1.Name := 'Label1'; {do not localize}
+  Label1.Parent := Self;
+  Label1.Left := 8;
+  Label1.Top := 8;
+  Label1.Width := 42;
+  Label1.Height := 13;
+  Label1.Caption :=  RSADlgSLAvailable;
 
   Label2 := TLabel.Create(Self);
-  with Label2 do
-  begin
-    Name := 'Label2'; {do not localize}
-    Parent := Self;
-    Left := 248;
-    Top := 8;
-    Width := 136;
-    Height := 13;
-    Caption := RSADlgSLAssigned
-  end;
+  Label2.Name := 'Label2'; {do not localize}
+  Label2.Parent := Self;
+  Label2.Left := 248;
+  Label2.Top := 8;
+  Label2.Width := 136;
+  Label2.Height := 13;
+  Label2.Caption := RSADlgSLAssigned;
 
   sbUp := TSpeedButton.Create(Self);
-  with sbUp do
-  begin
-    Name := 'sbUp'; {do not localize}
-    Parent := Self;
-    Action := actMoveUp;
-    Left := 424;
-    Top := 88;
-    Width := 23;
-    Height := 22;
-    ShowHint := True;
-     {$IFDEF WIDGET_LCL}
-    Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
-    {$ELSE}
-      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
-    Glyph.LoadFromResourceName(HInstance, 'ARROWUP'); {do not localize}
-    NumGlyphs := 2;
-      {$ENDIF}
+  sbUp.Name := 'sbUp'; {do not localize}
+  sbUp.Parent := Self;
+  sbUp.Action := actMoveUp;
+  sbUp.Left := 424;
+  sbUp.Top := 88;
+  sbUp.Width := 23;
+  sbUp.Height := 22;
+  sbUp.ShowHint := True;
+  {$IFDEF WIDGET_LCL}
+  sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
+  {$ELSE}
+    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
+  sbUp.Glyph.LoadFromResourceName(HInstance, 'ARROWUP'); {do not localize}
+  sbUp.NumGlyphs := 2;
     {$ENDIF}
-  end;
+  {$ENDIF}
 
   sbDown := TSpeedButton.Create(Self);
-  with sbDown do
-  begin
-    Name := 'sbDown'; {do not localize}
-    Parent := Self;
-    Action := actMoveDown;
-    Left := 424;
-    Top := 128;
-    Width := 23;
-    Height := 22;
-
-    ShowHint := True;
-    {$IFDEF WIDGET_LCL}
-    Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
-    {$ELSE}
-      {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
-    Glyph.LoadFromResourceName(HInstance, 'ARROWDOWN'); {do not localize}
-    NumGlyphs := 2;
-      {$ENDIF}
+  sbDown.Name := 'sbDown'; {do not localize}
+  sbDown.Parent := Self;
+  sbDown.Action := actMoveDown;
+  sbDown.Left := 424;
+  sbDown.Top := 128;
+  sbDown.Width := 23;
+  sbDown.Height := 22;
+  sbDown.ShowHint := True;
+  {$IFDEF WIDGET_LCL}
+  sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
+  {$ELSE}
+    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
+  sbDown.Glyph.LoadFromResourceName(HInstance, 'ARROWDOWN'); {do not localize}
+  sbDown.NumGlyphs := 2;
     {$ENDIF}
-  end;
+  {$ENDIF}
 
   lbAvailable := TListBox.Create(Self);
-  with lbAvailable do
-  begin
-    Name := 'lbAvailable';  {do not localize}
-    Parent := Self;
-    Left := 8;
-    Top := 24;
-    Width := 169;
-    Height := 281;
-    ItemHeight := 13;
-    TabOrder := 0;
-  end;
+  lbAvailable.Name := 'lbAvailable';  {do not localize}
+  lbAvailable.Parent := Self;
+  lbAvailable.Left := 8;
+  lbAvailable.Top := 24;
+  lbAvailable.Width := 169;
+  lbAvailable.Height := 281;
+  lbAvailable.ItemHeight := 13;
+  lbAvailable.TabOrder := 0;
 
   lbAssigned := TListBox.Create(Self);
-  with lbAssigned do
-  begin
-    Name := 'lbAssigned'; {do not localize}
-    Parent := Self;
-    Left := 248;
-    Top := 24;
-    Width := 169;
-    Height := 281;
-    ItemHeight := 13;
-    TabOrder := 1;
-  end;
+  lbAssigned.Name := 'lbAssigned'; {do not localize}
+  lbAssigned.Parent := Self;
+  lbAssigned.Left := 248;
+  lbAssigned.Top := 24;
+  lbAssigned.Width := 169;
+  lbAssigned.Height := 281;
+  lbAssigned.ItemHeight := 13;
+  lbAssigned.TabOrder := 1;
 
   {$IFDEF USE_TBitBtn}
   BtnCancel := TBitBtn.Create(Self);
   {$ELSE}
   BtnCancel := TButton.Create(Self);
   {$ENDIF}
-
-  with BtnCancel do
-  begin
-    Name := 'BtnCancel';  {do not localize}
-    Left := 368;
-    Top := 312;
-    Width := 75;
-    {$IFDEF WIDGET_LCL}
-    Height := 30;
-    Kind := bkCancel;
-    {$ELSE}
-    Height := 25;
-    Cancel := True;
-    Caption := RSCancel;
-    ModalResult := 2;
-    {$ENDIF}
-    Parent := Self;
-  end;
+  BtnCancel.Name := 'BtnCancel';  {do not localize}
+  BtnCancel.Left := 368;
+  BtnCancel.Top := 312;
+  BtnCancel.Width := 75;
+  {$IFDEF WIDGET_LCL}
+  BtnCancel.Height := 30;
+  BtnCancel.Kind := bkCancel;
+  {$ELSE}
+  BtnCancel.Height := 25;
+  BtnCancel.Cancel := True;
+  BtnCancel.Caption := RSCancel;
+  BtnCancel.ModalResult := 2;
+  {$ENDIF}
+  BtnCancel.Parent := Self;
 
   {$IFDEF USE_TBitBtn}
   BtnOk := TBitBtn.Create(Self);
   {$ELSE}
   BtnOk := TButton.Create(Self);
   {$ENDIF}
-
-  with BtnOk do
-  begin
-    Name := 'BtnOk';  {do not localize}
-    Parent := Self;
-    Left := 287;
-    Top := 312;
-    Width := 75;
-    {$IFDEF WIDGET_LCL}
-    Height := 30;
-    Kind := bkOk;
-    {$ELSE}
-    Height := 25;
-    Caption := RSOk;
-    Default := True;
-    ModalResult := 1;
-    {$ENDIF}
-    TabOrder := 2;
-    TabOrder := 3;
-  end;
+  BtnOk.Name := 'BtnOk';  {do not localize}
+  BtnOk.Parent := Self;
+  BtnOk.Left := 287;
+  BtnOk.Top := 312;
+  BtnOk.Width := 75;
+  {$IFDEF WIDGET_LCL}
+  BtnOk.Height := 30;
+  BtnOk.Kind := bkOk;
+  {$ELSE}
+  BtnOk.Height := 25;
+  BtnOk.Caption := RSOk;
+  BtnOk.Default := True;
+  BtnOk.ModalResult := 1;
+  {$ENDIF}
+  BtnOk.TabOrder := 2;
+  BtnOk.TabOrder := 3;
 end;
 
 procedure TfrmSASLListEditorVCL.actAddExecute(Sender: TObject);
@@ -454,9 +421,9 @@ begin
   if LEnabled <> actAdd.Enabled then
   begin
     if LEnabled then begin
-       sbAdd.Glyph.LoadFromLazarusResource('ARROWRIGHT');  {do not localize}
+      sbAdd.Glyph.LoadFromLazarusResource('ARROWRIGHT');  {do not localize}
     end else begin
-       sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
+      sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
     end;
   end;
   {$ENDIF}
@@ -488,9 +455,9 @@ begin
   if LEnabled <> actMoveDown.Enabled then
   begin
     if LEnabled then begin
-       sbDown.Glyph.LoadFromLazarusResource('ARROWDOWN');  {do not localize}
+      sbDown.Glyph.LoadFromLazarusResource('ARROWDOWN');  {do not localize}
     end else begin
-       sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
+      sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
     end;
   end;
   {$ENDIF}
@@ -525,9 +492,9 @@ begin
   if LEnabled <> actMoveUp.Enabled then
   begin
     if LEnabled then begin
-       sbUp.Glyph.LoadFromLazarusResource('ARROWUP');  {do not localize}
+      sbUp.Glyph.LoadFromLazarusResource('ARROWUP');  {do not localize}
     end else begin
-       sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
+      sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
     end;
   end;
   {$ENDIF}
@@ -562,9 +529,9 @@ begin
   if LEnabled <> actRemove.Enabled then
   begin
     if LEnabled then begin
-       sbRemove.Glyph.LoadFromLazarusResource('ARROWLEFT');  {do not localize}
+      sbRemove.Glyph.LoadFromLazarusResource('ARROWLEFT');  {do not localize}
     end else begin
-       sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
+      sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
     end;
   end;
   {$ENDIF}

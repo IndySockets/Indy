@@ -265,7 +265,7 @@ type
     function GetTLSIsRequired: Boolean;
     procedure SetPipeLining(const AValue : Boolean);
   public
-    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList = nil); override;
     destructor Destroy; override;
     //
     procedure CheckPipeLine;
@@ -795,7 +795,7 @@ begin
           LM := mAccept;
           LParams := TStringList.Create;
           try
-            SplitColumns(S, LParams);
+            SplitDelimitedString(S, LParams, True);
             // RLebeau: check the message size before accepting the message
             if LParams.IndexOfName('SIZE') <> -1 then
             begin
@@ -909,7 +909,7 @@ begin
         if Assigned(FOnRcptTo) then begin
           LParams := TStringList.Create;
           try
-            SplitColumns(S, LParams);
+            SplitDelimitedString(S, LParams, True);
             FOnRcptTo(LContext, EMailAddress.Address, LParams, LAction, LForward);
           finally
             FreeAndNil(LParams);
@@ -1017,10 +1017,12 @@ begin
 end;
 
 procedure TIdSMTPServer.CommandDATA(ASender: TIdCommand);
+const
+  BodyEncType: array[TIdSMTPBodyType] of IdTextEncodingType = (encASCII, enc8Bit, enc8Bit);
 var
   LContext : TIdSMTPServerContext;
   LStream: TStream;
-  LEncoding: TIdTextEncoding;
+  LEncoding: IIdTextEncoding;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
   if LContext.SMTPState <> idSMTPRcpt then begin
@@ -1038,11 +1040,7 @@ begin
       // RLebeau: TODO - do not even create the stream if the OnMsgReceive
       // event is not assigned, or at least create a stream that discards
       // any data received...
-      if LContext.FBodyType = idSMTP7Bit then begin
-        LEncoding := IndyASCIIEncoding;
-      end else begin
-        LEncoding := Indy8BitEncoding;
-      end;
+      LEncoding := IndyTextEncoding(BodyEncType[LContext.FBodyType]);
       SetEnhReply(ASender.Reply, 354, '', RSSMTPSvrStartData, LContext.EHLO);
       ASender.SendReply;
       LContext.PipeLining := False;
@@ -1270,7 +1268,7 @@ begin
 end;
 
 constructor TIdSMTPServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TThreadList = nil);
+  AYarn: TIdYarn; AList: TIdContextThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   SMTPState := idSMTPNone;

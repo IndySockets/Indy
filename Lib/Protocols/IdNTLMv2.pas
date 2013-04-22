@@ -1155,11 +1155,14 @@ var
   LDomain, LWorkStation: TIdBytes;
   LDomLen, LWorkStationLen: Word;
   LFlags : LongWord;
+  LEncoding: IIdTextEncoding;
 begin
   SetLength(Result,0);
 
-  LDomain := TIdTextEncoding.Default.GetBytes(ADomain); //UpperCase(ADomain));
-  LWorkStation := TIdTextEncoding.Default.GetBytes(AHost); //UpperCase(AHost));
+  LEncoding := IndyTextEncoding_OSDefault;
+  LDomain := LEncoding.GetBytes(ADomain); //UpperCase(ADomain));
+  LWorkStation := LEncoding.GetBytes(AHost); //UpperCase(AHost));
+  LEncoding := nil;
 
   LFlags := IdNTLM_TYPE1_FLAGS_LC2;
   case ALMCompatibility of

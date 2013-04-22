@@ -4,7 +4,7 @@ interface
 
 {$i IdCompilerDefines.inc}
 
-{RLebeau: TODO - move this logic into a TIdTextEncoding descendant class}
+{RLebeau: TODO - move this logic into an IIdTextEncoding implementation}
 
 uses
   IdGlobal, IdHeaderCoderBase;

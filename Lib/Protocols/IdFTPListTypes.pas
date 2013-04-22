@@ -365,20 +365,31 @@ function TIdDOSAttributes.GetAsString: String;
 //
 //     R     C:\File
 //A  SH      C:\File
+{$IFDEF STRING_IS_IMMUTABLE}
+var
+  LSB: TIdStringBuilder;
+{$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create('      ');
+  {$ELSE}
   Result := '      ';
+  {$ENDIF}
   if Archive then begin
-    Result[1] := 'A';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[0]{$ELSE}Result[1]{$ENDIF} := 'A'; {do not localize}
   end;
   if System then begin
-    Result[4] := 'S';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[3]{$ELSE}Result[4]{$ENDIF} := 'S'; {do not localize}
   end;
   if Hidden then begin
-    Result[5] := 'H';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[4]{$ELSE}Result[5]{$ENDIF} := 'H'; {do not localize}
   end;
   if Read_Only then begin
-    Result[6] := 'R';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[5]{$ELSE}Result[6]{$ENDIF} := 'R'; {do not localize}
   end;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  Result := LSB.ToString;
+  {$ENDIF}
 end;
 
 function TIdDOSAttributes.GetRead_Only: Boolean;
@@ -592,47 +603,58 @@ function TIdWin32ea.GetAsString: String;
 //we'll do this similarly to 4NT
 //which renders the bits like this order:
 //RHSADENTJPCOI
+{$IFDEF STRING_IS_IMMUTABLE}
+var
+  LSB: TIdStringBuilder;
+{$ENDIF}
 begin
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create('             ');
+  {$ELSE}
   Result := '             ';
+  {$ENDIF}
   if Read_Only then begin
-    Result[1] := 'R';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[0]{$ELSE}Result[1]{$ENDIF} := 'R'; {do not localize}
   end;
   if Hidden then begin
-    Result[2] := 'H';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[1]{$ELSE}Result[2]{$ENDIF} := 'H'; {do not localize}
   end;
   if System then begin
-    Result[3] := 'S';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[2]{$ELSE}Result[3]{$ENDIF} := 'S'; {do not localize}
   end;
   if Archive then begin
-    Result[4] := 'A';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[3]{$ELSE}Result[4]{$ENDIF} := 'A'; {do not localize}
   end;
   if Directory then begin
-    Result[5] := 'D';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[4]{$ELSE}Result[5]{$ENDIF} := 'D'; {do not localize}
   end;
   if Encrypted then begin
-    Result[6] := 'E';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[5]{$ELSE}Result[6]{$ENDIF} := 'E'; {do not localize}
   end;
   if Normal then begin
-    Result[7] := 'N';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[6]{$ELSE}Result[7]{$ENDIF} := 'N'; {do not localize}
   end;
   if Temporary then begin
-    Result[8] := 'T';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[7]{$ELSE}Result[8]{$ENDIF} := 'T'; {do not localize}
   end;
   if ReparsePoint then begin
-    Result[9] := 'J';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[8]{$ELSE}Result[9]{$ENDIF} := 'J'; {do not localize}
   end;
   if SparseFile then begin
-    Result[10] := 'P';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[9]{$ELSE}Result[10]{$ENDIF} := 'P'; {do not localize}
   end;
   if Compressed then begin
-    Result[11] := 'C';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[10]{$ELSE}Result[11]{$ENDIF} := 'C'; {do not localize}
   end;
   if Offline then begin
-    Result[12] := 'O';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[11]{$ELSE}Result[12]{$ENDIF} := 'O'; {do not localize}
   end;
   if NotContextIndexed then begin
-    Result[13] := 'I';
+    {$IFDEF STRING_IS_IMMUTABLE}LSB[12]{$ELSE}Result[13]{$ENDIF} := 'I'; {do not localize}
   end;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  Result := LSB.ToString;
+  {$ENDIF}
 end;
 
 end.

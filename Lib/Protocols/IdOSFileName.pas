@@ -262,20 +262,27 @@ var
   Valid_MUSICSP : String;
   MUSICSP_Cant_Start : String;
 begin
-  Valid_MUSICSP := CharRange('A','Z')+CharRange('0','9')+'$#@_+-.%&!';
-  MUSICSP_Cant_Start := CharRange('0','9')+ '+-.%!';
+  Valid_MUSICSP := CharRange('A','Z')+CharRange('0','9')+'$#@_+-.%&!';  {do not localize}
+  MUSICSP_Cant_Start := CharRange('0','9')+ '+-.%!';  {do not localize}
 // note we have to do our vality checks before truncating the length in
 // case we need to replace the default replacement char and the length changes
 // because of that.
-  Result := UpperCase(AUnixFileName);
-  Result := EnsureValidCharsByValidSet(Result,VALID_MUSICSP);
+  Result := EnsureValidCharsByValidSet(UpperCase(AUnixFileName),VALID_MUSICSP);
   Result := Copy(Result,1,15);
   if Result <> '' then begin
     if CharIsInSet(Result, 1, MUSICSP_CANT_START) then begin
       if Length(Result) > 1 then begin
+        {$IFDEF STRING_IS_IMMUTABLE}
+        Result := Copy(Result,2,MaxInt);
+        {$ELSE}
         Delete(Result,1,1);
+        {$ENDIF}
       end else begin
-        Result[1] := '_';
+        {$IFDEF STRING_IS_IMMUTABLE}
+        Result := '_';  {do not localize}
+        {$ELSE}
+        Result[1] := '_'; {do not localize}
+        {$ENDIF}
       end;
     end;
   end;
@@ -297,8 +304,8 @@ var
   MVS_Valid_Qual_Chars : String;
   MVS_Valid_First_Char : String;
 begin
-  MVS_Valid_Qual_Chars := CharRange('0','9')+CharRange('A','Z')+'@$#';
-  MVS_Valid_First_Char := CharRange('A','Z');
+  MVS_Valid_Qual_Chars := CharRange('0','9')+CharRange('A','Z')+'@$#';  {do not localize}
+  MVS_Valid_First_Char := CharRange('A','Z'); {do not localize}
   //in MVS, there's a maximum of 44 characters and MVS prepends a prefix with the userID and
   //sometimes process name.  Thus, the dataset name can have 44 characters minus the user ID - 1 (for the dot)
   //
@@ -328,7 +335,7 @@ begin
      if LQualifier <>'' then
      begin
        repeat
-         if ((CharIsInSet(LQualifier, 1, MVS_VALID_FIRST_CHAR))=False) then
+         if not CharIsInSet(LQualifier, 1, MVS_VALID_FIRST_CHAR) then
          begin
            Delete(LQualifier,1,1);
            if LQualifier='' then

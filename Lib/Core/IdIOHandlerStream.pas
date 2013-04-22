@@ -175,7 +175,7 @@ uses
 procedure TIdIOHandlerStream.InitComponent;
 begin
   inherited InitComponent;
-  FDefStringEncoding := Indy8BitEncoding;
+  FDefStringEncoding := IndyTextEncoding_8Bit;
 end;
 
 procedure TIdIOHandlerStream.CheckForDisconnect(

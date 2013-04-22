@@ -365,12 +365,12 @@ type
   TIdTCPConnection = class(TIdComponent)
   protected
     FGreeting: TIdReply;
-    FIntercept: TIdConnectionIntercept;
-    FIOHandler: TIdIOHandler;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdConnectionIntercept;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIOHandler: TIdIOHandler;
     FLastCmdResult: TIdReply;
     FManagedIOHandler: Boolean;
     FOnDisconnected: TNotifyEvent;
-    FSocket: TIdIOHandlerSocket;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FSocket: TIdIOHandlerSocket;
     FReplyClass: TIdReplyClass;
     //
     procedure CheckConnected;
@@ -405,23 +405,23 @@ type
     // GetInternalResponse is not in IOHandler as some protocols may need to
     // override it. It could be still moved and proxied from here, but at this
     // point it is here.
-    procedure GetInternalResponse(AEncoding: TIdTextEncoding = nil); virtual;
+    procedure GetInternalResponse(AEncoding: IIdTextEncoding = nil); virtual;
     // Reads response using GetInternalResponse which each reply type can define
     // the behaviour. Then checks against expected Code.
     //
     // Seperate one for singles as one of the older Delphi compilers cannot
     // match a single number into an array. IIRC newer ones do.
     function GetResponse(const AAllowedResponse: SmallInt = -1;
-      AEncoding: TIdTextEncoding = nil): SmallInt; overload;
+      AEncoding: IIdTextEncoding = nil): SmallInt; overload;
     function GetResponse(const AAllowedResponses: array of SmallInt;
-      AEncoding: TIdTextEncoding = nil): SmallInt; overload; virtual;
+      AEncoding: IIdTextEncoding = nil): SmallInt; overload; virtual;
     // No array type for strings as ones that use strings are usually bastard
     // protocols like POP3/IMAP which dont include proper substatus anyways.
     //
     // If a case can be made for some other condition this may be expanded
     // in the future
     function GetResponse(const AAllowedResponse: string;
-      AEncoding: TIdTextEncoding = nil): string; overload; virtual;
+      AEncoding: IIdTextEncoding = nil): string; overload; virtual;
     //
     property Greeting: TIdReply read FGreeting write SetGreeting;
     // RaiseExceptionForCmdResult - Overload necesary as a exception as a default param doesnt work
@@ -430,11 +430,11 @@ type
      overload; virtual;
     // These are extended GetResponses, so see the comments for GetResponse
     function SendCmd(AOut: string; const AResponse: SmallInt = -1;
-      AEncoding: TIdTextEncoding = nil): SmallInt; overload;
+      AEncoding: IIdTextEncoding = nil): SmallInt; overload;
     function SendCmd(AOut: string; const AResponse: array of SmallInt;
-      AEncoding: TIdTextEncoding = nil): SmallInt; overload; virtual;
+      AEncoding: IIdTextEncoding = nil): SmallInt; overload; virtual;
     function SendCmd(AOut: string; const AResponse: string;
-      AEncoding: TIdTextEncoding = nil): string; overload;
+      AEncoding: IIdTextEncoding = nil): string; overload;
     //
     procedure WriteHeader(AHeader: TStrings);
     procedure WriteRFCStrings(AStrings: TStrings);
@@ -459,9 +459,13 @@ uses
   SysUtils;
 
 function TIdTCPConnection.GetIntercept: TIdConnectionIntercept;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
 begin
-  if (IOHandler <> nil) then begin
-    Result := IOHandler.Intercept;
+  LIOHandler := IOHandler;
+  if LIOHandler <> nil then begin
+    Result := LIOHandler.Intercept;
   end else begin
     Result := FIntercept;
   end;
@@ -478,32 +482,41 @@ begin
     EIdException.Toss(RSIOHandlerCannotChange);
   end;
   if Assigned(ABaseType) then begin
-    IOHandler := TIdIOHandler.MakeIOHandler(ABaseType);
+    IOHandler := TIdIOHandler.MakeIOHandler(ABaseType, Self);
   end else begin
-    IOHandler := TIdIOHandler.MakeDefaultIOHandler;
+    IOHandler := TIdIOHandler.MakeDefaultIOHandler(Self);
   end;
   ManagedIOHandler := True;
 end;
 
 function TIdTCPConnection.Connected: Boolean;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
 begin
   // Its been changed now that IOHandler is not usually nil, but can be before the initial connect
   // and also this keeps it here so the user does not have to access the IOHandler for this and
   // also to allow future control from the connection.
-  Result := IOHandler <> nil;
+  LIOHandler := IOHandler;
+  Result := Assigned(LIOHandler);
   if Result then begin
-    Result := IOHandler.Connected;
+    Result := LIOHandler.Connected;
   end;
 end;
 
 destructor TIdTCPConnection.Destroy;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
 begin
   // Just close IOHandler directly. Dont call Disconnect - Disconnect may be override and
   // try to read/write to the socket.
-  if Assigned(IOHandler) then begin
-    IOHandler.Close;
+  LIOHandler := IOHandler;
+  if Assigned(LIOHandler) then begin
+    LIOHandler.Close;
     // This will free any managed IOHandlers
-    IOHandler := nil;
+    {$IFDEF USE_OBJECT_ARC}LIOHandler := nil;{$ENDIF}
+    SetIOHandler(nil);
   end;
   FreeAndNil(FLastCmdResult);
   FreeAndNil(FGreeting);
@@ -511,6 +524,9 @@ begin
 end;
 
 procedure TIdTCPConnection.Disconnect(ANotifyPeer: Boolean);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
 begin
   try
     // Separately to avoid calling .Connected unless needed
@@ -539,13 +555,14 @@ begin
     // point we just want to ignore it and checking .Connected would trigger this. We
     // just want to close. For some reason NS 7.1 (And only 7.1, not 7.0 or Mozilla) cause
     // CONNABORTED. So its extra important we just disconnect without checking socket state.
-    if Assigned(IOHandler) then begin
-      if IOHandler.Opened then begin
+    LIOHandler := IOHandler;
+    if Assigned(LIOHandler) then begin
+      if LIOHandler.Opened then begin
         DoStatus(hsDisconnecting);
-        IOHandler.Close;
+        LIOHandler.Close;
         DoOnDisconnected;
         DoStatus(hsDisconnected);
-        //FIOHandler.InputBuffer.Clear;
+        //LIOHandler.InputBuffer.Clear;
       end;
     end;
   end;
@@ -559,7 +576,7 @@ begin
 end;
 
 function TIdTCPConnection.GetResponse(const AAllowedResponses: array of SmallInt;
-  AEncoding: TIdTextEncoding = nil): SmallInt;
+  AEncoding: IIdTextEncoding = nil): SmallInt;
 begin
   GetInternalResponse(AEncoding);
   Result := CheckResponse(LastCmdResult.NumericCode, AAllowedResponses);
@@ -577,7 +594,7 @@ begin
 end;
 
 function TIdTCPConnection.SendCmd(AOut: string; const AResponse: Array of SmallInt;
-  AEncoding: TIdTextEncoding = nil): SmallInt;
+  AEncoding: IIdTextEncoding = nil): SmallInt;
 begin
   CheckConnected;
   PrepareCmd(AOut);
@@ -585,24 +602,37 @@ begin
   Result := GetResponse(AResponse, AEncoding);
 end;
 
+// under ARC, all weak references to a freed object get nil'ed automatically
+// so this is mostly redundant
 procedure TIdTCPConnection.Notification(AComponent: TComponent; Operation: TOperation);
 begin
-  inherited Notification(AComponent, Operation);
   if (Operation = opRemove) then begin
+    {$IFNDEF USE_OBJECT_ARC}
     if (AComponent = FIntercept) then begin
       FIntercept := nil;
-    end;
+    end else
+    {$ENDIF}
     if (AComponent = FIOHandler) then begin
       FIOHandler := nil;
       FSocket := nil;
+      FManagedIOHandler := False;
     end;
   end;
+  inherited Notification(AComponent, Operation);
 end;
 
 procedure TIdTCPConnection.SetIntercept(AValue: TIdConnectionIntercept);
+var
+  // under ARC, convert weak references to strong references before working with them
+  LIntercept: TIdConnectionIntercept;
+  LIOHandler: TIdIOHandler;
 begin
-  if AValue <> FIntercept then
+  LIntercept := FIntercept;
+
+  if LIntercept <> AValue then
   begin
+    LIOHandler := IOHandler;
+
     // RLebeau 8/25/09 - normally, short-circuit logic should skip all subsequent
     // evaluations in a multi-condition statement once one of the conditions
     // evaluates to False.  However, a user just ran into a situation where that
@@ -611,32 +641,47 @@ begin
     // was still being evaluated even though Assigned(AValue) was returning False.
     // SetIntercept() is using the same kind of short-circuit logic here as well.
     // Let's not rely on short-circuiting anymore, just to be on the safe side.
-    //    
+    //
     // old code: if Assigned(IOHandler) and Assigned(IOHandler.Intercept) and Assigned(AValue) and (AValue <> IOHandler.Intercept) then begin
     //
-    if Assigned(IOHandler) and Assigned(AValue) then begin
-      if Assigned(IOHandler.Intercept) and (IOHandler.Intercept <> AValue) then begin
+    if Assigned(LIOHandler) and Assigned(AValue) then begin
+      if Assigned(LIOHandler.Intercept) and (LIOHandler.Intercept <> AValue) then begin
         EIdException.Toss(RSInterceptIsDifferent);
       end;
     end;
+
+    {$IFDEF USE_OBJECT_ARC}
+    // under ARC, all weak references to a freed object get nil'ed automatically
+    FIntercept := AValue;
+    {$ELSE}
     // remove self from the Intercept's free notification list
-    if Assigned(FIntercept) then begin
-      FIntercept.RemoveFreeNotification(Self);
+    if Assigned(LIntercept) then begin
+      LIntercept.RemoveFreeNotification(Self);
     end;
     FIntercept := AValue;
     // add self to the Intercept's free notification list
-    if Assigned(FIntercept) then begin
-      FIntercept.FreeNotification(Self);
+    if Assigned(AValue) then begin
+      AValue.FreeNotification(Self);
     end;
-    if Assigned(IOHandler) then begin
-      IOHandler.Intercept := AValue;
+    {$ENDIF}
+
+    if Assigned(LIOHandler) then begin
+      LIOHandler.Intercept := AValue;
     end;
   end;
 end;
 
 procedure TIdTCPConnection.SetIOHandler(AValue: TIdIOHandler);
+var
+  // under ARC, convert weak references to strong references before working with them
+  LIOHandler: TIdIOHandler;
+  LIntercept, LOtherIntercept: TIdConnectionIntercept;
 begin
-  if AValue <> FIOHandler then begin
+  LIOHandler := FIOHandler;
+
+  if LIOHandler <> AValue then begin
+    LIntercept := FIntercept;
+
     // RLebeau 8/25/09 - normally, short-circuit logic should skip all subsequent
     // evaluations in a multi-condition statement once one of the conditions
     // evaluates to False.  However, a user just ran into a situation where that
@@ -644,41 +689,62 @@ begin
     // further above) because Assigned(AValue.Intercept) was still being evaluated
     // even though Assigned(AValue) was returning False.  Let's not rely on
     // short-circuiting anymore, just to be on the safe side.
-    //    
+    //
     // old code: if Assigned(AValue) and Assigned(AValue.Intercept) and Assigned(FIntercept) and (AValue.Intercept <> FIntercept) then begin
     //
-    if Assigned(AValue) and Assigned(FIntercept) then begin
-      if Assigned(AValue.Intercept) and (AValue.Intercept <> FIntercept) then begin
-        EIdException.Toss(RSInterceptIsDifferent);
+    if Assigned(AValue) and Assigned(LIntercept) then begin
+      LOtherIntercept := AValue.Intercept;
+      if Assigned(LOtherIntercept) then begin
+        if LOtherIntercept <> LIntercept then begin
+          EIdException.Toss(RSInterceptIsDifferent);
+        end;
+        {$IFDEF USE_OBJECT_ARC}LOtherIntercept := nil;{$ENDIF}
       end;
     end;
-    if ManagedIOHandler and Assigned(FIOHandler) then begin
-      FreeAndNil(FIOHandler);
+
+    if ManagedIOHandler then begin
+      if Assigned(LIOHandler) then begin
+        FIOHandler := nil;
+        {$IFDEF USE_OBJECT_ARC}
+        RemoveComponent(LIOHandler);
+        {$ENDIF}
+        FreeAndNil(LIOHandler);
+      end;
+      ManagedIOHandler := False;
     end;
+
+    // under ARC, all weak references to a freed object get nil'ed automatically
+
     // Reset this if nil (to match nil, but not needed) or when a new IOHandler is specified
     // If true, code must set it after the IOHandler is set
     // Must do after call to FreeManagedIOHandler
     FSocket := nil;
-    ManagedIOHandler := False;
+
     // Clear out old values whether setting AValue to nil, or setting a new value
-    if Assigned(FIOHandler) then begin
-      FIOHandler.WorkTarget := nil;
-      FIOHandler.RemoveFreeNotification(Self);
+    if Assigned(LIOHandler) then begin
+      LIOHandler.WorkTarget := nil;
+      {$IFNDEF USE_OBJECT_ARC}
+      LIOHandler.RemoveFreeNotification(Self);
+      {$ENDIF}
     end;
+
     if Assigned(AValue) then begin
+      {$IFNDEF USE_OBJECT_ARC}
       // add self to the IOHandler's free notification list
       AValue.FreeNotification(Self);
+      {$ENDIF}
       // Must set to handlers and not events directly as user may change
       // the events of TCPConnection after we have initialized these and then
       // these would point to old values
       AValue.WorkTarget := Self;
-      if Assigned(FIntercept) then begin
-        AValue.Intercept := FIntercept;
+      if Assigned(LIntercept) then begin
+        AValue.Intercept := LIntercept;
       end;
       if AValue is TIdIOHandlerSocket then begin
         FSocket := TIdIOHandlerSocket(AValue);
       end;
     end;
+
     // Last as some code uses FIOHandler to finalize items
     FIOHandler := AValue;
   end;
@@ -688,34 +754,34 @@ procedure TIdTCPConnection.WriteHeader(AHeader: TStrings);
 var
   i: Integer;
   LBufferingStarted: Boolean;
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
 begin
   CheckConnected;
-  with IOHandler do
-  begin
-    LBufferingStarted := not WriteBufferingActive;
+  LIOHandler := IOHandler;
+  LBufferingStarted := not LIOHandler.WriteBufferingActive;
+  if LBufferingStarted then begin
+    LIOHandler.WriteBufferOpen;
+  end;
+  try
+    for i := 0 to AHeader.Count -1 do begin
+      // No ReplaceAll flag - we only want to replace the first one
+      LIOHandler.WriteLn(ReplaceOnlyFirst(AHeader[i], '=', ': '));
+    end;
+    LIOHandler.WriteLn;
     if LBufferingStarted then begin
-      WriteBufferOpen;
+      LIOHandler.WriteBufferClose;
     end;
-    try
-      for i := 0 to AHeader.Count -1 do begin
-        // No ReplaceAll flag - we only want to replace the first one
-        WriteLn(ReplaceOnlyFirst(AHeader[i], '=', ': '));
-      end;
-      WriteLn;
-      if LBufferingStarted then begin
-         WriteBufferClose;
-      end;
-    except
-      if LBufferingStarted then begin
-        WriteBufferCancel;
-      end;
-      raise;
+  except
+    if LBufferingStarted then begin
+      LIOHandler.WriteBufferCancel;
     end;
+    raise;
   end;
 end;
 
 function TIdTCPConnection.SendCmd(AOut: string; const AResponse: SmallInt = -1;
-  AEncoding: TIdTextEncoding = nil): SmallInt;
+  AEncoding: IIdTextEncoding = nil): SmallInt;
 begin
   if AResponse < 0 then begin
     Result := SendCmd(AOut, [], AEncoding);
@@ -725,9 +791,13 @@ begin
 end;
 
 procedure TIdTCPConnection.CheckForGracefulDisconnect(ARaiseExceptionIfDisconnected: Boolean);
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
 begin
-  if Assigned(IOHandler) then begin
-    IOHandler.CheckForDisconnect(ARaiseExceptionIfDisconnected);
+  LIOHandler := IOHandler;
+  if Assigned(LIOHandler) then begin
+    LIOHandler.CheckForDisconnect(ARaiseExceptionIfDisconnected);
   end else if ARaiseExceptionIfDisconnected then begin
     raise EIdException.Create(RSNotConnected);
   end;
@@ -754,23 +824,29 @@ begin
   Result := AResponse;
 end;
 
-procedure TIdTCPConnection.GetInternalResponse(AEncoding: TIdTextEncoding = nil);
+procedure TIdTCPConnection.GetInternalResponse(AEncoding: IIdTextEncoding = nil);
 var
   LLine: string;
   LResponse: TStringList;
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
 begin
   CheckConnected;
-  LResponse := TStringList.Create; try
+  LResponse := TStringList.Create;
+  try
     // Some servers with bugs send blank lines before reply. Dont remember which
     // ones, but I do remember we changed this for a reason
     // RLebeau 9/14/06: this can happen in between lines of the reply as well
+    LIOHandler := IOHandler;
     repeat
-      LLine := IOHandler.ReadLnWait(MaxInt, AEncoding);
+      LLine := LIOHandler.ReadLnWait(MaxInt, AEncoding);
       LResponse.Add(LLine);
     until FLastCmdResult.IsEndMarker(LLine);
     //Note that FormattedReply uses an assign in it's property set method.
     FLastCmdResult.FormattedReply := LResponse;
-  finally FreeAndNil(LResponse); end;
+  finally
+    FreeAndNil(LResponse);
+  end;
 end;
 
 procedure TIdTCPConnection.WriteRFCStrings(AStrings: TStrings);
@@ -780,7 +856,7 @@ begin
 end;
 
 function TIdTCPConnection.GetResponse(const AAllowedResponse: SmallInt = -1;
-  AEncoding: TIdTextEncoding = nil): SmallInt;
+  AEncoding: IIdTextEncoding = nil): SmallInt;
 begin
   if AAllowedResponse < 0 then begin
     Result := GetResponse([], AEncoding);
@@ -790,14 +866,14 @@ begin
 end;
 
 function TIdTCPConnection.GetResponse(const AAllowedResponse: string;
-  AEncoding: TIdTextEncoding = nil): string;
+  AEncoding: IIdTextEncoding = nil): string;
 begin
   GetInternalResponse(AEncoding);
   Result := CheckResponse(LastCmdResult.Code, AAllowedResponse);
 end;
 
 function TIdTCPConnection.SendCmd(AOut: string; const AResponse: string;
-  AEncoding: TIdTextEncoding = nil): string;
+  AEncoding: IIdTextEncoding = nil): string;
 begin
   CheckConnected;
   PrepareCmd(AOut);

@@ -134,28 +134,27 @@ var
   i : Integer;
 begin
   Result := True;
-  with AContext.Connection do begin
-    s := IOHandler.ReadLn;
-    i := Pos(TAB, s);
-    if i > 0 then begin
-      // Is a Gopher+ request
-      if Assigned(OnPlusRequest) then begin
-        OnPlusRequest(AContext, Copy(s, 1, i - 1), Copy(s, i + 1, Length(s)));
-      end else if Assigned(OnRequest) then begin
-        OnRequest(AContext, s);
-      end else begin
-        IOHandler.Write(IdGopherPlusData_ErrorBeginSign
-          + IdGopherPlusError_NotAvailable
-          + RSGopherServerNoProgramCode + EOL
-          + IdGopherPlusData_EndSign);
-      end;
+  s := AContext.Connection.IOHandler.ReadLn;
+  i := Pos(TAB, s);
+  if i > 0 then begin
+    // Is a Gopher+ request
+    if Assigned(OnPlusRequest) then begin
+      OnPlusRequest(AContext, Copy(s, 1, i - 1), Copy(s, i + 1, Length(s)));
     end else if Assigned(OnRequest) then begin
       OnRequest(AContext, s);
     end else begin
-      IOHandler.Write(RSGopherServerNoProgramCode + EOL + IdGopherPlusData_EndSign);
+      AContext.Connection.IOHandler.Write(
+        IdGopherPlusData_ErrorBeginSign
+        + IdGopherPlusError_NotAvailable
+        + RSGopherServerNoProgramCode + EOL
+        + IdGopherPlusData_EndSign);
     end;
-    Disconnect;
+  end else if Assigned(OnRequest) then begin
+    OnRequest(AContext, s);
+  end else begin
+    AContext.Connection.IOHandler.Write(RSGopherServerNoProgramCode + EOL + IdGopherPlusData_EndSign);
   end;
+  AContext.Connection.Disconnect;
 end;
 
 function TIdGopherServer.ReturnGopherItem(ItemType : Char;

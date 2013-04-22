@@ -64,7 +64,7 @@ uses
 
 type
   TIdSASLResult = (srSuccess, srFailure, srAborted);
-  TIdSASLServiceName = string[20];
+  TIdSASLServiceName = string;
 
   TIdSASL = class(TIdBaseComponent)
   protected

@@ -90,16 +90,22 @@ begin
 end;
 
 procedure TIdLogStream.LogReceivedData(const AText, AData: string);
+var
+  LEncoding: IIdTextEncoding;
 begin
   if FReceiveStream <> nil then begin
-    WriteStringToStream(FReceiveStream, AData, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    LEncoding := IndyTextEncoding_8Bit;
+    WriteStringToStream(FReceiveStream, AData, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   end;
 end;
 
 procedure TIdLogStream.LogSentData(const AText, AData: string);
+var
+  LEncoding: IIdTextEncoding;
 begin
   if FSendStream <> nil then begin
-    WriteStringToStream(FSendStream, AData, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    LEncoding := IndyTextEncoding_8Bit;
+    WriteStringToStream(FSendStream, AData, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   end;
 end;
 

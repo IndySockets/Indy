@@ -220,11 +220,14 @@ uses
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Types,
   {$ENDIF}
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols,
   IdResourceStringsProtocols, IdStrings, SysUtils;
 
 type
-  TIdFTPRegParseList = class(TList)
+  TIdFTPRegParseList = class(TList{$IFDEF HAS_GENERICS_TList}<TIdFTPListParseClass>{$ENDIF})
   protected
     function FindParserByDirData(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
     function FindParserByIdent(const AIdent : String) : TIdFTPListParseClass;
@@ -296,7 +299,7 @@ var
   LCurParser : TIdFTPListParseClass;
 begin
   for i := 0 to Count - 1 do begin
-    LCurParser := TIdFTPListParseClass(Items[i]);
+    LCurParser := {$IFDEF HAS_GENERICS_TList}Items[i]{$ELSE}TIdFTPListParseClass(Items[i]){$ENDIF};
     if LCurParser.GetIdent = AIdent then begin
       Result := LCurParser;
       Exit;
@@ -311,7 +314,7 @@ var
   LCurParser : TIdFTPListParseClass;
 begin
   for i := 0 to Count - 1 do begin
-    LCurParser := TIdFTPListParseClass(Items[i]);
+    LCurParser := {$IFDEF HAS_GENERICS_TList}Items[i]{$ELSE}TIdFTPListParseClass(Items[i]){$ENDIF};
     if LCurParser.CheckListing(AListing, ASysDescript, ADetails) then begin
       Result := LCurParser;
       Exit;
@@ -326,6 +329,7 @@ function TIdFTPRegParseList.CheckListParseCapa(AListing: TStrings;
 var
   HasExtraParsers: Boolean;
   I: Integer;
+  LCurParser : TIdFTPListParseClass;
 begin
   VFormat := '';
   ADir.Clear;
@@ -340,7 +344,8 @@ begin
     for I := 0 to Count-1 do
     begin
       // we need to exclude protocol specified parsers
-      if PosInStrArray(TIdFTPListParseClass(Items[I]).GetIdent, [NLST, MLST]) = -1 then begin
+      LCurParser := {$IFDEF HAS_GENERICS_TList}Items[I]{$ELSE}TIdFTPListParseClass(Items[I]){$ENDIF};
+      if PosInStrArray(LCurParser.GetIdent, [NLST, MLST]) = -1 then begin
         HasExtraParsers := True;
         Break;
       end;
@@ -363,13 +368,17 @@ end;
 {register and unreg procedures}
 procedure RegisterFTPListParser(const AParser : TIdFTPListParseClass);
 begin
-  GParserList.Add(TObject(AParser));
+  GParserList.Add(
+    {$IFDEF HAS_GENERICS_TList}AParser{$ELSE}TObject(AParser){$ENDIF}
+  );
 end;
 
 procedure UnregisterFTPListParser(const AParser : TIdFTPListParseClass);
 begin
   if Assigned(GParserList) then begin
-    GParserList.Remove(TObject(AParser));
+    GParserList.Remove(
+      {$IFDEF HAS_GENERICS_TList}AParser{$ELSE}TObject(AParser){$ENDIF}
+    );
   end;
 end;
 
@@ -399,11 +408,13 @@ procedure TIdFTPRegParseList.EnumFTPListParsers(AData: TStrings);
 var
   i : Integer;
   LDesc : String;
+  LCurParser: TIdFTPListParseClass;
 begin
   AData.Clear;
   for i := 0 to GParserList.Count -1 do begin
     //we need to exclude protocol specified parsers
-    LDesc := TIdFTPListParseClass(Items[i]).GetIdent;
+    LCurParser := {$IFDEF HAS_GENERICS_TList}Items[i]{$ELSE}TIdFTPListParseClass(Items[i]){$ENDIF};
+    LDesc := LCurParser.GetIdent;
     if PosInStrArray(LDesc, [NLST, MLST]) = -1 then begin
       AData.Add(LDesc);
     end;

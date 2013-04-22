@@ -29,6 +29,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF USE_OBJECT_ARC}
+  IdGlobal,
+  {$ENDIF}
   IdYarn,
   SysUtils;
 
@@ -36,7 +39,15 @@ type
   TIdTask = class(TObject)
   protected
     FBeforeRunDone: Boolean;
+    {$IFDEF USE_OBJECT_ARC}
+    // When ARC is enabled, object references MUST be valid objects.
+    // It is common for users to store non-object values, though, so
+    // we will provide separate properties for those purposes
+    FDataObject: TObject;
+    FDataValue: PtrInt;
+    {$ELSE}
     FData: TObject;
+    {$ENDIF}
     FYarn: TIdYarn;
     //
     procedure AfterRun; virtual;
@@ -58,13 +69,21 @@ type
     // BeforeRunDone property to allow flexibility in alternative schedulers
     property BeforeRunDone: Boolean read FBeforeRunDone;
     //
+    {$IFDEF USE_OBJECT_ARC}
+    property DataObject: TObject read FDataObject write FDataObject;
+    property DataValue: PtrInt read FDataValue write FDataValue;
+    {$ELSE}
     property Data: TObject read FData write FData;
+    {$ENDIF}
     property Yarn: TIdYarn read FYarn;
   end;
 
 implementation
 
-uses IdGlobal;
+{$IFNDEF USE_OBJECT_ARC}
+uses
+  IdGlobal;
+{$ENDIF}
 
 { TIdTask }
 
@@ -91,7 +110,10 @@ destructor TIdTask.Destroy;
 begin
   // Dont free the yarn, that is the responsibilty of the thread / fiber.
   // .Yarn here is just a reference, not an ownership
-  FreeAndNil(FData);
+  FreeAndNil({$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF});
+  {$IFDEF USE_OBJECT_ARC}
+  FDataValue := 0;
+  {$ENDIF}
   inherited Destroy;
 end;
 

@@ -170,7 +170,15 @@ type
   protected
     FCmdDelimiter: Char;
     FCommand: string;
+    {$IFDEF USE_OBJECT_ARC}
+    // When ARC is enabled, object references MUST be valid objects.
+    // It is common for users to store non-object values, though, so
+    // we will provide separate properties for those purposes
+    FDataObject: TObject;
+    FDataValue: PtrInt;
+    {$ELSE}
     FData: TObject;
+    {$ENDIF}
     FDescription: TStrings;
     FDisconnect: boolean;
     FEnabled: boolean;
@@ -200,7 +208,12 @@ type
 //    function GetNamePath: string; override;
     function NameIs(const ACommand: string): Boolean;
     //
+    {$IFDEF USE_OBJECT_ARC}
+    property DataObject: TObject read FDataObject write FDataObject;
+    property DataValue: PtrInt read FDataValue write FDataValue;
+    {$ELSE}
     property Data: TObject read FData write FData;
+    {$ENDIF}
   published
     property CmdDelimiter: Char read FCmdDelimiter write FCmdDelimiter;
     property Command: string read FCommand write FCommand;
@@ -402,64 +415,60 @@ end;
 
 { TIdCommandHandler }
 
-procedure TIdCommandHandler.DoCommand(
-  const AData: string;
-  AContext: TIdContext;
-  AUnparsedParams: string
-  );
+procedure TIdCommandHandler.DoCommand(const AData: string; AContext: TIdContext; AUnparsedParams: string);
 var
   LCommand: TIdCommand;
 begin
   LCommand := TIdCommand.Create(Self);
-  with LCommand do try
-    FRawLine := AData;
-    FContext := AContext;
-    FUnparsedParams := AUnparsedParams;
+  try
+    LCommand.FRawLine := AData;
+    LCommand.FContext := AContext;
+    LCommand.FUnparsedParams := AUnparsedParams;
 
     if ParseParams then begin
-      DoParseParams(AUnparsedParams, Params);
+      DoParseParams(AUnparsedParams, LCommand.Params);
     end;
 
     // RLebeau 2/21/08: for the IRC protocol, RFC 2812 section 2.4 says that
     // clients are not allowed to issue numeric replies for server-issued
     // commands.  Added the PerformReplies property so TIdIRC can specify
     // that behavior.
-    if Self.Collection is TIdCommandHandlers then begin
-      PerformReply := TIdCommandHandlers(Self.Collection).PerformReplies;
+    if Collection is TIdCommandHandlers then begin
+      LCommand.PerformReply := TIdCommandHandlers(Collection).PerformReplies;
     end;
 
     try
-      if (Reply.Code = '') and (Self.NormalReply.Code <> '') then begin
-        Reply.Assign(Self.NormalReply);
+      if (LCommand.Reply.Code = '') and (NormalReply.Code <> '') then begin
+        LCommand.Reply.Assign(NormalReply);
       end;
 
       //if code<>'' before DoCommand, then it breaks exception handling
-      Assert(Reply.Code <> '');
-      DoCommand;
+      Assert(LCommand.Reply.Code <> '');
+      LCommand.DoCommand;
 
-      if Reply.Code = '' then begin
-        Reply.Assign(Self.NormalReply);
+      if LCommand.Reply.Code = '' then begin
+        LCommand.Reply.Assign(NormalReply);
       end;
       // UpdateText here in case user wants to add to it. SendReply also gets it in case
       // a different reply is sent (ie exception, etc), or the user changes the code in the event
-      Reply.UpdateText;
+      LCommand.Reply.UpdateText;
     except
       on E: Exception do begin
         // If there is an unhandled exception, we override all replies
         // If nothing specified to override with, we throw the exception again.
         // If the user wants a custom value on exception other, its their responsibility
         // to catch it before it reaches us
-        Reply.Clear;
-        if PerformReply then begin
+        LCommand.Reply.Clear;
+        if LCommand.PerformReply then begin
           // Try from command handler first
           if ExceptionReply.Code <> '' then begin
-            Reply.Assign(ExceptionReply);
+            LCommand.Reply.Assign(ExceptionReply);
           // If still no go, from server
           // Can be nil though. Typically only servers pass it in
           end else if (Collection is TIdCommandHandlers) and (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
-            Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
+            LCommand.Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
           end;
-          if Reply.Code <> '' then begin
+          if LCommand.Reply.Code <> '' then begin
             //done this way in case an exception message has more than one line.
             //otherwise you could get something like this:
             //
@@ -467,9 +476,9 @@ begin
             // The system cannot find the file specified
             //
             //and the second line would throw off some clients.
-            Reply.Text.Text := E.Message;
+            LCommand.Reply.Text.Text := E.Message;
             //Reply.Text.Add(E.Message);
-            SendReply;
+            LCommand.SendReply;
           end else begin
             raise;
           end;
@@ -481,22 +490,22 @@ begin
       end;
     end;
 
-    if PerformReply then begin
-      SendReply;
+    if LCommand.PerformReply then begin
+      LCommand.SendReply;
     end;
 
-    if (Response.Count > 0) or SendEmptyResponse then begin
+    if (LCommand.Response.Count > 0) or LCommand.SendEmptyResponse then begin
+      AContext.Connection.WriteRFCStrings(LCommand.Response);
+    end else if Response.Count > 0 then begin
       AContext.Connection.WriteRFCStrings(Response);
-    end else if Self.Response.Count > 0 then begin
-      AContext.Connection.WriteRFCStrings(Self.Response);
     end;
   finally
     try
-      if Disconnect then begin
+      if LCommand.Disconnect then begin
         AContext.Connection.Disconnect;
       end;
     finally
-      Free;
+      LCommand.Free;
     end;
   end;
 end;
@@ -508,11 +517,7 @@ procedure TIdCommandHandler.DoParseParams(AUnparsedParams: string; AParams: TStr
 // and multiple descendants
 begin
   AParams.Clear;
-  if FParamDelimiter = #32 then begin
-    SplitColumnsNoTrim(AUnparsedParams, AParams, #32);
-  end else begin
-    SplitColumns(AUnparsedParams, AParams, FParamDelimiter);
-  end;
+  SplitDelimitedString(AUnparsedParams, AParams, FParamDelimiter <> #32, #32);
 end;
 
 function TIdCommandHandler.Check(const AData: string; AContext: TIdContext): boolean;

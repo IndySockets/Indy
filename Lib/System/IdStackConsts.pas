@@ -379,10 +379,8 @@ const
   // Socket options
   {$IFNDEF DOTNET}
     {$IFNDEF WINDOWS}
-      {$IFDEF FPC}
   SO_DONTLINGER          =  not SO_LINGER;
   {$EXTERNALSYM SO_DONTLINGER}
-      {$ENDIF}
     {$ENDIF}
   Id_SO_BROADCAST        =  SO_BROADCAST;
   Id_SO_DEBUG            =  SO_DEBUG;

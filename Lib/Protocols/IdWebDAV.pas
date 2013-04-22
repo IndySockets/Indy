@@ -188,7 +188,7 @@ begin
          '<comment>' + AComment + '</comment></prop></set></propertyupdate>';  {do not localize}
     LXML := TMemoryStream.Create;
     try
-      WriteStringToStream(LXML, s, IndyUTF8Encoding);
+      WriteStringToStream(LXML, s, IndyTextEncoding_UTF8);
       LXML.Position := 0;
       DoRequest(Id_HTTPMethodPropPatch, AURL, LXML, nil, []);
     finally
@@ -210,7 +210,7 @@ begin
          '<comment>' + AComment + '</comment></prop></set></propertyupdate>';  {do not localize}
     LXML := TMemoryStream.Create;
     try
-      WriteStringToStream(LXML, s, IndyUTF8Encoding);
+      WriteStringToStream(LXML, s, IndyTextEncoding_UTF8);
       LXML.Position := 0;
       DoRequest(Id_HTTPMethodPropPatch, AURL, LXML, nil, []);
     finally

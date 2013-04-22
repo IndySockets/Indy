@@ -196,7 +196,7 @@ begin
     end;
     strs := TStringList.Create;
     try
-      SplitColumns(LBuf, strs);
+      SplitDelimitedString(LBuf, strs, True);
       {
       0 - owner
       1 - size

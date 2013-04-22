@@ -74,6 +74,9 @@ interface
 
 uses
   Classes,
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   IdComponent,
   IdException,
   IdGlobal,
@@ -93,7 +96,15 @@ type
     FBuffer: TIdBytes;
     FCurrentException: String;
     FCurrentExceptionClass: TClass;
+    {$IFDEF USE_OBJECT_ARC}
+    // When AutoRefCounting is enabled, object references MUST be valid objects.
+    // It is common for users to store non-object values, though, so we will
+    // provide separate properties for those purpose
+    FDataObject: TObject;
+    FDataValue: PtrInt;
+    {$ELSE}
     FData: TObject;
+    {$ENDIF}
     FServer: TIdUDPServer;
     //
     procedure AfterRun; override;
@@ -110,30 +121,34 @@ type
     property AcceptWait: integer read FAcceptWait write FAcceptWait;
     property Binding: TIdSocketHandle read FBinding;
     property Server: TIdUDPServer read FServer;
+    {$IFDEF USE_OBJECT_ARC}
+    property DataObject: TObject read FDataObject write FDataObject;
+    property DataValue: PtrInt read FDataValue write FDataValue;
+    {$ELSE}
     property Data: TObject read FData write FData;
+    {$ENDIF}
   end;
+
+  // TODO: use TIdThreadSafeObjectList instead?
+  {$IFDEF HAS_GENERICS_TThreadList}
+  TIdUDPListenerThreadList = TThreadList<TIdUDPListenerThread>;
+  {$ELSE}
+  // TODO: flesh out TThreadList<TIdUDPListenerThread> for non-Generics compilers...
+  TIdUDPListenerThreadList = TThreadList;
+  {$ENDIF}
 
   TIdUDPListenerThreadClass = class of TIdUDPListenerThread;
   
   //Exception is used instead of EIdException because the exception could be from somewhere else
   TIdUDPExceptionEvent = procedure(AThread: TIdUDPListenerThread; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass) of object;
 
-  // RLebeau 9/5/2012: in D2009+, TIdBytes is an alias for SysUtils.TBytes, which
-  // is an alias for System.TArray<Byte>, which has some different semantics than
-  // plain dynamic arrays.  In Delphi, those differences are more subtle than in
-  // C++, where they are major, in particular for event handlers that were previously
-  // using TIdBytes parameters.  The C++ IDE simply can't cope with TArray<Byte>
-  // in RTTI correctly yet, so it produces bad HPP and Event Handler code that
-  // causes errors.  In this situation, we will use TIdDynByteArray instead, which
-  // still accomplishes what we need and is compatible with both Delphi and C++...
-  //
-  TUDPReadEvent = procedure(AThread: TIdUDPListenerThread; const AData: {$IFDEF HAS_TBytes}TIdDynByteArray{$ELSE}TIdBytes{$ENDIF}; ABinding: TIdSocketHandle) of object;
+  TUDPReadEvent = procedure(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle) of object;
 
   TIdUDPServer = class(TIdUDPBase)
   protected
     FBindings: TIdSocketHandles;
     FCurrentBinding: TIdSocketHandle;
-    FListenerThreads: TThreadList;
+    FListenerThreads: TIdUDPListenerThreadList;
     FThreadClass: TIdUDPListenerThreadClass;
     FThreadedEvent: boolean;
     //
@@ -192,9 +207,18 @@ begin
   end;
 end;
 
+type
+  {$IFDEF HAS_GENERICS_TList}
+  TIdUDPListenerList = TList<TIdUDPListenerThread>;
+  {$ELSE}
+  // TODO: flesh out TList<TIdUDPListenerThread> for non-Generics compilers...
+  TIdUDPListenerList = TList;
+  {$ENDIF}
+
 procedure TIdUDPServer.CloseBinding;
 var
-  LListenerThreads: TList;
+  LListenerThreads: TIdUDPListenerList;
+  LListener: TIdUDPListenerThread;
 begin
   // RLebeau 2/17/2006: TIdUDPBase.Destroy() calls CloseBinding()
   if Assigned(FListenerThreads) then
@@ -203,14 +227,13 @@ begin
     try
       while LListenerThreads.Count > 0 do
       begin
-        with TIdUDPListenerThread(LListenerThreads[0]) do begin
-          // Stop listening
-          Stop;
-          Binding.CloseSocket;
-          // Tear down Listener thread
-          WaitFor;
-          Free;
-        end;
+        LListener := {$IFDEF HAS_GENERICS_TThreadList}LListenerThreads[0]{$ELSE}TIdUDPListenerThread(LListenerThreads[0]){$ENDIF};
+        // Stop listening
+        LListener.Stop;
+        LListener.Binding.CloseSocket;
+        // Tear down Listener thread
+        LListener.WaitFor;
+        LListener.Free;
         LListenerThreads.Delete(0); // RLebeau 2/17/2006
       end;
     finally
@@ -252,13 +275,7 @@ end;
 procedure TIdUDPServer.DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle);
 begin
   if Assigned(OnUDPRead) then begin
-    OnUDPRead(AThread,
-      {$IFDEF HAS_TBytes}
-      PIdDynByteArray(@AData)^,
-      {$ELSE}
-      AData,
-      {$ENDIF}
-      ABinding);
+    OnUDPRead(AThread, AData, ABinding);
   end;
 end;
 
@@ -277,6 +294,7 @@ function TIdUDPServer.GetBinding: TIdSocketHandle;
 var
   LListenerThread: TIdUDPListenerThread;
   i: Integer;
+  LBinding: TIdSocketHandle;
 begin
   if FCurrentBinding = nil then begin
     if Bindings.Count = 0 then begin
@@ -293,19 +311,18 @@ begin
     i := 0;
     try
       while i < Bindings.Count do begin
-        with Bindings[i] do begin
+        LBinding := Bindings[i];
 {$IFDEF LINUX}
-          AllocateSocket(Integer(Id_SOCK_DGRAM));
+        LBinding.AllocateSocket(Integer(Id_SOCK_DGRAM));
 {$ELSE}
-          AllocateSocket(Id_SOCK_DGRAM);
+        LBinding.AllocateSocket(Id_SOCK_DGRAM);
 {$ENDIF}
-          // do not overwrite if the default. This allows ReuseSocket to be set per binding
-          if Self.FReuseSocket <> rsOSDependent then begin
-            ReuseSocket := Self.FReuseSocket;
-          end;
-          DoBeforeBind(Bindings[i]);
-          Bind;
+        // do not overwrite if the default. This allows ReuseSocket to be set per binding
+        if FReuseSocket <> rsOSDependent then begin
+          LBinding.ReuseSocket := FReuseSocket;
         end;
+        DoBeforeBind(LBinding);
+        LBinding.Bind;
         Inc(i);
       end;
     except
@@ -347,7 +364,7 @@ procedure TIdUDPServer.InitComponent;
 begin
   inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
-  FListenerThreads := TThreadList.Create;
+  FListenerThreads := TIdUDPListenerThreadList.Create;
   FThreadClass := TIdUDPListenerThread;
 end;
 

@@ -188,8 +188,8 @@ type
     procedure Assign(Source: TPersistent); override;
     procedure Bind;
     procedure Broadcast(const AData: string; const APort: TIdPort; const AIP: String = '';
-      AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ); overload;
     procedure Broadcast(const AData: TIdBytes; const APort: TIdPort; const AIP: String = ''); overload;
     procedure CloseSocket; virtual;
@@ -202,13 +202,13 @@ type
     function RecvFrom(var ABuffer : TIdBytes; var VIP: string;
       var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer;
     procedure Reset(const AResetLocal: boolean = True);
-    function Send(const AData: String; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+    function Send(const AData: String; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ): Integer; overload;
     function Send(const ABuffer: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Integer; overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const AData: String;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ); overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AOffset: Integer; const ASize: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
@@ -319,8 +319,8 @@ begin
   Result := GStack.Receive(Handle, VBuffer);
 end;
 
-function TIdSocketHandle.Send(const AData: String; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+function TIdSocketHandle.Send(const AData: String; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Integer;
 begin
   Result := Send(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
@@ -340,8 +340,8 @@ end;
 
 procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort;
   const AData: String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 begin
   SendTo(AIP, APort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}), AIPVersion);
@@ -387,8 +387,8 @@ begin
 end;
 
 procedure TIdSocketHandle.Broadcast(const AData: string; const APort: TIdPort;
-  const AIP: String = ''; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 begin
   Broadcast(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}), APort, AIP);

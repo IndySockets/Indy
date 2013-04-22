@@ -53,8 +53,8 @@ type
     FStrmPos: Integer;
     FOnProgress: TNotifyEvent;
     FZRec: TZStreamRec;
-    FBuffer: array [Word] of AnsiChar;
-    FNameBuffer: array [0..255] of AnsiChar;
+    FBuffer: array [Word] of TIdAnsiChar;
+    FNameBuffer: array [0..255] of TIdAnsiChar;
     FGZHeader : IdZLibHeaders.gz_header;
     FStreamType : TZStreamType;
 
@@ -196,7 +196,11 @@ const
 implementation
 
 uses
-  IdGlobalProtocols, IdStream, IdZLibConst;
+  IdGlobalProtocols, IdStream, IdZLibConst
+  {$IFDEF HAS_AnsiStrings_StrPLCopy}
+  , AnsiStrings
+  {$ENDIF}
+  ;
 
 const
   Levels: array [TCompressionLevel] of ShortInt =
@@ -241,7 +245,7 @@ begin
         P := OutBuf;
         Inc(OutBytes, 256);
         ReallocMem(OutBuf, OutBytes);
-        strm.next_out := PAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
+        strm.next_out := PIdAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
         strm.avail_out := 256;
       end;
     finally
@@ -303,7 +307,7 @@ end;
 
 function TryStreamType(var strm: TZStreamRec; gzheader: PgzHeaderRec; const AWinBitsValue : Integer): boolean;
 var
-  InitBuf: PAnsiChar;
+  InitBuf: PIdAnsiChar;
   InitIn : TIdC_UINT;
 begin
   InitBuf := strm.next_in;
@@ -331,7 +335,7 @@ end;
 //strm should not contain an initialized inflate
 function CheckInitInflateStream(var strm: TZStreamRec; gzheader: gz_headerp): TZStreamType; overload;
 var
-  InitBuf: PAnsiChar;
+  InitBuf: PIdAnsiChar;
   InitIn: Integer;
 
   function LocalTryStreamType(AStreamType: TZStreamType): Boolean;
@@ -391,7 +395,7 @@ const
   StepSize = 20; //one step be enough, but who knows...
 var
   N       : TIdC_UINT;
-  Buff    : PAnsiChar;
+  Buff    : PIdAnsiChar;
   UseBuffer: Boolean;
 begin
   Buff := DMAOfStream(InStream, N);
@@ -432,10 +436,10 @@ type
   TZBack = record
     InStream  : TStream;
     OutStream : TStream;
-    InMem     : PAnsiChar; //direct memory access
+    InMem     : PIdAnsiChar; //direct memory access
     InMemSize : TIdC_UINT;
-    ReadBuf   : array[Word] of AnsiChar;
-    Window    : array[0..WindowSize] of AnsiChar;
+    ReadBuf   : array[Word] of TIdAnsiChar;
+    Window    : array[0..WindowSize] of TIdAnsiChar;
   end;
 
 function Strm_in_func(opaque: Pointer; var buf: PByte): TIdC_UNSIGNED; cdecl;
@@ -484,14 +488,14 @@ begin
 
     //use our own function for reading
     strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
-    strm.next_out := PAnsiChar(@BackObj.Window);
+    strm.next_out := PIdAnsiChar(@BackObj.Window[0]);
     strm.avail_out := 0;
 
     CheckInitInflateStream(strm, nil);
 
     strm.next_out := nil;
     strm.avail_out := 0;
-    DCheck(inflateBackInit(strm, MAX_WBITS, BackObj.Window));
+    DCheck(inflateBackInit(strm, MAX_WBITS, @BackObj.Window[0]));
     try
       DCheck(inflateBack(strm, Strm_in_func, BackObj, Strm_out_func, BackObj));
     //  DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
@@ -525,7 +529,7 @@ begin
 
     //use our own function for reading
     strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
-    strm.next_out := PAnsiChar(@BackObj.Window);
+    strm.next_out := PIdAnsiChar(@BackObj.Window[0]);
     strm.avail_out := 0;
 
     //note that you can not use a WinBits parameter greater than 32 with
@@ -548,7 +552,7 @@ begin
     end;
     strm.next_out := nil;
     strm.avail_out := 0;
-    DCheck(inflateBackInit_(strm,LWindowBits, BackObj.Window,
+    DCheck(inflateBackInit_(strm,LWindowBits, @BackObj.Window[0],
       zlib_version, SizeOf(TZStreamRec)));
     try
       DCheck(inflateBack(strm, Strm_in_func, BackObj, Strm_out_func, BackObj));
@@ -588,7 +592,7 @@ const
 
 var
   strm   : TZStreamRec;
-  InBuf, OutBuf : PAnsiChar;
+  InBuf, OutBuf : PIdAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
 
@@ -699,7 +703,7 @@ const
   BufSize = 65536;
 var
   strm   : z_stream;
-  InBuf, OutBuf : PAnsiChar;
+  InBuf, OutBuf : PIdAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
 
@@ -860,7 +864,7 @@ begin
         P := OutBuf;
         Inc(OutBytes, BufInc);
         ReallocMem(OutBuf, OutBytes);
-        strm.next_out := PAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
+        strm.next_out := PIdAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
         strm.avail_out := BufInc;
       end;
     finally
@@ -912,13 +916,13 @@ begin
   FStrm    := Strm;
   FStrmPos := Strm.Position;
   fillchar(FZRec, SizeOf(FZRec), 0);
-  FZRec.next_out  := FBuffer;
+  FZRec.next_out  := @FBuffer[0];
   FZRec.avail_out := 0;
-  FZRec.next_in   := FBuffer;
+  FZRec.next_in   := @FBuffer[0];
   FZRec.avail_in  := 0;
   fillchar(FGZHeader, SizeOf(FGZHeader), 0);
   FStreamType := zsZLib;
-  FGZHeader.name := FNameBuffer;
+  FGZHeader.name := @FNameBuffer[0];
   FGZHeader.name_max := SizeOf(FNameBuffer);
 end;
 
@@ -944,14 +948,19 @@ end;
 constructor TCompressionStream.CreateEx(CompressionLevel: TCompressionLevel;
   Dest: TStream; const StreamType: TZStreamType;
   const AName: string = ''; ATime: Integer = 0);
+{$IFDEF USE_MARSHALLED_PTRS}
+type
+  TBytesPtr = ^TBytes;
+{$ENDIF}
 var
-  LEncoding: TIdTextEncoding;
   LBytes: TIdBytes;
+  {$IFDEF HAS_AnsiString}
   LName: AnsiString;
+  {$ENDIF}
 begin
   inherited Create(Dest);
   LBytes := nil; // keep the compiler happy
-  FZRec.next_out := FBuffer;
+  FZRec.next_out := @FBuffer[0];
   FZRec.avail_out := SizeOf(FBuffer);
   FStreamType := StreamType;
   CCheck(deflateInitEx(FZRec, Levels[CompressionLevel], StreamType));
@@ -969,14 +978,15 @@ begin
     // so we could technically use that, but since the RFC is very specific
     // about the charset, we'll force it here in case Indy's 8-bit encoding
     // class is changed later on...
-    LEncoding := CharsetToEncoding('ISO-8859-1');
-    try
-      LBytes := LEncoding.GetBytes(AName);
-    finally
-      LEncoding.Free;
-    end;
+    LBytes := CharsetToEncoding('ISO-8859-1').GetBytes(AName);
+    {$IFDEF USE_MARSHALLED_PTRS}
+    // TODO: optimize this
+    FillChar(FGZHeader.name^, FGZHeader.name_max, 0);
+    TMarshal.Copy(TBytesPtr(@LBytes)^, 0, TPtrWrapper.Create(FGZHeader.name), IndyMin(Length(LBytes), FGZHeader.name_max));
+    {$ELSE}
     SetString(LName, PAnsiChar(LBytes), Length(LBytes));
-    StrPLCopy(FGZHeader.name, LName, FGZHeader.name_max);
+    {$IFDEF HAS_AnsiStrings_StrPLCopy}AnsiStrings.{$ENDIF}StrPLCopy(FGZHeader.name, LName, FGZHeader.name_max);
+    {$ENDIF}
     deflateSetHeader(FZRec, FGZHeader);
   end;
 end;
@@ -1007,12 +1017,12 @@ begin
     end;
     while (CCheck(deflate(FZRec, Z_FINISH)) <> Z_STREAM_END) and (FZRec.avail_out = 0) do
     begin
-      FStrm.WriteBuffer(FBuffer, sizeof(FBuffer));
-      FZRec.next_out := FBuffer;
-      FZRec.avail_out := sizeof(FBuffer);
+      FStrm.WriteBuffer(FBuffer[0], SizeOf(FBuffer));
+      FZRec.next_out := @FBuffer[0];
+      FZRec.avail_out := SizeOf(FBuffer);
     end;
-    if FZRec.avail_out < sizeof(FBuffer) then begin
-      FStrm.WriteBuffer(FBuffer, sizeof(FBuffer) - FZRec.avail_out);
+    if FZRec.avail_out < SizeOf(FBuffer) then begin
+      FStrm.WriteBuffer(FBuffer, SizeOf(FBuffer) - FZRec.avail_out);
     end;
   finally
     deflateEnd(FZRec);
@@ -1027,7 +1037,7 @@ end;
 
 function TCompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  FZRec.next_in := PAnsiChar(@ABuffer[AOffset]);
+  FZRec.next_in := PIdAnsiChar(@ABuffer[AOffset]);
   FZRec.avail_in := ACount;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;
@@ -1037,9 +1047,9 @@ begin
     CCheck(deflate(FZRec, 0));
     if FZRec.avail_out = 0 then
     begin
-      FStrm.WriteBuffer(FBuffer, sizeof(FBuffer));
-      FZRec.next_out := FBuffer;
-      FZRec.avail_out := sizeof(FBuffer);
+      FStrm.WriteBuffer(FBuffer[0], SizeOf(FBuffer));
+      FZRec.next_out := @FBuffer[0];
+      FZRec.avail_out := SizeOf(FBuffer);
       FStrmPos := FStrm.Position;
       Progress;
     end;
@@ -1103,7 +1113,7 @@ begin
   end;
 
   //open
-  FZRec.next_in  := FBuffer;
+  FZRec.next_in  := @FBuffer[0];
   FZRec.avail_in := N;
 
   DCheck(inflateInitEx(FZRec, FStreamType));
@@ -1112,7 +1122,7 @@ end;
 function TDecompressionStream.IdRead(var VBuffer: TIdBytes; AOffset,
   ACount: Integer): Longint;
 begin
-  FZRec.next_out := PAnsiChar(@VBuffer[AOffset]);
+  FZRec.next_out := PIdAnsiChar(@VBuffer[AOffset]);
   FZRec.avail_out := ACount;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;
@@ -1124,11 +1134,11 @@ begin
       //init read if necessary
       //if FZRec.total_in = 0 then InitRead;
 
-      FZRec.avail_in := FStrm.Read(FBuffer, sizeof(FBuffer));
+      FZRec.avail_in := FStrm.Read(FBuffer[0], SizeOf(FBuffer));
       if FZRec.avail_in = 0 then begin
         Break;
       end;
-      FZRec.next_in := FBuffer;
+      FZRec.next_in := @FBuffer[0];
       FStrmPos := FStrm.Position;
       Progress;
     end;
@@ -1147,13 +1157,13 @@ end;
 function TDecompressionStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
 var
   I: Integer;
-  Buf: array [0..4095] of AnsiChar;
+  Buf: array [0..4095] of TIdAnsiChar;
   LOffset : Int64;
 begin
   if (AOffset = 0) and (AOrigin = soBeginning) then
   begin
     DCheck(inflateReset(FZRec));
-    FZRec.next_in := FBuffer;
+    FZRec.next_in := @FBuffer[0];
     FZRec.avail_in := 0;
     FStrm.Position := FInitialPos;
     FStrmPos := FInitialPos;

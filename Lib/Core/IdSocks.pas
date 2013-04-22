@@ -266,12 +266,13 @@ uses
 { TIdSocksInfo }
 
 procedure TIdSocksInfo.Assign(ASource: TPersistent);
+var
+  LSource: TIdSocksInfo;
 begin
   if ASource is TIdSocksInfo then begin
-    with TIdSocksInfo(ASource) do begin
-      Self.FAuthentication := Authentication;
-      Self.FVersion := Version;
-    end;
+    LSource := TIdSocksInfo(ASource);
+    FAuthentication := LSource.Authentication;
+    FVersion := LSource.Version;
   end;
   // always allow TIdCustomTransparentProxy to assign its properties as well
   inherited Assign(ASource);

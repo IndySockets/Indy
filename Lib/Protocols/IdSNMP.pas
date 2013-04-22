@@ -47,6 +47,8 @@ The Synapse SNMP component was converted for use in INDY.
 |   Hernan Sanchez (hernan.sanchez@iname.com)  Original author                 |
 |   Colin Wilson (colin@wilsonc.demon.co.uk)   Fixed some bugs & added support |
 |                                              for Value types                 |
+|   Remy Lebeau (remy@lebeausoftware.org)      Added support for Unicode and   |
+|                                              Generics                        |
 |==============================================================================|
 | History: see HISTORY.HTM from distribution package                           |
 |          (Found at URL: http://www.ararat.cz/synapse/)                       |
@@ -59,6 +61,9 @@ interface
 
 uses
   Classes,
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   IdASN1Util,
   IdException,
   IdGlobal,
@@ -85,18 +90,31 @@ const
 type
   TIdSNMP = class;
 
+  // TODO: create TIdMIBValueList for non-Generics compilers...
+  {$IFDEF HAS_GENERICS_TList}
+  TIdMIBValue = record
+    OID: String;
+    Value: String;
+    ValueType: Integer;
+    constructor Create(const AOID, AValue: String; const AValueType: Integer);
+  end;
+  TIdMIBValueList = TList<TIdMIBValue>;
+  {$ENDIF}
+
   TSNMPInfo = class(TObject)
   private
     fOwner : TIdSNMP;
     fCommunity: string;
     function GetValue (idx : Integer) : string;
     function GetValueCount: Integer;
-    function GetValueType (idx : Integer) : PtrUInt;
+    function GetValueType (idx : Integer) : Integer;
     function GetValueOID(idx: Integer): string;
     procedure SetCommunity(const Value: string);
   protected
     Buffer: string;
+    {$IFNDEF HAS_GENERICS_TList}
     procedure SyncMIB;
+    {$ENDIF}
   public
     Host : string;
     Port : TIdPort;
@@ -109,8 +127,12 @@ type
     ID : integer;
     ErrorStatus : integer;
     ErrorIndex : integer;
+    {$IFDEF HAS_GENERICS_TList}
+    MIBValues : TIdMIBValueList;
+    {$ELSE}
     MIBOID : TStrings;
     MIBValue : TStrings;
+    {$ENDIF}
 
     constructor Create (AOwner : TIdSNMP);
     destructor  Destroy; override;
@@ -128,7 +150,7 @@ type
     property    ValueCount : Integer read GetValueCount;
     property    Value [idx : Integer] : string read GetValue;
     property    ValueOID [idx : Integer] : string read GetValueOID;
-    property    ValueType [idx : Integer] : PtrUInt read GetValueType;
+    property    ValueType [idx : Integer] : Integer read GetValueType;
   end;
 
   TIdSNMP = class(TIdUDPClient)
@@ -153,10 +175,20 @@ type
     function QuickSend(const Mib, DestCommunity, DestHost: string; var Value: string):Boolean;
     function QuickSendTrap(const DestHost, Enterprise, DestCommunity: string;
                       DestPort: TIdPort; Generic, Specific: integer;
-                      MIBName, MIBValue: TStrings): Boolean;
+                      {$IFDEF HAS_GENERICS_TList}
+                      MIBValues: TIdMIBValueList
+                      {$ELSE}
+                      MIBName, MIBValue: TStrings
+                      {$ENDIF}
+                      ): Boolean;
     function QuickReceiveTrap(var SrcHost, Enterprise, SrcCommunity: string;
                       var SrcPort: TIdPort; var Generic, Specific, Seconds: integer;
-                      MIBName, MIBValue: TStrings): Boolean;
+                      {$IFDEF HAS_GENERICS_TList}
+                      MIBValues: TIdMIBValueList
+                      {$ELSE}
+                      MIBName, MIBValue: TStrings
+                      {$ENDIF}
+                      ): Boolean;
     function SendTrap: Boolean;
     function ReceiveTrap: Boolean;
   published
@@ -228,6 +260,15 @@ end;
 
 {========================== SNMP INFO OBJECT ==================================}
 
+{$IFDEF HAS_GENERICS_TList}
+constructor TIdMIBValue.Create(const AOID, AValue: String; const AValueType: Integer);
+begin
+  OID := AOID;
+  Value := AValue;
+  ValueType := AValueType;
+end;
+{$ENDIF}
+
 { TSNMPInfo }
 
 (*----------------------------------------------------------------------------*
@@ -243,8 +284,12 @@ constructor TSNMPInfo.Create(AOwner : TIdSNMP);
 begin
   inherited Create;
   fOwner := AOwner;
+  {$IFDEF HAS_GENERICS_TList}
+  MIBValues := TIdMIBValueList.Create;
+  {$ELSE}
   MIBOID := TStringList.Create;
   MIBValue := TStringList.Create;
+  {$ENDIF}
   fCommunity := AOwner.Community;
   Port := AOwner.Port;
 end;
@@ -256,15 +301,20 @@ end;
  *----------------------------------------------------------------------------*)
 destructor TSNMPInfo.Destroy;
 begin
+  {$IFDEF HAS_GENERICS_TList}
+  FreeAndNil(MIBValues);
+  {$ELSE}
   FreeAndNil(MIBValue);
   FreeAndNil(MIBOID);
+  {$ENDIF}
   inherited Destroy;
 end;
 
+{$IFNDEF HAS_GENERICS_TList}
 (*----------------------------------------------------------------------------*
  | procedure TSNMPInfo.SyncMIB                                                |
  |                                                                            |
- | Ensure that there are as many 'values' as 'oids'                           |    {Do not Localize}
+ | Ensure that there are as many 'values' as 'oids'                           |
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.SyncMIB;
 var
@@ -272,9 +322,10 @@ var
 begin
   x := MIBValue.Count;
   for n := x to MIBOID.Count-1 do begin
-    MIBValue.Add('');    {Do not Localize}
+    MIBValue.Add('');
   end;
 end;
+{$ENDIF}
 
 (*----------------------------------------------------------------------------*
  | procedure TSNMPInfo.DecodeBuf                                              |
@@ -304,7 +355,7 @@ begin
     ASNItem(Pos, Buffer, vt);
     Sm := ASNItem(Pos, Buffer, vt);
     Sv := ASNItem(Pos, Buffer, vt);
-    MIBadd(sm, sv, vt);
+    MIBAdd(sm, sv, vt);
   end;
 end;
 
@@ -319,29 +370,28 @@ function TSNMPInfo.EncodeBuf: string;
 var
   data,s: string;
   n: integer;
-  objType: PtrUInt;
+  objType: Integer;
 begin
   data := '';    {Do not Localize}
+  {$IFNDEF HAS_GENERICS_TList}
   SyncMIB;
-  for n := 0 to MIBOID.Count-1 do
+  {$ENDIF}
+  for n := 0 to {$IFDEF HAS_GENERICS_TList}MIBValues{$ELSE}MIBOID{$ENDIF}.Count-1 do
   begin
-    objType := PtrUInt(MIBValue.Objects[n]);
-    if objType = 0 then begin
-      objType := ASN1_OCTSTR;
-    end;
+    objType := GetValueType(n);
     case objType of
       ASN1_INT:
-        s := MibIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0));
+        s := MibIntToASNObject(GetValueOID(n), IndyStrToInt(GetValue(n), 0));
       ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
-        s := MibUIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0), objType);
+        s := MibUIntToASNObject(GetValueOID(n), IndyStrToInt(GetValue(n), 0), objType);
       ASN1_OBJID:
-        s := MibObjIDToASNObject(MIBOID[n], MIBValue[n]);
+        s := MibObjIDToASNObject(GetValueOID(n), GetValue(n));
       ASN1_IPADDR:
-        s := MibIPAddrToASNObject(MIBOID[n], MIBValue[n]);
+        s := MibIPAddrToASNObject(GetValueOID(n), GetValue(n));
       ASN1_NULL:
-        s := MibNullToASNObject(MIBOID[n]);
+        s := MibNullToASNObject(GetValueOID(n));
       else
-        s := MibStrToASNObject(MIBOID[n], MIBValue[n], objType);
+        s := MibStrToASNObject(GetValueOID(n), GetValue(n), objType);
     end;
     data := data + ASNObject(s, ASN1_SEQ);
   end;
@@ -363,10 +413,10 @@ end;
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.Clear;
 begin
-  Version := 0;
+  Version:=0;
   fCommunity := Owner.Community;
   if Self = fOwner.Trap then begin
-    Port := Owner.TrapPort;
+    Port := Owner.TrapPort
   end else begin
     Port := Owner.Port;
   end;
@@ -375,8 +425,12 @@ begin
   ID := 0;
   ErrorStatus := 0;
   ErrorIndex := 0;
+  {$IFDEF HAS_GENERICS_TList}
+  MIBValues.Clear;
+  {$ELSE}
   MIBOID.Clear;
   MIBValue.Clear;
+  {$ENDIF}
 end;
 
 (*----------------------------------------------------------------------------*
@@ -391,9 +445,14 @@ end;
  |                              ASN1_OCTSTR                                   |
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.MIBAdd(MIB, Value: string; ValueType: Integer);
+{$IFNDEF HAS_GENERICS_TList}
 var
   x: integer;
+{$ENDIF}
 begin
+  {$IFDEF HAS_GENERICS_TList}
+  MIBValues.Add(TIdMIBValue.Create(MIB, Value, ValueType));
+  {$ELSE}
   SyncMIB;
   MIBOID.Add(MIB);
   x := MIBOID.Count;
@@ -401,10 +460,11 @@ begin
   begin
     MIBValue[x-1] := Value;
     MIBValue.Objects[x-1] := TObject(ValueType);
-  end else 
+  end else
   begin
     MIBValue.AddObject(Value, TObject(ValueType));
-  end;  
+  end;
+  {$ENDIF}
 end;
 
 (*----------------------------------------------------------------------------*
@@ -417,17 +477,21 @@ end;
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.MIBDelete(Index: integer);
 begin
+  {$IFDEF HAS_GENERICS_TList}
+  MIBValues.Delete(Index);
+  {$ELSE}
   SyncMIB;
   MIBOID.Delete(Index);
   if (MIBValue.Count-1) >= Index then begin
     MIBValue.Delete(Index);
-  end;  
+  end;
+  {$ENDIF}
 end;
 
 (*----------------------------------------------------------------------------*
  | function TSNMPInfo.MIBGet                                                  |
  |                                                                            |
- | Get a string representation of tha value of the specified MIBOID           |
+ | Get a string representation of the value of the specified MIBOID           |
  |                                                                            |
  | Parameters:                                                                |
  |   MIB:string                         The MIBOID to query                   |
@@ -438,13 +502,23 @@ function TSNMPInfo.MIBGet(MIB: string): string;
 var
   x: integer;
 begin
+  {$IFDEF HAS_GENERICS_TList}
+  Result := '';    {Do not Localize}
+  for x := 0 to MIBValues.Count-1 do begin
+    if TextIsSame(MIBValues[x].OID, MIB) then begin
+      Result := MIBValues[x].Value;
+      Exit;
+    end;
+  end;
+  {$ELSE}
   SyncMIB;
   x := MIBOID.IndexOf(MIB);
   if x < 0 then begin
     Result := '';    {Do not Localize}
-  end else begin 
+  end else begin
     Result := MIBValue[x];
   end;
+  {$ENDIF}
 end;
 
 {======================= TRAPS =====================================}
@@ -452,7 +526,7 @@ end;
 (*----------------------------------------------------------------------------*
  | procedure TSNMPInfo.EncodeTrap                                             |
  |                                                                            |
- | Encode the trap details into an ASN string - the 'Buffer' member           |    {Do not Localize}
+ | Encode the trap details into an ASN string - the 'Buffer' member           |
  |                                                                            |
  | The function returns 1 for historical reasons!                             |
  *----------------------------------------------------------------------------*)
@@ -460,28 +534,25 @@ function TSNMPInfo.EncodeTrap: Boolean;
 var
   s: string;
   n: integer;
-  objType: PtrUInt;
+  objType: Integer;
 begin
   Buffer := '';    {Do not Localize}
-  for n := 0 to MIBOID.Count-1 do
+  for n := 0 to {$IFDEF HAS_GENERICS_TList}MIBValues{$ELSE}MIBOID{$ENDIF}.Count-1 do
   begin
-    objType := PtrUInt(MIBValue.Objects[n]);
-    if objType = 0 then begin
-      objType := ASN1_OCTSTR;
-    end;
+    objType := GetValueType(n);
     case objType of
       ASN1_INT:
-        s := MibIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0));
+        s := MibIntToASNObject(GetValueOID(n), IndyStrToInt(GetValue(n), 0));
       ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
-        s := MibUIntToASNObject(MIBOID[n], IndyStrToInt(MIBValue[n], 0), objType);
+        s := MibUIntToASNObject(GetValueOID(n), IndyStrToInt(GetValue(n), 0), objType);
       ASN1_OBJID:
-        s := MibObjIDToASNObject(MIBOID[n], MIBValue[n]);
+        s := MibObjIDToASNObject(GetValueOID(n), GetValue(n));
       ASN1_IPADDR:
-        s := MibIPAddrToASNObject(MIBOID[n], MIBValue[n]);
+        s := MibIPAddrToASNObject(GetValueOID(n), GetValue(n));
       ASN1_NULL:
-        s := MibNullToASNObject(MIBOID[n]);
+        s := MibNullToASNObject(GetValueOID(n));
       else
-        s := MibStrToASNObject(MIBOID[n], MIBValue[n], objType);
+        s := MibStrToASNObject(GetValueOID(n), GetValue(n), objType);
     end;
     Buffer := Buffer + ASNObject(s, ASN1_SEQ);
   end;
@@ -607,19 +678,16 @@ begin
   if fTrapRecvBinding = nil then begin
     fTrapRecvBinding := TIdSocketHandle.Create(nil);
   end;
-  with fTrapRecvBinding do
-  begin
-    if (not HandleAllocated) and (fTrapPort <> 0) then begin
-      IPVersion := Self.IPVersion;
-      {$IFDEF LINUX}
-      AllocateSocket(LongInt(Id_SOCK_DGRAM));
-      {$ELSE}
-      AllocateSocket(Id_SOCK_DGRAM);
-      {$ENDIF}
-      IP := Result.IP;
-      Port := fTrapPort;
-      Bind;
-    end;
+  if (not fTrapRecvBinding.HandleAllocated) and (fTrapPort <> 0) then begin
+    fTrapRecvBinding.IPVersion := Result.IPVersion;
+    {$IFDEF LINUX}
+    fTrapRecvBinding.AllocateSocket(LongInt(Id_SOCK_DGRAM));
+    {$ELSE}
+    fTrapRecvBinding.AllocateSocket(Id_SOCK_DGRAM);
+    {$ENDIF}
+    fTrapRecvBinding.IP := Result.IP;
+    fTrapRecvBinding.Port := fTrapPort;
+    fTrapRecvBinding.Bind;
   end;
 end;
 
@@ -657,12 +725,15 @@ end;
  | received, it will be decoded into Reply.Value                              |
  *----------------------------------------------------------------------------*)
 function TIdSNMP.SendQuery: Boolean;
+var
+  LEncoding: IIdTextEncoding;
 begin
   Reply.Clear;
   Query.Buffer := Query.EncodeBuf;
-  Send(Query.Host, Query.Port, Query.Buffer, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  Send(Query.Host, Query.Port, Query.Buffer, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   try
-    Reply.Buffer := ReceiveString(Query.Host, Query.Port, FReceiveTimeout, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    Reply.Buffer := ReceiveString(Query.Host, Query.Port, FReceiveTimeout, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   except
     on e : EIdSocketError do
     begin
@@ -714,10 +785,13 @@ end;
  | The function returns 1                                                     |
  *----------------------------------------------------------------------------*)
 function TIdSNMP.SendTrap: Boolean;
+var
+  LEncoding: IIdTextEncoding;
 begin
   Trap.PDUType := PDUTrap;
   Trap.EncodeTrap;
-  Send(Trap.Host, Trap.Port, Trap.Buffer, Indy8BitEncoding);
+  LEncoding := IndyTextEncoding_8Bit;
+  Send(Trap.Host, Trap.Port, Trap.Buffer, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   Result := True;
 end;
 
@@ -745,7 +819,7 @@ begin
   end;
 
   i := fTrapRecvBinding.RecvFrom(LBuffer, Trap.Host, Trap.Port, LIPVersion);
-  Trap.Buffer := BytesToString(LBuffer, 0, i, Indy8BitEncoding);
+  Trap.Buffer := BytesToString(LBuffer, 0, i, IndyTextEncoding_8Bit);
   if Trap.Buffer <> '' then begin    {Do not Localize}
     Trap.DecodeTrap;
     Result := True;
@@ -753,7 +827,13 @@ begin
 end;
 
 function TIdSNMP.QuickSendTrap(const DestHost, Enterprise, DestCommunity: string;
-  DestPort: TIdPort; Generic, Specific: integer; MIBName, MIBValue: TStrings): Boolean;
+  DestPort: TIdPort; Generic, Specific: integer;
+  {$IFDEF HAS_GENERICS_TList}
+  MIBValues: TIdMIBValueList
+  {$ELSE}
+  MIBName, MIBValue: TStrings
+  {$ENDIF}
+  ): Boolean;
 var
   i: integer;
 begin
@@ -763,17 +843,32 @@ begin
   Trap.Enterprise := Enterprise;
   Trap.GenTrap := Generic;
   Trap.SpecTrap := Specific;
+  {$IFDEF HAS_GENERICS_TList}
+  Trap.MIBValues.Clear;
+  {$ELSE}
   Trap.MIBOID.Clear;
   Trap.MIBValue.Clear;
-  for i := 0 to MIBName.Count-1 do begin
-    Trap.MIBAdd(MIBName[i], MIBValue[i], PtrUInt(MibValue.Objects [i]));
+  {$ENDIF}
+  for i := 0 to {$IFDEF HAS_GENERICS_TList}MIBValues{$ELSE}MIBName{$ENDIF}.Count-1 do begin
+    Trap.MIBAdd(
+      {$IFDEF HAS_GENERICS_TList}
+      MIBValues[i].OID, MIBValues[i].Value, MIBValues[i].ValueType
+      {$ELSE}
+      MIBName[i], MIBValue[i], PtrInt(MIBValue.Objects[i])
+      {$ENDIF}
+    );
   end;
   Result := SendTrap;
 end;
 
 function TIdSNMP.QuickReceiveTrap(var SrcHost, Enterprise, SrcCommunity: string;
   var SrcPort: TIdPort; var Generic, Specific, Seconds: integer;
-  MIBName, MIBValue: TStrings): Boolean;
+  {$IFDEF HAS_GENERICS_TList}
+  MIBValues: TIdMIBValueList
+  {$ELSE}
+  MIBName, MIBValue: TStrings
+  {$ENDIF}
+  ): Boolean;
 var
   i: integer;
 begin
@@ -787,12 +882,20 @@ begin
     Generic := Trap.GenTrap;
     Specific := Trap.SpecTrap;
     Seconds := Trap.TimeTicks;
+    {$IFDEF HAS_GENERICS_TList}
+    MIBValues.Clear;
+    {$ELSE}
     MIBName.Clear;
     MIBValue.Clear;
-    for i := 0 to Trap.MIBOID.Count-1 do
+    {$ENDIF}
+    for i := 0 to Trap.{$IFDEF HAS_GENERICS_TList}MIBValues{$ELSE}MIBOID{$ENDIF}.Count-1 do
     begin
-      MIBName.Add(Trap.MIBOID[i]);
-      MIBValue.Add(Trap.MIBValue[i]);
+      {$IFDEF HAS_GENERICS_TList}
+      MIBValues.Add(TIdMIBValue.Create(Trap.ValueOID[i], Trap.Value[i], Trap.ValueType[i]));
+      {$ELSE}
+      MIBName.Add(Trap.ValueOID[i]);
+      MIBValue.AddObject(Trap.Value[i], TObject(Trap.ValueType[i]));
+      {$ENDIF}
     end;
   end;
 end;
@@ -800,7 +903,7 @@ end;
 (*----------------------------------------------------------------------------*
  | TSNMPInfo.GetValue                                                         |
  |                                                                            |
- | Return string representation of value 'idx'                                |    {Do not Localize}
+ | Return string representation of value 'idx'                                |
  |                                                                            |
  | Parameters:                                                                |
  |   idx : Integer              The value to get                              |
@@ -809,7 +912,11 @@ end;
  *----------------------------------------------------------------------------*)
 function TSNMPInfo.GetValue (idx : Integer) : string;
 begin
+  {$IFDEF HAS_GENERICS_TList}
+  Result := MIBValues[idx].Value;
+  {$ELSE}
   Result := MIBValue[idx];
+  {$ENDIF}
 end;
 
 (*----------------------------------------------------------------------------*
@@ -821,22 +928,30 @@ end;
  *----------------------------------------------------------------------------*)
 function TSNMPInfo.GetValueCount: Integer;
 begin
+  {$IFDEF HAS_GENERICS_TList}
+  Result := MIBValues.Count;
+  {$ELSE}
   Result := MIBValue.Count;
+  {$ENDIF}
 end;
 
 (*----------------------------------------------------------------------------*
  | TSNMPInfo.GetValueType                                                     |
  |                                                                            |
- | Return the 'type' of value 'idx'                                           |    {Do not Localize}
+ | Return the 'type' of value 'idx'                                           |
  |                                                                            |
  | Parameters:                                                                |
  |   idx : Integer              The value type to get                         |
  |                                                                            |
  | The function returns the value type.                                       |
  *----------------------------------------------------------------------------*)
-function TSNMPInfo.GetValueType (idx : Integer): PtrUInt;
+function TSNMPInfo.GetValueType (idx : Integer): Integer;
 begin
-  Result := PtrUInt(MIBValue.Objects [idx]);
+  {$IFDEF HAS_GENERICS_TList}
+  Result := MIBValues[idx].ValueType;
+  {$ELSE}
+  Result := Integer(MIBValue.Objects[idx]);
+  {$ENDIF}
   if Result = 0 then begin
     Result := ASN1_OCTSTR;
   end;
@@ -845,7 +960,7 @@ end;
 (*----------------------------------------------------------------------------*
  | TSNMPInfo.GetValueOID                                                      |
  |                                                                            |
- | Get the MIB OID for value 'idx'                                            |    {Do not Localize}
+ | Get the MIB OID for value 'idx'                                            |
  |                                                                            |
  | Parameters:                                                                |
  |   idx: Integer               The MIB OID to gey                            |
@@ -854,7 +969,11 @@ end;
  *----------------------------------------------------------------------------*)
 function TSNMPInfo.GetValueOID(idx: Integer): string;
 begin
+  {$IFDEF HAS_GENERICS_TList}
+  Result := MIBValues[idx].OID;
+  {$ELSE}
   Result := MIBOID[idx];
+  {$ENDIF}
 end;
 
 (*----------------------------------------------------------------------------*

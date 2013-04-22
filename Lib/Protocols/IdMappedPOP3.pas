@@ -150,71 +150,63 @@ var
 Begin
   //don`t call inherited, NEW behavior
   LServer := TIdMappedPOP3(Server);
-  with LServer do
-  begin
-    Connection.IOHandler.Write(Greeting.FormattedReply);   
+  Connection.IOHandler.Write(LServer.Greeting.FormattedReply);
 
-    FOutboundClient := TIdTCPClient.Create(nil);
-    with TIdTcpClient(FOutboundClient) do begin
-      Port := MappedPort;
-      Host := MappedHost;
-    end;//with
+  FOutboundClient := TIdTCPClient.Create(nil);
+  TIdTcpClient(FOutboundClient).Port := LServer.MappedPort;
+  TIdTcpClient(FOutboundClient).Host := LServer.MappedHost;
 
-    Self.FAllowedConnectAttempts := LServer.AllowedConnectAttempts;
-    DoLocalClientConnect(Self);
+  FAllowedConnectAttempts := LServer.AllowedConnectAttempts;
+  LServer.DoLocalClientConnect(Self);
 
-    repeat
-      if Self.FAllowedConnectAttempts > 0 then begin
-        Dec(Self.FAllowedConnectAttempts);
-      end;
-      try
-        // Greeting
-        LHostPort := Trim(Connection.IOHandler.ReadLn);//USER username#host OR QUIT
-        LPop3Cmd := Fetch(LHostPort, ' ', True);    {Do not Localize}
-        if TextIsSame(LPop3Cmd, 'QUIT') then    {Do not Localize}
-        begin
-          Connection.IOHandler.WriteLn('+OK ' + RSPop3QuitMsg);    {Do not Localize}
-          Connection.Disconnect;
-          Break;
-        end else if TextIsSame(LPop3Cmd, 'USER') then    {Do not Localize}
-        begin
-          FUserName := Fetch(LHostPort, FUserHostDelimiter, True, False);//?:CaseSensetive
-          LHostPort := TrimLeft(LHostPort); //TrimRight above
-          ExtractHostAndPortFromLine(Self, LHostPort);
-        end else begin
-          Connection.IOHandler.Write(ReplyUnknownCommand.FormattedReply);
-          Continue;
-        end;//if
-
-        if Length(TIdTcpClient(FOutboundClient).Host) < 1 then begin
-          raise EIdException.Create(RSEmptyHost);
-        end;
-
-        with TIdTcpClient(FOutboundClient) do
-        begin
-          ConnectTimeout := Self.FConnectTimeOut;
-          Connect;
-        end;
-
-        //Read Pop3 Banner for OnOutboundClientConnect
-        Self.FGreeting := FOutboundClient.IOHandler.ReadLn;
-        FOutboundClient.IOHandler.WriteLn('USER ' + FUserName);    {Do not Localize}
-      except
-        on E: Exception do // DONE: Handle connect failures
-        begin
-          FErrorMsg := '[' + E.ClassName + '] ' + E.Message;    {Do not Localize}
-          Self.DoException(E);
-          Connection.IOHandler.WriteLn('-ERR ' + FErrorMsg);
-        end;
-      end;//trye
-    until FOutboundClient.Connected or (Self.FAllowedConnectAttempts < 1);
-
-    if FOutboundClient.Connected then begin
-      DoOutboundClientConnect(Self);
-    end else begin
-      Connection.Disconnect; //prevent all next work
+  repeat
+    if FAllowedConnectAttempts > 0 then begin
+      Dec(FAllowedConnectAttempts);
     end;
-  end;//with
+    try
+      // Greeting
+      LHostPort := Trim(Connection.IOHandler.ReadLn);//USER username#host OR QUIT
+      LPop3Cmd := Fetch(LHostPort, ' ', True);    {Do not Localize}
+      if TextIsSame(LPop3Cmd, 'QUIT') then    {Do not Localize}
+      begin
+        Connection.IOHandler.WriteLn('+OK ' + RSPop3QuitMsg);    {Do not Localize}
+        Connection.Disconnect;
+        Break;
+      end else if TextIsSame(LPop3Cmd, 'USER') then    {Do not Localize}
+      begin
+        FUserName := Fetch(LHostPort, LServer.FUserHostDelimiter, True, False);//?:CaseSensetive
+        LHostPort := TrimLeft(LHostPort); //TrimRight above
+        LServer.ExtractHostAndPortFromLine(Self, LHostPort);
+      end else begin
+        Connection.IOHandler.Write(LServer.ReplyUnknownCommand.FormattedReply);
+        Continue;
+      end;//if
+
+      if Length(TIdTCPClient(FOutboundClient).Host) < 1 then begin
+        raise EIdException.Create(RSEmptyHost);
+      end;
+
+      TIdTCPClient(FOutboundClient).ConnectTimeout := FConnectTimeOut;
+      TIdTCPClient(FOutboundClient).Connect;
+
+      //Read Pop3 Banner for OnOutboundClientConnect
+      FGreeting := FOutboundClient.IOHandler.ReadLn;
+      FOutboundClient.IOHandler.WriteLn('USER ' + FUserName);    {Do not Localize}
+    except
+      on E: Exception do // DONE: Handle connect failures
+      begin
+        FErrorMsg := '[' + E.ClassName + '] ' + E.Message;    {Do not Localize}
+        DoException(E);
+        Connection.IOHandler.WriteLn('-ERR ' + FErrorMsg);
+      end;
+    end;//trye
+  until FOutboundClient.Connected or (FAllowedConnectAttempts < 1);
+
+  if FOutboundClient.Connected then begin
+    LServer.DoOutboundClientConnect(Self);
+  end else begin
+    Connection.Disconnect; //prevent all next work
+  end;
 end;
 
 end.

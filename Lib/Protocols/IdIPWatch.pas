@@ -80,7 +80,6 @@ type
   TIdIPWatchThread = class(TIdThread)
   protected
     FInterval: Integer;
-    FSender: TObject;
     FTimerEvent: TNotifyEvent;
     //
     procedure Run; override;
@@ -318,12 +317,9 @@ begin
     if not IsDesignTime then begin
       if Value then begin
         FThread := TIdIPWatchThread.Create(True);
-        with FThread do begin
-          FSender := Self;
-          FTimerEvent := CheckStatus;
-          FInterval := FWatchInterval;
-          Start;
-        end;
+        FThread.FTimerEvent := CheckStatus;
+        FThread.FInterval := FWatchInterval;
+        FThread.Start;
       end else begin
         if FThread <> nil then begin
           FThread.TerminateAndWaitFor;
@@ -379,7 +375,9 @@ end;
 
 procedure TIdIPWatchThread.TimerEvent;
 begin
-  FTimerEvent(FSender);
+  if Assigned(FTimerEvent) then begin
+    FTimerEvent(Self);
+  end;
 end;
 
 end.

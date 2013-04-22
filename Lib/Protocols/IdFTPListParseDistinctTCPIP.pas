@@ -111,7 +111,7 @@ begin
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0], s);
+      SplitDelimitedString(AListing[0], s, True);
       if s.Count > 2 then
       begin
         Result := (Length(s[0]) = 5) and (CharIsInSet(s[0], 1, DistValidTypes))

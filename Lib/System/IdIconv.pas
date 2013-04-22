@@ -231,8 +231,7 @@ implementation
 
 {$IFNDEF STATICLOAD_ICONV}
 uses
-  IdResourceStringsIconv,
-  SysUtils;
+  IdResourceStrings, SysUtils;
 
 var
   {$IFDEF UNIX}
@@ -353,12 +352,13 @@ begin
     hIconv := LoadLibrary(LICONV);
       {$ENDIF}
     {$ENDIF}
+    Result := Loaded;
   end;
-  Result := Loaded;
 {$ENDIF}
 end;
 
 procedure Unload;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
 {$IFNDEF STATICLOAD_ICONV}
   if Loaded then begin
@@ -376,9 +376,7 @@ begin
 end;
 
 function Loaded : Boolean;
-{$IFDEF STATICLOAD_ICONV}
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
 {$IFDEF STATICLOAD_ICONV}
   Result := True;

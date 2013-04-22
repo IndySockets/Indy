@@ -76,7 +76,7 @@ Type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, IdIOHandler;
   
 procedure TIdECHOServer.InitComponent;
 begin
@@ -87,15 +87,15 @@ end;
 function TIdECHOServer.DoExecute(AContext: TIdContext): Boolean;
 var
   LBuffer: TIdBytes;
+  LIOHandler: TIdIOHandler;
 begin
   Result := True;
   SetLength(LBuffer, 0);
-  with AContext.Connection.IOHandler do begin
-    CheckForDataOnSource(50);
-    if not InputBufferIsEmpty then begin
-      InputBuffer.ExtractToBytes(LBuffer);
-      Write(LBuffer);
-    end;
+  LIOHandler := AContext.Connection.IOHandler;
+  LIOHandler.CheckForDataOnSource(50);
+  if not LIOHandler.InputBufferIsEmpty then begin
+    LIOHandler.InputBuffer.ExtractToBytes(LBuffer);
+    LIOHandler.Write(LBuffer);
   end;
 end;
 

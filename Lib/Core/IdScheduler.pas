@@ -69,12 +69,17 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;
 
 type
+  TIdYarnThreadList = TIdThreadSafeObjectList{$IFDEF HAS_GENERICS_TThreadList}<TIdYarn>{$ENDIF};
+
   TIdScheduler = class(TIdBaseComponent)
   protected
-    FActiveYarns: TIdThreadSafeList;
+    FActiveYarns: TIdYarnThreadList;
     //
     procedure InitComponent; override;
   public
@@ -89,7 +94,7 @@ type
     procedure TerminateYarn(AYarn: TIdYarn); virtual; abstract;
     procedure TerminateAllYarns; virtual;
     //
-    property ActiveYarns: TIdThreadSafeList read FActiveYarns;
+    property ActiveYarns: TIdYarnThreadList read FActiveYarns;
   end;
 
 implementation
@@ -113,6 +118,8 @@ uses
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Classes,
   System.Types,
+  {$ELSE}
+  Classes,
   {$ENDIF}
   IdGlobal, SysUtils;
 
@@ -131,7 +138,7 @@ end;
 procedure TIdScheduler.InitComponent;
 begin
   inherited InitComponent;
-  FActiveYarns := TIdThreadSafeList.Create;
+  FActiveYarns := TIdYarnThreadList.Create;
 end;
 
 procedure TIdScheduler.ReleaseYarn(AYarn: TIdYarn);
@@ -142,19 +149,25 @@ end;
 procedure TIdScheduler.TerminateAllYarns;
 var
   i: Integer;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdYarn>{$ENDIF};
 begin
   Assert(FActiveYarns<>nil);
 
   while True do begin
     // Must unlock each time to allow yarns that are terminating to remove themselves from the list
-    with FActiveYarns.LockList do try
-      if Count = 0 then begin
+    LList := FActiveYarns.LockList;
+    try
+      if LList.Count = 0 then begin
         Break;
       end;
-      for i := Count - 1 downto 0 do begin
-        TerminateYarn(TIdYarn(Items[i]));
+      for i := LList.Count - 1 downto 0 do begin
+        TerminateYarn(
+          {$IFDEF HAS_GENERICS_TList}LList.Items[i]{$ELSE}TIdYarn(LList.Items[i]){$ENDIF}
+        );
       end;
-    finally FActiveYarns.UnlockList; end;
+    finally
+      FActiveYarns.UnlockList;
+    end;
     //TODO: Put terminate timeout check back
     IndySleep(500); // Wait a bit before looping to prevent thrashing
   end;

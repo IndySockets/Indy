@@ -105,15 +105,13 @@ var
   LRequest, VResponse: string;
 begin
   Result := True;
-  with AContext.Connection do begin
-    // Get the domain name the client is inquiring about
-    LRequest := IOHandler.ReadLn;
-    if Assigned(OnCommandLookup) then begin
-      OnCommandLookup(AContext, LRequest, VResponse);
-      IOHandler.Write(VResponse);
-    end;
-    Disconnect;
+  // Get the domain name the client is inquiring about
+  LRequest := AContext.Connection.IOHandler.ReadLn;
+  if Assigned(OnCommandLookup) then begin
+    OnCommandLookup(AContext, LRequest, VResponse);
+    AContext.Connection.IOHandler.Write(VResponse);
   end;
+  AContext.Connection.Disconnect;
 end;
 
 end.

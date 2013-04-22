@@ -10,6 +10,9 @@ interface
 {$IFDEF HAS_TCharacter}
   {$DEFINE HAS_ConvertToUtf32}
 {$ENDIF}
+{$IFDEF HAS_Character_TCharHelper}
+  {$DEFINE HAS_ConvertToUtf32}
+{$ENDIF}
 
 {$IFDEF DOTNET}
   {$DEFINE HAS_String_IndexOf}
@@ -35,6 +38,7 @@ uses
 {$IFNDEF HAS_ConvertToUtf32}
 type
   //for .NET, we use Char.ConvertToUtf32() as-is
+  //for XE3.5+, we use TCharHelper.ConvertToUtf32() as-is
   //for D2009+, we use TCharacter.ConvertToUtf32() as-is
   EIdUTF16Exception = class(EIdException);
   EIdUTF16IndexOutOfRange = class(EIdUTF16Exception);
@@ -54,6 +58,13 @@ implementation
 uses
   IdResourceStringsProtocols,
   IdResourceStringsUriUtils;
+{$ENDIF}
+
+// RLebeau 10/31/2012: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
 {$ENDIF}
 
 function CalcUTF16CharLength(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF};
@@ -78,9 +89,12 @@ begin
     Result := 1;
   end;
   {$ELSE}
-    {$IFDEF HAS_TCharacter}
-  TCharacter.ConvertToUtf32(AStr, AIndex, Result);
+    {$IFDEF HAS_Character_TCharHelper}
+  Char.ConvertToUtf32(AStr, AIndex-1, Result);
     {$ELSE}
+      {$IFDEF HAS_TCharacter}
+  TCharacter.ConvertToUtf32(AStr, AIndex, Result);
+      {$ELSE}
   if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
      (AIndex > (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF})) then
   begin
@@ -103,6 +117,7 @@ begin
   end else begin
     Result := 1;
   end;
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
@@ -148,9 +163,12 @@ begin
   {$IFDEF DOTNET}
   Result := System.Char.ConvertToUtf32(AStr, AIndex-1);
   {$ELSE}
-    {$IFDEF HAS_TCharacter}
-  Result := TCharacter.ConvertToUtf32(AStr, AIndex);
+    {$IFDEF HAS_Character_TCharHelper}
+  Result := Char.ConvertToUtf32(AStr, AIndex-1);
     {$ELSE}
+      {$IFDEF HAS_TCharacter}
+  Result := TCharacter.ConvertToUtf32(AStr, AIndex);
+      {$ELSE}
   if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
      (AIndex > (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF})) then
   begin
@@ -174,6 +192,7 @@ begin
   end else begin
     Result := Integer(C);
   end;
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;

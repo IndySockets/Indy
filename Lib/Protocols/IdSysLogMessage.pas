@@ -657,14 +657,28 @@ procedure TIdSysLogMessage.CheckASCIIRange(var Data: String);
 var
   i: Integer;
   ValidChars : String;
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB: TIdStringBuilder;
+  {$ENDIF}
 begin
   ValidChars := CharRange(#0, #127);
+  {$IFDEF STRING_IS_IMMUTABLE}
+  LSB := TIdStringBuilder.Create(Data);
+  for i := 0 to LSB.Length-1 do    // Iterate
+  begin
+    if not CharIsInSet(LSB, i, ValidChars) then begin
+      LSB[i] := '?';    {Do not Localize}
+    end;
+  end;    // for
+  Data := LSB.ToString;
+  {$ELSE}
   for i := 1 to Length(Data) do    // Iterate
   begin
     if not CharIsInSet(Data, i, ValidChars) then begin
       Data[i] := '?';    {Do not Localize}
     end;
   end;    // for
+  {$ENDIF}
 end;
 
 destructor TIdSysLogMessage.Destroy;
@@ -688,11 +702,14 @@ begin
 end;
 
 procedure TIdSysLogMessage.SendToHost(const Dest: String);
+var
+  LEncoding: IIdTextEncoding;
 begin
   if not Assigned(FUDPCliComp) then begin
     FUDPCliComp := TIdUDPClient.Create(Self);
   end;
-  (FUDPCliComp as TIdUDPClient).Send(Dest, IdPORT_syslog, EncodeMessage, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  (FUDPCliComp as TIdUDPClient).Send(Dest, IdPORT_syslog, EncodeMessage, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
 end;
 
 { TIdSysLogMsgPart }

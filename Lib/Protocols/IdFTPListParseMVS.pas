@@ -262,7 +262,7 @@ begin
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AItem.Data, s);
+      SplitDelimitedString(AItem.Data, s, True);
       if s.Count > 0 then begin
         LI.Volume := s[0];
       end;
@@ -316,9 +316,9 @@ begin
       FreeAndNil(s);
     end;
   end;
-  //Note that spaces are illegal in MVS file names (Data set namess)
+  //Note that spaces are illegal in MVS file names (Data set names)
   //http://www.snee.com/bob/opsys/part6mvs.pdf
-  //but for filenames enclosed in '', we should tolorate spaces.
+  //but for filenames enclosed in '', we should tolerate spaces.
   if (AItem.Data <> '') and (TextEndsWith(AItem.Data, '''')) then
   begin
     i := IndyPos('''', AItem.Data)+1;
@@ -444,7 +444,7 @@ begin
   AItem.SizeAvail := False;
   s := TStringList.Create;
   try
-    SplitColumns(AItem.Data, s);
+    SplitDelimitedString(AItem.Data, s, True);
     if s.Count > 0 then
     begin
       AItem.FileName := s[0];
@@ -479,7 +479,7 @@ begin
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0], s);
+      SplitDelimitedString(AListing[0], s, True);
       Result := (s.Count > 2) and (PosInStrArray(Trim(s[2]), MVS_JES_Status) > -1);
       if Result and (s.Count > 3) then begin
         Result := IsNumeric(s[3]) or CharEquals(s[3], 1, '-');

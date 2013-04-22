@@ -55,10 +55,15 @@
 unit IdThreadSafe;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //we need to put this in Delphi mode to work
+
 uses
   Classes,
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   IdGlobal;
 
 type
@@ -188,25 +193,45 @@ type
   end;
 
   //TODO: Later make this descend from TIdThreadSafe instead
+  {$IFDEF HAS_GENERICS_TThreadList}
+  TIdThreadSafeList<T> = class(TThreadList<T>)
+  {$ELSE}
   TIdThreadSafeList = class(TThreadList)
-  private
-    FOwnsObjects: Boolean;
+  {$ENDIF}
   public
-    procedure Assign(AThreadList: TThreadList);overload;
-    procedure Assign(AList: TList);overload;
+    procedure Assign(AThreadList: TThreadList{$IFDEF HAS_GENERICS_TThreadList}<T>{$ENDIF});overload;
+    procedure Assign(AList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF});overload;
     // Here to make it virtual
     constructor Create; virtual;
-    destructor Destroy; override;
     function IsCountLessThan(const AValue: Cardinal): Boolean;
     function Count:Integer;
     function IsEmpty: Boolean;
-    function Pop: TObject;
-    function Pull: TObject;
+    function Pop: {$IFDEF HAS_GENERICS_TThreadList}T{$ELSE}Pointer{$ENDIF};
+    function Pull: {$IFDEF HAS_GENERICS_TThreadList}T{$ELSE}Pointer{$ENDIF};
+  end;
+
+  {$IFDEF HAS_GENERICS_TObjectList}
+  TIdThreadSafeObjectList<T: class> = class(TIdThreadSafeList<T>)
+  {$ELSE}
+  TIdThreadSafeObjectList = class(TIdThreadSafeList)
+  {$ENDIF}
+  {$IFNDEF USE_OBJECT_ARC}
+  private
+    FOwnsObjects: Boolean;
+  {$ENDIF}
+  public
+    {$IFNDEF USE_OBJECT_ARC}
+    constructor Create; override;
+    destructor Destroy; override;
+    {$ENDIF}
     procedure ClearAndFree;
-    property OwnsObjects:Boolean read FOwnsObjects write FOwnsObjects;
-  End;
+    {$IFNDEF USE_OBJECT_ARC}
+    property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
+    {$ENDIF}
+  end;
 
 implementation
+
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
@@ -246,101 +271,140 @@ end;
 
 function TIdThreadSafeInteger.Decrement: Integer;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Dec(FValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInteger.Decrement(const AValue: Integer): Integer;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Dec(FValue,AValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInteger.GetValue: Integer;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInteger.Increment: Integer;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Inc(FValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInteger.Increment(const AValue: Integer): Integer;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Inc(FValue,AValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeInteger.SetValue(const AValue: Integer);
 begin
-  Lock; try
+  Lock;
+  try
     FValue := AValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 { TIdThreadSafeString }
 
 procedure TIdThreadSafeString.Append(const AValue: string);
 begin
-  Lock; try
+  Lock;
+  try
     FValue := FValue + AValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeString.GetValue: string;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeString.Prepend(const AValue: string);
 begin
-  Lock; try
+  Lock;
+  try
     FValue := AValue + FValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeString.SetValue(const AValue: string);
 begin
-  Lock; try
+  Lock;
+  try
     FValue := AValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 { TIdThreadSafeStringList }
 
 procedure TIdThreadSafeStringList.Add(const AItem: string);
 begin
-  with Lock do try
-    Add(AItem);
-  finally Unlock; end;
+  Lock;
+  try
+    FValue.Add(AItem);
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeStringList.AddObject(const AItem: string; AObject: TObject);
 begin
-  with Lock do try
-    AddObject(AItem, AObject);
-  finally Unlock; end;
+  Lock;
+  try
+    FValue.AddObject(AItem, AObject);
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeStringList.Clear;
 begin
-  with Lock do try
-    Clear;
-  finally Unlock; end;
+  Lock;
+  try
+    FValue.Clear;
+  finally
+    Unlock;
+  end;
 end;
 
 constructor TIdThreadSafeStringList.Create;
@@ -351,24 +415,31 @@ end;
 
 destructor TIdThreadSafeStringList.Destroy;
 begin
-  inherited Lock; try
+  inherited Lock;
+  try
     FreeAndNil(FValue);
-  finally inherited Unlock; end;
+  finally
+    inherited Unlock;
+  end;
   inherited Destroy;
 end;
 
 function TIdThreadSafeStringList.Empty: Boolean;
 begin
-  with Lock do try
-    Result := Count = 0;
+  Lock;
+  try
+    Result := FValue.Count = 0;
   finally Unlock; end;
 end;
 
 function TIdThreadSafeStringList.GetValue(const AName: string): string;
 begin
-  with Lock do try
-    Result := Values[AName];
-  finally Unlock; end;
+  Lock;
+  try
+    Result := FValue.Values[AName];
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeStringList.Lock: TStringList;
@@ -382,31 +453,40 @@ var
   i: Integer;
 begin
   Result := nil;
-  with Lock do try
-    i := IndexOf(AItem);
+  Lock;
+  try
+    i := FValue.IndexOf(AItem);
     if i > -1 then begin
-      Result := Objects[i];
+      Result := FValue.Objects[i];
     end;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeStringList.Remove(const AItem: string);
 var
   i: Integer;
 begin
-  with Lock do try
-    i := IndexOf(AItem);
+  Lock;
+  try
+    i := FValue.IndexOf(AItem);
     if i > -1 then begin
-      Delete(i);
+      FValue.Delete(i);
     end;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeStringList.SetValue(const AName, AValue: string);
 begin
-  with Lock do try
-    Values[AName] := AValue;
-  finally Unlock; end;
+  Lock;
+  try
+    FValue.Values[AName] := AValue;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeStringList.Unlock;
@@ -418,53 +498,71 @@ end;
 
 function TIdThreadSafeCardinal.Decrement: Cardinal;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Dec(FValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeCardinal.Decrement(const AValue: Cardinal): Cardinal;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Dec(FValue,AValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeCardinal.GetValue: Cardinal;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeCardinal.Increment: Cardinal;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Inc(FValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeCardinal.Increment(const AValue: Cardinal): Cardinal;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Inc(FValue,AValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeCardinal.SetValue(const AValue: Cardinal);
 begin
-  Lock; try
+  Lock;
+  try
     FValue := AValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 { TIdThreadSafeList }
 
-function TIdThreadSafeList.IsCountLessThan(const AValue: Cardinal): Boolean;
+function TIdThreadSafeList{$IFDEF HAS_GENERICS_TThreadList}<T>{$ENDIF}.IsCountLessThan(const AValue: Cardinal): Boolean;
 begin
   if Assigned(Self) then begin
     Result := Cardinal(Count) < AValue;
@@ -473,90 +571,138 @@ begin
   end;
 end;
 
-function TIdThreadSafeList.IsEmpty: Boolean;
+function TIdThreadSafeList{$IFDEF HAS_GENERICS_TThreadList}<T>{$ENDIF}.IsEmpty: Boolean;
 begin
   Result := IsCountLessThan(1);
 end;
 
-function TIdThreadSafeList.Pop: TObject;
+{$IFDEF HAS_GENERICS_TThreadList}
+function TIdThreadSafeList<T>.Pop: T;
+{$ELSE}
+function TIdThreadSafeList.Pop: Pointer;
+{$ENDIF}
+var
+  LList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF};
 begin
-  with LockList do try
-    if Count > 0 then begin
-      Result := Items[Count - 1];
-      Delete(Count - 1);
+  LList := LockList;
+  try
+    if LList.Count > 0 then begin
+      Result := LList.Items[Count - 1];
+      LList.Delete(Count - 1);
     end else begin
-      Result := nil;
+      Result := {$IFDEF HAS_GENERICS_TThreadList}Default(T){$ELSE}nil{$ENDIF};
     end;
-  finally UnlockList; end;
+  finally
+    UnlockList;
+  end;
 end;
 
-function TIdThreadSafeList.Pull: TObject;
+{$IFDEF HAS_GENERICS_TThreadList}
+function TIdThreadSafeList<T>.Pull: T;
+{$ELSE}
+function TIdThreadSafeList.Pull: Pointer;
+{$ENDIF}
+var
+  LList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF};
 begin
-  with LockList do try
-    if Count > 0 then begin
-      Result := Items[0];
-      Delete(0);
+  LList := LockList;
+  try
+    if LList.Count > 0 then begin
+      Result := LList.Items[0];
+      LList.Delete(0);
     end else begin
-      Result := nil;
+      Result := {$IFDEF HAS_GENERICS_TThreadList}Default(T){$ELSE}nil{$ENDIF};
     end;
-  finally UnlockList; end;
+  finally
+    UnlockList;
+  end;
 end;
 
+{$IFDEF HAS_GENERICS_TThreadList}
+procedure TIdThreadSafeList<T>.Assign(AList: TList<T>);
+{$ELSE}
 procedure TIdThreadSafeList.Assign(AList: TList);
+{$ENDIF}
 var
   i: integer;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF};
 begin
-  with LockList do try
-    Clear;
-    Capacity := AList.Capacity;
+  LList := LockList;
+  try
+    LList.Clear;
+    LList.Capacity := AList.Capacity;
     for i := 0 to AList.Count - 1 do begin
-      Add(AList.Items[i]);
+      LList.Add(AList.Items[i]);
     end;
-  finally UnlockList; end;
+  finally
+    UnlockList;
+  end;
 end;
 
+{$IFDEF HAS_GENERICS_TThreadList}
+procedure TIdThreadSafeList<T>.Assign(AThreadList: TThreadList<T>);
+{$ELSE}
 procedure TIdThreadSafeList.Assign(AThreadList: TThreadList);
+{$ENDIF}
 var
-  LList:TList;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF};
 begin
-  LList := AThreadList.LockList; try
+  LList := AThreadList.LockList;
+  try
     Assign(LList);
-  finally AThreadList.UnlockList; end;
+  finally
+    AThreadList.UnlockList;
+  end;
 end;
 
-constructor TIdThreadSafeList.Create;
+constructor TIdThreadSafeList{$IFDEF HAS_GENERICS_TThreadList}<T>{$ENDIF}.Create;
 begin
   inherited Create;
-  OwnsObjects:=False;
 end;
 
-procedure TIdThreadSafeList.ClearAndFree;
+function TIdThreadSafeList{$IFDEF HAS_GENERICS_TThreadList}<T>{$ENDIF}.Count: Integer;
 var
-  LList:TList;
-  i:Integer;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF};
 begin
-  LList := LockList; try
-  for i := 0 to LList.Count-1 do
-    begin
-    TObject(LList[i]).Free;
-    end;
-  LList.Clear;
-  finally UnlockList; end;
+  LList := LockList;
+  try
+    Result := LList.Count;
+  finally
+    UnlockList;
+  end;
 end;
 
-destructor TIdThreadSafeList.Destroy;
+{ TIdThreadSafeObjectList }
+
+{$IFNDEF USE_OBJECT_ARC}
+
+constructor TIdThreadSafeObjectList{$IFDEF HAS_GENERICS_TObjectList}<T>{$ENDIF}.Create;
+begin
+  inherited Create;
+  OwnsObjects := False;
+end;
+
+destructor TIdThreadSafeObjectList{$IFDEF HAS_GENERICS_TObjectList}<T>{$ENDIF}.Destroy;
 begin
   if OwnsObjects then ClearAndFree;
   inherited;
 end;
 
-function TIdThreadSafeList.Count: Integer;
+{$ENDIF}
+
+procedure TIdThreadSafeObjectList{$IFDEF HAS_GENERICS_TObjectList}<T>{$ENDIF}.ClearAndFree;
 var
-  aList: TList;
+  LList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF};
+  i: Integer;
 begin
-  aList := LockList;
+  LList := LockList;
   try
-    Result := aList.Count;
+    {$IFNDEF USE_OBJECT_ARC}
+    for i := 0 to LList.Count-1 do begin
+      {$IFDEF HAS_GENERICS_TList}LList[i]{$ELSE}TObject(LList[i]){$ENDIF}.Free;
+    end;
+    {$ENDIF}
+    LList.Clear;
   finally
     UnlockList;
   end;
@@ -566,24 +712,33 @@ end;
 
 function TIdThreadSafeBoolean.GetValue: Boolean;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeBoolean.SetValue(const AValue: Boolean);
 begin
-  Lock; try
+  Lock;
+  try
     FValue := AValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeBoolean.Toggle: Boolean;
 begin
-  Lock; try
+  Lock;
+  try
     FValue := not FValue;
     Result := FValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 { TIdThreadSafeDateTime }
@@ -674,41 +829,56 @@ end;
 
 function TIdThreadSafeInt64.Decrement(const AValue: Int64): Int64;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Dec(FValue,AValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInt64.Decrement: Int64;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Dec(FValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInt64.GetValue: Int64;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInt64.Increment(const AValue: Int64): Int64;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Inc(FValue,AValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 function TIdThreadSafeInt64.Increment: Int64;
 begin
-  Lock; try
+  Lock;
+  try
     Result := FValue;
     Inc(FValue);
-  finally Unlock; end;
+  finally
+    Unlock;
+  end;
 end;
 
 procedure TIdThreadSafeInt64.SetValue(const AValue: Int64);

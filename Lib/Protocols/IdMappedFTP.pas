@@ -110,7 +110,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdContextThreadList = nil
       ); override;
     property FtpCommand: string read FFtpCommand write FFtpCommand;
     property FtpParams: string read FFtpParams write FFtpParams;
@@ -187,7 +187,7 @@ end;
 
 { TIdMappedFtpContext }
 
-constructor TIdMappedFtpContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
+constructor TIdMappedFtpContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FHost := '';    {Do not Localize}
@@ -238,6 +238,7 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
   var
     LLo, LHi: Integer;
     LParm: string;
+    LDataChannel: TIdTCPClient;
   begin
     //1.setup local
     LParm := FtpParams;
@@ -253,11 +254,9 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
     CreateDataChannelThread;
     DataChannelThread.FConnection := TIdTCPClient.Create(nil);
 
-    with TIdTcpClient(DataChannelThread.FConnection) do
-    begin
-      Host := Self.Host;
-      Port := Self.Port;
-    end;
+    LDataChannel := TIdTCPClient(DataChannelThread.FConnection);
+    LDataChannel.Host := Host;
+    LDataChannel.Port := Port;
 
     //2.setup remote (mapped)
     ProcessOutboundDc(False);
@@ -269,6 +268,7 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
   procedure ParsePasv;
   var
     LParm: string;
+    LDataChannel: TIdSimpleServer;
   begin
     //1.setup local
     Host := Connection.Socket.Binding.IP;
@@ -276,14 +276,12 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
     CreateDataChannelThread;
     DataChannelThread.FConnection := TIdSimpleServer.Create(nil);
 
-    with TIdSimpleServer(DataChannelThread.FConnection) do
-    begin
-      BoundIP := Self.Host;
-      BoundPort := Self.Port;
-      BeginListen;
-      Self.Host := Binding.IP;
-      Self.Port := Binding.Port;
-    end;
+    LDataChannel := TIdSimpleServer(DataChannelThread.FConnection);
+    LDataChannel.BoundIP := Self.Host;
+    LDataChannel.BoundPort := Self.Port;
+    LDataChannel.BeginListen;
+    Host := LDataChannel.Binding.IP;
+    Port := LDataChannel.Binding.Port;
 
     LParm := StringReplace(Host, '.', ',',[rfReplaceAll]);    {Do not Localize}
     LParm := LParm + ',' + IntToStr(Port div 256) + ',' + IntToStr(Port mod 256);    {Do not Localize}
@@ -315,19 +313,19 @@ var
   Mode: TIdMappedFtpOutboundDcMode;
 
   procedure SendPort;
+  var
+    LDataChannel: TIdSimpleServer;
   begin
     OutboundHost := OutboundClient.Socket.Binding.IP;
 
     DataChannelThread.FOutboundClient := TIdSimpleServer.Create(nil);
 
-    with TIdSimpleServer(DataChannelThread.FOutboundClient) do
-    begin
-      BoundIP := Self.OutboundHost;
-      BoundPort := Self.OutboundPort;
-      BeginListen;
-      Self.OutboundHost := Binding.IP;
-      Self.OutboundPort := Binding.Port;
-    end;
+    LDataChannel := TIdSimpleServer(DataChannelThread.FOutboundClient);
+    LDataChannel.BoundIP := Self.OutboundHost;
+    LDataChannel.BoundPort := Self.OutboundPort;
+    LDataChannel.BeginListen;
+    OutboundHost := LDataChannel.Binding.IP;
+    OutboundPort := LDataChannel.Binding.Port;
 
     OutboundClient.SendCmd('PORT ' + StringReplace(OutboundHost, '.', ',',[rfReplaceAll])+    {Do not Localize}
       ',' + IntToStr(OutboundPort div 256) + ',' +    {Do not Localize}
@@ -338,6 +336,7 @@ var
   var
     i, bLeft, bRight: integer;
     s: string;
+    LDataChannel: TIdTCPClient;
   begin
     OutboundClient.SendCmd('PASV', 227);    {Do not Localize}
     s := Trim(OutboundClient.LastCmdResult.Text[0]);
@@ -369,11 +368,9 @@ var
 
     DataChannelThread.FOutboundClient := TIdTCPClient.Create(nil);
 
-    with TIdTCPClient(DataChannelThread.FOutboundClient) do
-    begin
-      Host := Self.OutboundHost;
-      Port := Self.OutboundPort;
-    end;
+    LDataChannel := TIdTCPClient(DataChannelThread.FOutboundClient);
+    LDataChannel.Host := OutboundHost;
+    LDataChannel.Port := OutboundPort;
   end;
 
 begin
@@ -465,35 +462,33 @@ begin
     try
       LConnectionHandle := (Connection.IOHandler as TIdIOHandlerSocket).Binding.Handle;
       LOutBoundHandle := (FOutboundClient.IOHandler as TIdIOHandlerSocket).Binding.Handle;
-      with FReadList do
-      begin
-        Clear;
-        Add(LConnectionHandle);
-        Add(LOutBoundHandle);
 
-        if FReadList.SelectRead(IdTimeoutInfinite) then
+      FReadList.Clear;
+      FReadList.Add(LConnectionHandle);
+      FReadList.Add(LOutBoundHandle);
+
+      if FReadList.SelectRead(IdTimeoutInfinite) then
+      begin
+        if FReadList.ContainsSocket(LConnectionHandle) then
         begin
-          if ContainsSocket(LConnectionHandle) then
+          Connection.IOHandler.CheckForDataOnSource(0);
+          SetLength(FNetData, 0);
+          Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
+          if Length(FNetData) > 0 then
           begin
-            Connection.IOHandler.CheckForDataOnSource(0);
-            SetLength(FNetData, 0);
-            Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
-            if Length(FNetData) > 0 then
-            begin
-              // TODO: DoLocalClientData(TIdMappedPortThread(AThread));//bServer
-              FOutboundClient.IOHandler.Write(FNetData);
-            end;
+            // TODO: DoLocalClientData(TIdMappedPortThread(AThread));//bServer
+            FOutboundClient.IOHandler.Write(FNetData);
           end;
-          if ContainsSocket(LOutBoundHandle) then
+        end;
+        if FReadList.ContainsSocket(LOutBoundHandle) then
+        begin
+          Connection.IOHandler.CheckForDataOnSource(0);
+          SetLength(FNetData, 0);
+          FOutboundClient.IOHandler.InputBuffer.ExtractToBytes(FNetData);
+          if Length(FNetData) > 0 then
           begin
-            Connection.IOHandler.CheckForDataOnSource(0);
-            SetLength(FNetData, 0);
-            FOutboundClient.IOHandler.InputBuffer.ExtractToBytes(FNetData);
-            if Length(FNetData) > 0 then
-            begin
-              // TODO: DoOutboundClientData(TIdMappedPortThread(AThread));
-              FConnection.IOHandler.Write(FNetData);
-            end;
+            // TODO: DoOutboundClientData(TIdMappedPortThread(AThread));
+            FConnection.IOHandler.Write(FNetData);
           end;
         end;
       end;

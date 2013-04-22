@@ -86,6 +86,7 @@ procedure TIdSystatUDP.GetStat(ADest: TStrings);
 var
   s : String;
   LTimeout : Integer;
+  LEncoding: IIdTextEncoding;
 begin
   //we do things this way so that IdTimeoutInfinite can never be used.
   // Necessary because that will hang the code.
@@ -110,8 +111,9 @@ begin
    datagrams but don't break the information for a user (a line) across
    a datagram.
   }
+  LEncoding := IndyTextEncoding_8Bit;
   repeat
-    s := ReceiveString(LTimeout, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    s := ReceiveString(LTimeout, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
     if s = '' then begin
       Break;
     end;

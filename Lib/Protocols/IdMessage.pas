@@ -788,123 +788,118 @@ begin
   end;
 
   InitializeISO(HeaderEncoding, ISOCharSet);
-  LastGeneratedHeaders.Assign(FHeaders);
+  FLastGeneratedHeaders.Assign(FHeaders);
   FIsMsgSinglePartMime := (Encoding = meMIME) and (MessageParts.Count = 1) and IsBodyEmpty;
 
-  with LastGeneratedHeaders do
+  {CC: If From has no Name field, use the Address field as the Name field by setting last param to True (for SA)...}
+  FLastGeneratedHeaders.Values['From'] := EncodeAddress(FromList, HeaderEncoding, ISOCharSet, True); {do not localize}
+  FLastGeneratedHeaders.Values['Subject'] := EncodeHeader(Subject, '', HeaderEncoding, ISOCharSet); {do not localize}
+  FLastGeneratedHeaders.Values['To'] := EncodeAddress(Recipients, HeaderEncoding, ISOCharSet); {do not localize}
+  FLastGeneratedHeaders.Values['Cc'] := EncodeAddress(CCList, HeaderEncoding, ISOCharSet); {do not localize}
+  {CC: SaveToFile sets FSavingToFile to True so that BCC names are saved
+   when saving to file and omitted otherwise (as required by SMTP)...}
+  if not FSavingToFile then begin
+    FLastGeneratedHeaders.Values['Bcc'] := ''; {do not localize}
+  end else begin
+    FLastGeneratedHeaders.Values['Bcc'] := EncodeAddress(BCCList, HeaderEncoding, ISOCharSet); {do not localize}
+  end;
+  FLastGeneratedHeaders.Values['Newsgroups'] := NewsGroups.CommaText; {do not localize}
+
+  if Encoding = meMIME then
   begin
-    {CC: If From has no Name field, use the Address field as the Name field by setting last param to True (for SA)...}
-    Values['From'] := EncodeAddress(FromList, HeaderEncoding, ISOCharSet, True); {do not localize}
-    Values['Subject'] := EncodeHeader(Subject, '', HeaderEncoding, ISOCharSet); {do not localize}
-    Values['To'] := EncodeAddress(Recipients, HeaderEncoding, ISOCharSet); {do not localize}
-    Values['Cc'] := EncodeAddress(CCList, HeaderEncoding, ISOCharSet); {do not localize}
-    {CC: SaveToFile sets FSavingToFile to True so that BCC names are saved
-     when saving to file and omitted otherwise (as required by SMTP)...}
-    if not FSavingToFile then begin
-      Values['Bcc'] := ''; {do not localize}
+    if IsMsgSinglePartMime then begin
+      {This is a single-part MIME: the part may be a text part or an attachment.
+      The relevant headers need to be taken from MessageParts[0].  The problem,
+      however, is that we have not yet processed MessageParts[0] yet, so we do
+      not have its properties or header content properly set up.  So we will
+      let the processing of MessageParts[0] append its headers to the message
+      headers, i.e. DON'T generate Content-Type or Content-Transfer-Encoding
+      headers here.}
+      FLastGeneratedHeaders.Values['MIME-Version'] := '1.0'; {do not localize}
+
+      {RLebeau: need to wipe out the following headers if they were present,
+      otherwise MessageParts[0] will duplicate them instead of replacing them.
+      This is because LastGeneratedHeaders is sent before MessageParts[0] is
+      processed.}
+      FLastGeneratedHeaders.Values['Content-Type'] := '';
+      FLastGeneratedHeaders.Values['Content-Transfer-Encoding'] := '';
+      FLastGeneratedHeaders.Values['Content-Disposition'] := '';
     end else begin
-      Values['Bcc'] := EncodeAddress(BCCList, HeaderEncoding, ISOCharSet); {do not localize}
-    end;
-    Values['Newsgroups'] := NewsGroups.CommaText; {do not localize}
-
-    // RLebeau: Delphi XE introduces a new TStrings.Encoding property,
-    // so we have to qualify which Encoding property to access here...
-    if Self.Encoding = meMIME then
-    begin
-      if IsMsgSinglePartMime then begin
-        {This is a single-part MIME: the part may be a text part or an attachment.
-        The relevant headers need to be taken from MessageParts[0].  The problem,
-        however, is that we have not yet processed MessageParts[0] yet, so we do
-        not have its properties or header content properly set up.  So we will
-        let the processing of MessageParts[0] append its headers to the message
-        headers, i.e. DON'T generate Content-Type or Content-Transfer-Encoding
-        headers here.}
-        Values['MIME-Version'] := '1.0'; {do not localize}
-
-        {RLebeau: need to wipe out the following headers if they were present,
-        otherwise MessageParts[0] will duplicate them instead of replacing them.
-        This is because LastGeneratedHeaders is sent before MessageParts[0] is
-        processed.}
-        Values['Content-Type'] := '';
-        Values['Content-Transfer-Encoding'] := '';
-        Values['Content-Disposition'] := '';
-      end else begin
-        if FContentType <> '' then begin
-          LCharSet := FCharSet;
-          if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
-            LCharSet := 'us-ascii';  {do not localize}
-          end;
-          Values['Content-Type'] := FContentType;  {do not localize}
-          Params['Content-Type', 'charset'] := LCharSet;  {do not localize}
-          if (MessageParts.Count > 0) and (LMIMEBoundary <> '') then begin
-            Params['Content-Type', 'boundary'] := LMIMEBoundary;  {do not localize}
-          end;
+      if FContentType <> '' then begin
+        LCharSet := FCharSet;
+        if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
+          LCharSet := 'us-ascii';  {do not localize}
         end;
-        {CC2: We may have MIME with no parts if ConvertPreamble is True}
-        Values['MIME-Version'] := '1.0'; {do not localize}
-        Values['Content-Transfer-Encoding'] := ContentTransferEncoding; {do not localize}
+        FLastGeneratedHeaders.Values['Content-Type'] := FContentType;  {do not localize}
+        FLastGeneratedHeaders.Params['Content-Type', 'charset'] := LCharSet;  {do not localize}
+        if (MessageParts.Count > 0) and (LMIMEBoundary <> '') then begin
+          FLastGeneratedHeaders.Params['Content-Type', 'boundary'] := LMIMEBoundary;  {do not localize}
+        end;
       end;
+      {CC2: We may have MIME with no parts if ConvertPreamble is True}
+      FLastGeneratedHeaders.Values['MIME-Version'] := '1.0'; {do not localize}
+      FLastGeneratedHeaders.Values['Content-Transfer-Encoding'] := ContentTransferEncoding; {do not localize}
+    end;
+  end else begin
+    //CC: non-MIME can have ContentTransferEncoding of base64, quoted-printable...
+    LCharSet := FCharSet;
+    if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
+      LCharSet := 'us-ascii';  {do not localize}
+    end;
+    FLastGeneratedHeaders.Values['Content-Type'] := FContentType;  {do not localize}
+    FLastGeneratedHeaders.Params['Content-Type', 'charset'] := LCharSet;  {do not localize}
+    FLastGeneratedHeaders.Values['Content-Transfer-Encoding'] := ContentTransferEncoding; {do not localize}
+  end;
+  FLastGeneratedHeaders.Values['Sender'] := Sender.Text; {do not localize}
+  FLastGeneratedHeaders.Values['Reply-To'] := EncodeAddress(ReplyTo, HeaderEncoding, ISOCharSet); {do not localize}
+  FLastGeneratedHeaders.Values['Organization'] := EncodeHeader(Organization, '', HeaderEncoding, ISOCharSet); {do not localize}
+
+  LReceiptRecipient := EncodeAddressItem(ReceiptRecipient, HeaderEncoding, ISOCharSet);
+  FLastGeneratedHeaders.Values['Disposition-Notification-To'] := LReceiptRecipient; {do not localize}
+  FLastGeneratedHeaders.Values['Return-Receipt-To'] := LReceiptRecipient; {do not localize}
+
+  FLastGeneratedHeaders.Values['References'] := References; {do not localize}
+
+  if UseNowForDate then begin
+    LDate := Now;
+  end else begin
+    LDate := Self.Date;
+  end;
+  FLastGeneratedHeaders.Values['Date'] := LocalDateTimeToGMT(LDate); {do not localize}
+
+  // S.G. 27/1/2003: Only issue X-Priority header if priority <> mpNormal (for stoopid spam filters)
+  if Priority <> mpNormal then begin
+    FLastGeneratedHeaders.Values['Priority'] := cPriorityStrs[Priority]; {do not localize}
+    FLastGeneratedHeaders.Values['X-Priority'] := IntToStr(Ord(Priority) + 1) {do not localize}
+  end else begin
+    FLastGeneratedHeaders.Values['Priority'] := '';    {do not localize}
+    FLastGeneratedHeaders.Values['X-Priority'] := '';    {do not localize}
+  end;
+
+  {CC: SaveToFile sets FSavingToFile to True so that Message IDs
+  are saved when saving to file and omitted otherwise ...}
+  if not FSavingToFile then begin
+    FLastGeneratedHeaders.Values['Message-Id'] := '';
+  end else begin
+    FLastGeneratedHeaders.Values['Message-Id'] := MsgId;
+  end;
+
+  // Add extra headers created by UA - allows duplicates
+  if (FExtraHeaders.Count > 0) then begin
+    FLastGeneratedHeaders.AddStrings(FExtraHeaders);
+  end;
+
+  {Generate In-Reply-To if at all possible to pacify SA.  Do this after FExtraHeaders
+   added in case there is a message-ID present as an extra header.}
+  if InReplyTo = '' then begin
+    if FLastGeneratedHeaders.Values['Message-ID'] <> '' then begin  {do not localize}
+      FLastGeneratedHeaders.Values['In-Reply-To'] := FLastGeneratedHeaders.Values['Message-ID'];  {do not localize}
     end else begin
-      //CC: non-MIME can have ContentTransferEncoding of base64, quoted-printable...
-      LCharSet := FCharSet;
-      if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
-        LCharSet := 'us-ascii';  {do not localize}
-      end;
-      Values['Content-Type'] := FContentType;  {do not localize}
-      Params['Content-Type', 'charset'] := LCharSet;  {do not localize}
-      Values['Content-Transfer-Encoding'] := ContentTransferEncoding; {do not localize}
+      {CC: The following was originally present, but it so wrong that it has to go!
+      Values['In-Reply-To'] := Subject;   {do not localize}
     end;
-    Values['Sender'] := Sender.Text; {do not localize}
-    Values['Reply-To'] := EncodeAddress(ReplyTo, HeaderEncoding, ISOCharSet); {do not localize}
-    Values['Organization'] := EncodeHeader(Organization, '', HeaderEncoding, ISOCharSet); {do not localize}
-
-    LReceiptRecipient := EncodeAddressItem(ReceiptRecipient, HeaderEncoding, ISOCharSet);
-    Values['Disposition-Notification-To'] := LReceiptRecipient; {do not localize}
-    Values['Return-Receipt-To'] := LReceiptRecipient; {do not localize}
-
-    Values['References'] := References; {do not localize}
-
-    if UseNowForDate then begin
-      LDate := Now;
-    end else begin
-      LDate := Self.Date;
-    end;
-    Values['Date'] := LocalDateTimeToGMT(LDate); {do not localize}
-
-    // S.G. 27/1/2003: Only issue X-Priority header if priority <> mpNormal (for stoopid spam filters)
-    if Priority <> mpNormal then begin
-      Values['Priority'] := cPriorityStrs[Priority]; {do not localize}
-      Values['X-Priority'] := IntToStr(Ord(Priority) + 1) {do not localize}
-    end else begin
-      Values['Priority'] := '';    {do not localize}
-      Values['X-Priority'] := '';    {do not localize}
-    end;
-
-    {CC: SaveToFile sets FSavingToFile to True so that Message IDs
-    are saved when saving to file and omitted otherwise ...}
-    if not FSavingToFile then begin
-      Values['Message-Id'] := '';
-    end else begin
-      Values['Message-Id'] := MsgId;
-    end;
-
-    // Add extra headers created by UA - allows duplicates
-    if (FExtraHeaders.Count > 0) then begin
-      AddStrings(FExtraHeaders);
-    end;
-
-    {Generate In-Reply-To if at all possible to pacify SA.  Do this after FExtraHeaders
-     added in case there is a message-ID present as an extra header.}
-    if InReplyTo = '' then begin
-      if Values['Message-ID'] <> '' then begin  {do not localize}
-        Values['In-Reply-To'] := Values['Message-ID'];  {do not localize}
-      end else begin
-        {CC: The following was originally present, but it so wrong that it has to go!
-        Values['In-Reply-To'] := Subject;   {do not localize}
-      end;
-    end else begin
-      Values['In-Reply-To'] := InReplyTo; {do not localize}
-    end;
+  end else begin
+    FLastGeneratedHeaders.Values['In-Reply-To'] := InReplyTo; {do not localize}
   end;
 end;
 
@@ -1188,12 +1183,17 @@ begin
 end;
 
 procedure TIdMessage.LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False);
+var
+  LMsgClient: TIdMessageClient;
 begin
   // clear message properties, headers before loading
   Clear;
-  with TIdMessageClient.Create do try
-    ProcessMessage(Self, AStream, AHeadersOnly);
-  finally Free; end;
+  LMsgClient := TIdMessageClient.Create;
+  try
+    LMsgClient.ProcessMessage(Self, AStream, AHeadersOnly);
+  finally
+    LMsgClient.Free;
+  end;
 end;
 
 procedure TIdMessage.SaveToFile(const AFileName: string; const AHeadersOnly: Boolean = False);

@@ -262,10 +262,13 @@ end;
 procedure TIdLPR.Print(const AText: String);
 var
   LStream: TStream;
+  LEncoding: IIdTextEncoding;
 begin
   LStream := TMemoryStream.Create;
   try
-    WriteStringToStream(LStream, AText, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    LEncoding := IndyTextEncoding_8Bit;
+    WriteStringToStream(LStream, AText, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    LEncoding := nil;
     LStream.Position := 0;
     InternalPrint(LStream);
   finally
@@ -380,99 +383,96 @@ var
 begin
   Data := '';    {Do not Localize}
   try
-    with ControlFile do
-    begin
-      // H - Host name
-      Data := Data + 'H' + HostName + LF;    {Do not Localize}
-      // P - User identification
-      Data := Data + 'P' + UserName + LF;    {Do not Localize}
-      // J - Job name for banner page
-      if Length(JobName) > 0 then begin
-        Data := Data + 'J' + JobName + LF;    {Do not Localize}
-      end else begin
-        Data := Data + 'JcfA' + JobId + HostName + LF;    {Do not Localize}
-      end;
-      //mail when printed
-      if FMailWhenPrinted then begin
-        Data := Data + 'M' + UserName + LF;    {Do not Localize}
-      end;
-      case FFileFormat of
-         ffCIF : // CalTech Intermediate Form
-         begin
-           Data := Data + 'cdfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffDVI : //   DVI (TeX output).
-         begin
-           Data := Data + 'ddfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffFormattedText : //add formatting as needed to text file
-         begin
-           Data := Data + 'fdfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffPlot : //   Berkeley Unix plot library
-         begin
-           Data := Data + 'gdfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffControlCharText : //text file with control charactors
-         begin
-           Data := Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffDitroff : // ditroff output
-         begin
-           Data := Data + 'ndfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffPostScript : //Postscript output file
-         begin
-           Data := Data + 'odfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffPR : //'pr' format    {Do not Localize}
-         begin
-           Data := Data + 'pdfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffFORTRAM : // FORTRAN carriage control
-         begin
-           Data := Data + 'rdfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffTroff : //Troff output
-         begin
-           Data := Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
-         end;
-         ffSunRaster : //  Sun raster format file
-         begin
-         end;
-      end;
-      // U - Unlink data file
-      Data := Data + 'UdfA' + JobId + HostName + LF;    {Do not Localize}
+    // H - Host name
+    Data := Data + 'H' + FControlFile.HostName + LF;    {Do not Localize}
+    // P - User identification
+    Data := Data + 'P' + FControlFile.UserName + LF;    {Do not Localize}
+    // J - Job name for banner page
+    if Length(FControlFile.JobName) > 0 then begin
+      Data := Data + 'J' + FControlFile.JobName + LF;    {Do not Localize}
+    end else begin
+      Data := Data + 'JcfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+    end;
+    //mail when printed
+    if FControlFile.FMailWhenPrinted then begin
+      Data := Data + 'M' + FControlFile.UserName + LF;    {Do not Localize}
+    end;
+    case FControlFile.FFileFormat of
+       ffCIF : // CalTech Intermediate Form
+       begin
+         Data := Data + 'cdfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffDVI : //   DVI (TeX output).
+       begin
+         Data := Data + 'ddfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffFormattedText : //add formatting as needed to text file
+       begin
+         Data := Data + 'fdfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffPlot : //   Berkeley Unix plot library
+       begin
+         Data := Data + 'gdfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffControlCharText : //text file with control charactors
+       begin
+         Data := Data + 'ldfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffDitroff : // ditroff output
+       begin
+         Data := Data + 'ndfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffPostScript : //Postscript output file
+       begin
+         Data := Data + 'odfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffPR : //'pr' format    {Do not Localize}
+       begin
+         Data := Data + 'pdfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffFORTRAM : // FORTRAN carriage control
+       begin
+         Data := Data + 'rdfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffTroff : //Troff output
+       begin
+         Data := Data + 'ldfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
+       end;
+       ffSunRaster : //  Sun raster format file
+       begin
+       end;
+    end;
+    // U - Unlink data file
+    Data := Data + 'UdfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
 
-      // N - Name of source file
-      Data := Data + 'NcfA' + JobId + HostName + LF;    {Do not Localize}
+    // N - Name of source file
+    Data := Data + 'NcfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
 
-      if FFileFormat = ffFormattedText then begin
-        if IndentCount > 0 then begin
-          Data := Data + 'I' + IntToStr(IndentCount) + LF;    {Do not Localize}
-        end;
-        if OutputWidth > 0 then begin
-          Data := Data + 'W' + IntToStr(OutputWidth) + LF;    {Do not Localize}
-        end;
+    if FControlFile.FFileFormat = ffFormattedText then begin
+      if FControlFile.IndentCount > 0 then begin
+        Data := Data + 'I' + IntToStr(FControlFile.IndentCount) + LF;    {Do not Localize}
       end;
-      if Length(BannerClass) > 0 then begin
-        Data := Data + 'C' + BannerClass + LF;    {Do not Localize}
+      if FControlFile.OutputWidth > 0 then begin
+        Data := Data + 'W' + IntToStr(FControlFile.OutputWidth) + LF;    {Do not Localize}
       end;
-      if BannerPage then begin
-        Data := Data + 'L' + UserName + LF;    {Do not Localize}
-      end;
-      if Length(TroffRomanFont) > 0 then begin
-        Data := Data + '1' + TroffRomanFont + LF;    {Do not Localize}
-      end;
-      if Length(TroffItalicFont) > 0 then begin
-        Data := Data + '2' + TroffItalicFont + LF;    {Do not Localize}
-      end;
-      if Length(TroffBoldFont) > 0 then begin
-        Data:=Data + '3' + TroffBoldFont + LF;    {Do not Localize}
-      end;
-      if Length(TroffSpecialFont) > 0 then begin
-        Data := Data + '4' + TroffSpecialFont + LF;    {Do not Localize}
-      end;
+    end;
+    if Length(FControlFile.BannerClass) > 0 then begin
+      Data := Data + 'C' + FControlFile.BannerClass + LF;    {Do not Localize}
+    end;
+    if FControlFile.BannerPage then begin
+      Data := Data + 'L' + FControlFile.UserName + LF;    {Do not Localize}
+    end;
+    if Length(FControlFile.TroffRomanFont) > 0 then begin
+      Data := Data + '1' + FControlFile.TroffRomanFont + LF;    {Do not Localize}
+    end;
+    if Length(FControlFile.TroffItalicFont) > 0 then begin
+      Data := Data + '2' + FControlFile.TroffItalicFont + LF;    {Do not Localize}
+    end;
+    if Length(FControlFile.TroffBoldFont) > 0 then begin
+      Data := Data + '3' + FControlFile.TroffBoldFont + LF;    {Do not Localize}
+    end;
+    if Length(FControlFile.TroffSpecialFont) > 0 then begin
+      Data := Data + '4' + FControlFile.TroffSpecialFont + LF;    {Do not Localize}
     end;
     Result := Data;
   except

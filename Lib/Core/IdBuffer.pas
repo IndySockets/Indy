@@ -300,9 +300,9 @@ type
     function GetAsString: string;
   protected
     FBytes: TIdBytes;
-    FByteEncoding: TIdTextEncoding;
+    FByteEncoding: IIdTextEncoding;
     {$IFDEF STRING_IS_ANSI}
-    FAnsiEncoding: TIdTextEncoding;
+    FAnsiEncoding: IIdTextEncoding;
     {$ENDIF}
     FGrowthFactor: Integer;
     FHeadIndex: Integer;
@@ -331,11 +331,11 @@ type
 
     }
     // will extract number of bytes and decode as specified
-    function Extract(AByteCount: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+    function Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToString()'{$ENDIF};{$ENDIF}
-    function ExtractToString(AByteCount: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+    function ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
     // all 3 extract routines append to existing data, if any
     procedure ExtractToStream(const AStream: TStream; AByteCount: Integer = -1; const AIndex: Integer = -1);
@@ -350,8 +350,8 @@ type
     function IndexOf(const AByte: Byte; AStartPos: Integer = 0): Integer; overload;
     function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer; overload;
     function IndexOf(const AString: string; AStartPos: Integer = 0;
-      AByteEncoding: TIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      AByteEncoding: IIdTextEncoding = nil
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ): Integer; overload;
     function PeekByte(AIndex: Integer): Byte;
     procedure Remove(AByteCount: Integer);
@@ -363,9 +363,9 @@ type
         location in a random access manner.
       }
     // Write
-    procedure Write(const AString: string; AByteEncoding: TIdTextEncoding = nil;
+    procedure Write(const AString: string; AByteEncoding: IIdTextEncoding = nil;
       const ADestIndex: Integer = -1
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ); overload;
     procedure Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
     procedure Write(const ABytes: TIdBytes; const ALength, AOffset : Integer; const ADestIndex: Integer = -1); overload;
@@ -384,9 +384,9 @@ type
     // the reference was kept.
     //
     property Capacity: Integer read GetCapacity write SetCapacity;
-    property Encoding: TIdTextEncoding read FByteEncoding write FByteEncoding;
+    property Encoding: IIdTextEncoding read FByteEncoding write FByteEncoding;
     {$IFDEF STRING_IS_ANSI}
-    property AnsiEncoding: TIdTextEncoding read FAnsiEncoding write FAnsiEncoding;
+    property AnsiEncoding: IIdTextEncoding read FAnsiEncoding write FAnsiEncoding;
     {$ENDIF}
     property GrowthFactor: Integer read FGrowthFactor write FGrowthFactor;
     property Size: Integer read FSize;
@@ -463,16 +463,16 @@ begin
   TIdStack.DecUsage;
 end;
 
-function TIdBuffer.Extract(AByteCount: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+function TIdBuffer.Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
   Result := ExtractToString(AByteCount, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
-function TIdBuffer.ExtractToString(AByteCount: Integer = -1; AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: TIdTextEncoding = nil{$ENDIF}
+function TIdBuffer.ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
   LBytes: TIdBytes;
@@ -631,8 +631,8 @@ begin
 end;
 
 function TIdBuffer.IndexOf(const AString: string; AStartPos: Integer = 0;
-  AByteEncoding: TIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  AByteEncoding: IIdTextEncoding = nil
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): Integer;
 begin
   if AByteEncoding = nil then begin
@@ -702,9 +702,9 @@ begin
   end;
 end;
 
-procedure TIdBuffer.Write(const AString: string; AByteEncoding: TIdTextEncoding = nil;
+procedure TIdBuffer.Write(const AString: string; AByteEncoding: IIdTextEncoding = nil;
   const ADestIndex : Integer = -1
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: TIdTextEncoding = nil{$ENDIF}
+  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 begin
   if AByteEncoding = nil then begin

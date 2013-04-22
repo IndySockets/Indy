@@ -140,6 +140,7 @@ end;
 procedure TIdPropEdBinding.Edit;
 var
   pSockets: TIdSocketHandles;
+  pEntry: TIdPropEdBindingEntry;
 begin
   inherited Edit;
 
@@ -155,19 +156,19 @@ begin
   pSockets := GetObjValue as TIdSocketHandles;
   {$ENDIF}
 
-  with TIdPropEdBindingEntry.Create do
+  pEntry := TIdPropEdBindingEntry.Create;
   try
-    Caption := TComponent(GetComponent(0)).Name;
-    DefaultPort := pSockets.DefaultPort;
+    pEntry.Caption := TComponent(GetComponent(0)).Name;
+    pEntry.DefaultPort := pSockets.DefaultPort;
     Value := GetListValues(pSockets);
-    SetList(Value);
-    if Execute then
+    pEntry.SetList(Value);
+    if pEntry.Execute then
     begin
-      Value := GetList;
+      Value := pEntry.GetList;
       FillHandleList(Value, pSockets);
     end;
   finally
-    Free;
+    pEntry.Free;
   end;
 end;
 

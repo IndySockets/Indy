@@ -68,11 +68,17 @@ interface
 {$i IdCompilerDefines.inc}
 
 {$UNDEF NotifyThreadNeeded}
+{$UNDEF TNotify_InternalDoNotify_Needed}
+
 {$IFNDEF HAS_STATIC_TThread_Synchronize}
   {$DEFINE NotifyThreadNeeded}
 {$ENDIF}
 {$IFNDEF HAS_STATIC_TThread_Queue}
   {$DEFINE NotifyThreadNeeded}
+{$ELSE}
+  {$IFNDEF USE_OBJECT_ARC}
+    {$DEFINE TNotify_InternalDoNotify_Needed}
+  {$ENDIF}
 {$ENDIF}
 
 uses
@@ -111,7 +117,7 @@ type
     FMainThreadUsesNotify: Boolean;
     //
     procedure DoNotify; virtual; abstract;
-    {$IFDEF HAS_STATIC_TThread_Queue}
+    {$IFDEF TNotify_InternalDoNotify_Needed}
     procedure InternalDoNotify;
     {$ENDIF}
   public
@@ -143,6 +149,11 @@ uses
   System.Threading,
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF NotifyThreadNeeded}
+    {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+    {$ENDIF}
+  {$ENDIF}
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
   Windows,
@@ -162,10 +173,19 @@ type
   // rely on Indy directly accessing any OS APIs and performance is still more
   // than acceptable, especially considering Notifications are low priority.
 
+  {$IFDEF HAS_GENERICS_TThreadList}
+  TIdNotifyThreadList = TThreadList<TIdNotify>;
+  TIdNotifyList = TList<TIdNotify>;
+  {$ELSE}
+  // TODO: flesh out to match TThreadList<TIdNotify> and TList<TIdNotify> for non-Generics compilers...
+  TIdNotifyThreadList = TThreadList;
+  TIdNotifyList = TList;
+  {$ENDIF}
+
   TIdNotifyThread = class(TIdThread)
   protected
     FEvent: TIdLocalEvent;
-    FNotifications: TThreadList;
+    FNotifications: TIdNotifyThreadList;
   public
     procedure AddNotification(ASync: TIdNotify);
     constructor Create; reintroduce;
@@ -242,27 +262,41 @@ end;
 procedure TIdNotify.Notify;
 begin
   if InMainThread and (not MainThreadUsesNotify) then begin
+    {$IFNDEF USE_OBJECT_ARC}
     try
+    {$ENDIF}
       DoNotify;
+    {$IFNDEF USE_OBJECT_ARC}
     finally
       Free;
     end;
+    {$ENDIF}
   end else begin
+    {$IFNDEF USE_OBJECT_ARC}
     try
+    {$ENDIF}
       {$IFDEF HAS_STATIC_TThread_Queue}
-      TThread.Queue(nil, InternalDoNotify);
+      TThread.Queue(nil,
+        {$IFDEF TNotify_InternalDoNotify_Needed}
+        InternalDoNotify
+        {$ELSE}
+        DoNotify
+        {$ENDIF}
+      );
       {$ELSE}
       CreateNotifyThread;
       GNotifyThread.AddNotification(Self);
       {$ENDIF}
+    {$IFNDEF USE_OBJECT_ARC}
     except
       Free;
       raise;
     end;
+    {$ENDIF}
   end;
 end;
 
-{$IFDEF HAS_STATIC_TThread_Queue}
+{$IFDEF TNotify_InternalDoNotify_Needed}
 procedure TIdNotify.InternalDoNotify;
 begin
   try
@@ -290,11 +324,15 @@ end;
 procedure TIdNotify.WaitFor;
 var
   LNotifyIndex: Integer;
+  LList: TIdNotifyList;
 begin
   repeat
-    with GNotifyThread.FNotifications.LockList do try
-      LNotifyIndex := IndexOf(Self);
-    finally GNotifyThread.FNotifications.UnlockList; end;
+    LList := GNotifyThread.FNotifications.LockList;
+    try
+      LNotifyIndex := LList.IndexOf(Self);
+    finally
+      GNotifyThread.FNotifications.UnlockList;
+    end;
     if LNotifyIndex = -1 then begin
       Break;
     end;
@@ -316,21 +354,34 @@ end;
 constructor TIdNotifyThread.Create;
 begin
   FEvent := TIdLocalEvent.Create;
-  FNotifications := TThreadList.Create;
+  FNotifications := TIdNotifyThreadList.Create;
   // Must be before - Thread starts running when we call inherited
   inherited Create(False, False, 'IdNotify');
 end;
 
 destructor TIdNotifyThread.Destroy;
+var
+  {$IFNDEF USE_OBJECT_ARC}
+  LNotify: TIdNotify;
+  {$ENDIF}
+  LList: TIdNotifyList;
 begin
-  // Free remaining Notifications if thre is somthing that is still in
+  // Free remaining Notifications if there is somthing that is still in
   // the queue after thread was terminated
-  with FNotifications.LockList do try
-    while Count > 0 do begin
-      TIdNotify(Items[0]).Free;
-      Delete(0);
+  LList := FNotifications.LockList;
+  try
+    {$IFDEF USE_OBJECT_ARC}
+    LList.Clear; // Items are auto-freed
+    {$ELSE}
+    while LList.Count > 0 do begin
+      LNotify := {$IFDEF HAS_GENERICS_TList}LList.Items[0]{$ELSE}TIdNotify(LList.Items[0]){$ENDIF};
+      LNotify.Free;
+      LList.Delete(0);
     end;
-  finally FNotifications.UnlockList; end;
+    {$ENDIF}
+  finally
+    FNotifications.UnlockList;
+  end;
   FreeAndNil(FNotifications);
   FreeAndNil(FEvent);
   inherited Destroy;
@@ -351,7 +402,7 @@ procedure TIdNotifyThread.Run;
 // NOTE: Be VERY careful with making changes to this proc. It is VERY delicate and the order
 // of execution is very important. Small changes can have drastic effects
 var
-  LNotifications: TList;
+  LNotifications: TIdNotifyList;
   LNotify: TIdNotify;
 begin
   FEvent.WaitForEver;
@@ -363,7 +414,7 @@ begin
         if LNotifications.Count = 0 then begin
           Break;
         end;
-        LNotify := TIdNotify(LNotifications.Items[0]);
+        LNotify := {$IFDEF HAS_GENERICS_TList}LNotifications.Items[0]{$ELSE}TIdNotify(LNotifications.Items[0]){$ENDIF};
         LNotifications.Delete(0);
       finally
         FNotifications.UnlockList;

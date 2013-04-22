@@ -114,20 +114,19 @@ uses
 
 { TIdMessageDecoderInfoUUE }
 
-function TIdMessageDecoderInfoUUE.CheckForStart(ASender: TIdMessage;
- const ALine: string): TIdMessageDecoder;
+function TIdMessageDecoderInfoUUE.CheckForStart(ASender: TIdMessage; const ALine: string): TIdMessageDecoder;
 var
   LPermissionCode: integer;
+  LUUE: TIdMessageDecoderUUE;
 begin
   Result := nil;
   if TextStartsWith(ALine, 'begin ') and CharEquals(ALine, 10, ' ') then begin {Do not Localize}
-  LPermissionCode := IndyStrToInt(Copy(ALine, 7, 3), 0);
+    LPermissionCode := IndyStrToInt(Copy(ALine, 7, 3), 0);
     if LPermissionCode > 0 then begin
-      Result := TIdMessageDecoderUUE.Create(ASender);
-      with TIdMessageDecoderUUE(Result) do begin
-        FFilename := Copy(ALine, 11, MaxInt);
-        FPartType := mcptAttachment;
-      end;
+      LUUE := TIdMessageDecoderUUE.Create(ASender);
+      LUUE.FFilename := Copy(ALine, 11, MaxInt);
+      LUUE.FPartType := mcptAttachment;
+      Result := LUUE;
     end;
   end;
 end;
@@ -139,10 +138,12 @@ var
   LDecoder: TIdDecoder4to3;
   LLine: string;
   LMsgEnd: Boolean;
+  LEncoding: IIdTextEncoding;
 begin
-  AMsgEnd := False;
   Result := nil;
-  LLine := ReadLnRFC(LMsgEnd, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  AMsgEnd := False;
+  LEncoding := IndyTextEncoding_8Bit;
+  LLine := ReadLnRFC(LMsgEnd, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   if LMsgEnd then begin
     Exit;
   end;
@@ -178,7 +179,7 @@ begin
         end else begin
           LDecoder.Decode(LLine);
         end;
-        LLine := ReadLnRFC(LMsgEnd, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+        LLine := ReadLnRFC(LMsgEnd, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
       until TextIsSame(Trim(LLine), 'end') or LMsgEnd;    {Do not Localize}
       LDecoder.DecodeEnd;
     end;
@@ -208,7 +209,7 @@ begin
       LEncoder.Encode(ASrc, ADest, 45);
       WriteStringToStream(ADest, EOL);
     end;
-    WriteStringToStream(ADest, LEncoder.FillChar + EOL + 'end' + EOL); {Do not Localize}
+    WriteStringToStream(ADest, String(LEncoder.FillChar) + EOL + 'end' + EOL); {Do not Localize}
   finally FreeAndNil(LEncoder); end;
 end;
 

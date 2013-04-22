@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   SysUtils, //here to facilitate inline expansion
-   IdSASL, IdSASLUserPass, IdUserPassProvider, IdException;
+  IdSASL, IdSASLUserPass, IdUserPassProvider, IdException;
 
 type
   TIdSASLDigest = class(TIdSASLUserPass)
@@ -70,34 +70,40 @@ end;
 //
 function HashResult(const AStr : String): TIdBytes;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LMD5: TIdHashMessageDigest5;
 begin
-  with TIdHashMessageDigest5.Create do
+  LMD5 := TIdHashMessageDigest5.Create;
   try
-    Result := HashString(AStr);
+    Result := LMD5.HashString(AStr);
   finally
-    Free;
+    LMD5.Free;
   end;
 end;
 
 function HashResultAsHex(const ABytes : TIdBytes) : String;  overload;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LMD5: TIdHashMessageDigest5;
 begin
-  with TIdHashMessageDigest5.Create do
+  LMD5 := TIdHashMessageDigest5.Create;
   try
-    Result := LowerCase(HashBytesAsHex(ABytes));
+    Result := LowerCase(LMD5.HashBytesAsHex(ABytes));
   finally
-    Free;
+    LMD5.Free;
   end;
 end;
 
 function HashResultAsHex(const AStr : String) : String; overload;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LMD5: TIdHashMessageDigest5;
 begin
-  with TIdHashMessageDigest5.Create do
+  LMD5 := TIdHashMessageDigest5.Create;
   try
-    Result := LowerCase(HashStringAsHex(AStr));
+    Result := LowerCase(LMD5.HashStringAsHex(AStr));
   finally
-    Free;
+    LMD5.Free;
   end;
 end;
 
