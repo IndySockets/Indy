@@ -239,6 +239,12 @@ type
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer): Integer; override;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer; override;
+    {$IFNDEF VCL_XE3_OR_ABOVE}
+    procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
+    procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
+    {$ENDIF}
   public
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
       var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
@@ -284,10 +290,12 @@ type
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
+    {$IFDEF VCL_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
+    {$ENDIF}
     function IOControl(const s:  TIdStackSocketHandle; const cmd: LongWord; var arg: LongWord): Integer; override;
     function SupportsIPv6: Boolean; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
@@ -1912,9 +1920,9 @@ begin
   WSCloseSocket(ASocket);
 end;
 
-procedure TIdStackWindows.GetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; var AOptVal;
-  var AOptLen: Integer);
+procedure TIdStackWindows.{$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
+  (ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
+  var AOptVal; var AOptLen: Integer);
 begin
   CheckForSocketError(
     getsockopt(ASocket, ALevel, AOptName,
@@ -1929,9 +1937,9 @@ begin
   );
 end;
 
-procedure TIdStackWindows.SetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; const AOptVal;
-  const AOptLen: Integer);
+procedure TIdStackWindows.{$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
+  (ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
+  const AOptVal; const AOptLen: Integer);
 begin
   CheckForSocketError(
     setsockopt(ASocket, ALevel, Aoptname,

@@ -85,6 +85,7 @@
 			<DCCReference Include="IndyProtocols160.dcp"/>
 			<DCCReference Include="IndySystem160.dcp"/>
 			<DCCReference Include="IndyCore160.dcp"/>
+			<DCCReference Include="dclIndyCore160.dcp"/>
 			<DCCReference Include="IdDsnRegister.pas"/>
 			<DCCReference Include="IdDsnResourceStrings.pas"/>
 			<DCCReference Include="IdDsnSASLListEditorFormVCL.pas"/>

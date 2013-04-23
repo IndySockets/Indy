@@ -241,6 +241,12 @@ type
      const ABufferLength, AFlags: Integer): Integer; virtual; abstract;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
      virtual; abstract;
+    {$IFNDEF VCL_XE3_OR_ABOVE}
+    procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); virtual; abstract;
+    procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); virtual; abstract;
+    {$ENDIF}
      //internal for multicast membership stuff
     procedure MembershipSockOpt(AHandle: TIdStackSocketHandle;
       const AGroupIP, ALocalIP : String; const ASockOpt : Integer;
@@ -259,11 +265,11 @@ type
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; out AOptVal: Integer); overload; override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
-      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); overload; virtual; abstract;
+      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); {$IFDEF VCL_XE3_OR_ABOVE}overload; virtual; abstract;{$ELSE}reintroduce; overload;{$ENDIF}
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; AOptVal: Integer); overload; override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
-      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); overload; virtual; abstract;
+      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); {$IFDEF VCL_XE3_OR_ABOVE}overload; virtual; abstract;{$ELSE}reintroduce; overload;{$ENDIF}
     function TranslateTInAddrToString(var AInAddr; const AIPVersion: TIdIPVersion): string;
     procedure TranslateStringToTInAddr(const AIP: string; var AInAddr; const AIPVersion: TIdIPVersion);
     function WSGetServByName(const AServiceName: string): TIdPort; virtual; abstract;
@@ -448,15 +454,33 @@ var
   LBuf, LLen: Integer;
 begin
   LLen := SizeOf(LBuf);
-  GetSocketOption(ASocket, ALevel, AOptName, LBuf, LLen);
+  {$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}(ASocket, ALevel, AOptName, LBuf, LLen);
   AOptVal := LBuf;
 end;
+
+{$IFNDEF VCL_XE3_OR_ABOVE}
+procedure TIdStackBSDBase.GetSocketOption(ASocket: TIdStackSocketHandle;
+  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; var AOptVal;
+  var AOptLen: Integer);
+begin
+  WSGetSocketOption(ASocket, ALevel, AOptName, AOptVal, AOptLen);
+end;
+{$ENDIF}
 
 procedure TIdStackBSDBase.SetSocketOption(ASocket: TIdStackSocketHandle;
   ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
 begin
-  SetSocketOption(ASocket, ALevel, AOptName, AOptVal, SizeOf(AOptVal));
+  {$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}(ASocket, ALevel, AOptName, AOptVal, SizeOf(AOptVal));
 end;
+
+{$IFNDEF VCL_XE3_OR_ABOVE}
+procedure TIdStackBSDBase.SetSocketOption(ASocket: TIdStackSocketHandle;
+  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; const AOptVal;
+  const AOptLen: Integer);
+begin
+  WSSetSocketOption(ASocket, ALevel, AOptName, AOptVal, AOptLen);
+end;
+{$ENDIF}
 
 procedure TIdStackBSDBase.DropMulticastMembership(AHandle: TIdStackSocketHandle;
   const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);

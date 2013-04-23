@@ -33,7 +33,8 @@ requires
   designide,
   IndyProtocols160,
   IndySystem160,
-  IndyCore160;
+  IndyCore160,
+  dclIndyCore160;
 
 contains
   IdDsnRegister in 'IdDsnRegister.pas',

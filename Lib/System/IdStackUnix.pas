@@ -133,6 +133,12 @@ type
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer): Integer; override;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer; override;
+    {$IFNDEF VCL_XE3_OR_ABOVE}
+    procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
+    procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
+    {$ENDIF}
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -173,10 +179,12 @@ type
     function WSSocket(AFamily, AStruct, AProtocol: Integer;
      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
+    {$IFDEF VCL_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
+    {$ENDIF}
     procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
       const AEnabled: Boolean; const ATimeMS, AInterval: Integer); override;
     function SupportsIPv6: Boolean; overload; override;
@@ -648,9 +656,9 @@ begin
   end;
 end;
 
-procedure TIdStackUnix.GetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; var AOptVal;
-  var AOptLen: Integer);
+procedure TIdStackUnix.{$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
+  (ASocket: TIdStackSocketHandle; ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
+  var AOptVal; var AOptLen: Integer);
 var
   LLen : TSockLen;
 begin
@@ -659,9 +667,9 @@ begin
   AOptLen := LLen;
 end;
 
-procedure TIdStackUnix.SetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; const AOptVal;
-  const AOptLen: Integer);
+procedure TIdStackUnix.{$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
+  (ASocket: TIdStackSocketHandle; ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
+  const AOptVal; const AOptLen: Integer);
 begin
   CheckForSocketError(fpSetSockOpt(ASocket, ALevel, AOptName, PAnsiChar(@AOptVal), AOptLen));
 end;
