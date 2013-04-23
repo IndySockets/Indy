@@ -320,7 +320,7 @@ procedure TIdStackLinux.Connect(const ASocket: TIdStackSocketHandle;
  const AIP: string; const APort: TIdPort;
  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
-  LAddr: sockdddr_in6;
+  LAddr: sockaddr_in6;
   LSize: LongWord;
 begin
   FillChar(LAddr, SizeOf(LAddr), 0);
@@ -864,7 +864,7 @@ end;
 function TIdStackLinux.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
-  LAddr: sockdddr_in6;
+  LAddr: sockaddr_in6;
   LSize: LongWord;
   LHostName : array[0..NI_MAXHOST] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}

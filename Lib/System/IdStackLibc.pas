@@ -871,7 +871,7 @@ end;
 function TIdStackLibc.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
-  LAddr: sockdddr_in6;
+  LAddr: sockaddr_in6;
   LSize: LongWord;
   LHostName : array[0..NI_MAXHOST] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
