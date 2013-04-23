@@ -63,8 +63,10 @@ var
   LTargetName, LTargetInfo : TIdBytes;
   LFlags : LongWord;
   LDomain, LUserName : String;
+  LEncoding: IIdTextEncoding;
 begin
-  LMsg := ToBytes(ALastResponse, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+  LEncoding := IndyTextEncoding_8Bit;
+  LMsg := ToBytes(ALastResponse, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   IdNTLMv2.ReadType2Msg(LMsg, LFlags, LTargetName, LTargetInfo, LNonce);
   IdGlobal.DebugOutput('Type 2 Flags = '+ DumpFlags(LFlags));
   GetDomain(GetUsername, LUsername, LDomain);

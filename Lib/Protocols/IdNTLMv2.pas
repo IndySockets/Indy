@@ -11,8 +11,8 @@ uses
   ;
 
 type
-  ProtocolArray = array [ 1.. 8] of AnsiChar;
-  nonceArray = Array[ 1.. 8] of AnsiChar;
+  ProtocolArray = array [ 1.. 8] of TIdAnsiChar;
+  nonceArray = Array[ 1.. 8] of TIdAnsiChar;
 
 const
 //These are from:
@@ -153,12 +153,12 @@ function RC4FunctionsLoaded : Boolean;
 {$IFNDEF DOTNET}
 //const char *RC4_options(void);
 var
-  GRC4_Options : function () : PAnsiChar; cdecl = nil;
+  GRC4_Options : function () : PIdAnsiChar; cdecl = nil;
 //void RC4_set_key(RC4_KEY *key, int len, const unsigned char *data);
-  GRC4_set_key : procedure(key : PRC4_KEY; len : TIdC_INT; data : PAnsiChar); cdecl = nil;
+  GRC4_set_key : procedure(key : PRC4_KEY; len : TIdC_INT; data : PIdAnsiChar); cdecl = nil;
 //void RC4(RC4_KEY *key, unsigned long len, const unsigned char *indata,
 //		unsigned char *outdata);
-  GRC4 : procedure (key : PRC4_KEY; len : TIdC_ULONG; indata, outdata : PAnsiChar) ; cdecl = nil;
+  GRC4 : procedure (key : PRC4_KEY; len : TIdC_ULONG; indata, outdata : PIdAnsiChar) ; cdecl = nil;
 {$ENDIF}
 
 implementation
@@ -592,13 +592,20 @@ end;
 //* create NT hashed password */
 function NTOWFv1(const APassword : String): TIdBytes;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LHash: TIdHashMessageDigest4;
 begin
   CheckMD4Permitted;
-  with TIdHashMessageDigest4.Create do try
-    Result := HashBytes(TIdTextEncoding.Unicode.GetBytes(APassword));
+  LHash := TIdHashMessageDigest4.Create;
+  {$IFNDEF USE_OBJECT_ARC}
+  try
+  {$ENDIF}
+    Result := LHash.HashBytes(IndyTextEncoding_UTF16LE.GetBytes(APassword));
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHash.Free;
   end;
+  {$ENDIF}
 end;
 
 {$IFNDEF DOTNET}
@@ -708,14 +715,20 @@ var
   nt_pw : TIdBytes;
   nt_hpw : TIdBytes; //array [1..21] of Char;
  // nt_hpw128 : TIdBytes;
+  LHash: TIdHashMessageDigest4;
 begin
   CheckMD4Permitted;
-  nt_pw := TIdTextEncoding.Unicode.GetBytes(APassword);
-  with TIdHashMessageDigest4.Create do try
-    vntlmhash := HashBytes(nt_pw);
+  nt_pw := IndyTextEncoding_UTF16LE.GetBytes(APassword);
+  LHash := TIdHashMessageDigest4.Create;
+  {$IFNDEF USE_OBJECT_ARC}
+  try
+  {$ENDIF}
+    vntlmhash := LHash.HashBytes(nt_pw);
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHash.Free;
   end;
+  {$ENDIF}
   SetLength( nt_hpw, 21);
   FillChar( nt_hpw[ 17], 5, 0);
   CopyTIdBytes( vntlmhash, 0, nt_hpw, 0, 16);
@@ -733,15 +746,21 @@ var
   nt_pw : TIdBytes;
   nt_hpw : array [ 1.. 21] of AnsiChar;
   nt_hpw128 : TIdBytes;
+  LHash: TIdHashMessageDigest4;
 begin
   CheckMD4Permitted;
   SetLength(Result,24);
-  nt_pw := TIdTextEncoding.Unicode.GetBytes(APassword);
-  with TIdHashMessageDigest4.Create do try
-    nt_hpw128 := HashBytes(nt_pw);//HashString( nt_pw);
+  nt_pw := IndyTextEncoding_UTF16LE.GetBytes(APassword);
+  LHash := TIdHashMessageDigest4.Create;
+  {$IFNDEF USE_OBJECT_ARC
+  try
+  {$ENDIF
+    nt_hpw128 := LHash.HashBytes(nt_pw);//LHash.HashString( nt_pw);
+  {$IFNDEF USE_OBJECT_ARC
   finally
-    Free;
+    LHash.Free;
   end;
+  {$ENDIF
   Move( nt_hpw128[ 0], nt_hpw[ 1], 16);
   FillChar( nt_hpw[ 17], 5, 0);
   DESL(pdes_cblock( @nt_hpw[1]), nonce, Pdes_key_schedule( @Result[ 0]));
@@ -974,24 +993,37 @@ function InternalCreateNTLMv2Response(var Vntlm2hash : TIdBytes;
 var
   LLmUserDom : TIdBytes;
   Blob : TIdBytes;
+  LEncoding: IIdTextEncoding;
+  LHMac: TIdHMACMD5;
 begin
-  LLmUserDom := TIdTextEncoding.Unicode.GetBytes(UpperCase(AUsername));
-  AppendBytes(LLmUserDom, TIdTextEncoding.Unicode.GetBytes(ADomain));
-  with TIdHMACMD5.Create do
+  LEncoding := IndyTextEncoding_UTF16LE;
+  LLmUserDom := LEncoding.GetBytes(UpperCase(AUsername));
+  AppendBytes(LLmUserDom, LEncoding.GetBytes(ADomain));
+  LEncoding := nil;
+
+  LHMac := TIdHMACMD5.Create;
+  {$IFNDEF USE_OBJECT_ARC}
   try
-     Key := NTOWFv1(APassword);
-     Vntlm2hash := HashValue(LLmUserDom);
+  {$ENDIF}
+    LHMac.Key := NTOWFv1(APassword);
+    Vntlm2hash := LHMac.HashValue(LLmUserDom);
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHMac.Free;
   end;
+  {$ENDIF}
   Blob := MakeBlob(ATimestamp,ATargetInfo,cnonce);
-  with TIdHMACMD5.Create do
+  LHMac := TIdHMACMD5.Create;
+  {$IFNDEF USE_OBJECT_ARC}
   try
-    Key := Vntlm2hash;
-    Result := HashValue(ConcateBytes(nonce,Blob));
+  {$ENDIF}
+    LHMac.Key := Vntlm2hash;
+    Result := LHMac.HashValue(ConcateBytes(nonce,Blob));
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHMac.Free;
   end;
+  {$ENDIF}
   AppendBytes(Result,Blob);
 
 end;
@@ -1016,29 +1048,41 @@ end;
 
 function UserNTLMv1SessionKey(const AHash : TIdBytes) : TIdBytes;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LHash: TIdHashMessageDigest4;
 begin
   CheckMD4Permitted;
-  with TIdHashMessageDigest4.Create do try
-    Result := HashBytes(AHash);
+  LHash := TIdHashMessageDigest4.Create;
+  {$IFNDEF USE_OBJECT_ARC}
+  try
+  {$ENDIF}
+    Result := LHash.HashBytes(AHash);
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHash.Free;
   end;
+  {$ENDIF}
 end;
 
 function UserLMv2SessionKey(const AHash : TIdBytes; const ABlob : TIdBytes; ACNonce : TIdBytes) : TIdBytes;
  {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf : TIdBytes;
+  LHMac: TIdHMACMD5;
 begin
   LBuf := ABlob;
   AppendBytes(LBuf,ACNonce);
-  with TIdHMACMD5.Create do
+  LHMac := TIdHMACMD5.Create;
+  {$IFNDEF USE_OBJECT_ARC}
   try
-    Key := AHash;
-    Result := HashValue(HashValue(LBuf));
+  {$ENDIF}
+    LHMac.Key := AHash;
+    Result := LHMac.HashValue(LHMac.HashValue(LBuf));
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHMac.Free;
   end;
+  {$ENDIF}
 end;
 
 function UserNTLMv2SessionKey(const AHash : TIdBytes; const ABlob : TIdBytes; const AServerNonce : TIdBytes) : TIdBytes;
@@ -1050,14 +1094,20 @@ end;
 
 function UserNTLM2SessionSecSessionKey(const ANTLMv1SessionKey : TIdBytes; const AServerNonce : TIdBytes): TIdBytes;
  {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LHash: TIdHMACMD5;
 begin
-  with TIdHMACMD5.Create do
+  LHash := TIdHMACMD5.Create;
+  {$IFNDEF USE_OBJECT_ARC}
   try
-    Key := ANTLMv1SessionKey;
-    Result := HashValue(AServerNonce);
+  {$ENDIF}
+    LHash.Key := ANTLMv1SessionKey;
+    Result := LHash.HashValue(AServerNonce);
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHash.Free;
   end;
+  {$ENDIF}
 end;
 
 function LanManagerSessionKey(const ALMHash : TIdBytes) : TIdBytes;
@@ -1084,24 +1134,38 @@ function SetupLMv2Response(var VntlmHash : TIdBytes; const AUsername, ADomain : 
 var
   LLmUserDom : TIdBytes;
   LChall : TIdBytes;
+  LEncoding: IIdTextEncoding;
+  LHMac: TIdHMACMD5;
 begin
-  LLmUserDom := TIdTextEncoding.Unicode.GetBytes(UpperCase(AUsername));
-  AppendBytes(LLmUserDom, TIdTextEncoding.Unicode.GetBytes(ADomain));
-  with TIdHMACMD5.Create do
+  LEncoding := IndyTextEncoding_UTF16LE;
+  LLmUserDom := LEncoding.GetBytes(UpperCase(AUsername));
+  AppendBytes(LLmUserDom, LEncoding.GetBytes(ADomain));
+  LEncoding := nil;
+
+  LHMac := TIdHMACMD5.Create;
+  {$IFNDEF USE_OBJECT_ARC}
   try
-     Key := NTOWFv1(APassword);
-     VntlmHash := HashValue(LLmUserDom);
+  {$ENDIF}
+    LHMac.Key := NTOWFv1(APassword);
+    VntlmHash := LHMac.HashValue(LLmUserDom);
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHMac.Free;
   end;
+  {$ENDIF}
   LChall := AServerNonce;
   IdGlobal.AppendBytes(LChall,cnonce);
-  with TIdHMACMD5.Create do try
-     Key := vntlmhash;
-     Result := HashValue(LChall);
+  LHMac := TIdHMACMD5.Create;
+  {$IFNDEF USE_OBJECT_ARC}
+  try
+  {$ENDIF}
+    LHMac.Key := vntlmhash;
+    Result := LHMac.HashValue(LChall);
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHMac.Free;
   end;
+  {$ENDIF}
   AppendBytes(Result,cnonce);
 end;
 
@@ -1111,6 +1175,7 @@ var
   LChall, LTmp : TIdBytes;
   lntlmseshash : TIdBytes;
   LPassHash : TIdBytes;
+  LHash: TIdHashMessageDigest5;
 begin
   CheckMD5Permitted;
   //LM feild value for Type3 message
@@ -1120,13 +1185,18 @@ begin
   //
   LChall := nonce;
   IdGlobal.AppendBytes(LChall,cnonce);
-  with TIdHashMessageDigest5.Create do try
-     Vntlmseshash := HashBytes(LChall);
-     //we do this copy because we may need the value later.
-     lntlmseshash := Vntlmseshash;
+  LHash := TIdHashMessageDigest5.Create;
+  {$IFNDEF USE_OBJECT_ARC}
+  try
+  {$ENDIF}
+    Vntlmseshash := LHash.HashBytes(LChall);
+    //we do this copy because we may need the value later.
+    lntlmseshash := Vntlmseshash;
+  {$IFNDEF USE_OBJECT_ARC}
   finally
-    Free;
+    LHash.Free;
   end;
+  {$ENDIF}
   SetLength(lntlmseshash,8);
   SetLength(LPassHash,21);
   FillBytes( LPassHash,21, 0);
@@ -1291,23 +1361,26 @@ var
   ll_len, ln_len, ld_len, lh_len, lu_len : Word;
   ll_ofs, ln_ofs, ld_ofs, lh_ofs, lu_ofs : LongWord;
   LFlags : LongWord;
+  LEncoding: IIdTextEncoding;
 begin
   LFlags := AFlags and IdNTLM_IGNORE_TYPE_2_3_MASK;
   if AFlags and IdNTLMSSP_REQUEST_TARGET > 0 then begin
    LFlags := LFlags or IdNTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED;
   end;
   if LFlags and IdNTLMSSP_NEGOTIATE_UNICODE <> 0 then begin
+    LEncoding := IndyTextEncoding_UTF16LE;
     if LFlags and IdNTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED > 0 then begin
       if Length(ATargetName) > 0 then begin
         LDom := ATargetName;
       end else begin
-        LDom := TIdTextEncoding.Unicode.GetBytes(UpperCase(ADomain));
+        LDom := LEncoding.GetBytes(UpperCase(ADomain));
       end;
     end;
     if LFlags and IdNTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED > 0 then begin
-      LHost := TIdTextEncoding.Unicode.GetBytes(UpperCase(AHost));
+      LHost := LEncoding.GetBytes(UpperCase(AHost));
     end;
-    LUser := TIdTextEncoding.Unicode.GetBytes(UpperCase(AUsername));
+    LUser := LEncoding.GetBytes(UpperCase(AUsername));
+    LEncoding := nil;
   end else begin
     if LFlags and IdNTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED > 0 then begin
       LDom :=  ToBytes(UpperCase(ADomain));
@@ -1649,6 +1722,7 @@ NTLMv1 data flags
 procedure DoMSTests;
 var
   LFlags : LongWord;
+  LEncoding: IIdTextEncoding;
 begin
   LFlags := IdNTLMSSP_NEGOTIATE_KEY_EXCH or
     IdNTLMSSP_NEGOTIATE_56 or IdNTLMSSP_NEGOTIATE_128 or
@@ -1661,10 +1735,11 @@ begin
     raise Exception.Create('MS Tests failed - NTLMv1 data flags');
   end;
 //  if ToHex(NTOWFv1('Password') ) <> UpperCase('e52cac67419a9a224a3b108f3fa6cb6d') then
+  LEncoding := IndyTextEncoding_ASCII;
   if ToHex(LMOWFv1(
-    IndyASCIIEncoding.GetBytes(Uppercase( 'Password')),
-    IndyASCIIEncoding.GetBytes(Uppercase( 'User')),
-    IndyASCIIEncoding.GetBytes(Uppercase( 'Domain')))) <>
+    LEncoding.GetBytes(Uppercase( 'Password')),
+    LEncoding.GetBytes(Uppercase( 'User')),
+    LEncoding.GetBytes(Uppercase( 'Domain')))) <>
     Uppercase('e52cac67419a9a224a3b108f3fa6cb6d') then
 
   begin
