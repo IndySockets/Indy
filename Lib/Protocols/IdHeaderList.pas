@@ -234,7 +234,8 @@ begin
   FFoldLines := True;
   { 78 was specified by a message draft available at
     http://www.imc.org/draft-ietf-drums-msg-fmt }
-  FFoldLinesLength := 78;
+  // HTTP does not technically have a limitation on line lengths
+  FFoldLinesLength := iif(AQuoteType = QuoteHTTP, MaxInt, 78);
   FQuoteType := AQuoteType;
 end;
 

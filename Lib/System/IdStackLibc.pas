@@ -468,10 +468,16 @@ begin
         LiSize := SizeOf(sockaddr_in6);
       end;
       Result := Libc.recvfrom(ASocket, VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, PSockAddr(@LAddr), @LiSize);
-      with LAddr do
-      begin
-        VIP := TranslateTInAddrToString(sin6_addr, AIPVersion);
-        VPort := ntohs(sin6_port);
+      if AIPVersion = Id_IPv4 then begin
+        with Psockaddr(@LAddr)^ do begin
+          VIP := TranslateTInAddrToString(sin_addr, Id_IPv4);
+          VPort := ntohs(sin_port);
+        end;
+      end else begin
+        with LAddr do begin
+          VIP := TranslateTInAddrToString(sin6_addr, Id_IPv6);
+          VPort := ntohs(sin6_port);
+        end;
       end;
     end;
     else begin
@@ -601,14 +607,19 @@ begin
     Id_IPv4, Id_IPv6:
       begin
         FillChar(LAddr, SizeOf(LAddr), 0);
-        with LAddr do begin
-          sin6_family := IdIPFamily[AIPVersion];
-          TranslateStringToTInAddr(AIP, sin6_addr, AIPVersion);
-          sin6_port := htons(APort);
-        end;
         if AIPVersion = Id_IPv4 then begin
+          with PsockAddr(@LAddr)^ do begin
+            sin_family := Id_PF_INET4;
+            TranslateStringToTInAddr(AIP, sin_addr, Id_IPV4);
+            sin_port := htons(APort);
+          end;
           LiSize := SizeOf(sockaddr);
         end else begin
+          with LAddr do begin
+            sin6_family := Id_PF_INET6;
+            TranslateStringToTInAddr(AIP, sin6_addr, AIPVersion);
+            sin6_port := htons(APort);
+          end;
           LiSize := SizeOf(sockaddr_in6);
         end;
         LBytesOut := Libc.sendto(
@@ -860,6 +871,13 @@ end;
 function TIdStackLibc.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
+  LAddr: sockdddr_in6;
+  LSize: LongWord;
+  LHostName : array[0..NI_MAXHOST] of TIdAnsiChar;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  LWrapper: TPtrWrapper;
+  {$ENDIF}
+  LRet : Integer;
   {$IFDEF LIBCPASS_STRUCT}
   LHints: TAddressInfo;
   LAddrInfo: PAddressInfo;
@@ -867,38 +885,82 @@ var
   LHints: AddrInfo; //The T is no omission - that's what I found in the header
   LAddrInfo: PAddrInfo;
   {$ENDIF}
-  LRetVal: integer;
-  {$IFDEF STRING_IS_UNICODE}
-  LAStr: AnsiString;
-  {$ENDIF}
 begin
+  FillChar(LAddr, SizeOf(LAddr), 0);
   case AIPVersion of
-    Id_IPv6, Id_IPv4: begin
-      FillChar(LHints, SizeOf(LHints), 0);
-      LHints.ai_family := IdIPFamily[AIPVersion];
-      LHints.ai_socktype := Integer(SOCK_STREAM);
-      LHints.ai_flags := AI_CANONNAME or AI_NUMERICHOST;
-      LAddrInfo := nil;
-
-      {$IFDEF STRING_IS_UNICODE}
-      LAStr := AnsiString(AAddress); // explicit convert to Ansi
-      {$ENDIF}
-      LRetVal := getaddrinfo(
-        PAnsiChar({$IFDEF STRING_IS_UNICODE}LAStr{$ELSE}AAddress{$ENDIF}),
-        nil, @LHints, {$IFDEF LIBCPASS_STRUCT}LAddrInfo{$ELSE}@LAddrInfo{$ENDIF});
-      if LRetVal <> 0 then begin
-        if LRetVal = EAI_SYSTEM then begin
-          IndyRaiseLastError;
-        end else begin
-          raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [AAddress, gai_strerror(LRetVal), LRetVal]);
-        end;
+    Id_IPv4: begin
+      with Psockaddr(@LAddr)^ do begin
+        sin_family := Id_PF_INET4;
+        TranslateStringToTInAddr(AAddress, sin_addr, Id_IPv4);
       end;
-      try
-        Result := String(LAddrInfo^.ai_canonname);
-      finally
-        freeaddrinfo(LAddrInfo);
-      end;
+      LSize := SizeOf(sockaddr);
     end;
+    Id_IPv6: begin
+      with LAddr do begin
+        sin6_family := Id_PF_INET6;
+        TranslateStringToTInAddr(AAddress, sin6_addr, Id_IPv6);
+      end;
+      LSize := SizeOf(sockaddr_in6);
+    end;
+    else begin
+      LSize := 0; // avoid warning
+      IPVersionUnsupported;
+    end;
+  end;
+  FillChar(LHostName[0],Length(LHostName),0);
+  {$IFDEF USE_MARSHALLED_PTRS}
+  LWrapper := TPtrWrapper.Create(@LHostName[0]);
+  {$ENDIF}
+  LRet := getnameinfo(
+    {$IFDEF LIBCPASS_STRUCT}Psockaddr(@LAddr)^{$ELSE}Psockaddr(@LAddr){$ENDIF},
+    LSize,
+    {$IFDEF USE_MARSHALLED_PTRS}
+    LWrapper.ToPointer
+    {$ELSE}
+    LHostName
+    {$ENDIF},
+    NI_MAXHOST,nil,0,NI_NAMEREQD );
+  if LRet <> 0 then begin
+    if LRet = EAI_SYSTEM then begin
+      RaiseLastOSError;
+    end else begin
+      raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [AAddress, gai_strerror(LRet), LRet]);
+    end;
+  end;
+{
+IMPORTANT!!!
+
+getnameinfo can return either results from a numeric to text conversion or
+results from a DNS reverse lookup.  Someone could make a malicous PTR record
+such as
+
+   1.0.0.127.in-addr.arpa. IN PTR  10.1.1.1
+
+and trick a caller into beleiving the socket address is 10.1.1.1 instead of
+127.0.0.1.  If there is a numeric host in LAddr, than this is the case and
+we disregard the result and raise an exception.
+}
+  FillChar(LHints,SizeOf(LHints),0);
+  LHints.ai_socktype := SOCK_DGRAM; //*dummy*/
+  LHints.ai_flags := AI_NUMERICHOST;
+  if getaddrinfo(
+    {$IFDEF USE_MARSHALLED_PTRS}
+    LWrapper.ToPointer
+    {$ELSE}
+    LHostName
+    {$ENDIF},
+    '0', LHints, LAddrInfo) = 0 then
+  begin
+    freeaddrinfo(LAddrInfo^);
+    Result := '';
+    raise EIdMaliciousPtrRecord.Create(RSMaliciousPtrRecord);
+  end;
+
+  {$IFDEF USE_MARSHALLED_PTRS}
+  Result := TMarshal.ReadStringAsAnsi(LWrapper, NI_MAXHOST);
+  {$ELSE}
+  Result := String(LHostName);
+  {$ENDIF}
 (* JMB: I left this in here just in case someone
         complains, but the other code works on all
         linux systems for all addresses and is thread-safe
@@ -919,10 +981,6 @@ variables for it:
       end;
     end;
 *)
-    else begin
-      IPVersionUnsupported;
-    end;
-  end;
 end;
 
 function TIdStackLibc.WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;

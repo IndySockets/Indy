@@ -1492,6 +1492,7 @@ Lib/Protocols/IdSSL.pas -text
 Lib/Protocols/IdSSLDotNET.pas -text
 Lib/Protocols/IdSSLOpenSSL.pas -text
 Lib/Protocols/IdSSLOpenSSLHeaders.pas -text
+Lib/Protocols/IdSSLOpenSSLHeaders_static.pas -text
 Lib/Protocols/IdSSLOpenSSLUtils.pas -text
 Lib/Protocols/IdSSPI.pas -text
 Lib/Protocols/IdSecurity90ASM90.inc -text
