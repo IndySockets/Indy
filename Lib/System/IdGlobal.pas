@@ -6720,7 +6720,7 @@ begin
     {$ELSE}
     EnsureEncoding(ASrcEncoding, encOSDefault);
     LBytes := RawToBytes(AValue[AIndex], LLength);
-    EnsureByteEncoding(LBytes, ASrcEncoding, ADestEncoding);
+    CheckByteEncoding(LBytes, ASrcEncoding, ADestEncoding);
     Result := LBytes;
     {$ENDIF}
   end else begin
