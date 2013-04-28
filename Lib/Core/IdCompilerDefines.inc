@@ -361,6 +361,9 @@
   // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
+  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20701)}
+    {$DEFINE FPC_2_7_1_OR_ABOVE}
+  {$IFEND}
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$IFEND}
@@ -373,8 +376,14 @@
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$IFEND}
+  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20105)}
+    {$DEFINE FPC_2_1_5_OR_ABOVE}
+  {$IFEND}
 
   // just in case
+  {$IFDEF FPC_2_7_1}
+    {$DEFINE FPC_2_7_1_OR_ABOVE}
+  {$ENDIF}
   {$IFDEF FPC_2_6_0}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$ENDIF}
@@ -383,6 +392,20 @@
   {$ENDIF}
   {$IFDEF FPC_2_4_2}
     {$DEFINE FPC_2_4_2_OR_ABOVE}
+  {$ENDIF}
+  {$IFDEF FPC_2_2_4}
+    {$DEFINE FPC_2_2_4_OR_ABOVE}
+  {$ENDIF}
+  {$IFDEF FPC_2_1_5}
+    {$DEFINE FPC_2_1_5_OR_ABOVE}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_7_1_OR_ABOVE}
+    {$DEFINE FPC_2_6_0_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_6_0}
+      {$DEFINE FPC_2_6_0_OR_ABOVE}
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF FPC_2_6_0_OR_ABOVE}
@@ -414,6 +437,14 @@
   {$ELSE}
     {$IFDEF VER2_2}
       {$DEFINE FPC_2_2_0_OR_ABOVE}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_2_0_OR_ABOVE}
+    {$DEFINE FPC_2_1_5_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_1_5}
+      {$DEFINE FPC_2_1_5_OR_ABOVE}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
@@ -727,6 +758,7 @@
   {$DEFINE HAS_StrToInt64Def}
   {$DEFINE HAS_DWORD_PTR}
   {$DEFINE HAS_ULONG_PTR}
+  {$DEFINE HAS_ULONGLONG}
   {$DEFINE HAS_PGUID}
   {$DEFINE HAS_PPAnsiChar}
   {$DEFINE HAS_CurrentYear}
@@ -756,6 +788,8 @@
   // Native(U)Int are still buggy, so do not use them yet
   {.$DEFINE HAS_NativeInt}
   {.$DEFINE HAS_NativeUInt}
+  {$DEFINE HAS_UINT8}
+  {$DEFINE HAS_UINT32}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -842,12 +876,14 @@
   {$DEFINE FPC_CIRCULAR_BUG}
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
+  {$IFDEF FPC_2_1_5_OR_ABOVE}
+    {$DEFINE HAS_UInt64}
+  {$ENDIF}
   {$IFDEF FPC_2_2_0_OR_ABOVE}
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
   {$ENDIF}
   {$IFDEF FPC_2_2_4_OR_ABOVE}
     {$DEFINE HAS_SIZE_T}
-    {$DEFINE HAS_UInt64} // TODO: when was UInt64 introduced?
   {$ENDIF}
   {$DEFINE HAS_PtrInt}
   {$DEFINE HAS_PtrUInt}
@@ -857,6 +893,7 @@
   {$DEFINE HAS_ENUM_ELEMENT_VALUES}
   {$IFDEF WINDOWS}
     {$DEFINE HAS_ULONG_PTR}
+    {.$DEFINE HAS_ULONGLONG} // TODO: is this defined?
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
@@ -869,6 +906,13 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
+  {$ENDIF}
+  {$IFDEF FPC_2_7_1_OR_ABOVE}
+    {$DEFINE HAS_UINT8}
+    {$DEFINE HAS_UINT32}
+  {$ENDIF}
+  {$IFDEF FPC_UNICODESTRINGS}
+    {$DEFINE STRING_IS_UNICODE}
   {$ENDIF}
 {$ENDIF}
 
