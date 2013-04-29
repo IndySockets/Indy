@@ -709,14 +709,8 @@ var
       LMStream.Position := 0;
       {$IFDEF STRING_IS_ANSI}
       LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
-      try
       {$ENDIF}
-        ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
-      {$IFDEF STRING_IS_ANSI}
-      finally
-        LAnsiEncoding.Free;
-      end;
-      {$ENDIF}
+      ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
     finally
       FreeAndNil(LMStream);
     end;
@@ -742,26 +736,17 @@ var
       try
         LMStream.Position := 0;
         if AUseBodyAsTarget then begin
-          {$IFDEF STRING_IS_ANSI}
-          LAnsiEncoding := nil;
-          try
-          {$ENDIF}
-            if AMsg.IsMsgSinglePartMime then begin
-              {$IFDEF STRING_IS_ANSI}
-              LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
-              {$ENDIF}
-              ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
-            end else begin
-              {$IFDEF STRING_IS_ANSI}
-              LAnsiEncoding := ContentTypeToEncoding(VDecoder.Headers.Values[SContentType], QuoteMIME);
-              {$ENDIF}
-              ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
-            end;
-          {$IFDEF STRING_IS_ANSI}
-          finally
-            LAnsiEncoding.Free;
+          if AMsg.IsMsgSinglePartMime then begin
+            {$IFDEF STRING_IS_ANSI}
+            LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
+            {$ENDIF}
+            ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+          end else begin
+            {$IFDEF STRING_IS_ANSI}
+            LAnsiEncoding := ContentTypeToEncoding(VDecoder.Headers.Values[SContentType], QuoteMIME);
+            {$ENDIF}
+            ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
           end;
-          {$ENDIF}
         end else begin
           if AMsg.IsMsgSinglePartMime then begin
             LHdrs := AMsg.Headers;
@@ -772,14 +757,8 @@ var
           try
             {$IFDEF STRING_IS_ANSI}
             LAnsiEncoding := ContentTypeToEncoding(LHdrs.Values[SContentType], QuoteMIME);
-            try
             {$ENDIF}
-              ReadStringsAsContentType(LMStream, LTxt.Body, LHdrs.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
-            {$IFDEF STRING_IS_ANSI}
-            finally
-              LAnsiEncoding.Free;
-            end;
-            {$ENDIF}
+            ReadStringsAsContentType(LMStream, LTxt.Body, LHdrs.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
             RemoveLastBlankLine(LTxt.Body);
             LTxt.ContentType := LTxt.ResolveContentType(LHdrs.Values[SContentType]);
             LTxt.CharSet := LTxt.GetCharSet(LHdrs.Values[SContentType]);       {do not localize}

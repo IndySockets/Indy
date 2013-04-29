@@ -746,7 +746,7 @@ begin
         {$IFDEF STRING_IS_UNICODE}
         WriteStringToStream(Result, FFieldValue, IndyTextEncoding_ASCII);
         {$ELSE}
-        CheckByteEncoding(VBytes, CharsetToEncoding(FCharset), IndyTextEncoding_ASCII);
+        CheckByteEncoding(LBytes, CharsetToEncoding(FCharset), IndyTextEncoding_ASCII);
         WriteTIdBytesToStream(Result, LBytes);
         {$ENDIF}
         // need to include an explicit CRLF at the end of the data
