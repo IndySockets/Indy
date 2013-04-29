@@ -269,7 +269,15 @@ begin
      LCmd := LCmd + '=' + FVerpDelims;          {Do not Localize}
     end;
   end;
-  SendCmd(RSET_CMD);
+
+  // RLebeau 4/29/2013: DO NOT send a RSET command before the MAIL FROM command!
+  // Some servers are buggy and will reset the entire session, including any
+  // previously accepted authentication, when they are supposed to reset only
+  // their mail sending buffers and nothing else.  Send a RSET only if the mail
+  // transaction fails and needs to be cleaned up...
+  // TODO: make this configurable?
+
+  //SendCmd(RSET_CMD);
   SendCmd(LCmd, MAILFROM_ACCEPT);
   try
     WriteRecipientsNoPipelining(ARecipients);
@@ -315,8 +323,16 @@ begin
     if LBufferingStarted then begin
       IOHandler.WriteBufferOpen;
     end;
+
+    // RLebeau 4/29/2013: DO NOT send a RSET command before the MAIL FROM command!
+    // Some servers are buggy and will reset the entire session, including any
+    // previously accepted authentication, when they are supposed to reset only
+    // their mail sending buffers and nothing else.  Send a RSET only if the mail
+    // transaction fails and needs to be cleaned up...
+    // TODO: make this configurable?
+
     try
-      IOHandler.WriteLn(RSET_CMD);
+      //IOHandler.WriteLn(RSET_CMD);
       IOHandler.WriteLn(LCmd);
       WriteRecipientsPipeLine(ARecipients);
       IOHandler.WriteLn(DATA_CMD);
@@ -329,10 +345,13 @@ begin
       end;
       raise;
     end;
+
     //RSET
+    {
     if PosInSmallIntArray(GetResponse, RSET_ACCEPT) = -1 then begin
       LError := SetupErrorReply;
     end;
+    }
     //MAIL FROM:
     if PosInSmallIntArray(GetResponse, MAILFROM_ACCEPT) = -1 then begin
       if not Assigned(LError) then begin
