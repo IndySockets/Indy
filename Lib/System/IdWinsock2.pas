@@ -232,6 +232,21 @@ type
 
   // Must define the following types because the older versions of Delphi do not support them
 
+  {$IFNDEF HAS_UINT8}
+  {$EXTERNALSYM UINT8}
+  UINT8 = Byte;
+  {$ENDIF}
+
+  {$IFNDEF HAS_UINT32}
+  {$EXTERNALSYM UINT32}
+  UINT32 = LongWord;
+  {$ENDIF}
+
+  {$IFNDEF HAS_UInt64}
+  {$NODEFINE UInt64}
+  UInt64 = Int64;
+  {$ENDIF}
+
   {$IFNDEF HAS_ULONG_PTR}
   {$EXTERNALSYM ULONG_PTR}
   ULONG_PTR = PtrUInt;
@@ -254,7 +269,7 @@ type
 
   {$IFNDEF HAS_ULONG64}
   {$EXTERNALSYM ULONG64}
-  ULONG64 = {$IFDEF HAS_UInt64}UInt64{$ELSE}Int64{$ENDIF};
+  ULONG64 = UInt64;
   {$ENDIF}
 
   {$IFNDEF HAS_LONG}
@@ -264,17 +279,7 @@ type
 
   {$IFNDEF HAS_ULONGLONG}
   {$EXTERNALSYM ULONGLONG}
-  ULONGLONG = {$IFDEF HAS_UInt64}UInt64{$ELSE}Int64{$ENDIF};
-  {$ENDIF}
-
-  {$IFNDEF HAS_UINT8}
-  {$EXTERNALSYM UINT8}
-  UINT8 = Byte;
-  {$ENDIF}
-
-  {$IFNDEF HAS_UINT32}
-  {$EXTERNALSYM UINT32}
-  UINT32 = LongWord;
+  ULONGLONG = UInt64;
   {$ENDIF}
 
 const
