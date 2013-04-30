@@ -1274,7 +1274,7 @@ begin
     // RLebeau: must not send/receive UTF-8 before negotiating for it...
     IOHandler.DefStringEncoding := FDefStringEncoding;
     {$IFDEF STRING_IS_ANSI}
-    IOHandler.DefAnsiEncoding := IIdTextEncoding.Default;
+    IOHandler.DefAnsiEncoding := IndyTextEncoding_OSDefault;
     {$ENDIF}
 
     // RLebeau: RFC 959 says that the greeting can be preceeded by a 1xx
