@@ -381,18 +381,6 @@ type
     function _Release: Integer;
   end;
 
-  {$IFDEF WINDOWS}
-  TIdWin32Type = (Win32s,
-    WindowsNT40PreSP6Workstation, WindowsNT40PreSP6Server, WindowsNT40PreSP6AdvancedServer,
-    WindowsNT40Workstation, WindowsNT40Server, WindowsNT40AdvancedServer,
-    Windows95, Windows95OSR2,
-    Windows98, Windows98SE,
-    Windows2000Pro, Windows2000Server, Windows2000AdvancedServer,
-    WindowsMe,
-    WindowsXPPro,
-    Windows2003Server, Windows2003AdvancedServer);
-  {$ENDIF}
-
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
 
   //
@@ -532,9 +520,6 @@ type
   function UpCaseFirst(const AStr: string): string;
   function UpCaseFirstWord(const AStr: string): string;
   function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
-  {$IFDEF WIN32_OR_WIN64}
-  function Win32Type : TIdWin32Type;
-  {$ENDIF}
   procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
   function WordToStr(const Value: Word): String;
   //moved here so I can IFDEF a DotNET ver. that uses StringBuilder
@@ -896,150 +881,6 @@ begin
 
 //  Result := Word((Ord(AChar1) shl 8) and $FF00) or Word(Ord(AChar2) and $00FF);
 end;
-
-
-{This routine is based on JPM Open by J. Peter Mugaas.  Permission is granted
-to use this with Indy under Indy's Licenses
-
-Note that JPM Open is under a different Open Source license model.
-
-It is available at http://www.wvnet.edu/~oma00215/jpm.html }
-
-{$IFDEF WIN32_OR_WIN64}
-type
-  TNTEditionType = (workstation, server, advancedserver);
-
-{These two are intended as internel functions called by our Win32 function.
-These assume you checked for Windows NT, 2000, XP, or 2003}
-
-{Returns the NTEditionType on Windows NT, 2000, XP, or 2003, and return workstation on non-nt platforms (95,98,me) }
-function GetNTType : TNTEditionType;
-var
-  RtlGetNtProductType: function(ProductType:PULONG):BOOL;stdcall;
-  Lh: THandle;
-  LVersion: ULONG;
-begin
-  Result := Workstation;
-  //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
-  //call because LoadLibrary messes with the FPU control word.  
-  lh := SafeLoadLibrary('ntdll.dll'); {do not localize}
-  if Lh > 0 then begin
-    @RtlGetNtProductType := GetProcAddress(lh, 'RtlGetNtProductType'); {do not localize}
-    if @RtlGetNtProductType <> nil then begin
-      RtlGetNtProductType(@LVersion);
-      case LVersion of
-        1: Result := Workstation;
-        2: Result := Server;
-        3: Result := AdvancedServer;
-      end;
-    end;
-    FreeLibrary(lh);
-  end;
-end;
-
-function GetOSServicePack : Integer;
-var
-  LNumber : String;
-  LBuf : String;
-  i : Integer;
-  OS : TOSVersionInfo;
-begin
-  OS.dwOSVersionInfoSize := SizeOf(OS);
-  GetVersionEx(OS);
-  LBuf := OS.szCSDVersion;
-  //Strip off "Service Pack" words
-  Fetch(LBuf,' ');
-  Fetch(LBuf,' ');
-  //get the version number without any letters
-  LNumber := '';
-  for i := 1 to Length(LBuf) do begin
-    if IsNumeric(LBuf[i]) then begin
-      LNumber := LNumber+LBuf[i];
-    end else begin
-      Break;
-    end;
-  end;
-  Result := StrToIntDef(LNumber,0);
-end;
-{============}
-function Win32Type: TIdWin32Type;
-begin
-  {VerInfo.dwOSVersionInfoSize := SizeOf(TOSVersionInfo);  GetVersionEx(VerInfo);}
-  {is this Windows 2000, 2003, or XP?}
-  if Win32MajorVersion >= 5 then begin
-    if Win32MinorVersion >= 2 then begin
-      case GetNTType of
-        Server : Result := Windows2003Server;
-        AdvancedServer : Result := Windows2003Server;
-      else
-        Result := WindowsXPPro; // Windows 2003 has no desktop version
-      end;
-    end else begin
-      if Win32MinorVersion >= 1 then begin
-        case GetNTType of
-          Server : Result := Windows2000Server; // hmmm, winXp has no server versions
-          AdvancedServer : Result := Windows2000AdvancedServer; // hmmm, winXp has no server versions
-        else
-          Result := WindowsXPPro;
-        end;
-      end else begin
-        case GetNTType of
-          Server : Result := Windows2000Server;
-          AdvancedServer : Result := Windows2000AdvancedServer;
-        else
-          Result := Windows2000Pro;
-        end;
-      end;
-    end;
-  end else begin
-    {is this WIndows 95, 98, Me, or NT 40}
-    if Win32MajorVersion > 3 then begin
-      if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-        //Bas requested that we specifically check for anything below SP6
-        if GetOSServicePack < 6 then begin
-          case GetNTType of
-            Server : Result := WindowsNT40PreSP6Server;
-            AdvancedServer : Result := WindowsNT40PreSP6AdvancedServer;
-          else
-            Result := WindowsNT40PreSP6Workstation;
-          end;
-        end else begin
-          case GetNTType of
-        //WindowsNT40Workstation, WindowsNT40Server, WindowsNT40AdvancedServer
-            Server : Result := WindowsNT40Server;
-            AdvancedServer : Result := WindowsNT40AdvancedServer;
-          else
-            Result := WindowsNT40Workstation;
-          end;
-        end;
-      end else begin
-        {mask off junk}
-        Win32BuildNumber := Win32BuildNumber and $FFFF;
-        if Win32MinorVersion >= 90 then begin
-          Result := WindowsMe;
-        end else begin
-          if Win32MinorVersion >= 10 then begin
-            {Windows 98}
-            if Win32BuildNumber >= 2222 then begin
-              Result := Windows98SE
-            end else begin
-              Result := Windows98;
-            end;
-          end else begin {Windows 95}
-            if Win32BuildNumber >= 1000 then begin
-              Result := Windows95OSR2
-            end else begin
-              Result := Windows95;
-            end;
-          end;
-        end;
-      end;
-    end else begin
-      Result := Win32s;
-    end;
-  end;
-end;
-{$ENDIF}
 
 function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
 var
