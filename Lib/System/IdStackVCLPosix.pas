@@ -454,6 +454,7 @@ var
   LAddr : sockaddr absolute LAddrStore;
 
 begin
+  LN := SizeOf(LAddrStore);
   Result := Posix.SysSocket.accept(ASocket, LAddr, LN);
   if Result <> -1 then begin
     case LAddr.sa_family of
