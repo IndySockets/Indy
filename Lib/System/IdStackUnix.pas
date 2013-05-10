@@ -717,12 +717,30 @@ end;
 
 function TIdStackUnix.HostToNetwork(AValue: LongWord): LongWord;
 begin
+  {$IFOPT R+} // detect range checking
+    {$DEFINE _RPlusWasEnabled}
+    {$R-}
+  {$ENDIF}
   Result := htonl(AValue);
+  // Restore range checking
+  {$IFDEF _RPlusWasEnabled} // detect previous setting
+    {$UNDEF _RPlusWasEnabled}
+    {$R+}
+  {$ENDIF}
 end;
 
 function TIdStackUnix.NetworkToHost(AValue: LongWord): LongWord;
 begin
+  {$IFOPT R+} // detect range checking
+    {$DEFINE _RPlusWasEnabled}
+    {$R-}
+  {$ENDIF}
   Result := ntohl(AValue);
+  // Restore range checking
+  {$IFDEF _RPlusWasEnabled} // detect previous setting
+    {$UNDEF _RPlusWasEnabled}
+    {$R+}
+  {$ENDIF}
 end;
 
 { RP - I'm not sure what endian Linux natively uses, thus the
