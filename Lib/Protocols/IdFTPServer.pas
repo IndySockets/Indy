@@ -4924,7 +4924,7 @@ var
 begin
   LFileSystem := FTPFileSystem;
   if Assigned(LFileSystem) then begin
-    //LFileSystem.SetModifiedFileDate(AContext,AFileName,VDateTime);
+    //LFileSystem.SetCreationFileDate(AContext,AFileName,VDateTime);
   end else if Assigned(FOnSetCreationTime) then begin
     FOnSetCreationTime(AContext, AFileName, VDateTime);
   end;
@@ -4990,8 +4990,8 @@ begin
     LFileSystem := FTPFileSystem;
     if Assigned(FOnSetCreationTime) or Assigned(LFileSystem) then begin
       LFileName := ASender.UnparsedParams;
-      LFileName := DoProcessPath(LContext, LFileName);
       LTimeStr := Fetch(LFileName);
+      LFileName := DoProcessPath(LContext, LFileName);
       DoOnSetCreationTime(LContext, LFileName, LTimeStr);
       ASender.Reply.SetReply(213, IndyFormat('CreateTime=%s %s', [LTimeStr, LFileName])); {Do not translate}
     end else begin
