@@ -3480,10 +3480,7 @@ begin
   Result := TIdDotNetEncoding.Create(ACodepage);
   {$ELSE}
   case ACodepage of
-    20127, 1252, 437:
-      // RLebeau: 20127 is the official codepage for ASCII,
-      // but not all OS versions support that codepage,
-      // so fallback to 1252 or even 437...
+    20127:
       Result := IndyTextEncoding_ASCII;
     1200:
       Result := IndyTextEncoding_UTF16LE;
