@@ -517,7 +517,7 @@ procedure TIdCommandHandler.DoParseParams(AUnparsedParams: string; AParams: TStr
 // and multiple descendants
 begin
   AParams.Clear;
-  SplitDelimitedString(AUnparsedParams, AParams, FParamDelimiter <> #32, #32);
+  SplitDelimitedString(AUnparsedParams, AParams, FParamDelimiter <> #32, FParamDelimiter);
 end;
 
 function TIdCommandHandler.Check(const AData: string; AContext: TIdContext): boolean;
