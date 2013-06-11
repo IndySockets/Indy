@@ -257,7 +257,9 @@
 			<DCCReference Include="IdReplyIMAP4.pas"/>
 			<DCCReference Include="IdReplyPOP3.pas"/>
 			<DCCReference Include="IdReplySMTP.pas"/>
+			<DCCReference Include="IdResourceStringsOpenSSL.pas"/>
 			<DCCReference Include="IdResourceStringsProtocols.pas"/>
+			<DCCReference Include="IdResourceStringsSSPI.pas"/>
 			<DCCReference Include="IdRexec.pas"/>
 			<DCCReference Include="IdRexecServer.pas"/>
 			<DCCReference Include="IdSASL.pas"/>

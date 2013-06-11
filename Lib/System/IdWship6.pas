@@ -404,7 +404,7 @@ var
   {$ENDIF}
   
 var
-  GIdIPv6FuncsAvailable: Boolean = False;
+  GIdIPv6FuncsAvailable: Boolean = False {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
 
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
 
@@ -456,17 +456,6 @@ procedure CloseLibrary;
 var
   h : THandle;
 begin
-  {$IFNDEF WINCE}
-    {$IFNDEF WIN64}
-  //Only unload the IPv6 functions for Windows NT (2000 or greater).
-  //Note that Win64 was introduced after Windows XP.  That was based on Windows
-  //Server code so we'll skip this in Win64.
-  //I'm just doing this as a minor shortcut.
-  if (Win32Platform <> VER_PLATFORM_WIN32_NT) or (Win32MajorVersion < 5) then begin
-    Exit;
-  end;
-    {$ENDIF}
-  {$ENDIF}
   h := InterlockedExchangeTHandle(hWship6Dll, 0);
   if h <> 0 then begin
     FreeLibrary(h);
@@ -483,6 +472,11 @@ begin
   getnameinfo := nil;
   freeaddrinfo := nil;
   {$IFNDEF WINCE}
+  inet_pton := nil;
+  inet_ntop := nil;
+  GetAddrInfoEx := nil;
+  SetAddrInfoEx := nil;
+  FreeAddrInfoEx := nil;
   WSASetSocketPeerTargetName := nil;
   WSADeleteSocketPeerTargetName := nil;
   WSAImpersonateSocketPeer := nil;
@@ -491,19 +485,672 @@ begin
   {$ENDIF}
 end;
 
-procedure InitLibrary;
+// The IPv6 functions were added to the Ws2_32.dll on Windows XP and later.
+// To execute an application that uses these functions on earlier versions of
+// Windows, the functions are defined as inline functions in the Wspiapi.h file.
+// At runtime, the functions are implemented in such a way that if the Ws2_32.dll
+// or the Wship6.dll (the file containing the functions in the IPv6 Technology
+// Preview for Windows 2000) does not include them, then versions are implemented
+// inline based on code in the Wspiapi.h header file. This inline code will be
+// used on older Windows platforms that do not natively support the functions.
+
+// RLebeau: Wspiapi.h only defines Ansi versions of the legacy functions, but we
+// need to handle Unicode as well...
+
+function WspiapiMalloc(tSize: size_t): Pointer;
 begin
-  GIdIPv6FuncsAvailable := False;
-  {$IFNDEF WINCE}
-    {$IFNDEF WIN64}
-  //Only attempt to load the IPv6 functions for Windows NT (2000 or greater).
-  //Note that Win64 was introduced after Windows XP.  That was based on Windows
-  //Server code so we'll skip this in Win64.
-  if (Win32Platform <> VER_PLATFORM_WIN32_NT) or (Win32MajorVersion < 5) then begin
+  try
+    GetMem(Result, tSize);
+    ZeroMemory(Result, tSize);
+  except
+    Result := nil;
+  end;
+end;
+
+procedure WspiapiFree(p: Pointer);
+begin
+  FreeMem(p);
+end;
+
+procedure WspiapiSwap(var a, b, c: PChar); inline;
+begin
+  c := a;
+  a := b;
+  b := c;
+end;
+
+function WspiapiStrdup(const pszString: PChar): PChar; stdcall;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  pszMemory: PChar;
+  cchMemory: size_t;
+begin
+  if pszString = nil then begin
+    Result := nil;
     Exit;
   end;
+
+  cchMemory := StrLen(pszString) + 1;
+  pszMemory := PChar(WspiapiMalloc(cchMemory * SizeOf(Char)));
+  if pszMemory = nil then begin
+    Result := nil;
+    Exit;
+  end;
+
+  StrLCopy(pszMemory, pszString, cchMemory);
+  Result := pszMemory;
+end;
+
+function WspiapiParseV4Address(const pszAddress: PChar; var pdwAddress: DWORD): BOOL; stdcall;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  dwAddress: DWORD;
+  pcNext: PChar;
+  iCount: Integer;
+begin
+  iCount := 0;
+
+  // ensure there are 3 '.' (periods)
+  pcNext := pszAddress;
+  while pcNext^ <> #0 do begin
+    if pcNext^ = '.' then begin
+      Inc(iCount);
+    end;
+    Inc(pcNext);
+  end;
+  if iCount <> 3 then begin
+    Result := FALSE;
+    Exit;
+  end;
+
+  // return an error if dwAddress is INADDR_NONE (255.255.255.255)
+  // since this is never a valid argument to getaddrinfo.
+  dwAddress := inet_addr(
+    {$IFDEF STRING_IS_ANSI}
+    pszAddress
+    {$ELSE}
+    PAnsiChar(AnsiString(pszAddress))
     {$ENDIF}
+  );
+  if dwAddress = INADDR_NONE then begin
+    Result := FALSE;
+    Exit;
+  end;
+
+  pdwAddress := dwAddress;
+  Result := TRUE;
+end;
+
+function WspiapiNewAddrInfo(iSocketType, iProtocol: Integer; wPort: WORD; dwAddress: DWORD): {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}; stdcall;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  ptNew: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};
+  ptAddress: PSockAddrIn;
+begin
+  // allocate a new addrinfo structure.
+  {$IFDEF UNICODE}
+  ptNew := PaddrinfoW(WspiapiMalloc(SizeOf(addrinfoW)));
+  {$ELSE}
+  ptNew := Paddrinfo(WspiapiMalloc(SizeOf(addrinfo)));
   {$ENDIF}
+  if ptNew = nil then begin
+    Result := nil;
+    Exit;
+  end;
+
+  ptAddress := PSockAddrIn(WspiapiMalloc(SizeOf(sockaddr_in)));
+  if ptAddress = nil then begin
+    WspiapiFree(ptNew);
+    Result := nil;
+    Exit;
+  end;
+  ptAddress^.sin_family       := AF_INET;
+  ptAddress^.sin_port         := wPort;
+  ptAddress^.sin_addr.s_addr  := dwAddress;
+
+  // fill in the fields...
+  ptNew^.ai_family            := PF_INET;
+  ptNew^.ai_socktype          := iSocketType;
+  ptNew^.ai_protocol          := iProtocol;
+  ptNew^.ai_addrlen           := SizeOf(sockaddr_in);
+  ptNew^.ai_addr              := Psockaddr(ptAddress);
+
+  Result := ptNew;
+end;
+
+function WspiapiQueryDNS(const pszNodeName: PChar; iSocketType, iProtocol: Integer;
+  wPort: WORD; pszAlias: PChar; var pptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+type
+  PPaddrinfo = {$IFDEF UNICODE}^PaddrinfoW{$ELSE}^Paddrino{$ENDIF};
+  PPInAddr = ^PInAddr;
+var
+  pptNext: PPaddrinfo;
+  ptHost: Phostent;
+  ppAddresses: PPInAddr;
+begin
+  pptNext := @pptResult;
+
+  pptNext^ := nil;
+  pszAlias^ := #0;
+
+  ptHost := gethostbyname(
+    {$IFDEF STRING_IS_ANSI}
+    pszNodeName
+    {$ELSE}
+    PAnsiChar(AnsiString(pszNodeName))
+    {$ENDIF}
+  );
+  if ptHost <> nil then begin
+    if (ptHost^.h_addrtype = AF_INET) and (ptHost^.h_length = SizeOf(in_addr)) then begin
+      ppAddresses := Pointer(ptHost^.h_address_list);
+      while ppAddresses^ <> nil do begin
+        // create an addrinfo structure...
+        pptNext^ := WspiapiNewAddrInfo(iSocketType, iProtocol, wPort, ppAddresses^^.s_addr);
+        if pptNext^ = nil then begin
+          Result := EAI_MEMORY;
+          Exit;
+        end;
+
+        pptNext := @((pptNext^)^.ai_next);
+        Inc(ppAddresses);
+      end;
+    end;
+
+    // pick up the canonical name.
+    StrLCopy(pszAlias,
+      {$IFDEF STRING_IS_ANSI}
+      ptHost^.h_name
+      {$ELSE}
+      PChar(String(ptHost^.h_name))
+      {$ENDIF}
+      , NI_MAXHOST);
+
+    Result := 0;
+    Exit;
+  end;
+
+  case WSAGetLastError() of
+    WSAHOST_NOT_FOUND: Result := EAI_NONAME;
+    WSATRY_AGAIN:      Result := EAI_AGAIN;
+    WSANO_RECOVERY:    Result := EAI_FAIL;
+    WSANO_DATA:        Result := EAI_NODATA;
+  else
+    Result := EAI_NONAME;
+  end;
+end;
+
+function WspiapiLookupNode(const pszNodeName: PChar; iSocketType: Integer;
+  iProtocol: Integer; wPort: WORD; bAI_CANONNAME: BOOL; var pptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
+var
+  iError: Integer;
+  iAliasCount: Integer;
+  szFQDN1: array[0..NI_MAXHOST-1] of Char;
+  szFQDN2: array[0..NI_MAXHOST-1] of Char;
+  pszName: PChar;
+  pszAlias: PChar;
+  pszScratch: PChar;
+begin
+  iAliasCount := 0;
+
+  FillChar(szFQDN1, SizeOf(szFQDN1), 0);
+  FillChar(szFQDN2, SizeOf(szFQDN2), 0);
+  pszName := @szFQDN1[0];
+  pszAlias := @szFQDN2[0];
+  pszScratch := nil;
+  StrLCopy(pszName, pszNodeName, NI_MAXHOST);
+
+  repeat
+    iError := WspiapiQueryDNS(pszNodeName, iSocketType, iProtocol, wPort, pszAlias, pptResult);
+    if iError <> 0 then begin
+      Break;
+    end;
+
+    // if we found addresses, then we are done.
+    if pptResult <> nil then begin
+      Break;
+    end;
+
+    // stop infinite loops due to DNS misconfiguration.  there appears
+    // to be no particular recommended limit in RFCs 1034 and 1035.
+    if (StrLen(pszAlias) = 0) or (StrComp(pszName, pszAlias) = 0) then begin
+      iError := EAI_FAIL;
+      Break;
+    end;
+    Inc(iAliasCount);
+    if iAliasCount = 16 then begin
+      iError := EAI_FAIL;
+      Break;
+    end;
+
+    // there was a new CNAME, look again.
+    WspiapiSwap(pszName, pszAlias, pszScratch);
+  until False;
+
+  if (iError = 0) and bAI_CANONNAME then begin
+    pptResult^.ai_canonname := WspiapiStrdup(pszAlias);
+    if pptResult^.ai_canonname = nil then begin
+      iError := EAI_MEMORY;
+    end;
+  end;
+
+  Result := iError;
+end;
+
+function WspiapiClone(wPort: WORD; ptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  ptNext, ptNew: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};
+begin
+  ptNext := ptResult;
+  while ptNext <> nil do begin
+    // create an addrinfo structure...
+    ptNew := WspiapiNewAddrInfo(SOCK_DGRAM, ptNext^.ai_protocol, wPort, PSockAddrIn(ptNext^.ai_addr)^.sin_addr.s_addr);
+    if ptNew = nil then begin
+      Break;
+    end;
+
+    // link the cloned addrinfo
+    ptNew^.ai_next  := ptNext^.ai_next;
+    ptNext^.ai_next := ptNew;
+    ptNext          := ptNew^.ai_next;
+  end;
+
+  if ptNext <> nil then begin
+    Result := EAI_MEMORY;
+    Exit;
+  end;
+
+  Result := 0;
+end;
+
+procedure WspiapiLegacyFreeAddrInfo(ptHead: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}); stdcall;
+var
+ ptNext: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};
+begin
+  ptNext := ptHead;
+  while ptNext <> nil do
+  begin
+    if ptNext^.ai_canonname <> nil then begin
+      WspiapiFree(ptNext^.ai_canonname);
+    end;
+    if ptNext^.ai_addr <> nil then begin
+      WspiapiFree(ptNext^.ai_addr);
+    end;
+    ptHead := ptNext^.ai_next;
+    WspiapiFree(ptNext);
+    ptNext := ptHead;
+  end;
+end;
+
+function WspiapiLegacyGetAddrInfo(const pszNodeName: PChar; const pszServiceName: PChar;
+  const ptHints: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};
+  var pptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
+var
+  iError: Integer;
+  iFlags: Integer;
+  iSocketType: Integer;
+  iProtocol: Integer;
+  wPort: WORD;
+  iTmp: Integer;
+  dwAddress: DWORD;
+  ptService: Pservent;
+  bClone: BOOL;
+  wTcpPort: WORD;
+  wUdpPort: WORD;
+begin
+  iError := 0;
+  iFlags := 0;
+  iSocketType := 0;
+  iProtocol := 0;
+  wPort := 0;
+  dwAddress := 0;
+  bClone := FALSE;
+  wTcpPort := 0;
+  wUdpPort := 0;
+
+  // initialize pptResult with default return value.
+  pptResult := nil;
+
+  ////////////////////////////////////////
+  // validate arguments...
+  //
+
+  // both the node name and the service name can't be NULL.
+  if (pszNodeName = nil) and (pszServiceName = nil) then begin
+    Result := EAI_NONAME;
+    Exit;
+  end;
+
+  // validate hints.
+  if ptHints <> nil then
+  begin
+    // all members other than ai_flags, ai_family, ai_socktype
+    // and ai_protocol must be zero or a null pointer.
+    if (ptHints^.ai_addrlen <> 0) or
+       (ptHints^.ai_canonname <> nil) or
+       (ptHints^.ai_addr <> nil) or
+       (ptHints^.ai_next <> nil) then
+    begin
+      Result := EAI_FAIL;
+      Exit;
+    end;
+
+    // the spec has the "bad flags" error code, so presumably we
+    // should check something here.  insisting that there aren't
+    // any unspecified flags set would break forward compatibility,
+    // however.  so we just check for non-sensical combinations.
+    //
+    // we cannot come up with a canonical name given a null node name.
+    iFlags := ptHints^.ai_flags;
+    if ((iFlags and AI_CANONNAME) <> 0) and (pszNodeName = nil) then begin
+      Result := EAI_BADFLAGS;
+      Exit;
+    end;
+
+    // we only support a limited number of protocol families.
+    if (ptHints^.ai_family <> PF_UNSPEC) and (ptHints^.ai_family <> PF_INET) then begin
+      Result := EAI_FAMILY;
+      Exit;
+    end;
+
+    // we only support only these socket types.
+    iSocketType := ptHints^.ai_socktype;
+    if (iSocketType <> 0) and
+       (iSocketType <> SOCK_STREAM) and
+       (iSocketType <> SOCK_DGRAM) and
+       (iSocketType <> SOCK_RAW) then
+    begin
+      Result := EAI_SOCKTYPE;
+      Exit;
+    end;
+
+    // REVIEW: What if ai_socktype and ai_protocol are at odds?
+    iProtocol := ptHints^.ai_protocol;
+  end;
+
+  ////////////////////////////////////////
+  // do service lookup...
+
+  if pszServiceName <> nil then begin
+    if TryStrToInt(pszServiceName, iTmp) and (iTmp >= 0) then begin
+      wPort := htons(WORD(iTmp));
+      wTcpPort := wPort;
+      wUdpPort := wPort;
+      if iSocketType = 0 then begin
+        bClone := TRUE;
+        iSocketType := SOCK_STREAM;
+      end;
+    end else
+    begin
+      if (iSocketType = 0) or (iSocketType = SOCK_DGRAM) then begin
+        ptService := getservbyname(
+          {$IFDEF STRING_IS_ANSI}
+          pszServiceName
+          {$ELSE}
+          PAnsiChar(AnsiString(pszServiceName))
+          {$ENDIF}
+          , 'udp'); {do not localize}
+        if ptService <> nil then begin
+          wPort := ptService^.s_port;
+          wUdpPort := wPort;
+        end;
+      end;
+
+      if (iSocketType = 0) or (iSocketType = SOCK_STREAM) then begin
+        ptService := getservbyname(
+          {$IFDEF STRING_IS_ANSI}
+          pszServiceName
+          {$ELSE}
+          PAnsiChar(AnsiString(pszServiceName))
+          {$ENDIF}
+          , 'tcp'); {do not localize}
+        if ptService <> nil then begin
+          wPort := ptService^.s_port;
+          wTcpPort := wPort;
+        end;
+      end;
+
+      // assumes 0 is an invalid service port...
+      if wPort = 0 then begin
+        Result := iif(iSocketType <> 0, EAI_SERVICE, EAI_NONAME);
+        Exit;
+      end;
+
+      if iSocketType = 0 then begin
+        // if both tcp and udp, process tcp now & clone udp later.
+        iSocketType := iif(wTcpPort <> 0, SOCK_STREAM, SOCK_DGRAM);
+        bClone := (wTcpPort <> 0) and (wUdpPort <> 0);
+      end;
+    end;
+  end;
+
+  ////////////////////////////////////////
+  // do node name lookup...
+
+  // if we weren't given a node name,
+  // return the wildcard or loopback address (depending on AI_PASSIVE).
+  //
+  // if we have a numeric host address string,
+  // return the binary address.
+  //
+  if ((pszNodeName = nil) or WspiapiParseV4Address(pszNodeName, dwAddress)) then begin
+    if pszNodeName <> nil then begin
+      dwAddress := htonl(iif((iFlags and AI_PASSIVE) <> 0, INADDR_ANY, INADDR_LOOPBACK));
+    end;
+
+    // create an addrinfo structure...
+    pptResult := WspiapiNewAddrInfo(iSocketType, iProtocol, wPort, dwAddress);
+    if pptResult = nil then begin
+      iError := EAI_MEMORY;
+    end;
+        
+    if (iError = 0) and (pszNodeName <> nil) then begin
+      // implementation specific behavior: set AI_NUMERICHOST
+      // to indicate that we got a numeric host address string.
+      pptResult^.ai_flags := pptResult^.ai_flags or AI_NUMERICHOST;
+      // return the numeric address string as the canonical name
+      if (iFlags and AI_CANONNAME) <> 0 then begin
+        pptResult^.ai_canonname := WspiapiStrdup(
+          {$IFDEF STRING_IS_ANSI}
+          inet_ntoa(PInAddr(@dwAddress)^)
+          {$ELSE}
+          PChar(String(inet_ntoa(PInAddr(@dwAddress)^)))
+          {$ENDIF}
+          );
+        if pptResult^.ai_canonname = nil then begin
+          iError := EAI_MEMORY;
+        end;
+      end;
+    end;
+  end
+
+  // if we do not have a numeric host address string and
+  // AI_NUMERICHOST flag is set, return an error!
+  else if ((iFlags and AI_NUMERICHOST) <> 0) then begin
+    iError := EAI_NONAME;
+  end
+
+  // since we have a non-numeric node name,
+  // we have to do a regular node name lookup.
+  else begin
+    iError := WspiapiLookupNode(pszNodeName, iSocketType, iProtocol, wPort, (iFlags and AI_CANONNAME) <> 0, pptResult);
+  end;
+
+  if (iError = 0) and bClone then begin
+    iError := WspiapiClone(wUdpPort, pptResult);
+  end;
+
+  if iError <> 0 then begin
+    WspiapiLegacyFreeAddrInfo(pptResult);
+    pptResult := nil;
+  end;
+
+  Result := iError;
+end;
+
+function iif(ATest: Boolean; const ATrue, AFalse: PAnsiChar): PAnsiChar;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if ATest then begin
+    Result := ATrue;
+  end else begin
+    Result := AFalse;
+  end;
+end;
+
+function WspiapiLegacyGetNameInfo(ptSocketAddress: Psockaddr;
+  tSocketLength: u_int; pszNodeName: PChar; tNodeLength: size_t;
+  pszServiceName: PChar; tServiceLength: size_t; iFlags: Integer): Integer; stdcall;
+var
+  ptService: Pservent;
+  wPort: WORD;
+  szBuffer: array[0..5] of Char;
+  pszService: PChar;
+  ptHost: Phostent;
+  tAddress: in_addr;
+  pszNode: PChar;
+  pc: PChar;
+  tmp: String;
+  {$IFNDEF STRING_IS_ANSI}
+  tmpService: String;
+  tmpNode: String;
+  {$ENDIF}
+begin
+  StrCopy(szBuffer, '65535');
+  pszService := szBuffer;
+
+  // sanity check ptSocketAddress and tSocketLength.
+  if (ptSocketAddress = nil) or (tSocketLength < SizeOf(sockaddr)) then begin
+    Result := EAI_FAIL;
+    Exit;
+  end;
+
+  if ptSocketAddress^.sa_family <> AF_INET then begin
+    Result := EAI_FAMILY;
+    Exit;
+  end;
+
+  if tSocketLength < SizeOf(sockaddr_in) then begin
+    Result := EAI_FAIL;
+    Exit;
+  end;
+
+  if (not ((pszNodeName <> nil) and (tNodeLength > 0))) and (not ((pszServiceName <> nil) and (tServiceLength > 0))) then begin
+    Result := EAI_NONAME;
+    Exit;
+  end;
+
+  // the draft has the "bad flags" error code, so presumably we
+  // should check something here.  insisting that there aren't
+  // any unspecified flags set would break forward compatibility,
+  // however.  so we just check for non-sensical combinations.
+  if ((iFlags and NI_NUMERICHOST) <> 0) and ((iFlags and NI_NAMEREQD) <> 0) then begin
+    Result := EAI_BADFLAGS;
+    Exit;
+  end;
+
+  // translate the port to a service name (if requested).
+  if (pszServiceName <> nil) and (tServiceLength > 0) then begin
+    wPort := PSockAddrIn(ptSocketAddress)^.sin_port;
+
+    if (iFlags and NI_NUMERICSERV) <> 0 then begin
+      // return numeric form of the address.
+      StrPLCopy(szBuffer, IntToStr(ntohs(wPort)), Length(szBuffer));
+    end else
+    begin
+      // return service name corresponding to port.
+      ptService := getservbyport(wPort, iif((iFlags and NI_DGRAM) <> 0, 'udp', nil));
+      if (ptService <> nil) and (ptService^.s_name <> nil) then begin
+        // lookup successful.
+        {$IFDEF STRING_IS_ANSI}
+        pszService := ptService^.s_name;
+        {$ELSE}
+        tmpService := String(ptService^.s_name);
+        pszService := PChar(tmp);
+        {$ENDIF}
+      end else begin
+        // DRAFT: return numeric form of the port!
+        StrPLCopy(szBuffer, IntToStr(ntohs(wPort)), Length(szBuffer));
+      end;
+    end;
+
+    if tServiceLength > StrLen(pszService) then begin
+      StrLCopy(pszServiceName, pszService, tServiceLength);
+    end else begin
+      Result := EAI_FAIL;
+      Exit;
+    end;
+  end;
+
+  // translate the address to a node name (if requested).
+  if (pszNodeName <> nil) and (tNodeLength > 0) then begin
+    // this is the IPv4-only version, so we have an IPv4 address.
+    tAddress := PSockAddrIn(ptSocketAddress)^.sin_addr;
+
+    if (iFlags and NI_NUMERICHOST) <> 0 then begin
+      // return numeric form of the address.
+      {$IFDEF STRING_IS_ANSI}
+      pszNode := inet_ntoa(tAddress);
+      {$ELSE}
+      tmpNode := String(inet_ntoa(tAddress));
+      pszNode := PChar(tmpNode);
+      {$ENDIF}
+    end else
+    begin
+      // return node name corresponding to address.
+      ptHost := gethostbyaddr(PAnsiChar(@tAddress), SizeOf(in_addr), AF_INET);
+      if (ptHost <> nil) and (ptHost^.h_name <> nil) then begin
+        // DNS lookup successful.
+        // stop copying at a "." if NI_NOFQDN is specified.
+        {$IFDEF STRING_IS_ANSI}
+        pszNode := ptHost^.h_name;
+        {$ELSE}
+        tmpNode := String(ptHost^.h_name);
+        pszNode := PChar(tmpNode);
+        {$ENDIF}
+        if (iFlags and NI_NOFQDN) <> 0 then begin
+          pc := StrScan(pszNode, '.');
+          if pc <> nil then begin
+            pc^ := #0;
+          end;
+        end;
+      end else
+      begin
+        // DNS lookup failed.  return numeric form of the address.
+        if (iFlags and NI_NAMEREQD) <> 0 then begin
+          case WSAGetLastError() of
+            WSAHOST_NOT_FOUND: Result := EAI_NONAME;
+            WSATRY_AGAIN:      Result := EAI_AGAIN;
+            WSANO_RECOVERY:    Result := EAI_FAIL;
+          else
+            Result := EAI_NONAME;
+          end;
+          Exit;
+        end else begin
+          {$IFDEF STRING_IS_ANSI}
+          pszNode := inet_ntoa(tAddress);
+          {$ELSE}
+          tmpNode := String(inet_ntoa(tAddress));
+          pszNode := PChar(tmpNode);
+          {$ENDIF}
+        end;
+      end;
+    end;
+
+    if tNodeLength > StrLen(pszNode) then begin
+      StrLCopy(pszNodeName, pszNode, tNodeLength);
+    end else begin
+      Result := EAI_FAIL;
+      Exit;
+    end;
+  end;
+
+  Result := 0;
+end;
+
+procedure InitLibrary;
+begin
 {
 IMPORTANT!!!
 
@@ -538,8 +1185,6 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
       freeaddrinfo := GetProcAddress(hProcHandle, fn_freeaddrinfo);  {do not localize}
       if Assigned(freeaddrinfo) then
       begin
-        GIdIPv6FuncsAvailable := True;
-
         //Additional functions should be initialized here.
         {$IFNDEF WINCE}
         inet_pton := GetProcAddress(hProcHandle, fn_inet_pton);  {do not localize}
@@ -563,6 +1208,12 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
   end;
 
   CloseLibrary;
+
+  getaddrinfo := @WspiapiLegacyGetAddrInfo;
+  getnameinfo := @WspiapiLegacyGetNameInfo;
+  freeaddrinfo := @WspiapiLegacyFreeAddrInfo;
+
+  GIdIPv6FuncsAvailable := True;
 end;
 
 initialization

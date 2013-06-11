@@ -120,6 +120,11 @@ type
     FOnTerminate: TIdNotifyThreadComponentEvent;
     FOnHandleRunException: TIdExceptionThreadComponentEventEx;
     //
+    {$IFDEF INT_THREAD_PRIORITY}
+    procedure DefineProperties(Filer: TFiler); override;
+    procedure ReadPriority(Reader: TReader);
+    procedure WritePriority(Writer: TWriter);
+    {$ENDIF}
     procedure DoAfterExecute; virtual;
     procedure DoAfterRun; virtual;
     procedure DoBeforeExecute; virtual;
@@ -187,10 +192,15 @@ type
     property TerminatingException: string read GetTerminatingException;
     property TerminatingExceptionClass: TClass read GetTerminatingExceptionClass;
     property Terminated: Boolean read GetTerminated;
+    {$IFDEF INT_THREAD_PRIORITY}
+    property Priority: TIdThreadPriority read GetPriority write SetPriority;
+    {$ENDIF}
   published
     property Active: Boolean read GetActive write SetActive;
     property Loop: Boolean read FLoop write SetLoop;
+    {$IFNDEF INT_THREAD_PRIORITY}
     property Priority: TIdThreadPriority read GetPriority write SetPriority;
+    {$ENDIF}
     property StopMode: TIdThreadStopMode read GetStopMode write SetStopMode;
     property ThreadName: string read FThreadName write SetThreadName;
     // Events
@@ -283,6 +293,50 @@ begin
 end;
 
 { TIdThreadComponent }
+
+{$IFDEF INT_THREAD_PRIORITY}
+procedure TIdThreadComponent.DefineProperties(Filer: TFiler);
+begin
+  inherited;
+  Filer.DefineProperty('Priority', ReadPriority, WritePriority, FPriority <> tpNormal);
+end;
+
+procedure TIdThreadComponent.ReadPriority(Reader: TReader);
+var
+  Value: Integer;
+begin
+  if Reader.NextValue = vaIdent then
+  begin
+    // an older DFM that stored TThreadPriority as enum value names is being read, so convert to integer ...
+    case PosInStrArray(Reader.ReadIdent, ['tpIdle', 'tpLowest', 'tpLower', 'tpNormal', 'tpHigher', 'tpHighest', 'tpTimeCritical'], False) of {do not localize}
+      0: Value := tpIdle;
+      1: Value := tpLowest;
+      2: Value := tpLower;
+      3: Value := tpNormal;
+      4: Value := tpHigher;
+      5: Value := tpHighest;
+      6: Value := tpTimeCritical;
+    else
+      Value := tpNormal;
+    end;
+  end else
+  begin
+    Value := Reader.ReadInteger;
+    if Value < -20 then begin
+      Value := -20;
+    end
+    else if Value > 19 then begin
+      Value := 19;
+    end;
+  end;
+  FPriority := Value;
+end;
+
+procedure TIdThreadComponent.WritePriority(Writer: TWriter);
+begin
+  Writer.WriteInteger(FPriority);
+end;
+{$ENDIF}
 
 procedure TIdThreadComponent.DoAfterExecute;
 begin

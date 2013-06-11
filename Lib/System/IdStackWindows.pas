@@ -832,10 +832,6 @@ end;
 function TIdStackWindows.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
-  Host: PHostEnt;
-  {$IFNDEF WINCE}
-  LAddr: u_long;
-  {$ENDIF}
   {$IFDEF UNICODE}
   Hints: TAddrInfoW;
   LAddrInfo: pAddrInfoW;
@@ -844,53 +840,25 @@ var
   LAddrInfo: pAddrInfo;
   {$ENDIF}
   RetVal: Integer;
-  {$IFDEF STRING_IS_UNICODE}
-  LTemp: AnsiString;
-  {$ELSE}
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
+  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
   LTemp: TIdUnicodeString;
-    {$ENDIF}
   {$ENDIF}
 begin
-  //GetHostByName and GetHostByAddr may not be availble in future versions
-  //of Windows CE.  Those functions are depreciated in favor of the new
-  //getaddrinfo and getname functions even in Windows so they should be used
-  //when available anyway.
-  //We do have to use the depreciated functions in Windows NT 4.0, probably
-  //Windows 2000, and of course Win9x so fall to our old code in these cases.
-  {$IFNDEF WINCE}
-  if not GIdIPv6FuncsAvailable then
-  begin
-    case AIPVersion of
-      Id_IPv4:
-        begin
-          {$IFDEF STRING_IS_UNICODE}
-          LTemp := AnsiString(AAddress); // explicit convert to Ansi
-          {$ENDIF}
-          LAddr := inet_addr(PAnsiChar({$IFDEF STRING_IS_UNICODE}LTemp{$ELSE}AAddress{$ENDIF}));
-          Host := gethostbyAddr(@LAddr, SIZE_TADDRINFO, AF_INET);
-          if Host = nil then begin
-            CheckForSocketError(SOCKET_ERROR);
-          end else begin
-            Result := String(Host^.h_name);
-          end;
-        end;
-      Id_IPv6: begin
-        raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
-      end;
-    else
-      IPVersionUnsupported;
-    end;
-    Exit;
-  end;
-  {$ENDIF}
   if not (AIPVersion in [Id_IPv4, Id_IPv6]) then begin
     IPVersionUnsupported;
   end;
+
+  // TODO: should this be calling getnameinfo() first and then getaddrinfo()
+  // to check for a malicious PTR record, like the other TIdStack classes do?
+
+  // TODO: use TranslateStringToTInAddr() instead of getaddrinfo() to convert
+  // the IP address to a sockaddr struct for getnameinfo(), like other TIdStack
+  // classes do.
+
   FillChar(Hints, SizeOf(Hints), 0);
   Hints.ai_family := IdIPFamily[AIPVersion];
   Hints.ai_socktype := Integer(SOCK_STREAM);
-  Hints.ai_flags := AI_CANONNAME;
+  Hints.ai_flags := AI_NUMERICHOST;
   LAddrInfo := nil;
 
   {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
@@ -923,6 +891,7 @@ end;
 function TIdStackWindows.ReadHostName: string;
 var
   // Note that there is no Unicode version of gethostname.
+  // Maybe use getnameinfo() instead?
   LStr: AnsiString;
 begin
   SetLength(LStr, SIZE_HOSTNAME);
@@ -1036,6 +1005,9 @@ end;
 function TIdStackWindows.WSGetLastError: Integer;
 begin
   Result := WSAGetLastError;
+  if Result = -1073741251{STATUS_HOST_UNREACHABLE} then begin
+    Result := WSAEHOSTUNREACH;
+  end
 end;
 
 procedure TIdStackWindows.WSSetLastError(const AErr : Integer);
@@ -1373,11 +1345,6 @@ var
 
   {$ELSE}
 
-    {$IFNDEF WINCE}
-  i: integer;
-  AHost: PHostEnt;
-  PAdrPtr: PaPInAddr;
-    {$ENDIF}
     {$IFDEF UNICODE}
   Hints: TAddrInfoW;
   LAddrList, LAddrInfo: pAddrInfoW;
@@ -1387,12 +1354,8 @@ var
     {$ENDIF}
   RetVal: Integer;
   LHostName: String;
-    {$IFDEF STRING_IS_UNICODE}
-  LTemp: AnsiString;
-    {$ELSE}
-      {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
+    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
   LTemp: TIdUnicodeString;
-      {$ENDIF}
     {$ENDIF}
 
   {$ENDIF}
@@ -1417,41 +1380,6 @@ begin
   {$ELSE}
 
   LHostName := HostName;
-
-  {$IFNDEF WINCE}
-  if not GIdIPv6FuncsAvailable then
-  begin
-    {$IFDEF STRING_IS_UNICODE}
-    LTemp := AnsiString(LHostName); // explicit convert to Ansi
-    {$ENDIF}
-    AHost := gethostbyname(
-      PAnsiChar({$IFDEF STRING_IS_UNICODE}LTemp{$ELSE}LHostName{$ENDIF}));
-    if AHost = nil then begin
-      RaiseLastSocketError;
-    end;
-    // gethostbyname() might return other things besides IPv4 addresses, so we
-    // need to validate the address type before attempting the conversion...
-
-    // TODO: support IPv6 addresses
-    if AHost^.h_addrtype = Id_PF_INET4 then
-    begin
-      PAdrPtr := PAPInAddr(AHost^.h_address_list);
-      i := 0;
-      if PAdrPtr^[i] <> nil then begin
-        AAddresses.BeginUpdate;
-        try
-          repeat
-            AAddresses.Add(TranslateTInAddrToString(PAdrPtr^[I]^, Id_IPv4)); //BGO FIX
-            Inc(I);
-          until PAdrPtr^[i] = nil;
-        finally
-          AAddresses.EndUpdate;
-        end;
-      end;
-    end;
-    Exit;
-  end;
-  {$ENDIF}
 
   ZeroMemory(@Hints, SIZE_TADDRINFO);
   Hints.ai_family := Id_PF_INET4; // TODO: support IPv6 addresses
@@ -1763,10 +1691,6 @@ type
   PaPInAddr = ^TaPInAddr;
 {$ENDIF}
 var
-  {$IFNDEF WINCE}
-  LHost: PHostEnt;
-  PAdrPtr: PaPInAddr;
-  {$ENDIF}
   {$IFDEF UNICODE}
   LAddrInfo: pAddrInfoW;
   Hints: TAddrInfoW;
@@ -1777,46 +1701,6 @@ var
   RetVal: Integer;
   LTemp: string;
 begin
-  //GetHostByName and GetHostByAddr may not be availble in future versions
-  //of Windows CE.  Those functions are depreciated in favor of the new
-  //getaddrinfo and getname functions even in Windows so they should be used
-  //when available anyway.
-  //We do have to use the depreciated functions in Windows NT 4.0, probably
-  //Windows 2000, and of course Win9x so fall to our old code in these cases.
-  {$IFNDEF WINCE}
-  if not GIdIPv6FuncsAvailable then
-  begin
-    case AIPVersion of
-      Id_IPv4:
-        begin
-          LHost := IdWinsock2.gethostbyname(
-            PAnsiChar(
-              {$IFDEF STRING_IS_UNICODE}
-              AnsiString(AHostName) // explicit convert to Ansi
-              {$ELSE}
-              AHostName
-              {$ENDIF}
-              )
-            );
-          if LHost = nil then begin
-            RaiseLastSocketError;
-          end;
-          // TODO: gethostbyname() might return other things besides IPv4
-          // addresses, so we should be validating the address type
-          // before attempting the conversion...
-          PAdrPtr := PAPInAddr(LHost^.h_address_list);
-          Result := TranslateTInAddrToString(PAdrPtr^[0]^, Id_IPv4);
-        end;
-      Id_IPv6: begin
-        raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
-      end;
-    else
-      IPVersionUnsupported;
-    end;
-    Exit;
-  end;
-  {$ENDIF}
-
   if not (AIPVersion in [Id_IPv4, Id_IPv6]) then begin
     IPVersionUnsupported;
   end;
@@ -1849,9 +1733,9 @@ begin
   end;
   try
     if AIPVersion = Id_IPv4 then begin
-      Result := TranslateTInAddrToString(LAddrInfo^.ai_addr^.sin_addr, AIPVersion)
+      Result := TranslateTInAddrToString(PSockAddrIn(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4)
     end else begin
-      Result := TranslateTInAddrToString(LAddrInfo^.ai_addr^.sin_zero, AIPVersion);
+      Result := TranslateTInAddrToString(PSockAddrIn6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6);
     end;
   finally
     freeaddrinfo(LAddrInfo);
@@ -2005,11 +1889,6 @@ var
   LAddr : TSockAddrIn6;
   Bytes : LongWord;
 begin
-  {
-  if not GIdIPv6FuncsAvailable then begin
-    EIdIPv6Unavailable.Toss(RSIPv6Unavailable);
-  end;
-  }
   //make our LAddrInfo structure
   FillChar(LAddr, SizeOf(LAddr), 0);
   LAddr.sin6_family := AF_INET6;

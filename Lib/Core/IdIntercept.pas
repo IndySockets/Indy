@@ -82,9 +82,9 @@ type
     {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdConnectionIntercept;
     FIsClient: Boolean;
     {$IFDEF USE_OBJECT_ARC}
-    // When AutoRefCounting is enabled, object references MUST be valid objects.
-    // It is common for users to store non-object values, though, so we will
-    // provide separate properties for those purposes
+    // When ARC is enabled, object references MUST be valid objects.
+    // It is common for users to store non-object values, though, so
+    // we will provide separate properties for those purposes
     FDataObject: TObject;
     FDataValue: PtrInt;
     {$ELSE}

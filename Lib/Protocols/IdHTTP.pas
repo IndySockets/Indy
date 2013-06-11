@@ -2313,14 +2313,19 @@ end;
 
 function TIdHTTPResponse.GetResponseCode: Integer;
 var
-  S: string;
+  S, Tmp: string;
 begin
   if FResponseCode = -1 then
   begin
     S := FResponseText;
     Fetch(S);
     S := Trim(S);
-    FResponseCode := IndyStrToInt(Fetch(S, ' ', False), -1);
+    // RLebeau: IIS supports status codes with decimals in them, but it is not supposed to
+    // transmit them to clients, which is a violation of RFC 2616. But have seen it happen,
+    // so check for it...
+    Tmp := Fetch(S, ' ', False); {do not localize}
+    S := Fetch(Tmp, '.', False); {do not localize}
+    FResponseCode := IndyStrToInt(S, -1);
   end;
   Result := FResponseCode;
 end;

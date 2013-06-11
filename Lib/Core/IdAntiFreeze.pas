@@ -74,7 +74,13 @@ to be statically compiled into the code }
 
 type
   {$IFDEF HAS_ComponentPlatformsAttribute}
-  [ComponentPlatformsAttribute(pidWin32 or pidWin64 or pidOSX32)]
+  [ComponentPlatformsAttribute(
+    pidWin32 or pidWin64 or pidOSX32
+    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator} or pidiOSSimulator{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device} or pidiOSDevice{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Android} or pidAndroid{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Linux32} or pidLinux32{$ENDIF}
+  )]
   {$ENDIF}
   TIdAntiFreeze = class(TIdAntiFreezeBase)
   public

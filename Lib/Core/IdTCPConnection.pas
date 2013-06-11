@@ -706,6 +706,7 @@ begin
       if Assigned(LIOHandler) then begin
         FIOHandler := nil;
         {$IFDEF USE_OBJECT_ARC}
+        // have to remove the Owner's strong references so it can be freed
         RemoveComponent(LIOHandler);
         {$ENDIF}
         FreeAndNil(LIOHandler);

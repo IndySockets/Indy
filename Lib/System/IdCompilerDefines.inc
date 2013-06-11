@@ -88,6 +88,10 @@
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
 {$UNDEF HAS_ComponentPlatformsAttribute}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
+{$UNDEF HAS_ComponentPlatformsAttribute_Android}
+{$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
 
 // detect compiler versions
 
@@ -838,6 +842,8 @@
   {$DEFINE HAS_AnsiStrings_StrPLCopy}
   {$DEFINE HAS_AnsiStrings_StrLen}
   {$DEFINE HAS_Character_TCharHelper}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling

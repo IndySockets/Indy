@@ -139,8 +139,8 @@ type
 
   TOnReplyEvent = procedure(ASender: TComponent; const AReplyStatus: TReplyStatus) of object;
 
-  // TODO: on MacOSX, can use a UDP socket instead of a RAW socket so that
-  // non-privilege processes do not require root access...
+  // TODO: on MacOSX (and maybe iOS?), can use a UDP socket instead of a RAW
+  // socket so that non-privilege processes do not require root access...
 
   TIdCustomIcmpClient = class(TIdRawClient)
   protected

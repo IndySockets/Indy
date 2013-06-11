@@ -3122,6 +3122,9 @@ begin
   AMIMEList.Add('.sgm=text/sgml');    {Do not Localize}
   AMIMEList.Add('.sgml=text/sgml');    {Do not Localize}
 
+  { Message }
+  AMIMEList.Add('.mht=message/rfc822');    {Do not Localize}
+
   if not ALoadFromOS then begin
     Exit;
   end;

@@ -447,6 +447,7 @@ begin
             FTransparentProxy := nil;
             FImplicitTransparentProxy := False;
             {$IFDEF USE_OBJECT_ARC}
+            // have to remove the Owner's strong references so it can be freed
             RemoveComponent(LTransparentProxy);
             {$ENDIF}
             FreeAndNil(LTransparentProxy);
@@ -467,6 +468,7 @@ begin
         FTransparentProxy := nil;
         FImplicitTransparentProxy := False;
         {$IFDEF USE_OBJECT_ARC}
+        // have to remove the Owner's strong references so it can be freed
         RemoveComponent(LTransparentProxy);
         {$ENDIF}
         FreeAndNil(LTransparentProxy);

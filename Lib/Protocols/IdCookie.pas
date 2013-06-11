@@ -549,6 +549,8 @@ var
             // Not in the RFCs, but some servers specify Expires as an
             // integer number in seconds instead of using Max-Age...
             if LSecs >= 0 then begin
+              // TODO: use SecsPerDay instead:
+              // LExpiryTime := (Now + (LSecs / SecsPerDay));
               LExpiryTime := (Now + LSecs * 1000 / MSecsPerDay);
             end else begin
               LExpiryTime := EncodeDate(1, 1, 1);
@@ -565,6 +567,8 @@ var
         1: begin
           if TryStrToInt64(LValue, LSecs) then begin
             if LSecs >= 0 then begin
+              // TODO: use SecsPerDay instead:
+              // LExpiryTime := (Now + (LSecs / SecsPerDay));
               LExpiryTime := (Now + LSecs * 1000 / MSecsPerDay);
             end else begin
               LExpiryTime := EncodeDate(1, 1, 1);
