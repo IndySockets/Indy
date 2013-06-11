@@ -621,13 +621,10 @@ end;
 function WspiapiQueryDNS(const pszNodeName: PChar; iSocketType, iProtocol: Integer;
   wPort: WORD; pszAlias: PChar; var pptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
-type
-  PPaddrinfo = {$IFDEF UNICODE}^PaddrinfoW{$ELSE}^Paddrino{$ENDIF};
-  PPInAddr = ^PInAddr;
 var
-  pptNext: PPaddrinfo;
+  pptNext: {$IFDEF UNICODE}PPaddrinfoW{$ELSE}PPaddrinfo{$ENDIF};
   ptHost: Phostent;
-  ppAddresses: PPInAddr;
+  ppAddresses: ^PInAddr;
 begin
   pptNext := @pptResult;
 
@@ -875,7 +872,7 @@ begin
   if pszServiceName <> nil then begin
     if TryStrToInt(pszServiceName, iTmp) and (iTmp >= 0) then begin
       wPort := htons(WORD(iTmp));
-      wTcpPort := wPort;
+      //wTcpPort := wPort; // never used
       wUdpPort := wPort;
       if iSocketType = 0 then begin
         bClone := TRUE;
