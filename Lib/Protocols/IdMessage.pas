@@ -982,9 +982,6 @@ begin
   References := Headers.Values['References']; {do not localize}
 
   DecodeAddresses(Headers.Values['Reply-To'], ReplyTo); {do not localize}
-  if Length(ReplyTo.EmailAddresses) = 0 then begin
-    DecodeAddresses(Headers.Values['Return-Path'], ReplyTo); {do not localize}
-  end;
 
   Date := GMTToLocalDateTime(Headers.Values['Date']); {do not localize}
   Sender.Text := Headers.Values['Sender']; {do not localize}
