@@ -240,6 +240,10 @@ resourcestring
   RSHTTPGone = 'Gone';
   RSHTTPLengthRequired = 'Length Required';
   RSHTTPPreconditionFailed = 'Precondition Failed';
+  RSHTTPPreconditionRequired = 'Precondition Required';
+  RSHTTPTooManyRequests = 'Too Many Requests';
+  RSHTTPRequestHeaderFieldsTooLarge = 'Request Header Fields Too Large';
+  RSHTTPNetworkAuthenticationRequired = 'Network Authentication Required';
   RSHTTPRequestEntityTooLong = 'Request Entity Too Long';
   RSHTTPRequestURITooLong = 'Request-URI Too Long. 256 Chars max';
   RSHTTPUnsupportedMediaType = 'Unsupported Media Type';

@@ -235,6 +235,9 @@ type
     function Delete(const MsgNum: Integer): Boolean;
     procedure DisconnectNotifyPeer; override;
     procedure KeepAlive;
+    function List(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
+    procedure ParseLIST(ALine: String; var VMsgNum, VMsgSize: Integer);
+    procedure ParseUIDL(ALine: String; var VMsgNum: Integer; var VUidl: String);
     function Reset: Boolean;
     function Retrieve(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
     function RetrieveHeader(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
@@ -242,6 +245,7 @@ type
     function RetrieveMailBoxSize: integer;
     function RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings): boolean; overload;
     function RetrieveRaw(const aMsgNo: Integer; const aDest: TStream): boolean; overload;
+    function RetrieveStats(var VMsgCount, VMailBoxSize: Integer): Boolean;
     function UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
     function Top(const AMsgNum: Integer; const ADest: TStrings; const AMaxLines: Integer = 0): boolean;
     function CAPA: Boolean;
@@ -280,17 +284,14 @@ uses
 
 function TIdPOP3.CheckMessages: longint;
 var
-  s: string;
+  LMsgCount, LIgnore: Integer;
 begin
-  Result := 0;
-  SendCmd('STAT', ST_OK);    {Do not Localize}
-
-  // Only gets here if exception is not raised
-
-  s := LastCmdResult.Text[0];
-  if Length(s) > 0 then begin
-    Result := IndyStrToInt(Copy(s, 1, IndyPos(' ', s) - 1));    {Do not Localize}
+  // RLebeau: for backwards compatibility, raise an exception if STAT fails
+  if not RetrieveStats(LMsgCount, LIgnore) then begin
+    RaiseExceptionForLastCmdResult;
   end;
+  // Only gets here if exception is not raised
+  Result := LMsgCount;
 end;
 
 procedure TIdPOP3.Login;
@@ -422,26 +423,12 @@ end;
 
 function TIdPOP3.RetrieveMailBoxSize: integer;
 var
-  CurrentLine: string;
+  LIgnore: Integer;
 begin
-  // Kudzu: Why is this needed? Stat returns this value....
-  //
-  // Returns the size of the mailbox. Issues a LIST command and then
-  // sums up each message size. The message sizes are returned in the format
-  // 1 1400 2 405 3 100 etc....
-  // With this routine, we prevent the user having to call RetrieveSize for
-  // each message to get the mailbox size
-  Result := 0;
+  // RLebeau: for backwards compatibility, return -1 if STAT fails
   try
-    SendCmd('LIST', ST_OK);    {Do not Localize}
-    CurrentLine := IOHandler.ReadLn;
-    while (CurrentLine <> '.') and (CurrentLine <> '') do    {Do not Localize}
-    begin
-      // RL - ignore the message number, grab just the octets,
-      // and ignore everything else that may be present
-      Fetch(CurrentLine);
-      Result := Result + IndyStrToInt(Fetch(CurrentLine), 0);
-      CurrentLine := IOHandler.ReadLn;
+    if not RetrieveStats(LIgnore, Result) then begin
+      RaiseExceptionForLastCmdResult;
     end;
   except
     Result := -1;
@@ -464,6 +451,47 @@ begin
   end;
 end;
 
+function TIdPOP3.RetrieveStats(var VMsgCount, VMailBoxSize: Integer): Boolean;
+var
+  s: string;
+begin
+  VMsgCount := 0;
+  VMailBoxSize := 0;
+  Result := (SendCmd('STAT', '') = ST_OK);    {Do not Localize}
+  if Result then begin
+    s := LastCmdResult.Text[0];
+    if Length(s) > 0 then begin
+      VMsgCount := IndyStrToInt(Fetch(s));
+      VMailBoxSize := IndyStrToInt(Fetch(s));
+    end;
+  end;
+end;
+
+function TIdPOP3.List(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
+var
+  LEncoding: IIdTextEncoding;
+begin
+  if AMsgNum >= 0 then begin
+    Result := (SendCmd('LIST ' + IntToStr(AMsgNum), '') = ST_OK);    {Do not Localize}
+    if Result then begin
+      ADest.Assign(LastCmdResult.Text);
+    end;
+  end
+  else begin
+    Result := (SendCmd('LIST', '') = ST_OK);    {Do not Localize}
+    if Result then begin
+      LEncoding := IndyTextEncoding_8Bit;
+      IOHandler.Capture(ADest, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    end;
+  end;
+end;
+
+procedure TIdPOP3.ParseLIST(ALine: String; var VMsgNum, VMsgSize: Integer);
+begin
+  VMsgNum := IndyStrToInt(Fetch(ALine), -1);
+  VMsgSize := IndyStrToInt(Fetch(ALine), -1);
+end;
+
 function TIdPOP3.UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
 var
   LEncoding: IIdTextEncoding;
@@ -481,6 +509,12 @@ begin
       IOHandler.Capture(ADest, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
     end;
   end;
+end;
+
+procedure TIdPOP3.ParseUIDL(ALine: String; var VMsgNum: Integer; var VUidl: String);
+begin
+  VMsgNum := IndyStrToInt(Fetch(ALine), -1);
+  VUidl := Fetch(ALine);
 end;
 
 function TIdPOP3.Top(const AMsgNum: Integer; const ADest: TStrings; const AMaxLines: Integer = 0): boolean;

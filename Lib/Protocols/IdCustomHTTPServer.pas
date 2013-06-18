@@ -1957,6 +1957,9 @@ begin
     414: ResponseText := RSHTTPRequestURITooLong;
     415: ResponseText := RSHTTPUnsupportedMediaType;
     417: ResponseText := RSHTTPExpectationFailed;
+    428: ResponseText := RSHTTPPreconditionRequired;
+    429: ResponseText := RSHTTPTooManyRequests;
+    431: ResponseText := RSHTTPRequestHeaderFieldsTooLarge;
     // 5XX Server errors
     500: ResponseText := RSHTTPInternalServerError;
     501: ResponseText := RSHTTPNotImplemented;
@@ -1964,6 +1967,7 @@ begin
     503: ResponseText := RSHTTPServiceUnavailable;
     504: ResponseText := RSHTTPGatewayTimeout;
     505: ResponseText := RSHTTPHTTPVersionNotSupported;
+    511: ResponseText := RSHTTPNetworkAuthenticationRequired;
     else
       ResponseText := RSHTTPUnknownResponseCode;
   end;
