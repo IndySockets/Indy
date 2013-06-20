@@ -1432,7 +1432,7 @@ function DetectXmlCharset(AStream: TStream): String;
 var
   Buffer: TIdBytes;
   InBuf, StreamPos, CurPos: TIdStreamSize;
-  XmlDec: String;
+  XmlDec, XmlEnc: String;
   {$IFDEF STRING_IS_IMMUTABLE}
   LSB: TIdStringBuilder;
   {$ENDIF}
@@ -1449,7 +1449,10 @@ var
   end;
 
 begin
-  Result := '';
+  // XML's default encoding is UTF-8 unless specified otherwise, either
+  // by a BOM or an explicit "encoding" in the XML's prolog...
+
+  Result := 'UTF-8'; {do not localize}
 
   StreamPos := AStream.Position;
   try
@@ -1570,12 +1573,19 @@ begin
 
     if XmlDec[1] = #$27 then begin
       XmlDec := Copy(XmlDec, 2, MaxInt);
-      Result := Fetch(XmlDec, #$27);
+      XmlEnc := Fetch(XmlDec, #$27);
     end
     else if XmlDec[1] = '"' then begin
       XmlDec := Copy(XmlDec, 2, MaxInt);
-      Result := Fetch(XmlDec, '"');
+      XmlEnc := Fetch(XmlDec, '"');
     end;
+
+    XmlEnc := Trim(XmlEnc);
+    if XmlEnc = '' then begin
+      Exit;
+    end;
+
+    Result := XmlEnc;
   finally
     AStream.Position := StreamPos;
   end;
