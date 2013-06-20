@@ -698,6 +698,7 @@
   {$DEFINE HAS_TryEncodeTime}
   {$DEFINE HAS_ENUM_ELEMENT_VALUES}
   {$IFNDEF FPC}
+    {$DEFINE HAS_IInterface}
     {$DEFINE HAS_TSelectionEditor}
     {$DEFINE HAS_TStringList_CaseSensitive}
     {$IFNDEF KYLIX}
@@ -950,7 +951,7 @@
 
 {$IFDEF DCC_NEXTGEN}
   {$DEFINE NO_ANSI_TYPES}
-  {$DEFINE STRING_IS_IMMUTABLE}
+  {.$DEFINE STRING_IS_IMMUTABLE} // Strings are NOT immutable in NEXTGEN yet
   {$IFDEF USE_OBJECT_ARC}
     // TODO: move these to an appropriate section. Not doing this yet because
     // it is a major interface change to switch to Generics and we should

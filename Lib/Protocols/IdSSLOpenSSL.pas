@@ -1864,7 +1864,18 @@ begin
       X509_print(LMem, AX509);
       LLen := BIO_get_mem_data( LMem, LBufPtr);
       if (LLen > 0) and Assigned(LBufPtr) then begin
-        AOut.Text := IndyTextEncoding_UTF8.GetString(PByte(LBufPtr), LLen);
+        AOut.Text := IndyTextEncoding_UTF8.GetString(
+         {$IFNDEF VCL_6_OR_ABOVE}
+          // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+          // version of 'GetString' that can be called with these arguments" compiler
+          // error if the PByte type-cast is used, even though GetString() actually
+          // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+          // in Delphi 6...
+          LBufPtr
+          {$ELSE}
+          PByte(LBufPtr)
+          {$ENDIF}
+          , LLen);
       end;
     finally
       if Assigned(LMem) then begin

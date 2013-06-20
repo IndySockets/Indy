@@ -512,7 +512,8 @@ begin
   FreeMem(p);
 end;
 
-procedure WspiapiSwap(var a, b, c: PChar); inline;
+procedure WspiapiSwap(var a, b, c: PChar);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   c := a;
   a := b;
@@ -780,6 +781,18 @@ begin
   end;
 end;
 
+{$IFNDEF HAS_TryStrToInt}
+// TODO: use the implementation already in IdGlobalProtocols...
+function TryStrToInt(const S: string; out Value: Integer): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  E: Integer;
+begin
+  Val(S, Value, E);
+  Result := E = 0;
+end;
+{$ENDIF}
+
 function WspiapiLegacyGetAddrInfo(const pszNodeName: PChar; const pszServiceName: PChar;
   const ptHints: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};
   var pptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
@@ -987,7 +1000,7 @@ begin
 end;
 
 function iif(ATest: Boolean; const ATrue, AFalse: PAnsiChar): PAnsiChar;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ATest then begin
     Result := ATrue;

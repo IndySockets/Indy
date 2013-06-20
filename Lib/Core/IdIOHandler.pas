@@ -1684,7 +1684,18 @@ end;
 procedure TIdIOHandler.WriteLn(AEncoding: IIdTextEncoding = nil);
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
+  {$IFNDEF VCL_6_OR_ABOVE}
+  // RLebeau: in Delphi 5, explicitly specifying the nil value for the third
+  // parameter causes a "There is no overloaded version of 'WriteLn' that can
+  // be called with these arguments" compiler error.  Must be a compiler bug,
+  // because it compiles fine in Delphi 6.  The parameter value is nil by default
+  // anyway, so we don't really need to specify it here at all, but I'm documenting
+  // this so we know for future reference...
+  //
+  WriteLn('', AEncoding);
+  {$ELSE}
   WriteLn('', AEncoding{$IFDEF STRING_IS_ANSI}, nil{$ENDIF});
+  {$ENDIF}
 end;
 
 procedure TIdIOHandler.WriteLn(const AOut: string;

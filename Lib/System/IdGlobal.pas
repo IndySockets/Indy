@@ -831,6 +831,9 @@ type
   Ansi-compatible encodings are being used with AnsiString values.
   }
 
+  {$IFNDEF HAS_IInterface}
+  IInterface = IUnknown;
+  {$ENDIF}
 
   IIdTextEncoding = interface(IInterface)
   ['{FA87FAE5-E3E3-4632-8FCA-2FB786848655}']

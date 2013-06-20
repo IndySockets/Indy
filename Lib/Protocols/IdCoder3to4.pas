@@ -172,8 +172,8 @@ type
     function InternalEncode(const ABuffer: TIdBytes): TIdBytes;
   public
     procedure Encode(ASrcStream: TStream; ADestStream: TStream; const ABytes: Integer = -1); override;
-  published
     property CodingTable: TIdBytes read FCodingTable;
+  published
     property FillChar: Char read FFillChar write FFillChar;
   end;
 
