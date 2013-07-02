@@ -96,7 +96,16 @@ function IdToMib(const Id: string): string;
 function IntMibToStr(const Value: string): string;
 
 implementation
-uses IdGlobal;
+
+uses
+  IdGlobal;
+
+// RLebeau 7/2/2013: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
 
 {==============================================================================}
 function ASNEncOIDItem(Value: Integer): string;

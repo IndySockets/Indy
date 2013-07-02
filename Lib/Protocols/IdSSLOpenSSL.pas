@@ -1980,24 +1980,23 @@ begin
   end;
 end;
 
-{ function RSACallback(sslSocket: PSSL; e: Integer; KeyLength: Integer):PRSA; cdecl;
-  const
+{
+function RSACallback(sslSocket: PSSL; e: Integer; KeyLength: Integer):PRSA; cdecl;
+const
   RSA: PRSA = nil;
-  var
+var
   SSLSocket: TSSLWSocket;
   IdSSLSocket: TIdSSLSocket;
-  begin
+begin
   IdSSLSocket := TIdSSLSocket(IdSslGetAppData(sslSocket));
 
   if Assigned(IdSSLSocket) then begin
-  IdSSLSocket.TriggerSSLRSACallback(KeyLength);
+    IdSSLSocket.TriggerSSLRSACallback(KeyLength);
   end;
 
-  if not Assigned(RSA) then begin
-  RSA := f_RSA_generate_key(KeyLength, RSA_F4, @RSAProgressCallback, ssl);
-  end;
-  Result := RSA;
-  end; }
+  Result := RSA_generate_key(KeyLength, RSA_F4, @RSAProgressCallback, ssl);
+end;
+}
 
 function LogicalAnd(A, B: Integer): Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}

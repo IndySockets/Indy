@@ -21508,9 +21508,9 @@ we have to handle both cases.
   @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free);
   //RSA
   @RSA_free := LoadFunctionCLib(fn_RSA_free);
-  @RSA_generate_key := LoadFunctionCLib(fn_RSA_generate_key);
+  @RSA_generate_key_ex := LoadFunctionCLib(fn_RSA_generate_key_ex, False);
+  @RSA_generate_key := LoadFunctionCLib(fn_RSA_generate_key, not Assigned(RSA_generate_key_ex));
   @RSA_check_key := LoadFunctionCLib(fn_RSA_check_key);
-  @RSA_generate_key_ex := LoadFunctionCLib(fn_RSA_generate_key_ex);
   @RSA_new := LoadFunctionCLib(fn_RSA_new);
   @RSA_size := LoadFunctionCLib(fn_RSA_size);
   @RSA_private_decrypt := LoadFunctionCLib(fn_RSA_private_decrypt);
@@ -21700,8 +21700,8 @@ we have to handle both cases.
   @sk_free := LoadFunctionCLib(fn_sk_free);
   @sk_push := LoadFunctionCLib(fn_sk_push);
   @sk_dup := LoadFunctionCLib(fn_sk_dup);
-   @sk_find := LoadFunctionCLib(fn_sk_find);
-   @sk_value := LoadFunctionCLib(fn_sk_value);
+  @sk_find := LoadFunctionCLib(fn_sk_find);
+  @sk_value := LoadFunctionCLib(fn_sk_value);
   {$IFDEF OPENSSL_FIPS}
   @_FIPS_mode_set := LoadFunctionCLib(fn_FIPS_mode_set,False);
   @_FIPS_mode := LoadFunctionCLib(fn_FIPS_mode,False);

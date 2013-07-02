@@ -309,9 +309,9 @@ begin
   Result := Trim(AText) = '';
   if not Result then begin
     LBuf := AText;
-    if (LBuf <> '') and (LBuf[1] = '[') then begin
+    if (LBuf <> '') and TextStartsWith(LBuf, '[') then begin
       Delete(LBuf, 1, 1);
-      if (LBuf <> '') and (LBuf[Length(LBuf)] = ']') then begin
+      if (LBuf <> '') and TextEndsWith(LBuf, ']') then begin
         LBuf := Fetch(LBuf, ']');
         if AStrict then begin
           Result := PosInStrArray(LBuf, VALID_ENH_CODES) > -1;

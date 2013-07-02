@@ -128,7 +128,7 @@ begin
     LItems.CommaText := AList;
     for i := 0 to LItems.Count-1 do begin
       if Length(LItems[i]) > 0 then begin
-        if LItems[i][1] = '[' then begin
+        if TextStartsWith(LItems[i], '[') then begin
           //  ipv6
           LIPVersion := Id_IPv6;
           LText := Copy(LItems[i], 2, MaxInt);

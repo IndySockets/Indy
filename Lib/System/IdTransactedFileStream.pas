@@ -29,14 +29,13 @@ var
  oFileStream: TIdTransactedFileStream;
  oTransaction : TKernelTransaction;
 begin
- oTransaction := TIdKernelTransaction.Create('Save Content to file
-'+aFilename, false);
+ oTransaction := TIdKernelTransaction.Create('Save Content to file '+aFilename, false);
  Try
    Try
      oFileStream := TIdTransactedFileStream.Create(AFilename, fmCreate);
      try
        if Length(AStr) > 0 then
-         LFileStream.Write(AStr[1], Length(AStr));
+         WriteStringToStream(LFileStream, AStr, IndyTextEncoding_8Bit);
      finally
        LFileStream.Free;
      end;

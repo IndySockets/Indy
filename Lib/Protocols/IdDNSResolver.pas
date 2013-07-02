@@ -1639,7 +1639,7 @@ end;
 
 function TSRVRecord.IsValidIdent(const AStr: string): Boolean;
 begin
-  Result := (Length(AStr) > 1) and (AStr[1] = '_'); {Do not Localize}
+  Result := (Length(AStr) > 1) and TextStartsWith(AStr, '_'); {Do not Localize}
 end;
 
 procedure TSRVRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);

@@ -606,7 +606,7 @@ begin
         raise EIdTunnelTransformErrorBeforeSend.Create(RSTunnelTransformErrorBS);
       end;
 
-      user.Sender.PrepareMsg(Header, PChar(@tmpString[1]), Length(tmpString));
+      user.Sender.PrepareMsg(Header, PChar(tmpString), Length(tmpString));
       MasterThread.Connection.Write(user.Sender.Msg);
     except
       raise;

@@ -158,7 +158,14 @@ function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 implementation
 
 uses
-  IdException, SysUtils;
+  IdGlobal, IdException, SysUtils;
+
+// RLebeau 7/2/2013: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
 
 function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 begin
@@ -191,9 +198,9 @@ end;
 
 procedure TIdASN1Encoder.WriteToStream(Stream : TStream);
 begin
-  assert(FReadyToWrite, 'not ready to write');
-  if length(FSequences[0].Contents[1]) <> 0 then
-    Stream.Write(FSequences[0].Contents[1], length(FSequences[0].Contents[1]));
+  Assert(FReadyToWrite, 'not ready to write');
+  if Length(FSequences[0].Contents) <> 0 then
+    WriteStringToStream(Stream, FSequences[0].Contents, IndyTextEncoding_8Bit);
 end;
 
 procedure TIdASN1Encoder.StartWriting;
