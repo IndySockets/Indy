@@ -172,7 +172,7 @@ const
   //fancy little trick since OS X does not have MSG_NOSIGNAL
   Id_MSG_NOSIGNAL = MSG_NOSIGNAL;
   {$ELSE}
-    Id_MSG_NOSIGNAL = 0;
+  Id_MSG_NOSIGNAL = 0;
   {$ENDIF}
   Id_WSAEPIPE = EPIPE;
 
@@ -481,6 +481,12 @@ begin
   end;
 end;
 
+{$IFDEF HAS_getifaddrs}
+{$I NetIfTypes.inc}
+function getifaddrs(ifap: pifaddrs): Integer; cdecl; external libc name _PU + 'getifaddrs'; {do not localize}
+procedure freeifaddrs(ifap: pifaddrs); cdecl; external libc name _PU + 'freeifaddrs'; {do not localize}
+{$ENDIF}
+
 procedure TIdStackVCLPosix.AddLocalAddressesToList(AAddresses: TStrings);
 var
   {$IFDEF HAS_getifaddrs}
@@ -525,7 +531,7 @@ begin
         LAddrInfo := LAddrInfo^.ifa_next;
       until LAddrInfo = nil;
     finally
-      Addresses.EndUpdate;
+      AAddresses.EndUpdate;
     end;
   finally
     freeifaddrs(LAddrList);
@@ -557,7 +563,11 @@ begin
     {$ENDIF},
     nil, Hints, LAddrList);
   if LRetVal <> 0 then begin
-    raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [LHostName, gai_strerror(LRetVal), LRetVal]);
+    if LRetVal = EAI_SYSTEM then begin
+      RaiseLastOSError;
+    end else begin
+      raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [LHostName, gai_strerror(LRetVal), LRetVal]);
+    end;
   end;
   try
     AAddresses.BeginUpdate;

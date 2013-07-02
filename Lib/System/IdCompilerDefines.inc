@@ -1014,6 +1014,7 @@
 
 {$IFDEF CPUARM}
   {$IFDEF IOS}
+    {$DEFINE HAS_getifaddrs}
     {$DEFINE USE_OPENSSL}
     // RLebeau: For iOS, OpenSSL cannot be used as an external library, it must
     // be statically linked into the app.  Users who want to use OpenSSL in iOS
