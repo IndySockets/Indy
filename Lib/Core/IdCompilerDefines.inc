@@ -1012,15 +1012,16 @@
   {$DEFINE USE_ZLIB_UNIT}
 {$ENDIF}
 
-{$IFDEF CPUARM}
-  {$IFDEF IOS}
-    {$DEFINE HAS_getifaddrs}
-    {$DEFINE USE_OPENSSL}
-    // RLebeau: For iOS, OpenSSL cannot be used as an external library, it must
-    // be statically linked into the app.  Users who want to use OpenSSL in iOS
-    // apps will need to include the IdSSLOpenSSLHeaders_static unit in their
-    // uses clause. It hooks up the statically linked functions for the
-    // IdSSLOpenSSLHeaders unit to use...
+{$IFDEF IOS}
+  {$DEFINE HAS_getifaddrs}
+  {$DEFINE USE_OPENSSL}
+  {$IFDEF CPUARM}
+    // RLebeau: For iOS devices, OpenSSL cannot be used as an external library,
+    // it must be statically linked into the app.  For the iOS simulator, this
+    // is not true.  Users who want to use OpenSSL in iOS device apps will need
+    // to add the static OpenSSL library to the project and then include the
+    // IdSSLOpenSSLHeaders_static unit in their uses clause. It hooks up the
+    // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
     {$DEFINE STATICLOAD_OPENSSL}
   {$ENDIF}
 {$ENDIF}
