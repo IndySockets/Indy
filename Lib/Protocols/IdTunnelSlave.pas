@@ -183,6 +183,13 @@ uses
   IdSocks,
   IdThreadSafe;
 
+// RLebeau 7/2/2013: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
+
 Var
   GUniqueID: TIdThreadSafeInteger;
 
@@ -505,12 +512,11 @@ begin
     end;
 
     numread := 0;
-    repeat begin
+    repeat
       s := Thread.Connection.ReadString(1);
       req.UserName[numread+1] := s[1];
       Inc(numread);
-    end
-    until ((numread >= MAXLINE) or (s[1]=#0));
+    until ((numread >= MAXLINE) or (s[1] = #0));
     SetLength(req.UserName, numread);
 
     s := GStack.TInAddrToString(req.IpAddr);
@@ -617,7 +623,7 @@ begin
             end;
 
             try
-            Sender.PrepareMsg(Header, PChar(@tmpString[1]), Length(tmpString));
+            Sender.PrepareMsg(Header, PChar(tmpString), Length(tmpString));
             except
               raise;
             end;
