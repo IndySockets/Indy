@@ -5952,7 +5952,7 @@ begin
   //Extract envelope subject field
   AMsg.Subject := '';                                       {Do not Localize}
   if TextStartsWith(ACmdResultStr, 'NIL ') then begin     {Do not Localize}
-    ACmdResultStr := Copy(ACmdResultStr, 4, MaxInt);
+    ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
   end else begin
     if TextStartsWith(ACmdResultStr, '{') then begin                      {Do not Localize}
       ACmdResultStr := Copy(ACmdResultStr, Pos('}', ACmdResultStr) + 1, MaxInt);      {Do not Localize}
