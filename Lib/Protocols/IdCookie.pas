@@ -845,7 +845,7 @@ var
       LValue := '';
       if (not IsFlag) and (LTemp <> '') then
       begin
-        if TextStartsWith(LTemp[1], '"') then {Do not Localize}
+        if TextStartsWith(LTemp, '"') then {Do not Localize}
         begin
           IdDelete(LTemp, 1, 1);
           LValue := Fetch(LTemp, '"'); {Do not Localize}
