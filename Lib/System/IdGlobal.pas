@@ -2395,6 +2395,15 @@ begin
   inherited Create;
   FCharSet := CharSet;
   FMaxCharSize := GetByteCount(PIdWideChar(@cValue[0]), 2);
+
+  // Not all charsets support all codepoints.  For example, ISO-8859-1 does
+  // not support U+10FFFF.  If GetByteCount() fails above, FMaxCharSize gets
+  // set to 0, preventing any character conversions.  So force FMaxCharSize
+  // to 1 if GetByteCount() fails, until a better solution can be found...
+  if FMaxCharSize = 0 then begin
+    FMaxCharSize := 1;
+  end;
+
   FIsSingleByte := (FMaxCharSize = 1);
 end;
 {$ELSE}
