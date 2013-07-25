@@ -2659,7 +2659,6 @@ var
         skSubject,
         skText,
         skTo,
-        skUID,
         skGmailRaw,
         skGmailMsgID,
         skGmailThreadID,
@@ -2735,6 +2734,9 @@ begin
         skUnseen:
           LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey]; {Do not Localize}
 
+        skUID:
+          LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + ASearchInfo[Ln].Text; {Do not Localize}
+
         skBcc,
         skBody,
         skCc,
@@ -2742,7 +2744,6 @@ begin
         skSubject,
         skText,
         skTo,
-        skUID,
         skGmailRaw,
         skGmailMsgID,
         skGmailThreadID,
