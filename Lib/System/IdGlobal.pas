@@ -2454,6 +2454,14 @@ begin
   if FMaxCharSize < 1 then begin
     raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
   end;
+  // Not all charsets support all codepoints.  For example, ISO-8859-1 does
+  // not support U+10FFFF.  If LocaleCharsFromUnicode() fails above,
+  // FMaxCharSize gets set to 0, preventing any character conversions.  So
+  // force FMaxCharSize to 1 if GetByteCount() fails, until a better solution
+  // can be found...
+  if FMaxCharSize = 0 then begin
+    FMaxCharSize := 1;
+  end;
   {$ENDIF}
   FIsSingleByte := (FMaxCharSize = 1);
 end;
