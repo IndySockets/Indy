@@ -154,6 +154,9 @@ uses
   Posix.ArpaInet,
   Posix.Errno,
   Posix.NetDB,
+  {$IFDEF HAS_getifaddrs}
+  Posix.NetIf,
+  {$ENDIF}
   Posix.NetinetIn,
   Posix.StrOpts,
   Posix.SysTypes,
@@ -482,7 +485,6 @@ begin
 end;
 
 {$IFDEF HAS_getifaddrs}
-{$I NetIfTypes.inc}
 function getifaddrs(ifap: pifaddrs): Integer; cdecl; external libc name _PU + 'getifaddrs'; {do not localize}
 procedure freeifaddrs(ifap: pifaddrs); cdecl; external libc name _PU + 'freeifaddrs'; {do not localize}
 {$ENDIF}

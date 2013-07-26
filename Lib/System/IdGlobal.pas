@@ -1598,15 +1598,23 @@ var
   IndyPos: TPosProc = nil;
 
 {$IFDEF UNIX}
-const
+
+  {$UNDEF LIBEXT_IS_DYLIB}
   {$IFDEF DARWIN}
-  LIBEXT = '.dylib'; {do not localize}
+    {$DEFINE LIBEXT_IS_DYLIB}
   {$ELSE}
     {$IFDEF DCC_NEXTGEN}
-  LIBEXT = '.dylib'; {do not localize}
-    {$ELSE}
-  LIBEXT = '.so'; {do not localize}
+      {$IFNDEF ANDROID}
+        {$DEFINE LIBEXT_IS_DYLIB}
+      {$ENDIF}
     {$ENDIF}
+  {$ENDIF}
+
+const
+  {$IFDEF LIBEXT_IS_DYLIB}
+  LIBEXT = '.dylib'; {do not localize}
+  {$ELSE}
+  LIBEXT = '.so'; {do not localize}
   {$ENDIF}
 {$ENDIF}
 

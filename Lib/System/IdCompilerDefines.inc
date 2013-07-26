@@ -88,10 +88,14 @@
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
 {$UNDEF HAS_ComponentPlatformsAttribute}
+{$UNDEF HAS_ComponentPlatformsAttribute_Win32}
+{$UNDEF HAS_ComponentPlatformsAttribute_Win64}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSX32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator}
-{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
 {$UNDEF HAS_ComponentPlatformsAttribute_Android}
 {$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
+{$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
 
 // detect compiler versions
 
@@ -265,6 +269,16 @@
   {$ELSE}
     {$UNDEF DELPHI_XE3}
     {$DEFINE DELPHI_XE4}
+  {$ENDIF}
+{$ENDIF}
+
+//Delphi & CBuilder XE5 (Zephyr)
+{$IFDEF VER260}
+  {$DEFINE VCL_XE5}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_XE5}
+  {$ELSE}
+    {$DEFINE DELPHI_XE5}
   {$ENDIF}
 {$ENDIF}
 
@@ -455,8 +469,16 @@
 
 // end FPC
 
-{$IFDEF VCL_XE4}
+{$IFDEF VCL_XE5}
+  {$DEFINE VCL_XE5_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_XE5_OR_ABOVE}
   {$DEFINE VCL_XE4_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_XE4}
+    {$DEFINE VCL_XE4_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_XE4_OR_ABOVE}
@@ -824,6 +846,9 @@
   {$DEFINE HAS_SIZE_T}
   {$DEFINE HAS_LONG}
   {$DEFINE HAS_ComponentPlatformsAttribute}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Win64}
+  {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
 {$ENDIF}
 
 {$IFDEF VCL_XE3_OR_ABOVE}
@@ -845,6 +870,14 @@
   {$DEFINE HAS_Character_TCharHelper}
   {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator}
   {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device}
+  // technically, these are present in XE4, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Android}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinNX32}
+{$ENDIF}
+
+{$IFDEF VCL_XE5_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Android}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -1012,6 +1045,10 @@
   {$DEFINE USE_ZLIB_UNIT}
 {$ENDIF}
 
+{$IFDEF MACOS}
+  {$DEFINE HAS_getifaddrs}
+{$ENDIF}
+
 {$IFDEF IOS}
   {$DEFINE HAS_getifaddrs}
   {$DEFINE USE_OPENSSL}
@@ -1094,8 +1131,8 @@
 //will mean OS X.  In FreePascal, the DEFINE MACOS means MacIntosh System OS Classic.
 {$IFDEF DCC}
   // DCC defines MACOS for both iOS and OS X platforms, need to differentiate
-  {$IFNDEF IOS}
-    {$IFDEF MACOS}
+  {$IFDEF MACOS}
+    {$IFNDEF IOS}
       {$DEFINE DARWIN}
     {$ENDIF}
   {$ENDIF}
