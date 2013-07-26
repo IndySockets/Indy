@@ -1318,9 +1318,11 @@ function TIdStackVCLPosix.WSSocket(AFamily : Integer; AStruct : TIdSocketType; A
       const AOverlapped: Boolean = False): TIdStackSocketHandle;
 begin
   Result := Posix.SysSocket.socket(AFamily, AStruct, AProtocol);
+  {$IFDEF HAS_SOCKET_NOSIGPIPE}
   if Result <> INVALID_SOCKET then begin
     SetSocketOption(Result, SOL_SOCKET, SO_NOSIGPIPE, 1);
   end;
+  {$ENDIF}
 end;
 
 {$WARN UNIT_PLATFORM ON}
