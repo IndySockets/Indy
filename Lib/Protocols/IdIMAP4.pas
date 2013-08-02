@@ -2167,6 +2167,10 @@ begin
       if LPos <> 0 then begin
         {There are at least two words on this line...}
         LWord := Trim(Copy(LLine, 1, LPos-1));
+      end else begin
+        {No space, so this line is a single word.  A bit weird, but it
+        could be just an OK...}
+        LWord := LLine;  {A bit pedantic, but emphasises we have a word, not a line}
       end;
     until
       TextStartsWith(LLine, ATag)
