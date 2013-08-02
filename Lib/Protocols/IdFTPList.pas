@@ -532,7 +532,13 @@ begin
     ItemType := LSource.ItemType;
     Size := LSource.Size;
     ModifiedDate := LSource.ModifiedDate;
-    FileName := LSource.FileName;
+    ModifiedDateGMT := LSource.ModifiedDateGMT;
+    FFileName := LSource.FileName;
+    FLocalFileName := LSource.LocalFileName;
+    SizeAvail := LSource.SizeAvail;
+    ModifiedAvail := LSource.ModifiedAvail;
+    PermissionDisplay := LSource.PermissionDisplay;
+    FDirError : LSource.FDirError;
   end else begin
     inherited Assign(Source);
   end;
