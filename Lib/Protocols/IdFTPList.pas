@@ -538,7 +538,7 @@ begin
     SizeAvail := LSource.SizeAvail;
     ModifiedAvail := LSource.ModifiedAvail;
     PermissionDisplay := LSource.PermissionDisplay;
-    FDirError : LSource.FDirError;
+    FDirError := LSource.FDirError;
   end else begin
     inherited Assign(Source);
   end;
