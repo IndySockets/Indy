@@ -80,7 +80,7 @@ begin
   DoOnCommandQUOTD(ABinding, s);
   if Length(s) > 0 then
   begin
-    ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
+    ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s), ABinding.IPVersion);
   end;
 end;
 

@@ -96,7 +96,7 @@ begin
     inc(i);
     inc(c);
   end;
-  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
+  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s), ABinding.IPVersion);
 end;
 
 end.

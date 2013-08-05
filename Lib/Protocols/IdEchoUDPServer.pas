@@ -62,7 +62,7 @@ procedure TIdEchoUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
   const AData: TIdBytes; ABinding: TIdSocketHandle);
 begin
   inherited DoUDPRead(AThread, AData, ABinding);
-  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, AData);
+  ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, AData, ABinding.IPVersion);
 end;
 
 end.

@@ -129,7 +129,7 @@ begin
         if Length(s2) > Max_UDPPacket then
         begin
           s := TrimLeft(s);
-          ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
+          ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s), ABinding.IPVersion);
           s := MaxLenStr(LResults[i]);
         end else
         begin
@@ -139,7 +139,7 @@ begin
       if s <> '' then
       begin
         s := TrimLeft(s);
-        ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
+        ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s), ABinding.IPVersion);
       end;
     finally
       FreeAndNil(LResults);

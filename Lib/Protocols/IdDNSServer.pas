@@ -4099,7 +4099,7 @@ procedure TIdDNS_ProcessThread.SendData;
 begin
   FServer.GlobalCS.Enter;
   try
-    FMainBinding.SendTo(FMyBinding.PeerIP, FMyBinding.PeerPort, ToBytes(FData));
+    FMainBinding.SendTo(FMyBinding.PeerIP, FMyBinding.PeerPort, ToBytes(FData), FMyBinding.IPVersion);
   finally
     FServer.GlobalCS.Leave;
   end;
