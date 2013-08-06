@@ -12,172 +12,166 @@ REM Pre-requisites:  \Lib\System contains the project / pas/ res files for IndyS
 REM                  \Lib\Core contains the project / pas/ res files for IndyCore
 REM                  \Lib\Protocols contains the project / pas/ res files for IndyProtocols
 REM 
+REM Command line (optional) parameters:
+REM   %1 = Configuration option, the default is "Release"
+REM   %2 = Platform option, the default is "Win32"
+REM
+REM Example: FullC16               -> will build Release, Win32
+REM Example: FullC16 Debug         -> will build Debug, Win32
+REM 
 REM ****************************************************************************
+
+
+REM ************************************************************
+REM Set up the environment
+REM ************************************************************
 
 computil SetupC16
 if exist setenv.bat call setenv.bat
 if exist setenv.bat del setenv.bat > nul
 
 if (%NDC16%)==() goto enderror
-if not exist %NDC16%\bin\dcc32.exe goto endnocompiler
+
+REM Set up the environment
+call %NDC16%\bin\rsvars.bat
+
+REM Check for configuration options
+SET IndyConfig=Release
+SET IndyPlatform=Win32
+
+:setconfig
+if [%1]==[] goto setplatform
+SET IndyConfig=%1
+
+:setplatform
+if [%2]==[] goto preparefolders
+SET IndyPlatform=%2
+
+
+REM ************************************************************
+REM Prepare the folder structure
+REM ************************************************************
+
+:preparefolders
 if not exist ..\C16\*.* md ..\C16 > nul
 if not exist ..\C16\ZLib\*.* md ..\C16\ZLib > nul
 if not exist ..\C16\ZLib\i386-Win32-ZLib\*.* md ..\C16\ZLib\i386-Win32-ZLib > nul
 if not exist ..\C16\ZLib\x86_64-Win64-ZLib\*.* md ..\C16\ZLib\x86_64-Win64-ZLib > nul
+if not exist ..\C16\%IndyPlatform% md ..\C16\%IndyPlatform% > nul
+if not exist ..\C16\%IndyPlatform%\%IndyConfig% md ..\C16\%IndyPlatform%\%IndyConfig% > nul
 
 if exist ..\C16\*.* call clean.bat ..\C16\
 
+
+REM ************************************************************
+REM Copy over the IndySystem files
+REM ************************************************************
+
+:indysystem
 cd System
 copy IndySystem160.dpk ..\..\C16 > nul
-copy *IndySystem160.cfg1 ..\..\C16 > nul
-copy *IndySystem160.cfg2 ..\..\C16 > nul
+copy IndySystem160.dproj ..\..\C16 > nul
 copy *.res ..\..\C16 > nul
 copy *.pas ..\..\C16 > nul
 copy *.inc ..\..\C16 > nul
+copy *.ico ..\..\C16 > nul
 
 cd ..\..\C16
 
+REM ************************************************************
+REM Build IndySystem
+REM ************************************************************
 
-REM ************************************************************
-REM Compile IndySystem160 - Round 1
-REM ************************************************************
-copy IndySystem160.cfg1 IndySystem160.cfg > nul
-%NDC16%\bin\dcc32.exe /B IndySystem160.dpk
+msbuild IndySystem160.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
-
 REM ************************************************************
-REM Compile IndySystem160 - Round 2
-REM ************************************************************
-del IndySystem160.cfg > nul 
-copy IndySystem160.cfg2 IndySystem160.cfg > nul
-%NDC16%\bin\dcc32.exe /B IndySystem160.dpk
-if errorlevel 1 goto enderror
-
-
-
-REM ************************************************************
-REM Prepare to copy all CORE related files
+REM Copy over the IndyCore files
 REM ************************************************************
 
+:indycore
 cd ..\Lib\Core
 
 copy *IndyCore160.dpk ..\..\C16 > nul
-copy *IndyCore160.cfg1 ..\..\C16 > nul
-copy *IndyCore160.cfg2 ..\..\C16 > nul
+copy *IndyCore160.dproj ..\..\C16 > nul
 copy *.res ..\..\C16 > nul
 copy *.pas ..\..\C16 > nul
 copy *.dcr ..\..\C16 > nul
 copy *.inc ..\..\C16 > nul
-
+copy *.ico ..\..\C16 > nul
 
 cd ..\..\C16
 
+REM ************************************************************
+REM Build IndyCore
+REM ************************************************************
 
-REM ************************************************************
-REM Compile IndyCore160 - Round 1
-REM ************************************************************
-copy IndyCore160.cfg1 IndyCore160.cfg > nul
-%NDC16%\bin\dcc32.exe /B IndyCore160.dpk
+msbuild IndyCore160.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror
+
+msbuild dclIndyCore160.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
 REM ************************************************************
-REM Compile IndyCore160 - Round 2
-REM ************************************************************
-del IndyCore160.cfg > nul
-copy IndyCore160.cfg2 IndyCore160.cfg > nul
-%NDC16%\bin\dcc32.exe /B IndyCore160.dpk
-if errorlevel 1 goto enderror
-
-
-
-
-REM ************************************************************
-REM Compile dclIndyCore160 - Round 1
-REM ************************************************************
-copy dclIndyCore160.cfg1 dclIndyCore160.cfg > nul
-%NDC16%\bin\dcc32.exe /B dclIndyCore160.dpk
-if errorlevel 1 goto enderror
-
-
-
-REM ************************************************************
-REM Prepare to copy all PROTOCOLS related files
+REM Copy over the IndyProtocols files
 REM ************************************************************
 
+:indyprotocols
 cd ..\Lib\Protocols
 
 copy zlib\i386-Win32-ZLib\*.obj ..\..\C16\ZLib\i386-Win32-ZLib > nul
 copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C16\ZLib\x86_64-Win64-ZLib > nul
 copy *IndyProtocols160.dpk ..\..\C16 > nul
-copy *IndyProtocols160.cfg1 ..\..\C16 > nul
-copy *IndyProtocols160.cfg2 ..\..\C16 > nul
+copy *IndyProtocols160.dproj ..\..\C16 > nul
 copy *.res ..\..\C16 > nul
 copy *.pas ..\..\C16 > nul
 copy *.dcr ..\..\C16 > nul
 copy *.inc ..\..\C16 > nul
+copy *.ico ..\..\C16 > nul
 
 cd ..\..\C16
 
+REM ************************************************************
+REM Build IndyProtocols
+REM ************************************************************
 
-REM ************************************************************
-REM Compile IndyProtocols160 - Round 1
-REM ************************************************************
-copy IndyProtocols160.cfg1 IndyProtocols160.cfg > nul
-%NDC16%\bin\dcc32.exe /B IndyProtocols160.dpk
+msbuild IndyProtocols160.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror
+
+msbuild dclIndyProtocols160.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
 REM ************************************************************
-REM Compile IndyProtocols160 - Round 2
+REM Copy over all generated files
 REM ************************************************************
-del IndyProtocols160.cfg > nul
-copy IndyProtocols160.cfg2 IndyProtocols160.cfg > nul
-%NDC16%\bin\dcc32.exe /B IndyProtocols160.dpk
-if errorlevel 1 goto enderror
-
-
-
-REM ************************************************************
-REM Compile dclIndyProtocols160 - Round 1
-REM ************************************************************
-copy dclIndyProtocols160.cfg1 dclIndyProtocols160.cfg > nul
-%NDC16%\bin\dcc32.exe /B dclIndyProtocols160.dpk
-if errorlevel 1 goto enderror
-
+copy "%BDSCOMMONDIR%\hpp\Id*.hpp" %IndyPlatform%\%IndyConfig%
+copy "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
+copy "%BDSCOMMONDIR%\Dcp\Indy*.bpi" %IndyPlatform%\%IndyConfig%
+copy "%BDSCOMMONDIR%\Dcp\Indy*.Lib" %IndyPlatform%\%IndyConfig%
+copy indysystem160.res %IndyPlatform%\%IndyConfig%
+copy indycore160.res %IndyPlatform%\%IndyConfig%
+copy indyprotocols160.res %IndyPlatform%\%IndyConfig%
 
 
 REM ************************************************************
-REM Set all files we want to keep with the R attribute then 
-REM delete the rest before restoring the attribute
+REM Delete all other files / directories no longer required 
 REM ************************************************************
-cd ZLib\i386-Win32-ZLib
-del /Q *.* > nul
-cd..
-rd i386-Win32-ZLib
-cd x86_64-Win64-ZLib
-del /Q *.* > nul
-cd..
-rd x86_64-Win64-ZLib
-cd..
+del "%BDSCOMMONDIR%\hpp\Id*.hpp" > nul
+del "%BDSCOMMONDIR%\hpp\Indy*.hpp" > nul
+del "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" > nul
+del "%BDSCOMMONDIR%\Dcp\Indy*.bpi" > nul
+del "%BDSCOMMONDIR%\Dcp\Indy*.Lib" > nul
+del "%BDSCOMMONDIR%\Dcp\*Indy*.dcp" > nul
+del /Q ZLib\i386-Win32-ZLib\*.*
+del /Q ZLib\x86_64-Win64-ZLib\*.*
+del /Q *.*
+
+rd ZLib\i386-Win32-ZLib
+rd ZLib\x86_64-Win64-ZLib
 rd ZLib
-attrib +r Id*.hpp
-attrib +r *.bpl
-attrib +r Indy*.bpi
-attrib +r Indy*.lib
-attrib +r indysystem160.res
-attrib +r indycore160.res
-attrib +r indyprotocols160.res
-del /Q /A:-R *.* > nul
-attrib -r Id*.hpp
-attrib -r *.bpl
-attrib -r Indy*.bpi
-attrib -r Indy*.lib
-attrib -r indysystem160.res
-attrib -r indycore160.res
-attrib -r indyprotocols160.res
 
 goto endok
 
@@ -191,3 +185,5 @@ goto endok
 
 :endok
 cd ..\Lib
+
+pause

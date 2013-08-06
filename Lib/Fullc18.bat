@@ -12,172 +12,191 @@ REM Pre-requisites:  \Lib\System contains the project / pas/ res files for IndyS
 REM                  \Lib\Core contains the project / pas/ res files for IndyCore
 REM                  \Lib\Protocols contains the project / pas/ res files for IndyProtocols
 REM 
+REM Command line (optional) parameters:
+REM   %1 = Configuration option, the default is "Release"
+REM   %2 = Platform option, the default is "Win32"
+REM
+REM Example: FullC18               -> will build Release, Win32
+REM Example: FullC18 Debug         -> will build Debug, Win32
+REM Example: FullC18 Release Win64 -> will build Release, Win64 (if available)
+REM 
 REM ****************************************************************************
+
+
+REM ************************************************************
+REM Set up the environment
+REM ************************************************************
 
 computil SetupC18
 if exist setenv.bat call setenv.bat
 if exist setenv.bat del setenv.bat > nul
 
 if (%NDC18%)==() goto enderror
-if not exist %NDC18%\bin\dcc32.exe goto endnocompiler
+
+REM Set up the environment
+call %NDC18%\bin\rsvars.bat
+
+REM Check for configuration options
+SET IndyConfig=Release
+SET IndyPlatform=Win32
+
+:setconfig
+if [%1]==[] goto setplatform
+SET IndyConfig=%1
+
+:setplatform
+if [%2]==[] goto preparefolders
+SET IndyPlatform=%2
+
+
+REM ************************************************************
+REM Prepare the folder structure
+REM ************************************************************
+
+:preparefolders
 if not exist ..\C18\*.* md ..\C18 > nul
 if not exist ..\C18\ZLib\*.* md ..\C18\ZLib > nul
 if not exist ..\C18\ZLib\i386-Win32-ZLib\*.* md ..\C18\ZLib\i386-Win32-ZLib > nul
 if not exist ..\C18\ZLib\x86_64-Win64-ZLib\*.* md ..\C18\ZLib\x86_64-Win64-ZLib > nul
+if not exist ..\C18\%IndyPlatform% md ..\C18\%IndyPlatform% > nul
+if not exist ..\C18\%IndyPlatform%\%IndyConfig% md ..\C18\%IndyPlatform%\%IndyConfig% > nul
 
 if exist ..\C18\*.* call clean.bat ..\C18\
 
+
+REM ************************************************************
+REM Copy over the IndySystem files
+REM ************************************************************
+
+:indysystem
 cd System
 copy IndySystem180.dpk ..\..\C18 > nul
-copy *IndySystem180.cfg1 ..\..\C18 > nul
-copy *IndySystem180.cfg2 ..\..\C18 > nul
+copy IndySystem180.dproj ..\..\C18 > nul
 copy *.res ..\..\C18 > nul
 copy *.pas ..\..\C18 > nul
 copy *.inc ..\..\C18 > nul
+copy *.ico ..\..\C18 > nul
 
 cd ..\..\C18
 
+REM ************************************************************
+REM Build IndySystem
+REM ************************************************************
 
-REM ************************************************************
-REM Compile IndySystem180 - Round 1
-REM ************************************************************
-copy IndySystem180.cfg1 IndySystem180.cfg > nul
-%NDC18%\bin\dcc32.exe /B IndySystem180.dpk
+msbuild IndySystem180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
-
 REM ************************************************************
-REM Compile IndySystem180 - Round 2
-REM ************************************************************
-del IndySystem180.cfg > nul 
-copy IndySystem180.cfg2 IndySystem180.cfg > nul
-%NDC18%\bin\dcc32.exe /B IndySystem180.dpk
-if errorlevel 1 goto enderror
-
-
-
-REM ************************************************************
-REM Prepare to copy all CORE related files
+REM Copy over the IndyCore files
 REM ************************************************************
 
+:indycore
 cd ..\Lib\Core
 
 copy *IndyCore180.dpk ..\..\C18 > nul
-copy *IndyCore180.cfg1 ..\..\C18 > nul
-copy *IndyCore180.cfg2 ..\..\C18 > nul
+copy *IndyCore180.dproj ..\..\C18 > nul
 copy *.res ..\..\C18 > nul
 copy *.pas ..\..\C18 > nul
 copy *.dcr ..\..\C18 > nul
 copy *.inc ..\..\C18 > nul
-
+copy *.ico ..\..\C18 > nul
 
 cd ..\..\C18
 
+REM ************************************************************
+REM Build IndyCore
+REM ************************************************************
 
-REM ************************************************************
-REM Compile IndyCore180 - Round 1
-REM ************************************************************
-copy IndyCore180.cfg1 IndyCore180.cfg > nul
-%NDC18%\bin\dcc32.exe /B IndyCore180.dpk
+msbuild IndyCore180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror
+
+REM Skip 64-bit design time
+if "%IndyPlatform%" == "Win64" goto indyprotocols
+
+msbuild dclIndyCore180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
 REM ************************************************************
-REM Compile IndyCore180 - Round 2
-REM ************************************************************
-del IndyCore180.cfg > nul
-copy IndyCore180.cfg2 IndyCore180.cfg > nul
-%NDC18%\bin\dcc32.exe /B IndyCore180.dpk
-if errorlevel 1 goto enderror
-
-
-
-
-REM ************************************************************
-REM Compile dclIndyCore180 - Round 1
-REM ************************************************************
-copy dclIndyCore180.cfg1 dclIndyCore180.cfg > nul
-%NDC18%\bin\dcc32.exe /B dclIndyCore180.dpk
-if errorlevel 1 goto enderror
-
-
-
-REM ************************************************************
-REM Prepare to copy all PROTOCOLS related files
+REM Copy over the IndyProtocols files
 REM ************************************************************
 
+:indyprotocols
 cd ..\Lib\Protocols
 
 copy zlib\i386-Win32-ZLib\*.obj ..\..\C18\ZLib\i386-Win32-ZLib > nul
 copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C18\ZLib\x86_64-Win64-ZLib > nul
 copy *IndyProtocols180.dpk ..\..\C18 > nul
-copy *IndyProtocols180.cfg1 ..\..\C18 > nul
-copy *IndyProtocols180.cfg2 ..\..\C18 > nul
+copy *IndyProtocols180.dproj ..\..\C18 > nul
 copy *.res ..\..\C18 > nul
 copy *.pas ..\..\C18 > nul
 copy *.dcr ..\..\C18 > nul
 copy *.inc ..\..\C18 > nul
+copy *.ico ..\..\C18 > nul
 
 cd ..\..\C18
 
+REM ************************************************************
+REM Build IndyProtocols
+REM ************************************************************
 
-REM ************************************************************
-REM Compile IndyProtocols180 - Round 1
-REM ************************************************************
-copy IndyProtocols180.cfg1 IndyProtocols180.cfg > nul
-%NDC18%\bin\dcc32.exe /B IndyProtocols180.dpk
+msbuild IndyProtocols180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror
+
+REM Skip 64-bit design time
+if "%IndyPlatform%" == "Win64" goto copygenerated
+
+msbuild dclIndyProtocols180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
-REM ************************************************************
-REM Compile IndyProtocols180 - Round 2
-REM ************************************************************
-del IndyProtocols180.cfg > nul
-copy IndyProtocols180.cfg2 IndyProtocols180.cfg > nul
-%NDC18%\bin\dcc32.exe /B IndyProtocols180.dpk
-if errorlevel 1 goto enderror
-
-
+:copygenerated
 
 REM ************************************************************
-REM Compile dclIndyProtocols180 - Round 1
+REM Copy over all generated files
 REM ************************************************************
-copy dclIndyProtocols180.cfg1 dclIndyProtocols180.cfg > nul
-%NDC18%\bin\dcc32.exe /B dclIndyProtocols180.dpk
-if errorlevel 1 goto enderror
-
-
+copy "..\Output\hpp\%IndyPlatform%\%IndyConfig%\Id*.hpp" %IndyPlatform%\%IndyConfig%
+copy "..\Output\Bpi\%IndyPlatform%\%IndyConfig%\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
+copy "..\Output\Bpi\%IndyPlatform%\%IndyConfig%\Indy*.bpi" %IndyPlatform%\%IndyConfig%
+if "%IndyPlatform%" == "Win32" copy "..\Output\Obj\%IndyPlatform%\%IndyConfig%\Indy*.Lib" %IndyPlatform%\%IndyConfig%
+copy indysystem180.res %IndyPlatform%\%IndyConfig%
+copy indycore180.res %IndyPlatform%\%IndyConfig%
+copy indyprotocols180.res %IndyPlatform%\%IndyConfig%
 
 REM ************************************************************
-REM Set all files we want to keep with the R attribute then 
-REM delete the rest before restoring the attribute
+REM Delete all other files / directories no longer required 
 REM ************************************************************
-cd ZLib\i386-Win32-ZLib
-del /Q *.* > nul
-cd..
-rd i386-Win32-ZLib
-cd x86_64-Win64-ZLib
-del /Q *.* > nul
-cd..
-rd x86_64-Win64-ZLib
-cd..
+del /Q ..\Output\hpp\%IndyPlatform%\%IndyConfig%\*.*
+del /Q ..\Output\hpp\%IndyPlatform%\%IndyConfig%\*.*
+del /Q ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\*.*
+del /Q ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\*.*
+if "%IndyPlatform%" == "Win32" del /Q ..\Output\Obj\%IndyPlatform%\%IndyConfig%\*.*
+del /Q ..\Output\Dcp\%IndyPlatform%\%IndyConfig%\*.*
+del /Q ..\Output\Dcu\%IndyPlatform%\%IndyConfig%\*.*
+del /Q ZLib\i386-Win32-ZLib\*.*
+del /Q ZLib\x86_64-Win64-ZLib\*.*
+del /Q *.*
+
+rd ZLib\i386-Win32-ZLib
+rd ZLib\x86_64-Win64-ZLib
 rd ZLib
-attrib +r Id*.hpp
-attrib +r *.bpl
-attrib +r Indy*.bpi
-attrib +r Indy*.lib
-attrib +r indysystem180.res
-attrib +r indycore180.res
-attrib +r indyprotocols180.res
-del /Q /A:-R *.* > nul
-attrib -r Id*.hpp
-attrib -r *.bpl
-attrib -r Indy*.bpi
-attrib -r Indy*.lib
-attrib -r indysystem180.res
-attrib -r indycore180.res
-attrib -r indyprotocols180.res
+rd ..\Output\hpp\%IndyPlatform%\%IndyConfig%
+rd ..\Output\hpp\%IndyPlatform%
+rd ..\Output\hpp
+rd ..\Output\Bpi\%IndyPlatform%\%IndyConfig%
+rd ..\Output\Bpi\%IndyPlatform%
+rd ..\Output\Bpi
+if "%IndyPlatform%" == "Win32" rd ..\Output\Obj\%IndyPlatform%\%IndyConfig%
+if "%IndyPlatform%" == "Win32" rd ..\Output\Obj\%IndyPlatform%
+if "%IndyPlatform%" == "Win32" rd ..\Output\Obj
+rd ..\Output\Dcp\%IndyPlatform%\%IndyConfig%
+rd ..\Output\Dcp\%IndyPlatform%
+rd ..\Output\Dcp
+rd ..\Output\Dcu\%IndyPlatform%\%IndyConfig%
+rd ..\Output\Dcu\%IndyPlatform%
+rd ..\Output\Dcu
+rd ..\Output
 
 goto endok
 
@@ -191,3 +210,5 @@ goto endok
 
 :endok
 cd ..\Lib
+
+pause
