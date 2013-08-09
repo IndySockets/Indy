@@ -4476,7 +4476,7 @@ type
 
 var
   {$EXTERNALSYM scopeid_unspecified}
-  scopeid_unspecified: SCOPE_ID;
+  scopeid_unspecified: {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
 
   // RLebeau: the in4addr_any, _in4addr_loopback, and _in4addr_broadcast variables
   // clash with the IN4ADDR_ANY, IN4ADDR_LOOPBACK, and IN4ADDR_BROADCAST constants
@@ -7364,10 +7364,10 @@ begin
     (not IN4_IS_ADDR_MC_ADMINLOCAL(a));
 end;
 
-function SCOPEID_UNSPECIFIED_INIT: SCOPE_ID;
+function SCOPEID_UNSPECIFIED_INIT: {$IFDEF WINCE}u_log{$ELSE}SCOPE_ID{$ENDIF};
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result.Value := 0;
+  Result{$IFNDEF WINCE}.Value{$ENDIF} := 0;
 end;
 
 function IN4ADDR_ANY_INIT: TInAddr;
@@ -7489,20 +7489,20 @@ begin
   Result := IN4_IS_ADDR_LOOPBACK(@a^.sin_addr);
 end;
 
-function IN4ADDR_SCOPE_ID(const a : PSockAddrIn) : SCOPE_ID;
+function IN4ADDR_SCOPE_ID(const a : PSockAddrIn) : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   //SCOPE_ID UnspecifiedScopeId = {0};
   //UNREFERENCED_PARAMETER(a);
   //return UnspecifiedScopeId;
-  FillChar(Result,SizeOf(Result),0);
+  Result{$IFNDEF WINCE}.Value{$ENDIF} := 0;
 end;
 
 function IN4ADDR_ISEQUAL(a, b : PSockAddrIn) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   ASSERT(a^.sin_family = AF_INET);
-  Result := (IN4ADDR_SCOPE_ID(a).Value = IN4ADDR_SCOPE_ID(b).Value) and
+  Result := (IN4ADDR_SCOPE_ID(a){$IFNDEF WINCE}.Value{$ENDIF} = IN4ADDR_SCOPE_ID(b){$IFNDEF WINCE}.Value{$ENDIF}) and
     IN4_ADDR_EQUAL(@a^.sin_addr , @b^.sin_addr);
 end;
 
@@ -7510,7 +7510,7 @@ function IN4ADDR_ISUNSPECIFIED(a : PSockAddrIn) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   ASSERT(a^.sin_family = AF_INET);
-  Result := (IN4ADDR_SCOPE_ID(a).Value = 0) and
+  Result := (IN4ADDR_SCOPE_ID(a){$IFNDEF WINCE}.Value{$ENDIF} = 0) and
     IN4_IS_ADDR_UNSPECIFIED(@a^.sin_addr);
 end;
 
@@ -7729,6 +7729,7 @@ begin
   Result := NlatUnicast;
 end;
 
+{$IFNDEF WINCE}
 //  SCOPE_ID = record
 //    union {
 //        struct {
@@ -7773,6 +7774,7 @@ begin
     SCOPE_ID_SetLevel(ScopeId^, 0);
   end;
 end;
+{$ENDIF}
 
 function IN4_IS_ADDR_6TO4ELIGIBLE(a : PInAddr) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -8097,6 +8099,7 @@ begin
   Result := NlatUnicast;
 end;
 
+{$IFNDEF WINCE}
 procedure IN6_UNCANONICALIZE_SCOPE_ID(Address : PIN6_ADDR; ScopeId : PSCOPE_ID);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
@@ -8110,28 +8113,37 @@ begin
     SCOPE_ID_SetLevel(ScopeId^, 0);
   end;
 end;
+{$ENDIF}
 
 procedure IN6ADDR_SETSOCKADDR(a : PSOCKADDR_IN6; addr : PIN6_ADDR;
-  const scope : SCOPE_ID; const port : USHORT );
+  const scope : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF}; const port : USHORT );
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   a^.sin6_family := AF_INET6;
   a^.sin6_port := port;
   a^.sin6_flowinfo := 0;
   a^.sin6_addr := addr^;
+  {$IFDEF WINCE}
+  a^.sin6_scope_id := scope;
+  {$ELSE}
   a^.a.sin6_scope_struct := scope;
   IN6_UNCANONICALIZE_SCOPE_ID(@a^.sin6_addr, @a^.a.sin6_scope_struct);
+  {$ENDIF}
 end;
 
 procedure IN6ADDR_SETV4MAPPED(a6 : PSOCKADDR_IN6; a4 : PInAddr;
-  const scope : SCOPE_ID; const port : USHORT );
+  const scope : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF}; const port : USHORT );
 begin
   a6^.sin6_family := AF_INET6;
   a6^.sin6_port := port;
   a6^.sin6_flowinfo := 0;
   IN6_SET_ADDR_V4MAPPED(a6^.sin6_addr, a4);
+  {$IFDEF WINCE}
+  a^.sin6_scope_id := scope;
+  {$ELSE}
   a6^.a.sin6_scope_struct := scope;
   IN4_UNCANONICALIZE_SCOPE_ID(a4, @a6^.a.sin6_scope_struct);
+  {$ENDIF}
 end;
 
 //
@@ -8597,7 +8609,7 @@ begin
 end;
 
 procedure INETADDR_SETSOCKADDR(const af : ADDRESS_FAMILY; a : PSOCKADDR;
-  addr : Pointer; const scope : SCOPE_ID; const port : USHORT);
+  addr : Pointer; const scope : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF}; const port : USHORT);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   addr4 : IN_ADDR;
@@ -8666,21 +8678,22 @@ begin
 end;
 
 function NL_ADDR_EQUAL(const af : ADDRESS_FAMILY;
-  const sa : SCOPE_ID;
+  const sa : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
   const aa : PUCHAR;
-  const sb :SCOPE_ID;
+  const sb : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
   const ab : PUCHAR) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := ((sa.Value = sb.Value) and INET_ADDR_EQUAL(af, aa, ab));
+  Result := ((sa{$IFNDEF WINCE}.Value{$ENDIF} = sb{$IFNDEF WINCE}.Value{$ENDIF}) and
+    INET_ADDR_EQUAL(af, aa, ab));
 end;
 
 function NL_IS_ADDR_UNSPECIFIED(const af : ADDRESS_FAMILY;
-  const s : SCOPE_ID;
+  const s : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
   const a : PUCHAR) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := ((s.Value = 0) and INET_IS_ADDR_UNSPECIFIED(af, a));
+  Result := ((s{$IFNDEF WINCE}.Value{$ENDIF} = 0) and INET_IS_ADDR_UNSPECIFIED(af, a));
 end;
 
 function IN6ADDR_ISEQUAL(const a,b : PSOCKADDR_IN6 ) : Boolean;
@@ -8723,11 +8736,11 @@ begin
   end;
 end;
 
-function INETADDR_SCOPE_ID(const a : PSOCKADDR) : SCOPE_ID;
+function INETADDR_SCOPE_ID(const a : PSOCKADDR) : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (a^.sa_family = AF_INET6) then begin
-    Result := PSOCKADDR_IN6(a)^.a.sin6_scope_struct;
+    Result := PSOCKADDR_IN6(a)^.{$IFDEF WINCE}sin6_scope_id{$ELSE}a.sin6_scope_struct{$ENDIF};
   end else begin
     ASSERT(a^.sa_family = AF_INET);
     Result := IN4ADDR_SCOPE_ID(PSOCKADDR_IN(a));
