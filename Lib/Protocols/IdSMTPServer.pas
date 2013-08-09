@@ -1128,11 +1128,13 @@ end;
 function ReplaceReceivedTokens(AContext: TIdSMTPServerContext; const AReceivedString: String): String;
 var
   LTokens: TStringList;
-  i, LPos: Integer;
+  i: Integer;
   //we do it this way so we can take advantage of the StringBuilder in DotNET.
   ReplaceOld, ReplaceNew: array of string;
+  {$IFNDEF HAS_TStrings_ValueFromIndex}
+  S: String;
+  {$ENDIF}
 begin
-  Result := '';
   LTokens := TStringList.Create;
   try
     if Pos('$hostname', AReceivedString) <> 0 then begin                  {do not localize}
@@ -1169,12 +1171,18 @@ begin
       SetLength(ReplaceOld, LTokens.Count);
 
       for i := 0 to LTokens.Count-1 do begin
-        LPos := Pos('=', LTokens.Strings[i]); {do not localize}
-        ReplaceOld[i] := Copy(LTokens.Strings[i], 1, LPos-1);
-        ReplaceNew[i] := Copy(LTokens.Strings[i], LPos+1, MaxInt);
+        ReplaceOld[i] := LTokens.Names[i];
+        {$IFDEF HAS_TStrings_ValueFromIndex}
+        ReplaceNew[i] := LTokens.ValueFromIndex[i];
+        {$ELSE}
+        S := LTokens.Strings[i];
+        ReplaceNew[i] := Copy(S, Pos('=', S)+1, MaxInt);
+        {$ENDIF}
       end;
 
       Result := StringsReplace(AReceivedString, ReplaceOld, ReplaceNew);
+    end else begin
+      Result := AReceivedString;
     end;
   finally
     FreeAndNil(LTokens);
