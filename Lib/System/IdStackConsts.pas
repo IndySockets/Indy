@@ -472,10 +472,11 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   {for some reason, the compiler doesn't accept  INADDR_ANY below saying a constant is expected. }
    {$IFDEF USE_VCL_POSIX}
   Id_INADDR_ANY  = 0;// INADDR_ANY;
+  Id_INADDR_NONE = $ffffffff;// INADDR_NONE;
    {$ELSE}
-  Id_INADDR_ANY  =  INADDR_ANY;
-    {$ENDIF}
+  Id_INADDR_ANY  = INADDR_ANY;
   Id_INADDR_NONE = INADDR_NONE;
+    {$ENDIF}
   {$ENDIF}
 
   // TCP Options

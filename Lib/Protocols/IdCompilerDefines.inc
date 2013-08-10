@@ -1107,7 +1107,7 @@
 //If this comes before the ICONV defines, it creates problems.
 //This also must go before the THandle size calculations.
 {$IFDEF VCL_CROSS_COMPILE}
-  {$IFDEF MACOS}
+  {$IFDEF POSIX}
     {$DEFINE BSD}
     {$DEFINE USE_SAFELOADLIBRARY}
     {$DEFINE USE_INVALIDATE_MOD_CACHE}
