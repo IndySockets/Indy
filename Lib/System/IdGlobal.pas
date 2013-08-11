@@ -3414,6 +3414,11 @@ end;
 
 {$IFDEF HAS_TEncoding}
 
+// RLebeau: this is a hack.  The protected members of SysUtils.TEncoding are
+// declared as 'STRICT protected', so a regular accessor will not work here.
+// Only descendants can call them, so we have to expose our our methods that
+// this unit can call, and have them call the inherited methods internally.
+
 type
   TEncodingAccess = class(TEncoding)
   public
@@ -5341,8 +5346,8 @@ function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
 var
   i: Integer;
 begin
-  Result := '';
-  for i := 0 to 7 do begin
+  Result := IntToHex(AValue[i], 4);
+  for i := 1 to 7 do begin
     Result := Result + ':' + IntToHex(AValue[i], 4);
   end;
 end;
