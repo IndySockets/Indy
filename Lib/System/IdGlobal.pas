@@ -2578,6 +2578,7 @@ function TIdMBCSEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Int
 {$IFDEF USE_ICONV}
 var
   LBytes: array[0..3] of Byte;
+  LSrcCharsPtr: PIdWideChar;
   LCharsPtr, LBytesPtr: PAnsiChar;
   LSrcCharSize, LCharSize, LByteSize: size_t;
   LCharsRead: Integer;
@@ -2610,9 +2611,10 @@ begin
     end;
 
     // do the conversion
+    LSrcCharsPtr := AChars;
     repeat
-      if AChars <> nil then begin
-        LSrcCharSize := CalcUTF16ByteSize(AChars, ACharCount);
+      if LSrcCharsPtr <> nil then begin
+        LSrcCharSize := CalcUTF16ByteSize(LSrcCharsPtr, ACharCount);
         if LSrcCharSize = 0 then begin
           Result := 0;
           Exit;
@@ -2621,7 +2623,7 @@ begin
         LSrcCharSize := 0;
       end;
 
-      LCharsPtr := PAnsiChar(AChars);
+      LCharsPtr := PAnsiChar(LSrcCharsPtr);
       LCharSize := LSrcCharSize;
       LBytesPtr := PAnsiChar(@LBytes[0]);
       LByteSize := SizeOf(LBytes);
@@ -2633,19 +2635,19 @@ begin
 
       // LByteSize was decremented by the number of bytes stored in the output buffer
       Inc(Result, SizeOf(LBytes)-LByteSize);
-      if Chars = nil then begin
+      if LSrcCharsPtr = nil then begin
         Exit;
       end;
 
       // LCharSize was decremented by the number of bytes read from the input buffer
       LCharsRead := (LSrcCharSize-LCharSize) div SizeOf(WideChar);
-      Inc(AChars, LCharsRead);
+      Inc(LSrcCharsPtr, LCharsRead);
       Dec(ACharCount, LCharsRead);
       if ACharCount < 1 then
       begin
         // After all characters are handled, the output buffer has to be flushed
         // This is done by running one more iteration, without an input buffer
-        AChars := nil;
+        LSrcCharsPtr := nil;
       end;
     until False;
   finally
@@ -2668,6 +2670,7 @@ function TIdMBCSEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer
   AByteCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
+  LSrcCharsPtr: PIdWideChar;
   LCharsPtr, LBytesPtr: PAnsiChar;
   LSrcCharSize, LCharSize, LByteSize: size_t;
   LCharsRead, LBytesWritten: Integer;
@@ -2694,9 +2697,10 @@ begin
     end;
 
     // do the conversion
+    LSrcCharsPtr := AChars;
     repeat
-      if AChars <> nil then begin
-        LSrcCharSize := CalcUTF16ByteSize(AChars, ACharCount);
+      if LSrcCharsPtr <> nil then begin
+        LSrcCharSize := CalcUTF16ByteSize(LSrcCharsPtr, ACharCount);
         if LSrcCharSize = 0 then begin
           Result := 0;
           Exit;
@@ -2705,7 +2709,7 @@ begin
         LSrcCharSize := 0;
       end;
 
-      LCharsPtr := PAnsiChar(AChars);
+      LCharsPtr := PAnsiChar(LSrcCharsPtr);
       LCharSize := LSrcCharSize;
       LBytesPtr := PAnsiChar(ABytes);
       LByteSize := AByteCount;
@@ -2717,7 +2721,7 @@ begin
       // LByteSize was decremented by the number of bytes stored in the output buffer
       LBytesWritten := AByteCount - LByteSize;
       Inc(Result, LBytesWritten);
-      if AChars = nil then begin
+      if LSrcCharsPtr = nil then begin
         Exit;
       end;
       Inc(ABytes, LBytesWritten);
@@ -2725,13 +2729,13 @@ begin
 
       // LCharSize was decremented by the number of bytes read from the input buffer
       LCharsRead := (LSrcCharSize-LCharSize) div SizeOf(WideChar);
-      Inc(AChars, LCharsRead);
+      Inc(LSrcCharsPtr, LCharsRead);
       Dec(ACharCount, LCharsRead);
       if ACharCount < 1 then
       begin
         // After all characters are handled, the output buffer has to be flushed
         // This is done by running one more iteration, without an input buffer
-        AChars := nil;
+        LSrcCharsPtr := nil;
       end;
     until False;
   finally
@@ -2755,6 +2759,7 @@ function TIdMBCSEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer):
 {$IFDEF USE_ICONV}
 var
   LChars: array[0..3] of WideChar;
+  LSrcBytesPtr: PByte;
   LBytesPtr, LCharsPtr: PAnsiChar;
   LByteSize, LCharsSize: size_t;
   I, LMaxBytesSize, LBytesRead: Integer;
@@ -2789,8 +2794,9 @@ begin
     end;
 
     // do the conversion
+    LSrcBytesPtr := ABytes;
     repeat
-      if ABytes = nil then
+      if LSrcBytesPtr = nil then
       begin
         LBytesPtr := nil;
         LByteSize := 0;
@@ -2813,7 +2819,7 @@ begin
       LConverted := False;
       for I := 1 to LMaxBytesSize do
       begin
-        LBytesPtr := PAnsiChar(ABytes);
+        LBytesPtr := PAnsiChar(LSrcBytesPtr);
         LByteSize := I;
         LCharsPtr := PAnsiChar(@LChars[0]);
         LCharsSize := SizeOf(LChars);
@@ -2823,18 +2829,18 @@ begin
 
           // LCharsSize was decremented by the number of bytes stored in the output buffer
           Inc(Result, (SizeOf(LChars)-LCharsSize) div SizeOf(WideChar));
-          if ABytes = nil then begin
+          if LSrcBytesPtr = nil then begin
             Exit;
           end;
 
           // LByteSize was decremented by the number of bytes read from the input buffer
           LBytesRead := I - LByteSize;
-          Inc(ABytes, LBytesRead);
+          Inc(LSrcBytesPtr, LBytesRead);
           Dec(AByteCount, LBytesRead);
           if AByteCount < 1 then begin
             // After all bytes are handled, the output buffer has to be flushed
             // This is done by running one more iteration, without an input buffer
-            ABytes := nil;
+            LSrcBytesPtr := nil;
           end;
 
           Break;
@@ -2867,6 +2873,7 @@ function TIdMBCSEncoding.GetChars(const ABytes: PByte; AByteCount: Integer; ACha
   ACharCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
+  LSrcBytesPtr: PByte;
   LBytesPtr, LCharsPtr: PAnsiChar;
   LByteSize, LCharsSize: size_t;
   I, LDestCharSize, LMaxBytesSize, LBytesRead, LCharsWritten: Integer;
@@ -2901,11 +2908,12 @@ begin
     end;
 
     // do the conversion
+    LSrcBytesPtr := ABytes;
     repeat
       LMaxBytesSize := IndyMin(AByteCount, FMaxCharSize);
       LDestCharSize := ACharCount * SizeOf(WideChar);
 
-      if ABytes = nil then
+      if LSrcBytesPtr = nil then
       begin
         LBytesPtr := nil;
         LByteSize := 0;
@@ -2928,7 +2936,7 @@ begin
       LConverted := False;
       for I := 1 to LMaxBytesSize do
       begin
-        LBytesPtr := PAnsiChar(ABytes);
+        LBytesPtr := PAnsiChar(LSrcBytesPtr);
         LByteSize := I;
         LCharsPtr := PAnsiChar(AChars);
         LCharsSize := LDestCharSize;
@@ -2939,7 +2947,7 @@ begin
           // LCharsSize was decremented by the number of bytes stored in the output buffer
           LCharsWritten := (LDestCharSize-LCharsSize) div SizeOf(WideChar);
           Inc(Result, LCharsWritten);
-          if ABytes = nil then begin
+          if LSrcBytesPtr = nil then begin
             Exit;
           end;
           Inc(AChars, LCharsWritten);
@@ -2947,12 +2955,12 @@ begin
 
           // LByteSize was decremented by the number of bytes read from the input buffer
           LBytesRead := I - LByteSize;
-          Inc(ABytes, LBytesRead);
+          Inc(LSrcBytesPtr, LBytesRead);
           Dec(AByteCount, LBytesRead);
           if AByteCount < 1 then begin
             // After all bytes are handled, the output buffer has to be flushed
             // This is done by running one more iteration, without an input buffer
-            ABytes := nil;
+            LSrcBytesPtr := nil;
           end;
 
           Break;
@@ -3524,7 +3532,12 @@ begin
     65001:
       Result := IndyTextEncoding_UTF8;
   else
+    {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
     Result := TIdMBCSEncoding.Create(ACodepage);
+    {$ELSE}
+    Result := nil;
+    raise EIdException.CreateResFmt(@RSInvalidCodePage, [ACodepage]);
+    {$ENDIF}
   end;
   {$ENDIF}
 end;
