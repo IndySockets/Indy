@@ -5346,7 +5346,7 @@ function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
 var
   i: Integer;
 begin
-  Result := IntToHex(AValue[i], 4);
+  Result := IntToHex(AValue[0], 4);
   for i := 1 to 7 do begin
     Result := Result + ':' + IntToHex(AValue[i], 4);
   end;
