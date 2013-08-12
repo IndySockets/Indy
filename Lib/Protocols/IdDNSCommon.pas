@@ -307,6 +307,7 @@ type
   EIdDNSServerSyncException = class(EIdSilentException);
   EIdDNSServerSettingException = class(EIdSilentException);
 
+  // TODO: enable AD and CD properties. Those fields are reserved in RFC 1035, but defined in RFC 6895
   TDNSHeader = class
   private
     FID: Word;
@@ -316,6 +317,8 @@ type
     FNSCount: Word;
     FARCount: Word;
     function GetAA: Word;
+    //function GetAD: Word;
+    //function GetCD: Word;
     function GetOpCode: Word;
     function GetQr: Word;
     function GetRA: Word;
@@ -323,6 +326,8 @@ type
     function GetRD: Word;
     function GetTC: Word;
     procedure SetAA(const Value: Word);
+    //procedure SetAD(const Value: Word);
+    //procedure SetCD(const Value: Word);
     procedure SetOpCode(const Value: Word);
     procedure SetQr(const Value: Word);
     procedure SetRA(const Value: Word);
@@ -340,6 +345,8 @@ type
     property Qr: Word read GetQr write SetQr;
     property OpCode: Word read GetOpCode write SetOpCode;
     property AA: Word read GetAA write SetAA;
+    //property AD: Word get GetAD write SetAD;
+    //property CD: Word get GetCD write SetCD;
     property TC: Word read GetTC write SetTC;
     property RD: Word read GetRD write SetRD;
     property RA: Word read GetRA write SetRA;
@@ -930,13 +937,13 @@ The header contains the following fields:
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
     |                      ID                       |
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
+    |QR|   Opcode  |AA|TC|RD|RA| Z|AD|CD|   RCODE   |
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                    QDCOUNT                    |
+    |                QDCOUNT/ZOCOUNT                |
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                    ANCOUNT                    |
+    |                ANCOUNT/PRCOUNT                |
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                    NSCOUNT                    |
+    |                NSCOUNT/UPCOUNT                |
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
     |                    ARCOUNT                    |
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -989,6 +996,14 @@ RA              Recursion Available - this be is set or cleared in a
 Z               Reserved for future use.  Must be zero in all queries
                 and responses.
 
+AD              Authentic Data - signal indicating that the requester
+                understands and is interested in the value of the AD bit
+                in the response.  This allows a requester to indicate that
+                it understands the AD bit without also requesting DNSSEC
+                data via the DO bit.
+
+CD              Checking Disabled
+
 RCODE           Response code - this 4 bit field is set as part of
                 responses.  The values have the following
                 interpretation:
@@ -1039,8 +1054,6 @@ ARCOUNT         an unsigned 16 bit integer specifying the number of
 begin
   SetLength(Result, 12);
   WordToTwoBytes(GStack.HostToNetwork(ID), Result, 0);
-  //strip off reserved bits
-  BitCode := BitCode and $F1FF; //E00
   WordToTwoBytes(GStack.HostToNetwork(BitCode), Result, 2);
   WordToTwoBytes(GStack.HostToNetwork(QDCount), Result, 4);
   WordToTwoBytes(GStack.HostToNetwork(ANCount), Result, 6);
@@ -1050,22 +1063,34 @@ end;
 
 function TDNSHeader.GetAA: Word;
 begin
-  Result := (FBitCode and $0700) shr 10;
+  Result := (FBitCode shr 10) and $0001;
 end;
+
+{
+function TDNSHeader.GetAD: Word;
+begin
+  Result := (FBitCode shr 5) and $0001;
+end;
+
+function TDNSHeader.GetCD: Word;
+begin
+  Result := (FBitCode shr 4) and $0001;
+end;
+}
 
 function TDNSHeader.GetOpCode: Word;
 begin
-  Result := ((FBitCode and $7800) shr 11) and $000F;
+  Result := (FBitCode shr 11) and $000F;
 end;
 
 function TDNSHeader.GetQr: Word;
 begin
-  Result := FBitCode shr 15;
+  Result := (FBitCode shr 15) and $0001;
 end;
 
 function TDNSHeader.GetRA: Word;
 begin
-  Result := (FBitCode and $0800) shr 7;
+  Result := (FBitCode shr 7) and $0001;
 end;
 
 function TDNSHeader.GetRCode: Word;
@@ -1075,12 +1100,12 @@ end;
 
 function TDNSHeader.GetRD: Word;
 begin
-  Result := (FBitCode and $0100) shr 8;
+  Result := (FBitCode shr 8) and $0001;
 end;
 
 function TDNSHeader.GetTC: Word;
 begin
-  Result := (FBitCode and $0200) shr 9;
+  Result := (FBitCode shr 9) and $0001;
 end;
 
 function TDNSHeader.ParseQuery(Data: TIdBytes): integer;
@@ -1103,50 +1128,59 @@ end;
 procedure TDNSHeader.SetAA(const Value: Word);
 begin
   if Value = 0 then begin
-    // FBitCode := FBitCode and $FBFF;
+    FBitCode := FBitCode and $FBFF;
+  end else begin
+    FBitCode := FBitCode or $0400;
+  end;
+end;
+
+{
+procedure TDNSHeader.SetAD(const Value: Word);
+begin
+  if Value = 0 then begin
     FBitCode := FBitCode and $FFDF;
   end else begin
     FBitCode := FBitCode or $0020;
-    // FBitCode := FBitCode or $0400;
   end;
 end;
+}
 
 procedure TDNSHeader.SetBitCode(const Value: Word);
 begin
   FBitCode := Value;
 end;
 
+{
+procedure TDNSHeader.SetCD(const Value: Word);
+begin
+  if Value = 0 then begin
+    FBitCode := FBitCode and $FFEF;
+  end else begin
+    FBitCode := FBitCode or $0010;
+  end;
+end;
+}
+
 procedure TDNSHeader.SetOpCode(const Value: Word);
 begin
-  case Value of  // $1E should mask the bits
-    0: FBitCode := FBitCode and $FFE1;
-      //FBitCode := FBitCode and $87FF;
-    1: FBitCode := (FBitCode and $FFE1) or $0002;
-      //FBitCode := FBitCode and $8FFF;
-    2: FBitCode := (FBitCode and $FFE1) or $0004;
-      //FBitCode := FBitCode and $4BFF;
-  end;
+  FBitCode := (FBitCode and $87FF) or ((Value and $000F) shl 11);
 end;
 
 procedure TDNSHeader.SetQr(const Value: Word);
 begin
   if Value = 0 then begin
-    FBitCode := FBitCode and $FFFE;
-    // FBitCode := FBitCode and $EFFF;
+    FBitCode := FBitCode and $7FFF;
   end else begin
-    FBitCode := FBitCode or  $0001;
-    // FBitCode := FBitCode or $8000;
+    FBitCode := FBitCode or $8000;
   end;
 end;
 
 procedure TDNSHeader.SetRA(const Value: Word);
 begin
   if Value = 0 then begin
-    // FBitCode := FBitCode and $FF7F;
-    FBitCode := FBitCode or $FEFF;
+    FBitCode := FBitCode and $FF7F;
   end else begin
-    FBitCode := FBitCode or  $100;
-    // FBitCode := FBitCode or $0080;
+    FBitCode := FBitCode or $0080;
   end;
 end;
 
@@ -1158,7 +1192,7 @@ end;
 procedure TDNSHeader.SetRD(const Value: Word);
 begin
   if Value = 0 then begin
-    FBitCode := FBitCode and $FEFFF;
+    FBitCode := FBitCode and $FEFF;
   end else begin
     FBitCode := FBitCode or $0100;
   end;
