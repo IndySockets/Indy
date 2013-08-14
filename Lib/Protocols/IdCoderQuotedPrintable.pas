@@ -130,6 +130,13 @@ uses
   IdGlobal,
   IdGlobalProtocols;
 
+// RLebeau 8/13/2013: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}
+
 { TIdDecoderQuotedPrintable }
 
 procedure TIdDecoderQuotedPrintable.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
@@ -283,32 +290,34 @@ var
 begin
   //ie while not eof
   LSourceSize := ASrcStream.Size;
-  while ASrcStream.Position < LSourceSize do begin
-    EnsureEncoding(LEncoding, enc8Bit);
-    SourceLine := ReadLnFromStream(ASrcStream, -1, False, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
-    CurrentLen := 0;
-    for I := 1 to Length(SourceLine) do begin
-      if not CharIsInSet(SourceLine, I, SafeChars) then
-      begin
-        if CharIsInSet(SourceLine, I, HalfSafeChars) and (I < Length(SourceLine)) then begin
-          S := SourceLine[I];
-        end else begin
+  if ASrcStream.Position < LSourceSize then begin
+    LEncoding := IndyTextEncoding_8Bit;
+    repeat
+      SourceLine := ReadLnFromStream(ASrcStream, -1, False, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      CurrentLen := 0;
+      for I := 1 to Length(SourceLine) do begin
+        if not CharIsInSet(SourceLine, I, SafeChars) then
+        begin
+          if CharIsInSet(SourceLine, I, HalfSafeChars) and (I < Length(SourceLine)) then begin
+            S := SourceLine[I];
+          end else begin
+            S := CharToHex(SourceLine[I]);
+          end;
+        end
+        else if ((CurrentLen = 0) or (CurrentLen >= 70)) and (SourceLine[I] = '.') then begin {do not localize}
           S := CharToHex(SourceLine[I]);
+        end else begin
+          S := SourceLine[I];
         end;
-      end
-      else if ((CurrentLen = 0) or (CurrentLen >= 70)) and (SourceLine[I] = '.') then begin {do not localize}
-        S := CharToHex(SourceLine[I]);
-      end else begin
-        S := SourceLine[I];
+        WriteStringToStream(ADestStream, S);
+        Inc(CurrentLen, Length(S));
+        if CurrentLen >= 70 then begin
+          WriteStringToStream(ADestStream, '='+EOL);  {Do not Localize}
+          CurrentLen := 0;
+        end;
       end;
-      WriteStringToStream(ADestStream, S);
-      Inc(CurrentLen, Length(S));
-      if CurrentLen >= 70 then begin
-        WriteStringToStream(ADestStream, '='+EOL);  {Do not Localize}
-        CurrentLen := 0;
-      end;
-    end;
-    WriteStringToStream(ADestStream, EOL);
+      WriteStringToStream(ADestStream, EOL);
+    until ASrcStream.Position >= LSourceSize;
   end;
 end;
 
