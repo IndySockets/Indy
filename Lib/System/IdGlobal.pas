@@ -1592,7 +1592,7 @@ var
   {$IFDEF UNIX}
 
   // For linux the user needs to set this variable to be accurate where used (mail, etc)
-  GOffsetFromUTC: TDateTime = 0;
+  GOffsetFromUTC: TDateTime = 0 {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
   {$ENDIF}
 
   IndyPos: TPosProc = nil;
@@ -6469,7 +6469,7 @@ begin
     {$ENDIF}
     {$IFDEF USE_BASEUNIX}
   fpGetTimeOfDay (@TimeVal, @TimeZone);
-  Result := -1 * (timezone.tz_minuteswest /60 / 60 / 24)
+  Result := -1 * (timezone.tz_minuteswest / 60 / 24)
     {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
   {from http://edn.embarcadero.com/article/27890 }
