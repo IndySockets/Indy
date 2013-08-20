@@ -8707,7 +8707,7 @@ function IN6ADDR_ISEQUAL(const a,b : PSOCKADDR_IN6 ) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   ASSERT(a^.sin6_family = AF_INET6);
-  Result := (a^.a.sin6_scope_id = b^.a.sin6_scope_id) and
+  Result := (a^.{$IFNDEF WINCE}a.{$ENDIF}sin6_scope_id = b^.{$IFNDEF WINCE}a.{$ENDIF}sin6_scope_id) and
                      IN6_ADDR_EQUAL(@a^.sin6_addr, @b^.sin6_addr);
 end;
 
@@ -8728,7 +8728,7 @@ function IN6ADDR_ISUNSPECIFIED(a : PSOCKADDR_IN6) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   ASSERT(a^.sin6_family = AF_INET6);
-  Result := (a^.a.sin6_scope_id = 0) and
+  Result := (a^.{$IFNDEF WINCE}a.{$ENDIF}sin6_scope_id = 0) and
              IN6_IS_ADDR_UNSPECIFIED(@a^.sin6_addr);
 end;
 
