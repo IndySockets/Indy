@@ -8139,7 +8139,7 @@ begin
   a6^.sin6_flowinfo := 0;
   IN6_SET_ADDR_V4MAPPED(a6^.sin6_addr, a4);
   {$IFDEF WINCE}
-  a^.sin6_scope_id := scope;
+  a6^.sin6_scope_id := scope;
   {$ELSE}
   a6^.a.sin6_scope_struct := scope;
   IN4_UNCANONICALIZE_SCOPE_ID(a4, @a6^.a.sin6_scope_struct);
@@ -8149,7 +8149,7 @@ end;
 //
 // Define address-family-independent routines.
 //
-function INET_ADDR_EQUAL(const af : ADDRESS_FAMILY;
+function INET_ADDR_EQUAL(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a, b : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8161,7 +8161,8 @@ begin
   end;
 end;
 
-function INET_UNALIGNED_ADDR_EQUAL(const af : ADDRESS_FAMILY; const a, b : Pointer ) : Boolean;
+function INET_UNALIGNED_ADDR_EQUAL(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  const a, b : Pointer ) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8172,7 +8173,8 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_UNSPECIFIED(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+function INET_IS_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8183,7 +8185,8 @@ begin
   end;
 end;
 
-function INET_IS_UNALIGNED_ADDR_UNSPECIFIED(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+function INET_IS_UNALIGNED_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8194,7 +8197,8 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_LOOPBACK(const af: ADDRESS_FAMILY; CONST a: Pointer): Boolean;
+function INET_IS_ADDR_LOOPBACK(const af: {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  const a: Pointer): Boolean;
 begin
   if (af = AF_INET6) then begin
     Result := IN6_IS_ADDR_LOOPBACK(PIn6Addr(a));
@@ -8204,7 +8208,8 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_BROADCAST(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+function INET_IS_ADDR_BROADCAST(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8215,7 +8220,8 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_MULTICAST(const af : ADDRESS_FAMILY; const a : Pointer) : Boolean;
+function INET_IS_ADDR_MULTICAST(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8226,7 +8232,7 @@ begin
   end;
 end;
 
-function INET_ADDR_UNSPECIFIED(const af :  ADDRESS_FAMILY) : PUCHAR;
+function INET_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF}) : PUCHAR;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8237,7 +8243,8 @@ begin
   end;
 end;
 
-procedure INET_SET_ADDRESS( Family : ADDRESS_FAMILY; Address : PUCHAR; Value : PUCHAR);
+procedure INET_SET_ADDRESS( Family : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  Address : PUCHAR; Value : PUCHAR);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (Family = AF_INET6) then begin
@@ -8248,7 +8255,7 @@ begin
   end;
 end;
 
-function INET_ADDR_LENGTH(const af : ADDRESS_FAMILY ) : Size_t;
+function INET_ADDR_LENGTH(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF} ) : Size_t;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8259,7 +8266,7 @@ begin
   end;
 end;
 
-function INET_SOCKADDR_LENGTH(const af : ADDRESS_FAMILY) : Size_t;
+function INET_SOCKADDR_LENGTH(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF}) : Size_t;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8608,8 +8615,8 @@ begin
               (a^.s6_words[5] = 0));
 end;
 
-procedure INETADDR_SETSOCKADDR(const af : ADDRESS_FAMILY; a : PSOCKADDR;
-  addr : Pointer; const scope : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF}; const port : USHORT);
+procedure INETADDR_SETSOCKADDR(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  a : PSOCKADDR; addr : Pointer; const scope : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF}; const port : USHORT);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   addr4 : IN_ADDR;
@@ -8677,7 +8684,7 @@ begin
   end;
 end;
 
-function NL_ADDR_EQUAL(const af : ADDRESS_FAMILY;
+function NL_ADDR_EQUAL(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const sa : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
   const aa : PUCHAR;
   const sb : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
@@ -8688,7 +8695,7 @@ begin
     INET_ADDR_EQUAL(af, aa, ab));
 end;
 
-function NL_IS_ADDR_UNSPECIFIED(const af : ADDRESS_FAMILY;
+function NL_IS_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const s : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
   const a : PUCHAR) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -8786,7 +8793,8 @@ begin
   end;
 end;
 
-procedure INET_UNCANONICALIZE_SCOPE_ID( AddressFamily : ADDRESS_FAMILY; Address : PUCHAR; ScopeId : PSCOPE_ID);
+procedure INET_UNCANONICALIZE_SCOPE_ID( AddressFamily : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+  Address : PUCHAR; ScopeId : PSCOPE_ID);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (AddressFamily = AF_INET6) then begin
