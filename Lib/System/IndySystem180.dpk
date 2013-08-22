@@ -30,10 +30,13 @@ package IndySystem180;
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
 
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$IFNDEF NEXTGEN}
 requires
   rtl;
+{$ENDIF}
 
-// RLebeau: cannot use IdCompilerDefines.inc here!
 {$IFNDEF WINDOWS}
   {$IFDEF MSWINDOWS}
     {$DEFINE WINDOWS}

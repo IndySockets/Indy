@@ -29,9 +29,17 @@ package IndySystem170;
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
 {$IFNDEF NEXTGEN}
 requires
   rtl;
+{$ENDIF}
+
+{$IFNDEF WINDOWS}
+  {$IFDEF MSWINDOWS}
+    {$DEFINE WINDOWS}
+  {$ENDIF}
 {$ENDIF}
 
 contains
@@ -42,23 +50,26 @@ contains
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
   IdIDN in 'IdIDN.pas',
-  IdResourceStrings in 'IdResourceStrings.pas',
+  {$IFNDEF WINDOWS}
+  IdResourceStringsUnix in 'IdResourceStringsUnix.pas',
+  IdResourceStringsVCLPosix in 'IdResourceStringsVCLPosix.pas',
+  {$ENDIF}
   IdStack in 'IdStack.pas',
   IdStackBSDBase in 'IdStackBSDBase.pas',
   IdStackConsts in 'IdStackConsts.pas',
-  {$IFDEF NEXTGEN}
-  IdStackVCLPosix in 'IdStackVCLPosix.pas',
-  {$ELSE}
+  {$IFDEF WINDOWS}
   IdStackWindows in 'IdStackWindows.pas',
+  {$ELSE}
+  IdStackVCLPosix in 'IdStackVCLPosix.pas',
   {$ENDIF}
   IdStream in 'IdStream.pas',
   IdStreamVCL in 'IdStreamVCL.pas',
   IdStruct in 'IdStruct.pas',
-  {$IFDEF NEXTGEN}
-  IdVCLPosixSupplemental in 'IdVCLPosixSupplemental.pas'
-  {$ELSE}
+  {$IFDEF WINDOWS}
   IdWinsock2 in 'IdWinsock2.pas',
   IdWship6 in 'IdWship6.pas'
+  {$ELSE}
+  IdVCLPosixSupplemental in 'IdVCLPosixSupplemental.pas'
   {$ENDIF}
   ;
 

@@ -29,10 +29,18 @@ package IndyProtocols160;
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
 requires
   rtl,
   IndySystem160,
   IndyCore160;
+
+{$IFNDEF WINDOWS}
+  {$IFDEF MSWINDOWS}
+    {$DEFINE WINDOWS}
+  {$ENDIF}
+{$ENDIF}
 
 contains
   IdASN1Util in 'IdASN1Util.pas',
@@ -46,7 +54,9 @@ contains
   IdAuthenticationDigest in 'IdAuthenticationDigest.pas',
   IdAuthenticationManager in 'IdAuthenticationManager.pas',
   IdAuthenticationNTLM in 'IdAuthenticationNTLM.pas',
+  {$IFDEF WINDOWS}
   IdAuthenticationSSPI in 'IdAuthenticationSSPI.pas',
+  {$ENDIF}
   IdBlockCipherIntercept in 'IdBlockCipherIntercept.pas',
   IdChargenServer in 'IdChargenServer.pas',
   IdChargenUDPServer in 'IdChargenUDPServer.pas',
@@ -209,6 +219,7 @@ contains
   IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
   IdResourceStringsProtocols in 'IdResourceStringsProtocols.pas',
   IdResourceStringsSSPI in 'IdResourceStringsSSPI.pas',
+  IdResourceStringsUriUtils in 'IdResourceStringsUriUtils.pas',
   IdRexec in 'IdRexec.pas',
   IdRexecServer in 'IdRexecServer.pas',
   IdSASL in 'IdSASL.pas',
@@ -234,7 +245,9 @@ contains
   IdSSL in 'IdSSL.pas',
   IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
   IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
+  {$IFDEF WINDOWS}
   IdSSPI in 'IdSSPI.pas',
+  {$ENDIF}
   IdServerInterceptLogBase in 'IdServerInterceptLogBase.pas',
   IdServerInterceptLogEvent in 'IdServerInterceptLogEvent.pas',
   IdServerInterceptLogFile in 'IdServerInterceptLogFile.pas',
