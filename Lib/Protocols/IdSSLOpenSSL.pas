@@ -2808,7 +2808,7 @@ an invalid MAC when doing SSL.}
     );
   end;
   if error <= 0 then begin
-    EIdOSSLSettingCipherError.RaiseException(RSSSLSettingCipherError);
+    raise EIdOSSLSettingCipherError.Create(RSSSLSettingCipherError);
   end;
   if fVerifyMode <> [] then begin
     SetVerifyMode(fVerifyMode, VerifyOn);
