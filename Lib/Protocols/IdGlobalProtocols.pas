@@ -1857,7 +1857,7 @@ begin
     {$IFNDEF WINCE}
   // RLebeau 2/1/2008: MSDN says that SetLocalTime() does the adjustment
   // automatically, so why is it being done manually?
-  if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then begin
+  if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
     if not Windows.OpenProcessToken(Windows.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
       Exit;
     end;
@@ -1891,10 +1891,10 @@ begin
     //
     // TODO: adjust the Time manually so only 1 call to SetLocalTime() is needed...
 
-    if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then begin
+    if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
       Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
       // Windows 2000+ will broadcast WM_TIMECHANGE automatically...
-      if Win32MajorVersion < 5 then begin // Windows 2000 = v5.0
+      if not IndyCheckWindowsVersion(5) then begin // Windows 2000 = v5.0
         SendMessage(HWND_BROADCAST, WM_TIMECHANGE, 0, 0);
       end;
     end else begin
@@ -1904,7 +1904,7 @@ begin
 
   {Undo the Process Privilege change we had done for the
   set time and close the handle that was allocated}
-  if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then begin
+  if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
     Windows.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
     Windows.CloseHandle(hToken);
   end;
@@ -3827,6 +3827,7 @@ begin
 //  AStr.Clear;
   AStream.Position := 0;
   LEncoding := IndyTextEncoding_8Bit;
+  // TODO: parse the stream as-is without reading it into a String first...
   LRawData := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   LEncoding := nil;
   LMode := none;

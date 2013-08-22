@@ -306,7 +306,7 @@ begin
   inherited Create;
   FOwner := AOwner;
   FRawHeaders := TIdHeaderList.Create(QuoteHTTP);
-  FRawHeaders.FoldLength := 1024;
+  FRawHeaders.FoldLength := MaxInt; // HTTP does not fold headers based on line length
   FCustomHeaders := TIdHeaderList.Create(QuoteHTTP);
 end;
 

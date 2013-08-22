@@ -668,7 +668,7 @@ function TSSPIInterface.IsAvailable: Boolean;
     entrypoint: INIT_SECURITY_INTERFACE;
   begin
     fIsAvailable := False;
-    if Win32Platform = VER_PLATFORM_WIN32_WINDOWS then
+    if IndyWindowsPlatform = VER_PLATFORM_WIN32_WINDOWS then
       { Windows95 SSPI dll }
       dllName := SECURITY_DLL_95
     else

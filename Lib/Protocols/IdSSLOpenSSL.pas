@@ -2484,7 +2484,7 @@ begin
       {$IFDEF WIN32_OR_WIN64}
       // begin bug fix
       end
-      else if BindingAllocated and (Win32MajorVersion >= 6) then
+      else if BindingAllocated and IndyCheckWindowsVersion(6) then
       begin
         // disables Vista+ SSL_Read and SSL_Write timeout fix
         Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, 0);
@@ -2598,7 +2598,7 @@ begin
   fSSLSocket.fSSLContext := fSSLContext;
   {$IFDEF WIN32_OR_WIN64}
   // begin bug fix
-  if Win32MajorVersion >= 6 then
+  if IndyCheckWindowsVersion(6) then
   begin
     // Note: Fix needed to allow SSL_Read and SSL_Write to timeout under
     // Vista+ when connection is dropped
@@ -2635,6 +2635,7 @@ begin
     LIO.SSLOptions.Assign( SSLOptions );
     LIO.OnStatusInfo := DoStatusInfo;
     LIO.OnGetPassword := DoGetPassword;
+    LIO.OnGetPasswordEx := OnGetPasswordEx;
     LIO.OnVerifyPeer := DoVerifyPeer;
     LIO.fSSLSocket := TIdSSLSocket.Create(Self);
   except
@@ -3133,6 +3134,12 @@ begin
   if error <= 0 then begin
     EIdOSSLConnectError.RaiseException(fSSL, error, RSSSLConnectError);
   end;
+  // TODO: even if SSL_connect() returns success, the connection might
+  // still be insecure if SSL_connect() detected that certificate validation
+  // actually failed, but ignored it because SSL_VERIFY_PEER was disabled!
+  // It would report such a failure via SSL_get_verify_result() instead of
+  // returning an error code, so we should call SSL_get_verify_result() here
+  // to make sure...
   StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
                'description = ' + Cipher.Description + '; ' +    {Do not Localize}
                'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}

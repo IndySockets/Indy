@@ -493,6 +493,8 @@ type
     ValidLifetime: ULONG;
     PreferredLifetime: ULONG;
     LeaseLifetime: ULONG;
+
+    // This structure member is only available on Windows Vista and later
     OnLinkPrefixLength: UCHAR;
   end;
 
@@ -647,17 +649,38 @@ type
 
   {$ENDIF}
 
+  PMIB_IPADDRROW = ^MIB_IPADDRROW;
+  MIB_IPADDRROW = record
+    dwAddr: DWORD;
+    dwIndex: DWORD;
+    dwMask: DWORD;
+    dwBCastAddr: DWORD;
+    dwReasmSize: DWORD;
+    unused1: Word;
+    wType: Word;
+  end;
+
+  PMIB_IPADDRTABLE = ^MIB_IPADDRTABLE;
+  MIB_IPADDRTABLE = record
+    dwNumEntries: DWORD;
+    table: array[0..0] of MIB_IPADDRROW;
+  end;
+
   NETIO_STATUS = DWORD;
 
+  TGetIpAddrTable = function(pIpAddrTable: PMIB_IPADDRTABLE; var pdwSize: ULONG; bOrder: BOOL): DWORD; stdcall;
   TGetUniDirectionalAdapterInfo = function(pIPIfInfo: PIP_UNIDIRECTIONAL_ADAPTER_ADDRESS; var dwOutBufLen: ULONG): DWORD; stdcall;
   TGetAdaptersInfo = function(pAdapterInfo: PIP_ADAPTER_INFO; var pOutBufLen: ULONG): DWORD; stdcall;
   TGetAdaptersAddresses = function(Family: ULONG; Flags: DWORD; Reserved: PVOID; pAdapterAddresses: PIP_ADAPTER_ADDRESSES; var OutBufLen: ULONG): DWORD; stdcall;
+  TConvertLengthToIpv4Mask = function(MaskLength: ULONG; var Mask: ULONG): NETIO_STATUS; stdcall;
 
 var
   hIpHlpApi: THandle = 0;
+  GetIpAddrTable: TGetIpAddrTable = nil;
   GetUniDirectionalAdapterInfo: TGetUniDirectionalAdapterInfo = nil;
   GetAdaptersInfo: TGetAdaptersInfo = nil;
   GetAdaptersAddresses: TGetAdaptersAddresses = nil;
+  ConvertLengthToIpv4Mask: TConvertLengthToIpv4Mask = nil;
 
 function FixupIPHelperStub(const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; DefImpl: Pointer): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -669,6 +692,18 @@ begin
   if Result = nil then begin
     Result := DefImpl;
   end;
+end;
+
+function Impl_GetIpAddrTable(pIpAddrTable: PMIB_IPADDRTABLE; var pdwSize: ULONG; bOrder: BOOL): DWORD; stdcall;
+begin
+  pdwSize := 0;
+  Result := ERROR_NOT_SUPPORTED;
+end;
+
+function Stub_GetIpAddrTable(pIpAddrTable: PMIB_IPADDRTABLE; var pdwSize: ULONG; bOrder: BOOL): DWORD; stdcall;
+begin
+  @GetIpAddrTable := FixupIPHelperStub('GetIpAddrTable', @Impl_GetIpAddrTable); {Do not localize}
+  Result := GetIpAddrTable(pIpAddrTable, pdwSize, bOrder);
 end;
 
 function Impl_GetUniDirectionalAdapterInfo(pIPIfInfo: PIP_UNIDIRECTIONAL_ADAPTER_ADDRESS; var dwOutBufLen: ULONG): DWORD; stdcall;
@@ -707,11 +742,30 @@ begin
   Result := GetAdaptersAddresses(Family, Flags, Reserved, pAdapterAddresses, OutBufLen);
 end;
 
+function Impl_ConvertLengthToIpv4Mask(MaskLength: ULONG; var Mask: ULONG): NETIO_STATUS; stdcall;
+begin
+  // TODO: implement manually
+  Mask := INADDR_NONE;
+  if MaskLength > 32 then begin
+    Result := ERROR_INVALID_PARAMETER;
+  end else begin
+    Result := ERROR_NOT_SUPPORTED;
+  end;
+end;
+
+function Stub_ConvertLengthToIpv4Mask(MaskLength: ULONG; var Mask: ULONG): NETIO_STATUS; stdcall;
+begin
+  @ConvertLengthToIpv4Mask := FixupIPHelperStub('ConvertLengthToIpv4Mask', @Impl_ConvertLengthToIpv4Mask); {Do not localize}
+  Result := ConvertLengthToIpv4Mask(MaskLength, Mask);
+end;
+
 procedure InitializeIPHelperStubs;
 begin
+  GetIpAddrTable := Stub_GetIpAddrTable;
   GetUniDirectionalAdapterInfo := Stub_GetUniDirectionalAdapterInfo;
   GetAdaptersInfo := Stub_GetAdaptersInfo;
   GetAdaptersAddresses := Stub_GetAdaptersAddresses;
+  ConvertLengthToIpv4Mask := Stub_ConvertLengthToIpv4Mask;
 end;
 
 procedure InitializeIPHelperAPI;
@@ -1135,8 +1189,66 @@ type
   PaPInAddr = ^TaPInAddr;
   {$ENDIF}
 {$ENDIF}
-var
+
   {$IFDEF USE_IPHLPAPI}
+
+  function IPv4MaskLengthToString(MaskLength: ULONG): String;
+  var
+    Mask: ULONG;
+  begin
+    if ConvertLengthToIpv4Mask(MaskLength, Mask) = ERROR_SUCCESS then begin
+      Result := TranslateTInAddrToString(Mask, Id_IPv4);
+    end else begin
+      Result := '';
+    end;
+  end;
+
+  procedure GetIPv4SubNetMasks(ASubNetMasks: TStrings);
+  var
+    Ret: DWORD;
+    BufLen: ULONG;
+    Table: PMIB_IPADDRTABLE;
+    pRow: PMIB_IPADDRROW;
+    I: ULONG;
+  begin
+    BufLen := 0;
+    Table := nil;
+    try
+      repeat
+        Ret := GetIpAddrTable(Table, BufLen, FALSE);
+        case Ret of
+          ERROR_SUCCESS:
+          begin
+            if BufLen = 0 then begin
+              Exit;
+            end;
+            Break;
+          end;
+          ERROR_NOT_SUPPORTED:
+            Exit;
+          ERROR_INSUFFICIENT_BUFFER:
+            ReallocMem(Table, BufLen);
+        else
+          SetLastError(Ret);
+          IndyRaiseLastError;
+        end;
+      until False;
+
+      if Ret = ERROR_SUCCESS then
+      begin
+        if Table^.dwNumEntries > 0 then
+        begin
+          pRow := @(Table^.table[0]);
+          for I := 0 to Table^.dwNumEntries-1 do begin
+            ASubNetMasks.Add(TranslateTInAddrToString(pRow^.dwAddr, Id_IPv4) + '=' + TranslateTInAddrToString(pRow^.dwMask, Id_IPv4));
+            Inc(pRow);
+          end;
+        end;
+      end;
+    finally
+      FreeMem(Table);
+    end;
+  end;
 
   function GetLocalAddressesByAdaptersAddresses: Boolean;
   var
@@ -1144,6 +1256,9 @@ var
     BufLen: ULONG;
     Adapter, Adapters: PIP_ADAPTER_ADDRESSES;
     UnicastAddr: PIP_ADAPTER_UNICAST_ADDRESS;
+    IPAddr: string;
+    SubNetStr: String;
+    SubNetMasks: TStringList;
   begin
     // assume True unless ERROR_NOT_SUPPORTED is reported...
     Result := True;
@@ -1159,6 +1274,7 @@ var
     GetMem(Adapters, BufLen);
     try
       repeat
+        // TODO: include GAA_FLAG_INCLUDE_ALL_INTERFACES on Vista+?
         Ret := GetAdaptersAddresses(PF_UNSPEC, GAA_FLAG_SKIP_ANYCAST or GAA_FLAG_SKIP_MULTICAST or GAA_FLAG_SKIP_DNS_SERVER or GAA_FLAG_SKIP_FRIENDLY_NAME, nil, Adapters, BufLen);
         case Ret of
           ERROR_SUCCESS:
@@ -1189,30 +1305,52 @@ var
 
       if Ret = ERROR_SUCCESS then
       begin
-        AAddresses.BeginUpdate;
+        SubNetMasks := nil;
         try
-          Adapter := Adapters;
-          repeat
-            if (Adapter.IfType <> IF_TYPE_SOFTWARE_LOOPBACK) and ((Adapter.Flags and IP_ADAPTER_RECEIVE_ONLY) = 0) then
-            begin
-              UnicastAddr := Adapter^.FirstUnicastAddress;
-              while UnicastAddr <> nil do
+          AAddresses.BeginUpdate;
+          try
+            Adapter := Adapters;
+            repeat
+              if (Adapter.IfType <> IF_TYPE_SOFTWARE_LOOPBACK) and
+                ((Adapter.Flags and IP_ADAPTER_RECEIVE_ONLY) = 0) then
               begin
-                case UnicastAddr^.Address.lpSockaddr.sin_family of
-                  AF_INET: begin
-                    AAddresses.Add(TranslateTInAddrToString(PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr, Id_IPv4));
+                UnicastAddr := Adapter^.FirstUnicastAddress;
+                while UnicastAddr <> nil do
+                begin
+                  if UnicastAddr^.DadState = IpDadStatePreferred then
+                  begin
+                    case UnicastAddr^.Address.lpSockaddr.sin_family of
+                      AF_INET: begin
+                        IPAddr := TranslateTInAddrToString(PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr, Id_IPv4);
+                        // The OnLinkPrefixLength member is only available on Windows Vista and later
+                        if IndyCheckWindowsVersion(6) then begin
+                          SubNetStr := IPv4MaskLengthToString(UnicastAddr^.OnLinkPrefixLength);
+                        end else
+                        begin
+                          if SubNetMasks = nil then
+                          begin
+                            SubNetMasks := TStringList.Create;
+                            GetIPv4SubNetMasks(SubNetMasks);
+                          end;
+                          SubNetStr := SubNetMasks.Values[IPAddr];
+                        end;
+                        AAddresses.Add(IPAddr); // TODO: inclue SubNetStr for subnet
+                      end;
+                      AF_INET6: begin
+                        Addresses.Add(TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
+                      end;
+                    end;
                   end;
-                  AF_INET6: begin
-                    AAddresses.Add(TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
-                  end;
+                  UnicastAddr := UnicastAddr^.Next;
                 end;
-                UnicastAddr := UnicastAddr^.Next;
               end;
-            end;
-            Adapter := Adapter^.Next;
-          until Adapter = nil;
+              Adapter := Adapter^.Next;
+            until Adapter = nil;
+          finally
+            AAddresses.EndUpdate;
+          end;
         finally
-          AAddresses.EndUpdate;
+          SubNetMasks.Free;
         end;
       end;
     finally
@@ -1310,10 +1448,15 @@ var
         // Need to use GetUniDirectionalAdapterInfo() to filter them out of the
         // list ...
 
-        UniDirAddresses := TStringList.Create;
+        if IndyCheckWindowsVersion(5, 1) then begin
+          UniDirAddresses := TStringList.Create;
+        end else begin
+          UniDirAddresses := nil;
+        end;
         try
-          GetUniDirAddresseses(UniDirAddresses);
-
+          if UniDirAddresses <> nil then begin
+            GetUniDirAddresseses(UniDirAddresses);
+          end;
           AAddresses.BeginUpdate;
           try
             Adapter := Adapters;
@@ -1323,9 +1466,13 @@ var
                 IPStr := String(IPAddr^.IpAddress.S);
                 if (IPStr <> '') and (IPStr <> '0.0.0.0') then
                 begin
-                  if UniDirAddresses.IndexOf(IPStr) = -1 then begin
-                    AAddresses.Add(IPStr);
+                  if UniDirAddresses <> nil then begin
+                    if UniDirAddresses.IndexOf(IPStr) <> -1 then begin
+                      IPAddr := IPAddr^.Next;
+                      Continue;
+                    end;
                   end;
+                  Addresses.Add(IPStr); // TODO: include IPAddr^.IpMask.S for subnet
                 end;
                 IPAddr := IPAddr^.Next;
               until IPAddr = nil;
@@ -1345,6 +1492,7 @@ var
 
   {$ELSE}
 
+var
     {$IFDEF UNICODE}
   Hints: TAddrInfoW;
   LAddrList, LAddrInfo: pAddrInfoW;
@@ -1996,8 +2144,7 @@ begin
   {$IFNDEF WINCE}
   //This runs only on WIndows XP or later
   // XP 5.1 at least, Vista 6.0
-  if (Win32MajorVersion > 5) or
-    ((Win32MajorVersion = 5) and (Win32MinorVersion >= 1)) then
+  if IndyCheckWindowsVersion(5, 1) then
   begin
     //we call the macro twice because we specified two possible structures.
     //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
@@ -2157,7 +2304,7 @@ var
   Bytes: DWORD;
 begin
   // SIO_KEEPALIVE_VALS is supported on Win2K+ only
-  if AEnabled and (Win32MajorVersion >= 5) then
+  if AEnabled and IndyCheckWindowsVersion(5) then
   begin
     ka.onoff := 1;
     ka.keepalivetime := ATimeMS;
@@ -2173,7 +2320,7 @@ initialization
   GSocketListClass := TIdSocketListWindows;
   // Check if we are running under windows NT
   {$IFNDEF WINCE}
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
+  if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
     GetFileSizeEx := Windows.GetProcAddress(GetModuleHandle('Kernel32.dll'), 'GetFileSizeEx');
     GServeFileProc := ServeFile;
   end;

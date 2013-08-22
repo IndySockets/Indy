@@ -1588,6 +1588,14 @@ function IndyIndexOfName(AStrings: TStrings; const AStr: string; const ACaseSens
 function IndyIndexOfName(AStrings: TStringList; const AStr: string; const ACaseSensitive: Boolean = False): Integer; overload;
 {$ENDIF}
 
+{$IFDEF WINDOWS}
+function IndyWindowsMajorVersion: Integer;
+function IndyWindowsMinorVersion: Integer;
+function IndyWindowsBuildNumber: Integer;
+function IndyWindowsPlatform: Integer;
+function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 0): Boolean;
+{$ENDIF}
+
 var
   {$IFDEF UNIX}
 
@@ -4929,7 +4937,7 @@ end;
 {$IFNDEF DOTNET}
 function ServicesFilePath: string;
 var
-  {$IFDEF MSWINDOWS}
+  {$IFDEF WINDOWS}
   sLocation: {$IFDEF UNICODE_BUT_STRING_IS_ANSI}WideString{$ELSE}string{$ENDIF};
   {$ELSE}
   sLocation: string;
@@ -4939,11 +4947,11 @@ begin
   sLocation := '/etc/';  // assume Berkeley standard placement   {do not localize}
   {$ENDIF}
 
-  {$IFDEF MSWINDOWS}
+  {$IFDEF WINDOWS}
   SetLength(sLocation, MAX_PATH);
   SetLength(sLocation, GetWindowsDirectory(PChar(sLocation), MAX_PATH));
   sLocation := IndyIncludeTrailingPathDelimiter(sLocation);
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
+  if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
     sLocation := sLocation + 'system32\drivers\etc\'; {do not localize}
   end;
   {$ENDIF}
@@ -8201,6 +8209,54 @@ begin
   end else begin
     Result := InternalIndyIndexOfName(AStrings, AStr, ACaseSensitive);
   end;
+end;
+{$ENDIF}
+
+{$IFDEF WINDOWS}
+function IndyWindowsMajorVersion: Integer;
+begin
+  {$IFDEF WINCE}
+  Result := SysUtils.WinCEMajorVersion;
+  {$ELSE}
+  Result := SysUtils.Win32MajorVersion;
+  {$ENDIF}
+end;
+
+function IndyWindowsMinorVersion: Integer;
+begin
+  {$IFDEF WINCE}
+  Result := SysUtils.WinCEMinorVersion;
+  {$ELSE}
+  Result := SysUtils.Win32MinorVersion;
+  {$ENDIF}
+end;
+
+function IndyWindowsBuildNumber: Integer;
+begin
+  // for this, you need to strip off some junk to do comparisons
+  {$IFDEF WINCE}
+  Result := SysUtils.WinCEBuildNumber and $FFFF;
+  {$ELSE}
+  Result := SysUtils.Win32BuildNumber and $FFFF;
+  {$ENDIF}
+end;
+
+function IndyWindowsPlatform: Integer;
+begin
+  {$IFDEF WINCE}
+  Result := SysUtils.WinCEPlatform;
+  {$ELSE}
+  Result := SysUtils.Win32Platform;
+  {$ENDIF}
+end;
+
+function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 0): Boolean;
+var
+  LMajor, LMinor: Integer;
+begin
+  LMajor := IndyWindowsMajorVersion;
+  LMinor := IndyWindowsMinorVersion;
+  Result := (LMajor > AMajor) or ((LMajor = AMajor) and (LMinor >= AMinor));
 end;
 {$ENDIF}
 

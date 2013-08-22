@@ -182,7 +182,8 @@ type
 implementation
 
 uses
-  IdResourceStrings, IdReplyRFC, IdTCPClient, IdURI, IdGlobalProtocols, IdStack, IdTCPStream, SysUtils;
+  IdResourceStrings, IdResourceStringsProtocols, IdReplyRFC, IdTCPClient, IdURI,
+  IdGlobalProtocols, IdStack, IdTCPStream, IdException, SysUtils;
 
 constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;
   AYarn: TIdYarn; AList: TIdContextThreadList = nil);
@@ -316,7 +317,19 @@ begin
     LURI := TIdURI.Create(LContext.Target);
     try
       TIdTCPClient(LContext.FOutboundClient).Host := LURI.Host;
-      TIdTCPClient(LContext.FOutboundClient).Port := IndyStrToInt(LURI.Port, 80);
+
+      if LURI.Port <> '' then begin
+        TIdTCPClient(LContext.FOutboundClient).Port := IndyStrToInt(LURI.Port, 80);
+      end
+      else if TextIsSame(LURI.Protocol, 'http') then begin     {do not localize}
+        TIdTCPClient(LContext.FOutboundClient).Port := IdPORT_HTTP;
+      end
+      else if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
+        TIdTCPClient(LContext.FOutboundClient).Port := IdPORT_https;
+      end else begin
+        raise EIdException.Create(RSHTTPUnknownProtocol);
+      end;
+
       //We have to remove the host and port from the request
       LContext.FDocument := LURI.GetPathAndParams;
     finally
