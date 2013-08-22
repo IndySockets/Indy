@@ -8793,7 +8793,8 @@ begin
   end;
 end;
 
-procedure INET_UNCANONICALIZE_SCOPE_ID( AddressFamily : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+{$IFNDEF WINCE}
+procedure INET_UNCANONICALIZE_SCOPE_ID( AddressFamily : ADDRESS_FAMILY;
   Address : PUCHAR; ScopeId : PSCOPE_ID);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8803,6 +8804,7 @@ begin
     IN4_UNCANONICALIZE_SCOPE_ID(PInAddr( Address), ScopeId);
   end;
 end;
+{$ENDIF}
 
 function IN6_IS_ADDR_MC_NODELOCAL(const a: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
