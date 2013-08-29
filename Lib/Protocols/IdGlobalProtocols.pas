@@ -4349,8 +4349,10 @@ function IndyComputerName: string;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 {$ENDIF}
 {$IFDEF UNIX}
+const
+  sMaxHostName = 255;
 var
-  LHost: array[0..256] of TIdAnsiChar;
+  LHost: array[0..sMaxHostName] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
   LHostPtr: TPtrWrapper;
   {$ENDIF}
@@ -4366,7 +4368,7 @@ begin
   {$IFDEF UNIX}
   //TODO: No need for LHost at all? Prob can use just Result
     {$IFDEF KYLIXCOMPAT}
-  if GetHostname(LHost, 255) <> -1 then begin
+  if GetHostname(LHost, sMaxHostName) <> -1 then begin
     Result := String(LHost);
   end;
     {$ENDIF}
@@ -4383,12 +4385,12 @@ begin
     {$ELSE}
     LHost
     {$ENDIF},
-    255) <> -1 then
+    sMaxHostName) <> -1 then
   begin
+    LHost[sMaxHostName] := TIdAnsiChar(0);
     {$IFDEF USE_MARSHALLED_PTRS}
-    Result := TMarshal.ReadStringAsAnsiUpTo(DefaultSystemCodePage, LHostPtr, 255);
+    Result := TMarshal.ReadStringAsAnsi(LHostPtr);
     {$ELSE}
-    LHost[256] := TIdAnsiChar(0);
     Result := String(LHost);
     {$ENDIF}
   end;

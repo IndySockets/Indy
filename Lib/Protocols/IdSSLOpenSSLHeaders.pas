@@ -18188,8 +18188,10 @@ end;
 
 function GetErrorMessage(const AErr : TIdC_ULONG) : String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+const
+  sMaxErrMsg = 160;
 var
-  LErrMsg: array [0..160] of TIdAnsiChar;
+  LErrMsg: array [0..sMaxErrMsg] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
   LErrMsgPtr: TPtrWrapper;
   {$ENDIF}
@@ -18202,7 +18204,8 @@ begin
     LErrMsgPtr.ToPointer
     {$ELSE}
     LErrMsg
-    {$ENDIF}, 160);
+    {$ENDIF}, sMaxErrMsg);
+  LErrMsg[sMaxErrMsg] := TIdAnsiChar(0);
   {$IFDEF USE_MARSHALLED_PTRS}
   Result := TMarshal.ReadStringAsAnsi(LErrMsgPtr);
   {$ELSE}
@@ -21207,8 +21210,10 @@ end;
 
 // remove this function, it is not used
 function ErrMsg(AErr : TIdC_ULONG) : string;
+const
+  sMaxErrStr = 300;
 var
-  LString: array[0..300] of TIdAnsiChar;
+  LString: array[0..sMaxErrStr] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
   LStringPtr: TPtrWrapper;
   {$ENDIF}
@@ -21221,7 +21226,8 @@ begin
     LStringPtr.ToPointer
     {$ELSE}
     LString
-    {$ENDIF}, 300);
+    {$ENDIF}, sMaxErrStr);
+  LString[sMaxErrStr] := TIdAnsiChar(0);
   {$IFDEF USE_MARSHALLED_PTRS}
   Result := TMarshal.ReadStringAsAnsi(LStringPtr);
   {$ELSE}

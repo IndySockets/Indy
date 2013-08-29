@@ -875,7 +875,7 @@ var
   LSize: LongWord;
   LHostName : array[0..NI_MAXHOST] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
-  LWrapper: TPtrWrapper;
+  LHostNamePtr: TPtrWrapper;
   {$ENDIF}
   LRet : Integer;
   {$IFDEF LIBCPASS_STRUCT}
@@ -909,13 +909,13 @@ begin
   end;
   FillChar(LHostName[0],Length(LHostName),0);
   {$IFDEF USE_MARSHALLED_PTRS}
-  LWrapper := TPtrWrapper.Create(@LHostName[0]);
+  LHostNamePtr := TPtrWrapper.Create(@LHostName[0]);
   {$ENDIF}
   LRet := getnameinfo(
     {$IFDEF LIBCPASS_STRUCT}Psockaddr(@LAddr)^{$ELSE}Psockaddr(@LAddr){$ENDIF},
     LSize,
     {$IFDEF USE_MARSHALLED_PTRS}
-    LWrapper.ToPointer
+    LHostNamePtr.ToPointer
     {$ELSE}
     LHostName
     {$ENDIF},
@@ -945,7 +945,7 @@ we disregard the result and raise an exception.
   LHints.ai_flags := AI_NUMERICHOST;
   if getaddrinfo(
     {$IFDEF USE_MARSHALLED_PTRS}
-    LWrapper.ToPointer
+    LHostNamePtr.ToPointer
     {$ELSE}
     LHostName
     {$ENDIF},
@@ -957,7 +957,7 @@ we disregard the result and raise an exception.
   end;
 
   {$IFDEF USE_MARSHALLED_PTRS}
-  Result := TMarshal.ReadStringAsAnsi(LWrapper, NI_MAXHOST);
+  Result := TMarshal.ReadStringAsAnsi(LHostNamePtr);
   {$ELSE}
   Result := String(LHostName);
   {$ENDIF}

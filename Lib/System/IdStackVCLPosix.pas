@@ -762,7 +762,7 @@ var
   LAddr : sockaddr absolute LAddrStore;
   LHostName : array[0..NI_MAXHOST] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
-  LWrapper: TPtrWrapper;
+  LHostNamePtr: TPtrWrapper;
   {$ENDIF}
   LRet : Integer;
   LHints : addrinfo;
@@ -787,11 +787,11 @@ begin
   end;
   FillChar(LHostName[0],Length(LHostName),0);
   {$IFDEF USE_MARSHALLED_PTRS}
-  LWrapper := TPtrWrapper.Create(@LHostName[0]);
+  LHostNamePtr := TPtrWrapper.Create(@LHostName[0]);
   {$ENDIF}
   LRet := getnameinfo(LAddr,LiSize,
     {$IFDEF USE_MARSHALLED_PTRS}
-    LWrapper.ToPointer
+    LHostNamePtr.ToPointer
     {$ELSE}
     LHostName
     {$ENDIF},
@@ -821,7 +821,7 @@ we disregard the result and raise an exception.
   LHints.ai_flags := AI_NUMERICHOST;
   if getaddrinfo(
     {$IFDEF USE_MARSHALLED_PTRS}
-    LWrapper.ToPointer
+    LHostNamePtr.ToPointer
     {$ELSE}
     LHostName
     {$ENDIF},
@@ -833,7 +833,7 @@ we disregard the result and raise an exception.
   end;
 
   {$IFDEF USE_MARSHALLED_PTRS}
-  Result := TMarshal.ReadStringAsAnsi(LWrapper, NI_MAXHOST);
+  Result := TMarshal.ReadStringAsAnsi(LHostNamePtr);
   {$ELSE}
   Result := String(LHostName);
   {$ENDIF}
@@ -959,15 +959,22 @@ const
 var
   LStr: array[0..sMaxHostSize] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
-  LWrapper: TPtrWrapper;
+  LStrPtr: TPtrWrapper;
   {$ENDIF}
 begin
   {$IFDEF USE_MARSHALLED_PTRS}
-  LWrapper := TPtrWrapper.Create(@LStr[0]);
-  gethostname(LWrapper.ToPointer, sMaxHostSize);
-  Result := TMarshal.ReadStringAsAnsi(LWrapper, sMaxHostSize);
+  LStrPtr := TPtrWrapper.Create(@LStr[0]);
+  {$ENDIF}
+  gethostname(
+    {$IFDEF USE_MARSHALLED_PTRS}
+    LStrPtr.ToPointer
+    {$ELSE}
+    LStr
+    {$ENDIF}, sMaxHostSize);
+  LStr[sMaxHostSize] := TIdAnsiChar(0);
+  {$IFDEF USE_MARSHALLED_PTRS}
+  Result := TMarshal.ReadStringAsAnsi(LStrPtr);
   {$ELSE}
-  gethostname(LStr, sMaxHostSize);
   Result := String(LStr);
   {$ENDIF}
 end;
