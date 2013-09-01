@@ -32,8 +32,16 @@ package IndyProtocols180;
 
 // RLebeau: cannot use IdCompilerDefines.inc here!
 
+{$DEFINE HAS_PKG_RTL}
+{$IFDEF NEXTGEN}
+  {$IFDEF IOS}
+    // there is no RTL package available for iOS
+    {$UNDEF HAS_PKG_RTL}
+  {$ENDIF}
+{$ENDIF}
+
 requires
-  {$IFNDEF NEXTGEN}
+  {$IFDEF HAS_PKG_RTL}
   rtl,
   {$ENDIF}
   IndySystem180,

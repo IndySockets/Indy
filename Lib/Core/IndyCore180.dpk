@@ -30,8 +30,18 @@ package IndyCore180;
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
 
+{$DEFINE HAS_PKG_RTL}
+{$IFDEF NEXTGEN}
+  {$IFDEF IOS}
+    // there is no RTL package available for iOS
+    {$UNDEF HAS_PKG_RTL}
+  {$ENDIF}
+{$ENDIF}
+
 requires
+  {$IFDEF HAS_PKG_RTL}
   rtl,
+  {$ENDIF}
   IndySystem180;
 
 contains
