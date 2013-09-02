@@ -305,9 +305,11 @@ constructor TIdEntityHeaderInfo.Create(AOwner: TPersistent);
 begin
   inherited Create;
   FOwner := AOwner;
+  // HTTP does not fold headers based on line length
   FRawHeaders := TIdHeaderList.Create(QuoteHTTP);
-  FRawHeaders.FoldLength := MaxInt; // HTTP does not fold headers based on line length
+  FRawHeaders.FoldLength := MaxInt;
   FCustomHeaders := TIdHeaderList.Create(QuoteHTTP);
+  FCustomHeaders.FoldLength := MaxInt;
 end;
 
 procedure TIdEntityHeaderInfo.AfterConstruction;
