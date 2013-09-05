@@ -520,6 +520,11 @@ begin
     Exit;
   end;
 
+  // TODO: this function needs to take encoded codeunits into account when
+  // deciding where to split the encoded data between adjacent encoded-words,
+  // so that a single encoded character does not get split between encoded-words
+  // thus corrupting that character...
+
   Buf := EncodeHeaderData(MimeCharSet, Header);
 
   {Suggested by Andrew P.Rybin for easy 8bit support}
