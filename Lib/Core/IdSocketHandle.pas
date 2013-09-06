@@ -401,7 +401,10 @@ var
 begin
   LIP := Trim(AIP);
   if LIP = '' then begin
-    // TODO: on Windows, use WSAIoctl(SIO_GET_BROADCAST_ADDRESS) instead
+    // TODO: on Windows, use WSAIoctl(SIO_GET_BROADCAST_ADDRESS) instead.
+    // On other platforms, use getifaddrs() or other suitable API to retreive
+    // the broadcast IP if possible, or else the local IP/Subnet and then
+    // calculate the broadcast IP manually...
     LIP := '255.255.255.255'; {Do not Localize}
   end else begin
     LIP := GStack.ResolveHost(LIP, IPVersion);

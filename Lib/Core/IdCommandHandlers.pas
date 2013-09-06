@@ -533,12 +533,16 @@ begin
   if not Result then begin
     if CmdDelimiter <> #0 then begin
       Result := TextStartsWith(AData, Command + CmdDelimiter);
-      LUnparsedParams := Copy(AData, Length(Command) + 2, MaxInt);
+      if Result then begin
+        LUnparsedParams := Copy(AData, Length(Command) + 2, MaxInt);
+      end;
     end else begin
       // Dont strip any part of the params out.. - just remove the command purely on length and
       // no delim
       Result := TextStartsWith(AData, Command);
-      LUnparsedParams := Copy(AData, Length(Command) + 1, MaxInt);
+      if Result then begin
+        LUnparsedParams := Copy(AData, Length(Command) + 1, MaxInt);
+      end;
     end;
   end;
 

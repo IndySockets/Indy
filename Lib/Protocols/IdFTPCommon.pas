@@ -665,13 +665,6 @@ uses
   {$ENDIF}
   IdException;
 
-// RLebeau 7/2/2013: it would take a lot of work to re-write Indy to support
-// both 0-based and 1-based string indexing, so we'll just turn off 0-based
-// indexing for now...
-{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
-  {$ZEROBASEDSTRINGS OFF}
-{$ENDIF}
-
 {WS_FTP Pro XAUT Support}
 
 function ExtractWSFTPServerKey(const AGreeting : String; var VKey : Cardinal) : Boolean;

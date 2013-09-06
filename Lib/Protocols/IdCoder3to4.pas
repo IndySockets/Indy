@@ -197,13 +197,6 @@ implementation
 uses
   IdException, IdResourceStrings, IdStream;
 
-// RLebeau 10/31/2012: it would take a lot of work to re-write Indy to support
-// both 0-based and 1-based string indexing, so we'll just turn off 0-based
-// indexing for now...
-{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
-  {$ZEROBASEDSTRINGS OFF}
-{$ENDIF}
-
 { TIdDecoder4to3 }
 
 class procedure TIdDecoder4to3.ConstructDecodeTable(const ACodingTable: string;

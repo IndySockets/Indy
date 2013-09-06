@@ -276,7 +276,10 @@ begin
 
   if IOHandler = nil then begin
     IOHandler := MakeImplicitClientHandler;
+
+    // TODO: always assign the OnStatus event even if the IOHandler is not implicit?
     IOHandler.OnStatus := OnStatus;
+
     ManagedIOHandler := True;
   end;
 
@@ -477,6 +480,8 @@ begin
     Socket.IPVersion := FIPVersion;
     Socket.ReuseSocket := FReuseSocket;
     Socket.UseNagle := FUseNagle;
+
+    // TODO: use local event handlers that then trigger the user event handler if assigned
     Socket.OnBeforeBind := FOnBeforeBind;
     Socket.OnAfterBind := FOnAfterBind;
     Socket.OnSocketAllocated := FOnSocketAllocated;

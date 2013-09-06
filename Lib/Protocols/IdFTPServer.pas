@@ -1287,13 +1287,6 @@ uses
   IdIOHandlerStack, IdSocketHandle, IdStrings, IdTCPClient, IdEMailAddress,
   IdStack, IdFTPListTypes;
 
-// RLebeau 7/2/2013: it would take a lot of work to re-write Indy to support
-// both 0-based and 1-based string indexing, so we'll just turn off 0-based
-// indexing for now...
-{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
-  {$ZEROBASEDSTRINGS OFF}
-{$ENDIF}
-
 const
   //THese commands need some special treatment in the Indy 10 FTP Server help system
   //as they will not always work

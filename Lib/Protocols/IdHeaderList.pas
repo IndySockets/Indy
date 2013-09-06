@@ -166,6 +166,7 @@ begin
       LValue := ASrc.ValueFromIndex[i];
       {$ELSE}
       LTmp := ASrc.Strings[i];
+      // TODO: use ASrc.NameValueSeparator on platforms that support it
       LValue := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {do not localize}
       {$ENDIF}
       AddValue(ASrc.Names[i], LValue);
@@ -219,6 +220,7 @@ begin
     begin
       LName := GetName(idx);
       LValue := GetValueFromLine(idx);
+      // TODO: use ADest.NameValueSeparator on platforms that support it
       ADest.Add(LName + '=' + LValue); {do not localize}
     end;
   finally

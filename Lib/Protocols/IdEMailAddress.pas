@@ -182,13 +182,6 @@ uses
   IdExceptionCore,
   IdResourceStringsProtocols, SysUtils;
 
-// RLebeau 9/5/2012: it would take a lot of work to re-write Indy to support
-// both 0-based and 1-based string indexing, so we'll just turn off 0-based
-// indexing for now...
-{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
-  {$ZEROBASEDSTRINGS OFF}
-{$ENDIF}
-
 const
   // ATEXT without the double quote and space characters
   IETF_ATEXT: string = 'abcdefghijklmnopqrstuvwxyz' + {do not localize}

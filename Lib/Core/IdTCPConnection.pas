@@ -364,7 +364,7 @@ uses
 type
   TIdTCPConnection = class(TIdComponent)
   protected
-    FGreeting: TIdReply;
+    FGreeting: TIdReply; // TODO: Only TIdFTP uses it, so it should be moved!
     {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdConnectionIntercept;
     {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIOHandler: TIdIOHandler;
     FLastCmdResult: TIdReply;

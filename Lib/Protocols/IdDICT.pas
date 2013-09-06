@@ -166,6 +166,7 @@ begin
     SendCmd('CLIENT '+FClient); {do not localize}
     if FAuthType = datDefault then begin
       if IsCapaSupported('auth') then begin {do not localize}
+        // RLebeau: why does this require FIPS?
         if GetFIPSMode and (FPassword <> '') and (FUserName <> '') then begin
           LMD5 := TIdHashMessageDigest5.Create;
           try

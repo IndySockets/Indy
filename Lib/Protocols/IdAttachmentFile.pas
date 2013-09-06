@@ -100,6 +100,9 @@ begin
   FTempFileStream := nil;
   FStoredPathName := AFileName;
   FFileIsTempFile := False;
+  if FFilename <> '' then begin
+    ContentType := GetMimeTypeFromFile(FFilename);
+  end;
 end;
 
 destructor TIdAttachmentFile.Destroy;

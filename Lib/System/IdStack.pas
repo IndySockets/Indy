@@ -241,6 +241,7 @@ type
   public
     constructor Create(ACollection: TCollection; const AIPAddress, ASubNetMask: string); reintroduce;
     property SubNetMask: String read FSubNetMask;
+    // TODO: add BroadcastIP
   end;
 
   TIdStackLocalAddressIPv6 = class(TIdStackLocalAddress)

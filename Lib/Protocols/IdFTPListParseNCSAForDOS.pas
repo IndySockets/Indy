@@ -100,7 +100,7 @@ begin
         begin
           Result := ((s[1] = '<DIR>') or IsNumeric(s[1])) and  {do not localize}
                     IsMMDDYY(s[2], '-') and IsHHMMSS(s[3], ':') and {do not localize}
-		    ExcludeQVNET(LData);
+                    ExcludeQVNET(LData);
         end;
       finally
         FreeAndNil(s);

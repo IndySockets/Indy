@@ -372,27 +372,12 @@ procedure TIdCustomSocksServer.HandleConnectV4(AContext: TIdSocksServerContext;
   var VCommand: Byte; var VHost: string; var VPort: TIdPort);
 var
   LData: TIdBytes;
-
-  function ReadStringNullTerm: String;
-  var
-    C: Char;
-  begin
-    Result := '';
-    repeat
-      // TODO: use ReadLn() instead
-      C := AContext.Connection.IOHandler.ReadChar;
-      if C <> #0 then begin
-        Result := Result + C;
-      end;
-    until C = #0;
-  end;
-
 begin
   AContext.Connection.IOHandler.ReadBytes(LData, 7);
   VCommand := LData[0];
   VPort := GStack.NetworkToHost(BytesToWord(LData, 1));
   VHost := BytesToIPv4Str(LData, 3);
-  AContext.FUsername := ReadStringNullTerm;
+  AContext.FUsername := AContext.Connection.IOHandler.ReadLn(#0);
   AContext.FPassword := '';
 
   // According to the Socks 4a spec:
@@ -405,7 +390,7 @@ begin
 
   // if VHost = '0.0.0.1' then begin
   if (LData[3] = 0) and (LData[4] = 0) and (LData[5] = 0) and (LData[6] <> 0) then begin
-    VHost := ReadStringNullTerm;
+    VHost := AContext.Connection.IOHandler.ReadLn(#0);
     if AContext.Connection.Socket <> nil then begin
       AContext.FIPVersion := AContext.Connection.Socket.IPVersion;
     end else begin

@@ -2481,16 +2481,16 @@ begin
           raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
         end;
       end;
-      {$IFDEF WIN32_OR_WIN64}
-      // begin bug fix
-      end
-      else if BindingAllocated and IndyCheckWindowsVersion(6) then
-      begin
-        // disables Vista+ SSL_Read and SSL_Write timeout fix
-        Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, 0);
-        Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, 0);
-      // end bug fix
-      {$ENDIF}
+    {$IFDEF WIN32_OR_WIN64}
+    // begin bug fix
+    end
+    else if BindingAllocated and IndyCheckWindowsVersion(6) then
+    begin
+      // disables Vista+ SSL_Read and SSL_Write timeout fix
+      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, 0);
+      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, 0);
+    // end bug fix
+    {$ENDIF}
     end;
     fPassThrough := Value;
   end;

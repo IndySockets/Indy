@@ -502,7 +502,7 @@ end;
 
 class function TIdFiberBase.HaveFiberSupport:boolean;
 begin
-  Result := Win32Platform = VER_PLATFORM_WIN32_NT;
+  Result := IndyWindowsPlatform = VER_PLATFORM_WIN32_NT;
 end;
 
 procedure TIdFiberBase.SwitchTo(AFiber: TIdFiberBase);

@@ -528,9 +528,15 @@ type
   public
     destructor Destroy; override;
 
-    procedure Delete(AURL: string);
+    procedure Delete(AURL: string; AResponseContent: TStream); overload;
+    function Delete(AURL: string
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
 
-    procedure Options(AURL: string); overload;
+    procedure Options(AURL: string; AResponseContent: TStream); overload;
+    function Options(AURL: string
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
+      ): string; overload;
 
     procedure Get(AURL: string; AResponseContent: TStream); overload;
     procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of SmallInt); overload;
@@ -667,10 +673,6 @@ uses
   IdResourceStringsCore, IdResourceStringsProtocols, IdGlobalProtocols,
   IdIOHandler, IdIOHandlerSocket;
 
-{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
-  {$ZEROBASEDSTRINGS OFF}
-{$ENDIF}
-
 const
   ProtocolVersionString: array[TIdHTTPProtocolVersion] of string = ('1.0', '1.1'); {do not localize}
 
@@ -713,14 +715,48 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdCustomHTTP.Delete(AURL: string);
+procedure TIdCustomHTTP.Delete(AURL: string; AResponseContent: TStream);
 begin
-  DoRequest(Id_HTTPMethodDelete, AURL, nil, nil, []);
+  DoRequest(Id_HTTPMethodDelete, AURL, nil, AResponseContent, []);
 end;
 
-procedure TIdCustomHTTP.Options(AURL: string);
+function TIdCustomHTTP.Delete(AURL: string
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
+  ): string;
+var
+  LStream: TMemoryStream;
 begin
-  DoRequest(Id_HTTPMethodOptions, AURL, nil, nil, []);
+  LStream := TMemoryStream.Create;
+  try
+    DoRequest(Id_HTTPMethodDelete, AURL, nil, LStream, []);
+    LStream.Position := 0;
+    Result := ReadStringAsCharset(LStream, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+procedure TIdCustomHTTP.Options(AURL: string; AResponseContent: TStream);
+begin
+  DoRequest(Id_HTTPMethodOptions, AURL, nil, AResponseContent, []);
+end;
+
+function TIdCustomHTTP.Options(AURL: string
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
+  ): string;
+var
+  LStream: TMemoryStream;
+begin
+  LStream := TMemoryStream.Create;
+  try
+    DoRequest(Id_HTTPMethodOptions, AURL, nil, LStream, []);
+    LStream.Position := 0;
+    Result := ReadStringAsCharset(LStream, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
+  finally
+    FreeAndNil(LStream);
+  end;
 end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream);

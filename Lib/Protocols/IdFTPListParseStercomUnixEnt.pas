@@ -105,13 +105,6 @@ uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
   SysUtils;
 
-// RLebeau 7/2/2013: it would take a lot of work to re-write Indy to support
-// both 0-based and 1-based string indexing, so we'll just turn off 0-based
-// indexing for now...
-{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
-  {$ZEROBASEDSTRINGS OFF}
-{$ENDIF}
-
 { TIdFTPLPSterCommEntUx }
 
 class function TIdFTPLPSterCommEntUx.CheckListing(AListing: TStrings;
