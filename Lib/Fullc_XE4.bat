@@ -111,8 +111,8 @@ REM ************************************************************
 msbuild IndyCore180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
-REM Skip 64-bit design time
-if "%IndyPlatform%" == "Win64" goto indyprotocols
+REM design time is for Win32 only
+if not "%IndyPlatform%" == "Win32" goto indyprotocols
 
 msbuild dclIndyCore180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
@@ -144,8 +144,8 @@ REM ************************************************************
 msbuild IndyProtocols180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
-REM Skip 64-bit design time
-if "%IndyPlatform%" == "Win64" goto copygenerated
+REM design time is for Win32 only
+if not "%IndyPlatform%" == "Win32" goto copygenerated
 
 msbuild dclIndyProtocols180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
