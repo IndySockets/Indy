@@ -1337,8 +1337,12 @@ var
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
-  System.IO.File.Copy(Source, Destination, True);
-  Result := True; // or you'll get an exception
+  try
+    System.IO.File.Copy(Source, Destination, True);
+    Result := True; // or you'll get an exception
+  except
+    Result := False;
+  end;
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFDEF WIN32_OR_WIN64}
@@ -1367,28 +1371,40 @@ begin
   // There is no native Linux copy function (at least "cp" doesn't use one
   // and I can't find one anywhere (Johannes Berg))
   
+  {$IFOPT I+} // detect IO checking
+    {$DEFINE _IPlusWasEnabled}
+    {$I-}
+  {$ENDIF}
+
   Assign(SourceF, Source);
-  {$I-} //turn off IO checking - no exception
   Reset(SourceF, 1);
-  {$I+} //turn it back on
-  Result := IOResult <> 0;
+  Result := IOResult = 0;
   if not Result then begin
     Exit;
   end;
   Assign(DestF, Destination);
-  {$I-} //turn off IO checking - no exception
   Rewrite(DestF, 1);
-  {$I+} //turn it back on
-  Result := IOResult <> 0;
+  Result := IOResult = 0;
   if Result then begin
     repeat
       BlockRead(SourceF, Buffer, SizeOf(Buffer), NumRead);
+      Result := IOResult = 0;
+      if (not Result) or (NumRead = 0) then begin
+        Break;
+      end;
       BlockWrite(DestF, Buffer, NumRead, NumWritten);
-    until (NumRead = 0) or (NumWritten <> NumRead);
+      Result := (IOResult = 0) and (NumWritten = NumRead);
+    until not Result;
     Close(DestF);
-    Result := True;
   end;
   Close(SourceF);
+
+  // Restore IO checking
+  {$IFDEF _IPlusWasEnabled} // detect previous setting
+    {$UNDEF _IPlusWasEnabled}
+    {$I+}
+  {$ENDIF}
+
   {$ENDIF}
 end;
 
