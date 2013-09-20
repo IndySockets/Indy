@@ -395,7 +395,9 @@ end;
 procedure TIdExplicitTLSClient.TLSHandShakeFailed;
 begin
   if Connected then begin
-    Disconnect;
+    // RLebeau 9/19/2013: do not send a goodbye command to the peer.
+    // The socket data may be in a bad state at this point!
+    Disconnect(False);
   end;
   raise EIdTLSClientTLSHandShakeFailed.Create(RSTLSSLSSLNotAvailable);
 end;
