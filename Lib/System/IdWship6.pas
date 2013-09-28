@@ -521,7 +521,6 @@ begin
 end;
 
 function WspiapiStrdup(const pszString: PChar): PChar; stdcall;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   pszMemory: PChar;
   cchMemory: size_t;
@@ -543,7 +542,6 @@ begin
 end;
 
 function WspiapiParseV4Address(const pszAddress: PChar; var pdwAddress: DWORD): BOOL; stdcall;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   dwAddress: DWORD;
   pcNext: PChar;
@@ -583,7 +581,6 @@ begin
 end;
 
 function WspiapiNewAddrInfo(iSocketType, iProtocol: Integer; wPort: WORD; dwAddress: DWORD): {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}; stdcall;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   ptNew: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};
   ptAddress: PSockAddrIn;
@@ -621,7 +618,6 @@ end;
 
 function WspiapiQueryDNS(const pszNodeName: PChar; iSocketType, iProtocol: Integer;
   wPort: WORD; pszAlias: PChar; var pptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   pptNext: {$IFDEF UNICODE}PPaddrinfoW{$ELSE}PPaddrinfo{$ENDIF};
   ptHost: Phostent;
@@ -736,7 +732,6 @@ begin
 end;
 
 function WspiapiClone(wPort: WORD; ptResult: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF}): Integer; stdcall;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   ptNext, ptNew: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};
 begin
