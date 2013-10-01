@@ -2589,20 +2589,25 @@ begin
   if IsExtSupported('CLNT') then begin {do not localize}
     LClnt := FClientInfo.ClntOutput;
     if LClnt = '' then begin
-      LClnt := gsIdProductName + ' '+ gsIdVersion;
+      LClnt := gsIdProductName + ' ' + gsIdVersion;
     end;
-    SendCmd('CLNT '+ LClnt);  {do not localize}
+    SendCmd('CLNT ' + LClnt);  {do not localize}
   end;
 
   if IsExtSupported('UTF8') then begin {do not localize}
+    // RLebeau 10/1/13: per RFC 2640, OPTS commands are no longer used to
+    // activate UTF-8. If the server reports the 'UTF8' capability, it is
+    // required to detect and accept UTF-8 encoded paths/filenames...
+    {
     // trying non-standard UTF-8 extension first, many servers use this...
     // Cerberus and RaidenFTP return 220, but TitanFTP and Gene6 return 200 instead...
-    if not SendCmd('OPTS UTF8 ON') in [200, 220] then begin {do not localize}
+    if not SendCmd('OPTS UTF8 ON') in [200, 220] then begin {do not localize
       // trying draft-ietf-ftpext-utf-8-option-00.txt next...
-      if SendCmd('OPTS UTF-8 NLST') <> 200 then begin {do not localize}
+      if SendCmd('OPTS UTF-8 NLST') <> 200 then begin {do not localize
         Exit;
       end;
     end;
+    }
     IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
   end;
 end;
