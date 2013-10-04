@@ -173,17 +173,21 @@ const
     // also different behaviour?
       {$IFNDEF KYLIX}
         {$IFDEF USE_BASEUNIX}
-      //In Linux, the libc.pp header maps the old values to new ones,
-      //probably for consistancy.  I'm doing this because we can't link
-      //to Libc for Basic Unix stuff and some people may want to use this API
-      //in Linux instead of the libc API.
-      IPV6_ADD_MEMBERSHIP  = IPV6_JOIN_GROUP;
-      IPV6_DROP_MEMBERSHIP = IPV6_LEAVE_GROUP;
+        //In Linux, the libc.pp header maps the old values to new ones,
+        //probably for consistancy.  I'm doing this because we can't link
+        //to Libc for Basic Unix stuff and some people may want to use this API
+        //in Linux instead of the libc API.
+        IPV6_ADD_MEMBERSHIP  = IPV6_JOIN_GROUP;
+        IPV6_DROP_MEMBERSHIP = IPV6_LEAVE_GROUP;
         {$ENDIF}
       {$ENDIF}
     {$ELSE}
+    // FIXME: Android compiler is using these definitions, but maybe some
+    //        EXTERNALSYM-work is needed above.
       IPV6_ADD_MEMBERSHIP  = IPV6_JOIN_GROUP;
+      {$EXTERNALSYM IPV6_ADD_MEMBERSHIP}
       IPV6_DROP_MEMBERSHIP = IPV6_LEAVE_GROUP;
+      {$EXTERNALSYM IPV6_DROP_MEMBERSHIP}
       {$IFNDEF USE_VCL_POSIX}
       IPV6_CHECKSUM        = 26;
       {$ENDIF}

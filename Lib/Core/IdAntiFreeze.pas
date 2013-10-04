@@ -65,7 +65,7 @@ to be statically compiled into the code }
 {$I IdCompilerDefines.inc}
 
 {$IFDEF WINDOWS}
-{$HPPEMIT '#pragma link "IdAntiFreeze.obj"'}    {Do not Localize}
+{$HPPEMIT '#pragma link "IdAntiFreeze"'}    {Do not Localize}
 {$ENDIF}
 
 {$IFDEF UNIX}
