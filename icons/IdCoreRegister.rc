@@ -2,6 +2,7 @@
 TIdTCPClient                 BITMAP "TIdTCPClient.bmp"
 TIdUDPClient                 BITMAP "TIdUDPClient.bmp"
 TIdIcmpClient                BITMAP "TIdIcmpClient.bmp"
+TIdTraceRoute                BITMAP "TIdTraceRoute.bmp"
 TIdCmdTCPClient              BITMAP "TIdCmdTCPClient.bmp"
 TIdIPMCastClient             BITMAP "TIdIMPCastClient.bmp"
 

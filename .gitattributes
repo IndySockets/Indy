@@ -761,6 +761,7 @@ Lib/Core/IconsDotNet/TIdSocksInfo.bmp -text svneol=unset#unset
 Lib/Core/IconsDotNet/TIdTCPClient.bmp -text svneol=unset#unset
 Lib/Core/IconsDotNet/TIdTCPServer.bmp -text svneol=unset#unset
 Lib/Core/IconsDotNet/TIdThreadComponent.bmp -text svneol=unset#unset
+Lib/Core/IconsDotNet/TIdTraceRoute.bmp -text
 Lib/Core/IconsDotNet/TIdUDPClient.bmp -text svneol=unset#unset
 Lib/Core/IconsDotNet/TIdUDPServer.bmp -text svneol=unset#unset
 Lib/Core/IdAbout.TWinForm.resources -text svneol=unset#unset
@@ -2311,6 +2312,7 @@ icon16/TIdSystatUDP.bmp -text svneol=unset#unset
 icon16/TIdSystatUDPServer.bmp -text svneol=unset#unset
 icon16/TIdThreadComponent.bmp -text svneol=unset#unset
 icon16/TIdThreadMgrPool.bmp -text svneol=unset#unset
+icon16/TIdTraceRoute.bmp -text
 icon16/TIdTunnelMaster.bmp -text svneol=unset#unset
 icon16/TIdTunnelSlave.bmp -text svneol=unset#unset
 icon16/TIdUnixTime.bmp -text svneol=unset#unset
@@ -2479,6 +2481,7 @@ icons/TIdSystatUDPServer.bmp -text svneol=unset#unset
 icons/TIdTelnet.bmp -text svneol=unset#unset
 icons/TIdTelnetServer.bmp -text svneol=unset#unset
 icons/TIdThreadComponent.bmp -text svneol=unset#unset
+icons/TIdTraceRoute.bmp -text
 icons/TIdTunnelMaster.bmp -text svneol=unset#unset
 icons/TIdTunnelSlave.bmp -text svneol=unset#unset
 icons/TIdUnixTime.bmp -text svneol=unset#unset

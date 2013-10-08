@@ -8,7 +8,7 @@
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
         <ProjectVersion>14.6</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">iOSSimulator</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
