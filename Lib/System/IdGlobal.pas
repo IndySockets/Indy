@@ -2661,6 +2661,7 @@ begin
       {$IFDEF WINDOWS}
   Result := WideCharToMultiByte(FCodePage, FWCharToMBFlags, AChars, ACharCount, nil, 0, nil, nil);
       {$ELSE}
+  Result := 0;
   ToDo('GetByteCount() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
       {$ENDIF}
     {$ENDIF}
@@ -4830,7 +4831,7 @@ function Ticks: LongWord;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ENDIF}
 {$IFDEF UNIX}
-  {$IFDEF MACOSX}
+  {$IFDEF DARWIN}
     {$IFDEF USE_INLINE} inline;{$ENDIF}
   {$ELSE}
 var
@@ -4846,9 +4847,26 @@ var
 {$ENDIF}
 begin
   {$IFDEF UNIX}
-    {$IFDEF MACOSX}
+    {$IFDEF DARWIN}
   //This seems to be available on the Delphi cross-compiler for OS/X
   Result := AbsoluteToNanoseconds(UpTime) div 1000000;
+
+  // TODO: UpTime() and AbsoluteToNanoseconds() are from the Carbon API, which
+  // is deprecated in OSX 10.8+. The newer Cocoa way would be as follows:
+  {
+  var
+    s_timebase_info: mach_timebase_info_data_t;
+
+  function Ticks: LongWord;
+  begin
+    // mach_absolute_time() returns billionth of seconds,
+    // so divide by one million to get milliseconds
+    Result := (mach_absolute_time() * s_timebase_info.numer) div (1000000 * s_timebase_info.denom);
+  end;
+
+  initialization
+    mach_timebase_info(@s_timebase_info);
+  }
     {$ELSE}
       {$IFDEF USE_BASEUNIX}
   fpgettimeofday(@tv,nil);
