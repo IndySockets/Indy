@@ -6391,6 +6391,9 @@ const
     Li: integer;
     LTxt: TIdText;
     LNewDecoder: TIdMessageDecoder;
+    {$IFNDEF HAS_TStrings_ValueFromIndex}
+    LTmp: String;
+    {$ENDIF}
   begin
     LDestStream := TMemoryStream.Create;
     try
@@ -6405,10 +6408,19 @@ const
           LTxt.ContentDescription := VDecoder.Headers.Values['Content-Description']; {Do not Localize}
           LTxt.ContentDisposition := VDecoder.Headers.Values['Content-Disposition']; {Do not Localize}
           LTxt.ContentTransfer := VDecoder.Headers.Values['Content-Transfer-Encoding'];  {Do not Localize}
-          LTxt.ExtraHeaders.NameValueSeparator := '=';  {Do not Localize}
           for Li := 0 to VDecoder.Headers.Count-1 do begin
             if LTxt.Headers.IndexOfName(VDecoder.Headers.Names[Li]) < 0 then begin
-              LTxt.ExtraHeaders.Add(VDecoder.Headers.Strings[Li]);
+              {$IFNDEF HAS_TStrings_ValueFromIndex}
+              LTmp := VDecoder.Headers.Strings[Li];
+              {$ENDIF}
+              LTxt.ExtraHeaders.AddValue(
+                VDecoder.Headers.Names[Li],
+                {$IFDEF HAS_TStrings_ValueFromIndex}
+                VDecoder.Headers.ValueFromIndex[Li]
+                {$ELSE}
+                Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {Do not Localize}
+                {$ENDIF}
+              );
             end;
           end;
           ReadStringsAsCharset(LDestStream, LTxt.Body, LTxt.CharSet);
@@ -6435,6 +6447,9 @@ const
     Li: integer;
     LAttachment: TIdAttachment;
     LNewDecoder: TIdMessageDecoder;
+    {$IFNDEF HAS_TStrings_ValueFromIndex}
+    LTmp: String;
+    {$ENDIF}
   begin
     AMsg.DoCreateAttachment(VDecoder.Headers, LAttachment);
     Assert(Assigned(LAttachment), 'Attachment must not be unassigned here!');    {Do not Localize}
@@ -6454,10 +6469,19 @@ const
         LAttachment.ContentLocation := VDecoder.Headers.Values['Content-Location'];  {Do not Localize}
         LAttachment.ContentDescription := VDecoder.Headers.Values['Content-Description']; {Do not Localize}
         LAttachment.Filename := VDecoder.Filename;
-        LAttachment.ExtraHeaders.NameValueSeparator := '=';  {Do not Localize}
         for Li := 0 to VDecoder.Headers.Count-1 do begin
           if LAttachment.Headers.IndexOfName(VDecoder.Headers.Names[Li]) < 0 then begin
-            LAttachment.ExtraHeaders.Add(VDecoder.Headers.Strings[Li]);
+            {$IFNDEF HAS_TStrings_ValueFromIndex}
+            LTmp := VDecoder.Headers.Strings[Li];
+            {$ENDIF}
+            LAttachment.ExtraHeaders.AddValue(
+              VDecoder.Headers.Names[Li],
+              {$IFDEF HAS_TStrings_ValueFromIndex}
+              VDecoder.Headers.ValueFromIndex[Li]
+              {$ELSE}
+              Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {Do not Localize}
+              {$ENDIF}
+            );
           end;
         end;
       except

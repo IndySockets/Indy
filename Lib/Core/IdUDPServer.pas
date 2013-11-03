@@ -290,6 +290,19 @@ begin
   end;
 end;
 
+// Linux/Unix does not allow an IPv4 socket and an IPv6 socket
+// to listen on the same port at the same time! Windows does not
+// have that problem...
+{$IFNDEF IdIPv6}
+  {$DEFINE CanCreateTwoBindings}
+  {$IFDEF LINUX} // should this be UNIX instead?
+    {$UNDEF CanCreateTwoBindings}
+  {$ENDIF}
+  {$IFDEF ANDROID}
+    {$UNDEF CanCreateTwoBindings}
+  {$ENDIF}
+{$ENDIF}
+
 function TIdUDPServer.GetBinding: TIdSocketHandle;
 var
   LListenerThread: TIdUDPListenerThread;
@@ -298,12 +311,14 @@ var
 begin
   if FCurrentBinding = nil then begin
     if Bindings.Count = 0 then begin
-      Bindings.Add; // IPv4 by default
+      Bindings.Add; // IPv4 or IPv6 by default
       {$IFNDEF IdIPv6}
+        {$IFDEF CanCreateTwoBindings}
       if GStack.SupportsIPv6 then begin
         // maybe add a property too, so the developer can switch it on/off
         Bindings.Add.IPVersion := Id_IPv6;
       end;
+        {$ENDIF}
       {$ENDIF}
     end;
 

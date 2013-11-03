@@ -4173,22 +4173,28 @@ begin
   {$ENDIF}
 end;
 
+// RLebeau 10/22/2013: prior to Delphi 2010, fmCreate was an all-encompassing
+// bitmask, no other flags could be combined with it.  The RTL was updated in
+// Delphi 2010 to allow other flags to be specified along with fmCreate.  So
+// at best, we will now be able to allow read-only access to other processes
+// in Delphi 2010 and later, and at worst we will continue having exclusive
+// right to the file in Delphi 2009 and earlier, just like we always did...
+
 constructor TIdFileCreateStream.Create(const AFile : String);
 begin
-  inherited Create(AFile, fmCreate);
+  inherited Create(AFile, fmCreate or fmOpenReadWrite or fmShareDenyWrite);
 end;
 
 constructor TIdAppendFileStream.Create(const AFile : String);
 var
   LFlags: Word;
 begin
-  if FileExists(AFile) then begin
-    LFlags := fmOpenReadWrite or fmShareDenyWrite;
-  end else begin
-    LFlags := fmCreate;
+  LFlags := fmOpenReadWrite or fmShareDenyWrite;
+  if not FileExists(AFile) then begin
+    LFlags := LFLags or fmCreate;
   end;
   inherited Create(AFile, LFlags);
-  if LFlags <> fmCreate then begin
+  if (LFlags and fmCreate) = 0 then begin
     TIdStreamHelper.Seek(Self, 0, soEnd);
   end;
 end;

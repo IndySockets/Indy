@@ -97,7 +97,7 @@ uses
   {$IFDEF NETWARE_LIBC}
   winsock;  //not sure if this is correct
   {$ENDIF}
-  {$IFDEF MACOS_CLASIC}
+  {$IFDEF MACOS_CLASSIC}
   {$ENDIF}
   {$IFDEF UNIX}
     {$IFDEF USE_VCL_POSIX}

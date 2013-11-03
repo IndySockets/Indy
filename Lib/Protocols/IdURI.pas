@@ -440,7 +440,7 @@ begin
     // Unicode codepoint value, depending on the codepage used for the source code.
     // For instance, #128 may become #$20AC...
 
-    if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 128) then
+    if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
     begin
       CharLen := CalcUTF16CharLength(
         {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}

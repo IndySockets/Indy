@@ -531,6 +531,13 @@ begin
   try
     // Separately to avoid calling .Connected unless needed
     if ANotifyPeer then begin
+      // TODO: do not call Connected() here if DisconnectNotifyPeer() is not
+      // overriden. Ideally, Connected() should be called by overridden
+      // DisconnectNotifyPeer() implementations if they really need it. But
+      // to avoid any breakages in third-party overrides, we could check here
+      // if DisconnectNotifyPeer() has been overridden and then call Connected()
+      // to maintain existing behavior...
+      //
       if Connected then begin
         DisconnectNotifyPeer;
       end;

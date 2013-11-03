@@ -558,12 +558,23 @@ begin
   LIndex := IndyMax(AIndex, 0);
   if AIndex < 0 then
   begin
+    // TODO: remove CompactHead() here and pass FHeadIndex to TIdStreamHelper.Write():
+    {
+    CheckByteCount(AByteCount, FHeadIndex);
+    TIdStreamHelper.Write(AStream, FBytes, AByteCount, FHeadIndex);
+    Remove(AByteCount);
+    }
     CompactHead;
     CheckByteCount(AByteCount, LIndex);
     TIdStreamHelper.Write(AStream, FBytes, AByteCount);
     Remove(AByteCount);
   end else
   begin
+    // TODO: remove CopyTIdBytes() here and pass FBytes and AIndex to TIdStreamHelper.Write():
+    {
+    CheckByteCount(AByteCount, LIndex);
+    TIdStreamHelper.Write(AStream, FBytes, AByteCount, AIndex);
+    }
     CheckByteCount(AByteCount, LIndex);
     SetLength(LBytes, AByteCount);
     CopyTIdBytes(FBytes, AIndex, LBytes, 0, AByteCount);

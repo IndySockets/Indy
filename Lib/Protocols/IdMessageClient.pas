@@ -716,6 +716,23 @@ var
     end;
   end;
 
+  // RLebeau 11/2/2013: TIdMessage.Headers is a TIdHeaderList, but
+  // TIdMessageDecoder.Headers is a plain TStringList.  Although TIdHeaderList
+  // is a TStrings descendant, but it reintroduces its own Values[] property
+  // instead of implementing the TStrings.Values[] property, so we cannot
+  // access TIdMessage.Headers using a TStrings pointer or else the wrong
+  // property will be invoked and we won't get the right value when accessing
+  // TIdMessage.Headers since TStrings and TIdHeaderList use different
+  // NameValueSeparator implementations, so we have to access them separately...
+  function GetHeaderValue(const AName: string): string;
+  begin
+    if AMsg.IsMsgSinglePartMime then begin
+      Result := AMsg.Headers.Values[AName];
+    end else begin
+      Result := LActiveDecoder.Headers.Values[AName];
+    end;
+  end;
+
   {Only set AUseBodyAsTarget to True if you want the input stream stored in TIdMessage.Body
   instead of TIdText.Body: this happens with some single-part messages.}
   procedure ProcessTextPart(var VDecoder: TIdMessageDecoder; AUseBodyAsTarget: Boolean);
@@ -723,10 +740,12 @@ var
     LMStream: TMemoryStream;
     i: integer;
     LTxt : TIdText;
-    LHdrs: TStrings;
     LNewDecoder: TIdMessageDecoder;
     {$IFDEF STRING_IS_ANSI}
     LAnsiEncoding: IIdTextEncoding;
+    {$ENDIF}
+    {$IFNDEF HAS_TStrings_ValueFromIndex}
+    LTmp: string;
     {$ENDIF}
   begin
     LMStream := TMemoryStream.Create;
@@ -748,30 +767,34 @@ var
             ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
           end;
         end else begin
-          if AMsg.IsMsgSinglePartMime then begin
-            LHdrs := AMsg.Headers;
-          end else begin
-            LHdrs := VDecoder.Headers;
-          end;
           LTxt := TIdText.Create(AMsg.MessageParts);
           try
             {$IFDEF STRING_IS_ANSI}
-            LAnsiEncoding := ContentTypeToEncoding(LHdrs.Values[SContentType], QuoteMIME);
+            LAnsiEncoding := ContentTypeToEncoding(GetHeaderValue(SContentType), QuoteMIME);
             {$ENDIF}
-            ReadStringsAsContentType(LMStream, LTxt.Body, LHdrs.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+            ReadStringsAsContentType(LMStream, LTxt.Body, GetHeaderValue(SContentType), QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
             RemoveLastBlankLine(LTxt.Body);
-            LTxt.ContentType := LTxt.ResolveContentType(LHdrs.Values[SContentType]);
-            LTxt.CharSet := LTxt.GetCharSet(LHdrs.Values[SContentType]);       {do not localize}
-            LTxt.ContentTransfer := LHdrs.Values[SContentTransferEncoding];    {do not localize}
-            LTxt.ContentID := LHdrs.Values['Content-ID'];  {do not localize}
-            LTxt.ContentLocation := LHdrs.Values['Content-Location'];  {do not localize}
-            LTxt.ContentDescription := LHdrs.Values['Content-Description'];  {do not localize}
-            LTxt.ContentDisposition := LHdrs.Values['Content-Disposition'];  {do not localize}
+            LTxt.ContentType := LTxt.ResolveContentType(GetHeaderValue(SContentType));
+            LTxt.CharSet := LTxt.GetCharSet(GetHeaderValue(SContentType));       {do not localize}
+            LTxt.ContentTransfer := GetHeaderValue(SContentTransferEncoding);    {do not localize}
+            LTxt.ContentID := GetHeaderValue('Content-ID');  {do not localize}
+            LTxt.ContentLocation := GetHeaderValue('Content-Location');  {do not localize}
+            LTxt.ContentDescription := GetHeaderValue('Content-Description');  {do not localize}
+            LTxt.ContentDisposition := GetHeaderValue('Content-Disposition');  {do not localize}
             if not AMsg.IsMsgSinglePartMime then begin
-              LTxt.ExtraHeaders.NameValueSeparator := '='; {do not localize}
-              for i := 0 to LHdrs.Count-1 do begin
-                if LTxt.Headers.IndexOfName(LHdrs.Names[i]) < 0 then begin
-                  LTxt.ExtraHeaders.Add(LHdrs.Strings[i]);
+              for i := 0 to VDecoder.Headers.Count-1 do begin
+                if LTxt.Headers.IndexOfName(VDecoder.Headers.Names[i]) < 0 then begin
+                  {$IFNDEF HAS_TStrings_ValueFromIndex}
+                  LTmp := VDecoder.Headers.Strings[i];
+                  {$ENDIF}
+                  LTxt.ExtraHeaders.AddValue(
+                    VDecoder.Headers.Names[i],
+                    {$IFDEF HAS_TStrings_ValueFromIndex}
+                    VDecoder.Headers.ValueFromIndex[i]
+                    {$ELSE}
+                    Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {do not localize}
+                    {$ENDIF}
+                  );
                 end;
               end;
             end;
@@ -818,8 +841,10 @@ var
     LDestStream: TStream;
     i: integer;
     LAttachment: TIdAttachment;
-    LHdrs: TStrings;
     LNewDecoder: TIdMessageDecoder;
+    {$IFNDEF HAS_TStrings_ValueFromIndex}
+    LTmp: String;
+    {$ENDIF}
   begin
     LParentPart := AMsg.MIMEBoundary.ParentPart;
     AMsg.DoCreateAttachment(VDecoder.Headers, LAttachment);
@@ -833,13 +858,8 @@ var
         finally
           LAttachment.FinishTempStream;
         end;
-        if AMsg.IsMsgSinglePartMime then begin
-          LHdrs := AMsg.Headers;
-        end else begin
-          LHdrs := VDecoder.Headers;
-        end;
-        LAttachment.ContentType := LAttachment.ResolveContentType(LHdrs.Values[SContentType]);
-        LAttachment.CharSet := LAttachment.GetCharSet(LHdrs.Values[SContentType]);
+        LAttachment.ContentType := LAttachment.ResolveContentType(GetHeaderValue(SContentType));
+        LAttachment.CharSet := LAttachment.GetCharSet(GetHeaderValue(SContentType));
         if VDecoder is TIdMessageDecoderUUE then begin
           LAttachment.ContentTransfer := TIdMessageDecoderUUE(VDecoder).CodingType;  {do not localize}
         end else begin
@@ -848,18 +868,27 @@ var
           if IsHeaderMediaType(LAttachment.ContentType, 'application/mac-binhex40') then begin {do not localize}
             LAttachment.ContentTransfer := 'binhex40'; {do not localize}
           end else begin
-            LAttachment.ContentTransfer := LHdrs.Values[SContentTransferEncoding];
+            LAttachment.ContentTransfer := GetHeaderValue(SContentTransferEncoding);
           end;
         end;
-        LAttachment.ContentDisposition := LHdrs.Values['Content-Disposition']; {do not localize}
-        LAttachment.ContentID := LHdrs.Values['Content-ID'];                   {do not localize}
-        LAttachment.ContentLocation := LHdrs.Values['Content-Location'];       {do not localize}
-        LAttachment.ContentDescription := LHdrs.Values['Content-Description']; {do not localize}
+        LAttachment.ContentDisposition := GetHeaderValue('Content-Disposition'); {do not localize}
+        LAttachment.ContentID := GetHeaderValue('Content-ID');                   {do not localize}
+        LAttachment.ContentLocation := GetHeaderValue('Content-Location');       {do not localize}
+        LAttachment.ContentDescription := GetHeaderValue('Content-Description'); {do not localize}
         if not AMsg.IsMsgSinglePartMime then begin
-          LAttachment.ExtraHeaders.NameValueSeparator := '=';                               {do not localize}
-          for i := 0 to LHdrs.Count-1 do begin
-            if LAttachment.Headers.IndexOfName(LHdrs.Names[i]) < 0 then begin
-              LAttachment.ExtraHeaders.Add(LHdrs.Strings[i]);
+          for i := 0 to VDecoder.Headers.Count-1 do begin
+            if LAttachment.Headers.IndexOfName(VDecoder.Headers.Names[i]) < 0 then begin
+              {$IFNDEF HAS_TStrings_ValueFromIndex}
+              LTmp := VDecoder.Headers.Strings[i];
+              {$ENDIF}
+              LAttachment.ExtraHeaders.AddValue(
+                VDecoder.Headers.Names[i],
+                {$IFDEF HAS_TStrings_ValueFromIndex}
+                VDecoder.Headers.ValueFromIndex[i]
+                {$ELSE}
+                Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {do not localize}
+                {$ENDIF}
+              );
             end;
           end;
         end;

@@ -487,6 +487,11 @@ end;
 {$IFDEF HAS_getifaddrs}
 function getifaddrs(ifap: pifaddrs): Integer; cdecl; external libc name _PU + 'getifaddrs'; {do not localize}
 procedure freeifaddrs(ifap: pifaddrs); cdecl; external libc name _PU + 'freeifaddrs'; {do not localize}
+{$ELSE}
+  {$IFDEF ANDROID}
+  // TODO: implement getifaddrs() manually using code from https://github.com/kmackay/android-ifaddrs
+  {.$DEFINE HAS_getifaddrs}
+  {$ENDIF}
 {$ENDIF}
 
 procedure TIdStackVCLPosix.AddLocalAddressesToList(AAddresses: TStrings);
