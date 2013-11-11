@@ -1564,6 +1564,8 @@ begin
     end;
     IdTNEF_PT_STRING8: begin
       LBuf := GetBytes(LLength);
+      // TODO: use the value from the attOemCodepage attribute to decode the data:
+      // Result := IndyTextEncoding(attOemCodepage).GetString(LBuf, 0, Length(LBuf)-1);
       SetString(LsTemp, PAnsiChar(LBuf), LLength-1);
       Result := TIdUnicodeString(LsTemp);
     end;
@@ -2078,7 +2080,7 @@ begin
   //Copy the preload decode string into the output...
   LDecodeString := IdTNEF_decode_string;
   for LTemp := 0 to LDecodeStringLength-1 do begin
-      Result[LTemp] := Byte(LDecodeString[LTemp+1]);
+    Result[LTemp] := Byte(LDecodeString[LTemp+1]);
   end;
   LInIndex := 0;
   LOutIndex := LDecodeStringLength;
@@ -2234,7 +2236,7 @@ end;
 procedure TIdCoderTNEF.ParseMapiProp;
 var
   LType, LAttribute: Word;
-  LLength: LongWord;
+  LLength, LCount, I: LongWord;
   //LGUIDType: LongWord;
   LShort: Smallint;
   LStr: string;
@@ -2259,7 +2261,19 @@ begin
     end else begin
       //In this case, the named property uses a string...
       //TODO: Following code not tested...
-      Skip(LLength);
+      //Skip strings for now
+      LCount := LLength;
+      for I := 1 to LCount do begin
+        LLength := GetLongWord;
+        if LLength = 0 then begin
+          Continue;
+        end;
+        Skip(LLength);
+        //Note the strings are padded to 4-byte boundaries...
+        if (LLength mod 4) > 0 then begin
+          Skip(4 - (LLength mod 4));
+        end;
+      end;
     end;
   end;
   case LAttribute of
@@ -2551,11 +2565,13 @@ begin
   if FDoLogging then begin
     DoLogFmt('   Contains %d entries.', [LNumEntries]);  {Do not localize}
   end;
-  for LIndex := 0 to LNumEntries-1 do begin
-    if FDoLogging then begin
-      DoLogFmt('    Entry %d:', [LIndex]);  {Do not localize}
+  if LNumEntries > 0 then begin
+    for LIndex := 0 to LNumEntries-1 do begin
+      if FDoLogging then begin
+        DoLogFmt('    Entry %d:', [LIndex]);  {Do not localize}
+      end;
+      ParseMapiProp;
     end;
-    ParseMapiProp;
   end;
 end;
 
