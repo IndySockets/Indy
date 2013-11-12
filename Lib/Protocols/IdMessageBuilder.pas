@@ -321,7 +321,7 @@ begin
   AddAttachments(AMsg);
 
   // Determine the top-level ContentType and
-  // ContentTranferEncoding for the message now
+  // ContentTransferEncoding for the message now
   //
   FillHeaders(AMsg);
 end;
@@ -480,6 +480,7 @@ begin
   //
   if LUseHtml and not (LUsePlain or LUseHtmlFiles or LUseAttachments) then
   begin
+    // TODO: create "multipart/alternative" pieces if FHtmlViewerNeededMsg is not empty...
     AMsg.Body.Assign(FHtml);
     Exit;
   end;
@@ -656,6 +657,7 @@ begin
   //
   if LUseRtf and not (LUsePlain or LUseAttachments) then
   begin
+    // TODO: create "multipart/alternative" pieces if FRtfViewerNeededMsg is not empty...
     AMsg.Body.Assign(FRtf);
     Exit;
   end;
@@ -667,7 +669,10 @@ begin
   // "multipart/alternative" piece is needed to wrap them if
   // attachments are also present...
   //
-  if LUsePlain and LUseRtf and LUseAttachments then
+  // RLebeau 11/11/2013: need to output the Alternative piece if
+  // the "RTF Viewer is needed" text is going to be used...
+  //
+  if {LUsePlain and} LUseRtf and LUseAttachments then
   begin
     LTextPart := TIdText.Create(AMsg.MessageParts, nil);
     LTextPart.ContentType := cMultipartAlternative;
@@ -684,6 +689,8 @@ begin
       LTextPart.Body.Text := FRtfViewerNeededMsg;
     end;
     LTextPart.ContentType := cTextPlain;
+    LTextPart.CharSet := FPlainTextCharSet;
+    LTextPart.ContentTransfer := FPlainTextContentTransfer;
     LTextPart.ParentPart := LAlternativeIndex;
   end;
 
