@@ -1313,22 +1313,24 @@ begin
         // whereas WS_FTP Server 6+ does not.  If the server disconnected
         // here, let's mimic FTP Voyager by reconnecting without using
         // the HOST command again...
-        if IsWSFTP then begin
-          try
-            IOHandler.CheckForDisconnect(True, True);
-          except
-            on E: EIdConnClosedGracefully do
-            begin
-              Disconnect(False);
-              IOHandler.InputBuffer.Clear;
-              UseHOST := False;
-              try
-                Connect;
-              finally
-                UseHOST := True;
-              end;
-              Exit;
+        //
+        // RLebeau 11/18/2013: some other servers also disconnect on a failed
+        // HOST command, so no longer retrying connect for WSFTP exclusively...
+        //
+        try
+          IOHandler.CheckForDisconnect(True, True);
+        except
+          on E: EIdConnClosedGracefully do
+          begin
+            Disconnect(False);
+            IOHandler.InputBuffer.Clear;
+            UseHOST := False;
+            try
+              Connect;
+            finally
+              UseHOST := True;
             end;
+            Exit;
           end;
         end;
       end else begin
