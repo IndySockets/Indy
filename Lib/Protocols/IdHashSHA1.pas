@@ -325,37 +325,47 @@ begin
   LLenHi := 0;
   LLenLo := 0;
 
-  repeat
+  // Code the entire file in complete 64-byte chunks.
+  while ASize >= 64 do begin
     LSize := ReadTIdBytesFromStream(AStream, FCBuffer, 64);
     // TODO: handle stream read error
     Inc(LLenLo, LSize * 8);
     if LLenLo < LongWord(LSize * 8) then begin
       Inc(LLenHi);
     end;
-    if LSize < 64 then begin
-      FCBuffer[LSize] := $80;
-      if LSize >= 56 then begin
-        for I := (LSize + 1) to 63 do begin
-          FCBuffer[i] := 0;
-        end;
-        Coder;
-        LSize := -1;
-      end;
-      for I := (LSize + 1) to 55 do begin
-        FCBuffer[i] := 0;
-      end;
-      FCBuffer[56] := (LLenHi shr 24);
-      FCBuffer[57] := (LLenHi shr 16) and $FF;
-      FCBuffer[58] := (LLenHi shr 8) and $FF;
-      FCBuffer[59] := (LLenHi and $FF);
-      FCBuffer[60] := (LLenLo shr 24);
-      FCBuffer[61] := (LLenLo shr 16) and $FF;
-      FCBuffer[62] := (LLenLo shr 8) and $FF;
-      FCBuffer[63] := (LLenLo and $FF);
-      LSize := 0;
+    Coder;
+    Dec(ASize, LSize);
+  end;
+
+  // Read the last set of bytes.
+  LSize := ReadTIdBytesFromStream(AStream, FCBuffer, ASize);
+  // TODO: handle stream read error
+  Inc(LLenLo, LSize * 8);
+  if LLenLo < LongWord(LSize * 8) then begin
+    Inc(LLenHi);
+  end;
+
+  FCBuffer[LSize] := $80;
+  if LSize >= 56 then begin
+    for I := (LSize + 1) to 63 do begin
+      FCBuffer[i] := 0;
     end;
     Coder;
-  until LSize < 64;
+    LSize := -1;
+  end;
+
+  for I := (LSize + 1) to 55 do begin
+    FCBuffer[i] := 0;
+  end;
+  FCBuffer[56] := (LLenHi shr 24);
+  FCBuffer[57] := (LLenHi shr 16) and $FF;
+  FCBuffer[58] := (LLenHi shr 8) and $FF;
+  FCBuffer[59] := (LLenHi and $FF);
+  FCBuffer[60] := (LLenLo shr 24);
+  FCBuffer[61] := (LLenLo shr 16) and $FF;
+  FCBuffer[62] := (LLenLo shr 8) and $FF;
+  FCBuffer[63] := (LLenLo and $FF);
+  Coder;
 
   FCheckSum[0] := SwapLongWord(FCheckSum[0]);
   FCheckSum[1] := SwapLongWord(FCheckSum[1]);
