@@ -402,7 +402,6 @@ type
     Ficmp_code: Byte;          // error code
     Ficmp_sum: Word;           // one's complement checksum    {Do not Localize}
     Ficmp_hun: TIdicmp_hun;
-    Ficmp_dun: TIdicmp_dun;
     function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
@@ -413,7 +412,6 @@ type
     property icmp_code: Byte read Ficmp_code write Ficmp_code;          // error code
     property icmp_sum: Word read Ficmp_sum write Ficmp_sum;             // one's complement checksum
     property icmp_hun: TIdicmp_hun read Ficmp_hun;
-    property icmp_dun: TIdicmp_dun read Ficmp_dun;
   end;
 
   //ICMPv6
@@ -1084,19 +1082,17 @@ constructor TIdICMPHdr.Create;
 begin
   inherited Create;
   Ficmp_hun := TIdicmp_hun.Create;
-  Ficmp_dun := TIdicmp_dun.Create;
 end;
 
 destructor TIdICMPHdr.Destroy;
 begin
   FreeAndNil(Ficmp_hun);
-  FreeAndNil(Ficmp_dun);
   inherited Destroy;
 end;
 
 function TIdICMPHdr.GetBytesLen: LongWord;
 begin
-  Result := inherited GetBytesLen + 4 + Ficmp_hun.BytesLen + Ficmp_dun.BytesLen;
+  Result := inherited GetBytesLen + 4 + Ficmp_hun.BytesLen;
 end;
 
 procedure TIdICMPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWOrd);
@@ -1109,7 +1105,6 @@ begin
   Ficmp_sum := BytesToWord(ABytes, VIndex);
   Inc(VIndex, 2);
   Ficmp_hun.ReadStruct(ABytes, VIndex);
-  Ficmp_dun.ReadStruct(ABytes, VIndex);
 end;
 
 procedure TIdICMPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
@@ -1122,7 +1117,6 @@ begin
   CopyTIdWord(Ficmp_sum, VBytes, VIndex);
   Inc(VIndex, 2);
   Ficmp_hun.WriteStruct(VBytes, VIndex);
-  Ficmp_dun.WriteStruct(VBytes, VIndex);
 end;
 
 { TIdIPOptions }
