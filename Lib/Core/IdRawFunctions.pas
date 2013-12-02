@@ -302,37 +302,67 @@ begin
   end;
 end;
 
+type
+  TIdICMPMask = class(TIdICMPHdr)
+  protected
+    Ficmp_mask: LongWord;
+    function GetBytesLen: LongWord; override;
+  public
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
+    property icmp_mask: LongWord read Ficmp_mask write Ficmp_mask;
+  end;
+
+function TIdICMPMask.GetBytesLen: LongWord;
+begin
+  Result := inherited GetBytesLen + 4;
+end;
+
+procedure TIdICMPMask.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+begin
+  inherited ReadStruct(ABytes, VIndex);
+  Ficmp_mask := BytesToLongWord(ABytes, VIndex);
+  Inc(VIndex, 4);
+end;
+
+procedure TIdICMPMask.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+begin
+  inherited WriteStruct(VBytes, VIndex);
+  CopyTIdLongWord(Ficmp_mask, VBytes, VIndex);
+  Inc(VIndex, 4);
+end;
+
 procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: LongWord;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
-  HdrIcmp: TIdIcmpHdr;
+  HdrIcmp: TIdICMPMask;
   LIdx: LongWord;
   LLen : LongWord;
 begin
   // check input
-  LIdx := Id_ICMP_ECHO_HSIZE + Length(APayload);
-  LLen :=  Length(VBuffer);
-  if llen < LIdx then begin
+  LIdx := Id_ICMP_MASK_HSIZE + Length(APayload);
+  LLen := Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
   // construct header
-  HdrIcmp := TIdIcmpHdr.Create;
+  HdrIcmp := TIdICMPMask.Create;
   try
     HdrIcmp.icmp_type         := AType;
     HdrIcmp.icmp_code         := ACode;
     HdrIcmp.icmp_hun.echo_id  := GStack.HostToNetwork(AnId);
     HdrIcmp.icmp_hun.echo_seq := GStack.HostToNetwork(ASeq);
-    HdrIcmp.icmp_dun.mask     := GStack.HostToNetwork(AMask);
-
-    // copy payload
-    if Length(APayload) > 0 then begin
-      CopyTIdBytes(APayload, 0, VBuffer, Id_ICMP_MASK_HSIZE, Length(APayload));
-    end;
+    HdrIcmp.icmp_mask         := GStack.HostToNetwork(AMask);
 
     // copy header
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer, LIdx);
+
+    // copy payload
+    if Length(APayload) > 0 then begin
+      CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
+    end;
   finally
     FreeAndNil(HdrIcmp);
   end;
@@ -384,7 +414,7 @@ var
   LLen : LongWord;
 begin
   // check input
-  LIdx := Id_ICMP_TIMEXCEED_HSIZE + Length(AnOrigPayload) + Id_IP_HSIZE;
+  LIdx := Id_ICMP_TIMEXCEED_HSIZE + Id_IP_HSIZE + Length(AnOrigPayload);
   Llen := Length(VBuffer);
   if Llen < LIdx then begin
     SetLength(VBuffer, LIdx);
@@ -410,22 +440,64 @@ begin
   end;
 end;
 
+type
+  TIdIcmpTS = class(TIdIcmpHdr)
+  protected
+    Ficmp_dun: TIdicmp_dun;
+    function GetBytesLen: LongWord; override;
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
+    property icmp_dun: TIdicmp_dun read Ficmp_dun;
+  end;
+
+constructor TIdIcmpTS.Create;
+begin
+  inherited Create;
+  Ficmp_dun := TIdicmp_dun.Create;
+end;
+
+destructor TIdIcmpTS.Destroy;
+begin
+  Ficmp_dun.Free;
+  inherited Destroy;
+end;
+
+function TIdIcmpTS.GetBytesLen: LongWord;
+begin
+  Result := inherited GetBytesLen + Ficmp_dun.BytesLen;
+end;
+
+procedure TIdIcmpTS.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+begin
+  inherited ReadStruct(ABytes, VIndex);
+  Ficmp_dun.ReadStruct(ABytes, VIndex);
+end;
+
+procedure TIdIcmpTS.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+begin
+  inherited WriteStruct(VBytes, VIndex);
+  Ficmp_dun.WriteStruct(VBytes, VIndex);
+end;
+
 procedure IdRawBuildIcmpTimestamp(const AType, ACode: Byte; const AnId, ASeq: Word;
   const AnOtime, AnRtime, ATtime: TIdNetTime; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
 var
-  HdrIcmp: TIdIcmpHdr;
+  HdrIcmp: TIdIcmpTS;
   LIdx, LLen : LongWord;
 begin
   // check input
-  LIdx := Id_ICMP_UNREACH_HSIZE + Id_IP_HSIZE + Length(APayload);
-  LLen :=  Length(VBuffer);
+  LIdx := Id_ICMP_TS_HSIZE + Length(APayload);
+  LLen := Length(VBuffer);
   if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
   // construct header
-  HdrIcmp := TIdIcmpHdr.Create;
+  HdrIcmp := TIdIcmpTS.Create;
   try
     HdrIcmp.icmp_type             := AType;
     HdrIcmp.icmp_code             := ACode;
@@ -435,14 +507,14 @@ begin
     HdrIcmp.icmp_dun.ts_rtime     := GStack.HostToNetwork(AnRtime);      // receive timestamp
     HdrIcmp.icmp_dun.ts_ttime     := GStack.HostToNetwork(ATtime);       // transmit timestamp
 
-    // copy payload
-    if Length(APayload) > 0 then begin
-      CopyTIdBytes(APayload, 0, VBuffer, Id_ICMP_TS_HSIZE, Length(APayload));
-    end;
-
     // copy header
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer, LIdx);
+
+    // copy payload
+    if Length(APayload) > 0 then begin
+      CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
+    end;
   finally
     FreeAndNil(HdrIcmp);
   end;
@@ -457,7 +529,7 @@ var
   LIdx, LLen : LongWord;
 begin
   // check input
-  LIdx := Id_ICMP_REDIRECT_HSIZE + Length(AnOrigPayload) + Id_IP_HSIZE;
+  LIdx := Id_ICMP_REDIRECT_HSIZE + Id_IP_HSIZE + Length(AnOrigPayload);
   LLen := Length(VBuffer);
   if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
