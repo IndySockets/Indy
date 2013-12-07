@@ -160,7 +160,7 @@ type
     property SendStream: TStream read FSendStream;
     property StreamType: TIdIOHandlerStreamType read FStreamType;
   published
-    property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
+    property FreeStreams: Boolean read FFreeStreams write FFreeStreams default True;
     //
     property OnGetStreams: TIdOnGetStreams read FOnGetStreams write FOnGetStreams;
   end;
