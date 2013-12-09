@@ -1,6 +1,9 @@
 unit IdAllFTPListParsers;
 
 interface
+
+{$I IdCompilerDefines.inc}
+
 {
 Note that is unit is simply for listing ALL FTP List parsers in Indy.
 The user could then add this unit to a uses clause in their program and
@@ -9,10 +12,15 @@ have all FTP list parsers linked into their program.
 ABSOLELY NO CODE is permitted in this unit.
 
 }
+
 // RLebeau 4/17/10: this forces C++Builder to link to this unit so
 // the units can register themselves correctly at program startup...
 
-(*$HPPEMIT '#pragma link "IdAllFTPListParsers"'*)
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+  {$HPPEMIT LINKUNIT}
+{$ELSE}
+  {$HPPEMIT '#pragma link "IdAllFTPListParsers"'}
+{$ENDIF}
 
 implementation
 uses

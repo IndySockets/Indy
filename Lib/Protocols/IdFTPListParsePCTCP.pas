@@ -20,11 +20,14 @@ type
     class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
-  (*HPPEMIT '#pragma link "IdFTPListParseWinQVTNET"'*)
-
   // RLebeau 2/14/09: this forces C++Builder to link to this unit so
   // RegisterFTPListParser can be called correctly at program startup...
-  (*$HPPEMIT '#pragma link "IdFTPListParseWinQVTNET"'*)
+
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+    {$HPPEMIT LINKUNIT}
+  {$ELSE}
+    {$HPPEMIT '#pragma link "IdFTPListParseWinQVTNET"'}
+  {$ENDIF}
 
 {
 THis is a parser for "PC/TCP v 2.11 ftpsrv.exe".  This was a part of the PC/TCP

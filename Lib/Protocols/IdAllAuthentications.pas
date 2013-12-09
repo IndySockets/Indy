@@ -11,13 +11,16 @@ ABSOLUTELY NO CODE is permitted in this unit.
 
 }
 
+{$I IdCompilerDefines.inc}
+
 // RLebeau 2/14/09: this forces C++Builder to link to this unit so
 // the units can register themselves correctly at program startup...
-(*$HPPEMIT '#pragma link "IdAllAuthentications"'*)
 
-{This bit must always be between the "interface" and it's uses clause
-to work properly in FPC.}
-{$I IdCompilerDefines.inc}
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+  {$HPPEMIT LINKUNIT}
+{$ELSE}
+  {$HPPEMIT '#pragma link "IdAllAuthentications"'}
+{$ENDIF}
 
 implementation
 

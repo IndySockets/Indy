@@ -16705,6 +16705,10 @@ var
   X509_set_pubkey : function(x: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
  {$EXTERNALSYM X509_REQ_set_pubkey}
   X509_REQ_set_pubkey : function(x: PX509_REQ; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+ {$EXTERNALSYM X509_PUBKEY_get}
+  X509_PUBKEY_get : function(key: PX509_PUBKEY): PEVP_PKEY cdecl = nil;
+ {$EXTERNALSYM X509_verify}
+  X509_verify : function(x509: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
  {$EXTERNALSYM X509_sign}
   X509_sign : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
  {$EXTERNALSYM X509_REQ_sign}
@@ -20222,7 +20226,7 @@ them in case we use them later.}
   {CH fn_PKCS7_set_signed_attributes = 'PKCS7_set_signed_attributes'; }  {Do not localize}
   {CH fn_PKCS7_set_attributes = 'PKCS7_set_attributes'; }  {Do not localize}
   {CH fn_X509_verify_cert_error_string = 'X509_verify_cert_error_string'; }  {Do not localize}
-  {CH fn_X509_verify = 'X509_verify'; }  {Do not localize}
+  fn_X509_verify = 'X509_verify';   {Do not localize}
   {CH fn_X509_REQ_verify = 'X509_REQ_verify'; }  {Do not localize}
   {CH fn_X509_CRL_verify = 'X509_CRL_verify'; }  {Do not localize}
   {CH fn_NETSCAPE_SPKI_verify = 'NETSCAPE_SPKI_verify'; }  {Do not localize}
@@ -20334,7 +20338,7 @@ them in case we use them later.}
   {CH fn_i2d_X509_PUBKEY = 'i2d_X509_PUBKEY'; }  {Do not localize}
   {CH fn_d2i_X509_PUBKEY = 'd2i_X509_PUBKEY'; }  {Do not localize}
   {CH fn_X509_PUBKEY_set = 'X509_PUBKEY_set'; }  {Do not localize}
-  {CH fn_X509_PUBKEY_get = 'X509_PUBKEY_get'; }  {Do not localize}
+  fn_X509_PUBKEY_get = 'X509_PUBKEY_get';   {Do not localize}
   {CH fn_X509_get_pubkey_parameters = 'X509_get_pubkey_parameters'; }  {Do not localize}
   {CH fn_X509_SIG_new = 'X509_SIG_new'; }  {Do not localize}
   {CH fn_X509_SIG_free = 'X509_SIG_free'; }  {Do not localize}
@@ -21585,6 +21589,8 @@ we have to handle both cases.
   @X509_set_notAfter := LoadFunctionCLib(fn_X509_set_notAfter);
   @X509_set_pubkey := LoadFunctionCLib(fn_X509_set_pubkey);
   @X509_REQ_set_pubkey := LoadFunctionCLib(fn_X509_REQ_set_pubkey);
+  @X509_PUBKEY_get := LoadFunctionCLib(fn_X509_PUBKEY_get);
+  @X509_verify := LoadFunctionCLib(fn_X509_verify);
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := LoadFunctionCLib(fn_PEM_read_bio_X509, False);

@@ -898,6 +898,12 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_Android}
 {$ENDIF}
 
+// TODO: figure out how to detect this version
+{.$DEFINE XE5_UPDATE2_OR_ABOVE}
+{$IFDEF XE5_UPDATE2_OR_ABOVE}
+  {$DEFINE HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+{$ENDIF}
+
 // Delphi XE+ cross-compiling
 {$IFNDEF FPC}
   {$IFDEF POSIX}

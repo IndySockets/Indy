@@ -8,6 +8,12 @@ interface
   {$message error Should not compile if USE_OPENSSL is not defined!!!}
 {$ENDIF}
 
+{$IFDEF AS_DIRECTIVE_HPPEMIT_LINKUNIT}
+  {$HPPEMIT LINKUNIT}
+{$ELSE}
+  {$HPPEMIT '#pragma link "IdSSLOpenSSLHeaders_static"'}
+{$ENDIF}
+
 implementation
 
 {$IFDEF STATICLOAD_OPENSSL}
@@ -442,6 +448,10 @@ function X509_set_notAfter_func(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl; exter
 function X509_set_pubkey_func(x: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_set_pubkey';
 
 function X509_REQ_set_pubkey_func(x: PX509_REQ; pkey: PEVP_PKEY): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_REQ_set_pubkey';
+
+function X509_PUBKEY_get_func(key: PX509_PUBKEY): PEVP_PKEY cdecl; external SSLCLIB_LIB_name name 'X509_PUBKEY_get';
+
+function X509_verify_func(x509: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_verify';
 
 {$IFNDEF SSLEAY_MACROS}
 function PEM_read_bio_X509_func(bp: PBIO; x: PPX509; cb: ppem_password_cb; u: Pointer): PX509 cdecl; external SSLCLIB_LIB_name name 'PEM_read_bio_X509';
@@ -891,6 +901,8 @@ we have to handle both cases.
   X509_set_notAfter := X509_set_notAfter_func;
   X509_set_pubkey := X509_set_pubkey_func;
   X509_REQ_set_pubkey := X509_REQ_set_pubkey_func;
+  X509_PUBKEY_get := X509_PUBKEY_get_func;
+  X509_verify := X509_verify_func;
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   _PEM_read_bio_X509 := PEM_read_bio_X509_func;

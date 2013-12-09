@@ -17,7 +17,12 @@ type
 
   // RLebeau 4/17/10: this forces C++Builder to link to this unit so
   // RegisterHeaderCoder can be called correctly at program startup...
-  (*$HPPEMIT '#pragma link "IdHeaderCoderPlain"'*)
+
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+    {$HPPEMIT LINKUNIT}
+  {$ELSE}
+    {$HPPEMIT '#pragma link "IdHeaderCoderPlain"'}
+  {$ENDIF}
 
 implementation
 

@@ -62,14 +62,15 @@ uses
 { Directive needed for C++Builder HPP and OBJ files for this that will force it
 to be statically compiled into the code }
 
-{$I IdCompilerDefines.inc}
-
-{$IFDEF WINDOWS}
-{$HPPEMIT '#pragma link "IdAntiFreeze"'}    {Do not Localize}
-{$ENDIF}
-
-{$IFDEF UNIX}
-{$HPPEMIT '#pragma link "IdAntiFreeze.o"'}    {Do not Localize}
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+  {$HPPEMIT LINKUNIT}
+{$ELSE}
+  {$IFDEF WINDOWS}
+    {$HPPEMIT '#pragma link "IdAntiFreeze"'}    {Do not Localize}
+  {$ENDIF}
+  {$IFDEF UNIX}
+    {$HPPEMIT '#pragma link "IdAntiFreeze.o"'}    {Do not Localize}
+  {$ENDIF}
 {$ENDIF}
 
 type

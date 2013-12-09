@@ -1563,7 +1563,7 @@ var
 begin
   Result := SSL_load_client_CA_file(
     {$IFDEF USE_MARSHALLED_PTRS}
-    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    M.AsUtf8(AFileName).ToPointer
     {$ELSE}
     PAnsiChar(UTF8String(AFileName))
     {$ENDIF}
@@ -1580,7 +1580,7 @@ var
 begin
   Result := SSL_CTX_use_PrivateKey_file(ctx,
     {$IFDEF USE_MARSHALLED_PTRS}
-    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    M.AsUtf8(AFileName).ToPointer
     {$ELSE}
     PAnsiChar(UTF8String(AFileName))
     {$ENDIF}
@@ -1597,7 +1597,7 @@ var
 begin
   Result := SSL_CTX_use_certificate_file(ctx,
     {$IFDEF USE_MARSHALLED_PTRS}
-    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    M.AsUtf8(AFileName).ToPointer
     {$ELSE}
     PAnsiChar(UTF8String(AFileName))
     {$ENDIF}
@@ -1620,8 +1620,8 @@ begin
   //
   Result := X509_STORE_load_locations(ctx,
     {$IFDEF USE_MARSHALLED_PTRS}
-    M.AsAnsi(AFileName, CP_UTF8).ToPointer,
-    M.AsAnsi(APathName, CP_UTF8).ToPointer
+    M.AsUtf8(AFileName).ToPointer,
+    M.AsUtf8(APathName).ToPointer
     {$ELSE}
     PAnsiChar(Pointer(UTF8String(AFileName))),
     PAnsiChar(Pointer(UTF8String(APathName)))
@@ -1649,7 +1649,7 @@ begin
   Result := 0;
   B := BIO_new_file(
     {$IFDEF USE_MARSHALLED_PTRS}
-    M.AsAnsi(AFileName, CP_UTF8).ToPointer
+    M.AsUtf8(AFileName).ToPointer
     {$ELSE}
     PAnsiChar(UTF8String(AFileName))
     {$ENDIF}
@@ -1845,7 +1845,7 @@ end;
 function IsTLSv1_2Available : Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := Assigned(TLSv1_1_method) and
+  Result := Assigned(TLSv1_2_method) and
     Assigned(TLSv1_2_server_method) and
     Assigned(TLSv1_2_client_method);
 end;
