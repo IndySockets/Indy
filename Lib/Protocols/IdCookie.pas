@@ -80,21 +80,6 @@ uses
   SysUtils;
 
 type
-  TIdCookie = class;
-
-  {$IFDEF HAS_GENERICS_TList}
-  TIdCookieList = TList<TIdCookie>;
-  {$ELSE}
-  TIdCookieList = class(TList)
-  protected
-    function GetCookie(Index: Integer): TIdCookie;
-    procedure SetCookie(Index: Integer; AValue: TIdCookie);
-  public
-    function IndexOfCookie(ACookie: TIdCookie): Integer;
-    property Cookies[Index: Integer]: TIdCookie read GetCookie write SetCookie; default;
-  end;
-  {$ENDIF}
-
   { Base Cookie class as described in [RFC6265] }
   TIdCookie = class(TCollectionItem)
   protected
@@ -151,6 +136,19 @@ type
   TIdCookieClass = class of TIdCookie;
 
   { The Cookie collection }
+
+  {$IFDEF HAS_GENERICS_TList}
+  TIdCookieList = TList<TIdCookie>;
+  {$ELSE}
+  TIdCookieList = class(TList)
+  protected
+    function GetCookie(Index: Integer): TIdCookie;
+    procedure SetCookie(Index: Integer; AValue: TIdCookie);
+  public
+    function IndexOfCookie(ACookie: TIdCookie): Integer;
+    property Cookies[Index: Integer]: TIdCookie read GetCookie write SetCookie; default;
+  end;
+  {$ENDIF}
 
   TIdCookieAccess = (caRead, caReadWrite);
 
