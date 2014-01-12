@@ -391,6 +391,10 @@ begin
   try
     FGreetingCode := GetResponse;
     AfterConnect;
+    StartTLS;
+    if ForceAuth then begin
+      SendAuth;
+    end;
   except
     Disconnect(False);
     raise;
@@ -1296,10 +1300,6 @@ begin
       end;
     end;
     GetCapability;
-    StartTLS;
-    if ForceAuth then begin
-      SendAuth;
-    end;
   except
     Disconnect;
     Raise;
