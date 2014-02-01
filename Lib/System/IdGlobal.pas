@@ -6485,27 +6485,25 @@ begin
   {$IFDEF UNIX}
 
     {$IFDEF USE_VCL_POSIX}
-  {from http://edn.embarcadero.com/article/27890 }
+  {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
 
   gettimeofday(TV, nil);
   T := TV.tv_sec;
   localtime_r(T, UT);
-  Result := -1*(UT.tm_gmtoff / 60 / 60 / 24);
+  Result := UT.tm_gmtoff / 60 / 60 / 24;
     {$ENDIF}
     {$IFDEF USE_BASEUNIX}
   fpGetTimeOfDay (@TimeVal, @TimeZone);
   Result := -1 * (timezone.tz_minuteswest / 60 / 24)
     {$ENDIF}
     {$IFDEF KYLIXCOMPAT}
-  {from http://edn.embarcadero.com/article/27890 }
+  {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
 
   gettimeofday(TV, nil);
   T := TV.tv_sec;
   localtime_r(@T, UT);
-  Result := -1*(UT.__tm_gmtoff / 60 / 60 / 24);
+  Result := UT.__tm_gmtoff / 60 / 60 / 24;
     {$ENDIF}
-    // __tm_gmtoff is the bias in seconds from the UTC to the current time.
-    // so I multiply by -1 to compensate for this.
 
   {$ENDIF}
   {$IFDEF DOTNET}
