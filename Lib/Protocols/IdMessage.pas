@@ -537,6 +537,7 @@ uses
 
 const
   cPriorityStrs: array[TIdMessagePriority] of string = ('urgent', 'urgent', 'normal', 'non-urgent', 'non-urgent');
+  cImportanceStrs: array[TIdMessagePriority] of string = ('high', 'high', 'normal', 'low', 'low');
 
 { TIdMIMEBoundary }
 
@@ -868,12 +869,15 @@ begin
   FLastGeneratedHeaders.Values['Date'] := LocalDateTimeToGMT(LDate); {do not localize}
 
   // S.G. 27/1/2003: Only issue X-Priority header if priority <> mpNormal (for stoopid spam filters)
+  // RLebeau 2/2/2014: add a new Importance property 
   if Priority <> mpNormal then begin
     FLastGeneratedHeaders.Values['Priority'] := cPriorityStrs[Priority]; {do not localize}
-    FLastGeneratedHeaders.Values['X-Priority'] := IntToStr(Ord(Priority) + 1) {do not localize}
+    FLastGeneratedHeaders.Values['X-Priority'] := IntToStr(Ord(Priority) + 1); {do not localize}
+    FLastGeneratedHeaders.Values['Importance'] := cImportanceStrs[Priority]; {do not localize}
   end else begin
     FLastGeneratedHeaders.Values['Priority'] := '';    {do not localize}
     FLastGeneratedHeaders.Values['X-Priority'] := '';    {do not localize}
+    FLastGeneratedHeaders.Values['Importance'] := '';    {do not localize}
   end;
 
   {CC: SaveToFile sets FSavingToFile to True so that Message IDs
@@ -914,12 +918,22 @@ var
     s: string;
     Num: integer;
   begin
-    // This is for Pegasus.
-    if IndyPos('urgent', LowerCase(APriority)) <> 0 then begin {do not localize}
-      Result := mpHigh;
+    APriority := LowerCase(APriority);
+    // TODO: use PostInStrArray() instead of IndyPos()
+    // This is for Pegasus / X-MSMail-Priority / Importance headers
+    if (IndyPos('non-urgent', APriority) <> 0) or {do not localize}
+       (IndyPos('low', APriority) <> 0) then {do not localize}
+    begin
+      Result := mpLowest;
+      // Although a matter of choice, IMO mpLowest is better choice than mpLow,
+      // various examples on the net also use 1 as urgent and 5 as non-urgent
     end
-    else if IndyPos('non-urgent', LowerCase(APriority)) <> 0 then begin {do not localize}
-      Result := mpLow;
+    else if (IndyPos('urgent', APriority) <> 0) or {do not localize}
+            (IndyPos('high', APriority) <> 0) then {do not localize}
+    begin
+      Result := mpHighest;
+      // Although a matter of choice, IMO mpHighest is better choice than mpHigh,
+      // various examples on the net also use 1 as urgent and 5 as non-urgent
     end else
     begin
       s := Trim(APriority);
@@ -986,10 +1000,25 @@ begin
   Date := GMTToLocalDateTime(Headers.Values['Date']); {do not localize}
   Sender.Text := Headers.Values['Sender']; {do not localize}
 
-  if Length(Headers.Values['Priority']) > 0 then begin {do not localize}
-    Priority := GetMsgPriority(Headers.Values['Priority']); {do not localize}
-  end else begin
-    Priority := GetMsgPriority(Headers.Values['X-Priority']) {do not localize}
+  // RLebeau 2/2/2014: add a new Importance property 
+  if Length(Headers.Values['X-Priority']) > 0 then begin {do not localize}
+    // Examine X-Priority first - to get better resolution if possible and because it is the most common
+    Priority := GetMsgPriority(Headers.Values['X-Priority']); {do not localize}
+  end
+  else if Length(Headers.Values['Priority']) > 0 then begin {do not localize}
+    // Which header should be here is matter of a bit of research, it might be that Importance might be checked first
+    Priority := GetMsgPriority(Headers.Values['Priority']) {do not localize}
+  end
+  else if Length(Headers.Values['Importance']) > 0 then begin {do not localize}
+    // Check Importance or Priority
+    Priority := GetMsgPriority(Headers.Values['Importance']) {do not localize}
+  end
+  else if Length(Headers.Values['X-MSMail-Priority']) > 0 then begin {do not localize}
+    // This is the least common header (or at least should be) so can be checked last
+    Priority := GetMsgPriority(Headers.Values['X-MSMail-Priority']) {do not localize}
+  end
+  else begin
+    Priority := mpNormal;
   end;
 
   {Note that the following code ensures MIMEBoundary.Count is 0 for single-part MIME messages...}
