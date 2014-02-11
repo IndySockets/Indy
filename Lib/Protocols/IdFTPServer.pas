@@ -1191,6 +1191,7 @@ type
     property DirFormat : TIdFTPDirFormat read FDirFormat write FDirFormat default DEF_DIRFORMAT;
     property PathProcessing : TIdFTPPathProcessing read FPathProcessing write FPathProcessing default DEF_PATHPROCESSING;
     property UseTLS;
+    property DefaultPort default IDPORT_FTP;
     property AllowAnonymousLogin: Boolean read FAllowAnonymousLogin write FAllowAnonymousLogin default Id_DEF_AllowAnon;
     property AnonymousAccounts: TStrings read FAnonymousAccounts write SetAnonymousAccounts;
     property AnonymousPassStrictCheck: Boolean read FAnonymousPassStrictCheck

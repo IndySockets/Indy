@@ -280,6 +280,10 @@ uses
   System.IO,
     {$ENDIF}
   {$ENDIF}
+{$IFDEF VCL_XE3_OR_ABOVE}
+  System.Contnrs,
+  System.Types,
+{$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   {$ENDIF}

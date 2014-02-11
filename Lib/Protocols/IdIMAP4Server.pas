@@ -430,6 +430,7 @@ type
     {$ENDIF}
     destructor Destroy; override;
   published
+    property DefaultPort default IdPORT_IMAP4;
     property SaferMode: Boolean read FSaferMode write FSaferMode default False;
     property UseDefaultMechanismsForUnassignedCommands: Boolean read FUseDefaultMechanismsForUnassignedCommands write FUseDefaultMechanismsForUnassignedCommands default True;
     property RootPath: string read FRootPath write FRootPath;

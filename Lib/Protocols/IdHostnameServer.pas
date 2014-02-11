@@ -82,6 +82,7 @@ Type
     function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
   published
+    property DefaultPort default IdPORT_HOSTNAME;
     property OnCommandHNAME: THostNameOneParmEvent read fOnCommandHNAME write fOnCommandHNAME;
     property OnCommandHADDR: THostNameOneParmEvent read fOnCommandHADDR write fOnCommandHADDR;
     property OnCommandALL: TIdContextEvent read fOnCommandALL write fOnCommandALL;

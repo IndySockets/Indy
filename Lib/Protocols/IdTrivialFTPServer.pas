@@ -95,6 +95,7 @@ type
     property OnReadFile: TAccessFileEvent read FOnReadFile write FOnReadFile;
     property OnWriteFile: TAccessFileEvent read FOnWriteFile write FOnWriteFile;
     property OnTransferComplete: TTransferCompleteEvent read FOnTransferComplete write FOnTransferComplete;
+    property DefaultPort default IdPORT_TFTP;
   end;
 
 implementation
@@ -126,6 +127,9 @@ uses
   {$IFNDEF HAS_GENERICS_TObjectList}
   IdThread,
   {$ENDIF}
+  {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Types,
+{$ENDIF}
   IdUDPClient,
   SysUtils;
 

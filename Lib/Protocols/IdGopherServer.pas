@@ -105,6 +105,7 @@ type
       write fTruncateUserFriendly default True;
     property TruncateLength : Integer read fTruncateLength
       write fTruncateLength default 70;
+    property DefaultPort default IdPORT_GOPHER;
   end;
 
 implementation

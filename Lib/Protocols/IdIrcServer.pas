@@ -78,7 +78,7 @@ Original Author: Ozz Nixon
 }
 
 uses
-  IdCommandHandlers, IdCmdTCPServer, IdContext, IdServerIOHandler;
+  IdAssignedNumbers, IdCommandHandlers, IdCmdTCPServer, IdContext, IdServerIOHandler;
 
 type
   { Events }
@@ -187,6 +187,7 @@ type
     procedure SetIOHandler(const AValue: TIdServerIOHandler); override;
     procedure InitComponent; override;
   published
+    property DefaultPort default IdPORT_IRC;
     property OnCommandPass: TIdIRCOneParmEvent read fOnCommandPass write fOnCommandPass;
     property OnCommandNick: TIdIRCTwoParmEvent read fOnCommandNick write fOnCommandNick;
     property OnCommandUser: TIdIRCUserEvent read fOnCommandUser write fOnCommandUser;
@@ -233,7 +234,7 @@ type
 implementation
 
 uses
-  IdAssignedNumbers, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, SysUtils;
 
 procedure TIdIRCServer.InitComponent;
 begin
