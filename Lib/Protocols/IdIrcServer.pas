@@ -555,9 +555,14 @@ begin
 end;
 
 procedure TIdIRCServer.DoCommandTime(ASender: TIdCommand);
+var
+  LTarget: String;
 begin
   if Assigned(OnCommandTime) then begin
-    OnCommandTime(ASender, ASender.Params[0]);
+    if ASender.Params.Count > 0 then begin
+      LTarget := ASender.Params[0];
+    end;
+    OnCommandTime(ASender, LTarget);
   end;
 end;
 
