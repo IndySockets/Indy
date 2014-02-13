@@ -174,6 +174,9 @@ type
     // When ARC is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so
     // we will provide separate properties for those purposes
+    //
+    // TODO; use TValue instead of separating them
+    //
     FDataObject: TObject;
     FDataValue: PtrInt;
     {$ELSE}

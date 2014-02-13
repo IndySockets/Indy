@@ -227,15 +227,19 @@ procedure TIdObjectList<T>.BubbleSort(ACompare: TIdSortCompare<T>);
 procedure TIdObjectList.BubbleSort(ACompare: TIdSortCompare);
 {$ENDIF}
 var
-  i, j : Integer;
+  i, n, newn : Integer;
 begin
-  for I := Count -1 downto 0 do begin
-    for J := 0 to Count - 1 - 1 do begin
-      if ACompare(Items[J] , Items[J + 1])< 0 then begin
-        Exchange(J, J + 1);
+  n := Count;
+  repeat
+    newn := 0;
+    for i := 1 to n-1 do begin
+      if ACompare(Items[i-1], Items[i]) > 0 then begin
+        Exchange(i-1, i);
+        newn := i;
       end;
     end;
-  end;
+    n := newn;
+  until n = 0;
 end;
 
 {$IFDEF HAS_GENERICS_TObjectList}
@@ -259,23 +263,19 @@ end;
 
 procedure TIdBubbleSortStringList.BubbleSort(ACompare: TIdStringListSortCompare);
 var
-  i, j: Integer;
-  LTemp: String;
-  LTmpObj: TObject;
+  i, n, newn : Integer;
 begin
-  for i := Count - 1 downto 0 do begin
-    for j := 0 to Count - 1 - 1 do begin
-      if ACompare(Self, J, J + 1) < 0 then begin
-        LTemp := Strings[j];
-        LTmpObj := Objects[j];
-
-        Strings[j] := Strings[j + 1];
-        Objects[j] := Objects[j + 1];
-        Strings[j + 1] := LTemp;
-        Objects[j + 1] := LTmpObj;
+  n := Count;
+  repeat
+    newn := 0;
+    for i := 1 to n-1 do begin
+      if ACompare(Self, i-1, i) > 0 then begin
+        Exchange(i-1, i);
+        newn := i;
       end;
     end;
-  end;
+    n := newn;
+  until n = 0;
 end;
 
 end.

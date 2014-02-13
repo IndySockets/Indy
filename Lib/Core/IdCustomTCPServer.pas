@@ -293,9 +293,11 @@ type
 
   {$IFDEF HAS_GENERICS_TThreadList}
   TIdListenerThreadList = TThreadList<TIdListenerThread>;
+  TIdListenerList = TList<TIdListenerThread>;
   {$ELSE}
-  // TODO: flesh out to match TThreadList<TIdListenerThread> for non-Generics compilers
+  // TODO: flesh out to match TThreadList<TIdListenerThread> and TList<TIdListenerThread> for non-Generics compilers
   TIdListenerThreadList = TThreadList;
+  TIdListenerList = TList;
   {$ENDIF}
 
   TIdListenExceptionEvent = procedure(AThread: TIdListenerThread; AException: Exception) of object;
@@ -683,11 +685,7 @@ begin
       // -Kudzu
       FScheduler := nil;
       FImplicitScheduler := False;
-      {$IFDEF USE_OBJECT_ARC}
-      // have to remove the Owner's strong references so it can be freed
-      RemoveComponent(LScheduler);
-      {$ENDIF}
-      FreeAndNil(LScheduler);
+      IdDisposeAndNil(LScheduler);
     end;
 
     {$IFNDEF USE_OBJECT_ARC}
@@ -725,11 +723,7 @@ begin
     if FImplicitIOHandler then begin
       FIOHandler := nil;
       FImplicitIOHandler := False;
-      {$IFDEF USE_OBJECT_ARC}
-      // have to remove the Owner's strong references so it can be freed
-      RemoveComponent(LIOHandler);
-      {$ENDIF}
-      FreeAndNil(LIOHandler);
+      IdDisposeAndNil(LIOHandler);
     end;
 
     {$IFNDEF USE_OBJECT_ARC}
@@ -751,9 +745,6 @@ begin
     end;
   end;
 end;
-
-type
-  TIdListenerList = TList{$IFDEF HAS_GENERICS_TList}<TIdListenerThread>{$ENDIF};
 
 procedure TIdCustomTCPServer.StartListening;
 var
@@ -853,7 +844,7 @@ procedure TIdCustomTCPServer.TerminateAllThreads;
 var
   i: Integer;
   LContext: TIdContext;
-  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdContext>{$ENDIF};
+  LList: TIdContextList;
 
   // under ARC, convert a weak reference to a strong reference before working with it
   LScheduler: TIdScheduler;

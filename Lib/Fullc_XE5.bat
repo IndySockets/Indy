@@ -16,9 +16,9 @@ REM Command line (optional) parameters:
 REM   %1 = Configuration option, the default is "Release"
 REM   %2 = Platform option, the default is "Win32"
 REM
-REM Example: FullC18               -> will build Release, Win32
-REM Example: FullC18 Debug         -> will build Debug, Win32
-REM Example: FullC18 Release Win64 -> will build Release, Win64 (if available)
+REM Example: FullC19               -> will build Release, Win32
+REM Example: FullC19 Debug         -> will build Debug, Win32
+REM Example: FullC19 Release Win64 -> will build Release, Win64 (if available)
 REM 
 REM ****************************************************************************
 
@@ -27,14 +27,14 @@ REM ************************************************************
 REM Set up the environment
 REM ************************************************************
 
-computil SetupC18
+computil SetupC19
 if exist setenv.bat call setenv.bat
 if exist setenv.bat del setenv.bat > nul
 
-if (%NDC18%)==() goto enderror
+if (%NDC19%)==() goto enderror
 
 REM Set up the environment
-call %NDC18%\bin\rsvars.bat
+call %NDC19%\bin\rsvars.bat
 
 REM Check for configuration options
 SET IndyConfig=Release
@@ -54,14 +54,14 @@ REM Prepare the folder structure
 REM ************************************************************
 
 :preparefolders
-if not exist ..\C18\*.* md ..\C18 > nul
-if not exist ..\C18\ZLib\*.* md ..\C18\ZLib > nul
-if not exist ..\C18\ZLib\i386-Win32-ZLib\*.* md ..\C18\ZLib\i386-Win32-ZLib > nul
-if not exist ..\C18\ZLib\x86_64-Win64-ZLib\*.* md ..\C18\ZLib\x86_64-Win64-ZLib > nul
-if not exist ..\C18\%IndyPlatform% md ..\C18\%IndyPlatform% > nul
-if not exist ..\C18\%IndyPlatform%\%IndyConfig% md ..\C18\%IndyPlatform%\%IndyConfig% > nul
+if not exist ..\C19\*.* md ..\C19 > nul
+if not exist ..\C19\ZLib\*.* md ..\C19\ZLib > nul
+if not exist ..\C19\ZLib\i386-Win32-ZLib\*.* md ..\C19\ZLib\i386-Win32-ZLib > nul
+if not exist ..\C19\ZLib\x86_64-Win64-ZLib\*.* md ..\C19\ZLib\x86_64-Win64-ZLib > nul
+if not exist ..\C19\%IndyPlatform% md ..\C19\%IndyPlatform% > nul
+if not exist ..\C19\%IndyPlatform%\%IndyConfig% md ..\C19\%IndyPlatform%\%IndyConfig% > nul
 
-if exist ..\C18\*.* call clean.bat ..\C18\
+if exist ..\C19\*.* call clean.bat ..\C19\
 
 
 REM ************************************************************
@@ -70,20 +70,20 @@ REM ************************************************************
 
 :indysystem
 cd System
-copy IndySystem180.dpk ..\..\C18 > nul
-copy IndySystem180.dproj ..\..\C18 > nul
-copy *.res ..\..\C18 > nul
-copy *.pas ..\..\C18 > nul
-copy *.inc ..\..\C18 > nul
-copy *.ico ..\..\C18 > nul
+copy IndySystem190.dpk ..\..\C19 > nul
+copy IndySystem190.dproj ..\..\C19 > nul
+copy *.res ..\..\C19 > nul
+copy *.pas ..\..\C19 > nul
+copy *.inc ..\..\C19 > nul
+copy *.ico ..\..\C19 > nul
 
-cd ..\..\C18
+cd ..\..\C19
 
 REM ************************************************************
 REM Build IndySystem
 REM ************************************************************
 
-msbuild IndySystem180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild IndySystem190.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
@@ -94,27 +94,27 @@ REM ************************************************************
 :indycore
 cd ..\Lib\Core
 
-copy *IndyCore180.dpk ..\..\C18 > nul
-copy *IndyCore180.dproj ..\..\C18 > nul
-copy *.res ..\..\C18 > nul
-copy *.pas ..\..\C18 > nul
-copy *.dcr ..\..\C18 > nul
-copy *.inc ..\..\C18 > nul
-copy *.ico ..\..\C18 > nul
+copy *IndyCore190.dpk ..\..\C19 > nul
+copy *IndyCore190.dproj ..\..\C19 > nul
+copy *.res ..\..\C19 > nul
+copy *.pas ..\..\C19 > nul
+copy *.dcr ..\..\C19 > nul
+copy *.inc ..\..\C19 > nul
+copy *.ico ..\..\C19 > nul
 
-cd ..\..\C18
+cd ..\..\C19
 
 REM ************************************************************
 REM Build IndyCore
 REM ************************************************************
 
-msbuild IndyCore180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild IndyCore190.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 REM design time is for Win32 only
 if not "%IndyPlatform%" == "Win32" goto indyprotocols
 
-msbuild dclIndyCore180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild dclIndyCore190.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
@@ -125,29 +125,29 @@ REM ************************************************************
 :indyprotocols
 cd ..\Lib\Protocols
 
-copy zlib\i386-Win32-ZLib\*.obj ..\..\C18\ZLib\i386-Win32-ZLib > nul
-copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C18\ZLib\x86_64-Win64-ZLib > nul
-copy *IndyProtocols180.dpk ..\..\C18 > nul
-copy *IndyProtocols180.dproj ..\..\C18 > nul
-copy *.res ..\..\C18 > nul
-copy *.pas ..\..\C18 > nul
-copy *.dcr ..\..\C18 > nul
-copy *.inc ..\..\C18 > nul
-copy *.ico ..\..\C18 > nul
+copy zlib\i386-Win32-ZLib\*.obj ..\..\C19\ZLib\i386-Win32-ZLib > nul
+copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C19\ZLib\x86_64-Win64-ZLib > nul
+copy *IndyProtocols190.dpk ..\..\C19 > nul
+copy *IndyProtocols190.dproj ..\..\C19 > nul
+copy *.res ..\..\C19 > nul
+copy *.pas ..\..\C19 > nul
+copy *.dcr ..\..\C19 > nul
+copy *.inc ..\..\C19 > nul
+copy *.ico ..\..\C19 > nul
 
-cd ..\..\C18
+cd ..\..\C19
 
 REM ************************************************************
 REM Build IndyProtocols
 REM ************************************************************
 
-msbuild IndyProtocols180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild IndyProtocols190.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 REM design time is for Win32 only
 if not "%IndyPlatform%" == "Win32" goto copygenerated
 
-msbuild dclIndyProtocols180.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild dclIndyProtocols190.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror
 
 
@@ -156,13 +156,13 @@ if errorlevel 1 goto enderror
 REM ************************************************************
 REM Copy over all generated files
 REM ************************************************************
-copy "..\Output\hpp\%IndyPlatform%\%IndyConfig%\Id*.hpp" %IndyPlatform%\%IndyConfig%
-copy "..\Output\Bpi\%IndyPlatform%\%IndyConfig%\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
-copy "..\Output\Bpi\%IndyPlatform%\%IndyConfig%\Indy*.bpi" %IndyPlatform%\%IndyConfig%
+copy ..\Output\hpp\%IndyPlatform%\%IndyConfig%\Id*.hpp %IndyPlatform%\%IndyConfig%
+copy "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
+copy ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\Indy*.bpi %IndyPlatform%\%IndyConfig%
 if "%IndyPlatform%" == "Win32" copy "..\Output\Obj\%IndyPlatform%\%IndyConfig%\Indy*.Lib" %IndyPlatform%\%IndyConfig%
-copy indysystem180.res %IndyPlatform%\%IndyConfig%
-copy indycore180.res %IndyPlatform%\%IndyConfig%
-copy indyprotocols180.res %IndyPlatform%\%IndyConfig%
+copy indysystem190.res %IndyPlatform%\%IndyConfig%
+copy indycore190.res %IndyPlatform%\%IndyConfig%
+copy indyprotocols190.res %IndyPlatform%\%IndyConfig%
 
 REM ************************************************************
 REM Delete all other files / directories no longer required 
@@ -170,8 +170,8 @@ REM ************************************************************
 del /Q ..\Output\hpp\%IndyPlatform%\%IndyConfig%\*.*
 del /Q ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\*.*
 if "%IndyPlatform%" == "Win32" del /Q ..\Output\Obj\%IndyPlatform%\%IndyConfig%\*.*
-del /Q ..\Output\Dcp\%IndyPlatform%\%IndyConfig%\*.*
-del /Q ..\Output\Dcu\%IndyPlatform%\%IndyConfig%\*.*
+del /Q "%BDSCOMMONDIR%\Bpl\*Indy*.bpl"
+del /Q "%BDSCOMMONDIR%\Dcp\*.*"
 del /Q ZLib\i386-Win32-ZLib\*.*
 del /Q ZLib\x86_64-Win64-ZLib\*.*
 del /Q *.*
@@ -188,12 +188,6 @@ rd ..\Output\Bpi
 if "%IndyPlatform%" == "Win32" rd ..\Output\Obj\%IndyPlatform%\%IndyConfig%
 if "%IndyPlatform%" == "Win32" rd ..\Output\Obj\%IndyPlatform%
 if "%IndyPlatform%" == "Win32" rd ..\Output\Obj
-rd ..\Output\Dcp\%IndyPlatform%\%IndyConfig%
-rd ..\Output\Dcp\%IndyPlatform%
-rd ..\Output\Dcp
-rd ..\Output\Dcu\%IndyPlatform%\%IndyConfig%
-rd ..\Output\Dcu\%IndyPlatform%
-rd ..\Output\Dcu
 rd ..\Output
 
 goto endok
@@ -203,7 +197,7 @@ echo Error!
 goto endok
 
 :endnocompiler
-echo C++Builder 18 Compiler Not Present!
+echo C++Builder 19 Compiler Not Present!
 goto endok
 
 :endok

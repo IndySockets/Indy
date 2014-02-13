@@ -37,9 +37,6 @@ implementation
 uses
   IdFIPS, IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, IdResourceStringsProtocols;
 
-const
-  SASL_DIGEST_METHOD = 'AUTHENTICATE:';  {do not localize}
-
 function NCToStr(const AValue : Integer):String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin

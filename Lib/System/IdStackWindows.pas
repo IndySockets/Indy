@@ -2303,8 +2303,8 @@ var
   ka: tcp_keepalive;
   Bytes: DWORD;
 begin
-  // SIO_KEEPALIVE_VALS is supported on Win2K+ only
-  if AEnabled and IndyCheckWindowsVersion(5) then
+  // SIO_KEEPALIVE_VALS is supported on Win2K+ and WinCE 4.x only
+  if AEnabled and IndyCheckWindowsVersion({$IFDEF WINCE}4{$ELSE}5{$ENDIF}) then
   begin
     ka.onoff := 1;
     ka.keepalivetime := ATimeMS;

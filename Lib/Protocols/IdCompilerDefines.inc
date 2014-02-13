@@ -97,6 +97,9 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
 {$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
 
+// Define for Delphi to auto-generate platform-appropriate '#pragma link' statements in HPP files
+{$UNDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+
 // detect compiler versions
 
 // Delphi 4
@@ -282,7 +285,7 @@
   {$ENDIF}
 {$ENDIF}
 
-//Delphi & CBuilder XE6 (HotPocket)
+//Delphi & CBuilder XE6 (Proteus)
 {$IFDEF VER270}
   {$DEFINE VCL_XE6}
   {$IFDEF CBUILDER}
@@ -485,9 +488,12 @@
 
 {$IFDEF VCL_XE6_OR_ABOVE}
   {$DEFINE VCL_XE5_OR_ABOVE}
+  {$DEFINE VCL_XE5_UPDATE2_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_XE5}
     {$DEFINE VCL_XE5_OR_ABOVE}
+    // TODO: figure out how to detect this version
+    {.$DEFINE VCL_XE5_UPDATE2_OR_ABOVE}
   {$ENDIF}
 {$ENDIF}
 
@@ -898,9 +904,7 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_Android}
 {$ENDIF}
 
-// TODO: figure out how to detect this version
-{.$DEFINE XE5_UPDATE2_OR_ABOVE}
-{$IFDEF XE5_UPDATE2_OR_ABOVE}
+{$IFDEF VCL_XE5_UPDATE2_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
 {$ENDIF}
 

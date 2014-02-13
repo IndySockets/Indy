@@ -440,11 +440,7 @@ begin
         if Assigned(LTransparentProxy) and (LTransparentProxy.ClassType <> LClass) then begin
           FTransparentProxy := nil;
           FImplicitTransparentProxy := False;
-          {$IFDEF USE_OBJECT_ARC}
-          // have to remove the Owner's strong references so it can be freed
-          RemoveComponent(LTransparentProxy);
-          {$ENDIF}
-          FreeAndNil(LTransparentProxy);
+          IdDisposeAndNil(LTransparentProxy);
         end;
         if not Assigned(LTransparentProxy) then begin
           LTransparentProxy := LClass.Create(Self);
@@ -457,11 +453,7 @@ begin
           if FImplicitTransparentProxy then begin
             FTransparentProxy := nil;
             FImplicitTransparentProxy := False;
-            {$IFDEF USE_OBJECT_ARC}
-            // have to remove the Owner's strong references so it can be freed
-            RemoveComponent(LTransparentProxy);
-            {$ENDIF}
-            FreeAndNil(LTransparentProxy);
+            IdDisposeAndNil(LTransparentProxy);
           end else begin
             {$IFNDEF USE_OBJECT_ARC}
             LTransparentProxy.RemoveFreeNotification(Self);
@@ -480,11 +472,7 @@ begin
       if FImplicitTransparentProxy then begin
         FTransparentProxy := nil;
         FImplicitTransparentProxy := False;
-        {$IFDEF USE_OBJECT_ARC}
-        // have to remove the Owner's strong references so it can be freed
-        RemoveComponent(LTransparentProxy);
-        {$ENDIF}
-        FreeAndNil(LTransparentProxy);
+        IdDisposeAndNil(LTransparentProxy);
       end else begin
         FTransparentProxy := nil; //remove link
         {$IFNDEF USE_OBJECT_ARC}

@@ -71,11 +71,24 @@ interface
 uses
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
+  {$ELSE}
+    {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Classes,
+    {$ELSE}
+  Classes,
+    {$ENDIF}
   {$ENDIF}
   IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;
 
 type
-  TIdYarnThreadList = TIdThreadSafeObjectList{$IFDEF HAS_GENERICS_TThreadList}<TIdYarn>{$ENDIF};
+  {$IFDEF HAS_GENERICS_TThreadList}
+  TIdYarnThreadList = TIdThreadSafeObjectList<TIdYarn>;
+  TIdYarnList = TList<TIdYarn>;
+  {$ELSE}
+  // TODO: flesh out to match TIdThreadSafeObjectList<TIdYarn> and TList<TIdYarn> for non-Generics compilers
+  TIdYarnThreadList = TIdThreadSafeObjectList;
+  TIdYarnList = TList;
+  {$ENDIF}
 
   TIdScheduler = class(TIdBaseComponent)
   protected
@@ -115,11 +128,13 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF HAS_UNIT_Generics_Collections}
+    {$IFDEF VCL_XE3_OR_ABOVE}
   System.Classes,
   System.Types,
-  {$ELSE}
+    {$ELSE}
   Classes,
+    {$ENDIF}
   {$ENDIF}
   IdGlobal, SysUtils;
 
@@ -149,7 +164,7 @@ end;
 procedure TIdScheduler.TerminateAllYarns;
 var
   i: Integer;
-  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdYarn>{$ENDIF};
+  LList: TIdYarnList;
 begin
   Assert(FActiveYarns<>nil);
 

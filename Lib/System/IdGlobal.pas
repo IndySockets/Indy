@@ -1596,6 +1596,12 @@ function IndyWindowsPlatform: Integer;
 function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 0): Boolean;
 {$ENDIF}
 
+//For non-Nextgen compilers: IdDisposeAndNil is the same as FreeAndNil()
+//For Nextgen compilers: IdDisposeAndNil calls TObject.DisposeOf() to ensure
+// the object is freed immediately even if it has active references to it,
+// for instance when freeing an Owned component
+procedure IdDisposeAndNil(var Obj); {$IFDEF USE_INLINE}inline;{$ENDIF}
+
 var
   {$IFDEF UNIX}
 
@@ -1608,11 +1614,15 @@ var
 {$IFDEF UNIX}
 
   {$UNDEF LIBEXT_IS_DYLIB}
+  {$UNDEF LIBEXT_IS_SO}
+
   {$IFDEF DARWIN}
     {$DEFINE LIBEXT_IS_DYLIB}
   {$ELSE}
     {$IFDEF DCC_NEXTGEN}
-      {$IFNDEF ANDROID}
+      {$IFDEF ANDROID}
+        {$DEFINE LIBEXT_IS_SO}
+      {$ELSE}
         {$DEFINE LIBEXT_IS_DYLIB}
       {$ENDIF}
     {$ENDIF}
@@ -1621,7 +1631,8 @@ var
 const
   {$IFDEF LIBEXT_IS_DYLIB}
   LIBEXT = '.dylib'; {do not localize}
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF LIBEXT_IS_SO}
   LIBEXT = '.so'; {do not localize}
   {$ENDIF}
 {$ENDIF}
@@ -8274,6 +8285,21 @@ begin
   Result := (LMajor > AMajor) or ((LMajor = AMajor) and (LMinor >= AMinor));
 end;
 {$ENDIF}
+
+procedure IdDisposeAndNil(var Obj);
+{$IFDEF USE_OBJECT_ARC}
+var
+  Temp: Pointer;
+{$ENDIF}
+begin
+  {$IFDEF USE_OBJECT_ARC}
+  Temp := Pointer(Obj);
+  Pointer(Obj) := nil;
+  TObject(Temp).DisposeOf;
+  {$ELSE}
+  FreeAndNil(Obj);
+  {$ENDIF}
+end;
 
 initialization
   // AnsiPos does not handle strings with #0 and is also very slow compared to Pos

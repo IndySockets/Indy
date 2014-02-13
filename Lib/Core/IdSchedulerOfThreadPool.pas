@@ -86,9 +86,11 @@ uses
 type
   {$IFDEF HAS_GENERICS_TThreadList}
   TIdPoolThreadList = TThreadList<TIdThreadWithTask>;
+  TIdPoolList = TList<TIdThreadWithTask>;
   {$ELSE}
-  // TODO: flesh out to match TThreadList<TIdThreadWithTask> for non-Generics compilers
+  // TODO: flesh out to match TThreadList<TIdThreadWithTask> and TList<TIdThreadWithTask> for non-Generics compilers
   TIdPoolThreadList = TThreadList;
+  TIdPoolList = TList;
   {$ENDIF}
 
   TIdSchedulerOfThreadPool = class(TIdSchedulerOfThread)
@@ -134,7 +136,7 @@ end;
 function TIdSchedulerOfThreadPool.AcquireYarn: TIdYarn;
 var
   LThread: TIdThreadWithTask;
-  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
+  LList: TIdPoolList;
 begin
   LList := FThreadPool.LockList;
   try
@@ -160,7 +162,7 @@ procedure TIdSchedulerOfThreadPool.ReleaseYarn(AYarn: TIdYarn);
 //only gets called from YarnOf(Fiber/Thread).Destroy
 var
   LThread: TIdThreadWithTask;
-  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
+  LList: TIdPoolList;
 begin
   //take posession of the thread
   LThread := TIdYarnOfThread(AYarn).Thread;
@@ -205,7 +207,7 @@ end;
 procedure TIdSchedulerOfThreadPool.TerminateAllYarns;
 var
   LThread: TIdThreadWithTask;
-  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
+  LList: TIdPoolList;
 begin
   // inherited will kill off ActiveYarns
   inherited TerminateAllYarns;
@@ -234,7 +236,7 @@ end;
 
 procedure TIdSchedulerOfThreadPool.Init;
 var
-  LList: TList{$IFDEF HAS_GENERICS_TList}<TIdThreadWithTask>{$ENDIF};
+  LList: TIdPoolList;
 begin
   inherited Init;
   Assert(FThreadPool<>nil);

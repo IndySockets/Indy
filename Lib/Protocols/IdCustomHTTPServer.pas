@@ -981,11 +981,7 @@ begin
   if Assigned(LSessionList) and FImplicitSessionList then begin
     FSessionList := nil;
     FImplicitSessionList := False;
-    {$IFDEF USE_OBJECT_ARC}
-    // have to remove the Owner's strong references so it can be freed
-    RemoveComponent(LSessionList);
-    {$ENDIF}
-    FreeAndNil(LSessionList);
+    IdDisposeAndNil(LSessionList);
   end;
   inherited Destroy;
 end;
@@ -1626,11 +1622,7 @@ begin
       // -Kudzu
       FSessionList := nil;
       FImplicitSessionList := False;
-      {$IFDEF USE_OBJECT_ARC}
-      // have to remove the Owner's strong references so it can be freed
-      RemoveComponent(LSessionList);
-      {$ENDIF}
-      FreeAndNil(LSessionList);
+      IdDisposeAndNil(LSessionList);
     end;
 
     {$IFNDEF USE_OBJECT_ARC}

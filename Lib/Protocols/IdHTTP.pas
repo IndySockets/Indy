@@ -1202,6 +1202,15 @@ begin
     end;
     if TextIsSame(URL.Protocol, 'HTTPS') then begin  {do not localize}
       // Just check can we do SSL
+
+      // TODO: if an IOHandler has not been assigned yet, create a default SSL
+      // IOHandler object. We need to add a way to create default objects,
+      // similar to TIdIOHandler.MakeDefaultIOHandler()...
+      {
+      if IOHandler = nil then
+        IOHandler := TIdIOHandler.MakeDefaultSSLIOHandler(Self);
+      }
+
       if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
         raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
       end;
@@ -1956,11 +1965,7 @@ begin
       if FImplicitCookieManager then begin
         FCookieManager := nil;
         FImplicitCookieManager := False;
-        {$IFDEF USE_OBJECT_ARC}
-        // have to remove the Owner's strong references so it can be freed
-        RemoveComponent(LCookieManager);
-        {$ENDIF}
-        FreeAndNil(LCookieManager);
+        IdDisposeAndNil(LCookieManager);
       end else begin
         {$IFNDEF USE_OBJECT_ARC}
         LCookieManager.RemoveFreeNotification(Self);

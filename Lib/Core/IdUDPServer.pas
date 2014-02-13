@@ -100,6 +100,9 @@ type
     // When AutoRefCounting is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so we will
     // provide separate properties for those purpose
+    //
+    // TODO; use TValue instead of separating them
+    //
     FDataObject: TObject;
     FDataValue: PtrInt;
     {$ELSE}
@@ -132,9 +135,11 @@ type
   // TODO: use TIdThreadSafeObjectList instead?
   {$IFDEF HAS_GENERICS_TThreadList}
   TIdUDPListenerThreadList = TThreadList<TIdUDPListenerThread>;
+  TIdUDPListenerList = TList<TIdUDPListenerThread>;
   {$ELSE}
-  // TODO: flesh out TThreadList<TIdUDPListenerThread> for non-Generics compilers...
+  // TODO: flesh out TThreadList<TIdUDPListenerThread> and TList<TIdUDPListenerThread> for non-Generics compilers...
   TIdUDPListenerThreadList = TThreadList;
+  TIdUDPListenerList = TList;
   {$ENDIF}
 
   TIdUDPListenerThreadClass = class of TIdUDPListenerThread;
@@ -206,14 +211,6 @@ begin
     end;
   end;
 end;
-
-type
-  {$IFDEF HAS_GENERICS_TList}
-  TIdUDPListenerList = TList<TIdUDPListenerThread>;
-  {$ELSE}
-  // TODO: flesh out TList<TIdUDPListenerThread> for non-Generics compilers...
-  TIdUDPListenerList = TList;
-  {$ENDIF}
 
 procedure TIdUDPServer.CloseBinding;
 var
