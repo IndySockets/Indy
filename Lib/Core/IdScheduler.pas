@@ -135,6 +135,10 @@ uses
     {$ELSE}
   Classes,
     {$ENDIF}
+  {$ELSE}
+      {$IFDEF VCL_XE3_OR_ABOVE}
+  System.Types,    //here to facilitate inlining
+      {$ENDIF}
   {$ENDIF}
   IdGlobal, SysUtils;
 
