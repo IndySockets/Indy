@@ -359,7 +359,8 @@ const
   Id_HTTPMethodPut = 'PUT';
   Id_HTTPMethodDelete = 'DELETE';
   Id_HTTPMethodConnect = 'CONNECT';
-  //(hmHead, hmGet, hmPost, hmOptions, hmTrace, hmPut, hmDelete, hmConnect);
+  Id_HTTPMethodPatch = 'PATCH';
+  //(hmHead, hmGet, hmPost, hmOptions, hmTrace, hmPut, hmDelete, hmConnect, hmPatch);
 
 type
   TIdHTTPWhatsNext = (wnGoToURL, wnJustExit, wnDontKnow, wnReadAndGo, wnAuthRequest);
@@ -575,6 +576,11 @@ type
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
     procedure Put(AURL: string; ASource, AResponseContent: TStream); overload;
+
+    procedure Patch(AURL: string; ASource, AResponseContent: TStream); overload;
+    function Patch(AURL: string; ASource: TStream
+      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
+    ): string; overload;
 
     {This is an object that can compress and decompress HTTP Deflate encoding}
     property Compressor : TIdZLibCompressorBase read FCompressor write FCompressor;
@@ -1650,6 +1656,9 @@ begin
   end;
 end;
 
+const
+  Requires_HTTP_1_1: array[0..4] of String = (Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete, Id_HTTPMethodPatch);
+
 procedure TIdCustomHTTP.PrepareRequest(ARequest: TIdHTTPRequest);
 var
   LURI: TIdURI;
@@ -1712,8 +1721,8 @@ begin
     FURI.IPVersion := ARequest.IPVersion;
 
     // Check for valid HTTP request methods
-    if (PosInStrArray(ARequest.Method, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete], False) > -1) or
-      (PosInStrArray(ARequest.MethodOverride, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete], False) > -1) then
+    if (PosInStrArray(ARequest.Method, Requires_HTTP_1_1, False) > -1) or
+      (PosInStrArray(ARequest.MethodOverride, Requires_HTTP_1_1, False) > -1) then
     begin
       if ProtocolVersion <> pv1_1 then  begin
         raise EIdException.Create(RSHTTPMethodRequiresVersion);
@@ -2874,6 +2883,28 @@ begin
     if not Response.KeepAlive then begin
       Disconnect;
     end;
+  end;
+end;
+
+procedure TIdCustomHTTP.Patch(AURL: string; ASource, AResponseContent: TStream);
+begin
+  DoRequest(Id_HTTPMethodPatch, AURL, ASource, AResponseContent, []);
+end;
+
+function TIdCustomHTTP.Patch(AURL: string; ASource: TStream
+  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
+  ): string;
+var
+  LResponse: TMemoryStream;
+begin
+  LResponse := TMemoryStream.Create;
+  try
+    Patch(AURL, ASource, LResponse);
+    LResponse.Position := 0;
+    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
+  finally
+    FreeAndNil(LResponse);
   end;
 end;
 
