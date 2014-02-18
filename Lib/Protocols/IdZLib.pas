@@ -480,6 +480,9 @@ begin
   FillChar(strm, sizeof(strm), 0);
   GetMem(BackObj, SizeOf(TZBack));
   try
+    //Darcy
+    FillChar(BackObj^, sizeof(TZBack), 0);
+
     //direct memory access if possible!
     BackObj.InMem := DMAOfStream(InStream, BackObj.InMemSize);
 

@@ -473,14 +473,11 @@ end;
 function TIdCookie.ParseServerCookie(const ACookieText: String; AURI: TIdURI): Boolean;
 const
   cTokenSeparators = '()<>@,;:\"/[]?={} '#9;
-var
-  CookieProp: TStringList;
-  S: string;
-  LSecs: Int64;
 
-  procedure SplitCookieText;
+  procedure SplitCookieText(const CookieProp: TStringList; const S: string);
   var
     LNameValue, LAttrs, LAttr, LName, LValue: String;
+    LSecs: Int64;
     LExpiryTime: TDateTime;
     i: Integer;
   begin
@@ -607,7 +604,7 @@ var
     end;
   end;
 
-  function GetLastValueOf(const AName: String; var VValue: String): Boolean;
+  function GetLastValueOf(const CookieProp: TStringList; const AName: String; var VValue: String): Boolean;
   var
     I: Integer;
   begin
@@ -627,6 +624,10 @@ var
     end;
   end;
 
+//Darcy: moved down the variables! Android compiler... bad boy!
+var
+  CookieProp: TStringList;
+  S: string;
 begin
   Result := False;
 
@@ -634,7 +635,7 @@ begin
 
   CookieProp := TStringList.Create;
   try
-    SplitCookieText;
+    SplitCookieText(CookieProp, S);
     if CookieProp.Count = 0 then begin
       Exit;
     end;
@@ -653,11 +654,11 @@ begin
 
     // using the algorithms defined in RFC 6265 section 5.3...
 
-    if GetLastValueOf('MAX-AGE', S) then begin {Do not Localize}
+    if GetLastValueOf(CookieProp, 'MAX-AGE', S) then begin {Do not Localize}
       FPersistent := True;
       FExpires := StrToFloat(S);
     end
-    else if GetLastValueOf('EXPIRES', S) then {Do not Localize}
+    else if GetLastValueOf(CookieProp, 'EXPIRES', S) then {Do not Localize}
     begin
       FPersistent := True;
       FExpires := StrToFloat(S);
@@ -668,7 +669,7 @@ begin
     end;
 
     S := '';
-    if GetLastValueOf('DOMAIN', S) then {Do not Localize}
+    if GetLastValueOf(CookieProp, 'DOMAIN', S) then {Do not Localize}
     begin
       // TODO
       {
@@ -717,7 +718,7 @@ begin
       FDomain := CanonicalizeHostName(AURI.Host);
     end;
 
-    if GetLastValueOf('PATH', S) then begin {Do not Localize}
+    if GetLastValueOf(CookieProp, 'PATH', S) then begin {Do not Localize}
       FPath := S;
     end else begin
       FPath := GetDefaultPath(AURI);
