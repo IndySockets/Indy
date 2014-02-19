@@ -1093,6 +1093,7 @@ begin
   FCharSet := '';
   FWWWAuthenticate := TIdHeaderList.Create(QuoteHTTP);
   FProxyAuthenticate := TIdHeaderList.Create(QuoteHTTP);
+  FAcceptPatch := '';
   FAcceptRanges := '';
 end;
 
@@ -1177,6 +1178,7 @@ begin
 
   FLocation := '';
   FServer := '';
+  FAcceptPatch := '';
   FAcceptRanges := '';
 
   if Assigned(FProxyAuthenticate) then
@@ -1190,14 +1192,14 @@ begin
   end;
 end;
 
-procedure TIdResponseHeaderInfo.SetAcceptRanges(const Value: string);
-begin
-  FAcceptRanges := Value;
-end;
-
 procedure TIdResponseHeaderInfo.SetAcceptPatch(const Value: string);
 begin
   FAcceptPatch := Value;
+end;
+
+procedure TIdResponseHeaderInfo.SetAcceptRanges(const Value: string);
+begin
+  FAcceptRanges := Value;
 end;
 
 { TIdMetaHTTPEquiv }
