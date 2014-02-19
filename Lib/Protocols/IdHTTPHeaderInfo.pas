@@ -261,6 +261,7 @@ type
   TIdResponseHeaderInfo = class(TIdEntityHeaderInfo)
   protected
     FAcceptRanges: string;
+    FAcceptPatch: string;
     FLocation: string;
     FServer: string;
     FProxyConnection: string;
@@ -1124,6 +1125,7 @@ begin
   FRawHeaders.Extract('Proxy-Authenticate', FProxyAuthenticate);{do not localize}
 
   FAcceptRanges := FRawHeaders.Values['Accept-Ranges'];         {do not localize}
+  FAcceptPatch := FRawHeaders.Values['Accept-Patch'];           {do not localize}
 end;
 
 procedure TIdResponseHeaderInfo.SetHeaders;
@@ -1147,11 +1149,15 @@ begin
     sCI := iif(HasContentRangeInstance,
       IndyFormat('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
 
-    RawHeaders.Values['Content-Range'] := sUnits + ' ' + sCR + '/' + sCI;
+    RawHeaders.Values['Content-Range'] := sUnits + ' ' + sCR + '/' + sCI; {do not localize}
   end;
   if Length(FAcceptRanges) > 0 then
   begin
-    RawHeaders.Values['Accept-Ranges'] := FAcceptRanges;
+    RawHeaders.Values['Accept-Ranges'] := FAcceptRanges; {do not localize}
+  end;
+  if Length(FAcceptPatch) > 0 then
+  begin
+    RawHeaders.Values['Accept-Patch'] := FAcceptPatch; {do not localize}
   end;
   if FLastModified > 0 then
   begin
