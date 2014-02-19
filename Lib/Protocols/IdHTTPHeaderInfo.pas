@@ -260,8 +260,8 @@ type
 
   TIdResponseHeaderInfo = class(TIdEntityHeaderInfo)
   protected
-    FAcceptRanges: string;
     FAcceptPatch: string;
+    FAcceptRanges: string;
     FLocation: string;
     FServer: string;
     FProxyConnection: string;
@@ -270,6 +270,7 @@ type
     //
     procedure SetProxyAuthenticate(const Value: TIdHeaderList);
     procedure SetWWWAuthenticate(const Value: TIdHeaderList);
+    procedure SetAcceptPatch(const Value: string);
     procedure SetAcceptRanges(const Value: string);
     procedure ProcessHeaders; override;
     procedure SetHeaders; override;
@@ -279,6 +280,7 @@ type
     constructor Create(AOwner: TPersistent); override;
     destructor Destroy; override;
   published
+    property AcceptPatch: string read FAcceptPatch write SetAcceptPatch;
     property AcceptRanges: string read FAcceptRanges write SetAcceptRanges;
     property Location: string read FLocation write FLocation;
     property ProxyConnection: string read FProxyConnection write FProxyConnection;
@@ -1124,8 +1126,8 @@ begin
   FProxyAuthenticate.Clear;
   FRawHeaders.Extract('Proxy-Authenticate', FProxyAuthenticate);{do not localize}
 
-  FAcceptRanges := FRawHeaders.Values['Accept-Ranges'];         {do not localize}
   FAcceptPatch := FRawHeaders.Values['Accept-Patch'];           {do not localize}
+  FAcceptRanges := FRawHeaders.Values['Accept-Ranges'];         {do not localize}
 end;
 
 procedure TIdResponseHeaderInfo.SetHeaders;
@@ -1151,13 +1153,13 @@ begin
 
     RawHeaders.Values['Content-Range'] := sUnits + ' ' + sCR + '/' + sCI; {do not localize}
   end;
-  if Length(FAcceptRanges) > 0 then
-  begin
-    RawHeaders.Values['Accept-Ranges'] := FAcceptRanges; {do not localize}
-  end;
   if Length(FAcceptPatch) > 0 then
   begin
     RawHeaders.Values['Accept-Patch'] := FAcceptPatch; {do not localize}
+  end;
+  if Length(FAcceptRanges) > 0 then
+  begin
+    RawHeaders.Values['Accept-Ranges'] := FAcceptRanges; {do not localize}
   end;
   if FLastModified > 0 then
   begin
@@ -1191,6 +1193,11 @@ end;
 procedure TIdResponseHeaderInfo.SetAcceptRanges(const Value: string);
 begin
   FAcceptRanges := Value;
+end;
+
+procedure TIdResponseHeaderInfo.SetAcceptPatch(const Value: string);
+begin
+  FAcceptPatch := Value;
 end;
 
 { TIdMetaHTTPEquiv }
