@@ -983,19 +983,19 @@ end;
 procedure TIdStack.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 begin
+  SetSocketOption(ASocket, Id_SOL_SOCKET, Id_SO_KEEPALIVE, iif(AEnabled, 1, 0));
   {$IFDEF HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
   if AEnabled then
   begin
+    // TODO: support TCP_KEEPCNT
     {$IFDEF HAS_TCP_KEEPIDLE}
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS);
     {$ENDIF}
     {$IFDEF HAS_TCP_KEEPINTVL}
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval);
     {$ENDIF}
-    Exit;
   end;
   {$ENDIF}
-  SetSocketOption(ASocket, Id_SOL_SOCKET, Id_SO_KEEPALIVE, iif(AEnabled, 1, 0));
 end;
 
 initialization
