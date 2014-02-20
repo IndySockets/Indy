@@ -429,14 +429,17 @@ begin
     if not Stopped then begin
       SetLength(FBuffer, FServer.BufferSize);
       ByteCount := FBinding.RecvFrom(FBuffer, PeerIP, PeerPort, PeerIPVersion);
-      FBinding.SetPeer(PeerIP, PeerPort, PeerIPVersion);
-      // TODO: some protocols make use of 0-length messages, so don't discard them if they are actually wanted...
-      if (ByteCount > 0) {or ((ByteCount = 0) and AllowEmptyMessages)} then
+      // RLebeau: some protocols make use of 0-length messages, so don't discard
+      // them here. This is not connection-oriented, so recvfrom() only returns
+      // 0 if a 0-length packet was actually received...
+      if ByteCount >= 0 then
       begin
         SetLength(FBuffer, ByteCount);
-        // TODO: figure out a way to let UDPRead() run in this thread
-        // context and only synchronize the OnUDPRead event handler so
-        // that descendants do not need to be synchronized unnecessarily...
+        FBinding.SetPeer(PeerIP, PeerPort, PeerIPVersion);
+        // TODO: figure out a way to let UDPRead() run in this thread context
+        // and only synchronize the OnUDPRead event handler so that descendants
+        // do not need to be synchronized unnecessarily. Probably just have
+        // TIdUDPServer.DoUDPRead() use TIdSync when ThreadedEvent is false...
         if FServer.ThreadedEvent then begin
           UDPRead;
         end else begin
