@@ -71,6 +71,9 @@ interface
 uses
   Classes,
   IdSocketHandle, IdTCPConnection, IdTask, IdYarn, IdThreadSafe,
+  {$IFDEF HAS_GENERICS_TThreadList}
+  System.Generics.Collections,
+  {$ENDIF}
   SysUtils;
 
 type
