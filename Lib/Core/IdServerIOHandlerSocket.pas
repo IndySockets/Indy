@@ -125,19 +125,17 @@ begin
   Result := nil;
   LIOHandler := IOHandlerSocketClass.Create(nil);
   try
-
-  LIOHandler.Open;
-  while not AListenerThread.Stopped do begin
-    if ASocket.Select(250) then begin
-      if LIOHandler.Binding.Accept(ASocket.Handle) then begin
-        LIOHandler.AfterAccept;
-        Result := LIOHandler;
-        LIOHandler:=nil;
-        Break;
+    LIOHandler.Open;
+    while not AListenerThread.Stopped do begin
+      if ASocket.Select(250) then begin
+        if LIOHandler.Binding.Accept(ASocket.Handle) then begin
+          LIOHandler.AfterAccept;
+          Result := LIOHandler;
+          LIOHandler := nil;
+          Break;
+        end;
       end;
     end;
-  end;
-
   finally
     FreeAndNil(LIOHandler);
   end;

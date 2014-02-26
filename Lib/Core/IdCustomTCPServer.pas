@@ -1062,6 +1062,16 @@ begin
     end else begin
       // We have accepted the connection and need to handle it
       LPeer := TIdTCPConnection.Create(nil);
+      {$IFDEF USE_OBJECT_ARC}
+      // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
+      // TIdServerIOHandler.Accept() returns an IOHandler with no Owner assigned,
+      // so lets make the TIdTCPConnection become the Owner in order to keep the
+      // IOHandler alive whic this method exits.
+      //
+      // TODO: should we assign Ownership unconditionally on all platforms?
+      //
+      LPeer.InsertComponent(LIOHandler);
+      {$ENDIF}
       LPeer.IOHandler := LIOHandler;
       LPeer.ManagedIOHandler := True;
     end;
