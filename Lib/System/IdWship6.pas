@@ -1021,7 +1021,6 @@ var
   tAddress: in_addr;
   pszNode: PChar;
   pc: PChar;
-  tmp: String;
   {$IFNDEF STRING_IS_ANSI}
   tmpService: String;
   tmpNode: String;
@@ -1077,7 +1076,7 @@ begin
         pszService := ptService^.s_name;
         {$ELSE}
         tmpService := String(ptService^.s_name);
-        pszService := PChar(tmp);
+        pszService := PChar(tmpService);
         {$ENDIF}
       end else begin
         // DRAFT: return numeric form of the port!
