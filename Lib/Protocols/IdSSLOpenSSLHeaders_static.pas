@@ -338,9 +338,15 @@ function RSA_public_encrypt_func(flen: TIdC_INT; from: PByte; _to: PByte; rsa: P
 
 procedure DH_free_proc(dh: PDH) cdecl; external SSLCLIB_LIB_name name 'DH_free';
 
+function BN_new_func: PBIGNUM cdecl; external SSLCLIB_LIB_name name 'BN_new';
+
+procedure BN_free_proc(a: PBIGNUM) cdecl; external SSLCLIB_LIB_name name 'BN_free';
+
 function BN_hex2bn_func(var n:PBIGNUM; const Str: PIdAnsiChar): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'BN_hex2bn';
 
 function BN_bn2hex_func(const n:PBIGNUM): PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'BN_bn2hex';
+
+function BN_set_word_func(a: PBIGNUM; w: TIdC_ULONG): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'BN_set_word';
 
 function BIO_new_func(_type: PBIO_METHOD): PBIO cdecl; external SSLCLIB_LIB_name name 'BIO_new';
 
@@ -840,8 +846,11 @@ we have to handle both cases.
   //DH
   DH_free := DH_free_proc;
   //BN
+  BN_new := BN_new_func;
+  BN_free := BN_free_proc;
   BN_hex2bn := BN_hex2bn_func;
   BN_bn2hex := BN_bn2hex_func;
+  BN_set_word := BN_set_word_func;
   //BIO
   BIO_new := BIO_new_func;
   BIO_free := BIO_free_func;
