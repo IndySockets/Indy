@@ -30,11 +30,11 @@ type
 
 {stuff that may be needed for various socket functions.  Much of this may be
 platform specific.  Defined in netinet/tcp.h}
-const
 {$IFDEF BSD}
+const
   //for BSD-based operating systems such as FreeBSD and Mac OS X
   {$EXTERNALSYM TCP_MAXSEG}
-	TCP_MAXSEG              = $02;    //* set maximum segment size */
+  TCP_MAXSEG              = $02;    //* set maximum segment size */
   {$EXTERNALSYM TCP_NOPUSH}
   TCP_NOPUSH              = $04 platform;   //* don't push last block of write */
   {$EXTERNALSYM TCP_NOOPT}
@@ -42,6 +42,7 @@ const
 {$ENDIF}
 
 {$IFDEF FREEBSD}
+const
   //specific to FreeBSD
   {$EXTERNALSYM TCP_MD5SIG}
   TCP_MD5SIG              = $10 platform;    //* use MD5 digests (RFC2385) */
@@ -52,6 +53,7 @@ const
 {$ENDIF}
 
 {$IFDEF DARWIN}
+const
   //specific to Mac OS X
   {$EXTERNALSYM TCP_KEEPALIVE}
   TCP_KEEPALIVE           = $10 platform;    //* idle time used when SO_KEEPALIVE is enabled */
@@ -108,7 +110,7 @@ const
 
 const
   {$EXTERNALSYM TCPOPT_SIGNATURE}
-	TCPOPT_SIGNATURE	 =	19 platform;	//* Keyed MD5: RFC 2385 */
+  TCPOPT_SIGNATURE	 =	19 platform;	//* Keyed MD5: RFC 2385 */
   {$EXTERNALSYM TCPOLEN_SIGNATURE}
   TCPOLEN_SIGNATURE	 = 18 platform;
 
@@ -179,6 +181,7 @@ const
 {$ENDIF}
 
 {$IFDEF LINUX}
+const
   //specific to Linux
   {$EXTERNALSYM TCP_MAXSEG}
   TCP_MAXSEG             = 2;       //* Limit MSS */
@@ -225,11 +228,13 @@ const
 
 //udp.h
 {$IFDEF DARWIN}
+const
   {$EXTERNALSYM UDP_NOCKSUM}
   UDP_NOCKSUM            = $01;    //* don't checksum outbound payloads */
 {$ENDIF}
 
 {$IFDEF DARWIN}
+const
 ///Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Headers/MacErrors.h
 
 //enum {
@@ -5605,6 +5610,7 @@ const
 {$ENDIF}
 
 {$IFDEF LINUX}
+const
   //* UDP socket options */
   {$EXTERNALSYM UDP_CORK}
   UDP_CORK	= 1;	//* Never send partially complete segments */
