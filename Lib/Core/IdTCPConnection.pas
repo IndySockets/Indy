@@ -657,6 +657,9 @@ begin
       end;
     end;
 
+    // TODO: should LIntercept.Connection be set to nil here if LIntercept
+    // is not nil and LIntercept.Connection is set to Self?
+
     {$IFDEF USE_OBJECT_ARC}
     // under ARC, all weak references to a freed object get nil'ed automatically
     FIntercept := AValue;
@@ -675,6 +678,9 @@ begin
     if Assigned(LIOHandler) then begin
       LIOHandler.Intercept := AValue;
     end;
+
+    // TODO: should FIntercept.Connection be set to Self here if FIntercept
+    // is not nil?
   end;
 end;
 

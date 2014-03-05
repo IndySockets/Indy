@@ -369,7 +369,7 @@ type
   // Protocol options
   TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams,
     hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv, hoWaitForUnexpectedData,
-    hoTreat302Like303, hoNoProtocolErrorException);
+    hoTreat302Like303, hoNoProtocolErrorException, hoNoReadMultipartMIME);
   TIdHTTPOptions = set of TIdHTTPOption;
 
   // Must be documented
@@ -1239,6 +1239,8 @@ var
   LOrigStream : TStream;
   Size: Integer;
   LParseHTML : Boolean;
+  LMIMEBoundary: TIdBytes;
+  LIndex: Integer;
   LCreateTmpContent : Boolean;
   LDecMeth : Integer;
   //0 - no compression was used or we can't support that feature
@@ -1270,11 +1272,23 @@ var
   end;
 
   function ShouldRead: Boolean;
+  var
+    CanRead: Boolean;
   begin
     Result := False;
-    if (IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0) or {do not localize}
-       (AResponse.ContentLength > 0) or // If chunked then this is also 0
-       (not AResponse.HasContentLength) then
+    if IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0 then begin {do not localize}
+      CanRead := True;
+    end
+    else if AResponse.HasContentLength then begin
+      CanRead := AResponse.ContentLength > 0; // If chunked then this is also 0
+    end
+    else if IsHeaderMediaType(AResponse.ContentType, 'multipart') then begin {do not localize}
+      CanRead := not (hoNoReadMultipartMIME in FOptions);
+    end
+    else begin
+      CanRead := True;
+    end;
+    if CanRead then
     begin
       // DO NOT READ IF THE REQUEST IS HEAD!!!
       // The server is supposed to send a 'Content-Length' header without sending
@@ -1366,18 +1380,61 @@ begin
           EndWork(wmRead);
         end;
       end
-      else if AResponse.ContentLength > 0 then begin// If chunked then this is also 0
-        try
-          if Assigned(LS) then begin
-            IOHandler.ReadStream(LS, AResponse.ContentLength);
-          end else begin
-            IOHandler.Discard(AResponse.ContentLength);
+      else if AResponse.HasContentLength then begin
+        if AResponse.ContentLength > 0 then begin// If chunked then this is also 0
+          try
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, AResponse.ContentLength);
+            end else begin
+              IOHandler.Discard(AResponse.ContentLength);
+            end;
+          except
+            on E: EIdConnClosedGracefully do
           end;
-        except
-          on E: EIdConnClosedGracefully do
         end;
       end
-      else if not AResponse.HasContentLength then begin
+      else if IsHeaderMediaType(AResponse.ContentType, 'multipart') then begin {do not localize}
+        LMIMEBoundary := ToBytes('--' + ExtractHeaderSubItem(AResponse.ContentType, 'boundary', QuoteHTTP) + '--');
+        BeginWork(wmRead);
+        try
+          try
+            repeat
+              LIndex := IOHandler.InputBuffer.IndexOf(LMIMEBoundary);
+              if LIndex <> -1 then
+              begin
+                Size := LIndex + Length(LMIMEBoundary);
+                if Assigned(LS) then begin
+                  IOHandler.ReadStream(LS, Size);
+                end else begin
+                  IOHandler.Discard(Size);
+                end;
+                InternalReadLn; // CRLF at end of boundary
+                Break;
+              end;
+              Size := IOHandler.InputBuffer.Size - (Length(LMIMEBoundary)-1);
+              if Size > 0 then begin
+                if Assigned(LS) then begin
+                  IOHandler.ReadStream(LS, Size);
+                end else begin
+                  IOHandler.Discard(Size);
+                end;
+              end;
+              IOHandler.CheckForDataOnSource;
+              IOHandler.CheckForDisconnect(True, True);
+            until False;
+          except
+            on E: EIdConnClosedGracefully do begin
+              if Assigned(LS) then begin
+                IOHandler.InputBuffer.ExtractToStream(LS);
+              end else begin
+                IOHandler.InputBuffer.Clear;
+              end;
+            end;
+          end;
+        finally
+          EndWork(wmRead);
+        end;
+      end else begin
         if Assigned(LS) then begin
           IOHandler.ReadStream(LS, -1, True);
         end else begin
@@ -1799,7 +1856,12 @@ begin
     ctSSL, ctSSLProxy:
       begin
         ARequest.Connection := '';
-        LUseConnectVerb := (ARequest.UseProxy = ctSSLProxy);
+        if ARequest.UseProxy = ctSSLProxy then begin
+          // TODO: if already connected to an SSL proxy, DO NOT send another
+          // CONNECT request, as it will be sent directly to the target HTTP
+          // server and not to the proxy!
+          LUseConnectVerb := True;
+        end;
       end;
     ctProxy:
       begin
@@ -1807,7 +1869,12 @@ begin
         begin
           ARequest.ProxyConnection := 'keep-alive'; {do not localize}
         end;
-        LUseConnectVerb := hoNonSSLProxyUseConnectVerb in FOptions;
+        if hoNonSSLProxyUseConnectVerb in FOptions then begin
+          // TODO: if already connected to a proxy, DO NOT send another
+          // CONNECT request, as it will be sent directly to the target
+          // HTTP server and not to the proxy!
+          LUseConnectVerb := True;
+        end;
       end;
   end;
 
@@ -2446,11 +2513,13 @@ begin
     Request.Authentication.SetRequest(Request.Method, Request.URL);
   end;
 
+  // TODO: disable header folding for HTTP 1.0 requests
   Request.SetHeaders;
   FHTTP.ProxyParams.SetHeaders(Request.RawHeaders);
   if Assigned(AURI) then begin
     FHTTP.SetCookies(AURI, Request);
   end;
+
   // This is a workaround for some HTTP servers which do not implement
   // the HTTP protocol properly
   LBufferingStarted := not FHTTP.IOHandler.WriteBufferingActive;

@@ -211,6 +211,9 @@ begin
   if FreeStreams then begin
     FreeAndNil(FReceiveStream);
     FreeAndNil(FSendStream);
+  end else begin
+    FReceiveStream := nil;
+    FSendStream := nil;
   end;
 end;
 
