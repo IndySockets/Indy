@@ -564,15 +564,28 @@ end;
 
 function TIdStackDotNet.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
   const AOffset: Integer = 0; const ASize: Integer = -1): Integer;
+var
+  Tmp: TIdBytes;
 begin
   Result := IndyLength(ABuffer, ASize, AOffset);
-  if Result > 0 then begin
-    try
+  try
+    if Result > 0 then begin
       Result := ASocket.Send(ABuffer, AOffset, Result, SocketFlags.None);
-    except
-      on E: Exception do begin
-        raise BuildException(Self, E);
-      end;
+    end else
+    begin
+      // RLebeau: this is to allow UDP sockets to send 0-length packets. Send()
+      // raises an exception if its buffer parameter is nil, and a 0-length byte
+      // array is nil...
+      //
+      // TODO: check the socket type and only allow this for UDP sockets...
+      //
+      SetLength(Tmp, 1);
+      Tmp[0] := $00;
+      Result := ASocket.Send(Tmp, 0, 0, SocketFlags.None);
+    end;
+  except
+    on E: Exception do begin
+      raise BuildException(Self, E);
     end;
   end;
 end;
@@ -615,21 +628,32 @@ function TIdStackDotNet.SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TId
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 var
   LEndPoint : EndPoint;
+  Tmp: TIdBytes;
 begin
   Result := IndyLength(ABuffer, ASize, AOffset);
-  if Result > 0 then
-  begin
+  try
     LEndPoint := IPEndPoint.Create(IPAddress.Parse(AIP), APort);
     try
-      try
+      if Result > 0 then begin
         Result := ASocket.SendTo(ABuffer, AOffset, Result, SocketFlags.None, LEndPoint);
-      except
-        on e: Exception do begin
-          raise BuildException(Self, e);
-        end;
-      end;
+      end else
+      begin
+        // RLebeau: this is to allow UDP sockets to send 0-length packets. SendTo()
+        // raises an exception if its buffer parameter is nil, and a 0-length byte
+        // array is nil...
+        //
+        // TODO: check the socket type and only allow this for UDP sockets...
+        //
+        SetLength(Tmp, 1);
+        Tmp[0] := $00;
+        Result := ASocket.SendTo(Tmp, 0, 0, SocketFlags.None, LEndPoint);
+      end.
     finally
       LEndPoint.Free;
+    end;
+  except
+    on e: Exception do begin
+      raise BuildException(Self, e);
     end;
   end;
 end;

@@ -426,10 +426,20 @@ end;
 
 function TIdStackBSDBase.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
   const AOffset: Integer = 0; const ASize: Integer = -1): Integer;
+var
+  Tmp: Byte;
 begin
   Result := IndyLength(ABuffer, ASize, AOffset);
   if Result > 0 then begin
     Result := WSSend(ASocket, ABuffer[AOffset], Result, 0);
+  end else begin
+    // RLebeau: this is to allow UDP sockets to send 0-length packets.
+    // Have to use a variable because the Buffer parameter is declared
+    // as an untyped 'const'...
+    //
+    // TODO: check the socket type and only allow this for UDP sockets...
+    //
+    Result := WSSend(ASocket, Tmp, 0, 0);
   end;
 end;
 
@@ -445,10 +455,20 @@ function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
   const ABuffer: TIdBytes; const AOffset: Integer; const ASize: Integer;
   const AIP: string; const APort: TIdPort;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+var
+  Tmp: Byte;
 begin
   Result := IndyLength(ABuffer, ASize, AOffset);
   if Result > 0 then begin
     WSSendTo(ASocket, ABuffer[AOffset], Result, 0, AIP, APort, AIPVersion);
+  end else begin
+    // RLebeau: this is to allow UDP sockets to send 0-length packets.
+    // Have to use a variable because the Buffer parameter is declared
+    // as an untyped 'const'...
+    //
+    // TODO: check the socket type and only allow this for UDP sockets...
+    //
+    WSSendTo(ASocket, Tmp, 0, 0, AIP, APort, AIPVersion);
   end;
 end;
 
