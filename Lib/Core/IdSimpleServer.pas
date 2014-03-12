@@ -170,10 +170,8 @@ end;
 procedure TIdSimpleServer.BeginListen;
 begin
   // Must be before IOHandler as it resets it
-  if not Assigned(Binding) then begin
-    EndListen;
-    CreateBinding;
-  end;
+  EndListen;
+  CreateBinding;
   if Socket.TransparentProxy.Enabled then begin
     Socket.Binding.IP := BoundIP;
     Socket.TransparentProxy.Bind(FIOHandler, BoundPort);
