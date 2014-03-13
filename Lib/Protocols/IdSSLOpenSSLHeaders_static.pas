@@ -8,7 +8,7 @@ interface
   {$message error Should not compile if USE_OPENSSL is not defined!!!}
 {$ENDIF}
 
-{$IFDEF AS_DIRECTIVE_HPPEMIT_LINKUNIT}
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
   {$HPPEMIT LINKUNIT}
 {$ELSE}
   {$HPPEMIT '#pragma link "IdSSLOpenSSLHeaders_static"'}
