@@ -531,7 +531,7 @@ type
     procedure CreateQuery(ADomain: string; SOARR : TIdRR_SOA; QueryClass:integer = Class_IN);
     procedure FillResult(AResult: TIdBytes; checkID : boolean = true;
               ResetResult : boolean = true);
-    procedure FillResultWithOutCheckId(AResult: string);
+    procedure FillResultWithOutCheckId(AResult: TIdBytes); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use FillResult() with checkID=False'{$ENDIF};{$ENDIF}
     procedure Resolve(ADomain: string; SOARR : TIdRR_SOA = nil; QClass: integer = Class_IN);
     property QueryResult: TQueryResult read FQueryResult;
     property InternalQuery: TIdBytes read FInternalQuery write SetInternalQuery;
@@ -1316,13 +1316,14 @@ begin
   if Length(AResult) < 12 then begin
     raise EIdDnsResolverError.Create(GetErrorStr(5, 29));
   end;
-{  if Length(AResult) < Self.FQuestionLength then begin
+{
+  if Length(AResult) < Self.FQuestionLength then begin
     raise EIdDnsResolverError.Create(GetErrorStr(5, 30));
-  end;      }
-
-  ReplyId := GStack.NetworkToHost(TwoByteToWord(AResult[0], AResult[1]));
+  end;
+}
 
   if CheckID then begin
+    ReplyId := GStack.NetworkToHost(TwoByteToWord(AResult[0], AResult[1]));
     if ReplyId <> FDNSHeader.Id then begin
       raise EIdDnsResolverError.Create(GetErrorStr(4, FDNSHeader.id));
     end;
@@ -1342,24 +1343,25 @@ begin
   end;
 end;
 
-procedure TIdDNSResolver.FillResultWithOutCheckId(AResult: string);
+procedure TIdDNSResolver.FillResultWithOutCheckId(AResult: TIdBytes);
 var
   NAnswers: Word;
-  //TempHeader : TDNSHeader;
-  InternalResult : TIdBytes;
 begin
-  InternalResult := ToBytes(AResult);
-  FDNSHeader.ParseQuery(InternalResult);
-
-  if Length(InternalResult) < 12 then begin
+  if FDNSHeader.ParseQuery(AResult) <> 0 then begin
     raise EIdDnsResolverError.Create(GetErrorStr(5, 29));
   end;
+
+  {
+  if FDNSHeader.RCode <> 0 then begin
+    raise EIdDnsResolverError.Create(GetRCodeStr(FDNSHeader.RCode));
+  end;
+  }
 
   NAnswers := FDNSHeader.ANCount + FDNSHeader.NSCount + FDNSHeader.ARCount;
   if NAnswers > 0 then begin
     // Move Pointer to Start of answers
-    if Length(InternalResult) > 12 then begin
-      ParseAnswers(FDNSHeader, InternalResult);
+    if Length(AResult) > 12 then begin
+      ParseAnswers(FDNSHeader, AResult);
     end;
   end;
 end;
