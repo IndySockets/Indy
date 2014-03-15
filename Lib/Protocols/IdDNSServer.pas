@@ -3711,6 +3711,10 @@ begin
   if FDataSize >= 12 then begin
     DNSHeader_Processing := TDNSHeader.Create;
     try
+      // RLebeau: this does not make sense to me. ParseQuery() always returns
+      // 0 when the data length is >= 12 unless an exception is raised, which
+      // should only happen if the GStack object is invalid...
+      //
       if DNSHeader_Processing.ParseQuery(ExternalQuery) <> 0 then begin
         FServer.DoAfterQuery(ABinding, DNSHeader_Processing, Temp, RString, BytesToString(ExternalQuery));
         AppendString(FinalResult, Temp);
@@ -4007,49 +4011,49 @@ begin
             if Length(LAnswer) > 0 then begin
               AppendBytes(Answer, LAnswer);
             end;
+          end;
 
-            WildQuestion := Question;
-            Fetch(WildQuestion, '.');
-            WildQuestion := '*.' + WildQuestion;
-            FServer.InternalSearch(DNSHeader, WildQuestion, QType, LAnswer, True, False, False, True, Question);
-            {
-            FServer.InternalSearch(DNSHeader, Question, QType, LAnswer, True, True, False);
-            }
+          WildQuestion := Question;
+          Fetch(WildQuestion, '.');
+          WildQuestion := '*.' + WildQuestion;
+          FServer.InternalSearch(DNSHeader, WildQuestion, QType, LAnswer, True, False, False, True, Question);
+          {
+          FServer.InternalSearch(DNSHeader, Question, QType, LAnswer, True, True, False);
+          }
+          if Length(LAnswer) > 0 then begin
+            AppendBytes(Answer, LAnswer);
+          end;
+
+          if Length(Answer) > 0 then begin
+            Result := cRCodeQueryOK;
+          end else begin
+            Result := cRCodeQueryNotFound;
+          end;
+        end else begin
+          FServer.InternalSearch(DNSHeader, Question, QType, Answer, True, True, False);
+
+          if (QType in [TypeCode_A, TypeCode_AAAA]) and (Length(Answer) = 0) then begin
+            FServer.InternalSearch(DNSHeader, Question, TypeCode_CNAME, LAnswer, True, True, False);
             if Length(LAnswer) > 0 then begin
               AppendBytes(Answer, LAnswer);
             end;
+          end;
 
-            if Length(Answer) > 0 then begin
-              Result := cRCodeQueryOK;
-            end else begin
-              Result := cRCodeQueryNotFound;
-            end;
+          if Length(Answer) > 0 then begin
+            Result := cRCodeQueryCacheOK;
           end else begin
+            //QType := TypeCode_Error;
+
             FServer.InternalSearch(DNSHeader, Question, QType, Answer, True, True, False);
-
-            if (QType in [TypeCode_A, TypeCode_AAAA]) and (Length(Answer) = 0) then begin
-              FServer.InternalSearch(DNSHeader, Question, TypeCode_CNAME, LAnswer, True, True, False);
-              if Length(LAnswer) > 0 then begin
-                AppendBytes(Answer, LAnswer);
-              end;
-            end;
-
-            if Length(Answer) > 0 then begin
-              Result := cRCodeQueryCacheOK;
+            if BytesToString(Answer) = 'Error' then begin {do not localize}
+              Result := cRCodeQueryCacheFindError;
             end else begin
-              QType := TypeCode_Error;
+              FServer.ExternalSearch(DNSResolver, DNSHeader, OriginalQuestion, Answer);
 
-              FServer.InternalSearch(DNSHeader, Question, QType, Answer, True, True, False);
-              if BytesToString(Answer) = 'Error' then begin {do not localize}
-                Result := cRCodeQueryCacheFindError;
+              if Length(Answer) > 0 then begin
+                Result := cRCodeQueryReturned;
               end else begin
-                FServer.ExternalSearch(DNSResolver, DNSHeader, OriginalQuestion, Answer);
-
-                if Length(Answer) > 0 then begin
-                  Result := cRCodeQueryReturned;
-                end else begin
-                  Result := cRCodeQueryNotImplement;
-                end;
+                Result := cRCodeQueryNotImplement;
               end;
             end;
           end;
@@ -4127,7 +4131,7 @@ begin
 
   BBinding := TIdSocketHandle.Create(nil);
   try
-    BBinding.SetPeer(ABinding.PeerIP, ABinding.PeerPort);
+    BBinding.SetPeer(ABinding.PeerIP, ABinding.PeerPort, ABinding.IPVersion);
     BBinding.IP := ABinding.IP;
 
     repeat

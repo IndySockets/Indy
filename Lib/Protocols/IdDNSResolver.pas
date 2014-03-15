@@ -1447,7 +1447,10 @@ var
   LResult: TIdBytes;
   BytesReceived: Integer;
 begin
-  ClearInternalQuery;
+  if ADomain <> '' then begin
+    ClearInternalQuery;
+  end;
+
   // Resolve queries the DNS for the records contained in the
   if FQuestionLength = 0 then begin
     if qtIXFR in QueryType then begin
