@@ -74,13 +74,17 @@ type
   public
     destructor Destroy; override;
     {
-      The following 4 methods are called when SASL Authentication is
+      The following 5 methods are called when SASL Authentication is
       used. The challenge etc. is already Base64 decoded, if the protocol
       uses Base64 encoding, the mechanism should only process the data
       according to the mechanism, not for any transmission. The same holds
       for return values.
+
+      TryStartAuthenticate() is for handling Initial Client Responses,
+      which can remove an unnecessary round-trip if both parties support it.
     }
     //SASL AProtocolName must be a name from "http://www.iana.org/assignments/gssapi-service-names"
+    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: string): Boolean; virtual;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : string): string; virtual; abstract;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; virtual;
 
@@ -150,6 +154,11 @@ destructor TIdSASL.Destroy;
 begin
   GlobalSASLList.Remove(Self);
   inherited Destroy;
+end;
+
+function TIdSASL.TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: string): Boolean;
+begin
+  Result := False;
 end;
 
 function TIdSASL.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string;

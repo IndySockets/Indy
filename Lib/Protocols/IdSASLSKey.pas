@@ -58,6 +58,7 @@ type
   public
     function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
+    function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : String) : String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
@@ -98,6 +99,13 @@ end;
 class function TIdSASLSKey.ServiceName: TIdSASLServiceName;
 begin
   Result := SKEYSERVICENAME;
+end;
+
+function TIdSASLSKey.TryStartAuthenticate(const AHost, AProtocolName : String;
+  var VInitialResponse: String): Boolean;
+begin
+  VInitialResponse := GetUsername;
+  Result := True;
 end;
 
 function TIdSASLSKey.StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String;

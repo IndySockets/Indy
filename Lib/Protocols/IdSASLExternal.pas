@@ -44,6 +44,7 @@ type
   public
     function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
+    function TryStartAuthenticate(const AHost, AProtocolName: String; var VInitialResponse: string): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName: String): String; override;
   published
     property AuthorizationIdentity : String read FAuthIdentity write FAuthIdentity;
@@ -69,8 +70,14 @@ begin
   Result := 'EXTERNAL';  {Do not translate}
 end;
 
-function TIdSASLExternal.StartAuthenticate(
-  const AChallenge, AHost, AProtocolName: String): String;
+function TIdSASLExternal.TryStartAuthenticate(const AHost, AProtocolName: String;
+  var VInitialResponse: string): Boolean;
+begin
+  VInitialResponse := AuthorizationIdentity;
+  Result := True;
+end;
+
+function TIdSASLExternal.StartAuthenticate(const AChallenge, AHost, AProtocolName: String): String;
 begin
   Result := AuthorizationIdentity;
 end;

@@ -19,9 +19,11 @@ type
     procedure InitComponent; override;
   public
     class function ServiceName: TIdSASLServiceName; override;
+    function TryStartAuthenticate(const AHost, AProtocolName: string; var VInitialResponse: string): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName:string) : String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): string; override;
     function IsReadyToStart: Boolean; override;
+
     property Domain : String read FDomain write FDomain;
 {
 The LMCompatibility property is designed to work directly with the "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\LSA\LMCompatibilityLevel"
@@ -91,8 +93,8 @@ begin
   Result := 'NTLM';   {Do not localize}
 end;
 
-function TIdSASLNTLM.StartAuthenticate(const AChallenge, AHost,
-  AProtocolName: string): String;
+function TIdSASLNTLM.TryStartAuthenticate(const AHost, AProtocolName: string;
+  var VInitialResponse: string): Boolean;
 var
   LDomain, LUsername : String;
 begin
@@ -100,7 +102,13 @@ begin
   if LDomain = '' then begin
     LDomain := FDomain;
   end;
-  Result := BytesToStringRaw(IdNTLMv2.BuildType1Msg(LDomain, LDomain, FLMCompatibility));
+  VInitialResponse := BytesToStringRaw(IdNTLMv2.BuildType1Msg(LDomain, LDomain, FLMCompatibility));
+  Result := True;
+end;
+
+function TIdSASLNTLM.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
+begin
+  TryStartAuthenticate(AHost, AProtocolName, Result);
 end;
 
 end.

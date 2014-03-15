@@ -2399,6 +2399,9 @@ begin
     end;
     ProcessHeaders;
   end;
+  if FMetaHTTPEquiv.CharSet <> '' then begin
+    FCharSet := FMetaHTTPEquiv.CharSet;
+  end;
 end;
 
 function TIdHTTPResponse.GetKeepAlive: Boolean;

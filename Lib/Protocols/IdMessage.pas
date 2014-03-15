@@ -1252,28 +1252,41 @@ begin
 end;
 
 procedure TIdMessage.DoInitializeISO(var VHeaderEncoding: Char; var VCharSet: string);
-Begin
+begin
   if Assigned(FOnInitializeISO) then begin
     FOnInitializeISO(VHeaderEncoding, VCharSet);//APR
   end;
-End;//
+end;
 
 procedure TIdMessage.InitializeISO(var VHeaderEncoding: Char; var VCharSet: String);
-Begin
-  VHeaderEncoding := 'B';     { base64 / quoted-printable }    {Do not Localize}
-  VCharSet := IdCharsetNames[IdGetDefaultCharSet];
-
-  // it's not clear when VHeaderEncoding should be Q not B.
+var
+  LDefCharset: TIdCharSet;
+begin
+  // it's not clear when FHeaderEncoding should be Q not B.
   // Comments welcome on atozedsoftware.indy.general
 
-  case IdGetDefaultCharSet of
-    idcs_ISO_8859_1 : VHeaderEncoding := 'Q';    {Do not Localize}
-    idcs_UNICODE_1_1 : VCharSet := IdCharsetNames[idcs_UTF_8];
-  else
-    // nothing
+  LDefCharset := IdGetDefaultCharSet;
+
+  case LDefCharset of
+    idcs_ISO_8859_1:
+      begin
+        VHeaderEncoding := 'Q';     { quoted-printable }    {Do not Localize}
+        VCharSet := IdCharsetNames[LDefCharset];
+      end;
+    idcs_UNICODE_1_1:
+      begin
+        VHeaderEncoding := 'B';     { base64 }    {Do not Localize}
+        VCharSet := IdCharsetNames[idcs_UTF_8];
+      end;
+    else
+      begin
+        VHeaderEncoding := 'B';     { base64 }    {Do not Localize}
+        VCharSet := IdCharsetNames[LDefCharset];
+      end;
   end;
+
   DoInitializeISO(VHeaderEncoding, VCharSet);
-End;
+end;
 
 procedure TIdMessage.DoCreateAttachment(const AHeaders: TStrings;
   var VAttachment: TIdAttachment);

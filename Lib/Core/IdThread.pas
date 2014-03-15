@@ -148,6 +148,31 @@ interface
 
 {$I IdCompilerDefines.inc}
 
+// RLebeau: On OSX/iOS, an auto-release object pool should be used to clean up
+// ObjC objects created within a thread. On Android, any thread that uses Java
+// objects will attach to the JVM and must be detached from the JVM before
+// terminating.
+//
+// All objects must be released before terminating/detaching the thread.
+//
+// This problem was fixed in TThread in RAD Studio XE6.
+//
+
+{$UNDEF PLATFORM_CLEANUP_NEEDED}
+
+{$IFDEF DCC}
+  {$IFNDEF VCL_XE6_OR_ABOVE}
+    {$IFDEF MACOS}
+      {$DEFINE PLATFORM_CLEANUP_NEEDED}
+    {$ENDIF MACOS}
+    {$IFDEF ANDROID}
+      {$DEFINE PLATFORM_CLEANUP_NEEDED}
+    {$ENDIF}
+  {$ENDIF}
+{$ELSE}
+// TODO: Does this need to be applied to FreePascal?
+{$ENDIF}
+
 uses
   Classes,
   IdGlobal, IdException, IdYarn, IdTask, IdThreadSafe, SysUtils;
@@ -175,6 +200,9 @@ type
     // When ARC is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so
     // we will provide separate properties for those purposes
+    //
+    // TODO; use TValue instead of separating them
+    //
     FDataObject: TObject;
     FDataValue: PtrInt;
     {$ELSE}
@@ -192,6 +220,11 @@ type
     FOnException: TIdExceptionThreadEvent;
     FOnStopped: TIdNotifyThreadEvent;
     //
+    {$IFDEF PLATFORM_CLEANUP_NEEDED}
+      {$IFDEF MACOS}
+    FObjCPool: Pointer;
+      {$ENDIF}
+    {$ENDIF}
     procedure AfterRun; virtual; //3* not abstract - otherwise it is required
     procedure AfterExecute; virtual;//5 not abstract - otherwise it is required
     procedure BeforeExecute; virtual;//1 not abstract - otherwise it is required
@@ -200,6 +233,9 @@ type
     procedure DoException(AException: Exception); virtual;
     procedure DoStopped; virtual;
     procedure Execute; override;
+    {$IFDEF PLATFORM_CLEANUP_NEEDED}
+    procedure DoTerminate; override;
+    {$ENDIF}
     function GetStopped: Boolean;
     function HandleRunException(AException: Exception): Boolean; virtual;
     procedure Run; virtual; abstract;
@@ -291,6 +327,14 @@ uses
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.SyncObjs,
   {$ENDIF}
+  {$IFDEF PLATFORM_CLEANUP_NEEDED}
+    {$IFDEF MACOS}
+  Macapi.ObjCRuntime,
+    {$ENDIF}
+    {$IFDEF ANDROID}
+  Androidapi.NativeActivity,
+    {$ENDIF}
+  {$ENDIF}
   IdResourceStringsCore;
 
 class procedure TIdThread.WaitAllThreadsTerminated(AMSec: Integer = IdWaitAllThreadsTerminatedCount);
@@ -341,6 +385,13 @@ begin
     Name := 'IdThread (unknown)';
   end;
   SetThreadName(Name);
+
+  {$IFDEF PLATFORM_CLEANUP_NEEDED}
+    {$IFDEF MACOS}
+  // Register the auto release pool
+  FObjCPool := objc_msgSend(objc_msgSend(objc_getClass('NSAutoreleasePool'), sel_getUid('alloc')), sel_getUid('init'));
+    {$ENDIF MACOS}
+  {$ENDIF}
 
   try
     BeforeExecute;
@@ -419,6 +470,29 @@ begin
     end;
   end;
 end;
+
+{$IFDEF PLATFORM_CLEANUP_NEEDED}
+procedure TIdThread.DoTerminate;
+{$IFDEF ANDROID}
+var
+  PActivity: PANativeActivity;
+{$ENDIF}
+begin
+  try
+    inherited;
+  finally
+    {$IFDEF MACOS}
+    // Last thing to do in thread is to drain the pool
+    objc_msgSend(FObjCPool, sel_getUid('drain'));
+    {$ENDIF}
+    {$IFDEF ANDROID}
+    // Detach the NativeActivity virtual machine to ensure the proper release of JNI contexts attached to the current thread
+    PActivity := PANativeActivity(System.DelphiActivity);
+    PActivity^.vm^.DetachCurrentThread(PActivity^.vm);
+    {$ENDIF}
+  end;
+end;
+{$ENDIF}
 
 constructor TIdThread.Create(ACreateSuspended: Boolean; ALoop: Boolean; const AName: string);
 begin

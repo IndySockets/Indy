@@ -305,7 +305,7 @@ type
       const AIP : String;
       const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    procedure AddLocalAddressesToList(AAddresses: TStrings); override;
+    procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
     procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
       const AEnabled: Boolean; const ATimeMS, AInterval: Integer); override;
   end;
@@ -316,8 +316,7 @@ var
 
 implementation
 
-// RLebeau: this is still a work in progress...
-{.$DEFINE USE_IPHLPAPI}
+{$DEFINE USE_IPHLPAPI}
 
 {$IFDEF USE_IPHLPAPI}
   {$IFDEF VCL_XE2_OR_ABOVE}
@@ -1181,7 +1180,7 @@ begin
   Result := LParts.QuadPart;
 end;
 
-procedure TIdStackWindows.AddLocalAddressesToList(AAddresses: TStrings);
+procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 {$IFNDEF USE_IPHLPAPI}
   {$IFNDEF WINCE}
 type
@@ -1334,10 +1333,10 @@ type
                           end;
                           SubNetStr := SubNetMasks.Values[IPAddr];
                         end;
-                        AAddresses.Add(IPAddr); // TODO: inclue SubNetStr for subnet
+                        TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr);
                       end;
                       AF_INET6: begin
-                        Addresses.Add(TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
+                        TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
                       end;
                     end;
                   end;
@@ -1472,7 +1471,7 @@ type
                       Continue;
                     end;
                   end;
-                  Addresses.Add(IPStr); // TODO: include IPAddr^.IpMask.S for subnet
+                  TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, String(IPAddr^.IpMask.S));
                 end;
                 IPAddr := IPAddr^.Next;
               until IPAddr = nil;
@@ -1549,7 +1548,11 @@ begin
     try
       LAddrInfo := LAddrList;
       repeat
-        AAddresses.Add(TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4));
+        TIdStackLocalAddressIPv4.Create(
+          AAddresses,
+          TranslateTInAddrToString(LAddrInfo^.ai_addr^.sin_addr, Id_IPv4), //BGO FIX
+          '' // TODO
+        );
         LAddrInfo := LAddrInfo^.ai_next;
       until LAddrInfo = nil;
     finally

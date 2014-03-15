@@ -285,6 +285,7 @@ end;
 constructor TIdDsnPropEdBindingVCL.Create(AOwner: TComponent);
 var
   i : Integer;
+  LLocalAddresses: TIdStackLocalAddressList;
 begin
   inherited CreateNew(AOwner, 0);
   {$IFNDEF WIDGET_KYLIX}
@@ -475,7 +476,19 @@ begin
 
   TIdStack.IncUsage;
   try
-    GStack.AddLocalAddressesToList(FIPv4Addresses);
+    LLocalAddresses := TIdStackLocalAddressList.Create;
+    try
+      GStack.GetLocalAddressList(LLocalAddresses);
+      for i := 0 to LLocalAddresses.Count-1 do
+      begin
+        case LLocalAddresses[i].IPVersion of
+          Id_IPv4: FIPv4Addresses.Add(LLocalAddresses[i].IPAddress);
+          Id_IPv6: FIPv6Addresses.Add(LLocalAddresses[i].IPAddress);
+        end;
+      end;
+    finally
+      LLocalAddresses.Free;
+    end;
   finally
     TIdStack.DecUsage;
   end;

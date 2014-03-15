@@ -1205,10 +1205,15 @@ end;
 { TIdMetaHTTPEquiv }
 
 procedure TIdMetaHTTPEquiv.ProcessMetaHTTPEquiv(AStream: TStream);
+var
+  LCharSet: string;
 begin
-  ParseMetaHTTPEquiv(AStream, RawHeaders);
+  ParseMetaHTTPEquiv(AStream, RawHeaders, LCharSet);
   if FRawHeaders.Count > 0 then begin
     ProcessHeaders;
+  end;
+  if LCharSet <> '' then begin
+    FCharSet := LCharset;
   end;
 end;
 

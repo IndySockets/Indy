@@ -382,7 +382,6 @@ end;
 
 procedure TIdUDPServer.SetBindings(const Value: TIdSocketHandles);
 begin
-                                              
   FBindings.Assign(Value);
 end;
 

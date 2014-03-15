@@ -190,6 +190,14 @@ uses
   {$IFDEF FPC}
   LResources,
   {$ENDIF}
+  {$IFDEF HAS_TSelectionEditor}
+    {$IFDEF FPC}
+  PropEdits,
+    {$ELSE}
+  DesignIntf,
+    {$ENDIF}
+  {$ENDIF}
+
   IdBlockCipherIntercept,
   IdChargenServer,
   IdChargenUDPServer,
@@ -323,7 +331,11 @@ uses
   IdVCard,
   IdWebDAV,
   IdWhois,
-  IdWhoIsServer;
+  IdWhoIsServer
+  {$IFDEF HAS_TSelectionEditor}
+  ,IdProtocolsSelectionEditors
+  {$ENDIF}
+  ;
 
 {$IFDEF DOTNET}
   {$R IconsDotNet\TIdBlockCipherIntercept.bmp}
@@ -787,7 +799,13 @@ begin
     TIdMessageDecoderYenc
    ]);
 
- {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF HAS_TSelectionEditor}
+  RegisterSelectionEditor(TIdTelnet, TIdGlobalSelectionEditor);
+  RegisterSelectionEditor(TIdWebDAV, TIdWebDAVSelectionEditor);
+  RegisterSelectionEditor(TIdWhoIsServer, TIdWhoIsServerSelectionEditor);
+  {$ENDIF}
 end;
 
 {$IFDEF FPC}

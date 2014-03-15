@@ -254,6 +254,8 @@ type
     function GetAddress(AIndex: Integer): TIdStackLocalAddress;
   public
     constructor Create; reintroduce;
+    function IndexOfIP(const AIP: String): Integer; overload;
+    function IndexOfIP(const AIP: String; AIPVersion: TIdIPVersion): Integer; overload;
     property Addresses[AIndex: Integer]: TIdStackLocalAddress read GetAddress; default;
   end;
 
@@ -372,13 +374,14 @@ type
       var VBuffer : TIdBytes; const AOffset : Integer; const AIP : String;
       const APort : TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     //
-    procedure AddLocalAddressesToList(AAddresses: TStrings); virtual; abstract;
+    procedure AddLocalAddressesToList(AAddresses: TStrings); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use GetLocalAddressList()'{$ENDIF};{$ENDIF}
+    procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); virtual; abstract;
     //
     // Properties
     //
     property HostName: string read ReadHostName;
-    property LocalAddress: string read GetLocalAddress;
-    property LocalAddresses: TStrings read GetLocalAddresses;
+    property LocalAddress: string read GetLocalAddress; // {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use GetLocalAddressList()'{$ENDIF};{$ENDIF}
+    property LocalAddresses: TStrings read GetLocalAddresses; // {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use GetLocalAddressList()'{$ENDIF};{$ENDIF}
   end;
 
   TIdStackClass = class of TIdStack;
@@ -523,6 +526,34 @@ begin
   Result := TIdStackLocalAddress(inherited Items[AIndex]);
 end;
 
+function TIdStackLocalAddressList.IndexOfIP(const AIP: String): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to Count-1 do begin
+    if Addresses[I].IPAddress = AIP then begin
+      Result := I;
+      Exit;
+    end;
+  end;
+end;
+
+function TIdStackLocalAddressList.IndexOfIP(const AIP: String; AIPVersion: TIdIPVersion): Integer;
+var
+  I: Integer;
+  LAddr: TIdStackLocalAddress;
+begin
+  Result := -1;
+  for I := 0 to Count-1 do begin
+    LAddr := Addresses[I];
+    if (LAddr.IPVersion = AIPVersion) and (LAddr.IPAddress = AIP) then begin
+      Result := I;
+      Exit;
+    end;
+  end;
+end;
+
 { TIdStack }
 
 constructor TIdStack.Create;
@@ -566,35 +597,85 @@ begin
   GetSocketName(ASocket, VIP, VPort, LIPVersion);
 end;
 
+procedure TIdStack.AddLocalAddressesToList(AAddresses: TStrings);
+var
+  LList: TIdStackLocalAddressList;
+  I: Integer;
+begin
+  LList := TIdStackLocalAddressList.Create;
+  try
+    // for backwards compatibility, return only IPv4 addresses
+    GetLocalAddressList(LList);
+    if LList.Count > 0 then begin
+      AAddresses.BeginUpdate;
+      try
+        for I := 0 to LList.Count-1 do begin
+          if LList[I].IPVersion = Id_IPv4 then begin
+            AAddresses.Add(LList[I].IPAddress);
+          end;
+        end;
+      finally
+        AAddresses.EndUpdate;
+      end;
+    end;
+  finally
+    LList.Free;
+  end;
+end;
+
 function TIdStack.GetLocalAddresses: TStrings;
+var
+  LList: TIdStackLocalAddressList;
+  I: Integer;
 begin
   if FLocalAddresses = nil then begin
     FLocalAddresses := TStringList.Create;
   end;
-  FLocalAddresses.Clear;
-  AddLocalAddressesToList(FLocalAddresses);
+  FLocalAddresses.BeginUpdate;
+  try
+    FLocalAddresses.Clear;
+    LList := TIdStackLocalAddressList.Create;
+    try
+      // for backwards compatibility, return only IPv4 addresses
+      GetLocalAddressList(LList);
+      for I := 0 to LList.Count-1 do begin
+        if LList[I].IPVersion = Id_IPv4 then begin
+          FLocalAddresses.Add(LList[I].IPAddress);
+        end;
+      end;
+    finally
+      LList.Free;
+    end;
+  finally
+    FLocalAddresses.EndUpdate;
+  end;
   Result := FLocalAddresses;
 end;
 
 function TIdStack.GetLocalAddress: string;
 var
-  LAddresses: TStringList;
+  LList: TIdStackLocalAddressList;
+  I: Integer;
 begin
-  // RLebeau: using a local TStringList, instead of the LocalAddresses
-  // property, so this method can be thread-safe...
+  // RLebeau: using a local list instead of the LocalAddresses
+  // property so this method can be thread-safe...
   //
   // old code:
   // Result := LocalAddresses[0];
 
   Result := '';
-  LAddresses := TStringList.Create;
+  LList := TIdStackLocalAddressList.Create;
   try
-    AddLocalAddressesToList(LAddresses);
-    if LAddresses.Count > 0 then begin
-      Result := LAddresses[0];
+    // for backwards compatibility, return only IPv4 addresses
+    GetLocalAddressList(LList);
+    for I := 0 to LList.Count-1 do begin
+      if LList[I].IPVersion = Id_IPv4 then begin
+        Result := LList[I].IPAddress;
+        Exit;
+      end;
     end;
   finally
-    LAddresses.Free;
+    LList.Free;
   end;
 end;
 

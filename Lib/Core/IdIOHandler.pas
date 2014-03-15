@@ -1545,6 +1545,14 @@ begin
         if LByteCount < 0 then
         begin
           LLastError := CheckForError(LByteCount);
+          if LLastError = Id_WSAETIMEDOUT then begin
+            // Timeout
+            if ARaiseExceptionOnTimeout then begin
+              EIdReadTimeout.Toss(RSReadTimeout);
+            end;
+            Result := -1;
+            Break;
+          end;
           FClosedGracefully := True;
           Close;
           // Do not raise unless all data has been read by the user
@@ -1906,8 +1914,8 @@ begin
     try
       repeat
         LSize := iif(AByteCount < MaxInt, Integer(AByteCount), MaxInt);
-        if not InputBufferIsEmpty then begin
-          LSize := IndyMin(LSize, FInputBuffer.Size);
+        LSize := IndyMin(LSize, FInputBuffer.Size);
+        if LSize > 0 then begin
           FInputBuffer.Remove(LSize);
           Dec(AByteCount, LSize);
           if AByteCount < 1 then begin
@@ -2472,8 +2480,10 @@ begin
     if LByteCount < 0 then
     begin
       LLastError := CheckForError(LByteCount);
-      FClosedGracefully := True;
-      Close;
+      if LLastError <> Id_WSAETIMEDOUT then begin
+        FClosedGracefully := True;
+        Close;
+      end;
       RaiseError(LLastError);
     end;
     // TODO - Have a AntiFreeze param which allows the send to be split up so that process

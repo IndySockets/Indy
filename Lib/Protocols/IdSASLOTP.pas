@@ -51,6 +51,7 @@ type
     procedure InitComponent; override;
   public
     class function ServiceName: TIdSASLServiceName; override;
+    function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
@@ -76,6 +77,13 @@ end;
 class function TIdSASLOTP.ServiceName: TIdSASLServiceName;
 begin
   Result := 'OTP'; {Do not translate}
+end;
+
+function TIdSASLOTP.TryStartAuthenticate(const AHost, AProtocolName : string;
+  var VInitialResponse: String): Boolean;
+begin
+  VInitialResponse := GetUsername;
+  Result := True;
 end;
 
 function TIdSASLOTP.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): String;

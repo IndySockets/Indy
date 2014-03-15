@@ -152,7 +152,7 @@ uses
 
 procedure TIdIPWatch.AddToIPHistoryList(Value: string);
 begin
-  if (Value = '') or (Value = '127.0.0.1') then    {Do not Localize}
+  if (Value = '') or (Value = '127.0.0.1') or (Value = '::1') then    {Do not Localize}
   begin
     Exit;
   end;
@@ -186,11 +186,11 @@ begin
     WasOnLine := FIsOnline;
     OldIP := FCurrentIP;
     FCurrentIP := LocalIP;
-    FIsOnline := (FCurrentIP <> '127.0.0.1') and (FCurrentIP <> '');    {Do not Localize}
+    FIsOnline := (FCurrentIP <> '127.0.0.1') and (FCurrentIP <> '::1') and (FCurrentIP <> '');    {Do not Localize}
 
     if (WasOnline) and (not FIsOnline) then
     begin
-      if (OldIP <> '127.0.0.1') and (OldIP <> '') then    {Do not Localize}
+      if (OldIP <> '127.0.0.1') and (OldIP <> '::1') and (OldIP <> '') then    {Do not Localize}
       begin
         FPreviousIP := OldIP;
       end;
@@ -298,6 +298,9 @@ function TIdIPWatch.LocalIP: string;
 begin
   FLocalIpHuntBusy := True;
   try
+    // TODO: use GStack.GetLocalAddressList() instead, as
+    // GStack.LocalAddress only supports IPv4 addresses
+    // at this time... 
     Result := GStack.LocalAddress;
   finally
     FLocalIPHuntBusy := False;

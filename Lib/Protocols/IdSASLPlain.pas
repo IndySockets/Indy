@@ -45,6 +45,7 @@ type
   public
     function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
+    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: String): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : string) : String; override;
   published
     property LoginAs : String read FLoginAs write FLoginAs;
@@ -67,7 +68,8 @@ begin
   Result := 'PLAIN';  {Do not translate}
 end;
 
-function TIdSASLPlain.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): String;
+function TIdSASLPlain.TryStartAuthenticate(const AHost, AProtocolName : string;
+  var VInitialResponse: String): Boolean;
 var
   LUser, LUserAs: string;
 begin
@@ -76,7 +78,13 @@ begin
   if LUser = '' then begin
     LUser := LUserAs;
   end;
-  Result := LUserAs+#0+LUser+#0+GetPassword;  {Do not translate}
+  VInitialResponse := LUserAs+#0+LUser+#0+GetPassword;  {Do not translate}
+  Result := True;
+end;
+
+function TIdSASLPlain.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): String;
+begin
+  TryStartAuthenticate(AHost, AProtocolName, Result);
 end;
 
 end.

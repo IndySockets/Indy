@@ -538,7 +538,7 @@ type
   function FindFirstOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
   function FindFirstNotOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
   function TrimAllOf(const ATrim, AText: string): string;
-  procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings);
+  procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings; var VCharSet: string);
 
 type
   TIdEncodingNeededEvent = function(const ACharset: String): IIdTextEncoding;
@@ -3746,7 +3746,7 @@ begin
     LWord := ParseWord(AStr, VPos, ALen);
   end;
   DiscardUntilEndOfTag(AStr, VPos, ALen);
-  Result := 'Content-Type: text/html; charset="' + LWord + '"'; {do not localize}
+  Result := LWord;
 end;
 
 procedure DiscardToEndOfComment(const AStr : String; var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
@@ -3822,7 +3822,7 @@ begin
   end;
 end;
 
-procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings);
+procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings; var VCharSet: string);
 type
   TIdHTMLMode = (none, html, title, head, body, comment);
 var
@@ -3833,6 +3833,7 @@ var
   LLen : Integer;
   LEncoding: IIdTextEncoding;
 begin
+  VCharSet :=  '';
 //  AStr.Clear;
   AStream.Position := 0;
   LEncoding := IndyTextEncoding_8Bit;
@@ -3919,7 +3920,7 @@ begin
                     if LPos > LLen then begin
                       Break;
                     end;
-                    AStr.Add( ParseMetaCharsetData(LRawData, LPos, LLen) );
+                    VCharset := ParseMetaCharsetData(LRawData, LPos, LLen);
                   end;
                 end;
               else

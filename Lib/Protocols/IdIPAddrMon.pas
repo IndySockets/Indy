@@ -117,6 +117,7 @@ type
     FInterval: Cardinal;
     FAdapterCount: Integer;
     FThread: TIdIPAddrMonThread;
+    // TODO: replace these with TIdStackLocalAddressList
     FIPAddresses: TStrings;
     FPreviousIPAddresses: TStrings;
     FOnStatusChanged: TIdIPAddrMonEvent;
@@ -171,6 +172,7 @@ begin
   FBusy := False;
   FAdapterCount := 0;
 
+  // TODO: replace these with TIdStackLocalAddressList
   FIPAddresses := TStringList.Create;
   FPreviousIPAddresses := TStringList.Create;
 
@@ -212,11 +214,33 @@ begin
     try
       GetAdapterAddresses;
 
-      // something changed at runtime
-      if (not IsDesignTime) and
-        ((FPreviousIPAddresses.Count <> FIPAddresses.Count) or
-          (FPreviousIPAddresses.Text <> FIPAddresses.Text)) then
+      if IsDesignTime then begin
+        Exit;
+      end;
+
+      // TODO: replace with TIdStackLocalAddressList
+      {
+      LChanged := FPreviousIPAddresses.Count <> FIPAddresses.Count;
+      if not LChanged then
       begin
+        for I := 0 to FIPAddresses.Count-1 do begin
+          LChanged := FPreviousIPAddresses[I].IPAddress.Count <> FIPAddresses[I].IPAddress;
+          if LChanged then begin
+            Break;
+          end;
+        end;
+      end;
+
+      if LChanged then begin
+        // something changed at runtime
+        DoStatusChanged;
+      end;
+      }
+
+      if (FPreviousIPAddresses.Count <> FIPAddresses.Count) or
+         (FPreviousIPAddresses.Text <> FIPAddresses.Text) then
+      begin
+        // something changed at runtime
         DoStatusChanged;
       end;
     except
@@ -252,6 +276,16 @@ begin
 
     for iAdapter := 0 to iNewCount - 1 do
     begin
+      // TODO: replace with TIdStackLocalAddressList
+      {
+      sNewIP := FIPAddresses[iAdapter].IPAddress;
+
+      if FPreviousIPAddresses.IndexOfIP(sNewIP, FIPAddresses[iAdapter].IPVersion) = -1 then
+      begin
+        FOnStatusChanged(Self, iAdapter, sOldIP, sNewIP);
+      end;
+      }
+
       sNewIP := FIPAddresses[iAdapter];
 
       if FPreviousIPAddresses.IndexOf(sNewIP) = -1 then
@@ -268,6 +302,16 @@ begin
 
     for iAdapter := 0 to iOldCount - 1 do
     begin
+      // TODO: replace with TIdStackLocalAddressList
+      {
+      sOldIP := FPreviousIPAddresses[iAdapter].IPAddress;
+
+      if FIPAddresses.IndexOfIP(sOldIP, FPreviousIPAddresses[iAdapter].IPVersion) = -1 then
+      begin
+        FOnStatusChanged(Self, iAdapter, sOldIP, sNewIP);
+      end;
+      }
+
       sOldIP := FPreviousIPAddresses[iAdapter];
 
       if FIPAddresses.IndexOf(sOldIP) = -1 then
@@ -282,6 +326,18 @@ begin
   begin
     for iAdapter := 0 to AdapterCount - 1 do
     begin
+      // TODO: replace with TIdStackLocalAddressList
+      {
+      sOldIP := FPreviousIPAddresses[iAdapter].IPAddress;
+      sNewIP := FIPAddresses[iAdapter].IPAddress;
+
+      if (FPreviousIPAddresses[iAdapter].IPVersion <> FIPAddresses[iAdapter].IPVersion) or
+         (sOldIP <> sNewIP) then
+      begin
+        FOnStatusChanged(Self, iAdapter, sOldIP, sNewIP);
+      end;
+      }
+
       sOldIP := FPreviousIPAddresses[iAdapter];
       sNewIP := FIPAddresses[iAdapter];
 
@@ -371,14 +427,28 @@ begin
 end;
 
 procedure TIdIPAddrMon.GetAdapterAddresses;
+var
+  LAddresses: TIdStackLocalAddressList;
+  I: Integer;
 begin
   {
     Doesn't keep a permanent history list like TIdIPWatch...
     but does track previous IP addresses to detect changes.
   }
-  FPreviousIPAddresses.Text := FIPAddresses.Text;
+
+  FPreviousIPAddresses.Assign(FIPAddresses);
   FIPAddresses.Clear;
-  GStack.AddLocalAddressesToList(FIPAddresses);
+
+  LAddresses := TIdStackLocalAddressList.Create;
+  try
+    GStack.GetLocalAddressList(LAddresses);
+    for I := 0 to LAddresses.Count do begin
+      FIPAddresses.Add(LAddresses[I].IPAddress);
+    end;
+  finally
+    LAddresses.Free;
+  end;
+
   FAdapterCount := FIPAddresses.Count;
 end;
 

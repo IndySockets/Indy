@@ -322,6 +322,19 @@ begin
       end;
     satDefault:
       begin
+        {
+        RLebeau: TODO - implement the following code in the future
+        instead of the code below.  This way, TIdSASLLogin can be utilized.
+
+        SASLMechanisms.LoginSASL('AUTH', 'LOGIN', ['235'], ['334'], Self, Capabilities);
+        FDidAuthenticate := True;
+
+        Or better, if the SASLMechanisms is empty, put some default entries
+        in it, including TIdSASLLogin, and then reset the AuthType to satSASL.
+        Maybe even do that in SetAuthType/Loaded() instead.  That way, everything
+        goes through SASLMechanisms only...
+        }
+
         if Username <> '' then begin
           if FValidateAuthLoginCapability then begin
             s := TStringList.Create;
@@ -347,13 +360,6 @@ begin
           end;
           FDidAuthenticate := True;
         end;
-{
-        RLebeau: TODO - implement the following code in the future
-        instead of the code above.  This way, TIdSASLLogin can be utilized.
-
-        SASLMechanisms.LoginSASL('AUTH', 'LOGIN', ['235'], ['334'], Self, Capabilities);
-        FDidAuthenticate := True;
-}
       end;
     satSASL:
       begin

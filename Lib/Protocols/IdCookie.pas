@@ -607,6 +607,9 @@ const
   function GetLastValueOf(const CookieProp: TStringList; const AName: String; var VValue: String): Boolean;
   var
     I: Integer;
+    {$IFNDEF HAS_TStrings_ValueFromIndex}
+    LTmp: String;
+    {$ENDIF}
   begin
     Result := False;
     for I := CookieProp.Count-1 downto 0 do
@@ -616,7 +619,8 @@ const
         {$IFDEF HAS_TStrings_ValueFromIndex}
         VValue := CookieProp.ValueFromIndex[I];
         {$ELSE}
-        VValue := Copy(CookieProp[I], Pos('=', CookieProp[I])+1, MaxInt); {Do not Localize}
+        LTmp := CookieProp[I];
+        VValue := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {Do not Localize}
         {$ENDIF}
         Result := True;
         Exit;
@@ -823,6 +827,9 @@ end;
 function TIdCookie.ParseClientCookie(const ACookieText: String): Boolean;
 var
   CookieProp: TStringList;
+  {$IFNDEF HAS_TStrings_ValueFromIndex}
+  S: String;
+  {$ENDIF}
 
   procedure SplitCookieText;
   var
@@ -874,7 +881,8 @@ begin
     {$IFDEF HAS_TStrings_ValueFromIndex}
     FValue := CookieProp.ValueFromIndex[0];
     {$ELSE}
-    FValue := Copy(CookieProp[0], Pos('=', CookieProp[0])+1, MaxInt);
+    S := CookieProp[0];
+    FValue := Copy(S, Pos('=', S)+1, MaxInt);
     {$ENDIF}
 
     Result := True;

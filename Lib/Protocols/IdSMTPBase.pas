@@ -345,9 +345,8 @@ begin
       end;
       raise;
     end;
-
-    //RSET
     {
+    //RSET
     if PosInSmallIntArray(GetResponse, RSET_ACCEPT) = -1 then begin
       LError := SetupErrorReply;
     end;

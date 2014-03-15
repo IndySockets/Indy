@@ -46,6 +46,7 @@ type
   public
     class function ServiceName: TIdSASLServiceName; override;
 
+    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: String): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : string) : String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
@@ -56,6 +57,13 @@ uses
   IdUserPassProvider, IdBaseComponent;
 
 { TIdSASLLogin }
+
+function TIdSASLLogin.TryStartAuthenticate(const AHost, AProtocolName: string;
+  var VInitialResponse: String): Boolean;
+begin
+  VInitialResponse := GetUsername;
+  Result := True;
+end;
 
 function TIdSASLLogin.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
 begin

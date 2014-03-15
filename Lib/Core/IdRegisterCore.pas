@@ -301,6 +301,7 @@ begin
    TIdThreadComponent
   ]);
   {$ENDIF}
+
   {$IFDEF HAS_TSelectionEditor}
   RegisterSelectionEditor(TIdTCPServer, TIdContextSelectionEditor);
   RegisterSelectionEditor(TIdCmdTCPClient, TIdContextSelectionEditor);

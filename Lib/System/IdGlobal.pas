@@ -7189,7 +7189,11 @@ begin
     Result := AByteEncoding.GetString(AValue, AStartIndex, LLength);
     {$ELSE}
     EnsureEncoding(ADestEncoding);
-    LBytes := Copy(AValue, AStartIndex, LLength);
+    if (AStartIndex = 0) and (LLength = Length(AValue)) then begin
+      LBytes := AValue;
+    end else begin
+      LBytes := Copy(AValue, AStartIndex, LLength);
+    end;
     CheckByteEncoding(LBytes, AByteEncoding, ADestEncoding);
     SetString(Result, PAnsiChar(LBytes), Length(LBytes));
     {$ENDIF}
