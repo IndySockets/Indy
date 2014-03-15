@@ -3766,7 +3766,7 @@ begin
       try
         FData := FinalResult;
 
-        FServer.DoAfterSendBack(ABinding, DNSHeader_Processing, Answer, RString, ExternalQuery);
+        FServer.DoAfterSendBack(ABinding, DNSHeader_Processing, FinalResult, RString, ExternalQuery);
 
         if (FServer.CacheUnknowZone) and
           (RString <> cRCodeQueryCacheFindError) and
