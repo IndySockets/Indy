@@ -264,7 +264,7 @@ type
     procedure WriteChecksum(s : TIdStackSocketHandle; var VBuffer : TIdBytes;
       const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    procedure AddLocalAddressesToList(AAddresses: TStrings); override;
+    procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
     procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
       const AEnabled: Boolean; const ATimeMS, AInterval: Integer); override;
   end;
@@ -1029,7 +1029,7 @@ begin
   {$ENDIF}
 end;
 
-procedure TIdStackDotNet.AddLocalAddressesToList(AAddresses: TStrings);
+procedure TIdStackDotNet.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 var
   {$IFDEF DOTNET_1_1}
   LAddr : IPAddress;
@@ -1039,7 +1039,6 @@ var
   LIPAddress: IPAddress;
   i : Integer;
 begin
-  // TODO: support IPv6 addresses
   {$IFDEF DOTNET_2_OR_ABOVE}
   // TODO: use NetworkInterface.GetAllNetworkInterfaces() instead.
   // See this article for an example:
@@ -1059,8 +1058,13 @@ begin
       begin
         LIPAddress := LIPAddresses[i];
         //This may be returning various types of addresses.
-        if LIPAddress.AddressFamily = AddressFamily.InterNetwork then begin
-          AAddresses.Add(LIPAddress.ToString);
+        case LIPAddress.AddressFamily of
+          AddressFamily.InterNetwork: begin
+            TIdStackLocalAddressIPv4.Create(AAddresses, LIPAddress.ToString, ''); // TODO: SubNet
+          end;
+          AddressFamily.InterNetworkV6: begin
+            TIdStackLocalAddressIPv6.Create(AAddresses, LIPAddress.ToString);
+          end;
         end;
       end;
     finally

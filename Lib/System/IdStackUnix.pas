@@ -204,7 +204,7 @@ type
     function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
       var arg: LongWord): Integer; override;
 
-    procedure AddLocalAddressesToList(AAddresses: TStrings); override;
+    procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
   end;
 
   {$IFNDEF NO_REDECLARE}
@@ -773,9 +773,10 @@ begin
   Result := LParts.QuadPart;
 end;
 
-procedure TIdStackUnix.AddLocalAddressesToList(AAddresses: TStrings);
+procedure TIdStackUnix.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 var
-  LI : array of THostAddr;
+  LI4 : array of THostAddr;
+  LI6 : array of THostAddr6;
   i : Integer;
   LHostName : String;
 begin
@@ -783,19 +784,24 @@ begin
   if LHostName = '' then begin
     RaiseLastSocketError;
   end;
-  // TODO: support IPv6 addresses via ResolveName6()...
-  if ResolveName(LHostName, LI) = 0 then
-  begin
-    AAddresses.BeginUpdate;
-    try
-      for i := Low(LI) to High(LI) do
+  AAddresses.BeginUpdate;
+  try
+    if ResolveName(LHostName, LI4) = 0 then
+    begin
+      for i := Low(LI4) to High(LI4) do
       begin
-        //byte order conversion was done by resolveName
-        AAddresses.Add(HostAddrToStr(LI[i]));
+        TIdStackLocalAddressIPv4.Create(AAddresses, NetAddrToStr(LI4[i]), ''); // TODO: SubNet
       end;
-    finally
-      AAddresses.EndUpdate;
     end;
+    if ResolveName6(LHostName, LI6) = 0 then
+    begin
+      for i := Low(LI6) to High(LI6) do
+      begin
+        TIdStackLocalAddressIPv6.Create(AAddresses, NetAddrToStr6(LI6[i]));
+      end;
+    end;
+  finally
+    AAddresses.EndUpdate;
   end;
 end;
 

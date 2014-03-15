@@ -1186,6 +1186,8 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
 type
   TaPInAddr = array[0..250] of PInAddr;
   PaPInAddr = ^TaPInAddr;
+  TaPIn6Addr = array[0..250] of PIn6Addr;
+  PaPIn6Addr = ^TaPIn6Addr;
   {$ENDIF}
 {$ENDIF}
 
@@ -1529,7 +1531,7 @@ begin
   LHostName := HostName;
 
   ZeroMemory(@Hints, SIZE_TADDRINFO);
-  Hints.ai_family := Id_PF_INET4; // TODO: support IPv6 addresses
+  Hints.ai_family := Id_PF_UNSPEC; // returns both IPv4 and IPv6 addresses
   Hints.ai_socktype := SOCK_STREAM;
   LAddrList := nil;
 
@@ -1548,11 +1550,14 @@ begin
     try
       LAddrInfo := LAddrList;
       repeat
-        TIdStackLocalAddressIPv4.Create(
-          AAddresses,
-          TranslateTInAddrToString(LAddrInfo^.ai_addr^.sin_addr, Id_IPv4), //BGO FIX
-          '' // TODO
-        );
+        case LAddrInfo^.ai_addr^.sa_family of
+          Id_AF_INET: begin
+            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4), ''); // TODO: SubNet
+          end;
+          Id_AF_INET6: begin
+            TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6));
+          end;
+        end;
         LAddrInfo := LAddrInfo^.ai_next;
       until LAddrInfo = nil;
     finally

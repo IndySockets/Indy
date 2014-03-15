@@ -185,7 +185,7 @@ type
     function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
       var arg: LongWord): Integer; override;
 
-    procedure AddLocalAddressesToList(AAddresses: TStrings); override;
+    procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
   end;
 
   TLinger = record
@@ -773,15 +773,18 @@ begin
   Result := LParts.QuadPart;
 end;
 
-procedure TIdStackLinux.AddLocalAddressesToList(AAddresses: TStrings);
+procedure TIdStackLinux.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 {$IFNDEF HAS_getifaddrs}
 type
   TaPInAddr = array[0..250] of PInAddr;
   PaPInAddr = ^TaPInAddr;
+  TaPIn6Addr = array[0..250] of PIn6Addr;
+  PaPIn6Addr = ^TaPIn6Addr;
 {$ENDIF}
 var
   {$IFDEF HAS_getifaddrs}
   LAddrList, LAddrInfo: pifaddrs;
+  LSubNetStr: string;
   {$ELSE}
   Li: Integer;
   LAHost: PHostEnt;
@@ -810,10 +813,15 @@ begin
         begin
           case LAddrInfo^.ifa_addr^.sa_family of
             Id_PF_INET4: begin
-              AAddresses.Add(TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4));
+              if LAddrInfo^.ifa_netmask <> nil then begin
+                LSubNetStr := TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_netmask)^.sin_addr, Id_IPv4);
+              end else begin
+                LSubNetStr := '';
+              end;
+              TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
             end;
             Id_PF_INET6: begin
-              AAddresses.Add(TranslateTInAddrToString(PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+              TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
             end;
           end;
         end;
@@ -840,20 +848,35 @@ begin
   // gethostbyname() might return other things besides IPv4 addresses, so we
   // need to validate the address type before attempting the conversion...
 
-  // TODO: support IPv6 addresses
-  if LAHost^.h_addrtype = Id_PF_INET4 then
-  begin
-    LPAdrPtr := PAPInAddr(LAHost^.h_addr_list);
-    Li := 0;
-    if LPAdrPtr^[Li] <> nil then begin
-      AAddresses.BeginUpdate;
-      try
-        repeat
-          AAddresses.Add(TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4));
-          Inc(Li);
-        until LPAdrPtr^[Li] = nil;
-      finally
-        AAddresses.EndUpdate;
+  case LAHost^.h_addrtype of
+    Id_PF_INET4: begin
+      LPAdrPtr := PAPInAddr(LAHost^.h_addr_list);
+      Li := 0;
+      if LPAdrPtr^[Li] <> nil then begin
+        AAddresses.BeginUpdate;
+        try
+          repeat
+            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4), ''); // TODO: SubNet
+            Inc(Li);
+          until LPAdrPtr^[Li] = nil;
+        finally
+          AAddresses.EndUpdate;
+        end;
+      end;
+    end;
+    Id_PF_INET6: begin
+      LPAdr6Ptr := PAPIn6Addr(LAHost^.h_addr_list);
+      Li := 0;
+      if LPAdr6Ptr^[Li] <> nil then begin
+        AAddresses.BeginUpdate;
+        try
+          repeat
+            TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(LPAdr6Ptr^[Li]^, Id_IPv6));
+            Inc(Li);
+          until LPAdr6Ptr^[Li] = nil;
+        finally
+          AAddresses.EndUpdate;
+        end;
       end;
     end;
   end;

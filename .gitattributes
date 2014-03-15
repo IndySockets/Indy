@@ -1095,6 +1095,7 @@ Lib/Fullc_XE2.bat -text
 Lib/Fullc_XE3.bat -text
 Lib/Fullc_XE4.bat -text
 Lib/Fullc_XE5.bat -text
+Lib/Fullc_XE6.bat -text
 Lib/Fulld_2005.bat eol=crlf
 Lib/Fulld_2006.bat eol=crlf
 Lib/Fulld_2007.bat -text
@@ -1112,6 +1113,7 @@ Lib/Indy160.groupproj -text
 Lib/Indy170.groupproj -text
 Lib/Indy180.groupproj -text
 Lib/Indy190.groupproj -text
+Lib/Indy200.groupproj -text
 Lib/Indy90Net.dpk -text
 Lib/Protocols/DelphiZLib.lib -text svneol=unset#unset
 Lib/Protocols/IconsDotNet/TIdBlockCipherIntercept.bmp -text svneol=unset#unset

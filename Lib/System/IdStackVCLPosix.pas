@@ -137,7 +137,7 @@ type
     function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
       var arg: LongWord): Integer; override;
 
-    procedure AddLocalAddressesToList(AAddresses: TStrings); override;
+    procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
   end;
 
 implementation
@@ -460,10 +460,10 @@ begin
   LN := SizeOf(LAddrStore);
   Result := Posix.SysSocket.accept(ASocket, LAddr, LN);
   if Result <> -1 then begin
-    case LAddr.sa_family of
+    case LAddrStore.ss_family of
       Id_PF_INET4: begin
         VIP := TranslateTInAddrToString( LAddrIPv4.sin_addr, Id_IPv4);
-        VPort := Ntohs(LAddrIPv4.sin_port);
+        VPort := ntohs(LAddrIPv4.sin_port);
         VIPVersion := Id_IPV4;
       end;
       Id_PF_INET6: begin
@@ -494,10 +494,11 @@ procedure freeifaddrs(ifap: pifaddrs); cdecl; external libc name _PU + 'freeifad
   {$ENDIF}
 {$ENDIF}
 
-procedure TIdStackVCLPosix.AddLocalAddressesToList(AAddresses: TStrings);
+procedure TIdStackVCLPosix.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 var
   {$IFDEF HAS_getifaddrs}
   LAddrList, LAddrInfo: pifaddrs;
+  LSubNetStr: String;
   {$ELSE}
   LRetVal: Integer;
   LHostName: string;
@@ -528,10 +529,15 @@ begin
         begin
           case LAddrInfo^.ifa_addr^.sa_family of
             Id_PF_INET4: begin
-              AAddresses.Add(TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4));
+              if LAddrInfo^.ifa_netmask <> nil then begin
+                LSubNetStr := TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_netmask)^.sin_addr, Id_IPv4);
+              end else begin
+                LSubNetStr := '';
+              end;
+              TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
             end;
             Id_PF_INET6: begin
-              AAddresses.Add(TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+              TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
             end;
           end;
         end;
@@ -584,11 +590,11 @@ begin
         case LAddrInfo^.ai_addr^.sa_family of
         Id_PF_INET4 :
           begin
-            AAddresses.Add(TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4));
+            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4), ''); // TODO: SubNet
           end;
         Id_PF_INET6 :
           begin
-            AAddresses.Add(TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6));
+            TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6));
           end;
         end;
         LAddrInfo := LAddrInfo^.ai_next;
@@ -618,7 +624,7 @@ begin
           TranslateStringToTInAddr(AIP, LAddrIPv4.sin_addr, Id_IPv4);
         end;
         LAddrIPv4.sin_port := htons(APort);
-        CheckForSocketError(Posix.SysSocket.bind(ASocket, LAddr,SizeOf(LAddrIPv4)));
+        CheckForSocketError(Posix.SysSocket.bind(ASocket, LAddr, SizeOf(LAddrIPv4)));
       end;
     Id_IPv6: begin
         InitSockAddr_in6(LAddrIPv6);
@@ -660,15 +666,13 @@ begin
       InitSockAddr_In(LAddrIPv4);
       TranslateStringToTInAddr(AIP, LAddrIPv4.sin_addr, Id_IPv4);
       LAddrIPv4.sin_port := htons(APort);
-      CheckForSocketError(Posix.SysSocket.connect(
-        ASocket,LAddr,SizeOf(LAddrIPv4)));
+      CheckForSocketError(Posix.SysSocket.connect(ASocket, LAddr, SizeOf(LAddrIPv4)));
     end;
     Id_IPv6: begin
       InitSockAddr_in6(LAddrIPv6);
       TranslateStringToTInAddr(AIP, LAddrIPv6.sin6_addr, Id_IPv6);
       LAddrIPv6.sin6_port := htons(APort);
-      CheckForSocketError(
-        Posix.SysSocket.connect( ASocket, LAddr, SizeOf(LAddrIPv6) ));
+      CheckForSocketError(Posix.SysSocket.connect(ASocket, LAddr, SizeOf(LAddrIPv6)));
     end;
     else begin
       IPVersionUnsupported;
@@ -711,7 +715,7 @@ var
 begin
   i := SizeOf(LAddrStore);
   CheckForSocketError(Posix.SysSocket.getpeername(ASocket, LAddr, i));
-  case LAddr.sa_family of
+  case LAddrStore.ss_family of
     Id_PF_INET4: begin
       VIP := TranslateTInAddrToString(LAddrIPv4.sin_addr, Id_IPv4);
       VPort := ntohs(LAddrIPv4.sin_port);
@@ -719,14 +723,13 @@ begin
     end;
     Id_PF_INET6: begin
       VIP := TranslateTInAddrToString(LAddrIPv6.sin6_addr, Id_IPv6);
-      VPort := Ntohs(LAddrIPv6.sin6_port);
+      VPort := ntohs(LAddrIPv6.sin6_port);
       VIPVersion := Id_IPV6;
     end;
     else begin
       IPVersionUnsupported;
     end;
   end;
-
 end;
 
 procedure TIdStackVCLPosix.GetSocketName(ASocket: TIdStackSocketHandle;
@@ -739,8 +742,8 @@ var
   LAddr : sockaddr absolute LAddrStore;
 begin
   LiSize := SizeOf(LAddrStore);
-  CheckForSocketError(getsockname(ASocket, psockaddr(@LAddr)^, LiSize));
-  case LAddr.sa_family of
+  CheckForSocketError(getsockname(ASocket, LAddr, LiSize));
+  case LAddrStore.ss_family of
     Id_PF_INET4: begin
       VIP := TranslateTInAddrToString(LAddrIPv4.sin_addr, Id_IPv4);
       VPort := ntohs(LAddrIPv4.sin_port);
@@ -813,15 +816,15 @@ IMPORTANT!!!
 
 getnameinfo can return either results from a numeric to text conversion or
 results from a DNS reverse lookup.  Someone could make a malicous PTR record
-such as 
+such as
 
    1.0.0.127.in-addr.arpa. IN PTR  10.1.1.1
-   
+
 and trick a caller into beleiving the socket address is 10.1.1.1 instead of
 127.0.0.1.  If there is a numeric host in LAddr, than this is the case and
 we disregard the result and raise an exception.
 }
-  FillChar(LHints,SizeOf(LHints),0);
+  FillChar(LHints, SizeOf(LHints), 0);
   LHints.ai_socktype := SOCK_DGRAM; //*dummy*/
   LHints.ai_flags := AI_NUMERICHOST;
   if getaddrinfo(
@@ -1019,10 +1022,10 @@ begin
   LMsg.msg_namelen := SizeOf(LAddrStore);
 
   Result := 0;
-  CheckForSocketError(RecvMsg(ASocket, LMsg, Result ));
+  CheckForSocketError(RecvMsg(ASocket, LMsg, Result));
   APkt.Reset;
 
-  case LAddr.sa_family of
+  case LAddrStore.ss_family of
     Id_PF_INET4: begin
       APkt.SourceIP := TranslateTInAddrToString(LAddrIPv4.sin_addr, Id_IPv4);
       APkt.SourcePort := ntohs(LAddrIPv4.sin_port);
@@ -1041,14 +1044,14 @@ begin
 
   LCurCmsg := nil;
   repeat
-    LCurCmsg := CMSG_NXTHDR(@LMsg,LCurCmsg);
-    if LCurCmsg=nil then begin
+    LCurCmsg := CMSG_NXTHDR(@LMsg, LCurCmsg);
+    if LCurCmsg = nil then begin
       break;
     end;
     case LCurCmsg^.cmsg_type of
-      IPV6_PKTINFO :     //done this way because IPV6_PKTINF and  IP_PKTINFO are both 19
+      IPV6_PKTINFO :     //done this way because IPV6_PKTINF and IP_PKTINFO are both 19
       begin
-        case LAddr.sa_family of
+        case LAddrStore.ss_family of
           Id_PF_INET4: begin
             {$IFDEF IOS}
             ToDo('PKTINFO not implemented for IPv4 under iOS yet');
@@ -1092,14 +1095,14 @@ var
   LAddr : sockaddr absolute LAddrStore;
 
 begin
-  LiSize := SizeOf(sockaddr_storage);
-  Result := Posix.SysSocket.recvfrom(ASocket,VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, psockaddr(@LAddr)^, LiSize);
+  LiSize := SizeOf(LAddrStore);
+  Result := Posix.SysSocket.recvfrom(ASocket,VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, LAddr, LiSize);
   if Result >= 0 then
   begin
-    case LAddr.sa_family of
+    case LAddrStore.ss_family of
       Id_PF_INET4: begin
         VIP := TranslateTInAddrToString(LAddrIPv4.sin_addr, Id_IPv4);
-        VPort := Ntohs(LAddrIPv4.sin_port);
+        VPort := ntohs(LAddrIPv4.sin_port);
         VIPVersion := Id_IPV4;
       end;
       Id_PF_INET6: begin
@@ -1260,7 +1263,6 @@ function TIdStackVCLPosix.WSRecv(ASocket: TIdStackSocketHandle; var ABuffer;
 begin
   //IdStackWindows is just: Result := Recv(ASocket, ABuffer, ABufferLength, AFlags);
   Result := Posix.SysSocket.Recv(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL);
-
 end;
 
 function TIdStackVCLPosix.WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
@@ -1269,7 +1271,6 @@ begin
   //CC: Should Id_MSG_NOSIGNAL be included?
   //  Result := Send(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL);
   Result := CheckForSocketError(Posix.SysSocket.send(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL));
-
 end;
 
 procedure TIdStackVCLPosix.WSSendTo(ASocket: TIdStackSocketHandle;
@@ -1295,12 +1296,12 @@ begin
       LAddrIPv6.sin6_port := htons(APort);
       LiSize := SizeOf(LAddrIPv6);
     end;
- else
-   LiSize := 0; // avoid warning
-   IPVersionUnsupported;
- end;
+  else
+    LiSize := 0; // avoid warning
+    IPVersionUnsupported;
+  end;
   LiSize := Posix.SysSocket.sendto(
-    ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, LAddr,LiSize);
+    ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, LAddr, LiSize);
   if LiSize = Id_SOCKET_ERROR then begin
     // TODO: move this into RaiseLastSocketError directly
     if WSGetLastError() = Id_WSAEMSGSIZE then begin
