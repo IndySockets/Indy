@@ -1455,6 +1455,7 @@ Lib/Protocols/IdPOP3.pas -text
 Lib/Protocols/IdPOP3Server.pas -text
 Lib/Protocols/IdPOP4Server.pas -text
 Lib/Protocols/IdProtocols90ASM90.inc -text
+Lib/Protocols/IdProtocolsSelectionEditors.pas -text
 Lib/Protocols/IdQOTDUDP.pas -text
 Lib/Protocols/IdQOTDUDPServer.pas -text
 Lib/Protocols/IdQotd.pas -text
