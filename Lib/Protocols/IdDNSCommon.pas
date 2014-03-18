@@ -733,16 +733,11 @@ end;
 
 function IPv6AAAAToDNSStr(const AIPv6Address : String): TIdBytes;
 var
-  LAddr : string;
-  TempAddr : TIdBytes;
+  LAddr : TIdIPv6Address;
 begin
-  LAddr := AIPv6Address;
-  SetLength(TempAddr, 0);
-  repeat
-    AppendString(TempAddr, Fetch(LAddr, ':')); {do not localize}
-  until LAddr = '';                   {do not localize}
+  IPv6ToIdIPv6Address(AIPv6Address, LAddr);
   SetLength(Result, 16);
-  IdHexToBin(TempAddr, Result, 16);
+  CopyTIdIPV6Address(LAddr, Result, 0);
 end;
 
 function IsValidIPv6(const v6Address : String): boolean;
@@ -1633,7 +1628,7 @@ begin
   Tmp := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
     Pref := IndyStrToInt(Preference);
-    RRData := ToBytes(SmallInt(Pref));
+    RRData := ToBytes(GStack.HostToNetwork(Pref));
     Tmp := DomainNameToDNSStr(FormatQName(Exchange,AFullName));
     AppendBytes(RRData, Tmp);
     FAnswer := FormatRecord(AFullName, RRData);
@@ -1759,17 +1754,17 @@ begin
     LMName := DomainNameToDNSStr(MName);
     LRName := DomainNameToDNSStr(RName);
 
-    SetLength(RRData, Length(LMName)+Length(LRName)+(SizeOf(Word)*5));
+    SetLength(RRData, Length(LMName)+Length(LRName)+(SizeOf(LongWord)*5));
 
     LIdx := 0;
     IdBytesCopyBytes(LMName, RRData, LIdx);
     IdBytesCopyBytes(LRName, RRData, LIdx);
 
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Serial))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Refresh))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Retry))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Expire))), RRData, LIdx);
-    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Minimum))), RRData, LIdx);
+    IdBytesCopyLongWord(GStack.HostToNetwork(LongWord(IndyStrToInt(Serial))), RRData, LIdx);
+    IdBytesCopyLongWord(GStack.HostToNetwork(LongWord(IndyStrToInt(Refresh))), RRData, LIdx);
+    IdBytesCopyLongWord(GStack.HostToNetwork(LongWord(IndyStrToInt(Retry))), RRData, LIdx);
+    IdBytesCopyLongWord(GStack.HostToNetwork(LongWord(IndyStrToInt(Expire))), RRData, LIdx);
+    IdBytesCopyLongWord(GStack.HostToNetwork(LongWord(IndyStrToInt(Minimum))), RRData, LIdx);
 
     FAnswer := FormatRecord(AFullName, RRData);
   end;

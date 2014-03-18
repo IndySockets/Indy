@@ -393,7 +393,21 @@ type
     IpPrefixOriginManual,
     IpPrefixOriginWellKnown,
     IpPrefixOriginDhcp,
-    IpPrefixOriginRouterAdvertisement);
+    IpPrefixOriginRouterAdvertisement,
+    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
+    ippoUnused5,
+    ippoUnused6,
+    ippoUnused7,
+    ippoUnused8,
+    ippoUnused9,
+    ippoUnused10,
+    ippoUnused11,
+    ippoUnused12,
+    ippoUnused13,
+    ippoUnused14,
+    ippoUnused15,
+    {$ENDIF}
+    IpPrefixOriginUnchanged);
 
   IP_SUFFIX_ORIGIN = (
     IpSuffixOriginOther,
@@ -401,7 +415,20 @@ type
     IpSuffixOriginWellKnown,
     IpSuffixOriginDhcp,
     IpSuffixOriginLinkLayerAddress,
-    IpSuffixOriginRandom);
+    IpSuffixOriginRandom,
+    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
+    ipsoUnued6,
+    ipsoUnued7,
+    ipsoUnued8,
+    ipsoUnued9,
+    ipsoUnued10,
+    ipsoUnued11,
+    ipsoUnued12,
+    ipsoUnued13,
+    ipsoUnued14,
+    ipsoUnued15,
+    {$ENDIF}
+    IpSuffixOriginUnchanged);
 
   IP_DAD_STATE = (
     IpDadStateInvalid,
@@ -411,7 +438,12 @@ type
     IpDadStatePreferred);
 
   IF_OPER_STATUS = (
+    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
+    ifosUnused,
     IfOperStatusUp,
+    {$ELSE}
+    IfOperStatusUp = 1,
+    {$ENDIF}
     IfOperStatusDown,
     IfOperStatusTesting,
     IfOperStatusUnknown,
@@ -420,7 +452,12 @@ type
     IfOperStatusLowerLayerDown);
 
   NET_IF_CONNECTION_TYPE = (
+    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
+    nictUnused,
     NetIfConnectionDedicated,
+    {$ELSE}
+    NetIfConnectionDedicated = 1,
+    {$ENDIF}
     NetIfConnectionPassive,
     NetIfConnectionDemand,
     NetIfConnectionMaximum);
@@ -1042,6 +1079,7 @@ begin
     end;
   end;
   LSize := IdWinsock2.sendto(ASocket, ABuffer, ABufferLength, AFlags, IdWinsock2.PSOCKADDR(@LAddr), LSize);
+  // TODO: call CheckForSocketError() here
   if LSize = Id_SOCKET_ERROR then begin
     // TODO: move this into RaiseLastSocketError() directly
     if WSGetLastError() = Id_WSAEMSGSIZE then begin

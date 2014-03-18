@@ -40,7 +40,7 @@ No personal names or organizations names associated with the Indy project may be
 THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &quot;AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "/>
     <Version Major="10" Minor="2"/>
-    <Files Count="6">
+    <Files Count="7">
       <Item1>
         <Filename Value="IdDsnRegister.pas"/>
         <HasRegisterProc Value="True"/>
@@ -59,14 +59,18 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &quot;A
         <Type Value="LRS"/>
       </Item4>
       <Item5>
+        <Filename Value="IdProtocolsSelectionEditors.pas"/>
+        <UnitName Value="IdProtocolsSelectionEditors"/>
+      </Item5>
+      <Item6>
         <Filename Value="IdRegister.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdRegister"/>
-      </Item5>
-      <Item6>
+      </Item6>
+      <Item7>
         <Filename Value="IdRegister.lrs"/>
         <Type Value="LRS"/>
-      </Item6>
+      </Item7>
     </Files>
     <Type Value="DesignTime"/>
     <RequiredPkgs Count="6">
