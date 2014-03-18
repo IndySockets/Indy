@@ -1628,11 +1628,12 @@ var
     {$ENDIF}
   {$ENDIF}
 
-const
   {$IFDEF LIBEXT_IS_DYLIB}
+const
   LIBEXT = '.dylib'; {do not localize}
   {$ENDIF}
   {$IFDEF LIBEXT_IS_SO}
+const
   LIBEXT = '.so'; {do not localize}
   {$ENDIF}
 {$ENDIF}
