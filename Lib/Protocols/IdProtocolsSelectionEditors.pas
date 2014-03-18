@@ -24,6 +24,11 @@ type
     procedure RequiresUnits(Proc: TGetStrProc); override;
   end;
 
+  TIdFTPSelectionEditor = class(TSelectionEditor)
+  public
+    procedure RequiresUnits(Proc: TGetStrProc); override;
+  end;
+
   TIdWebDAVSelectionEditor = class(TSelectionEditor)
   public
     procedure RequiresUnits(Proc: TGetStrProc); override;
@@ -43,6 +48,12 @@ procedure TIdGlobalSelectionEditor.RequiresUnits(Proc: TGetStrProc);
 begin
   inherited RequiresUnits(Proc);
   Proc('IdGlobal');
+end;
+
+procedure TIdFTPSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+begin
+  inherited RequiresUnits(Proc);
+  Proc('IdFTPList');
 end;
 
 procedure TIdWebDAVSelectionEditor.RequiresUnits(Proc: TGetStrProc);

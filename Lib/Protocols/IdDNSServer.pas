@@ -482,7 +482,7 @@ type
   end;
 
   TIdDNSBeforeQueryEvent = procedure(ABinding: TIdSocketHandle; ADNSHeader: TDNSHeader; var ADNSQuery: TIdBytes) of object;
-  TIdDNSAfterQueryEvent = procedure(ABinding: TIdSocketHandle; var ADNSHeader: TDNSHeader; var QueryResult: TIdBytes; ResultCode: string; Query : TIdBytes) of object;
+  TIdDNSAfterQueryEvent = procedure(ABinding: TIdSocketHandle; ADNSHeader: TDNSHeader; var QueryResult: TIdBytes; var ResultCode: string; Query : TIdBytes) of object;
   TIdDNSAfterCacheSaved = procedure(CacheRoot : TIdDNTreeNode) of object;
 
   TIdDNS_UDPServer = class(TIdUDPServer)
@@ -509,11 +509,11 @@ type
     procedure DoBeforeQuery(ABinding: TIdSocketHandle; ADNSHeader: TDNSHeader;
       var ADNSQuery : TIdBytes); dynamic;
 
-    procedure DoAfterQuery(ABinding: TIdSocketHandle; var ADNSHeader: TDNSHeader;
-      var QueryResult : TIdBytes; ResultCode : String; Query : TIdBytes); dynamic;
+    procedure DoAfterQuery(ABinding: TIdSocketHandle; ADNSHeader: TDNSHeader;
+      var QueryResult : TIdBytes; var ResultCode : String; Query : TIdBytes); dynamic;
 
     procedure DoAfterSendBack(ABinding: TIdSocketHandle; ADNSHeader: TDNSHeader;
-      var QueryResult : TIdBytes; ResultCode : String; Query : TIdBytes); dynamic;
+      var QueryResult : TIdBytes; var ResultCode : String; Query : TIdBytes); dynamic;
 
     procedure DoAfterCacheSaved(CacheRoot : TIdDNTreeNode); dynamic;
 
@@ -543,7 +543,7 @@ type
     function AXFR(Header : TDNSHeader; Question : string; var Answer : TIdBytes) : string;
     function CompleteQuery(DNSHeader: TDNSHeader; Question: string;
       OriginalQuestion: TIdBytes; var Answer : TIdBytes; QType, QClass : Word;
-      DNSResolver : TIdDNSResolver) : string;
+      DNSResolver : TIdDNSResolver) : string; deprecated;
     function LoadZoneFromMasterFile(MasterFileName : String) : boolean;
     function LoadZoneStrings(FileStrings: TStrings; Filename : String;
       TreeRoot : TIdDNTreeNode): Boolean;
@@ -1049,7 +1049,7 @@ begin
 end;
 
 procedure TIdDNS_UDPServer.DoAfterQuery(ABinding: TIdSocketHandle;
-  var ADNSHeader: TDNSHeader; var QueryResult: TIdBytes; ResultCode : String;
+  ADNSHeader: TDNSHeader; var QueryResult: TIdBytes; var ResultCode : String;
   Query : TIdBytes);
 begin
   if Assigned(FOnAfterQuery) then begin
@@ -2581,7 +2581,7 @@ begin
 end;
 
 procedure TIdDNS_UDPServer.DoAfterSendBack(ABinding: TIdSocketHandle;
-  ADNSHeader: TDNSHeader; var QueryResult: TIdBytes; ResultCode: String;
+  ADNSHeader: TDNSHeader; var QueryResult: TIdBytes; var ResultCode: String;
   Query : TIdBytes);
 begin
   if Assigned(FOnAfterSendBack) then begin
@@ -3743,8 +3743,6 @@ begin
 
             RString := CompleteQuery(DNSHeader_Processing, QName, ExternalQuery, Answer, QType, QClass, nil);
 
-            FServer.DoAfterQuery(ABinding, DNSHeader_Processing, Answer, RString, Temp);
-
             if RString = cRCodeQueryNotImplement then begin
               ComposeErrorResult(FinalResult, DNSHeader_Processing, ExternalQuery, iRCodeQueryNotImplement);
             end
@@ -3758,6 +3756,7 @@ begin
               FinalResult := CombineAnswer(DNSHeader_Processing, ExternalQuery, Answer);
             end;
 
+            FServer.DoAfterQuery(ABinding, DNSHeader_Processing, FinalResult, RString, Temp);
             //AppendString(FinalResult, Temp);
           end;
         end;

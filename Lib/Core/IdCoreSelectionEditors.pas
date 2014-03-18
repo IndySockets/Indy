@@ -28,6 +28,11 @@ type
   public
     procedure RequiresUnits(Proc: TGetStrProc); override;
   end;
+
+  TIdUDPReadSelectionEditor = class(TSelectionEditor)
+  public
+    procedure RequiresUnits(Proc: TGetStrProc); override;
+  end;
 {$ENDIF}
 
 implementation
@@ -42,6 +47,13 @@ end;
 procedure TIdSocketHandleSelectionEditor.RequiresUnits(Proc: TGetStrProc);
 begin
   inherited RequiresUnits(Proc);
+  Proc('IdSocketHandle');
+end;
+
+procedure TIdUDPReadSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+begin
+  inherited RequiresUnits(Proc);
+  Proc('IdGlobal');
   Proc('IdSocketHandle');
 end;
 {$ENDIF}

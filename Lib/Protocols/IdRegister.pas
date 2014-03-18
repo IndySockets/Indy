@@ -333,6 +333,7 @@ uses
   IdWhois,
   IdWhoIsServer
   {$IFDEF HAS_TSelectionEditor}
+  ,IdCoreSelectionEditors
   ,IdProtocolsSelectionEditors
   {$ENDIF}
   ;
@@ -802,6 +803,11 @@ begin
   {$ENDIF}
 
   {$IFDEF HAS_TSelectionEditor}
+  RegisterSelectionEditor(TIdChargenUDPServer, TIdUDPReadSelectionEditor);
+  RegisterSelectionEditor(TIdDayTimeUDPServer, TIdUDPReadSelectionEditor);
+  RegisterSelectionEditor(TIdDiscardUDPServer, TIdUDPReadSelectionEditor);
+  RegisterSelectionEditor(TIdEchoUDPServer, TIdUDPReadSelectionEditor);
+  RegisterSelectionEditor(TIdFTP, TIdFTPSelectionEditor);
   RegisterSelectionEditor(TIdTelnet, TIdGlobalSelectionEditor);
   RegisterSelectionEditor(TIdWebDAV, TIdWebDAVSelectionEditor);
   RegisterSelectionEditor(TIdWhoIsServer, TIdWhoIsServerSelectionEditor);
