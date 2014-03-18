@@ -381,6 +381,7 @@ type
   end;
 
   {$IFNDEF HAS_UNIT_IpTypes}
+  {$MINENUMSIZE 4}
 
   time_t                  = TIdNativeInt;
   IFTYPE                  = ULONG;
