@@ -82,7 +82,6 @@
         <DCCReference Include="IdDsnRegister.pas"/>
         <DCCReference Include="IdDsnResourceStrings.pas"/>
         <DCCReference Include="IdDsnSASLListEditorFormVCL.pas"/>
-        <DCCReference Include="IdProtocolsSelectionEditors.pas"/>
         <DCCReference Include="IdRegister.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>

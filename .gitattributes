@@ -790,7 +790,6 @@ Lib/Core/IdCore90ASM90.inc -text
 Lib/Core/IdCoreDsnRegister.pas -text
 Lib/Core/IdCoreRegister.dcr -text svneol=unset#unset
 Lib/Core/IdCoreRegisterCool.dcr -text svneol=unset#unset
-Lib/Core/IdCoreSelectionEditors.pas -text
 Lib/Core/IdCreditsBitmap.res -text svneol=unset#unset
 Lib/Core/IdCreditsBitmap.resources -text svneol=unset#unset
 Lib/Core/IdCustomTCPServer.pas -text
@@ -1455,7 +1454,6 @@ Lib/Protocols/IdPOP3.pas -text
 Lib/Protocols/IdPOP3Server.pas -text
 Lib/Protocols/IdPOP4Server.pas -text
 Lib/Protocols/IdProtocols90ASM90.inc -text
-Lib/Protocols/IdProtocolsSelectionEditors.pas -text
 Lib/Protocols/IdQOTDUDP.pas -text
 Lib/Protocols/IdQOTDUDPServer.pas -text
 Lib/Protocols/IdQotd.pas -text

@@ -41,7 +41,6 @@ contains
   IdDsnRegister in 'IdDsnRegister.pas',
   IdDsnResourceStrings in 'IdDsnResourceStrings.pas',
   IdDsnSASLListEditorFormVCL in 'IdDsnSASLListEditorFormVCL.pas',
-  IdProtocolsSelectionEditors in 'IdProtocolsSelectionEditors.pas',
   IdRegister in 'IdRegister.pas';
 
 end.

@@ -81,4 +81,132 @@
 			<CallTarget Targets="IndySystem160:Make;IndyCore160:Make;IndyProtocols160:Make;dclIndyCore160:Make;dclIndyProtocols160:Make"/>
 		</Target>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
+		<ItemGroup Condition="'$(BuildGroup)'=='Win32'">
+			<BuildGroupProject Include="Protocols\dclIndyProtocols160.dproj">
+				<ProjectGuid>{686983CE-837E-42D6-B871-F173242DFA3E}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore160.dproj">
+				<ProjectGuid>{0EBD02B6-2201-4571-8FCB-6650CE38093D}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols160.dproj">
+				<ProjectGuid>{EDA5B84B-7D45-478B-A75C-DA65C6591B6A}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="System\IndySystem160.dproj">
+				<ProjectGuid>{61B11559-323A-4C77-8EDD-205DA0B58F51}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore160.dproj">
+				<ProjectGuid>{CFF99767-2887-4869-A4A2-6490EFAF2888}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
+		<ItemGroup Condition="'$(BuildGroup)'=='OSX32'">
+			<BuildGroupProject Include="Protocols\dclIndyProtocols160.dproj">
+				<ProjectGuid>{686983CE-837E-42D6-B871-F173242DFA3E}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore160.dproj">
+				<ProjectGuid>{0EBD02B6-2201-4571-8FCB-6650CE38093D}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols160.dproj">
+				<ProjectGuid>{EDA5B84B-7D45-478B-A75C-DA65C6591B6A}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>OSX32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="System\IndySystem160.dproj">
+				<ProjectGuid>{61B11559-323A-4C77-8EDD-205DA0B58F51}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>OSX32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore160.dproj">
+				<ProjectGuid>{CFF99767-2887-4869-A4A2-6490EFAF2888}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>OSX32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
+		<ItemGroup Condition="'$(BuildGroup)'=='Win64'">
+			<BuildGroupProject Include="Protocols\dclIndyProtocols160.dproj">
+				<ProjectGuid>{686983CE-837E-42D6-B871-F173242DFA3E}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore160.dproj">
+				<ProjectGuid>{0EBD02B6-2201-4571-8FCB-6650CE38093D}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols160.dproj">
+				<ProjectGuid>{EDA5B84B-7D45-478B-A75C-DA65C6591B6A}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win64</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="System\IndySystem160.dproj">
+				<ProjectGuid>{61B11559-323A-4C77-8EDD-205DA0B58F51}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win64</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore160.dproj">
+				<ProjectGuid>{CFF99767-2887-4869-A4A2-6490EFAF2888}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win64</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
+		<ItemGroup Condition="'$(BuildGroup)'=='All Platforms'">
+			<BuildGroupProject Include="Protocols\dclIndyProtocols160.dproj">
+				<ProjectGuid>{686983CE-837E-42D6-B871-F173242DFA3E}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore160.dproj">
+				<ProjectGuid>{0EBD02B6-2201-4571-8FCB-6650CE38093D}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>Win32</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols160.dproj">
+				<ProjectGuid>{EDA5B84B-7D45-478B-A75C-DA65C6591B6A}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>OSX32;Win32;Win64</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="System\IndySystem160.dproj">
+				<ProjectGuid>{61B11559-323A-4C77-8EDD-205DA0B58F51}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>OSX32;Win32;Win64</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore160.dproj">
+				<ProjectGuid>{CFF99767-2887-4869-A4A2-6490EFAF2888}</ProjectGuid>
+				<Configurations>Debug;Release</Configurations>
+				<Platforms>OSX32;Win32;Win64</Platforms>
+				<Enabled>True</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
 	</Project>

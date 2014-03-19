@@ -80,7 +80,6 @@
         <DCCReference Include="IdAboutVCL.pas"/>
         <DCCReference Include="IdAntiFreeze.pas"/>
         <DCCReference Include="IdCoreDsnRegister.pas"/>
-        <DCCReference Include="IdCoreSelectionEditors.pas"/>
         <DCCReference Include="IdDsnCoreResourceStrings.pas"/>
         <DCCReference Include="IdDsnPropEdBindingVCL.pas"/>
         <DCCReference Include="IdRegisterCore.pas"/>

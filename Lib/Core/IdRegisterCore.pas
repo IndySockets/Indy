@@ -126,11 +126,18 @@ uses
   {$IFDEF HAS_TSelectionEditor}
     {$IFDEF FPC}
   PropEdits,
+  ComponentEditors,
     {$ELSE}
   DesignIntf,
+  DesignEditors,
+    {$ENDIF}
+  TypInfo,
+    {$IFDEF VCL_2010_OR_ABOVE}
+  Rtti,
     {$ENDIF}
   {$ENDIF}
 
+  IdComponent,
   IdDsnCoreResourceStrings,
   IdAntiFreeze,
   IdCmdTCPClient,
@@ -163,11 +170,7 @@ uses
   IdIOHandlerStack,
   IdIntercept,
   IdTCPServer,
-  IdTCPClient
-  {$IFDEF HAS_TSelectionEditor}
-  ,IdCoreSelectionEditors
-  {$ENDIF}
-  ;
+  IdTCPClient;
 
 {$IFDEF DOTNET}
   {$R IconsDotNet\TIdAntiFreeze.bmp}
@@ -203,6 +206,167 @@ uses
       {$R IdCoreRegisterCool.dcr}
     {$ENDIF}
   {$ENDIF}
+{$ENDIF}
+
+{$IFDEF HAS_TSelectionEditor}
+type
+  TIdComponentSelectionEditor = class(TSelectionEditor)
+  public
+    procedure RequiresUnits(Proc: TGetStrProc); override;
+  end;
+
+procedure TIdComponentSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+var
+  Comp: TIdComponent;
+  UnitName: string;
+  I: Integer;
+
+  {$IFDEF VCL_2010_OR_ABOVE}
+  Ctx: TRttiContext;
+  PropInfo: TRttiProperty;
+  Invokable: TRttiInvokableType;
+  Param: TRttiParameter;
+  RetType: TRttiType;
+  {$ELSE}
+  PropList: PPropList;
+  PropCount: Integer;
+  PropInfo: PPropInfo;
+  TypeData: PTypeData;
+  TypeDataPtr: PByte;
+  J, K: Integer;
+  {$ENDIF}
+
+  {$IFDEF VCL_2010_OR_ABOVE}
+
+  function GetUnitNameForType(const AType: TRttiType): String;
+  begin
+    // TRttiType.UnitName returns the wrong value for me, so use TRttiType.QualifiedName instead...
+    if AType <> nil then begin
+      Result := AType.QualifiedName;
+      SetLength(Result, Length(Result) - Length(AType.Name) - 1);
+    end else begin
+      Result := '';
+    end;
+  end;
+
+  {$ELSE}
+
+  procedure SkipShortString(var P: PByte);
+  begin
+    Inc(P, 1 + Integer(P^));
+  end;
+
+  function ReadShortString(var P: PByte): String;
+  begin
+    {$IFDEF VCL_2009_OR_ABOVE}
+    Result := UTF8ToString(PShortString(P)^);
+    {$ELSE}
+    Result := PShortString(P)^;
+    {$ENDIF}
+    SkipShortString(P);
+  end;
+
+  function GetUnitNameFromTypeName(const TypeName: String): String;
+  var
+    I: Integer;
+  begin
+    // check if the type is qualified
+    I := LastDelimiter('.', TypeName);
+    if I <> 0 then begin
+      Result := Copy(TypeName, 1, I-1);
+    end else begin
+      // TODO: enumerate package units and find the typename...
+      Result := '';
+    end;
+  end;
+
+  {$ENDIF}
+
+begin
+  inherited RequiresUnits(Proc);
+  if (Designer = nil) or (Designer.Root = nil) then Exit;
+
+  for I := 0 to Designer.Root.ComponentCount - 1 do
+  begin
+    if Designer.Root.Components[i] is TIdComponent then
+    begin
+      Comp := TIdComponent(Designer.Root.Components[i]);
+
+      {$IFDEF VCL_2010_OR_ABOVE}
+
+      Ctx := TRttiContext.Create;
+      for PropInfo in Ctx.GetType(Comp.ClassType).GetProperties do
+      begin
+        // only interested in *assigned* event handlers
+        if (PropInfo.PropertyType.TypeKind = tkMethod) and
+           (not PropInfo.GetValue(Comp).IsEmpty) then
+        begin
+          Invokable := PropInfo.PropertyType as TRttiInvokableType;
+          for Param in Invokable.GetParameters do begin
+            UnitName := GetUnitNameForType(Param.ParamType);
+            if UnitName <> '' then begin
+              Proc(UnitName);
+            end;
+          end;
+          RetType := Invokable.ReturnType;
+          if RetType <> nil then begin
+            UnitName := GetUnitNameForType(RetType);
+            if UnitName <> '' then begin
+              Proc(UnitName);
+            end;
+          end;
+        end;
+      end;
+
+      {$ELSE}
+
+      PropCount := GetPropList(Comp, PropList);
+      if PropCount < 1 then begin
+        Continue;
+      end;
+
+      try
+        for J := 0 to PropCount-1 do
+        begin
+          PropInfo := PropList^[J];
+
+          // only interested in *assigned* event handlers
+          if (PropInfo^.PropType^.Kind = tkMethod) and
+             (GetMethodProp(Comp, PropInfo).Code <> nil) then
+          begin
+            TypeData := GetTypeData(PropInfo^.PropType^);
+            TypeDataPtr := PByte(@(TypeData^.ParamList));
+
+            if TypeData^.ParamCount > 0 then
+            begin
+              for K := 0 to TypeData^.ParamCount-1 do
+              begin
+                Inc(TypeDataPtr, SizeOf(TParamFlags));
+                SkipShortString(TypeDataPtr);
+                UnitName := GetUnitNameFromTypeName(ReadShortString(TypeDataPtr));
+                if UnitName <> '' then begin
+                  Proc(UnitName);
+                end;
+              end;
+            end;
+
+            if TypeData^.MethodKind = mkFunction then
+            begin
+              UnitName := GetUnitNameFromTypeName(ReadShortString(TypeDataPtr));
+              if UnitName <> '' then begin
+                Proc(UnitName);
+              end;
+            end;
+          end;
+        end;
+      finally
+        FreeMem(PropList);
+      end;
+
+      {$ENDIF}
+    end;
+  end;
+end;
 {$ENDIF}
 
 procedure Register;
@@ -303,10 +467,7 @@ begin
   {$ENDIF}
 
   {$IFDEF HAS_TSelectionEditor}
-  RegisterSelectionEditor(TIdIPMCastClient, TIdUDPReadSelectionEditor);
-  RegisterSelectionEditor(TIdCmdTCPClient, TIdContextSelectionEditor);
-  RegisterSelectionEditor(TIdTCPServer, TIdContextSelectionEditor);
-  RegisterSelectionEditor(TIdUDPServer, TIdUDPReadSelectionEditor);
+  RegisterSelectionEditor(TIdComponent, TIdComponentSelectionEditor);
   {$ENDIF}
 end;
 

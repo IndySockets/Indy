@@ -291,6 +291,7 @@
 			<DCCReference Include="IdResourceStringsOpenSSL.pas"/>
 			<DCCReference Include="IdResourceStringsProtocols.pas"/>
 			<DCCReference Include="IdResourceStringsSSPI.pas"/>
+			<DCCReference Include="IdResourceStringsUriUtils.pas"/>
 			<DCCReference Include="IdRexec.pas"/>
 			<DCCReference Include="IdRexecServer.pas"/>
 			<DCCReference Include="IdSASL.pas"/>

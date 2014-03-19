@@ -32,7 +32,6 @@ contains
   IdDsnRegister in 'IdDsnRegister.pas',
   IdDsnResourceStrings in 'IdDsnResourceStrings.pas',
   IdDsnSASLListEditorFormNET in 'IdDsnSASLListEditorFormNET.pas',
-  IdProtocolsSelectionEditors in 'IdProtocolsSelectionEditors.pas',
   IdRegister in 'IdRegister.pas';
 {$I IddclProtocols90ASM90.inc}
 
