@@ -135,6 +135,7 @@ uses
     {$IFDEF VCL_2010_OR_ABOVE}
   Rtti,
     {$ENDIF}
+  IdGlobal,
   {$ENDIF}
 
   IdComponent,
@@ -240,10 +241,16 @@ var
 
   function GetUnitNameForType(const AType: TRttiType): String;
   begin
-    // TRttiType.UnitName returns the wrong value for me, so use TRttiType.QualifiedName instead...
+    // TRttiType.UnitName returns the unit that declares TRttiType itself
+    // (System.Rtti), so parse the TRttiType.QualifiedName value instead...
     if AType <> nil then begin
       Result := AType.QualifiedName;
       SetLength(Result, Length(Result) - Length(AType.Name) - 1);
+      // Do not return the 'System' unit, otherwise it will
+      // cause an "Identifier redeclared" compiler error!
+      if TextIsSame(Result, 'System') then begin {do not localize}
+        Result := '';
+      end;
     end else begin
       Result := '';
     end;
@@ -274,6 +281,11 @@ var
     I := LastDelimiter('.', TypeName);
     if I <> 0 then begin
       Result := Copy(TypeName, 1, I-1);
+      // Do not return the 'System' unit, otherwise it will
+      // cause an "Identifier redeclared" compiler error!
+      if TextIsSame(Result, 'System') then begin {do not localize}
+        Result := '';
+      end;
     end else begin
       // TODO: enumerate package units and find the typename...
       Result := '';
