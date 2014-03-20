@@ -1071,6 +1071,9 @@ var
   Server_Index : Integer;
   MyDNSResolver : TIdDNSResolver;
 begin
+  if RootDNS_NET.Count = 0 then begin
+    Exit;
+  end;
   Server_Index := 0;
   if ADNSResolver = nil then begin
     MyDNSResolver := TIdDNSResolver.Create(Self);
@@ -2831,8 +2834,8 @@ begin
               temp := DomainNameToDNSStr(QName+'.'+TargetNode.FullName);
               Fetch(LocalAnswer, temp);
               }
-              TempBytes := DomainNameToDNSStr(QName + '.' + TargetNode.FullName);
-              FetchBytes(LocalAnswer, ToBytes(temp));
+              TempBytes := DomainNameToDNSStr(TargetNode.FullName);
+              FetchBytes(LocalAnswer, TempBytes);
               TempBytes := DomainNameToDNSStr(WildCardOrgName);
               AppendBytes(TempBytes, LocalAnswer);
               LocalAnswer := TempBytes;
