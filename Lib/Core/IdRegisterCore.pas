@@ -134,6 +134,8 @@ uses
   TypInfo,
     {$IFDEF VCL_2010_OR_ABOVE}
   Rtti,
+    {$ELSE}
+  SysUtils,
     {$ENDIF}
   IdGlobal,
   {$ENDIF}
