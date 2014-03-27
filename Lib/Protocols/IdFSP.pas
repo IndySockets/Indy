@@ -499,6 +499,8 @@ begin
   FreeAndNil(FDirectoryListing);
   FreeAndNil(FStatInfo);
   FreeAndNil(FAbortFlag);
+  FreeAndNil(FInCmd);
+
   inherited Destroy;
 end;
 
