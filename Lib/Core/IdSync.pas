@@ -235,11 +235,11 @@ end;
 
 procedure TIdSync.Synchronize;
 begin
-  {$IFDEF HAS_STATIC_TThread_Synchronize}
+    {$IFDEF HAS_STATIC_TThread_Synchronize}
   TThread.Synchronize(nil, DoSynchronize);
-  {$ELSE}
+    {$ELSE}
   FThread.Synchronize(DoSynchronize);
-  {$ENDIF}
+    {$ENDIF}
 end;
 
 class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
@@ -312,7 +312,17 @@ begin
   {$IFDEF HAS_STATIC_TThread_Queue}
   TThread.Queue(nil, AMethod);
   {$ELSE}
+    {$IFDEF HAS_DEPRECATED}
+      {$WARN SYMBOL_DEPRECATED OFF}
+    {$ENDIF}
   TIdNotifyMethod.Create(AMethod).Notify;
+    {$IFDEF HAS_DEPRECATED}
+      {$IFDEF HAS_DIRECTIVE_WARN_DEFAULT}
+        {$WARN SYMBOL_DEPRECATED DEFAULT}
+      {$ELSE}
+        {$WARN SYMBOL_DEPRECATED ON}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -321,6 +331,11 @@ end;
 // guaranteed to remain valid while this method is running since the
 // notify thread frees the object.  Also, this makes the calling thread
 // block, so TIdSync should be used instead...
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 procedure TIdNotify.WaitFor;
 var
   LNotifyIndex: Integer;
@@ -339,6 +354,11 @@ begin
     IndySleep(10);
   until False;
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
+
 {$ENDIF}
 
 {$IFDEF NotifyThreadNeeded}
@@ -433,6 +453,10 @@ end;
 
 { TIdNotifyMethod }
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 constructor TIdNotifyMethod.Create(AMethod: TThreadMethod);
 begin
   inherited Create;
@@ -443,6 +467,10 @@ procedure TIdNotifyMethod.DoNotify;
 begin
   FMethod;
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 {$IFDEF NotifyThreadNeeded}
 initialization

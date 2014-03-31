@@ -466,13 +466,19 @@ begin
     FreeLibrary(h);
   end;
   {$ENDIF}
+
   {$IFDEF HAS_DEPRECATED}
     {$WARN SYMBOL_DEPRECATED OFF}
   {$ENDIF}
   GIdIPv6FuncsAvailable := False;
   {$IFDEF HAS_DEPRECATED}
-    {$WARN SYMBOL_DEPRECATED ON}
+    {$IFDEF HAS_DIRECTIVE_WARN_DEFAULT}
+      {$WARN SYMBOL_DEPRECATED DEFAULT}
+    {$ELSE}
+      {$WARN SYMBOL_DEPRECATED ON}
+    {$ENDIF}
   {$ENDIF}
+
   getaddrinfo := nil;
   getnameinfo := nil;
   freeaddrinfo := nil;
@@ -1227,7 +1233,11 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
   {$ENDIF}
   GIdIPv6FuncsAvailable := True;
   {$IFDEF HAS_DEPRECATED}
-    {$WARN SYMBOL_DEPRECATED ON}
+    {$IFDEF HAS_DIRECTIVE_WARN_DEFAULT}
+      {$WARN SYMBOL_DEPRECATED DEFAULT}
+    {$ELSE}
+      {$WARN SYMBOL_DEPRECATED ON}
+    {$ENDIF}
   {$ENDIF}
 end;
 

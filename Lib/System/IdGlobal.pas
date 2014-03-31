@@ -3617,6 +3617,9 @@ begin
     // TODO: use thread-safe assignment
     GIdOSDefaultEncoding := TIdDotNetEncoding.Create(System.Text.Encoding.Default);
     {$ELSE}
+    // TODO: SysUtils.TEncoding.Default uses ANSI on Windows
+    // but uses UTF-8 on POSIX, so we should do the same...
+    //LEncoding := {$IFDEF WINDOWS}TIdMBCSEncoding{$ELSE}TIdUTF8Encoding{$ENDIF}.Create;
     LEncoding := TIdMBCSEncoding.Create;
     if InterlockedCompareExchangeIntf(IInterface(GIdOSDefaultEncoding), LEncoding, nil) <> nil then begin
       LEncoding := nil;
@@ -3755,6 +3758,10 @@ begin
   Result := GIdUTF8Encoding;
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 function enDefault: IIdTextEncoding;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -3855,6 +3862,10 @@ begin
   {$ENDIF}
   Result := IndyTextEncoding_UTF8;
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 {$IFDEF UNIX}
 function HackLoadFileName(const ALibName, ALibVer : String) : string;  {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -5866,6 +5877,10 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' ');
 begin
   SplitDelimitedString(AData, AStrings, False, ADelim{$IFNDEF USE_OBJECT_ARC}, True{$ENDIF});
@@ -5875,6 +5890,10 @@ procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: st
 begin
   SplitDelimitedString(AData, AStrings, True, ADelim{$IFNDEF USE_OBJECT_ARC}, True{$ENDIF});
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 procedure SplitDelimitedString(const AData: string; AStrings: TStrings; ATrim: Boolean;
   const ADelim: string = ' '{$IFNDEF USE_OBJECT_ARC}; AIncludePositions: Boolean = False{$ENDIF});
@@ -6441,10 +6460,18 @@ begin
   Result := DateTimeGMTToCookieStr(Value - OffsetFromUTC, AUseNetscapeFmt);
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 function DateTimeToInternetStr(const Value: TDateTime; const AUseGMTStr : Boolean = False) : String;
 begin
   Result := LocalDateTimeToGMT(Value, AUseGMTStr);
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 {This should never be localized}
 function LocalDateTimeToGMT(const Value: TDateTime; const AUseGMTStr: Boolean = False) : String;
@@ -6458,11 +6485,19 @@ begin
                     UTCOffsetToStr(OffsetFromUTC, AUseGMTStr)]);
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 function DateTimeToGmtOffSetStr(ADateTime: TDateTime; const AUseGMTStr: Boolean = False): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := UTCOffsetToStr(ADateTime, AUseGMTStr);
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 function OffsetFromUTC: TDateTime;
 {$IFDEF DOTNET}

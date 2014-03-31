@@ -2048,6 +2048,9 @@ begin
   end;
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
 
 procedure TIdIMAP4.WriteLn(const AOut: string = '');
 begin
@@ -2058,6 +2061,10 @@ function  TIdIMAP4.ReadLnWait: string;
 begin
   Result := IOHandler.ReadLnWait;  {This can have hit an exception of Connection Reset By Peer (timeout)}
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 { IdTCPConnection Commands... }
 

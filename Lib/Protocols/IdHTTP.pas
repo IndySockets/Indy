@@ -1237,31 +1237,14 @@ procedure TIdCustomHTTP.ReadResult(ARequest: TIdHTTPRequest; AResponse: TIdHTTPR
 var
   LS: TStream;
   LOrigStream : TStream;
-  Size: Integer;
   LParseHTML : Boolean;
-  LMIMEBoundary: TIdBytes;
-  LIndex: Integer;
   LCreateTmpContent : Boolean;
   LDecMeth : Integer;
   //0 - no compression was used or we can't support that feature
   //1 - deflate
   //2 - gzip
-  LTrailHeader: String;
   // under ARC, convert a weak reference to a strong reference before working with it
   LCompressor: TIdZLibCompressorBase;
-
-  function ChunkSize: integer;
-  var
-    j: Integer;
-    s: string;
-  begin
-    s := InternalReadLn;
-    j := IndyPos(';', s); {do not localize}
-    if j > 0 then begin
-      s := Copy(s, 1, j - 1);
-    end;
-    Result := IndyStrToInt('$' + Trim(s), 0);      {do not localize}
-  end;
 
   function CheckForPendingData(ATimeout: Integer): Boolean;
   begin
@@ -1319,6 +1302,96 @@ var
     end;
   end;
 
+  function ChunkSize: integer;
+  var
+    j: Integer;
+    s: string;
+  begin
+    s := InternalReadLn;
+    j := IndyPos(';', s); {do not localize}
+    if j > 0 then begin
+      s := Copy(s, 1, j - 1);
+    end;
+    Result := IndyStrToInt('$' + Trim(s), 0);      {do not localize}
+  end;
+
+  procedure ReadChunked;
+  var
+    LSize: Integer;
+    LTrailHeader: String;
+  begin
+    DoStatus(hsStatusText, [RSHTTPChunkStarted]);
+    BeginWork(wmRead);
+    try
+      LSize := ChunkSize;
+      while LSize <> 0 do begin
+        if Assigned(LS) then begin
+          IOHandler.ReadStream(LS, LSize);
+        end else begin
+          IOHandler.Discard(LSize);
+        end;
+        InternalReadLn; // CRLF at end of chunk data
+        LSize := ChunkSize;
+      end;
+      // read trailer headers
+      LTrailHeader := InternalReadLn;
+      while LTrailHeader <> '' do begin
+        AResponse.RawHeaders.Add(LTrailHeader);
+        LTrailHeader := InternalReadLn;
+      end;
+    finally
+      EndWork(wmRead);
+    end;
+  end;
+
+  procedure ReadMIME;
+  var
+    LMIMEBoundary: TIdBytes;
+    LIndex: Integer;
+    LSize: Integer;
+  begin
+    LMIMEBoundary := ToBytes('--' + ExtractHeaderSubItem(AResponse.ContentType, 'boundary', QuoteHTTP) + '--');
+    BeginWork(wmRead);
+    try
+      try
+        repeat
+          LIndex := IOHandler.InputBuffer.IndexOf(LMIMEBoundary);
+          if LIndex <> -1 then
+          begin
+            LSize := LIndex + Length(LMIMEBoundary);
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, LSize);
+            end else begin
+              IOHandler.Discard(LSize);
+            end;
+            InternalReadLn; // CRLF at end of boundary
+            Break;
+          end;
+          LSize := IOHandler.InputBuffer.Size - (Length(LMIMEBoundary)-1);
+          if LSize > 0 then begin
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, LSize);
+            end else begin
+              IOHandler.Discard(LSize);
+            end;
+          end;
+          IOHandler.CheckForDataOnSource;
+          IOHandler.CheckForDisconnect(True, True);
+        until False;
+      except
+        on E: EIdConnClosedGracefully do begin
+          if Assigned(LS) then begin
+            IOHandler.InputBuffer.ExtractToStream(LS);
+          end else begin
+            IOHandler.InputBuffer.Clear;
+          end;
+        end;
+      end;
+    finally
+      EndWork(wmRead);
+    end;
+  end;
+
 begin
   if not ShouldRead then begin
     Exit;
@@ -1357,28 +1430,7 @@ begin
 
     try
       if IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0 then begin {do not localize}
-        DoStatus(hsStatusText, [RSHTTPChunkStarted]);
-        BeginWork(wmRead);
-        try
-          Size := ChunkSize;
-          while Size <> 0 do begin
-            if Assigned(LS) then begin
-              IOHandler.ReadStream(LS, Size);
-            end else begin
-              IOHandler.Discard(Size);
-            end;
-            InternalReadLn; // CRLF at end of chunk data
-            Size := ChunkSize;
-          end;
-          // read trailer headers
-          LTrailHeader := InternalReadLn;
-          while LTrailHeader <> '' do begin
-            AResponse.RawHeaders.Add(LTrailHeader);
-            LTrailHeader := InternalReadLn;
-          end;
-        finally
-          EndWork(wmRead);
-        end;
+        ReadChunked;
       end
       else if AResponse.HasContentLength then begin
         if AResponse.ContentLength > 0 then begin// If chunked then this is also 0
@@ -1389,51 +1441,14 @@ begin
               IOHandler.Discard(AResponse.ContentLength);
             end;
           except
+            // should this be caught here?  We are being told the size, so a
+            // premature disconnect should be an error, right?
             on E: EIdConnClosedGracefully do
           end;
         end;
       end
       else if IsHeaderMediaType(AResponse.ContentType, 'multipart') then begin {do not localize}
-        LMIMEBoundary := ToBytes('--' + ExtractHeaderSubItem(AResponse.ContentType, 'boundary', QuoteHTTP) + '--');
-        BeginWork(wmRead);
-        try
-          try
-            repeat
-              LIndex := IOHandler.InputBuffer.IndexOf(LMIMEBoundary);
-              if LIndex <> -1 then
-              begin
-                Size := LIndex + Length(LMIMEBoundary);
-                if Assigned(LS) then begin
-                  IOHandler.ReadStream(LS, Size);
-                end else begin
-                  IOHandler.Discard(Size);
-                end;
-                InternalReadLn; // CRLF at end of boundary
-                Break;
-              end;
-              Size := IOHandler.InputBuffer.Size - (Length(LMIMEBoundary)-1);
-              if Size > 0 then begin
-                if Assigned(LS) then begin
-                  IOHandler.ReadStream(LS, Size);
-                end else begin
-                  IOHandler.Discard(Size);
-                end;
-              end;
-              IOHandler.CheckForDataOnSource;
-              IOHandler.CheckForDisconnect(True, True);
-            until False;
-          except
-            on E: EIdConnClosedGracefully do begin
-              if Assigned(LS) then begin
-                IOHandler.InputBuffer.ExtractToStream(LS);
-              end else begin
-                IOHandler.InputBuffer.Clear;
-              end;
-            end;
-          end;
-        finally
-          EndWork(wmRead);
-        end;
+        ReadMIME;
       end else begin
         if Assigned(LS) then begin
           IOHandler.ReadStream(LS, -1, True);
@@ -2431,7 +2446,7 @@ begin
           FKeepAlive :=
             TextIsSame(Trim(Connection), 'KEEP-ALIVE') or   {do not localize}
             TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE') {do not localize}
-            { or ((ResponseVersion = pv1_1) and
+             { or ((ResponseVersion = pv1_1) and
               (Length(Trim(Connection)) = 0) and
               (Length(Trim(ProxyConnection)) = 0)) };
         end;
@@ -2953,6 +2968,7 @@ begin
     until False;
   finally
     if not Response.KeepAlive then begin
+      // TODO: do not disconnect if hoNoReadMultipartMIME is in effect
       Disconnect;
     end;
   end;

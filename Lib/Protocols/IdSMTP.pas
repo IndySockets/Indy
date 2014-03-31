@@ -437,10 +437,18 @@ begin
   end;
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText: String);
 begin
   InternalQuickSend(AHost, ASubject, ATo, AFrom, AText, '', '', '');
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText,
   AContentType, ACharset, AContentTransferEncoding: String);

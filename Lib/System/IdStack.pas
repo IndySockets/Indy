@@ -611,6 +611,10 @@ begin
   GetSocketName(ASocket, VIP, VPort, LIPVersion);
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 procedure TIdStack.AddLocalAddressesToList(AAddresses: TStrings);
 var
   LList: TIdStackLocalAddressList;
@@ -636,6 +640,10 @@ begin
     LList.Free;
   end;
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 function TIdStack.GetLocalAddresses: TStrings;
 var
@@ -712,10 +720,18 @@ begin
   Result := Result and ((i > -1) and (i < 256)) and (AIP = '');
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 function TIdStack.MakeCanonicalIPv6Address(const AAddr: string): string;
 begin
   Result := IdGlobal.MakeCanonicalIPv6Address(AAddr);
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 function TIdStack.ResolveHost(const AHost: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;

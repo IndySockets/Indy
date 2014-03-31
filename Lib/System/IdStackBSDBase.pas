@@ -604,6 +604,10 @@ begin
   end;
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 function TIdStackBSDBase.WSGetServByPort(const APortNumber: TIdPort): TStrings;
 begin
   Result := TStringList.Create;
@@ -614,5 +618,9 @@ begin
     raise;
   end;
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 end.

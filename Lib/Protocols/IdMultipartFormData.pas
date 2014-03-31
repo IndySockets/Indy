@@ -262,6 +262,10 @@ begin
   inherited Destroy;
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 function TIdMultiPartFormDataStream.AddObject(const AFieldName,
   AContentType, ACharset: string; AFileData: TObject;
   const AFileName: string = ''): TIdFormDataField;
@@ -271,6 +275,10 @@ begin
   end;
   Result := AddFormField(AFieldName, AContentType, ACharset, TStream(AFileData), AFileName);
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 function TIdMultiPartFormDataStream.AddFile(const AFieldName, AFileName: String;
   const AContentType: string = ''): TIdFormDataField;

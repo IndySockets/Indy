@@ -463,6 +463,10 @@ begin
   TIdStack.DecUsage;
 end;
 
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED OFF}
+{$ENDIF}
+
 function TIdBuffer.Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
@@ -470,6 +474,10 @@ function TIdBuffer.Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncod
 begin
   Result := ExtractToString(AByteCount, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
+
+{$IFDEF DEPRECATED_IMPL_BUG}
+  {$WARN SYMBOL_DEPRECATED ON}
+{$ENDIF}
 
 function TIdBuffer.ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}

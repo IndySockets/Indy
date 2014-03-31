@@ -96,6 +96,7 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
 {$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
+{$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 
 // Define for Delphi to auto-generate platform-appropriate '#pragma link' statements in HPP files
 {$UNDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
@@ -750,6 +751,14 @@
     {$IFNDEF KYLIX}
       {$DEFINE HAS_DEPRECATED}
       {$DEFINE HAS_SYMBOL_PLATFORM}
+      {$IFDEF VCL_6}
+        // Delphi 6 has an annoying bug that if a class method is declared as
+        // deprecated, the compiler will emit a "symbol is deprecated" warning
+        // on the method's implementation!  So we will have to wrap implementations
+        // of deprecated methods with {$WARN SYMBOL_DEPRECATED OFF} directives
+        // to disable that warning.
+        {$DEFINE DEPRECATED_IMPL_BUG}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   {$IFNDEF DOTNET}
@@ -873,6 +882,7 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
   {$DEFINE HAS_ComponentPlatformsAttribute_Win64}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
+  {$DEFINE HAS_DIRECTIVE_WARN_DEFAULT}
 {$ENDIF}
 
 {$IFDEF VCL_XE3_OR_ABOVE}
