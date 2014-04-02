@@ -3081,9 +3081,10 @@ var
   Ln: Integer;
   LCmd: string;
   LLength: TIdStreamSize;
-  LHeadersToSend: TIdHeaderList;
+  LHeadersToSend, LCopiedHeaders: TIdHeaderList;
   LHeadersAsString: string;
   LHeadersAsBytes: TIdBytes;
+  LMimeBoundary: string;
   LStream: TStream;
   LHelper: TIdIMAP4WorkHelper;
   LMsgClient: TIdMessageClient;
@@ -3110,53 +3111,92 @@ begin
 
     LStream := TMemoryStream.Create;
     try
-      {RLebeau 12/09/2012: this is a workaround to a design limitation in
-      TIdMessage.SaveToStream().  It always outputs the stream data in an
-      escaped format using SMTP dot transparency, but that is not used in
-      IMAP! Until this design is corrected, we have to use a workaround
-      for now.  This logic is copied from TIdMessage.SaveToSteam() and
-      slightly tweaked...}
+      {RLebeau 04/02/2014: if the user passed in AMsg.LastGeneratedHeaders
+      or AMsg.Headers as AAlternativeHeaders, then assume the user wants to
+      use the headers that existed prior to AMsg being saved below, which
+      may create new header values...}
 
-      //AMsg.SaveToStream(LStream);
-      LMsgClient := TIdMessageClient.Create(nil);
+      LCopiedHeaders := nil;
       try
-        LMsgIO := TIdIOHandlerStreamMsg.Create(nil, nil, LStream);
+        if (AAlternativeHeaders <> nil) and
+           ((AAlternativeHeaders = AMsg.LastGeneratedHeaders) or (AAlternativeHeaders = AMsg.Headers)) then
+        begin
+          LCopiedHeaders := TIdHeaderList.Create(QuoteRFC822);
+          LCopiedHeaders.Assign(AAlternativeHeaders);
+        end;
+
+        {RLebeau 12/09/2012: this is a workaround to a design limitation in
+        TIdMessage.SaveToStream().  It always outputs the stream data in an
+        escaped format using SMTP dot transparency, but that is not used in
+        IMAP! Until this design is corrected, we have to use a workaround
+        for now.  This logic is copied from TIdMessage.SaveToSteam() and
+        slightly tweaked...}
+
+        //AMsg.SaveToStream(LStream);
+        LMsgClient := TIdMessageClient.Create(nil);
         try
-          LMsgIO.FreeStreams := False;
-          LMsgIO.UnescapeLines := True; // this is the key piece that makes it work!
-          LMsgClient.IOHandler := LMsgIO;
+          LMsgIO := TIdIOHandlerStreamMsg.Create(nil, nil, LStream);
           try
-            LMsgClient.SendMsg(AMsg, False);
+            LMsgIO.FreeStreams := False;
+            LMsgIO.UnescapeLines := True; // this is the key piece that makes it work!
+            LMsgClient.IOHandler := LMsgIO;
+            try
+              LMsgClient.SendMsg(AMsg, False);
+            finally
+              LMsgClient.IOHandler := nil;
+            end;
           finally
-            LMsgClient.IOHandler := nil;
+            LMsgIO.Free;
           end;
         finally
-          LMsgIO.Free;
+          LMsgClient.Free;
+        end;
+        // end workaround
+
+        LStream.Position := 0;
+        {We are better off making up the headers as a string first rather than predicting
+        its length.  Slightly wasteful of memory, but it will not take up much.}
+        LHeadersAsString := '';
+
+        {Make sure the headers we end up using have the correct MIME boundary actually
+        used in the message being saved...}
+        if AMsg.NoEncode then begin
+          LMimeBoundary := AMsg.Headers.Params['Content-Type', 'boundary']; {do not localize}
+        end else begin
+          LMimeBoundary := AMsg.LastGeneratedHeaders.Params['Content-Type', 'boundary']; {do not localize}
+        end;
+        if (LCopiedHeaders = nil) and (AAlternativeHeaders <> nil) then begin
+          if AAlternativeHeaders.Params['Content-Type', 'boundary'] <> LMimeBoundary then {do not localize}
+          begin
+            LCopiedHeaders := TIdHeaderList.Create(QuoteRFC822);
+            LCopiedHeaders.Assign(AAlternativeHeaders);
+          end;
+        end;
+
+        if LCopiedHeaders <> nil then begin
+          {Use the copied headers that the user has passed to us, adjusting the MIME boundary...}
+          LCopiedHeaders.Params['Content-Type', 'boundary'] := LMimeBoundary; {do not localize}
+          LHeadersToSend := LCopiedHeaders;
+        end
+        else if AAlternativeHeaders <> nil then begin
+          {Use the headers that the user has passed to us...}
+          LHeadersToSend := AAlternativeHeaders;
+        end
+        else if AMsg.NoEncode then begin
+          {Use the headers that are in the message AMsg...}
+          LHeadersToSend := AMsg.Headers;
+        end else begin
+          {Use the headers that SaveToStream() generated...}
+          LHeadersToSend := AMsg.LastGeneratedHeaders;
+        end;
+        // not using LHeadersToSend.Text because it uses platform-specific line breaks
+        for Ln := 0 to Pred(LHeadersToSend.Count) do begin
+          LHeadersAsString := LHeadersAsString + LHeadersToSend[Ln] + EOL;
         end;
       finally
-        LMsgClient.Free;
+        LCopiedHeaders.Free;
       end;
-      // end workaround
 
-      LStream.Position := 0;
-      {We are better off making up the headers as a string first rather than predicting
-      its length.  Slightly wasteful of memory, but it will not take up much.}
-      LHeadersAsString := '';
-      if AAlternativeHeaders <> nil then begin
-        {Use the headers that the user has passed to us...}
-        LHeadersToSend := AAlternativeHeaders;
-      end
-      else if AMsg.NoEncode then begin
-        {Use the headers that are in the message AMsg...}
-        LHeadersToSend := AMsg.Headers;
-      end else begin
-        {Use the headers that SaveToStream() generated...}
-        LHeadersToSend := AMsg.LastGeneratedHeaders;
-      end;
-      // not using LHeadersToSend.Text because it uses platform-specific line breaks
-      for Ln := 0 to Pred(LHeadersToSend.Count) do begin
-        LHeadersAsString := LHeadersAsString + LHeadersToSend[Ln] + EOL;
-      end;
       LHeadersAsBytes := ToBytes(LHeadersAsString + EOL);
       LHeadersAsString := '';
 
@@ -3263,7 +3303,7 @@ begin
     if LFlags <> '' then begin                        {Do not Localize}
       LFlags := '(' + LFlags + ')';                   {Do not Localize}
     end;
-    LLength := AStream.Size;
+    LLength := AStream.Size - AStream.Position;
     LTempStream := TMemoryStream.Create;
     try
       //Hunt for CRLF.CRLF, if present then we need to remove it...
@@ -3276,8 +3316,10 @@ begin
       // truncating the message that is stored on the server...
 
       SetLength(LBuf, 5);
-      LTempStream.CopyFrom(AStream, LLength);
-      LTempStream.Position := 0;
+      if LLength > 0 then begin
+        LTempStream.CopyFrom(AStream, LLength);
+        LTempStream.Position := 0;
+      end;
       repeat
         if TIdStreamHelper.ReadBytes(LTempStream, LBuf, 5) < 5 then begin
           Break;
