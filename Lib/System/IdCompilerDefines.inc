@@ -751,7 +751,8 @@
     {$IFNDEF KYLIX}
       {$DEFINE HAS_DEPRECATED}
       {$DEFINE HAS_SYMBOL_PLATFORM}
-      {$IFDEF VCL_6}
+      {$DEFINE HAS_UNIT_PLATFORM}
+      {$IFDEF VCL_60}
         // Delphi 6 has an annoying bug that if a class method is declared as
         // deprecated, the compiler will emit a "symbol is deprecated" warning
         // on the method's implementation!  So we will have to wrap implementations
