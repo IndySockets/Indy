@@ -463,21 +463,15 @@ begin
   TIdStack.DecUsage;
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 function TIdBuffer.Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
   Result := ExtractToString(AByteCount, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 function TIdBuffer.ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}

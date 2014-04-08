@@ -13,8 +13,8 @@ Any differences between Unix-like operating systems have to dealt with in other
 ways.
 }
 
-{$WARN SYMBOL_PLATFORM OFF}
-{$WARN UNIT_PLATFORM OFF}
+{$I IdSymbolPlatformOff.inc}
+{$I IdUnitPlatformOff.inc}
 uses
   Classes,
   IdCTypes,
@@ -1338,8 +1338,8 @@ begin
   {$ENDIF}
 end;
 
-{$WARN UNIT_PLATFORM ON}
-{$WARN SYMBOL_PLATFORM ON}
+{$I IdUnitPlatformOn.inc}
+{$I IdSymbolPlatformOn.inc}
 initialization
   GSocketListClass := TIdSocketListVCLPosix;
 end.

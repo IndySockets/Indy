@@ -666,13 +666,9 @@ type
   TIdPID = LongWord;
   TIdThreadId = LongWord;
   TIdThreadHandle = THandle;
-    {$IFDEF HAS_SYMBOL_PLATFORM}
-      {$WARN SYMBOL_PLATFORM OFF}
-    {$ENDIF}
+    {$I IdSymbolPlatformOff.inc}
   TIdThreadPriority = TThreadPriority;
-    {$IFDEF HAS_SYMBOL_PLATFORM}
-      {$WARN SYMBOL_PLATFORM ON}
-    {$ENDIF}
+    {$I IdSymbolPlatformOn.inc}
   {$ENDIF}
 
   {$IFDEF INT_THREAD_PRIORITY}
@@ -3758,35 +3754,41 @@ begin
   Result := GIdUTF8Encoding;
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 function enDefault: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := nil;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function en7Bit: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := IndyTextEncoding_ASCII;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function en8Bit: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := IndyTextEncoding_8Bit;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function enUTF8: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := IndyTextEncoding_UTF8;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function Indy8BitEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   {$IFNDEF DOTNET}
   if not AOwnedByIndy then begin
@@ -3797,7 +3799,9 @@ begin
   Result := IndyTextEncoding_8Bit;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function IndyASCIIEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   {$IFNDEF DOTNET}
   if not AOwnedByIndy then begin
@@ -3808,7 +3812,9 @@ begin
   Result := IndyTextEncoding_ASCII;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function IndyUTF16BigEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   {$IFNDEF DOTNET}
   if not AOwnedByIndy then begin
@@ -3819,7 +3825,9 @@ begin
   Result := IndyTextEncoding_UTF16BE;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function IndyUTF16LittleEndianEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   {$IFNDEF DOTNET}
   if not AOwnedByIndy then begin
@@ -3830,7 +3838,9 @@ begin
   Result := IndyTextEncoding_UTF16LE;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function IndyOSDefaultEncoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   {$IFNDEF DOTNET}
   if not AOwnedByIndy then begin
@@ -3841,7 +3851,9 @@ begin
   Result := IndyTextEncoding_OSDefault;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function IndyUTF7Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   {$IFNDEF DOTNET}
   if not AOwnedByIndy then begin
@@ -3852,7 +3864,9 @@ begin
   Result := IndyTextEncoding_UTF7;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function IndyUTF8Encoding{$IFNDEF DOTNET}(const AOwnedByIndy: Boolean = True){$ENDIF}: IIdTextEncoding;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   {$IFNDEF DOTNET}
   if not AOwnedByIndy then begin
@@ -3862,10 +3876,6 @@ begin
   {$ENDIF}
   Result := IndyTextEncoding_UTF8;
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 {$IFDEF UNIX}
 function HackLoadFileName(const ALibName, ALibVer : String) : string;  {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -5877,23 +5887,19 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' ');
+{$I IdDeprecatedImplBugOn.inc}
 begin
   SplitDelimitedString(AData, AStrings, False, ADelim{$IFNDEF USE_OBJECT_ARC}, True{$ENDIF});
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string = ' ');
+{$I IdDeprecatedImplBugOn.inc}
 begin
   SplitDelimitedString(AData, AStrings, True, ADelim{$IFNDEF USE_OBJECT_ARC}, True{$ENDIF});
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 procedure SplitDelimitedString(const AData: string; AStrings: TStrings; ATrim: Boolean;
   const ADelim: string = ' '{$IFNDEF USE_OBJECT_ARC}; AIncludePositions: Boolean = False{$ENDIF});
@@ -6460,18 +6466,12 @@ begin
   Result := DateTimeGMTToCookieStr(Value - OffsetFromUTC, AUseNetscapeFmt);
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 function DateTimeToInternetStr(const Value: TDateTime; const AUseGMTStr : Boolean = False) : String;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   Result := LocalDateTimeToGMT(Value, AUseGMTStr);
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 {This should never be localized}
 function LocalDateTimeToGMT(const Value: TDateTime; const AUseGMTStr: Boolean = False) : String;
@@ -6485,19 +6485,13 @@ begin
                     UTCOffsetToStr(OffsetFromUTC, AUseGMTStr)]);
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 function DateTimeToGmtOffSetStr(ADateTime: TDateTime; const AUseGMTStr: Boolean = False): string;
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := UTCOffsetToStr(ADateTime, AUseGMTStr);
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 function OffsetFromUTC: TDateTime;
 {$IFDEF DOTNET}

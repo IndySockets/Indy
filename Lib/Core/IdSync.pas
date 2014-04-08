@@ -312,17 +312,9 @@ begin
   {$IFDEF HAS_STATIC_TThread_Queue}
   TThread.Queue(nil, AMethod);
   {$ELSE}
-    {$IFDEF HAS_DEPRECATED}
-      {$WARN SYMBOL_DEPRECATED OFF}
-    {$ENDIF}
+    {$I IdSymbolDeprecatedOff.inc}
   TIdNotifyMethod.Create(AMethod).Notify;
-    {$IFDEF HAS_DEPRECATED}
-      {$IFDEF HAS_DIRECTIVE_WARN_DEFAULT}
-        {$WARN SYMBOL_DEPRECATED DEFAULT}
-      {$ELSE}
-        {$WARN SYMBOL_DEPRECATED ON}
-      {$ENDIF}
-    {$ENDIF}
+    {$I IdSymbolDeprecatedOn.inc}
   {$ENDIF}
 end;
 
@@ -332,11 +324,9 @@ end;
 // notify thread frees the object.  Also, this makes the calling thread
 // block, so TIdSync should be used instead...
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 procedure TIdNotify.WaitFor;
+{$I IdDeprecatedImplBugOn.inc}
 var
   LNotifyIndex: Integer;
   LList: TIdNotifyList;
@@ -354,10 +344,6 @@ begin
     IndySleep(10);
   until False;
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 {$ENDIF}
 
@@ -453,24 +439,20 @@ end;
 
 { TIdNotifyMethod }
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 constructor TIdNotifyMethod.Create(AMethod: TThreadMethod);
+{$I IdDeprecatedImplBugOn.inc}
 begin
   inherited Create;
   FMethod := AMethod;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 procedure TIdNotifyMethod.DoNotify;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   FMethod;
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 {$IFDEF NotifyThreadNeeded}
 initialization

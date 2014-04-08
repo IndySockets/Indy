@@ -215,8 +215,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 {$IFDEF DOTNET}
-{$WARN UNIT_PLATFORM OFF}
-{$WARN SYMBOL_PLATFORM OFF}
+{$I IdUnitPlatformOff.inc}
+{$I IdSymbolPlatformOff.inc}
 {$ENDIF}
 
 uses

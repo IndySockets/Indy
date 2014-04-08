@@ -108,7 +108,7 @@ uses
 	the definitions are not intented to be compiled in non-Unix-like operating
 	systems, platform warnings are not going to be too helpful.
 	}
-     {$WARN SYMBOL_PLATFORM OFF}
+      {$I IdSymbolPlatformOff.inc}
       IdVCLPosixSupplemental,
       Posix.Errno,Posix.NetDB, Posix.NetinetIn, Posix.SysSocket;
     {$ENDIF}
@@ -931,6 +931,6 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
 implementation
 
 {$IFDEF USE_VCL_POSIX}
-  {$WARN SYMBOL_PLATFORM ON}
+  {$I IdSymbolPlatformOn.inc}
 {$ENDIF}
 end.

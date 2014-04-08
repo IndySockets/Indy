@@ -794,6 +794,8 @@ Lib/Core/IdCreditsBitmap.res -text svneol=unset#unset
 Lib/Core/IdCreditsBitmap.resources -text svneol=unset#unset
 Lib/Core/IdCustomTCPServer.pas -text
 Lib/Core/IdCustomTransparentProxy.pas -text
+Lib/Core/IdDeprecatedImplBugOff.inc -text
+Lib/Core/IdDeprecatedImplBugOn.inc -text
 Lib/Core/IdDsnBaseCmpEdt.pas -text
 Lib/Core/IdDsnCoreResourceStrings.pas -text
 Lib/Core/IdDsnPropEdBinding.pas -text
@@ -839,6 +841,10 @@ Lib/Core/IdServerIOHandlerStack.pas -text
 Lib/Core/IdSimpleServer.pas -text
 Lib/Core/IdSocketHandle.pas -text
 Lib/Core/IdSocks.pas -text
+Lib/Core/IdSymbolDeprecatedOff.inc -text
+Lib/Core/IdSymbolDeprecatedOn.inc -text
+Lib/Core/IdSymbolPlatformOff.inc -text
+Lib/Core/IdSymbolPlatformOn.inc -text
 Lib/Core/IdSync.pas -text
 Lib/Core/IdTCPClient.pas -text
 Lib/Core/IdTCPConnection.pas -text
@@ -852,6 +858,8 @@ Lib/Core/IdTraceRoute.pas -text
 Lib/Core/IdUDPBase.pas -text
 Lib/Core/IdUDPClient.pas -text
 Lib/Core/IdUDPServer.pas -text
+Lib/Core/IdUnitPlatformOff.inc -text
+Lib/Core/IdUnitPlatformOn.inc -text
 Lib/Core/IdYarn.pas -text
 Lib/Core/IddclCore90ASM90.inc -text
 Lib/Core/IndyCar.bmp -text svneol=unset#unset
@@ -1315,6 +1323,8 @@ Lib/Protocols/IdDayTime.pas -text
 Lib/Protocols/IdDayTimeServer.pas -text
 Lib/Protocols/IdDayTimeUDP.pas -text
 Lib/Protocols/IdDayTimeUDPServer.pas -text
+Lib/Protocols/IdDeprecatedImplBugOff.inc -text
+Lib/Protocols/IdDeprecatedImplBugOn.inc -text
 Lib/Protocols/IdDiscardServer.pas -text
 Lib/Protocols/IdDiscardUDPServer.pas -text
 Lib/Protocols/IdDsnRegister.pas -text
@@ -1515,6 +1525,10 @@ Lib/Protocols/IdServerInterceptLogEvent.pas -text
 Lib/Protocols/IdServerInterceptLogFile.pas -text
 Lib/Protocols/IdSocksServer.pas -text
 Lib/Protocols/IdStrings.pas -text
+Lib/Protocols/IdSymbolDeprecatedOff.inc -text
+Lib/Protocols/IdSymbolDeprecatedOn.inc -text
+Lib/Protocols/IdSymbolPlatformOff.inc -text
+Lib/Protocols/IdSymbolPlatformOn.inc -text
 Lib/Protocols/IdSysLog.pas -text
 Lib/Protocols/IdSysLogMessage.pas -text
 Lib/Protocols/IdSysLogServer.pas -text
@@ -1536,6 +1550,8 @@ Lib/Protocols/IdTunnelCommon.pas -text
 Lib/Protocols/IdTunnelMaster.pas -text
 Lib/Protocols/IdTunnelSlave.pas -text
 Lib/Protocols/IdURI.pas -text
+Lib/Protocols/IdUnitPlatformOff.inc -text
+Lib/Protocols/IdUnitPlatformOn.inc -text
 Lib/Protocols/IdUnixTime.pas -text
 Lib/Protocols/IdUnixTimeServer.pas -text
 Lib/Protocols/IdUnixTimeUDP.pas -text
@@ -1894,6 +1910,8 @@ Lib/System/IdBaseComponent.pas -text
 Lib/System/IdCTypes.pas -text
 Lib/System/IdCompilerDefines.inc -text
 Lib/System/IdComponent.pas -text
+Lib/System/IdDeprecatedImplBugOff.inc -text
+Lib/System/IdDeprecatedImplBugOn.inc -text
 Lib/System/IdException.pas -text
 Lib/System/IdGlobal.pas -text
 Lib/System/IdIDN.pas -text
@@ -1918,8 +1936,14 @@ Lib/System/IdStream.pas -text
 Lib/System/IdStreamNET.pas -text
 Lib/System/IdStreamVCL.pas -text
 Lib/System/IdStruct.pas -text
+Lib/System/IdSymbolDeprecatedOff.inc -text
+Lib/System/IdSymbolDeprecatedOn.inc -text
+Lib/System/IdSymbolPlatformOff.inc -text
+Lib/System/IdSymbolPlatformOn.inc -text
 Lib/System/IdSystem90ASM90.inc -text
 Lib/System/IdTransactedFileStream.pas -text
+Lib/System/IdUnitPlatformOff.inc -text
+Lib/System/IdUnitPlatformOn.inc -text
 Lib/System/IdVCLPosixSupplemental.pas -text
 Lib/System/IdVers.inc -text
 Lib/System/IdVers.inc.tmpl -text

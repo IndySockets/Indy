@@ -445,11 +445,9 @@ begin
   end;
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 function TIdSASLEntries.ParseCapaReply(ACapaReply: TStrings; const AAuthString: String): TStrings;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   Result := TStringList.Create;
   try
@@ -459,10 +457,6 @@ begin
     raise;
   end;
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 procedure TIdSASLEntries.ParseCapaReplyToList(ACapaReply, ADestList: TStrings;
   const AAuthString: String = 'AUTH'); {do not localize}

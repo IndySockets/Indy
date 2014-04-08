@@ -295,11 +295,9 @@ begin
   end;  //finally
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 function TIdHeaderList.FoldLine(AString : string): TStrings;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   Result := TStringList.Create;
   try
@@ -309,10 +307,6 @@ begin
     raise;
   end;
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 procedure TIdHeaderList.FoldLineToList(AString : string; ALines: TStrings);
 var

@@ -262,23 +262,17 @@ begin
   inherited Destroy;
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 function TIdMultiPartFormDataStream.AddObject(const AFieldName,
   AContentType, ACharset: string; AFileData: TObject;
   const AFileName: string = ''): TIdFormDataField;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   if not (AFileData is TStream) then begin
     raise EIdInvalidObjectType.Create(RSMFDInvalidObjectType);
   end;
   Result := AddFormField(AFieldName, AContentType, ACharset, TStream(AFileData), AFileName);
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 function TIdMultiPartFormDataStream.AddFile(const AFieldName, AFileName: String;
   const AContentType: string = ''): TIdFormDataField;

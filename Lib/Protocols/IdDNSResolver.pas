@@ -1343,11 +1343,9 @@ begin
   end;
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 procedure TIdDNSResolver.FillResultWithOutCheckId(AResult: TIdBytes);
+{$I IdDeprecatedImplBugOn.inc}
 var
   NAnswers: Word;
 begin
@@ -1369,10 +1367,6 @@ begin
     end;
   end;
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 procedure TQueryResult.FilterBySection(const AKeep: TResultSections);
 var

@@ -2099,18 +2099,12 @@ begin
   end;
 end;
 
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}
-
+{$I IdDeprecatedImplBugOff.inc}
 procedure TIdFTP.Quit;
+{$I IdDeprecatedImplBugOn.inc}
 begin
   Disconnect;
 end;
-
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$WARN SYMBOL_DEPRECATED ON}
-{$ENDIF}
 
 procedure TIdFTP.KillDataChannel;
 begin

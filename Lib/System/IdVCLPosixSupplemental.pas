@@ -4,9 +4,7 @@ interface
 
 {$I IdCompilerDefines.inc}
 
-{$IFDEF HAS_SYMBOL_PLATFORM}
-  {$WARN SYMBOL_PLATFORM OFF}
-{$ENDIF}
+{$I IdSymbolPlatformOff.inc}
 
 uses
   {$IFDEF USE_VCL_POSIX}

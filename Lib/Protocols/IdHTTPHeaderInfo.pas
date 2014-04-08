@@ -294,13 +294,13 @@ type
     procedure ProcessMetaHTTPEquiv(AStream: TStream);
   end;
 
+var
+  GIdDefaultUserAgent: String = 'Mozilla/3.0 (compatible; Indy Library)'; {do not localize}
+
 implementation
 
 uses
   SysUtils;
-
-const
-  DefaultUserAgent = 'Mozilla/3.0 (compatible; Indy Library)'; {do not localize}
 
 { TIdEntityHeaderInfo }
 
@@ -973,7 +973,7 @@ procedure TIdRequestHeaderInfo.Clear;
 begin
   FAccept := 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'; // 'text/html, */*'; {do not localize}
   FAcceptCharSet := '';
-  FUserAgent := DefaultUserAgent;
+  FUserAgent := GIdDefaultUserAgent;
   FBasicByDefault := false;
   FRanges.Text := '';
   FMethodOverride := '';
