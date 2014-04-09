@@ -431,6 +431,7 @@ type
     FSourceStream: TStream;
     FUseProxy: TIdHTTPConnectionType;
     FIPVersion: TIdIPVersion;
+    FDestination: string;
   public
     constructor Create(AHTTP: TIdCustomHTTP); reintroduce; virtual;
     property URL: string read FURL write FURL;
@@ -438,6 +439,7 @@ type
     property Source: TStream read FSourceStream write FSourceStream;
     property UseProxy: TIdHTTPConnectionType read FUseProxy;
     property IPVersion: TIdIPversion read FIPVersion write FIPVersion;
+    property Destination: string read FDestination write FDestination;
   end;
 
   TIdHTTPProtocol = class(TObject)
@@ -521,7 +523,7 @@ type
       {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding{$ENDIF}
       ): string;
 
-    procedure CheckAndConnect(AResponse: TIdHTTPResponse);
+    procedure CheckAndConnect(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     procedure DoOnDisconnected; override;
 
     //misc internal stuff
@@ -1173,20 +1175,8 @@ begin
     LHost := ProxyParams.ProxyServer;
     LPort := ProxyParams.ProxyPort;
     if TextIsSame(URL.Protocol, 'HTTPS') then begin  {do not localize}
-      if Assigned(IOHandler) then begin
-        if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-          TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := True;
-        end else begin
-          raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
-        end;
-      end;
       Result := ctSSLProxy;
     end else begin
-      if Assigned(IOHandler) then begin
-        if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-          TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := True;
-        end;
-      end;
       Result := ctProxy;
     end;
   end else begin
@@ -1200,32 +1190,15 @@ begin
       end;
     end;
     LHost := URL.Host;
-    LPort := IndyStrToInt(URL.Port, 80);
+    LPort := IndyStrToInt(URL.Port, IdPORT_HTTP);
     if (not TextIsSame(FHost, LHost)) or (LPort <> FPort) then begin
       if Connected then begin
         Disconnect;
       end;
     end;
     if TextIsSame(URL.Protocol, 'HTTPS') then begin  {do not localize}
-      // Just check can we do SSL
-
-      // TODO: if an IOHandler has not been assigned yet, create a default SSL
-      // IOHandler object. We need to add a way to create default objects,
-      // similar to TIdIOHandler.MakeDefaultIOHandler()...
-      {
-      if IOHandler = nil then
-        IOHandler := TIdIOHandler.MakeDefaultSSLIOHandler(Self);
-      }
-
-      if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-        raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
-      end;
-      TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
       Result := ctSSL;
     end else begin
-      if IOHandler is TIdSSLIOHandlerSocketBase then begin
-        TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := True;
-      end;
       Result := ctNormal;
     end;
   end;
@@ -1399,7 +1372,7 @@ begin
 
   LDecMeth := 0;
 
-  LParseHTML := IsContentTypeHtml(AResponse) and Assigned(AResponse.ContentStream) and not (hoNoParseMetaHTTPEquiv in FOptions);
+  LParseHTML := Assigned(AResponse.ContentStream) and IsContentTypeHtml(AResponse) and not (hoNoParseMetaHTTPEquiv in FOptions);
   LCreateTmpContent := LParseHTML and not (AResponse.ContentStream is TCustomMemoryStream);
 
   LOrigStream := AResponse.ContentStream;
@@ -1819,10 +1792,8 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.CheckAndConnect(AResponse: TIdHTTPResponse);
+procedure TIdCustomHTTP.CheckAndConnect(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 begin
-  Assert(AResponse<>nil);
-
   if not AResponse.KeepAlive then begin
     Disconnect;
   end;
@@ -1835,6 +1806,35 @@ begin
 
   if not Connected then try
     IPVersion := FURI.IPVersion;
+
+    case ARequest.UseProxy of
+      ctNormal, ctProxy:
+      begin
+        if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+          TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := True;
+        end;
+      end;
+
+      ctSSL, ctSSLProxy:
+      begin
+        // TODO: if an IOHandler has not been assigned yet, create a default SSL
+        // IOHandler object. We need to add a way to create default objects,
+        // similar to TIdIOHandler.MakeDefaultIOHandler()...
+        {
+        if IOHandler = nil then begin
+          IOHandler := TIdIOHandler.MakeDefaultSSLIOHandler(Self);
+          IOHandler.OnStatus := OnStatus;
+          ManagedIOHandler := True;
+        end;
+        }
+
+        if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+          raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
+        end;
+        TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := (ARequest.UseProxy = ctSSLProxy);
+      end;
+    end;
+
     Connect;
   except
     on E: EIdSSLProtocolReplyError do begin
@@ -1850,13 +1850,26 @@ var
   LUseConnectVerb: Boolean;
   // under ARC, convert a weak reference to a strong reference before working with it
   LCompressor: TIdZLibCompressorBase;
+  LOldProxy: TIdHTTPConnectionType;
+  LNewDest: string;
 begin
+  LNewDest := URL.Host + ':' + URL.Port;
+
+  LOldProxy := ARequest.FUseProxy;
   ARequest.FUseProxy := SetHostAndPort;
 
-  if ARequest.UseProxy = ctProxy then
-  begin
-    ARequest.URL := FURI.URI;
+  if ARequest.UseProxy <> LOldProxy then begin
+    if Connected then begin
+      Disconnect;
+    end;
+  end
+  else if (ARequest.UseProxy = ctSSLProxy) and (not TextIsSame(ARequest.Destination, LNewDest)) then begin
+    if Connected then begin
+      Disconnect;
+    end;
   end;
+
+  ARequest.Destination := LNewDest;
 
   LUseConnectVerb := False;
 
@@ -1872,23 +1885,24 @@ begin
       begin
         ARequest.Connection := '';
         if ARequest.UseProxy = ctSSLProxy then begin
-          // TODO: if already connected to an SSL proxy, DO NOT send another
-          // CONNECT request, as it will be sent directly to the target HTTP
-          // server and not to the proxy!
-          LUseConnectVerb := True;
+          // if already connected to an SSL proxy, DO NOT send another
+          // CONNECT request, as it will be sent directly to the target
+          // HTTP server and not to the proxy!
+          LUseConnectVerb := not Connected;
         end;
       end;
     ctProxy:
       begin
+        ARequest.URL := FURI.URI;
         if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
         begin
           ARequest.ProxyConnection := 'keep-alive'; {do not localize}
         end;
         if hoNonSSLProxyUseConnectVerb in FOptions then begin
-          // TODO: if already connected to a proxy, DO NOT send another
-          // CONNECT request, as it will be sent directly to the target
-          // HTTP server and not to the proxy!
-          LUseConnectVerb := True;
+          // if already connected to a proxy, DO NOT send another CONNECT
+          // request, as it will be sent directly to the target HTTP server
+          // and not to the proxy!
+          LUseConnectVerb := not Connected;
         end;
       end;
   end;
@@ -1928,54 +1942,46 @@ begin
       LLocalHTTP.Request.UserAgent := ARequest.UserAgent;
       LLocalHTTP.Request.Host := ARequest.Host;
       LLocalHTTP.Request.Pragma := 'no-cache';                       {do not localize}
-      LLocalHTTP.Request.URL := URL.Host + ':' + URL.Port;
+      LLocalHTTP.Request.URL := ARequest.Destination;
       LLocalHTTP.Request.Method := Id_HTTPMethodConnect;
       LLocalHTTP.Request.ProxyConnection := 'keep-alive';            {do not localize}
+      LLocalHTTP.Request.FUseProxy := ARequest.UseProxy;
 
-      // TODO: change this to nil so data is discarded without wasting memory?
-      LLocalHTTP.Response.ContentStream := TMemoryStream.Create;
-      {$IFNDEF USE_OBJECT_ARC}
+      // leaving LLocalHTTP.Response.ContentStream set to nil so response data is discarded without wasting memory
       try
-      {$ENDIF}
-        try
-          repeat
-            CheckAndConnect(LLocalHTTP.Response);
-            LLocalHTTP.BuildAndSendRequest(nil);
+        repeat
+          CheckAndConnect(LLocalHTTP.Request, LLocalHTTP.Response);
+          LLocalHTTP.BuildAndSendRequest(nil);
 
-            LLocalHTTP.Response.ResponseText := InternalReadLn;
-            if Length(LLocalHTTP.Response.ResponseText) = 0 then begin
-              // Support for HTTP responses without status line and headers
-              LLocalHTTP.Response.ResponseText := 'HTTP/1.0 200 OK'; {do not localize}
-              LLocalHTTP.Response.Connection := 'close';             {do not localize}
-            end else begin
-              LLocalHTTP.RetrieveHeaders(MaxHeaderLines);
-              ProcessCookies(LLocalHTTP.Request, LLocalHTTP.Response);
-            end;
+          LLocalHTTP.Response.ResponseText := InternalReadLn;
+          if Length(LLocalHTTP.Response.ResponseText) = 0 then begin
+            // Support for HTTP responses without status line and headers
+            LLocalHTTP.Response.ResponseText := 'HTTP/1.0 200 OK'; {do not localize}
+            LLocalHTTP.Response.Connection := 'close';             {do not localize}
+          end else begin
+            LLocalHTTP.RetrieveHeaders(MaxHeaderLines);
+            ProcessCookies(LLocalHTTP.Request, LLocalHTTP.Response);
+          end;
 
-            if LLocalHTTP.Response.ResponseCode = 200 then begin
-              // Connection established
-              if (ARequest.UseProxy = ctSSLProxy) and (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-                TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
-              end;
-              Break;
-            end else begin
-              LLocalHTTP.ProcessResponse([]);
+          if (LLocalHTTP.Response.ResponseCode div 100) = 2 then begin
+            // Connection established
+            if (ARequest.UseProxy = ctSSLProxy) and (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+              TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
             end;
-          until False;
-        except
-          raise;
-          // TODO: Add property that will contain the error messages.
-        end;
-      {$IFNDEF USE_OBJECT_ARC}
-      finally
-        LLocalHTTP.Response.ContentStream.Free;
+            Break;
+          end else begin
+            LLocalHTTP.ProcessResponse([]);
+          end;
+        until False;
+      except
+        raise;
+        // TODO: Add property that will contain the error messages.
       end;
-      {$ENDIF}
     finally
       FreeAndNil(LLocalHTTP);
     end;
   end else begin
-    CheckAndConnect(AResponse);
+    CheckAndConnect(ARequest, AResponse);
   end;
 
   FHTTPProto.BuildAndSendRequest(URL);
