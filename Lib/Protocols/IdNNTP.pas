@@ -1050,9 +1050,8 @@ end;
 
 function TIdNNTP.GetBody(AMsg: TIdMessage): Boolean;
 begin
-  Result := True;
+  Result := SendCmd('BODY', [222, 420]) = 222; {do not localize}
   if Result then begin
-    SendCmd('BODY', 222); {do not localize}
     AMsg.Clear;
     ReceiveBody(AMsg);
   end;

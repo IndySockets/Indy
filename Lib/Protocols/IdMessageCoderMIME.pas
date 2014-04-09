@@ -351,23 +351,26 @@ begin
     LContentTransferEncoding := FHeaders.Values['Content-Transfer-Encoding']; {Do not Localize}
   end;
   if LContentTransferEncoding = '' then begin
+    // RLebeau 04/08/2014: According to RFC 2045 Section 6.1:
+    // "Content-Transfer-Encoding: 7BIT" is assumed if the
+    // Content-Transfer-Encoding header field is not present."
     if IsHeaderMediaType(LContentType, 'application/mac-binhex40') then begin  {Do not Localize}
       LContentTransferEncoding := 'binhex40'; {do not localize}
+    end else begin
+      LContentTransferEncoding := '7bit'; {do not localize}
     end;
-  end;
-
-  // RLebeau 08/17/09 - According to RFC 2045 Section 6.4:
-  // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
-  // permitted to have any value other than "7bit", "8bit" or "binary"."
-  //
-  // However, came across one message where the "Content-Type" was set to
-  // "multipart/related" and the "Content-Transfer-Encoding" was set to
-  // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
-  // the message correctly, but Indy was not.  So let's check for that scenario
-  // and ignore illegal "Content-Transfer-Encoding" values if present...
-
-  if IsHeaderMediaType(LContentType, 'multipart') and (LContentTransferEncoding <> '') then {do not localize}
+  end
+  else if IsHeaderMediaType(LContentType, 'multipart') then {do not localize}
   begin
+    // RLebeau 08/17/09 - According to RFC 2045 Section 6.4:
+    // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
+    // permitted to have any value other than "7bit", "8bit" or "binary"."
+    //
+    // However, came across one message where the "Content-Type" was set to
+    // "multipart/related" and the "Content-Transfer-Encoding" was set to
+    // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
+    // the message correctly, but Indy was not.  So let's check for that scenario
+    // and ignore illegal "Content-Transfer-Encoding" values if present...
     if PosInStrArray(LContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1 then begin {do not localize}
       LContentTransferEncoding := '';
     end;
@@ -393,14 +396,19 @@ begin
       BoundaryEnd := BoundaryStart + '--'; {Do not Localize}
     end;
 
-    case PosInStrArray(LContentTransferEncoding, ['7bit', 'quoted-printable', 'base64', '8bit', 'binary'], False) of {do not localize}
-      0..2: IsBinaryContentTransferEncoding := False;
-      3..4: IsBinaryContentTransferEncoding := True;
-    else
-      // According to RFC 2045 Section 6.4:
-      // "Any entity with an unrecognized Content-Transfer-Encoding must be
-      // treated as if it has a Content-Type of "application/octet-stream",
-      // regardless of what the Content-Type header field actually says."
+    if LContentTransferEncoding <> '' then begin
+      case PosInStrArray(LContentTransferEncoding, ['7bit', 'quoted-printable', 'base64', '8bit', 'binary'], False) of {do not localize}
+        0..2: IsBinaryContentTransferEncoding := False;
+        3..4: IsBinaryContentTransferEncoding := True;
+      else
+        // According to RFC 2045 Section 6.4:
+        // "Any entity with an unrecognized Content-Transfer-Encoding must be
+        // treated as if it has a Content-Type of "application/octet-stream",
+        // regardless of what the Content-Type header field actually says."
+        IsBinaryContentTransferEncoding := True;
+        LContentTransferEncoding := '';
+      end;
+    end else begin
       IsBinaryContentTransferEncoding := True;
     end;
 

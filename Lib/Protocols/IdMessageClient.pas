@@ -694,6 +694,8 @@ var
   LParentPart: integer;
   LPreviousParentPart: integer;
   LEncoding, LCharsetEncoding: IIdTextEncoding;
+  LContentTransferEncoding: string;
+  LUnknownContentTransferEncoding: Boolean;
 
   // TODO - move this procedure into TIdIOHandler as a new Capture method?
   procedure CaptureAndDecodeCharset(AByteEncoding: IIdTextEncoding);
@@ -936,32 +938,52 @@ begin
   // is not available for use below.  What is the best way to detect that so
   // the user could be allowed to set up the IOHandler.DefStringEncoding
   // beforehand?
-  
-  // RLebeau 08/17/09 - According to RFC 2045 Section 6.4:
-  // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
-  // permitted to have any value other than "7bit", "8bit" or "binary"."
-  //
-  // However, came across one message where the "Content-Type" was set to
-  // "multipart/related" and the "Content-Transfer-Encoding" was set to
-  // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
-  // the message correctly, but Indy was not.  So let's check for that scenario
-  // and ignore illegal "Content-Transfer-Encoding" values if present...
 
-  if IsHeaderMediaType(AMsg.ContentType, 'multipart') and (AMsg.ContentTransferEncoding <> '') then {do not localize}
+  LContentTransferEncoding := AMsg.ContentTransferEncoding;
+  LUnknownContentTransferEncoding := False;
+
+  if LContentTransferEncoding = '' then begin
+    // RLebeau 04/08/2014: According to RFC 2045 Section 6.1:
+    // "Content-Transfer-Encoding: 7BIT" is assumed if the
+    // Content-Transfer-Encoding header field is not present."
+    if IsHeaderMediaType(AMsg.ContentType, 'application/mac-binhex40') then begin  {Do not Localize}
+      LContentTransferEncoding := 'binhex40'; {do not localize}
+    end
+    else if (AMsg.Encoding = meMIME) and (AMsg.MIMEBoundary.Count > 0) then begin
+      LContentTransferEncoding := '7bit'; {do not localize}
+    end;
+  end
+  else if IsHeaderMediaType(AMsg.ContentType, 'multipart') then {do not localize}
   begin
-    if PosInStrArray(AMsg.ContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1 then begin {do not localize}
-      AMsg.ContentTransferEncoding := '';
+    // RLebeau 08/17/09 - According to RFC 2045 Section 6.4:
+    // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
+    // permitted to have any value other than "7bit", "8bit" or "binary"."
+    //
+    // However, came across one message where the "Content-Type" was set to
+    // "multipart/related" and the "Content-Transfer-Encoding" was set to
+    // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
+    // the message correctly, but Indy was not.  So let's check for that scenario
+    // and ignore illegal "Content-Transfer-Encoding" values if present...
+    if PosInStrArray(LContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1 then begin {do not localize}
+      LContentTransferEncoding := '';
+      LUnknownContentTransferEncoding := True;
     end;
   end;
 
-  case PosInStrArray(AMsg.ContentTransferEncoding, ['7bit', 'quoted-printable', 'base64', '8bit', 'binary'], False) of {do not localize}
-    0..2: LEncoding := IndyTextEncoding_ASCII;
-    3..4: LEncoding := IndyTextEncoding_8Bit;
-  else
-    // According to RFC 2045 Section 6.4:
-    // "Any entity with an unrecognized Content-Transfer-Encoding must be
-    // treated as if it has a Content-Type of "application/octet-stream",
-    // regardless of what the Content-Type header field actually says."
+  if LContentTransferEncoding <> '' then begin
+    case PosInStrArray(LContentTransferEncoding, ['7bit', 'quoted-printable', 'base64', '8bit', 'binary'], False) of {do not localize}
+      0..2: LEncoding := IndyTextEncoding_ASCII;
+      3..4: LEncoding := IndyTextEncoding_8Bit;
+    else
+      // According to RFC 2045 Section 6.4:
+      // "Any entity with an unrecognized Content-Transfer-Encoding must be
+      // treated as if it has a Content-Type of "application/octet-stream",
+      // regardless of what the Content-Type header field actually says."
+      LEncoding := IndyTextEncoding_8Bit;
+      LContentTransferEncoding := '';
+      LUnknownContentTransferEncoding := True;
+    end;
+  end else begin
     LEncoding := IndyTextEncoding_8Bit;
   end;
 
@@ -972,7 +994,7 @@ begin
     end else begin
       LActiveDecoder := nil;
       try
-        if (
+        if ((not LUnknownContentTransferEncoding) and
          ((AMsg.Encoding = meMIME) and (AMsg.MIMEBoundary.Count > 0)) or
          ((AMsg.Encoding = mePlainText) and (PosInStrArray(AMsg.ContentTransferEncoding, ['base64', 'quoted-printable'], False) = -1))  {do not localize}
          ) then begin
@@ -1023,7 +1045,13 @@ begin
           TIdMessageDecoderMime(LActiveDecoder).BodyEncoded := True;
           TIdMessageDecoderMime(LActiveDecoder).ReadHeader;
           case LActiveDecoder.PartType of
-            mcptText:       ProcessTextPart(LActiveDecoder, True); //Put the text into TIdMessage.Body
+            mcptText: begin
+              if LUnknownContentTransferEncoding then begin
+                ProcessAttachment(LActiveDecoder);
+              end else begin
+                ProcessTextPart(LActiveDecoder, True); //Put the text into TIdMessage.Body
+              end;
+            end;
             mcptAttachment: ProcessAttachment(LActiveDecoder);
             mcptIgnore:     FreeAndNil(LActiveDecoder);
             mcptEOF:        FreeAndNil(LActiveDecoder);

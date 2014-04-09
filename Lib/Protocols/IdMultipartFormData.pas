@@ -639,7 +639,7 @@ begin
   end
   else if Length(FFieldValue) > 0 then begin
     I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
-    if I = 0 then begin
+    if I <= 0 then begin
       // 7bit
       {$IFDEF STRING_IS_UNICODE}
       I := IndyTextEncoding_ASCII.GetByteCount(FFieldValue);
@@ -654,7 +654,7 @@ begin
       // need to include an explicit CRLF at the end of the data
       Result := Result + I + 2{CRLF};
     end
-    else if (I = -1) or (I = 1) or (i = 2) then begin
+    else if (I = 1) or (I = 2) then begin
       // 8bit/binary
       {$IFDEF STRING_IS_UNICODE}
       I := CharsetToEncoding(FCharset).GetByteCount(FFieldValue);
@@ -743,7 +743,7 @@ begin
       LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
       {$ENDIF}
       I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
-      if I = 0 then begin
+      if I <= 0 then begin
         // 7bit
         {$IFDEF STRING_IS_UNICODE}
         WriteStringToStream(Result, FFieldValue, IndyTextEncoding_ASCII);
@@ -754,7 +754,7 @@ begin
         // need to include an explicit CRLF at the end of the data
         WriteStringToStream(Result, CRLF);
       end
-      else if (I = -1) or (I = 1) or (I = 2) then begin
+      else if (I = 1) or (I = 2) then begin
         // 8bit/binary
         {$IFDEF STRING_IS_UNICODE}
         WriteStringToStream(Result, FFieldValue, CharsetToEncoding(FCharset));
