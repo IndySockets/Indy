@@ -103,6 +103,10 @@
 
 // detect compiler versions
 
+// TODO: to detect features in Delphi/C++Builder v6 and later, use CompilerVersion
+// and RTLVersion constants instead of VERXXX defines.  We still support v5, which
+// does not have such constants.
+
 // Delphi 4
 {$IFDEF VER120}
   {$DEFINE DCC}
@@ -286,6 +290,17 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi & CBuilder AppMethod
+//AppMethod is just XE5 for mobile only, VCL is removed
+{$IFDEF VER265}
+  {$DEFINE VCL_XE5}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_XE5}
+  {$ELSE}
+    {$DEFINE DELPHI_XE5}
+  {$ENDIF}
+{$ENDIF}
+
 //Delphi & CBuilder XE6 (Proteus)
 {$IFDEF VER270}
   {$DEFINE VCL_XE6}
@@ -396,6 +411,9 @@
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20701)}
     {$DEFINE FPC_2_7_1_OR_ABOVE}
   {$IFEND}
+  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20604)}
+    {$DEFINE FPC_2_6_4_OR_ABOVE}
+  {$IFEND}
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$IFEND}
@@ -408,6 +426,9 @@
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$IFEND}
+  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20202)}
+    {$DEFINE FPC_2_2_2_OR_ABOVE}
+  {$IFEND}
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20105)}
     {$DEFINE FPC_2_1_5_OR_ABOVE}
   {$IFEND}
@@ -415,6 +436,9 @@
   // just in case
   {$IFDEF FPC_2_7_1}
     {$DEFINE FPC_2_7_1_OR_ABOVE}
+  {$ENDIF}
+  {$IFDEF FPC_2_6_4}
+    {$DEFINE FPC_2_6_4_OR_ABOVE}
   {$ENDIF}
   {$IFDEF FPC_2_6_0}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
@@ -428,11 +452,22 @@
   {$IFDEF FPC_2_2_4}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$ENDIF}
+  {$IFDEF FPC_2_2_2}
+    {$DEFINE FPC_2_2_2_OR_ABOVE}
+  {$ENDIF}
   {$IFDEF FPC_2_1_5}
     {$DEFINE FPC_2_1_5_OR_ABOVE}
   {$ENDIF}
 
   {$IFDEF FPC_2_7_1_OR_ABOVE}
+    {$DEFINE FPC_2_6_4_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_6_4}
+      {$DEFINE FPC_2_6_4_OR_ABOVE}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_6_4_OR_ABOVE}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$ELSE}
     {$IFDEF FPC_2_6_0}
@@ -465,6 +500,14 @@
   {$ENDIF}
 
   {$IFDEF FPC_2_2_4_OR_ABOVE}
+    {$DEFINE FPC_2_2_2_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_2_2}
+      {$DEFINE FPC_2_2_2_OR_ABOVE}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_2_2_OR_ABOVE}
     {$DEFINE FPC_2_2_0_OR_ABOVE}
   {$ELSE}
     {$IFDEF VER2_2}
