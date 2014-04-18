@@ -211,6 +211,256 @@ uses
 {$ENDIF}
 
 {$IFDEF HAS_TSelectionEditor}
+
+// TIdComponentSelectionEditor is called at design-time when saving/compiling a
+// project.  It enumerates the data types of all parameters and return values of
+// every event handler assigned to any Indy component, extracting the unit names
+// of those data types and passing them to the IDE so it can insert them into
+// 'uses' clauses as needed.
+
+procedure SendUnitNameToProc(const AUnitName: String; Proc: TGetStrProc);
+begin
+  // Do not return the 'System' unit, otherwise it will
+  // cause an "Identifier redeclared" compiler error!
+  if (AUnitName <> '') and (not TextIsSame(AUnitName, 'System')) then begin {do not localize}
+    Proc(AUnitName);
+  end;
+end;
+
+{$IFDEF VCL_XE2_OR_ABOVE}
+
+// in Delphi XE2 and later, TRttiInvokableType is used to enumerate parameters
+// and return values, and TRttiType reports fully qualified type names, so
+// finding a given type's unit name is very easy...
+
+function GetUnitNameForType(const AType: TRttiType): String;
+begin
+  // TRttiType.UnitName returns the unit that declares TRttiType itself
+  // (System.Rtti), so parse the TRttiType.QualifiedName value instead...
+  if AType <> nil then begin
+    Result := AType.QualifiedName;
+    SetLength(Result, Length(Result) - Length(AType.Name) - 1);
+  end else begin
+    Result := '';
+  end;
+end;
+
+{$ELSE}
+
+// in Delphi prior to XE2, as well as in FreePascal, TRttiInvokableType is not
+// available, so we have to use TypInfo RTTI to enumerating parameters and
+// return values, but only certain versions implement rich enough RTTI to allow
+// that. Let's try to pull out what we can...
+
+{$IFDEF FPC_2_6_0_OR_ABOVE}
+  {$DEFINE HAS_tkEnumeration_UnitName}
+  {$DEFINE HAS_tkMethod_ParamTypeInfo}
+{$ELSE}
+  {$IFDEF VCL_6_OR_ABOVE}
+    {$DEFINE HAS_tkEnumeration_UnitName}
+  {$ENDIF}
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$DEFINE HAS_tkMethod_ParamTypeInfo}
+  {$ENDIF}
+{$ENDIF}
+
+procedure SkipShortString(var P: PByte);
+begin
+  Inc(P, 1 + Integer(P^));
+end;
+
+function ReadShortString(var P: PByte): String;
+begin
+  {$IFDEF VCL_2009_OR_ABOVE}
+  Result := UTF8ToString(PShortString(P)^);
+  {$ELSE}
+  Result := PShortString(P)^;
+  {$ENDIF}
+  SkipShortString(P);
+end;
+
+{$IFDEF FPC_2_6_0_OR_ABOVE}
+function NextShortString(PS: PShortString): PShortString;
+begin
+  Result := PShortString(Pointer(PS)+PByte(PS)^+1);
+end;
+{$ENDIF}
+
+function GetUnitNameFromTypeName(const ATypeName: String): String;
+var
+  K: Integer;
+begin
+  // check if the type is qualified
+  K := LastDelimiter('.', ATypeName);
+  if K <> 0 then begin
+    Result := Copy(ATypeName, 1, K-1);
+  end else begin
+    // TODO: enumerate package units and find the typename...
+    Result := '';
+  end;
+end;
+
+function GetUnitNameFromTypeInfo(const ATypeInfo: PPTypeInfo): String;
+var
+  LTypeData: PTypeData;
+  {$IFDEF HAS_tkEnumeration_UnitName}
+    {$IFDEF FPC}
+  PS, PSLast: PShortString;
+    {$ELSE}
+  LBaseTypeData: PTypeData;
+  Value: Integer;
+  P: PByte;
+    {$ENDIF}
+  {$ENDIF}
+begin
+  Result := '';
+  if ATypeInfo = nil then begin
+    Exit;
+  end;
+  if ATypeInfo^ = nil then begin
+    Exit;
+  end;
+  LTypeData := GetTypeData(ATypeInfo^);
+  case ATypeInfo^.Kind of
+    {$IFDEF HAS_tkEnumeration_UnitName}
+    tkEnumeration: begin
+      {$IFDEF FPC}
+      // the unit name iss the last string in the name list
+      PS := @(LTypeData^.NameList);
+      PSLast := nil;
+      while PByte(PS)^ <> 0 do begin
+        PSLast := PS;
+        PS := NextShortString(PS);
+      end;
+      if PSLast <> nil then begin
+        Result := PSLast^;
+      end;
+      {$ELSE}
+      // the unit name follows after the name list
+      LBaseTypeData := GetTypeData(LTypeData^.BaseType^);
+      P := PByte(@(LBaseTypeData^.NameList));
+      // LongBool/WordBool/ByteBool have MinValue < 0 and arbitrary
+      // content in Value; Boolean has Value in [0, 1] }
+      if (ATypeInfo^ = System.TypeInfo(Boolean)) or (LBaseTypeData^.MinValue < 0) then
+      begin
+        for Value := 0 to 1 do begin
+          SkipShortString(P);
+        end;
+      end else
+      begin
+        for Value := LBaseTypeData^.MinValue to LBaseTypeData^.MaxValue do begin
+          SkipShortString(P);
+        end;
+      end;
+      Result := ReadShortString(P);
+      {$ENDIF}
+    end;
+    {$ENDIF}
+    tkSet: begin
+      Result := GetUnitNameFromTypeInfo(LTypeData^.CompType);
+    end;
+    {$IFDEF VCL_5_OR_ABOVE}
+    tkClass: begin
+        {$IFDEF VCL_2009_OR_ABOVE}
+      Result := UTF8ToString(LTypeData^.UnitName);
+        {$ELSE}
+      Result := LTypeData^.UnitName;
+        {$ENDIF}
+    end;
+    {$ENDIF}
+    {$IFDEF FPC_2_6_0_OR_ABOVE}
+    tkHelper: begin
+      Result := LTypeData^.HelperUnit;
+    end;
+    {$ENDIF}
+    {$IFDEF VCL_5_OR_ABOVE}
+    tkInterface: begin
+        {$IFDEF VCL_2009_OR_ABOVE}
+      Result := UTF8ToString(LTypeData^.IntfUnit);
+        {$ELSE}
+      Result := LTypeData^.IntfUnit;
+        {$ENDIF}
+    end;
+    {$ENDIF}
+    {$IFDEF FPC_2_2_2_OR_ABOVE} // TODO: when was tkInterfaceRaw added?
+    tkInterfaceRaw: begin
+      Result := LTypeData^.RawIntfUnit;
+    end;
+    {$ENDIF}
+    {$IFDEF VCL_6_OR_ABOVE}
+    tkDynArray: begin
+        {$IFDEF VCL_2009_OR_ABOVE}
+      Result := UTF8ToString(LTypeData^.DynUnitName);
+        {$ELSE}
+      Result := LTypeData^.DynUnitName;
+        {$ENDIF}
+      if Result = '' then begin
+        Result := GetUnitNameFromTypeInfo(LTypeData^.elType2);
+      end;
+    end;
+    {$ENDIF}
+  end;
+end;
+
+procedure GetUnitNamesForMethodType(const ATypeInfo: PTypeInfo; Proc: TGetStrProc);
+type
+  PPPTypeInfo = ^PPTypeInfo;
+var
+  LTypeData: PTypeData;
+  LTypeDataPtr: PByte;
+  K: Integer;
+  UnitName: string;
+begin
+  if ATypeInfo = nil then begin
+    Exit;
+  end;
+  LTypeData := GetTypeData(ATypeInfo);
+  LTypeDataPtr := PByte(@(LTypeData^.ParamList));
+
+  if LTypeData^.ParamCount > 0 then
+  begin
+    for K := 0 to LTypeData^.ParamCount-1 do
+    begin
+      Inc(LTypeDataPtr, SizeOf(TParamFlags));
+      SkipShortString(LTypeDataPtr);
+      {$IFDEF HAS_tkMethod_ParamTypeInfo}
+      // handled further below...
+      SkipShortString(LTypeDataPtr);
+      {$ELSE}
+      UnitName := GetUnitNameFromTypeName(ReadShortString(LTypeDataPtr));
+      SendUnitNameToProc(UnitName, Proc);
+      {$ENDIF}
+    end;
+  end;
+
+  if LTypeData^.MethodKind = mkFunction then
+  begin
+    {$IFDEF HAS_tkMethod_ParamTypeInfo}
+    SkipShortString(LTypeDataPtr);
+    UnitName := GetUnitNameFromTypeInfo(PPPTypeInfo(LTypeDataPtr)^);
+    Inc(LTypeDataPtr, SizeOf(PPTypeInfo));
+    {$ELSE}
+    UnitName := GetUnitNameFromTypeName(ReadShortString(LTypeDataPtr));
+    {$ENDIF}
+    SendUnitNameToProc(UnitName, Proc);
+  end;
+
+  {$IFDEF HAS_tkMethod_ParamTypeInfo}
+  if LTypeData^.ParamCount > 0 then
+  begin
+    Inc(LTypeDataPtr, SizeOf(TCallConv));
+    for K := 0 to LTypeData^.ParamCount-1 do
+    begin
+      UnitName := GetUnitNameFromTypeInfo(PPPTypeInfo(LTypeDataPtr)^);
+      SendUnitNameToProc(UnitName, Proc);
+      Inc(LTypeDataPtr, SizeOf(PPTypeInfo));
+    end;
+  end;
+  {$ENDIF}
+end;
+
+{$ENDIF}
+
 type
   TIdComponentSelectionEditor = class(TSelectionEditor)
   public
@@ -220,16 +470,14 @@ type
 procedure TIdComponentSelectionEditor.RequiresUnits(Proc: TGetStrProc);
 var
   Comp: TIdComponent;
-  UnitName: string;
   I: Integer;
-
   {$IFDEF VCL_2010_OR_ABOVE}
   Ctx: TRttiContext;
   PropInfo: TRttiProperty;
+  PropValue: TValue;
     {$IFDEF VCL_XE2_OR_ABOVE}
   PropType: TRttiMethodType;
   Param: TRttiParameter;
-  RetType: TRttiType;
     {$ENDIF}
   {$ELSE}
   PropList: PPropList;
@@ -237,241 +485,6 @@ var
   PropInfo: PPropInfo;
   J: Integer;
   {$ENDIF}
-
-  procedure SendUnitNameToProc(const AUnitName: String);
-  begin
-    // Do not return the 'System' unit, otherwise it will
-    // cause an "Identifier redeclared" compiler error!
-    if not TextIsSame(AUnitName, 'System') then begin {do not localize}
-      Proc(AUnitName);
-    end;
-  end;
-
-  {$IFDEF VCL_2010_OR_ABOVE}
-  function GetUnitNameForType(const AType: TRttiType): String;
-  begin
-    // TRttiType.UnitName returns the unit that declares TRttiType itself
-    // (System.Rtti), so parse the TRttiType.QualifiedName value instead...
-    if AType <> nil then begin
-      Result := AType.QualifiedName;
-      SetLength(Result, Length(Result) - Length(AType.Name) - 1);
-    end else begin
-      Result := '';
-    end;
-  end;
-  {$ENDIF}
-
-  procedure SkipShortString(var P: PByte);
-  begin
-    Inc(P, 1 + Integer(P^));
-  end;
-
-  function ReadShortString(var P: PByte): String;
-  begin
-    {$IFDEF VCL_2009_OR_ABOVE}
-    Result := UTF8ToString(PShortString(P)^);
-    {$ELSE}
-    Result := PShortString(P)^;
-    {$ENDIF}
-    SkipShortString(P);
-  end;
-
-  function GetUnitNameFromTypeName(const ATypeName: String): String;
-  var
-    K: Integer;
-  begin
-    // check if the type is qualified
-    K := LastDelimiter('.', ATypeName);
-    if K <> 0 then begin
-      Result := Copy(ATypeName, 1, K-1);
-    end else begin
-      // TODO: enumerate package units and find the typename...
-      Result := '';
-    end;
-  end;
-
-  {$IFDEF FPC_2_6_0_OR_ABOVE}
-    {$DEFINE HAS_tkEnumeration_UnitName}
-  function NextShortString(PS: PShortString): PShortString;
-  begin
-    Result := PShortString(Pointer(PS)+PByte(PS)^+1);
-  end;
-  {$ELSE}
-    {$IFDEF VCL_6_OR_ABOVE}
-      {$DEFINE HAS_tkEnumeration_UnitName}
-    {$ENDIF}
-  {$ENDIF}
-
-  function GetUnitNameFromTypeInfo(const ATypeInfo: PPTypeInfo): String;
-  var
-    LTypeData: PTypeData;
-    {$IFDEF HAS_tkEnumeration_UnitName}
-      {$IFDEF FPC}
-    PS, PLast: PShortString;
-      {$ELSE}
-    LBaseTypeData: PTypeData;
-    Value: Integer;
-    P: PByte;
-      {$ENDIF}
-    {$ENDIF}
-  begin
-    Result := '';
-    if ATypeInfo = nil then begin
-      Exit;
-    end;
-    if ATypeInfo^ = nil then begin
-      Exit;
-    end;
-    LTypeData := GetTypeData(ATypeInfo^);
-    case ATypeInfo^.Kind of
-      {$IFDEF HAS_tkEnumeration_UnitName}
-      tkEnumeration: begin
-        {$IFDEF FPC}
-        // the last string is the unit name
-        PS := @(LTypeData^.NameList);
-        PLast := nil;
-        while PByte(PS)^ <> 0 do begin
-          PLast := PS;
-          PS := NextShortString(PS);
-        end;
-        if PLast <> nil then begin
-          Result := PLast^;
-        end;
-        {$ELSE}
-        LBaseTypeData := GetTypeData(LTypeData^.BaseType^);
-        P := PByte(@(LBaseTypeData^.NameList));
-        // LongBool/WordBool/ByteBool have MinValue < 0 and arbitrary
-        // content in Value; Boolean has Value in [0, 1] }
-        if (ATypeInfo^ = System.TypeInfo(Boolean)) or (LBaseTypeData^.MinValue < 0) then
-        begin
-          for Value := 0 to 1 do begin
-            SkipShortString(P);
-          end;
-        end else
-        begin
-          for Value := LBaseTypeData^.MinValue to LBaseTypeData^.MaxValue do begin
-            SkipShortString(P);
-          end;
-        end;
-        Result := ReadShortString(P);
-        {$ENDIF}
-      end;
-      {$ENDIF}
-      tkSet: begin
-        Result := GetUnitNameFromTypeInfo(LTypeData^.CompType);
-      end;
-      {$IFDEF VCL_5_OR_ABOVE}
-      tkClass: begin
-          {$IFDEF VCL_2009_OR_ABOVE}
-        Result := UTF8ToString(LTypeData^.UnitName);
-          {$ELSE}
-        Result := LTypeData^.UnitName;
-          {$ENDIF}
-      end;
-      {$ENDIF}
-      {$IFDEF FPC_2_6_0_OR_ABOVE}
-      tkHelper: begin
-        Result := LTypeData^.HelperUnit;
-      end;
-      {$ENDIF}
-      {$IFDEF VCL_5_OR_ABOVE}
-      tkInterface: begin
-          {$IFDEF VCL_2009_OR_ABOVE}
-        Result := UTF8ToString(LTypeData^.IntfUnit);
-          {$ELSE}
-        Result := LTypeData^.IntfUnit;
-          {$ENDIF}
-      end;
-      {$ENDIF}
-      {$IFDEF FPC_2_2_2_OR_ABOVE} // TODO: when was tkInterfaceRaw added?
-      tkInterfaceRaw: begin
-        Result := LTypeData^.RawIntfUnit;
-      end;
-      {$ENDIF}
-      {$IFDEF VCL_6_OR_ABOVE}
-      tkDynArray: begin
-          {$IFDEF VCL_2009_OR_ABOVE}
-        Result := UTF8ToString(LTypeData^.DynUnitName);
-          {$ELSE}
-        Result := LTypeData^.DynUnitName;
-          {$ENDIF}
-        if Result = '' then begin
-          Result := GetUnitNameFromTypeInfo(LTypeData^.elType2);
-        end;
-      end;
-      {$ENDIF}
-    end;
-  end;
-
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$DEFINE HAS_tkMethod_ParamTypeInfo}
-  {$ENDIF}
-  {$IFDEF FPC_2_6_0_OR_ABOVE}
-    {$DEFINE HAS_tkMethod_ParamTypeInfo}
-  {$ENDIF}
-
-  procedure GetUnitNamesForMethodType(const ATypeInfo: PTypeInfo);
-  type
-    PPPTypeInfo = ^PPTypeInfo;
-  var
-    LTypeData: PTypeData;
-    LTypeDataPtr: PByte;
-    K: Integer;
-  begin
-    if ATypeInfo = nil then begin
-      Exit;
-    end;
-    LTypeData := GetTypeData(ATypeInfo);
-    LTypeDataPtr := PByte(@(LTypeData^.ParamList));
-
-    if LTypeData^.ParamCount > 0 then
-    begin
-      for K := 0 to LTypeData^.ParamCount-1 do
-      begin
-        Inc(LTypeDataPtr, SizeOf(TParamFlags));
-        SkipShortString(LTypeDataPtr);
-        {$IFDEF HAS_tkMethod_ParamTypeInfo}
-        // handled further below...
-        SkipShortString(LTypeDataPtr);
-        {$ELSE}
-        UnitName := GetUnitNameFromTypeName(ReadShortString(LTypeDataPtr));
-        if UnitName <> '' then begin
-          SendUnitNameToProc(UnitName);
-        end;
-        {$ENDIF}
-      end;
-    end;
-
-    if LTypeData^.MethodKind = mkFunction then
-    begin
-      {$IFDEF HAS_tkMethod_ParamTypeInfo}
-      SkipShortString(LTypeDataPtr);
-      UnitName := GetUnitNameFromTypeInfo(PPPTypeInfo(LTypeDataPtr)^);
-      Inc(LTypeDataPtr, SizeOf(PPTypeInfo));
-      {$ELSE}
-      UnitName := GetUnitNameFromTypeName(ReadShortString(LTypeDataPtr));
-      {$ENDIF}
-      if UnitName <> '' then begin
-        SendUnitNameToProc(UnitName);
-      end;
-    end;
-
-    {$IFDEF HAS_tkMethod_ParamTypeInfo}
-    if LTypeData^.ParamCount > 0 then
-    begin
-      Inc(LTypeDataPtr, SizeOf(TCallConv));
-      for K := 0 to LTypeData^.ParamCount-1 do
-      begin
-        UnitName := GetUnitNameFromTypeInfo(PPPTypeInfo(LTypeDataPtr)^);
-        Inc(LTypeDataPtr, SizeOf(PPTypeInfo));
-        if UnitName <> '' then begin
-          SendUnitNameToProc(UnitName);
-        end;
-      end;
-    end;
-    {$ENDIF}
-  end;
-
 begin
   inherited RequiresUnits(Proc);
   if (Designer = nil) or (Designer.Root = nil) then Exit;
@@ -488,30 +501,33 @@ begin
       for PropInfo in Ctx.GetType(Comp.ClassType).GetProperties do
       begin
         // only interested in *assigned* event handlers
+
+        // NOTE: Delphi 2010 has a problem with checking the TValue.IsEmpty
+        // property inlined like below. It causes a "F2084 Internal Error C13394"
+        // compiler error. So splitting up the comparison to use a local TValue
+        // variable to work around that...
+        {
         if (PropInfo.PropertyType.TypeKind = tkMethod) and
            (not PropInfo.GetValue(Comp).IsEmpty) then
+        }
+        if PropInfo.PropertyType.TypeKind = tkMethod then
         begin
-          // although the System.Rtti unit was introduced in Delphi 2010,
-          // the TRttiInvokableType class was not added to it until XE2
-          {$IFDEF VCL_XE2_OR_ABOVE}
-          PropType := PropInfo.PropertyType as TRttiMethodType;
-          for Param in PropType.GetParameters do begin
-            UnitName := GetUnitNameForType(Param.ParamType);
-            if UnitName <> '' then begin
-              SendUnitNameToProc(UnitName);
+          PropValue := PropInfo.GetValue(Comp);
+          if not PropValue.IsEmpty then
+          begin
+            // although the System.Rtti unit was introduced in Delphi 2010,
+            // the TRttiInvokableType class was not added to it until XE2
+            {$IFDEF VCL_XE2_OR_ABOVE}
+            PropType := PropInfo.PropertyType as TRttiMethodType;
+            for Param in PropType.GetParameters do begin
+              SendUnitNameToProc(GetUnitNameForType(Param.ParamType), Proc);
             end;
+            SendUnitNameToProc(GetUnitNameForType(PropType.ReturnType), Proc);
+            {$ELSE}
+            // use the System.TypInfo unit to access the parameters and return type
+            GetUnitNamesForMethodType(PropInfo.PropertyType.Handle, Proc);
+            {$ENDIF}
           end;
-          RetType := PropType.ReturnType;
-          if RetType <> nil then begin
-            UnitName := GetUnitNameForType(RetType);
-            if UnitName <> '' then begin
-              SendUnitNameToProc(UnitName);
-            end;
-          end;
-          {$ELSE}
-          // use the System.TypInfo unit to access the parameters and return type
-          GetUnitNamesForMethodType(PropInfo.PropertyType.Handle);
-          {$ENDIF}
         end;
       end;
 
@@ -528,7 +544,7 @@ begin
             if (PropInfo^.PropType^.Kind = tkMethod) and
                (GetMethodProp(Comp, PropInfo).Code <> nil) then
             begin
-              GetUnitNamesForMethodType(PropInfo^.PropType^);
+              GetUnitNamesForMethodType(PropInfo^.PropType^, Proc);
             end;
           end;
         finally
