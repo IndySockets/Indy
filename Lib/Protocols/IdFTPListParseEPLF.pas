@@ -56,10 +56,13 @@ type
   protected
     //Unique ID for an item to prevent yourself from downloading something twice
     FUniqueID : String;
+    //UNIX permissions
+    FEPLFPermissions: String;
   public
     property ModifiedDateGMT;
     //Valid only with EPLF and MLST
     property UniqueID : string read FUniqueID write FUniqueID;
+    property EPLFPermissions: string read FEPLFPermissions write FEPLFPermissions;
   end;
 
   TIdFTPLPEPLF = class(TIdFTPListBase)
@@ -127,8 +130,11 @@ begin
       LBuf := LFacts[i];
       if LBuf = '/' then begin  {do not localize}
         LI.ItemType := ditDirectory;
-      end;
-      if Length(LBuf) > 0 then
+      end
+      else if LBuf = 'r' then begin  {do not localize}
+        LI.ItemType := ditFile;
+      end
+      else if Length(LBuf) > 0 then
       begin
         case LBuf[1] of
           's':  {do not localize}
@@ -144,6 +150,15 @@ begin
           'i': {do not localize}
             begin
               LI.UniqueID := Copy(LBuf, 2, MaxInt);
+            end;
+          'u': {do not localize}
+            begin
+              if Length(LBuf) > 1 then begin
+                if LBuf[2] = 'p' then begin {do not localize}
+                  LI.EPLFPermissions := Copy(LBuf, 3, MaxInt);
+                  LI.PermissionDisplay := LI.EPLFPermissions;
+                end;
+              end;
             end;
         end;
       end;
