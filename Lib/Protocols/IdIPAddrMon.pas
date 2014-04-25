@@ -442,7 +442,7 @@ begin
   LAddresses := TIdStackLocalAddressList.Create;
   try
     GStack.GetLocalAddressList(LAddresses);
-    for I := 0 to LAddresses.Count do begin
+    for I := 0 to LAddresses.Count-1 do begin
       FIPAddresses.Add(LAddresses[I].IPAddress);
     end;
   finally
