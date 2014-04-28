@@ -1570,7 +1570,7 @@ begin
   LHostName := HostName;
 
   ZeroMemory(@Hints, SIZE_TADDRINFO);
-  Hints.ai_family := Id_PF_UNSPEC; // returns both IPv4 and IPv6 addresses
+  Hints.ai_family := PF_UNSPEC; // returns both IPv4 and IPv6 addresses
   Hints.ai_socktype := SOCK_STREAM;
   LAddrList := nil;
 
