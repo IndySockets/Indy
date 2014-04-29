@@ -66,7 +66,7 @@ procedure TIdDecoder00E.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
 var
   LBuf: TIdBytes;
   LSize: TIdStreamSize;
-  LDataLen: Integer;
+  LDataLen, LExpected: Integer;
 begin
   LSize := IndyLength(ASrcStream, ABytes);
   if LSize > 0 then begin
@@ -78,6 +78,17 @@ begin
     LDataLen := FDecodeTable[LBuf[0]];
     SetLength(LBuf, LSize-1);
     TIdStreamHelper.ReadBytes(ASrcStream, LBuf, LSize-1);
+    // RLebeau 4/28/2014: encountered a situation where a UUE encoded attachment
+    // had some encoded lines that were supposed to end with a space character
+    // but were actually truncated off. Turns out that Outlook Express is known
+    // for doing that, for instance. Some other encoding apps might also have a
+    // similar flaw, so just in case let's calculate what the input length is
+    // supposed to be and pad the input with spaces if needed before then
+    // decoding it...
+    LExpected := ((LDataLen + 2) div 3) * 4;
+    if Length(LBuf) < LExpected then begin
+      ExpandBytes(LBuf, Length(LBuf), LExpected-Length(LBuf), Ord(' ')); // should this use FillChar instead?
+    end;
     LBuf := InternalDecode(LBuf, True);
     if Assigned(FStream) then begin
       TIdStreamHelper.Write(FStream, LBuf, LDataLen);

@@ -92,7 +92,7 @@ type
 
   TIdMessageEncoderUUEBase = class(TIdMessageEncoder)
   protected
-    FEncoderClass: TIdEncoder3to4Class;
+    FEncoderClass: TIdEncoder3to4Class; // TODO: change to "class of TIdEncoder00E" instead
   public
     procedure Encode(ASrc: TStream; ADest: TStream); override;
   end;
@@ -116,18 +116,14 @@ uses
 
 function TIdMessageDecoderInfoUUE.CheckForStart(ASender: TIdMessage; const ALine: string): TIdMessageDecoder;
 var
-  LPermissionCode: integer;
   LUUE: TIdMessageDecoderUUE;
 begin
   Result := nil;
-  if TextStartsWith(ALine, 'begin ') and CharEquals(ALine, 10, ' ') then begin {Do not Localize}
-    LPermissionCode := IndyStrToInt(Copy(ALine, 7, 3), 0);
-    if LPermissionCode > 0 then begin
-      LUUE := TIdMessageDecoderUUE.Create(ASender);
-      LUUE.FFilename := Copy(ALine, 11, MaxInt);
-      LUUE.FPartType := mcptAttachment;
-      Result := LUUE;
-    end;
+  if TextStartsWith(ALine, 'begin ') and CharEquals(ALine, 10, ' ') and IsNumeric(ALine, 3, 7) then begin {Do not Localize}
+    LUUE := TIdMessageDecoderUUE.Create(ASender);
+    LUUE.FFilename := Copy(ALine, 11, MaxInt);
+    LUUE.FPartType := mcptAttachment;
+    Result := LUUE;
   end;
 end;
 
@@ -139,6 +135,7 @@ var
   LLine: string;
   LMsgEnd: Boolean;
   LEncoding: IIdTextEncoding;
+  LFillCharStr: string;
 begin
   Result := nil;
   AMsgEnd := False;
@@ -155,6 +152,37 @@ begin
         // line length may be from 2 (first char + newline) to 65,
         // this is 0 useable to 63 usable bytes, + #32 gives this as a range.
         // (yes, the line length is encoded in the first bytes of each line!)
+
+        // TODO: need to do a better job of differentiating between UUE and XXE.
+        //
+        // UUE and XXE both encode 45 bytes max per line. Each line starts with
+        // an encoded character that indicates the number of encoded bytes in the
+        // line, not counting padding.
+        //
+        // UUE encodes the byte count as one of the following characters:
+        //
+        //    0         1         2         3         4
+        //    0123456789012345678901234567890123456789012345
+        //    `!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLM
+        //
+        // XXE encodes the byte count as one of the following characters:
+        //
+        //    0         1         2         3         4
+        //    0123456789012345678901234567890123456789012345
+        //    +-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
+        //    (some encoders use [space] instead of +)
+        //
+        // Without external information to indicate the actual encoding, if we
+        // get input whose encoded byte length is encoded as one of the following
+        // characters:
+        //
+        //    -0123456789ABCDEFGHIJKLM
+        //
+        // We will not know if it is actually UUE or XXE.  About all we could do
+        // is calculate the expected input length in both encodings based on the
+        // starting character and then check if the input actually matches one
+        // of them...
+
         LDecoder := TIdDecoderUUE.Create(nil);
         LDecoder.DecodeBegin(ADestStream);
         FCodingType := 'UUE'; {do not localize}
@@ -172,8 +200,9 @@ begin
   try
     if Assigned(LDecoder) then
     begin
+      LFillCharStr := String(LDecoder.FillChar);
       repeat
-        if (Length(Trim(LLine)) = 0) or (LLine = String(LDecoder.FillChar)) then begin
+        if (Length(Trim(LLine)) = 0) or (LLine = LFillCharStr) then begin
           // UUE: Comes on the line before end. Supposed to be `, but some put a
           // blank line instead
         end else begin
