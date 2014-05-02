@@ -51,11 +51,7 @@
 // type maps to System.UnicodeString, not System.AnsiString anymore
 {$UNDEF STRING_IS_UNICODE}
 {$UNDEF STRING_IS_ANSI}
-
-// Make sure the following is $DEFINE'd only for suitable environments
-// as specified further below.  This works in conjunction with the
-// STRING_IS_ANSI and STRING_IS_UNICODE defines above.
-{$UNDEF UNICODE_BUT_STRING_IS_ANSI}
+{$UNDEF STRING_UNICODE_MISMATCH}
 
 // Make sure the following are $DEFINE'd only for suitable environments
 // as specified further below.  Delphi/C++Builder Mobile/NextGen compilers
@@ -423,6 +419,9 @@
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20402)}
     {$DEFINE FPC_2_4_2_OR_ABOVE}
   {$IFEND}
+  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20400)}
+    {$DEFINE FPC_2_4_0_OR_ABOVE}
+  {$IFEND}
   {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$IFEND}
@@ -448,6 +447,9 @@
   {$ENDIF}
   {$IFDEF FPC_2_4_2}
     {$DEFINE FPC_2_4_2_OR_ABOVE}
+  {$ENDIF}
+  {$IFDEF FPC_2_4_0}
+    {$DEFINE FPC_2_4_0_OR_ABOVE}
   {$ENDIF}
   {$IFDEF FPC_2_2_4}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
@@ -492,6 +494,14 @@
   {$ENDIF}
 
   {$IFDEF FPC_2_4_2_OR_ABOVE}
+    {$DEFINE FPC_2_4_0_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_4_0}
+      {$DEFINE FPC_2_4_0_OR_ABOVE}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_4_0_OR_ABOVE}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$ELSE}
     {$IFDEF FPC_2_2_4}
@@ -1004,6 +1014,9 @@
   {$IFDEF FPC_2_2_0_OR_ABOVE}
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
   {$ENDIF}
+  {$IFDEF FPC_2_2_2_OR_ABOVE}
+    {$DEFINE HAS_SharedPrefix}
+  {$ENDIF}
   {$IFDEF FPC_2_2_4_OR_ABOVE}
     {$DEFINE HAS_SIZE_T}
   {$ENDIF}
@@ -1019,11 +1032,13 @@
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
+  {$IFDEF FPC_2_4_0_OR_ABOVE}
+    {$DEFINE HAS_UnicodeString}
+  {$ENDIF}
   {$IFDEF FPC_2_4_4_OR_ABOVE}
     {$DEFINE DEPRECATED_TThread_SuspendResume}
     {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced?
     {$DEFINE HAS_DEPRECATED_MSG}
-    {$DEFINE HAS_UnicodeString} // TODO: when was UnicodeString introduced?
   {$ENDIF}
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
@@ -1055,12 +1070,25 @@
 {$ENDIF}
 
 // .NET and Delphi 2009+ support UNICODE strings natively!
+//
+// FreePascal 2.4.0+ supports UnicodeString, but does not map its
+// native String type to UnicodeString except when {$MODE DelphiUnicode}
+// or {$MODESWITCH UnicodeStrings} is enabled.  However, UNICODE is not
+// defined in that mode yet until its RTL has been updated to support
+// UnicodeString.  STRING_UNICODE_MISMATCH is defined when the native
+// String/Char types do not map to the same types that APIs are expecting
+// based on whether UNICODE is defined or not.
+//
 // NOTE: Do not define UNICODE here.  The compiler defines
 // the symbol automatically.
-{$IFNDEF STRING_IS_UNICODE}
+{$IFDEF STRING_IS_UNICODE}
+  {$IFNDEF UNICODE}
+    {$DEFINE STRING_UNICODE_MISMATCH}
+  {$ENDIF}
+{$ELSE}
   {$DEFINE STRING_IS_ANSI}
   {$IFDEF UNICODE}
-    {$DEFINE UNICODE_BUT_STRING_IS_ANSI}
+    {$DEFINE STRING_UNICODE_MISMATCH}
   {$ENDIF}
 {$ENDIF}
 

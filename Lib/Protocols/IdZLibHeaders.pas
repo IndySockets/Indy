@@ -854,8 +854,8 @@ var
   hZLib: THandle = 0;
   {$ENDIF}
 
+  {$IFDEF UNIX}
 const
-  {$IFDEF UNIX} 
   //The extensions will be resolved by IdGlobal.HackLoad
   //This is a little messy because symbolic links to libraries may not always be the same
   //in various Unix types.  Even then, there could possibly be differences.
@@ -863,11 +863,13 @@ const
   libvers : array [0..3] of string = ('.1','','.3','.2');
   {$ENDIF}
   {$IFDEF NETWARE}  {zlib.nlm comes with netware6}
+const
   libzlib = 'zlib';
   {$ENDIF}
   {$IFDEF WIN32}
   //Note that this is the official ZLIB1 .DLL from the http://www.zlib.net/
-  libzlib = 'zlib1.dll'; 
+const
+  libzlib = 'zlib1.dll';
   {$ENDIF}
   {$IFDEF WIN64}
   //Note that this is not an official ZLIB .DLL.  It was obtained from:
@@ -875,8 +877,14 @@ const
   //
   //It is defined with the WINAPI conventions instead of the standard cdecl
   //conventions.  Get the DLL for Win32-x86.
-  libzlib = 'zlibwapi.dll'; 
-  {$ENDIF}  
+const
+  libzlib = 'zlibwapi.dll';
+  {$ENDIF}
+  {$IFDEF WINCE}
+  //Note that zlibce can be found at http://www.tenik.co.jp/~adachi/wince/zlibce/
+const
+  libzlib = 'zlibce';
+  {$ENDIF}
 
 constructor EIdZLibStubError.Build(const ATitle : String; AError : LongWord);
 begin
@@ -890,17 +898,17 @@ begin
   end;
 end;
 
-function FixupStub(hDll: THandle; const AName: string): Pointer;
+function FixupStub(hDll: THandle; const AName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
 begin
   if hDll = 0 then begin
     raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
   end;
-  Result := GetProcAddress(hDll, PChar(AName));
+  Result := GetProcAddress(hDll, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
   if Result = nil then begin
     raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 10022);
   end;
 end;
- 
+
 function stub_adler32(adler: TIdC_ULONG; const buf: PIdAnsiChar;
   len: TIdC_UINT): TIdC_ULONG; cdecl;
 begin

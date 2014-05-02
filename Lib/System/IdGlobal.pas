@@ -739,6 +739,30 @@ type
   PIdWideChar = PWideChar;
   {$ENDIF}
 
+  {$IFDEF WINDOWS}
+  // .NET and Delphi 2009+ support UNICODE strings natively!
+  //
+  // FreePascal 2.4.0+ supports UnicodeString, but does not map its native
+  // String type to UnicodeString except when {$MODE DelphiUnicode} or
+  // {$MODESWITCH UnicodeStrings} is enabled.  However, UNICODE is not
+  // defined in that mode yet until FreePascal's RTL has been updated to
+  // support UnicodeString.  STRING_UNICODE_MISMATCH is defined in
+  // IdCompilerDefines.inc when the compiler's native String/Char types do
+  // not map to the same types that API functions are expecting based on
+  // whether UNICODE is defined or not.  So we will create special Platform
+  // typedefs here to help with API function calls when dealing with that
+  // mismatch...
+    {$IFDEF UNICODE}
+  TIdPlatformString = TIdUnicodeString;
+  TIdPlatformChar = TIdWideChar;
+  PIdPlatformChar = PIdWideChar;
+    {$ELSE}
+  TIdPlatformString = AnsiString;
+  TIdPlatformChar = TIdAnsiChar;
+  PIdPlatformChar = PIdAnsiChar;
+    {$ENDIF}
+  {$ENDIF}
+
   TIdBytes = array of Byte;
   TIdWideChars = array of TIdWideChar;
 
@@ -1608,29 +1632,15 @@ var
   IndyPos: TPosProc = nil;
 
 {$IFDEF UNIX}
-
-  {$UNDEF LIBEXT_IS_DYLIB}
-  {$UNDEF LIBEXT_IS_SO}
-
-  {$IFDEF DARWIN}
-    {$DEFINE LIBEXT_IS_DYLIB}
+const
+  {$IFDEF HAS_SharedPrefix}
+  LIBEXT = '.' + SharedSuffix; {do not localize}
   {$ELSE}
-    {$IFDEF DCC_NEXTGEN}
-      {$IFDEF ANDROID}
-        {$DEFINE LIBEXT_IS_SO}
-      {$ELSE}
-        {$DEFINE LIBEXT_IS_DYLIB}
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-
-  {$IFDEF LIBEXT_IS_DYLIB}
-const
+    {$IFDEF DARWIN}
   LIBEXT = '.dylib'; {do not localize}
-  {$ENDIF}
-  {$IFDEF LIBEXT_IS_SO}
-const
+    {$ELSE}
   LIBEXT = '.so'; {do not localize}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -4710,9 +4720,9 @@ end;
 
 procedure DebugOutput(const AText: string);
 {$IFDEF WINDOWS}
-  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
+  {$IFDEF STRING_UNICODE_MISMATCH}
 var
-  LTemp: WideString;
+  LTemp: TIdPlatformString;
   {$ELSE}
     {$IFDEF USE_INLINE}inline;{$ENDIF}
   {$ENDIF}
@@ -4726,9 +4736,9 @@ begin
   {$ENDIF}
 
   {$IFDEF WINDOWS}
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LTemp := WideString(AText); // explicit convert to Unicode
-  OutputDebugString(PWideChar(LTemp));
+    {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp := TIdPlatformString(AText); // explicit convert to Ansi/Unicode
+  OutputDebugString(PIdPlatformChar(LTemp));
     {$ELSE}
   OutputDebugString(PChar(AText));
     {$ENDIF}
@@ -4988,7 +4998,7 @@ end;
 function ServicesFilePath: string;
 var
   {$IFDEF WINDOWS}
-  sLocation: {$IFDEF UNICODE_BUT_STRING_IS_ANSI}WideString{$ELSE}string{$ENDIF};
+  sLocation: {$IFDEF STRING_UNICODE_MISMATCH}TIdPlatformString{$ELSE}string{$ENDIF};
   {$ELSE}
   sLocation: string;
   {$ENDIF}
@@ -4998,12 +5008,19 @@ begin
   {$ENDIF}
 
   {$IFDEF WINDOWS}
+    {$IFNDEF WINCE}
   SetLength(sLocation, MAX_PATH);
-  SetLength(sLocation, GetWindowsDirectory(PChar(sLocation), MAX_PATH));
+  SetLength(sLocation, GetWindowsDirectory(
+    {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(sLocation){$ELSE}PChar(sLocation){$ENDIF}
+    , MAX_PATH));
   sLocation := IndyIncludeTrailingPathDelimiter(sLocation);
   if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
     sLocation := sLocation + 'system32\drivers\etc\'; {do not localize}
   end;
+    {$ELSE}
+  // GetWindowsDirectory() does not exist in WinCE, and there is no system folder, either
+  sLocation := '\Windows\'; {do not localize}
+    {$ENDIF}
   {$ENDIF}
 
   Result := sLocation + 'services'; {do not localize}
@@ -6741,8 +6758,8 @@ function IndyDirectoryExists(const ADirectory: string): Boolean;
 {$ELSE}
 var
   Code: Integer;
-  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LWStr: WideString;
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LStr: TIdPlatformString;
   {$ENDIF}
 {$ENDIF}
 begin
@@ -6750,9 +6767,9 @@ begin
   Result := SysUtils.DirectoryExists(ADirectory);
   {$ELSE}
   // RLebeau 2/16/2006: Removed dependency on the FileCtrl unit
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LWStr := WideString(ADirectory); // explicit convert to Unicode
-  Code := GetFileAttributes(PWideChar(LWStr));
+    {$IFDEF STRING_UNICODE_MISMATCH}
+   := TIdPlatformString(ADirectory); // explicit convert to Ansi/Unicode
+  Code := GetFileAttributes(PIdPlatformChar(LStr));
     {$ELSE}
   Code := GetFileAttributes(PChar(ADirectory));
     {$ENDIF}
@@ -7760,9 +7777,9 @@ function TextStartsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
   {$IFDEF WINDOWS}
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LS, LSub: WideString;
-  P1, P2: PWideChar;
+    {$IFDEF STRING_UNICODE_MISMATCH}
+  LS, LSub: TIdPlatformString;
+  P1, P2: PIdPlatformChar;
     {$ELSE}
   P1, P2: PChar;
      {$ENDIF}
@@ -7776,12 +7793,12 @@ begin
     Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
     {$ELSE}
       {$IFDEF WINDOWS}
-        {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-    // convert to Unicode
-    LS := S;
-    LSub := SubS;
-    P1 := PWideChar(LS);
-    P2 := PWideChar(LSub);
+        {$IFDEF STRING_UNICODE_MISMATCH}
+    // explicit convert to Ansi/Unicode
+    LS := TIdPlatformString(S);
+    LSub := TIdPlatformString(SubS);
+    P1 := PIdPlatformChar(LS);
+    P2 := PIdPlatformChar(LSub);
         {$ELSE}
     P1 := PChar(S);
     P2 := PChar(SubS);
@@ -7798,9 +7815,9 @@ function TextEndsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
   {$IFDEF WINDOWS}
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LS, LSubS: WideString;
-  P1, P2: PWideChar;
+    {$IFDEF STRING_UNICODE_MISMATCH}
+  LS, LSubS: TIdPlatformString;
+  P1, P2: PIdPlatformChar;
     {$ELSE}
   P1, P2: PChar;
     {$ENDIF}
@@ -7814,12 +7831,12 @@ begin
     Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
     {$ELSE}
       {$IFDEF WINDOWS}
-        {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-    // convert to Unicode
-    LS := S;
-    LSubS := SubS;
-    P1 := PWideChar(LS);
-    P2 := PWideChar(LSubS);
+        {$IFDEF STRING_UNICODE_MISMATCH}
+    // explicit convert to Ansi/Unicode
+    LS := TIdPlatformString(S);
+    LSubS := TIdPlatformString(SubS);
+    P1 := PIdPlatformChar(LS);
+    P2 := PIdPlatformChar(LSubS);
         {$ELSE}
     P1 := PChar(S);
     P2 := PChar(SubS);

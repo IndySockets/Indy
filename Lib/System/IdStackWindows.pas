@@ -931,8 +931,8 @@ var
   LAddrInfo: pAddrInfo;
   {$ENDIF}
   RetVal: Integer;
-  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LTemp: TIdUnicodeString;
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp: TIdPlatformString;
   {$ENDIF}
 begin
   if not (AIPVersion in [Id_IPv4, Id_IPv6]) then begin
@@ -952,28 +952,28 @@ begin
   Hints.ai_flags := AI_NUMERICHOST;
   LAddrInfo := nil;
 
-  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LTemp := TIdUnicodeString(AAddress); // explicit convert to Unicode
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp := TIdPlatformString(AAddress); // explicit convert to Ansi/Unicode
   {$ENDIF}
 
   RetVal := getaddrinfo(
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}PWideChar(LTemp){$ELSE}PChar(AAddress){$ENDIF},
+    {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(AAddress){$ENDIF},
     nil, @Hints, @LAddrInfo);
   if RetVal <> 0 then begin
     RaiseSocketError(gaiErrorToWsaError(RetVal));
   end;
   try
     SetLength(
-      {$IFDEF UNICODE_BUT_STRING_IS_ANSI}LTemp{$ELSE}Result{$ENDIF},
+      {$IFDEF STRING_UNICODE_MISMATCH}LTemp{$ELSE}Result{$ENDIF},
       NI_MAXHOST);
     RetVal := getnameinfo(
       LAddrInfo.ai_addr, LAddrInfo.ai_addrlen,
-      {$IFDEF UNICODE_BUT_STRING_IS_ANSI}PWideChar(LTemp){$ELSE}PChar(Result){$ENDIF},
+      {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(Result){$ENDIF},
       NI_MAXHOST, nil, 0, NI_NAMEREQD);
     if RetVal <> 0 then begin
       RaiseSocketError(gaiErrorToWsaError(RetVal));
     end;
-    Result := {$IFDEF UNICODE_BUT_STRING_IS_ANSI}PWideChar(LTemp){$ELSE}PChar(Result){$ENDIF};
+    Result := {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(Result){$ENDIF};
   finally
     freeaddrinfo(LAddrInfo);
   end;
@@ -1542,8 +1542,8 @@ var
     {$ENDIF}
   RetVal: Integer;
   LHostName: String;
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LTemp: TIdUnicodeString;
+    {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp: TIdPlatformString;
     {$ENDIF}
 
   {$ENDIF}
@@ -1574,12 +1574,12 @@ begin
   Hints.ai_socktype := SOCK_STREAM;
   LAddrList := nil;
 
-  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LTemp := TIdUnicodeString(LHostName); // explicit convert to Unicode
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp := TIdPlatformString(LHostName); // explicit convert to Ansi/Unicode
   {$ENDIF}
 
   RetVal := getaddrinfo(
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}PWideChar(LTemp){$ELSE}PChar(LHostName){$ENDIF},
+    {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(LHostName){$ENDIF},
     nil, @Hints, @LAddrList);
   if RetVal <> 0 then begin
     RaiseSocketError(gaiErrorToWsaError(RetVal));
@@ -1894,7 +1894,10 @@ var
   Hints: TAddrInfo;
   {$ENDIF}
   RetVal: Integer;
-  LTemp: string;
+  LHostName: String;
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp: TIdPlatformString;
+  {$ENDIF}
 begin
   if not (AIPVersion in [Id_IPv4, Id_IPv6]) then begin
     IPVersionUnsupported;
@@ -1906,7 +1909,7 @@ begin
   LAddrInfo := nil;
 
   if UseIDNAPI then begin
-    LTemp := IDNToPunnyCode(
+    LHostName := IDNToPunnyCode(
       {$IFDEF STRING_IS_UNICODE}
       AHostName
       {$ELSE}
@@ -1914,14 +1917,15 @@ begin
       {$ENDIF}
     );
   end else begin
-    LTemp := AHostName;
+    LHostName := AHostName;
   end;
+
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp := TIdPlatformString(LHostName); // explicit convert to Ansi/Unicode
+  {$ENDIF}
+
   RetVal := getaddrinfo(
-    {$IFDEF UNICODE}
-    PIdWideChar({$IFDEF STRING_IS_UNICODE}LTemp{$ELSE}TIdUnicodeString(LTemp){$ENDIF})
-    {$ELSE}
-    PAnsiChar({$IFDEF STRING_IS_ANSI}LTemp{$ELSE}AnsiString(LTemp){$ENDIF})
-    {$ENDIF},
+    {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(LHostName){$ENDIF},
     nil, @Hints, @LAddrInfo);
   if RetVal <> 0 then begin
     RaiseSocketError(gaiErrorToWsaError(RetVal));
@@ -2303,18 +2307,18 @@ function ServeFile(ASocket: TIdStackSocketHandle; const AFileName: string): Int6
 var
   LFileHandle: THandle;
   LSize: LARGE_INTEGER;
-  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LTemp: WideString;
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp: TIdPlatformString;
   {$ENDIF}
 begin
   Result := 0;
 
-  {$IFDEF UNICODE_BUT_STRING_IS_ANSI}
-  LTemp := WideString(AFileName); // explicit convert to Unicode
+  {$IFDEF STRING_UNICODE_MISMATCH}
+  LTemp := TIdPlatformString(AFileName); // explicit convert to Ansi/Unicode
   {$ENDIF}
 
   LFileHandle := CreateFile(
-    {$IFDEF UNICODE_BUT_STRING_IS_ANSI}PWideChar(LTemp){$ELSE}PChar(AFileName){$ENDIF},
+    {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(AFileName){$ENDIF},
     GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING,
     FILE_ATTRIBUTE_NORMAL or FILE_FLAG_SEQUENTIAL_SCAN, 0);
 
