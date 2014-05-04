@@ -37,8 +37,8 @@ No personal names or organizations names associated with the Indy project may be
 
 THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;quot;AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "/>
-    <Version Major="10" Minor="5" Release="8" Build="0"/>
-    <Files Count="15">
+    <Version Major="10" Minor="6" Release="0" Build="0"/>
+    <Files Count="14">
       <Item1>
         <Filename Value="IdAboutVCL.pas"/>
         <UnitName Value="IdAboutVCL"/>
@@ -57,52 +57,48 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;qu
         <UnitName Value="IdCoreDsnRegister"/>
       </Item4>
       <Item5>
-        <Filename Value="IdCoreSelectionEditors.pas"/>
-        <UnitName Value="IdCoreSelectionEditors"/>
-      </Item5>
-      <Item6>
         <Filename Value="IdDsnCoreResourceStrings.pas"/>
         <UnitName Value="IdDsnCoreResourceStrings"/>
-      </Item6>
-      <Item7>
+      </Item5>
+      <Item6>
         <Filename Value="IdDsnPropEdBindingVCL.pas"/>
         <UnitName Value="IdDsnPropEdBindingVCL"/>
-      </Item7>
-      <Item8>
+      </Item6>
+      <Item7>
         <Filename Value="IdDsnRegister.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdDsnRegister"/>
-      </Item8>
-      <Item9>
+      </Item7>
+      <Item8>
         <Filename Value="IdDsnResourceStrings.pas"/>
         <UnitName Value="IdDsnResourceStrings"/>
-      </Item9>
-      <Item10>
+      </Item8>
+      <Item9>
         <Filename Value="IdDsnSASLListEditorFormVCL.pas"/>
         <UnitName Value="IdDsnSASLListEditorFormVCL"/>
-      </Item10>
-      <Item11>
+      </Item9>
+      <Item10>
         <Filename Value="IdDsnSASLListEditorFormVCL.lrs"/>
         <Type Value="LRS"/>
-      </Item11>
-      <Item12>
+      </Item10>
+      <Item11>
         <Filename Value="IdRegister.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdRegister"/>
-      </Item12>
-      <Item13>
+      </Item11>
+      <Item12>
         <Filename Value="IdRegister.lrs"/>
         <Type Value="LRS"/>
-      </Item13>
-      <Item14>
+      </Item12>
+      <Item13>
         <Filename Value="IdRegisterCore.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdRegisterCore"/>
-      </Item14>
-      <Item15>
+      </Item13>
+      <Item14>
         <Filename Value="IdRegisterCore.lrs"/>
         <Type Value="LRS"/>
-      </Item15>
+      </Item14>
     </Files>
     <Type Value="DesignTime"/>
     <RequiredPkgs Count="3">

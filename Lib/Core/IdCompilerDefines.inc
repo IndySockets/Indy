@@ -376,6 +376,13 @@
 // FPC (2+)
 
 {$IFDEF FPC}
+  // TODO: In FreePascal 4.2.0+, a Delphi-like UnicodeString type is supported.
+  // However, String/(P)Char do not map to UnicodeString/(P)WideChar unless
+  // either {$MODE DelphiUnicode} or {$MODESWITCH UnicodeStrings} is used.
+  // We should consider enabling one of them so Indy uses the same Unicode logic
+  // in Delphi 2009+ and FreePascal 4.2.0+ and reduces IFDEFs (in particular,
+  // STRING_UNICODE_MISMATCH, see further below).  However, FreePascal's RTL
+  // is largely not UnicodeString-enabled yet...
   {$MODE Delphi}
   //note that we may need further defines for widget types depending on
   //what we do and what platforms we support in FPC.
