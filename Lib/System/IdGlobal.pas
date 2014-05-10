@@ -7729,8 +7729,7 @@ end;
 procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Integer);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  ExpandBytes(VBytes, AIndex, 1);
-  VBytes[AIndex] := AByte;
+  ExpandBytes(VBytes, AIndex, 1, AByte);
 end;
 
 procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex: Integer = 0);
