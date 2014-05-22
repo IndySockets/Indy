@@ -334,7 +334,14 @@ begin
       end;//if APOP
     patSASL:
       begin
-        FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
+        // SASL in POP3 did not originally support Initial-Response. It was added
+        // in RFC 2449 along with the CAPA command. If a server supports the CAPA
+        // command then it *should* also support Initial-Response as well, however
+        // many POP3 servers support CAPA but do not support Initial-Response
+        // (which was formalized in RFC 5034). So, until we can handle that
+        // descrepency better, we will simply disable Initial-Response for now.
+
+        FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL', False); {do not localize}
       end;
   end;
 end;

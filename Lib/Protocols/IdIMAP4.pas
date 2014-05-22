@@ -1345,17 +1345,34 @@ const
   AContinueReplies: array[0..0] of string = (IMAP_CONT);
 var
   S: String;
+  AuthStarted: Boolean;
 begin
   Result := False;
-  // TODO: support 'SASL-IR' extension...
-  AClient.SendCmd(AClient.NewCmdCounter, 'AUTHENTICATE ' + String(ASASL.ServiceName), [], True); {Do not Localize}
-  if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
-    Exit; // this mechanism is not supported
+  AuthStarted := False;
+  if AClient.IsCapabilityListed('SASL-IR') then begin {Do not localize}
+    if ASASL.TryStartAuthenticate(AClient.Host, IdGSKSSN_imap, S) then begin
+      AClient.SendCmd(AClient.NewCmdCounter, 'AUTHENTICATE ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), [], True); {Do not Localize}
+      if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
+        ASASL.FinishAuthenticate;
+        Exit; // this mechanism is not supported
+      end;
+      AuthStarted := True;
+    end;
+  end;
+  if not AuthStarted then begin
+    AClient.SendCmd(AClient.NewCmdCounter, 'AUTHENTICATE ' + String(ASASL.ServiceName), [], True); {Do not Localize}
+    if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
+      Exit; // this mechanism is not supported
+    end;
   end;
   if (PosInStrArray(AClient.LastCmdResult.Code, AOkReplies) > -1) then begin
+    if AuthStarted then begin
+      ASASL.FinishAuthenticate;
+    end;
     Result := True;
     Exit; // we've authenticated successfully :)
   end;
+  // must be a continue reply...
   S := ADecoder.DecodeString(TrimRight(TIdReplyIMAP4(AClient.LastCmdResult).Extra.Text));
   S := ASASL.StartAuthenticate(S, AClient.Host, IdGSKSSN_imap);
   AClient.IOHandler.WriteLn(AEncoder.Encode(S));
@@ -2278,7 +2295,7 @@ begin
       if not FHasCapa then begin
         Capability;
       end;
-      // FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, [IMAP_OK], [IMAP_CONT], Self, FCapabilities);     {Do not Localize}
+      // FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, [IMAP_OK], [IMAP_CONT], Self, FCapabilities, 'AUTH', IsCapabilityListed('SASL-IR'));     {Do not Localize}
       TIdSASLEntriesIMAP4(FSASLMechanisms).LoginSASL_IMAP(Self);
     end;
     FConnectionState := csAuthenticated;
@@ -6430,15 +6447,24 @@ const
     end;
   end;
 
+  function IsContentTypeHtml(const AContentType: String) : Boolean;
+  begin
+    Result := IsHeaderMediaTypes(AContentType, ['text/html', 'text/html-sandboxed','application/xhtml+xml']); {do not localize}
+  end;
+
   procedure ProcessTextPart(var VDecoder: TIdMessageDecoder);
   var
     LDestStream: TMemoryStream;
     Li: integer;
     LTxt: TIdText;
     LNewDecoder: TIdMessageDecoder;
+    {$IFDEF STRING_IS_ANSI}
+    LAnsiEncoding: IIdTextEncoding;
+    {$ENDIF}
     {$IFNDEF HAS_TStrings_ValueFromIndex}
     LTmp: String;
     {$ENDIF}
+    LContentType, LCharSet: string;
   begin
     LDestStream := TMemoryStream.Create;
     try
@@ -6447,7 +6473,29 @@ const
         LDestStream.Position := 0;
         LTxt := TIdText.Create(AMsg.MessageParts);
         try
-          LTxt.ContentType := VDecoder.Headers.Values[SContentType];
+          // if the Content-Type is HTML and does not specify a charset, parse
+          // the HTML looking for a <meta> tag that specifies a charset...
+
+          // TODO: if the media type is not a 'text/...' based XML type, ignore
+          // the charset from the headers, if present, and parse the XML itself...
+
+          LContentType := VDecoder.Headers.Values[SContentType];
+          {
+          if IsContentTypeAppXml(LContentType) then begin
+            LCharSet := DetectXmlCharset(LDestStream);
+            LDestStream.Position := 0;
+          end else
+          begin
+          }
+            LCharSet := LTxt.GetCharSet(LContentType);
+            if (LCharSet = '') and IsContentTypeHtml(LContentType) then begin
+              ParseMetaHTTPEquiv(LDestStream, nil, LCharSet);
+              LDestStream.Position := 0;
+            end;
+          //end;
+
+          LTxt.ContentType := LContentType;
+          LTxt.CharSet := LCharSet;
           LTxt.ContentID := VDecoder.Headers.Values['Content-ID'];  {Do not Localize}
           LTxt.ContentLocation := VDecoder.Headers.Values['Content-Location'];  {Do not Localize}
           LTxt.ContentDescription := VDecoder.Headers.Values['Content-Description']; {Do not Localize}
@@ -6468,7 +6516,10 @@ const
               );
             end;
           end;
-          ReadStringsAsCharset(LDestStream, LTxt.Body, LTxt.CharSet);
+          {$IFDEF STRING_IS_ANSI}
+          LAnsiEncoding := CharsetToEncoding(LCharSet);
+          {$ENDIF}
+          ReadStringsAsCharset(LDestStream, LTxt.Body, LCharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
         except
           //this should also remove the Item from the TCollection.
           //Note that Delete does not exist in the TCollection.

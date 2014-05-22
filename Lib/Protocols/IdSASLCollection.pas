@@ -196,20 +196,44 @@ var
 begin
   Result := False;
   AuthStarted := False;
+
+  // TODO: handle ACanAttemptIR based on AProtocolName.
+  //
+  // SASL in SMTP and DICT supported Initial-Response from the beginning,
+  // as should any new SASL-enabled protocol moving forward.
+  //
+  // SASL in IMAP did not originally support Initial-Response, but it was
+  // added in RFC 4959 along with an explicit capability ('SASL-IR') to
+  // indicate when Initial-Response is supported. SASL in IMAP is currently
+  // handled by TIdIMAP4 directly, but should it be updated to use
+  // TIdSASLEntries.LoginSASL() in the future then it will set the
+  // ACanAttemptIR parameter accordingly.
+  //
+  // SASL in POP3 did not originally support Initial-Response. It was added
+  // in RFC 2449 along with the CAPA command. If a server supports the CAPA
+  // command then it *should* also support Initial-Response as well, however
+  // many POP3 servers support CAPA but do not support Initial-Response
+  // (which was formalized in RFC 5034). So, to handle that descrepency,
+  // TIdPOP3 currently sets ACanAttemptIR to false.  In the future, we could
+  // let it set ACanAttemptIR to True instead, and then if Initial-Response
+  // fails here for POP3 then re-attempt without Initial-Response before
+  // exiting with a failure.
+
   if ACanAttemptIR then begin
-    AuthStarted := ASASL.TryStartAuthenticate(AHost, AProtocolName, S);
-    if AuthStarted then begin
+    if ASASL.TryStartAuthenticate(AHost, AProtocolName, S) then begin
       AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), []);//[334, 504]);
+      if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
+        ASASL.FinishAuthenticate;
+        Exit; // this mechanism is not supported
+      end;
+      AuthStarted := True;
     end;
   end;
   if not AuthStarted then begin
     AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName), []);//[334, 504]);
-  end;
-  if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
-    if AuthStarted then begin
-      ASASL.FinishAuthenticate;
+    if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
+      Exit; // this mechanism is not supported
     end;
-    Exit; // this mechanism is not supported
   end;
   if (PosInStrArray(AClient.LastCmdResult.Code, AOkReplies) > -1) then begin
     if AuthStarted then begin
@@ -218,15 +242,14 @@ begin
     Result := True;
     Exit; // we've authenticated successfully :)
   end;
-  if not AuthStarted then begin
-    S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
-    S := ASASL.StartAuthenticate(S, AHost, AProtocolName);
-    AClient.SendCmd(AEncoder.Encode(S));
-    if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
-    begin
-      ASASL.FinishAuthenticate;
-      Exit;
-    end;
+  // must be a continue reply...
+  S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
+  S := ASASL.StartAuthenticate(S, AHost, AProtocolName);
+  AClient.SendCmd(AEncoder.Encode(S));
+  if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
+  begin
+    ASASL.FinishAuthenticate;
+    Exit;
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
     S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
