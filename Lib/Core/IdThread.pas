@@ -548,7 +548,7 @@ begin
     // terminated after the Yarn was assigned but the thread was not
     // re-started, so the Yarn would not be freed in Cleanup()
     try
-      FreeAndNil(FYarn);
+      IdDisposeAndNil(FYarn);
     finally
       // Protect FLock if thread was resumed by Start Method and we are still there.
       // This usually happens if Exception was raised in BeforeRun for some reason
@@ -637,7 +637,7 @@ end;
 procedure TIdThread.Cleanup;
 begin
   Exclude(FOptions, itoReqCleanup);
-  FreeAndNil(FYarn);
+  IdDisposeAndNil(FYarn);
   if itoDataOwner in FOptions then begin
     FreeAndNil({$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF});
   end;

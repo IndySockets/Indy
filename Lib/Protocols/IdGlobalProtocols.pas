@@ -538,7 +538,7 @@ type
   function FindFirstOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
   function FindFirstNotOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
   function TrimAllOf(const ATrim, AText: string): string;
-  procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings; var VCharSet: string);
+  procedure ParseMetaHTTPEquiv(AStream: TStream; AHeaders : TStrings; var VCharSet: string);
 
 type
   TIdEncodingNeededEvent = function(const ACharset: String): IIdTextEncoding;
@@ -1454,24 +1454,30 @@ end;
 
 
 function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
-{$IFNDEF FPC}
 var
+{$IFDEF FPC}
+  LPrefix: string;
+{$ELSE}
   LNamePart : LongWord;
   LFQE : String;
   LFName: String;
 {$ENDIF}
 begin
   {$IFDEF FPC}
+
   //Do not use Tempnam in Unix-like Operating systems.  That function is dangerous
   //and you will be warned about it when compiling.  FreePascal has GetTempFileName.  Use
   //that instead.
-  if APath = '' then begin
-    Result := GetTempFileName('', 'Indy');
-  end else begin
-    Result := GetTempFileName(APath, 'Indy');
+  LPrefix := APrefix;
+  if LPrefix = '' then begin
+    LPrefix := 'Indy'; {Do not localize}
   end;
+  Result := GetTempFileName(APath, LPrefix);
+
   {$ELSE}
 
+  // TODO: Use Winapi.GetTempFileName() in Windows...
+  
   LFQE := AExt;
 
   // period is optional in the extension... force it
@@ -1484,12 +1490,14 @@ begin
   // validate path and add path delimiter before file name prefix
   if APath <> '' then begin
     if not IndyDirectoryExists(APath) then begin
+      // TODO: fail with an error instead...
       LFName := APrefix;
     end else begin
       // uses the Indy function... not the Borland one
       LFName := IndyIncludeTrailingPathDelimiter(APath) + APrefix;
     end;
   end else begin
+    // TODO: without a starting path, we cannot check for file existance, so fail...
     LFName := APrefix;
   end;
 
@@ -3822,7 +3830,7 @@ begin
   end;
 end;
 
-procedure ParseMetaHTTPEquiv(AStream: TStream; AStr : TStrings; var VCharSet: string);
+procedure ParseMetaHTTPEquiv(AStream: TStream; AHeaders : TStrings; var VCharSet: string);
 type
   TIdHTMLMode = (none, html, title, head, body, comment);
 var
@@ -3834,7 +3842,7 @@ var
   LEncoding: IIdTextEncoding;
 begin
   VCharSet :=  '';
-//  AStr.Clear;
+//  AHeaders.Clear;
   AStream.Position := 0;
   LEncoding := IndyTextEncoding_8Bit;
   // TODO: parse the stream as-is without reading it into a String first...
@@ -3909,7 +3917,11 @@ begin
                     if LPos > LLen then begin
                       Break;
                     end;
-                    AStr.Add( ParseHTTPMetaEquiveData(LRawData, LPos, LLen) );
+                    if AHeaders <> nil then begin
+                      AHeaders.Add( ParseHTTPMetaEquiveData(LRawData, LPos, LLen) );
+                    end else begin
+                      ParseHTTPMetaEquiveData(LRawData, LPos, LLen);
+                    end;
                   end;
                 end;
                 1: // charset

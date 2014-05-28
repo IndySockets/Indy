@@ -389,7 +389,7 @@ begin
     FThread.Terminate;
     FThread.Start;//resume for terminate
   end;
-  FreeAndNil(FThread);
+  IdDisposeAndNil(FThread);
   inherited Destroy;
 end;
 
@@ -575,7 +575,7 @@ procedure TIdThreadComponent.Start;
 begin
   if not IsDesignTime then begin
     if Assigned(FThread) and FThread.Terminated then begin
-      FreeAndNil(FThread);
+      IdDisposeAndNil(FThread);
     end;
 
     if not Assigned(FThread) then begin

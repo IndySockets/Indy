@@ -137,6 +137,7 @@ uses
 type
   TIdYarnOfThread = class(TIdYarn)
   protected
+    // TODO: should these be [Weak] on ARC systems?
     FScheduler: TIdScheduler;
     FThread: TIdThreadWithTask;
   public
@@ -229,7 +230,7 @@ begin
     // RLebeau: free the yarn here as well. This allows TIdSchedulerOfThreadPool
     // to put the suspended thread, if present, back in the pool.
 
-    FreeAndNil(LYarn);
+    IdDisposeAndNil(LYarn);
   end;
 end;
 

@@ -97,7 +97,7 @@ type
     // A list in which this context is registered, this can be nil, and should
     // therefore not be used
     FContextList: TIdContextThreadList;
-    FConnection: TIdTCPConnection;
+    FConnection: TIdTCPConnection; // TODO: should this be [Weak] on ARC systems?
     FOwnsConnection: Boolean;
     FOnRun: TIdContextRun;
     FOnBeforeRun: TIdContextEvent;
@@ -154,7 +154,7 @@ begin
   end;
 
   if FOwnsConnection then begin
-    FreeAndNil(FConnection);
+    IdDisposeAndNil(FConnection);
   end;
 
   inherited Destroy;
