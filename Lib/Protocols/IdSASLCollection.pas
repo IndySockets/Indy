@@ -243,13 +243,15 @@ begin
     Exit; // we've authenticated successfully :)
   end;
   // must be a continue reply...
-  S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
-  S := ASASL.StartAuthenticate(S, AHost, AProtocolName);
-  AClient.SendCmd(AEncoder.Encode(S));
-  if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
-  begin
-    ASASL.FinishAuthenticate;
-    Exit;
+  if not AuthStarted then begin
+    S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
+    S := ASASL.StartAuthenticate(S, AHost, AProtocolName);
+    AClient.SendCmd(AEncoder.Encode(S));
+    if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
+    begin
+      ASASL.FinishAuthenticate;
+      Exit;
+    end;
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
     S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
