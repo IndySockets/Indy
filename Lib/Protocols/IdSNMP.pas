@@ -802,6 +802,8 @@ var
   LIPVersion: TIdIPVersion;
 begin
   Result := False;
+
+  Trap.Clear;
   Trap.PDUType := PDUTrap;
 
   LMSec := ReceiveTimeOut;
@@ -837,18 +839,13 @@ function TIdSNMP.QuickSendTrap(const DestHost, Enterprise, DestCommunity: string
 var
   i: integer;
 begin
+  Trap.Clear;
   Trap.Host := DestHost;
   Trap.Port := DestPort;
   Trap.Community := DestCommunity;
   Trap.Enterprise := Enterprise;
   Trap.GenTrap := Generic;
   Trap.SpecTrap := Specific;
-  {$IFDEF HAS_GENERICS_TList}
-  Trap.MIBValues.Clear;
-  {$ELSE}
-  Trap.MIBOID.Clear;
-  Trap.MIBValue.Clear;
-  {$ENDIF}
   for i := 0 to {$IFDEF HAS_GENERICS_TList}MIBValues{$ELSE}MIBName{$ENDIF}.Count-1 do begin
     Trap.MIBAdd(
       {$IFDEF HAS_GENERICS_TList}
