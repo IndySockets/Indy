@@ -543,7 +543,7 @@ type
     function AXFR(Header : TDNSHeader; Question : string; var Answer : TIdBytes) : string;
     function CompleteQuery(DNSHeader: TDNSHeader; Question: string;
       OriginalQuestion: TIdBytes; var Answer : TIdBytes; QType, QClass : Word;
-      DNSResolver : TIdDNSResolver) : string; deprecated;
+      DNSResolver : TIdDNSResolver) : string; {$IFDEF HAS_DEPRECATED}deprecated;{$ENDIF}
     function LoadZoneFromMasterFile(MasterFileName : String) : boolean;
     function LoadZoneStrings(FileStrings: TStrings; Filename : String;
       TreeRoot : TIdDNTreeNode): Boolean;
