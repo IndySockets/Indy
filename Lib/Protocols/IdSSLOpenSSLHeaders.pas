@@ -17736,8 +17736,50 @@ function EVP_get_digestbyobj(a : PASN1_OBJECT) : PEVP_MD;
 function EVP_get_cipherbynid(a : TIdC_INT) : EVP_CIPHER;
  {$EXTERNALSYM EVP_get_cipherbyobj}
 function EVP_get_cipherbyobj(a : PASN1_OBJECT) : EVP_CIPHER;
-
-
+ {$EXTERNALSYM EVP_MD_nid}
+function EVP_MD_nid(e : PEVP_MD) : TIdC_INT;
+ {$EXTERNALSYM EVP_MD_name}
+function EVP_MD_name(e : PEVP_MD) : PIdAnsiChar;
+ {$EXTERNALSYM EVP_MD_CTX_size}
+function EVP_MD_CTX_size(e : PEVP_MD_CTX) : TIdC_INT;
+ {$EXTERNALSYM EVP_MD_CTX_block_size}
+function EVP_MD_CTX_block_size(e : PEVP_MD_CTX) : TIdC_INT;
+ {$EXTERNALSYM EVP_MD_CTX_type}
+function EVP_MD_CTX_type(e : PEVP_MD_CTX) : TIdC_INT;
+ {$EXTERNALSYM EVP_CIPHER_name}
+function EVP_CIPHER_name(e : PEVP_CIPHER) : PIdAnsiChar;
+ {$EXTERNALSYM EVP_CIPHER_mode}
+function EVP_CIPHER_mode(e : PEVP_CIPHER) : TIdC_ULONG;
+ {$EXTERNALSYM EVP_CIPHER_CTX_type}
+function EVP_CIPHER_CTX_type(c : PEVP_CIPHER_CTX) : TIdC_INT;
+ {$EXTERNALSYM EVP_CIPHER_CTX_mode}
+function EVP_CIPHER_CTX_mode(e : PEVP_CIPHER_CTX) : TIdC_ULONG;
+ {$EXTERNALSYM EVP_ENCODE_LENGTH}
+function EVP_ENCODE_LENGTH(l : Integer) : Integer;
+ {$EXTERNALSYM EVP_DECODE_LENGTH}
+function EVP_DECODE_LENGTH(l : Integer) : Integer;
+ {$EXTERNALSYM EVP_SignInit_ex}
+function EVP_SignInit_ex(a: PEVP_MD_CTX; b : PEVP_MD; c : PENGINE) : TIdC_INT;
+ {$EXTERNALSYM EVP_SignInit}
+function EVP_SignInit(a : PEVP_MD_CTX; b : PEVP_MD) : TIdC_INT;
+ {$EXTERNALSYM EVP_SignUpdate}
+function EVP_SignUpdate(a: PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_INT;
+ {$EXTERNALSYM EVP_VerifyInit_ex}
+function EVP_VerifyInit_ex(a: PEVP_MD_CTX; b: PEVP_MD; c: PENGINE) : TIdC_INT;
+ {$EXTERNALSYM EVP_VerifyInit}
+function EVP_VerifyInit(a: PEVP_MD_CTX; b: PEVP_MD) : TIdC_INT;
+ {$EXTERNALSYM EVP_VerifyUpdate}
+function EVP_VerifyUpdate(a: PEVP_MD_CTX;b: Pointer; c : size_t) : TIdC_INT;
+ {$EXTERNALSYM EVP_OpenUpdate}
+function EVP_OpenUpdate(a:PEVP_CIPHER_CTX; b : PIdAnsiChar; c : TIdC_INT;
+  d: PIdAnsiChar; e : TIdC_INT) : TIdC_INT;
+ {$EXTERNALSYM EVP_SealUpdate}
+function EVP_SealUpdate(a : PEVP_CIPHER_CTX; b: PIdAnsiChar; c : PIdC_INT;
+  d: PIdAnsiChar; e : TIdC_INT) : TIdC_INT;
+ {$EXTERNALSYM EVP_DigestSignUpdate}
+function EVP_DigestSignUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_Int;
+ {$EXTERNALSYM EVP_DigestVerifyUpdate}
+function EVP_DigestVerifyUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_INT;
  {$EXTERNALSYM X509V3_set_ctx_nodb} 
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
 //
