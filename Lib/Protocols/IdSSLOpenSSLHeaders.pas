@@ -12374,6 +12374,8 @@ type
   PEVP_PKEY_METHOD = pointer;  //This is not defined publically in OpenSSL 1.0.0
   {$EXTERNALSYM PEVP_PKEY_CTX}
   PEVP_PKEY_CTX = pointer; //This is not defined publically in OpenSSL 1.0.0
+  {$EXTERNALSYM PPEVP_PKEY_CTX}
+  PPEVP_PKEY_CTX = ^PEVP_PKEY_CTX;
   {$EXTERNALSYM PEVP_PKEY_ASN1_METHOD}
   PEVP_PKEY_ASN1_METHOD = pointer;
   {$EXTERNALSYM PEVP_PBE_KEYGEN}
@@ -16577,20 +16579,95 @@ var
   {$EXTERNALSYM PEM_read_bio_X509_AUX}
   PEM_read_bio_X509_AUX : function (bp : PBIO; x : PPX509;
     cb : ppem_password_cb; u : Pointer) : PX509 cdecl = nil;
- {$EXTERNALSYM EVP_DigestInit_ex}
+  {$EXTERNALSYM EVP_DigestInit}
+  EVP_DigestInit : function(ctx : PEVP_MD_CTX; _type : PEVP_MD) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DigestFinal}
+  EVP_DigestFinal : function(ctx : PEVP_MD_CTX;md : PIdAnsiChar; s : TIdC_UINT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DigestInit_ex}
   EVP_DigestInit_ex : function (ctx : PEVP_MD_CTX; const AType : PEVP_MD; impl : PENGINE) : TIdC_Int cdecl = nil;
-//int	EVP_DigestUpdate(EVP_MD_CTX *ctx,const void *d,
-//			 size_t cnt);
- {$EXTERNALSYM EVP_DigestUpdate}
+  {$EXTERNALSYM EVP_DigestUpdate}
   EVP_DigestUpdate : function (ctx : PEVP_MD_CTX; d : Pointer; cnt : size_t) : TIdC_Int cdecl = nil;
- {$EXTERNALSYM EVP_DigestFinal_ex}
-  //int	EVP_DigestFinal_ex(EVP_MD_CTX *ctx,unsigned char *md,unsigned int *s);
+  {$EXTERNALSYM EVP_DigestFinal_ex}
   EVP_DigestFinal_ex : function(ctx : PEVP_MD_CTX; md : PIdAnsiChar; var s : TIdC_UInt) : TIdC_Int cdecl = nil;
+
+   {$EXTERNALSYM EVP_EncryptInit}
+  EVP_EncryptInit : function(ctx : PEVP_CIPHER_CTX;cipher : PEVP_CIPHER;
+		key : PIdAnsiChar; iv : PIdAnsiChar) : TIdC_INT cdecl = nil;
+   {$EXTERNALSYM EVP_EncryptInit_ex}
+  EVP_EncryptInit_ex : function(ctx : PEVP_CIPHER_CTX; cipher : PEVP_CIPHER; impl : PENGINE;
+		key : PIdAnsiChar; iv : PIdAnsiChar) : TIdC_INT cdecl = nil;
+   {$EXTERNALSYM EVP_EncryptUpdate}
+  	EVP_EncryptUpdate : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar;
+		outl : PIdC_INT; _in : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT cdecl = nil;
+   {$EXTERNALSYM EVP_EncryptFinal_ex}
+	EVP_EncryptFinal_ex : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
+   {$EXTERNALSYM EVP_EncryptFinal}
+	EVP_EncryptFinal : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl: PIdC_INT) : TIdC_INT cdecl = nil;
+
+
+  {$EXTERNALSYM EVP_DecryptInit}
+	EVP_DecryptInit : function(ctx : PEVP_CIPHER_CTX; cipher : PEVP_CIPHER;
+		key : PIdAnsiChar; iv : PIdAnsiChar) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DecryptInit_ex}
+  EVP_DecryptInit_ex : function(ctx : PEVP_CIPHER_CTX; cipher : PEVP_CIPHER; impl : PENGINE;
+		key : PIdAnsiChar; iv : PIdAnsiChar) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DecryptUpdate}
+  EVP_DecryptUpdate : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar;
+		outl : TIdC_INT; _in : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DecryptFinal}
+  EVP_DecryptFinal : function(ctx : PEVP_CIPHER_CTX; outm : PIdAnsiChar; outl : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DecryptFinal_ex}
+  EVP_DecryptFinal_ex : function(ctx : PEVP_CIPHER_CTX; outm: PIdAnsiChar; outl : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CipherInit}
+  EVP_CipherInit : function(ctx : PEVP_CIPHER_CTX; cipher : PEVP_CIPHER;
+	  key : PIdAnsiChar; iv : PIdAnsiChar;
+		enc : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CipherInit_ex}
+  EVP_CipherInit_ex : function(ctx : PEVP_CIPHER_CTX; cipher: PEVP_CIPHER; impl : PENGINE;
+		key : PIdAnsiChar; iv : PIdAnsiChar;
+		enc : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CipherUpdate}
+  EVP_CipherUpdate : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar;
+		outl : TIdC_INT; _in : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CipherFinal}
+  EVP_CipherFinal : function(ctx : PEVP_CIPHER_CTX; outm : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CipherFinal_ex}
+  EVP_CipherFinal_ex: function(ctx : PEVP_CIPHER_CTX; outm : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT;
+  {$EXTERNALSYM EVP_SignFinal}
+  EVP_SignFinal : function(ctx : EVP_MD_CTX; md : PIdAnsiChar; s : PIdC_INT;
+		pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_VerifyFinal}
+  EVP_VerifyFinal : function(ctx : EVP_MD_CTX; sigbuf : PIdAnsiChar;
+	  siglen : TIdC_UINT; pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DigestSignInit}
+  EVP_DigestSignInit : function(ctx : PEVP_MD_CTX; pctx : PPEVP_PKEY_CTX;
+    _type : PEVP_MD; e : PENGINE; pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DigestSignFinal}
+  EVP_DigestSignFinal : function(ctx : PEVP_MD_CTX;
+    sigret : PIdAnsiChar; siglen : Psize_t) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DigestVerifyInit}
+  EVP_DigestVerifyInit : function(ctx : PEVP_MD_CTX; pctx : PPEVP_PKEY_CTX;
+    _type : PEVP_MD;e : PENGINE; pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_DigestVerifyFinal}
+	EVP_DigestVerifyFinal: function(ctx : PEVP_MD_CTX;
+    sig : PIdAnsiChar;  siglen : size_t) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_OpenInit}
+  EVP_OpenInit : function(ctx : PEVP_CIPHER_CTX; _type : PEVP_CIPHER;
+		ek : PIdAnsiChar; ekl : TIdC_INT; iv : PIdAnsiChar;
+		priv : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_OpenFinal}
+	EVP_OpenFinal : function (ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_SealInit}
+  EVP_SealInit : function(ctx : PEVP_CIPHER_CTX; _type : PEVP_CIPHER;
+	  ek : PPAnsiChar; ekl : PIdC_INT; iv : PIdAnsiChar;
+		pubk : PPEVP_PKEY; npubk : TIdC_INT) : TIdC_INT cdecl = nil;
+   {$EXTERNALSYM EVP_SealFinal}
+  EVP_SealFinal : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
+
+
  {$EXTERNALSYM EVP_MD_CTX_init}
-  //void	EVP_MD_CTX_init(EVP_MD_CTX *ctx);
   EVP_MD_CTX_init : procedure(ctx : PEVP_MD_CTX) cdecl = nil;
  {$EXTERNALSYM EVP_MD_CTX_cleanup}
-  //int	EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx);
   EVP_MD_CTX_cleanup : function(ctx : PEVP_MD_CTX) : TIdC_Int cdecl = nil;
   {$IFNDEF OPENSSL_NO_DES}
  {$EXTERNALSYM EVP_des_ede3_cbc}
@@ -16604,8 +16681,51 @@ var
  {$EXTERNALSYM EVP_PKEY_assign}
   EVP_PKEY_assign : function(pkey: PEVP_PKEY; _type: TIdC_INT; key: PIdAnsiChar): TIdC_INT cdecl = nil;
   {$ENDIF}
+  {$EXTERNALSYM EVP_get_cipherbyname}
+  EVP_get_cipherbyname : function(const name : PIdAnsiChar): EVP_CIPHER cdecl = nil;
  {$EXTERNALSYM EVP_get_digestbyname}
   EVP_get_digestbyname : function(const name: PIdAnsiChar): PEVP_MD cdecl = nil;
+ {$EXTERNALSYM EVP_MD_type}
+ EVP_MD_type : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_MD_size}
+ EVP_MD_size : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_MD_block_size}
+ EVP_MD_block_size : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_MD_flags}
+ EVP_MD_flags : function (md : PEVP_MD) : TIdC_ULONG cdecl = nil;
+ {$EXTERNALSYM EVP_MD_CTX_md}
+ EVP_MD_CTX_md : function (ctx : PEVP_MD_CTX) : PEVP_MD cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_nid}
+ EVP_CIPHER_nid : function (cipher : PEVP_CIPHER) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_block_size}
+ EVP_CIPHER_block_size : function(cipher : PEVP_CIPHER) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_key_length}
+ EVP_CIPHER_key_length : function(cipher : EVP_CIPHER) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_iv_length}
+ EVP_CIPHER_iv_length : function(cipher: PEVP_CIPHER) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_flags}
+ EVP_CIPHER_flags : function(cipher : PEVP_CIPHER) : TIdC_ULONG cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_type}
+ EVP_CIPHER_type : function(ctx : PEVP_CIPHER) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER}
+ EVP_CIPHER_CTX_cipher : function (ctx : PEVP_CIPHER_CTX) : PEVP_CIPHER cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_CTX_nid}
+ EVP_CIPHER_CTX_nid : function (ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_CTX_block_size}
+ EVP_CIPHER_CTX_block_size : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_key_length}
+ EVP_CIPHER_CTX_key_length : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_iv_length}
+ EVP_CIPHER_CTX_iv_length : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_copy}
+ EVP_CIPHER_CTX_copy : function(_out : PEVP_CIPHER_CTX; _in : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_CTX_get_app_data}
+ EVP_CIPHER_CTX_get_app_data : function(ctx : PEVP_CIPHER_CTX) : Pointer cdecl = nil;
+ {$EXTERNALSYM EVP_CIPHER_CTX_set_app_data}
+ EVP_CIPHER_CTX_set_app_data : procedure(ctx : PEVP_CIPHER_CTX; data : Pointer) cdecl =nil;
+ {$EXTERNALSYM EVP_CIPHER_CTX_flags}
+ EVP_CIPHER_CTX_flags : function(ctx : PEVP_CIPHER_CTX) : TIdC_ULONG cdecl = nil;
+
  {$EXTERNALSYM ASN1_INTEGER_set}
   ASN1_INTEGER_set : function(a: PASN1_INTEGER; v: TIdC_LONG): TIdC_INT cdecl = nil;
  {$EXTERNALSYM ASN1_INTEGER_get}
@@ -17603,9 +17723,20 @@ function EVP_PKEY_assign_DH(pkey : PEVP_PKEY; dh : PIdAnsiChar) : TIdC_INT;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_EC}
- {$EXTERNALSYM EVP_PKEY_assign_EC_KEY} 
+ {$EXTERNALSYM EVP_PKEY_assign_EC_KEY}
 function EVP_PKEY_assign_EC_KEY(pkey : PEVP_PKEY; eckey : PIdAnsiChar) : TIdC_INT;
 {$ENDIF}
+
+//* Add some extra combinations */
+ {$EXTERNALSYM EVP_get_digestbynid}
+function EVP_get_digestbynid(a : TIdC_INT) : PEVP_MD;
+ {$EXTERNALSYM EVP_get_digestbyobj}
+function EVP_get_digestbyobj(a : PASN1_OBJECT) : PEVP_MD;
+ {$EXTERNALSYM EVP_get_cipherbynid}
+function EVP_get_cipherbynid(a : TIdC_INT) : EVP_CIPHER;
+ {$EXTERNALSYM EVP_get_cipherbyobj}
+function EVP_get_cipherbyobj(a : PASN1_OBJECT) : EVP_CIPHER;
+
 
  {$EXTERNALSYM X509V3_set_ctx_nodb} 
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
@@ -19534,40 +19665,41 @@ them in case we use them later.}
   {CH fn_OBJ_cleanup = 'OBJ_cleanup'; }  {Do not localize}
   {CH fn_OBJ_create_objects = 'OBJ_create_objects'; }  {Do not localize}
   {===}
-  { fm_EVP_MD_type = 'EVP_MD_type'; } {Do not localize}
-  { fn_EVP_MD_pkey_type = 'EVP_MD_pkey_type'; } {Do not localize}
-  { fn_EVP_MD_size = 'EVP_MD_size'; } {Do not localize}
-  { fn_EVP_MD_block_size = 'EVP_MD_block_size'; } {Do not localize}
-  { fn_EVP_MD_CTX_md = 'EVP_MD_CTX_md';  } {Do not localize}
-  { fn_EVP_CIPHER_nid = 'EVP_CIPHER_nid'; } {Do not localize}
-  { fn_EVP_CIPHER_block_size = 'EVP_CIPHER_block_size';  } {Do not localize}
-  { fn_EVP_CIPHER_key_length = 'EVP_CIPHER_key_length'; } {Do not localize}
-  { fn_EVP_CIPHER_iv_length = 'EVP_CIPHER_iv_length'; } {Do not localize}
-  { fn_EVP_CIPHER_flags = 'EVP_CIPHER_flags'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_cipher = 'EVP_CIPHER_CTX_cipher'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_nid = 'EVP_CIPHER_CTX_nid'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_block_size = 'EVP_CIPHER_CTX_block_size'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_key_length = 'EVP_CIPHER_CTX_key_length'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_iv_length = 'EVP_CIPHER_CTX_iv_length'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_get_app_data = 'EVP_CIPHER_CTX_get_app_data'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_set_app_data = 'EVP_CIPHER_CTX_set_app_data'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_flags = 'EVP_CIPHER_CTX_flags'; } {Do not localize}
-  { fn_EVP_Cipher = 'EVP_Cipher'; } {Do not localize}
+   fn_EVP_MD_type = 'EVP_MD_type'; {Do not localize}
+   fn_EVP_MD_pkey_type = 'EVP_MD_pkey_type';  {Do not localize}
+   fn_EVP_MD_size = 'EVP_MD_size'; {Do not localize}
+   fn_EVP_MD_block_size = 'EVP_MD_block_size';  {Do not localize}
+   fn_EVP_MD_flags = 'EVP_MD_flags'; {Do not localize}
+   fn_EVP_MD_CTX_md = 'EVP_MD_CTX_md';   {Do not localize}
+   fn_EVP_CIPHER_nid = 'EVP_CIPHER_nid';  {Do not localize}
+   fn_EVP_CIPHER_block_size = 'EVP_CIPHER_block_size';   {Do not localize}
+   fn_EVP_CIPHER_key_length = 'EVP_CIPHER_key_length';  {Do not localize}
+   fn_EVP_CIPHER_iv_length = 'EVP_CIPHER_iv_length';  {Do not localize}
+   fn_EVP_CIPHER_flags = 'EVP_CIPHER_flags';  {Do not localize}
+   fn_EVP_CIPHER_CTX_cipher = 'EVP_CIPHER_CTX_cipher';  {Do not localize}
+   fn_EVP_CIPHER_CTX_nid = 'EVP_CIPHER_CTX_nid';  {Do not localize}
+   fn_EVP_CIPHER_CTX_block_size = 'EVP_CIPHER_CTX_block_size';  {Do not localize}
+   fn_EVP_CIPHER_CTX_key_length = 'EVP_CIPHER_CTX_key_length';  {Do not localize}
+   fn_EVP_CIPHER_CTX_iv_length = 'EVP_CIPHER_CTX_iv_length';  {Do not localize}
+   fn_EVP_CIPHER_CTX_get_app_data = 'EVP_CIPHER_CTX_get_app_data';  {Do not localize}
+   fn_EVP_CIPHER_CTX_set_app_data = 'EVP_CIPHER_CTX_set_app_data';  {Do not localize}
+   fn_EVP_CIPHER_CTX_flags = 'EVP_CIPHER_CTX_flags';  {Do not localize}
+   fn_EVP_Cipher = 'EVP_Cipher';  {Do not localize}
    fn_EVP_MD_CTX_init = 'EVP_MD_CTX_init'; {Do not localize}
    fn_EVP_MD_CTX_cleanup = 'EVP_MD_CTX_cleanup';  {Do not localize}
-  { fn_EVP_MD_CTX_create = 'EVP_MD_CTX_create'; } {Do not localize}
-  { fn_EVP_MD_CTX_destroy = 'EVP_MD_CTX_destroy'; } {Do not localize}
-  { fn_EVP_MD_CTX_copy_ex = 'EVP_MD_CTX_copy_ex'; } {Do not localize}
-  { fn_EVP_MD_CTX_set_flags = 'EVP_MD_CTX_set_flags'; } {Do not localize}
-  { fn_EVP_MD_CTX_clear_flags = 'EVP_MD_CTX_clear_flags'; } {Do not localize}
-  { fn_EVP_MD_CTX_test_flags = 'EVP_MD_CTX_test_flags'; } {Do not localize}
+   fn_EVP_MD_CTX_create = 'EVP_MD_CTX_create';  {Do not localize}
+   fn_EVP_MD_CTX_destroy = 'EVP_MD_CTX_destroy';  {Do not localize}
+   fn_EVP_MD_CTX_copy_ex = 'EVP_MD_CTX_copy_ex';  {Do not localize}
+   fn_EVP_MD_CTX_set_flags = 'EVP_MD_CTX_set_flags';  {Do not localize}
+   fn_EVP_MD_CTX_clear_flags = 'EVP_MD_CTX_clear_flags';  {Do not localize}
+   fn_EVP_MD_CTX_test_flags = 'EVP_MD_CTX_test_flags';  {Do not localize}
    fn_EVP_DigestInit_ex = 'EVP_DigestInit_ex';  {Do not localize}
    fn_EVP_DigestUpdate = 'EVP_DigestUpdate';  {Do not localize}
    fn_EVP_DigestFinal_ex = 'EVP_DigestFinal_ex';  {Do not localize}
-  { fn_EVP_Digest = 'EVP_Digest'; } {Do not localize}
-  {CH fn_EVP_MD_CTX_copy = 'EVP_MD_CTX_copy'; }  {Do not localize}
-  {CH fn_EVP_DigestInit = 'EVP_DigestInit'; }  {Do not localize}
-  {CH fn_EVP_DigestFinal = 'EVP_DigestFinal'; }  {Do not localize}
+   fn_EVP_Digest = 'EVP_Digest';  {Do not localize}
+  fn_EVP_MD_CTX_copy = 'EVP_MD_CTX_copy';  {Do not localize}
+   fn_EVP_DigestInit = 'EVP_DigestInit';   {Do not localize}
+  fn_EVP_DigestFinal = 'EVP_DigestFinal';   {Do not localize}
   {CH fn_EVP_read_pw_string = 'EVP_read_pw_string'; }  {Do not localize}
   {CH fn_EVP_set_pw_prompt = 'EVP_set_pw_prompt'; }  {Do not localize}
   {CH fn_EVP_get_pw_prompt = 'EVP_get_pw_prompt'; }  {Do not localize}
@@ -19575,42 +19707,48 @@ them in case we use them later.}
   {CH fn_EVP_CIPHER_CTX_set_flags = 'EVP_CIPHER_CTX_set_flags'; } {Do not localize}
   {CH fn_EVP_CIPHER_CTX_clear_flags = 'EVP_CIPHER_CTX_clear_flags'; } {Do not localize}
   {CH fn_EVP_CIPHER_CTX_test_flags = 'EVP_CIPHER_CTX_test_flags'; } {Do not localize}
-  {CH fn_EVP_EncryptInit = 'EVP_EncryptInit'; }  {Do not localize}
-  { fn_EVP_EncryptInit_ex = 'EVP_EncryptInit_ex'; } {Do not localize}
-  {CH fn_EVP_EncryptUpdate = 'EVP_EncryptUpdate'; }  {Do not localize}
-  {CH fn_EVP_EncryptFinal = 'EVP_EncryptFinal'; }  {Do not localize}
-  {CH fn_EVP_EncryptFinal_ex = 'EVP_EncryptFinal_ex'; } {Do not localize}
-  {CH fn_EVP_DecryptInit = 'EVP_DecryptInit'; }  {Do not localize}
-  {CH fn_EVP_DecryptInit_ex = 'EVP_DecryptInit_ex'; }  {Do not localize}
-  {CH fn_EVP_DecryptUpdate = 'EVP_DecryptUpdate'; }  {Do not localize}
-  {CH fn_EVP_DecryptFinal = 'EVP_DecryptFinal'; }  {Do not localize}
-  { fn_EVP_DecryptFinal_ex = 'EVP_DecryptFinal_ex'; } {Do not localize}
-  {CH fn_EVP_CipherInit = 'EVP_CipherInit'; }  {Do not localize}
-  { fn_EVP_CipherInit_ex = 'EVP_CipherInit_ex'; } {Do not localize}
-  { fn_EVP_CipherUpdate = 'EVP_CipherUpdate'; }  {Do not localize}
-  { fn_EVP_CipherFinal = 'EVP_CipherFinal'; }  {Do not localize}
-  { fn_EVP_CipherFinal_ex = 'EVP_CipherFinal_ex'; } {Do not localize}
+  fn_EVP_EncryptInit = 'EVP_EncryptInit';  {Do not localize}
+   fn_EVP_EncryptInit_ex = 'EVP_EncryptInit_ex'; {Do not localize}
+  fn_EVP_EncryptUpdate = 'EVP_EncryptUpdate';  {Do not localize}
+  fn_EVP_EncryptFinal = 'EVP_EncryptFinal';  {Do not localize}
+  fn_EVP_EncryptFinal_ex = 'EVP_EncryptFinal_ex'; {Do not localize}
+  fn_EVP_DecryptInit = 'EVP_DecryptInit';   {Do not localize}
+  fn_EVP_DecryptInit_ex = 'EVP_DecryptInit_ex';   {Do not localize}
+  fn_EVP_DecryptUpdate = 'EVP_DecryptUpdate';   {Do not localize}
+  fn_EVP_DecryptFinal = 'EVP_DecryptFinal';  {Do not localize}
+  fn_EVP_DecryptFinal_ex = 'EVP_DecryptFinal_ex'; {Do not localize}
+  fn_EVP_CipherInit = 'EVP_CipherInit';   {Do not localize}
+  fn_EVP_CipherInit_ex = 'EVP_CipherInit_ex'; {Do not localize}
+  fn_EVP_CipherUpdate = 'EVP_CipherUpdate';  {Do not localize}
+  fn_EVP_CipherFinal = 'EVP_CipherFinal';  {Do not localize}
+  fn_EVP_CipherFinal_ex = 'EVP_CipherFinal_ex';  {Do not localize}
 
-  {CH fn_EVP_SignFinal = 'EVP_SignFinal'; }  {Do not localize}
-  {CH fn_EVP_VerifyFinal = 'EVP_VerifyFinal'; }  {Do not localize}
-  {CH fn_EVP_OpenInit = 'EVP_OpenInit'; }  {Do not localize}
-  {CH fn_EVP_OpenFinal = 'EVP_OpenFinal'; }  {Do not localize}
-  {CH fn_EVP_SealInit = 'EVP_SealInit'; }  {Do not localize}
-  {CH fn_EVP_SealFinal = 'EVP_SealFinal'; }  {Do not localize}
-  {CH fn_EVP_EncodeInit = 'EVP_EncodeInit'; }  {Do not localize}
-  {CH fn_EVP_EncodeUpdate = 'EVP_EncodeUpdate'; }  {Do not localize}
-  {CH fn_EVP_EncodeFinal = 'EVP_EncodeFinal'; }  {Do not localize}
-  {CH fn_EVP_EncodeBlock = 'EVP_EncodeBlock'; }  {Do not localize}
-  {CH fn_EVP_DecodeInit = 'EVP_DecodeInit'; }  {Do not localize}
-  {CH fn_EVP_DecodeUpdate = 'EVP_DecodeUpdate'; }  {Do not localize}
-  {CH fn_EVP_DecodeFinal = 'EVP_DecodeFinal'; }  {Do not localize}
-  {CH fn_EVP_DecodeBlock = 'EVP_DecodeBlock'; }  {Do not localize}
+  fn_EVP_DigestSignInit = 'EVP_DigestSignInit';  {Do not localize}
+  fn_EVP_DigestSignFinal = 'EVP_DigestSignFinal'; {Do not localize}
+  fn_EVP_DigestVerifyInit = 'EVP_DigestVerifyInit'; {Do not localize}
+  fn_EVP_DigestVerifyFinal = 'EVP_DigestVerifyFinal'; {Do not localize}
+
+  fn_EVP_SignFinal = 'EVP_SignFinal';   {Do not localize}
+  fn_EVP_VerifyFinal = 'EVP_VerifyFinal';   {Do not localize}
+  fn_EVP_OpenInit = 'EVP_OpenInit';   {Do not localize}
+  fn_EVP_OpenFinal = 'EVP_OpenFinal';  {Do not localize}
+  fn_EVP_SealInit = 'EVP_SealInit';   {Do not localize}
+  fn_EVP_SealFinal = 'EVP_SealFinal';  {Do not localize}
+  fn_EVP_EncodeInit = 'EVP_EncodeInit';  {Do not localize}
+  fn_EVP_EncodeUpdate = 'EVP_EncodeUpdate';  {Do not localize}
+  fn_EVP_EncodeFinal = 'EVP_EncodeFinal';   {Do not localize}
+  fn_EVP_EncodeBlock = 'EVP_EncodeBlock';   {Do not localize}
+  fn_EVP_DecodeInit = 'EVP_DecodeInit';   {Do not localize}
+  fn_EVP_DecodeUpdate = 'EVP_DecodeUpdate';   {Do not localize}
+  fn_EVP_DecodeFinal = 'EVP_DecodeFinal';   {Do not localize}
+  fn_EVP_DecodeBlock = 'EVP_DecodeBlock';   {Do not localize}
   {CH fn_EVP_CIPHER_CTX_init = 'EVP_CIPHER_CTX_init'; }  {Do not localize}
   {CH fn_EVP_CIPHER_CTX_cleanup = 'EVP_CIPHER_CTX_cleanup'; }  {Do not localize}
   { fn_EVP_CIPHER_CTX_new = 'EVP_CIPHER_CTX_new'; } {Do not localize}
   { fn_EVP_CIPHER_CTX_set_key_length = 'EVP_CIPHER_CTX_set_key_length'; } {Do not localize}
   { fn_EVP_CIPHER_CTX_ctrl = 'EVP_CIPHER_CTX_ctrl'; } {Do not localize}
   { fn_EVP_CIPHER_CTX_rand_key = 'EVP_CIPHER_CTX_rand_key'; } {Do not localize}
+  fn_EVP_CIPHER_CTX_copy = 'EVP_CIPHER_CTX_copy'; {Do not localize}
   {$IFNDEF OPENSSL_NO_BIO}
   {CH fn_BIO_f_md = 'BIO_f_md'; }  {Do not localize}
   {CH fn_BIO_f_base64 = 'BIO_f_base64'; }  {Do not localize}
@@ -19790,7 +19928,7 @@ them in case we use them later.}
   fn_OpenSSL_add_all_digests = 'OpenSSL_add_all_digests'; {Do not localize}
   {CH fn_EVP_add_cipher = 'EVP_add_cipher'; }  {Do not localize}
   {CH fn_EVP_add_digest = 'EVP_add_digest'; }  {Do not localize}
-  {CH fn_EVP_get_cipherbyname = 'EVP_get_cipherbyname'; }  {Do not localize}
+  fn_EVP_get_cipherbyname = 'EVP_get_cipherbyname';  {Do not localize}
   fn_EVP_get_digestbyname = 'EVP_get_digestbyname';  {Do not localize}
   fn_EVP_cleanup = 'EVP_cleanup';  {Do not localize}
   {CH fn_EVP_PKEY_decrypt = 'EVP_PKEY_decrypt'; }  {Do not localize}
@@ -19827,7 +19965,7 @@ them in case we use them later.}
   {CH fn_EVP_PKEY_save_parameters = 'EVP_PKEY_save_parameters'; }  {Do not localize}
   {CH fn_EVP_PKEY_cmp_parameters = 'EVP_PKEY_cmp_parameters'; }  {Do not localize}
   { fn_EVP_PKEY_cmp = 'EVP_PKEY_cmp'; } {Do not localize}
-  {CH fn_EVP_CIPHER_type = 'EVP_CIPHER_type'; }  {Do not localize}
+  fn_EVP_CIPHER_type = 'EVP_CIPHER_type';  {Do not localize}
   {CH fn_EVP_CIPHER_param_to_asn1 = 'EVP_CIPHER_param_to_asn1'; }  {Do not localize}
   {CH fn_EVP_CIPHER_asn1_to_param = 'EVP_CIPHER_asn1_to_param'; }  {Do not localize}
   {CH fn_EVP_CIPHER_set_asn1_iv = 'EVP_CIPHER_set_asn1_iv'; }  {Do not localize}
@@ -21655,15 +21793,69 @@ we have to handle both cases.
   @EVP_md2 := LoadFunctionCLib(fn_EVP_md2);
   {$ENDIF}
   @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init);
+  @EVP_DigestInit := LoadFunctionCLib(fn_EVP_DigestInit);
   @EVP_DigestInit_ex := LoadFunctionCLib(fn_EVP_DigestInit_ex);
   @EVP_DigestUpdate := LoadFunctionCLib(fn_EVP_DigestUpdate);
   @EVP_DigestFinal_ex := LoadFunctionCLib(fn_EVP_DigestFinal_ex);
+
+
+  @EVP_EncryptInit := LoadFunctionCLib(fn_EVP_EncryptInit);
+  @EVP_EncryptInit_ex := LoadFunctionCLib(fn_EVP_EncryptInit_ex);
+  @EVP_EncryptUpdate := LoadFunctionCLib(fn_EVP_EncryptUpdate);
+	@EVP_EncryptFinal_ex := LoadFunctionCLib(fn_EVP_EncryptFinal_ex);
+	@EVP_EncryptFinal := LoadFunctionCLib(fn_EVP_EncryptFinal);
+
+
+
+	@EVP_DecryptInit := LoadFunctionCLib(fn_EVP_DecryptInit);
+  @EVP_DecryptInit_ex := LoadFunctionCLib(fn_EVP_DecryptInit_ex);
+  @EVP_DecryptUpdate := LoadFunctionCLib(fn_EVP_DecryptUpdate);
+  @EVP_DecryptFinal := LoadFunctionCLib(fn_EVP_DecryptFinal);
+  @EVP_DecryptFinal_ex := LoadFunctionCLib(fn_EVP_DecryptFinal_ex);
+  @EVP_CipherInit := LoadFunctionCLib(fn_EVP_CipherInit);
+  @EVP_CipherInit_ex  := LoadFunctionCLib(fn_EVP_CipherInit_ex);
+  @EVP_CipherUpdate  := LoadFunctionCLib(fn_EVP_CipherUpdate);
+  @EVP_CipherFinal  := LoadFunctionCLib(fn_EVP_CipherFinal);
+  @EVP_CipherFinal_ex  := LoadFunctionCLib(fn_EVP_CipherFinal_ex);
+  @EVP_SignFinal := LoadFunctionCLib(fn_EVP_SignFinal);
+  @EVP_VerifyFinal := LoadFunctionCLib(fn_EVP_VerifyFinal);
+  @EVP_DigestSignInit := LoadFunctionCLib(fn_EVP_DigestSignInit);
+  @EVP_DigestSignFinal := LoadFunctionCLib(fn_EVP_DigestSignFinal);
+  @EVP_DigestVerifyInit := LoadFunctionCLib(fn_EVP_DigestVerifyInit);
+	@EVP_DigestVerifyFinal := LoadFunctionCLib(fn_EVP_DigestVerifyFinal);
+  @EVP_OpenInit := LoadFunctionCLib(fn_EVP_OpenInit);
+	@EVP_OpenFinal := LoadFunctionCLib(fn_EVP_OpenFinal);
+  @EVP_SealInit := LoadFunctionCLib(fn_EVP_SealInit);
+  @EVP_SealFinal := LoadFunctionCLib(fn_EVP_SealFinal);
+
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
   @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
   @EVP_PKEY_new := LoadFunctionCLib(fn_EVP_PKEY_new);
   @EVP_PKEY_free := LoadFunctionCLib(fn_EVP_PKEY_free);
   @EVP_PKEY_assign := LoadFunctionCLib(fn_EVP_PKEY_assign);
+  @EVP_get_cipherbyname := LoadFunctionCLib(fn_EVP_get_cipherbyname);
   @EVP_get_digestbyname := LoadFunctionCLib(fn_EVP_get_digestbyname);
+  @EVP_MD_type := LoadFunctionCLib(fn_EVP_MD_type);
+  @EVP_MD_size := LoadFunctionCLib(fn_EVP_MD_size);
+  @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_block_size);
+  @EVP_MD_flags := LoadFunctionCLib(fn_EVP_MD_flags);
+  @EVP_MD_CTX_md := LoadFunctionCLib(fn_EVP_MD_CTX_md);
+  @EVP_CIPHER_nid := LoadFunctionCLib(fn_EVP_CIPHER_nid);
+  @EVP_CIPHER_block_size := LoadFunctionCLib(fn_EVP_CIPHER_block_size);
+  @EVP_CIPHER_key_length := LoadFunctionCLib(fn_EVP_CIPHER_key_length);
+  @EVP_CIPHER_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_iv_length);
+  @EVP_CIPHER_flags := LoadFunctionCLib(fn_EVP_CIPHER_flags);
+  @EVP_CIPHER_type := LoadFunctionCLib(fn_EVP_CIPHER_type);
+  @EVP_CIPHER_CTX_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_cipher);
+  @EVP_CIPHER_CTX_nid  := LoadFunctionCLib(fn_EVP_CIPHER_CTX_nid);
+  @EVP_CIPHER_CTX_block_size := LoadFunctionCLib(fn_EVP_CIPHER_CTX_block_size );
+  @EVP_CIPHER_CTX_key_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_key_length );
+  @EVP_CIPHER_CTX_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_iv_length);
+  @EVP_CIPHER_CTX_copy := LoadFunctionCLib(fn_EVP_CIPHER_CTX_copy );
+  @EVP_CIPHER_CTX_get_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get_app_data );
+  @EVP_CIPHER_CTX_set_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_app_data );
+  @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags);
+
   //HMAC
   {$IFNDEF OPENSSL_NO_HMAC}
   @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init);
@@ -22017,15 +22209,66 @@ begin
   @EVP_md2 := nil;
   {$ENDIF}
   @EVP_MD_CTX_init := nil;
+  @EVP_DigestInit := nil;
   @EVP_DigestInit_ex := nil;
   @EVP_DigestUpdate := nil;
   @EVP_DigestFinal_ex := nil;
+
+  @EVP_EncryptInit := nil;
+  @EVP_EncryptInit_ex := nil;
+  @EVP_EncryptUpdate := nil;
+	@EVP_EncryptFinal_ex := nil;
+	@EVP_EncryptFinal := nil;
+
+	@EVP_DecryptInit := nil;
+  @EVP_DecryptInit_ex := nil;
+  @EVP_DecryptUpdate := nil;
+  @EVP_DecryptFinal := nil;
+  @EVP_DecryptFinal_ex := nil;
+  @EVP_CipherInit := nil;
+  @EVP_CipherInit_ex := nil;
+  @EVP_CipherUpdate := nil;
+  @EVP_CipherFinal := nil;
+  @EVP_CipherFinal_ex := nil;
+  @EVP_SignFinal := nil;
+  @EVP_VerifyFinal := nil;
+  @EVP_DigestSignInit := nil;
+  @EVP_DigestSignFinal := nil;
+  @EVP_DigestVerifyInit := nil;
+	@EVP_DigestVerifyFinal := nil;
+  @EVP_OpenInit := nil;
+	@EVP_OpenFinal := nil;
+  @EVP_SealInit := nil;
+  @EVP_SealFinal := nil;
+
   @EVP_MD_CTX_cleanup := nil;
   @EVP_PKEY_type := nil;
   @EVP_PKEY_new := nil;
   @EVP_PKEY_free := nil;
   @EVP_PKEY_assign := nil;
+  @EVP_get_cipherbyname := nil;
   @EVP_get_digestbyname := nil;
+  @EVP_MD_type := nil;
+  @EVP_MD_size := nil;
+  @EVP_MD_block_size := nil;
+  @EVP_MD_flags := nil;
+  @EVP_MD_CTX_md := nil;
+  @EVP_CIPHER_nid := nil;
+  @EVP_CIPHER_block_size := nil;
+  @EVP_CIPHER_key_length := nil;
+  @EVP_CIPHER_iv_length := nil;
+  @EVP_CIPHER_flags := nil;
+  @EVP_CIPHER_type := nil;
+  @EVP_CIPHER_CTX_cipher := nil;
+  @EVP_CIPHER_CTX_nid  := nil;
+  @EVP_CIPHER_CTX_block_size := nil;
+  @EVP_CIPHER_CTX_key_length := nil;
+  @EVP_CIPHER_CTX_iv_length := nil;
+  @EVP_CIPHER_CTX_copy := nil;
+  @EVP_CIPHER_CTX_get_app_data := nil;
+  @EVP_CIPHER_CTX_set_app_data := nil;
+  @EVP_CIPHER_CTX_flags := nil;
+
   //HMAC
 {$IFNDEF OPENSSL_NO_HMAC}
   @HMAC_CTX_init := nil;
@@ -23725,6 +23968,159 @@ begin
 end;
 {$ENDIF}
 
+function EVP_get_digestbynid(a : TIdC_INT) : PEVP_MD;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_get_digestbyname(OBJ_nid2sn(a));
+end;
+
+function EVP_get_digestbyobj(a : PASN1_OBJECT) : PEVP_MD;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_get_digestbynid(OBJ_obj2nid(a));
+end;
+
+function EVP_get_cipherbynid(a : TIdC_INT) : EVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_get_cipherbyname(OBJ_nid2sn(a));
+end;
+
+function EVP_get_cipherbyobj(a : PASN1_OBJECT) : EVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_get_cipherbynid(OBJ_obj2nid(a))
+end;
+
+function EVP_MD_nid(e : PEVP_MD) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_MD_type(e);
+end;
+
+function EVP_MD_name(e : PEVP_MD) : PIdAnsiChar;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+	Result := OBJ_nid2sn(EVP_MD_nid(e))
+end;
+
+function EVP_MD_CTX_size(e : PEVP_MD_CTX) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+	Result :=	EVP_MD_size(EVP_MD_CTX_md(e));
+end;
+
+function EVP_MD_CTX_block_size(e : PEVP_MD_CTX) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_MD_block_size(EVP_MD_CTX_md(e));
+end;
+
+function EVP_MD_CTX_type(e : PEVP_MD_CTX) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_MD_type(EVP_MD_CTX_md(e));
+end;
+
+function EVP_CIPHER_name(e : PEVP_CIPHER) : PIdAnsiChar;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := OBJ_nid2sn(EVP_CIPHER_nid(e));
+end;
+
+function EVP_CIPHER_mode(e : PEVP_CIPHER) : TIdC_ULONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := (EVP_CIPHER_flags(e) and EVP_CIPH_MODE)
+end;
+
+function EVP_CIPHER_CTX_type(c : PEVP_CIPHER_CTX) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_CIPHER_type(EVP_CIPHER_CTX_cipher(c));
+end;
+
+function EVP_CIPHER_CTX_mode(e : PEVP_CIPHER_CTX) : TIdC_ULONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+	Result := (EVP_CIPHER_CTX_flags(e) and EVP_CIPH_MODE)
+end;
+
+function EVP_ENCODE_LENGTH(l : Integer) : Integer;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := (((l+2) div 3*4)+(l div 48+1)*2+80);
+end;
+
+function EVP_DECODE_LENGTH(l : Integer) : Integer;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := ((l+3) div 4*3+80);
+end;
+
+function EVP_SignInit_ex(a: PEVP_MD_CTX; b : PEVP_MD; c : PENGINE) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_DigestInit_ex(a,  b,c);
+end;
+
+function EVP_SignInit(a : PEVP_MD_CTX; b : PEVP_MD) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_DigestInit(a,b);
+end;
+
+function EVP_SignUpdate(a: PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_DigestUpdate(a,b,c);
+end;
+
+function EVP_VerifyInit_ex(a: PEVP_MD_CTX; b: PEVP_MD; c: PENGINE) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_DigestInit_ex(a,b,c);
+end;
+
+function EVP_VerifyInit(a: PEVP_MD_CTX; b: PEVP_MD) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_DigestInit(a,b);
+end;
+
+function EVP_VerifyUpdate(a: PEVP_MD_CTX;b: Pointer; c : size_t) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result :=	EVP_DigestUpdate(a,b,c);
+end;
+
+function EVP_OpenUpdate(a:PEVP_CIPHER_CTX; b : PIdAnsiChar; c : TIdC_INT;
+  d: PIdAnsiChar; e : TIdC_INT) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+	Result := EVP_DecryptUpdate(a,b,c,d,e)
+end;
+
+function EVP_SealUpdate(a : PEVP_CIPHER_CTX; b: PIdAnsiChar; c : PIdC_INT;
+  d: PIdAnsiChar; e : TIdC_INT) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_EncryptUpdate(a,b,c,d,e)
+end;
+
+
+function EVP_DigestSignUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_Int;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_DigestUpdate(a,b,size_t(c));
+end;
+
+function EVP_DigestVerifyUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_DigestUpdate(a,b,size_t(c));
+end;
+
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
@@ -24009,17 +24405,7 @@ begin
   Result := X509_LOOKUP_ctrl(x, X509_L_ADD_DIR, name, _type, nil);
 end;
 
-function EVP_DigestSignUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_Int;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := EVP_DigestUpdate(a,b,size_t(c));
-end;
 
-function EVP_DigestVerifyUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_INT;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := EVP_DigestUpdate(a,b,size_t(c));
-end;
 
 function RAND_bytes(buf : PIdAnsiChar; num : integer) : integer;
 begin
