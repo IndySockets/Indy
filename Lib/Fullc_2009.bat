@@ -167,6 +167,7 @@ goto endok
 
 :enderror
 echo Error!
+pause
 goto endok
 
 :endnocompiler

@@ -825,6 +825,8 @@ type
   {$IFNDEF HAS_SIZE_T}
   {$EXTERNALSYM size_t}
   size_t = PtrUInt;
+  {$EXTERNALSYM Psize_t}
+  Psize_t = ^size_t;
   {$ENDIF}
 
   {$IFDEF STRING_IS_IMMUTABLE}
