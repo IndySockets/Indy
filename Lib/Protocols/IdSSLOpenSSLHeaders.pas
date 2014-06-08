@@ -16663,6 +16663,40 @@ var
 		pubk : PPEVP_PKEY; npubk : TIdC_INT) : TIdC_INT cdecl = nil;
    {$EXTERNALSYM EVP_SealFinal}
   EVP_SealFinal : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
+   {$EXTERNALSYM EVP_EncodeInit}
+  EVP_EncodeInit : procedure(ctx : PEVP_ENCODE_CTX) stdcall = nil;
+  {$EXTERNALSYM EVP_EncodeUpdate}
+  EVP_EncodeUpdate : procedure(ctx : PEVP_ENCODE_CTX; _out : PIdAnsiChar; outl : PIdC_INT;
+		_in : PIdAnsiChar; inl : TIdC_INT) stdcall = nil;
+  {$EXTERNALSYM EVP_EncodeFinal}
+  EVP_EncodeFinal : procedure(ctx : PEVP_ENCODE_CTX; _out: PIdAnsiChar; outl : PIdC_INT) stdcall = nil;
+    {$EXTERNALSYM EVP_EncodeBlock}
+  EVP_EncodeBlock : function(t: PIdAnsiChar; f: PIdAnsiChar; n : TIdC_INT) : TIdC_INT stdcall = nil;
+  {$EXTERNALSYM EVP_DecodeInit}
+	EVP_DecodeInit : procedure(ctx : PEVP_ENCODE_CTX) stdcall = nil;
+   {$EXTERNALSYM EVP_DecodeUpdate}
+  EVP_DecodeUpdate : function(ctx : PEVP_ENCODE_CTX; _out : PIdAnsiChar; outl : PIdC_INT;
+		_in  : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT stdcall = nil;
+  {$EXTERNALSYM EVP_DecodeFinal}
+  EVP_DecodeFinal: function(ctx : PEVP_ENCODE_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT stdcall = nil;
+  {$EXTERNALSYM EVP_DecodeBlock}
+  EVP_DecodeBlock : function(t: PIdAnsiChar; f: PIdAnsiChar; n : TIdC_INT) : TIdC_INT stdcall = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_init}
+  EVP_CIPHER_CTX_init : procedure(a : PEVP_CIPHER_CTX) cdecl = nil;
+   {$EXTERNALSYM EVP_CIPHER_CTX_init}
+  EVP_CIPHER_CTX_cleanup : function(a : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+   {$EXTERNALSYM EVP_CIPHER_CTX_new}
+  EVP_CIPHER_CTX_new : function : PEVP_CIPHER_CTX stdcall = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_free}
+  EVP_CIPHER_CTX_free: procedure(a : PEVP_CIPHER_CTX) stdcall = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_set_key_length}
+  EVP_CIPHER_CTX_set_key_length : function(x : PEVP_CIPHER_CTX; keylen : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_set_padding}
+  EVP_CIPHER_CTX_set_padding : function(c : PEVP_CIPHER_CTX; pad : TIdC_INT) : TIdC_INT stdcall = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_ctrl}
+  EVP_CIPHER_CTX_ctrl : function(ctx : PEVP_CIPHER_CTX; _type : TIdC_INT; arg : TIdC_INT; ptr : Pointer) : TIdC_INT stdcall = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_rand_key}
+  EVP_CIPHER_CTX_rand_key : function(ctx : PEVP_CIPHER_CTX; key : PIdAnsiChar) : TIdC_INT stdcall = nil;
 
 
  {$EXTERNALSYM EVP_MD_CTX_init}
@@ -19784,13 +19818,15 @@ them in case we use them later.}
   fn_EVP_DecodeUpdate = 'EVP_DecodeUpdate';   {Do not localize}
   fn_EVP_DecodeFinal = 'EVP_DecodeFinal';   {Do not localize}
   fn_EVP_DecodeBlock = 'EVP_DecodeBlock';   {Do not localize}
-  {CH fn_EVP_CIPHER_CTX_init = 'EVP_CIPHER_CTX_init'; }  {Do not localize}
-  {CH fn_EVP_CIPHER_CTX_cleanup = 'EVP_CIPHER_CTX_cleanup'; }  {Do not localize}
-  { fn_EVP_CIPHER_CTX_new = 'EVP_CIPHER_CTX_new'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_set_key_length = 'EVP_CIPHER_CTX_set_key_length'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_ctrl = 'EVP_CIPHER_CTX_ctrl'; } {Do not localize}
-  { fn_EVP_CIPHER_CTX_rand_key = 'EVP_CIPHER_CTX_rand_key'; } {Do not localize}
+  fn_EVP_CIPHER_CTX_init = 'EVP_CIPHER_CTX_init';  {Do not localize}
+  fn_EVP_CIPHER_CTX_cleanup = 'EVP_CIPHER_CTX_cleanup';  {Do not localize}
+  fn_EVP_CIPHER_CTX_new = 'EVP_CIPHER_CTX_new';  {Do not localize}
+  fn_EVP_CIPHER_CTX_set_key_length = 'EVP_CIPHER_CTX_set_key_length'; {Do not localize}
+  fn_EVP_CIPHER_CTX_ctrl = 'EVP_CIPHER_CTX_ctrl'; {Do not localize}
+  fn_EVP_CIPHER_CTX_rand_key = 'EVP_CIPHER_CTX_rand_key'; {Do not localize}
   fn_EVP_CIPHER_CTX_copy = 'EVP_CIPHER_CTX_copy'; {Do not localize}
+  fn_EVP_CIPHER_CTX_free = 'EVP_CIPHER_CTX_free'; {Do not localize}
+  fn_EVP_CIPHER_CTX_set_padding = 'EVP_CIPHER_CTX_set_padding'; {Do not localize}
   {$IFNDEF OPENSSL_NO_BIO}
   {CH fn_BIO_f_md = 'BIO_f_md'; }  {Do not localize}
   {CH fn_BIO_f_base64 = 'BIO_f_base64'; }  {Do not localize}
@@ -21870,6 +21906,26 @@ we have to handle both cases.
   @EVP_SealInit := LoadFunctionCLib(fn_EVP_SealInit);
   @EVP_SealFinal := LoadFunctionCLib(fn_EVP_SealFinal);
 
+  @EVP_EncodeInit := LoadFunctionCLib(fn_EVP_EncodeInit);
+
+  @EVP_EncodeUpdate := LoadFunctionCLib(fn_EVP_EncodeUpdate);
+  @EVP_EncodeFinal := LoadFunctionCLib(fn_EVP_EncodeFinal);
+  @EVP_EncodeBlock := LoadFunctionCLib(fn_EVP_EncodeBlock);
+	@EVP_DecodeInit := LoadFunctionCLib(fn_EVP_DecodeInit);
+  @EVP_DecodeUpdate:= LoadFunctionCLib(fn_EVP_DecodeUpdate);
+  @EVP_DecodeFinal:= LoadFunctionCLib(fn_EVP_DecodeFinal);
+  @EVP_DecodeBlock:= LoadFunctionCLib(fn_EVP_DecodeBlock);
+
+  EVP_CIPHER_CTX_init:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_init);
+
+  EVP_CIPHER_CTX_cleanup:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_cleanup);
+  EVP_CIPHER_CTX_new:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_new);
+  EVP_CIPHER_CTX_free:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_free);
+  EVP_CIPHER_CTX_set_key_length:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_key_length);
+  EVP_CIPHER_CTX_set_padding:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_padding);
+  EVP_CIPHER_CTX_ctrl:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_ctrl);
+  EVP_CIPHER_CTX_rand_key:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_rand_key);
+
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
   @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
   @EVP_PKEY_new := LoadFunctionCLib(fn_EVP_PKEY_new);
@@ -22282,6 +22338,25 @@ begin
 	@EVP_OpenFinal := nil;
   @EVP_SealInit := nil;
   @EVP_SealFinal := nil;
+  @EVP_EncodeInit := nil;
+
+  @EVP_EncodeUpdate := nil;
+  @EVP_EncodeFinal := nil;
+  @EVP_EncodeBlock := nil;
+	@EVP_DecodeInit := nil;
+  @EVP_DecodeUpdate := nil;
+  @EVP_DecodeFinal := nil;
+  @EVP_DecodeBlock := nil;
+
+  EVP_CIPHER_CTX_init := nil;
+
+  EVP_CIPHER_CTX_cleanup := nil;
+  EVP_CIPHER_CTX_new := nil;
+  EVP_CIPHER_CTX_free := nil;
+  EVP_CIPHER_CTX_set_key_length := nil;
+  EVP_CIPHER_CTX_set_padding := nil;
+  EVP_CIPHER_CTX_ctrl := nil;
+  EVP_CIPHER_CTX_rand_key := nil;
 
   @EVP_MD_CTX_cleanup := nil;
   @EVP_PKEY_type := nil;
