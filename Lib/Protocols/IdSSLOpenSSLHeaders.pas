@@ -11221,7 +11221,7 @@ type
     code : TIdC_INT;
     value : Pointer;		//* Not used for flag attributes */
     value_size : size_t;	//* Max size of value for output, length for input */
-    value_length : ^size_t;	//* Returned length of value for output */
+    value_length : Psize_t;	//* Returned length of value for output */
   end;
   {$EXTERNALSYM CRYPTO_EX_DATA}
   CRYPTO_EX_DATA = record
