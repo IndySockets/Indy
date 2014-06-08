@@ -905,6 +905,8 @@ begin
       EMailAddress := TIdEMailAddressItem.Create(nil);
       try
         S := TrimLeft(Copy(ASender.UnparsedParams, 4, MaxInt));
+        // TODO: remove this Fetch() and let TIdEMailAddressItem parse the
+        // entire text, as it may have embedded spaces in it
         EMailAddress.Text := Fetch(S);
         if Assigned(FOnRcptTo) then begin
           LParams := TStringList.Create;
@@ -972,6 +974,7 @@ begin
   if not LContext.CanUseExplicitTLS then begin
     CmdSyntaxError(ASender);
     LContext.PipeLining := False;
+    Exit;
   end;
   if LContext.UsingTLS then begin // we are already using TLS
     BadSequenceError(ASender);
