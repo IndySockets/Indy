@@ -16664,40 +16664,53 @@ var
    {$EXTERNALSYM EVP_SealFinal}
   EVP_SealFinal : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
    {$EXTERNALSYM EVP_EncodeInit}
-  EVP_EncodeInit : procedure(ctx : PEVP_ENCODE_CTX) stdcall = nil;
+  EVP_EncodeInit : procedure(ctx : PEVP_ENCODE_CTX) cdecl = nil;
   {$EXTERNALSYM EVP_EncodeUpdate}
   EVP_EncodeUpdate : procedure(ctx : PEVP_ENCODE_CTX; _out : PIdAnsiChar; outl : PIdC_INT;
-		_in : PIdAnsiChar; inl : TIdC_INT) stdcall = nil;
+		_in : PIdAnsiChar; inl : TIdC_INT) cdecl = nil;
   {$EXTERNALSYM EVP_EncodeFinal}
-  EVP_EncodeFinal : procedure(ctx : PEVP_ENCODE_CTX; _out: PIdAnsiChar; outl : PIdC_INT) stdcall = nil;
+  EVP_EncodeFinal : procedure(ctx : PEVP_ENCODE_CTX; _out: PIdAnsiChar; outl : PIdC_INT) cdecl = nil;
     {$EXTERNALSYM EVP_EncodeBlock}
-  EVP_EncodeBlock : function(t: PIdAnsiChar; f: PIdAnsiChar; n : TIdC_INT) : TIdC_INT stdcall = nil;
+  EVP_EncodeBlock : function(t: PIdAnsiChar; f: PIdAnsiChar; n : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_DecodeInit}
-	EVP_DecodeInit : procedure(ctx : PEVP_ENCODE_CTX) stdcall = nil;
+	EVP_DecodeInit : procedure(ctx : PEVP_ENCODE_CTX) cdecl = nil;
    {$EXTERNALSYM EVP_DecodeUpdate}
   EVP_DecodeUpdate : function(ctx : PEVP_ENCODE_CTX; _out : PIdAnsiChar; outl : PIdC_INT;
-		_in  : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT stdcall = nil;
+		_in  : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_DecodeFinal}
-  EVP_DecodeFinal: function(ctx : PEVP_ENCODE_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT stdcall = nil;
+  EVP_DecodeFinal: function(ctx : PEVP_ENCODE_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_DecodeBlock}
-  EVP_DecodeBlock : function(t: PIdAnsiChar; f: PIdAnsiChar; n : TIdC_INT) : TIdC_INT stdcall = nil;
+  EVP_DecodeBlock : function(t: PIdAnsiChar; f: PIdAnsiChar; n : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_init}
   EVP_CIPHER_CTX_init : procedure(a : PEVP_CIPHER_CTX) cdecl = nil;
    {$EXTERNALSYM EVP_CIPHER_CTX_init}
   EVP_CIPHER_CTX_cleanup : function(a : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
    {$EXTERNALSYM EVP_CIPHER_CTX_new}
-  EVP_CIPHER_CTX_new : function : PEVP_CIPHER_CTX stdcall = nil;
+  EVP_CIPHER_CTX_new : function : PEVP_CIPHER_CTX cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_free}
-  EVP_CIPHER_CTX_free: procedure(a : PEVP_CIPHER_CTX) stdcall = nil;
+  EVP_CIPHER_CTX_free: procedure(a : PEVP_CIPHER_CTX) cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_set_key_length}
   EVP_CIPHER_CTX_set_key_length : function(x : PEVP_CIPHER_CTX; keylen : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_set_padding}
-  EVP_CIPHER_CTX_set_padding : function(c : PEVP_CIPHER_CTX; pad : TIdC_INT) : TIdC_INT stdcall = nil;
+  EVP_CIPHER_CTX_set_padding : function(c : PEVP_CIPHER_CTX; pad : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_ctrl}
-  EVP_CIPHER_CTX_ctrl : function(ctx : PEVP_CIPHER_CTX; _type : TIdC_INT; arg : TIdC_INT; ptr : Pointer) : TIdC_INT stdcall = nil;
+  EVP_CIPHER_CTX_ctrl : function(ctx : PEVP_CIPHER_CTX; _type : TIdC_INT; arg : TIdC_INT; ptr : Pointer) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_rand_key}
-  EVP_CIPHER_CTX_rand_key : function(ctx : PEVP_CIPHER_CTX; key : PIdAnsiChar) : TIdC_INT stdcall = nil;
+  EVP_CIPHER_CTX_rand_key : function(ctx : PEVP_CIPHER_CTX; key : PIdAnsiChar) : TIdC_INT cdecl = nil;
 
+{$ifndef OPENSSL_NO_BIO}
+  {$EXTERNALSYM BIO_f_md}
+  BIO_f_md : function : PBIO_METHOD cdecl = nil;
+  {$EXTERNALSYM BIO_f_base64}
+  BIO_f_base64 : function : PBIO_METHOD cdecl = nil;
+  {$EXTERNALSYM BIO_f_cipher}
+  BIO_f_cipher : function : PBIO_METHOD cdecl = nil;
+  {$EXTERNALSYM BIO_f_reliable}
+  BIO_f_reliable : function : PBIO_METHOD cdecl = nil;
+  {$EXTERNALSYM BIO_set_cipher}
+  BIO_set_cipher : procedure (b : PBIO; c : PEVP_CIPHER; k : PIdAnsiChar;
+		i : PIdAnsiChar; enc : TIdC_INT) cdecl = nil;
+{$endif}
 
  {$EXTERNALSYM EVP_MD_CTX_init}
   EVP_MD_CTX_init : procedure(ctx : PEVP_MD_CTX) cdecl = nil;
@@ -17078,6 +17091,8 @@ var
       {$EXTERNALSYM EVP_md2}
   EVP_md2 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
+  {$EXTERNALSYM EVP_md_null}
+  EVP_md_null : function : PEVP_MD cdecl = nil;
  {$EXTERNALSYM EVP_PKEY_type}
   EVP_PKEY_type : function(_type : TIdC_INT): TIdC_INT cdecl = nil;
  {$EXTERNALSYM d2i_PrivateKey_bio}
@@ -19828,13 +19843,13 @@ them in case we use them later.}
   fn_EVP_CIPHER_CTX_free = 'EVP_CIPHER_CTX_free'; {Do not localize}
   fn_EVP_CIPHER_CTX_set_padding = 'EVP_CIPHER_CTX_set_padding'; {Do not localize}
   {$IFNDEF OPENSSL_NO_BIO}
-  {CH fn_BIO_f_md = 'BIO_f_md'; }  {Do not localize}
-  {CH fn_BIO_f_base64 = 'BIO_f_base64'; }  {Do not localize}
-  {CH fn_BIO_f_cipher = 'BIO_f_cipher'; }  {Do not localize}
-  {CH fn_BIO_f_reliable = 'BIO_f_reliable'; }  {Do not localize}
-  {CH fn_BIO_set_cipher = 'BIO_set_cipher'; }  {Do not localize}
+  fn_BIO_f_md = 'BIO_f_md';   {Do not localize}
+  fn_BIO_f_base64 = 'BIO_f_base64';   {Do not localize}
+  fn_BIO_f_cipher = 'BIO_f_cipher';   {Do not localize}
+  fn_BIO_f_reliable = 'BIO_f_reliable';   {Do not localize}
+  fn_BIO_set_cipher = 'BIO_set_cipher';   {Do not localize}
   {$ENDIF}
-  {CH fn_EVP_md_null = 'EVP_md_null'; }  {Do not localize}
+ fn_EVP_md_null = 'EVP_md_null';   {Do not localize}
   {$IFNDEF OPENSSL_NO_MD2}
    fn_EVP_md2 = 'EVP_md2';   {Do not localize}
   {$ENDIF}
@@ -21870,6 +21885,7 @@ we have to handle both cases.
   {$IFNDEF OPENSSL_NO_MD2}
   @EVP_md2 := LoadFunctionCLib(fn_EVP_md2);
   {$ENDIF}
+  @EVP_md_null := LoadFunctionCLib(fn_EVP_md_null);
   @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init);
   @EVP_DigestInit := LoadFunctionCLib(fn_EVP_DigestInit);
   @EVP_DigestInit_ex := LoadFunctionCLib(fn_EVP_DigestInit_ex);
@@ -21925,6 +21941,14 @@ we have to handle both cases.
   EVP_CIPHER_CTX_set_padding:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_padding);
   EVP_CIPHER_CTX_ctrl:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_ctrl);
   EVP_CIPHER_CTX_rand_key:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_rand_key);
+
+{$ifndef OPENSSL_NO_BIO}
+  BIO_f_md := LoadFunctionCLib(fn_BIO_f_md);
+  BIO_f_base64 := LoadFunctionCLib(fn_BIO_f_base64);
+  BIO_f_cipher := LoadFunctionCLib(fn_BIO_f_cipher);
+  BIO_f_reliable :=LoadFunctionCLib(fn_BIO_f_reliable);
+  BIO_set_cipher :=LoadFunctionCLib(fn_BIO_set_cipher);
+{$endif}
 
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
   @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
@@ -22306,6 +22330,7 @@ begin
   {$IFNDEF OPENSSL_NO_MD2}
   @EVP_md2 := nil;
   {$ENDIF}
+  @EVP_md_null := nil;
   @EVP_MD_CTX_init := nil;
   @EVP_DigestInit := nil;
   @EVP_DigestInit_ex := nil;
@@ -22358,6 +22383,13 @@ begin
   EVP_CIPHER_CTX_ctrl := nil;
   EVP_CIPHER_CTX_rand_key := nil;
 
+{$ifndef OPENSSL_NO_BIO}
+  BIO_f_md := nil;
+  BIO_f_base64 := nil;
+  BIO_f_cipher := nil;
+  BIO_f_reliable := nil;
+  BIO_set_cipher := nil;
+{$endif}
   @EVP_MD_CTX_cleanup := nil;
   @EVP_PKEY_type := nil;
   @EVP_PKEY_new := nil;
