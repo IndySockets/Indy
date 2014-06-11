@@ -17076,9 +17076,20 @@ var
   EVP_sha224 : function : PEVP_MD cdecl = nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
+   {$EXTERNALSYM EVP_sha}
+  EVP_sha : function : PEVP_MD cdecl = nil;
     {$EXTERNALSYM EVP_sha1}
   EVP_sha1 : function: PEVP_MD cdecl = nil;
+   {$EXTERNALSYM EVP_dss}
+  EVP_dss : function : PEVP_MD cdecl = nil;
+   {$EXTERNALSYM EVP_dss1}
+  EVP_dss1 : function : PEVP_MD cdecl = nil;
+   {$EXTERNALSYM EVP_ecdsa}
+  EVP_ecdsa : function : PEVP_MD cdecl = nil;
   {$ENDIF}
+  {$ifndef OPENSSL_NO_MDC2}
+  EVP_mdc2 : function : PEVP_MD cdecl = nil;
+  {$endif}
   {$IFNDEF OPENSSL_NO_MD5}
     {$EXTERNALSYM EVP_md5}
   EVP_md5 : function: PEVP_MD cdecl = nil;
@@ -17091,8 +17102,261 @@ var
       {$EXTERNALSYM EVP_md2}
   EVP_md2 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
+  {$ifndef OPENSSL_NO_RIPEMD}
+  EVP_ripemd160: function: PEVP_MD cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_WHIRLPOOL}
+  EVP_whirlpool: function: PEVP_MD cdecl = nil;
+  {$endif}
   {$EXTERNALSYM EVP_md_null}
   EVP_md_null : function : PEVP_MD cdecl = nil;
+  {$ifndef OPENSSL_NO_DES}
+  {$EXTERNALSYM EVP_des_ecb}
+  EVP_des_ecb : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_ede}
+  EVP_des_ede : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_ede3}
+  EVP_des_ede3 : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_ede_ecb}
+  EVP_des_ede_ecb : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_ede3_ecb}
+  EVP_des_ede3_ecb  : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_cfb64}
+  EVP_des_cfb64: function : PEVP_CIPHER cdecl = nil;
+//  # define EVP_des_cfb EVP_des_cfb64
+  {$EXTERNALSYM EVP_des_cfb1}
+  EVP_des_cfb1: function : PEVP_CIPHER cdecl = nil;
+    {$EXTERNALSYM EVP_des_cfb8}
+  EVP_des_cfb8 : function : PEVP_CIPHER cdecl = nil;
+   {$EXTERNALSYM EVP_des_ede_cfb64}
+  EVP_des_ede_cfb64 :function :  PEVP_CIPHER cdecl = nil;
+//# define EVP_des_ede_cfb EVP_des_ede_cfb64
+//#if 0
+  {/$EXTERNALSYM EVP_des_ede_cfb1}
+  //EVP_des_ede_cfb1  :function :  PEVP_CIPHER cdecl = nil;
+  {/$EXTERNALSYM EVP_des_ede_cfb8}
+  //EVP_des_ede_cfb8 : function : PEVP_CIPHER cdecl = nil;
+//#endif
+ {$EXTERNALSYM EVP_des_ede3_cfb64}
+  EVP_des_ede3_cfb64  :function :  PEVP_CIPHER cdecl = nil;
+//# define EVP_des_ede3_cfb EVP_des_ede3_cfb64
+ {$EXTERNALSYM EVP_des_ede3_cfb1}
+  EVP_des_ede3_cfb1 :function :  PEVP_CIPHER cdecl = nil;
+ {$EXTERNALSYM EVP_des_ede3_cfb8}
+  EVP_des_ede3_cfb8 :function :  PEVP_CIPHER cdecl = nil;
+ {$EXTERNALSYM EVP_des_ofb}
+  EVP_des_ofb :function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_ede_ofb}
+  EVP_des_ede_ofb :function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_ede3_ofb}
+  EVP_des_ede3_ofb :function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_cbc}
+  EVP_des_cbc :function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_des_ede_cbc}
+  EVP_des_ede_cbc :function :  PEVP_CIPHER cdecl = nil;
+//  EVP_des_ede3_cbc :function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_desx_cbc}
+  EVP_desx_cbc :function :  PEVP_CIPHER cdecl = nil;
+//* This should now be supported through the dev_crypto ENGINE. But also, why are
+// * rc4 and md5 declarations made here inside a "NO_DES" precompiler branch? */
+//#if 0
+    {$ifdef OPENSSL_OPENBSD_DEV_CRYPTO}
+    {$EXTERNALSYM EVP_dev_crypto_des_ede3_cbc}
+  EVP_dev_crypto_des_ede3_cbc : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_dev_crypto_rc4}
+  EVP_dev_crypto_rc4 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_dev_crypto_md5}
+  EVP_dev_crypto_md5 : function :  PEVP_MD cdecl = nil;
+    {$endif}
+//#endif
+  {$endif}
+  {$ifndef OPENSSL_NO_RC4}
+  {$EXTERNALSYM EVP_rc4}
+  EVP_rc4: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc4_40}
+  EVP_rc4_40: function :  PEVP_CIPHER cdecl = nil;
+    {$ifndef OPENSSL_NO_MD5}
+  {$EXTERNALSYM EVP_rc4_hmac_md5}
+  EVP_rc4_hmac_md5: function :  PEVP_CIPHER cdecl = nil;
+    {$endif}
+  {$endif}
+  {$ifndef OPENSSL_NO_IDEA}
+  {$EXTERNALSYM EVP_idea_ecb}
+  EVP_idea_ecb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_idea_cfb64}
+  EVP_idea_cfb64: function :  PEVP_CIPHER cdecl = nil;
+//# define EVP_idea_cfb EVP_idea_cfb64 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_idea_ofb}
+  EVP_idea_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_idea_cbc}
+  EVP_idea_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_RC2}
+  {$EXTERNALSYM EVP_rc2_ecb}
+  EVP_rc2_ecb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc2_cbc}
+  EVP_rc2_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc2_40_cbc}
+  EVP_rc2_40_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc2_64_cbc}
+  EVP_rc2_64_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc2_cfb64}
+  EVP_rc2_cfb64: function :  PEVP_CIPHER cdecl = nil;
+//# define EVP_rc2_cfb EVP_rc2_cfb64
+  {$EXTERNALSYM EVP_rc2_ofb}
+  EVP_rc2_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_BF}
+  {$EXTERNALSYM EVP_bf_ecb}
+  EVP_bf_ecb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_bf_cbc}
+  EVP_bf_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_bf_cfb64}
+  EVP_bf_cfb64: function :  PEVP_CIPHER cdecl = nil;
+//# define EVP_bf_cfb EVP_bf_cfb64
+  {$EXTERNALSYM EVP_bf_ofb}
+  EVP_bf_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_CAST}
+  {$EXTERNALSYM EVP_cast5_ecb}
+  EVP_cast5_ecb : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_cast5_cbc}
+  EVP_cast5_cbc : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_cast5_cfb64}
+  EVP_cast5_cfb64: function :  PEVP_CIPHER cdecl = nil;
+//# define EVP_cast5_cfb EVP_cast5_cfb64
+  {$EXTERNALSYM EVP_cast5_ofb}
+  EVP_cast5_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_RC5}
+  {$EXTERNALSYM EVP_rc5_32_12_16_cb}
+  EVP_rc5_32_12_16_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc5_32_12_16_ecb}
+  EVP_rc5_32_12_16_ecb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc5_32_12_16_cfb64}
+  EVP_rc5_32_12_16_cfb64: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_rc5_32_12_16_ofb\}
+  EVP_rc5_32_12_16_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_AES}
+   {$EXTERNALSYM EVP_aes_128_ecb}
+  EVP_aes_128_ecb: function :  PEVP_CIPHER cdecl = nil;
+   {$EXTERNALSYM EVP_aes_128_cbc}
+  EVP_aes_128_cbc: function :  PEVP_CIPHER cdecl = nil;
+   {$EXTERNALSYM EVP_aes_128_cfb1}
+  EVP_aes_128_cfb1: function :  PEVP_CIPHER cdecl = nil;
+   {$EXTERNALSYM EVP_aes_128_cfb8}
+  EVP_aes_128_cfb8: function :  PEVP_CIPHER cdecl = nil;
+   {$EXTERNALSYM EVP_aes_128_cfb128}
+  EVP_aes_128_cfb128: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_128_ofb}
+  EVP_aes_128_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_128_ctr}
+  EVP_aes_128_ctr: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_128_gcm}
+  EVP_aes_128_gcm: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_128_ccm}
+  EVP_aes_128_ccm: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_128_xts}
+  EVP_aes_128_xts: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_ecb}
+  EVP_aes_192_ecb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_cbc}
+  EVP_aes_192_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_cfb1}
+  EVP_aes_192_cfb1: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_cfb8}
+  EVP_aes_192_cfb8: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_cfb128}
+  EVP_aes_192_cfb128: function :  PEVP_CIPHER cdecl = nil;
+//# define EVP_aes_192_cfb EVP_aes_192_cfb128
+  {$EXTERNALSYM EVP_aes_192_ofb}
+  EVP_aes_192_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_ctr}
+  EVP_aes_192_ctr: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_gcm}
+  EVP_aes_192_gcm: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_192_ccm}
+  EVP_aes_192_ccm: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_ecb}
+  EVP_aes_256_ecb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_cbc}
+  EVP_aes_256_cbc: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_cfb1}
+  EVP_aes_256_cfb1: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_cfb8}
+  EVP_aes_256_cfb8: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_cfb128}
+  EVP_aes_256_cfb128: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_ofb}
+  EVP_aes_256_ofb: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_ctr}
+  EVP_aes_256_ctr: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_gcm}
+  EVP_aes_256_gcm: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_ccm}
+  EVP_aes_256_ccm: function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_xts}
+  EVP_aes_256_xts: function :  PEVP_CIPHER cdecl = nil;
+    {$ifndef OPENSSL_NO_SHA}
+      {$ifndef OPENSSL_NO_SHA1}
+  {$EXTERNALSYM EVP_aes_128_cbc_hmac_sha1}
+  EVP_aes_128_cbc_hmac_sha1 : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_aes_256_cbc_hmac_sha1}
+  EVP_aes_256_cbc_hmac_sha1 : function : PEVP_CIPHER cdecl = nil;
+      {$endif}
+    {$endif}
+  {$endif}
+  {$ifndef OPENSSL_NO_CAMELLIA}
+  {$EXTERNALSYM EVP_camellia_128_ecb}
+  EVP_camellia_128_ecb : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_128_cbc}
+  EVP_camellia_128_cbc : function :  PEVP_CIPHER cdecl = nil;
+   {$EXTERNALSYM EVP_camellia_128_cfb1}
+  EVP_camellia_128_cfb1 : function :  PEVP_CIPHER cdecl = nil;
+   {$EXTERNALSYM EVP_camellia_128_cfb8}
+  EVP_camellia_128_cfb8 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_128_cfb128}
+  EVP_camellia_128_cfb128 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_128_ofb}
+  EVP_camellia_128_ofb : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_192_ecb}
+  EVP_camellia_192_ecb : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_192_cbc}
+  EVP_camellia_192_cbc : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_192_cfb1}
+  EVP_camellia_192_cfb1 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_192_cfb8}
+  EVP_camellia_192_cfb8 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_192_cfb128}
+  EVP_camellia_192_cfb128 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_192_ofb}
+  EVP_camellia_192_ofb : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_256_ecb}
+  EVP_camellia_256_ecb : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_256_cbc}
+  EVP_camellia_256_cbc : function : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_256_cfb1}
+  EVP_camellia_256_cfb1 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_256_cfb8}
+  EVP_camellia_256_cfb8 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_256_cfb128}
+  EVP_camellia_256_cfb128 : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_camellia_256_ofb}
+  EVP_camellia_256_ofb : function :  PEVP_CIPHER cdecl = nil;
+  {$endif}
+
+  {$ifndef OPENSSL_NO_SEED}
+  {$EXTERNALSYM EVP_seed_ecb}
+  EVP_seed_ecb : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_seed_cbc}
+  EVP_seed_cbc : function :  PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_seed_cfb128}
+  EVP_seed_cfb128 : function :  PEVP_CIPHER cdecl = nil;
+ {$EXTERNALSYM EVP_seed_ofb}
+  EVP_seed_ofb : function :  PEVP_CIPHER cdecl = nil;
+  {$endif}
+
  {$EXTERNALSYM EVP_PKEY_type}
   EVP_PKEY_type : function(_type : TIdC_INT): TIdC_INT cdecl = nil;
  {$EXTERNALSYM d2i_PrivateKey_bio}
@@ -17742,7 +18006,7 @@ function PEM_write_bio_DSAPrivateKey( bp : PBIO; x : PDSA; const enc : PEVP_CIPH
  {$EXTERNALSYM PEM_write_bio_PrivateKey}  
 function PEM_write_bio_PrivateKey(bp : PBIO; x : PEVP_PKEY; const enc : PEVP_CIPHER;
   kstr : PIdAnsiChar; klen : TIdC_INT; cb : Ppem_password_cb; u : Pointer) : TIdC_INT;
- {$EXTERNALSYM PEM_write_bio_PKCS7}    
+ {$EXTERNALSYM PEM_write_bio_PKCS7}
 function PEM_write_bio_PKCS7(bp : PBIO; x : PPKCS7) : TIdC_INT;
  {$EXTERNALSYM PEM_write_bio_DHparams} 
 function PEM_write_bio_DHparams(bp : PBIO; x : PDH): TIdC_INT;
@@ -17829,7 +18093,55 @@ function EVP_SealUpdate(a : PEVP_CIPHER_CTX; b: PIdAnsiChar; c : PIdC_INT;
 function EVP_DigestSignUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_Int;
  {$EXTERNALSYM EVP_DigestVerifyUpdate}
 function EVP_DigestVerifyUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_INT;
- {$EXTERNALSYM X509V3_set_ctx_nodb} 
+{$ifndef OPENSSL_NO_DES}
+ {$EXTERNALSYM EVP_des_cfb}
+function EVP_des_cfb : PEVP_CIPHER;
+ {$EXTERNALSYM EVP_des_ede_cfb}
+function EVP_des_ede_cfb: PEVP_CIPHER;
+ {$EXTERNALSYM EVP_des_ede3_cfb}
+function EVP_des_ede3_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_IDEA}
+ {$EXTERNALSYM EVP_idea_cfb}
+function EVP_idea_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_RC2}
+ {$EXTERNALSYM EVP_rc2_cfb}
+function EVP_rc2_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_BF
+ {$EXTERNALSYM EVP_bf_cfb}
+function EVP_bf_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_CAST}
+ {$EXTERNALSYM EVP_cast5_cfb}
+function EVP_cast5_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_RC5}
+ {$EXTERNALSYM EVP_rc5_32_12_16_cfb}
+function EVP_rc5_32_12_16_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_AES}
+ {$EXTERNALSYM EVP_aes_128_cfb}
+function EVP_aes_128_cfb: PEVP_CIPHER;
+ {$EXTERNALSYM EVP_aes_192_cfb}
+function EVP_aes_192_cfb: PEVP_CIPHER;
+ {$EXTERNALSYM EVP_aes_256_cfb}
+function EVP_aes_256_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_CAMELLIA}
+ {$EXTERNALSYM EVP_camellia_128_cfb}
+function EVP_camellia_128_cfb: PEVP_CIPHER;
+ {$EXTERNALSYM EVP_camellia_192_cfb}
+function EVP_camellia_192_cfb: PEVP_CIPHER;
+ {$EXTERNALSYM EVP_camellia_256_cfb}
+function EVP_camellia_256_cfb: PEVP_CIPHER;
+{$endif}
+{$ifndef OPENSSL_NO_SEED}
+function EVP_seed_cfb: PEVP_CIPHER;
+{$endif}
+
+ {$EXTERNALSYM X509V3_set_ctx_nodb}
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
 //
  {$EXTERNALSYM ErrMsg} 
@@ -17846,7 +18158,7 @@ function ERR_FATAL_ERROR(const l : TIdC_INT) : Boolean;
 function ERR_GET_REASON(const l : TIdC_INT) : TIdC_INT;
  {$EXTERNALSYM SYSerr} 
 procedure SYSerr(const f,r : TIdC_INT);
- {$EXTERNALSYM BNerr} 
+ {$EXTERNALSYM BNerr}
 procedure BNerr(const f,r : TIdC_INT);
  {$EXTERNALSYM RSAerr} 
 procedure RSAerr(const f,r : TIdC_INT);
@@ -19860,11 +20172,11 @@ them in case we use them later.}
   fn_EVP_md5 = 'EVP_md5';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
-  {CH fn_EVP_sha = 'EVP_sha'; }  {Do not localize}
+  fn_EVP_sha = 'EVP_sha';  {Do not localize}
   fn_EVP_sha1 = 'EVP_sha1';  {Do not localize}
-  {CH fn_EVP_dss = 'EVP_dss'; }  {Do not localize}
-  {CH fn_EVP_dss1 = 'EVP_dss1'; }  {Do not localize}
-  {CH fn_EVP_ecdsa = 'EVP_ecdsa'; }  {Do not localize}
+  fn_EVP_dss = 'EVP_dss';  {Do not localize}
+  fn_EVP_dss1 = 'EVP_dss1';  {Do not localize}
+  fn_EVP_ecdsa = 'EVP_ecdsa'; {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA256}
   fn_EVP_sha512 = 'EVP_sha512'; {Do not localize}
@@ -19875,144 +20187,182 @@ them in case we use them later.}
   fn_EVP_sha224 = 'EVP_sha224'; {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_MDC2}
-  {CH fn_EVP_mdc2 = 'EVP_mdc2'; }  {Do not localize}
+  fn_EVP_mdc2 = 'EVP_mdc2';   {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RIPEMD}
-  {CH fn_EVP_ripemd160 = 'EVP_ripemd160'; }  {Do not localize}
+  fn_EVP_ripemd160 = 'EVP_ripemd160';  {Do not localize}
   {$ENDIF}
-  {CH fn_EVP_enc_null = 'EVP_enc_null'; }  {Do not localize}
+  {$ifndef OPENSSL_NO_WHIRLPOOL}
+  fn_EVP_whirlpool = 'EVP_whirlpool'; {Do not localize}
+  {$ENDIF}
+  fn_EVP_enc_null = 'EVP_enc_null';  {Do not localize}
   {$IFNDEF OPENSSL_NO_DES}
-  {CH fn_EVP_des_ecb = 'EVP_des_ecb'; }  {Do not localize}
-  {CH fn_EVP_des_ede = 'EVP_des_ede'; }  {Do not localize}
-  {CH fn_EVP_des_ede3 = 'EVP_des_ede3'; }  {Do not localize}
+  fn_EVP_des_ecb = 'EVP_des_ecb'; {Do not localize}
+  fn_EVP_des_ede = 'EVP_des_ede';  {Do not localize}
+  fn_EVP_des_ede3 = 'EVP_des_ede3'; {Do not localize}
     {$DEFINE EVP_des_cfb}
     {$DEFINE EVP_des_cfb64}
-  {CH fn_EVP_des_cfb = 'EVP_des_cfb'; }  {Do not localize}
-  {CH fn_EVP_des_ede_cfb = 'EVP_des_ede_cfb'; }  {Do not localize}
-  {CH fn_EVP_des_ede3_cfb = 'EVP_des_ede3_cfb'; }  {Do not localize}
-  {CH fn_EVP_des_ofb = 'EVP_des_ofb'; }  {Do not localize}
-  {CH fn_EVP_des_ede_ofb = 'EVP_des_ede_ofb'; }  {Do not localize}
+  fn_EVP_des_cfb = 'EVP_des_cfb';  {Do not localize}
+  fn_EVP_des_ede_cfb = 'EVP_des_ede_cfb';  {Do not localize}
+  fn_EVP_des_ede3_cfb = 'EVP_des_ede3_cfb';  {Do not localize}
+  fn_EVP_des_ofb = 'EVP_des_ofb';  {Do not localize}
+  fn_EVP_des_ede_ofb = 'EVP_des_ede_ofb';  {Do not localize}
     {$DEFINE EVP_des_ede_cfb}
     {$DEFINE EVP_des_ede_cfb64}
-  {CH fn_EVP_des_ede3_ofb = 'EVP_des_ede3_ofb'; }  {Do not localize}
-  {CH fn_EVP_des_cbc = 'EVP_des_cbc'; }  {Do not localize}
-  {CH fn_EVP_des_ede_cbc = 'EVP_des_ede_cbc'; }  {Do not localize}
+  fn_EVP_des_ede3_ofb = 'EVP_des_ede3_ofb';  {Do not localize}
+  fn_EVP_des_cbc = 'EVP_des_cbc';  {Do not localize}
+  fn_EVP_des_ede_cbc = 'EVP_des_ede_cbc';  {Do not localize}
   fn_EVP_des_ede3_cbc = 'EVP_des_ede3_cbc';  {Do not localize}
     {$DEFINE EVP_des_ede3_cfb}
     {$DEFINE EVP_des_ede3_cfb64}
-  {CH fn_EVP_desx_cbc = 'EVP_desx_cbc'; }  {Do not localize}
-  {CH fn_EVP_des_ede3_cfb8 = 'EVP_des_ede3_cfb8'; } {Do not localize}
+  fn_EVP_desx_cbc = 'EVP_desx_cbc';  {Do not localize}
+  fn_EVP_des_ede3_cfb8 = 'EVP_des_ede3_cfb8'; {Do not localize}
+  fn_EVP_des_ede_ecb = 'EVP_des_ede_ecb'; {Do not localize}
+  fn_EVP_des_ede3_ecb = 'EVP_des_ede3_ecb';
+  fn_EVP_des_cfb64 = 'EVP_des_cfb64';
+//  # define EVP_des_cfb EVP_des_cfb64
+
+  fn_EVP_des_cfb1 = 'EVP_des_cfb1';
+  fn_EVP_des_cfb8 = 'EVP_des_cfb8';
+  fn_EVP_des_ede_cfb64 = 'EVP_des_ede_cfb64';
+//#if 0
+  fn_EVP_des_ede_cfb1 = 'EVP_des_ede_cfb1';
+  fn_EVP_des_ede_cfb8 = 'EVP_des_ede_cfb8';
+  //#endif
+  fn_EVP_des_ede3_cfb64 = 'EVP_des_ede3_cfb64';
+  fn_EVP_des_ede3_cfb1 = 'EVP_des_ede3_cfb1';
   {$ENDIF}
-  {$IFDEF OPENSSL_NO_RC4}
-  {CH fn_EVP_rc4 = 'EVP_rc4'; }  {Do not localize}
-  {CH fn_EVP_rc4_40 = 'EVP_rc4_40'; }  {Do not localize}
+  {$IFNDEF OPENSSL_NO_RC4}
+  fn_EVP_rc4 = 'EVP_rc4';  {Do not localize}
+  fn_EVP_rc4_40 = 'EVP_rc4_40';  {Do not localize}
+    {$ifndef OPENSSL_NO_MD5}
+  fn_EVP_rc4_hmac_md5 = 'EVP_rc4_hmac_md5'; {Do not localize}
+    {$endif}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_IDEA}
-  {CH fn_EVP_idea_ecb = 'EVP_idea_ecb'; }  {Do not localize}
-  {CH fn_EVP_idea_cfb64 = 'EVP_idea_cfb64'; } {Do not localize}
+  fn_EVP_idea_ecb = 'EVP_idea_ecb';  {Do not localize}
+  fn_EVP_idea_cfb64 = 'EVP_idea_cfb64'; {Do not localize}
     {$DEFINE EVP_idea_cfb}
     {$DEFINE EVP_idea_cfb64 }
-  {CH fn_EVP_idea_cfb = 'EVP_idea_cfb'; }  {Do not localize}
-  {CH fn_EVP_idea_ofb = 'EVP_idea_ofb'; }  {Do not localize}
-  {CH fn_EVP_idea_cbc = 'EVP_idea_cbc'; }  {Do not localize}
+  fn_EVP_idea_cfb = 'EVP_idea_cfb';  {Do not localize}
+  fn_EVP_idea_ofb = 'EVP_idea_ofb';  {Do not localize}
+  fn_EVP_idea_cbc = 'EVP_idea_cbc';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RC2}
-  {CH fn_EVP_rc2_ecb = 'EVP_rc2_ecb'; }  {Do not localize}
-  {CH fn_EVP_rc2_cbc = 'EVP_rc2_cbc'; }  {Do not localize}
-  {CH fn_EVP_rc2_40_cbc = 'EVP_rc2_40_cbc'; }  {Do not localize}
-  {CH fn_EVP_rc2_64_cbc = 'EVP_rc2_64_cbc'; }  {Do not localize}
-  {CH fn_EVP_rc2_cfb64 = 'EVP_rc2_cfb64'; } {Do not localize}
-  {CH fn_EVP_rc2_cfb = 'EVP_rc2_cfb'; }  {Do not localize}
+  fn_EVP_rc2_ecb = 'EVP_rc2_ecb';  {Do not localize}
+  fn_EVP_rc2_cbc = 'EVP_rc2_cbc';  {Do not localize}
+  fn_EVP_rc2_40_cbc = 'EVP_rc2_40_cbc';  {Do not localize}
+  fn_EVP_rc2_64_cbc = 'EVP_rc2_64_cbc';  {Do not localize}
+  fn_EVP_rc2_cfb64 = 'EVP_rc2_cfb64'; {Do not localize}
+  fn_EVP_rc2_cfb = 'EVP_rc2_cfb';  {Do not localize}
     {$DEFINE EVP_rc2_cfb}
     {$DEFINE EVP_rc2_cfb64}
-  {CH fn_EVP_rc2_ofb = 'EVP_rc2_ofb'; }  {Do not localize}
+  fn_EVP_rc2_ofb = 'EVP_rc2_ofb';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_BF}
-  {CH fn_EVP_bf_ecb = 'EVP_bf_ecb'; }  {Do not localize}
-  {CH fn_EVP_bf_cbc = 'EVP_bf_cbc'; }  {Do not localize}
-  {CH fn_EVP_bf_cfb = 'EVP_bf_cfb'; }  {Do not localize}
-  {CH fn_EVP_bf_cfb64 = 'EVP_bf_cfb64'; } {Do not localize}
+  fn_EVP_bf_ecb = 'EVP_bf_ecb';  {Do not localize}
+  fn_EVP_bf_cbc = 'EVP_bf_cbc';  {Do not localize}
+  fn_EVP_bf_cfb = 'EVP_bf_cfb';  {Do not localize}
+  fn_EVP_bf_cfb64 = 'EVP_bf_cfb64'; {Do not localize}
     {$DEFINE EVP_bf_cfb}
     {$DEFINE EVP_bf_cfb64}
-  {CH fn_EVP_bf_ofb = 'EVP_bf_ofb'; }  {Do not localize}
+  fn_EVP_bf_ofb = 'EVP_bf_ofb';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_CAST}
-  {CH fn_EVP_cast5_ecb = 'EVP_cast5_ecb'; }  {Do not localize}
-  {CH fn_EVP_cast5_cbc = 'EVP_cast5_cbc'; }  {Do not localize}
-  {CH fn_EVP_cast5_cfb = 'EVP_cast5_cfb'; }  {Do not localize}
-  {CH fn_EVP_cast5_cfb64 = 'EVP_cast5_cfb64'; } {Do not localize}
+   fn_EVP_cast5_ecb = 'EVP_cast5_ecb';  {Do not localize}
+  fn_EVP_cast5_cbc = 'EVP_cast5_cbc';  {Do not localize}
+  fn_EVP_cast5_cfb = 'EVP_cast5_cfb';  {Do not localize}
+  fn_EVP_cast5_cfb64 = 'EVP_cast5_cfb64'; {Do not localize}
     {$DEFINE EVP_cast5_cfb}
     {$DEFINE EVP_cast5_cfb64}
-  {CH fn_EVP_cast5_ofb = 'EVP_cast5_ofb'; }  {Do not localize}
+  fn_EVP_cast5_ofb = 'EVP_cast5_ofb';  {Do not localize}
   {$ENDIF}
-  {$IFDEF OPENSSL_NO_RC5 }
-  {CH fn_EVP_rc5_32_12_16_cbc = 'EVP_rc5_32_12_16_cbc'; }  {Do not localize}
-  {CH fn_EVP_rc5_32_12_16_ecb = 'EVP_rc5_32_12_16_ecb'; }  {Do not localize}
-  {CH fn_EVP_rc5_32_12_16_cfb = 'EVP_rc5_32_12_16_cfb'; }  {Do not localize}
-  {CH fn_EVP_rc5_32_12_16_cfb64 = 'EVP_rc5_32_12_16_cfb64'; } {Do not localize}
-     {$DEFINE EVP_rc5_32_12_16_cfb}
-     {$DEFINE EVP_rc5_32_12_16_cfb64}
-  {CH fn_EVP_rc5_32_12_16_ofb = 'EVP_rc5_32_12_16_ofb'; }  {Do not localize}
+  {$IFNDEF OPENSSL_NO_RC5 }
+  fn_EVP_rc5_32_12_16_cbc = 'EVP_rc5_32_12_16_cbc';  {Do not localize}
+  fn_EVP_rc5_32_12_16_ecb = 'EVP_rc5_32_12_16_ecb';  {Do not localize}
+  fn_EVP_rc5_32_12_16_cfb = 'EVP_rc5_32_12_16_cfb';  {Do not localize}
+  fn_EVP_rc5_32_12_16_cfb64 = 'EVP_rc5_32_12_16_cfb64'; {Do not localize}
+  {$DEFINE EVP_rc5_32_12_16_cfb}
+  {$DEFINE EVP_rc5_32_12_16_cfb64}
+  fn_EVP_rc5_32_12_16_ofb = 'EVP_rc5_32_12_16_ofb';  {Do not localize}
   {$ENDIF}
-  {$IFDEF OPENSSL_NO_AES}
-  {CH fn_EVP_aes_128_ecb = 'EVP_aes_128_ecb'; } {do not localize}
-  {CH fn_EVP_aes_128_cbc = 'EVP_aes_128_cbc'; } {do not localize}
-  {CH fn_EVP_aes_128_cfb1 = 'EVP_aes_128_cfb1'; } {do not localize}
-  {CH fn_EVP_aes_128_cfb8 = 'EVP_aes_128_cfb8'; } {do not localize}
-  {CH fn_EVP_aes_128_ofb = 'EVP_aes_128_ofb'; } {do not localize}
-  {CH fn_EVP_aes_128_cfb128 = 'EVP_aes_128_cfb128'; } {do not localize}
-    {$DEFINE EVP_aes_128_cfb}
-    {$DEFINE EVP_aes_128_cfb128}
-  {CH fn_EVP_aes_192_ecb = 'EVP_aes_192_ecb'; } {Do not localize}
-  {CH fn_EVP_aes_192_cbc = 'EVP_aes_192_cbc'; } {Do not localize}
-  {CH fn_EVP_aes_192_cfb1 = 'EVP_CIPHER *EVP_aes_192_cfb1'; } {Do not localize}
-  {CH fn_EVP_aes_192_cfb8 = 'EVP_aes_192_cfb8'; } {Do not localize}
-  {CH fn_EVP_aes_192_cfb128 = 'EVP_aes_192_cfb128'; } {Do not localize}
-    {$DEFINE EVP_aes_192_cfb}
-    {$DEFINE EVP_aes_192_cfb128}
-  {CH fn_EVP_aes_192_ofb = 'EVP_aes_192_ofb'; } {Do not localize}
-  {CH fn_EVP_aes_256_ecb = 'EVP_aes_256_ecb'; } {Do not localize}
-  {CH fn_EVP_aes_256_cbc = 'EVP_aes_256_cbc'; } {Do not localize}
-  {CH fn_EVP_aes_256_cfb1 = 'EVP_aes_256_cfb1'; } {Do not localize}
-  {CH fn_EVP_aes_256_cfb8 = 'EVP_aes_256_cfb8'; } {Do not localize}
-  {CH fn_EVP_aes_256_cfb128 = 'EVP_aes_256_cfb128'; } {Do not localize}
-    {$DEFINE EVP_aes_256_cfb}
-    {$DEFINE EVP_aes_256_cfb128}
-  {CH fn_EVP_aes_256_ofb = 'EVP_aes_256_ofb'; } {Do not localize}
-  {$ENDIF}
+  {$IFNDEF OPENSSL_NO_AES}
+  fn_EVP_aes_128_ecb = 'EVP_aes_128_ecb'; {do not localize}
+  fn_EVP_aes_128_cbc = 'EVP_aes_128_cbc'; {do not localize}
+  fn_EVP_aes_128_cfb1 = 'EVP_aes_128_cfb1'; {do not localize}
+  fn_EVP_aes_128_cfb8 = 'EVP_aes_128_cfb8';{do not localize}
+  fn_EVP_aes_128_cfb128 = 'EVP_aes_128_cfb128'; {do not localize}
+  fn_EVP_aes_128_ofb = 'EVP_aes_128_ofb'; {do not localize}
+  fn_EVP_aes_128_ctr = 'EVP_aes_128_ctr'; {Do not localize}
+  fn_EVP_aes_128_gcm = 'EVP_aes_128_gcm'; {Do not localize}
+  fn_EVP_aes_128_ccm = 'EVP_aes_128_ccm'; {Do not localize}
+  fn_EVP_aes_128_xts = 'EVP_aes_128_xts'; {Do not localize}
+  {$DEFINE EVP_aes_128_cfb}
+  {$DEFINE EVP_aes_128_cfb128}
+  fn_EVP_aes_192_ecb = 'EVP_aes_192_ecb'; {Do not localize}
+  fn_EVP_aes_192_cbc = 'EVP_aes_192_cbc'; {Do not localize}
+  fn_EVP_aes_192_cfb1 = 'EVP_aes_192_cfb1'; {Do not localize}
+  fn_EVP_aes_192_cfb8 = 'EVP_aes_192_cfb8'; {Do not localize}
+  fn_EVP_aes_192_cfb128 = 'EVP_aes_192_cfb128'; {Do not localize}
+  fn_EVP_aes_192_ctr = 'EVP_aes_192_ctr';  {Do not localize}
+  fn_EVP_aes_192_gcm = 'EVP_aes_192_gcm';  {Do not localize}
+  fn_EVP_aes_192_ccm = 'EVP_aes_192_ccm';  {Do not localize}
+
+  {$DEFINE EVP_aes_192_cfb}
+  {$DEFINE EVP_aes_192_cfb128}
+  fn_EVP_aes_192_ofb = 'EVP_aes_192_ofb'; {Do not localize}
+  fn_EVP_aes_256_ecb = 'EVP_aes_256_ecb'; {Do not localize}
+  fn_EVP_aes_256_cbc = 'EVP_aes_256_cbc'; {Do not localize}
+  fn_EVP_aes_256_cfb1 = 'EVP_aes_256_cfb1'; {Do not localize}
+  fn_EVP_aes_256_cfb8 = 'EVP_aes_256_cfb8'; {Do not localize}
+  fn_EVP_aes_256_cfb128 = 'EVP_aes_256_cfb128'; {Do not localize}
+  {$DEFINE EVP_aes_256_cfb}
+  {$DEFINE EVP_aes_256_cfb128}
+  fn_EVP_aes_256_ofb = 'EVP_aes_256_ofb'; {Do not localize}
+  fn_EVP_aes_256_ctr = 'EVP_aes_256_ctr';  {Do not localize}
+  fn_EVP_aes_256_gcm = 'EVP_aes_256_gcm';  {Do not localize}
+  fn_EVP_aes_256_ccm = 'EVP_aes_256_ccm';  {Do not localize}
+  fn_EVP_aes_256_xts = 'EVP_aes_256_xts';  {Do not localize}
+    {$ifndef OPENSSL_NO_SHA}
+      {$ifndef OPENSSL_NO_SHA1}
+  fn_EVP_aes_128_cbc_hmac_sha1 = 'EVP_aes_128_cbc_hmac_sha1';  {Do not localize}
+  fn_EVP_aes_256_cbc_hmac_sha1 = 'EVP_aes_256_cbc_hmac_sha1';  {do not localize}
+      {$endif}
+    {$endif}
+  {$endif}
   {$IFNDEF OPENSSL_NO_CAMELLIA}
-  {CH fn_EVP_camellia_128_ecb = 'EVP_camellia_128_ecb'; } {Do not localize}
-  {CH fn_EVP_camellia_128_cbc = 'EVP_camellia_128_cbc'; } {Do not localize}
-  {CH fn_EVP_camellia_128_cfb1 = 'EVP_camellia_128_cfb1'; } {Do not localize}
-  {CH fn_EVP_camellia_128_cfb8 = 'EVP_camellia_128_cfb8'; } {Do not localize}
-  {CH fn_EVP_camellia_128_cfb128 = 'EVP_camellia_128_cfb128'; } {Do not localize}
-    {$DEFINE EVP_camellia_128_cfb}
-    {$DEFINE EVP_camellia_128_cfb128}
-  {CH fn_EVP_camellia_128_ofb = 'EVP_camellia_128_ofb'; } {Do not localize}
-  {CH fn_EVP_camellia_192_ecb = 'EVP_camellia_192_ecb'; } {Do not localize}
-  {CH fn_EVP_camellia_192_cbc = 'EVP_camellia_192_cbc'; } {Do not localize}
-  {CH fn_EVP_camellia_192_cfb1 = 'EVP_camellia_192_cfb1'; } {Do not localize}
-  {CH fn_EVP_camellia_192_cfb8 = 'EVP_camellia_192_cfb8'; } {Do not localize}
-  {CH fn_EVP_camellia_192_cfb128 = 'EVP_camellia_192_cfb128'; } {Do not localize}
-    {$DEFINE define EVP_camellia_192_cfb}
-    {$DEFINE EVP_camellia_192_cfb128}
-  {CH fn_EVP_camellia_192_ofb = 'EVP_camellia_192_ofb'; } {Do not localize}
-  {CH fn_EVP_camellia_256_ecb = 'EVP_camellia_256_ecb'; } {Do not localize}
-  {CH fn_EVP_camellia_256_cbc = 'EVP_camellia_256_cbc'; } {Do not localize}
-  {CH fn_EVP_camellia_256_cfb1 = 'EVP_camellia_256_cfb1'; } {Do not localize}
-  {CH fn_EVP_camellia_256_cfb8 = 'EVP_camellia_256_cfb8'; } {Do not localize}
-  {CH fn_EVP_camellia_256_cfb128 = 'EVP_camellia_256_cfb128'; } {Do not localize}
-    {$DEFINE EVP_camellia_256_cfb}
-    {$DEFINE EVP_camellia_256_cfb128}
-  {CH fn_EVP_camellia_256_ofb = 'EVP_camellia_256_ofb'; } {Do not localize}
+  fn_EVP_camellia_128_ecb = 'EVP_camellia_128_ecb'; {Do not localize}
+  fn_EVP_camellia_128_cbc = 'EVP_camellia_128_cbc'; {Do not localize}
+  fn_EVP_camellia_128_cfb1 = 'EVP_camellia_128_cfb1'; {Do not localize}
+  fn_EVP_camellia_128_cfb8 = 'EVP_camellia_128_cfb8'; {Do not localize}
+  fn_EVP_camellia_128_cfb128 = 'EVP_camellia_128_cfb128'; {Do not localize}
+  {$DEFINE EVP_camellia_128_cfb}
+  {$DEFINE EVP_camellia_128_cfb128}
+  fn_EVP_camellia_128_ofb = 'EVP_camellia_128_ofb'; {Do not localize}
+  fn_EVP_camellia_192_ecb = 'EVP_camellia_192_ecb'; {Do not localize}
+  fn_EVP_camellia_192_cbc = 'EVP_camellia_192_cbc'; {Do not localize}
+  fn_EVP_camellia_192_cfb1 = 'EVP_camellia_192_cfb1'; {Do not localize}
+  fn_EVP_camellia_192_cfb8 = 'EVP_camellia_192_cfb8'; {Do not localize}
+  fn_EVP_camellia_192_cfb128 = 'EVP_camellia_192_cfb128'; {Do not localize}
+  {$DEFINE define EVP_camellia_192_cfb}
+  {$DEFINE EVP_camellia_192_cfb128}
+  fn_EVP_camellia_192_ofb = 'EVP_camellia_192_ofb'; {Do not localize}
+  fn_EVP_camellia_256_ecb = 'EVP_camellia_256_ecb'; {Do not localize}
+  fn_EVP_camellia_256_cbc = 'EVP_camellia_256_cbc'; {Do not localize}
+  fn_EVP_camellia_256_cfb1 = 'EVP_camellia_256_cfb1'; {Do not localize}
+  fn_EVP_camellia_256_cfb8 = 'EVP_camellia_256_cfb8'; {Do not localize}
+  fn_EVP_camellia_256_cfb128 = 'EVP_camellia_256_cfb128'; {Do not localize}
+  {$DEFINE EVP_camellia_256_cfb}
+  {$DEFINE EVP_camellia_256_cfb128}
+  fn_EVP_camellia_256_ofb = 'EVP_camellia_256_ofb'; {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SEED}
-  {CH fn_EVP_seed_ecb = 'EVP_seed_ecb'; } {Do not localize}
-  {CH fn_EVP_seed_cbc = 'EVP_seed_cbc'; } {Do not localize}
-  {CH fn_EVP_seed_cfb128 = 'EVP_seed_cfb128'; } {Do not localize}
-    {$DEFINE EVP_seed_cfb}
-    {$DEFINE EVP_seed_cfb128}
-  {CH fn_EVP_seed_ofb = 'EVP_seed_ofb'; } {Do not localize}
+  fn_EVP_seed_ecb = 'EVP_seed_ecb'; {Do not localize}
+  fn_EVP_seed_cbc = 'EVP_seed_cbc'; {Do not localize}
+  fn_EVP_seed_cfb128 = 'EVP_seed_cfb128'; {Do not localize}
+  {$DEFINE EVP_seed_cfb}
+  {$DEFINE EVP_seed_cfb128}
+  fn_EVP_seed_ofb = 'EVP_seed_ofb'; {Do not localize}
   {$ENDIF}
   fn_OPENSSL_add_all_algorithms_noconf = 'OPENSSL_add_all_algorithms_noconf';  {Do not localize}
   { fn_OPENSSL_add_all_algorithms_conf = 'OPENSSL_add_all_algorithms_conf'; }{Do not localize}
@@ -21875,7 +22225,15 @@ we have to handle both cases.
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
   @EVP_sha1 := LoadFunctionCLib(fn_EVP_sha1);
+
+  @EVP_sha := LoadFunctionCLib(fn_EVP_sha);
+  @EVP_dss := LoadFunctionCLib(fn_EVP_dss);
+  @EVP_dss1 := LoadFunctionCLib(fn_EVP_dss1);
+  @EVP_ecdsa := LoadFunctionCLib(fn_EVP_ecdsa);
   {$ENDIF}
+  {$ifndef OPENSSL_NO_MDC2}
+  @EVP_mdc2 := LoadFunctionCLib(fn_EVP_mdc2);
+  {$endif}
   {$IFNDEF OPENSSL_NO_MD5}
   @EVP_md5 := LoadFunctionCLib(fn_EVP_md5);
   {$ENDIF}
@@ -21885,7 +22243,154 @@ we have to handle both cases.
   {$IFNDEF OPENSSL_NO_MD2}
   @EVP_md2 := LoadFunctionCLib(fn_EVP_md2);
   {$ENDIF}
+  {$ifndef OPENSSL_NO_RIPEMD}
+  @EVP_ripemd160 := LoadFunctionCLib(fn_EVP_ripemd160);
+  {$endif}
+  {$ifndef OPENSSL_NO_WHIRLPOOL}
+  @EVP_whirlpool := LoadFunctionCLib(fn_EVP_whirlpool);
+  {$endif}
   @EVP_md_null := LoadFunctionCLib(fn_EVP_md_null);
+  {$IFNDEF OPENSSL_NO_DES}
+  @EVP_des_ecb := LoadFunctionCLib(fn_EVP_des_ecb);
+  @EVP_des_ede := LoadFunctionCLib(fn_EVP_des_ede);
+  @EVP_des_ede3 := LoadFunctionCLib(fn_EVP_des_ede3);
+  @EVP_des_ede_ecb := LoadFunctionCLib(fn_EVP_des_ede_ecb);
+  @EVP_des_ede3_ecb := LoadFunctionCLib(fn_EVP_des_ede3_ecb);
+  @EVP_des_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64);
+//  # define EVP_des_cfb EVP_des_cfb64
+
+  @EVP_des_cfb1  := LoadFunctionCLib(fn_EVP_des_cfb1);
+  @EVP_des_cfb8  := LoadFunctionCLib(fn_EVP_des_cfb8);
+  @EVP_des_ede_cfb64 := LoadFunctionCLib(fn_EVP_des_ede_cfb64);
+//#if 0
+ // @EVP_des_ede_cfb1 := LoadFunctionCLib(fn_EVP_des_ede_cfb1);
+ // @EVP_des_ede_cfb8 := LoadFunctionCLib(fn_EVP_des_ede_cfb8);
+  //#endif
+  @EVP_des_ede3_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ede_ofb := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ede3_ofb := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_cbc := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ede_cbc := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_desx_cbc := LoadFunctionCLib(fn_EVP_des_cfb64);
+//* This should now be supported through the dev_crypto ENGINE. But also, why are
+// * rc4 and md5 declarations made here inside a "NO_DES" precompiler branch? */
+//#if 0
+  {$ifdef OPENSSL_OPENBSD_DEV_CRYPTO}
+  @EVP_dev_crypto_des_ede3_cbc := LoadFunctionCLib(fn_EVP_dev_crypto_des_ede3_cbc);
+  @EVP_dev_crypto_rc4 := LoadFunctionCLib(fn_EVP_dev_crypto_rc4);
+  @EVP_dev_crypto_md5 := LoadFunctionCLib(fn_EVP_dev_crypto_md5);
+    {$endif}
+//#endif
+  {$endif}
+  {$ifndef OPENSSL_NO_RC4}
+  @EVP_rc4 := LoadFunctionCLib(fn_EVP_rc4);
+  @EVP_rc4_40 := LoadFunctionCLib(fn_EVP_rc4_40);
+    {$ifndef OPENSSL_NO_MD5}
+  @EVP_rc4_hmac_md5 := LoadFunctionCLib(fn_EVP_rc4_hmac_md5);
+    {$endif}
+  {$endif}
+  {$ifndef OPENSSL_NO_IDEA}
+  @EVP_idea_ecb := LoadFunctionCLib(fn_EVP_idea_ecb);
+  @EVP_idea_cfb64 := LoadFunctionCLib(fn_EVP_idea_cfb64);
+  @EVP_idea_ofb := LoadFunctionCLib(fn_EVP_idea_ofb);
+  @EVP_idea_cbc := LoadFunctionCLib(fn_EVP_idea_cbc);
+  {$endif}
+  {$ifndef OPENSSL_NO_RC2}
+  @EVP_rc2_ecb := LoadFunctionCLib(fn_EVP_rc2_ecb);
+  @EVP_rc2_cbc := LoadFunctionCLib(fn_EVP_rc2_cbc);
+  @EVP_rc2_40_cbc := LoadFunctionCLib(fn_EVP_rc2_40_cbc);
+  @EVP_rc2_64_cbc := LoadFunctionCLib(fn_EVP_rc2_64_cbc);
+  @EVP_rc2_cfb64 := LoadFunctionCLib(fn_EVP_rc2_cfb64);
+  @EVP_rc2_ofb := LoadFunctionCLib(fn_EVP_rc2_ofb);
+  {$endif}
+  {$ifndef OPENSSL_NO_BF}
+  @EVP_bf_ecb := LoadFunctionCLib(fn_EVP_bf_ecb);
+  @EVP_bf_cbc := LoadFunctionCLib(fn_EVP_bf_cbc);
+  @EVP_bf_cfb64 := LoadFunctionCLib(fn_EVP_bf_cfb64);
+  @EVP_bf_ofb := LoadFunctionCLib(fn_EVP_bf_ofb);
+  {$endif}
+  {$ifndef OPENSSL_NO_CAST}
+  @EVP_cast5_ecb := LoadFunctionCLib(fn_EVP_cast5_ecb);
+  @EVP_cast5_cbc := LoadFunctionCLib(fn_EVP_cast5_cbc);
+  @EVP_cast5_cfb64 := LoadFunctionCLib(fn_EVP_cast5_cfb64);
+  @EVP_cast5_ofb := LoadFunctionCLib(fn_EVP_cast5_ofb);
+  {$endif}
+  {$ifndef OPENSSL_NO_RC5}
+  @EVP_rc5_32_12_16_cbc := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cbc);
+  @EVP_rc5_32_12_16_ecb := LoadFunctionCLib(fn_EVP_rc5_32_12_16_ecb);
+  @EVP_rc5_32_12_16_cfb64 := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cfb64);
+  @EVP_rc5_32_12_16_ofb := LoadFunctionCLib(fn_EVP_rc5_32_12_16_ofb);
+  {$endif}
+  {$ifndef OPENSSL_NO_AES}
+  @EVP_aes_128_ecb := LoadFunctionCLib(fn_EVP_aes_128_ecb);
+  @EVP_aes_128_cbc := LoadFunctionCLib(fn_EVP_aes_128_cbc);
+  @EVP_aes_128_cfb1:= LoadFunctionCLib(fn_EVP_aes_128_cfb1);
+  @EVP_aes_128_cfb8:= LoadFunctionCLib(fn_EVP_aes_128_cfb8);
+  @EVP_aes_128_cfb128 := LoadFunctionCLib(fn_EVP_aes_128_cfb128);
+  @EVP_aes_128_ofb := LoadFunctionCLib(fn_EVP_aes_128_ofb);
+  @EVP_aes_128_ctr := LoadFunctionCLib(fn_EVP_aes_128_ctr);
+  @EVP_aes_128_gcm := LoadFunctionCLib(fn_EVP_aes_128_gcm);
+  @EVP_aes_128_ccm := LoadFunctionCLib(fn_EVP_aes_128_ccm);
+  @EVP_aes_128_xts := LoadFunctionCLib(fn_EVP_aes_128_xts);
+  @EVP_aes_192_ecb := LoadFunctionCLib(fn_EVP_aes_192_ecb);
+  @EVP_aes_192_cbc := LoadFunctionCLib(fn_EVP_aes_192_cbc);
+  @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1);
+  @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1);
+  @EVP_aes_192_cfb128 := LoadFunctionCLib(fn_EVP_aes_192_cfb128);
+
+  @EVP_aes_192_ofb := LoadFunctionCLib(fn_EVP_aes_192_ofb);
+  @EVP_aes_192_ctr := LoadFunctionCLib(fn_EVP_aes_192_ctr);
+  @EVP_aes_192_gcm := LoadFunctionCLib(fn_EVP_aes_192_gcm);
+  @EVP_aes_192_ccm := LoadFunctionCLib(fn_EVP_aes_192_ccm);
+  @EVP_aes_256_ecb := LoadFunctionCLib(fn_EVP_aes_256_ecb);
+  @EVP_aes_256_cbc := LoadFunctionCLib(fn_EVP_aes_256_cbc);
+  @EVP_aes_256_cfb1 := LoadFunctionCLib(fn_EVP_aes_256_cfb1);
+  @EVP_aes_256_cfb8 := LoadFunctionCLib(fn_EVP_aes_256_cfb8);
+  @EVP_aes_256_cfb128 := LoadFunctionCLib(fn_EVP_aes_256_cfb128);
+  @EVP_aes_256_ofb := LoadFunctionCLib(fn_EVP_aes_256_ofb);
+  @EVP_aes_256_ctr := LoadFunctionCLib(fn_EVP_aes_256_ctr);
+  @EVP_aes_256_gcm := LoadFunctionCLib(fn_EVP_aes_256_gcm);
+  @EVP_aes_256_ccm := LoadFunctionCLib(fn_EVP_aes_256_ccm);
+  @EVP_aes_256_xts := LoadFunctionCLib(fn_EVP_aes_256_xts);
+    {$ifndef OPENSSL_NO_SHA}
+      {$ifndef OPENSSL_NO_SHA1}
+  @EVP_aes_128_cbc_hmac_sha1 := LoadFunctionCLib(fn_EVP_aes_128_cbc_hmac_sha1);
+  @EVP_aes_256_cbc_hmac_sha1 := LoadFunctionCLib(fn_EVP_aes_256_cbc_hmac_sha1);
+      {$endif}
+    {$endif}
+  {$endif}
+  {$ifndef OPENSSL_NO_CAMELLIA}
+  @EVP_camellia_128_ecb  := LoadFunctionCLib(fn_EVP_camellia_128_ecb);
+  @EVP_camellia_128_cbc := LoadFunctionCLib(fn_EVP_camellia_128_cbc);
+  @EVP_camellia_128_cfb1 := LoadFunctionCLib(fn_EVP_camellia_128_cfb1);
+  @EVP_camellia_128_cfb8 := LoadFunctionCLib(fn_EVP_camellia_128_cfb8);
+  @EVP_camellia_128_cfb128 := LoadFunctionCLib(fn_EVP_camellia_128_cfb12);
+  @EVP_camellia_128_ofb := LoadFunctionCLib(fn_EVP_camellia_128_ofb);
+  @EVP_camellia_192_ecb := LoadFunctionCLib(fn_EVP_camellia_192_ecb);
+
+  @EVP_camellia_192_cbc := LoadFunctionCLib(fn_EVP_camellia_192_cbc);
+  @EVP_camellia_192_cfb1 := LoadFunctionCLib(fn_EVP_camellia_192_cfb1);
+  @EVP_camellia_192_cfb8 := LoadFunctionCLib(fn_EVP_camellia_192_cfb8);
+  @EVP_camellia_192_cfb128 := LoadFunctionCLib(fn_EVP_camellia_192_cfb128);
+  @EVP_camellia_192_ofb := LoadFunctionCLib(fn_EVP_camellia_192_ofb);
+  @EVP_camellia_256_ecb := LoadFunctionCLib(fn_EVP_camellia_256_ecb);
+  @EVP_camellia_256_cbc := LoadFunctionCLib(fn_EVP_camellia_256_cbc);
+  @EVP_camellia_256_cfb1 := LoadFunctionCLib(fn_EVP_camellia_256_cfb1);
+  @EVP_camellia_256_cfb8 := LoadFunctionCLib(fn_EVP_camellia_256_cfb8);
+  @EVP_camellia_256_cfb128 := LoadFunctionCLib(fn_EVP_camellia_256_cfb128);
+  @EVP_camellia_256_ofb := LoadFunctionCLib(fn_EVP_camellia_256_ofb);
+  {$endif}
+
+  {$ifndef OPENSSL_NO_SEED}
+  @EVP_seed_ecb := LoadFunctionCLib(fn_EVP_seed_ecb);
+  @EVP_seed_cbc := LoadFunctionCLib(fn_EVP_seed_cbc);
+  @EVP_seed_cfb128 := LoadFunctionCLib(fn_EVP_seed_cfb128);
+  @EVP_seed_ofb := LoadFunctionCLib(fn_EVP_seed_ofb);
+  {$endif}
+
   @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init);
   @EVP_DigestInit := LoadFunctionCLib(fn_EVP_DigestInit);
   @EVP_DigestInit_ex := LoadFunctionCLib(fn_EVP_DigestInit_ex);
@@ -21932,22 +22437,22 @@ we have to handle both cases.
   @EVP_DecodeFinal:= LoadFunctionCLib(fn_EVP_DecodeFinal);
   @EVP_DecodeBlock:= LoadFunctionCLib(fn_EVP_DecodeBlock);
 
-  EVP_CIPHER_CTX_init:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_init);
+  @EVP_CIPHER_CTX_init:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_init);
 
-  EVP_CIPHER_CTX_cleanup:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_cleanup);
-  EVP_CIPHER_CTX_new:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_new);
-  EVP_CIPHER_CTX_free:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_free);
-  EVP_CIPHER_CTX_set_key_length:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_key_length);
-  EVP_CIPHER_CTX_set_padding:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_padding);
-  EVP_CIPHER_CTX_ctrl:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_ctrl);
-  EVP_CIPHER_CTX_rand_key:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_rand_key);
+  @EVP_CIPHER_CTX_cleanup:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_cleanup);
+  @EVP_CIPHER_CTX_new:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_new);
+  @EVP_CIPHER_CTX_free:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_free);
+  @EVP_CIPHER_CTX_set_key_length:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_key_length);
+  @EVP_CIPHER_CTX_set_padding:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_padding);
+  @EVP_CIPHER_CTX_ctrl:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_ctrl);
+  @EVP_CIPHER_CTX_rand_key:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_rand_key);
 
 {$ifndef OPENSSL_NO_BIO}
-  BIO_f_md := LoadFunctionCLib(fn_BIO_f_md);
-  BIO_f_base64 := LoadFunctionCLib(fn_BIO_f_base64);
-  BIO_f_cipher := LoadFunctionCLib(fn_BIO_f_cipher);
-  BIO_f_reliable :=LoadFunctionCLib(fn_BIO_f_reliable);
-  BIO_set_cipher :=LoadFunctionCLib(fn_BIO_set_cipher);
+  @BIO_f_md := LoadFunctionCLib(fn_BIO_f_md);
+  @BIO_f_base64 := LoadFunctionCLib(fn_BIO_f_base64);
+  @BIO_f_cipher := LoadFunctionCLib(fn_BIO_f_cipher);
+  @BIO_f_reliable :=LoadFunctionCLib(fn_BIO_f_reliable);
+  @BIO_set_cipher :=LoadFunctionCLib(fn_BIO_set_cipher);
 {$endif}
 
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
@@ -22319,7 +22824,11 @@ begin
   @EVP_sha224 := nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
+  @EVP_sha := nil;
   @EVP_sha1 := nil;
+  @EVP_dss := nil;
+  @EVP_dss1 := nil;
+  @EVP_ecdsa := nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_MD5}
   @EVP_md5 := nil;
@@ -22330,7 +22839,161 @@ begin
   {$IFNDEF OPENSSL_NO_MD2}
   @EVP_md2 := nil;
   {$ENDIF}
+  {$ifndef OPENSSL_NO_MDC2}
+  @EVP_mdc2 := nil;
+  {$endif}
+  {$IFNDEF OPENSSL_NO_MD5}
+  @EVP_md5 := nil;
+  {$ENDIF}
+
+  {$ifndef OPENSSL_NO_RIPEMD}
+  EVP_ripemd160 := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_WHIRLPOOL}
+  @EVP_whirlpool := nil;
+  {$endif}
   @EVP_md_null := nil;
+  {$IFNDEF OPENSSL_NO_DES}
+  @EVP_des_ecb := nil;
+  @EVP_des_ede := nil;
+  @EVP_des_ede3 :=nil;
+  @EVP_des_ede_ecb := nil;
+  @EVP_des_ede3_ecb := nil;
+  @EVP_des_cfb64 := nil;
+
+  @EVP_des_cfb1  := nil;
+  @EVP_des_cfb8  := nil;
+  @EVP_des_ede_cfb64 := nil;
+//#if 0
+ // @EVP_des_ede_cfb1 := nil;
+ // @EVP_des_ede_cfb8 := nil;
+  //#endif
+  @EVP_des_ede3_cfb64 :=nil;
+  @EVP_des_ede3_cfb1 := nil;
+  @EVP_des_ede3_cfb8 := nil;
+  @EVP_des_ofb := nil;
+  @EVP_des_ede_ofb := nil;
+  @EVP_des_ede3_ofb := nil;
+  @EVP_des_cbc := nil;
+  @EVP_des_ede_cbc := nil;
+  @EVP_desx_cbc := nil;
+//* This should now be supported through the dev_crypto ENGINE. But also, why are
+// * rc4 and md5 declarations made here inside a "NO_DES" precompiler branch? */
+//#if 0
+  {$ifdef OPENSSL_OPENBSD_DEV_CRYPTO}
+  @EVP_dev_crypto_des_ede3_cbc := nil;
+  @EVP_dev_crypto_rc4 := nil;
+  @EVP_dev_crypto_md5 := nil;
+    {$endif}
+//#endif
+  {$endif}
+
+  {$ifndef OPENSSL_NO_RC4}
+  @EVP_rc4 := nil;
+  @EVP_rc4_40 := nil;
+    {$ifndef OPENSSL_NO_MD5}
+  @EVP_rc4_hmac_md5 := nil;
+    {$endif}
+  {$endif}
+  {$ifndef OPENSSL_NO_IDEA}
+  @EVP_idea_ecb := nil;
+  @EVP_idea_cfb64 := nil;
+  @EVP_idea_ofb := nil;
+  @EVP_idea_cbc := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_RC2}
+  @EVP_rc2_ecb := nil;
+  @EVP_rc2_cbc := nil;
+  @EVP_rc2_40_cbc := nil;
+  @EVP_rc2_64_cbc := nil;
+  @EVP_rc2_cfb64 := nil;
+  @EVP_rc2_ofb := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_BF}
+  @EVP_bf_ecb := nil;
+  @EVP_bf_cbc := nil;
+  @EVP_bf_cfb64 := nil;
+  @EVP_bf_ofb := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_CAST}
+  @EVP_cast5_ecb := nil;
+  @EVP_cast5_cbc := nil;
+  @EVP_cast5_cfb64 := nil;
+  @EVP_cast5_ofb := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_RC5}
+  @EVP_rc5_32_12_16_cbc := nil;
+  @EVP_rc5_32_12_16_ecb := nil;
+  @EVP_rc5_32_12_16_cfb64 := nil;
+  @EVP_rc5_32_12_16_ofb := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_AES}
+  @EVP_aes_128_ecb := nil;
+  @EVP_aes_128_cbc := nil;
+  @EVP_aes_128_cfb1:= nil;
+  @EVP_aes_128_cfb8:= nil;
+  @EVP_aes_128_cfb128 := nil;
+  @EVP_aes_128_ofb := nil;
+  @EVP_aes_128_ctr := nil;
+  @EVP_aes_128_gcm := nil;
+  @EVP_aes_128_ccm := nil;
+  @EVP_aes_128_xts := nil;
+  @EVP_aes_192_ecb := nil;
+  @EVP_aes_192_cbc := nil;
+  @EVP_aes_192_cfb1 := nil;
+  @EVP_aes_192_cfb1 := nil;
+  @EVP_aes_192_cfb128 := nil;
+
+  @EVP_aes_192_ofb := nil;
+  @EVP_aes_192_ctr := nil;
+  @EVP_aes_192_gcm := nil;
+  @EVP_aes_192_ccm := nil;
+  @EVP_aes_256_ecb := nil;
+  @EVP_aes_256_cbc := nil;
+  @EVP_aes_256_cfb1 := nil;
+  @EVP_aes_256_cfb8 := nil;
+  @EVP_aes_256_cfb128 := nil;
+  @EVP_aes_256_ofb := nil;
+  @EVP_aes_256_ctr := nil;
+  @EVP_aes_256_gcm := nil;
+  @EVP_aes_256_ccm := nil;
+  @EVP_aes_256_xts := nil;
+    {$ifndef OPENSSL_NO_SHA}
+      {$ifndef OPENSSL_NO_SHA1}
+  @EVP_aes_128_cbc_hmac_sha1 := nil;
+  @EVP_aes_256_cbc_hmac_sha1 := nil;
+      {$endif}
+    {$endif}
+  {$endif}
+  {$ifndef OPENSSL_NO_CAMELLIA}
+  @EVP_camellia_128_ecb  := nil;
+  @EVP_camellia_128_cbc := nil;
+  @EVP_camellia_128_cfb1 := nil;
+  @EVP_camellia_128_cfb8 := nil;
+  @EVP_camellia_128_cfb128 := nil;
+  @EVP_camellia_128_ofb := nil;
+  @EVP_camellia_192_ecb := nil;
+
+  @EVP_camellia_192_cbc := nil;
+  @EVP_camellia_192_cfb1 := nil;
+  @EVP_camellia_192_cfb8 := nil;
+  @EVP_camellia_192_cfb128 :=nil;
+  @EVP_camellia_192_ofb := nil;
+  @EVP_camellia_256_ecb := nil;
+  @EVP_camellia_256_cbc := nil;
+  @EVP_camellia_256_cfb1 := nil;
+  @EVP_camellia_256_cfb8 := nil;
+  @EVP_camellia_256_cfb128 := nil;
+  @EVP_camellia_256_ofb := nil;
+  {$endif}
+
+  {$ifndef OPENSSL_NO_SEED}
+  @EVP_seed_ecb := nil;
+  @EVP_seed_cbc := nil;
+  @EVP_seed_cfb128 := nil;
+  @EVP_seed_ofb := nil;
+  {$endif}
+
   @EVP_MD_CTX_init := nil;
   @EVP_DigestInit := nil;
   @EVP_DigestInit_ex := nil;
@@ -24269,6 +24932,115 @@ function EVP_DigestVerifyUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC
 begin
   Result := EVP_DigestUpdate(a,b,size_t(c));
 end;
+
+{$ifndef OPENSSL_NO_DES}
+function EVP_des_cfb : PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_des_cfb64;
+end;
+
+function EVP_des_ede_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_des_ede_cfb64;
+end;
+
+function EVP_des_ede3_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_des_ede3_cfb64
+end;
+{$endif}
+
+{$ifndef OPENSSL_NO_IDEA}
+function EVP_idea_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_idea_cfb64
+end;
+
+{$endif}
+
+{$ifndef OPENSSL_NO_RC2}
+function EVP_rc2_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ Result := EVP_rc2_cfb64;
+end;
+{$endif}
+
+{$ifndef OPENSSL_NO_BF}
+function EVP_bf_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ Result := EVP_bf_cfb64;
+end;
+{$endif}
+
+{$ifndef OPENSSL_NO_CAST}
+function EVP_cast5_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ Result := EVP_cast5_cfb64;
+end;
+{$endif}
+
+{$ifndef OPENSSL_NO_RC5}
+function EVP_rc5_32_12_16_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ Result := EVP_rc5_32_12_16_cfb64;
+end;
+{$endif}
+
+{$ifndef OPENSSL_NO_AES}
+function EVP_aes_128_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ Result := EVP_aes_128_cfb128;
+end;
+
+function EVP_aes_192_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_aes_192_cfb128
+end;
+
+function EVP_aes_256_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_aes_256_cfb128;
+end;
+{$endif}
+
+{$ifndef OPENSSL_NO_CAMELLIA}
+function EVP_camellia_128_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result :=  EVP_camellia_128_cfb128;
+end;
+
+function EVP_camellia_192_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result :=  EVP_camellia_192_cfb128;
+end;
+
+function EVP_camellia_256_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result :=  EVP_camellia_256_cfb128
+end;
+{$ENDIF}
+
+{$ifndef OPENSSL_NO_SEED}
+function EVP_seed_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_seed_cfb128
+end;
+{$endif}
 
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
