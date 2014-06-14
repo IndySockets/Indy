@@ -16659,7 +16659,7 @@ var
 	EVP_OpenFinal : function (ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_SealInit}
   EVP_SealInit : function(ctx : PEVP_CIPHER_CTX; _type : PEVP_CIPHER;
-	  ek : PPAnsiChar; ekl : PIdC_INT; iv : PIdAnsiChar;
+	  ek : PPIdAnsiChar; ekl : PIdC_INT; iv : PIdAnsiChar;
 		pubk : PPEVP_PKEY; npubk : TIdC_INT) : TIdC_INT cdecl = nil;
    {$EXTERNALSYM EVP_SealFinal}
   EVP_SealFinal : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
