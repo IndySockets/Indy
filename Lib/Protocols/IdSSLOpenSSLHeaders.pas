@@ -11677,6 +11677,8 @@ type
 //  end;
   {$EXTERNALSYM PENGINE}
   PENGINE = Pointer;//^ENGINE;
+  {$EXTERNALSYM PPENGINE}
+  PPENGINE = ^PENGINE;
   //asn1.h
   {$EXTERNALSYM I2D_OF_void}
   //#define I2D_OF(type) int (*)(type *,unsigned char **)
@@ -12075,8 +12077,9 @@ type
   end;
   {$EXTERNALSYM PRSA_METHOD}
   PRSA_METHOD = ^RSA_METHOD;
-  {$EXTERNALSYM RSA}
-  RSA = record
+   {$EXTERNALSYM rsa_st}
+
+  rsa_st = record
     // The first parameter is used to pickup errors where
     // this is passed instead of aEVP_PKEY, it is set to 0
     pad : TIdC_INT;
@@ -12105,6 +12108,10 @@ type
     blinding : PBN_BLINDING;
     mt_blinding : PBN_BLINDING;
   end;
+  {$EXTERNALSYM RSA}
+  RSA = rsa_st;
+  {$EXTERNALSYM Prsa_st}
+  Prsa_st = PRSA;
   {$ENDIF}
   //dso.h
   {$EXTERNALSYM PDSO}
@@ -12232,7 +12239,7 @@ type
     // If this is non-NULL, it will be used to generate parameters
     generate_params : function(dh : PDH; prime_len, generator : TIdC_INT; cb : PBN_GENCB) : TIdC_INT; cdecl;
   end;
-  DH = record
+  dh_st = record
     // The first parameter is used to pickup errors where
     // this is passed instead of aEVP_PKEY, it is set to 0
     pad : TIdC_INT;
@@ -12262,6 +12269,9 @@ type
     mt_blinding : PBN_BLINDING;
   end;
   {$EXTERNALSYM DH}
+  DH = dh_st;
+  {$EXTERNALSYM Pdh_st}
+  Pdh_st = PDH;
   {$EXTERNALSYM PPDH}
   PPDH =^PDH;
   {$ENDIF}
@@ -12305,8 +12315,9 @@ type
   end;
     {$EXTERNALSYM PDSA_METHOD}
   PDSA_METHOD = ^DSA_METHOD;
-    {$EXTERNALSYM DSA}
-  DSA = record
+  {$EXTERNALSYM dsa_st}
+
+  dsa_st = record
     // This first variable is used to pick up errors where
     // a DSA is passed instead of of a EVP_PKEY
     pad : TIdC_INT;
@@ -12328,6 +12339,10 @@ type
     // functional reference if 'meth' is ENGINE-provided
     engine : PENGINE;
   end;
+ {$EXTERNALSYM DSA}
+  DSA = dsa_st;
+  {$EXTERNALSYM Pdsa_st}
+  Pdsa_st = PDSA;
   {$EXTERNALSYM PPDSA}
   PPDSA = ^PDSA;
   {$ENDIF}
@@ -12359,11 +12374,14 @@ type
     nid : TIdC_INT;
     comment : PIdAnsiChar;
   end;
+  {$EXTERNALSYM Pec_key_st}
+  Pec_key_st = Pointer;
   {$EXTERNALSYM PEC_KEY}
-  PEC_KEY = Pointer;//^EC_KEY;
+  PEC_KEY = Pec_key_st;//^EC_KEY;
 //  EC_KEY = record
     //The fields are internal to OpenSSL, they are not listed in the header.
 //  end;
+
   {$EXTERNALSYM PPEC_KEY}
   PPEC_KEY = ^PEC_KEY;
   {$ENDIF}
@@ -12946,6 +12964,8 @@ type
     sname : PIdAnsiChar;	  // Structure name
     {$ENDIF}
   end;
+  {$EXTERNALSYM PASN1_PCTX}
+  PASN1_PCTX = Pointer;
   {$IFDEF DEBUG_SAFESTACK}
   {$EXTERNALSYM STACK_OF_ASN1_ADB_TABLE}
   STACK_OF_ASN1_ADB_TABLE = record
@@ -16373,6 +16393,118 @@ type
   TSSL_CTX_set_tlsext_opaque_prf_input_callback_cb = function(ssl : PSSL; peerinput : Pointer; len : size_t; arg : Pointer) : TIdC_INT cdecl;
   {$EXTERNALSYM TSSL_CTX_set_tlsext_ticket_key_cb_fp}
   TSSL_CTX_set_tlsext_ticket_key_cb_fp = function(SSL : PSSL; keyname, iv : PIdAnsiChar; ctx : PEVP_CIPHER_CTX; hctx : PHMAC_CTX; enc : TIdC_INT) : TIdC_INT cdecl;
+
+  {$EXTERNALSYM EVP_CIPHER_do_all_fn}
+  EVP_CIPHER_do_all_fn = procedure(ciph : PEVP_CIPHER;
+		from : PIdAnsiChar; _to : PIdAnsiChar; x : Pointer) cdecl;
+  {$EXTERNALSYM EVP_MD_do_all_fn}
+  EVP_MD_do_all_fn = procedure(ciph : PEVP_CIPHER;
+		from: PIdAnsiChar; _to: PIdAnsiChar; x : Pointer) cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_public_pub_decode}
+  EVP_PKEY_asn1_set_public_pub_decode = function(pk : PEVP_PKEY; pub : PX509_PUBKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_public_pub_encode}
+  EVP_PKEY_asn1_set_public_pub_encode = function(pub : PX509_PUBKEY; pk : PX509_PUBKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_public_pub_cmp}
+  EVP_PKEY_asn1_set_public_pub_cmp = function (a : PEVP_PKEY; b : PEVP_PKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_public_pub_print}
+  EVP_PKEY_asn1_set_public_pub_print = function(_out : PBIO; pkey : PEVP_PKEY;  indent : TIdC_INT;
+		pctx : PASN1_PCTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_public_pub_pkey_size}
+  EVP_PKEY_asn1_set_public_pub_pkey_size = function(pk : PEVP_PKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_public_pkey_bits}
+  EVP_PKEY_asn1_set_public_pkey_bits = function(pk : PEVP_PKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_private_priv_decode}
+  EVP_PKEY_asn1_set_private_priv_decode = function (pk : PEVP_PKEY; p8inf : PPKCS8_PRIV_KEY_INFO) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_private_priv_encode}
+  EVP_PKEY_asn1_set_private_priv_encode = function (p8 : PPKCS8_PRIV_KEY_INFO; pk : PEVP_PKEY): TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_private_priv_print}
+  EVP_PKEY_asn1_set_private_priv_print = function (_out : PBIO; pkey : PEVP_PKEY; indent : TIdC_INT;
+	  pctx : PASN1_PCTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_param_param_decode}
+  EVP_PKEY_asn1_set_param_param_decode = function(pkey : PEVP_PKEY;
+		pder : PPIdAnsiChar; derlen : TIdC_INT): TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_param_param_encode}
+  EVP_PKEY_asn1_set_param_param_encode = function(pkey : PEVP_PKEY; pder : PPIdAnsiChar) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_param_param_missing}
+  EVP_PKEY_asn1_set_param_param_missing = function(pk : EVP_PKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_param_param_copy}
+  EVP_PKEY_asn1_set_param_param_copy = function(_to : PEVP_PKEY; from : PEVP_PKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_param_param_cmp}
+  EVP_PKEY_asn1_set_param_param_cmp = function(a : PEVP_PKEY; b : PEVP_PKEY): TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_param_param_print}
+  EVP_PKEY_asn1_set_param_param_print = function(_out : PBIO; pkey : PEVP_PKEY; indent : TIdC_INT;
+		pctx : PASN1_PCTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_free_pkey_free}
+  EVP_PKEY_asn1_set_free_pkey_free = procedure(pkey : PEVP_PKEY) cdecl;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_ctr_pkey_ctrl}
+  EVP_PKEY_asn1_set_ctr_pkey_ctrl = function(pkey : PEVP_PKEY; op : TIdC_INT;
+							arg1 : TIdC_LONG; arg2 : Pointer) : TIdC_INT cdecl;
+
+  {$EXTERNALSYM EVP_PKEY_gen_cb}
+
+  EVP_PKEY_gen_cb = function( ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_init_init}
+
+  EVP_PKEY_meth_set_init_init = function (ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_copy_copy}
+  EVP_PKEY_meth_set_copy_copy = function (dst : PEVP_PKEY_CTX; src : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_cleanup_cleanup}
+  EVP_PKEY_meth_set_cleanup_cleanup = procedure(ctx : PEVP_PKEY_CTX) cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_paramgen_paramgen_init}
+  EVP_PKEY_meth_set_paramgen_paramgen_init = function (ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_paramgen_paramgen}
+  EVP_PKEY_meth_set_paramgen_paramgen = function (ctx : PEVP_PKEY_CTX; pkey : PEVP_PKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_keygen_keygen_init}
+  EVP_PKEY_meth_set_keygen_keygen_init = function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_keygen_keygen}
+  EVP_PKEY_meth_set_keygen_keygen = function(ctx : PEVP_PKEY_CTX; pkey : PEVP_PKEY) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_sign_sign_init}
+  EVP_PKEY_meth_set_sign_sign_init = function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_sign_sign}
+  EVP_PKEY_meth_set_sign_sign = function(ctx : PEVP_PKEY_CTX; sig : PIdAnsiChar; siglen : Psize_t;
+    tbs : PIdAnsiChar;  tbslen : size_t) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verify_verify_init}
+  EVP_PKEY_meth_set_verify_verify_init = function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verify_verify}
+  EVP_PKEY_meth_set_verify_verify = function(ctx : PEVP_PKEY_CTX; sig : PIdAnsiChar;  siglen : size_t;
+					tbs : PIdAnsiChar;  tbslen : size_t) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verify_recover_verify_recover_init}
+  EVP_PKEY_meth_set_verify_recover_verify_recover_init = function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verify_recover_verify_recover}
+  EVP_PKEY_meth_set_verify_recover_verify_recover = function(ctx : PEVP_PKEY_CTX;
+					sig : PIdAnsiChar; siglen : Psize_t;
+					tbs: PIdAnsiChar;  tbslen : size_t) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_signctx_signctx_init}
+  EVP_PKEY_meth_set_signctx_signctx_init = function(ctx : PEVP_PKEY_CTX; mctx : PEVP_MD_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_signctx_signctx}
+  EVP_PKEY_meth_set_signctx_signctx = function(ctx : PEVP_PKEY_CTX; sig : PIdAnsiChar; siglen : size_t;
+					 mctx : PEVP_MD_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verifyctx_verifyctx_init}
+  EVP_PKEY_meth_set_verifyctx_verifyctx_init = function : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verifyctx_verifyctx}
+  EVP_PKEY_meth_set_verifyctx_verifyctx = function : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_encrypt_encrypt_init}
+  EVP_PKEY_meth_set_encrypt_encrypt_init = function( ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_encrypt_encryptfn}
+  EVP_PKEY_meth_set_encrypt_encryptfn = function(ctx : PEVP_PKEY_CTX; _out : PIdAnsiChar; outlen : psize_t;
+	 _in : PIdAnsiChar;  inlen : size_t) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_decrypt_decrypt_init}
+  EVP_PKEY_meth_set_decrypt_decrypt_init = function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_decrypt_decrypt}
+  EVP_PKEY_meth_set_decrypt_decrypt = function(ctx : PEVP_PKEY_CTX; _out : PIdAnsiChar; outlen : psize_t;
+	 _in : PIdAnsiChar;  inlen : size_t) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_derive_derive_init}
+  EVP_PKEY_meth_set_derive_derive_init = function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+
+  {$EXTERNALSYM EVP_PKEY_meth_set_derive_derive}
+  EVP_PKEY_meth_set_derive_derive = function (ctx : PEVP_PKEY_CTX; key : PIdAnsiChar; keylen : psize_t) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_ctrl_ctrl}
+  EVP_PKEY_meth_set_ctrl_ctrl = function(ctx : PEVP_PKEY_CTX; _type : TIdC_INT; p1 : TIdC_INT; p2 : Pointer) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_meth_set_ctrlctrl_str}
+  EVP_PKEY_meth_set_ctrlctrl_str = function(ctx : PEVP_PKEY_CTX;
+	  _type : PIdAnsiChar; value : PIdAnsiChar) : TIdC_INT cdecl;
+
+
 var
   {$EXTERNALSYM OpenSSL_add_all_algorithms}
   OpenSSL_add_all_algorithms : procedure cdecl = nil;
@@ -16500,7 +16632,6 @@ var
   {$EXTERNALSYM DH_free}
   DH_free : procedure(dh: PDH) cdecl = nil;
 
-
   {$IFNDEF SSLEAY_MACROS}
   //Note that these are defined as a pointer to a pointer to a structure.
   //This is done because the pointer being passed could be nil.  The pointer is probably
@@ -16553,14 +16684,11 @@ var
   _PEM_write_bio_DSAparams : function(bp : PBIO; x : PDSA) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM _PEM_write_bio_NETSCAPE_CERT_SEQUENCE}
   _PEM_write_bio_NETSCAPE_CERT_SEQUENCE : function(bp : PBIO; x : PDSA) : TIdC_INT cdecl = nil;
-
     {$IFNDEF OPENSSL_NO_BIO}
   {$EXTERNALSYM _PEM_write_bio_PKCS8PrivateKey}
   _PEM_write_bio_PKCS8PrivateKey : function(bp: PBIO; key: PEVP_PKEY; enc: PEVP_CIPHER;
       kstr: PIdAnsiChar; klen: TIdC_INT; cb: ppem_password_cb; u: Pointer): TIdC_INT cdecl = nil;
-
     {$ENDIF}
-
   {$ELSE}
     {$IFNDEF OPENSSL_NO_BIO}
   {$EXTERNALSYM PEM_ASN1_write_bio}
@@ -16570,7 +16698,6 @@ var
   {$EXTERNALSYM PEM_ASN1_read_bio}
   PEM_ASN1_read_bio : function(d2i: d2i_OF_void; name: PIdAnsiChar; bp: PBIO;
       x: PPointer; cb: ppem_password_cb; u:Pointer): Pointer cdecl = nil;
-
     {$ENDIF}
   {$ENDIF}
     {$EXTERNALSYM PEM_X509_INFO_read_bio}
@@ -16589,7 +16716,6 @@ var
   EVP_DigestUpdate : function (ctx : PEVP_MD_CTX; d : Pointer; cnt : size_t) : TIdC_Int cdecl = nil;
   {$EXTERNALSYM EVP_DigestFinal_ex}
   EVP_DigestFinal_ex : function(ctx : PEVP_MD_CTX; md : PIdAnsiChar; var s : TIdC_UInt) : TIdC_Int cdecl = nil;
-
    {$EXTERNALSYM EVP_EncryptInit}
   EVP_EncryptInit : function(ctx : PEVP_CIPHER_CTX;cipher : PEVP_CIPHER;
 		key : PIdAnsiChar; iv : PIdAnsiChar) : TIdC_INT cdecl = nil;
@@ -16603,8 +16729,6 @@ var
 	EVP_EncryptFinal_ex : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
    {$EXTERNALSYM EVP_EncryptFinal}
 	EVP_EncryptFinal : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl: PIdC_INT) : TIdC_INT cdecl = nil;
-
-
   {$EXTERNALSYM EVP_DecryptInit}
 	EVP_DecryptInit : function(ctx : PEVP_CIPHER_CTX; cipher : PEVP_CIPHER;
 		key : PIdAnsiChar; iv : PIdAnsiChar) : TIdC_INT cdecl = nil;
@@ -16697,8 +16821,7 @@ var
   EVP_CIPHER_CTX_ctrl : function(ctx : PEVP_CIPHER_CTX; _type : TIdC_INT; arg : TIdC_INT; ptr : Pointer) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_rand_key}
   EVP_CIPHER_CTX_rand_key : function(ctx : PEVP_CIPHER_CTX; key : PIdAnsiChar) : TIdC_INT cdecl = nil;
-
-{$ifndef OPENSSL_NO_BIO}
+  {$ifndef OPENSSL_NO_BIO}
   {$EXTERNALSYM BIO_f_md}
   BIO_f_md : function : PBIO_METHOD cdecl = nil;
   {$EXTERNALSYM BIO_f_base64}
@@ -16710,246 +16833,242 @@ var
   {$EXTERNALSYM BIO_set_cipher}
   BIO_set_cipher : procedure (b : PBIO; c : PEVP_CIPHER; k : PIdAnsiChar;
 		i : PIdAnsiChar; enc : TIdC_INT) cdecl = nil;
-{$endif}
-
- {$EXTERNALSYM EVP_MD_CTX_init}
+  {$endif}
+  {$EXTERNALSYM EVP_MD_CTX_init}
   EVP_MD_CTX_init : procedure(ctx : PEVP_MD_CTX) cdecl = nil;
- {$EXTERNALSYM EVP_MD_CTX_cleanup}
+  {$EXTERNALSYM EVP_MD_CTX_cleanup}
   EVP_MD_CTX_cleanup : function(ctx : PEVP_MD_CTX) : TIdC_Int cdecl = nil;
   {$IFNDEF OPENSSL_NO_DES}
- {$EXTERNALSYM EVP_des_ede3_cbc}
+  {$EXTERNALSYM EVP_des_ede3_cbc}
   EVP_des_ede3_cbc : function: PEVP_CIPHER cdecl = nil;
   {$ENDIF}
- {$EXTERNALSYM EVP_PKEY_new}
-  EVP_PKEY_new : function: PEVP_PKEY cdecl = nil;
- {$EXTERNALSYM EVP_PKEY_free}
+  {$EXTERNALSYM EVP_PKEY_new}
+  EVP_PKEY_new : function : PEVP_PKEY cdecl = nil;
+
+  {$EXTERNALSYM EVP_PKEY_free}
   EVP_PKEY_free : procedure(pkey: PEVP_PKEY) cdecl = nil;
-  {$IFNDEF OPENSSL_NO_RSA}
- {$EXTERNALSYM EVP_PKEY_assign}
+  {$EXTERNALSYM EVP_PKEY_assign}
   EVP_PKEY_assign : function(pkey: PEVP_PKEY; _type: TIdC_INT; key: PIdAnsiChar): TIdC_INT cdecl = nil;
-  {$ENDIF}
   {$EXTERNALSYM EVP_get_cipherbyname}
   EVP_get_cipherbyname : function(const name : PIdAnsiChar): EVP_CIPHER cdecl = nil;
- {$EXTERNALSYM EVP_get_digestbyname}
+  {$EXTERNALSYM EVP_get_digestbyname}
   EVP_get_digestbyname : function(const name: PIdAnsiChar): PEVP_MD cdecl = nil;
- {$EXTERNALSYM EVP_MD_type}
- EVP_MD_type : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_MD_size}
- EVP_MD_size : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_MD_block_size}
- EVP_MD_block_size : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_MD_flags}
- EVP_MD_flags : function (md : PEVP_MD) : TIdC_ULONG cdecl = nil;
- {$EXTERNALSYM EVP_MD_CTX_md}
- EVP_MD_CTX_md : function (ctx : PEVP_MD_CTX) : PEVP_MD cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_nid}
- EVP_CIPHER_nid : function (cipher : PEVP_CIPHER) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_block_size}
- EVP_CIPHER_block_size : function(cipher : PEVP_CIPHER) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_key_length}
- EVP_CIPHER_key_length : function(cipher : EVP_CIPHER) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_MD_type}
+  EVP_MD_type : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_MD_size}
+  EVP_MD_size : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_MD_block_size}
+  EVP_MD_block_size : function (md : PEVP_MD) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_MD_flags}
+  EVP_MD_flags : function (md : PEVP_MD) : TIdC_ULONG cdecl = nil;
+  {$EXTERNALSYM EVP_MD_CTX_md}
+  EVP_MD_CTX_md : function (ctx : PEVP_MD_CTX) : PEVP_MD cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_nid}
+  EVP_CIPHER_nid : function (cipher : PEVP_CIPHER) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_block_size}
+  EVP_CIPHER_block_size : function(cipher : PEVP_CIPHER) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_key_length}
+  EVP_CIPHER_key_length : function(cipher : EVP_CIPHER) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_iv_length}
- EVP_CIPHER_iv_length : function(cipher: PEVP_CIPHER) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_flags}
- EVP_CIPHER_flags : function(cipher : PEVP_CIPHER) : TIdC_ULONG cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_type}
- EVP_CIPHER_type : function(ctx : PEVP_CIPHER) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER}
- EVP_CIPHER_CTX_cipher : function (ctx : PEVP_CIPHER_CTX) : PEVP_CIPHER cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_CTX_nid}
- EVP_CIPHER_CTX_nid : function (ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_CTX_block_size}
- EVP_CIPHER_CTX_block_size : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  EVP_CIPHER_iv_length : function(cipher: PEVP_CIPHER) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_flags}
+  EVP_CIPHER_flags : function(cipher : PEVP_CIPHER) : TIdC_ULONG cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_type}
+  EVP_CIPHER_type : function(ctx : PEVP_CIPHER) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_cipher}
+  EVP_CIPHER_CTX_cipher : function (ctx : PEVP_CIPHER_CTX) : PEVP_CIPHER cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_nid}
+  EVP_CIPHER_CTX_nid : function (ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_block_size}
+  EVP_CIPHER_CTX_block_size : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_key_length}
- EVP_CIPHER_CTX_key_length : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  EVP_CIPHER_CTX_key_length : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_iv_length}
- EVP_CIPHER_CTX_iv_length : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  EVP_CIPHER_CTX_iv_length : function(ctx : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_copy}
- EVP_CIPHER_CTX_copy : function(_out : PEVP_CIPHER_CTX; _in : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_CTX_get_app_data}
- EVP_CIPHER_CTX_get_app_data : function(ctx : PEVP_CIPHER_CTX) : Pointer cdecl = nil;
- {$EXTERNALSYM EVP_CIPHER_CTX_set_app_data}
- EVP_CIPHER_CTX_set_app_data : procedure(ctx : PEVP_CIPHER_CTX; data : Pointer) cdecl =nil;
- {$EXTERNALSYM EVP_CIPHER_CTX_flags}
- EVP_CIPHER_CTX_flags : function(ctx : PEVP_CIPHER_CTX) : TIdC_ULONG cdecl = nil;
-
- {$EXTERNALSYM ASN1_INTEGER_set}
+  EVP_CIPHER_CTX_copy : function(_out : PEVP_CIPHER_CTX; _in : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_get_app_data}
+  EVP_CIPHER_CTX_get_app_data : function(ctx : PEVP_CIPHER_CTX) : Pointer cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_set_app_data}
+  EVP_CIPHER_CTX_set_app_data : procedure(ctx : PEVP_CIPHER_CTX; data : Pointer) cdecl =nil;
+  {$EXTERNALSYM EVP_CIPHER_CTX_flags}
+  EVP_CIPHER_CTX_flags : function(ctx : PEVP_CIPHER_CTX) : TIdC_ULONG cdecl = nil;
+  {$EXTERNALSYM ASN1_INTEGER_set}
   ASN1_INTEGER_set : function(a: PASN1_INTEGER; v: TIdC_LONG): TIdC_INT cdecl = nil;
- {$EXTERNALSYM ASN1_INTEGER_get}
+  {$EXTERNALSYM ASN1_INTEGER_get}
   ASN1_INTEGER_get : function(a: PASN1_INTEGER) : TIdC_LONG cdecl = nil;
   //IdSslAsn1UtcTimeNew : function: Pointer cdecl = nil;
- {$EXTERNALSYM ASN1_STRING_type_new}
+  {$EXTERNALSYM ASN1_STRING_type_new}
   ASN1_STRING_type_new : function(_type: TIdC_INT): PASN1_STRING cdecl = nil;
- {$EXTERNALSYM ASN1_STRING_free}
+  {$EXTERNALSYM ASN1_STRING_free}
   ASN1_STRING_free : procedure(a: PASN1_STRING) cdecl = nil;
- {$EXTERNALSYM ASN1_dup}
+  {$EXTERNALSYM ASN1_dup}
   ASN1_dup : function (i2d : i2d_of_void; d2i : d2i_of_void; x : PIdAnsiChar) : Pointer cdecl = nil;
- {$EXTERNALSYM i2d_X509}
+  {$EXTERNALSYM i2d_X509}
   i2d_X509 : function(x: PX509;  buf: PPByte) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_X509}
+  {$EXTERNALSYM d2i_X509}
   d2i_X509 : function(pr : PX509; _in : PPByte; len : TIdC_INT): PX509 cdecl = nil;
- {$EXTERNALSYM i2d_X509_NAME}
+  {$EXTERNALSYM i2d_X509_NAME}
   i2d_X509_NAME : function(x : PX509_NAME; buf : PPByte) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_X509_NAME}
+  {$EXTERNALSYM d2i_X509_NAME}
   d2i_X509_NAME : function(pr : PPX509_NAME; _in : PPByte; length : TIdC_LONG):PX509_NAME cdecl = nil;
- {$EXTERNALSYM i2d_X509_REQ}
+  {$EXTERNALSYM i2d_X509_REQ}
   i2d_X509_REQ : function(x: PX509_REQ;  buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_X509_REQ}
+  {$EXTERNALSYM d2i_X509_REQ}
   d2i_X509_REQ : function(pr : PX509_REQ; _in : PPByte; len : TIdC_INT): PX509_REQ cdecl = nil;
- {$EXTERNALSYM i2d_X509_CRL}
+  {$EXTERNALSYM i2d_X509_CRL}
   i2d_X509_CRL : function(x: PX509_CRL; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_X509_CRL}
+  {$EXTERNALSYM d2i_X509_CRL}
   d2i_X509_CRL : function(pr : PX509_CRL; _in : PPByte; len : TIdC_INT): PX509_REQ cdecl = nil;
- {$EXTERNALSYM i2d_RSAPrivateKey}
+  {$EXTERNALSYM i2d_RSAPrivateKey}
   i2d_RSAPrivateKey : function(x: PRSA; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_RSAPrivateKey}
+  {$EXTERNALSYM d2i_RSAPrivateKey}
   d2i_RSAPrivateKey : function(pr : PRSA; _in : PPByte; len : TIdC_INT): PRSA cdecl = nil;
- {$EXTERNALSYM i2d_RSAPublicKey}
+  {$EXTERNALSYM i2d_RSAPublicKey}
   i2d_RSAPublicKey : function(x: PRSA; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_RSAPublicKey}
+  {$EXTERNALSYM d2i_RSAPublicKey}
   d2i_RSAPublicKey : function(pr : PRSA; _in : PPByte; len : TIdC_INT): PRSA cdecl = nil;
- {$EXTERNALSYM i2d_DSAPrivateKey}
+  {$EXTERNALSYM i2d_DSAPrivateKey}
   i2d_DSAPrivateKey : function(x: PDSA; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_DSAPrivateKey}
+  {$EXTERNALSYM d2i_DSAPrivateKey}
   d2i_DSAPrivateKey : function(pr : PDSA; _in : PPByte; len : TIdC_INT): PDSA cdecl = nil;
- {$EXTERNALSYM i2d_PrivateKey}
+  {$EXTERNALSYM i2d_PrivateKey}
   i2d_PrivateKey : function(x: PEVP_PKEY; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_PrivateKey}
+  {$EXTERNALSYM d2i_PrivateKey}
   d2i_PrivateKey : function(pr : PEVP_PKEY; _in : PPByte; len : TIdC_INT): PEVP_PKEY cdecl = nil;
- {$EXTERNALSYM i2d_PKCS7}
+  {$EXTERNALSYM i2d_PKCS7}
   i2d_PKCS7 : function(x: PPKCS7; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_PKCS7}
+  {$EXTERNALSYM d2i_PKCS7}
   d2i_PKCS7 : function(pr : PPKCS7; _in : PPByte; len : TIdC_INT): PPKCS7 cdecl = nil;
- {$EXTERNALSYM i2d_DHparams}
+  {$EXTERNALSYM i2d_DHparams}
   i2d_DHparams : function(x: PDH; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_DHparams}
+  {$EXTERNALSYM d2i_DHparams}
   d2i_DHparams : function(pr : PDH; _in : PPByte; len : TIdC_INT): PDH cdecl = nil;
- {$EXTERNALSYM i2d_DSAparams}
+  {$EXTERNALSYM i2d_DSAparams}
   i2d_DSAparams : function(x: PDSA; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_DSAparams}
+  {$EXTERNALSYM d2i_DSAparams}
   d2i_DSAparams : function(pr : PDSA; _in : PPByte; len : TIdC_INT): PDSA cdecl = nil;
 //NETSCAPE_CERT_SEQUENCE
- {$EXTERNALSYM i2d_NETSCAPE_CERT_SEQUENCE}
+  {$EXTERNALSYM i2d_NETSCAPE_CERT_SEQUENCE}
   i2d_NETSCAPE_CERT_SEQUENCE : function(x: PNETSCAPE_CERT_SEQUENCE; buf: PPByte): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_NETSCAPE_CERT_SEQUENCE}
+  {$EXTERNALSYM d2i_NETSCAPE_CERT_SEQUENCE}
   d2i_NETSCAPE_CERT_SEQUENCE : function(pr : PNETSCAPE_CERT_SEQUENCE; _in : PPByte; len : TIdC_INT): PNETSCAPE_CERT_SEQUENCE cdecl = nil;
 
   {$IFNDEF OPENSSL_NO_BIO}
- {$EXTERNALSYM d2i_X509_bio}
+  {$EXTERNALSYM d2i_X509_bio}
   d2i_X509_bio : function(bp: PBIO; x: PPx509): PX509 cdecl = nil;
- {$EXTERNALSYM i2d_X509_REQ_bio}
+  {$EXTERNALSYM i2d_X509_REQ_bio}
   i2d_X509_REQ_bio : function(x: PX509_REQ; bp: PBIO): TIdC_INT cdecl = nil;
- {$EXTERNALSYM i2d_X509_bio}
+  {$EXTERNALSYM i2d_X509_bio}
   i2d_X509_bio : function(bp: PBIO; x: PX509): TIdC_INT cdecl = nil;
- {$EXTERNALSYM i2d_PrivateKey_bio}
+  {$EXTERNALSYM i2d_PrivateKey_bio}
   i2d_PrivateKey_bio : function(b: PBIO; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
-
   {$ENDIF}
-   {$EXTERNALSYM X509_new}
+  {$EXTERNALSYM X509_new}
   X509_new : function: PPX509 cdecl = nil;
-   {$EXTERNALSYM X509_free}
+  {$EXTERNALSYM X509_free}
   X509_free : procedure(x: PX509) cdecl = nil;
-   {$EXTERNALSYM X509_NAME_new}
+  {$EXTERNALSYM X509_NAME_new}
   X509_NAME_new : function :PX509_NAME cdecl = nil;
-   {$EXTERNALSYM X509_NAME_free}
+  {$EXTERNALSYM X509_NAME_free}
   X509_NAME_free : procedure(x:PX509_NAME) cdecl = nil;
-   {$EXTERNALSYM X509_REQ_new}
+  {$EXTERNALSYM X509_REQ_new}
   X509_REQ_new : function :PX509_REQ cdecl = nil;
-   {$EXTERNALSYM X509_REQ_free}
+  {$EXTERNALSYM X509_REQ_free}
   X509_REQ_free : procedure(x:PX509_REQ) cdecl = nil;
- {$EXTERNALSYM X509_to_X509_REQ}
+  {$EXTERNALSYM X509_to_X509_REQ}
   X509_to_X509_REQ : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): PX509_REQ cdecl = nil;
- {$EXTERNALSYM X509_NAME_add_entry_by_txt}
+  {$EXTERNALSYM X509_NAME_add_entry_by_txt}
   X509_NAME_add_entry_by_txt : function(name: PX509_NAME; const field: PIdAnsiChar; _type: TIdC_INT;
     const bytes: PIdAnsiChar; len, loc, _set: TIdC_INT): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_INFO_free}
+  {$EXTERNALSYM X509_INFO_free}
   X509_INFO_free : procedure (a : PX509_INFO) cdecl = nil;
- {$EXTERNALSYM X509_set_version}
+  {$EXTERNALSYM X509_set_version}
   X509_set_version : function(x: PX509; version: TIdC_LONG): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_get_serialNumber}
+  {$EXTERNALSYM X509_get_serialNumber}
   X509_get_serialNumber : function(x: PX509): PASN1_INTEGER cdecl = nil;
- {$EXTERNALSYM X509_gmtime_adj}
+  {$EXTERNALSYM X509_gmtime_adj}
   X509_gmtime_adj : function(s: PASN1_TIME; adj: TIdC_LONG): PASN1_TIME cdecl = nil;
- {$EXTERNALSYM X509_set_notBefore}
+  {$EXTERNALSYM X509_set_notBefore}
   X509_set_notBefore : function(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_set_notAfter}
+  {$EXTERNALSYM X509_set_notAfter}
   X509_set_notAfter : function(x: PX509; tm: PASN1_TIME): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_set_pubkey}
+  {$EXTERNALSYM X509_set_pubkey}
   X509_set_pubkey : function(x: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_REQ_set_pubkey}
+  {$EXTERNALSYM X509_REQ_set_pubkey}
   X509_REQ_set_pubkey : function(x: PX509_REQ; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_PUBKEY_get}
+  {$EXTERNALSYM X509_PUBKEY_get}
   X509_PUBKEY_get : function(key: PX509_PUBKEY): PEVP_PKEY cdecl = nil;
- {$EXTERNALSYM X509_verify}
+  {$EXTERNALSYM X509_verify}
   X509_verify : function(x509: PX509; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_sign}
+  {$EXTERNALSYM X509_sign}
   X509_sign : function(x: PX509; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_REQ_sign}
+  {$EXTERNALSYM X509_REQ_sign}
   X509_REQ_sign : function(x: PX509_REQ; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_REQ_add_extensions}
+  {$EXTERNALSYM X509_REQ_add_extensions}
   X509_REQ_add_extensions : function(req: PX509_REQ; exts: PSTACK_OF_X509_EXTENSION): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509V3_EXT_conf_nid}
+  {$EXTERNALSYM X509V3_EXT_conf_nid}
   X509V3_EXT_conf_nid : function(conf: PLHASH; ctx: PX509V3_CTX; ext_nid: TIdC_INT; value: PIdAnsiChar): PX509_EXTENSION cdecl = nil;
- {$EXTERNALSYM X509_EXTENSION_create_by_NID}
+  {$EXTERNALSYM X509_EXTENSION_create_by_NID}
   X509_EXTENSION_create_by_NID : function(ex: PPX509_EXTENSION; nid: TIdC_INT;
     crit: TIdC_INT; data: PASN1_OCTET_STRING): PX509_EXTENSION cdecl = nil;
- {$EXTERNALSYM X509V3_set_ctx}
+  {$EXTERNALSYM X509V3_set_ctx}
   X509V3_set_ctx : procedure(ctx: PX509V3_CTX; issuer, subject: PX509; req: PX509_REQ; crl: PX509_CRL; flags: TIdC_INT) cdecl = nil;
- {$EXTERNALSYM X509_EXTENSION_free}
+  {$EXTERNALSYM X509_EXTENSION_free}
   X509_EXTENSION_free : procedure(ex: PX509_EXTENSION) cdecl = nil;
- {$EXTERNALSYM X509_add_ext}
+  {$EXTERNALSYM X509_add_ext}
   X509_add_ext : function(cert: PX509; ext: PX509_EXTENSION; loc: TIdC_INT): TIdC_INT cdecl = nil;
   {$IFNDEF OPENSSL_NO_BIO}
- {$EXTERNALSYM X509_print}
+  {$EXTERNALSYM X509_print}
   X509_print : function(bp : PBIO; x : PX509) : TIdC_INT cdecl = nil;
   {$ENDIF}
-   {$EXTERNALSYM X509_STORE_add_lookup}
+  {$EXTERNALSYM X509_STORE_add_lookup}
   X509_STORE_add_lookup : function (v : PX509_STORE; m : PX509_LOOKUP_METHOD) : PX509_LOOKUP cdecl = nil;
-   {$EXTERNALSYM X509_STORE_load_locations}
+  {$EXTERNALSYM X509_STORE_load_locations}
   X509_STORE_load_locations : function ( ctx : PX509_STORE; const _file, path : PIdAnsiChar) : TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_set_cipher_list}
+  {$EXTERNALSYM SSL_CTX_set_cipher_list}
   SSL_CTX_set_cipher_list : function(_para1: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_new}
+  {$EXTERNALSYM SSL_CTX_new}
   SSL_CTX_new : function(meth: PSSL_METHOD): PSSL_CTX cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_free}
+  {$EXTERNALSYM SSL_CTX_free}
   SSL_CTX_free : procedure(_para1: PSSL_CTX) cdecl = nil;
-   {$EXTERNALSYM SSL_set_fd}
+  {$EXTERNALSYM SSL_set_fd}
   SSL_set_fd : function(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_use_PrivateKey_file}
+  {$EXTERNALSYM SSL_CTX_use_PrivateKey_file}
   SSL_CTX_use_PrivateKey_file : function(ctx: PSSL_CTX; const _file: PIdAnsiChar; _type: TIdC_INT): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_use_PrivateKey}
+  {$EXTERNALSYM SSL_CTX_use_PrivateKey}
   SSL_CTX_use_PrivateKey : function(ctx: PSSL_CTX; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_use_certificate}
+  {$EXTERNALSYM SSL_CTX_use_certificate}
   SSL_CTX_use_certificate : function(ctx: PSSL_CTX; x: PX509): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_use_certificate_file}
+  {$EXTERNALSYM SSL_CTX_use_certificate_file}
   SSL_CTX_use_certificate_file : function(ctx: PSSL_CTX; const _file: PIdAnsiChar; _type: TIdC_INT): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_load_error_strings}
+  {$EXTERNALSYM SSL_load_error_strings}
   SSL_load_error_strings : procedure cdecl = nil;
-   {$EXTERNALSYM SSL_state_string_long}
+  {$EXTERNALSYM SSL_state_string_long}
   SSL_state_string_long : function(s: PSSL): PIdAnsiChar cdecl = nil;
-   {$EXTERNALSYM SSL_alert_desc_string_long}
+  {$EXTERNALSYM SSL_alert_desc_string_long}
   SSL_alert_desc_string_long : function(value : TIdC_INT) : PIdAnsiChar cdecl = nil;
-   {$EXTERNALSYM SSL_alert_type_string_long}
+  {$EXTERNALSYM SSL_alert_type_string_long}
   SSL_alert_type_string_long : function(value : TIdC_INT) : PIdAnsiChar cdecl = nil;
-   {$EXTERNALSYM SSL_get_peer_certificate}
+  {$EXTERNALSYM SSL_get_peer_certificate}
   SSL_get_peer_certificate : function(s: PSSL): PX509 cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_set_verify}
+  {$EXTERNALSYM SSL_CTX_set_verify}
   SSL_CTX_set_verify : procedure(ctx: PSSL_CTX; mode: TIdC_INT; callback: TSSL_CTX_set_verify_callback) cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_set_verify_depth}
+  {$EXTERNALSYM SSL_CTX_set_verify_depth}
   SSL_CTX_set_verify_depth : procedure(ctx: PSSL_CTX; depth: TIdC_INT) cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_get_verify_depth}
+  {$EXTERNALSYM SSL_CTX_get_verify_depth}
   SSL_CTX_get_verify_depth : function (ctx: PSSL_CTX): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_set_default_passwd_cb}
+  {$EXTERNALSYM SSL_CTX_set_default_passwd_cb}
   SSL_CTX_set_default_passwd_cb : procedure(ctx: PSSL_CTX; cb: ppem_password_cb) cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_set_default_passwd_cb_userdata}
+  {$EXTERNALSYM SSL_CTX_set_default_passwd_cb_userdata}
   SSL_CTX_set_default_passwd_cb_userdata: procedure(ctx: PSSL_CTX; u: Pointer) cdecl = nil;
-   {$EXTERNALSYM SSL_CTX_check_private_key}
+  {$EXTERNALSYM SSL_CTX_check_private_key}
   SSL_CTX_check_private_key : function(ctx: PSSL_CTX): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSL_new}
+  {$EXTERNALSYM SSL_new}
   SSL_new : function(ctx: PSSL_CTX): PSSL cdecl = nil;
   {$EXTERNALSYM SSL_free}
   SSL_free : procedure(ssl: PSSL) cdecl = nil;
- {$EXTERNALSYM SSL_accept}
+  {$EXTERNALSYM SSL_accept}
   SSL_accept : function(ssl: PSSL): TIdC_INT cdecl = nil;
   {$EXTERNALSYM SSL_connect}
   SSL_connect : function(ssl: PSSL): TIdC_INT cdecl = nil;
@@ -16973,43 +17092,43 @@ var
   {$EXTERNALSYM SSL_CTX_callback_ctrl}
   //long	SSL_CTX_callback_ctrl(SSL_CTX *, int, void (*)(void));
   SSL_CTX_callback_ctrl : function(ssl : PSSL_CTX; cmd : TIdC_INT; fp : SSL_callback_ctrl_fp) : TIdC_LONG cdecl = nil;
-   {$EXTERNALSYM SSL_get_error}
+  {$EXTERNALSYM SSL_get_error}
   SSL_get_error : function(s: PSSL; ret_code: TIdC_INT): TIdC_INT cdecl = nil;
-   {$EXTERNALSYM SSLv2_method}
+  {$EXTERNALSYM SSLv2_method}
   SSLv2_method : function: PSSL_METHOD cdecl = nil; // SSLv2
-   {$EXTERNALSYM SSLv2_server_method}
+  {$EXTERNALSYM SSLv2_server_method}
   SSLv2_server_method : function: PSSL_METHOD cdecl = nil; // SSLv2
-   {$EXTERNALSYM SSLv2_client_method}
+  {$EXTERNALSYM SSLv2_client_method}
   SSLv2_client_method : function: PSSL_METHOD cdecl = nil; // SSLv2
-   {$EXTERNALSYM SSLv3_method}
+  {$EXTERNALSYM SSLv3_method}
   SSLv3_method : function: PSSL_METHOD cdecl = nil; // SSLv3
-   {$EXTERNALSYM SSLv3_server_method}
+  {$EXTERNALSYM SSLv3_server_method}
   SSLv3_server_method : function: PSSL_METHOD cdecl = nil; // SSLv3
-   {$EXTERNALSYM SSLv3_client_method}
+  {$EXTERNALSYM SSLv3_client_method}
   SSLv3_client_method : function: PSSL_METHOD cdecl = nil; // SSLv3
-   {$EXTERNALSYM SSLv23_method}
+  {$EXTERNALSYM SSLv23_method}
   SSLv23_method : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
-   {$EXTERNALSYM SSLv23_server_method}
+  {$EXTERNALSYM SSLv23_server_method}
   SSLv23_server_method : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
-   {$EXTERNALSYM SSLv23_client_method}
+  {$EXTERNALSYM SSLv23_client_method}
   SSLv23_client_method : function: PSSL_METHOD cdecl = nil; // SSLv3 but can rollback to v2
-   {$EXTERNALSYM TLSv1_method}
+  {$EXTERNALSYM TLSv1_method}
   TLSv1_method : function: PSSL_METHOD cdecl = nil; // TLSv1.0
-   {$EXTERNALSYM TLSv1_server_method}
+  {$EXTERNALSYM TLSv1_server_method}
   TLSv1_server_method : function: PSSL_METHOD cdecl = nil; // TLSv1.0
-   {$EXTERNALSYM TLSv1_client_method}
+  {$EXTERNALSYM TLSv1_client_method}
   TLSv1_client_method : function: PSSL_METHOD cdecl = nil; // TLSv1.0
-   {$EXTERNALSYM TLSv1_1_method}
+  {$EXTERNALSYM TLSv1_1_method}
   TLSv1_1_method : function : PSSL_METHOD cdecl = nil; //TLS1.1
   {$EXTERNALSYM TLSv1_1_server_method}
   TLSv1_1_server_method : function : PSSL_METHOD cdecl = nil; //TLS1.1
   {$EXTERNALSYM TLSv1_1_client_method}
   TLSv1_1_client_method : function : PSSL_METHOD cdecl = nil; //TLS1.1
-   {$EXTERNALSYM TLSv1_2_method}
+  {$EXTERNALSYM TLSv1_2_method}
   TLSv1_2_method : function : PSSL_METHOD cdecl = nil;		//* TLSv1.2 */
-   {$EXTERNALSYM TLSv1_2_server_method}
+  {$EXTERNALSYM TLSv1_2_server_method}
   TLSv1_2_server_method : function : PSSL_METHOD cdecl = nil;	//* TLSv1.2 */
-   {$EXTERNALSYM TLSv1_2_client_method}
+  {$EXTERNALSYM TLSv1_2_client_method}
   TLSv1_2_client_method : function : PSSL_METHOD cdecl = nil;	//* TLSv1.2 */
 
   {$EXTERNALSYM DTLSv1_method}
@@ -17076,30 +17195,30 @@ var
   EVP_sha224 : function : PEVP_MD cdecl = nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
-   {$EXTERNALSYM EVP_sha}
+  {$EXTERNALSYM EVP_sha}
   EVP_sha : function : PEVP_MD cdecl = nil;
-    {$EXTERNALSYM EVP_sha1}
+  {$EXTERNALSYM EVP_sha1}
   EVP_sha1 : function: PEVP_MD cdecl = nil;
-   {$EXTERNALSYM EVP_dss}
+  {$EXTERNALSYM EVP_dss}
   EVP_dss : function : PEVP_MD cdecl = nil;
-   {$EXTERNALSYM EVP_dss1}
+  {$EXTERNALSYM EVP_dss1}
   EVP_dss1 : function : PEVP_MD cdecl = nil;
-   {$EXTERNALSYM EVP_ecdsa}
+  {$EXTERNALSYM EVP_ecdsa}
   EVP_ecdsa : function : PEVP_MD cdecl = nil;
   {$ENDIF}
   {$ifndef OPENSSL_NO_MDC2}
   EVP_mdc2 : function : PEVP_MD cdecl = nil;
   {$endif}
   {$IFNDEF OPENSSL_NO_MD5}
-    {$EXTERNALSYM EVP_md5}
+  {$EXTERNALSYM EVP_md5}
   EVP_md5 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_MD4}
-      {$EXTERNALSYM EVP_md4}
+  {$EXTERNALSYM EVP_md4}
   EVP_md4 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_MD2}
-      {$EXTERNALSYM EVP_md2}
+  {$EXTERNALSYM EVP_md2}
   EVP_md2 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
   {$ifndef OPENSSL_NO_RIPEMD}
@@ -17126,9 +17245,9 @@ var
 //  # define EVP_des_cfb EVP_des_cfb64
   {$EXTERNALSYM EVP_des_cfb1}
   EVP_des_cfb1: function : PEVP_CIPHER cdecl = nil;
-    {$EXTERNALSYM EVP_des_cfb8}
+  {$EXTERNALSYM EVP_des_cfb8}
   EVP_des_cfb8 : function : PEVP_CIPHER cdecl = nil;
-   {$EXTERNALSYM EVP_des_ede_cfb64}
+  {$EXTERNALSYM EVP_des_ede_cfb64}
   EVP_des_ede_cfb64 :function :  PEVP_CIPHER cdecl = nil;
 //# define EVP_des_ede_cfb EVP_des_ede_cfb64
 //#if 0
@@ -17137,14 +17256,14 @@ var
   {/$EXTERNALSYM EVP_des_ede_cfb8}
   //EVP_des_ede_cfb8 : function : PEVP_CIPHER cdecl = nil;
 //#endif
- {$EXTERNALSYM EVP_des_ede3_cfb64}
+  {$EXTERNALSYM EVP_des_ede3_cfb64}
   EVP_des_ede3_cfb64  :function :  PEVP_CIPHER cdecl = nil;
 //# define EVP_des_ede3_cfb EVP_des_ede3_cfb64
- {$EXTERNALSYM EVP_des_ede3_cfb1}
+  {$EXTERNALSYM EVP_des_ede3_cfb1}
   EVP_des_ede3_cfb1 :function :  PEVP_CIPHER cdecl = nil;
- {$EXTERNALSYM EVP_des_ede3_cfb8}
+  {$EXTERNALSYM EVP_des_ede3_cfb8}
   EVP_des_ede3_cfb8 :function :  PEVP_CIPHER cdecl = nil;
- {$EXTERNALSYM EVP_des_ofb}
+  {$EXTERNALSYM EVP_des_ofb}
   EVP_des_ofb :function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_des_ede_ofb}
   EVP_des_ede_ofb :function :  PEVP_CIPHER cdecl = nil;
@@ -17161,7 +17280,7 @@ var
 // * rc4 and md5 declarations made here inside a "NO_DES" precompiler branch? */
 //#if 0
     {$ifdef OPENSSL_OPENBSD_DEV_CRYPTO}
-    {$EXTERNALSYM EVP_dev_crypto_des_ede3_cbc}
+  {$EXTERNALSYM EVP_dev_crypto_des_ede3_cbc}
   EVP_dev_crypto_des_ede3_cbc : function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_dev_crypto_rc4}
   EVP_dev_crypto_rc4 : function :  PEVP_CIPHER cdecl = nil;
@@ -17239,15 +17358,15 @@ var
   EVP_rc5_32_12_16_ofb: function :  PEVP_CIPHER cdecl = nil;
   {$endif}
   {$ifndef OPENSSL_NO_AES}
-   {$EXTERNALSYM EVP_aes_128_ecb}
+  {$EXTERNALSYM EVP_aes_128_ecb}
   EVP_aes_128_ecb: function :  PEVP_CIPHER cdecl = nil;
-   {$EXTERNALSYM EVP_aes_128_cbc}
+  {$EXTERNALSYM EVP_aes_128_cbc}
   EVP_aes_128_cbc: function :  PEVP_CIPHER cdecl = nil;
-   {$EXTERNALSYM EVP_aes_128_cfb1}
+  {$EXTERNALSYM EVP_aes_128_cfb1}
   EVP_aes_128_cfb1: function :  PEVP_CIPHER cdecl = nil;
-   {$EXTERNALSYM EVP_aes_128_cfb8}
+  {$EXTERNALSYM EVP_aes_128_cfb8}
   EVP_aes_128_cfb8: function :  PEVP_CIPHER cdecl = nil;
-   {$EXTERNALSYM EVP_aes_128_cfb128}
+  {$EXTERNALSYM EVP_aes_128_cfb128}
   EVP_aes_128_cfb128: function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_aes_128_ofb}
   EVP_aes_128_ofb: function :  PEVP_CIPHER cdecl = nil;
@@ -17312,9 +17431,9 @@ var
   EVP_camellia_128_ecb : function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_camellia_128_cbc}
   EVP_camellia_128_cbc : function :  PEVP_CIPHER cdecl = nil;
-   {$EXTERNALSYM EVP_camellia_128_cfb1}
+  {$EXTERNALSYM EVP_camellia_128_cfb1}
   EVP_camellia_128_cfb1 : function :  PEVP_CIPHER cdecl = nil;
-   {$EXTERNALSYM EVP_camellia_128_cfb8}
+  {$EXTERNALSYM EVP_camellia_128_cfb8}
   EVP_camellia_128_cfb8 : function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_camellia_128_cfb128}
   EVP_camellia_128_cfb128 : function :  PEVP_CIPHER cdecl = nil;
@@ -17353,67 +17472,419 @@ var
   EVP_seed_cbc : function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_seed_cfb128}
   EVP_seed_cfb128 : function :  PEVP_CIPHER cdecl = nil;
- {$EXTERNALSYM EVP_seed_ofb}
+  {$EXTERNALSYM EVP_seed_ofb}
   EVP_seed_ofb : function :  PEVP_CIPHER cdecl = nil;
   {$endif}
+  {$EXTERNALSYM EVP_add_cipher}
+  EVP_add_cipher : function (cipher : PEVP_CIPHER) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_add_digest}
+  EVP_add_digest : function(digest : PEVP_MD) : TIdC_INT cdecl = nil;
 
- {$EXTERNALSYM EVP_PKEY_type}
-  EVP_PKEY_type : function(_type : TIdC_INT): TIdC_INT cdecl = nil;
- {$EXTERNALSYM d2i_PrivateKey_bio}
+  {$EXTERNALSYM EVP_CIPHER_do_all}
+  EVP_CIPHER_do_all : procedure(fn : EVP_CIPHER_do_all_fn; arg : Pointer) cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_do_all_sorted}
+  EVP_CIPHER_do_all_sorted : procedure(fn : EVP_CIPHER_do_all_fn; arg : Pointer) cdecl = nil;
+  {$EXTERNALSYM EVP_MD_do_all}
+  EVP_MD_do_all : procedure(fn : EVP_MD_do_all_fn; arg : Pointer) cdecl = nil;
+  {$EXTERNALSYM EVP_MD_do_all_sorted}
+  EVP_MD_do_all_sorted : procedure(fn : EVP_MD_do_all_fn; arg : Pointer) cdecl = nil;
+
+  {$EXTERNALSYM EVP_PKEY_decrypt_old}
+  EVP_PKEY_decrypt_old : function(dec_key : PIdAnsiChar;
+			enc_key : PIdAnsiChar; enc_key_len : TIdC_INT;
+			private_key : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_encrypt_old}
+  EVP_PKEY_encrypt_old : function(enc_key : PIdAnsiChar;
+			key : PIdAnsiChar; key_len : TIdC_INT;
+			pub_key : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_type}
+  EVP_PKEY_type : function(_type : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_id}
+  EVP_PKEY_id : function(pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_base_id}
+  EVP_PKEY_base_id : function(pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_bits}
+  EVP_PKEY_bits : function(pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_size}
+  EVP_PKEY_size : function(pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_set_type}
+  EVP_PKEY_set_type : function(pkey : PEVP_PKEY;_type : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_set_type_str}
+  EVP_PKEY_set_type_str : function(pkey: PEVP_PKEY; str : PIdAnsiChar; len : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_get0}
+  EVP_PKEY_get0 : function(pkey : PEVP_PKEY) : Pointer cdecl = nil;
+
+  {$ifndef OPENSSL_NO_RSA}
+//struct rsa_st;
+  {$EXTERNALSYM EVP_PKEY_set1_RSA}
+  EVP_PKEY_set1_RSA: function(pkey : PEVP_PKEY;key : Prsa_st) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_get1_RSA}
+  EVP_PKEY_get1_RSA: function(pkey: PEVP_PKEY) : Prsa_st cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_DSA}
+//  struct dsa_st;
+  {$EXTERNALSYM EVP_PKEY_set1_DSA}
+  EVP_PKEY_set1_DSA: function(pkey : PEVP_PKEY; key : Pdsa_st) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_get1_DSA}
+  EVP_PKEY_get1_DSA: function(pkey : PEVP_PKEY) : Pdsa_st cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_DH}
+//  struct dh_st;
+  {$EXTERNALSYM EVP_PKEY_set1_DH}
+  EVP_PKEY_set1_DH: function(pkey : PEVP_PKEY; key : Pdh_st) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_get1_DH}
+  EVP_PKEY_get1_DH: function(pkey : PEVP_PKEY) : Pdh_st cdecl = nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_EC}
+//  struct ec_key_st;
+  {$EXTERNALSYM EVP_PKEY_set1_EC_KEY}
+  EVP_PKEY_set1_EC_KEY : function(pkey : PEVP_PKEY; key : Pec_key_st) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_get1_EC_KEY}
+  EVP_PKEY_get1_EC_KEY : function(pkey : PEVP_PKEY) : Pec_key_st cdecl = nil;
+  {$endif}
+
+  {$EXTERNALSYM d2i_PublicKey}
+  d2i_PublicKey : function(_type : TIdC_INT; a :PPEVP_PKEY; pp : PPIdAnsiChar;
+			length : TIdC_LONG) : PEVP_PKEY cdecl = nil;
+  {$EXTERNALSYM i2d_PublicKey}
+  i2d_PublicKey : function(a : PEVP_PKEY; pp : PPIdAnsiChar) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM d2i_AutoPrivateKey}
+  d2i_AutoPrivateKey : function(a : PPEVP_PKEY; pp : PPIdAnsiChar;
+	 length : TIdC_LONG) : PEVP_PKEY cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_copy_parameters}
+  EVP_PKEY_copy_parameters : function(_to : PEVP_PKEY; from : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_missing_parameters}
+  EVP_PKEY_missing_parameters : function(pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_save_parameters}
+  EVP_PKEY_save_parameters : function(pkey : PEVP_PKEY;mode : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_cmp_parameters}
+  EVP_PKEY_cmp_parameters : function(a : PEVP_PKEY; b : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_cmp}
+  EVP_PKEY_cmp : function(a : PEVP_PKEY; b : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM   EVP_PKEY_print_public}
+  EVP_PKEY_print_public : function(_out : PBIO; pkey : PEVP_PKEY;
+				indent : TIdC_INT; pctx : PASN1_PCTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_print_private}
+  EVP_PKEY_print_private : function(_out : PBIO; pkey : PEVP_PKEY;
+				indent : TIdC_INT; pctx : PASN1_PCTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_print_params}
+  EVP_PKEY_print_params : function(_out : PBIO; pkey : PEVP_PKEY;
+				indent : TIdC_INT;  pctx : PASN1_PCTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_get_default_digest_nid}
+  EVP_PKEY_get_default_digest_nid : function(pkey : PEVP_PKEY; pnid : PIdC_INT) : TIdC_INT cdecl = nil;
+
+//* calls methods */
+  {$EXTERNALSYM EVP_CIPHER_param_to_asn1}
+  EVP_CIPHER_param_to_asn1 : function(c : PEVP_CIPHER_CTX; _type : PASN1_TYPE) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_asn1_to_param}
+  EVP_CIPHER_asn1_to_param : function(c : PEVP_CIPHER_CTX; _type : PASN1_TYPE) : TIdC_INT cdecl = nil;
+
+//* These are used by EVP_CIPHER methods */
+  {$EXTERNALSYM EVP_CIPHER_set_asn1_iv}
+  EVP_CIPHER_set_asn1_iv : function(c : PEVP_CIPHER_CTX; _type : PASN1_TYPE) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_CIPHER_get_asn1_iv}
+  EVP_CIPHER_get_asn1_iv : function(c : PEVP_CIPHER_CTX; _type : PASN1_TYPE) : TIdC_INT cdecl = nil;
+
+//* PKCS5 password based encryption */
+  {$EXTERNALSYM PKCS5_PBE_keyivgen}
+  PKCS5_PBE_keyivgen : function(ctx : PEVP_CIPHER_CTX; pass : PIdAnsiChar; passlen : TIdC_INT;
+			  param : PASN1_TYPE; cipher : PEVP_CIPHER; md : PEVP_MD;
+			 en_de : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM PKCS5_PBKDF2_HMAC_SHA1}
+  PKCS5_PBKDF2_HMAC_SHA1 : function(pass : PIdAnsiChar; passlen : TIdC_INT;
+			   salt : PIdAnsiChar; saltlen : TIdC_INT; iter : TIdC_INT;
+			   keylen : TIdC_INT; _out : PIdAnsiChar) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM PKCS5_PBKDF2_HMAC}
+  PKCS5_PBKDF2_HMAC : function(pass : PIdAnsiChar; passlen : TIdC_INT;
+			   salt : PIdAnsiChar; saltlen : TIdC_INT; iter : TIdC_INT;
+			   digest : PEVP_MD;
+		     keylen : TIdC_INT; _out : PIdAnsiChar) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM PKCS5_v2_PBE_keyivgen}
+  PKCS5_v2_PBE_keyivgen : function(ctx : PEVP_CIPHER_CTX; pass : PIdAnsiChar; passlen : TIdC_INT;
+		param : PASN1_TYPE; cipher : PEVP_CIPHER; md : PEVP_MD;
+		en_de : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM PKCS5_PBE_add}
+  PKCS5_PBE_add : procedure cdecl = nil;
+  {$EXTERNALSYM EVP_PBE_CipherInit}
+  EVP_PBE_CipherInit : function (pbe_obj : PASN1_OBJECT; pass : PIdAnsiChar; passlen : TIdC_INT;
+	  param : PASN1_TYPE; ctx : PEVP_CIPHER_CTX; en_de : TIdC_INT) : TIdC_INT cdecl = nil;
+
+  {$EXTERNALSYM  EVP_PBE_alg_add_type}
+
+  EVP_PBE_alg_add_type : function(pbe_type : TIdC_INT; pbe_nid : TIdC_INT; cipher_nid : TIdC_INT; md_nid : TIdC_INT;
+	  keygen : PEVP_PBE_KEYGEN) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM  EVP_PBE_alg_add}
+  EVP_PBE_alg_add : function(nid : TIdC_INT; cipher : PEVP_CIPHER; md : PEVP_MD;
+		keygen :PEVP_PBE_KEYGEN) : TIdC_INT cdecl = nil;
+    {$EXTERNALSYM EVP_PBE_find}
+  EVP_PBE_find : function(_type : TIdC_INT; pbe_nid : TIdC_INT;
+			pcnid : PIdC_INT; pmnid : PIdC_INT; var pkeygen : PEVP_PBE_KEYGEN) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PBE_cleanup}
+  EVP_PBE_cleanup : procedure cdecl = nil;
+
+  {$EXTERNALSYM EVP_PKEY_asn1_get_count}
+  EVP_PKEY_asn1_get_count : function : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_get0}
+  EVP_PKEY_asn1_get0 : function(idx : TIdC_INT) : PEVP_PKEY_ASN1_METHOD cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_find}
+  EVP_PKEY_asn1_find : function(pe :PPENGINE; _type : TIdC_INT) : PEVP_PKEY_ASN1_METHOD cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_find_str}
+  EVP_PKEY_asn1_find_str : function(pe : PPENGINE;
+	  str : PIdAnsiChar; len : TIdC_INT) : PEVP_PKEY_ASN1_METHOD cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_add0}
+  EVP_PKEY_asn1_add0 : function(ameth : PEVP_PKEY_ASN1_METHOD) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_add_alias}
+  EVP_PKEY_asn1_add_alias : function(_to : TIdC_INT; from : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_get0_info}
+  EVP_PKEY_asn1_get0_info : function(ppkey_id : PIdC_int; pkey_base_id : PIdC_INT; ppkey_flags : PIdC_INT;
+	  pinfo : PPIdAnsiChar; ppem_str : PPIdAnsiChar;
+		ameth : PEVP_PKEY_ASN1_METHOD) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_get0_asn1}
+  EVP_PKEY_get0_asn1 : function(pkey : PEVP_PKEY) : PEVP_PKEY_ASN1_METHOD cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_new}
+  EVP_PKEY_asn1_new : function(id : TIdC_INT; flags : TIdC_INT;
+	  pem_str : PIdAnsiChar; info : PIdAnsiChar) : PEVP_PKEY_ASN1_METHOD cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_copy}
+  EVP_PKEY_asn1_copy : procedure(dst : PEVP_PKEY_ASN1_METHOD;
+	  src : PEVP_PKEY_ASN1_METHOD) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_free}
+  EVP_PKEY_asn1_free : procedure(ameth : PEVP_PKEY_ASN1_METHOD) cdecl = nil;
+
+  {$EXTERNALSYM EVP_PKEY_asn1_set_public}
+  EVP_PKEY_asn1_set_public : procedure(ameth : PEVP_PKEY_ASN1_METHOD;
+		pub_decode : EVP_PKEY_asn1_set_public_pub_decode;
+		pub_encode : EVP_PKEY_asn1_set_public_pub_encode;
+    pub_cmp : EVP_PKEY_asn1_set_public_pub_cmp;
+		pub_print : EVP_PKEY_asn1_set_public_pub_print;
+		pkey_size : EVP_PKEY_asn1_set_public_pub_pkey_size;
+		pkey_bits : EVP_PKEY_asn1_set_public_pkey_bits) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_private}
+  EVP_PKEY_asn1_set_private : procedure(ameth : PEVP_PKEY_ASN1_METHOD;
+		priv_decode : EVP_PKEY_asn1_set_private_priv_decode;
+		priv_encode : EVP_PKEY_asn1_set_private_priv_encode;
+		priv_print : EVP_PKEY_asn1_set_private_priv_print) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_param}
+  EVP_PKEY_asn1_set_param : procedure(ameth : PEVP_PKEY_ASN1_METHOD;
+		param_decode : EVP_PKEY_asn1_set_param_param_decode;
+		param_encode : EVP_PKEY_asn1_set_param_param_encode;
+		param_missing : EVP_PKEY_asn1_set_param_param_missing;
+		param_copy : EVP_PKEY_asn1_set_param_param_copy;
+		param_cmp : EVP_PKEY_asn1_set_param_param_cmp;
+		param_print : EVP_PKEY_asn1_set_param_param_print) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_free}
+  EVP_PKEY_asn1_set_free : procedure(ameth : PEVP_PKEY_ASN1_METHOD;
+		pkey_free : EVP_PKEY_asn1_set_free_pkey_free) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_asn1_set_ctrl}
+  EVP_PKEY_asn1_set_ctrl : procedure(ameth : PEVP_PKEY_ASN1_METHOD;
+		pkey_ctrl : EVP_PKEY_asn1_set_ctr_pkey_ctrl) cdecl = nil;
+
+  {$EXTERNALSYM EVP_PKEY_meth_find}
+  EVP_PKEY_meth_find : function (_type : TIdC_INT) : PEVP_PKEY_METHOD cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_new}
+  EVP_PKEY_meth_new : function(id : TIdC_INT; flags : TIdC_INT) : PEVP_PKEY_METHOD cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_get0_info}
+  EVP_PKEY_meth_get0_info : procedure(ppkey_id : PIdC_INT; pflags : PIdC_INT;
+	 meth : PEVP_PKEY_METHOD) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_copy}
+  EVP_PKEY_meth_copy : procedure(dst : PEVP_PKEY_METHOD; src : PEVP_PKEY_METHOD) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_free}
+  EVP_PKEY_meth_free : procedure(pmeth : PEVP_PKEY_METHOD) cdecl =nil;
+  {$EXTERNALSYM EVP_PKEY_meth_add0}
+  EVP_PKEY_meth_add0 : function(pmeth : PEVP_PKEY_METHOD) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_new}
+  EVP_PKEY_CTX_new : function(pkey : PEVP_PKEY; e : PENGINE) : PEVP_PKEY_CTX cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_new_id}
+  EVP_PKEY_CTX_new_id : function(id : TIdC_INT; e : PENGINE) : PEVP_PKEY_CTX cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_dup}
+  EVP_PKEY_CTX_dup : function(ctx : PEVP_PKEY_CTX) : PEVP_PKEY_CTX cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_free}
+  EVP_PKEY_CTX_free : procedure(ctx : PEVP_PKEY_CTX) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_ctrl}
+  EVP_PKEY_CTX_ctrl : function(ctx : PEVP_PKEY_CTX; keytype : TIdC_INT; optype : TIdC_INT;
+	  cmd : TIdC_INT; p1 : TIdC_INT; p2 : Pointer) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_ctrl_str}
+  EVP_PKEY_CTX_ctrl_str : function(ctx : PEVP_PKEY_CTX; _type : PIdAnsiChar;
+						value : PIdAnsiChar) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get_operation}
+  EVP_PKEY_CTX_get_operation : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_set0_keygen_info}
+  EVP_PKEY_CTX_set0_keygen_info : procedure(ctx : PEVP_PKEY_CTX; dat : PIdC_INT; datlen : TIdC_INT) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_new_mac_key}
+  EVP_PKEY_new_mac_key : function(_type : TIdC_INT; e : PENGINE;
+	   key : PIdAnsiChar; keylen : TIdC_INT) : PEVP_PKEY cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_set_data}
+  EVP_PKEY_CTX_set_data : procedure(ctx : PEVP_PKEY_CTX; data : Pointer) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get_data}
+  EVP_PKEY_CTX_get_data : function(ctx : PEVP_PKEY_CTX) : Pointer cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get0_pkey}
+  EVP_PKEY_CTX_get0_pkey : function(ctx : PEVP_PKEY_CTX) : PEVP_PKEY cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get0_peerkey}
+  EVP_PKEY_CTX_get0_peerkey : function(ctx : PEVP_PKEY_CTX) : PEVP_PKEY cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_set_app_data}
+  EVP_PKEY_CTX_set_app_data : procedure(ctx : PEVP_PKEY_CTX; data : Pointer) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get_app_data}
+  EVP_PKEY_CTX_get_app_data : function(ctx : PEVP_PKEY_CTX) : Pointer cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_sign_init}
+  EVP_PKEY_sign_init : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_sign}
+  EVP_PKEY_sign : function(ctx : PEVP_PKEY_CTX;
+	  sig : PIdAnsiChar; siglen : Psize_t;
+	  tbs : PIdAnsiChar; tbslen : size_t) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_verify_init}
+  EVP_PKEY_verify_init : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_verify}
+  EVP_PKEY_verify : function(ctx : PEVP_PKEY_CTX;
+			sig : PIdAnsiChar; siglen : size_t;
+			tbs : PIdAnsiChar; tbslen : size_t) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_verify_recover_init}
+  EVP_PKEY_verify_recover_init : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_verify_recover}
+  EVP_PKEY_verify_recover : function(ctx : PEVP_PKEY_CTX;
+			rout : PIdAnsiChar;  routlen : Psize_t;
+			sig : PIdAnsiChar; siglen : size_t) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_encrypt_init}
+  EVP_PKEY_encrypt_init : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_encrypt}
+  EVP_PKEY_encrypt : function(ctx : PEVP_PKEY_CTX;
+    _out : PIdAnsiChar; outlen : Psize_t;
+    _in : PIdAnsiChar; inlen : size_t) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_decrypt_init}
+  EVP_PKEY_decrypt_init : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_decrypt}
+  EVP_PKEY_decrypt : function(ctx : PEVP_PKEY_CTX;
+    _out : PIdAnsiChar; outlen : Psize_t;
+    _in : PIdAnsiChar; inlen : size_t) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_derive_init}
+  EVP_PKEY_derive_init : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_derive_set_peer}
+  EVP_PKEY_derive_set_peer : function(ctx : PEVP_PKEY_CTX; peer : PEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_derive}
+  EVP_PKEY_derive : function(ctx : PEVP_PKEY_CTX; key : PIdAnsiChar; keylen : Psize_t) : TIdC_INT cdecl = nil;
+
+
+  {$EXTERNALSYM EVP_PKEY_paramgen_init}
+  EVP_PKEY_paramgen_init: function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl;
+  {$EXTERNALSYM EVP_PKEY_paramgen}
+  EVP_PKEY_paramgen : function(ctx : PEVP_PKEY_CTX; ppkey : PPEVP_PKEY) : TIdC_INT;
+  {$EXTERNALSYM EVP_PKEY_keygen_init}
+  EVP_PKEY_keygen_init : function(ctx : PEVP_PKEY_CTX) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_keygen}
+  EVP_PKEY_keygen : function(ctx : PEVP_PKEY_CTX; ppkey : PPEVP_PKEY) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_set_cb}
+  EVP_PKEY_CTX_set_cb : procedure(ctx : PEVP_PKEY_CTX; cb : EVP_PKEY_gen_cb) cdecl = nil;
+   {$EXTERNALSYM EVP_PKEY_CTX_get_cb}
+  EVP_PKEY_CTX_get_cb : function(ctx : PEVP_PKEY_CTX) : EVP_PKEY_gen_cb cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get_keygen_info}
+  EVP_PKEY_CTX_get_keygen_info : function(ctx : PEVP_PKEY_CTX; idx : TIdC_INT) : TIdC_INT cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get_keygen_info}
+  EVP_PKEY_meth_set_init : procedure(pmeth : PEVP_PKEY_METHOD;
+  init : EVP_PKEY_meth_set_init_init) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_copy}
+  EVP_PKEY_meth_set_copy : procedure (pmeth : PEVP_PKEY_METHOD;
+    copy : EVP_PKEY_meth_set_copy_copy) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_cleanup}
+  EVP_PKEY_meth_set_cleanup : procedure(pmeth : PEVP_PKEY_METHOD;
+   	cleanup : EVP_PKEY_meth_set_cleanup_cleanup) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_CTX_get_keygen_info}
+  EVP_PKEY_meth_set_paramgen : procedure(pmeth : PEVP_PKEY_METHOD;
+    paramgen_init : EVP_PKEY_meth_set_paramgen_paramgen_init;
+    paramgen : EVP_PKEY_meth_set_paramgen_paramgen);
+  {$EXTERNALSYM EVP_PKEY_meth_set_keygen}
+  EVP_PKEY_meth_set_keygen : procedure(pmeth : PEVP_PKEY_METHOD;
+	  keygen_init : EVP_PKEY_meth_set_keygen_keygen_init;
+  	keygen : EVP_PKEY_meth_set_keygen_keygen) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_sign}
+  EVP_PKEY_meth_set_sign : procedure(pmeth : PEVP_PKEY_METHOD;
+	  sign_init : EVP_PKEY_meth_set_sign_sign_init;
+	  sign : EVP_PKEY_meth_set_sign_sign) cdecl = nil;
+  {$EXTERNALSYM   EVP_PKEY_meth_set_verify}
+  EVP_PKEY_meth_set_verify : procedure(pmeth : PEVP_PKEY_METHOD;
+	  verify_init : EVP_PKEY_meth_set_verify_verify_init;
+	  verify : EVP_PKEY_meth_set_verify_verify) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verify_recover}
+  EVP_PKEY_meth_set_verify_recover : procedure(pmeth : PEVP_PKEY_METHOD;
+	 verify_recover_init : EVP_PKEY_meth_set_verify_recover_verify_recover_init;
+	 verify_recover : EVP_PKEY_meth_set_verify_recover_verify_recover) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_signctx}
+  EVP_PKEY_meth_set_signctx : procedure(pmeth : PEVP_PKEY_METHOD;
+  	signctx_init : EVP_PKEY_meth_set_signctx_signctx_init;
+    signctx : EVP_PKEY_meth_set_signctx_signctx) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_verifyctx}
+  EVP_PKEY_meth_set_verifyctx : procedure(pmeth : PEVP_PKEY_METHOD;
+	verifyctx_init : EVP_PKEY_meth_set_verifyctx_verifyctx_init;
+	verifyctx : EVP_PKEY_meth_set_verifyctx_verifyctx) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_encrypt}
+  EVP_PKEY_meth_set_encrypt : procedure(pmeth : PEVP_PKEY_METHOD;
+	encrypt_init : EVP_PKEY_meth_set_encrypt_encrypt_init;
+	encryptfn : EVP_PKEY_meth_set_encrypt_encryptfn) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_decrypt}
+  EVP_PKEY_meth_set_decrypt : procedure(pmeth : PEVP_PKEY_METHOD;
+	  decrypt_init : EVP_PKEY_meth_set_decrypt_decrypt_init;
+	  decrypt : EVP_PKEY_meth_set_decrypt_decrypt);
+  {$EXTERNALSYM EVP_PKEY_meth_set_derive}
+  EVP_PKEY_meth_set_derive : procedure(pmeth : PEVP_PKEY_METHOD;
+    derive_init : EVP_PKEY_meth_set_derive_derive_init;
+    derive : EVP_PKEY_meth_set_derive_derive) cdecl = nil;
+  {$EXTERNALSYM EVP_PKEY_meth_set_ctrl}
+  EVP_PKEY_meth_set_ctrl : procedure(pmeth : PEVP_PKEY_METHOD;
+    ctrl : EVP_PKEY_meth_set_ctrl_ctrl;
+    ctrl_str : EVP_PKEY_meth_set_ctrlctrl_str) cdecl = nil;
+
+  {$EXTERNALSYM d2i_PrivateKey_bio}
   d2i_PrivateKey_bio : function(bp : PBIO; a : PPEVP_PKEY) : PEVP_PKEY cdecl = nil;
- {$EXTERNALSYM X509_LOOKUP_ctrl}
+  {$EXTERNALSYM X509_LOOKUP_ctrl}
   X509_LOOKUP_ctrl : function(ctx : PX509_LOOKUP; cmd : TIdC_INT; argc : PIdAnsiChar; arg1 : TIdC_LONG; ret : PPIdAnsiChar) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_STORE_add_cert}
+  {$EXTERNALSYM X509_STORE_add_cert}
   X509_STORE_add_cert : function (ctx : PX509_STORE; x : PX509) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_STORE_add_crl}
+  {$EXTERNALSYM X509_STORE_add_crl}
   X509_STORE_add_crl : function (ctx : PX509_STORE; x : PX509_CRL) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_STORE_CTX_get_ex_data}
+  {$EXTERNALSYM X509_STORE_CTX_get_ex_data}
   X509_STORE_CTX_get_ex_data : function(ctx: PX509_STORE_CTX; idx: TIdC_INT): Pointer cdecl = nil;
- {$EXTERNALSYM X509_STORE_CTX_get_error}
+  {$EXTERNALSYM X509_STORE_CTX_get_error}
   X509_STORE_CTX_get_error : function(ctx: PX509_STORE_CTX): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_STORE_CTX_set_error}
+  {$EXTERNALSYM X509_STORE_CTX_set_error}
   X509_STORE_CTX_set_error : procedure(ctx: PX509_STORE_CTX; s: TIdC_INT) cdecl = nil;
- {$EXTERNALSYM X509_STORE_CTX_get_error_depth}
+  {$EXTERNALSYM X509_STORE_CTX_get_error_depth}
   X509_STORE_CTX_get_error_depth : function(ctx: PX509_STORE_CTX): TIdC_INT cdecl = nil;
- {$EXTERNALSYM X509_STORE_CTX_get_current_cert}
+  {$EXTERNALSYM X509_STORE_CTX_get_current_cert}
   X509_STORE_CTX_get_current_cert : function(ctx: PX509_STORE_CTX): PX509 cdecl = nil;
- {$EXTERNALSYM _CRYPTO_num_locks}
+  {$EXTERNALSYM _CRYPTO_num_locks}
   _CRYPTO_num_locks : function: TIdC_INT cdecl = nil; // return CRYPTO_NUM_LOCKS (shared libs!)
- {$EXTERNALSYM CRYPTO_set_locking_callback}
+  {$EXTERNALSYM CRYPTO_set_locking_callback}
   CRYPTO_set_locking_callback : procedure(func: TIdSslLockingCallback) cdecl = nil;
- {$EXTERNALSYM CRYPTO_set_id_callback}
+  {$EXTERNALSYM CRYPTO_set_id_callback}
   CRYPTO_set_id_callback : procedure(func: TIdSslIdCallback) cdecl = nil;
   // 3DES functions
- {$EXTERNALSYM DES_set_odd_parity}
+  {$EXTERNALSYM DES_set_odd_parity}
   DES_set_odd_parity: procedure(key: Pdes_cblock) cdecl = nil;
- {$EXTERNALSYM DES_set_key}
+  {$EXTERNALSYM DES_set_key}
   DES_set_key: function(key: Pconst_DES_cblock; schedule: DES_key_schedule): TIdC_INT cdecl = nil;
- {$EXTERNALSYM DES_ecb_encrypt}
+  {$EXTERNALSYM DES_ecb_encrypt}
   DES_ecb_encrypt: procedure(input, output: Pconst_DES_cblock; ks: DES_key_schedule; enc: TIdC_INT) cdecl = nil;
   //old DES functions
- {$EXTERNALSYM Id_ossl_old_des_set_odd_parity}
+  {$EXTERNALSYM Id_ossl_old_des_set_odd_parity}
   Id_ossl_old_des_set_odd_parity : procedure (key : p_ossl_old_des_cblock) cdecl = nil;
- {$EXTERNALSYM Id_ossl_old_des_set_key}
+  {$EXTERNALSYM Id_ossl_old_des_set_key}
   Id_ossl_old_des_set_key : function (key : P_ossl_old_des_cblock; schedule : _ossl_old_des_key_schedule) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM Id_ossl_old_des_ecb_encrypt}
+  {$EXTERNALSYM Id_ossl_old_des_ecb_encrypt}
   Id_ossl_old_des_ecb_encrypt : procedure ( input : p_ossl_old_des_cblock; output : p_ossl_old_des_cblock; ks : p_ossl_old_des_key_schedule; enc : TIdC_int) cdecl = nil;
   //More SSL functions
- {$EXTERNALSYM SSL_set_ex_data}
+  {$EXTERNALSYM SSL_set_ex_data}
   SSL_set_ex_data: function(ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl = nil;
- {$EXTERNALSYM SSL_get_ex_data}
+  {$EXTERNALSYM SSL_get_ex_data}
   SSL_get_ex_data: function(ssl: PSSL; idx: TIdC_INT): Pointer cdecl = nil;
- {$EXTERNALSYM PKCS12_create}
+  {$EXTERNALSYM PKCS12_create}
   PKCS12_create: function(pass, name: PIdAnsiChar; pkey: PEVP_PKEY; cert : PX509;
     ca: PSTACK_OF_X509; nid_key, nid_cert, iter, mac_iter, keytype : TIdC_INT) : PPKCS12 cdecl = nil;
- {$EXTERNALSYM i2d_PKCS12_bio}
+  {$EXTERNALSYM i2d_PKCS12_bio}
   i2d_PKCS12_bio: function(b: PBIO; p12: PPKCS12) : TIdC_INT cdecl = nil;
- {$EXTERNALSYM PKCS12_free}
+  {$EXTERNALSYM PKCS12_free}
   PKCS12_free: procedure(p12: PPKCS12) cdecl = nil;
- {$EXTERNALSYM SSL_load_client_CA_file}
+  {$EXTERNALSYM SSL_load_client_CA_file}
   SSL_load_client_CA_file: function(const _file: PIdAnsiChar): PSTACK_OF_X509_NAME cdecl = nil;
- {$EXTERNALSYM SSL_CTX_set_client_CA_list}
+  {$EXTERNALSYM SSL_CTX_set_client_CA_list}
   SSL_CTX_set_client_CA_list: procedure(ctx: PSSL_CTX; list: PSTACK_OF_X509_NAME) cdecl = nil;
- {$EXTERNALSYM SSL_CTX_set_default_verify_paths}
+  {$EXTERNALSYM SSL_CTX_set_default_verify_paths}
   SSL_CTX_set_default_verify_paths: function(ctx: PSSL_CTX): TIdC_INT cdecl = nil;
  {$EXTERNALSYM SSL_CTX_set_session_id_context}
   SSL_CTX_set_session_id_context: function(ctx: PSSL_CTX; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl = nil;
@@ -20103,13 +20574,13 @@ them in case we use them later.}
   fn_EVP_MD_CTX_copy = 'EVP_MD_CTX_copy';  {Do not localize}
    fn_EVP_DigestInit = 'EVP_DigestInit';   {Do not localize}
   fn_EVP_DigestFinal = 'EVP_DigestFinal';   {Do not localize}
-  {CH fn_EVP_read_pw_string = 'EVP_read_pw_string'; }  {Do not localize}
-  {CH fn_EVP_set_pw_prompt = 'EVP_set_pw_prompt'; }  {Do not localize}
-  {CH fn_EVP_get_pw_prompt = 'EVP_get_pw_prompt'; }  {Do not localize}
-  {CH fn_EVP_BytesToKey = 'EVP_BytesToKey'; }  {Do not localize}
-  {CH fn_EVP_CIPHER_CTX_set_flags = 'EVP_CIPHER_CTX_set_flags'; } {Do not localize}
-  {CH fn_EVP_CIPHER_CTX_clear_flags = 'EVP_CIPHER_CTX_clear_flags'; } {Do not localize}
-  {CH fn_EVP_CIPHER_CTX_test_flags = 'EVP_CIPHER_CTX_test_flags'; } {Do not localize}
+  fn_EVP_read_pw_string = 'EVP_read_pw_string';  {Do not localize}
+  fn_EVP_set_pw_prompt = 'EVP_set_pw_prompt';  {Do not localize}
+  fn_EVP_get_pw_prompt = 'EVP_get_pw_prompt';   {Do not localize}
+  fn_EVP_BytesToKey = 'EVP_BytesToKey';   {Do not localize}
+  fn_EVP_CIPHER_CTX_set_flags = 'EVP_CIPHER_CTX_set_flags'; {Do not localize}
+  fn_EVP_CIPHER_CTX_clear_flags = 'EVP_CIPHER_CTX_clear_flags'; {Do not localize}
+  fn_EVP_CIPHER_CTX_test_flags = 'EVP_CIPHER_CTX_test_flags';  {Do not localize}
   fn_EVP_EncryptInit = 'EVP_EncryptInit';  {Do not localize}
    fn_EVP_EncryptInit_ex = 'EVP_EncryptInit_ex'; {Do not localize}
   fn_EVP_EncryptUpdate = 'EVP_EncryptUpdate';  {Do not localize}
@@ -20369,66 +20840,155 @@ them in case we use them later.}
   fn_OpenSSL_add_all_algorithms = 'OpenSSL_add_all_algorithms';
   fn_OpenSSL_add_all_ciphers = 'OpenSSL_add_all_ciphers'; {Do not localize}
   fn_OpenSSL_add_all_digests = 'OpenSSL_add_all_digests'; {Do not localize}
-  {CH fn_EVP_add_cipher = 'EVP_add_cipher'; }  {Do not localize}
-  {CH fn_EVP_add_digest = 'EVP_add_digest'; }  {Do not localize}
+  fn_EVP_add_cipher = 'EVP_add_cipher';  {Do not localize}
+  fn_EVP_add_digest = 'EVP_add_digest';  {Do not localize}
+  fn_EVP_CIPHER_do_all = 'EVP_CIPHER_do_all'; {Do not localize}
+  fn_EVP_CIPHER_do_all_sorted = 'EVP_CIPHER_do_all_sorted'; {do not localize}
+  fn_EVP_MD_do_all = 'EVP_MD_do_all'; {Do not localize}
+  fn_EVP_MD_do_all_sorted = 'EVP_MD_do_all_sorted'; {Do not localize}
   fn_EVP_get_cipherbyname = 'EVP_get_cipherbyname';  {Do not localize}
   fn_EVP_get_digestbyname = 'EVP_get_digestbyname';  {Do not localize}
+  fn_EVP_PKEY_decrypt_old = 'EVP_PKEY_decrypt_old'; {Do not localize}
+  fn_EVP_PKEY_encrypt_old = 'EVP_PKEY_encrypt_old'; {Do not localize}
+
   fn_EVP_cleanup = 'EVP_cleanup';  {Do not localize}
-  {CH fn_EVP_PKEY_decrypt = 'EVP_PKEY_decrypt'; }  {Do not localize}
-  {CH fn_EVP_PKEY_encrypt = 'EVP_PKEY_encrypt'; }  {Do not localize}
+  fn_EVP_PKEY_decrypt = 'EVP_PKEY_decrypt';   {Do not localize}
+  fn_EVP_PKEY_encrypt = 'EVP_PKEY_encrypt';   {Do not localize}
   fn_EVP_PKEY_type = 'EVP_PKEY_type';  {Do not localize}
-  {CH fn_EVP_PKEY_bits = 'EVP_PKEY_bits'; }  {Do not localize}
-  {CH fn_EVP_PKEY_size = 'EVP_PKEY_size'; }  {Do not localize}
+  fn_EVP_PKEY_id = 'EVP_PKEY_id'; {Do not localize}
+  fn_EVP_PKEY_bits = 'EVP_PKEY_bits';   {Do not localize}
+  fn_EVP_PKEY_base_id = 'EVP_PKEY_base_id'; {Do not localize}
+  fn_EVP_PKEY_set_type = 'EVP_PKEY_set_type'; {Do not localize}
+  fn_EVP_PKEY_set_type_str = 'EVP_PKEY_set_type_str'; {Do not localize}
+  fn_EVP_PKEY_size = 'EVP_PKEY_size';   {Do not localize}
   fn_EVP_PKEY_assign = 'EVP_PKEY_assign';  {Do not localize}
+  fn_EVP_PKEY_get0 = 'EVP_PKEY_get0'; {Do not localize}
   {$IFNDEF OPENSSL_NO_RSA}
-  { fn_EVP_PKEY_set1_RSA = 'EVP_PKEY_set1_RSA'; } {Do not localize}
-  { fn_EVP_PKEY_get1_RSA = 'EVP_PKEY_get1_RSA'; } {Do not localize}
+  fn_EVP_PKEY_set1_RSA = 'EVP_PKEY_set1_RSA';  {Do not localize}
+  fn_EVP_PKEY_get1_RSA = 'EVP_PKEY_get1_RSA';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_DSA}
-  { fn_EVP_PKEY_set1_DSA = 'EVP_PKEY_set1_DSA'; } {Do not localize}
-  { fn_EVP_PKEY_get1_DSA = 'EVP_PKEY_get1_DSA'; } {Do not localize}
+  fn_EVP_PKEY_set1_DSA = 'EVP_PKEY_set1_DSA';  {Do not localize}
+  fn_EVP_PKEY_get1_DSA = 'EVP_PKEY_get1_DSA';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_DH}
-  { fn_EVP_PKEY_set1_DH = 'EVP_PKEY_set1_DH'; } {Do not localize}
-  { fn_EVP_PKEY_get1_DH = 'EVP_PKEY_get1_DH'; } {Do not localize}
+  fn_EVP_PKEY_set1_DH = 'EVP_PKEY_set1_DH';  {Do not localize}
+  fn_EVP_PKEY_get1_DH = 'EVP_PKEY_get1_DH';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_EC}
-  { fn_EVP_PKEY_set1_EC_KEY = 'EVP_PKEY_set1_EC_KEY'; } {Do not localize}
-  { fn_EVP_PKEY_get1_EC_KEY = 'EVP_PKEY_get1_EC_KEY'; } {Do not localize}
+  fn_EVP_PKEY_set1_EC_KEY = 'EVP_PKEY_set1_EC_KEY';  {Do not localize}
+  fn_EVP_PKEY_get1_EC_KEY = 'EVP_PKEY_get1_EC_KEY';  {Do not localize}
   {$ENDIF}
   fn_EVP_PKEY_new = 'EVP_PKEY_new';  {Do not localize}
   fn_EVP_PKEY_free = 'EVP_PKEY_free';  {Do not localize}
   fn_d2i_PublicKey = 'd2i_PublicKey';   {Do not localize}
   fn_i2d_PublicKey = 'i2d_PublicKey';   {Do not localize}
-   fn_d2i_PrivateKey = 'd2i_PrivateKey';   {Do not localize}
-  { fn_d2i_AutoPrivateKey = 'd2i_AutoPrivateKey';  {Do not localize}
-   fn_i2d_PrivateKey = 'i2d_PrivateKey';   {Do not localize}
-  {CH fn_EVP_PKEY_copy_parameters = 'EVP_PKEY_copy_parameters'; }  {Do not localize}
-  {CH fn_EVP_PKEY_missing_parameters = 'EVP_PKEY_missing_parameters'; }  {Do not localize}
-  {CH fn_EVP_PKEY_save_parameters = 'EVP_PKEY_save_parameters'; }  {Do not localize}
-  {CH fn_EVP_PKEY_cmp_parameters = 'EVP_PKEY_cmp_parameters'; }  {Do not localize}
-  { fn_EVP_PKEY_cmp = 'EVP_PKEY_cmp'; } {Do not localize}
+  fn_d2i_PrivateKey = 'd2i_PrivateKey';   {Do not localize}
+  fn_d2i_AutoPrivateKey = 'd2i_AutoPrivateKey';  {Do not localize}
+  fn_i2d_PrivateKey = 'i2d_PrivateKey';   {Do not localize}
+  fn_EVP_PKEY_copy_parameters = 'EVP_PKEY_copy_parameters';   {Do not localize}
+  fn_EVP_PKEY_missing_parameters = 'EVP_PKEY_missing_parameters';  {Do not localize}
+  fn_EVP_PKEY_save_parameters = 'EVP_PKEY_save_parameters';   {Do not localize}
+  fn_EVP_PKEY_cmp_parameters = 'EVP_PKEY_cmp_parameters';   {Do not localize}
+  fn_EVP_PKEY_cmp = 'EVP_PKEY_cmp'; {Do not localize}
+  fn_EVP_PKEY_print_public = 'EVP_PKEY_print_public'; {Do not localize}
+  fn_EVP_PKEY_print_private = 'EVP_PKEY_print_private'; {Do not localize}
+  fn_EVP_PKEY_print_params = 'EVP_PKEY_print_params'; {Do not localize}
+  fn_EVP_PKEY_get_default_digest_nid = 'EVP_PKEY_get_default_digest_nid'; {Do not localize}
   fn_EVP_CIPHER_type = 'EVP_CIPHER_type';  {Do not localize}
-  {CH fn_EVP_CIPHER_param_to_asn1 = 'EVP_CIPHER_param_to_asn1'; }  {Do not localize}
-  {CH fn_EVP_CIPHER_asn1_to_param = 'EVP_CIPHER_asn1_to_param'; }  {Do not localize}
-  {CH fn_EVP_CIPHER_set_asn1_iv = 'EVP_CIPHER_set_asn1_iv'; }  {Do not localize}
-  {CH fn_EVP_CIPHER_get_asn1_iv = 'EVP_CIPHER_get_asn1_iv'; }  {Do not localize}
-  {CH fn_PKCS5_PBE_keyivgen = 'PKCS5_PBE_keyivgen'; }  {Do not localize}
-  {CH fn_PKCS5_PBKDF2_HMAC_SHA1 = 'PKCS5_PBKDF2_HMAC_SHA1'; }  {Do not localize}
-  {CH fn_PKCS5_v2_PBE_keyivgen = 'PKCS5_v2_PBE_keyivgen'; }  {Do not localize}
-  {CH fn_PKCS5_PBE_add = 'PKCS5_PBE_add'; }  {Do not localize}
-  {CH fn_EVP_PBE_CipherInit = 'EVP_PBE_CipherInit'; }  {Do not localize}
-  {CH fn_EVP_PBE_alg_add = 'EVP_PBE_alg_add'; }  {Do not localize}
-  {CH fn_EVP_PBE_cleanup = 'EVP_PBE_cleanup'; }  {Do not localize}
+  fn_EVP_CIPHER_param_to_asn1 = 'EVP_CIPHER_param_to_asn1';  {Do not localize}
+  fn_EVP_CIPHER_asn1_to_param = 'EVP_CIPHER_asn1_to_param';  {Do not localize}
+  fn_EVP_CIPHER_set_asn1_iv = 'EVP_CIPHER_set_asn1_iv';  {Do not localize}
+  fn_EVP_CIPHER_get_asn1_iv = 'EVP_CIPHER_get_asn1_iv';  {Do not localize}
+  fn_PKCS5_PBE_keyivgen = 'PKCS5_PBE_keyivgen';  {Do not localize}
+  fn_PKCS5_PBKDF2_HMAC = 'PKCS5_PBKDF2_HMAC'; {Do not lozalize}
+  fn_PKCS5_PBKDF2_HMAC_SHA1 = 'PKCS5_PBKDF2_HMAC_SHA1';  {Do not localize}
+  fn_PKCS5_v2_PBE_keyivgen = 'PKCS5_v2_PBE_keyivgen';  {Do not localize}
+  fn_PKCS5_PBE_add = 'PKCS5_PBE_add';  {Do not localize}
+  fn_EVP_PBE_CipherInit = 'EVP_PBE_CipherInit';  {Do not localize}
+  fn_EVP_PBE_alg_add = 'EVP_PBE_alg_add';  {Do not localize}
+  fn_EVP_PBE_alg_add_type = 'EVP_PBE_alg_add_type'; {Do not localize}
+  fn_EVP_PBE_find = 'EVP_PBE_find'; {Do not localize}
+  fn_EVP_PBE_cleanup = 'EVP_PBE_cleanup';  {Do not localize}
+  fn_EVP_PKEY_asn1_get_count = 'EVP_PKEY_asn1_get_count';
+  fn_EVP_PKEY_asn1_get0 = 'EVP_PKEY_asn1_get0';
+  fn_EVP_PKEY_asn1_find = 'EVP_PKEY_asn1_find';
+  fn_EVP_PKEY_asn1_find_str = 'EVP_PKEY_asn1_find_str';
+  fn_EVP_PKEY_asn1_add0 = 'EVP_PKEY_asn1_add0';
+  fn_EVP_PKEY_asn1_add_alias = 'EVP_PKEY_asn1_add_alias';
+  fn_EVP_PKEY_asn1_get0_info = 'EVP_PKEY_asn1_get0_info';
+  fn_EVP_PKEY_get0_asn1 = 'EVP_PKEY_get0_asn1';
+  fn_EVP_PKEY_asn1_new = 'EVP_PKEY_asn1_new';
+  fn_EVP_PKEY_asn1_copy = 'EVP_PKEY_asn1_copy';
+  fn_EVP_PKEY_asn1_free = 'EVP_PKEY_asn1_free';
+  fn_EVP_PKEY_asn1_set_public = 'EVP_PKEY_asn1_set_public';
+  fn_EVP_PKEY_asn1_set_private = 'EVP_PKEY_asn1_set_private';
+  fn_EVP_PKEY_asn1_set_param = 'EVP_PKEY_asn1_set_param';
+  fn_EVP_PKEY_asn1_set_free = 'EVP_PKEY_asn1_set_free';
+  fn_EVP_PKEY_asn1_set_ctrl = 'EVP_PKEY_asn1_set_ctrl';
+  fn_EVP_PKEY_meth_find = 'EVP_PKEY_meth_find';
+  fn_EVP_PKEY_meth_new = 'EVP_PKEY_meth_new';
+  fn_EVP_PKEY_meth_get0_info = 'EVP_PKEY_meth_get0_info';
+  fn_EVP_PKEY_meth_copy = 'EVP_PKEY_meth_copy';
+  fn_EVP_PKEY_meth_free = 'EVP_PKEY_meth_free';
+  fn_EVP_PKEY_meth_add0 = 'EVP_PKEY_meth_add0';
+  fn_EVP_PKEY_CTX_new = 'EVP_PKEY_CTX_new';
+  fn_EVP_PKEY_CTX_new_id = 'EVP_PKEY_CTX_new_id';
+  fn_EVP_PKEY_CTX_dup = 'EVP_PKEY_CTX_dup';
+  fn_EVP_PKEY_CTX_free = 'EVP_PKEY_CTX_free';
+  fn_EVP_PKEY_CTX_ctrl = 'EVP_PKEY_CTX_ctrl';
+  fn_EVP_PKEY_CTX_ctrl_str = 'EVP_PKEY_CTX_ctrl_str';
+  fn_EVP_PKEY_CTX_get_operation = 'EVP_PKEY_CTX_get_operation';
+  fn_EVP_PKEY_CTX_set0_keygen_info = 'EVP_PKEY_CTX_set0_keygen_info';
+  fn_EVP_PKEY_new_mac_key = 'EVP_PKEY_new_mac_key';
+  fn_EVP_PKEY_CTX_set_data = 'EVP_PKEY_CTX_set_data';
+  fn_EVP_PKEY_CTX_get_data = 'EVP_PKEY_CTX_get_data';
+  fn_EVP_PKEY_CTX_get0_pkey = 'EVP_PKEY_CTX_get0_pkey';
+  fn_EVP_PKEY_CTX_get0_peerkey = 'EVP_PKEY_CTX_get0_peerkey';
+  fn_EVP_PKEY_CTX_set_app_data = 'EVP_PKEY_CTX_set_app_data';
+  fn_EVP_PKEY_CTX_get_app_data = 'EVP_PKEY_CTX_get_app_data';
+  fn_EVP_PKEY_sign_init = 'EVP_PKEY_sign_init';
+  fn_EVP_PKEY_sign = 'EVP_PKEY_sign';
+  fn_EVP_PKEY_verify_init = 'EVP_PKEY_verify_init';
+  fn_EVP_PKEY_verify = 'EVP_PKEY_verify';
+  fn_EVP_PKEY_verify_recover_init = 'EVP_PKEY_verify_recover_init';
+  fn_EVP_PKEY_verify_recover = 'EVP_PKEY_verify_recover';
+  fn_EVP_PKEY_encrypt_init = 'EVP_PKEY_encrypt_init';
+  fn_EVP_PKEY_decrypt_init = 'EVP_PKEY_decrypt_init';
+  fn_EVP_PKEY_derive_init = 'EVP_PKEY_derive_init';
+  fn_EVP_PKEY_derive_set_peer = 'EVP_PKEY_derive_set_peer';
+  fn_EVP_PKEY_derive = 'EVP_PKEY_derive';
+  fn_EVP_PKEY_paramgen_init = 'EVP_PKEY_paramgen_init';
+  fn_EVP_PKEY_paramgen = 'EVP_PKEY_paramgen';
+  fn_EVP_PKEY_keygen_init = 'EVP_PKEY_keygen_init';
+  fn_EVP_PKEY_keygen = 'EVP_PKEY_keygen';
+  fn_EVP_PKEY_CTX_set_cb = 'EVP_PKEY_CTX_set_cb';
+  fn_EVP_PKEY_CTX_get_cb = 'EVP_PKEY_CTX_get_cb';
+  fn_EVP_PKEY_CTX_get_keygen_info = 'EVP_PKEY_CTX_get_keygen_info';
+  fn_EVP_PKEY_meth_set_init = 'EVP_PKEY_meth_set_init';
+  fn_EVP_PKEY_meth_set_copy = 'EVP_PKEY_meth_set_copy';
+  fn_EVP_PKEY_meth_set_cleanup = 'EVP_PKEY_meth_set_cleanup';
+  fn_EVP_PKEY_meth_set_paramgen = 'EVP_PKEY_meth_set_paramgen';
+  fn_EVP_PKEY_meth_set_keygen = 'EVP_PKEY_meth_set_keygen';
+  fn_EVP_PKEY_meth_set_sign = 'EVP_PKEY_meth_set_sign';
+  fn_EVP_PKEY_meth_set_verify = 'EVP_PKEY_meth_set_verify';
+  fn_EVP_PKEY_meth_set_verify_recover = 'EVP_PKEY_meth_set_verify_recover';
+  fn_EVP_PKEY_meth_set_signctx = 'EVP_PKEY_meth_set_signctx';
+  fn_EVP_PKEY_meth_set_verifyctx = 'EVP_PKEY_meth_set_verifyctx';
+  fn_EVP_PKEY_meth_set_encrypt = 'EVP_PKEY_meth_set_encrypt';
+  fn_EVP_PKEY_meth_set_decrypt = 'EVP_PKEY_meth_set_decrypt';
+  fn_EVP_PKEY_meth_set_derive = 'EVP_PKEY_meth_set_derive';
+  fn_EVP_PKEY_meth_set_ctrl = 'EVP_PKEY_meth_set_ctrl';
+
   {$IFDEF OPENSSL_FIPS}
     {$IFNDEF OPENSSL_NO_ENGINE}
-  {CH fn_EVP_MD_set_engine_callbacks = 'EVP_MD_set_engine_callbacks'; } {Do not localize}
-  {CH fn_int_EVP_MD_init_engine_callbacks = 'int_EVP_MD_init_engine_callbacks'; } {Do not localize}
-  {CH fn_int_EVP_CIPHER_set_engine_callbacks = 'int_EVP_CIPHER_set_engine_callbacks'; } {Do not localize}
-  {CH fn_int_EVP_CIPHER_init_engine_callbacks = 'int_EVP_CIPHER_init_engine_callbacks'; } {Do not localize}
+  fn_EVP_MD_set_engine_callbacks = 'EVP_MD_set_engine_callbacks'; {Do not localize}
+  fn_int_EVP_MD_init_engine_callbacks = 'int_EVP_MD_init_engine_callbacks'; {Do not localize}
+  fn_int_EVP_CIPHER_set_engine_callbacks = 'int_EVP_CIPHER_set_engine_callbacks'; {Do not localize}
+  fn_int_EVP_CIPHER_init_engine_callbacks = 'int_EVP_CIPHER_init_engine_callbacks'; {Do not localize}
     {$ENDIF}
   {$ENDIF}
-  {CH fn_EVP_add_alg_module = 'EVP_add_alg_module'; {Do not localize}
+  fn_EVP_add_alg_module = 'EVP_add_alg_module'; {Do not localize}
   {CH fn_ERR_load_EVP_strings = 'ERR_load_EVP_strings'; }  {Do not localize}
   {$IFDEF OPENSSL_FIPS}
   fn_FIPS_mode_set = 'FIPS_mode_set'; {Do not localize}
@@ -21420,8 +21980,9 @@ them in case we use them later.}
   {CH fn_OPENSSL_isservice = 'OPENSSL_isservice'; }{Do not localize}
   {CH fn_SSL_set_info_callback = 'SSL_set_info_callback'; }  {Do not localize}
   {CH fn_SSL_state = 'SSL_state'; }  {Do not localize}
-  {CH fn_SSL_set_verify_result = 'SSL_set_verify_result'; }  {Do not localize}
-  {CH fn_SSL_get_verify_result = 'SSL_get_verify_result'; }  {Do not localize}
+
+  fn_SSL_set_verify_result = 'SSL_set_verify_result';  {Do not localize}
+  fn_SSL_get_verify_result = 'SSL_get_verify_result';  {Do not localize}
   fn_SSL_set_ex_data = 'SSL_set_ex_data';  {Do not localize}
   fn_SSL_get_ex_data = 'SSL_get_ex_data';  {Do not localize}
   {CH fn_SSL_get_ex_new_index = 'SSL_get_ex_new_index'; }  {Do not localize}
@@ -22456,6 +23017,7 @@ we have to handle both cases.
 {$endif}
 
   @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
+
   @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
   @EVP_PKEY_new := LoadFunctionCLib(fn_EVP_PKEY_new);
   @EVP_PKEY_free := LoadFunctionCLib(fn_EVP_PKEY_free);
@@ -22483,6 +23045,137 @@ we have to handle both cases.
   @EVP_CIPHER_CTX_set_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_app_data );
   @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags);
 
+  @EVP_add_cipher := LoadFunctionCLib(fn_EVP_add_cipher);
+  @EVP_add_digest := LoadFunctionCLib(fn_EVP_add_digest);
+
+  @EVP_CIPHER_do_all := LoadFunctionCLib(fn_EVP_CIPHER_do_all);
+  @EVP_CIPHER_do_all_sorted := LoadFunctionCLib(fn_EVP_CIPHER_do_all_sorted);
+  @EVP_MD_do_all := LoadFunctionCLib(fn_EVP_MD_do_all);
+  @EVP_MD_do_all_sorted := LoadFunctionCLib(fn_EVP_MD_do_all_sorted);
+  @EVP_PKEY_decrypt_old := LoadFunctionCLib(fn_EVP_PKEY_decrypt_old);
+  @EVP_PKEY_encrypt_old := LoadFunctionCLib(fn_EVP_PKEY_encrypt_old);
+  @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
+  @EVP_PKEY_id := LoadFunctionCLib(fn_EVP_PKEY_id);
+  @EVP_PKEY_base_id := LoadFunctionCLib(fn_EVP_PKEY_base_id);
+  @EVP_PKEY_bits := LoadFunctionCLib(fn_EVP_PKEY_bits);
+  @EVP_PKEY_size := LoadFunctionCLib(fn_EVP_PKEY_size);
+  @EVP_PKEY_set_type := LoadFunctionCLib(fn_EVP_PKEY_set_type);
+  @EVP_PKEY_set_type_str := LoadFunctionCLib(fn_EVP_PKEY_set_type_str);
+  @EVP_PKEY_get0 := LoadFunctionCLib(fn_EVP_PKEY_get0);
+  {$ifndef OPENSSL_NO_RSA}
+  @EVP_PKEY_set1_RSA := LoadFunctionCLib(fn_EVP_PKEY_set1_RSA);
+  @EVP_PKEY_get1_RSA := LoadFunctionCLib(fn_EVP_PKEY_get1_RSA);
+  {$ENDIF}
+  {$ifndef OPENSSL_NO_DSA}
+  @EVP_PKEY_set1_DSA := LoadFunctionCLib(fn_EVP_PKEY_set1_DSA);
+  @EVP_PKEY_get1_DSA := LoadFunctionCLib(fn_EVP_PKEY_get1_DSA);
+  {$endif}
+  {$ifndef OPENSSL_NO_DH}
+  @EVP_PKEY_set1_DH := LoadFunctionCLib(fn_EVP_PKEY_set1_DH);
+  @EVP_PKEY_get1_DH := LoadFunctionCLib(fn_EVP_PKEY_get1_DH);
+  {$endif}
+  {$ifndef OPENSSL_NO_EC}
+  @EVP_PKEY_set1_EC_KEY := LoadFunctionCLib(fn_EVP_PKEY_set1_EC_KEY);
+  @EVP_PKEY_get1_EC_KEY := LoadFunctionCLib(fn_EVP_PKEY_get1_EC_KEY);
+  {$endif}
+  @d2i_PublicKey := LoadFunctionCLib(fn_d2i_PublicKey);
+  @i2d_PublicKey := LoadFunctionCLib(fn_i2d_PublicKey);
+  @d2i_AutoPrivateKey := LoadFunctionCLib(fn_d2i_AutoPrivateKey);
+  @EVP_PKEY_copy_parameters := LoadFunctionCLib(fn_EVP_PKEY_copy_parameters);
+  @EVP_PKEY_missing_parameters := LoadFunctionCLib(fn_EVP_PKEY_missing_parameters);
+  @EVP_PKEY_save_parameters := LoadFunctionCLib(fn_EVP_PKEY_save_parameters);
+  @EVP_PKEY_cmp_parameters := LoadFunctionCLib(fn_EVP_PKEY_cmp_parameters);
+  @EVP_PKEY_cmp := LoadFunctionCLib(fn_EVP_PKEY_cmp);
+  @EVP_PKEY_print_public := LoadFunctionCLib(fn_EVP_PKEY_print_public);
+  @EVP_PKEY_print_private := LoadFunctionCLib(fn_EVP_PKEY_print_private);
+  @EVP_PKEY_print_params := LoadFunctionCLib(fn_EVP_PKEY_print_params);
+  @EVP_PKEY_get_default_digest_nid := LoadFunctionCLib(fn_EVP_PKEY_get_default_digest_nid);
+  @EVP_CIPHER_param_to_asn1 := LoadFunctionCLib(fn_EVP_CIPHER_param_to_asn1);
+  @EVP_CIPHER_asn1_to_param := LoadFunctionCLib(fn_EVP_CIPHER_asn1_to_param);
+  @EVP_CIPHER_set_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_set_asn1_iv);
+  @EVP_CIPHER_get_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_get_asn1_iv);
+  @PKCS5_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_PBE_keyivgen);
+  @PKCS5_PBKDF2_HMAC_SHA1 := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC_SHA1);
+  @PKCS5_PBKDF2_HMAC := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC);
+  @PKCS5_v2_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_v2_PBE_keyivgen);
+  @PKCS5_PBE_add := LoadFunctionCLib(fn_PKCS5_PBE_add);
+  @EVP_PBE_CipherInit := LoadFunctionCLib(fn_EVP_PBE_CipherInit);
+
+  @EVP_PBE_alg_add_type := LoadFunctionCLib(fn_EVP_PBE_alg_add_type);
+  @EVP_PBE_alg_add := LoadFunctionCLib(fn_EVP_PBE_alg_add);
+  @EVP_PBE_find := LoadFunctionCLib(fn_EVP_PBE_find);
+  @EVP_PBE_cleanup := LoadFunctionCLib(fn_EVP_PBE_cleanup);
+  @EVP_PKEY_asn1_get_count := LoadFunctionCLib(fn_EVP_PKEY_asn1_get_count);
+  @EVP_PKEY_asn1_get0 := LoadFunctionCLib(fn_EVP_PKEY_asn1_get0);
+  @EVP_PKEY_asn1_find := LoadFunctionCLib(fn_EVP_PKEY_asn1_find);
+  @EVP_PKEY_asn1_find_str := LoadFunctionCLib(fn_EVP_PKEY_asn1_find_str);
+  @EVP_PKEY_asn1_add0 := LoadFunctionCLib(fn_EVP_PKEY_asn1_add0);
+  @EVP_PKEY_asn1_add_alias := LoadFunctionCLib(fn_EVP_PKEY_asn1_add_alias);
+  @EVP_PKEY_asn1_get0_info := LoadFunctionCLib(fn_EVP_PKEY_asn1_get0_info);
+  @EVP_PKEY_get0_asn1 := LoadFunctionCLib(fn_EVP_PKEY_get0_asn1);
+  @EVP_PKEY_asn1_new := LoadFunctionCLib(fn_EVP_PKEY_asn1_new);
+  @EVP_PKEY_asn1_copy := LoadFunctionCLib(fn_EVP_PKEY_asn1_copy);
+  @EVP_PKEY_asn1_free := LoadFunctionCLib(fn_EVP_PKEY_asn1_free);
+  @EVP_PKEY_asn1_set_public := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_public);
+  @EVP_PKEY_asn1_set_private := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_private);
+  @EVP_PKEY_asn1_set_param := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_param);
+  @EVP_PKEY_asn1_set_free := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_free);
+  @EVP_PKEY_asn1_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_ctrl);
+  @EVP_PKEY_meth_find := LoadFunctionCLib(fn_EVP_PKEY_meth_find);
+  @EVP_PKEY_meth_new := LoadFunctionCLib(fn_EVP_PKEY_meth_new);
+  @EVP_PKEY_meth_get0_info := LoadFunctionCLib(fn_EVP_PKEY_meth_get0_info);
+  @EVP_PKEY_meth_copy := LoadFunctionCLib(fn_EVP_PKEY_meth_copy);
+  @EVP_PKEY_meth_free := LoadFunctionCLib(fn_EVP_PKEY_meth_free);
+  @EVP_PKEY_meth_add0 := LoadFunctionCLib(fn_EVP_PKEY_meth_add0);
+  @EVP_PKEY_CTX_new := LoadFunctionCLib(fn_EVP_PKEY_CTX_new);
+  @EVP_PKEY_CTX_new_id := LoadFunctionCLib(fn_EVP_PKEY_CTX_new_id);
+  @EVP_PKEY_CTX_dup := LoadFunctionCLib(fn_EVP_PKEY_CTX_dup);
+  @EVP_PKEY_CTX_free := LoadFunctionCLib(fn_EVP_PKEY_CTX_free);
+  @EVP_PKEY_CTX_ctrl := LoadFunctionCLib(fn_EVP_PKEY_CTX_ctrl);
+  @EVP_PKEY_CTX_ctrl_str := LoadFunctionCLib(fn_EVP_PKEY_CTX_ctrl_str);
+  @EVP_PKEY_CTX_get_operation := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_operation);
+  @EVP_PKEY_CTX_set0_keygen_info := LoadFunctionCLib(fn_EVP_PKEY_CTX_set0_keygen_info);
+  @EVP_PKEY_new_mac_key := LoadFunctionCLib(fn_EVP_PKEY_new_mac_key);
+  @EVP_PKEY_CTX_set_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_data);
+  @EVP_PKEY_CTX_get_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_data);
+  @EVP_PKEY_CTX_get0_pkey := LoadFunctionCLib(fn_EVP_PKEY_CTX_get0_pkey);
+  @EVP_PKEY_CTX_get0_peerkey := LoadFunctionCLib(fn_EVP_PKEY_CTX_get0_peerkey);
+  @EVP_PKEY_CTX_set_app_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_app_data);
+  @EVP_PKEY_CTX_get_app_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_app_data);
+  @EVP_PKEY_sign_init := LoadFunctionCLib(fn_EVP_PKEY_sign_init);
+  @EVP_PKEY_sign := LoadFunctionCLib(fn_EVP_PKEY_sign);
+  @EVP_PKEY_verify_init := LoadFunctionCLib(fn_EVP_PKEY_verify_init);
+  @EVP_PKEY_verify := LoadFunctionCLib(fn_EVP_PKEY_verify);
+  @EVP_PKEY_verify_recover_init := LoadFunctionCLib(fn_EVP_PKEY_verify_recover_init);
+  @EVP_PKEY_verify_recover := LoadFunctionCLib(fn_EVP_PKEY_verify_recover);
+  @EVP_PKEY_encrypt_init := LoadFunctionCLib(fn_EVP_PKEY_encrypt_init);
+  @EVP_PKEY_encrypt := LoadFunctionCLib(fn_EVP_PKEY_encrypt);
+  @EVP_PKEY_decrypt_init := LoadFunctionCLib(fn_EVP_PKEY_decrypt_init);
+  @EVP_PKEY_decrypt := LoadFunctionCLib(fn_EVP_PKEY_decrypt);
+  @EVP_PKEY_derive_init := LoadFunctionCLib(fn_EVP_PKEY_derive_init);
+  @EVP_PKEY_derive_set_peer := LoadFunctionCLib(fn_EVP_PKEY_derive_set_peer);
+  @EVP_PKEY_derive := LoadFunctionCLib(fn_EVP_PKEY_derive);
+  @EVP_PKEY_paramgen_init := LoadFunctionCLib(fn_EVP_PKEY_paramgen_init);
+  @EVP_PKEY_paramgen := LoadFunctionCLib(fn_EVP_PKEY_paramgen);
+  @EVP_PKEY_keygen_init := LoadFunctionCLib(fn_EVP_PKEY_keygen_init);
+  @EVP_PKEY_keygen := LoadFunctionCLib(fn_EVP_PKEY_keygen);
+  @EVP_PKEY_CTX_set_cb := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_cb);
+  @EVP_PKEY_CTX_get_cb := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_cb);
+  @EVP_PKEY_CTX_get_keygen_info := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_keygen_info);
+  @EVP_PKEY_meth_set_init := LoadFunctionCLib(fn_EVP_PKEY_meth_set_init);
+  @EVP_PKEY_meth_set_copy := LoadFunctionCLib(fn_EVP_PKEY_meth_set_copy);
+  @EVP_PKEY_meth_set_cleanup := LoadFunctionCLib(fn_EVP_PKEY_meth_set_cleanup);
+  @EVP_PKEY_meth_set_paramgen := LoadFunctionCLib(fn_EVP_PKEY_meth_set_paramgen);
+  @EVP_PKEY_meth_set_keygen := LoadFunctionCLib(fn_EVP_PKEY_meth_set_keygen);
+  @EVP_PKEY_meth_set_sign := LoadFunctionCLib(fn_EVP_PKEY_meth_set_sign);
+  @EVP_PKEY_meth_set_verify := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verify);
+  @EVP_PKEY_meth_set_verify_recover := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verify_recover);
+  @EVP_PKEY_meth_set_signctx := LoadFunctionCLib(fn_EVP_PKEY_meth_set_signctx);
+  @EVP_PKEY_meth_set_verifyctx := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verifyctx);
+  @EVP_PKEY_meth_set_encrypt := LoadFunctionCLib(fn_EVP_PKEY_meth_set_encrypt);
+  @EVP_PKEY_meth_set_decrypt := LoadFunctionCLib(fn_EVP_PKEY_meth_set_decrypt);
+  @EVP_PKEY_meth_set_derive := LoadFunctionCLib(fn_EVP_PKEY_meth_set_derive);
+  @EVP_PKEY_meth_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_meth_set_ctrl);
   //HMAC
   {$IFNDEF OPENSSL_NO_HMAC}
   @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init);
@@ -23036,16 +23729,148 @@ begin
   @EVP_DecodeFinal := nil;
   @EVP_DecodeBlock := nil;
 
-  EVP_CIPHER_CTX_init := nil;
+  @EVP_CIPHER_CTX_init := nil;
 
-  EVP_CIPHER_CTX_cleanup := nil;
-  EVP_CIPHER_CTX_new := nil;
-  EVP_CIPHER_CTX_free := nil;
-  EVP_CIPHER_CTX_set_key_length := nil;
-  EVP_CIPHER_CTX_set_padding := nil;
-  EVP_CIPHER_CTX_ctrl := nil;
-  EVP_CIPHER_CTX_rand_key := nil;
+  @EVP_CIPHER_CTX_cleanup := nil;
+  @EVP_CIPHER_CTX_new := nil;
+  @EVP_CIPHER_CTX_free := nil;
+  @EVP_CIPHER_CTX_set_key_length := nil;
+  @EVP_CIPHER_CTX_set_padding := nil;
+  @EVP_CIPHER_CTX_ctrl := nil;
+  @EVP_CIPHER_CTX_rand_key := nil;
 
+  @EVP_add_cipher := nil;
+  @EVP_add_digest := nil;
+  @EVP_CIPHER_do_all := nil;
+  @EVP_CIPHER_do_all_sorted := nil;
+  @EVP_MD_do_all := nil;
+  @EVP_MD_do_all_sorted := nil;
+  @EVP_PKEY_decrypt_old := nil;
+  @EVP_PKEY_encrypt_old := nil;
+  @EVP_PKEY_type := nil;
+  @EVP_PKEY_id := nil;
+  @EVP_PKEY_base_id := nil;
+  @EVP_PKEY_bits := nil;
+  @EVP_PKEY_size := nil;
+  @EVP_PKEY_set_type := nil;
+  @EVP_PKEY_set_type_str := nil;
+  @EVP_PKEY_get0 := nil;
+  {$ifndef OPENSSL_NO_RSA}
+  @EVP_PKEY_set1_RSA := nil;
+  @EVP_PKEY_get1_RSA := nil;
+  {$ENDIF}
+  {$ifndef OPENSSL_NO_DSA}
+  @EVP_PKEY_set1_DSA := nil;
+  @EVP_PKEY_get1_DSA := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_DH}
+  @EVP_PKEY_set1_DH := nil;
+  @EVP_PKEY_get1_DH := nil;
+  {$endif}
+  {$ifndef OPENSSL_NO_EC}
+  @EVP_PKEY_set1_EC_KEY := nil;
+  @EVP_PKEY_get1_EC_KEY := nil;
+  {$endif}
+
+  {$EXTERNALSYM d2i_PublicKey}
+  @d2i_PublicKey := nil;
+  @i2d_PublicKey := nil;
+  @d2i_AutoPrivateKey := nil;
+  @EVP_PKEY_copy_parameters := nil;
+  @EVP_PKEY_missing_parameters := nil;
+  @EVP_PKEY_save_parameters := nil;
+  @EVP_PKEY_cmp_parameters := nil;
+  @EVP_PKEY_cmp := nil;
+  @EVP_PKEY_print_public := nil;
+  @EVP_PKEY_print_private := nil;
+  @EVP_PKEY_print_params := nil;
+  @EVP_PKEY_get_default_digest_nid := nil;
+  @EVP_CIPHER_param_to_asn1 := nil;
+  @EVP_CIPHER_asn1_to_param := nil;
+  @EVP_CIPHER_set_asn1_iv := nil;
+  @EVP_CIPHER_get_asn1_iv := nil;
+  @PKCS5_PBE_keyivgen := nil;
+  @PKCS5_PBKDF2_HMAC_SHA1 := nil;
+  @PKCS5_PBKDF2_HMAC := nil;
+  @PKCS5_v2_PBE_keyivgen := nil;
+  @PKCS5_PBE_add := nil;
+  @EVP_PBE_CipherInit := nil;
+
+  @EVP_PBE_alg_add_type := nil;
+  @EVP_PBE_alg_add := nil;
+  @EVP_PBE_find := nil;
+  @EVP_PBE_cleanup := nil;
+  @EVP_PKEY_asn1_get_count := nil;
+  @EVP_PKEY_asn1_get0 := nil;
+  @EVP_PKEY_asn1_find := nil;
+  @EVP_PKEY_asn1_find_str := nil;
+  @EVP_PKEY_asn1_add0 := nil;
+  @EVP_PKEY_asn1_add_alias := nil;
+  @EVP_PKEY_asn1_get0_info := nil;
+  @EVP_PKEY_get0_asn1 := nil;
+  @EVP_PKEY_asn1_new := nil;
+  @EVP_PKEY_asn1_copy := nil;
+  @EVP_PKEY_asn1_free := nil;
+  @EVP_PKEY_asn1_set_public := nil;
+  @EVP_PKEY_asn1_set_private := nil;
+  @EVP_PKEY_asn1_set_param := nil;
+  @EVP_PKEY_asn1_set_free := nil;
+  @EVP_PKEY_asn1_set_ctrl := nil;
+  @EVP_PKEY_meth_find := nil;
+  @EVP_PKEY_meth_new := nil;
+  @EVP_PKEY_meth_get0_info := nil;
+  @EVP_PKEY_meth_copy := nil;
+  @EVP_PKEY_meth_free := nil;
+  @EVP_PKEY_meth_add0 := nil;
+  @EVP_PKEY_CTX_new := nil;
+  @EVP_PKEY_CTX_new_id := nil;
+  @EVP_PKEY_CTX_dup := nil;
+  @EVP_PKEY_CTX_free := nil;
+  @EVP_PKEY_CTX_ctrl := nil;
+  @EVP_PKEY_CTX_ctrl_str := nil;
+  @EVP_PKEY_CTX_get_operation := nil;
+  @EVP_PKEY_CTX_set0_keygen_info := nil;
+  @EVP_PKEY_new_mac_key := nil;
+  @EVP_PKEY_CTX_set_data := nil;
+  @EVP_PKEY_CTX_get_data := nil;
+  @EVP_PKEY_CTX_get0_pkey := nil;
+  @EVP_PKEY_CTX_get0_peerkey := nil;
+  @EVP_PKEY_CTX_set_app_data := nil;
+  @EVP_PKEY_CTX_get_app_data := nil;
+  @EVP_PKEY_sign_init := nil;
+  @EVP_PKEY_sign := nil;
+  @EVP_PKEY_verify_init := nil;
+  @EVP_PKEY_verify := nil;
+  @EVP_PKEY_verify_recover_init := nil;
+  @EVP_PKEY_verify_recover := nil;
+  @EVP_PKEY_encrypt_init := nil;
+  @EVP_PKEY_encrypt := nil;
+  @EVP_PKEY_decrypt_init := nil;
+  @EVP_PKEY_decrypt := nil;
+  @EVP_PKEY_derive_init := nil;
+  @EVP_PKEY_derive_set_peer := nil;
+  @EVP_PKEY_derive := nil;
+  @EVP_PKEY_paramgen_init := nil;
+  @EVP_PKEY_paramgen := nil;
+  @EVP_PKEY_keygen_init := nil;
+  @EVP_PKEY_keygen := nil;
+  @EVP_PKEY_CTX_set_cb := nil;
+  @EVP_PKEY_CTX_get_cb := nil;
+  @EVP_PKEY_CTX_get_keygen_info := nil;
+  @EVP_PKEY_meth_set_init := nil;
+  @EVP_PKEY_meth_set_copy := nil;
+  @EVP_PKEY_meth_set_cleanup := nil;
+  @EVP_PKEY_meth_set_paramgen := nil;
+  @EVP_PKEY_meth_set_keygen := nil;
+  @EVP_PKEY_meth_set_sign := nil;
+  @EVP_PKEY_meth_set_verify := nil;
+  @EVP_PKEY_meth_set_verify_recover := nil;
+  @EVP_PKEY_meth_set_signctx := nil;
+  @EVP_PKEY_meth_set_verifyctx := nil;
+  @EVP_PKEY_meth_set_encrypt := nil;
+  @EVP_PKEY_meth_set_decrypt := nil;
+  @EVP_PKEY_meth_set_derive := nil;
+  @EVP_PKEY_meth_set_ctrl := nil;
 {$ifndef OPENSSL_NO_BIO}
   BIO_f_md := nil;
   BIO_f_base64 := nil;
