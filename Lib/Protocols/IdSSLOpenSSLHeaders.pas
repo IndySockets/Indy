@@ -1761,12 +1761,14 @@ const
   BIO_C_GET_MD = 112;
   {$EXTERNALSYM BIO_C_GET_MD_CTX}
   BIO_C_GET_MD_CTX = 120;
+
   {$EXTERNALSYM BIO_C_GET_PROXY_PARAM}
   BIO_C_GET_PROXY_PARAM = 121;
   {$EXTERNALSYM BIO_C_GET_READ_REQUEST}
   BIO_C_GET_READ_REQUEST = 141;
   {$EXTERNALSYM BIO_C_GET_SOCKS}
   BIO_C_GET_SOCKS = 134;
+
   {$EXTERNALSYM BIO_C_GET_SSL}
   BIO_C_GET_SSL = 110;
   {$EXTERNALSYM BIO_C_GET_SSL_NUM_RENEGOTIATES}
@@ -1815,6 +1817,18 @@ const
   BIO_C_SET_WRITE_BUF_SIZE = 136;
   {$EXTERNALSYM BIO_C_SHUTDOWN_WR}
   BIO_C_SHUTDOWN_WR = 142;
+  {$EXTERNALSYM BIO_C_NREAD0}
+  BIO_C_NREAD0 = 143;
+  {$EXTERNALSYM BIO_C_NREAD}
+  BIO_C_NREAD = 144;
+  {$EXTERNALSYM BIO_C_NWRITE0}
+  BIO_C_NWRITE0 = 145;
+  {$EXTERNALSYM BIO_C_NWRITE}
+  BIO_C_NWRITE = 146;
+  {$EXTERNALSYM BIO_C_RESET_READ_REQUEST}
+  BIO_C_RESET_READ_REQUEST = 147;
+  {$EXTERNALSYM BIO_C_SET_MD_CTX}
+  BIO_C_SET_MD_CTX = 148;
   {$EXTERNALSYM BIO_C_SSL_MODE}
   BIO_C_SSL_MODE = 119;
   {$EXTERNALSYM BIO_FLAGS_BASE64_NO_NL}
@@ -16603,6 +16617,10 @@ var
   BIO_s_mem : function: PBIO_METHOD cdecl = nil;
   {$EXTERNALSYM BIO_s_file}
   BIO_s_file : function: PBIO_METHOD cdecl = nil;
+  {$EXTERNALSYM BIO_set_ex_data}
+  BIO_set_ex_data : function(bio : PBIO; idx : TIdC_INT; data : Pointer) : TidC_INT cdecl = nil;
+  {$EXTERNALSYM BIO_get_ex_data}
+  BIO_get_ex_data: function(bio : PBIO; idx : TIdC_INT) : Pointer cdecl = nil;
   {$EXTERNALSYM BIO_ctrl}
   BIO_ctrl : function(bp: PBIO; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl = nil;
   {$EXTERNALSYM BIO_ptr_ctrl}
@@ -18352,6 +18370,17 @@ function BIO_tell(b : PBIO) : TIdC_INT;
  {$EXTERNALSYM BIO_read_filename}
 function BIO_read_filename(b : PBIO; name : PIdAnsiChar) : TIdC_LONG;
 {$ENDIF}
+ {$EXTERNALSYM BIO_get_md}
+function BIO_get_md(b : PBIO;mdp : Pointer) : TIdC_LONG;
+ {$EXTERNALSYM BIO_get_md_ctx}
+function BIO_get_md_ctx(b : PBIO;mdcp : Pointer) : TIdC_LONG;
+ {$EXTERNALSYM BIO_set_md_ctx}
+function BIO_set_md_ctx(b : PBIO;mdcp : Pointer) : TIdC_LONG;
+ {$EXTERNALSYM BIO_get_cipher_status}
+function BIO_get_cipher_status(b : PBIO) : TIdC_LONG;
+ {$EXTERNALSYM BIO_get_cipher_ctx}
+function BIO_get_cipher_ctx(b : PBIO; c_pp : Pointer): TIdC_LONG;
+
  {$EXTERNALSYM BIO_write_filename}
 function BIO_write_filename(b : PBIO; name : PIdAnsiChar) : TIdC_LONG;
  {$EXTERNALSYM BIO_append_filename}
@@ -18609,8 +18638,17 @@ function EVP_camellia_192_cfb: PEVP_CIPHER;
 function EVP_camellia_256_cfb: PEVP_CIPHER;
 {$endif}
 {$ifndef OPENSSL_NO_SEED}
+ {$EXTERNALSYM EVP_seed_cfb}
 function EVP_seed_cfb: PEVP_CIPHER;
 {$endif}
+ {$EXTERNALSYM EVP_PKEY_CTX_set_signature_md}
+function EVP_PKEY_CTX_set_signature_md(ctx : PEVP_PKEY_CTX;md : PEVP_PKEY_CTX) : TIdC_INT;
+ {$EXTERNALSYM SSLeay_add_all_algorithms}
+procedure SSLeay_add_all_algorithms;
+ {$EXTERNALSYM SSLeay_add_all_ciphers}
+procedure SSLeay_add_all_ciphers;
+ {$EXTERNALSYM SSLeay_add_all_digests}
+procedure SSLeay_add_all_digests;
 
  {$EXTERNALSYM X509V3_set_ctx_nodb}
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
@@ -19535,8 +19573,8 @@ them in case we use them later.}
   {CH fn_BIO_ctrl_wpending = 'BIO_ctrl_wpending'; }  {Do not localize}
   {CH fn_BIO_ctrl_get_write_guarantee = 'BIO_ctrl_get_write_guarantee'; }  {Do not localize}
   {CH fn_BIO_ctrl_get_read_request = 'BIO_ctrl_get_read_request'; }  {Do not localize}
-  {CH fn_BIO_set_ex_data = 'BIO_set_ex_data'; }  {Do not localize}
-  {CH fn_BIO_get_ex_data = 'BIO_get_ex_data'; }  {Do not localize}
+  fn_BIO_set_ex_data = 'BIO_set_ex_data';  {Do not localize}
+  fn_BIO_get_ex_data = 'BIO_get_ex_data';  {Do not localize}
   {CH fn_BIO_get_ex_new_index = 'BIO_get_ex_new_index'; }  {Do not localize}
   fn_BIO_s_file = 'BIO_s_file';  {Do not localize}
   fn_BIO_new_file = 'BIO_new_file';  {Do not localize}
@@ -20197,7 +20235,7 @@ them in case we use them later.}
   {CH fn_BN_init = 'BN_init'; }  {Do not localize}
   {CH fn_BN_clear_free = 'BN_clear_free'; }  {Do not localize}
   {CH fn_BN_copy = 'BN_copy'; }  {Do not localize}
-  {CH fn_BN_bin2bn = 'BN_bin2bn'; }  {Do not localize}
+  {CH fn_BN_bin2bn = 'BN_bin2bn'; } {Do not localize}
   {CH fn_BN_bn2bin = 'BN_bn2bin'; }  {Do not localize}
   {CH fn_BN_mpi2bn = 'BN_mpi2bn'; }  {Do not localize}
   {CH fn_BN_bn2mpi = 'BN_bn2mpi'; }  {Do not localize}
@@ -22687,6 +22725,8 @@ we have to handle both cases.
   @BIO_new_mem_buf := LoadFunctionCLib(fn_BIO_new_mem_buf);
   @BIO_s_mem := LoadFunctionCLib(fn_BIO_s_mem);
   @BIO_s_file := LoadFunctionCLib(fn_BIO_s_file);
+  @BIO_set_ex_data := LoadFunctionCLib(fn_BIO_set_ex_data);
+  @BIO_get_ex_data := LoadFunctionCLib(fn_BIO_get_ex_data);
   @BIO_ctrl := LoadFunctionCLib(fn_BIO_ctrl);
   @BIO_int_ctrl := LoadFunctionCLib( fn_BIO_int_ctrl);
   @BIO_ptr_ctrl := LoadFunctionCLib( fn_BIO_ptr_ctrl );
@@ -23415,6 +23455,8 @@ begin
   @BIO_free := nil;
   @BIO_s_mem := nil;
   @BIO_s_file := nil;
+  @BIO_set_ex_data := nil;
+  @BIO_get_ex_data := nil;
   @BIO_new_mem_buf := nil;
   @BIO_ctrl := nil;
   @BIO_ptr_ctrl := nil;
@@ -25758,6 +25800,36 @@ begin
   Result := EVP_DigestUpdate(a,b,size_t(c));
 end;
 
+function BIO_get_md(b : PBIO;mdp : Pointer) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := BIO_ctrl(b,BIO_C_GET_MD,0, PIdAnsiChar(mdp));
+end;
+
+function BIO_get_md_ctx(b : PBIO;mdcp : Pointer) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := BIO_ctrl(b,BIO_C_GET_MD_CTX,0,PIdAnsiChar(mdcp));
+end;
+
+function BIO_set_md_ctx(b : PBIO;mdcp : Pointer) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := BIO_ctrl(b,BIO_C_SET_MD_CTX,0,PIdAnsiChar(mdcp));
+end;
+
+function BIO_get_cipher_status(b : PBIO) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := BIO_ctrl(b,BIO_C_GET_CIPHER_STATUS,0,nil);
+end;
+
+function BIO_get_cipher_ctx(b : PBIO; c_pp : Pointer): TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+	Result := BIO_ctrl(b,BIO_C_GET_CIPHER_CTX,0,PIdAnsiChar(c_pp));
+end;
+
 {$ifndef OPENSSL_NO_DES}
 function EVP_des_cfb : PEVP_CIPHER;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -25855,7 +25927,7 @@ end;
 function EVP_camellia_256_cfb: PEVP_CIPHER;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result :=  EVP_camellia_256_cfb128
+  Result :=  EVP_camellia_256_cfb128;
 end;
 {$ENDIF}
 
@@ -25863,9 +25935,34 @@ end;
 function EVP_seed_cfb: PEVP_CIPHER;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := EVP_seed_cfb128
+  Result := EVP_seed_cfb128;
 end;
 {$endif}
+
+function EVP_PKEY_CTX_set_signature_md(ctx : PEVP_PKEY_CTX;md : PEVP_PKEY_CTX) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+	Result := EVP_PKEY_CTX_ctrl(ctx, -1, EVP_PKEY_OP_TYPE_SIG,
+    EVP_PKEY_CTRL_MD, 0, Pointer(md));
+end;
+
+procedure SSLeay_add_all_algorithms;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ OpenSSL_add_all_algorithms;
+end;
+
+procedure SSLeay_add_all_ciphers;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ OpenSSL_add_all_ciphers;
+end;
+
+procedure SSLeay_add_all_digests;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+ OpenSSL_add_all_digests;
+end;
 
 procedure X509V3_set_ctx_nodb(ctx: X509V3_CTX);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
