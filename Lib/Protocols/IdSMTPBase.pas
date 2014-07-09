@@ -399,7 +399,9 @@ end;
 procedure TIdSMTPBase.StartTLS;
 var
   LIO : TIdSSLIOHandlerSocketBase;
+  LSendQuitOnError: Boolean;
 begin
+  LSendQuitOnError := True;
   try
     if (IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS <> utNoTLSSupport) then
     begin
@@ -411,6 +413,7 @@ begin
         if SupportsTLS then
         begin
           if SendCmd('STARTTLS') = 220 then begin {do not localize}
+            LSendQuitOnError := False;
             TLSHandshake;
             //send EHLO
             SendGreeting;
@@ -423,7 +426,7 @@ begin
       end;
     end;
   except
-    Disconnect;
+    Disconnect(LSendQuitOnError); // RLebeau: do not send the QUIT command if the handshake was started
     Raise;
   end;
 end;
