@@ -18087,7 +18087,7 @@ var
  {$EXTERNALSYM sk_X509_INFO_find}
   sk_X509_INFO_find : Tsk_X509_INFO_find absolute sk_find;
  {$EXTERNALSYM sk_X509_INFO_pop_free}
-  sk_X509_INFO_pop_free : Tsk_X509_INFO_pop_free absolute sk_free;
+  sk_X509_INFO_pop_free : Tsk_X509_INFO_pop_free absolute sk_pop_free;
 {end}
 
  {$EXTERNALSYM FIPS_mode_set}
