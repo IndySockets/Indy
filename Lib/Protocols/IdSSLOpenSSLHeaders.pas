@@ -12091,8 +12091,8 @@ type
   end;
   {$EXTERNALSYM PRSA_METHOD}
   PRSA_METHOD = ^RSA_METHOD;
-   {$EXTERNALSYM rsa_st}
 
+  {$EXTERNALSYM rsa_st}
   rsa_st = record
     // The first parameter is used to pickup errors where
     // this is passed instead of aEVP_PKEY, it is set to 0
@@ -12253,6 +12253,7 @@ type
     // If this is non-NULL, it will be used to generate parameters
     generate_params : function(dh : PDH; prime_len, generator : TIdC_INT; cb : PBN_GENCB) : TIdC_INT; cdecl;
   end;
+  {$EXTERNALSYM dh_st}
   dh_st = record
     // The first parameter is used to pickup errors where
     // this is passed instead of aEVP_PKEY, it is set to 0
@@ -12329,8 +12330,8 @@ type
   end;
     {$EXTERNALSYM PDSA_METHOD}
   PDSA_METHOD = ^DSA_METHOD;
-  {$EXTERNALSYM dsa_st}
 
+  {$EXTERNALSYM dsa_st}
   dsa_st = record
     // This first variable is used to pick up errors where
     // a DSA is passed instead of of a EVP_PKEY
