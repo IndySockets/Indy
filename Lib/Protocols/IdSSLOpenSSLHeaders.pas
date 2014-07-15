@@ -17226,6 +17226,7 @@ var
   EVP_ecdsa : function : PEVP_MD cdecl = nil;
   {$ENDIF}
   {$ifndef OPENSSL_NO_MDC2}
+  {$EXTERNALSYM EVP_mdc2}
   EVP_mdc2 : function : PEVP_MD cdecl = nil;
   {$endif}
   {$IFNDEF OPENSSL_NO_MD5}
@@ -17241,9 +17242,11 @@ var
   EVP_md2 : function: PEVP_MD cdecl = nil;
   {$ENDIF}
   {$ifndef OPENSSL_NO_RIPEMD}
+  {$EXTERNALSYM EVP_ripemd160}
   EVP_ripemd160: function: PEVP_MD cdecl = nil;
   {$endif}
   {$ifndef OPENSSL_NO_WHIRLPOOL}
+  {$EXTERNALSYM EVP_whirlpool}
   EVP_whirlpool: function: PEVP_MD cdecl = nil;
   {$endif}
   {$EXTERNALSYM EVP_md_null}
@@ -17795,7 +17798,7 @@ var
   EVP_PKEY_CTX_get_cb : function(ctx : PEVP_PKEY_CTX) : EVP_PKEY_gen_cb cdecl = nil;
   {$EXTERNALSYM EVP_PKEY_CTX_get_keygen_info}
   EVP_PKEY_CTX_get_keygen_info : function(ctx : PEVP_PKEY_CTX; idx : TIdC_INT) : TIdC_INT cdecl = nil;
-  {$EXTERNALSYM EVP_PKEY_CTX_get_keygen_info}
+  {$EXTERNALSYM EVP_PKEY_meth_set_init}
   EVP_PKEY_meth_set_init : procedure(pmeth : PEVP_PKEY_METHOD;
   init : EVP_PKEY_meth_set_init_init) cdecl = nil;
   {$EXTERNALSYM EVP_PKEY_meth_set_copy}
@@ -17804,7 +17807,7 @@ var
   {$EXTERNALSYM EVP_PKEY_meth_set_cleanup}
   EVP_PKEY_meth_set_cleanup : procedure(pmeth : PEVP_PKEY_METHOD;
    	cleanup : EVP_PKEY_meth_set_cleanup_cleanup) cdecl = nil;
-  {$EXTERNALSYM EVP_PKEY_CTX_get_keygen_info}
+  {$EXTERNALSYM EVP_PKEY_meth_set_paramgen}
   EVP_PKEY_meth_set_paramgen : procedure(pmeth : PEVP_PKEY_METHOD;
     paramgen_init : EVP_PKEY_meth_set_paramgen_paramgen_init;
     paramgen : EVP_PKEY_meth_set_paramgen_paramgen);
@@ -18610,7 +18613,7 @@ function EVP_idea_cfb: PEVP_CIPHER;
  {$EXTERNALSYM EVP_rc2_cfb}
 function EVP_rc2_cfb: PEVP_CIPHER;
 {$endif}
-{$ifndef OPENSSL_NO_BF
+{$ifndef OPENSSL_NO_BF}
  {$EXTERNALSYM EVP_bf_cfb}
 function EVP_bf_cfb: PEVP_CIPHER;
 {$endif}
