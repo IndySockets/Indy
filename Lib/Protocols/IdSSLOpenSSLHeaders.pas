@@ -16826,7 +16826,7 @@ var
   EVP_DecodeBlock : function(t: PIdAnsiChar; f: PIdAnsiChar; n : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CIPHER_CTX_init}
   EVP_CIPHER_CTX_init : procedure(a : PEVP_CIPHER_CTX) cdecl = nil;
-   {$EXTERNALSYM EVP_CIPHER_CTX_init}
+   {$EXTERNALSYM EVP_CIPHER_CTX_cleanup}
   EVP_CIPHER_CTX_cleanup : function(a : PEVP_CIPHER_CTX) : TIdC_INT cdecl = nil;
    {$EXTERNALSYM EVP_CIPHER_CTX_new}
   EVP_CIPHER_CTX_new : function : PEVP_CIPHER_CTX cdecl = nil;
