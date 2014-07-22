@@ -117,7 +117,7 @@ resourcestring
   RSSocksServerCommandError = 'Command not supported.';
   RSSocksServerAddressError = 'Address type not supported.';
   RSInvalidIPAddress = 'Invalid IP Address';
-  RSInterceptCircularLink = '%d: Circular links are not allowed';
+  RSInterceptCircularLink = '%s: Circular links are not allowed';
 
   RSNotEnoughDataInBuffer = 'Not enough data in buffer. (%d/%d)';
   RSTooMuchDataInBuffer = 'Too much data in buffer.';

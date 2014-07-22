@@ -211,7 +211,7 @@ begin
     LNextValue := AValue;
     while Assigned(LNextValue) do begin
       if LNextValue = Self then begin //recursion
-        raise EIdInterceptCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]); // TODO: Resource string and more english
+        raise EIdInterceptCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]);
       end;
       LNextValue := LNextValue.Intercept;
     end;
