@@ -552,7 +552,7 @@ uses
       {$ENDIF}
       {$IFDEF USE_ICONV_ENC}iconvenc, {$ENDIF}
     {$ENDIF}
-  {$ENDIF}
+    {$ENDIF}
   IdException;
 
 const
@@ -1629,7 +1629,7 @@ var
 
   // For linux the user needs to set this variable to be accurate where used (mail, etc)
   GOffsetFromUTC: TDateTime = 0 {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
-  {$ENDIF}
+    {$ENDIF}
 
   IndyPos: TPosProc = nil;
 
@@ -4910,8 +4910,8 @@ begin
 
   function Ticks: LongWord;
   begin
-    // mach_absolute_time() returns billionth of seconds,
-    // so divide by one million to get milliseconds
+  // mach_absolute_time() returns billionth of seconds,
+  // so divide by one million to get milliseconds
     Result := (mach_absolute_time() * s_timebase_info.numer) div (1000000 * s_timebase_info.denom);
   end;
 
@@ -8341,13 +8341,24 @@ end;
 procedure IdDisposeAndNil(var Obj);
 {$IFDEF USE_OBJECT_ARC}
 var
-  Temp: Pointer;
+  Temp: {Pointer}TObject;
 {$ENDIF}
 begin
   {$IFDEF USE_OBJECT_ARC}
+  // RLebeau: was originally calling DisposeOf() on Obj directly, but nil'ing
+  // Obj first prevented the calling code from invoking __ObjRelease() on Obj.
+  // Don't do that in ARC.  __ObjRelease() needs to be called, even if disposed,
+  // to allow the compiler/RTL to finalize Obj so any managed members it has
+  // can be cleaned up properly...
+  {
   Temp := Pointer(Obj);
   Pointer(Obj) := nil;
   TObject(Temp).DisposeOf;
+  }
+  Pointer(Temp) := Pointer(Obj);
+  Pointer(Obj) := nil;
+  Temp.DisposeOf;
+  // __ObjRelease() is called when Temp goes out of scope
   {$ELSE}
   FreeAndNil(Obj);
   {$ENDIF}
