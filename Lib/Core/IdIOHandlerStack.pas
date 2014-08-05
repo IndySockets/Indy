@@ -259,6 +259,10 @@ procedure TIdIOHandlerStack.ConnectClient;
         end;
       end else
       begin
+        // TODO: we need to take the actual clock into account, not just
+        // decrement by the sleep interval.  If IndySleep() runs longer then
+        // requested, that would slow down the loop and exceed the original
+        // timeout that was requested...
         while (ATimeout > 0) and (not LThread.Terminated) do begin
           IndySleep(IndyMin(ATimeout, LSleepTime));
           TIdAntiFreezeBase.DoProcess;

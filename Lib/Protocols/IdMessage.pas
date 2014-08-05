@@ -792,6 +792,8 @@ begin
   FLastGeneratedHeaders.Assign(FHeaders);
   FIsMsgSinglePartMime := (Encoding = meMIME) and (MessageParts.Count = 1) and IsBodyEmpty;
 
+  // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
+
   {CC: If From has no Name field, use the Address field as the Name field by setting last param to True (for SA)...}
   FLastGeneratedHeaders.Values['From'] := EncodeAddress(FromList, HeaderEncoding, ISOCharSet, True); {do not localize}
   FLastGeneratedHeaders.Values['Subject'] := EncodeHeader(Subject, '', HeaderEncoding, ISOCharSet); {do not localize}

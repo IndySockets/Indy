@@ -757,15 +757,15 @@ var
       try
         LMStream.Position := 0;
         if AUseBodyAsTarget then begin
-          if AMsg.IsMsgSinglePartMime then begin
+            if AMsg.IsMsgSinglePartMime then begin
             {$IFDEF STRING_IS_ANSI}
             LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
             {$ENDIF}
             ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
-          end else begin
-            {$IFDEF STRING_IS_ANSI}
+            end else begin
+          {$IFDEF STRING_IS_ANSI}
             LAnsiEncoding := ContentTypeToEncoding(VDecoder.Headers.Values[SContentType], QuoteMIME);
-            {$ENDIF}
+          {$ENDIF}
             ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
           end;
         end else begin
@@ -1159,6 +1159,7 @@ var
       ATextPart.ContentDisposition := 'inline'; {do not localize}
     end;
 
+    // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
     LFileName := EncodeHeader(ExtractFileName(ATextPart.FileName), '', HeaderEncoding, ISOCharSet); {do not localize}
 
     if ATextPart.ContentType <> '' then begin
@@ -1401,7 +1402,10 @@ begin
                 LAttachment.ContentType := 'text/plain'; {do not localize}
               end;
             end;
+
+            // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
             LFileName := EncodeHeader(ExtractFileName(LAttachment.FileName), '', HeaderEncoding, ISOCharSet); {do not localize}
+
             if TextIsSame(LAttachment.ContentTransfer, 'binhex40') then begin   {do not localize}
               //This is special - you do NOT write out any Content-Transfer-Encoding
               //header!  We also have to write a Content-Type specified in RFC 1741

@@ -1275,6 +1275,8 @@ begin
             // Retrieve the HTTP header
             LRequestInfo.RawHeaders.Clear;
             LConn.IOHandler.Capture(LRequestInfo.RawHeaders, '', False);    {Do not Localize}
+            // TODO: call HeadersCanContinue() here before the headers are parsed,
+            // in case the user needs to overwrite any values...
             LRequestInfo.ProcessHeaders;
 
             // HTTP 1.1 connections are keep-alive by default
@@ -1783,6 +1785,10 @@ begin
   Params.BeginUpdate;
   try
     Params.Clear;
+    // TODO: provide an event or property that lets the user specify
+    // which charset to use for decoding query string parameters.  We
+    // should not be using the 'Content-Type' charset for that.  For
+    // 'application/x-www-form-urlencoded' forms, we should be, though...
     LEncoding := CharsetToEncoding(CharSet);
     i := 1;
     while i <= Length(AValue) do

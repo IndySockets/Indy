@@ -571,6 +571,8 @@ var
 begin
   LBoundary := '--' + TIdFormDataFields(Collection).MultipartFormDataStream.Boundary; {do not localize}
 
+  // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
+
   Result := IndyFormat('%s' + CRLF + sContentDispositionPlaceHolder,
     [LBoundary, EncodeHeader(FieldName, '', FHeaderEncoding, FHeaderCharSet)]);       {do not localize}
 

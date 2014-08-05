@@ -733,6 +733,7 @@ begin
   // Use Basic authentication by default
   else if FBasicByDefault then begin
     FAuthentication := TIdBasicAuthentication.Create;
+    // TODO: use FAuthentication Username/Password properties instead
     FAuthentication.Params.Values['Username'] := FUsername;  {do not localize}
     FAuthentication.Params.Values['Password'] := FPassword;  {do not localize}
     S := FAuthentication.Authentication;
@@ -1066,6 +1067,7 @@ begin
   end
   else if FBasicByDefault then begin
     FAuthentication := TIdBasicAuthentication.Create;
+    // TODO: use FAuthentication Username/Password properties instead
     FAuthentication.Params.Values['Username'] := FUserName;  {do not localize}
     FAuthentication.Params.Values['Password'] := FPassword;  {do not localize}
     S := FAuthentication.Authentication;

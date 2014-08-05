@@ -165,6 +165,14 @@ uses
   {$ENDIF}
   SysUtils;
 
+// TODO: there is a bug in FireMonkey where FMX.TApplication does not assign a
+// handler to the Classes.WakeMainThread callback (see QC #123579).  Without
+// that, TThread.Synchronize() and TThread.Queue() will not do anything if the
+// main message queue is idle at the moment they are called!!!  If the main
+// thread *happens* to receive a message at a later time, say from UI activity,
+// then they will be processed.  But for a background process, we cannot rely
+// on that. Need an alternative solution until Embarcadero fixes FireMonkey...
+
 {$IFDEF NotifyThreadNeeded}
 type
   // This is done with a NotifyThread instead of PostMessage because starting
@@ -233,22 +241,77 @@ begin
   {$ENDIF}
 end;
 
+procedure DoThreadSync(AThread: TThread; SyncProc: TThreadMethod);
+begin
+  {
+  if not Assigned(Classes.WakeMainThread) then
+  begin
+    // TODO: if WakeMainThread is not assigned, need to force a message into
+    // the main message queue so TApplication.Idle() will be called so it can
+    // call CheckSynchronize():
+    //
+    // on Windows, call PostMessage() to post a WM_NULL message to the TApplication window...
+    //
+    // on OSX (and iOS?), call NSApp.sendEvent(???), but with what kind of event?
+    //
+    // on Android, what to do???
+
+    // We can't put the message in the queue before calling TThread.Synchronize(),
+    // as it might get processed before Synchronize() can queue the procedure.
+    // Might have to use TThread.Queue() instead and wait on a manual TEvent...
+  end else
+  begin
+  }
+    {$IFDEF HAS_STATIC_TThread_Synchronize}
+    TThread.Synchronize(AThread, SyncProc);
+    {$ELSE}
+    AThread.Synchronize(SyncProc);
+    {$ENDIF}
+  // end;
+end;
+
+{$IFDEF HAS_STATIC_TThread_Queue}
+procedure DoThreadQueue(QueueProc: TThreadMethod);
+begin
+  {
+  if not Assigned(Classes.WakeMainThread) then
+  begin
+    // TODO: if WakeMainThread is not assigned, need to force a message into
+    // the main message queue so TApplication.Idle() will be called so it can
+    // call CheckSynchronize():
+    //
+    // on Windows, call PostMessage() to post a WM_NULL message to the TApplication window...
+    //
+    // on OSX (and iOS?), call NSApp.sendEvent(???), but with what kind of event?
+    //
+    // on Android, what to do???
+
+    // We can't put the message in the queue before calling TThread.Synchronize(),
+    // as it might get processed before Synchronize() can queue the procedure.
+    // Might have to use TThread.Queue() instead and wait on a manual TEvent...
+  end else
+  begin
+  }
+    TThread.Queue(nil, QueueProc);
+  // end;
+end;
+{$ENDIF}
+
 procedure TIdSync.Synchronize;
 begin
-    {$IFDEF HAS_STATIC_TThread_Synchronize}
-  TThread.Synchronize(nil, DoSynchronize);
-    {$ELSE}
-  FThread.Synchronize(DoSynchronize);
-    {$ENDIF}
+  DoThreadSync(
+    {$IFDEF HAS_STATIC_TThread_Synchronize}nil{$ELSE}FThread{$ENDIF},
+    DoSynchronize
+  );
 end;
 
 class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
 begin
   {$IFDEF HAS_STATIC_TThread_Synchronize}
-  TThread.Synchronize(nil, AMethod);
+  DoThreadSync(nil, AMethod);
   {$ELSE}
   CreateNotifyThread;
-  GNotifyThread.Synchronize(AMethod);
+  DoThreadSync(GNotifyThread, AMethod);
   {$ENDIF}
 end;
 
@@ -276,7 +339,7 @@ begin
     try
     {$ENDIF}
       {$IFDEF HAS_STATIC_TThread_Queue}
-      TThread.Queue(nil,
+      DoThreadQueue(
         {$IFDEF TNotify_InternalDoNotify_Needed}
         InternalDoNotify
         {$ELSE}
@@ -310,7 +373,7 @@ end;
 class procedure TIdNotify.NotifyMethod(AMethod: TThreadMethod);
 begin
   {$IFDEF HAS_STATIC_TThread_Queue}
-  TThread.Queue(nil, AMethod);
+  DoThreadQueue(AMethod);
   {$ELSE}
     {$I IdSymbolDeprecatedOff.inc}
   TIdNotifyMethod.Create(AMethod).Notify;
@@ -426,7 +489,7 @@ begin
         FNotifications.UnlockList;
       end;
       try
-        Synchronize(LNotify.DoNotify);
+        DoThreadSync(Self, LNotify.DoNotify);
       finally
         FreeAndNil(LNotify);
       end;

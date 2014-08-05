@@ -1459,6 +1459,9 @@ begin
   end;
 end;
 
+// TODO: move the XML charset detector below to the IdGlobalProtocols unit so
+// it can be used in other components, like TIdMessageClient and TIdIMAP4...
+
 type
   XmlEncoding = (xmlUCS4BE, xmlUCS4BEOdd, xmlUCS4LE, xmlUCS4LEOdd,
                  xmlUTF16BE, xmlUTF16LE, xmlUTF8, xmlEBCDIC, xmlUnknown
@@ -1990,6 +1993,11 @@ begin
   // restrict which HTTP methods can post (except logically for GET and HEAD),
   // especially since TIdCustomHTTP.PrepareRequest() does not differentiate when
   // setting up the 'Content-Length' header ...
+
+  // TODO: when sending an HTTP 1.1 request with an 'Expect: 100-continue' header,
+  // do not send the Source data until the server replies with a 100 response code,
+  // or until a timeout occurs if the server does not send a 100...
+  
   if ARequest.Source <> nil then begin
     IOHandler.Write(ARequest.Source, 0, False);
   end;
@@ -2667,7 +2675,7 @@ begin
   // provide the user with the headers and let the user decide
   // whether the response processing should continue...
   if not HeadersCanContinue then begin
-    Response.KeepAlive := False; // force DoRequest() to disconnect the connection
+    Response.KeepAlive := False; // TODO: provide the user an option whether to force DoRequest() to disconnect the connection or not
     Result := wnJustExit;
     Exit;
   end;

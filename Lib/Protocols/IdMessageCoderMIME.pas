@@ -416,6 +416,9 @@ begin
       if not FProcessFirstLine then begin
         if IsBinaryContentTransferEncoding then begin
           //For binary, need EOL because the default LF causes spurious CRs in the output...
+          // TODO: don't use ReadLnRFC() for binary data at all.  Read into an intermediate
+          // buffer instead, looking for the next MIME boundary and message terminator while
+          // flushing the buffer to the destination stream along the way...
           EnsureEncoding(LEncoding, enc8Bit);
           LLine := ReadLnRFC(VMsgEnd, EOL, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
         end else begin

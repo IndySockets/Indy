@@ -552,6 +552,8 @@ begin
       LClient.Host := LHost;
       LClient.IPVersion := AContext.IPVersion;
       LClient.ConnectTimeout := 120000; // 2 minutes
+      // TODO: fire an event here so the user can customize the LClient as
+      // needed (enable SSL, etc) before connecting to the target Host...
       LClient.Connect;
     except
       if AContext.SocksVersion = 4 then begin
