@@ -429,7 +429,10 @@ uses
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF ANDROID}
   FMX.Helpers.Android,
+      {$IFDEF VCL_XE6_OR_ABOVE}
+  // StringToJString() was moved here in XE6
   Androidapi.Helpers,
+      {$ENDIF}
   Androidapi.JNI.JavaTypes,
   Androidapi.JNI.GraphicsContentViewText,
     {$ENDIF}
