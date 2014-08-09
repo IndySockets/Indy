@@ -1,4 +1,4 @@
-package IndyProtocols200;
+package IndyProtocols210;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -24,7 +24,7 @@ package IndyProtocols200;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
-{$DEFINE VER270}
+{$DEFINE VER280}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
@@ -44,8 +44,8 @@ requires
   {$IFDEF HAS_PKG_RTL}
   rtl,
   {$ENDIF}
-  IndySystem200,
-  IndyCore200;
+  IndySystem210,
+  IndyCore210;
 
 {$IFNDEF WINDOWS}
   {$IFDEF MSWINDOWS}

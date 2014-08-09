@@ -1,0 +1,86 @@
+package IndySystem210;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$DEFINE VER280}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$DEFINE HAS_PKG_RTL}
+{$IFDEF NEXTGEN}
+  {$IFDEF IOS}
+    // there is no RTL package available for iOS
+    {$UNDEF HAS_PKG_RTL}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF HAS_PKG_RTL}
+requires
+  rtl;
+{$ENDIF}
+
+{$IFNDEF WINDOWS}
+  {$IFDEF MSWINDOWS}
+    {$DEFINE WINDOWS}
+  {$ENDIF}
+{$ENDIF}
+
+contains
+  IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
+  IdBaseComponent in 'IdBaseComponent.pas',
+  IdCTypes in 'IdCTypes.pas',
+  IdComponent in 'IdComponent.pas',
+  IdException in 'IdException.pas',
+  IdGlobal in 'IdGlobal.pas',
+  IdIDN in 'IdIDN.pas',
+  IdResourceStrings in 'IdResourceStrings.pas',
+  {$IFNDEF WINDOWS}
+  IdResourceStringsUnix in 'IdResourceStringsUnix.pas',
+  IdResourceStringsVCLPosix in 'IdResourceStringsVCLPosix.pas',
+  {$ENDIF}
+  IdStack in 'IdStack.pas',
+  IdStackBSDBase in 'IdStackBSDBase.pas',
+  IdStackConsts in 'IdStackConsts.pas',
+  {$IFDEF WINDOWS}
+  IdStackWindows in 'IdStackWindows.pas',
+  {$ELSE}
+  IdStackVCLPosix in 'IdStackVCLPosix.pas',
+  {$ENDIF}
+  IdStream in 'IdStream.pas',
+  IdStreamVCL in 'IdStreamVCL.pas',
+  IdStruct in 'IdStruct.pas',
+  {$IFDEF WINDOWS}
+  IdWinsock2 in 'IdWinsock2.pas',
+  IdWship6 in 'IdWship6.pas'
+  {$ELSE}
+  IdVCLPosixSupplemental in 'IdVCLPosixSupplemental.pas'
+  {$ENDIF}
+  ;
+
+end.
