@@ -22831,7 +22831,7 @@ we have to handle both cases.
   {$IFNDEF OPENSSL_NO_SHA}
   @EVP_sha1 := LoadFunctionCLib(fn_EVP_sha1);
 
-  @EVP_sha := LoadFunctionCLib(fn_EVP_sha);
+  @EVP_sha := LoadFunctionCLib(fn_EVP_sha{$IFDEF ANDROID},False{$ENDIF}); //not available on Android
   @EVP_dss := LoadFunctionCLib(fn_EVP_dss);
   @EVP_dss1 := LoadFunctionCLib(fn_EVP_dss1);
   @EVP_ecdsa := LoadFunctionCLib(fn_EVP_ecdsa);
@@ -22852,7 +22852,7 @@ we have to handle both cases.
   @EVP_ripemd160 := LoadFunctionCLib(fn_EVP_ripemd160);
   {$endif}
   {$ifndef OPENSSL_NO_WHIRLPOOL}
-  @EVP_whirlpool := LoadFunctionCLib(fn_EVP_whirlpool);
+  @EVP_whirlpool := LoadFunctionCLib(fn_EVP_whirlpool{$IFDEF ANDROID},False{$ENDIF}); //not available on Android
   {$endif}
   @EVP_md_null := LoadFunctionCLib(fn_EVP_md_null);
   {$IFNDEF OPENSSL_NO_DES}
@@ -22898,10 +22898,11 @@ we have to handle both cases.
     {$endif}
   {$endif}
   {$ifndef OPENSSL_NO_IDEA}
-  @EVP_idea_ecb := LoadFunctionCLib(fn_EVP_idea_ecb);
-  @EVP_idea_cfb64 := LoadFunctionCLib(fn_EVP_idea_cfb64);
-  @EVP_idea_ofb := LoadFunctionCLib(fn_EVP_idea_ofb);
-  @EVP_idea_cbc := LoadFunctionCLib(fn_EVP_idea_cbc);
+  //not available on Android
+  @EVP_idea_ecb := LoadFunctionCLib(fn_EVP_idea_ecb{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_idea_cfb64 := LoadFunctionCLib(fn_EVP_idea_cfb64{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_idea_ofb := LoadFunctionCLib(fn_EVP_idea_ofb{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_idea_cbc := LoadFunctionCLib(fn_EVP_idea_cbc{$IFDEF ANDROID},False{$ENDIF});
   {$endif}
   {$ifndef OPENSSL_NO_RC2}
   @EVP_rc2_ecb := LoadFunctionCLib(fn_EVP_rc2_ecb);
@@ -22918,10 +22919,11 @@ we have to handle both cases.
   @EVP_bf_ofb := LoadFunctionCLib(fn_EVP_bf_ofb);
   {$endif}
   {$ifndef OPENSSL_NO_CAST}
-  @EVP_cast5_ecb := LoadFunctionCLib(fn_EVP_cast5_ecb);
-  @EVP_cast5_cbc := LoadFunctionCLib(fn_EVP_cast5_cbc);
-  @EVP_cast5_cfb64 := LoadFunctionCLib(fn_EVP_cast5_cfb64);
-  @EVP_cast5_ofb := LoadFunctionCLib(fn_EVP_cast5_ofb);
+  //not available on Android
+  @EVP_cast5_ecb := LoadFunctionCLib(fn_EVP_cast5_ecb{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_cast5_cbc := LoadFunctionCLib(fn_EVP_cast5_cbc{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_cast5_cfb64 := LoadFunctionCLib(fn_EVP_cast5_cfb64{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_cast5_ofb := LoadFunctionCLib(fn_EVP_cast5_ofb{$IFDEF ANDROID},False{$ENDIF});
   {$endif}
   {$ifndef OPENSSL_NO_RC5}
   @EVP_rc5_32_12_16_cbc := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cbc);
