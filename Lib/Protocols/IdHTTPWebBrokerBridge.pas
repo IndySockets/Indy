@@ -161,7 +161,11 @@ uses
   IdResourceStringsProtocols,
   IdBuffer, IdHTTPHeaderInfo, IdGlobal, IdGlobalProtocols, IdCookie, IdStream,
   {$IFDEF STRING_IS_UNICODE}IdCharsets,{$ENDIF}
-  SysUtils, Math;
+  SysUtils, Math
+  {$IFDEF HAS_TNetEncoding}
+  , System.NetEncoding
+  {$ENDIF}
+  ;
 
 type
   // Make HandleRequest accessible
@@ -684,6 +688,15 @@ begin
   FResponseInfo.ContentStream := AValue;
 end;
 
+function DoHTTPEncode(const AStr: AnsiString): String;
+begin
+  {$IFDEF HAS_TNetEncoding}
+  Result := TNetEncoding.URL.Encode(string(AStr));
+  {$ELSE}
+  Result := String(HTTPEncode(AStr));
+  {$ENDIF}
+end;
+
 procedure TIdHTTPAppResponse.MoveCookiesAndCustomHeaders;
 var
   i: Integer;
@@ -693,8 +706,8 @@ begin
   for i := 0 to Cookies.Count - 1 do begin
     LSrcCookie := Cookies[i];
     LDestCookie := FResponseInfo.Cookies.Add;
-    LDestCookie.CookieName := String(HTTPEncode(LSrcCookie.Name));
-    LDestCookie.Value := String(HTTPEncode(LSrcCookie.Value));
+    LDestCookie.CookieName := DoHTTPEncode(LSrcCookie.Name);
+    LDestCookie.Value := DoHTTPEncode(LSrcCookie.Value);
     LDestCookie.Domain := String(LSrcCookie.Domain);
     LDestCookie.Path := String(LSrcCookie.Path);
     LDestCookie.Expires := LSrcCookie.Expires;

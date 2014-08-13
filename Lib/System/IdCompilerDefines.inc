@@ -76,6 +76,7 @@
 {$UNDEF HAS_TEncoding}
 {$UNDEF HAS_TCharacter}
 {$UNDEF HAS_TInterlocked}
+{$UNDEF HAS_TNetEncoding}
 
 // Make sure that this is defined only for environments where we are using
 // the iconv library to charactor conversions.
@@ -995,6 +996,10 @@
 
 {$IFDEF VCL_XE5_UPDATE2_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+{$ENDIF}
+
+{$IFDEF VCL_XE7_OR_ABOVE}
+  {$DEFINE HAS_TNetEncoding}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
