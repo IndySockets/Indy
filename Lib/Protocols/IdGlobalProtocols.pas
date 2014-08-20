@@ -2787,8 +2787,8 @@ begin
   AMIMEList.Add('.rgb=image/x-rgb');    {Do not Localize}
   AMIMEList.Add('.rp=image/vnd.rn-realpix');    {Do not Localize}
   AMIMEList.Add('.sgi=image/x-sgi');    {Do not Localize}
-  AMIMEList.Add('.svg=image/svg-xml');    {Do not Localize}
-  AMIMEList.Add('.svgz=image/svg-xml');    {Do not Localize}
+  AMIMEList.Add('.svg=image/svg+xml');    {Do not Localize}
+  AMIMEList.Add('.svgz=image/svg+xml');    {Do not Localize}
   AMIMEList.Add('.targa=image/x-targa');    {Do not Localize}
   AMIMEList.Add('.tif=image/x-tiff');    {Do not Localize}
   AMIMEList.Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
