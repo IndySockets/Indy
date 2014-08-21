@@ -163,7 +163,11 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  SysUtils;
+  SysUtils
+  {$IFNDEF NotifyThreadNeeded}
+  , IdThread
+  {$ENDIF}
+  ;
 
 // TODO: there is a bug in FireMonkey prior to XE7 where FMX.TApplication does
 // not assign a handler to the Classes.WakeMainThread callback (see QC #123579).
@@ -242,13 +246,7 @@ begin
   {$ENDIF}
 end;
 
-{$IFNDEF HAS_STATIC_TThread_Synchronize}
-type
-  TThreadAccess = class(TThread)
-  end;
-{$ENDIF}
-
-procedure DoThreadSync(AThread: TThread; SyncProc: TThreadMethod);
+procedure DoThreadSync(AThread: TIdThread; SyncProc: TThreadMethod);
 begin
   {
   if not Assigned(Classes.WakeMainThread) then
@@ -272,7 +270,7 @@ begin
     {$IFDEF HAS_STATIC_TThread_Synchronize}
     TThread.Synchronize(AThread, SyncProc);
     {$ELSE}
-    TThreadAccess(AThread).Synchronize(SyncProc);
+    AThread.Synchronize(SyncProc);
     {$ENDIF}
   // end;
 end;
