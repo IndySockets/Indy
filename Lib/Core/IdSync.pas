@@ -165,13 +165,14 @@ uses
   {$ENDIF}
   SysUtils;
 
-// TODO: there is a bug in FireMonkey where FMX.TApplication does not assign a
-// handler to the Classes.WakeMainThread callback (see QC #123579).  Without
-// that, TThread.Synchronize() and TThread.Queue() will not do anything if the
-// main message queue is idle at the moment they are called!!!  If the main
-// thread *happens* to receive a message at a later time, say from UI activity,
-// then they will be processed.  But for a background process, we cannot rely
-// on that. Need an alternative solution until Embarcadero fixes FireMonkey...
+// TODO: there is a bug in FireMonkey prior to XE7 where FMX.TApplication does
+// not assign a handler to the Classes.WakeMainThread callback (see QC #123579).
+// Without that, TThread.Synchronize() and TThread.Queue() will not do anything
+// if the main message queue is idle at the moment they are called!!!  If the
+// main thread *happens* to receive a message at a later time, say from UI
+// activity, then they will be processed.  But for a background process, we
+// cannot rely on that.  Need an alternative solution until Embarcadero fixes
+// FireMonkey...
 
 {$IFDEF NotifyThreadNeeded}
 type
@@ -241,6 +242,12 @@ begin
   {$ENDIF}
 end;
 
+{$IFNDEF HAS_STATIC_TThread_Synchronize}
+type
+  TThreadAccess = class(TThread)
+  end;
+{$ENDIF}
+
 procedure DoThreadSync(AThread: TThread; SyncProc: TThreadMethod);
 begin
   {
@@ -265,7 +272,7 @@ begin
     {$IFDEF HAS_STATIC_TThread_Synchronize}
     TThread.Synchronize(AThread, SyncProc);
     {$ELSE}
-    AThread.Synchronize(SyncProc);
+    TThreadAccess(AThread).Synchronize(SyncProc);
     {$ENDIF}
   // end;
 end;
