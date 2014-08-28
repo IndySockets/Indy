@@ -22831,7 +22831,7 @@ we have to handle both cases.
   {$IFNDEF OPENSSL_NO_SHA}
   @EVP_sha1 := LoadFunctionCLib(fn_EVP_sha1);
 
-  @EVP_sha := LoadFunctionCLib(fn_EVP_sha{$IFDEF ANDROID},False{$ENDIF}); //not available on Android
+  @EVP_sha := LoadFunctionCLib(fn_EVP_sha,False); //not available on Android
   @EVP_dss := LoadFunctionCLib(fn_EVP_dss);
   @EVP_dss1 := LoadFunctionCLib(fn_EVP_dss1);
   @EVP_ecdsa := LoadFunctionCLib(fn_EVP_ecdsa);
@@ -22852,7 +22852,7 @@ we have to handle both cases.
   @EVP_ripemd160 := LoadFunctionCLib(fn_EVP_ripemd160);
   {$endif}
   {$ifndef OPENSSL_NO_WHIRLPOOL}
-  @EVP_whirlpool := LoadFunctionCLib(fn_EVP_whirlpool{$IFDEF ANDROID},False{$ENDIF}); //not available on Android
+  @EVP_whirlpool := LoadFunctionCLib(fn_EVP_whirlpool,False); //not available on Android
   {$endif}
   @EVP_md_null := LoadFunctionCLib(fn_EVP_md_null);
   {$IFNDEF OPENSSL_NO_DES}
@@ -22894,15 +22894,15 @@ we have to handle both cases.
   @EVP_rc4 := LoadFunctionCLib(fn_EVP_rc4);
   @EVP_rc4_40 := LoadFunctionCLib(fn_EVP_rc4_40);
     {$ifndef OPENSSL_NO_MD5}
-  @EVP_rc4_hmac_md5 := LoadFunctionCLib(fn_EVP_rc4_hmac_md5{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_rc4_hmac_md5 := LoadFunctionCLib(fn_EVP_rc4_hmac_md5,False);
     {$endif}
   {$endif}
   {$ifndef OPENSSL_NO_IDEA}
   //not available on Android
-  @EVP_idea_ecb := LoadFunctionCLib(fn_EVP_idea_ecb{$IFDEF ANDROID},False{$ENDIF});
-  @EVP_idea_cfb64 := LoadFunctionCLib(fn_EVP_idea_cfb64{$IFDEF ANDROID},False{$ENDIF});
-  @EVP_idea_ofb := LoadFunctionCLib(fn_EVP_idea_ofb{$IFDEF ANDROID},False{$ENDIF});
-  @EVP_idea_cbc := LoadFunctionCLib(fn_EVP_idea_cbc{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_idea_ecb := LoadFunctionCLib(fn_EVP_idea_ecb,False);
+  @EVP_idea_cfb64 := LoadFunctionCLib(fn_EVP_idea_cfb64,False);
+  @EVP_idea_ofb := LoadFunctionCLib(fn_EVP_idea_ofb,False);
+  @EVP_idea_cbc := LoadFunctionCLib(fn_EVP_idea_cbc,False);
   {$endif}
   {$ifndef OPENSSL_NO_RC2}
   @EVP_rc2_ecb := LoadFunctionCLib(fn_EVP_rc2_ecb);
@@ -22920,10 +22920,10 @@ we have to handle both cases.
   {$endif}
   {$ifndef OPENSSL_NO_CAST}
   //not available on Android
-  @EVP_cast5_ecb := LoadFunctionCLib(fn_EVP_cast5_ecb{$IFDEF ANDROID},False{$ENDIF});
-  @EVP_cast5_cbc := LoadFunctionCLib(fn_EVP_cast5_cbc{$IFDEF ANDROID},False{$ENDIF});
-  @EVP_cast5_cfb64 := LoadFunctionCLib(fn_EVP_cast5_cfb64{$IFDEF ANDROID},False{$ENDIF});
-  @EVP_cast5_ofb := LoadFunctionCLib(fn_EVP_cast5_ofb{$IFDEF ANDROID},False{$ENDIF});
+  @EVP_cast5_ecb := LoadFunctionCLib(fn_EVP_cast5_ecb,False);
+  @EVP_cast5_cbc := LoadFunctionCLib(fn_EVP_cast5_cbc,False);
+  @EVP_cast5_cfb64 := LoadFunctionCLib(fn_EVP_cast5_cfb64,False);
+  @EVP_cast5_ofb := LoadFunctionCLib(fn_EVP_cast5_ofb,False);
   {$endif}
   {$ifndef OPENSSL_NO_RC5}
   @EVP_rc5_32_12_16_cbc := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cbc);
@@ -22938,10 +22938,10 @@ we have to handle both cases.
   @EVP_aes_128_cfb8:= LoadFunctionCLib(fn_EVP_aes_128_cfb8);
   @EVP_aes_128_cfb128 := LoadFunctionCLib(fn_EVP_aes_128_cfb128);
   @EVP_aes_128_ofb := LoadFunctionCLib(fn_EVP_aes_128_ofb);
-  @EVP_aes_128_ctr := LoadFunctionCLib(fn_EVP_aes_128_ctr{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_128_gcm := LoadFunctionCLib(fn_EVP_aes_128_gcm{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_128_ccm := LoadFunctionCLib(fn_EVP_aes_128_ccm{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_128_xts := LoadFunctionCLib(fn_EVP_aes_128_xts{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_aes_128_ctr := LoadFunctionCLib(fn_EVP_aes_128_ctr,False);
+  @EVP_aes_128_gcm := LoadFunctionCLib(fn_EVP_aes_128_gcm,False);
+  @EVP_aes_128_ccm := LoadFunctionCLib(fn_EVP_aes_128_ccm,False);
+  @EVP_aes_128_xts := LoadFunctionCLib(fn_EVP_aes_128_xts,False);
   @EVP_aes_192_ecb := LoadFunctionCLib(fn_EVP_aes_192_ecb);
   @EVP_aes_192_cbc := LoadFunctionCLib(fn_EVP_aes_192_cbc);
   @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1);
@@ -22949,19 +22949,19 @@ we have to handle both cases.
   @EVP_aes_192_cfb128 := LoadFunctionCLib(fn_EVP_aes_192_cfb128);
 
   @EVP_aes_192_ofb := LoadFunctionCLib(fn_EVP_aes_192_ofb);
-  @EVP_aes_192_ctr := LoadFunctionCLib(fn_EVP_aes_192_ctr{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_192_gcm := LoadFunctionCLib(fn_EVP_aes_192_gcm{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_192_ccm := LoadFunctionCLib(fn_EVP_aes_192_ccm{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_aes_192_ctr := LoadFunctionCLib(fn_EVP_aes_192_ctr,False);
+  @EVP_aes_192_gcm := LoadFunctionCLib(fn_EVP_aes_192_gcm,False);
+  @EVP_aes_192_ccm := LoadFunctionCLib(fn_EVP_aes_192_ccm,False);
   @EVP_aes_256_ecb := LoadFunctionCLib(fn_EVP_aes_256_ecb);
   @EVP_aes_256_cbc := LoadFunctionCLib(fn_EVP_aes_256_cbc);
   @EVP_aes_256_cfb1 := LoadFunctionCLib(fn_EVP_aes_256_cfb1);
   @EVP_aes_256_cfb8 := LoadFunctionCLib(fn_EVP_aes_256_cfb8);
   @EVP_aes_256_cfb128 := LoadFunctionCLib(fn_EVP_aes_256_cfb128);
   @EVP_aes_256_ofb := LoadFunctionCLib(fn_EVP_aes_256_ofb);
-  @EVP_aes_256_ctr := LoadFunctionCLib(fn_EVP_aes_256_ctr{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_256_gcm := LoadFunctionCLib(fn_EVP_aes_256_gcm{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_256_ccm := LoadFunctionCLib(fn_EVP_aes_256_ccm{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_aes_256_xts := LoadFunctionCLib(fn_EVP_aes_256_xts{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_aes_256_ctr := LoadFunctionCLib(fn_EVP_aes_256_ctr,False);
+  @EVP_aes_256_gcm := LoadFunctionCLib(fn_EVP_aes_256_gcm,False);
+  @EVP_aes_256_ccm := LoadFunctionCLib(fn_EVP_aes_256_ccm,False);
+  @EVP_aes_256_xts := LoadFunctionCLib(fn_EVP_aes_256_xts,False);
     {$ifndef OPENSSL_NO_SHA}
       {$ifndef OPENSSL_NO_SHA1}
   @EVP_aes_128_cbc_hmac_sha1 := LoadFunctionCLib(fn_EVP_aes_128_cbc_hmac_sha1);
@@ -23025,10 +23025,10 @@ we have to handle both cases.
   @EVP_CipherFinal_ex  := LoadFunctionCLib(fn_EVP_CipherFinal_ex);
   @EVP_SignFinal := LoadFunctionCLib(fn_EVP_SignFinal);
   @EVP_VerifyFinal := LoadFunctionCLib(fn_EVP_VerifyFinal);
-  @EVP_DigestSignInit := LoadFunctionCLib(fn_EVP_DigestSignInit{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_DigestSignFinal := LoadFunctionCLib(fn_EVP_DigestSignFinal{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_DigestVerifyInit := LoadFunctionCLib(fn_EVP_DigestVerifyInit{$IFDEF _MACOS},False{$ENDIF});
-	@EVP_DigestVerifyFinal := LoadFunctionCLib(fn_EVP_DigestVerifyFinal{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_DigestSignInit := LoadFunctionCLib(fn_EVP_DigestSignInit,False);
+  @EVP_DigestSignFinal := LoadFunctionCLib(fn_EVP_DigestSignFinal,False);
+  @EVP_DigestVerifyInit := LoadFunctionCLib(fn_EVP_DigestVerifyInit,False);
+	@EVP_DigestVerifyFinal := LoadFunctionCLib(fn_EVP_DigestVerifyFinal,False);
   @EVP_OpenInit := LoadFunctionCLib(fn_EVP_OpenInit);
 	@EVP_OpenFinal := LoadFunctionCLib(fn_EVP_OpenFinal);
   @EVP_SealInit := LoadFunctionCLib(fn_EVP_SealInit);
@@ -23073,7 +23073,7 @@ we have to handle both cases.
   @EVP_MD_type := LoadFunctionCLib(fn_EVP_MD_type);
   @EVP_MD_size := LoadFunctionCLib(fn_EVP_MD_size);
   @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_block_size);
-  @EVP_MD_flags := LoadFunctionCLib(fn_EVP_MD_flags{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_MD_flags := LoadFunctionCLib(fn_EVP_MD_flags,False);
   @EVP_MD_CTX_md := LoadFunctionCLib(fn_EVP_MD_CTX_md);
   @EVP_CIPHER_nid := LoadFunctionCLib(fn_EVP_CIPHER_nid);
   @EVP_CIPHER_block_size := LoadFunctionCLib(fn_EVP_CIPHER_block_size);
@@ -23086,7 +23086,7 @@ we have to handle both cases.
   @EVP_CIPHER_CTX_block_size := LoadFunctionCLib(fn_EVP_CIPHER_CTX_block_size );
   @EVP_CIPHER_CTX_key_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_key_length );
   @EVP_CIPHER_CTX_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_iv_length);
-  @EVP_CIPHER_CTX_copy := LoadFunctionCLib(fn_EVP_CIPHER_CTX_copy{$IFDEF _MACOS},False{$ENDIF} );
+  @EVP_CIPHER_CTX_copy := LoadFunctionCLib(fn_EVP_CIPHER_CTX_copy,False );
   @EVP_CIPHER_CTX_get_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get_app_data );
   @EVP_CIPHER_CTX_set_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_app_data );
   @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags);
@@ -23094,20 +23094,20 @@ we have to handle both cases.
   @EVP_add_cipher := LoadFunctionCLib(fn_EVP_add_cipher);
   @EVP_add_digest := LoadFunctionCLib(fn_EVP_add_digest);
 
-  @EVP_CIPHER_do_all := LoadFunctionCLib(fn_EVP_CIPHER_do_all{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_CIPHER_do_all_sorted := LoadFunctionCLib(fn_EVP_CIPHER_do_all_sorted{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_MD_do_all := LoadFunctionCLib(fn_EVP_MD_do_all{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_MD_do_all_sorted := LoadFunctionCLib(fn_EVP_MD_do_all_sorted{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_decrypt_old := LoadFunctionCLib(fn_EVP_PKEY_decrypt_old{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_encrypt_old := LoadFunctionCLib(fn_EVP_PKEY_encrypt_old{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_CIPHER_do_all := LoadFunctionCLib(fn_EVP_CIPHER_do_all,False);
+  @EVP_CIPHER_do_all_sorted := LoadFunctionCLib(fn_EVP_CIPHER_do_all_sorted,False);
+  @EVP_MD_do_all := LoadFunctionCLib(fn_EVP_MD_do_all,False);
+  @EVP_MD_do_all_sorted := LoadFunctionCLib(fn_EVP_MD_do_all_sorted,False);
+  @EVP_PKEY_decrypt_old := LoadFunctionCLib(fn_EVP_PKEY_decrypt_old,False);
+  @EVP_PKEY_encrypt_old := LoadFunctionCLib(fn_EVP_PKEY_encrypt_old,False);
   @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
-  @EVP_PKEY_id := LoadFunctionCLib(fn_EVP_PKEY_id{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_base_id := LoadFunctionCLib(fn_EVP_PKEY_base_id{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PKEY_id := LoadFunctionCLib(fn_EVP_PKEY_id,False);
+  @EVP_PKEY_base_id := LoadFunctionCLib(fn_EVP_PKEY_base_id,False);
   @EVP_PKEY_bits := LoadFunctionCLib(fn_EVP_PKEY_bits);
   @EVP_PKEY_size := LoadFunctionCLib(fn_EVP_PKEY_size);
-  @EVP_PKEY_set_type := LoadFunctionCLib(fn_EVP_PKEY_set_type{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_set_type_str := LoadFunctionCLib(fn_EVP_PKEY_set_type_str{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_get0 := LoadFunctionCLib(fn_EVP_PKEY_get0{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PKEY_set_type := LoadFunctionCLib(fn_EVP_PKEY_set_type,False);
+  @EVP_PKEY_set_type_str := LoadFunctionCLib(fn_EVP_PKEY_set_type_str,False);
+  @EVP_PKEY_get0 := LoadFunctionCLib(fn_EVP_PKEY_get0,False);
   {$ifndef OPENSSL_NO_RSA}
   @EVP_PKEY_set1_RSA := LoadFunctionCLib(fn_EVP_PKEY_set1_RSA);
   @EVP_PKEY_get1_RSA := LoadFunctionCLib(fn_EVP_PKEY_get1_RSA);
@@ -23132,96 +23132,96 @@ we have to handle both cases.
   @EVP_PKEY_save_parameters := LoadFunctionCLib(fn_EVP_PKEY_save_parameters);
   @EVP_PKEY_cmp_parameters := LoadFunctionCLib(fn_EVP_PKEY_cmp_parameters);
   @EVP_PKEY_cmp := LoadFunctionCLib(fn_EVP_PKEY_cmp);
-  @EVP_PKEY_print_public := LoadFunctionCLib(fn_EVP_PKEY_print_public{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_print_private := LoadFunctionCLib(fn_EVP_PKEY_print_private{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_print_params := LoadFunctionCLib(fn_EVP_PKEY_print_params{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_get_default_digest_nid := LoadFunctionCLib(fn_EVP_PKEY_get_default_digest_nid{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PKEY_print_public := LoadFunctionCLib(fn_EVP_PKEY_print_public,False);
+  @EVP_PKEY_print_private := LoadFunctionCLib(fn_EVP_PKEY_print_private,False);
+  @EVP_PKEY_print_params := LoadFunctionCLib(fn_EVP_PKEY_print_params,False);
+  @EVP_PKEY_get_default_digest_nid := LoadFunctionCLib(fn_EVP_PKEY_get_default_digest_nid,False);
   @EVP_CIPHER_param_to_asn1 := LoadFunctionCLib(fn_EVP_CIPHER_param_to_asn1);
   @EVP_CIPHER_asn1_to_param := LoadFunctionCLib(fn_EVP_CIPHER_asn1_to_param);
   @EVP_CIPHER_set_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_set_asn1_iv);
   @EVP_CIPHER_get_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_get_asn1_iv);
   @PKCS5_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_PBE_keyivgen);
   @PKCS5_PBKDF2_HMAC_SHA1 := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC_SHA1);
-  @PKCS5_PBKDF2_HMAC := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC{$IFDEF _MACOS},False{$ENDIF});
+  @PKCS5_PBKDF2_HMAC := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC,False);
   @PKCS5_v2_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_v2_PBE_keyivgen);
   @PKCS5_PBE_add := LoadFunctionCLib(fn_PKCS5_PBE_add);
   @EVP_PBE_CipherInit := LoadFunctionCLib(fn_EVP_PBE_CipherInit);
 
-  @EVP_PBE_alg_add_type := LoadFunctionCLib(fn_EVP_PBE_alg_add_type{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PBE_alg_add_type := LoadFunctionCLib(fn_EVP_PBE_alg_add_type,False);
   @EVP_PBE_alg_add := LoadFunctionCLib(fn_EVP_PBE_alg_add);
-  @EVP_PBE_find := LoadFunctionCLib(fn_EVP_PBE_find{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PBE_find := LoadFunctionCLib(fn_EVP_PBE_find,False);
   @EVP_PBE_cleanup := LoadFunctionCLib(fn_EVP_PBE_cleanup);
-  @EVP_PKEY_asn1_get_count := LoadFunctionCLib(fn_EVP_PKEY_asn1_get_count{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_get0 := LoadFunctionCLib(fn_EVP_PKEY_asn1_get0{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_find := LoadFunctionCLib(fn_EVP_PKEY_asn1_find{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_find_str := LoadFunctionCLib(fn_EVP_PKEY_asn1_find_str{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_add0 := LoadFunctionCLib(fn_EVP_PKEY_asn1_add0{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_add_alias := LoadFunctionCLib(fn_EVP_PKEY_asn1_add_alias{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_get0_info := LoadFunctionCLib(fn_EVP_PKEY_asn1_get0_info{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_get0_asn1 := LoadFunctionCLib(fn_EVP_PKEY_get0_asn1{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_new := LoadFunctionCLib(fn_EVP_PKEY_asn1_new{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_copy := LoadFunctionCLib(fn_EVP_PKEY_asn1_copy{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_free := LoadFunctionCLib(fn_EVP_PKEY_asn1_free{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_set_public := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_public{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_set_private := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_private{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_set_param := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_param{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_set_free := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_free{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_asn1_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_ctrl{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_find := LoadFunctionCLib(fn_EVP_PKEY_meth_find{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_new := LoadFunctionCLib(fn_EVP_PKEY_meth_new{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_get0_info := LoadFunctionCLib(fn_EVP_PKEY_meth_get0_info{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_copy := LoadFunctionCLib(fn_EVP_PKEY_meth_copy{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_free := LoadFunctionCLib(fn_EVP_PKEY_meth_free{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_add0 := LoadFunctionCLib(fn_EVP_PKEY_meth_add0{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_new := LoadFunctionCLib(fn_EVP_PKEY_CTX_new{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_new_id := LoadFunctionCLib(fn_EVP_PKEY_CTX_new_id{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_dup := LoadFunctionCLib(fn_EVP_PKEY_CTX_dup{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_free := LoadFunctionCLib(fn_EVP_PKEY_CTX_free{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_ctrl := LoadFunctionCLib(fn_EVP_PKEY_CTX_ctrl{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_ctrl_str := LoadFunctionCLib(fn_EVP_PKEY_CTX_ctrl_str{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_get_operation := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_operation{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_set0_keygen_info := LoadFunctionCLib(fn_EVP_PKEY_CTX_set0_keygen_info{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_new_mac_key := LoadFunctionCLib(fn_EVP_PKEY_new_mac_key{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_set_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_data{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_get_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_data{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_get0_pkey := LoadFunctionCLib(fn_EVP_PKEY_CTX_get0_pkey{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_get0_peerkey := LoadFunctionCLib(fn_EVP_PKEY_CTX_get0_peerkey{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_set_app_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_app_data{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_get_app_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_app_data{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_sign_init := LoadFunctionCLib(fn_EVP_PKEY_sign_init{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_sign := LoadFunctionCLib(fn_EVP_PKEY_sign{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_verify_init := LoadFunctionCLib(fn_EVP_PKEY_verify_init{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_verify := LoadFunctionCLib(fn_EVP_PKEY_verify{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_verify_recover_init := LoadFunctionCLib(fn_EVP_PKEY_verify_recover_init{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_verify_recover := LoadFunctionCLib(fn_EVP_PKEY_verify_recover{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_encrypt_init := LoadFunctionCLib(fn_EVP_PKEY_encrypt_init{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PKEY_asn1_get_count := LoadFunctionCLib(fn_EVP_PKEY_asn1_get_count,False);
+  @EVP_PKEY_asn1_get0 := LoadFunctionCLib(fn_EVP_PKEY_asn1_get0,False);
+  @EVP_PKEY_asn1_find := LoadFunctionCLib(fn_EVP_PKEY_asn1_find,False);
+  @EVP_PKEY_asn1_find_str := LoadFunctionCLib(fn_EVP_PKEY_asn1_find_str,False);
+  @EVP_PKEY_asn1_add0 := LoadFunctionCLib(fn_EVP_PKEY_asn1_add0,False);
+  @EVP_PKEY_asn1_add_alias := LoadFunctionCLib(fn_EVP_PKEY_asn1_add_alias,False);
+  @EVP_PKEY_asn1_get0_info := LoadFunctionCLib(fn_EVP_PKEY_asn1_get0_info,False);
+  @EVP_PKEY_get0_asn1 := LoadFunctionCLib(fn_EVP_PKEY_get0_asn1,False);
+  @EVP_PKEY_asn1_new := LoadFunctionCLib(fn_EVP_PKEY_asn1_new,False);
+  @EVP_PKEY_asn1_copy := LoadFunctionCLib(fn_EVP_PKEY_asn1_copy,False);
+  @EVP_PKEY_asn1_free := LoadFunctionCLib(fn_EVP_PKEY_asn1_free,False);
+  @EVP_PKEY_asn1_set_public := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_public,False);
+  @EVP_PKEY_asn1_set_private := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_private,False);
+  @EVP_PKEY_asn1_set_param := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_param,False);
+  @EVP_PKEY_asn1_set_free := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_free,False);
+  @EVP_PKEY_asn1_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_asn1_set_ctrl,False);
+  @EVP_PKEY_meth_find := LoadFunctionCLib(fn_EVP_PKEY_meth_find,False);
+  @EVP_PKEY_meth_new := LoadFunctionCLib(fn_EVP_PKEY_meth_new,False);
+  @EVP_PKEY_meth_get0_info := LoadFunctionCLib(fn_EVP_PKEY_meth_get0_info,False);
+  @EVP_PKEY_meth_copy := LoadFunctionCLib(fn_EVP_PKEY_meth_copy,False);
+  @EVP_PKEY_meth_free := LoadFunctionCLib(fn_EVP_PKEY_meth_free,False);
+  @EVP_PKEY_meth_add0 := LoadFunctionCLib(fn_EVP_PKEY_meth_add0,False);
+  @EVP_PKEY_CTX_new := LoadFunctionCLib(fn_EVP_PKEY_CTX_new,False);
+  @EVP_PKEY_CTX_new_id := LoadFunctionCLib(fn_EVP_PKEY_CTX_new_id,False);
+  @EVP_PKEY_CTX_dup := LoadFunctionCLib(fn_EVP_PKEY_CTX_dup,False);
+  @EVP_PKEY_CTX_free := LoadFunctionCLib(fn_EVP_PKEY_CTX_free,False);
+  @EVP_PKEY_CTX_ctrl := LoadFunctionCLib(fn_EVP_PKEY_CTX_ctrl,False);
+  @EVP_PKEY_CTX_ctrl_str := LoadFunctionCLib(fn_EVP_PKEY_CTX_ctrl_str,False);
+  @EVP_PKEY_CTX_get_operation := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_operation,False);
+  @EVP_PKEY_CTX_set0_keygen_info := LoadFunctionCLib(fn_EVP_PKEY_CTX_set0_keygen_info,False);
+  @EVP_PKEY_new_mac_key := LoadFunctionCLib(fn_EVP_PKEY_new_mac_key,False);
+  @EVP_PKEY_CTX_set_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_data,False);
+  @EVP_PKEY_CTX_get_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_data,False);
+  @EVP_PKEY_CTX_get0_pkey := LoadFunctionCLib(fn_EVP_PKEY_CTX_get0_pkey,False);
+  @EVP_PKEY_CTX_get0_peerkey := LoadFunctionCLib(fn_EVP_PKEY_CTX_get0_peerkey,False);
+  @EVP_PKEY_CTX_set_app_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_app_data,False);
+  @EVP_PKEY_CTX_get_app_data := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_app_data,False);
+  @EVP_PKEY_sign_init := LoadFunctionCLib(fn_EVP_PKEY_sign_init,False);
+  @EVP_PKEY_sign := LoadFunctionCLib(fn_EVP_PKEY_sign,False);
+  @EVP_PKEY_verify_init := LoadFunctionCLib(fn_EVP_PKEY_verify_init,False);
+  @EVP_PKEY_verify := LoadFunctionCLib(fn_EVP_PKEY_verify,False);
+  @EVP_PKEY_verify_recover_init := LoadFunctionCLib(fn_EVP_PKEY_verify_recover_init,False);
+  @EVP_PKEY_verify_recover := LoadFunctionCLib(fn_EVP_PKEY_verify_recover,False);
+  @EVP_PKEY_encrypt_init := LoadFunctionCLib(fn_EVP_PKEY_encrypt_init,False);
   @EVP_PKEY_encrypt := LoadFunctionCLib(fn_EVP_PKEY_encrypt);
-  @EVP_PKEY_decrypt_init := LoadFunctionCLib(fn_EVP_PKEY_decrypt_init{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PKEY_decrypt_init := LoadFunctionCLib(fn_EVP_PKEY_decrypt_init,False);
   @EVP_PKEY_decrypt := LoadFunctionCLib(fn_EVP_PKEY_decrypt);
-  @EVP_PKEY_derive_init := LoadFunctionCLib(fn_EVP_PKEY_derive_init{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_derive_set_peer := LoadFunctionCLib(fn_EVP_PKEY_derive_set_peer{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_derive := LoadFunctionCLib(fn_EVP_PKEY_derive{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_paramgen_init := LoadFunctionCLib(fn_EVP_PKEY_paramgen_init{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_paramgen := LoadFunctionCLib(fn_EVP_PKEY_paramgen{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_keygen_init := LoadFunctionCLib(fn_EVP_PKEY_keygen_init{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_keygen := LoadFunctionCLib(fn_EVP_PKEY_keygen{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_set_cb := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_cb{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_get_cb := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_cb{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_CTX_get_keygen_info := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_keygen_info{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_init := LoadFunctionCLib(fn_EVP_PKEY_meth_set_init{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_copy := LoadFunctionCLib(fn_EVP_PKEY_meth_set_copy{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_cleanup := LoadFunctionCLib(fn_EVP_PKEY_meth_set_cleanup{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_paramgen := LoadFunctionCLib(fn_EVP_PKEY_meth_set_paramgen{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_keygen := LoadFunctionCLib(fn_EVP_PKEY_meth_set_keygen{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_sign := LoadFunctionCLib(fn_EVP_PKEY_meth_set_sign{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_verify := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verify{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_verify_recover := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verify_recover{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_signctx := LoadFunctionCLib(fn_EVP_PKEY_meth_set_signctx{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_verifyctx := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verifyctx{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_encrypt := LoadFunctionCLib(fn_EVP_PKEY_meth_set_encrypt{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_decrypt := LoadFunctionCLib(fn_EVP_PKEY_meth_set_decrypt{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_derive := LoadFunctionCLib(fn_EVP_PKEY_meth_set_derive{$IFDEF _MACOS},False{$ENDIF});
-  @EVP_PKEY_meth_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_meth_set_ctrl{$IFDEF _MACOS},False{$ENDIF});
+  @EVP_PKEY_derive_init := LoadFunctionCLib(fn_EVP_PKEY_derive_init,False);
+  @EVP_PKEY_derive_set_peer := LoadFunctionCLib(fn_EVP_PKEY_derive_set_peer,False);
+  @EVP_PKEY_derive := LoadFunctionCLib(fn_EVP_PKEY_derive,False);
+  @EVP_PKEY_paramgen_init := LoadFunctionCLib(fn_EVP_PKEY_paramgen_init,False);
+  @EVP_PKEY_paramgen := LoadFunctionCLib(fn_EVP_PKEY_paramgen,False);
+  @EVP_PKEY_keygen_init := LoadFunctionCLib(fn_EVP_PKEY_keygen_init,False);
+  @EVP_PKEY_keygen := LoadFunctionCLib(fn_EVP_PKEY_keygen,False);
+  @EVP_PKEY_CTX_set_cb := LoadFunctionCLib(fn_EVP_PKEY_CTX_set_cb,False);
+  @EVP_PKEY_CTX_get_cb := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_cb,False);
+  @EVP_PKEY_CTX_get_keygen_info := LoadFunctionCLib(fn_EVP_PKEY_CTX_get_keygen_info,False);
+  @EVP_PKEY_meth_set_init := LoadFunctionCLib(fn_EVP_PKEY_meth_set_init,False);
+  @EVP_PKEY_meth_set_copy := LoadFunctionCLib(fn_EVP_PKEY_meth_set_copy,False);
+  @EVP_PKEY_meth_set_cleanup := LoadFunctionCLib(fn_EVP_PKEY_meth_set_cleanup,False);
+  @EVP_PKEY_meth_set_paramgen := LoadFunctionCLib(fn_EVP_PKEY_meth_set_paramgen,False);
+  @EVP_PKEY_meth_set_keygen := LoadFunctionCLib(fn_EVP_PKEY_meth_set_keygen,False);
+  @EVP_PKEY_meth_set_sign := LoadFunctionCLib(fn_EVP_PKEY_meth_set_sign,False);
+  @EVP_PKEY_meth_set_verify := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verify,False);
+  @EVP_PKEY_meth_set_verify_recover := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verify_recover,False);
+  @EVP_PKEY_meth_set_signctx := LoadFunctionCLib(fn_EVP_PKEY_meth_set_signctx,False);
+  @EVP_PKEY_meth_set_verifyctx := LoadFunctionCLib(fn_EVP_PKEY_meth_set_verifyctx,False);
+  @EVP_PKEY_meth_set_encrypt := LoadFunctionCLib(fn_EVP_PKEY_meth_set_encrypt,False);
+  @EVP_PKEY_meth_set_decrypt := LoadFunctionCLib(fn_EVP_PKEY_meth_set_decrypt,False);
+  @EVP_PKEY_meth_set_derive := LoadFunctionCLib(fn_EVP_PKEY_meth_set_derive,False);
+  @EVP_PKEY_meth_set_ctrl := LoadFunctionCLib(fn_EVP_PKEY_meth_set_ctrl,False);
   //HMAC
   {$IFNDEF OPENSSL_NO_HMAC}
   @HMAC_CTX_init := LoadFunctionCLib(fn_HMAC_CTX_init);
