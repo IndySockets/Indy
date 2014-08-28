@@ -22532,260 +22532,261 @@ begin
     end;
   end;
 
-  @SSL_CTX_set_cipher_list := LoadFunction(fn_SSL_CTX_set_cipher_list);
-  @SSL_CTX_new := LoadFunction(fn_SSL_CTX_new);
-  @SSL_CTX_free := LoadFunction(fn_SSL_CTX_free);
-  @SSL_set_fd := LoadFunction(fn_SSL_set_fd);
-  @SSL_CTX_use_PrivateKey_file := LoadFunction(fn_SSL_CTX_use_PrivateKey_file);
-  @SSL_CTX_use_PrivateKey := LoadFunction(fn_SSL_CTX_use_PrivateKey);
-  @SSL_CTX_use_certificate := LoadFunction(fn_SSL_CTX_use_certificate);
-  @SSL_CTX_use_certificate_file := LoadFunction(fn_SSL_CTX_use_certificate_file);
-  @SSL_load_error_strings := LoadFunction(fn_SSL_load_error_strings);
-  @SSL_state_string_long := LoadFunction(fn_SSL_state_string_long);
-  @SSL_alert_desc_string_long := LoadFunction(fn_SSL_alert_desc_string_long);
-  @SSL_alert_type_string_long := LoadFunction(fn_SSL_alert_type_string_long);
+  @SSL_CTX_set_cipher_list := LoadFunction(fn_SSL_CTX_set_cipher_list);  //Used by Indy
+  @SSL_CTX_new := LoadFunction(fn_SSL_CTX_new); //Used by Indy
+  @SSL_CTX_free := LoadFunction(fn_SSL_CTX_free); //Used by Indy
+  @SSL_set_fd := LoadFunction(fn_SSL_set_fd);  //Used by Indy
+  @SSL_CTX_use_PrivateKey_file := LoadFunction(fn_SSL_CTX_use_PrivateKey_file);   //Used by Indy
+  @SSL_CTX_use_PrivateKey := LoadFunction(fn_SSL_CTX_use_PrivateKey);  //Used by Indy
+  @SSL_CTX_use_certificate := LoadFunction(fn_SSL_CTX_use_certificate); //Used by Indy
+  @SSL_CTX_use_certificate_file := LoadFunction(fn_SSL_CTX_use_certificate_file);   //Used by Indy
+  @SSL_load_error_strings := LoadFunction(fn_SSL_load_error_strings); //Used by Indy
+  @SSL_state_string_long := LoadFunction(fn_SSL_state_string_long); //Used by Indy
+  @SSL_alert_desc_string_long := LoadFunction(fn_SSL_alert_desc_string_long);  //Used by Indy
+  @SSL_alert_type_string_long := LoadFunction(fn_SSL_alert_type_string_long);  //Used by Indy
 
-  @SSL_get_peer_certificate := LoadFunction(fn_SSL_get_peer_certificate);
-  @SSL_CTX_set_verify := LoadFunction(fn_SSL_CTX_set_verify);
-  @SSL_CTX_set_verify_depth := LoadFunction(fn_SSL_CTX_set_verify_depth);
+  @SSL_get_peer_certificate := LoadFunction(fn_SSL_get_peer_certificate); //Used by Indy
+  @SSL_CTX_set_verify := LoadFunction(fn_SSL_CTX_set_verify); //Used by Indy
+  @SSL_CTX_set_verify_depth := LoadFunction(fn_SSL_CTX_set_verify_depth); //Used by Indy
   @SSL_CTX_get_verify_depth := LoadFunction(fn_SSL_CTX_get_verify_depth);
-  @SSL_CTX_set_default_passwd_cb := LoadFunction(fn_SSL_CTX_set_default_passwd_cb);
-  @SSL_CTX_set_default_passwd_cb_userdata:= LoadFunction(fn_SSL_CTX_set_default_passwd_cb_userdata);
-  @SSL_CTX_check_private_key := LoadFunction(fn_SSL_CTX_check_private_key);
-  @SSL_new := LoadFunction(fn_SSL_new);
-  @SSL_free := LoadFunction(fn_SSL_free);
-  @SSL_accept := LoadFunction(fn_SSL_accept);
-  @SSL_connect := LoadFunction(fn_SSL_connect);
-  @SSL_read := LoadFunction(fn_SSL_read);
-  @SSL_peek := LoadFunction(fn_SSL_peek);
-  @SSL_pending := LoadFunction(fn_SSL_pending);
-  @SSL_write := LoadFunction(fn_SSL_write);
+  @SSL_CTX_set_default_passwd_cb := LoadFunction(fn_SSL_CTX_set_default_passwd_cb);   //Used by Indy
+  @SSL_CTX_set_default_passwd_cb_userdata:= LoadFunction(fn_SSL_CTX_set_default_passwd_cb_userdata); //Used by Indy
+  @SSL_CTX_check_private_key := LoadFunction(fn_SSL_CTX_check_private_key);   //Used by Indy
+  @SSL_new := LoadFunction(fn_SSL_new);   //Used by Indy
+  @SSL_free := LoadFunction(fn_SSL_free);  //Used by Indy
+  @SSL_accept := LoadFunction(fn_SSL_accept);    //Used by Indy
+  @SSL_connect := LoadFunction(fn_SSL_connect);  //Used by Indy
+  @SSL_read := LoadFunction(fn_SSL_read);     //Used by Indy
+  @SSL_peek := LoadFunction(fn_SSL_peek,False);
+  @SSL_pending := LoadFunction(fn_SSL_pending,False);
+  @SSL_write := LoadFunction(fn_SSL_write);      //Used by Indy
   @SSL_ctrl := LoadFunction(fn_SSL_ctrl);
   @SSL_callback_ctrl := LoadFunction(fn_SSL_callback_ctrl);
   @SSL_CTX_ctrl := LoadFunction(fn_SSL_CTX_ctrl);
   @SSL_CTX_callback_ctrl := LoadFunction(fn_SSL_CTX_callback_ctrl);
-  @SSL_get_error := LoadFunction(fn_SSL_get_error);
-  @SSLv2_method := LoadFunction(fn_SSLv2_method);
-  @SSLv2_server_method := LoadFunction(fn_SSLv2_server_method);
-  @SSLv2_client_method := LoadFunction(fn_SSLv2_client_method);
-  @SSLv3_method := LoadFunction(fn_SSLv3_method);
-  @SSLv3_server_method := LoadFunction(fn_SSLv3_server_method);
-  @SSLv3_client_method := LoadFunction(fn_SSLv3_client_method);
-  @SSLv23_method := LoadFunction(fn_SSLv23_method);
-  @SSLv23_server_method := LoadFunction(fn_SSLv23_server_method);
-  @SSLv23_client_method := LoadFunction(fn_SSLv23_client_method);
-  @TLSv1_method := LoadFunction(fn_TLSv1_method);
-  @TLSv1_server_method := LoadFunction(fn_TLSv1_server_method);
-  @TLSv1_client_method := LoadFunction(fn_TLSv1_client_method);
-  @TLSv1_1_method := LoadFunction(fn_TLSv1_1_method,False);
-  @TLSv1_1_server_method := LoadFunction(fn_TLSv1_1_server_method,False);
-  @TLSv1_1_client_method := LoadFunction(fn_TLSv1_1_client_method,False);
-  @TLSv1_2_method := LoadFunction(fn_TLSv1_2_method,False);
-  @TLSv1_2_server_method := LoadFunction(fn_TLSv1_2_server_method,False);
-  @TLSv1_2_client_method := LoadFunction(fn_TLSv1_2_client_method,False);
+  @SSL_get_error := LoadFunction(fn_SSL_get_error);           //Used by Indy
+  @SSLv2_method := LoadFunction(fn_SSLv2_method);                   //Used by Indy
+  @SSLv2_server_method := LoadFunction(fn_SSLv2_server_method);             //Used by Indy
+  @SSLv2_client_method := LoadFunction(fn_SSLv2_client_method);            //Used by Indy
+  @SSLv3_method := LoadFunction(fn_SSLv3_method);                        //Used by Indy
+  @SSLv3_server_method := LoadFunction(fn_SSLv3_server_method);           //Used by Indy
+  @SSLv3_client_method := LoadFunction(fn_SSLv3_client_method);          //Used by Indy
+  @SSLv23_method := LoadFunction(fn_SSLv23_method);                      //Used by Indy
+  @SSLv23_server_method := LoadFunction(fn_SSLv23_server_method);        //Used by Indy
+  @SSLv23_client_method := LoadFunction(fn_SSLv23_client_method);       //Used by Indy
+  @TLSv1_method := LoadFunction(fn_TLSv1_method);                         //Used by Indy
+  @TLSv1_server_method := LoadFunction(fn_TLSv1_server_method);         //Used by Indy
+  @TLSv1_client_method := LoadFunction(fn_TLSv1_client_method);          //Used by Indy
+  @TLSv1_1_method := LoadFunction(fn_TLSv1_1_method,False);              //Used by Indy
+  @TLSv1_1_server_method := LoadFunction(fn_TLSv1_1_server_method,False);    //Used by Indy
+  @TLSv1_1_client_method := LoadFunction(fn_TLSv1_1_client_method,False);   //Used by Indy
+  @TLSv1_2_method := LoadFunction(fn_TLSv1_2_method,False);                //Used by Indy
+  @TLSv1_2_server_method := LoadFunction(fn_TLSv1_2_server_method,False);  //Used by Indy
+  @TLSv1_2_client_method := LoadFunction(fn_TLSv1_2_client_method,False);    //Used by Indy
 
   @DTLSv1_method := LoadFunction(fn_DTLSv1_method, False);
   @DTLSv1_server_method := LoadFunction(fn_DTLSv1_server_method, False);
   @DTLSv1_client_method := LoadFunction(fn_DTLSv1_client_method, False);
-  @SSL_shutdown := LoadFunction(fn_SSL_shutdown);
-  @SSL_set_connect_state := LoadFunction(fn_SSL_set_connect_state);
-  @SSL_set_accept_state := LoadFunction(fn_SSL_set_accept_state);
-  @SSL_set_shutdown := LoadFunction(fn_SSL_set_shutdown);
-  @SSL_CTX_load_verify_locations := LoadFunction(fn_SSL_CTX_load_verify_locations);
-  @SSL_get_session := LoadFunction(fn_SSL_get_session);
-  @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);
-  @SSL_SESSION_get_id := LoadFunction(fn_SSL_SESSION_get_id);
-  @SSL_copy_session_id := LoadFunction(fn_SSL_copy_session_id);
+  @SSL_shutdown := LoadFunction(fn_SSL_shutdown);   //Used by Indy
+  @SSL_set_connect_state := LoadFunction(fn_SSL_set_connect_state,False);
+  @SSL_set_accept_state := LoadFunction(fn_SSL_set_accept_state,False);
+  @SSL_set_shutdown := LoadFunction(fn_SSL_set_shutdown);  //Used by Indy
+  @SSL_CTX_load_verify_locations := LoadFunction(fn_SSL_CTX_load_verify_locations);  //Used by Indy
+  @SSL_get_session := LoadFunction(fn_SSL_get_session); //Used by Indy
+  @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);  //Used by Indy
+  @SSL_SESSION_get_id := LoadFunction(fn_SSL_SESSION_get_id); //Used by Indy
+  @SSL_copy_session_id := LoadFunction(fn_SSL_copy_session_id);  //Used by Indy
    // CRYPTO LIB
-  @_SSLeay_version := LoadFunctionCLib(fn_SSLeay_version);
-  @SSLeay := LoadFunctionCLib(fn_SSLeay);
+  @_SSLeay_version := LoadFunctionCLib(fn_SSLeay_version); //Used by Indy
+  @SSLeay := LoadFunctionCLib(fn_SSLeay);    //Used by Indy
   @d2i_X509_NAME := LoadFunctionCLib(fn_d2i_X509_NAME);
   @i2d_X509_NAME := LoadFunctionCLib(fn_i2d_X509_NAME);
-  @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);
-  @X509_NAME_cmp := LoadFunctionCLib(fn_X509_NAME_cmp);
-  @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash);
-  @X509_set_issuer_name := LoadFunctionCLib(fn_X509_set_issuer_name);
-  @X509_get_issuer_name := LoadFunctionCLib(fn_X509_get_issuer_name);
-  @X509_set_subject_name := LoadFunctionCLib(fn_X509_set_subject_name);
-  @X509_get_subject_name := LoadFunctionCLib(fn_X509_get_subject_name);
-  @X509_digest := LoadFunctionCLib(fn_X509_digest);
-  @X509_LOOKUP_ctrl := LoadFunctionCLib( fn_X509_LOOKUP_ctrl );
-  @X509_STORE_add_cert := LoadFunctionCLib(fn_X509_STORE_add_cert);
-  @X509_STORE_add_crl := LoadFunctionCLib(fn_X509_STORE_add_crl);
-  @X509_STORE_CTX_get_ex_data := LoadFunctionCLib(fn_X509_STORE_CTX_get_ex_data);
-  @X509_STORE_CTX_get_error := LoadFunctionCLib(fn_X509_STORE_CTX_get_error);
-  @X509_STORE_CTX_set_error := LoadFunctionCLib(fn_X509_STORE_CTX_set_error);
-  @X509_STORE_CTX_get_error_depth := LoadFunctionCLib(fn_X509_STORE_CTX_get_error_depth);
-  @X509_STORE_CTX_get_current_cert := LoadFunctionCLib(fn_X509_STORE_CTX_get_current_cert);
-  @X509_STORE_add_lookup := LoadFunctionCLib(fn_X509_STORE_add_lookup);
-  @X509_STORE_load_locations := LoadFunctionCLib(fn_X509_STORE_load_locations);
-  @i2d_DSAPrivateKey := LoadFunctionCLib(fn_i2d_DSAPrivateKey);
-  @d2i_DSAPrivateKey := LoadFunctionCLib(fn_d2i_DSAPrivateKey);
-  @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);
-  @d2i_PrivateKey_bio := LoadFunctionCLib(fn_d2i_PrivateKey_bio);
-  @X509_sign := LoadFunctionCLib(fn_X509_sign);
-  @X509_REQ_sign := LoadFunctionCLib(fn_X509_REQ_sign);
-  @X509_REQ_add_extensions := LoadFunctionCLib(fn_X509_REQ_add_extensions);
-  @X509V3_EXT_conf_nid := LoadFunctionCLib(fn_X509V3_EXT_conf_nid);
-  @X509_EXTENSION_create_by_NID := LoadFunctionCLib(fn_X509_EXTENSION_create_by_NID);
+  @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);//Used by Indy
+  @X509_NAME_cmp := LoadFunctionCLib(fn_X509_NAME_cmp); //Used by Indy
+  @X509_NAME_hash := LoadFunctionCLib(fn_X509_NAME_hash);  //Used by Indy
+  @X509_set_issuer_name := LoadFunctionCLib(fn_X509_set_issuer_name,False);
+  @X509_get_issuer_name := LoadFunctionCLib(fn_X509_get_issuer_name);  //Used by Indy
+  @X509_set_subject_name := LoadFunctionCLib(fn_X509_set_subject_name,False);
+  @X509_get_subject_name := LoadFunctionCLib(fn_X509_get_subject_name); //Used by Indy
+  @X509_digest := LoadFunctionCLib(fn_X509_digest);//Used by Indy
+  @X509_LOOKUP_ctrl := LoadFunctionCLib( fn_X509_LOOKUP_ctrl, False );
+  @X509_STORE_add_cert := LoadFunctionCLib(fn_X509_STORE_add_cert); //Used by Indy
+  @X509_STORE_add_crl := LoadFunctionCLib(fn_X509_STORE_add_crl);  //Used by Indy
+  @X509_STORE_CTX_get_ex_data := LoadFunctionCLib(fn_X509_STORE_CTX_get_ex_data,False);
+  @X509_STORE_CTX_get_error := LoadFunctionCLib(fn_X509_STORE_CTX_get_error);   //Used by Indy
+  @X509_STORE_CTX_set_error := LoadFunctionCLib(fn_X509_STORE_CTX_set_error,False);
+  @X509_STORE_CTX_get_error_depth := LoadFunctionCLib(fn_X509_STORE_CTX_get_error_depth); //Used by Indy
+  @X509_STORE_CTX_get_current_cert := LoadFunctionCLib(fn_X509_STORE_CTX_get_current_cert);  //Used by Indy
+  @X509_STORE_add_lookup := LoadFunctionCLib(fn_X509_STORE_add_lookup);  //Used by Indy
+  @X509_STORE_load_locations := LoadFunctionCLib(fn_X509_STORE_load_locations);  //Used by Indy
+  @i2d_DSAPrivateKey := LoadFunctionCLib(fn_i2d_DSAPrivateKey); //Used by Indy
+  @d2i_DSAPrivateKey := LoadFunctionCLib(fn_d2i_DSAPrivateKey); //Used by Indy
+  @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);  //Used by Indy
+  @d2i_PrivateKey_bio := LoadFunctionCLib(fn_d2i_PrivateKey_bio);  //Used by Indy
+  @X509_sign := LoadFunctionCLib(fn_X509_sign,False);
+  @X509_REQ_sign := LoadFunctionCLib(fn_X509_REQ_sign,False);
+  @X509_REQ_add_extensions := LoadFunctionCLib(fn_X509_REQ_add_extensions,False);
+  @X509V3_EXT_conf_nid := LoadFunctionCLib(fn_X509V3_EXT_conf_nid,False);
+  @X509_EXTENSION_create_by_NID := LoadFunctionCLib(fn_X509_EXTENSION_create_by_NID,False);
   @X509V3_set_ctx := LoadFunctionCLib(fn_X509V3_set_ctx);
-  @X509_EXTENSION_free := LoadFunctionCLib(fn_X509_EXTENSION_free);
-  @X509_add_ext := LoadFunctionCLib(fn_X509_add_ext);
+  @X509_EXTENSION_free := LoadFunctionCLib(fn_X509_EXTENSION_free,False);
+  @X509_add_ext := LoadFunctionCLib(fn_X509_add_ext,False);
   {$IFNDEF OPENSSL_NO_BIO}
   //X509_print
-  @X509_print := LoadFunctionCLib(fn_X509_print, False );
+  @X509_print := LoadFunctionCLib(fn_X509_print, False );  //Used by Indy
   {$ENDIF}
-  @_RAND_bytes := LoadFunctionCLib(fn_RAND_bytes);
-  @_RAND_pseudo_bytes := LoadFunctionCLib(fn_RAND_pseudo_bytes);
-  @_RAND_seed := LoadFunctionCLib(fn_RAND_seed);
-  @_RAND_add := LoadFunctionCLib(fn_RAND_add);
-  @_RAND_status := LoadFunctionCLib(fn_RAND_status);
+  @_RAND_bytes := LoadFunctionCLib(fn_RAND_bytes); //Used by Indy
+  @_RAND_pseudo_bytes := LoadFunctionCLib(fn_RAND_pseudo_bytes); //Used by Indy
+  @_RAND_seed := LoadFunctionCLib(fn_RAND_seed); //Used by Indy
+  @_RAND_add := LoadFunctionCLib(fn_RAND_add);  //Used by Indy
+  @_RAND_status := LoadFunctionCLib(fn_RAND_status);  //Used by Indy
   {$IFDEF SYS_WIN}
-  @_RAND_screen := LoadFunctionCLib(fn_RAND_screen);
-  @_RAND_event := LoadFunctionCLib(fn_RAND_event);
+  @_RAND_screen := LoadFunctionCLib(fn_RAND_screen); //Used by Indy
+  @_RAND_event := LoadFunctionCLib(fn_RAND_event); //Used by Indy
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_DES}
   // 3DES
-  @DES_set_odd_parity := LoadFunctionCLib(fn_DES_set_odd_parity);
-  @DES_set_key := LoadFunctionCLib(fn_DES_set_key);
-  @DES_ecb_encrypt := LoadFunctionCLib(fn_DES_ecb_encrypt);
-  @Id_ossl_old_des_set_odd_parity := LoadOldCLib(fnold_des_set_odd_parity,fn__ossl_old_des_set_odd_parity);
-  @Id_ossl_old_des_set_key := LoadOldCLib(fnold_des_set_key,fn__ossl_old_des_set_key);
-  @Id_ossl_old_des_ecb_encrypt := LoadOldCLib(fnold_des_ecb_encrypt,fn__ossl_old_des_ecb_encrypt);
+  @DES_set_odd_parity := LoadFunctionCLib(fn_DES_set_odd_parity);   //Used by Indy
+  @DES_set_key := LoadFunctionCLib(fn_DES_set_key);  //Used by Indy
+  @DES_ecb_encrypt := LoadFunctionCLib(fn_DES_ecb_encrypt); //Used by Indy
+  @Id_ossl_old_des_set_odd_parity := LoadOldCLib(fnold_des_set_odd_parity,fn__ossl_old_des_set_odd_parity,False);
+  @Id_ossl_old_des_set_key := LoadOldCLib(fnold_des_set_key,fn__ossl_old_des_set_key,False);
+  @Id_ossl_old_des_ecb_encrypt := LoadOldCLib(fnold_des_ecb_encrypt,fn__ossl_old_des_ecb_encrypt,False);
   {$ENDIF}
   // More SSL functions
-  @SSL_set_ex_data := LoadFunction(fn_SSL_set_ex_data);
-  @SSL_get_ex_data := LoadFunction(fn_SSL_get_ex_data);
-  @SSL_load_client_CA_file := LoadFunction(fn_SSL_load_client_CA_file);
-  @SSL_CTX_set_client_CA_list := LoadFunction(fn_SSL_CTX_set_client_CA_list);
-  @SSL_CTX_set_default_verify_paths := LoadFunction(fn_SSL_CTX_set_default_verify_paths);
-  @SSL_CTX_set_session_id_context := LoadFunction(fn_SSL_CTX_set_session_id_context);
-  @SSL_CIPHER_description := LoadFunction(fn_SSL_CIPHER_description);
-  @SSL_get_current_cipher := LoadFunction(fn_SSL_get_current_cipher);
-  @SSL_CIPHER_get_name := LoadFunction(fn_SSL_CIPHER_get_name);
-  @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version);
-  @SSL_CIPHER_get_bits  := LoadFunction(fn_SSL_CIPHER_get_bits);
+  @SSL_set_ex_data := LoadFunction(fn_SSL_set_ex_data,False);
+  @SSL_get_ex_data := LoadFunction(fn_SSL_get_ex_data,False);
+  @SSL_load_client_CA_file := LoadFunction(fn_SSL_load_client_CA_file);  //Used by Indy
+  @SSL_CTX_set_client_CA_list := LoadFunction(fn_SSL_CTX_set_client_CA_list); //Used by Indy
+  @SSL_CTX_set_default_verify_paths := LoadFunction(fn_SSL_CTX_set_default_verify_paths); //Used by Indy
+  @SSL_CTX_set_session_id_context := LoadFunction(fn_SSL_CTX_set_session_id_context); //Used by Indy
+  @SSL_CIPHER_description := LoadFunction(fn_SSL_CIPHER_description);  //Used by Indy
+  @SSL_get_current_cipher := LoadFunction(fn_SSL_get_current_cipher);  //Used by Indy
+  @SSL_CIPHER_get_name := LoadFunction(fn_SSL_CIPHER_get_name);  //Used by Indy
+  @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
+  @SSL_CIPHER_get_bits  := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
   // Thread safe
-  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock);
-  @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks);
-  @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback);
+  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock);  //Used by Indy
+  @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks); //Used by Indy
+  @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback); //Used by Indy
   {$IFNDEF WIN32_OR_WIN64}
 {
 In OpenSSL 1.0.0, you should use these callback functions instead of the
 depreciated set_id_callback.  They are not in the older 0.9.8 OpenSSL series so
 we have to handle both cases.
 }
-  @CRYPTO_THREADID_set_callback := LoadFunctionCLib(fn_CRYPTO_THREADID_set_callback,False);
-  @CRYPTO_THREADID_set_numeric := LoadFunctionClib(fn_CRYPTO_THREADID_set_numeric,False);
-  @CRYPTO_THREADID_set_pointer := LoadFunctionClib(fn_CRYPTO_THREADID_set_pointer,False);  {Do not localize}
-  if not Assigned(CRYPTO_THREADID_set_callback) then begin
-    @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback);
+  @CRYPTO_THREADID_set_callback := LoadFunctionCLib(fn_CRYPTO_THREADID_set_callback,False);  //Used by Indy
+  @CRYPTO_THREADID_set_numeric := LoadFunctionClib(fn_CRYPTO_THREADID_set_numeric,False); //Used by Indy
+  @CRYPTO_THREADID_set_pointer := LoadFunctionClib(fn_CRYPTO_THREADID_set_pointer,False);
+  if not Assigned(CRYPTO_THREADID_set_callback) then begin  //Used by Indy
+    @CRYPTO_set_id_callback := LoadFunctionCLib(fn_CRYPTO_set_id_callback);  //Used by Indy
   end else begin
     @CRYPTO_set_id_callback := nil;
   end;
   {$ENDIF}
-  @ERR_put_error := LoadFunctionCLib(fn_ERR_put_error);
-  @ERR_get_error := LoadFunctionCLib(fn_ERR_get_error);
-  @ERR_peek_error := LoadFunctionCLib(fn_ERR_peek_error);
-  @ERR_peek_last_error := LoadFunctionCLib(fn_ERR_peek_last_error);
-  @ERR_clear_error := LoadFunctionCLib(fn_ERR_clear_error);
-  @ERR_error_string := LoadFunctionCLib(fn_ERR_error_string);
-  @ERR_error_string_n := LoadFunctionCLib(fn_ERR_error_string_n);
-  @ERR_lib_error_string := LoadFunctionCLib( fn_ERR_lib_error_string );
-  @ERR_func_error_string := LoadFunctionCLib( fn_ERR_func_error_string );
-  @ERR_reason_error_string := LoadFunctionCLib( fn_ERR_reason_error_string );
-  @ERR_load_ERR_strings := LoadFunctionCLib( fn_ERR_load_ERR_strings);
-  @ERR_load_crypto_strings := LoadFunctionCLib(fn_ERR_load_crypto_strings);
-  @ERR_free_strings := LoadFunctionCLib(fn_ERR_free_strings);
-  @ERR_remove_thread_state := LoadFunctionCLib(fn_ERR_remove_thread_state,False);
+  @ERR_put_error := LoadFunctionCLib(fn_ERR_put_error,False);
+  @ERR_get_error := LoadFunctionCLib(fn_ERR_get_error,False);
+  @ERR_peek_error := LoadFunctionCLib(fn_ERR_peek_error,False);
+  @ERR_peek_last_error := LoadFunctionCLib(fn_ERR_peek_last_error);  //Used by Indy
+  @ERR_clear_error := LoadFunctionCLib(fn_ERR_clear_error);   //Used by Indy
+  @ERR_error_string := LoadFunctionCLib(fn_ERR_error_string, False);
+  @ERR_error_string_n := LoadFunctionCLib(fn_ERR_error_string_n, False);
+  @ERR_lib_error_string := LoadFunctionCLib( fn_ERR_lib_error_string, False );
+  @ERR_func_error_string := LoadFunctionCLib( fn_ERR_func_error_string, False );
+  @ERR_reason_error_string := LoadFunctionCLib( fn_ERR_reason_error_string, False );
+  @ERR_load_ERR_strings := LoadFunctionCLib( fn_ERR_load_ERR_strings,False);
+  @ERR_load_crypto_strings := LoadFunctionCLib(fn_ERR_load_crypto_strings,False);
+  @ERR_free_strings := LoadFunctionCLib(fn_ERR_free_strings);  //Used by Indy
+  @ERR_remove_thread_state := LoadFunctionCLib(fn_ERR_remove_thread_state,False); //Used by Indy
   if not Assigned(ERR_remove_thread_state) then begin
-    @ERR_remove_state := LoadFunctionCLib(fn_ERR_remove_state);
+    @ERR_remove_state := LoadFunctionCLib(fn_ERR_remove_state); //Used by Indy
   end else begin
     @ERR_remove_state := nil;
   end;
-  @CRYPTO_cleanup_all_ex_data := LoadFunctionCLib(fn_CRYPTO_cleanup_all_ex_data);
-  @SSL_COMP_get_compression_methods := LoadFunction(fn_SSL_COMP_get_compression_methods);
-  @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free);
+  @CRYPTO_cleanup_all_ex_data := LoadFunctionCLib(fn_CRYPTO_cleanup_all_ex_data,False); //Used by Indy
+  @SSL_COMP_get_compression_methods := LoadFunction(fn_SSL_COMP_get_compression_methods,False);
+  @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free,False);
   //RSA
-  @RSA_free := LoadFunctionCLib(fn_RSA_free);
+  @RSA_free := LoadFunctionCLib(fn_RSA_free,False);
   @RSA_generate_key_ex := LoadFunctionCLib(fn_RSA_generate_key_ex, False);
-  @RSA_generate_key := LoadFunctionCLib(fn_RSA_generate_key, not Assigned(RSA_generate_key_ex));
-  @RSA_check_key := LoadFunctionCLib(fn_RSA_check_key);
-  @RSA_new := LoadFunctionCLib(fn_RSA_new);
-  @RSA_size := LoadFunctionCLib(fn_RSA_size);
-  @RSA_private_decrypt := LoadFunctionCLib(fn_RSA_private_decrypt);
-  @RSA_public_encrypt := LoadFunctionCLib(fn_RSA_public_encrypt);
+  @RSA_generate_key := LoadFunctionCLib(fn_RSA_generate_key, False);
+ // @RSA_generate_key := LoadFunctionCLib(fn_RSA_generate_key, not Assigned(RSA_generate_key_ex));
+  @RSA_check_key := LoadFunctionCLib(fn_RSA_check_key,False);
+  @RSA_new := LoadFunctionCLib(fn_RSA_new,False);
+  @RSA_size := LoadFunctionCLib(fn_RSA_size,False);
+  @RSA_private_decrypt := LoadFunctionCLib(fn_RSA_private_decrypt,False);
+  @RSA_public_encrypt := LoadFunctionCLib(fn_RSA_public_encrypt,False);
   //DH
-  @DH_free := LoadFunctionCLib(fn_DH_free);
+  @DH_free := LoadFunctionCLib(fn_DH_free);  //Used by Indy
   //BN
-  @BN_new := LoadFunctionCLib(fn_BN_new);
-  @BN_free := LoadFunctionCLib(fn_BN_free);
-  @BN_hex2bn := LoadFunctionCLib(fn_BN_hex2bn);
-  @BN_bn2hex := LoadFunctionCLib(fn_BN_bn2hex);
-  @BN_set_word := LoadFunctionCLib(fn_BN_set_word);
+  @BN_new := LoadFunctionCLib(fn_BN_new,False);
+  @BN_free := LoadFunctionCLib(fn_BN_free,False);
+  @BN_hex2bn := LoadFunctionCLib(fn_BN_hex2bn,False);
+  @BN_bn2hex := LoadFunctionCLib(fn_BN_bn2hex,False);
+  @BN_set_word := LoadFunctionCLib(fn_BN_set_word,False);
   //BIO
-  @BIO_new := LoadFunctionCLib(fn_BIO_new);
-  @BIO_free := LoadFunctionCLib(fn_BIO_free);
-  @BIO_new_mem_buf := LoadFunctionCLib(fn_BIO_new_mem_buf);
-  @BIO_s_mem := LoadFunctionCLib(fn_BIO_s_mem);
-  @BIO_s_file := LoadFunctionCLib(fn_BIO_s_file);
-  @BIO_set_ex_data := LoadFunctionCLib(fn_BIO_set_ex_data);
-  @BIO_get_ex_data := LoadFunctionCLib(fn_BIO_get_ex_data);
+  @BIO_new := LoadFunctionCLib(fn_BIO_new);   //Used by Indy
+  @BIO_free := LoadFunctionCLib(fn_BIO_free);  //Used by Indy
+  @BIO_new_mem_buf := LoadFunctionCLib(fn_BIO_new_mem_buf);   //Used by Indy
+  @BIO_s_mem := LoadFunctionCLib(fn_BIO_s_mem);  //Used by Indy
+  @BIO_s_file := LoadFunctionCLib(fn_BIO_s_file,False);
+  @BIO_set_ex_data := LoadFunctionCLib(fn_BIO_set_ex_data,False);
+  @BIO_get_ex_data := LoadFunctionCLib(fn_BIO_get_ex_data,False);
   @BIO_ctrl := LoadFunctionCLib(fn_BIO_ctrl);
-  @BIO_int_ctrl := LoadFunctionCLib( fn_BIO_int_ctrl);
-  @BIO_ptr_ctrl := LoadFunctionCLib( fn_BIO_ptr_ctrl );
+  @BIO_int_ctrl := LoadFunctionCLib( fn_BIO_int_ctrl, False);
+  @BIO_ptr_ctrl := LoadFunctionCLib( fn_BIO_ptr_ctrl,False );
   @BIO_new_file := LoadFunctionCLib(fn_BIO_new_file);
-  @BIO_puts := LoadFunctionCLib(fn_BIO_puts);
-  @BIO_read := LoadFunctionCLib(fn_BIO_read);
-  @BIO_write := LoadFunctionCLib(fn_BIO_write);
+  @BIO_puts := LoadFunctionCLib(fn_BIO_puts,False);
+  @BIO_read := LoadFunctionCLib(fn_BIO_read,False);
+  @BIO_write := LoadFunctionCLib(fn_BIO_write,False);
   //i2d
-  @i2d_X509_bio := LoadFunctionCLib(fn_i2d_X509_bio);
-  @i2d_PrivateKey_bio := LoadFunctionCLib(fn_i2d_PrivateKey_bio);
-  @d2i_X509_bio := LoadFunctionCLib(fn_d2i_X509_bio);
-  @i2d_X509_REQ_bio := LoadFunctionCLib(fn_i2d_X509_REQ_bio);
-  @i2d_PKCS7 := LoadFunctionCLib(fn_i2d_PKCS7);
-  @d2i_PKCS7 := LoadFunctionCLib(fn_d2i_PKCS7);
-  @i2d_X509 := LoadFunctionCLib(fn_i2d_X509);
-  @d2i_X509 := LoadFunctionCLib(fn_d2i_X509);
-  @i2d_X509_REQ := LoadFunctionCLib(fn_i2d_X509_REQ);
-  @d2i_X509_REQ := LoadFunctionCLib(fn_d2i_X509_REQ );
-  @i2d_X509_CRL := LoadFunctionCLib(fn_i2d_X509_CRL );
-  @d2i_X509_CRL := LoadFunctionCLib(fn_d2i_X509_CRL );
-  @i2d_RSAPrivateKey := LoadFunctionCLib(fn_i2d_RSAPrivateKey );
-  @d2i_RSAPrivateKey := LoadFunctionCLib(fn_d2i_RSAPrivateKey );
-  @i2d_RSAPublicKey := LoadFunctionCLib(fn_i2d_RSAPublicKey);
-  @d2i_RSAPublicKey := LoadFunctionCLib(fn_d2i_RSAPublicKey);
-  @i2d_PrivateKey := LoadFunctionCLib(fn_i2d_PrivateKey);
-  @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);
+  @i2d_X509_bio := LoadFunctionCLib(fn_i2d_X509_bio,False);
+  @i2d_PrivateKey_bio := LoadFunctionCLib(fn_i2d_PrivateKey_bio,False);
+  @d2i_X509_bio := LoadFunctionCLib(fn_d2i_X509_bio); //Used by Indy
+  @i2d_X509_REQ_bio := LoadFunctionCLib(fn_i2d_X509_REQ_bio,False);
+  @i2d_PKCS7 := LoadFunctionCLib(fn_i2d_PKCS7,False);
+  @d2i_PKCS7 := LoadFunctionCLib(fn_d2i_PKCS7,False);
+  @i2d_X509 := LoadFunctionCLib(fn_i2d_X509,False);
+  @d2i_X509 := LoadFunctionCLib(fn_d2i_X509); //Used by Indy
+  @i2d_X509_REQ := LoadFunctionCLib(fn_i2d_X509_REQ, False);
+  @d2i_X509_REQ := LoadFunctionCLib(fn_d2i_X509_REQ, False );
+  @i2d_X509_CRL := LoadFunctionCLib(fn_i2d_X509_CRL, False );
+  @d2i_X509_CRL := LoadFunctionCLib(fn_d2i_X509_CRL,False );
+  @i2d_RSAPrivateKey := LoadFunctionCLib(fn_i2d_RSAPrivateKey,False );
+  @d2i_RSAPrivateKey := LoadFunctionCLib(fn_d2i_RSAPrivateKey, False );
+  @i2d_RSAPublicKey := LoadFunctionCLib(fn_i2d_RSAPublicKey,False);
+  @d2i_RSAPublicKey := LoadFunctionCLib(fn_d2i_RSAPublicKey,False);
+  @i2d_PrivateKey := LoadFunctionCLib(fn_i2d_PrivateKey,False);
+  @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);  //Used by Indy
 
-  @i2d_DSAparams := LoadFunctionCLib(fn_i2d_DSAparams);
-  @d2i_DSAparams := LoadFunctionCLib(fn_d2i_DSAparams);
-  @i2d_DHparams := LoadFunctionCLib(fn_i2d_DHparams);
-  @d2i_DHparams := LoadFunctionCLib(fn_d2i_DHparams);
-  @i2d_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE);
-  @d2i_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE);
+  @i2d_DSAparams := LoadFunctionCLib(fn_i2d_DSAparams,False);
+  @d2i_DSAparams := LoadFunctionCLib(fn_d2i_DSAparams,False);
+  @i2d_DHparams := LoadFunctionCLib(fn_i2d_DHparams,False);
+  @d2i_DHparams := LoadFunctionCLib(fn_d2i_DHparams);  //Used by Indy
+  @i2d_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE,False);
+  @d2i_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE);  //Indy by Indy
 
   //X509
-  @X509_get_default_cert_file := LoadFunctionCLib(fn_X509_get_default_cert_file);
-  @X509_get_default_cert_file_env := LoadFunctionCLib(fn_X509_get_default_cert_file_env);
-  @X509_new := LoadFunctionCLib(fn_X509_new);
-  @X509_free := LoadFunctionCLib(fn_X509_free);
-  @X509_REQ_new := LoadFunctionCLib(fn_X509_REQ_new);
-  @X509_REQ_free := LoadFunctionCLib(fn_X509_REQ_free);
-  @X509_to_X509_REQ := LoadFunctionCLib(fn_X509_to_X509_REQ);
-  @X509_NAME_new := LoadFunctionCLib(fn_X509_NAME_new);
-  @X509_NAME_free := LoadFunctionCLib(fn_X509_NAME_free);
+  @X509_get_default_cert_file := LoadFunctionCLib(fn_X509_get_default_cert_file); //Used by Indy
+  @X509_get_default_cert_file_env := LoadFunctionCLib(fn_X509_get_default_cert_file_env);  //Used by Indy
+  @X509_new := LoadFunctionCLib(fn_X509_new,False);
+  @X509_free := LoadFunctionCLib(fn_X509_free);   //Used by Indy
+  @X509_REQ_new := LoadFunctionCLib(fn_X509_REQ_new,False);
+  @X509_REQ_free := LoadFunctionCLib(fn_X509_REQ_free,False);
+  @X509_to_X509_REQ := LoadFunctionCLib(fn_X509_to_X509_REQ,False);
+  @X509_NAME_new := LoadFunctionCLib(fn_X509_NAME_new);  //Used by Indy
+  @X509_NAME_free := LoadFunctionCLib(fn_X509_NAME_free);  //Used by Indy
   @X509_NAME_add_entry_by_txt := LoadFunctionCLib(fn_X509_NAME_add_entry_by_txt);
-  @X509_INFO_free := LoadFunctionCLib(fn_X509_INFO_free);
-  @X509_set_version := LoadFunctionCLib(fn_X509_set_version);
-  @X509_get_serialNumber := LoadFunctionCLib(fn_X509_get_serialNumber);
-  @X509_gmtime_adj := LoadFunctionCLib(fn_X509_gmtime_adj);
-  @X509_set_notBefore := LoadFunctionCLib(fn_X509_set_notBefore);
-  @X509_set_notAfter := LoadFunctionCLib(fn_X509_set_notAfter);
-  @X509_set_pubkey := LoadFunctionCLib(fn_X509_set_pubkey);
-  @X509_REQ_set_pubkey := LoadFunctionCLib(fn_X509_REQ_set_pubkey);
-  @X509_PUBKEY_get := LoadFunctionCLib(fn_X509_PUBKEY_get);
-  @X509_verify := LoadFunctionCLib(fn_X509_verify);
+  @X509_INFO_free := LoadFunctionCLib(fn_X509_INFO_free); //Used by Indy
+  @X509_set_version := LoadFunctionCLib(fn_X509_set_version,False);
+  @X509_get_serialNumber := LoadFunctionCLib(fn_X509_get_serialNumber);   //USED by Indy
+  @X509_gmtime_adj := LoadFunctionCLib(fn_X509_gmtime_adj,False);
+  @X509_set_notBefore := LoadFunctionCLib(fn_X509_set_notBefore,False);
+  @X509_set_notAfter := LoadFunctionCLib(fn_X509_set_notAfter,False);
+  @X509_set_pubkey := LoadFunctionCLib(fn_X509_set_pubkey,False);
+  @X509_REQ_set_pubkey := LoadFunctionCLib(fn_X509_REQ_set_pubkey,False);
+  @X509_PUBKEY_get := LoadFunctionCLib(fn_X509_PUBKEY_get,False);
+  @X509_verify := LoadFunctionCLib(fn_X509_verify,False);
   //PEM
   {$IFNDEF SSLEAY_MACROS}
   @_PEM_read_bio_X509 := LoadFunctionCLib(fn_PEM_read_bio_X509, False);
@@ -22814,42 +22815,42 @@ we have to handle both cases.
   @PEM_ASN1_write_bio := LoadFunctionCLib(fn_PEM_ASN1_write_bio,False);
   @PEM_ASN1_read_bio := LoadFunctionCLib(fn_PEM_ASN1_read_bio,False);
   {$ENDIF}
-  @PEM_X509_INFO_read_bio := LoadFunctionCLib(fn_PEM_X509_INFO_read_bio);
-  @PEM_read_bio_X509_AUX := LoadFunctionCLib(fn_PEM_read_bio_X509_AUX);
+  @PEM_X509_INFO_read_bio := LoadFunctionCLib(fn_PEM_X509_INFO_read_bio); //Used by Indy
+  @PEM_read_bio_X509_AUX := LoadFunctionCLib(fn_PEM_read_bio_X509_AUX); //Used by Indy
   //EVP
   {$IFNDEF OPENSSL_NO_DES}
-  @EVP_des_ede3_cbc := LoadFunctionCLib(fn_EVP_des_ede3_cbc);
+  @EVP_des_ede3_cbc := LoadFunctionCLib(fn_EVP_des_ede3_cbc,False);
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA512}
-  @EVP_sha512 := LoadFunctionCLib(fn_EVP_sha512,False);
-  @EVP_sha384 := LoadFunctionCLib(fn_EVP_sha384,False);
+  @EVP_sha512 := LoadFunctionCLib(fn_EVP_sha512,False); //Used by Indy but non-critical
+  @EVP_sha384 := LoadFunctionCLib(fn_EVP_sha384,False); //Used by Indy but non-critical
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA256}
-  @EVP_sha256 := LoadFunctionCLib(fn_EVP_sha256,False);
-  @EVP_sha224 := LoadFunctionCLib(fn_EVP_sha224,False);
+  @EVP_sha256 := LoadFunctionCLib(fn_EVP_sha256,False); //Used by Indy but non-critical
+  @EVP_sha224 := LoadFunctionCLib(fn_EVP_sha224,False); //Used by Indy but non-critical
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
-  @EVP_sha1 := LoadFunctionCLib(fn_EVP_sha1);
+  @EVP_sha1 := LoadFunctionCLib(fn_EVP_sha1); //USED by Indy
 
   @EVP_sha := LoadFunctionCLib(fn_EVP_sha,False); //not available on Android
-  @EVP_dss := LoadFunctionCLib(fn_EVP_dss);
-  @EVP_dss1 := LoadFunctionCLib(fn_EVP_dss1);
-  @EVP_ecdsa := LoadFunctionCLib(fn_EVP_ecdsa);
+  @EVP_dss := LoadFunctionCLib(fn_EVP_dss,False);
+  @EVP_dss1 := LoadFunctionCLib(fn_EVP_dss1,False);
+  @EVP_ecdsa := LoadFunctionCLib(fn_EVP_ecdsa,False);
   {$ENDIF}
   {$ifndef OPENSSL_NO_MDC2}
-  @EVP_mdc2 := LoadFunctionCLib(fn_EVP_mdc2);
+  @EVP_mdc2 := LoadFunctionCLib(fn_EVP_mdc2,False);
   {$endif}
   {$IFNDEF OPENSSL_NO_MD5}
-  @EVP_md5 := LoadFunctionCLib(fn_EVP_md5);
+  @EVP_md5 := LoadFunctionCLib(fn_EVP_md5);  //USED By Indy
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_MD4}
-  @EVP_md4 := LoadFunctionCLib(fn_EVP_md4);
+  @EVP_md4 := LoadFunctionCLib(fn_EVP_md4,False);
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_MD2}
-  @EVP_md2 := LoadFunctionCLib(fn_EVP_md2);
+  @EVP_md2 := LoadFunctionCLib(fn_EVP_md2,False);
   {$ENDIF}
   {$ifndef OPENSSL_NO_RIPEMD}
-  @EVP_ripemd160 := LoadFunctionCLib(fn_EVP_ripemd160);
+  @EVP_ripemd160 := LoadFunctionCLib(fn_EVP_ripemd160,False);
   {$endif}
   {$ifndef OPENSSL_NO_WHIRLPOOL}
   @EVP_whirlpool := LoadFunctionCLib(fn_EVP_whirlpool,False); //not available on Android
@@ -23022,51 +23023,51 @@ we have to handle both cases.
   @EVP_CipherInit_ex  := LoadFunctionCLib(fn_EVP_CipherInit_ex);
   @EVP_CipherUpdate  := LoadFunctionCLib(fn_EVP_CipherUpdate);
   @EVP_CipherFinal  := LoadFunctionCLib(fn_EVP_CipherFinal);
-  @EVP_CipherFinal_ex  := LoadFunctionCLib(fn_EVP_CipherFinal_ex);
-  @EVP_SignFinal := LoadFunctionCLib(fn_EVP_SignFinal);
-  @EVP_VerifyFinal := LoadFunctionCLib(fn_EVP_VerifyFinal);
+  @EVP_CipherFinal_ex  := LoadFunctionCLib(fn_EVP_CipherFinal_ex,False);
+  @EVP_SignFinal := LoadFunctionCLib(fn_EVP_SignFinal,False);
+  @EVP_VerifyFinal := LoadFunctionCLib(fn_EVP_VerifyFinal,False);
   @EVP_DigestSignInit := LoadFunctionCLib(fn_EVP_DigestSignInit,False);
   @EVP_DigestSignFinal := LoadFunctionCLib(fn_EVP_DigestSignFinal,False);
   @EVP_DigestVerifyInit := LoadFunctionCLib(fn_EVP_DigestVerifyInit,False);
 	@EVP_DigestVerifyFinal := LoadFunctionCLib(fn_EVP_DigestVerifyFinal,False);
   @EVP_OpenInit := LoadFunctionCLib(fn_EVP_OpenInit);
-	@EVP_OpenFinal := LoadFunctionCLib(fn_EVP_OpenFinal);
-  @EVP_SealInit := LoadFunctionCLib(fn_EVP_SealInit);
-  @EVP_SealFinal := LoadFunctionCLib(fn_EVP_SealFinal);
+	@EVP_OpenFinal := LoadFunctionCLib(fn_EVP_OpenFinal,False);
+  @EVP_SealInit := LoadFunctionCLib(fn_EVP_SealInit,False);
+  @EVP_SealFinal := LoadFunctionCLib(fn_EVP_SealFinal,False);
 
-  @EVP_EncodeInit := LoadFunctionCLib(fn_EVP_EncodeInit);
+  @EVP_EncodeInit := LoadFunctionCLib(fn_EVP_EncodeInit,False);
 
-  @EVP_EncodeUpdate := LoadFunctionCLib(fn_EVP_EncodeUpdate);
-  @EVP_EncodeFinal := LoadFunctionCLib(fn_EVP_EncodeFinal);
-  @EVP_EncodeBlock := LoadFunctionCLib(fn_EVP_EncodeBlock);
-	@EVP_DecodeInit := LoadFunctionCLib(fn_EVP_DecodeInit);
-  @EVP_DecodeUpdate:= LoadFunctionCLib(fn_EVP_DecodeUpdate);
-  @EVP_DecodeFinal:= LoadFunctionCLib(fn_EVP_DecodeFinal);
-  @EVP_DecodeBlock:= LoadFunctionCLib(fn_EVP_DecodeBlock);
+  @EVP_EncodeUpdate := LoadFunctionCLib(fn_EVP_EncodeUpdate,False);
+  @EVP_EncodeFinal := LoadFunctionCLib(fn_EVP_EncodeFinal,False);
+  @EVP_EncodeBlock := LoadFunctionCLib(fn_EVP_EncodeBlock,False);
+	@EVP_DecodeInit := LoadFunctionCLib(fn_EVP_DecodeInit,False);
+  @EVP_DecodeUpdate:= LoadFunctionCLib(fn_EVP_DecodeUpdate,False);
+  @EVP_DecodeFinal:= LoadFunctionCLib(fn_EVP_DecodeFinal,False);
+  @EVP_DecodeBlock:= LoadFunctionCLib(fn_EVP_DecodeBlock,False);
 
-  @EVP_CIPHER_CTX_init:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_init);
+  @EVP_CIPHER_CTX_init:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_init,False);
 
-  @EVP_CIPHER_CTX_cleanup:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_cleanup);
-  @EVP_CIPHER_CTX_new:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_new);
-  @EVP_CIPHER_CTX_free:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_free);
-  @EVP_CIPHER_CTX_set_key_length:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_key_length);
-  @EVP_CIPHER_CTX_set_padding:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_padding);
-  @EVP_CIPHER_CTX_ctrl:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_ctrl);
-  @EVP_CIPHER_CTX_rand_key:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_rand_key);
+  @EVP_CIPHER_CTX_cleanup:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_cleanup,False);
+  @EVP_CIPHER_CTX_new:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_new,False);
+  @EVP_CIPHER_CTX_free:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_free,False);
+  @EVP_CIPHER_CTX_set_key_length:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_key_length,False);
+  @EVP_CIPHER_CTX_set_padding:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_padding,False);
+  @EVP_CIPHER_CTX_ctrl:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_ctrl,False);
+  @EVP_CIPHER_CTX_rand_key:= LoadFunctionCLib(fn_EVP_CIPHER_CTX_rand_key,False);
 
 {$ifndef OPENSSL_NO_BIO}
-  @BIO_f_md := LoadFunctionCLib(fn_BIO_f_md);
-  @BIO_f_base64 := LoadFunctionCLib(fn_BIO_f_base64);
-  @BIO_f_cipher := LoadFunctionCLib(fn_BIO_f_cipher);
-  @BIO_f_reliable :=LoadFunctionCLib(fn_BIO_f_reliable);
-  @BIO_set_cipher :=LoadFunctionCLib(fn_BIO_set_cipher);
+  @BIO_f_md := LoadFunctionCLib(fn_BIO_f_md,False);
+  @BIO_f_base64 := LoadFunctionCLib(fn_BIO_f_base64,False);
+  @BIO_f_cipher := LoadFunctionCLib(fn_BIO_f_cipher,False);
+  @BIO_f_reliable :=LoadFunctionCLib(fn_BIO_f_reliable,False);
+  @BIO_set_cipher :=LoadFunctionCLib(fn_BIO_set_cipher,False);
 {$endif}
 
-  @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup);
+  @EVP_MD_CTX_cleanup := LoadFunctionCLib(fn_EVP_MD_CTX_cleanup,False);
 
   @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
   @EVP_PKEY_new := LoadFunctionCLib(fn_EVP_PKEY_new);
-  @EVP_PKEY_free := LoadFunctionCLib(fn_EVP_PKEY_free);
+  @EVP_PKEY_free := LoadFunctionCLib(fn_EVP_PKEY_free);  //USED in Indy
   @EVP_PKEY_assign := LoadFunctionCLib(fn_EVP_PKEY_assign);
   @EVP_get_cipherbyname := LoadFunctionCLib(fn_EVP_get_cipherbyname);
   @EVP_get_digestbyname := LoadFunctionCLib(fn_EVP_get_digestbyname);
@@ -23075,24 +23076,24 @@ we have to handle both cases.
   @EVP_MD_block_size := LoadFunctionCLib(fn_EVP_MD_block_size);
   @EVP_MD_flags := LoadFunctionCLib(fn_EVP_MD_flags,False);
   @EVP_MD_CTX_md := LoadFunctionCLib(fn_EVP_MD_CTX_md);
-  @EVP_CIPHER_nid := LoadFunctionCLib(fn_EVP_CIPHER_nid);
-  @EVP_CIPHER_block_size := LoadFunctionCLib(fn_EVP_CIPHER_block_size);
-  @EVP_CIPHER_key_length := LoadFunctionCLib(fn_EVP_CIPHER_key_length);
-  @EVP_CIPHER_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_iv_length);
+  @EVP_CIPHER_nid := LoadFunctionCLib(fn_EVP_CIPHER_nid,False);
+  @EVP_CIPHER_block_size := LoadFunctionCLib(fn_EVP_CIPHER_block_size,False);
+  @EVP_CIPHER_key_length := LoadFunctionCLib(fn_EVP_CIPHER_key_length,False);
+  @EVP_CIPHER_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_iv_length,False);
   @EVP_CIPHER_flags := LoadFunctionCLib(fn_EVP_CIPHER_flags);
   @EVP_CIPHER_type := LoadFunctionCLib(fn_EVP_CIPHER_type);
   @EVP_CIPHER_CTX_cipher := LoadFunctionCLib(fn_EVP_CIPHER_CTX_cipher);
-  @EVP_CIPHER_CTX_nid  := LoadFunctionCLib(fn_EVP_CIPHER_CTX_nid);
-  @EVP_CIPHER_CTX_block_size := LoadFunctionCLib(fn_EVP_CIPHER_CTX_block_size );
-  @EVP_CIPHER_CTX_key_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_key_length );
-  @EVP_CIPHER_CTX_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_iv_length);
+  @EVP_CIPHER_CTX_nid  := LoadFunctionCLib(fn_EVP_CIPHER_CTX_nid,False);
+  @EVP_CIPHER_CTX_block_size := LoadFunctionCLib(fn_EVP_CIPHER_CTX_block_size, False );
+  @EVP_CIPHER_CTX_key_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_key_length, False );
+  @EVP_CIPHER_CTX_iv_length := LoadFunctionCLib(fn_EVP_CIPHER_CTX_iv_length,False);
   @EVP_CIPHER_CTX_copy := LoadFunctionCLib(fn_EVP_CIPHER_CTX_copy,False );
   @EVP_CIPHER_CTX_get_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_get_app_data );
   @EVP_CIPHER_CTX_set_app_data := LoadFunctionCLib(fn_EVP_CIPHER_CTX_set_app_data );
   @EVP_CIPHER_CTX_flags := LoadFunctionCLib(fn_EVP_CIPHER_CTX_flags);
 
-  @EVP_add_cipher := LoadFunctionCLib(fn_EVP_add_cipher);
-  @EVP_add_digest := LoadFunctionCLib(fn_EVP_add_digest);
+  @EVP_add_cipher := LoadFunctionCLib(fn_EVP_add_cipher,False);
+  @EVP_add_digest := LoadFunctionCLib(fn_EVP_add_digest,False);
 
   @EVP_CIPHER_do_all := LoadFunctionCLib(fn_EVP_CIPHER_do_all,False);
   @EVP_CIPHER_do_all_sorted := LoadFunctionCLib(fn_EVP_CIPHER_do_all_sorted,False);
@@ -23100,52 +23101,52 @@ we have to handle both cases.
   @EVP_MD_do_all_sorted := LoadFunctionCLib(fn_EVP_MD_do_all_sorted,False);
   @EVP_PKEY_decrypt_old := LoadFunctionCLib(fn_EVP_PKEY_decrypt_old,False);
   @EVP_PKEY_encrypt_old := LoadFunctionCLib(fn_EVP_PKEY_encrypt_old,False);
-  @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
+  @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type,False);
   @EVP_PKEY_id := LoadFunctionCLib(fn_EVP_PKEY_id,False);
   @EVP_PKEY_base_id := LoadFunctionCLib(fn_EVP_PKEY_base_id,False);
-  @EVP_PKEY_bits := LoadFunctionCLib(fn_EVP_PKEY_bits);
-  @EVP_PKEY_size := LoadFunctionCLib(fn_EVP_PKEY_size);
+  @EVP_PKEY_bits := LoadFunctionCLib(fn_EVP_PKEY_bits,False);
+  @EVP_PKEY_size := LoadFunctionCLib(fn_EVP_PKEY_size,False);
   @EVP_PKEY_set_type := LoadFunctionCLib(fn_EVP_PKEY_set_type,False);
   @EVP_PKEY_set_type_str := LoadFunctionCLib(fn_EVP_PKEY_set_type_str,False);
   @EVP_PKEY_get0 := LoadFunctionCLib(fn_EVP_PKEY_get0,False);
   {$ifndef OPENSSL_NO_RSA}
-  @EVP_PKEY_set1_RSA := LoadFunctionCLib(fn_EVP_PKEY_set1_RSA);
-  @EVP_PKEY_get1_RSA := LoadFunctionCLib(fn_EVP_PKEY_get1_RSA);
+  @EVP_PKEY_set1_RSA := LoadFunctionCLib(fn_EVP_PKEY_set1_RSA,False);
+  @EVP_PKEY_get1_RSA := LoadFunctionCLib(fn_EVP_PKEY_get1_RSA,False);
   {$ENDIF}
   {$ifndef OPENSSL_NO_DSA}
-  @EVP_PKEY_set1_DSA := LoadFunctionCLib(fn_EVP_PKEY_set1_DSA);
-  @EVP_PKEY_get1_DSA := LoadFunctionCLib(fn_EVP_PKEY_get1_DSA);
+  @EVP_PKEY_set1_DSA := LoadFunctionCLib(fn_EVP_PKEY_set1_DSA,False);
+  @EVP_PKEY_get1_DSA := LoadFunctionCLib(fn_EVP_PKEY_get1_DSA,False);
   {$endif}
   {$ifndef OPENSSL_NO_DH}
-  @EVP_PKEY_set1_DH := LoadFunctionCLib(fn_EVP_PKEY_set1_DH);
-  @EVP_PKEY_get1_DH := LoadFunctionCLib(fn_EVP_PKEY_get1_DH);
+  @EVP_PKEY_set1_DH := LoadFunctionCLib(fn_EVP_PKEY_set1_DH,False);
+  @EVP_PKEY_get1_DH := LoadFunctionCLib(fn_EVP_PKEY_get1_DH,False);
   {$endif}
   {$ifndef OPENSSL_NO_EC}
-  @EVP_PKEY_set1_EC_KEY := LoadFunctionCLib(fn_EVP_PKEY_set1_EC_KEY);
-  @EVP_PKEY_get1_EC_KEY := LoadFunctionCLib(fn_EVP_PKEY_get1_EC_KEY);
+  @EVP_PKEY_set1_EC_KEY := LoadFunctionCLib(fn_EVP_PKEY_set1_EC_KEY,False);
+  @EVP_PKEY_get1_EC_KEY := LoadFunctionCLib(fn_EVP_PKEY_get1_EC_KEY,False);
   {$endif}
-  @d2i_PublicKey := LoadFunctionCLib(fn_d2i_PublicKey);
-  @i2d_PublicKey := LoadFunctionCLib(fn_i2d_PublicKey);
-  @d2i_AutoPrivateKey := LoadFunctionCLib(fn_d2i_AutoPrivateKey);
-  @EVP_PKEY_copy_parameters := LoadFunctionCLib(fn_EVP_PKEY_copy_parameters);
-  @EVP_PKEY_missing_parameters := LoadFunctionCLib(fn_EVP_PKEY_missing_parameters);
-  @EVP_PKEY_save_parameters := LoadFunctionCLib(fn_EVP_PKEY_save_parameters);
-  @EVP_PKEY_cmp_parameters := LoadFunctionCLib(fn_EVP_PKEY_cmp_parameters);
-  @EVP_PKEY_cmp := LoadFunctionCLib(fn_EVP_PKEY_cmp);
+  @d2i_PublicKey := LoadFunctionCLib(fn_d2i_PublicKey,False);
+  @i2d_PublicKey := LoadFunctionCLib(fn_i2d_PublicKey,False);
+  @d2i_AutoPrivateKey := LoadFunctionCLib(fn_d2i_AutoPrivateKey,False);
+  @EVP_PKEY_copy_parameters := LoadFunctionCLib(fn_EVP_PKEY_copy_parameters,False);
+  @EVP_PKEY_missing_parameters := LoadFunctionCLib(fn_EVP_PKEY_missing_parameters,False);
+  @EVP_PKEY_save_parameters := LoadFunctionCLib(fn_EVP_PKEY_save_parameters,False);
+  @EVP_PKEY_cmp_parameters := LoadFunctionCLib(fn_EVP_PKEY_cmp_parameters,False);
+  @EVP_PKEY_cmp := LoadFunctionCLib(fn_EVP_PKEY_cmp,False);
   @EVP_PKEY_print_public := LoadFunctionCLib(fn_EVP_PKEY_print_public,False);
   @EVP_PKEY_print_private := LoadFunctionCLib(fn_EVP_PKEY_print_private,False);
   @EVP_PKEY_print_params := LoadFunctionCLib(fn_EVP_PKEY_print_params,False);
   @EVP_PKEY_get_default_digest_nid := LoadFunctionCLib(fn_EVP_PKEY_get_default_digest_nid,False);
-  @EVP_CIPHER_param_to_asn1 := LoadFunctionCLib(fn_EVP_CIPHER_param_to_asn1);
-  @EVP_CIPHER_asn1_to_param := LoadFunctionCLib(fn_EVP_CIPHER_asn1_to_param);
-  @EVP_CIPHER_set_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_set_asn1_iv);
-  @EVP_CIPHER_get_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_get_asn1_iv);
-  @PKCS5_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_PBE_keyivgen);
+  @EVP_CIPHER_param_to_asn1 := LoadFunctionCLib(fn_EVP_CIPHER_param_to_asn1,False);
+  @EVP_CIPHER_asn1_to_param := LoadFunctionCLib(fn_EVP_CIPHER_asn1_to_param,False);
+  @EVP_CIPHER_set_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_set_asn1_iv,False);
+  @EVP_CIPHER_get_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_get_asn1_iv,False);
+  @PKCS5_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_PBE_keyivgen,False);
   @PKCS5_PBKDF2_HMAC_SHA1 := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC_SHA1);
   @PKCS5_PBKDF2_HMAC := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC,False);
-  @PKCS5_v2_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_v2_PBE_keyivgen);
-  @PKCS5_PBE_add := LoadFunctionCLib(fn_PKCS5_PBE_add);
-  @EVP_PBE_CipherInit := LoadFunctionCLib(fn_EVP_PBE_CipherInit);
+  @PKCS5_v2_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_v2_PBE_keyivgen,False);
+  @PKCS5_PBE_add := LoadFunctionCLib(fn_PKCS5_PBE_add,False);
+  @EVP_PBE_CipherInit := LoadFunctionCLib(fn_EVP_PBE_CipherInit,False);
 
   @EVP_PBE_alg_add_type := LoadFunctionCLib(fn_EVP_PBE_alg_add_type,False);
   @EVP_PBE_alg_add := LoadFunctionCLib(fn_EVP_PBE_alg_add);
