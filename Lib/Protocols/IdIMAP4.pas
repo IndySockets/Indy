@@ -1377,7 +1377,7 @@ begin
     S := ADecoder.DecodeString(TrimRight(TIdReplyIMAP4(AClient.LastCmdResult).Extra.Text));
     S := ASASL.StartAuthenticate(S, AClient.Host, IdGSKSSN_imap);
     AClient.IOHandler.WriteLn(AEncoder.Encode(S));
-    AClient.GetInternalResponse('', [], True);
+    AClient.GetInternalResponse(AClient.LastCmdCounter, [], True);
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
     begin
       ASASL.FinishAuthenticate;
@@ -1388,7 +1388,7 @@ begin
     S := ADecoder.DecodeString(TrimRight(TIdReplyIMAP4(AClient.LastCmdResult).Extra.Text));
     S := ASASL.ContinueAuthenticate(S, AClient.Host, IdGSKSSN_imap);
     AClient.IOHandler.WriteLn(AEncoder.Encode(S));
-    AClient.GetInternalResponse('', [], True);
+    AClient.GetInternalResponse(AClient.LastCmdCounter, [], True);
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
     begin
       ASASL.FinishAuthenticate;
@@ -2788,7 +2788,7 @@ begin
               LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + LLiteral; {Do not Localize}
               IOHandler.WriteLn(LCmd);
               if not LUseNonSyncLiteral then begin
-                if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) <> IMAP_CONT then begin
+                if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) <> IMAP_CONT then begin
                   RaiseExceptionForLastCmdResult;
                 end;
               end;
@@ -2820,7 +2820,7 @@ begin
     // After we send the last of the data, we need to send an EXTRA CRLF to terminates the SEARCH command...
     IOHandler.WriteLn;
 
-    if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+    if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
       ParseSearchResult(FMailBox, LastCmdResult.Text);
       Result := True;
     end;
@@ -3745,7 +3745,7 @@ begin
         or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1) {do not localize}
         or (FLineStruct.ByteCount < 1) then
       begin
-        GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False);
+        GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False);
         Result := False;
         Exit;
       end;
@@ -3766,7 +3766,7 @@ begin
         FreeAndNil(LHelper);
       end;
       IOHandler.ReadLnWait;  {Remove last line, ')' or 'UID 1)'}
-      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+      if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
         Result := True;
       end;
     except
@@ -3813,7 +3813,7 @@ begin
             LTheParts := nil;
           end;
           ParseBodyStructureResult(FLineStruct.IMAPValue, LTheParts, AParts);
-          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
+          if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
             Result := True;
           end;
         end;
@@ -4162,7 +4162,7 @@ begin
         or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1)    {do not localize}
         or (FLineStruct.ByteCount < 1) ) then
       begin
-        GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False);
+        GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False);
         Result := False;
         Exit;
       end;
@@ -4213,7 +4213,7 @@ begin
         end;
       end;
       IOHandler.ReadLnWait;  {Remove last line, ')' or 'UID 1)'}
-      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+      if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
         Result := True;
       end;
     except
@@ -4266,7 +4266,7 @@ begin
             LTheParts := nil;
           end;
           ParseBodyStructureResult(FLineStruct.IMAPValue, LTheParts, AParts);
-          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+          if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
             Result := True;
           end;
         end;
@@ -4312,7 +4312,7 @@ begin
           AMsg.ProcessHeaders;
           LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
           ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
-          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
+          if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
             Result := True;
           end;
         end;
@@ -4357,7 +4357,7 @@ begin
           AMsg.ProcessHeaders;
           LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
           ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
-          if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+          if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
             Result := True;
           end;
         end;
@@ -4424,7 +4424,7 @@ begin
         end;
       end;
       IOHandler.ReadLnWait;
-      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+      if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
         Result := True;
       end;
     except
@@ -4667,7 +4667,7 @@ begin
       end;
       LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
       ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
-      if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+      if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
         AMsg.UID := FLineStruct.UID;
         AMsg.Flags := FLineStruct.Flags;
         Result := True;
