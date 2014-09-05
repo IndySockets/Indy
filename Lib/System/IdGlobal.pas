@@ -552,7 +552,10 @@ uses
       {$ENDIF}
       {$IFDEF USE_ICONV_ENC}iconvenc, {$ENDIF}
     {$ENDIF}
+    {$IFDEF DARWIN}
+    Macapi.Mach,
     {$ENDIF}
+  {$ENDIF}
   IdException;
 
 const
@@ -669,6 +672,12 @@ type
     {$I IdSymbolPlatformOff.inc}
   TIdThreadPriority = TThreadPriority;
     {$I IdSymbolPlatformOn.inc}
+  {$ENDIF}
+
+  {$IFDEF HAS_UInt64}
+  TIdTicks = UInt64;
+  {$ELSE}
+  TIdTicks = Int64;
   {$ENDIF}
 
   {$IFDEF INT_THREAD_PRIORITY}
@@ -1291,6 +1300,9 @@ function ToBytes(const AValue: Word): TIdBytes; overload;
 function ToBytes(const AValue: Byte): TIdBytes; overload;
 function ToBytes(const AValue: LongWord): TIdBytes; overload;
 function ToBytes(const AValue: Int64): TIdBytes; overload;
+{$IFDEF HAS_UInt64}
+function ToBytes(const AValue: UInt64): TIdBytes; overload;
+{$ENDIF}
 function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0): TIdBytes; overload;
 {$IFNDEF DOTNET}
 // RLebeau - not using the same "ToBytes" naming convention for RawToBytes()
@@ -1309,6 +1321,9 @@ procedure ToBytesF(var Bytes: TIdBytes; const AValue: Word); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Byte); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: LongWord); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Int64); overload;
+{$IFDEF HAS_UInt64}
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt64); overload;
+{$ENDIF}
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0); overload;
 {$IFNDEF DOTNET}
 // RLebeau - not using the same "ToBytesF" naming convention for RawToBytesF()
@@ -1345,8 +1360,12 @@ function BytesToWord(const AValue: TIdBytes; const AIndex : Integer = 0): Word;
 function BytesToLongWord(const AValue: TIdBytes; const AIndex : Integer = 0): LongWord;
 function BytesToLongInt(const AValue: TIdBytes; const AIndex: Integer = 0): LongInt;
 function BytesToInt64(const AValue: TIdBytes; const AIndex: Integer = 0): Int64;
+{$IFDEF HAS_UInt64}
+function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): UInt64;
+{$ENDIF}
 function BytesToIPv4Str(const AValue: TIdBytes; const AIndex: Integer = 0): String;
 procedure BytesToIPv6(const AValue: TIdBytes; var VAddress: TIdIPv6Address; const AIndex: Integer = 0);
+function BytesToTicks(const AValue: TIdBytes; const AIndex: Integer = 0): TIdTicks;
 {$IFNDEF DOTNET}
 procedure BytesToRaw(const AValue: TIdBytes; var VBuffer; const ASize: Integer);
 {$ENDIF}
@@ -1410,7 +1429,11 @@ procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex
 procedure CopyTIdLongInt(const ASource: LongInt; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF HAS_UInt64}
+procedure CopyTIdUInt64(const ASource: UInt64; var VDest: TIdBytes; const ADestIndex: Integer);
+{$ENDIF}
 procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdTicks(const ASource: TIdTicks; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer;
   const ALength: Integer = -1; ADestEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
@@ -1465,8 +1488,17 @@ procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue 
 
 function CurrentThreadId: TIdThreadID;
 function GetThreadHandle(AThread: TThread): TIdThreadHandle;
-//GetTickDiff required because GetTickCount will wrap
-function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord; //IdICMP uses it
+
+//GetTickDiff required because GetTickCount will wrap (IdICMP uses this)
+function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use GetTickDiff64()'{$ENDIF};{$ENDIF}
+function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
+
+// Most operations that use tick counters will never run anywhere near the
+// 49.7 day limit that LongWord imposes.  If an operation really were to
+// run that long, use GetElapsedTicks64()...
+function GetElapsedTicks(const AOldTickCount: TIdTicks): LongWord;
+function GetElapsedTicks64(const AOldTickCount: TIdTicks): TIdTicks;
+
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
 procedure IdInsert(const Source: string; var S: string; Index: Integer);
 
@@ -1596,7 +1628,8 @@ function TextEndsWith(const S, SubS: string): Boolean;
 function IndyUpperCase(const A1: string): string;
 function IndyLowerCase(const A1: string): string;
 function IndyCompareStr(const A1: string; const A2: string): Integer;
-function Ticks: LongWord;
+function Ticks: LongWord; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use Ticks64()'{$ENDIF};{$ENDIF}
+function Ticks64: TIdTicks;
 procedure ToDo(const AMsg: string);
 function TwoByteToWord(AByte1, AByte2: Byte): Word;
 
@@ -1629,7 +1662,11 @@ var
 
   // For linux the user needs to set this variable to be accurate where used (mail, etc)
   GOffsetFromUTC: TDateTime = 0 {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
+
+    {$IFDEF DARWIN}
+  GMachTimeBaseInfo: TTimebaseInfoData;
     {$ENDIF}
+  {$ENDIF}
 
   IndyPos: TPosProc = nil;
 
@@ -4653,6 +4690,34 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF HAS_UInt64}
+procedure CopyTIdUInt64(const ASource: UInt64; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF DOTNET}
+var
+  LWord : TIdBytes;
+{$ELSE}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$ENDIF}
+begin
+  {$IFDEF DOTNET}
+  LWord := System.BitConverter.GetBytes(ASource);
+  System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(UInt64));
+  {$ELSE}
+  PUInt64(@VDest[ADestIndex])^ := ASource;
+  {$ENDIF}
+end;
+{$ENDIF}
+
+procedure CopyTIdTicks(const ASource: TIdTicks; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF HAS_UInt64}
+  CopyTIdUInt64(ASource, VDest, ADestIndex);
+  {$ELSE}
+  CopyTIdInt64(ASource, VDest, ADestIndex);
+  {$ENDIF}
+end;
+
 procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DOTNET}
 var
@@ -4877,7 +4942,47 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF WINDOWS}
+type
+  TGetTickCount64Func = function: TIdTicks; stdcall;
+
+var
+  GetTickCount64: TGetTickCount64Func = nil;
+
+function Impl_GetTickCount64: TIdTicks; stdcall;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  // TODO: implement some kind of accumulator so the Result
+  // keeps growing even when GetTickCount() wraps back to 0
+  Result := Windows.GetTickCount;
+end;
+
+function Stub_GetTickCount64: TIdTicks; stdcall;
+
+  function GetImpl: Pointer;
+  begin
+    Result := GetProcAddress(GetModuleHandle('KERNEL32'), 'GetTickCount64'); {do not localize}
+    if Result = nil then begin
+      Result := @Impl_GetTickCount64;
+    end;
+  end;
+
+begin
+  @GetTickCount64 := GetImpl();
+  Result := GetTickCount64();
+end;
+{$ENDIF}
+
+{$I IdDeprecatedImplBugOff.inc}
 function Ticks: LongWord;
+{$I IdDeprecatedImplBugOn.inc}
+  {$IFDEF USE_INLINE} inline;{$ENDIF}
+begin
+  // TODO: maybe throw an exception if Ticks64() exceeds the 49.7 day limit of LongWord?
+  Result := LongWord(Ticks64() mod High(LongWord));
+end;
+
+function Ticks64: TIdTicks;
 {$IFDEF DOTNET}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ENDIF}
@@ -4899,25 +5004,34 @@ var
 begin
   {$IFDEF UNIX}
     {$IFDEF DARWIN}
-  //This seems to be available on the Delphi cross-compiler for OS/X
-  Result := AbsoluteToNanoseconds(UpTime) div 1000000;
+  // TODO: mach_absolute_time() does NOT count ticks while the system is
+  // sleeping! We can use time() to account for that:
+  //
+  // "time() carries on incrementing while the device is asleep, but of
+  // course can be manipulated by the operating system or user. However,
+  // the Kernel boottime (a timestamp of when the system last booted)
+  // also changes when the system clock is changed, therefore even though
+  // both these values are not fixed, the offset between them is."
+  //
+  // time_t uptime()
+  // {
+  //   struct timeval boottime;
+  //   int mib[2] = {CTL_KERN, KERN_BOOTTIME};
+  //   size_t size = sizeof(boottime);
+  //   time_t now;
+  //   time_t uptime = -1;
+  //   time(&now);
+  //   if ((sysctl(mib, 2, &boottime, &size, NULL, 0) != -1) && (boottime.tv_sec != 0))
+  //   {
+  //     uptime = now - boottime.tv_sec;
+  //   }
+  //   return uptime;
+  // }
+  //
+  // However, KERN_BOOTTIME only has *seconds* precision (timeval.tv_usecs is always 0).
 
-  // TODO: UpTime() and AbsoluteToNanoseconds() are from the Carbon API, which
-  // is deprecated in OSX 10.8+. The newer Cocoa way would be as follows:
-  {
-  var
-    s_timebase_info: mach_timebase_info_data_t;
-
-  function Ticks: LongWord;
-  begin
-  // mach_absolute_time() returns billionth of seconds,
-  // so divide by one million to get milliseconds
-    Result := (mach_absolute_time() * s_timebase_info.numer) div (1000000 * s_timebase_info.denom);
-  end;
-
-  initialization
-    mach_timebase_info(@s_timebase_info);
-  }
+  // mach_absolute_time() returns billionth of seconds, so divide by one million to get milliseconds
+  Result := (mach_absolute_time() * GMachTimeBaseInfo.numer) div (1000000 * GMachTimeBaseInfo.denom);
     {$ELSE}
       {$IFDEF USE_BASEUNIX}
   fpgettimeofday(@tv,nil);
@@ -4956,20 +5070,20 @@ begin
       {$IFDEF WINCE}
   if Windows.QueryPerformanceCounter(@nTime) then begin
     if Windows.QueryPerformanceFrequency(@freq) then begin
-      Result := Trunc((nTime.QuadPart / Freq.QuadPart) * 1000) and High(LongWord);
+      Result := Trunc((nTime.QuadPart / Freq.QuadPart) * 1000) and High(TIdTicks);
       Exit;
     end;
   end;
       {$ELSE}
   if Windows.QueryPerformanceCounter(nTime) then begin
     if Windows.QueryPerformanceFrequency(freq) then begin
-      Result := Trunc((nTime / Freq) * 1000) and High(LongWord);
+      Result := Trunc((nTime / Freq) * 1000) and High(TIdTicks);
       Exit;
     end;
   end;
       {$ENDIF}
     {$ENDIF}
-  Result := Windows.GetTickCount;
+  Result := GetTickCount64;
   {$ENDIF}
   {$IFDEF DOTNET}
   // Must cast to a cardinal
@@ -4981,11 +5095,18 @@ begin
   // There may be a problem in the future if .NET changes this to work as docced with 25 days.
   // Will need to check our routines then and somehow counteract / detect this.
   // One possibility is that we could just wrap it ourselves in this routine.
-  Result := LongWord(Environment.TickCount);
+
+  // TODO: use DateTime.Ticks instead?
+  //Result := DateTime.Now.Ticks div 10000;
+
+  Result := TIdTicks(Environment.TickCount);
+
   {$ENDIF}
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord;
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {This is just in case the TickCount rolled back to zero}
@@ -4994,6 +5115,29 @@ begin
   end else begin
     Result := High(LongWord) - AOldTickCount + ANewTickCount;
   end;
+end;
+
+function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {This is just in case the TickCount rolled back to zero}
+  if ANewTickCount >= AOldTickCount then begin
+    Result := ANewTickCount - AOldTickCount;
+  end else begin
+    Result := High(TIdTicks) - AOldTickCount + ANewTickCount;
+  end;
+end;
+
+function GetElapsedTicks(const AOldTickCount: TIdTicks): LongWord;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := LongWord(GetTickDiff64(AOldTickCount, Ticks64));
+end;
+
+function GetElapsedTicks64(const AOldTickCount: TIdTicks): TIdTicks;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := GetTickDiff64(AOldTickCount, Ticks64);
 end;
 
 {$IFNDEF DOTNET}
@@ -6890,6 +7034,19 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF HAS_UInt64}
+function ToBytes(const AValue: UInt64): TIdBytes; overload;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF DOTNET}
+  Result := System.BitConverter.GetBytes(AValue);
+  {$ELSE}
+  SetLength(Result, SizeOf(UInt64));
+  PUInt64(@Result[0])^ := AValue;
+  {$ENDIF}
+end;
+{$ENDIF}
+
 function ToBytes(const AValue: LongInt): TIdBytes; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -7027,6 +7184,15 @@ begin
   CopyTIdInt64(AValue, Bytes, 0);
 end;
 
+{$IFDEF HAS_UInt64}
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt64);
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Assert(Length(Bytes) >= SizeOf(AValue));
+  CopyTIdUInt64(AValue, Bytes, 0);
+end;
+{$ENDIF}
+
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -7144,6 +7310,29 @@ begin
   Result := System.BitConverter.ToInt64(AValue, AIndex);
   {$ELSE}
   Result := PInt64(@AValue[AIndex])^;
+  {$ENDIF}
+end;
+
+{$IFDEF HAS_UInt64}
+function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): UInt64;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Assert(Length(AValue) >= (AIndex+SizeOf(UInt64)));
+  {$IFDEF DOTNET}
+  Result := System.BitConverter.ToUInt64(AValue, AIndex);
+  {$ELSE}
+  Result := PUInt64(@AValue[AIndex])^;
+  {$ENDIF}
+end;
+{$ENDIF}
+
+function BytesToTicks(const AValue: TIdBytes; const AIndex: Integer = 0): TIdTicks;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF HAS_UInt64}
+  Result := BytesToUInt64(AValue, AIndex);
+  {$ELSE}
+  Result := BytesToInt64(AValue, AIndex);
   {$ENDIF}
 end;
 
@@ -8377,6 +8566,14 @@ initialization
   {$ENDIF}
   {$IFDEF DYNAMICLOAD_InterlockedCompareExchange}
   InterlockedCompareExchange := Stub_InterlockedCompareExchange;
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+  GetTickCount64 := Stub_GetTickCount64;
+  {$ENDIF}
+  {$IFDEF UNIX}
+    {$IFDEF DARWIN}
+  mach_timebase_info(GMachTimeBaseInfo);
+    {$ENDIF}
   {$ENDIF}
 
 {$IFNDEF DOTNET}

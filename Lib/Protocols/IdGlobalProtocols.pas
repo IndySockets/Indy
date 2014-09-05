@@ -1458,7 +1458,7 @@ var
 {$IFDEF FPC}
   LPrefix: string;
 {$ELSE}
-  LNamePart : LongWord;
+  LNamePart : TIdTicks;
   LFQE : String;
   LFName: String;
 {$ENDIF}
@@ -1501,7 +1501,7 @@ begin
     LFName := APrefix;
   end;
 
-  LNamePart := Ticks;
+  LNamePart := Ticks64;
   repeat
     Result := LFName + IntToHex(LNamePart, 8) + LFQE;
     if not FileExists(Result) then begin

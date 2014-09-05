@@ -1294,7 +1294,7 @@ var
   LInputBufferSize: Integer;
   LStartPos: Integer;
   LTermPos: Integer;
-  LReadLnStartTime: LongWord;
+  LReadLnStartTime: TIdTicks;
   LTerm, LResult: TIdBytes;
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
@@ -1315,7 +1315,7 @@ begin
   FReadLnTimedOut := False;
   LTermPos := -1;
   LStartPos := 0;
-  LReadLnStartTime := Ticks;
+  LReadLnStartTime := Ticks64;
   repeat
     LInputBufferSize := FInputBuffer.Size;
     if LInputBufferSize > 0 then begin
@@ -1355,7 +1355,7 @@ begin
       // Can only return -1 if timeout
       FReadLnTimedOut := ReadFromSource(True, ATimeout, False) = -1;
       if (not FReadLnTimedOut) and (ATimeout >= 0) then begin
-        if GetTickDiff(LReadLnStartTime, Ticks) >= LongWord(ATimeout) then begin
+        if GetElapsedTicks(LReadLnStartTime) >= LongWord(ATimeout) then begin
           FReadLnTimedOut := True;
         end;
       end;
