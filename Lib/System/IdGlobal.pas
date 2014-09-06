@@ -4691,6 +4691,13 @@ begin
 end;
 
 {$IFDEF HAS_UInt64}
+  {$IFNDEF HAS_PUInt64}
+type
+  PUInt64 = ^UInt64;
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF HAS_UInt64}
 procedure CopyTIdUInt64(const ASource: UInt64; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DOTNET}
 var

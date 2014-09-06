@@ -916,6 +916,7 @@
     {$DEFINE HAS_InterlockedCompareExchangePointer}
     {$DEFINE HAS_WIDE_TCharArray}
     {$DEFINE HAS_UNIT_AnsiStrings}
+    {$DEFINE HAS_PUInt64}
     {$IFDEF VCL_2009}
       // TODO: need to differentiate between RTM and Update 1
       // FmtStr() is broken in RTM but was fixed in Update 1
@@ -1040,6 +1041,7 @@
   {$DEFINE BYTE_COMPARE_SETS}
   {$IFDEF FPC_2_1_5_OR_ABOVE}
     {$DEFINE HAS_UInt64}
+    {.$DEFINE HAS_PUInt64} // TODO: is this defined?
   {$ENDIF}
   {$IFDEF FPC_2_2_0_OR_ABOVE}
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
