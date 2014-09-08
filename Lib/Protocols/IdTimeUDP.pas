@@ -137,12 +137,12 @@ end;
 
 function TIdCustomTimeUDP.GetDateTimeCard: LongWord;
 var
-  LTimeBeforeRetrieve: TIdTicks;
+  LTimeBeforeRetrieve: Cardinal;
   LBuffer : TIdBytes;
 begin
   //Important - This must send an empty UDP Datagram
   Send('');    {Do not Localize}
-  LTimeBeforeRetrieve := Ticks64;
+  LTimeBeforeRetrieve := Ticks;
   SetLength(LBuffer,4);
 
   ReceiveBuffer(LBuffer);
@@ -152,7 +152,7 @@ begin
    but in practice, it could be any portion depending upon network conditions. This is also
    as per RFC standard}
   {This is just in case the TickCount rolled back to zero}
-  FRoundTripDelay := GetElapsedTicks(LTimeBeforeRetrieve) div 2;
+  FRoundTripDelay := GetTickDiff(LTimeBeforeRetrieve, Ticks) div 2;
 end;
 
 function TIdCustomTimeUDP.SyncTime: Boolean;

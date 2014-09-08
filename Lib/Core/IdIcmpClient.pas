@@ -144,7 +144,7 @@ type
 
   TIdCustomIcmpClient = class(TIdRawClient)
   protected
-    FStartTime : TIdTicks; //this is a fallback if no packet is returned
+    FStartTime : LongWord; //this is a fallabk if no packet is returned
     FPacketSize : Integer;
     FBufReceive: TIdBytes;
     FBufIcmp: TIdBytes;
@@ -292,7 +292,7 @@ function TIdCustomIcmpClient.DecodeResponse(BytesRead: LongWord): Boolean;
 begin
   if BytesRead = 0 then begin
     // Timed out
-    FReplyStatus.MsRoundTripTime := GetElapsedTicks(FStartTime);
+    FReplyStatus.MsRoundTripTime := GetTickDiff(FStartTime, Ticks);
     FReplyStatus.BytesReceived   := 0;
     if IPVersion = Id_IPv4 then
     begin
@@ -333,13 +333,13 @@ var
 begin
   Result := FReplyStatus;
   FillBytes(FBufReceive, Length(FBufReceive), 0);
-  FStartTime := Ticks64;
+  FStartTime := Ticks;
   repeat
     BytesRead := ReceiveBuffer(FBufReceive, ATimeOut);
     if DecodeResponse(BytesRead) then begin
       Break;
     end;
-    TripTime := GetElapsedTicks(FStartTime);
+    TripTime := GetTickDiff(FStartTime, Ticks);
     ATimeOut := ATimeOut - Integer(TripTime); // compute new timeout value
     FReplyStatus.MsRoundTripTime := TripTime;
     FReplyStatus.Msg := RSICMPTimeout;
@@ -457,7 +457,7 @@ begin
       rsEcho:
       begin
         LActualSeqID := LIcmp.icmp_hdr.icmp_hun.echo_seq;
-        RTTime := GetElapsedTicks(BytesToTicks(FBufReceive, LIdx));
+        RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIdx), Ticks);
       end;
       rsTimeStamp:
       begin
@@ -478,13 +478,13 @@ begin
 
         // TODO: verify this!  I don't think it is indexing far enough into the data
         LActualSeqID := BytesToWord(FBufReceive, LIpHeaderLen+8+6);//pOriginalICMP^.icmp_hun.echo.seq;
-        RTTime := GetElapsedTicks(BytesToTicks(FBufReceive, LIpHeaderLen+8+8)); //pOriginalICMP^.icmp_dun.ts.otime;
+        RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIpHeaderLen+8+8), Ticks); //pOriginalICMP^.icmp_dun.ts.otime;
 
         // move to offset
         // pOriginalICMP := Pointer(PtrUInt(pOriginalIP) + (iIpHeaderLen));
         // extract information from original ICMP frame
         // ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
-        // RTTime := Ticks64 - pOriginalICMP^.icmp_dun.ts.otime;
+        // RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;
         // Result := pOriginalICMP^.icmp_hun.echo.seq = wSeqNo;
       end;
     end;
@@ -608,7 +608,7 @@ begin
   LBuffer := ToBytes(ABuffer, IndyTextEncoding_8Bit);
   LBufferLen := IndyMin(Length(LBuffer), FPacketSize);
 
-  SetLength(FBufIcmp, ICMP_MIN + SizeOf(TIdTicks) + LBufferLen);
+  SetLength(FBufIcmp, ICMP_MIN + SizeOf(LongWord) + LBufferLen);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
   SetLength(FBufReceive, Length(FBufIcmp) + Id_IP_HSIZE);
 
@@ -621,8 +621,8 @@ begin
     LIcmp.icmp_hun.echo_id := Word(CurrentProcessId);
     LIcmp.icmp_hun.echo_seq := wSeqNo;
     LIcmp.WriteStruct(FBufIcmp, LIdx);
-    CopyTIdTicks(Ticks64, FBufIcmp, LIdx);
-    Inc(LIdx, SizeOf(TIdTicks));
+    CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
+    Inc(LIdx, 4);
     if LBufferLen > 0 then begin
       CopyTIdBytes(LBuffer, 0, FBufIcmp, LIdx, LBufferLen);
     end;
@@ -642,7 +642,7 @@ begin
   LBuffer := ToBytes(ABuffer, IndyTextEncoding_8Bit);
   LBufferLen := IndyMin(Length(LBuffer), FPacketSize);
 
-  SetLength(FBufIcmp, ICMP_MIN + SizeOf(TIdTicks) + LBufferLen);
+  SetLength(FBufIcmp, ICMP_MIN + SizeOf(LongWord) + LBufferLen);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
   SetLength(FBufReceive, Length(FBufIcmp) + (Id_IPv6_HSIZE*2));
 
@@ -655,8 +655,8 @@ begin
     LIcmp.data.icmp6_un_data16[1] := wSeqNo;
     LIcmp.icmp6_cksum := 0;
     LIcmp.WriteStruct(FBufIcmp, LIdx);
-    CopyTIdTicks(Ticks64, FBufIcmp, LIdx);
-    Inc(LIdx, SizeOf(TIdTicks));
+    CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
+    Inc(LIdx, 4);
     if LBufferLen > 0 then begin
       CopyTIdBytes(LBuffer, 0, FBufIcmp, LIdx, LBufferLen);
     end;
@@ -705,9 +705,9 @@ begin
     LActualSeqID := LIcmp.data.icmp6_seq;
     Result := LActualSeqID = wSeqNo;
 
-    RTTime := GetElapsedTicks(BytesToTicks(FBufReceive, LIdx));
-    Inc(LIdx, SizeOf(TIdTicks));
-
+    RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIdx), Ticks);
+    Inc(LIdx, 4);
+    
     if Result then
     begin
       FReplyStatus.BytesReceived := BytesRead - LIdx;

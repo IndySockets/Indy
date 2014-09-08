@@ -81,9 +81,9 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+	  {$IFDEF DARWIN}
   Macapi.CoreServices,
-    {$ENDIF}
+	  {$ENDIF}
   {$ENDIF}
   IdComponent,
   IdGlobal,
@@ -103,7 +103,7 @@ var
   LEncoding: IIdTextEncoding;
   LBuffer: TIdBytes;
   LLen: Integer;
-  StartTime: TIdTicks;
+  StartTime: Cardinal;
 begin
   LEncoding := IndyTextEncoding(
     {$IFDEF STRING_IS_UNICODE}
@@ -116,11 +116,11 @@ begin
   LBuffer := ToBytes(AText, LEncoding);
   LLen := Length(LBuffer);
   {Send time monitoring}
-  StartTime := Ticks64;
+  StartTime := Ticks;
   IOHandler.Write(LBuffer);
   IOHandler.ReadBytes(LBuffer, LLen, False);
   {This is just in case the TickCount rolled back to zero}
-  FEchoTime := GetElapsedTicks(StartTime);
+  FEchoTime := GetTickDiff(StartTime, Ticks);
   Result := BytesToString(LBuffer, LEncoding);
 end;
 

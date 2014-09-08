@@ -99,7 +99,7 @@ type
   TIdCustomTime = class(TIdTCPClientCustom)
   protected
     FBaseDate: TDateTime;
-    FRoundTripDelay: LongWord;
+    FRoundTripDelay: Cardinal;
     FTimeout: Integer;
     //
     function GetDateTimeCard: Cardinal;
@@ -119,7 +119,7 @@ type
     {This is the time it took to receive the Time from the server.  There is no
     need to use this to calculate the current time when using DateTime property
     as we have done that here}
-    property RoundTripDelay: LongWord read FRoundTripDelay;
+    property RoundTripDelay: Cardinal read FRoundTripDelay;
   published
     property Timeout: Integer read FTimeout write FTimeout default TIME_TIMEOUT;
     property Host;
@@ -186,20 +186,20 @@ end;
 
 function TIdCustomTime.GetDateTimeCard: LongWord;
 var
-  LTimeBeforeRetrieve: TIdTicks;
+  LTimeBeforeRetrieve: Cardinal;
 begin
   Connect; try
     // Check for timeout
     // Timeout is actually a time with no traffic, not a total timeout.
     IOHandler.ReadTimeout:=Timeout;
-    LTimeBeforeRetrieve := Ticks64;
+    LTimeBeforeRetrieve := Ticks;
     Result := IOHandler.ReadLongWord;
     {Theoritically, it should take about 1/2 of the time to receive the data
     but in practice, it could be any portion depending upon network conditions. This is also
     as per RFC standard}
 
     {This is just in case the TickCount rolled back to zero}
-    FRoundTripDelay := GetElapsedTicks(LTimeBeforeRetrieve) div 2;
+    FRoundTripDelay := GetTickDiff(LTimeBeforeRetrieve,Ticks) div 2;
   finally Disconnect; end;
 end;
 

@@ -53,9 +53,9 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+	  {$IFDEF DARWIN}
   Macapi.CoreServices,
-    {$ENDIF}
+	  {$ENDIF}
   {$ENDIF}
   IdGlobal;
 
@@ -69,15 +69,15 @@ end;
 
 function TIdEchoUDP.Echo(AText: String): String;
 var
-  StartTime: TIdTicks;
+  StartTime: Cardinal;
   LEncoding: IIdTextEncoding;
 begin
-  StartTime := Ticks64;
+  StartTime := Ticks;
   LEncoding := IndyTextEncoding_8Bit;
   Send(AText, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   Result := ReceiveString(IdTimeoutDefault, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
   {This is just in case the TickCount rolled back to zero}
-  FEchoTime := GetElapsedTicks(StartTime);
+  FEchoTime := GetTickDiff(StartTime,Ticks);
 end;
 
 end.

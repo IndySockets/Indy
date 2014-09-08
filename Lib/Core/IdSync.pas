@@ -175,7 +175,7 @@ uses
 // if the main message queue is idle at the moment they are called!!!  If the
 // main thread *happens* to receive a message at a later time, say from UI
 // activity, then they will be processed.  But for a background process, we
-// cannot rely on that.  Need an alternative solution until Embarcadero fixes
+// cannot rely on that.  Need an alternative solution for those versions of
 // FireMonkey...
 
 {$IFDEF NotifyThreadNeeded}
