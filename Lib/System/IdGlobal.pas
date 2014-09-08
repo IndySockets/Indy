@@ -1675,7 +1675,18 @@ const
   {$IFDEF HAS_SharedPrefix}
   LIBEXT = '.' + SharedSuffix; {do not localize}
   {$ELSE}
+    {$UNDEF LIBEXT_IS_DYLIB}
     {$IFDEF DARWIN}
+      {$DEFINE LIBEXT_IS_DYLIB}
+    {$ELSE}
+      {$IFDEF IOS}
+        {$IFNDEF CPUARM}
+          // iOS Simulator
+          {$DEFINE LIBEXT_IS_DYLIB}
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
+    {$IFDEF LIBEXT_IS_DYLIB}
   LIBEXT = '.dylib'; {do not localize}
     {$ELSE}
   LIBEXT = '.so'; {do not localize}
