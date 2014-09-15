@@ -429,6 +429,7 @@ type
     procedure AfterAccept; override;
     procedure Close; override;
     procedure Open; override;
+    function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; override;
     property SSLSocket: TIdSSLSocket read fSSLSocket write fSSLSocket;
     property OnBeforeConnect: TIOHandlerNotify read fOnBeforeConnect write fOnBeforeConnect;
     property SSLContext: TIdSSLContext read fSSLContext write fSSLContext;
@@ -2468,6 +2469,16 @@ procedure TIdSSLIOHandlerSocketOpenSSL.Open;
 begin
   FOpened := False;
   inherited Open;
+end;
+
+function TIdSSLIOHandlerSocketOpenSSL.Readable(AMSec: Integer = IdTimeoutDefault): Boolean;
+begin
+  if not fPassThrough then
+  begin
+    Result := ssl_pending(fSSLSocket.fSSL) > 0;
+    if Result then Exit;
+  end;
+  Result := inherited Readable(AMSec);
 end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.SetPassThrough(const Value: Boolean);
