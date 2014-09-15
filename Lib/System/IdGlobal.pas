@@ -1077,6 +1077,12 @@ type
     {$ENDIF}
   {$ENDIF}
 
+  {$IFDEF HAS_UInt64}
+    {$IFNDEF HAS_PUInt64}
+  PUInt64 = ^UInt64;
+    {$ENDIF}
+  {$ENDIF}
+
   //This usually is a property editor exception
   EIdCorruptServicesFile = class(EIdException);
   EIdEndOfStream = class(EIdException);
@@ -4700,13 +4706,6 @@ begin
   PInt64(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
-
-{$IFDEF HAS_UInt64}
-  {$IFNDEF HAS_PUInt64}
-type
-  PUInt64 = ^UInt64;
-  {$ENDIF}
-{$ENDIF}
 
 {$IFDEF HAS_UInt64}
 procedure CopyTIdUInt64(const ASource: UInt64; var VDest: TIdBytes; const ADestIndex: Integer);
