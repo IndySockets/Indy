@@ -3154,6 +3154,7 @@ begin
           try
             LMsgIO.FreeStreams := False;
             LMsgIO.UnescapeLines := True; // this is the key piece that makes it work!
+            LMsgIO.MaxLineLength := MaxInt;
             LMsgClient.IOHandler := LMsgIO;
             try
               LMsgClient.SendMsg(AMsg, False);
@@ -4622,6 +4623,9 @@ begin
       AMsg.Clear;
       if FLineStruct.ByteCount > 0 then begin
         {Use a temporary memory block to suck the message into...}
+        // TODO: use TIdTCPStream instead and let TIdIOHandlerStreamMsg below read
+        // from this IOHandler directly so we don't have to waste memory reading
+        // potentially large messages...
         LDestStream := TMemoryStream.Create;
         try
           LHelper := TIdIMAP4WorkHelper.Create(Self);
@@ -4647,6 +4651,7 @@ begin
             try
               LMsgIO.FreeStreams := False;
               LMsgIO.EscapeLines := True; // this is the key piece that makes it work!
+              LMsgIO.MaxLineLength := MaxInt;
               LMsgClient.IOHandler := LMsgIO;
               try
                 LMsgIO.Open;
