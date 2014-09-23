@@ -45,6 +45,14 @@ uses
   IdComponent, IdException, IdGlobal, IdSocketHandle,
   IdStack;
 
+(*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
+(*$HPPEMIT '#if !defined(UNICODE)' *)
+(*$HPPEMIT '#pragma alias "@Idipmcastbase@TIdIPMCastBase@SetPortA$qqrxi"="@Idipmcastbase@TIdIPMCastBase@SetPort$qqrxi"' *)
+(*$HPPEMIT '#else' *)
+(*$HPPEMIT '#pragma alias "@Idipmcastbase@TIdIPMCastBase@SetPortW$qqrxi"="@Idipmcastbase@TIdIPMCastBase@SetPort$qqrxi"' *)
+(*$HPPEMIT '#endif' *)
+(*$HPPEMIT '#endif' *)
+
 const
   IPMCastLo = 224;
   IPMCastHi = 239;

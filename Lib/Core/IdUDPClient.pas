@@ -78,6 +78,14 @@ uses
   IdSocketHandle,
   IdCustomTransparentProxy;
 
+(*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
+(*$HPPEMIT '#if !defined(UNICODE)' *)
+(*$HPPEMIT '#pragma alias "@Idudpclient@TIdUDPClient@SetPortA$qqrxus"="@Idudpclient@TIdUDPClient@SetPort$qqrxus"' *)
+(*$HPPEMIT '#else' *)
+(*$HPPEMIT '#pragma alias "@Idudpclient@TIdUDPClient@SetPortW$qqrxus"="@Idudpclient@TIdUDPClient@SetPort$qqrxus"' *)
+(*$HPPEMIT '#endif' *)
+(*$HPPEMIT '#endif' *)
+
 type
   EIdMustUseOpenProxy = class(EIdUDPException);
 

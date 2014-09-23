@@ -213,6 +213,14 @@ uses
   IdTCPConnection,
   IdUDPClient;
 
+(*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
+(*$HPPEMIT '#if !defined(UNICODE)' *)
+(*$HPPEMIT '#pragma alias "@Iddnsresolver@TIdDNSResolver@SetPortA$qqrxus"="@Iddnsresolver@TIdDNSResolver@SetPort$qqrxus"' *)
+(*$HPPEMIT '#else' *)
+(*$HPPEMIT '#pragma alias "@Iddnsresolver@TIdDNSResolver@SetPortW$qqrxus"="@Iddnsresolver@TIdDNSResolver@SetPort$qqrxus"' *)
+(*$HPPEMIT '#endif' *)
+(*$HPPEMIT '#endif' *)
+
 type
   { TODO : Solve problem with obsolete records }
   TQueryRecordTypes = (

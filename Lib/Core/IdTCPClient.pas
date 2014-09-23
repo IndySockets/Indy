@@ -142,6 +142,14 @@ uses
   Classes,
   IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection;
 
+(*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
+(*$HPPEMIT '#if !defined(UNICODE)' *)
+(*$HPPEMIT '#pragma alias "@Idtcpclient@TIdTCPClientCustom@SetPortA$qqrxus"="@Idtcpclient@TIdTCPClientCustom@SetPort$qqrxus"' *)
+(*$HPPEMIT '#else' *)
+(*$HPPEMIT '#pragma alias "@Idtcpclient@TIdTCPClientCustom@SetPortW$qqrxus"="@Idtcpclient@TIdTCPClientCustom@SetPort$qqrxus"' *)
+(*$HPPEMIT '#endif' *)
+(*$HPPEMIT '#endif' *)
+
 type
 
   TIdTCPClientCustom = class(TIdTCPConnection)

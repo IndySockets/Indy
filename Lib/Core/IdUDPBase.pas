@@ -81,6 +81,14 @@ uses
   IdException,
   IdSocketHandle;
 
+(*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
+(*$HPPEMIT '#if !defined(UNICODE)' *)
+(*$HPPEMIT '#pragma alias "@Idudpbase@TIdUDPBase@SetPortA$qqrxus"="@Idudpbase@TIdUDPBase@SetPort$qqrxus"' *)
+(*$HPPEMIT '#else' *)
+(*$HPPEMIT '#pragma alias "@Idudpbase@TIdUDPBase@SetPortW$qqrxus"="@Idudpbase@TIdUDPBase@SetPort$qqrxus"' *)
+(*$HPPEMIT '#endif' *)
+(*$HPPEMIT '#endif' *)
+
 const
   ID_UDP_BUFFERSIZE = 8192;
 

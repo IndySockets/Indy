@@ -406,6 +406,14 @@ uses
   IdAntiFreezeBase, IdBuffer, IdBaseComponent, IdComponent, IdGlobal, IdExceptionCore,
   IdIntercept, IdResourceStringsCore, IdStream;
 
+(*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
+(*$HPPEMIT '#if !defined(UNICODE)' *)
+(*$HPPEMIT '#pragma alias "@Idiohandler@TIdIOHandler@SetPortA$qqri"="@Idiohandler@TIdIOHandler@SetPort$qqri"' *)
+(*$HPPEMIT '#else' *)
+(*$HPPEMIT '#pragma alias "@Idiohandler@TIdIOHandler@SetPortW$qqri"="@Idiohandler@TIdIOHandler@SetPort$qqri"' *)
+(*$HPPEMIT '#endif' *)
+(*$HPPEMIT '#endif' *)
+
 const
   GRecvBufferSizeDefault = 32 * 1024;
   GSendBufferSizeDefault = 32 * 1024;
