@@ -15,7 +15,7 @@
 {$DEFINE IdIPv4}
 
 {$DEFINE INDY100}
-{$DEFINE 10_6_0}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_1}  //so developers can IFDEF for this specific version
 
 // When invoking DCC on the command-line, use the -DBCB
 // parameter when generating C++Builder output files!
@@ -1064,9 +1064,9 @@
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
-  {$IFDEF FPC_2_4_0_OR_ABOVE}
-    {$DEFINE HAS_UnicodeString}
-  {$ENDIF}
+    {$IFDEF FPC_2_4_0_OR_ABOVE}
+      {$DEFINE HAS_UnicodeString}
+    {$ENDIF}
   {$IFDEF FPC_2_4_4_OR_ABOVE}
     {$DEFINE DEPRECATED_TThread_SuspendResume}
     {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced?
