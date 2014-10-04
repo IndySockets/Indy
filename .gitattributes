@@ -736,6 +736,7 @@ Lib/Clean.bat eol=crlf
 Lib/Computil.dpr -text
 Lib/Computil.dproj -text
 Lib/Computil.exe -text svneol=unset#unset
+Lib/Core/AboutBackground.bmp -text
 Lib/Core/AboutIndyNET.resources -text svneol=unset#unset
 Lib/Core/AboutProg.res -text svneol=unset#unset
 Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
