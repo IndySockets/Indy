@@ -41,14 +41,19 @@ type
     procedure lblURLClick(Sender: TObject);
     function GetProductName: String;
     procedure SetProductName(const AValue: String);
+    function GetProductName2: String;
+    procedure SetProductName2(const AValue: String);
     function GetVersion: String;
     procedure SetVersion(const AValue: String);
   public
+    //we have a method for providing a product name and version in case
+    //we ever want to make another product.
     class procedure ShowDlg;
-    class procedure ShowAboutBox(const AProductName, AProductVersion: String);
+    class procedure ShowAboutBox(const AProductName, AProductName2, AProductVersion: String);
     constructor Create(AOwner : TComponent); overload; override;
-    constructor Create; reintroduce; overload; 
+    constructor Create; reintroduce; overload;
     property ProductName : String read GetProductName write SetProductName;
+    property ProductName2 : String read GetProductName2 write SetProductName2;
     property Version : String read GetVersion write SetVersion;
   end;
 
@@ -346,10 +351,15 @@ begin
   Result := FlblName.Caption;
 end;
 
+function TfrmAbout.GetProductName2: String;
+begin
+  Result := FlblName2.Caption;
+end;
+
 procedure TfrmAbout.lblURLClick(Sender: TObject);
 begin
   {$IFDEF WIN32}
-  ShellAPI.ShellExecute(Handle, PChar('open'), PChar(FlblURL.Caption), nil, nil, 0);    {Do not Localize}
+  ShellAPI.ShellExecute(Handle, nil, PChar(FlblURL.Caption), nil, nil, 0);    {Do not Localize}
   FlblURL.Font.Color := clPurple;
   {$ENDIF}
 end;
@@ -364,7 +374,12 @@ begin
   FlblName.Caption := AValue;
 end;
 
-class procedure TfrmAbout.ShowAboutBox(const AProductName, AProductVersion: String);
+procedure TfrmAbout.SetProductName2(const AValue: String);
+begin
+  FlblName2.Caption := AValue;
+end;
+
+class procedure TfrmAbout.ShowAboutBox(const AProductName, AProductName2, AProductVersion: String);
 var
   LFrm: TfrmAbout;
 begin
@@ -374,6 +389,7 @@ begin
   {$ENDIF}
     LFrm.Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
     LFrm.ProductName := AProductName;
+    LFrm.ProductName2 := AProductName2;
     LFrm.ShowModal;
   {$IFNDEF USE_OBJECT_ARC}
   finally
@@ -384,7 +400,7 @@ end;
 
 class procedure TfrmAbout.ShowDlg;
 begin
-  ShowAboutBox(RSAAboutBoxTitle1{RSAAboutBoxCompName}, gsIdVersion);
+  ShowAboutBox(RSAAboutBoxTitle1, RSAAboutBoxTitle2, gsIdVersion);
 end;
 
 constructor TfrmAbout.Create;

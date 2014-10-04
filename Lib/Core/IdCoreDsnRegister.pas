@@ -132,11 +132,6 @@ type
   TIdPropEdBindingEntry = TIdDsnPropEdBindingVCL;
   {$ENDIF}
 
-procedure ShowAboutBox(const AProductName, AProductVersion : String);
-begin
-  TfrmAbout.ShowAboutBox(AProductName, AProductVersion);
-end;
-
 procedure TIdPropEdBinding.Edit;
 var
   pSockets: TIdSocketHandles;
@@ -224,7 +219,7 @@ end;
 procedure TIdBaseComponentEditor.ExecuteVerb(Index: Integer);
 begin
   case Index of
-    0 : ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
+    0 : TfrmAbout.ShowDlg;
   end;
 end;
 

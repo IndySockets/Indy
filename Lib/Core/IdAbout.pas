@@ -11,7 +11,9 @@ uses
   IdAboutVCL;
   {$ENDIF}
 
-procedure ShowAboutBox(const AProductName, AProductVersion : String);
+//we have a procedure for providing a product name and version in case
+//we ever want to make another product.
+procedure ShowAboutBox(const AProductName, AProductName2, AProductVersion : String);
 procedure ShowDlg;
 
 implementation
@@ -22,9 +24,9 @@ implementation
   {$R 'IdAboutDotNET.TfrmAbout.resources' 'IdAboutDotNET.resx'}
 {$ENDIF}
 
-procedure ShowAboutBox(const AProductName, AProductVersion : String);
+procedure ShowAboutBox(const AProductName, AProductName2, AProductVersion : String);
 begin
-  TfrmAbout.ShowAboutBox(AProductName, AProductVersion);
+  TfrmAbout.ShowAboutBox(AProductName, AProductName2, AProductVersion);
 end;
 
 procedure ShowDlg;

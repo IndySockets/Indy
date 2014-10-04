@@ -40,16 +40,19 @@ type
     { Private Declarations }
     function GetProductName: string;
     procedure SetProductName(const AValue: string);
+    function GetProductName2: string;
+    procedure SetProductName2(const AValue: string);
     function GetVersion: string;
     procedure SetVersion(const AValue: string);
     function LoadBitmap(AResName: string): Bitmap;
   public
     constructor Create;
     //we have a method for providing a product name and version in case
-    //we ever want to make another prdocut.
-    class Procedure ShowAboutBox(const AProductName, AProductVersion : String);
+    //we ever want to make another product.
+    class Procedure ShowAboutBox(const AProductName, AProductName2, AProductVersion : String);
     class Procedure ShowDlg;
    property ProductName : String read GetProductName write SetProductName;
+   property ProductName2 : String read GetProductName2 write SetProductName2;
    property Version : String read GetVersion write SetVersion;
 
   end;
@@ -264,30 +267,39 @@ begin
   Self.lblName.Text := AValue;
 end;
 
+procedure TfrmAbout.SetProductName2(const AValue : String);
+begin
+  Self.lblName2.Text := AValue;
+end;
+
 procedure TfrmAbout.SetVersion(const AValue: string);
 begin
   Self.lblVersion.Text := AValue;
 end;
 
 function TfrmAbout.GetVersion: string;
-
 begin
   Result := Self.lblVersion.Text;
 end;
 
 function TfrmAbout.GetProductName: string;
-
 begin
   Result := Self.lblName.Text;
 end;
 
-class procedure TfrmAbout.ShowAboutBox(const AProductName,
+function TfrmAbout.GetProductName2: string;
+begin
+  Result := Self.lblName2.Text;
+end;
+
+class procedure TfrmAbout.ShowAboutBox(const AProductName, AProductName2,
   AProductVersion: String);
 begin
   with TfrmAbout.Create do
   try
     Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
     ProductName := AProductName;
+    ProductName2 := AProductName2;
     Text := AProductName;
     ShowDialog;
   finally
@@ -297,7 +309,7 @@ end;
 
 class procedure TfrmAbout.ShowDlg;
 begin
-  ShowAboutBox(RSAAboutBoxTitle1{RSAAboutBoxCompName}, gsIdVersion);
+  ShowAboutBox(RSAAboutBoxTitle1, RSAAboutBoxTitle2, gsIdVersion);
 end;
 
 procedure TfrmAbout.lblURL_LinkClicked(sender: System.Object; e: System.Windows.Forms.LinkLabelLinkClickedEventArgs);
