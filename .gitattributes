@@ -778,6 +778,7 @@ Lib/Core/IdAboutVCL.RES -text svneol=unset#unset
 Lib/Core/IdAboutVCL.lrs -text
 Lib/Core/IdAboutVCL.pas -text
 Lib/Core/IdAboutVCL.rc -text
+Lib/Core/IdAboutVCL.xpm -text
 Lib/Core/IdAntiFreeze.pas -text
 Lib/Core/IdAssignedNumbers.pas -text
 Lib/Core/IdBuffer.pas -text
@@ -1079,6 +1080,7 @@ Lib/Core/dclindycorek3.dpk -text
 Lib/Core/dclindycorek3.dpkl -text
 Lib/Core/dclindycorek3.res -text svneol=unset#unset
 Lib/Core/dclindycorelaz.lpk -text
+Lib/Core/indy_pit_crew_credits_window.psd -text
 Lib/Core/indycorefpc.pas -text
 Lib/Design/DsnIndy.bdsproj -text
 Lib/Design/DsnIndy.dpr -text

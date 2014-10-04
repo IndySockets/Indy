@@ -25,7 +25,10 @@ type
     FimLogo : TImage;
     FlblCopyRight : TLabel;
     FlblName : TLabel;
+    FlblName2 : TLabel;
     FlblVersion : TLabel;
+    FlblBuiltFor : TLabel;
+    FlblLicense : TLabel;
     FlblPleaseVisitUs : TLabel;
     FlblURL : TLabel;
     //for LCL, we use a TBitBtn to be consistant with some GUI interfaces
@@ -64,13 +67,20 @@ uses
   {$IFDEF WIN32}ShellApi, {$ENDIF}
   {$IFNDEF WIDGET_LCL}
    //done this way because we reference HInstance in Delphi for loading
-   //resources.  Lazarus does something different.  
-    {$IFDEF WIN32} 
+   //resources.  Lazarus does something different.
+    {$IFDEF WIN32}
   Windows,
     {$ENDIF}
   {$ENDIF}
   IdDsnCoreResourceStrings,
   IdGlobal;
+
+{$IFNDEF WIDGET_LCL}
+function RGBToColor(R, G, B: Byte): TColor;
+begin
+  Result := RGB(R, G, B);
+end;
+{$ENDIF}
 
 { TfrmAbout }
 
@@ -81,7 +91,10 @@ begin
   FimLogo := TImage.Create(Self);
   FlblCopyRight := TLabel.Create(Self);
   FlblName := TLabel.Create(Self);
+  FlblName2 := TLabel.Create(Self);
   FlblVersion := TLabel.Create(Self);
+  FlblBuiltFor := TLabel.Create(Self);
+  FlblLicense := TLabel.Create(Self);
   FlblPleaseVisitUs := TLabel.Create(Self);
   FlblURL := TLabel.Create(Self);
   {$IFDEF USE_TBitBtn}
@@ -100,11 +113,12 @@ begin
   Caption := RSAAboutFormCaption;
   ClientHeight := 336;
   ClientWidth := 554;
-  Color := clBtnFace;
+  Color := 2520226; // RGBToColor(38, 116, 162)
 
-  Font.Color := clBtnText;
-  Font.Height := -11;
-  Font.Name := 'Tahoma';
+  Font.Color := 16776138; // RGBToColor(202, 251, 255)
+  Font.Height := -12;
+  Font.Size := 9;
+  Font.Name := 'Arial';
   Font.Style := [];
   Position := poScreenCenter;
   {$IFDEF WIDGET_VCL}
@@ -122,110 +136,181 @@ begin
   FimLogo.Height := 240;
 
   {$IFDEF WIDGET_LCL}
-  FimLogo.Picture.Bitmap.LoadFromLazarusResource('IndyCar');//this is XPM format
+  FimLogo.Picture.Bitmap.LoadFromLazarusResource('IndyAboutBkgnd');//this is XPM format
   {$ENDIF}
   {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
-  FimLogo.Picture.Bitmap.LoadFromResourceName(HInstance, 'INDYCAR');    {Do not Localize}
-  FimLogo.Transparent := True;
+  FimLogo.Picture.Bitmap.LoadFromResourceName(HInstance, 'INDY_ABOUT_BACKGROUND');    {Do not Localize}
+  FimLogo.Align := alClient;
+  FimLogo.Stretch := True;
   {$ENDIF}
 
   FlblName.Name := 'lblName';
   FlblName.Parent := Self;
-  FlblName.Left := 390;
-  FlblName.Top := 8;
-  FlblName.Width := 160;
-  FlblName.Height := 104;
-  FlblName.Alignment := taCenter;
-  FlblName.AutoSize := False;
-  FlblName.Anchors := [akLeft, akTop, akRight];
+  FlblName.Left := 51;
+  FlblName.Top := 28;
+  FlblName.Width := 200;
+  FlblName.Height := 101;
+  FlblName.Anchors := [akLeft, akTop];
   {$IFDEF WIDGET_VCL}
   FlblName.Font.Charset := DEFAULT_CHARSET;
   FlblName.Transparent := True;
   {$ENDIF}
-  FlblName.Font.Color := clBtnText;
-  FlblName.Font.Height := -16;
-  FlblName.Font.Name := 'Verdana';
-  FlblName.Font.Style := [fsBold];
+  FlblName.Font.Color := clWhite;
+  FlblName.Font.Height := -72;
+  FlblName.Font.Name := 'Arial Black';
+  FlblName.Font.Style := [];
   FlblName.ParentFont := False;
-  FlblName.WordWrap := True;
+  FlblName.WordWrap := False;
+  FlblName.Caption := RSAAboutBoxTitle1;
+
+  FlblName2.Name := 'lblName2';
+  FlblName2.Parent := Self;
+  FlblName2.Left := 54;
+  FlblName2.Top := 110;
+  FlblName2.Width := 192;
+  FlblName2.Height := 35;
+  FlblName2.Anchors := [akLeft, akTop];
+  {$IFDEF WIDGET_VCL}
+  FlblName2.Font.Charset := DEFAULT_CHARSET;
+  FlblName2.Transparent := True;
+  {$ENDIF}
+  FlblName2.Font.Color := clWhite;
+  FlblName2.Font.Height := -31;
+  FlblName2.Font.Name := 'Arial';
+  FlblName2.Font.Style := [];
+  FlblName2.ParentFont := False;
+  FlblName2.WordWrap := False;
+  FlblName2.Caption := RSAAboutBoxTitle2;
 
   FlblVersion.Name := 'lblVersion';
   FlblVersion.Parent := Self;
-  FlblVersion.Left := 390;
-  FlblVersion.Top := 72;
-  FlblVersion.Width := 160;
-  FlblVersion.Height := 40;
-  FlblVersion.Alignment := taCenter;
+  FlblVersion.Left := 300;
+  FlblVersion.Top := 170;
+  FlblVersion.Width := 200;
+  FlblVersion.Height := 17;
+  FlblVersion.Alignment := taRightJustify;
   FlblVersion.AutoSize := False;
   {$IFDEF WIDGET_VCL}
   FlblVersion.Font.Charset := DEFAULT_CHARSET;
   FlblVersion.Transparent := True;
   {$ENDIF}
-  FlblVersion.Font.Color := clBtnText;
+  FlblVersion.Font.Color := 16776138; // RGBToColor(202, 251, 255)
   FlblVersion.Font.Height := -15;
-  FlblVersion.Font.Name := 'Verdana';
+  FlblVersion.Font.Name := 'Arial';
   FlblVersion.Font.Style := [fsBold];
   FlblVersion.ParentFont := False;
-  FlblVersion.Anchors := [akLeft, akTop, akRight];
+  FlblVersion.Anchors := [akTop, akRight];
+
+  FlblBuiltFor.Name := 'lblBuiltFor';
+  FlblBuiltFor.Parent := Self;
+  FlblBuiltFor.Left := 300;
+  FlblBuiltFor.Top := 188;
+  FlblBuiltFor.Width := 200;
+  FlblBuiltFor.Height := 17;
+  FlblBuiltFor.Alignment := taRightJustify;
+  FlblBuiltFor.AutoSize := False;
+  {$IFDEF WIDGET_VCL}
+  FlblBuiltFor.Font.Charset := DEFAULT_CHARSET;
+  FlblBuiltFor.Transparent := True;
+  {$ENDIF}
+  FlblBuiltFor.Font.Color := 16776138; // RGBToColor(202, 251, 255)
+  FlblBuiltFor.Font.Height := -14;
+  FlblBuiltFor.Font.Name := 'Arial';
+  FlblBuiltFor.Font.Style := [];
+  FlblBuiltFor.ParentFont := False;
+  FlblBuiltFor.Anchors := [akTop, akRight];
+
+  // RLebeau: not using resouce strings for the product names because:
+  // 1. the names are pretty specific and not likely to change with localization;
+  // 2. we are trying to avoid using IFDEFs in resource units, per Embarcadero's request;
+  // 3. I don't want to create more product-specific resource units unless we really need them;
+  {$IFDEF WIDGET_KYLIX}
+  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['Kylix']);
+  {$ELSE}
+    {$IFDEF WIDGET_VCL}
+  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['VCL']);
+    {$ELSE}
+      {$IFDEF WIDGET_LCL}
+  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['Lazarus']);
+      {$ELSE}
+  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['Unknown']);
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+
+  FlblLicense.Name := 'lblLicense';
+  FlblLicense.Parent := Self;
+  FlblLicense.Left := 300;
+  FlblLicense.Top := 227;
+  FlblLicense.Width := 200;
+  FlblLicense.Height := 45;
+  FlblLicense.Alignment := taRightJustify;
+  FlblLicense.AutoSize := False;
+  {$IFDEF WIDGET_VCL}
+  FlblLicense.Font.Charset := DEFAULT_CHARSET;
+  FlblLicense.Transparent := True;
+  {$ENDIF}
+  FlblCopyRight.Font.Color := 16776138; // RGBToColor(202, 251, 255)
+  FlblCopyRight.Font.Height := -12;
+  FlblCopyRight.Font.Name := 'Arial';
+  FlblCopyRight.Font.Style := [];
+  FlblCopyRight.ParentFont := False;
+  FlblCopyRight.WordWrap := False;
+  FlblLicense.Anchors := [akTop, akRight];
+  FlblLicense.Caption := RSAAboutBoxLicences;
 
   FlblCopyRight.Name := 'lblCopyRight';
   FlblCopyRight.Parent := Self;
-  FlblCopyRight.Left := 390;
-  FlblCopyRight.Top := 128;
-  FlblCopyRight.Width := 160;
-  FlblCopyRight.Height := 112;
-  FlblCopyRight.Alignment := taCenter;
-  FlblCopyRight.Anchors := [akLeft, akTop, akRight];
-  FlblCopyRight.AutoSize := False;
+  FlblCopyRight.Left := 58;
+  FlblCopyRight.Top := 171;
+  FlblCopyRight.Width := 138;
+  FlblCopyRight.Height := 15;
   FlblCopyRight.Caption := RSAAboutBoxCopyright;
   {$IFDEF WIDGET_VCL}
   FlblCopyRight.Font.Charset := DEFAULT_CHARSET;
   FlblCopyRight.Transparent := True;
   {$ENDIF}
-  FlblCopyRight.Font.Color := clBtnText;
-  FlblCopyRight.Font.Height := -13;
-  FlblCopyRight.Font.Name := 'Verdana';
-  FlblCopyRight.Font.Style := [fsBold];
+  FlblCopyRight.Font.Color := 16776138; // RGBToColor(202, 251, 255)
+  FlblCopyRight.Font.Height := -12;
+  FlblCopyRight.Font.Name := 'Arial';
+  FlblCopyRight.Font.Style := [];
   FlblCopyRight.ParentFont := False;
-  FlblCopyRight.WordWrap := True;
+  FlblCopyRight.WordWrap := False;
 
   FlblPleaseVisitUs.Name := 'lblPleaseVisitUs';
   FlblPleaseVisitUs.Parent := Self;
-  FlblPleaseVisitUs.Left := 8;
-  FlblPleaseVisitUs.Top := 244;
-  FlblPleaseVisitUs.Width := 540;
-  FlblPleaseVisitUs.Height := 23;
-  FlblPleaseVisitUs.Alignment := taCenter;
-  FlblPleaseVisitUs.AutoSize := False;
+  FlblPleaseVisitUs.Left := 58;
+  FlblPleaseVisitUs.Top := 278;
+  FlblPleaseVisitUs.Width := 276;
+  FlblPleaseVisitUs.Height := 15;
   {$IFDEF WIDGET_VCL}
   FlblPleaseVisitUs.Font.Charset := DEFAULT_CHARSET;
   FlblPleaseVisitUs.Transparent := True;
   {$ENDIF}
-  FlblPleaseVisitUs.Font.Height := -13;
-  FlblPleaseVisitUs.Font.Name := 'Verdana';
+  FlblPleaseVisitUs.Font.Color := 16776138; // RGBToColor(202, 251, 255)
+  FlblPleaseVisitUs.Font.Height := -12;
+  FlblPleaseVisitUs.Font.Name := 'Arial';
+  FlblPleaseVisitUs.ParentFont := False;
   FlblPleaseVisitUs.Caption := RSAAboutBoxPleaseVisit;
-  FlblPleaseVisitUs.Anchors := [akLeft, akTop, akRight];
+  FlblPleaseVisitUs.Anchors := [akLeft, akTop];
 
   FlblURL.Name := 'lblURL';
-  FlblURL.Left := 8;
-  FlblURL.Top := 260;
-  FlblURL.Width := 540;
-  FlblURL.Height := 23;
+  FlblURL.Left := 58;
+  FlblURL.Top := 292;
+  FlblURL.Width := 141;
+  FlblURL.Height := 15;
   FlblURL.Cursor := crHandPoint;
-  FlblURL.Alignment := taCenter;
-  FlblURL.AutoSize := False;
   {$IFDEF WIDGET_VCL}
   FlblURL.Font.Charset := DEFAULT_CHARSET;
   FlblURL.Transparent := True;
   {$ENDIF}
-  FlblURL.Font.Color := clBlue;
-  FlblURL.Font.Height := -13;
-  FlblURL.Font.Name := 'Verdana';
-  FlblURL.Font.Style := [fsUnderline];
+  FlblURL.Font.Color := 16776138; // RGBToColor(202, 251, 255)
+  FlblURL.Font.Height := -12;
+  FlblURL.Font.Name := 'Arial';
   FlblURL.ParentFont := False;
   FlblURL.OnClick := lblURLClick;
   FlblURL.Caption := RSAAboutBoxIndyWebsite;
-  FlblURL.Anchors := [akLeft, akTop, akRight];
+  FlblURL.Anchors := [akLeft, akTop];
   FlblURL.Parent := Self;
 
   FbbtnOk.Name := 'bbtnOk';
@@ -287,9 +372,9 @@ begin
   {$IFNDEF USE_OBJECT_ARC}
   try
   {$ENDIF}
-     LFrm.Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
-     LFrm.ProductName := AProductName;
-     LFrm.ShowModal;
+    LFrm.Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
+    LFrm.ProductName := AProductName;
+    LFrm.ShowModal;
   {$IFNDEF USE_OBJECT_ARC}
   finally
     LFrm.Free;
@@ -299,7 +384,7 @@ end;
 
 class procedure TfrmAbout.ShowDlg;
 begin
-  ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
+  ShowAboutBox(RSAAboutBoxTitle1{RSAAboutBoxCompName}, gsIdVersion);
 end;
 
 constructor TfrmAbout.Create;

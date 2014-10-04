@@ -49,8 +49,7 @@ interface
 
 const
   IndyPitCrew = 'Kudzu (Chad Z. Hower)'#13#10
-   + 'and the'#13#10
-   + 'Indy Pit Crew';
+   + 'and the Indy Pit Crew';
 
 resourcestring
   { About Box stuff }
@@ -59,8 +58,12 @@ resourcestring
   RSAAboutMenuItemName = 'About Internet &Direct (Indy) %s...';
 
   RSAAboutBoxVersion = 'Version %s';
-  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2005'#13#10
+  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2014'#13#10
    + IndyPitCrew;
+  RSAAboutBoxTitle1 = 'INDY';
+  RSAAboutBoxTitle2 = 'Internet Direct';
+  RSAAboutBoxLicences = 'Indy Modified BSD License'+#13#10+'Indy MPL License';
+  RSAAboutBoxBuiltFor = 'Indy.Sockets (%s)';
 
   RSAAboutBoxPleaseVisit = 'For the latest updates and information please visit:';
   RSAAboutBoxIndyWebsite = 'http://www.indyproject.org/';    {Do not Localize}
