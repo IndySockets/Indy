@@ -255,12 +255,12 @@ begin
   FlblLicense.Font.Charset := DEFAULT_CHARSET;
   FlblLicense.Transparent := True;
   {$ENDIF}
-  FlblCopyRight.Font.Color := 16776138; // RGBToColor(202, 251, 255)
-  FlblCopyRight.Font.Height := -12;
-  FlblCopyRight.Font.Name := 'Arial';
-  FlblCopyRight.Font.Style := [];
-  FlblCopyRight.ParentFont := False;
-  FlblCopyRight.WordWrap := False;
+  FlblLicense.Font.Color := 16776138; // RGBToColor(202, 251, 255)
+  FlblLicense.Font.Height := -12;
+  FlblLicense.Font.Name := 'Arial';
+  FlblLicense.Font.Style := [];
+  FlblLicense.ParentFont := False;
+  FlblLicense.WordWrap := True;
   FlblLicense.Anchors := [akTop, akRight];
   FlblLicense.Caption := RSAAboutBoxLicences;
 
@@ -280,7 +280,7 @@ begin
   FlblCopyRight.Font.Name := 'Arial';
   FlblCopyRight.Font.Style := [];
   FlblCopyRight.ParentFont := False;
-  FlblCopyRight.WordWrap := False;
+  FlblCopyRight.WordWrap := True;
 
   FlblPleaseVisitUs.Name := 'lblPleaseVisitUs';
   FlblPleaseVisitUs.Parent := Self;
