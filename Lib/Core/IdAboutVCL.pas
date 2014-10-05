@@ -141,12 +141,15 @@ begin
   FimLogo.Height := 240;
 
   {$IFDEF WIDGET_LCL}
-  FimLogo.Picture.Bitmap.LoadFromLazarusResource('IndyAboutBkgnd');//this is XPM format
-  {$ENDIF}
-  {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
+  FimLogo.Picture.Pixmap.LoadFromLazarusResource('IndyAboutBkgnd'); //this is XPM format, so Pixmap is used
+  FimLogo.Align := alClient;
+  FimLogo.Stretch := True;
+  {$ELSE} // Because Lazarus is also WIDGET_VCL_LIKE_OR_KYLIX
+    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   FimLogo.Picture.Bitmap.LoadFromResourceName(HInstance, 'INDY_ABOUT_BACKGROUND');    {Do not Localize}
   FimLogo.Align := alClient;
   FimLogo.Stretch := True;
+    {$ENDIF}
   {$ENDIF}
 
   FlblName.Name := 'lblName';
@@ -329,13 +332,15 @@ begin
   FbbtnOk.Width := 75;
   FbbtnOk.Anchors := [akRight, akBottom];
   {$IFDEF USE_TBitBtn}
+  FbbtnOk.Font.Color := clBlack;
+  FbbtnOk.ParentFont := False;
   FbbtnOk.Kind := bkOk;
   {$ELSE}
+  FbbtnOk.Caption := RSOk;
+  {$ENDIF}
   FbbtnOk.Cancel := True;
   FbbtnOk.Default := True;
   FbbtnOk.ModalResult := 1;
-  FbbtnOk.Caption := RSOk;
-  {$ENDIF}
   FbbtnOk.TabOrder := 0;
   FbbtnOk.Anchors := [akLeft, akTop, akRight];
   FbbtnOk.Parent := Self;

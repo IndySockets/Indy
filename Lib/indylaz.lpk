@@ -99,7 +99,7 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;qu
         <Type Value="LRS"/>
       </Item14>
     </Files>
-    <Type Value="DesignTime"/>
+    <Type Value="RunAndDesignTime"/>
     <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="LCL"/>
