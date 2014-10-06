@@ -60,7 +60,7 @@ type
 implementation
 
 {$IFNDEF WIDGET_LCL}
-  {$IFDEF WIN32}
+  {$IFDEF WIN32_OR_WIN64}
   {$R IdAboutVCL.RES}
   {$ENDIF}
   {$IFDEF KYLIX}
@@ -69,11 +69,11 @@ implementation
 {$ENDIF}
 
 uses
-  {$IFDEF WIN32}ShellApi, {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64}ShellApi, {$ENDIF}
   {$IFNDEF WIDGET_LCL}
    //done this way because we reference HInstance in Delphi for loading
    //resources.  Lazarus does something different.
-    {$IFDEF WIN32}
+    {$IFDEF WIN32_OR_WIN64}
   Windows,
     {$ENDIF}
   {$ENDIF}
@@ -363,7 +363,7 @@ end;
 
 procedure TfrmAbout.lblURLClick(Sender: TObject);
 begin
-  {$IFDEF WIN32}
+  {$IFDEF WIN32_OR_WIN64}
   ShellAPI.ShellExecute(Handle, nil, PChar(FlblURL.Caption), nil, nil, 0);    {Do not Localize}
   FlblURL.Font.Color := clPurple;
   {$ENDIF}
