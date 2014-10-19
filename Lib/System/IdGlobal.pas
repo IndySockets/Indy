@@ -710,6 +710,16 @@ type
   TIdUnicodeString = UnicodeString;
     {$ELSE}
   TIdUnicodeString = WideString;
+  // RP 9/12/2014: Synopse just released a unit that patches the System unit
+  // in pre-Unicode versions of Delphi to redirect WideString memory management
+  // to the RTL's memory manager (FastMM, etc) instead of the Win32 COM API!
+  //  
+  // http://blog.synopse.info/post/2014/09/12/Faster-WideString-process-for-good-old-non-Unicode-Delphi-6-2007
+  // https://github.com/synopse/mORMot/blob/master/SynFastWideString.pas
+  //
+  // We should consider providing an optional setting to enable that patch
+  // so we can get a performance boost for Unicode-enabled code that uses
+  // TIdUnicodeString...
     {$ENDIF}
   {$ENDIF}
 
@@ -1627,6 +1637,7 @@ procedure SplitDelimitedString(const AData: string; AStrings: TIdStringPositionL
 
 function StartsWithACE(const ABytes: TIdBytes): Boolean;
 function StringsReplace(const S: String; const OldPattern, NewPattern: array of string): string;
+function ReplaceAll(const S, OldPattern, NewPattern: string): string;
 function ReplaceOnlyFirst(const S, OldPattern, NewPattern: string): string;
 function TextIsSame(const A1, A2: string): Boolean;
 function TextStartsWith(const S, SubS: string): Boolean;
@@ -1715,6 +1726,7 @@ uses
   {$ENDIF}
   {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
     {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
+    {$IFDEF USE_MADEXCEPT}madExcept,{$ENDIF}
   {$ENDIF}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
   {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
@@ -1727,6 +1739,7 @@ uses
   {$ELSE}
   IdStreamVCL
   {$ENDIF}
+  {$IFDEF HAS_UNIT_StrUtils},StrUtils{$ENDIF}
   ;
 
 {$IFDEF FPC}
@@ -6822,13 +6835,91 @@ function StringsReplace(const S: String; const OldPattern, NewPattern: array of 
 var
   i : Integer;
 begin
-  // TODO: re-write this to not use StringReplace() in a loop anymore.  If
+  // TODO: re-write this to not use ReplaceAll() in a loop anymore.  If
   // OldPattern contains multiple strings, a string appearing later in the
   // list may be replaced multiple times by accident if it appears in the
   // Result of an earlier string replacement.
   Result := s;
   for i := Low(OldPattern) to High(OldPattern) do begin
-    Result := StringReplace(Result, OldPattern[i], NewPattern[i], [rfReplaceAll]);
+    Result := ReplaceAll(Result, OldPattern[i], NewPattern[i]);
+  end;
+end;
+
+{$IFNDEF DOTNET}
+  {$IFNDEF HAS_PosEx}
+function PosEx(const SubStr, S: string; Offset: Integer): Integer;
+var
+  I, LIterCnt, L, J: Integer;
+  PSubStr, PS: PChar;
+begin
+  Result := 0;
+  if SubStr = '' then begin
+    Exit;
+  end;
+
+  { Calculate the number of possible iterations. Not valid if Offset < 1. }
+  LIterCnt := Length(S) - Offset - Length(SubStr) + 1;
+
+  { Only continue if the number of iterations is positive or zero (there is space to check) }
+  if (Offset > 0) and (LIterCnt >= 0) then
+  begin
+    L := Length(SubStr);
+    PSubStr := PChar(SubStr);
+    PS := PChar(S);
+    Inc(PS, Offset - 1);
+
+    for I := 0 to LIterCnt do
+    begin
+      J := 0;
+      while (J >= 0) and (J < L) do
+      begin
+        if PS[I + J] = PSubStr[J] then begin
+          Inc(J);
+        end else begin
+          J := -1;
+        end;
+      end;
+      if J >= L then begin
+        Result := I + Offset;
+        Exit;
+      end;
+    end;
+  end;
+end;
+  {$ENDIF}
+{$ENDIF}
+
+function ReplaceAll(const S: String; const OldPattern, NewPattern: String): String;
+var
+  I, PatLen: Integer;
+  {$IFDEF DOTNET}
+  J: Integer;
+  {$ELSE}
+  NumBytes: Integer;
+  {$ENDIF}
+begin
+  PatLen := Length(OldPattern);
+  if Length(NewPattern) = PatLen then begin
+    Result := S;
+    I := Pos(OldPattern, Result);
+    if I > 0 then begin
+      UniqueString(Result);
+      {$IFNDEF DOTNET}
+      NumBytes := PatLen * SizeOf(Char);
+      {$ENDIF}
+      repeat
+        {$IFDEF DOTNET}
+        for J := 1 to PatLen do begin
+          Result[I+J-1] := NewPattern[J];
+        end;
+        {$ELSE}
+        Move(PChar(NewPattern)^, Result[I], NumBytes);
+        {$ENDIF}
+        I := PosEx(OldPattern, Result, I + PatLen);
+     until I = 0;
+    end;
+  end else begin
+    Result := SysUtils.StringReplace(S, OldPattern, NewPattern, [rfReplaceAll]);
   end;
 end;
 
@@ -8370,13 +8461,24 @@ end;
 function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
+  // TODO: use only System.RegisterExpectedMemoryLeak() on systems that support
+  // it. We should use whatever the RTL's active memory manager is.  Fallback
+  // to specific memory managers only if System.RegisterExpectedMemoryLeak()
+  // is not available.
+
   {$IFDEF USE_FASTMM4}
   // RLebeau 4/9/2009: the user can override the RTL's version of FastMM
   // (2006+ only) with the full version of FastMM in order to enable
   // advanced debugging features, so check for that first...
   Result := FastMM4.RegisterExpectedMemoryLeak(AAddress);
   {$ELSE}
-    {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
+    {$IFDEF USE_MADEXCEPT}
+  // RLebeau 10/5/2014: the user can override the RTL's version of FastMM
+  // (2006+ only) with any memory manager, such as MadExcept, so check for
+  // that next...
+  Result := madExcept.HideLeak(AAddress);
+    {$ELSE}
+      {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
   // RLebeau 4/21/08: not quite sure what the difference is between the
   // SysRegisterExpectedMemoryLeak() and RegisterExpectedMemoryLeak()
   // functions in the System unit, but calling RegisterExpectedMemoryLeak()
@@ -8396,8 +8498,9 @@ begin
 
   //Result := System.SysRegisterExpectedMemoryLeak(AAddress);
   Result := System.RegisterExpectedMemoryLeak(AAddress);
-    {$ELSE}
+      {$ELSE}
   Result := False;
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;

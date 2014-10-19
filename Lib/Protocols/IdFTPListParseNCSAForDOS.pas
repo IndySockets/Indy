@@ -130,7 +130,7 @@ begin
   Result := False;
   LWords := TStringList.Create;
   try
-    SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LWords, True);
+    SplitDelimitedString(ReplaceAll(AData, '-', ' '), LWords, True);
     while LWords.Count > 2 do begin
       LWords.Delete(0);
     end;

@@ -1242,7 +1242,7 @@ begin
       Result := Result + IndyFormat('.%3d',[LMSec]);
     end;
   end;
-  Result := StringReplace(Result, ' ', '0', [rfReplaceAll]);
+  Result := ReplaceAll(Result, ' ', '0');
 end;
 {
 Note that MS-DOS displays the time in the Local Time Zone - MLISx commands use
@@ -1974,13 +1974,13 @@ var
   i: Integer;
 begin
   if AMonth <> '' then begin
-    for i := Low(Months) to High(Months) do begin
+  for i := Low(Months) to High(Months) do begin
       for Result := Low(Months[i]) to High(Months[i]) do begin
         if TextIsSame(AMonth, Months[i][Result]) then begin
           Exit;
         end;
       end;
-	  end;
+    end;
   end;
   Result := 0;
 end;

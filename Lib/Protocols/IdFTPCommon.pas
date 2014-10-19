@@ -1124,13 +1124,13 @@ end;
 function UnixPathToDOSPath(const APath : String):String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := StringReplace(APath, PATH_SUBDIR_SEP_UNIX, PATH_SUBDIR_SEP_DOS, [rfReplaceAll]);
+  Result := ReplaceAll(APath, PATH_SUBDIR_SEP_UNIX, PATH_SUBDIR_SEP_DOS);
 end;
 
 function DOSPathToUnixPath(const APath : String):String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := StringReplace(APath, PATH_SUBDIR_SEP_DOS, PATH_SUBDIR_SEP_UNIX, [rfReplaceAll]);
+  Result := ReplaceAll(APath, PATH_SUBDIR_SEP_DOS, PATH_SUBDIR_SEP_UNIX);
 end;
 
 {Pattern recognition}
@@ -1373,7 +1373,7 @@ begin
       Result := Result + '+' + IntToStr(LOfs);
     end;
   end;
-  Result := StringReplace(Result, ' ', '0', [rfReplaceAll]);
+  Result := ReplaceAll(Result, ' ', '0');
 end;
 
 function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTime;

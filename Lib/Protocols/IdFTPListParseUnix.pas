@@ -386,8 +386,10 @@ var
   begin
     LB := AStrPart;
     Result := Fetch(LB);
-    Result := StringReplace(Result, '-', ' ', [rfReplaceAll]); {do not localize}
-    Result := StringReplace(Result, '/', ' ', [rfReplaceAll]); {do not localize}
+    //TODO: use StringsReplace() instead
+    //Result := StringsReplace(Result, ['-', '/'], [' ', ' ']); {do not localize}
+    Result := ReplaceAll(Result, '-', ' '); {do not localize}
+    Result := ReplaceAll(Result, '/', ' '); {do not localize}
     Result := Result + ' ' + LB; {do not localize}
   end;
 

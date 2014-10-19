@@ -5265,8 +5265,10 @@ function ResolveQuotedSpecials(const AParam: string): string;
 begin
   // Handle quoted_specials, RFC1730
   // \ with other chars than " or \ after, looks illegal in RFC1730, but leave them untouched
-  Result := StringReplace(AParam, '\"', '"', [rfReplaceAll]);
-  Result := StringReplace(Result, '\\', '\', [rfReplaceAll]);
+  // TODO: use StringsReplace() instead
+  //Result := StringsReplace(AParam, ['\"', '\\'], ['"', '\']);
+  Result := ReplaceAll(AParam, '\"', '"');
+  Result := ReplaceAll(Result, '\\', '\');
 end;
 
 procedure TIdIMAP4.ParseIntoParts(APartString: string; AParams: TStrings);

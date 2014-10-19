@@ -503,7 +503,7 @@ begin
       if TextStartsWith(s, AAuthString) and CharIsInSet(s, Length(AAuthString)+1, VALIDDELIMS) then
       begin
         s := UpperCase(Copy(s, Length(AAuthString)+1, MaxInt));
-        s := StringReplace(s, '=', ' ', [rfReplaceAll]);    {Do not Localize}
+        s := ReplaceAll(s, '=', ' ');    {Do not Localize}
         while Length(s) > 0 do
         begin
           LEntry := Fetch(s, ' ');    {Do not Localize}

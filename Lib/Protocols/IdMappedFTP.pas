@@ -283,7 +283,7 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
     Host := LDataChannel.Binding.IP;
     Port := LDataChannel.Binding.Port;
 
-    LParm := StringReplace(Host, '.', ',',[rfReplaceAll]);    {Do not Localize}
+    LParm := ReplaceAll(Host, '.', ',');    {Do not Localize}
     LParm := LParm + ',' + IntToStr(Port div 256) + ',' + IntToStr(Port mod 256);    {Do not Localize}
 
     //2.setup remote (mapped)
@@ -327,7 +327,7 @@ var
     OutboundHost := LDataChannel.Binding.IP;
     OutboundPort := LDataChannel.Binding.Port;
 
-    OutboundClient.SendCmd('PORT ' + StringReplace(OutboundHost, '.', ',',[rfReplaceAll])+    {Do not Localize}
+    OutboundClient.SendCmd('PORT ' + ReplaceAll(OutboundHost, '.', ',')+    {Do not Localize}
       ',' + IntToStr(OutboundPort div 256) + ',' +    {Do not Localize}
       IntToStr(OutboundPort mod 256), [200]);
   end;

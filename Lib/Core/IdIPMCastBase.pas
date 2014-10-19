@@ -216,7 +216,7 @@ class function TIdIPMCastBase.SetIPv6AddrScope(const AVarIPv6Addr: String;
   const AScope: TIdIPMCValidScopes): String;
 begin
    //Replace the X in the Id_IPv6MC_V_ constants with the specified scope
-   Result := StringReplace(AVarIPv6Addr,'X',IntToHex(AScope,1),[]);
+   Result := ReplaceOnlyFirst(AVarIPv6Addr,'X',IntToHex(AScope,1));
 end;
 
 procedure TIdIPMCastBase.SetIPVersion(const AValue: TIdIPVersion);

@@ -329,7 +329,7 @@ procedure TIdNNTP.ParseXOVER(Aline : String;
 
 begin
   {Strip backspace and tab junk sequences which occur after a tab separator so they don't throw off any code}
-  ALine := StringReplace(ALine, #9#8#9, #9, [rfReplaceAll]);
+  ALine := ReplaceAll(ALine, #9#8#9, #9);
   {Article Index}
   AArticleIndex := IndyStrToInt64(Fetch(ALine, #9), 0);
   {Subject}

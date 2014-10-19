@@ -3096,7 +3096,7 @@ begin
   //InternalPASV does all of the checking
   if InternalPASV(ASender, LParam, LBPort, LIPVersion) then begin
     DoOnPASVReply(TIdFTPServerContext(ASender.Context), LParam, LBPort, LIPVersion);
-    LParam := StringReplace(LParam, '.', ',', [rfReplaceAll]);    {Do not Localize}
+    LParam := ReplaceAll(LParam, '.', ',');    {Do not Localize}
     LParam := LParam + ',' + IntToStr(LBPort div 256) + ',' + IntToStr(LBPort mod 256);    {Do not Localize}
     ASender.Reply.SetReply(227, IndyFormat(RSFTPPassiveMode, [LParam]));
   end;
@@ -5999,11 +5999,11 @@ this is really desirable as both file systems are like apples and oranges.
 }
 begin
   case FPathProcessing of
-    ftppDOS : Result := StringReplace(APath, '\', '/', [rfReplaceAll]);
+    ftppDOS : Result := ReplaceAll(APath, '\', '/');
     ftpOSDependent :
       begin
         if GOSType = otWindows then begin
-          Result := StringReplace(APath, '\', '/', [rfReplaceAll]);
+          Result := ReplaceAll(APath, '\', '/');
         end else begin
           Result := APath;
         end;

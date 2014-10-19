@@ -565,7 +565,7 @@ begin
     begin
       Buff := Fetch(Data, ':');    {Do not Localize}
       {This handles a VCard property attribute delimiter ","}
-      Buff := StringReplace(Buff, ',', ';',[rfReplaceAll]);    {Do not Localize}
+      Buff := ReplaceAll(Buff, ',', ';');    {Do not Localize}
       while Buff <> '' do begin   {Do not Localize}
         Buff2 := Fetch(Buff, ';');    {Do not Localize}
         if Length(Buff2) > 0 then begin
@@ -758,7 +758,7 @@ begin
   NameObj.Prefix := Fetch(NameStr, ';');    {Do not Localize}
   { Suffix }
   NameObj.Suffix := Fetch(NameStr, ';');    {Do not Localize}
-  OtherNames := StringReplace(OtherNames, ' ', ',',[rfReplaceAll]);    {Do not Localize}
+  OtherNames := ReplaceAll(OtherNames, ' ', ',');    {Do not Localize}
   ParseDelimiterToStrings(NameObj.OtherNames, OtherNames);
 end;
 

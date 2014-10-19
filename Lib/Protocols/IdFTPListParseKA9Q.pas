@@ -141,7 +141,7 @@ begin
   end;
   LWords := TStringList.Create;
   try
-    SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LWords, True);
+    SplitDelimitedString(ReplaceAll(AData, '-', ' '), LWords, True);
     if LWords.Count > 1 then
     begin
       Result := (LWords[1] = 'files.') or (LWords[1] = 'file.') or  {do not localize}

@@ -873,6 +873,7 @@ resourcestring
   RSTLSSLCanNotSetWhileConnected = 'This value can not be set while the client is connected.';
   RSTLSSLSSLNotAvailable = 'SSL is not available on this server.';
   RSTLSSLSSLCmdFailed = 'Start SSL negotiation command failed.';
+  RSTLSSLSSLHandshakeFailed = 'SSL negotiation failed.';
 
   ///IdPOP3Reply
   //user's provided reply will follow this string

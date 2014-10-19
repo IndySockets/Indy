@@ -145,7 +145,7 @@ begin
     LI.ItemType := ditFile;
   end;
   LI.FileName := Copy(AItem.Data, 55, MaxInt);
-  LBuf := StringReplace(Copy(AItem.Data, 42, 12), ',', '', [rfReplaceAll]);
+  LBuf := ReplaceAll(Copy(AItem.Data, 42, 12), ',', '');
   if not IsWhiteString(LBuf) then begin
     LI.ModifiedDate := DateStrMonthDDYY(LBuf, ' ');
   end;

@@ -178,7 +178,7 @@ begin
   //we do it this way because a year might sometimes be missing
   //in which case, we just add the current year.
   LDate := LDate + ',' + LBuf2;
-  LDate := StringReplace(LDate, ',', ' ', [rfReplaceAll]);
+  LDate := ReplaceAll(LDate, ',', ' ');
   LI.ModifiedDate := DateStrMonthDDYY(LDate, ' ', True);
   //time
   LBuf := TrimLeft(LBuf);

@@ -252,7 +252,7 @@ begin
       if (Length(sSize) = 19) and IsNumeric(sSize[17]) and (sSize[18] = ' ') then begin
         SetLength(sSize, 17);
       end;
-      sSize := StringReplace(TrimLeft(sSize), ',', '', [rfReplaceAll]);
+      sSize := ReplaceAll(TrimLeft(sSize), ',', '');
       //VM/BFS does share the date/time format as MS-DOS for the first two columns
   //    if ((CharIsInSet(SData, 3, ['/', '-'])) and (CharIsInSet(SData, 6, ['/', '-']))) then
       if IsMMDDYY(Copy(SData, 1, 8), '-') or IsMMDDYY(Copy(SData, 1, 8), '/') then begin
@@ -363,7 +363,7 @@ begin
 
     // Strip commas or StrToInt64Def will barf
     if IndyPos(',', LValue) <> 0 then begin   {Do not Localize}
-      LValue := StringReplace(LValue, ',', '', [rfReplaceAll]);    {Do not Localize}
+      LValue := ReplaceAll(LValue, ',', '');    {Do not Localize}
     end;
     // What did we get?
     if TextIsSame(LValue, '<DIR>') then begin   {Do not Localize}

@@ -164,7 +164,7 @@ begin
   begin
     LCols := TStringList.Create;
     try
-      SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LCols, True);
+      SplitDelimitedString(ReplaceAll(AData, '-', ' '), LCols, True);
       Result := (LCols.Count > 3) and
                 (LCols[0] = 'FILENAME') and   {do not localize}
                 (LCols[1] = 'CODE') and       {do not localize}
@@ -265,7 +265,7 @@ begin
   begin
     LCols := TStringList.Create;
     try
-      SplitDelimitedString(StringReplace(AData, '-', ' ', [rfReplaceAll]), LCols, True);
+      SplitDelimitedString(ReplaceAll(AData, '-', ' '), LCols, True);
       Result := (LCols.Count = 5) and
                 (LCols[0] = 'CODE') and       {do not localize}
                 (LCols[1] = 'LOGICAL') and    {do not localize}

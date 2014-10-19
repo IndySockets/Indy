@@ -293,7 +293,7 @@ begin
     FOnTLSNegCmdFailed(Self, LContinue);
   end;
   if not LContinue then begin
-    TLSNotAvailable;
+    TLSNegCmdFailed;
   end;
 end;
 
@@ -399,7 +399,7 @@ begin
     // The socket data may be in a bad state at this point!
     Disconnect(False);
   end;
-  raise EIdTLSClientTLSHandShakeFailed.Create(RSTLSSLSSLNotAvailable);
+  raise EIdTLSClientTLSHandShakeFailed.Create(RSTLSSLSSLHandshakeFailed);
 end;
 
 procedure TIdExplicitTLSClient.TLSNegCmdFailed;
@@ -407,7 +407,7 @@ begin
   if Connected then begin
     Disconnect;
   end;
-  raise EIdTLSClientTLSNotAvailable.Create(RSTLSSLSSLNotAvailable);
+  raise EIdTLSClientTLSNegCmdFailed.Create(RSTLSSLSSLCmdFailed);
 end;
 
 procedure TIdExplicitTLSClient.TLSNotAvailable;
@@ -415,7 +415,7 @@ begin
   if Connected then begin
     Disconnect;
   end;
-  raise EIdTLSClientTLSNotAvailable.Create(RSTLSSLSSLCmdFailed);
+  raise EIdTLSClientTLSNotAvailable.Create(RSTLSSLSSLNotAvailable);
 end;
 
 function TIdExplicitTLSClient.GetSupportsTLS: boolean;

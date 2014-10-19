@@ -42,9 +42,15 @@
 {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
 
 // FastMM is natively available in BDS 2006 and higher.  $DEFINE the
-// following if FastMM has been installed manually
+// following if FastMM has been installed manually in earlier versions
 {.$DEFINE USE_FASTMM4}
 {$UNDEF USE_FASTMM4}
+
+// $DEFINE the following if MadExcept has been installed manually in
+// BDS 2005 or earlier (System.RegisterExpectedMemoryLeak() was introduced
+// in BDS 2006)
+{.$DEFINE USE_MADEXCEPT}
+{$UNDEF USE_MADEXCEPT}
 
 // Make sure the following are $DEFINE'd only for Delphi/C++Builder 2009 onwards
 // as specified further below.  The VCL is fully Unicode, where the 'String'
@@ -414,8 +420,6 @@
       {$UNDEF KYLIXCOMPAT}
     {$ENDIF}
   {$ENDIF}
-  {$DEFINE VCL_70}
-  {$DEFINE DELPHI_7}
 
   // FPC_FULLVERSION was added in FPC 2.2.4
   // Have to use Declared() or else Delphi compiler chokes, since it
@@ -550,6 +554,15 @@
       {$DEFINE FPC_2_1_5_OR_ABOVE}
     {$ENDIF}
   {$ENDIF}
+
+  {.$IFDEF FPC_2_7_1_OR_ABOVE}
+    // support for RawByteString and UnicodeString
+    {.$DEFINE VCL_2009}
+    {.$DEFINE DELPHI_2009}
+  {.$ELSE}
+    {$DEFINE VCL_70}
+    {$DEFINE DELPHI_7}
+  {.$ENDIF}
 {$ENDIF}
 
 // end FPC
@@ -817,7 +830,9 @@
   {$DEFINE HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
   {$DEFINE HAS_SysUtils_DirectoryExists}
   {$DEFINE HAS_UNIT_DateUtils}
+  {$DEFINE HAS_UNIT_StrUtils}
   {$DEFINE HAS_UNIT_Types}
+  {$DEFINE HAS_PosEx}
   {$DEFINE HAS_TryStrToInt}
   {$DEFINE HAS_TryStrToInt64}
   {$DEFINE HAS_TryEncodeDate}
@@ -1064,9 +1079,13 @@
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
+  {$IFDEF FPC_HAS_UNICODESTRING}
+    {$DEFINE HAS_UnicodeString}
+  {$ELSE}
     {$IFDEF FPC_2_4_0_OR_ABOVE}
       {$DEFINE HAS_UnicodeString}
     {$ENDIF}
+  {$ENDIF}
   {$IFDEF FPC_2_4_4_OR_ABOVE}
     {$DEFINE DEPRECATED_TThread_SuspendResume}
     {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced?
@@ -1407,6 +1426,9 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$IFNDEF FREE_ON_FINAL}
   {$IFNDEF REGISTER_EXPECTED_MEMORY_LEAK}
     {$IFDEF USE_FASTMM4}
+      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+    {$ENDIF}
+    {$IFDEF USE_MADEXCEPT}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
   {$ENDIF}

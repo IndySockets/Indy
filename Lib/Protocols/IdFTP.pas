@@ -2152,7 +2152,7 @@ end;
 procedure TIdFTP.SendPort(const AIP: String; const APort: TIdPort);
 begin
   SendDataSettings;
-  SendCmd('PORT ' + StringReplace(AIP, '.', ',', [rfReplaceAll])   {do not localize}
+  SendCmd('PORT ' + ReplaceAll(AIP, '.', ',')   {do not localize}
     + ',' + IntToStr(APort div 256) + ',' + IntToStr(APort mod 256), [200]); {do not localize}
 end;
 
@@ -3323,6 +3323,7 @@ begin
     if FListResult.Count > 0 then begin
       if TIdFTPListResult(FListResult).UsedMLS then begin
         FDirFormat := MLST;
+        // TODO: set the FListParserClass as well..
         IdFTPListParseBase.ParseListing(FListResult, FDirectoryListing, MLST);
       end else begin
         CheckListParseCapa(FListResult, FDirectoryListing, FDirFormat,

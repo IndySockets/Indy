@@ -956,7 +956,7 @@ var
   begin
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
-      Result := StringReplace(Trim(AStrings.Text), sLineBreak, '&', [rfReplaceAll]); {do not localize}
+      Result := ReplaceAll(Trim(AStrings.Text), sLineBreak, '&'); {do not localize}
     end else begin
       Result := Trim(AStrings.Text);
     end;
@@ -1700,6 +1700,10 @@ begin
   else begin
     // RLebeau 1/30/2012: Response.CharSet is now updated at the time
     // when HTML content is parsed for <meta> tags ...
+    
+    // TODO: if the Charset is not specified, return an appropriate value
+    // that is registered with IANA for the reported ContentType...
+
     Result := Response.CharSet;
   end;
 end;
@@ -1931,6 +1935,10 @@ begin
   end;
   {$IFDEF USE_OBJECT_ARC}LCompressor := nil;{$ENDIF}
 
+  // TODO: if AcceptEncoding is blank, DON'T set it to 'identity'! Oddly,
+  // some faulty servers do not understand 'identity' when explicitly
+  // stated. It is the default behavior when no "Accept-Encoding" header
+  // is sent, so just let the server fallback to it normally...
   if IndyPos('identity', ARequest.AcceptEncoding) = 0 then begin  {do not localize}
     if ARequest.AcceptEncoding <> '' then begin
       ARequest.AcceptEncoding := ARequest.AcceptEncoding + ', identity'; {do not localize}

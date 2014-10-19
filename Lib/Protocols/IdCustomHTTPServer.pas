@@ -1800,7 +1800,7 @@ begin
       end;
       s := Copy(AValue, i, j-i);
       // See RFC 1866 section 8.2.1. TP
-      s := StringReplace(s, '+', ' ', [rfReplaceAll]);  {do not localize}
+      s := ReplaceAll(s, '+', ' ');  {do not localize}
       Params.Add(TIdURI.URLDecode(s, LEncoding));
       i := j + 1;
     end;
@@ -1890,6 +1890,7 @@ end;
 procedure TIdHTTPResponseInfo.SetCloseConnection(const Value: Boolean);
 begin
   Connection := iif(Value, 'close', 'keep-alive');    {Do not Localize}
+  // TODO: include a 'Keep-Alive' header to specify a timeout value
   FCloseConnection := Value;
 end;
 

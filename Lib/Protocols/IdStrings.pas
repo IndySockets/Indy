@@ -109,36 +109,64 @@ uses
 
 function StrHtmlEncode (const AStr: String): String;
 begin
-  Result := StringReplace(AStr,   '&', '&amp;',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result, '<', '&lt;',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result, '>', '&gt;',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result, '"', '&quot;' ,[rfReplaceAll]); {do not localize}
+  // TODO: use StringsReplace() instead
+  {
+  Result := StringsReplace(AStr,
+    ['&',     '<',    '>',    '"'],      {do not localize
+    ['&amp;', '&lt;', '&gt;', '&quot;']  {do not localize
+  );
+  }
+  Result := ReplaceAll(AStr,   '&', '&amp;'); {do not localize}
+  Result := ReplaceAll(Result, '<', '&lt;'); {do not localize}
+  Result := ReplaceAll(Result, '>', '&gt;'); {do not localize}
+  Result := ReplaceAll(Result, '"', '&quot;'); {do not localize}
 end;
 
 function StrHtmlDecode (const AStr: String): String;
 begin
-  Result := StringReplace(AStr,   '&quot;', '"',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result, '&gt;',   '>',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result, '&lt;',   '<',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result, '&amp;',  '&',[rfReplaceAll]); {do not localize}
+  // TODO: use StringsReplace() instead
+  {
+  Result := StringsReplace(AStr,
+    ['&quot;', '&gt;', '&lt;', '&amp;'],  {do not localize
+    ['"',      '>',    '<',    '&']       {do not localize
+  );
+  }
+  Result := ReplaceAll(AStr,   '&quot;', '"'); {do not localize}
+  Result := ReplaceAll(Result, '&gt;',   '>'); {do not localize}
+  Result := ReplaceAll(Result, '&lt;',   '<'); {do not localize}
+  Result := ReplaceAll(Result, '&amp;',  '&'); {do not localize}
 end;
 
 function StrXHtmlEncode(const ASource: String): String;
 begin
-  Result := StringReplace(ASource, '&',  '&amp;',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '<',  '&lt;',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '>',  '&gt;',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '"',  '&quot;',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '''', '&apos;',[rfReplaceAll]); {do not localize}
+  //TODO: use StringsReplace() instead
+  {
+  Result := StringsReplace(ASource,
+    ['&',     '<',    '>',    '"',      ''''],     {do not localize
+    ['&amp;', '&lt;', '&gt;', '&quot;', '&apos;']  {do not localize
+  );
+  }
+  Result := ReplaceAll(ASource, '&',  '&amp;'); {do not localize}
+  Result := ReplaceAll(Result,  '<',  '&lt;'); {do not localize}
+  Result := ReplaceAll(Result,  '>',  '&gt;'); {do not localize}
+  Result := ReplaceAll(Result,  '"',  '&quot;'); {do not localize}
+  Result := ReplaceAll(Result,  '''', '&apos;'); {do not localize}
 end;
 
 function StrXHtmlDecode(const ASource: String): String;
 begin
-  Result := StringReplace(ASource, '&apos;', '''',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '&quot;', '"',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '&gt;',   '>',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '&lt;',   '<',[rfReplaceAll]); {do not localize}
-  Result := StringReplace(Result,  '&amp;',  '&',[rfReplaceAll]); {do not localize}
+  // TODO: use StringsReplace() instead
+  {
+  Result := StringsReplace(ASource,
+    ['&apos;', '&quot;', '&gt;', '&lt;', '&amp;'],  {do not localize
+    ['''',     '"',      '>',    '<',    '&']       {do not localize
+  );
+  }
+  Result := ReplaceAll(ASource, '&apos;', ''''); {do not localize}
+  Result := ReplaceAll(Result,  '&quot;', '"'); {do not localize}
+  Result := ReplaceAll(Result,  '&gt;',   '>'); {do not localize}
+  Result := ReplaceAll(Result,  '&lt;',   '<'); {do not localize}
+  Result := ReplaceAll(Result,  '&amp;',  '&'); {do not localize}
 end;
 
 // SP - 10/10/2003

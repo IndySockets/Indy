@@ -346,7 +346,7 @@ begin
   // S.G. 27/11/2002: Spaces is NOT to be encoded as "+".
   // S.G. 27/11/2002: "+" is a field separator in query parameter, space is...
   // S.G. 27/11/2002: well, a space
-  // ASrc := StringReplace(ASrc, '+', ' ', [rfReplaceAll]);  {do not localize}
+  // ASrc := ReplaceAll(ASrc, '+', ' ');  {do not localize}
   i := 1;
   while i <= Length(ASrc) do begin
     if ASrc[i] <> '%' then begin  {do not localize}

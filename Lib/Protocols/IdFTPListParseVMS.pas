@@ -236,7 +236,7 @@ begin
 
   LLine := LI.Data;
   // Charon VAX 5.4.2 uses tabs between some of its columns and spaces between others
-  LLine := StringReplace(LLine, #9, ' ', [rfReplaceAll]);
+  LLine := ReplaceAll(LLine, #9, ' ');
   //File Name
   //We do this in a roundabout way because spaces in VMS files may actually
   //be legal and that throws of a typical non-position based column parser.
