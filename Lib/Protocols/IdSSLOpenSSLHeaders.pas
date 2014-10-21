@@ -22965,8 +22965,8 @@ we have to handle both cases.
   @EVP_aes_256_xts := LoadFunctionCLib(fn_EVP_aes_256_xts,False);
     {$ifndef OPENSSL_NO_SHA}
       {$ifndef OPENSSL_NO_SHA1}
-  @EVP_aes_128_cbc_hmac_sha1 := LoadFunctionCLib(fn_EVP_aes_128_cbc_hmac_sha1);
-  @EVP_aes_256_cbc_hmac_sha1 := LoadFunctionCLib(fn_EVP_aes_256_cbc_hmac_sha1);
+  @EVP_aes_128_cbc_hmac_sha1 := LoadFunctionCLib(fn_EVP_aes_128_cbc_hmac_sha1,False);
+  @EVP_aes_256_cbc_hmac_sha1 := LoadFunctionCLib(fn_EVP_aes_256_cbc_hmac_sha1,False);
       {$endif}
     {$endif}
   {$endif}
@@ -23009,12 +23009,12 @@ we have to handle both cases.
   @EVP_EncryptInit := LoadFunctionCLib(fn_EVP_EncryptInit);
   @EVP_EncryptInit_ex := LoadFunctionCLib(fn_EVP_EncryptInit_ex);
   @EVP_EncryptUpdate := LoadFunctionCLib(fn_EVP_EncryptUpdate);
-	@EVP_EncryptFinal_ex := LoadFunctionCLib(fn_EVP_EncryptFinal_ex);
-	@EVP_EncryptFinal := LoadFunctionCLib(fn_EVP_EncryptFinal);
+  @EVP_EncryptFinal_ex := LoadFunctionCLib(fn_EVP_EncryptFinal_ex);
+  @EVP_EncryptFinal := LoadFunctionCLib(fn_EVP_EncryptFinal);
 
 
 
-	@EVP_DecryptInit := LoadFunctionCLib(fn_EVP_DecryptInit);
+  @EVP_DecryptInit := LoadFunctionCLib(fn_EVP_DecryptInit);
   @EVP_DecryptInit_ex := LoadFunctionCLib(fn_EVP_DecryptInit_ex);
   @EVP_DecryptUpdate := LoadFunctionCLib(fn_EVP_DecryptUpdate);
   @EVP_DecryptFinal := LoadFunctionCLib(fn_EVP_DecryptFinal);
@@ -23029,9 +23029,9 @@ we have to handle both cases.
   @EVP_DigestSignInit := LoadFunctionCLib(fn_EVP_DigestSignInit,False);
   @EVP_DigestSignFinal := LoadFunctionCLib(fn_EVP_DigestSignFinal,False);
   @EVP_DigestVerifyInit := LoadFunctionCLib(fn_EVP_DigestVerifyInit,False);
-	@EVP_DigestVerifyFinal := LoadFunctionCLib(fn_EVP_DigestVerifyFinal,False);
+  @EVP_DigestVerifyFinal := LoadFunctionCLib(fn_EVP_DigestVerifyFinal,False);
   @EVP_OpenInit := LoadFunctionCLib(fn_EVP_OpenInit);
-	@EVP_OpenFinal := LoadFunctionCLib(fn_EVP_OpenFinal,False);
+  @EVP_OpenFinal := LoadFunctionCLib(fn_EVP_OpenFinal,False);
   @EVP_SealInit := LoadFunctionCLib(fn_EVP_SealInit,False);
   @EVP_SealFinal := LoadFunctionCLib(fn_EVP_SealFinal,False);
 
@@ -23040,7 +23040,7 @@ we have to handle both cases.
   @EVP_EncodeUpdate := LoadFunctionCLib(fn_EVP_EncodeUpdate,False);
   @EVP_EncodeFinal := LoadFunctionCLib(fn_EVP_EncodeFinal,False);
   @EVP_EncodeBlock := LoadFunctionCLib(fn_EVP_EncodeBlock,False);
-	@EVP_DecodeInit := LoadFunctionCLib(fn_EVP_DecodeInit,False);
+  @EVP_DecodeInit := LoadFunctionCLib(fn_EVP_DecodeInit,False);
   @EVP_DecodeUpdate:= LoadFunctionCLib(fn_EVP_DecodeUpdate,False);
   @EVP_DecodeFinal:= LoadFunctionCLib(fn_EVP_DecodeFinal,False);
   @EVP_DecodeBlock:= LoadFunctionCLib(fn_EVP_DecodeBlock,False);
