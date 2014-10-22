@@ -294,6 +294,7 @@ var
   LStrmStartPos, LStrmPos, LStrmSize: TIdStreamSize;
 begin
   Assert(AStream<>nil);
+  LTerm := nil; // keep the compiler happy
 
   { we store the stream size for the whole routine to prevent
   so do not incur a performance penalty with TStream.Size.  It has

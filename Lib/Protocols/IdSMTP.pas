@@ -444,8 +444,10 @@ begin
   InternalQuickSend(AHost, ASubject, ATo, AFrom, AText, '', '', '');
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText,
   AContentType, ACharset, AContentTransferEncoding: String);
+{$I IdDeprecatedImplBugOn.inc}
 begin
   InternalQuickSend(AHost, ASubject, ATo, AFrom, AText, AContentType, ACharset, AContentTransferEncoding);
 end;
