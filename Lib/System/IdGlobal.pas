@@ -1739,7 +1739,11 @@ uses
   {$ELSE}
   IdStreamVCL
   {$ENDIF}
-  {$IFDEF HAS_UNIT_StrUtils},StrUtils{$ENDIF}
+  {$IFDEF HAS_PosEx}
+    {$IFDEF HAS_UNIT_StrUtils}
+  ,StrUtils
+    {$ENDIF}
+  {$ENDIF}
   ;
 
 {$IFDEF FPC}

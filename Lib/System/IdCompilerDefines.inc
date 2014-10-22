@@ -832,7 +832,6 @@
   {$DEFINE HAS_UNIT_DateUtils}
   {$DEFINE HAS_UNIT_StrUtils}
   {$DEFINE HAS_UNIT_Types}
-  {$DEFINE HAS_PosEx}
   {$DEFINE HAS_TryStrToInt}
   {$DEFINE HAS_TryStrToInt64}
   {$DEFINE HAS_TryEncodeDate}
@@ -869,6 +868,7 @@
     {$DEFINE HAS_TStrings_ValueFromIndex}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
+  {$DEFINE HAS_PosEx}
   {$IFNDEF VCL_70}
     // not implemented in D7
     {$DEFINE HAS_STATIC_TThread_Queue}
