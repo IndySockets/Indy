@@ -1,4 +1,4 @@
-    {
+{
   $Project$
   $Workfile$
   $Revision$
@@ -2376,7 +2376,7 @@ begin
 end;
 {$ENDIF}
 
-{ Using the algorithm defined in cookie-draft-23 section 5.1.1 }
+{ Using the algorithm defined in RFC 6265 section 5.1.1 }
 function CookieStrToLocalDateTime(S: string): TDateTime;
 const
   {
@@ -2415,7 +2415,7 @@ var
   begin
     {
     non-digit       = %x00-2F / %x3A-FF
-    time            = hms-time ( non-digit *OCTET )
+    time            = hms-time [ non-digit *OCTET ]
     hms-time        = time-field ":" time-field ":" time-field
     time-field      = 1*2DIGIT
     }
@@ -2472,7 +2472,7 @@ var
   begin
     {
     non-digit       = %x00-2F / %x3A-FF
-    day-of-month    = 1*2DIGIT ( non-digit *OCTET )
+    day-of-month    = 1*2DIGIT [ non-digit *OCTET ]
     }
     Result := False;
     S := AStr;
@@ -2482,7 +2482,7 @@ var
       Exit;
     end;
     if S <> '' then begin
-      if IsNumeric(AStr, 1, 3) then begin
+      if IsNumeric(S, 1, 1) then begin
         raise Exception.Create('Invalid Cookie Day of Month');
       end;
     end;
@@ -2517,7 +2517,7 @@ var
         Exit;
       end;
       if S <> '' then begin
-        if IsNumeric(AStr, 1, 3) then begin
+        if IsNumeric(S, 1, 1) then begin
           raise Exception.Create('Invalid Cookie Month');
         end;
       end;
@@ -2536,7 +2536,8 @@ var
   var
     S, LTemp: String;
   begin
-    // year            = 2*4DIGIT ( non-digit *OCTET )
+    // year            = 2*4DIGIT [ non-digit *OCTET ]
+
     Result := False;
     S := AStr;
 
