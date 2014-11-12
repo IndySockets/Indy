@@ -228,7 +228,7 @@ type
     procedure InitComponent; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
-    function CheckMessages: LongInt;
+    function CheckMessages: Integer;
     procedure Connect; override;
     procedure Login; virtual;
     destructor Destroy; override;
@@ -242,10 +242,10 @@ type
     function Retrieve(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
     function RetrieveHeader(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
     function RetrieveMsgSize(const MsgNum: Integer): Integer;
-    function RetrieveMailBoxSize: integer;
+    function RetrieveMailBoxSize: Int64;
     function RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings): boolean; overload;
     function RetrieveRaw(const aMsgNo: Integer; const aDest: TStream): boolean; overload;
-    function RetrieveStats(var VMsgCount, VMailBoxSize: Integer): Boolean;
+    function RetrieveStats(var VMsgCount: Integer; var VMailBoxSize: Int64): Boolean;
     function UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
     function Top(const AMsgNum: Integer; const ADest: TStrings; const AMaxLines: Integer = 0): boolean;
     function CAPA: Boolean;
@@ -282,16 +282,15 @@ uses
 
 { TIdPOP3 }
 
-function TIdPOP3.CheckMessages: longint;
+function TIdPOP3.CheckMessages: Integer;
 var
-  LMsgCount, LIgnore: Integer;
+  LIgnore: Int64;
 begin
   // RLebeau: for backwards compatibility, raise an exception if STAT fails
-  if not RetrieveStats(LMsgCount, LIgnore) then begin
+  if not RetrieveStats(Result, LIgnore) then begin
     RaiseExceptionForLastCmdResult;
   end;
   // Only gets here if exception is not raised
-  Result := LMsgCount;
 end;
 
 procedure TIdPOP3.Login;
@@ -428,7 +427,7 @@ begin
   Result := True;
 end;
 
-function TIdPOP3.RetrieveMailBoxSize: integer;
+function TIdPOP3.RetrieveMailBoxSize: Int64;
 var
   LIgnore: Integer;
 begin
@@ -458,7 +457,7 @@ begin
   end;
 end;
 
-function TIdPOP3.RetrieveStats(var VMsgCount, VMailBoxSize: Integer): Boolean;
+function TIdPOP3.RetrieveStats(var VMsgCount: Integer; var VMailBoxSize: Int64): Boolean;
 var
   s: string;
 begin
@@ -469,7 +468,7 @@ begin
     s := LastCmdResult.Text[0];
     if Length(s) > 0 then begin
       VMsgCount := IndyStrToInt(Fetch(s));
-      VMailBoxSize := IndyStrToInt(Fetch(s));
+      VMailBoxSize := IndyStrToInt64(Fetch(s));
     end;
   end;
 end;

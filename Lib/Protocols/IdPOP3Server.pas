@@ -241,7 +241,7 @@ type
   end;
 
   TIdPOP3ServerNoParamEvent = procedure (aCmd: TIdCommand) of object;
-  TIdPOP3ServerStatEvent = procedure(aCmd: TIdCommand; out oCount: integer; out oSize: integer) of object;
+  TIdPOP3ServerStatEvent = procedure(aCmd: TIdCommand; out oCount: integer; out oSize: Int64) of object;
   TIdPOP3ServerMessageNumberEvent = procedure (aCmd: TIdCommand; AMsgNo :Integer) of object;
 
   TIdPOP3ServerLogin = procedure(aContext: TIdContext; aServerContext: TIdPOP3ServerContext) of object;
@@ -573,7 +573,7 @@ end;
 procedure TIdPOP3Server.CommandStat(aCmd: TIdCommand);
 var
   xCount: Integer;
-  xSize: Integer;
+  xSize: Int64;
 begin
   // TODO: Need to make all use this form
   if IsAuthed(aCmd, Assigned(fCommandStat)) then begin
