@@ -268,7 +268,37 @@ begin
   LBinding.ClientPortMin := BoundPortMin;
   LBinding.ClientPortMax := BoundPortMax;
   LBinding.ReuseSocket := FReuseSocket;
+
+  // RLebeau 11/15/2014: Using the socket bind() function in a Mac OSX sandbox
+  // causes the Apple store to reject an app with the following error if it
+  // uses Indy client(s) and no Indy server(s):
+  //
+  // "This app uses one or more entitlements which do not have matching
+  // functionality within the app. Apps should have only the minimum set of
+  // entitlements necessary for the app to function properly. Please remove
+  // all entitlements that are not needed by your app and submit an updated
+  // binary for review, including the following:
+  //
+  // com.apple.security.network.server"
+  //
+  // Ideally, TIdSocketHandle.Bind() should not call TryBind() if the IP is
+  // blank and the Port, ClientPortMin, and ClientPortMax are all 0.  However,
+  // TIdSocketHandle.Bind() is used for both clients and servers, and sometimes
+  // a server needs to bind to port 0 to get a random ephemeral port, which it
+  // can then report to clients.  So lets do the check here instead, as this
+  // method is only used for clients...
+
+  {$IFDEF DARWIN}
+  // TODO: remove the DARWIN check and just skip the Bind() on all platforms?
+  if (LBinding.IP <> '') or (LBinding.Port <> 0) or
+     (LBinding.ClientPortMin <> 0) or (LBinding.ClientPortMax <> 0) then
+  begin
+    LBinding.Bind;
+  end;
+  {$ELSE}
   LBinding.Bind;
+  {$ENDIF}
+
   // Turn off Nagle if specified
   LBinding.UseNagle := FUseNagle;
   DoAfterBind;

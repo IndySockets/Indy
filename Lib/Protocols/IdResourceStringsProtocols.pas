@@ -264,6 +264,7 @@ resourcestring
   RSHTTPUnsupportedAuthorisationScheme = 'Unsupported authorization scheme.';
   RSHTTPCannotSwitchSessionStateWhenActive = 'Cannot change session state when the server is active.';
   RSHTTPCannotSwitchSessionListWhenActive = 'Cannot change session list when the server is active.';
+  RSHTTPCannotSwitchSessionIDCookieNameWhenActive = 'Cannot change session ID cookie name when the server is active.';
 
   //HTTP Authentication
   RSHTTPAuthAlreadyRegistered = 'This authentication method is already registered with class name %s.';

@@ -221,13 +221,14 @@ type
   TIdHTTPHeadersBlockedEvent = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String) of object;
   TIdHTTPHeaderExpectationsEvent = procedure(AContext: TIdContext; const AExpectations: String; var VContinueProcessing: Boolean) of object;
   TIdHTTPQuerySSLPortEvent = procedure(APort: TIdPort; var VUseSSL: Boolean) of object;
-  
+
   //objects
   EIdHTTPServerError = class(EIdException);
   EIdHTTPHeaderAlreadyWritten = class(EIdHTTPServerError);
   EIdHTTPErrorParsingCommand = class(EIdHTTPServerError);
   EIdHTTPUnsupportedAuthorisationScheme = class(EIdHTTPServerError);
   EIdHTTPCannotSwitchSessionStateWhenActive = class(EIdHTTPServerError);
+  EIdHTTPCannotSwitchSessionIDCookieNameWhenActive = class(EIdHTTPServerError);
 
   TIdHTTPRequestInfo = class(TIdRequestHeaderInfo)
   protected
@@ -437,6 +438,7 @@ type
     //
     FSessionCleanupThread: TIdThread;
     FMaximumHeaderLineCount: Integer;
+    FSessionIDCookieName: string;
     //
     procedure CreatePostStream(ASender: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TStream); virtual;
     procedure DoneWithPostStream(ASender: TIdContext; ARequestInfo: TIdHTTPRequestInfo); virtual;
@@ -465,6 +467,8 @@ type
     procedure Shutdown; override;
     procedure SetSessionList(const AValue: TIdHTTPCustomSessionList);
     procedure SetSessionState(const Value: Boolean);
+    procedure SetSessionIDCookieName(const AValue: string);
+    function IsSessionIDCookieNameStored: Boolean;
     function GetSessionFromCookie(AContext:TIdContext;
      AHTTPrequest: TIdHTTPRequestInfo; AHTTPResponse: TIdHTTPResponseInfo;
      var VContinueProcessing: Boolean): TIdHTTPSession;
@@ -492,6 +496,7 @@ type
     property ServerSoftware: string read FServerSoftware write FServerSoftware;
     property SessionState: Boolean read FSessionState write SetSessionState default Id_TId_HTTPServer_SessionState;
     property SessionTimeOut: Integer read FSessionTimeOut write FSessionTimeOut default Id_TId_HTTPSessionTimeOut;
+    property SessionIDCookieName: string read FSessionIDCookieName write SetSessionIDCookieName stored IsSessionIDCookieNameStored;
     //
     property OnCommandError: TIdHTTPCommandError read FOnCommandError write FOnCommandError;
     property OnCommandOther: TIdHTTPCommandEvent read FOnCommandOther write FOnCommandOther;
@@ -894,6 +899,7 @@ begin
   FAutoStartSession := Id_TId_HTTPAutoStartSession;
   FKeepAlive := Id_TId_HTTPServer_KeepAlive;
   FMaximumHeaderLineCount := Id_TId_HTTPMaximumHeaderLineCount;
+  FSessionIDCookieName := GSessionIDCookie;
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
@@ -958,7 +964,7 @@ begin
       end;
 
       LCookie := HTTPResponse.Cookies.Add;
-      LCookie.CookieName := GSessionIDCookie;
+      LCookie.CookieName := SessionIDCookieName;
       LCookie.Value := Result.SessionID;
       LCookie.Path := '/';    {Do not Localize}
 
@@ -1513,7 +1519,7 @@ begin
   if SessionState then
   begin
     LSessionList := FSessionList;
-    LIndex := AHTTPRequest.Cookies.GetCookieIndex(GSessionIDCookie);
+    LIndex := AHTTPRequest.Cookies.GetCookieIndex(SessionIDCookieName);
     while LIndex >= 0 do
     begin
       LSessionID := AHTTPRequest.Cookies[LIndex].Value;
@@ -1527,7 +1533,7 @@ begin
       if not VContinueProcessing then begin
         Break;
       end;
-      LIndex := AHTTPRequest.Cookies.GetCookieIndex(GSessionIDCookie, LIndex+1);
+      LIndex := AHTTPRequest.Cookies.GetCookieIndex(SessionIDCookieName, LIndex+1);
     end;    { while }
     // check if a session was returned. If not and if AutoStartSession is set to
     // true, Create a new session
@@ -1653,6 +1659,27 @@ begin
     raise EIdHTTPCannotSwitchSessionStateWhenActive.Create(RSHTTPCannotSwitchSessionStateWhenActive);
   end;
   FSessionState := Value;
+end;
+
+procedure TIdCustomHTTPServer.SetSessionIDCookieName(const AValue: string);
+var
+  LCookieName: string;
+begin
+  // ToDo: Add thread multiwrite protection here
+  if (not (IsDesignTime or IsLoading)) and Active then begin
+    raise EIdHTTPCannotSwitchSessionIDCookieNameWhenActive.Create(RSHTTPCannotSwitchSessionIDCookieNameWhenActive);
+  end;
+  LCookieName := Trim(AValue);
+  if LCookieName = '' then begin
+    // TODO: move this into IdResourceStringsProtocols.pas
+    raise EIdException.Create('Invalid cookie name'); {do not localize}
+  end;
+  FSessionIDCookieName := AValue;
+end;
+
+function TIdCustomHTTPServer.IsSessionIDCookieNameStored: Boolean;
+begin
+  Result := not TextIsSame(SessionIDCookieName, GSessionIDCookie);
 end;
 
 procedure TIdCustomHTTPServer.CreatePostStream(ASender: TIdContext;
@@ -1830,13 +1857,13 @@ var
   i: Integer;
   LCookie: TIdCookie;
 begin
-  i := Cookies.GetCookieIndex(GSessionIDCookie);
+  i := Cookies.GetCookieIndex(HTTPServer.SessionIDCookieName);
   while i > -1 do begin
     Cookies.Delete(i);
-    i := Cookies.GetCookieIndex(GSessionIDCookie, i);
+    i := Cookies.GetCookieIndex(HTTPServer.SessionIDCookieName, i);
   end;
   LCookie := Cookies.Add;
-  LCookie.CookieName := GSessionIDCookie;
+  LCookie.CookieName := HTTPServer.SessionIDCookieName;
   LCookie.Expires := Date-7;
   FreeAndNil(FSession);
 end;
