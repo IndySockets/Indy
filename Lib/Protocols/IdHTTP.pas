@@ -2130,13 +2130,24 @@ begin
     ARequest.Authentication := LAuthCls.Create;
   end;
 
+  {
+  this is commented out as it breaks SSPI and NTLM authentication. it is
+  normal and expected to get multiple 407 responses during negotiation.
+
   // Clear password and reset autorization if previous failed
-  {if (AResponse.FResponseCode = 401) then begin
+  if (AResponse.FResponseCode = 401) then begin
     ARequest.Password := '';
     ARequest.Authentication.Reset;
-  end;}
+  end;
+  }
+
   // S.G. 20/10/2003: Added part about the password. Not testing user name as some
   // S.G. 20/10/2003: web sites do not require user name, only password.
+  //
+  // RLebeau 11/18/2014: what about SSPI? It does not require an explicit
+  // username/password as it can use the identity of the user token associated
+  // with the calling thread!
+  //
   Result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
 
   if not Result then begin
@@ -2220,12 +2231,9 @@ begin
     ProxyParams.Authentication := LAuthCls.Create;
   end;
 
-  // RLebeau: should we be looking for a Password as well, like the OnAuthorization handling does?
-  Result := Assigned(OnProxyAuthorization) {or (Trim(ARequest.Password) <> '')};
-
   {
-  this is commented out as it breaks SSPI proxy authentication.
-  it is normal and expected to get 407 responses during the negotiation.
+  this is commented out as it breaks SSPI and NTLM authentication. it is
+  normal and expected to get multiple 407 responses during negotiation.
 
   // Clear password and reset authorization if previous failed
   if (AResponse.FResponseCode = 407) then begin
@@ -2234,6 +2242,15 @@ begin
   end;
   }
 
+  // RLebeau 11/18/2014: Added part about the password. Not testing user name
+  // as some proxies do not require user name, only password.
+  //
+  // RLebeau 11/18/2014: what about SSPI? It does not require an explicit
+  // username/password as it can use the identity of the user token associated
+  // with the calling thread!
+  //
+  Result := Assigned(OnProxyAuthorization) or (Trim(ProxyParams.ProxyPassword) <> '');
+
   if not Result then begin
     Exit;
   end;
@@ -2241,6 +2258,8 @@ begin
   LAuth := ProxyParams.Authentication;
   LAuth.Username := ProxyParams.ProxyUsername;
   LAuth.Password := ProxyParams.ProxyPassword;
+  // TODO: do we need to set this, like DoOnAuthorization does?
+  //LAuth.Params.Values['Authorization'] := ProxyParams.Authentication; {do not localize}
   LAuth.AuthParams := AResponse.ProxyAuthenticate;
 
   Result := False;
@@ -2249,17 +2268,21 @@ begin
     case LAuth.Next of
       wnAskTheProgram: // Ask the user porgram to supply us with authorization information
         begin
-          if Assigned(OnProxyAuthorization) then begin
+          if Assigned(OnProxyAuthorization) then
+          begin
             LAuth.Username := ProxyParams.ProxyUsername;
             LAuth.Password := ProxyParams.ProxyPassword;
 
             OnProxyAuthorization(Self, LAuth, Result);
-            if not Result then begin
+
+            if Result then begin
+              // TODO: do we need to set this, like DoOnAuthorization does?
+              //ProxyParams.BasicAuthentication := True;
+              ProxyParams.ProxyUsername := LAuth.Username;
+              ProxyParams.ProxyPassword := LAuth.Password;
+            end else begin
               Break;
             end;
-
-            ProxyParams.ProxyUsername := LAuth.Username;
-            ProxyParams.ProxyPassword := LAuth.Password;
           end;
         end;
       wnDoRequest:
