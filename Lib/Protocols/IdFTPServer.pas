@@ -4216,7 +4216,6 @@ procedure TIdFTPServer.CommandEPRT(ASender: TIdCommand);
 var
   LParm, LIP: string;
   LDelim: char;
-  LAddrFamily: integer;
   LReqIPVersion: TIdIPVersion;
   LContext : TIdFTPServerContext;
   LDataChannel: TIdTCPClient;
@@ -4237,27 +4236,32 @@ begin
     end;
     LDelim := LParm[1];
     Fetch(LParm, LDelim);
-    LAddrFamily := IndyStrToInt(Fetch(LParm, LDelim), -1);
-    LIP := Fetch(LParm, LDelim);
-    LContext.FDataPort := TIdPort(IndyStrToInt(Fetch(LParm, LDelim), 0));
-    case LAddrFamily of
+    case IndyStrToInt(Fetch(LParm, LDelim), -1) of
       1: LReqIPVersion := Id_IPv4;
       2: if GStack.SupportsIPv6 then begin
            LReqIPVersion := Id_IPv6;
          end else begin
            LContext.FDataPort := 0;
            LContext.FDataPortDenied := True;
-           ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {Do not translate}
+           ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['1'])); {Do not translate}
            Exit;
          end;
       else
         begin
           LContext.FDataPort := 0;
           LContext.FDataPortDenied := True;
-          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [iif(GStack.SupportsIPv6, '(1,2)', '(1)')])); {Do not translate}
+          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [iif(GStack.SupportsIPv6, '1,2', '1')])); {Do not translate}
           Exit;
         end;
     end;
+    LIP := Fetch(LParm, LDelim);
+    if Length(LIP) = 0 then begin
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
+      ASender.Reply.SetReply(500, RSFTPInvalidIP);
+      Exit;
+    end;
+    LContext.FDataPort := TIdPort(IndyStrToInt(Fetch(LParm, LDelim), 0));
     if LContext.FDataPort = 0 then begin
       LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(500, RSFTPInvalidPort);
@@ -4268,12 +4272,6 @@ begin
       LContext.FDataPort := 0;
       LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(504, RSFTPPORTRange);
-      Exit;
-    end;
-    if Length(LIP) = 0 then begin
-      LContext.FDataPort := 0;
-      LContext.FDataPortDenied := True;
-      ASender.Reply.SetReply(500, RSFTPInvalidIP);
       Exit;
     end;
     if FFTPSecurityOptions.FRequirePORTFromSameIP then begin
@@ -4305,7 +4303,6 @@ var
   LIP : String;
   LIPVersion: TIdIPVersion;
   LReqIPVersion: TIdIPVersion;
-  LProtocol: integer;
   LContext : TIdFTPServerContext;
   LDataChannel: TIdSimpleServer;
 begin
@@ -4315,30 +4312,24 @@ begin
     LReqIPVersion := LIPVersion;
     LParam := ASender.UnparsedParams;
     if Length(LParam) > 0 then begin
-      LProtocol := IndyStrToInt(LParam, -1);
-      case LProtocol of
+      case IndyStrToInt(LParam, -1) of
         1: LReqIPVersion := Id_IPv4;
         2: if GStack.SupportsIPv6 then begin
              LReqIPVersion := Id_IPv6;
            end else begin
-             ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {do not localize}
+             ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['1'])); {do not localize}
              Exit;
            end;
-        -1: begin
-              if TextIsSame(LParam, 'ALL') then begin { do not localize }
-                LContext.FEPSVAll := True;
-                ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
-              end else if GStack.SupportsIPv6 then begin
-                ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1,2)'])); {do not localize}
-              end else begin
-                ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {do not localize}
-              end;
-              Exit;
+        else
+          begin
+            if TextIsSame(LParam, 'ALL') then begin { do not localize }
+              LContext.FEPSVAll := True;
+              ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
+            end else begin
+              ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [iif(GStack.SupportsIPv6, '1,2', '1')])); {do not localize}
             end;
-        else begin
-          ASender.Reply.SetReply(522, RSFTPProtocolNotSupported+iif(GStack.SupportsIPv6, ' (1,2)', ' (1)'));
-          Exit;
-        end;
+            Exit;
+          end;
       end;
     end;
     if LReqIPVersion = LIPVersion then begin

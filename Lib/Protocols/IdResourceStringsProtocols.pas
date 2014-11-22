@@ -286,7 +286,6 @@ resourcestring
   RSFTPStatusStartTransfer = 'Starting FTP transfer';
   RSFTPStatusDoneTransfer  = 'Transfer complete';
   RSFTPStatusAbortTransfer = 'Transfer aborted';
-  RSFTPProtocolMismatch = 'Network protocol mismatch, use'; { may not include '(' or ')' }
   RSFTPParamError = 'Error in parameters to %s';
   RSFTPParamNotImp = 'Parameter %s Not Implemented';
   RSFTPInvalidPort = 'Invalid port number';
@@ -670,7 +669,7 @@ resourcestring
   RSFTPSameIPAddress = 'Data port can only be used by the same IP address used by the control connection.';
   RSFTPCantOpenData = 'Can''t open data connection.';
   RSFTPEPSVAllEntered = ' EPSV ALL sent, now only accepting EPSV connections';
-  RSFTPNetProtNotSup = 'Network protocol not supported, use %s';
+  RSFTPNetProtNotSup = 'Network protocol not supported, use (%s)';
   RSFTPFileOpSuccess = 'File Operation Successful';
   RSFTPIsAFile = '%s: Is a file.';
   RSFTPInvalidOps = 'Invalid %s options';
