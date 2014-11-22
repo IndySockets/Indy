@@ -1681,7 +1681,7 @@ end;
 function TIdCoderTNEF.GetString(ALength: Word): string;
 begin
   if ALength > 0 then begin
-    Result := ReadStringFromStream(FData, ALength-1, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    Result := ReadStringFromStream(FData, ALength-1, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
     Skip(1) //Skip terminating null
   end else begin
     Result := '';
@@ -1743,7 +1743,7 @@ var
 begin
   LIn := TMemoryStream.Create;
   try
-    WriteStringToStream(LIn, AIn, Indy8BitEncoding{$IFDEF STRING_IS_ANSI}, Indy8BitEncoding{$ENDIF});
+    WriteStringToStream(LIn, AIn, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
     LIn.Position := 0;
     Parse(LIn, AMsg, ALog);
   finally

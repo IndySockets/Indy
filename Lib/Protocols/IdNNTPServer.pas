@@ -2469,7 +2469,7 @@ begin
         LIP := LSocket.Binding.PeerIP;
         if LIP <> '' then begin  {do not localize}
           try
-            LHost := GStack.HostByAddress(LIP, LSocket.IPVersion);
+            LHost := GStack.HostByAddress(LIP, LSocket.Binding.IPVersion);
           except
             LHost := '';  {do not localize}
           end;

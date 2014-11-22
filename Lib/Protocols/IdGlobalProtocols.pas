@@ -2669,6 +2669,7 @@ begin
     // I think - at least in terms of storage
     KeyList := TStringList.Create;
     try
+      // TODO: use TStreamReader instead, on versions that support it
       KeyList.LoadFromFile(AFileName); {Do not localize}
       for i := 0 to KeyList.Count -1 do begin
         s := KeyList[i];
@@ -4677,6 +4678,10 @@ procedure WriteStringsAsContentType(AStream: TStream; const AStrings: TStrings;
 begin
   // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
   // anymore, as it may save a BOM which we do not want here...
+
+  // TODO: instead of writing AString.Text as a whole, loop through AStrings
+  // writing the individual strings to avoid unnecessary memory allocations...
+
   WriteStringToStream(AStream, AStrings.Text, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 
@@ -4692,6 +4697,10 @@ procedure WriteStringsAsCharset(AStream: TStream; const AStrings: TStrings;
 begin
   // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
   // anymore, as it may save a BOM which we do not want here...
+
+  // TODO: instead of writing AString.Text as a whole, loop through AStrings
+  // writing the individual strings to avoid unnecessary memory allocations...
+
   WriteStringToStream(AStream, AStrings.Text, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
 end;
 

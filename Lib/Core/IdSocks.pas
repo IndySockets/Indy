@@ -580,6 +580,7 @@ var
   LClient: TIdTCPClient;
   LType : Byte;
   LAddress: TIdIPv6Address;
+  LIPVersion: TIdIPVersion;
 begin
   LClient := TIdTCPClient.Create(nil);
   try
@@ -635,7 +636,8 @@ begin
               TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf), LBuf[4]*256+LBuf[5], Id_IPv4);
             end;
         3 : begin
-              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2)), LBuf[4]*256+LBuf[5], TIdIOHandlerSocket(AIOHandler).IPVersion);
+              LIPVersion := TIdIOHandlerSocket(AIOHandler).IPVersion;
+              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2), LIPVersion), LBuf[4]*256+LBuf[5], LIPVersion);
             end;
         4 : begin
               BytesToIPv6(LBuf, LAddress);
@@ -677,6 +679,7 @@ var
   LBuf: TIdBytes;
   LType : Byte;
   LAddress: TIdIPv6Address;
+  LIPVersion: TIdIPVersion;
 begin
   SetLength(LBuf, 255);
   Result := TIdIOHandlerSocket(AIOHandler).Binding.Readable(ATimeOut);
@@ -716,7 +719,8 @@ begin
           end;
       3 : begin
             //FQN
-            TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2)), LBuf[4]*256+LBuf[5], TIdIOHandlerSocket(AIOHandler).IPVersion);
+            LIPVersion := TIdIOHandlerSocket(AIOHandler).IPVersion;
+            TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2), LIPVersion), LBuf[4]*256+LBuf[5], LIPVersion);
           end;
       else begin
             //IPv6
@@ -764,10 +768,10 @@ var
   LBuf: TIdBytes;
   LIPVersion : TIdIPVersion;
 begin
+  LIPVersion := Self.IPVersion;
   FUDPSocksAssociation.Host := Self.Host;
   FUDPSocksAssociation.Port := Self.Port;
-  FUDPSocksAssociation.IPVersion := Self.IPVersion;
-  LIPVersion := Self.IPVersion;
+  FUDPSocksAssociation.IPVersion := LIPVersion;
   FUDPSocksAssociation.Open;
   try
     SetLength(LBuf, 255);
@@ -775,7 +779,7 @@ begin
     // Associate process
     //For SOCKS5 Associate, the IP address and port is the client's IP address and port which may
     //not be known
-    if IPVersion = Id_IPv4 then begin
+    if LIPVersion = Id_IPv4 then begin
       MakeSocks5Request(FUDPSocksAssociation, '0.0.0.0', 0, $03, LBuf, LPos); //associate request
     end else begin
       MakeSocks5Request(FUDPSocksAssociation, '::0', 0, $03, LBuf, LPos); //associate request

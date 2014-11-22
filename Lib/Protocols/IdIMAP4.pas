@@ -3147,6 +3147,9 @@ begin
         for now.  This logic is copied from TIdMessage.SaveToSteam() and
         slightly tweaked...}
 
+        // TODO: move the workaround logic into a re-usable class helper or
+        // standalone function...
+
         //AMsg.SaveToStream(LStream);
         LMsgClient := TIdMessageClient.Create(nil);
         try
@@ -4643,6 +4646,9 @@ begin
           the case in IMAP! Until this design is corrected, we have to use a
           workaround for now.  This logic is copied from TIdMessage.LoadFromStream()
           and slightly tweaked...}
+
+          // TODO: move the workaround logic into a re-usable class helper or
+          // standalone function...
 
           //AMsg.LoadFromStream(LDestStream);
           LMsgClient := TIdMessageClient.Create(nil);

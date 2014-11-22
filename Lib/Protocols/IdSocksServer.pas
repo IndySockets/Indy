@@ -216,6 +216,7 @@ uses
   IdResourceStringsProtocols,
   IdTcpClient,
   IdSimpleServer,
+  IdSocketHandle,
   IdStack;
 
 function IPToBytes(AIP: string; const AIPVersion: TIdIPVersion): TIdBytes;
@@ -372,6 +373,7 @@ procedure TIdCustomSocksServer.HandleConnectV4(AContext: TIdSocksServerContext;
   var VCommand: Byte; var VHost: string; var VPort: TIdPort);
 var
   LData: TIdBytes;
+  LBinding: TIdSocketHandle;
 begin
   AContext.Connection.IOHandler.ReadBytes(LData, 7);
   VCommand := LData[0];
@@ -391,8 +393,9 @@ begin
   // if VHost = '0.0.0.1' then begin
   if (LData[3] = 0) and (LData[4] = 0) and (LData[5] = 0) and (LData[6] <> 0) then begin
     VHost := AContext.Connection.IOHandler.ReadLn(#0);
-    if AContext.Connection.Socket <> nil then begin
-      AContext.FIPVersion := AContext.Connection.Socket.IPVersion;
+    LBinding := AContext.Binding;
+    if LBinding <> nil then begin
+      AContext.FIPVersion := LBinding.IPVersion;
     end else begin
       AContext.FIPVersion := ID_DEFAULT_IP_VERSION;
     end;
@@ -416,6 +419,7 @@ var
   LMethods, LData: TIdBytes;
   LIP6: TIdIPv6Address;
   I: Integer;
+  LBinding: TIdSocketHandle;
 begin
   AContext.Connection.IOHandler.ReadBytes(LMethods, AContext.Connection.IOHandler.ReadByte);
   if not NeedsAuthentication then begin
@@ -458,8 +462,9 @@ begin
         AContext.Connection.IOHandler.ReadBytes(LData, AContext.Connection.IOHandler.ReadByte+2);
         VHost := BytesToString(LData, 0, Length(LData)-2);
         VPort := GStack.NetworkToHost(BytesToWord(LData, Length(LData)-2));
-        if AContext.Connection.Socket <> nil then begin
-          AContext.FIPVersion := AContext.Connection.Socket.IPVersion;
+        LBinding := AContext.Binding;
+        if LBinding <> nil then begin
+          AContext.FIPVersion := LBinding.IPVersion;
         end else begin
           AContext.FIPVersion := ID_DEFAULT_IP_VERSION;
         end;

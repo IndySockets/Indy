@@ -316,8 +316,9 @@ begin
   begin
     LAccepted := DoListenTimeout(ATimeout, False);
     if LAccepted then begin
-      Binding.Accept(Binding.Handle);
-      IOHandler.AfterAccept;
+      if Binding.Accept(Binding.Handle) then begin
+        IOHandler.AfterAccept;
+      end;
     end;
 
 // This is now protected. Disconnect replaces it - but it also calls shutdown.

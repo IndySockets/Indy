@@ -5223,6 +5223,7 @@ begin
     GIdPorts := TIdPortList.Create;
     sl := TStringList.Create;
     try
+      // TODO: use TStreamReader instead, on versions that support it
       sl.LoadFromFile(ServicesFilePath);  {do not localize}
       iPrev := 0;
       for idx := 0 to sl.Count - 1 do

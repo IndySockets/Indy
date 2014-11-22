@@ -118,6 +118,11 @@ var
 begin
   LStrm := PrepareTempStream;
   try
+    // TODO: use AStream.Size-AStream.Position instead of 0, and don't call
+    // CopyFrom() if (AStream.Size-AStream.Position) is <= 0.  Passing 0 to
+    // CopyFrom() tells it to seek AStream to Position=0 and then copy the
+    // entire stream, which is fine for the stream provided by LoadFromFile(),
+    // but may not always be desirable for user-provided streams...
     LStrm.CopyFrom(AStream, 0);
   finally
     FinishTempStream;

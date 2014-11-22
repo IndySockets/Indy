@@ -199,6 +199,7 @@ type
     function CheckForError(ALastResult: Integer): Integer; override;
     procedure RaiseError(AError: Integer); override;
   public
+    procedure AfterAccept; override;
     destructor Destroy; override;
     function BindingAllocated: Boolean;
     procedure Close; override;
@@ -241,6 +242,12 @@ uses
   IdSocks;
 
 { TIdIOHandlerSocket }
+
+procedure TIdIOHandlerSocket.AfterAccept;
+begin
+  inherited AfterAccept;
+  FIPVersion := FBinding.IPVersion;
+end;
 
 procedure TIdIOHandlerSocket.Close;
 begin
@@ -291,7 +298,7 @@ begin
   {$IFDEF DARWIN}
   // TODO: remove the DARWIN check and just skip the Bind() on all platforms?
   if (LBinding.IP <> '') or (LBinding.Port <> 0) or
-     (LBinding.ClientPortMin <> 0) or (LBinding.ClientPortMax <> 0) then
+     ((LBinding.ClientPortMin <> 0) and (LBinding.ClientPortMax <> 0)) then
   begin
     LBinding.Bind;
   end;

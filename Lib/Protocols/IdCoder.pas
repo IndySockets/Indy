@@ -323,6 +323,10 @@ var
   LStream: TMemoryStream;
 begin
   ADestStrings.Clear;
+  // TODO: provide an Encode() implementation that can save its output directly
+  // to ADestStrings without having to waste memory encoding the data entirely
+  // to memory first. In Delphi 2009+ in particular, TStrings.LoadFromStream()
+  // wastes a lot of memory handling large streams...
   LStream := TMemoryStream.Create;
   try
     Encode(ASrcStream, LStream, ABytes);

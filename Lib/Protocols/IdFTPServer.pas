@@ -3212,17 +3212,21 @@ begin
         end;
       end;
       if Assigned(LStream) then begin
-        LStream.Position := LContext.FRESTPos;
-        LContext.FRESTPos := 0;
-        //it should be safe to assume that the FDataChannel object exists because
-        //we checked it earlier
-        LContext.FDataChannel.FFtpOperation := ftpRetr;
-        LContext.FDataChannel.FData := LStream;
-        LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
-        ASender.Reply.SetReply(150, RSFTPDataConnToOpen);
-        ASender.SendReply;
-        DoDataChannelOperation(ASender, LContext.SSCNOn);
+        try
+          LStream.Position := LContext.FRESTPos;
+          LContext.FRESTPos := 0;
+          //it should be safe to assume that the FDataChannel object exists because
+          //we checked it earlier
+          LContext.FDataChannel.FFtpOperation := ftpRetr;
+          LContext.FDataChannel.FData := LStream;
+          LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
+          LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
+          ASender.Reply.SetReply(150, RSFTPDataConnToOpen);
+          ASender.SendReply;
+          DoDataChannelOperation(ASender, LContext.SSCNOn);
+        finally
+          LStream.Free;
+        end;
       end else begin
         //make sure the data connection is closed
         LContext.KillDataChannel;
@@ -3281,25 +3285,29 @@ begin
         end;
       end;
       if Assigned(LStream) then  begin
-        //Issued previously by ALLO cmd
-        if LContext.ALLOSize > 0 then begin
-          LStream.Size := LContext.FALLOSize;
+        try
+          //Issued previously by ALLO cmd
+          if LContext.ALLOSize > 0 then begin
+            LStream.Size := LContext.FALLOSize;
+          end;
+          if LAppend then begin
+            LStream.Position := LStream.Size;
+          end else begin
+            LStream.Position := LContext.FRESTPos;
+            LContext.FRESTPos := 0;
+          end;
+          { Data transfer }
+          //it should be safe to assume that the FDataChannel object exists because
+          //we checked it earlier
+          LContext.FDataChannel.FFtpOperation := ftpStor;
+          LContext.FDataChannel.Data := LStream;
+          LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
+          LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
+          ASender.SendReply;
+          DoDataChannelOperation(ASender, LContext.SSCNOn);
+        finally
+          LStream.Free;
         end;
-        if LAppend then begin
-          LStream.Position := LStream.Size;
-        end else begin
-          LStream.Position := LContext.FRESTPos;
-          LContext.FRESTPos := 0;
-        end;
-        { Data transfer }
-        //it should be safe to assume that the FDataChannel object exists because
-        //we checked it earlier
-        LContext.FDataChannel.FFtpOperation := ftpStor;
-        LContext.FDataChannel.Data := LStream;
-        LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
-        ASender.SendReply;
-        DoDataChannelOperation(ASender, LContext.SSCNOn);
       end else begin
         //make sure the data connection is closed
         LContext.KillDataChannel;
@@ -3532,28 +3540,31 @@ begin
         LSwitches);
       LSendData := True;
     finally
-      if LSendData then begin
-        //it should be safe to assume that the FDataChannel object exists because
-        //we checked it earlier
-        LContext.FDataChannel.Data := LStream;
-        LContext.FDataChannel.FFtpOperation := ftpRetr;
-        LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
-        if FDirFormat = ftpdfEPLF then begin
-          ASender.Reply.SetReply(125, RSFTPDataConnToOpen);
+      try
+        if LSendData then begin
+          //it should be safe to assume that the FDataChannel object exists because
+          //we checked it earlier
+          LContext.FDataChannel.Data := LStream;
+          LContext.FDataChannel.FFtpOperation := ftpRetr;
           LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        end
-        else if TextIsSame(ASender.CommandHandler.Command, 'LIST') or (LSwitches <> '') then begin {do not localize}
-          ASender.Reply.SetReply(125, RSFTPDataConnList);
+          LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
+          if FDirFormat = ftpdfEPLF then begin
+            ASender.Reply.SetReply(125, RSFTPDataConnToOpen);
+            LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
+          end
+          else if TextIsSame(ASender.CommandHandler.Command, 'LIST') or (LSwitches <> '') then begin {do not localize}
+            ASender.Reply.SetReply(125, RSFTPDataConnList);
+          end else begin
+            ASender.Reply.SetReply(125, RSFTPDataConnNList);
+          end;
+          ASender.SendReply;
+          DoDataChannelOperation(ASender);
         end else begin
-          ASender.Reply.SetReply(125, RSFTPDataConnNList);
+          LContext.KillDataChannel;
+          ASender.Reply.SetReply(426, RSFTPDataConnClosedAbnormally);
         end;
-        ASender.SendReply;
-        DoDataChannelOperation(ASender);
-      end else begin
-        FreeAndNil(LStream);
-        LContext.KillDataChannel;
-        ASender.Reply.SetReply(426, RSFTPDataConnClosedAbnormally);
+      finally
+        LStream.Free;
       end;
     end;
   end;
@@ -3718,17 +3729,12 @@ begin
         try
           try
             if LContext.FDataChannel.Data is TStream then begin
-              LStrm := LContext.FDataChannel.Data as TStream;
-              try
-                case LContext.FDataChannel.FFtpOperation of
-                  ftpRetr:
-                    WriteToStream(LContext, LCmdQueue, LStrm);
-                  ftpStor:
-                    ReadFromStream(LContext, LCmdQueue, LStrm);
-                end;
-              finally
-                FreeAndNil(LStrm);
-                LContext.FDataChannel.Data := nil;
+              LStrm := TStream(LContext.FDataChannel.Data);
+              case LContext.FDataChannel.FFtpOperation of
+                ftpRetr:
+                  WriteToStream(LContext, LCmdQueue, LStrm);
+                ftpStor:
+                  ReadFromStream(LContext, LCmdQueue, LStrm);
               end;
             end else begin
               case LContext.FDataChannel.FFtpOperation of
@@ -3744,7 +3750,7 @@ begin
                       //TODO;
                      // SplitLines(TMemoryStream(LStrm).Memory, LMemStream.Size, LContext.FDataChannel.FData as TStrings);
                     finally
-                      FreeAndNil(LStrm);
+                      LStrm.Free;
                     end;
                   end;//ftpStor
               end;//case
@@ -3785,7 +3791,6 @@ begin
       FreeAndNil(LCmdQueue);
     end;
   finally
-    FreeAndNil(LContext.FDataChannel.FData);
     FreeAndNil(LContext.FDataChannel);
   end;
 end;
@@ -3914,7 +3919,7 @@ begin
   end;
   //CPSV
   //CPSV is not supported in IPv6 - same problem as PASV
-  if (UseTLS <> utNoTLSSupport) and (LContext.Connection.Socket.IPVersion = Id_IPv4) then begin
+  if (UseTLS <> utNoTLSSupport) and (LContext.Binding.IPVersion = Id_IPv4) then begin
     ASender.Reply.Text.Add('CPSV');   {Do not translate}
   end;
   //DSIZ
@@ -4210,7 +4215,6 @@ end;
 procedure TIdFTPServer.CommandEPRT(ASender: TIdCommand);
 var
   LParm, LIP: string;
-  LIPVersion: TIdIPVersion;
   LDelim: char;
   LAddrFamily: integer;
   LReqIPVersion: TIdIPVersion;
@@ -4219,7 +4223,6 @@ var
 begin
   LContext := ASender.Context as TIdFTPServerContext;
   if LContext.IsAuthenticated(ASender) then begin
-    LIPVersion := ASender.Context.Connection.Socket.IPVersion;
     LContext.FPASV := False;
     LParm := ASender.UnparsedParams;
     if Length(LParm) = 0 then begin
@@ -4237,26 +4240,23 @@ begin
     LAddrFamily := IndyStrToInt(Fetch(LParm, LDelim), -1);
     LIP := Fetch(LParm, LDelim);
     LContext.FDataPort := TIdPort(IndyStrToInt(Fetch(LParm, LDelim), 0));
-    LReqIPVersion := ID_DEFAULT_IP_VERSION; // avoid warning
     case LAddrFamily of
       1: LReqIPVersion := Id_IPv4;
       2: if GStack.SupportsIPv6 then begin
            LReqIPVersion := Id_IPv6;
-        end else begin
+         end else begin
+           LContext.FDataPort := 0;
+           LContext.FDataPortDenied := True;
+           ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {Do not translate}
+           Exit;
+         end;
+      else
+        begin
           LContext.FDataPort := 0;
           LContext.FDataPortDenied := True;
-          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {Do not translate}
+          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [iif(GStack.SupportsIPv6, '(1,2)', '(1)')])); {Do not translate}
           Exit;
         end;
-    end;
-    if (not (LAddrFamily in [1,2])) or (LReqIPVersion <> LIPVersion) then begin
-      LContext.FDataPort := 0;
-      LContext.FDataPortDenied := True;
-      case LIPVersion of
-        Id_IPv4: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (1)'); {do not localize}
-        Id_IPv6: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (2)'); {do not localize}
-      end;
-      Exit;
     end;
     if LContext.FDataPort = 0 then begin
       LContext.FDataPortDenied := True;
@@ -4264,7 +4264,7 @@ begin
       Exit;
     end;
     if FFTPSecurityOptions.NoReservedRangePORT and
-      ((LContext.FDataPort > 0) and (LContext.FDataPort <= 1024)) then  begin
+      ((LContext.FDataPort > 0) and (LContext.FDataPort <= 1024)) then begin
       LContext.FDataPort := 0;
       LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(504, RSFTPPORTRange);
@@ -4276,18 +4276,23 @@ begin
       ASender.Reply.SetReply(500, RSFTPInvalidIP);
       Exit;
     end;
-    if FFTPSecurityOptions.FRequirePORTFromSameIP and
-      (LIP <> LContext.Binding.PeerIP) then begin
-      LContext.FDataPort := 0;
-      LContext.FDataPortDenied := True;
-      ASender.Reply.SetReply(504, RSFTPSameIPAddress);
-      Exit;
+    if FFTPSecurityOptions.FRequirePORTFromSameIP then begin
+      case LReqIPVersion of
+        Id_IPv4: LIP := MakeCanonicalIPv4Address(LIP);
+        Id_IPv6: LIP := MakeCanonicalIPv6Address(LIP);
+      end;
+      if LIP <> LContext.Binding.PeerIP then begin
+        LContext.FDataPort := 0;
+        LContext.FDataPortDenied := True;
+        ASender.Reply.SetReply(504, RSFTPSameIPAddress);
+        Exit;
+      end;
     end;
     LContext.CreateDataChannel(False);
     LDataChannel := TIdTCPClient(LContext.FDataChannel.FDataChannel);
     LDataChannel.Host := LIP;
     LDataChannel.Port := LContext.FDataPort;
-    LDataChannel.IPVersion := LIPVersion;
+    LDataChannel.IPVersion := LReqIPVersion;
     LContext.FDataPortDenied := False;
     CmdCommandSuccessful(ASender, 200);
   end;
@@ -4299,21 +4304,22 @@ var
   LBPortMin, LBPortMax: Word;
   LIP : String;
   LIPVersion: TIdIPVersion;
+  LReqIPVersion: TIdIPVersion;
   LProtocol: integer;
-  LProtocols: string;
   LContext : TIdFTPServerContext;
   LDataChannel: TIdSimpleServer;
 begin
   LContext := ASender.Context as TIdFTPServerContext;
   if LContext.IsAuthenticated(ASender) then begin
-    LIPVersion := LContext.Connection.Socket.IPVersion;
+    LIPVersion := LContext.Binding.IPVersion;
+    LReqIPVersion := LIPVersion;
     LParam := ASender.UnparsedParams;
     if Length(LParam) > 0 then begin
       LProtocol := IndyStrToInt(LParam, -1);
       case LProtocol of
-        1: LIPVersion := Id_IPv4;
+        1: LReqIPVersion := Id_IPv4;
         2: if GStack.SupportsIPv6 then begin
-             LIPVersion := Id_IPv6;
+             LReqIPVersion := Id_IPv6;
            end else begin
              ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {do not localize}
              Exit;
@@ -4330,25 +4336,14 @@ begin
               Exit;
             end;
         else begin
-          if LContext.Connection.Socket.IPVersion = Id_IPv6 then begin
-            LProtocols := '2';
-          end else begin
-            LProtocols := '1';
-          end;
-          ASender.Reply.SetReply(522, RSFTPProtocolNotSupported+' ('+LProtocols+')');
+          ASender.Reply.SetReply(522, RSFTPProtocolNotSupported+iif(GStack.SupportsIPv6, ' (1,2)', ' (1)'));
           Exit;
         end;
       end;
     end;
-    if LContext.Connection.Socket.IPVersion <> LIPVersion then begin
-      case LContext.Connection.Socket.IPVersion of
-        Id_IPv4: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (1)'); {do not localize}
-        Id_IPv6: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (2)'); {do not localize}
-      end;
-      Exit;
+    if LReqIPVersion = LIPVersion then begin
+      LIP := LContext.Binding.IP;
     end;
-
-    LIP := LContext.Connection.Socket.Binding.IP;
     if (FPASVBoundPortMin <> 0) and (FPASVBoundPortMax <> 0) then begin
       LBPortMin := FPASVBoundPortMin;
       LBPortMax := FPASVBoundPortMax;
@@ -4356,7 +4351,7 @@ begin
       LBPortMin := FDefaultDataPort;
       LBPortMax := LBPortMin;
     end;
-    DoOnPASVBeforeBind(LContext, LIP, LBPortMin, LBPortMax, LIPVersion);
+    DoOnPASVBeforeBind(LContext, LIP, LBPortMin, LBPortMax, LReqIPVersion);
 
     LContext.CreateDataChannel(True);
     LDataChannel := TIdSimpleServer(LContext.FDataChannel.FDataChannel);
@@ -4370,15 +4365,16 @@ begin
       LDataChannel.BoundPortMin := LBPortMin;
       LDataChannel.BoundPortMax := LBPortMax;
     end;
-    LDataChannel.IPVersion := LIPVersion;
+    LDataChannel.IPVersion := LReqIPVersion;
     LDataChannel.BeginListen;
     LIP := LDataChannel.Binding.IP;
     LBPortMin := LDataChannel.Binding.Port;
 
     //Note that only one Port can work with EPSV
-    DoOnPASVReply(LContext, LIP, LBPortMin, LIPVersion);
+    DoOnPASVReply(LContext, LIP, LBPortMin, LReqIPVersion);
     LParam := '|||' + IntToStr(LBPortMin) + '|'; {Do not localize}
     ASender.Reply.SetReply(229, IndyFormat(RSFTPEnteringEPSV, [LParam]));
+    ASender.SendReply;
     LContext.FPASV := True;
   end;
 end;
@@ -4833,20 +4829,23 @@ begin
         LStream, TextIsSame(ASender.CommandHandler.Command, 'LIST'), 'MLSD'); {Do not translate}
       LSendData := True;
     finally
-      if LSendData then begin
-        //it should be safe to assume that the FDataChannel object exists because
-        //we checked it earlier
-        LContext.FDataChannel.Data := LStream;
-        LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
-        LContext.FDataChannel.FFtpOperation := ftpRetr;
-        ASender.Reply.SetReply(125, RSFTPDataConnToOpen);
-        ASender.SendReply;
-        DoDataChannelOperation(ASender);
-      end else begin
-        FreeAndNil(LStream);
-        LContext.KillDataChannel;
-        ASender.Reply.SetReply(426, RSFTPDataConnClosedAbnormally);
+      try
+        if LSendData then begin
+          //it should be safe to assume that the FDataChannel object exists because
+          //we checked it earlier
+          LContext.FDataChannel.Data := LStream;
+          LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
+          LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
+          LContext.FDataChannel.FFtpOperation := ftpRetr;
+          ASender.Reply.SetReply(125, RSFTPDataConnToOpen);
+          ASender.SendReply;
+          DoDataChannelOperation(ASender);
+        end else begin
+          LContext.KillDataChannel;
+          ASender.Reply.SetReply(426, RSFTPDataConnClosedAbnormally);
+        end;
+      finally
+        LStream.Free;
       end;
     end;
   end;
@@ -6154,7 +6153,7 @@ var
 begin
   //CPSV must be used with SSL and can only be used with IPv4
   if (UseTLS = utNoTLSSupport) or
-    (ASender.Context.Connection.Socket.IPVersion <> Id_IPv4) then begin
+    (ASender.Context.Binding.IPVersion <> Id_IPv4) then begin
     CmdSyntaxError(ASender);
     Exit;
   end;
@@ -6292,8 +6291,8 @@ begin
     end;
 
     VIP := LContext.Connection.Socket.Binding.IP;
-    VIPVersion := LContext.Connection.Socket.IPVersion;
-    
+    VIPVersion := LContext.Binding.IPVersion;
+
     if (FPASVBoundPortMin <> 0) and (FPASVBoundPortMax <> 0) then begin
       LBPortMin := FPASVBoundPortMin;
       LBPortMax := FPASVBoundPortMax;
@@ -7098,7 +7097,7 @@ begin
     end else begin
       LDataChannelSvr.BoundPort := AServer.DefaultDataPort;
     end;
-    LDataChannelSvr.IPVersion := FControlContext.Connection.Socket.Binding.IPVersion;
+    LDataChannelSvr.IPVersion := FControlContext.Binding.IPVersion;
     LDataChannelSvr.OnBeforeBind := AControlContext.PortOnBeforeBind;
     LDataChannelSvr.OnAfterBind := AControlContext.PortOnAfterBind;
   end else begin
@@ -7107,7 +7106,7 @@ begin
     LDataChannelCli := TIdTCPClient(FDataChannel);
     LDataChannelCli.BoundIP := FControlContext.Connection.Socket.Binding.IP;
     LDataChannelCli.BoundPort := AServer.DefaultDataPort;
-    LDataChannelCli.IPVersion := FControlContext.Connection.Socket.Binding.IPVersion;
+    LDataChannelCli.IPVersion := FControlContext.Binding.IPVersion;
   end;
 
   if AControlContext.Server.IOHandler is TIdServerIOHandlerSSLBase then begin
