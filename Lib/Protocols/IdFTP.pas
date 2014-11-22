@@ -1106,7 +1106,6 @@ uses
   //facilitate inlining only.
   {$IFDEF KYLIXCOMPAT}
   Libc,
-
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
@@ -1127,7 +1126,7 @@ uses
   IdFIPS,
   IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
   IdSSL, IdGlobalProtocols, IdHash, IdHashCRC, IdHashSHA, IdHashMessageDigest,
-  IdStack, IdSimpleServer, IdOTPCalculator, SysUtils;
+  IdStack, IdStackConsts, IdSimpleServer, IdOTPCalculator, SysUtils;
 
 const
   cIPVersions: array[TIdIPVersion] of String = ('1', '2'); {do not localize}
@@ -1233,6 +1232,7 @@ var
   LBuf : String;
   LSendQuitOnError: Boolean;
   LOffs: Integer;
+  LRetryWithoutHOST: Boolean;
 begin
   LSendQuitOnError := False;
 
@@ -1308,34 +1308,50 @@ begin
     // 220 (success) and 500/502 (unsupported), but vsftpd returns 530, and
     // whatever ftp.microsoft.com is running returns 504.
     if UseHOST then begin
-      if SendHost() <> 220 then begin
-        // RLebeau: WS_FTP Server 5.x disconnects if the command fails,
-        // whereas WS_FTP Server 6+ does not.  If the server disconnected
-        // here, let's mimic FTP Voyager by reconnecting without using
-        // the HOST command again...
-        //
-        // RLebeau 11/18/2013: some other servers also disconnect on a failed
-        // HOST command, so no longer retrying connect for WSFTP exclusively...
-        //
-        try
+      // RLebeau: WS_FTP Server 5.x disconnects if the command fails,
+      // whereas WS_FTP Server 6+ does not.  If the server disconnected
+      // here, let's mimic FTP Voyager by reconnecting without using
+      // the HOST command again...
+      //
+      // RLebeau 11/18/2013: some other servers also disconnect on a failed
+      // HOST command, so no longer retrying connect for WSFTP exclusively...
+      //
+      // RLebeau 11/22/2014: encountered one case where the server disconnects
+      // before the reply is received.  So checking for that as well...
+      //
+      LRetryWithoutHOST := False;
+      try
+        if SendHost() <> 220 then begin
           IOHandler.CheckForDisconnect(True, True);
-        except
-          on E: EIdConnClosedGracefully do
-          begin
-            Disconnect(False);
-            IOHandler.InputBuffer.Clear;
-            UseHOST := False;
-            try
-              Connect;
-            finally
-              UseHOST := True;
-            end;
-            Exit;
+        end;
+      except
+        on E: EIdConnClosedGracefully do begin
+          LRetryWithoutHOST := True;
+        end;
+        on E: EIdSocketError do begin
+          if (E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET) then begin
+            LRetryWithoutHOST := True;
+          end else begin
+            raise;
           end;
         end;
-      end else begin
-        FGreeting.Assign(LastCmdResult);
       end;
+      if LRetryWithoutHOST then
+      begin
+        Disconnect(False);
+        if Assigned(IOHandler) then begin
+          IOHandler.InputBuffer.Clear;
+        end;
+        UseHOST := False;
+        try
+          Connect;
+        finally
+          UseHOST := True;
+        end;
+        Exit;
+      end;
+    end else begin
+      FGreeting.Assign(LastCmdResult);
     end;
     DoOnBannerBeforeLogin (FGreeting.FormattedReply);
 
