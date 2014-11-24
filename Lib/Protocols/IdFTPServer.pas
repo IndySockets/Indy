@@ -1021,7 +1021,7 @@ type
     //draft didn't specify 550 as an error.  It said use 504.
     procedure CmdTwineFileActionAborted(ASender : TIdCommand);
     //success reply codes can vary amoung commands
-    procedure CmdCommandSuccessful(ASender: TIdCOmmand; const AReplyCode : Integer = 250);
+    procedure CmdCommandSuccessful(ASender: TIdCommand; const AReplyCode : Integer = 250);
     //Command replies
     procedure CommandQUIT(ASender:TIdCommand);
     procedure CommandUSER(ASender: TIdCommand);
@@ -1735,7 +1735,7 @@ begin
       end;
     end;
   end else begin
-     CmdSyntaxError(ASender);
+    CmdSyntaxError(ASender);
   end;
 end;
 
@@ -2868,13 +2868,13 @@ var
   LContext: TIdFTPServerContext;
 begin
   LContext:= ASender.Context as TIdFTPServerContext;
-    if (FUseTLS = utUseRequireTLS) and (LContext.AuthMechanism <> 'TLS') then begin {do not localize}
-      DisconUser(ASender);
-      Exit;
-    end;
-    LContext.FAuthenticated := False;
-    LContext.FPassword := ASender.UnparsedParams;
-    AuthenticateUser(ASender);
+  if (FUseTLS = utUseRequireTLS) and (LContext.AuthMechanism <> 'TLS') then begin {do not localize}
+    DisconUser(ASender);
+    Exit;
+  end;
+  LContext.FAuthenticated := False;
+  LContext.FPassword := ASender.UnparsedParams;
+  AuthenticateUser(ASender);
 end;
 
 procedure TIdFTPServer.CommandXAUT(ASender : TIdCommand);
@@ -2900,7 +2900,7 @@ begin
     //I'm not sure what the significance of "^vta4r2" really is.
     //                 1234567
     if TextEndsWith(s,'^vta4r2') then begin
-        LContext.Password  := Copy(s,1,Length(s)-7);
+      LContext.Password  := Copy(s,1,Length(s)-7);
     end;
   end else begin
     LContext.Username := s;
@@ -4631,6 +4631,7 @@ begin
   if IOHandler is TIdServerIOHandlerSSLBase then begin
     if ASender.UnparsedParams = '' then begin
       CmdInvalidParamNum(ASender);
+      Exit;
     end;
     if (LContext.AuthMechanism = '') and (FUseTLS <> utUseImplicitTLS) then begin
       ASender.Reply.SetReply(503, RSFTPPBSZAuthDataRequired);
@@ -4641,15 +4642,15 @@ begin
       Exit;
     end;
     if (LContext.AuthMechanism = 'TLS') or (FUseTLS = utUseImplicitTLS) then begin  {Do not localize}
-        ASender.Reply.SetReply(200,RSFTPDataProtBuffer0);
-        LContext.DataPBSZCalled := True;
-      end
-      else if IsNumeric(ASender.UnparsedParams) then begin
-        ASender.Reply.SetReply(200,'PBSZ=0'); {Do not translate}
-        LContext.DataPBSZCalled := True;
-      end else begin
-        CmdInvalidParams(ASender);
-      end;
+      ASender.Reply.SetReply(200,RSFTPDataProtBuffer0);
+      LContext.DataPBSZCalled := True;
+    end
+    else if IsNumeric(ASender.UnparsedParams) then begin
+      ASender.Reply.SetReply(200,'PBSZ=0'); {Do not translate}
+      LContext.DataPBSZCalled := True;
+    end else begin
+      CmdInvalidParams(ASender);
+    end;
   end else begin
     CmdSyntaxError(ASender);
   end;
