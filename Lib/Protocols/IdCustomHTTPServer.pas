@@ -2082,10 +2082,12 @@ begin
   // MUST NOT include a message-body. All other responses do include a
   // message-body, although it MAY be of zero length.
 
-  if (FRequestInfo.CommandType <> hcHEAD) and
-    ((ResponseNo div 100) <> 1) and
-    (ResponseNo <> 204) and
-    (ResponseNo <> 304) then
+  if not (
+    (FRequestInfo.CommandType = hcHEAD) or
+    ((ResponseNo div 100) = 1) or
+    (ResponseNo = 204) or
+    (ResponseNo = 304)
+    ) then
   begin
     // Always check ContentText first
     if ContentText <> '' then begin
