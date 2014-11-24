@@ -1298,9 +1298,19 @@ begin
             {TODO Check for 1.0 only at this point}
             LCmd := UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
 
-            s := LRequestInfo.MethodOverride;
-            if s <> '' then begin
-              LCmd := UpperCase(s);
+            // check for overrides when LCmd is 'POST'...
+            if TextIsSame(LCmd, 'POST') then begin
+              s := LRequestInfo.MethodOverride; // Google/GData
+              if s = '' then begin
+                // TODO: make RequestInfo properties for these
+                s := LRequestInfo.RawHeaders.Values['X-HTTP-Method']; // Microsoft      {do not localize}
+                if s = '' then begin
+                  s := LRequestInfo.RawHeaders.Values['X-METHOD-OVERRIDE']; // IBM      {do not localize}
+                end;
+              end;
+              if s <> '' then begin
+                LCmd := UpperCase(s);
+              end;
             end;
 
             LRequestInfo.FRawHTTPCommand := LRawHTTPCommand;
@@ -2060,18 +2070,37 @@ begin
   if not HeaderHasBeenWritten then begin
     WriteHeader;
   end;
-  // Always check ContentText first
-  if ContentText <> '' then begin
-    FConnection.IOHandler.Write(ContentText, CharsetToEncoding(CharSet));
-  end
-  else if Assigned(ContentStream) then begin
-    ContentStream.Position := 0;
-    FConnection.IOHandler.Write(ContentStream);
-  end
-  else begin
-    FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
-     + '</B></BODY></HTML>', CharsetToEncoding(CharSet));    {Do not Localize}
+
+  // RLebeau 11/23/2014: Per RFC 2616 Section 4.3:
+  //
+  // For response messages, whether or not a message-body is included with
+  // a message is dependent on both the request method and the response
+  // status code (section 6.1.1). All responses to the HEAD request method
+  // MUST NOT include a message-body, even though the presence of entity-
+  // header fields might lead one to believe they do. All 1xx
+  // (informational), 204 (no content), and 304 (not modified) responses
+  // MUST NOT include a message-body. All other responses do include a
+  // message-body, although it MAY be of zero length.
+
+  if (FRequestInfo.CommandType <> hcHEAD) and
+    ((ResponseNo div 100) <> 1) and
+    (ResponseNo <> 204) and
+    (ResponseNo <> 304) then
+  begin
+    // Always check ContentText first
+    if ContentText <> '' then begin
+      FConnection.IOHandler.Write(ContentText, CharsetToEncoding(CharSet));
+    end
+    else if Assigned(ContentStream) then begin
+      ContentStream.Position := 0;
+      FConnection.IOHandler.Write(ContentStream);
+    end
+    else begin
+      FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
+       + '</B></BODY></HTML>', CharsetToEncoding(CharSet));    {Do not Localize}
+    end;
   end;
+
   // Clear All - This signifies that WriteConent has been called.
   ContentText := '';    {Do not Localize}
   ReleaseContentStream;
