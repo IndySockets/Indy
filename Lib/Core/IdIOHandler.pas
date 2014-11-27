@@ -1334,10 +1334,13 @@ begin
       end;
       LStartPos := IndyMax(LInputBufferSize-(Length(LTerm)-1), 0);
     end;
-    if (AMaxLineLength > 0) and (LTermPos > AMaxLineLength) then begin
+    if (AMaxLineLength > 0) and ((LTermPos > AMaxLineLength) or (LStartPos > AMaxLineLength)) then begin
       if MaxLineAction = maException then begin
         EIdReadLnMaxLineLengthExceeded.Toss(RSReadLnMaxLineLengthExceeded);
       end;
+      // RLebeau: WARNING - if the line is using multibyte character sequences
+      // and a sequence staddles the AMaxLineLength boundary, this will chop
+      // the sequence, producing invalid data!
       FReadLnSplit := True;
       Result := FInputBuffer.ExtractToString(AMaxLineLength, AByteEncoding
         {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
@@ -1346,18 +1349,6 @@ begin
     end
     // ReadFromSource blocks - do not call unless we need to
     else if LTermPos = -1 then begin
-      // RLebeau 11/19/08: this is redundant, since it is the same
-      // logic as above and should have been handled there...
-      {
-      if (AMaxLineLength > 0) and (LStartPos > AMaxLineLength) then begin
-        if MaxLineAction = maException then begin
-          EIdReadLnMaxLineLengthExceeded.Toss(RSReadLnMaxLineLengthExceeded);
-        end;
-        FReadLnSplit := True;
-        Result := FInputBuffer.Extract(AMaxLineLength, AEncoding);
-        Exit;
-      end;
-      }
       // ReadLn needs to call this as data may exist in the buffer, but no EOL yet disconnected
       CheckForDisconnect(True, True);
       // Can only return -1 if timeout
