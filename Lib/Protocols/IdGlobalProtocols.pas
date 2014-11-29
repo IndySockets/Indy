@@ -1664,11 +1664,16 @@ begin
   {$IFNDEF NATIVEFILEAPI}
   Result := -1;
   if FileExists(AFilename) then begin
-    LStream := TIdReadFileExclusiveStream.Create(AFilename);
+    // the other cases simply return -1 on error, so make sure to do the same here
     try
-      Result := LStream.Size;
-    finally
-      LStream.Free;
+      // TODO: maybe use TIdReadFileNonExclusiveStream instead?
+      LStream := TIdReadFileExclusiveStream.Create(AFilename);
+      try
+        Result := LStream.Size;
+      finally
+        LStream.Free;
+      end;
+    except
     end;
   end;
   {$ENDIF}
