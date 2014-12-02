@@ -2095,8 +2095,9 @@ begin
   Move(LAddr.sin6_addr, VDest, SizeOf(in6_addr));
   LAddr.sin6_port := htons(APort);
   // Find out which local interface for the destination
+  // RLebeau: in XE4+, PDWORD is NOT defined as ^DWORD, so we have to use a type-cast!
   CheckForSocketError(WSAIoctl(ASocket, SIO_ROUTING_INTERFACE_QUERY,
-    @LAddr, SizeOf(LAddr), @Llocalif, SizeOf(Llocalif), @Bytes, nil, nil));
+    @LAddr, SizeOf(LAddr), @Llocalif, SizeOf(Llocalif), PDWORD(@Bytes), nil, nil));
   Move(Llocalif.sin6_addr, VSource, SizeOf(in6_addr));
 end;
 
@@ -2360,7 +2361,8 @@ begin
     ka.onoff := 1;
     ka.keepalivetime := ATimeMS;
     ka.keepaliveinterval := AInterval;
-    WSAIoctl(ASocket, SIO_KEEPALIVE_VALS, @ka, SizeOf(ka), nil, 0, @Bytes, nil, nil);
+    // RLebeau: in XE4+, PDWORD is NOT defined as ^DWORD, so we have to use a type-cast!
+    WSAIoctl(ASocket, SIO_KEEPALIVE_VALS, @ka, SizeOf(ka), nil, 0, PDWORD(@Bytes), nil, nil);
   end else begin
     SetSocketOption(ASocket, Id_SOL_SOCKET, Id_SO_KEEPALIVE, iif(AEnabled, 1, 0));
   end;

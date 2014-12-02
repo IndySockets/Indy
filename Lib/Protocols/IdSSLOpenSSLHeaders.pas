@@ -24160,7 +24160,7 @@ end;
 procedure InitializeRandom;
 begin
   {$IFDEF SYS_WIN}
-  if @_RAND_screen <> nil then begin
+  if Assigned(_RAND_screen) then begin
     _RAND_screen;
   end;
   {$ENDIF}
@@ -25173,7 +25173,7 @@ end;
 function BIO_get_info_callback(b : PBIO; var cbp : Pbio_info_cb) : TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := BIO_ctrl(b,BIO_CTRL_GET_CALLBACK,0, @cbp);
+  Result := BIO_ctrl(b,BIO_CTRL_GET_CALLBACK,0, Pointer(@cbp));
 end;
 
 function BIO_set_info_callback(b : PBIO; cb : Pbio_info_cb) : TIdC_INT;
@@ -26301,7 +26301,7 @@ end;
 {$IFDEF SYS_WIN}
 function RAND_event(iMsg : UINT; wp : wparam; lp : lparam) : integer;
 begin
-  if @_RAND_event <> nil then begin
+  if Assigned(_RAND_event) then begin
     Result := _RAND_event(iMsg, wp, lp);
   end else begin
     Result := 0;
@@ -26310,7 +26310,7 @@ end;
 
 procedure RAND_screen();
 begin
-  if @_RAND_screen <> nil then begin
+  if Assigned(_RAND_screen) then begin
     _RAND_screen();
   end;
 end;

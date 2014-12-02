@@ -6016,8 +6016,9 @@ var
   LStatus: LongInt;
   LBytesSend: DWORD;
 begin
-  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, LongWord(SIZE_GUID),
-    @Result, SIZE_FARPROC, @LBytesSend, nil, nil);
+  // RLebeau: in XE4+, PDWORD is NOT defined as ^DWORD, so we have to use a type-cast!
+  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, DWORD(SIZE_GUID),
+    @Result, SIZE_FARPROC, PDWORD(@LBytesSend), nil, nil);
   if LStatus <> 0 then begin
     raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
   end;
