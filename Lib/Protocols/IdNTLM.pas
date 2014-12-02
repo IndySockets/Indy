@@ -295,7 +295,7 @@ type
   Pdes_key_schedule = ^des_key_schedule;
 
 const
-  cProtocolStr: string = 'NTLMSSP'#0; {Do not Localize}
+  cProtocolStr: array[1..8] of Byte = (Ord('N'),Ord('T'),Ord('L'),Ord('M'),Ord('S'),Ord('S'),Ord('P'),$0); {Do not Localize}
 
 procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -485,7 +485,14 @@ begin
   LEncoding := nil;
 
   FillChar(Type_1_Message, SizeOf(Type_1_Message), #0);
-  StrPLCopy(@Type_1_Message.protocol[1], cProtocolStr, 8);
+
+  {$IFDEF USE_MARSHALLED_PTRS}
+  buf := cProtocolStr;
+  TMarshal.Copy(TBytesPtr(@buf)^, 0, TPtrWrapper.Create(@Type_1_Message.protocol[1]), 8);
+  {$ELSE}
+  Move(cProtocolStr[1], Type_1_Message.protocol[1], 8);
+  {$ENDIF}
+
   Type_1_Message._type := 1;
 
   // S.G. 12/7/2002: Changed the flag to $B207 (from BugID 577895 and packet trace)
@@ -532,7 +539,13 @@ begin
   lHost := BuildUnicode(UpperCase(AHost));
   lUsername := BuildUnicode(AUsername);
 
-  StrPLCopy(@Type3.protocol[1], cProtocolStr, 8);
+  {$IFDEF USE_MARSHALLED_PTRS}
+  buf := cProtocolStr;
+  TMarshal.Copy(TBytesPtr(@buf)^, 0, TPtrWrapper.Create(@Type3.protocol[1]), 8);
+  {$ELSE}
+  Move(cProtocolStr[1], Type3.protocol[1], 8);
+  {$ENDIF}
+
   Type3._type := 3;
 
   Type3.lm_resp_len1 := Word(Length(lm_password));

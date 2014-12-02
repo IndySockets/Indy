@@ -2111,13 +2111,13 @@ var
 begin
   Len := Length(AChars);
   if (ACharIndex < 0) or (ACharIndex >= Len) then begin
-    raise Exception.CreateResFmt(@RSCharIndexOutOfBounds, [ACharIndex]);
+    raise Exception.CreateResFmt(PResStringRec(@RSCharIndexOutOfBounds), [ACharIndex]);
   end;
   if ACharCount < 0 then begin
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidCharCount), [ACharCount]);
   end;
   if (Len - ACharIndex) < ACharCount then begin
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidCharCount), [ACharCount]);
   end;
   if ACharCount > 0 then begin
     Result := @AChars[ACharIndex];
@@ -2132,10 +2132,10 @@ var
 begin
   Len := Length(ABytes);
   if (AByteIndex < 0) or (AByteIndex >= Len) then begin
-    raise Exception.CreateResFmt(@RSInvalidDestinationIndex, [AByteIndex]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidDestinationIndex), [AByteIndex]);
   end;
   if (Len - AByteIndex) < AByteCount then begin
-    raise Exception.CreateRes(@RSInvalidDestinationArray);
+    raise Exception.CreateRes(PResStringRec(@RSInvalidDestinationArray));
   end;
   if AByteCount > 0 then begin
     Result := @ABytes[AByteIndex];
@@ -2150,10 +2150,10 @@ var
 begin
   Len := Length(ABytes);
   if (AByteIndex < 0) or (AByteIndex >= Len) then begin
-    raise Exception.CreateResFmt(@RSInvalidDestinationIndex, [AByteIndex]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidDestinationIndex), [AByteIndex]);
   end;
   if (Len - AByteIndex) < ANeeded then begin
-    raise Exception.CreateRes(@RSInvalidDestinationArray);
+    raise Exception.CreateRes(PResStringRec(@RSInvalidDestinationArray));
   end;
   if AByteCount > 0 then begin
     Result := @ABytes[AByteIndex];
@@ -2165,13 +2165,13 @@ end;
 function ValidateStr(const AStr: TIdUnicodeString; ACharIndex, ACharCount: Integer): PIdWideChar;
 begin
   if ACharIndex < 1 then begin
-    raise Exception.CreateResFmt(@RSCharIndexOutOfBounds, [ACharIndex]);
+    raise Exception.CreateResFmt(PResStringRec(@RSCharIndexOutOfBounds), [ACharIndex]);
   end;
   if ACharCount < 0 then begin
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidCharCount), [ACharCount]);
   end;
   if (Length(AStr) - ACharIndex + 1) < ACharCount then begin
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidCharCount), [ACharCount]);
   end;
   if ACharCount > 0 then begin
     Result := @AStr[ACharIndex];
@@ -2272,13 +2272,13 @@ var
   LBytes: PByte;
 begin
   if (AChars = nil) and (ACharCount <> 0) then begin
-    raise Exception.CreateRes(@RSInvalidSourceArray);
+    raise Exception.CreateRes(PResStringRec(@RSInvalidSourceArray));
   end;
   if (VBytes = nil) and (ACharCount <> 0) then begin
-    raise Exception.CreateRes(@RSInvalidDestinationArray);
+    raise Exception.CreateRes(PResStringRec(@RSInvalidDestinationArray));
   end;
   if ACharCount < 0 then begin
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [ACharCount]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidCharCount), [ACharCount]);
   end;
   Len := Length(VBytes);
   LByteCount := GetByteCount(AChars, ACharCount);
@@ -2404,18 +2404,18 @@ var
   LCharCount: Integer;
 begin
   if (ABytes = nil) and (AByteCount <> 0) then begin
-    raise Exception.CreateRes(@RSInvalidSourceArray);
+    raise Exception.CreateRes(PResStringRec(@RSInvalidSourceArray));
   end;
   if AByteCount < 0 then begin
-    raise Exception.CreateResFmt(@RSInvalidCharCount, [AByteCount]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidCharCount), [AByteCount]);
   end;
   if (ACharIndex < 0) or (ACharIndex > Length(VChars)) then begin
-    raise Exception.CreateResFmt(@RSInvalidDestinationIndex, [ACharIndex]);
+    raise Exception.CreateResFmt(PResStringRec(@RSInvalidDestinationIndex), [ACharIndex]);
   end;
   LCharCount := GetCharCount(ABytes, AByteCount);
   if LCharCount > 0 then begin
     if (ACharIndex + LCharCount) > Length(VChars) then begin
-      raise Exception.CreateRes(@RSInvalidDestinationArray);
+      raise Exception.CreateRes(PResStringRec(@RSInvalidDestinationArray));
     end;
     Result := GetChars(ABytes, AByteCount, @VChars[ACharIndex], LCharCount);
   end else begin
@@ -2546,7 +2546,7 @@ begin
     end;
   end;
   if LError then begin
-    raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
+    raise EIdException.CreateResFmt(PResStringRec(@RSInvalidCodePage), [FCodePage]);
   end;
   FMaxCharSize := LCPInfo.MaxCharSize;
   {$ELSE}
@@ -3654,7 +3654,7 @@ begin
     Result := TIdMBCSEncoding.Create(ACharSet);
       {$ELSE}
     Result := nil;
-    raise EIdException.CreateResFmt(@RSInvalidCharSet, [ACharSet]);
+    raise EIdException.CreateResFmt(PResStringRec(@RSInvalidCharSet), [ACharSet]);
       {$ENDIF}
     {$ENDIF}
   end;

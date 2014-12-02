@@ -19050,7 +19050,7 @@ procedure OpenSSLUpdateHashInst(ACtx: TIdHashIntCtx; const AIn: TIdBytes);
 var
   LRet : TIdC_Int;
 begin
-  LRet := EVP_DigestUpdate(ACtx,@Ain[0],Length(AIn));
+  LRet := EVP_DigestUpdate(ACtx, PByte(Ain), Length(AIn));
   if LRet <> 1 then begin
     EIdDigestInitEx.RaiseException('EVP_DigestUpdate error');
   end;
@@ -19100,7 +19100,7 @@ begin
   {$ELSE}
   Result := AllocMem(SizeOf(HMAC_CTX));
   HMAC_CTX_init(Result);
-  HMAC_Init_ex(Result,@AKey[0],Length(AKey),EVP_md5, nil);
+  HMAC_Init_ex(Result, PByte(AKey), Length(AKey), EVP_md5, nil);
   {$ENDIF}
 end;
 
@@ -19120,7 +19120,7 @@ begin
   {$ELSE}
   Result := AllocMem(SizeOf(HMAC_CTX));
   HMAC_CTX_init(Result);
-  HMAC_Init_ex(Result,@AKey[0],Length(AKey),EVP_sha1, nil);
+  HMAC_Init_ex(Result, PByte(AKey), Length(AKey), EVP_sha1, nil);
   {$ENDIF}
 end;
 
@@ -19141,7 +19141,7 @@ begin
   {$ELSE}
   Result := AllocMem(SizeOf(HMAC_CTX));
   HMAC_CTX_init(Result);
-  HMAC_Init_ex(Result,@AKey[0],Length(AKey),EVP_sha224, nil);
+  HMAC_Init_ex(Result, PByte(AKey), Length(AKey), EVP_sha224, nil);
   {$ENDIF}
 end;
 
@@ -19161,7 +19161,7 @@ begin
   {$ELSE}
   Result := AllocMem(SizeOf(HMAC_CTX));
   HMAC_CTX_init(Result);
-  HMAC_Init_ex(Result,@AKey[0],Length(AKey),EVP_sha256, nil);
+  HMAC_Init_ex(Result, PByte(AKey), Length(AKey), EVP_sha256, nil);
   {$ENDIF}
 end;
 
@@ -19181,7 +19181,7 @@ begin
   {$ELSE}
   Result := AllocMem(SizeOf(HMAC_CTX));
   HMAC_CTX_init(Result);
-  HMAC_Init_ex(Result,@AKey[0],Length(AKey),EVP_sha384, nil);
+  HMAC_Init_ex(Result, PByte(AKey), Length(AKey), EVP_sha384, nil);
   {$ENDIF}
 end;
 
@@ -19201,13 +19201,13 @@ begin
   {$ELSE}
   Result := AllocMem(SizeOf(HMAC_CTX));
   HMAC_CTX_init(Result);
-  HMAC_Init_ex(Result,@AKey[0],Length(AKey),EVP_sha512, nil);
+  HMAC_Init_ex(Result, PByte(AKey), Length(AKey), EVP_sha512, nil);
   {$ENDIF}
 end;
 
 procedure OpenSSLUpdateHMACInst(ACtx : TIdHMACIntCtx; const AIn: TIdBytes);
 begin
-  HMAC_Update(ACtx, @AIn[0],Length(AIn));
+  HMAC_Update(ACtx, PIdAnsiChar(PByte(AIn)), Length(AIn));
 end;
 
 function OpenSSLFinalHMACInst(ACtx: TIdHMACIntCtx): TIdBytes;

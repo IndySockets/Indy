@@ -1496,9 +1496,9 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
 
   CloseLibrary;
 
-  getaddrinfo := @WspiapiLegacyGetAddrInfo;
-  getnameinfo := @WspiapiLegacyGetNameInfo;
-  freeaddrinfo := @WspiapiLegacyFreeAddrInfo;
+  getaddrinfo := Addr(WspiapiLegacyGetAddrInfo);
+  getnameinfo := Addr(WspiapiLegacyGetNameInfo);
+  freeaddrinfo := Addr(WspiapiLegacyFreeAddrInfo);
 
   {$I IdSymbolDeprecatedOff.inc}
   GIdIPv6FuncsAvailable := True;
