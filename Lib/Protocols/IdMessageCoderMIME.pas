@@ -356,7 +356,8 @@ begin
     // Content-Transfer-Encoding header field is not present."
     if IsHeaderMediaType(LContentType, 'application/mac-binhex40') then begin  {Do not Localize}
       LContentTransferEncoding := 'binhex40'; {do not localize}
-    end else begin
+    end
+    else if not IsHeaderMediaType(LContentType, 'application/octet-stream') then begin  {Do not Localize}
       LContentTransferEncoding := '7bit'; {do not localize}
     end;
   end

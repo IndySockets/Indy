@@ -175,6 +175,7 @@ function TIdHash.HashBytes(const ASrc: TIdBytes): TIdBytes;
 var
   LStream: TStream;
 begin
+  // TODO: use TBytesStream on versions that support it
   LStream := TMemoryStream.Create; try
     WriteTIdBytesToStream(LStream, ASrc);
     LStream.Position := 0;
@@ -399,20 +400,22 @@ var
 begin
   LCtx := InitHash;
   try
-    SetLength(LBuf,2048);
-    repeat
-      LSize := ReadTIdBytesFromStream(AStream,LBuf,2048);
-      if LSize = 0 then begin
-        break;
-      end;
-      if LSize < 2048 then begin
-        SetLength(LBuf,LSize);
+    if ASize > 0 then begin
+      SetLength(LBuf, 2048);
+      repeat
+        LSize := ReadTIdBytesFromStream(AStream,LBuf,IndyMin(ASize, 2048));
+        if LSize < 1 then begin
+          break;
+        end;
+        if LSize < 2048 then begin
+          SetLength(LBuf,LSize);
+          UpdateHash(LCtx,LBuf);
+          break;
+        end;
         UpdateHash(LCtx,LBuf);
-        break;
-      end else begin
-        UpdateHash(LCtx,LBuf);
-      end;
-    until False;
+        Dec(ASize, LSize);
+      until ASize = 0;
+    end;
   finally
     Result := FinalHash(LCtx);
   end;
@@ -473,7 +476,7 @@ end;
 function TIdHashNativeAndIntF.NativeGetHashBytes(AStream: TStream;
   ASize: TIdStreamSize): TIdBytes;
 begin
-
+  Result := nil;
 end;
 
 end.

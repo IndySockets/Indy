@@ -245,8 +245,6 @@ begin
   end;
 end;
 
-
-
 function TIdHashMessageDigest2.HashToHex(const AHash: TIdBytes): String;
 begin
   Result := LongWordHashToHex(AHash, 4);
@@ -372,7 +370,7 @@ begin
   end;
 
   // Read the last set of bytes.
-  LStartPos := ReadTIdBytesFromStream(AStream, FCBuffer, ASize);
+  LStartPos := ReadTIdBytesFromStream(AStream, FCBuffer, LSize);
   // TODO: handle stream read error
 
   // Append one bit with value 1
