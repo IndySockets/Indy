@@ -553,7 +553,10 @@ uses
       {$IFDEF USE_ICONV_ENC}iconvenc, {$ENDIF}
     {$ENDIF}
     {$IFDEF DARWIN}
-    Macapi.Mach,
+      {$IFNDEF FPC}
+      //RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
+      Macapi.Mach,
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   IdException;
@@ -1674,6 +1677,19 @@ function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 
 // for instance when freeing an Owned component
 procedure IdDisposeAndNil(var Obj); {$IFDEF USE_INLINE}inline;{$ENDIF}
 
+//RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
+{$IFDEF UNIX}
+  {$IFDEF DARWIN}
+    {$IFDEF FPC}
+type
+  TTimebaseInfoData = record
+    numer: LongWord;
+    denom: LongWord;
+  end;
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 var
   {$IFDEF UNIX}
 
@@ -1830,16 +1846,19 @@ type
 
 constructor TIdDotNetEncoding.Create(AEncoding: System.Text.Encoding);
 begin
+  inherited Create;
   FEncoding := AEncoding;
 end;
 
 constructor TIdDotNetEncoding.Create(const ACharset: String);
 begin
+  inherited Create;
   FEncoding := System.Text.Encoding.GetEncoding(ACharset);
 end;
 
 constructor TIdDotNetEncoding.Create(const ACodepage: Word);
 begin
+  inherited Create;
   FEncoding := System.Text.Encoding.GetEncoding(ACodepage);
 end;
 
@@ -2527,6 +2546,8 @@ var
   LError: Boolean;
 {$ENDIF}
 begin
+  inherited Create;
+
   FCodePage := CodePage;
   FMBToWCharFlags := MBToWCharFlags;
   FWCharToMBFlags := WCharToMBFlags;
@@ -3230,6 +3251,7 @@ end;
 
 constructor TIdUTF16LittleEndianEncoding.Create;
 begin
+  inherited Create;
   FIsSingleByte := False;
   FMaxCharSize := 4;
 end;
@@ -3380,6 +3402,7 @@ end;
 
 constructor TIdASCIIEncoding.Create;
 begin
+  inherited Create;
   FIsSingleByte := True;
   FMaxCharSize := 1;
 end;
@@ -3450,6 +3473,7 @@ end;
 
 constructor TId8BitEncoding.Create;
 begin
+  inherited Create;
   FIsSingleByte := True;
   FMaxCharSize := 1;
 end;
@@ -3517,7 +3541,7 @@ end;
 
 // RLebeau: this is a hack.  The protected members of SysUtils.TEncoding are
 // declared as 'STRICT protected', so a regular accessor will not work here.
-// Only descendants can call them, so we have to expose our our methods that
+// Only descendants can call them, so we have to expose our own methods that
 // this unit can call, and have them call the inherited methods internally.
 
 type
@@ -3552,6 +3576,7 @@ end;
 
 constructor TIdVCLEncoding.Create(AEncoding: TEncoding);
 begin
+  inherited Create;
   FEncoding := AEncoding;
   FIsSingleByte := FEncoding.IsSingleByte;
 end;
@@ -5015,6 +5040,16 @@ begin
   // TODO: maybe throw an exception if Ticks64() exceeds the 49.7 day limit of LongWord?
   Result := LongWord(Ticks64() mod High(LongWord));
 end;
+
+//RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
+{$IFDEF UNIX}
+  {$IFDEF DARWIN}
+    {$IFDEF FPC}
+function mach_timebase_info(var TimebaseInfoData: TTimebaseInfoData): Integer; cdecl; external 'libc';
+function mach_absolute_time: QWORD; cdecl; external 'libc';
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
 
 function Ticks64: TIdTicks;
 {$IFDEF DOTNET}
