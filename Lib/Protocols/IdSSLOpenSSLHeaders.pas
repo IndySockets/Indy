@@ -16777,10 +16777,10 @@ var
   {$EXTERNALSYM EVP_CipherFinal_ex}
   EVP_CipherFinal_ex: function(ctx : PEVP_CIPHER_CTX; outm : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT;
   {$EXTERNALSYM EVP_SignFinal}
-  EVP_SignFinal : function(ctx : EVP_MD_CTX; md : PIdAnsiChar; s : PIdC_INT;
+  EVP_SignFinal : function(ctx : PEVP_MD_CTX; md : PIdAnsiChar; s : PIdC_INT;
 		pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_VerifyFinal}
-  EVP_VerifyFinal : function(ctx : EVP_MD_CTX; sigbuf : PIdAnsiChar;
+  EVP_VerifyFinal : function(ctx : PEVP_MD_CTX; sigbuf : PIdAnsiChar;
 	  siglen : TIdC_UINT; pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_DigestSignInit}
   EVP_DigestSignInit : function(ctx : PEVP_MD_CTX; pctx : PPEVP_PKEY_CTX;
