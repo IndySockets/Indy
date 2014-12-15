@@ -1334,7 +1334,8 @@ begin
       end;
       LStartPos := IndyMax(LInputBufferSize-(Length(LTerm)-1), 0);
     end;
-    if (AMaxLineLength > 0) and ((LTermPos > AMaxLineLength) or (LStartPos > AMaxLineLength)) then begin
+    // if the line length is limited and terminator is found after the limit or not found and the limit is exceeded
+    if (AMaxLineLength > 0) and ((LTermPos > AMaxLineLength) or ((LTermPos = -1) and (LStartPos > AMaxLineLength))) then begin
       if MaxLineAction = maException then begin
         EIdReadLnMaxLineLengthExceeded.Toss(RSReadLnMaxLineLengthExceeded);
       end;
