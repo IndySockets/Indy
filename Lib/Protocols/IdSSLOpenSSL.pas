@@ -378,6 +378,7 @@ type
     destructor Destroy; override;
     procedure Accept(const pHandle: TIdStackSocketHandle);
     procedure Connect(const pHandle: TIdStackSocketHandle);
+    procedure Shutdown;
     function Send(const ABuffer : TIdBytes; AOffset, ALength: Integer): Integer;
     function Recv(var ABuffer : TIdBytes): Integer;
     function GetSessionID: TIdSSLByteArray;
@@ -2458,9 +2459,11 @@ end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
-  FreeAndNil(fSSLSocket);
-  if not IsPeer then begin
-    FreeAndNil(fSSLContext);
+  // do NOT free SSL objects here because it should be safe to call
+  // TIdTCPConnection.Disconnect(), which calls IOHandler.Close(),
+  // while another thread is performing socket operations
+  if Assigned(fSSLSocket) then begin
+    fSSLSocket.Shutdown;
   end;
   inherited Close;
 end;
@@ -3000,8 +3003,7 @@ begin
        (fSSLContext.fContext <> nil) then begin
       SSL_CTX_set_info_callback(fSSLContext.fContext, nil);
     end;
-    //SSL_set_shutdown(fSSL, SSL_SENT_SHUTDOWN);
-    SSL_shutdown(fSSL);
+    Shutdown;
     SSL_free(fSSL);
     fSSL := nil;
   end;
@@ -3278,6 +3280,14 @@ begin
   aCipherList := aCipherList+#0;
   if hSSL <> nil then f_SSL_set_cipher_list(hSSL, @aCipherList[1]);
 }
+end;
+
+procedure TIdSSLSocket.Shutdown;
+begin
+  if fSSL <> nil then begin
+    //SSL_set_shutdown(fSSL, SSL_SENT_SHUTDOWN);
+    SSL_shutdown(fSSL);
+  end;
 end;
 
 ///////////////////////////////////////////////////////////////
