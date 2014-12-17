@@ -933,7 +933,7 @@ type
   function IndyTextEncoding(AEncoding: System.Text.Encoding): IIdTextEncoding; overload;
   {$ENDIF}
   {$IFDEF HAS_TEncoding}
-  function IndyTextEncoding(AEncoding: TEncoding): IIdTextEncoding; overload;
+  function IndyTextEncoding(AEncoding: TEncoding; AFreeEncoding: Boolean = False): IIdTextEncoding; overload;
   {$ENDIF}
 
   function IndyTextEncoding_Default: IIdTextEncoding;
@@ -2111,8 +2111,10 @@ type
   TIdVCLEncoding = class(TIdTextEncodingBase)
   protected
     FEncoding: TEncoding;
+    FFreeEncoding: Boolean;
   public
-    constructor Create(AEncoding: TEncoding);
+    constructor Create(AEncoding: TEncoding; AFreeEncoding: Boolean);
+    destructor Destroy; override;
     function GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer; override;
     function GetBytes(const AChars: PIdWideChar; ACharCount: Integer; ABytes: PByte; AByteCount: Integer): Integer; override;
     function GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer; override;
@@ -3574,11 +3576,20 @@ begin
   Result := GetChars(Bytes, ByteCount, Chars, CharCount);
 end;
 
-constructor TIdVCLEncoding.Create(AEncoding: TEncoding);
+constructor TIdVCLEncoding.Create(AEncoding: TEncoding; AFreeEncoding: Boolean);
 begin
   inherited Create;
   FEncoding := AEncoding;
+  FFreeEncoding := AFreeEncoding and not TEncoding.IsStandardEncoding(AEncoding);
   FIsSingleByte := FEncoding.IsSingleByte;
+end;
+
+destructor TIdVCLEncoding.Destroy;
+begin
+  if FFreeEncoding then begin
+    FEncoding.Free;
+  end;
+  inherited Destroy;
 end;
 
 function TIdVCLEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
@@ -3693,9 +3704,9 @@ end;
 {$ENDIF}
 
 {$IFDEF HAS_TEncoding}
-function IndyTextEncoding(AEncoding: TEncoding): IIdTextEncoding;
+function IndyTextEncoding(AEncoding: TEncoding; AFreeEncoding: Boolean = False): IIdTextEncoding;
 begin
-  Result := TIdVCLEncoding.Create(AEncoding);
+  Result := TIdVCLEncoding.Create(AEncoding, AFreeEncoding);
 end;
 {$ENDIF}
 

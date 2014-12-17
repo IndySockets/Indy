@@ -3618,7 +3618,9 @@ initialization
     'Original Author - Gregor Ibic',                                        {do not localize}
     TIdSSLIOHandlerSocketOpenSSL,
     TIdServerIOHandlerSSLOpenSSL);
+  TIdSSLIOHandlerSocketOpenSSL.RegisterIOHandler;
 finalization
+  // TODO: TIdSSLIOHandlerSocketOpenSSL.UnregisterIOHandler;
   UnLoadOpenSSLLibrary;
   //free the lock last as unload makes calls that use it
   FreeAndNil(SSLIsLoaded);

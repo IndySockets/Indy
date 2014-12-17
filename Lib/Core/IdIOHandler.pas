@@ -525,6 +525,9 @@ type
      : TIdIOHandler;
     class function MakeIOHandler(ABaseType: TIdIOHandlerClass;
      AOwner: TComponent = nil): TIdIOHandler;
+    // Variant of MakeIOHandler() which returns nil if it cannot find a registered IOHandler
+    class function TryMakeIOHandler(ABaseType: TIdIOHandlerClass;
+     AOwner: TComponent = nil): TIdIOHandler;
     class procedure RegisterIOHandler;
     class procedure SetDefaultClass;
     function WaitFor(const AString: string; ARemoveFromBuffer: Boolean = True;
@@ -915,16 +918,27 @@ end;
 }
 class function TIdIOHandler.MakeIOHandler(ABaseType: TIdIOHandlerClass;
   AOwner: TComponent = nil): TIdIOHandler;
+begin
+  Result := TryMakeIOHandler(ABaseType, AOwner);
+  if not Assigned(Result) then begin
+    raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]);
+  end;
+end;
+
+class function TIdIOHandler.TryMakeIOHandler(ABaseType: TIdIOHandlerClass;
+  AOwner: TComponent = nil): TIdIOHandler;
 var
   i: Integer;
 begin
-  for i := GIOHandlerClassList.Count - 1 downto 0 do begin
-    if TIdIOHandlerClass(GIOHandlerClassList[i]).InheritsFrom(ABaseType) then begin
-      Result := TIdIOHandlerClass(GIOHandlerClassList[i]).Create;
-      Exit;
+  if GIOHandlerClassList <> nil then begin
+    for i := GIOHandlerClassList.Count - 1 downto 0 do begin
+      if TIdIOHandlerClass(GIOHandlerClassList[i]).InheritsFrom(ABaseType) then begin
+        Result := TIdIOHandlerClass(GIOHandlerClassList[i]).Create;
+        Exit;
+      end;
     end;
   end;
-  raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]);
+  Result := nil;
 end;
 
 function TIdIOHandler.GetDestination: string;

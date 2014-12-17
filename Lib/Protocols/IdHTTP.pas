@@ -1824,18 +1824,21 @@ begin
 
       ctSSL, ctSSLProxy:
       begin
-        // TODO: if an IOHandler has not been assigned yet, create a default SSL
-        // IOHandler object. We need to add a way to create default objects,
-        // similar to TIdIOHandler.MakeDefaultIOHandler()...
-        {
+        // if an IOHandler has not been assigned yet, try to create a default SSL IOHandler object
+        //
+        // TODO: if an IOHandler has been assigned, but is not an SSL IOHandler,
+        // release it and try to create a default SSL IOHandler object?
+        //
         if IOHandler = nil then begin
-          IOHandler := TIdIOHandler.MakeDefaultSSLIOHandler(Self);
+          IOHandler := TIdIOHandler.TryMakeIOHandler(TIdSSLIOHandlerSocketBase, Self);
+          if IOHandler = nil then begin
+            raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
+          end;
           IOHandler.OnStatus := OnStatus;
           ManagedIOHandler := True;
-        end;
-        }
-
-        if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+          TIdSSLIOHandlerSocketBase(IOHandler).URIToCheck := FURI.URI;
+        end
+        else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
           raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
         end;
         TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := (ARequest.UseProxy = ctSSLProxy);
