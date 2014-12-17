@@ -54,7 +54,7 @@ REM Prepare the folder structure
 REM ************************************************************
 
 :preparefolders
-if not exist ..\C21\*.* md ..\C20 > nul
+if not exist ..\C21\*.* md ..\C21 > nul
 if not exist ..\C21\ZLib\*.* md ..\C21\ZLib > nul
 if not exist ..\C21\ZLib\i386-Win32-ZLib\*.* md ..\C21\ZLib\i386-Win32-ZLib > nul
 if not exist ..\C21\ZLib\x86_64-Win64-ZLib\*.* md ..\C21\ZLib\x86_64-Win64-ZLib > nul
