@@ -816,7 +816,7 @@ uses
   IdException,
   IdGlobal,
   {$IFDEF KYLIXCOMPAT}
-   libc,
+  libc,
   {$ENDIF}
   {$IFDEF WINDOWS}
   Windows,
@@ -828,8 +828,8 @@ uses
   Posix.SysTypes,
   {$ENDIF}
   {$IFDEF USE_BASEUNIX}
-    baseunix,
-    sockets,
+  baseunix,
+  sockets,
   {$ENDIF}
   SysUtils, 
   IdCTypes;
@@ -11132,11 +11132,8 @@ type
 //to ensure that they had a value that is always 64bit.
 //In Pascal, this is not a problem since Delphi and FreePascal have this in some form.
   {$EXTERNALSYM PQ_64BIT}
-  {$IFDEF FPC}
-  PQ_64BIT = QWord;
-  {$ELSE}
-  PQ_64BIT = {$IFDEF HAS_UInt64}UInt64{$ELSE}Int64{$ENDIF};
-  {$ENDIF}
+  PQ_64BIT = TIdC_UINT64;
+
 // RLebeau - the following value was conflicting with iphlpapi.h under C++Builder
 // (and possibly other headers) so using the HPPEMIT further above as a workaround
   {$EXTERNALSYM time_t}
@@ -15029,6 +15026,8 @@ _des_cblock = DES_cblock
  // PSESS_CERT = ^SESS_CERT;
   {$EXTERNALSYM PPKCS12}
   PPKCS12 = ^PKCS12;
+  {$EXTERNALSYM PPPKCS12}
+  PPPKCS12 = ^PPKCS12;
   {$EXTERNALSYM PKCS12}
   PKCS12 = record
     version : PASN1_INTEGER;
@@ -16982,7 +16981,13 @@ var
   i2d_X509_bio : function(bp: PBIO; x: PX509): TIdC_INT cdecl = nil;
   {$EXTERNALSYM i2d_PrivateKey_bio}
   i2d_PrivateKey_bio : function(b: PBIO; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  //P12 additions
+  {$EXTERNALSYM d2i_PKCS12_bio}
+  d2i_PKCS12_bio: function(bp: PBIO; x: PPPKCS12): PPKCS12 cdecl = nil;
+  {$EXTERNALSYM PKCS12_parse}
+  PKCS12_parse: function(P12: PPKCS12; Password: PIdAnsiChar; out PrivateKey: PEVP_PKEY; out Cert: PX509; out CertChain: PSTACK_OF_X509): TIdC_INT cdecl = nil;
   {$ENDIF}
+
   {$EXTERNALSYM X509_new}
   X509_new : function: PPX509 cdecl = nil;
   {$EXTERNALSYM X509_free}
@@ -18046,7 +18051,7 @@ type
  {$EXTERNALSYM Tsk_X509_NAME_find}
   Tsk_X509_NAME_find = function (sk : PSTACK_OF_X509_NAME; val : PX509_NAME) : TIdC_INT cdecl;
  {$EXTERNALSYM Tsk_X509_NAME_pop_free}
- Tsk_X509_NAME_pop_free = procedure (sk : PSTACK_OF_X509_NAME; func: Tsk_pop_free_func) cdecl;
+  Tsk_X509_NAME_pop_free = procedure (sk : PSTACK_OF_X509_NAME; func: Tsk_pop_free_func) cdecl;
 
  {$EXTERNALSYM Tsk_X509_INFO_num}
   Tsk_X509_INFO_num = function (const sk : PSTACK_OF_X509_INFO) : TIdC_INT cdecl;
@@ -21461,6 +21466,8 @@ them in case we use them later.}
   {$IFNDEF OPENSSL_NO_BIO}
   fn_d2i_X509_bio = 'd2i_X509_bio';  {Do not localize}
   fn_i2d_X509_bio = 'i2d_X509_bio';  {Do not localize}
+  fn_d2i_PKCS12_bio = 'd2i_PKCS12_bio';  {Do not localize}
+  fn_PKCS12_parse = 'PKCS12_parse';  {Do not localize}
   fn_i2d_PrivateKey_bio = 'i2d_PrivateKey_bio'; {Do not localize}
   fn_d2i_X509_CRL_bio = 'd2i_X509_CRL_bio';   {Do not localize}
   fn_i2d_X509_CRL_bio = 'i2d_X509_CRL_bio';   {Do not localize}
@@ -22743,6 +22750,8 @@ we have to handle both cases.
   @i2d_X509_bio := LoadFunctionCLib(fn_i2d_X509_bio,False);
   @i2d_PrivateKey_bio := LoadFunctionCLib(fn_i2d_PrivateKey_bio,False);
   @d2i_X509_bio := LoadFunctionCLib(fn_d2i_X509_bio); //Used by Indy
+  @d2i_PKCS12_bio := LoadFunctionCLib(fn_d2i_PKCS12_bio); //Used by Indy
+  @PKCS12_parse := LoadFunctionCLib(fn_PKCS12_parse); //Used by Indy
   @i2d_X509_REQ_bio := LoadFunctionCLib(fn_i2d_X509_REQ_bio,False);
   @i2d_PKCS7 := LoadFunctionCLib(fn_i2d_PKCS7,False);
   @d2i_PKCS7 := LoadFunctionCLib(fn_d2i_PKCS7,False);
@@ -23490,6 +23499,8 @@ begin
   @i2d_X509 := nil;
   @d2i_X509_bio := nil;
   @d2i_X509 := nil;
+  @d2i_PKCS12_bio := nil;
+  @PKCS12_parse := nil;
   @X509_NAME_new := nil;
   @X509_NAME_free := nil;
   @i2d_X509_REQ_bio := nil;

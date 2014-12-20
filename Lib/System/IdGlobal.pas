@@ -678,7 +678,17 @@ type
   {$ENDIF}
 
   {$IFDEF HAS_UInt64}
-  TIdTicks = UInt64;
+    {$DEFINE HAS_UInt64_OR_QWord}
+  TIdUInt64 = UInt64;
+  {$ELSE}
+    {$IFDEF HAS_QWord}
+      {$DEFINE HAS_UInt64_OR_QWord}
+  TIdUInt64 = QWord;
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF HAS_UInt64_OR_QWord}
+  TIdTicks = TIdUInt64;
   {$ELSE}
   TIdTicks = Int64;
   {$ENDIF}
@@ -822,8 +832,8 @@ type
   TIdNativeUInt = LongWord;
       {$ENDIF}
       {$IFDEF CPU64}
-        {$IFDEF HAS_UInt64}
-  TIdNativeUInt = UInt64;
+        {$IFDEF HAS_UInt64_OR_QWord}
+  TIdNativeUInt = TIdUInt64;
         {$ELSE}
   TIdNativeUInt = Int64;
         {$ENDIF}
@@ -1096,6 +1106,16 @@ type
     {$ENDIF}
   {$ENDIF}
 
+  {$IFDEF HAS_QWord}
+    {$IFNDEF HAS_PQWord}
+  PQWord = ^QWord;
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF HAS_UInt64_OR_QWord}
+  PIdUInt64 = {$IFDEF HAS_UInt64}PUInt64{$ELSE}PQWord{$ENDIF};
+  {$ENDIF}
+
   //This usually is a property editor exception
   EIdCorruptServicesFile = class(EIdException);
   EIdEndOfStream = class(EIdException);
@@ -1319,8 +1339,8 @@ function ToBytes(const AValue: Word): TIdBytes; overload;
 function ToBytes(const AValue: Byte): TIdBytes; overload;
 function ToBytes(const AValue: LongWord): TIdBytes; overload;
 function ToBytes(const AValue: Int64): TIdBytes; overload;
-{$IFDEF HAS_UInt64}
-function ToBytes(const AValue: UInt64): TIdBytes; overload;
+{$IFDEF HAS_UInt64_OR_QWord}
+function ToBytes(const AValue: TIdUInt64): TIdBytes; overload;
 {$ENDIF}
 function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0): TIdBytes; overload;
 {$IFNDEF DOTNET}
@@ -1340,8 +1360,8 @@ procedure ToBytesF(var Bytes: TIdBytes; const AValue: Word); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Byte); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: LongWord); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Int64); overload;
-{$IFDEF HAS_UInt64}
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt64); overload;
+{$IFDEF HAS_UInt64_OR_QWord}
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdUInt64); overload;
 {$ENDIF}
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0); overload;
 {$IFNDEF DOTNET}
@@ -1379,8 +1399,8 @@ function BytesToWord(const AValue: TIdBytes; const AIndex : Integer = 0): Word;
 function BytesToLongWord(const AValue: TIdBytes; const AIndex : Integer = 0): LongWord;
 function BytesToLongInt(const AValue: TIdBytes; const AIndex: Integer = 0): LongInt;
 function BytesToInt64(const AValue: TIdBytes; const AIndex: Integer = 0): Int64;
-{$IFDEF HAS_UInt64}
-function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): UInt64;
+{$IFDEF HAS_UInt64_OR_QWord}
+function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): TIdUInt64;
 {$ENDIF}
 function BytesToIPv4Str(const AValue: TIdBytes; const AIndex: Integer = 0): String;
 procedure BytesToIPv6(const AValue: TIdBytes; var VAddress: TIdIPv6Address; const AIndex: Integer = 0);
@@ -1448,8 +1468,8 @@ procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex
 procedure CopyTIdLongInt(const ASource: LongInt; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
-{$IFDEF HAS_UInt64}
-procedure CopyTIdUInt64(const ASource: UInt64; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF HAS_UInt64_OR_QWord}
+procedure CopyTIdUInt64(const ASource: TIdUInt64; var VDest: TIdBytes; const ADestIndex: Integer);
 {$ENDIF}
 procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdTicks(const ASource: TIdTicks; var VDest: TIdBytes; const ADestIndex: Integer);
@@ -4760,8 +4780,9 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF HAS_UInt64}
-procedure CopyTIdUInt64(const ASource: UInt64; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF HAS_UInt64_OR_QWord}
+procedure CopyTIdUInt64(const ASource: TIdUInt64;
+  var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DOTNET}
 var
   LWord : TIdBytes;
@@ -4773,7 +4794,7 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(UInt64));
   {$ELSE}
-  PUInt64(@VDest[ADestIndex])^ := ASource;
+  PIdUInt64(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 {$ENDIF}
@@ -4781,7 +4802,7 @@ end;
 procedure CopyTIdTicks(const ASource: TIdTicks; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF HAS_UInt64}
+  {$IFDEF HAS_UInt64_OR_QWord}
   CopyTIdUInt64(ASource, VDest, ADestIndex);
   {$ELSE}
   CopyTIdInt64(ASource, VDest, ADestIndex);
@@ -7193,15 +7214,15 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF HAS_UInt64}
-function ToBytes(const AValue: UInt64): TIdBytes; overload;
+{$IFDEF HAS_UInt64_OR_QWord}
+function ToBytes(const AValue: TIdUInt64): TIdBytes; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
-  SetLength(Result, SizeOf(UInt64));
-  PUInt64(@Result[0])^ := AValue;
+  SetLength(Result, SizeOf(TIdUInt64));
+  PIdUInt64(@Result[0])^ := AValue;
   {$ENDIF}
 end;
 {$ENDIF}
@@ -7343,8 +7364,8 @@ begin
   CopyTIdInt64(AValue, Bytes, 0);
 end;
 
-{$IFDEF HAS_UInt64}
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt64);
+{$IFDEF HAS_UInt64_OR_QWord}
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdUInt64);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
@@ -7472,15 +7493,15 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF HAS_UInt64}
-function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): UInt64;
+{$IFDEF HAS_UInt64_OR_QWord}
+function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): TIdUInt64;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Assert(Length(AValue) >= (AIndex+SizeOf(UInt64)));
+  Assert(Length(AValue) >= (AIndex+SizeOf(TIdUInt64)));
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToUInt64(AValue, AIndex);
   {$ELSE}
-  Result := PUInt64(@AValue[AIndex])^;
+  Result := PIdUInt64(@AValue[AIndex])^;
   {$ENDIF}
 end;
 {$ENDIF}
@@ -7488,7 +7509,7 @@ end;
 function BytesToTicks(const AValue: TIdBytes; const AIndex: Integer = 0): TIdTicks;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF HAS_UInt64}
+  {$IFDEF HAS_UInt64_OR_QWord}
   Result := BytesToUInt64(AValue, AIndex);
   {$ELSE}
   Result := BytesToInt64(AValue, AIndex);

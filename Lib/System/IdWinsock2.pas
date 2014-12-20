@@ -244,7 +244,7 @@ type
 
   {$IFNDEF HAS_UInt64}
   {$NODEFINE UInt64}
-  UInt64 = Int64;
+  UInt64 = {$IFDEF HAS_QWord}QWord{$ELSE}Int64{$ENDIF};
   {$ENDIF}
 
   {$IFNDEF HAS_ULONG_PTR}

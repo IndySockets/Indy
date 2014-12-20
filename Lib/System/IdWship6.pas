@@ -140,7 +140,7 @@ type
   // RLebeau: find a better place for this
   {$IFNDEF HAS_UInt64}
   {$EXTERNALSYM UINT64}
-  UINT64 = Int64;
+  UINT64 = {$IFDEF HAS_QWord}QWord{$ELSE}Int64{$ENDIF};
   {$ENDIF}
 
   {$NODEFINE PPaddrinfo}

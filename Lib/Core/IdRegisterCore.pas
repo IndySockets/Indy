@@ -139,6 +139,7 @@ uses
   IdGlobal,
   {$ENDIF}
 
+  IdBaseComponent,
   IdComponent,
   IdDsnCoreResourceStrings,
   IdAntiFreeze,
@@ -462,14 +463,14 @@ end;
 {$ENDIF}
 
 type
-  TIdComponentSelectionEditor = class(TSelectionEditor)
+  TIdBaseComponentSelectionEditor = class(TSelectionEditor)
   public
     procedure RequiresUnits(Proc: TGetStrProc); override;
   end;
 
-procedure TIdComponentSelectionEditor.RequiresUnits(Proc: TGetStrProc);
+procedure TIdBaseComponentSelectionEditor.RequiresUnits(Proc: TGetStrProc);
 var
-  Comp: TIdComponent;
+  Comp: TIdBaseComponent;
   I: Integer;
   {$IFDEF VCL_2010_OR_ABOVE}
   Ctx: TRttiContext;
@@ -491,9 +492,9 @@ begin
 
   for I := 0 to Designer.Root.ComponentCount - 1 do
   begin
-    if Designer.Root.Components[i] is TIdComponent then
+    if Designer.Root.Components[i] is TIdBaseComponent then
     begin
-      Comp := TIdComponent(Designer.Root.Components[i]);
+      Comp := TIdBaseComponent(Designer.Root.Components[i]);
 
       {$IFDEF VCL_2010_OR_ABOVE}
 
@@ -656,7 +657,7 @@ begin
   {$ENDIF}
 
   {$IFDEF HAS_TSelectionEditor}
-  RegisterSelectionEditor(TIdComponent, TIdComponentSelectionEditor);
+  RegisterSelectionEditor(TIdBaseComponent, TIdBaseComponentSelectionEditor);
   {$ENDIF}
 end;
 

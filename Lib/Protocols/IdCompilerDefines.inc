@@ -324,6 +324,16 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi & CBuilder XE8 (Elbrus)
+{$IFDEF VER290}
+  {$DEFINE VCL_XE8}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_XE8}
+  {$ELSE}
+    {$DEFINE DELPHI_XE8}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi.NET
 // Covers D8+
 {$IFDEF CIL}
@@ -567,8 +577,16 @@
 
 // end FPC
 
-{$IFDEF VCL_XE7}
+{$IFDEF VCL_XE8}
+  {$DEFINE VCL_XE8_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_XE8_OR_ABOVE}
   {$DEFINE VCL_XE7_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_XE7}
+    {$DEFINE VCL_XE7_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_XE7_OR_ABOVE}
@@ -1054,6 +1072,8 @@
   {$DEFINE FPC_CIRCULAR_BUG}
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
+  {$DEFINE HAS_QWord} // TODO: when was QWord introduced?
+  {$DEFINE HAS_PQWord} // TODO: when was PQWord introduced?
   {$IFDEF FPC_2_1_5_OR_ABOVE}
     {$DEFINE HAS_UInt64}
     {.$DEFINE HAS_PUInt64} // TODO: is this defined?
@@ -1337,7 +1357,21 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$ENDIF}
 {$IFDEF BSD}
   //I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
-  {$DEFINE THANDLE_32}
+  {$IFDEF IOS}
+    {$IFDEF CPUARM32}
+      {$DEFINE CPU32}
+      {$DEFINE THANDLE_32}
+    {$ELSE}
+      {$IFDEF CPUARM64}
+        {$DEFINE CPU64}
+        {$DEFINE THANDLE_64}
+      {$ELSE}
+        {$DEFINE THANDLE_32}
+      {$ENDIF}
+    {$ENDIF}
+  {$ELSE}
+    {$DEFINE THANDLE_32}
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF EMBEDDED}
   {$DEFINE THANDLE_CPUBITS}
