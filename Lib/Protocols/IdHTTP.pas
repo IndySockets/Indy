@@ -1819,6 +1819,7 @@ begin
       begin
         if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
           TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := True;
+          TIdSSLIOHandlerSocketBase(IOHandler).URIToCheck := FURI.URI;
         end;
       end;
 
@@ -1836,11 +1837,11 @@ begin
           end;
           IOHandler.OnStatus := OnStatus;
           ManagedIOHandler := True;
-          TIdSSLIOHandlerSocketBase(IOHandler).URIToCheck := FURI.URI;
         end
         else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
           raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
         end;
+        TIdSSLIOHandlerSocketBase(IOHandler).URIToCheck := FURI.URI;
         TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := (ARequest.UseProxy = ctSSLProxy);
       end;
     end;

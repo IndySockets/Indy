@@ -985,6 +985,153 @@ begin
 end;
 }
 
+// SSL_CTX_use_PrivateKey_file() and SSL_CTX_use_certificate_file() do not
+// natively support PKCS12 certificates/keys, only PAM/ASN1, so load them
+// manually...
+
+function IndySSL_CTX_use_PrivateKey_file_PKCS12(ctx: PSSL_CTX; const AFileName: String): TIdC_INT;
+var
+  LM: TMemoryStream;
+  B: PBIO;
+  LKey: PEVP_PKEY;
+  LCert: PX509;
+  P12: PPKCS12;
+  CertChain: PSTACK_OF_X509;
+  LPassword: array of TIdAnsiChar;
+  LPasswordPtr: PIdAnsiChar;
+begin
+  Result := 0;
+
+  LM := nil;
+  try
+    LM := TMemoryStream.Create;
+    LM.LoadFromFile(AFileName);
+  except
+    // Surpress exception here since it's going to be called by the OpenSSL .DLL
+    // Follow the OpenSSL .DLL Error conventions.
+    SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_SYS_LIB);
+    LM.Free;
+    Exit;
+  end;
+
+  try
+    B := BIO_new_mem_buf(LM.Memory, LM.Size);
+    if not Assigned(B) then begin
+      SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_BUF_LIB);
+      Exit;
+    end;
+    try
+      SetLength(LPassword, MAX_SSL_PASSWORD_LENGTH+1);
+      LPassword[MAX_SSL_PASSWORD_LENGTH] := TIdAnsiChar(0);
+      LPasswordPtr := PIdAnsiChar(LPassword);
+      if Assigned(ctx^.default_passwd_callback) then begin
+        ctx^.default_passwd_callback(LPasswordPtr, MAX_SSL_PASSWORD_LENGTH, 0, ctx^.default_passwd_callback_userdata);
+        // TODO: check return value for failure
+      end else begin
+        // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
+        // when default_passwd_callback is nil
+        LPasswordPtr^ := TIdAnsiChar(0);
+      end;
+      P12 := d2i_PKCS12_bio(B, nil);
+      if not Assigned(P12) then begin
+        SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_PKCS12_LIB);
+        Exit;
+      end;
+      try
+        if PKCS12_parse(P12, LPasswordPtr, LKey, LCert, CertChain) <> 1 then begin
+          SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_PKCS12_LIB);
+          Exit;
+        end;
+        try
+          Result := SSL_CTX_use_PrivateKey(ctx, LKey);
+        finally
+          sk_pop_free(CertChain, @X509_free);
+          X509_free(LCert);
+          EVP_PKEY_free(LKey);
+        end;
+      finally
+        PKCS12_free(P12);
+      end;
+    finally
+      BIO_free(B);
+    end;
+  finally
+    FreeAndNil(LM);
+  end;
+end;
+
+function IndySSL_CTX_use_certificate_file_PKCS12(ctx: PSSL_CTX; const AFileName: String): TIdC_INT;
+var
+  LM: TMemoryStream;
+  B: PBIO;
+  LCert: PX509;
+  P12: PPKCS12;
+  PKey: PEVP_PKEY;
+  CertChain: PSTACK_OF_X509;
+  LPassword: array of TIdAnsiChar;
+  LPasswordPtr: PIdAnsiChar;
+begin
+  Result := 0;
+
+  LM := nil;
+  try
+    LM := TMemoryStream.Create;
+    LM.LoadFromFile(AFileName);
+  except
+    // Surpress exception here since it's going to be called by the OpenSSL .DLL
+    // Follow the OpenSSL .DLL Error conventions.
+    SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_SYS_LIB);
+    LM.Free;
+    Exit;
+  end;
+
+  try
+    B := BIO_new_mem_buf(LM.Memory, LM.Size);
+    if not Assigned(B) then begin
+      SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_BUF_LIB);
+      Exit;
+    end;
+    try
+      SetLength(LPassword, MAX_SSL_PASSWORD_LENGTH+1);
+      LPassword[MAX_SSL_PASSWORD_LENGTH] := TIdAnsiChar(0);
+      LPasswordPtr := PIdAnsiChar(LPassword);
+      if Assigned(ctx^.default_passwd_callback) then begin
+        ctx^.default_passwd_callback(LPasswordPtr, MAX_SSL_PASSWORD_LENGTH, 0, ctx^.default_passwd_callback_userdata);
+        // TODO: check return value for failure
+      end else begin
+        // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
+        // when default_passwd_callback is nil
+        LPasswordPtr^ := TIdAnsiChar(0);
+      end;
+      P12 := d2i_PKCS12_bio(B, nil);
+      if not Assigned(P12) then
+      begin
+        SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_PKCS12_LIB);
+        Exit;
+      end;
+      try
+        if PKCS12_parse(P12, LPasswordPtr, PKey, LCert, CertChain) <> 1 then begin
+          SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_PKCS12_LIB);
+          Exit;
+        end;
+        try
+          Result := SSL_CTX_use_certificate(ctx, LCert);
+        finally
+          sk_pop_free(CertChain, @X509_free);
+          X509_free(LCert);
+          EVP_PKEY_free(PKey);
+        end;
+      finally
+        PKCS12_free(P12);
+      end;
+    finally
+      BIO_free(B);
+    end;
+  finally
+    FreeAndNil(LM);
+  end;
+end;
+
 {
   IMPORTANT!!!
 
@@ -1343,12 +1490,7 @@ var
   LM: TMemoryStream;
   B: PBIO;
   LKey: PEVP_PKEY;
-  LX: PX509;
-  P12: PPKCS12;
   j: TIdC_INT;
-  CertChain: PSTACK_OF_X509;
-  LPassword: array of TIdAnsiChar;
-  LPasswordPtr: PIdAnsiChar;
 begin
   Result := 0;
 
@@ -1372,29 +1514,6 @@ begin
     end;
     try
       case AType of
-        P12_FILETYPE:
-          begin
-            j := ERR_R_PKCS12_LIB;
-            SetLength(LPassword, MAX_SSL_PASSWORD_LENGTH+1);
-            LPassword[MAX_SSL_PASSWORD_LENGTH] := TIdAnsiChar(0);
-            LPasswordPtr := PIdAnsiChar(LPassword);
-            if Assigned(ctx^.default_passwd_callback) then begin
-              ctx^.default_passwd_callback(LPasswordPtr, MAX_SSL_PASSWORD_LENGTH, 0, ctx^.default_passwd_callback_userdata);
-              // TODO: check return value for failure
-            end else begin
-              // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
-              // when default_passwd_callback is nil
-              LPasswordPtr^ := TIdAnsiChar(0);
-            end;
-            P12 := d2i_PKCS12_bio(B, nil);
-            if PKCS12_parse(P12, LPasswordPtr, LKey, LX, CertChain) <> 1 then begin
-              SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, j);
-              Exit;
-            end;
-            PKCS12_free(P12);
-            sk_pop_free(CertChain, @X509_free);
-            X509_free(LX);
-          end;
         SSL_FILETYPE_PEM:
           begin
             j := ERR_R_PEM_LIB;
@@ -1431,12 +1550,7 @@ var
   LM: TMemoryStream;
   B: PBIO;
   LX: PX509;
-  P12: PPKCS12;
   j: TIdC_INT;
-  PKey: PEVP_PKEY;
-  CertChain: PSTACK_OF_X509;
-  LPassword: array of TIdAnsiChar;
-  LPasswordPtr: PIdAnsiChar;
 begin
   Result := 0;
 
@@ -1460,29 +1574,6 @@ begin
     end;
     try
       case AType of
-        P12_FILETYPE:
-          begin
-            j := ERR_R_PKCS12_LIB;
-            SetLength(LPassword, MAX_SSL_PASSWORD_LENGTH+1);
-            LPassword[MAX_SSL_PASSWORD_LENGTH] := TIdAnsiChar(0);
-            LPasswordPtr := PIdAnsiChar(LPassword);
-            if Assigned(ctx^.default_passwd_callback) then begin
-              ctx^.default_passwd_callback(LPasswordPtr, MAX_SSL_PASSWORD_LENGTH, 0, ctx^.default_passwd_callback_userdata);
-              // TODO: check return value for failure
-            end else begin
-              // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
-              // when default_passwd_callback is nil
-              LPasswordPtr^ := TIdAnsiChar(0);
-            end;
-            P12 := d2i_PKCS12_bio(B, nil);
-            if PKCS12_parse(P12, LPasswordPtr, PKey, LX, CertChain) <> 1 then begin
-              SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, j);
-              Exit;
-            end;
-            PKCS12_free(P12);
-            sk_pop_free(CertChain, @X509_free);
-            EVP_PKEY_free(PKey);
-          end;
         SSL_FILETYPE_ASN1:
           begin
             j := ERR_R_ASN1_LIB;
@@ -3008,27 +3099,21 @@ begin
 end;
 
 function TIdSSLContext.LoadCert: Boolean;
-var
-  LType: Integer;
 begin
   if PosInStrArray(ExtractFileExt(CertFile), ['.p12', '.pfx'], False) <> -1 then begin
-    LType := P12_FILETYPE;
+    Result := IndySSL_CTX_use_certificate_file_PKCS12(fContext, CertFile) > 0;
   end else begin
-    LType := SSL_FILETYPE_PEM;
+    Result := IndySSL_CTX_use_certificate_file(fContext, CertFile, SSL_FILETYPE_PEM) > 0;
   end;
-  Result := IndySSL_CTX_use_certificate_file(fContext, CertFile, LType) > 0;
 end;
 
 function TIdSSLContext.LoadKey: Boolean;
-var
-  LType: Integer;
 begin
   if PosInStrArray(ExtractFileExt(CertFile), ['.p12', '.pfx'], False) <> -1 then begin
-    LType := P12_FILETYPE;
+    Result := IndySSL_CTX_use_PrivateKey_file_PKCS12(fContext, fsKeyFile) > 0;
   end else begin
-    LType := SSL_FILETYPE_PEM;
+    Result := IndySSL_CTX_use_PrivateKey_file(fContext, fsKeyFile, SSL_FILETYPE_PEM) > 0;
   end;
-  Result := IndySSL_CTX_use_PrivateKey_file(fContext, fsKeyFile, LType) > 0;
   if Result then begin
     Result := SSL_CTX_check_private_key(fContext) > 0;
   end;
