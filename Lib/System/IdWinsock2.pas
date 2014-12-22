@@ -3845,7 +3845,7 @@ type
     sin6_scope_id : ULONG;      //* set of interfaces for a scope */
   end;
   {$EXTERNALSYM PSOCKADDR_IN6_LH}
-  PSOCKADDR_IN6_LH = SOCKADDR_IN6_LH;
+  PSOCKADDR_IN6_LH = ^SOCKADDR_IN6_LH;
   {$EXTERNALSYM SOCKADDR_IN6}
   SOCKADDR_IN6 = SOCKADDR_IN6_LH;
 {$ENDIF}
@@ -4424,7 +4424,7 @@ type
     ai_next : PADDRINFOEXW;        // Next structure in linked list
   end;
   {$NODEFINE TAddrInfoExW}
-  TAddrInfoExW = ADDRINFOEXA;
+  TAddrInfoExW = ADDRINFOEXW;
   {$EXTERNALSYM LPADDRINFOEXW}
   LPADDRINFOEXW = PADDRINFOEXW;
 

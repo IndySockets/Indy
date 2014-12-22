@@ -248,29 +248,29 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
   {$EXTERNALSYM LPFN_GETADDRINFOEXA}
   LPFN_GETADDRINFOEXA = function(pName : PAnsiChar; pServiceName : PAnsiChar;
     const dwNameSpace: DWord; lpNspId : LPGUID; hints : PADDRINFOEXA;
-    ppResult : PADDRINFOEXA; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
+    var ppResult : PADDRINFOEXA; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE;
-    var lpNameHandle : THandle) : Integer; stdcall;
+    lpNameHandle : PHandle) : Integer; stdcall;
   {$EXTERNALSYM LPFN_GETADDRINFOEXW}
   LPFN_GETADDRINFOEXW = function(pName : PWideChar; pServiceName : PWideChar;
     const dwNameSpace: DWord; lpNspId : LPGUID;hints : PADDRINFOEXW;
-    ppResult : PADDRINFOEXW; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
+    var ppResult : PADDRINFOEXW; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE;
-    var lpNameHandle : THandle) : Integer; stdcall;
+    lpNameHandle : PHandle) : Integer; stdcall;
   {$EXTERNALSYM LPFN_SETADDRINFOEXA}
   LPFN_SETADDRINFOEXA= function(pName : PAnsiChar; pServiceName : PAnsiChar;
     pAddresses : PSOCKET_ADDRESS; const dwAddressCount : DWord; lpBlob : LPBLOB;
     const dwFlags : DWord; const dwNameSpace : DWord; lpNspId : LPGUID;
     timeout : Ptimeval;
     lpOverlapped : LPWSAOVERLAPPED;
-    lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE; var lpNameHandle : THandle) : Integer; stdcall;
+    lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE; lpNameHandle : PHandle) : Integer; stdcall;
   {$EXTERNALSYM LPFN_SETADDRINFOEXW}
   LPFN_SETADDRINFOEXW= function(pName : PWideChar; pServiceName : PWideChar;
     pAddresses : PSOCKET_ADDRESS; const dwAddressCount : DWord; lpBlob : LPBLOB;
     const dwFlags : DWord; const dwNameSpace : DWord; lpNspId : LPGUID;
     timeout : Ptimeval;
     lpOverlapped : LPWSAOVERLAPPED;
-    lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE; var lpNameHandle : THandle) : Integer; stdcall;
+    lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE; lpNameHandle : PHandle) : Integer; stdcall;
 
   {$EXTERNALSYM LPFN_FREEADDRINFOEX}
   LPFN_FREEADDRINFOEX = procedure(pAddrInfoEx : PADDRINFOEXA) ; stdcall;
@@ -302,7 +302,7 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
   {$EXTERNALSYM LPFN_WSAQUERYSOCKETSECURITY}
   LPFN_WSAQUERYSOCKETSECURITY = function (Socket : TSocket;
     SecurityQueryTemplate : PSOCKET_SECURITY_QUERY_TEMPLATE; const SecurityQueryTemplateLen : ULONG;
-    var SecurityQueryInfo : PSOCKET_SECURITY_QUERY_INFO; var SecurityQueryInfoLen : ULONG;
+    SecurityQueryInfo : PSOCKET_SECURITY_QUERY_INFO; var SecurityQueryInfoLen : ULONG;
      Overlapped : LPWSAOVERLAPPED;  CompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAREVERTIMPERSONATION}
   LPFN_WSAREVERTIMPERSONATION = function : Integer; stdcall;
@@ -400,9 +400,9 @@ var
   //You can't alias the LPFN for this because the ASCII version of this
   //does not end with an "a"
   {$IFDEF UNICODE}
-  FreeAddrInfoEx : LPFN_FREEADDRINFOEX = nil;
-  {$ELSE}
   FreeAddrInfoEx : LPFN_FREEADDRINFOEXW = nil;
+  {$ELSE}
+  FreeAddrInfoEx : LPFN_FREEADDRINFOEX = nil;
   {$ENDIF}
 
   //Fwpuclnt.dll available for Windows Vista and later
