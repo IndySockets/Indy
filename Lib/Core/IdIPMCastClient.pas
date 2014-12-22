@@ -45,6 +45,9 @@ interface
 //Put FPC into Delphi mode
 
 uses
+  {$IFDEF VCL_2010_OR_ABOVE}
+  Classes,    //here to facilitate inlining
+  {$ENDIF}
   IdException,
   IdGlobal,
   IdIPMCastBase,
