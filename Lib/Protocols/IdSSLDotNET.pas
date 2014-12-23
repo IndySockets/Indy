@@ -583,4 +583,5 @@ initialization
     'Original Author - J. Peter Mugaas',                               {do not localize}
     TIdSSLIOHandlerSocketNET,
     TIdServerIOHandlerSSLNET);
+  TIdSSLIOHandlerSocketNET.RegisterIOHandler;
 end.
