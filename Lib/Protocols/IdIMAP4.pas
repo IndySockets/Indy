@@ -666,6 +666,7 @@ varies between servers.  A typical line that gets parsed into this is:
     Size: Integer;
     Text: String;
     SearchKey : TIdIMAP4SearchKey;
+    FieldName: String;
   end;
 
   TIdIMAP4SearchRecArray = array of TIdIMAP4SearchRec;
@@ -2675,6 +2676,7 @@ var
         skBody,
         skCc,
         skFrom,
+        skHeader,
         skSubject,
         skText,
         skTo,
@@ -2753,6 +2755,40 @@ begin
         skUnseen:
           LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey]; {Do not Localize}
 
+        skHeader:
+        begin
+          // TODO: support RFC 5738 to allow for UTF-8 encoded quoted strings
+          if not RequiresEncoding(ASearchInfo[Ln].Text) then begin
+            LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + ASearchInfo[Ln].FieldName + ' ' + IMAPQuotedStr(ASearchInfo[Ln].Text); {Do not Localize}
+          end else
+          begin
+            if LUseUTF8QuotedString then begin
+              LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + ASearchInfo[Ln].FieldName + ' *'; {Do not Localize}
+              IOHandler.Write(LCmd);
+              IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+            end else
+            begin
+              LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+              if LUseNonSyncLiteral then begin
+                LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
+              end else begin
+                LLiteral := '{' + IntToStr(Length(LTextBuf)) + '}';  {Do not Localize}
+              end;
+              LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + ASearchInfo[Ln].FieldName + ' ' + LLiteral; {Do not Localize}
+              IOHandler.WriteLn(LCmd);
+              if not LUseNonSyncLiteral then begin
+                if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdSearch], IMAP4Commands[cmdUID]], False) <> IMAP_CONT then begin
+                  RaiseExceptionForLastCmdResult;
+                end;
+              end;
+              IOHandler.Write(LTextBuf);
+            end;
+            LTextBuf := nil;
+            LCmd := '';
+          end;
+        end;
+
+        skKeyword,
         skUID:
           LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + ASearchInfo[Ln].Text; {Do not Localize}
 
