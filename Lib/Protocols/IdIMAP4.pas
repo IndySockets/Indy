@@ -817,12 +817,15 @@ varies between servers.  A typical line that gets parsed into this is:
     can use the second version of AppendMsg, passing it AMsg.LastGeneratedHeaders as
     the AAlternativeHeaders field.  Note that IdSMTP puts both the Headers and
     the ExtraHeaders fields in LastGeneratedHeaders.}
-    function  AppendMsg(const AMBName: String; AMsg: TIdMessage; const AFlags: TIdMessageFlagsSet = []): Boolean; overload;
+    function  AppendMsg(const AMBName: String; AMsg: TIdMessage; const AFlags: TIdMessageFlagsSet = [];
+          const AInternalDateTimeGMT: TDateTime = 0.0): Boolean; overload;
     function  AppendMsg(const AMBName: String; AMsg: TIdMessage; AAlternativeHeaders: TIdHeaderList;
-          const AFlags: TIdMessageFlagsSet = []): Boolean; overload;
+          const AFlags: TIdMessageFlagsSet = []; const AInternalDateTimeGMT: TDateTime = 0.0): Boolean; overload;
     //The following are used for raw (unparsed) messages in a file or stream...
-    function  AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = []): Boolean;
-    function  AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TStream; const AFlags: TIdMessageFlagsSet = []): Boolean;
+    function  AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = [];
+          const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
+    function  AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TStream; const AFlags: TIdMessageFlagsSet = [];
+          const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
     //Requests a checkpoint of the currently selected mailbox.  Does NOTHING on most servers.
     function  CheckMailBox: Boolean;
     //Checks if the message was read or not.
@@ -886,7 +889,9 @@ varies between servers.  A typical line that gets parsed into this is:
     function  Retrieve(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
     //Retrieves a whole message "raw" and saves it to file, while marking it read.
     function  RetrieveNoDecodeToFile(const AMsgNum: Integer; ADestFile: string): Boolean;
+    function  RetrieveNoDecodeToFilePeek(const AMsgNum: Integer; ADestFile: string): Boolean;
     function  RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TStream): Boolean;
+    function  RetrieveNoDecodeToStreamPeek(const AMsgNum: Integer; AStream: TStream): Boolean;
     //Retrieves all envelope of the selected mailbox to the specified TIdMessageCollection.
     function  RetrieveAllEnvelopes(AMsgList: TIdMessageCollection): Boolean;
     //Retrieves all headers of the selected mailbox to the specified TIdMessageCollection.
@@ -987,7 +992,9 @@ varies between servers.  A typical line that gets parsed into this is:
     function  UIDRetrieve(const AMsgUID: String; AMsg: TIdMessage): Boolean;
     //Retrieves a whole message "raw" and saves it to file, while marking it read.
     function  UIDRetrieveNoDecodeToFile(const AMsgUID: String; ADestFile: string): Boolean;
+    function  UIDRetrieveNoDecodeToFilePeek(const AMsgUID: String; ADestFile: string): Boolean;
     function  UIDRetrieveNoDecodeToStream(const AMsgUID: String; AStream: TStream): Boolean;
+    function  UIDRetrieveNoDecodeToStreamPeek(const AMsgUID: String; AStream: TStream): Boolean;
     //Retrieves the message envelope, parses it, and discards the envelope.
     function  UIDRetrieveEnvelope(const AMsgUID: String; AMsg: TIdMessage): Boolean;
     //Retrieves the message envelope into a TStringList but does NOT parse it.
@@ -2231,8 +2238,7 @@ begin
     Result := GetInternalResponse(ATag, AExpectedResponses, ASingleLineMode, ASingleLineMayBeSplit);
   except
     on E: EIdSocketError do begin
-      if E.LastError = Id_WSAECONNRESET then begin
-        //Connection reset by peer...
+      if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
         FConnectionState := csUnexpectedlyDisconnected;
       end;
       raise;
@@ -2862,8 +2868,7 @@ begin
     end;
   except
     on E: EIdSocketError do begin
-      if E.LastError = Id_WSAECONNRESET then begin
-        //Connection reset by peer...
+      if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
         FConnectionState := csUnexpectedlyDisconnected;
       end;
       raise;
@@ -3119,15 +3124,17 @@ begin
 end;
 
 
-function TIdIMAP4.AppendMsg(const AMBName: String; AMsg: TIdMessage; const AFlags: TIdMessageFlagsSet = []): Boolean;
+function TIdIMAP4.AppendMsg(const AMBName: String; AMsg: TIdMessage; const AFlags: TIdMessageFlagsSet = [];
+  const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
 begin
-  Result := AppendMsg(AMBName, AMsg, nil, AFlags);
+  Result := AppendMsg(AMBName, AMsg, nil, AFlags, AInternalDateTimeGMT);
 end;
 
-function TIdIMAP4.AppendMsg(const AMBName: String; AMsg: TIdMessage; AAlternativeHeaders: TIdHeaderList; const AFlags: TIdMessageFlagsSet = []): Boolean;
+function TIdIMAP4.AppendMsg(const AMBName: String; AMsg: TIdMessage; AAlternativeHeaders: TIdHeaderList; const AFlags: TIdMessageFlagsSet = [];
+  const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
 var
   LFlags,
-  LMsgLiteral: String;
+  LMsgLiteral, LDateTime: String;
   LUseNonSyncLiteral: Boolean;
   Ln: Integer;
   LCmd: string;
@@ -3148,6 +3155,16 @@ begin
     if LFlags <> '' then begin                                {Do not Localize}
       LFlags := '(' + LFlags + ')';                           {Do not Localize}
     end;
+    if AInternalDateTimeGMT <> 0.0 then begin
+      // even though flags are optional, some servers, such as GMail, will
+      // fail to parse the command correctly if no flags are specified in
+      // front of the internal date...
+      if LFlags = '' then begin
+        LFlags := '()'; // TODO: should 'NIL' be used instead?      {Do not Localize}
+      end;
+      LDateTime := '"' + DateTimeGMTToImapStr(AInternalDateTimeGMT) + '"'; {do not localize}
+    end;
+
     {CC8: In Indy 10, we want to support attachments (previous versions did
     not).  The problem is that we have to know the size of the message
     in advance of sending it for the IMAP APPEND command.
@@ -3278,6 +3295,9 @@ begin
       if Length(LFlags) <> 0 then begin
         LCmd := LCmd + LFlags + ' ';                    {Do not Localize}
       end;
+      if Length(LDateTime) <> 0 then begin
+        LCmd := LCmd + LDateTime + ' ';                 {Do not Localize}
+      end;
       LCmd := LCmd + LMsgLiteral;                       {Do not Localize}
 
       {CC3: Catch "Connection reset by peer"...}
@@ -3312,8 +3332,7 @@ begin
         end;
       except
         on E: EIdSocketError do begin
-          if E.LastError = Id_WSAECONNRESET then begin
-            //Connection reset by peer...
+          if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
             FConnectionState := csUnexpectedlyDisconnected;
           end;
           raise;
@@ -3325,23 +3344,25 @@ begin
   end;
 end;
 
-function  TIdIMAP4.AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = []): Boolean;
+function  TIdIMAP4.AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = [];
+  const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
 var
   LSourceStream: TIdReadFileExclusiveStream;
 begin
   LSourceStream := TIdReadFileExclusiveStream.Create(ASourceFile);
   try
-    Result := AppendMsgNoEncodeFromStream(AMBName, LSourceStream, AFlags);
+    Result := AppendMsgNoEncodeFromStream(AMBName, LSourceStream, AFlags, AInternalDateTimeGMT);
   finally
     FreeAndNil(LSourceStream);
   end;
 end;
 
-function  TIdIMAP4.AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TStream; const AFlags: TIdMessageFlagsSet = []): Boolean;
+function  TIdIMAP4.AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TStream; const AFlags: TIdMessageFlagsSet = [];
+  const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
 const
   cTerminator: array[0..4] of Byte = (13, 10, Ord('.'), 13, 10);
 var
-  LFlags, LMsgLiteral: String;
+  LFlags, LDateTime, LMsgLiteral: String;
   LUseNonSyncLiteral: Boolean;
   I: Integer;
   LFound: Boolean;
@@ -3353,10 +3374,19 @@ var
 begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
-  if Length(AMBName) <> 0 then begin                      {Do not Localize}
+  if Length(AMBName) <> 0 then begin
     LFlags := MessageFlagSetToStr(AFlags);
     if LFlags <> '' then begin                        {Do not Localize}
       LFlags := '(' + LFlags + ')';                   {Do not Localize}
+    end;
+    if AInternalDateTimeGMT <> 0.0 then begin
+      // even though flags are optional, some servers, such as GMail, will
+      // fail to parse the command correctly if no flags are specified in
+      // front of the internal date...
+      if LFlags = '' then begin
+        LFlags := '()'; // TODO: should 'NIL' be used instead?      {Do not Localize}
+      end;
+      LDateTime := '"' + DateTimeGMTToImapStr(AInternalDateTimeGMT) + '"'; {Do not Localize}
     end;
     LLength := AStream.Size - AStream.Position;
     LTempStream := TMemoryStream.Create;
@@ -3407,8 +3437,11 @@ begin
 
       //CC: Added double quotes around mailbox name, else mailbox names with spaces will cause server parsing error
       LCmd := IMAP4Commands[cmdAppend] + ' "' + DoMUTFEncode(AMBName) + '" ';     {Do not Localize}
-      if Length(LFlags) <> 0 then begin                 {Do not Localize}
+      if Length(LFlags) <> 0 then begin
         LCmd := LCmd + LFlags + ' ';                {Do not Localize}
+      end;
+      if Length(LDateTime) <> 0 then begin
+        LCmd := LCmd + LDateTime + ' ';             {Do not Localize}
       end;
       LCmd := LCmd + LMsgLiteral;                   {Do not Localize}
 
@@ -3442,8 +3475,7 @@ begin
         end;
       except
         on E: EIdSocketError do begin
-          if E.LastError = Id_WSAECONNRESET then begin
-            //Connection reset by peer...
+          if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
             FConnectionState := csUnexpectedlyDisconnected;
           end;
           raise;
@@ -3811,8 +3843,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -3860,8 +3891,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -4258,8 +4288,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -4313,8 +4342,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -4359,8 +4387,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -4404,8 +4431,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -4469,8 +4495,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -4527,6 +4552,31 @@ begin
   end;
 end;
 
+//Retrieves a whole message "raw" and saves it to file
+function  TIdIMAP4.RetrieveNoDecodeToFilePeek(const AMsgNum: Integer; ADestFile: string): Boolean;
+var
+  LMsg: TIdMessage;
+begin
+  Result := False;
+  IsNumberValid(AMsgNum);
+  LMsg := TIdMessage.Create(nil);
+  try
+    LMsg.NoDecode := True;
+    LMsg.NoEncode := True;
+    if InternalRetrieve(AMsgNum, False, True, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
+      LMsg.SaveToFile(ADestFile);
+      Result := True;
+    end;
+  finally
+    FreeAndNil(LMsg);
+  end;
+end;
+
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
 function  TIdIMAP4.RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TStream): Boolean;
 var
@@ -4539,6 +4589,31 @@ begin
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
     if InternalRetrieve(AMsgNum, False, False, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
+      LMsg.SaveToStream(AStream);
+      Result := True;
+    end;
+  finally
+    FreeAndNil(LMsg);
+  end;
+end;
+
+//Retrieves a whole message "raw" and saves it to file
+function  TIdIMAP4.RetrieveNoDecodeToStreamPeek(const AMsgNum: Integer; AStream: TStream): Boolean;
+var
+  LMsg: TIdMessage;
+begin
+  Result := False;
+  IsNumberValid(AMsgNum);
+  LMsg := TIdMessage.Create(nil);
+  try
+    LMsg.NoDecode := True;
+    LMsg.NoEncode := True;
+    if InternalRetrieve(AMsgNum, False, True, LMsg) then begin
       {RLebeau 12/09/2012: NOT currently using the same workaround here that
       is being used in AppendMsg() to avoid SMTP dot transparent output from
       TIdMessage.SaveToStream().  The reason for this is because I don't
@@ -4589,6 +4664,31 @@ begin
   end;
 end;
 
+//Retrieves a whole message "raw" and saves it to file.
+function  TIdIMAP4.UIDRetrieveNoDecodeToFilePeek(const AMsgUID: String; ADestFile: string): Boolean;
+var
+  LMsg: TIdMessage;
+begin
+  Result := False;
+  IsUIDValid(AMsgUID);
+  LMsg := TIdMessage.Create(nil);
+  try
+    LMsg.NoDecode := True;
+    LMsg.NoEncode := True;
+    if InternalRetrieve(IndyStrToInt(AMsgUID), True, True, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
+      LMsg.SaveToFile(ADestFile);
+      Result := True;
+    end;
+  finally
+    FreeAndNil(LMsg);
+  end;
+end;
+
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
 function  TIdIMAP4.UIDRetrieveNoDecodeToStream(const AMsgUID: String; AStream: TStream): Boolean;
 var
@@ -4601,6 +4701,31 @@ begin
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
     if InternalRetrieve(IndyStrToInt(AMsgUID), True, False, LMsg) then begin
+      {RLebeau 12/09/2012: NOT currently using the same workaround here that
+      is being used in AppendMsg() to avoid SMTP dot transparent output from
+      TIdMessage.SaveToStream().  The reason for this is because I don't
+      know how this method is being used and I don't want to break anything
+      that may be depending on that transparent output being generated...}
+      LMsg.SaveToStream(AStream);
+      Result := True;
+    end;
+  finally
+    FreeAndNil(LMsg);
+  end;
+end;
+
+//Retrieves a whole message "raw" and saves it to file.
+function  TIdIMAP4.UIDRetrieveNoDecodeToStreamPeek(const AMsgUID: String; AStream: TStream): Boolean;
+var
+  LMsg: TIdMessage;
+begin
+  Result := False;
+  IsUIDValid(AMsgUID);
+  LMsg := TIdMessage.Create(nil);
+  try
+    LMsg.NoDecode := True;
+    LMsg.NoEncode := True;
+    if InternalRetrieve(IndyStrToInt(AMsgUID), True, True, LMsg) then begin
       {RLebeau 12/09/2012: NOT currently using the same workaround here that
       is being used in AppendMsg() to avoid SMTP dot transparent output from
       TIdMessage.SaveToStream().  The reason for this is because I don't
@@ -4721,8 +4846,7 @@ begin
       end;
     except
       on E: EIdSocketError do begin
-        if E.LastError = Id_WSAECONNRESET then begin
-          //Connection reset by peer...
+        if ((E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
           FConnectionState := csUnexpectedlyDisconnected;
         end;
         raise;
@@ -5740,6 +5864,7 @@ begin
       if Pos(IMAP4Commands[cmdSearch], ACmdResultDetails[0]) > 0 then begin
         BreakApart(ACmdResultDetails[0], ' ', LSlSearch); {Do not Localize}
         for Ln := 1 to LSlSearch.Count - 1 do begin
+           // TODO: for a UID search, store LSlSearch[Ln] as-is without converting it to an Integer...
            SetLength(AMB.SearchResult, (Length(AMB.SearchResult) + 1));
            AMB.SearchResult[Length(AMB.SearchResult) - 1] := IndyStrToInt(LSlSearch[Ln]);
         end;

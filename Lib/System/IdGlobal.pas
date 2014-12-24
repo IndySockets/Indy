@@ -1504,15 +1504,17 @@ function ByteIsInEOL(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
 function CompareDate(const D1, D2: TDateTime): Integer;
 function CurrentProcessId: TIdPID;
 
-// RLebeau: the input of these two functions must be in GMT
+// RLebeau: the input of these functions must be in GMT
 function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
 function DateTimeGMTToCookieStr(const GMTValue: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
+function DateTimeGMTToImapStr(const GMTValue: TDateTime) : String;
 
 // RLebeau: the input of these functions must be in local time
 function DateTimeToInternetStr(const Value: TDateTime; const AUseGMTStr: Boolean = False) : String; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use LocalDateTimeToGMT()'{$ENDIF};{$ENDIF}
 function DateTimeToGmtOffSetStr(ADateTime: TDateTime; const AUseGMTStr: Boolean = False): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UTCOffsetToStr()'{$ENDIF};{$ENDIF}
 function LocalDateTimeToHttpStr(const Value: TDateTime) : String;
 function LocalDateTimeToCookieStr(const Value: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
+function LocalDateTimeToImapStr(const Value: TDateTime) : String;
 function LocalDateTimeToGMT(const Value: TDateTime; const AUseGMTStr: Boolean = False) : String;
 
 procedure DebugOutput(const AText: string);
@@ -6719,6 +6721,21 @@ begin
                    FormatDateTime('HH":"nn":"ss',GMTValue), 'GMT']);  {do not localize}
 end;
 
+function DateTimeGMTToImapStr(const GMTValue: TDateTime) : String;
+var
+  wDay, wMonth, wYear: Word;
+  LDay: String;
+begin
+  DecodeDate(GMTValue, wYear, wMonth, wDay);
+  LDay := IntToStr(wDay);
+  if Length(LDay) < 2 then begin
+    LDay := ' ' + LDay; // NOTE: space NOT zero!
+  end;
+  Result := IndyFormat('%s-%s-%d %s %s',    {do not localize}
+                   [LDay, monthnames[wMonth], wYear, FormatDateTime('HH":"nn":"ss',GMTValue), {do not localize}
+                    '+0000']); {do not localize}
+end;
+
 function LocalDateTimeToHttpStr(const Value: TDateTime) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -6729,6 +6746,12 @@ function LocalDateTimeToCookieStr(const Value: TDateTime; const AUseNetscapeFmt:
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := DateTimeGMTToCookieStr(Value - OffsetFromUTC, AUseNetscapeFmt);
+end;
+
+function LocalDateTimeToImapStr(const Value: TDateTime) : String;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := DateTimeGMTToImapStr(Value - OffsetFromUTC);
 end;
 
 {$I IdDeprecatedImplBugOff.inc}

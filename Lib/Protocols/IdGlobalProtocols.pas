@@ -336,6 +336,8 @@ uses
 
 const
   LWS = TAB + CHAR32;
+
+  // TODO: get rid of these and use the ones in the IdGlobal unit
   wdays: array[1..7] of string =
     ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'); {do not localize}
   monthnames: array[1..12] of string =
@@ -2332,9 +2334,15 @@ begin
       sTmp := TimeZoneToGmtOffsetStr(sTmp);
     end else
     begin
-      if (Length(sTmp) = 6) and CharEquals(sTmp, 4, ':') then begin {do not localize}
-        // ISO 8601 has a colon in the middle, ignore it
-        IdDelete(sTmp, 4, 1);
+      // ISO 8601 has a colon in the middle, ignore it
+      if Length(sTmp) = 6 then begin
+        if CharEquals(sTmp, 4, ':') then begin {do not localize}
+          IdDelete(sTmp, 4, 1);
+        end;
+      end
+      // ISO 8601 allows the minutes to be omitted, add them
+      else if Length(sTmp) = 3 then begin
+        sTmp := sTmp + '00';
       end;
       if (Length(sTmp) <> 5) or (not IsNumeric(sTmp, 2, 2)) or (not IsNumeric(sTmp, 2, 4)) then begin
         Exit;
