@@ -436,6 +436,8 @@ type
       ); override;
     property EscapeLines: Boolean read FEscapeLines write FEscapeLines;
     property UnescapeLines: Boolean read FUnescapeLines write FUnescapeLines;
+  published
+    property MaxLineLength default MaxInt;
   end;
 
   TIdMessageClient = class(TIdExplicitTLSClient)
@@ -549,6 +551,7 @@ begin
   FEscapeLines := False; // do not set this to True! This is for users to set manually...
   FUnescapeLines := False; // do not set this to True! This is for users to set manually...
   FLastByteRecv := 0;
+  MaxLineLength := MaxInt;
 end;
 
 function TIdIOHandlerStreamMsg.Readable(AMSec: integer = IdTimeoutDefault): Boolean;

@@ -3210,7 +3210,6 @@ begin
           try
             LMsgIO.FreeStreams := False;
             LMsgIO.UnescapeLines := True; // this is the key piece that makes it work!
-            LMsgIO.MaxLineLength := MaxInt;
             LMsgClient.IOHandler := LMsgIO;
             try
               LMsgClient.SendMsg(AMsg, False);
@@ -4818,7 +4817,6 @@ begin
             try
               LMsgIO.FreeStreams := False;
               LMsgIO.EscapeLines := True; // this is the key piece that makes it work!
-              LMsgIO.MaxLineLength := MaxInt;
               LMsgClient.IOHandler := LMsgIO;
               try
                 LMsgIO.Open;
