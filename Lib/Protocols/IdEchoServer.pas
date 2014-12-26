@@ -92,11 +92,8 @@ begin
   Result := True;
   SetLength(LBuffer, 0);
   LIOHandler := AContext.Connection.IOHandler;
-  LIOHandler.CheckForDataOnSource(50);
-  if not LIOHandler.InputBufferIsEmpty then begin
-    LIOHandler.InputBuffer.ExtractToBytes(LBuffer);
-    LIOHandler.Write(LBuffer);
-  end;
+  LIOHandler.ReadBytes(LBuffer, -1);
+  LIOHandler.Write(LBuffer);
 end;
 
 end.

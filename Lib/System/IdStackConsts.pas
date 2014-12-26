@@ -397,6 +397,10 @@ const
   Id_SO_REUSEADDR        =  SO_REUSEADDR;
   Id_SO_SNDBUF           =  SO_SNDBUF;
   Id_SO_TYPE             =  SO_TYPE;
+    {$IFDEF WINDOWS}
+  Id_SO_UPDATE_ACCEPT_CONTEXT  = SO_UPDATE_ACCEPT_CONTEXT;
+  Id_SO_UPDATE_CONNECT_CONTEXT = SO_UPDATE_CONNECT_CONTEXT;
+    {$ENDIF}
   {$ELSE}
 {
 SocketOptionName.AcceptConnection;// Socket is listening.
@@ -453,6 +457,10 @@ SocketOptionName.SendTimeout;//  Send timeout. This option applies only to synch
 {
 SocketOptionName.TypeOfService;//  Change the IP header type of service field.
 SocketOptionName.UnblockSource;//  Unblock a previously blocked source.
+}
+  Id_SO_UPDATE_ACCEPT_CONTEXT  = SocketOptionName.UpdateAcceptContext;// Updates an accepted socket's properties by using those of an existing socket.
+  Id_SO_UPDATE_CONNECT_CONTEXT = SocketOptionName.UpdateConnectContext;// Updates a connected socket's properties by using those of an existing socket.
+{
 SocketOptionName.UseLoopback;//  Bypass hardware when possible.
 }
   {$ENDIF}

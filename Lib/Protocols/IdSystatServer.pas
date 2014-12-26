@@ -101,7 +101,8 @@ begin
 end;
 
 function TIdSystatServer.DoExecute(AThread: TIdContext): boolean;
-var s : TStrings;
+var
+  s : TStrings;
 begin
   Result := True;
   if Assigned(FOnSystat) then
@@ -109,12 +110,12 @@ begin
     s := TStringList.Create;
     try
       FOnSystat(AThread,s);
-      AThread.Connection.IOHandler.Write(s.Text);
+      AThread.Connection.IOHandler.Write(s);
     finally
       FreeAndNil(s);
     end;
-    AThread.Connection.Disconnect;
   end;
+  AThread.Connection.Disconnect;
 end;
 
 end.
