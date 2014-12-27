@@ -315,8 +315,15 @@ begin
       Result := TIdMessageDecoderMIMEIgnore.Create(ASender);
     end;
   end;
-  if (Result = nil) and (PosInStrArray(ASender.ContentTransferEncoding, ['base64', 'quoted-printable'], False) <> -1) then begin {Do not localize}
-    Result := TIdMessageDecoderMIME.Create(ASender, ALine);
+  if (Result = nil) and (ASender.ContentTransferEncoding <> '') then begin
+    if IsHeaderMediaType(ASender.ContentType, 'multipart') and {do not localize}
+       (PosInStrArray(ASender.ContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1) then {do not localize}
+    begin
+      Exit;
+    end;
+    if (PosInStrArray(ASender.ContentTransferEncoding, ['base64', 'quoted-printable'], False) <> -1) then begin {Do not localize}
+      Result := TIdMessageDecoderMIME.Create(ASender, ALine);
+    end;
   end;
 end;
 
@@ -541,6 +548,10 @@ begin
   if IsHeaderMediaTypes(AContentType, ['text', 'multipart']) and {do not localize}
     (not IsHeaderValue(AContentDisposition, 'attachment')) then {do not localize}
   begin
+    // TODO: According to RFC 2045 Section 6.4:
+    // "Any entity with an unrecognized Content-Transfer-Encoding must be
+    // treated as if it has a Content-Type of "application/octet-stream",
+    // regardless of what the Content-Type header field actually says."
     FPartType := mcptText;
   end else begin
     FPartType := mcptAttachment;
@@ -732,14 +743,24 @@ begin
     will be encoded, so we won't find them - in this case, we will later take
     all the info we need from the message header, and not try to take it from
     the part header.}
-    if (TIdMessage(Owner).ContentTransferEncoding <> '') and
-      {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
-      set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
-      the part header in plain-text.}
-      (PosInStrArray(TIdMessage(Owner).ContentTransferEncoding, ['8bit', '7bit', 'binary'], False) = -1)    {do not localize}
-    then
-    begin
-      FBodyEncoded := True;
+    if TIdMessage(Owner).ContentTransferEncoding <> '' then begin
+      // RLebeau 12/26/2014 - According to RFC 2045 Section 6.4:
+      // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
+      // permitted to have any value other than "7bit", "8bit" or "binary"."
+      //
+      // However, came across one message where the "Content-Type" was set to
+      // "multipart/related" and the "Content-Transfer-Encoding" was set to
+      // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
+      // the message correctly, but Indy was not.  So let's check for that scenario
+      // and ignore illegal "Content-Transfer-Encoding" values if present...
+      if (not IsHeaderMediaType(TIdMessage(Owner).ContentType, 'multipart')) and
+        {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
+        set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
+        the part header in plain-text.}
+         (PosInStrArray(TIdMessage(Owner).ContentTransferEncoding, ['8bit', '7bit', 'binary'], False) = -1)    {do not localize}
+      then begin
+        FBodyEncoded := True;
+      end;
     end;
   end;
 end;

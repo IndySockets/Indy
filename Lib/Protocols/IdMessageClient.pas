@@ -760,15 +760,15 @@ var
       try
         LMStream.Position := 0;
         if AUseBodyAsTarget then begin
-            if AMsg.IsMsgSinglePartMime then begin
+          if AMsg.IsMsgSinglePartMime then begin
             {$IFDEF STRING_IS_ANSI}
             LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
             {$ENDIF}
             ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
-            end else begin
-          {$IFDEF STRING_IS_ANSI}
+          end else begin
+            {$IFDEF STRING_IS_ANSI}
             LAnsiEncoding := ContentTypeToEncoding(VDecoder.Headers.Values[SContentType], QuoteMIME);
-          {$ENDIF}
+            {$ENDIF}
             ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
           end;
         end else begin
@@ -969,7 +969,7 @@ begin
     // and ignore illegal "Content-Transfer-Encoding" values if present...
     if PosInStrArray(LContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1 then begin {do not localize}
       LContentTransferEncoding := '';
-      LUnknownContentTransferEncoding := True;
+      //LUnknownContentTransferEncoding := True;
     end;
   end;
 
