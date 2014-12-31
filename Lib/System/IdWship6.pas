@@ -1005,7 +1005,7 @@ begin
   // return the binary address.
   //
   if ((pszNodeName = nil) or WspiapiParseV4Address(pszNodeName, dwAddress)) then begin
-    if pszNodeName <> nil then begin
+    if pszNodeName = nil then begin
       dwAddress := htonl(iif((iFlags and AI_PASSIVE) <> 0, INADDR_ANY, INADDR_LOOPBACK));
     end;
 
