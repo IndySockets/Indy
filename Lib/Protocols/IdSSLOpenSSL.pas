@@ -1029,7 +1029,6 @@ begin
       end else begin
         // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
         // when default_passwd_callback is nil
-        LPasswordPtr^ := TIdAnsiChar(0);
       end;
       P12 := d2i_PKCS12_bio(B, nil);
       if not Assigned(P12) then begin
@@ -1100,7 +1099,6 @@ begin
       end else begin
         // TODO: call PEM_def_callback(), like PEM_read_bio_X509() does
         // when default_passwd_callback is nil
-        LPasswordPtr^ := TIdAnsiChar(0);
       end;
       P12 := d2i_PKCS12_bio(B, nil);
       if not Assigned(P12) then
@@ -2250,7 +2248,9 @@ begin
   if LockInfoCB = nil then begin
     exit;
   end;
-  CRYPTO_set_locking_callback(nil);
+  if Assigned(CRYPTO_set_locking_callback) then begin
+    CRYPTO_set_locking_callback(nil);
+  end;
   IdSSLOpenSSLHeaders.Unload;
   FreeAndNil(LockInfoCB);
   FreeAndNil(LockPassCB);
@@ -3150,6 +3150,8 @@ end;
 destructor TIdSSLSocket.Destroy;
 begin
   if fSSL <> nil then begin
+    // TODO: should this be moved to TIdSSLContext instead?  Is this here
+    // just to make sure the SSL shutdown does not log any messages?
     if (fSSLContext <> nil) and (fSSLContext.StatusInfoOn) and
        (fSSLContext.fContext <> nil) then begin
       SSL_CTX_set_info_callback(fSSLContext.fContext, nil);
@@ -3755,7 +3757,7 @@ initialization
   Assert(SSLIsLoaded=nil);
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright '+Char(169)+' 1993 - 2012'#10#13 +                                     {do not localize}
+    'Copyright '+Char(169)+' 1993 - 2014'#10#13 +                                     {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
     'http://www.indyproject.org/'#10#13 +                                 {do not localize}
