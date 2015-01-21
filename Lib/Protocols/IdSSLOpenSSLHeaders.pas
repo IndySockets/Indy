@@ -12684,6 +12684,8 @@ type
   {$EXTERNALSYM PSTACK_OF_X509}
   PSTACK_OF_X509 = PSTACK;
   {$ENDIF}
+  {$EXTERNALSYM PPSTACK_OF_X509}
+  PPSTACK_OF_X509 = ^PSTACK_OF_X509;
   //fips.h
   //engiene.h
   {$IFNDEF OPENSSL_NO_ENGINE}
@@ -16985,7 +16987,7 @@ var
   {$EXTERNALSYM d2i_PKCS12_bio}
   d2i_PKCS12_bio: function(bp: PBIO; x: PPPKCS12): PPKCS12 cdecl = nil;
   {$EXTERNALSYM PKCS12_parse}
-  PKCS12_parse: function(P12: PPKCS12; Password: PIdAnsiChar; out PrivateKey: PEVP_PKEY; out Cert: PX509; out CertChain: PSTACK_OF_X509): TIdC_INT cdecl = nil;
+  PKCS12_parse: function(P12: PPKCS12; Password: PIdAnsiChar; out PrivateKey: PEVP_PKEY; out Cert: PX509; CertChain: PPSTACK_OF_X509): TIdC_INT cdecl = nil;
   {$ENDIF}
 
   {$EXTERNALSYM X509_new}

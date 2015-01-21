@@ -985,7 +985,7 @@ end;
 }
 
 // SSL_CTX_use_PrivateKey_file() and SSL_CTX_use_certificate_file() do not
-// natively support PKCS12 certificates/keys, only PAM/ASN1, so load them
+// natively support PKCS12 certificates/keys, only PEM/ASN1, so load them
 // manually...
 
 function IndySSL_CTX_use_PrivateKey_file_PKCS12(ctx: PSSL_CTX; const AFileName: String): TIdC_INT;
@@ -1036,7 +1036,8 @@ begin
         Exit;
       end;
       try
-        if PKCS12_parse(P12, LPasswordPtr, LKey, LCert, CertChain) <> 1 then begin
+        CertChain := nil;
+        if PKCS12_parse(P12, LPasswordPtr, LKey, LCert, @CertChain) <> 1 then begin
           SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_PKCS12_LIB);
           Exit;
         end;
@@ -1107,7 +1108,8 @@ begin
         Exit;
       end;
       try
-        if PKCS12_parse(P12, LPasswordPtr, PKey, LCert, CertChain) <> 1 then begin
+        CertChain := nil;
+        if PKCS12_parse(P12, LPasswordPtr, PKey, LCert, @CertChain) <> 1 then begin
           SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_PKCS12_LIB);
           Exit;
         end;
@@ -3106,10 +3108,10 @@ end;
 
 function TIdSSLContext.LoadKey: Boolean;
 begin
-  if PosInStrArray(ExtractFileExt(CertFile), ['.p12', '.pfx'], False) <> -1 then begin
-    Result := IndySSL_CTX_use_PrivateKey_file_PKCS12(fContext, fsKeyFile) > 0;
+  if PosInStrArray(ExtractFileExt(KeyFile), ['.p12', '.pfx'], False) <> -1 then begin
+    Result := IndySSL_CTX_use_PrivateKey_file_PKCS12(fContext, KeyFile) > 0;
   end else begin
-    Result := IndySSL_CTX_use_PrivateKey_file(fContext, fsKeyFile, SSL_FILETYPE_PEM) > 0;
+    Result := IndySSL_CTX_use_PrivateKey_file(fContext, KeyFile, SSL_FILETYPE_PEM) > 0;
   end;
   if Result then begin
     Result := SSL_CTX_check_private_key(fContext) > 0;
