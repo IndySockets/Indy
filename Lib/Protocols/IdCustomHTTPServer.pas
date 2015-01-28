@@ -1221,7 +1221,12 @@ var
         LRequestInfo.PostStream.Position := 0;
       end;
     end
-    else begin
+    // If HTTP Pipelining is used by the client, bytes may exist that belong to
+    // the NEXT request!  We need to look at the CURRENT request and only check
+    // for misreported body data if a body is actually expected.  GET and HEAD
+    // requests do not have bodies...
+    else if LRequestInfo.CommandType in [hcPOST, hcPUT] then
+    begin
       if LIOHandler.InputBufferIsEmpty then begin
         LIOHandler.CheckForDataOnSource(1);
       end;
