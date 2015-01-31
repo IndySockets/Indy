@@ -251,11 +251,7 @@ begin
   end;
   if not FBinding.HandleAllocated then begin
     FBinding.IPVersion := FIPVersion;
-    {$IFDEF LINUX}
-    FBinding.AllocateSocket(LongInt(Id_SOCK_DGRAM));
-    {$ELSE}
     FBinding.AllocateSocket(Id_SOCK_DGRAM);
-    {$ENDIF}
     FBinding.IP := FBoundIP;
     FBinding.Port := FBoundPort;
     FBinding.ClientPortMin := FBoundPortMin;

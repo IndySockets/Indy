@@ -203,7 +203,7 @@ uses
   ;
 
 const
-  Levels: array [TCompressionLevel] of ShortInt =
+  Levels: array [TCompressionLevel] of Int8 =
     (Z_NO_COMPRESSION, Z_BEST_SPEED, Z_DEFAULT_COMPRESSION, Z_BEST_COMPRESSION);
 
 function CCheck(code: Integer): Integer;

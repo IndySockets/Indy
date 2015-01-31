@@ -43,21 +43,21 @@ uses
 type
   TIdHashCRC16 = class(TIdHash16)
   public
-    procedure HashStart(var VRunningHash : Word); override;
-    procedure HashByte(var VRunningHash : Word; const AByte : Byte); override;
+    procedure HashStart(var VRunningHash : UInt16); override;
+    procedure HashByte(var VRunningHash : UInt16; const AByte : Byte); override;
   end;
 
   TIdHashCRC32 = class(TIdHash32)
   public
-    procedure HashStart(var VRunningHash : LongWord); override;
-    procedure HashEnd(var VRunningHash : LongWord); override;
-    procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
+    procedure HashStart(var VRunningHash : UInt32); override;
+    procedure HashEnd(var VRunningHash : UInt32); override;
+    procedure HashByte(var VRunningHash : UInt32; const AByte : Byte); override;
   end;
 
 implementation
   
 const
-  CRC16Table: array[0..255] of Word =
+  CRC16Table: array[0..255] of UInt16 =
   ( $0000, $C0C1, $C181, $0140, $C301, $03C0, $0280, $C241, $C601, $06C0, $0780,
     $C741, $0500, $C5C1, $C481, $0440, $CC01, $0CC0, $0D80, $CD41, $0F00, $CFC1,
     $CE81, $0E40, $0A00, $CAC1, $CB81, $0B40, $C901, $09C0, $0880, $C841, $D801,
@@ -83,7 +83,7 @@ const
     $8581, $4540, $8701, $47C0, $4680, $8641, $8201, $42C0, $4380, $8341, $4100,
     $81C1, $8081, $4040 ) ;
 
-  CRC32Table: array[0..255] of LongWord = (
+  CRC32Table: array[0..255] of UInt32 = (
     $00000000, $77073096, $EE0E612C, $990951BA, $076DC419,
     $706AF48F, $E963A535, $9E6495A3, $0EDB8832, $79DCB8A4,
     $E0D5E91E, $97D2D988, $09B64C2B, $7EB17CBD, $E7B82D07,
@@ -139,29 +139,29 @@ const
 
 { TIdHashCRC16 }
 
-procedure TIdHashCRC16.HashStart(var VRunningHash: Word);
+procedure TIdHashCRC16.HashStart(var VRunningHash: UInt16);
 begin
   VRunningHash := 0;
 end;
 
-procedure TIdHashCRC16.HashByte(var VRunningHash: Word; const AByte: Byte);
+procedure TIdHashCRC16.HashByte(var VRunningHash: UInt16; const AByte: Byte);
 begin
   VRunningHash := (VRunningHash shr 8) xor CRC16Table[AByte xor (VRunningHash and $FF)];
 end;
 
 { TIdHashCRC32 }
 
-procedure TIdHashCRC32.HashStart(var VRunningHash: LongWord);
+procedure TIdHashCRC32.HashStart(var VRunningHash: UInt32);
 begin
   VRunningHash := $FFFFFFFF;
 end;
 
-procedure TIdHashCRC32.HashEnd(var VRunningHash : LongWord);
+procedure TIdHashCRC32.HashEnd(var VRunningHash : UInt32);
 begin
   VRunningHash := VRunningHash xor $FFFFFFFF;
 end;
 
-procedure TIdHashCRC32.HashByte(var VRunningHash: LongWord; const AByte: Byte);
+procedure TIdHashCRC32.HashByte(var VRunningHash: UInt32; const AByte: Byte);
 begin
   VRunningHash := ((VRunningHash shr 8) and $00FFFFFF) xor CRC32Table[(VRunningHash xor AByte) and $FF];
 end;

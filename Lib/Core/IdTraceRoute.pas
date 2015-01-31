@@ -72,8 +72,9 @@ procedure TIdTraceRoute.Trace;
 //In traceroute, there are a maximum of thirty echo request packets.  You start
 //requests with a TTL of one and keep sending them until you get to thirty or you
 //get an echo response (whatever comes sooner).
-var i : Integer;
-  lSeq : Cardinal;
+var
+  i : Integer;
+  lSeq : UInt32;
   LTTL : Integer;
   LIPAddr : String;
 begin

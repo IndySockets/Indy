@@ -450,7 +450,7 @@ type
   public
     constructor Create(AConnection: TIdCustomHTTP);
     destructor Destroy; override;
-    function ProcessResponse(AIgnoreReplies: array of SmallInt): TIdHTTPWhatsNext;
+    function ProcessResponse(AIgnoreReplies: array of Int16): TIdHTTPWhatsNext;
     procedure BuildAndSendRequest(AURI: TIdURI);
     procedure RetrieveHeaders(AMaxHeaderCount: integer);
     //
@@ -495,7 +495,7 @@ type
     procedure SetPort(const Value: integer); override;
 }
     procedure DoRequest(const AMethod: TIdHTTPMethod; AURL: string;
-      ASource, AResponseContent: TStream; AIgnoreReplies: array of SmallInt); virtual;
+      ASource, AResponseContent: TStream; AIgnoreReplies: array of Int16); virtual;
     function CreateProtocol: TIdHTTPProtocol; virtual;
     procedure InitComponent; override;
     function InternalReadLn: String;
@@ -518,6 +518,7 @@ type
     function GetRequest: TIdHTTPRequest;
     function GetMetaHTTPEquiv: TIdMetaHTTPEquiv;
     procedure SetRequest(Value: TIdHTTPRequest);
+    procedure SetProxyParams(AValue: TIdProxyConnectionInfo);
 
     function SetRequestParams(ASource: TStrings; AByteEncoding: IIdTextEncoding
       {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding{$ENDIF}
@@ -542,11 +543,11 @@ type
       ): string; overload;
 
     procedure Get(AURL: string; AResponseContent: TStream); overload;
-    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of SmallInt); overload;
+    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of Int16); overload;
     function Get(AURL: string
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
-    function Get(AURL: string; AIgnoreReplies: array of SmallInt
+    function Get(AURL: string; AIgnoreReplies: array of Int16
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
 
@@ -613,7 +614,7 @@ type
     property RedirectMaximum: Integer read FRedirectMax write FRedirectMax default Id_TIdHTTP_RedirectMax;
     // S.G. 6/4/2004: This is to prevent the server from responding with too many header lines
     property MaxHeaderLines: integer read FMaxHeaderLines write FMaxHeaderLines default Id_TIdHTTP_MaxHeaderLines;
-    property ProxyParams: TIdProxyConnectionInfo read FProxyParameters write FProxyParameters;
+    property ProxyParams: TIdProxyConnectionInfo read FProxyParameters write SetProxyParams;
     property Request: TIdHTTPRequest read GetRequest write SetRequest;
     property HTTPOptions: TIdHTTPOptions read FOptions write FOptions;
     //
@@ -971,18 +972,12 @@ begin
         LTemp.Assign(ASource);
         for i := 0 to LTemp.Count - 1 do begin
           LStr := LTemp[i];
+          // TODO: use LTemp.NameValueSeparator on platforms that support it
           LPos := IndyPos('=', LStr); {do not localize}
           if LPos > 0 then begin
             LTemp[i] := WWWFormUrlEncode(LTemp.Names[i], AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF})
                         + '=' {do not localize}
-                        + WWWFormUrlEncode(
-                            {$IFDEF HAS_TStrings_ValueFromIndex}
-                            LTemp.ValueFromIndex[i]
-                            {$ELSE}
-                            Copy(LStr, LPos+1, MaxInt)
-                            {$ENDIF}
-                            , AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-                          );
+                        + WWWFormUrlEncode(IndyValueFromIndex(LTemp, i), AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
           end else begin
             LTemp[i] := WWWFormUrlEncode(LStr, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
           end;
@@ -1251,7 +1246,8 @@ var
       // the actual data. 1xx, 204, and 304 replies are not supposed to contain
       // entity bodies, either...
       if TextIsSame(ARequest.Method, Id_HTTPMethodHead) or
-         TextIsSame(ARequest.MethodOverride, Id_HTTPMethodHead) or
+         ({TextIsSame(ARequest.Method, Id_HTTPMethodPost) and} TextIsSame(ARequest.MethodOverride, Id_HTTPMethodHead)) or
+         // TODO: check for 'X-HTTP-Method' and 'X-METHOD-OVERRIDE' request headers as well...
          ((AResponse.ResponseCode div 100) = 1) or
          (AResponse.ResponseCode = 204) or
          (AResponse.ResponseCode = 304) then
@@ -1470,15 +1466,15 @@ type
   XmlBomInfo = record
     Charset: String;
     BOMLen: Integer;
-    BOM: LongWord;
-    BOMMask: LongWord;
+    BOM: UInt32;
+    BOMMask: UInt32;
   end;
 
   XmlNonBomInfo = record
     CharLen: Integer;
-    FirstChar: LongWord;
-    LastChar: LongWord;
-    CharMask: LongWord;
+    FirstChar: UInt32;
+    LastChar: UInt32;
+    CharMask: UInt32;
   end;
 
 const
@@ -1537,14 +1533,14 @@ var
   {$ENDIF}
   I, Len: Integer;
   Enc: XmlEncoding;
-  Signature: LongWord;
+  Signature: UInt32;
 
-  function BufferToLongWord: LongWord;
+  function BufferToUInt32: UInt32;
   begin
-    Result := (LongWord(Buffer[0]) shl 24) or
-              (LongWord(Buffer[1]) shl 16) or
-              (LongWord(Buffer[2]) shl 8) or
-              LongWord(Buffer[3]);
+    Result := (UInt32(Buffer[0]) shl 24) or
+              (UInt32(Buffer[1]) shl 16) or
+              (UInt32(Buffer[2]) shl 8) or
+              UInt32(Buffer[3]);
   end;
 
 begin
@@ -1565,7 +1561,7 @@ begin
       Exit;
     end;
 
-    Signature := BufferToLongWord;
+    Signature := BufferToUInt32;
 
     // check for known BOMs first...
 
@@ -1591,7 +1587,7 @@ begin
         while (AStream.Size - AStream.Position) >= XmlNonBOMs[Enc].CharLen do
         begin
           ReadTIdBytesFromStream(AStream, Buffer, XmlNonBOMs[Enc].CharLen);
-          Signature := BufferToLongWord;
+          Signature := BufferToUInt32;
           if (Signature and XmlNonBOMs[Enc].CharMask) = XmlNonBOMs[Enc].LastChar then
           begin
             CurPos := AStream.Position;
@@ -2390,6 +2386,11 @@ begin
   FHTTPProto.Request.Assign(Value);
 end;
 
+procedure TIdCustomHTTP.SetProxyParams(AValue: TIdProxyConnectionInfo);
+begin
+  FProxyParameters.Assign(AValue);
+end;
+
 procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream;
   AResponseContent: TStream);
 begin
@@ -2435,10 +2436,7 @@ procedure TIdHTTPResponse.ProcessMetaHTTPEquiv;
 var
   StdValues: TStringList;
   I: Integer;
-  Name, Value: String;
-  {$IFNDEF HAS_TStrings_ValueFromIndex}
-  LTmp: String;
-  {$ENDIF}
+  Name: String;
 begin
   FMetaHTTPEquiv.ProcessMetaHTTPEquiv(ContentStream);
   if FMetaHTTPEquiv.RawHeaders.Count > 0 then begin
@@ -2449,13 +2447,7 @@ begin
       for I := 0 to StdValues.Count-1 do begin
         Name := StdValues.Names[I];
         if Name <> '' then begin
-          {$IFDEF HAS_TStrings_ValueFromIndex}
-          Value := StdValues.ValueFromIndex[I];
-          {$ELSE}
-          LTmp := StdValues.Strings[I];
-          Value := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {do not localize}
-          {$ENDIF}
-          RawHeaders.Values[Name] := Value;
+          RawHeaders.Values[Name] := IndyValueFromIndex(StdValues, I);
         end;
       end;
     finally
@@ -2642,7 +2634,7 @@ begin
   Response.ProcessHeaders;
 end;
 
-function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TIdHTTPWhatsNext;
+function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of Int16): TIdHTTPWhatsNext;
 var
   LResponseCode, LResponseDigit: Integer;
 
@@ -2919,7 +2911,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of SmallInt
+function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of Int16
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -2937,14 +2929,14 @@ begin
 end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream;
-  AIgnoreReplies: array of SmallInt);
+  AIgnoreReplies: array of Int16);
 begin
   DoRequest(Id_HTTPMethodGet, AURL, nil, AResponseContent, AIgnoreReplies);
 end;
 
 procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
   AURL: string; ASource, AResponseContent: TStream;
-  AIgnoreReplies: array of SmallInt);
+  AIgnoreReplies: array of Int16);
 var
   LResponseLocation: TIdStreamSize;
 begin

@@ -33,22 +33,22 @@ uses
 type
   TIdHashElf = class(TIdHash32)
   public
-    procedure HashStart(var VRunningHash : LongWord); override;
-    procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
+    procedure HashStart(var VRunningHash : UInt32); override;
+    procedure HashByte(var VRunningHash : UInt32; const AByte : Byte); override;
   end;
 
 implementation
 
 { TIdHashElf }
 
-procedure TIdHashElf.HashStart(var VRunningHash: LongWord);
+procedure TIdHashElf.HashStart(var VRunningHash: UInt32);
 begin
   VRunningHash := 0;
 end;
 
-procedure TIdHashElf.HashByte(var VRunningHash: LongWord; const AByte: Byte);
+procedure TIdHashElf.HashByte(var VRunningHash: UInt32; const AByte: Byte);
 var
-  LTemp: LongWord;
+  LTemp: UInt32;
 begin
   VRunningHash := (VRunningHash shl 4) + AByte;
   LTemp := VRunningHash and $F0000000;

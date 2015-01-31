@@ -431,7 +431,7 @@ function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
 Misc parsing
 ***}
 function PatternsInStr(const ASearchPattern, AString : String): Integer;
-function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
+function StripSpaces(const AString : String; const ASpaces : UInt32): String;
 function StripPath(const AFileName : String; const APathDelim : String = '/'): String;
 function CharsInStr(const ASearchChar : Char; const AString : String) : Integer;
 function UnfoldLines(const AData : String; ALine : Integer; AStrings : TStrings): String;
@@ -475,7 +475,7 @@ function DateDDStrMonthYY(const AData: String; const ADelim : String='-'): TDate
 function DateMMDDYY(const AData: String): TDateTime;
 function TimeHHMMSS(const AData : String):TDateTime;
 function IsIn6MonthWindow(const AMDate : TDateTime):Boolean;
-function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
+function AddMissingYear(const ADay, AMonth : UInt32): UInt32;
 function IsHHMMSS(const AData : String; const ADelim : String) : Boolean;
 //This assumes hours in the form 0-23 instead of the 12 AM/PM hour system used in the US.
 function MVSDate(const AData: String): TDateTime;
@@ -503,11 +503,11 @@ procedure ChmodNoToPerms(const AChmodNo : Integer; var VUser, VGroup, VOther : S
 procedure ChmodNoToPerms(const AChmodNo : Integer; var VPermissions : String); overload;
 function PermsToChmodNo(const AUser, AGroup, AOther : String): Integer;
 
-function ChmodNoToModeBits(const AModVal : Cardinal): Cardinal;
-function ModeBitsToChmodNo(const AMode : Cardinal):Integer;
+function ChmodNoToModeBits(const AModVal : UInt32): UInt32;
+function ModeBitsToChmodNo(const AMode : UInt32): Integer;
 
-function ModeBitsToPermString(const AMode : Cardinal) : String;
-function PermStringToModeBits(const APerms : String): Cardinal;
+function ModeBitsToPermString(const AMode : UInt32) : String;
+function PermStringToModeBits(const APerms : String): UInt32;
 
 {Novell Netware}
 function IsNovelPSPattern(const AStr : String): Boolean;
@@ -644,13 +644,13 @@ will not exploit any known flaw in the server.
 
 I did verify that this works with "X2 WS_FTP Server 6.1.1".
 }
-function ExtractWSFTPServerKey(const AGreeting : String; var VKey : Cardinal) : Boolean;
-procedure xaut_encrypt(var VDest : TIdBytes; const ASrc : TIdBytes; const AKey : Cardinal);
+function ExtractWSFTPServerKey(const AGreeting : String; var VKey : UInt32) : Boolean;
+procedure xaut_encrypt(var VDest : TIdBytes; const ASrc : TIdBytes; const AKey : UInt32);
 procedure xaut_unpack(var VDest : String; const ASrc : TIdBytes);
 procedure xaut_pack(var VDst : TIdBytes; const ASrc : String);
-function MakeXAUTCmd(const AGreeting, AUsername, APassword : String; const Ad : Cardinal = 2) : String;
-function ExtractAutInfoFromXAUT(const AXAutStr : String; const AKey : Cardinal) : String;
-function MakeXAUTKey : Cardinal;
+function MakeXAUTCmd(const AGreeting, AUsername, APassword : String; const Ad : UInt32 = 2) : String;
+function ExtractAutInfoFromXAUT(const AXAutStr : String; const AKey : UInt32) : String;
+function MakeXAUTKey : UInt32;
 
 const
   XAUT_2_KEY = $49327576;
@@ -667,7 +667,7 @@ uses
 
 {WS_FTP Pro XAUT Support}
 
-function ExtractWSFTPServerKey(const AGreeting : String; var VKey : Cardinal) : Boolean;
+function ExtractWSFTPServerKey(const AGreeting : String; var VKey : UInt32) : Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf : String;
@@ -678,13 +678,13 @@ begin
     Fetch(LBuf, '('); {do not localize}
     LBuf := Fetch(LBuf, ')'); {do not localize}
     if IsNumeric(LBuf) then begin
-      VKey := Cardinal(IndyStrToInt64(LBuf, 0));
+      VKey := UInt32(IndyStrToInt64(LBuf, 0));
       Result := True;
     end;
   end;
 end;
 
-procedure xaut_encrypt(var VDest : TIdBytes; const ASrc : TIdBytes; const AKey : Cardinal);
+procedure xaut_encrypt(var VDest : TIdBytes; const ASrc : TIdBytes; const AKey : UInt32);
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf : TIdBytes;
@@ -734,10 +734,10 @@ begin
   end;
 end;
 
-function MakeXAUTCmd(const AGreeting, AUsername, APassword : String; const Ad : Cardinal = 2) : String;
+function MakeXAUTCmd(const AGreeting, AUsername, APassword : String; const Ad : UInt32 = 2) : String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
-  LKey : Cardinal;
+  LKey : UInt32;
   LDst : TIdBytes;
 begin
   Result := '';
@@ -753,14 +753,14 @@ begin
   end;
 end;
 
-function ExtractAutInfoFromXAUT(const AXAutStr : String; const AKey : Cardinal) : String;
+function ExtractAutInfoFromXAUT(const AXAutStr : String; const AKey : UInt32) : String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LBuf : TIdBytes;
-  LNum : Cardinal;  //first param
+  LNum : UInt32;  //first param
 begin
   Result := AXAutStr;
-  LNum := Cardinal(IndyStrToInt64(Fetch(Result), 0));
+  LNum := UInt32(IndyStrToInt64(Fetch(Result), 0));
   xaut_pack(LBuf, Result);
   xaut_encrypt(LBuf, LBuf, AKey);
   if LNum = 2 then begin
@@ -769,7 +769,7 @@ begin
   Result := BytesToString(LBuf);
 end;
 
-function MakeXAUTKey : Cardinal;
+function MakeXAUTKey : UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Randomize;
@@ -777,10 +777,10 @@ begin
     //we probably should avoid numbers that use the high bit to prevent them
     //from being expressed negatively and because I'm not sure what integer
     //type other programs us.
-    Result := (Cardinal(Random($7F)) shl 24) or
-              (Cardinal(Random($FF)) shl 16) or
-              (Cardinal(Random($FF)) shl 8) or
-              Cardinal(Random($FF));
+    Result := (UInt32(Random($7F)) shl 24) or
+              (UInt32(Random($FF)) shl 16) or
+              (UInt32(Random($FF)) shl 8) or
+              UInt32(Random($FF));
   until (Result <> XAUT_2_KEY ) and (Result <> 0)
 end;
 
@@ -794,11 +794,11 @@ begin
   end;
 end;
 
-function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
+function StripSpaces(const AString : String; const ASpaces : UInt32): String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   i : Integer;
-  L: Cardinal;
+  L: UInt32;
 begin
   L := IndyMin(ASpaces, Length(AString));
   for i := 1 to L do begin
@@ -1427,7 +1427,7 @@ function IsYYYYMMDD(const AData : String) : Boolean;
 //90-05-19
 //1234567890
 begin
-  Result := CharIsInSet(AData, 5, '/-') and CharIsInSet(AData, 8, '/-');
+  Result := CharIsInSet(AData, 5, CDATE_PART_SEP) and CharIsInSet(AData, 8, CDATE_PART_SEP);
   if Result then begin
     Result := IsNumeric(AData, 4) and IsNumeric(AData, 2, 6) and IsNumeric(AData, 2, 9);
   end;
@@ -1692,7 +1692,7 @@ begin
   end;
 end;
 
-function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
+function AddMissingYear(const ADay, AMonth : UInt32): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LDay, LMonth, LYear : Word;
@@ -1880,7 +1880,7 @@ begin
   end;
 end;
 
-function PermStringToModeBits(const APerms : String): Cardinal;
+function PermStringToModeBits(const APerms : String): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := 0;
@@ -1958,9 +1958,9 @@ begin
   end;
 end;
 
-function ModeBitsToPermString(const AMode : Cardinal) : String;
+function ModeBitsToPermString(const AMode : UInt32) : String;
 
-  function GetPerm1Bit(ABit: Cardinal; AIfSet: Char): Char;
+  function GetPerm1Bit(ABit: UInt32; AIfSet: Char): Char;
   begin
     if (AMode and ABit) = ABit then begin
       Result := AIfSet;
@@ -1969,7 +1969,7 @@ function ModeBitsToPermString(const AMode : Cardinal) : String;
     end;
   end;
 
-  function GetPerm2Bits(ABit1, ABit2: Cardinal; AIfBit1Set, AIfBit2Set: Char): Char;
+  function GetPerm2Bits(ABit1, ABit2: UInt32; AIfBit1Set, AIfBit2Set: Char): Char;
   begin
     Result := GetPerm1Bit(ABit1, AIfBit1Set);
     if Result = '-' then begin
@@ -2071,7 +2071,7 @@ begin
   {$ENDIF}
 end;
 
-function ModeBitsToChmodNo(const AMode : Cardinal): Integer;
+function ModeBitsToChmodNo(const AMode : UInt32): Integer;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := 0;
@@ -2113,11 +2113,11 @@ begin
   end;
 end;
 
-function ChmodNoToModeBits(const AModVal : Cardinal): Cardinal;
+function ChmodNoToModeBits(const AModVal : UInt32): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
-  LSpecBits, LUBits, LGBits, LOBits : Cardinal;
-  LTmp : Cardinal;
+  LSpecBits, LUBits, LGBits, LOBits : UInt32;
+  LTmp : UInt32;
 begin
   Result := 0;
   LSpecBits := AModVal div 1000;

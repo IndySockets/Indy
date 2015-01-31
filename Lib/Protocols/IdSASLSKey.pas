@@ -76,7 +76,7 @@ const
 function TIdSASLSKey.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
 var
   LBuf, LSeed : String;
-  LCount : Cardinal;
+  LCount : UInt32;
 begin
   LBuf := Trim(ALastResponse);
   LCount := IndyStrToInt(Fetch(LBuf), 0);

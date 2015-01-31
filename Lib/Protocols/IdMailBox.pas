@@ -61,40 +61,40 @@ type
 
   TIdMailBoxAttributesSet = set of TIdMailBoxAttributes;
 
-  TLongIntArray = array of LongInt;
+  TIntArray = array of Integer;
 
   TIdMailBox = class(TIdBaseComponent)
   protected
     FAttributes: TIdMailBoxAttributes;
     FChangeableFlags: TIdMessageFlagsSet;
-    FFirstUnseenMsg: LongInt;
+    FFirstUnseenMsg: Integer;
     FFlags: TIdMessageFlagsSet;
     FName: String;
     FMessageList: TIdMessageCollection;
-    FRecentMsgs: LongInt;
+    FRecentMsgs: Integer;
     FState: TIdMailBoxState;
-    FTotalMsgs: LongInt;
+    FTotalMsgs: Integer;
     FUIDNext: String;
     FUIDValidity: String;
-    FUnseenMsgs: LongInt;
+    FUnseenMsgs: Integer;
 
     procedure SetMessageList(const Value: TIdMessageCollection);
     procedure InitComponent; override;
   public
-    DeletedMsgs: TLongIntArray;
-    SearchResult: TLongIntArray;
+    DeletedMsgs: TIntArray;
+    SearchResult: TIntArray;
     property Attributes: TIdMailBoxAttributes read FAttributes write FAttributes;
     property ChangeableFlags: TIdMessageFlagsSet read FChangeableFlags write FChangeableFlags;
-    property FirstUnseenMsg: LongInt read FFirstUnseenMsg write FFirstUnseenMsg;
+    property FirstUnseenMsg: Integer read FFirstUnseenMsg write FFirstUnseenMsg;
     property Flags: TIdMessageFlagsSet read FFlags write FFlags;
     property Name: String read FName write FName;
     property MessageList: TIdMessageCollection read FMessageList write SetMessageList;
-    property RecentMsgs: LongInt read FRecentMsgs write FRecentMsgs;
+    property RecentMsgs: Integer read FRecentMsgs write FRecentMsgs;
     property State: TIdMailBoxState read FState write FState;
-    property TotalMsgs: LongInt read FTotalMsgs write FTotalMsgs;
+    property TotalMsgs: Integer read FTotalMsgs write FTotalMsgs;
     property UIDNext: String read FUIDNext write FUIDNext;
     property UIDValidity: String read FUIDValidity write FUIDValidity;
-    property UnseenMsgs: LongInt read FUnseenMsgs write FUnseenMsgs;
+    property UnseenMsgs: Integer read FUnseenMsgs write FUnseenMsgs;
     procedure Clear; virtual;
     destructor Destroy; override;
   published

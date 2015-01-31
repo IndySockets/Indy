@@ -224,7 +224,7 @@ type
   {$EXTERNALSYM LPFN_FREEADDRINFOW}
   LPFN_FREEADDRINFOW = procedure(ai: PaddrinfoW); stdcall;
 
-//function GetAdaptersAddresses( Family:cardinal; Flags:cardinal; Reserved:pointer; pAdapterAddresses: PIP_ADAPTER_ADDRESSES; pOutBufLen:pcardinal):cardinal;stdcall;  external iphlpapi_dll;
+//function GetAdaptersAddresses( Family:ULONG; Flags:ULONG; Reserved:Pointer; pAdapterAddresses: PIP_ADAPTER_ADDRESSES; pOutBufLen:PULONG):ULONG;stdcall;  external iphlpapi_dll;
 
 { the following are not used, nor tested}
 {function getipnodebyaddr(const src:pointer;  len:integer; af:integer;var error_num:integer) :phostent;stdcall; external Wship6_dll;

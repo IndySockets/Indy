@@ -68,7 +68,7 @@ type
     function ModeToStr: string;
     procedure CheckOptionAck(const OptionPacket: TIdBytes; Reading: Boolean);
   protected
-    procedure SendAck(const BlockNumber: Word);
+    procedure SendAck(const BlockNumber: UInt16);
     procedure RaiseError(const ErrorPacket: TIdBytes);
     procedure InitComponent; override;
   public
@@ -179,7 +179,7 @@ procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TStream
 var
   Buffer, LServerFile, LMode, LBlockSize, LBlockOctets, LTransferSize, LTransferOctets: TIdBytes;
   DataLen, LOffset: Integer;
-  ExpectedBlockCtr, RecvdBlockCtr: Word;
+  ExpectedBlockCtr, RecvdBlockCtr: UInt16;
   TerminateTransfer: Boolean;
 begin
   try
@@ -195,7 +195,7 @@ begin
     SetLength(Buffer, 2+Length(LServerFile)+1+Length(LMode)+1+Length(LBlockSize)+1+Length(LBlockOctets)+1+Length(LTransferSize)+1+Length(LTransferOctets)+1);
     LOffset := 0;
 
-    CopyTIdWord(GStack.HostToNetwork(Word(TFTP_RRQ)), Buffer, LOffset);
+    CopyTIdUInt16(GStack.HostToNetwork(UInt16(TFTP_RRQ)), Buffer, LOffset);
     Inc(LOffset, 2);
     CopyTIdBytes(LServerFile, 0, Buffer, LOffset, Length(LServerFile));
     Inc(LOffset, Length(LServerFile));
@@ -237,10 +237,10 @@ begin
         end;
         SetLength(Buffer, DataLen);
         // TODO: validate the correct peer is sending the data...
-        case GStack.NetworkToHost(BytesToWord(Buffer)) of
+        case GStack.NetworkToHost(BytesToUInt16(Buffer)) of
           TFTP_DATA:
             begin
-              RecvdBlockCtr := GStack.NetworkToHost(BytesToWord(Buffer, 2));
+              RecvdBlockCtr := GStack.NetworkToHost(BytesToUInt16(Buffer, 2));
               if RecvdBlockCtr = ExpectedBlockCtr then
               begin
                 DataLen := Length(Buffer) - 4;
@@ -255,7 +255,7 @@ begin
                   end;
                 end;
                 SendAck(RecvdBlockCtr);
-                if RecvdBlockCtr = High(Word) then begin
+                if RecvdBlockCtr = High(UInt16) then begin
                   if Length(Buffer) >= BufferSize then begin
                     // have reached the max block counter allowed, can't validate any more data...
                     SendError(Self, FPeerIP, FPeerPort, ErrIllegalOperation, '');
@@ -317,15 +317,15 @@ var
   Buffer, LServerFile, LMode, LBlockSize, LBlockOctets, LTransferSize, LTransferOctets: TIdBytes;
   StreamLen: TIdStreamSize;
   LOffset, DataLen: Integer;
-  ExpectedBlockCtr, RecvdBlockCtr, wOp: Word;
+  ExpectedBlockCtr, RecvdBlockCtr, wOp: UInt16;
   TerminateTransfer, WaitingForAck: Boolean;
 
-  procedure SendDataPacket(const BlockNumber: Word);
+  procedure SendDataPacket(const BlockNumber: UInt16);
   begin
     DataLen := IndyMin(BufferSize-4, StreamLen);
     SetLength(Buffer, 4 + DataLen);
-    CopyTIdWord(GStack.HostToNetwork(Word(TFTP_DATA)), Buffer, 0);
-    CopyTIdWord(GStack.HostToNetwork(BlockNumber), Buffer, 2);
+    CopyTIdUInt16(GStack.HostToNetwork(UInt16(TFTP_DATA)), Buffer, 0);
+    CopyTIdUInt16(GStack.HostToNetwork(BlockNumber), Buffer, 2);
     try
       DataLen := ReadTIdBytesFromStream(SourceStream, Buffer, DataLen, 4);
     except
@@ -360,7 +360,7 @@ begin
     SetLength(Buffer, 2+Length(LServerFile)+1+Length(LMode)+1+Length(LBlockSize)+1+Length(LBlockOctets)+1+Length(LTransferSize)+1+Length(LTransferOctets)+1);
     LOffset := 0;
 
-    CopyTIdWord(GStack.HostToNetwork(Word(TFTP_WRQ)), Buffer, LOffset);
+    CopyTIdUInt16(GStack.HostToNetwork(UInt16(TFTP_WRQ)), Buffer, LOffset);
     Inc(LOffset, 2);
     CopyTIdBytes(LServerFile, 0, Buffer, LOffset, Length(LServerFile));
     Inc(LOffset, Length(LServerFile));
@@ -402,17 +402,17 @@ begin
         end;
         SetLength(Buffer, DataLen);
         // TODO: validate the correct peer is sending the data...
-        wOp := GStack.NetworkToHost(BytesToWord(Buffer));
+        wOp := GStack.NetworkToHost(BytesToUInt16(Buffer));
         case wOp of
           TFTP_ACK:
             begin
-              RecvdBlockCtr := GStack.NetworkToHost(BytesToWord(Buffer, 2));
+              RecvdBlockCtr := GStack.NetworkToHost(BytesToUInt16(Buffer, 2));
               if RecvdBlockCtr = ExpectedBlockCtr then
               begin
                 WaitingForAck := False;
                 if not TerminateTransfer then
                 begin
-                  if RecvdBlockCtr = High(Word) then
+                  if RecvdBlockCtr = High(UInt16) then
                   begin
                     // end of transfer, a block counter cannot wrap back to 0
                     SendError(Self, FPeerIP, FPeerPort, ErrAllocationExceeded, '');
@@ -468,7 +468,7 @@ var
   ErrMsg: string;
 begin
   ErrMsg := BytesToString(ErrorPacket, 4, Length(ErrorPacket)-4, IndyTextEncoding_ASCII);
-  case GStack.NetworkToHost(BytesToWord(ErrorPacket, 2)) of
+  case GStack.NetworkToHost(BytesToUInt16(ErrorPacket, 2)) of
     ErrFileNotFound:            raise EIdTFTPFileNotFound.Create(ErrMsg);
     ErrAccessViolation:         raise EIdTFTPAccessViolation.Create(ErrMsg);
     ErrAllocationExceeded:      raise EIdTFTPAllocationExceeded.Create(ErrMsg);
@@ -483,7 +483,7 @@ begin
   end;
 end;
 
-procedure TIdTrivialFTP.SendAck(const BlockNumber: Word);
+procedure TIdTrivialFTP.SendAck(const BlockNumber: UInt16);
 begin
   SendBuffer(FPeerIP, FPeerPort, MakeActPkt(BlockNumber));
 end;

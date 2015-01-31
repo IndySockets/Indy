@@ -938,6 +938,11 @@ Lib/Core/IndyCore210.dproj -text
 Lib/Core/IndyCore210.rc -text
 Lib/Core/IndyCore210.rc.tmpl -text
 Lib/Core/IndyCore210.res -text
+Lib/Core/IndyCore220.dpk -text
+Lib/Core/IndyCore220.dproj -text
+Lib/Core/IndyCore220.rc -text
+Lib/Core/IndyCore220.rc.tmpl -text
+Lib/Core/IndyCore220.res -text
 Lib/Core/IndyCore40.RES -text
 Lib/Core/IndyCore40.rc -text
 Lib/Core/IndyCore40.rc.tmpl -text
@@ -1048,6 +1053,11 @@ Lib/Core/dclIndyCore210.dproj -text
 Lib/Core/dclIndyCore210.rc -text
 Lib/Core/dclIndyCore210.rc.tmpl -text
 Lib/Core/dclIndyCore210.res -text
+Lib/Core/dclIndyCore220.dpk -text
+Lib/Core/dclIndyCore220.dproj -text
+Lib/Core/dclIndyCore220.rc -text
+Lib/Core/dclIndyCore220.rc.tmpl -text
+Lib/Core/dclIndyCore220.res -text
 Lib/Core/dclIndyCore40.RES -text
 Lib/Core/dclIndyCore40.dpk -text
 Lib/Core/dclIndyCore40.rc -text
@@ -1081,6 +1091,7 @@ Lib/Core/dclindycorek3.dpk -text
 Lib/Core/dclindycorek3.dpkl -text
 Lib/Core/dclindycorek3.res -text svneol=unset#unset
 Lib/Core/dclindycorelaz.lpk -text
+Lib/Core/dclindycorelaz.lpk.tmpl -text
 Lib/Core/indy_pit_crew_credits_window.psd -text
 Lib/Core/indycorefpc.pas -text
 Lib/Design/DsnIndy.bdsproj -text
@@ -1119,6 +1130,7 @@ Lib/Fullc_XE4.bat -text
 Lib/Fullc_XE5.bat -text
 Lib/Fullc_XE6.bat -text
 Lib/Fullc_XE7.bat -text
+Lib/Fullc_XE8.bat -text
 Lib/Fulld_2005.bat eol=crlf
 Lib/Fulld_2006.bat eol=crlf
 Lib/Fulld_2007.bat -text
@@ -1138,6 +1150,7 @@ Lib/Indy180.groupproj -text
 Lib/Indy190.groupproj -text
 Lib/Indy200.groupproj -text
 Lib/Indy210.groupproj -text
+Lib/Indy220.groupproj -text
 Lib/Indy90Net.dpk -text
 Lib/Protocols/DelphiZLib.lib -text svneol=unset#unset
 Lib/Protocols/IconsDotNet/TIdBlockCipherIntercept.bmp -text svneol=unset#unset
@@ -1659,6 +1672,11 @@ Lib/Protocols/IndyProtocols210.dproj -text
 Lib/Protocols/IndyProtocols210.rc -text
 Lib/Protocols/IndyProtocols210.rc.tmpl -text
 Lib/Protocols/IndyProtocols210.res -text
+Lib/Protocols/IndyProtocols220.dpk -text
+Lib/Protocols/IndyProtocols220.dproj -text
+Lib/Protocols/IndyProtocols220.rc -text
+Lib/Protocols/IndyProtocols220.rc.tmpl -text
+Lib/Protocols/IndyProtocols220.res -text
 Lib/Protocols/IndyProtocols40.dpk -text
 Lib/Protocols/IndyProtocols40.rc -text
 Lib/Protocols/IndyProtocols40.rc.tmpl -text
@@ -1843,6 +1861,11 @@ Lib/Protocols/dclIndyProtocols210.dproj -text
 Lib/Protocols/dclIndyProtocols210.rc -text
 Lib/Protocols/dclIndyProtocols210.rc.tmpl -text
 Lib/Protocols/dclIndyProtocols210.res -text
+Lib/Protocols/dclIndyProtocols220.dpk -text
+Lib/Protocols/dclIndyProtocols220.dproj -text
+Lib/Protocols/dclIndyProtocols220.rc -text
+Lib/Protocols/dclIndyProtocols220.rc.tmpl -text
+Lib/Protocols/dclIndyProtocols220.res -text
 Lib/Protocols/dclIndyProtocols40.RES -text
 Lib/Protocols/dclIndyProtocols40.dpk -text
 Lib/Protocols/dclIndyProtocols40.rc -text
@@ -2051,6 +2074,11 @@ Lib/System/IndySystem210.dproj -text
 Lib/System/IndySystem210.rc -text
 Lib/System/IndySystem210.rc.tmpl -text
 Lib/System/IndySystem210.res -text
+Lib/System/IndySystem220.dpk -text
+Lib/System/IndySystem220.dproj -text
+Lib/System/IndySystem220.rc -text
+Lib/System/IndySystem220.rc.tmpl -text
+Lib/System/IndySystem220.res -text
 Lib/System/IndySystem40.dpk -text
 Lib/System/IndySystem40.rc -text
 Lib/System/IndySystem40.rc.tmpl -text

@@ -93,6 +93,7 @@ type
     //
     property Value: Integer read GetValue write SetValue;
   end;
+  TIdThreadSafeInt32 = TIdThreadSafeInteger;
 
   TIdThreadSafeBoolean = class(TIdThreadSafe)
   protected
@@ -120,6 +121,7 @@ type
     //
     property Value: Cardinal read GetValue write SetValue;
   end;
+  TIdThreadSafeUInt32 = TIdThreadSafeCardinal;
 
   TIdThreadSafeInt64 = class(TIdThreadSafe)
   protected
@@ -203,7 +205,7 @@ type
     procedure Assign(AList: TList{$IFDEF HAS_GENERICS_TList}<T>{$ENDIF});overload;
     // Here to make it virtual
     constructor Create; virtual;
-    function IsCountLessThan(const AValue: Cardinal): Boolean;
+    function IsCountLessThan(const AValue: UInt32): Boolean;
     function Count:Integer;
     function IsEmpty: Boolean;
     function Pop: {$IFDEF HAS_GENERICS_TThreadList}T{$ELSE}Pointer{$ENDIF};
@@ -562,10 +564,10 @@ end;
 
 { TIdThreadSafeList }
 
-function TIdThreadSafeList{$IFDEF HAS_GENERICS_TThreadList}<T>{$ENDIF}.IsCountLessThan(const AValue: Cardinal): Boolean;
+function TIdThreadSafeList{$IFDEF HAS_GENERICS_TThreadList}<T>{$ENDIF}.IsCountLessThan(const AValue: UInt32): Boolean;
 begin
   if Assigned(Self) then begin
-    Result := Cardinal(Count) < AValue;
+    Result := UInt32(Count) < AValue;
   end else begin
     Result := True; // none always <
   end;

@@ -73,7 +73,7 @@ uses
 type
   TIdIPAddress = class(TObject)
   protected
-    FIPv4 : Cardinal;
+    FIPv4 : UInt32;
     FAddrType : TIdIPVersion;
     //general conversion stuff
     //property as String Get methods
@@ -90,7 +90,7 @@ type
     function CompareAddress(const AIP : String; var VErr : Boolean) : Integer;
     function HToNBytes: TIdBytes;
 
-    property IPv4 : Cardinal read FIPv4 write FIPv4;
+    property IPv4 : UInt32 read FIPv4 write FIPv4;
     property IPv4AsString : String read GetIPv4AsString;
     property IPv6AsString : String read GetIPv6AsString;
     property AddrType : TIdIPVersion read FAddrType write FAddrType;
@@ -105,7 +105,7 @@ uses
 //IPv4 address conversion
 //Much of this is based on http://www.pc-help.org/obscure.htm
 
-function CompareWord(const AWord1, AWord2 : Word) : Integer;
+function CompareUInt16(const AWord1, AWord2 : UInt16) : Integer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 {
 AWord1 > AWord2	> 0
@@ -122,7 +122,7 @@ begin
   end;
 end;
 
-function CompareCardinal(const ACard1, ACard2 : Cardinal) : Integer; 
+function CompareUInt32(const ACard1, ACard2 : UInt32) : Integer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 {
 ACard1 > ACard2	> 0
@@ -162,10 +162,10 @@ begin
       VErr := FAddrType <> LIP2.FAddrType;
       if not VErr then begin
         if FAddrType = Id_IPv4 then begin
-          Result := CompareCardinal(FIPv4, LIP2.FIPv4);
+          Result := CompareUInt32(FIPv4, LIP2.FIPv4);
         end else begin
           for I := 0 to 7 do begin
-            Result := CompareWord(IPv6[i], LIP2.IPv6[i]);
+            Result := CompareUInt16(IPv6[i], LIP2.IPv6[i]);
             if Result <> 0 then begin
               Break;
             end;
@@ -194,7 +194,7 @@ begin
   end else begin
     SetLength(Result, 16);
     for I := 0 to 7 do begin
-      CopyTIdWord(GStack.HostToNetwork(IPv6[i]), Result, 2*I);
+      CopyTIdUInt16(GStack.HostToNetwork(IPv6[i]), Result, 2*I);
     end;
   end;
 end;
@@ -245,7 +245,7 @@ begin
       Result.FAddrType := Id_IPv6;
       Exit;
     end;
-    Result.FIPv4 := IPv4ToDWord(AIP, LErr);
+    Result.FIPv4 := IPv4ToUInt32(AIP, LErr);
     if not LErr then begin
       Result.FAddrType := Id_IPv4;
       Exit;
@@ -267,7 +267,7 @@ begin
     case AIPVersion of
       Id_IPV4:
         begin
-          Result.FIPv4 := IPv4ToDWord(AIP, LErr);
+          Result.FIPv4 := IPv4ToUInt32(AIP, LErr);
           if not LErr then begin
             Result.FAddrType := Id_IPv4;
             Exit;

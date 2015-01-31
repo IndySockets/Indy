@@ -63,10 +63,10 @@ type
       const APort: TIdPort; const ALogin:boolean; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);virtual;
   public
   published
-    property  Enabled;
-    property  Host;
-    property  Port;
-    property  ChainedProxy;
+    property Enabled;
+    property Host;
+    property Port;
+    property ChainedProxy;
     property Username;
     property Password;
   end;

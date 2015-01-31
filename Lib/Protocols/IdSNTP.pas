@@ -94,17 +94,17 @@ type
     Head2: byte;
     Head3: byte;
     Head4: byte;
-    RootDelay: LongWord;
-    RootDispersion: LongWord;
-    RefID: LongWord;
-    Ref1: LongWord;
-    Ref2: LongWord;
-    Org1: LongWord;
-    Org2: LongWord;
-    Rcv1: LongWord;
-    Rcv2: LongWord;
-    Xmit1: LongWord;
-    Xmit2: LongWord;
+    RootDelay: UInt32;
+    RootDispersion: UInt32;
+    RefID: UInt32;
+    Ref1: UInt32;
+    Ref2: UInt32;
+    Org1: UInt32;
+    Org2: UInt32;
+    Rcv1: UInt32;
+    Rcv2: UInt32;
+    Xmit1: UInt32;
+    Xmit2: UInt32;
   end;
 
   TIdSNTP = class(TIdUDPClient)
@@ -117,8 +117,8 @@ type
     FTransmitTimestamp: TDateTime;      // Transmit Timestamp      T3   time reply sent by server
     FCheckStratum: Boolean;
     //
-    procedure DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: LongWord);
-    function NTPToDateTime(Second, Fraction: LongWord): TDateTime;
+    procedure DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: UInt32);
+    function NTPToDateTime(Second, Fraction: UInt32): TDateTime;
 
     function Disregard(const ANTPMessage: TNTPGram): Boolean;
     function GetAdjustmentTime: TDateTime;
@@ -145,7 +145,7 @@ uses
   IdStack,
   SysUtils;
 
-procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: LongWord);
+procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: UInt32);
 var
   Value1, Value2: Double;
 begin
@@ -157,7 +157,7 @@ begin
     Value2 := Value2 - NTPMaxInt;
   end;
 
-  Second := LongWord(Trunc(Value2));
+  Second := UInt32(Trunc(Value2));
   Value2 := ((Frac(Value1) * 1000) / 1000) * NTPMaxInt;
 
   if Value2 > NTPMaxInt then
@@ -168,7 +168,7 @@ begin
   Fraction := Trunc(Value2);
 end;
 
-function TIdSNTP.NTPToDateTime(Second, Fraction: LongWord): TDateTime;
+function TIdSNTP.NTPToDateTime(Second, Fraction: UInt32): TDateTime;
 var
   Value1: Double;
   Value2: Double;
@@ -241,8 +241,8 @@ begin
 
   LBuffer[0] := $1B;
   DateTimeToNTP(Now, LNTPDataGram.Xmit1, LNTPDataGram.Xmit2);
-  CopyTIdLongWord(GStack.HostToNetwork(LNTPDataGram.Xmit1), LBuffer, 40);
-  CopyTIdLongWord(GStack.HostToNetwork(LNTPDataGram.Xmit2), LBuffer, 44);
+  CopyTIdUInt32(GStack.HostToNetwork(LNTPDataGram.Xmit1), LBuffer, 40);
+  CopyTIdUInt32(GStack.HostToNetwork(LNTPDataGram.Xmit2), LBuffer, 44);
 
   SendBuffer(LBuffer);
   ReceiveBuffer(LBuffer);
@@ -259,17 +259,17 @@ begin
     LNTPDataGram.Head2            := LBuffer[1];
     LNTPDataGram.Head3            := LBuffer[2];
     LNTPDataGram.Head4            := LBuffer[3];
-    LNTPDataGram.RootDelay        := GStack.NetworkToHost(BytesToLongWord(LBuffer, 4));
-    LNTPDataGram.RootDispersion   := GStack.NetworkToHost(BytesToLongWord(LBuffer, 8));
-    LNTPDataGram.RefID            := GStack.NetworkToHost(BytesToLongWord(LBuffer, 12));
-    LNTPDataGram.Ref1             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 16));
-    LNTPDataGram.Ref2             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 20));
-    LNTPDataGram.Org1             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 24));
-    LNTPDataGram.Org2             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 28));
-    LNTPDataGram.Rcv1             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 32));
-    LNTPDataGram.Rcv2             := GStack.NetworkToHost(BytesToLongWord(LBuffer, 36));
-    LNTPDataGram.Xmit1            := GStack.NetworkToHost(BytesToLongWord(LBuffer, 40));
-    LNTPDataGram.Xmit2            := GStack.NetworkToHost(BytesToLongWord(LBuffer, 44));
+    LNTPDataGram.RootDelay        := GStack.NetworkToHost(BytesToUInt32(LBuffer, 4));
+    LNTPDataGram.RootDispersion   := GStack.NetworkToHost(BytesToUInt32(LBuffer, 8));
+    LNTPDataGram.RefID            := GStack.NetworkToHost(BytesToUInt32(LBuffer, 12));
+    LNTPDataGram.Ref1             := GStack.NetworkToHost(BytesToUInt32(LBuffer, 16));
+    LNTPDataGram.Ref2             := GStack.NetworkToHost(BytesToUInt32(LBuffer, 20));
+    LNTPDataGram.Org1             := GStack.NetworkToHost(BytesToUInt32(LBuffer, 24));
+    LNTPDataGram.Org2             := GStack.NetworkToHost(BytesToUInt32(LBuffer, 28));
+    LNTPDataGram.Rcv1             := GStack.NetworkToHost(BytesToUInt32(LBuffer, 32));
+    LNTPDataGram.Rcv2             := GStack.NetworkToHost(BytesToUInt32(LBuffer, 36));
+    LNTPDataGram.Xmit1            := GStack.NetworkToHost(BytesToUInt32(LBuffer, 40));
+    LNTPDataGram.Xmit2            := GStack.NetworkToHost(BytesToUInt32(LBuffer, 44));
 
     FOriginateTimeStamp := NTPToDateTime(LNTPDataGram.Org1, LNTPDataGram.Org2);
     FReceiveTimestamp := NTPToDateTime(LNTPDataGram.Rcv1, LNTPDataGram.Rcv2);

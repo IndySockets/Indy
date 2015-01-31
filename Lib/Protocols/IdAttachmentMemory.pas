@@ -94,11 +94,16 @@ end;
 
 constructor TIdAttachmentMemory.Create(Collection: TIdMessageParts;
   const CopyFrom: TStream);
+var
+  LSize: TIdStreamSize;
 begin
   inherited Create(Collection);
   FDataStream := TMemoryStream.Create;
   if Assigned(CopyFrom) then begin
-    FDataStream.CopyFrom(CopyFrom, CopyFrom.Size);
+    LSize := IndyLength(CopyFrom);
+    if LSize > 0 then begin
+      FDataStream.CopyFrom(CopyFrom, LSize);
+    end;
   end;
 end;
 
@@ -142,9 +147,14 @@ begin
 end;
 
 procedure TIdAttachmentMemory.SetDataStream(const Value: TStream);
+var
+  LSize: TIdStreamSize;
 begin
   FDataStream.Size := 0;
-  FDataStream.CopyFrom(Value, Value.Size);
+  LSize := IndyLength(Value);
+  if LSize > 0 then begin
+    FDataStream.CopyFrom(Value, LSize);
+  end;
 end;
 
 procedure TIdAttachmentMemory.SetDataString(const Value: string);

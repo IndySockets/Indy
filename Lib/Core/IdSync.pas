@@ -128,7 +128,7 @@ type
     {$ENDIF}
     class procedure NotifyMethod(AMethod: TThreadMethod);
     //
-    property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify;
+    property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify; // deprecated
   end;
 
   TIdNotifyMethod = class(TIdNotify)
@@ -329,6 +329,10 @@ end;
 
 procedure TIdNotify.Notify;
 begin
+  // Note: MainThreadUsesNotify only has meaning now when TThread.Queue() is
+  // not available, as it calls the specified method immediately if invoked
+  // in the main thread!  To go back to the old behavior, we would have to
+  // re-enable use of TIdNotifyThread, which is another interface change...
   if InMainThread and (not MainThreadUsesNotify) then begin
     {$IFNDEF USE_OBJECT_ARC}
     try

@@ -438,7 +438,22 @@ type
   end;
 
   //public for testing
-  function ParseDateTimeStamp(const DateString: string): TDateTime;
+  type
+    TIdISO8601DateComps = record
+      Year, Month, Day: UInt16;
+    end;
+    TIdISO8601TimeComps = record
+      Hour, Min, Sec, MSec: UInt16;
+      UTCOffset: String;
+    end;
+
+  function ParseISO8601Date(const DateString: string; var VDate: TIdISO8601DateComps): Boolean;
+  function ParseISO8601Time(const DateString: string; var VTime: TIdISO8601TimeComps): Boolean;
+  function ParseISO8601DateTime(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
+  function ParseISO8601DateAndOrTime(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
+  function ParseISO8601DateTimeStamp(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
+
+  function ParseDateTimeStamp(const DateString: string): TDateTime; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ParseISO8601DateTimeStamp()'{$ENDIF};{$ENDIF}
 
 implementation
 
@@ -481,7 +496,7 @@ const EMailTypePropertyParameter : array [0..11] of string = (
 function IndyStrToFloat(const AStr: string): Extended;
 var
   LBuf : String;
-  LHi, LLo : Cardinal;
+  LHi, LLo : UInt32;
   i : Integer;
 begin
   LBuf := AStr;
@@ -514,43 +529,551 @@ begin
 end;
 
 {This parses time stamp from DateString and returns it as TDateTime
-This assumes the date Time stamp will be like this:
 
-1995-10-31T22:27:10Z
+Per RFC 2425 Section 5.8.4:
 
-1997-11-15
+   date = date-fullyear ["-"] date-month ["-"] date-mday
+
+   date-fullyear = 4 DIGIT
+
+   date-month = 2 DIGIT     ;01-12
+
+   date-mday = 2 DIGIT      ;01-28, 01-29, 01-30, 01-31
+                            ;based on month/year
+
+   time = time-hour [":"] time-minute [":"] time-second [time-secfrac] [time-zone]
+
+   time-hour = 2 DIGIT      ;00-23
+
+   time-minute = 2 DIGIT    ;00-59
+
+   time-second = 2 DIGIT    ;00-60 (leap second)
+
+   time-secfrac = "," 1*DIGIT
+
+   time-zone = "Z" / time-numzone
+
+   time-numzome = sign time-hour [":"] time-minute
+
+   "date", "time", and "date-time": Each of these value types is based
+   on a subset of the definitions in ISO 8601 standard. Profiles MAY
+   place further restrictions on "date" and "time" values.  Multiple
+   "date" and "time" values can be specified using the comma-separated
+   notation, unless restricted by a profile.
+
+       Examples for "date":
+                   1985-04-12
+                   1996-08-05,1996-11-11
+                   19850412
+
+       Examples for "time":
+                   10:22:00
+                   102200
+                   10:22:00.33
+                   10:22:00.33Z
+                   10:22:33,11:22:00
+                   10:22:00-08:00
+
+       Examples for "date-time":
+                   1996-10-22T14:00:00Z
+                   1996-08-11T12:34:56Z
+                   19960811T123456Z
+                   1996-10-22T14:00:00Z,1996-08-11T12:34:56Z
+
+
+Per RFC 2426 Section 4:
+
+   date-value   = <A single date value as defined in [MIME-DIR]>
+
+   time-value   = <A single time value as defined in [MIME-DIR]>
+
+   date-time-value = <A single date-time value as defined in [MIME-DIR]
+
+[MIME-DIR]    Howes, T., Smith, M., and F. Dawson, "A MIME Content-
+                 Type for Directory Information", RFC 2425, September
+                 1998.
+
+
+Per RFC 6350 Section 4.3:
+
+   "date", "time", "date-time", "date-and-or-time", and "timestamp":
+   Each of these value types is based on the definitions in
+   [ISO.8601.2004].  Multiple such values can be specified using the
+   comma-separated notation.
+
+   Only the basic format is supported.
+
+4.3.1.  DATE
+
+   A calendar date as specified in [ISO.8601.2004], Section 4.1.2.
+
+   Reduced accuracy, as specified in [ISO.8601.2004], Sections 4.1.2.3
+   a) and b), but not c), is permitted.
+
+   Expanded representation, as specified in [ISO.8601.2004], Section
+   4.1.4, is forbidden.
+
+   Truncated representation, as specified in [ISO.8601.2000], Sections
+   5.2.1.3 d), e), and f), is permitted.
+
+   Examples for "date":
+
+             19850412
+             1985-04
+             1985
+             --0412
+             ---12
+
+   Note the use of YYYY-MM in the second example above.  YYYYMM is
+   disallowed to prevent confusion with YYMMDD.  Note also that
+   YYYY-MM-DD is disallowed since we are using the basic format instead
+   of the extended format.
+
+4.3.2.  TIME
+
+   A time of day as specified in [ISO.8601.2004], Section 4.2.
+
+   Reduced accuracy, as specified in [ISO.8601.2004], Section 4.2.2.3,
+   is permitted.
+
+   Representation with decimal fraction, as specified in
+   [ISO.8601.2004], Section 4.2.2.4, is forbidden.
+
+   The midnight hour is always represented by 00, never 24 (see
+   [ISO.8601.2004], Section 4.2.3).
+
+   Truncated representation, as specified in [ISO.8601.2000], Sections
+   5.3.1.4 a), b), and c), is permitted.
+
+   Examples for "time":
+
+             102200
+             1022
+             10
+             -2200
+             --00
+             102200Z
+             102200-0800
+
+4.3.3.  DATE-TIME
+
+   A date and time of day combination as specified in [ISO.8601.2004],
+   Section 4.3.
+
+   Truncation of the date part, as specified in [ISO.8601.2000], Section
+   5.4.2 c), is permitted.
+
+   Examples for "date-time":
+
+             19961022T140000
+             --1022T1400
+             ---22T14
+
+4.3.4.  DATE-AND-OR-TIME
+
+   Either a DATE-TIME, a DATE, or a TIME value.  To allow unambiguous
+   interpretation, a stand-alone TIME value is always preceded by a "T".
+
+   Examples for "date-and-or-time":
+
+             19961022T140000
+             --1022T1400
+             ---22T14
+             19850412
+             1985-04
+             1985
+             --0412
+             ---12
+             T102200
+             T1022
+             T10
+             T-2200
+             T--00
+             T102200Z
+             T102200-0800
+
+4.3.5.  TIMESTAMP
+
+   A complete date and time of day combination as specified in
+   [ISO.8601.2004], Section 4.3.2.
+
+   Examples for "timestamp":
+
+             19961022T140000
+             19961022T140000Z
+             19961022T140000-05
+             19961022T140000-0500
+
 }
-function ParseDateTimeStamp(const DateString : String) : TDateTime;
+
+function ParseISO8601Date(const DateString: string; var VDate: TIdISO8601DateComps): Boolean;
 var
-  Year, Day, Month : Integer;
-  Hour, Minute, Second : Integer;
+  Year, Month, Day: UInt16;
+  Len: Integer;
 begin
-  //outlook format = 20050531T195358Z
-  if CharEquals(DateString, 9, 'T') then begin
-    Year  := IndyStrToInt(Copy(DateString, 1, 4));
-    Month := IndyStrToInt(Copy(DateString, 5, 2));
-    Day   := IndyStrToInt(Copy(DateString, 7, 2));
-    Hour   := IndyStrToInt(Copy(DateString, 10, 2));
-    Minute := IndyStrToInt(Copy(DateString, 12, 2));
-    Second := IndyStrToInt(Copy(DateString, 14, 2));
-  end else begin
-    Year  := IndyStrToInt(Copy(DateString, 1, 4));
+  // TODO: move this logic into IdGlobalProtocols.RawStrInternetToDateTime().ParseISO8601()
+
+  Result := False;
+  VDate.Year := 0;
+  VDate.Month := 0;
+  VDate.Day := 0;
+
+  Len := Length(DateString);
+
+  if (Len >= 10) and
+     IsNumeric(DateString, 4, 1) and CharEquals(DateString, 5, '-') and
+     IsNumeric(DateString, 2, 6) and CharEquals(DateString, 8, '-') and
+     IsNumeric(DateString, 2, 9) then
+  begin
+    Year := IndyStrToInt(Copy(DateString, 1, 4));
     Month := IndyStrToInt(Copy(DateString, 6, 2));
-    Day   := IndyStrToInt(Copy(DateString, 9, 2));
-    //where does 14 come from?
-    if Length(DateString) > 14 then begin
-      Hour := IndyStrToInt(Copy(DateString, 12, 2));
-      Minute := IndyStrToInt(Copy(DateString, 15, 2));
-      Second := IndyStrToInt(Copy(DateString, 18, 2));
+    Day := IndyStrToInt(Copy(DateString, 9, 2));
+    Dec(Len, 10);
+  end
+  else if (Len >= 8) and IsNumeric(DateString, 8, 1) then
+  begin
+    Year := IndyStrToInt(Copy(DateString, 1, 4));
+    Month := IndyStrToInt(Copy(DateString, 5, 2));
+    Day := IndyStrToInt(Copy(DateString, 7, 2));
+    Dec(Len, 8);
+  end else
+  begin
+    Day := 1;
+    if (Len >= 7) and
+       IsNumeric(DateString, 4, 1) and CharEquals(DateString, 5, '-') and
+       IsNumeric(DateString, 2, 6) then
+    begin
+      Year := IndyStrToInt(Copy(DateString, 1, 4));
+      Month := IndyStrToInt(Copy(DateString, 6, 2));
+      Dec(Len, 7);
+    end
+    else if (Len >= 4) and IsNumeric(DateString, 4, 1) then
+    begin
+      Month := 1;
+      Year := IndyStrToInt(Copy(DateString, 1, 4));
+      Dec(Len, 4);
+    end
+    else if (Len >= 4) and CharEquals(DateString, 1, '-') and CharEquals(DateString, 2, '-') then
+    begin
+      Year := 0;
+      if (Len >= 7) and IsNumeric(DateString, 2, 3) and CharEquals(DateString, 5, '-') and
+         IsNumeric(DateString, 2, 6) then
+      begin
+        Month := IndyStrToInt(Copy(DateString, 3, 2));
+        Day := IndyStrToInt(Copy(DateString, 6, 2));
+        Dec(Len, 7);
+      end
+      else if (Len >= 6) and IsNumeric(DateString, 4, 3) then
+      begin
+        Month := IndyStrToInt(Copy(DateString, 3, 2));
+        Day := IndyStrToInt(Copy(DateString, 5, 2));
+        Dec(Len, 6)
+      end
+      else if (Len >= 5) and CharEquals(DateString, 3, '-') and IsNumeric(DateString, 2, 4) then
+      begin
+        Month := 1;
+        Day := IndyStrToInt(Copy(DateString, 4, 2));
+        Dec(Len, 5);
+      end
+      else if (Len >= 4) and IsNumeric(DateString, 2, 3) then
+      begin
+        Month := IndyStrToInt(Copy(DateString, 3, 2));
+        Day := 1;
+        Dec(Len, 4);
+      end else begin
+        Exit;
+      end;
     end else begin
-      { no date }
-      Hour   := 0;
-      Minute := 0;
-      Second := 0;
+      Exit;
     end;
-    //DateStamp.AsISO8601Calender := DateString;
   end;
-  Result := EncodeDate(Year, Month, Day) + EncodeTime(Hour, Minute, Second, 0);
+
+  if Len > 0 then begin
+    Exit;
+  end;
+
+  VDate.Year := Year;
+  VDate.Month := Month;
+  VDate.Day := Day;
+
+  Result := True;
+end;
+
+function ParseISO8601Time(const DateString: string; var VTime: TIdISO8601TimeComps): Boolean;
+type
+  eFracComp = (fracMin, fracSec, fracMSec);
+var
+  Hour, Min, Sec, MSec: UInt16;
+  Len, Offset, TmpOffset, TmpLen, I, Numerator, Denominator: Integer;
+  LMultiplier: Single;
+  FracComp: eFracComp;
+begin
+  // TODO: move this logic into IdGlobalProtocols.RawStrInternetToDateTime().ParseISO8601()
+
+  Result := False;
+  VTime.Hour := 0;
+  VTime.Min := 0;
+  VTime.Sec := 0;
+  VTime.MSec := 0;
+  VTime.UTCOffset := '';
+
+  Len := Length(DateString);
+  MSec := 0;
+
+  if (Len >= 8) and
+     IsNumeric(DateString, 2, 1) and CharEquals(DateString, 3, ':') and
+     IsNumeric(DateString, 2, 4) and CharEquals(DateString, 6, ':') and
+     IsNumeric(DateString, 2, 7) then
+  begin
+    Hour := IndyStrToInt(Copy(DateString, 1, 2));
+    Min := IndyStrToInt(Copy(DateString, 4, 2));
+    Sec := IndyStrToInt(Copy(DateString, 7, 2));
+    Offset := 9;
+    Dec(Len, 8);
+    FracComp := fracMSec;
+  end
+  else if (Len >= 6) and IsNumeric(DateString, 6, 1) then
+  begin
+    Hour := IndyStrToInt(Copy(DateString, 1, 2));
+    Min := IndyStrToInt(Copy(DateString, 3, 2));
+    Sec := IndyStrToInt(Copy(DateString, 5, 2));
+    Offset := 7;
+    Dec(Len, 6);
+    FracComp := fracMSec;
+  end
+  else begin
+    Sec := 0;
+    if (Len >= 5) and
+       IsNumeric(DateString, 2, 1) and CharEquals(DateString, 3, ':') and
+       IsNumeric(DateString, 2, 4) then
+    begin
+      Hour := IndyStrToInt(Copy(DateString, 1, 2));
+      Min := IndyStrToInt(Copy(DateString, 4, 2));
+      Offset := 6;
+      Dec(Len, 5);
+      FracComp := fracSec;
+    end
+    else if (Len >= 4) and IsNumeric(DateString, 4, 1) then
+    begin
+      Hour := IndyStrToInt(Copy(DateString, 1, 2));
+      Min := IndyStrToInt(Copy(DateString, 3, 2));
+      Offset := 5;
+      Dec(Len, 4);
+      FracComp := fracSec;
+    end else
+    begin
+      if (Len >= 2) and IsNumeric(DateString, 2, 1) then begin
+        Min := 0;
+        Hour := IndyStrToInt(Copy(DateString, 1, 2));
+        Offset := 3;
+        Dec(Len, 2);
+        FracComp := fracMin;
+      end
+      else if (Len >= 3) and CharEquals(DateString, 1, '-') then
+      begin
+        Hour := 0;
+        if (Len >= 6) and IsNumeric(DateString, 2, 2) and CharEquals(DateString, 4, ':') and
+           IsNumeric(DateString, 2, 5) then
+        begin
+          Min := IndyStrToInt(Copy(DateString, 2, 2));
+          Sec := IndyStrToInt(Copy(DateString, 5, 2));
+          Offset := 7;
+          Dec(Len, 6);
+          FracComp := fracMSec;
+        end
+        else if (Len >= 5) and IsNumeric(DateString, 4, 2) then
+        begin
+          Min := IndyStrToInt(Copy(DateString, 2, 2));
+          Sec := IndyStrToInt(Copy(DateString, 4, 2));
+          Offset := 6;
+          Dec(Len, 5);
+          FracComp := fracMSec;
+        end
+        else if (Len >= 4) and CharEquals(DateString, 2, '-') and IsNumeric(DateString, 2, 3) then
+        begin
+          Min := 0;
+          Sec := IndyStrToInt(Copy(DateString, 3, 2));
+          Offset := 5;
+          Dec(Len, 4);
+          FracComp := fracMSec;
+        end
+        else if (Len >= 3) and IsNumeric(DateString, 2, 2) then
+        begin
+          Min := IndyStrToInt(Copy(DateString, 3, 2));
+          Sec := 0;
+          Offset := 4;
+          Dec(Len, 3);
+          FracComp := fracSec;
+        end else begin
+          Exit;
+        end;
+      end else begin
+        Exit;
+      end;
+    end;
+  end;
+
+  if (Len > 0) and CharIsInSet(DateString, Offset, '.,') then
+  begin
+    Inc(Offset);
+    Dec(Len);
+
+    Numerator := 0;
+    Denominator := 1;
+    for I := 0 to 8 do
+    begin
+      if Len = 0 then begin
+        Break;
+      end;
+      if not IsNumeric(DateString[Offset]) then begin
+        Break;
+      end;
+      Numerator := (Numerator * 10) + (Ord(DateString[Offset]) - Ord('0'));
+      if Numerator < 0 then begin // overflow
+        Exit;
+      end;
+      Denominator := Denominator * 10;
+      Inc(Offset);
+      Dec(Len);
+    end;
+    LMultiplier := Numerator / Denominator;
+
+    case FracComp of
+      fracMin: begin
+        Min := UInt16(Trunc(60 * LMultiplier));
+      end;
+      fracSec: begin
+        Sec := UInt16(Trunc(60 * LMultiplier));
+      end;
+      fracMSec: begin
+        MSec := UInt16(Trunc(1000 * LMultiplier));
+      end;
+    end;
+  end;
+
+  if Len > 0 then
+  begin
+    TmpOffset := Offset;
+    TmpLen := Len;
+    if not CharIsInSet(DateString, Offset, '+-') then
+    begin
+      // TODO: parse time zones other than "Z" into offsets
+      if CharEquals(DateString, Offset, 'Z') then begin
+        Dec(Len);
+      end;
+    end else
+    begin
+      Inc(Offset);
+      Dec(Len);
+      if (Len >= 5) and
+         IsNumeric(DateString, 2, Offset) and CharEquals(DateString, Offset+2, ':') and
+         IsNumeric(DateString, 2, Offset+3) then
+      begin
+        Dec(Len, 5);
+      end
+      else if (Len >= 4) and IsNumeric(DateString, 4, Offset) then
+      begin
+        Dec(Len, 4);
+      end
+      else if (Len >= 2) and IsNumeric(DateString, 2, Offset) then
+      begin
+        Dec(Len, 2);
+      end
+      else begin
+        Exit;
+      end;
+    end;
+    if Len > 0 then begin
+      Exit;
+    end;
+    Offset := TmpOffset;
+    Len := TmpLen;
+  end;
+
+  VTime.Hour := Hour;
+  VTime.Min := Min;
+  VTime.Sec := Sec;
+  VTime.MSec := MSec;
+  VTime.UTCOffset := Copy(DateString, Offset, Len);
+
+  Result := True;
+end;
+
+function ParseISO8601DateTime(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
+var
+  I: Integer;
+begin
+  // TODO: move this logic into IdGlobalProtocols.RawStrInternetToDateTime().ParseISO8601()
+
+  Result := False;
+  VDate.Year := 0;
+  VDate.Month := 0;
+  VDate.Day := 0;
+  VTime.Hour := 0;
+  VTime.Min := 0;
+  VTime.Sec := 0;
+  VTime.MSec := 0;
+  VTime.UTCOffset := '';
+
+  I := Pos('T', DateString);
+  if I <> 0 then begin
+    Result := ParseISO8601Date(Copy(DateString, 1, I-1), VDate) and
+              ParseISO8601Time(Copy(DateString, I+1, MaxInt), VTime);
+  end;
+end;
+
+function ParseISO8601DateAndOrTime(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
+var
+  I: Integer;
+begin
+  // TODO: move this logic into IdGlobalProtocols.RawStrInternetToDateTime().ParseISO8601()
+
+  Result := False;
+  VDate.Year := 0;
+  VDate.Month := 0;
+  VDate.Day := 0;
+  VTime.Hour := 0;
+  VTime.Min := 0;
+  VTime.Sec := 0;
+  VTime.MSec := 0;
+  VTime.UTCOffset := '';
+
+  I := Pos('T', DateString);
+  if I = 0 then begin
+    Result := ParseISO8601Date(DateString, VDate);
+    Exit;
+  end;
+
+  if I > 1 then begin
+    if not ParseISO8601Date(Copy(DateString, 1, I-1), VDate) then begin
+      Exit;
+    end;
+  end;
+
+  if not ParseISO8601Time(Copy(DateString, I+1, MaxInt), VTime) then begin
+    Exit;
+  end;
+
+  Result := True;
+end;
+
+function ParseISO8601DateTimeStamp(const DateString: String; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  // TODO: how is TIMESTAMP different from DATE-TIME?
+  Result := ParseISO8601DateTime(DateString, VDate, VTime);
+end;
+
+function ParseDateTimeStamp(const DateString: string): TDateTime;
+var
+  LDate: TIdISO8601DateComps;
+  LTime: TIdISO8601TimeComps;
+begin
+  if ParseISO8601DateTimeStamp(DateString, LDate, LTime) then begin
+    Result := EncodeDate(LDate.Year, LDate.Month, LDate.Day) + EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
+  end else begin
+    Result := 0.0;
+  end;
 end;
 
 {This function returns a stringList with an item's
@@ -980,6 +1503,63 @@ var
     end;
   end;
 
+  function GetDateTimeValue(St: String): TDateTime;
+  var
+    LAttribs: String;
+    LDate: TIdISO8601DateComps;
+    LTime: TIdISO8601TimeComps;
+  begin
+    Result := 0.0;
+
+    // TODO: parse the attributes into a proper list
+    LAttribs := UpperCase(Attribs);
+
+    if IndyPos('TIMESTAMP', LAttribs) <> 0 then begin   {Do not Localize}
+      if ParseISO8601DateTimeStamp(St, LDate, LTime) then begin
+        Result := EncodeDate(LDate.Year, LDate.Month, LDate.Day) + EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
+        // TODO: use LTime.UTCOffset if available
+      end;
+    end
+    else if IndyPos('DATE-AND-OR-TIME', LAttribs) <> 0 then begin   {Do not Localize}
+      if ParseISO8601DateAndOrTime(st, LDate, LTime) then begin
+        if (LDate.Year <> 0) or (LDate.Month <> 0) or (LDate.Day <> 0) then begin
+          Result := EncodeDate(LDate.Year, LDate.Month, LDate.Day);
+        end;
+        if (LTime.Hour <> 0) or (LTime.Min <> 0) or (LTime.Sec <> 0) or (LTime.MSec <> 0) then begin
+          Result := Result + EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
+          // TODO: use LTime.UTCOffset if available
+        end;
+      end;
+    end
+    else if IndyPos('DATE-TIME', LAttribs) <> 0 then begin   {Do not Localize}
+      if ParseISO8601DateTime(st, LDate, LTime) then begin
+        Result := EncodeDate(LDate.Year, LDate.Month, LDate.Day) + EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
+        // TODO: use LTime.UTCOffset if available
+      end;
+    end
+    else if IndyPos('DATE', LAttribs) <> 0 then begin   {Do not Localize}
+      if ParseISO8601Date(st, LDate) then begin
+        Result := EncodeDate(LDate.Year, LDate.Month, LDate.Day);
+      end;
+    end
+    else if IndyPos('TIME', LAttribs) <> 0 then begin   {Do not Localize}
+      if ParseISO8601Time(st, LTime) then begin
+        Result := EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
+        // TODO: use LTime.UTCOffset if available
+      end;
+    end else begin
+      if ParseISO8601DateAndOrTime(st, LDate, LTime) then begin
+        if (LDate.Year <> 0) or (LDate.Month <> 0) or (LDate.Day <> 0) then begin
+          Result := EncodeDate(LDate.Year, LDate.Month, LDate.Day);
+        end;
+        if (LTime.Hour <> 0) or (LTime.Min <> 0) or (LTime.Sec <> 0) or (LTime.MSec <> 0) then begin
+          Result := Result + EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
+          // TODO: use LTime.UTCOffset if available
+        end;
+      end;
+    end;
+  end;
+
 begin
   // At this point, FRawForm contains the entire vCard - including possible
   // embedded vCards.
@@ -999,6 +1579,7 @@ begin
       Colon := IndyPos(':', Line);    {Do not Localize}
 
       // Store the property & complete attributes
+      // TODO: use a TStringList instead...
       Attribs := Copy(Line, 1, Colon - 1);
 
       // Must now check for Quoted-printable attribute.  vCard v2.1 allows
@@ -1086,7 +1667,7 @@ begin
         {'PHOTO'}    {Do not Localize}
         3 : ParseEmbeddedObject(FPhoto, Line);
         {'BDAY'}    {Do not Localize}
-        4 : FBirthDay := ParseDateTimeStamp(Line + UnfoldLines);
+        4 : FBirthDay := GetDateTimeValue(Line + UnfoldLines);
         {'ADR'}    {Do not Localize}
         5 : ParseAddress(FAddresses.Add, Line + UnfoldLines);
         {'LABEL'}    {Do not Localize}
@@ -1118,7 +1699,7 @@ begin
         {'PRODID' }    {Do not Localize}
        19 : FProductID := Line + UnfoldLines;
         {'REV'}    {Do not Localize}
-       20 : FLastRevised := ParseDateTimeStamp(Line + UnfoldLines);
+       20 : FLastRevised := GetDateTimeValue(Line + UnfoldLines);
         {'SORT-STRING'}    {Do not Localize}
        21 : FFullName.SortName := Line + UnfoldLines;
         {'SOUND'}    {Do not Localize}

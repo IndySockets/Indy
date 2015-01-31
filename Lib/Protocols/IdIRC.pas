@@ -770,8 +770,11 @@ end;
 
 procedure TIdIRC.Disconnect(const AReason: String = '');
 begin
-  Raw(IndyFormat('QUIT :%s', [AReason])); {do not localize}
-  inherited Disconnect;
+  try
+    Raw(IndyFormat('QUIT :%s', [AReason])); {do not localize}
+  finally
+    inherited Disconnect;
+  end;
 end;
 
 procedure TIdIRC.Raw(const ALine: String);

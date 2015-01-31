@@ -251,10 +251,10 @@ const
 type
   TIdSSLULong = packed record
     case Byte of
-      0: (B1, B2, B3, B4: Byte);
-      1: (W1, W2: Word);
-      2: (L1: Longint);
-      3: (C1: LongWord);
+      0: (B1, B2, B3, B4: UInt8);
+      1: (W1, W2: UInt16);
+      2: (L1: Int32);
+      3: (C1: UInt32);
   end;
 
   TIdSSLEVP_MD = record
@@ -390,7 +390,18 @@ type
     property Cipher: TIdSSLCipher read GetSSLCipher;
   end;
 
-  TIdSSLIOHandlerSocketOpenSSL = class(TIdSSLIOHandlerSocketBase)
+  // TIdSSLIOHandlerSocketOpenSSL and TIdServerIOHandlerSSLOpenSSL have some common
+  // functions, but they do not have a common ancestor, so this interface helps
+  // bridge the gap...
+  IIdSSLOpenSSLCallbackHelper = interface(IInterface)
+    ['{583F1209-10BA-4E06-8810-155FAEC415FE}']
+    function GetPassword(const AIsWrite : Boolean): string;
+    procedure StatusInfo(const ASSL: PSSL; AWhere, ARet: TIdC_INT; const AStatusStr: string);
+    function VerifyPeer(ACertificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;
+    function GetIOHandlerSelf: TIdSSLIOHandlerSocketOpenSSL;
+  end;
+
+  TIdSSLIOHandlerSocketOpenSSL = class(TIdSSLIOHandlerSocketBase, IIdSSLOpenSSLCallbackHelper)
   protected
     fSSLContext: TIdSSLContext;
     fxSSLOptions: TIdSSLOptions;
@@ -424,6 +435,13 @@ type
     procedure ConnectClient; override;
     function CheckForError(ALastResult: Integer): Integer; override;
     procedure RaiseError(AError: Integer); override;
+
+    { IIdSSLOpenSSLCallbackHelper }
+    function GetPassword(const AIsWrite : Boolean): string;
+    procedure StatusInfo(const ASslSocket: PSSL; AWhere, ARet: TIdC_INT; const AStatusStr: string);
+    function VerifyPeer(ACertificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;
+    function GetIOHandlerSelf: TIdSSLIOHandlerSocketOpenSSL;
+
   public
     destructor Destroy; override;
     function Clone :  TIdSSLIOHandlerSocketBase; override;
@@ -444,7 +462,7 @@ type
     property OnVerifyPeer: TVerifyPeerEvent read fOnVerifyPeer write fOnVerifyPeer;
   end;
 
-  TIdServerIOHandlerSSLOpenSSL = class(TIdServerIOHandlerSSLBase)
+  TIdServerIOHandlerSSLOpenSSL = class(TIdServerIOHandlerSSLBase, IIdSSLOpenSSLCallbackHelper)
   protected
     fxSSLOptions: TIdSSLOptions;
     fSSLContext: TIdSSLContext;
@@ -465,6 +483,13 @@ type
     procedure DoGetPasswordEx(var VPassword: String; const AIsWrite : Boolean); virtual;
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean; virtual;
     procedure InitComponent; override;
+
+    { IIdSSLOpenSSLCallbackHelper }
+    function GetPassword(const AIsWrite : Boolean): string;
+    procedure StatusInfo(const ASslSocket: PSSL; AWhere, ARet: TIdC_INT; const AStatusStr: string);
+    function VerifyPeer(ACertificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;
+    function GetIOHandlerSelf: TIdSSLIOHandlerSocketOpenSSL;
+
   public
     procedure Init; override;
     procedure Shutdown; override;
@@ -796,6 +821,7 @@ var
   {$ENDIF}
   IdSSLContext: TIdSSLContext;
   LErr : Integer;
+  LHelper: IIdSSLOpenSSLCallbackHelper;
 begin
   //Preserve last eror just in case OpenSSL is using it and we do something that
   //clobers it.  CYA.
@@ -805,17 +831,9 @@ begin
     try
       Password := '';    {Do not Localize}
       IdSSLContext := TIdSSLContext(userdata);
-      if (IdSSLContext.Parent is TIdSSLIOHandlerSocketOpenSSL) then begin
-        TIdSSLIOHandlerSocketOpenSSL(IdSSLContext.Parent).DoGetPasswordEx(Password,rwflag > 0);
-        if Password = '' then begin
-          TIdSSLIOHandlerSocketOpenSSL(IdSSLContext.Parent).DoGetPassword(Password);
-        end;
-      end;
-      if (IdSSLContext.Parent is TIdServerIOHandlerSSLOpenSSL) then begin
-        TIdServerIOHandlerSSLOpenSSL(IdSSLContext.Parent).DoGetPasswordEx(Password,rwflag > 0);
-        if Password = '' then begin
-          TIdServerIOHandlerSSLOpenSSL(IdSSLContext.Parent).DoGetPassword(Password);
-        end;
+      if Supports(IdSSLContext.Parent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+        Password := LHelper.GetPassword(rwflag > 0);
+        LHelper := nil;
       end;
       FillChar(buf^, size, 0);
       {$IFDEF STRING_IS_UNICODE}
@@ -845,8 +863,8 @@ procedure InfoCallback(const sslSocket: PSSL; where, ret: TIdC_INT); cdecl;
 var
   IdSSLSocket: TIdSSLSocket;
   StatusStr : String;
-  LMsg : String;
   LErr : Integer;
+  LHelper: IIdSSLOpenSSLCallbackHelper;
 begin
 {
 You have to save the value of WSGetLastError as some Operating System API
@@ -861,20 +879,10 @@ JPM.
     LockInfoCB.Enter;
     try
       IdSSLSocket := TIdSSLSocket(SSL_get_app_data(sslSocket));
-      StatusStr := IndyFormat(RSOSSLStatusString, [String(SSL_state_string_long(sslSocket))]);
-      if (IdSSLSocket.fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
-        TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoStatusInfo(StatusStr);
-        if Assigned(TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).fOnStatusInfoEx) then begin
-          GetStateVars(sslSocket,where,ret,StatusStr,LMsg);
-          TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoStatusInfoEx(sslSocket,where,ret,StatusStr,LMsg);
-        end;
-      end;
-      if (IdSSLSocket.fParent is TIdServerIOHandlerSSLOpenSSL) then begin
-        TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).DoStatusInfo(StatusStr);
-        if Assigned(TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).fOnStatusInfoEx) then begin
-          GetStateVars(sslSocket,where,ret,StatusStr,LMsg);
-          TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).DoStatusInfoEx(sslSocket,where,ret,StatusStr,LMsg);
-        end;
+      if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+        StatusStr := IndyFormat(RSOSSLStatusString, [String(SSL_state_string_long(sslSocket))]);
+        LHelper.StatusInfo(sslSocket, where, ret, StatusStr);
+        LHelper := nil;
       end;
     finally
       LockInfoCB.Leave;
@@ -910,6 +918,7 @@ var
   Depth: Integer;
   Error: Integer;
   LOk: Boolean;
+  LHelper: IIdSSLOpenSSLCallbackHelper;
 begin
   LockVerifyCB.Enter;
   try
@@ -936,11 +945,9 @@ begin
         if Ok = 1 then begin
           LOk := True;
         end;
-        if (IdSSLSocket.fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
-          VerifiedOK := TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk, Depth, Error);
-        end;
-        if (IdSSLSocket.fParent is TIdServerIOHandlerSSLOpenSSL) then begin
-          VerifiedOK := TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk, Depth, Error);
+        if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+          VerifiedOK := LHelper.VerifyPeer(Certificate, LOk, Depth, Error);
+          LHelper := nil;
         end;
       finally
         FreeAndNil(Certificate);
@@ -1956,12 +1963,12 @@ end;
 
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
 
-function IdMalloc(num: Cardinal): Pointer cdecl;
+function IdMalloc(num: UInt32): Pointer cdecl;
 begin
   Result := AllocMem(num);
 end;
 
-function IdRealloc(addr: Pointer; num: Cardinal): Pointer cdecl;
+function IdRealloc(addr: Pointer; num: UInt32): Pointer cdecl;
 begin
   Result := addr;
   ReallocMem(Result, num);
@@ -2193,11 +2200,11 @@ begin
   try
     if SSLIsLoaded.Value then begin
       Result := True;
-      exit;
+      Exit;
     end;
     Result := IdSSLOpenSSLHeaders.Load;
     if not Result then begin
-      exit;
+      Exit;
     end;
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
     // has to be done before anything that uses memory
@@ -2212,7 +2219,7 @@ begin
     // Successful loading if true
     Result := SSLeay_add_ssl_algorithms > 0;
     if not Result then begin
-      exit;
+      Exit;
     end;
     // Create locking structures, we need them for callback routines
     Assert(LockInfoCB = nil);
@@ -2248,7 +2255,7 @@ var
 begin
   // ssl was never loaded
   if LockInfoCB = nil then begin
-    exit;
+    Exit;
   end;
   if Assigned(CRYPTO_set_locking_callback) then begin
     CRYPTO_set_locking_callback(nil);
@@ -2521,6 +2528,39 @@ begin
     raise;
   end;
   Result := LIO;
+end;
+
+{ IIdSSLOpenSSLCallbackHelper }
+
+function TIdServerIOHandlerSSLOpenSSL.GetPassword(const AIsWrite : Boolean): string;
+begin
+  DoGetPasswordEx(Result, AIsWrite);
+  if Result = '' then begin
+    DoGetPassword(Result);
+  end;
+end;
+
+procedure TIdServerIOHandlerSSLOpenSSL.StatusInfo(const ASslSocket: PSSL;
+  AWhere, ARet: TIdC_INT; const AStatusStr: string);
+var
+  LType, LMsg: string;
+begin
+  DoStatusInfo(AStatusStr);
+  if Assigned(fOnStatusInfoEx) then begin
+    GetStateVars(ASslSocket, AWhere, ARet, LType, LMsg);
+    DoStatusInfoEx(ASslSocket, AWhere, ARet, LType, LMsg);
+  end;
+end;
+
+function TIdServerIOHandlerSSLOpenSSL.VerifyPeer(ACertificate: TIdX509;
+  AOk: Boolean; ADepth, AError: Integer): Boolean;
+begin
+  Result := DoVerifyPeer(ACertificate, AOk, ADepth, AError);
+end;
+
+function TIdServerIOHandlerSSLOpenSSL.GetIOHandlerSelf: TIdSSLIOHandlerSocketOpenSSL;
+begin
+  Result := nil;
 end;
 
 ///////////////////////////////////////////////////////
@@ -2834,6 +2874,39 @@ begin
   end else begin
     EIdOpenSSLAPISSLError.RaiseException(fSSLSocket.fSSL, AError, '');
   end;
+end;
+
+{ IIdSSLOpenSSLCallbackHelper }
+
+function TIdSSLIOHandlerSocketOpenSSL.GetPassword(const AIsWrite : Boolean): string;
+begin
+  DoGetPasswordEx(Result, AIsWrite);
+  if Result = '' then begin
+    DoGetPassword(Result);
+  end;
+end;
+
+procedure TIdSSLIOHandlerSocketOpenSSL.StatusInfo(const ASslSocket: PSSL;
+  AWhere, ARet: TIdC_INT; const AStatusStr: string);
+var
+  LType, LMsg: string;
+begin
+  DoStatusInfo(AStatusStr);
+  if Assigned(fOnStatusInfoEx) then begin
+    GetStateVars(ASslSocket, AWhere, ARet, LType, LMsg);
+    DoStatusInfoEx(ASslSocket, AWhere, ARet, LType, LMsg);
+  end;
+end;
+
+function TIdSSLIOHandlerSocketOpenSSL.VerifyPeer(ACertificate: TIdX509;
+  AOk: Boolean; ADepth, AError: Integer): Boolean;
+begin
+  Result := DoVerifyPeer(ACertificate, AOk, ADepth, AError);
+end;
+
+function TIdSSLIOHandlerSocketOpenSSL.GetIOHandlerSelf: TIdSSLIOHandlerSocketOpenSSL;
+begin
+  Result := Self;
 end;
 
 { TIdSSLContext }
@@ -3231,14 +3304,10 @@ var
   error: Integer;
   StatusStr: String;
   LParentIO: TIdSSLIOHandlerSocketOpenSSL;
+  LHelper: IIdSSLOpenSSLCallbackHelper;
 begin
   Assert(fSSL=nil);
   Assert(fSSLContext<>nil);
-  if fParent is TIdSSLIOHandlerSocketOpenSSL then begin
-    LParentIO := fParent as TIdSSLIOHandlerSocketOpenSSL;
-  end else begin
-    LParentIO := nil;
-  end;
   fSSL := SSL_new(fSSLContext.fContext);
   if fSSL = nil then begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
@@ -3258,12 +3327,16 @@ begin
   if error <= 0 then begin
     EIdOSSLAcceptError.RaiseException(fSSL, error, RSSSLAcceptError);
   end;
-  StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
-               'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-               'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
-               'version = ' + Cipher.Version + '; ';    {Do not Localize}
-  if LParentIO <> nil then begin
-    LParentIO.DoStatusInfo(StatusStr);
+  if Supports(fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+    LParentIO := LHelper.GetIOHandlerSelf;
+    if LParentIO <> nil then begin
+      StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
+                   'description = ' + Cipher.Description + '; ' +    {Do not Localize}
+                   'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
+                   'version = ' + Cipher.Version + '; ';    {Do not Localize}
+      LParentIO.DoStatusInfo(StatusStr);
+    end;
+    LHelper := nil;
   end;
 end;
 
@@ -3272,11 +3345,12 @@ var
   error: Integer;
   StatusStr: String;
   LParentIO: TIdSSLIOHandlerSocketOpenSSL;
+  LHelper: IIdSSLOpenSSLCallbackHelper;
 begin
   Assert(fSSL=nil);
   Assert(fSSLContext<>nil);
-  if fParent is TIdSSLIOHandlerSocketOpenSSL then begin
-    LParentIO := fParent as TIdSSLIOHandlerSocketOpenSSL;
+  if Supports(fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+    LParentIO := LHelper.GetIOHandlerSelf;
   end else begin
     LParentIO := nil;
   end;
@@ -3309,11 +3383,11 @@ begin
   // It would report such a failure via SSL_get_verify_result() instead of
   // returning an error code, so we should call SSL_get_verify_result() here
   // to make sure...
-  StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
-               'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-               'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
-               'version = ' + Cipher.Version + '; ';    {Do not Localize}
   if LParentIO <> nil then begin
+    StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
+                 'description = ' + Cipher.Description + '; ' +    {Do not Localize}
+                 'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
+                 'version = ' + Cipher.Version + '; ';    {Do not Localize}
     LParentIO.DoStatusInfo(StatusStr);
   end;
 end;

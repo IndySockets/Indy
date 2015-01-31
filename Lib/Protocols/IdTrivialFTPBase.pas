@@ -84,8 +84,8 @@ uses
 function MakeActPkt(const BlockNumber: Word): TIdBytes;
 begin
   SetLength(Result, 4);
-  CopyTIdWord(GStack.HostToNetwork(Word(TFTP_ACK)), Result, 0);
-  CopyTIdWord(GStack.HostToNetwork(BlockNumber), Result, 2);
+  CopyTIdUInt16(GStack.HostToNetwork(Word(TFTP_ACK)), Result, 0);
+  CopyTIdUInt16(GStack.HostToNetwork(BlockNumber), Result, 2);
 end;
 
 procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string);
@@ -94,8 +94,8 @@ var
 begin
   LErrStr := ToBytes(ErrString); 
   SetLength(Buffer, 4 + Length(LErrStr) + 1);
-  CopyTIdWord(GStack.HostToNetwork(Word(TFTP_ERROR)), Buffer, 0);
-  CopyTIdWord(GStack.HostToNetwork(ErrNumber), Buffer, 2);
+  CopyTIdUInt16(GStack.HostToNetwork(Word(TFTP_ERROR)), Buffer, 0);
+  CopyTIdUInt16(GStack.HostToNetwork(ErrNumber), Buffer, 2);
   CopyTIdBytes(LErrStr, 0, Buffer, 4, Length(LErrStr));
   Buffer[4 + Length(LErrStr)] := 0;
   UDPBase.SendBuffer(APeerIP, APort, Buffer);

@@ -210,7 +210,7 @@ var
   LMsgEnd: Boolean;
   LOutputBuffer: TIdBytes;
   LOutputBufferUsed: Integer;
-  LHash: Cardinal;
+  LHash: UInt32;
   LH: TIdHashCRC32;
   LEncoding: IIdTextEncoding;
 
@@ -328,7 +328,7 @@ var
   LInputBuffer: TIdBytes;
   LInputBufferPos: Integer;
   LInputBufferSize: Integer;
-  LHash: Cardinal;
+  LHash: UInt32;
   LH: TIdHashCRC32;
 
   procedure FlushOutputBuffer;

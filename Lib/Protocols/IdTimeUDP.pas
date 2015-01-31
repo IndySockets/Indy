@@ -55,9 +55,9 @@ type
   TIdCustomTimeUDP = class(TIdUDPClient)
   protected
     FBaseDate: TDateTime;
-    FRoundTripDelay: Cardinal;
+    FRoundTripDelay: UInt32;
     //
-    function GetDateTimeCard: LongWord;
+    function GetDateTimeCard: UInt32;
     function GetDateTime: TDateTime;
     procedure InitComponent; override;
   public
@@ -67,14 +67,14 @@ type
     {This synchronizes the local clock with the Time Server}
     function SyncTime: Boolean;
     {This is the number of seconds since 12:00 AM, 1900 - Jan-1}
-    property DateTimeCard: LongWord read GetDateTimeCard;
+    property DateTimeCard: UInt32 read GetDateTimeCard;
     {This is the current time according to the server.  TimeZone and Time used
     to receive the data are accounted for}
     property DateTime: TDateTime read GetDateTime;
     {This is the time it took to receive the Time from the server.  There is no
     need to use this to calculate the current time when using DateTime property
     as we have done that here}
-    property RoundTripDelay: Cardinal read FRoundTripDelay;
+    property RoundTripDelay: UInt32 read FRoundTripDelay;
   published
 
   end;
@@ -120,7 +120,7 @@ end;
 
 function TIdCustomTimeUDP.GetDateTime: TDateTime;
 var
-  BufCard: LongWord;
+  BufCard: UInt32;
 begin
   BufCard := GetDateTimeCard;
   if BufCard <> 0 then begin
@@ -135,7 +135,7 @@ begin
   end;
 end;
 
-function TIdCustomTimeUDP.GetDateTimeCard: LongWord;
+function TIdCustomTimeUDP.GetDateTimeCard: UInt32;
 var
   LTimeBeforeRetrieve: TIdTicks;
   LBuffer : TIdBytes;
@@ -146,7 +146,7 @@ begin
   SetLength(LBuffer,4);
 
   ReceiveBuffer(LBuffer);
-  Result := BytesToLongWord(LBuffer);
+  Result := BytesToUInt32(LBuffer);
   Result := GStack.NetworkToHost(Result);
   {Theoritically, it should take about 1/2 of the time to receive the data
    but in practice, it could be any portion depending upon network conditions. This is also

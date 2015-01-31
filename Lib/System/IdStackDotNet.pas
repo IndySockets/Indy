@@ -227,19 +227,19 @@ type
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes) : Integer; override;
     function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       const AOffset: Integer = 0; const ASize: Integer = -1): Integer; override;
-    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
-      var arg: LongWord): Integer; override;
+    function IOControl(const s: TIdStackSocketHandle; const cmd: UInt32;
+      var arg: UInt32): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
       var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      APkt: TIdPacketInfo): LongWord; override;
+      APkt: TIdPacketInfo): UInt32; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       const AOffset: Integer; const ASize: Integer; const AIP: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
-    function HostToNetwork(AValue: Word): Word; override;
-    function NetworkToHost(AValue: Word): Word; override;
-    function HostToNetwork(AValue: LongWord): LongWord; override;
-    function NetworkToHost(AValue: LongWord): LongWord; override;
+    function HostToNetwork(AValue: UInt16): UInt16; override;
+    function NetworkToHost(AValue: UInt16): UInt16; override;
+    function HostToNetwork(AValue: UInt32): UInt32; override;
+    function NetworkToHost(AValue: UInt32): UInt32; override;
     function HostToNetwork(AValue: Int64): Int64; override;
     function NetworkToHost(AValue: Int64): Int64; override;
     function HostByAddress(const AAddress: string;
@@ -969,14 +969,14 @@ begin
   TIdSocketListDotNet(Result).FSockets := ArrayList(FSockets.Clone);
 end;
 
-function TIdStackDotNet.HostToNetwork(AValue: Word): Word;
+function TIdStackDotNet.HostToNetwork(AValue: UInt16): UInt16;
 begin
-  Result := Word(IPAddress.HostToNetworkOrder(SmallInt(AValue)));
+  Result := UInt16(IPAddress.HostToNetworkOrder(Int16(AValue)));
 end;
 
-function TIdStackDotNet.HostToNetwork(AValue: LongWord): LongWord;
+function TIdStackDotNet.HostToNetwork(AValue: UInt32): UInt32;
 begin
-  Result := LongWord(IPAddress.HostToNetworkOrder(integer(AValue)));
+  Result := UInt32(IPAddress.HostToNetworkOrder(Int32(AValue)));
 end;
 
 function TIdStackDotNet.HostToNetwork(AValue: Int64): Int64;
@@ -984,14 +984,14 @@ begin
   Result := IPAddress.HostToNetworkOrder(AValue);
 end;
 
-function TIdStackDotNet.NetworkToHost(AValue: Word): Word;
+function TIdStackDotNet.NetworkToHost(AValue: UInt16): UInt16;
 begin
-  Result := Word(IPAddress.NetworkToHostOrder(SmallInt(AValue)));
+  Result := UInt16(IPAddress.NetworkToHostOrder(Int16(AValue)));
 end;
 
-function TIdStackDotNet.NetworkToHost(AValue: LongWord): LongWord;
+function TIdStackDotNet.NetworkToHost(AValue: UInt32): UInt32;
 begin
-  Result := LongWord(IPAddress.NetworkToHostOrder(Integer(AValue)));
+  Result := UInt32(IPAddress.NetworkToHostOrder(Integer(AValue)));
 end;
 
 function TIdStackDotNet.NetworkToHost(AValue: Int64): Int64;
@@ -1130,7 +1130,7 @@ begin
 end;
 
 function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-  APkt: TIdPacketInfo): LongWord;
+  APkt: TIdPacketInfo): UInt32;
 var
   {$IFDEF DOTNET_1_1}
   LIP : String;
@@ -1185,7 +1185,7 @@ one SockAddress structure.
 procedure SockAddrToIPBytes(const ASockAddr : TIdBytes; var VIPAddr : TIdBytes);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  case IdGlobal.BytesToWord(ASockAddr,0) of
+  case BytesToUInt16(ASockAddr,0) of
     23 : //AddressFamily.InterNetworkV6 :
     begin
       //16 = size of SOCKADDR_IN6.sin6_addr
@@ -1263,7 +1263,7 @@ var
   LDest : TIdBytes;
   LTmp : TIdBytes;
   LIdx : Integer;
-  LC : LongWord;
+  LC : UInt32;
 {
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
@@ -1300,7 +1300,7 @@ begin
   Inc(LIdx, 16);
   //use a word so you don't wind up using the wrong network byte order function
   LC := Length(VBuffer);
-  CopyTIdLongWord(HostToNetwork(LC), LTmp, LIdx);
+  CopyTIdUInt32(HostToNetwork(LC), LTmp, LIdx);
   Inc(LIdx, 4);
   //36
   //zero the next three bytes
@@ -1312,9 +1312,9 @@ begin
   //combine the two
   CopyTIdBytes(VBuffer, 0, LTmp, LIdx, Length(VBuffer));
   //zero out the checksum field
-  CopyTIdWord(0, LTmp, LIdx+AOffset);
+  CopyTIdUInt16(0, LTmp, LIdx+AOffset);
 
-  CopyTIdWord(HostToLittleEndian(CalcCheckSum(LTmp)), VBuffer, AOffset);
+  CopyTIdUInt16(HostToLittleEndian(CalcCheckSum(LTmp)), VBuffer, AOffset);
 end;
 {$ENDIF}
 
@@ -1323,7 +1323,7 @@ procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
   const APort: TIdPort; const AIPVersion: TIdIPVersion);
 begin
   if AIPVersion = Id_IPv4 then begin
-    CopyTIdWord(CalcCheckSum(VBuffer), VBuffer, AOffset);
+    CopyTIdUInt16(CalcCheckSum(VBuffer), VBuffer, AOffset);
   end else
   begin
     {$IFDEF DOTNET_1_1}
@@ -1344,13 +1344,13 @@ begin
 end;
 
 function TIdStackDotNet.IOControl(const s: TIdStackSocketHandle;
-  const cmd: LongWord; var arg: LongWord): Integer;
+  const cmd: UInt32; var arg: UInt32): Integer;
 var
   LTmp : TIdBytes;
 begin
   LTmp := ToBytes(arg);
   s.IOControl(cmd, ToBytes(arg), LTmp);
-  arg := BytesToLongWord(LTmp);
+  arg := BytesToUInt32(LTmp);
   Result := 0;
 end;
 
@@ -1378,9 +1378,9 @@ begin
   if AEnabled and (System.OperatingSystem.Version.Major >= 5) then
   begin
     SetLength(LBuf, 12);
-    CopyTIdLongWord(1, LBuf, 0);
-    CopyTIdLongWord(ATimeMS, LBuf, 4);
-    CopyTIdLongWord(AInterval, LBuf, 8);
+    CopyTIdUInt32(1, LBuf, 0);
+    CopyTIdUInt32(ATimeMS, LBuf, 4);
+    CopyTIdUInt32(AInterval, LBuf, 8);
     ASocket.IOControl(
       {$IFDEF DOTNET_2_OR_ABOVE}IOControlCode.KeepAliveValues{$ELSE}SIO_KEEPALIVE_VALS{$ENDIF},
       LBuf, nil);

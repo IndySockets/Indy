@@ -207,7 +207,7 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TSt
     SetLength(LExtra,2);
     SetLength(LNullFindChar,1);
 
-    //skip id1,id2,CompressionMethod (CM should=8)
+    //skip id1,id2,CompressionMethod (id1 should=31, id2=139, CM should=8)
     TIdStreamHelper.Seek(AInStream, 3, soCurrent);
     //read Flag
     TIdStreamHelper.ReadBytes(AInStream, LFlags, 1);
@@ -218,7 +218,7 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TSt
 
     if (LFlags[0] and $4) = $4 then begin // FEXTRA
       TIdStreamHelper.ReadBytes(AInStream, LExtra, 2);
-      TIdStreamHelper.Seek(AInStream, BytesToWord(LExtra), soCurrent);
+      TIdStreamHelper.Seek(AInStream, BytesToUInt16(LExtra), soCurrent);
     end;
 
     if (LFlags[0] and $8) = $8 then begin // FNAME

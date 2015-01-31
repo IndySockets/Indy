@@ -380,7 +380,7 @@ begin
 
   // port
 
-  CopyTIdWord(GStack.HostToNetwork(APort), VBuf, VLen);
+  CopyTIdUInt16(GStack.HostToNetwork(APort), VBuf, VLen);
   VLen := VLen + 2;
 end;
 
@@ -985,7 +985,7 @@ begin
   end;
 
   // port
-  CopyTIdWord(GStack.HostToNetwork(APort), Result, LLen);
+  CopyTIdUInt16(GStack.HostToNetwork(APort), Result, LLen);
   LLen := LLen + 2;
 
   //now do the rest of the packet

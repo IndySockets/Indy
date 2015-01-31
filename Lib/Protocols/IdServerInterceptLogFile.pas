@@ -85,8 +85,11 @@ begin
 end;
 
 procedure TIdServerInterceptLogFile.DoLogWriteString(const AText: string);
+var
+  LEnc: IIdTextEncoding;
 begin
-  WriteStringToStream(FFileStream, AText);
+  LEnc := IndyTextEncoding_8Bit;
+  WriteStringToStream(FFileStream, AText, LEnc{$IFDEF STRING_IS_ANSI}, LEnc{$ENDIF});
 end;
 
 end.

@@ -324,7 +324,7 @@ begin
   SetLength(LResponse, 8);
   LResponse[0] := 4; // SOCKS version
   LResponse[1] := AStatus;
-  CopyTIdWord(GStack.HostToNetwork(APort), LResponse, 2);
+  CopyTIdUInt16(GStack.HostToNetwork(APort), LResponse, 2);
   CopyTIdBytes(IPToBytes(AIP, Id_IPv4), 0, LResponse, 4, 4);
   AContext.Connection.IOHandler.Write(LResponse);
 end;
@@ -364,7 +364,7 @@ begin
   LResponse[2] := 0;
   LResponse[3] := LTypes[AContext.IPVersion];
   CopyTIdBytes(LIP, 0, LResponse, 4, Length(LIP));
-  CopyTIdWord(GStack.HostToNetwork(APort), LResponse, 4+Length(LIP));
+  CopyTIdUInt16(GStack.HostToNetwork(APort), LResponse, 4+Length(LIP));
 
   AContext.Connection.IOHandler.Write(LResponse);
 end;
@@ -377,7 +377,7 @@ var
 begin
   AContext.Connection.IOHandler.ReadBytes(LData, 7);
   VCommand := LData[0];
-  VPort := GStack.NetworkToHost(BytesToWord(LData, 1));
+  VPort := GStack.NetworkToHost(BytesToUInt16(LData, 1));
   VHost := BytesToIPv4Str(LData, 3);
   AContext.FUsername := AContext.Connection.IOHandler.ReadLn(#0);
   AContext.FPassword := '';
@@ -454,14 +454,14 @@ begin
       begin
         AContext.Connection.IOHandler.ReadBytes(LData, 6);
         VHost := BytesToIPv4Str(LData);
-        VPort := GStack.NetworkToHost(BytesToWord(LData, 4));
+        VPort := GStack.NetworkToHost(BytesToUInt16(LData, 4));
         AContext.FIPVersion := Id_IPv4;
       end;
     3:
       begin
         AContext.Connection.IOHandler.ReadBytes(LData, AContext.Connection.IOHandler.ReadByte+2);
         VHost := BytesToString(LData, 0, Length(LData)-2);
-        VPort := GStack.NetworkToHost(BytesToWord(LData, Length(LData)-2));
+        VPort := GStack.NetworkToHost(BytesToUInt16(LData, Length(LData)-2));
         LBinding := AContext.Binding;
         if LBinding <> nil then begin
           AContext.FIPVersion := LBinding.IPVersion;
@@ -477,7 +477,7 @@ begin
           LIP6[I] := GStack.NetworkToHost(LIP6[I]);
         end;
         VHost := IPv6AddressToStr(LIP6);
-        VPort := GStack.NetworkToHost(BytesToWord(LData, 16));
+        VPort := GStack.NetworkToHost(BytesToUInt16(LData, 16));
         AContext.FIPVersion := Id_IPv6;
       end;
     else

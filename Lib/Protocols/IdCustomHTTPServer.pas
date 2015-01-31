@@ -604,10 +604,10 @@ end;
 }
 
 
-function GetRandomString(NumChar: Cardinal): string;
+function GetRandomString(NumChar: UInt32): string;
 const
   CharMap = 'qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNM1234567890';    {Do not Localize}
-  MaxChar: Cardinal = Length(CharMap) - 1;
+  MaxChar: UInt32 = Length(CharMap) - 1;
 var
   i: integer;
   {$IFDEF STRING_IS_IMMUTABLE}

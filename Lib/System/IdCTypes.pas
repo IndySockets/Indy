@@ -1,8 +1,10 @@
 unit IdCTypes;
 
+// TODO: deprecate this unit and move the declarations to the IdGlobal unit.
+
 interface
 
-{$i IdCompilerDefines.inc}
+{$I IdCompilerDefines.inc}
 
 {This unit should not contain ANY program code.  It is meant to be extremely 
 thin.  The idea is that the unit will contain type mappings that used for headers
@@ -101,14 +103,14 @@ type
   TIdC_USHORT = Word;
   PIdC_USHORT = ^TIdC_USHORT;
 
-  TIdC_INT   = LongInt;
+  TIdC_INT   = Integer;
   PIdC_INT   = ^TIdC_INT;
-  TIdC_UINT  = LongWord;
+  TIdC_UINT  = Cardinal;
   PIdC_UINT  = ^TIdC_UINT;
 
-  TIdC_SIGNED = LongInt;
+  TIdC_SIGNED = Integer;
   PIdC_SIGNED = ^TIdC_SIGNED;
-  TIdC_UNSIGNED = LongWord;
+  TIdC_UNSIGNED = Cardinal;
   PIdC_UNSIGNED = ^TIdC_UNSIGNED;
 
   TIdC_INT8 = Shortint;
@@ -121,9 +123,9 @@ type
   TIdC_UINT16 = Word;
   PIdC_UINT16 = ^TIdC_UINT16;
 
-  TIdC_INT32 = LongInt;
+  TIdC_INT32 = Integer;
   PIdC_INT32 = ^TIdC_INT32;
-  TIdC_UINT32 = LongWord;
+  TIdC_UINT32 = Cardinal;
   PIdC_UINT32 = ^TIdC_UINT32;
 
   TIdC_INT64 = Int64;

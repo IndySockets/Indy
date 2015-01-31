@@ -117,22 +117,22 @@ const
 type
   TIdSMTPEnhancedCode = class(TPersistent)
   protected
-    FStatusClass : Cardinal;
-    FSubject : Cardinal;
-    FDetails : Cardinal;
+    FStatusClass : UInt32;
+    FSubject : UInt32;
+    FDetails : UInt32;
     FAvailable : Boolean;
     procedure AssignTo(ADest: TPersistent); override;
     function IsValidReplyCode(const AText : String) : Boolean;
     function GetReplyAsStr : String;
     procedure SetReplyAsStr(const AText : String);
-    procedure SetStatusClass(const AValue: Cardinal);
+    procedure SetStatusClass(const AValue: UInt32);
     procedure SetAvailable(const AValue: Boolean);
   public
     constructor Create;
   published
-    property StatusClass : Cardinal read FStatusClass write SetStatusClass default CLASS_DEF;
-    property Subject : Cardinal read FSubject write FSubject default NODETAILS;
-    property Details : Cardinal read FDetails write FDetails default NODETAILS;
+    property StatusClass : UInt32 read FStatusClass write SetStatusClass default CLASS_DEF;
+    property Subject : UInt32 read FSubject write FSubject default NODETAILS;
+    property Details : UInt32 read FDetails write FDetails default NODETAILS;
     property Available : Boolean read FAvailable write SetAvailable default AVAIL_DEF;
     property ReplyAsStr : String read GetReplyAsStr write SetReplyAsStr;
   end;
@@ -414,7 +414,7 @@ begin
   end;
 end;
 
-procedure TIdSMTPEnhancedCode.SetStatusClass(const AValue: Cardinal);
+procedure TIdSMTPEnhancedCode.SetStatusClass(const AValue: UInt32);
 begin
   if not (AValue in ValidClassVals) then begin
     EIdSMTPReplyInvalidClass.Toss(RSSMTPReplyInvalidClass);

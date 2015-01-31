@@ -264,8 +264,8 @@ type
     procedure ParseXHDRLine(ALine : String; out AMsg : String; out AHeaderData : String);
     procedure Post(AMsg: TIdMessage); overload;
     procedure Post(AStream: TStream); overload;
-    function SendCmd(AOut: string; const AResponse: array of SmallInt;
-      AEncoding: IIdTextEncoding = nil): SmallInt; override;
+    function SendCmd(AOut: string; const AResponse: array of Int16;
+      AEncoding: IIdTextEncoding = nil): Int16; override;
     function SelectArticle(AMsgNo: Int64): Boolean;
     procedure SelectGroup(AGroup: string);
     function TakeThis(AMsgID: string; AMsg: TStream): string;
@@ -370,8 +370,8 @@ begin
   FImplicitTLSProtPort := IdPORT_SNEWS;
 end;
 
-function TIdNNTP.SendCmd(AOut: string; const AResponse: Array of SmallInt;
-  AEncoding: IIdTextEncoding = nil): SmallInt;
+function TIdNNTP.SendCmd(AOut: string; const AResponse: Array of Int16;
+  AEncoding: IIdTextEncoding = nil): Int16;
 begin
   // NOTE: Responses must be passed as arrays so that the proper inherited SendCmd is called
   // and a stack overflow is not caused.

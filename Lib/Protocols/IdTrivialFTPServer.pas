@@ -137,7 +137,7 @@ type
   TIdTFTPServerThread = class(TIdThread)
   protected
     FStream: TStream;
-    FBlkCounter: Word;
+    FBlkCounter: UInt16;
     FResponse: TIdBytes;
     FRetryCtr: Integer;
     FUDPClient: TIdUDPClient;
@@ -243,7 +243,7 @@ end;
 procedure TIdTrivialFTPServer.DoUDPRead(AThread: TIdUDPListenerThread;
   const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
-  wOp: Word;
+  wOp: UInt16;
   FileName, LOptName, LOptValue: String;
   Idx, LOffset, RequestedBlkSize: Integer;
   RequestedTxSize: Int64;
@@ -253,7 +253,7 @@ begin
   inherited DoUDPRead(AThread, AData, ABinding);
   try
     if Length(AData) > 1 then begin
-      wOp := GStack.NetworkToHost(BytesToWord(AData));
+      wOp := GStack.NetworkToHost(BytesToUInt16(AData));
     end else begin
       wOp := 0;
     end;
@@ -488,7 +488,7 @@ begin
 
   if FUDPClient.BufferSize <> 516 then
   begin
-    FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
+    FResponse := ToBytes(GStack.HostToNetwork(UInt16(TFTP_OACK)));
     AppendString(FResponse, sBlockSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
     AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, IndyTextEncoding_ASCII);
@@ -530,7 +530,7 @@ begin
   if FSendTransferSize then
   begin
     if Length(FResponse) = 0 then begin
-      FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
+      FResponse := ToBytes(GStack.HostToNetwork(UInt16(TFTP_OACK)));
     end;
     AppendString(FResponse, sTransferSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
@@ -547,13 +547,13 @@ var
   i: Integer;
 begin
   if Length(FResponse) = 0 then begin // generate a new response packet for client
-    if FBlkCounter = High(Word) then begin
+    if FBlkCounter = High(UInt16) then begin
       raise EIdTFTPAllocationExceeded.Create('');
     end;
     Inc(FBlkCounter);
     SetLength(FResponse, FUDPClient.BufferSize);
-    CopyTIdWord(GStack.HostToNetwork(Word(TFTP_DATA)), FResponse, 0);
-    CopyTIdWord(GStack.HostToNetwork(FBlkCounter), FResponse, 2);
+    CopyTIdUInt16(GStack.HostToNetwork(UInt16(TFTP_DATA)), FResponse, 0);
+    CopyTIdUInt16(GStack.HostToNetwork(FBlkCounter), FResponse, 2);
     i := ReadTIdBytesFromStream(FStream, FResponse, FUDPClient.BufferSize - 4, 4);
     SetLength(FResponse, 4 + i);
     if i < (FUDPClient.BufferSize - 4) then begin
@@ -577,10 +577,10 @@ begin
   end;
   SetLength(Buffer, i);
   // TODO: validate the correct peer is sending the data...
-  case GStack.NetworkToHost(BytesToWord(Buffer)) of
+  case GStack.NetworkToHost(BytesToUInt16(Buffer)) of
     TFTP_ACK:
       begin
-        i := GStack.NetworkToHost(BytesToWord(Buffer, 2));
+        i := GStack.NetworkToHost(BytesToUInt16(Buffer, 2));
         if i = FBlkCounter then begin
           SetLength(FResponse, 0);
         end;
@@ -622,7 +622,7 @@ begin
   if FTransferSize <> -1 then
   begin
     if Length(FResponse) = 0 then begin
-      FResponse := ToBytes(GStack.HostToNetwork(Word(TFTP_OACK)));
+      FResponse := ToBytes(GStack.HostToNetwork(UInt16(TFTP_OACK)));
     end;
     AppendString(FResponse, sTransferSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
@@ -659,7 +659,7 @@ var
 begin
   if Length(FResponse) = 0 then begin
     FResponse := MakeActPkt(FBlkCounter);
-    if FBlkCounter = High(Word) then begin
+    if FBlkCounter = High(UInt16) then begin
       FEOT := True;
     end else begin
       Inc(FBlkCounter);
@@ -682,14 +682,14 @@ begin
   end;
   SetLength(Buffer, i);
   // TODO: validate the correct peer is sending the data...
-  case GStack.NetworkToHost(BytesToWord(Buffer)) of
+  case GStack.NetworkToHost(BytesToUInt16(Buffer)) of
     TFTP_ACK:
       begin
         raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]);
       end;
     TFTP_DATA:
       begin
-        i := GStack.NetworkToHost(BytesToWord(Buffer, 2));
+        i := GStack.NetworkToHost(BytesToUInt16(Buffer, 2));
         if i = FBlkCounter then
         begin
           if FEOT then begin

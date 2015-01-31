@@ -63,7 +63,7 @@ procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: Word;
 // ICMP
 procedure IdRawBuildIcmpEcho(AType, ACode: Byte; AnId, ASeq: Word;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
-procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: LongWord;
+procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 procedure IdRawBuildIcmpRedirect(const AType, ACode: Byte; AGateway: TIdInAddr;
   const AnOrigLen: Word; const AnOrigTos: Byte; const AnOrigId, AnOrigFrag: Word;
@@ -93,12 +93,12 @@ procedure IdRawBuildIp(ALen: Word; ATos: Byte; AnId, AFrag: Word;
 // RIP
 procedure IdRawBuildRip(const ACommand, AVersion: Byte;
   const ARoutingDomain, AnAddressFamily, ARoutingTag: Word;
-  const AnAddr, AMask, ANextHop, AMetric: LongWord;
+  const AnAddr, AMask, ANextHop, AMetric: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 
 // TCP
 procedure IdRawBuildTcp(const ASourcePort, ADestPort: Word;
-  const ASeq, AnAck: LongWord; const AControl: Byte;
+  const ASeq, AnAck: UInt32; const AControl: Byte;
   const AWindowSize, AnUrgent: Word; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
 
@@ -117,8 +117,8 @@ procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: Word;
   ATargetPr: TIdInAddr; const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrArp: TIdArpHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Id_ARP_HSIZE + Length(VBuffer);
@@ -158,12 +158,12 @@ procedure IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs,
   var VBuffer: TIdBytes);
 var
   HdrDns: TIdDnsHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Length(APayload) + Id_DNS_HSIZE;
-  LLen := LongWord(Length(VBuffer));
+  LLen := UInt32(Length(VBuffer));
   if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
@@ -195,8 +195,8 @@ procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: Word;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrEth: TIdEthernetHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // make sure VBuffer will be long enough
   LIdx := Length(ASource.Data) + Length(ADest.Data) + 2 + Length(APayload);
@@ -231,8 +231,8 @@ procedure IdRawBuildIp(ALen: Word; ATos: Byte; AnId, AFrag: Word; ATtl, AProtoco
   const AIdx: Integer = 0);
 var
   HdrIp: TIdIpHdr;
-  LIdx: LongWord;
-   LLen : LongWord;
+  LIdx: UInt32;
+   LLen : UInt32;
 begin
   // check input
   LIdx := Id_IP_HSIZE + Length(APayload) + AIdx;
@@ -272,7 +272,7 @@ procedure IdRawBuildIcmpEcho(AType, ACode: Byte; AnId, ASeq: Word;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx, LLen : LongWord;
+  LIdx, LLen : UInt32;
 begin
   // check input
   LIdx := Id_ICMP_ECHO_HSIZE + Length(APayload);
@@ -305,39 +305,39 @@ end;
 type
   TIdICMPMask = class(TIdICMPHdr)
   protected
-    Ficmp_mask: LongWord;
-    function GetBytesLen: LongWord; override;
+    Ficmp_mask: UInt32;
+    function GetBytesLen: UInt32; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
-    property icmp_mask: LongWord read Ficmp_mask write Ficmp_mask;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : UInt32); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : UInt32); override;
+    property icmp_mask: UInt32 read Ficmp_mask write Ficmp_mask;
   end;
 
-function TIdICMPMask.GetBytesLen: LongWord;
+function TIdICMPMask.GetBytesLen: UInt32;
 begin
   Result := inherited GetBytesLen + 4;
 end;
 
-procedure TIdICMPMask.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+procedure TIdICMPMask.ReadStruct(const ABytes : TIdBytes; var VIndex : UInt32);
 begin
   inherited ReadStruct(ABytes, VIndex);
-  Ficmp_mask := BytesToLongWord(ABytes, VIndex);
+  Ficmp_mask := BytesToUInt32(ABytes, VIndex);
   Inc(VIndex, 4);
 end;
 
-procedure TIdICMPMask.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+procedure TIdICMPMask.WriteStruct(var VBytes : TIdBytes; var VIndex : UInt32);
 begin
   inherited WriteStruct(VBytes, VIndex);
-  CopyTIdLongWord(Ficmp_mask, VBytes, VIndex);
+  CopyTIdUInt32(Ficmp_mask, VBytes, VIndex);
   Inc(VIndex, 4);
 end;
 
-procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: LongWord;
+procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdICMPMask;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Id_ICMP_MASK_HSIZE + Length(APayload);
@@ -374,8 +374,8 @@ procedure IdRawBuildIcmpUnreach(AType, ACode: Byte; AnOrigLen: Word;
   var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Id_ICMP_UNREACH_HSIZE + Id_IP_HSIZE + 2;
@@ -410,8 +410,8 @@ procedure IdRawBuildIcmpTimeExceed(const AType, ACode: Byte; const AnOrigLen: Wo
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Id_ICMP_TIMEXCEED_HSIZE + Id_IP_HSIZE + Length(AnOrigPayload);
@@ -444,12 +444,12 @@ type
   TIdIcmpTS = class(TIdIcmpHdr)
   protected
     Ficmp_dun: TIdicmp_dun;
-    function GetBytesLen: LongWord; override;
+    function GetBytesLen: UInt32; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : UInt32); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : UInt32); override;
     property icmp_dun: TIdicmp_dun read Ficmp_dun;
   end;
 
@@ -465,18 +465,18 @@ begin
   inherited Destroy;
 end;
 
-function TIdIcmpTS.GetBytesLen: LongWord;
+function TIdIcmpTS.GetBytesLen: UInt32;
 begin
   Result := inherited GetBytesLen + Ficmp_dun.BytesLen;
 end;
 
-procedure TIdIcmpTS.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+procedure TIdIcmpTS.ReadStruct(const ABytes : TIdBytes; var VIndex : UInt32);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Ficmp_dun.ReadStruct(ABytes, VIndex);
 end;
 
-procedure TIdIcmpTS.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+procedure TIdIcmpTS.WriteStruct(var VBytes : TIdBytes; var VIndex : UInt32);
 begin
   inherited WriteStruct(VBytes, VIndex);
   Ficmp_dun.WriteStruct(VBytes, VIndex);
@@ -487,7 +487,7 @@ procedure IdRawBuildIcmpTimestamp(const AType, ACode: Byte; const AnId, ASeq: Wo
   var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpTS;
-  LIdx, LLen : LongWord;
+  LIdx, LLen : UInt32;
 begin
   // check input
   LIdx := Id_ICMP_TS_HSIZE + Length(APayload);
@@ -526,7 +526,7 @@ procedure IdRawBuildIcmpRedirect(const AType, ACode: Byte; AGateway: TIdInAddr;
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx, LLen : LongWord;
+  LIdx, LLen : UInt32;
 begin
   // check input
   LIdx := Id_ICMP_REDIRECT_HSIZE + Id_IP_HSIZE + Length(AnOrigPayload);
@@ -558,8 +558,8 @@ procedure IdRawBuildIgmp(AType, ACode: Byte; AnIp: TIdInAddr;
   const APayload: Word; var VBuffer: TIdBytes);
 var
   HdrIgmp: TIdIgmpHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := 2 + Id_IGMP_HSIZE;
@@ -577,7 +577,7 @@ begin
     HdrIgmp.igmp_group.s_l    := AnIp.s_l;      // group address or 0
 
     // copy payload
-    CopyTIdWord(APayload, VBuffer, Id_IGMP_HSIZE);
+    CopyTIdUInt16(APayload, VBuffer, Id_IGMP_HSIZE);
 
     // copy header
     LIdx := 0;
@@ -589,12 +589,12 @@ end;
 
 procedure IdRawBuildRip(const ACommand, AVersion: Byte;
   const ARoutingDomain, AnAddressFamily, ARoutingTag: Word;
-  const AnAddr, AMask, ANextHop, AMetric: LongWord;
+  const AnAddr, AMask, ANextHop, AMetric: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrRip: TIdRipHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Id_RIP_HSIZE + Length(APayload);
@@ -631,12 +631,12 @@ end;
 
 // TODO: check nibbles in TCP header
 procedure IdRawBuildTcp(const ASourcePort, ADestPort: Word;
-  const ASeq, AnAck: LongWord; const AControl: Byte;
+  const ASeq, AnAck: UInt32; const AControl: Byte;
   const AWindowSize, AnUrgent: Word; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
 var
   HdrTcp: TIdTcpHdr;
-  LIdx, LLen: LongWord;
+  LIdx, LLen: UInt32;
 begin
   // check input
   LIdx := Id_TCP_HSIZE + Length(VBuffer);
@@ -675,8 +675,8 @@ procedure IdRawBuildUdp(const ASourcePort, ADestPort: Word;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrUdp: TIdUdpHdr;
-  LIdx: LongWord;
-  LLen : LongWord;
+  LIdx: UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Id_UDP_HSIZE + Length(APayload);

@@ -371,17 +371,17 @@ type
     procedure SetTimeFromISO8601(AString : String);
     procedure InitComponent; override;
   public
-    procedure AddDays(ANumber : Cardinal);
-    procedure AddHours(ANumber : Cardinal);
-    procedure AddMilliseconds(ANumber : Cardinal);
-    procedure AddMinutes(ANumber : Cardinal);
-    procedure AddMonths(ANumber : Cardinal);
-    procedure AddSeconds(ANumber : Cardinal);
+    procedure AddDays(ANumber : UInt32);
+    procedure AddHours(ANumber : UInt32);
+    procedure AddMilliseconds(ANumber : UInt32);
+    procedure AddMinutes(ANumber : UInt32);
+    procedure AddMonths(ANumber : UInt32);
+    procedure AddSeconds(ANumber : UInt32);
     procedure AddTDateTime(ADateTime : TDateTime);
     procedure AddTIdDateTimeStamp(AIdDateTime : TIdDateTimeStamp);
     procedure AddTTimeStamp(ATimeStamp : TIdDateTimeStamp);
-    procedure AddWeeks(ANumber : Cardinal);
-    procedure AddYears(ANumber : Cardinal);
+    procedure AddWeeks(ANumber : UInt32);
+    procedure AddYears(ANumber : UInt32);
 
     function GetAsISO8601Calendar : String;
     function GetAsISO8601Ordinal : String;
@@ -425,17 +425,17 @@ type
     procedure SetTimeZone(const Value: Integer);
     procedure SetYear(ANumber : Integer);
 
-    procedure SubtractDays(ANumber : Cardinal);
-    procedure SubtractHours(ANumber : Cardinal);
-    procedure SubtractMilliseconds(ANumber : Cardinal);
-    procedure SubtractMinutes(ANumber : Cardinal);
-    procedure SubtractMonths(ANumber : Cardinal);
-    procedure SubtractSeconds(ANumber : Cardinal);
+    procedure SubtractDays(ANumber : UInt32);
+    procedure SubtractHours(ANumber : UInt32);
+    procedure SubtractMilliseconds(ANumber : UInt32);
+    procedure SubtractMinutes(ANumber : UInt32);
+    procedure SubtractMonths(ANumber : UInt32);
+    procedure SubtractSeconds(ANumber : UInt32);
     procedure SubtractTDateTime(ADateTime : TDateTime);
     procedure SubtractTIdDateTimeStamp(AIdDateTime : TIdDateTimeStamp);
     procedure SubtractTTimeStamp(ATimeStamp : TIdDateTimeStamp);
-    procedure SubtractWeeks(ANumber : Cardinal);
-    procedure SubtractYears(ANumber : Cardinal);
+    procedure SubtractWeeks(ANumber : UInt32);
+    procedure SubtractYears(ANumber : UInt32);
 
     procedure Zero;
     procedure ZeroDate;
@@ -485,8 +485,8 @@ uses
   SysUtils;
 
 const
-  MaxWeekAdd : Cardinal = $FFFFFFFF div IdDaysInWeek;
-  MaxMinutesAdd : Cardinal = $FFFFFFFF div IdSecondsInMinute;
+  MaxWeekAdd : UInt32 = $FFFFFFFF div IdDaysInWeek;
+  MaxMinutesAdd : UInt32 = $FFFFFFFF div IdSecondsInMinute;
   DIGITS : String = '0123456789'; {Do not Localize}
 
 function LocalDateTimeToTimeStamp(ADateTime: TDateTime): TIdDateTimeStamp;
@@ -544,8 +544,8 @@ begin
   // First 'round off' the current day of the year.  This is done to prevent    {Do not Localize}
   // miscalculations in leap years and also as an optimisation for small
   // increments.
-  if (ANumber > Cardinal(DaysInYear - FDay)) and (not (FDay = 1)) then begin
-    ANumber := ANumber - Cardinal(DaysInYear - FDay);
+  if (ANumber > UInt32(DaysInYear - FDay)) and (not (FDay = 1)) then begin
+    ANumber := ANumber - UInt32(DaysInYear - FDay);
     FDay := 0;
     AddYears(1);
   end else begin
@@ -563,7 +563,7 @@ begin
   if ANumber >= IdDaysInLeapYearCycle then begin
     i := ANumber div IdDaysInLeapYearCycle;
     AddYears(i * IdYearsInLeapYearCycle);
-    ANumber := ANumber - Cardinal(i * IdDaysInLeapYearCycle);
+    ANumber := ANumber - UInt32(i * IdDaysInLeapYearCycle);
   end;
 
   if ANumber >= IdDaysInLeapCentury then begin
@@ -572,10 +572,10 @@ begin
       if i mod 4 = 3 then begin
         // Going forward through a 'leap' century    {Do not Localize}
         AddYears(IdYearsInCentury);
-        ANumber := ANumber - Cardinal(IdDaysInLeapCentury);
+        ANumber := ANumber - UInt32(IdDaysInLeapCentury);
       end else begin
         AddYears(IdYearsInCentury);
-        ANumber := ANumber - Cardinal(IdDaysInCentury);
+        ANumber := ANumber - UInt32(IdDaysInCentury);
       end;
     end;
   end;
@@ -583,7 +583,7 @@ begin
   if ANumber >= IdDaysInShortLeapYearCycle then begin
     i := ANumber div IdDaysInShortLeapYearCycle;
     AddYears(i * IdYearsInShortLeapYearCycle);
-    ANumber := ANumber - Cardinal(i * IdDaysInShortLeapYearCycle);
+    ANumber := ANumber - UInt32(i * IdDaysInShortLeapYearCycle);
   end;
 
   i := GetDaysInYear;
@@ -604,7 +604,7 @@ end;
 
 procedure TIdDateTimeStamp.AddHours;
 var
-  i : Cardinal;
+  i : UInt32;
 begin
   i := ANumber div IdHoursInDay;
   AddDays(i);
@@ -614,7 +614,7 @@ end;
 
 procedure TIdDateTimeStamp.AddMilliseconds;
 var
-  i : Cardinal;
+  i : UInt32;
 begin
   i := ANumber div IdMillisecondsInDay;
   if i > 0 then begin
@@ -672,7 +672,7 @@ end;
 
 procedure TIdDateTimeStamp.AddSeconds;
 var
-  i : Cardinal;
+  i : UInt32;
 begin
   i := ANumber Div IdSecondsInDay;
   if i > 0 then begin
@@ -724,7 +724,7 @@ end;
 
 procedure TIdDateTimeStamp.AddYears;
 begin
-  {TODO: Capture overflow because adding Cardinal to Integer }
+  {TODO: Capture overflow because adding UInt32 to Integer }
   if (FYear <= -1) and (Integer(ANumber) >= -FYear) then begin
     Inc(ANumber);
   end;
@@ -1235,7 +1235,7 @@ begin
   CheckLeapYear;
 end;
 
-procedure TIdDateTimeStamp.SubtractDays(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractDays(ANumber : UInt32);
 var
   i : Integer;
 begin
@@ -1245,8 +1245,8 @@ begin
 
   // First remove the number of days in this year.  As with AddDays this
   // is both an optimisation and a fix for calculations that begin in leap years.
-  if ANumber >= Cardinal(FDay - 1) then begin
-    ANumber := ANumber - Cardinal(FDay - 1);
+  if ANumber >= UInt32(FDay - 1) then begin
+    ANumber := ANumber - UInt32(FDay - 1);
     FDay := 1;
   end else begin
     FDay := FDay - Integer(ANumber);
@@ -1256,7 +1256,7 @@ begin
   if ANumber >= IdDaysInLeapYearCycle then begin
     i := ANumber div IdDaysInLeapYearCycle;
     SubtractYears(i * IdYearsInLeapYearCycle);
-    ANumber := ANumber - Cardinal(i * IdDaysInLeapYearCycle);
+    ANumber := ANumber - UInt32(i * IdDaysInLeapYearCycle);
   end;
 
   // Next subtract the centuries, checking for the century that is passed through
@@ -1266,10 +1266,10 @@ begin
       if i mod 4 = 0 then begin
         // Going back through a 'leap' century    {Do not Localize}
         SubtractYears(IdYearsInCentury);
-        ANumber := ANumber - Cardinal(IdDaysInLeapCentury);
+        ANumber := ANumber - UInt32(IdDaysInLeapCentury);
       end else begin
         SubtractYears(IdYearsInCentury);
-        ANumber := ANumber - Cardinal(IdDaysInCentury);
+        ANumber := ANumber - UInt32(IdDaysInCentury);
       end;
     end;
   end;
@@ -1282,18 +1282,18 @@ begin
       if SysUtils.IsLeapYear(i) then begin
         // Normal
         SubtractYears(IdYearsInShortLeapYearCycle);
-        ANumber := ANumber - Cardinal(IdDaysInShortLeapYearCycle);
+        ANumber := ANumber - UInt32(IdDaysInShortLeapYearCycle);
       end else begin
         // Subtraction crosses a 100-year (but not 400-year) boundary. Add the
         // same number of years, but one less day.
         SubtractYears(IdYearsInShortLeapYearCycle);
-        ANumber := ANumber - Cardinal(IdDaysInShortNonLeapYearCycle);
+        ANumber := ANumber - UInt32(IdDaysInShortNonLeapYearCycle);
       end;
     end;
   end;
 
   // Now the individual years
-  while ANumber > Cardinal(DaysInYear) do begin
+  while ANumber > UInt32(DaysInYear) do begin
     SubtractYears(1);
     Dec(ANumber, DaysInYear);
     if Self.IsLeapYear then begin
@@ -1303,9 +1303,9 @@ begin
   end;
 
   // and finally the remainders
-  if ANumber >= Cardinal(FDay) then begin
+  if ANumber >= UInt32(FDay) then begin
     SubtractYears(1);
-    ANumber := ANumber - Cardinal(FDay);
+    ANumber := ANumber - UInt32(FDay);
     Day := DaysInYear - Integer(ANumber);
   end else begin
     Dec(FDay, ANumber);
@@ -1313,9 +1313,9 @@ begin
 
 end;
 
-procedure TIdDateTimeStamp.SubtractHours(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractHours(ANumber : UInt32);
 var
-  i : Cardinal;
+  i : UInt32;
 begin
   i := ANumber div IdHoursInDay;
   SubtractDays(i);
@@ -1323,9 +1323,9 @@ begin
   SubtractSeconds(ANumber * IdSecondsInHour);
 end;
 
-procedure TIdDateTimeStamp.SubtractMilliseconds(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractMilliseconds(ANumber : UInt32);
 var
-  i : Cardinal;
+  i : UInt32;
 begin
   if ANumber = 0 then begin
     Exit;
@@ -1347,7 +1347,7 @@ begin
   end; 
 end;
 
-procedure TIdDateTimeStamp.SubtractMinutes(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractMinutes(ANumber : UInt32);
 begin
   // Down size to seconds
   while ANumber > MaxMinutesAdd do begin
@@ -1357,7 +1357,7 @@ begin
   SubtractSeconds(ANumber * IdSecondsInMinute);
 end;
 
-procedure TIdDateTimeStamp.SubtractMonths(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractMonths(ANumber : UInt32);
 var
   i : Integer;
 begin
@@ -1379,9 +1379,9 @@ begin
   end;
 end;
 
-procedure TIdDateTimeStamp.SubtractSeconds(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractSeconds(ANumber : UInt32);
 var
-  i : Cardinal;
+  i : UInt32;
 begin
   if ANumber = 0 then begin
     Exit;
@@ -1423,7 +1423,7 @@ begin
   SubtractTIdDateTimeStamp(ATimeStamp);
 end;
 
-procedure TIdDateTimeStamp.SubtractWeeks(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractWeeks(ANumber : UInt32);
 begin
   if ANumber = 0 then begin
     Exit;
@@ -1437,9 +1437,9 @@ begin
   SubtractDays(ANumber * IdDaysInWeek);
 end;
 
-procedure TIdDateTimeStamp.SubtractYears(ANumber : Cardinal);
+procedure TIdDateTimeStamp.SubtractYears(ANumber : UInt32);
 begin
-  if (FYear > 0) and (ANumber >= Cardinal(FYear)) then begin
+  if (FYear > 0) and (ANumber >= UInt32(FYear)) then begin
     Inc(ANumber);
   end;
   FYear := FYear - Integer(ANumber);

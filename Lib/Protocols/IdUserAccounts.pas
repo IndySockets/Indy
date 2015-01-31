@@ -55,12 +55,12 @@ uses
   IdStrings;
 
 type
-  TIdUserHandle = Cardinal;//ptr,object,collection.item.id or THandle
+  TIdUserHandle = UInt32;//ptr,object,collection.item.id or THandle
   TIdUserAccess = Integer; //<0-denied, >=0-accept; ex: 0-guest,1-user,2-power user,3-admin
 
 var
-  IdUserHandleNone: TIdUserHandle = High(Cardinal)-1; //Special handle: empty handle
-  IdUserHandleBroadcast: TIdUserHandle = High(Cardinal); //Special handle
+  IdUserHandleNone: TIdUserHandle = High(UInt32)-1; //Special handle: empty handle
+  IdUserHandleBroadcast: TIdUserHandle = High(UInt32); //Special handle
   IdUserAccessDenied: TIdUserAccess = Low(Integer); //Special access
 
 type

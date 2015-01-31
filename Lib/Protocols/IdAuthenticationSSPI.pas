@@ -227,7 +227,7 @@ type
     // by name as Delphi does
     constructor CreateError(const AErrorNo: Integer; const AFailedFuncName: string);
     //
-    class function GetErrorMessageByNo(AErrorNo: LongWord): string;
+    class function GetErrorMessageByNo(AErrorNo: UInt32): string;
   end;
 
   ESSPIInterfaceInitFailed = class(ESSPIException);
@@ -446,7 +446,7 @@ var
 
 { ESSPIException }
 
-class function ESSPIException.GetErrorMessageByNo(aErrorNo: LongWord): string;
+class function ESSPIException.GetErrorMessageByNo(aErrorNo: UInt32): string;
 begin
   case HRESULT(aErrorNo) of
     SEC_E_OK:

@@ -113,7 +113,7 @@ type
     FMsgCode : Byte;
     FSequenceId: word;       // sequence id of ping reply
     // TODO: roundtrip time in ping reply should be float, not byte
-    FMsRoundTripTime: longword; // ping round trip time in milliseconds
+    FMsRoundTripTime: UInt32; // ping round trip time in milliseconds
     FTimeToLive: byte;       // time to live
     FReplyStatusType: TReplyStatusTypes;
     FPacketNumber : Integer;//number in packet for TraceRoute
@@ -130,7 +130,7 @@ type
     property MsgCode : Byte read FMsgCode write FMsgCode;
     property SequenceId: word read FSequenceId write FSequenceId;       // sequence id of ping reply
     // TODO: roundtrip time in ping reply should be float, not byte
-    property MsRoundTripTime: longword read FMsRoundTripTime write FMsRoundTripTime; // ping round trip time in milliseconds
+    property MsRoundTripTime: UInt32 read FMsRoundTripTime write FMsRoundTripTime; // ping round trip time in milliseconds
     property TimeToLive: byte read FTimeToLive write FTimeToLive;       // time to live
     property ReplyStatusType: TReplyStatusTypes read FReplyStatusType write FReplyStatusType;
     property HostName : String read FHostName write FHostName;
@@ -155,10 +155,10 @@ type
     FReplydata: String;
     //
     {$IFNDEF DOTNET_1_1}
-    function DecodeIPv6Packet(BytesRead: LongWord): Boolean;
+    function DecodeIPv6Packet(BytesRead: UInt32): Boolean;
     {$ENDIF}
-    function DecodeIPv4Packet(BytesRead: LongWord): Boolean;
-    function DecodeResponse(BytesRead: LongWord): Boolean;
+    function DecodeIPv4Packet(BytesRead: UInt32): Boolean;
+    function DecodeResponse(BytesRead: UInt32): Boolean;
     procedure DoReply; virtual;
     procedure GetEchoReply;
     procedure InitComponent; override;
@@ -238,12 +238,12 @@ type
   protected
     Fip_hdr: TIdIPHdr;
     Ficmp_hdr: TIdICMPHdr;
-    function GetBytesLen: LongWord; override;
+    function GetBytesLen: UInt32; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : UInt32); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : UInt32); override;
     property ip_hdr: TIdIPHdr read Fip_hdr;
     property icmp_hdr: TIdICMPHdr read Ficmp_hdr;
   end;
@@ -262,19 +262,19 @@ begin
   inherited Destroy;
 end;
 
-function TIdIPv4_ICMP.GetBytesLen: LongWord;
+function TIdIPv4_ICMP.GetBytesLen: UInt32;
 begin
   Result := inherited GetBytesLen + Fip_hdr.BytesLen + Ficmp_hdr.BytesLen;
 end;
 
-procedure TIdIPv4_ICMP.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
+procedure TIdIPv4_ICMP.ReadStruct(const ABytes : TIdBytes; var VIndex : UInt32);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fip_hdr.ReadStruct(ABytes, VIndex);
   Ficmp_hdr.ReadStruct(ABytes, VIndex);
 end;
 
-procedure TIdIPv4_ICMP.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
+procedure TIdIPv4_ICMP.WriteStruct(var VBytes : TIdBytes; var VIndex : UInt32);
 begin
   inherited WriteStruct(VBytes, VIndex);
   Fip_hdr.WriteStruct(VBytes, VIndex);
@@ -288,7 +288,7 @@ begin
   Send(FBufIcmp);
 end;
 
-function TIdCustomIcmpClient.DecodeResponse(BytesRead: LongWord): Boolean;
+function TIdCustomIcmpClient.DecodeResponse(BytesRead: UInt32): Boolean;
 begin
   if BytesRead = 0 then begin
     // Timed out
@@ -329,7 +329,7 @@ end;
 function TIdCustomIcmpClient.Receive(ATimeOut: Integer): TReplyStatus;
 var
   BytesRead : Integer;
-  TripTime: LongWord;
+  TripTime: UInt32;
 begin
   Result := FReplyStatus;
   FillBytes(FBufReceive, Length(FBufReceive), 0);
@@ -388,12 +388,12 @@ begin
   inherited Destroy;
 end;
 
-function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: LongWord): Boolean;
+function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: UInt32): Boolean;
 var
-  LIPHeaderLen: LongWord;
-  LIdx: LongWord;
-  RTTime: LongWord;
-  LActualSeqID: word;
+  LIPHeaderLen: UInt32;
+  LIdx: UInt32;
+  RTTime: UInt32;
+  LActualSeqID: UInt16;
   LIcmp: TIdIPv4_ICMP;
   LIcmpts: TIdICMPTs;
 begin
@@ -477,7 +477,7 @@ begin
         // pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
 
         // TODO: verify this!  I don't think it is indexing far enough into the data
-        LActualSeqID := BytesToWord(FBufReceive, LIpHeaderLen+8+6);//pOriginalICMP^.icmp_hun.echo.seq;
+        LActualSeqID := BytesToUInt16(FBufReceive, LIpHeaderLen+8+6);//pOriginalICMP^.icmp_hun.echo.seq;
         RTTime := GetElapsedTicks(BytesToTicks(FBufReceive, LIpHeaderLen+8+8)); //pOriginalICMP^.icmp_dun.ts.otime;
 
         // move to offset
@@ -493,13 +493,13 @@ begin
     if Result then
     begin
       if FReplyStatus.ReplyStatusType = rsEcho then begin
-        FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN + SizeOf(LongWord));
+        FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN + SizeOf(UInt32));
       end else begin
         FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN);
       end;
 
-      FReplyStatus.FromIpAddress := MakeDWordIntoIPv4Address(GStack.NetworkToHost(Licmp.ip_hdr.ip_src.s_l));
-      FReplyStatus.ToIpAddress   := MakeDWordIntoIPv4Address(GStack.NetworkToHost(Licmp.ip_hdr.ip_dst.s_l));
+      FReplyStatus.FromIpAddress := MakeUInt32IntoIPv4Address(GStack.NetworkToHost(Licmp.ip_hdr.ip_src.s_l));
+      FReplyStatus.ToIpAddress   := MakeUInt32IntoIPv4Address(GStack.NetworkToHost(Licmp.ip_hdr.ip_dst.s_l));
       FReplyStatus.MsgType := LIcmp.icmp_hdr.icmp_type; //picmp^.icmp_type;
       FReplyStatus.MsgCode := LIcmp.icmp_hdr.icmp_code; //picmp^.icmp_code;
       FReplyStatus.SequenceId := LActualSeqID;
@@ -538,7 +538,7 @@ begin
         Id_ICMP_PARAMPROB                   : FReplyStatus.Msg := IndyFormat(RSICMPParamError, [FReplyStatus.MsgCode]);
         Id_ICMP_REDIRECT:
         begin
-          FReplyStatus.RedirectTo := MakeDWordIntoIPv4Address(GStack.NetworkToHOst(LIcmp.icmp_hdr.icmp_hun.gateway_s_l));
+          FReplyStatus.RedirectTo := MakeUInt32IntoIPv4Address(GStack.NetworkToHOst(LIcmp.icmp_hdr.icmp_hun.gateway_s_l));
           case FReplyStatus.MsgCode of
             0 : FReplyStatus.Msg := RSICMPRedirNet;
             1 : FReplyStatus.Msg := RSICMPRedirHost;
@@ -601,7 +601,7 @@ end;
 procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(const ABuffer: String);
 var
   LIcmp: TIdICMPHdr;
-  LIdx: LongWord;
+  LIdx: UInt32;
   LBuffer: TIdBytes;
   LBufferLen: Integer;
 begin
@@ -635,7 +635,7 @@ end;
 procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const ABuffer: String);
 var
   LIcmp : TIdicmp6_hdr;
-  LIdx : LongWord;
+  LIdx : UInt32;
   LBuffer: TIdBytes;
   LBufferLen: Integer;
 begin
@@ -665,11 +665,11 @@ begin
   end;
 end;
 
-function TIdCustomIcmpClient.DecodeIPv6Packet(BytesRead: LongWord): Boolean;
+function TIdCustomIcmpClient.DecodeIPv6Packet(BytesRead: UInt32): Boolean;
 var
-  LIdx : LongWord;
+  LIdx : UInt32;
   LIcmp : TIdicmp6_hdr;
-  RTTime : LongWord;
+  RTTime : UInt32;
   LActualSeqID : Word;
 begin
   LIdx := 0;

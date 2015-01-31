@@ -248,7 +248,7 @@ RDIRENT.HEADER types:
   public
     function Add: TIdFSPListItem;
     constructor Create; reintroduce;
-    function ParseEntries(const AData : TIdBytes; const ADataLen : Cardinal) : Boolean;
+    function ParseEntries(const AData : TIdBytes; const ADataLen : UInt32) : Boolean;
     function IndexOf(AItem: TIdFSPListItem): Integer;
     property Items[AIndex: Integer]: TIdFSPListItem read GetItems write SetItems; default;
   end;
@@ -288,23 +288,23 @@ causes that directory can be listable even it do not have
   TIdFSPPacket = class(TObject)
   protected
     FCmd: Byte;
-    FFilePosition: Cardinal;
+    FFilePosition: UInt32;
     FData: TIdBytes;
     FDataLen : Word;
     FExtraData: TIdBytes;
-//    FExtraDataLen : Cardinal;
+//    FExtraDataLen : UInt32;
     FSequence: Word;
     FKey: Word;
     FValid : Boolean;
   public
     constructor Create;
     function WritePacket : TIdBytes;
-    procedure ReadPacket(const AData : TIdBytes; const ALen : Cardinal);
+    procedure ReadPacket(const AData : TIdBytes; const ALen : UInt32);
     property Valid : Boolean read FValid;
     property Cmd : Byte read FCmd write FCmd;
     property Key : Word read FKey write FKey;
     property Sequence : Word read FSequence write FSequence;
-    property FilePosition : Cardinal read FFilePosition write FFilePosition;
+    property FilePosition : UInt32 read FFilePosition write FFilePosition;
     property Data : TIdBytes read FData write FData;
     property DataLen : Word read FDataLen write FDataLen;
     property ExtraData : TIdBytes read FExtraData write FExtraData;
@@ -326,7 +326,7 @@ causes that directory can be listable even it do not have
     FSystemAcceptsExtraData : Boolean;
     FThruputControl : Boolean;
 
-    FServerMaxThruPut : Cardinal;  //bytes per sec
+    FServerMaxThruPut : UInt32;  //bytes per sec
     FServerMaxPacketSize : Word; //maximum packet size server supports
     FClientMaxPacketSize : Word; //maximum packet we wish to support
     FDirectoryListing: TIdFSPListItems;
@@ -387,7 +387,7 @@ causes that directory can be listable even it do not have
     property SystemPrivateMode : Boolean read FSystemPrivateMode;
     property SystemAcceptsExtraData : Boolean read  FSystemAcceptsExtraData;
     property ThruputControl : Boolean read FThruputControl;
-    property ServerMaxThruPut : Cardinal read FServerMaxThruPut;
+    property ServerMaxThruPut : UInt32 read FServerMaxThruPut;
     property ServerMaxPacketSize : Word read FServerMaxPacketSize;
     property ClientMaxPacketSize : Word read FClientMaxPacketSize write SetClientMaxPacketSize;
     property DirectoryListing: TIdFSPListItems read FDirectoryListing;
@@ -432,9 +432,9 @@ uses
   {$ENDIF}  
   IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream, SysUtils;
 
-function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : Cardinal; var VPos : Cardinal): String;
+function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : UInt32; var VPos : UInt32): String;
 var
-  i : Cardinal;
+  i : UInt32;
 begin
   if VPos < ALen then begin
     for i := VPos to ALen-1 do begin
@@ -449,9 +449,9 @@ begin
   end;
 end;
 
-function ParseASCIIZLen(const ABytes : TIdBytes; const ALen : Cardinal) : String;
+function ParseASCIIZLen(const ABytes : TIdBytes; const ALen : UInt32) : String;
 var
-  LPos : Cardinal;
+  LPos : UInt32;
 begin
   LPos := 0;
   Result := ParseASCIIZPos(ABytes, ALen, LPos);
@@ -459,24 +459,24 @@ end;
 
 function ParseASCIIZ(const ABytes : TIdBytes) : String;
 var
-  LPos : Cardinal;
+  LPos : UInt32;
 begin
   LPos := 0;
   Result := ParseASCIIZPos(ABytes, Length(ABytes), LPos);
 end;
 
-procedure ParseStatInfo(const AData : TIdBytes; VL : TIdFSPStatInfo; var VI : Cardinal);
+procedure ParseStatInfo(const AData : TIdBytes; VL : TIdFSPStatInfo; var VI : UInt32);
 var
-  LC : Cardinal;
+  LC : UInt32;
 begin
   //we don't parse the file type because there is some variation between CC_GET_DIR and CC_STAT
-  CopyBytesToHostLongWord(AData, VI, LC);
+  CopyBytesToHostUInt32(AData, VI, LC);
 
   VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
   VL.FModifiedDate := VL.FModifiedDateGMT + OffSetFromUTC;
   Inc(VI, 4);
 
-  CopyBytesToHostLongWord(AData, VI, LC);
+  CopyBytesToHostUInt32(AData, VI, LC);
   VL.Size := LC;
   Inc(VI, 5); //we want to skip over the type byte we processed earlier
 end;
@@ -539,7 +539,7 @@ begin
       LSendPacket.FDataLen := Length(LSendPacket.FData);
       //specify a preferred block size
       SetLength(LSendPacket.FExtraData, 2);
-      CopyTIdNetworkWord(PrefPayloadSize, LSendPacket.FExtraData, 0);
+      CopyTIdNetworkUInt16(PrefPayloadSize, LSendPacket.FExtraData, 0);
     
       BeginWork(wmRead);
       try
@@ -639,7 +639,7 @@ begin
       SetLength(LRecvPacket.FData, MaxBufferSize);
       SetLength(LSendPacket.FExtraData, 2);
 
-      CopyTIdNetworkWord(PrefPayloadSize, LSendPacket.FExtraData, 0);
+      CopyTIdNetworkUInt16(PrefPayloadSize, LSendPacket.FExtraData, 0);
 
       FDirectoryListing.Clear;
       repeat
@@ -749,15 +749,15 @@ servers do not wishes to be detected.
       //word - max. packet size supported by server
       if FThruputControl then begin
         if Length(LExtraBuf) > 4 then begin
-          CopyBytesToHostLongWord(LExtraBuf, 1, FServerMaxThruPut);
+          CopyBytesToHostUInt32(LExtraBuf, 1, FServerMaxThruPut);
           if Length(LExtraBuf) > 6 then begin
-            CopyBytesToHostWord(LExtraBuf, 5, FServerMaxPacketSize);
+            CopyBytesToHostUInt16(LExtraBuf, 5, FServerMaxPacketSize);
           end;
         end;
       end else
       begin
         if Length(LExtraBuf) > 2 then begin
-          CopyBytesToHostWord(LExtraBuf, 1, FServerMaxPacketSize);
+          CopyBytesToHostUInt16(LExtraBuf, 1, FServerMaxPacketSize);
         end;
       end;
     end;
@@ -828,7 +828,7 @@ end;
 procedure TIdFSP.GetStatInfo(const APath: String);
 var
   LData, LBuf,LExtraBuf : TIdBytes;
-  i : Cardinal;
+  i : UInt32;
 begin
 {
 data format is the same as in directory listing with exception
@@ -865,10 +865,10 @@ end;
 
 procedure TIdFSP.Put(const ASource: TStream; const ADestFile: string; const AGMTTime: TDateTime);
 var
-  LUnixDate : Cardinal;
+  LUnixDate : UInt32;
   LSendPacket : TIdFSPPacket;
-  LRecvPacket :  TIdFSPPacket;
-  LPosition : Cardinal;
+  LRecvPacket : TIdFSPPacket;
+  LPosition : UInt32;
   LLen : Integer;
   LTmpBuf : TIdBytes;
 begin
@@ -908,7 +908,7 @@ begin
       end else begin
         LUnixDate := DateTimeToUnix(AGMTTime);
         SetLength(LSendPacket.FExtraData, 4);
-        CopyTIdNetworkLongWord(LUnixDate, LSendPacket.FExtraData, 0);
+        CopyTIdNetworkUInt32(LUnixDate, LSendPacket.FExtraData, 0);
       end;
       SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
     finally
@@ -1136,7 +1136,7 @@ end;
 function TIdFSPPacket.WritePacket : TIdBytes;
 var
  LExtraDataLen, LW : Word;
- LC, LSum : Cardinal;
+ LC, LSum : UInt32;
  i : Integer;
 //ported from:
 //http://cvs.sourceforge.net/viewcvs.py/fsp/javalib/FSPpacket.java?rev=1.6&view=markup
@@ -1150,16 +1150,16 @@ begin
   Result[1] := 0;  //this will be the checksum value
   //key
   LW := GStack.HostToNetwork(FKey);
-  CopyTIdWord(LW, Result, 2);
+  CopyTIdUInt16(LW, Result, 2);
   // sequence
   LW := GStack.HostToNetwork(FSequence);
-  CopyTIdWord(LW, Result, 4);
+  CopyTIdUInt16(LW, Result, 4);
   // data length
   LW := GStack.HostToNetwork(FDataLen);
-  CopyTIdWord(LW, Result, 6);
+  CopyTIdUInt16(LW, Result, 6);
   // position
   LC := GStack.HostToNetwork(FFilePosition);
-  CopyTIdLongWord(LC, Result, 8);
+  CopyTIdUInt32(LC, Result, 8);
   //end of header section
 
   //data section
@@ -1180,11 +1180,11 @@ begin
   Result[1] := Byte(LSum+(LSum shr 8));
 end;
 
-procedure TIdFSPPacket.ReadPacket(const AData : TIdBytes; const ALen : Cardinal);
+procedure TIdFSPPacket.ReadPacket(const AData : TIdBytes; const ALen : UInt32);
 var
-  LSum, LnSum, LcSum : Cardinal; //cardinal to prevent a range-check error
+  LSum, LnSum, LcSum : UInt32; //UInt32 to prevent a range-check error
   LW : Word;
-  LExtraDataLen : Cardinal;
+  LExtraDataLen : UInt32;
 begin
   FValid := False;
 
@@ -1193,7 +1193,7 @@ begin
   end;
 
   //check data length
-  FDataLen := BytesToWord(AData, 6);
+  FDataLen := BytesToUInt16(AData, 6);
   FDataLen := GStack.NetworkToHost(FDataLen);
   if FDataLen > ALen then begin
     Exit;
@@ -1216,13 +1216,13 @@ begin
   //command
   FCmd := AData[0];
   //key
-  FKey := BytesToWord(AData, 2);
+  FKey := BytesToUInt16(AData, 2);
   FKey := GStack.NetworkToHost(FKey);
   // sequence
-  FSequence := BytesToWord(AData, 4);
+  FSequence := BytesToUInt16(AData, 4);
   FSequence := GStack.NetworkToHost(FSequence);
   //file position
-  FFilePosition := BytesToLongWord(AData, 8);
+  FFilePosition := BytesToUInt32(AData, 8);
   FFilePosition := GStack.NetworkToHost(FFilePosition);
 
   //extract data
@@ -1275,9 +1275,9 @@ begin
   Result := -1;
 end;
 
-function TIdFSPListItems.ParseEntries(const AData: TIdBytes; const ADataLen : Cardinal) : Boolean;
-var 
-  i : Cardinal;
+function TIdFSPListItems.ParseEntries(const AData: TIdBytes; const ADataLen : UInt32) : Boolean;
+var
+  i : UInt32;
   LI : TIdFSPListItem;
   LSkip : Boolean;
 begin

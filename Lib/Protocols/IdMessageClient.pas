@@ -562,11 +562,7 @@ begin
       Exit;
     end;
   end;
-  if ReceiveStream <> nil then begin
-    Result := not FTerminatorWasRead;
-  end else begin
-    Result := False;
-  end;
+  Result := ReceiveStream <> nil;
 end;
 
 function TIdIOHandlerStreamMsg.ReadDataFromSource(var VBuffer: TIdBytes): Integer;
@@ -749,9 +745,6 @@ var
     {$IFDEF STRING_IS_ANSI}
     LAnsiEncoding: IIdTextEncoding;
     {$ENDIF}
-    {$IFNDEF HAS_TStrings_ValueFromIndex}
-    LTmp: string;
-    {$ENDIF}
   begin
     LMStream := TMemoryStream.Create;
     try
@@ -789,16 +782,9 @@ var
             if not AMsg.IsMsgSinglePartMime then begin
               for i := 0 to VDecoder.Headers.Count-1 do begin
                 if LTxt.Headers.IndexOfName(VDecoder.Headers.Names[i]) < 0 then begin
-                  {$IFNDEF HAS_TStrings_ValueFromIndex}
-                  LTmp := VDecoder.Headers.Strings[i];
-                  {$ENDIF}
                   LTxt.ExtraHeaders.AddValue(
                     VDecoder.Headers.Names[i],
-                    {$IFDEF HAS_TStrings_ValueFromIndex}
-                    VDecoder.Headers.ValueFromIndex[i]
-                    {$ELSE}
-                    Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {do not localize}
-                    {$ENDIF}
+                    IndyValueFromIndex(VDecoder.Headers, i)
                   );
                 end;
               end;
@@ -847,9 +833,6 @@ var
     i: integer;
     LAttachment: TIdAttachment;
     LNewDecoder: TIdMessageDecoder;
-    {$IFNDEF HAS_TStrings_ValueFromIndex}
-    LTmp: String;
-    {$ENDIF}
   begin
     LParentPart := AMsg.MIMEBoundary.ParentPart;
     AMsg.DoCreateAttachment(VDecoder.Headers, LAttachment);
@@ -883,16 +866,9 @@ var
         if not AMsg.IsMsgSinglePartMime then begin
           for i := 0 to VDecoder.Headers.Count-1 do begin
             if LAttachment.Headers.IndexOfName(VDecoder.Headers.Names[i]) < 0 then begin
-              {$IFNDEF HAS_TStrings_ValueFromIndex}
-              LTmp := VDecoder.Headers.Strings[i];
-              {$ENDIF}
               LAttachment.ExtraHeaders.AddValue(
                 VDecoder.Headers.Names[i],
-                {$IFDEF HAS_TStrings_ValueFromIndex}
-                VDecoder.Headers.ValueFromIndex[i]
-                {$ELSE}
-                Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {do not localize}
-                {$ENDIF}
+                IndyValueFromIndex(VDecoder.Headers, i)
               );
             end;
           end;
@@ -1013,7 +989,18 @@ begin
             // and charset encoding together!  Need to read the raw bytes into
             // an intermediate buffer of some kind using the transfer encoding,
             // and then decode the characters using the charset afterwards...
-            LLine := IOHandler.ReadLnRFC(LMsgEnd, LF, ADelim, LCharsetEncoding{$IFDEF STRING_IS_ANSI}, LCharsetEncoding{$ENDIF});
+            //
+            // Need to do this anyway because ReadLnRFC() processes the LF and
+            // ADelim values in terms of the charset specified, which is wrong.
+            // EBCDIC-based charsets totally break that logic! For example, cp1026
+            // converts #10 (LF) to $25 instead of $0A during encoding, and converts
+            // $0A (LF) and $2E ('.') to #$83 and #6 during decoding, etc. And what
+            // if the charset is UTF-16 instead?  So we need to read raw bytes into
+            // a buffer, checking it for handling of line breaks, dot-transparency,
+            // and message termination, and THEN decode whatever is left using the
+            // charset...
+
+            LLine := IOHandler.ReadLnRFC(LMsgEnd, LF, ADelim, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
             if LMsgEnd then begin
               Break;
             end;
@@ -1022,6 +1009,7 @@ begin
             end;
             // Check again, the if above can set it.
             if LActiveDecoder = nil then begin
+              LLine := LCharsetEncoding.GetString(ToBytes(LLine, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF}));
               AMsg.Body.Add(LLine);
             end else begin
               RemoveLastBlankLine(AMsg.Body);

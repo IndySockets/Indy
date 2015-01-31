@@ -154,22 +154,11 @@ uses
 procedure TIdHeaderList.AddStdValues(ASrc: TStrings);
 var
   i: integer;
-  LValue: string;
-  {$IFNDEF HAS_TStrings_ValueFromIndex}
-  LTmp: string;
-  {$ENDIF}
 begin
   BeginUpdate;
   try
     for i := 0 to ASrc.Count - 1 do begin
-      {$IFDEF HAS_TStrings_ValueFromIndex}
-      LValue := ASrc.ValueFromIndex[i];
-      {$ELSE}
-      LTmp := ASrc.Strings[i];
-      // TODO: use ASrc.NameValueSeparator on platforms that support it
-      LValue := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {do not localize}
-      {$ENDIF}
-      AddValue(ASrc.Names[i], LValue);
+      AddValue(ASrc.Names[i], IndyValueFromIndex(ASrc, i));
     end;
   finally
     EndUpdate;
@@ -445,7 +434,7 @@ end;
 
 function TIdHeaderList.IndexOfName(const AName: string): Integer;
 var
-  i: LongInt;
+  i: Integer;
 begin
   Result := -1;
   for i := 0 to Count - 1 do begin

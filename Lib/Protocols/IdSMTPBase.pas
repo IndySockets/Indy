@@ -108,11 +108,11 @@ const
   XMAILER_HEADER = 'X-Mailer';  {do not localize}
 
 const
-  RCPTTO_ACCEPT : array [0..1] of SmallInt = (250, 251);
-  MAILFROM_ACCEPT : SmallInt = 250;
-  DATA_ACCEPT : SmallInt = 354;
-  DATA_PERIOD_ACCEPT : SmallInt = 250;
-  RSET_ACCEPT : SmallInt = 250;
+  RCPTTO_ACCEPT : array [0..1] of Int16 = (250, 251);
+  MAILFROM_ACCEPT : Int16 = 250;
+  DATA_ACCEPT : Int16 = 354;
+  DATA_PERIOD_ACCEPT : Int16 = 250;
+  RSET_ACCEPT : Int16 = 250;
 
 const
   RSET_CMD = 'RSET';            {do not localize}
@@ -441,7 +441,7 @@ end;
 
 function TIdSMTPBase.WriteRecipientNoPipelining(const AEmailAddress: TIdEmailAddressItem): Boolean;
 var
-  LReply: SmallInt;
+  LReply: Int16;
 begin
   LReply := SendCmd(RCPTTO_CMD + '<' + AEMailAddress.Address + '>'); {do not localize}
   Result := PosInSmallIntArray(LReply, RCPTTO_ACCEPT) <> -1;

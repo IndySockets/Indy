@@ -459,7 +459,7 @@ type
     property MsgId: string read FMsgId write SetMsgID;
     property Headers: TIdHeaderList read FHeaders write SetHeaders;
     property MessageParts: TIdMessageParts read FMessageParts;
-    property MIMEBoundary: TIdMIMEBoundary read FMIMEBoundary write FMIMEBoundary;
+    property MIMEBoundary: TIdMIMEBoundary read FMIMEBoundary;
     property UID: String read FUID write FUID;
     property IsMsgSinglePartMime: Boolean read FIsMsgSinglePartMime write FIsMsgSinglePartMime;
   published

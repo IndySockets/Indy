@@ -48,13 +48,13 @@ uses
 type
   TIdMPiXFTPListItem = class(TIdRecFTPListItem)
   protected
-    FLimit : Cardinal;
+    FLimit : UInt32;
   public
     constructor Create(AOwner: TCollection); override;
     property RecLength;
     property RecFormat;
     property NumberRecs;
-    property Limit : Cardinal read FLimit write FLimit;
+    property Limit : UInt32 read FLimit write FLimit;
   end;
 
   //Anscestor for the MPE/iX Parsers

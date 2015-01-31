@@ -74,7 +74,7 @@ uses
 procedure TIdText.Assign(Source: TPersistent);
 begin
   if Source is TIdText then begin
-    Body.Assign((Source as TIdText).Body);
+    Body.Assign(TIdText(Source).Body);
   end;
   // allow TIdMessagePart to copy the headers
   inherited Assign(Source);

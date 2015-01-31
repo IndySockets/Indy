@@ -466,12 +466,12 @@ function inflateInitEx(var strm: z_stream; streamtype: TZStreamType = zsZLib): T
 type
   EIdZLibStubError = class(EIdException)
   protected
-    FError : LongWord;
+    FError : UInt32;
     FErrorMessage : String;
     FTitle : String;
   public
-    constructor Build(const ATitle : String; AError : LongWord);
-    property Error : LongWord read FError;
+    constructor Build(const ATitle : String; AError : UInt32);
+    property Error : UInt32 read FError;
     property ErrorMessage : String read FErrorMessage;
     property Title : String read FTitle;
   end;
@@ -886,7 +886,7 @@ const
   libzlib = 'zlibce';
   {$ENDIF}
 
-constructor EIdZLibStubError.Build(const ATitle : String; AError : LongWord);
+constructor EIdZLibStubError.Build(const ATitle : String; AError : UInt32);
 begin
   FTitle := ATitle;
   FError := AError;

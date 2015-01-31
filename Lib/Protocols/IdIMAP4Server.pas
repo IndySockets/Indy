@@ -380,6 +380,7 @@ type
     function  ReassembleParams(ASeparator: char; AParams: TStrings; AParamToReassemble: integer): Boolean;
     function  ReinterpretParamAsMailBox(AParams: TStrings; AMailBoxParam: integer): Boolean;
     function  ReinterpretParamAsFlags(AParams: TStrings; AFlagsParam: integer): Boolean;
+    function  ReinterpretParamAsQuotedStr(AParams: TStrings; AFlagsParam: integer): Boolean;
     function  ReinterpretParamAsDataItems(AParams: TStrings; AFlagsParam: integer): Boolean;
     //
     //The following are used internally by our default mechanism and are copies of
@@ -840,6 +841,11 @@ end;
 function TIdIMAP4Server.ReinterpretParamAsFlags(AParams: TStrings; AFlagsParam: Integer): Boolean;
 begin
   Result := ReassembleParams('(', AParams, AFlagsParam);  {Do not Localize}
+end;
+
+function TIdIMAP4Server.ReinterpretParamAsQuotedStr(AParams: TStrings; AFlagsParam: integer): Boolean;
+begin
+  Result := ReassembleParams('"', AParams, AFlagsParam);  {Do not Localize}
 end;
 
 function TIdIMAP4Server.ReinterpretParamAsDataItems(AParams: TStrings; AFlagsParam: Integer): Boolean;
@@ -2205,7 +2211,7 @@ var
   LParams2: TStringList;
   LFlagsList: TStringList;
   LSize: integer;
-  LFlags: string;
+  LFlags, LInternalDateTime: string;
   LN: integer;
   LMessage: TIdMessage;
   LContext: TIdIMAP4PeerContext;
@@ -2236,8 +2242,8 @@ begin
     SendUnassignedDefaultMechanism(ASender);
     Exit;
   end;
-  //Format (the flags are optional):
-  //C323 APPEND "INBOX.Sent" (\Seen) {1876}
+  //Format (the flags and date/time are optional):
+  //C323 APPEND "INBOX.Sent" (\Seen) "internal date/time" {1876}
   //+ go ahead
   //...
   //C323 OK [APPENDUID 1065095982 105] Completed
@@ -2254,15 +2260,33 @@ begin
       Exit;
     end;
     LFlags := '';
-    LTemp := LParams[1];
-    if LTemp[1] = '(' then begin  {Do not Localize}
-      if not ReinterpretParamAsFlags(LParams, 1) then begin
+    LInternalDateTime := '';
+    LN := 1;
+    LTemp := LParams[Ln];
+    if TextStartsWith(LTemp, '(') then begin  {Do not Localize}
+      if not ReinterpretParamAsFlags(LParams, Ln) then begin
         SendBadReply(ASender, 'Flags parameter is invalid.'); {Do not Localize}
         Exit;
       end;
-      LFlags := LParams[1];
+      LFlags := LParams[Ln];
+      Inc(Ln);
+    end
+    else if TextIsSame(LTemp, 'NIL') then begin {Do not Localize}
+      Inc(Ln);
+    end;
+    LTemp := LParams[Ln];
+    if TextStartsWith(LTemp, '"') then begin  {Do not Localize}
+      if not ReinterpretParamAsQuotedStr(LParams, Ln) then begin
+        SendBadReply(ASender, 'InternalDateTime parameter is invalid.'); {Do not Localize}
+        Exit;
+      end;
+      LInternalDateTime := LParams[Ln];
     end;
     LTemp := LParams[LParams.Count-1];
+    if not TextStartsWith(LTemp, '{') then begin  {Do not Localize}
+      SendBadReply(ASender, 'Size parameter is invalid.'); {Do not Localize}
+      Exit;
+    end;
     LSize := IndyStrToInt(Copy(LTemp, 2, Length(LTemp)-2));
     //Grab the next UID...
     LUID := OnDefMechGetNextFreeUID(LContext.LoginName, LParams[0]);
@@ -2273,8 +2297,6 @@ begin
       ASender.Context.Connection.IOHandler.ReadStream(LStream, LSize);
       if LFlags = '' then begin
         SendOkReply(ASender, 'Completed');  {Do not Localize}
-        //Update the next free UID in the .uid file...
-        OnDefMechUpdateNextFreeUID(LContext.LoginName, LContext.MailBox.Name, IntToStr(IndyStrToInt(LUID)+1));
       end else begin
         //Update the (optional) flags...
         LParams2 := TStringList.Create;
@@ -2307,19 +2329,26 @@ begin
                 LMessage.UID := LUID;  //This is all we need for deletion
                 OnDefMechDeleteMessage(LContext.LoginName, LContext.MailBox.Name, LMessage);
               finally
-	        FreeAndNil(LMessage);
+                FreeAndNil(LMessage);
               end;
-            end else begin
-              //Update the next free UID in the .uid file...
-              OnDefMechUpdateNextFreeUID(LContext.LoginName, LContext.MailBox.Name, IntToStr(IndyStrToInt(LUID)+1));
+              Exit;
             end;
           finally
             FreeAndNil(LFlagsList);
           end;
         finally
-	  FreeAndNil(LParams2);
+          FreeAndNil(LParams2);
         end;
       end;
+      //Update the next free UID in the .uid file...
+      OnDefMechUpdateNextFreeUID(LContext.LoginName, LContext.MailBox.Name, IntToStr(IndyStrToInt(LUID)+1));
+      // TODO: implement this
+      {
+      if LInternalDateTime <> '' then
+      begin
+        // what to do here?
+      end;
+      }
     finally
       FreeAndNil(LStream);
     end;
@@ -2619,7 +2648,7 @@ begin
         end;
       2: // STORE   {Do not Localize}
         begin
-	  LParams.Delete(0);
+          LParams.Delete(0);
           ProcessStore(True, ASender, LParams);
         end;
       3: // SEARCH   {Do not Localize}
@@ -2628,7 +2657,7 @@ begin
             SendUnassignedDefaultMechanism(ASender);
             Exit;
           end;
-	  LParams.Delete(0);
+          LParams.Delete(0);
           ProcessSearch(True, ASender, LParams);
         end;
     else

@@ -384,6 +384,8 @@ begin
   begin
     HandleOutboundClientData;
   end;
+  Connection.IOHandler.CheckForDisconnect;
+  FOutboundClient.IOHandler.CheckForDisconnect;
 end;
 
 procedure TIdMappedPortContext.HandleLocalClientData;

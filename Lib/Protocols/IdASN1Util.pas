@@ -185,7 +185,7 @@ end;
 {==============================================================================}
 function ASNEncInt(Value: Integer): string;
 var
-  x, y: Cardinal;
+  x, y: UInt32;
   neg: Boolean;
   {$IFDEF STRING_IS_IMMUTABLE}
   LSB: TIdStringBuilder;

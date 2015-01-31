@@ -414,6 +414,14 @@ uses
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
 
+  {$IFDEF HAS_UInt64}
+    {$DEFINE UInt64_IS_NATIVE}
+  {$ELSE}
+    {$IFDEF HAS_QWord}
+      {$DEFINE UInt64_IS_NATIVE}
+    {$ENDIF}
+  {$ENDIF}
+
 const
   GRecvBufferSizeDefault = 32 * 1024;
   GSendBufferSizeDefault = 32 * 1024;
@@ -435,7 +443,7 @@ type
   Destination - Socket - otehr file descendats it
 
   TIdIOHandler should only implement an interface. No default functionality
-  except very simple read/write functions such as ReadCardinal, etc. Functions
+  except very simple read/write functions such as ReadUInt32, etc. Functions
   that cannot really be optimized beyond their default implementations.
 
   Some default implementations offer basic non optmized implementations.
@@ -577,11 +585,22 @@ type
     procedure Write(AValue: Char; AByteEncoding: IIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
       ); overload;
-    procedure Write(AValue: LongWord; AConvert: Boolean = True); overload;
-    procedure Write(AValue: LongInt; AConvert: Boolean = True); overload;
-    procedure Write(AValue: Word; AConvert: Boolean = True); overload;
-    procedure Write(AValue: SmallInt; AConvert: Boolean = True); overload;
+
+    // for iOS64, Delphi's Longint and LongWord are 64bit, so we can't rely on
+    // Write(Longint) and ReadLongint() being 32bit anymore, for instance when
+    // sending/reading a TStream with LargeStream=False.  So adding new (U)IntX
+    // methods and deprecating the old ones...
+    //
+    procedure Write(AValue: Int16; AConvert: Boolean = True); overload;
+    procedure Write(AValue: UInt16; AConvert: Boolean = True); overload;
+    procedure Write(AValue: Int32; AConvert: Boolean = True); overload;
+    procedure Write(AValue: UInt32; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
+    {$IFDEF UInt64_IS_NATIVE}
+    procedure Write(AValue: UInt64; AConvert: Boolean = True); overload;
+    {$ENDIF}
+    //
+
     procedure Write(AStream: TStream; ASize: TIdStreamSize = 0;
       AWriteByteCount: Boolean = False); overload; virtual;
     procedure WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True;
@@ -670,12 +689,27 @@ type
     function ReadString(ABytes: Integer; AByteEncoding: IIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
-    function ReadLongWord(AConvert: Boolean = True): LongWord;
-    function ReadLongInt(AConvert: Boolean = True): LongInt;
-    function ReadInt64(AConvert: Boolean = True): Int64;
-    function ReadWord(AConvert: Boolean = True): Word;
-    function ReadSmallInt(AConvert: Boolean = True): SmallInt;
+
+    // for iOS64, Delphi's Longint and LongWord are changed to 64bit, so we can't
+    // rely on Write(Longint) and ReadLongint() being 32bit anymore, for instance
+    // when sending/reading a TStream with LargeStream=False.  So adding new (U)IntX
+    // methods and deprecating the old ones...
     //
+    function ReadInt16(AConvert: Boolean = True): Int16;
+    function ReadUInt16(AConvert: Boolean = True): UInt16;
+    function ReadInt32(AConvert: Boolean = True): Int32;
+    function ReadUInt32(AConvert: Boolean = True): UInt32;
+    function ReadInt64(AConvert: Boolean = True): Int64;
+    {$IFDEF UInt64_IS_NATIVE}
+    function ReadUInt64(AConvert: Boolean = True): UInt64;
+    {$ENDIF}
+    //
+    function ReadSmallInt(AConvert: Boolean = True): Int16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadInt16()'{$ENDIF};{$ENDIF}
+    function ReadWord(AConvert: Boolean = True): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadUInt16()'{$ENDIF};{$ENDIF}
+    function ReadLongInt(AConvert: Boolean = True): Int32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadInt32()'{$ENDIF};{$ENDIF}
+    function ReadLongWord(AConvert: Boolean = True): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadUInt32()'{$ENDIF};{$ENDIF}
+    //
+
     procedure ReadStream(AStream: TStream; AByteCount: TIdStreamSize = -1;
      AReadUntilDisconnect: Boolean = False); virtual;
     procedure ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1;
@@ -1035,7 +1069,7 @@ begin
     );
 end;
 
-procedure TIdIOHandler.Write(AValue: LongWord; AConvert: Boolean = True);
+procedure TIdIOHandler.Write(AValue: UInt32; AConvert: Boolean = True);
 begin
   if AConvert then begin
     AValue := GStack.HostToNetwork(AValue);
@@ -1043,10 +1077,10 @@ begin
   Write(ToBytes(AValue));
 end;
 
-procedure TIdIOHandler.Write(AValue: LongInt; AConvert: Boolean = True);
+procedure TIdIOHandler.Write(AValue: Int32; AConvert: Boolean = True);
 begin
   if AConvert then begin
-    AValue := Integer(GStack.HostToNetwork(LongWord(AValue)));
+    AValue := Int32(GStack.HostToNetwork(UInt32(AValue)));
   end;
   Write(ToBytes(AValue));
 end;
@@ -1054,10 +1088,20 @@ end;
 procedure TIdIOHandler.Write(AValue: Int64; AConvert: Boolean = True);
 begin
   if AConvert then begin
+    AValue := Int64(GStack.HostToNetwork(UInt64(AValue)));
+  end;
+  Write(ToBytes(AValue));
+end;
+
+{$IFDEF UInt64_IS_NATIVE}
+procedure TIdIOHandler.Write(AValue: UInt64; AConvert: Boolean = True);
+begin
+  if AConvert then begin
     AValue := GStack.HostToNetwork(AValue);
   end;
   Write(ToBytes(AValue));
 end;
+{$ENDIF}
 
 procedure TIdIOHandler.Write(AValue: TStrings; AWriteLinesCount: Boolean = False;
   AByteEncoding: IIdTextEncoding = nil
@@ -1095,7 +1139,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.Write(AValue: Word; AConvert: Boolean = True);
+procedure TIdIOHandler.Write(AValue: UInt16; AConvert: Boolean = True);
 begin
   if AConvert then begin
     AValue := GStack.HostToNetwork(AValue);
@@ -1103,10 +1147,10 @@ begin
   Write(ToBytes(AValue));
 end;
 
-procedure TIdIOHandler.Write(AValue: SmallInt; AConvert: Boolean = True);
+procedure TIdIOHandler.Write(AValue: Int16; AConvert: Boolean = True);
 begin
   if AConvert then begin
-    AValue := SmallInt(GStack.HostToNetwork(Word(AValue)));
+    AValue := Int16(GStack.HostToNetwork(UInt16(AValue)));
   end;
   Write(ToBytes(AValue));
 end;
@@ -1143,7 +1187,7 @@ begin
   ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
   {$ENDIF}
   if AReadLinesCount < 0 then begin
-    AReadLinesCount := ReadLongInt;
+    AReadLinesCount := ReadInt32;
   end;
   for i := 0 to AReadLinesCount - 1 do begin
     ADest.Add(ReadLn(AByteEncoding
@@ -1152,26 +1196,42 @@ begin
   end;
 end;
 
-function TIdIOHandler.ReadWord(AConvert: Boolean = True): Word;
+function TIdIOHandler.ReadUInt16(AConvert: Boolean = True): UInt16;
 var
   LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(Word), False);
-  Result := BytesToWord(LBytes);
+  ReadBytes(LBytes, SizeOf(UInt16), False);
+  Result := BytesToUInt16(LBytes);
   if AConvert then begin
     Result := GStack.NetworkToHost(Result);
   end;
 end;
 
-function TIdIOHandler.ReadSmallInt(AConvert: Boolean = True): SmallInt;
+{$I IdDeprecatedImplBugOff.inc}
+function TIdIOHandler.ReadWord(AConvert: Boolean = True): UInt16;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+begin
+  Result := ReadUInt16(AConvert);
+end;
+
+function TIdIOHandler.ReadInt16(AConvert: Boolean = True): Int16;
 var
   LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(SmallInt), False);
-  Result := BytesToShort(LBytes);
+  ReadBytes(LBytes, SizeOf(Int16), False);
+  Result := BytesToInt16(LBytes);
   if AConvert then begin
-    Result := SmallInt(GStack.NetworkToHost(Word(Result)));
+    Result := Int16(GStack.NetworkToHost(UInt16(Result)));
   end;
+end;
+
+{$I IdDeprecatedImplBugOff.inc}
+function TIdIOHandler.ReadSmallInt(AConvert: Boolean = True): Int16;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+begin
+  Result := ReadInt16(AConvert);
 end;
 
 function TIdIOHandler.ReadChar(AByteEncoding: IIdTextEncoding = nil
@@ -1255,15 +1315,23 @@ begin
   Result := LBytes[0];
 end;
 
-function TIdIOHandler.ReadLongInt(AConvert: Boolean): LongInt;
+function TIdIOHandler.ReadInt32(AConvert: Boolean): Int32;
 var
   LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(LongInt), False);
-  Result := BytesToLongInt(LBytes);
+  ReadBytes(LBytes, SizeOf(Int32), False);
+  Result := BytesToInt32(LBytes);
   if AConvert then begin
-    Result := LongInt(GStack.NetworkToHost(LongWord(Result)));
+    Result := Int32(GStack.NetworkToHost(UInt32(Result)));
   end;
+end;
+
+{$I IdDeprecatedImplBugOff.inc}
+function TIdIOHandler.ReadLongInt(AConvert: Boolean): Int32;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+begin
+  Result := ReadInt32(AConvert);
 end;
 
 function TIdIOHandler.ReadInt64(AConvert: boolean): Int64;
@@ -1273,19 +1341,40 @@ begin
   ReadBytes(LBytes, SizeOf(Int64), False);
   Result := BytesToInt64(LBytes);
   if AConvert then begin
+    Result := Int64(GStack.NetworkToHost(UInt64(Result)));
+  end;
+end;
+
+{$IFDEF UInt64_IS_NATIVE}
+function TIdIOHandler.ReadUInt64(AConvert: boolean): UInt64;
+var
+  LBytes: TIdBytes;
+begin
+  ReadBytes(LBytes, SizeOf(UInt64), False);
+  Result := BytesToUInt64(LBytes);
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
+  end;
+end;
+{$ENDIF}
+
+function TIdIOHandler.ReadUInt32(AConvert: Boolean): UInt32;
+var
+  LBytes: TIdBytes;
+begin
+  ReadBytes(LBytes, SizeOf(UInt32), False);
+  Result := BytesToUInt32(LBytes);
+  if AConvert then begin
     Result := GStack.NetworkToHost(Result);
   end;
 end;
 
-function TIdIOHandler.ReadLongWord(AConvert: Boolean): LongWord;
-var
-  LBytes: TIdBytes;
+{$I IdDeprecatedImplBugOff.inc}
+function TIdIOHandler.ReadLongWord(AConvert: Boolean): UInt32;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  ReadBytes(LBytes, SizeOf(LongWord), False);
-  Result := BytesToLongWord(LBytes);
-  if AConvert then begin
-    Result := GStack.NetworkToHost(Result);
-  end;
+  Result := ReadUInt32(AConvert);
 end;
 
 function TIdIOHandler.ReadLn(AByteEncoding: IIdTextEncoding = nil
@@ -1330,6 +1419,20 @@ begin
   if ATerminator = '' then begin
     ATerminator := LF;
   end;
+  // TODO: encountered an email that was using charset "cp1026", which encodes
+  // a LF character to byte $25 instead of $0A (and decodes byte $0A to character
+  // #$8E instead of #$A).  To account for that, don't encoding the LF using the
+  // specified encoding anymore, force the encoding to what it should be.  But
+  // what if UTF-16 is being used?
+  {
+  if ATerminator = LF then begin
+    LTerm := ToBytes(Byte($0A));
+  end else begin
+    LTerm := ToBytes(ATerminator, AByteEncoding
+      {$IFDEF STRING_IS_ANSI, ADestEncoding{$ENDIF
+      );
+  end;
+  }
   LTerm := ToBytes(ATerminator, AByteEncoding
     {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
     );
@@ -1369,7 +1472,7 @@ begin
       // Can only return -1 if timeout
       FReadLnTimedOut := ReadFromSource(True, ATimeout, False) = -1;
       if (not FReadLnTimedOut) and (ATimeout >= 0) then begin
-        if GetElapsedTicks(LReadLnStartTime) >= LongWord(ATimeout) then begin
+        if GetElapsedTicks(LReadLnStartTime) >= UInt32(ATimeout) then begin
           FReadLnTimedOut := True;
         end;
       end;
@@ -1652,7 +1755,7 @@ begin
         EIdIOHandlerRequiresLargeStream.Toss(RSRequiresLargeStream);
       end;
       {$ENDIF}
-      Write(Integer(ASize));
+      Write(Int32(ASize));
     end;
   end;
 
@@ -1725,6 +1828,18 @@ procedure TIdIOHandler.WriteLn(const AOut: string;
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 begin
+  // TODO: RLebeau 1/2/2015: encountered an email that was using charset "cp1026",
+  // which encodes a LF character to byte $25 instead of $0A (and decodes
+  // byte $0A to character #$8E instead of #$A).  To account for that, don't
+  // encoding the CRLF using the specified encoding anymore, force the encoding
+  // to what it should be...
+  //
+  // But, what to do if the target encoding is UTF-16?
+  {
+  Write(AOut, AByteEncoding{$IFDEF STRING_IS_ANSI, ASrcEncoding{$ENDIF);
+  Write(EOL, Indy8BitEncoding{$IFDEF STRING_IS_ANSI, Indy8BitEncoding{$ENDIF);
+  }
+
   // Do as one write so it only makes one call to network
   Write(AOut + EOL, AByteEncoding
     {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
@@ -1822,7 +1937,7 @@ begin
       LByteCount := TIdStreamSize(LTmp);
       {$ENDIF}
     end else begin
-      LByteCount := ReadLongInt;
+      LByteCount := ReadInt32;
     end;
   end else begin
     LByteCount := AByteCount;
@@ -1890,12 +2005,19 @@ begin
             // many bytes here...
             i := IndyMin(i, FInputBuffer.Size);
             FInputBuffer.ExtractToBytes(LBuf, i, False);
-            if (E is EIdConnClosedGracefully) and AReadUntilDisconnect then begin
-              Break;
-            end else begin
-              // TODO: check for socket error 10054 when AReadUntilDisconnect is True
-              raise;
+            if AReadUntilDisconnect then begin
+              if E is EIdConnClosedGracefully then begin
+                Exit;
+              end
+              else if E is EIdSocketError then begin
+                case EIdSocketError(E).LastError of
+                  Id_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET: begin
+                    Exit;
+                  end;
+                end;
+              end;
             end;
+            raise;
           end;
         end;
         TIdAntiFreezeBase.DoProcess;

@@ -81,7 +81,7 @@ type
   TTelnetData = class(TObject)
   public
     Username, Password: String;
-    HUserToken: cardinal;
+    HUserToken: UInt32;
   end;
 
   // Custom Peer thread class

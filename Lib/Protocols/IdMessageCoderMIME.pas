@@ -343,8 +343,8 @@ var
   LLine: string;
   LBuffer: string;  //Needed for binhex4 because cannot decode line-by-line.
   LIsThisTheFirstLine: Boolean; //Needed for binary encoding
-  BoundaryStart, BoundaryEnd: string;
-  IsBinaryContentTransferEncoding: Boolean;
+  LBoundaryStart, LBoundaryEnd: string;
+  LIsBinaryContentTransferEncoding: Boolean;
   LEncoding: IIdTextEncoding;
 begin
   LIsThisTheFirstLine := True;
@@ -400,37 +400,37 @@ begin
     end;
 
     if MIMEBoundary <> '' then begin
-      BoundaryStart := '--' + MIMEBoundary; {Do not Localize}
-      BoundaryEnd := BoundaryStart + '--'; {Do not Localize}
+      LBoundaryStart := '--' + MIMEBoundary; {Do not Localize}
+      LBoundaryEnd := LBoundaryStart + '--'; {Do not Localize}
     end;
 
     if LContentTransferEncoding <> '' then begin
       case PosInStrArray(LContentTransferEncoding, ['7bit', 'quoted-printable', 'base64', '8bit', 'binary'], False) of {do not localize}
-        0..2: IsBinaryContentTransferEncoding := False;
-        3..4: IsBinaryContentTransferEncoding := True;
+        0..2: LIsBinaryContentTransferEncoding := False;
+        3..4: LIsBinaryContentTransferEncoding := True;
       else
         // According to RFC 2045 Section 6.4:
         // "Any entity with an unrecognized Content-Transfer-Encoding must be
         // treated as if it has a Content-Type of "application/octet-stream",
         // regardless of what the Content-Type header field actually says."
-        IsBinaryContentTransferEncoding := True;
+        LIsBinaryContentTransferEncoding := True;
         LContentTransferEncoding := '';
       end;
     end else begin
-      IsBinaryContentTransferEncoding := True;
+      LIsBinaryContentTransferEncoding := True;
     end;
 
     repeat
       if not FProcessFirstLine then begin
-        if IsBinaryContentTransferEncoding then begin
+        EnsureEncoding(LEncoding, enc8Bit);
+        if LIsBinaryContentTransferEncoding then begin
           //For binary, need EOL because the default LF causes spurious CRs in the output...
           // TODO: don't use ReadLnRFC() for binary data at all.  Read into an intermediate
           // buffer instead, looking for the next MIME boundary and message terminator while
           // flushing the buffer to the destination stream along the way...
-          EnsureEncoding(LEncoding, enc8Bit);
           LLine := ReadLnRFC(VMsgEnd, EOL, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
         end else begin
-          LLine := ReadLnRFC(VMsgEnd);
+          LLine := ReadLnRFC(VMsgEnd, LF, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
         end;
       end else begin
         LLine := FFirstLine;
@@ -450,12 +450,12 @@ begin
       end;
       // New boundary - end self and create new coder
       if MIMEBoundary <> '' then begin
-        if TextIsSame(LLine, BoundaryStart) then begin
+        if TextIsSame(LLine, LBoundaryStart) then begin
           Result := TIdMessageDecoderMIME.Create(Owner);
           Break;
           // End of all coders (not quite ALL coders)
         end;
-        if TextIsSame(LLine, BoundaryEnd) then begin
+        if TextIsSame(LLine, LBoundaryEnd) then begin
           // POP the boundary
           if Owner is TIdMessage then begin
             TIdMessage(Owner).MIMEBoundary.Pop;
@@ -465,17 +465,17 @@ begin
       end;
       if LDecoder = nil then begin
         // Data to save, but not decode
-        if IsBinaryContentTransferEncoding then begin {do not localize}
+        if Assigned(ADestStream) then begin
+          EnsureEncoding(LEncoding, enc8Bit);
+        end;
+        if LIsBinaryContentTransferEncoding then begin {do not localize}
           //In this case, we have to make sure we dont write out an EOL at the
           //end of the file.
-          if Assigned(ADestStream) then begin
-            EnsureEncoding(LEncoding, enc8Bit);
-          end;
           if LIsThisTheFirstLine then begin
             LIsThisTheFirstLine := False;
           end else begin
             if Assigned(ADestStream) then begin
-              WriteStringToStream(ADestStream, EOL, LEncoding);
+              WriteStringToStream(ADestStream, EOL, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
             end;
           end;
           if Assigned(ADestStream) then begin
@@ -483,7 +483,7 @@ begin
           end;
         end else begin
           if Assigned(ADestStream) then begin
-            WriteStringToStream(ADestStream, LLine + EOL);
+            WriteStringToStream(ADestStream, LLine + EOL, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
           end;
         end;
       end

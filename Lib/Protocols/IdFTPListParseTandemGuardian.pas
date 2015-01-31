@@ -111,7 +111,7 @@ type
     FGroupName : String;
     //this may be an integer value but I'm not sure
     //because one
-    FCode : LongWord;
+    FCode : UInt32;
     //This is the RWEP value
     { It's done like this:
 
@@ -128,7 +128,7 @@ type
     FPermissions : String;
   public
     property GroupName : String read FGroupName write FGroupName;
-    property Code : LongWord read FCode write FCode;
+    property Code : UInt32 read FCode write FCode;
     property Permissions : String read  FPermissions write FPermissions;
   end;
 

@@ -232,21 +232,6 @@ type
 
   // Must define the following types because the older versions of Delphi do not support them
 
-  {$IFNDEF HAS_UINT8}
-  {$EXTERNALSYM UINT8}
-  UINT8 = Byte;
-  {$ENDIF}
-
-  {$IFNDEF HAS_UINT32}
-  {$EXTERNALSYM UINT32}
-  UINT32 = LongWord;
-  {$ENDIF}
-
-  {$IFNDEF HAS_UInt64}
-  {$NODEFINE UInt64}
-  UInt64 = {$IFDEF HAS_QWord}QWord{$ELSE}Int64{$ENDIF};
-  {$ENDIF}
-
   {$IFNDEF HAS_ULONG_PTR}
   {$EXTERNALSYM ULONG_PTR}
   ULONG_PTR = PtrUInt;
@@ -259,7 +244,7 @@ type
 
   {$IFNDEF HAS_USHORT}
   {$EXTERNALSYM USHORT}
-  USHORT = Word;
+  USHORT = UInt16;
   {$ENDIF}
 
   {$IFNDEF HAS_PVOID}
@@ -374,8 +359,8 @@ type
   hostent = record
     h_name: PAnsiChar;             // official name of host
     h_aliases: ^PAnsiChar;         // alias list
-    h_addrtype: Smallint;          // host address type
-    h_length: Smallint;            // length of address
+    h_addrtype: short;             // host address type
+    h_length: short;               // length of address
     case Byte of
       0: (h_address_list: ^PAnsiChar);
       1: (h_addr: PAnsiChar);     // address, for backward compat
@@ -391,7 +376,7 @@ type
   netent = record
     n_name: PAnsiChar;             // official name of net
     n_aliases: ^PAnsiChar;         // alias list
-    n_addrtype: Smallint;          // net address type
+    n_addrtype: short;             // net address type
     n_net: u_long;                 // network #
   end;
   {$NODEFINE TNetEnt}
@@ -405,9 +390,9 @@ type
     s_aliases: ^PAnsiChar;         // alias list
     {$IFDEF _WIN64}
     s_proto: PAnsiChar;            // protocol to use
-    s_port: Smallint;              // port #
+    s_port: short;                 // port #
     {$ELSE}
-    s_port: Smallint;              // port #
+    s_port: short;                 // port #
     s_proto: PAnsiChar;            // protocol to use
     {$ENDIF}
   end;
@@ -420,7 +405,7 @@ type
   protoent = record
     p_name: PAnsiChar;             // official protocol name
     p_aliases: ^PAnsiChar;         // alias list
-    p_proto: Smallint;             // protocol #
+    p_proto: short;                // protocol #
   end;
   {$NODEFINE TProtoEnt}
   TProtoEnt = protoent;
@@ -1420,8 +1405,8 @@ type
   LPWSAOVERLAPPED = PWSAOverlapped;
   {$IFNDEF WINCE}
   {$EXTERNALSYM WSC_PROVIDER_INFO_TYPE}
-  {$EXTERNALSYM PROVIDERINFOLSPCATEGORIES}
-  {$EXTERNALSYM PROVIDERINFOAUDIT}
+  {$EXTERNALSYM ProviderInfoLspCategories}
+  {$EXTERNALSYM ProviderInfoAudit}
   WSC_PROVIDER_INFO_TYPE = (
     ProviderInfoLspCategories,
     ProviderInfoAudit);
@@ -1443,7 +1428,7 @@ type
   LPWSABUF = PWSABUF;
 
   {$EXTERNALSYM SERVICETYPE}
-  SERVICETYPE = LongInt;
+  SERVICETYPE = ULONG;
   {$NODEFINE TServiceType}
   TServiceType = SERVICETYPE;
 
@@ -1453,9 +1438,9 @@ type
     TokenBucketSize,         // In Bytes
     PeakBandwidth,           // In Bytes/sec
     Latency,                 // In microseconds
-    DelayVariation : LongInt;// In microseconds
+    DelayVariation : ULONG;  // In microseconds
     ServiceType : TServiceType;
-    MaxSduSize, MinimumPolicedSize : LongInt;// In Bytes
+    MaxSduSize, MinimumPolicedSize : ULONG;// In Bytes
   end;
   {$NODEFINE TFlowSpec}
   TFlowSpec = FLOWSPEC;
@@ -1627,7 +1612,7 @@ type
     // length = 0 means layered protocol,
     // length = 1 means base protocol,
     // length > 1 means protocol chain
-    ChainEntries: Array[0..MAX_PROTOCOL_CHAIN-1] of LongInt; // a list of dwCatalogEntryIds
+    ChainEntries: Array[0..MAX_PROTOCOL_CHAIN-1] of DWORD; // a list of dwCatalogEntryIds
   end;
   {$NODEFINE TWSAProtocolChain}
   TWSAProtocolChain = WSAPROTOCOLCHAIN;
@@ -2485,14 +2470,14 @@ type
 
   {$IFDEF WINCE}
   {$EXTERNALSYM DSCP_TRAFFIC_TYPE}
-  {$EXTERNALSYM DSCPTYPENOTSET}
-  {$EXTERNALSYM DSCPBESTEFFORT}
-  {$EXTERNALSYM DSCPBACKGROUND}
-  {$EXTERNALSYM DSCPEXCELLENTEFFORT}
-  {$EXTERNALSYM DSCPVIDEO}
-  {$EXTERNALSYM DSCPAUDIO}
-  {$EXTERNALSYM DSCPCONTROL}
-  {$EXTERNALSYM NUMDSCPTRAFFICTYPES}
+  {$EXTERNALSYM DSCPTypeNotSet}
+  {$EXTERNALSYM DSCPBestEffort}
+  {$EXTERNALSYM DSCPBackground}
+  {$EXTERNALSYM DSCPExcellentEffort}
+  {$EXTERNALSYM DSCPVideo}
+  {$EXTERNALSYM DSCPAudio}
+  {$EXTERNALSYM DSCPControl}
+  {$EXTERNALSYM NumDSCPTrafficTypes}
   DSCP_TRAFFIC_TYPE = (
     DSCPTypeNotSet        = 0,
     DSCPBestEffort        = 1,
@@ -2801,7 +2786,7 @@ type
   LPFN_WSAGETOVERLAPPEDRESULT = function(const s : TSocket; AOverlapped: Pointer; lpcbTransfer : LPDWORD; fWait : BOOL; var lpdwFlags : DWORD) : WordBool; stdcall;
   {$EXTERNALSYM LPFN_WSAIOCTL}
   LPFN_WSAIOCTL = function(const s : TSocket; dwIoControlCode : DWORD; lpvInBuffer : Pointer; cbInBuffer : DWORD; lpvOutBuffer : Pointer; cbOutBuffer : DWORD;
-    lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : LongInt; stdcall;
+    lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSARECVFROM}
   LPFN_WSARECVFROM = function(const s : TSocket; lpBuffers : LPWSABUF; dwBufferCount : DWORD; var lpNumberOfBytesRecvd : DWORD; var lpFlags : DWORD;
     lpFrom : PSOCKADDR; lpFromlen : PInteger; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
@@ -3444,13 +3429,13 @@ var
   {$EXTERNALSYM WSAMakeSelectReply}
   function WSAMakeSelectReply(Event, AError: Word): Longint;
   {$EXTERNALSYM WSAGetAsyncBuflen}
-  function WSAGetAsyncBuflen(Param: Longint): Word;
+  function WSAGetAsyncBuflen(Param: LPARAM): Word;
   {$EXTERNALSYM WSAGetAsyncError}
-  function WSAGetAsyncError(Param: Longint): Word;
+  function WSAGetAsyncError(Param: LPARAM): Word;
   {$EXTERNALSYM WSAGetSelectEvent}
-  function WSAGetSelectEvent(Param: Longint): Word;
+  function WSAGetSelectEvent(Param: LPARAM): Word;
   {$EXTERNALSYM WSAGetSelectError}
-  function WSAGetSelectError(Param: Longint): Word;
+  function WSAGetSelectError(Param: LPARAM): Word;
 
   {$EXTERNALSYM FD_CLR}
   procedure FD_CLR(ASocket: TSocket; var FDSet: TFDSet);
@@ -3778,7 +3763,7 @@ type
   // Old IPv6 socket address structure (retained for sockaddr_gen definition below)
   {$EXTERNALSYM sockaddr_in6_old}
   sockaddr_in6_old = record
-    sin6_family   : Smallint;         // AF_INET6
+    sin6_family   : short;            // AF_INET6
     sin6_port     : u_short;          // Transport level port number
     sin6_flowinfo : u_long;           // IPv6 flow information
     sin6_addr     : TIn6Addr;         // IPv6 address
@@ -3788,7 +3773,7 @@ type
 {$IFDEF WINCE}
   {$EXTERNALSYM SOCKADDR_IN6}
   SOCKADDR_IN6 = record
-    sin6_family   : Smallint;         // AF_INET6
+    sin6_family   : short;            // AF_INET6
     sin6_port     : u_short;          // Transport level port number
     sin6_flowinfo : u_long;           // IPv6 flow information
     sin6_addr     : TIn6Addr;         // IPv6 address
@@ -4055,12 +4040,12 @@ type
   // The Pascal compiler in Delphi/BCB prior to v6 does not
   // support specifying values for individual enum items
   NAPI_PROVIDER_TYPE = (
-  {$IFDEF HAS_ENUM_ELEMENT_VALUES}
+    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
     ProviderType_Application = 1,
-  {$ELSE}
+    {$ELSE}
     nptUnused,  // Do not use
     ProviderType_Application,
-  {$ENDIF}
+    {$ENDIF}
     ProviderType_Service);
   {$EXTERNALSYM NAPI_DOMAIN_DESCRIPTION_BLOB}
   NAPI_DOMAIN_DESCRIPTION_BLOB = record
@@ -4203,9 +4188,9 @@ type
   // The Pascal compiler in Delphi/BCB prior to v6 does not
   // support specifying values for individual enum items
   SOCKET_USAGE_TYPE = (
-  {$IFDEF HAS_ENUM_ELEMENT_VALUES}
+    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
     SYSTEM_CRITICAL_SOCKET = 1
-  {$ELSE}
+    {$ELSE}
     sutUnused,  // do not use
     SYSTEM_CRITICAL_SOCKET
   {$ENDIF}
@@ -4848,7 +4833,7 @@ const
 type
   {$EXTERNALSYM SOCKADDR_NB}
   SOCKADDR_NB = record
-    snb_family : Smallint;
+    snb_family : short;
     snb_type   : u_short;
     snb_name   : array[0..NETBIOS_NAME_LENGTH-1] of AnsiChar;
   end;
@@ -5516,7 +5501,7 @@ type
 //JPM
 {
 I made these symbols up so to prevent range check warnings in FreePascal.
-SizeOf is a smallInt when an expression is evaluated at run-time.  This
+SizeOf is a SmallInt when an expression is evaluated at run-time.  This
 run-time evaluation makes no sense because the compiler knows these when compiling
 so it should give us the numbers.  
 
@@ -6015,13 +6000,12 @@ end;
 
 function FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID): Pointer;
 var
-  LStatus: LongInt;
   LBytesSend: DWORD;
 begin
   // RLebeau: in XE4+, PDWORD is NOT defined as ^DWORD, so we have to use a type-cast!
-  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, DWORD(SIZE_GUID),
-    @Result, SIZE_FARPROC, PDWORD(@LBytesSend), nil, nil);
-  if LStatus <> 0 then begin
+  if WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, DWORD(SIZE_GUID),
+    @Result, SIZE_FARPROC, PDWORD(@LBytesSend), nil, nil) <> 0 then
+  begin
     raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
   end;
 end;
@@ -7003,25 +6987,25 @@ begin
   Result := MakeLong(Event, AError);
 end;
 
-function WSAGetAsyncBuflen(Param: Longint): Word;
+function WSAGetAsyncBuflen(Param: LPARAM): Word;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := LOWORD(Param);
 end;
 
-function WSAGetAsyncError(Param: Longint): Word;
+function WSAGetAsyncError(Param: LPARAM): Word;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := HIWORD(Param);
 end;
 
-function WSAGetSelectEvent(Param: Longint): Word;
+function WSAGetSelectEvent(Param: LPARAM): Word;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := LOWORD(Param);
 end;
 
-function WSAGetSelectError(Param: Longint): Word;
+function WSAGetSelectError(Param: LPARAM): Word;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   WSAGetSelectError := HIWORD(Param);
@@ -7210,31 +7194,31 @@ end;
 //
 // Microsoft-specific IPv4 definitions.
 //
-function IN4_CLASSA(const i : Cardinal) : Boolean;
+function IN4_CLASSA(const i : UInt32) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := ((i and $00000080) = 0);
 end;
 
-function IN4_CLASSB(const i : Cardinal) : Boolean;
+function IN4_CLASSB(const i : UInt32) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := ((i and $000000c0) = $00000080);
 end;
 
-function IN4_CLASSC(const i : Cardinal) : Boolean;
+function IN4_CLASSC(const i : UInt32) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := ((i and $000000e0) = $000000c0);
 end;
 
-function IN4_CLASSD(const i : Cardinal) : Boolean;
+function IN4_CLASSD(const i : UInt32) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := ((i and $000000f0) = $000000e0);
 end;
 
-function IN4_MULTICAST(const i : Cardinal) : Boolean;
+function IN4_MULTICAST(const i : UInt32) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := IN4_CLASSD(i);
@@ -8152,7 +8136,7 @@ end;
 //
 // Define address-family-independent routines.
 //
-function INET_ADDR_EQUAL(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function INET_ADDR_EQUAL(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a, b : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8164,7 +8148,7 @@ begin
   end;
 end;
 
-function INET_UNALIGNED_ADDR_EQUAL(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function INET_UNALIGNED_ADDR_EQUAL(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a, b : Pointer ) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8176,7 +8160,7 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function INET_IS_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8188,7 +8172,7 @@ begin
   end;
 end;
 
-function INET_IS_UNALIGNED_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function INET_IS_UNALIGNED_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8200,7 +8184,7 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_LOOPBACK(const af: {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function INET_IS_ADDR_LOOPBACK(const af: {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a: Pointer): Boolean;
 begin
   if (af = AF_INET6) then begin
@@ -8211,7 +8195,7 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_BROADCAST(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function INET_IS_ADDR_BROADCAST(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8223,7 +8207,7 @@ begin
   end;
 end;
 
-function INET_IS_ADDR_MULTICAST(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function INET_IS_ADDR_MULTICAST(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const a : Pointer) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8235,7 +8219,7 @@ begin
   end;
 end;
 
-function INET_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF}) : PUCHAR;
+function INET_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF}) : PUCHAR;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8246,7 +8230,7 @@ begin
   end;
 end;
 
-procedure INET_SET_ADDRESS( Family : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+procedure INET_SET_ADDRESS( Family : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   Address : PUCHAR; Value : PUCHAR);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -8258,7 +8242,7 @@ begin
   end;
 end;
 
-function INET_ADDR_LENGTH(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF} ) : Size_t;
+function INET_ADDR_LENGTH(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF} ) : Size_t;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8269,7 +8253,7 @@ begin
   end;
 end;
 
-function INET_SOCKADDR_LENGTH(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF}) : Size_t;
+function INET_SOCKADDR_LENGTH(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF}) : Size_t;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if (af = AF_INET6) then begin
@@ -8618,7 +8602,7 @@ begin
               (a^.s6_words[5] = 0));
 end;
 
-procedure INETADDR_SETSOCKADDR(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+procedure INETADDR_SETSOCKADDR(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   a : PSOCKADDR; addr : Pointer; const scope : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF}; const port : USHORT);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
@@ -8687,7 +8671,7 @@ begin
   end;
 end;
 
-function NL_ADDR_EQUAL(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function NL_ADDR_EQUAL(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const sa : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
   const aa : PUCHAR;
   const sb : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
@@ -8698,7 +8682,7 @@ begin
     INET_ADDR_EQUAL(af, aa, ab));
 end;
 
-function NL_IS_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Smallint{$ELSE}ADDRESS_FAMILY{$ENDIF};
+function NL_IS_ADDR_UNSPECIFIED(const af : {$IFDEF WINCE}Int16{$ELSE}ADDRESS_FAMILY{$ENDIF};
   const s : {$IFDEF WINCE}u_long{$ELSE}SCOPE_ID{$ENDIF};
   const a : PUCHAR) : Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -8912,8 +8896,8 @@ initialization
   in4addr_linklocalprefix               := IN4ADDR_LINKLOCALPREFIX_INIT;
   in4addr_multicastprefix               := IN4ADDR_MULTICASTPREFIX_INIT;
 
-  in6addr_any := IN6ADDR_ANY_INIT;
-  in6addr_loopback := IN6ADDR_LOOPBACK_INIT;
+  in6addr_any                           := IN6ADDR_ANY_INIT;
+  in6addr_loopback                      := IN6ADDR_LOOPBACK_INIT;
   in6addr_allnodesonnode                := IN6ADDR_ALLNODESONNODE_INIT;
   in6addr_allnodesonlink                := IN6ADDR_ALLNODESONLINK_INIT;
   in6addr_allroutersonlink              := IN6ADDR_ALLROUTERSONLINK_INIT;

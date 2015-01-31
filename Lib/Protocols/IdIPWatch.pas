@@ -100,13 +100,13 @@ type
     FOnStatusChanged: TNotifyEvent;
     FPreviousIP: string;
     FThread: TIdIPWatchThread;
-    FWatchInterval: Cardinal;
+    FWatchInterval: UInt32;
     //
     procedure AddToIPHistoryList(Value: string);
     procedure CheckStatus(Sender: TObject);
     procedure SetActive(Value: Boolean);
     procedure SetMaxHistoryEntries(Value: Integer);
-    procedure SetWatchInterval(Value: Cardinal);
+    procedure SetWatchInterval(Value: UInt32);
     procedure InitComponent; override;
   public
     {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
@@ -129,7 +129,7 @@ type
     property MaxHistoryEntries: Integer read FMaxHistoryEntries write SetMaxHistoryEntries
      default IP_WATCH_HIST_MAX;
     property OnStatusChanged: TNotifyEvent read FOnStatusChanged write FOnStatusChanged;
-    property WatchInterval: Cardinal read FWatchInterval write SetWatchInterval
+    property WatchInterval: UInt32 read FWatchInterval write SetWatchInterval
      default IP_WATCH_INTERVAL;
   end;
 
@@ -341,7 +341,7 @@ begin
     FIPHistoryList.Delete(0);
 end;
 
-procedure TIdIPWatch.SetWatchInterval(Value: Cardinal);
+procedure TIdIPWatch.SetWatchInterval(Value: UInt32);
 begin
   if Value <> FWatchInterval then begin
     FWatchInterval := Value;

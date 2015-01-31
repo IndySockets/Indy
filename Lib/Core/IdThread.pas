@@ -149,9 +149,9 @@ interface
 {$I IdCompilerDefines.inc}
 
 // RLebeau: On OSX/iOS, an auto-release object pool should be used to clean up
-// ObjC objects created within a thread. On Android, any thread that uses Java
-// objects will attach to the JVM and must be detached from the JVM before
-// terminating.
+// Objective-C objects that are created within a thread. On Android, any thread
+// that uses Java objects will attach to the JVM and must be detached from the
+// JVM before terminating.
 //
 // All objects must be released before terminating/detaching the thread.
 //

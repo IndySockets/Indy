@@ -162,17 +162,17 @@ type
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
-    function HostToNetwork(AValue: Word): Word; override;
-    function NetworkToHost(AValue: Word): Word; override;
-    function HostToNetwork(AValue: LongWord): LongWord; override;
-    function NetworkToHost(AValue: LongWord): LongWord; override;
-    function HostToNetwork(AValue: Int64): Int64; override;
-    function NetworkToHost(AValue: Int64): Int64; override;
+    function HostToNetwork(AValue: UInt16): UInt16; override;
+    function NetworkToHost(AValue: UInt16): UInt16; override;
+    function HostToNetwork(AValue: UInt32): UInt32; override;
+    function NetworkToHost(AValue: UInt32): UInt32; override;
+    function HostToNetwork(AValue: UInt64): UInt64; override;
+    function NetworkToHost(AValue: UInt64): UInt64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
       var VIPVersion: TIdIPVersion): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle;
-      var VBuffer: TIdBytes; APkt: TIdPacketInfo): LongWord; override;
+      var VBuffer: TIdBytes; APkt: TIdPacketInfo): UInt32; override;
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -201,16 +201,16 @@ type
     procedure WriteChecksum(s : TIdStackSocketHandle; var VBuffer : TIdBytes;
       const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
-      var arg: LongWord): Integer; override;
+    function IOControl(const s: TIdStackSocketHandle; const cmd: UInt32;
+      var arg: UInt32): Integer; override;
 
     procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
   end;
 
   {$IFNDEF NO_REDECLARE}
   TLinger = record
-    l_onoff: Word;
-    l_linger: Word;
+    l_onoff: UInt16;
+    l_linger: UInt16;
   end;
   {$ENDIF}
   TIdLinger = TLinger;
@@ -293,7 +293,7 @@ end;
 function TIdStackUnix.Accept(ASocket: TIdStackSocketHandle;
   var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
-  LA : LongInt;
+  LA : socklen_t;
   LAddr: sockaddr_in6;
 begin
   LA := SizeOf(LAddr);
@@ -494,7 +494,7 @@ begin
 end;
 
 function TIdStackUnix.ReceiveMsg(ASocket: TIdStackSocketHandle;
-  var VBuffer: TIdBytes; APkt: TIdPacketInfo): LongWord;
+  var VBuffer: TIdBytes; APkt: TIdPacketInfo): UInt32;
 var
   LIP : String;
   LPort : TIdPort;
@@ -513,7 +513,7 @@ end;
 {var
   LIP : String;
   LPort : TIdPort;
-  LSize: Cardinal;
+  LSize: UInt32;
   LAddr: SockAddr_In6;
   LMsg : msghdr;
   LMsgBuf : BUF;
@@ -522,7 +522,7 @@ end;
   LCurPt : Pin_pktinfo;
   LCurPt6 : Pin6_pktinfo;
   LByte : PByte;
-  LDummy, LDummy2 : Cardinal;
+  LDummy, LDummy2 : UInt32;
 begin
   //we call the macro twice because we specified two possible structures.
   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
@@ -705,17 +705,17 @@ begin
   end;
 end;
 
-function TIdStackUnix.HostToNetwork(AValue: Word): Word;
+function TIdStackUnix.HostToNetwork(AValue: UInt16): UInt16;
 begin
   Result := htons(AValue);
 end;
 
-function TIdStackUnix.NetworkToHost(AValue: Word): Word;
+function TIdStackUnix.NetworkToHost(AValue: UInt16): UInt16;
 begin
   Result := ntohs(AValue);
 end;
 
-function TIdStackUnix.HostToNetwork(AValue: LongWord): LongWord;
+function TIdStackUnix.HostToNetwork(AValue: UInt32): UInt32;
 begin
   {$IFOPT R+} // detect range checking
     {$DEFINE _RPlusWasEnabled}
@@ -729,7 +729,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdStackUnix.NetworkToHost(AValue: LongWord): LongWord;
+function TIdStackUnix.NetworkToHost(AValue: UInt32): UInt32;
 begin
   {$IFOPT R+} // detect range checking
     {$DEFINE _RPlusWasEnabled}
@@ -745,10 +745,10 @@ end;
 
 { RP - I'm not sure what endian Linux natively uses, thus the
 check to see if the bytes need swapping or not ... }
-function TIdStackUnix.HostToNetwork(AValue: Int64): Int64;
+function TIdStackUnix.HostToNetwork(AValue: UInt64): UInt64;
 var
-  LParts: TIdInt64Parts;
-  L: LongWord;
+  LParts: TIdUInt64Parts;
+  L: UInt32;
 begin
   LParts.QuadPart := AValue;
   L := htonl(LParts.HighPart);
@@ -759,10 +759,10 @@ begin
   Result := LParts.QuadPart;
 end;
 
-function TIdStackUnix.NetworkToHost(AValue: Int64): Int64;
+function TIdStackUnix.NetworkToHost(AValue: UInt64): UInt64;
 var
-  LParts: TIdInt64Parts;
-  L: LongWord;
+  LParts: TIdUInt64Parts;
+  L: UInt32;
 begin
   LParts.QuadPart := AValue;
   L := ntohl(LParts.HighPart);
@@ -949,6 +949,8 @@ function TIdStackUnix.CheckIPVersionSupport(const AIPVersion: TIdIPVersion): Boo
 var
   LTmpSocket: TIdStackSocketHandle;
 begin
+  // TODO: on nix systems (or maybe just Linux?), an alternative would be to
+  // check for the existance of the '/proc/net/if_inet6' kernel pseudo-file
   LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Integer(Id_SOCK_STREAM), Id_IPPROTO_IP);
   Result := LTmpSocket <> Id_INVALID_SOCKET;
   if Result then begin
@@ -961,7 +963,7 @@ procedure TIdStackUnix.WriteChecksum(s: TIdStackSocketHandle;
   const APort: TIdPort; const AIPVersion: TIdIPVersion);
 begin
   case AIPVersion of
-    Id_IPv4 : CopyTIdWord(HostToLittleEndian(CalcCheckSum(VBuffer)), VBuffer, AOffset);
+    Id_IPv4 : CopyTIdUInt16(HostToLittleEndian(CalcCheckSum(VBuffer)), VBuffer, AOffset);
     Id_IPv6 : WriteChecksumIPv6(s, VBuffer, AOffset, AIP, APort);
   else
     IPVersionUnsupported;
@@ -979,8 +981,8 @@ begin
   SetSocketOption(s, Id_IPPROTO_IPV6, IPV6_CHECKSUM, AOffset);
 end;
 
-function TIdStackUnix.IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
-  var arg: LongWord): Integer;
+function TIdStackUnix.IOControl(const s: TIdStackSocketHandle; const cmd: UInt32;
+  var arg: UInt32): Integer;
 begin
   Result := fpioctl(s, cmd, @arg);
 end;
@@ -1012,7 +1014,7 @@ But the more serious reason is another one, which exists in Windows too:
 
 JM Berg, 2002-09-09
 
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): cardinal;
+function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): UInt32;
 var
   LFileHandle: integer;
   offset: integer;
@@ -1023,7 +1025,7 @@ begin
     offset := 0;
     fstat(LFileHandle, stat);
     Result := sendfile(ASocket, LFileHandle, offset, stat.st_size);
-//**    if Result = Cardinal(-1) then RaiseLastOSError;
+//**    if Result = UInt32(-1) then RaiseLastOSError;
   finally libc.__close(LFileHandle); end;
 end;
 *)

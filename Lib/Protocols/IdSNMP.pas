@@ -680,11 +680,7 @@ begin
   end;
   if (not fTrapRecvBinding.HandleAllocated) and (fTrapPort <> 0) then begin
     fTrapRecvBinding.IPVersion := Result.IPVersion;
-    {$IFDEF LINUX}
-    fTrapRecvBinding.AllocateSocket(LongInt(Id_SOCK_DGRAM));
-    {$ELSE}
     fTrapRecvBinding.AllocateSocket(Id_SOCK_DGRAM);
-    {$ENDIF}
     fTrapRecvBinding.IP := Result.IP;
     fTrapRecvBinding.Port := fTrapPort;
     fTrapRecvBinding.Bind;

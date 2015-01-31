@@ -63,12 +63,12 @@ type
     FOnChange: TNotifyEvent;
     function GetAddressType: TIdIPAddressType;
     function GetAsBinaryString: String;
-    function GetAsDoubleWord: LongWord;
+    function GetAsDoubleWord: UInt32;
     function GetAsString: String;
     function GetBit(Index: Byte): Boolean;
     function GetByte(Index: Integer): Byte;
     procedure SetAsBinaryString(const Value: String);
-    procedure SetAsDoubleWord(const Value: LongWord);
+    procedure SetAsDoubleWord(const Value: UInt32);
     procedure SetAsString(const Value: String);
     procedure SetBit(Index: Byte; const Value: Boolean);
     procedure SetByte(Index: Integer; const Value: Byte);
@@ -89,7 +89,7 @@ type
     property Byte2: Byte index 1 read GetByte write SetByte stored False;
     property Byte3: Byte index 2 read GetByte write SetByte stored False;
     property Byte4: Byte index 3 read GetByte write SetByte stored False;
-    property AsDoubleWord: LongWord read GetAsDoubleWord write SetAsDoubleWord stored False;
+    property AsDoubleWord: UInt32 read GetAsDoubleWord write SetAsDoubleWord stored False;
     property AsBinaryString: String read GetAsBinaryString write SetAsBinaryString stored False;
     property AsString: String read GetAsString write SetAsString;
   end;
@@ -97,7 +97,7 @@ type
   TIdNetworkCalculator = class(TIdBaseComponent)
   protected
     FListIP: TStrings;
-    FNetworkMaskLength: LongWord;
+    FNetworkMaskLength: UInt32;
     FNetworkMask: TIpProperty;
     FNetworkAddress: TIpProperty;
     FNetworkClass: TNetworkClass;
@@ -109,14 +109,14 @@ type
     function GetListIP: TStrings;
     procedure SetNetworkAddress(const Value: TIpProperty);
     procedure SetNetworkMask(const Value: TIpProperty);
-    procedure SetNetworkMaskLength(const Value: LongWord);
+    procedure SetNetworkMaskLength(const Value: UInt32);
     procedure NetMaskChanged(Sender: TObject);
     procedure NetAddressChanged(Sender: TObject);
     procedure InitComponent; override;
   public
     destructor Destroy; override;
     function IsAddressInNetwork(const Address: String): Boolean;
-    function NumIP: LongWord;
+    function NumIP: UInt32;
     function StartIP: String;
     function EndIP: String;
     //
@@ -127,7 +127,7 @@ type
   published
     property NetworkAddress: TIpProperty read FNetworkAddress write SetNetworkAddress;
     property NetworkMask: TIpProperty read FNetworkMask write SetNetworkMask;
-    property NetworkMaskLength: LongWord read FNetworkMaskLength write SetNetworkMaskLength
+    property NetworkMaskLength: UInt32 read FNetworkMaskLength write SetNetworkMaskLength
      default ID_NC_MASK_LENGTH;
     property OnGenIPList: TNotifyEvent read FOnGenIPList write FOnGenIPList;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -138,12 +138,12 @@ implementation
 uses
   IdException, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
 
-function MakeLongWordIP(const One, Two, Three, Four: Byte): LongWord;
+function MakeLongWordIP(const One, Two, Three, Four: Byte): UInt32;
 begin
-  Result := (LongWord(One) shl 24) or (LongWord(Two) shl 16) or (LongWord(Three) shl 8) or LongWord(Four);
+  Result := (UInt32(One) shl 24) or (UInt32(Two) shl 16) or (UInt32(Three) shl 8) or UInt32(Four);
 end;
 
-procedure BreakupLongWordIP(const Value: LongWord; var One, Two, Three, Four: Byte);
+procedure BreakupLongWordIP(const Value: UInt32; var One, Two, Three, Four: Byte);
 begin
   One := Byte((Value and $FF000000) shr 24);
   Two := Byte((Value and $00FF0000) shr 16);
@@ -151,10 +151,10 @@ begin
   Four := Byte(Value and $000000FF);
 end;
 
-function StrToIP(const Value: string): LongWord;
+function StrToIP(const Value: string): UInt32;
 var
   strBuffers: Array [0..3] of String;
-  cardBuffers: Array[0..3] of LongWord;
+  cardBuffers: Array[0..3] of UInt32;
   StrWork: String;
   I: Integer;
 begin
@@ -206,8 +206,8 @@ end;
 
 procedure TIdNetworkCalculator.FillIPList;
 var
-  i: LongWord;
-  BaseIP: LongWord;
+  i: UInt32;
+  BaseIP: UInt32;
   LByte1, LByte2, LByte3, LByte4: Byte;
 begin
   if FListIP.Count = 0 then
@@ -278,7 +278,7 @@ end;
 procedure TIdNetworkCalculator.NetMaskChanged(Sender: TObject);
 var
   sBuffer: string;
-  InitialMaskLength: LongWord;
+  InitialMaskLength: UInt32;
 begin
   FListIP.Clear;
   InitialMaskLength := FNetworkMaskLength;
@@ -309,9 +309,9 @@ begin
   FNetworkMask.Assign(Value);
 end;
 
-procedure TIdNetworkCalculator.SetNetworkMaskLength(const Value: LongWord);
+procedure TIdNetworkCalculator.SetNetworkMaskLength(const Value: UInt32);
 var
-  LBuffer, LValue: LongWord;
+  LBuffer, LValue: UInt32;
 begin
   if Value <= 32 then begin
     LValue := Value;
@@ -322,7 +322,7 @@ begin
   begin
     FNetworkMaskLength := LValue;
     if Value > 0 then begin
-      LBuffer := High(LongWord) shl (32 - LValue);
+      LBuffer := High(UInt32) shl (32 - LValue);
     end else begin
       LBuffer := 0;
     end;
@@ -349,7 +349,7 @@ end;
 
 function TIdNetworkCalculator.EndIP: String;
 var
-  IP: LongWord;
+  IP: UInt32;
   LByte1, LByte2, LByte3, LByte4: Byte;
 begin
   IP := (NetworkAddress.AsDoubleWord and NetworkMask.AsDoubleWord) + (NumIP - 1);
@@ -357,14 +357,14 @@ begin
   Result := IndyFormat('%d.%d.%d.%d', [LByte1, LByte2, LByte3, LByte4]);    {Do not Localize}
 end;
 
-function TIdNetworkCalculator.NumIP: LongWord;
+function TIdNetworkCalculator.NumIP: UInt32;
 begin
   Result := 1 shl (32 - NetworkMaskLength);
 end;
 
 function TIdNetworkCalculator.StartIP: String;
 var
-  IP: LongWord;
+  IP: UInt32;
   LByte1, LByte2, LByte3, LByte4: Byte;
 begin
   IP := NetworkAddress.AsDoubleWord and NetworkMask.AsDoubleWord;
@@ -462,7 +462,7 @@ begin
   {$ENDIF}
 end;
 
-function TIpProperty.GetAsDoubleWord: LongWord;
+function TIpProperty.GetAsDoubleWord: UInt32;
 begin
   Result := MakeLongWordIP(FValue[0], FValue[1], FValue[2], FValue[3]);
 end;
@@ -476,7 +476,7 @@ end;
 procedure TIpProperty.SetAsBinaryString(const Value: String);
 var
   i: Integer;
-  NewIP: LongWord;
+  NewIP: UInt32;
 begin
   if IsReadOnly then begin
     Exit;
@@ -502,7 +502,7 @@ begin
   Result := FValue[Index];
 end;
 
-procedure TIpProperty.SetAsDoubleWord(const Value: LongWord);
+procedure TIpProperty.SetAsDoubleWord(const Value: UInt32);
 var
   LByte1, LByte2, LByte3, LByte4: Byte;
 begin

@@ -772,9 +772,9 @@ varies between servers.  A typical line that gets parsed into this is:
           ADestFileNameAndPath: string = '';                     {Do not Localize}
           AContentTransferEncoding: string = 'text'): Boolean;             {Do not Localize}
     //Retrieves the specified number of headers of the selected mailbox to the specified TIdMessageCollection.
-    function  InternalRetrieveHeaders(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+    function  InternalRetrieveHeaders(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
     //Retrieves the specified number of messages of the selected mailbox to the specified TIdMessageCollection.
-    function  InternalRetrieveMsgs(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+    function  InternalRetrieveMsgs(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
     function  InternalSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec; AUseUID: Boolean; const ACharSet: string): Boolean;
     function  ParseBodyStructureSectionAsEquates(AParam: string): string;
     function  ParseBodyStructureSectionAsEquates2(AParam: string): string;
@@ -897,11 +897,11 @@ varies between servers.  A typical line that gets parsed into this is:
     //Retrieves all headers of the selected mailbox to the specified TIdMessageCollection.
     function  RetrieveAllHeaders(AMsgList: TIdMessageCollection): Boolean;
     //Retrieves the first NN headers of the selected mailbox to the specified TIdMessageCollection.
-    function  RetrieveFirstHeaders(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+    function  RetrieveFirstHeaders(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
     //Retrieves all messages of the selected mailbox to the specified TIdMessageCollection.
     function  RetrieveAllMsgs(AMsgList: TIdMessageCollection): Boolean;
     //Retrieves the first NN messages of the selected mailbox to the specified TIdMessageCollection.
-    function  RetrieveFirstMsgs(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+    function  RetrieveFirstMsgs(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
     //Retrieves the message envelope, parses it, and discards the envelope.
     function  RetrieveEnvelope(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
     //Retrieves the message envelope into a TStringList but does NOT parse it.
@@ -1579,7 +1579,7 @@ POST: returns a string encoded as described in IETF RFC 3501, section 5.1.3
     2004-02-29 roman puls: initial version                ---}
 var
   c : Word;
-  bitBuf : Cardinal;
+  bitBuf : UInt32;
   bitShift : Integer;
   x : Integer;
   escaped : Boolean;
@@ -1690,11 +1690,11 @@ POST: SUCCESS: an 8bit string
          loops. Delphi 8 compatible.
     2004-02-29 roman puls: initial version                ---}
 const
-  bitMasks: array[0..4] of Cardinal = ($00000000, $00000001, $00000003, $00000007, $0000000F);
+  bitMasks: array[0..4] of UInt32 = ($00000000, $00000001, $00000003, $00000007, $0000000F);
 var
   ch : Byte;
   last : Char;
-  bitBuf  : Cardinal;
+  bitBuf  : UInt32;
   escaped : Boolean;
   x, bitShift: Integer;
   CharToAppend: WideChar;
@@ -3769,18 +3769,12 @@ begin
       end;
 
       {Get the info we want out of LParts...}
-      repeat
-        LThePart := LParts.Items[LTextPart];   {Part 1 is index 0}
-        if LThePart.FSize = 0 then begin
-          {Some emails have part 0 empty, they intend you to use part 1}
-          if LTextPart = 0 then begin
-            LTextPart := 1;
-            Continue;
-          end else begin
-            Break;
-          end;
-        end;
-      until False;
+      LThePart := LParts.Items[LTextPart];   {Part 1 is index 0}
+      if LThePart.FSize = 0 then begin
+        {Some emails have part 0 empty, they intend you to use part 1}
+        LTextPart := 1;
+        LThePart := LParts.Items[LTextPart];
+      end;
 
       LCharSet := LThePart.CharSet;
       LContentTransferEncoding := LThePart.ContentTransferEncoding;
@@ -4858,7 +4852,7 @@ begin
   Result := InternalRetrieveHeaders(AMsgList, -1);
 end;
 
-function TIdIMAP4.RetrieveFirstHeaders(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+function TIdIMAP4.RetrieveFirstHeaders(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
 begin
   Result := InternalRetrieveHeaders(AMsgList, ACount);
 end;
@@ -4875,6 +4869,7 @@ begin
     if (ACount < 0) or (ACount > FMailBox.TotalMsgs) then begin
       ACount := FMailBox.TotalMsgs;
     end;
+    // TODO: can this be accomplished using a single FETCH, similar to RetrieveAllEnvelopes()?
     for Ln := 1 to ACount do begin
       LMsgItem := AMsgList.Add;
       if not RetrieveHeader(Ln, LMsgItem.Msg) then begin
@@ -4890,12 +4885,12 @@ begin
   Result := InternalRetrieveMsgs(AMsgList, -1);
 end;
 
-function TIdIMAP4.RetrieveFirstMsgs(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+function TIdIMAP4.RetrieveFirstMsgs(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
 begin
   Result := InternalRetrieveMsgs(AMsgList, ACount);
 end;
 
-function TIdIMAP4.InternalRetrieveMsgs(AMsgList: TIdMessageCollection; ACount: LongInt): Boolean;
+function TIdIMAP4.InternalRetrieveMsgs(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
 var
   LMsgItem : TIdMessageItem;
   Ln : Integer;
@@ -4907,6 +4902,7 @@ begin
     if (ACount < 0) or (ACount > FMailBox.TotalMsgs) then begin
       ACount := FMailBox.TotalMsgs;
     end;
+    // TODO: can this be accomplished using a single FETCH, similar to RetrieveAllEnvelopes()?
     for Ln := 1 to ACount do begin
       LMsgItem := AMsgList.Add;
       if not Retrieve(Ln, LMsgItem.Msg) then begin
@@ -5785,7 +5781,7 @@ var
   Ln : Integer;
   LSlExpunge : TStringList;
 begin
-  SetLength ( AMB.DeletedMsgs, 0 );
+  SetLength(AMB.DeletedMsgs, 0);
   LSlExpunge := TStringList.Create;
   try
     if ACmdResultDetails.Count > 1 then begin

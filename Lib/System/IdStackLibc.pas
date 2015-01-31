@@ -147,17 +147,17 @@ type
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
-    function HostToNetwork(AValue: Word): Word; override;
-    function NetworkToHost(AValue: Word): Word; override;
-    function HostToNetwork(AValue: LongWord): LongWord; override;
-    function NetworkToHost(AValue: LongWord): LongWord; override;
-    function HostToNetwork(AValue: Int64): Int64; override;
-    function NetworkToHost(AValue: Int64): Int64; override;
+    function HostToNetwork(AValue: UInt16): UInt16; override;
+    function NetworkToHost(AValue: UInt16): UInt16; override;
+    function HostToNetwork(AValue: UInt32): UInt32; override;
+    function NetworkToHost(AValue: UInt32): UInt32; override;
+    function HostToNetwork(AValue: UInt64): UInt64; override;
+    function NetworkToHost(AValue: UInt64): UInt64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-       APkt: TIdPacketInfo): LongWord; override;
+       APkt: TIdPacketInfo): UInt32; override;
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer;
       const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -191,15 +191,15 @@ type
       const AIP : String;
       const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
-      var arg: LongWord): Integer; override;
+    function IOControl(const s: TIdStackSocketHandle; const cmd: UInt32;
+      var arg: UInt32): Integer; override;
 
     procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
   end;
 
   TLinger = record
-    l_onoff: Word;
-    l_linger: Word;
+    l_onoff: UInt16;
+    l_linger: UInt16;
   end;
   TIdLinger = TLinger;
 
@@ -245,7 +245,7 @@ end;
 function TIdStackLibc.Accept(ASocket: TIdStackSocketHandle;
   var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
-  LN: LongWord;
+  LN: UInt32;
   LAddr: sockaddr_in6;
 begin
   LN := SizeOf(LAddr);
@@ -456,7 +456,7 @@ function TIdStackLibc.RecvFrom(const ASocket: TIdStackSocketHandle;
   var VBuffer; const ALength, AFlags: Integer; var VIP: string;
   var VPort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ): Integer;
 var
-  LiSize: LongWord;
+  LiSize: UInt32;
   LAddr: sockaddr_in6;
 begin
   case AIPVersion of
@@ -488,11 +488,11 @@ begin
 end;
 
 function TIdStackLibc.ReceiveMsg(ASocket: TIdStackSocketHandle;
-  var VBuffer: TIdBytes; APkt: TIdPacketInfo): LongWord;
+  var VBuffer: TIdBytes; APkt: TIdPacketInfo): UInt32;
 {var
   LIP : String;
   LPort : TIdPort;
-  LSize: Cardinal;
+  LSize: UInt32;
   LAddr: SockAddr_In6;
   LMsg : msghdr;
   LMsgBuf : BUF;
@@ -501,7 +501,7 @@ function TIdStackLibc.ReceiveMsg(ASocket: TIdStackSocketHandle;
   LCurPt : Pin_pktinfo;
   LCurPt6 : Pin6_pktinfo;
   LByte : PByte;
-  LDummy, LDummy2 : Cardinal;
+  LDummy, LDummy2 : UInt32;
 
 begin
   //we call the macro twice because we specified two possible structures.
@@ -648,7 +648,7 @@ procedure TIdStackLibc.{$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocke
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
   var AOptVal; var AOptLen: Integer);
 var
-  LLen: LongWord;
+  LLen: UInt32;
 begin
   LLen := AOptLen;
   CheckForSocketError(Libc.getsockopt(ASocket, ALevel, AOptName, PIdAnsiChar(@AOptVal), LLen));
@@ -706,7 +706,7 @@ end;
 function TIdStackLibc.WSGetServByPort(const APortNumber: TIdPort): TStrings;
 type
   PPAnsiCharArray = ^TPAnsiCharArray;
-  TPAnsiCharArray = packed array[0..(MaxLongint div SizeOf(PAnsiChar))-1] of PAnsiChar;
+  TPAnsiCharArray = packed array[0..(Maxint div SizeOf(PAnsiChar))-1] of PAnsiChar;
 var
   Lps: PServEnt;
   Li: Integer;
@@ -730,32 +730,32 @@ begin
   end;
 end;
 
-function TIdStackLibc.HostToNetwork(AValue: Word): Word;
+function TIdStackLibc.HostToNetwork(AValue: UInt16): UInt16;
 begin
   Result := htons(AValue);
 end;
 
-function TIdStackLibc.NetworkToHost(AValue: Word): Word;
+function TIdStackLibc.NetworkToHost(AValue: UInt16): UInt16;
 begin
   Result := ntohs(AValue);
 end;
 
-function TIdStackLibc.HostToNetwork(AValue: LongWord): LongWord;
+function TIdStackLibc.HostToNetwork(AValue: UInt32): UInt32;
 begin
   Result := htonl(AValue);
 end;
 
-function TIdStackLibc.NetworkToHost(AValue: LongWord): LongWord;
+function TIdStackLibc.NetworkToHost(AValue: UInt32): UInt32;
 begin
   Result := ntohl(AValue);
 end;
 
 { RP - I'm not sure what endian Linux natively uses, thus the
 check to see if the bytes need swapping or not ... }
-function TIdStackLibc.HostToNetwork(AValue: Int64): Int64;
+function TIdStackLibc.HostToNetwork(AValue: UInt64): UInt64;
 var
-  LParts: TIdInt64Parts;
-  L: LongWord;
+  LParts: TIdUInt64Parts;
+  L: UInt32;
 begin
   LParts.QuadPart := AValue;
   L := htonl(LParts.HighPart);
@@ -766,10 +766,10 @@ begin
   Result := LParts.QuadPart;
 end;
 
-function TIdStackLibc.NetworkToHost(AValue: Int64): Int64;
+function TIdStackLibc.NetworkToHost(AValue: UInt64): UInt64;
 var
-  LParts: TIdInt64Parts;
-  L: LongWord;
+  LParts: TIdUInt64Parts;
+  L: UInt32;
 begin
   LParts.QuadPart := AValue;
   L := ntohl(LParts.HighPart);
@@ -896,7 +896,7 @@ function TIdStackLibc.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
   LAddr: sockaddr_in6;
-  LSize: LongWord;
+  LSize: UInt32;
   LHostName : array[0..NI_MAXHOST] of TIdAnsiChar;
   {$IFDEF USE_MARSHALLED_PTRS}
   LHostNamePtr: TPtrWrapper;
@@ -1023,7 +1023,7 @@ end;
 procedure TIdStackLibc.GetPeerName(ASocket: TIdStackSocketHandle;
  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
-  i: LongWord;
+  i: UInt32;
   LAddr: sockaddr_in6;
 begin
   i := SizeOf(LAddr);
@@ -1054,7 +1054,7 @@ end;
 procedure TIdStackLibc.GetSocketName(ASocket: TIdStackSocketHandle;
   var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
-  i: LongWord;
+  i: UInt32;
   LAddr: sockaddr_in6;
 begin
   i := SizeOf(LAddr);
@@ -1098,6 +1098,8 @@ function TIdStackLibc.CheckIPVersionSupport(const AIPVersion: TIdIPVersion): Boo
 var
   LTmpSocket: TIdStackSocketHandle;
 begin
+  // TODO: on nix systems (or maybe just Linux?), an alternative would be to
+  // check for the existance of the '/proc/net/if_inet6' kernel pseudo-file
   LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Integer(Id_SOCK_STREAM), Id_IPPROTO_IP );
   Result := LTmpSocket <> Id_INVALID_SOCKET;
   if Result then begin
@@ -1110,7 +1112,7 @@ procedure TIdStackLibc.WriteChecksum(s: TIdStackSocketHandle;
   const APort: TIdPort; const AIPVersion: TIdIPVersion);
 begin
   case AIPVersion of
-    Id_IPv4 : CopyTIdWord(HostToLittleEndian(CalcCheckSum(VBuffer)), VBuffer, AOffset);
+    Id_IPv4 : CopyTIdUInt16(HostToLittleEndian(CalcCheckSum(VBuffer)), VBuffer, AOffset);
     Id_IPv6 : WriteChecksumIPv6(s, VBuffer, AOffset, AIP, APort);
   else
     IPVersionUnsupported;
@@ -1129,7 +1131,7 @@ begin
 end;
 
 function TIdStackLibc.IOControl(const s: TIdStackSocketHandle;
-  const cmd: LongWord; var arg: LongWord): Integer;
+  const cmd: UInt32; var arg: UInt32): Integer;
 begin
   Result := ioctl(s, cmd, @arg);
 end;
@@ -1392,7 +1394,7 @@ But the more serious reason is another one, which exists in Windows too:
 
 JM Berg, 2002-09-09
 
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): cardinal;
+function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): UInt32;
 var
   LFileHandle: integer;
   offset: integer;
@@ -1403,7 +1405,7 @@ begin
     offset := 0;
     fstat(LFileHandle, stat);
     Result := sendfile(ASocket, LFileHandle, offset, stat.st_size);
-//**    if Result = Cardinal(-1) then RaiseLastOSError;
+//**    if Result = UInt32(-1) then RaiseLastOSError;
   finally libc.__close(LFileHandle); end;
 end;
 *)

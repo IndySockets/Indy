@@ -475,11 +475,12 @@ begin
     ExpandBytes(LOut, LOffset, 3-LSSize);
   end;
   //We now need to 3to4 encode LOut...
+  //TODO: compress repetitive bytes to "<byte> $90 <run length>"
   LOut := InternalEncode(LOut);
   //Need to add a colon at the start & end of the block...
   InsertByte(LOut, 58, 0);
   AppendByte(LOut, 58);
-  //Expand any 90 to 90 00
+  //Expand any bare $90 to $90 $00
   LN := 0;
   while LN < Length(LOut) do begin
     if LOut[LN] = $90 then begin

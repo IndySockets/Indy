@@ -15,6 +15,7 @@ brcc32 System\IndySystem180.rc
 brcc32 System\IndySystem190.rc
 brcc32 System\IndySystem200.rc
 brcc32 System\IndySystem210.rc
+brcc32 System\IndySystem220.rc
 brcc32 Core\dclIndyCore40.rc
 brcc32 Core\dclIndyCore50.rc
 brcc32 Core\dclIndyCore60.rc
@@ -32,6 +33,7 @@ brcc32 Core\dclIndyCore180.rc
 brcc32 Core\dclIndyCore190.rc
 brcc32 Core\dclIndyCore200.rc
 brcc32 Core\dclIndyCore210.rc
+brcc32 Core\dclIndyCore220.rc
 brcc32 Core\IdAboutVCL.rc
 brcc32 Core\IndyCore40.rc
 brcc32 Core\IndyCore50.rc
@@ -50,6 +52,7 @@ brcc32 Core\IndyCore180.rc
 brcc32 Core\IndyCore190.rc
 brcc32 Core\IndyCore200.rc
 brcc32 Core\IndyCore210.rc
+brcc32 Core\IndyCore220.rc
 brcc32 Protocols\dclIndyProtocols40.rc
 brcc32 Protocols\dclIndyProtocols50.rc
 brcc32 Protocols\dclIndyProtocols60.rc
@@ -67,6 +70,7 @@ brcc32 Protocols\dclIndyProtocols180.rc
 brcc32 Protocols\dclIndyProtocols190.rc
 brcc32 Protocols\dclIndyProtocols200.rc
 brcc32 Protocols\dclIndyProtocols210.rc
+brcc32 Protocols\dclIndyProtocols220.rc
 brcc32 Protocols\IndyProtocols40.rc
 brcc32 Protocols\IndyProtocols50.rc
 brcc32 Protocols\IndyProtocols60.rc
@@ -84,3 +88,4 @@ brcc32 Protocols\IndyProtocols180.rc
 brcc32 Protocols\IndyProtocols190.rc
 brcc32 Protocols\IndyProtocols200.rc
 brcc32 Protocols\IndyProtocols210.rc
+brcc32 Protocols\IndyProtocols220.rc

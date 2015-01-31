@@ -189,12 +189,7 @@ begin
       end;
     end;
     for i := 0 to Bindings.Count - 1 do begin
-
-{$IFDEF LINUX}
-      Bindings[i].AllocateSocket(LongInt(Id_SOCK_DGRAM));
-{$ELSE}
       Bindings[i].AllocateSocket(Id_SOCK_DGRAM);
-{$ENDIF}
       // do not overwrite if the default. This allows ReuseSocket to be set per binding
       if FReuseSocket <> rsOSDependent then begin
         Bindings[i].ReuseSocket := FReuseSocket;

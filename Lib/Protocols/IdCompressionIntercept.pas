@@ -93,7 +93,6 @@ interface
 
 uses
   Classes,
-  IdCTypes,
   IdException,
   IdGlobal,
   IdGlobalProtocols,
@@ -118,9 +117,9 @@ type
     FCompressRec: TZStreamRec;
     FDecompressRec: TZStreamRec;
     FRecvBuf: TIdBytes;
-    FRecvCount, FRecvSize: TIdC_UINT;
+    FRecvCount, FRecvSize: UInt32;
     FSendBuf: TIdBytes;
-    FSendCount, FSendSize: TIdC_UINT;
+    FSendCount, FSendSize: UInt32;
     procedure SetCompressionLevel(Value: TIdCompressionLevel);
     procedure InitCompressors;
     procedure DeinitCompressors;
@@ -204,7 +203,7 @@ procedure TIdCompressionIntercept.Receive(var VBuffer: TIdBytes);
 var
   LBuffer: TIdBytes;
   LPos : integer;
-  nChars, C : TIdC_UINT;
+  nChars, C : UInt32;
   StreamEnd: Boolean;
 begin
   // let the next Intercept in the chain decode its data first
@@ -260,7 +259,7 @@ end;
 procedure TIdCompressionIntercept.Send(var VBuffer: TIdBytes);
 var
   LBuffer: TIdBytes;
-  LLen, LSize: TIdC_UINT;
+  LLen, LSize: UInt32;
 begin
   LBuffer := nil;
   if FCompressionLevel in [1..9] then
@@ -302,8 +301,8 @@ begin
       end;
       // Place the compressed data into the output stream
       LLen := Length(VBuffer);
-      SetLength(VBuffer, LLen + TIdC_UINT(Length(LBuffer)) - FCompressRec.avail_out);
-      CopyTIdBytes(LBuffer, 0, VBuffer, LLen, TIdC_UINT(Length(LBuffer)) - FCompressRec.avail_out);
+      SetLength(VBuffer, LLen + UInt32(Length(LBuffer)) - FCompressRec.avail_out);
+      CopyTIdBytes(LBuffer, 0, VBuffer, LLen, UInt32(Length(LBuffer)) - FCompressRec.avail_out);
     end;
   end;
 

@@ -350,7 +350,7 @@ const
     'YARD', 'YARN', 'YAWL', 'YAWN', 'YEAH', 'YEAR', 'YELL', 'YOGA', {do not localize}
     'YOKE');                                                        {do not localize}
 
-function ReverseEndian(const AInt: LongWord): LongWord; overload;
+function ReverseEndian(const AInt: UInt32): UInt32; overload;
 begin
   Result := ((AInt and $FF000000) shr 24) or
     ((AInt and $00FF0000) shr 8) or
@@ -376,7 +376,7 @@ var
   I: Integer;
 begin
   for I := 0 to 3 do begin
-    LHashRec[I] := BytesToLongWord(AHash, SizeOf(LongWord)*I);
+    LHashRec[I] := BytesToUInt32(AHash, SizeOf(UInt32)*I);
   end;
   Result := (Int64(LHashRec[0] xor LHashRec[2]) shl 32) or (LHashRec[1] xor LHashRec[3]);
 end;
@@ -387,7 +387,7 @@ var
   I: Integer;
 begin
   for I := 0 to 4 do begin
-    LHashRec[I] := BytesToLongWord(AHash, SizeOf(LongWord)*I);
+    LHashRec[I] := BytesToUInt32(AHash, SizeOf(UInt32)*I);
   end;
   Result := (Int64(LHashRec[0] xor LHashRec[2] xor LHashRec[4]) shl 32) or (LHashRec[1] xor LHashRec[3]);
 end;
@@ -424,25 +424,25 @@ var
   LTmpBytes: TIdBytes;
   I: Integer;
   L64Bit: Int64;
-  LTempLongWord: LongWord;
+  LTempLongWord: UInt32;
 begin
   CheckMD4Permitted;
   LMD4 := TIdHashMessageDigest4.Create;
   try
     L64Bit := Hash4ToInt64(LMD4.HashString(LowerCase(ASeed) + APassword));
 
-    SetLength(LTmpBytes, SizeOf(LongWord)*2);
+    SetLength(LTmpBytes, SizeOf(UInt32)*2);
 
     for i := 1 to ACount do begin
       L64Bit := ReverseEndian(L64Bit);
 
       LTempLongWord := (L64Bit shr 32);
       LTempLongWord := ReverseEndian(LTempLongWord);
-      CopyTIdLongWord(LTempLongWord, LTmpBytes, 0);
+      CopyTIdUInt32(LTempLongWord, LTmpBytes, 0);
 
       LTempLongWord := (L64Bit and $FFFFFFFF);
       LTempLongWord := ReverseEndian(LTempLongWord);
-      CopyTIdLongWord(LTempLongWord, LTmpBytes, SizeOf(LongWord));
+      CopyTIdUInt32(LTempLongWord, LTmpBytes, SizeOf(UInt32));
 
       L64Bit := Hash4ToInt64(LMD4.HashBytes(LTmpBytes));
     end;
@@ -458,25 +458,25 @@ var
   LTmpBytes: TIdBytes;
   I: Integer;
   L64Bit: int64;
-  LTempLongWord: LongWord;
+  LTempLongWord: UInt32;
 begin
   CheckMD5Permitted;
   LMD5 := TIdHashMessageDigest5.Create;
   try
     L64Bit := Hash4ToInt64(LMD5.HashString(LowerCase(ASeed) + APassword));
 
-    SetLength(LTmpBytes, SizeOf(LongWord)*2);
+    SetLength(LTmpBytes, SizeOf(UInt32)*2);
 
     for i := 1 to ACount do begin
       L64Bit := ReverseEndian(L64Bit);
 
       LTempLongWord := (L64Bit shr 32);
       LTempLongWord := ReverseEndian(LTempLongWord);
-      CopyTIdLongWord(LTempLongWord, LTmpBytes, 0);
+      CopyTIdUInt32(LTempLongWord, LTmpBytes, 0);
 
       LTempLongWord := (L64Bit and $FFFFFFFF);
       LTempLongWord := ReverseEndian(LTempLongWord);
-      CopyTIdLongWord(LTempLongWord, LTmpBytes, SizeOf(LongWord));
+      CopyTIdUInt32(LTempLongWord, LTmpBytes, SizeOf(UInt32));
 
       L64Bit := Hash4ToInt64(LMD5.HashBytes(LTmpBytes));
     end;
@@ -492,22 +492,22 @@ var
   LTmpBytes: TIdBytes;
   I: integer;
   L64Bit: int64;
-  LTempLongWord: LongWord;
+  LTempLongWord: UInt32;
 begin
   LSHA1 := TIdHashSHA1.Create;
   try
     L64Bit := Hash5ToInt64(LSHA1.HashString(LowerCase(ASeed) + APassword));
 
-    SetLength(LTmpBytes, SizeOf(LongWord)*2);
+    SetLength(LTmpBytes, SizeOf(UInt32)*2);
 
     for i := 1 to ACount do begin
       L64Bit := ReverseEndian(L64Bit);
 
       LTempLongWord := (L64Bit shr 32);
-      CopyTIdLongWord(LTempLongWord, LTmpBytes, 0);
+      CopyTIdUInt32(LTempLongWord, LTmpBytes, 0);
 
       LTempLongWord := (L64Bit and $FFFFFFFF);
-      CopyTIdLongWord(LTempLongWord, LTmpBytes, SizeOf(LongWord));
+      CopyTIdUInt32(LTempLongWord, LTmpBytes, SizeOf(UInt32));
 
       L64Bit := Hash5ToInt64(LSHA1.HashBytes(LTmpBytes));
     end;

@@ -37,11 +37,11 @@ uses
 // associated with an assembly.
 //
 [assembly: AssemblyTitle('Indy')]
-[assembly: AssemblyDescription('Internet Direct (Indy) 10.6.0 for Visual Studio .NET')]
+[assembly: AssemblyDescription('Internet Direct (Indy) 10.6.1 for Visual Studio .NET')]
 [assembly: AssemblyConfiguration('')]
 [assembly: AssemblyCompany('Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
 [assembly: AssemblyProduct('Indy for Microsoft .NET Framework')]
-[assembly: AssemblyCopyright('Copyright © 1993 - 2013 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
+[assembly: AssemblyCopyright('Copyright © 1993 - 2014 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
 [assembly: AssemblyTrademark('')]
 [assembly: AssemblyCulture('')]
 
@@ -56,7 +56,7 @@ uses
 // You can specify all the values or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion('10.6.0.*')]
+[assembly: AssemblyVersion('10.6.1.*')]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the

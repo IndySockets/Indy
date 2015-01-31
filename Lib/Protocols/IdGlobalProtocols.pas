@@ -395,7 +395,8 @@ type
   function ABNFToText(const AText : String) : String;
   function BinStrToInt(const ABinary: String): Integer;
   function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
-  function LongWordToFourChar(AValue : LongWord): string;
+  function UInt32ToFourChar(AValue : UInt32): string;
+  function LongWordToFourChar(AValue : UInt32): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt32ToFourChar()'{$ENDIF};{$ENDIF}
   function CharRange(const AMin, AMax : Char): String;
   procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
   function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
@@ -438,14 +439,16 @@ type
   (probably some other protocols).  They aren't aren't in IdGlobals because that
   doesn't refer to IdStack so you can't use GStack there.
   }
-  procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer;
-    var VDest : LongWord);
-  procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer;
-    var VDest : Word);
-  procedure CopyTIdNetworkLongWord(const ASource: LongWord;
-    var VDest: TIdBytes; const ADestIndex: Integer);
-  procedure CopyTIdNetworkWord(const ASource: Word;
-    var VDest: TIdBytes; const ADestIndex: Integer);
+  procedure CopyBytesToHostUInt32(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt32);
+  procedure CopyBytesToHostUInt16(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt16);
+  procedure CopyTIdNetworkUInt32(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer);
+  procedure CopyTIdNetworkUInt16(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer);
+
+  procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt32); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyBytesToHostUInt32'{$ENDIF};{$ENDIF}
+  procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt16); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyBytesToHostWord'{$ENDIF};{$ENDIF}
+  procedure CopyTIdNetworkLongWord(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyTIdNetworkLongWord'{$ENDIF};{$ENDIF}
+  procedure CopyTIdNetworkWord(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyTIdNetworkWord'{$ENDIF};{$ENDIF}
+
   function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
   function DomainName(const AHost: String): String;
   function EnsureMsgIDBrackets(const AMsgID: String): String;
@@ -477,7 +480,7 @@ type
   function GMTToLocalDateTime(S: string): TDateTime;
   function CookieStrToLocalDateTime(S: string): TDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
-  function IntToBin(Value: LongWord): string;
+  function IntToBin(Value: UInt32): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
   function IndyCurrentYear : Integer;
 
@@ -493,8 +496,10 @@ type
   function IsTopDomain(const AStr: string): Boolean;
   function IsValidIP(const S: String): Boolean;
   function MakeTempFilename(const APath: TIdFileName = ''): TIdFileName;
-  function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
-  procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
+  function OrdFourByteToUInt32(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32;
+  function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use OrdFourByteToUInt32()'{$ENDIF};{$ENDIF}
+  procedure UInt32ToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte);
+  procedure LongWordToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt32ToOrdFourByte()'{$ENDIF};{$ENDIF}
 
   function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
   function UnquotedStr(const AStr : String): String;
@@ -502,8 +507,8 @@ type
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
   // still to figure out how to reproduce these under .Net
-  function ROL(const AVal: LongWord; AShift: Byte): LongWord;
-  function ROR(const AVal: LongWord; AShift: Byte): LongWord;
+  function ROL(const AVal: UInt32; AShift: Byte): UInt32;
+  function ROR(const AVal: UInt32; AShift: Byte): UInt32;
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
   function IndySetLocalTime(Value: TDateTime): Boolean;
 
@@ -515,18 +520,23 @@ type
   function StrToWord(const Value: String): Word;
   function TimeZoneBias: TDateTime;
    //these are for FSP but may also help with MySQL
-  function UnixDateTimeToDelphiDateTime(UnixDateTime: LongWord): TDateTime;
-  function DateTimeToUnix(ADateTime: TDateTime): LongWord;
+  function UnixDateTimeToDelphiDateTime(UnixDateTime: UInt32): TDateTime;
+  function DateTimeToUnix(ADateTime: TDateTime): UInt32;
 
-  function TwoCharToWord(AChar1, AChar2: Char): Word;
+  function TwoCharToUInt16(AChar1, AChar2: Char): Word;
+  function TwoCharToWord(AChar1, AChar2: Char): Word; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TwoCharToUInt16()'{$ENDIF};{$ENDIF}
+
   function UpCaseFirst(const AStr: string): string;
   function UpCaseFirstWord(const AStr: string): string;
   function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
-  procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
-  function WordToStr(const Value: Word): String;
+  procedure UInt16ToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
+  procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt16ToTwoBytes()'{$ENDIF};{$ENDIF}
+  function UInt16ToStr(const Value: Word): String;
+  function WordToStr(const Value: Word): String; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt16ToStr()'{$ENDIF};{$ENDIF}
+
   //moved here so I can IFDEF a DotNET ver. that uses StringBuilder
   function IndyWrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
- 
+
   //The following is for working on email headers and message part headers...
   function RemoveHeaderEntry(const AHeader, AEntry: string; AQuoteType: TIdHeaderQuotingType): string; overload;
   function RemoveHeaderEntry(const AHeader, AEntry: string; var VOld: String; AQuoteType: TIdHeaderQuotingType): string; overload;
@@ -751,7 +761,7 @@ begin
   //just in case someone is doing a recursive listing and there's a dir with the name total
 end;
 
-function UnixDateTimeToDelphiDateTime(UnixDateTime: LongWord): TDateTime;
+function UnixDateTimeToDelphiDateTime(UnixDateTime: UInt32): TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
    Result := (UnixDateTime / 86400) + UnixStartDate;
@@ -761,50 +771,86 @@ From: http://homepages.borland.com/efg2lab/Library/UseNet/1999/0309b.txt
  //   Result := EncodeDate(1970, 1, 1) + (UnixDateTime / 86400); {86400=No. of secs. per day}
 end;
 
-function DateTimeToUnix(ADateTime: TDateTime): LongWord;
+function DateTimeToUnix(ADateTime: TDateTime): UInt32;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   //example: DateTimeToUnix(now);
   Result := Round((ADateTime - UnixStartDate) * 86400);
 end;
 
-procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer;
-  var VDest : Word);
+{$I IdDeprecatedImplBugOff.inc}
+procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt16);
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  VDest := IdGlobal.BytesToWord(ASource, ASourceIndex);
+  CopyBytesToHostUInt16(ASource, ASourceIndex, VDest);
+end;
+
+procedure CopyBytesToHostUInt16(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt16);
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  VDest := BytesToUInt16(ASource, ASourceIndex);
   VDest := GStack.NetworkToHost(VDest);
 end;
 
-procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer;
-  var VDest : LongWord);
+{$I IdDeprecatedImplBugOff.inc}
+procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt32);
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  VDest := IdGlobal.BytesToLongWord(ASource, ASourceIndex);
+  CopyBytesToHostUInt32(ASource, ASourceIndex, VDest);
+end;
+
+procedure CopyBytesToHostUInt32(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt32);
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  VDest := BytesToUInt32(ASource, ASourceIndex);
   VDest := GStack.NetworkToHost(VDest);
 end;
 
-procedure CopyTIdNetworkWord(const ASource: Word;
-    var VDest: TIdBytes; const ADestIndex: Integer);
+{$I IdDeprecatedImplBugOff.inc}
+procedure CopyTIdNetworkWord(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer);
+{$I IdDeprecatedImplBugOn.inc}
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  CopyTIdWord(GStack.HostToNetwork(ASource),VDest,ADestIndex);
+  CopyTIdNetworkUInt16(ASource, VDest, ADestIndex);
 end;
 
-procedure CopyTIdNetworkLongWord(const ASource: LongWord;
-    var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdNetworkUInt16(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  CopyTIdLongWord(GStack.HostToNetwork(ASource),VDest,ADestIndex);
+  CopyTIdUInt16(GStack.HostToNetwork(ASource),VDest,ADestIndex);
 end;
 
-function LongWordToFourChar(AValue : LongWord): string;
+{$I IdDeprecatedImplBugOff.inc}
+procedure CopyTIdNetworkLongWord(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer);
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  CopyTIdNetworkUInt32(ASource, VDest, ADestIndex);
+end;
+
+procedure CopyTIdNetworkUInt32(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  CopyTIdUInt32(GStack.HostToNetwork(ASource),VDest,ADestIndex);
+end;
+
+function UInt32ToFourChar(AValue : UInt32): string;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := BytesToStringRaw(ToBytes(AValue));
 end;
 
-procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
+{$I IdDeprecatedImplBugOff.inc}
+function LongWordToFourChar(AValue : UInt32): string;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := UInt32ToFourChar(AValue);
+end;
+
+procedure UInt16ToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   //ByteArray[Index] := AWord div 256;
@@ -813,12 +859,20 @@ begin
   ByteArray[Index] := AWord mod 256;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
+procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  UInt16ToTwoBytes(AWord, ByteArray, Index);
+end;
+
 function StrToWord(const Value: String): Word;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if Length(Value) > 1 then begin
     {$IFDEF STRING_IS_UNICODE}
-    Result := TwoCharToWord(Value[1], Value[2]);
+    Result := TwoCharToUInt16(Value[1], Value[2]);
     {$ELSE}
     Result := PWord(Pointer(Value))^;
     {$ENDIF}
@@ -827,7 +881,7 @@ begin
   end;
 end;
 
-function WordToStr(const Value: Word): String;
+function UInt16ToStr(const Value: Word): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   {$IFDEF STRING_IS_UNICODE}
@@ -838,20 +892,36 @@ begin
   {$ENDIF}
 end;
 
-function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
+{$I IdDeprecatedImplBugOff.inc}
+function WordToStr(const Value: Word): String;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := UInt16ToStr(Value);
+end;
+
+function OrdFourByteToUInt32(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LValue: TIdBytes;
 begin
-  SetLength(LValue, 4);
+  SetLength(LValue, SizeOf(UInt32));
   LValue[0] := AByte1;
   LValue[1] := AByte2;
   LValue[2] := AByte3;
   LValue[3] := AByte4;
-  Result := BytesToLongWord(LValue);
+  Result := BytesToUInt32(LValue);
 end;
 
-procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
+{$I IdDeprecatedImplBugOff.inc}
+function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := OrdFourByteToUInt32(AByte1, AByte2, AByte3, AByte4);
+end;
+
+procedure UInt32ToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LValue: TIdBytes;
@@ -863,18 +933,34 @@ begin
   VByte4 := LValue[3];
 end;
 
-function TwoCharToWord(AChar1, AChar2: Char): Word;
+{$I IdDeprecatedImplBugOff.inc}
+procedure LongWordToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte);
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  UInt32ToOrdFourByte(AValue, VByte1, VByte2, VByte3, VByte4);
+end;
+
+function TwoCharToUInt16(AChar1, AChar2: Char): UInt16;
 //Since Replys are returned as Strings, we need a rountime to convert two
 // characters which are a 2 byte U Int into a two byte unsigned integer
 var
   LWord: TIdBytes;
 begin
-  SetLength(LWord, 2);
+  SetLength(LWord, SizeOf(UInt16));
   LWord[0] := Ord(AChar1);
   LWord[1] := Ord(AChar2);
-  Result := BytesToWord(LWord);
+  Result := BytesToUInt16(LWord);
 
 //  Result := Word((Ord(AChar1) shl 8) and $FF00) or Word(Ord(AChar2) and $00FF);
+end;
+
+{$I IdDeprecatedImplBugOff.inc}
+function TwoCharToWord(AChar1, AChar2: Char): Word;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TwoCharToUInt16(AChar1, AChar2);
 end;
 
 function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
@@ -1334,7 +1420,7 @@ var
 {$ELSE}
 var
   SourceF, DestF : File;
-  NumRead, NumWritten: Longint;
+  NumRead, NumWritten: Integer;
   Buffer: array[1..2048] of Byte;
 {$ENDIF}
 begin
@@ -2633,8 +2719,8 @@ begin
   end;
 end;
 
-{ Takes a cardinal (DWORD)  value and returns the string representation of it's binary value}    {Do not Localize}
-function IntToBin(Value: LongWord): string;
+{ Takes a UInt32 value and returns the string representation of it's binary value}    {Do not Localize}
+function IntToBin(Value: UInt32): string;
 var
   i: Integer;
   {$IFDEF STRING_IS_IMMUTABLE}
@@ -3384,7 +3470,7 @@ var
   LErr: Boolean;
 begin
   LErr := False; // keep the compiler happy
-  IPv4ToDWord(S, LErr);
+  IPv4ToUInt32(S, LErr);
   if LErr then begin
     LErr := (MakeCanonicalIPv6Address(S) = '');
   end;
@@ -4080,7 +4166,6 @@ var
   LItems: TStringList;
   {$IFNDEF HAS_TStringList_CaseSensitive}
   I: Integer;
-  LTmp: string;
   {$ENDIF}
 begin
   Result := '';
@@ -4091,14 +4176,9 @@ begin
     LItems.CaseSensitive := False;
     Result := LItems.Values[ASubItem];
     {$ELSE}
-    for I := 0 to LItems.Count-1 do
-    begin
-      if TextIsSame(LItems.Names[I], ASubItem) then
-      begin
-        LTmp := LItems.Strings[I];
-        Result := Copy(LTmp, Pos('=', LTmp)+1, MaxInt); {do not localize}
-        Break;
-      end;
+    I := IndyIndexOfName(LItems, ASubItem);
+    if I <> -1 then begin
+      Result := IndyValueFromIndex(LItems, I);
     end;
     {$ENDIF}
   finally
@@ -4119,27 +4199,7 @@ function ReplaceHeaderSubItem(const AHeaderLine, ASubItem, AValue: String;
 var
   LItems: TStringList;
   I: Integer;
-  {$IFNDEF HAS_TStrings_ValueFromIndex}
-  LTmp: string;
-  {$ENDIF}
   LValue: string;
-
-  {$IFNDEF HAS_TStringList_CaseSensitive}
-  function FindIndexOfItem: Integer;
-  var
-    I: Integer;
-  begin
-    for I := 0 to LItems.Count-1 do
-    begin
-      if TextIsSame(LItems.Names[I], ASubItem) then
-      begin
-        Result := I;
-        Exit;
-      end;
-    end;
-    Result := -1;
-  end;
-  {$ENDIF}
 
   function QuoteString(const S: String): String;
   var
@@ -4180,10 +4240,8 @@ begin
     SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
     {$IFDEF HAS_TStringList_CaseSensitive}
     LItems.CaseSensitive := False;
-    I := LItems.IndexOfName(ASubItem);
-    {$ELSE}
-    I := FindIndexOfItem;
     {$ENDIF}
+    I := IndyIndexOfName(LItems, ASubItem);
     if I >= 0 then begin
       VOld := LItems.Strings[I];
       Fetch(VOld, '=');
@@ -4203,12 +4261,7 @@ begin
     Result := ExtractHeaderItem(AHeaderLine);
     if Result <> '' then begin
       for I := 0 to LItems.Count-1 do begin
-        {$IFDEF HAS_TStrings_ValueFromIndex}
-        Result := Result + '; ' + LItems.Names[I] + '=' + QuoteString(LItems.ValueFromIndex[I]); {do not localize}
-        {$ELSE}
-        LTmp := LItems.Strings[I];
-        Result := Result + '; ' + LItems.Names[I] + '=' + QuoteString(Copy(LTmp, Pos('=', LTmp)+1, MaxInt)); {do not localize}
-        {$ENDIF}
+        Result := Result + '; ' + LItems.Names[I] + '=' + QuoteString(IndyValueFromIndex(LItems, I)); {do not localize}
       end;
     end;
   finally
@@ -4284,10 +4337,10 @@ function GetClockValue : Int64;
 {$ENDIF}
 {$IFDEF WINDOWS}
 type
-  TLong64Rec = record
-    case LongInt of
-      0 : (High : LongWord;
-           Low : LongWord);
+  TInt64Rec = record
+    case Integer of
+      0 : (High : UInt32;
+           Low : UInt32);
       1 : (Long : Int64);
     end;
 
@@ -4306,8 +4359,8 @@ begin
     // TODO
     {$ELSE}
   Windows.GetSystemTimeAsFileTime(LFTime);
-  TLong64Rec(Result).Low := LFTime.dwLowDateTime;
-  TLong64Rec(Result).High := LFTime.dwHighDateTime;
+  TInt64Rec(Result).Low := LFTime.dwLowDateTime;
+  TInt64Rec(Result).High := LFTime.dwHighDateTime;
     {$ENDIF}
   {$ENDIF}
   {$IFDEF UNIX}
@@ -4346,13 +4399,13 @@ end;
 {$ENDIF}
 
 {$IFDEF NO_NATIVE_ASM}
-function ROL(const AVal: LongWord; AShift: Byte): LongWord;
+function ROL(const AVal: UInt32; AShift: Byte): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
    Result := (AVal shl AShift) or (AVal shr (32 - AShift));
 end;
 
-function ROR(const AVal: LongWord; AShift: Byte): LongWord;
+function ROR(const AVal: UInt32; AShift: Byte): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
    Result := (AVal shr AShift) or (AVal shl (32 - AShift)) ;
@@ -4362,7 +4415,7 @@ end;
 
 // 32-bit: Arg1=EAX, Arg2=DL
 // 64-bit: Arg1=ECX, Arg2=DL
-function ROL(const AVal: LongWord; AShift: Byte): LongWord; assembler;
+function ROL(const AVal: UInt32; AShift: Byte): UInt32; assembler;
 asm
   {$IFDEF CPU64}
   mov eax, ecx
@@ -4371,7 +4424,7 @@ asm
   rol  eax, cl
 end;
 
-function ROR(const AVal: LongWord; AShift: Byte): LongWord; assembler;
+function ROR(const AVal: UInt32; AShift: Byte): UInt32; assembler;
 asm
   {$IFDEF CPU64}
   mov eax, ecx
@@ -4397,7 +4450,7 @@ var
 {$IFDEF WINDOWS}
 var
   LHost: array[0..MAX_COMPUTERNAME_LENGTH] of Char;
-  i: LongWord;
+  i: DWORD;
 {$ENDIF}
 begin
   Result := '';

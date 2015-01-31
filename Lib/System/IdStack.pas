@@ -180,11 +180,11 @@ type
   protected
     FSourceIP: String;
     FSourcePort : TIdPort;
-    FSourceIF: LongWord;
+    FSourceIF: UInt32;
     FSourceIPVersion: TIdIPVersion;
     FDestIP: String;
     FDestPort : TIdPort;
-    FDestIF: LongWord;
+    FDestIF: UInt32;
     FDestIPVersion: TIdIPVersion;
     FTTL: Byte;
   public
@@ -194,12 +194,12 @@ type
     //The computer that sent it to you
     property SourceIP : String read FSourceIP write FSourceIP;
     property SourcePort : TIdPort read FSourcePort write FSourcePort;
-    property SourceIF : LongWord read FSourceIF write FSourceIF;
+    property SourceIF : UInt32 read FSourceIF write FSourceIF;
     property SourceIPVersion : TIdIPVersion read FSourceIPVersion write FSourceIPVersion;
     //you, the receiver - this is provided for multihomed machines
     property DestIP : String read FDestIP write FDestIP;
     property DestPort : TIdPort read FDestPort write FDestPort;
-    property DestIF : LongWord read FDestIF write FDestIF;
+    property DestIF : UInt32 read FDestIF write FDestIF;
     property DestIPVersion : TIdIPVersion read FDestIPVersion write FDestIPVersion;
   end;
 
@@ -287,8 +287,8 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); virtual; abstract;
-    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
-      var arg: LongWord): Integer; virtual; abstract;
+    function IOControl(const s: TIdStackSocketHandle; const cmd: UInt32;
+      var arg: UInt32): Integer; virtual; abstract;
     class procedure IncUsage; //create stack if necessary and inc counter
     class procedure DecUsage; //decrement counter and free if it gets to zero
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
@@ -301,9 +301,9 @@ type
       var VPort: TIdPort; var VIPVersion: TIdIPVersion); overload; virtual; abstract;
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
-    function HostToNetwork(AValue: Word): Word; overload; virtual; abstract;
-    function HostToNetwork(AValue: LongWord): LongWord; overload; virtual; abstract;
-    function HostToNetwork(AValue: Int64): Int64; overload; virtual; abstract;
+    function HostToNetwork(AValue: UInt16): UInt16; overload; virtual; abstract;
+    function HostToNetwork(AValue: UInt32): UInt32; overload; virtual; abstract;
+    function HostToNetwork(AValue: UInt64): UInt64; overload; virtual; abstract;
     function HostToNetwork(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     function IsIP(AIP: string): Boolean;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
@@ -317,9 +317,9 @@ type
     function NewSocketHandle(const ASocketType: TIdSocketType; const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const AOverlapped: Boolean = False)
       : TIdStackSocketHandle; virtual; abstract;
-    function NetworkToHost(AValue: Word): Word; overload; virtual; abstract;
-    function NetworkToHost(AValue: LongWord): LongWord; overload; virtual; abstract;
-    function NetworkToHost(AValue: Int64): Int64; overload; virtual; abstract;
+    function NetworkToHost(AValue: UInt16): UInt16; overload; virtual; abstract;
+    function NetworkToHost(AValue: UInt32): UInt32; overload; virtual; abstract;
+    function NetworkToHost(AValue: UInt64): UInt64; overload; virtual; abstract;
     function NetworkToHost(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
@@ -347,7 +347,7 @@ type
       const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION)
       : Integer; overload; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      APkt: TIdPacketInfo): LongWord; virtual; abstract;
+      APkt: TIdPacketInfo): UInt32; virtual; abstract;
     function SupportsIPv6: Boolean; virtual; abstract;
 
     //multicast stuff Kudzu permitted me to add here.
@@ -367,7 +367,7 @@ type
     //packet checksum.  There is a reason for it though.  The reason is that
     //you need it for ICMPv6 and in Windows, you do that with some other stuff
     //in the stack descendants
-    function CalcCheckSum(const AData : TIdBytes): Word; virtual;
+    function CalcCheckSum(const AData : TIdBytes): UInt16; virtual;
     //In Windows, this writes a checksum into a buffer.  In Linux, it would probably
     //simply have the kernal write the checksum with something like this (RFC 2292):
     //
@@ -443,7 +443,7 @@ var
   GStackClass: TIdStackClass = nil;
 
 var
-  GInstanceCount: LongWord = 0;
+  GInstanceCount: UInt32 = 0;
   GStackCriticalSection: TIdCriticalSection = nil;
 
 //for IPv4 Multicast address chacking
@@ -1071,18 +1071,18 @@ begin
   end;
 end;
 
-function TIdStack.CalcCheckSum(const AData: TIdBytes): Word;
+function TIdStack.CalcCheckSum(const AData: TIdBytes): UInt16;
 var
   i : Integer;
   LSize : Integer;
-  LCRC : LongWord;
+  LCRC : UInt32;
 begin
   LCRC := 0;
   i := 0;
   LSize := Length(AData);
   while LSize > 1 do
   begin
-    LCRC := LCRC + IdGlobal.BytesToWord(AData, i);
+    LCRC := LCRC + BytesToUInt16(AData, i);
     Dec(LSize, 2);
     Inc(i, 2);
   end;
@@ -1091,7 +1091,7 @@ begin
   end;
   LCRC := (LCRC shr 16) + (LCRC and $ffff);  //(LCRC >> 16)
   LCRC := LCRC + (LCRC shr 16);
-  Result := not Word(LCRC);
+  Result := not UInt16(LCRC);
 end;
 
 {$UNDEF HAS_TCP_KEEPIDLE_OR_KEEPINTVL}

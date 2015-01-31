@@ -66,13 +66,13 @@ uses
 type
   TIdEcho = class(TIdTCPClient)
   protected
-    FEchoTime: Cardinal;
+    FEchoTime: UInt32;
     procedure InitComponent; override;
   public
     {This sends Text to the peer and returns the reply from the peer}
     function Echo(const AText: String): String;
     {Time taken to send and receive data}
-    property EchoTime: Cardinal read FEchoTime;
+    property EchoTime: UInt32 read FEchoTime;
   published
     property Port default IdPORT_ECHO;
   end;

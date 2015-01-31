@@ -161,18 +161,10 @@ begin
   if not FBinding.HandleAllocated then begin
     if FBinding.IPVersion = Id_IPv4 then
     begin
-      {$IFDEF LINUX}
-      FBinding.AllocateSocket(LongInt(Id_SOCK_RAW), FProtocol);
-      {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocol);
-      {$ENDIF}
     end else
     begin
-      {$IFDEF LINUX}
-      FBinding.AllocateSocket(LongInt(Id_SOCK_RAW), FProtocolIPv6);
-      {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
-      {$ENDIF}
       {$IFDEF DOTNET}
         {$IFDEF DOTNET_2_OR_ABOVE}
       {

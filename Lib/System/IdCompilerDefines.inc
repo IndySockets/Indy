@@ -98,7 +98,11 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Android}
 {$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device32}
+{$UNDEF HAS_ComponentPlatformsAttribute_Linux64}
 {$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
+{$UNDEF HAS_ComponentPlatformsAttribute_WinIoT32}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device64}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 
 // Define for Delphi to auto-generate platform-appropriate '#pragma link' statements in HPP files
@@ -341,6 +345,13 @@
   {$DEFINE DOTNET}
   {$DEFINE STRING_IS_UNICODE}
   {$DEFINE STRING_IS_IMMUTABLE}
+  {.$DEFINE HAS_Int8}
+  {.$DEFINE HAS_UInt8}
+  {$DEFINE HAS_Int16}
+  {$DEFINE HAS_UInt16}
+  {$DEFINE HAS_Int32}
+  {$DEFINE HAS_UInt32}
+  {$DEFINE HAS_UInt64}
 {$ENDIF}
 
 // Kylix
@@ -962,8 +973,12 @@
   // Native(U)Int are still buggy, so do not use them yet
   {.$DEFINE HAS_NativeInt}
   {.$DEFINE HAS_NativeUInt}
-  {$DEFINE HAS_UINT8}
-  {$DEFINE HAS_UINT32}
+  {$DEFINE HAS_Int8}
+  {$DEFINE HAS_UInt8}
+  {$DEFINE HAS_Int16}
+  {$DEFINE HAS_UInt16}
+  {$DEFINE HAS_Int32}
+  {$DEFINE HAS_UInt32}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -984,6 +999,7 @@
   {$DEFINE HAS_UnicodeFromLocaleChars}
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
+  {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}
   {$IFNDEF DOTNET}
     {$DEFINE HAS_TInterlocked}
   {$ENDIF}
@@ -1036,6 +1052,14 @@
   {$DEFINE HAS_TNetEncoding}
 {$ENDIF}
 
+{$IFDEF VCL_XE8_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device64}
+  // technically, these are present in XE8, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux64}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinIoT32}
+{$ENDIF}
+
 // Delphi XE+ cross-compiling
 {$IFNDEF FPC}
   {$IFDEF POSIX}
@@ -1072,6 +1096,12 @@
   {$DEFINE FPC_CIRCULAR_BUG}
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
+  {$DEFINE HAS_Int8} // TODO: when was Int8 introduced?
+  {$DEFINE HAS_UInt8} // TODO: when was UInt8 introduced?
+  {$DEFINE HAS_Int16} // TODO: when was Int16 introduced?
+  {$DEFINE HAS_UInt16} // TODO: when was UInt16 introduced?
+  {$DEFINE HAS_Int32} // TODO: when was Int32 introduced?
+  {$DEFINE HAS_UInt32} // TODO: when was UInt32 introduced?
   {$DEFINE HAS_QWord} // TODO: when was QWord introduced?
   {$DEFINE HAS_PQWord} // TODO: when was PQWord introduced?
   {$IFDEF FPC_2_1_5_OR_ABOVE}
@@ -1114,10 +1144,6 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
-  {$ENDIF}
-  {$IFDEF FPC_2_7_1_OR_ABOVE}
-    {$DEFINE HAS_UINT8}
-    {$DEFINE HAS_UINT32}
   {$ENDIF}
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE STRING_IS_UNICODE}
@@ -1179,6 +1205,14 @@
     {$DEFINE HAS_GENERICS_TList}
     {$DEFINE HAS_GENERICS_TObjectList}
     {$DEFINE HAS_GENERICS_TThreadList}
+    // TArray<T>.Copy() was introduced in XE7 but was buggy. It was fixed in XE8:
+    //
+    // RSP-9763 TArray.Copy<T> copies from destination to source for unmanaged types
+    // https://quality.embarcadero.com/browse/RSP-9763
+    //
+    {$IFDEF VCL_XE8_OR_ABOVE}
+      {$DEFINE HAS_GENERICS_TArray_Copy}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 

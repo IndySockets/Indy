@@ -666,7 +666,7 @@ type
   TOnDataPortBind = procedure(ASender : TIdFTPServerContext) of object;
   //note that the CHMOD value is now a VAR because we also want to support a "MFF UNIX.mode="
   //to do the same thing as a chmod.  MFF is to "Modify a file fact".
-  TOnSetATTRIB = procedure(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : TIdFTPFileName; var VAUth : Boolean) of object;
+  TOnSetATTRIB = procedure(ASender: TIdFTPServerContext; var VAttr : UInt32; const AFileName : TIdFTPFileName; var VAUth : Boolean) of object;
   //Note that VAuth : Boolean is used because you may want to deny permission for
   //users to change their Unix permissions or UMASK - which is done in anonymous FTP
   TOnSiteUMASK = procedure(ASender: TIdFTPServerContext; var VUMASK : Integer; var VAUth : Boolean) of object;
@@ -742,8 +742,8 @@ type
     // RFC 2577 Recommends these
     // Note that the current code already hides user ID's by
     // only authenticating after the password
-    FPasswordAttempts : Cardinal;
-    FInvalidPassDelay : Cardinal;
+    FPasswordAttempts : UInt32;
+    FInvalidPassDelay : UInt32;
     // http://cr.yp.to/ftp/security.html Recommends these
     FRequirePASVFromSameIP : Boolean;
     FRequirePORTFromSameIP : Boolean;
@@ -757,10 +757,10 @@ type
     procedure Assign(Source: TPersistent); override;
   published
     //limit login attempts - some hackers will try guessing passwords from a dictionary
-    property PasswordAttempts : Cardinal read FPasswordAttempts write FPasswordAttempts
+    property PasswordAttempts : UInt32 read FPasswordAttempts write FPasswordAttempts
       default DEF_FTP_PASSWORDATTEMPTS;
     //should slow-down a password guessing attack - note those dictionaries
-    property InvalidPassDelay : Cardinal read FInvalidPassDelay write FInvalidPassDelay
+    property InvalidPassDelay : UInt32 read FInvalidPassDelay write FInvalidPassDelay
       default DEF_FTP_INVALIDPASS_DELAY;
     //client IP Address is the only one that we will accept a PASV
     //transfer from
@@ -831,7 +831,7 @@ type
 
   TIdFTPServerContext = class(TIdFTPServerContextBase)
   protected
-    FXAUTKey : Cardinal;
+    FXAUTKey : UInt32;
     FRESTPos: Integer;
     FDataChannel : TIdDataChannel;
     FAuthMechanism : String;
@@ -839,10 +839,10 @@ type
     FDataType: TIdFTPTransferType;
     FDataMode : TIdFTPTransferMode;
     FDataPort: TIdPort;
-    FDataProtBufSize : LongWord;
+    FDataProtBufSize : UInt32;
     FDataStruct: TIdFTPDataStructure;
 
-    FPasswordAttempts : LongWord;
+    FPasswordAttempts : UInt32;
     FPASV: Boolean;
 
     FEPSVAll: Boolean;
@@ -894,13 +894,13 @@ type
     property DataPort: TIdPort read FDataPort;
     //We do not use this much for now but if more AUTH mechanisms are added,
     //we may need this property
-    property DataProtBufSize : LongWord read FDataProtBufSize write FDataProtBufSize;
+    property DataProtBufSize : UInt32 read FDataProtBufSize write FDataProtBufSize;
     property DataPBSZCalled : Boolean read FDataPBSZCalled write FDataPBSZCalled;
     property DataStruct: TIdFTPDataStructure read FDataStruct write FDataStruct;
     //currently, only <C>lear and <P>rivate are used.  This could change
     //later on
     property DataProtection : TIdFTPDataPortSecurity read FDataProtection write FDataProtection;
-    property PasswordAttempts : Cardinal read FPasswordAttempts write FPasswordAttempts;
+    property PasswordAttempts : UInt32 read FPasswordAttempts write FPasswordAttempts;
     property PASV: Boolean read FPASV write FPASV;
     property RESTPos: Integer read FRESTPos write FRESTPos;
     property MLSOpts : TIdFTPFactOutputs read FMLSOpts write FMLSOpts;
@@ -1139,7 +1139,7 @@ type
     procedure DoOnMD5Verify(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String);
     procedure DoOnMD5Cache(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String);
     procedure DoOnCombineFiles(ASender: TIdFTPServerContext; const ATargetFileName: string; AParts : TStrings);
-    procedure DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : String; var VAUth : Boolean);
+    procedure DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : UInt32; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteUMASK(ASender: TIdFTPServerContext; var VUMASK : Integer; var VAUth : Boolean);
     procedure DoOnSiteCHMOD(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteCHOWN(ASender: TIdFTPServerContext; var AOwner, AGroup : String; const AFileName : String; var VAUth : Boolean);
@@ -4999,7 +4999,7 @@ var
   LValue : String;
   s : String;
   LContext : TIdFTPServerContext;
-  LAttrib : Cardinal;
+  LAttrib : UInt32;
   LAuth : Boolean;
   LDummyDate1, LDummyDate2 : TDateTime;
   LDate : TDateTime;
@@ -5341,7 +5341,7 @@ var
   LContext : TIdFTPServerContext;
   LFileName,
   LAttrs : String;
-  LAttrVal : Cardinal;
+  LAttrVal : UInt32;
   LPermitted : Boolean;
 
   function ValidAttribStr(const AAttrib : String) : Boolean;
@@ -5707,7 +5707,7 @@ begin
   end;
 end;
 
-procedure TIdFTPServer.DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : String; var VAUth : Boolean);
+procedure TIdFTPServer.DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : UInt32; const AFileName : String; var VAUth : Boolean);
 begin
   if Assigned( FOnSetATTRIB) then begin
     FOnSetATTRIB(ASender, VAttr, AFileName, VAUth);

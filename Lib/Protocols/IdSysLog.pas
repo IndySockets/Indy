@@ -111,7 +111,7 @@ begin
 //  begin
 //    {Recommened by RFC 3164 - Use 514 as to connect to the SysLog server}
 //    Result.Port := FromPort;
-//    Result.SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, PChar(@Id_SO_True), SizeOf(Id_SO_True));
+//    Result.SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
 //    Result.Bind;
 //  end;
 end;

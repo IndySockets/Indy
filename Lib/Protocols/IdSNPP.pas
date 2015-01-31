@@ -75,7 +75,7 @@ type
 
   { TODO : Unused... remove? }
   TCheckResp = Record
-    Code : SmallInt;
+    Code : Int16;
     Resp : String;
   end;
 

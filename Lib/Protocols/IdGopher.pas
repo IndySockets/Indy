@@ -392,11 +392,14 @@ end;
 
 procedure TIdGopher.ProcessTextFile(ADestStream : TStream; APreviousData: String = '';    {Do not Localize}
   const ExpectedLength: Integer = 0);
+var
+  LEnc: IIdTextEncoding;
 begin
-  IdGlobal.WriteStringToStream(ADestStream,APreviousData);
+  LEnc := IndyTextEncoding_8Bit;
+  WriteStringToStream(ADestStream, APreviousData, LEnc{$IFDEF STRING_IS_ANSI}, LEnc{$ENDIF});
   BeginWork(wmRead,ExpectedLength);
   try
-    IOHandler.Capture(ADestStream,'.',True);    {Do not Localize}
+    IOHandler.Capture(ADestStream, '.', True);    {Do not Localize}
   finally
     EndWork(wmRead);
   end;  //try..finally
@@ -404,11 +407,14 @@ end;
 
 procedure TIdGopher.ProcessFile ( ADestStream : TStream; APreviousData : String = '';    {Do not Localize}
   const ExpectedLength : Integer = 0);
+var
+  LEnc: IIdTextEncoding;
 begin
   BeginWork(wmRead,ExpectedLength);
   try
-    IdGlobal.WriteStringToStream(ADestStream, APreviousData);
-    IOHandler.ReadStream(ADestStream,-1,True);
+    LEnc := IndyTextEncoding_8Bit;
+    WriteStringToStream(ADestStream, APreviousData, LEnc{$IFDEF STRING_IS_ANSI}, LEnc{$ENDIF});
+    IOHandler.ReadStream(ADestStream, -1, True);
     ADestStream.Position := 0;
   finally
     EndWork(wmRead);

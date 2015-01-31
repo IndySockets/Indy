@@ -23,6 +23,7 @@ ABSOLELY NO CODE is permitted in this unit.
 {$ENDIF}
 
 implementation
+
 uses
   IdFTPListParseAS400,
   IdFTPListParseBullGCOS7,
@@ -32,6 +33,7 @@ uses
   IdFTPListParseDistinctTCPIP,
   IdFTPListParseEPLF,
   IdFTPListParseHellSoft,
+  IdFTPListParseIEFTPGateway,
   IdFTPListParseKA9Q,
   IdFTPListParseMicrowareOS9,
   IdFTPListParseMPEiX,
@@ -43,6 +45,7 @@ uses
   IdFTPListParseNovellNetwarePSU,
   IdFTPListParseOS2,
   IdFTPListParsePCNFSD,
+  IdFTPListParsePCTCP,
   IdFTPListParseStercomOS390Exp,
   IdFTPListParseStercomUnixEnt,
   IdFTPListParseStratusVOS,

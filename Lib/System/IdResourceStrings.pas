@@ -44,6 +44,9 @@ resourcestring
   RSInvalidCharSetConv = 'Invalid character set conversion (%s <-> %s)';
   RSInvalidCharSetConvWithFlags = 'Invalid character set conversion (%s <-> %s, %s)';
 
+  RSUnsupportedCodePage = 'Unsupported codepage (%d)';
+  RSUnsupportedCharSet = 'Unsupported character set (%s)';
+
   //IdSys
   RSFailedTimeZoneInfo = 'Failed attempting to retrieve time zone information.';
   // Winsock

@@ -94,7 +94,7 @@ end;
 procedure TIdCustomTimeUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
   const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
-  LTime : Cardinal;
+  LTime : UInt32;
 begin
   inherited DoUDPRead(AThread, AData, ABinding);
   LTime := Trunc(Extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60);

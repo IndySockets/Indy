@@ -49,8 +49,8 @@ uses
   IdFIPS, IdGlobal, IdHash, Classes;
 
 type
-  T4x4LongWordRecord = array[0..3] of LongWord;
-  T16x4LongWordRecord = array[0..15] of LongWord;
+  T4x4LongWordRecord = array[0..3] of UInt32;
+  T16x4LongWordRecord = array[0..15] of UInt32;
   T4x4x4LongWordRecord = array[0..3] of T4x4LongWordRecord;
 
   T512BitRecord = array[0..63] of Byte;
@@ -158,7 +158,7 @@ const
 var
   x: Byte;
   i, j: Integer;
-  T: Word;
+  T: UInt16;
   LCheckSumScore: Byte;
 begin
   // Move the next 16 bytes into the second 16 bytes of X.
@@ -236,12 +236,12 @@ begin
   end;
   MDCoder;
 
-  SetLength(Result, SizeOf(LongWord)*4);
+  SetLength(Result, SizeOf(UInt32)*4);
   for I := 0 to 3 do
   begin
-    CopyTIdLongWord(
+    CopyTIdUInt32(
       FX[I*4] + (FX[I*4+1] shl 8) + (FX[I*4+2] shl 16) + (FX[I*4+3] shl 24),
-      Result, SizeOf(LongWord)*I);
+      Result, SizeOf(UInt32)*I);
   end;
 end;
 
@@ -276,7 +276,7 @@ end;
 
 procedure TIdHashMessageDigest4.MDCoder;
 var
-  A, B, C, D, i : LongWord;
+  A, B, C, D, i : UInt32;
   buff : T16x4LongWordRecord; // 64-byte buffer
 begin
   A := FState[0];
@@ -401,9 +401,9 @@ begin
   end;
   MDCoder;
 
-  SetLength(Result, SizeOf(LongWord)*4);
+  SetLength(Result, SizeOf(UInt32)*4);
   for I := 0 to 3 do begin
-    CopyTIdLongWord(FState[I], Result, SizeOf(LongWord)*I);
+    CopyTIdUInt32(FState[I], Result, SizeOf(UInt32)*I);
   end;
 end;
 
@@ -425,7 +425,7 @@ end;
 { TIdHashMessageDigest5 }
 
 const
-  MD5_SINE : array[1..64] of LongWord = (
+  MD5_SINE : array[1..64] of UInt32 = (
    { Round 1. }
    $d76aa478, $e8c7b756, $242070db, $c1bdceee, $f57c0faf, $4787c62a,
    $a8304613, $fd469501, $698098d8, $8b44f7af, $ffff5bb1, $895cd7be,
@@ -459,7 +459,7 @@ end;
 
 procedure TIdHashMessageDigest5.MDCoder;
 var
-  A, B, C, D : LongWord;
+  A, B, C, D : UInt32;
   i: Integer;
   x : T16x4LongWordRecord; // 64-byte buffer
 begin

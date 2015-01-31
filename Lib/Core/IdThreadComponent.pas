@@ -180,7 +180,7 @@ type
     procedure Synchronize(AMethod: TThreadMethod);
     procedure Terminate; virtual;
     procedure TerminateAndWaitFor; virtual;
-    function WaitFor: LongWord;
+    function WaitFor: UInt32;
     // Properties
     {$IFDEF USE_OBJECT_ARC}
     property DataObject: TObject read GetDataObject write SetDataObject;
@@ -621,7 +621,7 @@ begin
   FThread.TerminateAndWaitFor;
 end;
 
-function TIdThreadComponent.WaitFor: LongWord;
+function TIdThreadComponent.WaitFor: UInt32;
 begin
   Result := FThread.WaitFor;
 end;
