@@ -80,6 +80,7 @@
 // Make sure the following are $DEFINE'd only for suitable environments
 // as specified further below.
 {$UNDEF HAS_TEncoding}
+{$UNDEF HAS_TEncoding_GetEncoding_ByEncodingName}
 {$UNDEF HAS_TCharacter}
 {$UNDEF HAS_TInterlocked}
 {$UNDEF HAS_TNetEncoding}
