@@ -7555,10 +7555,11 @@ end;
 function BytesToInt32(const AValue: TIdBytes; const AIndex: Integer = 0): Int32;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Assert(Length(AValue) >= (AIndex+SizeOf(Integer)));
+  Assert(Length(AValue) >= (AIndex+SizeOf(Int32)));
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToInt32(AValue, AIndex);
   {$ELSE}
+  // TODO: define PInt32 if needed
   Result := PInteger(@AValue[AIndex])^;
   {$ENDIF}
 end;
@@ -7606,10 +7607,11 @@ end;
 function BytesToUInt16(const AValue: TIdBytes; const AIndex: Integer = 0): UInt16;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Assert(Length(AValue) >= (AIndex+SizeOf(Word)));
+  Assert(Length(AValue) >= (AIndex+SizeOf(UInt16)));
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToUInt16(AValue, AIndex);
   {$ELSE}
+  // TODO: define PUInt16 if needed
   Result := PWord(@AValue[AIndex])^;
   {$ENDIF}
 end;
@@ -7677,6 +7679,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToUInt32(AValue, AIndex);
   {$ELSE}
+  // TODO: define PUInt32 if needed
   Result := PCardinal(@AValue[AIndex])^;
   {$ENDIF}
 end;
