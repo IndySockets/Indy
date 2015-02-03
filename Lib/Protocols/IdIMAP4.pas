@@ -3769,12 +3769,14 @@ begin
       end;
 
       {Get the info we want out of LParts...}
-      LThePart := LParts.Items[LTextPart];   {Part 1 is index 0}
-      if LThePart.FSize = 0 then begin
-        {Some emails have part 0 empty, they intend you to use part 1}
-        LTextPart := 1;
+      {Some emails have their first parts empty, so search for the first non-empty part.}
+      repeat
         LThePart := LParts.Items[LTextPart];
-      end;
+        if (LThePart.FSize <> 0) then begin
+          Break;
+        end;
+        Inc(LTextPart);
+      until LTextPart >= LParts.Count - 1;
 
       LCharSet := LThePart.CharSet;
       LContentTransferEncoding := LThePart.ContentTransferEncoding;
