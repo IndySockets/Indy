@@ -1123,7 +1123,7 @@ begin
 end;
 
 function TDecompressionStream.IdRead(var VBuffer: TIdBytes; AOffset,
-  ACount: Integer): Longint;
+  ACount: Longint): Longint;
 begin
   FZRec.next_out := PIdAnsiChar(@VBuffer[AOffset]);
   FZRec.avail_out := ACount;

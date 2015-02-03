@@ -1109,10 +1109,10 @@ type
 
   //Only needed for ToBytes(Short) and BytesToShort
   {$IFDEF DOTNET}
-  Short = System.Int16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Int16'{$ENDIF};{$ENDIF}
+  Short = System.Int16 {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Int16'{$ENDIF}{$ENDIF};
   {$ENDIF}
   {$IFDEF UNIX}
-  Short = Int16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Int16'{$ENDIF};{$ENDIF}
+  Short = Int16 {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Int16'{$ENDIF}{$ENDIF};
   {$ENDIF}
 
   {$IFNDEF DOTNET}

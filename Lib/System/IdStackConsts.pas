@@ -272,7 +272,7 @@ type
   TIdSocketType = __socket_type;
   {$ENDIF}
   {$IFDEF SOCKETTYPE_IS_LONGINT}
-  TIdSocketType = LongInt;
+  TIdSocketType = Integer;
   {$ENDIF}
   {$IFDEF SOCKETTYPE_IS_SOCKETTYPE}
   TIdSocketType = SocketType;
