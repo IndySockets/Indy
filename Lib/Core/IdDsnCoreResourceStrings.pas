@@ -58,7 +58,7 @@ resourcestring
   RSAAboutMenuItemName = 'About Internet &Direct (Indy) %s...';
 
   RSAAboutBoxVersion = 'Version %s';
-  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2014'#13#10
+  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2015'#13#10
    + IndyPitCrew;
   RSAAboutBoxTitle1 = 'INDY';
   RSAAboutBoxTitle2 = 'Internet Direct';
