@@ -1487,7 +1487,7 @@ function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
 
 function UInt32ToHex(const ALongWord : UInt32) : String;
-function LongWordToHex(const ALongWord : UInt32) : String; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED+MSG} 'Use UInt32ToHex()'{$ENDIF};{$ENDIF}
+function LongWordToHex(const ALongWord : UInt32) : String; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt32ToHex()'{$ENDIF};{$ENDIF}
 
 procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
