@@ -1127,16 +1127,18 @@ type
     {$ENDIF}
   {$ENDIF}
 
-  {$IFDEF HAS_UInt64}
-    {$IFNDEF HAS_PUInt64}
-  PUInt64 = ^UInt64;
-    {$ENDIF}
-  {$ENDIF}
-
   {$IFDEF HAS_QWord}
     {$IFNDEF HAS_PQWord}
   PQWord = ^QWord;
     {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF HAS_UInt64}
+    {$IFNDEF HAS_PUInt64}
+  PUInt64 = ^UInt64;
+    {$ENDIF}
+  {$ELSE}
+  PUInt64 = {$IFDEF HAS_QWord}PQWord{$ELSE}PInt64{$ENDIF};
   {$ENDIF}
 
   //This usually is a property editor exception
