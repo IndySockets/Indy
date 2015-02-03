@@ -22541,6 +22541,10 @@ begin
     end;
   end;
 
+  // TODO: stop loading non-critical functions here.  We should use per-function
+  // stubs instead, similar to the approach used in IdWinsock2.pas, so functions
+  // are not loaded until they are actually used for the first time...
+
   @SSL_CTX_set_cipher_list := LoadFunction(fn_SSL_CTX_set_cipher_list);  //Used by Indy
   @SSL_CTX_new := LoadFunction(fn_SSL_CTX_new); //Used by Indy
   @SSL_CTX_free := LoadFunction(fn_SSL_CTX_free); //Used by Indy
@@ -22866,45 +22870,45 @@ we have to handle both cases.
   {$ifndef OPENSSL_NO_WHIRLPOOL}
   @EVP_whirlpool := LoadFunctionCLib(fn_EVP_whirlpool,False); //not available on Android
   {$endif}
-  @EVP_md_null := LoadFunctionCLib(fn_EVP_md_null);
+  @EVP_md_null := LoadFunctionCLib(fn_EVP_md_null, False);
   {$IFNDEF OPENSSL_NO_DES}
-  @EVP_des_ecb := LoadFunctionCLib(fn_EVP_des_ecb);
-  @EVP_des_ede := LoadFunctionCLib(fn_EVP_des_ede);
-  @EVP_des_ede3 := LoadFunctionCLib(fn_EVP_des_ede3);
-  @EVP_des_ede_ecb := LoadFunctionCLib(fn_EVP_des_ede_ecb);
-  @EVP_des_ede3_ecb := LoadFunctionCLib(fn_EVP_des_ede3_ecb);
-  @EVP_des_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ecb := LoadFunctionCLib(fn_EVP_des_ecb,False);
+  @EVP_des_ede := LoadFunctionCLib(fn_EVP_des_ede,False);
+  @EVP_des_ede3 := LoadFunctionCLib(fn_EVP_des_ede3,False);
+  @EVP_des_ede_ecb := LoadFunctionCLib(fn_EVP_des_ede_ecb,False);
+  @EVP_des_ede3_ecb := LoadFunctionCLib(fn_EVP_des_ede3_ecb,False);
+  @EVP_des_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64,False);
 //  # define EVP_des_cfb EVP_des_cfb64
 
-  @EVP_des_cfb1  := LoadFunctionCLib(fn_EVP_des_cfb1);
-  @EVP_des_cfb8  := LoadFunctionCLib(fn_EVP_des_cfb8);
-  @EVP_des_ede_cfb64 := LoadFunctionCLib(fn_EVP_des_ede_cfb64);
+  @EVP_des_cfb1  := LoadFunctionCLib(fn_EVP_des_cfb1,False);
+  @EVP_des_cfb8  := LoadFunctionCLib(fn_EVP_des_cfb8,False);
+  @EVP_des_ede_cfb64 := LoadFunctionCLib(fn_EVP_des_ede_cfb64,False);
 //#if 0
- // @EVP_des_ede_cfb1 := LoadFunctionCLib(fn_EVP_des_ede_cfb1);
- // @EVP_des_ede_cfb8 := LoadFunctionCLib(fn_EVP_des_ede_cfb8);
+ // @EVP_des_ede_cfb1 := LoadFunctionCLib(fn_EVP_des_ede_cfb1,False);
+ // @EVP_des_ede_cfb8 := LoadFunctionCLib(fn_EVP_des_ede_cfb8,False);
   //#endif
   @EVP_des_ede3_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ede_ofb := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ede3_ofb := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_cbc := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ede_cbc := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_desx_cbc := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_ede_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_ede3_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_ede_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_desx_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
 //* This should now be supported through the dev_crypto ENGINE. But also, why are
 // * rc4 and md5 declarations made here inside a "NO_DES" precompiler branch? */
 //#if 0
   {$ifdef OPENSSL_OPENBSD_DEV_CRYPTO}
-  @EVP_dev_crypto_des_ede3_cbc := LoadFunctionCLib(fn_EVP_dev_crypto_des_ede3_cbc);
-  @EVP_dev_crypto_rc4 := LoadFunctionCLib(fn_EVP_dev_crypto_rc4);
-  @EVP_dev_crypto_md5 := LoadFunctionCLib(fn_EVP_dev_crypto_md5);
+  @EVP_dev_crypto_des_ede3_cbc := LoadFunctionCLib(fn_EVP_dev_crypto_des_ede3_cbc,False);
+  @EVP_dev_crypto_rc4 := LoadFunctionCLib(fn_EVP_dev_crypto_rc4,False);
+  @EVP_dev_crypto_md5 := LoadFunctionCLib(fn_EVP_dev_crypto_md5,False);
     {$endif}
 //#endif
   {$endif}
   {$ifndef OPENSSL_NO_RC4}
-  @EVP_rc4 := LoadFunctionCLib(fn_EVP_rc4);
-  @EVP_rc4_40 := LoadFunctionCLib(fn_EVP_rc4_40);
+  @EVP_rc4 := LoadFunctionCLib(fn_EVP_rc4,False);
+  @EVP_rc4_40 := LoadFunctionCLib(fn_EVP_rc4_40,False);
     {$ifndef OPENSSL_NO_MD5}
   @EVP_rc4_hmac_md5 := LoadFunctionCLib(fn_EVP_rc4_hmac_md5,False);
     {$endif}
@@ -22917,18 +22921,18 @@ we have to handle both cases.
   @EVP_idea_cbc := LoadFunctionCLib(fn_EVP_idea_cbc,False);
   {$endif}
   {$ifndef OPENSSL_NO_RC2}
-  @EVP_rc2_ecb := LoadFunctionCLib(fn_EVP_rc2_ecb);
-  @EVP_rc2_cbc := LoadFunctionCLib(fn_EVP_rc2_cbc);
-  @EVP_rc2_40_cbc := LoadFunctionCLib(fn_EVP_rc2_40_cbc);
-  @EVP_rc2_64_cbc := LoadFunctionCLib(fn_EVP_rc2_64_cbc);
-  @EVP_rc2_cfb64 := LoadFunctionCLib(fn_EVP_rc2_cfb64);
-  @EVP_rc2_ofb := LoadFunctionCLib(fn_EVP_rc2_ofb);
+  @EVP_rc2_ecb := LoadFunctionCLib(fn_EVP_rc2_ecb,False);
+  @EVP_rc2_cbc := LoadFunctionCLib(fn_EVP_rc2_cbc,False);
+  @EVP_rc2_40_cbc := LoadFunctionCLib(fn_EVP_rc2_40_cbc,False);
+  @EVP_rc2_64_cbc := LoadFunctionCLib(fn_EVP_rc2_64_cbc,False);
+  @EVP_rc2_cfb64 := LoadFunctionCLib(fn_EVP_rc2_cfb64,False);
+  @EVP_rc2_ofb := LoadFunctionCLib(fn_EVP_rc2_ofb, False);
   {$endif}
   {$ifndef OPENSSL_NO_BF}
-  @EVP_bf_ecb := LoadFunctionCLib(fn_EVP_bf_ecb);
-  @EVP_bf_cbc := LoadFunctionCLib(fn_EVP_bf_cbc);
-  @EVP_bf_cfb64 := LoadFunctionCLib(fn_EVP_bf_cfb64);
-  @EVP_bf_ofb := LoadFunctionCLib(fn_EVP_bf_ofb);
+  @EVP_bf_ecb := LoadFunctionCLib(fn_EVP_bf_ecb,False);
+  @EVP_bf_cbc := LoadFunctionCLib(fn_EVP_bf_cbc,False);
+  @EVP_bf_cfb64 := LoadFunctionCLib(fn_EVP_bf_cfb64,False);
+  @EVP_bf_ofb := LoadFunctionCLib(fn_EVP_bf_ofb,False);
   {$endif}
   {$ifndef OPENSSL_NO_CAST}
   //not available on Android
@@ -22938,38 +22942,38 @@ we have to handle both cases.
   @EVP_cast5_ofb := LoadFunctionCLib(fn_EVP_cast5_ofb,False);
   {$endif}
   {$ifndef OPENSSL_NO_RC5}
-  @EVP_rc5_32_12_16_cbc := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cbc);
-  @EVP_rc5_32_12_16_ecb := LoadFunctionCLib(fn_EVP_rc5_32_12_16_ecb);
-  @EVP_rc5_32_12_16_cfb64 := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cfb64);
-  @EVP_rc5_32_12_16_ofb := LoadFunctionCLib(fn_EVP_rc5_32_12_16_ofb);
+  @EVP_rc5_32_12_16_cbc := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cbc,False);
+  @EVP_rc5_32_12_16_ecb := LoadFunctionCLib(fn_EVP_rc5_32_12_16_ecb,False);
+  @EVP_rc5_32_12_16_cfb64 := LoadFunctionCLib(fn_EVP_rc5_32_12_16_cfb64,False);
+  @EVP_rc5_32_12_16_ofb := LoadFunctionCLib(fn_EVP_rc5_32_12_16_ofb,False);
   {$endif}
   {$ifndef OPENSSL_NO_AES}
-  @EVP_aes_128_ecb := LoadFunctionCLib(fn_EVP_aes_128_ecb);
-  @EVP_aes_128_cbc := LoadFunctionCLib(fn_EVP_aes_128_cbc);
-  @EVP_aes_128_cfb1:= LoadFunctionCLib(fn_EVP_aes_128_cfb1);
-  @EVP_aes_128_cfb8:= LoadFunctionCLib(fn_EVP_aes_128_cfb8);
-  @EVP_aes_128_cfb128 := LoadFunctionCLib(fn_EVP_aes_128_cfb128);
-  @EVP_aes_128_ofb := LoadFunctionCLib(fn_EVP_aes_128_ofb);
+  @EVP_aes_128_ecb := LoadFunctionCLib(fn_EVP_aes_128_ecb,False);
+  @EVP_aes_128_cbc := LoadFunctionCLib(fn_EVP_aes_128_cbc,False);
+  @EVP_aes_128_cfb1:= LoadFunctionCLib(fn_EVP_aes_128_cfb1,False);
+  @EVP_aes_128_cfb8:= LoadFunctionCLib(fn_EVP_aes_128_cfb8,False);
+  @EVP_aes_128_cfb128 := LoadFunctionCLib(fn_EVP_aes_128_cfb128,False);
+  @EVP_aes_128_ofb := LoadFunctionCLib(fn_EVP_aes_128_ofb,False);
   @EVP_aes_128_ctr := LoadFunctionCLib(fn_EVP_aes_128_ctr,False);
   @EVP_aes_128_gcm := LoadFunctionCLib(fn_EVP_aes_128_gcm,False);
   @EVP_aes_128_ccm := LoadFunctionCLib(fn_EVP_aes_128_ccm,False);
   @EVP_aes_128_xts := LoadFunctionCLib(fn_EVP_aes_128_xts,False);
-  @EVP_aes_192_ecb := LoadFunctionCLib(fn_EVP_aes_192_ecb);
-  @EVP_aes_192_cbc := LoadFunctionCLib(fn_EVP_aes_192_cbc);
-  @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1);
-  @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1);
-  @EVP_aes_192_cfb128 := LoadFunctionCLib(fn_EVP_aes_192_cfb128);
+  @EVP_aes_192_ecb := LoadFunctionCLib(fn_EVP_aes_192_ecb,False);
+  @EVP_aes_192_cbc := LoadFunctionCLib(fn_EVP_aes_192_cbc,False);
+  @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1,False);
+  @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1,False);
+  @EVP_aes_192_cfb128 := LoadFunctionCLib(fn_EVP_aes_192_cfb128,False);
 
-  @EVP_aes_192_ofb := LoadFunctionCLib(fn_EVP_aes_192_ofb);
+  @EVP_aes_192_ofb := LoadFunctionCLib(fn_EVP_aes_192_ofb,False);
   @EVP_aes_192_ctr := LoadFunctionCLib(fn_EVP_aes_192_ctr,False);
   @EVP_aes_192_gcm := LoadFunctionCLib(fn_EVP_aes_192_gcm,False);
   @EVP_aes_192_ccm := LoadFunctionCLib(fn_EVP_aes_192_ccm,False);
-  @EVP_aes_256_ecb := LoadFunctionCLib(fn_EVP_aes_256_ecb);
-  @EVP_aes_256_cbc := LoadFunctionCLib(fn_EVP_aes_256_cbc);
-  @EVP_aes_256_cfb1 := LoadFunctionCLib(fn_EVP_aes_256_cfb1);
-  @EVP_aes_256_cfb8 := LoadFunctionCLib(fn_EVP_aes_256_cfb8);
-  @EVP_aes_256_cfb128 := LoadFunctionCLib(fn_EVP_aes_256_cfb128);
-  @EVP_aes_256_ofb := LoadFunctionCLib(fn_EVP_aes_256_ofb);
+  @EVP_aes_256_ecb := LoadFunctionCLib(fn_EVP_aes_256_ecb,False);
+  @EVP_aes_256_cbc := LoadFunctionCLib(fn_EVP_aes_256_cbc,False);
+  @EVP_aes_256_cfb1 := LoadFunctionCLib(fn_EVP_aes_256_cfb1,False);
+  @EVP_aes_256_cfb8 := LoadFunctionCLib(fn_EVP_aes_256_cfb8,False);
+  @EVP_aes_256_cfb128 := LoadFunctionCLib(fn_EVP_aes_256_cfb128,False);
+  @EVP_aes_256_ofb := LoadFunctionCLib(fn_EVP_aes_256_ofb,False);
   @EVP_aes_256_ctr := LoadFunctionCLib(fn_EVP_aes_256_ctr,False);
   @EVP_aes_256_gcm := LoadFunctionCLib(fn_EVP_aes_256_gcm,False);
   @EVP_aes_256_ccm := LoadFunctionCLib(fn_EVP_aes_256_ccm,False);
@@ -22982,32 +22986,32 @@ we have to handle both cases.
     {$endif}
   {$endif}
   {$ifndef OPENSSL_NO_CAMELLIA}
-  @EVP_camellia_128_ecb  := LoadFunctionCLib(fn_EVP_camellia_128_ecb);
-  @EVP_camellia_128_cbc := LoadFunctionCLib(fn_EVP_camellia_128_cbc);
-  @EVP_camellia_128_cfb1 := LoadFunctionCLib(fn_EVP_camellia_128_cfb1);
-  @EVP_camellia_128_cfb8 := LoadFunctionCLib(fn_EVP_camellia_128_cfb8);
-  @EVP_camellia_128_cfb128 := LoadFunctionCLib(fn_EVP_camellia_128_cfb12);
-  @EVP_camellia_128_ofb := LoadFunctionCLib(fn_EVP_camellia_128_ofb);
-  @EVP_camellia_192_ecb := LoadFunctionCLib(fn_EVP_camellia_192_ecb);
+  @EVP_camellia_128_ecb  := LoadFunctionCLib(fn_EVP_camellia_128_ecb, False);
+  @EVP_camellia_128_cbc := LoadFunctionCLib(fn_EVP_camellia_128_cbc, False);
+  @EVP_camellia_128_cfb1 := LoadFunctionCLib(fn_EVP_camellia_128_cfb1, False);
+  @EVP_camellia_128_cfb8 := LoadFunctionCLib(fn_EVP_camellia_128_cfb8, False);
+  @EVP_camellia_128_cfb128 := LoadFunctionCLib(fn_EVP_camellia_128_cfb12, False);
+  @EVP_camellia_128_ofb := LoadFunctionCLib(fn_EVP_camellia_128_ofb, False);
+  @EVP_camellia_192_ecb := LoadFunctionCLib(fn_EVP_camellia_192_ecb, False);
 
-  @EVP_camellia_192_cbc := LoadFunctionCLib(fn_EVP_camellia_192_cbc);
-  @EVP_camellia_192_cfb1 := LoadFunctionCLib(fn_EVP_camellia_192_cfb1);
-  @EVP_camellia_192_cfb8 := LoadFunctionCLib(fn_EVP_camellia_192_cfb8);
-  @EVP_camellia_192_cfb128 := LoadFunctionCLib(fn_EVP_camellia_192_cfb128);
-  @EVP_camellia_192_ofb := LoadFunctionCLib(fn_EVP_camellia_192_ofb);
-  @EVP_camellia_256_ecb := LoadFunctionCLib(fn_EVP_camellia_256_ecb);
-  @EVP_camellia_256_cbc := LoadFunctionCLib(fn_EVP_camellia_256_cbc);
-  @EVP_camellia_256_cfb1 := LoadFunctionCLib(fn_EVP_camellia_256_cfb1);
-  @EVP_camellia_256_cfb8 := LoadFunctionCLib(fn_EVP_camellia_256_cfb8);
-  @EVP_camellia_256_cfb128 := LoadFunctionCLib(fn_EVP_camellia_256_cfb128);
-  @EVP_camellia_256_ofb := LoadFunctionCLib(fn_EVP_camellia_256_ofb);
+  @EVP_camellia_192_cbc := LoadFunctionCLib(fn_EVP_camellia_192_cbc,False);
+  @EVP_camellia_192_cfb1 := LoadFunctionCLib(fn_EVP_camellia_192_cfb1,False);
+  @EVP_camellia_192_cfb8 := LoadFunctionCLib(fn_EVP_camellia_192_cfb8,False);
+  @EVP_camellia_192_cfb128 := LoadFunctionCLib(fn_EVP_camellia_192_cfb128,False);
+  @EVP_camellia_192_ofb := LoadFunctionCLib(fn_EVP_camellia_192_ofb,False);
+  @EVP_camellia_256_ecb := LoadFunctionCLib(fn_EVP_camellia_256_ecb,False);
+  @EVP_camellia_256_cbc := LoadFunctionCLib(fn_EVP_camellia_256_cbc,False);
+  @EVP_camellia_256_cfb1 := LoadFunctionCLib(fn_EVP_camellia_256_cfb1,False);
+  @EVP_camellia_256_cfb8 := LoadFunctionCLib(fn_EVP_camellia_256_cfb8,False);
+  @EVP_camellia_256_cfb128 := LoadFunctionCLib(fn_EVP_camellia_256_cfb128,False);
+  @EVP_camellia_256_ofb := LoadFunctionCLib(fn_EVP_camellia_256_ofb,False);
   {$endif}
 
   {$ifndef OPENSSL_NO_SEED}
-  @EVP_seed_ecb := LoadFunctionCLib(fn_EVP_seed_ecb);
-  @EVP_seed_cbc := LoadFunctionCLib(fn_EVP_seed_cbc);
-  @EVP_seed_cfb128 := LoadFunctionCLib(fn_EVP_seed_cfb128);
-  @EVP_seed_ofb := LoadFunctionCLib(fn_EVP_seed_ofb);
+  @EVP_seed_ecb := LoadFunctionCLib(fn_EVP_seed_ecb,False);
+  @EVP_seed_cbc := LoadFunctionCLib(fn_EVP_seed_cbc,False);
+  @EVP_seed_cfb128 := LoadFunctionCLib(fn_EVP_seed_cfb128,False);
+  @EVP_seed_ofb := LoadFunctionCLib(fn_EVP_seed_ofb,False);
   {$endif}
 
   @EVP_MD_CTX_init := LoadFunctionCLib(fn_EVP_MD_CTX_init);
@@ -23017,23 +23021,23 @@ we have to handle both cases.
   @EVP_DigestFinal_ex := LoadFunctionCLib(fn_EVP_DigestFinal_ex);
 
 
-  @EVP_EncryptInit := LoadFunctionCLib(fn_EVP_EncryptInit);
-  @EVP_EncryptInit_ex := LoadFunctionCLib(fn_EVP_EncryptInit_ex);
+  @EVP_EncryptInit := LoadFunctionCLib(fn_EVP_EncryptInit,False);
+  @EVP_EncryptInit_ex := LoadFunctionCLib(fn_EVP_EncryptInit_ex,False);
   @EVP_EncryptUpdate := LoadFunctionCLib(fn_EVP_EncryptUpdate);
-  @EVP_EncryptFinal_ex := LoadFunctionCLib(fn_EVP_EncryptFinal_ex);
-  @EVP_EncryptFinal := LoadFunctionCLib(fn_EVP_EncryptFinal);
+  @EVP_EncryptFinal_ex := LoadFunctionCLib(fn_EVP_EncryptFinal_ex,False);
+  @EVP_EncryptFinal := LoadFunctionCLib(fn_EVP_EncryptFinal,False);
 
 
 
-  @EVP_DecryptInit := LoadFunctionCLib(fn_EVP_DecryptInit);
-  @EVP_DecryptInit_ex := LoadFunctionCLib(fn_EVP_DecryptInit_ex);
+  @EVP_DecryptInit := LoadFunctionCLib(fn_EVP_DecryptInit,False);
+  @EVP_DecryptInit_ex := LoadFunctionCLib(fn_EVP_DecryptInit_ex,False);
   @EVP_DecryptUpdate := LoadFunctionCLib(fn_EVP_DecryptUpdate);
-  @EVP_DecryptFinal := LoadFunctionCLib(fn_EVP_DecryptFinal);
-  @EVP_DecryptFinal_ex := LoadFunctionCLib(fn_EVP_DecryptFinal_ex);
-  @EVP_CipherInit := LoadFunctionCLib(fn_EVP_CipherInit);
-  @EVP_CipherInit_ex  := LoadFunctionCLib(fn_EVP_CipherInit_ex);
-  @EVP_CipherUpdate  := LoadFunctionCLib(fn_EVP_CipherUpdate);
-  @EVP_CipherFinal  := LoadFunctionCLib(fn_EVP_CipherFinal);
+  @EVP_DecryptFinal := LoadFunctionCLib(fn_EVP_DecryptFinal,False);
+  @EVP_DecryptFinal_ex := LoadFunctionCLib(fn_EVP_DecryptFinal_ex,False);
+  @EVP_CipherInit := LoadFunctionCLib(fn_EVP_CipherInit,False);
+  @EVP_CipherInit_ex  := LoadFunctionCLib(fn_EVP_CipherInit_ex,False);
+  @EVP_CipherUpdate  := LoadFunctionCLib(fn_EVP_CipherUpdate,False);
+  @EVP_CipherFinal  := LoadFunctionCLib(fn_EVP_CipherFinal,False);
   @EVP_CipherFinal_ex  := LoadFunctionCLib(fn_EVP_CipherFinal_ex,False);
   @EVP_SignFinal := LoadFunctionCLib(fn_EVP_SignFinal,False);
   @EVP_VerifyFinal := LoadFunctionCLib(fn_EVP_VerifyFinal,False);
@@ -23041,7 +23045,7 @@ we have to handle both cases.
   @EVP_DigestSignFinal := LoadFunctionCLib(fn_EVP_DigestSignFinal,False);
   @EVP_DigestVerifyInit := LoadFunctionCLib(fn_EVP_DigestVerifyInit,False);
   @EVP_DigestVerifyFinal := LoadFunctionCLib(fn_EVP_DigestVerifyFinal,False);
-  @EVP_OpenInit := LoadFunctionCLib(fn_EVP_OpenInit);
+  @EVP_OpenInit := LoadFunctionCLib(fn_EVP_OpenInit,False);
   @EVP_OpenFinal := LoadFunctionCLib(fn_EVP_OpenFinal,False);
   @EVP_SealInit := LoadFunctionCLib(fn_EVP_SealInit,False);
   @EVP_SealFinal := LoadFunctionCLib(fn_EVP_SealFinal,False);
@@ -23153,16 +23157,16 @@ we have to handle both cases.
   @EVP_CIPHER_set_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_set_asn1_iv,False);
   @EVP_CIPHER_get_asn1_iv := LoadFunctionCLib(fn_EVP_CIPHER_get_asn1_iv,False);
   @PKCS5_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_PBE_keyivgen,False);
-  @PKCS5_PBKDF2_HMAC_SHA1 := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC_SHA1);
+  @PKCS5_PBKDF2_HMAC_SHA1 := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC_SHA1,False);
   @PKCS5_PBKDF2_HMAC := LoadFunctionCLib(fn_PKCS5_PBKDF2_HMAC,False);
   @PKCS5_v2_PBE_keyivgen := LoadFunctionCLib(fn_PKCS5_v2_PBE_keyivgen,False);
   @PKCS5_PBE_add := LoadFunctionCLib(fn_PKCS5_PBE_add,False);
   @EVP_PBE_CipherInit := LoadFunctionCLib(fn_EVP_PBE_CipherInit,False);
 
   @EVP_PBE_alg_add_type := LoadFunctionCLib(fn_EVP_PBE_alg_add_type,False);
-  @EVP_PBE_alg_add := LoadFunctionCLib(fn_EVP_PBE_alg_add);
+  @EVP_PBE_alg_add := LoadFunctionCLib(fn_EVP_PBE_alg_add,False);
   @EVP_PBE_find := LoadFunctionCLib(fn_EVP_PBE_find,False);
-  @EVP_PBE_cleanup := LoadFunctionCLib(fn_EVP_PBE_cleanup);
+  @EVP_PBE_cleanup := LoadFunctionCLib(fn_EVP_PBE_cleanup,False);
   @EVP_PKEY_asn1_get_count := LoadFunctionCLib(fn_EVP_PKEY_asn1_get_count,False);
   @EVP_PKEY_asn1_get0 := LoadFunctionCLib(fn_EVP_PKEY_asn1_get0,False);
   @EVP_PKEY_asn1_find := LoadFunctionCLib(fn_EVP_PKEY_asn1_find,False);
@@ -23207,9 +23211,9 @@ we have to handle both cases.
   @EVP_PKEY_verify_recover_init := LoadFunctionCLib(fn_EVP_PKEY_verify_recover_init,False);
   @EVP_PKEY_verify_recover := LoadFunctionCLib(fn_EVP_PKEY_verify_recover,False);
   @EVP_PKEY_encrypt_init := LoadFunctionCLib(fn_EVP_PKEY_encrypt_init,False);
-  @EVP_PKEY_encrypt := LoadFunctionCLib(fn_EVP_PKEY_encrypt);
+  @EVP_PKEY_encrypt := LoadFunctionCLib(fn_EVP_PKEY_encrypt,False);
   @EVP_PKEY_decrypt_init := LoadFunctionCLib(fn_EVP_PKEY_decrypt_init,False);
-  @EVP_PKEY_decrypt := LoadFunctionCLib(fn_EVP_PKEY_decrypt);
+  @EVP_PKEY_decrypt := LoadFunctionCLib(fn_EVP_PKEY_decrypt,False);
   @EVP_PKEY_derive_init := LoadFunctionCLib(fn_EVP_PKEY_derive_init,False);
   @EVP_PKEY_derive_set_peer := LoadFunctionCLib(fn_EVP_PKEY_derive_set_peer,False);
   @EVP_PKEY_derive := LoadFunctionCLib(fn_EVP_PKEY_derive,False);
@@ -25850,31 +25854,11 @@ begin
 	Result := BIO_ctrl(b,BIO_C_GET_CIPHER_CTX,0,PIdAnsiChar(c_pp));
 end;
 
-{$ifndef OPENSSL_NO_DES}
-function EVP_des_cfb : PEVP_CIPHER;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := EVP_des_cfb64;
-end;
-
-function EVP_des_ede_cfb: PEVP_CIPHER;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := EVP_des_ede_cfb64;
-end;
-
-function EVP_des_ede3_cfb: PEVP_CIPHER;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := EVP_des_ede3_cfb64
-end;
-{$endif}
-
 {$ifndef OPENSSL_NO_IDEA}
 function EVP_idea_cfb: PEVP_CIPHER;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := EVP_idea_cfb64
+  Result := EVP_idea_cfb64;
 end;
 
 {$endif}
