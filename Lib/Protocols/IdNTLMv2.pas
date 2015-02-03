@@ -76,9 +76,9 @@ const
     IdNTLMSSP_NEGOTIATE_NTLM or
    // IdNTLMSSP_NEGOTIATE_ALWAYS_SIGN or
     IdNTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY;
-  IdNTLM_TYPE1_MARKER : LongWord = 1;
-  IdNTLM_TYPE2_MARKER : LongWord = 2;
-  IdNTLM_TYPE3_MARKER : LongWord = 3;
+  IdNTLM_TYPE1_MARKER : UInt32 = 1;
+  IdNTLM_TYPE2_MARKER : UInt32 = 2;
+  IdNTLM_TYPE3_MARKER : UInt32 = 3;
 
   IdNTLM_NTLMSSP_DES_KEY_LENGTH =7;
 
@@ -126,17 +126,17 @@ var
 procedure TestNTLM;
 {$ENDIF}
 
-function BuildType1Msg(const ADomain : String = ''; const AHost : String = ''; const ALMCompatibility : LongWord = 0) : TIdBytes;
-procedure ReadType2Msg(const AMsg : TIdBytes; var VFlags : LongWord; var VTargetName : TIdBytes; var VTargetInfo : TIdBytes; var VNonce : TIdBytes );
+function BuildType1Msg(const ADomain : String = ''; const AHost : String = ''; const ALMCompatibility : UInt32 = 0) : TIdBytes;
+procedure ReadType2Msg(const AMsg : TIdBytes; var VFlags : UInt32; var VTargetName : TIdBytes; var VTargetInfo : TIdBytes; var VNonce : TIdBytes );
 function BuildType3Msg(const ADomain, AHost, AUsername, APassword : String;
-  const AFlags : LongWord; const AServerNonce : TIdBytes;
+  const AFlags : UInt32; const AServerNonce : TIdBytes;
   const ATargetName, ATargetInfo : TIdBytes;
-  const ALMCompatibility : LongWord = 0) : TIdBytes;
+  const ALMCompatibility : UInt32 = 0) : TIdBytes;
 
 
 {
 function BuildType1Message( ADomain, AHost: String; const AEncodeMsg : Boolean = True): String;
-procedure ReadType2Message(const AMsg : String; var VNonce : nonceArray; var Flags : LongWord);
+procedure ReadType2Message(const AMsg : String; var VNonce : nonceArray; var Flags : UInt32);
 function BuildType3Message( ADomain, AHost, AUsername: TIdUnicodeString; APassword : String; AServerNonce : nonceArray): String;
  }
 
@@ -145,7 +145,7 @@ function NTLMFunctionsLoaded : Boolean;
 procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
 
 function DumpFlags(const ABytes : TIdBytes): String; overload;
-function DumpFlags(const AFlags : LongWord): String; overload;
+function DumpFlags(const AFlags : UInt32): String; overload;
 
 function LoadRC4 : Boolean;
 function RC4FunctionsLoaded : Boolean;
@@ -210,8 +210,8 @@ type
   Pdes_key_schedule = ^des_key_schedule;
   {$IFNDEF WINDOWS}
   FILETIME = record
-    dwLowDateTime : LongWord;
-    dwHighDateTime : LongWord;
+    dwLowDateTime : UInt32;
+    dwHighDateTime : UInt32;
   end;
   {$ENDIF}
 {$ENDIF}
@@ -234,7 +234,7 @@ begin
   Result.dwHighDateTime := BitConverter.ToInt32(Lbytes, 4);
 end;
 
-function UnixTimeToFileTime(const AUnixTime : LongWord) : System.Runtime.InteropServices.ComTypes.FILETIME;
+function UnixTimeToFileTime(const AUnixTime : UInt32) : System.Runtime.InteropServices.ComTypes.FILETIME;
 {$ELSE}
 {
 We do things this way because in Win64, FILETIME may not be a simple typecast
@@ -249,7 +249,7 @@ boundery.
   {$DEFINE USE_FILETIME_TYPECAST}
 {$ENDIF}
 
-function UnixTimeToFileTime(const AUnixTime : LongWord) : FILETIME;
+function UnixTimeToFileTime(const AUnixTime : UInt32) : FILETIME;
 var
   i : Int64;
 {$ENDIF}
@@ -360,10 +360,10 @@ end;
 function DumpFlags(const ABytes : TIdBytes): String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DumpFlags( LittleEndianToHost(BytesToLongWord(ABytes)));
+  Result := DumpFlags( LittleEndianToHost(BytesToUInt32(ABytes)));
 end;
 
-function DumpFlags(const AFlags : LongWord): String;
+function DumpFlags(const AFlags : UInt32): String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := IntToHex(AFlags,8)+' -';
@@ -868,23 +868,23 @@ end;
 {$ENDIF}
 
 
-procedure AddWord(var VBytes: TIdBytes; const AWord : Word);
+procedure AddUInt16(var VBytes: TIdBytes; const AWord : UInt16);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LBytes : TIdBytes;
 begin
   SetLength(LBytes,SizeOf(AWord));
-  CopyTIdWord(HostToLittleEndian(AWord),LBytes,0);
+  CopyTIdUInt16(HostToLittleEndian(AWord),LBytes,0);
   AppendBytes( VBytes,LBytes);
 end;
 
-procedure AddLongWord(var VBytes: TIdBytes; const ALongWord : LongWord);
+procedure AddUInt32(var VBytes: TIdBytes; const ALongWord : UInt32);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LBytes : TIdBytes;
 begin
   SetLength(LBytes,SizeOf(ALongWord));
-  CopyTIdLongWord(HostToLittleEndian(ALongWord),LBytes,0);
+  CopyTIdUInt32(HostToLittleEndian(ALongWord),LBytes,0);
   AppendBytes( VBytes,LBytes);
 end;
 
@@ -897,8 +897,8 @@ begin
   IdGlobal.CopyTIdInt64(AInt64,LBytes,0);
   {$ELSE}
     //done this way since we need this in little endian byte-order
-  CopyTIdLongWord(HostToLittleEndian(Lo( AInt64)));
-  CopyTIdLongWord(HostToLittleEndian(Hi( AInt64)));
+  CopyTIdUInt32(HostToLittleEndian(Lo( AInt64)));
+  CopyTIdUInt32(HostToLittleEndian(Hi( AInt64)));
   {$ENDIF}
   AppendBytes( VBytes,LBytes);
 end;
@@ -968,15 +968,15 @@ begin
   AddByteArray( Result, NTLMv2_BLOB_Res);
 
   // time - offset 8
-  IdNTLMv2.AddLongWord(Result, ANTLMTimeStamp.dwLowDateTime );
-  IdNTLMv2.AddLongWord(Result, ANTLMTimeStamp.dwHighDateTime );
+  IdNTLMv2.AddUInt32(Result, ANTLMTimeStamp.dwLowDateTime );
+  IdNTLMv2.AddUInt32(Result, ANTLMTimeStamp.dwHighDateTime );
 
   //client nonce (challange)
   // cnonce - offset 16
   IdGlobal.AppendBytes(Result,cnonce);
   // reserved 3
   //   offset - offset 24
-  AddLongWord(Result,0);
+  AddUInt32(Result,0);
 //  AddByteArray( Result, NTLMv2_BLOB_Res);
   // targetinfo - offset 28
   //    av pairs - offset 28
@@ -1220,11 +1220,11 @@ begin
 end;
 
 
-function BuildType1Msg(const ADomain : String = ''; const AHost : String = ''; const ALMCompatibility : LongWord = 0) : TIdBytes;
+function BuildType1Msg(const ADomain : String = ''; const AHost : String = ''; const ALMCompatibility : UInt32 = 0) : TIdBytes;
 var
   LDomain, LWorkStation: TIdBytes;
-  LDomLen, LWorkStationLen: Word;
-  LFlags : LongWord;
+  LDomLen, LWorkStationLen: UInt16;
+  LFlags : UInt32;
   LEncoding: IIdTextEncoding;
 begin
   SetLength(Result,0);
@@ -1251,26 +1251,26 @@ begin
   //signature
   AppendBytes(Result,IdNTLM_SSP_SIG);
   //type
-  AddLongWord(Result,IdNTLM_TYPE1_MARKER);
+  AddUInt32(Result,IdNTLM_TYPE1_MARKER);
   //flags
-  AddLongWord(Result,LFlags);
+  AddUInt32(Result,LFlags);
   //Supplied Domain security buffer
   //   - length
-  AddWord(Result,LDomLen);
+  AddUInt16(Result,LDomLen);
   //   - allocated space
-  AddWord(Result,LDomLen);
+  AddUInt16(Result,LDomLen);
   //   - offset
-  AddLongWord(Result,LWorkStationLen+$20);
+  AddUInt32(Result,LWorkStationLen+$20);
   //Supplied Workstation security buffer (host)
   //   - length
-  AddWord(Result,LWorkStationLen);
+  AddUInt16(Result,LWorkStationLen);
   //   - allocated space
-  AddWord(Result,LWorkStationLen);
+  AddUInt16(Result,LWorkStationLen);
   //   - offset
   if LWorkStationLen > 0 then begin
-     AddLongWord(Result,$20);
+     AddUInt32(Result,$20);
   end else begin
-     AddLongWord(Result,$08);
+     AddUInt32(Result,$08);
   end;
   // Supplied Workstation  (host)
   if LWorkStationLen > 0 then begin
@@ -1282,19 +1282,19 @@ begin
   end;
 end;
 
-procedure ReadType2Msg(const AMsg : TIdBytes; var VFlags : LongWord; var VTargetName : TIdBytes; var VTargetInfo : TIdBytes; var VNonce : TIdBytes );
+procedure ReadType2Msg(const AMsg : TIdBytes; var VFlags : UInt32; var VTargetName : TIdBytes; var VTargetInfo : TIdBytes; var VNonce : TIdBytes );
 var
-  LLen : Word;
-  LOfs : LongWord;
+  LLen : UInt16;
+  LOfs : UInt32;
 begin
   //extract flags
-  VFlags := LittleEndianToHost(BytesToLongWord(AMsg,IdNTLM_TYPE2_FLAGS_OFS));
+  VFlags := LittleEndianToHost(BytesToUInt32(AMsg,IdNTLM_TYPE2_FLAGS_OFS));
 
   //extract target name
 
   // - security buffer
-  LLen := LittleEndianToHost( BytesToWord(AMsg,IdNTLM_TYPE2_TNAME_LEN_OFS));
-  LOfs := LittleEndianToHost( BytesToLongWord(AMsg,IdNTLM_TYPE2_TNAME_OFFSET_OFS));
+  LLen := LittleEndianToHost( BytesToUInt16(AMsg,IdNTLM_TYPE2_TNAME_LEN_OFS));
+  LOfs := LittleEndianToHost( BytesToUInt32(AMsg,IdNTLM_TYPE2_TNAME_OFFSET_OFS));
   // - the buffer itself
   SetLength(VTargetName,LLen);
   CopyTIdBytes(AMsg,LOfs,VTargetName,0,LLen);
@@ -1302,8 +1302,8 @@ begin
   //Note that we should ignore TargetInfo if it is not required.
   if VFlags and IdNTLMSSP_NEGOTIATE_TARGET_INFO > 0 then begin
     // - security buffer
-    LLen := LittleEndianToHost( BytesToWord(AMsg,IdNTLM_TYPE2_TINFO_LEN_OFS));
-    LOfs := LittleEndianToHost( BytesToLongWord(AMsg,IdNTLM_TYPE2_TINFO_OFFSET_OFS));
+    LLen := LittleEndianToHost( BytesToUInt16(AMsg,IdNTLM_TYPE2_TINFO_LEN_OFS));
+    LOfs := LittleEndianToHost( BytesToUInt32(AMsg,IdNTLM_TYPE2_TINFO_OFFSET_OFS));
     // - the buffer itself
     SetLength(VTargetInfo,LLen);
     CopyTIdBytes(AMsg,LOfs,VTargetInfo,0,LLen);
@@ -1315,19 +1315,19 @@ begin
   CopyTIdBytes(AMsg,IdNTLM_TYPE2_NONCE_OFS,VNonce,0,IdNTLM_NONCE_LEN);
 end;
 
-function CreateData(const ABytes : TIdBytes; const AOffset : LongWord; var VBuffer : TIdBytes) : LongWord;
+function CreateData(const ABytes : TIdBytes; const AOffset : UInt32; var VBuffer : TIdBytes) : UInt32;
 //returns the next buffer value
 //adds security value ptr to Vbuffer
 var
-  LLen : Word;
+  LLen : UInt16;
 begin
   LLen := Length(ABytes);
   //   - length
-  AddWord(VBuffer,LLen);
+  AddUInt16(VBuffer,LLen);
   //   - allocated space
-  AddWord(VBuffer,LLen);
+  AddUInt16(VBuffer,LLen);
   //   - offset
-  AddLongWord(VBuffer,AOffset);
+  AddUInt32(VBuffer,AOffset);
   Result := AOffset + Llen;
 end;
 
@@ -1352,15 +1352,15 @@ const
     IdNTLMSSP_TARGET_TYPE_SHARE);
 
 function BuildType3Msg(const ADomain, AHost, AUsername, APassword : String;
-  const AFlags : LongWord; const AServerNonce : TIdBytes;
+  const AFlags : UInt32; const AServerNonce : TIdBytes;
   const ATargetName, ATargetInfo : TIdBytes;
-  const ALMCompatibility : LongWord = 0) : TIdBytes;
+  const ALMCompatibility : UInt32 = 0) : TIdBytes;
 var
   LDom, LHost, LUser, LLMData, LNTLMData, LCNonce : TIdBytes;
   llmhash, lntlmhash : TIdBytes;
-  ll_len, ln_len, ld_len, lh_len, lu_len : Word;
-  ll_ofs, ln_ofs, ld_ofs, lh_ofs, lu_ofs : LongWord;
-  LFlags : LongWord;
+  ll_len, ln_len, ld_len, lh_len, lu_len : UInt16;
+  ll_ofs, ln_ofs, ld_ofs, lh_ofs, lu_ofs : UInt32;
+  LFlags : UInt32;
   LEncoding: IIdTextEncoding;
 begin
   LFlags := AFlags and IdNTLM_IGNORE_TYPE_2_3_MASK;
@@ -1466,8 +1466,8 @@ begin
     ld_ofs :=  IdNTLM_TYPE3_DOM_OFFSET + 8;
     AppendByte(Result, IdNTLM_WINDOWS_MAJOR_VERSION_6);
     AppendByte(Result, IdNTLM_WINDOWS_MINOR_VERSION_0);
-    AddWord(Result,IdNTLM_WINDOWS_BUILD_ORIG_VISTA);
-    AddLongWord(Result,$F);
+    AddUInt16(Result,IdNTLM_WINDOWS_BUILD_ORIG_VISTA);
+    AddUInt32(Result,$F);
   end;   }
   lu_ofs := ld_len + ld_ofs;
   lh_ofs := lu_len + lu_ofs;
@@ -1478,58 +1478,58 @@ begin
   // 0 - signature
   AppendBytes(Result,IdNTLM_SSP_SIG);
   // 8 - type
-  AddLongWord(Result,IdNTLM_TYPE3_MARKER);
+  AddUInt32(Result,IdNTLM_TYPE3_MARKER);
 
   //12 - LM Response Security Buffer:
   //   - length
-   AddWord(Result,ll_len);
+   AddUInt16(Result,ll_len);
   //   - allocated space
-   AddWord(Result,ll_len);
+   AddUInt16(Result,ll_len);
   //   - offset
-   AddLongWord(Result,ll_ofs);
+   AddUInt32(Result,ll_ofs);
 
   //20 - NTLM Response Security Buffer:
   //   - length
-   AddWord(Result,ln_len);
+   AddUInt16(Result,ln_len);
   //   - allocated space
-   AddWord(Result,ln_len);
+   AddUInt16(Result,ln_len);
   //   - offset
-   AddLongWord(Result,ln_ofs);
+   AddUInt32(Result,ln_ofs);
 
   //28 - Domain Name Security Buffer:  (target)
   //   - length
-   AddWord(Result,ld_len);
+   AddUInt16(Result,ld_len);
   //   - allocated space
-   AddWord(Result,ld_len);
+   AddUInt16(Result,ld_len);
   //   - offset
-  AddLongWord(Result,ld_ofs);
+  AddUInt32(Result,ld_ofs);
 
   //36 - User Name Security Buffer:
   //   - length
-   AddWord(Result,lu_len);
+   AddUInt16(Result,lu_len);
   //   - allocated space
-   AddWord(Result,lu_len);
+   AddUInt16(Result,lu_len);
   //   - offset
-   AddLongWord(Result,lu_ofs);
+   AddUInt32(Result,lu_ofs);
 
   //44 - Workstation Name (host) Security Buffer:
   //   - length
-   AddWord(Result,lh_len);
+   AddUInt16(Result,lh_len);
   //   - allocated space
-   AddWord(Result,lh_len);
+   AddUInt16(Result,lh_len);
   //   - offset
-  AddLongWord(Result,lh_ofs);
+  AddUInt32(Result,lh_ofs);
   //52 - Session Key Security Buffer:
   //   - length
-   AddWord(Result,0);
+   AddUInt16(Result,0);
   //   - allocated space
-   AddWord(Result,0);
+   AddUInt16(Result,0);
   //   - offset
-   AddLongWord(Result,ln_ofs+ln_len);
+   AddUInt32(Result,ln_ofs+ln_len);
   //60 - Flags:
   //The flags feild is strictly optional.  About the only time it matters is
   //with Datagram authentication.
-  AddLongWord(Result,LFlags);
+  AddUInt32(Result,LFlags);
   if ld_len > 0 then
   begin
     //64 - Domain Name Data ("DOMAIN")
@@ -1721,7 +1721,7 @@ NTLMv1 data flags
 
 procedure DoMSTests;
 var
-  LFlags : LongWord;
+  LFlags : UInt32;
   LEncoding: IIdTextEncoding;
 begin
   LFlags := IdNTLMSSP_NEGOTIATE_KEY_EXCH or
