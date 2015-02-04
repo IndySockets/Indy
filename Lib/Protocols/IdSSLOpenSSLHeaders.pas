@@ -7058,7 +7058,12 @@ const
   SSL_CTRL_GET_EXTRA_CHAIN_CERTS = 82;
   {$EXTERNALSYM SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS}
   SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS = 83;
-
+  {$EXTERNALSYM SSL_CTRL_CHAIN}  //OpenSSL 1.0.2
+  SSL_CTRL_CHAIN = 88;
+  {$EXTERNALSYM SSL_CTRL_CHAIN_CERT} //OpenSSL 1.0.2
+  SSL_CTRL_CHAIN_CERT = 89;
+  {$EXTERNALSYM SSL_CTRL_GET_CHAIN_CERTS} //OpenSSL 1.0.2
+  SSL_CTRL_GET_CHAIN_CERTS = 115;
   {$EXTERNALSYM SSL_CTRL_GET_SESSION_REUSED}
   SSL_CTRL_GET_SESSION_REUSED = 8;
   {$EXTERNALSYM SSL_CTRL_GET_CLIENT_CERT_REQUEST}
@@ -17068,6 +17073,8 @@ var
   SSL_CTX_use_certificate : function(ctx: PSSL_CTX; x: PX509): TIdC_INT cdecl = nil;
   {$EXTERNALSYM SSL_CTX_use_certificate_file}
   SSL_CTX_use_certificate_file : function(ctx: PSSL_CTX; const _file: PIdAnsiChar; _type: TIdC_INT): TIdC_INT cdecl = nil;
+  {$EXTERNALSYM SSL_CTX_use_certificate_chain_file}   //OpenSSL 1.0.2
+  SSL_CTX_use_certificate_chain_file : function(ctx : PSSL_CTX; _file : PIdAnsiChar) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM SSL_load_error_strings}
   SSL_load_error_strings : procedure cdecl = nil;
   {$EXTERNALSYM SSL_state_string_long}
@@ -17090,6 +17097,8 @@ var
   SSL_CTX_set_default_passwd_cb_userdata: procedure(ctx: PSSL_CTX; u: Pointer) cdecl = nil;
   {$EXTERNALSYM SSL_CTX_check_private_key}
   SSL_CTX_check_private_key : function(ctx: PSSL_CTX): TIdC_INT cdecl = nil;
+
+
   {$EXTERNALSYM SSL_new}
   SSL_new : function(ctx: PSSL_CTX): PSSL cdecl = nil;
   {$EXTERNALSYM SSL_free}
@@ -17333,7 +17342,6 @@ var
   EVP_idea_ecb: function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_idea_cfb64}
   EVP_idea_cfb64: function :  PEVP_CIPHER cdecl = nil;
-//# define EVP_idea_cfb EVP_idea_cfb64 : function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_idea_ofb}
   EVP_idea_ofb: function :  PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_idea_cbc}
@@ -18257,8 +18265,26 @@ procedure SSL_set_tmp_rsa(ssl : PSSL; rsa : PRSA);
 function SSL_set_tmp_dh(ssl : PSSL;dh : PDH) : TIdC_LONG;
  {$EXTERNALSYM SSL_set_tmp_ecdh}
 function SSL_set_tmp_ecdh(ssl : PSSL; ecdh : PEC_KEY) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_add0_chain_cert}  //OpenSSL 1.0.2
+function SSL_CTX_add0_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_add1_chain_cert}  //OpenSSL 1.0.2
+function SSL_CTX_add1_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
  {$EXTERNALSYM SSL_CTX_add_extra_chain_cert}
 function SSL_CTX_add_extra_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_get_extra_chain_certs}
+function SSL_CTX_get_extra_chain_certs(ctx : PSSL_CTX; var px509 : px509) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_get_extra_chain_certs_only}
+function SSL_CTX_get_extra_chain_certs_only(ctx: PSSL_CTX;var PX509 :PX509) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_clear_extra_chain_certs}
+function SSL_CTX_clear_extra_chain_certs(ctx : PSSL_CTX) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set0_chain} //OpenSSL 1.0.2
+function SSL_CTX_set0_chain(ctx:PSSL_CTX; sk : PSTACK_OF_X509) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_set1_chain}  //OpenSSL 1.0.2
+function SSL_CTX_set1_chain(ctx:PSSL_CTX; sk : PSTACK_OF_X509) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_get0_chain_certs} //OpenSSL 1.0.2
+function SSL_CTX_get0_chain_certs(ctx :PSSL_CTX; var px509 :PX509) : TIdC_LONG;
+ {$EXTERNALSYM SSL_CTX_clear_chain_certs} //OpenSSL 1.0.2
+function SSL_CTX_clear_chain_certs(ctx :PSSL_CTX) : TIdC_LONG;
 
 {$IFNDEF OPENSSL_NO_TLSEXT}
  {$EXTERNALSYM SSL_set_tlsext_host_name}
@@ -18304,6 +18330,7 @@ function SSL_get_tlsext_heartbeat_pending(ssl : PSSL) : TIdC_LONG;
 function SSL_set_tlsext_heartbeat_no_requests(ssl : PSSL; arg : TIdC_LONG) : TIdC_LONG;
 {$endif}
 {$ENDIF}
+
  {$EXTERNALSYM TLS1_get_version}
 function TLS1_get_version(s : PSSL) : TIdC_INT;
  {$EXTERNALSYM TLS1_get_client_version}
@@ -20720,27 +20747,20 @@ them in case we use them later.}
   fn_EVP_des_ecb = 'EVP_des_ecb'; {Do not localize}
   fn_EVP_des_ede = 'EVP_des_ede';  {Do not localize}
   fn_EVP_des_ede3 = 'EVP_des_ede3'; {Do not localize}
-    {$DEFINE EVP_des_cfb}
-    {$DEFINE EVP_des_cfb64}
   fn_EVP_des_cfb = 'EVP_des_cfb';  {Do not localize}
   fn_EVP_des_ede_cfb = 'EVP_des_ede_cfb';  {Do not localize}
   fn_EVP_des_ede3_cfb = 'EVP_des_ede3_cfb';  {Do not localize}
   fn_EVP_des_ofb = 'EVP_des_ofb';  {Do not localize}
   fn_EVP_des_ede_ofb = 'EVP_des_ede_ofb';  {Do not localize}
-    {$DEFINE EVP_des_ede_cfb}
-    {$DEFINE EVP_des_ede_cfb64}
   fn_EVP_des_ede3_ofb = 'EVP_des_ede3_ofb';  {Do not localize}
   fn_EVP_des_cbc = 'EVP_des_cbc';  {Do not localize}
   fn_EVP_des_ede_cbc = 'EVP_des_ede_cbc';  {Do not localize}
   fn_EVP_des_ede3_cbc = 'EVP_des_ede3_cbc';  {Do not localize}
-    {$DEFINE EVP_des_ede3_cfb}
-    {$DEFINE EVP_des_ede3_cfb64}
   fn_EVP_desx_cbc = 'EVP_desx_cbc';  {Do not localize}
   fn_EVP_des_ede3_cfb8 = 'EVP_des_ede3_cfb8'; {Do not localize}
   fn_EVP_des_ede_ecb = 'EVP_des_ede_ecb'; {Do not localize}
   fn_EVP_des_ede3_ecb = 'EVP_des_ede3_ecb';
   fn_EVP_des_cfb64 = 'EVP_des_cfb64';
-//  # define EVP_des_cfb EVP_des_cfb64
 
   fn_EVP_des_cfb1 = 'EVP_des_cfb1';
   fn_EVP_des_cfb8 = 'EVP_des_cfb8';
@@ -20762,8 +20782,6 @@ them in case we use them later.}
   {$IFNDEF OPENSSL_NO_IDEA}
   fn_EVP_idea_ecb = 'EVP_idea_ecb';  {Do not localize}
   fn_EVP_idea_cfb64 = 'EVP_idea_cfb64'; {Do not localize}
-    {$DEFINE EVP_idea_cfb}
-    {$DEFINE EVP_idea_cfb64 }
   fn_EVP_idea_cfb = 'EVP_idea_cfb';  {Do not localize}
   fn_EVP_idea_ofb = 'EVP_idea_ofb';  {Do not localize}
   fn_EVP_idea_cbc = 'EVP_idea_cbc';  {Do not localize}
@@ -20775,8 +20793,6 @@ them in case we use them later.}
   fn_EVP_rc2_64_cbc = 'EVP_rc2_64_cbc';  {Do not localize}
   fn_EVP_rc2_cfb64 = 'EVP_rc2_cfb64'; {Do not localize}
   fn_EVP_rc2_cfb = 'EVP_rc2_cfb';  {Do not localize}
-    {$DEFINE EVP_rc2_cfb}
-    {$DEFINE EVP_rc2_cfb64}
   fn_EVP_rc2_ofb = 'EVP_rc2_ofb';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_BF}
@@ -20784,8 +20800,6 @@ them in case we use them later.}
   fn_EVP_bf_cbc = 'EVP_bf_cbc';  {Do not localize}
   fn_EVP_bf_cfb = 'EVP_bf_cfb';  {Do not localize}
   fn_EVP_bf_cfb64 = 'EVP_bf_cfb64'; {Do not localize}
-    {$DEFINE EVP_bf_cfb}
-    {$DEFINE EVP_bf_cfb64}
   fn_EVP_bf_ofb = 'EVP_bf_ofb';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_CAST}
@@ -20793,8 +20807,6 @@ them in case we use them later.}
   fn_EVP_cast5_cbc = 'EVP_cast5_cbc';  {Do not localize}
   fn_EVP_cast5_cfb = 'EVP_cast5_cfb';  {Do not localize}
   fn_EVP_cast5_cfb64 = 'EVP_cast5_cfb64'; {Do not localize}
-    {$DEFINE EVP_cast5_cfb}
-    {$DEFINE EVP_cast5_cfb64}
   fn_EVP_cast5_ofb = 'EVP_cast5_ofb';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RC5 }
@@ -20802,8 +20814,6 @@ them in case we use them later.}
   fn_EVP_rc5_32_12_16_ecb = 'EVP_rc5_32_12_16_ecb';  {Do not localize}
   fn_EVP_rc5_32_12_16_cfb = 'EVP_rc5_32_12_16_cfb';  {Do not localize}
   fn_EVP_rc5_32_12_16_cfb64 = 'EVP_rc5_32_12_16_cfb64'; {Do not localize}
-  {$DEFINE EVP_rc5_32_12_16_cfb}
-  {$DEFINE EVP_rc5_32_12_16_cfb64}
   fn_EVP_rc5_32_12_16_ofb = 'EVP_rc5_32_12_16_ofb';  {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_AES}
@@ -20817,8 +20827,6 @@ them in case we use them later.}
   fn_EVP_aes_128_gcm = 'EVP_aes_128_gcm'; {Do not localize}
   fn_EVP_aes_128_ccm = 'EVP_aes_128_ccm'; {Do not localize}
   fn_EVP_aes_128_xts = 'EVP_aes_128_xts'; {Do not localize}
-  {$DEFINE EVP_aes_128_cfb}
-  {$DEFINE EVP_aes_128_cfb128}
   fn_EVP_aes_192_ecb = 'EVP_aes_192_ecb'; {Do not localize}
   fn_EVP_aes_192_cbc = 'EVP_aes_192_cbc'; {Do not localize}
   fn_EVP_aes_192_cfb1 = 'EVP_aes_192_cfb1'; {Do not localize}
@@ -20827,17 +20835,12 @@ them in case we use them later.}
   fn_EVP_aes_192_ctr = 'EVP_aes_192_ctr';  {Do not localize}
   fn_EVP_aes_192_gcm = 'EVP_aes_192_gcm';  {Do not localize}
   fn_EVP_aes_192_ccm = 'EVP_aes_192_ccm';  {Do not localize}
-
-  {$DEFINE EVP_aes_192_cfb}
-  {$DEFINE EVP_aes_192_cfb128}
   fn_EVP_aes_192_ofb = 'EVP_aes_192_ofb'; {Do not localize}
   fn_EVP_aes_256_ecb = 'EVP_aes_256_ecb'; {Do not localize}
   fn_EVP_aes_256_cbc = 'EVP_aes_256_cbc'; {Do not localize}
   fn_EVP_aes_256_cfb1 = 'EVP_aes_256_cfb1'; {Do not localize}
   fn_EVP_aes_256_cfb8 = 'EVP_aes_256_cfb8'; {Do not localize}
   fn_EVP_aes_256_cfb128 = 'EVP_aes_256_cfb128'; {Do not localize}
-  {$DEFINE EVP_aes_256_cfb}
-  {$DEFINE EVP_aes_256_cfb128}
   fn_EVP_aes_256_ofb = 'EVP_aes_256_ofb'; {Do not localize}
   fn_EVP_aes_256_ctr = 'EVP_aes_256_ctr';  {Do not localize}
   fn_EVP_aes_256_gcm = 'EVP_aes_256_gcm';  {Do not localize}
@@ -20856,32 +20859,24 @@ them in case we use them later.}
   fn_EVP_camellia_128_cfb1 = 'EVP_camellia_128_cfb1'; {Do not localize}
   fn_EVP_camellia_128_cfb8 = 'EVP_camellia_128_cfb8'; {Do not localize}
   fn_EVP_camellia_128_cfb128 = 'EVP_camellia_128_cfb128'; {Do not localize}
-  {$DEFINE EVP_camellia_128_cfb}
-  {$DEFINE EVP_camellia_128_cfb128}
   fn_EVP_camellia_128_ofb = 'EVP_camellia_128_ofb'; {Do not localize}
   fn_EVP_camellia_192_ecb = 'EVP_camellia_192_ecb'; {Do not localize}
   fn_EVP_camellia_192_cbc = 'EVP_camellia_192_cbc'; {Do not localize}
   fn_EVP_camellia_192_cfb1 = 'EVP_camellia_192_cfb1'; {Do not localize}
   fn_EVP_camellia_192_cfb8 = 'EVP_camellia_192_cfb8'; {Do not localize}
   fn_EVP_camellia_192_cfb128 = 'EVP_camellia_192_cfb128'; {Do not localize}
-  {$DEFINE define EVP_camellia_192_cfb}
-  {$DEFINE EVP_camellia_192_cfb128}
   fn_EVP_camellia_192_ofb = 'EVP_camellia_192_ofb'; {Do not localize}
   fn_EVP_camellia_256_ecb = 'EVP_camellia_256_ecb'; {Do not localize}
   fn_EVP_camellia_256_cbc = 'EVP_camellia_256_cbc'; {Do not localize}
   fn_EVP_camellia_256_cfb1 = 'EVP_camellia_256_cfb1'; {Do not localize}
   fn_EVP_camellia_256_cfb8 = 'EVP_camellia_256_cfb8'; {Do not localize}
   fn_EVP_camellia_256_cfb128 = 'EVP_camellia_256_cfb128'; {Do not localize}
-  {$DEFINE EVP_camellia_256_cfb}
-  {$DEFINE EVP_camellia_256_cfb128}
   fn_EVP_camellia_256_ofb = 'EVP_camellia_256_ofb'; {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SEED}
   fn_EVP_seed_ecb = 'EVP_seed_ecb'; {Do not localize}
   fn_EVP_seed_cbc = 'EVP_seed_cbc'; {Do not localize}
   fn_EVP_seed_cfb128 = 'EVP_seed_cfb128'; {Do not localize}
-  {$DEFINE EVP_seed_cfb}
-  {$DEFINE EVP_seed_cfb128}
   fn_EVP_seed_ofb = 'EVP_seed_ofb'; {Do not localize}
   {$ENDIF}
   fn_OPENSSL_add_all_algorithms_noconf = 'OPENSSL_add_all_algorithms_noconf';  {Do not localize}
@@ -21907,6 +21902,7 @@ them in case we use them later.}
   {$ENDIF}
   fn_SSL_CTX_use_PrivateKey_file = 'SSL_CTX_use_PrivateKey_file';  {Do not localize}
   fn_SSL_CTX_use_certificate_file = 'SSL_CTX_use_certificate_file';  {Do not localize}
+  fn_SSL_CTX_use_certificate_chain_file = 'SSL_CTX_use_certificate_chain_file'; {Do not localize}
   {$ifndef OPENSSL_NO_ENGINE}
   {CH fn_SSL_CTX_set_client_cert_engine = 'SSL_CTX_set_client_cert_engine'; } {Do not localize}
   {$endif}
@@ -22553,6 +22549,7 @@ begin
   @SSL_CTX_use_PrivateKey := LoadFunction(fn_SSL_CTX_use_PrivateKey);  //Used by Indy
   @SSL_CTX_use_certificate := LoadFunction(fn_SSL_CTX_use_certificate); //Used by Indy
   @SSL_CTX_use_certificate_file := LoadFunction(fn_SSL_CTX_use_certificate_file);   //Used by Indy
+  @SSL_CTX_use_certificate_chain_file := LoadFunction(fn_SSL_CTX_use_certificate_chain_file,False); //Used by Indy
   @SSL_load_error_strings := LoadFunction(fn_SSL_load_error_strings); //Used by Indy
   @SSL_state_string_long := LoadFunction(fn_SSL_state_string_long); //Used by Indy
   @SSL_alert_desc_string_long := LoadFunction(fn_SSL_alert_desc_string_long);  //Used by Indy
@@ -23317,6 +23314,7 @@ begin
   @SSL_CTX_use_PrivateKey := nil;
   @SSL_CTX_use_certificate := nil;
   @SSL_CTX_use_certificate_file := nil;
+  SSL_CTX_use_certificate_chain_file := nil;
   @SSL_load_error_strings := nil;
   @SSL_state_string_long := nil;
   @SSL_load_error_strings := nil;
@@ -24636,12 +24634,6 @@ begin
 	Result := SSL_ctrl(ssl,SSL_CTRL_SET_TMP_ECDH,0,ecdh);
 end;
 
-function SSL_CTX_add_extra_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
- {$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-	Result := SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,x509);
-end;
-
 {$IFNDEF OPENSSL_NO_TLSEXT}
 function SSL_set_tlsext_host_name(s : PSSL; name : string) : TIdC_LONG;
  {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -24759,6 +24751,66 @@ function SSL_CTX_set_tlsext_ticket_key_cb(ssl : PSSL_CTX; cb : TSSL_CTX_set_tlse
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := SSL_CTX_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB,SSL_callback_ctrl_fp(cb));
+end;
+
+function SSL_CTX_add_extra_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
+ {$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+	Result := SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,x509);
+end;
+
+function SSL_CTX_get_extra_chain_certs(ctx : PSSL_CTX; var px509 : px509) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_GET_EXTRA_CHAIN_CERTS,0,px509);
+end;
+
+function SSL_CTX_get_extra_chain_certs_only(ctx: PSSL_CTX;var PX509 :PX509) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_GET_EXTRA_CHAIN_CERTS,1,px509);
+end;
+
+function SSL_CTX_clear_extra_chain_certs(ctx : PSSL_CTX) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS,0,nil);
+end;
+
+function SSL_CTX_set0_chain(ctx:PSSL_CTX; sk : PSTACK_OF_X509) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN,0,sk);
+end;
+
+function SSL_CTX_set1_chain(ctx:PSSL_CTX; sk : PSTACK_OF_X509) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN,1,sk);
+end;
+
+function SSL_CTX_add0_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN_CERT,0,x509);
+end;
+
+function SSL_CTX_add1_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN_CERT,1,x509);
+end;
+
+function SSL_CTX_get0_chain_certs(ctx :PSSL_CTX; var px509 :PX509) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_GET_CHAIN_CERTS,0,px509)
+end;
+
+function SSL_CTX_clear_chain_certs(ctx :PSSL_CTX) : TIdC_LONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_set0_chain(ctx,nil);
 end;
 
 {$ifndef OPENSSL_NO_HEARTBEATS}
@@ -25299,69 +25351,51 @@ end;
 
 function PEM_read_bio_X509_REQ(bp :PBIO; x : PPX509_REQ; cb :ppem_password_cb; u: Pointer) : PX509_REQ;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
-//PEM_ASN1_read_bio( (char *(*)())d2i_X509_REQ,PEM_STRING_X509_REQ,bp,(char **)x,cb,u)
 begin
   Result := PEM_ASN1_read_bio(d2i_of_void(d2i_X509_REQ),PEM_STRING_X509_REQ,bp, Pointer(x), cb, u);
 end;
 
-//#define	PEM_read_bio_X509_CRL(bp,x,cb,u) (X509_CRL *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_X509_CRL,PEM_STRING_X509_CRL,bp,(char **)x,cb,u)
 function PEM_read_bio_X509_CRL(bp : PBIO; x : PPX509_CRL;cb : ppem_password_cb; u: Pointer) : PX509_CRL;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := PEM_ASN1_read_bio(d2i_of_void(d2i_X509_CRL), PEM_STRING_X509_CRL, bp, Pointer(x), cb, u);
 end;
 
-//#define	PEM_read_bio_RSAPrivateKey(bp,x,cb,u) (RSA *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_RSAPrivateKey,PEM_STRING_RSA,bp,(char **)x,cb,u)
 function PEM_read_bio_RSAPrivateKey(bp : PBIO; x : PPRSA; cb : ppem_password_cb; u: Pointer) : PRSA;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := PEM_ASN1_read_bio(d2i_of_void(d2i_RSAPrivateKey), PEM_STRING_RSA, bp, Pointer(x), cb, u);
 end;
 
-//#define	PEM_read_bio_RSAPublicKey(bp,x,cb,u) (RSA *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_RSAPublicKey,PEM_STRING_RSA_PUBLIC,bp,(char **)x,cb,u)
 function PEM_read_bio_RSAPublicKey(bp : PBIO; x : PPRSA; cb : ppem_password_cb; u: Pointer) : PRSA;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := PEM_ASN1_read_bio(d2i_of_void(d2i_RSAPublicKey),PEM_STRING_RSA_PUBLIC, bp, Pointer(x),cb, u);
 end;
 
-//#define	PEM_read_bio_DSAPrivateKey(bp,x,cb,u) (DSA *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_DSAPrivateKey,PEM_STRING_DSA,bp,(char **)x,cb,u)
 function PEM_read_bio_DSAPrivateKey(bp : PBIO; x : PPDSA; cb : ppem_password_cb; u : Pointer) : PDSA;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := PEM_ASN1_read_bio( d2i_of_void(d2i_DSAPrivateKey),PEM_STRING_DSA,bp,Pointer(x),cb,u);
 end;
 
-//#define	PEM_read_bio_PrivateKey(bp,x,cb,u) (EVP_PKEY *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_PrivateKey,PEM_STRING_EVP_PKEY,bp,(char **)x,cb,u)
 function PEM_read_bio_PrivateKey(bp : PBIO; x : PPEVP_PKEY; cb : ppem_password_cb; u : Pointer) : PEVP_PKEY;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := PEM_ASN1_read_bio( d2i_of_void(d2i_PrivateKey), PEM_STRING_EVP_PKEY, bp, Pointer(x),cb, u);
 end;
 
-//#define	PEM_read_bio_PKCS7(bp,x,cb,u) (PKCS7 *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_PKCS7,PEM_STRING_PKCS7,bp,(char **)x,cb,u)
 function PEM_read_bio_PKCS7(bp : PBIO; x : PPPKCS7; cb : ppem_password_cb; u : Pointer) : PPKCS7;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := PEM_ASN1_read_bio( d2i_of_void(d2i_PKCS7), PEM_STRING_PKCS7,bp,Pointer(x),cb, u);
 end;
 
-//#define	PEM_read_bio_DHparams(bp,x,cb,u) (DH *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_DHparams,PEM_STRING_DHPARAMS,bp,(char **)x,cb,u)
 function PEM_read_bio_DHparams(bp : PBIO; x : PPDH; cb : ppem_password_cb; u : Pointer) : PDH;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := PEM_ASN1_read_bio(d2i_of_void(d2i_DHparams),PEM_STRING_DHPARAMS,bp,Pointer(x),cb,u);
 end;
-
-//#define	PEM_read_bio_DSAparams(bp,x,cb,u) (DSA *)PEM_ASN1_read_bio( \
-//	(char *(*)())d2i_DSAparams,PEM_STRING_DSAPARAMS,bp,(char **)x,cb,u)
 
 function PEM_read_bio_DSAparams(bp : PBIO; x : PPDSA; cb : ppem_password_cb; u : Pointer) : PDSA;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -25369,10 +25403,6 @@ begin
   Result := PEM_ASN1_read_bio( d2i_of_void(d2i_DSAparams),PEM_STRING_DSAPARAMS,bp,Pointer(x),cb,u);
 end;
 
-//#define PEM_read_bio_NETSCAPE_CERT_SEQUENCE(bp,x,cb,u) \
-//		(NETSCAPE_CERT_SEQUENCE *)PEM_ASN1_read_bio( \
-//        (char *(*)())d2i_NETSCAPE_CERT_SEQUENCE,PEM_STRING_X509,bp,\
-//							(char **)x,cb,u)
 function PEM_read_bio_NETSCAPE_CERT_SEQUENCE(bp : PBIO; x : PPNETSCAPE_CERT_SEQUENCE;
   cb : ppem_password_cb; u : Pointer) : PNETSCAPE_CERT_SEQUENCE;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -25510,6 +25540,7 @@ begin
 end;
 
 function PEM_read_bio_DSAPrivateKey(bp : PBIO; x : PPDSA; cb : ppem_password_cb; u : Pointer) : PDSA;{$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := _PEM_read_bio_DSAPrivateKey(bp, x, cb, u);
 end;
@@ -25854,11 +25885,31 @@ begin
 	Result := BIO_ctrl(b,BIO_C_GET_CIPHER_CTX,0,PIdAnsiChar(c_pp));
 end;
 
+{$ifndef OPENSSL_NO_DES}
+function EVP_des_cfb : PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_des_cfb64;
+end;
+
+function EVP_des_ede_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_des_ede_cfb64;
+end;
+
+function EVP_des_ede3_cfb: PEVP_CIPHER;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := EVP_des_ede3_cfb64
+end;
+{$endif}
+
 {$ifndef OPENSSL_NO_IDEA}
 function EVP_idea_cfb: PEVP_CIPHER;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := EVP_idea_cfb64;
+  Result := EVP_idea_cfb64
 end;
 
 {$endif}
@@ -25974,12 +26025,8 @@ begin
   ctx.db := nil;
 end;
 
-///* Borland C seems too stupid to be able to shift and do longs in
-// * the pre-processor :-( */
-//#define ERR_PACK(l,f,r)		(((((unsigned long)l)&0xffL)*0x1000000)| \
-//				((((unsigned long)f)&0xfffL)*0x1000)| \
-//				((((unsigned long)r)&0xfffL)))
 function ERR_PACK(l, f, r : TIdC_INT) : TIdC_ULONG;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := ((TIdC_ULONG(l) and $ff) * $1000000) or
     ((TIdC_ULONG(f) and $fff) * $1000) or
@@ -26252,9 +26299,9 @@ begin
   Result := X509_LOOKUP_ctrl(x, X509_L_ADD_DIR, name, _type, nil);
 end;
 
-
-
 function RAND_bytes(buf : PIdAnsiChar; num : integer) : integer;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+
 begin
   if Assigned(_RAND_bytes) then begin
     Result := _RAND_bytes(buf, num);
@@ -26264,6 +26311,8 @@ begin
 end;
 
 function RAND_pseudo_bytes(buf : PIdAnsiChar; num : integer) : integer;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+
 begin
   if Assigned(_RAND_pseudo_bytes) then begin
     Result := _RAND_pseudo_bytes(buf, num);
@@ -26273,6 +26322,8 @@ begin
 end;
 
 procedure RAND_seed(buf : PIdAnsiChar; num : integer);
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+
 begin
   if Assigned(_RAND_seed) then begin
     _RAND_seed(buf, num);
@@ -26280,6 +26331,8 @@ begin
 end;
 
 procedure RAND_add(buf : PIdAnsiChar; num : integer; entropy : integer);
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+
 begin
   if Assigned(_RAND_add) then begin
     _RAND_add(buf, num, entropy);
@@ -26287,6 +26340,8 @@ begin
 end;
 
 function RAND_status() : integer;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+
 begin
   if Assigned(_RAND_status) then begin
     Result := _RAND_status();
@@ -26297,6 +26352,8 @@ end;
 
 {$IFDEF SYS_WIN}
 function RAND_event(iMsg : UINT; wp : wparam; lp : lparam) : integer;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+
 begin
   if Assigned(_RAND_event) then begin
     Result := _RAND_event(iMsg, wp, lp);
@@ -26306,6 +26363,8 @@ begin
 end;
 
 procedure RAND_screen();
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+
 begin
   if Assigned(_RAND_screen) then begin
     _RAND_screen();
