@@ -89,6 +89,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdFTPList;
 
 type
@@ -289,7 +290,7 @@ uses
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   {$ENDIF}
-  IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdContainers, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 type
   {$IFDEF HAS_GENERICS_TObjectList}

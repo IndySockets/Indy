@@ -54,10 +54,12 @@ from the UserPass mechanism and link to a UserPass provider.
 unit IdSASL;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
+  IdGlobal,
   IdBaseComponent,
   IdTCPConnection,
   IdException;
@@ -140,7 +142,7 @@ uses
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Types,
   {$ENDIF}
-  IdGlobal, SysUtils;
+  SysUtils;
 
 { TIdSASL }
 

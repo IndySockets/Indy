@@ -57,9 +57,11 @@ unit IdEcho;
 {*******************************************************}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  IdGlobal,
   IdAssignedNumbers,
   IdTCPClient;
 
@@ -81,12 +83,11 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-	  {$IFDEF DARWIN}
+    {$IFDEF DARWIN}
   Macapi.CoreServices,
-	  {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   IdComponent,
-  IdGlobal,
   IdTCPConnection,
   IdIOHandler;
 

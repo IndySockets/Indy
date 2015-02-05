@@ -5,6 +5,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  IdGlobal,
   IdSASL,
   IdSASLUserPass;
 
@@ -51,7 +52,7 @@ Level        |	Sent by Client               |	Accepted by Server
 implementation
 
 uses
-  IdFIPS, IdNTLMv2, IdGlobal;
+  IdFIPS, IdNTLMv2;
   
 //uses IdNTLM;
 

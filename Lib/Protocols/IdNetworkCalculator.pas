@@ -39,6 +39,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdBaseComponent,
   IdStruct;
   
@@ -136,7 +137,7 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
+  IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
 
 function MakeLongWordIP(const One, Two, Three, Four: Byte): UInt32;
 begin

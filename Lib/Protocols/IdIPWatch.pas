@@ -65,10 +65,12 @@ unit IdIPWatch;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
+  IdGlobal,
   IdComponent, IdThread;
 
 const
@@ -146,7 +148,7 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  IdGlobal, IdStack, SysUtils;
+  IdStack, SysUtils;
 
 { TIdIPWatch }
 

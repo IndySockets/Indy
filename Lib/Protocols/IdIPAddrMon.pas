@@ -92,6 +92,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdComponent,
   IdThread;
 
@@ -159,7 +160,6 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  IdGlobal,
   IdStack,
   SysUtils;
 

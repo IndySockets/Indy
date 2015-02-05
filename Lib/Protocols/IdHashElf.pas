@@ -25,9 +25,11 @@
 unit IdHashElf;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  IdGlobal,
   IdHash;
 
 type

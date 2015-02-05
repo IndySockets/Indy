@@ -38,6 +38,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  IdGlobal,
   IdHash;
 
 type
@@ -55,7 +56,7 @@ type
   end;
 
 implementation
-  
+
 const
   CRC16Table: array[0..255] of UInt16 =
   ( $0000, $C0C1, $C181, $0140, $C301, $03C0, $0280, $C241, $C601, $06C0, $0780,

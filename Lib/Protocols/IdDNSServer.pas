@@ -930,9 +930,11 @@ end;
 
 { TIdDNSServer }
 
+{$I IdDeprecatedImplBugOff.inc}
 function TIdDNS_UDPServer.CompleteQuery(DNSHeader : TDNSHeader; Question: string;
   OriginalQuestion: TIdBytes; var Answer: TIdBytes; QType, QClass: UInt16;
   DNSResolver : TIdDNSResolver): string;
+{$I IdDeprecatedImplBugOn.inc}
 var
   IsMyDomains : Boolean;
   LAnswer: TIdBytes;

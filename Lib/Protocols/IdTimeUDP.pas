@@ -43,12 +43,14 @@
 unit IdTimeUDP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
   {$ENDIF}
+  IdGlobal,
   IdAssignedNumbers, IdUDPBase, IdGlobalProtocols, IdUDPClient;
 
 type
@@ -76,8 +78,8 @@ type
     as we have done that here}
     property RoundTripDelay: UInt32 read FRoundTripDelay;
   published
-
   end;
+
   TIdTimeUDP = class(TIdCustomTimeUDP)
   published
     {This property is used to set the Date that the Time server bases its
@@ -97,8 +99,7 @@ uses
     {$ENDIF}
   Posix.SysTime,
   {$ENDIF}
-
-  IdGlobal,  IdStack, SysUtils; //Sysutils added to facilitate inlining.
+  IdStack, SysUtils; //Sysutils added to facilitate inlining.
 
 { TIdCustomTimeUDP }
 

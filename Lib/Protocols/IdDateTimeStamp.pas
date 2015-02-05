@@ -132,6 +132,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  IdGlobal,
   IdBaseComponent;
 
 const
@@ -479,7 +480,6 @@ type
 implementation
 
 uses
-  IdGlobal,
   IdGlobalProtocols,
   IdStrings,
   SysUtils;

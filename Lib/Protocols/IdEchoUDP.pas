@@ -31,8 +31,11 @@
 unit IdEchoUDP;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
+  IdGlobal,
   IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
 type
@@ -51,13 +54,12 @@ type
 
 implementation
 
+{$IFDEF USE_VCL_POSIX}
+  {$IFDEF DARWIN}
 uses
-  {$IFDEF USE_VCL_POSIX}
-	  {$IFDEF DARWIN}
-  Macapi.CoreServices,
-	  {$ENDIF}
+  Macapi.CoreServices;
   {$ENDIF}
-  IdGlobal;
+{$ENDIF}
 
 { TIdIdEchoUDP }
 

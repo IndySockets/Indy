@@ -90,6 +90,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  IdGlobal,
   IdEMailAddress,
   IdMessage,
   IdMessageClient,
@@ -175,7 +176,7 @@ uses
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Classes,
   {$ENDIF}
-  IdAssignedNumbers, IdException, IdGlobal,
+  IdAssignedNumbers, IdException,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,
   IdSSL,

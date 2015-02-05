@@ -49,9 +49,12 @@
 unit IdFTPListTypes;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
+  IdGlobal,
   IdFTPList;
 
 type
@@ -256,7 +259,7 @@ implementation
 
 uses
   IdException,
-  IdFTPCommon, IdGlobal, SysUtils;
+  IdFTPCommon, SysUtils;
 
 { TIdMinimalFTPListItem }
 

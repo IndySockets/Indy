@@ -43,6 +43,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
@@ -96,7 +97,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 { TIdFTPLPMPiXBase }
 

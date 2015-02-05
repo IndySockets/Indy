@@ -75,6 +75,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdBaseComponent;
 
 { TODO:
@@ -460,7 +461,6 @@ implementation
 uses
   IdCoderQuotedPrintable,
   IdException,
-  IdGlobal,
   IdGlobalProtocols, SysUtils;
 
 const VCardProperties : array [0..27] of string = (

@@ -43,6 +43,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdFTPList, IdFTPListParseBase;
 
 type
@@ -78,7 +79,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
+  IdFTPCommon, IdGlobalProtocols, IdStrings,
   SysUtils;
 
 { TIdFTPLPXecomMicroRTOS }

@@ -36,6 +36,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
@@ -156,7 +157,7 @@ const
 implementation
 
 uses
-  IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
+  IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPTandemGuardian }
 

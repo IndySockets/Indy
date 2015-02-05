@@ -66,6 +66,7 @@ interface
 
 uses
   Classes,
+  IdGlobal,
   IdBaseComponent,
   IdAssignedNumbers, IdContext,
   IdCustomTCPServer,
@@ -131,7 +132,7 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdResourceStringsProtocols, SysUtils;
+  IdException, IdResourceStringsProtocols, SysUtils;
 
 {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdTelnetServer.Create(AOwner: TComponent);

@@ -2700,6 +2700,7 @@ var
 
 begin
   Result := False;
+  LTextBuf := nil; // keep the compiler happy
   CheckConnectionState(csSelected);
 
   LCmd := NewCmdCounter + ' ';                    {Do not Localize}
@@ -3149,6 +3150,8 @@ var
   LMsgIO: TIdIOHandlerStreamMsg;
 begin
   Result := False;
+  LHeadersasBytes := nil; // keep the compiler happy
+
   CheckConnectionState([csAuthenticated, csSelected]);
   if Length(AMBName) <> 0 then begin
     LFlags := MessageFlagSetToStr(AFlags);

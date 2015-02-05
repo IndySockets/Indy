@@ -84,12 +84,14 @@ unit IdTime;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
   {$ENDIF}
+  IdGlobal,
   IdAssignedNumbers, IdGlobalProtocols, IdTCPClient;
 
 const
@@ -145,7 +147,7 @@ uses
     {$ENDIF}
   Posix.SysTime,
   {$ENDIF}
-  IdGlobal, IdTCPConnection;
+  IdTCPConnection;
 
 { TIdCustomTime }
 

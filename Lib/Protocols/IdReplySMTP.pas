@@ -98,10 +98,12 @@
 unit IdReplySMTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
+  IdGlobal,
   IdException,
   IdReply,
   IdReplyRFC;
@@ -315,7 +317,7 @@ const
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
 
 { TIdSMTPEnhancedCode }
 

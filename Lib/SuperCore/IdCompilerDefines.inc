@@ -875,8 +875,8 @@
       {$DEFINE HAS_DEPRECATED}
       {$DEFINE HAS_SYMBOL_PLATFORM}
       {$DEFINE HAS_UNIT_PLATFORM}
-      {$IFDEF VCL_60}
-        // Delphi 6 has an annoying bug that if a class method is declared as
+      {$IFNDEF VCL_8_OR_ABOVE}
+        // Delphi 6 and 7 have an annoying bug that if a class method is declared as
         // deprecated, the compiler will emit a "symbol is deprecated" warning
         // on the method's implementation!  So we will have to wrap implementations
         // of deprecated methods with {$WARN SYMBOL_DEPRECATED OFF} directives
