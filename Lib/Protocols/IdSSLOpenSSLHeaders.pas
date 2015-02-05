@@ -26300,8 +26300,6 @@ begin
 end;
 
 function RAND_bytes(buf : PIdAnsiChar; num : integer) : integer;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-
 begin
   if Assigned(_RAND_bytes) then begin
     Result := _RAND_bytes(buf, num);
@@ -26311,8 +26309,6 @@ begin
 end;
 
 function RAND_pseudo_bytes(buf : PIdAnsiChar; num : integer) : integer;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-
 begin
   if Assigned(_RAND_pseudo_bytes) then begin
     Result := _RAND_pseudo_bytes(buf, num);
@@ -26322,8 +26318,6 @@ begin
 end;
 
 procedure RAND_seed(buf : PIdAnsiChar; num : integer);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-
 begin
   if Assigned(_RAND_seed) then begin
     _RAND_seed(buf, num);
@@ -26331,8 +26325,6 @@ begin
 end;
 
 procedure RAND_add(buf : PIdAnsiChar; num : integer; entropy : integer);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-
 begin
   if Assigned(_RAND_add) then begin
     _RAND_add(buf, num, entropy);
@@ -26340,8 +26332,6 @@ begin
 end;
 
 function RAND_status() : integer;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-
 begin
   if Assigned(_RAND_status) then begin
     Result := _RAND_status();
@@ -26352,8 +26342,6 @@ end;
 
 {$IFDEF SYS_WIN}
 function RAND_event(iMsg : UINT; wp : wparam; lp : lparam) : integer;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-
 begin
   if Assigned(_RAND_event) then begin
     Result := _RAND_event(iMsg, wp, lp);
@@ -26363,8 +26351,6 @@ begin
 end;
 
 procedure RAND_screen();
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-
 begin
   if Assigned(_RAND_screen) then begin
     _RAND_screen();
