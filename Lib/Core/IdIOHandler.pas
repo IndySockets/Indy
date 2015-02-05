@@ -1086,9 +1086,19 @@ begin
 end;
 
 procedure TIdIOHandler.Write(AValue: Int64; AConvert: Boolean = True);
+{$IFDEF VCL_60}
+var
+  h: Int64;
+{$ENDIF}
 begin
   if AConvert then begin
+    {$IFDEF VCL_60}
+    // assigning to a local variable to avoid an "Internal error URW699" compiler error in Delphi 6
+    h := GStack.HostToNetwork(UInt64(AValue));
+    AValue := h;
+    {$ELSE}
     AValue := Int64(GStack.HostToNetwork(UInt64(AValue)));
+    {$ENDIF}
   end;
   Write(ToBytes(AValue));
 end;
@@ -1337,11 +1347,20 @@ end;
 function TIdIOHandler.ReadInt64(AConvert: boolean): Int64;
 var
   LBytes: TIdBytes;
+  {$IFDEF VCL_60}
+  h: Int64;
+  {$ENDIF}
 begin
   ReadBytes(LBytes, SizeOf(Int64), False);
   Result := BytesToInt64(LBytes);
   if AConvert then begin
+    {$IFDEF VCL_60}
+    // assigning to a local variable to avoid an "Internal error URW699" compiler error in Delphi 6
+    h := GStack.NetworkToHost(UInt64(Result));
+    Result := h;
+    {$ELSE}
     Result := Int64(GStack.NetworkToHost(UInt64(Result)));
+    {$ENDIF}
   end;
 end;
 

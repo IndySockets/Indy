@@ -124,7 +124,7 @@ type
 
   PSECURITY_STATUS = ^SECURITY_STATUS;
   {$NODEFINE PSECURITY_STATUS}
-  SECURITY_STATUS = LONG;
+  SECURITY_STATUS = Longint{LONG}; // LONG is not defined in Windows.pas prior to Delphi 8
   {$EXTERNALSYM SECURITY_STATUS}
 
 //

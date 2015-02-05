@@ -561,6 +561,56 @@ uses
   {$ENDIF}
   IdException;
 
+{$IFNDEF HAS_Int8}
+type
+  Int8 = {$IFDEF DOTNET}System.SByte{$ELSE}Shortint{$ENDIF};
+  {$NODEFINE Int8}
+{$ENDIF}
+
+{$IFNDEF HAS_UInt8}
+type
+  UInt8 = {$IFDEF DOTNET}System.Byte{$ELSE}Byte{$ENDIF};
+  {$NODEFINE UInt8}
+{$ENDIF}
+
+{$IFNDEF HAS_Int16}
+type
+  Int16 = Smallint;
+  {$NODEFINE Int16}
+{$ENDIF}
+
+{$IFNDEF HAS_UInt16}
+type
+  UInt16 = Word;
+  {$NODEFINE UInt16}
+{$ENDIF}
+
+{$IFNDEF HAS_Int32}
+type
+  Int32 = Integer;
+  {$NODEFINE Int32}
+{$ENDIF}
+
+{$IFNDEF HAS_UInt32}
+type
+  UInt32 = Cardinal;
+  {$NODEFINE UInt32}
+{$ENDIF}
+
+{$IFNDEF HAS_UInt64}
+type
+  UInt64 = {$IFDEF HAS_QWord}QWord{$ELSE}Int64{$ENDIF};
+  {$NODEFINE UInt64}
+{$ENDIF}
+
+{$IFDEF HAS_UInt64}
+  {$DEFINE UInt64_IS_NATIVE}
+{$ELSE}
+  {$IFDEF HAS_QWord}
+    {$DEFINE UInt64_IS_NATIVE}
+  {$ENDIF}
+{$ENDIF}
+
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
   are permitted to do so except .pas files which are counterparts to dfm/xfm files, and only for
@@ -578,49 +628,6 @@ const
   MinsPerDay    = HoursPerDay * MinsPerHour;
   SecsPerDay    = MinsPerDay * SecsPerMin;
   MSecsPerDay   = SecsPerDay * MSecsPerSec;
-  {$ENDIF}
-
-  {$IFNDEF HAS_Int8}
-  Int8 = {$IFDEF DOTNET}System.SByte{$ELSE}Shortint{$ENDIF};
-  {$NODEFINE Int8}
-  {$ENDIF}
-
-  {$IFNDEF HAS_UInt8}
-  UInt8 = {$IFDEF DOTNET}System.Byte{$ELSE}Byte{$ENDIF};
-  {$NODEFINE UInt8}
-  {$ENDIF}
-
-  {$IFNDEF HAS_Int16}
-  Int16 = Smallint;
-  {$NODEFINE Int16}
-  {$ENDIF}
-
-  {$IFNDEF HAS_UInt16}
-  UInt16 = Word;
-  {$NODEFINE UInt16}
-  {$ENDIF}
-
-  {$IFNDEF HAS_Int32}
-  Int32 = Integer;
-  {$NODEFINE Int32}
-  {$ENDIF}
-
-  {$IFNDEF HAS_UInt32}
-  UInt32 = Cardinal;
-  {$NODEFINE UInt32}
-  {$ENDIF}
-
-  {$IFNDEF HAS_UInt64}
-  UInt64 = {$IFDEF HAS_QWord}QWord{$ELSE}Int64{$ENDIF};
-  {$NODEFINE UInt64}
-  {$ENDIF}
-
-  {$IFDEF HAS_UInt64}
-    {$DEFINE UInt64_IS_NATIVE}
-  {$ELSE}
-    {$IFDEF HAS_QWord}
-      {$DEFINE UInt64_IS_NATIVE}
-    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF DOTNET}
@@ -5050,20 +5057,20 @@ end;
 
 {$IFDEF WINDOWS}
 type
-  TGetTickCount64Func = function: TIdTicks; stdcall;
+  TGetTickCount64Func = function: UInt64; stdcall;
 
 var
   GetTickCount64: TGetTickCount64Func = nil;
 
-function Impl_GetTickCount64: TIdTicks; stdcall;
+function Impl_GetTickCount64: UInt64; stdcall;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   // TODO: implement some kind of accumulator so the Result
   // keeps growing even when GetTickCount() wraps back to 0
-  Result := Windows.GetTickCount;
+  Result := UInt64(Windows.GetTickCount);
 end;
 
-function Stub_GetTickCount64: TIdTicks; stdcall;
+function Stub_GetTickCount64: UInt64; stdcall;
 
   function GetImpl: Pointer;
   begin
@@ -5199,7 +5206,7 @@ begin
   end;
       {$ENDIF}
     {$ENDIF}
-  Result := GetTickCount64;
+  Result := TIdTicks(GetTickCount64());
   {$ENDIF}
   {$IFDEF DOTNET}
   // Must cast to a cardinal
@@ -5238,9 +5245,9 @@ function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
-    Result := ANewTickCount - AOldTickCount;
+    Result := TIdTicks(ANewTickCount - AOldTickCount);
   end else begin
-    Result := High(TIdTicks) - AOldTickCount + ANewTickCount;
+    Result := TIdTicks(High(TIdTicks) - AOldTickCount + ANewTickCount);
   end;
 end;
 
