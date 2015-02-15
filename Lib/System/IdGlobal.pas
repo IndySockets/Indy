@@ -2908,7 +2908,7 @@ end;
 
 {$IFDEF USE_ICONV}
 function DoIconvBytesToChars(const ACharset: string; const ABytes: PByte; AByteCount: Integer;
-  AChars: PWideChar; ACharCount: Integer; ACharsIsTemp: Boolean): Integer;
+  AChars: PWideChar; ACharCount: Integer; AMaxCharSize: Integer; ACharsIsTemp: Boolean): Integer;
 var
   LSrcBytesPtr: PByte;
   LBytesPtr, LCharsPtr: PAnsiChar;
@@ -2923,7 +2923,7 @@ begin
     Exit;
   end;
 
-  LIconv := CreateIconvHandle(FCharSet, True);
+  LIconv := CreateIconvHandle(ACharset, True);
   try
     // RLebeau: iconv() does not allow for querying a pre-calculated character count
     // for the input like Microsoft does, so have to determine the max characters
@@ -2946,7 +2946,7 @@ begin
     // do the conversion
     LSrcBytesPtr := ABytes;
     repeat
-      LMaxBytesSize := IndyMin(AByteCount, FMaxCharSize);
+      LMaxBytesSize := IndyMin(AByteCount, AMaxCharSize);
       LDestCharSize := ACharCount * SizeOf(WideChar);
 
       if LSrcBytesPtr = nil then
@@ -2968,7 +2968,7 @@ begin
 
       // TODO: figure out a better way to calculate the number of input bytes
       // needed to generate a single UTF-16 output sequence...
-      LMaxBytesSize := IndyMin(AByteCount, FMaxCharSize);
+      LMaxBytesSize := IndyMin(AByteCount, AMaxCharSize);
       LConverted := False;
       for I := 1 to LMaxBytesSize do
       begin
@@ -3024,7 +3024,7 @@ var
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
-  Result := DoIconvBytesToChars(FCharset, ABytes, AByteCount, &LChars[0], Length(LChars), True);
+  Result := DoIconvBytesToChars(FCharSet, ABytes, AByteCount, @LChars[0], Length(LChars), FMaxCharSize, True);
   {$ELSE}
     {$IFDEF HAS_UnicodeFromLocaleChars}
   Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, nil, 0);
@@ -3043,7 +3043,7 @@ function TIdMBCSEncoding.GetChars(const ABytes: PByte; AByteCount: Integer; ACha
   ACharCount: Integer): Integer;
 begin
   {$IFDEF USE_ICONV}
-  Result := DoIconvBytesToChars(FCharset, ABytes, AByteCount, AChars, ACharCount, False);
+  Result := DoIconvBytesToChars(FCharSet, ABytes, AByteCount, AChars, ACharCount, FMaxCharSize, False);
   {$ELSE}
     {$IFDEF HAS_UnicodeFromLocaleChars}
   Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, AChars, ACharCount);
@@ -5603,11 +5603,7 @@ begin
     3: Result := (AInt and POWER_3);
     2: Result := (AInt and POWER_2);
   else
-  {$IFDEF FPC}
-    Result := Lo(AInt and POWER_1);
-  {$ELSE}
-    Result := AInt and POWER_1;
-  {$ENDIF}
+    Result := (AInt and POWER_1);
   end;
 end;
 
@@ -8144,7 +8140,7 @@ begin
     LNumToCopy := IndyMin(Size - Position, Count);
     if LNumToCopy > 0 then
     begin
-      System.Move(Buffer, Pointer(PtrInt(Memory) + Position)^, Count);
+      System.Move(Buffer, Pointer(PtrInt(Memory) + Position)^, LNumToCopy);
       TIdStreamHelper.Seek(Self, LNumToCopy, soCurrent);
       Result := LNumToCopy;
     end;
