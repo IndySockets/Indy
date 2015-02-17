@@ -47,63 +47,63 @@ uses
    IdGlobal, IdRawHeaders, IdStack;
 
 // ARP
-procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: Word;
-  const AHwAddressLen, AProtocolLen: Byte; const AnOpType: Word;
+procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: UInt16;
+  const AHwAddressLen, AProtocolLen: UInt8; const AnOpType: UInt16;
   ASenderHw: TIdEtherAddr; ASenderPr: TIdInAddr; ATargetHw: TIdEtherAddr;
   ATargetPr: TIdInAddr; const APayload: TIdBytes; var VBuffer: TIdBytes);
 
 // DNS
-procedure IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs, ANumAuthRecs, ANumAddRecs: Word;
+procedure IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs, ANumAuthRecs, ANumAddRecs: UInt16;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 
 // Ethernet
-procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: Word;
+procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: UInt16;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 
 // ICMP
-procedure IdRawBuildIcmpEcho(AType, ACode: Byte; AnId, ASeq: Word;
+procedure IdRawBuildIcmpEcho(AType, ACode: UInt8; AnId, ASeq: UInt16;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
-procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: UInt32;
+procedure IdRawBuildIcmpMask(AType, ACode: UInt8; AnId, ASeq: UInt16; AMask: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
-procedure IdRawBuildIcmpRedirect(const AType, ACode: Byte; AGateway: TIdInAddr;
-  const AnOrigLen: Word; const AnOrigTos: Byte; const AnOrigId, AnOrigFrag: Word;
-  const AnOrigTtl, AnOrigProtocol: Byte; AnOrigSource, AnOrigDest: TIdInAddr;
+procedure IdRawBuildIcmpRedirect(const AType, ACode: UInt8; AGateway: TIdInAddr;
+  const AnOrigLen: UInt16; const AnOrigTos: UInt8; const AnOrigId, AnOrigFrag: UInt16;
+  const AnOrigTtl, AnOrigProtocol: UInt8; AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
-procedure IdRawBuildIcmpTimeExceed(const AType, ACode: Byte; const AnOrigLen: Word;
-  const AnOrigTos: Byte; const AnOrigId, AnOrigFrag: Word;
-  const AnOrigTtl, AnOrigProtocol: Byte; const AnOrigSource, AnOrigDest: TIdInAddr;
+procedure IdRawBuildIcmpTimeExceed(const AType, ACode: UInt8; const AnOrigLen: UInt16;
+  const AnOrigTos: UInt8; const AnOrigId, AnOrigFrag: UInt16;
+  const AnOrigTtl, AnOrigProtocol: UInt8; const AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
-procedure IdRawBuildIcmpTimestamp(const AType, ACode: Byte; const AnId, ASeq: Word;
+procedure IdRawBuildIcmpTimestamp(const AType, ACode: UInt8; const AnId, ASeq: UInt16;
   const AnOtime, AnRtime, ATtime: TIdNetTime; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
-procedure IdRawBuildIcmpUnreach(AType, ACode: Byte; AnOrigLen: Word;
-  AnOrigTos: Byte; AnOrigId, AnOrigFrag: Word;  AnOrigTtl, AnOrigProtocol: Byte;
+procedure IdRawBuildIcmpUnreach(AType, ACode: UInt8; AnOrigLen: UInt16;
+  AnOrigTos: UInt8; AnOrigId, AnOrigFrag: UInt16;  AnOrigTtl, AnOrigProtocol: UInt8;
   AnOrigSource, AnOrigDest: TIdInAddr; const AnOrigPayload, APayloadSize: Integer;
   var VBuffer: TIdBytes);
 
 // IGMP
-procedure IdRawBuildIgmp(AType, ACode: Byte; AnIp: TIdInAddr;
-  const APayload: Word; var VBuffer: TIdBytes);
+procedure IdRawBuildIgmp(AType, ACode: UInt8; AnIp: TIdInAddr;
+  const APayload: UInt16; var VBuffer: TIdBytes);
 
 // IP
-procedure IdRawBuildIp(ALen: Word; ATos: Byte; AnId, AFrag: Word;
-  ATtl, AProtocol: Byte; ASource, ADest: TIdInAddr; const APayload: TIdBytes;
+procedure IdRawBuildIp(ALen: UInt16; ATos: UInt8; AnId, AFrag: UInt16;
+  ATtl, AProtocol: UInt8; ASource, ADest: TIdInAddr; const APayload: TIdBytes;
   var VBuffer: TIdBytes; const AIdx: Integer = 0);
 
 // RIP
-procedure IdRawBuildRip(const ACommand, AVersion: Byte;
-  const ARoutingDomain, AnAddressFamily, ARoutingTag: Word;
+procedure IdRawBuildRip(const ACommand, AVersion: UInt8;
+  const ARoutingDomain, AnAddressFamily, ARoutingTag: UInt16;
   const AnAddr, AMask, ANextHop, AMetric: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 
 // TCP
-procedure IdRawBuildTcp(const ASourcePort, ADestPort: Word;
-  const ASeq, AnAck: UInt32; const AControl: Byte;
-  const AWindowSize, AnUrgent: Word; const APayload: TIdBytes;
+procedure IdRawBuildTcp(const ASourcePort, ADestPort: UInt16;
+  const ASeq, AnAck: UInt32; const AControl: UInt8;
+  const AWindowSize, AnUrgent: UInt16; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
 
 // UDP
-procedure IdRawBuildUdp(const ASourcePort, ADestPort: Word;
+procedure IdRawBuildUdp(const ASourcePort, ADestPort: UInt16;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 
 implementation
@@ -111,8 +111,8 @@ implementation
 uses
   SysUtils;
 
-procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: Word;
-  const AHwAddressLen, AProtocolLen: Byte; const AnOpType: Word;
+procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: UInt16;
+  const AHwAddressLen, AProtocolLen: UInt8; const AnOpType: UInt16;
   ASenderHw: TIdEtherAddr; ASenderPr: TIdInAddr; ATargetHw: TIdEtherAddr;
   ATargetPr: TIdInAddr; const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
@@ -154,7 +154,7 @@ begin
 end;
 
 procedure IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs,
-  ANumAuthRecs, ANumAddRecs: Word; const APayload: TIdBytes;
+  ANumAuthRecs, ANumAddRecs: UInt16; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
 var
   HdrDns: TIdDnsHdr;
@@ -191,7 +191,7 @@ begin
   end;
 end;
 
-procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: Word;
+procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: UInt16;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrEth: TIdEthernetHdr;
@@ -226,13 +226,13 @@ begin
 end;
 
 // TODO: check nibbles in IP header
-procedure IdRawBuildIp(ALen: Word; ATos: Byte; AnId, AFrag: Word; ATtl, AProtocol: Byte;
+procedure IdRawBuildIp(ALen: UInt16; ATos: UInt8; AnId, AFrag: UInt16; ATtl, AProtocol: UInt8;
   ASource, ADest: TIdInAddr; const APayload: TIdBytes; var VBuffer: TIdBytes;
   const AIdx: Integer = 0);
 var
   HdrIp: TIdIpHdr;
   LIdx: UInt32;
-   LLen : UInt32;
+  LLen : UInt32;
 begin
   // check input
   LIdx := Id_IP_HSIZE + Length(APayload) + AIdx;
@@ -246,7 +246,7 @@ begin
   try
     HdrIp.ip_verlen := (4 shl 4) + (Id_IP_HSIZE div 4);     // IPv4 shl 4, 20 bytes div 4
     HdrIp.ip_tos    := ATos;
-    HdrIp.ip_len    := GStack.HostToNetwork(Id_IP_HSIZE + ALen);
+    HdrIp.ip_len    := GStack.HostToNetwork(UInt16(ALen + Id_IP_HSIZE));
     HdrIp.ip_id     := GStack.HostToNetwork(AnId);
     HdrIp.ip_off    := GStack.HostToNetwork(AFrag);
     HdrIp.ip_ttl    := ATtl;
@@ -268,7 +268,7 @@ begin
   end;
 end;
 
-procedure IdRawBuildIcmpEcho(AType, ACode: Byte; AnId, ASeq: Word;
+procedure IdRawBuildIcmpEcho(AType, ACode: UInt8; AnId, ASeq: UInt16;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
@@ -332,7 +332,7 @@ begin
   Inc(VIndex, 4);
 end;
 
-procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: UInt32;
+procedure IdRawBuildIcmpMask(AType, ACode: UInt8; AnId, ASeq: UInt16; AMask: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdICMPMask;
@@ -368,8 +368,8 @@ begin
   end;
 end;
 
-procedure IdRawBuildIcmpUnreach(AType, ACode: Byte; AnOrigLen: Word;
-  AnOrigTos: Byte; AnOrigId, AnOrigFrag: Word; AnOrigTtl, AnOrigProtocol: Byte;
+procedure IdRawBuildIcmpUnreach(AType, ACode: UInt8; AnOrigLen: UInt16;
+  AnOrigTos: UInt8; AnOrigId, AnOrigFrag: UInt16; AnOrigTtl, AnOrigProtocol: UInt8;
   AnOrigSource, AnOrigDest: TIdInAddr; const AnOrigPayload, APayloadSize: Integer;
   var VBuffer: TIdBytes);
 var
@@ -404,9 +404,9 @@ begin
   end;
 end;
 
-procedure IdRawBuildIcmpTimeExceed(const AType, ACode: Byte; const AnOrigLen: Word;
-  const AnOrigTos: Byte; const AnOrigId, AnOrigFrag: Word;
-  const AnOrigTtl, AnOrigProtocol: Byte; const AnOrigSource, AnOrigDest: TIdInAddr;
+procedure IdRawBuildIcmpTimeExceed(const AType, ACode: UInt8; const AnOrigLen: UInt16;
+  const AnOrigTos: UInt8; const AnOrigId, AnOrigFrag: UInt16;
+  const AnOrigTtl, AnOrigProtocol: UInt8; const AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
@@ -482,7 +482,7 @@ begin
   Ficmp_dun.WriteStruct(VBytes, VIndex);
 end;
 
-procedure IdRawBuildIcmpTimestamp(const AType, ACode: Byte; const AnId, ASeq: Word;
+procedure IdRawBuildIcmpTimestamp(const AType, ACode: UInt8; const AnId, ASeq: UInt16;
   const AnOtime, AnRtime, ATtime: TIdNetTime; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
 var
@@ -520,9 +520,9 @@ begin
   end;
 end;
 
-procedure IdRawBuildIcmpRedirect(const AType, ACode: Byte; AGateway: TIdInAddr;
-  const AnOrigLen: Word; const AnOrigTos: Byte; const AnOrigId, AnOrigFrag: Word;
-  const AnOrigTtl, AnOrigProtocol: Byte; AnOrigSource, AnOrigDest: TIdInAddr;
+procedure IdRawBuildIcmpRedirect(const AType, ACode: UInt8; AGateway: TIdInAddr;
+  const AnOrigLen: UInt16; const AnOrigTos: UInt8; const AnOrigId, AnOrigFrag: UInt16;
+  const AnOrigTtl, AnOrigProtocol: UInt8; AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
@@ -554,8 +554,8 @@ begin
   end;
 end;
 
-procedure IdRawBuildIgmp(AType, ACode: Byte; AnIp: TIdInAddr;
-  const APayload: Word; var VBuffer: TIdBytes);
+procedure IdRawBuildIgmp(AType, ACode: UInt8; AnIp: TIdInAddr;
+  const APayload: UInt16; var VBuffer: TIdBytes);
 var
   HdrIgmp: TIdIgmpHdr;
   LIdx: UInt32;
@@ -587,8 +587,8 @@ begin
   end;
 end;
 
-procedure IdRawBuildRip(const ACommand, AVersion: Byte;
-  const ARoutingDomain, AnAddressFamily, ARoutingTag: Word;
+procedure IdRawBuildRip(const ACommand, AVersion: UInt8;
+  const ARoutingDomain, AnAddressFamily, ARoutingTag: UInt16;
   const AnAddr, AMask, ANextHop, AMetric: UInt32;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
@@ -630,9 +630,9 @@ begin
 end;
 
 // TODO: check nibbles in TCP header
-procedure IdRawBuildTcp(const ASourcePort, ADestPort: Word;
-  const ASeq, AnAck: UInt32; const AControl: Byte;
-  const AWindowSize, AnUrgent: Word; const APayload: TIdBytes;
+procedure IdRawBuildTcp(const ASourcePort, ADestPort: UInt16;
+  const ASeq, AnAck: UInt32; const AControl: UInt8;
+  const AWindowSize, AnUrgent: UInt16; const APayload: TIdBytes;
   var VBuffer: TIdBytes);
 var
   HdrTcp: TIdTcpHdr;
@@ -671,7 +671,7 @@ begin
   end;
 end;
 
-procedure IdRawBuildUdp(const ASourcePort, ADestPort: Word;
+procedure IdRawBuildUdp(const ASourcePort, ADestPort: UInt16;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrUdp: TIdUdpHdr;
