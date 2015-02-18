@@ -8140,7 +8140,7 @@ begin
     LNumToCopy := IndyMin(Size - Position, Count);
     if LNumToCopy > 0 then
     begin
-      System.Move(Buffer, Pointer(PtrInt(Memory) + Position)^, LNumToCopy);
+      System.Move(Buffer, Pointer(PtrUInt(Memory) + Position)^, LNumToCopy);
       TIdStreamHelper.Seek(Self, LNumToCopy, soCurrent);
       Result := LNumToCopy;
     end;

@@ -497,7 +497,15 @@ begin
   try
     edtPort.Items.Add(PortDescription(0));
     for i := 0 to IdPorts.Count - 1 do begin
-      edtPort.Items.Add(PortDescription(PtrInt(IdPorts[i])));
+      edtPort.Items.Add(
+        PortDescription(
+          {$IFDEF HAS_GENERICS_TList}
+          IdPorts[i]
+          {$ELSE}
+          PtrInt(IdPorts[i])
+          {$ENDIF}
+        )
+      );
     end;
   finally
     edtPort.Items.EndUpdate;

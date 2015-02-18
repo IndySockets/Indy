@@ -284,10 +284,10 @@ begin
     {$IFDEF STREAM_SIZE_64}
     Available := TIdC_UINT(IndyMin(AStream.Size - AStream.Position, High(TIdC_UINT)));
     // TODO: account for a 64-bit position in a 32-bit environment
-    Inc(PtrInt(Result), AStream.Position);
+    Inc(PtrUInt(Result), AStream.Position);
     {$ELSE}
     Available := AStream.Size - AStream.Position;
-    Inc(PtrInt(Result), AStream.Position);
+    Inc(PtrUInt(Result), AStream.Position);
     {$ENDIF}
   end else begin
     Available := 0;
