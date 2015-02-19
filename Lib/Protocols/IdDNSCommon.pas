@@ -617,7 +617,9 @@ implementation
 
 uses
   {$IFDEF VCL_XE3_OR_ABOVE}
-  //System.Contnrs,
+    {$IFNDEF NEXTGEN}
+  System.Contnrs,
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF HAS_UNIT_DateUtils}
   DateUtils,

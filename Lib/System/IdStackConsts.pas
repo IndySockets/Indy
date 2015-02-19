@@ -495,7 +495,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   {$IFNDEF DOTNET}
     {$IFDEF USE_VCL_POSIX}
   INVALID_SOCKET           = -1;
-  SOCKET_ERROR             = socklen_t(-1);
+  SOCKET_ERROR             = -1;
     {$ENDIF}
   Id_TCP_NODELAY           = TCP_NODELAY;
   Id_INVALID_SOCKET        = INVALID_SOCKET;

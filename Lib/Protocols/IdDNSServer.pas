@@ -610,8 +610,11 @@ implementation
 
 uses
   {$IFDEF VCL_XE3_OR_ABOVE}
-  //System.Contnrs,
+    {$IFNDEF NEXTGEN}
+  System.Contnrs,
+    {$ENDIF}
   System.SyncObjs,
+  System.Types,
   {$ENDIF}
   IdException,
   {$IFDEF DOTNET}

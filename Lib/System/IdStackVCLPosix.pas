@@ -1284,6 +1284,7 @@ var
   LAddrIPv6 : sockaddr_in6 absolute LAddrStore;
   LAddr : sockaddr absolute LAddrStore;
   LiSize: socklen_t;
+  LBytesSent: Integer;
 begin
   case AIPVersion of
     Id_IPv4: begin
@@ -1302,9 +1303,9 @@ begin
     LiSize := 0; // avoid warning
     IPVersionUnsupported;
   end;
-  LiSize := Posix.SysSocket.sendto(
+  LBytesSent := Posix.SysSocket.sendto(
     ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, LAddr, LiSize);
-  if LiSize = Id_SOCKET_ERROR then begin
+  if LBytesSent = Id_SOCKET_ERROR then begin
     // TODO: move this into RaiseLastSocketError directly
     if WSGetLastError() = Id_WSAEMSGSIZE then begin
       raise EIdPackageSizeTooBig.Create(RSPackageSizeTooBig);
@@ -1312,7 +1313,7 @@ begin
       RaiseLastSocketError;
     end;
   end
-  else if Integer(LiSize) <> ABufferLength then begin
+  else if LBytesSent <> ABufferLength then begin
     raise EIdNotAllBytesSent.Create(RSNotAllBytesSent);
   end;
 
