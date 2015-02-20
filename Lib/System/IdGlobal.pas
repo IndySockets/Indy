@@ -1164,21 +1164,21 @@ type
 
   // C++ does not allow an array to be returned by a function,
   // so wrapping the array in a struct as a workaround...
-  {$IFNDEF HAS_UInt16}
-  (*$HPPEMIT 'namespace System'*)
-  (*$HPPEMIT '{'*)
-  (*$HPPEMIT '    typedef unsigned short UInt16;'*)
-  (*$HPPEMIT '}'*)
-  {$ENDIF}
+  //
+  // This is one place where Word is being used instead of UInt16.
+  // On OSX/iOS, UInt16 is defined in mactypes.h, not in System.hpp!
+  // don't want to use a bunch of IFDEF's trying to figure out where
+  // UInt16 is coming from...
+  //
   (*$HPPEMIT 'namespace Idglobal'*)
   (*$HPPEMIT '{'*)
   (*$HPPEMIT '    struct TIdIPv6Address'*)
   (*$HPPEMIT '    {'*)
-  (*$HPPEMIT '        ::System::UInt16 data[8];'*)
-  (*$HPPEMIT '        ::System::UInt16& operator[](int index) { return data[index]; }'*)
-  (*$HPPEMIT '        const ::System::UInt16& operator[](int index) const { return data[index]; }'*)
-  (*$HPPEMIT '        operator const ::System::UInt16*() const { return data; }'*)
-  (*$HPPEMIT '        operator ::System::UInt16*() { return data; }'*)
+  (*$HPPEMIT '        ::System::Word data[8];'*)
+  (*$HPPEMIT '        ::System::Word& operator[](int index) { return data[index]; }'*)
+  (*$HPPEMIT '        const ::System::Word& operator[](int index) const { return data[index]; }'*)
+  (*$HPPEMIT '        operator const ::System::Word*() const { return data; }'*)
+  (*$HPPEMIT '        operator ::System::Word*() { return data; }'*)
   (*$HPPEMIT '    };'*)
   (*$HPPEMIT '}'*)
 
