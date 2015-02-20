@@ -489,6 +489,9 @@ function PEM_write_bio_X509_REQ_func(bp: PBIO; x: PX509_REQ): TIdC_INT cdecl; ex
 
 function PEM_write_bio_X509_CRL_func(bp : PBIO; x : PX509_CRL) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'PEM_write_bio_X509_CRL';
 
+function PEM_write_bio_RSAPrivateKey_func(bp : PBIO; x : PRSA; const enc : PEVP_CIPHER;
+  kstr : PIdAnsiChar; klen : TIdC_INT; cb : Ppem_password_cb; u : Pointer) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'PEM_write_bio_RSAPrivateKey';
+
 function PEM_write_bio_RSAPublicKey_func(bp : PBIO; x : PRSA) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'PEM_write_bio_RSAPublicKey';
 
 function PEM_write_bio_DSAPrivateKey_func(bp : PBIO; x : PDSA; const enc : PEVP_CIPHER;
@@ -928,6 +931,7 @@ we have to handle both cases.
   _PEM_write_bio_X509 := PEM_write_bio_X509_func;
   _PEM_write_bio_X509_REQ := PEM_write_bio_X509_REQ_func;
   _PEM_write_bio_X509_CRL := PEM_write_bio_X509_CRL_func;
+  _PEM_write_bio_RSAPrivateKey := PEM_write_bio_RSAPrivateKey_func;
   _PEM_write_bio_RSAPublicKey := PEM_write_bio_RSAPublicKey_func;
   _PEM_write_bio_DSAPrivateKey := PEM_write_bio_DSAPrivateKey_func;
   _PEM_write_bio_PrivateKey := PEM_write_bio_PrivateKey_func;

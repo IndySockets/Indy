@@ -22815,6 +22815,7 @@ we have to handle both cases.
   @_PEM_write_bio_X509 := LoadFunctionCLib(fn_PEM_write_bio_X509,False);
   @_PEM_write_bio_X509_REQ := LoadFunctionCLib(fn_PEM_write_bio_X509_REQ,False);
   @_PEM_write_bio_X509_CRL := LoadFunctionCLib( fn_PEM_write_bio_X509_CRL,False);
+  @_PEM_write_bio_RSAPrivateKey := LoadFunctionCLib(fn_PEM_write_bio_RSAPrivateKey,False);
   @_PEM_write_bio_RSAPublicKey := LoadFunctionCLib( fn_PEM_write_bio_RSAPublicKey,False);
   @_PEM_write_bio_DSAPrivateKey := LoadFunctionCLib( fn_PEM_write_bio_DSAPrivateKey,False);
   @_PEM_write_bio_PrivateKey := LoadFunctionCLib( fn_PEM_write_bio_PrivateKey,False);
