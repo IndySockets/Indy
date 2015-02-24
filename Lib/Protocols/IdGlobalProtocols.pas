@@ -2452,14 +2452,8 @@ var
 begin
   if RawStrInternetToDateTime(S, Result) then begin
     DateTimeOffset := GmtOffsetStrToDateTime(S);
-    {-Apply GMT offset here}
-    if DateTimeOffset < 0.0 then begin
-      Result := Result + Abs(DateTimeOffset);
-    end else begin
-      Result := Result - DateTimeOffset;
-    end;
-    // Apply local offset
-    Result := Result + OffsetFromUTC;
+    {-Apply GMT and local offsets}
+    Result := Result - DateTimeOffset + OffsetFromUTC;
   end;
 end;
 
