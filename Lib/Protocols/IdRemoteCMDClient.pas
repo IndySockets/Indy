@@ -209,7 +209,6 @@ constructor TIdStdErrThread.Create(AStdErr: TIdSimpleServer;
 begin
   inherited Create(True);
   FStdErr := AStdErr;
-  FreeOnTerminate := False;
   StopMode := smTerminate;
   FStdErr.BeginListen;
 end;

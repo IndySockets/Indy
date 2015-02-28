@@ -2393,7 +2393,6 @@ begin
   // under DotNet. How low do you want to go?
   IndySetThreadPriority(Self, tpLowest);
   FSessionList := SessionList;
-  FreeOnTerminate := False;
 end;
 
 procedure TIdHTTPSessionCleanerThread.Run;

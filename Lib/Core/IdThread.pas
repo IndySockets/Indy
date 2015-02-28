@@ -537,8 +537,7 @@ end;
 
 destructor TIdThread.Destroy;
 begin
-  FreeOnTerminate := False; //prevent destroy between Terminate & WaitFor
-  Terminate;
+  inherited Destroy;
   try
     if itoReqCleanup in FOptions then begin
       Cleanup;
@@ -560,7 +559,6 @@ begin
       GThreadCount.Decrement;
     end;
   end;
-  inherited Destroy; //+WaitFor!
 end;
 
 procedure TIdThread.Start;

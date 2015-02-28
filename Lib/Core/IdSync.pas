@@ -210,10 +210,20 @@ type
 var
   GNotifyThread: TIdNotifyThread = nil;
 
-// RLebeau: this function has a race condition if it is called by multiple
-// threads at the same time and GNotifyThread has not been assigned yet!
 procedure CreateNotifyThread;
 begin
+  // TODO: this function has a race condition if it is called by multiple
+  // threads at the same time and GNotifyThread has not been assigned yet!
+  // Need to use something like InterlockedCompareExchangeObj() so any
+  // duplicate threads can be freed...
+  {
+  Thread := TIdNotifyThread.Create(True);
+  if InterlockedCompareExchangeObj(GNotifyThread, Thread, nil) <> nil then begin
+    Thread.Free;
+  end else begin
+    Thread.Start;
+  end;
+  }
   if GNotifyThread = nil then begin
     GNotifyThread := TIdNotifyThread.Create;
   end;
@@ -291,9 +301,9 @@ begin
     //
     // on Android, what to do???
 
-    // We can't put the message in the queue before calling TThread.Synchronize(),
-    // as it might get processed before Synchronize() can queue the procedure.
-    // Might have to use TThread.Queue() instead and wait on a manual TEvent...
+    // We can't put the message in the queue before calling TThread.Queue(),
+    // as it might get processed before Queue() can queue the procedure.
+    // Might have to wait on a manual TEvent...
   end else
   begin
   }
