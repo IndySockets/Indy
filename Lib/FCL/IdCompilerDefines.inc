@@ -15,7 +15,7 @@
 {$DEFINE IdIPv4}
 
 {$DEFINE INDY100}
-{$DEFINE 10_6_0}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_2}  //so developers can IFDEF for this specific version
 
 // When invoking DCC on the command-line, use the -DBCB
 // parameter when generating C++Builder output files!
@@ -42,9 +42,15 @@
 {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
 
 // FastMM is natively available in BDS 2006 and higher.  $DEFINE the
-// following if FastMM has been installed manually
+// following if FastMM has been installed manually in earlier versions
 {.$DEFINE USE_FASTMM4}
 {$UNDEF USE_FASTMM4}
+
+// $DEFINE the following if MadExcept has been installed manually in
+// BDS 2005 or earlier (System.RegisterExpectedMemoryLeak() was introduced
+// in BDS 2006)
+{.$DEFINE USE_MADEXCEPT}
+{$UNDEF USE_MADEXCEPT}
 
 // Make sure the following are $DEFINE'd only for Delphi/C++Builder 2009 onwards
 // as specified further below.  The VCL is fully Unicode, where the 'String'
@@ -74,6 +80,7 @@
 // Make sure the following are $DEFINE'd only for suitable environments
 // as specified further below.
 {$UNDEF HAS_TEncoding}
+{$UNDEF HAS_TEncoding_GetEncoding_ByEncodingName}
 {$UNDEF HAS_TCharacter}
 {$UNDEF HAS_TInterlocked}
 {$UNDEF HAS_TNetEncoding}
@@ -92,7 +99,11 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Android}
 {$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device32}
+{$UNDEF HAS_ComponentPlatformsAttribute_Linux64}
 {$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
+{$UNDEF HAS_ComponentPlatformsAttribute_WinIoT32}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device64}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 
 // Define for Delphi to auto-generate platform-appropriate '#pragma link' statements in HPP files
@@ -318,6 +329,16 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi & CBuilder XE8 (Elbrus)
+{$IFDEF VER290}
+  {$DEFINE VCL_XE8}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_XE8}
+  {$ELSE}
+    {$DEFINE DELPHI_XE8}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi.NET
 // Covers D8+
 {$IFDEF CIL}
@@ -325,6 +346,13 @@
   {$DEFINE DOTNET}
   {$DEFINE STRING_IS_UNICODE}
   {$DEFINE STRING_IS_IMMUTABLE}
+  {.$DEFINE HAS_Int8}
+  {.$DEFINE HAS_UInt8}
+  {$DEFINE HAS_Int16}
+  {$DEFINE HAS_UInt16}
+  {$DEFINE HAS_Int32}
+  {$DEFINE HAS_UInt32}
+  {$DEFINE HAS_UInt64}
 {$ENDIF}
 
 // Kylix
@@ -414,39 +442,37 @@
       {$UNDEF KYLIXCOMPAT}
     {$ENDIF}
   {$ENDIF}
-  {$DEFINE VCL_70}
-  {$DEFINE DELPHI_7}
 
   // FPC_FULLVERSION was added in FPC 2.2.4
-  // Have to use Declared() or else Delphi compiler chokes, since it
+  // Have to use Defined() or else Delphi compiler chokes, since it
   // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20701)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20701)}
     {$DEFINE FPC_2_7_1_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20604)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20604)}
     {$DEFINE FPC_2_6_4_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20404)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20404)}
     {$DEFINE FPC_2_4_4_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20402)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20402)}
     {$DEFINE FPC_2_4_2_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20400)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20400)}
     {$DEFINE FPC_2_4_0_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20202)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20202)}
     {$DEFINE FPC_2_2_2_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20105)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20105)}
     {$DEFINE FPC_2_1_5_OR_ABOVE}
   {$IFEND}
 
@@ -550,12 +576,29 @@
       {$DEFINE FPC_2_1_5_OR_ABOVE}
     {$ENDIF}
   {$ENDIF}
+
+  {.$IFDEF FPC_2_7_1_OR_ABOVE}
+    // support for RawByteString and UnicodeString
+    {.$DEFINE VCL_2009}
+    {.$DEFINE DELPHI_2009}
+  {.$ELSE}
+    {$DEFINE VCL_70}
+    {$DEFINE DELPHI_7}
+  {.$ENDIF}
 {$ENDIF}
 
 // end FPC
 
-{$IFDEF VCL_XE7}
+{$IFDEF VCL_XE8}
+  {$DEFINE VCL_XE8_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_XE8_OR_ABOVE}
   {$DEFINE VCL_XE7_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_XE7}
+    {$DEFINE VCL_XE7_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_XE7_OR_ABOVE}
@@ -817,6 +860,7 @@
   {$DEFINE HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
   {$DEFINE HAS_SysUtils_DirectoryExists}
   {$DEFINE HAS_UNIT_DateUtils}
+  {$DEFINE HAS_UNIT_StrUtils}
   {$DEFINE HAS_UNIT_Types}
   {$DEFINE HAS_TryStrToInt}
   {$DEFINE HAS_TryStrToInt64}
@@ -831,8 +875,8 @@
       {$DEFINE HAS_DEPRECATED}
       {$DEFINE HAS_SYMBOL_PLATFORM}
       {$DEFINE HAS_UNIT_PLATFORM}
-      {$IFDEF VCL_60}
-        // Delphi 6 has an annoying bug that if a class method is declared as
+      {$IFNDEF VCL_8_OR_ABOVE}
+        // Delphi 6 and 7 have an annoying bug that if a class method is declared as
         // deprecated, the compiler will emit a "symbol is deprecated" warning
         // on the method's implementation!  So we will have to wrap implementations
         // of deprecated methods with {$WARN SYMBOL_DEPRECATED OFF} directives
@@ -854,6 +898,7 @@
     {$DEFINE HAS_TStrings_ValueFromIndex}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
+  {$DEFINE HAS_PosEx}
   {$IFNDEF VCL_70}
     // not implemented in D7
     {$DEFINE HAS_STATIC_TThread_Queue}
@@ -916,6 +961,7 @@
     {$DEFINE HAS_InterlockedCompareExchangePointer}
     {$DEFINE HAS_WIDE_TCharArray}
     {$DEFINE HAS_UNIT_AnsiStrings}
+    {$DEFINE HAS_PUInt64}
     {$IFDEF VCL_2009}
       // TODO: need to differentiate between RTM and Update 1
       // FmtStr() is broken in RTM but was fixed in Update 1
@@ -928,9 +974,12 @@
   // Native(U)Int are still buggy, so do not use them yet
   {.$DEFINE HAS_NativeInt}
   {.$DEFINE HAS_NativeUInt}
-  {$DEFINE HAS_UINT8}
-  {$DEFINE HAS_UINT32}
-  {$DEFINE HAS_PUInt64}
+  {$DEFINE HAS_Int8}
+  {$DEFINE HAS_UInt8}
+  {$DEFINE HAS_Int16}
+  {$DEFINE HAS_UInt16}
+  {$DEFINE HAS_Int32}
+  {$DEFINE HAS_UInt32}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -951,6 +1000,7 @@
   {$DEFINE HAS_UnicodeFromLocaleChars}
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
+  {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}
   {$IFNDEF DOTNET}
     {$DEFINE HAS_TInterlocked}
   {$ENDIF}
@@ -958,6 +1008,7 @@
 
 {$IFDEF VCL_XE2_OR_ABOVE}
   {$DEFINE HAS_SIZE_T}
+  {$DEFINE HAS_PSIZE_T}
   {$DEFINE HAS_LONG}
   {$DEFINE HAS_ComponentPlatformsAttribute}
   {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
@@ -1003,6 +1054,14 @@
   {$DEFINE HAS_TNetEncoding}
 {$ENDIF}
 
+{$IFDEF VCL_XE8_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device64}
+  // technically, these are present in XE8, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux64}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinIoT32}
+{$ENDIF}
+
 // Delphi XE+ cross-compiling
 {$IFNDEF FPC}
   {$IFDEF POSIX}
@@ -1039,6 +1098,14 @@
   {$DEFINE FPC_CIRCULAR_BUG}
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
+  {$DEFINE HAS_Int8} // TODO: when was Int8 introduced?
+  {$DEFINE HAS_UInt8} // TODO: when was UInt8 introduced?
+  {$DEFINE HAS_Int16} // TODO: when was Int16 introduced?
+  {$DEFINE HAS_UInt16} // TODO: when was UInt16 introduced?
+  {$DEFINE HAS_Int32} // TODO: when was Int32 introduced?
+  {$DEFINE HAS_UInt32} // TODO: when was UInt32 introduced?
+  {$DEFINE HAS_QWord} // TODO: when was QWord introduced?
+  {$DEFINE HAS_PQWord} // TODO: when was PQWord introduced?
   {$IFDEF FPC_2_1_5_OR_ABOVE}
     {$DEFINE HAS_UInt64}
     {.$DEFINE HAS_PUInt64} // TODO: is this defined?
@@ -1050,7 +1117,9 @@
     {$DEFINE HAS_SharedPrefix}
   {$ENDIF}
   {$IFDEF FPC_2_2_4_OR_ABOVE}
+    // TODO: size_t and psize_t might only be available on Unix systems (FreeBSD, Linux, etc)
     {$DEFINE HAS_SIZE_T}
+    {$DEFINE HAS_PSIZE_T}
   {$ENDIF}
   {$DEFINE HAS_PtrInt}
   {$DEFINE HAS_PtrUInt}
@@ -1064,8 +1133,12 @@
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
-  {$IFDEF FPC_2_4_0_OR_ABOVE}
+  {$IFDEF FPC_HAS_UNICODESTRING}
     {$DEFINE HAS_UnicodeString}
+  {$ELSE}
+    {$IFDEF FPC_2_4_0_OR_ABOVE}
+      {$DEFINE HAS_UnicodeString}
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF FPC_2_4_4_OR_ABOVE}
     {$DEFINE DEPRECATED_TThread_SuspendResume}
@@ -1075,10 +1148,6 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
-  {$ENDIF}
-  {$IFDEF FPC_2_7_1_OR_ABOVE}
-    {$DEFINE HAS_UINT8}
-    {$DEFINE HAS_UINT32}
   {$ENDIF}
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE STRING_IS_UNICODE}
@@ -1140,6 +1209,14 @@
     {$DEFINE HAS_GENERICS_TList}
     {$DEFINE HAS_GENERICS_TObjectList}
     {$DEFINE HAS_GENERICS_TThreadList}
+    // TArray<T>.Copy() was introduced in XE7 but was buggy. It was fixed in XE8:
+    //
+    // RSP-9763 TArray.Copy<T> copies from destination to source for unmanaged types
+    // https://quality.embarcadero.com/browse/RSP-9763
+    //
+    {$IFDEF VCL_XE8_OR_ABOVE}
+      {$DEFINE HAS_GENERICS_TArray_Copy}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -1318,7 +1395,21 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$ENDIF}
 {$IFDEF BSD}
   //I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
-  {$DEFINE THANDLE_32}
+  {$IFDEF IOS}
+    {$IFDEF CPUARM32}
+      {$DEFINE CPU32}
+      {$DEFINE THANDLE_32}
+    {$ELSE}
+      {$IFDEF CPUARM64}
+        {$DEFINE CPU64}
+        {$DEFINE THANDLE_64}
+      {$ELSE}
+        {$DEFINE THANDLE_32}
+      {$ENDIF}
+    {$ENDIF}
+  {$ELSE}
+    {$DEFINE THANDLE_32}
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF EMBEDDED}
   {$DEFINE THANDLE_CPUBITS}
@@ -1407,6 +1498,9 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$IFNDEF FREE_ON_FINAL}
   {$IFNDEF REGISTER_EXPECTED_MEMORY_LEAK}
     {$IFDEF USE_FASTMM4}
+      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+    {$ENDIF}
+    {$IFDEF USE_MADEXCEPT}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
   {$ENDIF}

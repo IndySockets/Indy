@@ -15,7 +15,7 @@
 {$DEFINE IdIPv4}
 
 {$DEFINE INDY100}
-{$DEFINE 10_6_1}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_2}  //so developers can IFDEF for this specific version
 
 // When invoking DCC on the command-line, use the -DBCB
 // parameter when generating C++Builder output files!
@@ -444,35 +444,35 @@
   {$ENDIF}
 
   // FPC_FULLVERSION was added in FPC 2.2.4
-  // Have to use Declared() or else Delphi compiler chokes, since it
+  // Have to use Defined() or else Delphi compiler chokes, since it
   // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20701)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20701)}
     {$DEFINE FPC_2_7_1_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20604)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20604)}
     {$DEFINE FPC_2_6_4_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20404)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20404)}
     {$DEFINE FPC_2_4_4_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20402)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20402)}
     {$DEFINE FPC_2_4_2_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20400)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20400)}
     {$DEFINE FPC_2_4_0_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20204)}
     {$DEFINE FPC_2_2_4_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20202)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20202)}
     {$DEFINE FPC_2_2_2_OR_ABOVE}
   {$IFEND}
-  {$IF DECLARED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20105)}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20105)}
     {$DEFINE FPC_2_1_5_OR_ABOVE}
   {$IFEND}
 
@@ -1008,6 +1008,7 @@
 
 {$IFDEF VCL_XE2_OR_ABOVE}
   {$DEFINE HAS_SIZE_T}
+  {$DEFINE HAS_PSIZE_T}
   {$DEFINE HAS_LONG}
   {$DEFINE HAS_ComponentPlatformsAttribute}
   {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
@@ -1116,7 +1117,9 @@
     {$DEFINE HAS_SharedPrefix}
   {$ENDIF}
   {$IFDEF FPC_2_2_4_OR_ABOVE}
+    // TODO: size_t and psize_t might only be available on Unix systems (FreeBSD, Linux, etc)
     {$DEFINE HAS_SIZE_T}
+    {$DEFINE HAS_PSIZE_T}
   {$ENDIF}
   {$DEFINE HAS_PtrInt}
   {$DEFINE HAS_PtrUInt}

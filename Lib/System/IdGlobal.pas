@@ -889,6 +889,9 @@ type
   {$IFNDEF HAS_SIZE_T}
   {$EXTERNALSYM size_t}
   size_t = PtrUInt;
+  {$ENDIF}
+
+  {$IFNDEF HAS_PSIZE_T}
   {$EXTERNALSYM Psize_t}
   Psize_t = ^size_t;
   {$ENDIF}

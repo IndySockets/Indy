@@ -277,8 +277,8 @@ begin
 
   LOut := InternalDecode(LIn);
 
-  //Now expand the run-length encoding.
-  //$90 is the marker, encoding is made for 3->255 characters
+  // Now expand the run-length encoding.
+  // $90 is the marker, encoding is made for 3->255 characters
   // 00 11 22 33 44 55 66 77   -> 00 11 22 33 44 55 66 77
   // 11 22 22 22 22 22 22 33   -> 11 22 90 06 33
   // 11 22 90 33 44            -> 11 22 90 00 33 44
