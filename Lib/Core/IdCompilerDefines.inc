@@ -1117,9 +1117,11 @@
     {$DEFINE HAS_SharedPrefix}
   {$ENDIF}
   {$IFDEF FPC_2_2_4_OR_ABOVE}
-    // TODO: size_t and psize_t might only be available on Unix systems (FreeBSD, Linux, etc)
-    {$DEFINE HAS_SIZE_T}
-    {$DEFINE HAS_PSIZE_T}
+    // size_t and psize_t are only available on Unix systems (FreeBSD, Linux, etc)
+    {$IFDEF UNIX}
+      {$DEFINE HAS_SIZE_T}
+      {$DEFINE HAS_PSIZE_T}
+    {$ENDIF}
   {$ENDIF}
   {$DEFINE HAS_PtrInt}
   {$DEFINE HAS_PtrUInt}
