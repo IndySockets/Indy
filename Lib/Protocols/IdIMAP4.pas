@@ -2993,6 +2993,8 @@ begin
       sdReplace: LDataItem := IMAP4StoreDataItem[sdReplaceSilent];
       sdAdd:     LDataItem := IMAP4StoreDataItem[sdAddSilent];
       sdRemove:  LDataItem := IMAP4StoreDataItem[sdRemoveSilent];
+    else
+      LDataItem := IMAP4StoreDataItem[AStoreMethod];
     end;
     LFlags := MessageFlagSetToStr(AFlags);
     CheckConnectionState(csSelected);
@@ -3017,6 +3019,8 @@ begin
     sdReplace: LDataItem := IMAP4StoreDataItem[sdReplaceSilent];
     sdAdd:     LDataItem := IMAP4StoreDataItem[sdAddSilent];
     sdRemove:  LDataItem := IMAP4StoreDataItem[sdRemoveSilent];
+  else
+    LDataItem := IMAP4StoreDataItem[AStoreMethod];
   end;
   LFlags := MessageFlagSetToStr(AFlags);
   CheckConnectionState(csSelected);
@@ -3049,6 +3053,8 @@ begin
     sdReplace: LDataItem := IMAP4StoreDataItem[sdReplaceSilent];
     sdAdd:     LDataItem := IMAP4StoreDataItem[sdAddSilent];
     sdRemove:  LDataItem := IMAP4StoreDataItem[sdRemoveSilent];
+  else
+    LDataItem := IMAP4StoreDataItem[AStoreMethod];
   end;
   LFlags := MessageFlagSetToStr(AFlags);
   CheckConnectionState(csSelected);
@@ -6645,9 +6651,6 @@ const
     {$IFDEF STRING_IS_ANSI}
     LAnsiEncoding: IIdTextEncoding;
     {$ENDIF}
-    {$IFNDEF HAS_TStrings_ValueFromIndex}
-    LTmp: String;
-    {$ENDIF}
     LContentType, LCharSet: string;
   begin
     LDestStream := TMemoryStream.Create;
@@ -6687,16 +6690,9 @@ const
           LTxt.ContentTransfer := VDecoder.Headers.Values['Content-Transfer-Encoding'];  {Do not Localize}
           for Li := 0 to VDecoder.Headers.Count-1 do begin
             if LTxt.Headers.IndexOfName(VDecoder.Headers.Names[Li]) < 0 then begin
-              {$IFNDEF HAS_TStrings_ValueFromIndex}
-              LTmp := VDecoder.Headers.Strings[Li];
-              {$ENDIF}
               LTxt.ExtraHeaders.AddValue(
                 VDecoder.Headers.Names[Li],
-                {$IFDEF HAS_TStrings_ValueFromIndex}
-                VDecoder.Headers.ValueFromIndex[Li]
-                {$ELSE}
-                Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {Do not Localize}
-                {$ENDIF}
+                IndyValueFromIndex(VDecoder.Headers, Li)
               );
             end;
           end;
@@ -6727,9 +6723,6 @@ const
     Li: integer;
     LAttachment: TIdAttachment;
     LNewDecoder: TIdMessageDecoder;
-    {$IFNDEF HAS_TStrings_ValueFromIndex}
-    LTmp: String;
-    {$ENDIF}
   begin
     AMsg.DoCreateAttachment(VDecoder.Headers, LAttachment);
     Assert(Assigned(LAttachment), 'Attachment must not be unassigned here!');    {Do not Localize}
@@ -6751,16 +6744,9 @@ const
         LAttachment.Filename := VDecoder.Filename;
         for Li := 0 to VDecoder.Headers.Count-1 do begin
           if LAttachment.Headers.IndexOfName(VDecoder.Headers.Names[Li]) < 0 then begin
-            {$IFNDEF HAS_TStrings_ValueFromIndex}
-            LTmp := VDecoder.Headers.Strings[Li];
-            {$ENDIF}
             LAttachment.ExtraHeaders.AddValue(
               VDecoder.Headers.Names[Li],
-              {$IFDEF HAS_TStrings_ValueFromIndex}
-              VDecoder.Headers.ValueFromIndex[Li]
-              {$ELSE}
-              Copy(LTmp, Pos('=', LTmp)+1, MaxInt) {Do not Localize}
-              {$ENDIF}
+              IndyValueFromIndex(VDecoder.Headers, Li)
             );
           end;
         end;
