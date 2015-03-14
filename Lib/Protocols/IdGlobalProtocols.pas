@@ -1160,7 +1160,8 @@ begin
     end;
 
     // Workaround for some buggy web servers which use '-' to separate the date parts.    {Do not Localize}
-    if (IndyPos('-', Value) > 1) and (IndyPos('-', Value) < IndyPos(' ', Value)) then begin    {Do not Localize}
+    i := IndyPos('-', Value);    {Do not Localize}
+    if (i > 1) and (i < IndyPos(' ', Value)) then begin    {Do not Localize}
       sDelim := '-';    {Do not Localize}
     end else begin
       sDelim := ' ';    {Do not Localize}
@@ -1232,7 +1233,7 @@ begin
     // RLebeau 03/04/2009: some countries use dot instead of colon
     // for the time separator
     i := IndyPos('.', Value);       {do not localize}
-    if i > 0 then begin
+    if (i > 0) and (i < IndyPos(' ', Value)) then begin       {do not localize}
       sDelim := '.';                {do not localize}
     end else begin
       sDelim := ':';                {do not localize}
