@@ -8633,8 +8633,11 @@ begin
   LCrEncountered := False;
 
   repeat
-    LBufSize := IndyMin(LStrmSize - LStrmPos, LBUFMAXSIZE);
-    LBufSize := ReadTIdBytesFromStream(AStream, LBuf, LBufSize);
+    LBufSize := ReadTIdBytesFromStream(AStream, LBuf, IndyMin(LStrmSize - LStrmPos, LBUFMAXSIZE));
+    if LBufSize < 1 then begin
+      Break; // TODO: throw a stream read exception instead?
+    end;
+
     LStringLen := FindEOL(LBuf, LBufSize, LCrEncountered);
     Inc(LStrmPos, LBufSize);
 
@@ -8652,6 +8655,8 @@ begin
     end;
   until (LStrmPos >= LStrmSize) or LCrEncountered;
 
+  // RLebeau: why is the original Position being restored here, instead
+  // of leaving the Position at the end of the line?
   AStream.Position := LStrmPos;
   VLine := BytesToString(LLine, 0, -1, AByteEncoding
     {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
