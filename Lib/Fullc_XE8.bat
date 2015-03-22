@@ -127,8 +127,8 @@ cd ..\Lib\Protocols
 
 copy zlib\i386-Win32-ZLib\*.obj ..\..\C22\ZLib\i386-Win32-ZLib > nul
 copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C22\ZLib\x86_64-Win64-ZLib > nul
-copy *IndyProtocols210.dpk ..\..\C22 > nul
-copy *IndyProtocols210.dproj ..\..\C22 > nul
+copy *IndyProtocols220.dpk ..\..\C22 > nul
+copy *IndyProtocols220.dproj ..\..\C22 > nul
 copy *.res ..\..\C22 > nul
 copy *.pas ..\..\C22 > nul
 copy *.dcr ..\..\C22 > nul
@@ -160,9 +160,9 @@ copy ..\Output\hpp\%IndyPlatform%\%IndyConfig%\Id*.hpp %IndyPlatform%\%IndyConfi
 copy "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
 copy ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\Indy*.bpi %IndyPlatform%\%IndyConfig%
 if "%IndyPlatform%" == "Win32" copy "..\Output\Obj\%IndyPlatform%\%IndyConfig%\Indy*.Lib" %IndyPlatform%\%IndyConfig%
-copy indysystem210.res %IndyPlatform%\%IndyConfig%
-copy indycore210.res %IndyPlatform%\%IndyConfig%
-copy indyprotocols210.res %IndyPlatform%\%IndyConfig%
+copy indysystem220.res %IndyPlatform%\%IndyConfig%
+copy indycore220.res %IndyPlatform%\%IndyConfig%
+copy indyprotocols220.res %IndyPlatform%\%IndyConfig%
 
 REM ************************************************************
 REM Delete all other files / directories no longer required 
