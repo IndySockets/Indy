@@ -2191,20 +2191,18 @@ begin
   end;
   if FDataChannel is TIdTCPClient then
   begin
+    TIdTCPClient(FDataChannel).IPVersion := IPVersion;
     TIdTCPClient(FDataChannel).ReadTimeout := FTransferTimeout;
     //Now SocksInfo are multi-thread safe
     FDataChannel.IOHandler.ConnectTimeout := IOHandler.ConnectTimeout;
-  end;
-  if Assigned(FDataChannel.Socket) then
+  end
+  else if FDataChannel is TIdSimpleServer then
   begin
-    if Assigned(Socket) then
-    begin
-      FDataChannel.Socket.TransparentProxy := Socket.TransparentProxy;
-      FDataChannel.Socket.IPVersion := Socket.IPVersion;
-    end else
-    begin
-      FDataChannel.Socket.IPVersion := IPVersion;
-    end;
+    TIdSimpleServer(FDataChannel).IPVersion := IPVersion;
+  end;
+  if Assigned(FDataChannel.Socket) and Assigned(Socket) then
+  begin
+    FDataChannel.Socket.TransparentProxy := Socket.TransparentProxy;
   end;
   FDataChannel.IOHandler.ReadTimeout := FTransferTimeout;
   FDataChannel.IOHandler.SendBufferSize := IOHandler.SendBufferSize;
