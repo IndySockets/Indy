@@ -5459,7 +5459,7 @@ begin
   LInQuotedSpecial := False; {Stop compiler whining}
   LInPart := 0;   {0 is not in a part, 1 is in a quote-delimited part, 2 is in a bracketted parameter-pair list}
   for Ln := 1 to Length(APartString) do begin
-    if LInPart = 1 then begin
+    if (LInPart = 1) or ((LInPart = 2) and LInQuotesInsideBrackets) then begin
       if LInQuotedSpecial then begin
         LInQuotedSpecial := False;
       end
@@ -5467,28 +5467,30 @@ begin
         LInQuotedSpecial := True;
       end
       else if APartString[Ln] = '"' then begin {Do not Localize}
-        LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-        AParams.Add(ResolveQuotedSpecials(LParamater));
-        LInPart := 0;
+        if LInPart = 1 then begin
+          LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+          AParams.Add(ResolveQuotedSpecials(LParamater));
+          LInPart := 0;
+        end else begin
+          LInQuotesInsideBrackets := False;
+        end;
       end;
     end else if LInPart = 2 then begin
       //We have to watch out that we don't close this entry on a closing bracket within
       //quotes, like ("Blah" "Blah)Blah"), so monitor if we are in quotes within brackets.
       if APartString[Ln] = '"' then begin {Do not Localize}
-        LInQuotesInsideBrackets := not LInQuotesInsideBrackets;
-      end else begin
-        //Brackets don't count if they are within quoted strings...
-        if not LInQuotesInsideBrackets then begin
-          if APartString[Ln] = '(' then begin {Do not Localize}
-            Inc(LBracketLevel);
-          end else if APartString[Ln] = ')' then begin {Do not Localize}
-            Dec(LBracketLevel);
-            if LBracketLevel = 0 then begin
-              LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-              AParams.Add(LParamater);
-              LInPart := 0;
-            end;
-          end;
+        LInQuotesInsideBrackets := True;
+        LInQuotedSpecial := False;
+      end
+      else if APartString[Ln] = '(' then begin {Do not Localize}
+        Inc(LBracketLevel);
+      end
+      else if APartString[Ln] = ')' then begin {Do not Localize}
+        Dec(LBracketLevel);
+        if LBracketLevel = 0 then begin
+          LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+          AParams.Add(LParamater);
+          LInPart := 0;
         end;
       end;
     end else if LInPart = 3 then begin
@@ -5562,7 +5564,7 @@ begin
   LInPart := 0;   {0 is not in a part, 1 is in a quote-delimited part, 2 is in a bracketted part, 3 is a word}
   APartString := Trim(APartString);
   for Ln := 1 to Length(APartString) do begin
-    if LInPart = 1 then begin
+    if (LInPart = 1) or ((LInPart = 2) and LInQuotesInsideBrackets) then begin
       if LInQuotedSpecial then begin
         LInQuotedSpecial := False;
       end
@@ -5570,32 +5572,34 @@ begin
         LInQuotedSpecial := True;
       end
       else if APartString[Ln] = '"' then begin {Do not Localize}
-        LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-        AParams.Add(ResolveQuotedSpecials(LParamater));
-        LInPart := 0;
+        if LInPart = 1 then begin
+          LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+          AParams.Add(ResolveQuotedSpecials(LParamater));
+          LInPart := 0;
+        end else begin
+          LInQuotesInsideBrackets := False;
+        end;
       end;
     end else if LInPart = 2 then begin
       //We have to watch out that we don't close this entry on a closing bracket within
       //quotes, like ("Blah" "Blah)Blah"), so monitor if we are in quotes within brackets.
       if APartString[Ln] = '"' then begin {Do not Localize}
-        LInQuotesInsideBrackets := not LInQuotesInsideBrackets;
-      end else begin
-        //Brackets don't count if they are within quoted strings...
-        if not LInQuotesInsideBrackets then begin
-          if APartString[Ln] = '(' then begin {Do not Localize}
-            Inc(LBracketLevel);
-          end else if APartString[Ln] = ')' then begin {Do not Localize}
-            Dec(LBracketLevel);
-            if LBracketLevel = 0 then begin
-              if AKeepBrackets then begin
-                LParamater := Copy(APartString, LStartPos, Ln-LStartPos+1);
-              end else begin
-                LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-              end;
-              AParams.Add(LParamater);
-              LInPart := 0;
-            end;
+        LInQuotesInsideBrackets := True;
+        LInQuotedSpecial := False;
+      end
+      else if APartString[Ln] = '(' then begin {Do not Localize}
+        Inc(LBracketLevel);
+      end
+      else if APartString[Ln] = ')' then begin {Do not Localize}
+        Dec(LBracketLevel);
+        if LBracketLevel = 0 then begin
+          if AKeepBrackets then begin
+            LParamater := Copy(APartString, LStartPos, Ln-LStartPos+1);
+          end else begin
+            LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
           end;
+          AParams.Add(LParamater);
+          LInPart := 0;
         end;
       end;
     end else if LInPart = 3 then begin
@@ -5733,16 +5737,22 @@ var
   LN: integer;
   LPos: integer;
 begin
+  Result := '';
   {CCB: Modified code so it did not access past the end of the string if
   AParam was not actually in quotes (e.g. the MIME boundary parameter
   is only optionally in quotes).}
   LN := 1;
   {Skip any preceding spaces...}
-  while AParam[LN] = ' ' do begin  {Do not Localize}
+  //TODO: use TrimLeft(AParam) instead
+  while (LN <= Length(AParam)) and (AParam[LN] = ' ') do begin  {Do not Localize}
     LN := LN + 1;
+  end;
+  if LN > Length(AParam) then begin
+    Exit;
   end;
   if AParam[LN] <> '"' then begin {Do not Localize}
     {Not actually enclosed in quotes.  Must be a single word.}
+    // TODO: use Fetch(AParam) instead
     AParam := Copy(AParam, LN, MaxInt);
     LPos := Pos(' ', AParam);   {Do not Localize}
     if LPos > 0 then begin
@@ -5754,9 +5764,11 @@ begin
     end;
   end else begin
     {It starts with a quote...}
+    // TODO: use Fetch(AParam, '"') instead
+    // TODO: do we need to handle escaped characters?
     AParam := Copy(AParam, LN, MaxInt);
     LN := 2;
-    while AParam[LN] <> '"' do begin  {Do not Localize}
+    while (LN <= Length(AParam)) and (AParam[LN] <> '"') do begin  {Do not Localize}
       LN := LN + 1;
     end;
     Result := Copy(AParam, 1, LN);
