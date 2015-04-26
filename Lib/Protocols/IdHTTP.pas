@@ -1710,6 +1710,7 @@ const
 procedure TIdCustomHTTP.PrepareRequest(ARequest: TIdHTTPRequest);
 var
   LURI: TIdURI;
+  LHost: string;
 begin
   LURI := TIdURI.Create(ARequest.URL);
 
@@ -1783,12 +1784,19 @@ begin
       ARequest.ContentLength := -1;
     end;
 
+    // RLebeau: wrap an IPv6 address in brackets, per RFC 2732, and RFC 3986 section 3.2.2...
+    if (FURI.IPVersion = Id_IPv6) and (MakeCanonicalIPv6Address(FURI.Host) <> '') then begin
+      LHost := '[' + FURI.Host + ']';    {do not localize}
+    end else begin
+      LHost := FURI.Host;
+    end;
+
     if (TextIsSame(FURI.Protocol, 'http') and (FURI.Port = IntToStr(IdPORT_HTTP))) or  {do not localize}
       (TextIsSame(FURI.Protocol, 'https') and (FURI.Port = IntToStr(IdPORT_https))) then  {do not localize}
     begin
-      ARequest.Host := FURI.Host;
+      ARequest.Host := LHost;
     end else begin
-      ARequest.Host := FURI.Host + ':' + FURI.Port;    {do not localize}
+      ARequest.Host := LHost + ':' + FURI.Port;    {do not localize}
     end;
   finally
     FreeAndNil(LURI);  // Free URI Object
