@@ -5248,9 +5248,9 @@ function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
-    Result := TIdTicks(ANewTickCount - AOldTickCount);
+    Result := ANewTickCount - AOldTickCount;
   end else begin
-    Result := TIdTicks(High(TIdTicks) - AOldTickCount + ANewTickCount);
+    Result := High(TIdTicks) - AOldTickCount + ANewTickCount;
   end;
 end;
 

@@ -823,6 +823,16 @@ var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;
   GIOHandlerClassList: TIdIOHandlerClassList = nil;
 
+{$IFDEF DCC}
+  {$IFNDEF VCL_7_OR_ABOVE}
+    // RLebeau 5/13/2015: The Write(Int64) and ReadInt64() methods were producing
+    // an "Internal error URW533" compiler error in Delphi 5, and an "Internal
+    // error URW699" compiler error in Delphi 6, so need to use some workarounds
+    // for those versions...
+    {$DEFINE AVOID_URW_ERRORS}
+  {$ENDIF}
+{$ENDIF}
+
 { TIdIOHandler }
 
 procedure TIdIOHandler.Close;
@@ -1086,14 +1096,16 @@ begin
 end;
 
 procedure TIdIOHandler.Write(AValue: Int64; AConvert: Boolean = True);
-{$IFDEF VCL_60}
+{$IFDEF AVOID_URW_ERRORS}
 var
   h: Int64;
 {$ENDIF}
 begin
   if AConvert then begin
-    {$IFDEF VCL_60}
-    // assigning to a local variable to avoid an "Internal error URW699" compiler error in Delphi 6
+    {$IFDEF AVOID_URW_ERRORS}
+    // assigning to a local variable to avoid an "Internal error URW533" compiler
+    // error in Delphi 5, and an "Internal error URW699" compiler error in Delphi
+    // 6.  Later versions seem OK without it...
     h := GStack.HostToNetwork(UInt64(AValue));
     AValue := h;
     {$ELSE}
@@ -1347,15 +1359,17 @@ end;
 function TIdIOHandler.ReadInt64(AConvert: boolean): Int64;
 var
   LBytes: TIdBytes;
-  {$IFDEF VCL_60}
+  {$IFDEF AVOID_URW_ERRORS}
   h: Int64;
   {$ENDIF}
 begin
   ReadBytes(LBytes, SizeOf(Int64), False);
   Result := BytesToInt64(LBytes);
   if AConvert then begin
-    {$IFDEF VCL_60}
-    // assigning to a local variable to avoid an "Internal error URW699" compiler error in Delphi 6
+    {$IFDEF AVOID_URW_ERRORS}
+    // assigning to a local variable to avoid an "Internal error URW533" compiler
+    // error in Delphi 5, and an "Internal error URW699" compiler error in Delphi
+    // 6.  Later versions seem OK without it...
     h := GStack.NetworkToHost(UInt64(Result));
     Result := h;
     {$ELSE}
