@@ -688,6 +688,12 @@ const
                                     // connection is not ack-ed to the
                                     // other side until conditional
                                     // function returns CF_ACCEPT
+ {$EXTERNALSYM SO_REUSE_UNICASTPORT}
+  SO_REUSE_UNICASTPORT = $3007; // defer ephemeral port allocation for
+                                     // outbound connections
+   {$EXTERNALSYM SO_REUSE_MULTICASTPORT}
+  SO_REUSE_MULTICASTPORT = $3008; // enable port reuse and disable unicast
+                                    //reception.
   {$IFNDEF WINCE}
   {$EXTERNALSYM SO_RANDOMIZE_PORT}
   SO_RANDOMIZE_PORT        = $3005;    // randomize assignment of wildcard ports
@@ -772,8 +778,10 @@ const
   {$EXTERNALSYM AF_ICLFXBM}
   AF_ICLFXBM      = 31;
 
+  {$EXTERNALSYM AF_HYPERV}
+  AF_HYPERV       = 34;
   {$EXTERNALSYM AF_MAX}
-  AF_MAX          = 32;
+  AF_MAX          = 35; //was 32
 
 // protocol families, same as address families for now.
 
@@ -3634,6 +3642,8 @@ const
   IP_UNICAST_IF             = 31; // IP unicast interface.
   {$EXTERNALSYM IP_RTHDR}
   IP_RTHDR                  = 32; // Set/get IPv6 routing header.
+  {$EXTERNALSYM IP_GET_IFLIST}
+  IP_GET_IFLIST             = 33; // Get an interface list.
   {$EXTERNALSYM IP_RECVRTHDR}
   IP_RECVRTHDR              = 38; // Receive the routing header.
   {$EXTERNALSYM IP_TCLASS}
@@ -3686,6 +3696,42 @@ const
   {$EXTERNALSYM IPV6_PROTECTION_LEVEL}
   IPV6_PROTECTION_LEVEL      = 23; // Set/get IPv6 protection level
 
+  {$EXTERNALSYM IPV6_RECVIF}
+  IPV6_RECVIF                = 24; // Receive arrival interface.
+  {$EXTERNALSYM IPV6_RECVDSTADDR}
+  IPV6_RECVDSTADDR     = 25; // Receive destination address.
+  {$EXTERNALSYM IPV6_CHECKSUM}
+  IPV6_CHECKSUM        = 26; // Offset to checksum for raw IP socket send.
+  {$EXTERNALSYM IPV6_V6ONLY}
+  IPV6_V6ONLY          = 27; // Treat wildcard bind as AF_INET6-only.
+  {$EXTERNALSYM IPV6_IFLIST}
+  IPV6_IFLIST          = 28; // Enable/Disable an interface list.
+  {$EXTERNALSYM IPV6_ADD_IFLIST}
+  IPV6_ADD_IFLIST      = 29; // Add an interface list entry.
+  {$EXTERNALSYM IPV6_DEL_IFLIST}
+  IPV6_DEL_IFLIST      = 30; // Delete an interface list entry.
+  {$EXTERNALSYM IPV6_UNICAST_IF}
+  IPV6_UNICAST_IF      = 31; // IP unicast interface.
+  {$EXTERNALSYM IPV6_RTHDR}
+  IPV6_RTHDR           = 32; // Set/get IPv6 routing header.
+  {$EXTERNALSYM IPV6_GET_IFLIST}
+  IPV6_GET_IFLIST      = 33; // Get an interface list.
+  {$EXTERNALSYM IPV6_RECVRTHDR}
+  IPV6_RECVRTHDR       = 38; // Receive the routing header.
+  {$EXTERNALSYM IPV6_TCLASS}
+  IPV6_TCLASS          = 39; // Packet traffic class.
+  {$EXTERNALSYM IPV6_RECVTCLASS}
+  IPV6_RECVTCLASS      = 40; // Receive packet traffic class.
+  {$EXTERNALSYM IPV6_ECN}
+  IPV6_ECN             = 50; // Receive ECN codepoints in the IP header.
+  {$EXTERNALSYM IPV6_PKTINFO_EX}
+  IPV6_PKTINFO_EX      = 51; // Receive extended packet information.
+  {$EXTERNALSYM IPV6_WFP_REDIRECT_RECORDS}
+  IPV6_WFP_REDIRECT_RECORDS  = 60; // WFP's Connection Redirect Records
+  {$EXTERNALSYM IPV6_WFP_REDIRECT_CONTEXT}
+  IPV6_WFP_REDIRECT_CONTEXT  = 70; // WFP's Connection Redirect Context
+
+
   // Option to use with [gs]etsockopt at the IPPROTO_UDP level
   {$EXTERNALSYM UDP_NOCHECKSUM}
   UDP_NOCHECKSUM             = 1;
@@ -3695,6 +3741,30 @@ const
 // Option to use with [gs]etsockopt at the IPPROTO_TCP level
   {$EXTERNALSYM TCP_EXPEDITED_1122}
   TCP_EXPEDITED_1122         = $0002;
+  {$EXTERNALSYM TCP_KEEPALIVE}
+  TCP_KEEPALIVE         = 3;
+  {$EXTERNALSYM TCP_MAXSEG}
+  TCP_MAXSEG            = 4;
+  {$EXTERNALSYM TCP_MAXRT}
+  TCP_MAXRT             = 5;
+  {$EXTERNALSYM TCP_STDURG}
+  TCP_STDURG            = 6;
+  {$EXTERNALSYM TCP_NOURG}
+  TCP_NOURG           	= 7;
+  {$EXTERNALSYM TCP_ATMARK}
+  TCP_ATMARK          	= 8;
+  {$EXTERNALSYM TCP_NOSYNRETRIES}
+  TCP_NOSYNRETRIES    	= 9;
+  {$EXTERNALSYM TCP_TIMESTAMPS}
+  TCP_TIMESTAMPS      	= 10;
+  {$EXTERNALSYM TCP_OFFLOAD_PREFERENCE}
+  TCP_OFFLOAD_PREFERENCE	 = 11;
+  {$EXTERNALSYM TCP_CONGESTION_ALGORITHM}
+  TCP_CONGESTION_ALGORITHM = 12;
+  {$EXTERNALSYM TCP_DELAY_FIN_ACK}
+  TCP_DELAY_FIN_ACK      = 13;
+  {$EXTERNALSYM TCP_MAXRTMS}
+  TCP_MAXRTMS            = 14;
 
 // IPv6 definitions
 type
@@ -5562,8 +5632,8 @@ type
   end;
   {$EXTERNALSYM PTRANSPORT_SETTING_ID}
   PTRANSPORT_SETTING_ID = ^TRANSPORT_SETTING_ID;
-  {$EXTERNALSYM tcp_keepalive}
-  tcp_keepalive = record
+  {$EXTERNALSYM _tcp_keepalive}
+  _tcp_keepalive = record
     onoff: u_long;
     keepalivetime: u_long;
     keepaliveinterval: u_long;
@@ -5888,6 +5958,7 @@ const
   IN6ADDR_6TO4PREFIX_LENGTH = 16;
   {$EXTERNALSYM IN6ADDR_TEREDOPREFIX_LENGTH}
   IN6ADDR_TEREDOPREFIX_LENGTH = 32;
+
 
 //=============================================================
 implementation
@@ -7171,6 +7242,41 @@ function WSA_CMSG_LEN(const Alength: SIZE_T): SIZE_T;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + Alength);
+end;
+
+function RIO_CMSG_BASE_SIZE : SIZE_T;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := WSA_CMSGHDR_ALIGN(sizeof(RIO_CMSG_BUFFER));
+end;
+
+function RIO_CMSG_FIRSTHDR(buffer : PRIO_CMSG_BUFFER) : PWSACMSGHDR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+   if ((buffer)^.TotalLength >= RIO_CMSG_BASE_SIZE) then
+   begin
+        if (((buffer)^.TotalLength - RIO_CMSG_BASE_SIZE) >= sizeof(WSACMSGHDR)) then begin
+          Result := PWSACMSGHDR((PAnsiChar(buffer)) + RIO_CMSG_BASE_SIZE);
+        end else begin
+          Result := PWSACMSGHDR(nil);
+        end;
+   end else begin
+       Result := PWSACMSGHDR(nil);
+   end;
+end;
+
+function RIO_CMSG_NEXTHDR(buffer : PRIO_CMSG_BUFFER; cmsg : PWSACMSGHDR) : PWSACMSGHDR;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if ((cmsg) = nil) then begin
+    Result := RIO_CMSG_FIRSTHDR(buffer);
+  end else begin
+    if (PAnsiChar(cmsg) + WSA_CMSGHDR_ALIGN((cmsg^.cmsg_len) + sizeof(WSACMSGHDR))  > (PAnsiChar(buffer) + (buffer)^.TotalLength)) then begin
+       Result := (PWSACMSGHDR(nil));
+    end else begin
+       Result :=(PWSACMSGHDR(PAnsiChar(cmsg) + WSA_CMSGHDR_ALIGN(cmsg^.cmsg_len)));
+    end;
+  end;
 end;
 
 {$ENDIF} // {$IFNDEF WINCE}
