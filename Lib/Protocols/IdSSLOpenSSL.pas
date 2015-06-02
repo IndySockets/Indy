@@ -976,6 +976,9 @@ function IndySSL_CTX_use_PrivateKey_file(ctx: PSSL_CTX; const AFileName: String;
   AType: Integer): TIdC_INT; forward;
 function IndySSL_CTX_use_certificate_file(ctx: PSSL_CTX; const AFileName: String;
   AType: Integer): TIdC_INT; forward;
+function IndySSL_CTX_use_certificate_chain_file(ctx :PSSL_CTX;
+  const AFileName: String) : TIdC_INT; forward;
+
 function IndyX509_STORE_load_locations(ctx: PX509_STORE;
   const AFileName, APathName: String): TIdC_INT; forward;
 function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
@@ -1610,6 +1613,96 @@ begin
   end;
 end;
 
+function IndySSL_CTX_use_certificate_chain_file(ctx :PSSL_CTX;
+  const AFileName: String) : TIdC_INT;
+var
+  LM: TMemoryStream;
+  B: PBIO;
+  LX: PX509;
+  ca :PX509;
+  r: TIdC_INT;
+  LErr :TIdC_ULONG;
+
+begin
+  Result := 0;
+
+  ERR_clear_error();    //* clear error stack for
+                        //* SSL_CTX_use_certificate() */
+
+  LM := nil;
+  try
+    LM := TMemoryStream.Create;
+    LM.LoadFromFile(AFileName);
+  except
+    // Surpress exception here since it's going to be called by the OpenSSL .DLL
+    // Follow the OpenSSL .DLL Error conventions.
+    SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_CHAIN_FILE, ERR_R_SYS_LIB);
+    LM.Free;
+    Exit;
+  end;
+  try
+    B := BIO_new_mem_buf(LM.Memory, LM.Size);
+    if not Assigned(B) then begin
+      SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_BUF_LIB);
+      Exit;
+    end;
+    try
+      LX := PEM_read_bio_X509_AUX(B, nil, ctx^.default_passwd_callback,
+                              ctx^.default_passwd_callback_userdata);
+      if (Lx = nil) then begin
+        SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_CHAIN_FILE, ERR_R_PEM_LIB);
+      end else begin
+        Result := SSL_CTX_use_certificate(ctx, Lx);
+        if (ERR_peek_error() <> 0) then begin
+          Result := 0;         //* Key/certificate mismatch doesn't imply
+                               //* ret==0 ... */
+        end;
+        if Result <> 0 then begin
+          SSL_CTX_clear_chain_certs(ctx);
+          repeat
+            ca := PEM_read_bio_X509(B, nil,
+              ctx^.default_passwd_callback,
+              ctx^.default_passwd_callback_userdata);
+            if ca = nil then begin
+              break;
+            end;
+            r := SSL_CTX_add0_chain_cert(ctx, ca);
+            if (r = 0) then begin
+                X509_free(ca);
+                Result := 0;
+                break;
+//                goto end;
+            end;
+            //*
+            //* Note that we must not free r if it was successfully added to
+            //* the chain (while we must free the main certificate, since its
+            //* reference count is increased by SSL_CTX_use_certificate).
+            // */
+          until False;
+          if ca <> nil then begin
+            //* When the while loop ends, it's usually just EOF. */
+            LErr := ERR_peek_last_error();
+            if (ERR_GET_LIB(Lerr) = ERR_LIB_PEM)
+              and (ERR_GET_REASON(Lerr) = PEM_R_NO_START_LINE) then begin
+              ERR_clear_error();
+            end else begin
+              Result := 0;            //* some real error */
+            end;
+          end;
+        end;
+        //err:
+        if LX <> nil then begin
+          X509_free(LX);
+        end;
+      end;
+    finally
+      BIO_free(B);
+    end;
+  finally
+    FreeAndNil(LM);
+  end;
+end;
+
 function IndyX509_STORE_load_locations(ctx: PX509_STORE;
   const AFileName, APathName: String): TIdC_INT;
 var
@@ -1759,6 +1852,22 @@ begin
     PAnsiChar(UTF8String(AFileName))
     {$ENDIF}
     , AType);
+end;
+
+function IndySSL_CTX_use_certificate_chain_file(ctx :PSSL_CTX;
+  const AFileName: String) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFDEF USE_MARSHALLED_PTRS}
+var
+  M: TMarshaller;
+{$ENDIF}
+begin
+  Result := SSL_CTX_use_certificate_chain_file(ctx,
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsUtf8(AFileName).ToPointer
+    {$ELSE}
+    PAnsiChar(UTF8String(AFileName))
+    {$ENDIF});
 end;
 
 function IndyX509_STORE_load_locations(ctx: PX509_STORE;
@@ -2965,13 +3074,13 @@ begin
   end;
   //set SSL Versions we will use
   if not (sslvSSLv2 in SSLVersions) then begin
-    SSL_CTX_set_options(fContext, SSL_OP_NO_SSLv2);
-  end;
-  if not (sslvSSLv3 in SSLVersions) then begin
-    SSL_CTX_set_options(fContext, SSL_OP_NO_SSLv3);
+    SSL_CTX_set_options(fContext, SSL_OP_NO_SSLv2)
   end;
   if not (sslvTLSv1 in SSLVersions) then begin
     SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1);
+  end;
+  if not (sslvSSLv3 in SSLVersions) then begin
+    SSL_CTX_set_options(fContext, SSL_OP_NO_SSLv3);
   end;
 {IMPORTANT!!!  Do not set SSL_CTX_set_options SSL_OP_NO_TLSv1_1 and
 SSL_OP_NO_TLSv1_2 if that functionality is not available.  OpenSSL 1.0 and
@@ -3175,7 +3284,13 @@ begin
   if PosInStrArray(ExtractFileExt(CertFile), ['.p12', '.pfx'], False) <> -1 then begin
     Result := IndySSL_CTX_use_certificate_file_PKCS12(fContext, CertFile) > 0;
   end else begin
-    Result := IndySSL_CTX_use_certificate_file(fContext, CertFile, SSL_FILETYPE_PEM) > 0;
+    //OpenSSL 1.0.2 has a new function, SSL_CTX_use_certificate_chain_file
+    //that handles a chain of certificates in a PEM file.  That is prefered.
+    if Assigned(SSL_CTX_use_certificate_chain_file) then begin
+       Result := IndySSL_CTX_use_certificate_chain_file(fContext, CertFile) >0;
+    end else begin
+      Result := IndySSL_CTX_use_certificate_file(fContext, CertFile, SSL_FILETYPE_PEM) > 0;
+    end;
   end;
 end;
 
