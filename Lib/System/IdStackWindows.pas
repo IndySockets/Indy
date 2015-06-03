@@ -2361,7 +2361,7 @@ end;
 procedure TIdStackWindows.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 var
-  ka: tcp_keepalive;
+  ka: _tcp_keepalive;
   Bytes: DWORD;
 begin
   // SIO_KEEPALIVE_VALS is supported on Win2K+ and WinCE 4.x only

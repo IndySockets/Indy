@@ -1978,6 +1978,13 @@ begin
   Result := SSL_CTX_use_certificate_file(ctx, PAnsiChar(AFileName), AType);
 end;
 
+function IndySSL_CTX_use_certificate_chain_file(ctx :PSSL_CTX;
+  const AFileName: String) : TIdC_INT;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := SSL_CTX_use_certificate_chain_file(ctx, PAnsiChar(AFileName));
+end;
+
 function IndyX509_STORE_load_locations(ctx: PX509_STORE;
   const AFileName, APathName: String): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
