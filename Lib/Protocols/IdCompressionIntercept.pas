@@ -185,7 +185,7 @@ begin
     FCompressRec.zfree := IdZLibHeaders.zlibFreeMem;
     if deflateInit_(FCompressRec, FCompressionLevel, zlib_Version, SizeOf(FCompressRec)) <> Z_OK then
     begin
-      EIdCompressorInitFailure.Toss(RSZLCompressorInitializeFailure);
+      raise EIdCompressorInitFailure.Create(RSZLCompressorInitializeFailure);
     end;
   end;
   if not Assigned(FDecompressRec.zalloc) then
@@ -194,7 +194,7 @@ begin
     FDecompressRec.zfree := IdZLibHeaders.zlibFreeMem;
     if inflateInit_(FDecompressRec, zlib_Version, SizeOf(FDecompressRec)) <> Z_OK then
     begin
-      EIdDecompressorInitFailure.Toss(RSZLDecompressorInitializeFailure);
+      raise EIdDecompressorInitFailure.Create(RSZLDecompressorInitializeFailure);
     end;
   end;
 end;
@@ -245,7 +245,7 @@ begin
           Z_STREAM_ERROR,
           Z_DATA_ERROR,
           Z_MEM_ERROR:
-            EIdDecompressionError.Toss(RSZLDecompressionError);
+            raise EIdDecompressionError.Create(RSZLDecompressionError);
         end;
         Inc(FRecvCount, C - FDecompressRec.avail_out);
       end;

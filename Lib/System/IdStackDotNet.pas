@@ -240,8 +240,8 @@ type
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: Int64): Int64; override;
-    function NetworkToHost(AValue: Int64): Int64; override;
+    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
+    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);override;
@@ -285,18 +285,20 @@ const
 
 { TIdStackDotNet }
 
-function BuildException(AStack: TIdStackDotNet; AException: System.Exception) : EIdException;
+procedure DoRaiseException(AStack: TIdStackDotNet; AException: System.Exception);
 var
   LSocketError : System.Net.Sockets.SocketException;
+  E: EIdException;
 begin
   if AException is System.Net.Sockets.SocketException then
   begin
     LSocketError := AException as System.Net.Sockets.SocketException;
     AStack.LastSocketError := LSocketError.ErrorCode;
-    Result := EIdSocketError.CreateError(LSocketError.ErrorCode, LSocketError.Message)
+    E := EIdSocketError.CreateError(LSocketError.ErrorCode, LSocketError.Message)
   end else begin
-    Result := EIdWrapperException.Create(AException.Message, AException);
+    E := EIdWrapperException.Create(AException.Message, AException);
   end;
+  IndyRaiseOuterException(E);
 end;
 
 { TIdStackDotNet }
@@ -339,7 +341,7 @@ begin
     ASocket.Bind(LEndPoint);
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -354,7 +356,7 @@ begin
     ASocket.Connect(LEndPoint);
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -365,7 +367,7 @@ begin
     ASocket.Close;
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -376,7 +378,7 @@ begin
     ASocket.Listen(ABackLog);
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -407,7 +409,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -435,7 +437,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -463,7 +465,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -495,7 +497,7 @@ begin
     raise System.Net.Sockets.SocketException.Create(11001);
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -512,7 +514,7 @@ begin
     {$ENDIF}
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -535,7 +537,7 @@ begin
     Result := Socket.Create(IdIPFamily[AIPVersion], ASocketType, AProtocol);
   except
     on E: Exception do begin
-      raise BuildException(Self, E);
+      DoRaiseException(Self, E);
     end;
   end;
 end;
@@ -546,7 +548,7 @@ begin
     Result := System.Net.DNS.GetHostName;
   except
     on E: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -557,7 +559,7 @@ begin
     Result := ASocket.Receive(VBuffer, Length(VBuffer), SocketFlags.None);
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -585,7 +587,7 @@ begin
     end;
   except
     on E: Exception do begin
-      raise BuildException(Self, E);
+      DoRaiseException(Self, E);
     end;
   end;
 end;
@@ -609,7 +611,7 @@ begin
       Result := ASocket.ReceiveFrom(VBuffer, SocketFlags.None, LEndPoint);
     except
       on e: Exception do begin
-        raise BuildException(Self, e);
+        DoRaiseException(Self, e);
       end;
     end;
     VIP := IPEndPoint(LEndPoint).Address.ToString;
@@ -653,7 +655,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      DoRaiseException(Self, e);
     end;
   end;
 end;
@@ -757,7 +759,7 @@ begin
       Result := False;
     end;
     on e: Exception do begin
-      raise BuildException(GDotNETStack, e);
+      DoRaiseException(GDotNETStack, e);
     end;
   end;
 end;
@@ -834,7 +836,7 @@ begin
       Result := False;
     end;
     on e: Exception do begin
-      raise BuildException(GDotNETStack, e);
+      DoRaiseException(GDotNETStack, e);
     end;
   end;
 end;
@@ -957,7 +959,7 @@ begin
       Result := False;
     end;
     on e: Exception do begin
-      raise BuildException(GDotNETStack, e);
+      DoRaiseException(GDotNETStack, e);
     end;
   end;
 end;
@@ -979,9 +981,9 @@ begin
   Result := UInt32(IPAddress.HostToNetworkOrder(Int32(AValue)));
 end;
 
-function TIdStackDotNet.HostToNetwork(AValue: Int64): Int64;
+function TIdStackDotNet.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
 begin
-  Result := IPAddress.HostToNetworkOrder(AValue);
+  Result := TIdUInt64(IPAddress.HostToNetworkOrder(Int64(AValue)));
 end;
 
 function TIdStackDotNet.NetworkToHost(AValue: UInt16): UInt16;
@@ -991,12 +993,12 @@ end;
 
 function TIdStackDotNet.NetworkToHost(AValue: UInt32): UInt32;
 begin
-  Result := UInt32(IPAddress.NetworkToHostOrder(Integer(AValue)));
+  Result := UInt32(IPAddress.NetworkToHostOrder(Int32(AValue)));
 end;
 
-function TIdStackDotNet.NetworkToHost(AValue: Int64): Int64;
+function TIdStackDotNet.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
 begin
-  Result := IPAddress.NetworkToHostOrder(AValue);
+  Result := TIdUInt64(IPAddress.NetworkToHostOrder(Int64(AValue));
 end;
 
 procedure TIdStackDotNet.GetSocketOption(ASocket: TIdStackSocketHandle;

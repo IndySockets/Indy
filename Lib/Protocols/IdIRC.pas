@@ -763,7 +763,7 @@ begin
   except
     on E: EIdSocketError do begin
       inherited Disconnect;
-      raise EIdIRCError.Create(RSIRCCannotConnect);
+      IndyRaiseOuterException(EIdIRCError.Create(RSIRCCannotConnect));
     end;
   end;
 end;

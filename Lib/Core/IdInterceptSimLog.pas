@@ -117,7 +117,7 @@ end;
 procedure TIdInterceptSimLog.SetFilename(const AValue: string);
 begin
   if Assigned(FStream) then begin
-    EIdException.Toss(RSLogFileAlreadyOpen);
+    raise EIdException.Create(RSLogFileAlreadyOpen);
   end;
   FFilename := AValue;
 end;

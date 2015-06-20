@@ -398,7 +398,7 @@ begin
   try
     AIOHandler.ReadBytes(LBuf, 5, False);    // Socks server replies on connect, this is the first part
   except
-    raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
+    IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
   end;
 
   case LBuf[1] of
@@ -430,7 +430,7 @@ begin
     // RLebeau: why -1?
     AIOHandler.ReadBytes(LBuf, Lpos-1, False);      // just write it over the first part for now
   except
-    raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
+    IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
   end;
 end;
 
@@ -464,7 +464,7 @@ begin
       AIOHandler.ReadBytes(LResponse, 6, False); //overwrite the first part for now
       TIdIOHandlerSocket(AIOHandler).Binding.SetBinding(BytesToIPv4Str(LResponse, 2), LResponse[0]*256+LResponse[1]);
     except
-      raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
+      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
     end;
   finally
     LClient.IOHandler := nil;
@@ -527,9 +527,7 @@ begin
   try
     AIOHandler.ReadBytes(LBuf, 2, False); // Socks server sends the selected authentication method
   except
-    On E: Exception do begin
-      raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
-    end;
+    IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
   end;
 
   LServerAuthMethod := LBuf[1];
@@ -561,9 +559,7 @@ begin
     try
       AIOHandler.ReadBytes(LBuf, 2, False);    // Socks server sends the authentication status
     except
-      On E: Exception do begin
-        raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
-      end;
+      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
     end;
 
     if LBuf[1] <> $0 then begin
@@ -601,7 +597,7 @@ begin
     try
       AIOHandler.ReadBytes(LBuf, 4, False);    // Socks server replies on connect, this is the first part
     except
-      raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
+      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
     end;
 
     case LBuf[1] of
@@ -645,7 +641,7 @@ begin
             end;
       end;
     except
-      raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
+      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
     end;
   finally
     LClient.IOHandler := nil;
@@ -789,7 +785,7 @@ begin
     try
       FUDPSocksAssociation.ReadBytes(LBuf, 2, False);    // Socks server replies on connect, this is the first part )VER and RSP
     except
-      raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
+      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
     end;
 
     case LBuf[1] of
@@ -827,14 +823,11 @@ begin
       AHandle.SetPeer( (FUDPSocksAssociation as TIdIOHandlerStack).Binding.PeerIP ,LBuf[4]*256+LBuf[5],LIPVersion);
       AHandle.Connect;
     except
-      raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
+      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
     end;
   except
-    on E: Exception do
-    begin
-      FUDPSocksAssociation.Close;
-      raise;
-    end;
+    FUDPSocksAssociation.Close;
+    raise;
   end;
 end;
 

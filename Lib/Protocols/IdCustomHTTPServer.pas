@@ -1631,7 +1631,7 @@ begin
     // gets called by Notification() if the sessionList is freed while
     // the server is still Active?
     if Active then begin
-      EIdException.Toss(RSHTTPCannotSwitchSessionListWhenActive);
+      raise EIdException.Create(RSHTTPCannotSwitchSessionListWhenActive);
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
@@ -2119,7 +2119,7 @@ var
   LBufferingStarted: Boolean;
 begin
   if HeaderHasBeenWritten then begin
-    EIdHTTPHeaderAlreadyWritten.Toss(RSHTTPHeaderAlreadyWritten);
+    raise EIdHTTPHeaderAlreadyWritten.Create(RSHTTPHeaderAlreadyWritten);
   end;
   FHeaderHasBeenWritten := True;
 

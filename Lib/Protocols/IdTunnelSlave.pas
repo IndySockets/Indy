@@ -309,7 +309,7 @@ begin
           SClient.Connect;
         except
           fbActive := False;
-          raise EIdTunnelConnectToMasterFailed.Create(RSTunnelConnectToMasterFailed);
+          IndyRaiseOuterException(EIdTunnelConnectToMasterFailed.Create(RSTunnelConnectToMasterFailed));
           //Exit;
         end;
         if not ErrorConnecting then begin
@@ -903,7 +903,7 @@ begin
           // Custom data transformation
             SlaveParent.DoTransformRead(Receiver);
           except
-            raise EIdTunnelTransformError.Create(RSTunnelTransformError);
+            IndyRaiseOuterException(EIdTunnelTransformError.Create(RSTunnelTransformError));
           end;
 
           // Action
@@ -921,7 +921,7 @@ begin
                   SetString(s, Receiver.Msg, Receiver.MsgLen);
                   SlaveParent.ClientOperation(1, Receiver.Header.UserId, s);
                 except
-                  raise EIdTunnelMessageHandlingFailed.Create(RSTunnelMessageHandlingError);
+                  IndyRaiseOuterException(EIdTunnelMessageHandlingFailed.Create(RSTunnelMessageHandlingError));
                 end;
               end; // Data END
 
@@ -930,7 +930,7 @@ begin
                 try
                   SlaveParent.ClientOperation(2, Receiver.Header.UserId, '');    {Do not Localize}
                 except
-                  raise EIdTunnelMessageHandlingFailed.Create(RSTunnelMessageHandlingError);
+                  IndyRaiseOuterException(EIdTunnelMessageHandlingFailed.Create(RSTunnelMessageHandlingError));
                 end;
               end;
 
@@ -943,7 +943,7 @@ begin
                   try
                     SlaveParent.DoInterpretMsg(CustomMsg);
                   except
-                    raise EIdTunnelInterpretationOfMessageFailed.Create(RSTunnelMessageInterpretError);
+                    IndyRaiseOuterException(EIdTunnelInterpretationOfMessageFailed.Create(RSTunnelMessageInterpretError));
                   end;
                   if Length(CustomMsg) > 0 then begin
                     Header.MsgType := 99;
@@ -952,7 +952,7 @@ begin
                   end;
                 except
                   SlaveParent.ManualDisconnected := False;
-                  raise EIdTunnelCustomMessageInterpretationFailure.Create(RSTunnelMessageCustomInterpretError);
+                  IndyRaiseOuterException(EIdTunnelCustomMessageInterpretationFailure.Create(RSTunnelMessageCustomInterpretError));
                 end;
 
               end;
@@ -972,10 +972,10 @@ begin
     on E: EIdSocketError do begin
       case E.LastError of
         10054: Connection.Disconnect;
-        else
-           begin
-             Terminate;
-           end;
+      else
+        begin
+          Terminate;
+        end;
       end;
     end;
     on EIdClosedSocket do ;

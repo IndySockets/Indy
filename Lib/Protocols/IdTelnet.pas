@@ -475,10 +475,10 @@ begin
   try
     inherited Disconnect(ANotifyPeer);
   finally
-    if Assigned(FTelnetThread) then begin
+    if Assigned(FTelnetThread) and (not IsCurrentThread(FTelnetThread)) then begin
       FTelnetThread.WaitFor;
+      FreeAndNil(FTelnetThread);
     end;
-    FreeAndNil(FTelnetThread);
   end;
 end;
 
@@ -500,7 +500,7 @@ begin
     FTelnetThread := TIdTelnetReadThread.Create(Self);
   except
     Disconnect(True);
-    raise EIdTelnetClientConnectError.Create(RSNoCreateListeningThread);  // translate
+    IndyRaiseOuterException(EIdTelnetClientConnectError.Create(RSNoCreateListeningThread));  // translate
   end;
 end;
 

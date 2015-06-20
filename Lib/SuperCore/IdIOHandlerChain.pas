@@ -351,7 +351,7 @@ begin
       GWindowsStack.SetBlocking(Binding.Handle, False);
     end;
     else begin
-      EIdException.Toss('Unrecognized ConnectMode'); {do not localize}
+      raise EIdException.Create('Unrecognized ConnectMode'); {do not localize}
     end;
   end;
   QueueAndWait(TIdWorkOpUnitWaitConnected.Create);
@@ -408,7 +408,7 @@ function TIdIOHandlerChain.ReadFromSource(
  ARaiseExceptionOnTimeout: Boolean): Integer;
 begin
   Result := 0;
-  EIdException.Toss('Fall through error in ' + ClassName); {do not localize}
+  raise EIdException.Create('Fall through error in ' + ClassName); {do not localize}
 end;
 
 procedure TIdIOHandlerChain.ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
@@ -462,7 +462,7 @@ begin
     if (AMaxLineLength <> 0) and (LTermPos > AMaxLineLength) then begin
       case FMaxLineAction of
         // TODO: find the right exception class here
-        maException: EIdException.Toss('MaxLineLength exceded'); {do not localize}
+        maException: raise EIdException.Create('MaxLineLength exceded'); {do not localize}
         maSplit: Result := FInputBuffer.Extract(AMaxLineLength);
       end;
     end else begin
@@ -599,7 +599,7 @@ begin
     LWorkOpUnit.RaiseException;
     // Check for timeout
     if LWorkOpUnit.TimedOut then begin
-      EIdReadTimeout.Toss('Timed out'); {do not localize}
+      raise EIdReadTimeout.Create('Timed out'); {do not localize}
     end;
     // Check to see if it was closed during this operation
     CheckForDisconnect(AAllowGracefulException);

@@ -272,16 +272,17 @@ procedure TIdIOHandlerStack.ConnectClient;
 
       if LThread.Terminated then begin
         if LThread.FExceptionOccured then begin
+          // TODO: acquire the actual Exception object from TIdConnectThread and re-raise it here
           if LThread.FLastSocketError <> 0 then begin
             raise EIdSocketError.CreateError(LThread.FLastSocketError, LThread.FExceptionMessage);
           end;
-          EIdConnectException.Toss(LThread.FExceptionMessage);
+          raise EIdConnectException.Create(LThread.FExceptionMessage);
         end;
       end else begin
         LThread.Terminate;
         Close;
         LThread.WaitFor;
-        EIdConnectTimeout.Toss(RSConnectTimeout);
+        raise EIdConnectTimeout.Create(RSConnectTimeout);
       end;
     finally
       LThread.Free;
@@ -417,6 +418,7 @@ begin
     FBinding.Connect;
   except
     on E: Exception do begin
+      // TODO: acquire the actual Exception object and re-raise it in TIdIOHandlerStack.ConnectClient()
       FExceptionOccured := True;
       FExceptionMessage := E.Message;
       if E is EIdSocketError then begin

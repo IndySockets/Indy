@@ -286,7 +286,7 @@ begin
       Exit;
     end;
   end;
-  EIdSASLMechNeeded.Toss(RSSASLRequired);
+  raise EIdSASLMechNeeded.Create(RSSASLRequired);
 end;
 
 function TIdSASLEntries.GetItem(Index: Integer): TIdSASLListEntry;
@@ -375,7 +375,7 @@ begin
     end;
 
     if LSASLList.Count = 0 then begin
-      EIdSASLNotSupported.Toss(RSSASLNotSupported);
+      raise EIdSASLNotSupported.Create(RSSASLNotSupported);
     end;
 
     //now do it
@@ -406,7 +406,7 @@ begin
           if Assigned(LError) then begin
             LError.RaiseReplyError;
           end else begin
-            EIdSASLNotReady.Toss(RSSASLNotReady);
+            raise EIdSASLNotReady.Create(RSSASLNotReady);
           end;
         finally
           FreeAndNil(LError);
@@ -448,10 +448,10 @@ begin
   end;
 
   if LSASL = nil then begin
-    EIdSASLNotSupported.Toss(RSSASLNotSupported);
-  end
-  else if not LSASL.IsReadyToStart then begin
-    EIdSASLNotReady.Toss(RSSASLNotReady);
+    raise EIdSASLNotSupported.Create(RSSASLNotSupported);
+  end;
+  if not LSASL.IsReadyToStart then begin
+    raise EIdSASLNotReady.Create(RSSASLNotReady);
   end;
 
   //now do it

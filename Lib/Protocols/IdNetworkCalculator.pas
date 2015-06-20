@@ -170,9 +170,7 @@ begin
       cardBuffers[I] := IndyStrToInt(strBuffers[I]);
     end;
   except
-    on E: exception do begin
-      raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
-    end;
+    IndyRaiseOuterException(EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]));
   end;
   // range check
   for I := 0 to 3 do begin

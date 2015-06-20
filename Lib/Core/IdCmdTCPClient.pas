@@ -233,7 +233,7 @@ begin
     FListeningThread := TIdCmdTCPClientListeningThread.Create(Self);
   except
     Disconnect(True);
-    raise EIdCmdTCPClientConnectError.Create(RSNoCreateListeningThread);  // translate
+    IndyRaiseOuterException(EIdCmdTCPClientConnectError.Create(RSNoCreateListeningThread));
   end;
 end;
 

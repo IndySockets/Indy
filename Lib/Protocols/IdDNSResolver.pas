@@ -1473,7 +1473,7 @@ begin
   end;
 
   if FQuestionLength = 0 then begin
-    raise EIdDnsResolverError.Create(IndyFormat(RSQueryInvalidQueryCount, [0]));
+    raise EIdDnsResolverError.CreateFmt(RSQueryInvalidQueryCount, [0]);
   end;
 
   if qtAXFR in QueryType then begin
@@ -1512,11 +1512,11 @@ begin
       except
         on EIdConnectTimeout do begin
           SetLength(FPlainTextResult, 0);
-          EIdDNSResolverError.Create(RSDNSTimeout);
+          IndyRaiseOuterException(EIdDNSResolverError.Create(RSDNSTimeout));
         end;
         on EIdConnectException do begin
           SetLength(FPlainTextResult, 0);
-          EIdDNSResolverError.Create(RSTunnelConnectToMasterFailed);
+          IndyRaiseOuterException(EIdDNSResolverError.Create(RSTunnelConnectToMasterFailed));
         end;
       end;
     finally
@@ -1561,11 +1561,11 @@ begin
       except
         on EIdConnectTimeout do begin
           SetLength(FPlainTextResult, 0);
-          raise EIdDNSResolverError.Create(RSDNSTimeout);
+          IndyRaiseOuterException(EIdDNSResolverError.Create(RSDNSTimeout));
         end;
         on EIdConnectException do begin
           SetLength(FPlainTextResult, 0);
-          raise EIdDNSResolverError.Create(RSTunnelConnectToMasterFailed);
+          IndyRaiseOuterException(EIdDNSResolverError.Create(RSTunnelConnectToMasterFailed));
         end;
       end;
     finally

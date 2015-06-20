@@ -15,6 +15,7 @@ ways.
 
 {$I IdSymbolPlatformOff.inc}
 {$I IdUnitPlatformOff.inc}
+
 uses
   Classes,
   IdCTypes,
@@ -27,6 +28,12 @@ uses
   IdStackBSDBase;
 
 type
+  {$IFDEF USE_VCL_POSIX}
+    {$IFDEF ANDROID}
+  EIdAccessWifiStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
+  EIdAccessNetworkStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
+    {$ENDIF}
+  {$ENDIF}
 
   TIdSocketListVCLPosix = class (TIdSocketList)
   protected
@@ -37,8 +44,6 @@ type
       AExceptSet: Pfd_set; const ATimeout: Integer): Integer;
     function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
   public
-
-
     procedure Add(AHandle: TIdStackSocketHandle); override;
     procedure Remove(AHandle: TIdStackSocketHandle); override;
     function Count: Integer; override;
@@ -101,8 +106,8 @@ type
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: UInt64): UInt64; override;
-    function NetworkToHost(AValue: UInt64): UInt64; override;
+    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
+    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle;
       var VBuffer; const ALength, AFlags: Integer; var VIP: string;
       var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer; override;
@@ -552,6 +557,79 @@ begin
 
   {$ELSE}
 
+  // TODO: on Android, either implement getifaddrs() (https://github.com/kmackay/android-ifaddrs)
+  // or use the Java API to enumerate the local network interfaces and their IP addresses, eg:
+  {
+  var
+    en, enumIpAddr: Enumeration;
+    intf: NetworkInterface;
+    inetAddress: InetAddress;
+  begin
+    try
+      en := NetworkInterface.getNetworkInterfaces;
+      if en.hasMoreElements then begin
+        AAddresses.BeginUpdate;
+        try
+          repeat
+            intf := en.nextElement;
+            enumIpAddr := intf.getInetAddresses();
+            while enumIpAddr.hasMoreElements do begin
+              inetAddress := enumIpAddr.nextElement;
+              if not inetAddress.isLoopbackAddress then begin
+                if (inetAddress instanceof Inet4Address) then begin
+                  TIdStackLocalAddressIPv4.Create(AAddresses, inetAddress.getHostAddress.toString, '');
+                end
+                else if (inetAddress instanceof Inet6Address) then begin
+                  TIdStackLocalAddressIPv6.Create(AAddresses, inetAddress.getHostAddress.toString);
+                end;
+              end;
+            end;
+          until not en.hasMoreElements;
+        finally
+          AAddresses.EndUpdate;
+        end;
+       end;
+     except
+       if not HasAndroidPermission('android.permission.INTERNET') then begin
+         IndyRaiseOuterException(EIdInternetPermissionNeeded.CreateError(0, ''));
+       end;
+       if not HasAndroidPermission('android.permission.ACCESS_NETWORK_STATE') then begin
+         IndyRaiseOuterException(EIdAccessNetworkStatePermissionNeeded.CreateError(0, ''));
+       end;
+       raise;
+     end;
+   end;
+
+  Note that this require the application to have INTERNET and ACCESS_NETWORK_STATE permissions.
+
+  Or:
+
+  uses
+    if XE7+
+      Androidapi.Helpers 
+    else
+      FMX.Helpers.Android 
+    ;
+
+  var
+    wifiManager: WifiManager;
+    ipAddress: Integer;
+  begin
+    try
+      wifiManager := (WifiManager) SharedActivityContext.getSystemService(WIFI_SERVICE);
+      ipAddress := wifiManager.getConnectionInfo.getIpAddress;
+    except
+      if not HasAndroidPermission('android.permission.ACCESS_WIFI_STATE') then begin
+        IndyRaiseOuterException(EIdAccessWifiStatePermissionNeeded.CreateError(0, ''));
+      end;
+      raise;
+    end;
+    TIdStackLocalAddressIPv4.Create(AAddresses, Format('%d.%d.%d.%d', [ipAddress and $ff, (ipAddress shr 8) and $ff, (ipAddress shr 16) and $ff, (ipAddress shr 24) and $ff]), '');
+  end;
+
+  This requires only ACCESS_WIFI_STATE permission.
+  }
+
   //IMPORTANT!!!
   //
   //The Hints structure must be zeroed out or you might get an AV.
@@ -912,7 +990,7 @@ begin
   Result := htons(AValue);
 end;
 
-function TIdStackVCLPosix.HostToNetwork(AValue: UInt64): UInt64;
+function TIdStackVCLPosix.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
 var
   LParts: TIdUInt64Parts;
   L: UInt32;
@@ -943,7 +1021,7 @@ begin
   Result := ntohl(AValue);
 end;
 
-function TIdStackVCLPosix.NetworkToHost(AValue: UInt64): UInt64;
+function TIdStackVCLPosix.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
 var
   LParts: TIdUInt64Parts;
   L: UInt32;
@@ -1227,7 +1305,7 @@ begin
       Result := IndyStrToInt(AServiceName);
     except
       on EConvertError do begin
-        raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
+        IndyRaiseOuterException(EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]));
       end;
     end;
   end;

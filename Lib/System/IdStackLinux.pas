@@ -144,8 +144,8 @@ type
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: UInt64): UInt64; override;
-    function NetworkToHost(AValue: UInt64): UInt64; override;
+    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
+    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
       var VIPVersion: TIdIPVersion): Integer; override;
@@ -375,6 +375,7 @@ begin
       {$IFDEF STRING_IS_UNICODE}
       LAStr := AnsiString(AHostName); // explicit convert to Ansi
       {$ENDIF}
+      // TODO: use getaddrinfo() instead for IPv4 as well...
       LHost := Libc.gethostbyname(
         PAnsiChar({$IFDEF STRING_IS_UNICODE}LAStr{$ELSE}AHostName{$ENDIF}));
       if LHost <> nil then begin
@@ -689,7 +690,7 @@ begin
       Result := IndyStrToInt(AServiceName);
     except
       on EConvertError do begin
-        raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
+        IndyRaiseOuterException(EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]));
       end;
     end;
   end;
@@ -745,32 +746,32 @@ end;
 
 { RP - I'm not sure what endian Linux natively uses, thus the
 check to see if the bytes need swapping or not ... }
-function TIdStackLinux.HostToNetwork(AValue: UInt64): UInt64;
+function TIdStackLinux.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
 var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue;
+  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   L := htonl(LParts.HighPart);
   if (L <> LParts.HighPart) then begin
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
   end;
-  Result := LParts.QuadPart;
+  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
 end;
 
-function TIdStackLinux.NetworkToHost(AValue: UInt64): UInt64;
+function TIdStackLinux.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
 var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue;
+  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   L := ntohl(LParts.HighPart);
   if (L <> LParts.HighPart) then begin
     LParts.HighPart := ntohl(LParts.LowPart);
     LParts.LowPart := L;
   end;
-  Result := LParts.QuadPart;
+  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
 end;
 
 procedure TIdStackLinux.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);

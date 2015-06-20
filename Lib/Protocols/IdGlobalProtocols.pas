@@ -3318,7 +3318,7 @@ begin
   LExt := IndyLowerCase(Ext);
   if Length(LExt) = 0 then begin
     if ARaiseOnError then begin
-      EIdException.Toss(RSMIMEExtensionEmpty);
+      raise EIdException.Create(RSMIMEExtensionEmpty);
     end;
     Exit;
   end;
@@ -3326,7 +3326,7 @@ begin
   LMIMEType := IndyLowerCase(MIMEType);
   if Length(LMIMEType) = 0 then begin
     if ARaiseOnError then begin
-      EIdException.Toss(RSMIMEMIMETypeEmpty);
+      raise EIdException.Create(RSMIMEMIMETypeEmpty);
     end;
     Exit;
   end;
@@ -3339,7 +3339,7 @@ begin
     FMIMEList.Add(LMIMEType);
   end else begin
     if ARaiseOnError then begin
-      EIdException.Toss(RSMIMEMIMEExtAlreadyExists);
+      raise EIdException.Create(RSMIMEMIMEExtAlreadyExists);
     end;
     Exit;
   end;

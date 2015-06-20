@@ -1203,7 +1203,7 @@ var
   LStream: TIdReadFileExclusiveStream;
 begin
   if not FileExists(AFilename) then begin
-    EIdMessageCannotLoad.Toss(IndyFormat(RSIdMessageCannotLoad, [AFilename]));
+    raise EIdMessageCannotLoad.CreateFmt(RSIdMessageCannotLoad, [AFilename]);
   end;
   LStream := TIdReadFileExclusiveStream.Create(AFilename); try
     LoadFromStream(LStream, AHeadersOnly);

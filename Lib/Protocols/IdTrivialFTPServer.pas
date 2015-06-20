@@ -224,7 +224,7 @@ begin
   except
     // TODO: implement this in a platform-neutral manner.  EFOpenError is VCL-specific
     on E: EFOpenError do begin
-      raise EIdTFTPFileNotFound.Create(E.Message);
+      IndyRaiseOuterException(EIdTFTPFileNotFound.Create(E.Message));
     end;
   end;
   {$ENDIF}
@@ -385,7 +385,7 @@ begin
       try
         AdjustStreamSize(LStream, RequestedTransferSize);
       except
-        raise EIdTFTPAllocationExceeded.CreateFmt(RSTFTPDiskFull, [0]);
+        IndyRaiseOuterException(EIdTFTPAllocationExceeded.CreateFmt(RSTFTPDiskFull, [0]));
       end;
     end;
 
@@ -395,7 +395,7 @@ begin
   except
     // TODO: implement this in a platform-neutral manner.  EFCreateError is VCL-specific
     on E: EFCreateError do begin
-      raise EIdTFTPAllocationExceeded.Create(E.Message);
+      IndyRaiseOuterException(EIdTFTPAllocationExceeded.Create(E.Message));
     end;
   end;
   {$ENDIF}

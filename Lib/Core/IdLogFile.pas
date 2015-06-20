@@ -162,7 +162,7 @@ end;
 procedure TIdLogFile.SetFilename(const AFilename: String);
 begin
   if Assigned(FFileStream) then begin
-    EIdException.Toss(RSLogFileAlreadyOpen);
+    raise EIdException.Create(RSLogFileAlreadyOpen);
   end;
   FFilename := AFilename;
 end;

@@ -275,7 +275,7 @@ begin
           LM := LM + 'Stack Trace: '+ EOL+ LR.LoaderExceptions[i].StackTrace +EOL;
 
         end;
-        raise Exception.Create('Load Error'+EOL+LM);
+        IndyRaiseOuterException(Exception.Create('Load Error'+EOL+LM));
       end
       else
       begin

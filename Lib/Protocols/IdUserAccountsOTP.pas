@@ -278,7 +278,7 @@ end;
 procedure TIdOTPUserManager.SetDefaultPassword(const AValue: String);
 begin
   if not IsValidPassword(AValue) then begin
-    EIdOTPInvalidPassword.Toss(RSOTP_InvalidPassword);
+    raise EIdOTPInvalidPassword.Create(RSOTP_InvalidPassword);
   end;
   FDefaultPassword := AValue;
 end;
@@ -286,7 +286,7 @@ end;
 procedure TIdOTPUserManager.SetMaxCount(const AValue: LongWord);
 begin
   if AValue <= 1 then begin
-    EIdOTPInvalidCount.Toss(RSOTP_InvalidCount);
+    raise EIdOTPInvalidCount.Create(RSOTP_InvalidCount);
   end;
   FMaxCount := AValue;
 end;
@@ -412,7 +412,7 @@ end;
 procedure TIdOTPUserAccount.SetPassword(const AValue: String);
 begin
   if not IsValidPassword(AValue) then begin
-    EIdOTPInvalidPassword.Toss(RSOTP_InvalidPassword);
+    raise EIdOTPInvalidPassword.Create(RSOTP_InvalidPassword);
   end;
   inherited SetPassword(AValue);
 end;
@@ -420,7 +420,7 @@ end;
 procedure TIdOTPUserAccount.SetSeed(const AValue: String);
 begin
   if not IsValidSeed(LowerCase(AValue)) then begin
-    EIdOTPInvalidSeed.Toss(RSOTP_SeedBadFormat);
+    raise EIdOTPInvalidSeed.Create(RSOTP_SeedBadFormat);
   end;
   FSeed := LowerCase(AValue);
   FCurrentCount := TIdOTPUserManager(TIdOTPUserAccounts(Collection).GetOwner).MaxCount;

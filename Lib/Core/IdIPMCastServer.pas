@@ -170,7 +170,7 @@ procedure TIdIPMCastServer.MulticastBuffer(const AHost: string; const APort: Int
 begin
   // DS - if not IsValidMulticastGroup(FMulticastGroup) then
   if not IsValidMulticastGroup(AHost) then begin
-    EIdMCastNotValidAddress.Toss(RSIPMCastInvalidMulticastAddress);
+    raise EIdMCastNotValidAddress.Create(RSIPMCastInvalidMulticastAddress);
   end;
   Binding.SendTo(AHost, APort, ABuffer, Binding.IPVersion);
 end;

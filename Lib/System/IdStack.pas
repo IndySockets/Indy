@@ -170,7 +170,8 @@ type
 
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF ANDROID}
-  EIdInternetPermissionNeeded = class(EIdSocketError);
+  EIdAndroidPermissionNeeded = class(EIdSocketError);
+  EIdInternetPermissionNeeded = class(EIdAndroidPermissionNeeded);
     {$ENDIF}
   {$ENDIF}
 
@@ -303,7 +304,7 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
     function HostToNetwork(AValue: UInt16): UInt16; overload; virtual; abstract;
     function HostToNetwork(AValue: UInt32): UInt32; overload; virtual; abstract;
-    function HostToNetwork(AValue: UInt64): UInt64; overload; virtual; abstract;
+    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; overload; virtual; abstract;
     function HostToNetwork(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     function IsIP(AIP: string): Boolean;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
@@ -319,7 +320,7 @@ type
       : TIdStackSocketHandle; virtual; abstract;
     function NetworkToHost(AValue: UInt16): UInt16; overload; virtual; abstract;
     function NetworkToHost(AValue: UInt32): UInt32; overload; virtual; abstract;
-    function NetworkToHost(AValue: UInt64): UInt64; overload; virtual; abstract;
+    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; overload; virtual; abstract;
     function NetworkToHost(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
@@ -399,6 +400,12 @@ var
 
 // Procedures
   procedure SetStackClass( AStackClass: TIdStackClass );
+
+{$IFDEF USE_VCL_POSIX}
+  {$IFDEF ANDROID}
+function HasAndroidPermission(const Permission: string): Boolean;
+  {$ENDIF}
+{$ENDIF}
 
 implementation
 
@@ -740,9 +747,13 @@ begin
         end;
       end;
     Id_IPv6: begin
-        Result := IdGlobal.MakeCanonicalIPv6Address(AHost);
-        if Result = '' then begin
-          Result := HostByName(AHost, Id_IPv6);
+        if TextIsSame(AHost, 'LOCALHOST') then begin    {Do not Localize}
+          Result := '::1';    {Do not Localize}
+        end else begin
+          Result := IdGlobal.MakeCanonicalIPv6Address(AHost);
+          if Result = '' then begin
+            Result := HostByName(AHost, Id_IPv6);
+          end;
         end;
       end;
     else begin
@@ -783,10 +794,10 @@ begin
   try
     if GInstanceCount = 0 then begin
       if GStack <> nil then begin
-        EIdException.Toss(RSStackAlreadyCreated);
+        raise EIdException.Create(RSStackAlreadyCreated);
       end;
       if GStackClass = nil then begin
-        EIdException.Toss(RSStackClassUndefined);
+        raise EIdException.Create(RSStackClassUndefined);
       end;
       GStack := GStackClass.Create;
     end;
@@ -830,7 +841,7 @@ end;
 
 {$IFDEF USE_VCL_POSIX}
   {$IFDEF ANDROID}
-function HasPermission(const Permission: string): Boolean;
+function HasAndroidPermission(const Permission: string): Boolean;
 begin
   Result := SharedActivityContext.checkCallingOrSelfPermission(StringToJString(Permission)) = TJPackageManager.JavaClass.PERMISSION_GRANTED;
 end;
@@ -860,7 +871,7 @@ begin
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF ANDROID}
   if (AErr = 9{EBADF}) or (AErr = 12{EBADR?}) or (AErr = 13{EACCES}) then begin
-    if not HasPermission('android.permission.INTERNET') then begin {Do not Localize}
+    if not HasAndroidPermission('android.permission.INTERNET') then begin {Do not Localize}
       raise EIdInternetPermissionNeeded.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
     end;
   end;

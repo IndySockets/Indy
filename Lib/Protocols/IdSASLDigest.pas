@@ -192,18 +192,18 @@ begin
     end;
     if LQopOptions.IndexOf('auth-conf') > -1 then begin
       if LQopOptions.IndexOf('auth') = -1 then begin
-        EIdSASLDigestAuthConfNotSupported.Toss(RSSASLDigestAuthConfNotSupported);
+        raise EIdSASLDigestAuthConfNotSupported.Create(RSSASLDigestAuthConfNotSupported);
       end;
     end;
     LNonce := LChallange.Values['nonce'];
     LRealm :=  LChallange.Values['realm'];
     LAlgorithm :=  LChallange.Values['algorithm'];
     if LAlgorithm = '' then begin
-      EIdSASLDigestChallNoAlgorithm.Toss(RSSASLDigestMissingAlgorithm);
+      raise EIdSASLDigestChallNoAlgorithm.Create(RSSASLDigestMissingAlgorithm);
     end;
     {
     if LAlgorithm <> 'md5-sess' then begin
-      EIdSASLDigestChallInvalidAlg.Toss(RSSASLDigestInvalidAlgorithm);
+      raise EIdSASLDigestChallInvalidAlg.Create(RSSASLDigestInvalidAlgorithm);
     end;
     }
 
@@ -218,7 +218,7 @@ begin
 
 //    if LQopOptions.IndexOf('auth-conf') > -1 then begin
 //      if LQopOptions.IndexOf('auth') = -1 then begin
-//        EIdSASLDigestAuthConfNotSupported.Toss(RSSASLDigestAuthConfNotSupported);
+//        raise EIdSASLDigestAuthConfNotSupported.Create(RSSASLDigestAuthConfNotSupported);
 //      end;
 //    end;
 

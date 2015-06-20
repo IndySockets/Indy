@@ -264,11 +264,11 @@ begin
 
   //did we get the initial colon?
   if LCopyToPos = -1 then begin
-    EIdMissingColon.Toss('Block passed to TIdDecoderBinHex4.Decode is missing a starting colon :');    {Do not Localize}
+    raise EIdMissingColon.Create('Block passed to TIdDecoderBinHex4.Decode is missing a starting colon :');    {Do not Localize}
   end;
   //did we get the terminating colon?
   if LCopyToPos <> -2 then begin
-    EIdMissingColon.Toss('Block passed to TIdDecoderBinHex4.Decode is missing a terminating colon :'); {Do not Localize}
+    raise EIdMissingColon.Create('Block passed to TIdDecoderBinHex4.Decode is missing a terminating colon :'); {Do not Localize}
   end;
 
   if Length(LIn) = 0 then begin
@@ -406,7 +406,7 @@ var
   LRemainder: integer;
 begin
   if FFileName = '' then begin
-    EIdMissingFileName.Toss('Data passed to TIdEncoderBinHex4.Encode is missing a filename');    {Do not Localize}
+    raise EIdMissingFileName.Create('Data passed to TIdEncoderBinHex4.Encode is missing a filename');    {Do not Localize}
   end;
   //Read in the attachment first...
   LSSize := IndyLength(ASrcStream, ABytes);

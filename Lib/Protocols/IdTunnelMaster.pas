@@ -598,9 +598,7 @@ begin
       try
         DoTransformSend(MasterThread, Header, tmpString);
       except
-        on E: Exception do begin
-          raise EIdTunnelTransformErrorBeforeSend.Create(RSTunnelTransformErrorBS);
-        end;
+        IndyRaiseOuterException(EIdTunnelTransformErrorBeforeSend.Create(RSTunnelTransformErrorBS));
       end;
       if Header.MsgType = tmError then begin // error ocured in transformation
         raise EIdTunnelTransformErrorBeforeSend.Create(RSTunnelTransformErrorBS);

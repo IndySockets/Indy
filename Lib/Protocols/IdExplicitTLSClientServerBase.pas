@@ -399,7 +399,10 @@ begin
     // The socket data may be in a bad state at this point!
     Disconnect(False);
   end;
-  raise EIdTLSClientTLSHandShakeFailed.Create(RSTLSSLSSLHandshakeFailed);
+  // This method should always be called in the context of an active 'except'
+  // block, so use IndyRaiseOuterException() to capture the inner exception
+  // (if possible) when raising this outer exception...
+  IndyRaiseOuterException(EIdTLSClientTLSHandShakeFailed.Create(RSTLSSLSSLHandshakeFailed));
 end;
 
 procedure TIdExplicitTLSClient.TLSNegCmdFailed;
@@ -407,6 +410,9 @@ begin
   if Connected then begin
     Disconnect;
   end;
+  // This method should never be called in the context of an active 'except'
+  // block, so do not use IndyRaiseOuterException() to capture an inner exception
+  // when raising this exception...
   raise EIdTLSClientTLSNegCmdFailed.Create(RSTLSSLSSLCmdFailed);
 end;
 

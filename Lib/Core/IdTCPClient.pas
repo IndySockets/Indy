@@ -272,14 +272,14 @@ end;
 procedure TIdTCPClientCustom.Connect;
 begin
   if Connected then begin
-    EIdAlreadyConnected.Toss(RSAlreadyConnected);
+    raise EIdAlreadyConnected.Create(RSAlreadyConnected);
   end;
 
   if Host = '' then begin
-    EIdHostRequired.Toss('');
+    raise EIdHostRequired.Create('A Host is required'); {do not localize}
   end;
   if Port = 0 then begin
-    EIdPortRequired.Toss('');
+    raise EIdPortRequired.Create('A Port is required'); {do not localize}
   end;
 
   if IOHandler = nil then begin

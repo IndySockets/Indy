@@ -81,6 +81,8 @@
 // as specified further below.
 {$UNDEF HAS_TEncoding}
 {$UNDEF HAS_TEncoding_GetEncoding_ByEncodingName}
+{$UNDEF HAS_Exception_RaiseOuterException}
+{$UNDEF HAS_System_ReturnAddress}
 {$UNDEF HAS_TCharacter}
 {$UNDEF HAS_TInterlocked}
 {$UNDEF HAS_TNetEncoding}
@@ -930,6 +932,10 @@
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
   {$ENDIF}
+  // UInt64 is emitted as signed __int64 instead of unsigned __int64 in HPP files
+  {$IFDEF CBUILDER}
+    {$DEFINE BROKEN_UINT64_HPPEMIT}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_2007_OR_ABOVE}
@@ -980,6 +986,16 @@
   {$DEFINE HAS_UInt16}
   {$DEFINE HAS_Int32}
   {$DEFINE HAS_UInt32}
+  // UInt64 is now emitted as unsigned __int64 in HPP files
+  {$IFDEF CBUILDER}
+    {$UNDEF BROKEN_UINT64_HPPEMIT}
+  {$ENDIF}
+  {$IFDEF DCC}
+    {$IFDEF WINDOWS}
+      // Exception.RaiseOuterException() is only available on Windows at this time
+      {$DEFINE HAS_Exception_RaiseOuterException}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -1001,6 +1017,10 @@
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
   {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}
+  {$IFDEF DCC}
+    // Exception.RaiseOuterException() is now available on all platforms
+    {$DEFINE HAS_Exception_RaiseOuterException}
+  {$ENDIF}
   {$IFNDEF DOTNET}
     {$DEFINE HAS_TInterlocked}
   {$ENDIF}
@@ -1014,6 +1034,7 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
   {$DEFINE HAS_ComponentPlatformsAttribute_Win64}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
+  {$DEFINE HAS_System_ReturnAddress}
   {$DEFINE HAS_DIRECTIVE_WARN_DEFAULT}
 {$ENDIF}
 
@@ -1598,6 +1619,22 @@ SOLARIS instead of IFDEF UNIX is not an error, it's deliberate.}
 {end Unix OS specific stuff}
 {$IFDEF DEBUG}
   {$UNDEF USE_INLINE}
+{$ENDIF}
+
+// RLebeau 5/24/2015: In C++Builder 2006 and 2007, UInt64 is emitted as
+// signed __int64 in HPP files instead of as unsigned __int64.  This causes
+// conflicts in overloaded routines that have (U)Int64 parameters.  This
+// was fixed in C++Builder 2009.  For compilers that do not have a native
+// UInt64 type, or for C++Builder 2006/2007, let's define a record type
+// that can hold UInt64 values...
+{$IFDEF HAS_UInt64}
+  {$IFDEF BROKEN_UINT64_HPPEMIT}
+    {$DEFINE TIdUInt64_IS_NOT_NATIVE}
+  {$ENDIF}
+{$ELSE}
+  {$IFNDEF HAS_QWord}
+    {$DEFINE TIdUInt64_IS_NOT_NATIVE}
+  {$ENDIF}
 {$ENDIF}
 
 // RLebeau 9/5/2013: it would take a lot of work to re-write Indy to support

@@ -607,7 +607,8 @@ begin
   // Loaded will recall it to toggle it
   if IsDesignTime or IsLoading then begin
     FActive := AValue;
-  end else if FActive <> AValue then begin
+  end
+  else if FActive <> AValue then begin
     if AValue then begin
       CheckOkToBeActive;
       try
@@ -671,7 +672,7 @@ begin
     // gets called by Notification() if the Scheduler is freed while
     // the server is still Active?
     if Active then begin
-      EIdException.Toss(RSTCPServerSchedulerAlreadyActive);
+      raise EIdException.Create(RSTCPServerSchedulerAlreadyActive);
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
@@ -720,6 +721,16 @@ begin
   LIOHandler := FIOHandler;
 
   if LIOHandler <> AValue then begin
+
+    // RLebeau - is this needed?  SetScheduler() does it, so should SetIOHandler()
+    // also do it? What should happen if this gets called by Notification() if the
+    // IOHandler is freed while the server is still Active?
+    {
+    if Active then begin
+      raise EIdException.Create(RSTCPServerIOHandlerAlreadyActive);
+    end;
+    }
+
     if FImplicitIOHandler then begin
       FIOHandler := nil;
       FImplicitIOHandler := False;

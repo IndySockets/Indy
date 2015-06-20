@@ -497,7 +497,7 @@ function TIdSocketHandle.Readable(AMSec: Integer = IdTimeoutDefault): Boolean;
   function CheckIsReadable(ALMSec: Integer): Boolean;
   begin
     if not HandleAllocated then begin
-      EIdConnClosedGracefully.Toss(RSConnectionClosedGracefully);
+      raise EIdConnClosedGracefully.Create(RSConnectionClosedGracefully);
     end;
     Result := Select(ALMSec);
   end;

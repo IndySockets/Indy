@@ -406,7 +406,7 @@ begin
   if not DoAuthenticate(AContext) then begin
     SendV4Response(AContext, 93);
     AContext.Connection.Disconnect;
-    EIdSocksSvrInvalidLogin.Toss(RSSocksSvrInvalidLogin);
+    raise EIdSocksSvrInvalidLogin.Create(RSSocksSvrInvalidLogin);
   end;
 
   Sendv4Response(AContext, 90);
@@ -430,7 +430,7 @@ begin
     if ByteIndex(IdSocksAuthUsernamePassword, LMethods) = -1 then begin
       SendV5MethodResponse(AContext, IdSocksAuthNoAcceptableMethods);
       AContext.Connection.Disconnect; // not sure the server has to disconnect
-      EIdSocksSvrNotSupported.Toss(RSSocksSvrNotSupported);
+      raise EIdSocksSvrNotSupported.Create(RSSocksSvrNotSupported);
     end;
     SendV5MethodResponse(AContext, IdSocksAuthUsernamePassword);
     AContext.Connection.IOHandler.ReadByte; //subversion, we don't need it.
@@ -439,7 +439,7 @@ begin
     if not DoAuthenticate(AContext) then begin
       SendV5AuthResponse(AContext, IdSocks5ReplyGeneralFailure);
       AContext.Connection.Disconnect;
-      EIdSocksSvrInvalidLogin.Toss(RSSocksSvrInvalidLogin);
+      raise EIdSocksSvrInvalidLogin.Create(RSSocksSvrInvalidLogin);
     end;
     SendV5AuthResponse(AContext, IdSocks5ReplySuccess);
   end;
@@ -484,7 +484,7 @@ begin
       begin
         SendV5Response(AContext, IdSocks5ReplyAddrNotSupported);
         AContext.Connection.Disconnect;
-        EIdSocksSvrSocks5WrongATYP.Toss(RSSocksSvrWrongATYP);
+        raise EIdSocksSvrSocks5WrongATYP.Create(RSSocksSvrWrongATYP);
       end;
   end;
 end;
@@ -505,7 +505,7 @@ begin
   if not (((LContext.SocksVersion = 4) and AllowSocks4) or
     ((LContext.SocksVersion = 5) and AllowSocks5)) then
   begin
-    EIdSocksSvrWrongSocksVer.Toss(RSSocksSvrWrongSocksVersion);
+    raise EIdSocksSvrWrongSocksVer.Create(RSSocksSvrWrongSocksVersion);
   end;
 
   case LContext.SocksVersion of
@@ -524,7 +524,7 @@ begin
         5: SendV5Response(LContext, IdSocks5ReplyCmdNotSupported);
       end;
       AContext.Connection.Disconnect;
-      EIdSocksSvrWrongSocksCmd.Toss(RSSocksSvrWrongSocksCommand);
+      raise EIdSocksSvrWrongSocksCmd.Create(RSSocksSvrWrongSocksCommand);
     end;
   end;
 end;
@@ -546,7 +546,7 @@ begin
       SendV5Response(AContext, IdSocks5ReplyConnNotAllowed);
     end;
     AContext.Connection.Disconnect;
-    EIdSocksSvrAccessDenied.Toss(RSSocksSvrAccessDenied);
+    raise EIdSocksSvrAccessDenied.Create(RSSocksSvrAccessDenied);
   end;
 
   LClient := nil;
@@ -601,7 +601,7 @@ begin
       SendV5Response(AContext, IdSocks5ReplyConnNotAllowed);
     end;
     AContext.Connection.Disconnect;
-    EIdSocksSvrAccessDenied.Toss(RSSocksSvrAccessDenied);
+    raise EIdSocksSvrAccessDenied.Create(RSSocksSvrAccessDenied);
   end;
 
   LServer := nil;
@@ -647,7 +647,7 @@ begin
         SendV5Response(AContext, IdSocks5ReplyGeneralFailure);
       end;
       AContext.Connection.Disconnect;
-      EIdSocksSvrPeerMismatch.Toss(RSSocksSvrPeerMismatch);
+      raise EIdSocksSvrPeerMismatch.Create(RSSocksSvrPeerMismatch);
     end;
 
     if AContext.SocksVersion = 4 then begin

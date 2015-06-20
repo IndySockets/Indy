@@ -250,11 +250,11 @@ type
       var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     function HostToNetwork(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: UInt64): UInt64; override;
+    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function NetworkToHost(AValue: UInt64): UInt64; override;
+    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
     procedure SetBlocking(ASocket: TIdStackSocketHandle; const ABlocking: Boolean); override;
     function WouldBlock(const AResult: Integer): Boolean; override;
     //
@@ -839,7 +839,7 @@ begin
       {$ENDIF}
     except
       on E: Exception do begin
-        raise EIdStackInitializationFailed.Create(E.Message);
+        IndyRaiseOuterException(EIdStackInitializationFailed.Create(E.Message));
       end;
     end;
     GStarted := True;
@@ -1137,7 +1137,8 @@ begin
       Result := IndyStrToInt(AServiceName);
     except
       on EConvertError do begin
-        raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
+        Result := 0;
+        IndyRaiseOuterException(EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]));
       end;
     end;
   end;
@@ -1195,28 +1196,28 @@ begin
   Result := ntohl(AValue);
 end;
 
-function TIdStackWindows.HostToNetwork(AValue: UInt64): UInt64;
+function TIdStackWindows.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
 var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue;
+  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   L := htonl(LParts.HighPart);
   LParts.HighPart := htonl(LParts.LowPart);
   LParts.LowPart := L;
-  Result := LParts.QuadPart;
+  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
 end;
 
-function TIdStackWindows.NetworkToHost(AValue: UInt64): UInt64;
+function TIdStackWindows.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
 var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue;
+  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   L := ntohl(LParts.HighPart);
   LParts.HighPart := ntohl(LParts.LowPart);
   LParts.LowPart := L;
-  Result := LParts.QuadPart;
+  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
 end;
 
 procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
@@ -1314,6 +1315,7 @@ type
     GetMem(Adapters, BufLen);
     try
       repeat
+        // TODO: include GAA_FLAG_INCLUDE_PREFIX on XPSP1+?
         // TODO: include GAA_FLAG_INCLUDE_ALL_INTERFACES on Vista+?
         Ret := GetAdaptersAddresses(PF_UNSPEC, GAA_FLAG_SKIP_ANYCAST or GAA_FLAG_SKIP_MULTICAST or GAA_FLAG_SKIP_DNS_SERVER or GAA_FLAG_SKIP_FRIENDLY_NAME, nil, Adapters, BufLen);
         case Ret of
@@ -1367,6 +1369,9 @@ type
                           SubNetStr := IPv4MaskLengthToString(UnicastAddr^.OnLinkPrefixLength);
                         end else
                         begin
+                          // TODO: on XP SP1+, can the subnet mask be determined
+                          // by analyzing the Adapter's Prefix list without resorting
+                          // to reading the Registry?
                           if SubNetMasks = nil then
                           begin
                             SubNetMasks := TStringList.Create;

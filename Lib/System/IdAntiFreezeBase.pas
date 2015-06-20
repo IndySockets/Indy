@@ -142,7 +142,7 @@ begin
   inherited InitComponent;
   if not IsDesignTime then begin
     if Assigned(GAntiFreeze) then begin
-      EIdException.Toss(RSAntiFreezeOnlyOne);
+      raise EIdException.Create(RSAntiFreezeOnlyOne);
     end;
     GAntiFreeze := Self;
   end;

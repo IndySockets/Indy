@@ -59,7 +59,7 @@ type
     the other methods declared by the DotNet exception (particularly InnerException constructors)
     }
     constructor Create(const AMsg: string); overload; virtual;
-    class procedure Toss(const AMsg: string);
+    class procedure Toss(const AMsg: string); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use raise instead'{$ENDIF};{$ENDIF}
   end;
 
   TClassIdException = class of EIdException;
@@ -107,7 +107,9 @@ begin
   inherited Create(AMsg);
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 class procedure EIdException.Toss(const AMsg: string);
+{$I IdDeprecatedImplBugOn.inc}
 begin
   raise Create(AMsg);
 end;

@@ -597,18 +597,72 @@ type
   {$NODEFINE UInt32}
 {$ENDIF}
 
-{$IFNDEF HAS_UInt64}
-type
-  UInt64 = {$IFDEF HAS_QWord}QWord{$ELSE}Int64{$ENDIF};
-  {$NODEFINE UInt64}
-{$ENDIF}
-
 {$IFDEF HAS_UInt64}
   {$DEFINE UInt64_IS_NATIVE}
+  // In C++Builder 2006 and 2007, UInt64 is emitted as signed __int64 in HPP
+  // files instead of as unsigned __int64.  This causes conflicts in overloaded
+  // routines that have (U)Int64 parameters.  This was fixed in C++Builder 2009...
+  {$IFNDEF BROKEN_UINT64_HPPEMIT}
+type
+  TIdUInt64 = UInt64;
+  {$ENDIF}
 {$ELSE}
   {$IFDEF HAS_QWord}
     {$DEFINE UInt64_IS_NATIVE}
+type
+  UInt64 = QWord;
+  {$NODEFINE UInt64}
+  TIdUInt64 = QWord;
+  {$ELSE}
+type
+  UInt64 = Int64;
+  {$NODEFINE UInt64}
   {$ENDIF}
+{$ENDIF}
+
+{$IFDEF TIdUInt64_IS_NOT_NATIVE}
+// For compilers that do not have a native UInt64 type, or for C++Builder
+// 2006/2007 with its broken UInt64 HPP emit, let's define a record type
+// that can hold UInt64 values, and then use it wherever UInt64 parameters
+// are needed...
+type
+  TIdUInt64 = packed record
+    case Integer of
+    0: (
+       {$IFDEF ENDIAN_BIG}
+      HighPart: UInt32;
+      LowPart: UInt32);
+       {$ELSE}
+      LowPart: UInt32;
+      HighPart: UInt32);
+      {$ENDIF}
+    1: (
+      QuadPart: UInt64;
+  end;
+  {$NODEFINE TIdUInt64}
+
+  (*$HPPEMIT 'namespace Idglobal'*)
+  (*$HPPEMIT '{'*)
+  (*$HPPEMIT '    #pragma pack(push, 1)' *)
+  (*$HPPEMIT '    struct TIdUInt64'*)
+  (*$HPPEMIT '    {'*)
+  (*$HPPEMIT '        union {
+  (*$HPPEMIT '            struct {
+  {$IFDEF ENDIAN_BIG}
+  (*$HPPEMIT '                unsigned __int32 HighPart;
+  (*$HPPEMIT '                unsigned __int32 LowPart;
+  {$ELSE}
+  (*$HPPEMIT '                unsigned __int32 LowPart;
+  (*$HPPEMIT '                unsigned __int32 HighPart;
+  {$ENDIF}
+  (*$HPPEMIT '            };
+  (*$HPPEMIT '            unsigned __int64 QuadPart;
+  (*$HPPEMIT '        };
+  (*$HPPEMIT '        TIdUInt64(unsigned __int64 value) { QuadPart = value; }'*)
+  (*$HPPEMIT '        operator unsigned __int64() const { return QuadPart; }'*)
+  (*$HPPEMIT '    };'*)
+  (*$HPPEMIT '    #pragma pack(pop)' *)
+  (*$HPPEMIT '}'*)
 {$ENDIF}
 
 const
@@ -1344,6 +1398,13 @@ function IndyIncludeTrailingPathDelimiter(const S: string): string;
 function IndyExcludeTrailingPathDelimiter(const S: string): string;
 
 procedure IndyRaiseLastError;
+
+// This can only be called inside of an 'except' block! This is so that
+// Exception.RaiseOuterException() (when available) can capture the current
+// exception into the InnerException property of a new Exception that is
+// being raised...
+procedure IndyRaiseOuterException(AOuterException: Exception);
+
 //You could possibly use the standard StrInt and StrIntDef but these
 //also remove spaces from the string using the trim functions.
 function IndyStrToInt(const S: string): Integer; overload;
@@ -1381,9 +1442,7 @@ function ToBytes(const AValue: UInt16): TIdBytes; overload;
 function ToBytes(const AValue: Int32): TIdBytes; overload;
 function ToBytes(const AValue: UInt32): TIdBytes; overload;
 function ToBytes(const AValue: Int64): TIdBytes; overload;
-{$IFDEF UInt64_IS_NATIVE}
-function ToBytes(const AValue: UInt64): TIdBytes; overload;
-{$ENDIF}
+function ToBytes(const AValue: TIdUInt64): TIdBytes; overload;
 function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0): TIdBytes; overload;
 {$IFNDEF DOTNET}
 // RLebeau - not using the same "ToBytes" naming convention for RawToBytes()
@@ -1403,9 +1462,7 @@ procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt16); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Int32); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt32); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Int64); overload;
-{$IFDEF UInt64_IS_NATIVE}
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt64); overload;
-{$ENDIF}
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdUInt64); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0); overload;
 {$IFNDEF DOTNET}
 // RLebeau - not using the same "ToBytesF" naming convention for RawToBytesF()
@@ -1442,7 +1499,7 @@ function BytesToUInt16(const AValue: TIdBytes; const AIndex : Integer = 0): UInt
 function BytesToInt32(const AValue: TIdBytes; const AIndex: Integer = 0): Int32;
 function BytesToUInt32(const AValue: TIdBytes; const AIndex : Integer = 0): UInt32;
 function BytesToInt64(const AValue: TIdBytes; const AIndex: Integer = 0): Int64;
-function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): UInt64;
+function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): TIdUInt64;
 
 function BytesToShort(const AValue: TIdBytes; const AIndex: Integer = 0): Int16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use BytesToInt16()'{$ENDIF};{$ENDIF}
 function BytesToWord(const AValue: TIdBytes; const AIndex : Integer = 0): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use BytesToUInt16()'{$ENDIF};{$ENDIF}
@@ -1516,7 +1573,7 @@ procedure CopyTIdUInt16(const ASource: UInt16; var VDest: TIdBytes; const ADestI
 procedure CopyTIdInt32(const ASource: Int32; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdUInt32(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
-procedure CopyTIdUInt64(const ASource: UInt64; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdUInt64(const ASource: TIdUInt64; var VDest: TIdBytes; const ADestIndex: Integer);
 
 procedure CopyTIdShort(const ASource: Int16; var VDest: TIdBytes; const ADestIndex: Integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyTIdInt16()'{$ENDIF};{$ENDIF}
 procedure CopyTIdWord(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyTIdUInt16()'{$ENDIF};{$ENDIF}
@@ -4053,6 +4110,84 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF DCC}
+  {$IFDEF HAS_Exception_RaiseOuterException}
+procedure IndyRaiseOuterException(AOuterException: Exception);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Exception.RaiseOuterException(AOuterException);
+end;
+  {$ELSE}
+// RLebeau: There is no Exception.InnerException property to capture the inner
+// exception into, but we can still raise the outer exception using Delphi's
+// 'raise ... at [address]' syntax, at least.  This way, the debugger (and
+// exception loggers) can show the outer exception occuring in the caller
+// rather than inside this function...
+    {$IFDEF HAS_System_ReturnAddress}
+procedure IndyRaiseOuterException(AOuterException: Exception);
+begin
+  raise AOuterException at ReturnAddress;
+end;
+    {$ELSE}
+// RLebeau: Delphi RTL functions like SysUtils.Abort(), Classes.TList.Error(),
+// and Classes.TStrings.Error() raise their respective exceptions at the
+// caller's return address using Delphi's 'raise ... at [address]' syntax,
+// however they do so in different ways depending on Delphi version!
+//
+// ----------------
+// SysUtils.Abort()
+// ----------------
+// Delphi 5-2007: Abort() calls an internal helper function that returns the
+// caller's return address from the call stack - [EBP-4] in Delphi 5, [EBP+4]
+// in Delphi 6+ - and then passes that value to 'raise'. Not sure why [EBP-4]
+// was being used in Delphi 5.  Maybe a typo?
+//
+// Delphi 2009-XE: Abort() JMP's into an internal helper procedure that takes
+// a Pointer parameter as input (passed in EAX) and passes it to 'raise'.
+// Delphi 2009-2010 POP's the caller's return address from the call stack
+// into EAX. Delphi XE simply MOV's [ESP] into EAX instead.
+// ----------------
+// TList.Error()
+// TStrings.Error()
+// ----------------
+// Delphi 5-2010: Error() calls an internal helper function that returns the
+// caller's return address from the call stack - always [EBP+4] - and then passes
+// that value to 'raise'.
+//
+// Delphi XE: no helper is used. Error() is wrapped with {$O-} to force a stack
+// frame, and then reads the caller's return address directly from the call stack
+// (using pointer math to find it) and passes it to 'raise'.
+// ----------------
+//
+// To be safe, we will use the MOV [ESP] approach here, as it is the simplest.
+// We only have to worry about this in Delphi's Windows 32bit compiler, as the
+// 64bit and mobile compilers have System.ReturnAddress available...
+
+      // disable stack frames to reduce instructions
+      {$IFOPT W+} // detect stack frames
+        {$DEFINE _WPlusWasEnabled}
+        {$W-} // turn off stack frames
+      {$ENDIF}
+procedure IndyRaiseOuterException(AOuterException: Exception);
+  procedure RaiseE(E: Exception; ReturnAddr: Pointer);
+  begin
+    raise E at ReturnAddr;
+  end;
+asm
+  // AOuterException is already in EAX...
+  // MOV EAX, AOuterException
+  MOV EDX, [ESP]
+  JMP RaiseE
+end;
+      {$IFDEF _WPlusWasEnabled}
+        {$UNDEF _WPlusWasEnabled}
+        {$W+}
+      {$ENDIF}
+
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 {$IFNDEF DOTNET}
 function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: THandle): THandle;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -4807,7 +4942,7 @@ begin
   {$ENDIF}
 end;
 
-procedure CopyTIdUInt64(const ASource: UInt64;
+procedure CopyTIdUInt64(const ASource: TIdUInt64;
   var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DOTNET}
 var
@@ -4820,7 +4955,7 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(UInt64));
   {$ELSE}
-  PUInt64(@VDest[ADestIndex])^ := ASource;
+  PUInt64(@VDest[ADestIndex])^ := ASource{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   {$ENDIF}
 end;
 
@@ -6544,7 +6679,7 @@ end;
 procedure ToDo(const AMsg: string);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  EIdException.Toss(AMsg);
+  raise EIdException.Create(AMsg);
 end;
 
 // RLebeau: the following three functions are utility functions
@@ -7288,18 +7423,16 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF UInt64_IS_NATIVE}
-function ToBytes(const AValue: UInt64): TIdBytes; overload;
+function ToBytes(const AValue: TIdUInt64): TIdBytes; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
   SetLength(Result, SizeOf(UInt64));
-  PUInt64(@Result[0])^ := AValue;
+  PUInt64(@Result[0])^ := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   {$ENDIF}
 end;
-{$ENDIF}
 
 function ToBytes(const AValue: Int32): TIdBytes; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -7453,14 +7586,12 @@ begin
   CopyTIdInt64(AValue, Bytes, 0);
 end;
 
-{$IFDEF UInt64_IS_NATIVE}
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt64);
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdUInt64);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
   CopyTIdUInt64(AValue, Bytes, 0);
 end;
-{$ENDIF}
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -7591,14 +7722,14 @@ begin
   {$ENDIF}
 end;
 
-function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): UInt64;
+function BytesToUInt64(const AValue: TIdBytes; const AIndex: Integer = 0): TIdUInt64;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Assert(Length(AValue) >= (AIndex+SizeOf(UInt64)));
+  Assert(Length(AValue) >= (AIndex+SizeOf(TIdUInt64)));
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToUInt64(AValue, AIndex);
   {$ELSE}
-  Result := PUInt64(@AValue[AIndex])^;
+  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := PUInt64(@AValue[AIndex])^;
   {$ENDIF}
 end;
 
@@ -8391,7 +8522,7 @@ var
 begin
   Result := 0;
   if ACharPos < 1 then begin
-    EIdException.Toss('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize }
   end;
   if ACharPos <= Length(AString) then begin
     {$IFDEF DOTNET}
@@ -8431,7 +8562,7 @@ function CharEquals(const AString: string; const ACharPos: Integer; const AValue
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ACharPos < 1 then begin
-    EIdException.Toss('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize }
   end;
   Result := ACharPos <= Length(AString);
   if Result then begin
@@ -8458,7 +8589,7 @@ var
 begin
   Result := 0;
   if ACharPos < 1 then begin
-    EIdException.Toss('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize }
   end;
   if ACharPos <= ASB.Length then begin
     {$IFDEF HAS_String_IndexOf}
@@ -8498,7 +8629,7 @@ function CharEquals(const ASB: TIdStringBuilder; const ACharPos: Integer; const 
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ACharPos < 1 then begin
-    EIdException.Toss('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize }
   end;
   Result := ACharPos <= ASB.Length;
   if Result then begin
@@ -8525,7 +8656,7 @@ function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet:
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if AIndex < 0 then begin
-    EIdException.Toss('Invalid AIndex'); {do not localize}
+    raise EIdException.Create('Invalid AIndex'); {do not localize}
   end;
   if AIndex < Length(ABytes) then begin
     Result := ByteIndex(ABytes[AIndex], ASet);
@@ -8559,7 +8690,7 @@ begin
     {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
     )) and AExceptionIfEOF then
 begin
-    EIdEndOfStream.Toss(IndyFormat(RSEndOfStream, ['', AStream.Position]));
+    raise EIdEndOfStream.CreateFmt(RSEndOfStream, ['ReadLnFromStream', AStream.Position]);
   end;
 end;
 

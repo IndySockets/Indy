@@ -2217,7 +2217,7 @@ procedure TIdFTP.Put(const ASource: TStream; const ADestFile: string;
   const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1);
 begin
   if ADestFile = '' then begin
-    EIdFTPUploadFileNameCanNotBeEmpty.Toss(RSFTPFileNameCanNotBeEmpty);
+    raise EIdFTPUploadFileNameCanNotBeEmpty.Create(RSFTPFileNameCanNotBeEmpty);
   end;
   if AStartPos > -1 then begin
     ASource.Position := AStartPos;
@@ -3010,10 +3010,10 @@ end;
 procedure TIdFTP.SetUseExtensionDataPort(const AValue: Boolean);
 begin
   if (not AValue) and (IPVersion = Id_IPv6) then begin
-    EIdFTPMustUseExtWithIPv6.Toss(RSFTPMustUseExtWithIPv6);
+    raise EIdFTPMustUseExtWithIPv6.Create(RSFTPMustUseExtWithIPv6);
   end;
   if TryNATFastTrack then begin
-    EIdFTPMustUseExtWithNATFastTrack.Toss(RSFTPMustUseExtWithNATFastTrack);
+    raise EIdFTPMustUseExtWithNATFastTrack.Create(RSFTPMustUseExtWithNATFastTrack);
   end;
   FUseExtensionDataPort := AValue;
 end;
@@ -3091,7 +3091,7 @@ end;
 procedure TIdFTP.SetPassive(const AValue: Boolean);
 begin
   if (not AValue) and TryNATFastTrack then begin
-    EIdFTPPassiveMustBeTrueWithNATFT.Toss(RSFTPFTPPassiveMustBeTrueWithNATFT);
+    raise EIdFTPPassiveMustBeTrueWithNATFT.Create(RSFTPFTPPassiveMustBeTrueWithNATFT);
   end;
   FPassive := AValue;
 end;
@@ -3646,22 +3646,22 @@ The following is required:
 begin
   if ATargetUsesPasv then begin
     if AToSite.UsingNATFastTrack then begin
-      EIdFTPSToSNATFastTrack.Toss(RSFTPNoSToSWithNATFastTrack);
+      raise EIdFTPSToSNATFastTrack.Create(RSFTPNoSToSWithNATFastTrack);
     end;
   end else begin
     if AFromSite.UsingNATFastTrack then begin
-      EIdFTPSToSNATFastTrack.Toss(RSFTPNoSToSWithNATFastTrack);
+      raise EIdFTPSToSNATFastTrack.Create(RSFTPNoSToSWithNATFastTrack);
     end;
   end;
 
   if AFromSite.IPVersion <> AToSite.IPVersion then begin
-    EIdFTPStoSIPProtoMustBeSame.Toss(RSFTPSToSProtosMustBeSame);
+    raise EIdFTPStoSIPProtoMustBeSame.Create(RSFTPSToSProtosMustBeSame);
   end;
   if AFromSite.CurrentTransferMode <> AToSite.CurrentTransferMode then begin
-    EIdFTPSToSTransModesMustBeSame.Toss(RSFTPSToSTransferModesMusbtSame);
+    raise EIdFTPSToSTransModesMustBeSame.Create(RSFTPSToSTransferModesMusbtSame);
   end;
   if AFromSite.FUsingSFTP <> AToSite.FUsingSFTP then begin
-    EIdFTPSToSNoDataProtection.Toss(RSFTPSToSNoDataProtection);
+    raise EIdFTPSToSNoDataProtection.Create(RSFTPSToSNoDataProtection);
   end;
 
   Result := AFromSite.FUsingSFTP and AToSite.FUsingSFTP;
@@ -3672,11 +3672,11 @@ begin
       if AToSite.IPVersion = Id_IPv4 then begin
         if ATargetUsesPasv then begin
           if not AToSite.IsExtSupported('CPSV') then begin {do not localize}
-            EIdFTPSToSNATFastTrack.Toss(RSFTPSToSSSCNNotSupported);
+            raise EIdFTPSToSNATFastTrack.Create(RSFTPSToSSSCNNotSupported);
           end;
         end else begin
           if not AFromSite.IsExtSupported('CPSV') then begin {do not localize}
-            EIdFTPSToSNATFastTrack.Toss(RSFTPSToSSSCNNotSupported);
+            raise EIdFTPSToSNATFastTrack.Create(RSFTPSToSSSCNNotSupported);
           end;
         end;
       end;
@@ -4078,10 +4078,10 @@ begin
   end;
   if FDataPortProtection <> AValue then begin
     if FUseTLS = utNoTLSSupport then begin
-      EIdFTPNoDataPortProtectionWOEncryption.Toss(RSFTPNoDataPortProtectionWOEncryption);
+      raise EIdFTPNoDataPortProtectionWOEncryption.Create(RSFTPNoDataPortProtectionWOEncryption);
     end;
     if FUsingCCC then begin
-      EIdFTPNoDataPortProtectionAfterCCC.Toss(RSFTPNoDataPortProtectionAfterCCC);
+      raise EIdFTPNoDataPortProtectionAfterCCC.Create(RSFTPNoDataPortProtectionAfterCCC);
     end;
     FDataPortProtection := AValue;
   end;
@@ -4095,10 +4095,10 @@ begin
   end;
   if FAUTHCmd <> AValue then begin
     if FUseTLS = utNoTLSSupport then begin
-      EIdFTPNoAUTHWOSSL.Toss(RSFTPNoAUTHWOSSL);
+      raise EIdFTPNoAUTHWOSSL.Create(RSFTPNoAUTHWOSSL);
     end;
     if FUsingSFTP then begin
-      EIdFTPCanNotSetAUTHCon.Toss(RSFTPNoAUTHCon);
+      raise EIdFTPCanNotSetAUTHCon.Create(RSFTPNoAUTHCon);
     end;
     FAUTHCmd := AValue;
   end;
@@ -4128,7 +4128,7 @@ end;
 procedure TIdFTP.SetUseCCC(const AValue: Boolean);
 begin
   if (not IsLoading) and (FUseTLS = utNoTLSSupport) then begin
-    EIdFTPNoCCCWOEncryption.Toss(RSFTPNoCCCWOEncryption);
+    raise EIdFTPNoCCCWOEncryption.Create(RSFTPNoCCCWOEncryption);
   end;
   FUseCCC := AValue;
 end;

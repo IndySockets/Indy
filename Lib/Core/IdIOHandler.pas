@@ -414,14 +414,6 @@ uses
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
 
-  {$IFDEF HAS_UInt64}
-    {$DEFINE UInt64_IS_NATIVE}
-  {$ELSE}
-    {$IFDEF HAS_QWord}
-      {$DEFINE UInt64_IS_NATIVE}
-    {$ENDIF}
-  {$ENDIF}
-
 const
   GRecvBufferSizeDefault = 32 * 1024;
   GSendBufferSizeDefault = 32 * 1024;
@@ -596,9 +588,7 @@ type
     procedure Write(AValue: Int32; AConvert: Boolean = True); overload;
     procedure Write(AValue: UInt32; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
-    {$IFDEF UInt64_IS_NATIVE}
-    procedure Write(AValue: UInt64; AConvert: Boolean = True); overload;
-    {$ENDIF}
+    procedure Write(AValue: TIdUInt64; AConvert: Boolean = True); overload;
     //
 
     procedure Write(AStream: TStream; ASize: TIdStreamSize = 0;
@@ -700,9 +690,7 @@ type
     function ReadInt32(AConvert: Boolean = True): Int32;
     function ReadUInt32(AConvert: Boolean = True): UInt32;
     function ReadInt64(AConvert: Boolean = True): Int64;
-    {$IFDEF UInt64_IS_NATIVE}
-    function ReadUInt64(AConvert: Boolean = True): UInt64;
-    {$ENDIF}
+    function ReadUInt64(AConvert: Boolean = True): TIdUInt64;
     //
     function ReadSmallInt(AConvert: Boolean = True): Int16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadInt16()'{$ENDIF};{$ENDIF}
     function ReadWord(AConvert: Boolean = True): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadUInt16()'{$ENDIF};{$ENDIF}
@@ -825,8 +813,8 @@ var
 
 {$IFDEF DCC}
   {$IFNDEF VCL_7_OR_ABOVE}
-    // RLebeau 5/13/2015: The Write(Int64) and ReadInt64() methods were producing
-    // an "Internal error URW533" compiler error in Delphi 5, and an "Internal
+    // RLebeau 5/13/2015: The Write(Int64) and ReadInt64() methods produce an
+    // "Internal error URW533" compiler error in Delphi 5, and an "Internal
     // error URW699" compiler error in Delphi 6, so need to use some workarounds
     // for those versions...
     {$DEFINE AVOID_URW_ERRORS}
@@ -1095,10 +1083,25 @@ begin
   Write(ToBytes(AValue));
 end;
 
+{$IFDEF HAS_UInt64}
+  {$IFDEF BROKEN_UInt64_HPPEMIT}
+    {$DEFINE HAS_TIdUInt64_QuadPart}
+  {$ENDIF}
+{$ELSE}
+  {$IFNDEF HAS_QWord}
+    {$DEFINE HAS_TIdUInt64_QuadPart}
+  {$ENDIF}
+{$ENDIF}
+
 procedure TIdIOHandler.Write(AValue: Int64; AConvert: Boolean = True);
 {$IFDEF AVOID_URW_ERRORS}
 var
   h: Int64;
+{$ELSE}
+  {$IFDEF HAS_TIdUInt64_QuadPart}
+var
+  h: TIdUInt64;
+  {$ENDIF}
 {$ENDIF}
 begin
   if AConvert then begin
@@ -1109,21 +1112,27 @@ begin
     h := GStack.HostToNetwork(UInt64(AValue));
     AValue := h;
     {$ELSE}
+      {$IFDEF HAS_TIdUInt64_QuadPart}
+    // assigning to a local variable if UInt64 is not a native type, or if using
+    // a C++Builder version that has problems with UInt64 parameters...
+    h.QuadPart := UInt64(AValue);
+    h := GStack.HostToNetwork(h);
+    AValue := Int64(h.QuadPart);
+      {$ELSE}
     AValue := Int64(GStack.HostToNetwork(UInt64(AValue)));
+      {$ENDIF}
     {$ENDIF}
   end;
   Write(ToBytes(AValue));
 end;
 
-{$IFDEF UInt64_IS_NATIVE}
-procedure TIdIOHandler.Write(AValue: UInt64; AConvert: Boolean = True);
+procedure TIdIOHandler.Write(AValue: TIdUInt64; AConvert: Boolean = True);
 begin
   if AConvert then begin
     AValue := GStack.HostToNetwork(AValue);
   end;
   Write(ToBytes(AValue));
 end;
-{$ENDIF}
 
 procedure TIdIOHandler.Write(AValue: TStrings; AWriteLinesCount: Boolean = False;
   AByteEncoding: IIdTextEncoding = nil
@@ -1361,6 +1370,10 @@ var
   LBytes: TIdBytes;
   {$IFDEF AVOID_URW_ERRORS}
   h: Int64;
+  {$ELSE}
+    {$IFDEF HAS_TIdUInt64_QuadPart}
+  h: TIdUInt64;
+    {$ENDIF}
   {$ENDIF}
 begin
   ReadBytes(LBytes, SizeOf(Int64), False);
@@ -1373,23 +1386,29 @@ begin
     h := GStack.NetworkToHost(UInt64(Result));
     Result := h;
     {$ELSE}
+      {$IFDEF HAS_TIdUInt64_QuadPart}
+    // assigning to a local variable if UInt64 is not a native type, or if using
+    // a C++Builder version that has problems with UInt64 parameters...
+    h.QuadPart := UInt64(AValue);
+    h := GStack.NetworkToHost(h);
+    Result := Int64(h.QuadPart);
+      {$ELSE}
     Result := Int64(GStack.NetworkToHost(UInt64(Result)));
+      {$ENDIF}
     {$ENDIF}
   end;
 end;
 
-{$IFDEF UInt64_IS_NATIVE}
-function TIdIOHandler.ReadUInt64(AConvert: boolean): UInt64;
+function TIdIOHandler.ReadUInt64(AConvert: boolean): TIdUInt64;
 var
   LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(UInt64), False);
+  ReadBytes(LBytes, SizeOf(TIdUInt64), False);
   Result := BytesToUInt64(LBytes);
   if AConvert then begin
     Result := GStack.NetworkToHost(Result);
   end;
 end;
-{$ENDIF}
 
 function TIdIOHandler.ReadUInt32(AConvert: Boolean): UInt32;
 var
@@ -1487,7 +1506,7 @@ begin
     // if the line length is limited and terminator is found after the limit or not found and the limit is exceeded
     if (AMaxLineLength > 0) and ((LTermPos > AMaxLineLength) or ((LTermPos = -1) and (LStartPos > AMaxLineLength))) then begin
       if MaxLineAction = maException then begin
-        EIdReadLnMaxLineLengthExceeded.Toss(RSReadLnMaxLineLengthExceeded);
+        raise EIdReadLnMaxLineLengthExceeded.Create(RSReadLnMaxLineLengthExceeded);
       end;
       // RLebeau: WARNING - if the line is using multibyte character sequences
       // and a sequence staddles the AMaxLineLength boundary, this will chop
@@ -1686,11 +1705,11 @@ begin
             end;
           end
           else if ARaiseExceptionIfDisconnected then begin
-            EIdClosedSocket.Toss(RSStatusDisconnected);
+            raise EIdClosedSocket.Create(RSStatusDisconnected);
           end;
         end
         else if ARaiseExceptionIfDisconnected then begin
-          EIdNotConnected.Toss(RSNotConnected);
+          raise EIdNotConnected.Create(RSNotConnected);
         end;
         if LByteCount < 0 then
         begin
@@ -1698,7 +1717,7 @@ begin
           if LLastError = Id_WSAETIMEDOUT then begin
             // Timeout
             if ARaiseExceptionOnTimeout then begin
-              EIdReadTimeout.Toss(RSReadTimeout);
+              raise EIdReadTimeout.Create(RSReadTimeout);
             end;
             Result := -1;
             Break;
@@ -1720,7 +1739,7 @@ begin
       end else begin
         // Timeout
         if ARaiseExceptionOnTimeout then begin
-          EIdReadTimeout.Toss(RSReadTimeout);
+          raise EIdReadTimeout.Create(RSReadTimeout);
         end;
         Result := -1;
         Break;
@@ -1785,7 +1804,7 @@ begin
     end else begin
       {$IFDEF STREAM_SIZE_64}
       if ASize > High(Integer) then begin
-        EIdIOHandlerRequiresLargeStream.Toss(RSRequiresLargeStream);
+        raise EIdIOHandlerRequiresLargeStream.Create(RSRequiresLargeStream);
       end;
       {$ENDIF}
       Write(Int32(ASize));
@@ -1965,7 +1984,7 @@ begin
       {$ELSE}
       LTmp := ReadInt64;
       if LTmp > MaxInt then begin
-        EIdIOHandlerStreamDataTooLarge.Toss(RSDataTooLarge);
+        raise EIdIOHandlerStreamDataTooLarge.Create(RSDataTooLarge);
       end;
       LByteCount := TIdStreamSize(LTmp);
       {$ENDIF}
@@ -1981,7 +2000,7 @@ begin
   if LByteCount > -1 then begin
     LPos := AStream.Position;
     if (High(TIdStreamSize) - LPos) < LByteCount then begin
-      EIdIOHandlerStreamDataTooLarge.Toss(RSDataTooLarge);
+      raise EIdIOHandlerStreamDataTooLarge.Create(RSDataTooLarge);
     end;
     AdjustStreamSize(AStream, LPos + LByteCount);
   end;
@@ -2239,7 +2258,7 @@ begin
     LStream := TStream(ADest);
   end
   else begin
-    EIdObjectTypeNotSupported.Toss(RSObjectTypeNotSupported);
+    raise EIdObjectTypeNotSupported.Create(RSObjectTypeNotSupported);
   end;
 
   BeginWork(wmRead);

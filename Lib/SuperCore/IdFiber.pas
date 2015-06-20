@@ -289,7 +289,7 @@ begin
       ConvertThreadToFiber := nil;
     end;
   end;
-  EIdFibersNotSupported.Toss(RSFibersNotSupported);
+  raise EIdFibersNotSupported.Create(RSFibersNotSupported);
 end;
 
 procedure FiberFunc(AFiber: TIdFiber); stdcall;

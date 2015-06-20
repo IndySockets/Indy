@@ -47,7 +47,7 @@ procedure TIdTCPServer.CheckOkToBeActive;
 begin
   inherited CheckOkToBeActive;
   if not Assigned(FOnExecute) then begin
-    EIdTCPNoOnExecute.Toss(RSNoOnExecute);
+    raise EIdTCPNoOnExecute.Create(RSNoOnExecute);
   end;
 end;
 
