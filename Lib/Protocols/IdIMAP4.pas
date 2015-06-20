@@ -1071,12 +1071,12 @@ varies between servers.  A typical line that gets parsed into this is:
     function  UnsubscribeMailBox(const AMBName: String): Boolean;
     { IdTCPConnection Commands }
     function  GetInternalResponse(const ATag: String; AExpectedResponses: array of String; ASingleLineMode: Boolean;
-          ASingleLineMayBeSplit: Boolean = False): string; reintroduce; overload;
+          ASingleLineMayBeSplit: Boolean = True): string; reintroduce; overload;
     function  GetResponse: string; reintroduce; overload;
     function  SendCmd(const AOut: string; AExpectedResponses: array of String;
-      ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string; reintroduce; overload;
+      ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string; reintroduce; overload;
     function  SendCmd(const ATag, AOut: string; AExpectedResponses: array of String;
-      ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string; overload;
+      ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string; overload;
     function  ReadLnWait: string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.ReadLnWait()'{$ENDIF};{$ENDIF}
     procedure WriteLn(const AOut: string = ''); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.WriteLn()'{$ENDIF};{$ENDIF}
   { IdTCPConnection Commands }
@@ -1462,7 +1462,7 @@ begin
     end;
 
     if LSASLList.Count = 0 then begin
-      EIdSASLNotSupported.Toss(RSSASLNotSupported);
+      raise EIdSASLNotSupported.Create(RSSASLNotSupported);
     end;
 
     //now do it
@@ -1493,7 +1493,7 @@ begin
           if Assigned(LError) then begin
             LError.RaiseReplyError;
           end else begin
-            EIdSASLNotReady.Toss(RSSASLNotReady);
+            raise EIdSASLNotReady.Create(RSSASLNotReady);
           end;
         finally
           FreeAndNil(LError);
@@ -2092,7 +2092,7 @@ end;
 { IdTCPConnection Commands... }
 
 function TIdIMAP4.GetInternalResponse(const ATag: String; AExpectedResponses: array of String;
-  ASingleLineMode: Boolean; ASingleLineMayBeSplit: Boolean {= False}): string;
+  ASingleLineMode: Boolean; ASingleLineMayBeSplit: Boolean {= True}): string;
 {ASingleLineMode is True if the caller just wants the FIRST line of the response,
 e.g., he may be looking only for "* FETCH (blah blah)", because he needs to parse
 that line to figure out how the rest will follow.  This arises with a number of the
@@ -2105,16 +2105,16 @@ In ASingleLineMode, we ignore any lines that dont have one of AExpectedResponses
 at the start, otherwise we add all lines to .Text and later strip out any lines that
 dont have one of AExpectedResponses at the start.
 ASingleLineMayBeSplit (which should only be used with ASingleLineMode = True) deals
-with the (unusual) case where the server cannot or does not fit a single-line
+with the case where the server cannot or does not fit a single-line
 response onto one line.  This arises when FETCHing the BODYSTRUCTURE, which can
 be very long.  The server (Courier, anyway) signals it by adding a byte-count to
 the end of the first line, that would not normally be present.}
 //For example, for normal short responses, the server would send:
 //   * FETCH (BODYSTRUCTURE (Part1 Part2))
 //but if it splits it, it sends:
-//   * FETCH (BODYSTRUCTURE (Part1 {16}
+//   * FETCH (BODYSTRUCTURE (Part1 {7}
 //   Part2))
-//The number in the chain brackets {16} seems to be random.
+//The number in the curly brackets {7} is the byte count following the line break.
 {WARNING: If you use ASingleLineMayBeSplit on a line that is EXPECTED to end
 with a byte-count, the code will break, so don't use it unless absolutely
 necessary.}
@@ -2133,7 +2133,6 @@ begin
   try
     repeat
       LLine := IOHandler.ReadLnWait;
-      LResponse.Add(LLine);
       {CCB: Trap case of server telling you that you have been disconnected, usually because
       you were inactive for too long (get "* BYE idle time too long").  }
       if TextStartsWith(LLine, '* BYE') then begin       {Do not Localize}
@@ -2148,17 +2147,14 @@ begin
         end;
       end;
       if ASingleLineMode then begin
-        LStrippedLine := LLine;
-        if TextStartsWith(LStrippedLine, '* ') then begin  {Do not Localize}
-          LStrippedLine := Copy(LStrippedLine, 3, MaxInt);
-        end;
-        LGotALineWithAnExpectedResponse := TIdReplyIMAP4(FLastCmdResult).DoesLineHaveExpectedResponse(LStrippedLine, AExpectedResponses);
-        if LGotALineWithAnExpectedResponse then begin
-          //See if it may continue on the next line...
-          if ASingleLineMayBeSplit then begin
-            //If the line is split, it will have a byte-count field at the end...
-            while TextEndsWith(LStrippedLine, '}') do begin
-              //It is split.
+        //See if it may continue on the next line...
+        if ASingleLineMayBeSplit then begin
+          //If the line is split, it will have a byte-count field at the end...
+          if TextEndsWith(LLine, '}') then begin
+            //It is split.
+            LStrippedLine := LLine;
+            LLine := '';
+            repeat
               //First, remove the byte count...
               LPos := Length(LStrippedLine)-1;
               while LPos >= 1 do begin
@@ -2167,24 +2163,65 @@ begin
                 end;
                 Dec(LPos);
               end;
-              LStrippedLineLength := StrToInt(Copy(LStrippedLine, LPos+1, (Length(LStrippedLine)-LPos)-1));
+              LWord := Copy(LStrippedLine, LPos+1, (Length(LStrippedLine)-LPos)-1);
+              if TextIsSame(LWord, 'NIL') then begin
+                LStrippedLineLength := 0;
+              end else begin
+                LStrippedLineLength := StrToInt(LWord);
+              end;
               LStrippedLine := Copy(LStrippedLine, 1, LPos-1);
               //The rest of the reply is on the following line...
               LSplitLine := IOHandler.ReadString(LStrippedLineLength);
               // At this point LSplitLine should be parsed and the following characters should be escaped... " CR LF.
-              LResponse.Add(LSplitLine);
-              LStrippedLine := LStrippedLine + LSplitLine;
-
-              LSplitLine := IOHandler.ReadLnWait;  //Cannot thrash LLine, need it later
-              LResponse.Add(LSplitLine);
-              LStrippedLine := LStrippedLine + LSplitLine;
-            end;
+              LLine := LLine + LStrippedLine + LSplitLine;
+              LStrippedLine := IOHandler.ReadLn;  //Cannot thrash LLine, need it later
+            until not TextEndsWith(LStrippedLine, '}');
+            LLine := LLine + LStrippedLine;
           end;
+        end;
+        LStrippedLine := LLine;
+        if TextStartsWith(LLine, '* ') then begin  {Do not Localize}
+          LStrippedLine := Copy(LLine, 3, MaxInt);
+        end;
+        LGotALineWithAnExpectedResponse := TIdReplyIMAP4(FLastCmdResult).DoesLineHaveExpectedResponse(LStrippedLine, AExpectedResponses);
+        if LGotALineWithAnExpectedResponse then begin
           FLastCmdResult.Text.Clear;
           TIdReplyIMAP4(FLastCmdResult).Extra.Clear;
           FLastCmdResult.Text.Add(LStrippedLine);
         end;
+      end else
+      begin
+        //If the line is split, it will have a byte-count field at the end...
+        if TextEndsWith(LLine, '}') then begin
+          LStrippedLine := LLine;
+          LLine := '';
+          repeat
+            //It is split.
+            //First, remove the byte count...
+            LPos := Length(LStrippedLine)-1;
+            while LPos >= 1 do begin
+              if LStrippedLine[LPos] = '{' then begin
+                Break;
+              end;
+              Dec(LPos);
+            end;
+            LWord := Copy(LStrippedLine, LPos+1, (Length(LStrippedLine)-LPos)-1);
+            if TextIsSame(LWord, 'NIL') then begin
+              LStrippedLineLength := 0;
+            end else begin
+              LStrippedLineLength := StrToInt(LWord);
+            end;
+            LStrippedLine := Copy(LStrippedLine, 1, LPos-1);
+            //The rest of the reply is on the following line...
+            LSplitLine := IOHandler.ReadString(LStrippedLineLength);
+            // At this point LSplitLine should be parsed and the following characters should be escaped... " CR LF.
+            LLine := LLine + LStrippedLine + LSplitLine;
+            LStrippedLine := IOHandler.ReadLn;  //Cannot thrash LLine, need it later
+          until not TextEndsWith(LStrippedLine, '}');
+          LLine := LLine + LStrippedLine;
+        end;
       end;
+      LResponse.Add(LLine);
       //Need to get the 1st word on the line in case it is +, PREAUTH, etc...
       LPos := Pos(' ', LLine);                      {Do not Localize}
       if LPos <> 0 then begin
@@ -2213,13 +2250,13 @@ begin
 end;
 
 function TIdIMAP4.SendCmd(const AOut: string; AExpectedResponses: array of String;
-  ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string;
+  ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string;
 begin
   Result := SendCmd(NewCmdCounter, AOut, AExpectedResponses, ASingleLineMode, ASingleLineMayBeSplit);
 end;
 
 function TIdIMAP4.SendCmd(const ATag, AOut: string; AExpectedResponses: array of String;
-  ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = False): string;
+  ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string;
 var
   LCmd: String;
 begin
@@ -3811,7 +3848,7 @@ begin
     LCmd := LCmd + '[' + IntToStr(LTextPart+1) + '])';            {Do not Localize}
   end;
 
-  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     try
       {For an invalid request (non-existent part or message), NIL is returned as the size...}
@@ -3876,7 +3913,7 @@ begin
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
     IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdBodyStructure] + ')',
-    [IMAP4Commands[cmdFetch]], True);
+    [IMAP4Commands[cmdFetch]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
     try
@@ -4226,7 +4263,7 @@ begin
   end;
   LCmd := LCmd + '[' + APartNum + '])';                     {Do not Localize}
 
-  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
     try
@@ -4365,13 +4402,14 @@ begin
 
   SendCmd(NewCmdCounter,
     IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdRFC822Header] + ')', {Do not Localize}
-    [IMAP4Commands[cmdFetch]], True);
+    [IMAP4Commands[cmdFetch]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
     try
       if LastCmdResult.Text.Count > 0 then begin
         if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Header]])
-          and (FLineStruct.ByteCount > 0) then begin
+          and (FLineStruct.ByteCount > 0) then
+        begin
           BeginWork(wmRead, FLineStruct.ByteCount);  //allow ReadString to use OnWork
           try
             LStr := IOHandler.ReadString(FLineStruct.ByteCount);
@@ -4409,13 +4447,14 @@ begin
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
     IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdRFC822Header] + ')', {Do not Localize}
-    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
     try
       if LastCmdResult.Text.Count > 0 then begin
         if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Header]])
-          and (FLineStruct.ByteCount > 0) then begin
+          and (FLineStruct.ByteCount > 0) then
+        begin
           BeginWork(wmRead, FLineStruct.ByteCount); //allow ReadString to use OnWork
           try
             LStr := IOHandler.ReadString(FLineStruct.ByteCount);
@@ -4469,7 +4508,7 @@ begin
   end;
   LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdBody] + '[' + APartNum + '.' + IMAP4FetchDataItem[fdHeader] + '])'; {Do not Localize}
 
-  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
     try
@@ -4772,7 +4811,7 @@ begin
   end;
   LCmd := LCmd + ')';                             {Do not Localize}
 
-  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True);
+  SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
     try
@@ -6388,7 +6427,7 @@ begin
   //This is a line like '* 9 FETCH (UID 47 RFC822.SIZE 3456)', i.e. with a bracketted response.
   //See is it complete (has a closing bracket) or does it continue on other lines...
   ALine := Copy(ALine, 2, MaxInt);
-  if Copy(ALine, Length(ALine), 1) = ')' then begin    {Do not Localize}
+  if TextEndsWith(ALine, ')') then begin    {Do not Localize}
     ALine := Copy(ALine, 1, Length(ALine) - 1);  //Strip trailing bracket
     FLineStruct.Complete := True;
   end else begin
