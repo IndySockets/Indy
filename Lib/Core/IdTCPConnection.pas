@@ -538,8 +538,12 @@ begin
       // if DisconnectNotifyPeer() has been overridden and then call Connected()
       // to maintain existing behavior...
       //
-      if Connected then begin
-        DisconnectNotifyPeer;
+      try
+        if Connected then begin
+          DisconnectNotifyPeer;
+        end;
+      except
+        // TODO: maybe shallow only EIdConnClosedGracefully and EIdSocketError?
       end;
     end;
   finally
