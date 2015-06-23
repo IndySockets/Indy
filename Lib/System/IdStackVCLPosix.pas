@@ -1305,6 +1305,7 @@ begin
       Result := IndyStrToInt(AServiceName);
     except
       on EConvertError do begin
+        Result := 0;
         IndyRaiseOuterException(EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]));
       end;
     end;
