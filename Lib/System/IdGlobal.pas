@@ -4110,14 +4110,14 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF DCC}
-  {$IFDEF HAS_Exception_RaiseOuterException}
+{$IFDEF HAS_Exception_RaiseOuterException}
 procedure IndyRaiseOuterException(AOuterException: Exception);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Exception.RaiseOuterException(AOuterException);
 end;
-  {$ELSE}
+{$ELSE}
+  {$IFDEF DCC}
 // RLebeau: There is no Exception.InnerException property to capture the inner
 // exception into, but we can still raise the outer exception using Delphi's
 // 'raise ... at [address]' syntax, at least.  This way, the debugger (and
@@ -4185,6 +4185,12 @@ end;
       {$ENDIF}
 
     {$ENDIF}
+  {$ELSE}
+// Not Delphi, so just raise the exception as-is until we know what else to do with it...
+procedure IndyRaiseOuterException(AOuterException: Exception);
+begin
+  raise AOuterException;
+end;
   {$ENDIF}
 {$ENDIF}
 
