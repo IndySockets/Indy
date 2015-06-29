@@ -223,7 +223,6 @@ procedure TIdInitializerComponent.InitComponent;
 var
   LAssemblyList: array of Assembly;
   i: integer;
-  LR : ReflectionTypeLoadException;
   LM : String;
 {$ENDIF}
 begin
@@ -254,33 +253,21 @@ begin
     end;
   end;
   except
-    on E : Exception do
+    on E : ReflectionTypeLoadException do
     begin
-      if E is ReflectionTypeLoadException then
+      LM := EOL;
+      LM := LM + 'Message:     ' + E.Message + EOL;
+      LM := LM + 'Source:      ' + E.Source + EOL;
+      LM := LM + 'Stack Trace: ' + E.StackTrace + EOL;
+      for i := Low(E.LoaderExceptions) to High(E.LoaderExceptions) do
       begin
-
-        LR := E as ReflectionTypeLoadException;
-        LM := EOL;
-        LM := LM + 'Message:     '+  LR.Message + EOL;
-        LM := LM + 'Source:      '+ LR.Source + EOL;
-        LM := LM + 'Stack Trace: '+ LR.StackTrace + EOL;
-
-
-        for i := Low(LR.LoaderExceptions) to High(LR.LoaderExceptions) do
-        begin
-          LM := LM + EOL;
-          LM := LM + 'Error #'+i.ToString+EOL;
-          LM := LM + 'Message:     '+ LR.LoaderExceptions[i].Message+EOL;
-          LM := LM + 'Source:      '+ LR.LoaderExceptions[i].Source + EOL;
-          LM := LM + 'Stack Trace: '+ EOL+ LR.LoaderExceptions[i].StackTrace +EOL;
-
-        end;
-        IndyRaiseOuterException(Exception.Create('Load Error'+EOL+LM));
-      end
-      else
-      begin
-        raise;
+        LM := LM + EOL;
+        LM := LM + 'Error #'       + i.ToString+EOL;
+        LM := LM + 'Message:     ' + E.LoaderExceptions[i].Message + EOL;
+        LM := LM + 'Source:      ' + E.LoaderExceptions[i].Source + EOL;
+        LM := LM + 'Stack Trace: ' + EOL+ E.LoaderExceptions[i].StackTrace + EOL;
       end;
+      IndyRaiseOuterException(Exception.Create('Load Error'+EOL+LM));
     end;
   end;
   {$ENDIF}

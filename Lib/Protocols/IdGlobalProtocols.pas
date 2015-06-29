@@ -4444,8 +4444,12 @@ var
 {$ENDIF}
 {$IFDEF WINDOWS}
 var
+  {$IFDEF WINCE}
+  Reg: TRegistry;
+  {$ELSE}
   LHost: array[0..MAX_COMPUTERNAME_LENGTH] of Char;
   i: DWORD;
+  {$ENDIF}
 {$ENDIF}
 begin
   Result := '';
@@ -4483,7 +4487,16 @@ begin
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFDEF WINCE}
-      {$WARNING To Do - find some way to get the Computer Name.}
+  Reg := TRegistry.Create;
+  try
+    Reg.RootKey := HKEY_LOCAL_MACHINE;
+    if Reg.OpenKeyReadOnly('\Ident') then begin
+      Result := Reg.ReadString('Name');
+      Reg.CloseKey;
+    end;
+  finally
+    Reg.Free;
+  end;
     {$ELSE}
   i := MAX_COMPUTERNAME_LENGTH;
   if GetComputerName(LHost, i) then begin

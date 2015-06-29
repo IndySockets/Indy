@@ -630,14 +630,16 @@ type
     case Integer of
     0: (
        {$IFDEF ENDIAN_BIG}
-      HighPart: UInt32;
-      LowPart: UInt32);
+       HighPart: UInt32;
+       LowPart: UInt32
        {$ELSE}
-      LowPart: UInt32;
-      HighPart: UInt32);
-      {$ENDIF}
+       LowPart: UInt32;
+       HighPart: UInt32
+       {$ENDIF}
+       );
     1: (
-      QuadPart: UInt64;
+       QuadPart: UInt64
+       );
   end;
   {$NODEFINE TIdUInt64}
 
@@ -646,18 +648,18 @@ type
   (*$HPPEMIT '    #pragma pack(push, 1)' *)
   (*$HPPEMIT '    struct TIdUInt64'*)
   (*$HPPEMIT '    {'*)
-  (*$HPPEMIT '        union {
-  (*$HPPEMIT '            struct {
+  (*$HPPEMIT '        union {'*)
+  (*$HPPEMIT '            struct {'*)
   {$IFDEF ENDIAN_BIG}
-  (*$HPPEMIT '                unsigned __int32 HighPart;
-  (*$HPPEMIT '                unsigned __int32 LowPart;
+  (*$HPPEMIT '                unsigned __int32 HighPart;'*)
+  (*$HPPEMIT '                unsigned __int32 LowPart;'*)
   {$ELSE}
-  (*$HPPEMIT '                unsigned __int32 LowPart;
-  (*$HPPEMIT '                unsigned __int32 HighPart;
+  (*$HPPEMIT '                unsigned __int32 LowPart;'*)
+  (*$HPPEMIT '                unsigned __int32 HighPart;'*)
   {$ENDIF}
-  (*$HPPEMIT '            };
-  (*$HPPEMIT '            unsigned __int64 QuadPart;
-  (*$HPPEMIT '        };
+  (*$HPPEMIT '            };'*)
+  (*$HPPEMIT '            unsigned __int64 QuadPart;'*)
+  (*$HPPEMIT '        };'*)
   (*$HPPEMIT '        TIdUInt64(unsigned __int64 value) { QuadPart = value; }'*)
   (*$HPPEMIT '        operator unsigned __int64() const { return QuadPart; }'*)
   (*$HPPEMIT '    };'*)
