@@ -78,7 +78,7 @@ uses
 type
   TIdEntityHeaderInfo = class(TPersistent)
   protected
-    FOwner: TPersistent;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FOwner: TPersistent;
     FCacheControl: String;
     FRawHeaders: TIdHeaderList;
     FCharSet: String;
@@ -665,6 +665,7 @@ type
 
 function TIdEntityHeaderInfo.GetOwnerComponent: TComponent;
 var
+  // under ARC, convert a weak reference to a strong reference before working with it
   LOwner: TPersistent;
 begin
   Result := nil;

@@ -2929,10 +2929,34 @@ begin
   end;
   // end bug fix
   {$ENDIF}
-  if IsPeer then begin
-    fSSLSocket.Accept(Binding.Handle);
-  end else begin
-    fSSLSocket.Connect(Binding.Handle);
+  // RLebeau 7/2/2015: do not rely on IsPeer to decide whether to call Connect()
+  // or Accept(). SSLContext.Mode controls whether a client or server method is
+  // used to handle the connection, so that same value should be used here as well.
+  // A user encountered a scenario where he needed to connect a TIdTCPClient to a
+  // TCP server on a hardware device, but run the client's SSLIOHandler as an SSL
+  // server because the device was initiating the SSL handshake as an SSL client.
+  // IsPeer was not designed to handle that scenario.  Setting IsPeer to True
+  // allowed Accept() to be called here, but at the cost of causing memory leaks
+  // in TIdSSLIOHandlerSocketOpenSSL.Destroy() and TIdSSLIOHandlerSocketOpenSSL.Close()
+  // in client components!  IsPeer is intended to be set to True only in server
+  // components...
+  case fSSLContext.Mode of
+    sslmClient: begin
+      fSSLSocket.Connect(Binding.Handle);
+    end;
+    sslmServer: begin
+      fSSLSocket.Accept(Binding.Handle);
+    end;
+  else
+    begin
+      // Mode must be sslmBoth, so just fall back to previous behavior for now,
+      // until we can figure out a better way to handle this scenario...
+      if IsPeer then begin
+        fSSLSocket.Accept(Binding.Handle);
+      end else begin
+        fSSLSocket.Connect(Binding.Handle);
+      end;
+    end;
   end;
   fPassThrough := False;
 end;
@@ -3077,7 +3101,7 @@ begin
   // create new SSL context
   fContext := SSL_CTX_new(SSLMethod);
   if fContext = nil then begin
-    raise EIdOSSLCreatingContextError.Create(RSSSLCreatingContextError);
+    EIdOSSLCreatingContextError.RaiseException(RSSSLCreatingContextError);
   end;
   //set SSL Versions we will use
   if not (sslvSSLv2 in SSLVersions) then begin
@@ -3159,6 +3183,7 @@ an invalid MAC when doing SSL.}
     );
   end;
   if error <= 0 then begin
+    // TODO: should this be using EIdOSSLSettingCipherError.RaiseException() instead?
     raise EIdOSSLSettingCipherError.Create(RSSSLSettingCipherError);
   end;
   if fVerifyMode <> [] then begin
@@ -3200,7 +3225,7 @@ begin
 
   if (Dirs <> '') or (FileName <> '') then begin
     if IndySSL_CTX_load_verify_locations(fContext, FileName, Dirs) <= 0 then begin
-      raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
+      EIdOSSLCouldNotLoadSSLLibrary.RaiseException(RSOSSLCouldNotLoadSSLLibrary);
     end;
   end;
 
@@ -3221,7 +3246,7 @@ end;
 function TIdSSLContext.SetSSLMethod: PSSL_METHOD;
 begin
   if fMode = sslmUnassigned then begin
-    raise EIdOSSLModeNotSet.create(RSOSSLModeNotSet);
+    raise EIdOSSLModeNotSet.Create(RSOSSLModeNotSet);
   end;
   case fMethod of
     sslvSSLv2:

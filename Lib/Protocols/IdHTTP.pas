@@ -398,11 +398,11 @@ type
   //
   TIdHTTPResponse = class(TIdResponseHeaderInfo)
   protected
-    FHTTP: TIdCustomHTTP;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FHTTP: TIdCustomHTTP;
     FResponseCode: Integer;
     FResponseText: string;
     FKeepAlive: Boolean;
-    FContentStream: TStream;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FContentStream: TStream;
     FResponseVersion: TIdHTTPProtocolVersion;
     FMetaHTTPEquiv :  TIdMetaHTTPEquiv;
     //
@@ -425,10 +425,10 @@ type
 
   TIdHTTPRequest = class(TIdRequestHeaderInfo)
   protected
-    FHTTP: TIdCustomHTTP;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FHTTP: TIdCustomHTTP;
     FURL: string;
     FMethod: TIdHTTPMethod;
-    FSourceStream: TStream;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FSourceStream: TStream;
     FUseProxy: TIdHTTPConnectionType;
     FIPVersion: TIdIPVersion;
     FDestination: string;
@@ -444,7 +444,7 @@ type
 
   TIdHTTPProtocol = class(TObject)
   protected
-    FHTTP: TIdCustomHTTP;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FHTTP: TIdCustomHTTP;
     FRequest: TIdHTTPRequest;
     FResponse: TIdHTTPResponse;
   public
@@ -1755,15 +1755,13 @@ begin
       raise EIdUnknownProtocol.Create(RSHTTPUnknownProtocol);
     end;
 
-    // The URL part is not URL encoded at this place
-    ARequest.URL := URL.GetPathAndParams;
-
-    if TextIsSame(ARequest.Method, Id_HTTPMethodOptions) or
-      TextIsSame(ARequest.MethodOverride, Id_HTTPMethodOptions) then
+    if (TextIsSame(ARequest.Method, Id_HTTPMethodOptions) or TextIsSame(ARequest.MethodOverride, Id_HTTPMethodOptions))
+      and TextIsSame(LURI.Document, '*') then  {do not localize}
     begin
-      if TextIsSame(LURI.Document, '*') then begin     {do not localize}
-        ARequest.URL := LURI.Document;
-      end;
+      ARequest.URL := LURI.Document;
+    end else begin
+      // The URL part is not URL encoded at this place
+      ARequest.URL := URL.GetPathAndParams;
     end;
 
     ARequest.IPVersion := LURI.IPVersion;
