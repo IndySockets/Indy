@@ -6682,6 +6682,9 @@ const
     try
       IOHandler.Capture(LMStream, LDelim, True, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
       LMStream.Position := 0;
+      // TODO: when String is AnsiString, TIdMessageClient uses AMsg.ChaarSet as
+      // the destination encoding, should this be doing the same? Otherwise, we
+      // could just use AMsg.Body.LoadFromStream() instead...
       ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
     finally
       LMStream.Free;

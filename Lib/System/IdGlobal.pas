@@ -566,11 +566,25 @@ type
   Int8 = {$IFDEF DOTNET}System.SByte{$ELSE}Shortint{$ENDIF};
   {$NODEFINE Int8}
 {$ENDIF}
+{$IFNDEF HAS_PInt8}
+  {$IFNDEF DOTNET}
+type
+  PInt8 = PShortint;
+  {$NODEFINE PInt8}
+  {$ENDIF}
+{$ENDIF}
 
 {$IFNDEF HAS_UInt8}
 type
   UInt8 = {$IFDEF DOTNET}System.Byte{$ELSE}Byte{$ENDIF};
   {$NODEFINE UInt8}
+{$ENDIF}
+{$IFNDEF HAS_PUInt8}
+  {$IFNDEF DOTNET}
+type
+  PUInt8 = PByte;
+  {$NODEFINE PUInt8}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFNDEF HAS_Int16}
@@ -578,11 +592,25 @@ type
   Int16 = Smallint;
   {$NODEFINE Int16}
 {$ENDIF}
+{$IFNDEF HAS_PInt16}
+  {$IFNDEF DOTNET}
+type
+  PInt16 = PSmallint;
+  {$NODEFINE PInt16}
+  {$ENDIF}
+{$ENDIF}
 
 {$IFNDEF HAS_UInt16}
 type
   UInt16 = Word;
   {$NODEFINE UInt16}
+{$ENDIF}
+{$IFNDEF HAS_PUInt16}
+  {$IFNDEF DOTNET}
+type
+  PUInt16 = PWord;
+  {$NODEFINE PUInt16}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFNDEF HAS_Int32}
@@ -590,11 +618,25 @@ type
   Int32 = Integer;
   {$NODEFINE Int32}
 {$ENDIF}
+{$IFNDEF HAS_PInt32}
+  {$IFNDEF DOTNET}
+type
+  PInt32 = PInteger;
+  {$NODEFINE PInt32}
+  {$ENDIF}
+{$ENDIF}
 
 {$IFNDEF HAS_UInt32}
 type
   UInt32 = Cardinal;
   {$NODEFINE UInt32}
+{$ENDIF}
+{$IFNDEF HAS_PUInt32}
+  {$IFNDEF DOTNET}
+type
+  PUInt32 = PCardinal;
+  {$NODEFINE PUInt32}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF HAS_UInt64}
@@ -4849,8 +4891,7 @@ begin
   LShort := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LShort, 0, VDest, ADestIndex, SizeOf(Int16));
   {$ELSE}
-  // TODO: define PInt16 if needed
-  PSmallInt(@VDest[ADestIndex])^ := ASource;
+  PInt16(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -4874,7 +4915,7 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(UInt16));
   {$ELSE}
-  PWord(@VDest[ADestIndex])^ := ASource;
+  PUInt16(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -4898,7 +4939,7 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(UInt32));
   {$ELSE}
-  PCardinal(@VDest[ADestIndex])^ := ASource;
+  PUInt32(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -4922,7 +4963,7 @@ begin
   LInt := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LInt, 0, VDest, ADestIndex, SizeOf(Int32));
   {$ELSE}
-  PInteger(@VDest[ADestIndex])^ := ASource;
+  PInt32(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -7448,8 +7489,8 @@ begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
-  SetLength(Result, SizeOf(Integer));
-  PInteger(@Result[0])^ := AValue;
+  SetLength(Result, SizeOf(Int32));
+  PInt32(@Result[0])^ := AValue;
   {$ENDIF}
 end;
 
@@ -7460,7 +7501,7 @@ begin
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
   SetLength(Result, SizeOf(UInt32));
-  PCardinal(@Result[0])^ := AValue;
+  PUInt32(@Result[0])^ := AValue;
   {$ENDIF}
 end;
 
@@ -7471,8 +7512,7 @@ begin
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
   SetLength(Result, SizeOf(Int16));
-  // TODO: define PInt16 if needed
-  PSmallInt(@Result[0])^ := AValue;
+  PInt16(@Result[0])^ := AValue;
   {$ENDIF}
 end;
 
@@ -7483,7 +7523,7 @@ begin
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
   SetLength(Result, SizeOf(UInt16));
-  PWord(@Result[0])^ := AValue;
+  PUInt16(@Result[0])^ := AValue;
   {$ENDIF}
 end;
 
@@ -7706,8 +7746,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToInt32(AValue, AIndex);
   {$ELSE}
-  // TODO: define PInt32 if needed
-  Result := PInteger(@AValue[AIndex])^;
+  Result := PInt32(@AValue[AIndex])^;
   {$ENDIF}
 end;
 
@@ -7758,8 +7797,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToUInt16(AValue, AIndex);
   {$ELSE}
-  // TODO: define PUInt16 if needed
-  Result := PWord(@AValue[AIndex])^;
+  Result := PUInt16(@AValue[AIndex])^;
   {$ENDIF}
 end;
 
@@ -7778,8 +7816,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToInt16(AValue, AIndex);
   {$ELSE}
-  // TODO: define PInt16 if needed
-  Result := PSmallInt(@AValue[AIndex])^;
+  Result := PInt16(@AValue[AIndex])^;
   {$ENDIF}
 end;
 
@@ -7826,8 +7863,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToUInt32(AValue, AIndex);
   {$ELSE}
-  // TODO: define PUInt32 if needed
-  Result := PCardinal(@AValue[AIndex])^;
+  Result := PUInt32(@AValue[AIndex])^;
   {$ENDIF}
 end;
 

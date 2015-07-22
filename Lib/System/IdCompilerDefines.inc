@@ -341,6 +341,16 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi & CBuilder XE9 (Aitana)
+{$IFDEF VER300}
+  {$DEFINE VCL_XE9}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_XE9}
+  {$ELSE}
+    {$DEFINE DELPHI_XE9}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi.NET
 // Covers D8+
 {$IFDEF CIL}
@@ -1120,11 +1130,17 @@
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
   {$DEFINE HAS_Int8} // TODO: when was Int8 introduced?
+  {$DEFINE HAS_PInt8} // TODO: when was PInt8 introduced?
   {$DEFINE HAS_UInt8} // TODO: when was UInt8 introduced?
+  {$DEFINE HAS_PUInt8} // TODO: when was PUInt8 introduced?
   {$DEFINE HAS_Int16} // TODO: when was Int16 introduced?
+  {$DEFINE HAS_PInt16} // TODO: when was PInt16 introduced?
   {$DEFINE HAS_UInt16} // TODO: when was UInt16 introduced?
+  {$DEFINE HAS_PUInt16} // TODO: when was PUInt16 introduced?
   {$DEFINE HAS_Int32} // TODO: when was Int32 introduced?
+  {$DEFINE HAS_PInt32} // TODO: when was PInt32 introduced?
   {$DEFINE HAS_UInt32} // TODO: when was UInt32 introduced?
+  {$DEFINE HAS_PUInt32} // TODO: when was PUInt32 introduced?
   {$DEFINE HAS_QWord} // TODO: when was QWord introduced?
   {$DEFINE HAS_PQWord} // TODO: when was PQWord introduced?
   {$IFDEF FPC_2_1_5_OR_ABOVE}

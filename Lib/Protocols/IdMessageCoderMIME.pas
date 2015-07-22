@@ -341,6 +341,7 @@ var
   LContentType, LContentTransferEncoding: string;
   LDecoder: TIdDecoder;
   LLine: string;
+  LBinaryLineBreak: string;
   LBuffer: string;  //Needed for binhex4 because cannot decode line-by-line.
   LIsThisTheFirstLine: Boolean; //Needed for binary encoding
   LBoundaryStart, LBoundaryEnd: string;
@@ -424,11 +425,15 @@ begin
       if not FProcessFirstLine then begin
         EnsureEncoding(LEncoding, enc8Bit);
         if LIsBinaryContentTransferEncoding then begin
-          //For binary, need EOL because the default LF causes spurious CRs in the output...
+          // For binary, need EOL because the default LF causes spurious CRs in the output...
           // TODO: don't use ReadLnRFC() for binary data at all.  Read into an intermediate
           // buffer instead, looking for the next MIME boundary and message terminator while
-          // flushing the buffer to the destination stream along the way...
+          // flushing the buffer to the destination stream along the way.  Otherwise, at the
+          // very least, we need to detect the type of line break used (CRLF vs bare-LF) so
+          // we can duplicate it correctly in the output.  Most systems use CRLF, per the RFCs,
+          // but have seen systems use bare-LF instead...
           LLine := ReadLnRFC(VMsgEnd, EOL, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
+          LBinaryLineBreak := EOL; // TODO: detect the actual line break used
         end else begin
           LLine := ReadLnRFC(VMsgEnd, LF, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
         end;
@@ -475,7 +480,7 @@ begin
             LIsThisTheFirstLine := False;
           end else begin
             if Assigned(ADestStream) then begin
-              WriteStringToStream(ADestStream, EOL, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+              WriteStringToStream(ADestStream, LBinaryLineBreak, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
             end;
           end;
           if Assigned(ADestStream) then begin
@@ -489,15 +494,16 @@ begin
       end
       else begin
         // Data to decode
-        // For TIdDecoderQuotedPrintable, we have to make sure all EOLs are
-        // intact
         if LDecoder is TIdDecoderQuotedPrintable then begin
           // For TIdDecoderQuotedPrintable, we have to make sure all EOLs are intact
           LDecoder.Decode(LLine + EOL);
         end else if LDecoder is TIdDecoderBinHex4 then begin
-          //We cannot decode line-by-line because lines don't have a whole
-          //number of 4-byte blocks due to the : inserted at the start of
-          //the first line, so buffer the file...
+          // We cannot decode line-by-line because lines don't have a whole
+          // number of 4-byte blocks due to the : inserted at the start of
+          // the first line, so buffer the file...
+          // TODO: flush the buffer periodically when it has enough blocks
+          // in it, otherwise we are buffering the entire file in memory
+          // before decoding it...
           LBuffer := LBuffer + LLine;
         end else if LLine <> '' then begin
           LDecoder.Decode(LLine);
