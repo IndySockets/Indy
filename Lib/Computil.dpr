@@ -41,11 +41,11 @@ type
 
    woSetupD2,woSetupD3,woSetupD4,woSetupD5,woSetupD6,woSetupD7,woSetupD8,
    woSetupD9,woSetupD10,woSetupD11,woSetupD12,woSetupD14,woSetupD15,woSetupD16,
-   woSetupD17,woSetupD18,woSetupD19,woSetupD20,woSetupD21,woSetupD22,
+   woSetupD17,woSetupD18,woSetupD19,woSetupD20,woSetupD21,woSetupD22,woSetupD23,
 
    woSetupC1,woSetupC3,woSetupC4,woSetupC5,woSetupC6,woSetupC7,woSetupC8,
    woSetupC9,woSetupC10,woSetupC11,woSetupC12,woSetupC14,woSetupC15,woSetupC16,
-   woSetupC17,woSetupC18,woSetupC19,woSetupC20,woSetupC21,woSetupC22,
+   woSetupC17,woSetupC18,woSetupC19,woSetupC20,woSetupC21,woSetupC22,woSetupC23,
 
    woInvalid);
 
@@ -55,11 +55,11 @@ var
 
     'SetupD2','SetupD3','SetupD4','SetupD5','SetupD6','SetupD7','SetupD8',
     'SetupD9','SetupD10','SetupD11','SetupD12','SetupD14','SetupD15','SetupD16',
-    'SetupD17','SetupD18','SetupD19','SetupD20','SetupD21','SetupD22',
+    'SetupD17','SetupD18','SetupD19','SetupD20','SetupD21','SetupD22','SetupD23',
 
     'SetupC1','SetupC3','SetupC4','SetupC5','SetupC6','SetupC7','SetupC8',
     'SetupC9','SetupC10','SetupC11','SetupC12','SetupC14','SetupC15','SetupC16',
-    'SetupC17','SetupC18','SetupC19','SetupC20','SetupC21','SetupC22',
+    'SetupC17','SetupC18','SetupC19','SetupC20','SetupC21','SetupC22','SetupC23',
 
     'Invalid'
     );
@@ -221,6 +221,7 @@ begin
     woSetupD20: SetPath('NDD20','Software\Embarcadero\BDS\14.0');
     woSetupD21: SetPath('NDD21','Software\Embarcadero\BDS\15.0');
     woSetupD22: SetPath('NDD22','Software\Embarcadero\BDS\16.0');
+    woSetupD23: SetPath('NDD23','Software\Embarcadero\BDS\17.0');
     woSetupC1:  SetPath('NDC1','Software\Borland\C++Builder\1.0');
     woSetupC3:  SetPath('NDC3','Software\Borland\C++Builder\3.0');
     woSetupC4:  SetPath('NDC4','Software\Borland\C++Builder\4.0');
@@ -238,6 +239,7 @@ begin
     woSetupC20: SetPath('NDC20','Software\Embarcadero\BDS\14.0');
     woSetupC21: SetPath('NDC21','Software\Embarcadero\BDS\15.0');
     woSetupC22: SetPath('NDC22','Software\Embarcadero\BDS\16.0');
+    woSetupC23: SetPath('NDC23','Software\Embarcadero\BDS\17.0');
     woInvalid:  Writeln('Invalid Parameter');
   end; { case }
 end.
