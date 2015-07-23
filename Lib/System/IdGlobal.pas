@@ -1912,6 +1912,15 @@ const
 
 implementation
 
+{$IFDEF UNIX}
+  {$IFDEF LINUX}
+    {$DEFINE USE_clock_gettime}
+  {$ENDIF}
+  {$IFDEF FREEBSD}
+    {$DEFINE USE_clock_gettime}
+  {$ENDIF}
+{$ENDIF}
+
 uses
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
@@ -1923,6 +1932,9 @@ uses
     {$IFDEF DARWIN}
   Macapi.CoreServices,
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF USE_clock_gettime}
+  Unix,
   {$ENDIF}
   {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
     {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
@@ -5289,6 +5301,21 @@ end;
 function mach_timebase_info(var TimebaseInfoData: TTimebaseInfoData): Integer; cdecl; external 'libc';
 function mach_absolute_time: QWORD; cdecl; external 'libc';
     {$ENDIF}
+  {$ELSE}
+    {$IFDEF USE_clock_gettime}
+      {$IFDEF LINUX}
+// accordingly Linux's /usr/include/linux/time.h
+const
+  CLOCK_MONOTONIC = 1;
+      {$ENDIF}
+      {$IFDEF FREEBSD}
+// accordingly FreeBSD's /usr/include/time.h
+const
+  CLOCK_MONOTONIC = 4;
+      {$ENDIF}
+
+function clock_gettime(clockid: Integer; var pts: timespec): Integer; cdecl; external 'libc';
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -5301,10 +5328,13 @@ function Ticks64: TIdTicks;
     {$IFDEF USE_INLINE} inline;{$ENDIF}
   {$ELSE}
 var
+    {$IFDEF USE_clock_gettime}
+  ts: timespec;
+    {$ELSE}
   tv: timeval;
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
-
 {$IFDEF WINDOWS}
   {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
 var
@@ -5342,15 +5372,49 @@ begin
 
   // mach_absolute_time() returns billionth of seconds, so divide by one million to get milliseconds
   Result := (mach_absolute_time() * GMachTimeBaseInfo.numer) div (1000000 * GMachTimeBaseInfo.denom);
+
     {$ELSE}
-      {$IFDEF USE_BASEUNIX}
+
+      {$IFDEF USE_clock_gettime}
+
+  // TODO: use CLOCK_BOOTTIME on platforms that support it?  It takes system
+  // suspension into account, whereas CLOCK_MONOTONIC does not...
+  clock_gettime(CLOCK_MONOTONIC, ts);
+        {$IFOPT R+} // detect range checking
+          {$R-}
+          {$DEFINE _RPlusWasEnabled}
+        {$ENDIF}
+        {$IFOPT Q+} // detect overflow checking
+          {$Q-}
+          {$DEFINE _QPlusWasEnabled}
+        {$ENDIF}
+  Result := (Int64(ts.tv_sec) * 1000) + (ts.tv_nsec div 1000000);
+        {$IFDEF _QPlusWasEnabled}
+          {$Q+}
+          {$UNDEF _QPlusWasEnabled}
+        {$ENDIF}
+        {$IFDEF _RPlusWasEnabled}
+          {$R+}
+          {$UNDEF _RPlusWasEnabled}
+        {$ENDIF}
+
+      {$ELSE}
+
+        {$IFDEF USE_BASEUNIX}
   fpgettimeofday(@tv,nil);
-      {$ENDIF}
-      {$IFDEF KYLIXCOMPAT}
+        {$ENDIF}
+        {$IFDEF KYLIXCOMPAT}
   gettimeofday(tv, nil);
-      {$ENDIF}
-      {$RANGECHECKS OFF}
-  Result := Int64(tv.tv_sec) * 1000 + tv.tv_usec div 1000;
+        {$ENDIF}
+        {$IFOPT R+} // detect range checking
+          {$R-}
+          {$DEFINE _RPlusWasEnabled}
+        {$ENDIF}
+  Result := (Int64(tv.tv_sec) * 1000) + (tv.tv_usec div 1000);
+        {$IFDEF _RPlusWasEnabled}
+          {$R+}
+          {$UNDEF _RPlusWasEnabled}
+        {$ENDIF}
     {
     I've implemented this correctly for now. I'll argue for using
     an int64 internally, since apparently quite some functionality
@@ -5362,8 +5426,11 @@ begin
     IdEcho has code to circumvent the wrap, but its not very good
     to have code for that at all spots where it might be relevant.
     }
+
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+
   {$IFDEF WINDOWS}
     // S.G. 27/11/2002: Changed to use high-performance counters as per suggested
     // S.G. 27/11/2002: by David B. Ferguson (david.mcs@ns.sympatico.ca)
@@ -5375,7 +5442,7 @@ begin
     //
     // http://www.virtualdub.org/blog/pivot/entry.php?id=106
     // http://blogs.msdn.com/oldnewthing/archive/2008/09/08/8931563.aspx
-    
+
     {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
       {$IFDEF WINCE}
   if Windows.QueryPerformanceCounter(@nTime) then begin
@@ -5395,6 +5462,7 @@ begin
     {$ENDIF}
   Result := TIdTicks(GetTickCount64());
   {$ENDIF}
+
   {$IFDEF DOTNET}
   // Must cast to a cardinal
   //
@@ -5410,7 +5478,6 @@ begin
   //Result := DateTime.Now.Ticks div 10000;
 
   Result := TIdTicks(Environment.TickCount);
-
   {$ENDIF}
 end;
 
