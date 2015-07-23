@@ -148,6 +148,7 @@ uses
   IdMessageCoderXXE,
   IdMessageCoderYenc,
   IdMessageCollection,
+  IdMessageHelper,
   IdMessageParts,
   IdMultipartFormData,
   IdNNTP,
