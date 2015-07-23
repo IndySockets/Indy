@@ -1,6 +1,6 @@
-package IndyProtocols120Net;
+package IndyProtocols80;
 
-{$ALIGN 0}
+{$R *.res}
 {$BOOLEVAL OFF}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
@@ -21,10 +21,9 @@ package IndyProtocols120Net;
 {$IMPLICITBUILD ON}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl,
-  IndySystem120Net,
-  IndyCore120Net;
+  rtl,
+  IndySystem80,
+  IndyCore80;
 
 contains
   IdASN1Util in 'IdASN1Util.pas',
@@ -37,6 +36,8 @@ contains
   IdAuthentication in 'IdAuthentication.pas',
   IdAuthenticationDigest in 'IdAuthenticationDigest.pas',
   IdAuthenticationManager in 'IdAuthenticationManager.pas',
+  IdAuthenticationNTLM in 'IdAuthenticationNTLM.pas',
+  IdAuthenticationSSPI in 'IdAuthenticationSSPI.pas',
   IdBlockCipherIntercept in 'IdBlockCipherIntercept.pas',
   IdChargenServer in 'IdChargenServer.pas',
   IdChargenUDPServer in 'IdChargenUDPServer.pas',
@@ -50,6 +51,8 @@ contains
   IdCoderQuotedPrintable in 'IdCoderQuotedPrintable.pas',
   IdCoderUUE in 'IdCoderUUE.pas',
   IdCoderXXE in 'IdCoderXXE.pas',
+  IdCompressionIntercept in 'IdCompressionIntercept.pas',
+  IdCompressorZLib in 'IdCompressorZLib.pas',
   IdConnectThroughHttpProxy in 'IdConnectThroughHttpProxy.pas',
   IdContainers in 'IdContainers.pas',
   IdCookie in 'IdCookie.pas',
@@ -143,7 +146,7 @@ contains
   IdHashSHA in 'IdHashSHA.pas',
   IdHeaderCoder2022JP in 'IdHeaderCoder2022JP.pas',
   IdHeaderCoderBase in 'IdHeaderCoderBase.pas',
-  IdHeaderCoderDotNet in 'IdHeaderCoderDotNet.pas',
+  IdHeaderCoderIndy in 'IdHeaderCoderIndy.pas',
   IdHeaderCoderPlain in 'IdHeaderCoderPlain.pas',
   IdHeaderList in 'IdHeaderList.pas',
   IdIMAP4 in 'IdIMAP4.pas',
@@ -177,6 +180,7 @@ contains
   IdMultipartFormData in 'IdMultipartFormData.pas',
   IdNNTP in 'IdNNTP.pas',
   IdNNTPServer in 'IdNNTPServer.pas',
+  IdNTLM in 'IdNTLM.pas',
   IdNetworkCalculator in 'IdNetworkCalculator.pas',
   IdOSFileName in 'IdOSFileName.pas',
   IdOTPCalculator in 'IdOTPCalculator.pas',
@@ -194,7 +198,10 @@ contains
   IdReplyIMAP4 in 'IdReplyIMAP4.pas',
   IdReplyPOP3 in 'IdReplyPOP3.pas',
   IdReplySMTP in 'IdReplySMTP.pas',
+  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
   IdResourceStringsProtocols in 'IdResourceStringsProtocols.pas',
+  IdResourceStringsSSPI in 'IdResourceStringsSSPI.pas',
+  IdResourceStringsUriUtils in 'IdResourceStringsUriUtils.pas',
   IdRexec in 'IdRexec.pas',
   IdRexecServer in 'IdRexecServer.pas',
   IdSASL in 'IdSASL.pas',
@@ -214,10 +221,13 @@ contains
   IdSMTPBase in 'IdSMTPBase.pas',
   IdSMTPRelay in 'IdSMTPRelay.pas',
   IdSMTPServer in 'IdSMTPServer.pas',
+  IdSNMP in 'IdSNMP.pas',
   IdSNPP in 'IdSNPP.pas',
   IdSNTP in 'IdSNTP.pas',
   IdSSL in 'IdSSL.pas',
-  IdSSLDotNET in 'IdSSLDotNET.pas',
+  IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
+  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
+  IdSSPI in 'IdSSPI.pas',
   IdServerInterceptLogBase in 'IdServerInterceptLogBase.pas',
   IdServerInterceptLogEvent in 'IdServerInterceptLogEvent.pas',
   IdServerInterceptLogFile in 'IdServerInterceptLogFile.pas',
@@ -252,7 +262,9 @@ contains
   IdWebDAV in 'IdWebDAV.pas',
   IdWhoIsServer in 'IdWhoIsServer.pas',
   IdWhois in 'IdWhois.pas',
-  IdZLibCompressorBase in 'IdZLibCompressorBase.pas';
-{$I IdProtocols90ASM90.inc}
+  IdZLib in 'IdZLib.pas',
+  IdZLibCompressorBase in 'IdZLibCompressorBase.pas',
+  IdZLibConst in 'IdZLibConst.pas',
+  IdZLibHeaders in 'IdZLibHeaders.pas';
 
 end.

@@ -137,6 +137,7 @@
       <File FileName="IdMessageCoderUUE.pas" ContainerId="" ModuleName="IdMessageCoderUUE"/>
       <File FileName="IdMessageCoderXXE.pas" ContainerId="" ModuleName="IdMessageCoderXXE"/>
       <File FileName="IdMessageCollection.pas" ContainerId="" ModuleName="IdMessageCollection"/>
+      <File FileName="IdMessageHelper.pas" ContainerId="" ModuleName="IdMessageHelper"/>
       <File FileName="IdMessageParts.pas" ContainerId="" ModuleName="IdMessageParts"/>
       <File FileName="IdMultipartFormData.pas" ContainerId="" ModuleName="IdMultipartFormData"/>
       <File FileName="IdNNTP.pas" ContainerId="" ModuleName="IdNNTP"/>

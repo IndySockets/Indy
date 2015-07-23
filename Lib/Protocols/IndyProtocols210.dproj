@@ -299,6 +299,7 @@
         <DCCReference Include="IdMessageCoderXXE.pas"/>
         <DCCReference Include="IdMessageCoderYenc.pas"/>
         <DCCReference Include="IdMessageCollection.pas"/>
+        <DCCReference Include="IdMessageHelper.pas"/>
         <DCCReference Include="IdMessageParts.pas"/>
         <DCCReference Include="IdMultipartFormData.pas"/>
         <DCCReference Include="IdNNTP.pas"/>

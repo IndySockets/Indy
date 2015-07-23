@@ -3,7 +3,7 @@
         <ProjectGuid>{9165FD9C-BA6D-4584-A9B4-0858F66AC0CA}</ProjectGuid>
         <MainSource>IndyProtocols180.dpk</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>79</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
@@ -253,6 +253,7 @@
         <DCCReference Include="IdMessageCoderXXE.pas"/>
         <DCCReference Include="IdMessageCoderYenc.pas"/>
         <DCCReference Include="IdMessageCollection.pas"/>
+        <DCCReference Include="IdMessageHelper.pas"/>
         <DCCReference Include="IdMessageParts.pas"/>
         <DCCReference Include="IdMultipartFormData.pas"/>
         <DCCReference Include="IdNNTP.pas"/>

@@ -1,4 +1,4 @@
-package IndyProtocols120Net;
+package IndyProtocols80Net;
 
 {$ALIGN 0}
 {$BOOLEVAL OFF}
@@ -21,10 +21,10 @@ package IndyProtocols120Net;
 {$IMPLICITBUILD ON}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl,
-  IndySystem120Net,
-  IndyCore120Net;
+Borland.Delphi,
+Borland.VclRtl,
+  IndySystem80Net,
+  IndyCore80Net;
 
 contains
   IdASN1Util in 'IdASN1Util.pas',
@@ -143,7 +143,7 @@ contains
   IdHashSHA in 'IdHashSHA.pas',
   IdHeaderCoder2022JP in 'IdHeaderCoder2022JP.pas',
   IdHeaderCoderBase in 'IdHeaderCoderBase.pas',
-  IdHeaderCoderDotNet in 'IdHeaderCoderDotNet.pas',
+  IdHeaderCoderIndy in 'IdHeaderCoderIndy.pas',
   IdHeaderCoderPlain in 'IdHeaderCoderPlain.pas',
   IdHeaderList in 'IdHeaderList.pas',
   IdIMAP4 in 'IdIMAP4.pas',
@@ -217,7 +217,6 @@ contains
   IdSNPP in 'IdSNPP.pas',
   IdSNTP in 'IdSNTP.pas',
   IdSSL in 'IdSSL.pas',
-  IdSSLDotNET in 'IdSSLDotNET.pas',
   IdServerInterceptLogBase in 'IdServerInterceptLogBase.pas',
   IdServerInterceptLogEvent in 'IdServerInterceptLogEvent.pas',
   IdServerInterceptLogFile in 'IdServerInterceptLogFile.pas',

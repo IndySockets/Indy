@@ -159,6 +159,7 @@
       <File FileName="IdMessageCoderXXE.pas" ContainerId="PascalCompiler" ModuleName="IdMessageCoderXXE"/>
       <File FileName="IdMessageCoderYenc.pas" ContainerId="PascalCompiler" ModuleName="IdMessageCoderYenc"/>
       <File FileName="IdMessageCollection.pas" ContainerId="PascalCompiler" ModuleName="IdMessageCollection"/>
+      <File FileName="IdMessageHelper.pas" ContainerId="PascalCompiler" ModuleName="IdMessageHelper"/>
       <File FileName="IdMessageParts.pas" ContainerId="PascalCompiler" ModuleName="IdMessageParts"/>
       <File FileName="IdMultipartFormData.pas" ContainerId="PascalCompiler" ModuleName="IdMultipartFormData"/>
       <File FileName="IdNNTP.pas" ContainerId="PascalCompiler" ModuleName="IdNNTP"/>

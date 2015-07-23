@@ -7,8 +7,8 @@
         <TargetedPlatforms>95</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
-        <ProjectVersion>15.1</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">Android</Platform>
+        <ProjectVersion>15.3</ProjectVersion>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -287,6 +287,7 @@
         <DCCReference Include="IdMessageCoderXXE.pas"/>
         <DCCReference Include="IdMessageCoderYenc.pas"/>
         <DCCReference Include="IdMessageCollection.pas"/>
+        <DCCReference Include="IdMessageHelper.pas"/>
         <DCCReference Include="IdMessageParts.pas"/>
         <DCCReference Include="IdMultipartFormData.pas"/>
         <DCCReference Include="IdNNTP.pas"/>

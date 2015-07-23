@@ -1481,6 +1481,7 @@ Lib/Protocols/IdMessageCoderUUE.pas -text
 Lib/Protocols/IdMessageCoderXXE.pas -text
 Lib/Protocols/IdMessageCoderYenc.pas -text
 Lib/Protocols/IdMessageCollection.pas -text
+Lib/Protocols/IdMessageHelper.pas -text
 Lib/Protocols/IdMessageParts.pas -text
 Lib/Protocols/IdMultipartFormData.pas -text
 Lib/Protocols/IdNNTP.pas -text
@@ -1698,6 +1699,8 @@ Lib/Protocols/IndyProtocols70.dpk -text
 Lib/Protocols/IndyProtocols70.rc -text
 Lib/Protocols/IndyProtocols70.rc.tmpl -text
 Lib/Protocols/IndyProtocols70.res -text svneol=unset#unset
+Lib/Protocols/IndyProtocols80.dpk -text
+Lib/Protocols/IndyProtocols80Net.dpk -text
 Lib/Protocols/IndyProtocols90.bdsproj -text
 Lib/Protocols/IndyProtocols90.dpk -text
 Lib/Protocols/IndyProtocols90.rc -text

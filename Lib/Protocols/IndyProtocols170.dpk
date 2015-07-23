@@ -196,6 +196,7 @@ contains
   IdMessageCoderXXE in 'IdMessageCoderXXE.pas',
   IdMessageCoderYenc in 'IdMessageCoderYenc.pas',
   IdMessageCollection in 'IdMessageCollection.pas',
+  IdMessageHelper in 'IdMessageHelper.pas',
   IdMessageParts in 'IdMessageParts.pas',
   IdMultipartFormData in 'IdMultipartFormData.pas',
   IdNNTP in 'IdNNTP.pas',
