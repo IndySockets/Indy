@@ -1599,6 +1599,8 @@ begin
        if QueryResult.Count = 0 then begin
          raise EIdDnsResolverError.Create(GetErrorStr(2,3));
       end;
+    end else begin
+      raise EIdDnsResolverError.Create(RSDNSTimeout);
     end;
   end;
 end;
