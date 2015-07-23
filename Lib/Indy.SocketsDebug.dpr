@@ -178,6 +178,7 @@ uses
   IdMessageCoderXXE in 'Protocols\IdMessageCoderXXE.pas',
   IdMessageCoderYenc in 'Protocols\IdMessageCoderYenc.pas',
   IdMessageCollection in 'Protocols\IdMessageCollection.pas',
+  IdMessageHelper in 'Protocols\IdMessageHelper.pas',
   IdMessageParts in 'Protocols\IdMessageParts.pas',
   IdMultipartFormData in 'Protocols\IdMultipartFormData.pas',
   IdNNTP in 'Protocols\IdNNTP.pas',

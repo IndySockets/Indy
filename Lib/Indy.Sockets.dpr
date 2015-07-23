@@ -178,6 +178,7 @@ uses
   Indy.Sockets.IdMessageCoderXXE in 'Indy.Sockets.IdMessageCoderXXE.pas',
   Indy.Sockets.IdMessageCoderYenc in 'Indy.Sockets.IdMessageCoderYenc.pas',
   Indy.Sockets.IdMessageCollection in 'Indy.Sockets.IdMessageCollection.pas',
+  Indy.Sockets.IdMessageHelper in 'Indy.Sockets.IdMessageHelper.pas',
   Indy.Sockets.IdMessageParts in 'Indy.Sockets.IdMessageParts.pas',
   Indy.Sockets.IdMultipartFormData in 'Indy.Sockets.IdMultipartFormData.pas',
   Indy.Sockets.IdNNTP in 'Indy.Sockets.IdNNTP.pas',
