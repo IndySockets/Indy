@@ -615,7 +615,13 @@ uses
   IdAssignedNumbers,
   IdResourceStringsCore,
   IdResourceStringsProtocols,
-  IdStack;
+  IdStack
+  {$IFDEF USE_OBJECT_ARC}
+    {$IFDEF HAS_UNIT_Generics_Collections}
+  , System.Generics.Collections
+    {$ENDIF}
+  {$ENDIF}
+  ;
 
 //
 
@@ -1043,6 +1049,20 @@ var
     Len, Offset, Found: Integer;
   begin
     Result := False;
+
+    // TODO: implement logic from IdVCard.ParseISO8601DateAndOrTime() here and then remove that function
+    {
+    var
+      LDate: TIdISO8601DateComps;
+      LTime: TIdISO8601TimeComps;
+    begin
+      Result := ParseISO8601DateAndOrTime(Value, LDate, LTime);
+      if Result then begin
+        VDateTime := EncodeDate(LDate.Year, LDate.Month, LDate.Day) + EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
+        Value := LTime.UTFOffset;
+      end;
+    end;
+    }
 
     S := Value;
     Len := Length(S);
@@ -1879,6 +1899,7 @@ begin
     Result := Copy(AStr, LStrLen - Len+1, Len);
   end;
 end;
+
 function TimeZoneBias: TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 {$IFNDEF FPC}
@@ -4093,10 +4114,73 @@ const
     {HTTP  } '()<>@,;:\"/[]?={} '#9 {do not localize}
     );
 
-procedure SplitHeaderSubItems(AHeaderLine: String; AItems: TStrings;
+{$IFDEF USE_OBJECT_ARC}
+// Under ARC, SplitHeaderSubItems() cannot put a non-TObject pointer value in
+// the TStrings.Objects[] property...
+type
+  TIdHeaderNameValueItem = record
+    Name, Value: String;
+    Quoted: Boolean;
+    constructor Create(const AName, AValue: String; const AQuoted: Boolean);
+  end;
+
+  TIdHeaderNameValueList = class(TList<TIdHeaderNameValueItem>)
+  public
+    function GetValue(const AName: string): string;
+    function IndexOfName(const AName: string): Integer;
+    procedure SetValue(const AIndex: Integer; const AValue: String);
+  end;
+
+constructor TIdHeaderNameValueItem.Create(const AName, AValue: String; const AQuoted: Boolean);
+begin
+  Name := AName;
+  Value := AValue;
+  Quoted := AQuoted;
+end;
+
+function TIdHeaderNameValueList.GetValue(const AName: string): string;
+var
+  I: Integer;
+begin
+  I := IndexOfName(AName);
+  if I <> -1  then begin
+    Result := Items[I].Value;
+  end else begin
+    Result := '';
+  end;
+end;
+
+function TIdHeaderNameValueList.IndexOfName(const AName: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to Count-1 do
+  begin
+    if TextIsSame(Items[I].Name, AName) then
+    begin
+      Result := I;
+      Exit;
+    end;
+  end;
+end;
+
+procedure TIdHeaderNameValueList.SetValue(const AIndex: Integer; const AValue: String);
+var
+  LItem: TIdHeaderNameValueItem;
+begin
+  LItem := Items[AIndex];
+  LItem.Value := AValue;
+  Items[AIndex] := LItem;
+end;
+{$ENDIF}
+
+procedure SplitHeaderSubItems(AHeaderLine: String;
+  AItems: {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStrings{$ENDIF};
   AQuoteType: TIdHeaderQuotingType);
 var
   LName, LValue, LSep: String;
+  LQuoted: Boolean;
   I: Integer;
 
   function FetchQuotedString(var VHeaderLine: string): string;
@@ -4132,7 +4216,8 @@ begin
     end;
     LName := Trim(Fetch(AHeaderLine, '=')); {do not localize}
     AHeaderLine := TrimLeft(AHeaderLine);
-    if TextStartsWith(AHeaderLine, '"') then {do not localize}
+    LQuoted := TextStartsWith(AHeaderLine, '"'); {do not localize}
+    if LQuoted then
     begin
       LValue := FetchQuotedString(AHeaderLine);
     end else begin
@@ -4149,8 +4234,12 @@ begin
         AHeaderLine := '';
       end;
     end;
-    if (LName <> '') and (LValue <> '') then begin
-      AItems.Add(LName + '=' + LValue);
+    if (LName <> '') and ((LValue <> '') or LQuoted) then begin
+      {$IFDEF USE_OBJECT_ARC}
+      AItems.Add(TIdHeaderNameValueItem.Create(LName, LValue, LQuoted));
+      {$ELSE}
+      AItems.AddObject(LName + '=' + LValue, TObject(LQuoted));
+      {$ENDIF}
     end;
   end;
 end;
@@ -4158,23 +4247,32 @@ end;
 function ExtractHeaderSubItem(const AHeaderLine, ASubItem: String;
   AQuoteType: TIdHeaderQuotingType): String;
 var
-  LItems: TStringList;
-  {$IFNDEF HAS_TStringList_CaseSensitive}
+  LItems: {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF};
+  {$IFNDEF USE_OBJECT_ARC}
+    {$IFNDEF HAS_TStringList_CaseSensitive}
   I: Integer;
+    {$ENDIF}
   {$ENDIF}
 begin
   Result := '';
-  LItems := TStringList.Create;
+  // TODO: instead of splitting the header into a list of name=value pairs,
+  // allocating memory for it, just parse the input string in-place and extract
+  // the necessary substring from it...
+  LItems := {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF}.Create;
   try
     SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
-    {$IFDEF HAS_TStringList_CaseSensitive}
+    {$IFDEF USE_OBJECT_ARC}
+    Result := LItems.GetValue(ASubItem);
+    {$ELSE}
+      {$IFDEF HAS_TStringList_CaseSensitive}
     LItems.CaseSensitive := False;
     Result := LItems.Values[ASubItem];
-    {$ELSE}
+      {$ELSE}
     I := IndyIndexOfName(LItems, ASubItem);
     if I <> -1 then begin
       Result := IndyValueFromIndex(LItems, I);
     end;
+      {$ENDIF}
     {$ENDIF}
   finally
     LItems.Free;
@@ -4192,11 +4290,11 @@ end;
 function ReplaceHeaderSubItem(const AHeaderLine, ASubItem, AValue: String;
   var VOld: String; AQuoteType: TIdHeaderQuotingType): String;
 var
-  LItems: TStringList;
+  LItems: {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF};
   I: Integer;
   LValue: string;
 
-  function QuoteString(const S: String): String;
+  function QuoteString(const S: String; const AForceQuotes: Boolean): String;
   var
     I: Integer;
     LAddQuotes: Boolean;
@@ -4206,7 +4304,7 @@ var
     if Length(S) = 0 then begin
       Exit;
     end;
-    LAddQuotes := False;
+    LAddQuotes := AForceQuotes;
     LNeedQuotes := CharRange(#0, #32) + QuoteSpecials[AQuoteType] + #127;
     // TODO: disable this logic for HTTP 1.0
     LNeedEscape := '"\'; {Do not Localize}
@@ -4230,33 +4328,66 @@ var
 
 begin
   Result := '';
-  LItems := TStringList.Create;
+  // TODO: instead of splitting the header into a list of name=value pairs,
+  // allocating memory for it, and then putting the list back together, just
+  // parse the input string in-place and extract/replace the necessary
+  // substring from it as needed, preserving the rest of the string as-is...
+  LItems := {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF}.Create;
   try
     SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
-    {$IFDEF HAS_TStringList_CaseSensitive}
+    {$IFDEF USE_OBJECT_ARC}
+    I := LItems.IndexOfName(ASubItem);
+    {$ELSE}
+      {$IFDEF HAS_TStringList_CaseSensitive}
     LItems.CaseSensitive := False;
-    {$ENDIF}
+      {$ENDIF}
     I := IndyIndexOfName(LItems, ASubItem);
+    {$ENDIF}
     if I >= 0 then begin
+      {$IFDEF USE_OBJECT_ARC}
+      VOld := LItems[I].Value;
+      {$ELSE}
       VOld := LItems.Strings[I];
       Fetch(VOld, '=');
+      {$ENDIF}
     end else begin
       VOld := '';
     end;
     LValue := Trim(AValue);
     if LValue <> '' then begin
+      {$IFDEF USE_OBJECT_ARC}
       if I < 0 then begin
-        I := LItems.Add('');
+        LItems.Add(TIdHeaderNameValueItem.Create(ASubItem, LValue, False));
+      end else begin
+        LItems.SetValue(I, LValue);
       end;
-      LItems.Strings[I] := ASubItem + '=' + LValue; {do not localize}
+      {$ELSE}
+      if I < 0 then begin
+        LItems.Add(ASubItem + '=' + LValue); {do not localize}
+      end else begin
+        {$IFDEF HAS_TStrings_ValueFromIndex}
+        LItems.ValueFromIndex[I] := LValue;
+        {$ELSE}
+        LItems.Strings[I] := ASubItem + '=' + LValue; {do not localize}
+        {$ENDIF}
+      end;
+      {$ENDIF}
     end
-    else if I >= 0 then begin
+    else if I < 0 then begin
+      // subitem not found, just return the original header as-is...
+      Result := AHeaderLine;
+      Exit;
+    end else begin
       LItems.Delete(I);
     end;
     Result := ExtractHeaderItem(AHeaderLine);
     if Result <> '' then begin
       for I := 0 to LItems.Count-1 do begin
-        Result := Result + '; ' + LItems.Names[I] + '=' + QuoteString(IndyValueFromIndex(LItems, I)); {do not localize}
+        {$IFDEF USE_OBJECT_ARC}
+        Result := Result + '; ' + LItems[I].Name + '=' + QuoteString(LItems[I].Value, LItems[I].Quoted); {do not localize}
+        {$ELSE}
+        Result := Result + '; ' + LItems.Names[I] + '=' + QuoteString(IndyValueFromIndex(LItems, I), Boolean(LItems.Objects[I])); {do not localize}
+        {$ENDIF}
       end;
     end;
   finally
