@@ -1412,7 +1412,7 @@ begin
           except
             // should this be caught here?  We are being told the size, so a
             // premature disconnect should be an error, right?
-            on E: EIdConnClosedGracefully do
+            on E: EIdConnClosedGracefully do begin end;
           end;
         end;
       end
@@ -2655,7 +2655,13 @@ var
       LTempStream := Response.ContentStream;
       Response.ContentStream := LTempResponse;
       try
-        FHTTP.ReadResult(Request, Response);
+        try
+          FHTTP.ReadResult(Request, Response);
+        except
+          on E: EIdConnClosedGracefully do begin
+            FHTTP.Disconnect;
+          end;
+        end;
         if hoNoProtocolErrorException in FHTTP.HTTPOptions then begin
           Exit;
         end;
@@ -2684,7 +2690,13 @@ var
     LOrigStream := Response.ContentStream;
     Response.ContentStream := nil;
     try
-      FHTTP.ReadResult(Request, Response);
+      try
+        FHTTP.ReadResult(Request, Response);
+      except
+        on E: EIdConnClosedGracefully do begin
+          FHTTP.Disconnect;
+        end;
+      end;
     finally
       Response.ContentStream := LOrigStream;
     end;
