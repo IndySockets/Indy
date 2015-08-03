@@ -1933,9 +1933,6 @@ uses
   Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF USE_clock_gettime}
-  Unix,
-  {$ENDIF}
   {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
     {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
     {$IFDEF USE_MADEXCEPT}madExcept,{$ENDIF}

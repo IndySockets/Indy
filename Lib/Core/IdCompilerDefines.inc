@@ -466,6 +466,9 @@
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20604)}
     {$DEFINE FPC_2_6_4_OR_ABOVE}
   {$IFEND}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20602)}
+    {$DEFINE FPC_2_6_2_OR_ABOVE}
+  {$IFEND}
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$IFEND}
@@ -494,6 +497,9 @@
   {$ENDIF}
   {$IFDEF FPC_2_6_4}
     {$DEFINE FPC_2_6_4_OR_ABOVE}
+  {$ENDIF}
+  {$IFDEF FPC_2_6_2}
+    {$DEFINE FPC_2_6_2_OR_ABOVE}
   {$ENDIF}
   {$IFDEF FPC_2_6_0}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
@@ -526,6 +532,14 @@
   {$ENDIF}
 
   {$IFDEF FPC_2_6_4_OR_ABOVE}
+    {$DEFINE FPC_2_6_2_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_6_2}
+      {$DEFINE FPC_2_6_2_OR_ABOVE}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_6_2_OR_ABOVE}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$ELSE}
     {$IFDEF FPC_2_6_0}
@@ -601,8 +615,16 @@
 
 // end FPC
 
-{$IFDEF VCL_XE8}
+{$IFDEF VCL_XE9}
+  {$DEFINE VCL_XE9_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_XE9_OR_ABOVE}
   {$DEFINE VCL_XE8_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_XE8}
+    {$DEFINE VCL_XE8_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_XE8_OR_ABOVE}
@@ -1129,12 +1151,6 @@
   {$DEFINE FPC_CIRCULAR_BUG}
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
-  {$DEFINE HAS_Int8} // TODO: when was Int8 introduced?
-  {$DEFINE HAS_UInt8} // TODO: when was UInt8 introduced?
-  {$DEFINE HAS_Int16} // TODO: when was Int16 introduced?
-  {$DEFINE HAS_UInt16} // TODO: when was UInt16 introduced?
-  {$DEFINE HAS_Int32} // TODO: when was Int32 introduced?
-  {$DEFINE HAS_UInt32} // TODO: when was UInt32 introduced?
   {$DEFINE HAS_QWord} // TODO: when was QWord introduced?
   {$DEFINE HAS_PQWord} // TODO: when was PQWord introduced?
   {$IFDEF FPC_2_1_5_OR_ABOVE}
@@ -1181,6 +1197,22 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
+  {$ENDIF}
+  {$IFDEF FPC_2_6_2_OR_ABOVE}
+    {$DEFINE HAS_Int8}
+    {$DEFINE HAS_UInt8}
+    {$DEFINE HAS_Int16}
+    {$DEFINE HAS_UInt16}
+    {$DEFINE HAS_Int32}
+    {$DEFINE HAS_UInt32}
+  {$ENDIF}
+  {$IFDEF FPC_2_6_4_OR_ABOVE}
+    {$DEFINE HAS_PInt8}
+    {$DEFINE HAS_PUInt8}
+    {$DEFINE HAS_PInt16}
+    {$DEFINE HAS_PUInt16}
+    {$DEFINE HAS_PInt32}
+    {$DEFINE HAS_PUInt32}
   {$ENDIF}
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE STRING_IS_UNICODE}
