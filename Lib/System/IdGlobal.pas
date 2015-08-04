@@ -5487,7 +5487,7 @@ begin
   if ANewTickCount >= AOldTickCount then begin
     Result := ANewTickCount - AOldTickCount;
   end else begin
-    Result := High(UInt32) - AOldTickCount + ANewTickCount;
+    Result := ((High(UInt32) - AOldTickCount) + ANewTickCount) + 1;
   end;
 end;
 
@@ -5498,7 +5498,7 @@ begin
   if ANewTickCount >= AOldTickCount then begin
     Result := ANewTickCount - AOldTickCount;
   end else begin
-    Result := High(TIdTicks) - AOldTickCount + ANewTickCount;
+    Result := ((High(TIdTicks) - AOldTickCount) + ANewTickCount) + 1;
   end;
 end;
 
