@@ -230,6 +230,9 @@ type
   (*$HPPEMIT '#ifdef s6_addr'*)
   (*$HPPEMIT '  #undef s6_addr'*)
   (*$HPPEMIT '#endif'*)
+  (*$HPPEMIT '#ifdef s6_addr16'*)
+  (*$HPPEMIT '  #undef s6_addr16'*)
+  (*$HPPEMIT '#endif'*)
 
   PIdInAddr = ^TIdInAddr;
   TIdInAddr = {$IFDEF IPv6} TIdIn6Addr; {$ELSE} TIdIn4Addr; {$ENDIF}
