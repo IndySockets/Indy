@@ -1134,7 +1134,7 @@ uses
     {$IFDEF USE_INLINE}
   System.IO,
     {$ENDIF}
-  {$ENDIF} 
+  {$ENDIF}
   {$IFDEF DOTNET}
   IdStreamNET,
   {$ELSE}
@@ -1162,7 +1162,18 @@ uses
   IdTCPConnection,
   IdSSL,
   IdSASL,
+  IdMessageHelper,
   SysUtils;
+
+// TODO: move this to IdCompilerDefines.inc
+{$IFDEF DCC}
+  {$IFDEF VCL_2005_OR_ABOVE}
+    {$DEFINE HAS_CLASS_HELPER}
+  {$ENDIF}
+{$ENDIF}
+{$IFDEF FPC}
+  {$DEFINE HAS_CLASS_HELPER} // TODO: when were class helpers introduced?
+{$ENDIF}
 
 type
   TIdIMAP4FetchDataItem = (
@@ -3189,8 +3200,6 @@ var
   LMimeBoundary: string;
   LStream: TStream;
   LHelper: TIdIMAP4WorkHelper;
-  LMsgClient: TIdMessageClient;
-  LMsgIO: TIdIOHandlerStreamMsg;
 begin
   Result := False;
   LHeadersasBytes := nil; // keep the compiler happy
@@ -3246,29 +3255,12 @@ begin
         for now.  This logic is copied from TIdMessage.SaveToSteam() and
         slightly tweaked...}
 
-        // TODO: move the workaround logic into a re-usable class helper or
-        // standalone function...
-
         //AMsg.SaveToStream(LStream);
-        LMsgClient := TIdMessageClient.Create(nil);
-        try
-          LMsgIO := TIdIOHandlerStreamMsg.Create(nil, nil, LStream);
-          try
-            LMsgIO.FreeStreams := False;
-            LMsgIO.UnescapeLines := True; // this is the key piece that makes it work!
-            LMsgClient.IOHandler := LMsgIO;
-            try
-              LMsgClient.SendMsg(AMsg, False);
-            finally
-              LMsgClient.IOHandler := nil;
-            end;
-          finally
-            LMsgIO.Free;
-          end;
-        finally
-          LMsgClient.Free;
-        end;
-        // end workaround
+        {$IFDEF HAS_CLASS_HELPER}
+        AMsg.SaveToStream(LStream, False, False);
+        {$ELSE}
+        TIdMessageHelper_SaveToStream(AMsg, LStream, False, False);
+        {$ENDIF}
 
         LStream.Position := 0;
         {We are better off making up the headers as a string first rather than predicting
@@ -4794,8 +4786,6 @@ var
   LCmd: string;
   LDestStream: TStream;
   LHelper: TIdIMAP4WorkHelper;
-  LMsgClient: TIdMessageClient;
-  LMsgIO: TIdIOHandlerStreamMsg;
 begin
   Result := False;
   CheckConnectionState(csSelected);
@@ -4851,30 +4841,12 @@ begin
           workaround for now.  This logic is copied from TIdMessage.LoadFromStream()
           and slightly tweaked...}
 
-          // TODO: move the workaround logic into a re-usable class helper or
-          // standalone function...
-
           //AMsg.LoadFromStream(LDestStream);
-          LMsgClient := TIdMessageClient.Create(nil);
-          try
-            LMsgIO := TIdIOHandlerStreamMsg.Create(nil, LDestStream);
-            try
-              LMsgIO.FreeStreams := False;
-              LMsgIO.EscapeLines := True; // this is the key piece that makes it work!
-              LMsgClient.IOHandler := LMsgIO;
-              try
-                LMsgIO.Open;
-                LMsgClient.ProcessMessage(AMsg, False);
-              finally
-                LMsgClient.IOHandler := nil;
-              end;
-            finally
-              LMsgIO.Free;
-            end;
-          finally
-            LMsgClient.Free;
-          end;
-          // end workaround
+          {$IFDEF HAS_CLASS_HELPER}
+          AMsg.LoadFromStream(LDestStream, False, False);
+          {$ELSE}
+          TIdMessageHelper_LoadFromStream(AMsg, LDestStream, False, False);
+          {$ENDIF}
         finally
           FreeAndNil(LDestStream);
         end;
