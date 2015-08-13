@@ -472,7 +472,19 @@ begin
   LastModified := -1;
   Expires := -1;
   Date := -1;
-  ContentType := 'text/html'; {do not localize}
+
+  // RLebeau 8/13/2015: no longer setting a default ContentType here.  Doing so
+  // sets a default CharSet, which would get carried over if the user assigns a
+  // new *non-text* ContentType without an explicit charset.  TAppResponse does
+  // not expose access to the FResponseInfo.CharSet property.  For example, if
+  // the user sets TAppResponse.ContentType to 'image/jpeg', the resulting
+  // Content-Type header woud be 'image/jpeg; charset=ISO-8859-1', which can
+  // cause problems for some clients.  Besides, TIdHTTPResponseInfo.WriteHeader()
+  // sets the ContentType to 'text/html; charset=ISO-8859-1' if no ContentType
+  // has been provided but there is ContentText/ContentStream data, so this is
+  // redundant here anyway...
+  //
+  // ContentType := 'text/html'; {do not localize}
 end;
 
 function TIdHTTPAppResponse.GetContent: AnsiString;
