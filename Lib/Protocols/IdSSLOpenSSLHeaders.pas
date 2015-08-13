@@ -24040,7 +24040,7 @@ begin
            Assigned(CRYPTO_free) then
         begin
           LStack := SSL_COMP_get_compression_methods;
-          sk_pop_free(LStack, @CRYPTO_free);
+          sk_pop_free(LStack, CRYPTO_free);
         end;
       end;
     end;
