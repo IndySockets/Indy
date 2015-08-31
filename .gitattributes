@@ -1133,6 +1133,7 @@ Lib/Fullc_4.bat eol=crlf
 Lib/Fullc_5.bat eol=crlf
 Lib/Fullc_6.bat eol=crlf
 Lib/Fullc_All.bat -text
+Lib/Fullc_Seattle.bat -text
 Lib/Fullc_XE.bat -text
 Lib/Fullc_XE2.bat -text
 Lib/Fullc_XE3.bat -text
@@ -1141,7 +1142,6 @@ Lib/Fullc_XE5.bat -text
 Lib/Fullc_XE6.bat -text
 Lib/Fullc_XE7.bat -text
 Lib/Fullc_XE8.bat -text
-Lib/Fullc_XE9.bat -text
 Lib/Fulld_2005.bat eol=crlf
 Lib/Fulld_2006.bat eol=crlf
 Lib/Fulld_2007.bat -text
