@@ -595,7 +595,7 @@ begin
     // instead of ASCII...
     CopyTIdString(LTerminator, VBuffer, 0);
     Result := Length(LTerminator);
-  end else begin;
+  end else begin
     Result := 0;
   end;
 end;

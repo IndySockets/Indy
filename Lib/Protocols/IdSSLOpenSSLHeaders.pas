@@ -18564,7 +18564,7 @@ function EVP_PKEY_assign_RSA(pkey: PEVP_PKEY; rsa: PIdAnsiChar): TIdC_INT;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_DSA}
- {$EXTERNALSYM EVP_PKEY_assign_DSA} 
+ {$EXTERNALSYM EVP_PKEY_assign_DSA}
 function EVP_PKEY_assign_DSA(pkey : PEVP_PKEY; dsa : PIdAnsiChar) : TIdC_INT;
 {$ENDIF}
 
@@ -18807,6 +18807,12 @@ type
   EIdDigestUpdate = class(EIdDigestError);
 
 function IsOpenSSL_1x : Boolean;
+function IsOpenSSL_SSLv2_Available : Boolean;
+function IsOpenSSL_SSLv3_Available : Boolean;
+function IsOpenSSL_SSLv23_Available : Boolean;
+function IsOpenSSL_TLSv1_1_Available : Boolean;
+function IsOpenSSL_TLSv1_2_Available : Boolean;
+function IsOpenSSL_DTLSv1_Available : Boolean;
 
 function RAND_bytes(buf : PIdAnsiChar; num : integer) : integer;
 function RAND_pseudo_bytes(buf : PIdAnsiChar; num : integer) : integer;
@@ -18878,6 +18884,54 @@ begin
   end else begin
     Result := False;
   end;
+end;
+
+function IsOpenSSL_SSLv2_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := Assigned(SSLv2_method) and
+    Assigned(SSLv2_server_method) and
+    Assigned(SSLv2_client_method);
+end;
+
+function IsOpenSSL_SSLv3_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := Assigned(SSLv3_method) and
+    Assigned(SSLv3_server_method) and
+    Assigned(SSLv3_client_method);
+end;
+
+function IsOpenSSL_SSLv23_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := Assigned(SSLv23_method) and
+    Assigned(SSLv23_server_method) and
+    Assigned(SSLv23_client_method);
+end;
+
+function IsOpenSSL_TLSv1_1_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := Assigned(TLSv1_1_method) and
+    Assigned(TLSv1_1_server_method) and
+    Assigned(TLSv1_1_client_method);
+end;
+
+function IsOpenSSL_TLSv1_2_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := Assigned(TLSv1_2_method) and
+    Assigned(TLSv1_2_server_method) and
+    Assigned(TLSv1_2_client_method);
+end;
+
+function IsOpenSSL_DTLSv1_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := Assigned(DTLSv1_method) and
+    Assigned(DTLSv1_server_method) and
+    Assigned(DTLSv1_client_method);
 end;
 
 //**************** FIPS Support backend *******************
@@ -22575,28 +22629,37 @@ begin
   @SSL_CTX_ctrl := LoadFunction(fn_SSL_CTX_ctrl);
   @SSL_CTX_callback_ctrl := LoadFunction(fn_SSL_CTX_callback_ctrl);
   @SSL_get_error := LoadFunction(fn_SSL_get_error);           //Used by Indy
-  @SSLv2_method := LoadFunction(fn_SSLv2_method);                   //Used by Indy
-  @SSLv2_server_method := LoadFunction(fn_SSLv2_server_method);             //Used by Indy
-  @SSLv2_client_method := LoadFunction(fn_SSLv2_client_method);            //Used by Indy
-  @SSLv3_method := LoadFunction(fn_SSLv3_method);                        //Used by Indy
-  @SSLv3_server_method := LoadFunction(fn_SSLv3_server_method);           //Used by Indy
-  @SSLv3_client_method := LoadFunction(fn_SSLv3_client_method);          //Used by Indy
-  @SSLv23_method := LoadFunction(fn_SSLv23_method);                      //Used by Indy
-  @SSLv23_server_method := LoadFunction(fn_SSLv23_server_method);        //Used by Indy
-  @SSLv23_client_method := LoadFunction(fn_SSLv23_client_method);       //Used by Indy
-  @TLSv1_method := LoadFunction(fn_TLSv1_method);                         //Used by Indy
-  @TLSv1_server_method := LoadFunction(fn_TLSv1_server_method);         //Used by Indy
-  @TLSv1_client_method := LoadFunction(fn_TLSv1_client_method);          //Used by Indy
+
+  // RLebeau 9/7/2015 - making all of the "..._method()" functions optional.  If
+  // a user wants to disable a given SSL/TLS version at runtime, there is no need
+  // for it to be marked as "critical" at load time, in case it is not available
+  // in their version of OpenSSL.  For instance, some vendors disable SSLv2 so
+  // it is not even exported.  If a user wants to use a given version and it is
+  // not available in their version of OpenSSL, TIdSSLContext.SetSSLMethod() will
+  // now raise a runtime error...
+  @SSLv2_method := LoadFunction(fn_SSLv2_method,False);                   //Used by Indy
+  @SSLv2_server_method := LoadFunction(fn_SSLv2_server_method,False);             //Used by Indy
+  @SSLv2_client_method := LoadFunction(fn_SSLv2_client_method,False);            //Used by Indy
+  @SSLv3_method := LoadFunction(fn_SSLv3_method,False);                        //Used by Indy
+  @SSLv3_server_method := LoadFunction(fn_SSLv3_server_method,False);           //Used by Indy
+  @SSLv3_client_method := LoadFunction(fn_SSLv3_client_method,False);          //Used by Indy
+  @SSLv23_method := LoadFunction(fn_SSLv23_method,False);                      //Used by Indy
+  @SSLv23_server_method := LoadFunction(fn_SSLv23_server_method,False);        //Used by Indy
+  @SSLv23_client_method := LoadFunction(fn_SSLv23_client_method,False);       //Used by Indy
+  @TLSv1_method := LoadFunction(fn_TLSv1_method,False);                         //Used by Indy
+  @TLSv1_server_method := LoadFunction(fn_TLSv1_server_method,False);         //Used by Indy
+  @TLSv1_client_method := LoadFunction(fn_TLSv1_client_method,False);          //Used by Indy
   @TLSv1_1_method := LoadFunction(fn_TLSv1_1_method,False);              //Used by Indy
   @TLSv1_1_server_method := LoadFunction(fn_TLSv1_1_server_method,False);    //Used by Indy
   @TLSv1_1_client_method := LoadFunction(fn_TLSv1_1_client_method,False);   //Used by Indy
   @TLSv1_2_method := LoadFunction(fn_TLSv1_2_method,False);                //Used by Indy
   @TLSv1_2_server_method := LoadFunction(fn_TLSv1_2_server_method,False);  //Used by Indy
   @TLSv1_2_client_method := LoadFunction(fn_TLSv1_2_client_method,False);    //Used by Indy
-
   @DTLSv1_method := LoadFunction(fn_DTLSv1_method, False);
   @DTLSv1_server_method := LoadFunction(fn_DTLSv1_server_method, False);
   @DTLSv1_client_method := LoadFunction(fn_DTLSv1_client_method, False);
+  //
+
   @SSL_shutdown := LoadFunction(fn_SSL_shutdown);   //Used by Indy
   @SSL_set_connect_state := LoadFunction(fn_SSL_set_connect_state,False);
   @SSL_set_accept_state := LoadFunction(fn_SSL_set_accept_state,False);
