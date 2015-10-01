@@ -1915,6 +1915,9 @@ implementation
 {$IFDEF UNIX}
   {$IFDEF LINUX}
     {$DEFINE USE_clock_gettime}
+    {$IFDEF FPC}
+      {$linklib rt}
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF FREEBSD}
     {$DEFINE USE_clock_gettime}
