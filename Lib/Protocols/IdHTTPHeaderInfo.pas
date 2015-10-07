@@ -336,8 +336,10 @@ begin
   begin
     LDest := TIdEntityHeaderInfo(Destination);
     LDest.FRawHeaders.Assign(FRawHeaders);
+    LDest.FCustomHeaders.Assign(FCustomHeaders);
     LDest.FCacheControl := FCacheControl;
     LDest.FCharSet := FCharSet;
+    LDest.FConnection := FConnection;
     LDest.FContentDisposition := FContentDisposition;
     LDest.FContentEncoding := FContentEncoding;
     LDest.FContentLanguage := FContentLanguage;
@@ -352,6 +354,9 @@ begin
     LDest.FETag := FETag;
     LDest.FExpires := FExpires;
     LDest.FLastModified := FLastModified;
+    LDest.FPragma := FPragma;
+    LDest.FHasContentLength := FHasContentLength;
+    LDest.FTransferEncoding := FTransferEncoding;
   end else
   begin
     inherited AssignTo(Destination);
@@ -966,9 +971,9 @@ begin
     // TODO: omitted intentionally?
     // LDest.FHost := FHost;
     // LDest.FProxyConnection := FProxyConnection;
-  end else begin
-    inherited AssignTo(Destination);
   end;
+  // always allow TIdEntityHeaderInfo to assign its properties as well
+  inherited AssignTo(Destination);
 end;
 
 procedure TIdRequestHeaderInfo.Clear;
