@@ -168,13 +168,6 @@ type
 
   EIdNotASocket = class(EIdSocketError);
 
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
-  EIdAndroidPermissionNeeded = class(EIdSocketError);
-  EIdInternetPermissionNeeded = class(EIdAndroidPermissionNeeded);
-    {$ENDIF}
-  {$ENDIF}
-
   TIdServeFile = function(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
 
   TIdPacketInfo = class
@@ -401,12 +394,6 @@ var
 // Procedures
   procedure SetStackClass( AStackClass: TIdStackClass );
 
-{$IFDEF USE_VCL_POSIX}
-  {$IFDEF ANDROID}
-function HasAndroidPermission(const Permission: string): Boolean;
-  {$ENDIF}
-{$ENDIF}
-
 implementation
 
 {$O-}
@@ -432,17 +419,6 @@ uses
   {$ENDIF}
   {$IFDEF DOTNET}
   IdStackDotNet,
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
-  FMX.Helpers.Android,
-      {$IFDEF VCL_XE6_OR_ABOVE}
-  // StringToJString() was moved here in XE6
-  Androidapi.Helpers,
-      {$ENDIF}
-  Androidapi.JNI.JavaTypes,
-  Androidapi.JNI.GraphicsContentViewText,
-    {$ENDIF}
   {$ENDIF}
   IdResourceStrings;
 
@@ -839,15 +815,6 @@ begin
   RaiseSocketError(WSGetLastError);
 end;
 
-{$IFDEF USE_VCL_POSIX}
-  {$IFDEF ANDROID}
-function HasAndroidPermission(const Permission: string): Boolean;
-begin
-  Result := SharedActivityContext.checkCallingOrSelfPermission(StringToJString(Permission)) = TJPackageManager.JavaClass.PERMISSION_GRANTED;
-end;
-  {$ENDIF}
-{$ENDIF}
-
 procedure TIdStack.RaiseSocketError(AErr: integer);
 begin
   (*
@@ -867,16 +834,6 @@ begin
     // the ignore list, it only affects your debugging.
     raise EIdNotASocket.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
   end;
-
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
-  if (AErr = 9{EBADF}) or (AErr = 12{EBADR?}) or (AErr = 13{EACCES}) then begin
-    if not HasAndroidPermission('android.permission.INTERNET') then begin {Do not Localize}
-      raise EIdInternetPermissionNeeded.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
-    end;
-  end;
-    {$ENDIF}
-  {$ENDIF}
 
   (*
     It is normal to receive a 10038 exception (10038, NOT others!) here when

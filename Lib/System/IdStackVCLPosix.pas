@@ -28,11 +28,11 @@ uses
   IdStackBSDBase;
 
 type
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
+  {$IFDEF ANDROID}
+  EIdAndroidPermissionNeeded = class(EIdSocketError);
+  EIdInternetPermissionNeeded = class(EIdAndroidPermissionNeeded);
   EIdAccessWifiStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
   EIdAccessNetworkStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
-    {$ENDIF}
   {$ENDIF}
 
   TIdSocketListVCLPosix = class (TIdSocketList)
@@ -102,6 +102,7 @@ type
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
+    procedure RaiseSocketError(AErr: integer); override;
     function HostToNetwork(AValue: UInt16): UInt16; override;
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
@@ -145,6 +146,10 @@ type
     procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
   end;
 
+{$IFDEF ANDROID}
+function HasAndroidPermission(const Permission: string): Boolean;
+{$ENDIF}
+
 implementation
 
 {$O-}
@@ -167,6 +172,17 @@ uses
   Posix.SysTypes,
   Posix.SysUio,
   Posix.Unistd,
+  {$IFDEF ANDROID}
+    {$IFNDEF VCL_SEATTLE_OR_ABOVE}
+  FMX.Helpers.Android,
+    {$ENDIF}
+    {$IFDEF VCL_XE6_OR_ABOVE}
+  // StringToJString() was moved here in XE6
+  Androidapi.Helpers,
+    {$ENDIF}
+  Androidapi.JNI.JavaTypes,
+  Androidapi.JNI.GraphicsContentViewText,
+  {$ENDIF}
   SysUtils;
 
   {$UNDEF HAS_MSG_NOSIGNAL}
@@ -600,7 +616,7 @@ begin
      end;
    end;
 
-  Note that this require the application to have INTERNET and ACCESS_NETWORK_STATE permissions.
+  Note that this requires the application to have INTERNET and ACCESS_NETWORK_STATE permissions.
 
   Or:
 
@@ -616,7 +632,7 @@ begin
     ipAddress: Integer;
   begin
     try
-      wifiManager := (WifiManager) SharedActivityContext.getSystemService(WIFI_SERVICE);
+      wifiManager := (WifiManager) GetActivityContext.getSystemService(WIFI_SERVICE);
       ipAddress := wifiManager.getConnectionInfo.getIpAddress;
     except
       if not HasAndroidPermission('android.permission.ACCESS_WIFI_STATE') then begin
@@ -624,6 +640,7 @@ begin
       end;
       raise;
     end;
+    // WiFiInfo only supports IPv4
     TIdStackLocalAddressIPv4.Create(AAddresses, Format('%d.%d.%d.%d', [ipAddress and $ff, (ipAddress shr 8) and $ff, (ipAddress shr 16) and $ff, (ipAddress shr 24) and $ff]), '');
   end;
 
@@ -978,6 +995,18 @@ begin
   finally
     freeaddrinfo(LAddrInfo^);
   end;
+end;
+
+procedure TIdStackVCLPosix.RaiseSocketError(AErr: integer);
+begin
+  {$IFDEF ANDROID}
+  if (AErr = 9{EBADF}) or (AErr = 12{EBADR?}) or (AErr = 13{EACCES}) then begin
+    if not HasAndroidPermission('android.permission.INTERNET') then begin {Do not Localize}
+      raise EIdInternetPermissionNeeded.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
+    end;
+  end;
+  {$ENDIF}
+  inherited;
 end;
 
 function TIdStackVCLPosix.HostToNetwork(AValue: UInt32): UInt32;
@@ -1419,6 +1448,22 @@ begin
   end;
   {$ENDIF}
 end;
+
+{$IFDEF ANDROID}
+function GetActivityContext: JContext; {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF VCL_SEATTLE_OR_ABOVE}
+  Result := TAndroidHelper.Context;
+  {$ELSE}
+  Result := SharedActivityContext;
+  {$ENDIF}
+end;
+
+function HasAndroidPermission(const Permission: string): Boolean;
+begin
+  Result := GetActivityContext.checkCallingOrSelfPermission(StringToJString(Permission)) = TJPackageManager.JavaClass.PERMISSION_GRANTED;
+end;
+{$ENDIF}
 
 {$I IdUnitPlatformOn.inc}
 {$I IdSymbolPlatformOn.inc}
