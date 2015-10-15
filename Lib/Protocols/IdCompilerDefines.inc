@@ -1115,6 +1115,12 @@
   {.$DEFINE HAS_ComponentPlatformsAttribute_WinIoT32}
 {$ENDIF}
 
+{$IFDEF VCL_SEATTLE_OR_ABOVE}
+  {$IFDEF ANDROID}
+    {$DEFINE HAS_TAndroidHelper}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi XE+ cross-compiling
 {$IFNDEF FPC}
   {$IFDEF POSIX}

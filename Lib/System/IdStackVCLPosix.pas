@@ -173,14 +173,20 @@ uses
   Posix.SysUio,
   Posix.Unistd,
   {$IFDEF ANDROID}
-    {$IFNDEF VCL_SEATTLE_OR_ABOVE}
+    {$IFNDEF VCL_XE6_OR_ABOVE}
+  // StringToJString() is here in XE5
+  Androidapi.JNI.JavaTypes,
+    {$ENDIF}
+    {$IFNDEF VCL_XE7_OR_ABOVE}
+  // SharedActivityContext() is here in XE5 and XE6
   FMX.Helpers.Android,
     {$ENDIF}
     {$IFDEF VCL_XE6_OR_ABOVE}
   // StringToJString() was moved here in XE6
+  // SharedActivityContext() was moved here in XE7
+  // TAndroidHelper was added here in Seattle
   Androidapi.Helpers,
     {$ENDIF}
-  Androidapi.JNI.JavaTypes,
   Androidapi.JNI.GraphicsContentViewText,
   {$ENDIF}
   SysUtils;
@@ -1452,7 +1458,7 @@ end;
 {$IFDEF ANDROID}
 function GetActivityContext: JContext; {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF VCL_SEATTLE_OR_ABOVE}
+  {$IFDEF HAS_TAndroidHelper}
   Result := TAndroidHelper.Context;
   {$ELSE}
   Result := SharedActivityContext;
