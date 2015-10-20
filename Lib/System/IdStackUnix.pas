@@ -773,13 +773,81 @@ begin
   Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
 end;
 
+{$IFDEF HAS_getifaddrs}
+// TODO: does FreePascal already define this anywhere?
+type
+  pifaddrs = ^ifaddrs;
+  ifaddrs = record
+    ifa_next: pifaddrs;       { Pointer to next struct }
+    ifa_name: PIdAnsiChar;    { Interface name }
+    ifa_flags: Cardinal;      { Interface flags }
+    ifa_addr: psockaddr;      { Interface address }
+    ifa_netmask: psockaddr;   { Interface netmask }
+    ifa_broadaddr: psockaddr; { Interface broadcast address }
+    ifa_dstaddr: psockaddr;   { P2P interface destination }
+    ifa_data: Pointer;        { Address specific data }
+  end;
+
+function getifaddrs(var ifap: pifaddrs): Integer; cdecl; external 'libc.co' name 'getifaddrs'; {do not localize}
+procedure freeifaddrs(ifap: pifaddrs); cdecl; external 'libc.so' name 'freeifaddrs'; {do not localize}
+{$ENDIF}
+
 procedure TIdStackUnix.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 var
+  {$IFDEF HAS_getifaddrs}
+  LAddrList, LAddrInfo: pifaddrs;
+  LSubNetStr: String;
+  {$ELSE}
   LI4 : array of THostAddr;
   LI6 : array of THostAddr6;
   i : Integer;
   LHostName : String;
+  {$ENDIF}
 begin
+  // TODO: Using gethostname() and ResolveName() like this may not always
+  // return just the machine's IP addresses. Technically speaking, they will
+  // return the local hostname, and then return the address(es) to which that
+  // hostname resolves. It is possible for a machine to (a) be configured such
+  // that its name does not resolve to an IP, or (b) be configured such that
+  // its name resolves to multiple IPs, only one of which belongs to the local
+  // machine. For better results, we should use getifaddrs() on platforms that
+  // support it...
+
+  {$IFDEF HAS_getifaddrs}
+
+  if getifaddrs(LAddrList) = 0 then // TODO: raise an exception if it fails
+  try
+    AAddresses.BeginUpdate;
+    try
+      LAddrInfo := LAddrList;
+      repeat
+        if (LAddrInfo^.ifa_addr <> nil) and ((LAddrInfo^.ifa_flags and IFF_LOOPBACK) = 0) then
+        begin
+          case LAddrInfo^.ifa_addr^.sa_family of
+            Id_PF_INET4: begin
+              if LAddrInfo^.ifa_netmask <> nil then begin
+                LSubNetStr := TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_netmask)^.sin_addr, Id_IPv4);
+              end else begin
+                LSubNetStr := '';
+              end;
+              TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
+            end;
+            Id_PF_INET6: begin
+              TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+            end;
+          end;
+        end;
+        LAddrInfo := LAddrInfo^.ifa_next;
+      until LAddrInfo = nil;
+    finally
+      AAddresses.EndUpdate;
+    end;
+  finally
+    freeifaddrs(LAddrList);
+  end;
+
+  {$ELSE}
+
   LHostName := GetHostName;
   if LHostName = '' then begin
     RaiseLastSocketError;
@@ -803,6 +871,8 @@ begin
   finally
     AAddresses.EndUpdate;
   end;
+
+  {$ENDIF}
 end;
 
 function TIdStackUnix.HostByAddress(const AAddress: string;

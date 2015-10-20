@@ -512,7 +512,7 @@ begin
 end;
 
 {$IFDEF HAS_getifaddrs}
-function getifaddrs(ifap: pifaddrs): Integer; cdecl; external libc name _PU + 'getifaddrs'; {do not localize}
+function getifaddrs(var ifap: pifaddrs): Integer; cdecl; external libc name _PU + 'getifaddrs'; {do not localize}
 procedure freeifaddrs(ifap: pifaddrs); cdecl; external libc name _PU + 'freeifaddrs'; {do not localize}
 {$ELSE}
   {$IFDEF ANDROID}
@@ -546,7 +546,7 @@ begin
 
   {$IFDEF HAS_getifaddrs}
 
-  if getifaddrs(@LAddrList) = 0 then // TODO: raise an exception if it fails
+  if getifaddrs(LAddrList) = 0 then // TODO: raise an exception if it fails
   try
     AAddresses.BeginUpdate;
     try

@@ -81,6 +81,8 @@
 // as specified further below.
 {$UNDEF HAS_TEncoding}
 {$UNDEF HAS_TEncoding_GetEncoding_ByEncodingName}
+{$UNDEF HAS_Exception_RaiseOuterException}
+{$UNDEF HAS_System_ReturnAddress}
 {$UNDEF HAS_TCharacter}
 {$UNDEF HAS_TInterlocked}
 {$UNDEF HAS_TNetEncoding}
@@ -339,6 +341,16 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi & CBuilder 10.0 Seattle (Aitana)
+{$IFDEF VER300}
+  {$DEFINE VCL_SEATTLE}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_SEATTLE}
+  {$ELSE}
+    {$DEFINE DELPHI_SEATTLE}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi.NET
 // Covers D8+
 {$IFDEF CIL}
@@ -454,6 +466,9 @@
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20604)}
     {$DEFINE FPC_2_6_4_OR_ABOVE}
   {$IFEND}
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20602)}
+    {$DEFINE FPC_2_6_2_OR_ABOVE}
+  {$IFEND}
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20600)}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$IFEND}
@@ -482,6 +497,9 @@
   {$ENDIF}
   {$IFDEF FPC_2_6_4}
     {$DEFINE FPC_2_6_4_OR_ABOVE}
+  {$ENDIF}
+  {$IFDEF FPC_2_6_2}
+    {$DEFINE FPC_2_6_2_OR_ABOVE}
   {$ENDIF}
   {$IFDEF FPC_2_6_0}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
@@ -514,6 +532,14 @@
   {$ENDIF}
 
   {$IFDEF FPC_2_6_4_OR_ABOVE}
+    {$DEFINE FPC_2_6_2_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_6_2}
+      {$DEFINE FPC_2_6_2_OR_ABOVE}
+    {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF FPC_2_6_2_OR_ABOVE}
     {$DEFINE FPC_2_6_0_OR_ABOVE}
   {$ELSE}
     {$IFDEF FPC_2_6_0}
@@ -589,8 +615,16 @@
 
 // end FPC
 
-{$IFDEF VCL_XE8}
+{$IFDEF VCL_SEATTLE}
+  {$DEFINE VCL_SEATTLE_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_SEATTLE_OR_ABOVE}
   {$DEFINE VCL_XE8_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_XE8}
+    {$DEFINE VCL_XE8_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_XE8_OR_ABOVE}
@@ -930,6 +964,10 @@
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
   {$ENDIF}
+  // UInt64 is emitted as signed __int64 instead of unsigned __int64 in HPP files
+  {$IFDEF CBUILDER}
+    {$DEFINE BROKEN_UINT64_HPPEMIT}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_2007_OR_ABOVE}
@@ -980,6 +1018,16 @@
   {$DEFINE HAS_UInt16}
   {$DEFINE HAS_Int32}
   {$DEFINE HAS_UInt32}
+  // UInt64 is now emitted as unsigned __int64 in HPP files
+  {$IFDEF CBUILDER}
+    {$UNDEF BROKEN_UINT64_HPPEMIT}
+  {$ENDIF}
+  {$IFDEF DCC}
+    {$IFDEF WINDOWS}
+      // Exception.RaiseOuterException() is only available on Windows at this time
+      {$DEFINE HAS_Exception_RaiseOuterException}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -1001,6 +1049,10 @@
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
   {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}
+  {$IFDEF DCC}
+    // Exception.RaiseOuterException() is now available on all platforms
+    {$DEFINE HAS_Exception_RaiseOuterException}
+  {$ENDIF}
   {$IFNDEF DOTNET}
     {$DEFINE HAS_TInterlocked}
   {$ENDIF}
@@ -1014,6 +1066,7 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
   {$DEFINE HAS_ComponentPlatformsAttribute_Win64}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
+  {$DEFINE HAS_System_ReturnAddress}
   {$DEFINE HAS_DIRECTIVE_WARN_DEFAULT}
 {$ENDIF}
 
@@ -1062,6 +1115,12 @@
   {.$DEFINE HAS_ComponentPlatformsAttribute_WinIoT32}
 {$ENDIF}
 
+{$IFDEF VCL_SEATTLE_OR_ABOVE}
+  {$IFDEF ANDROID}
+    {$DEFINE HAS_TAndroidHelper}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi XE+ cross-compiling
 {$IFNDEF FPC}
   {$IFDEF POSIX}
@@ -1098,12 +1157,6 @@
   {$DEFINE FPC_CIRCULAR_BUG}
   {$DEFINE NO_REDECLARE}
   {$DEFINE BYTE_COMPARE_SETS}
-  {$DEFINE HAS_Int8} // TODO: when was Int8 introduced?
-  {$DEFINE HAS_UInt8} // TODO: when was UInt8 introduced?
-  {$DEFINE HAS_Int16} // TODO: when was Int16 introduced?
-  {$DEFINE HAS_UInt16} // TODO: when was UInt16 introduced?
-  {$DEFINE HAS_Int32} // TODO: when was Int32 introduced?
-  {$DEFINE HAS_UInt32} // TODO: when was UInt32 introduced?
   {$DEFINE HAS_QWord} // TODO: when was QWord introduced?
   {$DEFINE HAS_PQWord} // TODO: when was PQWord introduced?
   {$IFDEF FPC_2_1_5_OR_ABOVE}
@@ -1150,6 +1203,22 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
+  {$ENDIF}
+  {$IFDEF FPC_2_6_2_OR_ABOVE}
+    {$DEFINE HAS_Int8}
+    {$DEFINE HAS_UInt8}
+    {$DEFINE HAS_Int16}
+    {$DEFINE HAS_UInt16}
+    {$DEFINE HAS_Int32}
+    {$DEFINE HAS_UInt32}
+  {$ENDIF}
+  {$IFDEF FPC_2_6_4_OR_ABOVE}
+    {$DEFINE HAS_PInt8}
+    {$DEFINE HAS_PUInt8}
+    {$DEFINE HAS_PInt16}
+    {$DEFINE HAS_PUInt16}
+    {$DEFINE HAS_PInt32}
+    {$DEFINE HAS_PUInt32}
   {$ENDIF}
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE STRING_IS_UNICODE}
@@ -1282,6 +1351,10 @@
     // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
     {$DEFINE STATICLOAD_OPENSSL}
   {$ENDIF}
+{$ENDIF}
+
+{$IFDEF FREEBSD}
+  {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
 {$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}
@@ -1598,6 +1671,22 @@ SOLARIS instead of IFDEF UNIX is not an error, it's deliberate.}
 {end Unix OS specific stuff}
 {$IFDEF DEBUG}
   {$UNDEF USE_INLINE}
+{$ENDIF}
+
+// RLebeau 5/24/2015: In C++Builder 2006 and 2007, UInt64 is emitted as
+// signed __int64 in HPP files instead of as unsigned __int64.  This causes
+// conflicts in overloaded routines that have (U)Int64 parameters.  This
+// was fixed in C++Builder 2009.  For compilers that do not have a native
+// UInt64 type, or for C++Builder 2006/2007, let's define a record type
+// that can hold UInt64 values...
+{$IFDEF HAS_UInt64}
+  {$IFDEF BROKEN_UINT64_HPPEMIT}
+    {$DEFINE TIdUInt64_IS_NOT_NATIVE}
+  {$ENDIF}
+{$ELSE}
+  {$IFNDEF HAS_QWord}
+    {$DEFINE TIdUInt64_IS_NOT_NATIVE}
+  {$ENDIF}
 {$ENDIF}
 
 // RLebeau 9/5/2013: it would take a lot of work to re-write Indy to support
