@@ -774,7 +774,8 @@ begin
 end;
 
 {$IFDEF HAS_getifaddrs}
-// TODO: does FreePascal already define this anywhere?
+// TODO: does FreePascal already define these anywhere?
+
 type
   pifaddrs = ^ifaddrs;
   ifaddrs = record
@@ -788,8 +789,12 @@ type
     ifa_data: Pointer;        { Address specific data }
   end;
 
+const
+  IFF_LOOPBACK = $8;
+  
 function getifaddrs(var ifap: pifaddrs): Integer; cdecl; external 'libc.co' name 'getifaddrs'; {do not localize}
 procedure freeifaddrs(ifap: pifaddrs); cdecl; external 'libc.so' name 'freeifaddrs'; {do not localize}
+
 {$ENDIF}
 
 procedure TIdStackUnix.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
