@@ -28,11 +28,11 @@ uses
   IdStackBSDBase;
 
 type
-  {$IFDEF ANDROID}
-  EIdAndroidPermissionNeeded = class(EIdSocketError);
-  EIdInternetPermissionNeeded = class(EIdAndroidPermissionNeeded);
+  {$IFDEF USE_VCL_POSIX}
+    {$IFDEF ANDROID}
   EIdAccessWifiStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
   EIdAccessNetworkStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
+    {$ENDIF}
   {$ENDIF}
 
   TIdSocketListVCLPosix = class (TIdSocketList)
@@ -102,7 +102,6 @@ type
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
-    procedure RaiseSocketError(AErr: integer); override;
     function HostToNetwork(AValue: UInt16): UInt16; override;
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
@@ -146,10 +145,6 @@ type
     procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); override;
   end;
 
-{$IFDEF ANDROID}
-function HasAndroidPermission(const Permission: string): Boolean;
-{$ENDIF}
-
 implementation
 
 {$O-}
@@ -172,23 +167,6 @@ uses
   Posix.SysTypes,
   Posix.SysUio,
   Posix.Unistd,
-  {$IFDEF ANDROID}
-    {$IFNDEF VCL_XE6_OR_ABOVE}
-  // StringToJString() is here in XE5
-  Androidapi.JNI.JavaTypes,
-    {$ENDIF}
-    {$IFNDEF VCL_XE7_OR_ABOVE}
-  // SharedActivityContext() is here in XE5 and XE6
-  FMX.Helpers.Android,
-    {$ENDIF}
-    {$IFDEF VCL_XE6_OR_ABOVE}
-  // StringToJString() was moved here in XE6
-  // SharedActivityContext() was moved here in XE7
-  // TAndroidHelper was added here in Seattle
-  Androidapi.Helpers,
-    {$ENDIF}
-  Androidapi.JNI.GraphicsContentViewText,
-  {$ENDIF}
   SysUtils;
 
   {$UNDEF HAS_MSG_NOSIGNAL}
@@ -1003,18 +981,6 @@ begin
   end;
 end;
 
-procedure TIdStackVCLPosix.RaiseSocketError(AErr: integer);
-begin
-  {$IFDEF ANDROID}
-  if (AErr = 9{EBADF}) or (AErr = 12{EBADR?}) or (AErr = 13{EACCES}) then begin
-    if not HasAndroidPermission('android.permission.INTERNET') then begin {Do not Localize}
-      raise EIdInternetPermissionNeeded.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
-    end;
-  end;
-  {$ENDIF}
-  inherited;
-end;
-
 function TIdStackVCLPosix.HostToNetwork(AValue: UInt32): UInt32;
 begin
  Result := htonl(AValue);
@@ -1454,22 +1420,6 @@ begin
   end;
   {$ENDIF}
 end;
-
-{$IFDEF ANDROID}
-function GetActivityContext: JContext; {$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  {$IFDEF HAS_TAndroidHelper}
-  Result := TAndroidHelper.Context;
-  {$ELSE}
-  Result := SharedActivityContext;
-  {$ENDIF}
-end;
-
-function HasAndroidPermission(const Permission: string): Boolean;
-begin
-  Result := GetActivityContext.checkCallingOrSelfPermission(StringToJString(Permission)) = TJPackageManager.JavaClass.PERMISSION_GRANTED;
-end;
-{$ENDIF}
 
 {$I IdUnitPlatformOn.inc}
 {$I IdSymbolPlatformOn.inc}
