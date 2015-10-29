@@ -792,7 +792,7 @@ type
 const
   IFF_LOOPBACK = $8;
   
-function getifaddrs(var ifap: pifaddrs): Integer; cdecl; external 'libc.co' name 'getifaddrs'; {do not localize}
+function getifaddrs(var ifap: pifaddrs): Integer; cdecl; external 'libc.so' name 'getifaddrs'; {do not localize}
 procedure freeifaddrs(ifap: pifaddrs); cdecl; external 'libc.so' name 'freeifaddrs'; {do not localize}
 
 {$ENDIF}
