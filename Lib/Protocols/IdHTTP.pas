@@ -1204,7 +1204,7 @@ end;
 procedure TIdCustomHTTP.ReadResult(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
   LS: TStream;
-  LOrigStream : TStream;
+  LOrigStream, LTmpStream : TStream;
   LParseHTML : Boolean;
   LCreateTmpContent : Boolean;
   LDecMeth : Integer;
@@ -1373,16 +1373,21 @@ begin
 
   LOrigStream := AResponse.ContentStream;
   if LCreateTmpContent then begin
-    AResponse.ContentStream := TMemoryStream.Create;
+    // under ARC, AResponse.ContentStream uses weak referencing, so need to
+    // use a local strong reference to keep the temp stream alive...
+    LTmpStream := TMemoryStream.Create;
+    AResponse.ContentStream := LTmpStream;
+  end else begin
+    LTmpStream := nil;
   end;
 
-  LCompressor := Compressor;
   try
     // we need to determine what type of decompression may need to be used
     // before we read from the IOHandler.  If there is compression, then we
     // use a local stream to download the compressed data and decompress it.
     // If no compression is used, ContentStream will be used directly
 
+    LCompressor := Compressor;
     if Assigned(AResponse.ContentStream) then begin
       if Assigned(LCompressor) and LCompressor.IsReady then begin
         LDecMeth := PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) + 1;  {do not localize}
@@ -1447,7 +1452,7 @@ begin
         LOrigStream.CopyFrom(AResponse.ContentStream, 0);
       finally
         {$IFNDEF USE_OBJECT_ARC}
-        AResponse.ContentStream.Free;
+        LTmpStream.Free;
         {$ENDIF}
         AResponse.ContentStream := LOrigStream;
       end;
