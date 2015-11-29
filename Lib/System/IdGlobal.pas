@@ -5024,13 +5024,32 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF UInt64_IS_NATIVE}
+  {$IFDEF TIdUInt64_IS_NOT_NATIVE}
+    {$DEFINE USE_TIdTicks_TIdUInt64_CONVERSION}
+  {$ENDIF}
+{$ENDIF}
+
 procedure CopyTIdTicks(const ASource: TIdTicks; var VDest: TIdBytes; const ADestIndex: Integer);
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFDEF USE_TIdTicks_TIdUInt64_CONVERSION}
+var
+  LValue: TIdUInt64;
+{$ELSE}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$ENDIF}
 begin
-  {$IFDEF UInt64_IS_NATIVE}
-  CopyTIdUInt64(ASource, VDest, ADestIndex);
+  {$IFDEF USE_TIdTicks_TIdUInt64_CONVERSION}
+  // In C++Builder 2006/2007, TIdUInt64 is a packed record, but TIdTicks is
+  // an alias for a native UInt64 , so need a conversion here to get around
+  // a compiler error: "E2010 Incompatible types: 'TIdUInt64' and 'UInt64'"...
+  LValue.QuadPart := ASource;
+  CopyTIdUInt64(LValue, VDest, ADestIndex);
   {$ELSE}
+    {$IFDEF UInt64_IS_NATIVE}
+  CopyTIdUInt64(ASource, VDest, ADestIndex);
+    {$ELSE}
   CopyTIdInt64(ASource, VDest, ADestIndex);
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -7852,12 +7871,25 @@ begin
 end;
 
 function BytesToTicks(const AValue: TIdBytes; const AIndex: Integer = 0): TIdTicks;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFDEF USE_TIdTicks_TIdUInt64_CONVERSION}
+var
+  LValue: TIdUInt64;
+{$ELSE}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$ENDIF}
 begin
-  {$IFDEF UInt64_IS_NATIVE}
-  Result := BytesToUInt64(AValue, AIndex);
+  {$IFDEF USE_TIdTicks_TIdUInt64_CONVERSION}
+  // In C++Builder 2006/2007, TIdUInt64 is a packed record, but TIdTicks is
+  // an alias for a native UInt64 , so need a conversion here to get around
+  // a compiler error: "E2010 Incompatible types: 'UInt64' and 'TIdUInt64'"...
+  LValue := BytesToUInt64(AValue, AIndex);
+  Result := LValue.QuadPart;
   {$ELSE}
+    {$IFDEF UInt64_IS_NATIVE}
+  Result := BytesToUInt64(AValue, AIndex);
+    {$ELSE}
   Result := BytesToInt64(AValue, AIndex);
+    {$ENDIF}
   {$ENDIF}
 end;
 
