@@ -1389,7 +1389,7 @@ begin
       {$IFDEF HAS_TIdUInt64_QuadPart}
     // assigning to a local variable if UInt64 is not a native type, or if using
     // a C++Builder version that has problems with UInt64 parameters...
-    h.QuadPart := UInt64(AValue);
+    h.QuadPart := UInt64(Result);
     h := GStack.NetworkToHost(h);
     Result := Int64(h.QuadPart);
       {$ELSE}
