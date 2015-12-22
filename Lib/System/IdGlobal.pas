@@ -7145,25 +7145,29 @@ begin
   T := TV.tv_sec;
   localtime_r(T, UT);
   Result := UT.tm_gmtoff / 60 / 60 / 24;
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
+    {$ELSE}
+      {$IFDEF USE_BASEUNIX}
   fpGetTimeOfDay (@TimeVal, @TimeZone);
   Result := -1 * (timezone.tz_minuteswest / 60 / 24)
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
+      {$ELSE}
+        {$IFDEF KYLIXCOMPAT}
   {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
 
   gettimeofday(TV, nil);
   T := TV.tv_sec;
   localtime_r(@T, UT);
   Result := UT.__tm_gmtoff / 60 / 60 / 24;
+        {$ELSE}
+  Result := GOffsetFromUTC;
+        {$ENDIF}
+      {$ENDIF}
     {$ENDIF}
 
-  {$ENDIF}
-  {$IFDEF DOTNET}
+  {$ELSE}
+    {$IFDEF DOTNET}
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
-  {$ENDIF}
-  {$IFDEF WINDOWS}
+    {$ELSE}
+      {$IFDEF WINDOWS}
   case GetTimeZoneInformation({$IFDEF WINCE}@{$ENDIF}tmez) of
     TIME_ZONE_ID_INVALID  :
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
@@ -7195,6 +7199,10 @@ begin
   if iBias > 0 then begin
     Result := 0.0 - Result;
   end;
+      {$ELSE}
+  Result := GOffsetFromUTC;
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 end;
 
