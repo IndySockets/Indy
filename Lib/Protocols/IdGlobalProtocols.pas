@@ -3959,7 +3959,12 @@ var
   LEncoding: IIdTextEncoding;
 begin
   VCharSet :=  '';
-//  AHeaders.Clear;
+  {if AHeaders <> nil then begin
+    AHeaders.Clear;
+  end;}
+  if AStream = nil then begin
+    Exit;
+  end;
   AStream.Position := 0;
   LEncoding := IndyTextEncoding_8Bit;
   // TODO: parse the stream as-is without reading it into a String first...
