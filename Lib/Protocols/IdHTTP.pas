@@ -369,7 +369,10 @@ type
   // Protocol options
   TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams,
     hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv, hoWaitForUnexpectedData,
-    hoTreat302Like303, hoNoProtocolErrorException, hoNoReadMultipartMIME);
+    hoTreat302Like303, hoNoProtocolErrorException, hoNoReadMultipartMIME,
+    hoNoParseXmlCharset, hoWantProtocolErrorContent, hoNoReadChunked
+    );
+
   TIdHTTPOptions = set of TIdHTTPOption;
 
   // Must be documented
@@ -380,6 +383,7 @@ type
   TIdOnSelectAuthorization = procedure(Sender: TObject; var AuthenticationClass: TIdAuthenticationClass; AuthInfo: TIdHeaderList) of object;
   TIdOnAuthorization = procedure(Sender: TObject; Authentication: TIdAuthentication; var Handled: Boolean) of object;
   // TIdProxyOnAuthorization = procedure(Sender: TObject; Authentication: TIdAuthentication; var Handled: boolean) of object;
+  TIdOnChunkReceived = procedure(Sender : TObject; var Chunk: TIdBytes) of object;
 
 const
   Id_TIdHTTP_ProtocolVersion = pv1_1;
@@ -489,6 +493,7 @@ type
     FOnSelectProxyAuthorization: TIdOnSelectAuthorization;
     FOnAuthorization: TIdOnAuthorization;
     FOnProxyAuthorization: TIdOnAuthorization;
+    FOnChunkReceived: TIdOnChunkReceived;
     //
 {
     procedure SetHost(const Value: string); override;
@@ -526,9 +531,6 @@ type
 
     procedure CheckAndConnect(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     procedure DoOnDisconnected; override;
-
-    //misc internal stuff
-    function ResponseCharset: String;
   public
     destructor Destroy; override;
 
@@ -625,6 +627,7 @@ type
     property OnSelectProxyAuthorization: TIdOnSelectAuthorization read FOnSelectProxyAuthorization write FOnSelectProxyAuthorization;
     property OnAuthorization: TIdOnAuthorization read FOnAuthorization write FOnAuthorization;
     property OnProxyAuthorization: TIdOnAuthorization read FOnProxyAuthorization write FOnProxyAuthorization;
+    property OnChunkReceived: TIdOnChunkReceived read FOnChunkReceived write FOnChunkReceived;
     // Cookie stuff
     property CookieManager: TIdCookieManager read FCookieManager write SetCookieManager;
     //
@@ -655,6 +658,7 @@ type
     property OnSelectProxyAuthorization;
     property OnAuthorization;
     property OnProxyAuthorization;
+    property OnChunkReceived;
     // property Host;
     // property Port default IdPORT_HTTP;
     // Cookie stuff
@@ -739,7 +743,7 @@ begin
   try
     DoRequest(Id_HTTPMethodDelete, AURL, nil, LStream, []);
     LStream.Position := 0;
-    Result := ReadStringAsCharset(LStream, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LStream, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LStream);
@@ -761,7 +765,7 @@ begin
   try
     DoRequest(Id_HTTPMethodOptions, AURL, nil, LStream, []);
     LStream.Position := 0;
-    Result := ReadStringAsCharset(LStream, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LStream, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LStream);
@@ -1057,7 +1061,7 @@ begin
   try
     Post(AURL, ASource, LResponse, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
@@ -1074,7 +1078,7 @@ begin
   try
     Post(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
@@ -1096,7 +1100,7 @@ begin
   try
     Put(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
@@ -1120,7 +1124,7 @@ begin
   try
     Trace(AURL, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);
@@ -1199,265 +1203,6 @@ begin
   end;
   Host := LHost;
   Port := LPort;
-end;
-
-procedure TIdCustomHTTP.ReadResult(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
-var
-  LS: TStream;
-  LOrigStream, LTmpStream : TStream;
-  LParseHTML : Boolean;
-  LCreateTmpContent : Boolean;
-  LDecMeth : Integer;
-  //0 - no compression was used or we can't support that feature
-  //1 - deflate
-  //2 - gzip
-  // under ARC, convert a weak reference to a strong reference before working with it
-  LCompressor: TIdZLibCompressorBase;
-
-  function CheckForPendingData(ATimeout: Integer): Boolean;
-  begin
-    if IOHandler.InputBufferIsEmpty then begin
-      IOHandler.CheckForDataOnSource(ATimeout);
-    end;
-    Result := not IOHandler.InputBufferIsEmpty;
-  end;
-
-  function ShouldRead: Boolean;
-  var
-    CanRead: Boolean;
-  begin
-    Result := False;
-    if IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0 then begin {do not localize}
-      CanRead := True;
-    end
-    else if AResponse.HasContentLength then begin
-      CanRead := AResponse.ContentLength > 0; // If chunked then this is also 0
-    end
-    else if IsHeaderMediaType(AResponse.ContentType, 'multipart') then begin {do not localize}
-      CanRead := not (hoNoReadMultipartMIME in FOptions);
-    end
-    else begin
-      CanRead := True;
-    end;
-    if CanRead then
-    begin
-      // DO NOT READ IF THE REQUEST IS HEAD!!!
-      // The server is supposed to send a 'Content-Length' header without sending
-      // the actual data. 1xx, 204, and 304 replies are not supposed to contain
-      // entity bodies, either...
-      if TextIsSame(ARequest.Method, Id_HTTPMethodHead) or
-         ({TextIsSame(ARequest.Method, Id_HTTPMethodPost) and} TextIsSame(ARequest.MethodOverride, Id_HTTPMethodHead)) or
-         // TODO: check for 'X-HTTP-Method' and 'X-METHOD-OVERRIDE' request headers as well...
-         ((AResponse.ResponseCode div 100) = 1) or
-         (AResponse.ResponseCode = 204) or
-         (AResponse.ResponseCode = 304) then
-      begin
-        // Have noticed one case where a non-conforming server did send an
-        // entity body in response to a HEAD request.  If requested, ignore
-        // anything the server may send by accident
-        if not (hoWaitForUnexpectedData in FOptions) then begin
-          Exit;
-        end;
-        Result := CheckForPendingData(100);
-      end
-      else if (AResponse.ResponseCode div 100) = 3 then
-      begin
-        // This is a workaround for buggy HTTP 1.1 servers which
-        // does not return any body with 302 response code
-        Result := CheckForPendingData(5000);
-      end else begin
-        Result := True;
-      end;
-    end;
-  end;
-
-  function ChunkSize: integer;
-  var
-    j: Integer;
-    s: string;
-  begin
-    s := InternalReadLn;
-    j := IndyPos(';', s); {do not localize}
-    if j > 0 then begin
-      s := Copy(s, 1, j - 1);
-    end;
-    Result := IndyStrToInt('$' + Trim(s), 0);      {do not localize}
-  end;
-
-  procedure ReadChunked;
-  var
-    LSize: Integer;
-    LTrailHeader: String;
-  begin
-    DoStatus(hsStatusText, [RSHTTPChunkStarted]);
-    BeginWork(wmRead);
-    try
-      LSize := ChunkSize;
-      while LSize <> 0 do begin
-        if Assigned(LS) then begin
-          IOHandler.ReadStream(LS, LSize);
-        end else begin
-          IOHandler.Discard(LSize);
-        end;
-        InternalReadLn; // CRLF at end of chunk data
-        LSize := ChunkSize;
-      end;
-      // read trailer headers
-      LTrailHeader := InternalReadLn;
-      while LTrailHeader <> '' do begin
-        AResponse.RawHeaders.Add(LTrailHeader);
-        LTrailHeader := InternalReadLn;
-      end;
-    finally
-      EndWork(wmRead);
-    end;
-  end;
-
-  procedure ReadMIME;
-  var
-    LMIMEBoundary: TIdBytes;
-    LIndex: Integer;
-    LSize: Integer;
-  begin
-    LMIMEBoundary := ToBytes('--' + ExtractHeaderSubItem(AResponse.ContentType, 'boundary', QuoteHTTP) + '--');
-    BeginWork(wmRead);
-    try
-      try
-        repeat
-          LIndex := IOHandler.InputBuffer.IndexOf(LMIMEBoundary);
-          if LIndex <> -1 then
-          begin
-            LSize := LIndex + Length(LMIMEBoundary);
-            if Assigned(LS) then begin
-              IOHandler.ReadStream(LS, LSize);
-            end else begin
-              IOHandler.Discard(LSize);
-            end;
-            InternalReadLn; // CRLF at end of boundary
-            Break;
-          end;
-          LSize := IOHandler.InputBuffer.Size - (Length(LMIMEBoundary)-1);
-          if LSize > 0 then begin
-            if Assigned(LS) then begin
-              IOHandler.ReadStream(LS, LSize);
-            end else begin
-              IOHandler.Discard(LSize);
-            end;
-          end;
-          IOHandler.CheckForDataOnSource;
-          IOHandler.CheckForDisconnect(True, True);
-        until False;
-      except
-        on E: EIdConnClosedGracefully do begin
-          if Assigned(LS) then begin
-            IOHandler.InputBuffer.ExtractToStream(LS);
-          end else begin
-            IOHandler.InputBuffer.Clear;
-          end;
-        end;
-      end;
-    finally
-      EndWork(wmRead);
-    end;
-  end;
-
-begin
-  if not ShouldRead then begin
-    Exit;
-  end;
-
-  LDecMeth := 0;
-
-  LParseHTML := Assigned(AResponse.ContentStream) and IsContentTypeHtml(AResponse) and not (hoNoParseMetaHTTPEquiv in FOptions);
-  LCreateTmpContent := LParseHTML and not (AResponse.ContentStream is TCustomMemoryStream);
-
-  LOrigStream := AResponse.ContentStream;
-  if LCreateTmpContent then begin
-    // under ARC, AResponse.ContentStream uses weak referencing, so need to
-    // use a local strong reference to keep the temp stream alive...
-    LTmpStream := TMemoryStream.Create;
-    AResponse.ContentStream := LTmpStream;
-  end else begin
-    LTmpStream := nil;
-  end;
-
-  try
-    // we need to determine what type of decompression may need to be used
-    // before we read from the IOHandler.  If there is compression, then we
-    // use a local stream to download the compressed data and decompress it.
-    // If no compression is used, ContentStream will be used directly
-
-    LCompressor := Compressor;
-    if Assigned(AResponse.ContentStream) then begin
-      if Assigned(LCompressor) and LCompressor.IsReady then begin
-        LDecMeth := PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) + 1;  {do not localize}
-      end;
-      if LDecMeth > 0 then begin
-        LS := TMemoryStream.Create;
-      end else begin
-        LS := AResponse.ContentStream;
-      end;
-    end else
-    begin
-      LS := nil;
-    end;
-
-    try
-      if IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0 then begin {do not localize}
-        ReadChunked;
-      end
-      else if AResponse.HasContentLength then begin
-        if AResponse.ContentLength > 0 then begin// If chunked then this is also 0
-          try
-            if Assigned(LS) then begin
-              IOHandler.ReadStream(LS, AResponse.ContentLength);
-            end else begin
-              IOHandler.Discard(AResponse.ContentLength);
-            end;
-          except
-            // should this be caught here?  We are being told the size, so a
-            // premature disconnect should be an error, right?
-            on E: EIdConnClosedGracefully do begin end;
-          end;
-        end;
-      end
-      else if IsHeaderMediaType(AResponse.ContentType, 'multipart') then begin {do not localize}
-        ReadMIME;
-      end else begin
-        if Assigned(LS) then begin
-          IOHandler.ReadStream(LS, -1, True);
-        end else begin
-          IOHandler.DiscardAll;
-        end;
-      end;
-      if LDecMeth > 0 then begin
-        LS.Position := 0;
-        case LDecMeth of
-          1 : LCompressor.DecompressDeflateStream(LS, AResponse.ContentStream);
-          2 : LCompressor.DecompressGZipStream(LS, AResponse.ContentStream);
-        end;
-      end;
-    finally
-      if LDecMeth > 0 then begin
-        FreeAndNil(LS);
-      end;
-    end;
-    if LParseHTML then begin
-      AResponse.ProcessMetaHTTPEquiv;
-    end;
-  finally
-    if LCreateTmpContent then
-    begin
-      try
-        LOrigStream.CopyFrom(AResponse.ContentStream, 0);
-      finally
-        {$IFNDEF USE_OBJECT_ARC}
-        LTmpStream.Free;
-        {$ENDIF}
-        AResponse.ContentStream := LOrigStream;
-      end;
-    end;
-  end;
 end;
 
 // TODO: move the XML charset detector below to the IdGlobalProtocols unit so
@@ -1553,6 +1298,10 @@ begin
   // by a BOM or an explicit "encoding" in the XML's prolog...
 
   Result := 'UTF-8'; {do not localize}
+
+  if AStream = nil then begin
+    Exit;
+  end;
 
   StreamPos := AStream.Position;
   try
@@ -1691,21 +1440,300 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.ResponseCharset: String;
-begin
-  if IsContentTypeAppXml(Response) then begin
-    // the media type is not a 'text/...' based XML type, so ignore the
-    // charset from the headers, if present, and parse the XML itself...
-    Result := DetectXmlCharset(Response.ContentStream);
-  end
-  else begin
-    // RLebeau 1/30/2012: Response.CharSet is now updated at the time
-    // when HTML content is parsed for <meta> tags ...
-    
-    // TODO: if the Charset is not specified, return an appropriate value
-    // that is registered with IANA for the reported ContentType...
+procedure TIdCustomHTTP.ReadResult(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
+var
+  LS: TStream;
+  LOrigStream, LTmpStream : TStream;
+  LParseMeth : Integer;
+  //0 - no parsing
+  //1 - html
+  //2 - xml
+  LCreateTmpContent : Boolean;
+  LDecMeth : Integer;
+  //0 - no compression was used or we can't support that feature
+  //1 - deflate
+  //2 - gzip
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LCompressor: TIdZLibCompressorBase;
 
-    Result := Response.CharSet;
+  function CheckForPendingData(ATimeout: Integer): Boolean;
+  begin
+    Result := not IOHandler.InputBufferIsEmpty;
+    if not Result then begin
+      IOHandler.CheckForDataOnSource(ATimeout);
+      Result := not IOHandler.InputBufferIsEmpty;
+    end;
+  end;
+
+  function ShouldRead: Boolean;
+  var
+    CanRead: Boolean;
+  begin
+    Result := False;
+    if IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0 then begin {do not localize}
+      CanRead := not (hoNoReadChunked in FOptions);
+    end
+    else if AResponse.HasContentLength then begin
+      CanRead := AResponse.ContentLength > 0; // If chunked then this is also 0
+    end
+    else if IsHeaderMediaType(AResponse.ContentType, 'multipart') then begin {do not localize}
+      CanRead := not (hoNoReadMultipartMIME in FOptions);
+    end
+    else begin
+      CanRead := True;
+    end;
+    if CanRead then
+    begin
+      // DO NOT READ IF THE REQUEST IS HEAD!!!
+      // The server is supposed to send a 'Content-Length' header without sending
+      // the actual data. 1xx, 204, and 304 replies are not supposed to contain
+      // entity bodies, either...
+      if TextIsSame(ARequest.Method, Id_HTTPMethodHead) or
+         ({TextIsSame(ARequest.Method, Id_HTTPMethodPost) and} TextIsSame(ARequest.MethodOverride, Id_HTTPMethodHead)) or
+         // TODO: check for 'X-HTTP-Method' and 'X-METHOD-OVERRIDE' request headers as well...
+         ((AResponse.ResponseCode div 100) = 1) or
+         (AResponse.ResponseCode = 204) or
+         (AResponse.ResponseCode = 304) then
+      begin
+        // Have noticed one case where a non-conforming server did send an
+        // entity body in response to a HEAD request.  If requested, ignore
+        // anything the server may send by accident
+        if not (hoWaitForUnexpectedData in FOptions) then begin
+          Exit;
+        end;
+        Result := CheckForPendingData(100);
+      end
+      else if (AResponse.ResponseCode div 100) = 3 then
+      begin
+        // This is a workaround for buggy HTTP 1.1 servers which
+        // does not return any body with 302 response code
+        Result := CheckForPendingData(5000);
+      end else begin
+        Result := True;
+      end;
+    end;
+  end;
+
+  function ChunkSize: integer;
+  var
+    j: Integer;
+    s: string;
+  begin
+    s := InternalReadLn;
+    j := IndyPos(';', s); {do not localize}
+    if j > 0 then begin
+      s := Copy(s, 1, j - 1);
+    end;
+    Result := IndyStrToInt('$' + Trim(s), 0);      {do not localize}
+  end;
+
+  procedure ReadChunked;
+  var
+    LSize: Integer;
+    LTrailHeader: String;
+    LChunk : TIdBytes;
+  begin
+    DoStatus(hsStatusText, [RSHTTPChunkStarted]);
+    BeginWork(wmRead);
+    try
+      LSize := ChunkSize;
+      while LSize <> 0 do begin
+        if Assigned(LS) then begin
+          if Assigned(FOnChunkReceived) then begin
+            SetLength(LChunk, LSize);
+            IOHandler.ReadBytes(LChunk, LSize, False);
+            if Assigned(FOnChunkReceived) then begin
+              FOnChunkReceived(Self, LChunk);
+            end;
+            WriteTIdBytesToStream(LS, LChunk);
+          end else begin
+            IOHandler.ReadStream(LS, LSize);
+          end;
+        end else begin
+          IOHandler.Discard(LSize);
+        end;
+        InternalReadLn; // CRLF at end of chunk data
+        LSize := ChunkSize;
+      end;
+      // read trailer headers
+      LTrailHeader := InternalReadLn;
+      while LTrailHeader <> '' do begin
+        AResponse.RawHeaders.Add(LTrailHeader);
+        LTrailHeader := InternalReadLn;
+      end;
+    finally
+      EndWork(wmRead);
+    end;
+  end;
+
+  procedure ReadMIME;
+  var
+    LMIMEBoundary: TIdBytes;
+    LIndex: Integer;
+    LSize: Integer;
+  begin
+    LMIMEBoundary := ToBytes('--' + ExtractHeaderSubItem(AResponse.ContentType, 'boundary', QuoteHTTP) + '--');
+    BeginWork(wmRead);
+    try
+      try
+        repeat
+          LIndex := IOHandler.InputBuffer.IndexOf(LMIMEBoundary);
+          if LIndex <> -1 then
+          begin
+            LSize := LIndex + Length(LMIMEBoundary);
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, LSize);
+            end else begin
+              IOHandler.Discard(LSize);
+            end;
+            InternalReadLn; // CRLF at end of boundary
+            Break;
+          end;
+          LSize := IOHandler.InputBuffer.Size - (Length(LMIMEBoundary)-1);
+          if LSize > 0 then begin
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, LSize);
+            end else begin
+              IOHandler.Discard(LSize);
+            end;
+          end;
+          IOHandler.CheckForDataOnSource;
+          IOHandler.CheckForDisconnect(True, True);
+        until False;
+      except
+        on E: EIdConnClosedGracefully do begin
+          if Assigned(LS) then begin
+            IOHandler.InputBuffer.ExtractToStream(LS);
+          end else begin
+            IOHandler.InputBuffer.Clear;
+          end;
+        end;
+      end;
+    finally
+      EndWork(wmRead);
+    end;
+  end;
+
+begin
+  if not ShouldRead then begin
+    Exit;
+  end;
+
+  LParseMeth := 0;
+  LDecMeth := 0;
+
+  if Assigned(AResponse.ContentStream) then begin
+    if IsContentTypeHtml(AResponse) then begin
+      if not (hoNoParseMetaHTTPEquiv in FOptions) then begin
+        LParseMeth := 1;
+      end;
+    end
+    else if IsContentTypeAppXml(Response) then begin
+      if not (hoNoParseXmlCharset in FOptions) then begin
+        LParseMeth := 2;
+      end;
+    end;
+  end;
+
+  LCreateTmpContent := (LParseMeth <> 0) and not (AResponse.ContentStream is TCustomMemoryStream);
+
+  LOrigStream := AResponse.ContentStream;
+  if LCreateTmpContent then begin
+    // under ARC, AResponse.ContentStream uses weak referencing, so need to
+    // use a local strong reference to keep the temp stream alive...
+    LTmpStream := TMemoryStream.Create;
+    AResponse.ContentStream := LTmpStream;
+  end else begin
+    LTmpStream := nil;
+  end;
+
+  try
+    // we need to determine what type of decompression may need to be used
+    // before we read from the IOHandler.  If there is compression, then we
+    // use a local stream to download the compressed data and decompress it.
+    // If no compression is used, ContentStream will be used directly
+
+    LCompressor := Compressor;
+    if Assigned(AResponse.ContentStream) then begin
+      if Assigned(LCompressor) and LCompressor.IsReady then begin
+        LDecMeth := PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) + 1;  {do not localize}
+      end;
+      if LDecMeth > 0 then begin
+        LS := TMemoryStream.Create;
+      end else begin
+        LS := AResponse.ContentStream;
+      end;
+    end else
+    begin
+      LS := nil;
+    end;
+
+    try
+      if IndyPos('chunked', LowerCase(AResponse.TransferEncoding)) > 0 then begin {do not localize}
+        ReadChunked;
+      end
+      else if AResponse.HasContentLength then begin
+        if AResponse.ContentLength > 0 then begin// If chunked then this is also 0
+          try
+            if Assigned(LS) then begin
+              IOHandler.ReadStream(LS, AResponse.ContentLength);
+            end else begin
+              IOHandler.Discard(AResponse.ContentLength);
+            end;
+          except
+            // should this be caught here?  We are being told the size, so a
+            // premature disconnect should be an error, right?
+            on E: EIdConnClosedGracefully do begin end;
+          end;
+        end;
+      end
+      else if IsHeaderMediaType(AResponse.ContentType, 'multipart') then begin {do not localize}
+        ReadMIME;
+      end else begin
+        if Assigned(LS) then begin
+          IOHandler.ReadStream(LS, -1, True);
+        end else begin
+          IOHandler.DiscardAll;
+        end;
+      end;
+      if LDecMeth > 0 then begin
+        LS.Position := 0;
+        case LDecMeth of
+          1 : LCompressor.DecompressDeflateStream(LS, AResponse.ContentStream);
+          2 : LCompressor.DecompressGZipStream(LS, AResponse.ContentStream);
+        end;
+      end;
+    finally
+      if LDecMeth > 0 then begin
+        FreeAndNil(LS);
+      end;
+    end;
+    case LParseMeth of
+      1: begin
+        // RLebeau 1/30/2012: parse HTML <meta> tags, update Response.CharSet ...
+        AResponse.ProcessMetaHTTPEquiv;
+      end;
+      2: begin
+        // the media type is not a 'text/...' based XML type, so ignore the
+        // charset from the headers, if present, and parse the XML itself...
+        AResponse.CharSet := DetectXmlCharset(AResponse.ContentStream);
+      end;
+    else
+      // TODO: if a Charset is not specified, return an appropriate value
+      // that is registered with IANA for the reported ContentType...
+    end;
+  finally
+    if LCreateTmpContent then
+    begin
+      try
+        LOrigStream.CopyFrom(AResponse.ContentStream, 0);
+      finally
+        {$IFNDEF USE_OBJECT_ARC}
+        LTmpStream.Free;
+        {$ENDIF}
+        AResponse.ContentStream := LOrigStream;
+      end;
+    end;
   end;
 end;
 
@@ -1946,16 +1974,20 @@ begin
   end;
   {$IFDEF USE_OBJECT_ARC}LCompressor := nil;{$ENDIF}
 
-  // TODO: if AcceptEncoding is blank, DON'T set it to 'identity'! Oddly,
-  // some faulty servers do not understand 'identity' when explicitly
-  // stated. It is the default behavior when no "Accept-Encoding" header
-  // is sent, so just let the server fallback to it normally...
-  if IndyPos('identity', ARequest.AcceptEncoding) = 0 then begin  {do not localize}
-    if ARequest.AcceptEncoding <> '' then begin
+  // RLebeau 1/10/2015: if AcceptEncoding is blank, DON'T set it to 'identity'!
+  // Oddly, some faulty servers do not understand 'identity' when explicitly
+  // stated. 'identity' is the default behavior when no "Accept-Encoding" header
+  // is present, so just let the server fallback to that normally...
+  if ARequest.AcceptEncoding <> '' then begin
+    if IndyPos('identity', ARequest.AcceptEncoding) = 0 then begin  {do not localize}
       ARequest.AcceptEncoding := ARequest.AcceptEncoding + ', identity'; {do not localize}
-    end else begin
-      ARequest.AcceptEncoding := 'identity'; {do not localize}
     end;
+    // TODO: if AcceptEncoding is 'identity', set it to a blank string?
+    {
+    if TextIsSame(ARequest.AcceptEncoding, 'identity') then begin  {do not localize
+      ARequest.AcceptEncoding := '';
+    end;
+    }
   end;
 
   if LUseConnectVerb then begin
@@ -2116,6 +2148,10 @@ var
   LAuth: TIdAuthentication;
 begin
   Inc(FAuthRetries);
+
+  // TODO: trigger OnSelectAuthorization on every request, or at least if
+  // FAuthRetries is 1, or the server has sent a new 'WWW-Authenticate'
+  // list that does not include the class currently assigned...
   if not Assigned(ARequest.Authentication) then begin
     // Find wich Authentication method is supported from us.
     LAuthCls := nil;
@@ -2217,6 +2253,10 @@ var
   LAuth: TIdAuthentication;
 begin
   Inc(FAuthProxyRetries);
+
+  // TODO: trigger OnSelectProxyAuthorization on every request, or at least if
+  // FAuthProxyRetries is 1, or the server has sent a new 'Proxy-Authenticate'
+  // list that does not include the class currently assigned...
   if not Assigned(ProxyParams.Authentication) then begin
     // Find which Authentication method is supported from us.
     LAuthCls := nil;
@@ -2340,6 +2380,10 @@ var
   // under ARC, convert a weak reference to a strong reference before working with it
   LAuthManager: TIdAuthenticationManager;
 begin
+  // TODO: in order to handle the case where authentications are used when
+  // keep-alives are in effect, move this logic somewhere more appropriate,
+  // like at the end of DoRequest()...
+
   inherited DoOnDisconnected;
 
   if Assigned(Request.Authentication) and
@@ -2568,7 +2612,6 @@ destructor TIdHTTPProtocol.Destroy;
 begin
   FreeAndNil(FRequest);
   FreeAndNil(FResponse);
-
   inherited Destroy;
 end;
 
@@ -2652,13 +2695,40 @@ var
   procedure CheckException;
   var
     i: Integer;
-    LTempResponse: TMemoryStream;
-    LTempStream: TStream;
+    LTempStream: TMemoryStream;
+    LOrigStream: TStream;
+    LRaiseException: Boolean;
+    LDiscardContent: Boolean;
   begin
-    LTempResponse := TMemoryStream.Create;
+    LRaiseException := True;
+    LDiscardContent := True;
+    
+    if hoNoProtocolErrorException in FHTTP.HTTPOptions then begin
+      LRaiseException := False;
+      LDiscardContent := not (hoWantProtocolErrorContent in FHTTP.HTTPOptions);
+    end
+    else if High(AIgnoreReplies) > -1 then begin
+      for i := Low(AIgnoreReplies) to High(AIgnoreReplies) do begin
+        if LResponseCode = AIgnoreReplies[i] then begin
+          LRaiseException := False;
+          LDiscardContent := not (hoWantProtocolErrorContent in FHTTP.HTTPOptions);
+          Break;
+        end;
+      end;
+    end;
+
+    if LRaiseException then begin
+      LTempStream := TMemoryStream.Create;
+    end else begin
+      LTempStream := nil;
+    end;
     try
-      LTempStream := Response.ContentStream;
-      Response.ContentStream := LTempResponse;
+      if LRaiseException or LDiscardContent then begin
+        LOrigStream := Response.ContentStream;
+        Response.ContentStream := LTempStream;
+      end else begin
+        LOrigStream := nil;
+      end;
       try
         try
           FHTTP.ReadResult(Request, Response);
@@ -2667,24 +2737,20 @@ var
             FHTTP.Disconnect;
           end;
         end;
-        if hoNoProtocolErrorException in FHTTP.HTTPOptions then begin
-          Exit;
+        if LRaiseException then begin
+          LTempStream.Position := 0;
+          raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText,
+            ReadStringAsCharset(LTempStream, FHTTP.Response.CharSet));
         end;
-        if High(AIgnoreReplies) > -1 then begin
-          for i := Low(AIgnoreReplies) to High(AIgnoreReplies) do begin
-            if LResponseCode = AIgnoreReplies[i] then begin
-              Exit;
-            end;
-          end;
-        end;
-        LTempResponse.Position := 0;
-        raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText,
-          ReadStringAsCharset(LTempResponse, FHTTP.ResponseCharSet));
       finally
-        Response.ContentStream := LTempStream;
+        if LRaiseException or LDiscardContent then begin
+          Response.ContentStream := LOrigStream;
+        end;
       end;
     finally
-      FreeAndNil(LTempResponse);
+      if LRaiseException then begin
+        LTempStream.Free;
+      end;
     end;
   end;
 
@@ -2944,7 +3010,7 @@ begin
   try
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
-    Result := ReadStringAsCharset(LStream, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LStream, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LStream);
@@ -3033,6 +3099,7 @@ begin
   finally
     if not Response.KeepAlive then begin
       // TODO: do not disconnect if hoNoReadMultipartMIME is in effect
+      // TODO: do not disconnect if hoNoReadChunked is in effect
       Disconnect;
     end;
   end;
@@ -3053,7 +3120,7 @@ begin
   try
     Patch(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, ResponseCharset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
     FreeAndNil(LResponse);

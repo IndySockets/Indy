@@ -372,6 +372,7 @@ type
     fSSL: PSSL;
     fSSLCipher: TIdSSLCipher;
     fSSLContext: TIdSSLContext;
+    fHostName: String;
     function GetPeerCert: TIdX509;
     function GetSSLError(retCode: Integer): Integer;
     function GetSSLCipher: TIdSSLCipher;
@@ -388,6 +389,7 @@ type
     //
     property PeerCert: TIdX509 read GetPeerCert;
     property Cipher: TIdSSLCipher read GetSSLCipher;
+    property HostName: String read fHostName;
   end;
 
   // TIdSSLIOHandlerSocketOpenSSL and TIdServerIOHandlerSSLOpenSSL have some common
@@ -654,6 +656,9 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
   EIdOSSLDataBindingError = class(EIdOpenSSLAPISSLError);
   EIdOSSLAcceptError = class(EIdOpenSSLAPISSLError);
   EIdOSSLConnectError = class(EIdOpenSSLAPISSLError);
+  {$IFNDEF OPENSSL_NO_TLSEXT}
+  EIdOSSLSettingTLSHostNameError = class(EIdOpenSSLAPISSLError);
+  {$ENDIF}
 
 function LoadOpenSSLLibrary: Boolean;
 procedure UnLoadOpenSSLLibrary;
@@ -2409,13 +2414,10 @@ end;
 procedure TIdSSLOptions.SetMethod(const AValue: TIdSSLVersion);
 begin
   fMethod := AValue;
-  case AValue of
-    sslvSSLv2 : fSSLVersions := [sslvSSLv2];
-    sslvSSLv23 : fSSLVersions := [sslvSSLv2,sslvSSLv3,sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
-    sslvSSLv3 : fSSLVersions := [sslvSSLv3];
-    sslvTLSv1 : fSSLVersions := [sslvTLSv1];
-    sslvTLSv1_1 : fSSLVersions := [sslvTLSv1_1];
-    sslvTLSv1_2 : fSSLVersions := [sslvTLSv1_2];
+  if AValue = sslvSSLv23 then begin
+    fSSLVersions := [sslvSSLv2,sslvSSLv3,sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
+  end else begin
+    fSSLVersions := [AValue];
   end;
 end;
 
@@ -2534,6 +2536,13 @@ begin
       LIO.fxSSLOptions := fxSSLOptions;
       LIO.fSSLSocket := TIdSSLSocket.Create(Self);
       LIO.fSSLContext := fSSLContext;
+      // TODO: to enable server-side SNI, we need to:
+      // - Set up an additional SSL_CTX for each different certificate;
+      // - Add a servername callback to each SSL_CTX using SSL_CTX_set_tlsext_servername_callback();
+      // - In the callback, retrieve the client-supplied servername with
+      //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
+      //   SSL_CTX to go with that host name, then switch the SSL object to that
+      //   SSL_CTX with SSL_set_SSL_CTX().
     end else begin
       FreeAndNil(LIO);
     end;
@@ -2888,10 +2897,11 @@ begin
 end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.OpenEncodedConnection;
-{$IFDEF WIN32_OR_WIN64}
 var
+  {$IFDEF WIN32_OR_WIN64}
   LTimeout: Integer;
-{$ENDIF}
+  {$ENDIF}
+  LMode: TIdSSLMode;
 begin
   Assert(Binding<>nil);
   if not Assigned(fSSLSocket) then begin
@@ -2925,23 +2935,23 @@ begin
   // in TIdSSLIOHandlerSocketOpenSSL.Destroy() and TIdSSLIOHandlerSocketOpenSSL.Close()
   // in client components!  IsPeer is intended to be set to True only in server
   // components...
-  case fSSLContext.Mode of
-    sslmClient: begin
-      fSSLSocket.Connect(Binding.Handle);
+  LMode := fSSLContext.Mode;
+  if not (LMode in [sslmClient, sslmServer]) then begin
+    // Mode must be sslmBoth (or else TIdSSLContext.SetSSLMethod() would have
+    // raised an exception), so just fall back to previous behavior for now,
+    // until we can figure out a better way to handle this scenario...
+    if IsPeer then begin
+      LMode := sslmServer;
+    end else begin
+      LMode := sslmClient;
     end;
-    sslmServer: begin
-      fSSLSocket.Accept(Binding.Handle);
-    end;
-  else
-    begin
-      // Mode must be sslmBoth, so just fall back to previous behavior for now,
-      // until we can figure out a better way to handle this scenario...
-      if IsPeer then begin
-        fSSLSocket.Accept(Binding.Handle);
-      end else begin
-        fSSLSocket.Connect(Binding.Handle);
-      end;
-    end;
+  end;
+  if LMode = sslmClient then begin
+    fSSLSocket.fHostName := Host;
+    fSSLSocket.Connect(Binding.Handle);
+  end else begin
+    fSSLSocket.fHostName := '';
+    fSSLSocket.Accept(Binding.Handle);
   end;
   fPassThrough := False;
 end;
@@ -3580,6 +3590,15 @@ begin
   begin
     SSL_copy_session_id(fSSL, LParentIO.fSSLSocket.fSSL);
   end;
+  {$IFNDEF OPENSSL_NO_TLSEXT}
+  error := SSL_set_tlsext_host_name(fSSL, fHostName);
+  if error <= 0 then begin
+    // RLebeau: for the time being, not raising an exception on error, as I don't
+    // know which OpenSSL versions support this extension, and which error code(s)
+    // are safe to ignore on those versions...
+    //EIdOSSLSettingTLSHostNameError.RaiseException(fSSL, error, RSSSLSettingTLSHostNameError);
+  end;
+  {$ENDIF}
   error := SSL_connect(fSSL);
   if error <= 0 then begin
     EIdOSSLConnectError.RaiseException(fSSL, error, RSSSLConnectError);
@@ -3597,6 +3616,23 @@ begin
                  'version = ' + Cipher.Version + '; ';    {Do not Localize}
     LParentIO.DoStatusInfo(StatusStr);
   end;
+  // TODO: enable this
+  {
+  var
+    peercert: PX509;
+    lHostName: AnsiString;
+  peercert := SSL_get_peer_certificate(fSSL);
+  try
+    lHostName := AnsiString(fHostName);
+    if (X509_check_host(peercert, PByte(PAnsiChar(lHostName)), Length(lHostName), 0) != 1) and
+       (not certificate_host_name_override(peercert, PAnsiChar(lHostName)) then
+    begin
+      EIdOSSLCertificateError.RaiseException(fSSL, error, 'SSL certificate does not match host name');
+    end;
+  finally
+    X509_free(peercert);
+  end;
+}
 end;
 
 function TIdSSLSocket.Recv(var ABuffer: TIdBytes): Integer;

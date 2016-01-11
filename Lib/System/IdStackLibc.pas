@@ -675,7 +675,14 @@ end;
 function TIdStackLibc.WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
       const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
 begin
-  Result := Libc.socket(AFamily, AStruct, AProtocol);
+  // TODO: enable this?
+  {
+  if AOverlapped then begin
+    Result := Libc.socket(AFamily, AStruct or SOCK_NONBLOCK, AProtocol);
+  end else begin
+  }
+    Result := Libc.socket(AFamily, AStruct, AProtocol);
+  //end;
 end;
 
 function TIdStackLibc.WSGetServByName(const AServiceName: string): TIdPort;
@@ -1087,6 +1094,9 @@ function TIdStackLibc.WouldBlock(const AResult: Integer): Boolean;
 begin
   //non-blocking does not exist in Linux, always indicate things will block
   Result := True;
+
+  // TODO: enable this:
+  //Result := CheckForSocketError(AResult, [EAGAIN, EWOULDBLOCK]) <> 0;
 end;
 
 function TIdStackLibc.SupportsIPv6: Boolean;
@@ -1362,6 +1372,21 @@ end;
 procedure TIdStackLibc.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
 begin
+  // TODO: enable this
+  {
+  LFlags := CheckForSocketError(Libc.fcntl(ASocket, F_GETFL, 0));
+  if ABlocking then begin
+    LFlags := LFlags and not O_NONBLOCK;
+  end else begin
+    LFlags := LFlags or O_NONBLOCK;
+  end;
+  CheckForSocketError(Libc.fcntl(ASocket, F_SETFL, LFlags));
+
+or
+
+  LValue := UInt32(not ABlocking);
+  CheckForSocketError(Libc.ioctl(ASocket, FIONBIO, @LValue));
+  }
   if not ABlocking then begin
     raise EIdBlockingNotSupported.Create(RSStackNotSupportedOnUnix);
   end;

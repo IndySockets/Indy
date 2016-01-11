@@ -19451,7 +19451,7 @@ const
   where the symbolic link libbsl.so and libcrypto.so do not exist}
   SSL_DLL_name         = 'libssl'; {Do not localize}
   SSLCLIB_DLL_name     = 'libcrypto'; {Do not localize}
-  SSLDLLVers : array [0..7] of string = ('','.10','.1.0.1','.1.0.0','0.9.9','.0.9.8','.0.9.7','0.9.6');
+  SSLDLLVers : array [0..7] of string = ('','.10','.1.0.2','.1.0.1','.1.0.0','0.9.9','.0.9.8','.0.9.7','0.9.6');
   {$ENDIF}
   {$IFDEF WINDOWS}
 const
@@ -22556,6 +22556,46 @@ end;
 
 {$ENDIF} // STATICLOAD_OPENSSL
 
+{$IFDEF ANDROID}
+// In Android 6, Google replaced OpenSSL with BoringSSL, which is a fork of
+// OpenSSL and does not export many functions, including the following...
+
+type
+  msg_callback_proc = procedure(write_p, version, content_type : TIdC_INT; const buf : Pointer; len: size_t; ssl: PSSL; arg: Pointer); cdecl;
+
+function Indy_ssl_callback_ctrl(s: PSSL; cb_id: TIdC_INT; fp: SSL_METHOD_PROC): TIdC_LONG; cdecl;
+begin
+  if cb_id = SSL_CTRL_SET_MSG_CALLBACK then begin
+    ssl.msg_callback := msg_callback_proc(fp);
+    Result := 1;
+  end else begin
+    Result := ssl.method.ssl_callback_ctrl(s, cmd, fp);
+  end;
+end;
+
+function Indy_SSL_CTX_callback_ctrl(ctx: PSSL_CTX; cmd: TIdC_INT; fp: SSL_METHOD_PROC): TIdC_LONG; cdecl;
+type
+  msg_callback = procedure(write_p, version, content_type: TIdC_INT; const buf: Pointer; len: size_t; ssl: PSSL; arg: Pointer); cdecl;
+begin
+  if cmd = SSL_CTRL_SET_MSG_CALLBACK then begin
+    ctx.msg_callback := msg_callback_proc(fp);
+    Result := 1;
+  end else begin
+    Result := ctx.method.ssl_ctx_callback_ctrl(ctx, cmd, fp);
+  end;
+end;
+
+procedure Indy_SSL_copy_session_id(sslTo: PSSL; const sslFrom: PSSL) cdecl;
+begin
+  // TODO: what to do here?
+end;
+
+procedure Indy_CRYPTO_lock(mode, _type : TIdC_INT; const _file : PIdAnsiChar; line : TIdC_INT) cdecl;
+begin
+  // TODO: what to do here?
+end;
+{$ENDIF}
+
 function Load: Boolean;
 begin
 {$IFDEF STATICLOAD_OPENSSL}
@@ -22625,9 +22665,19 @@ begin
   @SSL_pending := LoadFunction(fn_SSL_pending,False);
   @SSL_write := LoadFunction(fn_SSL_write);      //Used by Indy
   @SSL_ctrl := LoadFunction(fn_SSL_ctrl);
-  @SSL_callback_ctrl := LoadFunction(fn_SSL_callback_ctrl);
+  @SSL_callback_ctrl := LoadFunction(fn_SSL_callback_ctrl{$IFDEF ANDROID}, False{$ENDIF});
+  {$IFDEF ANDROID}
+  if not Assigned(SSL_callback_ctrl) then begin
+    @SSL_callback_ctrl := @Indy_SSL_callback_ctrl;
+  end;
+  {$ENDIF}
   @SSL_CTX_ctrl := LoadFunction(fn_SSL_CTX_ctrl);
-  @SSL_CTX_callback_ctrl := LoadFunction(fn_SSL_CTX_callback_ctrl);
+  @SSL_CTX_callback_ctrl := LoadFunction(fn_SSL_CTX_callback_ctrl{$IFDEF ANDROID}, False{$ENDIF});
+  {$IFDEF ANDROID}
+  if not Assigned(SSL_CTX_callback_ctrl) then begin
+    @SSL_CTX_callback_ctrl := @Indy_SSL_CTX_callback_ctrl;
+  end;
+  {$ENDIF}
   @SSL_get_error := LoadFunction(fn_SSL_get_error);           //Used by Indy
 
   // RLebeau 9/7/2015 - making all of the "..._method()" functions optional.  If
@@ -22668,7 +22718,12 @@ begin
   @SSL_get_session := LoadFunction(fn_SSL_get_session); //Used by Indy
   @SSLeay_add_ssl_algorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);  //Used by Indy
   @SSL_SESSION_get_id := LoadFunction(fn_SSL_SESSION_get_id); //Used by Indy
-  @SSL_copy_session_id := LoadFunction(fn_SSL_copy_session_id);  //Used by Indy
+  @SSL_copy_session_id := LoadFunction(fn_SSL_copy_session_id{$IFDEF ANDROID}, False{$ENDIF});  //Used by Indy
+  {$IFDEF ANDROID}
+  if not Assigned(SSL_copy_session_id) then begin
+    @SSL_copy_session_id := @Indy_SSL_copy_session_id;
+  end;
+  {$ENDIF}
    // CRYPTO LIB
   @_SSLeay_version := LoadFunctionCLib(fn_SSLeay_version); //Used by Indy
   @SSLeay := LoadFunctionCLib(fn_SSLeay);    //Used by Indy
@@ -22739,7 +22794,12 @@ begin
   @SSL_CIPHER_get_version := LoadFunction(fn_SSL_CIPHER_get_version); //Used by Indy
   @SSL_CIPHER_get_bits  := LoadFunction(fn_SSL_CIPHER_get_bits);  //Used by Indy
   // Thread safe
-  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock);  //Used by Indy
+  @_CRYPTO_lock := LoadFunctionCLib(fn_CRYPTO_lock{$IFDEF ANDROID}, False{$ENDIF});  //Used by Indy
+  {$IFDEF ANDROID}
+  if not Assigned(_CRYPTO_lock) then begin
+    @_CRYPTO_lock := @Indy_CRYPTO_lock;
+  end;
+  {$ENDIF}
   @_CRYPTO_num_locks := LoadFunctionCLib(fn_CRYPTO_num_locks); //Used by Indy
   @CRYPTO_set_locking_callback := LoadFunctionCLib(fn_CRYPTO_set_locking_callback); //Used by Indy
   {$IFNDEF WIN32_OR_WIN64}
@@ -24724,7 +24784,11 @@ end;
 function SSL_set_tlsext_debug_callback(ssl : PSSL; cb : SSL_callback_ctrl_fp) : TIdC_LONG;
  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := SSL_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_DEBUG_CB,cb);
+  if Assigned(SSL_callback_ctrl) then begin
+    Result := SSL_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_DEBUG_CB,cb);
+  end else begin
+    Result := ssl.method.ssl_callback_ctrl(ssl, SSL_CTRL_SET_TLSEXT_DEBUG_CB, SSL_METHOD_PROC(cb));
+  end;
 end;
 
 function SSL_set_tlsext_debug_arg(ssl : PSSL; arg : Pointer) : TIdC_LONG;

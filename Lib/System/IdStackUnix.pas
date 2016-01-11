@@ -1003,6 +1003,11 @@ end;
 procedure TIdStackUnix.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
 begin
+  // TODO: enable this
+  {
+  LValue := UInt32(not ABlocking);
+  CheckForSocketError(fpioctl(ASocket, FIONBIO, @LValue));
+  }
   if not ABlocking then begin
     raise EIdNonBlockingNotSupported.Create(RSStackNonBlockingNotSupported);
   end;
@@ -1012,6 +1017,9 @@ function TIdStackUnix.WouldBlock(const AResult: Integer): Boolean;
 begin
   //non-blocking does not exist in Linux, always indicate things will block
   Result := True;
+
+  // TODO: enable this:
+  //Result := CheckForSocketError(AResult, [EAGAIN, EWOULDBLOCK]) <> 0;
 end;
 
 function TIdStackUnix.SupportsIPv6: Boolean;

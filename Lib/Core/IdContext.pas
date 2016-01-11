@@ -207,11 +207,17 @@ begin
 end;
 
 function TIdContext.GetBinding: TIdSocketHandle;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LConn: TIdTCPConnection;
+  LSocket: TIdIOHandlerSocket;
 begin
   Result := nil;
-  if Connection <> nil then begin
-    if Connection.Socket <> nil then begin
-      Result := Connection.Socket.Binding;
+  LConn := Connection;
+  if LConn <> nil then begin
+    LSocket := LConn.Socket;
+    if LSocket <> nil then begin
+      Result := LSocket.Binding;
     end;
   end;
 end;

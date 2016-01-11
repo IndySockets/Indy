@@ -467,6 +467,7 @@ resourcestring
   RSSSLFDSetError = 'Error setting File Descriptor for SSL';
   RSSSLDataBindingError = 'Error binding data to SSL socket.';
   RSSSLEOFViolation = 'EOF was observed that violates the protocol';
+  RSSSLSettingTLSHostNameError = 'Error setting TLS hostname for SSL socket';
 
   {IdMessage Component Editor}
   RSMsgCmpEdtrNew = '&New Message Part...';
@@ -693,6 +694,7 @@ resourcestring
   RSFTPNeedAccountForLogin = 'Need account for login.';
   RSFTPAuthSSL = 'AUTH Command OK. Initializing SSL';
   RSFTPDataProtBuffer0 = 'PBSZ Command OK. Protection buffer size set to 0.';
+  RSFTPDeniedForPolicyReasons = 'Request denied for policy reasons.';
 
   RSFTPInvalidProtTypeForMechanism = 'Requested PROT level not supported by mechanism.';
   RSFTPProtTypeClear   = 'PROT Command OK. Using Clear data connection';

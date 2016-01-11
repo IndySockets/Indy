@@ -1256,6 +1256,8 @@ type
     Table := nil;
     try
       repeat
+        // Alternatively, use WSAIoctl(SIO_GET_INTERFACE_LIST), but
+        // I have noticed it does not always return IPv4 subnets!
         Ret := GetIpAddrTable(Table, BufLen, FALSE);
         case Ret of
           ERROR_SUCCESS:
@@ -1535,7 +1537,7 @@ type
     end;
   end;
 
-  {$ELSE}
+    {$ELSE}
 
 var
     {$IFDEF UNICODE}
@@ -2369,6 +2371,10 @@ var
   ka: _tcp_keepalive;
   Bytes: DWORD;
 begin
+  // TODO: instead of doing an OS version check, always call SIO_KEEPALIVE_VALS
+  // when AEnabled is True, and then fallback to SO_KEEPALIVE if WSAIoctl()
+  // reports that SIO_KEEPALIVE_VALS is not supported...
+
   // SIO_KEEPALIVE_VALS is supported on Win2K+ and WinCE 4.x only
   if AEnabled and IndyCheckWindowsVersion({$IFDEF WINCE}4{$ELSE}5{$ENDIF}) then
   begin

@@ -168,6 +168,7 @@ type
 
   EIdNotASocket = class(EIdSocketError);
 
+  // TODO: move this to IdStackVCLPosix...
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF ANDROID}
   EIdAndroidPermissionNeeded = class(EIdSocketError);
@@ -401,6 +402,7 @@ var
 // Procedures
   procedure SetStackClass( AStackClass: TIdStackClass );
 
+// TODO: move this to IdStackVCLPosix...
 {$IFDEF USE_VCL_POSIX}
   {$IFDEF ANDROID}
 function HasAndroidPermission(const Permission: string): Boolean;
@@ -433,6 +435,8 @@ uses
   {$IFDEF DOTNET}
   IdStackDotNet,
   {$ENDIF}
+
+  // TODO: move this to IdStackVCLPosix...
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF ANDROID}
       {$IFNDEF VCL_XE6_OR_ABOVE}
@@ -452,6 +456,7 @@ uses
   Androidapi.JNI.GraphicsContentViewText,
     {$ENDIF}
   {$ENDIF}
+
   IdResourceStrings;
 
 var
@@ -847,6 +852,7 @@ begin
   RaiseSocketError(WSGetLastError);
 end;
 
+// TODO: move this to IdStackVCLPosix...
 {$IFDEF USE_VCL_POSIX}
   {$IFDEF ANDROID}
 function GetActivityContext: JContext; {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -885,6 +891,7 @@ begin
     raise EIdNotASocket.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
   end;
 
+  // TODO: move this to IdStackVCLPosix...
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF ANDROID}
   if (AErr = 9{EBADF}) or (AErr = 12{EBADR?}) or (AErr = 13{EACCES}) then begin

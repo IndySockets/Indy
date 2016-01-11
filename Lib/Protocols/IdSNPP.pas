@@ -146,16 +146,15 @@ end;
 
 procedure TIdSNPP.DisconnectNotifyPeer;
 begin
-  inherited;
+  inherited DisconnectNotifyPeer;
   SendCmd('QUIT', 211);  {do not localize}
 end;
 
 function TIdSNPP.Pager(APagerId: String): Boolean;
 begin
   Result := False;
-  Writeln('PAGER ' + APagerID);    {do not localize}
-  if GetResponse([]) = 250 then begin
-    Result := True
+  if SendCmd('PAGER ' + APagerID) = 250 then begin {do not localize}
+    Result := True;
   end else begin
     DoStatus(hsStatusText, [LastCmdResult.Text[0]]);
   end;
@@ -170,14 +169,14 @@ procedure TIdSNPP.SendMessage(APagerId, AMsg : String);
 begin
   if (Pos(CR,AMsg)>0) or (Pos(LF,AMsg)>0) then
   begin
-    EIdSNPPNoMultiLineMessages.Create(RSSNPPNoMultiLine);
+    raise EIdSNPPNoMultiLineMessages.Create(RSSNPPNoMultiLine);
   end;
   if (Length(APagerId) > 0) and (Length(AMsg) > 0) then begin
     if Pager(APagerID) then begin
       if SNPPMsg(AMsg) then begin
         WriteLn('SEND');    {do not localize}
       end;
-      GetResponse([250]);
+      GetResponse(250);
     end;
   end;
 end;
@@ -185,9 +184,8 @@ end;
 function TIdSNPP.SNPPMsg(AMsg: String): Boolean;
 begin
   Result := False;
-  Writeln('MESS ' + AMsg);    {do not localize}
-  if GetResponse([]) = 250 then begin
-    Result := True
+  if SendCmd('MESS ' + AMsg) = 250 then begin {do not localize}
+    Result := True;
   end else begin
     DoStatus(hsStatusText, [LastCmdResult.Text.Text]);
   end;

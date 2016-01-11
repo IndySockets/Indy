@@ -167,7 +167,11 @@ function TIdMessageBuilderAttachments.Add(const AFileName: String;
   const AContentID: String = ''): TIdMessageBuilderAttachment;
 begin
   Result := TIdMessageBuilderAttachment(inherited Add);
-  Result.FContentID := AContentID;
+  if AContentID <> '' then begin
+    Result.FContentID := AContentID;
+  end else begin
+    Result.FContentID := ExtractFileName(AFileName);
+  end;
   Result.FFileName := AFileName;
 end;
 

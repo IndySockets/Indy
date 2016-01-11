@@ -559,15 +559,19 @@ varies between servers.  A typical line that gets parsed into this is:
 }
   TIdIMAPLineStruct = class(TObject)
   protected
-    HasStar: Boolean;       //Line starts with a '*'
-    MessageNumber: string;    //Line has a message number (after the *)
-    Command: string;      //IMAP servers send back the command they are responding to, e.g. FETCH
-    UID: string;        //Sometimes the UID is echoed back
+    HasStar: Boolean;           //Line starts with a '*'
+    MessageNumber: string;      //Line has a message number (after the *)
+    Command: string;            //IMAP servers send back the command they are responding to, e.g. FETCH
+    UID: string;                //Sometimes the UID is echoed back
     Flags: TIdMessageFlagsSet;  //Sometimes the FLAGS are echoed back
-    Complete: Boolean;      //If false, line has no closing bracket (response continues on following line(s))
-    ByteCount: integer;     //The value in a trailing byte count like {123}, -1 means not present
-    IMAPFunction: string;     //E.g. FLAGS
-    IMAPValue: string;      //E.g. '(\Seen \Deleted)'
+    FlagsStr: string;           //unparsed FLAGS for the message
+    Complete: Boolean;          //If false, line has no closing bracket (response continues on following line(s))
+    ByteCount: integer;         //The value in a trailing byte count like {123}, -1 means not present
+    IMAPFunction: string;       //E.g. FLAGS
+    IMAPValue: string;          //E.g. '(\Seen \Deleted)'
+    GmailMsgID: string;         //Gmail-specific unique identifier for the message
+    GmailThreadID: string;      //Gmail-specific thread identifier for the message
+    GmailLabels: string;        //Gmail-specific labels for the message
   end;
 
   TIdIMAP4Commands = (
@@ -878,6 +882,9 @@ varies between servers.  A typical line that gets parsed into this is:
     //Changes (adds or removes) message flags.
     function  StoreFlags(const AMsgNumList: array of Integer; const AStoreMethod: TIdIMAP4StoreDataItem;
           const AFlags: TIdMessageFlagsSet): Boolean;
+    //Changes (adds or removes) a message value.
+    function  StoreValue(const AMsgNumList: array of Integer; const AStoreMethod: TIdIMAP4StoreDataItem;
+          const AField, AValue: String): Boolean;
     //Adds the specified mailbox name to the server's set of "active" or "subscribed"
     //mailboxes as returned by the LSUB command.
     function  SubscribeMailBox(const AMBName: String): Boolean;
@@ -908,6 +915,8 @@ varies between servers.  A typical line that gets parsed into this is:
     function  RetrieveEnvelopeRaw(const AMsgNum: Integer; ADestList: TStrings): Boolean;
     //Returnes the message flag values.
     function  RetrieveFlags(const AMsgNum: Integer; var AFlags: TIdMessageFlagsSet): Boolean;
+    //Returnes a requested message value.
+    function  RetrieveValue(const AMsgNum: Integer; const AField: string; var AValue: string): Boolean;
     {CC2: Following added for retrieving individual parts of a message...}
     function  InternalRetrieveStructure(const AMsgNum: Integer; AMsg: TIdMessage; AParts: TIdImapMessageParts): Boolean;
     //Retrieve only the message structure (this tells you what parts are in the message).
@@ -1001,6 +1010,8 @@ varies between servers.  A typical line that gets parsed into this is:
     function  UIDRetrieveEnvelopeRaw(const AMsgUID: String; ADestList: TStrings): Boolean;
     //Returnes the message flag values.
     function  UIDRetrieveFlags(const AMsgUID: String; var AFlags: TIdMessageFlagsSet): Boolean;
+    //Returnes a requested message value.
+    function  UIDRetrieveValue(const AMsgUID: String; const AField: string; var AValue: string): Boolean;
     {CC2: Following added for retrieving individual parts of a message...}
     function  UIDInternalRetrieveStructure(const AMsgUID: String; AMsg: TIdMessage; AParts: TIdImapMessageParts): Boolean;
     //Retrieve only the message structure (this tells you what parts are in the message).
@@ -1066,6 +1077,11 @@ varies between servers.  A typical line that gets parsed into this is:
           const AFlags: TIdMessageFlagsSet): Boolean; overload;
     function  UIDStoreFlags(const AMsgUIDList: array of String; const AStoreMethod: TIdIMAP4StoreDataItem;
           const AFlags: TIdMessageFlagsSet): Boolean; overload;
+    //Changes (adds or removes) a message value.
+    function  UIDStoreValue(const AMsgUID: String; const AStoreMethod: TIdIMAP4StoreDataItem;
+          const AField, AValue: String): Boolean; overload;
+    function  UIDStoreValue(const AMsgUIDList: array of String; const AStoreMethod: TIdIMAP4StoreDataItem;
+          const AField, AValue: string): Boolean; overload;
     //Removes the specified mailbox name from the server's set of "active" or "subscribed"
     //mailboxes as returned by the LSUB command.
     function  UnsubscribeMailBox(const AMBName: String): Boolean;
@@ -1319,15 +1335,6 @@ const
     'X-GM-MSGID',{Do not Localize}   //Gmail extension to SEARCH command to allow access to Gmail message identifier
     'X-GM-THRID',{Do not Localize}   //Gmail extension to SEARCH command to allow access to Gmail thread identifier
     'X-GM-LABELS'{Do not Localize}   //Gmail extension to SEARCH command to allow access to Gmail labels
-  );
-
-  IMAP4StoreDataItem : array [TIdIMAP4StoreDataItem] of String = (
-    'FLAGS',         {Do not Localize}
-    'FLAGS.SILENT',  {Do not Localize}
-    '+FLAGS',        {Do not Localize}
-    '+FLAGS.SILENT', {Do not Localize}
-    '-FLAGS',        {Do not Localize}
-    '-FLAGS.SILENT'  {Do not Localize}
   );
 
   IMAP4StatusDataItem : array [TIdIMAP4StatusDataItem] of String = (
@@ -1927,6 +1934,7 @@ var
   i: integer;
 begin
   if High(AAllowedStates) > -1 then begin
+    // Cannot use PosInSmallIntArray() here...
     for i := Low(AAllowedStates) to High(AAllowedStates) do begin
       if FConnectionState = AAllowedStates[i] then begin
         Result := FConnectionState;
@@ -2459,7 +2467,7 @@ end;
 
 procedure TIdIMAP4.KeepAlive;
 begin
-  //Avialable in any state.
+  //Available in any state.
   SendCmd(NewCmdCounter, IMAP4Commands[cmdNoop], []);
 end;
 
@@ -3029,25 +3037,32 @@ end;
 
 function TIdIMAP4.StoreFlags(const AMsgNumList: array of Integer;
   const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
+begin
+  Result := StoreValue(AMsgNumList, AStoreMethod, 'FLAGS', MessageFlagSetToStr(AFlags)); {Do not Localize}
+end;
+
+function TIdIMAP4.StoreValue(const AMsgNumList: array of Integer;
+  const AStoreMethod: TIdIMAP4StoreDataItem; const AField, AValue: String): Boolean;
 var
   LDataItem,
-  LMsgSet,
-  LFlags: String;
+  LMsgSet: string;
 begin
   Result := False;
   if Length(AMsgNumList) > 0 then begin
     LMsgSet := ArrayToNumberStr(AMsgNumList);
     case AStoreMethod of
-      sdReplace: LDataItem := IMAP4StoreDataItem[sdReplaceSilent];
-      sdAdd:     LDataItem := IMAP4StoreDataItem[sdAddSilent];
-      sdRemove:  LDataItem := IMAP4StoreDataItem[sdRemoveSilent];
+      sdReplace, sdReplaceSilent:
+        LDataItem := AField+'.SILENT';      {Do not Localize}
+      sdAdd, sdAddSilent:
+        LDataItem := '+'+AField+'.SILENT';  {Do not Localize}
+      sdRemove, sdRemoveSilent:
+        LDataItem := '-'+AField+'.SILENT';  {Do not Localize}
     else
-      LDataItem := IMAP4StoreDataItem[AStoreMethod];
+      Exit;
     end;
-    LFlags := MessageFlagSetToStr(AFlags);
     CheckConnectionState(csSelected);
     SendCmd(NewCmdCounter,
-      IMAP4Commands[cmdStore] + ' ' + LMsgSet + ' ' + LDataItem + ' (' + LFlags + ')', {Do not Localize}
+      IMAP4Commands[cmdStore] + ' ' + LMsgSet + ' ' + LDataItem + ' (' + AValue + ')', {Do not Localize}
       []);
     if LastCmdResult.Code = IMAP_OK then begin
       Result := True;
@@ -3057,35 +3072,47 @@ end;
 
 function TIdIMAP4.UIDStoreFlags(const AMsgUID: String;
   const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
+begin
+  Result := UIDStoreValue(AMsgUID, AStoreMethod, 'FLAGS', MessageFlagSetToStr(AFlags)); {Do not Localize}
+end;
+
+function TIdIMAP4.UIDStoreFlags(const AMsgUIDList: array of String;
+  const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
+begin
+ Result := UIDStoreValue(AMsgUIDList, AStoreMethod, 'FLAGS', MessageFlagSetToStr(AFlags)); {Do not Localize}
+end;
+
+function TIdIMAP4.UIDStoreValue(const AMsgUID: String;
+  const AStoreMethod: TIdIMAP4StoreDataItem; const AField, AValue: string): Boolean;
 var
-  LDataItem,
-  LFlags : String;
+  LDataItem : String;
 begin
   Result := False;
   IsUIDValid(AMsgUID);
   case AStoreMethod of
-    sdReplace: LDataItem := IMAP4StoreDataItem[sdReplaceSilent];
-    sdAdd:     LDataItem := IMAP4StoreDataItem[sdAddSilent];
-    sdRemove:  LDataItem := IMAP4StoreDataItem[sdRemoveSilent];
+    sdReplace, sdReplaceSilent:
+      LDataItem := AField+'.SILENT';      {Do not Localize}
+    sdAdd, sdAddSilent:
+      LDataItem := '+'+AField+'.SILENT';  {Do not localize}
+    sdRemove, sdRemoveSilent:
+      LDataItem := '-'+AField+'.SILENT';  {Do not Localize}
   else
-    LDataItem := IMAP4StoreDataItem[AStoreMethod];
+    Exit;
   end;
-  LFlags := MessageFlagSetToStr(AFlags);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' + AMsgUID + ' ' + LDataItem + ' (' + LFlags + ')', {Do not Localize}
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' + AMsgUID + ' ' + LDataItem + ' (' + AValue + ')', {Do not Localize}
     []);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
 end;
 
-function TIdIMAP4.UIDStoreFlags(const AMsgUIDList: array of String;
-  const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
+function TIdIMAP4.UIDStoreValue(const AMsgUIDList: array of String;
+  const AStoreMethod: TIdIMAP4StoreDataItem; const AField, AValue: String): Boolean;
 var
   LDataItem,
-  LMsgSet,
-  LFlags : String;
+  LMsgSet : String;
   LN: integer;
 begin
   Result := False;
@@ -3098,16 +3125,18 @@ begin
     LMsgSet := LMsgSet+AMsgUIDList[LN];
   end;
   case AStoreMethod of
-    sdReplace: LDataItem := IMAP4StoreDataItem[sdReplaceSilent];
-    sdAdd:     LDataItem := IMAP4StoreDataItem[sdAddSilent];
-    sdRemove:  LDataItem := IMAP4StoreDataItem[sdRemoveSilent];
+    sdReplace, sdReplaceSilent:
+      LDataItem := AField+'.SILENT';      {Do not Localize}
+    sdAdd, sdAddSilent:
+      LDataItem := '+'+AField+'.SILENT';  {Do not Localize}
+    sdRemove, sdRemoveSilent:
+      LDataItem := '-'+AField+'.SILENT';  {Do not Localize}
   else
-    LDataItem := IMAP4StoreDataItem[AStoreMethod];
+    Exit;
   end;
-  LFlags := MessageFlagSetToStr(AFlags);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' + LMsgSet + ' ' + LDataItem + ' (' + LFlags + ')', {Do not Localize}
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdStore] + ' ' + LMsgSet + ' ' + LDataItem + ' (' + AValue + ')', {Do not Localize}
     []);
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
@@ -4580,6 +4609,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToFile(ADestFile);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToFile(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -4605,6 +4642,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToFile(ADestFile);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToFile(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -4630,6 +4675,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToStream(AStream);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToStream(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -4655,6 +4708,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToStream(AStream);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToStream(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -4692,6 +4753,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToFile(ADestFile);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToFile(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -4717,6 +4786,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToFile(ADestFile);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToFile(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -4742,6 +4819,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToStream(AStream);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToStream(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -4767,6 +4852,14 @@ begin
       know how this method is being used and I don't want to break anything
       that may be depending on that transparent output being generated...}
       LMsg.SaveToStream(AStream);
+
+      {TODO: add an optional parameter to specify whether dot transparency
+      should be used or not, and then pass that to SaveToStream(). Or better,
+      just deprecate this method and implement a replacement that downloads
+      the message directly to the file without dot transparency, since it
+      has no meaning in IMAP. InternalRetrieve() uses an internal stream
+      anyway to receive the data, so let's just cut out TIdMessage here...}
+
       Result := True;
     end;
   finally
@@ -5036,8 +5129,6 @@ begin
 end;
 
 function TIdIMAP4.CheckMsgSeen(const AMsgNum: Integer): Boolean;
-var
-  LFlags: TIdMessageFlagsSet;
 begin
   IsNumberValid(AMsgNum);
   Result := False;
@@ -5047,9 +5138,9 @@ begin
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
-      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
-      LFlags := FLineStruct.Flags;
-      if mfSeen in LFlags then begin
+      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then
+    begin
+      if mfSeen in FLineStruct.Flags then begin
         Result := True;
       end;
     end;
@@ -5057,8 +5148,6 @@ begin
 end;
 
 function TIdIMAP4.UIDCheckMsgSeen(const AMsgUID: String): Boolean;
-var
-  LFlags: TIdMessageFlagsSet;
 begin
   IsUIDValid(AMsgUID);
   {Default to unseen, so if get no flags back (i.e. no \Seen flag)
@@ -5071,9 +5160,9 @@ begin
     [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
-      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
-      LFlags := FLineStruct.Flags;
-      if mfSeen in LFlags then begin
+      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then
+    begin
+      if mfSeen in FLineStruct.Flags then begin
         Result := True;
       end;
     end;
@@ -5084,7 +5173,7 @@ function TIdIMAP4.RetrieveFlags(const AMsgNum: Integer; var AFlags: {Pointer}TId
 begin
   IsNumberValid(AMsgNum);
   Result := False;
-  {CC: Empty set to avoid returning resuts from a previous call if call fails}
+  {CC: Empty set to avoid returning results from a previous call if call fails}
   AFlags := [];
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
@@ -5092,7 +5181,8 @@ begin
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
-      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
+      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then
+    begin
       AFlags := FLineStruct.Flags;
       Result := True;
     end;
@@ -5103,7 +5193,7 @@ function TIdIMAP4.UIDRetrieveFlags(const AMsgUID: String; var AFlags: TIdMessage
 begin
   IsUIDValid(AMsgUID);
   Result := False;
-  {BUG FIX: Empty set to avoid returning resuts from a previous call if call fails}
+  {BUG FIX: Empty set to avoid returning results from a previous call if call fails}
   AFlags := [];
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
@@ -5111,8 +5201,65 @@ begin
     [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
-      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then begin
+      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdFlags]]) then
+    begin
       AFlags := FLineStruct.Flags;
+      Result := True;
+    end;
+  end;
+end;
+
+function TIdIMAP4.RetrieveValue(const AMsgNum: Integer; const AField: String; var AValue: String): Boolean;
+begin
+  IsNumberValid(AMsgNum);
+  Result := False;
+  {CC: Empty string to avoid returning results from a previous call if call fails}
+  AValue := '';
+  CheckConnectionState(csSelected);
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr (AMsgNum) + ' (' + AField + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch]]);
+  if LastCmdResult.Code = IMAP_OK then begin
+    if (LastCmdResult.Text.Count > 0) and
+       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [AField]) then
+    begin
+      case PosInStrArray(AField, ['UID', 'FLAGS', 'X-GM-MSGID', 'X-GM-THRID', 'X-GM-LABELS'], False) of {Do not Localize}
+        0: AValue := FLineStruct.UID;
+        1: AValue := FLineStruct.FlagsStr;
+        2: AValue := FLineStruct.GmailMsgID;
+        3: AValue := FLineStruct.GmailThreadID;
+        4: AValue := FLineStruct.GmailLabels;
+        else
+          AValue := FLineStruct.IMAPValue;
+      end;
+      Result := True;
+    end;
+  end;
+end;
+
+function TIdIMAP4.UIDRetrieveValue(const AMsgUID: String; const AField: String; var AValue: String): Boolean;
+begin
+  IsUIDValid(AMsgUID);
+  Result := False;
+  {CC: Empty string to avoid returning results from a previous call if call fails}
+  AValue := '';
+  CheckConnectionState(csSelected);
+  SendCmd(NewCmdCounter,
+    IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + AField + ')', {Do not Localize}
+    [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]]);
+  if LastCmdResult.Code = IMAP_OK then begin
+    if (LastCmdResult.Text.Count > 0) and
+      ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [AField]) then
+    begin
+      case PosInStrArray(AField, ['UID', 'FLAGS', 'X-GM-MSGID', 'X-GM-THRID', 'X-GM-LABELS'], False) of {Do not Localize}
+        0: AValue := FLineStruct.UID;
+        1: AValue := FLineStruct.FlagsStr;
+        2: AValue := FLineStruct.GmailMsgID;
+        3: AValue := FLineStruct.GmailThreadID;
+        4: AValue := FLineStruct.GmailLabels;
+        else
+          AValue := FLineStruct.IMAPValue;
+      end;
       Result := True;
     end;
   end;
@@ -6352,10 +6499,15 @@ begin
   FLineStruct.MessageNumber := '';
   FLineStruct.Command := '';
   FLineStruct.UID := '';
+  FLineStruct.Flags := [];
+  FLineStruct.FlagsStr := '';
   FLineStruct.Complete := True;
   FLineStruct.IMAPFunction := '';
   FLineStruct.IMAPValue := '';
   FLineStruct.ByteCount := -1;
+  FLineStruct.GmailMsgID := '';
+  FLineStruct.GmailThreadID := '';
+  FLineStruct.GmailLabels := '';
   ALine := Trim(ALine);  //Can get garbage like a spurious CR at start
   //Look for (optional) * at start...
   LPos := Pos(' ', ALine);            {Do not Localize}
@@ -6448,11 +6600,51 @@ begin
     if LPos <> -1 then begin
       //The FLAGS are in the "word" (really a string) after 'FLAGS'...
       if LPos < LWords.Count-1 then begin
-        ParseMessageFlagString(LWords[LPos+1], FLineStruct.Flags);
+        FLineStruct.FlagsStr := LWords[LPos+1];
+        ParseMessageFlagString(FLineStruct.FlagsStr, FLineStruct.Flags);
         LWords.Delete(LPos+1);
         LWords.Delete(LPos);
       end;
       if PosInStrArray(IMAP4FetchDataItem[fdFlags], AExpectedIMAPFunction) > -1 then begin
+        LWordInExpectedIMAPFunction := True;
+      end;
+    end;
+    //See is the X-GM-MSGID present...
+    LPos := LWords.IndexOf(IMAP4FetchDataItem[fdGmailMsgID]);  {Do not Localize}
+    if LPos <> -1 then begin
+      //The MSGID is in the "word" (really a string) after 'X-GM-MSGID'...
+      if LPos < LWords.Count-1 then begin
+        FLineStruct.GmailMsgID := LWords[LPos+1];
+        LWords.Delete(LPos+1);
+        LWords.Delete(LPos);
+      end;
+      if PosInStrArray(IMAP4FetchDataItem[fdGmailMsgID], AExpectedIMAPFunction) > -1 then begin
+        LWordInExpectedIMAPFunction := True;
+      end;
+    end;
+    //See is the X-GM-THRID present...
+    LPos := LWords.IndexOf(IMAP4FetchDataItem[fdGmailThreadID]);  {Do not Localize}
+    if LPos <> -1 then begin
+      //The THREADID is in the "word" (really a string) after 'X-GM-THRID'...
+      if LPos < LWords.Count-1 then begin
+        FLineStruct.GmailThreadID := LWords[LPos+1];
+        LWords.Delete(LPos+1);
+        LWords.Delete(LPos);
+      end;
+      if PosInStrArray(IMAP4FetchDataItem[fdGmailThreadID], AExpectedIMAPFunction) > -1 then begin
+        LWordInExpectedIMAPFunction := True;
+      end;
+    end;
+    //See is the X-GM-LABELS present...
+    LPos := LWords.IndexOf(IMAP4FetchDataItem[fdGmailLabels]);  {Do not Localize}
+    if LPos <> -1 then begin
+      //The LABELS is in the "word" (really a string) after 'X-GM-LABELS'...
+      if LPos < LWords.Count-1 then begin
+        FLineStruct.GmailLabels := DoMUTFDecode(LWords[LPos+1]);
+        LWords.Delete(LPos+1);
+        LWords.Delete(LPos);
+      end;
+      if PosInStrArray(IMAP4FetchDataItem[fdGmailLabels], AExpectedIMAPFunction) > -1 then begin
         LWordInExpectedIMAPFunction := True;
       end;
     end;
@@ -6528,7 +6720,8 @@ begin
     LPos := LWords.IndexOf('FLAGS');  {Do not Localize}
     if LPos <> -1 then begin
       //The FLAGS are in the "word" (really a string) after 'FLAGS'...
-      ParseMessageFlagString(LWords[LPos+1], FLineStruct.Flags);
+      FLineStruct.FlagsStr := LWords[LPos+1];
+      ParseMessageFlagString(FLineStruct.FlagsStr, FLineStruct.Flags);
       LWords.Delete(LPos+1);
       LWords.Delete(LPos);
     end;

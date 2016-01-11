@@ -1997,7 +1997,7 @@ begin
 
   // Presize stream if we know the size - this reduces memory/disk allocations to one time
   // Have an option for this? user might not want to presize, eg for int64 files
-  if LByteCount > -1 then begin
+  if (AStream <> nil) and (LByteCount > -1) then begin
     LPos := AStream.Position;
     if (High(TIdStreamSize) - LPos) < LByteCount then begin
       raise EIdIOHandlerStreamDataTooLarge.Create(RSDataTooLarge);
@@ -2025,7 +2025,11 @@ begin
         i := IndyMin(FInputBuffer.Size, LByteCount);
         Dec(LByteCount, i);
       end;
-      FInputBuffer.ExtractToStream(AStream, i);
+      if AStream <> nil then begin
+        FInputBuffer.ExtractToStream(AStream, i);
+      end else begin
+        FInputBuffer.Remove(i);
+      end;
     end;
 
     // RLebeau - don't call Connected() here!  ReadBytes() already
@@ -2044,8 +2048,16 @@ begin
           Break;
         end;
       end;
+
       //TODO: Improve this - dont like the use of the exception handler
       //DONE -oAPR: Dont use a string, use a memory buffer or better yet the buffer itself.
+
+      //TODO: Don't use ReadBytes() here. It is just a waste of memory. Use
+      //ReadFromSource() directly to populate the InputBuffer (ReadBytes()
+      //would have done that anyway) and then use InputBuffer.ExtractToStream()
+      //to copy directly into the TStream. We don't really need another memory
+      //buffer here...
+
       try
         try
           ReadBytes(LBuf, i, False);
@@ -2075,7 +2087,9 @@ begin
         TIdAntiFreezeBase.DoProcess;
       finally
         if i > 0 then begin
-          TIdStreamHelper.Write(AStream, LBuf, i);
+          if AStream <> nil then begin
+            TIdStreamHelper.Write(AStream, LBuf, i);
+          end;
           if not AReadUntilDisconnect then begin
             Dec(LByteCount, i);
           end;
@@ -2084,8 +2098,10 @@ begin
     until False;
   finally
     EndWork(wmRead);
-    if AStream.Size > AStream.Position then begin
-      AStream.Size := AStream.Position;
+    if AStream <> nil then begin
+      if AStream.Size > AStream.Position then begin
+        AStream.Size := AStream.Position;
+      end;
     end;
     LBuf := nil;
   end;

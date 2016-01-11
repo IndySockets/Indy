@@ -1201,7 +1201,21 @@ end;
 
 procedure TIdStackVCLPosix.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
+{
+var
+  LFlags: Integer;
+}
 begin
+  // TODO: enable this
+  {
+  LFlags := CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_GETFL, 0));
+  if ABlocking then begin
+    LFlags := LFlags and not O_NONBLOCK;
+  end else begin
+    LFlags := LFlags or O_NONBLOCK;
+  end;
+  CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_SETFL, LFlags));
+  }
   if not ABlocking then begin
     raise EIdNonBlockingNotSupported.Create(RSStackNonBlockingNotSupported);
   end;
@@ -1240,6 +1254,9 @@ function TIdStackVCLPosix.WouldBlock(const AResult: Integer): Boolean;
 begin
   //non-blocking does not exist in Linux, always indicate things will block
   Result := True;
+
+  // TODO: enable this:
+  //Result := CheckForSocketError(AResult, [EAGAIN, EWOULDBLOCK]) <> 0;
 end;
 
 procedure TIdStackVCLPosix.WriteChecksum(s: TIdStackSocketHandle;

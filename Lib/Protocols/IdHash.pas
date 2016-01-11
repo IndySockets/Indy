@@ -405,7 +405,7 @@ begin
       repeat
         LSize := ReadTIdBytesFromStream(AStream,LBuf,IndyMin(ASize, 2048));
         if LSize < 1 then begin
-          break;
+          break; // TODO: throw a stream read exception?
         end;
         if LSize < 2048 then begin
           SetLength(LBuf,LSize);

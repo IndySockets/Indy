@@ -169,6 +169,7 @@ type
     destructor Destroy; override;
   published
     property EmailAddress: String read FEmailAddress write FEmailAddress;
+    // TODO: add an ExceptionClassName property, or even capture the Exception itself
     property ExceptionMessage: String read FExceptionMessage write FExceptionMessage;
     property Sent: Boolean read FSent write FSent default DEF_SENT;
     property ReplyCode : Integer read FReplyCode write FReplyCode default DEF_REPLY_CODE;
@@ -298,12 +299,16 @@ begin
     inherited Connect;
   end;
   try
-    GetResponse([220]);
+    GetResponse(220);
     SendGreeting;
     StartTLS;
   except
     on E : Exception do
     begin
+      // RLebeau: calling ProcessException() here can cause multiple status
+      // items to be created for the same address!  Do we want this?  If not,
+      // then just raise the exception to the caller and let it call
+      // ProcessException() when appropriate...
       ProcessException(E,AEMailAddress);
       Disconnect;
       raise;

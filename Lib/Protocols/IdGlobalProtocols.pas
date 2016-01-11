@@ -1625,6 +1625,7 @@ end;
 // Find a token given a direction (>= 0 from start; < 0 from end)
 // S.G. 19/4/00:
 //  Changed to be more readable
+// TODO: make this faster
 function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
 var
   i: Integer;
@@ -1644,6 +1645,7 @@ begin
   end;
   // Search for the string
   for i := LStartPos downto 1 do begin
+    // TODO: remove the need for Copy()
     if TextIsSame(Copy(AIn, i, LTokenLen), ASub) then begin
       Result := i;
       Break;
@@ -3458,10 +3460,21 @@ begin
 
   for I := 0 to AStrings.Count - 1 do begin
     S := AStrings[I];
-    P := Pos(MimeSeparator, S);
-    if P > 0 then begin
-      Ext := IndyLowerCase(Copy(S, 1, P - 1));
-      AddMimeType(Ext, Copy(S, P + 1, MaxInt), False);
+    // RLebeau 12/13/15: Calling Pos() with a Char as input creates a temporary
+    // String.  Normally this is fine, but profiling reveils this to be a big
+    // bottleneck for code that makes a lot of calls to Pos() in a loop, so need
+    // to scan through the string looking for the character without a conversion...
+    //
+    // P := Pos(MimeSeparator, S);
+    // if P > 0 then begin
+    //
+    for P := 1 to Length(S) do begin
+      //if CharEquals(S, P, MimeSeparator) then begin
+      if S[P] = MimeSeparator then begin
+        Ext := IndyLowerCase(Copy(S, 1, P - 1));
+        AddMimeType(Ext, Copy(S, P + 1, MaxInt), False);
+        Break;
+      end;
     end;
   end;
 end;
@@ -3963,7 +3976,7 @@ begin
     AHeaders.Clear;
   end;}
   if AStream = nil then begin
-    Exit;
+    Exit; // just in case
   end;
   AStream.Position := 0;
   LEncoding := IndyTextEncoding_8Bit;
@@ -4830,6 +4843,25 @@ begin
       end;
     end;
 
+    { TODO: finish implementing this
+    if PosInStrArray(
+      ACharSet,
+      ['ISO-2022-JP', 'ISO-2022-JP-1', 'ISO-2022-JP-2', 'ISO-2022-JP-3', 'ISO-2022-JP-2004'], {do not localize
+      False) <> -1 then
+    begin
+      Result := TIdTextEncoding_ISO2022JP.Create;
+      Exit;
+    end;
+    }
+
+    { TODO: implement this
+    if TextIsSame(ACharSet, 'ISO-2022-KR') then {do not localize
+    begin
+      Result := TIdTextEncoding_ISO2022KR.Create;
+      Exit;
+    end;
+    }
+
     // RLebeau 3/13/09: if there is a problem initializing an encoding
     // class for the requested charset, either because the charset is
     // not known to Indy, or because the OS does not support it natively,
@@ -4861,16 +4893,6 @@ begin
 
   if not Assigned(Result) then
   begin
-    { TODO: finish implementing this
-    if PosInStrArray(
-      ACharSet,
-      ['ISO-2022-JP', 'ISO-2022-JP-1', 'ISO-2022-JP-2', 'ISO-2022-JP-3', 'ISO-2022-JP-2004'], {do not localize
-      False) <> -1 then
-    begin
-      Result := TIdTextEncoding_ISO2022JP.Create;
-      Exit;
-    end;
-    }
     Result := IndyTextEncoding_8Bit;
   end;
 end;

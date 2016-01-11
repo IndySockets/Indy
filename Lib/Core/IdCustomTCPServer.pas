@@ -545,14 +545,18 @@ begin
 end;
 
 function TIdCustomTCPServer.DoExecute(AContext: TIdContext): Boolean;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LConn: TIdTCPConnection;
 begin
   if Assigned(OnExecute) then begin
     OnExecute(AContext);
   end;
   Result := False;
   if AContext <> nil then begin
-    if AContext.Connection <> nil then begin
-      Result := AContext.Connection.Connected;
+    LConn := AContext.Connection;
+    if LConn <> nil then begin
+      Result := LConn.Connected;
     end;
   end;
 end;
