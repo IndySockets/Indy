@@ -1974,8 +1974,6 @@ var
 const
   cSizeUnknown = -1;
 begin
-  Assert(AStream<>nil);
-
   if (AByteCount = cSizeUnknown) and (not AReadUntilDisconnect) then begin
     // Read size from connection
     if LargeStream then begin
