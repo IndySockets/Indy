@@ -1055,6 +1055,8 @@ type
     property OnBannerAfterLogin : TIdFTPBannerEvent read FOnBannerAfterLogin write FOnBannerAfterLogin;
     property OnBannerWarning : TIdFTPBannerEvent read FOnBannerWarning write FOnBannerWarning;
 
+    property OnBeforeGet: TNotifyEvent read FOnBeforeGet write FOnBeforeGet;
+    property OnBeforePut: TIdFtpAfterGet read FOnBeforePut write FOnBeforePut;
     property OnAfterClientLogin: TOnAfterClientLogin read FOnAfterClientLogin write FOnAfterClientLogin;
     property OnCreateFTPList: TIdCreateFTPList read FOnCreateFTPList write FOnCreateFTPList;
     property OnAfterGet: TIdFtpAfterGet read FOnAfterGet write FOnAfterGet; //APR
