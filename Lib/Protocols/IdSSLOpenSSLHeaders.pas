@@ -22566,7 +22566,7 @@ type
 function Indy_ssl_callback_ctrl(s: PSSL; cb_id: TIdC_INT; fp: SSL_METHOD_PROC): TIdC_LONG; cdecl;
 begin
   if cb_id = SSL_CTRL_SET_MSG_CALLBACK then begin
-    ssl.msg_callback := msg_callback_proc(fp);
+    s.msg_callback := msg_callback_proc(fp);
     Result := 1;
   end else begin
     Result := ssl.method.ssl_callback_ctrl(s, cmd, fp);
@@ -22574,8 +22574,6 @@ begin
 end;
 
 function Indy_SSL_CTX_callback_ctrl(ctx: PSSL_CTX; cmd: TIdC_INT; fp: SSL_METHOD_PROC): TIdC_LONG; cdecl;
-type
-  msg_callback = procedure(write_p, version, content_type: TIdC_INT; const buf: Pointer; len: size_t; ssl: PSSL; arg: Pointer); cdecl;
 begin
   if cmd = SSL_CTRL_SET_MSG_CALLBACK then begin
     ctx.msg_callback := msg_callback_proc(fp);
