@@ -901,8 +901,8 @@ begin
     if FLastGeneratedHeaders.Values['Message-ID'] <> '' then begin  {do not localize}
       FLastGeneratedHeaders.Values['In-Reply-To'] := FLastGeneratedHeaders.Values['Message-ID'];  {do not localize}
     end else begin
-      {CC: The following was originally present, but it so wrong that it has to go!
-      Values['In-Reply-To'] := Subject;   {do not localize}
+     {CC: The following was originally present, but it so wrong that it has to go!}
+     //Values['In-Reply-To'] := Subject;   {do not localize}
     end;
   end else begin
     FLastGeneratedHeaders.Values['In-Reply-To'] := InReplyTo; {do not localize}
