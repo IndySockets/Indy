@@ -12,7 +12,8 @@
 {.$DEFINE Borland}
 
 // S.G. 4/9/2002: IPv4/IPv6 general switch (for defaults only)
-{$DEFINE IdIPv4}
+{$DEFINE IdIPv4} // use IPv4 by default
+{.$IFDEF IdIPv6} // use IPv6 by default
 
 {$DEFINE INDY100}
 {$DEFINE 10_6_2}  //so developers can IFDEF for this specific version
