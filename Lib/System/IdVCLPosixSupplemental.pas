@@ -186,7 +186,7 @@ const
   {$EXTERNALSYM TCP_CORK}
   TCP_CORK               = 3 platform;   //* Never send partially complete segments */
   {$EXTERNALSYM TCP_KEEPIDLE}
-  TCP_KEEPIDLE           = 4 platform    //* Start keeplives after this period */
+  TCP_KEEPIDLE           = 4 platform;   //* Start keeplives after this period */
   {$EXTERNALSYM TCP_KEEPINTVL}
   TCP_KEEPINTVL          = 5 platform;   //* Interval between keepalives */
   {$EXTERNALSYM TCP_KEEPCNT}

@@ -55,6 +55,7 @@ interface
 uses
   Classes,
   HTTPApp,
+  SysUtils,
   IdContext, IdCustomHTTPServer, IdException, IdTCPServer, IdIOHandlerSocket,
   {$IFDEF CLR}System.Text,{$ENDIF}
   WebBroker, WebReq;
@@ -69,6 +70,10 @@ type
   EWBBInvalidIdxSetStringVar = class(EWBBException);
   EWBBInvalidStringVar = class(EWBBException);
 
+  {$IFNDEF VCL_LONDON_OR_ABOVE}
+    {$DEFINE WBB_ANSI}
+  {$ENDIF}
+
   TIdHTTPAppRequest = class(TWebRequest)
   protected
     FRequestInfo   : TIdHTTPRequestInfo;
@@ -79,22 +84,28 @@ type
     //
     function GetDateVariable(Index: Integer): TDateTime; override;
     function GetIntegerVariable(Index: Integer): Integer; override;
-    function GetStringVariable(Index: Integer): AnsiString; override;
+    function GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {$IFDEF VCL_XE_OR_ABOVE}
     function GetRemoteIP: string; override;
-    function GetRawPathInfo: AnsiString; override;
+    function GetRawPathInfo: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
+    {$ENDIF}
+    {$IFDEF VCL_LONDON_OR_ABOVE}
+    function GetRawContent: TBytes; override;
     {$ENDIF}
   public
     constructor Create(AThread: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
      AResponseInfo: TIdHTTPResponseInfo);
     destructor Destroy; override;
+    {$IFDEF WBB_ANSI}
     function GetFieldByName(const Name: AnsiString): AnsiString; override;
+    {$ELSE}
+    function GetFieldByName(const Name: string): string; override;
+    {$ENDIF}
     function ReadClient(var Buffer{$IFDEF CLR}: TBytes{$ENDIF}; Count: Integer): Integer; override;
-    function ReadString(Count: Integer): AnsiString; override;
+    function ReadString(Count: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {function ReadUnicodeString(Count: Integer): string;}
     function TranslateURI(const URI: string): string; override;
     function WriteClient(var ABuffer; ACount: Integer): Integer; override;
-
     {$IFDEF VCL_6_OR_ABOVE}
       {$DEFINE VCL_6_OR_ABOVE_OR_CLR}
     {$ENDIF}
@@ -102,9 +113,9 @@ type
       {$DEFINE VCL_6_OR_ABOVE_OR_CLR}
     {$ENDIF}
     {$IFDEF VCL_6_OR_ABOVE_OR_CLR}
-    function WriteHeaders(StatusCode: Integer; const ReasonString, Headers: AnsiString): Boolean; override;
+    function WriteHeaders(StatusCode: Integer; const ReasonString, Headers: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean; override;
     {$ENDIF}
-    function WriteString(const AString: AnsiString): Boolean; override;
+    function WriteString(const AString: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean; override;
   end;
 
   TIdHTTPAppResponse = class(TWebResponse)
@@ -114,18 +125,18 @@ type
     FResponseInfo: TIdHTTPResponseInfo;
     FSent: Boolean;
     FThread: TIdContext;
-    FContentType: AnsiString; // Workaround to preserve value of ContentType property
+    FContentType: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; // Workaround to preserve value of ContentType property
     //
-    function GetContent: AnsiString; override;
+    function GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     function GetDateVariable(Index: Integer): TDateTime; override;
     function GetStatusCode: Integer; override;
     function GetIntegerVariable(Index: Integer): Integer; override;
     function GetLogMessage: string; override;
-    function GetStringVariable(Index: Integer): AnsiString; override;
-    procedure SetContent(const AValue: AnsiString); override;
+    function GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
+    procedure SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}); override;
     procedure SetContentStream(AValue: TStream); override;
     procedure SetStatusCode(AValue: Integer); override;
-    procedure SetStringVariable(Index: Integer; const Value: AnsiString); override;
+    procedure SetStringVariable(Index: Integer; const Value: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}); override;
     procedure SetDateVariable(Index: Integer; const Value: TDateTime); override;
     procedure SetIntegerVariable(Index: Integer; Value: Integer); override;
     procedure SetLogMessage(const Value: string); override;
@@ -133,7 +144,7 @@ type
   public
     constructor Create(AHTTPRequest: TWebRequest; AThread: TIdContext;
      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
-    procedure SendRedirect(const URI: AnsiString); override;
+    procedure SendRedirect(const URI: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}); override;
     procedure SendResponse; override;
     procedure SendStream(AStream: TStream); override;
     function Sent: Boolean; override;
@@ -161,7 +172,7 @@ uses
   IdResourceStringsProtocols,
   IdBuffer, IdHTTPHeaderInfo, IdGlobal, IdGlobalProtocols, IdCookie, IdStream,
   {$IFDEF STRING_IS_UNICODE}IdCharsets,{$ENDIF}
-  SysUtils, Math
+  Math
   {$IFDEF HAS_TNetEncoding}
   , System.NetEncoding
   {$ENDIF}
@@ -279,106 +290,165 @@ begin
 end;
 
 {$IFDEF VCL_XE_OR_ABOVE}
-function TIdHTTPAppRequest.GetRawPathInfo: AnsiString;
+function TIdHTTPAppRequest.GetRawPathInfo: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
 begin
+  {$IFDEF WBB_ANSI}
   Result := AnsiString(FRequestInfo.URI);
+  {$ELSE}
+  Result := FRequestInfo.URI;
+  {$ENDIF}
 end;
 
 function TIdHTTPAppRequest.GetRemoteIP: string;
 begin
-  Result := String(FRequestInfo.RemoteIP);
+  Result := FRequestInfo.RemoteIP;
 end;
 {$ENDIF}
 
-function TIdHTTPAppRequest.GetStringVariable(Index: Integer): AnsiString;
+{$IFDEF VCL_LONDON_OR_ABOVE}
+function TIdHTTPAppRequest.GetRawContent: TBytes;
 var
-  s: string;
   LPos: TIdStreamSize;
-  LBytes: TIdBytes;
 begin
+  LPos := FContentStream.Position;
+  FContentStream.Position := 0;
+  try
+    //TIdStreamHelper.ReadBytes(FContentStream, PIdBytes(@Result)^);
+    SetLength(Result, FContentStream.Size);
+    FContentStream.Read(Result, 0, Length(Result));
+  finally
+    FContentStream.Position := LPos;
+  end;
+end;
+{$ENDIF}
+
+function TIdHTTPAppRequest.GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
+var
+  LValue: string;
+  LPos: TIdStreamSize;
+  {$IFDEF WBB_ANSI}
+  LBytes: TIdBytes;
+  {$ENDIF}
+begin
+  // RLebeau 1/15/2016: Now accessing FRequestInfo.RawHeaders.Values[] directly
+  // instead of using GetFieldByName().  On Delphi versions prior to 10.1 London,
+  // GetFieldByName() returned an AnsiString, even in Unicode versions. So as not
+  // to have to IFDEF all of these fields, now doing one conversion at the end of
+  // this method, which means having a local String variable. Don't want the
+  // overhead of performing an AnsiString->String->AnsiString conversion...
+
+  {$IFDEF WBB_ANSI}
   LBytes := nil;
+  {$ENDIF}
+
   case Index of
-    INDEX_Method          : Result := AnsiString(FRequestInfo.Command);
-    INDEX_ProtocolVersion : Result := AnsiString(FRequestInfo.Version);
-    //INDEX_URL             : Result := AnsiString(FRequestInfo.Document);
-    INDEX_URL             : Result := AnsiString(''); // Root - consistent with ISAPI which return path to root
-    INDEX_Query           : Result := AnsiString(FRequestInfo.QueryParams);
-    INDEX_PathInfo        : Result := AnsiString(FRequestInfo.Document);
-    INDEX_PathTranslated  : Result := AnsiString(FRequestInfo.Document);             // it's not clear quite what should be done here - we can't translate to a path
-    INDEX_CacheControl    : Result := GetFieldByName('Cache-Control');   {do not localize}
-    INDEX_Date            : Result := GetFieldByName('Date');            {do not localize}
-    INDEX_Accept          : Result := AnsiString(FRequestInfo.Accept);
-    INDEX_From            : Result := AnsiString(FRequestInfo.From);
+    INDEX_Method          : LValue := FRequestInfo.Command;
+    INDEX_ProtocolVersion : LValue := FRequestInfo.Version;
+    //INDEX_URL             : LValue := FRequestInfo.Document;
+    INDEX_URL             : LValue := ''; // Root - consistent with ISAPI which return path to root
+    INDEX_Query           : LValue := FRequestInfo.QueryParams;
+    INDEX_PathInfo        : LValue := FRequestInfo.Document;
+    INDEX_PathTranslated  : LValue := FRequestInfo.Document;             // it's not clear quite what should be done here - we can't translate to a path
+    INDEX_CacheControl    : LValue := FRequestInfo.RawHeaders.Values['Cache-Control'];   {do not localize}
+    INDEX_Date            : LValue := FRequestInfo.RawHeaders.Values['Date'];            {do not localize}
+    INDEX_Accept          : LValue := FRequestInfo.Accept;
+    INDEX_From            : LValue := FRequestInfo.From;
     INDEX_Host: begin
-      s := FRequestInfo.Host;
-      Result := AnsiString(Fetch(s, ':'));
+      LValue := FRequestInfo.Host;
+      LValue := Fetch(LValue, ':', False);
     end;
-    INDEX_IfModifiedSince : Result := GetFieldByName('If-Modified-Since'); {do not localize}
-    INDEX_Referer         : Result := AnsiString(FRequestInfo.Referer);
-    INDEX_UserAgent       : Result := AnsiString(FRequestInfo.UserAgent);
-    INDEX_ContentEncoding : Result := AnsiString(FRequestInfo.ContentEncoding);
-    INDEX_ContentType     : Result := AnsiString(FRequestInfo.ContentType);
-    INDEX_ContentLength   : Result := AnsiString(IntToStr(FContentStream.Size));
-    INDEX_ContentVersion  : Result := GetFieldByName('CONTENT_VERSION'); {do not localize}
-    INDEX_DerivedFrom     : Result := GetFieldByName('Derived-From');    {do not localize}
-    INDEX_Expires         : Result := GetFieldByName('Expires');         {do not localize}
-    INDEX_Title           : Result := GetFieldByName('Title');           {do not localize}
-    INDEX_RemoteAddr      : Result := AnsiString(FRequestInfo.RemoteIP);
-    INDEX_RemoteHost      : Result := GetFieldByName('REMOTE_HOST');     {do not localize}
-    INDEX_ScriptName      : Result := '';
+    INDEX_IfModifiedSince : LValue := FRequestInfo.RawHeaders.Values['If-Modified-Since']; {do not localize}
+    INDEX_Referer         : LValue := FRequestInfo.Referer;
+    INDEX_UserAgent       : LValue := FRequestInfo.UserAgent;
+    INDEX_ContentEncoding : LValue := FRequestInfo.ContentEncoding;
+    INDEX_ContentType     : LValue := FRequestInfo.ContentType;
+    INDEX_ContentLength   : LValue := IntToStr(FContentStream.Size);
+    INDEX_ContentVersion  : LValue := FRequestInfo.RawHeaders.Values['CONTENT_VERSION']; {do not localize}
+    INDEX_DerivedFrom     : LValue := FRequestInfo.RawHeaders.Values['Derived-From'];    {do not localize}
+    INDEX_Expires         : LValue := FRequestInfo.RawHeaders.Values['Expires'];         {do not localize}
+    INDEX_Title           : LValue := FRequestInfo.RawHeaders.Values['Title'];           {do not localize}
+    INDEX_RemoteAddr      : LValue := FRequestInfo.RemoteIP;
+    INDEX_RemoteHost      : LValue := FRequestInfo.RawHeaders.Values['REMOTE_HOST'];     {do not localize}
+    INDEX_ScriptName      : LValue := '';
     INDEX_ServerPort: begin
-      s := FRequestInfo.Host;
-      Fetch(s, ':');
-      if Length(s) = 0 then begin
-        s := IntToStr(FThread.Connection.Socket.Binding.Port);
-        // Result := '80';
+      LValue := FRequestInfo.Host;
+      Fetch(LValue, ':');
+      if Length(LValue) = 0 then begin
+        LValue := IntToStr(FThread.Connection.Socket.Binding.Port);
+        // LValue := '80';
       end;
-      Result := AnsiString(s);
     end;
     INDEX_Content: begin
       if FFreeContentStream then
       begin
-        Result := AnsiString(TStringStream(FContentStream).DataString);
+        LValue := TStringStream(FContentStream).DataString;
       end else
       begin
         LPos := FContentStream.Position;
         FContentStream.Position := 0;
         try
+          // TODO: just use TIdHTTPAppRequest.ReadString() instead?
+          //s := ReadString(FContentStream.Size);
+
+          {$IFDEF WBB_ANSI}
+
           // RLebeau 2/21/2009: not using ReadStringAsCharSet() anymore.  Since
           // this method returns an AnsiString, the stream data should not be
           // decoded to Unicode and then converted to Ansi.  That can lose
-          // characters.  Also, for D2009+, the AnsiString payload should have
-          // the proper codepage assigned to it as well so it can be converted
-          // correctly if assigned to other string variables later on...
+          // characters...
 
           // Result := ReadStringAsCharSet(FContentStream, FRequestInfo.CharSet);
+
+          // TODO: instead of using a temp memory buffer, just pre-allocate the
+          // Result to the size of the stream and then read directly into it...
           TIdStreamHelper.ReadBytes(FContentStream, LBytes);
-          {$IFDEF DOTNET}
+
+            {$IFDEF DOTNET}
           // RLebeau: how to handle this correctly in .NET?
           Result := AnsiString(BytesToStringRaw(LBytes));
-          {$ELSE}
+            {$ELSE}
           SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-            {$IFDEF VCL_2009_OR_ABOVE}
+              {$IFDEF VCL_2009_OR_ABOVE}
+          // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
+          // the proper codepage assigned to it as well so it can be converted
+          // correctly if assigned to other string variables later on...
           SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FRequestInfo.CharSet), False);
+              {$ENDIF}
             {$ENDIF}
+
+          {$ELSE}
+
+          // RLebeau 1/15/2016: this method now returns a UnicodeString, so
+          // lets use ReadStringAsCharSet() once again...
+          Result := ReadStringAsCharset(FContentStream, FRequestInfo.CharSet);
+
           {$ENDIF}
         finally
           FContentStream.Position := LPos;
         end;
+        Exit;
       end;
     end;
-    INDEX_Connection      : Result := GetFieldByName('Connection');      {do not localize}
-    INDEX_Cookie          : Result := '';  // not available at present. FRequestInfo.Cookies....;
-    INDEX_Authorization   : Result := GetFieldByName('Authorization');   {do not localize}
+    INDEX_Connection      : LValue := FRequestInfo.RawHeaders.Values['Connection'];      {do not localize}
+    INDEX_Cookie          : LValue := '';  // not available at present. FRequestInfo.Cookies....;
+    INDEX_Authorization   : LValue := FRequestInfo.RawHeaders.Values['Authorization'];   {do not localize}
   else
-    Result := '';
+    LValue := '';
   end;
+  Result := {$IFDEF WBB_ANSI}AnsiString(LValue){$ELSE}LValue{$ENDIF};
 end;
 
+{$IFDEF WBB_ANSI}
 function TIdHTTPAppRequest.GetFieldByName(const Name: AnsiString): AnsiString;
 begin
   Result := AnsiString(FRequestInfo.RawHeaders.Values[string(Name)]);
 end;
+{$ELSE}
+function TIdHTTPAppRequest.GetFieldByName(const Name: string): string;
+begin
+  Result := FRequestInfo.RawHeaders.Values[Name];
+end;
+{$ENDIF}
 
 function TIdHTTPAppRequest.ReadClient(var Buffer{$IFDEF CLR}: TBytes{$ENDIF};
   Count: Integer): Integer;
@@ -394,26 +464,43 @@ begin
   end;
 end;
 
-function TIdHTTPAppRequest.ReadString(Count: Integer): AnsiString;
+function TIdHTTPAppRequest.ReadString(Count: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
+{$IFDEF WBB_ANSI}
 var
   LBytes: TIdBytes;
+{$ENDIF}
 begin
-  // RLebeau 2/21/2009: not using ReadStringAsCharSet() anymore.  Since
+  {$IFDEF WBB_ANSI}
+
+  // RLebeau 2/21/2009: not using ReadStringFromStream() anymore.  Since
   // this method returns an AnsiString, the stream data should not be
   // decoded to Unicode and then converted to Ansi.  That can lose
   // characters.
 
   // Result := AnsiString(ReadStringFromStream(FContentStream, Count));
+
   LBytes := nil;
   TIdStreamHelper.ReadBytes(FContentStream, LBytes, Count);
+
   {$IFDEF DOTNET}
   // RLebeau: how to handle this correctly in .NET?
   Result := AnsiString(BytesToStringRaw(LBytes));
   {$ELSE}
   SetString(Result, PAnsiChar(LBytes), Length(LBytes));
     {$IFDEF VCL_2009_OR_ABOVE}
+  // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
+  // the proper codepage assigned to it as well so it can be converted
+  // correctly if assigned to other string variables later on...
   SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FRequestInfo.CharSet), False);
     {$ENDIF}
+  {$ENDIF}
+
+  {$ELSE}
+
+  // RLebeau 1/15/2016: this method now returns a UnicodeString, so
+  // lets use ReadStringFromStream() once again...
+  Result := ReadStringFromStream(FContentStream, Count, CharsetToEncoding(FRequestInfo.CharSet));
+
   {$ENDIF}
 end;
 
@@ -425,19 +512,19 @@ begin
 end;
 
 {$IFDEF VCL_6_OR_ABOVE_OR_CLR}
-function TIdHTTPAppRequest.WriteHeaders(StatusCode: Integer; const ReasonString, Headers: AnsiString): Boolean;
+function TIdHTTPAppRequest.WriteHeaders(StatusCode: Integer; const ReasonString, Headers: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean;
 begin
   FResponseInfo.ResponseNo := StatusCode;
-  FResponseInfo.ResponseText := string(ReasonString);
-  FResponseInfo.CustomHeaders.Add(string(Headers));
+  FResponseInfo.ResponseText := {$IFDEF WBB_ANSI}string(ReasonString){$ELSE}ReasonString{$ENDIF};
+  FResponseInfo.CustomHeaders.Add({$IFDEF WBB_ANSI}string(Headers){$ELSE}Headers{$ENDIF});
   FResponseInfo.WriteHeader;
   Result := True;
 end;
 {$ENDIF}
 
-function TIdHTTPAppRequest.WriteString(const AString: AnsiString): Boolean;
+function TIdHTTPAppRequest.WriteString(const AString: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean;
 begin
-  FThread.Connection.IOHandler.Write(string(AString));
+  FThread.Connection.IOHandler.Write({$IFDEF WBB_ANSI}string(AString){$ELSE}AString{$ENDIF});
   Result := True;
 end;
 
@@ -487,27 +574,32 @@ begin
   // ContentType := 'text/html'; {do not localize}
 end;
 
-function TIdHTTPAppResponse.GetContent: AnsiString;
-{$IFDEF STRING_IS_UNICODE}
+{$UNDEF CONVERT_UNICODE_TO_ANSI}
+{$IFDEF WBB_ANSI}
+  {$IFDEF STRING_IS_UNICODE}
+    {$DEFINE CONVERT_UNICODE_TO_ANSI}
+  {$ENDIF}
+{$ENDIF}
+
+function TIdHTTPAppResponse.GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
+{$IFDEF CONVERT_UNICODE_TO_ANSI}
 var
-  LEncoding: IIdTextEncoding;
   LBytes: TIdBytes;
 {$ENDIF}
 begin
-  {$IFDEF STRING_IS_UNICODE}
+  {$IFDEF CONVERT_UNICODE_TO_ANSI}
   // RLebeau 2/21/2009: encode the content using the specified charset.
-  // Also, the AnsiString payload should have the proper codepage assigned
-  // to it as well so it can be converted correctly if assigned to other
-  // string variables later on...
   Result := '';
-  LEncoding := CharsetToEncoding(FResponseInfo.CharSet);
-  LBytes := LEncoding.GetBytes(FResponseInfo.ContentText);
+  LBytes := CharsetToEncoding(FResponseInfo.CharSet).GetBytes(FResponseInfo.ContentText);
     {$IFDEF DOTNET}
   // RLebeau: how to handle this correctly in .NET?
   Result := AnsiString(BytesToStringRaw(LBytes));
     {$ELSE}
   SetString(Result, PAnsiChar(LBytes), Length(LBytes));
       {$IFDEF VCL_2009_OR_ABOVE}
+  // RLebeau 2/21/2009: for D2009+, the AnsiString payload should have
+  // the proper codepage assigned to it as well so it can be converted
+  // correctly if assigned to other string variables later on...
   SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FResponseInfo.CharSet), False);
       {$ENDIF}
     {$ENDIF}
@@ -584,64 +676,75 @@ begin
   end;
 end;
 
-function TIdHTTPAppResponse.GetStringVariable(Index: Integer): AnsiString;
+function TIdHTTPAppResponse.GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
+var
+  LValue: string;
 begin
+  // RLebeau 1/15/2016: On Delphi versions prior to 10.1 London, this method
+  // returned an AnsiString, even in Unicode versions. So as not to have to
+  // IFDEF all of these fields, now doing one conversion at the end of this
+  // method, which means having a local String variable...
+
   //TODO: resource string these
   case Index of
-    INDEX_RESP_Version           :Result := AnsiString(FRequestInfo.Version);
-    INDEX_RESP_ReasonString      :Result := AnsiString(FResponseInfo.ResponseText);
-    INDEX_RESP_Server            :Result := AnsiString(FResponseInfo.Server);
-    INDEX_RESP_WWWAuthenticate   :Result := AnsiString(FResponseInfo.WWWAuthenticate.Text);
-    INDEX_RESP_Realm             :Result := AnsiString(FResponseInfo.AuthRealm);
-    INDEX_RESP_Allow             :Result := AnsiString(FResponseInfo.CustomHeaders.Values['Allow']);        {do not localize}
-    INDEX_RESP_Location          :Result := AnsiString(FResponseInfo.Location);
-    INDEX_RESP_ContentEncoding   :Result := AnsiString(FResponseInfo.ContentEncoding);
+    INDEX_RESP_Version           : LValue := FRequestInfo.Version;
+    INDEX_RESP_ReasonString      : LValue := FResponseInfo.ResponseText;
+    INDEX_RESP_Server            : LValue := FResponseInfo.Server;
+    INDEX_RESP_WWWAuthenticate   : LValue := FResponseInfo.WWWAuthenticate.Text;
+    INDEX_RESP_Realm             : LValue := FResponseInfo.AuthRealm;
+    INDEX_RESP_Allow             : LValue := FResponseInfo.CustomHeaders.Values['Allow'];        {do not localize}
+    INDEX_RESP_Location          : LValue := FResponseInfo.Location;
+    INDEX_RESP_ContentEncoding   : LValue := FResponseInfo.ContentEncoding;
     INDEX_RESP_ContentType       :
     begin
       if FContentType <> '' then begin
         Result := FContentType;
-      end else begin
-        Result := AnsiString(FResponseInfo.ContentType);
+        Exit;
       end;
+      LValue := FResponseInfo.ContentType;
     end;
-    INDEX_RESP_ContentVersion    :Result := AnsiString(FResponseInfo.ContentVersion);
-    INDEX_RESP_DerivedFrom       :Result := AnsiString(FResponseInfo.CustomHeaders.Values['Derived-From']); {do not localize}
-    INDEX_RESP_Title             :Result := AnsiString(FResponseInfo.CustomHeaders.Values['Title']);        {do not localize}
+    INDEX_RESP_ContentVersion    : LValue := FResponseInfo.ContentVersion;
+    INDEX_RESP_DerivedFrom       : LValue := FResponseInfo.CustomHeaders.Values['Derived-From']; {do not localize}
+    INDEX_RESP_Title             : LValue := FResponseInfo.CustomHeaders.Values['Title'];        {do not localize}
   else
     raise EWBBInvalidIdxGetStrVariable.Create(Format(RSWBBInvalidIdxGetStrVariable,[ IntToStr(Index)]));
   end;
+  Result := {$IFDEF WBB_ANSI}AnsiString(LValue){$ELSE}LValue{$ENDIF};
 end;
 
-procedure TIdHTTPAppResponse.SetStringVariable(Index: Integer; const Value: AnsiString);
+procedure TIdHTTPAppResponse.SetStringVariable(Index: Integer; const Value: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF});
+var
+  LValue: string;
 begin
+  LValue := {$IFDEF WBB_ANSI}string(Value){$ELSE}Value{$ENDIF};
   //TODO: resource string these
   case Index of
-    INDEX_RESP_Version           :EWBBInvalidStringVar.Create(RSWBBInvalidStringVar);
-    INDEX_RESP_ReasonString      :FResponseInfo.ResponseText := string(Value);
-    INDEX_RESP_Server            :FResponseInfo.Server := string(Value);
-    INDEX_RESP_WWWAuthenticate   :FResponseInfo.WWWAuthenticate.Text := string(Value);
-    INDEX_RESP_Realm             :FResponseInfo.AuthRealm := string(Value);
-    INDEX_RESP_Allow             :FResponseInfo.CustomHeaders.Values['Allow'] := string(Value); {do not localize}
-    INDEX_RESP_Location          :FResponseInfo.Location := string(Value);
-    INDEX_RESP_ContentEncoding   :FResponseInfo.ContentEncoding := string(Value);
+    INDEX_RESP_Version           : EWBBInvalidStringVar.Create(RSWBBInvalidStringVar); // RLebeau: shouldn't this be calling 'raise'?
+    INDEX_RESP_ReasonString      : FResponseInfo.ResponseText := LValue;
+    INDEX_RESP_Server            : FResponseInfo.Server := LValue;
+    INDEX_RESP_WWWAuthenticate   : FResponseInfo.WWWAuthenticate.Text := LValue;
+    INDEX_RESP_Realm             : FResponseInfo.AuthRealm := LValue;
+    INDEX_RESP_Allow             : FResponseInfo.CustomHeaders.Values['Allow'] := LValue; {do not localize}
+    INDEX_RESP_Location          : FResponseInfo.Location := LValue;
+    INDEX_RESP_ContentEncoding   : FResponseInfo.ContentEncoding := LValue;
     INDEX_RESP_ContentType       :
     begin
-      FResponseInfo.ContentType := string(Value);
-      FContentType := Value;
+      FResponseInfo.ContentType := LValue;
+      FContentType := Value; // using the original input variable, not the converted local variable
     end;
-    INDEX_RESP_ContentVersion    :FResponseInfo.ContentVersion := string(Value);
-    INDEX_RESP_DerivedFrom       :FResponseInfo.CustomHeaders.Values['Derived-From'] := string(Value);  {do not localize}
-    INDEX_RESP_Title             :FResponseInfo.CustomHeaders.Values['Title'] := string(Value); {do not localize}
+    INDEX_RESP_ContentVersion    : FResponseInfo.ContentVersion := LValue;
+    INDEX_RESP_DerivedFrom       : FResponseInfo.CustomHeaders.Values['Derived-From'] := LValue;  {do not localize}
+    INDEX_RESP_Title             : FResponseInfo.CustomHeaders.Values['Title'] := LValue; {do not localize}
   else
     raise EWBBInvalidIdxSetStringVar.Create( Format(RSWBBInvalidIdxSetStringVar,[IntToStr(Index)]));                   {do not localize}
   end;
 end;
 
-procedure TIdHTTPAppResponse.SendRedirect(const URI: AnsiString);
+procedure TIdHTTPAppResponse.SendRedirect(const URI: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF});
 begin
   FSent := True;
   MoveCookiesAndCustomHeaders;
-  FResponseInfo.Redirect(string(URI));
+  FResponseInfo.Redirect({$IFDEF WBB_ANSI}string(URI){$ELSE}URI{$ENDIF});
 end;
 
 procedure TIdHTTPAppResponse.SendResponse;
@@ -650,6 +753,17 @@ begin
   // Reset to -1 so Indy will auto set it
   FResponseInfo.ContentLength := -1;
   MoveCookiesAndCustomHeaders;
+  {$IFDEF VCL_LONDON_OR_ABOVE}
+  // TODO: This code may not be in the correct location.
+  if (FResponseInfo.ContentType = '') and
+    ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) and
+    (HTTPApp.DefaultCharSet <> '') then
+  begin
+      // Indicate how to convert UTF16 when write.
+      ContentType := Format('text/html; charset=%s', [HTTPApp.DefaultCharSet]); {Do not Localize}
+    end;
+  end;
+  {$ENDIF}
   FResponseInfo.WriteContent;
 end;
 
@@ -663,25 +777,45 @@ begin
   Result := FSent;
 end;
 
-procedure TIdHTTPAppResponse.SetContent(const AValue: AnsiString);
+{$UNDEF CONVERT_ANSI_TO_UNICODE}
+{$IFDEF WBB_ANSI}
+  {$IFDEF STRING_IS_UNICODE}
+    {$DEFINE CONVERT_ANSI_TO_UNICODE}
+  {$ENDIF}
+{$ENDIF}
+
+procedure TIdHTTPAppResponse.SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF});
+{$IFDEF CONVERT_ANSI_TO_UNICODE}
 var
   LValue : string;
+{$ENDIF}
 begin
-  {$IFDEF STRING_IS_UNICODE}
-  // RLebeau 3/28/2013: decode the content using the specified charset.
-  if FResponseInfo.CharSet <> '' then begin
-    // AValue contains Encoded bytes
-    if AValue <> '' then begin
-      LValue := CharsetToEncoding(FResponseInfo.CharSet).GetString(RawToBytes(PAnsiChar(AValue)^, Length(AValue)));
+  {$IFDEF CONVERT_ANSI_TO_UNICODE}
+
+  // AValue contains Encoded bytes
+  if AValue <> '' then begin
+    // RLebeau 3/28/2013: decode the content using the specified charset.
+    if FResponseInfo.CharSet <> '' then begin
+      LValue := CharsetToEncoding(FResponseInfo.CharSet).GetString(
+        {$IFDEF DOTNET}
+        RawToBytes(PAnsiChar(AValue)^, Length(AValue))
+        {$ELSE}
+        PByte(PAnsiChar(AValue)), Length(AValue)
+        {$ENDIF}
+      );
+    end else begin
+      LValue := string(AValue);
     end;
-  end else begin
-    LValue := string(AValue);
   end;
-  {$ELSE}
-  LValue := string(AValue);
-  {$ENDIF}
   FResponseInfo.ContentText := LValue;
   FResponseInfo.ContentLength := Length(LValue);
+
+  {$ELSE}
+
+  FResponseInfo.ContentText := AValue;
+  FResponseInfo.ContentLength := Length(AValue);
+
+  {$ENDIF}
 end;
 
 procedure TIdHTTPAppResponse.SetLogMessage(const Value: string);
@@ -700,7 +834,7 @@ begin
   FResponseInfo.ContentStream := AValue;
 end;
 
-function DoHTTPEncode(const AStr: AnsiString): String;
+function DoHTTPEncode(const AStr: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): String;
 begin
   {$IFDEF HAS_TNetEncoding}
   Result := TNetEncoding.URL.Encode(string(AStr));

@@ -18,8 +18,10 @@
 {$DEFINE INDY100}
 {$DEFINE 10_6_2}  //so developers can IFDEF for this specific version
 
-// When invoking DCC on the command-line, use the -DBCB
-// parameter when generating C++Builder output files!
+// When generating C++Builder output files, certain workarounds to compiler
+// problems need to be enabled! When invoking DCC on the command-line, use
+// the -DBCB parameter. When invoking MSBUILD, include the DCC_Define="BCB"
+// attribute in the /p parameter.
 {$IFDEF BCB}
   {$DEFINE CBUILDER}
 {$ELSE}
@@ -352,6 +354,16 @@
   {$ENDIF}
 {$ENDIF}
 
+//Delphi & CBuilder 10.1 London (BigBen)
+{$IFDEF VER310}
+  {$DEFINE VCL_LONDON}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_LONDON}
+  {$ELSE}
+    {$DEFINE DELPHI_LONDON}
+  {$ENDIF}
+{$ENDIF}
+
 // Delphi.NET
 // Covers D8+
 {$IFDEF CIL}
@@ -616,8 +628,16 @@
 
 // end FPC
 
-{$IFDEF VCL_SEATTLE}
+{$IFDEF VCL_LONDON}
+  {$DEFINE VCL_LONDON_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_LONDON_OR_ABOVE}
   {$DEFINE VCL_SEATTLE_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_SEATTLE}
+    {$DEFINE VCL_SEATTLE_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_SEATTLE_OR_ABOVE}
@@ -1340,6 +1360,10 @@
   {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
+{$IFDEF LINUX64}
+  {$DEFINE HAS_getifaddrs}
+{$ENDIF}
+
 {$IFDEF IOS}
   {$DEFINE HAS_getifaddrs}
   {$DEFINE USE_OPENSSL}
@@ -1403,7 +1427,9 @@
 //This also must go before the THandle size calculations.
 {$IFDEF VCL_CROSS_COMPILE}
   {$IFDEF POSIX}
-    {$DEFINE BSD}
+    {$IFNDEF LINUX64}
+      {$DEFINE BSD}
+    {$ENDIF}
     {$DEFINE USE_SAFELOADLIBRARY}
     {$DEFINE USE_INVALIDATE_MOD_CACHE}
   {$ENDIF}
@@ -1472,16 +1498,14 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$IFDEF BSD}
   //I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
   {$IFDEF IOS}
-    {$IFDEF CPUARM32}
-      {$DEFINE CPU32}
-      {$DEFINE THANDLE_32}
+    {$IFDEF CPUARM64}
+      {$DEFINE CPU64}
+      {$DEFINE THANDLE_64}
     {$ELSE}
-      {$IFDEF CPUARM64}
-        {$DEFINE CPU64}
-        {$DEFINE THANDLE_64}
-      {$ELSE}
-        {$DEFINE THANDLE_32}
+      {$IFDEF CPUARM32}
+        {$DEFINE CPU32}
       {$ENDIF}
+      {$DEFINE THANDLE_32}
     {$ENDIF}
   {$ELSE}
     {$DEFINE THANDLE_32}
@@ -1503,7 +1527,15 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
   {$DEFINE THANDLE_32}
 {$ENDIF}
 {$IFDEF LINUX}
-  {$DEFINE THANDLE_32}
+  {$IFDEF LINUX64}
+    {$DEFINE CPU64}
+    {$DEFINE THANDLE_64}
+  {$ELSE}
+    {$IFDEF LINUX32}
+      {$DEFINE CPU32}
+    {$ENDIF}
+    {$DEFINE THANDLE_32}
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF MACOS_CLASSIC}
   {$DEFINE THANDLE_CPUBITS}

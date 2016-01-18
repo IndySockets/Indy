@@ -4541,6 +4541,9 @@ end;
     {$DEFINE NO_NATIVE_ASM}
   {$ENDIF}
 {$ENDIF}
+{$IFDEF LINUX64}
+  {$DEFINE NO_NATIVE_ASM}
+{$ENDIF}
 
 {$IFDEF NO_NATIVE_ASM}
 function ROL(const AVal: UInt32; AShift: Byte): UInt32;

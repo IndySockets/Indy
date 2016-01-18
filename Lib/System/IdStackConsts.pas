@@ -333,7 +333,7 @@ const
   Id_IPPROTO_IDP    = IPPROTO_IDP;
 
   Id_IPPROTO_IGMP   = IPPROTO_IGMP;
-  {$ENDIF}
+    {$ENDIF}
   Id_IPPROTO_IP     = IPPROTO_IP;
   Id_IPPROTO_IPv6   = IPPROTO_IPV6;
   Id_IPPROTO_ND     = 77; //IPPROTO_ND; is not defined in some headers in FPC
@@ -395,6 +395,11 @@ const
   Id_SO_OOBINLINE        =  SO_OOBINLINE;
   Id_SO_RCVBUF           =  SO_RCVBUF;
   Id_SO_REUSEADDR        =  SO_REUSEADDR;
+    {$IFDEF LINUX}
+   // SO_REUSEPORT has different values on different platforms, but for
+   // right now we are only interested in it on Linux (it is 512 on BSD)...
+  Id_SO_REUSEPORT        =  15;//SO_REUSEPORT; is not defined in some headers in FPC
+    {$ENDIF}
   Id_SO_SNDBUF           =  SO_SNDBUF;
   Id_SO_TYPE             =  SO_TYPE;
     {$IFDEF WINDOWS}

@@ -22569,7 +22569,7 @@ begin
     s.msg_callback := msg_callback_proc(fp);
     Result := 1;
   end else begin
-    Result := ssl.method.ssl_callback_ctrl(s, cmd, fp);
+    Result := s.method.ssl_callback_ctrl(s, cb_id, fp);
   end;
 end;
 

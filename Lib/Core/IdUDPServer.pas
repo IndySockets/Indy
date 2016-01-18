@@ -299,6 +299,8 @@ end;
     {$UNDEF CanCreateTwoBindings}
   {$ENDIF}
 {$ENDIF}
+// TODO: Would this be solved by enabling the SO_REUSEPORT option on
+// platforms that support it?
 
 function TIdUDPServer.GetBinding: TIdSocketHandle;
 var

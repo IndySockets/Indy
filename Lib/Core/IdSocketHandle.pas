@@ -367,14 +367,26 @@ begin
 end;
 
 procedure TIdSocketHandle.Bind;
+var
+  LValue: Integer;
 begin
-  SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR,
-    iif(
-      (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)),
-      Id_SO_True,
-      Id_SO_False
-    )
+  LValue := iif(
+    (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)),
+    Id_SO_True,
+    Id_SO_False
   );
+  SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, LValue);
+  {$IFDEF DCC}
+    {$IFDEF LINUX64}
+  // RLebeau 1/18/2016: Embarcadero's PAServer on Linux64 fails quickly with
+  // "socket in use" errors without this option enabled.  PAServer bug?  For
+  // now, noone else has complained about problems related to this option,
+  // so let's limit this fix to just Delphi for now. Should we add a
+  // HAS_SO_REUSEPORT define so FPC can use this too?  What about adding a
+  // new ReusePort property to configure this separately from ReuseSocket?
+  SetSocketOption(Id_SOL_SOCKET, Id_SO_REUSEPORT, LValue);
+    {$ENDIF}
+  {$ENDIF}
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
     if (FClientPortMin > FClientPortMax) then begin
       raise EIdInvalidPortRange.CreateFmt(RSInvalidPortRange, [FClientPortMin, FClientPortMax]);
