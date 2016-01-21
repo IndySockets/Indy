@@ -759,9 +759,8 @@ begin
     ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) and
     (HTTPApp.DefaultCharSet <> '') then
   begin
-      // Indicate how to convert UTF16 when write.
-      ContentType := Format('text/html; charset=%s', [HTTPApp.DefaultCharSet]); {Do not Localize}
-    end;
+    // Indicate how to convert UTF16 when write.
+    ContentType := Format('text/html; charset=%s', [HTTPApp.DefaultCharSet]); {Do not Localize}
   end;
   {$ENDIF}
   FResponseInfo.WriteContent;
