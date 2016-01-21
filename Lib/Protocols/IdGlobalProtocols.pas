@@ -616,6 +616,13 @@ uses
   IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack
+  {$IFDEF HAS_IOUtils_TPath}
+    {$IFDEF VCL_XE2_OR_ABOVE}
+  , System.IOUtils
+    {$ELSE}
+  , IOUtils
+    {$ENDIF}
+  {$ENDIF}
   {$IFDEF USE_OBJECT_ARC}
     {$IFDEF HAS_UNIT_Generics_Collections}
   , System.Generics.Collections
@@ -752,7 +759,7 @@ end;
 
 {$IFDEF WINDOWS}
 var
-  ATempPath: TIdFileName;
+  GTempPath: TIdFileName;
 {$ENDIF}
 
 function StartsWith(const ANSIStr, APattern : String) : Boolean;
@@ -1534,31 +1541,49 @@ end;
 {$ENDIF}
 
 function MakeTempFilename(const APath: TIdFileName = ''): TIdFileName;
+{$IFNDEF FPC}
 var
   lPath: TIdFileName;
   lExt: TIdFileName;
+{$ENDIF}
 begin
-  lPath := APath;
+  {$IFDEF FPC}
 
-  {$IFDEF UNIX}
-  lExt := '';
+  //Do not use Tempnam in Unix-like Operating systems.  That function is dangerous
+  //and you will be warned about it when compiling.  FreePascal has GetTempFileName.  Use
+  //that instead.
+  Result := GetTempFileName(APath, 'Indy'); {Do not Localize}
+
   {$ELSE}
-  lExt := '.tmp';
-  {$ENDIF}
+
+  // NOT using TPath.GetTempFileName() in Delphi 2010+, or System.IO.Path.GetTempFileName()
+  // on .NET.  They force use of the system temp path instead of allowing APath, and they
+  // do not support custom file prefixes...
+
+  lPath := APath;
+  lExt := {$IFDEF UNIX}''{$ELSE}'.tmp'{$ENDIF}; {Do not Localize}
 
   {$IFDEF WINDOWS}
   if lPath = '' then begin
-    lPath := ATempPath;
+    lPath := GTempPath;
   end;
   {$ELSE}
     {$IFDEF DOTNET}
   if lPath = '' then begin
     lPath := System.IO.Path.GetTempPath;
   end;
+    {$ELSE}
+      {$IFDEF HAS_IOUtils_TPath}
+  if lPath = '' then begin
+    lPath := {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}IOUtils.TPath.GetTempPath;
+  end;
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 
   Result := GetUniqueFilename(lPath, 'Indy', lExt);
+
+  {$ENDIF}
 end;
 
 
@@ -1585,8 +1610,12 @@ begin
 
   {$ELSE}
 
-  // TODO: Use Winapi.GetTempFileName() in Windows...
-  
+  // NOT using TPath.GetTempFileName() in Delphi 2010+, or System.IO.Path.GetTempFileName()
+  // on .NET.  They force use of the system temp path instead of allowing APath, and they
+  // do not support custom file prefixes...
+
+  // TODO: on Windows, use Winapi.GetTempFileName(), at least...
+
   LFQE := AExt;
 
   // period is optional in the extension... force it
@@ -4992,7 +5021,7 @@ end;
 
 initialization
   {$IFDEF WINDOWS}
-  ATempPath := TempPath;
+  GTempPath := TempPath;
   {$ENDIF}
   SetLength(IndyFalseBoolStrs, 1);
   IndyFalseBoolStrs[Low(IndyFalseBoolStrs)] := 'FALSE';    {Do not Localize}

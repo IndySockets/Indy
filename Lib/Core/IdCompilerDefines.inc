@@ -1061,6 +1061,7 @@
   {$DEFINE HAS_NativeInt}
   {$DEFINE HAS_NativeUInt}
   {$DEFINE HAS_USHORT}
+  {$DEFINE HAS_IOUtils_TPath}
 {$ENDIF}
 
 {$IFDEF VCL_XE_OR_ABOVE}
