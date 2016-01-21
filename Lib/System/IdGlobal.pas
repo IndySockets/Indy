@@ -1900,10 +1900,7 @@ const
       {$DEFINE LIBEXT_IS_DYLIB}
     {$ELSE}
       {$IFDEF IOS}
-        {$IFNDEF CPUARM}
-          // iOS Simulator
-          {$DEFINE LIBEXT_IS_DYLIB}
-        {$ENDIF}
+        {$DEFINE LIBEXT_IS_DYLIB}
       {$ENDIF}
     {$ENDIF}
     {$IFDEF LIBEXT_IS_DYLIB}
