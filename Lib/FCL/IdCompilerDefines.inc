@@ -1697,8 +1697,13 @@ SOLARIS instead of IFDEF UNIX is not an error, it's deliberate.}
   {$DEFINE HAS_TCP_KEEPINTVL}
 {$ENDIF}
 {$IFDEF USE_VCL_POSIX}
-  {$IFNDEF ANDROID}
-    {$DEFINE HAS_SOCKET_NOSIGPIPE}
+  // TODO: which platforms actually have SO_NOSIGPIPE available?
+  {$DEFINE HAS_SOCKET_NOSIGPIPE}
+  {$IFDEF ANDROID}
+    {$UNDEF HAS_SOCKET_NOSIGPIPE}
+  {$ENDIF}
+  {$IFDEF LINUX}
+    {$UNDEF HAS_SOCKET_NOSIGPIPE}
   {$ENDIF}
 {$ENDIF}
 {end Unix OS specific stuff}

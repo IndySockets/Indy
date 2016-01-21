@@ -384,7 +384,7 @@ begin
   // so let's limit this fix to just Delphi for now. Should we add a
   // HAS_SO_REUSEPORT define so FPC can use this too?  What about adding a
   // new ReusePort property to configure this separately from ReuseSocket?
-  SetSocketOption(Id_SOL_SOCKET, Id_SO_REUSEPORT, LValue);
+  SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEPORT, LValue);
     {$ENDIF}
   {$ENDIF}
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
