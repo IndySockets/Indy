@@ -59,8 +59,13 @@ uses
   IdAntiFreezeBase,
   IdBaseComponent;
 
-{ Directive needed for C++Builder HPP and OBJ files for this that will force it
-to be statically compiled into the code }
+{ Directive needed for generating a legacy non-UnitScoped C++Builder HPP }
+
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_LEGACYHPP}
+  {$HPPEMIT LEGACYHPP}
+{$ENDIF}
+
+{ Directive needed for C++Builder HPP to force static linking to this unit }
 
 {$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
   {$HPPEMIT LINKUNIT}
