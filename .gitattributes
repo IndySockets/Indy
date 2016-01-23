@@ -2189,6 +2189,7 @@ Lib/fpcnotes/README -text
 Lib/indy-fpc.spec.template -text
 Lib/indylaz.lpk -text
 Lib/indylaz.lpk.tmpl -text
+Lib/indylaz.pas -text
 Lib/indymaster-Makefile.fpc -text
 Lib/indymaster-Makefile.fpc.tmpl -text
 Lib/lspFix.dpr -text
