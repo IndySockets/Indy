@@ -70,7 +70,7 @@ type
   EWBBInvalidIdxSetStringVar = class(EWBBException);
   EWBBInvalidStringVar = class(EWBBException);
 
-  {$IFNDEF VCL_LONDON_OR_ABOVE}
+  {$IFNDEF VCL_10_1_BERLIN_OR_ABOVE}
     {$DEFINE WBB_ANSI}
   {$ENDIF}
 
@@ -89,7 +89,7 @@ type
     function GetRemoteIP: string; override;
     function GetRawPathInfo: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {$ENDIF}
-    {$IFDEF VCL_LONDON_OR_ABOVE}
+    {$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
     function GetRawContent: TBytes; override;
     {$ENDIF}
   public
@@ -305,7 +305,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF VCL_LONDON_OR_ABOVE}
+{$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
 function TIdHTTPAppRequest.GetRawContent: TBytes;
 var
   LPos: TIdStreamSize;
@@ -331,7 +331,7 @@ var
   {$ENDIF}
 begin
   // RLebeau 1/15/2016: Now accessing FRequestInfo.RawHeaders.Values[] directly
-  // instead of using GetFieldByName().  On Delphi versions prior to 10.1 London,
+  // instead of using GetFieldByName().  On Delphi versions prior to 10.1 Berlin,
   // GetFieldByName() returned an AnsiString, even in Unicode versions. So as not
   // to have to IFDEF all of these fields, now doing one conversion at the end of
   // this method, which means having a local String variable. Don't want the
@@ -680,7 +680,7 @@ function TIdHTTPAppResponse.GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}
 var
   LValue: string;
 begin
-  // RLebeau 1/15/2016: On Delphi versions prior to 10.1 London, this method
+  // RLebeau 1/15/2016: On Delphi versions prior to 10.1 Berlin, this method
   // returned an AnsiString, even in Unicode versions. So as not to have to
   // IFDEF all of these fields, now doing one conversion at the end of this
   // method, which means having a local String variable...
@@ -753,7 +753,7 @@ begin
   // Reset to -1 so Indy will auto set it
   FResponseInfo.ContentLength := -1;
   MoveCookiesAndCustomHeaders;
-  {$IFDEF VCL_LONDON_OR_ABOVE}
+  {$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
   // TODO: This code may not be in the correct location.
   if (FResponseInfo.ContentType = '') and
     ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) and
