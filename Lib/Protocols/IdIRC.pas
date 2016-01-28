@@ -2034,7 +2034,9 @@ end;
 
 procedure TIdIRC.CommandLISTEND(ASender: TIdCommand);
 begin
-  CommandLIST(ASender);
+  if not Assigned(FSvrList) then begin
+    FSvrList := TStringList.Create;
+  end;
   if Assigned(FOnSvrList) then begin
     OnServerListReceived(ASender.Context, FSvrList);
   end;
@@ -2119,26 +2121,17 @@ end;
 
 procedure TIdIRC.CommandNAMEREPLY(ASender: TIdCommand);
 var
-  i: Integer;
   LNames: string;
-  LNameList: TStringList;
 begin
   if not Assigned(FNames) then begin
     FNames := TStringList.Create;
   end;
   // AWinkelsdorf 3/10/2010 Rewrote logic to split Names into single Lines of FNames
+  // RLebeau 1/27/2016: Rewrote to use a Fetch() loop instead of a temp TStringList
   if ASender.Params.Count >= 4 then begin // Names are in [3]
-    LNames := StringsReplace(ASender.Params[3], [' '], [',']); {do not localize}
-    LNameList := TStringList.Create;
-    try
-      LNameList.CommaText := LNames;
-      for i := 0 to LNameList.Count - 1 do
-      begin
-        if LNameList[i] <> '' then
-          FNames.Add(LNameList[i]);
-      end;
-    finally
-      LNameList.Free;
+    LNames := ASender.Params[3];
+    while LNames <> '' do begin
+      FNames.Add(Fetch(LNames));
     end;
   end else begin
     FNames.Add(ASender.Params[0]);
@@ -2211,13 +2204,27 @@ end;
 procedure TIdIRC.CommandINFO(ASender: TIdCommand);
 begin
   // TODO
+  {
+  if not Assigned(FInfo) then begin
+    FInfo := TStringList.Create;
+  end;
+  FInfo.Add(ASender.Params[0]);
+  }
 end;
 
 procedure TIdIRC.CommandENDOFINFO(ASender: TIdCommand);
 begin
+  // TODO
+  {
+  if not Assigned(FInfo) then begin
+    FInfo := TStringList.Create;
+  end;
+  }
   if Assigned(FOnUserInfo) then begin
     OnUserInfoReceived(ASender.Context, ASender.UnparsedParams);
+    //OnUserInfoReceived(ASender.Context, FInfo);
   end;
+  //FInfo.Clear;
 end;
 
 procedure TIdIRC.CommandMOTD(ASender: TIdCommand);
