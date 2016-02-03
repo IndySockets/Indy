@@ -22616,7 +22616,7 @@ begin
   if hIdCrypto = 0 then begin
     hIdCrypto := LoadSSLCryptoLibrary;
     if hIdCrypto = 0 then begin
-      FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSLCLIB_DLL_name]));
+      FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSLCLIB_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
       Exit;
     end;
   end;
@@ -22624,7 +22624,7 @@ begin
   if hIdSSL = 0 then begin
     hIdSSL := LoadSSLLibrary;
     if hIdSSL = 0 then begin
-      FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSL_DLL_name]));
+      FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSL_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
       Exit;
     end;
   end;
