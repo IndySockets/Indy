@@ -149,8 +149,12 @@ end;
 procedure TIdIPMCastBase.InitComponent;
 begin
   inherited InitComponent;
-  FMultiCastGroup := Id_IPMC_All_Systems;
   FIPVersion := ID_DEFAULT_IP_VERSION;
+  {$IFDEF IdIPv6}
+  FMultiCastGroup := DEF_IPv6_MGROUP;
+  {$ELSE}
+  FMultiCastGroup := Id_IPMC_All_Systems;
+  {$ENDIF}
   FReuseSocket := rsOSDependent;
 end;
 
@@ -225,24 +229,23 @@ begin
   begin
     Active := False;
     FIPVersion := AValue;
-    case AValue of
-       Id_IPv4: FMulticastGroup := Id_IPMC_All_Systems;
-       Id_IPv6: FMulticastGroup := DEF_IPv6_MGROUP;
+    if not IsLoading then begin
+      case AValue of
+        Id_IPv4: FMulticastGroup := Id_IPMC_All_Systems;
+        Id_IPv6: FMulticastGroup := DEF_IPv6_MGROUP;
+      end;
     end;
   end;
 end;
 
 procedure TIdIPMCastBase.SetMulticastGroup(const Value: string);
 begin
-  if (FMulticastGroup <> Value) then begin
-    if IsValidMulticastGroup(Value) then
-    begin
-      Active := False;
-      FMulticastGroup := Value;
-    end else
-    begin
-      Raise EIdMCastNotValidAddress.Create(RSIPMCastInvalidMulticastAddress);
+  if FMulticastGroup <> Value then begin
+    if (not IsLoading) and (not IsValidMulticastGroup(Value)) then begin
+      raise EIdMCastNotValidAddress.Create(RSIPMCastInvalidMulticastAddress);
     end;
+    Active := False;
+    FMulticastGroup := Value;
   end;
 end;
 
