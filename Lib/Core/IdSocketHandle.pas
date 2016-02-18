@@ -413,16 +413,24 @@ var
 begin
   LIP := Trim(AIP);
   if LIP = '' then begin
-    // TODO: on Windows, use WSAIoctl(SIO_GET_BROADCAST_ADDRESS) instead.
-    // On other platforms, use getifaddrs() or other suitable API to retreive
-    // the broadcast IP if possible, or else the local IP/Subnet and then
-    // calculate the broadcast IP manually...
-    LIP := '255.255.255.255'; {Do not Localize}
+    if IPVersion = Id_IPv4 then begin
+      // TODO: on Windows, use WSAIoctl(SIO_GET_BROADCAST_ADDRESS) instead.
+      // On other platforms, use getifaddrs() or other suitable API to retreive
+      // the broadcast IP if possible, or else the local IP/Subnet and then
+      // calculate the broadcast IP manually...
+      LIP := '255.255.255.255'; {Do not Localize}
+    end else begin
+      // IPv6 does not support broadcasts, multicast must be used instead...
+
+      // TODO: make TIdStack.IPVersionUnsupported() public
+      //GStack.IPVersionUnsupported;
+      raise EIdIPVersionUnsupported.Create(RSIPVersionUnsupported);
+    end;
   end else begin
     LIP := GStack.ResolveHost(LIP, IPVersion);
   end;
   SetBroadcastFlag(True);
-  SendTo(LIP, APort, AData);
+  SendTo(LIP, APort, AData, IPVersion);
   BroadcastEnabledChanged;
 end;
 
