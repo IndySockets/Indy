@@ -56,7 +56,7 @@ contains
   IdCoderUUE in 'IdCoderUUE.pas',
   IdCoderXXE in 'IdCoderXXE.pas',
   IdCompressionIntercept in 'IdCompressionIntercept.pas',
-  IdCompressorZLibEx in 'IdCompressorZLibEx.pas',
+  IdCompressorZLib in 'IdCompressorZLib.pas',
   IdConnectThroughHttpProxy in 'IdConnectThroughHttpProxy.pas',
   IdContainers in 'IdContainers.pas',
   IdCookie in 'IdCookie.pas',
@@ -148,7 +148,7 @@ contains
   IdHashCRC in 'IdHashCRC.pas',
   IdHashElf in 'IdHashElf.pas',
   IdHashMessageDigest in 'IdHashMessageDigest.pas',
-  IdHashSHA1 in 'IdHashSHA1.pas',
+  IdHashSHA in 'IdHashSHA.pas',
   IdHeaderCoder2022JP in 'IdHeaderCoder2022JP.pas',
   IdHeaderCoderBase in 'IdHeaderCoderBase.pas',
   IdHeaderCoderIndy in 'IdHeaderCoderIndy.pas',
@@ -157,9 +157,6 @@ contains
   IdIMAP4 in 'IdIMAP4.pas',
   IdIMAP4Server in 'IdIMAP4Server.pas',
   IdIPAddrMon in 'IdIPAddrMon.pas',
-  IdIPMCastBase in 'IdIPMCastBase.pas',
-  IdIPMCastClient in 'IdIPMCastClient.pas',
-  IdIPMCastServer in 'IdIPMCastServer.pas',
   IdIPWatch in 'IdIPWatch.pas',
   IdIRC in 'IdIRC.pas',
   IdIdent in 'IdIdent.pas',
@@ -207,7 +204,10 @@ contains
   IdReplyIMAP4 in 'IdReplyIMAP4.pas',
   IdReplyPOP3 in 'IdReplyPOP3.pas',
   IdReplySMTP in 'IdReplySMTP.pas',
+  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
   IdResourceStringsProtocols in 'IdResourceStringsProtocols.pas',
+  IdResourceStringsSSPI in 'IdResourceStringsSSPI.pas',
+  IdResourceStringsUriUtils in 'IdResourceStringsUriUtils.pas',
   IdRexec in 'IdRexec.pas',
   IdRexecServer in 'IdRexecServer.pas',
   IdSASL in 'IdSASL.pas',
@@ -271,6 +271,6 @@ contains
   IdZLib in 'IdZLib.pas',
   IdZLibCompressorBase in 'IdZLibCompressorBase.pas',
   IdZLibConst in 'IdZLibConst.pas',
-  IdZLibHeaders in 'IdZLibHeaders.pas'
+  IdZLibHeaders in 'IdZLibHeaders.pas';
 
 end.
