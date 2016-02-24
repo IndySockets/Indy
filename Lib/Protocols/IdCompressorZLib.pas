@@ -321,7 +321,7 @@ end;
 
 function TIdCompressorZLib.GetIsReady: Boolean;
 begin
-  Result := IdZLibHeaders.Loaded;
+  Result := IdZLibHeaders.Load;
 end;
 
 procedure TIdCompressorZLib.InflateStream(AInStream, AOutStream : TStream);
