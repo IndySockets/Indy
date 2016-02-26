@@ -104,9 +104,6 @@ unit IdRegisterCore;
 
 interface
 
-uses
-  Classes;
-
 // Procedures
 
   procedure Register;
@@ -116,6 +113,7 @@ implementation
 {$I IdCompilerDefines.inc}
 
 uses
+  Classes,
   {$IFDEF FMX}
   Controls,
   {$ENDIF}
@@ -236,9 +234,11 @@ end;
 
 function GetUnitNameForType(const AType: TRttiType): String;
 begin
-  // TRttiType.UnitName returns the unit that declares TRttiType itself
-  // (System.Rtti), so parse the TRttiType.QualifiedName value instead...
+  // TRttiParameter.ParamType may be nil if it's an untyped var or const parameter...
+  // TRttiMethodType.ReturnType may be nil if it's a procedure...
   if AType <> nil then begin
+    // TRttiType.UnitName returns the unit that declares TRttiType itself
+    // (System.Rtti), so parse the TRttiType.QualifiedName value instead...
     Result := AType.QualifiedName;
     SetLength(Result, Length(Result) - Length(AType.Name) - 1);
   end else begin
@@ -474,6 +474,7 @@ var
   I: Integer;
   {$IFDEF VCL_2010_OR_ABOVE}
   Ctx: TRttiContext;
+  RetreivedCtx: Boolean;
   PropInfo: TRttiProperty;
   PropValue: TValue;
     {$IFDEF VCL_XE2_OR_ABOVE}
@@ -490,6 +491,10 @@ begin
   inherited RequiresUnits(Proc);
   if (Designer = nil) or (Designer.Root = nil) then Exit;
 
+  {$IFDEF VCL_2010_OR_ABOVE}
+  RetreivedCtx := False;
+  {$ENDIF}
+
   for I := 0 to Designer.Root.ComponentCount - 1 do
   begin
     if Designer.Root.Components[i] is TIdBaseComponent then
@@ -498,7 +503,12 @@ begin
 
       {$IFDEF VCL_2010_OR_ABOVE}
 
-      Ctx := TRttiContext.Create;
+      if not RetreivedCtx then
+      begin
+        Ctx := TRttiContext.Create;
+        RetreivedCtx := True;
+      end;
+
       for PropInfo in Ctx.GetType(Comp.ClassType).GetProperties do
       begin
         // only interested in *assigned* event handlers
