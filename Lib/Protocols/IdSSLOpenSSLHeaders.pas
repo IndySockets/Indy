@@ -16650,6 +16650,8 @@ var
   BN_new : function(): PBIGNUM cdecl = nil;
   {$EXTERNALSYM BN_free}
   BN_free : procedure(a: PBIGNUM) cdecl = nil;
+  {$EXTERNALSYM BN_bn2dec}
+  BN_bn2dec: function(const n:PBIGNUM): PIdAnsiChar cdecl = nil;
   {$EXTERNALSYM BN_bn2hex}
   BN_bn2hex: function(const n:PBIGNUM): PIdAnsiChar cdecl = nil;
   {$EXTERNALSYM BN_set_word}
@@ -16923,6 +16925,8 @@ var
   {$EXTERNALSYM ASN1_INTEGER_get}
   ASN1_INTEGER_get : function(a: PASN1_INTEGER) : TIdC_LONG cdecl = nil;
   //IdSslAsn1UtcTimeNew : function: Pointer cdecl = nil;
+  {$EXTERNALSYM ASN1_INTEGER_to_BN}
+  ASN1_INTEGER_to_BN : function(a: PASN1_INTEGER; bn: PBIGNUM) : PBIGNUM cdecl = nil;
   {$EXTERNALSYM ASN1_STRING_type_new}
   ASN1_STRING_type_new : function(_type: TIdC_INT): PASN1_STRING cdecl = nil;
   {$EXTERNALSYM ASN1_STRING_free}
@@ -20372,7 +20376,7 @@ them in case we use them later.}
   {CH fn_BN_set_bit = 'BN_set_bit'; }  {Do not localize}
   {CH fn_BN_clear_bit = 'BN_clear_bit'; }  {Do not localize}
   fn_BN_bn2hex = 'BN_bn2hex';   {Do not localize}
-  {CH fn_BN_bn2dec = 'BN_bn2dec'; }  {Do not localize}
+  fn_BN_bn2dec = 'BN_bn2dec';   {Do not localize}
   fn_BN_hex2bn = 'BN_hex2bn';   {Do not localize}
   {CH fn_BN_dec2bn = 'BN_dec2bn'; }  {Do not localize}
   {CH fn_BN_gcd = 'BN_gcd'; }  {Do not localize}
@@ -20572,7 +20576,7 @@ them in case we use them later.}
   fn_ASN1_INTEGER_set = 'ASN1_INTEGER_set';  {Do not localize}
   fn_ASN1_INTEGER_get = 'ASN1_INTEGER_get';  {Do not localize}
   {CH fn_BN_to_ASN1_INTEGER = 'BN_to_ASN1_INTEGER'; }  {Do not localize}
-  {CH fn_ASN1_INTEGER_to_BN = 'ASN1_INTEGER_to_BN'; }  {Do not localize}
+  fn_ASN1_INTEGER_to_BN = 'ASN1_INTEGER_to_BN';  {Do not localize}
   {CH fn_ASN1_ENUMERATED_set = 'ASN1_ENUMERATED_set'; }  {Do not localize}
   {CH fn_ASN1_ENUMERATED_get = 'ASN1_ENUMERATED_get'; }  {Do not localize}
   {CH fn_BN_to_ASN1_ENUMERATED = 'BN_to_ASN1_ENUMERATED'; }  {Do not localize}
@@ -22853,6 +22857,7 @@ we have to handle both cases.
   @BN_new := LoadFunctionCLib(fn_BN_new,False);
   @BN_free := LoadFunctionCLib(fn_BN_free,False);
   @BN_hex2bn := LoadFunctionCLib(fn_BN_hex2bn,False);
+  @BN_bn2dec := LoadFunctionCLib(fn_BN_bn2dec,False);
   @BN_bn2hex := LoadFunctionCLib(fn_BN_bn2hex,False);
   @BN_set_word := LoadFunctionCLib(fn_BN_set_word,False);
   //BIO
@@ -23385,6 +23390,7 @@ we have to handle both cases.
   //ASN1
   @ASN1_INTEGER_set := LoadFunctionCLib(fn_ASN1_INTEGER_set);
   @ASN1_INTEGER_get := LoadFunctionCLib(fn_ASN1_INTEGER_get);
+  @ASN1_INTEGER_to_BN := LoadFunctionCLib(fn_ASN1_INTEGER_to_BN);
   @ASN1_STRING_type_new := LoadFunctionCLib(fn_ASN1_STRING_type_new);
   @ASN1_STRING_free := LoadFunctionCLib(fn_ASN1_STRING_free);
   @ASN1_dup := LoadFunctionCLib(fn_ASN1_dup );
@@ -23609,6 +23615,7 @@ begin
   @BIO_write := nil;
   //BN
   @BN_hex2bn := nil;
+  @BN_bn2dec := nil;
   @BN_bn2hex := nil;
   //i2d
   @i2d_PKCS7 := nil;
@@ -24111,6 +24118,7 @@ begin
   //ASN1
   @ASN1_INTEGER_set := nil;
   @ASN1_INTEGER_get := nil;
+  @ASN1_INTEGER_to_BN := nil;
   @ASN1_STRING_type_new := nil;
   @ASN1_STRING_free := nil;
   @ASN1_dup := nil;
