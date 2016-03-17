@@ -3121,8 +3121,12 @@ begin
       SSL_CTX_clear_options(fContext, SSL_OP_NO_SSLv3);
     end;
   end;
+  // may as well do the same for all of them...
   if not (sslvTLSv1 in SSLVersions) then begin
     SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1);
+  end
+  else if (fMethod = sslvSSLv23) then begin
+    SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1);
   end;
 {IMPORTANT!!!  Do not set SSL_CTX_set_options SSL_OP_NO_TLSv1_1 and
 SSL_OP_NO_TLSv1_2 if that functionality is not available.  OpenSSL 1.0 and
@@ -3131,11 +3135,17 @@ an invalid MAC when doing SSL.}
   if IsOpenSSL_TLSv1_1_Available then begin
     if not (sslvTLSv1_1 in SSLVersions) then begin
       SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_1);
+    end
+    else if (fMethod = sslvSSLv23) then begin
+      SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1_1);
     end;
   end;
   if IsOpenSSL_TLSv1_2_Available then begin
     if not (sslvTLSv1_2 in SSLVersions) then begin
       SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1_2);
+    end
+    else if (fMethod = sslvSSLv23) then begin
+      SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1_2);
     end;
   end;
 
