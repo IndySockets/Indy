@@ -5117,21 +5117,23 @@ begin
   end;
 end;
 
-procedure DebugOutput(const AText: string);
+// TODO: define STRING_UNICODE_MISMATCH for WinCE in IdCompilerDefines.inc?
 {$IFDEF WINDOWS}
   {$IFDEF WINCE}
-var
-  LTemp: TIdUnicodeString;
-  {$ELSE}
-    {$IFDEF STRING_UNICODE_MISMATCH}
-var
-  LTemp: TIdPlatformString;
-    {$ELSE}
-      {$IFDEF USE_INLINE}inline;{$ENDIF}
+    {$IFNDEF STRING_IS_UNICODE}
+      {$DEFINE DEBUG_STRING_MISMATCH}
     {$ENDIF}
   {$ELSE}
-    {$IFDEF USE_INLINE}inline;{$ENDIF}
+    {$IFDEF STRING_UNICODE_MISMATCH}
+      {$DEFINE DEBUG_STRING_MISMATCH}
+    {$ENDIF}
   {$ENDIF}
+{$ENDIF}
+
+procedure DebugOutput(const AText: string);
+{$IFDEF DEBUG_STRING_MISMATCH}
+var
+  LTemp: {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF};
 {$ELSE}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ENDIF}
@@ -5142,16 +5144,11 @@ begin
   {$ENDIF}
 
   {$IFDEF WINDOWS}
-    {$IFDEF WINCE}
-  LTemp := TIdUnicodeString(AText); // explicit convert to Unicode
-  OutputDebugString(PIdWideChar(LTemp)));
+    {$IFDEF DEBUG_STRING_MISMATCH}
+  LTemp := {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF}(AText); // explicit convert to Ansi/Unicode
+  OutputDebugString({$IFDEF WINCE}PIdWideChar{$ELSE}PIdPlatformChar{$ENDIF}(LTemp));
     {$ELSE}
-      {$IFDEF STRING_UNICODE_MISMATCH}
-  LTemp := TIdPlatformString(AText); // explicit convert to Ansi/Unicode
-  OutputDebugString(PIdPlatformChar(LTemp));
-      {$ELSE}
   OutputDebugString(PChar(AText));
-      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 
