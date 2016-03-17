@@ -5119,9 +5119,16 @@ end;
 
 procedure DebugOutput(const AText: string);
 {$IFDEF WINDOWS}
-  {$IFDEF STRING_UNICODE_MISMATCH}
+  {$IFDEF WINCE}
+var
+  LTemp: TIdUnicodeString;
+  {$ELSE}
+    {$IFDEF STRING_UNICODE_MISMATCH}
 var
   LTemp: TIdPlatformString;
+    {$ELSE}
+      {$IFDEF USE_INLINE}inline;{$ENDIF}
+    {$ENDIF}
   {$ELSE}
     {$IFDEF USE_INLINE}inline;{$ENDIF}
   {$ENDIF}
@@ -5135,11 +5142,16 @@ begin
   {$ENDIF}
 
   {$IFDEF WINDOWS}
-    {$IFDEF STRING_UNICODE_MISMATCH}
+    {$IFDEF WINCE}
+  LTemp := TIdUnicodeString(AText); // explicit convert to Unicode
+  OutputDebugString(PIdWideChar(LTemp)));
+    {$ELSE}
+      {$IFDEF STRING_UNICODE_MISMATCH}
   LTemp := TIdPlatformString(AText); // explicit convert to Ansi/Unicode
   OutputDebugString(PIdPlatformChar(LTemp));
-    {$ELSE}
+      {$ELSE}
   OutputDebugString(PChar(AText));
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 

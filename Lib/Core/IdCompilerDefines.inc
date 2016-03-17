@@ -446,8 +446,11 @@
   // We should consider enabling one of them so Indy uses the same Unicode logic
   // in Delphi 2009+ and FreePascal 4.2.0+ and reduces IFDEFs (in particular,
   // STRING_UNICODE_MISMATCH, see further below).  However, FreePascal's RTL
-  // is largely not UnicodeString-enabled yet...
+  // is largely not UnicodeString-enabled yet.  Maybe we should enable
+  // {$MODE DelphiUnicode} anyway, and then deal with any RTL function issues
+  // on an as-needed basis...
   {$MODE Delphi}
+  {.$MODE DelphiUnicode}
   //note that we may need further defines for widget types depending on
   //what we do and what platforms we support in FPC.
   //I'll let Marco think about that one.
@@ -1342,6 +1345,11 @@
       {$DEFINE SSPI_UNICODE}
     {$ENDIF}
   {$ENDIF}
+{$ENDIF}
+{$IFDEF WINCE}
+  {$DEFINE USE_OPENSSL}
+  // RLebeau: not sure if the above Win32/64 defines also apply to WinCE,
+  // so keeping them separate for now...
 {$ENDIF}
 
 // High-performance counters are not reliable on multi-core systems, and have
