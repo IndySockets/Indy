@@ -8566,16 +8566,27 @@ begin
   {$ENDIF}
 end;
 
+// TODO: define STRING_UNICODE_MISMATCH for WinCE in IdCompilerDefines.inc?
+{$IFDEF WINDOWS}
+  {$IFDEF WINCE}
+    {$IFNDEF STRING_IS_UNICODE}
+      {$DEFINE COMPARE_STRING_MISMATCH}
+    {$ENDIF}
+  {$ELSE}
+    {$IFDEF STRING_UNICODE_MISMATCH}
+      {$DEFINE COMPARE_STRING_MISMATCH}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 function TextStartsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
   {$IFDEF WINDOWS}
-    {$IFDEF STRING_UNICODE_MISMATCH}
-  LS, LSub: TIdPlatformString;
-  P1, P2: PIdPlatformChar;
-    {$ELSE}
-  P1, P2: PChar;
-     {$ENDIF}
+    {$IFDEF COMPARE_STRING_MISMATCH}
+  LS, LSubS: {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF};
+  P1, P2: {$IFDEF WINCE}PIdWideChar{$ELSE}PIdPlatformChar{$ENDIF};
+    {$ENDIF}
   {$ENDIF}
 begin
   LLen := Length(SubS);
@@ -8586,17 +8597,20 @@ begin
     Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
     {$ELSE}
       {$IFDEF WINDOWS}
-        {$IFDEF STRING_UNICODE_MISMATCH}
+        {$IFDEF COMPARE_STRING_MISMATCH}
     // explicit convert to Ansi/Unicode
-    LS := TIdPlatformString(S);
-    LSub := TIdPlatformString(SubS);
-    P1 := PIdPlatformChar(LS);
-    P2 := PIdPlatformChar(LSub);
+    LS := {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF}(S);
+    LSubS := {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF}(SubS);
+    LLen := Length(LSubS);
+    Result := LLen <= Length(LS);
+    if Result then begin
+      P1 := {$IFDEF WINCE}PIdWideChar{$ELSE}PIdPlatformChar{$ENDIF}(LS);
+      P2 := {$IFDEF WINCE}PIdWideChar{$ELSE}PIdPlatformChar{$ENDIF}(LSubS);
+      Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P1, LLen, P2, LLen) = 2;
+    end;
         {$ELSE}
-    P1 := PChar(S);
-    P2 := PChar(SubS);
+    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, PChar(S), LLen, PChar(SubS), LLen) = 2;
         {$ENDIF}
-    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P1, LLen, P2, LLen) = 2;
       {$ELSE}
     Result := AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
       {$ENDIF}
@@ -8608,11 +8622,11 @@ function TextEndsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
   {$IFDEF WINDOWS}
-    {$IFDEF STRING_UNICODE_MISMATCH}
-  LS, LSubS: TIdPlatformString;
-  P1, P2: PIdPlatformChar;
+    {$IFDEF COMPARE_STRING_MISMATCH}
+  LS, LSubS: {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF};
+  P1, P2: {$IFDEF WINCE}PIdWideChar{$ELSE}PIdPlatformChar{$ENDIF};
     {$ELSE}
-  P1, P2: PChar;
+  P: PChar;
     {$ENDIF}
   {$ENDIF}
 begin
@@ -8624,18 +8638,23 @@ begin
     Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
     {$ELSE}
       {$IFDEF WINDOWS}
-        {$IFDEF STRING_UNICODE_MISMATCH}
+        {$IFDEF COMPARE_STRING_MISMATCH}
     // explicit convert to Ansi/Unicode
-    LS := TIdPlatformString(S);
-    LSubS := TIdPlatformString(SubS);
-    P1 := PIdPlatformChar(LS);
-    P2 := PIdPlatformChar(LSubS);
+    LS := {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF}(S);
+    LSubS := {$IFDEF WINCE}TIdUnicodeString{$ELSE}TIdPlatformString{$ENDIF}(SubS);
+    LLen := Length(LSubS);
+    Result := LLen <= Length(S);
+    if Result then begin
+      P1 := {$IFDEF WINCE}PIdWideChar{$ELSE}PIdPlatformChar{$ENDIF}(LS);
+      P2 := {$IFDEF WINCE}PIdWideChar{$ELSE}PIdPlatformChar{$ENDIF}(LSubS);
+      Inc(P1, Length(LS)-LLen);
+      Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P1, LLen, P2, LLen) = 2;
+    end;
         {$ELSE}
-    P1 := PChar(S);
-    P2 := PChar(SubS);
+    P := PChar(S);
+    Inc(P, Length(S)-LLen);
+    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P, LLen, PChar(SubS), LLen) = 2;
         {$ENDIF}
-    Inc(P1, Length(S)-LLen);
-    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P1, LLen, P2, LLen) = 2;
       {$ELSE}
     Result := AnsiCompareText(Copy(S, Length(S)-LLen+1, LLen), SubS) = 0;
       {$ENDIF}
