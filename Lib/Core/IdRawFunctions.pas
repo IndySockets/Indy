@@ -688,7 +688,7 @@ begin
   // construct header
   HdrUdp := TIdUdpHdr.Create;
   try
-    HdrUdp.udp_dport    := GStack.HostToNetwork(ASourcePort);
+    HdrUdp.udp_sport    := GStack.HostToNetwork(ASourcePort);
     HdrUdp.udp_dport    := GStack.HostToNetwork(ADestPort);
     //LIdx should be okay here since we set that to the packet length earlier
     HdrUdp.udp_ulen     := GStack.HostToNetwork(LIdx);

@@ -339,11 +339,6 @@ begin
   begin
     LI.FileName := Fetch(LBuf, UNIX_LINKTO_SYM);
     LI.LinkedItemName := LBuf;
-  end
-  else if IndyPos(UNIX_LINKTO_SYM, LBuf) > 0 then
-  begin
-    LI.FileName := Fetch(LBuf, UNIX_LINKTO_SYM);
-    LI.LinkedItemName := LBuf;
   end else
   begin
     LI.FileName := LBuf;

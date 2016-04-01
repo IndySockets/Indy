@@ -175,7 +175,7 @@ begin
   Result := UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFName := Copy(LFName,1,8);
-  LFName := EnsureValidCharsByValidSet(LFExt,MSDOS_Valid_Chars);
+  LFName := EnsureValidCharsByValidSet(LFName,MSDOS_Valid_Chars);
   LFExt := Fetch(Result,'.');
   LFExt := Copy(LFExt,1,3);
   LFExt := EnsureValidCharsByValidSet(LFExt,MSDOS_Valid_Chars);

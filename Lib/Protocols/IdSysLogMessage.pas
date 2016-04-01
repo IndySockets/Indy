@@ -418,7 +418,7 @@ begin
   end;
   // Month
   AMonth := StrToMonth(Copy(TimeStampString, 1, 3));
-  if not AMonth in [1..12] then begin
+  if not (AMonth in [1..12]) then begin
     raise EInvalidSyslogMessage.CreateFmt(RSInvalidSyslogTimeStamp, [TimeStampString]);
   end;
   // day
@@ -428,15 +428,15 @@ begin
   end;
   // Time
   AHour := IndyStrToInt(Copy(TimeStampString, 8, 2), 0);
-  if not AHour in [0..23] then begin
+  if not (AHour in [0..23]) then begin
     raise EInvalidSyslogMessage.CreateFmt(RSInvalidSyslogTimeStamp, [TimeStampString]);
   end;
   AMin := IndyStrToInt(Copy(TimeStampString, 11, 2), 0);
-  if not AMin in [0..59] then begin
+  if not (AMin in [0..59]) then begin
     raise EInvalidSyslogMessage.CreateFmt(RSInvalidSyslogTimeStamp, [TimeStampString]);
   end;
   ASec := IndyStrToInt(Copy(TimeStampString, 14, 2), 0);
-  if not ASec in [0..59] then begin
+  if not (ASec in [0..59]) then begin
     raise EInvalidSyslogMessage.CreateFmt(RSInvalidSyslogTimeStamp, [TimeStampString]);
   end;
   if TimeStampString[16] <> ' ' then begin   {Do not Localize}

@@ -23085,7 +23085,6 @@ we have to handle both cases.
   @EVP_aes_192_ecb := LoadFunctionCLib(fn_EVP_aes_192_ecb,False);
   @EVP_aes_192_cbc := LoadFunctionCLib(fn_EVP_aes_192_cbc,False);
   @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1,False);
-  @EVP_aes_192_cfb1 := LoadFunctionCLib(fn_EVP_aes_192_cfb1,False);
   @EVP_aes_192_cfb128 := LoadFunctionCLib(fn_EVP_aes_192_cfb128,False);
 
   @EVP_aes_192_ofb := LoadFunctionCLib(fn_EVP_aes_192_ofb,False);
@@ -23826,7 +23825,6 @@ begin
   @EVP_aes_128_xts := nil;
   @EVP_aes_192_ecb := nil;
   @EVP_aes_192_cbc := nil;
-  @EVP_aes_192_cfb1 := nil;
   @EVP_aes_192_cfb1 := nil;
   @EVP_aes_192_cfb128 := nil;
 

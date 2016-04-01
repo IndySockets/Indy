@@ -8498,7 +8498,6 @@ function IN6ADDR_6TO4PREFIX_INIT : TIn6Addr;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
-
   Result.s6_bytes[0] := $20;
   Result.s6_bytes[1] := $02;
 end;
@@ -8508,7 +8507,7 @@ function IN6ADDR_TEREDOPREFIX_INIT : TIn6Addr;
 begin
   System.FillChar(Result.s6_bytes, SIZE_TIN6ADDR, 0);    {Do not Localize}
   Result.s6_bytes[0] := $20;
-  Result.s6_bytes[0] := $01;
+  Result.s6_bytes[1] := $01;
 end;
 
 procedure IN6ADDR_SETANY(sa: PSockAddrIn6);

@@ -437,8 +437,8 @@ begin
     LOut[LOffset+LN] := 32;                   //Use spaces for Type & Creator
   end;
   Inc(LOffset, 8);
-  LOut[LOffset] := 0;                         //Flags
-  LOut[LOffset] := 0;                         //Flags
+  LOut[LOffset]   := 0;                       //Flags
+  LOut[LOffset+1] := 0;                       //Flags
   Inc(LOffset, 2);
   LTemp := LSSize;
   LOut[LOffset] := LTemp mod 256;             //Length of data fork
@@ -449,7 +449,7 @@ begin
   LTemp := LTemp div 256;
   LOut[LOffset+3] := LTemp;                   //Length of data fork
   Inc(LOffset, 4);
-  LOut[LOffset] := 0;                         //Length of resource fork
+  LOut[LOffset]   := 0;                       //Length of resource fork
   LOut[LOffset+1] := 0;                       //Length of resource fork
   LOut[LOffset+2] := 0;                       //Length of resource fork
   LOut[LOffset+3] := 0;                       //Length of resource fork
