@@ -479,6 +479,9 @@ type
     property OnDoneWithPostStream: TIdHTTPDoneWithPostStream read FOnDoneWithPostStream write FOnDoneWithPostStream;
     property OnCommandGet: TIdHTTPCommandEvent read FOnCommandGet write FOnCommandGet;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     function CreateSession(AContext:TIdContext;
      HTTPResponse: TIdHTTPResponseInfo;
      HTTPRequest: TIdHTTPRequestInfo): TIdHTTPSession;
@@ -976,6 +979,13 @@ begin
   end;
 end;
 
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdCustomHTTPServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
+
 destructor TIdCustomHTTPServer.Destroy;
 var
   // under ARC, convert a weak reference to a strong reference before working with it
@@ -1227,6 +1237,8 @@ var
     // requests do not have bodies...
     else if LRequestInfo.CommandType in [hcPOST, hcPUT] then
     begin
+      // TODO: need to handle the case where the ContentType is 'multipart/...',
+      // which is self-terminating and does not strictly require the above headers...
       if LIOHandler.InputBufferIsEmpty then begin
         LIOHandler.CheckForDataOnSource(1);
       end;
@@ -1400,9 +1412,11 @@ begin
             // Parse Params
             if ParseParams then begin
               if TextIsSame(LContentType, ContentTypeFormUrlencoded) then begin
+                // TODO: decode the data using the algorithm outlined in HTML5 section 4.10.22.6 "URL-encoded form data"
                 LRequestInfo.DecodeAndSetParams(LRequestInfo.UnparsedParams);
               end else begin
                 // Parse only query params when content type is not 'application/x-www-form-urlencoded'    {Do not Localize}
+                // TODO: decode the data using a uer-specified charset, defaulting to UTF-8
                 LRequestInfo.DecodeAndSetParams(LRequestInfo.QueryParams);
               end;
             end;
