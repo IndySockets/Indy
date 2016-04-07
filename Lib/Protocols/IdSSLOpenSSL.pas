@@ -527,6 +527,8 @@ type
     property Hash: TIdSSLULong read GetHash;
     property HashAsString: string read GetHashAsString;
     property OneLine: string read CertInOneLine;
+    //
+    property CertificateName: PX509_NAME read fX509Name;
   end;
 
   TIdX509Info = class(TObject)
@@ -536,6 +538,8 @@ type
     FX509 : PX509;
   public
     constructor Create( aX509: PX509);
+    //
+    property Certificate: PX509 read FX509;
   end;
 
   TIdX509Fingerprints = class(TIdX509Info)
@@ -623,6 +627,8 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property notAfter: TDateTime read RnotAfter;
     property SerialNumber : string read GetSerialNumber;
     property DisplayInfo : TStrings read GetDisplayInfo;
+    //
+    property Certificate: PX509 read FX509;
   end;
 
   TIdSSLCipher = class(TObject)
@@ -958,6 +964,7 @@ begin
         FreeAndNil(Certificate);
       end;
     except
+      VerifiedOK := False;
     end;
     //if VerifiedOK and (Ok > 0) then begin
     if VerifiedOK {and (Ok > 0)} then begin
