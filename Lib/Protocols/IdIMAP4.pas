@@ -657,7 +657,7 @@ varies between servers.  A typical line that gets parsed into this is:
     skUnflagged, //Messages that do not have the \Flagged flag set.
     skUnKeyWord, //Messages that do not have the specified keyword set.
     skUnseen,
-    skGmailRaw, //Gmail-specific extension toaccess full Gmail search syntax
+    skGmailRaw, //Gmail-specific extension to access full Gmail search syntax
     skGmailMsgID, //Gmail-specific unique message identifier
     skGmailThreadID, //Gmail-specific thread identifier
     skGmailLabels //Gmail-specific labels
@@ -804,6 +804,9 @@ varies between servers.  A typical line that gets parsed into this is:
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
   public
     { TIdIMAP4 Commands }
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; override;
     //Requests a listing of capabilities that the server supports...
     function  Capability: Boolean; overload;
@@ -2417,6 +2420,13 @@ begin
   end;
   Result := True;
 end;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdIMAP4.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdIMAP4.InitComponent;
 begin

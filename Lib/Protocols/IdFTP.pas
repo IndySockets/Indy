@@ -913,6 +913,10 @@ type
     function IsAccountNeeded : Boolean;
     function GetSupportsVerification : Boolean;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
+
     procedure GetInternalResponse(AEncoding: IIdTextEncoding = nil); override;
     function CheckResponse(const AResponse: Int16; const AAllowedResponses: array of Int16): Int16; override;
 
@@ -1143,6 +1147,13 @@ type
     property Details: Boolean read FDetails;
     property UsedMLS: Boolean read FUsedMLS;
   end;
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdFTP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdFTP.InitComponent;
 begin

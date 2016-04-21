@@ -507,6 +507,9 @@ type
     function CheckForError(ALastResult: Integer): Integer; virtual; abstract;
     procedure RaiseError(AError: Integer); virtual; abstract;
   public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     procedure AfterAccept; virtual;
     function Connected: Boolean; virtual;
     destructor Destroy; override;
@@ -822,6 +825,13 @@ var
 {$ENDIF}
 
 { TIdIOHandler }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdIOHandler.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdIOHandler.Close;
 //do not do FInputBuffer.Clear; here.

@@ -182,7 +182,7 @@ constructor TIdInitializerComponent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   // DCCIL will not call our other create from this one, only .Nets ancestor
-  // so InitCopmonent will NOT be called twice.
+  // so InitComponent will NOT be called twice.
   InitComponent;
 end;
 

@@ -644,6 +644,8 @@ begin
   inherited;
   PRI := 13; //default
   {This stuff is necessary to prevent an AV in the IDE if GStack does not exist}
+  // RLebeau: should we really be doing this here? At the least, maybe detect
+  // DFM streaming and don't do this if it will just be overriden afterwards...
   TIdStack.IncUsage;
   try
     Hostname := GStack.HostName;

@@ -291,6 +291,9 @@ type
     function HandleMessage(const AMsg: String; AConn: TIdTCPConnection; var VReply: String): Boolean;
     procedure InitComponent; override;
   Public
+    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    {$ENDIF}
     destructor Destroy; Override;
 
     procedure EnforceWaitReplyTimeout;
@@ -486,6 +489,13 @@ begin
 end;
 
 { TIdHL7 }
+
+{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+constructor TIdHL7.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+end;
+{$ENDIF}
 
 procedure TIdHL7.InitComponent;
 begin
