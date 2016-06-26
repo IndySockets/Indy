@@ -2371,6 +2371,7 @@ begin
   if Assigned(CRYPTO_set_locking_callback) then begin
     CRYPTO_set_locking_callback(nil);
   end;
+  CleanupRandom;
   IdSSLOpenSSLHeaders.Unload;
   FreeAndNil(LockInfoCB);
   FreeAndNil(LockPassCB);
@@ -2447,7 +2448,6 @@ begin
   end
   else if fSSLVersions = [sslvTLSv1_2 ] then begin
     fMethod := sslvTLSv1_2;
-
   end
   else begin
     fMethod := sslvSSLv23;
@@ -3678,6 +3678,10 @@ begin
   {$ENDIF}
   error := SSL_connect(fSSL);
   if error <= 0 then begin
+    // TODO: if sslv23 is being used, but sslv23 is not being used on the
+    // remote side, SSL_connect() will fail. In that case, before giving up,
+    // try re-connecting using a version-specific method for each enabled
+    // version, maybe one will succeed...
     EIdOSSLConnectError.RaiseException(fSSL, error, RSSSLConnectError);
   end;
   // TODO: even if SSL_connect() returns success, the connection might

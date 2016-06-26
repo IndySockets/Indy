@@ -224,6 +224,8 @@ function X509_add_ext_func(cert: PX509; ext: PX509_EXTENSION; loc: TIdC_INT): TI
 function X509_print_func(bp : PBIO; x : PX509) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'X509_print';
 {$ENDIF}
 
+procedure RAND_cleanup_func; cdecl; external SSLCLIB_LIB_name name 'RAND_cleanup';
+
 function RAND_bytes_func(buf : PIdAnsiChar; num : integer) : integer; cdecl; external SSLCLIB_LIB_name name 'RAND_bytes';
 
 function RAND_pseudo_bytes_func(buf : PIdAnsiChar; num : integer) : integer; cdecl; external SSLCLIB_LIB_name name 'RAND_pseudo_bytes';
@@ -778,6 +780,7 @@ begin
   //X509_print
   X509_print := X509_print_func;
   {$ENDIF}
+//  _RAND_cleanup := RAND_cleanup_func;
 //  _RAND_bytes := RAND_bytes_func;
 //  _RAND_pseudo_bytes := RAND_pseudo_bytes_func;
 //  _RAND_seed := RAND_seed_proc;

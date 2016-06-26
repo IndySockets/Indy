@@ -18137,6 +18137,8 @@ procedure IdOpenSSLSetLibPath(const APath: String);
 {$ENDIF}
 //
 procedure InitializeRandom;
+procedure CleanupRandom;
+
  {$EXTERNALSYM M_ASN1_STRING_length}
 function M_ASN1_STRING_length(x : PASN1_STRING): TIdC_INT;
  {$EXTERNALSYM M_ASN1_STRING_length_set}
@@ -18818,6 +18820,7 @@ function IsOpenSSL_TLSv1_1_Available : Boolean;
 function IsOpenSSL_TLSv1_2_Available : Boolean;
 function IsOpenSSL_DTLSv1_Available : Boolean;
 
+procedure RAND_cleanup;
 function RAND_bytes(buf : PIdAnsiChar; num : integer) : integer;
 function RAND_pseudo_bytes(buf : PIdAnsiChar; num : integer) : integer;
 procedure RAND_seed(buf : PIdAnsiChar; num : integer);
@@ -19443,6 +19446,7 @@ type
   {$IFDEF SYS_WIN}
   TRAND_event = function(iMsg : UINT; wp : wparam; lp : lparam) : integer; cdecl;
   {$ENDIF}
+  TRAND_cleanup = procedure; cdecl;
 
 {$IFDEF STATICLOAD_OPENSSL}
 const
@@ -19478,6 +19482,7 @@ var
   FFailedLoadList : TStringList;
   {$ENDIF}
 
+  _RAND_cleanup : TRAND_cleanup = nil;
   _RAND_bytes : TRAND_bytes = nil;
   _RAND_pseudo_bytes : TRAND_pseudo_bytes = nil;
   _RAND_seed : TRAND_seed = nil;
@@ -22139,7 +22144,7 @@ them in case we use them later.}
   {CH fn_RAND_set_rand_engine = 'RAND_set_rand_engine'; } {Do not localize}
   {$ENDIF}
   {CH fn_RAND_SSLeay = 'RAND_SSLeay'; } {Do not localize}
-  {CH fn_RAND_cleanup = 'RAND_cleanup'; } {Do not localize}
+  fn_RAND_cleanup = 'RAND_cleanup'; {Do not localize}
   fn_RAND_bytes = 'RAND_bytes'; {Do not localize}
   fn_RAND_pseudo_bytes = 'RAND_pseudo_bytes'; {Do not localize}
   fn_RAND_seed = 'RAND_seed'; {Do not localize}
@@ -22765,6 +22770,7 @@ begin
   //X509_print
   @X509_print := LoadFunctionCLib(fn_X509_print, False );  //Used by Indy
   {$ENDIF}
+  @_RAND_cleanup := LoadFunctionCLib(fn_RAND_cleanup, False); //Used by Indy
   @_RAND_bytes := LoadFunctionCLib(fn_RAND_bytes); //Used by Indy
   @_RAND_pseudo_bytes := LoadFunctionCLib(fn_RAND_pseudo_bytes); //Used by Indy
   @_RAND_seed := LoadFunctionCLib(fn_RAND_seed); //Used by Indy
@@ -23529,6 +23535,7 @@ begin
   //X509_print
   @X509_print := nil;
   {$ENDIF}
+  @_RAND_cleanup := nil;
   @_RAND_bytes := nil;
   @_RAND_pseudo_bytes := nil;
   @_RAND_seed := nil;
@@ -24307,6 +24314,13 @@ begin
     _RAND_screen;
   end;
   {$ENDIF}
+end;
+
+procedure CleanupRandom;
+begin
+  if Assigned(_RAND_cleanup) then begin
+    _RAND_cleanup;
+  end;
 end;
 
 function M_ASN1_STRING_length(x : PASN1_STRING): TIdC_INT;
@@ -26429,6 +26443,13 @@ function X509_LOOKUP_add_dir(x : PX509_LOOKUP; name : PIdAnsiChar; _type : TIdC_
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := X509_LOOKUP_ctrl(x, X509_L_ADD_DIR, name, _type, nil);
+end;
+
+procedure RAND_cleanup;
+begin
+  if Assigned(_RAND_cleanup) then begin
+    _RAND_cleanup();
+  end;
 end;
 
 function RAND_bytes(buf : PIdAnsiChar; num : integer) : integer;
