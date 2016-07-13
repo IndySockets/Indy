@@ -116,252 +116,276 @@
 
 // detect compiler versions
 
-// TODO: to detect features in Delphi/C++Builder v6 and later, use CompilerVersion
-// and RTLVersion constants instead of VERXXX defines.  We still support v5, which
-// does not have such constants.
+{$IFNDEF FPC}
 
-// Delphi 4
-{$IFDEF VER120}
-  {$DEFINE DCC}
-  {$DEFINE VCL_40}
-  {$DEFINE DELPHI_4}
-{$ENDIF}
+  // TODO: to detect features in Delphi/C++Builder v6 and later, use CompilerVersion
+  // and RTLVersion constants instead of VERXXX defines.  We still support v5, which
+  // does not have such constants.
 
-// C++Builder 4
-{$IFDEF VER125}
-  {$DEFINE DCC}
-  {$DEFINE VCL_40}
-  {$DEFINE CBUILDER_4}
-{$ENDIF}
-
-// Delphi & C++Builder 5
-{$IFDEF VER130}
-  {$DEFINE DCC}
-  {$DEFINE VCL_50}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_5}
-  {$ELSE}
-    {$DEFINE DELPHI_5}
-  {$ENDIF}
-{$ENDIF}
-
-//Delphi & C++Builder 6
-{$IFDEF VER140}
-  {$DEFINE DCC}
-  {$DEFINE VCL_60}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_6}
-  {$ELSE}
-    {$DEFINE DELPHI_6}
-  {$ENDIF}
-{$ENDIF}
-
-//Delphi 7
-{$IFDEF VER150}
-  {$DEFINE DCC}
-  {$DEFINE VCL_70}
-  {$DEFINE DELPHI_7} // there was no C++ Builder 7
-{$ENDIF}
-
-//Delphi 8
-{$IFDEF VER160}
-  {$DEFINE DCC}
-  {$DEFINE VCL_80}
-  {$DEFINE DELPHI_8} // there was no C++ Builder 8
-{$ENDIF}
-
-//Delphi 2005
-{$IFDEF VER170}
-  {$DEFINE DCC}
-  {$DEFINE VCL_2005}
-  {$DEFINE DELPHI_2005} // there was no C++Builder 2005
-{$ENDIF}
-
-// NOTE: CodeGear decided to make Highlander be a non-breaking release
-// (no interface changes, thus fully backwards compatible without any
-// end user code changes), so VER180 applies to both BDS 2006 and
-// Highlander prior to the release of RAD Studio 2007.  Use VER185 to
-// identify Highlanger specifically.
-
-//Delphi & C++Builder 2006
-//Delphi & C++Builder 2007 (Highlander)
-{$IFDEF VER180}
-  {$DEFINE DCC}
-  {$DEFINE VCL_2006}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_2006}
-  {$ELSE}
-    {$DEFINE DELPHI_2006}
-  {$ENDIF}
-{$ENDIF}
-
-//Delphi & C++Builder 2007 (Highlander)
-{$IFDEF VER185}
-  {$DEFINE DCC}
-  {$UNDEF VCL_2006}
-  {$DEFINE VCL_2007}
-  {$IFDEF CBUILDER}
-    {$UNDEF CBUILDER_2006}
-    {$DEFINE CBUILDER_2007}
-  {$ELSE}
-    {$UNDEF DELPHI_2006}
-    {$DEFINE DELPHI_2007}
-  {$ENDIF}
-{$ENDIF}
-
-// BDS 2007 NET personality uses VER190 instead of 185.
-//Delphi .NET 2007
-{$IFDEF VER190}
-  {$DEFINE DCC}
-  {$IFDEF CIL}
-    //Delphi 2007
-    {$DEFINE VCL_2007}
-    {$DEFINE DELPHI_2007}
-  {$ENDIF}
-{$ENDIF}
-
-//Delphi & C++Builder 2009 (Tiburon)
-{$IFDEF VER200}
-  {$DEFINE DCC}
-  {$DEFINE VCL_2009}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_2009}
-  {$ELSE}
-    {$DEFINE DELPHI_2009}
-  {$ENDIF}
-{$ENDIF}
-
-//Delphi & C++Builder 2010 (Weaver)
-{$IFDEF VER210}
-  {$DEFINE DCC}
-  {$DEFINE VCL_2010}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_2010}
-  {$ELSE}
-    {$DEFINE DELPHI_2010}
-  {$ENDIF}
-{$ENDIF}
-
-//Delphi & C++Builder XE (Fulcrum)
-{$IFDEF VER220}
-//REMOVE DCC DEFINE after the next Fulcrum beta.
-//It will be defined there.
-  {$IFNDEF DCC}
+  // Delphi 4
+  {$IFDEF VER120}
     {$DEFINE DCC}
+    {$DEFINE VCL_40}
+    {$DEFINE DELPHI_4}
   {$ENDIF}
-  {$DEFINE VCL_XE}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE}
-  {$ELSE}
-    {$DEFINE DELPHI_XE}
-  {$ENDIF}
-{$ENDIF}
 
-// DCC is now defined by the Delphi compiler starting in XE2
-
-//Delphi & CBuilder XE2 (Pulsar)
-{$IFDEF VER230}
-  {$DEFINE VCL_XE2}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE2}
-  {$ELSE}
-    {$DEFINE DELPHI_XE2}
+  // C++Builder 4
+  {$IFDEF VER125}
+    {$DEFINE DCC}
+    {$DEFINE VCL_40}
+    {$DEFINE CBUILDER_4}
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder XE3 (Waterdragon)
-//Delphi & CBuilder XE3.5 (Quintessence - early betas only)
-{$IFDEF VER240}
-  {$DEFINE VCL_XE3}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE3}
-  {$ELSE}
-    {$DEFINE DELPHI_XE3}
+  // Delphi & C++Builder 5
+  {$IFDEF VER130}
+    {$DEFINE DCC}
+    {$DEFINE VCL_50}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_5}
+    {$ELSE}
+      {$DEFINE DELPHI_5}
+    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder XE4 (Quintessence)
-{$IFDEF VER250}
-  {$UNDEF VCL_XE3}
-  {$DEFINE VCL_XE4}
-  {$IFDEF CBUILDER}
-    {$UNDEF CBUILDER_XE3}
-    {$DEFINE CBUILDER_XE4}
-  {$ELSE}
-    {$UNDEF DELPHI_XE3}
-    {$DEFINE DELPHI_XE4}
+  //Delphi & C++Builder 6
+  {$IFDEF VER140}
+    {$DEFINE DCC}
+    {$DEFINE VCL_60}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_6}
+    {$ELSE}
+      {$DEFINE DELPHI_6}
+    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder XE5 (Zephyr)
-{$IFDEF VER260}
-  {$DEFINE VCL_XE5}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE5}
-  {$ELSE}
-    {$DEFINE DELPHI_XE5}
+  //Delphi 7
+  {$IFDEF VER150}
+    {$DEFINE DCC}
+    {$DEFINE VCL_70}
+    {$DEFINE DELPHI_7} // there was no C++ Builder 7
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder AppMethod
-//AppMethod is just XE5 for mobile only, VCL is removed
-{$IFDEF VER265}
-  {$DEFINE VCL_XE5}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE5}
-  {$ELSE}
-    {$DEFINE DELPHI_XE5}
+  //Delphi 8
+  {$IFDEF VER160}
+    {$DEFINE DCC}
+    {$DEFINE VCL_80}
+    {$DEFINE DELPHI_8} // there was no C++ Builder 8
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder XE6 (Proteus)
-{$IFDEF VER270}
-  {$DEFINE VCL_XE6}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE6}
-  {$ELSE}
-    {$DEFINE DELPHI_XE6}
+  //Delphi 2005
+  {$IFDEF VER170}
+    {$DEFINE DCC}
+    {$DEFINE VCL_2005}
+    {$DEFINE DELPHI_2005} // there was no C++Builder 2005
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder XE7 (Carpathia)
-{$IFDEF VER280}
-  {$DEFINE VCL_XE7}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE7}
-  {$ELSE}
-    {$DEFINE DELPHI_XE7}
-  {$ENDIF}
-{$ENDIF}
+  // NOTE: CodeGear decided to make Highlander be a non-breaking release
+  // (no interface changes, thus fully backwards compatible without any
+  // end user code changes), so VER180 applies to both BDS 2006 and
+  // Highlander prior to the release of RAD Studio 2007.  Use VER185 to
+  // identify Highlanger specifically.
 
-//Delphi & CBuilder XE8 (Elbrus)
-{$IFDEF VER290}
-  {$DEFINE VCL_XE8}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_XE8}
-  {$ELSE}
-    {$DEFINE DELPHI_XE8}
+  //Delphi & C++Builder 2006
+  //Delphi & C++Builder 2007 (Highlander)
+  {$IFDEF VER180}
+    {$DEFINE DCC}
+    {$DEFINE VCL_2006}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_2006}
+    {$ELSE}
+      {$DEFINE DELPHI_2006}
+    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder 10.0 Seattle (Aitana)
-{$IFDEF VER300}
-  {$DEFINE VCL_10_0_SEATTLE}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_VCL_10_0_SEATTLE}
-  {$ELSE}
-    {$DEFINE DELPHI_VCL_10_0_SEATTLE}
+  //Delphi & C++Builder 2007 (Highlander)
+  {$IFDEF VER185}
+    {$DEFINE DCC}
+    {$UNDEF VCL_2006}
+    {$DEFINE VCL_2007}
+    {$IFDEF CBUILDER}
+      {$UNDEF CBUILDER_2006}
+      {$DEFINE CBUILDER_2007}
+    {$ELSE}
+      {$UNDEF DELPHI_2006}
+      {$DEFINE DELPHI_2007}
+    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 
-//Delphi & CBuilder 10.1 Berlin (BigBen)
-{$IFDEF VER310}
-  {$DEFINE VCL_10_1_BERLIN}
-  {$IFDEF CBUILDER}
-    {$DEFINE CBUILDER_10_1_BERLIN}
-  {$ELSE}
-    {$DEFINE DELPHI_10_1_BERLIN}
+  // BDS 2007 NET personality uses VER190 instead of 185.
+  //Delphi .NET 2007
+  {$IFDEF VER190}
+    {$DEFINE DCC}
+    {$IFDEF CIL}
+      //Delphi 2007
+      {$DEFINE VCL_2007}
+      {$DEFINE DELPHI_2007}
+    {$ENDIF}
   {$ENDIF}
+
+  //Delphi & C++Builder 2009 (Tiburon)
+  {$IFDEF VER200}
+    {$DEFINE DCC}
+    {$DEFINE VCL_2009}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_2009}
+    {$ELSE}
+      {$DEFINE DELPHI_2009}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & C++Builder 2010 (Weaver)
+  {$IFDEF VER210}
+    {$DEFINE DCC}
+    {$DEFINE VCL_2010}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_2010}
+    {$ELSE}
+      {$DEFINE DELPHI_2010}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & C++Builder XE (Fulcrum)
+  {$IFDEF VER220}
+  //REMOVE DCC DEFINE after the next Fulcrum beta.
+  //It will be defined there.
+    {$IFNDEF DCC}
+      {$DEFINE DCC}
+    {$ENDIF}
+    {$DEFINE VCL_XE}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE}
+    {$ELSE}
+      {$DEFINE DELPHI_XE}
+    {$ENDIF}
+  {$ENDIF}
+
+  // DCC is now defined by the Delphi compiler starting in XE2
+
+  //Delphi & CBuilder XE2 (Pulsar)
+  {$IFDEF VER230}
+    {$DEFINE VCL_XE2}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE2}
+    {$ELSE}
+      {$DEFINE DELPHI_XE2}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder XE3 (Waterdragon)
+  //Delphi & CBuilder XE3.5 (Quintessence - early betas only)
+  {$IFDEF VER240}
+    {$DEFINE VCL_XE3}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE3}
+    {$ELSE}
+      {$DEFINE DELPHI_XE3}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder XE4 (Quintessence)
+  {$IFDEF VER250}
+    {$UNDEF VCL_XE3}
+    {$DEFINE VCL_XE4}
+    {$IFDEF CBUILDER}
+      {$UNDEF CBUILDER_XE3}
+      {$DEFINE CBUILDER_XE4}
+    {$ELSE}
+      {$UNDEF DELPHI_XE3}
+      {$DEFINE DELPHI_XE4}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder XE5 (Zephyr)
+  {$IFDEF VER260}
+    {$DEFINE VCL_XE5}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE5}
+    {$ELSE}
+      {$DEFINE DELPHI_XE5}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder AppMethod
+  //AppMethod is just XE5 for mobile only, VCL is removed
+  {$IFDEF VER265}
+    {$DEFINE VCL_XE5}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE5}
+    {$ELSE}
+      {$DEFINE DELPHI_XE5}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder XE6 (Proteus)
+  {$IFDEF VER270}
+    {$DEFINE VCL_XE6}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE6}
+    {$ELSE}
+      {$DEFINE DELPHI_XE6}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder XE7 (Carpathia)
+  {$IFDEF VER280}
+    {$DEFINE VCL_XE7}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE7}
+    {$ELSE}
+      {$DEFINE DELPHI_XE7}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder XE8 (Elbrus)
+  {$IFDEF VER290}
+    {$DEFINE VCL_XE8}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE8}
+    {$ELSE}
+      {$DEFINE DELPHI_XE8}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder 10.0 Seattle (Aitana)
+  {$IFDEF VER300}
+    {$DEFINE VCL_10_0_SEATTLE}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_VCL_10_0_SEATTLE}
+    {$ELSE}
+      {$DEFINE DELPHI_VCL_10_0_SEATTLE}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder 10.1 Berlin (BigBen)
+  {$IFDEF VER310}
+    {$DEFINE VCL_10_1_BERLIN}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_10_1_BERLIN}
+    {$ELSE}
+      {$DEFINE DELPHI_10_1_BERLIN}
+    {$ENDIF}
+  {$ENDIF}
+
+  // Kylix
+  //
+  //Important:  Don't use CompilerVersion here as IF's are evaluated before
+  //IFDEF's and Kylix 1 does not have CompilerVersion defined at all.
+  {$IFDEF LINUX}
+    {$DEFINE UNIX}
+    {$IFDEF CONDITIONALEXPRESSIONS}
+      {$IF (RTLVersion >= 14.0) and (RTLVersion <= 14.5) }
+        {$DEFINE KYLIX}
+        {$IF RTLVersion = 14.5}
+          {$DEFINE KYLIX_3}
+        {$ELSEIF RTLVersion >= 14.2}
+          {$DEFINE KYLIX_2}
+        {$ELSE}
+          {$DEFINE KYLIX_1}
+        {$IFEND}
+      {$IFEND}
+    {$ENDIF}
+  {$ENDIF}
+
 {$ENDIF}
 
 // Delphi.NET
@@ -378,28 +402,6 @@
   {$DEFINE HAS_Int32}
   {$DEFINE HAS_UInt32}
   {$DEFINE HAS_UInt64}
-{$ENDIF}
-
-// Kylix
-//
-//Important:  Don't use CompilerVersion here as IF's are evaluated before
-//IFDEF's and Kylix 1 does not have CompilerVersion defined at all.
-{$IFNDEF FPC}
-  {$IFDEF LINUX}
-    {$DEFINE UNIX}
-    {$IFDEF CONDITIONALEXPRESSIONS}
-      {$IF (RTLVersion >= 14.0) and (RTLVersion <= 14.5) }
-        {$DEFINE KYLIX}
-        {$IF RTLVersion = 14.5}
-          {$DEFINE KYLIX_3}
-        {$ELSEIF RTLVersion >= 14.2}
-          {$DEFINE KYLIX_2}
-        {$ELSE}
-          {$DEFINE KYLIX_1}
-        {$IFEND}
-      {$IFEND}
-    {$ENDIF}
-  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF KYLIX}
@@ -450,7 +452,10 @@
   // {$MODE DelphiUnicode} anyway, and then deal with any RTL function issues
   // on an as-needed basis...
   {$MODE Delphi}
-  {.$MODE DelphiUnicode}
+  {$IFDEF FPC_2_7_1_OR_ABOVE}
+    {.$MODE DelphiUnicode}
+    {.$MODESWITCH UnicodeStrings}
+  {$ENDIF}
   //note that we may need further defines for widget types depending on
   //what we do and what platforms we support in FPC.
   //I'll let Marco think about that one.
@@ -951,7 +956,7 @@
 
 {$IFDEF VCL_7_OR_ABOVE}
   {$IFNDEF FPC}
-    {$DEFINE HAS_UInt64}
+    {$DEFINE HAS_UInt64} // Note: it was just an alias for Int64 until D2006!
     {$DEFINE HAS_NAMED_THREADS}
     {$DEFINE HAS_TStrings_ValueFromIndex}
   {$ENDIF}
@@ -1320,6 +1325,9 @@
   {$ENDIF}
 {$ENDIF}
 
+// TODO: Ansi data types were disabled on mobile platforms in XE3, but
+// UTF8String and RawByteString were re-enabled in 10.1 Berlin! What else,
+// if anything, was re-enabled to facilitate that?
 {$IFDEF NO_ANSI_TYPES}
   {$UNDEF HAS_AnsiString}
   {$UNDEF HAS_AnsiChar}
