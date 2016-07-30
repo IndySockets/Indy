@@ -255,7 +255,7 @@ begin
     OutBytes := strm.total_out;
   except
     FreeMem(OutBuf);
-    raise
+    raise;
   end;
 end;
 
@@ -297,8 +297,13 @@ end;
 function CanResizeDMAStream(AStream: TStream): boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := (AStream is TCustomMemoryStream) or
-            (AStream is TStringStream);
+  Result := (AStream is TCustomMemoryStream)
+            {$IFDEF STRING_IS_ANSI}
+            // In D2009, TStringStream was updated to derive from TBytesStream now,
+            // which is a TCustomMemoryStream descendant, and so will be handled above...
+            or (AStream is TStringStream)
+            {$ENDIF}
+            ;
 end;
 
 ///tries to get the stream info
@@ -583,18 +588,12 @@ begin
   end;
 end;
 
-procedure IndyCompressStream(InStream, OutStream: TStream;
-  const level: Integer = Z_DEFAULT_COMPRESSION;
-  const WinBits : Integer = MAX_WBITS;
-  const MemLevel : Integer = MAX_MEM_LEVEL;
-  const Stratagy : Integer = Z_DEFAULT_STRATEGY);
-
+procedure DoCompressStream(var strm: z_stream; InStream, OutStream: TStream; UseDirectOut: boolean);
 const
   //64 KB buffer
   BufSize = 65536;
 
 var
-  strm   : TZStreamRec;
   InBuf, OutBuf : PIdAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
@@ -616,115 +615,6 @@ var
         ExpandStream(OutStream, OutStream.Size + BufSize);
       end;
       TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
-      strm.next_out  := DMAOfStream(OutStream, strm.avail_out);
-      //because we can't really know how much resize is increasing!
-    end;
-    LastOutCount := strm.avail_out;
-  end;
-
-var
-  Finished : boolean;
-begin
-  FillChar(strm, SizeOf(strm), 0);
-
-  InBuf          := nil;
-  OutBuf         := nil;
-  LastOutCount   := 0;
-
-  strm.next_in   := DMAOfStream(InStream, strm.avail_in);
-  UseInBuf := strm.next_in = nil;
-
-  if UseInBuf then begin
-    GetMem(InBuf, BufSize);
-  end;
-
-  try
-    UseOutBuf := not CanResizeDMAStream(OutStream);
-    if UseOutBuf then begin
-      GetMem(OutBuf, BufSize);
-    end;
-
-    try
-      CCheck(deflateInit2_(strm, level, Z_DEFLATED, WinBits, MemLevel, Stratagy, zlib_version, SizeOf(TZStreamRec)));
-      repeat
-        if strm.avail_in = 0 then
-        begin
-          if UseInBuf then
-          begin
-            strm.avail_in := InStream.Read(InBuf^, BufSize);
-            strm.next_in  := InBuf;
-          end;
-          if strm.avail_in = 0 then begin
-            Break;
-          end;
-        end;
-
-        if strm.avail_out = 0 then begin
-          WriteOut;
-        end;
-
-        CCheck(deflate(strm, Z_NO_FLUSH));
-      until False;
-
-      repeat
-        Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
-        WriteOut;
-      until Finished;
-
-      if not UseOutBuf then
-      begin
-        //truncate when using direct output
-        OutStream.Size := OutStream.Position;
-      end;
-
-      //adjust position of the input stream
-      if UseInBuf then begin
-        //seek back when unused data
-        TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
-      end else begin
-        //simple seek
-        TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
-      end;
-
-      CCheck(deflateEnd(strm));
-    finally
-      if OutBuf <> nil then begin
-        FreeMem(OutBuf);
-      end;
-    end;
-  finally
-    if InBuf <> nil then begin
-      FreeMem(InBuf);
-    end;
-  end;
-end;
-
-procedure DoCompressStreamEx(InStream, OutStream: TStream; level: TCompressionLevel;
-  StreamType : TZStreamType; UseDirectOut: boolean);
-const
-  //64 KB buffer
-  BufSize = 65536;
-var
-  strm   : z_stream;
-  InBuf, OutBuf : PIdAnsiChar;
-  UseInBuf, UseOutBuf : boolean;
-  LastOutCount : TIdC_UINT;
-
-  procedure WriteOut;
-  begin
-    if UseOutBuf then
-    begin
-      if LastOutCount > 0 then begin
-        OutStream.Write(OutBuf^, LastOutCount - strm.avail_out);
-      end;
-      strm.avail_out := BufSize;
-      strm.next_out  := OutBuf;
-    end else
-    begin
-      if strm.avail_out = 0 then begin
-        ExpandStream(OutStream, OutStream.Size + BufSize);
-      end;
-      TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
       strm.next_out := DMAOfStream(OutStream, strm.avail_out);
       //because we can't really know how much resize is increasing!
     end;
@@ -734,8 +624,6 @@ var
 var
   Finished : boolean;
 begin
-  FillChar(strm, SizeOf(strm), 0);
-
   InBuf          := nil;
   OutBuf         := nil;
   LastOutCount   := 0;
@@ -754,8 +642,6 @@ begin
     end;
 
     try
-      CCheck(deflateInitEx(strm, Levels[level], StreamType));
-
       repeat
         if strm.avail_in = 0 then
         begin
@@ -777,7 +663,7 @@ begin
       until False;
 
       repeat
-        if (strm.avail_in = 0) and (strm.avail_out = 0) then begin
+        if strm.avail_out = 0 then begin
           WriteOut;
         end;
         Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
@@ -798,8 +684,6 @@ begin
         //simple seek
         TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
       end;
-
-      CCheck(deflateEnd(strm));
     finally
       if OutBuf <> nil then begin
         FreeMem(OutBuf);
@@ -812,14 +696,47 @@ begin
   end;
 end;
 
-procedure CompressStream(InStream, OutStream: TStream; level: TCompressionLevel; StreamType : TZStreamType);
+procedure IndyCompressStream(InStream, OutStream: TStream;
+  const level: Integer = Z_DEFAULT_COMPRESSION;
+  const WinBits : Integer = MAX_WBITS;
+  const MemLevel : Integer = MAX_MEM_LEVEL;
+  const Stratagy : Integer = Z_DEFAULT_STRATEGY);
+var
+  strm : z_stream;
 begin
-  DoCompressStreamEx(InStream, OutStream, level, StreamType, False);
+  FillChar(strm, SizeOf(strm), 0);
+  CCheck(deflateInit2_(strm, level, Z_DEFLATED, WinBits, MemLevel, Stratagy, zlib_version, SizeOf(TZStreamRec)));
+  try
+    DoCompressStream(strm, InStream, OutStream, True);
+  finally
+    CCheck(deflateEnd(strm));
+  end;
+end;
+
+procedure CompressStream(InStream, OutStream: TStream; level: TCompressionLevel; StreamType : TZStreamType);
+var
+  strm : z_stream;
+begin
+  FillChar(strm, SizeOf(strm), 0);
+  CCheck(deflateInitEx(strm, Levels[level], StreamType));
+  try
+    DoCompressStream(strm, InStream, OutStream, False);
+  finally
+    CCheck(deflateEnd(strm));
+  end;
 end;
 
 procedure CompressStreamEx(InStream, OutStream: TStream; level: TCompressionLevel; StreamType : TZStreamType);
+var
+  strm : z_stream;
 begin
-  DoCompressStreamEx(InStream, OutStream, level, StreamType, True);
+  FillChar(strm, SizeOf(strm), 0);
+  CCheck(deflateInitEx(strm, Levels[level], StreamType));
+  try
+    DoCompressStream(strm, InStream, OutStream, True);
+  finally
+    CCheck(deflateEnd(strm));
+  end;
 end;
 
 function CompressString(const InString: string; level: TCompressionLevel; StreamType : TZStreamType): string;
