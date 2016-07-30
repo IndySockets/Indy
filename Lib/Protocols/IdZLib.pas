@@ -594,105 +594,127 @@ const
   BufSize = 65536;
 
 var
-  InBuf, OutBuf : PIdAnsiChar;
+  InBuf, OutBuf : array of TIdAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
 
   procedure WriteOut;
   begin
+    if (LastOutCount > 0) and (strm.avail_out < LastOutCount) then begin
+      if UseOutBuf then begin
+        OutStream.Write(PIdAnsiChar(OutBuf)^, LastOutCount - strm.avail_out);
+      end else begin
+        TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
+      end;
+    end;
+  end;
+
+  procedure NextOut;
+  begin
     if UseOutBuf then
     begin
-      if LastOutCount > 0 then
-      begin
-        OutStream.Write(OutBuf^, LastOutCount - strm.avail_out);
-      end;
-      strm.avail_out := BufSize;
-      strm.next_out  := OutBuf;
+      strm.next_out  := PIdAnsiChar(OutBuf);
+      strm.avail_out := Length(OutBuf);
     end else
     begin
-      if strm.avail_out = 0 then
-      begin
-        ExpandStream(OutStream, OutStream.Size + BufSize);
-      end;
-      TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
+      ExpandStream(OutStream, OutStream.Size + BufSize);
       strm.next_out := DMAOfStream(OutStream, strm.avail_out);
       //because we can't really know how much resize is increasing!
     end;
     LastOutCount := strm.avail_out;
   end;
 
-var
-  Finished : boolean;
-begin
-  InBuf          := nil;
-  OutBuf         := nil;
-  LastOutCount   := 0;
+  procedure ExpandOut;
+  begin
+    if UseOutBuf then begin
+      SetLength(OutBuf, Length(OutBuf) + BufSize);
+    end;
+    NextOut;
+  end;
 
-  strm.next_in   := DMAOfStream(InStream, strm.avail_in);
+  function DeflateOut(FlushFlag: TIdC_INT): TIdC_INT;
+  begin
+    if strm.avail_out = 0 then begin
+      NextOut;
+    end;
+
+    repeat
+      Result := deflate(strm, FlushFlag);
+      if Result <> Z_BUF_ERROR then begin
+        Break;
+      end;
+      ExpandOut;
+    until False;
+
+    CCheck(Result);
+    WriteOut;
+  end;
+
+begin
+  LastOutCount := 0;
+
+  strm.next_in := DMAOfStream(InStream, strm.avail_in);
   UseInBuf := strm.next_in = nil;
 
   if UseInBuf then begin
-    GetMem(InBuf, BufSize);
+    SetLength(InBuf, BufSize);
+    strm.next_in = PIdAnsiChar(InBuf);
   end;
 
-  try
-    UseOutBuf := not (UseDirectOut and CanResizeDMAStream(OutStream));
-    if UseOutBuf then begin
-      GetMem(OutBuf, BufSize);
-    end;
+  UseOutBuf := not (UseDirectOut and CanResizeDMAStream(OutStream));
+  if UseOutBuf then begin
+    SetLength(OutBuf, BufSize);
+  end;
 
-    try
-      repeat
-        if strm.avail_in = 0 then
-        begin
-          if UseInBuf then
-          begin
-            strm.avail_in := InStream.Read(InBuf^, BufSize);
-            strm.next_in  := InBuf;
-          end;
-          if strm.avail_in = 0 then begin
-            Break;
-          end;
-        end;
+  { From the zlib manual at http://www.zlib.net/manual.html
 
-        if strm.avail_out = 0 then begin
-          WriteOut;
-        end;
+  deflate() returns Z_OK if some progress has been made (more input processed
+  or more output produced), Z_STREAM_END if all input has been consumed and all
+  output has been produced (only when flush is set to Z_FINISH), Z_STREAM_ERROR
+  if the stream state was inconsistent (for example if next_in or next_out was
+  NULL), Z_BUF_ERROR if no progress is possible (for example avail_in or avail_out
+  was zero). Note that Z_BUF_ERROR is not fatal, and deflate() can be called again
+  with more input and more output space to continue compressing.
+  }
 
-        CCheck(deflate(strm, Z_NO_FLUSH));
-      until False;
+  { From the ZLIB FAQ at http://www.gzip.org/zlib/FAQ.txt
 
-      repeat
-        if strm.avail_out = 0 then begin
-          WriteOut;
-        end;
-        Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
-        WriteOut;
-      until Finished;
+   5. deflate() or inflate() returns Z_BUF_ERROR
 
-      if not UseOutBuf then
-      begin
-        //truncate when using direct output
-        OutStream.Size := OutStream.Position;
-      end;
+      Before making the call, make sure that avail_in and avail_out are not
+      zero. When setting the parameter flush equal to Z_FINISH, also make sure
+      that avail_out is big enough to allow processing all pending input.
+      Note that a Z_BUF_ERROR is not fatal--another call to deflate() or
+      inflate() can be made with more input or output space. A Z_BUF_ERROR
+      may in fact be unavoidable depending on how the functions are used, since
+      it is not possible to tell whether or not there is more output pending
+      when strm.avail_out returns with zero.
+  }
 
-      //adjust position of the input stream
+  repeat
+    if strm.avail_in = 0 then
+    begin
       if UseInBuf then begin
-        //seek back when unused data
-        TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
-      end else begin
-        //simple seek
-        TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
+        strm.avail_in := InStream.Read(PIdAnsiChar(InBuf)^, Length(InBuf));
       end;
-    finally
-      if OutBuf <> nil then begin
-        FreeMem(OutBuf);
+      if strm.avail_in = 0 then begin
+        Break;
       end;
     end;
-  finally
-    if InBuf <> nil then begin
-      FreeMem(InBuf);
-    end;
+    DeflateOut(Z_NO_FLUSH);
+  until False;
+
+  repeat until DeflateOut(Z_FINISH) = Z_STREAM_END;
+
+  if not UseOutBuf then
+  begin
+    //truncate when using direct output
+    OutStream.Size := OutStream.Position;
+  end;
+
+  if not UseInBuf then begin
+    //adjust position of direct input
+    TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
   end;
 end;
 
@@ -952,7 +974,7 @@ end;
 
 function TCompressionStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
- raise ECompressionError.Create(sInvalidStreamOp);
+  raise ECompressionError.Create(sInvalidStreamOp);
 end;
 
 function TCompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
