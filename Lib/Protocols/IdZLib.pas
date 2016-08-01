@@ -595,16 +595,20 @@ const
 
 var
   InBuf, OutBuf : array of TIdAnsiChar;
+  pLastOutBuf : PIdAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
 
   procedure WriteOut;
+  var
+    NumWritten : TIdC_UINT;
   begin
     if (LastOutCount > 0) and (strm.avail_out < LastOutCount) then begin
+      NumWritten := LastOutCount - strm.avail_out;
       if UseOutBuf then begin
-        OutStream.Write(PIdAnsiChar(OutBuf)^, LastOutCount - strm.avail_out);
+        OutStream.Write(pLastOutBuf^, NumWritten);
       end else begin
-        TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
+        TIdStreamHelper.Seek(OutStream, NumWritten, soCurrent);
       end;
     end;
   end;
@@ -621,7 +625,6 @@ var
       strm.next_out := DMAOfStream(OutStream, strm.avail_out);
       //because we can't really know how much resize is increasing!
     end;
-    LastOutCount := strm.avail_out;
   end;
 
   procedure ExpandOut;
@@ -639,10 +642,14 @@ var
     end;
 
     repeat
+      pLastOutBuf := strm.next_out;
+      LastOutCount := strm.avail_out;
+
       Result := deflate(strm, FlushFlag);
       if Result <> Z_BUF_ERROR then begin
         Break;
       end;
+
       ExpandOut;
     until False;
 
@@ -651,6 +658,7 @@ var
   end;
 
 begin
+  pLastOutBuf := nil;
   LastOutCount := 0;
 
   strm.next_in := DMAOfStream(InStream, strm.avail_in);
@@ -658,7 +666,6 @@ begin
 
   if UseInBuf then begin
     SetLength(InBuf, BufSize);
-    strm.next_in = PIdAnsiChar(InBuf);
   end;
 
   UseOutBuf := not (UseDirectOut and CanResizeDMAStream(OutStream));
@@ -694,8 +701,11 @@ begin
   repeat
     if strm.avail_in = 0 then
     begin
-      if UseInBuf then begin
-        strm.avail_in := InStream.Read(PIdAnsiChar(InBuf)^, Length(InBuf));
+      if UseInBuf then
+      begin
+        strm.next_in  := PIdAnsiChar(InBuf);
+        strm.avail_in := InStream.Read(strm.next_in^, Length(InBuf));
+        // TODO: if Read() returns < 0, raise an exception
       end;
       if strm.avail_in = 0 then begin
         Break;
