@@ -882,13 +882,7 @@ begin
     FLastGeneratedHeaders.Values['Importance'] := '';    {do not localize}
   end;
 
-  {CC: SaveToFile sets FSavingToFile to True so that Message IDs
-  are saved when saving to file and omitted otherwise ...}
-  if not FSavingToFile then begin
-    FLastGeneratedHeaders.Values['Message-ID'] := '';
-  end else begin
-    FLastGeneratedHeaders.Values['Message-ID'] := MsgId;
-  end;
+  FLastGeneratedHeaders.Values['Message-ID'] := MsgId;
 
   // RLebeau 9/12/2016: no longer auto-generating In-Reply-To based on
   // Message-ID. Many email servers will reject an outgoing email that
@@ -904,16 +898,11 @@ begin
     FLastGeneratedHeaders.AddStrings(FExtraHeaders);
   end;
 
-  {Generate In-Reply-To if at all possible to pacify SA.  Do this after FExtraHeaders
+  {TODO: Generate Message-ID if at all possible to pacify SA.  Do this after FExtraHeaders
    added in case there is a message-ID present as an extra header.}
-  // RLebeau: no longer doing this (see above)...
   {
-  if InReplyTo = '' then begin
-    if FLastGeneratedHeaders.Values['Message-ID'] <> '' then begin  //do not localize
-      FLastGeneratedHeaders.Values['In-Reply-To'] := FLastGeneratedHeaders.Values['Message-ID'];  //do not localize
-    end;
-  end else begin
-    FLastGeneratedHeaders.Values['In-Reply-To'] := InReplyTo; //do not localize
+  if FLastGeneratedHeaders.Values['Message-ID'] = '' then begin //do not localize
+    FLastGeneratedHeaders.Values['Message-ID'] := '<' + IntToStr(Abs( CurrentProcessId )) + '.' + IntToStr(Abs( GetClockValue )) + '@' + GStack.HostName + '>'; //do not localize
   end;
   }
 end;
