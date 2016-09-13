@@ -885,10 +885,19 @@ begin
   {CC: SaveToFile sets FSavingToFile to True so that Message IDs
   are saved when saving to file and omitted otherwise ...}
   if not FSavingToFile then begin
-    FLastGeneratedHeaders.Values['Message-Id'] := '';
+    FLastGeneratedHeaders.Values['Message-ID'] := '';
   end else begin
-    FLastGeneratedHeaders.Values['Message-Id'] := MsgId;
+    FLastGeneratedHeaders.Values['Message-ID'] := MsgId;
   end;
+
+  // RLebeau 9/12/2016: no longer auto-generating In-Reply-To based on
+  // Message-ID. Many email servers will reject an outgoing email that
+  // does not have a client-assigned Message-ID, and this method does not
+  // know whether this email is a new message or a response to another
+  // email when generating headers.  If the calling app wants to send
+  // In-Reply-To, it will just have to populate that header like any other.
+
+  FLastGeneratedHeaders.Values['In-Reply-To'] := InReplyTo; {do not localize}
 
   // Add extra headers created by UA - allows duplicates
   if (FExtraHeaders.Count > 0) then begin
@@ -897,16 +906,16 @@ begin
 
   {Generate In-Reply-To if at all possible to pacify SA.  Do this after FExtraHeaders
    added in case there is a message-ID present as an extra header.}
+  // RLebeau: no longer doing this (see above)...
+  {
   if InReplyTo = '' then begin
-    if FLastGeneratedHeaders.Values['Message-ID'] <> '' then begin  {do not localize}
-      FLastGeneratedHeaders.Values['In-Reply-To'] := FLastGeneratedHeaders.Values['Message-ID'];  {do not localize}
-    end else begin
-     {CC: The following was originally present, but it so wrong that it has to go!}
-     //Values['In-Reply-To'] := Subject;   {do not localize}
+    if FLastGeneratedHeaders.Values['Message-ID'] <> '' then begin  //do not localize
+      FLastGeneratedHeaders.Values['In-Reply-To'] := FLastGeneratedHeaders.Values['Message-ID'];  //do not localize
     end;
   end else begin
-    FLastGeneratedHeaders.Values['In-Reply-To'] := InReplyTo; {do not localize}
+    FLastGeneratedHeaders.Values['In-Reply-To'] := InReplyTo; //do not localize
   end;
+  }
 end;
 
 procedure TIdMessage.ProcessHeaders;
@@ -1328,6 +1337,14 @@ procedure TIdMessage.SetInReplyTo(const AValue: String);
 begin
   FInReplyTo := EnsureMsgIDBrackets(AValue);
 end;
+
+// TODO: add this?
+{
+procedure TIdMessage.GetMsgID: String;
+begin
+  Result := EnsureMsgIDBrackets(FMsgId);
+end;
+}
 
 procedure TIdMessage.SetMsgID(const AValue: String);
 begin
