@@ -734,7 +734,7 @@ begin
   end;
   for LN := 0 to MessageParts.Count-1 do begin
     {Change any encodings we don't know to base64 for MIME and UUE for PlainText...}
-    LEncoding := MessageParts[LN].ContentTransfer;
+    LEncoding := ExtractHeaderItem(MessageParts[LN].ContentTransfer);
     if LEncoding <> '' then begin
       if Encoding = meMIME then begin
         if PosInStrArray(LEncoding, ['7bit', '8bit', 'binary', 'base64', 'quoted-printable', 'binhex40'], False) = -1 then begin {do not localize}
@@ -753,7 +753,7 @@ begin
   Change it to a supported combination...}
   if MessageParts.Count > 0 then begin
     if (ContentTransferEncoding <> '') and
-     (PosInStrArray(ContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1) then begin {do not localize}
+     (not IsHeaderValue(ContentTransferEncoding, ['7bit', '8bit', 'binary'])) then begin {do not localize}
       ContentTransferEncoding := '';
     end;
   end;

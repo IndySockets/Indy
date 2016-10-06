@@ -304,6 +304,8 @@ end;
 
 function TIdMessageDecoderInfoMIME.CheckForStart(ASender: TIdMessage;
  const ALine: string): TIdMessageDecoder;
+var
+  LContentTransferEncoding: string;
 begin
   Result := nil;
   if ASender.MIMEBoundary.Boundary <> '' then begin
@@ -316,12 +318,13 @@ begin
     end;
   end;
   if (Result = nil) and (ASender.ContentTransferEncoding <> '') then begin
+    LContentTransferEncoding := ExtractHeaderItem(ASender.ContentTransferEncoding);
     if IsHeaderMediaType(ASender.ContentType, 'multipart') and {do not localize}
-       (PosInStrArray(ASender.ContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1) then {do not localize}
+       (PosInStrArray(LContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1) then {do not localize}
     begin
       Exit;
     end;
-    if (PosInStrArray(ASender.ContentTransferEncoding, ['base64', 'quoted-printable'], False) <> -1) then begin {Do not localize}
+    if (PosInStrArray(LContentTransferEncoding, ['base64', 'quoted-printable'], False) <> -1) then begin {Do not localize}
       Result := TIdMessageDecoderMIME.Create(ASender, ALine);
     end;
   end;
@@ -353,10 +356,10 @@ begin
   Result := nil;
   if FBodyEncoded then begin
     LContentType := TIdMessage(Owner).ContentType;
-    LContentTransferEncoding := TIdMessage(Owner).ContentTransferEncoding;
+    LContentTransferEncoding := ExtractHeaderItem(TIdMessage(Owner).ContentTransferEncoding);
   end else begin
     LContentType := FHeaders.Values['Content-Type']; {Do not Localize}
-    LContentTransferEncoding := FHeaders.Values['Content-Transfer-Encoding']; {Do not Localize}
+    LContentTransferEncoding := ExtractHeaderItem(FHeaders.Values['Content-Transfer-Encoding']); {Do not Localize}
   end;
   if LContentTransferEncoding = '' then begin
     // RLebeau 04/08/2014: According to RFC 2045 Section 6.1:
@@ -763,7 +766,7 @@ begin
         {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
         set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
         the part header in plain-text.}
-         (PosInStrArray(TIdMessage(Owner).ContentTransferEncoding, ['8bit', '7bit', 'binary'], False) = -1)    {do not localize}
+         (not IsHeaderValue(TIdMessage(Owner).ContentTransferEncoding, ['8bit', '7bit', 'binary']))    {do not localize}
       then begin
         FBodyEncoded := True;
       end;

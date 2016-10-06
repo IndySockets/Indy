@@ -3898,13 +3898,11 @@ begin
 
       LHelper := TIdIMAP4WorkHelper.Create(Self);
       try
-        if TextIsSame(LContentTransferEncoding, 'base64') then begin  {Do not Localize}
-          DoDecode(TIdDecoderMIME, True);
-        end else if TextIsSame(LContentTransferEncoding, 'quoted-printable') then begin  {Do not Localize}
-          DoDecode(TIdDecoderQuotedPrintable);
-        end else if TextIsSame(LContentTransferEncoding, 'binhex40') then begin  {Do not Localize}
-          DoDecode(TIdDecoderBinHex4);
-        end else begin
+        case PosInStrArray(LContentTransferEncoding, ['base64', 'quoted-printable', 'binhex40'], False) of {Do not Localize}
+          0: DoDecode(TIdDecoderMIME, True);
+          1: DoDecode(TIdDecoderQuotedPrintable);
+          2: DoDecode(TIdDecoderBinHex4);
+        else
           {Assume no encoding (8bit) or something we cannot decode...}
           DoDecode();
         end;

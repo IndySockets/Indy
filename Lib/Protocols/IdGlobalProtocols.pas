@@ -460,7 +460,8 @@ type
   function IsHeaderMediaTypes(const AHeaderLine: String; const AMediaTypes: array of String): Boolean;
   function ExtractHeaderMediaType(const AHeaderLine: String): String;
   function ExtractHeaderMediaSubType(const AHeaderLine: String): String;
-  function IsHeaderValue(const AHeaderLine: String; const AValue: String): Boolean;
+  function IsHeaderValue(const AHeaderLine: String; const AValue: String): Boolean; overload;
+  function IsHeaderValue(const AHeaderLine: String; const AValues: array of String): Boolean; overload;
   function FileSizeByName(const AFilename: TIdFileName): Int64;
   {$IFDEF WINDOWS}
   function IsVolume(const APathName : TIdFileName) : Boolean;
@@ -4502,6 +4503,11 @@ end;
 function IsHeaderValue(const AHeaderLine: String; const AValue: String): Boolean;
 begin
   Result := TextIsSame(ExtractHeaderItem(AHeaderLine), AValue);
+end;
+
+function IsHeaderValue(const AHeaderLine: String; const AValues: array of String): Boolean;
+begin
+  Result := PosInStrArray(ExtractHeaderItem(AHeaderLine), AValues, False) <> -1;
 end;
 
 function GetClockValue : Int64;
