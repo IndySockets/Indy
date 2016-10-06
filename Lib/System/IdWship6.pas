@@ -431,7 +431,7 @@ var
   {$ENDIF}
 
 var
-  GIdIPv6FuncsAvailable: Boolean = False {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
+  GIdIPv6FuncsAvailable: Boolean = False{$IFDEF HAS_DEPRECATED}{$IFDEF FPC};{$ENDIF} deprecated{$ENDIF};
 
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
 

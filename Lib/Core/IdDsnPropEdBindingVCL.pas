@@ -199,36 +199,41 @@ var
   LPort: integer;
   LSocket: TIdSocketHandle;
 begin
-  ADest.Clear;
-  LItems := TStringList.Create;
+  ADest.BeginUpdate;
   try
-    LItems.CommaText := AList;
-    for i := 0 to LItems.Count-1 do begin
-      if Length(LItems[i]) > 0 then begin
-        if TextStartsWith(LItems[i], '[') then begin
-         //  ipv6
-          LIPVersion := Id_IPv6;
-          LText := Copy(LItems[i], 2, MaxInt);
-          LAddr := Fetch(LText, ']:');
-          LPort := StrToIntDef(LText, -1);
-        end else begin
-          // ipv4
-          LIPVersion := Id_IPv4;
-          LText := LItems[i];
-          LAddr := Fetch(LText, ':');
-          LPort := StrToIntDef(LText, -1);
-          //Note that 0 is legal and indicates the server binds to a random port
-        end;
-        if IsValidIP(LAddr) and (LPort > -1) and (LPort < 65536) then begin
-          LSocket := ADest.Add;
-          LSocket.IPVersion := LIPVersion;
-          LSocket.IP := LAddr;
-          LSocket.Port := LPort;
+    ADest.Clear;
+    LItems := TStringList.Create;
+    try
+      LItems.CommaText := AList;
+      for i := 0 to LItems.Count-1 do begin
+        if Length(LItems[i]) > 0 then begin
+          if TextStartsWith(LItems[i], '[') then begin
+           //  ipv6
+            LIPVersion := Id_IPv6;
+            LText := Copy(LItems[i], 2, MaxInt);
+            LAddr := Fetch(LText, ']:');
+            LPort := StrToIntDef(LText, -1);
+          end else begin
+            // ipv4
+            LIPVersion := Id_IPv4;
+            LText := LItems[i];
+            LAddr := Fetch(LText, ':');
+            LPort := StrToIntDef(LText, -1);
+            //Note that 0 is legal and indicates the server binds to a random port
+          end;
+          if IsValidIP(LAddr) and (LPort > -1) and (LPort < 65536) then begin
+            LSocket := ADest.Add;
+            LSocket.IPVersion := LIPVersion;
+            LSocket.IP := LAddr;
+            LSocket.Port := LPort;
+          end;
         end;
       end;
+    finally
+      LItems.Free;
     end;
   finally
-    LItems.Free;
+    ADest.EndUpdate;
   end;
 end;
 

@@ -288,7 +288,11 @@ uses
   IdHash,
   IdHashMessageDigest,
   IdCoderMIME
-  {$IFNDEF DOTNET}, IdSSLOpenSSLHeaders{$ENDIF}
+  {$IFNDEF DOTNET}
+    {.$IFDEF USE_OPENSSL}
+  , IdSSLOpenSSLHeaders
+    {.$ENDIF}
+  {$ENDIF}
   {$IFDEF HAS_GENERICS_TArray_Copy}
     {$IFDEF HAS_UNIT_Generics_Collections}
   , System.Generics.Collections
@@ -327,13 +331,18 @@ begin
 end;
 {$ELSE}
 function NTLMFunctionsLoaded : Boolean;
+//{$IFNDEF USE_OPENSSL}{$IFDEF USE_INLINE} inline; {$ENDIF}{$ENDIF}
 begin
-  Result := IdSSLOpenSSLHeaders.Load;
+  {.$IFDEF USE_OPENSSL}
+  Result := IdSSLOpenSSLHeaders.Load(nil);
   if Result then begin
     Result := Assigned(DES_set_odd_parity) and
       Assigned(DES_set_key) and
       Assigned(DES_ecb_encrypt);
   end;
+  {.$ELSE}
+  //Result := False;
+  {.$ENDIF}
 end;
 {$ENDIF}
 

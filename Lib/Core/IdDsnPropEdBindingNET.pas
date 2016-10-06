@@ -122,37 +122,42 @@ var
   LAddr, LText: string;
   LPort: integer;
 begin
-  ADest.Clear;
-  LItems := TStringList.Create;
+  ADest.BeginUpdate;
   try
-    LItems.CommaText := AList;
-    for i := 0 to LItems.Count-1 do begin
-      if Length(LItems[i]) > 0 then begin
-        if TextStartsWith(LItems[i], '[') then begin
-          //  ipv6
-          LIPVersion := Id_IPv6;
-          LText := Copy(LItems[i], 2, MaxInt);
-          LAddr := Fetch(LText, ']:');
-          LPort := IndyStrToInt(LText, -1);
-        end else begin
-          // ipv4
-          LIPVersion := Id_IPv4;
-          LText := LItems[i];
-          LAddr := Fetch(LText, ':');
-          LPort := IndyStrToInt(LText, -1);
-          //Note that 0 is legal and indicates the server binds to a random port
-        end;
-        if IsValidIP(LAddr) and (LPort > -1) and (LPort < 65536) then begin
-          with ADest.Add do begin
-            IPVersion := LIPVersion;
-            IP := LAddr;
-            Port := LPort;
+    ADest.Clear;
+    LItems := TStringList.Create;
+    try
+      LItems.CommaText := AList;
+      for i := 0 to LItems.Count-1 do begin
+        if Length(LItems[i]) > 0 then begin
+          if TextStartsWith(LItems[i], '[') then begin
+            //  ipv6
+            LIPVersion := Id_IPv6;
+            LText := Copy(LItems[i], 2, MaxInt);
+            LAddr := Fetch(LText, ']:');
+            LPort := IndyStrToInt(LText, -1);
+          end else begin
+            // ipv4
+            LIPVersion := Id_IPv4;
+            LText := LItems[i];
+            LAddr := Fetch(LText, ':');
+            LPort := IndyStrToInt(LText, -1);
+            //Note that 0 is legal and indicates the server binds to a random port
+          end;
+          if IsValidIP(LAddr) and (LPort > -1) and (LPort < 65536) then begin
+            with ADest.Add do begin
+              IPVersion := LIPVersion;
+              IP := LAddr;
+              Port := LPort;
+            end;
           end;
         end;
       end;
+    finally
+      LItems.Free;
     end;
   finally
-    LItems.Free;
+    ADest.EndUpdate;
   end;
 end;
 
@@ -588,30 +593,30 @@ var
   selected: integer;
   s: string;
 begin
-   selected := lbBindings.SelectedIndex;
-   lbBindings.BeginUpdate;
-   try
-    if lbBindings.Items.Count = FHandles.Count then begin
-      for i := 0 to FHandles.Count - 1 do begin
-        s := GetDisplayString(FHandles[i]);
-        if s <> lbBindings.Items[i].ToString then begin
-          lbBindings.Items[i] := s;
-        end;
-      end;
-    end else begin
-      lbBindings.Items.Clear;
-      for i := 0 to FHandles.Count-1 do begin
-        lbBindings.Items.Add(GetDisplayString(FHandles[i]));
-      end;
-    end;
-   finally
-     lbBindings.EndUpdate;
-     if Assigned(FCurrentHandle) then begin
-       lbBindings.SelectedIndex := FCurrentHandle.Index;
-     end else begin
-       lbBindings.SelectedIndex := IndyMin(selected, lbBindings.Items.Count-1);
+  selected := lbBindings.SelectedIndex;
+  lbBindings.BeginUpdate;
+  try
+   if lbBindings.Items.Count = FHandles.Count then begin
+     for i := 0 to FHandles.Count - 1 do begin
+       s := GetDisplayString(FHandles[i]);
+       if s <> lbBindings.Items[i].ToString then begin
+         lbBindings.Items[i] := s;
+       end;
+     end;
+   end else begin
+     lbBindings.Items.Clear;
+     for i := 0 to FHandles.Count-1 do begin
+       lbBindings.Items.Add(GetDisplayString(FHandles[i]));
      end;
    end;
+  finally
+    lbBindings.EndUpdate;
+    if Assigned(FCurrentHandle) then begin
+      lbBindings.SelectedIndex := FCurrentHandle.Index;
+    end else begin
+      lbBindings.SelectedIndex := IndyMin(selected, lbBindings.Items.Count-1);
+    end;
+  end;
 {  selected := lbBindings.SelectedItem;
   lbBindings.Items.BeginUpdate;
   try
@@ -679,9 +684,9 @@ var
   i : Integer;
 begin
   ACombo.Items.Clear;
-   for i := 0 to AStrings.Count-1 do begin
-     ACombo.Items.Add(AStrings[i]);
-   end;
+  for i := 0 to AStrings.Count-1 do begin
+    ACombo.Items.Add(AStrings[i]);
+  end;
 end;
 
 function TIdDsnPropEdBindingNET.Execute: Boolean;

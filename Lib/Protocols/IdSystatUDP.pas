@@ -102,23 +102,28 @@ begin
     LTimeout := ReceiveTimeout;
   end;
 
-  ADest.Clear;
-  //The string can be anything - The RFC says the server should discard packets
-  Send(' ');    {Do not Localize}
-  {  We do things this way because RFC 866 says:
+  ADest.BeginUpdate;
+  try
+    ADest.Clear;
+    //The string can be anything - The RFC says the server should discard packets
+    Send(' ');    {Do not Localize}
+    {  We do things this way because RFC 866 says:
 
-  If the list does not fit in one datagram then send a sequence of
-   datagrams but don't break the information for a user (a line) across
-   a datagram.
-  }
-  LEncoding := IndyTextEncoding_8Bit;
-  repeat
-    s := ReceiveString(LTimeout, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
-    if s = '' then begin
-      Break;
-    end;
-    ADest.Add(s);
-  until False;
+    If the list does not fit in one datagram then send a sequence of
+     datagrams but don't break the information for a user (a line) across
+     a datagram.
+    }
+    LEncoding := IndyTextEncoding_8Bit;
+    repeat
+      s := ReceiveString(LTimeout, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      if s = '' then begin
+        Break;
+      end;
+      ADest.Add(s);
+    until False;
+  finally
+    ADest.EndUpdate;
+  end;
 end;
 
 end.

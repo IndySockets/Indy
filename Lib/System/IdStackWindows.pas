@@ -1756,8 +1756,7 @@ var
 begin
   // Windows updates this structure on return, so we need to copy it each time we need it
   GetFDSet(LSet);
-  FDSelect(@LSet, nil, nil, ATimeout);
-  Result := LSet.fd_count > 0;
+  Result := FDSelect(@LSet, nil, nil, ATimeout);
 end;
 
 class function TIdSocketListWindows.FDSelect(AReadSet, AWriteSet,
@@ -1786,8 +1785,7 @@ var
 begin
   // Windows updates this structure on return, so we need to copy it each time we need it
   GetFDSet(LSet);
-  FDSelect(@LSet, nil, nil, ATimeout);
-  Result := LSet.fd_count > 0;
+  Result := FDSelect(@LSet, nil, nil, ATimeout);
   if Result then
   begin
     if VSocketList = nil then begin

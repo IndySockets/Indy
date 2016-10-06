@@ -482,7 +482,7 @@ procedure TIdNNTP.SelectGroup(AGroup: string);
 var
   s: string;
 begin
-  SendCmd('GROUP ' + AGroup, [211]);  {do not localize}
+  SendCmd('GROUP ' + AGroup, 211);  {do not localize}
   s := LastCmdResult.Text[0];
   FMsgCount := IndyStrToInt64(Fetch(s), 0);
   FMsgLow := IndyStrToInt64(Fetch(s), 0);
@@ -1512,6 +1512,9 @@ end;
 
 procedure TIdNNTP.SendAuth;
 begin
+  // calling the inherited SendCmd() so as not to handle 480 and 450
+  // again, causing a recursive loop...
+
   // RLebeau - RFC 2980 says that if the password is not required,
   // then 281 will be returned for the username request, not 381.
   if (inherited SendCmd('AUTHINFO USER ' + Username, [281, 381]) = 381) then begin {do not localize}

@@ -91,10 +91,10 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOff.inc}{$ENDIF}
 procedure TIdMessageHelper_LoadFromStream(AMsg: TIdMessage; AStream: TStream;
   const AHeadersOnly: Boolean; const AUsesDotTransparency: Boolean);
-{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOn.inc}{$ENDIF}
 begin
   Internal_TIdMessageHelper_LoadFromStream(AMsg, AStream, AHeadersOnly, AUsesDotTransparency);
 end;
@@ -128,10 +128,10 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOff.inc}{$ENDIF}
 procedure TIdMessageHelper_LoadFromFile(AMsg: TIdMessage; const AFileName: string;
   const AHeadersOnly: Boolean; const AUsesDotTransparency: Boolean);
-{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOn.inc}{$ENDIF}
 begin
   Internal_TIdMessageHelper_LoadFromFile(AMsg, AFileName, AHeadersOnly, AUsesDotTransparency);
 end;
@@ -180,10 +180,10 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOff.inc}{$ENDIF}
 procedure TIdMessageHelper_SaveToStream(AMsg: TIdMessage; AStream: TStream;
   const AHeadersOnly: Boolean; const AUseDotTransparency: Boolean);
-{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOn.inc}{$ENDIF}
 begin
   Internal_TIdMessageHelper_SaveToStream(AMsg, AStream, AHeadersOnly, AUseDotTransparency);
 end;
@@ -222,10 +222,10 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOff.inc}{$ENDIF}
 procedure TIdMessageHelper_SaveToFile(AMsg: TIdMessage; const AFileName: string;
   const AHeadersOnly: Boolean; const AUseDotTransparency: Boolean);
-{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOn.inc}{$ENDIF}
 begin
   Internal_TIdMessageHelper_SaveToFile(AMsg, AFileName, AHeadersOnly, AUseDotTransparency);
 end;

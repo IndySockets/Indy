@@ -493,7 +493,7 @@ begin
     if Result then
     begin
       if FReplyStatus.ReplyStatusType = rsEcho then begin
-        FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN + SizeOf(UInt32));
+        FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN + SizeOf(TIdTicks));
       end else begin
         FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN);
       end;
@@ -610,12 +610,12 @@ begin
 
   SetLength(FBufIcmp, ICMP_MIN + SizeOf(TIdTicks) + LBufferLen);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
-  SetLength(FBufReceive, Length(FBufIcmp) + Id_IP_HSIZE);
+  SetLength(FBufReceive, Id_IP_HSIZE + Length(FBufIcmp));
 
   LIdx := 0;
   LIcmp := TIdICMPHdr.Create;
   try
-    LIcmp.icmp_type :=  Id_ICMP_ECHO;
+    LIcmp.icmp_type := Id_ICMP_ECHO;
     LIcmp.icmp_code := 0;
     LIcmp.icmp_sum := 0;
     LIcmp.icmp_hun.echo_id := Word(CurrentProcessId);

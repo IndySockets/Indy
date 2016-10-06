@@ -392,6 +392,7 @@ end;
 
 function TIdIOHandlerSocket.WriteFile(const AFile: String;
   AEnableTransferFile: Boolean): Int64;
+//TODO: There is a way in linux to dump a file to a socket as well. use it.
   {$IFDEF WIN32_OR_WIN64}
 var
   LOldErrorMode : Integer;

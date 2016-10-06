@@ -209,7 +209,7 @@ uses
   Posix.SysTime,
   {$ENDIF}
   IdAntiFreezeBase, IdResourceStringsCore, IdResourceStrings, IdStackConsts, IdException,
-  IdTCPConnection, IdComponent, IdIOHandler;
+  IdTCPConnection, IdComponent, IdIOHandler, IdCustomTransparentProxy;
 
 type
   TIdConnectThread = class(TThread)
@@ -294,13 +294,16 @@ var
   LPort: Integer;
   LIP: string;
   LIPVersion : TIdIPVersion;
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LProxy: TIdCustomTransparentProxy;
 begin
   inherited ConnectClient;
-  if Assigned(FTransparentProxy) then begin
-    if FTransparentProxy.Enabled then begin
-      LHost := FTransparentProxy.Host;
-      LPort := FTransparentProxy.Port;
-      LIPVersion := FTransparentProxy.IPVersion;
+  LProxy := FTransparentProxy;
+  if Assigned(LProxy) then begin
+    if LProxy.Enabled then begin
+      LHost := LProxy.Host;
+      LPort := LProxy.Port;
+      LIPVersion := LProxy.IPVersion;
     end else begin
       LHost := Host;
       LPort := Port;
@@ -351,9 +354,9 @@ begin
   end else begin
     DoConnectTimeout(ConnectTimeout);
   end;
-  if Assigned(FTransparentProxy) then begin
-    if FTransparentProxy.Enabled then begin
-      FTransparentProxy.Connect(Self, Host, Port, IPVersion);
+  if Assigned(LProxy) then begin
+    if LProxy.Enabled then begin
+      LProxy.Connect(Self, Host, Port, IPVersion);
     end;
   end;
 end;

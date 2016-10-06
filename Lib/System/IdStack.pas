@@ -463,7 +463,9 @@ var
   GStackClass: TIdStackClass = nil;
 
 var
+  {$IFNDEF USE_OBJECT_ARC}
   GInstanceCount: UInt32 = 0;
+  {$ENDIF}
   GStackCriticalSection: TIdCriticalSection = nil;
 
 //for IPv4 Multicast address chacking
@@ -783,40 +785,71 @@ begin
 end;
 
 class procedure TIdStack.DecUsage;
+var
+  // under ARC, increment the lock's reference count before working with it
+  LLock: TIdCriticalSection;
 begin
-  Assert(GStackCriticalSection<>nil);
-  GStackCriticalSection.Acquire;
+  LLock := GStackCriticalSection;
+  if not Assigned(LLock) then begin
+    raise EIdStackError.Create('GStackCriticalSection is nil in TIdStack.DecUsage'); {do not localize}
+  end;
+  LLock.Acquire;
   try
     // This CS will guarantee that during the FreeAndNil nobody
     // will try to use or construct GStack
+    {$IFDEF USE_OBJECT_ARC}
+    if GStack <> nil then begin
+      if GStack.__ObjRelease = 0 then begin
+        Pointer(GStack) := nil;
+      end;
+    end;
+    {$ELSE}
     if GInstanceCount > 0 then begin
       Dec(GInstanceCount);
       if GInstanceCount = 0 then begin
         FreeAndNil(GStack);
       end;
     end;
+    {$ENDIF}
   finally
-    GStackCriticalSection.Release;
+    LLock.Release;
   end;
 end;
 
 class procedure TIdStack.IncUsage;
+var
+  // under ARC, increment the lock's reference count before working with it
+  LLock: TIdCriticalSection;
 begin
-  Assert(GStackCriticalSection<>nil);
-  GStackCriticalSection.Acquire;
+  LLock := GStackCriticalSection;
+  if not Assigned(LLock) then begin
+    raise EIdStackError.Create('GStackCriticalSection is nil in TIdStack.IncUsage'); {do not localize}
+  end;
+  LLock.Acquire;
   try
+    {$IFDEF USE_OBJECT_ARC}
+    if GStack = nil then begin
+      if GStackClass = nil then begin
+        raise EIdStackError.Create(RSStackClassUndefined);
+      end;
+      GStack := GStackClass.Create;
+    end else begin
+      GStack.__ObjAddRef;
+    end;
+    {$ELSE}
     if GInstanceCount = 0 then begin
       if GStack <> nil then begin
-        raise EIdException.Create(RSStackAlreadyCreated);
+        raise EIdStackError.Create(RSStackAlreadyCreated);
       end;
       if GStackClass = nil then begin
-        raise EIdException.Create(RSStackClassUndefined);
+        raise EIdStackError.Create(RSStackClassUndefined);
       end;
       GStack := GStackClass.Create;
     end;
     Inc(GInstanceCount);
+    {$ENDIF}
   finally
-    GStackCriticalSection.Release;
+    LLock.Release;
   end;
 end;
 

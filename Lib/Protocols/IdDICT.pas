@@ -193,39 +193,44 @@ procedure TIdDICT.Define(const AWord, ADBName : String; AResults : TIdDefinition
 var LDef : TIdDefinition;
   LBuf : String;
 begin
-  AResults.Clear;
-  SendCmd('DEFINE '+ ADBName + ' ' + AWord); {do not localize}
-  repeat
-    if (LastCmdResult.NumericCode div 100) = 1 then begin
-      //Good, we got a response
-      LBuf := LastCmdResult.Text[0];
-      case LastCmdResult.NumericCode of
-        151 :
-        begin
-          LDef := AResults.Add;
-          //151 "Stuart" wn "WordNet (r) 2.0"
-          IOHandler.Capture(LDef.Definition);
-          //Word
-          Fetch(LBuf,'"');
-          LDef.Word := Fetch(LBuf,'"');
-          //db Name
-          Fetch(LBuf);
-          LDef.DB.Name := Fetch(LBuf);
-          //DB Description
-          Fetch(LBuf,'"');
-          LDef.DB.Desc := Fetch(LBuf,'"');
+  AResults.BeginUpdate;
+  try
+    AResults.Clear;
+    SendCmd('DEFINE '+ ADBName + ' ' + AWord); {do not localize}
+    repeat
+      if (LastCmdResult.NumericCode div 100) = 1 then begin
+        //Good, we got a response
+        LBuf := LastCmdResult.Text[0];
+        case LastCmdResult.NumericCode of
+          151 :
+          begin
+            LDef := AResults.Add;
+            //151 "Stuart" wn "WordNet (r) 2.0"
+            IOHandler.Capture(LDef.Definition);
+            //Word
+            Fetch(LBuf,'"');
+            LDef.Word := Fetch(LBuf,'"');
+            //db Name
+            Fetch(LBuf);
+            LDef.DB.Name := Fetch(LBuf);
+            //DB Description
+            Fetch(LBuf,'"');
+            LDef.DB.Desc := Fetch(LBuf,'"');
+          end;
+          150 :
+          begin
+            // not sure what to do with the number
+            //get the defintions
+          end;
         end;
-        150 :
-        begin
-          // not sure what to do with the number
-          //get the defintions
-        end;
+        Self.GetInternalResponse;
+      end else begin
+        Break;
       end;
-      Self.GetInternalResponse;
-    end else begin
-      Break;
-    end;
-  until False;
+    until False;
+  finally
+    AResults.EndUpdate;
+  end;
 end;
 
 procedure TIdDICT.Define(const AWord : String; AResults : TIdDefinitions; const AGetAll : Boolean = True);
@@ -246,13 +251,8 @@ end;
 
 procedure TIdDICT.DisconnectNotifyPeer;
 begin
-  try
-    if Connected then begin
-      SendCmd('QUIT', 221);    {Do not Localize}
-    end;
-  finally
-    inherited DisconnectNotifyPeer;
-  end;
+  inherited DisconnectNotifyPeer;
+  SendCmd('QUIT', 221);    {Do not Localize}
 end;
 
 procedure TIdDICT.GetDBList(ADB: TIdDBList);
@@ -293,29 +293,39 @@ var
   i : Integer;
   s : String;
 begin
-  AEntries.Clear;
-  LS := TStringList.Create;
+  AEntries.BeginUpdate;
   try
-    InternalGetStrs(ACmd,LS);
-    for i := 0 to LS.Count - 1 do begin
-      LEnt := AENtries.Add as TIdGeneric;
-      s := LS[i];
-      LEnt.Name := Fetch(s);
-      Fetch(s, '"');
-      LEnt.Desc := Fetch(s, '"');
+    AEntries.Clear;
+    LS := TStringList.Create;
+    try
+      InternalGetStrs(ACmd,LS);
+      for i := 0 to LS.Count - 1 do begin
+        LEnt := AENtries.Add as TIdGeneric;
+        s := LS[i];
+        LEnt.Name := Fetch(s);
+        Fetch(s, '"');
+        LEnt.Desc := Fetch(s, '"');
+      end;
+    finally
+      FreeAndNil(LS);
     end;
   finally
-    FreeAndNil(LS);
+    AEntries.EndUpdate;
   end;
 end;
 
 procedure TIdDICT.InternalGetStrs(const ACmd: String; AStrs: TStrings);
 begin
-  AStrs.Clear;
-  SendCmd(ACmd);
-  if (LastCmdResult.NumericCode div 100) = 1 then begin
-    IOHandler.Capture(AStrs);
-    GetInternalResponse;
+  AStrs.BeginUpdate;
+  try
+    AStrs.Clear;
+    SendCmd(ACmd);
+    if (LastCmdResult.NumericCode div 100) = 1 then begin
+      IOHandler.Capture(AStrs);
+      GetInternalResponse;
+    end;
+  finally
+    AStrs.EndUpdate;
   end;
 end;
 
@@ -340,19 +350,24 @@ var
   s : String;
   LM : TIdMatchItem;
 begin
-  AResults.Clear;
-  LS := TStringList.Create;
+  AResults.BeginUpdate;
   try
-    InternalGetStrs('MATCH '+ADBName+' '+AStrat+' '+AWord,LS); {do not localize}
-    for i := 0 to LS.Count -1 do begin
-      s := LS[i];
-      LM := AResults.Add;
-      LM.DB := Fetch(s);
-      Fetch(s, '"');
-      LM.Word := Fetch(s, '"');
+    AResults.Clear;
+    LS := TStringList.Create;
+    try
+      InternalGetStrs('MATCH '+ADBName+' '+AStrat+' '+AWord,LS); {do not localize}
+      for i := 0 to LS.Count -1 do begin
+        s := LS[i];
+        LM := AResults.Add;
+        LM.DB := Fetch(s);
+        Fetch(s, '"');
+        LM.Word := Fetch(s, '"');
+      end;
+    finally
+      FreeAndNil(LS);
     end;
   finally
-    FreeAndNil(LS);
+    AResults.EndUpdate;
   end;
 end;
 

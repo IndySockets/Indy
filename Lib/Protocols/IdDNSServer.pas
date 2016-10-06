@@ -2058,10 +2058,9 @@ var
   LRR_MX : TIdRR_MX;
   LRR_TXT : TIdRR_TXT;
 begin
-  RRName := RR.Name;
-
   NameNode := TStringList.Create;
   try
+    RRName := RR.Name;
     repeat
       APart := Fetch(RRName, '.');
       if APart <> '' then begin
@@ -2382,10 +2381,9 @@ var
   LRR_TXT : TIdRR_TXT;
   LRR_Error : TIdRR_Error;
 begin
-  RRName := RR.RRName;
-
   NameNode := TStringList.Create;
   try
+    RRName := RR.RRName;
     repeat
       APart := Fetch(RRName, '.');
       if APart <> '' then begin
@@ -3556,7 +3554,7 @@ begin
 
       {
       //Update MyDomain
-      if Copy(RR.Name, Length(RR.Name),1) <> '.' then begin
+      if not TextEndsWith(RR.Name, '.') then begin
         RRName := RR.Name + '.';
       end;
       }

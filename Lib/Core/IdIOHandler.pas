@@ -1786,6 +1786,10 @@ var
   LBufSize: Integer;
   // LBufferingStarted: Boolean;
 begin
+  // TODO: when AWriteByteCount is false, don't calculate the Size, just keep
+  // sending data until the end of stream is reached.  This way, we can send
+  // streams that are not able to report accurate Size values...
+  
   if ASize < 0 then begin //"-1" All from current position
     LStreamPos := AStream.Position;
     ASize := AStream.Size - LStreamPos;
@@ -1862,8 +1866,12 @@ begin
     end;
     FInputBuffer.ExtractToBytes(VBuffer, AByteCount, AAppend);
   end else if AByteCount < 0 then begin
-    ReadFromSource(False, ReadTimeout, False);
-    CheckForDisconnect(True, True);
+    // Return whatever data is currently in the InputBuffer
+    if InputBufferIsEmpty then begin
+      // Read whatever data is currently on the stack
+      ReadFromSource(False, ReadTimeout, False);
+      CheckForDisconnect(True, True);
+    end;
     FInputBuffer.ExtractToBytes(VBuffer, -1, AAppend);
   end;
 end;
@@ -2582,7 +2590,6 @@ end;
 
 function TIdIOHandler.WriteFile(const AFile: String; AEnableTransferFile: Boolean): Int64;
 var
-//TODO: There is a way in linux to dump a file to a socket as well. use it.
   LStream: TStream;
   {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode : Integer;

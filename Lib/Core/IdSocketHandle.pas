@@ -465,7 +465,7 @@ end;
 
 procedure TIdSocketHandle.SetBroadcastFlag(const AEnabled: Boolean);
 begin
-  GStack.SetSocketOption(Handle, Id_SOL_SOCKET, Id_SO_BROADCAST, iif(AEnabled, 1, 0));
+  SetSockOpt(Id_SOL_SOCKET, Id_SO_BROADCAST, iif(AEnabled, 1, 0));
 end;
 
 procedure TIdSocketHandle.SetOverLapped(const AValue:boolean);

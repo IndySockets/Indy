@@ -160,26 +160,36 @@ var
   i: integer;
   l : TList;
 begin
-  lbAssigned.Clear;
-  for i := 0 to SASLList.Count -1 do begin
-    if Assigned(SASLList[i].SASL) then
-    begin
-      lbAssigned.Items.AddObject(SASLList[i].SASL.Name + ': ' + String(SASLList[i].SASL.ServiceName), SASLList[i]);
-    end;
-  end;
-  lbAvailable.Clear;
-  l := GlobalSASLList.LockList;
+  lbAssigned.Items.BeginUpdate;
   try
-    for i := 0 to l.Count-1 do begin
-      if SASLList.IndexOfComp(TIdSASL(l[i])) < 0 then begin
-        if Assigned(l[i]) then
-        begin
-          lbAvailable.Items.AddObject(TIdSASL(l[i]).Name + ': ' + String(TIdSASL(l[i]).ServiceName), TIdSASL(l[i]));
-        end;
+    lbAssigned.Clear;
+    for i := 0 to SASLList.Count -1 do begin
+      if Assigned(SASLList[i].SASL) then
+      begin
+        lbAssigned.Items.AddObject(SASLList[i].SASL.Name + ': ' + String(SASLList[i].SASL.ServiceName), SASLList[i]);
       end;
     end;
   finally
-    GlobalSASLList.UnlockList;
+    lbAssigned.Items.EndUpdate;
+  end;
+  lbAvailable.Items.BeginUpdate;
+  try
+    lbAvailable.Clear;
+    l := GlobalSASLList.LockList;
+    try
+      for i := 0 to l.Count-1 do begin
+        if SASLList.IndexOfComp(TIdSASL(l[i])) < 0 then begin
+          if Assigned(l[i]) then
+          begin
+            lbAvailable.Items.AddObject(TIdSASL(l[i]).Name + ': ' + String(TIdSASL(l[i]).ServiceName), TIdSASL(l[i]));
+          end;
+        end;
+      end;
+    finally
+      GlobalSASLList.UnlockList;
+    end;
+  finally
+    lbAvailable.Items.EndUpdate;
   end;
 end;
 

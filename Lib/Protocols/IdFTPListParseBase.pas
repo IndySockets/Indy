@@ -272,10 +272,15 @@ begin
   //we do not want to fault a user or developer for an ambigious list
   //such as something only containing a "total 0".
   Result := True;
-  ADir.Clear;
-  LCurParser := FindParserByIdent(AFormatID);
-  if LCurParser <> nil then begin
-    Result := LCurParser.ParseListing(AListing, ADir);
+  ADir.BeginUpdate;
+  try
+    ADir.Clear;
+    LCurParser := FindParserByIdent(AFormatID);
+    if LCurParser <> nil then begin
+      Result := LCurParser.ParseListing(AListing, ADir);
+    end;
+  finally
+    ADir.EndUpdate;
   end;
 end;
 
@@ -331,35 +336,41 @@ var
   I: Integer;
   LCurParser : TIdFTPListParseClass;
 begin
+  Result := False;
   VFormat := '';
-  ADir.Clear;
+  ADir.BeginUpdate;
+  try
+    ADir.Clear;
 
-  // RLebeau 9/17/07: if something other than NLST or MLST was used, check to
-  // see that the user has included any of the IdFTPListParse... units in the
-  // app's uses clause.  If the user forgot to include any, warn them.
-  // Otherwise, just move on and assume they know what they are doing...
+    // RLebeau 9/17/07: if something other than NLST or MLST was used, check to
+    // see that the user has included any of the IdFTPListParse... units in the
+    // app's uses clause.  If the user forgot to include any, warn them.
+    // Otherwise, just move on and assume they know what they are doing...
 
-  if ADetails then begin
-    HasExtraParsers := False;
-    for I := 0 to Count-1 do
-    begin
-      // we need to exclude protocol specified parsers
-      LCurParser := {$IFDEF HAS_GENERICS_TList}Items[I]{$ELSE}TIdFTPListParseClass(Items[I]){$ENDIF};
-      if PosInStrArray(LCurParser.GetIdent, [NLST, MLST]) = -1 then begin
-        HasExtraParsers := True;
-        Break;
+    if ADetails then begin
+      HasExtraParsers := False;
+      for I := 0 to Count-1 do
+      begin
+        // we need to exclude protocol specified parsers
+        LCurParser := {$IFDEF HAS_GENERICS_TList}Items[I]{$ELSE}TIdFTPListParseClass(Items[I]){$ENDIF};
+        if PosInStrArray(LCurParser.GetIdent, [NLST, MLST]) = -1 then begin
+          HasExtraParsers := True;
+          Break;
+        end;
+      end;
+      if not HasExtraParsers then begin
+        raise EIdFTPListParseError.Create(RSFTPNoListParseUnitsRegistered); {do not localize}
       end;
     end;
-    if not HasExtraParsers then begin
-      raise EIdFTPListParseError.Create(RSFTPNoListParseUnitsRegistered); {do not localize}
-    end;
-  end;
 
-  VClass := FindParserByDirData(AListing, ASysDescript, ADetails);
-  Result := Assigned(VClass);
-  if Result then begin
-    VFormat := VClass.GetIdent;
-    Result := VClass.ParseListing(AListing, ADir);
+    VClass := FindParserByDirData(AListing, ASysDescript, ADetails);
+    Result := Assigned(VClass);
+    if Result then begin
+      VFormat := VClass.GetIdent;
+      Result := VClass.ParseListing(AListing, ADir);
+    end;
+  finally
+    ADir.EndUpdate;
   end;
 end;
 
@@ -410,14 +421,19 @@ var
   LDesc : String;
   LCurParser: TIdFTPListParseClass;
 begin
-  AData.Clear;
-  for i := 0 to GParserList.Count -1 do begin
-    //we need to exclude protocol specified parsers
-    LCurParser := {$IFDEF HAS_GENERICS_TList}Items[i]{$ELSE}TIdFTPListParseClass(Items[i]){$ENDIF};
-    LDesc := LCurParser.GetIdent;
-    if PosInStrArray(LDesc, [NLST, MLST]) = -1 then begin
-      AData.Add(LDesc);
+  AData.BeginUpdate;
+  try
+    AData.Clear;
+    for i := 0 to GParserList.Count -1 do begin
+      //we need to exclude protocol specified parsers
+      LCurParser := {$IFDEF HAS_GENERICS_TList}Items[i]{$ELSE}TIdFTPListParseClass(Items[i]){$ENDIF};
+      LDesc := LCurParser.GetIdent;
+      if PosInStrArray(LDesc, [NLST, MLST]) = -1 then begin
+        AData.Add(LDesc);
+      end;
     end;
+  finally
+    AData.EndUpdate;
   end;
 end;
 

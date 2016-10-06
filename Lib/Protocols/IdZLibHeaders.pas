@@ -141,6 +141,7 @@ uses
 (*$HPPEMIT '#pragma sizeof(z_stream)'*)
 (*$HPPEMIT '#endif'*)
 (*$HPPEMIT ''*)
+{$IFDEF VCL_2009_OR_ABOVE}
 (*$HPPEMIT '#if alignof(z_stream) < 1'*)
 (*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(z_stream) < (Pascal) [size: 56, align: 1] (WARNING)"'*)
 (*$HPPEMIT '#endif'*)
@@ -148,6 +149,10 @@ uses
 (*$HPPEMIT '#if alignof(z_stream) > 1'*)
 (*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(z_stream) > (Pascal) [size: 56, align: 1] (WARNING)"'*)
 (*$HPPEMIT '#endif'*)
+{$ELSE}
+// TODO: what to put here for older C++Builder compilers that do not have alignof()?
+// see http://www.wambold.com/Martin/writings/alignof.html for ideas...
+{$ENDIF}
 (*$HPPEMIT '#endif'*)
 (*$HPPEMIT ''*)
 (*$HPPEMIT ''*)
@@ -190,6 +195,7 @@ uses
 (*$HPPEMIT '#pragma sizeof(gz_header)'*)
 (*$HPPEMIT '#endif'*)
 (*$HPPEMIT ''*)
+{$IFDEF VCL_2009_OR_ABOVE}
 (*$HPPEMIT '#if alignof(gz_header) < 1'*)
 (*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(gz_header) < (Pascal) [size: 52, align: 1] (WARNING)"'*)
 (*$HPPEMIT '#endif'*)
@@ -197,6 +203,10 @@ uses
 (*$HPPEMIT '#if alignof(gz_header) > 1'*)
 (*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(gz_header) > (Pascal) [size: 52, align: 1] (WARNING)"'*)
 (*$HPPEMIT '#endif'*)
+{$ELSE}
+// TODO: what to put here for older C++Builder compilers that do not have alignof()?
+// see http://www.wambold.com/Martin/writings/alignof.html for ideas...
+{$ENDIF}
 (*$HPPEMIT '#endif'*)
 (*$HPPEMIT '#endif'*)
 (*$HPPEMIT '#if defined(__REMOVE_MACTYPES__)'*)

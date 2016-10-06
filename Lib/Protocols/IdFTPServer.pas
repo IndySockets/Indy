@@ -3675,10 +3675,16 @@ var
     returned as ?.  While the file name is not valid, at least, there some
     thing that looks better than binary junk.
     }
-    if PosInStrArray(ASender.CommandHandler.Command, ['LIST', 'NLST', 'MLSD'], False) > -1 then begin
-      LEncoding := IndyTextEncoding(NLSTEncType[AContext.NLSTUtf8]);
-    end else begin
-      LEncoding := IndyTextEncoding_8Bit;
+    case PosInStrArray(ASender.CommandHandler.Command, ['LIST', 'NLST', 'MLSD'], False) of {do not localize}
+      0, 1: begin
+        LEncoding := IndyTextEncoding(NLSTEncType[AContext.NLSTUtf8]);
+      end;
+      2: begin
+        LEncoding := IndyTextEncoding_UTF8;
+      end;
+      else begin
+        LEncoding := IndyTextEncoding_8Bit;
+      end;
     end;
 
     if AContext.DataMode = dmDeflate then begin
@@ -4327,7 +4333,7 @@ begin
               ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
             end else begin
               ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [iif(GStack.SupportsIPv6, '1,2', '1')])); {do not localize}
-            end;
+              end;
             Exit;
           end;
       end;

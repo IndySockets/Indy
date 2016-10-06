@@ -1045,6 +1045,7 @@ end;
 function TIdFTPListOutput.MListItem(AItem: TIdFTPListOutputItem; AMLstOpts: TIdFTPFactOutputs): String;
 begin
   Result := '';
+
   if AMLstOpts = [] then begin
     Result := AItem.FileName;
     Exit;
@@ -1084,9 +1085,11 @@ begin
   if Perm in AMLstOpts then begin
     Result := Result + 'perm=' + AItem.MLISTPermissions + ';';  {do not localize}
   end;
+
   if (winDriveType in AMLstOpts) and (AItem.WinDriveType<>-1) then begin
-       Result := Result + 'win32.dt='+IntToStr(AItem.WinDriveType  )+';';
+    Result := Result + 'win32.dt='+IntToStr(AItem.WinDriveType  )+';';
   end;
+
   if CreateTime in AMLstOpts then begin
     if AItem.CreationDateGMT <> 0 then begin
       Result := Result + 'create='+ FTPGMTDateTimeToMLS(AItem.CreationDateGMT) + ';';  {do not localize}
@@ -1135,22 +1138,27 @@ begin
     Result := Result + 'win32.ea=0x' + IntToHex(AItem.WinAttribs, 8) + ';'; {do not localize}
   end;
   if (AItem.WinDriveType > -1) and (WinDriveType in AMLstOpts)  then begin
-    Result := Result + 'Win32.dt='+IntToStr( AItem.WinDriveType ) + ';';
+    Result := Result + 'Win32.dt='+IntToStr( AItem.WinDriveType ) + ';'; {do not localize}
   end;
   if (AItem.WinDriveLabel <> '') and (WinDriveLabel in AMLstOpts) then begin
-    Result := Result + 'Win32.dl='+AItem.WinDriveLabel;
+    Result := Result + 'Win32.dl='+AItem.WinDriveLabel + ';'; {do not localize}
   end;
 
-  Result := Result + ' ' + AItem.FileName;
+  Result := Result + ' ' + AItem.FileName; {do not localize}
 end;
 
 procedure TIdFTPListOutput.MLISTOutputDir(AOutput : TStrings; AMLstOpts: TIdFTPFactOutputs);
 var
   i : Integer;
 begin
-  AOutput.Clear;
-  for i := 0 to Count-1 do begin
-    AOutput.Add(MListItem(Items[i], AMLstOpts));
+  AOutput.BeginUpdate;
+  try
+    AOutput.Clear;
+    for i := 0 to Count-1 do begin
+      AOutput.Add(MListItem(Items[i], AMLstOpts));
+    end;
+  finally
+    AOutput.EndUpdate;
   end;
 end;
 

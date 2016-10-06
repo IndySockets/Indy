@@ -1538,6 +1538,10 @@ var
     try
       LSize := ChunkSize;
       while LSize <> 0 do begin
+        // TODO: fire OnChunkReceived even if LS is nil? This way, the caller
+        // can choose to pass AContentStream=nil and rely solely on OnChunkReceived
+        // in cases where a chunked response is expected up front, like in
+        // server-side pushes...
         if Assigned(LS) then begin
           if Assigned(FOnChunkReceived) then begin
             SetLength(LChunk, LSize);
@@ -1971,6 +1975,10 @@ begin
         ARequest.AcceptEncoding := 'gzip'; {do not localize}
       end;
     end;
+  end else
+  begin
+    // TODO: if ARequest.AcceptEncoding is asking for deflate/gzip compression,
+    // remove it, unless the caller is prepared to decompress the data manually...
   end;
   {$IFDEF USE_OBJECT_ARC}LCompressor := nil;{$ENDIF}
 
@@ -2679,10 +2687,11 @@ begin
       Inc(LHeaderCount);
     end;
   except
-    on E: EIdConnClosedGracefully do begin
+    on E: Exception do begin
       FHTTP.Disconnect;
-    end else begin
-      raise;
+      if not (E is EIdConnClosedGracefully) then begin
+        raise;
+      end;
     end;
   end;
   Response.ProcessHeaders;
@@ -2733,8 +2742,11 @@ var
         try
           FHTTP.ReadResult(Request, Response);
         except
-          on E: EIdConnClosedGracefully do begin
+          on E: Exception do begin
             FHTTP.Disconnect;
+            if not (E is EIdConnClosedGracefully) then begin
+              raise;
+            end;
           end;
         end;
         if LRaiseException then begin
@@ -2764,8 +2776,11 @@ var
       try
         FHTTP.ReadResult(Request, Response);
       except
-        on E: EIdConnClosedGracefully do begin
+        on E: Exception do begin
           FHTTP.Disconnect;
+          if not (E is EIdConnClosedGracefully) then begin
+            raise;
+          end;
         end;
       end;
     finally

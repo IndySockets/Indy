@@ -543,7 +543,7 @@ begin
           DisconnectNotifyPeer;
         end;
       except
-        // TODO: maybe shallow only EIdConnClosedGracefully and EIdSocketError?
+        // TODO: maybe allow only EIdConnClosedGracefully and EIdSocketError?
       end;
     end;
   finally
@@ -819,19 +819,9 @@ end;
 
 function TIdTCPConnection.CheckResponse(const AResponse: Int16;
  const AAllowedResponses: array of Int16): Int16;
-var
-  i: Integer;
-  LResponseFound: Boolean;
 begin
   if High(AAllowedResponses) > -1 then begin
-    LResponseFound := False;
-    for i := Low(AAllowedResponses) to High(AAllowedResponses) do begin
-      if AResponse = AAllowedResponses[i] then begin
-        LResponseFound := True;
-        Break;
-      end;
-    end;
-    if not LResponseFound then begin
+    if PosInSmallIntArray(AResponse, AAllowedResponses) = -1 then begin
       RaiseExceptionForLastCmdResult;
     end;
   end;

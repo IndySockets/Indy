@@ -676,9 +676,14 @@ type
 
 procedure TIdIRCCommandHandler.DoParseParams(AUnparsedParams: string; AParams: TStrings);
 begin
-  AParams.Clear;
-  while AUnparsedParams <> '' do begin
-    AParams.Add(FetchIRCParam(AUnparsedParams));
+  AParams.BeginUpdate;
+  try
+    AParams.Clear;
+    while AUnparsedParams <> '' do begin
+      AParams.Add(FetchIRCParam(AUnparsedParams));
+    end;
+  finally
+    AParams.EndUpdate;
   end;
 end;
 

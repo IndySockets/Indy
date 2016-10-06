@@ -1168,27 +1168,32 @@ var
 //"../SomeDir/A ,File.txt", filename.ext
 //filename.ext, ".."
 begin
-  AStrings.Clear;
-  LBuf  := AParams;
-  repeat
-    if LBuf = '' then begin
-      Break;
-    end;
-    lComma := IndyPos(',', LBuf);
-    LOpenQuote := IndyPos('"', LBuf);
-    if LComma = 0 then begin
-      LComma := Length(LBuf);
-    end;
-    if (LOpenQuote = 0) or (LComma < LOpenQuote) then begin
-      LArg := TrimLeft(Fetch(LBuf,','));
-    end else begin
-      Fetch(LBuf,'"');
-      LArg := '"' + Fetch(LBuf,'"') + '"';
-    end;
-    if LArg <> '' then begin
-      AStrings.Add(LArg);
-    end;
-  until False;
+  AStrings.BeginUpdate;
+  try
+    AStrings.Clear;
+    LBuf  := AParams;
+    repeat
+      if LBuf = '' then begin
+        Break;
+      end;
+      lComma := IndyPos(',', LBuf);
+      LOpenQuote := IndyPos('"', LBuf);
+      if LComma = 0 then begin
+        LComma := Length(LBuf);
+      end;
+      if (LOpenQuote = 0) or (LComma < LOpenQuote) then begin
+        LArg := TrimLeft(Fetch(LBuf,','));
+      end else begin
+        Fetch(LBuf,'"');
+        LArg := '"' + Fetch(LBuf,'"') + '"';
+      end;
+      if LArg <> '' then begin
+        AStrings.Add(LArg);
+      end;
+    until False;
+  finally
+    AStrings.EndUpdate;
+  end;
 end;
 
 {$IFNDEF HAS_TryEncodeDate}
@@ -2374,10 +2379,15 @@ var
 begin
   LBuf := Fetch(AData, ANameDelim);
   Result := AData;
-  AResults.Clear;
-  repeat
-    AResults.Add(Fetch(LBuf, AFactDelim));
-  until LBuf = '';
+  AResults.BeginUpdate;
+  try
+    AResults.Clear;
+    repeat
+      AResults.Add(Fetch(LBuf, AFactDelim));
+    until LBuf = '';
+  finally
+    AResults.EndUpdate;
+  end;
 end;
 
 //===== MLSD Parse facts, this has to be different because of different charsets

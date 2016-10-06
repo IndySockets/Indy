@@ -2501,21 +2501,26 @@ function TIdIMAP4.Capability(ASlCapability: TStrings): Boolean;
 begin
   //Available in any state.
   Result := False;
-  ASlCapability.Clear;
-  SendCmd(NewCmdCounter, IMAP4Commands[CmdCapability], [IMAP4Commands[CmdCapability]]);
-  if LastCmdResult.Code = IMAP_OK then begin
-    if LastCmdResult.Text.Count > 0 then begin
-      BreakApart(LastCmdResult.Text[0], ' ', ASlCapability);        {Do not Localize}
+  ASlCapability.BeginUpdate;
+  try
+    ASlCapability.Clear;
+    SendCmd(NewCmdCounter, IMAP4Commands[CmdCapability], [IMAP4Commands[CmdCapability]]);
+    if LastCmdResult.Code = IMAP_OK then begin
+      if LastCmdResult.Text.Count > 0 then begin
+        BreakApart(LastCmdResult.Text[0], ' ', ASlCapability);        {Do not Localize}
+      end;
+      // RLebeau: do not delete the first item anymore! It specifies the IMAP
+      // version/revision, which is needed to support certain extensions, like
+      // 'IMAP4rev1'...
+      {
+      if ASlCapability.Count > 0 then begin
+        ASlCapability.Delete(0);
+      end;
+      }
+      Result := True;
     end;
-    // RLebeau: do not delete the first item anymore! It specifies the IMAP
-    // version/revision, which is needed to support certain extensions, like
-    // 'IMAP4rev1'...
-    {
-    if ASlCapability.Count > 0 then begin
-      ASlCapability.Delete(0);
-    end;
-    }
-    Result := True;
+  finally
+    ASlCapability.EndUpdate;
   end;
 end;
 
@@ -3050,7 +3055,7 @@ end;
 function TIdIMAP4.StoreFlags(const AMsgNumList: array of Integer;
   const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
 begin
-  Result := StoreValue(AMsgNumList, AStoreMethod, 'FLAGS', MessageFlagSetToStr(AFlags)); {Do not Localize}
+  Result := StoreValue(AMsgNumList, AStoreMethod, IMAP4FetchDataItem[fdFlags], MessageFlagSetToStr(AFlags));
 end;
 
 function TIdIMAP4.StoreValue(const AMsgNumList: array of Integer;
@@ -3085,13 +3090,13 @@ end;
 function TIdIMAP4.UIDStoreFlags(const AMsgUID: String;
   const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
 begin
-  Result := UIDStoreValue(AMsgUID, AStoreMethod, 'FLAGS', MessageFlagSetToStr(AFlags)); {Do not Localize}
+  Result := UIDStoreValue(AMsgUID, AStoreMethod, IMAP4FetchDataItem[fdFlags], MessageFlagSetToStr(AFlags));
 end;
 
 function TIdIMAP4.UIDStoreFlags(const AMsgUIDList: array of String;
   const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
 begin
- Result := UIDStoreValue(AMsgUIDList, AStoreMethod, 'FLAGS', MessageFlagSetToStr(AFlags)); {Do not Localize}
+ Result := UIDStoreValue(AMsgUIDList, AStoreMethod, IMAP4FetchDataItem[fdFlags], MessageFlagSetToStr(AFlags));
 end;
 
 function TIdIMAP4.UIDStoreValue(const AMsgUID: String;
@@ -3590,8 +3595,13 @@ begin
     if LastCmdResult.Text.Count > 0 then begin
       if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
         if ADestList <> nil then begin
-          ADestList.Clear;
-          ADestList.Add(FLineStruct.IMAPValue);
+          ADestList.BeginUpdate;
+          try
+            ADestList.Clear;
+            ADestList.Add(FLineStruct.IMAPValue);
+          finally
+            ADestList.EndUpdate;
+          end;
         end;
         if AMsg <> nil then begin
           ParseEnvelopeResult(AMsg, FLineStruct.IMAPValue);
@@ -3627,8 +3637,13 @@ begin
     if LastCmdResult.Text.Count > 0 then begin
       if ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdEnvelope]]) then begin
         if ADestList <> nil then begin
-          ADestList.Clear;
-          ADestList.Add(FLineStruct.IMAPValue);
+          ADestList.BeginUpdate;
+          try
+            ADestList.Clear;
+            ADestList.Add(FLineStruct.IMAPValue);
+          finally
+            ADestList.EndUpdate;
+          end;
         end;
         if AMsg <> nil then begin
           ParseEnvelopeResult(AMsg, FLineStruct.IMAPValue);
@@ -5724,97 +5739,102 @@ begin
     "Mailbox name"
   If AKeepBrackets is false, return '\UnMarked \AnotherFlag' instead of '(\UnMarked \AnotherFlag)'
   }
-  AParams.Clear;
-  LStartPos := 0; {Stop compiler whining}
-  LBracketLevel := 0; {Stop compiler whining}
-  LInQuotesInsideBrackets := False;  {Stop compiler whining}
-  LInQuotedSpecial := False; {Stop compiler whining}
-  LInPart := 0;   {0 is not in a part, 1 is in a quote-delimited part, 2 is in a bracketted part, 3 is a word}
-  APartString := Trim(APartString);
-  for Ln := 1 to Length(APartString) do begin
-    if (LInPart = 1) or ((LInPart = 2) and LInQuotesInsideBrackets) then begin
-      if LInQuotedSpecial then begin
-        LInQuotedSpecial := False;
-      end
-      else if APartString[Ln] = '\' then begin {Do not Localize}
-        LInQuotedSpecial := True;
-      end
-      else if APartString[Ln] = '"' then begin {Do not Localize}
-        if LInPart = 1 then begin
-          LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-          AParams.Add(ResolveQuotedSpecials(LParamater));
-          LInPart := 0;
-        end else begin
-          LInQuotesInsideBrackets := False;
-        end;
-      end;
-    end else if LInPart = 2 then begin
-      //We have to watch out that we don't close this entry on a closing bracket within
-      //quotes, like ("Blah" "Blah)Blah"), so monitor if we are in quotes within brackets.
-      if APartString[Ln] = '"' then begin {Do not Localize}
-        LInQuotesInsideBrackets := True;
-        LInQuotedSpecial := False;
-      end
-      else if APartString[Ln] = '(' then begin {Do not Localize}
-        Inc(LBracketLevel);
-      end
-      else if APartString[Ln] = ')' then begin {Do not Localize}
-        Dec(LBracketLevel);
-        if LBracketLevel = 0 then begin
-          if AKeepBrackets then begin
-            LParamater := Copy(APartString, LStartPos, Ln-LStartPos+1);
-          end else begin
+  AParams.BeginUpdate;
+  try
+    AParams.Clear;
+    LStartPos := 0; {Stop compiler whining}
+    LBracketLevel := 0; {Stop compiler whining}
+    LInQuotesInsideBrackets := False;  {Stop compiler whining}
+    LInQuotedSpecial := False; {Stop compiler whining}
+    LInPart := 0;   {0 is not in a part, 1 is in a quote-delimited part, 2 is in a bracketted part, 3 is a word}
+    APartString := Trim(APartString);
+    for Ln := 1 to Length(APartString) do begin
+      if (LInPart = 1) or ((LInPart = 2) and LInQuotesInsideBrackets) then begin
+        if LInQuotedSpecial then begin
+          LInQuotedSpecial := False;
+        end
+        else if APartString[Ln] = '\' then begin {Do not Localize}
+          LInQuotedSpecial := True;
+        end
+        else if APartString[Ln] = '"' then begin {Do not Localize}
+          if LInPart = 1 then begin
             LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+            AParams.Add(ResolveQuotedSpecials(LParamater));
+            LInPart := 0;
+          end else begin
+            LInQuotesInsideBrackets := False;
           end;
+        end;
+      end else if LInPart = 2 then begin
+        //We have to watch out that we don't close this entry on a closing bracket within
+        //quotes, like ("Blah" "Blah)Blah"), so monitor if we are in quotes within brackets.
+        if APartString[Ln] = '"' then begin {Do not Localize}
+          LInQuotesInsideBrackets := True;
+          LInQuotedSpecial := False;
+        end
+        else if APartString[Ln] = '(' then begin {Do not Localize}
+          Inc(LBracketLevel);
+        end
+        else if APartString[Ln] = ')' then begin {Do not Localize}
+          Dec(LBracketLevel);
+          if LBracketLevel = 0 then begin
+            if AKeepBrackets then begin
+              LParamater := Copy(APartString, LStartPos, Ln-LStartPos+1);
+            end else begin
+              LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
+            end;
+            AParams.Add(LParamater);
+            LInPart := 0;
+          end;
+        end;
+      end else if LInPart = 3 then begin
+        if APartString[Ln] = ' ' then begin {Do not Localize}
+          LParamater := Copy(APartString, LStartPos, Ln-LStartPos);
           AParams.Add(LParamater);
           LInPart := 0;
         end;
+      end else if APartString[Ln] = '"' then begin {Do not Localize}
+        {Start of a quoted param like "text"}
+        LStartPos := Ln;
+        LInPart := 1;
+        LInQuotedSpecial := False;
+      end else if APartString[Ln] = '(' then begin {Do not Localize}
+        {Start of a set of paired parameter/value strings within brackets,
+        such as ("charset" "us-ascii").  Note these can be nested (bracket pairs
+        within bracket pairs) }
+        LStartPos := Ln;
+        LInPart := 2;
+        LBracketLevel := 1;
+        LInQuotesInsideBrackets := False;
+      end else if APartString[Ln] <> ' ' then begin {Do not Localize}
+        {Start of an entry like 12345}
+        LStartPos := Ln;
+        LInPart := 3;
       end;
-    end else if LInPart = 3 then begin
-      if APartString[Ln] = ' ' then begin {Do not Localize}
-        LParamater := Copy(APartString, LStartPos, Ln-LStartPos);
-        AParams.Add(LParamater);
-        LInPart := 0;
-      end;
-    end else if APartString[Ln] = '"' then begin {Do not Localize}
-      {Start of a quoted param like "text"}
-      LStartPos := Ln;
-      LInPart := 1;
-      LInQuotedSpecial := False;
-    end else if APartString[Ln] = '(' then begin {Do not Localize}
-      {Start of a set of paired parameter/value strings within brackets,
-      such as ("charset" "us-ascii").  Note these can be nested (bracket pairs
-      within bracket pairs) }
-      LStartPos := Ln;
-      LInPart := 2;
-      LBracketLevel := 1;
-      LInQuotesInsideBrackets := False;
-    end else if APartString[Ln] <> ' ' then begin {Do not Localize}
-      {Start of an entry like 12345}
-      LStartPos := Ln;
-      LInPart := 3;
     end;
-  end;
-  {We could be in an entry when we hit the end of the line...}
-  if LInPart = 3 then begin
-    LParamater := Copy(APartString, LStartPos, MaxInt);
-    AParams.Add(LParamater);
-  end else if LInPart = 2 then begin
-    if AKeepBrackets then begin
+    {We could be in an entry when we hit the end of the line...}
+    if LInPart = 3 then begin
       LParamater := Copy(APartString, LStartPos, MaxInt);
-    end else begin
+      AParams.Add(LParamater);
+    end else if LInPart = 2 then begin
+      if AKeepBrackets then begin
+        LParamater := Copy(APartString, LStartPos, MaxInt);
+      end else begin
+        LParamater := Copy(APartString, LStartPos+1, MaxInt);
+      end;
+      if (not AKeepBrackets) and TextEndsWith(LParamater, ')') then begin    {Do not Localize}
+        LParamater := Copy(LParamater, 1, Length(LParamater)-1);
+      end;
+      AParams.Add(LParamater);
+    end else if LInPart = 1 then begin
       LParamater := Copy(APartString, LStartPos+1, MaxInt);
+      if TextEndsWith(LParamater, '"') then begin    {Do not Localize}
+        LParamater := Copy(LParamater, 1, Length(LParamater)-1);
+      end;
+      AParams.Add(ResolveQuotedSpecials(LParamater));
     end;
-    if (not AKeepBrackets) and TextEndsWith(LParamater, ')') then begin    {Do not Localize}
-      LParamater := Copy(LParamater, 1, Length(LParamater)-1);
-    end;
-    AParams.Add(LParamater);
-  end else if LInPart = 1 then begin
-    LParamater := Copy(APartString, LStartPos+1, MaxInt);
-    if TextEndsWith(LParamater, '"') then begin    {Do not Localize}
-      LParamater := Copy(LParamater, 1, Length(LParamater)-1);
-    end;
-    AParams.Add(ResolveQuotedSpecials(LParamater));
+  finally
+    AParams.EndUpdate;
   end;
 end;
 
@@ -5952,18 +5972,23 @@ var
   LStartPos: Integer;
 begin
   LStartPos := -1;
-  AParsedList.Clear;
-  for Ln := 1 to Length(AParam) do begin
-    if AParam[LN] = '"' then begin {Do not Localize}
-      if LStartPos > -1 then begin
-        {The end of a quoted parameter...}
-        AParsedList.Add(Copy(AParam, LStartPos, LN-LStartPos+1));
-        LStartPos := -1;
-      end else begin
-        {The start of a quoted parameter...}
-        LStartPos := Ln;
+  AParsedList.BeginUpdate;
+  try
+    AParsedList.Clear;
+    for Ln := 1 to Length(AParam) do begin
+      if AParam[LN] = '"' then begin {Do not Localize}
+        if LStartPos > -1 then begin
+          {The end of a quoted parameter...}
+          AParsedList.Add(Copy(AParam, LStartPos, LN-LStartPos+1));
+          LStartPos := -1;
+        end else begin
+          {The start of a quoted parameter...}
+          LStartPos := Ln;
+        end;
       end;
     end;
+  finally
+    AParsedList.EndUpdate;
   end;
 end;
 
@@ -6199,40 +6224,45 @@ var Ln : Integer;
   LStr : String;
   LWord: string;
 begin
-  AMBList.Clear;
-  LSlRetrieve := TStringList.Create;
+  AMBList.BeginUpdate;
   try
-    for Ln := 0 to ACmdResultDetails.Count - 1 do begin
-      LStr := ACmdResultDetails[Ln];
-      //Todo: Get mail box attributes here
-      {CC2: Could put mailbox attributes in AMBList's Objects property?}
-      {The line is of the form:
-      * LIST (\UnMarked \AnotherFlag) "/" "Mailbox name"
-      }
-      {CCA: code modified because some servers return NIL as the mailbox
-      separator, i.e.:
-      * LIST (\UnMarked \AnotherFlag) NIL "Mailbox name"
-      }
+    AMBList.Clear;
+    LSlRetrieve := TStringList.Create;
+    try
+      for Ln := 0 to ACmdResultDetails.Count - 1 do begin
+        LStr := ACmdResultDetails[Ln];
+        //Todo: Get mail box attributes here
+        {CC2: Could put mailbox attributes in AMBList's Objects property?}
+        {The line is of the form:
+        * LIST (\UnMarked \AnotherFlag) "/" "Mailbox name"
+        }
+        {CCA: code modified because some servers return NIL as the mailbox
+        separator, i.e.:
+        * LIST (\UnMarked \AnotherFlag) NIL "Mailbox name"
+        }
 
-      ParseIntoBrackettedQuotedAndUnquotedParts(LStr, LSlRetrieve, False);
-      if LSlRetrieve.Count > 3 then begin
-        //Make sure 1st word is LIST (may be an unsolicited response)...
-        if TextIsSame(LSlRetrieve[0], {IMAP4Commands[cmdList]} ACmd) then begin
-          {Get the mailbox separator...}
-          LWord := Trim(LSlRetrieve[LSlRetrieve.Count-2]);
-          if TextIsSame(LWord, 'NIL') or (LWord = '') then begin {Do not Localize}
-            FMailBoxSeparator := #0;
-          end else begin
-            FMailBoxSeparator := LWord[1];
+        ParseIntoBrackettedQuotedAndUnquotedParts(LStr, LSlRetrieve, False);
+        if LSlRetrieve.Count > 3 then begin
+          //Make sure 1st word is LIST (may be an unsolicited response)...
+          if TextIsSame(LSlRetrieve[0], {IMAP4Commands[cmdList]} ACmd) then begin
+            {Get the mailbox separator...}
+            LWord := Trim(LSlRetrieve[LSlRetrieve.Count-2]);
+            if TextIsSame(LWord, 'NIL') or (LWord = '') then begin {Do not Localize}
+              FMailBoxSeparator := #0;
+            end else begin
+              FMailBoxSeparator := LWord[1];
+            end;
+            {Now get the mailbox name...}
+            LWord := Trim(LSlRetrieve[LSlRetrieve.Count-1]);
+            AMBList.Add(DoMUTFDecode(LWord));
           end;
-          {Now get the mailbox name...}
-          LWord := Trim(LSlRetrieve[LSlRetrieve.Count-1]);
-          AMBList.Add(DoMUTFDecode(LWord));
         end;
       end;
+    finally
+      FreeAndNil(LSlRetrieve);
     end;
   finally
-    FreeAndNil(LSlRetrieve);
+    AMBList.EndUpdate;
   end;
 end;
 
