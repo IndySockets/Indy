@@ -334,7 +334,7 @@ function NTLMFunctionsLoaded : Boolean;
 //{$IFNDEF USE_OPENSSL}{$IFDEF USE_INLINE} inline; {$ENDIF}{$ENDIF}
 begin
   {.$IFDEF USE_OPENSSL}
-  Result := IdSSLOpenSSLHeaders.Load(nil);
+  Result := IdSSLOpenSSLHeaders.Load;
   if Result then begin
     Result := Assigned(DES_set_odd_parity) and
       Assigned(DES_set_key) and
