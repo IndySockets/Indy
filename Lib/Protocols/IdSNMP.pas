@@ -395,11 +395,11 @@ begin
     end;
     data := data + ASNObject(s, ASN1_SEQ);
   end;
-  data := ASNObject(char(ID), ASN1_INT)
-         + ASNObject(char(ErrorStatus), ASN1_INT)
-         + ASNObject(char(ErrorIndex), ASN1_INT)
+  data := ASNObject(ASNEncInt(ID), ASN1_INT)
+         + ASNObject(ASNEncInt(ErrorStatus), ASN1_INT)
+         + ASNObject(ASNEncInt(ErrorIndex), ASN1_INT)
          + ASNObject(data, ASN1_SEQ);
-  data := ASNObject(char(Version), ASN1_INT)
+  data := ASNObject(ASNEncInt(Version), ASN1_INT)
          + ASNObject(Community, ASN1_OCTSTR)
          + ASNObject(data, PDUType);
   data := ASNObject(data, ASN1_SEQ);
@@ -562,7 +562,7 @@ begin
     + ASNObject(ASNEncInt(SpecTrap), ASN1_INT)
     + ASNObject(ASNEncInt(TimeTicks), ASN1_TIMETICKS)
     + ASNObject(Buffer, ASN1_SEQ);
-  Buffer := ASNObject(Char(Version), ASN1_INT)
+  Buffer := ASNObject(ASNEncInt(Version), ASN1_INT)
     + ASNObject(Community, ASN1_OCTSTR)
     + ASNObject(Buffer, PDUType);
   Buffer := ASNObject(Buffer, ASN1_SEQ);
