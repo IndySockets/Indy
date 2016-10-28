@@ -747,7 +747,7 @@ begin
 
     // Socks server replies on connect, this is the second part
     AIOHandler.ReadBytes(LBuf, 6, False);      // just write it over the first part for now
-    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf, 2), LBuf[0]*256+LBuf[1]);
+    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf, 2), LBuf[0]*256+LBuf[1], Id_IPv4);
   end;
 end;
 

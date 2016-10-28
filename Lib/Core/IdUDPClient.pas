@@ -196,7 +196,7 @@ begin
   end else begin
     LIP := Host;
   end;
-  Binding.SetPeer(LIP, Port);
+  Binding.SetPeer(LIP, Port, FIPVersion);
   Binding.Connect;
 
   DoStatus(hsConnected, [Host]);
