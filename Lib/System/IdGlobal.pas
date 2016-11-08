@@ -1881,7 +1881,7 @@ var
   {$IFDEF UNIX}
 
   // For linux the user needs to set this variable to be accurate where used (mail, etc)
-  GOffsetFromUTC: TDateTime = 0 {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
+  GOffsetFromUTC: TDateTime = 0{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$ENDIF};
 
     {$IFDEF DARWIN}
   GMachTimeBaseInfo: TTimebaseInfoData;

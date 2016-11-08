@@ -1231,8 +1231,11 @@
   {$ENDIF}
   {$IFDEF FPC_2_4_4_OR_ABOVE}
     {$DEFINE DEPRECATED_TThread_SuspendResume}
-    {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced?
-    {$DEFINE HAS_DEPRECATED_MSG}
+    {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced? Possibly 1.9.x
+    {$DEFINE HAS_DEPRECATED_MSG} // TODO: when was message support added? Possibly 2.4.x
+    {$IFNDEF FPC_2_6_2_OR_ABOVE}
+      {$DEFINE USE_SEMICOLON_BEFORE_DEPRECATED} // TODO: which earlier versions require a semicolon?
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
