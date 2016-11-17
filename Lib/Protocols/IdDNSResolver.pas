@@ -249,21 +249,21 @@ const
   // Lookup table for query record values.
   QueryRecordCount = 30;
   QueryRecordValues: array [0..QueryRecordCount] of UInt16 = (
-                                             1,2,3,4,
-                                             5,6,7,8,
-                                             9,10,11,12,
-                                             13,14,15,16,
-                                             //17,18,19,20,
-                                             21,22,23,24,
-                                             //25,26,27,
-                                             28,
-                                             //29,30,31,32,
-                                             33,
-                                             //34,
-                                             35,
-                                             //36,
-                                             37,38,39,40,
-                                             41, 251, 252, 255);
+                     TypeCode_A, TypeCode_NS, TypeCode_MD, TypeCode_MF,
+                     TypeCode_CName, TypeCode_SOA, TypeCode_MB, TypeCode_MG,
+                     TypeCode_MR, TypeCode_NULL, TypeCode_WKS, TypeCode_PTR,
+                     TypeCode_HINFO, TypeCode_MINFO, TypeCode_MX, TypeCode_TXT,
+                     //TypeCode_RP, TypeCode_AFSDB, TypeCode_X25, TypeCode_ISDN,
+                     TypeCode_RT, TypeCode_NSAP, TypeCode_NSAP_PTR, TypeCode_SIG,
+                     //TypeCode_KEY, TypeCode_PX, TypeCode_QPOS,
+                     TypeCode_AAAA,
+                     //TypeCode_LOC, TypeCode_NXT, TypeCode_R31, TypeCode_R32,
+                     TypeCode_Service,
+                     //TypeCode_R34,
+                     TypeCode_NAPTR,
+                     //TypeCode_KX,
+                     TypeCode_CERT, TypeCode_V6Addr, TypeCode_DNAME, TypeCode_R40,
+                     TypeCode_OPTIONAL, TypeCode_IXFR, TypeCode_AXFR, TypeCode_STAR);
   QueryRecordTypes: Array [0..QueryRecordCount] of TQueryRecordTypes = (
                     qtA, qtNS, qtMD, qtMF,
                     qtName, qtSOA, qtMB, qtMG,
@@ -296,11 +296,14 @@ type
     FRDataLength: Integer;
     FRData: TIdBytes;
     FSection: TResultSection;
+    FTypeCode: UInt16;
   public
     procedure Assign(Source: TPersistent); override;
     // Parse the data (descendants only)
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); virtual;
     { TODO : This needs to change (to what? why?) }
+    {RLebeau: because it only supports a subset of available DNS types!
+    Adding TypeCode further below so unknown types can still be recognized.}
     property RecType: TQueryRecordTypes read FRecType;
     property RecClass: UInt16 read FRecClass;
     property Name: string read FName;
@@ -308,6 +311,7 @@ type
     property RDataLength: Integer read FRDataLength;
     property RData: TIdBytes read FRData;
     property Section: TResultSection read FSection;
+    property TypeCode: UInt16 read FTypeCode;
   end;
 
   TResultRecordClass = class of TResultRecord;
@@ -437,6 +441,9 @@ type
   end;
 
   TCNRecord = class(TNAMERecord)
+  end;
+
+  TDNAMERecord = class(TNAMERecord)
   end;
 
   TSRVRecord = class(TResultRecord)
@@ -759,12 +766,16 @@ begin
       begin
         Result := TNAPTRRecord.Create(Self);
       end;
+    TypeCode_DNAME : //qtDNAME
+      begin
+        Result := TDNAMERecord.Create(Self);
+      end;
     else begin
       // Unsupported query type, return generic record
       Result := TResultRecord.Create(Self);
     end;
   end; // case
-  // Set the "general purprose" options
+  // Set the "general purpose" options
   if Assigned(Result) then
   begin
     //if RR_Type <= High(QueryRecordTypes) then
@@ -786,29 +797,52 @@ begin
       TypeCode_MINFO:  Result.FRecType := qtMINFO;
       TypeCode_MX:     Result.FRecType := qtMX;
       TypeCode_TXT:    Result.FRecType := qtTXT;
-      //TypeCode_NSAP: Result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
-      //TypeCode_NSAP_PTR: Result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
+      //TypeCode_RP:   Result.FRecType := qtRP;
+      //TypeCode_AFSDB: Result.FRecType := qtAFSDB;
+      //TypeCode_X25:  Result.FRecType := qtX25;
+      //TypeCode_ISDN: Result.FRecType := qtISDN;
+      TypeCode_RT:     Result.FRecType := qtRT;
+      TypeCode_NSAP:   Result.FRecType := qtNSAP;
+      TypeCode_NSAP_PTR: Result.FRecType := qtNSAP_PTR;
+      TypeCode_SIG:    Result.FRecType := qtSIG;
+      //TypeCode_KEY:  Result.FRecType := qtKEY;
+      //TypeCode:PX:   Result.FREcType := qtPX;
+      //TypeCode_QPOS: Result.FRecType := qtQPOS;
       TypeCode_AAAA:   Result.FRecType := qtAAAA;
-      //TypeCode_LOC:  Result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
+      //TypeCode_LOC:  Result.FRecType := qtLOC;
+      //TypeCode_NXT:  Result.FRecType := qtNXT;
+      //TypeCode_R31:  Result.FRecType := qtR31;
+      //TypeCode_R32:  Result.FRecType := qtR32;
       TypeCode_Service:Result.FRecType := qtService;
+      //TypeCode_R34:  Result.FRecType := qtR34;
       TypeCode_NAPTR:  Result.FRecType := qtNAPTR;
+      //TypeCode_KX:   Result.FRecType := qtKX;
+      TypeCode_CERT:   Result.FRecType := qtCERT;
+      TypeCode_V6Addr: Result.FRecType := qtV6Addr;
+      TypeCode_DNAME:  Result.FRecType := qtDName;
+      TypeCode_R40:    Result.FRecType := qtR40;
+      TypeCode_OPTIONAL: Result.FRecType := qtOptional;
+      TypeCode_IXFR:   Result.FRecType := qtIXFR;
       TypeCode_AXFR:   Result.FRecType := qtAXFR;
-      //TypeCode_STAR: Result.FRecType := qtSTAR;
+      TypeCode_STAR:   Result.FRecType := qtSTAR;
     end;
 
-    result.FRecClass := RR_Class;
-    result.FName := RRName;
-    result.FTTL := RR_TTL;
+    Result.FRecClass := RR_Class;
+    Result.FName := RRName;
+    Result.FTTL := RR_TTL;
     Result.FRData := Copy(RData, 0{1}, RD_Length);
     Result.FRDataLength := RD_Length;
+    Result.FTypeCode := RR_Type;
+
     // Parse the result
     // Since the DNS message can be compressed, we need to have the whole message to parse it, in case
     // we encounter a pointer
     //Result.Parse(Copy(Answer, 0{1}, APos + 9 + RD_Length), APos + 10);
     Result.Parse(Answer, APos + 10);
   end;
+
   // Set the new position
-  inc(APos, RD_Length + 10);
+  Inc(APos, RD_Length + 10);
 end;
 
 constructor TQueryResult.Create;
@@ -849,6 +883,7 @@ begin
     FRDataLength := LSource.RDataLength;
     FRData := Copy(LSource.RData, 0, Length(LSource.RData));
     FSection := LSource.Section;
+    FTypeCode := LSource.TypeCode;
   end else begin
     inherited Assign(Source);
   end;
