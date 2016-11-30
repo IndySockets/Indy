@@ -919,6 +919,8 @@ resourcestring
   RSWBBInvalidStringVar = 'TIdHTTPAppResponse.SetStringVariable: Cannot set the version';
   RSWBBInvalidIdxSetStringVar = 'Invalid Index %s in TIdHTTPAppResponse.SetStringVariable';
 
+  RSHMACHashNotAvailable = 'HMAC hash algorithm "%s" is not available';
+
 implementation
 
 end.

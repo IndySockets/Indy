@@ -27,7 +27,7 @@
   Rev 1.4    2003-10-11 18:44:54  HHellström
   Range checking and overflow checking disabled in the Coder method only. The
   purpose of this setting is to force the arithmetic operations performed on
-  UInt32 variables to be modulo $100000000. This hack entails reasonable
+  LongWord variables to be modulo $100000000. This hack entails reasonable
   performance on both Win32 and dotNet.
 
   Rev 1.3    10/10/2003 2:20:56 PM  GGrieve
@@ -66,30 +66,29 @@ FIPS-complient.  Unfortunately, SHA1 will not be permitted after 2010.
 type
   T5x4LongWordRecord = array[0..4] of UInt32;
   T512BitRecord = array [0..63] of Byte;
+
   {$IFNDEF DOTNET}
   TIdHashSHA1 = class(TIdHashNativeAndIntF)
   {$ELSE}
   TIdHashSHA1 = class(TIdHashIntF)
   {$ENDIF}
   protected
-
     {$IFNDEF DOTNET}
     FCheckSum: T5x4LongWordRecord;
     FCBuffer: TIdBytes;
     procedure Coder;
     function NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
-
     {$ENDIF}
     function InitHash : TIdHashIntCtx; override;
   public
-    {$IFDEF DOTNET}
-    class function IsAvailable : Boolean; override;
-    {$ELSE}
+    {$IFNDEF DOTNET}
     constructor Create; override;
     {$ENDIF}
+    class function IsAvailable : Boolean; override;
     class function IsIntfAvailable: Boolean; override;
   end;
+
   {$IFNDEF DOTNET}
   TIdHashSHA224 = class(TIdHashIntF)
   protected
@@ -98,18 +97,21 @@ type
     class function IsAvailable : Boolean; override;
   end;
   {$ENDIF}
+
   TIdHashSHA256 = class(TIdHashIntF)
   protected
     function InitHash : TIdHashIntCtx; override;
   public
     class function IsAvailable : Boolean; override;
   end;
+
   TIdHashSHA384 = class(TIdHashIntF)
   protected
     function InitHash : TIdHashIntCtx; override;
   public
     class function IsAvailable : Boolean; override;
   end;
+
   TIdHashSHA512 = class(TIdHashIntF)
   protected
     function InitHash : TIdHashIntCtx; override;
@@ -118,12 +120,6 @@ type
   end;
 
 implementation
-uses
-  {$IFDEF DOTNET}
-  IdStreamNET;
-  {$ELSE}
-  IdStreamVCL;
-  {$ENDIF}
 
 { TIdHashSHA1 }
 
@@ -136,11 +132,6 @@ begin
 end;
 
 class function TIdHashSHA1.IsIntfAvailable : Boolean;
-begin
-  Result := True;
-end;
-
-class function TIdHashSHA1.IsAvailable : Boolean; 
 begin
   Result := True;
 end;
@@ -469,7 +460,13 @@ begin
 end;
 {$ENDIF}
 
+class function TIdHashSHA1.IsAvailable : Boolean;
+begin
+  Result := True;
+end;
+
 {$IFNDEF DOTNET}
+
 { TIdHashSHA224 }
 
 function TIdHashSHA224.InitHash: TIdHashIntCtx;
@@ -479,7 +476,7 @@ end;
 
 class function TIdHashSHA224.IsAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and  IsSHA224HashIntfAvail;
+  Result := IsHashingIntfAvail and IsSHA224HashIntfAvail;
 end;
 {$ENDIF}
 
@@ -487,7 +484,7 @@ end;
 
 function TIdHashSHA256.InitHash: TIdHashIntCtx;
 begin
-    Result := GetSHA256HashInst;
+  Result := GetSHA256HashInst;
 end;
 
 class function TIdHashSHA256.IsAvailable : Boolean;
