@@ -1201,11 +1201,19 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
-  L := htonl(LParts.HighPart);
-  LParts.HighPart := htonl(LParts.LowPart);
-  LParts.LowPart := L;
-  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  // TODO: ARM is bi-endian, so if Windows is running on ARM instead of x86,
+  // can it ever be big endian? Or do ARM manufacturersue little endian for
+  // Windows installations?
+
+  //if (htonl(1) <> 1) then begin
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    L := htonl(LParts.HighPart);
+    LParts.HighPart := htonl(LParts.LowPart);
+    LParts.LowPart := L;
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  //end else begin
+  //  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+  //end;
 end;
 
 function TIdStackWindows.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
@@ -1213,11 +1221,19 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
-  L := ntohl(LParts.HighPart);
-  LParts.HighPart := ntohl(LParts.LowPart);
-  LParts.LowPart := L;
-  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  // TODO: ARM is bi-endian, so if Windows is running on ARM instead of x86,
+  // can it ever be big endian? Or do ARM manufacturers use little endian for
+  // Windows installations?
+
+  //if (ntohl(1) <> 1) then begin
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    L := ntohl(LParts.HighPart);
+    LParts.HighPart := ntohl(LParts.LowPart);
+    LParts.LowPart := L;
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  //end else begin
+  //  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+  //end;
 end;
 
 procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);

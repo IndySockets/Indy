@@ -750,13 +750,24 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
-  L := htonl(LParts.HighPart);
-  if (L <> LParts.HighPart) then begin
+  {$IFOPT R+} // detect range checking
+    {$DEFINE _RPlusWasEnabled}
+    {$R-}
+  {$ENDIF}
+  if (htonl(1) <> 1) then begin
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  end else begin
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   end;
-  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  // Restore range checking
+  {$IFDEF _RPlusWasEnabled} // detect previous setting
+    {$UNDEF _RPlusWasEnabled}
+    {$R+}
+  {$ENDIF}
 end;
 
 function TIdStackUnix.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
@@ -764,13 +775,24 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
-  L := ntohl(LParts.HighPart);
-  if (L <> LParts.HighPart) then begin
-    LParts.HighPart := ntohl(LParts.LowPart);
+  {$IFOPT R+} // detect range checking
+    {$DEFINE _RPlusWasEnabled}
+    {$R-}
+  {$ENDIF}
+  if (ntohl(1) <> 1) then begin
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    L := ntohl(LParts.HighPart);
+    LParts.HighPart := NetworkToHost(LParts.LowPart);
     LParts.LowPart := L;
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  end else begin
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue.{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   end;
-  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  // Restore range checking
+  {$IFDEF _RPlusWasEnabled} // detect previous setting
+    {$UNDEF _RPlusWasEnabled}
+    {$R+}
+  {$ENDIF}
 end;
 
 {$IFDEF HAS_getifaddrs}

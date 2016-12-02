@@ -758,13 +758,15 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
-  L := htonl(LParts.HighPart);
-  if (L <> LParts.HighPart) then begin
+  if (htonl(1) <> 1) then begin
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  end else begin
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   end;
-  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
 end;
 
 function TIdStackLinux.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
@@ -772,13 +774,15 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
-  L := ntohl(LParts.HighPart);
-  if (L <> LParts.HighPart) then begin
+  if (ntohl(1) <> 1) then begin
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    L := ntohl(LParts.HighPart);
     LParts.HighPart := ntohl(LParts.LowPart);
     LParts.LowPart := L;
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+  end else begin
+    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
   end;
-  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
 end;
 
 procedure TIdStackLinux.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);

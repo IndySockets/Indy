@@ -996,13 +996,15 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue;
-  L := htonl(LParts.HighPart);
-  if (L <> LParts.HighPart) then begin
+  if (htonl(1) <> 1) then begin
+    LParts.QuadPart := AValue;
+    L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
+    Result := LParts.QuadPart;
+  end else begin
+    Result := AValue;
   end;
-  Result := LParts.QuadPart;
 end;
 
 function TIdStackVCLPosix.IOControl(const s: TIdStackSocketHandle;
@@ -1027,14 +1029,15 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  LParts.QuadPart := AValue;
-  L := ntohl(LParts.HighPart);
-  if (L <> LParts.HighPart) then begin
+  if (ntohl(1) <> 1) then begin
+    LParts.QuadPart := AValue;
+    L := ntohl(LParts.HighPart);
     LParts.HighPart := ntohl(LParts.LowPart);
     LParts.LowPart := L;
+    Result := LParts.QuadPart;
+  end else begin
+    Result := AValue;
   end;
-  Result := LParts.QuadPart;
-
 end;
 
 function TIdStackVCLPosix.NetworkToHost(AValue: UInt16): UInt16;
