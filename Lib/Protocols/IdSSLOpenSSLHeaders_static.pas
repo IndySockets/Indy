@@ -114,17 +114,17 @@ function TLSv1_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name
 
 function TLSv1_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_client_method';
 
-//function TLSv1_1_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_1_method';
+function TLSv1_1_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_1_method';
 
-//function TLSv1_1_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_1_server_method';
+function TLSv1_1_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_1_server_method';
 
-//function TLSv1_1_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_1_client_method';
+function TLSv1_1_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_1_client_method';
 
-//function TLSv1_2_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_2_method';
+function TLSv1_2_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_2_method';
 
-//function TLSv1_2_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_2_server_method';
+function TLSv1_2_server_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_2_server_method';
 
-//function TLSv1_2_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_2_client_method';
+function TLSv1_2_client_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'TLSv1_2_client_method';
 
 function DTLSv1_method_func: PSSL_METHOD cdecl; external SSL_LIB_NAME name 'DTLSv1_method';
 
