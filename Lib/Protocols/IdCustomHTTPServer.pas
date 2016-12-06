@@ -2103,9 +2103,9 @@ begin
 
   if not (
     (FRequestInfo.CommandType = hcHEAD) or
-    ((ResponseNo div 100) = 1) or
-    (ResponseNo = 204) or
-    (ResponseNo = 304)
+    ((ResponseNo div 100) = 1) or   // informational
+    (ResponseNo = 204) or           // no content
+    (ResponseNo = 304)              // not modified
     ) then
   begin
     // Always check ContentText first
@@ -2173,12 +2173,22 @@ begin
   if (ContentLength = -1) and
     ((TransferEncoding = '') or TextIsSame(TransferEncoding, 'identity')) then {do not localize}
   begin
-    // Always check ContentText first
-    if ContentText <> '' then begin
-      ContentLength := CharsetToEncoding(CharSet).GetByteCount(ContentText);
-    end
-    else if Assigned(ContentStream) then begin
-      ContentLength := ContentStream.Size;
+    if not (
+      (FRequestInfo.CommandType = hcHEAD) or
+      ((ResponseNo div 100) = 1) or   // informational
+      (ResponseNo = 204) or           // no content
+      (ResponseNo = 304)              // not modified
+      ) then
+    begin
+      // Always check ContentText first
+      if ContentText <> '' then begin
+        ContentLength := CharsetToEncoding(CharSet).GetByteCount(ContentText);
+      end
+      else if Assigned(ContentStream) then begin
+        ContentLength := ContentStream.Size;
+      end else begin
+        ContentLength := 0;
+      end;
     end else begin
       ContentLength := 0;
     end;
