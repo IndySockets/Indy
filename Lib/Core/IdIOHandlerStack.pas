@@ -208,6 +208,9 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
+  {$IFDEF WINDOWS}
+  Windows,
+  {$ENDIF}
   IdAntiFreezeBase, IdResourceStringsCore, IdResourceStrings, IdStackConsts, IdException,
   IdTCPConnection, IdComponent, IdIOHandler, IdCustomTransparentProxy;
 
