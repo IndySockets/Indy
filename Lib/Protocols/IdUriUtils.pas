@@ -128,8 +128,8 @@ begin
   {$ELSE}
   // RLebeau 5/8/08: Calling Pos() with a Char as input creates a temporary
   // String.  Normally this is fine, but profiling reveils this to be a big
-  // bottleneck for code that makes a lot of calls to CharIsInSet(), so need
-  // to scan through ASet looking for the character without a conversion...
+  // bottleneck for code that makes a lot of calls to CharIsInSet(), so we
+  // will scan through ASet looking for the character without a conversion...
   //
   // Result := IndyPos(AString[ACharPos], ASet);
   //

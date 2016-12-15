@@ -18826,6 +18826,7 @@ function IsOpenSSL_1x : Boolean;
 function IsOpenSSL_SSLv2_Available : Boolean;
 function IsOpenSSL_SSLv3_Available : Boolean;
 function IsOpenSSL_SSLv23_Available : Boolean;
+function IsOpenSSL_TLSv1_0_Available : Boolean;
 function IsOpenSSL_TLSv1_1_Available : Boolean;
 function IsOpenSSL_TLSv1_2_Available : Boolean;
 function IsOpenSSL_DTLSv1_Available : Boolean;
@@ -18925,6 +18926,14 @@ begin
   Result := Assigned(SSLv23_method) and
     Assigned(SSLv23_server_method) and
     Assigned(SSLv23_client_method);
+end;
+
+function IsOpenSSL_TLSv1_0_Available : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := Assigned(TLSv1_method) and
+    Assigned(TLSv1_server_method) and
+    Assigned(TLSv1_client_method);
 end;
 
 function IsOpenSSL_TLSv1_1_Available : Boolean;

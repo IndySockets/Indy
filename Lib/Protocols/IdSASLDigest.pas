@@ -181,7 +181,7 @@ begin
       end else begin
         LValue := Trim(Fetch(LBuf, ','));
       end;
-      LChallange.Add(LName + '=' + LValue);
+      IndyAddPair(LChallange, LName, LValue);
       LBuf := TrimLeft(LBuf);
     end;
     LQopOptions.CommaText := LChallange.Values['qop'];

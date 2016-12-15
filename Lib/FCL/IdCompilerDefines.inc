@@ -958,6 +958,7 @@
   {$IFNDEF FPC}
     {$DEFINE HAS_UInt64} // Note: it was just an alias for Int64 until D2006!
     {$DEFINE HAS_NAMED_THREADS}
+    {$DEFINE HAS_TStrings_NameValueSeparator}
     {$DEFINE HAS_TStrings_ValueFromIndex}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
@@ -993,7 +994,9 @@
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
   {$ENDIF}
-  // UInt64 is emitted as signed __int64 instead of unsigned __int64 in HPP files
+  // In C++Builder 2006 and 2007, UInt64 is emitted as signed __int64 in HPP
+  // files instead of as unsigned __int64.  This causes conflicts in overloaded
+  // routines that have (U)Int64 parameters.  This was fixed in C++Builder 2009...
   {$IFDEF CBUILDER}
     {$DEFINE BROKEN_UINT64_HPPEMIT}
   {$ENDIF}
@@ -1153,6 +1156,7 @@
 
 {$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_HPPEMIT_LEGACYHPP}
+  {$DEFINE HAS_TStrings_AddPair}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -1743,11 +1747,11 @@ SOLARIS instead of IFDEF UNIX is not an error, it's deliberate.}
 // that can hold UInt64 values...
 {$IFDEF HAS_UInt64}
   {$IFDEF BROKEN_UINT64_HPPEMIT}
-    {$DEFINE TIdUInt64_IS_NOT_NATIVE}
+    {$DEFINE TIdUInt64_HAS_QuadPart}
   {$ENDIF}
 {$ELSE}
   {$IFNDEF HAS_QWord}
-    {$DEFINE TIdUInt64_IS_NOT_NATIVE}
+    {$DEFINE TIdUInt64_HAS_QuadPart}
   {$ENDIF}
 {$ENDIF}
 

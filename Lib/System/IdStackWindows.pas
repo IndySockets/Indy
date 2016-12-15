@@ -297,6 +297,7 @@ type
       AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
     {$ENDIF}
     function IOControl(const s:  TIdStackSocketHandle; const cmd: UInt32; var arg: UInt32): Integer; override;
+    function SupportsIPv4: Boolean; override;
     function SupportsIPv6: Boolean; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     procedure WriteChecksum(s : TIdStackSocketHandle;
@@ -1202,17 +1203,17 @@ var
   L: UInt32;
 begin
   // TODO: ARM is bi-endian, so if Windows is running on ARM instead of x86,
-  // can it ever be big endian? Or do ARM manufacturersue little endian for
-  // Windows installations?
+  // can it ever be big endian? Or do ARM manufacturers put it in little endian
+  // for Windows installations?
 
   //if (htonl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
     L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
   //end else begin
-  //  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+  //  Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   //end;
 end;
 
@@ -1222,17 +1223,17 @@ var
   L: UInt32;
 begin
   // TODO: ARM is bi-endian, so if Windows is running on ARM instead of x86,
-  // can it ever be big endian? Or do ARM manufacturers use little endian for
-  // Windows installations?
+  // can it ever be big endian? Or do ARM manufacturers put it in little endian
+  // for Windows installations?
 
   //if (ntohl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
     L := ntohl(LParts.HighPart);
     LParts.HighPart := ntohl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
   //end else begin
-  //  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+  //  Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   //end;
 end;
 
@@ -1299,7 +1300,7 @@ type
         begin
           pRow := @(Table^.table[0]);
           for I := 0 to Table^.dwNumEntries-1 do begin
-            ASubNetMasks.Add(TranslateTInAddrToString(pRow^.dwAddr, Id_IPv4) + '=' + TranslateTInAddrToString(pRow^.dwMask, Id_IPv4));
+            IndyAddPair(ASubNetMasks, TranslateTInAddrToString(pRow^.dwAddr, Id_IPv4), TranslateTInAddrToString(pRow^.dwMask, Id_IPv4));
             Inc(pRow);
           end;
         end;
@@ -2058,6 +2059,52 @@ begin
   );
 end;
 
+function TIdStackWindows.SupportsIPv4: Boolean;
+var
+  LLen : DWORD;
+  LPInfo, LPCurPtr: LPWSAPROTOCOL_INFO;
+  LCount : Integer;
+  i : Integer;
+begin
+  // TODO: move this logic into CheckIPVersionSupport() instead...
+  // Result := CheckIPVersionSupport(Id_IPv4);
+
+  Result := False;
+  LPInfo := nil;
+  try
+    LLen := 0;
+    // Note: WSAEnumProtocols returns -1 when it is just called to get the needed Buffer Size!
+    repeat
+      LCount := IdWinsock2.WSAEnumProtocols(nil, LPInfo, LLen);
+      if LCount = SOCKET_ERROR then
+      begin
+        if WSAGetLastError() <> WSAENOBUFS then begin
+          Exit;
+        end;
+        ReallocMem(LPInfo, LLen);
+      end else begin
+        Break;
+      end;
+    until False;
+
+    if LCount > 0 then
+    begin
+      LPCurPtr := LPInfo;
+      for i := 0 to LCount-1 do
+      begin
+        if LPCurPtr^.iAddressFamily = AF_INET then
+        begin
+          Result := True;
+          Exit;
+        end;
+        Inc(LPCurPtr);
+      end;
+    end;
+  finally
+    FreeMem(LPInfo);
+  end;
+end;
+
 {
 based on
 http://groups.google.com/groups?q=Winsock2+Delphi+protocol&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=3cebe697_2%40dnews&rnum=9
@@ -2069,6 +2116,9 @@ var
   LCount : Integer;
   i : Integer;
 begin
+  // TODO: move this logic into CheckIPVersionSupport() instead...
+  // Result := CheckIPVersionSupport(Id_IPv6);
+
   Result := False;
   LPInfo := nil;
   try

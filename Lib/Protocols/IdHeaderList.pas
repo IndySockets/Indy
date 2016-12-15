@@ -209,8 +209,7 @@ begin
     begin
       LName := GetName(idx);
       LValue := GetValueFromLine(idx);
-      // TODO: use ADest.NameValueSeparator on platforms that support it
-      ADest.Add(LName + '=' + LValue); {do not localize}
+      IndyAddPair(ADest, LName, LValue);
     end;
   finally
     ADest.EndUpdate;

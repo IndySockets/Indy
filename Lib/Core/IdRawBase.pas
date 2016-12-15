@@ -80,7 +80,7 @@ interface
 
 uses
   IdComponent, IdGlobal, IdSocketHandle, IdStack,
-  {$IFDEF MSWINDOWS}
+  {$IFDEF WINDOWS}
   IdWship6,
   {$ENDIF}
   IdStackConsts;

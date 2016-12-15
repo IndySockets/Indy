@@ -94,7 +94,7 @@ var
 begin
   LUserPassProvider := FUserPassProvider;
   if Assigned(LUserPassProvider) then begin
-    Result := (LUserPassProvider.Username <> '');
+    Result := (LUserPassProvider.Username <> '') or (LUserPassProvider.Password <> '');
   end else begin
     Result := False;
   end;

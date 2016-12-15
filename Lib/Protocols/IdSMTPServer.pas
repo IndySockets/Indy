@@ -411,6 +411,7 @@ begin
   HelpReply.Code := ''; //we will handle the help ourselves
   FRegularProtPort := IdPORT_SMTP;
   FImplicitTLSProtPort := IdPORT_ssmtp;
+  FExplicitTLSProtPort := 587; // TODO: define a constant for this!
   DefaultPort := IdPORT_SMTP;
   FServerName  := 'Indy SMTP Server'; {do not localize}
 end;

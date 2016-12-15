@@ -345,7 +345,7 @@ begin
     OutBytes := strm.total_out;
   except
     FreeMem(OutBuf);
-    raise
+    raise;
   end;
 end;
 
@@ -388,7 +388,7 @@ begin
     OutBytes := strm.total_out;
   except
     FreeMem(OutBuf);
-    raise
+    raise;
   end;
 end;
 

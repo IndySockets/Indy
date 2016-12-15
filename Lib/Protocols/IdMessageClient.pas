@@ -721,7 +721,7 @@ var
 
   // RLebeau 11/2/2013: TIdMessage.Headers is a TIdHeaderList, but
   // TIdMessageDecoder.Headers is a plain TStringList.  Although TIdHeaderList
-  // is a TStrings descendant, but it reintroduces its own Values[] property
+  // is a TStrings descendant, it reintroduces its own Values[] property
   // instead of implementing the TStrings.Values[] property, so we cannot
   // access TIdMessage.Headers using a TStrings pointer or else the wrong
   // property will be invoked and we won't get the right value when accessing

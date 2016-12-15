@@ -583,8 +583,9 @@ procedure TIdIMAP4Server.InitComponent;
 begin
   inherited InitComponent;
   //Todo:  Not sure which number is appropriate.  Should be tested
-  FImplicitTLSProtPort := IdPORT_IMAP4S;  //Id_PORT_imap4_ssl_dp;
   FRegularProtPort := IdPORT_IMAP4;
+  FImplicitTLSProtPort := IdPORT_IMAP4S;  //Id_PORT_imap4_ssl_dp;
+  FExplicitTLSProtPort := IdPORT_IMAP4;
   DefaultPort := IdPORT_IMAP4;
   ContextClass := TIdIMAP4PeerContext;
   FSaferMode := False;

@@ -120,8 +120,7 @@ end;
 procedure FIPSAlgorithmNotAllowed(const AAlgorithm: String);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  raise EIdFIPSAlgorithmNotAllowed.Create(Format(RSFIPSAlgorithmNotAllowed,
-      [AAlgorithm]));
+  raise EIdFIPSAlgorithmNotAllowed.CreateFmt(RSFIPSAlgorithmNotAllowed, [AAlgorithm]);
 end;
 
 // fips mode default procs

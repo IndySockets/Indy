@@ -187,6 +187,7 @@ type
     {$ENDIF}
     procedure SetKeepAliveValues(ASocket: TIdStackSocketHandle;
       const AEnabled: Boolean; const ATimeMS, AInterval: Integer); override;
+    function SupportsIPv4: Boolean; overload; override;
     function SupportsIPv6: Boolean; overload; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     //In Windows, this writes a checksum into a buffer.  In Linux, it would probably
@@ -755,13 +756,13 @@ begin
     {$R-}
   {$ENDIF}
   if (htonl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
     L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
   end else begin
-    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   end;
   // Restore range checking
   {$IFDEF _RPlusWasEnabled} // detect previous setting
@@ -780,13 +781,13 @@ begin
     {$R-}
   {$ENDIF}
   if (ntohl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
     L := ntohl(LParts.HighPart);
     LParts.HighPart := NetworkToHost(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
   end else begin
-    Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := AValue.{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   end;
   // Restore range checking
   {$IFDEF _RPlusWasEnabled} // detect previous setting
@@ -1042,6 +1043,12 @@ begin
 
   // TODO: enable this:
   //Result := CheckForSocketError(AResult, [EAGAIN, EWOULDBLOCK]) <> 0;
+end;
+
+function TIdStackUnix.SupportsIPv4: Boolean;
+//In Windows, this does something else.  It checks the LSP's installed.
+begin
+  Result := CheckIPVersionSupport(Id_IPv4);
 end;
 
 function TIdStackUnix.SupportsIPv6: Boolean;

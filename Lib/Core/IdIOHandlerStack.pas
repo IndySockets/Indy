@@ -237,36 +237,69 @@ procedure TIdIOHandlerStack.ConnectClient;
 
   procedure DoConnectTimeout(ATimeout: Integer);
   var
-    LSleepTime: Integer;
+    LSleepTime, LWaitTime: Integer;
     LThread: TIdConnectThread;
   begin
     if ATimeout = IdTimeoutDefault then begin
       ATimeout := IdTimeoutInfinite;
     end;
+    // IndySleep
+    if TIdAntiFreezeBase.ShouldUse then begin
+      LSleepTime := IndyMin(GAntiFreeze.IdleTimeOut, 125);
+    end else begin
+      LSleepTime := 125;
+    end;
+
     LThread := TIdConnectThread.Create(Binding);
     try
-      // IndySleep
-      if TIdAntiFreezeBase.ShouldUse then begin
-        LSleepTime := IndyMin(GAntiFreeze.IdleTimeOut, 125);
-      end else begin
-        LSleepTime := 125;
-      end;
-
       if ATimeout = IdTimeoutInfinite then begin
-        while not LThread.Terminated do begin
-          IndySleep(LSleepTime);
-          TIdAntiFreezeBase.DoProcess;
+        if TIdAntiFreezeBase.ShouldUse then
+        begin
+          {$IFDEF WINDOWS}
+          while WaitForSingleObject(LThread.Handle, LSleepTime) = WAIT_TIMEOUT do begin
+            TIdAntiFreezeBase.DoProcess;
+          end;
+          {$ELSE}
+          // TODO: figure out what else can be used here...
+          while not LThread.Terminated do begin
+            IndySleep(LSleepTime);
+            TIdAntiFreezeBase.DoProcess;
+          end;
+          {$ENDIF}
+        end else begin
+          LThread.WaitFor;
         end;
       end else
       begin
-        // TODO: we need to take the actual clock into account, not just
-        // decrement by the sleep interval.  If IndySleep() runs longer then
-        // requested, that would slow down the loop and exceed the original
-        // timeout that was requested...
-        while (ATimeout > 0) and (not LThread.Terminated) do begin
-          IndySleep(IndyMin(ATimeout, LSleepTime));
-          TIdAntiFreezeBase.DoProcess;
-          Dec(ATimeout, IndyMin(ATimeout, LSleepTime));
+        if TIdAntiFreezeBase.ShouldUse then begin
+          // TODO: we need to take the actual clock into account, not just
+          // decrement by the sleep interval.  If IndySleep() runs longer then
+          // requested, that would slow down the loop and exceed the original
+          // timeout that was requested...
+          while (ATimeout > 0) and (not LThread.Terminated) do begin
+            LWaitTime := IndyMin(ATimeout, LSleepTime);
+            {$IFDEF WINDOWS}
+            if WaitForSingleObject(LThread.Handle, LWaitTime) <> WAIT_TIMEOUT then begin
+              Break;
+            end;
+            {$ELSE}
+            // TODO: figure out what else can be used here...
+            IndySleep(LWaitTime);
+            {$ENDIF}
+            TIdAntiFreezeBase.DoProcess;
+            Dec(ATimeout, LWaitTime);
+          end;
+        end else begin
+          {$IFDEF WINDOWS}
+          WaitForSingleObject(LThread.Handle, ATimeout);
+          {$ELSE}
+          // TODO: figure out what else can be used here...
+          while (ATimeout > 0) and (not LThread.Terminated) do begin
+            LWaitTime := IndyMin(ATimeout, LSleepTime);
+            IndySleep(LWaitTime);
+            Dec(ATimeout, LWaitTime);
+          end;
+          {$ENDIF}
         end;
       end;
 
@@ -280,6 +313,17 @@ procedure TIdIOHandlerStack.ConnectClient;
         end;
       end else begin
         LThread.Terminate;
+        // TODO: before closing, maybe enable SO_DONTLINGER, or SO_LINGER with a 0 timeout...
+
+        //Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_DONTLINGER, 1);
+
+        {
+        var l: linger;
+        l.l_onoff := 1;
+        l.l_linger := 0;
+        Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_LINGER, Integer(@l));
+        }
+
         Close;
         LThread.WaitFor;
         raise EIdConnectTimeout.Create(RSConnectTimeout);

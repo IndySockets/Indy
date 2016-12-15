@@ -111,7 +111,7 @@ end;
 procedure TIdIOHandlerTls.InitComponent;
 begin
   inherited;
-	FOptions := TIdTlsClientOptions.Create;
+  FOptions := TIdTlsClientOptions.Create;
 end;
 
 procedure TIdIOHandlerTls.StartSSL;

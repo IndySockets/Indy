@@ -122,11 +122,11 @@ type
     class function IsAvailable : Boolean; override;
     class function IsIntfAvailable : Boolean; virtual;
   end;
+
   TIdHashNativeAndIntF = class(TIdHashIntF)
   protected
     function NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; virtual;
     function GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
-
   end;
 
   {$IFDEF DOTNET}

@@ -671,6 +671,7 @@ begin
   FContextClass := TIdPOP3ServerContext;
   FRegularProtPort := IdPORT_POP3;
   FImplicitTLSProtPort := IdPORT_POP3S;
+  FExplicitTLSProtPort := IdPORT_POP3;
   DefaultPort := IdPORT_POP3;
 end;
 

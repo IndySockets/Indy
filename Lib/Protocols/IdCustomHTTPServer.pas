@@ -1969,7 +1969,7 @@ begin
   end;
   if AuthRealm <> '' then begin
     FRawHeaders.Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '"';    {Do not Localize}
-  end;
+    end;
 end;
 
 procedure TIdHTTPResponseInfo.SetResponseNo(const AValue: Integer);
@@ -2113,11 +2113,27 @@ begin
       FConnection.IOHandler.Write(ContentText, CharsetToEncoding(CharSet));
     end
     else if Assigned(ContentStream) then begin
-      ContentStream.Position := 0;
-      FConnection.IOHandler.Write(ContentStream);
+      // If ContentLength has been assigned then do not send the entire file,
+      // in case it grew after WriteHeader() generated the 'Content-Length'
+      // header.  We cannot exceed the byte count that we told the client
+      // we will be sending...
+
+      // TODO: apply this rule to ContentText as well...
+
+      // TODO: stop resetting Position to 0, send from the current Position...
+
+      if HasContentLength then begin
+        if ContentLength > 0 then begin
+          ContentStream.Position := 0;
+          FConnection.IOHandler.Write(ContentStream, ContentLength, False);
+        end;
+      end else begin
+        ContentStream.Position := 0;
+        FConnection.IOHandler.Write(ContentStream);
+      end;
     end
     else begin
-      FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
+      FConnection.IOHandler.Write('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
        + '</B></BODY></HTML>', CharsetToEncoding(CharSet));    {Do not Localize}
     end;
   end;
@@ -2187,7 +2203,9 @@ begin
       else if Assigned(ContentStream) then begin
         ContentLength := ContentStream.Size;
       end else begin
-        ContentLength := 0;
+        ContentType := 'text/html; charset=utf-8';    {Do not Localize}
+        ContentText := '<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText + '</B></BODY></HTML>';    {Do not Localize}
+        ContentLength := CharsetToEncoding(CharSet).GetByteCount(ContentText);
       end;
     end else begin
       ContentLength := 0;
@@ -2206,6 +2224,7 @@ begin
   end;
   try
     // Write HTTP status response
+    // TODO: if the client sent an HTTP/1.0 request, send an HTTP/1.0 response?
     FConnection.IOHandler.WriteLn('HTTP/1.1 ' + IntToStr(ResponseNo) + ' ' + ResponseText);    {Do not Localize}
     // Write headers
     FConnection.IOHandler.Write(RawHeaders);

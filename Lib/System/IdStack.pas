@@ -350,6 +350,7 @@ type
       : Integer; overload; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
       APkt: TIdPacketInfo): UInt32; virtual; abstract;
+    function SupportsIPv4: Boolean; virtual; abstract;
     function SupportsIPv6: Boolean; virtual; abstract;
 
     //multicast stuff Kudzu permitted me to add here.

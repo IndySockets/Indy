@@ -188,7 +188,7 @@ except
   on E: Exception do
   begin
     Console.WriteLine('Exception "{0}". I = {1}, BytesRead = {2}, AOffset = {3}, ACount = {4}, TempBytesToRead = {5}',
-		[E.GetType().FullName + ': ' + E.Message, I, BytesRead, AOffset, ACount, TempBytesToRead]);
+      [E.GetType().FullName + ': ' + E.Message, I, BytesRead, AOffset, ACount, TempBytesToRead]);
     raise;
   end;
 end;

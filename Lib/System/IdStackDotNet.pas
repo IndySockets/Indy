@@ -251,6 +251,7 @@ type
       AOptName: TIdSocketOption; out AOptVal: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
       AOptName: TIdSocketOption; AOptVal: Integer); overload; override;
+    function SupportsIPv4: Boolean; override;
     function SupportsIPv6: Boolean; override;
     //multicast stuff Kudzu permitted me to add here.
     procedure SetMulticastTTL(AHandle: TIdStackSocketHandle; const AValue : Byte;
@@ -1014,6 +1015,21 @@ procedure TIdStackDotNet.SetSocketOption(ASocket: TIdStackSocketHandle;
   ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
 begin
   ASocket.SetSocketOption(ALevel, AOptName, AOptVal);
+end;
+
+function TIdStackDotNet.SupportsIPv4: Boolean;
+begin
+  {
+  [Warning] IdStackDotNet.pas(734): W1000 Symbol 'SupportsIPv4' is deprecated:
+  'SupportsIPv4 is obsoleted for this type, please use OSSupportsIPv4 instead.
+  http://go.microsoft.com/fwlink/?linkid=14202'
+  }
+  {$IFDEF DOTNET_2_OR_ABOVE}
+  Result := Socket.OSSupportsIPv4;
+  {$ENDIF}
+  {$IFDEF DOTNET_1_1}
+  Result := Socket.SupportsIPv4;
+  {$ENDIF}
 end;
 
 function TIdStackDotNet.SupportsIPv6: Boolean;

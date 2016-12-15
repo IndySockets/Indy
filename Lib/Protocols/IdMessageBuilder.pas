@@ -16,6 +16,7 @@ type
     FData: TStream;
     FFileName: String;
     FName: String;
+    FWantedFileName: String;
   public
     procedure Assign(Source: TPersistent); override;
     property ContentID: String read FContentID write FContentID;
@@ -24,6 +25,7 @@ type
     property Data: TStream read FData write FData;
     property FileName: String read FFileName write FFileName;
     property Name: String read FName write FName;
+    property WantedFileName: String read FWantedFileName write FWantedFileName;
   end;
 
   TIdMessageBuilderAttachments = class(TCollection)
@@ -145,6 +147,7 @@ begin
     FData := LSource.FData;
     FFileName := LSource.FFileName;
     FName := LSource.FName;
+    FWantedFileName := LSource.FWantedFileName;
   end else begin
     inherited Assign(Source);
   end;
@@ -173,6 +176,7 @@ begin
     Result.FContentID := ExtractFileName(AFileName);
   end;
   Result.FFileName := AFileName;
+  Result.FWantedFileName := ExtractFileName(AFileName);
 end;
 
 function TIdMessageBuilderAttachments.Add(AData: TStream; const AContentType: String;
@@ -210,15 +214,24 @@ var
     end;
   end;
 
-  function FormatName(Item: TIdMessageBuilderAttachment): String;
+  function FormatFileName(Item: TIdMessageBuilderAttachment): String;
   begin
-    if Item.Name <> '' then begin
-      Result := Item.Name;
+    if Item.WantedFileName <> '' then begin
+      Result := ExtractFileName(Item.WantedFileName);
     end
     else if Item.FileName <> '' then begin
       Result := ExtractFileName(Item.FileName);
     end else begin
       Result := '';
+    end;
+  end;
+
+  function FormatName(Item: TIdMessageBuilderAttachment): String;
+  begin
+    if Item.Name <> '' then begin
+      Result := Item.Name;
+    end else begin
+      Result := FormatFileName(Item);
     end;
   end;
 
@@ -230,7 +243,7 @@ begin
     begin
       LMsgAttachment := TIdAttachmentMemory.Create(AMsg.MessageParts);
       try
-        LMsgAttachment.FileName := ExtractFileName(LMsgBldrAttachment.FileName);
+        LMsgAttachment.FileName := FormatFileName(LMsgBldrAttachment);
         LStream := LMsgAttachment.PrepareTempStream;
         try
           LStream.CopyFrom(LMsgBldrAttachment.Data, 0);
@@ -244,6 +257,9 @@ begin
     end else
     begin
       LMsgAttachment := TIdAttachmentFile.Create(AMsg.MessageParts, LMsgBldrAttachment.FileName);
+      if LMsgBldrAttachment.WantedFileName <> '' then begin
+        LMsgAttachment.FileName := ExtractFileName(LMsgBldrAttachment.WantedFileName);
+      end;
     end;
     LMsgAttachment.Name := FormatName(LMsgBldrAttachment);
     LMsgAttachment.ContentId := FormatContentId(LMsgBldrAttachment);

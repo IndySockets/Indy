@@ -1459,6 +1459,7 @@ begin
   //inherited from TLS classes
   FRegularProtPort := IdPORT_FTP;
   FImplicitTLSProtPort := IdPORT_ftps;
+  FExplicitTLSProtPort := IdPORT_FTP;
   //
   FAnonymousAccounts :=  TStringList.Create;
   // By default these user names will be treated as anonymous.
@@ -4243,22 +4244,41 @@ begin
     LDelim := LParm[1];
     Fetch(LParm, LDelim);
     case IndyStrToInt(Fetch(LParm, LDelim), -1) of
-      1: LReqIPVersion := Id_IPv4;
-      2: if GStack.SupportsIPv6 then begin
-           LReqIPVersion := Id_IPv6;
-         end else begin
-           LContext.FDataPort := 0;
-           LContext.FDataPortDenied := True;
-           ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['1'])); {Do not translate}
-           Exit;
-         end;
-      else
-        begin
+      1: begin
+        if not GStack.SupportsIPv4 then begin
           LContext.FDataPort := 0;
           LContext.FDataPortDenied := True;
-          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [iif(GStack.SupportsIPv6, '1,2', '1')])); {Do not translate}
+          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['2'])); {Do not translate}
           Exit;
         end;
+        LReqIPVersion := Id_IPv4;
+      end;
+      2: begin
+        if not GStack.SupportsIPv6 then begin
+          LContext.FDataPort := 0;
+          LContext.FDataPortDenied := True;
+          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['1'])); {Do not translate}
+          Exit;
+        end;
+        LReqIPVersion := Id_IPv6;
+      end;
+    else
+      begin
+        LParm := '';
+        if GStack.SupportsIPv4 then begin
+          LParm := '1'; {Do not translate}
+        end;
+        if GStack.SupportsIPv6 then begin
+          if LParm <> '' then begin
+            LParm := LParm + ','; {Do not translate}
+          end;
+          LParm := LParm + '2'; {Do not translate}
+        end;
+        LContext.FDataPort := 0;
+        LContext.FDataPortDenied := True;
+        ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [LParm])); {Do not translate}
+        Exit;
+      end;
     end;
     LIP := Fetch(LParm, LDelim);
     if Length(LIP) = 0 then begin
@@ -4319,23 +4339,40 @@ begin
     LParam := ASender.UnparsedParams;
     if Length(LParam) > 0 then begin
       case IndyStrToInt(LParam, -1) of
-        1: LReqIPVersion := Id_IPv4;
-        2: if GStack.SupportsIPv6 then begin
-             LReqIPVersion := Id_IPv6;
-           end else begin
-             ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['1'])); {do not localize}
-             Exit;
-           end;
-        else
-          begin
-            if TextIsSame(LParam, 'ALL') then begin { do not localize }
-              LContext.FEPSVAll := True;
-              ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
-            end else begin
-              ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [iif(GStack.SupportsIPv6, '1,2', '1')])); {do not localize}
-              end;
+        1: begin
+          if not GStack.SupportsIPv4 then begin
+            ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['2'])); {do not localize}
             Exit;
           end;
+          LReqIPVersion := Id_IPv4;
+        end;
+        2: begin
+          if not GStack.SupportsIPv6 then begin
+             ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['1'])); {do not localize}
+             Exit;
+          end;
+          LReqIPVersion := Id_IPv6;
+        end;
+      else
+        begin
+          if TextIsSame(LParam, 'ALL') then begin { do not localize }
+            LContext.FEPSVAll := True;
+            ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
+          end else begin
+            LIP := '';
+            if GStack.SupportsIPv4 then begin
+              LIP := '1'; {do not localize}
+            end;
+            if GStack.SupportsIPv6 then begin
+              if LIP <> '' then begin
+                LIP := LIP + ','; {do not localize}
+              end;
+              LIP := LIP + '2'; {do not localize}
+            end;
+            ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, [LIP])); {do not localize}
+          end;
+          Exit;
+        end;
       end;
     end;
     if LReqIPVersion = LIPVersion then begin

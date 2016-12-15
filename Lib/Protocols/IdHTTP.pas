@@ -956,6 +956,10 @@ var
   LPos: integer;
   LStr: string;
   LTemp: TStringList;
+  {$IFDEF HAS_TStrings_NameValueSeparator}
+  LChar: string;
+  J: Integer;
+  {$ENDIF}
 
   function EncodeLineBreaks(AStrings: TStrings): String;
   begin
@@ -976,8 +980,26 @@ begin
         LTemp.Assign(ASource);
         for i := 0 to LTemp.Count - 1 do begin
           LStr := LTemp[i];
-          // TODO: use LTemp.NameValueSeparator on platforms that support it
+          {$IFDEF HAS_TStrings_NameValueSeparator}
+          // RLebeau 11/8/16: Calling Pos() with a Char as input creates a temporary
+          // String.  Normally this is fine, but profiling reveils this to be a big
+          // bottleneck for code that makes a lot of calls to Pos() in a loop, so we
+          // will scan through the string looking for the character without a conversion...
+          //
+          // LPos := IndyPos(LTemp.NameValueSeparator, LStr); {do not localize}
+          //
+          LChar := LTemp.NameValueSeparator;
+          LPos := 0;
+          for J := 1 to Length(LStr) do begin
+            //if CharEquals(LStr, LPos, LChar) then begin
+            if LStr[J] = LChar then begin
+              LPos := J;
+              Break;
+            end;
+          end;
+          {$ELSE}
           LPos := IndyPos('=', LStr); {do not localize}
+          {$ENDIF}
           if LPos > 0 then begin
             LTemp[i] := WWWFormUrlEncode(LTemp.Names[i], AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF})
                         + '=' {do not localize}
@@ -3068,14 +3090,17 @@ begin
       end;
       ConnectToHost(Request, Response);
 
-      // Workaround for servers wich respond with 100 Continue on GET and HEAD
+      // Workaround for servers which respond with 100 Continue on GET and HEAD
       // This workaround is just for temporary use until we have final HTTP 1.1
       // realisation. HTTP 1.1 is ongoing because of all the buggy and conflicting servers.
+      //
+      // This is also necessary as servers are allowed to send any number of
+      // 1xx informational responses before sending the final response.
       repeat
         Response.ResponseText := InternalReadLn;
         FHTTPProto.RetrieveHeaders(MaxHeaderLines);
         ProcessCookies(Request, Response);
-      until Response.ResponseCode <> 100;
+      until (Response.ResponseCode div 100) <> 1;
 
       case FHTTPProto.ProcessResponse(AIgnoreReplies) of
         wnAuthRequest:

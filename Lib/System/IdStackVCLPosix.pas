@@ -125,6 +125,7 @@ type
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); override;
     {$ENDIF}
+    function SupportsIPv4: Boolean; overload; override;
     function SupportsIPv6: Boolean; overload; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     //In Windows, this writes a checksum into a buffer.  In Linux, it would probably
@@ -465,6 +466,9 @@ begin
   LN := SizeOf(LAddrStore);
   Result := Posix.SysSocket.accept(ASocket, LAddr, LN);
   if Result <> -1 then begin
+    {$IFDEF HAS_SOCKET_NOSIGPIPE}
+    SetSocketOption(Result, SOL_SOCKET, SO_NOSIGPIPE, 1);
+    {$ENDIF}
     case LAddrStore.ss_family of
       Id_PF_INET4: begin
         VIP := TranslateTInAddrToString( LAddrIPv4.sin_addr, Id_IPv4);
@@ -577,7 +581,7 @@ begin
               inetAddress := enumIpAddr.nextElement;
               if not inetAddress.isLoopbackAddress then begin
                 if (inetAddress instanceof Inet4Address) then begin
-                  TIdStackLocalAddressIPv4.Create(AAddresses, inetAddress.getHostAddress.toString, '');
+                  TIdStackLocalAddressIPv4.Create(AAddresses, inetAddress.getHostAddress.toString, ''); // TODO: subnet mask
                 end
                 else if (inetAddress instanceof Inet6Address) then begin
                   TIdStackLocalAddressIPv6.Create(AAddresses, inetAddress.getHostAddress.toString);
@@ -590,17 +594,17 @@ begin
         end;
        end;
      except
-       if not HasAndroidPermission('android.permission.INTERNET') then begin
-         IndyRaiseOuterException(EIdInternetPermissionNeeded.CreateError(0, ''));
-       end;
        if not HasAndroidPermission('android.permission.ACCESS_NETWORK_STATE') then begin
          IndyRaiseOuterException(EIdAccessNetworkStatePermissionNeeded.CreateError(0, ''));
+       end;
+       if not HasAndroidPermission('android.permission.INTERNET') then begin
+         IndyRaiseOuterException(EIdInternetPermissionNeeded.CreateError(0, ''));
        end;
        raise;
      end;
    end;
 
-  Note that this requires the application to have INTERNET and ACCESS_NETWORK_STATE permissions.
+  Note that this requires the application to have ACCESS_NETWORK_STATE and INTERNET permissions.
 
   Or:
 
@@ -624,8 +628,12 @@ begin
       end;
       raise;
     end;
+
     // WiFiInfo only supports IPv4
-    TIdStackLocalAddressIPv4.Create(AAddresses, Format('%d.%d.%d.%d', [ipAddress and $ff, (ipAddress shr 8) and $ff, (ipAddress shr 16) and $ff, (ipAddress shr 24) and $ff]), '');
+    TIdStackLocalAddressIPv4.Create(AAddresses,
+      Format('%d.%d.%d.%d', [ipAddress and $ff, (ipAddress shr 8) and $ff, (ipAddress shr 16) and $ff, (ipAddress shr 24) and $ff]),
+      '' // TODO: subnet mask
+    );
   end;
 
   This requires only ACCESS_WIFI_STATE permission.
@@ -1180,6 +1188,7 @@ var
 
 begin
   LiSize := SizeOf(LAddrStore);
+  // TODO: only include MSG_NOSIGNAL if SO_NOSIGPIPE is not enabled?
   Result := Posix.SysSocket.recvfrom(ASocket,VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, LAddr, LiSize);
   if Result >= 0 then
   begin
@@ -1245,6 +1254,16 @@ procedure TIdStackVCLPosix.{$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetS
   const AOptVal; const AOptLen: Integer);
 begin
   CheckForSocketError(Posix.SysSocket.setsockopt(ASocket, ALevel, AOptName, AOptVal, AOptLen));
+end;
+
+function TIdStackVCLPosix.SupportsIPv4: Boolean;
+begin
+  {$IFDEF IOS}
+  // TODO: iOS 9+ is IPv6-only...
+  //Result := ([[[UIDevice currentDevice] systemVersion] compare:'9.0' options:NSNumericSearch] == NSOrderedAscending);
+  {$ENDIF}
+  //In Windows, this does something else.  It checks the LSP's installed.
+  Result := CheckIPVersionSupport(Id_IPv4);
 end;
 
 function TIdStackVCLPosix.SupportsIPv6: Boolean;
@@ -1364,14 +1383,14 @@ function TIdStackVCLPosix.WSRecv(ASocket: TIdStackSocketHandle; var ABuffer;
   const ABufferLength, AFlags: Integer): Integer;
 begin
   //IdStackWindows is just: Result := Recv(ASocket, ABuffer, ABufferLength, AFlags);
+  // TODO: only include MSG_NOSIGNAL if SO_NOSIGPIPE is not enabled?
   Result := Posix.SysSocket.Recv(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL);
 end;
 
 function TIdStackVCLPosix.WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
   const ABufferLength, AFlags: Integer): Integer;
 begin
-  //CC: Should Id_MSG_NOSIGNAL be included?
-  //  Result := Send(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL);
+  // TODO: only include MSG_NOSIGNAL if SO_NOSIGPIPE is not enabled?
   Result := CheckForSocketError(Posix.SysSocket.send(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL));
 end;
 
@@ -1403,6 +1422,7 @@ begin
     LiSize := 0; // avoid warning
     IPVersionUnsupported;
   end;
+  // TODO: only include MSG_NOSIGNAL if SO_NOSIGPIPE is not enabled?
   LBytesSent := Posix.SysSocket.sendto(
     ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, LAddr, LiSize);
   if LBytesSent = Id_SOCKET_ERROR then begin

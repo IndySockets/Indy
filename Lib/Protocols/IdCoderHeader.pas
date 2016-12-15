@@ -199,7 +199,7 @@ var
   function ExtractEncoding(const AHeader: string; const AStartPos: Integer;
     var VStartPos, VEndPos: Integer; var VCharSet, VEncoding, VData: String): Boolean;
   var
-    LCharSet, LEncoding, LData, LDataEnd: Integer;
+    LCharSet, LCharSetEnd, LEncoding, LEncodingEnd, LData, LDataEnd: Integer;
   begin
     Result := False;
 
@@ -213,29 +213,37 @@ var
     end;
     Inc(LCharSet, 2);
 
-    LEncoding := PosIdx('?', AHeader, LCharSet);  {Do not Localize}
-    if (LEncoding = 0) or (LEncoding > VEndPos) then begin
+    // ignore language, if present
+    LCharSetEnd := FindFirstOf('*?', AHeader, -1, LCharSet);  {Do not Localize}
+    if (LCharSetEnd = 0) or (LCharSetEnd > VEndPos) then begin
       Exit;
+    end;
+    if AHeader[LCharSetEnd] = '*' then begin
+      LEncoding := PosIdx('?', AHeader, LCharSetEnd);  {Do not Localize}
+      if (LEncoding = 0) or (LEncoding > VEndPos) then begin
+        Exit;
+      end;
+    end else begin
+      LEncoding := LCharSetEnd;
     end;
     Inc(LEncoding);
 
-    LData := PosIdx('?', AHeader, LEncoding);  {Do not Localize}
-    if (LData = 0) or (LData > VEndPos) then begin
+    LEncodingEnd := PosIdx('?', AHeader, LEncoding);  {Do not Localize}
+    if (LEncodingEnd = 0) or (LEncodingEnd > VEndPos) then begin
       Exit;
     end;
-    Inc(LData);
+    LData := LEncodingEnd+1;
 
     LDataEnd := PosIdx('?=', AHeader, LData);  {Do not Localize}
     if (LDataEnd = 0) or (LDataEnd > VEndPos) then begin
       Exit;
     end;
-    Inc(LDataEnd);
 
     VStartPos := LCharSet-2;
-    VEndPos := LDataEnd;
-    VCharSet := Copy(AHeader, LCharSet, LEncoding-LCharSet-1);
-    VEncoding := Copy(AHeader, LEncoding, LData-LEncoding-1);
-    VData := Copy(AHeader, LData, LDataEnd-LData-1);
+    VEndPos := LDataEnd+1;
+    VCharSet := Copy(AHeader, LCharSet, LCharSetEnd-LCharSet);
+    VEncoding := Copy(AHeader, LEncoding, LEncodingEnd-LEncoding);
+    VData := Copy(AHeader, LData, LDataEnd-LData);
 
     Result := True;
   end;

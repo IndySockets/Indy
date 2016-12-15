@@ -509,7 +509,7 @@ const
       LNameValue := LValue;
       LValue := Fetch(LNameValue, '"');
     end;
-    CookieProp.Add(LName + '=' + LValue);
+    IndyAddPair(CookieProp, LName, LValue);
 
     while LAttrs <> '' do
     begin
@@ -551,12 +551,12 @@ const
             end else begin
               LExpiryTime := EncodeDate(1, 1, 1);
             end;
-            CookieProp.Add('EXPIRES=' + FloatToStr(LExpiryTime));
+            IndyAddPair(CookieProp, 'EXPIRES', FloatToStr(LExpiryTime)); {do not localize}
           end else
           begin
             LExpiryTime := CookieStrToLocalDateTime(LValue);
             if LExpiryTime <> 0.0 then begin
-              CookieProp.Add('EXPIRES=' + FloatToStr(LExpiryTime));
+              IndyAddPair(CookieProp, 'EXPIRES', FloatToStr(LExpiryTime)); {do not localize}
             end;
           end;
         end;
@@ -569,7 +569,7 @@ const
             end else begin
               LExpiryTime := EncodeDate(1, 1, 1);
             end;
-            CookieProp.Add('MAX-AGE=' + FloatToStr(LExpiryTime));
+            IndyAddPair(CookieProp, 'MAX-AGE', FloatToStr(LExpiryTime)); {do not localize}
           end;
         end;
         2: begin
@@ -586,20 +586,20 @@ const
             if I > 0 then begin
               LValue := Copy(S, 1, I-1);
             end;
-            CookieProp.Add('DOMAIN=' + LowerCase(LValue));
+            IndyAddPair(CookieProp, 'DOMAIN', LowerCase(LValue)); {do not localize}
           end;
         end;
         3: begin
           if (LValue = '') or (not TextStartsWith(LValue, '/')) then begin
             LValue := GetDefaultPath(AURI);
           end;
-          CookieProp.Add('PATH=' + LValue);
+          IndyAddPair(CookieProp, 'PATH', LValue); {do not localize}
         end;
         4: begin
-          CookieProp.Add('SECURE=');
+          IndyAddPair(CookieProp, 'SECURE', ''); {do not localize}
         end;
         5: begin
-          CookieProp.Add('HTTPONLY=');
+          IndyAddPair(CookieProp, 'HTTPONLY', ''); {do not localize}
         end;
       end;
     end;
@@ -847,7 +847,7 @@ var
         LTemp := TrimLeft(LTemp);
       end;
       if LName <> '' then begin
-        CookieProp.Add(LName + '=' + LValue);    {Do not Localize}
+        IndyAddPair(CookieProp, LName, LValue);
       end;
     end;
 end;

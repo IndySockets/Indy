@@ -352,6 +352,7 @@ begin
   FSASLMechanisms := TIdSASLEntries.Create(Self);
   FRegularProtPort := IdPORT_POP3;
   FImplicitTLSProtPort := IdPORT_POP3S;
+  FExplicitTLSProtPort := IdPORT_POP3;
   Port := IdPORT_POP3;
   FAuthType := DEF_ATYPE;
 end;

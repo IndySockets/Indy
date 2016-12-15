@@ -2445,8 +2445,9 @@ begin
   FMUTF7 := TIdMUTF7.Create;
 
   //Todo:  Not sure which number is appropriate.  Should be tested further.
-  FImplicitTLSProtPort := IdPORT_IMAP4S;
   FRegularProtPort := IdPORT_IMAP4;
+  FImplicitTLSProtPort := IdPORT_IMAP4S;
+  FExplicitTLSProtPort := IdPORT_IMAP4;
 
   FMilliSecsToWaitToClearBuffer := IDF_DEFAULT_MS_TO_WAIT_TO_CLEAR_BUFFER;
   FCmdCounter := 0;

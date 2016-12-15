@@ -2026,6 +2026,7 @@ begin
   FContextClass := TIdNNTPContext;
   FRegularProtPort := IdPORT_NNTP;
   FImplicitTLSProtPort := IdPORT_SNEWS;
+  FExplicitTLSProtPort := IdPORT_NNTP;
   DefaultPort := IdPORT_NNTP;
 
   FSupportedAuthTypes := [atUserPass];

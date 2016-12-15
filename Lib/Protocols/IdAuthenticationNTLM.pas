@@ -81,8 +81,10 @@ uses
   IdException,
   IdCoderMIME,
   IdResourceStringsOpenSSL,
+  {.$IFDEF USE_OPENSSL}
   IdSSLOpenSSLHeaders,
   IdSSLOpenSSL,
+  {.$ENDIF}
   IdNTLM,
   SysUtils;
 
@@ -91,9 +93,16 @@ uses
 constructor TIdNTLMAuthentication.Create;
 begin
   inherited Create;
+  {.$IFDEF USE_OPENSSL}
   if not LoadOpenSSLLibrary then begin
     raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
   end;
+  {.$ENDIF}
+  {TODO: add this?
+  if not NTLMFunctionsLoaded then begin
+    raise ...;
+  end;
+  }
 end;
 
 function TIdNTLMAuthentication.DoNext: TIdAuthWhatsNext;

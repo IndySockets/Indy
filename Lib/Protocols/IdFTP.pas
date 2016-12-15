@@ -727,6 +727,10 @@ type
   public
     procedure Assign(Source: TPersistent); override;
   published
+    // TODO: replace UseKeepAlive with an enum/set that allows keepalives to
+    // be enabled on the command connection for its entire lifetime, not just
+    // during transfers, and maybe also add an option to enable keepalives on
+    // the data connections as well...
     property UseKeepAlive: Boolean read FUseKeepAlive write FUseKeepAlive;
     property IdleTimeMS: Integer read FIdleTimeMS write FIdleTimeMS;
     property IntervalMS: Integer read FIntervalMS write FIntervalMS;
@@ -1162,6 +1166,7 @@ begin
   FAutoLogin := DEF_Id_FTP_AutoLogin;
   FRegularProtPort := IdPORT_FTP;
   FImplicitTLSProtPort := IdPORT_ftps;
+  FExplicitTLSProtPort := IdPORT_FTP;
   //
   Port := IDPORT_FTP;
   Passive := Id_TIdFTP_Passive;
@@ -2713,8 +2718,8 @@ begin
   case ProxySettings.ProxyType of
   fpcmNone:
     begin
-      LCmd := MakeXAUTCmd( Greeting.Text.Text , FUserName, GetLoginPassword);
-      if (LCmd <> '') and (not GetFIPSMode ) then
+      LCmd := MakeXAUTCmd(Greeting.Text.Text, FUserName, GetLoginPassword);
+      if (LCmd <> '') and (not GetFIPSMode) then
       begin
         if SendCmd(LCmd, [230, 232, 331]) = 331 then begin
           if IsAccountNeeded then begin

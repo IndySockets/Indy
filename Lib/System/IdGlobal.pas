@@ -658,7 +658,7 @@ type
   // In C++Builder 2006 and 2007, UInt64 is emitted as signed __int64 in HPP
   // files instead of as unsigned __int64.  This causes conflicts in overloaded
   // routines that have (U)Int64 parameters.  This was fixed in C++Builder 2009...
-  {$IFNDEF BROKEN_UINT64_HPPEMIT}
+  {$IFNDEF TIdUInt64_HAS_QuadPart}
 type
   TIdUInt64 = UInt64;
   {$ENDIF}
@@ -686,7 +686,7 @@ type
   PUInt64 = {$IFDEF HAS_QWord}PQWord{$ELSE}PInt64{$ENDIF};
 {$ENDIF}
 
-{$IFDEF TIdUInt64_IS_NOT_NATIVE}
+{$IFDEF TIdUInt64_HAS_QuadPart}
 // For compilers that do not have a native UInt64 type, or for C++Builder
 // 2006/2007 with its broken UInt64 HPP emit, let's define a record type
 // that can hold UInt64 values, and then use it wherever UInt64 parameters
@@ -716,6 +716,7 @@ type
   (*$HPPEMIT '    {'*)
   (*$HPPEMIT '        union {'*)
   (*$HPPEMIT '            struct {'*)
+// TODO: move the endian check to the C++ side using #if...
   {$IFDEF ENDIAN_BIG}
   (*$HPPEMIT '                unsigned __int32 HighPart;'*)
   (*$HPPEMIT '                unsigned __int32 LowPart;'*)
@@ -728,6 +729,7 @@ type
   (*$HPPEMIT '        };'*)
   (*$HPPEMIT '        TIdUInt64(unsigned __int64 value) { QuadPart = value; }'*)
   (*$HPPEMIT '        operator unsigned __int64() const { return QuadPart; }'*)
+  (*$HPPEMIT '        TIdUInt64& operator=(unsigned __int64 value) { QuadPart = value; return *this; }'*)
   (*$HPPEMIT '    };'*)
   (*$HPPEMIT '    #pragma pack(pop)' *)
   (*$HPPEMIT '}'*)
@@ -1838,14 +1840,17 @@ procedure ToDo(const AMsg: string);
 function TwoByteToUInt16(AByte1, AByte2: Byte): UInt16;
 function TwoByteToWord(AByte1, AByte2: Byte): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TwoByteToUInt16()'{$ENDIF};{$ENDIF}
 
+function IndyAddPair(AStrings: TStrings; const AName, AValue: String): TStrings; overload;
+function IndyAddPair(AStrings: TStrings; const AName, AValue: String; AObject: TObject): TStrings; overload;
+
 function IndyIndexOf(AStrings: TStrings; const AStr: string; const ACaseSensitive: Boolean = False): Integer;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
 {$IFDEF HAS_TStringList_CaseSensitive}
 function IndyIndexOf(AStrings: TStringList; const AStr: string; const ACaseSensitive: Boolean = False): Integer; overload;
 {$ENDIF}
 
-function IndyIndexOfName(AStrings: TStrings; const AStr: string; const ACaseSensitive: Boolean = False): Integer;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
+function IndyIndexOfName(AStrings: TStrings; const AName: string; const ACaseSensitive: Boolean = False): Integer;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
 {$IFDEF HAS_TStringList_CaseSensitive}
-function IndyIndexOfName(AStrings: TStringList; const AStr: string; const ACaseSensitive: Boolean = False): Integer; overload;
+function IndyIndexOfName(AStrings: TStringList; const AName: string; const ACaseSensitive: Boolean = False): Integer; overload;
 {$ENDIF}
 
 function IndyValueFromIndex(AStrings: TStrings; const AIndex: Integer): String;
@@ -1858,8 +1863,8 @@ function IndyWindowsPlatform: Integer;
 function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 0): Boolean;
 {$ENDIF}
 
-//For non-Nextgen compilers: IdDisposeAndNil is the same as FreeAndNil()
-//For Nextgen compilers: IdDisposeAndNil calls TObject.DisposeOf() to ensure
+// For non-Nextgen compilers: IdDisposeAndNil is the same as FreeAndNil()
+// For Nextgen compilers: IdDisposeAndNil calls TObject.DisposeOf() to ensure
 // the object is freed immediately even if it has active references to it,
 // for instance when freeing an Owned component
 procedure IdDisposeAndNil(var Obj); {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -1938,8 +1943,10 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-    {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
-    {$IFDEF USE_MADEXCEPT}madExcept,{$ENDIF}
+    {$IFNDEF HAS_System_RegisterExpectedMemoryLeak}
+      {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
+      {$IFDEF USE_MADEXCEPT}madExcept,{$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
   {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
@@ -5017,12 +5024,12 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(UInt64));
   {$ELSE}
-  PUInt64(@VDest[ADestIndex])^ := ASource{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+  PUInt64(@VDest[ADestIndex])^ := ASource{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   {$ENDIF}
 end;
 
 {$IFDEF UInt64_IS_NATIVE}
-  {$IFDEF TIdUInt64_IS_NOT_NATIVE}
+  {$IFDEF TIdUInt64_HAS_QuadPart}
     {$DEFINE USE_TIdTicks_TIdUInt64_CONVERSION}
   {$ENDIF}
 {$ENDIF}
@@ -5037,7 +5044,7 @@ var
 begin
   {$IFDEF USE_TIdTicks_TIdUInt64_CONVERSION}
   // In C++Builder 2006/2007, TIdUInt64 is a packed record, but TIdTicks is
-  // an alias for a native UInt64 , so need a conversion here to get around
+  // an alias for a native UInt64, so need a conversion here to get around
   // a compiler error: "E2010 Incompatible types: 'TIdUInt64' and 'UInt64'"...
   LValue.QuadPart := ASource;
   CopyTIdUInt64(LValue, VDest, ADestIndex);
@@ -6509,75 +6516,80 @@ var
   LLastPos, LLeadingSpaceCnt: PtrInt;
 begin
   Assert(Assigned(AStrings));
-  AStrings.Clear;
-  LDelim := Length(ADelim);
-  LLastPos := 1;
+  AStrings.BeginUpdate;
+  try
+    AStrings.Clear;
+    LDelim := Length(ADelim);
+    LLastPos := 1;
 
-  if ATrim then begin
-    LData := Trim(AData);
-    if LData = '' then begin //if WhiteStr
-      Exit;
-    end;
+    if ATrim then begin
+      LData := Trim(AData);
+      if LData = '' then begin //if WhiteStr
+        Exit;
+      end;
 
-    LLeadingSpaceCnt := 0;
-    while AData[LLeadingSpaceCnt + 1] <= #32 do begin
-      Inc(LLeadingSpaceCnt);
-    end;
+      LLeadingSpaceCnt := 0;
+      while AData[LLeadingSpaceCnt + 1] <= #32 do begin
+        Inc(LLeadingSpaceCnt);
+      end;
 
-    i := Pos(ADelim, LData);
-    while I > 0 do begin
-      LLeft := Copy(LData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
-      if LLeft > '' then begin    {Do not Localize}
+      i := Pos(ADelim, LData);
+      while I > 0 do begin
+        LLeft := Copy(LData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
+        if LLeft > '' then begin    {Do not Localize}
+          {$IFNDEF USE_OBJECT_ARC}
+          if AIncludePositions then begin
+            AStrings.AddObject(Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
+          end else
+          {$ENDIF}
+          begin
+            AStrings.Add(Trim(LLeft));
+          end;
+        end;
+        LLastPos := I + LDelim; //first char after Delim
+        i := PosIdx(ADelim, LData, LLastPos);
+      end;//while found
+      if LLastPos <= Length(LData) then begin
         {$IFNDEF USE_OBJECT_ARC}
         if AIncludePositions then begin
-          AStrings.AddObject(Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
+          AStrings.AddObject(Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
         end else
         {$ENDIF}
         begin
-          AStrings.Add(Trim(LLeft));
+          AStrings.Add(Trim(Copy(LData, LLastPos, MaxInt)));
         end;
       end;
-      LLastPos := I + LDelim; //first char after Delim
-      i := PosIdx(ADelim, LData, LLastPos);
-    end;//while found
-    if LLastPos <= Length(LData) then begin
-      {$IFNDEF USE_OBJECT_ARC}
-      if AIncludePositions then begin
-        AStrings.AddObject(Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
-      end else
-      {$ENDIF}
-      begin
-        AStrings.Add(Trim(Copy(LData, LLastPos, MaxInt)));
+    end else
+    begin
+      i := Pos(ADelim, AData);
+      while I > 0 do begin
+        LLeft := Copy(AData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
+        if LLeft <> '' then begin    {Do not Localize}
+          {$IFNDEF USE_OBJECT_ARC}
+          if AIncludePositions then begin
+            AStrings.AddObject(LLeft, TObject(LLastPos));
+          end else
+          {$ENDIF}
+          begin
+            AStrings.Add(LLeft);
+          end;
+        end;
+        LLastPos := I + LDelim; //first char after Delim
+        i := PosIdx(ADelim, AData, LLastPos);
       end;
-    end;
-  end else
-  begin
-    i := Pos(ADelim, AData);
-    while I > 0 do begin
-      LLeft := Copy(AData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
-      if LLeft <> '' then begin    {Do not Localize}
+      if LLastPos <= Length(AData) then begin
         {$IFNDEF USE_OBJECT_ARC}
         if AIncludePositions then begin
-          AStrings.AddObject(LLeft, TObject(LLastPos));
+          AStrings.AddObject(Copy(AData, LLastPos, MaxInt), TObject(LLastPos));
         end else
         {$ENDIF}
         begin
-          AStrings.Add(LLeft);
+          AStrings.Add(Copy(AData, LLastPos, MaxInt));
         end;
       end;
-      LLastPos := I + LDelim; //first char after Delim
-      i := PosIdx(ADelim, AData, LLastPos);
     end;
-    if LLastPos <= Length(AData) then begin
-      {$IFNDEF USE_OBJECT_ARC}
-      if AIncludePositions then begin
-        AStrings.AddObject(Copy(AData, LLastPos, MaxInt), TObject(LLastPos));
-      end else
-      {$ENDIF}
-      begin
-        AStrings.Add(Copy(AData, LLastPos, MaxInt));
-      end;
-    end;
+  finally
+    AStrings.EndUpdate;
   end;
 end;
 
@@ -7583,7 +7595,7 @@ begin
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
   SetLength(Result, SizeOf(UInt64));
-  PUInt64(@Result[0])^ := AValue{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF};
+  PUInt64(@Result[0])^ := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   {$ENDIF}
 end;
 
@@ -7880,7 +7892,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.ToUInt64(AValue, AIndex);
   {$ELSE}
-  Result{$IFDEF TIdUInt64_IS_NOT_NATIVE}.QuadPart{$ENDIF} := PUInt64(@AValue[AIndex])^;
+  Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := PUInt64(@AValue[AIndex])^;
   {$ENDIF}
 end;
 
@@ -8029,6 +8041,8 @@ begin
     end;
     CheckByteEncoding(LBytes, AByteEncoding, ADestEncoding);
     SetString(Result, PAnsiChar(LBytes), Length(LBytes));
+    // TODO: on compilers that support AnsiString codepages,
+    // set the string's codepage to match ADestEncoding...
     {$ENDIF}
   end else begin
     Result := '';
@@ -8052,6 +8066,8 @@ begin
     Result := IndyTextEncoding_8Bit.GetString(AValue, AStartIndex, LLength);
     {$ELSE}
     SetString(Result, PAnsiChar(@AValue[AStartIndex]), LLength);
+    // TODO: on compilers that support AnsiString codepages,
+    // set the string's codepage to something like ISO-8859-1...
     {$ENDIF}
   end else begin
     Result := '';
@@ -8531,6 +8547,7 @@ var
   I: Integer;
   LActual: Integer;
 begin
+  //TODO: check the reference count of VBytes, if >1 then make a new copy
   Assert(AIndex >= 0);
   LActual := IndyMin(Length(VBytes)-AIndex, ACount);
   if LActual > 0 then begin
@@ -8710,8 +8727,8 @@ begin
     {$ELSE}
     // RLebeau 5/8/08: Calling Pos() with a Char as input creates a temporary
     // String.  Normally this is fine, but profiling reveils this to be a big
-    // bottleneck for code that makes a lot of calls to CharIsInSet(), so need
-    // to scan through ASet looking for the character without a conversion...
+    // bottleneck for code that makes a lot of calls to CharIsInSet(), so we
+    // will scan through ASet looking for the character without a conversion...
     //
     // Result := IndyPos(AString[ACharPos], ASet);
     //
@@ -8777,8 +8794,8 @@ begin
     {$ELSE}
     // RLebeau 5/8/08: Calling Pos() with a Char as input creates a temporary
     // String.  Normally this is fine, but profiling reveils this to be a big
-    // bottleneck for code that makes a lot of calls to CharIsInSet(), so need
-    // to scan through ASet looking for the character without a conversion...
+    // bottleneck for code that makes a lot of calls to CharIsInSet(), so we
+    // will scan through ASet looking for the character without a conversion...
     //
     // Result := IndyPos(ASB[ACharPos-1], ASet);
     //
@@ -8980,24 +8997,12 @@ end;
 function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  // TODO: use only System.RegisterExpectedMemoryLeak() on systems that support
+  // use only System.RegisterExpectedMemoryLeak() on systems that support
   // it. We should use whatever the RTL's active memory manager is.  Fallback
   // to specific memory managers only if System.RegisterExpectedMemoryLeak()
   // is not available.
 
-  {$IFDEF USE_FASTMM4}
-  // RLebeau 4/9/2009: the user can override the RTL's version of FastMM
-  // (2006+ only) with the full version of FastMM in order to enable
-  // advanced debugging features, so check for that first...
-  Result := FastMM4.RegisterExpectedMemoryLeak(AAddress);
-  {$ELSE}
-    {$IFDEF USE_MADEXCEPT}
-  // RLebeau 10/5/2014: the user can override the RTL's version of FastMM
-  // (2006+ only) with any memory manager, such as MadExcept, so check for
-  // that next...
-  Result := madExcept.HideLeak(AAddress);
-    {$ELSE}
-      {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
+  {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
   // RLebeau 4/21/08: not quite sure what the difference is between the
   // SysRegisterExpectedMemoryLeak() and RegisterExpectedMemoryLeak()
   // functions in the System unit, but calling RegisterExpectedMemoryLeak()
@@ -9017,6 +9022,15 @@ begin
 
   //Result := System.SysRegisterExpectedMemoryLeak(AAddress);
   Result := System.RegisterExpectedMemoryLeak(AAddress);
+  {$ELSE}
+    // RLebeau 10/5/2014: the user can override the RTL's version of FastMM
+    // (2006+ only) with any memory manager, such as MadExcept, so check for
+    // that...
+    {$IFDEF USE_FASTMM4}
+  Result := FastMM4.RegisterExpectedMemoryLeak(AAddress);
+    {$ELSE}
+      {$IFDEF USE_MADEXCEPT}
+  Result := madExcept.HideLeak(AAddress);
       {$ELSE}
   Result := False;
       {$ENDIF}
@@ -9025,6 +9039,36 @@ begin
 end;
   {$ENDIF}
 {$ENDIF}
+
+function IndyAddPair(AStrings: TStrings; const AName, AValue: String): TStrings;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF HAS_TStrings_AddPair}
+  Result := AStrings.AddPair(AName, AValue);
+  {$ELSE}
+    {$IFDEF HAS_TStrings_NameValueSeparator}
+  AStrings.Add(AName + AStrings.NameValueSeparator + AValue);
+    {$ELSE}
+  AStrings.Add(AName + '=' + AValue); {do not localize}
+    {$ENDIF}
+  Result := AStrings;
+  {$ENDIF}
+end;
+
+function IndyAddPair(AStrings: TStrings; const AName, AValue: String; AObject: TObject): TStrings;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF HAS_TStrings_AddPair}
+  Result := AStrings.AddPair(AName, AValue, AObject);
+  {$ELSE}
+    {$IFDEF HAS_TStrings_NameValueSeparator}
+  AStrings.AddObject(AName + AStrings.NameValueSeparator + AValue, AObject);
+    {$ELSE}
+  AStrings.AddObject(AName + '=' + AValue, AObject);
+    {$ENDIF}
+  Result := AStrings;
+  {$ENDIF}
+end;
 
 function InternalIndyIndexOf(AStrings: TStrings; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
@@ -9072,7 +9116,7 @@ begin
 end;
 {$ENDIF}
 
-function InternalIndyIndexOfName(AStrings: TStrings; const AStr: string;
+function InternalIndyIndexOfName(AStrings: TStrings; const AName: string;
   const ACaseSensitive: Boolean = False): Integer;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
@@ -9081,39 +9125,38 @@ begin
   Result := -1;
   for I := 0 to AStrings.Count - 1 do begin
     if ACaseSensitive then begin
-      if AStrings.Names[I] = AStr then begin
+      if AStrings.Names[I] = AName then begin
         Result := I;
         Exit;
       end;
-    end else begin
-      if TextIsSame(AStrings.Names[I], AStr) then begin
-        Result := I;
-        Exit;
-      end;
+    end
+    else if TextIsSame(AStrings.Names[I], AName) then begin
+      Result := I;
+      Exit;
     end;
   end;
 end;
 
-function IndyIndexOfName(AStrings: TStrings; const AStr: string;
+function IndyIndexOfName(AStrings: TStrings; const AName: string;
   const ACaseSensitive: Boolean = False): Integer;
 begin
   {$IFDEF HAS_TStringList_CaseSensitive}
   if AStrings is TStringList then begin
-    Result := IndyIndexOfName(TStringList(AStrings), AStr, ACaseSensitive);
+    Result := IndyIndexOfName(TStringList(AStrings), AName, ACaseSensitive);
     Exit;
   end;
   {$ENDIF}
-  Result := InternalIndyIndexOfName(AStrings, AStr, ACaseSensitive);
+  Result := InternalIndyIndexOfName(AStrings, AName, ACaseSensitive);
 end;
 
 {$IFDEF HAS_TStringList_CaseSensitive}
-function IndyIndexOfName(AStrings: TStringList; const AStr: string;
+function IndyIndexOfName(AStrings: TStringList; const AName: string;
   const ACaseSensitive: Boolean = False): Integer;
 begin
   if AStrings.CaseSensitive = ACaseSensitive then begin
-    Result := AStrings.IndexOfName(AStr);
+    Result := AStrings.IndexOfName(AName);
   end else begin
-    Result := InternalIndyIndexOfName(AStrings, AStr, ACaseSensitive);
+    Result := InternalIndyIndexOfName(AStrings, AName, ACaseSensitive);
   end;
 end;
 {$ENDIF}
@@ -9123,6 +9166,9 @@ function IndyValueFromIndex(AStrings: TStrings; const AIndex: Integer): String;
 var
   LTmp: string;
   LPos: Integer;
+  {$IFDEF HAS_TStrings_NameValueSeparator}
+  LChar: Char;
+  {$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF HAS_TStrings_ValueFromIndex}
@@ -9132,12 +9178,29 @@ begin
   if AIndex >= 0 then
   begin
     LTmp := AStrings.Strings[AIndex];
-    // TODO: use AStrings.NameValueSeparator on platforms that support it
+    {$IFDEF HAS_TStrings_NameValueSeparator}
+    // RLebeau 11/8/16: Calling Pos() with a Char as input creates a temporary
+    // String.  Normally this is fine, but profiling reveils this to be a big
+    // bottleneck for code that makes a lot of calls to Pos() in a loop, so we
+    // will scan through the string looking for the character without a conversion...
+    //
+    // LPos := Pos(AStrings.NameValueSeparator, LTmp); {do not localize}
+    // if LPos > 0 then begin
+    //
+    LChar := AStrings.NameValueSeparator;
+    for LPos := 1 to Length(LTmp) do begin
+      //if CharEquals(LTmp, LPos, LChar) then begin
+      if LTmp[LPos] = LChar then begin
+        Result := Copy(LTmp, LPos+1, MaxInt);
+        Exit;
+      end;
+    end;
+    {$ELSE}
     LPos := Pos('=', LTmp); {do not localize}
     if LPos > 0 then begin
       Result := Copy(LTmp, LPos+1, MaxInt);
-      Exit;
     end;
+    {$ENDIF}
   end;
   {$ENDIF}
 end;
@@ -9145,11 +9208,11 @@ end;
 {$IFDEF WINDOWS}
 function IndyWindowsMajorVersion: Integer;
 begin
-  {$IFDEF WINCE}
+    {$IFDEF WINCE}
   Result := SysUtils.WinCEMajorVersion;
-  {$ELSE}
+    {$ELSE}
   Result := SysUtils.Win32MajorVersion;
-  {$ENDIF}
+    {$ENDIF}
 end;
 
 function IndyWindowsMinorVersion: Integer;

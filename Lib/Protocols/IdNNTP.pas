@@ -368,6 +368,7 @@ begin
 
   FRegularProtPort := IdPORT_NNTP;
   FImplicitTLSProtPort := IdPORT_SNEWS;
+  FExplicitTLSProtPort := IdPORT_NNTP;
 end;
 
 function TIdNNTP.SendCmd(AOut: string; const AResponse: Array of Int16;

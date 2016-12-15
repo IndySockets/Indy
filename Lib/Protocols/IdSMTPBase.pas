@@ -192,8 +192,9 @@ end;
 procedure TIdSMTPBase.InitComponent;
 begin
   inherited InitComponent;
-  FImplicitTLSProtPort := IdPORT_ssmtp;
   FRegularProtPort := IdPORT_SMTP;
+  FImplicitTLSProtPort := IdPORT_ssmtp;
+  FExplicitTLSProtPort := 587; // TODO: define a constant for this!
   FPipeLine := DEF_SMTP_PIPELINE;
   FUseEhlo := IdDEF_UseEhlo;
   FUseVerp := IdDEF_UseVerp;

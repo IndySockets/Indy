@@ -2404,8 +2404,7 @@ begin
   // might have been loaded OK before the failure occured. LoadOpenSSLLibrary()
   // does not unload ..
   IdSSLOpenSSL.LoadOpenSSLLibrary;
-  if Assigned(_SSLeay_version) then
-  begin
+  if Assigned(_SSLeay_version) then begin
     Result := String(_SSLeay_version(SSLEAY_VERSION));
   end;
 end;
@@ -3181,11 +3180,13 @@ begin
     end;
   end;
   // may as well do the same for all of them...
-  if not (sslvTLSv1 in SSLVersions) then begin
-    SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1);
-  end
-  else if (fMethod = sslvSSLv23) then begin
-    SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1);
+  if IsOpenSSL_TLSv1_0_Available then begin
+    if not (sslvTLSv1 in SSLVersions) then begin
+      SSL_CTX_set_options(fContext, SSL_OP_NO_TLSv1);
+    end
+    else if (fMethod = sslvSSLv23) then begin
+      SSL_CTX_clear_options(fContext, SSL_OP_NO_TLSv1);
+    end;
   end;
 {IMPORTANT!!!  Do not set SSL_CTX_set_options SSL_OP_NO_TLSv1_1 and
 SSL_OP_NO_TLSv1_2 if that functionality is not available.  OpenSSL 1.0 and
@@ -3306,7 +3307,7 @@ begin
 
   if (Dirs <> '') or (FileName <> '') then begin
     if IndySSL_CTX_load_verify_locations(fContext, FileName, Dirs) <= 0 then begin
-      EIdOSSLCouldNotLoadSSLLibrary.RaiseException(RSOSSLCouldNotLoadSSLLibrary);
+      raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
     end;
   end;
 
@@ -3430,6 +3431,7 @@ begin
           if Assigned(TLSv1_2_server_method) then begin
             Result := TLSv1_2_server_method();
           end else begin
+            // TODO: fallback to TLSv1.1 if available?
             Result := SelectTLS1Method(fMode);
           end;
         end;
@@ -3437,6 +3439,7 @@ begin
           if Assigned(TLSv1_2_client_method) then begin
             Result := TLSv1_2_client_method();
           end else begin
+            // TODO: fallback to TLSv1.1 if available?
             Result := SelectTLS1Method(fMode);
           end;
         end;
@@ -3444,6 +3447,7 @@ begin
         if Assigned(TLSv1_2_method) then begin
           Result := TLSv1_2_method();
         end else begin
+          // TODO: fallback to TLSv1.1 if available?
           Result := SelectTLS1Method(fMode);
         end;
       end;
