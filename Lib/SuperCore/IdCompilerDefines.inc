@@ -934,6 +934,7 @@
     {$DEFINE HAS_IInterface}
     {$DEFINE HAS_TSelectionEditor}
     {$DEFINE HAS_TStringList_CaseSensitive}
+    {$DEFINE HAS_AcquireExceptionObject}
     {$IFNDEF KYLIX}
       {$DEFINE HAS_DEPRECATED}
       {$DEFINE HAS_SYMBOL_PLATFORM}
@@ -1220,6 +1221,7 @@
   {$DEFINE HAS_LPGUID}
   {$DEFINE HAS_PPAnsiChar}
   {$DEFINE HAS_ENUM_ELEMENT_VALUES}
+  {$DEFINE HAS_AcquireExceptionObject} // TODO: when was AcquireExceptionObject introduced?
   {$IFDEF WINDOWS}
     {$DEFINE HAS_ULONG_PTR}
     {.$DEFINE HAS_ULONGLONG} // TODO: is this defined?

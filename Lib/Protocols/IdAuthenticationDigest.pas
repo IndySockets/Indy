@@ -143,7 +143,7 @@ begin
   case FCurrentStep of
     0:
       begin
-        //Just be save with this one
+        //Just be safe with this one
         Result := 'Digest'; {do not localize}
       end;
     1:
@@ -257,7 +257,7 @@ begin
             end else begin
               LValue := Trim(Fetch(S, ','));
             end;
-            LParams.Add(LName + '=' + LValue);
+            IndyAddPair(LParams, LName, LValue);
             S := TrimLeft(S);
           end;
 

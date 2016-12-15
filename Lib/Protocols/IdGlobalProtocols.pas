@@ -1376,6 +1376,8 @@ function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStr
 var
   EndOfCurrentString: integer;
 begin
+  // TODO: use SplitDelimitedString() instead?
+  // SplitDelimitedString(BaseString, StringList, False, BreakString);
   repeat
     EndOfCurrentString := Pos(BreakString, BaseString);
     if EndOfCurrentString = 0 then begin
@@ -3492,8 +3494,8 @@ begin
     S := AStrings[I];
     // RLebeau 12/13/15: Calling Pos() with a Char as input creates a temporary
     // String.  Normally this is fine, but profiling reveils this to be a big
-    // bottleneck for code that makes a lot of calls to Pos() in a loop, so need
-    // to scan through the string looking for the character without a conversion...
+    // bottleneck for code that makes a lot of calls to Pos() in a loop, so we
+    // will scan through the string looking for the character without a conversion...
     //
     // P := Pos(MimeSeparator, S);
     // if P > 0 then begin
@@ -4300,7 +4302,7 @@ begin
       {$IFDEF USE_OBJECT_ARC}
       AItems.Add(TIdHeaderNameValueItem.Create(LName, LValue, LQuoted));
       {$ELSE}
-      AItems.AddObject(LName + '=' + LValue, TObject(LQuoted));
+      IndyAddPair(AItems, LName, LValue, TObject(LQuoted));
       {$ENDIF}
     end;
   end;
@@ -4425,7 +4427,7 @@ begin
       end;
       {$ELSE}
       if I < 0 then begin
-        LItems.Add(ASubItem + '=' + LValue); {do not localize}
+        IndyAddPair(LItems, ASubItem, LValue);
       end else begin
         {$IFDEF HAS_TStrings_ValueFromIndex}
         LItems.ValueFromIndex[I] := LValue;
