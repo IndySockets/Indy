@@ -1,0 +1,469 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">DelphiDotNet.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{0C9E5605-3BDE-4E8A-B8F4-4332AB6574D2}</Option>
+		</Option>
+	</PersonalityInfo>
+	<DelphiDotNet.Personality>
+		<Source>
+			<Source Name="MainSource">Indy.Sockets.dpr</Source>
+		</Source>
+		<FileVersion>
+			<FileVersion Name="Version">7.0</FileVersion>
+		</FileVersion>
+		<Compiler>
+			<Compiler Name="A">0</Compiler>
+			<Compiler Name="B">0</Compiler>
+			<Compiler Name="C">1</Compiler>
+			<Compiler Name="D">1</Compiler>
+			<Compiler Name="E">0</Compiler>
+			<Compiler Name="F">0</Compiler>
+			<Compiler Name="G">1</Compiler>
+			<Compiler Name="H">1</Compiler>
+			<Compiler Name="I">1</Compiler>
+			<Compiler Name="J">0</Compiler>
+			<Compiler Name="K">0</Compiler>
+			<Compiler Name="L">1</Compiler>
+			<Compiler Name="M">0</Compiler>
+			<Compiler Name="N">1</Compiler>
+			<Compiler Name="O">1</Compiler>
+			<Compiler Name="P">1</Compiler>
+			<Compiler Name="Q">1</Compiler>
+			<Compiler Name="R">1</Compiler>
+			<Compiler Name="S">0</Compiler>
+			<Compiler Name="T">0</Compiler>
+			<Compiler Name="U">0</Compiler>
+			<Compiler Name="V">1</Compiler>
+			<Compiler Name="W">0</Compiler>
+			<Compiler Name="X">1</Compiler>
+			<Compiler Name="Y">1</Compiler>
+			<Compiler Name="Z">1</Compiler>
+			<Compiler Name="ShowHints">True</Compiler>
+			<Compiler Name="ShowWarnings">True</Compiler>
+			<Compiler Name="UnitAliases">WinTypes=Borland.Vcl.Windows;WinProcs=Borland.Vcl.Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;</Compiler>
+			<Compiler Name="NamespacePrefix">Borland.Vcl;Indy.Sockets</Compiler>
+			<Compiler Name="GenerateDocumentation">False</Compiler>
+			<Compiler Name="DefaultNamespace"></Compiler>
+			<Compiler Name="SymbolDeprecated">True</Compiler>
+			<Compiler Name="SymbolLibrary">True</Compiler>
+			<Compiler Name="SymbolPlatform">True</Compiler>
+			<Compiler Name="SymbolExperimental">True</Compiler>
+			<Compiler Name="UnitLibrary">True</Compiler>
+			<Compiler Name="UnitPlatform">True</Compiler>
+			<Compiler Name="UnitDeprecated">True</Compiler>
+			<Compiler Name="UnitExperimental">True</Compiler>
+			<Compiler Name="HResultCompat">True</Compiler>
+			<Compiler Name="HidingMember">True</Compiler>
+			<Compiler Name="HiddenVirtual">True</Compiler>
+			<Compiler Name="Garbage">True</Compiler>
+			<Compiler Name="BoundsError">True</Compiler>
+			<Compiler Name="ZeroNilCompat">True</Compiler>
+			<Compiler Name="StringConstTruncated">True</Compiler>
+			<Compiler Name="ForLoopVarVarPar">True</Compiler>
+			<Compiler Name="TypedConstVarPar">True</Compiler>
+			<Compiler Name="AsgToTypedConst">True</Compiler>
+			<Compiler Name="CaseLabelRange">True</Compiler>
+			<Compiler Name="ForVariable">True</Compiler>
+			<Compiler Name="ConstructingAbstract">True</Compiler>
+			<Compiler Name="ComparisonFalse">True</Compiler>
+			<Compiler Name="ComparisonTrue">True</Compiler>
+			<Compiler Name="ComparingSignedUnsigned">True</Compiler>
+			<Compiler Name="CombiningSignedUnsigned">True</Compiler>
+			<Compiler Name="UnsupportedConstruct">True</Compiler>
+			<Compiler Name="FileOpen">True</Compiler>
+			<Compiler Name="FileOpenUnitSrc">True</Compiler>
+			<Compiler Name="BadGlobalSymbol">True</Compiler>
+			<Compiler Name="DuplicateConstructorDestructor">True</Compiler>
+			<Compiler Name="InvalidDirective">True</Compiler>
+			<Compiler Name="PackageNoLink">True</Compiler>
+			<Compiler Name="PackageThreadVar">True</Compiler>
+			<Compiler Name="ImplicitImport">True</Compiler>
+			<Compiler Name="HPPEMITIgnored">True</Compiler>
+			<Compiler Name="NoRetVal">True</Compiler>
+			<Compiler Name="UseBeforeDef">True</Compiler>
+			<Compiler Name="ForLoopVarUndef">True</Compiler>
+			<Compiler Name="UnitNameMismatch">True</Compiler>
+			<Compiler Name="NoCFGFileFound">True</Compiler>
+			<Compiler Name="MessageDirective">True</Compiler>
+			<Compiler Name="ImplicitVariants">True</Compiler>
+			<Compiler Name="UnicodeToLocale">True</Compiler>
+			<Compiler Name="LocaleToUnicode">True</Compiler>
+			<Compiler Name="ImagebaseMultiple">True</Compiler>
+			<Compiler Name="SuspiciousTypecast">True</Compiler>
+			<Compiler Name="PrivatePropAccessor">True</Compiler>
+			<Compiler Name="UnsafeType">True</Compiler>
+			<Compiler Name="UnsafeCode">True</Compiler>
+			<Compiler Name="UnsafeCast">True</Compiler>
+			<Compiler Name="OptionTruncated">True</Compiler>
+			<Compiler Name="WideCharReduced">True</Compiler>
+			<Compiler Name="DuplicatesIgnored">True</Compiler>
+		</Compiler>
+		<Linker>
+			<Linker Name="MapFile">0</Linker>
+			<Linker Name="OutputObjs">0</Linker>
+			<Linker Name="ConsoleApp">1</Linker>
+			<Linker Name="DebugInfo">True</Linker>
+			<Linker Name="RemoteSymbols">False</Linker>
+			<Linker Name="GenerateDRC">False</Linker>
+			<Linker Name="MinStackSize">4096</Linker>
+			<Linker Name="MaxStackSize">1048576</Linker>
+			<Linker Name="ImageBase">4194304</Linker>
+			<Linker Name="ExeDescription"></Linker>
+		</Linker>
+		<Directories>
+			<Directories Name="OutputDir">w:\source\indy10\lib\fcl\</Directories>
+			<Directories Name="UnitOutputDir"></Directories>
+			<Directories Name="PackageDLLOutputDir"></Directories>
+			<Directories Name="PackageDCPOutputDir"></Directories>
+			<Directories Name="SearchPath">c:\windows\microsoft.net\framework\v1.1.4322;w:\source\indy10\lib\fcl</Directories>
+			<Directories Name="Packages">w:\source\indy10\lib\fcl\Mono.Security.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.dll</Directories>
+			<Directories Name="Conditionals">DotNetDistro</Directories>
+			<Directories Name="DebugSourceDirs"></Directories>
+			<Directories Name="UsePackages">True</Directories>
+		</Directories>
+		<Parameters>
+			<Parameters Name="RunParams"></Parameters>
+			<Parameters Name="HostApplication"></Parameters>
+			<Parameters Name="Launcher"></Parameters>
+			<Parameters Name="UseLauncher">False</Parameters>
+			<Parameters Name="DebugCWD"></Parameters>
+			<Parameters Name="RemoteHost"></Parameters>
+			<Parameters Name="RemotePath"></Parameters>
+			<Parameters Name="RemoteLauncher"></Parameters>
+			<Parameters Name="RemoteCWD"></Parameters>
+			<Parameters Name="RemoteDebug">False</Parameters>
+		</Parameters>
+		<Language>
+			<Language Name="ActiveLang"></Language>
+			<Language Name="ProjectLang">$00000000</Language>
+			<Language Name="RootDir"></Language>
+		</Language>
+		<VersionInfo>
+			<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+			<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+			<VersionInfo Name="MajorVer">1</VersionInfo>
+			<VersionInfo Name="MinorVer">0</VersionInfo>
+			<VersionInfo Name="Release">0</VersionInfo>
+			<VersionInfo Name="Build">0</VersionInfo>
+			<VersionInfo Name="Debug">False</VersionInfo>
+			<VersionInfo Name="PreRelease">False</VersionInfo>
+			<VersionInfo Name="Special">False</VersionInfo>
+			<VersionInfo Name="Private">False</VersionInfo>
+			<VersionInfo Name="DLL">False</VersionInfo>
+			<VersionInfo Name="Locale">1033</VersionInfo>
+			<VersionInfo Name="CodePage">1252</VersionInfo>
+		</VersionInfo>
+		<VersionInfoKeys>
+			<VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
+			<VersionInfoKeys Name="FileDescription"></VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+			<VersionInfoKeys Name="InternalName"></VersionInfoKeys>
+			<VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys>
+			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
+			<VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
+			<VersionInfoKeys Name="ProductName"></VersionInfoKeys>
+			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+			<VersionInfoKeys Name="Comments"></VersionInfoKeys>
+		</VersionInfoKeys>  
+    
+    
+    
+    
+    
+    
+    
+    <FileList>
+      <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System" AssemblyName="System" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="Mono.Security.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Mono.Security" AssemblyName="Mono.Security" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="Indy.Sockets.IdASN1Util.pas" ContainerId="" ModuleName="Indy.Sockets.IdASN1Util"/>
+      <File FileName="Indy.Sockets.IdAllFTPListParsers.pas" ContainerId="" ModuleName="Indy.Sockets.IdAllFTPListParsers"/>
+      <File FileName="Indy.Sockets.IdAntiFreezeBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdAntiFreezeBase"/>
+      <File FileName="Indy.Sockets.IdAssignedNumbers.pas" ContainerId="" ModuleName="Indy.Sockets.IdAssignedNumbers"/>
+      <File FileName="Indy.Sockets.IdAttachment.pas" ContainerId="" ModuleName="Indy.Sockets.IdAttachment"/>
+      <File FileName="Indy.Sockets.IdAttachmentFile.pas" ContainerId="" ModuleName="Indy.Sockets.IdAttachmentFile"/>
+      <File FileName="Indy.Sockets.IdAttachmentMemory.pas" ContainerId="" ModuleName="Indy.Sockets.IdAttachmentMemory"/>
+      <File FileName="Indy.Sockets.IdAuthentication.pas" ContainerId="" ModuleName="Indy.Sockets.IdAuthentication"/>
+      <File FileName="Indy.Sockets.IdAuthenticationDigest.pas" ContainerId="" ModuleName="Indy.Sockets.IdAuthenticationDigest"/>
+      <File FileName="Indy.Sockets.IdAuthenticationManager.pas" ContainerId="" ModuleName="Indy.Sockets.IdAuthenticationManager"/>
+      <File FileName="Indy.Sockets.IdBaseComponent.pas" ContainerId="" ModuleName="Indy.Sockets.IdBaseComponent"/>
+      <File FileName="Indy.Sockets.IdBuffer.pas" ContainerId="" ModuleName="Indy.Sockets.IdBuffer"/>
+      <File FileName="Indy.Sockets.IdCarrierStream.pas" ContainerId="" ModuleName="Indy.Sockets.IdCarrierStream"/>
+      <File FileName="Indy.Sockets.IdChargenServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdChargenServer"/>
+      <File FileName="Indy.Sockets.IdChargenUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdChargenUDPServer"/>
+      <File FileName="Indy.Sockets.IdCharsets.pas" ContainerId="" ModuleName="Indy.Sockets.IdCharsets"/>
+      <File FileName="Indy.Sockets.IdCmdTCPClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdCmdTCPClient"/>
+      <File FileName="Indy.Sockets.IdCmdTCPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdCmdTCPServer"/>
+      <File FileName="Indy.Sockets.IdCoder.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoder"/>
+      <File FileName="Indy.Sockets.IdCoder00E.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoder00E"/>
+      <File FileName="Indy.Sockets.IdCoder3to4.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoder3to4"/>
+      <File FileName="Indy.Sockets.IdCoderBinHex4.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoderBinHex4"/>
+      <File FileName="Indy.Sockets.IdCoderHeader.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoderHeader"/>
+      <File FileName="Indy.Sockets.IdCoderMIME.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoderMIME"/>
+      <File FileName="Indy.Sockets.IdCoderQuotedPrintable.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoderQuotedPrintable"/>
+      <File FileName="Indy.Sockets.IdCoderUUE.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoderUUE"/>
+      <File FileName="Indy.Sockets.IdCoderXXE.pas" ContainerId="" ModuleName="Indy.Sockets.IdCoderXXE"/>
+      <File FileName="Indy.Sockets.IdCommandHandlers.pas" ContainerId="" ModuleName="Indy.Sockets.IdCommandHandlers"/>
+      <File FileName="Indy.Sockets.IdComponent.pas" ContainerId="" ModuleName="Indy.Sockets.IdComponent"/>
+      <File FileName="Indy.Sockets.IdConnectThroughHttpProxy.pas" ContainerId="" ModuleName="Indy.Sockets.IdConnectThroughHttpProxy"/>
+      <File FileName="Indy.Sockets.IdContainers.pas" ContainerId="" ModuleName="Indy.Sockets.IdContainers"/>
+      <File FileName="Indy.Sockets.IdContext.pas" ContainerId="" ModuleName="Indy.Sockets.IdContext"/>
+      <File FileName="Indy.Sockets.IdCookie.pas" ContainerId="" ModuleName="Indy.Sockets.IdCookie"/>
+      <File FileName="Indy.Sockets.IdCookieManager.pas" ContainerId="" ModuleName="Indy.Sockets.IdCookieManager"/>
+      <File FileName="Indy.Sockets.IdCustomHTTPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdCustomHTTPServer"/>
+      <File FileName="Indy.Sockets.IdCustomTCPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdCustomTCPServer"/>
+      <File FileName="Indy.Sockets.IdCustomTransparentProxy.pas" ContainerId="" ModuleName="Indy.Sockets.IdCustomTransparentProxy"/>
+      <File FileName="Indy.Sockets.IdDICT.pas" ContainerId="" ModuleName="Indy.Sockets.IdDICT"/>
+      <File FileName="Indy.Sockets.IdDICTCommon.pas" ContainerId="" ModuleName="Indy.Sockets.IdDICTCommon"/>
+      <File FileName="Indy.Sockets.IdDICTServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdDICTServer"/>
+      <File FileName="Indy.Sockets.IdDNSCommon.pas" ContainerId="" ModuleName="Indy.Sockets.IdDNSCommon"/>
+      <File FileName="Indy.Sockets.IdDNSResolver.pas" ContainerId="" ModuleName="Indy.Sockets.IdDNSResolver"/>
+      <File FileName="Indy.Sockets.IdDNSServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdDNSServer"/>
+      <File FileName="Indy.Sockets.IdDateTimeStamp.pas" ContainerId="" ModuleName="Indy.Sockets.IdDateTimeStamp"/>
+      <File FileName="Indy.Sockets.IdDayTime.pas" ContainerId="" ModuleName="Indy.Sockets.IdDayTime"/>
+      <File FileName="Indy.Sockets.IdDayTimeServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdDayTimeServer"/>
+      <File FileName="Indy.Sockets.IdDayTimeUDP.pas" ContainerId="" ModuleName="Indy.Sockets.IdDayTimeUDP"/>
+      <File FileName="Indy.Sockets.IdDayTimeUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdDayTimeUDPServer"/>
+      <File FileName="Indy.Sockets.IdDiscardServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdDiscardServer"/>
+      <File FileName="Indy.Sockets.IdDiscardUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdDiscardUDPServer"/>
+      <File FileName="Indy.Sockets.IdEMailAddress.pas" ContainerId="" ModuleName="Indy.Sockets.IdEMailAddress"/>
+      <File FileName="Indy.Sockets.IdEcho.pas" ContainerId="" ModuleName="Indy.Sockets.IdEcho"/>
+      <File FileName="Indy.Sockets.IdEchoServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdEchoServer"/>
+      <File FileName="Indy.Sockets.IdEchoUDP.pas" ContainerId="" ModuleName="Indy.Sockets.IdEchoUDP"/>
+      <File FileName="Indy.Sockets.IdEchoUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdEchoUDPServer"/>
+      <File FileName="Indy.Sockets.IdException.pas" ContainerId="" ModuleName="Indy.Sockets.IdException"/>
+      <File FileName="Indy.Sockets.IdExceptionCore.pas" ContainerId="" ModuleName="Indy.Sockets.IdExceptionCore"/>
+      <File FileName="Indy.Sockets.IdExplicitTLSClientServerBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdExplicitTLSClientServerBase"/>
+      <File FileName="Indy.Sockets.IdFSP.pas" ContainerId="" ModuleName="Indy.Sockets.IdFSP"/>
+      <File FileName="Indy.Sockets.IdFTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTP"/>
+      <File FileName="Indy.Sockets.IdFTPBaseFileSystem.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPBaseFileSystem"/>
+      <File FileName="Indy.Sockets.IdFTPCommon.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPCommon"/>
+      <File FileName="Indy.Sockets.IdFTPList.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPList"/>
+      <File FileName="Indy.Sockets.IdFTPListOutput.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListOutput"/>
+      <File FileName="Indy.Sockets.IdFTPListParseAS400.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseAS400"/>
+      <File FileName="Indy.Sockets.IdFTPListParseBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseBase"/>
+      <File FileName="Indy.Sockets.IdFTPListParseBullGCOS7.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseBullGCOS7"/>
+      <File FileName="Indy.Sockets.IdFTPListParseBullGCOS8.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseBullGCOS8"/>
+      <File FileName="Indy.Sockets.IdFTPListParseChameleonNewt.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseChameleonNewt"/>
+      <File FileName="Indy.Sockets.IdFTPListParseCiscoIOS.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseCiscoIOS"/>
+      <File FileName="Indy.Sockets.IdFTPListParseDistinctTCPIP.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseDistinctTCPIP"/>
+      <File FileName="Indy.Sockets.IdFTPListParseEPLF.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseEPLF"/>
+      <File FileName="Indy.Sockets.IdFTPListParseHellSoft.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseHellSoft"/>
+      <File FileName="Indy.Sockets.IdFTPListParseKA9Q.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseKA9Q"/>
+      <File FileName="Indy.Sockets.IdFTPListParseMPEiX.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseMPEiX"/>
+      <File FileName="Indy.Sockets.IdFTPListParseMVS.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseMVS"/>
+      <File FileName="Indy.Sockets.IdFTPListParseMicrowareOS9.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseMicrowareOS9"/>
+      <File FileName="Indy.Sockets.IdFTPListParseMusic.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseMusic"/>
+      <File FileName="Indy.Sockets.IdFTPListParseNCSAForDOS.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseNCSAForDOS"/>
+      <File FileName="Indy.Sockets.IdFTPListParseNCSAForMACOS.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseNCSAForMACOS"/>
+      <File FileName="Indy.Sockets.IdFTPListParseNovellNetware.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseNovellNetware"/>
+      <File FileName="Indy.Sockets.IdFTPListParseNovellNetwarePSU.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseNovellNetwarePSU"/>
+      <File FileName="Indy.Sockets.IdFTPListParseOS2.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseOS2"/>
+      <File FileName="Indy.Sockets.IdFTPListParseStercomOS390Exp.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseStercomOS390Exp"/>
+      <File FileName="Indy.Sockets.IdFTPListParseStercomUnixEnt.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseStercomUnixEnt"/>
+      <File FileName="Indy.Sockets.IdFTPListParseStratusVOS.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseStratusVOS"/>
+      <File FileName="Indy.Sockets.IdFTPListParseSuperTCP.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseSuperTCP"/>
+      <File FileName="Indy.Sockets.IdFTPListParseTOPS20.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseTOPS20"/>
+      <File FileName="Indy.Sockets.IdFTPListParseTSXPlus.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseTSXPlus"/>
+      <File FileName="Indy.Sockets.IdFTPListParseTandemGuardian.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseTandemGuardian"/>
+      <File FileName="Indy.Sockets.IdFTPListParseUnix.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseUnix"/>
+      <File FileName="Indy.Sockets.IdFTPListParseVM.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseVM"/>
+      <File FileName="Indy.Sockets.IdFTPListParseVMS.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseVMS"/>
+      <File FileName="Indy.Sockets.IdFTPListParseVSE.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseVSE"/>
+      <File FileName="Indy.Sockets.IdFTPListParseVxWorks.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseVxWorks"/>
+      <File FileName="Indy.Sockets.IdFTPListParseWfFTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseWfFTP"/>
+      <File FileName="Indy.Sockets.IdFTPListParseWinQVTNET.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseWinQVTNET"/>
+      <File FileName="Indy.Sockets.IdFTPListParseWindowsNT.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseWindowsNT"/>
+      <File FileName="Indy.Sockets.IdFTPListParseXecomMicroRTOS.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListParseXecomMicroRTOS"/>
+      <File FileName="Indy.Sockets.IdFTPListTypes.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPListTypes"/>
+      <File FileName="Indy.Sockets.IdFTPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPServer"/>
+      <File FileName="Indy.Sockets.IdFTPServerContextBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdFTPServerContextBase"/>
+      <File FileName="Indy.Sockets.IdFinger.pas" ContainerId="" ModuleName="Indy.Sockets.IdFinger"/>
+      <File FileName="Indy.Sockets.IdFingerServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdFingerServer"/>
+      <File FileName="Indy.Sockets.IdGlobal.pas" ContainerId="" ModuleName="Indy.Sockets.IdGlobal"/>
+      <File FileName="Indy.Sockets.IdGlobalCore.pas" ContainerId="" ModuleName="Indy.Sockets.IdGlobalCore"/>
+      <File FileName="Indy.Sockets.IdGlobalProtocols.pas" ContainerId="" ModuleName="Indy.Sockets.IdGlobalProtocols"/>
+      <File FileName="Indy.Sockets.IdGopher.pas" ContainerId="" ModuleName="Indy.Sockets.IdGopher"/>
+      <File FileName="Indy.Sockets.IdGopherConsts.pas" ContainerId="" ModuleName="Indy.Sockets.IdGopherConsts"/>
+      <File FileName="Indy.Sockets.IdGopherServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdGopherServer"/>
+      <File FileName="Indy.Sockets.IdHL7.pas" ContainerId="" ModuleName="Indy.Sockets.IdHL7"/>
+      <File FileName="Indy.Sockets.IdHTTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdHTTP"/>
+      <File FileName="Indy.Sockets.IdHTTPHeaderInfo.pas" ContainerId="" ModuleName="Indy.Sockets.IdHTTPHeaderInfo"/>
+      <File FileName="Indy.Sockets.IdHTTPProxyServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdHTTPProxyServer"/>
+      <File FileName="Indy.Sockets.IdHTTPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdHTTPServer"/>
+      <File FileName="Indy.Sockets.IdHash.pas" ContainerId="" ModuleName="Indy.Sockets.IdHash"/>
+      <File FileName="Indy.Sockets.IdHashCRC.pas" ContainerId="" ModuleName="Indy.Sockets.IdHashCRC"/>
+      <File FileName="Indy.Sockets.IdHashElf.pas" ContainerId="" ModuleName="Indy.Sockets.IdHashElf"/>
+      <File FileName="Indy.Sockets.IdHashMessageDigest.pas" ContainerId="" ModuleName="Indy.Sockets.IdHashMessageDigest"/>
+      <File FileName="Indy.Sockets.IdHashSHA1.pas" ContainerId="" ModuleName="Indy.Sockets.IdHashSHA1"/>
+      <File FileName="Indy.Sockets.IdHeaderList.pas" ContainerId="" ModuleName="Indy.Sockets.IdHeaderList"/>
+      <File FileName="Indy.Sockets.IdIMAP4.pas" ContainerId="" ModuleName="Indy.Sockets.IdIMAP4"/>
+      <File FileName="Indy.Sockets.IdIMAP4Server.pas" ContainerId="" ModuleName="Indy.Sockets.IdIMAP4Server"/>
+      <File FileName="Indy.Sockets.IdIOHandler.pas" ContainerId="" ModuleName="Indy.Sockets.IdIOHandler"/>
+      <File FileName="Indy.Sockets.IdIOHandlerSocket.pas" ContainerId="" ModuleName="Indy.Sockets.IdIOHandlerSocket"/>
+      <File FileName="Indy.Sockets.IdIOHandlerStack.pas" ContainerId="" ModuleName="Indy.Sockets.IdIOHandlerStack"/>
+      <File FileName="Indy.Sockets.IdIOHandlerStream.pas" ContainerId="" ModuleName="Indy.Sockets.IdIOHandlerStream"/>
+      <File FileName="Indy.Sockets.IdIOHandlerTls.pas" ContainerId="" ModuleName="Indy.Sockets.IdIOHandlerTls"/>
+      <File FileName="Indy.Sockets.IdIPAddrMon.pas" ContainerId="" ModuleName="Indy.Sockets.IdIPAddrMon"/>
+      <File FileName="Indy.Sockets.IdIPAddress.pas" ContainerId="" ModuleName="Indy.Sockets.IdIPAddress"/>
+      <File FileName="Indy.Sockets.IdIPMCastBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdIPMCastBase"/>
+      <File FileName="Indy.Sockets.IdIPMCastClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdIPMCastClient"/>
+      <File FileName="Indy.Sockets.IdIPMCastServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdIPMCastServer"/>
+      <File FileName="Indy.Sockets.IdIPWatch.pas" ContainerId="" ModuleName="Indy.Sockets.IdIPWatch"/>
+      <File FileName="Indy.Sockets.IdIRC.pas" ContainerId="" ModuleName="Indy.Sockets.IdIRC"/>
+      <File FileName="Indy.Sockets.IdIcmpClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdIcmpClient"/>
+      <File FileName="Indy.Sockets.IdIdent.pas" ContainerId="" ModuleName="Indy.Sockets.IdIdent"/>
+      <File FileName="Indy.Sockets.IdIdentServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdIdentServer"/>
+      <File FileName="Indy.Sockets.IdIntercept.pas" ContainerId="" ModuleName="Indy.Sockets.IdIntercept"/>
+      <File FileName="Indy.Sockets.IdInterceptSimLog.pas" ContainerId="" ModuleName="Indy.Sockets.IdInterceptSimLog"/>
+      <File FileName="Indy.Sockets.IdInterceptThrottler.pas" ContainerId="" ModuleName="Indy.Sockets.IdInterceptThrottler"/>
+      <File FileName="Indy.Sockets.IdIrcServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdIrcServer"/>
+      <File FileName="Indy.Sockets.IdLPR.pas" ContainerId="" ModuleName="Indy.Sockets.IdLPR"/>
+      <File FileName="Indy.Sockets.IdLogBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdLogBase"/>
+      <File FileName="Indy.Sockets.IdLogDebug.pas" ContainerId="" ModuleName="Indy.Sockets.IdLogDebug"/>
+      <File FileName="Indy.Sockets.IdLogEvent.pas" ContainerId="" ModuleName="Indy.Sockets.IdLogEvent"/>
+      <File FileName="Indy.Sockets.IdLogFile.pas" ContainerId="" ModuleName="Indy.Sockets.IdLogFile"/>
+      <File FileName="Indy.Sockets.IdLogStream.pas" ContainerId="" ModuleName="Indy.Sockets.IdLogStream"/>
+      <File FileName="Indy.Sockets.IdMIMETypes.pas" ContainerId="" ModuleName="Indy.Sockets.IdMIMETypes"/>
+      <File FileName="Indy.Sockets.IdMailBox.pas" ContainerId="" ModuleName="Indy.Sockets.IdMailBox"/>
+      <File FileName="Indy.Sockets.IdMappedFTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdMappedFTP"/>
+      <File FileName="Indy.Sockets.IdMappedPOP3.pas" ContainerId="" ModuleName="Indy.Sockets.IdMappedPOP3"/>
+      <File FileName="Indy.Sockets.IdMappedPortTCP.pas" ContainerId="" ModuleName="Indy.Sockets.IdMappedPortTCP"/>
+      <File FileName="Indy.Sockets.IdMappedPortUDP.pas" ContainerId="" ModuleName="Indy.Sockets.IdMappedPortUDP"/>
+      <File FileName="Indy.Sockets.IdMappedTelnet.pas" ContainerId="" ModuleName="Indy.Sockets.IdMappedTelnet"/>
+      <File FileName="Indy.Sockets.IdMessage.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessage"/>
+      <File FileName="Indy.Sockets.IdMessageClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageClient"/>
+      <File FileName="Indy.Sockets.IdMessageCoder.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageCoder"/>
+      <File FileName="Indy.Sockets.IdMessageCoderMIME.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageCoderMIME"/>
+      <File FileName="Indy.Sockets.IdMessageCoderQuotedPrintable.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageCoderQuotedPrintable"/>
+      <File FileName="Indy.Sockets.IdMessageCoderUUE.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageCoderUUE"/>
+      <File FileName="Indy.Sockets.IdMessageCoderXXE.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageCoderXXE"/>
+      <File FileName="Indy.Sockets.IdMessageCoderYenc.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageCoderYenc"/>
+      <File FileName="Indy.Sockets.IdMessageCollection.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageCollection"/>
+      <File FileName="Indy.Sockets.IdMessageParts.pas" ContainerId="" ModuleName="Indy.Sockets.IdMessageParts"/>
+      <File FileName="Indy.Sockets.IdMultipartFormData.pas" ContainerId="" ModuleName="Indy.Sockets.IdMultipartFormData"/>
+      <File FileName="Indy.Sockets.IdNNTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdNNTP"/>
+      <File FileName="Indy.Sockets.IdNNTPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdNNTPServer"/>
+      <File FileName="Indy.Sockets.IdNetworkCalculator.pas" ContainerId="" ModuleName="Indy.Sockets.IdNetworkCalculator"/>
+      <File FileName="Indy.Sockets.IdOSFileName.pas" ContainerId="" ModuleName="Indy.Sockets.IdOSFileName"/>
+      <File FileName="Indy.Sockets.IdOTPCalculator.pas" ContainerId="" ModuleName="Indy.Sockets.IdOTPCalculator"/>
+      <File FileName="Indy.Sockets.IdObjs.pas" ContainerId="" ModuleName="Indy.Sockets.IdObjs"/>
+      <File FileName="Indy.Sockets.IdObjsBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdObjsBase"/>
+      <File FileName="Indy.Sockets.IdObjsFCL.pas" ContainerId="" ModuleName="Indy.Sockets.IdObjsFCL"/>
+      <File FileName="Indy.Sockets.IdPOP3.pas" ContainerId="" ModuleName="Indy.Sockets.IdPOP3"/>
+      <File FileName="Indy.Sockets.IdPOP3Server.pas" ContainerId="" ModuleName="Indy.Sockets.IdPOP3Server"/>
+      <File FileName="Indy.Sockets.IdQOTDUDP.pas" ContainerId="" ModuleName="Indy.Sockets.IdQOTDUDP"/>
+      <File FileName="Indy.Sockets.IdQOTDUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdQOTDUDPServer"/>
+      <File FileName="Indy.Sockets.IdQotd.pas" ContainerId="" ModuleName="Indy.Sockets.IdQotd"/>
+      <File FileName="Indy.Sockets.IdQotdServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdQotdServer"/>
+      <File FileName="Indy.Sockets.IdRSH.pas" ContainerId="" ModuleName="Indy.Sockets.IdRSH"/>
+      <File FileName="Indy.Sockets.IdRSHServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdRSHServer"/>
+      <File FileName="Indy.Sockets.IdRawBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdRawBase"/>
+      <File FileName="Indy.Sockets.IdRawClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdRawClient"/>
+      <File FileName="Indy.Sockets.IdRawFunctions.pas" ContainerId="" ModuleName="Indy.Sockets.IdRawFunctions"/>
+      <File FileName="Indy.Sockets.IdRawHeaders.pas" ContainerId="" ModuleName="Indy.Sockets.IdRawHeaders"/>
+      <File FileName="Indy.Sockets.IdRemoteCMDClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdRemoteCMDClient"/>
+      <File FileName="Indy.Sockets.IdRemoteCMDServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdRemoteCMDServer"/>
+      <File FileName="Indy.Sockets.IdReply.pas" ContainerId="" ModuleName="Indy.Sockets.IdReply"/>
+      <File FileName="Indy.Sockets.IdReplyFTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdReplyFTP"/>
+      <File FileName="Indy.Sockets.IdReplyIMAP4.pas" ContainerId="" ModuleName="Indy.Sockets.IdReplyIMAP4"/>
+      <File FileName="Indy.Sockets.IdReplyPOP3.pas" ContainerId="" ModuleName="Indy.Sockets.IdReplyPOP3"/>
+      <File FileName="Indy.Sockets.IdReplyRFC.pas" ContainerId="" ModuleName="Indy.Sockets.IdReplyRFC"/>
+      <File FileName="Indy.Sockets.IdReplySMTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdReplySMTP"/>
+      <File FileName="Indy.Sockets.IdResourceStrings.pas" ContainerId="" ModuleName="Indy.Sockets.IdResourceStrings"/>
+      <File FileName="Indy.Sockets.IdResourceStringsCore.pas" ContainerId="" ModuleName="Indy.Sockets.IdResourceStringsCore"/>
+      <File FileName="Indy.Sockets.IdResourceStringsProtocols.pas" ContainerId="" ModuleName="Indy.Sockets.IdResourceStringsProtocols"/>
+      <File FileName="Indy.Sockets.IdRexec.pas" ContainerId="" ModuleName="Indy.Sockets.IdRexec"/>
+      <File FileName="Indy.Sockets.IdRexecServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdRexecServer"/>
+      <File FileName="Indy.Sockets.IdSASL.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASL"/>
+      <File FileName="Indy.Sockets.IdSASLAnonymous.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLAnonymous"/>
+      <File FileName="Indy.Sockets.IdSASLCollection.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLCollection"/>
+      <File FileName="Indy.Sockets.IdSASLExternal.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLExternal"/>
+      <File FileName="Indy.Sockets.IdSASLLogin.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLLogin"/>
+      <File FileName="Indy.Sockets.IdSASLOTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLOTP"/>
+      <File FileName="Indy.Sockets.IdSASLPlain.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLPlain"/>
+      <File FileName="Indy.Sockets.IdSASLSKey.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLSKey"/>
+      <File FileName="Indy.Sockets.IdSASLUserPass.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLUserPass"/>
+      <File FileName="Indy.Sockets.IdSASL_CRAM_MD5.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASL_CRAM_MD5"/>
+      <File FileName="Indy.Sockets.IdSMTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdSMTP"/>
+      <File FileName="Indy.Sockets.IdSMTPBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdSMTPBase"/>
+      <File FileName="Indy.Sockets.IdSMTPRelay.pas" ContainerId="" ModuleName="Indy.Sockets.IdSMTPRelay"/>
+      <File FileName="Indy.Sockets.IdSMTPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdSMTPServer"/>
+      <File FileName="Indy.Sockets.IdSNPP.pas" ContainerId="" ModuleName="Indy.Sockets.IdSNPP"/>
+      <File FileName="Indy.Sockets.IdSSL.pas" ContainerId="" ModuleName="Indy.Sockets.IdSSL"/>
+      <File FileName="Indy.Sockets.IdScheduler.pas" ContainerId="" ModuleName="Indy.Sockets.IdScheduler"/>
+      <File FileName="Indy.Sockets.IdSchedulerOfThread.pas" ContainerId="" ModuleName="Indy.Sockets.IdSchedulerOfThread"/>
+      <File FileName="Indy.Sockets.IdSchedulerOfThreadDefault.pas" ContainerId="" ModuleName="Indy.Sockets.IdSchedulerOfThreadDefault"/>
+      <File FileName="Indy.Sockets.IdSchedulerOfThreadPool.pas" ContainerId="" ModuleName="Indy.Sockets.IdSchedulerOfThreadPool"/>
+      <File FileName="Indy.Sockets.IdServerIOHandler.pas" ContainerId="" ModuleName="Indy.Sockets.IdServerIOHandler"/>
+      <File FileName="Indy.Sockets.IdServerIOHandlerSocket.pas" ContainerId="" ModuleName="Indy.Sockets.IdServerIOHandlerSocket"/>
+      <File FileName="Indy.Sockets.IdServerIOHandlerStack.pas" ContainerId="" ModuleName="Indy.Sockets.IdServerIOHandlerStack"/>
+      <File FileName="Indy.Sockets.IdServerIOHandlerTls.pas" ContainerId="" ModuleName="Indy.Sockets.IdServerIOHandlerTls"/>
+      <File FileName="Indy.Sockets.IdServerInterceptLogBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdServerInterceptLogBase"/>
+      <File FileName="Indy.Sockets.IdServerInterceptLogEvent.pas" ContainerId="" ModuleName="Indy.Sockets.IdServerInterceptLogEvent"/>
+      <File FileName="Indy.Sockets.IdServerInterceptLogFile.pas" ContainerId="" ModuleName="Indy.Sockets.IdServerInterceptLogFile"/>
+      <File FileName="Indy.Sockets.IdSimpleServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdSimpleServer"/>
+      <File FileName="Indy.Sockets.IdSocketHandle.pas" ContainerId="" ModuleName="Indy.Sockets.IdSocketHandle"/>
+      <File FileName="Indy.Sockets.IdSocketStream.pas" ContainerId="" ModuleName="Indy.Sockets.IdSocketStream"/>
+      <File FileName="Indy.Sockets.IdSocks.pas" ContainerId="" ModuleName="Indy.Sockets.IdSocks"/>
+      <File FileName="Indy.Sockets.IdStack.pas" ContainerId="" ModuleName="Indy.Sockets.IdStack"/>
+      <File FileName="Indy.Sockets.IdStackConsts.pas" ContainerId="" ModuleName="Indy.Sockets.IdStackConsts"/>
+      <File FileName="Indy.Sockets.IdStackDotNet.pas" ContainerId="" ModuleName="Indy.Sockets.IdStackDotNet"/>
+      <File FileName="Indy.Sockets.IdStream.pas" ContainerId="" ModuleName="Indy.Sockets.IdStream"/>
+      <File FileName="Indy.Sockets.IdStreamNET.pas" ContainerId="" ModuleName="Indy.Sockets.IdStreamNET"/>
+      <File FileName="Indy.Sockets.IdStrings.pas" ContainerId="" ModuleName="Indy.Sockets.IdStrings"/>
+      <File FileName="Indy.Sockets.IdStruct.pas" ContainerId="" ModuleName="Indy.Sockets.IdStruct"/>
+      <File FileName="Indy.Sockets.IdSync.pas" ContainerId="" ModuleName="Indy.Sockets.IdSync"/>
+      <File FileName="Indy.Sockets.IdSys.pas" ContainerId="" ModuleName="Indy.Sockets.IdSys"/>
+      <File FileName="Indy.Sockets.IdSysBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdSysBase"/>
+      <File FileName="Indy.Sockets.IdSysLog.pas" ContainerId="" ModuleName="Indy.Sockets.IdSysLog"/>
+      <File FileName="Indy.Sockets.IdSysLogMessage.pas" ContainerId="" ModuleName="Indy.Sockets.IdSysLogMessage"/>
+      <File FileName="Indy.Sockets.IdSysLogServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdSysLogServer"/>
+      <File FileName="Indy.Sockets.IdSysNet.pas" ContainerId="" ModuleName="Indy.Sockets.IdSysNet"/>
+      <File FileName="Indy.Sockets.IdSystat.pas" ContainerId="" ModuleName="Indy.Sockets.IdSystat"/>
+      <File FileName="Indy.Sockets.IdSystatServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdSystatServer"/>
+      <File FileName="Indy.Sockets.IdSystatUDP.pas" ContainerId="" ModuleName="Indy.Sockets.IdSystatUDP"/>
+      <File FileName="Indy.Sockets.IdSystatUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdSystatUDPServer"/>
+      <File FileName="Indy.Sockets.IdTCPClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdTCPClient"/>
+      <File FileName="Indy.Sockets.IdTCPConnection.pas" ContainerId="" ModuleName="Indy.Sockets.IdTCPConnection"/>
+      <File FileName="Indy.Sockets.IdTCPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdTCPServer"/>
+      <File FileName="Indy.Sockets.IdTCPStream.pas" ContainerId="" ModuleName="Indy.Sockets.IdTCPStream"/>
+      <File FileName="Indy.Sockets.IdTask.pas" ContainerId="" ModuleName="Indy.Sockets.IdTask"/>
+      <File FileName="Indy.Sockets.IdTelnet.pas" ContainerId="" ModuleName="Indy.Sockets.IdTelnet"/>
+      <File FileName="Indy.Sockets.IdTelnetServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdTelnetServer"/>
+      <File FileName="Indy.Sockets.IdText.pas" ContainerId="" ModuleName="Indy.Sockets.IdText"/>
+      <File FileName="Indy.Sockets.IdThread.pas" ContainerId="" ModuleName="Indy.Sockets.IdThread"/>
+      <File FileName="Indy.Sockets.IdThreadComponent.pas" ContainerId="" ModuleName="Indy.Sockets.IdThreadComponent"/>
+      <File FileName="Indy.Sockets.IdThreadSafe.pas" ContainerId="" ModuleName="Indy.Sockets.IdThreadSafe"/>
+      <File FileName="Indy.Sockets.IdTime.pas" ContainerId="" ModuleName="Indy.Sockets.IdTime"/>
+      <File FileName="Indy.Sockets.IdTimeServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdTimeServer"/>
+      <File FileName="Indy.Sockets.IdTimeUDP.pas" ContainerId="" ModuleName="Indy.Sockets.IdTimeUDP"/>
+      <File FileName="Indy.Sockets.IdTimeUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdTimeUDPServer"/>
+      <File FileName="Indy.Sockets.IdTlsClientOptions.pas" ContainerId="" ModuleName="Indy.Sockets.IdTlsClientOptions"/>
+      <File FileName="Indy.Sockets.IdTlsServerOptions.pas" ContainerId="" ModuleName="Indy.Sockets.IdTlsServerOptions"/>
+      <File FileName="Indy.Sockets.IdTraceRoute.pas" ContainerId="" ModuleName="Indy.Sockets.IdTraceRoute"/>
+      <File FileName="Indy.Sockets.IdTrivialFTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdTrivialFTP"/>
+      <File FileName="Indy.Sockets.IdTrivialFTPBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdTrivialFTPBase"/>
+      <File FileName="Indy.Sockets.IdTrivialFTPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdTrivialFTPServer"/>
+      <File FileName="Indy.Sockets.IdUDPBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdUDPBase"/>
+      <File FileName="Indy.Sockets.IdUDPClient.pas" ContainerId="" ModuleName="Indy.Sockets.IdUDPClient"/>
+      <File FileName="Indy.Sockets.IdUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdUDPServer"/>
+      <File FileName="Indy.Sockets.IdURI.pas" ContainerId="" ModuleName="Indy.Sockets.IdURI"/>
+      <File FileName="Indy.Sockets.IdUnixTime.pas" ContainerId="" ModuleName="Indy.Sockets.IdUnixTime"/>
+      <File FileName="Indy.Sockets.IdUnixTimeServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdUnixTimeServer"/>
+      <File FileName="Indy.Sockets.IdUnixTimeUDP.pas" ContainerId="" ModuleName="Indy.Sockets.IdUnixTimeUDP"/>
+      <File FileName="Indy.Sockets.IdUnixTimeUDPServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdUnixTimeUDPServer"/>
+      <File FileName="Indy.Sockets.IdUserAccounts.pas" ContainerId="" ModuleName="Indy.Sockets.IdUserAccounts"/>
+      <File FileName="Indy.Sockets.IdUserPassProvider.pas" ContainerId="" ModuleName="Indy.Sockets.IdUserPassProvider"/>
+      <File FileName="Indy.Sockets.IdVCard.pas" ContainerId="" ModuleName="Indy.Sockets.IdVCard"/>
+      <File FileName="Indy.Sockets.IdWhoIsServer.pas" ContainerId="" ModuleName="Indy.Sockets.IdWhoIsServer"/>
+      <File FileName="Indy.Sockets.IdWhois.pas" ContainerId="" ModuleName="Indy.Sockets.IdWhois"/>
+      <File FileName="Indy.Sockets.IdYarn.pas" ContainerId="" ModuleName="Indy.Sockets.IdYarn"/>
+      <File FileName="Indy.Sockets.IdZLibCompressorBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdZLibCompressorBase"/>
+      <File FileName="Indy.Sockets.IdAssemblyInfo.pas" ContainerId="" ModuleName="Indy.Sockets.IdAssemblyInfo"/>
+    </FileList>
+  </DelphiDotNet.Personality>
+</BorlandProject>

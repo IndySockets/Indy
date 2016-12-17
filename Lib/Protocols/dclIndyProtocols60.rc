@@ -1,0 +1,31 @@
+1 VERSIONINFO 
+FILEVERSION 10,6,2,0
+PRODUCTVERSION 10,6,2,0
+FILEFLAGSMASK 0x3FL
+FILEFLAGS 0x00L
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "000104E4"
+  {
+   VALUE "CompanyName", "Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
+   VALUE "FileDescription", "Internet Direct (Indy) 10.6.2 - Protocols Design-Time Package\0"
+   VALUE "FileVersion", "10.6.2.0\0"
+   VALUE "InternalName", "dclIndyProtocols60\0"
+   VALUE "LegalCopyright", "Copyright © 1993 - 2015 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
+   VALUE "OriginalFilename", "dclIndyProtocols60.bpl\0"
+   VALUE "ProductName", "Indy\0"
+   VALUE "ProductVersion", "10.6.2\0"
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+  VALUE "Translation", 0x0001, 1252
+ }
+
+}

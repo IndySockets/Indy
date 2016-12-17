@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <PersonalityInfo>
+    <Option>
+      <Option Name="Personality">DelphiDotNet.Personality</Option>
+      <Option Name="ProjectType"></Option>
+      <Option Name="Version">1.0</Option>
+      <Option Name="GUID">{473AABB5-647A-419C-B3AC-26FAEA984F07}</Option>
+    </Option>
+  </PersonalityInfo>
+  <DelphiDotNet.Personality>
+    <Source>
+      <Source Name="MainSource">IndyCore100Net.dpk</Source>
+    </Source>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <FileList>
+      <File FileName="ModelSupport\default.txaPackage" ContainerId="File" ModuleName="default"/>
+      <File FileName="c:\program files\common files\borland shared\bds\shared assemblies\4.0\Borland.Delphi.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.Delphi" AssemblyName="Borland.Delphi" Version="10.0.1979.42035" LinkUnits="False"/>
+      <File FileName="c:\program files\common files\borland shared\bds\shared assemblies\4.0\Borland.VclRtl.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.VclRtl" AssemblyName="Borland.VclRtl" Version="10.0.1979.42035" LinkUnits="False"/>
+      <File FileName="IndySystem100Net.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndySystem100Net" AssemblyName="IndySystem100Net" Version="10.0.0.3944" LinkUnits="False"/>
+      <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.Drawing.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System.Drawing" AssemblyName="system.drawing" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="IdAssignedNumbers.pas" ContainerId="PascalCompiler" ModuleName="IdAssignedNumbers"/>
+      <File FileName="IdBuffer.pas" ContainerId="PascalCompiler" ModuleName="IdBuffer"/>
+      <File FileName="IdCmdTCPClient.pas" ContainerId="PascalCompiler" ModuleName="IdCmdTCPClient"/>
+      <File FileName="IdCmdTCPServer.pas" ContainerId="PascalCompiler" ModuleName="IdCmdTCPServer"/>
+      <File FileName="IdCommandHandlers.pas" ContainerId="PascalCompiler" ModuleName="IdCommandHandlers"/>
+      <File FileName="IdContext.pas" ContainerId="PascalCompiler" ModuleName="IdContext"/>
+      <File FileName="IdCustomTCPServer.pas" ContainerId="PascalCompiler" ModuleName="IdCustomTCPServer"/>
+      <File FileName="IdCustomTransparentProxy.pas" ContainerId="PascalCompiler" ModuleName="IdCustomTransparentProxy"/>
+      <File FileName="IdExceptionCore.pas" ContainerId="PascalCompiler" ModuleName="IdExceptionCore"/>
+      <File FileName="IdGlobalCore.pas" ContainerId="PascalCompiler" ModuleName="IdGlobalCore"/>
+      <File FileName="IdIOHandler.pas" ContainerId="PascalCompiler" ModuleName="IdIOHandler"/>
+      <File FileName="IdIOHandlerSocket.pas" ContainerId="PascalCompiler" ModuleName="IdIOHandlerSocket"/>
+      <File FileName="IdIOHandlerStack.pas" ContainerId="PascalCompiler" ModuleName="IdIOHandlerStack"/>
+      <File FileName="IdIOHandlerStream.pas" ContainerId="PascalCompiler" ModuleName="IdIOHandlerStream"/>
+      <File FileName="IdIPAddress.pas" ContainerId="PascalCompiler" ModuleName="IdIPAddress"/>
+      <File FileName="IdIPMCastBase.pas" ContainerId="PascalCompiler" ModuleName="IdIPMCastBase"/>
+      <File FileName="IdIPMCastClient.pas" ContainerId="PascalCompiler" ModuleName="IdIPMCastClient"/>
+      <File FileName="IdIPMCastServer.pas" ContainerId="PascalCompiler" ModuleName="IdIPMCastServer"/>
+      <File FileName="IdIcmpClient.pas" ContainerId="PascalCompiler" ModuleName="IdIcmpClient"/>
+      <File FileName="IdIntercept.pas" ContainerId="PascalCompiler" ModuleName="IdIntercept"/>
+      <File FileName="IdInterceptSimLog.pas" ContainerId="PascalCompiler" ModuleName="IdInterceptSimLog"/>
+      <File FileName="IdInterceptThrottler.pas" ContainerId="PascalCompiler" ModuleName="IdInterceptThrottler"/>
+      <File FileName="IdLogBase.pas" ContainerId="PascalCompiler" ModuleName="IdLogBase"/>
+      <File FileName="IdLogDebug.pas" ContainerId="PascalCompiler" ModuleName="IdLogDebug"/>
+      <File FileName="IdLogEvent.pas" ContainerId="PascalCompiler" ModuleName="IdLogEvent"/>
+      <File FileName="IdLogFile.pas" ContainerId="PascalCompiler" ModuleName="IdLogFile"/>
+      <File FileName="IdLogStream.pas" ContainerId="PascalCompiler" ModuleName="IdLogStream"/>
+      <File FileName="IdRawBase.pas" ContainerId="PascalCompiler" ModuleName="IdRawBase"/>
+      <File FileName="IdRawClient.pas" ContainerId="PascalCompiler" ModuleName="IdRawClient"/>
+      <File FileName="IdRawFunctions.pas" ContainerId="PascalCompiler" ModuleName="IdRawFunctions"/>
+      <File FileName="IdRawHeaders.pas" ContainerId="PascalCompiler" ModuleName="IdRawHeaders"/>
+      <File FileName="IdReply.pas" ContainerId="PascalCompiler" ModuleName="IdReply"/>
+      <File FileName="IdReplyRFC.pas" ContainerId="PascalCompiler" ModuleName="IdReplyRFC"/>
+      <File FileName="IdResourceStringsCore.pas" ContainerId="PascalCompiler" ModuleName="IdResourceStringsCore"/>
+      <File FileName="IdScheduler.pas" ContainerId="PascalCompiler" ModuleName="IdScheduler"/>
+      <File FileName="IdSchedulerOfThread.pas" ContainerId="PascalCompiler" ModuleName="IdSchedulerOfThread"/>
+      <File FileName="IdSchedulerOfThreadDefault.pas" ContainerId="PascalCompiler" ModuleName="IdSchedulerOfThreadDefault"/>
+      <File FileName="IdSchedulerOfThreadPool.pas" ContainerId="PascalCompiler" ModuleName="IdSchedulerOfThreadPool"/>
+      <File FileName="IdServerIOHandler.pas" ContainerId="PascalCompiler" ModuleName="IdServerIOHandler"/>
+      <File FileName="IdServerIOHandlerSocket.pas" ContainerId="PascalCompiler" ModuleName="IdServerIOHandlerSocket"/>
+      <File FileName="IdServerIOHandlerStack.pas" ContainerId="PascalCompiler" ModuleName="IdServerIOHandlerStack"/>
+      <File FileName="IdSimpleServer.pas" ContainerId="PascalCompiler" ModuleName="IdSimpleServer"/>
+      <File FileName="IdSocketHandle.pas" ContainerId="PascalCompiler" ModuleName="IdSocketHandle"/>
+      <File FileName="IdSocks.pas" ContainerId="PascalCompiler" ModuleName="IdSocks"/>
+      <File FileName="IdSync.pas" ContainerId="PascalCompiler" ModuleName="IdSync"/>
+      <File FileName="IdTCPClient.pas" ContainerId="PascalCompiler" ModuleName="IdTCPClient"/>
+      <File FileName="IdTCPConnection.pas" ContainerId="PascalCompiler" ModuleName="IdTCPConnection"/>
+      <File FileName="IdTCPServer.pas" ContainerId="PascalCompiler" ModuleName="IdTCPServer"/>
+      <File FileName="IdTCPStream.pas" ContainerId="PascalCompiler" ModuleName="IdTCPStream"/>
+      <File FileName="IdTask.pas" ContainerId="PascalCompiler" ModuleName="IdTask"/>
+      <File FileName="IdThread.pas" ContainerId="PascalCompiler" ModuleName="IdThread"/>
+      <File FileName="IdThreadComponent.pas" ContainerId="PascalCompiler" ModuleName="IdThreadComponent"/>
+      <File FileName="IdThreadSafe.pas" ContainerId="PascalCompiler" ModuleName="IdThreadSafe"/>
+      <File FileName="IdTraceRoute.pas" ContainerId="PascalCompiler" ModuleName="IdTraceRoute"/>
+      <File FileName="IdUDPBase.pas" ContainerId="PascalCompiler" ModuleName="IdUDPBase"/>
+      <File FileName="IdUDPClient.pas" ContainerId="PascalCompiler" ModuleName="IdUDPClient"/>
+      <File FileName="IdUDPServer.pas" ContainerId="PascalCompiler" ModuleName="IdUDPServer"/>
+      <File FileName="IdYarn.pas" ContainerId="PascalCompiler" ModuleName="IdYarn"/>
+    </FileList>
+    <FileVersion>
+      <FileVersion Name="Version">7.0</FileVersion>
+    </FileVersion>
+    <Compiler>
+      <Compiler Name="A">0</Compiler>
+      <Compiler Name="B">0</Compiler>
+      <Compiler Name="C">1</Compiler>
+      <Compiler Name="D">1</Compiler>
+      <Compiler Name="E">0</Compiler>
+      <Compiler Name="F">0</Compiler>
+      <Compiler Name="G">1</Compiler>
+      <Compiler Name="H">1</Compiler>
+      <Compiler Name="I">1</Compiler>
+      <Compiler Name="J">0</Compiler>
+      <Compiler Name="K">0</Compiler>
+      <Compiler Name="L">1</Compiler>
+      <Compiler Name="M">0</Compiler>
+      <Compiler Name="N">1</Compiler>
+      <Compiler Name="O">1</Compiler>
+      <Compiler Name="P">1</Compiler>
+      <Compiler Name="Q">1</Compiler>
+      <Compiler Name="R">1</Compiler>
+      <Compiler Name="S">0</Compiler>
+      <Compiler Name="T">0</Compiler>
+      <Compiler Name="U">0</Compiler>
+      <Compiler Name="V">1</Compiler>
+      <Compiler Name="W">0</Compiler>
+      <Compiler Name="X">1</Compiler>
+      <Compiler Name="Y">1</Compiler>
+      <Compiler Name="Z">1</Compiler>
+      <Compiler Name="ShowHints">True</Compiler>
+      <Compiler Name="ShowWarnings">True</Compiler>
+      <Compiler Name="UnitAliases">WinTypes=Borland.Vcl.Windows;WinProcs=Borland.Vcl.Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;</Compiler>
+      <Compiler Name="NamespacePrefix">Borland.Vcl</Compiler>
+      <Compiler Name="GenerateDocumentation">False</Compiler>
+      <Compiler Name="DefaultNamespace"></Compiler>
+      <Compiler Name="SymbolDeprecated">True</Compiler>
+      <Compiler Name="SymbolLibrary">True</Compiler>
+      <Compiler Name="SymbolPlatform">True</Compiler>
+      <Compiler Name="SymbolExperimental">True</Compiler>
+      <Compiler Name="UnitLibrary">True</Compiler>
+      <Compiler Name="UnitPlatform">True</Compiler>
+      <Compiler Name="UnitDeprecated">True</Compiler>
+      <Compiler Name="UnitExperimental">True</Compiler>
+      <Compiler Name="HResultCompat">True</Compiler>
+      <Compiler Name="HidingMember">True</Compiler>
+      <Compiler Name="HiddenVirtual">True</Compiler>
+      <Compiler Name="Garbage">True</Compiler>
+      <Compiler Name="BoundsError">True</Compiler>
+      <Compiler Name="ZeroNilCompat">True</Compiler>
+      <Compiler Name="StringConstTruncated">True</Compiler>
+      <Compiler Name="ForLoopVarVarPar">True</Compiler>
+      <Compiler Name="TypedConstVarPar">True</Compiler>
+      <Compiler Name="AsgToTypedConst">True</Compiler>
+      <Compiler Name="CaseLabelRange">True</Compiler>
+      <Compiler Name="ForVariable">True</Compiler>
+      <Compiler Name="ConstructingAbstract">True</Compiler>
+      <Compiler Name="ComparisonFalse">True</Compiler>
+      <Compiler Name="ComparisonTrue">True</Compiler>
+      <Compiler Name="ComparingSignedUnsigned">True</Compiler>
+      <Compiler Name="CombiningSignedUnsigned">True</Compiler>
+      <Compiler Name="UnsupportedConstruct">True</Compiler>
+      <Compiler Name="FileOpen">True</Compiler>
+      <Compiler Name="FileOpenUnitSrc">True</Compiler>
+      <Compiler Name="BadGlobalSymbol">True</Compiler>
+      <Compiler Name="DuplicateConstructorDestructor">True</Compiler>
+      <Compiler Name="InvalidDirective">True</Compiler>
+      <Compiler Name="PackageNoLink">True</Compiler>
+      <Compiler Name="PackageThreadVar">True</Compiler>
+      <Compiler Name="ImplicitImport">True</Compiler>
+      <Compiler Name="HPPEMITIgnored">True</Compiler>
+      <Compiler Name="NoRetVal">True</Compiler>
+      <Compiler Name="UseBeforeDef">True</Compiler>
+      <Compiler Name="ForLoopVarUndef">True</Compiler>
+      <Compiler Name="UnitNameMismatch">True</Compiler>
+      <Compiler Name="NoCFGFileFound">True</Compiler>
+      <Compiler Name="ImplicitVariants">True</Compiler>
+      <Compiler Name="UnicodeToLocale">True</Compiler>
+      <Compiler Name="LocaleToUnicode">True</Compiler>
+      <Compiler Name="ImagebaseMultiple">True</Compiler>
+      <Compiler Name="SuspiciousTypecast">True</Compiler>
+      <Compiler Name="PrivatePropAccessor">True</Compiler>
+      <Compiler Name="UnsafeType">True</Compiler>
+      <Compiler Name="UnsafeCode">True</Compiler>
+      <Compiler Name="UnsafeCast">True</Compiler>
+      <Compiler Name="OptionTruncated">True</Compiler>
+      <Compiler Name="WideCharReduced">True</Compiler>
+      <Compiler Name="DuplicatesIgnored">True</Compiler>
+      <Compiler Name="UnitInitSeq">True</Compiler>
+      <Compiler Name="LocalPInvoke">True</Compiler>
+      <Compiler Name="MessageDirective">True</Compiler>
+    </Compiler>
+    <Linker>
+      <Linker Name="MapFile">0</Linker>
+      <Linker Name="OutputObjs">0</Linker>
+      <Linker Name="ConsoleApp">1</Linker>
+      <Linker Name="DebugInfo">True</Linker>
+      <Linker Name="RemoteSymbols">False</Linker>
+      <Linker Name="GenerateDRC">False</Linker>
+      <Linker Name="MinStackSize">4096</Linker>
+      <Linker Name="MaxStackSize">1048576</Linker>
+      <Linker Name="ImageBase">4194304</Linker>
+      <Linker Name="ExeDescription">Indy 10 Core</Linker>
+    </Linker>
+    <Directories>
+      <Directories Name="OutputDir"></Directories>
+      <Directories Name="UnitOutputDir"></Directories>
+      <Directories Name="PackageDLLOutputDir"></Directories>
+      <Directories Name="PackageDCPOutputDir"></Directories>
+      <Directories Name="SearchPath">c:\program files\common files\borland shared\bds\shared assemblies\4.0;w:\source\indy10\lib\core;c:\windows\microsoft.net\framework\v1.1.4322</Directories>
+      <Directories Name="Packages">c:\windows\microsoft.net\framework\v1.1.4322\System.Drawing.dll;IndySystem100Net;Borland.VclRtl;Borland.Delphi</Directories>
+      <Directories Name="Conditionals"></Directories>
+      <Directories Name="DebugSourceDirs"></Directories>
+      <Directories Name="UsePackages">False</Directories>
+    </Directories>
+    <Parameters>
+      <Parameters Name="RunParams"></Parameters>
+      <Parameters Name="HostApplication"></Parameters>
+      <Parameters Name="Launcher"></Parameters>
+      <Parameters Name="UseLauncher">False</Parameters>
+      <Parameters Name="DebugCWD"></Parameters>
+      <Parameters Name="RemoteHost"></Parameters>
+      <Parameters Name="RemotePath"></Parameters>
+      <Parameters Name="RemoteLauncher"></Parameters>
+      <Parameters Name="RemoteCWD"></Parameters>
+      <Parameters Name="RemoteDebug">False</Parameters>
+    </Parameters>
+    <Language>
+      <Language Name="ActiveLang"></Language>
+      <Language Name="ProjectLang">$00000000</Language>
+      <Language Name="RootDir"></Language>
+    </Language>
+    <VersionInfo>
+      <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+      <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+      <VersionInfo Name="MajorVer">1</VersionInfo>
+      <VersionInfo Name="MinorVer">0</VersionInfo>
+      <VersionInfo Name="Release">0</VersionInfo>
+      <VersionInfo Name="Build">0</VersionInfo>
+      <VersionInfo Name="Debug">False</VersionInfo>
+      <VersionInfo Name="PreRelease">False</VersionInfo>
+      <VersionInfo Name="Special">False</VersionInfo>
+      <VersionInfo Name="Private">False</VersionInfo>
+      <VersionInfo Name="DLL">False</VersionInfo>
+      <VersionInfo Name="Locale">1033</VersionInfo>
+      <VersionInfo Name="CodePage">1252</VersionInfo>
+    </VersionInfo>
+    <VersionInfoKeys>
+      <VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
+      <VersionInfoKeys Name="FileDescription"></VersionInfoKeys>
+      <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+      <VersionInfoKeys Name="InternalName"></VersionInfoKeys>
+      <VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys>
+      <VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
+      <VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
+      <VersionInfoKeys Name="ProductName"></VersionInfoKeys>
+      <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+      <VersionInfoKeys Name="Comments"></VersionInfoKeys>
+    </VersionInfoKeys>
+  </DelphiDotNet.Personality>
+</BorlandProject>

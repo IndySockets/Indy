@@ -1,0 +1,64 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{e8450359-dd94-49c1-a413-6126212f28e0}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Projects Include="Computil.dproj" />
+    <Projects Include="Core\IndyCore110.dproj" />
+    <Projects Include="Protocols\IndyProtocols110.dproj" />
+    <Projects Include="System\IndySystem110.dproj" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <Borland.Personality>Default.Personality</Borland.Personality>
+    <Borland.ProjectType />
+    <BorlandProject>
+<BorlandProject xmlns=""><Default.Personality></Default.Personality></BorlandProject></BorlandProject>
+  </ProjectExtensions>
+  <Target Name="IndySystem110">
+    <MSBuild Projects="System\IndySystem110.dproj" Targets="" />
+  </Target>
+  <Target Name="IndySystem110:Clean">
+    <MSBuild Projects="System\IndySystem110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="IndySystem110:Make">
+    <MSBuild Projects="System\IndySystem110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="IndyCore110">
+    <MSBuild Projects="Core\IndyCore110.dproj" Targets="" />
+  </Target>
+  <Target Name="IndyCore110:Clean">
+    <MSBuild Projects="Core\IndyCore110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="IndyCore110:Make">
+    <MSBuild Projects="Core\IndyCore110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="IndyProtocols110">
+    <MSBuild Projects="Protocols\IndyProtocols110.dproj" Targets="" />
+  </Target>
+  <Target Name="IndyProtocols110:Clean">
+    <MSBuild Projects="Protocols\IndyProtocols110.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="IndyProtocols110:Make">
+    <MSBuild Projects="Protocols\IndyProtocols110.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Computil">
+    <MSBuild Projects="Computil.dproj" Targets="" />
+  </Target>
+  <Target Name="Computil:Clean">
+    <MSBuild Projects="Computil.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="Computil:Make">
+    <MSBuild Projects="Computil.dproj" Targets="Make" />
+  </Target>
+  <Target Name="Build">
+    <CallTarget Targets="IndySystem110;IndyCore110;IndyProtocols110;Computil" />
+  </Target>
+  <Target Name="Clean">
+    <CallTarget Targets="IndySystem110:Clean;IndyCore110:Clean;IndyProtocols110:Clean;Computil:Clean" />
+  </Target>
+  <Target Name="Make">
+    <CallTarget Targets="IndySystem110:Make;IndyCore110:Make;IndyProtocols110:Make;Computil:Make" />
+  </Target>
+  <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
+</Project>

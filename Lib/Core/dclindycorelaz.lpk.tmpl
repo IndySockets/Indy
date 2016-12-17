@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <Package Version="2">
+    <Name Value="dclindycorelaz"/>
+    <Author Value="Chad Z. Hower (Kudzu) and the Indy Pit Crew - http://www.indyproject.org/"/>
+    <CompilerOptions>
+      <Version Value="5"/>
+      <SearchPaths>
+        <IncludeFiles Value="../Inc/"/>
+        <OtherUnitFiles Value="../System/lib/$(TargetCPU)-$(TargetOS)/"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/"/>
+        <SrcPath Value="../System/;../Core/;../Protocols/"/>
+      </SearchPaths>
+      <CodeGeneration>
+        <Generate Value="Faster"/>
+      </CodeGeneration>
+      <Other>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
+    </CompilerOptions>
+    <License Value="Duel License
+
+MPL 
+
+Indy Modified BSD License
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation, about box and/or other materials provided with the distribution. 
+
+No personal names or organizations names associated with the Indy project may be used to endorse or promote products derived from this software without specific prior written permission of the specific individual or organization. 
+
+THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &quot;AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"/>
+    <Version Major="10" Minor="6" Release="1" Build="$WCREV$"/>
+    <Files Count="9">
+      <Item1>
+        <Filename Value="IdAboutVCL.pas"/>
+        <UnitName Value="IdAboutVCL"/>
+      </Item1>
+      <Item2>
+        <Filename Value="IdAboutVCL.lrs"/>
+        <Type Value="LRS"/>
+      </Item2>
+      <Item3>
+        <Filename Value="IdAntiFreeze.pas"/>
+        <UnitName Value="IdAntiFreeze"/>
+      </Item3>
+      <Item4>
+        <Filename Value="IdCoreDsnRegister.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="IdCoreDsnRegister"/>
+      </Item4>
+      <Item5>
+        <Filename Value="IdCoreSelectionEditors.pas"/>
+        <UnitName Value="IdCoreSelectionEditors"/>
+      </Item5>
+      <Item6>
+        <Filename Value="IdDsnCoreResourceStrings.pas"/>
+        <UnitName Value="IdDsnCoreResourceStrings"/>
+      </Item6>
+      <Item7>
+        <Filename Value="IdDsnPropEdBindingVCL.pas"/>
+        <UnitName Value="IdDsnPropEdBindingVCL"/>
+      </Item7>
+      <Item8>
+        <Filename Value="IdRegisterCore.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="IdRegisterCore"/>
+      </Item8>
+      <Item9>
+        <Filename Value="IdRegisterCore.lrs"/>
+        <Type Value="LRS"/>
+      </Item9>
+    </Files>
+    <Type Value="DesignTime"/>
+    <RequiredPkgs Count="4">
+      <Item1>
+        <PackageName Value="indysystemlaz"/>
+        <MinVersion Major="10" Minor="6" Release="1" Valid="True"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="indycorelaz"/>
+        <MinVersion Major="10" Minor="6" Release="1" Valid="True"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="IDEIntf"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="FCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item4>
+    </RequiredPkgs>
+    <UsageOptions>
+      <LibraryPath Value="lib/$(TargetCPU)-$(TargetOS)/"/>
+      <UnitPath Value="$(PkgOutDir)/lib/$(TargetCPU)-$(TargetOS)/"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

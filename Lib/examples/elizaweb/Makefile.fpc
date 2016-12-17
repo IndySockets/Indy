@@ -1,0 +1,19 @@
+[target]
+programs=elizaweb
+implicitunits=ezBillClinton ezEliza \
+ezEngine ezIFM \ 
+ezMSTechSupport ezpersonality
+[require]
+packages=indy
+packagedir=../../
+
+[compiler]
+unittargetdir=units/$(CPU_TARGET)-$(OS_TARGET)
+#For some reason, we can't use "unitdir" here.  It causes some strange bugs.  
+#This is a workaround.
+options=-dUseCThreads -gl
+
+[install]
+fpcpackage=y
+files=HTML/eliza.html HTML/Eliza.jpg \
+HTML/index.html HTML/logo.jpg

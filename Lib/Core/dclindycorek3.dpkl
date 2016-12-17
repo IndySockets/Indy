@@ -1,0 +1,45 @@
+package dclindycorek3;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $600000}
+{$DESCRIPTION 'Internet Direct (Indy) 10.00.0.17-B - Core 10.00.0.17-B'}
+{$SONAME 'dclindycorek3.so.6.9'}
+{$LIBPREFIX ''}
+{$LIBVERSION '.6.9.0'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  designide,
+  indycorek3;
+
+contains
+    IdAbout in 'IdAbout.pas',
+  IdAntiFreeze in 'IdAntiFreeze.pas',
+  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
+  IdCoreRegister in 'IdCoreRegister.pas',
+  IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
+  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas';
+
+end.

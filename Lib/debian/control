@@ -1,0 +1,32 @@
+Source: indy-fpc
+Section: devel
+Priority: optional
+Maintainer: J. Peter Mugaas <oma00215@mail.wvnet.edu>
+Build-Depends: fpc | fp-compiler, fpc | fp-units-rtl, fpc | fp-units-net, fpc | fp-units-fcl, fpc | fp-utils, debhelper (>= 4.0.0)
+Standards-Version: 3.6.2
+
+Package: indy-fpc
+Architecture: any
+Depends: fpc | fp-compiler, fpc | fp-units-rtl, fpc | fp-units-net, fpc | fp-units-fcl, fpc | fp-utils
+Description: Indy Sockets for Free Pascal
+ Indy.Sockets is an open source socket library that supports clients, servers,
+ TCP, UDP, raw sockets, as well as over 100 higher level protocols such as
+ SMTP, POP3, NNTP, HTTP, and many more. Indy.Sockets is available for C#, C++,
+ Delphi, Visual Basic.NET, any .NET language, and Kylix. This version is for
+ Free Pascal.
+ .
+ Homepage: http://www.indyproject.org/sockets/fpc
+
+Package: indy-fpc-src
+Architecture: all
+Description: Indy Sockets source code for Free Pascal
+ Indy.Sockets is an open source socket library that supports clients, servers,
+ TCP, UDP, raw sockets, as well as over 100 higher level protocols such as
+ SMTP, POP3, NNTP, HTTP, and many more. Indy.Sockets is available for C#, C++,
+ Delphi, Visual Basic.NET, any .NET language, and Kylix. This version is for
+ Free Pascal.
+ .
+ This package contains the source-code for the Indy run-time-only Free Pascal
+ compiler.  This is also required for using Indy in the Lazarus IDE.
+ .
+ Homepage: http://www.indyproject.org/sockets/fpc

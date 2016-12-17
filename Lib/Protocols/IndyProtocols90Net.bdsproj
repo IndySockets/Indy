@@ -1,0 +1,351 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <PersonalityInfo>
+    <Option>
+      <Option Name="Personality" Type="String">DelphiDotNet.Personality</Option>
+      <Option Name="ProjectType" Type="String"></Option>
+      <Option Name="Version" Type="String">1.0</Option>
+      <Option Name="GUID" Type="String">{2BAC6843-072C-44CF-9C2E-1221CBA80297}</Option>
+    </Option>
+  </PersonalityInfo>
+  <DelphiDotNet.Personality>
+    <Source>
+      <Source Name="MainSource" Type="String">IndyProtocols90Net.dpk</Source>
+    </Source>
+    
+    <FileList>
+      <File FileName="d:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.Delphi" AssemblyName="Borland.Delphi" Version="9.0.1615.21977" LinkUnits="False"/>
+      <File FileName="d:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.VclRtl" AssemblyName="Borland.VclRtl" Version="9.0.1615.21977" LinkUnits="False"/>
+      <File FileName="IndySystem90Net.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndySystem90Net" AssemblyName="IndySystem90Net" LinkUnits="False"/>
+      <File FileName="IndyCore90Net.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndyCore90Net" AssemblyName="IndyCore90Net" LinkUnits="False"/>
+      <File FileName="IdASN1Util.pas" ContainerId="" ModuleName="IdASN1Util"/>
+      <File FileName="IdAllFTPListParsers.pas" ContainerId="" ModuleName="IdAllFTPListParsers"/>
+      <File FileName="IdAttachment.pas" ContainerId="" ModuleName="IdAttachment"/>
+      <File FileName="IdAttachmentFile.pas" ContainerId="" ModuleName="IdAttachmentFile"/>
+      <File FileName="IdAttachmentMemory.pas" ContainerId="" ModuleName="IdAttachmentMemory"/>
+      <File FileName="IdAuthentication.pas" ContainerId="" ModuleName="IdAuthentication"/>
+      <File FileName="IdAuthenticationDigest.pas" ContainerId="" ModuleName="IdAuthenticationDigest"/>
+      <File FileName="IdAuthenticationManager.pas" ContainerId="" ModuleName="IdAuthenticationManager"/>
+      <File FileName="IdChargenServer.pas" ContainerId="" ModuleName="IdChargenServer"/>
+      <File FileName="IdChargenUDPServer.pas" ContainerId="" ModuleName="IdChargenUDPServer"/>
+      <File FileName="IdCharsets.pas" ContainerId="" ModuleName="IdCharsets"/>
+      <File FileName="IdCoder.pas" ContainerId="" ModuleName="IdCoder"/>
+      <File FileName="IdCoder00E.pas" ContainerId="" ModuleName="IdCoder00E"/>
+      <File FileName="IdCoder3to4.pas" ContainerId="" ModuleName="IdCoder3to4"/>
+      <File FileName="IdCoderBinHex4.pas" ContainerId="" ModuleName="IdCoderBinHex4"/>
+      <File FileName="IdCoderHeader.pas" ContainerId="" ModuleName="IdCoderHeader"/>
+      <File FileName="IdCoderMIME.pas" ContainerId="" ModuleName="IdCoderMIME"/>
+      <File FileName="IdCoderQuotedPrintable.pas" ContainerId="" ModuleName="IdCoderQuotedPrintable"/>
+      <File FileName="IdCoderUUE.pas" ContainerId="" ModuleName="IdCoderUUE"/>
+      <File FileName="IdCoderXXE.pas" ContainerId="" ModuleName="IdCoderXXE"/>
+      <File FileName="IdConnectThroughHttpProxy.pas" ContainerId="" ModuleName="IdConnectThroughHttpProxy"/>
+      <File FileName="IdContainers.pas" ContainerId="" ModuleName="IdContainers"/>
+      <File FileName="IdCookie.pas" ContainerId="" ModuleName="IdCookie"/>
+      <File FileName="IdCookieManager.pas" ContainerId="" ModuleName="IdCookieManager"/>
+      <File FileName="IdCustomHTTPServer.pas" ContainerId="" ModuleName="IdCustomHTTPServer"/>
+      <File FileName="IdDICTServer.pas" ContainerId="" ModuleName="IdDICTServer"/>
+      <File FileName="IdDNSCommon.pas" ContainerId="" ModuleName="IdDNSCommon"/>
+      <File FileName="IdDNSResolver.pas" ContainerId="" ModuleName="IdDNSResolver"/>
+      <File FileName="IdDNSServer.pas" ContainerId="" ModuleName="IdDNSServer"/>
+      <File FileName="IdDateTimeStamp.pas" ContainerId="" ModuleName="IdDateTimeStamp"/>
+      <File FileName="IdDayTime.pas" ContainerId="" ModuleName="IdDayTime"/>
+      <File FileName="IdDayTimeServer.pas" ContainerId="" ModuleName="IdDayTimeServer"/>
+      <File FileName="IdDayTimeUDP.pas" ContainerId="" ModuleName="IdDayTimeUDP"/>
+      <File FileName="IdDayTimeUDPServer.pas" ContainerId="" ModuleName="IdDayTimeUDPServer"/>
+      <File FileName="IdDiscardServer.pas" ContainerId="" ModuleName="IdDiscardServer"/>
+      <File FileName="IdDiscardUDPServer.pas" ContainerId="" ModuleName="IdDiscardUDPServer"/>
+      <File FileName="IdEMailAddress.pas" ContainerId="" ModuleName="IdEMailAddress"/>
+      <File FileName="IdEcho.pas" ContainerId="" ModuleName="IdEcho"/>
+      <File FileName="IdEchoServer.pas" ContainerId="" ModuleName="IdEchoServer"/>
+      <File FileName="IdEchoUDP.pas" ContainerId="" ModuleName="IdEchoUDP"/>
+      <File FileName="IdEchoUDPServer.pas" ContainerId="" ModuleName="IdEchoUDPServer"/>
+      <File FileName="IdExplicitTLSClientServerBase.pas" ContainerId="" ModuleName="IdExplicitTLSClientServerBase"/>
+      <File FileName="IdFTP.pas" ContainerId="" ModuleName="IdFTP"/>
+      <File FileName="IdFTPBaseFileSystem.pas" ContainerId="" ModuleName="IdFTPBaseFileSystem"/>
+      <File FileName="IdFTPCommon.pas" ContainerId="" ModuleName="IdFTPCommon"/>
+      <File FileName="IdFTPList.pas" ContainerId="" ModuleName="IdFTPList"/>
+      <File FileName="IdFTPListOutput.pas" ContainerId="" ModuleName="IdFTPListOutput"/>
+      <File FileName="IdFTPListParseAS400.pas" ContainerId="" ModuleName="IdFTPListParseAS400"/>
+      <File FileName="IdFTPListParseBase.pas" ContainerId="" ModuleName="IdFTPListParseBase"/>
+      <File FileName="IdFTPListParseBullGCOS7.pas" ContainerId="" ModuleName="IdFTPListParseBullGCOS7"/>
+      <File FileName="IdFTPListParseBullGCOS8.pas" ContainerId="" ModuleName="IdFTPListParseBullGCOS8"/>
+      <File FileName="IdFTPListParseCiscoIOS.pas" ContainerId="" ModuleName="IdFTPListParseCiscoIOS"/>
+      <File FileName="IdFTPListParseDistinctTCPIP.pas" ContainerId="" ModuleName="IdFTPListParseDistinctTCPIP"/>
+      <File FileName="IdFTPListParseEPLF.pas" ContainerId="" ModuleName="IdFTPListParseEPLF"/>
+      <File FileName="IdFTPListParseHellSoft.pas" ContainerId="" ModuleName="IdFTPListParseHellSoft"/>
+      <File FileName="IdFTPListParseKA9Q.pas" ContainerId="" ModuleName="IdFTPListParseKA9Q"/>
+      <File FileName="IdFTPListParseMPEiX.pas" ContainerId="" ModuleName="IdFTPListParseMPEiX"/>
+      <File FileName="IdFTPListParseMVS.pas" ContainerId="" ModuleName="IdFTPListParseMVS"/>
+      <File FileName="IdFTPListParseMicrowareOS9.pas" ContainerId="" ModuleName="IdFTPListParseMicrowareOS9"/>
+      <File FileName="IdFTPListParseMusic.pas" ContainerId="" ModuleName="IdFTPListParseMusic"/>
+      <File FileName="IdFTPListParseNCSAForDOS.pas" ContainerId="" ModuleName="IdFTPListParseNCSAForDOS"/>
+      <File FileName="IdFTPListParseNovellNetware.pas" ContainerId="" ModuleName="IdFTPListParseNovellNetware"/>
+      <File FileName="IdFTPListParseNovellNetwarePSU.pas" ContainerId="" ModuleName="IdFTPListParseNovellNetwarePSU"/>
+      <File FileName="IdFTPListParseOS2.pas" ContainerId="" ModuleName="IdFTPListParseOS2"/>
+      <File FileName="IdFTPListParseStercomOS390Exp.pas" ContainerId="" ModuleName="IdFTPListParseStercomOS390Exp"/>
+      <File FileName="IdFTPListParseStercomUnixEnt.pas" ContainerId="" ModuleName="IdFTPListParseStercomUnixEnt"/>
+      <File FileName="IdFTPListParseTOPS20.pas" ContainerId="" ModuleName="IdFTPListParseTOPS20"/>
+      <File FileName="IdFTPListParseTSXPlus.pas" ContainerId="" ModuleName="IdFTPListParseTSXPlus"/>
+      <File FileName="IdFTPListParseUnix.pas" ContainerId="" ModuleName="IdFTPListParseUnix"/>
+      <File FileName="IdFTPListParseVM.pas" ContainerId="" ModuleName="IdFTPListParseVM"/>
+      <File FileName="IdFTPListParseVMS.pas" ContainerId="" ModuleName="IdFTPListParseVMS"/>
+      <File FileName="IdFTPListParseVSE.pas" ContainerId="" ModuleName="IdFTPListParseVSE"/>
+      <File FileName="IdFTPListParseVxWorks.pas" ContainerId="" ModuleName="IdFTPListParseVxWorks"/>
+      <File FileName="IdFTPListParseWinQVTNET.pas" ContainerId="" ModuleName="IdFTPListParseWinQVTNET"/>
+      <File FileName="IdFTPListParseWindowsNT.pas" ContainerId="" ModuleName="IdFTPListParseWindowsNT"/>
+      <File FileName="IdFTPListParseXecomMicroRTOS.pas" ContainerId="" ModuleName="IdFTPListParseXecomMicroRTOS"/>
+      <File FileName="IdFTPListTypes.pas" ContainerId="" ModuleName="IdFTPListTypes"/>
+      <File FileName="IdFTPServer.pas" ContainerId="" ModuleName="IdFTPServer"/>
+      <File FileName="IdFTPServerContextBase.pas" ContainerId="" ModuleName="IdFTPServerContextBase"/>
+      <File FileName="IdFinger.pas" ContainerId="" ModuleName="IdFinger"/>
+      <File FileName="IdFingerServer.pas" ContainerId="" ModuleName="IdFingerServer"/>
+      <File FileName="IdGlobalProtocols.pas" ContainerId="" ModuleName="IdGlobalProtocols"/>
+      <File FileName="IdGopher.pas" ContainerId="" ModuleName="IdGopher"/>
+      <File FileName="IdGopherConsts.pas" ContainerId="" ModuleName="IdGopherConsts"/>
+      <File FileName="IdGopherServer.pas" ContainerId="" ModuleName="IdGopherServer"/>
+      <File FileName="IdHL7.pas" ContainerId="" ModuleName="IdHL7"/>
+      <File FileName="IdHTTP.pas" ContainerId="" ModuleName="IdHTTP"/>
+      <File FileName="IdHTTPHeaderInfo.pas" ContainerId="" ModuleName="IdHTTPHeaderInfo"/>
+      <File FileName="IdHTTPProxyServer.pas" ContainerId="" ModuleName="IdHTTPProxyServer"/>
+      <File FileName="IdHTTPServer.pas" ContainerId="" ModuleName="IdHTTPServer"/>
+      <File FileName="IdHash.pas" ContainerId="" ModuleName="IdHash"/>
+      <File FileName="IdHashCRC.pas" ContainerId="" ModuleName="IdHashCRC"/>
+      <File FileName="IdHashElf.pas" ContainerId="" ModuleName="IdHashElf"/>
+      <File FileName="IdHashMessageDigest.pas" ContainerId="" ModuleName="IdHashMessageDigest"/>
+      <File FileName="IdHashSHA1.pas" ContainerId="" ModuleName="IdHashSHA1"/>
+      <File FileName="IdHeaderList.pas" ContainerId="" ModuleName="IdHeaderList"/>
+      <File FileName="IdIMAP4.pas" ContainerId="" ModuleName="IdIMAP4"/>
+      <File FileName="IdIPAddrMon.pas" ContainerId="" ModuleName="IdIPAddrMon"/>
+      <File FileName="IdIPWatch.pas" ContainerId="" ModuleName="IdIPWatch"/>
+      <File FileName="IdIRC.pas" ContainerId="" ModuleName="IdIRC"/>
+      <File FileName="IdIdent.pas" ContainerId="" ModuleName="IdIdent"/>
+      <File FileName="IdIdentServer.pas" ContainerId="" ModuleName="IdIdentServer"/>
+      <File FileName="IdIrcServer.pas" ContainerId="" ModuleName="IdIrcServer"/>
+      <File FileName="IdLPR.pas" ContainerId="" ModuleName="IdLPR"/>
+      <File FileName="IdMIMETypes.pas" ContainerId="" ModuleName="IdMIMETypes"/>
+      <File FileName="IdMailBox.pas" ContainerId="" ModuleName="IdMailBox"/>
+      <File FileName="IdMappedFTP.pas" ContainerId="" ModuleName="IdMappedFTP"/>
+      <File FileName="IdMappedPOP3.pas" ContainerId="" ModuleName="IdMappedPOP3"/>
+      <File FileName="IdMappedPortTCP.pas" ContainerId="" ModuleName="IdMappedPortTCP"/>
+      <File FileName="IdMappedPortUDP.pas" ContainerId="" ModuleName="IdMappedPortUDP"/>
+      <File FileName="IdMappedTelnet.pas" ContainerId="" ModuleName="IdMappedTelnet"/>
+      <File FileName="IdMessage.pas" ContainerId="" ModuleName="IdMessage"/>
+      <File FileName="IdMessageClient.pas" ContainerId="" ModuleName="IdMessageClient"/>
+      <File FileName="IdMessageCoder.pas" ContainerId="" ModuleName="IdMessageCoder"/>
+      <File FileName="IdMessageCoderMIME.pas" ContainerId="" ModuleName="IdMessageCoderMIME"/>
+      <File FileName="IdMessageCoderQuotedPrintable.pas" ContainerId="" ModuleName="IdMessageCoderQuotedPrintable"/>
+      <File FileName="IdMessageCoderUUE.pas" ContainerId="" ModuleName="IdMessageCoderUUE"/>
+      <File FileName="IdMessageCoderXXE.pas" ContainerId="" ModuleName="IdMessageCoderXXE"/>
+      <File FileName="IdMessageCollection.pas" ContainerId="" ModuleName="IdMessageCollection"/>
+      <File FileName="IdMessageHelper.pas" ContainerId="" ModuleName="IdMessageHelper"/>
+      <File FileName="IdMessageParts.pas" ContainerId="" ModuleName="IdMessageParts"/>
+      <File FileName="IdMultipartFormData.pas" ContainerId="" ModuleName="IdMultipartFormData"/>
+      <File FileName="IdNNTP.pas" ContainerId="" ModuleName="IdNNTP"/>
+      <File FileName="IdNNTPServer.pas" ContainerId="" ModuleName="IdNNTPServer"/>
+      <File FileName="IdNetworkCalculator.pas" ContainerId="" ModuleName="IdNetworkCalculator"/>
+      <File FileName="IdOSFileName.pas" ContainerId="" ModuleName="IdOSFileName"/>
+      <File FileName="IdOTPCalculator.pas" ContainerId="" ModuleName="IdOTPCalculator"/>
+      <File FileName="IdPOP3.pas" ContainerId="" ModuleName="IdPOP3"/>
+      <File FileName="IdPOP3Server.pas" ContainerId="" ModuleName="IdPOP3Server"/>
+      <File FileName="IdQOTDUDP.pas" ContainerId="" ModuleName="IdQOTDUDP"/>
+      <File FileName="IdQOTDUDPServer.pas" ContainerId="" ModuleName="IdQOTDUDPServer"/>
+      <File FileName="IdQotd.pas" ContainerId="" ModuleName="IdQotd"/>
+      <File FileName="IdQotdServer.pas" ContainerId="" ModuleName="IdQotdServer"/>
+      <File FileName="IdRSH.pas" ContainerId="" ModuleName="IdRSH"/>
+      <File FileName="IdRSHServer.pas" ContainerId="" ModuleName="IdRSHServer"/>
+      <File FileName="IdRemoteCMDClient.pas" ContainerId="" ModuleName="IdRemoteCMDClient"/>
+      <File FileName="IdRemoteCMDServer.pas" ContainerId="" ModuleName="IdRemoteCMDServer"/>
+      <File FileName="IdReplyFTP.pas" ContainerId="" ModuleName="IdReplyFTP"/>
+      <File FileName="IdReplyIMAP4.pas" ContainerId="" ModuleName="IdReplyIMAP4"/>
+      <File FileName="IdReplyPOP3.pas" ContainerId="" ModuleName="IdReplyPOP3"/>
+      <File FileName="IdReplySMTP.pas" ContainerId="" ModuleName="IdReplySMTP"/>
+      <File FileName="IdResourceStringsProtocols.pas" ContainerId="" ModuleName="IdResourceStringsProtocols"/>
+      <File FileName="IdRexec.pas" ContainerId="" ModuleName="IdRexec"/>
+      <File FileName="IdRexecServer.pas" ContainerId="" ModuleName="IdRexecServer"/>
+      <File FileName="IdSASL.pas" ContainerId="" ModuleName="IdSASL"/>
+      <File FileName="IdSASLAnonymous.pas" ContainerId="" ModuleName="IdSASLAnonymous"/>
+      <File FileName="IdSASLCollection.pas" ContainerId="" ModuleName="IdSASLCollection"/>
+      <File FileName="IdSASLExternal.pas" ContainerId="" ModuleName="IdSASLExternal"/>
+      <File FileName="IdSASLLogin.pas" ContainerId="" ModuleName="IdSASLLogin"/>
+      <File FileName="IdSASLOTP.pas" ContainerId="" ModuleName="IdSASLOTP"/>
+      <File FileName="IdSASLPlain.pas" ContainerId="" ModuleName="IdSASLPlain"/>
+      <File FileName="IdSASLSKey.pas" ContainerId="" ModuleName="IdSASLSKey"/>
+      <File FileName="IdSASLUserPass.pas" ContainerId="" ModuleName="IdSASLUserPass"/>
+      <File FileName="IdSASL_CRAM_MD5.pas" ContainerId="" ModuleName="IdSASL_CRAM_MD5"/>
+      <File FileName="IdSMTP.pas" ContainerId="" ModuleName="IdSMTP"/>
+      <File FileName="IdSMTPBase.pas" ContainerId="" ModuleName="IdSMTPBase"/>
+      <File FileName="IdSMTPRelay.pas" ContainerId="" ModuleName="IdSMTPRelay"/>
+      <File FileName="IdSMTPServer.pas" ContainerId="" ModuleName="IdSMTPServer"/>
+      <File FileName="IdSNPP.pas" ContainerId="" ModuleName="IdSNPP"/>
+      <File FileName="IdSSL.pas" ContainerId="" ModuleName="IdSSL"/>
+      <File FileName="IdServerInterceptLogBase.pas" ContainerId="" ModuleName="IdServerInterceptLogBase"/>
+      <File FileName="IdServerInterceptLogEvent.pas" ContainerId="" ModuleName="IdServerInterceptLogEvent"/>
+      <File FileName="IdServerInterceptLogFile.pas" ContainerId="" ModuleName="IdServerInterceptLogFile"/>
+      <File FileName="IdStrings.pas" ContainerId="" ModuleName="IdStrings"/>
+      <File FileName="IdSysLog.pas" ContainerId="" ModuleName="IdSysLog"/>
+      <File FileName="IdSysLogMessage.pas" ContainerId="" ModuleName="IdSysLogMessage"/>
+      <File FileName="IdSysLogServer.pas" ContainerId="" ModuleName="IdSysLogServer"/>
+      <File FileName="IdSystat.pas" ContainerId="" ModuleName="IdSystat"/>
+      <File FileName="IdSystatServer.pas" ContainerId="" ModuleName="IdSystatServer"/>
+      <File FileName="IdSystatUDP.pas" ContainerId="" ModuleName="IdSystatUDP"/>
+      <File FileName="IdSystatUDPServer.pas" ContainerId="" ModuleName="IdSystatUDPServer"/>
+      <File FileName="IdTelnet.pas" ContainerId="" ModuleName="IdTelnet"/>
+      <File FileName="IdTelnetServer.pas" ContainerId="" ModuleName="IdTelnetServer"/>
+      <File FileName="IdText.pas" ContainerId="" ModuleName="IdText"/>
+      <File FileName="IdTime.pas" ContainerId="" ModuleName="IdTime"/>
+      <File FileName="IdTimeServer.pas" ContainerId="" ModuleName="IdTimeServer"/>
+      <File FileName="IdTimeUDP.pas" ContainerId="" ModuleName="IdTimeUDP"/>
+      <File FileName="IdTimeUDPServer.pas" ContainerId="" ModuleName="IdTimeUDPServer"/>
+      <File FileName="IdTrivialFTP.pas" ContainerId="" ModuleName="IdTrivialFTP"/>
+      <File FileName="IdTrivialFTPBase.pas" ContainerId="" ModuleName="IdTrivialFTPBase"/>
+      <File FileName="IdTrivialFTPServer.pas" ContainerId="" ModuleName="IdTrivialFTPServer"/>
+      <File FileName="IdURI.pas" ContainerId="" ModuleName="IdURI"/>
+      <File FileName="IdUserAccounts.pas" ContainerId="" ModuleName="IdUserAccounts"/>
+      <File FileName="IdUserPassProvider.pas" ContainerId="" ModuleName="IdUserPassProvider"/>
+      <File FileName="IdVCard.pas" ContainerId="" ModuleName="IdVCard"/>
+      <File FileName="IdWhoIsServer.pas" ContainerId="" ModuleName="IdWhoIsServer"/>
+      <File FileName="IdWhois.pas" ContainerId="" ModuleName="IdWhois"/>
+      <File FileName="IdZLibCompressorBase.pas" ContainerId="" ModuleName="IdZLibCompressorBase"/>
+    </FileList>
+    <FileVersion>
+      <FileVersion Name="Version" Type="String">7.0</FileVersion>
+    </FileVersion>
+    <Compiler>
+      <Compiler Name="A" Type="Integer">0</Compiler>
+      <Compiler Name="B" Type="Integer">0</Compiler>
+      <Compiler Name="C" Type="Integer">1</Compiler>
+      <Compiler Name="D" Type="Integer">1</Compiler>
+      <Compiler Name="E" Type="Integer">0</Compiler>
+      <Compiler Name="F" Type="Integer">0</Compiler>
+      <Compiler Name="G" Type="Integer">1</Compiler>
+      <Compiler Name="H" Type="Integer">1</Compiler>
+      <Compiler Name="I" Type="Integer">1</Compiler>
+      <Compiler Name="J" Type="Integer">0</Compiler>
+      <Compiler Name="K" Type="Integer">0</Compiler>
+      <Compiler Name="L" Type="Integer">1</Compiler>
+      <Compiler Name="M" Type="Integer">0</Compiler>
+      <Compiler Name="N" Type="Integer">1</Compiler>
+      <Compiler Name="O" Type="Integer">1</Compiler>
+      <Compiler Name="P" Type="Integer">1</Compiler>
+      <Compiler Name="Q" Type="Integer">1</Compiler>
+      <Compiler Name="R" Type="Integer">1</Compiler>
+      <Compiler Name="S" Type="Integer">0</Compiler>
+      <Compiler Name="T" Type="Integer">0</Compiler>
+      <Compiler Name="U" Type="Integer">0</Compiler>
+      <Compiler Name="V" Type="Integer">1</Compiler>
+      <Compiler Name="W" Type="Integer">0</Compiler>
+      <Compiler Name="X" Type="Integer">1</Compiler>
+      <Compiler Name="Y" Type="Integer">1</Compiler>
+      <Compiler Name="Z" Type="Integer">1</Compiler>
+      <Compiler Name="ShowHints" Type="Boolean">True</Compiler>
+      <Compiler Name="ShowWarnings" Type="Boolean">True</Compiler>
+      <Compiler Name="UnitAliases" Type="String">WinTypes=Borland.Vcl.Windows;WinProcs=Borland.Vcl.Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;</Compiler>
+      <Compiler Name="NamespacePrefix" Type="String"></Compiler>
+      <Compiler Name="GenerateDocumentation" Type="Boolean">False</Compiler>
+      <Compiler Name="DefaultNamespace" Type="String"></Compiler>
+      <Compiler Name="SymbolDeprecated" Type="Boolean">True</Compiler>
+      <Compiler Name="SymbolLibrary" Type="Boolean">True</Compiler>
+      <Compiler Name="SymbolPlatform" Type="Boolean">True</Compiler>
+      <Compiler Name="SymbolExperimental" Type="Boolean">True</Compiler>
+      <Compiler Name="UnitLibrary" Type="Boolean">True</Compiler>
+      <Compiler Name="UnitPlatform" Type="Boolean">True</Compiler>
+      <Compiler Name="UnitDeprecated" Type="Boolean">True</Compiler>
+      <Compiler Name="UnitExperimental" Type="Boolean">True</Compiler>
+      <Compiler Name="HResultCompat" Type="Boolean">True</Compiler>
+      <Compiler Name="HidingMember" Type="Boolean">True</Compiler>
+      <Compiler Name="HiddenVirtual" Type="Boolean">True</Compiler>
+      <Compiler Name="Garbage" Type="Boolean">True</Compiler>
+      <Compiler Name="BoundsError" Type="Boolean">True</Compiler>
+      <Compiler Name="ZeroNilCompat" Type="Boolean">True</Compiler>
+      <Compiler Name="StringConstTruncated" Type="Boolean">True</Compiler>
+      <Compiler Name="ForLoopVarVarPar" Type="Boolean">True</Compiler>
+      <Compiler Name="TypedConstVarPar" Type="Boolean">True</Compiler>
+      <Compiler Name="AsgToTypedConst" Type="Boolean">True</Compiler>
+      <Compiler Name="CaseLabelRange" Type="Boolean">True</Compiler>
+      <Compiler Name="ForVariable" Type="Boolean">True</Compiler>
+      <Compiler Name="ConstructingAbstract" Type="Boolean">True</Compiler>
+      <Compiler Name="ComparisonFalse" Type="Boolean">True</Compiler>
+      <Compiler Name="ComparisonTrue" Type="Boolean">True</Compiler>
+      <Compiler Name="ComparingSignedUnsigned" Type="Boolean">True</Compiler>
+      <Compiler Name="CombiningSignedUnsigned" Type="Boolean">True</Compiler>
+      <Compiler Name="UnsupportedConstruct" Type="Boolean">True</Compiler>
+      <Compiler Name="FileOpen" Type="Boolean">True</Compiler>
+      <Compiler Name="FileOpenUnitSrc" Type="Boolean">True</Compiler>
+      <Compiler Name="BadGlobalSymbol" Type="Boolean">True</Compiler>
+      <Compiler Name="DuplicateConstructorDestructor" Type="Boolean">True</Compiler>
+      <Compiler Name="InvalidDirective" Type="Boolean">True</Compiler>
+      <Compiler Name="PackageNoLink" Type="Boolean">True</Compiler>
+      <Compiler Name="PackageThreadVar" Type="Boolean">True</Compiler>
+      <Compiler Name="ImplicitImport" Type="Boolean">True</Compiler>
+      <Compiler Name="HPPEMITIgnored" Type="Boolean">True</Compiler>
+      <Compiler Name="NoRetVal" Type="Boolean">True</Compiler>
+      <Compiler Name="UseBeforeDef" Type="Boolean">True</Compiler>
+      <Compiler Name="ForLoopVarUndef" Type="Boolean">True</Compiler>
+      <Compiler Name="UnitNameMismatch" Type="Boolean">True</Compiler>
+      <Compiler Name="NoCFGFileFound" Type="Boolean">True</Compiler>
+      <Compiler Name="MessageDirective" Type="Boolean">True</Compiler>
+      <Compiler Name="ImplicitVariants" Type="Boolean">True</Compiler>
+      <Compiler Name="UnicodeToLocale" Type="Boolean">True</Compiler>
+      <Compiler Name="LocaleToUnicode" Type="Boolean">True</Compiler>
+      <Compiler Name="ImagebaseMultiple" Type="Boolean">True</Compiler>
+      <Compiler Name="SuspiciousTypecast" Type="Boolean">True</Compiler>
+      <Compiler Name="PrivatePropAccessor" Type="Boolean">True</Compiler>
+      <Compiler Name="UnsafeType" Type="Boolean">True</Compiler>
+      <Compiler Name="UnsafeCode" Type="Boolean">True</Compiler>
+      <Compiler Name="UnsafeCast" Type="Boolean">True</Compiler>
+      <Compiler Name="OptionTruncated" Type="Boolean">True</Compiler>
+      <Compiler Name="WideCharReduced" Type="Boolean">True</Compiler>
+      <Compiler Name="DuplicatesIgnored" Type="Boolean">True</Compiler>
+    </Compiler>
+    <Linker>
+      <Linker Name="MapFile" Type="Integer">0</Linker>
+      <Linker Name="OutputObjs" Type="Integer">0</Linker>
+      <Linker Name="ConsoleApp" Type="Integer">1</Linker>
+      <Linker Name="DebugInfo" Type="Boolean">True</Linker>
+      <Linker Name="RemoteSymbols" Type="Boolean">False</Linker>
+      <Linker Name="GenerateDRC" Type="Boolean">False</Linker>
+      <Linker Name="MinStackSize" Type="Integer">4096</Linker>
+      <Linker Name="MaxStackSize" Type="Integer">1048576</Linker>
+      <Linker Name="ImageBase" Type="Integer">4194304</Linker>
+      <Linker Name="ExeDescription" Type="String">Indy 10 Protocols</Linker>
+    </Linker>
+    <Directories>
+      <Directories Name="OutputDir" Type="String"></Directories>
+      <Directories Name="UnitOutputDir" Type="String"></Directories>
+      <Directories Name="PackageDLLOutputDir" Type="String"></Directories>
+      <Directories Name="PackageDCPOutputDir" Type="String"></Directories>
+      <Directories Name="SearchPath" Type="String">d:\program files\common files\borland shared\bds\shared assemblies\3.0;W:\source\Indy10\Lib\Protocols</Directories>
+      <Directories Name="Packages" Type="String">W:\source\Indy10\Lib\Protocols\IndyCore90Net.dll;W:\source\Indy10\Lib\Protocols\IndySystem90Net.dll;Borland.VclRtl;Borland.Delphi</Directories>
+      <Directories Name="Conditionals" Type="String"></Directories>
+      <Directories Name="DebugSourceDirs" Type="String"></Directories>
+      <Directories Name="UsePackages" Type="Boolean">False</Directories>
+    </Directories>
+    <Parameters>
+      <Parameters Name="RunParams" Type="String"></Parameters>
+      <Parameters Name="HostApplication" Type="String"></Parameters>
+      <Parameters Name="Launcher" Type="String"></Parameters>
+      <Parameters Name="UseLauncher" Type="Boolean">False</Parameters>
+      <Parameters Name="DebugCWD" Type="String"></Parameters>
+      <Parameters Name="RemoteHost" Type="String"></Parameters>
+      <Parameters Name="RemotePath" Type="String"></Parameters>
+      <Parameters Name="RemoteLauncher" Type="String"></Parameters>
+      <Parameters Name="RemoteCWD" Type="String"></Parameters>
+      <Parameters Name="RemoteDebug" Type="Boolean">False</Parameters>
+    </Parameters>
+    <VersionInfo>
+      <VersionInfo Name="IncludeVerInfo" Type="Boolean">False</VersionInfo>
+      <VersionInfo Name="AutoIncBuild" Type="Boolean">False</VersionInfo>
+      <VersionInfo Name="MajorVer" Type="Integer">1</VersionInfo>
+      <VersionInfo Name="MinorVer" Type="Integer">0</VersionInfo>
+      <VersionInfo Name="Release" Type="Integer">0</VersionInfo>
+      <VersionInfo Name="Build" Type="Integer">0</VersionInfo>
+      <VersionInfo Name="Debug" Type="Boolean">False</VersionInfo>
+      <VersionInfo Name="PreRelease" Type="Boolean">False</VersionInfo>
+      <VersionInfo Name="Special" Type="Boolean">False</VersionInfo>
+      <VersionInfo Name="Private" Type="Boolean">False</VersionInfo>
+      <VersionInfo Name="DLL" Type="Boolean">False</VersionInfo>
+      <VersionInfo Name="Locale" Type="Integer">1033</VersionInfo>
+      <VersionInfo Name="CodePage" Type="Integer">1252</VersionInfo>
+    </VersionInfo>
+  </DelphiDotNet.Personality>
+</BorlandProject>

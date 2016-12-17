@@ -1,0 +1,169 @@
+%define _IndyBaseName indy
+%define _FPC_Version 2.1.1
+%define _FPC_RPM_Ver 2.1.1
+%define _FPC_SRC_RPM_Ver 2.1.1
+%define _FPCLibPrefix %{_libdir}/fpc/%{_FPC_Version}
+%define _FPCUnitDir %{_FPCLibPrefix}/units
+%define _FPCUnitArcDir %{_FPCUnitDir}/%{_arch}-%{_os}
+%define _IndyLibPrefix %{_FPCLibPrefix}/units/%{_arch}-%{_os}/%{_IndyBaseName}
+
+%define _IndyDocsDir %{_defaultdocdir}/fpc-%{_FPC_Version}/%{_IndyBaseName}
+%define _IndyExamplesDir %{_IndyDocsDir}/examples
+%define _IndyFPCSRCDir %{_usr}/share/fpcsrc/packages/extra/%{_IndyBaseName}
+
+%define _Build_LibDir %{buildroot}%{_libdir}
+%define _Build_LibDebugDir %{_Build_LibDir}/debug
+%define _Build_BinDir %{buildroot}%{_bindir}
+%define _Build_FPCLibPrefix %{buildroot}%{_FPCLibPrefix}
+%define _Build_IndyLibPrefix %{buildroot}%{_IndyLibPrefix}
+%define _Build_IndyDocsDir %{buildroot}%{_IndyDocsDir}
+%define _Build_IndyExamplesDir %{buildroot}%{_IndyExamplesDir}
+%define _Build_IndyFPCSRCDir %{buildroot}%{_IndyFPCSRCDir}
+
+Summary:   Indy.Sockets (FreePascal Version)
+Name:      %{_IndyBaseName}-fpc
+Version:   _
+Release:   _
+#the Indy name is hardcoded because we will probably have other package sets in that file.
+Source0:   http://www.indyproject.org/sockets/fpc/indy-%{version}.tar.bz2
+BuildRequires:  fpc = %{_FPC_RPM_Ver}
+Requires:  fpc = %{_FPC_RPM_Ver}
+License:   BSD style or MPL
+BuildRoot: %{_tmppath}/%{name}-%{version}
+Group:     Development/Libraries
+URL:       http://www.indyproject.org
+%description
+Indy.Sockets is an open source socket library that supports clients, servers,
+TCP, UDP, raw sockets, as well as over 100 higher level protocols such as 
+SMTP, POP3, NNTP, HTTP, and many more. Indy.Sockets is available for C#, C++,
+Delphi, Visual Basic.NET, any .NET language, and Kylix. This version is for 
+FreePascal.
+
+%package src
+Summary:   Indy.Sockets (FreePascal Version) - sources
+Group:     Development/Libraries
+Requires:  fpc-src = %{_FPC_SRC_RPM_Ver}
+%description src
+The indy-src package contains the sources of Indy, for documentation or
+automatically-code generation purposes.
+
+# disable the debuginfo package
+%define debug_package %{nil}
+%define __spec_install_post /usr/lib/rpm/brp-compress
+
+%prep
+%setup -q -c
+
+%build
+# The source-files:
+mkdir fpcsrc
+pwd
+cd fpc
+cp -a *.pas ../fpcsrc
+cp -a *.inc ../fpcsrc
+cp -a *.obj ../fpcsrc
+cp -a Makefile* ../fpcsrc
+cp -a examples ../fpcsrc
+
+#the binaries
+make all
+
+%install
+#rm -rf %{buildroot}
+#cd %{_IndyBaseName}-%{version}
+# The source-files:
+cd fpcsrc
+mkdir -p %{_Build_IndyFPCSRCDir}
+cp -r ./* %{_Build_IndyFPCSRCDir}
+#binaries
+cd ../fpc
+mkdir -p %{_Build_BinDir}
+mkdir -p %{_Build_LibDir}
+mkdir -p %{_Build_LibDebugDir}
+mkdir -p %{_Build_FPCLibPrefix}
+mkdir -p %{_Build_IndyLibPrefix}
+mkdir -p %{_Build_IndyDocsDir}
+mkdir -p %{_Build_IndyExamplesDir}
+install -D -m 644 ../README %{_Build_IndyDocsDir}/README
+install -D -m 644 ../COPYING %{_Build_IndyDocsDir}/COPYING
+install -D -m 644 ../COPYING.modifiedBSD \
+  %{_Build_IndyDocsDir}/COPYING.modifiedBSD
+install -D -m 644 ../COPYING.MPL %{_Build_IndyDocsDir}/COPYING.MPL
+
+INSTALLOPTS="INSTALL_PREFIX=%{_Build_FPCLibPrefix} \
+             NSTALL_LIBDIR=%{_Build_LibDir} \
+             INSTALL_BASEDIR=%{_Build_FPCLibPrefix} \
+             INSTALL_DOCDIR=%{_Build_IndyDocsDir} \
+             INSTALL_BINDIR=%{_Build_BinDir} \
+             INSTALL_EXAMPLEDIR=%{_Build_IndyExamplesDir}"
+SETFPCDIR=0
+#Note that you have to use the FPCDIR environment variable 
+#for fpcmake -p T[target] so that it doesn't fail saying
+#rtl not found.
+if  [ -z "$FPCDIR" ]; then
+  FPCDIR=/usr/lib/fpc/${_FPC_Version}
+  if [ ! -d "$FPCDIR" ]; then
+    FPCDIR=/usr/local/lib/fpc/${_FPC_Version}
+  fi 
+  export FPCDIR
+  SETFPCDIR=1
+fi
+make distinstall ${INSTALLOPTS} 
+if [ $SETFPCDIR = '1' ]; then
+  FPCDIR=
+  export FPCDIR
+fi
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root)
+%{_libdir}/*
+%doc %{_IndyDocsDir}/README 
+%doc %{_IndyDocsDir}/COPYING 
+%doc %{_IndyDocsDir}/COPYING.modifiedBSD 
+%doc %{_IndyDocsDir}/COPYING.MPL
+%doc %{_IndyExamplesDir}/*
+
+%files src
+%defattr(-,root,root,-)
+%{_datadir}/fpcsrc/*
+
+%changelog
+* Sun Jun 4 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-8
+- adjusted for indy source-code files being in dir in distribution
+- removed hard-coded version numbers and release numbers.  They only need to be updated in
+  akeindyrpm.sh script
+* Fri May 26 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu>
+- indy-fpcsrc files now placed in a single dir so it works with Lazarus CodeTools.
+* Thu Apr 3 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-7
+- spec file clean-ups
+* Mon Apr 3 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 
+- changed the .gz file to a bz2 form to be consistant with other RPM's in many distributions.
+- added first example program.
+* Thu Mar 30 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-6
+- moved fpcsrc files to /usr/share/fpsrc from /usr/share/docs/fpcsrc
+- fpcsrc RPM now includes all of the Makefiles.
+* Wed Mar 29 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-5
+- fixed inconsistancies between Makefile.fpc and the file placement in the RPM's.
+- files should now be placed in the indy directories instead of indy-fpc.
+* Tue Mar 28 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-4
+- Many spec fixes.
+- Now temporarily sets the FPCDIR before Make install to prevent rtl not found errors.
+* Wed Mar 22 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-3
+- made a -src package for consistency with Lazarus FPC packages.
+- renamed rpm set to "indy-fpc" so we make separate RPM sets for Lazarus design-time code and 
+  maybe other packages than marked RPM "indy" as obsolete.
+- Removed hack for obtaining the FPC version. It was not always working as expected.
+- Made requirement for a specific FreePascal compiler version to prevent
+  any problems with unit version mismatches.
+- moved doc files from /usr/share/doc/indy-[ver] to /usr/share/doc/fpc-[fpcver]/indy to
+  be consistent with other packages.
+* Mon Mar 15 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-2
+- now uses a URL for source
+- tarrball names now include a "version" number
+- changelog to keep rpmlint happy
+- spec file clean ups.
+* Wed Mar 8 2006 J. Peter Mugaas <oma00215@mail.wvnet.edu> 10.2.0.1-1 cd ../fpc
+- initial spec file 

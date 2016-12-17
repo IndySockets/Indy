@@ -1,0 +1,308 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{56962C3E-C8C8-4C8A-8155-6B6A23ADB2CB}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="System\IndySystem210.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Core\IndyCore210.dproj">
+            <Dependencies>System\IndySystem210.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Protocols\IndyProtocols210.dproj">
+            <Dependencies>System\IndySystem210.dproj;Core\IndyCore210.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Core\dclIndyCore210.dproj">
+            <Dependencies>System\IndySystem210.dproj;Core\IndyCore210.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Protocols\dclIndyProtocols210.dproj">
+            <Dependencies>System\IndySystem210.dproj;Core\IndyCore210.dproj;Protocols\IndyProtocols210.dproj;Core\dclIndyCore210.dproj</Dependencies>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="IndySystem210">
+        <MSBuild Projects="System\IndySystem210.dproj"/>
+    </Target>
+    <Target Name="IndySystem210:Clean">
+        <MSBuild Projects="System\IndySystem210.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IndySystem210:Make">
+        <MSBuild Projects="System\IndySystem210.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="IndyCore210" DependsOnTargets="IndySystem210">
+        <MSBuild Projects="Core\IndyCore210.dproj"/>
+    </Target>
+    <Target Name="IndyCore210:Clean" DependsOnTargets="IndySystem210:Clean">
+        <MSBuild Projects="Core\IndyCore210.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IndyCore210:Make" DependsOnTargets="IndySystem210:Make">
+        <MSBuild Projects="Core\IndyCore210.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="IndyProtocols210" DependsOnTargets="IndySystem210;IndyCore210">
+        <MSBuild Projects="Protocols\IndyProtocols210.dproj"/>
+    </Target>
+    <Target Name="IndyProtocols210:Clean" DependsOnTargets="IndySystem210:Clean;IndyCore210:Clean">
+        <MSBuild Projects="Protocols\IndyProtocols210.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IndyProtocols210:Make" DependsOnTargets="IndySystem210:Make;IndyCore210:Make">
+        <MSBuild Projects="Protocols\IndyProtocols210.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclIndyCore210" DependsOnTargets="IndySystem210;IndyCore210">
+        <MSBuild Projects="Core\dclIndyCore210.dproj"/>
+    </Target>
+    <Target Name="dclIndyCore210:Clean" DependsOnTargets="IndySystem210:Clean;IndyCore210:Clean">
+        <MSBuild Projects="Core\dclIndyCore210.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclIndyCore210:Make" DependsOnTargets="IndySystem210:Make;IndyCore210:Make">
+        <MSBuild Projects="Core\dclIndyCore210.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclIndyProtocols210" DependsOnTargets="IndySystem210;IndyCore210;IndyProtocols210;dclIndyCore210">
+        <MSBuild Projects="Protocols\dclIndyProtocols210.dproj"/>
+    </Target>
+    <Target Name="dclIndyProtocols210:Clean" DependsOnTargets="IndySystem210:Clean;IndyCore210:Clean;IndyProtocols210:Clean;dclIndyCore210:Clean">
+        <MSBuild Projects="Protocols\dclIndyProtocols210.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclIndyProtocols210:Make" DependsOnTargets="IndySystem210:Make;IndyCore210:Make;IndyProtocols210:Make;dclIndyCore210:Make">
+        <MSBuild Projects="Protocols\dclIndyProtocols210.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="IndySystem210;IndyCore210;IndyProtocols210;dclIndyCore210;dclIndyProtocols210"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="IndySystem210:Clean;IndyCore210:Clean;IndyProtocols210:Clean;dclIndyCore210:Clean;dclIndyProtocols210:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="IndySystem210:Make;IndyCore210:Make;IndyProtocols210:Make;dclIndyCore210:Make;dclIndyProtocols210:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='Android'">
+        <BuildGroupProject Include="Core\dclIndyCore210.dproj">
+            <ProjectGuid>{2C3592FA-A1FB-4298-94E5-C13B699A702A}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Core\IndyCore210.dproj">
+            <ProjectGuid>{7993AB8B-7249-4A9E-9296-7C5270849D94}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\dclIndyProtocols210.dproj">
+            <ProjectGuid>{95B50347-9310-47E1-8B5C-BF2CB4D20945}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="System\IndySystem210.dproj">
+            <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\IndyProtocols210.dproj">
+            <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='OSX'">
+        <BuildGroupProject Include="Core\dclIndyCore210.dproj">
+            <ProjectGuid>{2C3592FA-A1FB-4298-94E5-C13B699A702A}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Core\IndyCore210.dproj">
+            <ProjectGuid>{7993AB8B-7249-4A9E-9296-7C5270849D94}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>OSX32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\dclIndyProtocols210.dproj">
+            <ProjectGuid>{95B50347-9310-47E1-8B5C-BF2CB4D20945}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="System\IndySystem210.dproj">
+            <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>OSX32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\IndyProtocols210.dproj">
+            <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>OSX32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Win32'">
+        <BuildGroupProject Include="Core\dclIndyCore210.dproj">
+            <ProjectGuid>{2C3592FA-A1FB-4298-94E5-C13B699A702A}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Core\IndyCore210.dproj">
+            <ProjectGuid>{7993AB8B-7249-4A9E-9296-7C5270849D94}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\dclIndyProtocols210.dproj">
+            <ProjectGuid>{95B50347-9310-47E1-8B5C-BF2CB4D20945}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="System\IndySystem210.dproj">
+            <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\IndyProtocols210.dproj">
+            <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='iOS Simulator'">
+        <BuildGroupProject Include="Core\dclIndyCore210.dproj">
+            <ProjectGuid>{2C3592FA-A1FB-4298-94E5-C13B699A702A}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Core\IndyCore210.dproj">
+            <ProjectGuid>{7993AB8B-7249-4A9E-9296-7C5270849D94}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>iOSSimulator</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\dclIndyProtocols210.dproj">
+            <ProjectGuid>{95B50347-9310-47E1-8B5C-BF2CB4D20945}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="System\IndySystem210.dproj">
+            <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>iOSSimulator</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\IndyProtocols210.dproj">
+            <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>iOSSimulator</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='iOS Device'">
+        <BuildGroupProject Include="Core\dclIndyCore210.dproj">
+            <ProjectGuid>{2C3592FA-A1FB-4298-94E5-C13B699A702A}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Core\IndyCore210.dproj">
+            <ProjectGuid>{7993AB8B-7249-4A9E-9296-7C5270849D94}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>iOSDevice</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\dclIndyProtocols210.dproj">
+            <ProjectGuid>{95B50347-9310-47E1-8B5C-BF2CB4D20945}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="System\IndySystem210.dproj">
+            <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>iOSDevice</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\IndyProtocols210.dproj">
+            <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>iOSDevice</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Win64'">
+        <BuildGroupProject Include="Core\dclIndyCore210.dproj">
+            <ProjectGuid>{2C3592FA-A1FB-4298-94E5-C13B699A702A}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Core\IndyCore210.dproj">
+            <ProjectGuid>{7993AB8B-7249-4A9E-9296-7C5270849D94}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\dclIndyProtocols210.dproj">
+            <ProjectGuid>{95B50347-9310-47E1-8B5C-BF2CB4D20945}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="System\IndySystem210.dproj">
+            <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\IndyProtocols210.dproj">
+            <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='All Platforms'">
+        <BuildGroupProject Include="Core\dclIndyCore210.dproj">
+            <ProjectGuid>{2C3592FA-A1FB-4298-94E5-C13B699A702A}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Core\IndyCore210.dproj">
+            <ProjectGuid>{7993AB8B-7249-4A9E-9296-7C5270849D94}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android;iOSDevice;iOSSimulator;OSX32;Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\dclIndyProtocols210.dproj">
+            <ProjectGuid>{95B50347-9310-47E1-8B5C-BF2CB4D20945}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="System\IndySystem210.dproj">
+            <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android;iOSDevice;iOSSimulator;OSX32;Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Protocols\IndyProtocols210.dproj">
+            <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+            <Configurations>Debug;Release</Configurations>
+            <Platforms>Android;iOSDevice;iOSSimulator;OSX32;Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+[target]
+dirs=testhash
+
+[require]
+packages=indy
+packagedir=../
+
+[compiler]
+unittargetdir=units/$(CPU_TARGET)-$(OS_TARGET)
+options=-dUseCThreads -gl
+
+[install]
+fpcpackage=y
+
+[rules]
+runtests:
+	$(MAKE) -C testhash
+	testhash/testhash$(SRCEXEEXT)

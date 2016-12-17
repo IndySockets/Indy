@@ -1,0 +1,43 @@
+package IndySecurity100Net;
+
+{$ALIGN 0}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 Security'}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  Borland.Delphi,
+  Borland.VclRtl,
+  IndySystem100Net,
+  IndyCore100Net,
+  IndyProtocols100Net,
+  Mono.Security,
+  System,
+  System.Data,
+  System.XML;
+
+contains
+  IdCarrierStream in 'IdCarrierStream.pas',
+  IdIOHandlerTls in 'IdIOHandlerTls.pas',
+  IdServerIOHandlerTls in 'IdServerIOHandlerTls.pas',
+  IdSocketStream in 'IdSocketStream.pas',
+  IdTlsClientOptions in 'IdTlsClientOptions.pas',
+  IdTlsServerOptions in 'IdTlsServerOptions.pas';
+{$I IdSecurity90ASM90.inc}
+
+end.

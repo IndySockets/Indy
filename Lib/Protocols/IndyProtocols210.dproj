@@ -1,0 +1,427 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
+        <MainSource>IndyProtocols210.dpk</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <TargetedPlatforms>95</TargetedPlatforms>
+        <AppType>Package</AppType>
+        <FrameworkType>None</FrameworkType>
+        <ProjectVersion>16.0</ProjectVersion>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Android' and '$(Base)'=='true') or '$(Base_Android)'!=''">
+        <Base_Android>true</Base_Android>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSDevice' and '$(Base)'=='true') or '$(Base_iOSDevice)'!=''">
+        <Base_iOSDevice>true</Base_iOSDevice>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimulator' and '$(Base)'=='true') or '$(Base_iOSSimulator)'!=''">
+        <Base_iOSSimulator>true</Base_iOSSimulator>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Base)'=='true') or '$(Base_OSX32)'!=''">
+        <Base_OSX32>true</Base_OSX32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSDevice' and '$(Cfg_2)'=='true') or '$(Cfg_2_iOSDevice)'!=''">
+        <Cfg_2_iOSDevice>true</Cfg_2_iOSDevice>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='iOSSimulator' and '$(Cfg_2)'=='true') or '$(Cfg_2_iOSSimulator)'!=''">
+        <Cfg_2_iOSSimulator>true</Cfg_2_iOSSimulator>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Cfg_2)'=='true') or '$(Cfg_2_OSX32)'!=''">
+        <Cfg_2_OSX32>true</Cfg_2_OSX32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_E>false</DCC_E>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
+        <DCC_N>false</DCC_N>
+        <SanitizedProjectName>IndyProtocols210</SanitizedProjectName>
+        <DCC_F>false</DCC_F>
+        <GenPackage>true</GenPackage>
+        <DCC_ImageBase>00400000</DCC_ImageBase>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
+        <DCC_Define>HAS_PKG_RTL;$(DCC_Define)</DCC_Define>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
+        <DCC_Description>Indy 10 Protocols</DCC_Description>
+        <GenDll>true</GenDll>
+        <DCC_S>false</DCC_S>
+        <DCC_K>false</DCC_K>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Android)'!=''">
+        <VerInfo_Keys>package=com.embarcadero.$(MSBuildProjectName);label=$(MSBuildProjectName);versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=preferExternal;largeHeap=False;theme=TitleBar;hardwareAccelerated=true</VerInfo_Keys>
+        <BT_BuildType>Debug</BT_BuildType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_iOSDevice)'!=''">
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;CFBundleResourceSpecification=ResourceRules.plist</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_iOSSimulator)'!=''">
+        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;CFBundleResourceSpecification=ResourceRules.plist</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_OSX32)'!=''">
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_ObjOutput>..\Output\OBJ\$(Platform)\$(Config)</DCC_ObjOutput>
+        <DCC_HppOutput>..\Output\HPP\$(Platform)\$(Config)</DCC_HppOutput>
+        <DCC_BpiOutput>..\Output\BPI\$(Platform)\$(Config)</DCC_BpiOutput>
+        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_iOSDevice)'!=''">
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_iOSSimulator)'!=''">
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_OSX32)'!=''">
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="IndySystem210.dcp"/>
+        <DCCReference Include="IndyCore210.dcp"/>
+        <DCCReference Include="IdASN1Util.pas"/>
+        <DCCReference Include="IdAllAuthentications.pas"/>
+        <DCCReference Include="IdAllFTPListParsers.pas"/>
+        <DCCReference Include="IdAllHeaderCoders.pas"/>
+        <DCCReference Include="IdAttachment.pas"/>
+        <DCCReference Include="IdAttachmentFile.pas"/>
+        <DCCReference Include="IdAttachmentMemory.pas"/>
+        <DCCReference Include="IdAuthentication.pas"/>
+        <DCCReference Include="IdAuthenticationDigest.pas"/>
+        <DCCReference Include="IdAuthenticationManager.pas"/>
+        <DCCReference Include="IdAuthenticationNTLM.pas"/>
+        <DCCReference Include="IdAuthenticationSSPI.pas"/>
+        <DCCReference Include="IdBlockCipherIntercept.pas"/>
+        <DCCReference Include="IdChargenServer.pas"/>
+        <DCCReference Include="IdChargenUDPServer.pas"/>
+        <DCCReference Include="IdCharsets.pas"/>
+        <DCCReference Include="IdCoder.pas"/>
+        <DCCReference Include="IdCoder00E.pas"/>
+        <DCCReference Include="IdCoder3to4.pas"/>
+        <DCCReference Include="IdCoderBinHex4.pas"/>
+        <DCCReference Include="IdCoderHeader.pas"/>
+        <DCCReference Include="IdCoderMIME.pas"/>
+        <DCCReference Include="IdCoderQuotedPrintable.pas"/>
+        <DCCReference Include="IdCoderUUE.pas"/>
+        <DCCReference Include="IdCoderXXE.pas"/>
+        <DCCReference Include="IdCompressionIntercept.pas"/>
+        <DCCReference Include="IdCompressorZLib.pas"/>
+        <DCCReference Include="IdConnectThroughHttpProxy.pas"/>
+        <DCCReference Include="IdContainers.pas"/>
+        <DCCReference Include="IdCookie.pas"/>
+        <DCCReference Include="IdCookieManager.pas"/>
+        <DCCReference Include="IdCustomHTTPServer.pas"/>
+        <DCCReference Include="IdDICT.pas"/>
+        <DCCReference Include="IdDICTCommon.pas"/>
+        <DCCReference Include="IdDICTServer.pas"/>
+        <DCCReference Include="IdDNSCommon.pas"/>
+        <DCCReference Include="IdDNSResolver.pas"/>
+        <DCCReference Include="IdDNSServer.pas"/>
+        <DCCReference Include="IdDateTimeStamp.pas"/>
+        <DCCReference Include="IdDayTime.pas"/>
+        <DCCReference Include="IdDayTimeServer.pas"/>
+        <DCCReference Include="IdDayTimeUDP.pas"/>
+        <DCCReference Include="IdDayTimeUDPServer.pas"/>
+        <DCCReference Include="IdDiscardServer.pas"/>
+        <DCCReference Include="IdDiscardUDPServer.pas"/>
+        <DCCReference Include="IdEMailAddress.pas"/>
+        <DCCReference Include="IdEcho.pas"/>
+        <DCCReference Include="IdEchoServer.pas"/>
+        <DCCReference Include="IdEchoUDP.pas"/>
+        <DCCReference Include="IdEchoUDPServer.pas"/>
+        <DCCReference Include="IdExplicitTLSClientServerBase.pas"/>
+        <DCCReference Include="IdFIPS.pas"/>
+        <DCCReference Include="IdFSP.pas"/>
+        <DCCReference Include="IdFTP.pas"/>
+        <DCCReference Include="IdFTPBaseFileSystem.pas"/>
+        <DCCReference Include="IdFTPCommon.pas"/>
+        <DCCReference Include="IdFTPList.pas"/>
+        <DCCReference Include="IdFTPListOutput.pas"/>
+        <DCCReference Include="IdFTPListParseAS400.pas"/>
+        <DCCReference Include="IdFTPListParseBase.pas"/>
+        <DCCReference Include="IdFTPListParseBullGCOS7.pas"/>
+        <DCCReference Include="IdFTPListParseBullGCOS8.pas"/>
+        <DCCReference Include="IdFTPListParseChameleonNewt.pas"/>
+        <DCCReference Include="IdFTPListParseCiscoIOS.pas"/>
+        <DCCReference Include="IdFTPListParseDistinctTCPIP.pas"/>
+        <DCCReference Include="IdFTPListParseEPLF.pas"/>
+        <DCCReference Include="IdFTPListParseHellSoft.pas"/>
+        <DCCReference Include="IdFTPListParseIEFTPGateway.pas"/>
+        <DCCReference Include="IdFTPListParseKA9Q.pas"/>
+        <DCCReference Include="IdFTPListParseMPEiX.pas"/>
+        <DCCReference Include="IdFTPListParseMVS.pas"/>
+        <DCCReference Include="IdFTPListParseMicrowareOS9.pas"/>
+        <DCCReference Include="IdFTPListParseMusic.pas"/>
+        <DCCReference Include="IdFTPListParseNCSAForDOS.pas"/>
+        <DCCReference Include="IdFTPListParseNCSAForMACOS.pas"/>
+        <DCCReference Include="IdFTPListParseNovellNetware.pas"/>
+        <DCCReference Include="IdFTPListParseNovellNetwarePSU.pas"/>
+        <DCCReference Include="IdFTPListParseOS2.pas"/>
+        <DCCReference Include="IdFTPListParsePCNFSD.pas"/>
+        <DCCReference Include="IdFTPListParsePCTCP.pas"/>
+        <DCCReference Include="IdFTPListParseStercomOS390Exp.pas"/>
+        <DCCReference Include="IdFTPListParseStercomUnixEnt.pas"/>
+        <DCCReference Include="IdFTPListParseStratusVOS.pas"/>
+        <DCCReference Include="IdFTPListParseSuperTCP.pas"/>
+        <DCCReference Include="IdFTPListParseTOPS20.pas"/>
+        <DCCReference Include="IdFTPListParseTSXPlus.pas"/>
+        <DCCReference Include="IdFTPListParseTandemGuardian.pas"/>
+        <DCCReference Include="IdFTPListParseUnisysClearPath.pas"/>
+        <DCCReference Include="IdFTPListParseUnix.pas"/>
+        <DCCReference Include="IdFTPListParseVM.pas"/>
+        <DCCReference Include="IdFTPListParseVMS.pas"/>
+        <DCCReference Include="IdFTPListParseVSE.pas"/>
+        <DCCReference Include="IdFTPListParseVxWorks.pas"/>
+        <DCCReference Include="IdFTPListParseWfFTP.pas"/>
+        <DCCReference Include="IdFTPListParseWinQVTNET.pas"/>
+        <DCCReference Include="IdFTPListParseWindowsNT.pas"/>
+        <DCCReference Include="IdFTPListParseXecomMicroRTOS.pas"/>
+        <DCCReference Include="IdFTPListTypes.pas"/>
+        <DCCReference Include="IdFTPServer.pas"/>
+        <DCCReference Include="IdFTPServerContextBase.pas"/>
+        <DCCReference Include="IdFinger.pas"/>
+        <DCCReference Include="IdFingerServer.pas"/>
+        <DCCReference Include="IdGlobalProtocols.pas"/>
+        <DCCReference Include="IdGopher.pas"/>
+        <DCCReference Include="IdGopherConsts.pas"/>
+        <DCCReference Include="IdGopherServer.pas"/>
+        <DCCReference Include="IdHMAC.pas"/>
+        <DCCReference Include="IdHMACMD5.pas"/>
+        <DCCReference Include="IdHMACSHA1.pas"/>
+        <DCCReference Include="IdHTTP.pas"/>
+        <DCCReference Include="IdHTTPHeaderInfo.pas"/>
+        <DCCReference Include="IdHTTPProxyServer.pas"/>
+        <DCCReference Include="IdHTTPServer.pas"/>
+        <DCCReference Include="IdHash.pas"/>
+        <DCCReference Include="IdHashCRC.pas"/>
+        <DCCReference Include="IdHashElf.pas"/>
+        <DCCReference Include="IdHashMessageDigest.pas"/>
+        <DCCReference Include="IdHashSHA.pas"/>
+        <DCCReference Include="IdHeaderCoder2022JP.pas"/>
+        <DCCReference Include="IdHeaderCoderBase.pas"/>
+        <DCCReference Include="IdHeaderCoderIndy.pas"/>
+        <DCCReference Include="IdHeaderCoderPlain.pas"/>
+        <DCCReference Include="IdHeaderList.pas"/>
+        <DCCReference Include="IdIMAP4.pas"/>
+        <DCCReference Include="IdIMAP4Server.pas"/>
+        <DCCReference Include="IdIPAddrMon.pas"/>
+        <DCCReference Include="IdIPWatch.pas"/>
+        <DCCReference Include="IdIRC.pas"/>
+        <DCCReference Include="IdIdent.pas"/>
+        <DCCReference Include="IdIdentServer.pas"/>
+        <DCCReference Include="IdIrcServer.pas"/>
+        <DCCReference Include="IdLPR.pas"/>
+        <DCCReference Include="IdMailBox.pas"/>
+        <DCCReference Include="IdMappedFTP.pas"/>
+        <DCCReference Include="IdMappedPOP3.pas"/>
+        <DCCReference Include="IdMappedPortTCP.pas"/>
+        <DCCReference Include="IdMappedPortUDP.pas"/>
+        <DCCReference Include="IdMappedTelnet.pas"/>
+        <DCCReference Include="IdMessage.pas"/>
+        <DCCReference Include="IdMessageBuilder.pas"/>
+        <DCCReference Include="IdMessageClient.pas"/>
+        <DCCReference Include="IdMessageCoder.pas"/>
+        <DCCReference Include="IdMessageCoderBinHex4.pas"/>
+        <DCCReference Include="IdMessageCoderMIME.pas"/>
+        <DCCReference Include="IdMessageCoderQuotedPrintable.pas"/>
+        <DCCReference Include="IdMessageCoderUUE.pas"/>
+        <DCCReference Include="IdMessageCoderXXE.pas"/>
+        <DCCReference Include="IdMessageCoderYenc.pas"/>
+        <DCCReference Include="IdMessageCollection.pas"/>
+        <DCCReference Include="IdMessageHelper.pas"/>
+        <DCCReference Include="IdMessageParts.pas"/>
+        <DCCReference Include="IdMultipartFormData.pas"/>
+        <DCCReference Include="IdNNTP.pas"/>
+        <DCCReference Include="IdNNTPServer.pas"/>
+        <DCCReference Include="IdNTLM.pas"/>
+        <DCCReference Include="IdNetworkCalculator.pas"/>
+        <DCCReference Include="IdOSFileName.pas"/>
+        <DCCReference Include="IdOTPCalculator.pas"/>
+        <DCCReference Include="IdPOP3.pas"/>
+        <DCCReference Include="IdPOP3Server.pas"/>
+        <DCCReference Include="IdQOTDUDP.pas"/>
+        <DCCReference Include="IdQOTDUDPServer.pas"/>
+        <DCCReference Include="IdQotd.pas"/>
+        <DCCReference Include="IdQotdServer.pas"/>
+        <DCCReference Include="IdRSH.pas"/>
+        <DCCReference Include="IdRSHServer.pas"/>
+        <DCCReference Include="IdRemoteCMDClient.pas"/>
+        <DCCReference Include="IdRemoteCMDServer.pas"/>
+        <DCCReference Include="IdReplyFTP.pas"/>
+        <DCCReference Include="IdReplyIMAP4.pas"/>
+        <DCCReference Include="IdReplyPOP3.pas"/>
+        <DCCReference Include="IdReplySMTP.pas"/>
+        <DCCReference Include="IdResourceStringsOpenSSL.pas"/>
+        <DCCReference Include="IdResourceStringsProtocols.pas"/>
+        <DCCReference Include="IdResourceStringsSSPI.pas"/>
+        <DCCReference Include="IdResourceStringsUriUtils.pas"/>
+        <DCCReference Include="IdRexec.pas"/>
+        <DCCReference Include="IdRexecServer.pas"/>
+        <DCCReference Include="IdSASL.pas"/>
+        <DCCReference Include="IdSASLAnonymous.pas"/>
+        <DCCReference Include="IdSASLCollection.pas"/>
+        <DCCReference Include="IdSASLDigest.pas"/>
+        <DCCReference Include="IdSASLExternal.pas"/>
+        <DCCReference Include="IdSASLLogin.pas"/>
+        <DCCReference Include="IdSASLOTP.pas"/>
+        <DCCReference Include="IdSASLPlain.pas"/>
+        <DCCReference Include="IdSASLSKey.pas"/>
+        <DCCReference Include="IdSASLUserPass.pas"/>
+        <DCCReference Include="IdSASL_CRAMBase.pas"/>
+        <DCCReference Include="IdSASL_CRAM_MD5.pas"/>
+        <DCCReference Include="IdSASL_CRAM_SHA1.pas"/>
+        <DCCReference Include="IdSMTP.pas"/>
+        <DCCReference Include="IdSMTPBase.pas"/>
+        <DCCReference Include="IdSMTPRelay.pas"/>
+        <DCCReference Include="IdSMTPServer.pas"/>
+        <DCCReference Include="IdSNMP.pas"/>
+        <DCCReference Include="IdSNPP.pas"/>
+        <DCCReference Include="IdSNTP.pas"/>
+        <DCCReference Include="IdSSL.pas"/>
+        <DCCReference Include="IdSSLOpenSSL.pas"/>
+        <DCCReference Include="IdSSLOpenSSLHeaders.pas"/>
+        <DCCReference Include="IdSSPI.pas"/>
+        <DCCReference Include="IdServerInterceptLogBase.pas"/>
+        <DCCReference Include="IdServerInterceptLogEvent.pas"/>
+        <DCCReference Include="IdServerInterceptLogFile.pas"/>
+        <DCCReference Include="IdSocksServer.pas"/>
+        <DCCReference Include="IdStrings.pas"/>
+        <DCCReference Include="IdSysLog.pas"/>
+        <DCCReference Include="IdSysLogMessage.pas"/>
+        <DCCReference Include="IdSysLogServer.pas"/>
+        <DCCReference Include="IdSystat.pas"/>
+        <DCCReference Include="IdSystatServer.pas"/>
+        <DCCReference Include="IdSystatUDP.pas"/>
+        <DCCReference Include="IdSystatUDPServer.pas"/>
+        <DCCReference Include="IdTelnet.pas"/>
+        <DCCReference Include="IdTelnetServer.pas"/>
+        <DCCReference Include="IdText.pas"/>
+        <DCCReference Include="IdTime.pas"/>
+        <DCCReference Include="IdTimeServer.pas"/>
+        <DCCReference Include="IdTimeUDP.pas"/>
+        <DCCReference Include="IdTimeUDPServer.pas"/>
+        <DCCReference Include="IdTrivialFTP.pas"/>
+        <DCCReference Include="IdTrivialFTPBase.pas"/>
+        <DCCReference Include="IdTrivialFTPServer.pas"/>
+        <DCCReference Include="IdURI.pas"/>
+        <DCCReference Include="IdUnixTime.pas"/>
+        <DCCReference Include="IdUnixTimeServer.pas"/>
+        <DCCReference Include="IdUnixTimeUDP.pas"/>
+        <DCCReference Include="IdUnixTimeUDPServer.pas"/>
+        <DCCReference Include="IdUriUtils.pas"/>
+        <DCCReference Include="IdUserAccounts.pas"/>
+        <DCCReference Include="IdUserPassProvider.pas"/>
+        <DCCReference Include="IdVCard.pas"/>
+        <DCCReference Include="IdWebDAV.pas"/>
+        <DCCReference Include="IdWhoIsServer.pas"/>
+        <DCCReference Include="IdWhois.pas"/>
+        <DCCReference Include="IdZLib.pas"/>
+        <DCCReference Include="IdZLibCompressorBase.pas"/>
+        <DCCReference Include="IdZLibConst.pas"/>
+        <DCCReference Include="IdZLibHeaders.pas"/>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>Package</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">IndyProtocols210.dpk</Source>
+                </Source>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Android">True</Platform>
+                <Platform value="iOSDevice">True</Platform>
+                <Platform value="iOSSimulator" ActiveMobileDevice="iPhone">True</Platform>
+                <Platform value="OSX32">True</Platform>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

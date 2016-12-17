@@ -1,0 +1,38 @@
+package dclIndyCore90Net;
+
+{$ALIGN 0}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  System.Windows.Forms,
+  Borland.Studio.Vcl.Design,
+  IndySystem90Net,
+  IndyCore90Net;
+
+contains
+  IdAboutDotNET in 'IdAboutDotNET.pas',
+  IdAntiFreeze in 'IdAntiFreeze.pas',
+  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas',
+  IdRegisterCore in 'IdRegisterCore.pas';
+{$I IddclCore90ASM90.inc}
+
+end.

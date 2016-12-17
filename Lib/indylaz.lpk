@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="indylaz"/>
+    <Type Value="RunAndDesignTime"/>
+    <AddToProjectUsesSection Value="True"/>
+    <Author Value="Chad Z. Hower (Kudzu) and the Indy Pit Crew - http://www.indyproject.org/"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value=".;Core;Design;FCL;Protocols;Security;SuperCore;System"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <SyntaxMode Value="Delphi"/>
+          <UseAnsiStrings Value="False"/>
+        </SyntaxOptions>
+      </Parsing>
+    </CompilerOptions>
+    <License Value="Duel License
+
+MPL 
+
+Indy Modified BSD License
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation, about box and/or other materials provided with the distribution. 
+
+No personal names or organizations names associated with the Indy project may be used to endorse or promote products derived from this software without specific prior written permission of the specific individual or organization. 
+
+THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;quot;AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"/>
+    <Version Major="10" Minor="6" Release="2"/>
+    <Files Count="16">
+      <Item1>
+        <Filename Value="Core\IdAboutVCL.pas"/>
+        <UnitName Value="IdAboutVCL"/>
+      </Item1>
+      <Item2>
+        <Filename Value="Core\IdAboutVCL.lrs"/>
+        <Type Value="LRS"/>
+      </Item2>
+      <Item3>
+        <Filename Value="Core\IdAntiFreeze.pas"/>
+        <UnitName Value="IdAntiFreeze"/>
+      </Item3>
+      <Item4>
+        <Filename Value="Core\IdCoreDsnRegister.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="IdCoreDsnRegister"/>
+      </Item4>
+      <Item5>
+        <Filename Value="Core\IdDsnCoreResourceStrings.pas"/>
+        <UnitName Value="IdDsnCoreResourceStrings"/>
+      </Item5>
+      <Item6>
+        <Filename Value="Core\IdDsnPropEdBindingVCL.pas"/>
+        <UnitName Value="IdDsnPropEdBindingVCL"/>
+      </Item6>
+      <Item7>
+        <Filename Value="Protocols\IdDsnRegister.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="IdDsnRegister"/>
+      </Item7>
+      <Item8>
+        <Filename Value="Protocols\IdDsnResourceStrings.pas"/>
+        <UnitName Value="IdDsnResourceStrings"/>
+      </Item8>
+      <Item9>
+        <Filename Value="Protocols\IdDsnSASLListEditorFormVCL.pas"/>
+        <UnitName Value="IdDsnSASLListEditorFormVCL"/>
+      </Item9>
+      <Item10>
+        <Filename Value="Protocols\IdDsnSASLListEditorFormVCL.lrs"/>
+        <Type Value="LRS"/>
+      </Item10>
+      <Item11>
+        <Filename Value="Protocols\IdRegister.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="IdRegister"/>
+      </Item11>
+      <Item12>
+        <Filename Value="Protocols\IdRegister.lrs"/>
+        <Type Value="LRS"/>
+      </Item12>
+      <Item13>
+        <Filename Value="Core\IdRegisterCore.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="IdRegisterCore"/>
+      </Item13>
+      <Item14>
+        <Filename Value="Core\IdRegisterCore.lrs"/>
+        <Type Value="LRS"/>
+      </Item14>
+      <Item15>
+        <Filename Value="System\IdStreamVCL.pas"/>
+        <UnitName Value="IdStreamVCL"/>
+      </Item15>
+      <Item16>
+        <Filename Value="System\IdStream.pas"/>
+        <UnitName Value="IdStream"/>
+      </Item16>
+    </Files>
+    <RequiredPkgs Count="3">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="IDEIntf"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="FCL"/>
+        <MinVersion Major="1" Valid="True"/>
+      </Item3>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

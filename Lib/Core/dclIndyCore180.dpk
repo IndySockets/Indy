@@ -1,0 +1,46 @@
+package dclIndyCore180;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$DEFINE VER250}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESIGNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  designide,
+  IndySystem180,
+  IndyCore180;
+
+contains
+  IdAboutVCL in 'IdAboutVCL.pas',
+  IdAntiFreeze in 'IdAntiFreeze.pas',
+  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingVCL in 'IdDsnPropEdBindingVCL.pas',
+  IdRegisterCore in 'IdRegisterCore.pas';
+
+end.

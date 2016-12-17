@@ -1,0 +1,173 @@
+                       README for the Indy 10 FPC Version
+
+This is an effort to make Indy 10 work in FreePascal so that it is available on 
+a wide variety of platforms. At the same time, we want to follow the Indy 
+Coding Conventions and Standards" 
+(http://www.indyproject.org/sockets/Teams/Core/Docs/Standards/) as much as we 
+can so that NET is supported at the same time. The goal is to support as many 
+systems as we can.
+
+Some success has been reported with:
+
+Win32
+Win64
+Linux
+FreeBSD
+
+Currently, we would like to support the following systems.
+
+WinCE
+Mac OS/X (Darwin))
+
+Remember that the success of this effort depends upon you and what you 
+contribute. Most of this is being done by people who choose to volunteer their 
+limited time.
+
+                                  Requirements
+
+This distribution requires FreePascal 2.2.0. We are unable to support earlier 
+2.0 releases because there are some bugs in those versions and the package 
+structure changed.
+
+                                    License
+
+Read the COPYING file located in this distribution.
+
+                           Installation Instructions
+
+If you have a RPM-based distribution (such as Fedora or Mandravia) and you 
+install FreePascal as root, we recommend using the Indy RPM. As a user, setup 
+your user account to build RPM's with the advice from 
+http://www.rpm.org/hintskinks/buildtree/ and then use the makeindyrpm.sh script 
+to build the Indy RPM's. Then install the indy-fpc and indy-fpc-src RPM's that 
+you created. We do NOT distribute precompiled Indy RPM binaries. We do permit 
+others to build RPM's for distribution.
+
+If you have a Debian-based Linux distribution and you have installed Free 
+Pascal as a Debian package, you can make .deb packages with "chmod 755 
+fpc/debian/rules", "dpkg-buildpackag -rfakeroot" and than install them with 
+"dpkg -install indy*.deb".
+
+Otherwise, do the following:
+
+Change directory to "fpc" and run "make all". If you are using 
+Windows, you must use the GNU BinUtils Make program that is included in most 
+FreePascal distributions.
+ 
+Run "make all" followed by "make install" from the fpc directory. You may 
+be able to specify an install prefix by adding "INSTALL_PREFIX=fpcbasedir".
+
+If you are running Lazarus, you may install the design-time package into 
+Lazarus. Just open, compile, and install the indylaz.lpk file located in the 
+lazarus directory.  Those design-time packages have not been tested yet.
+
+You probably should read the Development Tutorial (aka Build FAQ) at 
+http://www.stack.nl/~marcov/buildfaq.pdf for more information about the 
+FreePascal build process.
+
+In your programs, you should have the following in your main program file:
+ 
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads, 
+  {$ENDIF}{$ENDIF}
+
+defined as the first entry in your uses clause. Then when compiling, use the 
+"-dUseCThreads" parameter. This is important on Unix systems because Indy uses 
+multithreading in most servers and in some client components.
+
+                                  Known Issues
+
+The Lazarus design-time packages have not been tested yet.
+
+In IdStackLinux and IdStackUnix, we need a working TIdStackLinux.ReceiveMsg and 
+TIdStackUnix.ReceiveMsg method that the standard Posix recvmsg system call. 
+This the definition of several macros (CMSG_FIRSTHDR, CMSG_NXTHDR, CMSG_DATA, 
+CMSG_SPACE, and CMSG_LEN) plus recvmsg may need to be defined. This has been 
+reported as bug 0009430.
+
+                                For Linux Users
+
+In Linux for i386, you can choose between using IdStackUnix or IdStackLinux. 
+The IdStackLinux backend uses the libc Kylix compatibility units instead of the 
+unit sockets and netdb. To use the Kyclix compatability units, pass the 
+-dKYLIX_COMPAT parameter to the Makefile OPTS= parameter. If you are using 
+another architecture, IdStackUnix will be used.
+
+                                  ZLib Support
+
+Indy is capable of using ZLib for compression capabilities using the ZLib 
+library (http://www.zlib.net/). If you are using TIdCompressorZLib or 
+TIdCompressionIntercept, your program will require ZLib. On most Unix-systems, 
+ZLib is usually installed because a lot of things depend on it. The ZLib 
+version available for an operating system may older than 1.2.3 so we can not 
+guarantee how well those will work.
+
+On Win32 Operating Systems (Win9x and WinNT), there is no standard ZLib 
+installed by default. For Windows, you should install the official ZLIB1.DLL 
+from the http://www.zlib.net website in the same directory as your program 
+because there's several .DLL's with the same name and various versions may be 
+floating around. The ZLIB1.DLL you use must use the cdecl conventions. We 
+eventually hope to get ZLib statically linked into the Indy libraries like we 
+do with Borland Delphi versions.
+
+On Win64 Operating SYstems, there is an unofficial Windows version at available 
+at http://www.winimage.com/zLibDll/ . You will need to use the ZLib version in 
+the "zlib123dllx64.zip" available on that website.
+
+We do not yet support for ZLib in Windows CE because I have not yet located a 
+Windows CE .DLL for the current ZLib version 1.2.3.
+
+We strongly urge you to use ZLib 1.2.3. Indy might work with some older 
+versions of ZLIB but do not rely on that. Indy uses the relatively new 
+functions; inflateBackInit_, inflateBackEnd, and inflateBack and we may use 
+other new functions as time goes on. The newest ZLib version also fixes bugs 
+including some security issues.
+
+The Indy library itself has no direct dependencies on ZLib and you could use it 
+with ZLib because the ZLib shared library is dynamically loaded.
+
+                                OpenSSL Support
+
+Indy is capable of using OpenSSL for some encryption functions such as NTLM and 
+SSL. If you are using the IdAuthenticationNTLM unit, 
+TIdSSLIOHandlerSocketOpenSSL or TIdServerIOHandlerSSLOpenSSL, your program will 
+require the OpenSSL libraries.
+
+On many Unix systems, OpenSSL is installed by default but on a few, you may 
+have to install it yourself. In FreeBSD 6.2, Some checksum functionality is not 
+available. FreeBSD uses a 9.7.x version of OpenSSL that doesn't have that 
+functionality. FreeBSD 5.x is not tested or supported so your milage may vary.
+
+On Win32, you can use the standard .DLL's from 
+http://www.openssl.org/related/binaries.html.
+
+For a Win64 bit version of OpenSSL, We have a distribution at 
+http://www.indyproject.org/Sockets/fpc/OpenSSLforWin64.aspx or you can compile 
+the .DLL's yourself. Install the "Microsoft Platform SDK for Windows Server 
+2003 R2" and ActivePerl located at 
+http://www.activestate.com/Products/activeperl/). More recent Microsoft SDK's 
+do not include the ml64 assembler and OpenSSL requires it. To compile it, go to 
+"Microsoft Platform SDK for Windows Server 2003 R2|Open Build Environment 
+Window|Windows XP 64-bit Build Environment|Set Windows XP x64 Build Environment 
+(Retail)" on the Start Menu. Then do the following:
+
+> perl Configure VC-WIN64A
+> ms\do_win64a
+> nmake -f ms\ntdll.mak
+> cd out32dll
+> ..\ms\test
+
+Note that some jurisdictions regulate the use and export of strong cryptography 
+while others may prohibit the use of strong cryptography but other nations may 
+have no restriction at all. If you have any questions about using or exporting 
+SSL, ask your lawyer.  We can NOT give you legal advise.
+
+                                 Contacting Us
+
+For peer support, you may use the 
+news://news.atozed.com/atozedsoftware.indy.fpc newsgroup. Do not E-Mail us if 
+you need help with your program or using Indy. Only E-Mail us if you have 
+specific improvements, code contributions, or wish to report success with some 
+particular target operating systems. Remember that all Indy developers 
+are volunteers who give their time without any compensation.
+
