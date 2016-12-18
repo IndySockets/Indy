@@ -1029,6 +1029,7 @@ Lib/Source/IdIrcServer.pas -text
 Lib/Source/IdLDAPV3.pas -text
 Lib/Source/IdLDAPV3Coder.pas -text
 Lib/Source/IdLPR.pas -text
+Lib/Source/IdLibSuffix.inc -text
 Lib/Source/IdLogBase.pas -text
 Lib/Source/IdLogDebug.pas -text
 Lib/Source/IdLogEvent.pas -text
