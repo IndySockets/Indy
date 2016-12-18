@@ -1897,7 +1897,7 @@ var
 
 {$IFDEF UNIX}
 const
-  {$IFDEF HAS_SharedPrefix}
+  {$IFDEF HAS_SharedSuffix}
   LIBEXT = '.' + SharedSuffix; {do not localize}
   {$ELSE}
     {$UNDEF LIBEXT_IS_DYLIB}
@@ -9208,11 +9208,11 @@ end;
 {$IFDEF WINDOWS}
 function IndyWindowsMajorVersion: Integer;
 begin
-    {$IFDEF WINCE}
+  {$IFDEF WINCE}
   Result := SysUtils.WinCEMajorVersion;
-    {$ELSE}
+  {$ELSE}
   Result := SysUtils.Win32MajorVersion;
-    {$ENDIF}
+  {$ENDIF}
 end;
 
 function IndyWindowsMinorVersion: Integer;
