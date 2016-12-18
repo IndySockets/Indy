@@ -1,4 +1,4 @@
-library DsnIndy90;
+library DsnIndy;
 
 
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll'}
@@ -7,7 +7,7 @@ library DsnIndy90;
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.Windows.Forms.dll'}
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.Data.dll'}
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.Design.dll'}
-{%DelphiDotNetAssemblyCompiler '..\system\IndySystem90Net.dll'}
+{%DelphiDotNetAssemblyCompiler '..\system\IndySystemNet.dll'}
 {$R 'IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources' 'IdDsnPropEdBindingNET.resx'}
 
 uses

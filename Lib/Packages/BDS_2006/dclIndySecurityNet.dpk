@@ -1,4 +1,4 @@
-package IndySecurity90Net;
+package dclIndySecurityNet;
 
 {$ALIGN 0}
 {$BOOLEVAL OFF}
@@ -17,27 +17,24 @@ package IndySecurity90Net;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Security'}
-{$RUNONLY}
+{$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl,
-  IndySystem90Net,
-  IndyCore90Net,
-  IndyProtocols90Net,
+  Borland.Studio.Vcl.Design,
+  IndySystemNet,
+  IndyCoreNet,
+  IndyProtocolsNet,
+  IndySecurityNet,
+  dclIndyCoreNet,
+  dclIndyProtocolsNet,
   Mono.Security,
   System,
   System.Data,
   System.XML;
 
 contains
-  IdCarrierStream in 'IdCarrierStream.pas',
-  IdIOHandlerTls in 'IdIOHandlerTls.pas',
-  IdServerIOHandlerTls in 'IdServerIOHandlerTls.pas',
-  IdSocketStream in 'IdSocketStream.pas',
-  IdTlsClientOptions in 'IdTlsClientOptions.pas',
-  IdTlsServerOptions in 'IdTlsServerOptions.pas';
-{$I IdSecurity90ASM90.inc}
+  IdRegisterSecurity in '..\..\Source\IdRegisterSecurity.pas';
+{$I ..\..\Source\IddclSecurity90ASM90.inc}
 
 end.

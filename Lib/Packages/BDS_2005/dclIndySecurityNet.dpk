@@ -1,4 +1,4 @@
-package dclIndySecurity90Net;
+package dclIndySecurityNet;
 
 {$ALIGN 0}
 {$BOOLEVAL OFF}
@@ -22,19 +22,19 @@ package dclIndySecurity90Net;
 
 requires
   Borland.Studio.Vcl.Design,
-  IndySystem90Net,
-  IndyCore90Net,
-  IndyProtocols90Net,
-  IndySecurity90Net,
-  dclIndyCore90Net,
-  dclIndyProtocols90Net,
+  IndySystemNet,
+  IndyCoreNet,
+  IndyProtocolsNet,
+  IndySecurityNet,
+  dclIndyCoreNet,
+  dclIndyProtocolsNet,
   Mono.Security,
   System,
   System.Data,
   System.XML;
 
 contains
-  IdRegisterSecurity in 'IdRegisterSecurity.pas';
-{$I IddclSecurity90ASM90.inc}
+  IdRegisterSecurity in '..\..\Source\IdRegisterSecurity.pas';
+{$I ..\..\Source\IddclSecurity90ASM90.inc}
 
 end.

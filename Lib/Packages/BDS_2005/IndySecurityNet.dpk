@@ -1,4 +1,4 @@
-package IndySecurity100Net;
+package IndySecurityNet;
 
 {$ALIGN 0}
 {$BOOLEVAL OFF}
@@ -23,21 +23,21 @@ package IndySecurity100Net;
 requires
   Borland.Delphi,
   Borland.VclRtl,
-  IndySystem100Net,
-  IndyCore100Net,
-  IndyProtocols100Net,
+  IndySystemNet,
+  IndyCoreNet,
+  IndyProtocolsNet,
   Mono.Security,
   System,
   System.Data,
   System.XML;
 
 contains
-  IdCarrierStream in 'IdCarrierStream.pas',
-  IdIOHandlerTls in 'IdIOHandlerTls.pas',
-  IdServerIOHandlerTls in 'IdServerIOHandlerTls.pas',
-  IdSocketStream in 'IdSocketStream.pas',
-  IdTlsClientOptions in 'IdTlsClientOptions.pas',
-  IdTlsServerOptions in 'IdTlsServerOptions.pas';
-{$I IdSecurity90ASM90.inc}
+  IdCarrierStream in '..\..\Source\IdCarrierStream.pas',
+  IdIOHandlerTls in '..\..\Source\IdIOHandlerTls.pas',
+  IdServerIOHandlerTls in '..\..\Source\IdServerIOHandlerTls.pas',
+  IdSocketStream in '..\..\Source\IdSocketStream.pas',
+  IdTlsClientOptions in '..\..\Source\IdTlsClientOptions.pas',
+  IdTlsServerOptions in '..\..\Source\IdTlsServerOptions.pas';
+{$I ..\..\Source\IdSecurity90ASM90.inc}
 
 end.
