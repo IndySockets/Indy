@@ -1416,7 +1416,7 @@ begin
                 LRequestInfo.DecodeAndSetParams(LRequestInfo.UnparsedParams);
               end else begin
                 // Parse only query params when content type is not 'application/x-www-form-urlencoded'    {Do not Localize}
-                // TODO: decode the data using a uer-specified charset, defaulting to UTF-8
+                // TODO: decode the data using a user-specified charset, defaulting to UTF-8
                 LRequestInfo.DecodeAndSetParams(LRequestInfo.QueryParams);
               end;
             end;
@@ -1969,7 +1969,7 @@ begin
   end;
   if AuthRealm <> '' then begin
     FRawHeaders.Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '"';    {Do not Localize}
-    end;
+  end;
 end;
 
 procedure TIdHTTPResponseInfo.SetResponseNo(const AValue: Integer);

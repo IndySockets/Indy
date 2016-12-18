@@ -1206,7 +1206,7 @@
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
   {$ENDIF}
   {$IFDEF FPC_2_2_2_OR_ABOVE}
-    {$DEFINE HAS_SharedPrefix}
+    {$DEFINE HAS_SharedSuffix}
   {$ENDIF}
   {$IFDEF FPC_2_2_4_OR_ABOVE}
     // size_t and psize_t are only available on Unix systems (FreeBSD, Linux, etc)
