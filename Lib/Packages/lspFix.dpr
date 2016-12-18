@@ -36,49 +36,55 @@ const
 http://community.borland.com/article/0,1410,15910,00.html
 
 }
-Procedure FileCopy( Const ASourceFilename, ATargetFilename: String );
-Var
+procedure FileCopy( Const ASourceFilename, ATargetFilename: String );
+var
   S, T: TFileStream;
-Begin
+begin
   S := TFileStream.Create( ASourceFilename, fmOpenRead );
   try
     T := TFileStream.Create( ATargetFilename,
                              fmOpenWrite or fmCreate );
     try
-      T.CopyFrom(S, S.Size ) ;
+      T.CopyFrom(S, 0);
     finally
       T.Free;
     end;
   finally
     S.Free;
   end;
-End;
+end;
 
-Procedure Error;
+procedure Error;
 begin
   ExitCode := 1;
 end;
 
 function GetLSPFileName : String;
-var i : Integer;
+var
+  i : Integer;
 begin
   Result := '';
   for i := 1 to ParamCount do
   begin
-    Result := Result + ParamStr(i)+' ';
+    Result := Result + ParamStr(i) + ' ';
   end;
   Result := Trim(Result);
 end;
 
 function FileContents(AFileName : String) : String;
-var s : TStream;
-    sz : Integer;
+var
+  s : TStream;
+  sz : Integer;
+  tmp: AnsiString;
 begin
   s := TFileStream.Create(AFileName,fmOpenRead);
   try
     sz := s.Size;
-    SetLength(Result,sz);
-    s.Read(Result[1],sz);
+    if sz > 0 then begin
+      SetLength(tmp, sz);
+      s.Read(tmp[1], sz);
+      Result := String(tmp);
+    end;
   finally
     FreeAndNil(s);
   end;
@@ -92,50 +98,47 @@ begin
 end;
 
 function RepairLSPData(AOriginalData : String): String;
-var s : TStrings;
-    i : Integer;
+var
+  s : TStrings;
+  i : Integer;
 begin
   s := TStringList.Create;
   try
-    s.Text := Trim(StringReplace(AOriginalData,ReplaceSymbol,sLineBreak,[rfReplaceAll]));
+    s.Text := Trim(StringReplace(AOriginalData, ReplaceSymbol, sLineBreak, [rfReplaceAll]));
     i := 0;
     while i < s.Count do
     begin
-      if ExtractFileName(s[i])=ProblemSymbol then
+      if (Length(s[i]) = 0) or (ExtractFileName(s[i]) = ProblemSymbol) then
       begin
         s.Delete(i);
-      end
-      else
-      begin
-        if Length(s[i])>0 then
-        begin
-          s[i] := ReplaceSymbol + FixTLibEntry(s[i]);
-        end
-        else
-        begin
-          s.Delete(i);
-        end;
+      end else begin
+        s[i] := ReplaceSymbol + FixTLibEntry(s[i]);
+        Inc(i);
       end;
-      Inc(i);
     end;
-    Result := StringReplace(s.Text,sLineBreak,' ',[rfReplaceAll]);
+    Result := StringReplace(s.Text, sLineBreak, ' ', [rfReplaceAll]);
   finally
     FreeAndNil(s);
   end;
 end;
 
-procedure FileCreate(AFilename, AText : String; AOverwrite : Boolean = True);
-var s : TStream;
+procedure FileCreate(AFilename, AText: String; AOverwrite : Boolean = True);
+var
+  s : TStream;
+  tmp: AnsiString;
 begin
-  s := TFileStream.Create(AFileName,fmCreate);
+  s := TFileStream.Create(AFileName, fmCreate);
   try
-    s.Write(AText[1],Length(AText));
+    tmp := AnsiString(AText);
+    s.Write(PAnsiChar(tmp)^, Length(tmp));
   finally
     FreeAndNil(s);
   end;
 end;
 
-var lspName : String;
+var
+  lspName : String;
+  data: String;
 begin
   try
     if ParamCount = 0 then
@@ -149,10 +152,12 @@ begin
     lspName := GetLSPFileName;
     if ExtractFileExt(UpperCase(lspName)) = BackupExt then
     begin
-      Raise Exception.Create('You can not fix a backup file.');
+      raise Exception.Create('You can not fix a backup file.');
     end;
-    FileCopy(lspName, ChangeFileExt(lspName,BackupExt));
-    FileCreate(lspName, RepairLSPData( FileContents(lspName)));
+    FileCopy(lspName, ChangeFileExt(lspName, BackupExt));
+    data := FileContents(lspName);
+    data := RepairLSPData(data);
+    FileCreate(lspName, data);
   except
     on E: Exception do
     begin
@@ -160,4 +165,4 @@ begin
     end;
   end;
 end.
- 
+

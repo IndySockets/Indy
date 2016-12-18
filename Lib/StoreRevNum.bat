@@ -43,6 +43,6 @@ FOR /R %IndyLib% %%I IN (*.tmpl) DO SubWCRev %IndyLib% "%%~dpnI.tmpl" "%%~dpnI"
 :Done
 REM *** This Line re-compiles .res files from updated .rc files
 ECHO Rebuilding .RES files
-CALL %IndyLib%\buildres.bat
+CALL %IndyLib%\Packages\buildres.bat
 
 :End

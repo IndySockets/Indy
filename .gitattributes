@@ -1,8 +1,4 @@
 * text=auto !eol
-Lib/Clean.bat eol=crlf
-Lib/Computil.dpr -text
-Lib/Computil.dproj -text
-Lib/Computil.exe -text svneol=unset#unset
 Lib/Packages/AboutBackground.bmp -text
 Lib/Packages/BDS_2005/DsnIndy.bdsproj -text
 Lib/Packages/BDS_2005/DsnIndy.dpr -text
@@ -181,6 +177,10 @@ Lib/Packages/CB_Delphi_6/dclIndyProtocols.cfg2 -text
 Lib/Packages/CB_Delphi_6/dclIndyProtocols.dpk -text
 Lib/Packages/CB_Delphi_6/dclIndyProtocols.rc -text
 Lib/Packages/CB_Delphi_6/dclIndyProtocols.rc.tmpl -text
+Lib/Packages/Clean.bat eol=crlf
+Lib/Packages/Computil.dpr -text
+Lib/Packages/Computil.dproj -text
+Lib/Packages/Computil.exe -text svneol=unset#unset
 Lib/Packages/Delphi_7/Fulld_7.bat eol=crlf
 Lib/Packages/Delphi_7/IndyCore.RES -text svneol=unset#unset
 Lib/Packages/Delphi_7/IndyCore.dpk -text
@@ -615,6 +615,11 @@ Lib/Packages/dclIndyProtocols.rc -text
 Lib/Packages/dclIndyProtocols.rc.tmpl -text
 Lib/Packages/dclIndyProtocols_Icon.ico -text
 Lib/Packages/indy_pit_crew_credits_window.psd -text
+Lib/Packages/lspFix.dpr -text
+Lib/Packages/lspFix.exe -text svneol=unset#unset
+Lib/Packages/makeD12.proj -text
+Lib/Packages/makeindyrpm.sh eol=lf
+Lib/Packages/makeindyrpm.sh.tmpl -text
 Lib/Source/AboutIndyNET.resources -text svneol=unset#unset
 Lib/Source/AboutProg.res -text svneol=unset#unset
 Lib/Source/DelphiZLib.lib -text svneol=unset#unset
@@ -1358,8 +1363,3 @@ Lib/Source/uncompr.obj -text svneol=unset#unset
 Lib/Source/zutil.obj -text svneol=unset#unset
 Lib/StoreRevNum.bat -text
 Lib/StoreRevNumHooks.bat -text
-Lib/lspFix.dpr -text
-Lib/lspFix.exe -text svneol=unset#unset
-Lib/makeD12.proj -text
-Lib/makeindyrpm.sh eol=lf
-Lib/makeindyrpm.sh.tmpl -text
