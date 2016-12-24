@@ -40,4 +40,7 @@ contains
   IdTlsServerOptions in '..\..\Source\IdTlsServerOptions.pas';
 {$I ..\..\Source\IdSecurity90ASM90.inc}
 
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
+
 end.

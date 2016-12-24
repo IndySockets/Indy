@@ -5,181 +5,144 @@ REM
 REM Author : Malcolm Smith, MJ freelancing
 REM          http://www.mjfreelancing.com
 REM 
-REM Pre-requisites:  \Lib\Protocols\ZLib must contain the ZLIB OBJ files
-REM                  \Lib\System contains the project / pas/ res files for IndySystem
-REM                  \Lib\Core contains the project / pas/ res files for IndyCore
-REM                  \Lib\Protocols contains the project / pas/ res files for IndyProtocols
+REM Pre-requisites:  \Lib\Source\ZLib must contain the ZLIB OBJ files
+REM                  \Lib\Packages\CB_Delphi_6 contains the project / res files
+REM                  \Lib\Source contains the pas / inc files
 REM 
 REM ****************************************************************************
 
-computil SetupC6
+..\computil SetupC6
 if exist setenv.bat call setenv.bat
 if exist setenv.bat del setenv.bat > nul
 
 if (%NDC6%)==() goto enderror
 if not exist %NDC6%\bin\dcc32.exe goto endnocompiler
-if not exist ..\C6\*.* md ..\C6 
-if exist ..\C6\*.* call clean.bat ..\C6\
 
-cd System
-copy IndySystem60.dpk ..\..\C6 > nul
-copy *IndySystem60.cfg1 ..\..\C6 > nul
-copy *IndySystem60.cfg2 ..\..\C6 > nul
+if not exist ..\..\..\C6\*.* md ..\..\..\C6 
+if exist ..\..\..\C6\*.* call ..\clean.bat ..\..\..\C6\
+
+copy IndySystem.dpk ..\..\..\C6 > nul
+copy *IndySystem.cfg1 ..\..\..\C6 > nul
+copy *IndySystem.cfg2 ..\..\..\C6 > nul
+copy *IndyCore.dpk ..\..\..\C6 > nul
+copy *IndyCore.cfg1 ..\..\..\C6 > nul
+copy *IndyCore.cfg2 ..\..\..\C6 > nul
+copy *IndyProtocols.dpk ..\..\..\C6 > nul
+copy *IndyProtocols.cfg1* ..\..\..\C6 > nul
+copy *IndyProtocols.cfg2 ..\..\..\C6 > nul
+
+cd ..\..\Source
+copy zlib\*.obj ..\..\C6 > nul
 copy *.res ..\..\C6 > nul
 copy *.pas ..\..\C6 > nul
+copy *.dcr ..\..\C6 > nul
 copy *.inc ..\..\C6 > nul
 
 cd ..\..\C6
 
+REM ************************************************************
+REM Compile IndySystem - Round 1
+REM ************************************************************
+copy IndySystem.cfg1 IndySystem.cfg > nul
+%NDC6%\bin\dcc32.exe /B IndySystem.dpk
+if errorlevel 1 goto enderror2
+
 
 REM ************************************************************
-REM Compile IndySystem60 - Round 1
+REM Compile IndySystem - Round 2
 REM ************************************************************
-copy IndySystem60.cfg1 IndySystem60.cfg > nul
-%NDC6%\bin\dcc32.exe /B IndySystem60.dpk
-if errorlevel 1 goto enderror
-
-
-REM ************************************************************
-REM Compile IndySystem60 - Round 2
-REM ************************************************************
-del IndySystem60.cfg > nul
-copy IndySystem60.cfg2 IndySystem60.cfg > nul
-%NDC6%\bin\dcc32.exe /B IndySystem60.dpk
-if errorlevel 1 goto enderror
+del IndySystem.cfg > nul
+copy IndySystem.cfg2 IndySystem.cfg > nul
+%NDC6%\bin\dcc32.exe /B IndySystem.dpk
+if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
 REM Correct the LSP file (quote everything)
 REM ************************************************************
-..\Lib\LspFix.exe IndySystem60.lsp
-%NDC6%\bin\tlib.exe IndySystem60.lib @IndySystem60.lsp /P64
-if errorlevel 1 goto enderror
-
-
-
-REM ************************************************************
-REM Prepare to copy all CORE related files
-REM ************************************************************
-
-cd ..\Lib\Core
-
-copy *IndyCore60.dpk ..\..\C6 > nul
-copy *IndyCore60.cfg1 ..\..\C6 > nul
-copy *IndyCore60.cfg2 ..\..\C6 > nul
-copy *.res ..\..\C6 > nul
-copy *.pas ..\..\C6 > nul
-copy *.dcr ..\..\C6 > nul
-copy *.inc ..\..\C6 > nul
-
-
-cd ..\..\C6
+..\Lib\Packages\LspFix.exe IndySystem.lsp
+%NDC6%\bin\tlib.exe IndySystem.lib @IndySystem.lsp /P64
+if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
-REM Compile IndyCore60 - Round 1
+REM Compile IndyCore - Round 1
 REM ************************************************************
-copy IndyCore60.cfg1 IndyCore60.cfg > nul
-%NDC6%\bin\dcc32.exe /B IndyCore60.dpk
-if errorlevel 1 goto enderror
-
-
-REM ************************************************************
-REM Compile IndyCore60 - Round 2
-REM ************************************************************
-del IndyCore60.cfg > nul
-copy IndyCore60.cfg2 IndyCore60.cfg > nul
-%NDC6%\bin\dcc32.exe /B IndyCore60.dpk
-if errorlevel 1 goto enderror
-
-
-..\Lib\LspFix.exe IndyCore60.lsp
-%NDC6%\bin\tlib.exe IndyCore60.lib @IndyCore60.lsp /P64
-if errorlevel 1 goto enderror
-
+copy IndyCore.cfg1 IndyCore.cfg > nul
+%NDC6%\bin\dcc32.exe /B IndyCore.dpk
+if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
-REM Compile dclIndyCore60 - Round 1
+REM Compile IndyCore - Round 2
 REM ************************************************************
-copy dclIndyCore60.cfg1 dclIndyCore60.cfg > nul
-%NDC6%\bin\dcc32.exe /B dclIndyCore60.dpk
-if errorlevel 1 goto enderror
+del IndyCore.cfg > nul
+copy IndyCore.cfg2 IndyCore.cfg > nul
+%NDC6%\bin\dcc32.exe /B IndyCore.dpk
+if errorlevel 1 goto enderror2
 
-
-REM ************************************************************
-REM Compile dclIndyCore60 - Round 2
-REM ************************************************************
-del dclIndyCore60.cfg > nul
-copy dclIndyCore60.cfg2 dclIndyCore60.cfg > nul
-%NDC6%\bin\dcc32.exe /B dclIndyCore60.dpk
-if errorlevel 1 goto enderror
-
-
-rem ..\Lib\LspFix.exe dclIndyCore60.lsp
-rem %NDC6%\bin\tlib.exe dclIndyCore60.lib @dclIndyCore60.lsp /P64
-rem if errorlevel 1 goto enderror
+..\Lib\Packages\LspFix.exe IndyCore.lsp
+%NDC6%\bin\tlib.exe IndyCore.lib @IndyCore.lsp /P64
+if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
-REM Prepare to copy all PROTOCOLS related files
+REM Compile dclIndyCore - Round 1
 REM ************************************************************
-
-cd ..\Lib\Protocols
-
-
-copy zlib\*.obj ..\..\C6 > nul
-copy *IndyProtocols60.dpk ..\..\C6 > nul
-copy *IndyProtocols60.cfg1 ..\..\C6 > nul
-copy *IndyProtocols60.cfg2 ..\..\C6 > nul
-copy *.res ..\..\C6 > nul
-copy *.pas ..\..\C6 > nul
-copy *.dcr ..\..\C6 > nul
-copy *.inc ..\..\C6 > nul
-
-cd ..\..\C6
+copy dclIndyCore.cfg1 dclIndyCore.cfg > nul
+%NDC6%\bin\dcc32.exe /B dclIndyCore.dpk
+if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
-REM Compile IndyProtocols60 - Round 1
+REM Compile dclIndyCore - Round 2
 REM ************************************************************
-copy IndyProtocols60.cfg1 IndyProtocols60.cfg > nul
-%NDC6%\bin\dcc32.exe /B IndyProtocols60.dpk
-if errorlevel 1 goto enderror
+del dclIndyCore.cfg > nul
+copy dclIndyCore.cfg2 dclIndyCore.cfg > nul
+%NDC6%\bin\dcc32.exe /B dclIndyCore.dpk
+if errorlevel 1 goto enderror2
 
-
-REM ************************************************************
-REM Compile IndyProtocols60 - Round 2
-REM ************************************************************
-del IndyProtocols60.cfg > nul
-copy IndyProtocols60.cfg2 IndyProtocols60.cfg > nul
-%NDC6%\bin\dcc32.exe /B IndyProtocols60.dpk
-if errorlevel 1 goto enderror
-
-
-..\Lib\LspFix.exe IndyProtocols60.lsp
-%NDC6%\bin\tlib.exe IndyProtocols60.lib @IndyProtocols60.lsp /P64
-if errorlevel 1 goto enderror
-
+rem ..\Lib\Packages\LspFix.exe dclIndyCore.lsp
+rem %NDC6%\bin\tlib.exe dclIndyCore.lib @dclIndyCore.lsp /P64
+rem if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
-REM Compile dclIndyProtocols60 - Round 1
+REM Compile IndyProtocols - Round 1
 REM ************************************************************
-copy dclIndyProtocols60.cfg1 dclIndyProtocols60.cfg > nul
-%NDC6%\bin\dcc32.exe /B dclIndyProtocols60.dpk
-if errorlevel 1 goto enderror
+copy IndyProtocols.cfg1 IndyProtocols.cfg > nul
+%NDC6%\bin\dcc32.exe /B IndyProtocols.dpk
+if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
-REM Compile dclIndyProtocols60 - Round 2
+REM Compile IndyProtocols - Round 2
 REM ************************************************************
-del dclIndyProtocols60.cfg > nul
-copy dclIndyProtocols60.cfg2 dclIndyProtocols60.cfg > nul
-%NDC6%\bin\dcc32.exe /B dclIndyProtocols60.dpk
-if errorlevel 1 goto enderror
+del IndyProtocols.cfg > nul
+copy IndyProtocols.cfg2 IndyProtocols.cfg > nul
+%NDC6%\bin\dcc32.exe /B IndyProtocols.dpk
+if errorlevel 1 goto enderror2
+
+..\Lib\Packages\LspFix.exe IndyProtocols.lsp
+%NDC6%\bin\tlib.exe IndyProtocols.lib @IndyProtocols.lsp /P64
+if errorlevel 1 goto enderror2
 
 
+REM ************************************************************
+REM Compile dclIndyProtocols - Round 1
+REM ************************************************************
+copy dclIndyProtocols.cfg1 dclIndyProtocols.cfg > nul
+%NDC6%\bin\dcc32.exe /B dclIndyProtocols.dpk
+if errorlevel 1 goto enderror2
+
+
+REM ************************************************************
+REM Compile dclIndyProtocols - Round 2
+REM ************************************************************
+del dclIndyProtocols.cfg > nul
+copy dclIndyProtocols.cfg2 dclIndyProtocols.cfg > nul
+%NDC6%\bin\dcc32.exe /B dclIndyProtocols.dpk
+if errorlevel 1 goto enderror2
 
 
 REM ************************************************************
@@ -190,19 +153,23 @@ attrib +r Id*.hpp
 attrib +r *.bpl
 attrib +r Indy*.bpi
 attrib +r Indy*.lib
-attrib +r indysystem60.res
-attrib +r indycore60.res
-attrib +r indyprotocols60.res
+attrib +r indysystem.res
+attrib +r indycore.res
+attrib +r indyprotocols.res
 del /Q /A:-R *.* > nul
 attrib -r Id*.hpp
 attrib -r *.bpl
 attrib -r Indy*.bpi
 attrib -r Indy*.lib
-attrib -r indysystem60.res
-attrib -r indycore60.res
-attrib -r indyprotocols60.res
+attrib -r indysystem.res
+attrib -r indycore.res
+attrib -r indyprotocols.res
 
+cd ..\Lib\Packages\CB_Delphi_6
 goto endok
+
+:enderror2
+cd ..\Lib\Packages\CB_Delphi_6
 
 :enderror
 echo Error!
@@ -214,5 +181,3 @@ echo C++Builder 6 Compiler Not Present!
 goto endok
 
 :endok
-rem call clean
-cd ..\Lib

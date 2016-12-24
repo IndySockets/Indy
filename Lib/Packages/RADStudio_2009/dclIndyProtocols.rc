@@ -14,7 +14,7 @@ FILESUBTYPE 0x0L
    VALUE "CompanyName", "Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
    VALUE "FileDescription", "Internet Direct (Indy) 10.6.2 - Protocols Design-Time Package\0"
    VALUE "FileVersion", "10.6.2.0\0"
-   VALUE "InternalName", "dclIndyProtocols120\0"
+   VALUE "InternalName", "dclIndyProtocols\0"
    VALUE "LegalCopyright", "Copyright © 1993 - 2015 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
    VALUE "OriginalFilename", "dclIndyProtocols120.bpl\0"
    VALUE "ProductName", "Indy\0"

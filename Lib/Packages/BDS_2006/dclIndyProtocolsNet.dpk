@@ -1,4 +1,4 @@
-package dclIndyProtocols100Net;
+package dclIndyProtocolsNet;
 
 {$ALIGN 0}
 {$BOOLEVAL OFF}
@@ -23,16 +23,19 @@ package dclIndyProtocols100Net;
 requires
   System.Windows.Forms,
   Borland.Studio.Vcl.Design,
-  IndyProtocols100Net,
-  IndySystem100Net,
-  IndyCore100Net,
-  dclIndyCore100Net;
+  IndyProtocolsNet,
+  IndySystemNet,
+  IndyCoreNet,
+  dclIndyCoreNet;
 
 contains
-  IdDsnRegister in 'IdDsnRegister.pas',
-  IdDsnResourceStrings in 'IdDsnResourceStrings.pas',
-  IdDsnSASLListEditorFormNET in 'IdDsnSASLListEditorFormNET.pas',
-  IdRegister in 'IdRegister.pas';
-{$I IddclProtocols90ASM90.inc}
+  IdDsnRegister in '..\..\Source\IdDsnRegister.pas',
+  IdDsnResourceStrings in '..\..\Source\IdDsnResourceStrings.pas',
+  IdDsnSASLListEditorFormNET in '..\..\Source\IdDsnSASLListEditorFormNET.pas',
+  IdRegister in '..\..\Source\IdRegister.pas';
+{$I ..\..\Source\IddclProtocols90ASM90.inc}
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

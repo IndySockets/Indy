@@ -1,13 +1,13 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{6D47F497-278E-4719-BF4E-645838D120D1}</ProjectGuid>
-        <MainSource>IndySystem210.dpk</MainSource>
+        <MainSource>IndySystem.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>95</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
-        <ProjectVersion>16.0</ProjectVersion>
+        <ProjectVersion>16.1</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -76,7 +76,7 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
         <DCC_N>false</DCC_N>
-        <SanitizedProjectName>IndySystem210</SanitizedProjectName>
+        <SanitizedProjectName>IndySystem</SanitizedProjectName>
         <DCC_F>false</DCC_F>
         <GenPackage>true</GenPackage>
         <DCC_ImageBase>00400000</DCC_ImageBase>
@@ -185,7 +185,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">IndySystem210.dpk</Source>
+                    <Source Name="MainSource">IndySystem.dpk</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>

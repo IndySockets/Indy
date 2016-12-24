@@ -37,4 +37,7 @@ contains
   IdRegisterSecurity in '..\..\Source\IdRegisterSecurity.pas';
 {$I ..\..\Source\IddclSecurity90ASM90.inc}
 
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
+
 end.

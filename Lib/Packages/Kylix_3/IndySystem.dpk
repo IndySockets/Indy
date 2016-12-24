@@ -1,4 +1,4 @@
-package IndySystemK3;
+package IndySystem;
 
 {$R *.res}
 {$BOOLEVAL OFF}
@@ -24,19 +24,22 @@ requires
   rtl;
 
 contains
-  IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
-  IdBaseComponent in 'IdBaseComponent.pas',
-  IdCTypes in 'IdCTypes.pas',
-  IdComponent in 'IdComponent.pas',
-  IdException in 'IdException.pas',
-  IdGlobal in 'IdGlobal.pas',
-  IdResourceStrings in 'IdResourceStrings.pas',
-  IdStack in 'IdStack.pas',
-  IdStackBSDBase in 'IdStackBSDBase.pas',
-  IdStackConsts in 'IdStackConsts.pas',
-  IdStackLibc in 'IdStackLibc.pas',
-  IdStream in 'IdStream.pas',
-  IdStreamVCL in 'IdStreamVCL.pas',
-  IdStruct in 'IdStruct.pas';
+  IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\IdBaseComponent.pas',
+  IdCTypes in '..\..\Source\IdCTypes.pas',
+  IdComponent in '..\..\Source\IdComponent.pas',
+  IdException in '..\..\Source\IdException.pas',
+  IdGlobal in '..\..\Source\IdGlobal.pas',
+  IdResourceStrings in '..\..\Source\IdResourceStrings.pas',
+  IdStack in '..\..\Source\IdStack.pas',
+  IdStackBSDBase in '..\..\Source\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Source\IdStackConsts.pas',
+  IdStackLibc in '..\..\Source\IdStackLibc.pas',
+  IdStream in '..\..\Source\IdStream.pas',
+  IdStreamVCL in '..\..\Source\IdStreamVCL.pas',
+  IdStruct in '..\..\Source\IdStruct.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

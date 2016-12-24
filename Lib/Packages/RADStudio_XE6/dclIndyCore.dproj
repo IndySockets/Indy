@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{4EF991B8-8E3C-40B6-8D59-6BE5CB25377C}</ProjectGuid>
-        <MainSource>dclIndyCore200.dpk</MainSource>
+        <MainSource>dclIndyCore.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
@@ -75,8 +75,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="designide.dcp"/>
-        <DCCReference Include="IndySystem200.dcp"/>
-        <DCCReference Include="IndyCore200.dcp"/>
+        <DCCReference Include="IndySystem.dcp"/>
+        <DCCReference Include="IndyCore.dcp"/>
         <DCCReference Include="IdAboutVCL.pas"/>
         <DCCReference Include="IdAntiFreeze.pas"/>
         <DCCReference Include="IdCoreDsnRegister.pas"/>
@@ -101,7 +101,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">dclIndyCore200.dpk</Source>
+                    <Source Name="MainSource">dclIndyCore.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>

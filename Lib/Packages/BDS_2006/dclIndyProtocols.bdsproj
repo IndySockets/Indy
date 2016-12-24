@@ -10,7 +10,7 @@
   </PersonalityInfo>
   <Delphi.Personality>
     <Source>
-      <Source Name="MainSource">dclIndyProtocols100.dpk</Source>
+      <Source Name="MainSource">dclIndyProtocols.dpk</Source>
     </Source>
     <FileVersion>
       <FileVersion Name="Version">7.0</FileVersion>

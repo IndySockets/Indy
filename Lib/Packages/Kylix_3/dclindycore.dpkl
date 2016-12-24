@@ -1,4 +1,4 @@
-package dclindycorek3;
+package dclindycore;
 
 {$R *.res}
 {$ALIGN 8}
@@ -23,7 +23,7 @@ package dclindycorek3;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $600000}
 {$DESCRIPTION 'Internet Direct (Indy) 10.00.0.17-B - Core 10.00.0.17-B'}
-{$SONAME 'dclindycorek3.so.6.9'}
+{$SONAME 'dclindycore.so.6.9'}
 {$LIBPREFIX ''}
 {$LIBVERSION '.6.9.0'}
 {$DESIGNONLY}
@@ -31,15 +31,18 @@ package dclindycorek3;
 
 requires
   designide,
-  indycorek3;
+  indycore;
 
 contains
-    IdAbout in 'IdAbout.pas',
-  IdAntiFreeze in 'IdAntiFreeze.pas',
-  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
-  IdCoreRegister in 'IdCoreRegister.pas',
-  IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
-  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas';
+  IdAbout in '..\..\Source\IdAbout.pas',
+  IdAntiFreeze in '..\..\Source\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Source\IdCoreDsnRegister.pas',
+  IdCoreRegister in '..\..\Source\IdCoreRegister.pas',
+  IdDsnBaseCmpEdt in '..\..\Source\IdDsnBaseCmpEdt.pas',
+  IdDsnCoreResourceStrings in '..\..\Source\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBinding in '..\..\Source\IdDsnPropEdBinding.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

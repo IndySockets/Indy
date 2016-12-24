@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{3E9D315E-A66A-4480-95C1-04BD6AADEAAA}</ProjectGuid>
-        <MainSource>IndyCore170.dpk</MainSource>
+        <MainSource>IndyCore.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
@@ -78,7 +78,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="IndySystem170.dcp"/>
+        <DCCReference Include="IndySystem.dcp"/>
         <DCCReference Include="IdAssignedNumbers.pas"/>
         <DCCReference Include="IdBuffer.pas"/>
         <DCCReference Include="IdCmdTCPClient.pas"/>
@@ -155,7 +155,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">IndyCore170.dpk</Source>
+                    <Source Name="MainSource">IndyCore.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>

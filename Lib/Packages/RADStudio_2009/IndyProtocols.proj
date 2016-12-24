@@ -6,18 +6,18 @@
 	<Import Project="$(TPADDONS)\tpaddons.Targets"/>
 	<ItemGroup>
 
-		<BuildTarget Include="IndyProtocols120.dpk">
+		<BuildTarget Include="IndyProtocols.dpk">
 			<BuildAs>package</BuildAs>
 			<Language>delphi</Language>
 			<Platform>win32</Platform>
 		</BuildTarget>
 
-		<Compile Include="IndyProtocols120.dpk">
+		<Compile Include="IndyProtocols.dpk">
 			<CompilerOptions>$(DCCSWTS) $(BCBSWTS)</CompilerOptions>
 		</Compile>
 
 		<ResourceFiles Include="
-				IndyProtocols120.rc
+				IndyProtocols.rc
 		">
 			<TargetExtension>.res</TargetExtension>
 		</ResourceFiles>

@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{9866D2EB-C379-42BA-ACAF-FBF5056926B0}</ProjectGuid>
-        <MainSource>IndySystem230.dpk</MainSource>
+        <MainSource>IndySystem.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>1119</TargetedPlatforms>
@@ -144,7 +144,7 @@
         <DCC_E>false</DCC_E>
         <GenDll>true</GenDll>
         <DCC_S>false</DCC_S>
-        <SanitizedProjectName>IndySystem230</SanitizedProjectName>
+        <SanitizedProjectName>IndySystem</SanitizedProjectName>
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_F>false</DCC_F>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
@@ -309,7 +309,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">IndySystem230.dpk</Source>
+                    <Source Name="MainSource">IndySystem.dpk</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k230.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>

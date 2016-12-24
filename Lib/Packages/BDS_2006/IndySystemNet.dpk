@@ -1,4 +1,4 @@
-package IndySystem100Net;
+package IndySystemNet;
 
 {$ALIGN 0}
 {$BOOLEVAL OFF}
@@ -21,22 +21,25 @@ package IndySystem100Net;
 {$IMPLICITBUILD ON}
 
 requires
-Borland.Delphi,
-Borland.VclRtl;
+  Borland.Delphi,
+  Borland.VclRtl;
 
 contains
-  IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
-  IdBaseComponent in 'IdBaseComponent.pas',
-  IdComponent in 'IdComponent.pas',
-  IdException in 'IdException.pas',
-  IdGlobal in 'IdGlobal.pas',
-  IdResourceStrings in 'IdResourceStrings.pas',
-  IdStack in 'IdStack.pas',
-  IdStackConsts in 'IdStackConsts.pas',
-  IdStackDotNet in 'IdStackDotNet.pas',
-  IdStream in 'IdStream.pas',
-  IdStreamNET in 'IdStreamNET.pas',
-  IdStruct in 'IdStruct.pas';
-{$I IdSystem90ASM90.inc}
+  IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\IdBaseComponent.pas',
+  IdComponent in '..\..\Source\IdComponent.pas',
+  IdException in '..\..\Source\IdException.pas',
+  IdGlobal in '..\..\Source\IdGlobal.pas',
+  IdResourceStrings in '..\..\Source\IdResourceStrings.pas',
+  IdStack in '..\..\Source\IdStack.pas',
+  IdStackConsts in '..\..\Source\IdStackConsts.pas',
+  IdStackDotNet in '..\..\Source\IdStackDotNet.pas',
+  IdStream in '..\..\Source\IdStream.pas',
+  IdStreamNET in '..\..\Source\IdStreamNET.pas',
+  IdStruct in '..\..\Source\IdStruct.pas';
+{$I ..\..\Source\IdSystem90ASM90.inc}
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

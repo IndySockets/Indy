@@ -14,11 +14,14 @@ echo No Command Interpreter found
 goto endok
 
 :start
-call clean.bat
-computil SetupD9
+call ..\clean.bat
+..\computil SetupD9
+
 if exist setenv.bat call setenv.bat
-if not exist ..\D9\*.* md ..\D9 >nul
-if exist ..\D9\*.* call clean.bat ..\D9\
+if exist setenv.bat del setenv.bat >nul
+
+if not exist ..\..\..\D9\*.* md ..\..\..\D9 >nul
+if exist ..\..\..\D9\*.* call ..\clean.bat ..\..\..\D9\
 
 if (%NDD9%)==() goto enderror
 if (%NDWINSYS%)==() goto enderror
@@ -26,53 +29,47 @@ if (%NDWINSYS%)==() goto enderror
 ECHO ****************
 ECHO  Compile System
 ECHO ****************
-CD System
-%NDD9%\Bin\dcc32.exe IndySystem90.dpk /Oobjs /m /h /w /N..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
-copy *90.bpl ..\..\D9 >nul
-copy *90.dcp ..\..\D9 >nul
+%NDD9%\Bin\dcc32.exe IndySystem.dpk /Oobjs /m /h /w /N..\..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
+copy *90.bpl ..\..\..\D9 >nul
+copy *90.dcp ..\..\..\D9 >nul
 if errorlevel 1 goto enderror
-copy ..\..\D9\IndySystem90.bpl %NDWINSYS% >nul
-CD ..
+copy ..\..\..\D9\IndySystem90.bpl %NDWINSYS% >nul
 
 ECHO **************
 ECHO  Compile Core    
 ECHO **************
-CD Core
-%NDD9%\Bin\dcc32.exe IndyCore90.dpk /Oobjs /m /h /w /N..\..\D9 /U..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
+%NDD9%\Bin\dcc32.exe IndyCore.dpk /Oobjs /m /h /w /N..\..\..\D9 /U..\..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDD9%\Bin\dcc32.exe dclIndyCore90.dpk /Oobjs /m /h /w /N..\..\D9 /U..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
+%NDD9%\Bin\dcc32.exe dclIndyCore.dpk /Oobjs /m /h /w /N..\..\..\D9 /U..\..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
-copy *90.bpl ..\..\D9 >nul
-copy *90.dcp ..\..\D9 >nul
-copy ..\..\D9\IndyCore90.bpl %NDWINSYS% >nul
-copy ..\..\D9\dclIndyCore90.bpl %NDWINSYS% >nul
-CD ..
+copy *90.bpl ..\..\..\D9 >nul
+copy *90.dcp ..\..\..\D9 >nul
+copy ..\..\..\D9\IndyCore90.bpl %NDWINSYS% >nul
+copy ..\..\..\D9\dclIndyCore90.bpl %NDWINSYS% >nul
 
 ECHO *******************
 ECHO  Compile Protocols
 ECHO *******************
-CD Protocols
 
 ECHO ************************
 ECHO  IdCompressionIntercept
 ECHO ************************
-%NDD9%\Bin\dcc32.exe -B -M -N..\..\D9 /U..\..\D9 -H -W -Z IdCompressionIntercept.pas -$d-l-
+%NDD9%\Bin\dcc32.exe -B -M -N..\..\..\D9 /U..\..\..\D9 -H -W -Z ..\..\Source\IdCompressionIntercept.pas -$d-l-
 if errorlevel 1 goto enderror
 
-%NDD9%\Bin\dcc32.exe IndyProtocols90.dpk /Oobjs /m /h /w /N..\..\D9 /U..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
+%NDD9%\Bin\dcc32.exe IndyProtocols.dpk /Oobjs /m /h /w /N..\..\..\D9 /U..\..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDD9%\Bin\dcc32.exe dclIndyProtocols90.dpk /Oobjs /m /h /w /N..\..\D9 /U..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
+%NDD9%\Bin\dcc32.exe dclIndyProtocols.dpk /Oobjs /m /h /w /N..\..\..\D9 /U..\..\..\D9 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
 
-copy *90.bpl ..\..\D9 >nul
-copy *90.dcp ..\..\D9 >nul
-copy ..\..\D9\IndyProtocols90.bpl %NDWINSYS% >nul
-copy ..\..\D9\dclIndyProtocols90.bpl %NDWINSYS% >nul
-CD ..
+copy *90.bpl ..\..\..\D9 >nul
+copy *90.dcp ..\..\..\D9 >nul
+copy ..\..\..\D9\IndyProtocols90.bpl %NDWINSYS% >nul
+copy ..\..\..\D9\dclIndyProtocols90.bpl %NDWINSYS% >nul
 
 goto endok
 :enderror
-call clean
+call ..\clean
 echo Error!
 :endok
 

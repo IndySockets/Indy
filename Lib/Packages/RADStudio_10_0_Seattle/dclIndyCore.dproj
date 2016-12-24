@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{AAF2F84A-3A33-4B85-A44A-44CDC2D7C52A}</ProjectGuid>
-        <MainSource>dclIndyCore230.dpk</MainSource>
+        <MainSource>dclIndyCore.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
@@ -68,7 +68,7 @@
         <DCC_S>false</DCC_S>
         <GenDll>true</GenDll>
         <DCC_E>false</DCC_E>
-        <SanitizedProjectName>dclIndyCore230</SanitizedProjectName>
+        <SanitizedProjectName>dclIndyCore</SanitizedProjectName>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;$(DCC_Namespace)</DCC_Namespace>
         <DesignOnlyPackage>true</DesignOnlyPackage>
@@ -128,8 +128,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="designide.dcp"/>
-        <DCCReference Include="IndySystem230.dcp"/>
-        <DCCReference Include="IndyCore230.dcp"/>
+        <DCCReference Include="IndySystem.dcp"/>
+        <DCCReference Include="IndyCore.dcp"/>
         <DCCReference Include="IdAboutVCL.pas"/>
         <DCCReference Include="IdAntiFreeze.pas"/>
         <DCCReference Include="IdCoreDsnRegister.pas"/>
@@ -154,7 +154,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">dclIndyCore230.dpk</Source>
+                    <Source Name="MainSource">dclIndyCore.dpk</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\bcboffice2k230.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>

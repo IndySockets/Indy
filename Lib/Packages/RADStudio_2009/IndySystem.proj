@@ -16,18 +16,18 @@
 	</PropertyGroup>
 	<ItemGroup>
 
-		<BuildTarget Include="IndySystem120.dpk">
+		<BuildTarget Include="IndySystem.dpk">
 			<BuildAs>package</BuildAs>
 			<Language>delphi</Language>
 			<Platform>win32</Platform>
 		</BuildTarget>
 
-		<Compile Include="IndySystem120.dpk">
+		<Compile Include="IndySystem.dpk">
 			<CompilerOptions>$(DCCSWTS) $(BCBSWTS)</CompilerOptions>
 		</Compile>
 
 		<ResourceFiles Include="
-				IndySystem120.rc
+				IndySystem.rc
 		">
 			<TargetExtension>.res</TargetExtension>
 		</ResourceFiles>

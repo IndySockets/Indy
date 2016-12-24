@@ -8,8 +8,7 @@ main=indy
 [compiler]
 includedir=../Inc
 unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
-unitdir=../System/lib/$(CPU_TARGET)-$(OS_TARGET) \
-        ../Core/lib/$(CPU_TARGET)-$(OS_TARGET)
+unitdir=lib/$(CPU_TARGET)-$(OS_TARGET)
 options=-gl
 
 [target]
@@ -336,7 +335,7 @@ implicitunits_gba=
 units_gba=
 [requires]
 packages=indycorefpc
-packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)/:../Core/lib/$(CPU_TARGET)-$(OS_TARGET)/
+packagedir=lib/$(CPU_TARGET)-$(OS_TARGET)/
 
 [install]
 fpcpackage=y

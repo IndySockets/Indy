@@ -10,7 +10,7 @@
 	</PersonalityInfo>
 	<DelphiDotNet.Personality>
 		<Source>
-			<Source Name="MainSource">IndySystem100Net.dpk</Source>
+			<Source Name="MainSource">IndySystemNet.dpk</Source>
 		</Source>
 		<FileVersion>
 			<FileVersion Name="Version">7.0</FileVersion>

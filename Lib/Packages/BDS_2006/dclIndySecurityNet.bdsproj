@@ -122,7 +122,7 @@
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
 			<Directories Name="SearchPath">W:\Source\Indy10\Lib\Security;w:\source\indy10\lib\security;w:\source\indy10\lib\core;c:\windows\microsoft.net\framework\v1.1.4322</Directories>
-			<Directories Name="Packages">c:\windows\microsoft.net\framework\v1.1.4322\System.Drawing.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.XML.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.Data.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.dll;w:\source\indy10\lib\security\Mono.Security.dll;W:\Source\Indy10\Lib\Security\dclIndyProtocolsNet.dll;dclIndyCoreNet;IndySecurityNet;W:\Source\Indy10\Lib\Security\IndyProtocolsNet.dll;IndyCoreNet;IndySystemNet;W:\Source\Indy10\Lib\Security\Borland.Studio.Vcl.Design.dll</Directories>
+			<Directories Name="Packages">c:\windows\microsoft.net\framework\v1.1.4322\System.Drawing.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.XML.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.Data.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.dll;w:\source\indy10\lib\security\Mono.Security.dll;W:\Source\Indy10\Packages\BDS_2006\dclIndyProtocolsNet.dll;dclIndyCoreNet;IndySecurityNet;W:\Source\Indy10\Lib\Packages\BDS_2006\IndyProtocolsNet.dll;IndyCoreNet;IndySystemNet;W:\Source\Indy10\Lib\Security\Borland.Studio.Vcl.Design.dll</Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
@@ -180,7 +180,7 @@
       <File FileName="IndyCoreNet.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndyCoreNet" AssemblyName="IndyCoreNet" Version="0.0.0.0" LinkUnits="False"/>
       <File FileName="IndyProtocolsNet.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndyProtocolsNet" AssemblyName="IndyProtocolsNet" LinkUnits="False"/>
       <File FileName="IndySecurityNet.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndySecurityNet" AssemblyName="IndySecurityNet" Version="0.0.0.0" LinkUnits="False"/>
-      <File FileName="..\core\dclIndyCoreNet.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="dclIndyCoreNet" AssemblyName="dclIndyCoreNet" Version="0.0.0.0" LinkUnits="False"/>
+      <File FileName="dclIndyCoreNet.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="dclIndyCoreNet" AssemblyName="dclIndyCoreNet" Version="0.0.0.0" LinkUnits="False"/>
       <File FileName="dclIndyProtocolsNet.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="dclIndyProtocolsNet" AssemblyName="dclIndyProtocolsNet" LinkUnits="False"/>
       <File FileName="Mono.Security.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Mono.Security" AssemblyName="Mono.Security" Version="1.0.5000.0" LinkUnits="False"/>
       <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System" AssemblyName="System" Version="1.0.5000.0" LinkUnits="False"/>

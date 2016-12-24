@@ -9,7 +9,7 @@ main=indy
 [compiler]
 includedir=../Inc
 unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
-unitdir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)
+unitdir=lib/$(CPU_TARGET)-$(OS_TARGET)
 options=-gl
 
 [target]
@@ -78,7 +78,7 @@ implicitunits=IdAssignedNumbers \
 
 [requires]
 packages=indysystemfpc
-packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)
+packagedir=lib/$(CPU_TARGET)-$(OS_TARGET)
 
 [install]
 fpcpackage=y

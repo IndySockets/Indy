@@ -10,7 +10,7 @@
   </PersonalityInfo>
   <DelphiDotNet.Personality>
     <Source>
-      <Source Name="MainSource">IndyProtocols100Net.dpk</Source>
+      <Source Name="MainSource">IndyProtocolsNet.dpk</Source>
     </Source>
     
     

@@ -8,9 +8,9 @@
       <Version Value="5"/>
       <SearchPaths>
         <IncludeFiles Value="../Inc/"/>
-        <OtherUnitFiles Value="../System/lib/$(TargetCPU)-$(TargetOS)/;../Core/lib/$(TargetCPU)-$(TargetOS)/;../Protocols/lib/$(TargetCPU)-$(TargetOS)/;../Inc/"/>
+        <OtherUnitFiles Value="lib/$(TargetCPU)-$(TargetOS)/;../Inc/"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)/"/>
-        <SrcPath Value="../System/;../Core/;../Protocols/"/>
+        <SrcPath Value="../../Source/"/>
       </SearchPaths>
       <Parsing>
         <SyntaxOptions>

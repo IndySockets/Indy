@@ -1,7 +1,7 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
 			<ProjectGuid>{686983CE-837E-42D6-B871-F173242DFA3E}</ProjectGuid>
-			<MainSource>dclIndyProtocols160.dpk</MainSource>
+			<MainSource>dclIndyProtocols.dpk</MainSource>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<TargetedPlatforms>1</TargetedPlatforms>
@@ -58,7 +58,7 @@
 			<Icon_MainIcon>dclIndyProtocols_Icon.ico</Icon_MainIcon>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win32)'!=''">
-			<DCC_UsePackage>IndyCore160;IndySystem160;IndyProtocols160;$(DCC_UsePackage)</DCC_UsePackage>
+			<DCC_UsePackage>IndyCore;IndySystem;IndyProtocols;$(DCC_UsePackage)</DCC_UsePackage>
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;Vcl;$(DCC_Namespace)</DCC_Namespace>
 			<Icon_MainIcon>dclIndyProtocols_Icon.ico</Icon_MainIcon>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -82,10 +82,10 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="designide.dcp"/>
-			<DCCReference Include="IndyProtocols160.dcp"/>
-			<DCCReference Include="IndySystem160.dcp"/>
-			<DCCReference Include="IndyCore160.dcp"/>
-			<DCCReference Include="dclIndyCore160.dcp"/>
+			<DCCReference Include="IndyProtocols.dcp"/>
+			<DCCReference Include="IndySystem.dcp"/>
+			<DCCReference Include="IndyCore.dcp"/>
+			<DCCReference Include="dclIndyCore.dcp"/>
 			<DCCReference Include="IdDsnRegister.pas"/>
 			<DCCReference Include="IdDsnResourceStrings.pas"/>
 			<DCCReference Include="IdDsnSASLListEditorFormVCL.pas"/>
@@ -108,7 +108,7 @@
 			<BorlandProject>
 				<Delphi.Personality>
 					<Source>
-						<Source Name="MainSource">dclIndyProtocols160.dpk</Source>
+						<Source Name="MainSource">dclIndyProtocols.dpk</Source>
 					</Source>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>

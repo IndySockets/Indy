@@ -5,12 +5,11 @@ REM
 REM Author : Malcolm Smith, MJ freelancing
 REM          http://www.mjfreelancing.com
 REM 
-REM Note: This batch file copies the ZLIB OBJ files from \Lib\Protocols\ZLib\i386-Win32-ZLib
-REM       (Update to \Lib\Protocols\ZLib\x86_64-Win64-ZLib if required)
+REM Note: This batch file copies the ZLIB OBJ files from \Lib\Source\ZLib\i386-Win32-ZLib
+REM       (Update to \Lib\Source\ZLib\x86_64-Win64-ZLib if required)
 REM
-REM Pre-requisites:  \Lib\System contains the project / pas/ res files for IndySystem
-REM                  \Lib\Core contains the project / pas/ res files for IndyCore
-REM                  \Lib\Protocols contains the project / pas/ res files for IndyProtocols
+REM Pre-requisites:  \Lib\Packages\RADStudio_XE8 contains the project / res files
+REM                  \Lib\Source contains the pas / inc files
 REM 
 REM Command line (optional) parameters:
 REM   %1 = Configuration option, the default is "Release"
@@ -27,7 +26,7 @@ REM ************************************************************
 REM Set up the environment
 REM ************************************************************
 
-computil SetupC22
+..\computil SetupC22
 if exist setenv.bat call setenv.bat
 if exist setenv.bat del setenv.bat > nul
 
@@ -54,26 +53,33 @@ REM Prepare the folder structure
 REM ************************************************************
 
 :preparefolders
-if not exist ..\C22\*.* md ..\C22 > nul
-if not exist ..\C22\ZLib\*.* md ..\C22\ZLib > nul
-if not exist ..\C22\ZLib\i386-Win32-ZLib\*.* md ..\C22\ZLib\i386-Win32-ZLib > nul
-if not exist ..\C22\ZLib\x86_64-Win64-ZLib\*.* md ..\C22\ZLib\x86_64-Win64-ZLib > nul
-if not exist ..\C22\%IndyPlatform% md ..\C22\%IndyPlatform% > nul
-if not exist ..\C22\%IndyPlatform%\%IndyConfig% md ..\C22\%IndyPlatform%\%IndyConfig% > nul
+if not exist ..\..\..\C22\*.* md ..\..\..\C22 > nul
+if not exist ..\..\..\C22\ZLib\*.* md ..\..\..\C22\ZLib > nul
+if not exist ..\..\..\C22\ZLib\i386-Win32-ZLib\*.* md ..\..\..\C22\ZLib\i386-Win32-ZLib > nul
+if not exist ..\..\..\C22\ZLib\x86_64-Win64-ZLib\*.* md ..\..\..\C22\ZLib\x86_64-Win64-ZLib > nul
+if not exist ..\..\..\C22\%IndyPlatform% md ..\..\..\C22\%IndyPlatform% > nul
+if not exist ..\..\..\C22\%IndyPlatform%\%IndyConfig% md ..\..\..\C22\%IndyPlatform%\%IndyConfig% > nul
 
-if exist ..\C22\*.* call clean.bat ..\C22\
+if exist ..\..\..\C22\*.* call ..\clean.bat ..\..\..\C22\
 
 
 REM ************************************************************
-REM Copy over the IndySystem files
+REM Copy over the Source files
 REM ************************************************************
 
-:indysystem
-cd System
-copy IndySystem220.dpk ..\..\C22 > nul
-copy IndySystem220.dproj ..\..\C22 > nul
+copy IndySystem.dpk ..\..\..\C22 > nul
+copy IndySystem.dproj ..\..\..\C22 > nul
+copy *IndyCore.dpk ..\..\..\C22 > nul
+copy *IndyCore.dproj ..\..\..\C22 > nul
+copy *IndyProtocols.dpk ..\..\..\C22 > nul
+copy *IndyProtocols.dproj ..\..\..\C22 > nul
+
+cd ..\..\Source
+copy zlib\i386-Win32-ZLib\*.obj ..\..\C22\ZLib\i386-Win32-ZLib > nul
+copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C22\ZLib\x86_64-Win64-ZLib > nul
 copy *.res ..\..\C22 > nul
 copy *.pas ..\..\C22 > nul
+copy *.dcr ..\..\C22 > nul
 copy *.inc ..\..\C22 > nul
 copy *.ico ..\..\C22 > nul
 
@@ -83,86 +89,51 @@ REM ************************************************************
 REM Build IndySystem
 REM ************************************************************
 
-msbuild IndySystem220.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
-if errorlevel 1 goto enderror
+msbuild IndySystem.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror2
 
-
-REM ************************************************************
-REM Copy over the IndyCore files
-REM ************************************************************
-
-:indycore
-cd ..\Lib\Core
-
-copy *IndyCore220.dpk ..\..\C22 > nul
-copy *IndyCore220.dproj ..\..\C22 > nul
-copy *.res ..\..\C22 > nul
-copy *.pas ..\..\C22 > nul
-copy *.dcr ..\..\C22 > nul
-copy *.inc ..\..\C22 > nul
-copy *.ico ..\..\C22 > nul
-
-cd ..\..\C22
 
 REM ************************************************************
 REM Build IndyCore
 REM ************************************************************
 
-msbuild IndyCore220.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
-if errorlevel 1 goto enderror
+msbuild IndyCore.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror2
 
 REM design time is for Win32 only
 if not "%IndyPlatform%" == "Win32" goto indyprotocols
 
-msbuild dclIndyCore220.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
-if errorlevel 1 goto enderror
+msbuild dclIndyCore.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror2
 
-
-REM ************************************************************
-REM Copy over the IndyProtocols files
-REM ************************************************************
-
-:indyprotocols
-cd ..\Lib\Protocols
-
-copy zlib\i386-Win32-ZLib\*.obj ..\..\C22\ZLib\i386-Win32-ZLib > nul
-copy zlib\x86_64-Win64-ZLib\*.obj ..\..\C22\ZLib\x86_64-Win64-ZLib > nul
-copy *IndyProtocols220.dpk ..\..\C22 > nul
-copy *IndyProtocols220.dproj ..\..\C22 > nul
-copy *.res ..\..\C22 > nul
-copy *.pas ..\..\C22 > nul
-copy *.dcr ..\..\C22 > nul
-copy *.inc ..\..\C22 > nul
-copy *.ico ..\..\C22 > nul
-
-cd ..\..\C22
 
 REM ************************************************************
 REM Build IndyProtocols
 REM ************************************************************
+:indyprotocols
 
-msbuild IndyProtocols220.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
-if errorlevel 1 goto enderror
+msbuild IndyProtocols.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror2
 
 REM design time is for Win32 only
 if not "%IndyPlatform%" == "Win32" goto copygenerated
 
-msbuild dclIndyProtocols220.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
-if errorlevel 1 goto enderror
+msbuild dclIndyProtocols.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+if errorlevel 1 goto enderror2
 
-
-:copygenerated
 
 REM ************************************************************
 REM Copy over all generated files
 REM ************************************************************
+:copygenerated
+
 copy ..\Output\hpp\%IndyPlatform%\%IndyConfig%\Id*.hpp %IndyPlatform%\%IndyConfig%
 copy "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
 copy ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\Indy*.bpi %IndyPlatform%\%IndyConfig%
 if "%IndyPlatform%" == "Win32" copy "..\Output\Obj\%IndyPlatform%\%IndyConfig%\Indy*.Lib" %IndyPlatform%\%IndyConfig%
-copy indysystem220.res %IndyPlatform%\%IndyConfig%
-copy indycore220.res %IndyPlatform%\%IndyConfig%
-copy indyprotocols220.res %IndyPlatform%\%IndyConfig%
+copy indysystem.res %IndyPlatform%\%IndyConfig%
+copy indycore.res %IndyPlatform%\%IndyConfig%
+copy indyprotocols.res %IndyPlatform%\%IndyConfig%
 
 REM ************************************************************
 REM Delete all other files / directories no longer required 
@@ -190,7 +161,11 @@ if "%IndyPlatform%" == "Win32" rd ..\Output\Obj\%IndyPlatform%
 if "%IndyPlatform%" == "Win32" rd ..\Output\Obj
 rd ..\Output
 
+cd ..\Lib\Packages\RADStudio_XE8
 goto endok
+
+:enderror2
+cd ..\Lib\Packages\RADStudio_XE8
 
 :enderror
 echo Error!
@@ -202,4 +177,3 @@ echo C++Builder 22 Compiler Not Present!
 goto endok
 
 :endok
-cd ..\Lib

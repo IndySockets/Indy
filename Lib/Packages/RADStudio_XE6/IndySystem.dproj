@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{38FABDA8-AF14-4504-90AB-9F0C0E5FDEEA}</ProjectGuid>
-        <MainSource>IndySystem200.dpk</MainSource>
+        <MainSource>IndySystem.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>95</TargetedPlatforms>
@@ -157,7 +157,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">IndySystem200.dpk</Source>
+                    <Source Name="MainSource">IndySystem.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>

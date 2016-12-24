@@ -1,13 +1,13 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{F186C433-64A7-4462-B16E-16BDEC0A8AC3}</ProjectGuid>
-        <MainSource>IndyProtocols210.dpk</MainSource>
+        <MainSource>IndyProtocols.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>95</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
-        <ProjectVersion>16.0</ProjectVersion>
+        <ProjectVersion>16.1</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -76,7 +76,7 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
         <DCC_N>false</DCC_N>
-        <SanitizedProjectName>IndyProtocols210</SanitizedProjectName>
+        <SanitizedProjectName>IndyProtocols</SanitizedProjectName>
         <DCC_F>false</DCC_F>
         <GenPackage>true</GenPackage>
         <DCC_ImageBase>00400000</DCC_ImageBase>
@@ -148,8 +148,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="IndySystem210.dcp"/>
-        <DCCReference Include="IndyCore210.dcp"/>
+        <DCCReference Include="IndySystem.dcp"/>
+        <DCCReference Include="IndyCore.dcp"/>
         <DCCReference Include="IdASN1Util.pas"/>
         <DCCReference Include="IdAllAuthentications.pas"/>
         <DCCReference Include="IdAllFTPListParsers.pas"/>
@@ -408,7 +408,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">IndyProtocols210.dpk</Source>
+                    <Source Name="MainSource">IndyProtocols.dpk</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>

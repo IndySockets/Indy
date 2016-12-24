@@ -3,19 +3,19 @@
         <ProjectGuid>{7808368C-A374-419C-98E4-4862C5903790}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="System\IndySystem220.dproj">
+        <Projects Include="IndySystem.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Core\IndyCore220.dproj">
+        <Projects Include="IndyCore.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Protocols\IndyProtocols220.dproj">
+        <Projects Include="IndyProtocols.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Core\dclIndyCore220.dproj">
+        <Projects Include="dclIndyCore.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Protocols\dclIndyProtocols220.dproj">
+        <Projects Include="dclIndyProtocols.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -26,59 +26,59 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="IndySystem220">
-        <MSBuild Projects="System\IndySystem220.dproj"/>
+    <Target Name="IndySystem">
+        <MSBuild Projects="IndySystem.dproj"/>
     </Target>
-    <Target Name="IndySystem220:Clean">
-        <MSBuild Projects="System\IndySystem220.dproj" Targets="Clean"/>
+    <Target Name="IndySystem:Clean">
+        <MSBuild Projects="IndySystem.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="IndySystem220:Make">
-        <MSBuild Projects="System\IndySystem220.dproj" Targets="Make"/>
+    <Target Name="IndySystem:Make">
+        <MSBuild Projects="IndySystem.dproj" Targets="Make"/>
     </Target>
-    <Target Name="IndyCore220">
-        <MSBuild Projects="Core\IndyCore220.dproj"/>
+    <Target Name="IndyCore">
+        <MSBuild Projects="IndyCore.dproj"/>
     </Target>
-    <Target Name="IndyCore220:Clean">
-        <MSBuild Projects="Core\IndyCore220.dproj" Targets="Clean"/>
+    <Target Name="IndyCore:Clean">
+        <MSBuild Projects="IndyCore.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="IndyCore220:Make">
-        <MSBuild Projects="Core\IndyCore220.dproj" Targets="Make"/>
+    <Target Name="IndyCore:Make">
+        <MSBuild Projects="IndyCore.dproj" Targets="Make"/>
     </Target>
-    <Target Name="IndyProtocols220">
-        <MSBuild Projects="Protocols\IndyProtocols220.dproj"/>
+    <Target Name="IndyProtocols">
+        <MSBuild Projects="IndyProtocols.dproj"/>
     </Target>
-    <Target Name="IndyProtocols220:Clean">
-        <MSBuild Projects="Protocols\IndyProtocols220.dproj" Targets="Clean"/>
+    <Target Name="IndyProtocols:Clean">
+        <MSBuild Projects="IndyProtocols.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="IndyProtocols220:Make">
-        <MSBuild Projects="Protocols\IndyProtocols220.dproj" Targets="Make"/>
+    <Target Name="IndyProtocols:Make">
+        <MSBuild Projects="IndyProtocols.dproj" Targets="Make"/>
     </Target>
-    <Target Name="dclIndyCore220">
-        <MSBuild Projects="Core\dclIndyCore220.dproj"/>
+    <Target Name="dclIndyCore">
+        <MSBuild Projects="dclIndyCore.dproj"/>
     </Target>
-    <Target Name="dclIndyCore220:Clean">
-        <MSBuild Projects="Core\dclIndyCore220.dproj" Targets="Clean"/>
+    <Target Name="dclIndyCore:Clean">
+        <MSBuild Projects="dclIndyCore.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="dclIndyCore220:Make">
-        <MSBuild Projects="Core\dclIndyCore220.dproj" Targets="Make"/>
+    <Target Name="dclIndyCore:Make">
+        <MSBuild Projects="dclIndyCore.dproj" Targets="Make"/>
     </Target>
-    <Target Name="dclIndyProtocols220">
-        <MSBuild Projects="Protocols\dclIndyProtocols220.dproj"/>
+    <Target Name="dclIndyProtocols">
+        <MSBuild Projects="dclIndyProtocols.dproj"/>
     </Target>
-    <Target Name="dclIndyProtocols220:Clean">
-        <MSBuild Projects="Protocols\dclIndyProtocols220.dproj" Targets="Clean"/>
+    <Target Name="dclIndyProtocols:Clean">
+        <MSBuild Projects="dclIndyProtocols.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="dclIndyProtocols220:Make">
-        <MSBuild Projects="Protocols\dclIndyProtocols220.dproj" Targets="Make"/>
+    <Target Name="dclIndyProtocols:Make">
+        <MSBuild Projects="dclIndyProtocols.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="IndySystem220;IndyCore220;IndyProtocols220;dclIndyCore220;dclIndyProtocols220"/>
+        <CallTarget Targets="IndySystem;IndyCore;IndyProtocols;dclIndyCore;dclIndyProtocols"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="IndySystem220:Clean;IndyCore220:Clean;IndyProtocols220:Clean;dclIndyCore220:Clean;dclIndyProtocols220:Clean"/>
+        <CallTarget Targets="IndySystem:Clean;IndyCore:Clean;IndyProtocols:Clean;dclIndyCore:Clean;dclIndyProtocols:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="IndySystem220:Make;IndyCore220:Make;IndyProtocols220:Make;dclIndyCore220:Make;dclIndyProtocols220:Make"/>
+        <CallTarget Targets="IndySystem:Make;IndyCore:Make;IndyProtocols:Make;dclIndyCore:Make;dclIndyProtocols:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

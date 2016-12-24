@@ -16,9 +16,9 @@ uses
   System.ComponentModel.Design,
   System.Reflection,
   System.Runtime.InteropServices,
-  IdDsnNETCompEditor in 'IdDsnNETCompEditor.pas',
-  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas' {IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET: System.Windows.Forms.Form};
+  IdDsnNETCompEditor in '..\..\Source\IdDsnNETCompEditor.pas',
+  IdDsnCoreResourceStrings in '..\..\Source\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingNET in '..\..\Source\IdDsnPropEdBindingNET.pas' {IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET: System.Windows.Forms.Form};
 
 [assembly: AssemblyTitle('')]
 [assembly: AssemblyDescription('')]

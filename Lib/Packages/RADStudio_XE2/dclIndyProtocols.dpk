@@ -1,4 +1,4 @@
-package dclIndyProtocols160;
+package dclIndyProtocols;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -31,16 +31,19 @@ package dclIndyProtocols160;
 
 requires
   designide,
-  IndyProtocols160,
-  IndySystem160,
-  IndyCore160,
-  dclIndyCore160;
+  IndyProtocols,
+  IndySystem,
+  IndyCore,
+  dclIndyCore;
 
 contains
-  IdDsnRegister in 'IdDsnRegister.pas',
-  IdDsnResourceStrings in 'IdDsnResourceStrings.pas',
-  IdDsnSASLListEditorFormVCL in 'IdDsnSASLListEditorFormVCL.pas',
-  IdRegister in 'IdRegister.pas';
+  IdDsnRegister in '..\..\Source\IdDsnRegister.pas',
+  IdDsnResourceStrings in '..\..\Source\IdDsnResourceStrings.pas',
+  IdDsnSASLListEditorFormVCL in '..\..\Source\IdDsnSASLListEditorFormVCL.pas',
+  IdRegister in '..\..\Source\IdRegister.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.
 

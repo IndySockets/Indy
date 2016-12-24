@@ -10,7 +10,7 @@
 	</PersonalityInfo>
 	<DelphiDotNet.Personality>
 		<Source>
-			<Source Name="MainSource" Type="String">dclIndyCore90Net.dpk</Source>
+			<Source Name="MainSource" Type="String">dclIndyCoreNet.dpk</Source>
 		</Source>
 		<FileVersion>
 			<FileVersion Name="Version" Type="String">7.0</FileVersion>
@@ -120,7 +120,7 @@
 			<Directories Name="PackageDLLOutputDir" Type="String"></Directories>
 			<Directories Name="PackageDCPOutputDir" Type="String"></Directories>
 			<Directories Name="SearchPath" Type="String">W:\source\Indy10\Lib\Core;w:\source\indy10\lib\core;D:\Documents and Settings\J. Peter Mugaas.J-VI69HVK7KPRD5.000</Directories>
-			<Directories Name="Packages" Type="String">IndyCore90Net;D:\Documents and Settings\J. Peter Mugaas.J-VI69HVK7KPRD5.000\Borland.Studio.Vcl.Design.dll</Directories>
+			<Directories Name="Packages" Type="String">IndyCoreNet;D:\Documents and Settings\J. Peter Mugaas.J-VI69HVK7KPRD5.000\Borland.Studio.Vcl.Design.dll</Directories>
 			<Directories Name="Conditionals" Type="String"></Directories>
 			<Directories Name="DebugSourceDirs" Type="String"></Directories>
 			<Directories Name="UsePackages" Type="Boolean">False</Directories>

@@ -1,4 +1,4 @@
-package dclIndyCore210;
+package dclIndyCore;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -32,15 +32,18 @@ package dclIndyCore210;
 
 requires
   designide,
-  IndySystem210,
-  IndyCore210;
+  IndySystem,
+  IndyCore;
 
 contains
-  IdAboutVCL in 'IdAboutVCL.pas',
-  IdAntiFreeze in 'IdAntiFreeze.pas',
-  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
-  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBindingVCL in 'IdDsnPropEdBindingVCL.pas',
-  IdRegisterCore in 'IdRegisterCore.pas';
+  IdAboutVCL in '..\..\Source\IdAboutVCL.pas',
+  IdAntiFreeze in '..\..\Source\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Source\IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in '..\..\Source\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingVCL in '..\..\Source\IdDsnPropEdBindingVCL.pas',
+  IdRegisterCore in '..\..\Source\IdRegisterCore.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

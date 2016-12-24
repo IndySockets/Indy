@@ -14,8 +14,8 @@ echo No Command Interpreter found
 goto endok
 
 :start
-REM call clean.bat
-REM computil SetupD12
+REM call ..\clean.bat
+REM ..\computil SetupD12
 set BUILDROOT=%CD%
 pushd lib
 REM SET NDD12=C:\Builds\TP
@@ -43,61 +43,57 @@ if (%NDD12%)==() goto enderror
 ECHO ****************
 ECHO  Compile System
 ECHO ****************
-CD System
 call %BUILDROOT%\clean.bat
-%NDD12%\Tools\brcc32.exe IndySystem120.rc
+%NDD12%\Tools\brcc32.exe IndySystem.rc
 echo ready to compile System
-%D12DCC% IndySystem120.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
-REM %D12DCC% -B IndySystem120.dpk /Oobjs /m /h /w /N..\..\D120 -$d-l-n+p+r-s-t-w- -U%NDD12%\intermediate\release\lib -I%NDD12%\intermediate\release\lib -LN%NDD12%\intermediate\release\dcp
+%D12DCC% IndySystem.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
+REM %D12DCC% -B IndySystem.dpk /Oobjs /m /h /w /N..\..\..\D120 -$d-l-n+p+r-s-t-w- -U%NDD12%\intermediate\release\lib -I%NDD12%\intermediate\release\lib -LN%NDD12%\intermediate\release\dcp
 if errorlevel 1 goto enderror
-REM copy *120.bpl ..\..\D120 >nul
-REM copy *120.dcp ..\..\D120 >nul
-REM copy ..\..\D120\IndySystem120.bpl %NDWINSYS% >nul
+REM copy *120.bpl ..\..\..\D120 >nul
+REM copy *.dcp ..\..\..\D120 >nul
+REM copy ..\..\..\D120\IndySystem120.bpl %NDWINSYS% >nul
 move /y IndySystem120.bpl %BINOUTDIR% 
-CD ..
 
 ECHO **************
 ECHO  Compile Core
 ECHO **************
-CD Core
 call %BUILDROOT%\clean.bat
-%NDD12%\Tools\brcc32.exe IndyCore120.rc
-%NDD12%\Tools\brcc32.exe dclIndyCore120.rc
-%D12DCC% IndyCore120.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
+%NDD12%\Tools\brcc32.exe IndyCore.rc
+%NDD12%\Tools\brcc32.exe dclIndyCore.rc
+%D12DCC% IndyCore.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
 if errorlevel 1 goto enderror
-%D12DCC% dclIndyCore120.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
+%D12DCC% dclIndyCore.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
 if errorlevel 1 goto enderror
 move /y *120.bpl %BINOUTDIR% >nul
-REM copy *120.dcp ..\..\D120 >nul
-CD ..
+REM copy *.dcp ..\..\..\D120 >nul
 
 ECHO *******************
 ECHO  Compile Protocols
 ECHO *******************
-CD Protocols
 call %BUILDROOT%\clean.bat
 
 ECHO ************************
 ECHO  IdCompressionIntercept
 ECHO ************************
-%D12DCC% -B -M -N%BUILDROOT%\D120 /U%DCUOUTDIR% -H -W -Z IdCompressionIntercept.pas -$d-l- %DCCSWTS% 
+%D12DCC% -B -M -N%BUILDROOT%\D120 /U%DCUOUTDIR% -H -W -Z ..\..\Source\IdCompressionIntercept.pas -$d-l- %DCCSWTS% 
 if errorlevel 1 goto enderror
 
-%NDD12%\Tools\brcc32.exe IndyProtocols120.rc
-%NDD12%\Tools\brcc32.exe dclIndyProtocols120.rc
-%D12DCC% IndyProtocols120.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- -I..\D120 %DCCSWTS% %BCBSWTS% %2 %3 %4
+%NDD12%\Tools\brcc32.exe IndyProtocols.rc
+%NDD12%\Tools\brcc32.exe dclIndyProtocols.rc
+%D12DCC% IndyProtocols.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- -I..\D120 %DCCSWTS% %BCBSWTS% %2 %3 %4
 if errorlevel 1 goto enderror
-%D12DCC% dclIndyProtocols120.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
+%D12DCC% dclIndyProtocols.dpk /Oobjs /m /h /w /N%BUILDROOT%\D120 /U%DCUOUTDIR% -$d-l-n+p+r-s-t-w- %DCCSWTS% %BCBSWTS% %2 %3 %4
 if errorlevel 1 goto enderror
 
 move /y *120.bpl %BINOUTDIR% >nul
-REM copy *120.dcp ..\..\D120 
-copy %NDD12%\intermediate\release\dcp\*indy*120.dcp %DCPOUTDIR% 
-CD ..
+REM copy *.dcp ..\..\..\D120 
+copy %NDD12%\intermediate\release\dcp\*indy*.dcp %DCPOUTDIR% 
 
 goto endok
+
 :enderror
 call ..\clean.bat
 echo Error!
+
 :endok
 popd

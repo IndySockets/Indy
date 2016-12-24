@@ -1,4 +1,4 @@
-package IndySystem220;
+package IndySystem;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -46,35 +46,38 @@ requires
   ;
 
 contains
-  IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
-  IdBaseComponent in 'IdBaseComponent.pas',
-  IdCTypes in 'IdCTypes.pas',
-  IdComponent in 'IdComponent.pas',
-  IdException in 'IdException.pas',
-  IdGlobal in 'IdGlobal.pas',
-  IdIDN in 'IdIDN.pas',
-  IdResourceStrings in 'IdResourceStrings.pas',
+  IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\IdBaseComponent.pas',
+  IdCTypes in '..\..\Source\IdCTypes.pas',
+  IdComponent in '..\..\Source\IdComponent.pas',
+  IdException in '..\..\Source\IdException.pas',
+  IdGlobal in '..\..\Source\IdGlobal.pas',
+  IdIDN in '..\..\Source\IdIDN.pas',
+  IdResourceStrings in '..\..\Source\IdResourceStrings.pas',
   {$IFNDEF WINDOWS}
-  IdResourceStringsUnix in 'IdResourceStringsUnix.pas',
-  IdResourceStringsVCLPosix in 'IdResourceStringsVCLPosix.pas',
+  IdResourceStringsUnix in '..\..\Source\IdResourceStringsUnix.pas',
+  IdResourceStringsVCLPosix in '..\..\Source\IdResourceStringsVCLPosix.pas',
   {$ENDIF}
-  IdStack in 'IdStack.pas',
-  IdStackBSDBase in 'IdStackBSDBase.pas',
-  IdStackConsts in 'IdStackConsts.pas',
+  IdStack in '..\..\Source\IdStack.pas',
+  IdStackBSDBase in '..\..\Source\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Source\IdStackConsts.pas',
   {$IFDEF WINDOWS}
-  IdStackWindows in 'IdStackWindows.pas',
+  IdStackWindows in '..\..\Source\IdStackWindows.pas',
   {$ELSE}
-  IdStackVCLPosix in 'IdStackVCLPosix.pas',
+  IdStackVCLPosix in '..\..\Source\IdStackVCLPosix.pas',
   {$ENDIF}
-  IdStream in 'IdStream.pas',
-  IdStreamVCL in 'IdStreamVCL.pas',
-  IdStruct in 'IdStruct.pas',
+  IdStream in '..\..\Source\IdStream.pas',
+  IdStreamVCL in '..\..\Source\IdStreamVCL.pas',
+  IdStruct in '..\..\Source\IdStruct.pas',
   {$IFDEF WINDOWS}
-  IdWinsock2 in 'IdWinsock2.pas',
-  IdWship6 in 'IdWship6.pas'
+  IdWinsock2 in '..\..\Source\IdWinsock2.pas',
+  IdWship6 in '..\..\Source\IdWship6.pas'
   {$ELSE}
-  IdVCLPosixSupplemental in 'IdVCLPosixSupplemental.pas'
+  IdVCLPosixSupplemental in '..\..\Source\IdVCLPosixSupplemental.pas'
   {$ENDIF}
   ;
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

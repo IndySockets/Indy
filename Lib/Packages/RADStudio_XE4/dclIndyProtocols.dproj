@@ -1,9 +1,9 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{D0FA9AC7-BF09-4804-95B1-28E53FC804DD}</ProjectGuid>
-        <MainSource>dclIndyProtocols180.dpk</MainSource>
+        <MainSource>dclIndyProtocols.dpk</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
@@ -89,10 +89,10 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="designide.dcp"/>
-        <DCCReference Include="IndyProtocols180.dcp"/>
-        <DCCReference Include="IndySystem180.dcp"/>
-        <DCCReference Include="IndyCore180.dcp"/>
-        <DCCReference Include="dclIndyCore180.dcp"/>
+        <DCCReference Include="IndyProtocols.dcp"/>
+        <DCCReference Include="IndySystem.dcp"/>
+        <DCCReference Include="IndyCore.dcp"/>
+        <DCCReference Include="dclIndyCore.dcp"/>
         <DCCReference Include="IdDsnRegister.pas"/>
         <DCCReference Include="IdDsnResourceStrings.pas"/>
         <DCCReference Include="IdDsnSASLListEditorFormVCL.pas"/>
@@ -115,7 +115,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">dclIndyProtocols180.dpk</Source>
+                    <Source Name="MainSource">dclIndyProtocols.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>

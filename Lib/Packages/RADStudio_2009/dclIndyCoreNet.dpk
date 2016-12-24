@@ -1,4 +1,4 @@
-package dclIndyCore120Net;
+package dclIndyCoreNet;
 
 {$ALIGN 0}
 {$BOOLEVAL OFF}
@@ -23,16 +23,19 @@ package dclIndyCore120Net;
 requires
   System.Windows.Forms,
   Borland.Studio.Vcl.Design,
-  IndySystem120Net,
-  IndyCore120Net;
+  IndySystemNet,
+  IndyCoreNet;
 
 contains
-  IdAboutDotNET in 'IdAboutDotNET.pas',
-  IdAntiFreeze in 'IdAntiFreeze.pas',
-  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
-  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas',
-  IdRegisterCore in 'IdRegisterCore.pas';
-{$I IddclCore90ASM90.inc}
+  IdAboutDotNET in '..\..\Source\IdAboutDotNET.pas',
+  IdAntiFreeze in '..\..\Source\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Source\IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in '..\..\Source\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingNET in '..\..\Source\IdDsnPropEdBindingNET.pas',
+  IdRegisterCore in '..\..\Source\IdRegisterCore.pas';
+{$I ..\..\Source\IddclCore90ASM90.inc}
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

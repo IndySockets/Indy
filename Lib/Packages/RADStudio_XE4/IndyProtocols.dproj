@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{9165FD9C-BA6D-4584-A9B4-0858F66AC0CA}</ProjectGuid>
-        <MainSource>IndyProtocols180.dpk</MainSource>
+        <MainSource>IndyProtocols.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>79</TargetedPlatforms>
@@ -102,8 +102,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="IndySystem180.dcp"/>
-        <DCCReference Include="IndyCore180.dcp"/>
+        <DCCReference Include="IndySystem.dcp"/>
+        <DCCReference Include="IndyCore.dcp"/>
         <DCCReference Include="IdASN1Util.pas"/>
         <DCCReference Include="IdAllAuthentications.pas"/>
         <DCCReference Include="IdAllFTPListParsers.pas"/>
@@ -362,7 +362,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">IndyProtocols180.dpk</Source>
+                    <Source Name="MainSource">IndyProtocols.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>

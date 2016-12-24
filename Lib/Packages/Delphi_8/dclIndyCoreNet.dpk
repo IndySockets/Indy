@@ -1,4 +1,4 @@
-package dclIndyCore80Net;
+package dclIndyCoreNet;
 
 {$ALIGN 0}
 {$ASSERTIONS ON}
@@ -27,15 +27,18 @@ package dclIndyCore80Net;
 
 requires
   Borland.Studio.Vcl.Design,
-  IndyCore80Net;
+  IndyCoreNet;
 
 contains
-  IdAbout in 'IdAbout.pas',
-  IdAntiFreeze in 'IdAntiFreeze.pas',
-  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
-  IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
-  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
-  IdRegisterCore in 'IdRegisterCore.pas';
+  IdAbout in '..\..\Source\IdAbout.pas',
+  IdAntiFreeze in '..\..\Source\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Source\IdCoreDsnRegister.pas',
+  IdDsnBaseCmpEdt in '..\..\Source\IdDsnBaseCmpEdt.pas',
+  IdDsnCoreResourceStrings in '..\..\Source\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBinding in '..\..\Source\IdDsnPropEdBinding.pas',
+  IdRegisterCore in '..\..\Source\IdRegisterCore.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

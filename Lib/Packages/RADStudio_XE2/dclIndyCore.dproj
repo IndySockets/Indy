@@ -1,7 +1,7 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
 			<ProjectGuid>{0EBD02B6-2201-4571-8FCB-6650CE38093D}</ProjectGuid>
-			<MainSource>dclIndyCore160.dpk</MainSource>
+			<MainSource>dclIndyCore.dpk</MainSource>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<TargetedPlatforms>1</TargetedPlatforms>
@@ -64,7 +64,7 @@
 			<Icon_MainIcon>dclIndyCore_Icon.ico</Icon_MainIcon>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win32)'!=''">
-			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+			<DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
 			<Icon_MainIcon>dclIndyCore_Icon.ico</Icon_MainIcon>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 		</PropertyGroup>
@@ -90,8 +90,8 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="designide.dcp"/>
-			<DCCReference Include="IndySystem160.dcp"/>
-			<DCCReference Include="IndyCore160.dcp"/>
+			<DCCReference Include="IndySystem.dcp"/>
+			<DCCReference Include="IndyCore.dcp"/>
 			<DCCReference Include="IdAboutVCL.pas"/>
 			<DCCReference Include="IdAntiFreeze.pas"/>
 			<DCCReference Include="IdCoreDsnRegister.pas"/>
@@ -116,7 +116,7 @@
 			<BorlandProject>
 				<Delphi.Personality>
 					<Source>
-						<Source Name="MainSource">dclIndyCore160.dpk</Source>
+						<Source Name="MainSource">dclIndyCore.dpk</Source>
 					</Source>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>

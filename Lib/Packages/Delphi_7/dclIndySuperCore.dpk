@@ -1,4 +1,4 @@
-package dclIndySuperCore70;
+package dclIndySuperCore;
 
 {$R *.res}
 {$ALIGN 8}
@@ -29,11 +29,14 @@ package dclIndySuperCore70;
 requires
   vcl,
   designide,
-  dclIndyCore70,
-  IndyCore70,
-  IndySuperCore70;
+  dclIndyCore,
+  IndyCore,
+  IndySuperCore;
 
 contains
-  IdSuperCoreRegister in 'IdSuperCoreRegister.pas';
+  IdSuperCoreRegister in '..\..\Source\IdSuperCoreRegister.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
 
 end.
