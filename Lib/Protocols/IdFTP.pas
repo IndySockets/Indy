@@ -1640,9 +1640,6 @@ var
 begin
   DoOnDataChannelDestroy;
   if FDataChannel <> nil then begin
-    {$IFNDEF USE_OBJECT_ARC}
-    FDataChannel.IOHandler.Free;
-    {$ENDIF}
     FDataChannel.IOHandler := nil;
     FreeAndNil(FDataChannel);
   end;
@@ -2198,11 +2195,24 @@ begin
     Exit;
   end;
   if FDataPortProtection = ftpdpsPrivate then begin
-    LSSL := TIdSSLIOHandlerSocketBase(IOHandler);
-    FDataChannel.IOHandler := LSSL.Clone;
+    LSSL := TIdSSLIOHandlerSocketBase(IOHandler).Clone;
+    {$IFDEF USE_OBJECT_ARC}
+    // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
+    // TIdSSLIOHandlerSocketBase.Clone() returns an IOHandler with no Owner
+    // assigned, so lets make the TIdTCPConnection become the Owner in order
+    // to keep the IOHandler alive when this method exits.
+    //
+    // TODO: should we assign Ownership unconditionally on all platforms?
+    //
+    // TODO: add an AOwner parameter to Clone()
+    //
+    FDataChannel.InsertComponent(LSSL);
+    {$ENDIF}
+    FDataChannel.IOHandler := LSSL;
+    FDataChannel.ManagedIOHandler := True;
     //we have to delay the actual negotiation until we get the reply and
-    //and just before the readString
-    TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := True;
+    //just before the readString
+    LSSL.Passthrough := True;
   end else begin
     FDataChannel.IOHandler := TIdIOHandler.MakeDefaultIOHandler(Self);
   end;
