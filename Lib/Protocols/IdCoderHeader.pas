@@ -332,11 +332,11 @@ begin
     // valid encoded words can not contain spaces
     // if the user types something *almost* like an encoded word,
     // and its sent as-is, we need to find this!!
-    LStartPos := FindFirstNotOf(LWS, Result, LLength, LStartPos);
+    LStartPos := FindFirstNotOf(LWS+CR+LF, Result, LLength, LStartPos);
     if LStartPos = 0 then begin
       Break;
     end;
-    LEncodingEndPos := FindFirstOf(LWS, Result, LLength, LStartPos);
+    LEncodingEndPos := FindFirstOf(LWS+CR+LF, Result, LLength, LStartPos);
     if LEncodingEndPos <> 0 then begin
       Dec(LEncodingEndPos);
     end else begin
@@ -371,7 +371,7 @@ begin
       LLastStartPos := LStartPos;
     end else
     begin
-      LStartPos := FindFirstOf(LWS, Result, LLength, LStartPos);
+      LStartPos := FindFirstOf(LWS+CR+LF, Result, LLength, LStartPos);
       if LStartPos = 0 then begin
         Break;
       end;
