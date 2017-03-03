@@ -2828,7 +2828,9 @@ begin
   // provide the user with the headers and let the user decide
   // whether the response processing should continue...
   if not HeadersCanContinue then begin
-    Response.KeepAlive := False; // TODO: provide the user an option whether to force DoRequest() to disconnect the connection or not
+    // TODO: provide the user an option whether to force DoRequest() to disconnect the connection or not
+    Response.KeepAlive := False;
+    Response.Connection := 'close'; {do not localize}
     Result := wnJustExit;
     Exit;
   end;
