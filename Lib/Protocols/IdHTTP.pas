@@ -2568,7 +2568,7 @@ begin
         { By default we assume that keep-alive is used and will close
           the connection only if there is "close" }
         begin
-          FKeepAlive := not TextIsSame(Trim(Connection), 'CLOSE');
+          FKeepAlive := not TextIsSame(Trim(Connection), 'CLOSE'); {do not localize}
           if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
             FKeepAlive := not TextIsSame(Trim(ProxyConnection), 'CLOSE'); {do not localize}
           end;
@@ -2577,7 +2577,7 @@ begin
         { By default we assume that keep-alive is not used and will keep
           the connection only if there is "keep-alive" }
         begin
-          FKeepAlive := TextIsSame(Trim(Connection), 'KEEP-ALIVE')
+          FKeepAlive := TextIsSame(Trim(Connection), 'KEEP-ALIVE') {do not localize}
             { or ((ResponseVersion = pv1_1) and (Trim(Connection) = '')) }
             ;
           if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
