@@ -1896,8 +1896,8 @@ begin
           if IOHandler = nil then begin
             raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
           end;
-          IOHandler.OnStatus := OnStatus;
           ManagedIOHandler := True;
+          IOHandler.OnStatus := OnStatus;
         end
         else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
           raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
@@ -1946,22 +1946,19 @@ begin
   LUseConnectVerb := False;
 
   case ARequest.UseProxy of
-    ctNormal:
+    ctNormal, ctSSL:
       begin
         if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
         begin
           ARequest.Connection := 'keep-alive';      {do not localize}
         end;
       end;
-    ctSSL, ctSSLProxy:
+    ctSSLProxy:
       begin
-        ARequest.Connection := '';
-        if ARequest.UseProxy = ctSSLProxy then begin
-          // if already connected to an SSL proxy, DO NOT send another
-          // CONNECT request, as it will be sent directly to the target
-          // HTTP server and not to the proxy!
-          LUseConnectVerb := not Connected;
-        end;
+        // if already connected to an SSL proxy, DO NOT send another
+        // CONNECT request, as it will be sent directly to the target
+        // HTTP server and not to the proxy!
+        LUseConnectVerb := not Connected;
       end;
     ctProxy:
       begin
@@ -2551,30 +2548,43 @@ begin
     FHTTP.IOHandler.CheckForDisconnect(False);
   end;
 
+  // has the connection already been closed?
   FKeepAlive := FHTTP.Connected;
 
   if FKeepAlive then
   begin
+    // did the client request the connection to be closed?
+    FKeepAlive := not TextIsSame(Trim(FHTTP.Request.Connection), 'CLOSE');   {do not localize}
+    if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
+      FKeepAlive := not TextIsSame(Trim(FHTTP.Request.ProxyConnection), 'CLOSE');   {do not localize}
+    end;
+  end;
+
+  if FKeepAlive then
+  begin
+    // did the server/proxy say the connection will be closed?
     case FHTTP.ProtocolVersion of // TODO: use ResponseVersion instead?
       pv1_1:
-        { By default we assume that keep-alive is by default and will close
-          the connection only there is "close" }
+        { By default we assume that keep-alive is used and will close
+          the connection only if there is "close" }
         begin
-          FKeepAlive := not (
-            TextIsSame(Trim(Connection), 'CLOSE') or   {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'CLOSE') {do not localize}
-          );
+          FKeepAlive := not TextIsSame(Trim(Connection), 'CLOSE');
+          if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
+            FKeepAlive := not TextIsSame(Trim(ProxyConnection), 'CLOSE'); {do not localize}
+          end;
         end;
       pv1_0:
-        { By default we assume that keep-alive is not by default and will keep
+        { By default we assume that keep-alive is not used and will keep
           the connection only if there is "keep-alive" }
         begin
-          FKeepAlive :=
-            TextIsSame(Trim(Connection), 'KEEP-ALIVE') or   {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE') {do not localize}
-             { or ((ResponseVersion = pv1_1) and
-              (Length(Trim(Connection)) = 0) and
-              (Length(Trim(ProxyConnection)) = 0)) };
+          FKeepAlive := TextIsSame(Trim(Connection), 'KEEP-ALIVE')
+            { or ((ResponseVersion = pv1_1) and (Trim(Connection) = '')) }
+            ;
+          if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
+            FKeepAlive := TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE') {do not localize}
+              { or ((ResponseVersion = pv1_1) and (Trim(ProxyConnection) = '')) }
+              ;
+          end;
         end;
     end;
   end;
