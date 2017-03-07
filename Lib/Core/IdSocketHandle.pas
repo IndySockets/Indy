@@ -399,7 +399,7 @@ begin
     on E: EIdSocketError do begin
       //if E.LastError <> EINVAL then raise;
     end;
-  end
+  end;
     {$ENDIF}
   {$ENDIF}
 
