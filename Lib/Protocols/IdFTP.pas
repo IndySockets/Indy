@@ -1458,7 +1458,7 @@ begin
     LHost := FHost;
   end;
   if Socket <> nil then begin
-    if LHost = Socket.Binding.PeerIP then begin
+    if (IPVersion = Id_IPv6) and (MakeCanonicalIPv6Address(LHost) <> '') then begin
       LHost := '[' + LHost + ']'; {do not localize}
     end;
   end;
