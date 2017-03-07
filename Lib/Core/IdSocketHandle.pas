@@ -376,6 +376,7 @@ begin
     Id_SO_False
   );
   SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, LValue);
+
   {$IFDEF DCC}
     {$IFDEF LINUX64}
   // RLebeau 1/18/2016: Embarcadero's PAServer on Linux64 fails quickly with
@@ -384,9 +385,24 @@ begin
   // so let's limit this fix to just Delphi for now. Should we add a
   // HAS_SO_REUSEPORT define so FPC can use this too?  What about adding a
   // new ReusePort property to configure this separately from ReuseSocket?
-  SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEPORT, LValue);
+
+  // RLebeau 3/7/2017: Windows 10 has a Developer Mode that includes a Linux
+  // Bash shell for running Linux executables directly in Windows. However,
+  // PAServer fails to open a listening socket in this Shell with an
+  // "Error #22 invalid argument" error.  Since SO_REUSEPORT does not exist
+  // on Windows, could that be why?  Let's just ignore any socket errors here
+  // for now...
+
+  try
+    SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEPORT, LValue);
+  except
+    on E: EIdSocketError do begin
+      //if E.LastError <> EINVAL then raise;
+    end;
+  end
     {$ENDIF}
   {$ENDIF}
+
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
     if (FClientPortMin > FClientPortMax) then begin
       raise EIdInvalidPortRange.CreateFmt(RSInvalidPortRange, [FClientPortMin, FClientPortMax]);
