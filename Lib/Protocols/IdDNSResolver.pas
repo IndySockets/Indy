@@ -1582,7 +1582,9 @@ begin
     end;
   except
     on EIdNotEnoughData do begin
-      IndyRaiseOuterException(EIdDnsResolverError.Create(GetErrorStr(2, 3)));
+      if DNSHeader.TC = 0 then begin
+        IndyRaiseOuterException(EIdDnsResolverError.Create(GetErrorStr(2, 3)));
+      end;
     end;
   end;
 end;
