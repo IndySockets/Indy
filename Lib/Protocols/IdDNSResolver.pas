@@ -570,7 +570,53 @@ implementation
 uses
   IdBaseComponent,
   IdResourceStringsProtocols,
-  IdStack, SysUtils;
+  IdStack, SysUtils,
+  IdException;
+
+type
+  EIdNotEnoughData = class(EIdException);
+
+function ParseUInt8(const Buffer: TIdBytes; var VPos: Integer): UInt8;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if VPos >= Length(Buffer) then begin
+    raise EIdNotEnoughData.Create('');
+  end;
+  Result := Buffer[VPos];
+  Inc(VPos);
+end;
+
+function ParseUInt16(const Buffer: TIdBytes; var VPos: Integer; const AConvert: Boolean = True): UInt16; overload;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (VPos+1) >= Length(Buffer) then begin
+    raise EIdNotEnoughData.Create('');
+  end;
+  Result := TwoByteToUInt16(Buffer[VPos], Buffer[VPos + 1]);
+  Inc(VPos, 2);
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
+  end;
+end;
+
+function ParseUInt16(const Byte1, Byte2: Byte; const AConvert: Boolean = True): UInt16; overload;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TwoByteToUInt16(Byte1, Byte2);
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
+  end;
+end;
+
+function ParseUInt32(const Buffer: TIdBytes; var VPos: Integer): UInt32;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  if (VPos+3) >= Length(Buffer) then begin
+    raise EIdNotEnoughData.Create('');
+  end;
+  Result := GStack.NetworkToHost(OrdFourByteToUInt32(Buffer[VPos], Buffer[VPos + 1], Buffer[VPos + 2], Buffer[VPos + 3]));
+  Inc(VPos, 4);
+end;
 
 // SG 28/1/02: Changed that function according to original Author of the old comp: Ray Malone
 function DNSStrToDomain(const DNSStr: TIdBytes; var VPos: Integer): string;
@@ -588,6 +634,7 @@ begin
   while VPos < PackSize do // name field ends with nul byte
   begin
     Len := DNSStr[VPos];
+    Inc(VPos);
 
     // RLebeau 5/4/2009: sometimes the first entry of a domain's record is
     // not defined, so account for that here at the top of the loop instead
@@ -600,21 +647,27 @@ begin
     while (Len and $C0) = $C0 do  // {!!0.01} added loop for pointer
     begin                         // that points to a pointer. Removed  >63 hack. Am I really that stupid?
       if SavedIdx < 0 then begin
-        SavedIdx := Succ(VPos);  // it is important to return to original index spot
+        SavedIdx := Succ(VPos);  // it is important to return to original index of next element when we go down more than 1 level.
       end;
-      // when we go down more than 1 level.
+      if VPos >= Length(DNSStr) then begin
+        raise EIdNotEnoughData.Create('');
+      end;
       B := Len and $3F;                       // strip first two bits ($C) from first byte of offset pos
-      VPos := GStack.NetworkToHost(TwoByteToUInt16(B, DNSStr[VPos + 1]));// + 1; // add one to index for delphi string index //VV
-      Len := DNSStr[VPos];  // if len is another $Cx we will (while) loop again
+      VPos := ParseUInt16(B, DNSStr[VPos]);
+      if VPos >= Length(DNSStr) then begin
+        raise EIdNotEnoughData.Create('');
+      end;
+      Len := DNSStr[VPos]; // if len is another $Cx we will (while) loop again
+      Inc(VPos);
     end;
 
     Assert(VPos < PackSize, GetErrorStr(2, 2)); // loop screwed up. This very very unlikely now could be removed.
 
-    LabelStr := BytesToString(DNSStr, VPos+1, Len);
-    Inc(VPos, 1+Len);
+    LabelStr := BytesToString(DNSStr, VPos, Len);
+    Inc(VPos, Len);
 
-    if Pred(VPos) > PackSize then begin // len byte was corrupted puting us past end of packet
-      raise EIdDnsResolverError.Create(GetErrorStr(2, 3));
+    if VPos >= PackSize then begin // len byte was corrupted puting us past end of packet
+      raise EIdNotEnoughData.Create('');
     end;
 
     Result := Result + LabelStr + '.';  // concat and add period.  {Do not Localize}
@@ -625,17 +678,15 @@ begin
   end;
 
   if SavedIdx >= 0 then begin
-    VPos := SavedIdx; // restore original Idx +1
+    VPos := SavedIdx; // restore original Idx
   end;
-
-  Inc(VPos); // set to first char of next item in the resource
 end;
 
 function NextDNSLabel(const DNSStr: TIdBytes; var VPos: Integer): string;
 var
   LabelLength: Byte;
 begin
-  if Length(DNSStr) > VPos then begin
+  if VPos < Length(DNSStr) then begin
     LabelLength := DNSStr[VPos];
     Inc(VPos);
     //VV Shouldn't be pointers in Text messages
@@ -661,9 +712,7 @@ end;
 procedure TRDATARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  if Length(RData) > 0 then begin
-    FIPAddress := MakeUInt32IntoIPv4Address(GStack.NetworkToHost(OrdFourByteToUInt32(RData[0], RData[1], RData[2], RData[3])));
-  end;
+  FIPAddress := MakeUInt32IntoIPv4Address(ParseUInt16(RData, APos));
 end;
 
 { TMXRecord }
@@ -703,11 +752,11 @@ var
 begin
   // extract the RR data
   RRName := DNSStrToDomain(Answer, APos);
-  RR_Type := GStack.NetworkToHost( TwoByteToUInt16(Answer[APos], Answer[APos + 1]));
-  RR_Class := GStack.NetworkToHost(TwoByteToUInt16(Answer[APos + 2], Answer[APos + 3]));
-  RR_TTL := GStack.NetworkToHost(OrdFourByteToUInt32(Answer[APos + 4], Answer[APos + 5], Answer[APos + 6], Answer[APos + 7]));
-  RD_Length := GStack.NetworkToHost(TwoByteToUInt16(Answer[APos + 8], Answer[APos + 9]));
-  RData := Copy(Answer, APos + 10, RD_Length);
+  RR_Type := ParseUInt16(Answer, APos);
+  RR_Class := ParseUInt16(Answer, APos);
+  RR_TTL := ParseUInt32(Answer, APos);
+  RD_Length := ParseUInt16(Answer, APos);
+  RData := Copy(Answer, APos, RD_Length);
   // remove what we have read from the buffer
   // Read the record type
   // Dennies Chang had modified this part to indicate type by RR_type
@@ -775,9 +824,10 @@ begin
       Result := TResultRecord.Create(Self);
     end;
   end; // case
-  // Set the "general purpose" options
-  if Assigned(Result) then
-  begin
+
+  try
+    // Set the "general purpose" options
+
     //if RR_Type <= High(QueryRecordTypes) then
     // modified in 2004 7/15.
     case RR_Type of
@@ -830,19 +880,22 @@ begin
     Result.FRecClass := RR_Class;
     Result.FName := RRName;
     Result.FTTL := RR_TTL;
-    Result.FRData := Copy(RData, 0{1}, RD_Length);
+    Result.FRData := Copy(RData, 0, Length(RData));
     Result.FRDataLength := RD_Length;
     Result.FTypeCode := RR_Type;
 
     // Parse the result
     // Since the DNS message can be compressed, we need to have the whole message to parse it, in case
     // we encounter a pointer
-    //Result.Parse(Copy(Answer, 0{1}, APos + 9 + RD_Length), APos + 10);
-    Result.Parse(Answer, APos + 10);
+    Result.Parse(Answer, APos);
+  except
+    on EIdNotEnoughData do begin
+      // let the caller handle truncated data as needed...
+    end;
   end;
 
   // Set the new position
-  Inc(APos, RD_Length + 10);
+  Inc(APos, RD_Length);
 end;
 
 constructor TQueryResult.Create;
@@ -889,7 +942,7 @@ begin
   end;
 end;
 
-procedure TResultRecord.Parse;
+procedure TResultRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
 end;
 
@@ -945,8 +998,7 @@ end;
 procedure TMXRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FPreference := GStack.NetworkToHost(TwoByteToUInt16(CompleteMessage[APos], CompleteMessage[APos + 1]));
-  Inc(APos, 2);
+  FPreference := ParseUInt16(CompleteMessage, APos);
   FExchangeServer := DNSStrToDomain(CompleteMessage, APos);
 end;
 
@@ -976,21 +1028,25 @@ end;
 //which has an encoded public key
 procedure TTextRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 var
-  LStart: Integer;
+  LEnd: Integer;
   Buffer: string;
 begin
   FText.Clear;
 
-  LStart := APos;
-  while APos < (LStart+RDataLength) do
-  begin  
+  inherited Parse(CompleteMessage, APos);
+
+  LEnd := APos + Length(RData);
+  while APos < LEnd do
+  begin
     Buffer := NextDNSLabel(CompleteMessage, APos);
     if Buffer <> '' then begin  {Do not Localize}
       FText.Add(Buffer);
     end;
   end;
 
-  inherited Parse(CompleteMessage, APos);
+  if APos > Length(CompleteMessage) then begin // len byte was corrupted puting us past end of packet
+    raise EIdNotEnoughData.Create('');
+  end;
 end;
 
 { TSOARecord }
@@ -1015,23 +1071,13 @@ end;
 procedure TSOARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-
   FMNAME := DNSStrToDomain(CompleteMessage, APos);
   FRNAME := DNSStrToDomain(CompleteMessage, APos);
-
-  FSerial := GStack.NetworkToHost(OrdFourByteToUInt32(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  Inc(APos, 4);
-
-  FRefresh := GStack.NetworkToHost( OrdFourByteToUInt32(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  Inc(APos, 4);
-
-  FRetry := GStack.NetworkToHost( OrdFourByteToUInt32(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  Inc(APos, 4);
-
-  FExpire := GStack.NetworkToHost( OrdFourByteToUInt32(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  Inc(APos, 4);
-
-  FMinimumTTL := GStack.NetworkToHost( OrdFourByteToUInt32(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
+  FSerial := ParseUInt32(CompleteMessage, APos);
+  FRefresh := ParseUInt32(CompleteMessage, APos);
+  FRetry := ParseUInt32(CompleteMessage, APos);
+  FExpire := ParseUInt32(CompleteMessage, APos);
+  FMinimumTTL := ParseUInt32(CompleteMessage, APos);
 end;
 
 { TWKSRecord }
@@ -1058,9 +1104,10 @@ end;
 procedure TWKSRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FIPAddress := MakeUInt32IntoIPv4Address(GStack.NetworkToHost(OrdFourByteToUInt32(RData[0], RData[1], RData[2], RData[3])));
-  FProtocol := UInt16(RData[4]);
-  FData := ToBytes(RData, Length(RData)-5, 5);
+  APos := 0;
+  FIPAddress := MakeUInt32IntoIPv4Address(ParseUInt32(RData, APos));
+  FProtocol := UInt16(ParseUInt8(RData, APos));
+  FData := Copy(RData, APos, MaxInt);
 end;
 
 { TMINFORecord }
@@ -1103,8 +1150,13 @@ end;
 procedure THINFORecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
+
   FCPU := NextDNSLabel(CompleteMessage, APos);
   FOS := NextDNSLabel(CompleteMessage, APos);
+
+  if APos > Length(CompleteMessage) then begin // len byte was corrupted puting us past end of packet
+    raise EIdNotEnoughData.Create('');
+  end;
 end;
 
 
@@ -1124,12 +1176,15 @@ var
   i : Integer;
 begin
   inherited Parse(CompleteMessage, APos);
-  if Length(RData) >= 15 then begin
-     BytesToIPv6(RData, FIP6);
-     for i := 0 to 7 do begin
-       FIP6[i] := GStack.NetworkToHost(FIP6[i]);
-     end;
-     FAddress :=  IPv6AddressToStr(FIP6);
+  if Length(RData) > 0 then begin
+    if Length(RData) < 16 then begin
+      raise EIdNotEnoughData.Create('');
+    end;
+    BytesToIPv6(RData, FIP6);
+    for i := 0 to 7 do begin
+      FIP6[i] := GStack.NetworkToHost(FIP6[i]);
+    end;
+    FAddress := IPv6AddressToStr(FIP6);
   end;
 end;
 
@@ -1258,6 +1313,7 @@ begin
         Inc(iQ);
       end;
     end;
+    FDNSHeader.ARCount := 1;
   end;
 
   FDNSHeader.QDCount := iQ;
@@ -1273,12 +1329,11 @@ begin
        (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then {do not localize}
     begin
       AppendBytes(AQuestion, DoHostAddress(ADomain));
-      AppendByte(AQuestion, 0);
     end else
     begin
       AppendBytes(AQuestion, DoDomainName(ADomain));
-      AppendByte(AQuestion, 0);
     end;
+    AppendByte(AQuestion, 0);
     //we do this in a round about manner because HostToNetwork will not always
     //work the same
     w := 252;
@@ -1295,12 +1350,11 @@ begin
        (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then {do not localize}
     begin
       AppendBytes(AQuestion, DoHostAddress(ADomain));
-      AppendByte(AQuestion, 0);
     end else
     begin
       AppendBytes(AQuestion, DoDomainName(ADomain));
-      AppendByte(AQuestion, 0);
     end;
+    AppendByte(AQuestion, 0);
     //we do this in a round about manner because HostToNetwork will not always
     //work the same
     w := 251;
@@ -1337,6 +1391,36 @@ begin
     end;
   end;
   AppendBytes(FInternalQuery, AQuestion);
+
+  if FDNSHeader.ARCount = 1 then
+  begin
+    // Create the additional OPT record to advertise our UDP receive size
+    SetLength(AQuestion, 0);
+
+    AppendByte(AQuestion, 0); // domain name (root, 0-length)
+
+    w := TypeCode_OPTIONAL;
+    w := GStack.HostToNetwork(w);
+    UInt16ToTwoBytes(w, TempBytes, 0);
+    AppendBytes(AQuestion, TempBytes); // record type (OPT)
+
+    w := 1280; // TODO: make this configurable
+    w := GStack.HostToNetwork(w);
+    UInt16ToTwoBytes(w, TempBytes, 0);
+    AppendBytes(AQuestion, TempBytes); // record class (OPT UDP size)
+
+    UInt16ToTwoBytes(0, TempBytes, 0);
+    AppendBytes(AQuestion, TempBytes); // record TTL (OPT extended RCODE and version)
+
+    UInt16ToTwoBytes(0, TempBytes, 0);
+    AppendBytes(AQuestion, TempBytes); // record TTL (OPT flags)
+
+    UInt16ToTwoBytes(0, TempBytes, 0);
+    AppendBytes(AQuestion, TempBytes); // record data size
+
+    AppendBytes(FInternalQuery, AQuestion);
+  end;
+
   FQuestionLength := Length(FInternalQuery);
   FDNSHeader.ParseQuery(FInternalQuery);
 end;
@@ -1366,7 +1450,7 @@ begin
 }
 
   if CheckID then begin
-    ReplyId := GStack.NetworkToHost(TwoByteToUInt16(AResult[0], AResult[1]));
+    ReplyId := ParseUInt16(AResult[0], AResult[1]);
     if ReplyId <> FDNSHeader.Id then begin
       raise EIdDnsResolverError.Create(GetErrorStr(4, FDNSHeader.id));
     end;
@@ -1450,39 +1534,57 @@ procedure TIdDNSResolver.ParseAnswers(DNSHeader: TDNSHeader; Answer: TIdBytes;
 var
   i: integer;
   APos: Integer;
+  QDomain: string;
+  QType, QClass: UInt16;
 begin
   if ResetResult then begin
     QueryResult.Clear;
   end;
 
-  APos := 12; //13; // Header is 12 byte long we need next byte
-  // if QDCount = 1, we need to process Question first.
+  try
+    APos := 12; //13; // Header is 12 byte long we need next byte
+    // if QDCount = 1, we need to process Question first.
 
-  if DNSHeader.QDCount = 1 then
-  begin
-    // first, get the question
-    // extract the domain name
-    QueryResult.FDomainName := DNSStrToDomain(Answer, APos);
-    // get the query type
-    QueryResult.FQueryType := TwoByteToUInt16(Answer[APos], Answer[APos + 1]);
-    Inc(APos, 2);
-    // get the Query Class
-    QueryResult.FQueryClass := TwoByteToUInt16(Answer[APos], Answer[APos + 1]);
-    Inc(APos, 2);
+    i := 1;
+    while (i <= DNSHeader.QDCount) and (APos < Length(Answer)) do begin
+      QDomain := DNSStrToDomain(Answer, APos);
+      QType := ParseUInt16(Answer, APos);
+      QClass := ParseUInt16(Answer, APos);
+      if i = 0 then
+      begin
+        // first, get the question
+        // extract the domain name
+        QueryResult.FDomainName := QDomain;
+        // get the query type
+        QueryResult.FQueryType := QType;
+        // get the Query Class
+        QueryResult.FQueryClass := QClass;
+      end;
+      Inc(i);
+    end;
+
+    i := 1;
+    while (i <= DNSHeader.ANCount) and (APos < Length(Answer)) do begin
+      QueryResult.Add(Answer, APos).FSection := rsAnswer;
+      Inc(i);
+    end;
+
+    i := 1;
+    while (i <= DNSHeader.NSCount) and (APos < Length(Answer)) do begin
+      QueryResult.Add(Answer, APos).FSection := rsNameServer;
+      Inc(i);
+    end;
+
+    i := 1;
+    while (i <= DNSHeader.ARCount) and (APos < Length(Answer)) do begin
+      QueryResult.Add(Answer, APos).FSection := rsAdditional;
+      Inc(i);
+    end;
+  except
+    on EIdNotEnoughData do begin
+      IndyRaiseOuterException(EIdDnsResolverError.Create(GetErrorStr(2, 3)));
+    end;
   end;
-
-  for i := 1 to DNSHeader.ANCount do begin
-    QueryResult.Add(Answer, APos).FSection := rsAnswer;
-  end;
-
-  for i := 1 to DNSHeader.NSCount do begin
-    QueryResult.Add(Answer, APos).FSection := rsNameServer;
-  end;
-
-  for i := 1 to DNSHeader.ARCount do begin
-    QueryResult.Add(Answer, APos).FSection := rsAdditional;
-  end;
-
 end;
 
 procedure TIdDNSResolver.Resolve(ADomain: string; SOARR : TIdRR_SOA = nil;
@@ -1529,8 +1631,7 @@ begin
           QueryResult.Clear;
 
           LRet := TCP_Tunnel.IOHandler.ReadInt16;
-          SetLength(LResult, LRet);
-          TCP_Tunnel.IOHandler.ReadBytes(LResult, LRet);
+          TCP_Tunnel.IOHandler.ReadBytes(LResult, LRet, False);
           PlainTextResult := LResult;
 
           if LRet > 4 then begin
@@ -1618,21 +1719,24 @@ begin
 
       SetLength(LResult, 8192);
       BytesReceived := UDP_Tunnel.ReceiveBuffer(LResult, WaitingTime);
-      SetLength(LResult, BytesReceived);
-
-      if Length(LResult) > 0 then begin
-        PlainTextResult := LResult;
-      end else begin
-        SetLength(FPlainTextResult, 0);
-      end;
     finally
       FreeAndNil(UDP_Tunnel);
     end;
 
-    if Length(LResult) > 4 then begin
-       FillResult(LResult);
-       if QueryResult.Count = 0 then begin
-         raise EIdDnsResolverError.Create(GetErrorStr(2,3));
+    if BytesReceived > 0 then begin
+      SetLength(LResult, BytesReceived);
+    end else begin
+      SetLength(LResult, 0);
+    end;
+
+    PlainTextResult := LResult;
+
+    if BytesReceived > 4 then begin
+      // TODO: if the response has the TrunCation flag set, retry the query
+      // in TCP to handle larger responses...
+      FillResult(LResult);
+      if QueryResult.Count = 0 then begin
+        raise EIdDnsResolverError.Create(GetErrorStr(2,3));
       end;
     end else begin
       raise EIdDnsResolverError.Create(RSDNSTimeout);
@@ -1708,15 +1812,9 @@ begin
     FName := LName;
   end;
 
-  FPriority := GStack.NetworkToHost(TwoByteToUInt16(CompleteMessage[APos], CompleteMessage[APos+1]));
-  Inc(APos, 2);
-
-  FWeight := GStack.NetworkToHost(TwoByteToUInt16(CompleteMessage[APos], CompleteMessage[APos+1]));
-  Inc(APos, 2);
-
-  FPort := GStack.NetworkToHost(TwoByteToUInt16(CompleteMessage[APos], CompleteMessage[APos+1]));
-  Inc(APos, 2);
-
+  FPriority := ParseUInt16(CompleteMessage, APos);
+  FWeight := ParseUInt16(CompleteMessage, APos);
+  FPort := ParseUInt16(CompleteMessage, APos);
   FTarget := DNSStrToDomain(CompleteMessage, APos);
 end;
 
@@ -1741,15 +1839,17 @@ procedure TNAPTRRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
 
-  FOrder := GStack.NetworkToHost(TwoByteToUInt16(CompleteMessage[APos], CompleteMessage[APos+1]));
-  Inc(APos, 2);
-
-  FPreference := GStack.NetworkToHost(TwoByteToUInt16(CompleteMessage[APos], CompleteMessage[APos+1]));
-  Inc(APos, 2);
+  FOrder := ParseUInt16(CompleteMessage, APos);
+  FPreference := ParseUInt16(CompleteMessage, APos);
 
   FFlags := NextDNSLabel(CompleteMessage, APos);
   FService := NextDNSLabel(CompleteMessage, APos);
   FRegExp := NextDNSLabel(CompleteMessage, APos);
+
+  if APos > Length(CompleteMessage) then begin // len byte was corrupted puting us past end of packet
+    raise EIdNotEnoughData.Create('');
+  end;
+
   FReplacement := DNSStrToDomain(CompleteMessage, APos);
 end;
 
