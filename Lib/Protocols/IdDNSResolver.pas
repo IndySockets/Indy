@@ -1315,7 +1315,7 @@ begin
         Inc(iQ);
       end;
     end;
-    //FDNSHeader.ARCount := 1;
+    FDNSHeader.ARCount := 1;
   end;
 
   FDNSHeader.QDCount := iQ;
