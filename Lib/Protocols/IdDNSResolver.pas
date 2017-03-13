@@ -661,7 +661,9 @@ begin
       Inc(VPos);
     end;
 
-    Assert(VPos < PackSize, GetErrorStr(2, 2)); // loop screwed up. This very very unlikely now could be removed.
+    if VPos >= PackSize then begin
+      raise EIdNotEnoughData.Create(''); // loop screwed up. This very very unlikely now could be removed.
+    end;
 
     LabelStr := BytesToString(DNSStr, VPos, Len);
     Inc(VPos, Len);
@@ -1313,7 +1315,7 @@ begin
         Inc(iQ);
       end;
     end;
-    FDNSHeader.ARCount := 1;
+    //FDNSHeader.ARCount := 1;
   end;
 
   FDNSHeader.QDCount := iQ;
