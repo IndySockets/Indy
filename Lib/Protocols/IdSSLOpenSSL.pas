@@ -2371,7 +2371,7 @@ begin
   if Assigned(CRYPTO_set_locking_callback) then begin
     CRYPTO_set_locking_callback(nil);
   end;
-  CleanupRandom;
+  CleanupRandom; // <-- RLebeau: why is this here and not in IdSSLOpenSSLHeaders.Unload()?
   IdSSLOpenSSLHeaders.Unload;
   FreeAndNil(LockInfoCB);
   FreeAndNil(LockPassCB);

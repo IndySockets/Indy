@@ -17985,6 +17985,8 @@ var
   CRYPTO_cleanup_all_ex_data : procedure cdecl = nil;
  {$EXTERNALSYM SSL_COMP_get_compression_methods}
   SSL_COMP_get_compression_methods : function: PSTACK_OF_SSL_COMP cdecl = nil;
+ {$EXTERNALSYM SSL_COMP_free_compression_methods}
+  SSL_COMP_free_compression_methods : procedure; cdecl = nil;
  {$EXTERNALSYM sk_pop_free}
   sk_pop_free : procedure(st: PSTACK; func: Tsk_pop_free_func) cdecl = nil;
  {$EXTERNALSYM sk_dup}
@@ -22140,6 +22142,7 @@ them in case we use them later.}
   {CH fn_SSL_get_current_expansion = 'SSL_get_current_expansion'; } {Do not localize}
   {CH fn_SSL_COMP_get_name = 'SSL_COMP_get_name'; } {Do not localize}
   fn_SSL_COMP_get_compression_methods = 'SSL_COMP_get_compression_methods'; {Do not localize}
+  fn_SSL_COMP_free_compression_methods = 'SSL_COMP_free_compression_methods'; {Do not localize}
   // GREGOR
   //fn_SSLeay_add_ssl_algorithms = 'mi_SSLeay_add_ssl_algorithms';  {Do not localize}
   //why does the function name not match?
@@ -22867,6 +22870,7 @@ we have to handle both cases.
   end;
   @CRYPTO_cleanup_all_ex_data := LoadFunctionCLib(fn_CRYPTO_cleanup_all_ex_data,False); //Used by Indy
   @SSL_COMP_get_compression_methods := LoadFunction(fn_SSL_COMP_get_compression_methods,False);
+  @SSL_COMP_free_compression_methods := LoadFunction(fn_SSL_COMP_free_compression_methods,False);
   @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free,False);
   //RSA
   @RSA_free := LoadFunctionCLib(fn_RSA_free,False);
@@ -23618,6 +23622,7 @@ begin
   @ERR_remove_state := nil;
   @CRYPTO_cleanup_all_ex_data := nil;
   @SSL_COMP_get_compression_methods := nil;
+  @SSL_COMP_free_compression_methods := nil;
   @sk_pop_free := nil;
   //RSA
   @RSA_new := nil;
@@ -24196,9 +24201,12 @@ var
   LStack: Pointer;
 begin
   if {$IFDEF STATICLOAD_OPENSSL}bIsLoaded{$ELSE}hIdSSL <> 0{$ENDIF} then begin
+    if Assigned(SSL_COMP_free_compression_methods) then begin
+      SSL_COMP_free_compression_methods;
+    end
     //this is a workaround for a known leak in the openssl library
     //present in 0.9.8a
-    if Assigned(SSLeay) then begin
+    else if Assigned(SSLeay) then begin
       if SSLeay = $0090801f then begin
         if Assigned(SSL_COMP_get_compression_methods) and
            Assigned(sk_pop_free) and
