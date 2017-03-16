@@ -116,10 +116,11 @@ begin
     AMsg.LoadFromFile(AFileName, AHeadersOnly);
   end else
   begin
-    if not FileExists(AFilename) then begin
-      raise EIdMessageCannotLoad.CreateFmt(RSIdMessageCannotLoad, [AFilename]);
+    try
+      LStream := TIdReadFileExclusiveStream.Create(AFilename);
+    except
+      IndyRaiseOuterException(EIdMessageCannotLoad.CreateFmt(RSIdMessageCannotLoad, [AFilename]));
     end;
-    LStream := TIdReadFileExclusiveStream.Create(AFilename);
     try
       Internal_TIdMessageHelper_LoadFromStream(AMsg, LStream, AHeadersOnly, False);
     finally
