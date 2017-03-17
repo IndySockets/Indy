@@ -428,7 +428,7 @@ function X509_get_default_cert_file_func: PIdAnsiChar cdecl; external SSLCLIB_LI
 
 function X509_get_default_cert_file_env_func: PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'X509_get_default_cert_file_env';
 
-function X509_new_func: PPX509 cdecl; external SSLCLIB_LIB_name name 'X509_new';
+function X509_new_func: PX509 cdecl; external SSLCLIB_LIB_name name 'X509_new';
 
 procedure X509_free_proc(x: PX509) cdecl; external SSLCLIB_LIB_name name 'X509_free';
 

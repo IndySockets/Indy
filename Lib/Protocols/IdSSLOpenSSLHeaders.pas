@@ -17010,7 +17010,7 @@ var
   {$ENDIF}
 
   {$EXTERNALSYM X509_new}
-  X509_new : function: PPX509 cdecl = nil;
+  X509_new : function: PX509 cdecl = nil;
   {$EXTERNALSYM X509_free}
   X509_free : procedure(x: PX509) cdecl = nil;
   {$EXTERNALSYM X509_NAME_new}

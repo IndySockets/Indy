@@ -119,6 +119,7 @@ begin
     try
       LStream := TIdReadFileExclusiveStream.Create(AFilename);
     except
+      LStream := nil; // keep the compiler happy
       IndyRaiseOuterException(EIdMessageCannotLoad.CreateFmt(RSIdMessageCannotLoad, [AFilename]));
     end;
     try
