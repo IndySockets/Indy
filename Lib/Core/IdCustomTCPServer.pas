@@ -1093,7 +1093,7 @@ begin
       // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
       // TIdServerIOHandler.Accept() returns an IOHandler with no Owner assigned,
       // so lets make the TIdTCPConnection become the Owner in order to keep the
-      // IOHandler alive whic this method exits.
+      // IOHandler alive when this method exits.
       //
       // TODO: should we assign Ownership unconditionally on all platforms?
       //

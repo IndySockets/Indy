@@ -142,6 +142,9 @@ type
   // TODO: on MacOSX (and maybe iOS?), can use a UDP socket instead of a RAW
   // socket so that non-privilege processes do not require root access...
 
+  // TODO: on Windows, can use IcmpSendEcho() instead of a RAW so that
+  // non-privilege processes do not require admin access...
+
   TIdCustomIcmpClient = class(TIdRawClient)
   protected
     FStartTime : TIdTicks; //this is a fallback if no packet is returned

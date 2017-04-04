@@ -2011,8 +2011,9 @@ begin
     LByteCount := AByteCount;
   end;
 
-  // Presize stream if we know the size - this reduces memory/disk allocations to one time
-  // Have an option for this? user might not want to presize, eg for int64 files
+  // Presize stream if we know the size - this reduces memory/disk allocations to one time.
+  // TODO: need to add an option for this. user might not want to presize here, eg for reading
+  // int64 files, or when filling a manually-sized file using multiple threads.
   if (AStream <> nil) and (LByteCount > -1) then begin
     LPos := AStream.Position;
     if (High(TIdStreamSize) - LPos) < LByteCount then begin

@@ -1478,6 +1478,8 @@ Lib/Protocols/IdHeaderList.pas -text
 Lib/Protocols/IdHostnameServer.pas -text
 Lib/Protocols/IdIMAP4.pas -text
 Lib/Protocols/IdIMAP4Server.pas -text
+Lib/Protocols/IdIOChecksOff.inc -text
+Lib/Protocols/IdIOChecksOn.inc -text
 Lib/Protocols/IdIPAddrMon.pas -text
 Lib/Protocols/IdIPWatch.pas -text
 Lib/Protocols/IdIRC.pas -text
@@ -2015,6 +2017,10 @@ Lib/System/IdException.pas -text
 Lib/System/IdGlobal.pas -text
 Lib/System/IdIDN.pas -text
 Lib/System/IdIconv.pas -text
+Lib/System/IdOverflowCheckingOff.inc -text
+Lib/System/IdOverflowCheckingOn.inc -text
+Lib/System/IdRangeCheckingOff.inc -text
+Lib/System/IdRangeCheckingOn.inc -text
 Lib/System/IdResourceStrings.pas -text
 Lib/System/IdResourceStringsDotNet11.pas -text
 Lib/System/IdResourceStringsIconv.pas -text
@@ -2026,6 +2032,8 @@ Lib/System/IdStack.pas -text
 Lib/System/IdStackBSDBase.pas -text
 Lib/System/IdStackConsts.pas -text
 Lib/System/IdStackDotNet.pas -text
+Lib/System/IdStackFramesOff.inc -text
+Lib/System/IdStackFramesOn.inc -text
 Lib/System/IdStackLibc.pas -text
 Lib/System/IdStackLinux.pas -text
 Lib/System/IdStackUnix.pas -text

@@ -3221,7 +3221,7 @@ begin
             end;
 
             AppendBytes(TempAnswer, LocalAnswer);
-	          LocalAnswer := TempAnswer;
+            LocalAnswer := TempAnswer;
           end else begin
             // ß‰Cache
             TempAnswer := LocalAnswer;
@@ -3239,7 +3239,7 @@ begin
             end;
 
             AppendBytes(TempAnswer, LocalAnswer);
-	          LocalAnswer := TempAnswer;
+            LocalAnswer := TempAnswer;
 
             // Search for AAAA also.
             InternalSearch(Header, MoreAddrSearch.Strings[Count], TypeCode_AAAA, LocalAnswer, True, True, ifAdditional, True);

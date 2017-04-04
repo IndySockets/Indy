@@ -400,7 +400,7 @@ end;
 
 procedure TIdSMTP.Expand(AUserName: String; AResults: TStrings);
 begin
-  SendCMD('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
+  SendCmd('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
 end;
 
 procedure InternalQuickSend(const AHost, ASubject, ATo, AFrom, AText,
@@ -486,7 +486,7 @@ End;
 
 function TIdSMTP.Verify(AUserName: string): string;
 begin
-  SendCMD('VRFY ' + AUserName, [250, 251]);    {Do not Localize}
+  SendCmd('VRFY ' + AUserName, [250, 251]);    {Do not Localize}
   Result := LastCmdResult.Text[0];
 end;
 

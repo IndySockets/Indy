@@ -1286,7 +1286,7 @@ uses
   IdHash, IdHashCRC, IdHashMessageDigest, IdHashSHA, IdIOHandlerSocket,
   IdResourceStringsProtocols, IdGlobalProtocols, IdSimpleServer, IdSSL,
   IdIOHandlerStack, IdSocketHandle, IdStrings, IdTCPClient, IdEMailAddress,
-  IdStack, IdFTPListTypes;
+  IdStack, IdFTPListTypes, IdStream;
 
 const
   //THese commands need some special treatment in the Indy 10 FTP Server help system
@@ -3292,7 +3292,7 @@ begin
             LStream.Size := LContext.FALLOSize;
           end;
           if LAppend then begin
-            LStream.Position := LStream.Size;
+            TIdStreamHelper.Seek(LStream, 0, soEnd);
           end else begin
             LStream.Position := LContext.FRESTPos;
             LContext.FRESTPos := 0;

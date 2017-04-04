@@ -366,6 +366,16 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 10.2 Tokyo (Godzilla)
+  {$IFDEF VER320}
+    {$DEFINE VCL_10_2_TOKYO}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_10_2_TOKYO}
+    {$ELSE}
+      {$DEFINE DELPHI_10_2_TOKYO}
+    {$ENDIF}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
@@ -636,8 +646,16 @@
 
 // end FPC
 
-{$IFDEF VCL_10_1_BERLIN}
+{$IFDEF VCL_10_2_TOKYO}
+  {$DEFINE VCL_10_2_TOKYO_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_10_2_TOKYO_OR_ABOVE}
   {$DEFINE VCL_10_1_BERLIN_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_10_1_BERLIN}
+    {$DEFINE VCL_10_1_BERLIN_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
@@ -982,6 +1000,9 @@
 
 {$IFNDEF VCL_2005_OR_ABOVE}
   {$IFDEF DCC}
+    // InterlockedCompareExchange() was declared in the Windows unit using Pointer
+    // parameters until Delphi 2005, when it was switched to Longint parameters
+    // instead to match the actual Win32 API declaration.
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
   {$ENDIF}
 {$ENDIF}
@@ -1158,6 +1179,12 @@
 {$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_HPPEMIT_LEGACYHPP}
   {$DEFINE HAS_TStrings_AddPair}
+{$ENDIF}
+
+{$IFDEF VCL_10_2_TOKYO_OR_ABOVE}
+  {.$WARN IMPLICIT_INTEGER_CAST_LOSS OFF}
+  {.$WARN IMPLICIT_CONVERSION_LOSS OFF}
+  {.$WARN COMBINING_SIGNED_UNSIGNED64 OFF}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling

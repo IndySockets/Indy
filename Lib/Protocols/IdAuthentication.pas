@@ -208,6 +208,9 @@ begin
   inherited Create;
   FAuthParams := TIdHeaderList.Create(QuoteHTTP);
   FParams := TIdHeaderList.Create(QuoteHTTP);
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  FParams.CaseSensitive := False;
+  {$ENDIF}
   FCurrentStep := 0;
 end;
 
@@ -297,15 +300,16 @@ end;
 
 function TIdBasicAuthentication.DoNext: TIdAuthWhatsNext;
 var
-  S: String;
+  S, LSep: String;
 begin
   S := ReadAuthInfo('Basic');        {Do not Localize}
   Fetch(S);
 
+  LSep := Params.NameValueSeparator;
   while Length(S) > 0 do begin
     // realm have 'realm="SomeRealmValue"' format    {Do not Localize}
     // FRealm never assigned without StringReplace
-    Params.Add(ReplaceOnlyFirst(Fetch(S, ', '), '=', Params.NameValueSeparator));  {do not localize}
+    Params.Add(ReplaceOnlyFirst(Fetch(S, ', '), '=', LSep));  {do not localize}
   end;
 
   FRealm := UnquotedStr(Params.Values['realm']);   {Do not Localize}

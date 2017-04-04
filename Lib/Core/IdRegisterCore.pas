@@ -326,7 +326,7 @@ begin
     {$IFDEF HAS_tkEnumeration_UnitName}
     tkEnumeration: begin
       {$IFDEF FPC}
-      // the unit name iss the last string in the name list
+      // the unit name is the last string in the name list
       PS := @(LTypeData^.NameList);
       PSLast := nil;
       while PByte(PS)^ <> 0 do begin

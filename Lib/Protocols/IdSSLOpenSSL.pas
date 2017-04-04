@@ -446,6 +446,7 @@ type
 
   public
     destructor Destroy; override;
+    // TODO: add an AOwner parameter
     function Clone :  TIdSSLIOHandlerSocketBase; override;
     procedure StartSSL; override;
     procedure AfterAccept; override;
@@ -1913,6 +1914,20 @@ function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
   const ACAFile, ACAPath: String): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
+  // RLebeau: why are we calling X509_STORE_load_locations() directly
+  // instead of just calling SSL_CTX_load_verify_locations() with
+  // UTF-8 input?
+
+  //Result := SSL_CTX_load_verify_locations(ctx,
+  //  {$IFDEF USE_MARSHALLED_PTRS}
+  //  M.AsUtf8(ACAFile).ToPointer,
+  //  M.AsUtf8(ACAPath).ToPointer
+  //  {$ELSE}
+  //  PAnsiChar(Pointer(UTF8String(ACAFile))),
+  //  PAnsiChar(Pointer(UTF8String(ACAPath)))
+  //  {$ENDIF}
+  //);
+
   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
 end;
 
@@ -3021,6 +3036,8 @@ begin
   end;
 end;
 
+
+// TODO: add an AOwner parameter
 function TIdSSLIOHandlerSocketOpenSSL.Clone: TIdSSLIOHandlerSocketBase;
 var
   LIO : TIdSSLIOHandlerSocketOpenSSL;

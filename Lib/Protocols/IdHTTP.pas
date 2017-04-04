@@ -2909,6 +2909,8 @@ begin
       begin
         Request.Source := nil;
         Request.Method := Id_HTTPMethodGet;
+        // TODO: if the previous request was a POST with an 'application/x-www-webform-urlencoded'
+        // body, move the body data into the URL query string this time...
       end else begin
         Request.Method := LMethod;
       end;

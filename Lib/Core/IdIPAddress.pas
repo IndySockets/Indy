@@ -211,24 +211,16 @@ end;
 function TIdIPAddress.GetIPv4AsString: String;
 begin
   if FAddrType = Id_IPv4 then begin
-    Result := IntToStr((FIPv4 shr 24) and $FF) + '.';
-    Result := Result + IntToStr((FIPv4 shr 16) and $FF) + '.';
-    Result := Result + IntToStr((FIPv4 shr 8) and $FF) + '.';
-    Result := Result + IntToStr(FIPv4 and $FF);
+    Result := MakeUInt32IntoIPv4Address(FIPv4);
   end else begin
     Result := '';
   end;
 end;
 
 function TIdIPAddress.GetIPv6AsString: String;
-var
-  I: Integer;
 begin
   if FAddrType = Id_IPv6 then begin
-    Result := IntToHex(IPv6[0], 4);
-    for i := 1 to 7 do begin
-      Result := Result + ':' + IntToHex(IPv6[i], 4);
-    end;
+    Result := IPv6AddressToStr(IPv6);
   end else begin
     Result := '';
   end;

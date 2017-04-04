@@ -1929,6 +1929,9 @@ implementation
     {$DEFINE USE_clock_gettime}
   {$ENDIF}
 {$ENDIF}
+{$IFDEF ANDROID}
+  {$DEFINE USE_clock_gettime}
+{$ENDIF}
 
 uses
   {$IFDEF USE_VCL_POSIX}
@@ -4228,10 +4231,7 @@ end;
 // 64bit and mobile compilers have System.ReturnAddress available...
 
       // disable stack frames to reduce instructions
-      {$IFOPT W+} // detect stack frames
-        {$DEFINE _WPlusWasEnabled}
-        {$W-} // turn off stack frames
-      {$ENDIF}
+      {$I IdStackFramesOff.inc}
 procedure IndyRaiseOuterException(AOuterException: Exception);
   procedure RaiseE(E: Exception; ReturnAddr: Pointer);
   begin
@@ -4243,10 +4243,7 @@ asm
   MOV EDX, [ESP]
   JMP RaiseE
 end;
-      {$IFDEF _WPlusWasEnabled}
-        {$UNDEF _WPlusWasEnabled}
-        {$W+}
-      {$ENDIF}
+      {$I IdStackFramesOn.inc}
 
     {$ENDIF}
   {$ELSE}
@@ -5290,6 +5287,43 @@ begin
   {$ENDIF}
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
+function Ticks: UInt32;
+{$I IdDeprecatedImplBugOn.inc}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  // TODO: maybe throw an exception if Ticks64() exceeds the 49.7 day limit of UInt32?
+  Result := UInt32(Ticks64() mod High(UInt32));
+end;
+
+// RLebeau: breaking up the Ticks64() implementation into separate platform blocks,
+// instead of trying to do it all in one implementation.  This way, the code is
+// cleaner, and if I miss a platform then the compiler should complain about Ticks64()
+// being unresolved...
+
+// TODO: move these to platform-specific units instead, maybe even to the TIdStack classes?
+
+{$IFDEF DOTNET}
+function Ticks64: TIdTicks;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  // Must cast to a cardinal
+  //
+  // http://lists.ximian.com/archives/public/mono-bugs/2003-November/009293.html
+  // Other references in Google.
+  // Bug in .NET. It acts like Win32, not as per .NET docs but goes negative after 25 days.
+  //
+  // There may be a problem in the future if .NET changes this to work as docced with 25 days.
+  // Will need to check our routines then and somehow counteract / detect this.
+  // One possibility is that we could just wrap it ourselves in this routine.
+
+  // TODO: use DateTime.Ticks instead?
+  //Result := DateTime.Now.Ticks div 10000;
+
+  Result := TIdTicks(Environment.TickCount);
+end;
+{$ENDIF}
+
 {$IFDEF WINDOWS}
 type
   TGetTickCount64Func = function: UInt64; stdcall;
@@ -5319,67 +5353,101 @@ begin
   @GetTickCount64 := GetImpl();
   Result := GetTickCount64();
 end;
+
+function Ticks64: TIdTicks;
+  {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
+var
+  nTime, freq: {$IFDEF WINCE}LARGE_INTEGER{$ELSE}Int64{$ENDIF};
+{$ENDIF}
+begin
+  // S.G. 27/11/2002: Changed to use high-performance counters as per suggested
+  // S.G. 27/11/2002: by David B. Ferguson (david.mcs@ns.sympatico.ca)
+
+  // RLebeau 11/12/2009: removed the high-performance counters again.  They
+  // are not reliable on multi-core systems, and are now starting to cause
+  // problems with TIdIOHandler.ReadLn() timeouts under Windows XP SP3, both
+  // 32-bit and 64-bit.  Refer to these discussions:
+  //
+  // http://www.virtualdub.org/blog/pivot/entry.php?id=106
+  // http://blogs.msdn.com/oldnewthing/archive/2008/09/08/8931563.aspx
+
+  {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
+    {$IFDEF WINCE}
+  if Windows.QueryPerformanceCounter(@nTime) then begin
+    if Windows.QueryPerformanceFrequency(@freq) then begin
+      Result := Trunc((nTime.QuadPart / Freq.QuadPart) * 1000) and High(TIdTicks);
+      Exit;
+    end;
+  end;
+    {$ELSE}
+  if Windows.QueryPerformanceCounter(nTime) then begin
+    if Windows.QueryPerformanceFrequency(freq) then begin
+      Result := Trunc((nTime / Freq) * 1000) and High(TIdTicks);
+      Exit;
+    end;
+  end;
+    {$ENDIF}
+  {$ENDIF}
+
+  Result := TIdTicks(GetTickCount64());
+end;
 {$ENDIF}
 
-{$I IdDeprecatedImplBugOff.inc}
-function Ticks: UInt32;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  // TODO: maybe throw an exception if Ticks64() exceeds the 49.7 day limit of UInt32?
-  Result := UInt32(Ticks64() mod High(UInt32));
-end;
+{$IFDEF USE_clock_gettime}
 
-//RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
+  {$IFDEF LINUX}
+// according to Linux's /usr/include/linux/time.h
+const
+  CLOCK_MONOTONIC = 1;
+  {$ENDIF}
+  {$IFDEF FREEBSD}
+// according to FreeBSD's /usr/include/time.h
+const
+  CLOCK_MONOTONIC = 4;
+  {$ENDIF}
+  {$IFDEF ANDROID}
+// according to Android NDK's /include/time.h
+const
+  CLOCK_MONOTONIC = 1;
+  {$ENDIF}
+
+function clock_gettime(clockid: Integer; var pts: timespec): Integer; cdecl; external 'libc';
+
+function Ticks64: TIdTicks;
+var
+  ts: timespec;
+begin
+  // TODO: use CLOCK_BOOTTIME on platforms that support it?  It takes system
+  // suspension into account, whereas CLOCK_MONOTONIC does not...
+  clock_gettime(CLOCK_MONOTONIC, ts);
+
+  {$I IdRangeCheckingOff.inc}
+  {$I IdOverflowCheckingOff.inc}
+  Result := (Int64(ts.tv_sec) * 1000) + (ts.tv_nsec div 1000000);
+  {$I IdOverflowCheckingOn.inc}
+  {$I IdRangeCheckingOn.inc}
+end;
+{$ENDIF}
+
 {$IFDEF UNIX}
   {$IFDEF DARWIN}
     {$IFDEF FPC}
+//RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
 function mach_timebase_info(var TimebaseInfoData: TTimebaseInfoData): Integer; cdecl; external 'libc';
 function mach_absolute_time: QWORD; cdecl; external 'libc';
     {$ENDIF}
-  {$ELSE}
-    {$IFDEF USE_clock_gettime}
-      {$IFDEF LINUX}
-// accordingly Linux's /usr/include/linux/time.h
-const
-  CLOCK_MONOTONIC = 1;
-      {$ENDIF}
-      {$IFDEF FREEBSD}
-// accordingly FreeBSD's /usr/include/time.h
-const
-  CLOCK_MONOTONIC = 4;
-      {$ENDIF}
-
-function clock_gettime(clockid: Integer; var pts: timespec): Integer; cdecl; external 'libc';
-    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 
 function Ticks64: TIdTicks;
-{$IFDEF DOTNET}
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
-{$ENDIF}
-{$IFDEF UNIX}
   {$IFDEF DARWIN}
     {$IFDEF USE_INLINE} inline;{$ENDIF}
   {$ELSE}
 var
-    {$IFDEF USE_clock_gettime}
-  ts: timespec;
-    {$ELSE}
   tv: timeval;
-    {$ENDIF}
   {$ENDIF}
-{$ENDIF}
-{$IFDEF WINDOWS}
-  {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
-var
-  nTime, freq: {$IFDEF WINCE}LARGE_INTEGER{$ELSE}Int64{$ENDIF};
-  {$ENDIF}
-{$ENDIF}
 begin
-  {$IFDEF UNIX}
-    {$IFDEF DARWIN}
+  {$IFDEF DARWIN}
+
   // TODO: mach_absolute_time() does NOT count ticks while the system is
   // sleeping! We can use time() to account for that:
   //
@@ -5409,113 +5477,39 @@ begin
   // mach_absolute_time() returns billionth of seconds, so divide by one million to get milliseconds
   Result := (mach_absolute_time() * GMachTimeBaseInfo.numer) div (1000000 * GMachTimeBaseInfo.denom);
 
-    {$ELSE}
+  {$ELSE}
 
-      {$IFDEF USE_clock_gettime}
-
-  // TODO: use CLOCK_BOOTTIME on platforms that support it?  It takes system
-  // suspension into account, whereas CLOCK_MONOTONIC does not...
-  clock_gettime(CLOCK_MONOTONIC, ts);
-        {$IFOPT R+} // detect range checking
-          {$R-}
-          {$DEFINE _RPlusWasEnabled}
-        {$ENDIF}
-        {$IFOPT Q+} // detect overflow checking
-          {$Q-}
-          {$DEFINE _QPlusWasEnabled}
-        {$ENDIF}
-  Result := (Int64(ts.tv_sec) * 1000) + (ts.tv_nsec div 1000000);
-        {$IFDEF _QPlusWasEnabled}
-          {$Q+}
-          {$UNDEF _QPlusWasEnabled}
-        {$ENDIF}
-        {$IFDEF _RPlusWasEnabled}
-          {$R+}
-          {$UNDEF _RPlusWasEnabled}
-        {$ENDIF}
-
-      {$ELSE}
-
-        {$IFDEF USE_BASEUNIX}
+    {$IFDEF USE_BASEUNIX}
   fpgettimeofday(@tv,nil);
-        {$ENDIF}
-        {$IFDEF KYLIXCOMPAT}
+    {$ELSE}
+      {$IFDEF KYLIXCOMPAT}
   gettimeofday(tv, nil);
-        {$ENDIF}
-        {$IFOPT R+} // detect range checking
-          {$R-}
-          {$DEFINE _RPlusWasEnabled}
-        {$ENDIF}
-  Result := (Int64(tv.tv_sec) * 1000) + (tv.tv_usec div 1000);
-        {$IFDEF _RPlusWasEnabled}
-          {$R+}
-          {$UNDEF _RPlusWasEnabled}
-        {$ENDIF}
-    {
-    I've implemented this correctly for now. I'll argue for using
-    an int64 internally, since apparently quite some functionality
-    (throttle, etc etc) depends on it, and this value may wrap
-    at any point in time.
-    For Windows: Uptime > 72 hours isn't really that rare any more,
-    For Linux: no control over when this wraps.
-
-    IdEcho has code to circumvent the wrap, but its not very good
-    to have code for that at all spots where it might be relevant.
-    }
-
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-
-  {$IFDEF WINDOWS}
-    // S.G. 27/11/2002: Changed to use high-performance counters as per suggested
-    // S.G. 27/11/2002: by David B. Ferguson (david.mcs@ns.sympatico.ca)
-
-    // RLebeau 11/12/2009: removed the high-performance counters again.  They
-    // are not reliable on multi-core systems, and are now starting to cause
-    // problems with TIdIOHandler.ReadLn() timeouts under Windows XP SP3, both
-    // 32-bit and 64-bit.  Refer to these discussions:
-    //
-    // http://www.virtualdub.org/blog/pivot/entry.php?id=106
-    // http://blogs.msdn.com/oldnewthing/archive/2008/09/08/8931563.aspx
-
-    {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
-      {$IFDEF WINCE}
-  if Windows.QueryPerformanceCounter(@nTime) then begin
-    if Windows.QueryPerformanceFrequency(@freq) then begin
-      Result := Trunc((nTime.QuadPart / Freq.QuadPart) * 1000) and High(TIdTicks);
-      Exit;
-    end;
-  end;
       {$ELSE}
-  if Windows.QueryPerformanceCounter(nTime) then begin
-    if Windows.QueryPerformanceFrequency(freq) then begin
-      Result := Trunc((nTime / Freq) * 1000) and High(TIdTicks);
-      Exit;
-    end;
-  end;
+        {$message error gettimeofday is not called on this platform!}
+  FillChar(tv, sizeof(tv), 0);
       {$ENDIF}
     {$ENDIF}
-  Result := TIdTicks(GetTickCount64());
+
+  {
+  I've implemented this correctly for now. I'll argue for using
+  an int64 internally, since apparently quite some functionality
+  (throttle, etc etc) depends on it, and this value may wrap
+  at any point in time.
+  For Windows: Uptime > 72 hours isn't really that rare any more,
+  For Linux: no control over when this wraps.
+
+  IdEcho has code to circumvent the wrap, but its not very good
+  to have code for that at all spots where it might be relevant.
+  }
+
+  {$I IdRangeCheckingOff.inc}
+  Result := (Int64(tv.tv_sec) * 1000) + (tv.tv_usec div 1000);
+  {$I IdRangeCheckingOn.inc}
+
   {$ENDIF}
 
-  {$IFDEF DOTNET}
-  // Must cast to a cardinal
-  //
-  // http://lists.ximian.com/archives/public/mono-bugs/2003-November/009293.html
-  // Other references in Google.
-  // Bug in .NET. It acts like Win32, not as per .NET docs but goes negative after 25 days.
-  //
-  // There may be a problem in the future if .NET changes this to work as docced with 25 days.
-  // Will need to check our routines then and somehow counteract / detect this.
-  // One possibility is that we could just wrap it ourselves in this routine.
-
-  // TODO: use DateTime.Ticks instead?
-  //Result := DateTime.Now.Ticks div 10000;
-
-  Result := TIdTicks(Environment.TickCount);
-  {$ENDIF}
 end;
+{$ENDIF}
 
 {$I IdDeprecatedImplBugOff.inc}
 function GetTickDiff(const AOldTickCount, ANewTickCount: UInt32): UInt32;
@@ -5958,10 +5952,7 @@ begin
 {$ELSE}
   // S.G. 11/8/2003: Added overflow checking disabling and change multiplys by SHLs.
   // Locally disable overflow checking so we can safely use SHL and SHR
-  {$IFOPT Q+} // detect overflow checking
-    {$DEFINE _QPlusWasEnabled}
-    {$Q-}
-  {$ENDIF}
+  {$I IdOverflowCheckingOff.inc}
   L256Power := 4;
   LBuf2 := AIPAddress;
   repeat
@@ -6002,10 +5993,7 @@ begin
   until False;
   VErr := False;
   // Restore overflow checking
-  {$IFDEF _QPlusWasEnabled} // detect previous setting
-    {$UNDEF _QPlusWasEnabled}
-    {$Q+}
-  {$ENDIF}
+  {$I IdOverflowCheckingOn.inc}
 {$ENDIF}
 end;
 

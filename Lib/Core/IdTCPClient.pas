@@ -284,11 +284,10 @@ begin
 
   if IOHandler = nil then begin
     IOHandler := MakeImplicitClientHandler;
+    ManagedIOHandler := True;
 
     // TODO: always assign the OnStatus event even if the IOHandler is not implicit?
     IOHandler.OnStatus := OnStatus;
-
-    ManagedIOHandler := True;
   end;
 
   try

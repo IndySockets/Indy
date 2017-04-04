@@ -287,6 +287,24 @@ procedure TIdIOHandlerStack.ConnectClient;
           // decrement by the sleep interval.  If IndySleep() runs longer then
           // requested, that would slow down the loop and exceed the original
           // timeout that was requested...
+          {
+          Start := GetTicks64;
+          repeat
+            while (GetElapsedTicks(Start) < ATimeout) and (not LThread.Terminated) do begin
+              LWaitTime := IndyMin(ATimeout - GetElapsedTicks(Start), LSleepTime);
+              if LWaitTime <= 0 then Break;
+              ($IFDEF WINDOWS)
+              if WaitForSingleObject(LThread.Handle, LWaitTime) <> WAIT_TIMEOUT then begin
+                Break;
+              end;
+              ($ELSE)
+              // TODO: figure out what else can be used here...
+              IndySleep(LWaitTime);
+              ($ENDIF)
+              TIdAntiFreezeBase.DoProcess;
+            end;
+          end;
+          }
           while (ATimeout > 0) and (not LThread.Terminated) do begin
             LWaitTime := IndyMin(ATimeout, LSleepTime);
             {$IFDEF WINDOWS}
@@ -505,10 +523,8 @@ begin
 end;
 
 procedure TIdConnectThread.CheckForConnectError;
-{$IFDEF HAS_AcquireExceptionObject}
 var
   LException: TObject;
-{$ENDIF}
 begin
   if FExceptionOccured then begin
     {$IFDEF HAS_AcquireExceptionObject}
@@ -517,13 +533,14 @@ begin
     if LException = nil then begin
       LException := EIdConnectException.Create(''); // TODO
     end;
-    raise LException;
     {$ELSE}
     if FLastSocketError <> 0 then begin
-      raise EIdSocketError.CreateError(FLastSocketError, FExceptionMessage);
+      LException := EIdSocketError.CreateError(FLastSocketError, FExceptionMessage);
+    end else begin
+      LException := EIdConnectException.Create(FExceptionMessage);
     end;
-    raise EIdConnectException.Create(FExceptionMessage);
     {$ENDIF}
+    raise LException;
   end;
 end;
 
