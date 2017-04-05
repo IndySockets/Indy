@@ -275,24 +275,26 @@ end;
 
 procedure TIdSocketHandle.CloseSocket;
 begin
-  if HandleAllocated then begin
-    FConnectionHandle.Enter; try
+  FConnectionHandle.Enter;
+  try
+    if HandleAllocated then begin
       // Must be first, closing socket will trigger some errors, and they
       // may then call (in other threads) Connected, which in turn looks at
       // FHandleAllocated.
       FHandleAllocated := False;
       Disconnect;
       SetHandle(Id_INVALID_SOCKET);
-    finally
-      FConnectionHandle.Leave;
     end;
+  finally
+    FConnectionHandle.Leave;
   end;
 end;
 
 procedure TIdSocketHandle.Connect;
 begin
   GStack.Connect(Handle, PeerIP, PeerPort, FIPVersion);
-  FConnectionHandle.Enter; try
+  FConnectionHandle.Enter;
+  try
     if HandleAllocated then begin
       // UpdateBindingLocal needs to be called even though Bind calls it. After
       // Bind is may be 0.0.0.0 (INADDR_ANY). After connect it will be a real IP.
