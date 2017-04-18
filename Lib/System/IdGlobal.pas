@@ -5322,9 +5322,10 @@ begin
 
   Result := TIdTicks(Environment.TickCount);
 end;
-{$ENDIF}
 
-{$IFDEF WINDOWS}
+{$ELSE}
+  {$IFDEF WINDOWS}
+
 type
   TGetTickCount64Func = function: UInt64; stdcall;
 
@@ -5391,9 +5392,9 @@ begin
 
   Result := TIdTicks(GetTickCount64());
 end;
-{$ENDIF}
 
-{$IFDEF USE_clock_gettime}
+  {$ELSE}
+    {$IFDEF USE_clock_gettime}
 
   {$IFDEF LINUX}
 // according to Linux's /usr/include/linux/time.h
@@ -5427,9 +5428,10 @@ begin
   {$I IdOverflowCheckingOn.inc}
   {$I IdRangeCheckingOn.inc}
 end;
-{$ENDIF}
 
-{$IFDEF UNIX}
+    {$ELSE}
+      {$IFDEF UNIX}
+
   {$IFDEF DARWIN}
     {$IFDEF FPC}
 //RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
@@ -5509,6 +5511,18 @@ begin
   {$ENDIF}
 
 end;
+
+      {$ELSE}
+
+function Ticks64: TIdTicks;
+begin
+  {$message error Ticks64 is not implemented on this platform!}
+  Result := 0;
+end;
+
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 
 {$I IdDeprecatedImplBugOff.inc}
@@ -7456,7 +7470,7 @@ begin
   {$ELSE}
   // RLebeau 2/16/2006: Removed dependency on the FileCtrl unit
     {$IFDEF STRING_UNICODE_MISMATCH}
-   := TIdPlatformString(ADirectory); // explicit convert to Ansi/Unicode
+  LStr := TIdPlatformString(ADirectory); // explicit convert to Ansi/Unicode
   Code := GetFileAttributes(PIdPlatformChar(LStr));
     {$ELSE}
   Code := GetFileAttributes(PChar(ADirectory));
