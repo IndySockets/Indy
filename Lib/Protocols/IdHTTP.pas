@@ -1765,6 +1765,7 @@ end;
 
 const
   Requires_HTTP_1_1: array[0..4] of String = (Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete, Id_HTTPMethodPatch);
+  Requires_Content_Length: array[0..1] of String = (Id_HTTPMethodPost, Id_HTTPMethodPut);
 
 procedure TIdCustomHTTP.PrepareRequest(ARequest: TIdHTTPRequest);
 var
@@ -1837,6 +1838,9 @@ begin
 
     if Assigned(ARequest.Source) then begin
       ARequest.ContentLength := ARequest.Source.Size;
+    end
+    else if PosInStrArray(ARequest.Method, Requires_Content_Length, False) > -1 then begin
+      ARequest.ContentLength := 0;
     end else begin
       ARequest.ContentLength := -1;
     end;
