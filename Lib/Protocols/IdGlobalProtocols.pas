@@ -1962,7 +1962,7 @@ begin
   localtime_r({$IFNDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
 // __tm_gmtoff is the bias in seconds from the UTC to the current time.
 // so I multiply by -1 to compensate for this.
-  Result := (UT.{$IFDEF USE_VCL_POSIX}tm_gmtoff{$ELSE}__tm_gmtoff{$ENDIF} / 60 / 60 / 24);
+  Result := (UT.{$IFNDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
   {$ELSE}
   Result := -OffsetFromUTC;
   {$ENDIF}

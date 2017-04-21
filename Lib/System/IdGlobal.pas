@@ -7237,8 +7237,8 @@ begin
 
   gettimeofday(TV, nil);
   T := TV.tv_sec;
-  localtime_r({$IFDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
-  Result := UT.{$IFDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24;
+  localtime_r({$IFDEF KYLIXCOMPAT}@{$ENDIF}T, UT);
+  Result := UT.{$IFDEF KYLIXCOMPAT}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24;
         {$ELSE}
           {$IFDEF USE_BASEUNIX}
   fpGetTimeOfDay (@TimeVal, @TimeZone);
