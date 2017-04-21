@@ -416,25 +416,29 @@ implementation
 
 uses
   //done this way so we can have a separate stack for FPC under Unix systems
-  {$IFDEF UNIX}
-    {$IFDEF USE_VCL_POSIX}
-  IdStackVCLPosix,
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
-  IdStackLibc,
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
-  IdStackUnix,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-    {$IFDEF USE_INLINE}
-  Windows,
-    {$ENDIF}
-  IdStackWindows,
-  {$ENDIF}
   {$IFDEF DOTNET}
   IdStackDotNet,
+  {$ELSE}
+    {$IFDEF WINDOWS}
+      {$IFDEF USE_INLINE}
+  Windows,
+      {$ENDIF}
+  IdStackWindows,
+    {$ELSE}
+      {$IFDEF USE_VCL_POSIX}
+  IdStackVCLPosix,
+      {$ELSE}
+        {$IFDEF UNIX}
+          {$IFDEF KYLIXCOMPAT}
+  IdStackLibc,
+          {$ELSE}
+            {$IFDEF USE_BASEUNIX}
+  IdStackUnix,
+            {$ENDIF}
+          {$ENDIF}
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 
   // TODO: move this to IdStackVCLPosix...
@@ -1196,22 +1200,25 @@ end;
 initialization
   //done this way so we can have a separate stack just for FPC under Unix systems
   GStackClass :=
-    {$IFDEF USE_VCL_POSIX}
-    TIdStackVCLPosix
+    {$IFDEF DOTNET}
+    TIdStackDotNet
     {$ELSE}
-      {$IFDEF UNIX}
-        {$IFDEF KYLIXCOMPAT}
-        TIdStackLibc
-        {$ENDIF}
-        {$IFDEF USE_BASEUNIX}
-        TIdStackUnix
-        {$ENDIF}
-      {$ENDIF}
       {$IFDEF WINDOWS}
-      TIdStackWindows
-      {$ENDIF}
-      {$IFDEF DOTNET}
-      TIdStackDotNet
+    TIdStackWindows
+      {$ELSE}
+        {$IFDEF USE_VCL_POSIX}
+    TIdStackVCLPosix
+        {$ELSE}
+          {$IFDEF UNIX}
+            {$IFDEF KYLIXCOMPAT}
+        TIdStackLibc
+            {$ELSE}
+              {$IFDEF USE_BASEUNIX}
+        TIdStackUnix
+              {$ENDIF}
+            {$ENDIF}
+          {$ENDIF}
+        {$ENDIF}
       {$ENDIF}
     {$ENDIF}
   ;

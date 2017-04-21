@@ -590,19 +590,18 @@ uses
   {$ENDIF}
   IdIPAddress,
   {$IFDEF UNIX}
-    {$IFDEF KYLIXCOMPAT}
-  Libc,
-    {$ENDIF}
-    {$IFDEF FPC}
-      {$IFDEF USE_BASEUNIX}
-  BaseUnix,
-  Unix,
-  DateUtils,
-      {$ENDIF}
-    {$ENDIF}
     {$IFDEF USE_VCL_POSIX}
   DateUtils,
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
+    {$ELSE}
+      {$IFDEF KYLIXCOMPAT}
+  Libc,
+      {$ELSE}
+        {$IFDEF USE_BASEUNIX}
+  BaseUnix, Unix,
+  DateUtils,
+        {$ENDIF}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WINDOWS}
@@ -1490,10 +1489,7 @@ begin
   // There is no native Linux copy function (at least "cp" doesn't use one
   // and I can't find one anywhere (Johannes Berg))
   
-  {$IFOPT I+} // detect IO checking
-    {$DEFINE _IPlusWasEnabled}
-    {$I-}
-  {$ENDIF}
+  {$I IdIOChecksOff.inc}
 
   Assign(SourceF, Source);
   Reset(SourceF, 1);
@@ -1519,10 +1515,7 @@ begin
   Close(SourceF);
 
   // Restore IO checking
-  {$IFDEF _IPlusWasEnabled} // detect previous setting
-    {$UNDEF _IPlusWasEnabled}
-    {$I+}
-  {$ENDIF}
+  {$I IdIOChecksOn.inc}
 
   {$ENDIF}
 end;
@@ -1830,40 +1823,50 @@ var
   LTime : {$IFDEF WINCE}TSystemTime{$ELSE}Integer{$ENDIF};
   {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode : Integer;
- {$ENDIF}
-{$ENDIF}
-{$IFDEF UNIX}
+  {$ENDIF}
+{$ELSE}
+  {$IFDEF UNIX}
 var
   LTime : Integer;
-  {$IFDEF USE_VCL_POSIX}
+    {$IFDEF USE_VCL_POSIX}
   LRec : _Stat;
-    {$IFDEF USE_MARSHALLED_PTRS}
+      {$IFDEF USE_MARSHALLED_PTRS}
   M: TMarshaller;
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF KYLIXCOMPAT}
+      {$ENDIF}
+    {$ELSE}
+      {$IFDEF KYLIXCOMPAT}
   LRec : TStatBuf;
   LU : TUnixTime;
-  {$ENDIF}
-  {$IFDEF USE_BASEUNIX}
+      {$ELSE}
+        {$IFDEF USE_BASEUNIX}
   LRec : TStat;
-  LU : time_t;
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 begin
   Result := -1;
-  {$IFDEF WINDOWS}
+
+  {$IFDEF DOTNET}
+  if System.IO.File.Exists(AFileName) then begin
+    Result := System.IO.File.GetLastWriteTimeUtc(AFileName).ToOADate;
+  end;
+
+  {$ELSE}
+    {$IFDEF WINDOWS}
+
   if not IsVolume(AFileName) then begin
-    {$IFDEF WIN32_OR_WIN64}
+      {$IFDEF WIN32_OR_WIN64}
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
     try
-    {$ENDIF}
+      {$ENDIF}
       LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
-    {$IFDEF WIN32_OR_WIN64}
+      {$IFDEF WIN32_OR_WIN64}
     finally
       SetErrorMode(LOldErrorMode);
     end;
-    {$ENDIF}
+      {$ENDIF}
     if LHandle <> INVALID_HANDLE_VALUE then begin
       Windows.FindClose(LHandle);
       {$IFDEF WINCE}
@@ -1875,49 +1878,54 @@ begin
       {$ENDIF}
     end;
   end;
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  if System.IO.File.Exists(AFileName) then begin
-    Result := System.IO.File.GetLastWriteTimeUtc(AFileName).ToOADate;
-  end;
-  {$ENDIF}
-  {$IFDEF UNIX}
+
+    {$ELSE}
+      {$IFDEF UNIX}
+
   //Note that we can use stat here because we are only looking at the date.
-    {$IFDEF USE_BASEUNIX}
-  if fpstat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
-  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
+  {$IFDEF USE_VCL_POSIX}
   if stat(
-      {$IFDEF USE_MARSHALLED_PTRS}
+    {$IFDEF USE_MARSHALLED_PTRS}
     M.AsAnsi(AFileName).ToPointer
-      {$ELSE}
+    {$ELSE}
     PAnsiChar(
-        {$IFDEF STRING_IS_ANSI}
+      {$IFDEF STRING_IS_ANSI}
       AFileName
-        {$ELSE}
+      {$ELSE}
       AnsiString(AFileName) // explicit convert to Ansi
-        {$ENDIF}
-    )
       {$ENDIF}
-    , LRec) = 0 then
+    )
     {$ENDIF}
+    , LRec) = 0 then
   begin
     LTime := LRec.st_mtime;
+    Result := DateUtils.UnixToDateTime(LTime);
+  end;
+  {$ELSE}
     {$IFDEF KYLIXCOMPAT}
+  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
+  begin
     gmtime_r(@LTime, LU);
     Result := EncodeDate(LU.tm_year + 1900, LU.tm_mon + 1, LU.tm_mday) +
               EncodeTime(LU.tm_hour, LU.tm_min, LU.tm_sec, 0);
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
-    Result := UnixToDateTime(LTime);
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
-    Result := DateUtils.UnixToDateTime(LTime);
-    {$ENDIF}
   end;
+    {$ELSE}
+      {$IFDEF USE_BASEUNIX}
+  if fpstat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
+  begin
+    LTime := LRec.st_mtime;
+    Result := UnixToDateTime(LTime);
+  end;
+      {$ELSE}
+        {$message error stat is not called on this platform!}
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+
+      {$ELSE}
+        {$message error GetGMTDateByName is not implemented on this platform!}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -1941,11 +1949,7 @@ function TimeZoneBias: TDateTime;
 var
   T: Time_T;
   TV: TimeVal;
-    {$IFDEF USE_VCL_POSIX}
-  UT: tm;
-    {$ELSE}
-  UT: TUnixTime;
-    {$ENDIF}
+  UT: {$IFDEF USE_VCL_POSIX}tm{$ELSE}TUnixTime{$ENDIF};
   {$ENDIF}
 {$ENDIF}
 begin
@@ -1955,17 +1959,10 @@ begin
   {from http://edn.embarcadero.com/article/27890 }
   gettimeofday(TV, nil);
   T := TV.tv_sec;
-    {$IFDEF USE_VCL_POSIX}
-  localtime_r(T, UT);
+  localtime_r({$IFNDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
 // __tm_gmtoff is the bias in seconds from the UTC to the current time.
 // so I multiply by -1 to compensate for this.
-  Result := (UT.tm_gmtoff / 60 / 60 / 24);
-    {$ELSE}
-  localtime_r(@T, UT);
-// __tm_gmtoff is the bias in seconds from the UTC to the current time.
-// so I multiply by -1 to compensate for this.
-  Result := (UT.__tm_gmtoff / 60 / 60 / 24);
-    {$ENDIF}
+  Result := (UT.{$IFDEF USE_VCL_POSIX}tm_gmtoff{$ELSE}__tm_gmtoff{$ENDIF} / 60 / 60 / 24);
   {$ELSE}
   Result := -OffsetFromUTC;
   {$ENDIF}
@@ -4529,8 +4526,8 @@ end;
 function GetClockValue : Int64;
 {$IFDEF DOTNET}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
-{$IFDEF WINDOWS}
+{$ELSE}
+  {$IFDEF WINDOWS}
 type
   TInt64Rec = record
     case Integer of
@@ -4541,37 +4538,54 @@ type
 
 var
   LFTime : TFileTime;
-{$ENDIF}
-{$IFDEF UNIX}
-  {$IFNDEF USE_VCL_POSIX}
+  {$ELSE}
+    {$IFDEF UNIX}
+      {$IFNDEF USE_VCL_POSIX}
 var
   TheTms: tms;
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 begin
-  {$IFDEF WINDOWS}
-    {$IFDEF WINCE}
-    // TODO
-    {$ELSE}
+  {$IFDEF DOTNET}
+
+  Result := System.DateTime.Now.Ticks;
+
+  {$ELSE}
+    {$IFDEF WINDOWS}
+
+      {$IFDEF WINCE}
+      // TODO
+      {$ELSE}
   Windows.GetSystemTimeAsFileTime(LFTime);
   TInt64Rec(Result).Low := LFTime.dwLowDateTime;
   TInt64Rec(Result).High := LFTime.dwHighDateTime;
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF UNIX}
-  //Is the following correct?
-    {$IFDEF USE_BASEUNIX}
-  Result := fptimes(TheTms);
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
-  Result := Times(TheTms);
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
+      {$ENDIF}
+
+    {$ELSE}
+      {$IFDEF UNIX}
+
+        //Is the following correct?
+        {$IFDEF USE_VCL_POSIX}
   Result := time(nil);
+        {$ELSE}
+          {$IFDEF KYLIXCOMPAT}
+  Result := Times(TheTms);
+          {$ELSE}
+            {$IFDEF USE_BASEUNIX}
+  Result := fptimes(TheTms);
+            {$ELSE}
+              {$message error time is not called on this platform!}
+            {$ENDIF}
+          {$ENDIF}
+        {$ENDIF}
+
+      {$ELSE}
+        {$message error GetClockValue is not implemented on this platform!}
+      {$ENDIF}
+
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  Result := System.DateTime.Now.Ticks;
   {$ENDIF}
 end;
 

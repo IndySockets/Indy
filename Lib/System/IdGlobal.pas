@@ -5191,24 +5191,34 @@ begin
 {$ENDIF}
 end;
 
+{$UNDEF KYLIXCOMPAT_OR_VCL_POSIX}
+{$IFDEF KYLIXCOMPAT}
+  {$DEFINE KYLIXCOMPAT_OR_VCL_POSIX}
+{$ENDIF}
+{$IFDEF USE_VCL_POSIX}
+  {$DEFINE KYLIXCOMPAT_OR_VCL_POSIX}
+{$ENDIF}
+
 function CurrentProcessId: TIdPID;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF KYLIXCOMPAT}
-  Result := getpid;
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
-   Result := getpid;
-  {$ENDIF}
-  {$IFDEF USE_BASEUNIX}
-  Result := fpgetpid;
-  {$ENDIF}
-
-  {$IFDEF WINDOWS}
-  Result := GetCurrentProcessID;
-  {$ENDIF}
   {$IFDEF DOTNET}
   Result := System.Diagnostics.Process.GetCurrentProcess.ID;
+  {$ELSE}
+    {$IFDEF WINDOWS}
+  Result := GetCurrentProcessID;
+    {$ELSE}
+      {$IFDEF KYLIXCOMPAT_OR_VCL_POSIX}
+  Result := getpid;
+      {$ELSE}
+        {$IFDEF USE_BASEUNIX}
+  Result := fpgetpid;
+        {$ELSE}
+  {$message error CurrentProcessId is not implemented on this platform!}
+  Result := 0;
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -5481,13 +5491,13 @@ begin
 
   {$ELSE}
 
-    {$IFDEF USE_BASEUNIX}
-  fpgettimeofday(@tv,nil);
-    {$ELSE}
-      {$IFDEF KYLIXCOMPAT}
+    {$IFDEF KYLIXCOMPAT_OR_VCL_POSIX}
   gettimeofday(tv, nil);
+    {$ELSE}
+      {$IFDEF USE_BASEUNIX}
+  fpgettimeofday(@tv,nil);
       {$ELSE}
-        {$message error gettimeofday is not called on this platform!}
+  {$message error gettimeofday is not called on this platform!}
   FillChar(tv, sizeof(tv), 0);
       {$ENDIF}
     {$ENDIF}
@@ -6418,39 +6428,49 @@ begin
 end;
 {$ENDIF}
 
+{$UNDEF USE_TTHREAD_PRIORITY_PROP}
+{$IFDEF DOTNET}
+  {$DEFINE USE_TTHREAD_PRIORITY_PROP}
+{$ENDIF}
+{$IFDEF WINDOWS}
+  {$DEFINE USE_TTHREAD_PRIORITY_PROP}
+{$ENDIF}
+{$IFDEF UNIX}
+  {$IFDEF USE_VCL_POSIX}
+    // TODO: does this apply?
+    {.$DEFINE USE_TTHREAD_PRIORITY_PROP}
+  {$ENDIF}
+  {$IFDEF KYLIXCOMPAT} // TODO: use KYLIXCOMPAT_OR_VCL_POSIX instead?
+    {$IFNDEF INT_THREAD_PRIORITY}
+      {$DEFINE USE_TTHREAD_PRIORITY_PROP}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 procedure IndySetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority;
   const APolicy: Integer = -MaxInt);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF UNIX}
-    {$IFDEF KYLIXCOMPAT}
-      {$IFDEF INT_THREAD_PRIORITY}
-        // Linux only allows root to adjust thread priorities, so we just ignore this call in Linux?
-        // actually, why not allow it if root
-        // and also allow setting *down* threadpriority (anyone can do that)
-        // note that priority is called "niceness" and positive is lower priority
+  {$IFDEF USE_TTHREAD_PRIORITY_PROP}
+  AThread.Priority := APriority;
+  {$ELSE}
+    {$IFDEF UNIX}
+      // Linux only allows root to adjust thread priorities, so we just ignore this call in Linux?
+      // actually, why not allow it if root
+      // and also allow setting *down* threadpriority (anyone can do that)
+      // note that priority is called "niceness" and positive is lower priority
+      {$IFDEF KYLIXCOMPAT} // TODO: use KYLIXCOMPAT_OR_VCL_POSIX instead?
    if (getpriority(PRIO_PROCESS, 0) < APriority) or (geteuid = 0) then begin
      setpriority(PRIO_PROCESS, 0, APriority);
    end;
       {$ELSE}
-   AThread.Priority := APriority;
-      {$ENDIF}
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
-      // Linux only allows root to adjust thread priorities, so we just ingnore this call in Linux?
-      // actually, why not allow it if root
-      // and also allow setting *down* threadpriority (anyone can do that)
-      // note that priority is called "niceness" and positive is lower priority
+        {$IFDEF USE_BASEUNIX}
   if (fpgetpriority(PRIO_PROCESS, 0) < cint(APriority)) or (fpgeteuid = 0) then begin
     fpsetpriority(PRIO_PROCESS, 0, cint(APriority));
   end;
+        {$ENDIF}
+      {$ENDIF}
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-  AThread.Priority := APriority;
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  AThread.Priority := APriority;
   {$ENDIF}
 end;
 
@@ -6460,37 +6480,52 @@ procedure IndySleep(ATime: UInt32);
 var
   LTime: TimeVal;
 {$ELSE}
-  {$IFNDEF UNIX}
-    {$IFDEF USE_INLINE}inline;{$ENDIF}
-  {$ELSE}
+  {$IFDEF UNIX}
 var
   LTime: TTimeVal;
+  {$ELSE}
+    {$IFDEF USE_INLINE}inline;{$ENDIF}
   {$ENDIF}
 {$ENDIF}
 begin
-  {$IFDEF UNIX}
-    // *nix: Is there are reason for not using nanosleep?
+  {$IFDEF DOTNET}
+
+  Thread.Sleep(ATime);
+
+  {$ELSE}
+    {$IFDEF WINDOWS}
+
+  Windows.Sleep(ATime);
+
+    {$ELSE}
+      {$IFDEF UNIX}
+
+    // *nix: Is there any reason for not using nanosleep() instead?
 
     // what if the user just calls sleep? without doing anything...
     // cannot use GStack.WSSelectRead(nil, ATime)
     // since no readsocketlist exists to get the fdset
   LTime.tv_sec := ATime div 1000;
   LTime.tv_usec := (ATime mod 1000) * 1000;
-    {$IFDEF USE_VCL_POSIX}
-  select( 0, nil, nil, nil, @LTime);
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
+        {$IFDEF USE_VCL_POSIX}
+  select(0, nil, nil, nil, @LTime);
+        {$ELSE}
+          {$IFDEF KYLIXCOMPAT}
   Libc.Select(0, nil, nil, nil, @LTime);
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
+          {$ELSE}
+            {$IFDEF USE_BASEUNIX}
   fpSelect(0, nil, nil, nil, @LTime);
+            {$ELSE}
+              {$message error select is not called on this platform!}
+            {$ENDIF}
+          {$ENDIF}
+        {$ENDIF}
+
+      {$ELSE}
+        {$message error IndySleep is not implemented on this platform!}
+      {$ENDIF}
+
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-  Windows.Sleep(ATime);
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  Thread.Sleep(ATime);
   {$ENDIF}
 end;
 
@@ -7134,60 +7169,35 @@ function OffsetFromUTC: TDateTime;
 var
   iBias: Integer;
   tmez: TTimeZoneInformation;
-  {$ENDIF}
-  {$IFDEF UNIX}
-    {$IFDEF USE_VCL_POSIX}
+  {$ELSE}
+    {$IFDEF UNIX}
+      {$IFDEF USE_VCL_POSIX}
 var
   T : Time_t;
   TV : TimeVal;
   UT : tm;
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
+      {$ELSE}
+        {$IFDEF KYLIXCOMPAT}
+var
+  T : Time_T;
+  TV : TTimeVal;
+  UT : TUnixTime;
+        {$ELSE}
+          {$IFDEF USE_BASEUNIX}
  var
    timeval: TTimeVal;
    timezone: TTimeZone;
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
-var
-  T: Time_T;
-  TV: TTimeVal;
-  UT: TUnixTime;
+          {$ENDIF}
+        {$ENDIF}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 begin
-  {$IFDEF UNIX}
-
-    {$IFDEF USE_VCL_POSIX}
-  {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
-
-  gettimeofday(TV, nil);
-  T := TV.tv_sec;
-  localtime_r(T, UT);
-  Result := UT.tm_gmtoff / 60 / 60 / 24;
-    {$ELSE}
-      {$IFDEF USE_BASEUNIX}
-  fpGetTimeOfDay (@TimeVal, @TimeZone);
-  Result := -1 * (timezone.tz_minuteswest / 60 / 24)
-      {$ELSE}
-        {$IFDEF KYLIXCOMPAT}
-  {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
-
-  gettimeofday(TV, nil);
-  T := TV.tv_sec;
-  localtime_r(@T, UT);
-  Result := UT.__tm_gmtoff / 60 / 60 / 24;
-        {$ELSE}
-  Result := GOffsetFromUTC;
-        {$ENDIF}
-      {$ENDIF}
-    {$ENDIF}
-
-  {$ELSE}
-    {$IFDEF DOTNET}
+  {$IFDEF DOTNET}
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
-    {$ELSE}
-      {$IFDEF WINDOWS}
+  {$ELSE}
+    {$IFDEF WINDOWS}
   case GetTimeZoneInformation({$IFDEF WINCE}@{$ENDIF}tmez) of
     TIME_ZONE_ID_INVALID  :
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
@@ -7219,6 +7229,26 @@ begin
   if iBias > 0 then begin
     Result := 0.0 - Result;
   end;
+    {$ELSE}
+      {$IFDEF UNIX}
+
+        {$IFDEF KYLIXCOMPAT_OR_VCL_POSIX}
+  {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
+
+  gettimeofday(TV, nil);
+  T := TV.tv_sec;
+  localtime_r({$IFDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
+  Result := UT.{$IFDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24;
+        {$ELSE}
+          {$IFDEF USE_BASEUNIX}
+  fpGetTimeOfDay (@TimeVal, @TimeZone);
+  Result := -1 * (timezone.tz_minuteswest / 60 / 24);
+          {$ELSE}
+  {$message error gettimeofday is not called on this platform!}
+  Result := GOffsetFromUTC;
+          {$ENDIF}
+        {$ENDIF}
+
       {$ELSE}
   Result := GOffsetFromUTC;
       {$ENDIF}

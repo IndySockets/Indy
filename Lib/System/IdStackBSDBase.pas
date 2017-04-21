@@ -337,22 +337,26 @@ implementation
 
 uses
   //done this way so we can have a separate stack for the Unix systems in FPC
-  {$IFDEF UNIX}
-    {$IFDEF KYLIXCOMPAT}
-  IdStackLibc,
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
-  IdStackUnix,
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
-  IdStackVCLPosix,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-  IdStackWindows,
-  {$ENDIF}
   {$IFDEF DOTNET}
   IdStackDotNet,
+  {$ELSE}
+    {$IFDEF WINDOWS}
+  IdStackWindows,
+    {$ELSE}
+      {$IFDEF USE_VCL_POSIX}
+  IdStackVCLPosix,
+      {$ELSE}
+        {$IFDEF UNIX}
+          {$IFDEF KYLIXCOMPAT}
+  IdStackLibc,
+          {$ELSE}
+            {$IFDEF USE_BASEUNIX}
+  IdStackUnix,
+            {$ENDIF}
+          {$ENDIF}
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   IdResourceStrings,
   SysUtils;

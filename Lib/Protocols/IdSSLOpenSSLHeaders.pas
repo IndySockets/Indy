@@ -815,9 +815,6 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 uses
   IdException,
   IdGlobal,
-  {$IFDEF KYLIXCOMPAT}
-  libc,
-  {$ENDIF}
   {$IFDEF WINDOWS}
   Windows,
   IdWinsock2,
@@ -826,6 +823,9 @@ uses
   Posix.SysSocket,
   Posix.SysTime,
   Posix.SysTypes,
+  {$ENDIF}
+  {$IFDEF KYLIXCOMPAT}
+  libc,
   {$ENDIF}
   {$IFDEF USE_BASEUNIX}
   baseunix,
@@ -22544,14 +22544,14 @@ end;
 
 function LoadSSLCryptoLibrary: HMODULE;
 begin
-  {$IFDEF KYLIXCOMPAT}
-  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers);
-  {$ELSE}
-    {$IFDEF WINDOWS}
+  {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
+  {$ELSE}
+    {$IFDEF KYLIXCOMPAT}
+  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+  Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers);
     {$ELSE}
       {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
   Result := HMODULE(HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers));
@@ -22564,11 +22564,7 @@ end;
 
 function LoadSSLLibrary: HMODULE;
 begin
-  {$IFDEF KYLIXCOMPAT}
-  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers);
-  {$ELSE}
-    {$IFDEF WINDOWS}
+  {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name);
@@ -22577,6 +22573,10 @@ begin
   if Result = 0 then begin
     Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
   end;
+  {$ELSE}
+    {$IFDEF KYLIXCOMPAT}
+  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+  Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers);
     {$ELSE}
       {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
   Result := HMODULE(HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers));

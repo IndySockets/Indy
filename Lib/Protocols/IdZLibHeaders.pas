@@ -58,11 +58,11 @@ The only things that still are cdecl are the callback functions.
 
 uses
   //reference off_t
-  {$IFDEF KYLIXCOMPAT}
-  libc,
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTypes,
+  {$ENDIF}
+  {$IFDEF KYLIXCOMPAT}
+  libc,
   {$ENDIF}
   {$IFDEF USE_BASEUNIX}
   baseunix,
@@ -235,17 +235,20 @@ type
 {JPM - I made some types from our old header to the new C types defined originally
  for compatability.}
   {$EXTERNALSYM z_off_t}
-  {$IFDEF USE_VCL_POSIX}
-  z_off_t = off_t;
-  {$ENDIF}
-  {$IFDEF KYLIXCOMPAT}
-  z_off_t = off_t;
-  {$ENDIF}
-  {$IFDEF USE_BASEUNIX}
-  z_off_t = off_t;
-  {$ENDIF}
   {$IFDEF WINDOWS}
   z_off_t = TIdC_LONG;
+  {$ELSE}
+    {$IFDEF USE_VCL_POSIX}
+  z_off_t = off_t;
+    {$ELSE}
+      {$IFDEF KYLIXCOMPAT}
+  z_off_t = off_t;
+      {$ELSE}
+        {$IFDEF USE_BASEUNIX}
+  z_off_t = off_t;
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 
   {$EXTERNALSYM alloc_func}
