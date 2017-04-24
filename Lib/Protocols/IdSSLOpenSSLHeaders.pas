@@ -23048,14 +23048,14 @@ we have to handle both cases.
  // @EVP_des_ede_cfb8 := LoadFunctionCLib(fn_EVP_des_ede_cfb8,False);
   //#endif
   @EVP_des_ede3_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede3_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_desx_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_ede3_cfb1,False);
+  @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_ede3_cfb8,False);
+  @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_ofb,False);
+  @EVP_des_ede_ofb := LoadFunctionCLib(fn_EVP_des_ede_ofb,False);
+  @EVP_des_ede3_ofb := LoadFunctionCLib(fn_EVP_des_ede3_ofb,False);
+  @EVP_des_cbc := LoadFunctionCLib(fn_EVP_des_cbc,False);
+  @EVP_des_ede_cbc := LoadFunctionCLib(fn_EVP_des_ede_cbc,False);
+  @EVP_desx_cbc := LoadFunctionCLib(fn_EVP_desx_cbc,False);
 //* This should now be supported through the dev_crypto ENGINE. But also, why are
 // * rc4 and md5 declarations made here inside a "NO_DES" precompiler branch? */
 //#if 0
