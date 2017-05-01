@@ -3887,8 +3887,14 @@ begin
   for Lcset := Low(TIdCharSet) to High(TIdCharSet) do begin
     if TextIsSame(IdCharsetNames[Lcset], ACharSet) then begin
       Result := Lcset;
-      Break;
+      Exit;
     end;
+  end;
+  // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8' instead
+  // of 'utf-8', so let's check for that.  Not adding 'utf8' to TIdCharSet at
+  // this time, as I don't want to cause any compatibility issues...
+  if TextIsSame(ACharset, 'utf8') then begin {Do not Localize}
+    Result := idcs_UTF_8;
   end;
 end;
 

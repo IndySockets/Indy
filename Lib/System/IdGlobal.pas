@@ -2058,9 +2058,17 @@ begin
 end;
 
 constructor TIdDotNetEncoding.Create(const ACharset: String);
+var
+  LCharset: string;
 begin
   inherited Create;
-  FEncoding := System.Text.Encoding.GetEncoding(ACharset);
+  // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
+  // instead of 'utf-8', so let's check for that...
+  LCharset := ACharset;
+  if TextIsSame(LCharset, 'utf8') then begin {Do not Localize}
+    LCharset := 'UTF-8'; {Do not Localize}
+  end;
+  FEncoding := System.Text.Encoding.GetEncoding(LCharset);
 end;
 
 constructor TIdDotNetEncoding.Create(const ACodepage: UInt16);
@@ -2726,7 +2734,14 @@ const
   //cValue: array[0..1] of UInt16 = ($DBFF, $DFFF);
 begin
   inherited Create;
+
+  // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
+  // instead of 'utf-8', so let's check for that...
   FCharSet := CharSet;
+  if TextIsSame(FCharSet, 'utf8') then begin {Do not Localize}
+    FCharSet := 'UTF-8'; {Do not Localize}
+  end;
+
   FMaxCharSize := GetByteCount(PIdWideChar(@cValue[0]), 2);
 
   // Not all charsets support all codepoints.  For example, ISO-8859-1 does
@@ -3198,19 +3213,21 @@ end;
 function TIdMBCSEncoding.GetPreamble: TIdBytes;
 begin
   {$IFDEF USE_ICONV}
-  case PosInStrArray(FCharSet, ['utf-8', 'utf-16', 'utf-16le', 'utf-16be'], False) of {do not localize}
-    0: begin
+  // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
+  // instead of 'utf-8', so let's check for that...
+  case PosInStrArray(FCharSet, ['utf-8', 'utf8', 'utf-16', 'utf-16le', 'utf-16be'], False) of {do not localize}
+    0, 1: begin
       SetLength(Result, 3);
       Result[0] := $EF;
       Result[1] := $BB;
       Result[2] := $BF;
     end;
-    1, 2: begin
+    2, 3: begin
       SetLength(Result, 2);
       Result[0] := $FF;
       Result[1] := $FE;
     end;
-    3: begin
+    4: begin
       SetLength(Result, 2);
       Result[0] := $FE;
       Result[1] := $FF;
@@ -3687,8 +3704,16 @@ end;
 
 {$IFDEF HAS_TEncoding_GetEncoding_ByEncodingName}
 constructor TIdVCLEncoding.Create(const ACharset: String);
+var
+  LCharset: string;
 begin
-  Create(TEncoding.GetEncoding(ACharset), True);
+  // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
+  // instead of 'utf-8', so let's check for that...
+  LCharset := ACharset;
+  if TextIsSame(LCharset, 'utf8') then begin {Do not Localize}
+    LCharset := 'UTF-8'; {Do not Localize}
+  end;
+  Create(TEncoding.GetEncoding(LCharset), True);
 end;
 {$ENDIF}
 
@@ -3799,11 +3824,13 @@ begin
   if IsCharsetASCII(ACharSet) then begin
     Result := IndyTextEncoding_ASCII;
   end else begin
-    case PosInStrArray(ACharSet, ['utf-16be', 'utf-16le', 'utf-16', 'utf-7', 'utf-8'], False) of {do not localize}
+    // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
+    // instead of 'utf-8', so let's check for that...
+    case PosInStrArray(ACharSet, ['utf-16be', 'utf-16le', 'utf-16', 'utf-7', 'utf-8', 'utf8'], False) of {do not localize}
       0:    Result := IndyTextEncoding_UTF16BE;
       1, 2: Result := IndyTextEncoding_UTF16LE;
       3:    Result := IndyTextEncoding_UTF7;
-      4:    Result := IndyTextEncoding_UTF8;
+      4, 5: Result := IndyTextEncoding_UTF8;
     else
       {$IFDEF USE_ICONV}
       Result := TIdMBCSEncoding.Create(ACharSet);
