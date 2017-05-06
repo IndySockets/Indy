@@ -66,20 +66,12 @@ uses
   IdFiberWeaverThreaded,
   IdSchedulerOfFiber;
 
-{$I ..\Core\IdCompilerDefines.inc}
+{$I IdCompilerDefines.inc}
 
-{$IFDEF DOTNET}
-  {$R IconsDotNet\TIdChainEngine.bmp}
-  {$R IconsDotNet\TIdFiberWeaverInline.bmp}
-  {$R IconsDotNet\TIdFiberWeaverThreaded.bmp}
-  {$R IconsDotNet\TIdSchedulerOfFiber.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerChain.bmp}
+{$IFDEF Borland}
+  {$R IdSuperCoreRegister.dcr}
 {$ELSE}
-  {$IFDEF Borland}
-    {$R IdSuperCoreRegister.dcr}
-  {$ELSE}
-    {$R IdSuperCoreRegisterCool.dcr}
-  {$ENDIF}
+  {$R IdSuperCoreRegisterCool.dcr}
 {$ENDIF}
 
 procedure Register;

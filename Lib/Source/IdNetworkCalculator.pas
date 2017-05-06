@@ -113,8 +113,8 @@ type
     procedure SetNetworkMaskLength(const Value: UInt32);
     procedure NetMaskChanged(Sender: TObject);
     procedure NetAddressChanged(Sender: TObject);
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function IsAddressInNetwork(const Address: String): Boolean;
     function NumIP: UInt32;
@@ -183,9 +183,9 @@ end;
 
 { TIdNetworkCalculator }
 
-procedure TIdNetworkCalculator.InitComponent;
+constructor TIdNetworkCalculator.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FNetworkMask := TIpProperty.Create;
   FNetworkMask.OnChange := NetMaskChanged;
   FNetworkAddress := TIpProperty.Create;
@@ -197,9 +197,9 @@ end;
 
 destructor TIdNetworkCalculator.Destroy;
 begin
-  FreeAndNil(FNetworkMask);
-  FreeAndNil(FNetworkAddress);
-  FreeAndNil(FListIP);
+  FNetworkMask.Free;
+  FNetworkAddress.Free;
+  FListIP.Free;
   inherited Destroy;
 end;
 

@@ -175,7 +175,8 @@ type
     function DoVerifyBoundPeer(AContext: TIdSocksServerContext; const AExpected, AActual: string): Boolean; virtual;
     procedure HandleConnectV4(AContext: TIdSocksServerContext; var VCommand: Byte; var VHost: string; var VPort: TIdPort); virtual;
     procedure HandleConnectV5(AContext: TIdSocksServerContext; var VCommand: Byte; var VHost: string; var VPort: TIdPort); virtual;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_SOCKS;
     property AllowSocks4: Boolean read FAllowSocks4 write FAllowSocks4;
@@ -236,7 +237,7 @@ begin
       FillBytes(Result, Length(Result), 0);
     end;
   finally
-    FreeAndNil(LIP);
+    LIP.Free;
   end;
 end;
 
@@ -276,7 +277,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LBuffer);
+    LBuffer.Free;
   end;
 end;
 
@@ -580,7 +581,7 @@ begin
     LClient.Disconnect;
     AContext.Connection.Disconnect;
   finally
-    FreeAndNil(LClient);
+    LClient.Free;
   end;
 end;
 
@@ -660,7 +661,7 @@ begin
     LServer.Disconnect;
     AContext.Connection.Disconnect;
   finally
-    FreeAndNil(LServer);
+    LServer.Free;
   end;
 end;
 
@@ -682,9 +683,9 @@ end;
 
 { Constructor / Destructors }
 
-procedure TIdCustomSocksServer.InitComponent;
+constructor TIdCustomSocksServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FContextClass := TIdSocksServerContext;
   DefaultPort := IdPORT_SOCKS;
   AllowSocks4 := True;

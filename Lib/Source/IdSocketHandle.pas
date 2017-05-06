@@ -187,10 +187,7 @@ type
     // Returns True if error was ignored (Matches iIgnore), false if no error occurred
     procedure Assign(Source: TPersistent); override;
     procedure Bind;
-    procedure Broadcast(const AData: string; const APort: TIdPort; const AIP: String = '';
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+    procedure Broadcast(const AData: string; const APort: TIdPort; const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil); overload;
     procedure Broadcast(const AData: TIdBytes; const APort: TIdPort; const AIP: String = ''); overload;
     procedure CloseSocket; virtual;
     procedure Connect; virtual;
@@ -199,17 +196,12 @@ type
     procedure Listen(const AQueueCount: Integer = 5);
     function Readable(AMSec: Integer = IdTimeoutDefault): boolean;
     function Receive(var VBuffer: TIdBytes): Integer;
-    function RecvFrom(var ABuffer : TIdBytes; var VIP: string;
-      var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer;
+    function RecvFrom(var ABuffer : TIdBytes; var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer;
     procedure Reset(const AResetLocal: boolean = True);
-    function Send(const AData: String; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): Integer; overload;
+    function Send(const AData: String; AByteEncoding: IIdTextEncoding = nil): Integer; overload;
     function Send(const ABuffer: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Integer; overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const AData: String;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; AByteEncoding: IIdTextEncoding = nil); overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
     procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AOffset: Integer; const ASize: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
     procedure SetPeer(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
@@ -249,7 +241,7 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.SyncObjs,
   {$ENDIF}
   IdAntiFreezeBase, IdComponent, IdResourceStrings, SysUtils;
@@ -275,24 +267,26 @@ end;
 
 procedure TIdSocketHandle.CloseSocket;
 begin
-  if HandleAllocated then begin
-    FConnectionHandle.Enter; try
+  FConnectionHandle.Enter;
+  try
+    if HandleAllocated then begin
       // Must be first, closing socket will trigger some errors, and they
       // may then call (in other threads) Connected, which in turn looks at
       // FHandleAllocated.
       FHandleAllocated := False;
       Disconnect;
       SetHandle(Id_INVALID_SOCKET);
-    finally
-      FConnectionHandle.Leave;
     end;
+  finally
+    FConnectionHandle.Leave;
   end;
 end;
 
 procedure TIdSocketHandle.Connect;
 begin
   GStack.Connect(Handle, PeerIP, PeerPort, FIPVersion);
-  FConnectionHandle.Enter; try
+  FConnectionHandle.Enter;
+  try
     if HandleAllocated then begin
       // UpdateBindingLocal needs to be called even though Bind calls it. After
       // Bind is may be 0.0.0.0 (INADDR_ANY). After connect it will be a real IP.
@@ -309,8 +303,8 @@ end;
 destructor TIdSocketHandle.Destroy;
 begin
   CloseSocket;
-  FreeAndNil(FConnectionHandle);
-  FreeAndNil(FReadSocketList);
+  FConnectionHandle.Free;
+  FReadSocketList.Free;
   inherited Destroy;
 end;
 
@@ -319,11 +313,9 @@ begin
   Result := GStack.Receive(Handle, VBuffer);
 end;
 
-function TIdSocketHandle.Send(const AData: String; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): Integer;
+function TIdSocketHandle.Send(const AData: String; AByteEncoding: IIdTextEncoding = nil): Integer;
 begin
-  Result := Send(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
+  Result := Send(ToBytes(AData, AByteEncoding));
 end;
 
 function TIdSocketHandle.Send(const ABuffer: TIdBytes; const AOffset: Integer = 0;
@@ -340,11 +332,9 @@ end;
 
 procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort;
   const AData: String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 begin
-  SendTo(AIP, APort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}), AIPVersion);
+  SendTo(AIP, APort, ToBytes(AData, AByteEncoding), AIPVersion);
 end;
 
 procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort;
@@ -376,17 +366,31 @@ begin
     Id_SO_False
   );
   SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, LValue);
-  {$IFDEF DCC}
-    {$IFDEF LINUX64}
+
+  {$IF DEFINED(DCC) AND DEFINED(LINUX64)}
   // RLebeau 1/18/2016: Embarcadero's PAServer on Linux64 fails quickly with
   // "socket in use" errors without this option enabled.  PAServer bug?  For
   // now, noone else has complained about problems related to this option,
   // so let's limit this fix to just Delphi for now. Should we add a
   // HAS_SO_REUSEPORT define so FPC can use this too?  What about adding a
   // new ReusePort property to configure this separately from ReuseSocket?
-  SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEPORT, LValue);
-    {$ENDIF}
-  {$ENDIF}
+
+  // RLebeau 3/7/2017: Windows 10 has a Developer Mode that includes a Linux
+  // Bash shell for running Linux executables directly in Windows. However,
+  // PAServer fails to open a listening socket in this Shell with an
+  // "Error #22 invalid argument" error.  Since SO_REUSEPORT does not exist
+  // on Windows, could that be why?  Let's just ignore any socket errors here
+  // for now...
+
+  try
+    SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEPORT, LValue);
+  except
+    on E: EIdSocketError do begin
+      //if E.LastError <> EINVAL then raise;
+    end;
+  end;
+  {$IFEND}
+
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
     if (FClientPortMin > FClientPortMax) then begin
       raise EIdInvalidPortRange.CreateFmt(RSInvalidPortRange, [FClientPortMin, FClientPortMax]);
@@ -399,11 +403,9 @@ begin
 end;
 
 procedure TIdSocketHandle.Broadcast(const AData: string; const APort: TIdPort;
-  const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil);
 begin
-  Broadcast(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}), APort, AIP);
+  Broadcast(ToBytes(AData, AByteEncoding), APort, AIP);
 end;
 
 procedure TIdSocketHandle.Broadcast(const AData: TIdBytes; const APort: TIdPort;
@@ -439,14 +441,16 @@ begin
   SetBroadcastFlag(FBroadcastEnabled);
 end;
 
-procedure TIdSocketHandle.SetPeer(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdSocketHandle.SetPeer(const AIP: string; const APort: TIdPort;
+  const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   FPeerIP := AIP;
   FPeerPort := APort;
   FIPVersion := AIPVersion;
 end;
 
-procedure TIdSocketHandle.SetBinding(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdSocketHandle.SetBinding(const AIP: string; const APort: TIdPort;
+  const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   FIP := AIP;
   FPort := APort;

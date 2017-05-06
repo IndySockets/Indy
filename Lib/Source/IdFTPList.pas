@@ -431,7 +431,7 @@ type
   TIdDirItemType = (ditDirectory, ditFile, ditSymbolicLink, ditSymbolicLinkDir,
     ditBlockDev, ditCharDev, ditFIFO, ditSocket);
 
-  TIdFTPFileName = TIdUnicodeString;
+  TIdFTPFileName = UnicodeString;
 
   TIdFTPListItems = class;
 

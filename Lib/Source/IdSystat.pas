@@ -44,7 +44,9 @@ unit IdSystat;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdAssignedNumbers,
@@ -54,8 +56,8 @@ uses
 type
   TIdSystat = class(TIdTCPClientCustom)
   protected
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure GetStat(ADest : TStrings);
   published
     property Port default IdPORT_SYSTAT;
@@ -77,9 +79,9 @@ implementation
 
 { TIdSystat }
 
-procedure TIdSystat.InitComponent;
+constructor TIdSystat.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   Port := IdPORT_SYSTAT;
 end;
 

@@ -123,8 +123,8 @@ type
     function Disregard(const ANTPMessage: TNTPGram): Boolean;
     function GetAdjustmentTime: TDateTime;
     function GetDateTime: TDateTime;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     function SyncTime: Boolean;        // get datetime and adjust if needed
     //
     property AdjustmentTime: TDateTime read GetAdjustmentTime;
@@ -196,9 +196,9 @@ end ;
 
 { TIdSNTP }
 
-procedure TIdSNTP.InitComponent;
+constructor TIdSNTP.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FPort := IdPORT_SNTP;
   FCheckStratum := True;
 end;

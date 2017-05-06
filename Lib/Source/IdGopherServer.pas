@@ -70,9 +70,8 @@ uses
 }
 
 type
-  TRequestEvent = procedure(AContext:TIdContext;ARequest:String) of object;
-  TPlusRequestEvent = procedure(AContext:TIdContext;ARequest:String;
-    APlusData : String) of object;
+  TRequestEvent = procedure(AContext: TIdContext; ARequest: String) of object;
+  TPlusRequestEvent = procedure(AContext: TIdContext; ARequest: String; APlusData: String) of object;
 
   TIdGopherServer = class(TIdCustomTCPServer)
   private
@@ -85,11 +84,8 @@ type
     fTruncateLength : Integer;
   protected
     function DoExecute(AContext: TIdContext): Boolean; override;
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     function ReturnGopherItem(ItemType : Char;
       UserFriendlyName, RealResourceName : String;
       HostServer : String; HostPort : TIdPort): String;
@@ -113,16 +109,9 @@ implementation
 uses
   IdGopherConsts, IdResourceStringsProtocols, SysUtils;
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdGopherServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdGopherServer.InitComponent;
-begin
-  inherited InitComponent;
   DefaultPort := IdPORT_GOPHER;
   fAdminEmail := '<gopher@domain.example>';    {Do not Localize}
   fTruncateUserFriendly := True;
@@ -185,8 +174,9 @@ one line, with CR LF at the end)
  - Port # of host
 }
 begin
-  AContext.Connection.IOHandler.WriteLn(ReturnGopherItem(ItemType, UserFriendlyName,
-    RealResourceName, HostServer, HostPort));
+  AContext.Connection.IOHandler.WriteLn(
+    ReturnGopherItem(ItemType, UserFriendlyName, RealResourceName, HostServer, HostPort)
+  );
 end;
 
 end.

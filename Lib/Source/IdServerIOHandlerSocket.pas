@@ -76,9 +76,11 @@
 unit IdServerIOHandlerSocket;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdSocketHandle, IdGlobal, IdThread, IdServerIOHandler, IdStackConsts, IdIOHandler, IdScheduler,
   IdIOHandlerSocket, IdYarn;
 
@@ -89,8 +91,8 @@ type
   protected
     IOHandlerSocketClass: TIdIOHandlerSocketClass;
     //
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     function Accept(
       ASocket: TIdSocketHandle;
       AListenerThread: TIdThread;
@@ -101,9 +103,17 @@ type
   end;
 
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
 
 { TIdServerIOHandlerSocket }
+
+constructor TIdServerIOHandlerSocket.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  IOHandlerSocketClass := TIdIOHandlerSocket;
+end;
 
 procedure TIdServerIOHandlerSocket.Init;
 begin
@@ -137,14 +147,8 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LIOHandler);
+    LIOHandler.Free;
   end;
-end;
-
-procedure TIdServerIOHandlerSocket.InitComponent;
-begin
-  inherited InitComponent;
-  IOHandlerSocketClass := TIdIOHandlerSocket;
 end;
 
 end.

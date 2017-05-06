@@ -55,9 +55,11 @@ unit IdRSHServer;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
 
 const
@@ -73,7 +75,8 @@ type
     //
     procedure DoCMD(AThread: TIdContext;
      AStdError : TIdTCPClient; AParam1, AParam2, ACommand : String); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property OnCommand : TIdRSHCommandEvent read FOnCommand write FOnCommand;
     property DefaultPort default IdPORT_cmd;
@@ -84,9 +87,9 @@ implementation
 
 { TIdRSHServer }
 
-procedure TIdRSHServer.InitComponent;
+constructor TIdRSHServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_cmd;
   FForcePortsInRange := RSH_FORCEPORTSINRANGE;
   FStdErrorPortsInRange := True;

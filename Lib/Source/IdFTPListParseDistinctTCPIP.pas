@@ -131,7 +131,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;

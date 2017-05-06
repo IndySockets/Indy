@@ -61,10 +61,11 @@ unit IdASN1Util;
 |==============================================================================|
 }
 
-{$Q-}
+{$I IdOverflowCheckingOff.inc}
 {$WEAKPACKAGEUNIT ON}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses

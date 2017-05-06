@@ -90,6 +90,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdGlobal,
   IdEMailAddress,
   IdMessage,
@@ -137,7 +138,6 @@ type
     //
     function GetSupportsTLS : Boolean; override;
     function GetReplyClass: TIdReplyClass; override;
-    procedure InitComponent; override;
     procedure SendGreeting;
     procedure SetUseEhlo(const AValue: Boolean); virtual;
     procedure SetPipeline(const AValue: Boolean);
@@ -155,6 +155,7 @@ type
     //
     procedure InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); virtual;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Send(AMsg: TIdMessage); overload; virtual;
     procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList); overload; virtual;
     procedure Send(AMsg: TIdMessage; const AFrom: string); overload; virtual;
@@ -173,9 +174,6 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
-  System.Classes,
-  {$ENDIF}
   IdAssignedNumbers, IdException,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,
@@ -184,14 +182,9 @@ uses
 
 { TIdSMTPBase }
 
-function TIdSMTPBase.GetReplyClass:TIdReplyClass;
+constructor TIdSMTPBase.Create(AOwner: TComponent);
 begin
-  Result := TIdReplySMTP;
-end;
-
-procedure TIdSMTPBase.InitComponent;
-begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FRegularProtPort := IdPORT_SMTP;
   FImplicitTLSProtPort := IdPORT_ssmtp;
   FExplicitTLSProtPort := 587; // TODO: define a constant for this!
@@ -201,6 +194,11 @@ begin
   FMailAgent := '';
   FHeloName := '';
   Port := IdPORT_SMTP;
+end;
+
+function TIdSMTPBase.GetReplyClass:TIdReplyClass;
+begin
+  Result := TIdReplySMTP;
 end;
 
 function TIdSMTPBase.GetSupportsTLS: Boolean;
@@ -394,7 +392,7 @@ begin
       LError.RaiseReplyError;
     end;
   finally
-    FreeAndNil(LError);
+    LError.Free;
   end;
 end;
 
@@ -509,7 +507,7 @@ begin
     LRecipients.AddItems(AMsg.BccList);
     Send(AMsg, LRecipients);
   finally
-    FreeAndNil(LRecipients);
+    LRecipients.Free;
   end;
 end;
 
@@ -541,7 +539,7 @@ begin
     LRecipients.AddItems(AMsg.BccList);
     Send(AMsg, LRecipients, AFrom);
   finally
-    FreeAndNil(LRecipients);
+    LRecipients.Free;
   end;
 end;
 

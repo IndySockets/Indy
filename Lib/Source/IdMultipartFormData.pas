@@ -184,7 +184,7 @@ type
     property Items[AIndex: Integer]: TIdFormDataField read GetFormDataField;
   end;
 
-  TIdMultiPartFormDataStream = class(TIdBaseStream)
+  TIdMultiPartFormDataStream = class(TStream)
   protected
     FInputStream: TStream;
     FFreeInputStream: Boolean;
@@ -202,21 +202,21 @@ type
     function GenerateUniqueBoundary: string;
     procedure CalculateSize;
 
-    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
-    procedure IdSetSize(ASize : Int64); override;
+    procedure SetSize(const NewSize: Int64); override;
   public
     constructor Create;
     destructor Destroy; override;
 
     function AddFormField(const AFieldName, AFieldValue: string; const ACharset: string = ''; const AContentType: string = ''; const AFileName: string = ''): TIdFormDataField; overload;
     function AddFormField(const AFieldName, AContentType, ACharset: string; AFieldValue: TStream; const AFileName: string = ''): TIdFormDataField; overload;
-    function AddObject(const AFieldName, AContentType, ACharset: string; AFileData: TObject; const AFileName: string = ''): TIdFormDataField; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use overloaded version of AddFormField()'{$ENDIF};{$ENDIF}
     function AddFile(const AFieldName, AFileName: String; const AContentType: string = ''): TIdFormDataField;
 
     procedure Clear;
-    
+
+    function Read(var Buffer; Count: Longint): Longint; override;
+    function Write(const Buffer; Count: Longint): Longint; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; override;
+
     property Boundary: string read FBoundary;
     property RequestContentType: string read FRequestContentType;
   end;
@@ -232,7 +232,6 @@ uses
   SysUtils,
   IdCoderQuotedPrintable,
   IdCoderMIME,
-  IdStream,
   IdGlobalProtocols;
 
 const
@@ -258,20 +257,8 @@ end;
 
 destructor TIdMultiPartFormDataStream.Destroy;
 begin
-  FreeAndNil(FFields);
+  FFields.Free;
   inherited Destroy;
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function TIdMultiPartFormDataStream.AddObject(const AFieldName,
-  AContentType, ACharset: string; AFileData: TObject;
-  const AFileName: string = ''): TIdFormDataField;
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  if not (AFileData is TStream) then begin
-    raise EIdInvalidObjectType.Create(RSMFDInvalidObjectType);
-  end;
-  Result := AddFormField(AFieldName, AContentType, ACharset, TStream(AFileData), AFileName);
 end;
 
 function TIdMultiPartFormDataStream.AddFile(const AFieldName, AFileName: String;
@@ -284,7 +271,7 @@ begin
   try
     LItem := FFields.Add;
   except
-    FreeAndNil(LStream);
+    LStream.Free;
     raise;
   end;
 
@@ -385,10 +372,10 @@ begin
   end;
 end;
 
-// RLebeau - IdRead() should wrap multiple files of the same field name
+// RLebeau - Read() should wrap multiple files of the same field name
 // using a single "multipart/mixed" MIME part, as recommended by RFC 1867
 
-function TIdMultiPartFormDataStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TIdMultiPartFormDataStream.Read(var Buffer; Count: Longint): Longint;
 var
   LTotalRead, LCount, LBufferCount, LRemaining : Integer;
   LItem: TIdFormDataField;
@@ -403,13 +390,13 @@ begin
   LTotalRead := 0;
   LBufferCount := 0;
 
-  while (LTotalRead < ACount) and ((Length(FInternalBuffer) > 0) or Assigned(FInputStream) or (FCurrentItem < FFields.Count)) do
+  while (LTotalRead < Count) and ((Length(FInternalBuffer) > 0) or Assigned(FInputStream) or (FCurrentItem < FFields.Count)) do
   begin
     if (Length(FInternalBuffer) = 0) and (not Assigned(FInputStream)) then
     begin
       LItem := FFields.Items[FCurrentItem];
       EnsureEncoding(LEncoding, enc8Bit);
-      AppendString(FInternalBuffer, LItem.FormatHeader, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      AppendString(FInternalBuffer, LItem.FormatHeader, -1, LEncoding);
 
       FInputStream := LItem.PrepareDataStream(FFreeInputStream);
       if not Assigned(FInputStream) then begin
@@ -419,10 +406,10 @@ begin
     end;
 
     if Length(FInternalBuffer) > 0 then begin
-      LCount := IndyMin(ACount - LBufferCount, Length(FInternalBuffer));
+      LCount := IndyMin(Count - LBufferCount, Length(FInternalBuffer));
       if LCount > 0 then begin
         LRemaining := Length(FInternalBuffer) - LCount;
-        CopyTIdBytes(FInternalBuffer, 0, VBuffer, LBufferCount, LCount);
+        Move(FInternalBuffer[0], Pointer(PtrUInt(@Buffer) + LBufferCount)^, LCount);
         if LRemaining > 0 then begin
           CopyTIdBytes(FInternalBuffer, LCount, FInternalBuffer, 0, LRemaining);
         end;
@@ -433,8 +420,8 @@ begin
       end;
     end;
 
-    if (LTotalRead < ACount) and (Length(FInternalBuffer) = 0) and Assigned(FInputStream) then begin
-      LCount := TIdStreamHelper.ReadBytes(FInputStream, VBuffer, ACount - LTotalRead, LBufferCount);
+    if (LTotalRead < Count) and (Length(FInternalBuffer) = 0) and Assigned(FInputStream) then begin
+      LCount := FInputStream.Read(Pointer(PtrUInt(@Buffer)+(Count-LTotalRead))^, LBufferCount);
       if LCount > 0 then begin
         LBufferCount := LBufferCount + LCount;
         LTotalRead := LTotalRead + LCount;
@@ -463,12 +450,12 @@ begin
   Result := LTotalRead;
 end;
 
-function TIdMultiPartFormDataStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+function TIdMultiPartFormDataStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 begin
   Result := 0;
-  case AOrigin of
+  case Origin of
     soBeginning: begin
-      if (AOffset = 0) then begin
+      if (Offset = 0) then begin
         FInitialized := False;
         FPosition := 0;
         Result := 0;
@@ -480,7 +467,7 @@ begin
       Result := FPosition;
     end;
     soEnd: begin
-      if (AOffset = 0) then begin
+      if (Offset = 0) then begin
         CalculateSize;
         Result := FSize;
       end else begin
@@ -490,12 +477,12 @@ begin
   end;
 end;
 
-function TIdMultiPartFormDataStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TIdMultiPartFormDataStream.Write(const Buffer; Count: Longint): Longint;
 begin
   raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
 end;
 
-procedure TIdMultiPartFormDataStream.IdSetSize(ASize: Int64);
+procedure TIdMultiPartFormDataStream.SetSize(const NewSize: Int64);
 begin
   raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
 end;
@@ -571,8 +558,6 @@ var
 begin
   LBoundary := '--' + TIdFormDataFields(Collection).MultipartFormDataStream.Boundary; {do not localize}
 
-  // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
-
   Result := IndyFormat('%s' + CRLF + sContentDispositionPlaceHolder,
     [LBoundary, EncodeHeader(FieldName, '', FHeaderEncoding, FHeaderCharSet)]);       {do not localize}
 
@@ -601,15 +586,9 @@ end;
 function TIdFormDataField.GetFieldSize: Int64;
 var
   LStream: TStream;
-  LOldPos: TIdStreamSize;
-  {$IFDEF STRING_IS_ANSI}
-  LBytes: TIdBytes;
-  {$ENDIF}
+  LOldPos: Int64;
   I: Integer;
 begin
-  {$IFDEF STRING_IS_ANSI}
-  LBytes := nil; // keep the compiler happy
-  {$ENDIF}
   Result := Length(FormatHeader);
   if Assigned(FFieldStream) then begin
     I := PosInStrArray(ContentTransfer, cAllowedContentTransfers, False);
@@ -643,51 +622,27 @@ begin
     I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
     if I <= 0 then begin
       // 7bit
-      {$IFDEF STRING_IS_UNICODE}
       I := IndyTextEncoding_ASCII.GetByteCount(FFieldValue);
-      {$ELSE}
-      // the methods useful for calculating a length without actually
-      // encoding are protected, so have to actually encode the
-      // string to find out the final length...
-      LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
-      CheckByteEncoding(LBytes, CharsetToEncoding(FCharset), IndyTextEncoding_ASCII);
-      I := Length(LBytes);
-      {$ENDIF}
       // need to include an explicit CRLF at the end of the data
       Result := Result + I + 2{CRLF};
     end
     else if (I = 1) or (I = 2) then begin
       // 8bit/binary
-      {$IFDEF STRING_IS_UNICODE}
       I := CharsetToEncoding(FCharset).GetByteCount(FFieldValue);
-      {$ELSE}
-      I := Length(FFieldValue);
-      {$ENDIF}
       // need to include an explicit CRLF at the end of the data
       Result := Result + I + 2{CRLF};
     end else
     begin
       LStream := TIdCalculateSizeStream.Create;
       try
-        {$IFNDEF STRING_IS_UNICODE}
-        LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
-        {$ENDIF}
         if I = 3 then begin
           // quoted-printable
-          {$IFDEF STRING_IS_UNICODE}
           TIdEncoderQuotedPrintable.EncodeString(FFieldValue, LStream, CharsetToEncoding(FCharset));
-          {$ELSE}
-          TIdEncoderQuotedPrintable.EncodeBytes(LBytes, LStream);
-          {$ENDIF}
           // the encoded text always includes a CRLF at the end...
           Result := Result + LStream.Size {+2};
         end else begin
           // base64
-          {$IFDEF STRING_IS_UNICODE}
-          TIdEncoderMIME.EncodeString(FFieldValue, LStream, CharsetToEncoding(FCharset){$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
-          {$ELSE}
-          TIdEncoderMIME.EncodeBytes(LBytes, LStream);
-          {$ENDIF}
+          TIdEncoderMIME.EncodeString(FFieldValue, LStream, CharsetToEncoding(FCharset));
           // the encoded text does not include a CRLF at the end...
           Result := Result + LStream.Size + 2;
         end;
@@ -704,13 +659,7 @@ end;
 function TIdFormDataField.PrepareDataStream(var VCanFree: Boolean): TStream;
 var
   I: Integer;
-  {$IFDEF STRING_IS_ANSI}
-  LBytes: TIdBytes;
-  {$ENDIF}
 begin
-  {$IFDEF STRING_IS_ANSI}
-  LBytes := nil; // keep the compiler happy
-  {$ENDIF}
   Result := nil;
   VCanFree := False;
 
@@ -732,7 +681,7 @@ begin
         end;
         Result.Position := 0;
       except
-        FreeAndNil(Result);
+        Result.Free;
         raise;
       end;
       VCanFree := True;
@@ -741,53 +690,33 @@ begin
   else if Length(FFieldValue) > 0 then begin
     Result := TMemoryStream.Create;
     try
-      {$IFDEF STRING_IS_ANSI}
-      LBytes := RawToBytes(FFieldValue[1], Length(FFieldValue));
-      {$ENDIF}
       I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
       if I <= 0 then begin
         // 7bit
-        {$IFDEF STRING_IS_UNICODE}
         WriteStringToStream(Result, FFieldValue, IndyTextEncoding_ASCII);
-        {$ELSE}
-        CheckByteEncoding(LBytes, CharsetToEncoding(FCharset), IndyTextEncoding_ASCII);
-        WriteTIdBytesToStream(Result, LBytes);
-        {$ENDIF}
         // need to include an explicit CRLF at the end of the data
         WriteStringToStream(Result, CRLF);
       end
       else if (I = 1) or (I = 2) then begin
         // 8bit/binary
-        {$IFDEF STRING_IS_UNICODE}
         WriteStringToStream(Result, FFieldValue, CharsetToEncoding(FCharset));
-        {$ELSE}
-        WriteTIdBytesToStream(Result, LBytes);
-        {$ENDIF}
         // need to include an explicit CRLF at the end of the data
         WriteStringToStream(Result, CRLF);
       end else
       begin
         if I = 3 then begin
           // quoted-printable
-          {$IFDEF STRING_IS_UNICODE}
           TIdEncoderQuotedPrintable.EncodeString(FFieldValue, Result, CharsetToEncoding(FCharset));
-          {$ELSE}
-          TIdEncoderQuotedPrintable.EncodeBytes(LBytes, Result);
-          {$ENDIF}
           // the encoded text always includes a CRLF at the end...
         end else begin
           // base64
-          {$IFDEF STRING_IS_UNICODE}
           TIdEncoderMIME.EncodeString(FFieldValue, Result, CharsetToEncoding(FCharset));
-          {$ELSE}
-          TIdEncoderMIME.EncodeBytes(LBytes, Result);
-          {$ENDIF}
           // the encoded text does not include a CRLF at the end...
           WriteStringToStream(Result, CRLF);
         end;
       end;
     except
-      FreeAndNil(Result);
+      Result.Free;
       raise;
     end;
     Result.Position := 0;

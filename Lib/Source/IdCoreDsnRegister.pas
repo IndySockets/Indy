@@ -38,44 +38,29 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF DOTNET}
-  Borland.Vcl.Design.DesignIntF,
-  Borland.Vcl.Design.DesignEditors
-  {$ELSE}
-    {$IFDEF FPC}
+  {$IFDEF FPC}
   PropEdits,
   ComponentEditors
-    {$ELSE}
-      {$IFDEF VCL_6_OR_ABOVE}
+  {$ELSE}
   DesignIntf,
   DesignEditors
-      {$ELSE}
-  Dsgnintf
-      {$ENDIF}
-    {$ENDIF}
   {$ENDIF}
   ;
 
 type
-  {$IFDEF FPC}
-  TIdBaseComponentEditor = class(TDefaultComponentEditor)
-  {$ELSE}
-  TIdBaseComponentEditor = class(TDefaultEditor)
-  {$ENDIF}
+  TIdBaseComponentEditor = class({$IFDEF FPC}TDefaultComponentEditor{$ELSE}TDefaultEditor{$ENDIF})
   public
     procedure ExecuteVerb(Index: Integer); override;
     function GetVerb(Index: Integer): string; override;
     function GetVerbCount: Integer; override;
   end;
 
+  TIdPropEdBinding = class({$IFDEF FPC}TPropertyEditor{$ELSE}TClassProperty{$ENDIF})
   {$IFDEF FPC}
-  TIdPropEdBinding = class(TPropertyEditor)
   protected
     FValue : String;
     property Value : String read FValue write FValue;
-  {$ELSE}
-  TIdPropEdBinding = class(TClassProperty)
-  {$ENDIF}
+    {$ENDIF}
   public
     procedure Edit; override;
     function GetAttributes: TPropertyAttributes; override;
@@ -84,19 +69,14 @@ type
   end;
 
 // Procs
-  procedure Register;
+procedure Register;
 
 implementation
 
 uses
   Classes,
-  {$IFDEF WIDGET_WINFORMS}
-  IdDsnPropEdBindingNET,
-  IdAboutDotNET,
-  {$ELSE}
   IdDsnPropEdBindingVCL,
   IdAboutVCL,
-  {$ENDIF}
   IdDsnCoreResourceStrings,
   IdBaseComponent,
   IdComponent,
@@ -104,33 +84,8 @@ uses
   IdStack,
   IdSocketHandle;
 
-{
-  Design Note:  It turns out that in DotNET, there are no services file functions and
-  IdPorts does not work as expected in DotNET.  It is probably possible to read the
-  services file ourselves but that creates some portability problems as the placement
- is different in every operating system.
-
-  e.g.
-
-  Linux and Unix-like systems - /etc
-  Windows 95, 98, and ME - c:\windows
-  Windows NT systems - c:\winnt\system32\drivers\etc
-
-  Thus, it will undercut whatever benefit we could get with DotNET.
-
-  About the best I could think of is to use an edit control because
-  we can't offer anything from the services file in DotNET.
-
-  TODO:  Maybe there might be a way to find the location in a more elegant
-  manner than what I described.
-}
-
 type
-  {$IFDEF WIDGET_WINFORMS}
-   TIdPropEdBindingEntry = TIdDsnPropEdBindingNET;
-  {$ELSE}
   TIdPropEdBindingEntry = TIdDsnPropEdBindingVCL;
-  {$ENDIF}
 
 procedure TIdPropEdBinding.Edit;
 var
@@ -139,17 +94,7 @@ var
 begin
   inherited Edit;
 
-  {$IFNDEF DOTNET}
-  pSockets := TIdSocketHandles(
-    {$IFDEF CPU64}
-    GetInt64Value
-    {$ELSE}
-    GetOrdValue
-    {$ENDIF}
-  );
-  {$ELSE}
-  pSockets := GetObjValue as TIdSocketHandles;
-  {$ENDIF}
+  pSockets := TIdSocketHandles({$IFDEF CPU64}GetInt64Value{$ELSE}GetOrdValue{$ENDIF});
 
   pEntry := TIdPropEdBindingEntry.Create;
   try
@@ -176,17 +121,7 @@ function TIdPropEdBinding.GetValue: string;
 var
   pSockets: TIdSocketHandles;
 begin
-  {$IFNDEF DOTNET}
-  pSockets := TIdSocketHandles(
-    {$IFDEF CPU64}
-    GetInt64Value
-    {$ELSE}
-    GetOrdValue
-    {$ENDIF}
-  );
-  {$ELSE}
-  pSockets := GetObjValue as TIdSocketHandles;
-  {$ENDIF}
+  pSockets := TIdSocketHandles({$IFDEF CPU64}GetInt64Value{$ELSE}GetOrdValue{$ENDIF});
   Result := GetListValues(pSockets);
 end;
 
@@ -195,17 +130,7 @@ var
   pSockets: TIdSocketHandles;
 begin
   inherited SetValue(Value);
-  {$IFNDEF DOTNET}
-  pSockets := TIdSocketHandles(
-    {$IFDEF CPU64}
-    GetInt64Value
-    {$ELSE}
-    GetOrdValue
-    {$ENDIF}
-  );
-  {$ELSE}
-  pSockets := GetObjValue as TIdSocketHandles;
-  {$ENDIF}
+  pSockets := TIdSocketHandles({$IFDEF CPU64}GetInt64Value{$ELSE}GetOrdValue{$ENDIF});
   pSockets.BeginUpdate;
   try
     FillHandleList(Value, pSockets);

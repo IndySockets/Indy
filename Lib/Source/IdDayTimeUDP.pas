@@ -25,16 +25,18 @@
 unit IdDayTimeUDP;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
-  IdAssignedNumbers, IdUDPBase, IdUDPClient;
+  Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
 type
   TIdDayTimeUDP = class(TIdUDPClient)
   protected
     Function GetDayTimeStr : String;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     Property DayTimeStr : String read GetDayTimeStr;
   published
     property Port default IdPORT_DAYTIME;
@@ -44,9 +46,9 @@ implementation
 
 { TIdDayTimeUDP }
 
-procedure TIdDayTimeUDP.InitComponent;
+constructor TIdDayTimeUDP.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Port := IdPORT_DAYTIME;
 end;
 

@@ -307,8 +307,8 @@ type
     procedure AssignIRCClientCommands;
     function GetCmdHandlerClass: TIdCommandHandlerClass; override;
     procedure SetIOHandler(AValue: TIdIOHandler); override;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     //
     procedure Connect; override;
@@ -687,14 +687,9 @@ begin
   end;
 end;
 
-function TIdIRC.GetCmdHandlerClass: TIdCommandHandlerClass;
+constructor TIdIRC.Create(AOwner: TComponent);
 begin
-  Result := TIdIRCCommandHandler;
-end;
-
-procedure TIdIRC.InitComponent;
-begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   //
   FReplies := TIdIRCReplies.Create;
   Port := IdPORT_IRC;
@@ -716,19 +711,24 @@ end;
 
 destructor TIdIRC.Destroy;
 begin
-  FreeAndNil(FReplies);
-  FreeAndNil(FBans);
-  FreeAndNil(FExcepts);
-  FreeAndNil(FInvites);
-  FreeAndNil(FLinks);
-  FreeAndNil(FMotd);
-  FreeAndNil(FNames);
-  FreeAndNil(FWho);
-  FreeAndNil(FWhoIs);
-  FreeAndNil(FWhoWas);
-  FreeAndNil(FSvrList);
-  FreeAndNil(FUsers);
+  FReplies.Free;
+  FBans.Free;
+  FExcepts.Free;
+  FInvites.Free;
+  FLinks.Free;
+  FMotd.Free;
+  FNames.Free;
+  FWho.Free;
+  FWhoIs.Free;
+  FWhoWas.Free;
+  FSvrList.Free;
+  FUsers.Free;
   inherited Destroy;
+end;
+
+function TIdIRC.GetCmdHandlerClass: TIdCommandHandlerClass;
+begin
+  Result := TIdIRCCommandHandler;
 end;
 
 function TIdIRC.GetUserMode: String;

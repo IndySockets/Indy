@@ -25,13 +25,11 @@ ABSOLUTELY NO CODE is permitted in this unit.
 implementation
 
 uses
-  {$IFNDEF DOTNET}
-    {$IFDEF USE_OPENSSL}
+  {$IFDEF USE_OPENSSL}
   IdAuthenticationNTLM,
-    {$ENDIF}
-    {$IFDEF USE_SSPI}
+  {$ENDIF}
+  {$IFDEF USE_SSPI}
   IdAuthenticationSSPI,
-    {$ENDIF}
   {$ENDIF}
   IdAuthenticationDigest;
 

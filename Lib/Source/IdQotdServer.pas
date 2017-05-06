@@ -57,6 +57,7 @@ Original Author: Ozz Nixon
 }
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -69,7 +70,8 @@ Type
     FOnCommandQOTD : TIdQOTDGetEvent;
     //
     function DoExecute(AContext: TIdContext): Boolean; override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property OnCommandQOTD : TIdQOTDGetEvent read fOnCommandQOTD write fOnCommandQOTD;
     property DefaultPort default IdPORT_QOTD;
@@ -77,9 +79,9 @@ Type
 
 implementation
 
-procedure TIdQOTDServer.InitComponent;
+constructor TIdQOTDServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_QOTD;
 end;
 

@@ -164,7 +164,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LFacts);
+    LFacts.Free;
   end;
   Result := True;
 end;

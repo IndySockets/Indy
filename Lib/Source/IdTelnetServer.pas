@@ -112,11 +112,8 @@ type
     FOnNegotiate: TIdTelnetNegotiateEvent;
     //
     procedure DoConnect(AContext: TIdContext); override;
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     function DoAuthenticate(AContext: TIdContext; const AUsername, APassword: string)
      : boolean; virtual;
     procedure DoNegotiate(AContext: TIdContext); virtual;
@@ -134,16 +131,9 @@ implementation
 uses
   IdException, IdResourceStringsProtocols, SysUtils;
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdTelnetServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdTelnetServer.InitComponent;
-begin
-  inherited InitComponent;
   LoginAttempts := GLoginAttempts;
   LoginMessage := RSTELNETSRVWelcomeString;
   DefaultPort := IdPORT_TELNET;
@@ -224,7 +214,7 @@ end;
 
 destructor TIdTelnetServerContext.Destroy;
 begin
-  FreeAndNil(FTelnetData);
+  FTelnetData.Free;
   inherited Destroy;
 end;
 

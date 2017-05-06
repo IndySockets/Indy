@@ -454,7 +454,7 @@ type
   public
     constructor Create(AConnection: TIdCustomHTTP);
     destructor Destroy; override;
-    function ProcessResponse(AIgnoreReplies: array of Int16): TIdHTTPWhatsNext;
+    function ProcessResponse(const AIgnoreReplies: array of Int16): TIdHTTPWhatsNext;
     procedure BuildAndSendRequest(AURI: TIdURI);
     procedure RetrieveHeaders(AMaxHeaderCount: integer);
     //
@@ -500,9 +500,8 @@ type
     procedure SetPort(const Value: integer); override;
 }
     procedure DoRequest(const AMethod: TIdHTTPMethod; AURL: string;
-      ASource, AResponseContent: TStream; AIgnoreReplies: array of Int16); virtual;
+      ASource, AResponseContent: TStream; const AIgnoreReplies: array of Int16); virtual;
     function CreateProtocol: TIdHTTPProtocol; virtual;
-    procedure InitComponent; override;
     function InternalReadLn: String;
     procedure SetAuthenticationManager(Value: TIdAuthenticationManager);
     procedure SetCookieManager(ACookieManager: TIdCookieManager);
@@ -525,67 +524,44 @@ type
     procedure SetRequest(Value: TIdHTTPRequest);
     procedure SetProxyParams(AValue: TIdProxyConnectionInfo);
 
-    function SetRequestParams(ASource: TStrings; AByteEncoding: IIdTextEncoding
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding{$ENDIF}
-      ): string;
+    function SetRequestParams(ASource: TStrings; AByteEncoding: IIdTextEncoding): string;
 
     procedure CheckAndConnect(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     procedure DoOnDisconnected; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     procedure Delete(AURL: string; AResponseContent: TStream); overload;
-    function Delete(AURL: string
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function Delete(AURL: string): string; overload;
 
     procedure Options(AURL: string; AResponseContent: TStream); overload;
-    function Options(AURL: string
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function Options(AURL: string): string; overload;
 
     procedure Get(AURL: string; AResponseContent: TStream); overload;
-    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of Int16); overload;
-    function Get(AURL: string
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
-    function Get(AURL: string; AIgnoreReplies: array of Int16
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: const array of Int16); overload;
+    function Get(AURL: string): string; overload;
+    function Get(AURL: string; const AIgnoreReplies: array of Int16): string; overload;
 
     procedure Trace(AURL: string; AResponseContent: TStream); overload;
-    function Trace(AURL: string
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function Trace(AURL: string): string; overload;
     procedure Head(AURL: string);
 
-    function Post(AURL: string; const ASourceFile: String
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
-    function Post(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): string; overload;
-    function Post(AURL: string; ASource: TStream
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
-    function Post(AURL: string; ASource: TIdMultiPartFormDataStream
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function Post(AURL: string; const ASourceFile: String): string; overload;
+    function Post(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil): string; overload;
+    function Post(AURL: string; ASource: TStream): string; overload;
+    function Post(AURL: string; ASource: TIdMultiPartFormDataStream): string; overload;
 
     procedure Post(AURL: string; const ASourceFile: String; AResponseContent: TStream); overload;
-    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}); overload;
+    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream; AByteEncoding: IIdTextEncoding = nil); overload;
     procedure Post(AURL: string; ASource, AResponseContent: TStream); overload;
     procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TStream); overload;
 
-    function Put(AURL: string; ASource: TStream
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function Put(AURL: string; ASource: TStream): string; overload;
     procedure Put(AURL: string; ASource, AResponseContent: TStream); overload;
 
     procedure Patch(AURL: string; ASource, AResponseContent: TStream); overload;
-    function Patch(AURL: string; ASource: TStream
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-    ): string; overload;
+    function Patch(AURL: string; ASource: TStream): string; overload;
 
     {This is an object that can compress and decompress HTTP Deflate encoding}
     property Compressor : TIdZLibCompressorBase read FCompressor write FCompressor;
@@ -719,23 +695,12 @@ begin
   end;
 end;
 
-destructor TIdCustomHTTP.Destroy;
-begin
-  FreeAndNil(FHTTPProto);
-  FreeAndNil(FURI);
-  FreeAndNil(FProxyParameters);
-  SetCookieManager(nil);
-  inherited Destroy;
-end;
-
 procedure TIdCustomHTTP.Delete(AURL: string; AResponseContent: TStream);
 begin
   DoRequest(Id_HTTPMethodDelete, AURL, nil, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Delete(AURL: string
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Delete(AURL: string): string;
 var
   LStream: TMemoryStream;
 begin
@@ -743,10 +708,10 @@ begin
   try
     DoRequest(Id_HTTPMethodDelete, AURL, nil, LStream, []);
     LStream.Position := 0;
-    Result := ReadStringAsCharset(LStream, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LStream, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 
@@ -755,9 +720,7 @@ begin
   DoRequest(Id_HTTPMethodOptions, AURL, nil, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Options(AURL: string
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Options(AURL: string): string;
 var
   LStream: TMemoryStream;
 begin
@@ -765,10 +728,10 @@ begin
   try
     DoRequest(Id_HTTPMethodOptions, AURL, nil, LStream, []);
     LStream.Position := 0;
-    Result := ReadStringAsCharset(LStream, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LStream, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 
@@ -823,9 +786,7 @@ end;
 // HTML 5
 // http://www.w3.org/TR/html5/
 
-function WWWFormUrlEncode(const ASrc: string; AByteEncoding: IIdTextEncoding
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding{$ENDIF}
-  ): string;
+function WWWFormUrlEncode(const ASrc: string; AByteEncoding: IIdTextEncoding): string;
 const
   // HTML 4.01 Section 17.13.4 ("Form content types") says:
   //
@@ -855,13 +816,10 @@ const
   // So, lets err on the side of caution and use the HTML 5.x definition, as it
   // encodes some of the characters that HTML 4.01 allows unencoded...
   //
-  SafeChars: TIdUnicodeString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*-._'; {do not localize}
+  SafeChars: UnicodeString = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*-._'; {do not localize}
 var
   I, J, CharLen, ByteLen: Integer;
   Buf: TIdBytes;
-  {$IFDEF STRING_IS_ANSI}
-  LChars: TIdWideChars;
-  {$ENDIF}
   LChar: WideChar;
   Encoded: Boolean;
 begin
@@ -869,27 +827,20 @@ begin
 
   // keep the compiler happy
   Buf := nil;
-  {$IFDEF STRING_IS_ANSI}
-  LChars := nil;
-  {$ENDIF}
 
   if ASrc = '' then begin
     Exit;
   end;
 
   EnsureEncoding(AByteEncoding, encUTF8);
-  {$IFDEF STRING_IS_ANSI}
-  EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
-  {$ENDIF}
 
   // 2 Chars to handle UTF-16 surrogates
   SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
 
   I := 0;
-  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
+  while I < Length(ASrc) do
   begin
-    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+    LChar := ASrc[I+1];
 
     // RLebeau 1/7/09: using Ord() for #128-#255 because in D2009 and later, the
     // compiler may change characters >= #128 from their Ansi codepage value to
@@ -916,12 +867,8 @@ begin
       // Unicode code point of the character in base ten, and finally a U+003B
       // SEMICOLON character (;).
       //
-      CharLen := CalcUTF16CharLength(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
-        ); // calculate length including surrogates
-      ByteLen := AByteEncoding.GetBytes(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
-        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+      CharLen := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
+      ByteLen := AByteEncoding.GetBytes(ASrc, I+1, CharLen, Buf, 0); // explicit Unicode->Ansi conversion
 
       Encoded := (ByteLen > 0);
       if Encoded and (LChar <> '?') then begin  {do not localize}
@@ -938,8 +885,7 @@ begin
           Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
         end;
       end else begin
-        J := GetUTF16Codepoint(
-          {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF});
+        J := GetUTF16Codepoint(ASrc, I+1);
         Result := Result + '&#' + IntToStr(J) + ';';  {do not localize}
       end;
 
@@ -948,9 +894,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.SetRequestParams(ASource: TStrings; AByteEncoding: IIdTextEncoding
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding{$ENDIF}
-  ): string;
+function TIdCustomHTTP.SetRequestParams(ASource: TStrings; AByteEncoding: IIdTextEncoding): string;
 var
   i: Integer;
   LPos: integer;
@@ -1001,11 +945,11 @@ begin
           LPos := IndyPos('=', LStr); {do not localize}
           {$ENDIF}
           if LPos > 0 then begin
-            LTemp[i] := WWWFormUrlEncode(LTemp.Names[i], AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF})
+            LTemp[i] := WWWFormUrlEncode(LTemp.Names[i], AByteEncoding)
                         + '=' {do not localize}
-                        + WWWFormUrlEncode(IndyValueFromIndex(LTemp, i), AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+                        + WWWFormUrlEncode(IndyValueFromIndex(LTemp, i), AByteEncoding);
           end else begin
-            LTemp[i] := WWWFormUrlEncode(LStr, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+            LTemp[i] := WWWFormUrlEncode(LStr, AByteEncoding);
           end;
         end;
         Result := EncodeLineBreaks(LTemp);
@@ -1020,17 +964,15 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; const ASourceFile: String
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Post(AURL: string; const ASourceFile: String): string;
 var
   LSource: TIdReadFileExclusiveStream;
 begin
   LSource := TIdReadFileExclusiveStream.Create(ASourceFile);
   try
-    Result := Post(AURL, LSource{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := Post(AURL, LSource);
   finally
-    FreeAndNil(LSource);
+    LSource.Free;
   end;
 end;
 
@@ -1042,14 +984,12 @@ begin
   try
     Post(AURL, LSource, AResponseContent);
   finally
-    FreeAndNil(LSource);
+    LSource.Free;
   end;
 end;
 
 procedure TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AResponseContent: TStream;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 var
   LParams: TMemoryStream;
 begin
@@ -1062,37 +1002,33 @@ begin
   begin
     LParams := TMemoryStream.Create;
     try
-      WriteStringToStream(LParams, SetRequestParams(ASource, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
+      WriteStringToStream(LParams, SetRequestParams(ASource, AByteEncoding));
       LParams.Position := 0;
       Post(AURL, LParams, AResponseContent);
     finally
-      FreeAndNil(LParams);
+      LParams.Free;
     end;
   end else begin
     Post(AURL, TStream(nil), AResponseContent);
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil): string;
 var
   LResponse: TMemoryStream;
 begin
   LResponse := TMemoryStream.Create;
   try
-    Post(AURL, ASource, LResponse, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+    Post(AURL, ASource, LResponse, AByteEncoding);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TStream
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TStream): string;
 var
   LResponse: TMemoryStream;
 begin
@@ -1100,10 +1036,10 @@ begin
   try
     Post(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 
@@ -1112,9 +1048,7 @@ begin
   DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Put(AURL: string; ASource: TStream
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Put(AURL: string; ASource: TStream): string;
 var
   LResponse: TMemoryStream;
 begin
@@ -1122,23 +1056,19 @@ begin
   try
     Put(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 
-function TIdCustomHTTP.Get(AURL: string
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Get(AURL: string): string;
 begin
-  Result := Get(AURL, []{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := Get(AURL, []);
 end;
 
-function TIdCustomHTTP.Trace(AURL: string
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Trace(AURL: string): string;
 var
   LResponse: TMemoryStream;
 begin
@@ -1146,10 +1076,10 @@ begin
   try
     Trace(AURL, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 
@@ -1298,7 +1228,7 @@ const
 function DetectXmlCharset(AStream: TStream): String;
 var
   Buffer: TIdBytes;
-  InBuf, StreamPos, CurPos: TIdStreamSize;
+  InBuf, StreamPos, CurPos: Int64;
   XmlDec, XmlEnc: String;
   {$IFDEF STRING_IS_IMMUTABLE}
   LSB: TIdStringBuilder;
@@ -1731,7 +1661,7 @@ begin
       end;
     finally
       if LDecMeth > 0 then begin
-        FreeAndNil(LS);
+        LS.Free;
       end;
     end;
     case LParseMeth of
@@ -1765,6 +1695,7 @@ end;
 
 const
   Requires_HTTP_1_1: array[0..4] of String = (Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete, Id_HTTPMethodPatch);
+  Requires_Content_Length: array[0..1] of String = (Id_HTTPMethodPost, Id_HTTPMethodPut);
 
 procedure TIdCustomHTTP.PrepareRequest(ARequest: TIdHTTPRequest);
 var
@@ -1837,6 +1768,9 @@ begin
 
     if Assigned(ARequest.Source) then begin
       ARequest.ContentLength := ARequest.Source.Size;
+    end
+    else if PosInStrArray(ARequest.Method, Requires_Content_Length, False) > -1 then begin
+      ARequest.ContentLength := 0;
     end else begin
       ARequest.ContentLength := -1;
     end;
@@ -1856,7 +1790,7 @@ begin
       ARequest.Host := LHost + ':' + FURI.Port;    {do not localize}
     end;
   finally
-    FreeAndNil(LURI);  // Free URI Object
+    LURI.Free;  // Free URI Object
   end;
 end;
 
@@ -1896,8 +1830,8 @@ begin
           if IOHandler = nil then begin
             raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
           end;
-          IOHandler.OnStatus := OnStatus;
           ManagedIOHandler := True;
+          IOHandler.OnStatus := OnStatus;
         end
         else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
           raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
@@ -1946,22 +1880,19 @@ begin
   LUseConnectVerb := False;
 
   case ARequest.UseProxy of
-    ctNormal:
+    ctNormal, ctSSL:
       begin
         if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
         begin
           ARequest.Connection := 'keep-alive';      {do not localize}
         end;
       end;
-    ctSSL, ctSSLProxy:
+    ctSSLProxy:
       begin
-        ARequest.Connection := '';
-        if ARequest.UseProxy = ctSSLProxy then begin
-          // if already connected to an SSL proxy, DO NOT send another
-          // CONNECT request, as it will be sent directly to the target
-          // HTTP server and not to the proxy!
-          LUseConnectVerb := not Connected;
-        end;
+        // if already connected to an SSL proxy, DO NOT send another
+        // CONNECT request, as it will be sent directly to the target
+        // HTTP server and not to the proxy!
+        LUseConnectVerb := not Connected;
       end;
     ctProxy:
       begin
@@ -2062,7 +1993,7 @@ begin
         // TODO: Add property that will contain the error messages.
       end;
     finally
-      FreeAndNil(LLocalHTTP);
+      LLocalHTTP.Free;
     end;
   end else begin
     CheckAndConnect(ARequest, AResponse);
@@ -2110,7 +2041,7 @@ begin
       AResponse.MetaHTTPEquiv.RawHeaders.Extract('Set-Cookie', LCookies);    {do not localize}
       LCookieManager.AddServerCookies(LCookies, FURI);
     finally
-      FreeAndNil(LCookies);
+      LCookies.Free;
     end;
   end;
 end;
@@ -2485,14 +2416,12 @@ begin
   Post(AURL, TStream(ASource), AResponseContent);
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream): string;
 begin
   Assert(ASource<>nil);
   Request.ContentType := ASource.RequestContentType;
   // TODO: Request.CharSet := ASource.RequestCharSet;
-  Result := Post(AURL, TStream(ASource){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := Post(AURL, TStream(ASource));
 end;
 
 { TIdHTTPResponse }
@@ -2507,7 +2436,7 @@ end;
 
 destructor TIdHTTPResponse.Destroy;
 begin
-  FreeAndNil(FMetaHTTPEquiv);
+  FMetaHTTPEquiv.Free;
   inherited Destroy;
 end;
 
@@ -2555,26 +2484,38 @@ begin
 
   if FKeepAlive then
   begin
+    // did the client request the connection to be closed?
+    FKeepAlive := not TextIsSame(Trim(FHTTP.Request.Connection), 'CLOSE');   {do not localize}
+    if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
+      FKeepAlive := not TextIsSame(Trim(FHTTP.Request.ProxyConnection), 'CLOSE');   {do not localize}
+    end;
+  end;
+
+  if FKeepAlive then
+  begin
+    // did the server/proxy say the connection will be closed?
     case FHTTP.ProtocolVersion of // TODO: use ResponseVersion instead?
       pv1_1:
-        { By default we assume that keep-alive is by default and will close
-          the connection only there is "close" }
+        { By default we assume that keep-alive is used and will close
+          the connection only if there is "close" }
         begin
-          FKeepAlive := not (
-            TextIsSame(Trim(Connection), 'CLOSE') or   {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'CLOSE') {do not localize}
-          );
+          FKeepAlive := not TextIsSame(Trim(Connection), 'CLOSE');
+          if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
+            FKeepAlive := not TextIsSame(Trim(ProxyConnection), 'CLOSE'); {do not localize}
+          end;
         end;
       pv1_0:
-        { By default we assume that keep-alive is not by default and will keep
+        { By default we assume that keep-alive is not used and will keep
           the connection only if there is "keep-alive" }
         begin
-          FKeepAlive :=
-            TextIsSame(Trim(Connection), 'KEEP-ALIVE') or   {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE') {do not localize}
-             { or ((ResponseVersion = pv1_1) and
-              (Length(Trim(Connection)) = 0) and
-              (Length(Trim(ProxyConnection)) = 0)) };
+          FKeepAlive := TextIsSame(Trim(Connection), 'KEEP-ALIVE')
+            { or ((ResponseVersion = pv1_1) and (Trim(Connection) = '')) }
+            ;
+          if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
+            FKeepAlive := TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE') {do not localize}
+              { or ((ResponseVersion = pv1_1) and (Trim(ProxyConnection) = '')) }
+              ;
+          end;
         end;
     end;
   end;
@@ -2640,8 +2581,8 @@ end;
 
 destructor TIdHTTPProtocol.Destroy;
 begin
-  FreeAndNil(FRequest);
-  FreeAndNil(FResponse);
+  FRequest.Free;
+  FResponse.Free;
   inherited Destroy;
 end;
 
@@ -2719,7 +2660,7 @@ begin
   Response.ProcessHeaders;
 end;
 
-function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of Int16): TIdHTTPWhatsNext;
+function TIdHTTPProtocol.ProcessResponse(const AIgnoreReplies: array of Int16): TIdHTTPWhatsNext;
 var
   LResponseCode, LResponseDigit: Integer;
 
@@ -2828,7 +2769,9 @@ begin
   // provide the user with the headers and let the user decide
   // whether the response processing should continue...
   if not HeadersCanContinue then begin
-    Response.KeepAlive := False; // TODO: provide the user an option whether to force DoRequest() to disconnect the connection or not
+    // TODO: provide the user an option whether to force DoRequest() to disconnect the connection or not
+    Response.KeepAlive := False;
+    Response.Connection := 'close'; {do not localize}
     Result := wnJustExit;
     Exit;
   end;
@@ -2897,6 +2840,8 @@ begin
       begin
         Request.Source := nil;
         Request.Method := Id_HTTPMethodGet;
+        // TODO: if the previous request was a POST with an 'application/x-www-webform-urlencoded'
+        // body, move the body data into the URL query string this time...
       end else begin
         Request.Method := LMethod;
       end;
@@ -3005,9 +2950,9 @@ begin
   Result := TIdHTTPProtocol.Create(Self);
 end;
 
-procedure TIdCustomHTTP.InitComponent;
+constructor TIdCustomHTTP.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FURI := TIdURI.Create('');
 
   FAuthRetries := 0;
@@ -3029,6 +2974,15 @@ begin
   FMaxHeaderLines := Id_TIdHTTP_MaxHeaderLines;
 end;
 
+destructor TIdCustomHTTP.Destroy;
+begin
+  FHTTPProto.Free;
+  FURI.Free;
+  FProxyParameters.Free;
+  SetCookieManager(nil);
+  inherited Destroy;
+end;
+
 function TIdCustomHTTP.InternalReadLn: String;
 begin
   Result := IOHandler.ReadLn;
@@ -3037,9 +2991,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of Int16
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Get(AURL: string; const AIgnoreReplies: array of Int16): string;
 var
   LStream: TMemoryStream;
 begin
@@ -3047,24 +2999,24 @@ begin
   try
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
-    Result := ReadStringAsCharset(LStream, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LStream, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream;
-  AIgnoreReplies: array of Int16);
+  const AIgnoreReplies: array of Int16);
 begin
   DoRequest(Id_HTTPMethodGet, AURL, nil, AResponseContent, AIgnoreReplies);
 end;
 
 procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
   AURL: string; ASource, AResponseContent: TStream;
-  AIgnoreReplies: array of Int16);
+  const AIgnoreReplies: array of Int16);
 var
-  LResponseLocation: TIdStreamSize;
+  LResponseLocation: Int64;
 begin
   //reset any counters
   FRedirectCount := 0;
@@ -3150,9 +3102,7 @@ begin
   DoRequest(Id_HTTPMethodPatch, AURL, ASource, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Patch(AURL: string; ASource: TStream
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdCustomHTTP.Patch(AURL: string; ASource: TStream): string;
 var
   LResponse: TMemoryStream;
 begin
@@ -3160,10 +3110,10 @@ begin
   try
     Patch(AURL, ASource, LResponse);
     LResponse.Position := 0;
-    Result := ReadStringAsCharset(LResponse, Response.Charset{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+    Result := ReadStringAsCharset(LResponse, Response.Charset);
     // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 

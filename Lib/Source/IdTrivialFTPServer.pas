@@ -83,14 +83,14 @@ type
     procedure DoReadFile(FileName: String; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; IncludeTransferSize: Boolean); virtual;
     procedure DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
-      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize); virtual;
+      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: Int64); virtual;
     procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; var SourceStream: TStream; const WriteOperation: Boolean); virtual;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     //should deactivate server, check all threads finished, before destroying
     function ActiveThreads:Integer;
-    destructor Destroy;override;
   published
     property OnReadFile: TAccessFileEvent read FOnReadFile write FOnReadFile;
     property OnWriteFile: TAccessFileEvent read FOnWriteFile write FOnWriteFile;
@@ -101,24 +101,12 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
   {$ENDIF}
   IdExceptionCore,
   IdGlobalProtocols,
@@ -127,9 +115,9 @@ uses
   {$IFNDEF HAS_GENERICS_TObjectList}
   IdThread,
   {$ENDIF}
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.Types,
-{$ENDIF}
+  {$ENDIF}
   IdUDPClient,
   SysUtils;
 
@@ -169,27 +157,50 @@ type
 
   TIdTFTPServerReceiveFileThread = class(TIdTFTPServerThread)
   protected
-    FTransferSize: TIdStreamSize;
-    FReceivedSize: TIdStreamSize;
+    FTransferSize: Int64;
+    FReceivedSize: Int64;
   protected
     procedure BeforeRun; override;
-    {$IFNDEF DOTNET}
     function HandleRunException(AException: Exception): Boolean; override;
-    {$ENDIF}
     procedure Run; override;
   public
     constructor Create(AOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; AStream: TStream; const FreeStreamOnTerminate: Boolean;
-      const RequestedBlockSize: Integer; const RequestedTransferSize: TIdStreamSize); reintroduce;
+      const RequestedBlockSize: Integer; const RequestedTransferSize: Int64); reintroduce;
   end;
 
 { TIdTrivialFTPServer }
 
-procedure TIdTrivialFTPServer.InitComponent;
+constructor TIdTrivialFTPServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_TFTP;
   FThreadList := TIdTFTPThreadList.Create;
+end;
+
+destructor TIdTrivialFTPServer.Destroy;
+begin
+  {
+  if (not ThreadedEvent) and (ActiveThreads>0) then
+    begin
+    //some kind of error/warning about deadlock or possible AV due to
+    //soon-to-be invalid pointer in the threads? (FOwner: TIdTrivialFTPServer;)
+    //raise CantFreeYet?
+    end;
+  }
+
+  //wait for threads to finish before we shutdown
+  //should we set thread[i].terminated, or just wait?
+  if ThreadedEvent then
+  begin
+    while FThreadList.Count > 0 do
+    begin
+      IndySleep(100);
+    end;
+  end;
+
+  FThreadList.Free;
+  inherited Destroy;
 end;
 
 procedure TIdTrivialFTPServer.DoReadFile(FileName: String; const Mode: TIdTFTPMode;
@@ -203,10 +214,7 @@ begin
   LStream := nil;
   FreeOnComplete := True;
 
-  {$IFNDEF DOTNET}
   try
-  {$ENDIF}
-
     if Assigned(FOnReadFile) then begin
       FOnReadFile(Self, FileName, PeerInfo, CanRead, LStream, FreeOnComplete);
     end;
@@ -220,14 +228,12 @@ begin
 
     TIdTFTPServerSendFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, IncludeTransferSize);
 
-  {$IFNDEF DOTNET}
   except
     // TODO: implement this in a platform-neutral manner.  EFOpenError is VCL-specific
     on E: EFOpenError do begin
       IndyRaiseOuterException(EIdTFTPFileNotFound.Create(E.Message));
     end;
   end;
-  {$ENDIF}
 end;
 
 procedure TIdTrivialFTPServer.DoTransferComplete(const Success: Boolean;
@@ -316,7 +322,7 @@ begin
             raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
           end;
         end
-        else if RequestedTxSize > High(TIdStreamSize) then begin
+        else if RequestedTxSize > High(Int64) then begin
           raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
         end;
       end;
@@ -328,7 +334,7 @@ begin
     if wOp = TFTP_RRQ then begin
       DoReadFile(FileName, Mode, PeerInfo, RequestedBlkSize, RequestedTxSize = 0);
     end else begin
-      DoWriteFile(FileName, Mode, PeerInfo, RequestedBlkSize, TIdStreamSize(RequestedTxSize));
+      DoWriteFile(FileName, Mode, PeerInfo, RequestedBlkSize, Int64(RequestedTxSize));
     end;
   except
     on E: EIdTFTPException do begin
@@ -342,9 +348,9 @@ begin
 end;
 
 // TODO: move this into IdGlobal.pas
-procedure AdjustStreamSize(const AStream: TStream; const ASize: TIdStreamSize);
+procedure AdjustStreamSize(const AStream: TStream; const ASize: Int64);
 var
-  LStreamPos: TIdStreamSize;
+  LStreamPos: Int64;
 begin
   LStreamPos := AStream.Position;
   AStream.Size := ASize;
@@ -355,7 +361,7 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
-  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize);
+  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: Int64);
 var
   CanWrite,
   FreeOnComplete: Boolean;
@@ -365,9 +371,7 @@ begin
   LStream := nil;
   FreeOnComplete := True;
 
-  {$IFNDEF DOTNET}
   try
-  {$ENDIF}
 
     if Assigned(FOnWriteFile) then begin
       FOnWriteFile(Self, FileName, PeerInfo, CanWrite, LStream, FreeOnComplete);
@@ -391,14 +395,12 @@ begin
 
     TIdTFTPServerReceiveFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, RequestedTransferSize);
 
-  {$IFNDEF DOTNET}
   except
     // TODO: implement this in a platform-neutral manner.  EFCreateError is VCL-specific
     on E: EFCreateError do begin
       IndyRaiseOuterException(EIdTFTPAllocationExceeded.Create(E.Message));
     end;
   end;
-  {$ENDIF}
 end;
 
 function TIdTrivialFTPServer.StrToMode(mode: string): TIdTFTPMode;
@@ -409,31 +411,6 @@ begin
     else
       raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnsupportedTrxMode, [mode]); // unknown mode
   end;
-end;
-
-destructor TIdTrivialFTPServer.Destroy;
-begin
-  {
-  if (not ThreadedEvent) and (ActiveThreads>0) then
-    begin
-    //some kind of error/warning about deadlock or possible AV due to
-    //soon-to-be invalid pointer in the threads? (FOwner: TIdTrivialFTPServer;)
-    //raise CantFreeYet?
-    end;
-  }
-
-  //wait for threads to finish before we shutdown
-  //should we set thread[i].terminated, or just wait?
-  if ThreadedEvent then
-  begin
-    while FThreadList.Count > 0 do
-    begin
-      IndySleep(100);
-    end;
-  end;
-
-  FreeAndNil(FThreadList);
-  inherited Destroy;
 end;
 
 function TIdTrivialFTPServer.ActiveThreads: Integer;
@@ -464,9 +441,9 @@ end;
 destructor TIdTFTPServerThread.Destroy;
 begin
   if FFreeStrm then begin
-    FreeAndNil(FStream);
+    IdDisposeAndNil(FStream);
   end;
-  FreeAndNil(FUDPClient);
+  FUDPClient.Free;
   FOwner.FThreadList.Remove(Self);
   inherited Destroy;
 end;
@@ -609,7 +586,7 @@ end;
 constructor TIdTFTPServerReceiveFileThread.Create(AOwner: TIdTrivialFTPServer;
   const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo; AStream: TStream;
   const FreeStreamOnTerminate: Boolean; const RequestedBlockSize: Integer;
-  const RequestedTransferSize: TIdStreamSize);
+  const RequestedTransferSize: Int64);
 begin
   inherited Create(AOwner, Mode, PeerInfo, AStream, FreeStreamOnTerminate, RequestedBlockSize);
   FTransferSize := RequestedTransferSize;
@@ -636,7 +613,6 @@ begin
   end;
 end;
 
-{$IFNDEF DOTNET}
 function TIdTFTPServerReceiveFileThread.HandleRunException(AException: Exception): Boolean;
 begin
   // TODO: implement this in a platform-neutral manner.  EWriteError is VCL-specific
@@ -648,14 +624,13 @@ begin
   end;
   Result := inherited HandleRunException(AException);
 end;
-{$ENDIF}
 
 procedure TIdTFTPServerReceiveFileThread.Run;
 var
   Buffer: TIdBytes;
   LPeerIP: string;
   LPeerPort: TIdPort;
-  i: TIdStreamSize;
+  i: Int64;
 begin
   if Length(FResponse) = 0 then begin
     FResponse := MakeActPkt(FBlkCounter);

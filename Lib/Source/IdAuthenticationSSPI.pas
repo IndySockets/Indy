@@ -258,10 +258,10 @@ type
     fPSecPkginfo: PSecPkgInfo;
     function GetPSecPkgInfo: PSecPkgInfo;
     function GetMaxToken: ULONG;
-    function GetName: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF};
+    function GetName: UnicodeString;
   public
     property MaxToken: ULONG read GetMaxToken;
-    property Name: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF} read GetName;
+    property Name: UnicodeString read GetName;
   public
     constructor Create(aPSecPkginfo: PSecPkgInfo);
   end;
@@ -270,7 +270,7 @@ type
   private
     fInfo: PSecPkgInfo;
   public
-    constructor Create(const aPkgName: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF});
+    constructor Create(const aPkgName: UnicodeString);
     destructor Destroy; override;
   end;
 
@@ -295,7 +295,7 @@ type
   protected
     procedure CheckAcquired;
     procedure CheckNotAcquired;
-    procedure DoAcquire(pszPrincipal: {$IFDEF SSPI_UNICODE}PSEC_WCHAR{$ELSE}PSEC_CHAR{$ENDIF}; pvLogonId, pAuthData: PVOID);
+    procedure DoAcquire(pszPrincipal: PSEC_WCHAR; pvLogonId, pAuthData: PVOID);
     procedure DoRelease; virtual;
   public
     procedure Release;
@@ -315,7 +315,7 @@ type
   public
     procedure Acquire(aUse: TSSPICredentialsUse); overload;
     procedure Acquire(aUse: TSSPICredentialsUse;
-      const aDomain, aUserName, aPassword: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF}); overload;
+      const aDomain, aUserName, aPassword: UnicodeString); overload;
   end;
 
   { TSSPIContext }
@@ -334,7 +334,7 @@ type
   protected
     procedure CheckHasHandle;
     procedure CheckCredentials;
-    function DoInitialize(const aTokenSourceName: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF};
+    function DoInitialize(const aTokenSourceName: UnicodeString;
       var aIn, aOut: SecBufferDesc;
       const errorsToIgnore: array of SECURITY_STATUS): SECURITY_STATUS;
     procedure DoRelease; virtual;
@@ -691,16 +691,16 @@ function TSSPIInterface.IsAvailable: Boolean;
       { let's see what SSPI functions are available
         and if we can continue on with the set }
       fIsAvailable :=
-        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.QuerySecurityPackageInfoW{$ELSE}fPFunctionTable^.QuerySecurityPackageInfoA{$ENDIF}) and
+        Assigned(fPFunctionTable^.QuerySecurityPackageInfoW) and
         Assigned(fPFunctionTable^.FreeContextBuffer) and
         Assigned(fPFunctionTable^.DeleteSecurityContext) and
         Assigned(fPFunctionTable^.FreeCredentialsHandle) and
-        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.AcquireCredentialsHandleW{$ELSE}fPFunctionTable^.AcquireCredentialsHandleA{$ENDIF}) and
-        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.InitializeSecurityContextW{$ELSE}fPFunctionTable^.InitializeSecurityContextA{$ENDIF}) and
+        Assigned(fPFunctionTable^.AcquireCredentialsHandleW) and
+        Assigned(fPFunctionTable^.InitializeSecurityContextW) and
         Assigned(fPFunctionTable^.AcceptSecurityContext) and
         Assigned(fPFunctionTable^.ImpersonateSecurityContext) and
         Assigned(fPFunctionTable^.RevertSecurityContext) and
-        Assigned({$IFDEF SSPI_UNICODE}fPFunctionTable^.QueryContextAttributesW{$ELSE}fPFunctionTable^.QueryContextAttributesA{$ENDIF}) and
+        Assigned(fPFunctionTable^.QueryContextAttributesW) and
         Assigned(fPFunctionTable^.MakeSignature) and
         Assigned(fPFunctionTable^.VerifySignature);
       {$IFDEF SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
@@ -762,23 +762,17 @@ begin
   Result := GetPSecPkgInfo^.cbMaxToken;
 end;
 
-function TSSPIPackage.GetName: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF};
+function TSSPIPackage.GetName: UnicodeString;
 begin
   Result := GetPSecPkgInfo^.Name;
 end;
 
 { TCustomSSPIPackage }
 
-constructor TCustomSSPIPackage.Create(const aPkgName: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF});
+constructor TCustomSSPIPackage.Create(const aPkgName: UnicodeString);
 begin
   gSSPIInterface.RaiseIfError(
-    {$IFDEF SSPI_UNICODE}
-    gSSPIInterface.FunctionTable.QuerySecurityPackageInfoW(PWideChar(aPkgName), @fInfo),
-    'QuerySecurityPackageInfoW' {Do not translate}
-    {$ELSE}
-    gSSPIInterface.FunctionTable.QuerySecurityPackageInfoA(PAnsiChar(aPkgName), @fInfo),
-    'QuerySecurityPackageInfoA' {Do not translate}
-    {$ENDIF}
+    gSSPIInterface.FunctionTable.QuerySecurityPackageInfoW(PWideChar(aPkgName), @fInfo), 'QuerySecurityPackageInfoW' {Do not translate}
     );
   inherited Create(fInfo);
 end;
@@ -823,8 +817,7 @@ begin
   end;
 end;
 
-procedure TSSPICredentials.DoAcquire
-  (pszPrincipal: {$IFDEF SSPI_UNICODE}PSEC_WCHAR{$ELSE}PSEC_CHAR{$ENDIF}; pvLogonId, pAuthData: PVOID);
+procedure TSSPICredentials.DoAcquire(pszPrincipal: PSEC_WCHAR; pvLogonId, pAuthData: PVOID);
 var
   cu: ULONG;
 begin
@@ -840,15 +833,10 @@ begin
     raise ESSPIException.Create(RSHTTPSSPIUnknwonCredentialUse);
   end;
   gSSPIInterface.RaiseIfError(
-    gSSPIInterface.FunctionTable.{$IFDEF SSPI_UNICODE}AcquireCredentialsHandleW{$ELSE}AcquireCredentialsHandleA{$ENDIF}(
-    pszPrincipal, {$IFDEF SSPI_UNICODE}PSEC_WCHAR{$ELSE}PSEC_CHAR{$ENDIF}(Package.Name), cu, pvLogonId, pAuthData, nil, nil,
-    @fHandle, @fExpiry),
-    {$IFDEF SSPI_UNICODE}
-    'AcquireCredentialsHandleW' {Do not translater}
-    {$ELSE}
-    'AcquireCredentialsHandleA' {Do not translater}
-    {$ENDIF}
-    );
+    gSSPIInterface.FunctionTable.AcquireCredentialsHandleW(
+      pszPrincipal, PSEC_WCHAR(Package.Name), cu, pvLogonId, pAuthData, nil, nil,
+      @fHandle, @fExpiry),
+    'AcquireCredentialsHandleW'); {Do not translater}
   fAcquired := True;
 end;
 
@@ -896,14 +884,13 @@ begin
 end;
 
 procedure TSSPIWinNTCredentials.Acquire(aUse: TSSPICredentialsUse;
-  const aDomain, aUserName, aPassword: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF});
+  const aDomain, aUserName, aPassword: UnicodeString);
 var
   ai: SEC_WINNT_AUTH_IDENTITY;
   pai: PVOID;
 begin
   Use := aUse;
   if (Length(aDomain) > 0) and (Length(aUserName) > 0) then begin
-    {$IFDEF SSPI_UNICODE}
     ai.User := PUSHORT(PWideChar(aUserName));
     ai.UserLength := Length(aUserName);
     ai.Domain := PUSHORT(PWideChar(aDomain));
@@ -911,15 +898,6 @@ begin
     ai.Password := PUSHORT(PWideChar(aPassword));
     ai.PasswordLength := Length(aPassword);
     ai.Flags := SEC_WINNT_AUTH_IDENTITY_UNICODE;
-    {$ELSE}
-    ai.User := PUCHAR(PAnsiChar(aUserName));
-    ai.UserLength := Length(aUserName);
-    ai.Domain := PUCHAR(PAnsiChar(aDomain));
-    ai.DomainLength := Length(aDomain);
-    ai.Password := PUCHAR(PAnsiChar(aPassword));
-    ai.PasswordLength := Length(aPassword);
-    ai.Flags := SEC_WINNT_AUTH_IDENTITY_ANSI;
-    {$ENDIF}
     pai := @ai;
   end else
   begin
@@ -965,7 +943,7 @@ begin
   fHasHandle := True;
 end;
 
-function TSSPIContext.DoInitialize(const aTokenSourceName: {$IFDEF SSPI_UNICODE}TIdUnicodeString{$ELSE}AnsiString{$ENDIF};
+function TSSPIContext.DoInitialize(const aTokenSourceName: UnicodeString;
   var aIn, aOut: SecBufferDesc;
   const errorsToIgnore: array of SECURITY_STATUS): SECURITY_STATUS;
 var
@@ -981,14 +959,14 @@ begin
     tmp2 := nil;
   end;
   Result :=
-    gSSPIInterface.FunctionTable.{$IFDEF SSPI_UNICODE}InitializeSecurityContextW{$ELSE}InitializeSecurityContextA{$ENDIF}(
+    gSSPIInterface.FunctionTable.InitializeSecurityContextW(
     Credentials.Handle, tmp,
-    {$IFDEF SSPI_UNICODE}PWideChar{$ELSE}PAnsiChar{$ENDIF}(aTokenSourceName),
+    PWideChar(aTokenSourceName),
     GetRequestedFlags, 0, SECURITY_NATIVE_DREP, tmp2, 0,
     @fHandle, @aOut, @r, @fExpiry
     );
   UpdateHasContextAndCheckForError(Result,
-    {$IFDEF SSPI_UNICODE}'InitializeSecurityContextW'{$ELSE}'InitializeSecurityContextA'{$ENDIF}, {Do not translate}
+    'InitializeSecurityContextW', {Do not translate}
     errorsToIgnore);
   SetEstablishedFlags(r);
 end;
@@ -1160,9 +1138,9 @@ end;
 
 destructor TIndySSPINTLMClient.Destroy;
 begin
-  FreeAndNil(fContext);
-  FreeAndNil(fCredentials);
-  FreeAndNil(fNTLMPackage);
+  fContext.Free;
+  fCredentials.Free;
+  fNTLMPackage.Free;
   inherited Destroy;
 end;
 
@@ -1310,7 +1288,7 @@ end;
 
 destructor TIdSSPINTLMAuthentication.Destroy;
 begin
-  FreeAndNil(FSSPIClient);
+  FSSPIClient.Free;
   inherited;
 end;
 

@@ -70,18 +70,18 @@ uses
   IdGlobal, IdTCPConnection;
 
 type
-  TIdTCPStream = class(TIdBaseStream)
+  TIdTCPStream = class(TStream)
   protected
     FConnection: TIdTCPConnection;
     FWriteThreshold: Integer;
     FWriteBuffering: Boolean;
-    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
-    procedure IdSetSize(ASize: Int64); override;
+    procedure SetSize(const NewSize: Int64); override;
   public
     constructor Create(AConnection: TIdTCPConnection; const AWriteThreshold: Integer = 0); reintroduce;
     destructor Destroy; override;
+    function Read(var Buffer; Count: Longint): Longint; override;
+    function Write(const Buffer; Count: Longint): Longint; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; override;
     property Connection: TIdTCPConnection read FConnection;
   end;
 
@@ -106,33 +106,50 @@ begin
   inherited Destroy;
 end;
 
-function TIdTCPStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TIdTCPStream.Read(var Buffer; Count: Longint): Longint;
+var
+  LStream: TIdMemoryBufferStream;
 begin
-  if AOffset <> 0 then begin
-    ToDo('IdRead() method of TIdTCPStream class does not support seeking'); {do not localized}
+  if Count > 0 then
+  begin
+    LStream := TIdMemoryBufferStream.Create(@Buffer, Count);
+    try
+      Connection.IOHandler.ReadStream(LStream, Count, False);
+    finally
+      LStream.Free;
+    end;
   end;
-  Connection.IOHandler.ReadBytes(VBuffer, ACount, False);
-  Result := ACount;
+  Result := Count;
 end;
 
-function TIdTCPStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+function TIdTCPStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 begin
   Result := 0;
 end;
 
-procedure TIdTCPStream.IdSetSize(ASize: Int64);
+procedure TIdTCPStream.SetSize(const NewSize: Int64);
 begin
 //
 end;
 
-function TIdTCPStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TIdTCPStream.Write(const Buffer; Count: Longint): Longint;
+var
+  LStream: TStream;
 begin
   if (not FWriteBuffering) and (FWriteThreshold > 0) and (not Connection.IOHandler.WriteBufferingActive) then begin
     Connection.IOHandler.WriteBufferOpen(FWriteThreshold);
     FWriteBuffering := True;
   end;
-  Connection.IOHandler.Write(ABuffer, ACount, AOffset);
-  Result := ACount;
+  if Count > 0 then
+  begin
+    LStream := TIdMemoryBufferStream.Create(@Buffer, Count);
+    try
+      Connection.IOHandler.Write(LStream, Count, False);
+    finally
+      LStream.Free;
+    end;
+  end;
+  Result := Count;
 end;
 
 end.

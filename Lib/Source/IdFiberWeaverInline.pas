@@ -153,7 +153,6 @@ type
     //
     procedure DoIdle;
     procedure DoSwitch(AFiber: TIdFiberBase); virtual;
-    procedure InitComponent; override;
     procedure Relinquish(
       AFiber: TIdFiber;
       AReschedule: Boolean
@@ -163,8 +162,9 @@ type
       ANextFiber: TIdFiber
       );
   public
-    procedure Add(AFiber: TIdFiber); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Add(AFiber: TIdFiber); override;
     function HasFibers: Boolean;
     function ProcessInThisThread: Boolean;
     function WaitForFibers(
@@ -188,6 +188,22 @@ uses
 
 { TIdFiberWeaverInline }
 
+constructor TIdFiberWeaverInline.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FActiveFiberList := TIdThreadSafeList.Create;
+  FAddEvent := TEvent.Create(nil, False, False, '');
+  FFiberList := TIdThreadSafeList.Create;
+end;
+
+destructor TIdFiberWeaverInline.Destroy;
+begin
+  FActiveFiberList.Free;
+  FFiberList.Free;
+  FAddEvent.Free;
+  inherited;
+end;
+
 procedure TIdFiberWeaverInline.Add(AFiber: TIdFiber);
 begin
   inherited;
@@ -196,14 +212,6 @@ begin
     Add(AFiber);
     FAddEvent.SetEvent;
   finally FFiberList.UnlockList; end;
-end;
-
-destructor TIdFiberWeaverInline.Destroy;
-begin
-  FreeAndNil(FActiveFiberList);
-  FreeAndNil(FFiberList);
-  FreeAndNil(FAddEvent);
-  inherited;
 end;
 
 procedure TIdFiberWeaverInline.DoIdle;
@@ -225,14 +233,6 @@ begin
   Result := not FFiberList.IsCountLessThan(1);
 end;
 
-procedure TIdFiberWeaverInline.InitComponent;
-begin
-  inherited;
-  FActiveFiberList := TIdThreadSafeList.Create;
-  FAddEvent := TEvent.Create(nil, False, False, '');
-  FFiberList := TIdThreadSafeList.Create;
-end;
-
 function TIdFiberWeaverInline.ProcessInThisThread: Boolean;
 // Returns true if ANY fiber terminated because of an unhandled exception.
 // If false, user does not need to loop through the fibers to look.
@@ -241,15 +241,19 @@ var
   LFiberList: TList;
 begin
   Result := False;
-  LFiberList := FFiberList.LockList; try
+  LFiberList := FFiberList.LockList;
+  try
     if LFiberList.Count = 0 then begin
       raise EIdNoFibersToSchedule.Create('No fibers to schedule.'); {do not localize}
     end;
     FActiveFiberList.Assign(LFiberList);
-  finally FFiberList.UnlockList; end;
+  finally
+    FFiberList.UnlockList;
+  end;
   // This loop catches fibers as they finish. Relinquish accomplishes explicit
   // switching faster by performing only one switch instead of two.
-  FSelfFiber := TIdConvertedFiber.Create; try
+  FSelfFiber := TIdConvertedFiber.Create;
+  try
     while True do begin
       LFiber := TIdFiber(FFiberList.Pull);
       if LFiber = nil then begin
@@ -277,13 +281,15 @@ begin
           if LFiber.Finished then begin
             FActiveFiberList.Remove(LFiber);
             if FreeFibersOnCompletion then begin
-              FreeAndNil(LFiber);
+              IdDisposeAndNil(LFiber);
             end;
           end;
         end;
       end;
     end;
-  finally FreeAndNil(FSelfFiber); end;
+  finally
+    FSelfFiber.Free;
+  end;
 end;
 
 procedure TIdFiberWeaverInline.Relinquish(

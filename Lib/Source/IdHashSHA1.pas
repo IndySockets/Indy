@@ -60,20 +60,17 @@ type
     FCheckSum: T5x4LongWordRecord;
     FCBuffer: TIdBytes;
     procedure Coder;
-    function GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
+    function GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
     constructor Create; override;
   end;
 
 implementation
-  {$IFNDEF DOTNET}
-uses
-  IdStreamVCL;
-  {$ENDIF}
+
 { TIdHashSHA1 }
 
-function SwapLongWord(const AValue: UInt32): UInt32;
+function SwapUInt32(const AValue: UInt32): UInt32;
 begin
   Result := ((AValue and $FF) shl 24) or ((AValue and $FF00) shl 8) or ((AValue and $FF0000) shr 8) or ((AValue and $FF000000) shr 24);
 end;
@@ -84,7 +81,10 @@ begin
   SetLength(FCBuffer, 64);
 end;
 
-{$Q-,R-} // Operations performed modulo $100000000
+// Operations performed modulo $100000000
+{$I IdOverflowCheckingOff.inc}
+{$I IdRangeCheckingOff.inc}
+
 procedure TIdHashSHA1.Coder;
 var
   T, A, B, C, D, E: UInt32;
@@ -307,7 +307,7 @@ begin
   FCheckSum[4]:= FCheckSum[4] + E;
 end;
 
-function TIdHashSHA1.GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes;
+function TIdHashSHA1.GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes;
 var
   LSize: Integer;
   LLenHi: UInt32;
@@ -367,11 +367,11 @@ begin
   FCBuffer[63] := (LLenLo and $FF);
   Coder;
 
-  FCheckSum[0] := SwapLongWord(FCheckSum[0]);
-  FCheckSum[1] := SwapLongWord(FCheckSum[1]);
-  FCheckSum[2] := SwapLongWord(FCheckSum[2]);
-  FCheckSum[3] := SwapLongWord(FCheckSum[3]);
-  FCheckSum[4] := SwapLongWord(FCheckSum[4]);
+  FCheckSum[0] := SwapUInt32(FCheckSum[0]);
+  FCheckSum[1] := SwapUInt32(FCheckSum[1]);
+  FCheckSum[2] := SwapUInt32(FCheckSum[2]);
+  FCheckSum[3] := SwapUInt32(FCheckSum[3]);
+  FCheckSum[4] := SwapUInt32(FCheckSum[4]);
 
   SetLength(Result, SizeOf(UInt32)*5);
   for I := 0 to 4 do begin
@@ -381,7 +381,7 @@ end;
 
 function TIdHashSHA1.HashToHex(const AHash: TIdBytes): String;
 begin
-  Result := LongWordHashToHex(AHash, 5);
+  Result := UInt32HashToHex(AHash, 5);
 end;
 
 end.

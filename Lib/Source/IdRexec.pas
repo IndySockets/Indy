@@ -54,18 +54,19 @@ unit IdRexec;
  }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdRemoteCMDClient,
   IdTCPClient;
 
 type
   TIdRexec = class(TIdRemoteCMDClient)
-  protected
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     Function Execute(ACommand: String): String; override;
   published
     property Username;
@@ -83,9 +84,9 @@ uses
   IdTCPConnection,
   IdThread;
 
-procedure TIdRexec.InitComponent;
+constructor TIdRexec.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   Port := Id_PORT_exec;
   {Rexec does not require ports to be in a specific range}
   FUseReservedPorts := False;

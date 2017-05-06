@@ -197,7 +197,7 @@ implementation
 uses
   IdException,
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  {$IFDEF VCL_6_OR_ABOVE}DateUtils,{$ENDIF}
+  DateUtils,
   SysUtils;
 
 { TIdFTPLPUnix }
@@ -273,7 +273,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end else begin
     //we make an additional check for two additional rows before the
@@ -291,7 +291,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -308,7 +308,7 @@ begin
       Result := IsUnitreeBanner(AData);
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -376,7 +376,7 @@ var
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 
@@ -656,7 +656,7 @@ begin
         DeleteSUffix(LTmp,JapaneseYear);
         // Not time info, scan year
         if IndyPos(':', LTmp) = 0 then begin   {Do not Localize}
-	        wYear := IndyStrToInt(LTmp, wYear);
+          wYear := IndyStrToInt(LTmp, wYear);
           // Set time info to 00:00:00.999
           wHour := 0;
           wMin := 0;
@@ -742,11 +742,7 @@ begin
      (Pos(monthNames[wMonth] + ' ' + wDayStr + '  ' + IntToStr(wYear), LI.Data) = 0) then
   begin
     {sanity check to be sure we aren't making future dates!!}
-    {$IFDEF VCL_6_OR_ABOVE}
     if IncYear(LI.ModifiedDate) <= (Now + 7) then
-    {$ELSE}
-    if IncMonth(LI.ModifiedDate,12) <= (Now + 7) then
-    {$ENDIF}
     begin
       Inc(wYear);
       LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
@@ -821,7 +817,7 @@ begin
         LItem.Data := AListing[i];
         Result := ParseLine(LItem, LPathSpec);
         if not Result then begin
-          FreeAndNil(LItem);
+          IdDisposeAndNil(LItem);
           Exit;
         end;
       end;

@@ -352,7 +352,7 @@ begin
   try
     FillMessage(Result);
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;

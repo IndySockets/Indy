@@ -181,7 +181,7 @@ begin
     Result := ParseLine(LNewItem, APath);
     if not Result then
     begin
-      FreeAndNil(LNewItem);
+      IdDisposeAndNil(LNewItem);
       Exit;
     end;
     LNewItem.Data := AItem.Data;

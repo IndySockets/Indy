@@ -217,7 +217,7 @@ const
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.Types,
   {$ENDIF}
   {$IFDEF HAS_UNIT_Generics_Collections}
@@ -659,7 +659,7 @@ begin
     end;
     Result := True;
   finally
-    FreeAndNil(LFacts);
+    LFacts.Free;
   end;
 end;
 

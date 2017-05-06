@@ -57,6 +57,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
+  Classes,
   IdComponent,
   IdGlobal,
   IdIPMCastBase,
@@ -84,13 +85,12 @@ type
     procedure MulticastBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
     procedure SetLoopback(const AValue: Boolean); virtual;
     procedure SetTTL(const AValue: Byte); virtual;
-    procedure InitComponent; override;
   public
-    procedure Send(const AData: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
-    procedure Send(const ABuffer : TIdBytes); overload;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    //
+    procedure Send(const AData: string; AByteEncoding: IIdTextEncoding = nil); overload;
+    procedure Send(const ABuffer : TIdBytes); overload;
     //
     property Binding: TIdSocketHandle read GetBinding;
   published
@@ -115,11 +115,17 @@ uses
   IdStackConsts,
   SysUtils;
 
-procedure TIdIPMCastServer.InitComponent;
+constructor TIdIPMCastServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FLoopback := DEF_IMP_LOOPBACK;
   FTimeToLive := DEF_IMP_TTL;
+end;
+
+destructor TIdIPMCastServer.Destroy;
+begin
+  Active := False;
+  inherited Destroy;
 end;
 
 procedure TIdIPMCastServer.Loaded;
@@ -130,12 +136,6 @@ begin
   b := FDsgnActive;
   FDsgnActive := False;
   Active := b;
-end;
-
-destructor TIdIPMCastServer.Destroy;
-begin
-  Active := False;
-  inherited Destroy;
 end;
 
 procedure TIdIPMCastServer.CloseBinding;
@@ -175,11 +175,9 @@ begin
   Binding.SendTo(AHost, APort, ABuffer, Binding.IPVersion);
 end;
 
-procedure TIdIPMCastServer.Send(const AData: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdIPMCastServer.Send(const AData: string; AByteEncoding: IIdTextEncoding = nil);
 begin
-  MulticastBuffer(FMulticastGroup, FPort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
+  MulticastBuffer(FMulticastGroup, FPort, ToBytes(AData, AByteEncoding));
 end;
 
 procedure TIdIPMCastServer.Send(const ABuffer : TIdBytes);

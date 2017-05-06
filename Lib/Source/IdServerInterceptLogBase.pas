@@ -55,11 +55,11 @@ type
     FReplaceCRLF: Boolean;
     //
     FHasInit: Boolean; // BGO: can be removed later, see comment below (.Init)
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure Init; override;
     function Accept(AConnection: TComponent): TIdConnectionIntercept; override;
-    destructor Destroy; override;
     procedure DoLogWriteString(const AText: string); virtual; abstract;
     procedure LogWriteString(const AText: string); virtual;
   published
@@ -79,7 +79,7 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.SyncObjs,
   {$ENDIF}
   IdIOHandlerSocket,
@@ -89,18 +89,9 @@ uses
 
 { TIdServerInterceptLogFile }
 
-function TIdServerInterceptLogBase.Accept(AConnection: TComponent): TIdConnectionIntercept;
+constructor TIdServerInterceptLogBase.Create(AOwner: TComponent);
 begin
-  Result := TIdServerInterceptLogFileConnection.Create(nil);
-  TIdServerInterceptLogFileConnection(Result).FServerInterceptLog := Self;
-  TIdServerInterceptLogFileConnection(Result).LogTime := FLogTime;
-  TIdServerInterceptLogFileConnection(Result).ReplaceCRLF := FReplaceCRLF;
-  TIdServerInterceptLogFileConnection(Result).Active := True;
-end;
-
-procedure TIdServerInterceptLogBase.InitComponent;
-begin
-  inherited InitComponent;
+  inherited Create(AOwner;
   FReplaceCRLF := True;
   FLogTime := True;
   FLock := TIdCriticalSection.Create;
@@ -108,8 +99,20 @@ end;
 
 destructor TIdServerInterceptLogBase.Destroy;
 begin
-  FreeAndNil(FLock);
+  FLock.Free;
   inherited Destroy;
+end;
+
+function TIdServerInterceptLogBase.Accept(AConnection: TComponent): TIdConnectionIntercept;
+var
+  LConn: TIdServerInterceptLogFileConnection;
+begin
+  LConn := TIdServerInterceptLogFileConnection.Create(nil);
+  LConn.FServerInterceptLog := Self;
+  LConn.LogTime := FLogTime;
+  LConn.ReplaceCRLF := FReplaceCRLF;
+  LConn.Active := True;
+  Result := LConn;
 end;
 
 procedure TIdServerInterceptLogBase.Init;

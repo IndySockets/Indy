@@ -108,7 +108,7 @@ begin
                     ExcludeQVNET(LData);
         end;
       finally
-        FreeAndNil(s);
+        s.Free;
       end;
       if not Result then begin
         Break;
@@ -138,7 +138,7 @@ begin
       Result := (LWords[0] = 'Bytes') and (LWords[1] = 'Available');  {do not localize}
     end;
   finally
-    FreeAndNil(LWords);
+    LWords.Free;
   end;
 end;
 

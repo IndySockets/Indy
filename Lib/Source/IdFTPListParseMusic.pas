@@ -106,7 +106,7 @@ begin
       (LWords[8] = '#Recs')) or         {do not localize}
       (LWords[7] = 'Attrbs#Recs'));     {do not localize}
   finally
-    FreeAndNil(LWords);
+    LWords.Free;
   end;
 end;
 

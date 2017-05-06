@@ -1,0 +1,550 @@
+// Make this $DEFINE to use the 16 color icons required by Borland
+// or DEFINE to use the 256 color Indy versions
+{.$DEFINE Borland}
+
+// When generating C++Builder output files, certain workarounds to compiler
+// problems need to be enabled! When invoking DCC on the command-line, use
+// the -DBCB parameter. When invoking MSBUILD, include the DCC_Define="BCB"
+// attribute in the /p parameter.
+{$IFDEF BCB}
+  {$DEFINE CBUILDER}
+{$ELSE}
+  {$DEFINE DELPHI}
+{$ENDIF}
+
+// detect compiler versions
+
+{$IF CompilerVersion < 20}
+  {$MESSAGE WARN 'Unsupported compiler version detected!'}
+{$IFEND}
+
+//Delphi & C++Builder 2009 (Tiburon)
+{$IF CompilerVersion >= 20}
+  {$IF CompilerVersion < 21}
+    {$DEFINE DCC_2009}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_2009}
+    {$ELSE}
+      {$DEFINE DELPHI_2009}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_4_OR_ABOVE}
+  {$DEFINE DCC_5_OR_ABOVE}
+  {$DEFINE DCC_6_OR_ABOVE}
+  {$DEFINE DCC_7_OR_ABOVE}
+  {$DEFINE DCC_8_OR_ABOVE}
+  {$DEFINE DCC_2005_OR_ABOVE}
+  {$DEFINE DCC_2006_OR_ABOVE}
+  {$DEFINE DCC_2007_OR_ABOVE}
+  {$DEFINE DCC_2009_OR_ABOVE}
+{$IFEND}
+
+//Delphi & C++Builder 2010 (Weaver)
+{$IF CompilerVersion >= 21}
+  {$IF CompilerVersion < 22}
+    {$DEFINE DCC_2010}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_2010}
+    {$ELSE}
+      {$DEFINE DELPHI_2010}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_2010_OR_ABOVE}
+{$IFEND}
+
+//Delphi & C++Builder XE (Fulcrum)
+{$IF CompilerVersion >= 22}
+  {$IF CompilerVersion < 23}
+    {$DEFINE DCC_XE}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE}
+    {$ELSE}
+      {$DEFINE DELPHI_XE}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_XE_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder XE2 (Pulsar)
+{$IF CompilerVersion >= 23}
+  {$IF CompilerVersion < 24}
+    {$DEFINE DCC_XE2}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE2}
+    {$ELSE}
+      {$DEFINE DELPHI_XE2}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_XE2_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder XE3 (Waterdragon)
+//Delphi & CBuilder XE3.5 (Quintessence - early betas only)
+{$IF CompilerVersion >= 24}
+  {$IF CompilerVersion < 25}
+    {$DEFINE DCC_XE3}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE3}
+    {$ELSE}
+      {$DEFINE DELPHI_XE3}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_XE3_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder XE4 (Quintessence)
+{$IF CompilerVersion >= 25}
+  {$IF CompilerVersion < 26}
+    {$UNDEF DCC_XE3}
+    {$DEFINE DCC_XE4}
+    {$IFDEF CBUILDER}
+      {$UNDEF CBUILDER_XE3}
+      {$DEFINE CBUILDER_XE4}
+    {$ELSE}
+      {$UNDEF DELPHI_XE3}
+      {$DEFINE DELPHI_XE4}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_XE4_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder XE5 (Zephyr)
+//Delphi & C++Builder AppMethod is XE5 for mobile only, VCL is removed
+{$IF CompilerVersion >= 26}
+  {$IF CompilerVersion < 27}
+    {$DEFINE DCC_XE5}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE5}
+    {$ELSE}
+      {$DEFINE DELPHI_XE5}
+    {$ENDIF}
+    {$IF CompilerVersion >= 26.5}
+      {$DEFINE APPMETHOD}
+    {$IFEND}
+  {$IFEND}
+  {$DEFINE DCC_XE5_OR_ABOVE}
+  // TODO: figure out how to detect this version
+  {.$DEFINE DCC_XE5_UPDATE2_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder XE6 (Proteus)
+{$IF CompilerVersion >= 27}
+  {$IF CompilerVersion < 28}
+    {$DEFINE DCC_XE6}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE6}
+    {$ELSE}
+      {$DEFINE DELPHI_XE6}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_XE6_OR_ABOVE}
+  {$DEFINE DCC_XE5_UPDATE2_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder XE7 (Carpathia)
+{$IF CompilerVersion >= 28}
+  {$IF CompilerVersion < 29}
+    {$DEFINE DCC_XE7}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE7}
+    {$ELSE}
+      {$DEFINE DELPHI_XE7}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_XE7_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder XE8 (Elbrus)
+{$IF CompilerVersion >= 29}
+  {$IF CompilerVersion < 30}
+    {$DEFINE DCC_XE8}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_XE8}
+    {$ELSE}
+      {$DEFINE DELPHI_XE8}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_XE8_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder 10.0 Seattle (Aitana)
+{$IF CompilerVersion >= 30}
+  {$IF CompilerVersion < 31}
+    {$DEFINE DCC_SEATTLE}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_SEATTLE}
+    {$ELSE}
+      {$DEFINE DELPHI_SEATTLE}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_SEATTLE_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder 10.1 Berlin (BigBen)
+{$IF CompilerVersion >= 31}
+  {$IF CompilerVersion < 32}
+    {$DEFINE DCC_BERLIN}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_BERLIN}
+    {$ELSE}
+      {$DEFINE DELPHI_BERLIN}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_BERLIN_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder 10.2 Tokyo (Godzilla)
+{$IF CompilerVersion >= 32}
+  {$IF CompilerVersion < 33}
+    {$DEFINE DCC_TOKYO}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_TOKYO}
+    {$ELSE}
+      {$DEFINE DELPHI_TOKYO}
+    {$ENDIF}
+  {$IFEND}
+  {$DEFINE DCC_TOKYO_OR_ABOVE}
+{$IFEND}
+
+{$IF CompilerVersion >= 33}
+  {$MESSAGE WARN 'Unsupported compiler version detected!'}
+{$IFEND}
+
+// Normalize Delphi compiler defines to match FPC for consistency:
+//
+// CPU32 - any 32-bit CPU
+// CPU64 - any 64-bit CPU
+// WINDOWS - any Windows platform (32-bit, 64-bit, CE)
+// WIN32 - Windows 32-bit
+// WIN64 - Windows 64-bit
+// WINCE - Windows CE
+//
+// Consult the "Free Pascal Programmer's Guide", Appendix G for the complete
+// list of defines that are used. Do not work on this unless you understand
+// what the FreePascal developers are doing.  Not only do you have to
+// descriminate with operating systems, but also with chip architectures
+// are well.
+//
+// DCC Pulsar+ define the following values:
+// ASSEMBLER
+// DCC
+// CONDITIONALEXPRESSIONS
+// NATIVECODE
+// UNICODE
+// MACOS
+// MACOS32
+// MACOS64
+// MSWINDOWS
+// WIN32
+// WIN64
+// LINUX
+// POSIX
+// POSIX32
+// CPU386
+// CPUX86
+// CPUX64
+//
+// Kylix defines the following values:
+// LINUX
+// (others??)
+//
+
+// TODO: We need to use ENDIAN_BIG for big endian chip architectures,
+// such as 680x0, PowerPC, Sparc, and MIPS, once DCC supports them,
+// provided it does not already define its own ENDIAN values by then...
+{$DEFINE ENDIAN_LITTLE}
+{$IFDEF MSWINDOWS}
+  {$DEFINE WINDOWS}
+{$ENDIF}
+// TODO: map Pulsar's non-Windows platform defines...
+{$IFDEF DCC_XE2_OR_ABOVE}
+  {$IFDEF CPU386}
+    //any 32-bit CPU
+    {$DEFINE CPU32}
+    //Intel 386 compatible chip architecture
+    {$DEFINE CPUI386}
+  {$ENDIF}
+  {$IFDEF CPUX86}
+    {$DEFINE CPU32}
+  {$ENDIF}
+  {$IFDEF CPUX64}
+    //any 64-bit CPU
+    {$DEFINE CPU64}
+    //AMD64 compatible chip architecture
+    {$DEFINE CPUX86_64}  //historical name for AMD64
+    {$DEFINE CPUAMD64}
+  {$ENDIF}
+{$ELSE}
+  {$DEFINE I386}
+  {$DEFINE CPU32}
+{$ENDIF}
+
+// Check for available features
+
+{$DEFINE HAS_RemoveFreeNotification}
+{$DEFINE HAS_GetObjectProp}
+{$DEFINE HAS_TObjectList}
+
+{$DEFINE STREAM_SIZE_64}
+{$DEFINE HAS_PCardinal}
+{$DEFINE HAS_PByte}
+{$DEFINE HAS_PWord}
+{$DEFINE HAS_PPointer}
+{$DEFINE HAS_TList_Assign}
+{$DEFINE HAS_sLineBreak}
+{$DEFINE HAS_RaiseLastOSError}
+{$DEFINE HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
+{$DEFINE HAS_SysUtils_DirectoryExists}
+{$DEFINE HAS_UNIT_DateUtils}
+{$DEFINE HAS_UNIT_StrUtils}
+{$DEFINE HAS_UNIT_Types}
+{$DEFINE HAS_TryStrToInt}
+{$DEFINE HAS_TryStrToInt64}
+{$DEFINE HAS_TryEncodeDate}
+{$DEFINE HAS_TryEncodeTime}
+{$DEFINE HAS_ENUM_ELEMENT_VALUES}
+{$DEFINE HAS_IInterface}
+{$DEFINE HAS_TSelectionEditor}
+{$DEFINE HAS_TStringList_CaseSensitive}
+{$DEFINE HAS_AcquireExceptionObject}
+{$DEFINE HAS_DEPRECATED}
+{$DEFINE HAS_SYMBOL_PLATFORM}
+{$DEFINE HAS_UNIT_PLATFORM}
+//Widget defines are omitted in .NET
+{$DEFINE VCL_60_PLUS}
+
+{$DEFINE HAS_UInt64}
+{$DEFINE HAS_NAMED_THREADS}
+{$DEFINE HAS_TStrings_NameValueSeparator}
+{$DEFINE HAS_TStrings_ValueFromIndex}
+{$DEFINE HAS_TFormatSettings}
+{$DEFINE HAS_PosEx}
+{$DEFINE HAS_STATIC_TThread_Queue}
+{$DEFINE HAS_STATIC_TThread_Synchronize}
+
+{$DEFINE USE_INLINE}
+{$DEFINE HAS_2PARAM_FileAge}
+{$DEFINE HAS_System_RegisterExpectedMemoryLeak}
+{$IFNDEF FREE_ON_FINAL}
+  {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+{$ENDIF}
+
+{$DEFINE HAS_CLASSPROPERTIES}
+// Native(U)Int exist but are buggy, so do not use them yet
+{.$DEFINE HAS_NativeInt}
+{.$DEFINE HAS_NativeUInt}
+{$DEFINE HAS_StrToInt64Def}
+{$DEFINE HAS_DWORD_PTR}
+{$DEFINE HAS_ULONG_PTR}
+{$DEFINE HAS_ULONGLONG}
+{$DEFINE HAS_PGUID}
+{$DEFINE HAS_PPAnsiChar}
+{$DEFINE HAS_CurrentYear}
+{$DEFINE HAS_TIMEUNITS}
+
+{$DEFINE HAS_UnicodeString}
+{$DEFINE HAS_TEncoding}
+{$DEFINE HAS_TCharacter}
+{$DEFINE HAS_InterlockedCompareExchangePointer}
+{$DEFINE HAS_WIDE_TCharArray}
+{$DEFINE HAS_UNIT_AnsiStrings}
+{$DEFINE HAS_PUInt64}
+{$IFDEF DCC_2009}
+  // TODO: need to differentiate between RTM and Update 1
+  // FmtStr() is broken in RTM but was fixed in Update 1
+  {$DEFINE BROKEN_FmtStr}
+{$ENDIF}
+{$DEFINE HAS_CLASSVARS}
+{$DEFINE HAS_DEPRECATED_MSG}
+{$DEFINE HAS_TBytes}
+{$DEFINE HAS_Int8}
+{$DEFINE HAS_UInt8}
+{$DEFINE HAS_Int16}
+{$DEFINE HAS_UInt16}
+{$DEFINE HAS_Int32}
+{$DEFINE HAS_UInt32}
+{$IFDEF WINDOWS}
+  // Exception.RaiseOuterException() is only available on Windows at this time
+  {$DEFINE HAS_Exception_RaiseOuterException}
+{$ENDIF}
+
+{$IFDEF DCC_2010_OR_ABOVE}
+  {$DEFINE HAS_CLASSCONSTRUCTOR}
+  {$DEFINE HAS_CLASSDESTRUCTOR}
+  {$DEFINE HAS_DELAYLOAD}
+  {$DEFINE HAS_TThread_NameThreadForDebugging}
+  {$DEFINE DEPRECATED_TThread_SuspendResume}
+  // Native(U)Int are finally ok to use now
+  {$DEFINE HAS_NativeInt}
+  {$DEFINE HAS_NativeUInt}
+  {$DEFINE HAS_USHORT}
+  {$DEFINE HAS_IOUtils_TPath}
+{$ENDIF}
+
+{$IFDEF DCC_XE_OR_ABOVE}
+  {$DEFINE HAS_TFormatSettings_Create}
+  {$DEFINE HAS_LocaleCharsFromUnicode}
+  {$DEFINE HAS_UnicodeFromLocaleChars}
+  {$DEFINE HAS_PVOID}
+  {$DEFINE HAS_ULONG64}
+  {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}
+  // Exception.RaiseOuterException() is now available on all platforms
+  {$DEFINE HAS_Exception_RaiseOuterException}
+  {$DEFINE HAS_TInterlocked}
+{$ENDIF}
+
+{$IFDEF DCC_XE2_OR_ABOVE}
+  {$DEFINE HAS_SIZE_T}
+  {$DEFINE HAS_PSIZE_T}
+  {$DEFINE HAS_LONG}
+  {$DEFINE HAS_ComponentPlatformsAttribute}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Win32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Win64}
+  {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
+  {$DEFINE HAS_System_ReturnAddress}
+  {$DEFINE HAS_DIRECTIVE_WARN_DEFAULT}
+{$ENDIF}
+
+{$IFDEF DCC_XE3_OR_ABOVE}
+  {$DEFINE HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$DEFINE HAS_SysUtils_TStringHelper}
+  {$IFDEF NEXTGEN}
+    {$DEFINE DCC_NEXTGEN}
+    {$DEFINE HAS_MarshaledAString}
+    {$DEFINE USE_MARSHALLED_PTRS}
+    {$IFDEF AUTOREFCOUNT}
+      {$DEFINE USE_OBJECT_ARC}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF DCC_XE4_OR_ABOVE}
+  {$DEFINE HAS_AnsiStrings_StrPLCopy}
+  {$DEFINE HAS_AnsiStrings_StrLen}
+  {$DEFINE HAS_Character_TCharHelper}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device}
+  // technically, these are present in XE4, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Android}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinNX32}
+{$ENDIF}
+
+{$IFDEF DCC_XE5_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Android}
+{$ENDIF}
+
+{$IFDEF DCC_XE5_UPDATE2_OR_ABOVE}
+  {$DEFINE HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+{$ENDIF}
+
+{$IFDEF DCC_XE7_OR_ABOVE}
+  {$DEFINE HAS_TNetEncoding}
+{$ENDIF}
+
+{$IFDEF DCC_XE8_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device64}
+  // technically, these are present in XE8, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux64}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinIoT32}
+{$ENDIF}
+
+{$IFDEF DCC_SEATTLE_OR_ABOVE}
+  {$IFDEF ANDROID}
+    {$DEFINE HAS_TAndroidHelper}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF DCC_BERLIN_OR_ABOVE}
+  {$DEFINE HAS_DIRECTIVE_HPPEMIT_LEGACYHPP}
+  {$DEFINE HAS_TStrings_AddPair}
+{$ENDIF}
+
+{$IFDEF DCC_TOKYO_OR_ABOVE}
+  {.$WARN IMPLICIT_INTEGER_CAST_LOSS OFF}
+  {.$WARN IMPLICIT_CONVERSION_LOSS OFF}
+  {.$WARN COMBINING_SIGNED_UNSIGNED64 OFF}
+{$ENDIF}
+
+// Delphi XE+ cross-compiling
+{$IFDEF POSIX}
+  {$IF RTLVersion >= 22.0}
+    {$DEFINE UNIX}
+    {$UNDEF USE_BASEUNIX}
+    {$DEFINE DCC_CROSS_COMPILE}
+    {$DEFINE USE_VCL_POSIX}
+  {$IFEND}
+{$ENDIF}
+{$IFDEF LINUX}
+  {$IF RTLVersion >= 22.0}
+    {$DEFINE DCC_CROSS_COMPILE}
+    {$DEFINE USE_VCL_POSIX}
+  {$IFEND}
+{$ENDIF}
+
+{$IFDEF DCC_CROSS_COMPILE}
+  {$UNDEF KYLIXCOMPAT}
+{$ENDIF}
+
+{$DEFINE WIDGET_VCL_LIKE}
+{$DEFINE WIDGET_VCL}
+
+{$IFDEF DCC_NEXTGEN}
+  {$DEFINE NO_ANSI_TYPES}
+  {.$DEFINE STRING_IS_IMMUTABLE} // Strings are NOT immutable in NEXTGEN yet
+  {$IFDEF USE_OBJECT_ARC}
+    // TODO: move these to an appropriate section. Not doing this yet because
+    // it is a major interface change to switch to Generics and we should
+    // maintain backwards compatibility with earlier compilers for the time
+    // being. Defining them only here for now because the non-Generic versions
+    // of these classes have become deprecated by ARC and so we need to start
+    // taking advantage of the Generics versions...
+    {$DEFINE HAS_UNIT_Generics_Collections}
+    {$DEFINE HAS_UNIT_Generics_Defaults}
+    {$DEFINE HAS_GENERICS_TDictionary}
+    {$DEFINE HAS_GENERICS_TList}
+    {$DEFINE HAS_GENERICS_TObjectList}
+    {$DEFINE HAS_GENERICS_TThreadList}
+    // TArray<T>.Copy() was introduced in XE7 but was buggy. It was fixed in XE8:
+    //
+    // RSP-9763 TArray.Copy<T> copies from destination to source for unmanaged types
+    // https://quality.embarcadero.com/browse/RSP-9763
+    //
+    {$IFDEF DCC_XE8_OR_ABOVE}
+      {$DEFINE HAS_GENERICS_TArray_Copy}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
+// TODO: Ansi data types were disabled on mobile platforms in XE3, but
+// UTF8String and RawByteString were re-enabled in 10.1 Berlin! What else,
+// if anything, was re-enabled to facilitate that?
+{$IFDEF NO_ANSI_TYPES}
+  {$UNDEF HAS_AnsiString}
+  {$UNDEF HAS_AnsiChar}
+  {$UNDEF HAS_PAnsiChar}
+  {$UNDEF HAS_PPAnsiChar}
+  {$UNDEF HAS_UNIT_AnsiStrings}
+  {$UNDEF HAS_AnsiStrings_StrPLCopy}
+{$ENDIF}
+
+//IMPORTANT!!!!
+//
+//In DCC, MACOS means OS X.  In FreePascal, MACOS means MacIntosh System OS Classic.
+
+// DCC defines MACOS for both iOS and OS X platforms, need to differentiate
+{$IF DEFINED(MACOS) AND NOT DEFINED(IOS)}
+  {$DEFINE DARWIN}
+{$IFEND}
+
+{$IFDEF KYLIXCOMPAT}
+  {$linklib c}
+{$ENDIF}
+
+// RLebeau 9/5/2013: it would take a lot of work to re-write Indy to support
+// both 0-based and 1-based string indexing, so we'll just turn off 0-based
+// indexing for now...
+{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+  {$ZEROBASEDSTRINGS OFF}
+{$ENDIF}

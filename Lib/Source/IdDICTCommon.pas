@@ -175,8 +175,8 @@ end;
 
 destructor TIdDefinition.Destroy;
 begin
-  FreeAndNil(FDB);
-  FreeAndNil(FDefinition);
+  FDB.Free;
+  FDefinition.Free;
   inherited Destroy;
 end;
 

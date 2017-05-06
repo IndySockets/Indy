@@ -4,40 +4,28 @@ interface
 
 {$i IdCompilerDefines.inc}
 
-{$IFDEF DOTNET}
+{$IF DEFINED(HAS_TCharacter) OR DEFINED(HAS_Character_TCharHelper)}
   {$DEFINE HAS_ConvertToUtf32}
-{$ENDIF}
-{$IFDEF HAS_TCharacter}
-  {$DEFINE HAS_ConvertToUtf32}
-{$ENDIF}
-{$IFDEF HAS_Character_TCharHelper}
-  {$DEFINE HAS_ConvertToUtf32}
-{$ENDIF}
+{$IFEND}
 
-{$IFDEF DOTNET}
-  {$DEFINE HAS_String_IndexOf}
-{$ENDIF}
 {$IFDEF HAS_SysUtils_TStringHelper}
   {$DEFINE HAS_String_IndexOf}
 {$ENDIF}
 
 uses
   IdGlobal
-  {$IFNDEF DOTNET}
-    {$IFDEF HAS_ConvertToUtf32}
+  {$IFDEF HAS_ConvertToUtf32}
   , Character
-    {$ELSE}
+  {$ELSE}
   , IdException
-    {$ENDIF}
-    {$IFDEF HAS_String_IndexOf}
+  {$ENDIF}
+  {$IFDEF HAS_String_IndexOf}
   , SysUtils
-    {$ENDIF}
   {$ENDIF}
   ;
 
 {$IFNDEF HAS_ConvertToUtf32}
 type
-  //for .NET, we use Char.ConvertToUtf32() as-is
   //for XE3.5+, we use TCharHelper.ConvertToUtf32() as-is
   //for D2009+, we use TCharacter.ConvertToUtf32() as-is
   EIdUTF16Exception = class(EIdException);
@@ -48,9 +36,9 @@ type
 {$ENDIF}
 
 // calculates character length, including surrogates
-function CalcUTF16CharLength(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF}; const AIndex: Integer): Integer;
-function WideCharIsInSet(const ASet: TIdUnicodeString; const AChar: WideChar): Boolean;
-function GetUTF16Codepoint(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF}; const AIndex: Integer): Integer;
+function CalcUTF16CharLength(const AStr: UnicodeString; const AIndex: Integer): Integer;
+function WideCharIsInSet(const ASet: UnicodeString; const AChar: WideChar): Boolean;
+function GetUTF16Codepoint(const AStr: UnicodeString; const AIndex: Integer): Integer;
 
 implementation
 
@@ -60,36 +48,20 @@ uses
   IdResourceStringsUriUtils;
 {$ENDIF}
 
-function CalcUTF16CharLength(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF};
-  const AIndex: Integer): Integer;
-{$IFDEF DOTNET}
-var
-  C: Integer;
+function CalcUTF16CharLength(const AStr: UnicodeString; const AIndex: Integer): Integer;
+{$IFDEF HAS_ConvertToUtf32}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
-  {$IFDEF HAS_ConvertToUtf32}
-    {$IFDEF USE_INLINE}inline;{$ENDIF}
-  {$ELSE}
 var
   C: WideChar;
-  {$ENDIF}
 {$ENDIF}
 begin
-  {$IFDEF DOTNET}
-  C := System.Char.ConvertToUtf32(AStr, AIndex-1);
-  if (C >= #$10000) and (C <= #$10FFFF) then begin
-    Result := 2;
-  end else begin
-    Result := 1;
-  end;
-  {$ELSE}
-    {$IFDEF HAS_Character_TCharHelper}
+  {$IF DEFINED(HAS_Character_TCharHelper)}
   Char.ConvertToUtf32(AStr, AIndex-1, Result);
-    {$ELSE}
-      {$IFDEF HAS_TCharacter}
+  {$ELSEIF DEFINED(HAS_TCharacter)}
   TCharacter.ConvertToUtf32(AStr, AIndex, Result);
-      {$ELSE}
-  if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
-     (AIndex > (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF})) then
+  {$ELSE}
+  if (AIndex < 1) or (AIndex > Length(AStr)) then
   begin
     raise EIdUTF16IndexOutOfRange.CreateResFmt(@RSUTF16IndexOutOfRange, [AIndex, Length(AStr)]);
   end;
@@ -99,7 +71,7 @@ begin
     if C > #$DBFF then begin
       raise EIdUTF16InvalidHighSurrogate.CreateResFmt(@RSUTF16InvalidHighSurrogate, [AIndex]);
     end;
-    if AIndex = (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF}) then begin
+    if AIndex = Length(AStr) then begin
       raise EIdUTF16MissingLowSurrogate.CreateRes(@RSUTF16MissingLowSurrogate);
     end;
     C := AStr[AIndex+1];
@@ -110,12 +82,10 @@ begin
   end else begin
     Result := 1;
   end;
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 end;
 
-function WideCharIsInSet(const ASet: TIdUnicodeString; const AChar: WideChar): Boolean;
+function WideCharIsInSet(const ASet: UnicodeString; const AChar: WideChar): Boolean;
 {$IFDEF HAS_String_IndexOf}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
@@ -143,8 +113,7 @@ begin
   {$ENDIF}
 end;
 
-function GetUTF16Codepoint(const AStr: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF};
-  const AIndex: Integer): Integer;
+function GetUTF16Codepoint(const AStr: UnicodeString; const AIndex: Integer): Integer;
 {$IFDEF HAS_ConvertToUtf32}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
@@ -153,17 +122,12 @@ var
   LowSurrogate, HighSurrogate: Integer;
 {$ENDIF}
 begin
-  {$IFDEF DOTNET}
-  Result := System.Char.ConvertToUtf32(AStr, AIndex-1);
-  {$ELSE}
-    {$IFDEF HAS_Character_TCharHelper}
+  {$IF DEFINED(HAS_Character_TCharHelper)}
   Result := Char.ConvertToUtf32(AStr, AIndex-1);
-    {$ELSE}
-      {$IFDEF HAS_TCharacter}
+  {$ELSEIF DEFINED(HAS_TCharacter)}
   Result := TCharacter.ConvertToUtf32(AStr, AIndex);
-      {$ELSE}
-  if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
-     (AIndex > (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF})) then
+  {$ELSE}
+  if (AIndex < 1) or (AIndex > Length(AStr)) then
   begin
     raise EIdUTF16IndexOutOfRange.CreateResFmt(@RSUTF16IndexOutOfRange, [AIndex, Length(AStr)]);
   end;
@@ -174,7 +138,7 @@ begin
     if HighSurrogate > $DBFF then begin
       raise EIdUTF16InvalidHighSurrogate.CreateResFmt(@RSUTF16InvalidHighSurrogate, [AIndex]);
     end;
-    if AIndex = (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF}) then begin
+    if AIndex = Length(AStr) then begin
       raise EIdUTF16MissingLowSurrogate.CreateRes(@RSUTF16MissingLowSurrogate);
     end;
     LowSurrogate := Integer(AStr[AIndex+1]);
@@ -185,9 +149,7 @@ begin
   end else begin
     Result := Integer(C);
   end;
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 end;
 
 end.

@@ -46,41 +46,18 @@
   trouble maintaining it.
 }
 
-unit IdDsnSASLListEditorForm;
+unit IdDsnSASLListEditorForm deprecated 'Use IdDsnSASLListEditorFormVCL unit';
 
 interface
 
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WIDGET_WINFORMS}
-  Classes,
-  IdDsnSASLListEditorFormNET;
-  {$R 'IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources' 'IdDsnSASLListEditorFormNET.resx'}
-  {$ENDIF}
-  {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   IdDsnSASLListEditorFormVCL;
-  {$ENDIF}
 
 type
-  {$IFDEF WIDGET_WINFORMS}
-  //we make a create here because I'm not sure how the Visual Designer for WinForms
-  //we behave in a package.  I know it can act weird if something is renamed
-  TfrmSASLListEditor = class(IdDsnSASLListEditorFormNET.TfrmSASLListEditor)
-  public
-    constructor Create(AOwner : TComponent);
-  end;
-  {$ENDIF}
-  {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   TfrmSASLListEditor = class(TfrmSASLListEditorVCL);
-  {$ENDIF}
 
 implementation
 
-{$IFDEF WIDGET_WINFORMS}
-constructor TfrmSASLListEditor.Create(AOwner : TComponent);
-begin
-  inherited Create;
-end;
-{$ENDIF}
 end.

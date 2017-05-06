@@ -69,7 +69,7 @@ uses
 
 destructor TIdServerInterceptLogFile.Destroy;
 begin
-  FreeAndNil(FFileStream);
+  FFileStream.Free;
   inherited Destroy;
 end;
 
@@ -85,11 +85,8 @@ begin
 end;
 
 procedure TIdServerInterceptLogFile.DoLogWriteString(const AText: string);
-var
-  LEnc: IIdTextEncoding;
 begin
-  LEnc := IndyTextEncoding_8Bit;
-  WriteStringToStream(FFileStream, AText, LEnc{$IFDEF STRING_IS_ANSI}, LEnc{$ENDIF});
+  WriteStringToStream(FFileStream, AText, IndyTextEncoding_8Bit);
 end;
 
 end.

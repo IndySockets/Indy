@@ -253,16 +253,17 @@ begin
 //  if Assigned(SlaveThread) then
 //    if not SlaveThread.Executed then
 //      SlaveThread.TerminateAndWaitFor;
-  if not SlaveThreadTerminated then
+  if not SlaveThreadTerminated then begin
     TerminateTunnelThread;
+  end;
 
-  FreeAndNil(SClient);
-  FreeAndNil(Sender);
-//  FreeAndNil(LockClientNumber);
-  FreeAndNil(OnlyOneThread);
-  FreeAndNil(SendThroughTunnelLock);
-  FreeAndNil(GetClientThreadLock);
-  FreeAndNil(StatisticsLocker);
+  SClient.Free;
+  Sender.Free;
+//  LockClientNumber.Free;
+  OnlyOneThread.Free;
+  SendThroughTunnelLock.Free;
+  GetClientThreadLock.Free;
+  StatisticsLocker.Free;
   Logger := nil;
 
   inherited Destroy;
@@ -313,7 +314,7 @@ begin
           //Exit;
         end;
         if not ErrorConnecting then begin
-          SlaveThread := TSlaveThread.Create(self);
+          SlaveThread := TSlaveThread.Create(Self);
           SlaveThreadTerminated := False;
           SlaveThread.Start;
           // Maybe we wait here till authentication of Slave happens

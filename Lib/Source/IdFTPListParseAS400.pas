@@ -89,7 +89,7 @@ begin
         Result := CharEquals(s[4], 1, '*') or (s[4]='DIR');  {Do not localize}
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;

@@ -318,7 +318,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
   //Note that spaces are illegal in MVS file names (Data set names)
@@ -467,7 +467,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
   Result := True;
 end;
@@ -493,7 +493,7 @@ begin
         Result := IsMVS_JESNoJobsMsg(AListing[0]);
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -708,7 +708,7 @@ end;
 
 destructor TIdMVSJESIntF2FTPListItem.Destroy;
 begin
-  FreeAndNil(FDetails);
+  FDetails.Free;
   inherited Destroy;
 end;
 

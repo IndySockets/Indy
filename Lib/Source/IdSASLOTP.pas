@@ -38,8 +38,11 @@
 unit IdSASLOTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
+  Classes,
   IdException,
   IdSASL,
   IdSASLUserPass;
@@ -48,8 +51,8 @@ type
   TIdSASLOTP = class(TIdSASLUserPass)
   protected
     function GenerateOTP(const AResponse, APassword: String): String;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
     function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String; override;
@@ -63,15 +66,15 @@ uses
 
 { TIdSASLOTP }
 
+constructor TIdSASLOTP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FSecurityLevel := 1000;
+end;
+
 function TIdSASLOTP.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
 begin
   Result := GenerateOTP(ALastResponse, GetPassword);
-end;
-
-procedure TIdSASLOTP.InitComponent;
-begin
-  inherited InitComponent;
-  FSecurityLevel := 1000;
 end;
 
 class function TIdSASLOTP.ServiceName: TIdSASLServiceName;

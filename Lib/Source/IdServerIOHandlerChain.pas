@@ -124,38 +124,40 @@ function TIdServerIOHandlerChain.Accept(
 var
   LIOHandler: TIdIOHandlerChain;
 begin
+  Result := nil;
   EIdException.IfNotAssigned(FChainEngine, 'No ChainEngine defined.'); {do not localize}
   LIOHandler := TIdIOHandlerChain.Create(nil, FChainEngine
    //TODO: Can remove this cast later
    , TIdFiberWeaver(TIdSchedulerOfFiber(FScheduler).FiberWeaver)
    , TIdYarnOfFiber(AYarn).Fiber);
-  LIOHandler.Open;
-  Result := nil;
-  if AListenerThread <> nil then begin
-    while not AListenerThread.Stopped do try
-      if ASocket.Select(100) then begin  // Wait for 100 ms
-        if LIOHandler.Binding.Accept(ASocket.Handle) then begin
-          LIOHandler.AfterAccept;
-          Result := LIOHandler;
-          Exit;
-        end else begin
+  try
+    LIOHandler.Open;
+    if AListenerThread <> nil then begin
+      while not AListenerThread.Stopped do
+      try
+        if ASocket.Select(100) then begin  // Wait for 100 ms
+          if LIOHandler.Binding.Accept(ASocket.Handle) then begin
+            LIOHandler.AfterAccept;
+            Result := LIOHandler;
+            LIOHandler := nil;
+          end;
+          Break;
+        end;
+      finally
+        if (LIOHandler <> nil) and (AListenerThread.Stopped) then begin
           FreeAndNil(LIOHandler);
-          Exit;
         end;
       end;
-    finally
-      if AListenerThread.Stopped then begin
-        FreeAndNil(LIOHandler);
+    end else begin
+      // Old way for compatibility
+      if LIOHandler.Binding.Accept(ASocket.Handle) then begin
+        LIOHandler.AfterAccept;
+        Result := LIOHandler;
+        LIOHandler := nil;
       end;
     end;
-  end else begin
-    // Old way for compatibility
-    if LIOHandler.Binding.Accept(ASocket.Handle) then begin
-      Result := LIOHandler;
-      Exit;
-    end else begin
-      FreeAndNil(LIOHandler);
-    end;
+  finally
+    LIOHandler.Free;
   end;
 end;
 

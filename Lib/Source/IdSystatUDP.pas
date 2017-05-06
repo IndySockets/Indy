@@ -41,15 +41,17 @@ unit IdSystatUDP;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
-uses Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
+
+uses
+  Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
 const DefIdSysUDPTimeout =  1000; //one second
 type
   TIdSystatUDP = class(TIdUDPClient)
-  protected
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure GetStat(ADest : TStrings);
   published
     property ReceiveTimeout default DefIdSysUDPTimeout;   //Infinite Timeout can not be used for UDP reads
@@ -75,9 +77,9 @@ uses
 
 { TIdSystatUDP }
 
-procedure TIdSystatUDP.InitComponent;
+constructor TIdSystatUDP.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   Port := IdPORT_SYSTAT;
   ReceiveTimeout := DefIdSysUDPTimeout;
 end;
@@ -115,7 +117,7 @@ begin
     }
     LEncoding := IndyTextEncoding_8Bit;
     repeat
-      s := ReceiveString(LTimeout, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      s := ReceiveString(LTimeout, LEncoding);
       if s = '' then begin
         Break;
       end;

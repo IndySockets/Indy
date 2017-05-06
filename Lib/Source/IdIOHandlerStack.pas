@@ -204,13 +204,12 @@ type
 implementation
 
 uses
-  {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
   Posix.SysTime,
-  {$ENDIF}
-  {$IFDEF WINDOWS}
+  {$ELSEIF DEFINED(WINDOWS)}
   Windows,
-  {$ENDIF}
+  {$IFEND}
   IdAntiFreezeBase, IdResourceStringsCore, IdResourceStrings, IdStackConsts, IdException,
   IdTCPConnection, IdComponent, IdIOHandler, IdCustomTransparentProxy;
 
@@ -529,4 +528,5 @@ end;
 
 initialization
   TIdIOHandlerStack.SetDefaultClass;
+
 end.

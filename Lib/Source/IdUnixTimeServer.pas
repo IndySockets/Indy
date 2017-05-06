@@ -26,9 +26,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdAssignedNumbers,
   IdCustomTCPServer,
   IdGlobalProtocols,
@@ -58,12 +56,8 @@ uses
 
 type
   TIdUnixTimeServer = class(TIdCustomTimeServer)
-  protected
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_utime;
   end;
@@ -72,16 +66,9 @@ implementation
 
 { TIdUnixTimeServer }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdUnixTimeServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdUnixTimeServer.InitComponent;
-begin
-  inherited;
   DefaultPort := IdPORT_utime;
   FBaseDate := UNIXSTARTDATE;
 end;

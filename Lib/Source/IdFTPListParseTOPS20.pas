@@ -178,7 +178,7 @@ begin
           end;
         end;
       finally
-        FreeAndNil(LParts);
+        LParts.Free;
       end;
     end;
   end;

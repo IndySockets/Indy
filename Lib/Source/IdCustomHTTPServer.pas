@@ -472,16 +472,13 @@ type
     function GetSessionFromCookie(AContext:TIdContext;
      AHTTPrequest: TIdHTTPRequestInfo; AHTTPResponse: TIdHTTPResponseInfo;
      var VContinueProcessing: Boolean): TIdHTTPSession;
-    procedure InitComponent; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     { to be published in TIdHTTPServer}
     property OnCreatePostStream: TIdHTTPCreatePostStream read FOnCreatePostStream write FOnCreatePostStream;
     property OnDoneWithPostStream: TIdHTTPDoneWithPostStream read FOnDoneWithPostStream write FOnDoneWithPostStream;
     property OnCommandGet: TIdHTTPCommandEvent read FOnCommandGet write FOnCommandGet;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     function CreateSession(AContext:TIdContext;
      HTTPResponse: TIdHTTPResponseInfo;
      HTTPRequest: TIdHTTPRequestInfo): TIdHTTPSession;
@@ -520,9 +517,8 @@ type
     procedure RemoveSession(Session: TIdHTTPSession); override;
     // remove a session surgically when list already locked down (prevent deadlock)
     procedure RemoveSessionFromLockedList(AIndex: Integer; ALockedSessionList: TIdHTTPSessionList);
-  protected
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property SessionList: TIdHTTPSessionThreadList read FSessionList;
     procedure Clear; override;
@@ -533,20 +529,20 @@ type
     function GetSession(const SessionID, RemoteIP: string): TIdHTTPSession; override;
   end;
 
-  TIdHTTPRangeStream = class(TIdBaseStream)
+  TIdHTTPRangeStream = class(TStream)
   private
     FSourceStream: TStream;
     FOwnsSource: Boolean;
     FRangeStart, FRangeEnd: Int64;
     FResponseCode: Integer;
   protected
-    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
-    procedure IdSetSize(ASize: Int64); override;
+    procedure SetSize(const NewSize: Int64); override;
   public
     constructor Create(ASource: TStream; ARangeStart, ARangeEnd: Int64; AOwnsSource: Boolean = True);
     destructor Destroy; override;
+    function Read(var Buffer; Count: Longint): Longint; override;
+    function Write(const Buffer; Count: Longint): Longint; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; override;
     property ResponseCode: Integer read FResponseCode;
     property RangeStart: Int64 read FRangeStart;
     property RangeEnd: Int64 read FRangeEnd;
@@ -556,32 +552,19 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.SyncObjs,
   {$ENDIF}
-  {$IFDEF KYLIXCOMPAT}
+  {$IF DEFINED(KYLIXCOMPAT)}
   Libc,
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
+  {$ELSEIF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
   Posix.SysTime,
-  {$ENDIF}
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-  System.Threading,
-    {$ENDIF}
-    {$IFDEF WINDOWS}
+  {$ELSEIF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
-  Windows,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdCoderMIME, IdResourceStringsProtocols, IdURI, IdIOHandler, IdIOHandlerSocket,
-  IdSSL, IdResourceStringsCore, IdStream;
+  IdSSL, IdResourceStringsCore;
 
 const
   SessionCapacity = 128;
@@ -846,54 +829,54 @@ end;
 destructor TIdHTTPRangeStream.Destroy;
 begin
   if FOwnsSource then begin
-    FreeAndNil(FSourceStream);
+    IdDisposeAndNil(FSourceStream);
   end;
   inherited Destroy;
 end;
 
-function TIdHTTPRangeStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TIdHTTPRangeStream.Read(var Buffer; Count: Longint): Longint;
 begin
   if FResponseCode = 206 then begin
-    ACount := Longint(IndyMin(Int64(ACount), (FRangeEnd+1) - FSourceStream.Position));
+    Count := Longint(IndyMin(Int64(Count), (FRangeEnd+1) - FSourceStream.Position));
   end;
-  Result := TIdStreamHelper.ReadBytes(FSourceStream, VBuffer, ACount, AOffset);
+  Result := FSourceStream.Read(Buffer, Count);
 end;
 
-function TIdHTTPRangeStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+function TIdHTTPRangeStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 var
   LOffset: Int64;
 begin
   if FResponseCode = 206 then begin
-    case AOrigin of
-      soBeginning: LOffset := FRangeStart + AOffset;
-      soCurrent: LOffset := FSourceStream.Position + AOffset;
-      soEnd: LOffset := (FRangeEnd+1) + AOffset;
+    case Origin of
+      soBeginning: LOffset := FRangeStart + Offset;
+      soCurrent: LOffset := FSourceStream.Position + Offset;
+      soEnd: LOffset := (FRangeEnd+1) + Offset;
     else
       // TODO: move this into IdResourceStringsProtocols.pas
       raise EIdException.Create('Unknown Seek Origin'); {do not localize}
     end;
     LOffset := IndyMax(LOffset, FRangeStart);
     LOffset := IndyMin(LOffset, FRangeEnd+1);
-    Result := TIdStreamHelper.Seek(FSourceStream, LOffset, soBeginning) - FRangeStart;
+    Result := FSourceStream.Seek(LOffset, soBeginning) - FRangeStart;
   end else begin
-    Result := TIdStreamHelper.Seek(FSourceStream, AOffset, AOrigin);
+    Result := FSourceStream.Seek(Offset, Origin);
   end;
 end;
 
-function TIdHTTPRangeStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TIdHTTPRangeStream.Write(const Buffer; Count: Longint): Longint;
 begin
   Result := 0;
 end;
 
-procedure TIdHTTPRangeStream.IdSetSize(ASize: Int64);
+procedure TIdHTTPRangeStream.SetSize(const NewSize: Int64);
 begin
 end;
 
 { TIdCustomHTTPServer }
 
-procedure TIdCustomHTTPServer.InitComponent;
+constructor TIdCustomHTTPServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FSessionState := Id_TId_HTTPServer_SessionState;
   DefaultPort := IdPORT_HTTP;
   ParseParams := Id_TId_HTTPServer_ParseParams;
@@ -903,6 +886,22 @@ begin
   FKeepAlive := Id_TId_HTTPServer_KeepAlive;
   FMaximumHeaderLineCount := Id_TId_HTTPMaximumHeaderLineCount;
   FSessionIDCookieName := GSessionIDCookie;
+end;
+
+destructor TIdCustomHTTPServer.Destroy;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LSessionList: TIdHTTPCustomSessionList;
+begin
+  Active := False; // Set Active to false in order to close all active sessions.
+  FMIMETable.Free;
+  LSessionList := FSessionList;
+  if Assigned(LSessionList) and FImplicitSessionList then begin
+    FSessionList := nil;
+    FImplicitSessionList := False;
+    IdDisposeAndNil(LSessionList);
+  end;
+  inherited Destroy;
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
@@ -977,29 +976,6 @@ begin
       HTTPRequest.FSession := Result;
     end;
   end;
-end;
-
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-constructor TIdCustomHTTPServer.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-end;
-{$ENDIF}
-
-destructor TIdCustomHTTPServer.Destroy;
-var
-  // under ARC, convert a weak reference to a strong reference before working with it
-  LSessionList: TIdHTTPCustomSessionList;
-begin
-  Active := False; // Set Active to false in order to close all active sessions.
-  FreeAndNil(FMIMETable);
-  LSessionList := FSessionList;
-  if Assigned(LSessionList) and FImplicitSessionList then begin
-    FSessionList := nil;
-    FImplicitSessionList := False;
-    IdDisposeAndNil(LSessionList);
-  end;
-  inherited Destroy;
 end;
 
 procedure TIdCustomHTTPServer.DoCommandGet(AContext: TIdContext;
@@ -1095,7 +1071,7 @@ var
       LRequestInfo.RawHeaders.Extract('Cookie', LRawCookies);    {Do not Localize}
       LRequestInfo.Cookies.AddClientCookies(LRawCookies);
     finally
-      FreeAndNil(LRawCookies);
+      LRawCookies.Free;
     end;
   end;
 
@@ -1358,7 +1334,7 @@ begin
                   LRequestInfo.FHost := LURI.Host;
                 end;
               finally
-                FreeAndNil(LURI);
+                LURI.Free;
               end;
             end;
 
@@ -1388,7 +1364,7 @@ begin
               begin
                 // decoding percent-encoded octets and applying the CharSet is handled by DecodeAndSetParams() further below...
                 EnsureEncoding(LEncoding, enc8Bit);
-                LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+                LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream, -1, LEncoding);
                 DoneWithPostStream(AContext, LRequestInfo); // don't need the PostStream anymore
               end;
             end;
@@ -1468,10 +1444,10 @@ begin
             end;
           finally
             LCloseConnection := LResponseInfo.CloseConnection;
-            FreeAndNil(LResponseInfo);
+            LResponseInfo.Free;
           end;
         finally
-          FreeAndNil(LRequestInfo);
+          LRequestInfo.Free;
         end;
       until LCloseConnection;
     except
@@ -1514,7 +1490,7 @@ begin
       // must set the owner to nil or the session will try to fire the OnSessionEnd
       // event again, and also remove itself from the session list and deadlock
       LSession.FOwner := nil;
-      FreeAndNil(LSession);
+      LSession.Free;
       Result := True;
     end;
   end;
@@ -1729,7 +1705,7 @@ begin
     FOnDoneWithPostStream(ASender, ARequestInfo, LCanFree);
   end;
   if LCanFree then begin
-    FreeAndNil(ARequestInfo.FPostStream);
+    IdDisposeAndNil(ARequestInfo.FPostStream);
   end;
 end;
 
@@ -1774,8 +1750,8 @@ begin
 // the TIdHTTPDefaultSessionList.RemoveSessionFromLockedList method
 // Why? It calls this function and this code gets executed?
   DoSessionEnd;
-  FreeAndNil(FContent);
-  FreeAndNil(FLock);
+  FContent.Free;
+  FLock.Free;
   if Assigned(FOwner) then begin
     FOwner.RemoveSession(Self);
   end;
@@ -1867,9 +1843,9 @@ end;
 
 destructor TIdHTTPRequestInfo.Destroy;
 begin
-  FreeAndNil(FCookies);
-  FreeAndNil(FParams);
-  FreeAndNil(FPostStream);
+  FCookies.Free;
+  FParams.Free;
+  FPostStream.Free;
   inherited Destroy;
 end;
 
@@ -1894,7 +1870,7 @@ begin
   LCookie := Cookies.Add;
   LCookie.CookieName := HTTPServer.SessionIDCookieName;
   LCookie.Expires := Date-7;
-  FreeAndNil(FSession);
+  FSession.Free;
 end;
 
 constructor TIdHTTPResponseInfo.Create(AServer: TIdCustomHTTPServer;
@@ -1923,7 +1899,7 @@ end;
 
 destructor TIdHTTPResponseInfo.Destroy;
 begin
-  FreeAndNil(FCookies);
+  FCookies.Free;
   ReleaseContentStream;
   inherited Destroy;
 end;
@@ -1937,7 +1913,7 @@ end;
 procedure TIdHTTPResponseInfo.ReleaseContentStream;
 begin
   if FreeContentStream then begin
-    FreeAndNil(FContentStream);
+    IdDisposeAndNil(FContentStream);
   end else begin
     FContentStream := nil;
   end;
@@ -2043,7 +2019,7 @@ begin
   ContentLength := FileSizeByName(AFile);
   if Length(ContentDisposition) = 0 then begin
     // TODO: use EncodeHeader() here...
-    ContentDisposition := IndyFormat('attachment; filename="%s";', [ExtractFileName(AFile)]);
+    ContentDisposition := IndyFormat('attachment; filename="%s";', [ExtractFileName(AFile)]);  {do not localize}
   end;
   WriteHeader;
   EnableTransferFile := not (AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase);
@@ -2257,6 +2233,27 @@ end;
 
 { TIdHTTPDefaultSessionList }
 
+constructor TIdHTTPDefaultSessionList.Create(AOwner: TComponent);
+var
+  LList: TIdHTTPSessionList;
+begin
+  inherited Create(AOwner);
+  FSessionList := TIdHTTPSessionThreadList.Create;
+  LList := FSessionList.LockList;
+  try
+    LList.Capacity := SessionCapacity;
+  finally
+    FSessionList.UnlockList;
+  end;
+end;
+
+destructor TIdHTTPDefaultSessionList.Destroy;
+begin
+  Clear;
+  FSessionList.Free;
+  inherited Destroy;
+end;
+
 procedure TIdHTTPDefaultSessionList.Add(ASession: TIdHTTPSession);
 begin
   SessionList.Add(ASession);
@@ -2280,7 +2277,7 @@ begin
         // OnSessionEnd event again, and also remove itself from the session
         // list and deadlock
         LSession.FOwner := nil;
-        FreeAndNil(LSession);
+        LSession.Free;
       end;
     end;
     LSessionList.Clear;
@@ -2309,13 +2306,6 @@ begin
   Result := CreateSession(RemoteIP, SessionID);
 end;
 
-destructor TIdHTTPDefaultSessionList.Destroy;
-begin
-  Clear;
-  FreeAndNil(FSessionList);
-  inherited destroy;
-end;
-
 function TIdHTTPDefaultSessionList.GetSession(const SessionID, RemoteIP: string): TIdHTTPSession;
 var
   LSessionList: TIdHTTPSessionList;
@@ -2340,20 +2330,6 @@ begin
     end;
   finally
     SessionList.UnlockList;
-  end;
-end;
-
-procedure TIdHTTPDefaultSessionList.InitComponent;
-var
-  LList: TIdHTTPSessionList;
-begin
-  inherited InitComponent;
-  FSessionList := TIdHTTPSessionThreadList.Create;
-  LList := FSessionList.LockList;
-  try
-    LList.Capacity := SessionCapacity;
-  finally
-    FSessionList.UnlockList;
   end;
 end;
 
@@ -2411,7 +2387,7 @@ begin
   // must set the owner to nil or the session will try to fire the OnSessionEnd
   // event again, and also remove itself from the session list and deadlock
   LSession.FOwner := nil;
-  FreeAndNil(LSession);
+  LSession.Free;
   ALockedSessionList.Delete(AIndex);
 end;
 

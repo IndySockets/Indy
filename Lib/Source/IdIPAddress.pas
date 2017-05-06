@@ -173,7 +173,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(LIP2);
+      LIP2.Free;
     end;
   end;
 end;
@@ -251,9 +251,9 @@ begin
       Exit;
     end;
     //this is not a valid IP address
-    FreeAndNil(Result);
+    Result.Free;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -283,9 +283,9 @@ begin
         end;
     end;
     //this is not a valid IP address
-    FreeAndNil(Result);
+    Result.Free;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;

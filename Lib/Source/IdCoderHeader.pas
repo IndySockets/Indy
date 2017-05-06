@@ -99,8 +99,7 @@ interface
 uses
   Classes,
   IdComponent,
-  IdEMailAddress,
-  IdHeaderCoderBase;
+  IdEMailAddress;
 
 // Procs
   function EncodeAddressItem(EmailAddr: TIdEmailAddressItem; const HeaderEncoding: Char;
@@ -119,7 +118,6 @@ uses
   IdException,
   IdGlobal,
   IdGlobalProtocols,
-  IdAllHeaderCoders,
   SysUtils;
 
 const
@@ -191,7 +189,6 @@ end;
 function DecodeHeader(const Header: string): string;
 var
   HeaderCharSet, HeaderEncoding, HeaderData, S: string;
-  LDecoded: Boolean;
   LStartPos, LLength, LEncodingStartPos, LEncodingEndPos, LLastStartPos: Integer;
   LLastWordWasEncoded: Boolean;
   Buf: TIdBytes;
@@ -306,13 +303,7 @@ var
         Result := True;
       end;
       2: begin // 8-bit
-        {$IFDEF STRING_IS_ANSI}
-        if AData <> '' then begin
-          VDecoded := RawToBytes(AData[1], Length(AData));
-        end;
-        {$ELSE}
         VDecoded := IndyTextEncoding_8Bit.GetBytes(AData);
-        {$ENDIF}
         Result := True;
       end;
     end;
@@ -332,11 +323,11 @@ begin
     // valid encoded words can not contain spaces
     // if the user types something *almost* like an encoded word,
     // and its sent as-is, we need to find this!!
-    LStartPos := FindFirstNotOf(LWS, Result, LLength, LStartPos);
+    LStartPos := FindFirstNotOf(LWS+CR+LF, Result, LLength, LStartPos);
     if LStartPos = 0 then begin
       Break;
     end;
-    LEncodingEndPos := FindFirstOf(LWS, Result, LLength, LStartPos);
+    LEncodingEndPos := FindFirstOf(LWS+CR+LF, Result, LLength, LStartPos);
     if LEncodingEndPos <> 0 then begin
       Dec(LEncodingEndPos);
     end else begin
@@ -344,12 +335,8 @@ begin
     end;
     if ExtractEncoding(Result, LStartPos, LEncodingStartPos, LEncodingEndPos, HeaderCharSet, HeaderEncoding, HeaderData) then
     begin
-      LDecoded := False;
       if ExtractEncodedData(HeaderEncoding, HeaderData, Buf) then begin
-        LDecoded := DecodeHeaderData(HeaderCharSet, Buf, S);
-      end;
-      if LDecoded then
-      begin
+        S := CharsetToEncoding(HeaderCharSet).GetString(Buf);
         //replace old substring in header with decoded string,
         // ignoring whitespace that separates encoded words:
         if LLastWordWasEncoded then begin
@@ -371,7 +358,7 @@ begin
       LLastStartPos := LStartPos;
     end else
     begin
-      LStartPos := FindFirstOf(LWS, Result, LLength, LStartPos);
+      LStartPos := FindFirstOf(LWS+CR+LF, Result, LLength, LStartPos);
       if LStartPos = 0 then begin
         Break;
       end;
@@ -533,7 +520,7 @@ begin
   // so that a single encoded character does not get split between encoded-words
   // thus corrupting that character...
 
-  Buf := EncodeHeaderData(MimeCharSet, Header);
+  Buf := CharsetToEncoding(MimeCharSet).GetBytes(Header);
 
   {Suggested by Andrew P.Rybin for easy 8bit support}
   if HeaderEncoding = '8' then begin {Do not Localize}

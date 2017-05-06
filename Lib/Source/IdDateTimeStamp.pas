@@ -132,6 +132,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdGlobal,
   IdBaseComponent;
 
@@ -175,47 +176,47 @@ const
   IdMillisecondsInDay = IdSecondsInDay * IdMillisecondsInSecond;
   IdMillisecondsInWeek = IdSecondsInWeek * IdMillisecondsInSecond;
 
-  SShortMonthNameJan = 'Jan';
-  SShortMonthNameFeb = 'Feb';
-  SShortMonthNameMar = 'Mar';
-  SShortMonthNameApr = 'Apr';
-  SShortMonthNameMay = 'May';
-  SShortMonthNameJun = 'Jun';
-  SShortMonthNameJul = 'Jul';
-  SShortMonthNameAug = 'Aug';
-  SShortMonthNameSep = 'Sep';
-  SShortMonthNameOct = 'Oct';
-  SShortMonthNameNov = 'Nov';
-  SShortMonthNameDec = 'Dec';
+  SShortMonthNameJan = 'Jan';       {do not localize}
+  SShortMonthNameFeb = 'Feb';       {do not localize}
+  SShortMonthNameMar = 'Mar';       {do not localize}
+  SShortMonthNameApr = 'Apr';       {do not localize}
+  SShortMonthNameMay = 'May';       {do not localize}
+  SShortMonthNameJun = 'Jun';       {do not localize}
+  SShortMonthNameJul = 'Jul';       {do not localize}
+  SShortMonthNameAug = 'Aug';       {do not localize}
+  SShortMonthNameSep = 'Sep';       {do not localize}
+  SShortMonthNameOct = 'Oct';       {do not localize}
+  SShortMonthNameNov = 'Nov';       {do not localize}
+  SShortMonthNameDec = 'Dec';       {do not localize}
 
-  SLongMonthNameJan = 'January';
-  SLongMonthNameFeb = 'February';
-  SLongMonthNameMar = 'March';
-  SLongMonthNameApr = 'April';
-  SLongMonthNameMay = 'May';
-  SLongMonthNameJun = 'June';
-  SLongMonthNameJul = 'July';
-  SLongMonthNameAug = 'August';
-  SLongMonthNameSep = 'September';
-  SLongMonthNameOct = 'October';
-  SLongMonthNameNov = 'November';
-  SLongMonthNameDec = 'December';
+  SLongMonthNameJan = 'January';    {do not localize}
+  SLongMonthNameFeb = 'February';   {do not localize}
+  SLongMonthNameMar = 'March';      {do not localize}
+  SLongMonthNameApr = 'April';      {do not localize}
+  SLongMonthNameMay = 'May';        {do not localize}
+  SLongMonthNameJun = 'June';       {do not localize}
+  SLongMonthNameJul = 'July';       {do not localize}
+  SLongMonthNameAug = 'August';     {do not localize}
+  SLongMonthNameSep = 'September';  {do not localize}
+  SLongMonthNameOct = 'October';    {do not localize}
+  SLongMonthNameNov = 'November';   {do not localize}
+  SLongMonthNameDec = 'December';   {do not localize}
 
-  SShortDayNameSun = 'Sun';
-  SShortDayNameMon = 'Mon';
-  SShortDayNameTue = 'Tue';
-  SShortDayNameWed = 'Wed';
-  SShortDayNameThu = 'Thu';
-  SShortDayNameFri = 'Fri';
-  SShortDayNameSat = 'Sat';
+  SShortDayNameSun = 'Sun';         {do not localize}
+  SShortDayNameMon = 'Mon';         {do not localize}
+  SShortDayNameTue = 'Tue';         {do not localize}
+  SShortDayNameWed = 'Wed';         {do not localize}
+  SShortDayNameThu = 'Thu';         {do not localize}
+  SShortDayNameFri = 'Fri';         {do not localize}
+  SShortDayNameSat = 'Sat';         {do not localize}
 
-  SLongDayNameSun = 'Sunday';
-  SLongDayNameMon = 'Monday';
-  SLongDayNameTue = 'Tuesday';
-  SLongDayNameWed = 'Wednesday';
-  SLongDayNameThu = 'Thursday';
-  SLongDayNameFri = 'Friday';
-  SLongDayNameSat = 'Saturday';
+  SLongDayNameSun = 'Sunday';       {do not localize}
+  SLongDayNameMon = 'Monday';       {do not localize}
+  SLongDayNameTue = 'Tuesday';      {do not localize}
+  SLongDayNameWed = 'Wednesday';    {do not localize}
+  SLongDayNameThu = 'Thursday';     {do not localize}
+  SLongDayNameFri = 'Friday';       {do not localize}
+  SLongDayNameSat = 'Saturday';     {do not localize}
 
   IdDaysInMonth : array[1..IdMonthsInYear] of byte =
     (
@@ -224,7 +225,7 @@ const
     );
 
   IdMonthNames : array[0..IdMonthsInYear] of string =
-    ( '',    {Do not Localize} 
+    ( '',    {Do not Localize}
       SLongMonthNameJan, SLongMonthNameFeb, SLongMonthNameMar,
       SLongMonthNameApr, SLongMonthNameMay, SLongMonthNameJun,
       SLongMonthNameJul, SLongMonthNameAug, SLongMonthNameSep,
@@ -370,8 +371,8 @@ type
     procedure CheckLeapYear;
     procedure SetDateFromISO8601(AString : String);
     procedure SetTimeFromISO8601(AString : String);
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure AddDays(ANumber : UInt32);
     procedure AddHours(ANumber : UInt32);
     procedure AddMilliseconds(ANumber : UInt32);
@@ -530,9 +531,9 @@ end;
 // TIdDateTimeStamp
 ///////////////////
 
-procedure TIdDateTimeStamp.InitComponent;
+constructor TIdDateTimeStamp.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Zero;
   FTimeZone := 0;
 end;
@@ -1093,7 +1094,7 @@ begin
             end;
           end;
         end
-	else if i > 0 then
+        else if i > 0 then
         begin
           // Calender format
           s := Trim(Copy(AString, 1, i - 1));
@@ -1184,7 +1185,7 @@ begin
   try
     SetFromTTimeStamp(LStamp);
   finally
-    FreeAndNil(LStamp);
+    LStamp.Free;
   end;
 end;
 
@@ -1405,7 +1406,7 @@ begin
   try
     SubtractTIdDateTimeStamp(LStamp);
   finally
-    FreeAndNil(LStamp);
+    LStamp.Free;
   end;
 end;
 

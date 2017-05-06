@@ -186,7 +186,7 @@ uses
   Classes,
   IdBaseComponent, IdBuffer, IdGlobal, IdIOHandler, IdIOHandlerSocket,
   IdFiber, IdThreadSafe, IdWorkOpUnit, IdStackConsts, IdWinsock2, IdThread,
-  IdFiberWeaver, IdStream, IdStreamVCL,
+  IdFiberWeaver,
   Windows;
 
 type
@@ -201,13 +201,13 @@ type
     //
     procedure Execute;
     function GetInputBuffer(const AIOHandler: TIdIOHandler): TIdBuffer;
-    procedure InitComponent; override;
     procedure SetIOHandlerOptions(AIOHandler: TIdIOHandlerChain);
     procedure Terminating;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AddWork(AWorkOpUnit: TIdWorkOpUnit);
     procedure BeforeDestruction; override;
-    destructor Destroy; override;
     procedure RemoveSocket(AIOHandler: TIdIOHandlerChain);
     procedure SocketAccepted(AIOHandler: TIdIOHandlerChain);
   end;
@@ -251,7 +251,7 @@ type
     function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean = True;
      ATimeout: Integer = IdTimeoutDefault;
      ARaiseExceptionOnTimeout: Boolean = True): Integer; override;
-    procedure ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
+    procedure ReadStream(AStream: TStream; AByteCount: Int64;
       AReadUntilDisconnect: Boolean);  override;
     // TODO: Allow ReadBuffer to by pass the internal buffer. Will it really
     // help? Only ReadBuffer would be able to use this optimiztion in most
@@ -273,12 +273,12 @@ type
       const AFile: String;
       AEnableTransferFile: Boolean): Int64; override;
 {    procedure Write(
-      AStream: TIdStream;
+      AStream: TStream;
       ASize: Integer = 0;
       AWriteByteCount: Boolean = False);
       override;  }
     procedure Write(
-      AStream: TIdStreamVCL;
+      AStream: TStream;
       ASize: Int64 = 0;
       AWriteByteCount: Boolean = False
       ); override;
@@ -411,14 +411,14 @@ begin
   raise EIdException.Create('Fall through error in ' + ClassName); {do not localize}
 end;
 
-procedure TIdIOHandlerChain.ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
+procedure TIdIOHandlerChain.ReadStream(AStream: TStream; AByteCount: Int64;
       AReadUntilDisconnect: Boolean);
 begin
   if AReadUntilDisconnect then begin
-    QueueAndWait(TIdWorkOpUnitReadUntilDisconnect.Create(AStream.VCLStream), -1
+    QueueAndWait(TIdWorkOpUnitReadUntilDisconnect.Create(AStream), -1
      , True, False);
   end else begin
-    QueueAndWait(TIdWorkOpUnitReadSizedStream.Create(AStream.VCLStream, AByteCount));
+    QueueAndWait(TIdWorkOpUnitReadSizedStream.Create(AStream, AByteCount));
   end;
 end;
 
@@ -481,14 +481,19 @@ function TIdIOHandlerChain.AllData: string;
 var
   LStream: TStringStream;
 begin
-  BeginWork(wmRead); try
+  BeginWork(wmRead);
+  try
     Result := '';
-    LStream := TStringStream.Create(''); try
-      QueueAndWait(TIdWorkOpUnitReadUntilDisconnect.Create(LStream), -1
-       , True, False);
+    LStream := TStringStream.Create('');
+    try
+      QueueAndWait(TIdWorkOpUnitReadUntilDisconnect.Create(LStream), -1, True, False);
       Result := LStream.DataString;
-    finally FreeAndNil(LStream); end;
-  finally EndWork(wmRead); end;
+    finally
+      LStream.Free;
+    end;
+  finally
+    EndWork(wmRead);
+  end;
 end;
 
 function TIdIOHandlerChain.WriteFile(
@@ -505,7 +510,7 @@ begin
       QueueAndWait(LWO,IdTimeoutDefault, false);
     finally
 //      Result := LWO.BytesSent;
-      FreeAndNil(LWO);
+      LWO.Free;
     end;
 //  end else begin
 //    inherited WriteFile(AFile, AEnableTransferFile);
@@ -513,7 +518,7 @@ begin
 end;
 
 procedure TIdIOHandlerChain.Write(
-      AStream: TIdStreamVCL;
+      AStream: TStream;
       ASize: Int64 = 0;
       AWriteByteCount: Boolean = False
       );
@@ -522,26 +527,26 @@ var
   LThisSize: Integer;
 begin
   if ASize < 0 then begin //"-1" All form current position
-    LStart := AStream.VCLStream.Seek(0, soFromCurrent);
-    ASize := AStream.VCLStream.Seek(0, soFromEnd) - LStart;
-    AStream.VCLStream.Seek(LStart, soFromBeginning);
+    LStart := AStream.Seek(0, soFromCurrent);
+    ASize := AStream.Seek(0, soFromEnd) - LStart;
+    AStream.Seek(LStart, soFromBeginning);
   end else if ASize = 0 then begin //"0" ALL
     LStart := 0;
-    ASize := AStream.VCLStream.Seek(0, soFromEnd);
-    AStream.VCLStream.Seek(0, soFromBeginning);
+    ASize := AStream.Seek(0, soFromEnd);
+    AStream.Seek(0, soFromBeginning);
   end else begin //else ">0" ACount bytes
-    LStart := AStream.VCLStream.Seek(0, soFromCurrent);
+    LStart := AStream.Seek(0, soFromCurrent);
   end;
 
   if AWriteByteCount then begin
-  	Write(ASize);
+    Write(ASize);
   end;
 
 //  BeginWork(wmWrite, ASize);
   try
     while ASize > 0 do begin
       LThisSize := Min(128 * 1024, ASize); // 128K blocks
-      QueueAndWait(TIdWorkOpUnitWriteStream.Create(AStream.VCLStream, LStart, LThisSize
+      QueueAndWait(TIdWorkOpUnitWriteStream.Create(AStream, LStart, LThisSize
        , False));
       Dec(ASize, LThisSize);
       Inc(LStart, LThisSize);
@@ -653,6 +658,50 @@ end;
 
 { TIdChainEngine }
 
+constructor TIdChainEngine.Create(AOwner: TComponent);
+begin
+{
+var
+  SysInfo: TSystemInfo;
+  GetSystemInfo(SysInfo);
+  SysInfo.dwNumberOfProcessors
+
+Use GetSystemInfo instead. It will return the all info on the local
+system's architecture and will also return a valid ActiveProcessorMask
+which is a DWORD to be read as a bit array of the processor on the
+system...
+
+CZH> And next
+CZH> question - any one know off hand how to set affinity? :)
+
+Use the SetProcessAffinityMask or SetThreadAffinityMask API depending
+on wether you want to act on the whole process or just a single
+thread (SetThreadIdealProcessor is another way to do it: it just gives
+the scheduler a hint about where to run a thread without forcing it:
+good for keeping two threads doing IO one with each other on the same
+processor).
+}
+  inherited Create(AOwner);
+  if not IsDesignTime then begin
+    // Cant use .Name, its not initialized yet in Create
+    FThread := TIdChainEngineThread.Create(Self, 'Chain Engine'); {do not localize}
+  end;
+  //MS says destruction is automatic, but Google seems to say that this initial
+  //one is not auto managed as MS says, and that CloseHandle should be called.
+  FCompletionPort := CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
+  if FCompletionPort = 0 then begin
+    RaiseLastOSError;
+  end;
+end;
+
+destructor TIdChainEngine.Destroy;
+begin
+  if CloseHandle(FCompletionPort) = False then begin
+    RaiseLastOSError;
+  end;
+  inherited;
+end;
+
 procedure TIdChainEngine.BeforeDestruction;
 begin
   if FThread <> nil then begin
@@ -731,49 +780,6 @@ begin
     AWorkOpUnit.Complete;
   end;
   AWorkOpUnit.Start;
-end;
-
-destructor TIdChainEngine.Destroy;
-begin
-  if CloseHandle(FCompletionPort) = False then begin
-    RaiseLastOSError;
-  end;
-  inherited;
-end;
-
-procedure TIdChainEngine.InitComponent;
-begin
-{
-var SysInfo: TSystemInfo;
-  GetSystemInfo(SysInfo);
-  SysInfo.dwNumberOfProcessors
-
-Use GetSystemInfo instead. It will return the all info on the local
-system's architecture and will also return a valid ActiveProcessorMask
-which is a DWORD to be read as a bit array of the processor on the
-system...
-
-CZH> And next
-CZH> question - any one know off hand how to set affinity? :)
-
-Use the SetProcessAffinityMask or SetThreadAffinityMask API depending
-on wether you want to act on the whole process or just a single
-thread (SetThreadIdealProcessor is another way to do it: it just gives
-the scheduler a hint about where to run a thread without forcing it:
-good for keeping two threads doing IO one with each other on the same
-processor).
-}
-  inherited;
-  if not (csDesigning in ComponentState) then begin
-    // Cant use .Name, its not initialized yet in Create
-    FThread := TIdChainEngineThread.Create(Self, 'Chain Engine'); {do not localize}
-  end;
-  //MS says destruction is automatic, but Google seems to say that this initial
-  //one is not auto managed as MS says, and that CloseHandle should be called.
-  FCompletionPort := CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
-  if FCompletionPort = 0 then begin
-    RaiseLastOSError;
-  end;
 end;
 
 { TIdChainEngineThread }

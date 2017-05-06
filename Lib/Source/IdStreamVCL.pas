@@ -16,7 +16,7 @@
   $Log$
 }
 
-unit IdStreamVCL;
+unit IdStreamVCL deprecated;
 
 interface
 
@@ -33,16 +33,16 @@ type
           const AStream: TStream;
           var VBytes: TIdBytes;
           const ACount: Integer = -1;
-          const AOffset: Integer = 0) : Integer; {$IFDEF DOTNET} static; {$ENDIF}
+          const AOffset: Integer = 0) : Integer deprecated 'Use TStream.Read() or TStream.ReadBuffer()';
     class function Write(
           const AStream: TStream;
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
-          const AOffset: Integer = 0) : Integer; {$IFDEF DOTNET} static; {$ENDIF}
+          const AOffset: Integer = 0) : Integer deprecated 'Use TStream.Write() or TStream.WriteBuffer()';
     class function Seek(
           const AStream: TStream;
-          const AOffset: TIdStreamSize;
-          const AOrigin: TSeekOrigin) : TIdStreamSize; {$IFDEF DOTNET} static; {$ENDIF}
+          const AOffset: Int64;
+          const AOrigin: TSeekOrigin) : Int64 deprecated 'use TStream.Seek()';
   end;
 
 implementation
@@ -100,18 +100,10 @@ begin
   end;
 end;
 
-class function TIdStreamHelperVCL.Seek(const AStream: TStream; const AOffset: TIdStreamSize;
-  const AOrigin: TSeekOrigin): TIdStreamSize;
-{$IFNDEF STREAM_SIZE_64}
-const
-  cOrigins: array[TSeekOrigin] of Word = (soFromBeginning, soFromCurrent, soFromEnd);
-{$ENDIF}
+class function TIdStreamHelperVCL.Seek(const AStream: TStream; const AOffset: Int64;
+  const AOrigin: TSeekOrigin): Int64;
 begin
-  {$IFDEF STREAM_SIZE_64}
   Result := AStream.Seek(AOffset, AOrigin);
-  {$ELSE}
-  Result := AStream.Seek(AOffset, cOrigins[AOrigin]);
-  {$ENDIF}
 end;
 
 end.

@@ -88,9 +88,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdGlobal,
   IdAssignedNumbers, IdGlobalProtocols, IdTCPClient;
 
@@ -106,11 +104,8 @@ type
     //
     function GetDateTimeCard: UInt32;
     function GetDateTime: TDateTime;
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     {This synchronizes the local clock with the Time Server}
     function SyncTime: Boolean;
     {This is the number of seconds since 12:00 AM, 1900 - Jan-1}
@@ -151,16 +146,9 @@ uses
 
 { TIdCustomTime }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdCustomTime.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdCustomTime.InitComponent;
-begin
-  inherited;
   Port := IdPORT_TIME;
   {This indicates that the default date is Jan 1, 1900 which was specified
     by RFC 868.}

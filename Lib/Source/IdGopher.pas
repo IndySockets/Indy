@@ -230,8 +230,8 @@ type
     read until you see EOL+.+EOL}
     Procedure ProcessTextFile ( ADestStream : TStream;
       APreviousData: String = ''; const ExpectedLength: Integer = 0);    {Do not Localize}
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     { Public declarations }
     Function GetMenu (ASelector : String; IsGopherPlus : Boolean = False; AView : String = '' ) :    {Do not Localize}
       TIdGopherMenu;
@@ -255,9 +255,9 @@ uses
 
 { TIdGopher }
 
-procedure TIdGopher.InitComponent;
+constructor TIdGopher.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Port := IdPORT_GOPHER;
 end;
 
@@ -392,11 +392,8 @@ end;
 
 procedure TIdGopher.ProcessTextFile(ADestStream : TStream; APreviousData: String = '';    {Do not Localize}
   const ExpectedLength: Integer = 0);
-var
-  LEnc: IIdTextEncoding;
 begin
-  LEnc := IndyTextEncoding_8Bit;
-  WriteStringToStream(ADestStream, APreviousData, LEnc{$IFDEF STRING_IS_ANSI}, LEnc{$ENDIF});
+  WriteStringToStream(ADestStream, APreviousData, IndyTextEncoding_8Bit);
   BeginWork(wmRead,ExpectedLength);
   try
     IOHandler.Capture(ADestStream, '.', True);    {Do not Localize}
@@ -407,13 +404,10 @@ end;
 
 procedure TIdGopher.ProcessFile ( ADestStream : TStream; APreviousData : String = '';    {Do not Localize}
   const ExpectedLength : Integer = 0);
-var
-  LEnc: IIdTextEncoding;
 begin
   BeginWork(wmRead,ExpectedLength);
   try
-    LEnc := IndyTextEncoding_8Bit;
-    WriteStringToStream(ADestStream, APreviousData, LEnc{$IFDEF STRING_IS_ANSI}, LEnc{$ENDIF});
+    WriteStringToStream(ADestStream, APreviousData, IndyTextEncoding_8Bit);
     IOHandler.ReadStream(ADestStream, -1, True);
     ADestStream.Position := 0;
   finally
@@ -627,8 +621,7 @@ begin
   result := TIdGopherMenuItem( inherited Items [ index ] );
 end;
 
-procedure TIdGopherMenu.SetItem( Index: Integer;
-  const Value: TIdGopherMenuItem );
+procedure TIdGopherMenu.SetItem( Index: Integer; const Value: TIdGopherMenuItem );
 begin
   inherited SetItem ( Index, Value );
 end;
@@ -650,11 +643,11 @@ end;
 
 destructor TIdGopherMenuItem.Destroy;
 begin
-  FreeAndNil ( fAdminEmail );
-  FreeAndNil ( FAsk );
-  FreeAndNil ( FAbstract );
-  FreeAndNil ( FGopherBlock );
-  FreeAndNil ( FViews );
+  fAdminEmail.Free;
+  FAsk.Free;
+  FAbstract.Free;
+  FGopherBlock.Free;
+  FViews.Free;
   inherited Destroy;
 end;
 

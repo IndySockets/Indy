@@ -41,18 +41,19 @@ unit IdQotd;
 {*******************************************************}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-   IdAssignedNumbers,
-   IdTCPClient;
+  Classes, IdAssignedNumbers,
+  IdTCPClient;
 
 type
   TIdQOTD = class(TIdTCPClientCustom)
   protected
     Function GetQuote: String;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     { This is the quote from the server }
     Property Quote: String read GetQuote;
   published
@@ -64,9 +65,9 @@ implementation
 
 { TIdQotd }
 
-procedure TIdQOTD.InitComponent;
+constructor TIdQOTD.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   Port := IdPORT_QOTD;
 end;
 

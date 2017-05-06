@@ -31,7 +31,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdSASL, IdTCPConnection;
+  Classes, IdSASL, IdTCPConnection;
 
 {
 Implements RFC 2245
@@ -43,10 +43,10 @@ type
   TIdSASLAnonymous = class(TIdSASL)
   protected
     FTraceInfo : String;
-    procedure InitComponent; override;
   public
-    function IsReadyToStart: Boolean; override;
+    constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
+    function IsReadyToStart: Boolean; override;
     function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String; override;
   published
@@ -57,9 +57,9 @@ implementation
 
 { TIdSASLAnonymous }
 
-procedure TIdSASLAnonymous.InitComponent;
+constructor TIdSASLAnonymous.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FSecurityLevel := 0;   //broadcast on the evening news and post to every
                          // newsgroup for good measure
 end;

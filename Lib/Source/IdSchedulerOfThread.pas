@@ -127,6 +127,7 @@
 unit IdSchedulerOfThread;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -153,8 +154,8 @@ type
     FThreadPriority: TIdThreadPriority;
     FThreadClass: TIdThreadWithTaskClass;
     //
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function NewThread: TIdThreadWithTask; virtual;
     function NewYarn(AThread: TIdThreadWithTask = nil): TIdYarnOfThread;
@@ -175,6 +176,14 @@ uses
   IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore, SysUtils;
 
 { TIdSchedulerOfThread }
+
+constructor TIdSchedulerOfThread.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FThreadPriority := tpNormal;
+  FMaxThreads := 0;
+  FThreadClass := TIdThreadWithTask;
+end;
 
 destructor TIdSchedulerOfThread.Destroy;
 begin
@@ -232,14 +241,6 @@ begin
 
     IdDisposeAndNil(LYarn);
   end;
-end;
-
-procedure TIdSchedulerOfThread.InitComponent;
-begin
-  inherited InitComponent;
-  FThreadPriority := tpNormal;
-  FMaxThreads := 0;
-  FThreadClass := TIdThreadWithTask;
 end;
 
 { TIdYarnOfThread }

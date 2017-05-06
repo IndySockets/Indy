@@ -79,6 +79,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdComponent, IdGlobal, IdSocketHandle, IdStack,
   {$IFDEF WINDOWS}
   IdWship6,
@@ -107,7 +108,6 @@ type
     function GetBinding: TIdSocketHandle;
     function GetIPVersion: TIdIPVersion;
     //
-    procedure InitComponent; override;
     procedure SetIPVersion(const AValue: TIdIPVersion);
     procedure SetTTL(const Value: Integer);
     procedure SetHost(const AValue : String); virtual;
@@ -122,17 +122,13 @@ type
     property TTL: Integer read FTTL write SetTTL default GFTTL;
 
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1): Integer;
-    procedure Send(const AData: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload; virtual;
+    procedure Send(const AData: string; AByteEncoding: IIdTextEncoding = nil); overload; virtual;
     procedure Send(const AData: TIdBytes); overload;  virtual;
-    procedure Send(const AHost: string; const APort: TIdPort; const AData: string;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload; virtual;
+    procedure Send(const AHost: string; const APort: TIdPort; const AData: string; AByteEncoding: IIdTextEncoding = nil); overload; virtual;
     procedure Send(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; virtual;
     //
     property Binding: TIdSocketHandle read GetBinding;
@@ -149,10 +145,22 @@ uses
 
 { TIdRawBase }
 
+constructor TIdRawBase.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FBinding := TIdSocketHandle.Create(nil);
+  FBinding.IPVersion := Id_IPv4;
+  FPkt := TIdPacketInfo.Create;
+  ReceiveTimeout := GReceiveTimeout;
+  FPort := Id_TIdRawBase_Port;
+  FProtocol := Id_IPPROTO_RAW;
+  FTTL := GFTTL;
+end;
+
 destructor TIdRawBase.Destroy;
 begin
-  FreeAndNil(FBinding);
-  FreeAndNil(FPkt);
+  FBinding.Free;
+  FPkt.Free;
   inherited Destroy;
 end;
 
@@ -165,21 +173,9 @@ begin
     end else
     begin
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
-      {$IFDEF DOTNET}
-        {$IFDEF DOTNET_2_OR_ABOVE}
-      {
-      Microsoft NET Framework 1.1 may actually have the packetinfo option but that
-      will not do you any good because you need a RecvMsg function which is not
-      in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
-      }
-      //indicate we want packet information with RecvMsg calls
-      FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_PKTINFO, 1);
-        {$ENDIF}
-      {$ELSE}
       //indicate we want packet information with RecvMsg WSARecvMsg calls
       FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_PKTINFO, 1);
       FBinding.SetSockOpt(Id_SOL_IPv6, Id_IPV6_HOPLIMIT, 1);
-      {$ENDIF}
     end;
     //set hop limit (or TTL as it was called in IPv4
     FBinding.SetTTL(FTTL);
@@ -236,19 +232,14 @@ begin
 end;
 
 procedure TIdRawBase.Send(const AHost: string; const APort: TIdPort; const AData: string;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 begin
-  Send(AHost, APort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
+  Send(AHost, APort, ToBytes(AData, AByteEncoding));
 end;
 
-procedure TIdRawBase.Send(const AData: string;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdRawBase.Send(const AData: string; AByteEncoding: IIdTextEncoding = nil);
 begin
-  Send(ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
+  Send(ToBytes(AData, AByteEncoding));
 end;
 
 procedure TIdRawBase.Send(const AData: TIdBytes);
@@ -274,18 +265,6 @@ begin
       FBinding.SetTTL(FTTL);
     end;
   end;
-end;
-
-procedure TIdRawBase.InitComponent;
-begin
-  inherited InitComponent;
-  FBinding := TIdSocketHandle.Create(nil);
-  FBinding.IPVersion := Id_IPv4;
-  FPkt := TIdPacketInfo.Create;
-  ReceiveTimeout := GReceiveTimeout;
-  FPort := Id_TIdRawBase_Port;
-  FProtocol := Id_IPPROTO_RAW;
-  FTTL := GFTTL;
 end;
 
 function TIdRawBase.GetIPVersion;

@@ -149,7 +149,7 @@ begin
     LIdx := 0;
     HdrArp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrArp);
+    HdrArp.Free;
   end;
 end;
 
@@ -187,7 +187,7 @@ begin
     LIdx := 0;
     HdrDns.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrDns);
+    HdrDns.Free;
   end;
 end;
 
@@ -221,7 +221,7 @@ begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
-    FreeAndNil(HdrEth);
+    HdrEth.Free;
   end;
 end;
 
@@ -264,7 +264,7 @@ begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
-    FreeANdNil(HdrIp);
+    HdrIp.Free;
   end;
 end;
 
@@ -298,7 +298,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrIcmp);
+    HdrIcmp.Free;
   end;
 end;
 
@@ -364,7 +364,7 @@ begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
-    FreeAndNil(HdrIcmp);
+    HdrIcmp.Free;
   end;
 end;
 
@@ -400,7 +400,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrIcmp);
+    HdrIcmp.Free;
   end;
 end;
 
@@ -436,7 +436,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrIcmp);
+    HdrIcmp.Free;
   end;
 end;
 
@@ -516,7 +516,7 @@ begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
-    FreeAndNil(HdrIcmp);
+    HdrIcmp.Free;
   end;
 end;
 
@@ -550,7 +550,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrIcmp);
+    HdrIcmp.Free;
   end;
 end;
 
@@ -583,7 +583,7 @@ begin
     LIdx := 0;
     HdrIgmp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrIgmp);
+    HdrIgmp.Free;
   end;
 end;
 
@@ -625,7 +625,7 @@ begin
     LIdx := 0;
     HdrRip.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrRip);
+    HdrRip.Free;
   end;
 end;
 
@@ -667,7 +667,7 @@ begin
     LIdx := 0;
     HdrTcp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrTcp);
+    HdrTcp.Free;
   end;
 end;
 
@@ -703,7 +703,7 @@ begin
     LIdx := 0;
     HdrUdp.WriteStruct(VBuffer, LIdx);
   finally
-    FreeAndNil(HdrUdp);
+    HdrUdp.Free;
   end;
 end;
 

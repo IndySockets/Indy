@@ -99,18 +99,10 @@ type
     function GetFullURI(const AOptionalFields: TIdURIOptionalFieldsSet = [ofAuthInfo, ofBookmark]): String;
     function GetPathAndParams: String;
     class procedure NormalizePath(var APath: string);
-    class function URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
-    class function URLEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
-    class function ParamsEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
-    class function PathEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
+    class function URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
+    class function URLEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
+    class function ParamsEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
+    class function PathEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
     //
     property Bookmark : string read FBookmark write FBookMark;
     property Document: string read FDocument write FDocument;
@@ -175,12 +167,6 @@ begin
 
   while i <= Length(APath) do begin
     LChar := APath[i];
-    {$IFDEF STRING_IS_ANSI}
-    if IsLeadChar(LChar) then begin
-      Inc(i, 2);
-      Continue;
-    end;
-    {$ENDIF}
     if (LChar = '?') or (LChar = '#') then begin {Do not Localize}
       // stop normalizing at query/fragment portion of the URL
       Break;
@@ -330,9 +316,7 @@ begin
   Result := GetFullURI([]);
 end;
 
-class function TIdURI.URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+class function TIdURI.URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
 var
   i: Integer;
   ESC: string;
@@ -381,53 +365,35 @@ begin
       end;
     end;
   end;
-  {$IFDEF STRING_IS_ANSI}
-  EnsureEncoding(ADestEncoding, encOSDefault);
-  CheckByteEncoding(LBytes, AByteEncoding, ADestEncoding);
-  SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-  {$ELSE}
   Result := AByteEncoding.GetString(LBytes);
-  {$ENDIF}
 end;
 
-class function TIdURI.ParamsEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+class function TIdURI.ParamsEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
 const
-  UnsafeChars: TIdUnicodeString = '*<>#%"{}|\^[]`';  {do not localize}
+  UnsafeChars: UnicodeString = '*<>#%"{}|\^[]`';  {do not localize}
 var
   I, J, CharLen, ByteLen: Integer;
   Buf: TIdBytes;
-  {$IFDEF STRING_IS_ANSI}
-  LChars: TIdWideChars;
-  {$ENDIF}
   LChar: WideChar;
 begin
   Result := '';    {Do not Localize}
 
   // keep the compiler happy
   Buf := nil;
-  {$IFDEF STRING_IS_ANSI}
-  LChars := nil;
-  {$ENDIF}
 
   if ASrc = '' then begin
     Exit;
   end;
 
   EnsureEncoding(AByteEncoding, encUTF8);
-  {$IFDEF STRING_IS_ANSI}
-  EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
-  {$ENDIF}
 
   // 2 Chars to handle UTF-16 surrogates
   SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
 
   I := 0;
-  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
+  while I < Length(ASrc) do
   begin
-    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+    LChar := ASrc[I+1];
 
     // S.G. 27/11/2002: Changed the parameter encoding: Even in parameters, a space
     // S.G. 27/11/2002: is much more likely to be meaning "space" than "this is
@@ -442,12 +408,8 @@ begin
 
     if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
     begin
-      CharLen := CalcUTF16CharLength(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
-        ); // calculate length including surrogates
-      ByteLen := AByteEncoding.GetBytes(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
-        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+      CharLen := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
+      ByteLen := AByteEncoding.GetBytes(ASrc, I+1, CharLen, Buf, 0); // explicit Unicode->Ansi conversion
       for J := 0 to ByteLen-1 do begin
         Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
       end;
@@ -460,53 +422,37 @@ begin
   end;
 end;
 
-class function TIdURI.PathEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+class function TIdURI.PathEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
 const
   UnsafeChars = '*<>#%"{}|\^[]`+';  {do not localize}
 var
   I, J, CharLen, ByteLen: Integer;
   Buf: TIdBytes;
-  {$IFDEF STRING_IS_ANSI}
-  LChars: TIdWideChars;
-  {$ENDIF}
   LChar: WideChar;
 begin
   Result := '';    {Do not Localize}
 
   // keep the compiler happy
   Buf := nil;
-  {$IFDEF STRING_IS_ANSI}
-  LChars := nil;
-  {$ENDIF}
 
   if ASrc = '' then begin
     Exit;
   end;
 
   EnsureEncoding(AByteEncoding, encUTF8);
-  {$IFDEF STRING_IS_ANSI}
-  EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
-  {$ENDIF}
 
   // 2 Chars to handle UTF-16 surrogates
   SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
 
   I := 0;
-  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
+  while I < Length(ASrc) do
   begin
-    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+    LChar := ASrc[I+1];
 
     if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
     begin
-      CharLen := CalcUTF16CharLength(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
-        ); // calculate length including surrogates
-      ByteLen := AByteEncoding.GetBytes(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
-        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+      CharLen := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
+      ByteLen := AByteEncoding.GetBytes(ASrc, I+1, CharLen, Buf, 0); // explicit Unicode->Ansi conversion
       for J := 0 to ByteLen-1 do begin
         Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
       end;
@@ -519,23 +465,15 @@ begin
   end;
 end;
 
-class function TIdURI.URLEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+class function TIdURI.URLEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil): string;
 var
   LUri: TIdURI;
 begin
   LUri := TIdURI.Create(ASrc);
   try
-    LUri.Path := PathEncode(LUri.Path, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      );
-    LUri.Document := PathEncode(LUri.Document, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      );
-    LUri.Params := ParamsEncode(LUri.Params, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      );
+    LUri.Path := PathEncode(LUri.Path, AByteEncoding);
+    LUri.Document := PathEncode(LUri.Document, AByteEncoding);
+    LUri.Params := ParamsEncode(LUri.Params, AByteEncoding);
     Result := LUri.URI;
   finally
     LUri.Free;

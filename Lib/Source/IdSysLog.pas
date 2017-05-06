@@ -55,14 +55,16 @@ interface
 
 {$i IdCompilerDefines.inc}
 
-uses IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
+uses
+  Classes,
+  IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
 
 type
   TIdSysLog = class(TIdUDPClient)
   protected
     function GetBinding: TIdSocketHandle; override;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure SendLogMessage(const AMsg: TIdSysLogMessage;
       const AAutoTimeStamp: Boolean = true); overload;
     procedure SendLogMessage(const AMsg: String;
@@ -84,22 +86,18 @@ uses
 
 { TIdSysLog }
 
-procedure TIdSysLog.InitComponent;
+constructor TIdSysLog.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Port := IdPORT_syslog;
 end;
 
-
 procedure TIdSysLog.SendLogMessage(const AMsg: TIdSyslogMessage; const AAutoTimeStamp: Boolean = true);
-var
-  LEncoding: IIdTextEncoding;
 begin
   if AAutoTimeStamp then begin
     AMsg.TimeStamp := Now;
   end;
-  LEncoding := IndyTextEncoding_8Bit;
-  Send(AMsg.EncodeMessage, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  Send(AMsg.EncodeMessage, IndyTextEncoding_8Bit);
 end;
 
 
@@ -129,7 +127,7 @@ begin
     LMsg.Severity := ASeverity;
     SendLogMessage(LMsg);
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -159,7 +157,7 @@ begin
     LMsg.Severity := ASeverity;
     SendLogMessage(LMsg);
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 

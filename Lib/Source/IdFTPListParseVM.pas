@@ -162,11 +162,11 @@ begin
     end else begin
       Result := PosInStrArray(Trim(Copy(LData, 19, 3)), VMTypes) <> -1;
       if Result then begin
-        Result := (Copy(LData, 56, 1) = '/') and (Copy(LData, 59, 1) = '/'); {do not localize}
+        Result := CharEquals(LData, 56, '/') and CharEquals(LData, 59, '/'); {do not localize}
         if not Result then begin
-          Result := (Copy(LData, 58, 1) = '-') and (Copy(LData, 61, 1) = '-'); {do not localize}
+          Result := CharEquals(LData, 58, '-') and CharEquals(LData, 61, '-'); {do not localize}
           if not Result then begin
-            Result := (Copy(LData, 48, 1) = '-') and (Copy(LData, 51, 1) = '-'); {do not localize}
+            Result := CharEquals(LData, 48, '-') and CharEquals(LData, 51, '-'); {do not localize}
           end;
         end;
       end;
@@ -272,7 +272,7 @@ AUTHORS            A1 DIR    -      -      -       9/20/99   10:31:11
     LLRecNo := 11;
     LPBkNo := 42;
     LLBkNo := 11;
-    if (Copy(AItem.Data, 48, 1) = '-') and (Copy(AItem.Data, 51, 1) = '-') then begin {do not localize}
+    if CharEquals(AItem.Data, 48, '-') and CharEquals(AItem.Data, 51, '-') then begin {do not localize}
       LPCol := 44;
     end else begin
       LPCol := 54;
@@ -372,7 +372,7 @@ AUTHORS            A1 DIR    -      -      -       9/20/99   10:31:11
       end;
     end;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -428,7 +428,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -495,7 +495,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -518,7 +518,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -581,7 +581,7 @@ begin
     //with reader file sizes when emulating Unix. We can't support file sizes
     //with this.
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;

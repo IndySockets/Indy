@@ -183,7 +183,8 @@ type
     procedure SetOnExecute(const Value: TIdServerThreadEvent);
     function  GetOnDisconnect: TIdServerThreadEvent;
     procedure SetOnDisconnect(const Value: TIdServerThreadEvent);
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property  OnBeforeConnect: TIdServerThreadEvent read FOnBeforeConnect write FOnBeforeConnect;
     property  MappedHost: String read FMappedHost write FMappedHost;
@@ -205,9 +206,9 @@ uses
   IdException,
   IdIOHandler, IdIOHandlerSocket, IdResourceStrings,IdStackConsts, IdTCPClient;
 
-procedure TIdMappedPortTCP.InitComponent;
+constructor TIdMappedPortTCP.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FContextClass := TIdMappedPortContext;
 end;
 
@@ -351,9 +352,9 @@ end;
 
 destructor TIdMappedPortContext.Destroy;
 begin
-  FreeAndNil(FOutboundClient);
-  FreeAndNIL(FReadList);
-  FreeAndNIL(FDataAvailList);
+  FOutboundClient.Free;
+  FReadList.Free;
+  FDataAvailList.Free;
   inherited Destroy;
 end;
 

@@ -6,9 +6,8 @@ interface
 
 uses
   IdGlobal,
-  IdStruct
-  {$IFNDEF DOTNET}, IdCTypes, IdSSLOpenSSLHeaders{$ENDIF}
-  ;
+  IdStruct,
+  IdCTypes, IdSSLOpenSSLHeaders;
 
 type
   ProtocolArray = array [ 1.. 8] of TIdAnsiChar;
@@ -137,7 +136,7 @@ function BuildType3Msg(const ADomain, AHost, AUsername, APassword : String;
 {
 function BuildType1Message( ADomain, AHost: String; const AEncodeMsg : Boolean = True): String;
 procedure ReadType2Message(const AMsg : String; var VNonce : nonceArray; var Flags : UInt32);
-function BuildType3Message( ADomain, AHost, AUsername: TIdUnicodeString; APassword : String; AServerNonce : nonceArray): String;
+function BuildType3Message( ADomain, AHost, AUsername: UnicodeString; APassword : String; AServerNonce : nonceArray): String;
  }
 
 function NTLMFunctionsLoaded : Boolean;
@@ -150,7 +149,6 @@ function DumpFlags(const AFlags : UInt32): String; overload;
 function LoadRC4 : Boolean;
 function RC4FunctionsLoaded : Boolean;
 
-{$IFNDEF DOTNET}
 //const char *RC4_options(void);
 var
   GRC4_Options : function () : PIdAnsiChar; cdecl = nil;
@@ -159,30 +157,21 @@ var
 //void RC4(RC4_KEY *key, unsigned long len, const unsigned char *indata,
 //		unsigned char *outdata);
   GRC4 : procedure (key : PRC4_KEY; len : TIdC_ULONG; indata, outdata : PIdAnsiChar) ; cdecl = nil;
-{$ENDIF}
 
 implementation
 
 uses
   SysUtils,
-   {$IFDEF USE_VCL_POSIX}
+  {$IFDEF USE_VCL_POSIX}
   PosixTime,
-   {$ENDIF}
-  {$IFDEF DOTNET}
-  Classes,
-  System.Runtime.InteropServices,
-  System.Runtime.InteropServices.ComTypes,
-  System.Security.Cryptography,
-  System.Text,
-  {$ELSE}
-    {$IFDEF FPC}
+  {$ENDIF}
+  {$IFDEF FPC}
   DynLibs,  // better add DynLibs only for fpc
-    {$ENDIF}
-    {$IFDEF WINDOWS}
-    //Windows should really not be included but this protocol does use
-    //some windows internals and is Windows-based.
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+  //Windows should really not be included but this protocol does use
+  //some windows internals and is Windows-based.
   Windows,
-    {$ENDIF}
   {$ENDIF}
   IdFIPS,
   IdGlobalProtocols,
@@ -192,12 +181,8 @@ uses
   IdCoderMIME;
 
 const
-{$IFDEF DOTNET}
-  MAGIC : array [ 0.. 7] of byte = ( $4b, $47, $53, $21, $40, $23, $24, $25);
-{$ELSE}
   Magic: des_cblock = ( $4B, $47, $53, $21, $40, $23, $24, $25 );
   Magic_const : array [0..7] of byte = ( $4b, $47, $53, $21, $40, $23, $24, $25 );
-{$ENDIF}
   TYPE1_MARKER = 1;
   TYPE2_MARGER = 2;
   TYPE3_MARKER = 3;
@@ -205,16 +190,15 @@ const
 //const
 //  NUL_USER_SESSION_KEY : TIdBytes[0..15] = ($00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00);
 
-{$IFNDEF DOTNET}
 type
   Pdes_key_schedule = ^des_key_schedule;
+
   {$IFNDEF WINDOWS}
   FILETIME = record
     dwLowDateTime : UInt32;
     dwHighDateTime : UInt32;
   end;
   {$ENDIF}
-{$ENDIF}
 
 function NulUserSessionKey : TIdBytes;
 begin
@@ -224,84 +208,62 @@ end;
 
 //misc routines that might be helpful in some other places
 //===================
-{$IFDEF DOTNET}
-function Int64ToFileTime(const AInt64 : Int64) : System.Runtime.InteropServices.ComTypes.FILETIME;
-var
-  LBytes : TIdBytes;
-begin
-  LBytes := BitConverter.GetBytes(AInt64);
-  Result.dwLowDateTime := BitConverter.ToInt32(Lbytes, 0);
-  Result.dwHighDateTime := BitConverter.ToInt32(Lbytes, 4);
-end;
-
-function UnixTimeToFileTime(const AUnixTime : UInt32) : System.Runtime.InteropServices.ComTypes.FILETIME;
-{$ELSE}
 {
 We do things this way because in Win64, FILETIME may not be a simple typecast
 of Int64.  It might be a two dword record that's aligned on an 8-byte
 boundery.
 }
-{$UNDEF USE_FILETIME_TYPECAST}
-{$IFDEF WINCE}
-  {$DEFINE USE_FILETIME_TYPECAST}
-{$ENDIF}
-{$IFDEF WIN32}
-  {$DEFINE USE_FILETIME_TYPECAST}
-{$ENDIF}
 
 function UnixTimeToFileTime(const AUnixTime : UInt32) : FILETIME;
 var
   i : Int64;
-{$ENDIF}
 begin
-  {$IFDEF DOTNET}
-  Result := Int64ToFileTime((AUnixTime + 11644473600) * 10000000);
-  {$ELSE}
-  i := (AUnixTime + 11644473600) * 10000000;
-    {$IFDEF USE_FILETIME_TYPECAST}
+  i := (Int64(AUnixTime) + 11644473600) * 10000000;
+  {$IF DEFINED(WIN32) OR DEFINED(WINCE)}
   Result := FILETIME(i);
-    {$ELSE}
+  {$ELSE}
   Result.dwLowDateTime := i and $FFFFFFFF;
   Result.dwHighDateTime := i shr 32;
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 end;
 
 function NowAsFileTime : FILETIME;
-{$IFDEF DOTNET}
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
-
-{$IFDEF UNIX}
-  {$IFNDEF USE_VCL_POSIX}
+{$IF DEFINED(UNIX) AND (NOT DEFINED(USE_VCL_POSIX))}
 var
   TheTms: tms;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 begin
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
+
     {$IFDEF WINCE}
     // TODO
+  {$message error NowAsFileTime is not implemented on this platform)
+  Result := FILETIME(0);
     {$ELSE}
   Windows.GetSystemTimeAsFileTime(Result);
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF UNIX}
-    {$IFDEF USE_VCL_BASEUNIX}
+
+  {$ELSEIF DEFINED(UNIX)}
+
+    {$IF DEFINED(USE_BASEUNIX)}
   Result := UnixTimeToFileTime( fptimes (TheTms));
-    {$ENDIF}
-  //Is the following correct?
-    {$IFDEF KYLIXCOMPAT}
+    {$ELSEIF DEFINED(KYLIXCOMPAT)}
   Result := UnixTimeToFileTime(Times(TheTms));
-     {$ENDIF}
-      {$IFDEF USE_VCL_POSIX}
+    {$ELSEIF DEFINED(USE_VCL_POSIX)}
   Result := UnixTimeToFileTime(PosixTime.time(nil));
-      {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-   Result := Int64ToFileTime(DateTime.Now.ToFileTimeUtc);
- // Result := System.DateTime.Now.Ticks;
-  {$ENDIF}
+    {$ELSE}
+  {$message error time is not called on this platform)
+  Result.dwLowDateTime := 0;
+  Result.dwHighDateTime := 0;
+    {$IFEND}
+
+  {$ELSE}
+
+  {$message error NowAsFileTime is not implemented on this platform)
+  Result.dwLowDateTime := 0;
+  Result.dwHighDateTime := 0;
+
+  {$IFEND}
 end;
 
 function ConcateBytes(const A1, A2 : TIdBytes) : TIdBytes;
@@ -466,57 +428,6 @@ begin
   end;
 end;
 
-{$IFDEF DOTNET}
-const
-  DES_ODD_PARITY : array[ 0.. 255] of byte =
-    ( 1,   1,   2,   2,   4,   4,   7,   7,   8,   8,  11,  11,  13,  13,  14, 14,
-     16,  16,  19,  19,  21,  21,  22,  22,  25,  25,  26,  26,  28,  28,  31,  31,
-     32,  32,  35,  35,  37,  37,  38,  38,  41,  41,  42,  42,  44,  44,  47,  47,
-     49,  49,  50,  50,  52,  52,  55,  55,  56,  56,  59,  59,  61,  61,  62,  62,
-     64,  64,  67,  67,  69,  69,  70,  70,  73,  73,  74,  74,  76,  76,  79,  79,
-     81,  81,  82,  82,  84,  84,  87,  87,  88,  88,  91,  91,  93,  93,  94,  94,
-     97,  97,  98,  98, 100, 100, 103, 103, 104, 104, 107, 107, 109, 109, 110, 110,
-    112, 112, 115, 115, 117, 117, 118, 118, 121, 121, 122, 122, 124, 124, 127, 127,
-    128, 128, 131, 131, 133, 133, 134, 134, 137, 137, 138, 138, 140, 140, 143, 143,
-    145, 145, 146, 146, 148, 148, 151, 151, 152, 152, 155, 155, 157, 157, 158, 158,
-    161, 161, 162, 162, 164, 164, 167, 167, 168, 168, 171, 171, 173, 173, 174, 174,
-    176, 176, 179, 179, 181, 181, 182, 182, 185, 185, 186, 186, 188, 188, 191, 191,
-    193, 193, 194, 194, 196, 196, 199, 199, 200, 200, 203, 203, 205, 205, 206, 206,
-    208, 208, 211, 211, 213, 213, 214, 214, 217, 217, 218, 218, 220, 220, 223, 223,
-    224, 224, 227, 227, 229, 229, 230, 230, 233, 233, 234, 234, 236, 236, 239, 239,
-    241, 241, 242, 242, 244, 244, 247, 247, 248, 248, 251, 251, 253, 253, 254, 254);
-
-{
-IMPORTANT!!!
-
-In the NET framework, the DES API will not accept a weak key.  Unfortunately,
-in NTLM's LM password, if a password is less than 8 charactors, the second key
-is weak.  This is one flaw in that protocol.
-
-To workaround this, we use a precalculated key of zeros with the parity bit set
-and encrypt the MAGIC value with it.  The Mono framework also does this.
-}
-const
-  MAGIC_NUL_KEY : array [ 0.. 7] of byte = ($AA,$D3,$B4,$35,$B5,$14,$04,$EE);
-
-{barrowed from OpenSSL source-code - crypto/des/set_key.c 0.9.8g}
-{
-I barrowed it since it seems to work better than the NTLM sample code and because
-Microsoft.NET does not have this functionality when it really should have it.
-}
-
-procedure SetDesKeyOddParity(var VKey : TIdBytes);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-var
-  i, l : Integer;
-begin
-  l := Length( VKey);
-  for i := 0 to l - 1 do begin
-    VKey[ i] := DES_ODD_PARITY[ VKey[ i]];
-  end;
-end;
-{$ENDIF}
-
 procedure GetDomain(const AUserName : String; var VUserName, VDomain : String);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
@@ -546,16 +457,6 @@ user@DOMAIN
      end;
    end;
 end;
-
-{$IFDEF DOTNET}
-
-function NTLMFunctionsLoaded : Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := True;
-end;
-
-{$ELSE}
 
 function NTLMFunctionsLoaded : Boolean;
 begin
@@ -587,7 +488,6 @@ begin
      Assigned(GRC4_set_key) and
      Assigned(GRC4);
 end;
-{$ENDIF}
 
 //* create NT hashed password */
 function NTOWFv1(const APassword : String): TIdBytes;
@@ -608,7 +508,6 @@ begin
   {$ENDIF}
 end;
 
-{$IFNDEF DOTNET}
 {/*
  * turns a 56 bit key into the 64 bit, odd parity key and sets the key.
  * The key schedule ks is also set.
@@ -766,108 +665,6 @@ begin
   DESL(pdes_cblock( @nt_hpw[1]), nonce, Pdes_key_schedule( @Result[ 0]));
 end;    }
 
-{$ELSE}
-
-
-procedure setup_des_key(const Akey_56: TIdBytes; out Key : TIdBytes; const AIndex : Integer = 0);
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  SetLength( key, 8);
-  key[0] := Akey_56[ AIndex];
-  key[1] := (( Akey_56[ AIndex] SHL 7) and $FF) or (Akey_56[ AIndex + 1] SHR 1);
-  key[2] := (( Akey_56[ AIndex + 1] SHL 6) and $FF) or (Akey_56[ AIndex + 2] SHR 2);
-  key[3] := (( Akey_56[ AIndex + 2] SHL 5) and $FF) or (Akey_56[ AIndex + 3] SHR 3);
-  key[4] := (( Akey_56[ AIndex + 3] SHL 4) and $FF) or (Akey_56[ AIndex + 4] SHR 4);
-  key[5] := (( Akey_56[ AIndex + 4] SHL 3) and $FF) or (Akey_56[ AIndex + 5] SHR 5);
-  key[6] := (( Akey_56[ AIndex + 5] SHL 2) and $FF) or (Akey_56[ AIndex + 6] SHR 6);
-  key[7] :=  ( AKey_56[ AIndex + 6] SHL 1) and $FF;
-  SetDesKeyOddParity( Key);
-end;
-
-
-
-procedure DESL(const Akeys: TIdBytes; const AServerNonce: TIdBytes; out results: TIdBytes);
-var
-  LKey : TIdBytes;
-  LDes : System.Security.Cryptography.DES;
-  LEnc : ICryptoTransform;
-begin
-  SetLength( Results, 24);
-  SetLength( LKey, 8);
-  LDes := DESCryptoServiceProvider.Create;
-  LDes.Mode := CipherMode.ECB;
-  LDes.Padding := PaddingMode.None;
-  setup_des_key( AKeys, LKey, 0);
-  LDes.Key := LKey;
-  LEnc := LDes.CreateEncryptor;
-  LEnc.TransformBlock( AServerNonce, 0, 8, Results, 0);
-  setup_des_key( AKeys, LKey, 7);
-  LDes.Key := LKey;
-  LEnc := LDes.CreateEncryptor;
-  LEnc.TransformBlock( AServerNonce, 0, 8, Results, 8);
-
-  setup_des_key(AKeys,LKey,14);
-  LDes.Key := LKey;
-  LEnc := LDes.CreateEncryptor;
-  LEnc.TransformBlock( AServerNonce, 0, 8, Results, 16);
-end;
-
-function SetupLMResponse(const APassword : String; AServerNonce : TIdBytes): TIdBytes;
-var
-  lm_hpw : TIdBytes; //array[1..21] of Char;
-  lm_pw : TIdBytes; //array[1..21] of Char;
-  LDes : System.Security.Cryptography.DES;
-  LEnc : ICryptoTransform;
-  LKey : TIdBytes;
-begin
-  SetLength( lm_hpw,21);
-  FillBytes( lm_hpw, 14, 0);
-  SetLength( lm_pw, 21);
-  FillBytes( lm_pw, 14, 0);
-  CopyTIdString( UpperCase( APassword), lm_pw, 0, 14);
-  LDes := DESCryptoServiceProvider.Create;
-  LDes.Mode := CipherMode.ECB;
-  LDes.Padding := PaddingMode.None;
-  setup_des_key( lm_pw, LKey, 0);
-  LDes.BlockSize := 64;
-  LDes.Key := LKey;
-  LEnc := LDes.CreateEncryptor;
-  LEnc.TransformBlock( MAGIC, 0, 8, lm_hpw, 0);
-  setup_des_key( lm_pw, LKey,7);
-  if Length( APassword) > 7 then begin
-    LDes.Key := LKey;
-    LEnc := LDes.CreateEncryptor;
-    LEnc.TransformBlock( MAGIC, 0, 8, lm_hpw, 8);
-  end else begin
-    CopyTIdBytes( MAGIC_NUL_KEY, 0, lm_hpw, 8, 8);
-  end;
-  DESL( lm_hpw, nonce, Result);
-end;
-
-function CreateNTLMResponse(const APassword : String; const nonce : TIdBytes): TIdBytes;
-var
-  nt_pw : TIdBytes;
-  nt_hpw : TIdBytes; //array [1..21] of Char;
-  nt_hpw128 : TIdBytes;
-begin
-  CheckMD4Permitted;
-  nt_pw := System.Text.Encoding.Unicode.GetBytes( APassword);
-  with TIdHashMessageDigest4.Create do try
-    nt_hpw128 := HashString( nt_pw);
-  finally
-    Free;
-  end;
-  SetLength( nt_hpw, 21);
-  FillBytes( nt_hpw, 21, 0);
-  CopyTIdBytes( nt_hpw128, 0, nt_hpw, 0, 16);
-  // done in DESL
-  //SetLength( nt_resp, 24);
-  DESL( nt_hpw,nonce, Result);
-end;
-
-{$ENDIF}
-
-
 procedure AddUInt16(var VBytes: TIdBytes; const AWord : UInt16);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
@@ -896,11 +693,11 @@ begin
   {$IFDEF ENDIAN_LITTLE}
   IdGlobal.CopyTIdInt64(AInt64,LBytes,0);
   {$ELSE}
-    //done this way since we need this in little endian byte-order
-  CopyTIdUInt32(HostToLittleEndian(Lo( AInt64)));
-  CopyTIdUInt32(HostToLittleEndian(Hi( AInt64)));
+  //done this way since we need this in little endian byte-order
+  CopyTIdUInt32(HostToLittleEndian(Lo(AInt64)));
+  CopyTIdUInt32(HostToLittleEndian(Hi(AInt64)));
   {$ENDIF}
-  AppendBytes( VBytes,LBytes);
+  AppendBytes(VBytes, LBytes);
 end;
 
 {
@@ -949,12 +746,7 @@ begin
   end;
 end;
 
-{$IFDEF DOTNET}
-function MakeBlob(const ANTLMTimeStamp :  System.Runtime.InteropServices.ComTypes.FileTime;
- const ATargetInfo : TIdBytes;const cnonce : TIdBytes) : TIdBytes;
-{$ELSE}
 function MakeBlob(const ANTLMTimeStamp : FILETIME; const ATargetInfo : TIdBytes;const cnonce : TIdBytes) : TIdBytes;
-{$ENDIF}
 begin
   SetLength(Result,0);
 
@@ -1202,13 +994,9 @@ begin
   FillBytes( LPassHash,21, 0);
   LTmp := NTOWFv1(APassword);
   IdGlobal.CopyTIdBytes(LTmp,0,LPassHash,0,Length(LTmp));
-  {$IFNDEF DOTNET}
   SetLength(Result,24);
   DESL( LPassHash,lntlmseshash, Result);
  // DESL(PDes_cblock(@LPassHash[0]), lntlmseshash, Pdes_key_schedule(@Result[0]));
-   {$ELSE}
-  DESL( LPassHash,ntlmseshash, Result);
-  {$ENDIF}
 end;
 
 //Todo:  This does not match the results from
@@ -1567,16 +1355,6 @@ const
   $61,$00,$69,$00,$6e,$00,$2e,$00,
   $63,$00,$6f,$00,$6d,$00,$00,$00,
   $00,$00);
-
-{function StrToHex(const AStr : AnsiString) : AnsiString;
-var
-  i : Integer;
-begin
-  Result := '';
-  for i := 1 to Length(AStr) do begin
-    Result := Result + IntToHex(Ord(AStr[i]),2)+ ' ';
-  end;
-end;  }
 
 function BytesToHex(const ABytes : array of byte) : String;
 var

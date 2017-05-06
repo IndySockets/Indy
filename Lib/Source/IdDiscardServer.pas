@@ -59,9 +59,11 @@ Original Author: Ozz Nixon
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -70,7 +72,8 @@ Type
   TIdDISCARDServer = class ( TIdCustomTCPServer )
   protected
     function DoExecute(AContext:TIdContext ): Boolean; override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_DISCARD;
   end;
@@ -80,9 +83,9 @@ implementation
 uses
   IdGlobal;
 
-procedure TIdDISCARDServer.InitComponent;
+constructor TIdDISCARDServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_DISCARD;
 end;
 
@@ -90,6 +93,7 @@ function TIdDISCARDServer.DoExecute(AContext:TIdContext): Boolean;
 begin
   Result := True;
   // Discard it
+  // TODO: use IOHandler.DiscardAll() instead?
   AContext.Connection.IOHandler.CheckForDataOnSource;
   AContext.Connection.IOHandler.InputBuffer.Clear;
 end;

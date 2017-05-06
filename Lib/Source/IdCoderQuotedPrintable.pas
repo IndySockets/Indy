@@ -109,7 +109,6 @@ interface
 uses
   Classes,
   IdCoder,
-  IdStream,
   SysUtils;
 
 type
@@ -186,15 +185,16 @@ var
 
   procedure WriteByte(AValue: Byte; AWriteEOL: Boolean);
   var
-    LTemp: TIdBytes;
+    LTemp: array[0..2] of Byte;
+    LLen: Integer;
   begin
-    SetLength(LTemp, iif(AWriteEOL, 3, 1));
+    LLen := iif(AWriteEOL, 3, 1);
     LTemp[0] := AValue;
     if AWriteEOL then begin
       LTemp[1] := Ord(CR);
       LTemp[2] := Ord(LF);
     end;
-    TIdStreamHelper.Write(FStream, LTemp);
+    FStream.WriteBuffer(LTemp, LLen);
   end;
 
 begin
@@ -203,7 +203,7 @@ begin
     Exit;
   end;
   SetLength(LBuffer, LBufferLen);
-  TIdStreamHelper.ReadBytes(ASrcStream, LBuffer, LBufferLen);
+  ASrcStream.ReadBuffer(LBuffer[0], LBufferLen);
   { when decoding a Quoted-Printable body, any trailing
   white space on a line must be deleted, - RFC 1521}
   LBuffer := TrimRightWhiteSpace(LBuffer);
@@ -213,12 +213,12 @@ begin
     LPos := ByteIndex(Ord('='), LBuffer, LBufferIndex);
     if LPos = -1 then begin
       if Assigned(FStream) then begin
-        TIdStreamHelper.Write(FStream, LBuffer, -1, LBufferIndex);
+        FStream.WriteBuffer(LBuffer[LBufferIndex], Length(LBuffer)-LBufferIndex);
       end;
       Break;
     end;
     if Assigned(FStream) then begin
-      TIdStreamHelper.Write(FStream, LBuffer, LPos-LBufferIndex, LBufferIndex);
+      FStream.WriteBuffer(LBuffer[LBufferIndex], LPos-LBufferIndex);
     end;
     LBufferIndex := LPos+1;
     // process any following hexidecimal representation
@@ -277,7 +277,7 @@ const
   // Rule #2, #3
 var
   I, CurrentLen: Integer;
-  LSourceSize: TIdStreamSize;
+  LSourceSize: Int64;
   S, SourceLine: String;
   LEncoding: IIdTextEncoding;
 begin
@@ -286,7 +286,7 @@ begin
   if ASrcStream.Position < LSourceSize then begin
     LEncoding := IndyTextEncoding_8Bit;
     repeat
-      SourceLine := ReadLnFromStream(ASrcStream, -1, False, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      SourceLine := ReadLnFromStream(ASrcStream, -1, False, LEncoding);
       CurrentLen := 0;
       for I := 1 to Length(SourceLine) do begin
         if not CharIsInSet(SourceLine, I, SafeChars) then

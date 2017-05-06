@@ -61,6 +61,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -73,8 +74,9 @@ Type
     FOnCommandFinger : TIdFingerGetEvent;
     FOnCommandVerboseFinger : TIdFingerGetEvent;
     //
-    function DoExecute(AContext:TIdContext): boolean; override;
-    procedure InitComponent; override;
+    function DoExecute(AContext: TIdContext): boolean; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     {This event fires when you make a regular querry}
     property OnCommandFinger: TIdFingerGetEvent read FOnCommandFinger
@@ -90,14 +92,14 @@ implementation
 uses
   IdGlobal, SysUtils;
 
-procedure TIdFingerServer.InitComponent;
+constructor TIdFingerServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_FINGER;
 end;
 
 function TIdFingerServer.DoExecute(AContext:TIdContext): boolean;
-Var
+var
   s, LResponse: String;
 begin
   Result := True;

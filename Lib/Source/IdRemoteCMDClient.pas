@@ -50,13 +50,14 @@ unit IdRemoteCMDClient;
   Author J. Peter Mugaas
   Based partly on code authored by Laurence LIew
   2001-February-15
-}              
+}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  IdException,  IdTCPClient;
+  Classes, IdException, IdTCPClient;
 
 const
   IDRemoteUseStdErr = True;
@@ -74,9 +75,8 @@ type
     FErrorReply : Boolean;
     //
     function InternalExec(AParam1, AParam2, ACommand : String) : String; virtual;
-    procedure InitComponent; override;
   public
-    destructor Destroy; override;
+    constructor Create(AOwner: TComponent); override;
     Function Execute(ACommand: String): String; virtual;
     property ErrorReply : Boolean read FErrorReply;
     property ErrorMessage : String read FErrorMessage;
@@ -102,16 +102,11 @@ type
 
 { TIdRemoteCMDClient }
 
-procedure TIdRemoteCMDClient.InitComponent;
+constructor TIdRemoteCMDClient.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FUseReservedPorts := IDRemoteFixPort;
   FUseStdError := IDRemoteUseStdErr;
-end;
-
-destructor TIdRemoteCMDClient.Destroy;
-begin
-  inherited;
 end;
 
 function TIdRemoteCMDClient.Execute(ACommand: String): String;
@@ -176,10 +171,10 @@ begin
             thr.WaitFor;
           end;
         finally
-          FreeAndNil(thr);
+          thr.Free;
         end;
       finally
-        FreeAndNil(StdErr);
+        StdErr.Free;
       end;
     end else
     begin

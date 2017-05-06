@@ -183,9 +183,9 @@ begin
     DisconectAllUsers; // disconnects service threads
   end;
 
-  FreeAndNil(Clients);
-  FreeAndNil(OnlyOneThread);
-  FreeAndNil(StatisticsLocker);
+  Clients.Free;
+  OnlyOneThread.Free;
+  StatisticsLocker.Free;
 
   inherited Destroy;
 end;
@@ -459,7 +459,7 @@ begin
             // because more data could arrive before client
             // connects asyncroneusly
             try
-              clientThread := MClientThread.Create(self);
+              clientThread := MClientThread.Create(Self);
               try
                 ErrorConnecting := False;
                 with clientThread do begin

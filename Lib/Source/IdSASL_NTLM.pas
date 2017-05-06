@@ -5,6 +5,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdGlobal,
   IdSASL,
   IdSASLUserPass;
@@ -17,8 +18,8 @@ type
   protected
     FDomain : String;
     FLMCompatibility : UInt32;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
     function TryStartAuthenticate(const AHost, AProtocolName: string; var VInitialResponse: string): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName:string) : String; override;
@@ -53,10 +54,16 @@ implementation
 
 uses
   IdFIPS, IdNTLMv2;
-  
+
 //uses IdNTLM;
 
 { TIdSASLNTLM }
+
+constructor TIdSASLNTLM.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Self.FLMCompatibility := DEF_LMCompatibility;
+end;
 
 function TIdSASLNTLM.ContinueAuthenticate(const ALastResponse, AHost,
   AProtocolName: String): string;
@@ -66,10 +73,8 @@ var
   LTargetName, LTargetInfo : TIdBytes;
   LFlags : UInt32;
   LDomain, LUserName : String;
-  LEncoding: IIdTextEncoding;
 begin
-  LEncoding := IndyTextEncoding_8Bit;
-  LMsg := ToBytes(ALastResponse, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  LMsg := ToBytes(ALastResponse, IndyTextEncoding_8Bit);
   IdNTLMv2.ReadType2Msg(LMsg, LFlags, LTargetName, LTargetInfo, LNonce);
   IdGlobal.DebugOutput('Type 2 Flags = '+ DumpFlags(LFlags));
   GetDomain(GetUsername, LUsername, LDomain);
@@ -77,16 +82,9 @@ begin
     LFlags, LNonce, LTargetName, LTargetInfo, FLMCompatibility) );
 end;
 
-procedure TIdSASLNTLM.InitComponent;
-begin
-  inherited InitComponent;
-  Self.FLMCompatibility := DEF_LMCompatibility;
-end;
-
 function TIdSASLNTLM.IsReadyToStart: Boolean;
 begin
-  Result := (not GetFIPSMode) and (inherited IsReadyToStart) and
-     NTLMFunctionsLoaded;
+  Result := (not GetFIPSMode) and (inherited IsReadyToStart) and NTLMFunctionsLoaded;
 end;
 
 class function TIdSASLNTLM.ServiceName: TIdSASLServiceName;

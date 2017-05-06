@@ -47,6 +47,7 @@
 unit IdServerIOHandler;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses

@@ -105,7 +105,7 @@ end;
 
 destructor TIdHMAC.Destroy;
 begin
-  FreeAndNil(FHash);
+  FHash.Free;
   inherited Destroy;
 end;
 

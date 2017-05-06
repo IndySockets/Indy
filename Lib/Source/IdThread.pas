@@ -158,20 +158,12 @@ interface
 // This problem was fixed in TThread in RAD Studio XE6.
 //
 
-{$UNDEF PLATFORM_CLEANUP_NEEDED}
-
-{$IFDEF DCC}
-  {$IFNDEF VCL_XE6_OR_ABOVE}
-    {$IFDEF MACOS}
-      {$DEFINE PLATFORM_CLEANUP_NEEDED}
-    {$ENDIF MACOS}
-    {$IFDEF ANDROID}
-      {$DEFINE PLATFORM_CLEANUP_NEEDED}
-    {$ENDIF}
-  {$ENDIF}
+{$IF DEFINED(DCC) AND (NOT DEFINED(DCC_XE6_OR_ABOVE)) AND (DEFINED(MACOS) OR DEFINED(ANDROID))}
+  {$DEFINE PLATFORM_CLEANUP_NEEDED}
 {$ELSE}
-// TODO: Does this need to be applied to FreePascal?
-{$ENDIF}
+  // TODO: Does this need to be applied to FreePascal?
+  {$UNDEF PLATFORM_CLEANUP_NEEDED}
+{$IFEND}
 
 uses
   Classes,
@@ -220,11 +212,9 @@ type
     FOnException: TIdExceptionThreadEvent;
     FOnStopped: TIdNotifyThreadEvent;
     //
-    {$IFDEF PLATFORM_CLEANUP_NEEDED}
-      {$IFDEF MACOS}
+    {$IF DEFINED(PLATFORM_CLEANUP_NEEDED) AND DEFINED(MACOS)}
     FObjCPool: Pointer;
-      {$ENDIF}
-    {$ENDIF}
+    {$IFEND}
     procedure AfterRun; virtual; //3* not abstract - otherwise it is required
     procedure AfterExecute; virtual;//5 not abstract - otherwise it is required
     procedure BeforeExecute; virtual;//1 not abstract - otherwise it is required
@@ -304,27 +294,22 @@ type
   TIdThreadWithTaskClass = class of TIdThreadWithTask;
 
 var
-  // GThreadCount shoudl be in implementation as it is not needed outside of
+  // GThreadCount should be in implementation as it is not needed outside of
   // this unit. However with D8, GThreadCount will be deallocated before the
-  // finalization can run and thus when the finalizaiton accesses GThreadCount
+  // finalization can run and thus when the finalization accesses GThreadCount
   // in TerminateAll an error occurs. Moving this declaration to the interface
   // "fixes" it.
-  GThreadCount: TIdThreadSafeInteger = nil;
+  GThreadCount: TIdThreadSafeInt32 = nil;
 
 implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.SyncObjs,
   {$ENDIF}
   {$IFDEF PLATFORM_CLEANUP_NEEDED}
@@ -382,16 +367,14 @@ begin
   // RLebeau - no need to put this inside the try blocks below as it
   // already uses its own try..except block internally
   if Name = '' then begin
-    Name := 'IdThread (unknown)';
+    Name := 'IdThread (unknown)';   {do not localize}
   end;
   SetThreadName(Name);
 
-  {$IFDEF PLATFORM_CLEANUP_NEEDED}
-    {$IFDEF MACOS}
+  {$IF DEFINED(PLATFORM_CLEANUP_NEEDED) AND DEFINED(MACOS)}
   // Register the auto release pool
-  FObjCPool := objc_msgSend(objc_msgSend(objc_getClass('NSAutoreleasePool'), sel_getUid('alloc')), sel_getUid('init'));
-    {$ENDIF MACOS}
-  {$ENDIF}
+  FObjCPool := objc_msgSend(objc_msgSend(objc_getClass('NSAutoreleasePool'), sel_getUid('alloc')), sel_getUid('init')); {do not localize}
+  {$IFEND}
 
   try
     BeforeExecute;
@@ -483,7 +466,7 @@ begin
   finally
     {$IFDEF MACOS}
     // Last thing to do in thread is to drain the pool
-    objc_msgSend(FObjCPool, sel_getUid('drain'));
+    objc_msgSend(FObjCPool, sel_getUid('drain')); {do not localize}
     {$ENDIF}
     {$IFDEF ANDROID}
     // Detach the NativeActivity virtual machine to ensure the proper release of JNI contexts attached to the current thread
@@ -496,9 +479,6 @@ end;
 
 constructor TIdThread.Create(ACreateSuspended: Boolean; ALoop: Boolean; const AName: string);
 begin
-  {$IFDEF DOTNET}
-  inherited Create(True);
-  {$ENDIF}
   FOptions := [itoDataOwner];
   if ACreateSuspended then begin
     Include(FOptions, itoStopped);
@@ -506,31 +486,9 @@ begin
   FLock := TIdCriticalSection.Create;
   Loop := ALoop;
   Name := AName;
-  //
-  {$IFDEF DOTNET}
-  if not ACreateSuspended then begin
-    {$IFDEF DEPRECATED_TThread_SuspendResume}
-    Suspended := False;
-    {$ELSE}
-    Resume;
-    {$ENDIF}
-  end;
-  {$ELSE}
-  //
   // Most things BEFORE inherited - inherited creates the actual thread and if
   // not suspended will start before we initialize
   inherited Create(ACreateSuspended);
-    {$IFNDEF VCL_6_OR_ABOVE}
-    // Delphi 6 and above raise an exception when an error occures while
-    // creating a thread (eg. not enough address space to allocate a stack)
-    // Delphi 5 and below don't do that, which results in a TIdThread
-    // instance with an invalid handle in it, therefore we raise the
-    // exceptions manually on D5 and below
-  if (ThreadID = 0) then begin
-    IndyRaiseLastError;
-  end;
-    {$ENDIF}
-  {$ENDIF}
   // Last, so we only do this if successful
   GThreadCount.Increment;
 end;
@@ -555,7 +513,7 @@ begin
       FLock.Enter; try
       finally FLock.Leave; end;
 
-      FreeAndNil(FLock);
+      FLock.Free;
       GThreadCount.Decrement;
     end;
   end;
@@ -637,7 +595,7 @@ begin
   Exclude(FOptions, itoReqCleanup);
   IdDisposeAndNil(FYarn);
   if itoDataOwner in FOptions then begin
-    FreeAndNil({$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF});
+    {$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF}.Free;
   end;
   {$IFDEF USE_OBJECT_ARC}
   FDataValue := 0;
@@ -688,7 +646,7 @@ end;
 
 destructor TIdThreadWithTask.Destroy;
 begin
-  FreeAndNil(FTask);
+  FTask.Free;
   inherited Destroy;
 end;
 
@@ -709,7 +667,7 @@ end;
 
 {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
 type
-  TIdThreadSafeIntegerAccess = class(TIdThreadSafeInteger);
+  TIdThreadSafeInt32Access = class(TIdThreadSafeInt32);
 {$ENDIF}
   
 initialization
@@ -727,13 +685,11 @@ initialization
   // So, DO NOT uncomment the following line...
   // SetThreadName('Main');  {do not localize}
 
-  GThreadCount := TIdThreadSafeInteger.Create;
-  {$IFNDEF FREE_ON_FINAL}
-    {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  GThreadCount := TIdThreadSafeInt32.Create;
+  {$IF (NOT DEFINED(FREE_ON_FINAL)) AND DEFINED(REGISTER_EXPECTED_MEMORY_LEAK)}
   IndyRegisterExpectedMemoryLeak(GThreadCount);
-  IndyRegisterExpectedMemoryLeak(TIdThreadSafeIntegerAccess(GThreadCount).FCriticalSection);
-    {$ENDIF}
-  {$ENDIF}
+  IndyRegisterExpectedMemoryLeak(TIdThreadSafeInt32Access(GThreadCount).FCriticalSection);
+  {$IFEND}
 finalization
   // This call hangs if not all threads have been properly destroyed.
   // But without this, bad threads can often have worse results. Catch 22.

@@ -225,7 +225,6 @@ type
     procedure SetUseEhlo(const AValue: Boolean); override;
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
-    procedure InitComponent; override;
     procedure InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
 
@@ -233,13 +232,13 @@ type
     // holger: .NET compatibility change, OnConnected being reintroduced
     property OnConnected;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Assign(Source: TPersistent); override;
     function Authenticate: Boolean; virtual;
     procedure Connect; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure DisconnectNotifyPeer; override;
-    class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText: string); overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ContentType overload of QuickSend()'{$ENDIF};{$ENDIF}
     class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText, AContentType, ACharset, AContentTransferEncoding: string); overload;
     procedure Expand(AUserName : String; AResults : TStrings); virtual;
     function Verify(AUserName : String) : String; virtual;
@@ -272,6 +271,20 @@ uses
   IdTCPConnection;
 
 { TIdSMTP }
+
+constructor TIdSMTP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FSASLMechanisms := TIdSASLEntries.Create(Self);
+  FAuthType := DEF_SMTP_AUTH;
+  FValidateAuthLoginCapability := True;
+end;
+
+destructor TIdSMTP.Destroy;
+begin
+  FSASLMechanisms.Free;
+  inherited Destroy;
+end;
 
 procedure TIdSMTP.Assign(Source: TPersistent);
 var
@@ -346,7 +359,7 @@ begin
                 Exit;
               end;
             finally
-              FreeAndNil(s);
+              s.Free;
             end;
           end;
           LEncoder := TIdEncoderMIME.Create(nil);
@@ -384,14 +397,6 @@ begin
   end;
 end;
 
-procedure TIdSMTP.InitComponent;
-begin
-  inherited InitComponent;
-  FSASLMechanisms := TIdSASLEntries.Create(Self);
-  FAuthType := DEF_SMTP_AUTH;
-  FValidateAuthLoginCapability := True;
-end;
-
 procedure TIdSMTP.DisconnectNotifyPeer;
 begin
   inherited DisconnectNotifyPeer;
@@ -403,9 +408,8 @@ begin
   SendCMD('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
 end;
 
-procedure InternalQuickSend(const AHost, ASubject, ATo, AFrom, AText,
+class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText,
   AContentType, ACharset, AContentTransferEncoding: String);
-{$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LSMTP: TIdSMTP;
   LMsg: TIdMessage;
@@ -430,26 +434,11 @@ begin
         LSMTP.Disconnect;
       end;
     finally
-      FreeAndNil(LMsg);
+      LMsg.Free;
     end;
   finally
-    FreeAndNil(LSMTP);
+    LSMTP.Free;
   end;
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText: String);
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  InternalQuickSend(AHost, ASubject, ATo, AFrom, AText, '', '', '');
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText,
-  AContentType, ACharset, AContentTransferEncoding: String);
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  InternalQuickSend(AHost, ASubject, ATo, AFrom, AText, AContentType, ACharset, AContentTransferEncoding);
 end;
 
 procedure TIdSMTP.InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
@@ -509,12 +498,6 @@ end;
 procedure TIdSMTP.SetSASLMechanisms(AValue: TIdSASLEntries);
 begin
   FSASLMechanisms.Assign(AValue);
-end;
-
-destructor TIdSMTP.Destroy;
-begin
-  FreeAndNil(FSASLMechanisms);
-  inherited Destroy;
 end;
 
 procedure TIdSMTP.Disconnect(ANotifyPeer: Boolean);

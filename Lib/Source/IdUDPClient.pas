@@ -105,7 +105,6 @@ type
     procedure RaiseUseProxyError;
     procedure DoOnConnected; virtual;
     procedure DoOnDisconnected; virtual;
-    procedure InitComponent; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     //property methods
     procedure SetIPVersion(const AValue: TIdIPVersion); override;
@@ -115,6 +114,7 @@ type
     function GetBinding: TIdSocketHandle; override;
     function GetTransparentProxy: TIdCustomTransparentProxy;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure OpenProxy;
     procedure CloseProxy;
@@ -129,9 +129,7 @@ type
     function ReceiveBuffer(var ABuffer : TIdBytes;
       var VPeerIP: string; var VPeerPort: TIdPort; var VIPVersion: TIdIPVersion;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; override;
-    procedure Send(const AData: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+    procedure Send(const AData: string; AByteEncoding: IIdTextEncoding = nil); overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; override;
     procedure SendBuffer(const ABuffer: TIdBytes); reintroduce; overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort;
@@ -158,6 +156,27 @@ uses
   SysUtils;
 
 { TIdUDPClient }
+
+constructor TIdUDPClient.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FProxyOpened := False;
+  FConnected := False;
+  FBoundPort := DEF_PORT_ANY;
+  FBoundPortMin := DEF_PORT_ANY;
+  FBoundPortMax := DEF_PORT_ANY;
+end;
+
+destructor TIdUDPClient.Destroy;
+begin
+  if UseProxy and FProxyOpened then begin
+    CloseProxy;
+  end;
+  if Connected then begin
+    Disconnect;
+  end;
+  inherited Destroy;
+end;
 
 procedure TIdUDPClient.CloseProxy;
 begin
@@ -278,16 +297,6 @@ begin
   Result := LTransparentProxy;
 end;
 
-procedure TIdUDPClient.InitComponent;
-begin
-  inherited InitComponent;
-  FProxyOpened := False;
-  FConnected := False;
-  FBoundPort := DEF_PORT_ANY;
-  FBoundPortMin := DEF_PORT_ANY;
-  FBoundPortMax := DEF_PORT_ANY;
-end;
-
 // under ARC, all weak references to a freed object get nil'ed automatically
 // so this is mostly redundant
 procedure TIdUDPClient.Notification(AComponent: TComponent; Operation: TOperation);
@@ -355,11 +364,9 @@ begin
   Result := ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, VoidIPVersion, AMSec);
 end;
 
-procedure TIdUDPClient.Send(const AData: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdUDPClient.Send(const AData: string; AByteEncoding: IIdTextEncoding = nil);
 begin
-  Send(Host, Port, AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+  Send(Host, Port, AData, AByteEncoding);
 end;
 
 procedure TIdUDPClient.SendBuffer(const ABuffer : TIdBytes);
@@ -497,17 +504,6 @@ begin
   if Result then begin
     Result := LTransparentProxy.Enabled;
   end;
-end;
-
-destructor TIdUDPClient.Destroy;
-begin
-  if UseProxy and FProxyOpened then begin
-    CloseProxy;
-  end;
-  if Connected then begin
-    Disconnect;
-  end;
-  inherited Destroy;
 end;
 
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;

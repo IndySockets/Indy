@@ -53,7 +53,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  IdBaseComponent;
+  Classes, IdBaseComponent;
 
 const
   ID_Default_TIdAntiFreezeBase_Active = True;
@@ -69,8 +69,8 @@ type
     FIdleTimeOut: Integer;
     FOnlyWhenIdle: Boolean;
     //
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Process; virtual; abstract;
     class procedure DoProcess(const AIdle: Boolean = True; const AOverride: Boolean = False);
@@ -95,18 +95,9 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF USE_INLINE}
-    {$IFDEF DOTNET}
-  System.Threading,
-    {$ENDIF}
-    {$IFDEF WINDOWS}
-      {$IFDEF FPC}
-  windows,
-      {$ELSE}
-  Windows,
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
+  {$IF DEFINED(USE_INLINE) AND DEFINED(WINDOWS)}
+    {$IFDEF FPC}windows{$ELSE}Windows{$ENDIF},
+  {$IFEND}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
@@ -119,6 +110,21 @@ uses
   IdException;
 
 { TIdAntiFreezeBase }
+
+procedure TIdAntiFreezeBase.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  if not IsDesignTime then begin
+    if Assigned(GAntiFreeze) then begin
+      raise EIdException.Create(RSAntiFreezeOnlyOne);
+    end;
+    GAntiFreeze := Self;
+  end;
+  FActive := ID_Default_TIdAntiFreezeBase_Active;
+  FApplicationHasPriority := ID_Default_TIdAntiFreezeBase_ApplicationHasPriority;
+  IdleTimeOut := ID_Default_TIdAntiFreezeBase_IdleTimeOut;
+  FOnlyWhenIdle := ID_Default_TIdAntiFreezeBase_OnlyWhenIdle;
+end;
 
 destructor TIdAntiFreezeBase.Destroy;
 begin
@@ -135,21 +141,6 @@ begin
       GAntiFreeze.Process;
     end;
   end;
-end;
-
-procedure TIdAntiFreezeBase.InitComponent;
-begin
-  inherited InitComponent;
-  if not IsDesignTime then begin
-    if Assigned(GAntiFreeze) then begin
-      raise EIdException.Create(RSAntiFreezeOnlyOne);
-    end;
-    GAntiFreeze := Self;
-  end;
-  FActive := ID_Default_TIdAntiFreezeBase_Active;
-  FApplicationHasPriority := ID_Default_TIdAntiFreezeBase_ApplicationHasPriority;
-  IdleTimeOut := ID_Default_TIdAntiFreezeBase_IdleTimeOut;
-  FOnlyWhenIdle := ID_Default_TIdAntiFreezeBase_OnlyWhenIdle;
 end;
 
 class function TIdAntiFreezeBase.ShouldUse: Boolean;

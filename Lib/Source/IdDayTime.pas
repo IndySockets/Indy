@@ -45,9 +45,11 @@ unit IdDayTime;
 {*******************************************************}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdTCPClient;
 
@@ -55,8 +57,8 @@ type
   TIdDayTime = class(TIdTCPClientCustom)
   protected
     Function GetDayTimeStr : String;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     Property DayTimeStr : String read GetDayTimeStr;
   published
     property Port default IdPORT_DAYTIME;
@@ -70,9 +72,9 @@ uses
 
 { TIdDayTime }
 
-procedure TIdDayTime.InitComponent;
+constructor TIdDayTime.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Port := IdPORT_DAYTIME;
 end;
 

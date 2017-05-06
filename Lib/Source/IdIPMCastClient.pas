@@ -45,7 +45,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  {$IFDEF VCL_2010_OR_ABOVE}
+  {$IFDEF DCC_2010_OR_ABOVE}
   Classes,    //here to facilitate inlining
   {$ENDIF}
   IdException,
@@ -99,8 +99,8 @@ type
     procedure PacketReceived(const AData: TIdBytes; ABinding: TIdSocketHandle);
     procedure SetBindings(const Value: TIdSocketHandles);
     procedure SetDefaultPort(const AValue: integer);
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     //
   published
@@ -125,12 +125,19 @@ uses
 
 { TIdIPMCastClient }
 
-procedure TIdIPMCastClient.InitComponent;
+constructor TIdIPMCastClient.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   BufferSize := ID_UDP_BUFFERSIZE;
   FThreadedEvent := DEF_IMP_THREADEDEVENT;
   FBindings := TIdSocketHandles.Create(Self);
+end;
+
+destructor TIdIPMCastClient.Destroy;
+begin
+  Active := False;
+  FBindings.Free;
+  inherited Destroy;
 end;
 
 procedure TIdIPMCastClient.CloseBinding;
@@ -226,13 +233,6 @@ begin
     FBindings.DefaultPort := AValue;
     FPort := AValue;
   end;
-end;
-
-destructor TIdIPMCastClient.Destroy;
-begin
-  Active := False;
-  FreeAndNil(FBindings);
-  inherited Destroy;
 end;
 
 { TIdIPMCastListenerThread }

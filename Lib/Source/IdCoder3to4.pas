@@ -195,7 +195,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStrings, IdStream;
+  IdException, IdResourceStrings;
 
 { TIdDecoder4to3 }
 
@@ -227,10 +227,10 @@ begin
   LBufSize := IndyLength(ASrcStream, ABytes);
   if LBufSize > 0 then begin
     SetLength(LBuffer, LBufSize);
-    TIdStreamHelper.ReadBytes(ASrcStream, LBuffer, LBufSize);
+    ASrcStream.ReadBuffer(LBuffer[0], LBufSize);
     LBuffer := InternalDecode(LBuffer);
-    if Assigned(FStream) then begin
-      TIdStreamHelper.Write(FStream, LBuffer);
+    if Assigned(FStream) and (LBuffer <> nil) then begin
+      FStream.WriteBuffer(PByte(LBuffer)^, Length(LBuffer));
     end;
   end;
 end;
@@ -317,9 +317,11 @@ begin
   LBufSize := IndyLength(ASrcStream, ABytes);
   if LBufSize > 0 then begin
     SetLength(LBuffer, LBufSize);
-    TIdStreamHelper.ReadBytes(ASrcStream, LBuffer, LBufSize);
+    ASrcStream.ReadBuffer(LBuffer[0], LBufSize);
     LBuffer := InternalEncode(LBuffer);
-    TIdStreamHelper.Write(ADestStream, LBuffer);
+    if Assigned(ADestStream) and (LBuffer <> nil) then begin
+      ADestStream.WriteBuffer(LBuffer[0], Length(LBuffer));
+    end;
   end;
 end;
 

@@ -34,16 +34,18 @@
 unit IdEchoUDPServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
+  Classes, IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
   TIdEchoUDPServer = class(TIdUDPServer)
   protected
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_ECHO;
   end;
@@ -52,9 +54,9 @@ implementation
 
 { TIdEchoUDPServer }
 
-procedure TIdEchoUDPServer.InitComponent;
+constructor TIdEchoUDPServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_ECHO;
 end;
 

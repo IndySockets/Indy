@@ -159,7 +159,7 @@ begin
                   (s[5] = 'Time');   {do not localize}
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;

@@ -323,8 +323,8 @@ end;
 
 destructor TIdEntityHeaderInfo.Destroy;
 begin
-  FreeAndNil(FRawHeaders);
-  FreeAndNil(FCustomHeaders);
+  FRawHeaders.Free;
+  FCustomHeaders.Free;
   inherited Destroy;
 end;
 
@@ -699,7 +699,7 @@ end;
 
 destructor TIdProxyConnectionInfo.Destroy;
 begin
-  FreeAndNil(FAuthentication);
+  FAuthentication.Free;
   inherited Destroy;
 end;
 
@@ -925,8 +925,8 @@ end;
 
 destructor TIdRequestHeaderInfo.Destroy;
 begin
-  FreeAndNil(FAuthentication);
-  FreeAndNil(FRanges);
+  FAuthentication.Free;
+  FRanges.Free;
   inherited Destroy;
 end;
 
@@ -1107,8 +1107,8 @@ end;
 
 destructor TIdResponseHeaderInfo.Destroy;
 begin
-  FreeAndNil(FWWWAuthenticate);
-  FreeAndNil(FProxyAuthenticate);
+  FWWWAuthenticate.Free;
+  FProxyAuthenticate.Free;
   inherited Destroy;
 end;
 

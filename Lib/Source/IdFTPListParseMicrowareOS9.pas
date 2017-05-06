@@ -126,7 +126,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LWrds);
+    LWrds.Free;
   end;
 end;
 

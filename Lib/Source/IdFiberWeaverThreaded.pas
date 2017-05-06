@@ -61,14 +61,10 @@ type
   protected
     FThreadScheduler: TIdSchedulerOfThread;
     FTempThread: TTempThread;
-    //
-    procedure InitComponent; override;
   public
-    procedure Add(
-      AFiber: TIdFiber
-      ); override;
-    destructor Destroy;
-      override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Add(AFiber: TIdFiber); override;
   published
     property ThreadScheduler: TIdSchedulerOfThread read FThreadScheduler
       write FThreadScheduler;
@@ -109,9 +105,12 @@ end;
 
 { TIdFiberWeaverThreaded }
 
-procedure TIdFiberWeaverThreaded.Add(AFiber: TIdFiber);
+constructor TIdFiberWeaverThreaded.Create(AOwner: TComponent);
 begin
-  FTempThread.FFiberWeaver.Add(AFiber);
+  inherited Create(AOwner);
+  if not IsDesignTime then begin
+    FTempThread := TTempThread.Create(False, True, 'TIdSchedulerOfFiber Temp'); {do not localize}
+  end;
 end;
 
 destructor TIdFiberWeaverThreaded.Destroy;
@@ -119,17 +118,14 @@ begin
   // is only created at run time
   if FTempThread <> nil then begin
     FTempThread.TerminateAndWaitFor;
-    FreeAndNil(FTempThread);
+    FTempThread.Free;
   end;
   inherited;
 end;
 
-procedure TIdFiberWeaverThreaded.InitComponent;
+procedure TIdFiberWeaverThreaded.Add(AFiber: TIdFiber);
 begin
-  inherited;
-  if not (csDesigning in ComponentState) then begin
-    FTempThread := TTempThread.Create(False, True, 'TIdSchedulerOfFiber Temp'); {do not localize}
-  end;
+  FTempThread.FFiberWeaver.Add(AFiber);
 end;
 
 end.

@@ -45,6 +45,7 @@
 unit IdHashSHA;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -52,51 +53,30 @@ uses
   IdFIPS,
   IdGlobal, IdHash;
 
-{
-Microsoft.NET notes!!!!
-
-In Microsoft.NET, there are some limitations that you need to be aware of.
-
-1) In Microsoft.NET 1.1, 2.0, and 3.0, only the CryptoService SHA1 class is
-FIPS-complient.  Unfortunately, SHA1 will not be permitted after 2010.
-2) In Microsoft.NET 3.5,There are more classes ending in CryptoServiceProvider" or
-"Cng" that are complient.
-3) SHA224 is not exposed.
-}
 type
   T5x4LongWordRecord = array[0..4] of UInt32;
   T512BitRecord = array [0..63] of Byte;
 
-  {$IFNDEF DOTNET}
   TIdHashSHA1 = class(TIdHashNativeAndIntF)
-  {$ELSE}
-  TIdHashSHA1 = class(TIdHashIntF)
-  {$ENDIF}
   protected
-    {$IFNDEF DOTNET}
     FCheckSum: T5x4LongWordRecord;
     FCBuffer: TIdBytes;
     procedure Coder;
-    function NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
+    function NativeGetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
-    {$ENDIF}
     function InitHash : TIdHashIntCtx; override;
   public
-    {$IFNDEF DOTNET}
     constructor Create; override;
-    {$ENDIF}
     class function IsAvailable : Boolean; override;
     class function IsIntfAvailable: Boolean; override;
   end;
 
-  {$IFNDEF DOTNET}
   TIdHashSHA224 = class(TIdHashIntF)
   protected
     function InitHash : TIdHashIntCtx; override;
   public
     class function IsAvailable : Boolean; override;
   end;
-  {$ENDIF}
 
   TIdHashSHA256 = class(TIdHashIntF)
   protected
@@ -123,22 +103,7 @@ implementation
 
 { TIdHashSHA1 }
 
-{$IFDEF DOTNET}
-
-function TIdHashSHA1.GetHashInst : TIdHashInst;
-begin
-//You can not use SHA256Managed for FIPS complience.
-  Result := System.Security.Cryptography.SHA1CryptoServiceProvider.Create;
-end;
-
-class function TIdHashSHA1.IsIntfAvailable : Boolean;
-begin
-  Result := True;
-end;
-
-{$ELSE}
-
-function SwapLongWord(const AValue: UInt32): UInt32;
+function SwapUInt32(const AValue: UInt32): UInt32;
 begin
   Result := ((AValue and $FF) shl 24) or ((AValue and $FF00) shl 8) or ((AValue and $FF0000) shr 8) or ((AValue and $FF000000) shr 24);
 end;
@@ -159,7 +124,10 @@ begin
   Result := IsHashingIntfAvail and  IsSHA1HashIntfAvail;
 end;
 
-{$Q-,R-} // Operations performed modulo $100000000
+// Operations performed modulo $100000000
+{$I IdOverflowCheckingOff.inc}
+{$I IdRangeCheckingOff.inc}
+
 procedure TIdHashSHA1.Coder;
 var
   T, A, B, C, D, E: UInt32;
@@ -382,7 +350,7 @@ begin
   FCheckSum[4]:= FCheckSum[4] + E;
 end;
 
-function TIdHashSHA1.NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes;
+function TIdHashSHA1.NativeGetHashBytes(AStream: TStream; ASize: Int64): TIdBytes;
 var
   LSize: Integer;
   LLenHi: UInt32;
@@ -442,11 +410,11 @@ begin
   FCBuffer[63] := (LLenLo and $FF);
   Coder;
 
-  FCheckSum[0] := SwapLongWord(FCheckSum[0]);
-  FCheckSum[1] := SwapLongWord(FCheckSum[1]);
-  FCheckSum[2] := SwapLongWord(FCheckSum[2]);
-  FCheckSum[3] := SwapLongWord(FCheckSum[3]);
-  FCheckSum[4] := SwapLongWord(FCheckSum[4]);
+  FCheckSum[0] := SwapUInt32(FCheckSum[0]);
+  FCheckSum[1] := SwapUInt32(FCheckSum[1]);
+  FCheckSum[2] := SwapUInt32(FCheckSum[2]);
+  FCheckSum[3] := SwapUInt32(FCheckSum[3]);
+  FCheckSum[4] := SwapUInt32(FCheckSum[4]);
 
   SetLength(Result, SizeOf(UInt32)*5);
   for I := 0 to 4 do begin
@@ -456,16 +424,13 @@ end;
 
 function TIdHashSHA1.HashToHex(const AHash: TIdBytes): String;
 begin
-  Result := LongWordHashToHex(AHash, 5);
+  Result := UInt32HashToHex(AHash, 5);
 end;
-{$ENDIF}
 
 class function TIdHashSHA1.IsAvailable : Boolean;
 begin
   Result := True;
 end;
-
-{$IFNDEF DOTNET}
 
 { TIdHashSHA224 }
 
@@ -478,7 +443,6 @@ class function TIdHashSHA224.IsAvailable: Boolean;
 begin
   Result := IsHashingIntfAvail and IsSHA224HashIntfAvail;
 end;
-{$ENDIF}
 
 { TIdHashSHA256 }
 

@@ -103,7 +103,7 @@ begin
                 (LCols[3] = 'name');      {do not localize}
     end;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
 end;
 

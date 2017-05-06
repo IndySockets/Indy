@@ -73,9 +73,8 @@ type
   TIdAuthenticationManager = class(TIdBaseComponent)
   protected
     FAuthentications: TIdAuthenticationCollection;
-    //
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddAuthentication(AAuthentication: TIdAuthentication; AURL: TIdURI);
     property Authentications: TIdAuthenticationCollection read FAuthentications;
@@ -121,16 +120,16 @@ begin
   LItem.Params.Assign(AAuthentication.Params);
 end;
 
-destructor TIdAuthenticationManager.Destroy;
+constructor TIdAuthenticationManager.Create(AOwner: TComponent);
 begin
-  FreeAndNil(FAuthentications);
-  inherited Destroy;
+  inherited Create(AOwner);
+  FAuthentications := TIdAuthenticationCollection.Create(Self);
 end;
 
-procedure TIdAuthenticationManager.InitComponent;
+destructor TIdAuthenticationManager.Destroy;
 begin
-  inherited InitComponent;
-  FAuthentications := TIdAuthenticationCollection.Create(Self);
+  FAuthentications.Free;
+  inherited Destroy;
 end;
 
 { TIdAuthenticationItem }
@@ -144,8 +143,8 @@ end;
 
 destructor TIdAuthenticationItem.Destroy;
 begin
-  FreeAndNil(FURI);
-  FreeAndNil(FParams);
+  FURI.Free;
+  FParams.Free;
   inherited Destroy;
 end;
 

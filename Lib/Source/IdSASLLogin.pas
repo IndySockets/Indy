@@ -36,14 +36,14 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdSASL,
   IdSASLUserPass;
 
 type
   TIdSASLLogin = class(TIdSASLUserPass)
-  protected
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
 
     function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: String): Boolean; override;
@@ -57,6 +57,12 @@ uses
   IdUserPassProvider, IdBaseComponent;
 
 { TIdSASLLogin }
+
+constructor TIdSASLLogin.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FSecurityLevel := 200;
+end;
 
 function TIdSASLLogin.TryStartAuthenticate(const AHost, AProtocolName: string;
   var VInitialResponse: String): Boolean;
@@ -73,12 +79,6 @@ end;
 function TIdSASLLogin.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): String;
 begin
   Result := GetPassword;
-end;
-
-procedure TIdSASLLogin.InitComponent;
-begin
-  inherited InitComponent;
-  FSecurityLevel := 200;
 end;
 
 class function TIdSASLLogin.ServiceName: TIdSASLServiceName;

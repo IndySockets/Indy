@@ -581,31 +581,6 @@ const
 
 {Some stuff for internationalization provided by Craig Peterson}
 const
-{$IFDEF STRING_IS_ANSI}
-  // These are the CJK "month", "day", and "year" characters, which appear after
-  // a number in the listings.  Constants are UTF-8.  According to
-  // www.FileFormat.info the characters for KoreanTotal, KoreanMonth, and
-  // KoreanDay aren't valid Unicode, but that's what appears in the listing.
-  KoreanTotal = #$EC#$B4#$9D;    // #$CD1D
-  KoreanMonth = #$EC#$9B#$94;    // #$C6D4 Hangul Syllable Ieung Weo Rieul
-  KoreanDay = #$EC#$9D#$BC;      // #$C77C Hangul Syllable Ieung I Rieul
-  KoreanYear = #$EB#$85#$84;    // #$B144 Hangul Syllable Nieun Yeo Nieun
-  KoreanEUCMonth = #$EB#$BF#$B9; //#$BFF9
-  ChineseTotal = #$E6#$80#$BB + #$E6#$95#$B0;
-                                 // #$603B CJK Unified Ideograph Collect/Overall +
-                                 // #$6570 CJK Unified Ideograph Number/Several/Count
-  ChineseMonth = #$E6#$9C#$88;   // #$6708 CJK Unified Ideograph Month
-  ChineseDay = #$E6#$97#$A5;     // #$65E5 CJK Unified Ideograph Day
-  ChineseYear = #$E5#$B9#$B4;    // #$5E74 CJK Unified Ideograph Year
-
-  JapaneseTotal = #$E5#$90#$88 + #$E8#$A8#$88;
-                                 //@$5408
-                                 //
-  JapaneseMonth = #$E8#$B2#$8E;  // #$8c8e Japanse Month symbol
-  JapaneseDay = #$E9#$8F#$BA;    //93fa - Japanese Day Symbol - not valid Unicode
-  JapaneseYear = #$E9#$91#$8E;   //944e - Japanese Year symbol = not valid Unicode
-
-{$ELSE}
   //These are in Unicode since the parsers receive data in Unicode form
   KoreanTotal = #$CD1D;    // #$CD1D
   KoreanMonth = #$C6D4;    // #$C6D4 Hangul Syllable Ieung Weo Rieul
@@ -625,7 +600,6 @@ const
   JapaneseMonth = #$8C8E;  // #$8c8e Japanse Day symbol
   JapaneseDay = #$93FA;    //93fa - Japanese Day Symbol - not valid Unicode
   JapaneseYear = #$944E;   //944e - Japanese Year symbol = not valid Unicode
-{$ENDIF}
 
 procedure DeleteSuffix(var VStr : String; const ASuffix : String); {$IFDEF USE_INLINE}inline;{$ENDIF}
 
@@ -920,7 +894,7 @@ const
   // Unicode codepoint value, depending on the codepage used for the source code.
   // For instance, #128 may become #$20AC...
 
-  LineSet = ' -'+Char($96)+'+'; //BGO: for DotNet, what to do with this    {Do not Localize}
+  LineSet = ' -'+Char($96)+'+'; {Do not Localize}
 var
   i: Integer;
   LLen: Integer;
@@ -1491,13 +1465,13 @@ This function ensures that 2 digit dates returned
 by some FTP servers are interpretted just like Borland's year
 handling routines.
 }
-{$IFDEF HAS_TFormatSettings_Object}
-{For Delphi XE, we have a format settings object that includes a member
+{$IFDEF HAS_TFormatSettings}
+{For Delphi 7+, we have a format settings object that includes a member
 for two digit year processing.  Use that instead because that is thread-safe.
 
-Also note, that in this version, TFormatSettings is not an object at all, it's a
-record with associated functions and procedures plus a creator.  Since we allocate
-it on the stack with the definition, we can't "free" it with FreeAndNil.  }
+Also note, that TFormatSettings is a record (in XE+, with associated functions
+and procedures plus a creator).  Since we allocate it on the stack with the
+definition, we can't "free" it with FreeAndNil.  }
 var
   LFormatSettings: SysUtils.TFormatSettings;
 {$ENDIF}
@@ -1507,14 +1481,16 @@ begin
   //Note that some OS/2 servers return years greater than 100 for
   //years such as 2000 and 2003
   if Result < 1000 then begin
-    {$IFDEF HAS_TFormatSettings_Object}
-       LFormatSettings:= TFormatSettings.Create('');  //use default locale
-       if LFormatSettings.TwoDigitYearCenturyWindow > 0 then begin
-         if Result > LFormatSettings.TwoDigitYearCenturyWindow then begin
-    {$ELSE}
-    if TwoDigitYearCenturyWindow > 0 then begin
-      if Result > TwoDigitYearCenturyWindow then begin
+    {$IFDEF HAS_TFormatSettings}
+      //use default locale
+      {$IFDEF HAS_TFormatSettings_Create}
+    LFormatSettings := TFormatSettings.Create('');
+      {$ELSE}
+    GetLocaleFormatSettings(0, LFormatSettings);
+      {$ENDIF}
     {$ENDIF}
+    if {$IFDEF HAS_TFormatSettings}LFormatSettings.{$ENDIF}TwoDigitYearCenturyWindow > 0 then begin
+      if Result > {$IFDEF HAS_TFormatSettings}LFormatSettings.{$ENDIF}TwoDigitYearCenturyWindow then begin
         Inc(Result, ((IndyCurrentYear div 100)-1)*100);
       end else begin
         Inc(Result, (IndyCurrentYear div 100)*100);
@@ -1522,9 +1498,6 @@ begin
     end else begin
       Inc(Result, (IndyCurrentYear div 100)*100);
     end;
-    {$IFDEF HAS_TFormatSettings_Object}
-
-    {$ENDIF}
   end;
 end;
 
@@ -2228,7 +2201,7 @@ begin
      Result := (s.Count > 8) and IsNumeric(s[6]) and IsHHMMSS(s[7], ':') and
        (TextIsSame(s[8], 'AM') or TextIsSame(s[8], 'PM'));  {do not localize}
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -2365,7 +2338,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -2400,7 +2373,7 @@ var
   LEncoding: IIdTextEncoding;
 begin
   LEncoding := IndyTextEncoding_8Bit;
-  LBuf := ToBytes(ParseFacts(AData, AResults, AFactDelim, ANameDelim), LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  LBuf := ToBytes(ParseFacts(AData, AResults, AFactDelim, ANameDelim), LEncoding);
   LCharSet := AResults.Values['charset'];
   if LCharSet = '' then begin
     LCharSet := 'UTF-8';

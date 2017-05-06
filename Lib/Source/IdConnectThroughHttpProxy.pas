@@ -45,6 +45,7 @@ unit IdConnectThroughHttpProxy;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses

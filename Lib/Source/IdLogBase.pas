@@ -53,7 +53,6 @@ type
     FReplaceCRLF: Boolean;
     FStreamedActive: Boolean;
     //
-    procedure InitComponent; override;
     procedure LogStatus(const AText: string); virtual; abstract;
     procedure LogReceivedData(const AText, AData: string); virtual; abstract;
     procedure LogSentData(const AText, AData: string); virtual; abstract;
@@ -61,10 +60,11 @@ type
     procedure Loaded; override;
     function ReplaceCR(const AString : String) : String;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure Open; virtual;
     procedure Close; virtual;
     procedure Connect(AConnection: TComponent); override;
-    destructor Destroy; override;
     procedure Disconnect; override;
     procedure Receive(var ABuffer: TIdBytes); override;
     procedure Send(var ABuffer: TIdBytes); override;
@@ -87,6 +87,19 @@ const
 
 { TIdLogBase }
 
+constructor TIdLogBase.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FLogTime := True;
+  ReplaceCRLF := True;
+end;
+
+destructor TIdLogBase.Destroy;
+begin
+  Active := False;
+  inherited Destroy;
+end;
+
 procedure TIdLogBase.Close;
 begin
 end;
@@ -99,25 +112,12 @@ begin
   end;
 end;
 
-destructor TIdLogBase.Destroy;
-begin
-  Active := False;
-  inherited Destroy;
-end;
-
 procedure TIdLogBase.Disconnect;
 begin
   if FActive then begin
     LogStatus(RSLogDisconnected);
   end;
   inherited Disconnect;
-end;
-
-procedure TIdLogBase.InitComponent;
-begin
-  inherited InitComponent;
-  FLogTime := True;
-  ReplaceCRLF := True;
 end;
 
 procedure TIdLogBase.Loaded;

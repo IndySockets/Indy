@@ -68,21 +68,15 @@ type
 implementation
 
 uses
-  {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX)}
   Posix.Unistd,
-  {$ENDIF}
-  {$IFDEF KYLIXCOMPAT}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
   Libc,
-  {$ENDIF}
+  {$IFEND}
   //facilitate inlining only.
-  {$IFDEF USE_INLINE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(USE_INLINE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-    {$IFDEF DOTNET}
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols,
   IdMessage, SysUtils;
 

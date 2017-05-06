@@ -62,6 +62,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdTCPClient;
 
@@ -72,8 +73,8 @@ type
     FVerboseOutput: Boolean;
     Procedure SetCompleteQuery(AQuery: String);
     Function GetCompleteQuery: String;
-    Procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     {This connects to a server, does the finger querry specified in the Query
     property and returns the results of the querry}
     function Finger: String;
@@ -87,8 +88,7 @@ type
     {This indicates that the server should give more detailed information on
     some systems.  However, this will probably not work on many systems so it is
     False by default}
-    Property VerboseOutput: Boolean read FVerboseOutPut write FVerboseOutPut
-      default False;
+    Property VerboseOutput: Boolean read FVerboseOutPut write FVerboseOutPut default False;
   end;
 
 implementation
@@ -99,9 +99,9 @@ uses
 
 { TIdFinger }
 
-procedure TIdFinger.InitComponent;
+constructor TIdFinger.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Port := IdPORT_FINGER;
 end;
 

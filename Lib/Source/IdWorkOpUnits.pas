@@ -410,7 +410,7 @@ end;
 destructor TIdWorkOpUnitStreamBaseWrite.Destroy;
 begin
   if FFreeStream then begin
-    FreeAndNil(FStream);
+    IdDisposeAndNil(FStream);
   end;
   inherited;
 end;

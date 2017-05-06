@@ -373,13 +373,13 @@ type
     procedure SetOverviewFormat(AValue: TStrings);
     function GetImplicitTLS: Boolean;
     procedure SetImplicitTLS(const AValue: Boolean);
-    procedure InitComponent; override;
     function LookupMessage(ASender : TidCommand; var VNo : Int64; var VId : string) : TIdNNTPLookupType;
     function LookupMessageRange(ASender: TIdCommand; const AData: String;
       var VMsgFirst: Int64; var VMsgLast: Int64) : Boolean;
     function LookupMessageRangeOrID(ASender: TIdCommand; const AData: String;
       var VMsgFirst: Int64; var VMsgLast: Int64; var VMsgID: String) : Boolean;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     class function NNTPTimeToTime(const ATimeStamp : String): TDateTime;
     class function NNTPDateTimeToDateTime(const ATimeStamp: string): TDateTime;
@@ -444,6 +444,50 @@ uses
   IdStack,
   IdSSL,
   SysUtils;
+
+constructor TIdNNTPServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+
+  FDistributionPatterns := TStringList.Create;
+  FHelp := TStringList.Create;
+
+  FOverviewFormat := TStringList.Create;
+  FOverviewFormat.Add('Subject:');      {do not localize}
+  FOverviewFormat.Add('From:');         {do not localize}
+  FOverviewFormat.Add('Date:');         {do not localize}
+  FOverviewFormat.Add('Message-ID:');   {do not localize}
+  FOverviewFormat.Add('References:');   {do not localize}
+  FOverviewFormat.Add('Bytes:');        {do not localize}
+  FOverviewFormat.Add('Lines:');        {do not localize}
+
+  FContextClass := TIdNNTPContext;
+  FRegularProtPort := IdPORT_NNTP;
+  FImplicitTLSProtPort := IdPORT_SNEWS;
+  FExplicitTLSProtPort := IdPORT_NNTP;
+  DefaultPort := IdPORT_NNTP;
+
+  FSupportedAuthTypes := [atUserPass];
+
+  (*
+  In general, 1xx codes may be ignored or displayed as desired;
+  code 200 or 201 is sent upon initial connection to the NNTP server
+  depending upon posting permission;  *)
+  // TODO: Account for 201 as well. Right now the user can override this if they wish
+  Greeting.NumericCode := 200;
+  //
+
+  ExceptionReply.SetReply(503, RSNNTPReplyProgramFault);
+  ReplyUnknownCommand.SetReply(500, RSNNTPServerNotRecognized);
+end;
+
+destructor TIdNNTPServer.Destroy;
+begin
+  FDistributionPatterns.Free;
+  FHelp.Free;
+  FOverviewFormat.Free;
+  inherited Destroy;
+end;
 
 {CH const
   AuthTypes: array [1..2] of string = ('USER', 'PASS'); } {Do not localize}
@@ -1701,7 +1745,7 @@ begin
         ReplyTexts.UpdateText(LReply);
         LContext.Connection.IOHandler.Write(LReply.FormattedReply);
       finally
-        FreeAndNil(LReply);
+        LReply.Free;
       end;
       if LCanPost then begin
         LPostOk := False;
@@ -2005,50 +2049,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TIdNNTPServer.InitComponent;
-begin
-  inherited InitComponent;
-
-  FDistributionPatterns := TStringList.Create;
-  FHelp := TStringList.Create;
-
-  FOverviewFormat := TStringList.Create;
-  FOverviewFormat.Add('Subject:');      {do not localize}
-  FOverviewFormat.Add('From:');         {do not localize}
-  FOverviewFormat.Add('Date:');         {do not localize}
-  FOverviewFormat.Add('Message-ID:');   {do not localize}
-  FOverviewFormat.Add('References:');   {do not localize}
-  FOverviewFormat.Add('Bytes:');        {do not localize}
-  FOverviewFormat.Add('Lines:');        {do not localize}
-
-  FContextClass := TIdNNTPContext;
-  FRegularProtPort := IdPORT_NNTP;
-  FImplicitTLSProtPort := IdPORT_SNEWS;
-  FExplicitTLSProtPort := IdPORT_NNTP;
-  DefaultPort := IdPORT_NNTP;
-
-  FSupportedAuthTypes := [atUserPass];
-
-  (*
-  In general, 1xx codes may be ignored or displayed as desired;
-  code 200 or 201 is sent upon initial connection to the NNTP server
-  depending upon posting permission;  *)
-  // TODO: Account for 201 as well. Right now the user can override this if they wish
-  Greeting.NumericCode := 200;
-  //
-
-  ExceptionReply.SetReply(503, RSNNTPReplyProgramFault);
-  ReplyUnknownCommand.SetReply(500, RSNNTPServerNotRecognized);
-end;
-
-destructor TIdNNTPServer.Destroy;
-begin
-  FreeAndNil(FDistributionPatterns);
-  FreeAndNil(FHelp);
-  FreeAndNil(FOverviewFormat);
-  inherited Destroy;
 end;
 
 procedure TIdNNTPServer.DoListGroups(AContext: TIdNNTPContext);
@@ -2694,7 +2694,7 @@ begin
       ReplyTexts.UpdateText(LReply);
       LContext.Connection.IOHandler.Write(LReply.FormattedReply);
     finally
-      FreeAndNil(LReply);
+      LReply.Free;
     end;
     s := LContext.Connection.IOHandler.ReadLn;
     LContext.FAuthenticator := '';  {do not localize}

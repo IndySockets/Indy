@@ -67,8 +67,8 @@ type
     function FetchUserReply : String;
     function FetchOS : String;
     procedure ParseError;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Query(APortOnServer, APortOnClient : Word);
     property Reply : String read FReplyString;
     property ReplyCharset : String read GetReplyCharset;
@@ -104,9 +104,9 @@ const
 
 { TIdIdent }
 
-procedure TIdIdent.InitComponent;
+constructor TIdIdent.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FQueryTimeOut := IdIdentQryTimeout;
   Port := IdPORT_AUTH;
 end;

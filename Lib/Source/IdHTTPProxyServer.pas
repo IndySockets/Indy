@@ -170,7 +170,8 @@ type
     procedure DoHTTPResponse(AContext: TIdHTTPProxyServerContext);
     procedure InitializeCommandHandlers; override;
     procedure TransferData(AContext: TIdHTTPProxyServerContext; ASrc, ADest: TIdTCPConnection);
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_HTTPProxy;
     property DefaultTransferMode: TIdHTTPProxyTransferMode read FDefTransferMode write FDefTransferMode default tmFullDocument;
@@ -194,11 +195,21 @@ end;
 
 destructor TIdHTTPProxyServerContext.Destroy;
 begin
-  FreeAndNil(FHeaders);
+  FHeaders.Free;
   inherited Destroy;
 end;
 
 { TIdHTTPProxyServer }
+
+constructor TIdHTTPProxyServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  ContextClass := TIdHTTPProxyServerContext;
+  DefaultPort := IdPORT_HTTPProxy;
+  FDefTransferMode := tmFullDocument;
+  Greeting.Text.Text := ''; // RS
+  ReplyUnknownCommand.Text.Text := ''; // RS
+end;
 
 procedure TIdHTTPProxyServer.InitializeCommandHandlers;
 var
@@ -237,7 +248,7 @@ procedure TIdHTTPProxyServer.TransferData(AContext: TIdHTTPProxyServerContext;
   ASrc, ADest: TIdTCPConnection);
 var
   LStream: TStream;
-  LSize: TIdStreamSize;
+  LSize: Int64;
   S: String;
 begin
   // RLebeau: TODO - support chunked, gzip, and deflate transfers.
@@ -290,7 +301,7 @@ begin
         ASrc.IOHandler.ReadStream(LStream, LSize, LSize < 0);
       end;
     finally
-      FreeAndNil(LStream);
+      LStream.Free;
     end;
   end else
   begin
@@ -333,7 +344,7 @@ begin
       //We have to remove the host and port from the request
       LContext.FDocument := LURI.GetPathAndParams;
     finally
-      FreeAndNil(LURI);
+      LURI.Free;
     end;
 
     LContext.Headers.Clear;
@@ -450,26 +461,16 @@ begin
           LContext.FOutboundClient.Disconnect;
         end;
       finally
-        FreeAndNil(LDataAvailList);
-        FreeAndNil(LReadList);
+        LDataAvailList.Free;
+        LReadList.Free;
       end;
     finally
-      FreeAndNil(LClientToServerStream);
-      FreeAndNil(LServerToClientStream);
+      LClientToServerStream.Free;
+      LServerToClientStream.Free;
     end;
   finally
     FreeAndNil(LContext.FOutboundClient);
   end;
-end;
-
-procedure TIdHTTPProxyServer.InitComponent;
-begin
-  inherited InitComponent;
-  ContextClass := TIdHTTPProxyServerContext;
-  DefaultPort := IdPORT_HTTPProxy;
-  FDefTransferMode := tmFullDocument;
-  Greeting.Text.Text := ''; // RS
-  ReplyUnknownCommand.Text.Text := ''; // RS
 end;
 
 procedure TIdHTTPProxyServer.DoHTTPBeforeCommand(AContext: TIdHTTPProxyServerContext);

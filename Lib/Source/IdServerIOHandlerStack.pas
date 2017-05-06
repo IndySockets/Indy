@@ -56,17 +56,18 @@
 unit IdServerIOHandlerStack;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdSocketHandle, IdGlobal, IdThread, IdServerIOHandler, IdStackConsts, IdIOHandler, IdScheduler,
   IdIOHandlerStack, IdServerIOHandlerSocket, IdYarn;
 
 type
   TIdServerIOHandlerStack = class(TIdServerIOHandlerSocket)
-  protected
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     function MakeClientIOHandler(ATheThread:TIdYarn ): TIdIOHandler; override;
   end;
 
@@ -74,9 +75,9 @@ implementation
 
 { TIdServerIOHandlerStack }
 
-procedure TIdServerIOHandlerStack.InitComponent;
+constructor TIdServerIOHandlerStack.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   IOHandlerSocketClass := TIdIOHandlerStack;
 end;
 

@@ -421,7 +421,7 @@ begin
         LItem.Data := AListing[i];
         Result := ParseLine(LItem, LPathSpec);
         if not Result then begin
-          FreeAndNil(LItem);
+          IdDisposeAndNil(LItem);
           Exit;
         end
       end;

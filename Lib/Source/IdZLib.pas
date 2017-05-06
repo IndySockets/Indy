@@ -47,7 +47,7 @@ uses
 
 type
   // Abstract ancestor class
-  TCustomZlibStream = class(TIdBaseStream)
+  TCustomZlibStream = class(TStream)
   protected
     FStrm: TStream;
     FStrmPos: Integer;
@@ -59,7 +59,7 @@ type
     FStreamType : TZStreamType;
 
     procedure Progress; dynamic;
-    procedure IdSetSize(ASize: Int64); override;
+    procedure SetSize(const NewSize: Int64); override;
     property  OnProgress: TNotifyEvent read FOnProgress write FOnProgress;
 
   public
@@ -74,9 +74,6 @@ type
   TCompressionStream = class(TCustomZlibStream)
   protected
     function GetCompressionRate: Single;
-    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
   public
     constructor CreateEx(CompressionLevel: TCompressionLevel; Dest: TStream;
       const StreamType: TZStreamType;
@@ -85,6 +82,11 @@ type
     constructor CreateGZ(CompressionLevel: TCompressionLevel; Dest: TStream;
       const AName: string = ''; ATime: Integer = 0); overload;
     destructor Destroy; override;
+
+    function Read(var Buffer; Count: Longint): Longint; override;
+    function Write(const Buffer; Count: Longint): Longint; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; override;
+
     property CompressionRate: Single read GetCompressionRate;
     property OnProgress;
   end;
@@ -92,13 +94,16 @@ type
   TDecompressionStream = class(TCustomZlibStream)
   protected
     FInitialPos : Int64;
-    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
   public
     constructor Create(Source: TStream);
     destructor Destroy; override;
+
     procedure  InitRead;
+
+    function Read(var Buffer; Count: Longint): Longint; override;
+    function Write(const Buffer; Count: Longint): Longint; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; override;
+
     function IsGZip: boolean;
     property OnProgress;
   end;
@@ -196,11 +201,7 @@ const
 implementation
 
 uses
-  IdGlobalProtocols, IdStream, IdZLibConst
-  {$IFDEF HAS_AnsiStrings_StrPLCopy}
-  , AnsiStrings
-  {$ENDIF}
-  ;
+  IdGlobalProtocols, IdZLibConst;
 
 const
   Levels: array [TCompressionLevel] of Int8 =
@@ -264,31 +265,20 @@ function DMAOfStream(AStream: TStream; out Available: TIdC_UINT): Pointer;
 begin
   if AStream is TCustomMemoryStream then begin
     Result := TCustomMemoryStream(AStream).Memory;
-  end
-  {$IFDEF STRING_IS_ANSI}
-  // In D2009, the DataString property was changed to use a getter method
-  // that returns a temporary string, so it is not a direct access to the
-  // stream contents anymore.  TStringStream was updated to derive from
-  // TBytesStream now, which is a TCustomMemoryStream descendant, and so
-  // will be handled above...
-  else if AStream is TStringStream then begin
-    Result := Pointer(TStringStream(AStream).DataString);
-  end
-  {$ENDIF}
-  else begin
+  end else begin
+    // In D2009, the DataString property was changed to use a getter method
+    // that returns a temporary string, so it is not a direct access to the
+    // stream contents anymore.  TStringStream was updated to derive from
+    // TBytesStream now, which is a TCustomMemoryStream descendant, and so
+    // will be handled above...
     Result := nil;
   end;
   if Result <> nil then
   begin
     //handle integer overflow
-    {$IFDEF STREAM_SIZE_64}
     Available := TIdC_UINT(IndyMin(AStream.Size - AStream.Position, High(TIdC_UINT)));
     // TODO: account for a 64-bit position in a 32-bit environment
     Inc(PtrUInt(Result), AStream.Position);
-    {$ELSE}
-    Available := AStream.Size - AStream.Position;
-    Inc(PtrUInt(Result), AStream.Position);
-    {$ENDIF}
   end else begin
     Available := 0;
   end;
@@ -297,13 +287,9 @@ end;
 function CanResizeDMAStream(AStream: TStream): boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := (AStream is TCustomMemoryStream)
-            {$IFDEF STRING_IS_ANSI}
-            // In D2009, TStringStream was updated to derive from TBytesStream now,
-            // which is a TCustomMemoryStream descendant, and so will be handled above...
-            or (AStream is TStringStream)
-            {$ENDIF}
-            ;
+  // In D2009, TStringStream was updated to derive from TBytesStream now,
+  // which is a TCustomMemoryStream descendant, and so will be handled below...
+  Result := (AStream is TCustomMemoryStream);
 end;
 
 ///tries to get the stream info
@@ -425,7 +411,7 @@ begin
     if UseBuffer then
     begin
       try
-        TIdStreamHelper.Seek(InStream, -N, soCurrent);
+        InStream.Seek(-N, soCurrent);
       finally
         FreeMem(Buff);
       end;
@@ -459,12 +445,8 @@ begin
     //direct memory access if available!
     buf := Pointer(BackObj.InMem);
     //handle integer overflow
-    {$IFDEF STREAM_SIZE_64}
     Result := TIdC_UNSIGNED(IndyMin(S.Size - S.Position, High(TIdC_UNSIGNED)));
-    {$ELSE}
-    Result := S.Size - S.Position;
-    {$ENDIF}
-    TIdStreamHelper.Seek(S, Result, soCurrent);
+    S.Seek(Result, soCurrent);
   end else
   begin
     buf    := PByte(@BackObj.ReadBuf);
@@ -508,7 +490,7 @@ begin
       DCheck(inflateBack(strm, Strm_in_func, BackObj, Strm_out_func, BackObj));
     //  DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
       //seek back when unused data
-      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
+      InStream.Seek(-strm.avail_in, soCurrent);
       //now trailer can be checked
     finally
       DCheck(inflateBackEnd(strm));
@@ -565,7 +547,7 @@ begin
     try
       DCheck(inflateBack(strm, Strm_in_func, BackObj, Strm_out_func, BackObj));
       //seek back when unused data
-      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
+      InStream.Seek(-strm.avail_in, soCurrent);
       //now trailer can be checked
     finally
       DCheck(inflateBackEnd(strm));
@@ -578,7 +560,7 @@ end;
 type
   TMemStreamAccess = class(TMemoryStream);
 
-function ExpandStream(AStream: TStream; const ACapacity : TIdStreamSize): Boolean;
+function ExpandStream(AStream: TStream; const ACapacity : Int64): Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := True;
@@ -608,7 +590,7 @@ var
       if UseOutBuf then begin
         OutStream.Write(pLastOutBuf^, NumWritten);
       end else begin
-        TIdStreamHelper.Seek(OutStream, NumWritten, soCurrent);
+        OutStream.Seek(NumWritten, soCurrent);
       end;
     end;
   end;
@@ -724,7 +706,7 @@ begin
 
   if not UseInBuf then begin
     //adjust position of direct input
-    TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
+    InStream.Seek(strm.total_in, soCurrent);
   end;
 end;
 
@@ -890,7 +872,7 @@ begin
   end;
 end;
 
-procedure TCustomZLibStream.IdSetSize(ASize: Int64);
+procedure TCustomZLibStream.SetSize(const NewSize: Int64);
 begin
   // do nothing here. IdSetSize is abstract, so it has
   // to be overriden, but we don't actually use it here
@@ -931,13 +913,12 @@ begin
     // about the charset, we'll force it here in case Indy's 8-bit encoding
     // class is changed later on...
     LBytes := CharsetToEncoding('ISO-8859-1').GetBytes(AName);
+    FillChar(FGZHeader.name^, FGZHeader.name_max, 0);
     {$IFDEF USE_MARSHALLED_PTRS}
     // TODO: optimize this
-    FillChar(FGZHeader.name^, FGZHeader.name_max, 0);
     TMarshal.Copy(TBytesPtr(@LBytes)^, 0, TPtrWrapper.Create(FGZHeader.name), IndyMin(Length(LBytes), FGZHeader.name_max));
     {$ELSE}
-    SetString(LName, PAnsiChar(LBytes), Length(LBytes));
-    {$IFDEF HAS_AnsiStrings_StrPLCopy}AnsiStrings.{$ENDIF}StrPLCopy(FGZHeader.name, LName, FGZHeader.name_max);
+    Move(PByte(LBytes)^, FGZHeader.name, IndyMin(Length(LBytes), FGZHeader.name_max));
     {$ENDIF}
     deflateSetHeader(FZRec, FGZHeader);
   end;
@@ -982,15 +963,15 @@ begin
   inherited Destroy;
 end;
 
-function TCompressionStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TCompressionStream.Read(var Buffer; Count: Longint): Longint;
 begin
   raise ECompressionError.Create(sInvalidStreamOp);
 end;
 
-function TCompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TCompressionStream.Write(const Buffer; Count: Longint): Longint;
 begin
-  FZRec.next_in := PIdAnsiChar(@ABuffer[AOffset]);
-  FZRec.avail_in := ACount;
+  FZRec.next_in := PIdAnsiChar(@Buffer);
+  FZRec.avail_in := Count;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;
   end;
@@ -1009,9 +990,9 @@ begin
   Result := ACount;
 end;
 
-function TCompressionStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+function TCompressionStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 begin
-  if (AOffset = 0) and (AOrigin = soCurrent) then begin
+  if (Offset = 0) and (Origin = soCurrent) then begin
     Result := FZRec.total_in;
   end else begin
     raise ECompressionError.Create(sInvalidStreamOp);
@@ -1038,7 +1019,7 @@ end;
 
 destructor TDecompressionStream.Destroy;
 begin
-  TIdStreamHelper.Seek(FStrm, -FZRec.avail_in, soCurrent);
+  FStrm.Seek(-FZRec.avail_in, soCurrent);
   inflateEnd(FZRec);
   inherited Destroy;
 end;
@@ -1060,7 +1041,7 @@ begin
   //theoretically it can happen with a veeeeery long gzip name or comment
   //this is more generic, but some extra steps
   begin
-    TIdStreamHelper.Seek(FStrm, -N, soCurrent);
+    FStrm.Seek(-N, soCurrent);
     FStreamType := GetStreamType(FStrm, @FGZHeader, S);
   end;
 
@@ -1071,11 +1052,10 @@ begin
   DCheck(inflateInitEx(FZRec, FStreamType));
 end;
 
-function TDecompressionStream.IdRead(var VBuffer: TIdBytes; AOffset,
-  ACount: Longint): Longint;
+function TDecompressionStream.Read(var Buffer; Count: Longint): Longint;
 begin
-  FZRec.next_out := PIdAnsiChar(@VBuffer[AOffset]);
-  FZRec.avail_out := ACount;
+  FZRec.next_out := PIdAnsiChar(@Buffer);
+  FZRec.avail_out := Count;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;
   end;
@@ -1098,21 +1078,21 @@ begin
       Break;
     end;
   end;
-  Result := TIdC_UINT(ACount) - FZRec.avail_out;
+  Result := TIdC_UINT(Count) - FZRec.avail_out;
 end;
 
-function TDecompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+function TDecompressionStream.Write(const Buffer; Count: Longint): Longint;
 begin
   raise EDecompressionError.Create(sInvalidStreamOp);
 end;
 
-function TDecompressionStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+function TDecompressionStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 var
   I: Integer;
   Buf: array [0..4095] of TIdAnsiChar;
   LOffset : Int64;
 begin
-  if (AOffset = 0) and (AOrigin = soBeginning) then
+  if (Offset = 0) and (Origin = soBeginning) then
   begin
     DCheck(inflateReset(FZRec));
     FZRec.next_in := @FBuffer[0];
@@ -1120,11 +1100,11 @@ begin
     FStrm.Position := FInitialPos;
     FStrmPos := FInitialPos;
   end
-  else if ((AOffset >= 0) and (AOrigin = soCurrent)) or
-          (((TIdC_UINT(AOffset) - FZRec.total_out) > 0) and (AOrigin = soBeginning)) then
+  else if ((Offset >= 0) and (Origin = soCurrent)) or
+          (((TIdC_UINT(Offset) - FZRec.total_out) > 0) and (Origin = soBeginning)) then
   begin
-    LOffset := AOffset;
-    if AOrigin = soBeginning then begin
+    LOffset := Offset;
+    if Origin = soBeginning then begin
       Dec(LOffset, FZRec.total_out);
     end;
     if LOffset > 0 then

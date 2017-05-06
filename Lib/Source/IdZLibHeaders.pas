@@ -39,7 +39,7 @@ The only things that still are cdecl are the callback functions.
 }
     {$IFNDEF BCB5_DUMMY_BUILD}
       {$DEFINE STATICLOAD_ZLIB}
-      {$IFDEF VCL_XE2_OR_ABOVE}
+      {$IFDEF DCC_XE2_OR_ABOVE}
         {$DEFINE STATIC_CDECL_PROCS}
       {$ENDIF}
     {$ENDIF}
@@ -58,15 +58,13 @@ The only things that still are cdecl are the callback functions.
 
 uses
   //reference off_t
-  {$IFDEF KYLIXCOMPAT}
-  libc,
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX)}
   Posix.SysTypes,
-  {$ENDIF}
-  {$IFDEF USE_BASEUNIX}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
+  libc,
+  {$ELSEIF DEFINED(USE_BASEUNIX)}
   baseunix,
-  {$ENDIF}
+  {$IFEND}
   IdGlobal, IdCTypes
   {$IFNDEF STATICLOAD_ZLIB}
   , IdException
@@ -105,7 +103,7 @@ uses
 (*$HPPEMIT 'typedef void __cdecl (*free_func)(void * opaque, void * address);'*)
 (*$HPPEMIT ''*)
 (*$HPPEMIT '#pragma pack(push,1)'*)
-{$IFDEF VCL_XE_OR_ABOVE}
+{$IFDEF DCC_XE_OR_ABOVE}
 (*$HPPEMIT 'struct DECLSPEC_DRECORD z_stream'*)
 {$ELSE}
 (*$HPPEMIT 'struct z_stream'*)
@@ -141,7 +139,7 @@ uses
 (*$HPPEMIT '#pragma sizeof(z_stream)'*)
 (*$HPPEMIT '#endif'*)
 (*$HPPEMIT ''*)
-{$IFDEF VCL_2009_OR_ABOVE}
+{$IFDEF DCC_2009_OR_ABOVE}
 (*$HPPEMIT '#if alignof(z_stream) < 1'*)
 (*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(z_stream) < (Pascal) [size: 56, align: 1] (WARNING)"'*)
 (*$HPPEMIT '#endif'*)
@@ -160,7 +158,7 @@ uses
 (*$HPPEMIT 'typedef gz_header *gz_headerp;'*)
 (*$HPPEMIT ''*)
 (*$HPPEMIT '#pragma pack(push,1)'*)
-{$IFDEF VCL_XE_OR_ABOVE}
+{$IFDEF DCC_XE_OR_ABOVE}
 (*$HPPEMIT 'struct DECLSPEC_DRECORD gz_header'*)
 {$ELSE}
 (*$HPPEMIT 'struct gz_header'*)
@@ -195,7 +193,7 @@ uses
 (*$HPPEMIT '#pragma sizeof(gz_header)'*)
 (*$HPPEMIT '#endif'*)
 (*$HPPEMIT ''*)
-{$IFDEF VCL_2009_OR_ABOVE}
+{$IFDEF DCC_2009_OR_ABOVE}
 (*$HPPEMIT '#if alignof(gz_header) < 1'*)
 (*$HPPEMIT '#pragma message "Pascal/C++ alignment mismatch: (C++) alignof(gz_header) < (Pascal) [size: 52, align: 1] (WARNING)"'*)
 (*$HPPEMIT '#endif'*)
@@ -235,18 +233,11 @@ type
 {JPM - I made some types from our old header to the new C types defined originally
  for compatability.}
   {$EXTERNALSYM z_off_t}
-  {$IFDEF USE_VCL_POSIX}
-  z_off_t = off_t;
-  {$ENDIF}
-  {$IFDEF KYLIXCOMPAT}
-  z_off_t = off_t;
-  {$ENDIF}
-  {$IFDEF USE_BASEUNIX}
-  z_off_t = off_t;
-  {$ENDIF}
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
   z_off_t = TIdC_LONG;
-  {$ENDIF}
+  {$ELSEIF DEFINED(USE_VCL_POSIX) OR DEFINED(KYLIXCOMPAT) OR DEFINED(USE_BASEUNIX)}
+  z_off_t = off_t;
+  {$IFEND}
 
   {$EXTERNALSYM alloc_func}
   alloc_func = function(opaque: Pointer; items, size: TIdC_UINT): Pointer;  cdecl;
@@ -747,7 +738,7 @@ implementation
 
 uses
   SysUtils
-  {$IFNDEF STATICLOAD_ZLIB}
+  {$IF NOT DEFINED(STATICLOAD_ZLIB)}
   , IdZLibConst
     {$IFDEF KYLIXCOMPAT}
   , libc
@@ -758,14 +749,13 @@ uses
     {$IFDEF WINDOWS}
   , Windows
     {$ENDIF}
-  {$ELSE}
-      {$IFDEF VCL_XE2_OR_ABOVE}
-  , System.Win.Crtl {$NOINCLUDE System.Win.Crtl}
-      {$ENDIF}
-  {$ENDIF};
+  {$ELSEIF DEFINED(DCC_XE2_OR_ABOVE)}
+  , System.Win.Crtl
+  {$IFEND};
 
 {$IFDEF STATICLOAD_ZLIB}
-{$IFNDEF VCL_XE2_OR_ABOVE}
+
+{$IF NOT DEFINED(DCC_XE2_OR_ABOVE)}
   {$L adler32.obj}
   {$L compress.obj}
   {$L crc32.obj}
@@ -777,43 +767,40 @@ uses
   {$L trees.obj}
   {$L uncompr.obj}
   {$L zutil.obj}
-{$ELSE}
-  {$IFDEF WIN32}
-    {$L ZLib\i386-Win32-ZLib\zlibudec.obj} // undecorated stubs which are not needed for x64 compilation
-    {$L ZLib\i386-Win32-ZLib\deflate.obj}
-    {$L ZLib\i386-Win32-ZLib\inflate.obj}
-    {$L ZLib\i386-Win32-ZLib\infback.obj}
-    {$L ZLib\i386-Win32-ZLib\inffast.obj}
-    {$L ZLib\i386-Win32-ZLib\inftrees.obj}
-    {$L ZLib\i386-Win32-ZLib\trees.obj}
-    {$L ZLib\i386-Win32-ZLib\compress.obj}
-    {$L ZLib\i386-Win32-ZLib\uncompr.obj}
-    {$L ZLib\i386-Win32-ZLib\adler32.obj}
-    {$L ZLib\i386-Win32-ZLib\crc32.obj}
-    {$L ZLib\i386-Win32-ZLib\zutil.obj}
-    {$L ZLib\i386-Win32-ZLib\gzclose.obj}
-    {$L ZLib\i386-Win32-ZLib\gzread.obj}
-    {$L ZLib\i386-Win32-ZLib\gzwrite.obj}
-    {$L ZLib\i386-Win32-ZLib\gzlib.obj}
-  {$ENDIF}
-  {$IFDEF WIN64}
-    {$L ZLib\x86_64-Win64-ZLib\deflate.obj}
-    {$L ZLib\x86_64-Win64-ZLib\inflate.obj}
-    {$L ZLib\x86_64-Win64-ZLib\infback.obj}
-    {$L ZLib\x86_64-Win64-ZLib\inffast.obj}
-    {$L ZLib\x86_64-Win64-ZLib\inftrees.obj}
-    {$L ZLib\x86_64-Win64-ZLib\trees.obj}
-    {$L ZLib\x86_64-Win64-ZLib\compress.obj}
-    {$L ZLib\x86_64-Win64-ZLib\uncompr.obj}
-    {$L ZLib\x86_64-Win64-ZLib\adler32.obj}
-    {$L ZLib\x86_64-Win64-ZLib\crc32.obj}
-    {$L ZLib\x86_64-Win64-ZLib\zutil.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzclose.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzread.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzwrite.obj}
-    {$L ZLib\x86_64-Win64-ZLib\gzlib.obj}
-  {$ENDIF}
-{$ENDIF}
+{$ELSEIF DEFINED(WIN32)}
+  {$L ZLib\i386-Win32-ZLib\zlibudec.obj} // undecorated stubs which are not needed for x64 compilation
+  {$L ZLib\i386-Win32-ZLib\deflate.obj}
+  {$L ZLib\i386-Win32-ZLib\inflate.obj}
+  {$L ZLib\i386-Win32-ZLib\infback.obj}
+  {$L ZLib\i386-Win32-ZLib\inffast.obj}
+  {$L ZLib\i386-Win32-ZLib\inftrees.obj}
+  {$L ZLib\i386-Win32-ZLib\trees.obj}
+  {$L ZLib\i386-Win32-ZLib\compress.obj}
+  {$L ZLib\i386-Win32-ZLib\uncompr.obj}
+  {$L ZLib\i386-Win32-ZLib\adler32.obj}
+  {$L ZLib\i386-Win32-ZLib\crc32.obj}
+  {$L ZLib\i386-Win32-ZLib\zutil.obj}
+  {$L ZLib\i386-Win32-ZLib\gzclose.obj}
+  {$L ZLib\i386-Win32-ZLib\gzread.obj}
+  {$L ZLib\i386-Win32-ZLib\gzwrite.obj}
+  {$L ZLib\i386-Win32-ZLib\gzlib.obj}
+{$ELSEIF DEFINED(WIN64)}
+  {$L ZLib\x86_64-Win64-ZLib\deflate.obj}
+  {$L ZLib\x86_64-Win64-ZLib\inflate.obj}
+  {$L ZLib\x86_64-Win64-ZLib\infback.obj}
+  {$L ZLib\x86_64-Win64-ZLib\inffast.obj}
+  {$L ZLib\x86_64-Win64-ZLib\inftrees.obj}
+  {$L ZLib\x86_64-Win64-ZLib\trees.obj}
+  {$L ZLib\x86_64-Win64-ZLib\compress.obj}
+  {$L ZLib\x86_64-Win64-ZLib\uncompr.obj}
+  {$L ZLib\x86_64-Win64-ZLib\adler32.obj}
+  {$L ZLib\x86_64-Win64-ZLib\crc32.obj}
+  {$L ZLib\x86_64-Win64-ZLib\zutil.obj}
+  {$L ZLib\x86_64-Win64-ZLib\gzclose.obj}
+  {$L ZLib\x86_64-Win64-ZLib\gzread.obj}
+  {$L ZLib\x86_64-Win64-ZLib\gzwrite.obj}
+  {$L ZLib\x86_64-Win64-ZLib\gzlib.obj}
+{$IFEND}
 
 function adler32; external;
 function adler32_combine; external;
@@ -856,7 +843,9 @@ function deflateSetHeader; external;
 function inflatePrime; external;
 function inflateMark; external;
 function inflateGetHeader; external;
+
 {$ELSE}
+
 var
   {$IFDEF UNIX}
   hZlib: HModule = nilhandle;
@@ -864,24 +853,21 @@ var
   hZLib: THandle = 0;
   {$ENDIF}
 
-  {$IFDEF UNIX}
+  {$IF DEFINED(UNIX)}
 const
   //The extensions will be resolved by IdGlobal.HackLoad
   //This is a little messy because symbolic links to libraries may not always be the same
   //in various Unix types.  Even then, there could possibly be differences.
   libzlib = 'libz';
   libvers : array [0..3] of string = ('.1','','.3','.2');
-  {$ENDIF}
-  {$IFDEF NETWARE}  {zlib.nlm comes with netware6}
+  {$ELSEIF DEFINED(NETWARE)}  {zlib.nlm comes with netware6}
 const
   libzlib = 'zlib';
-  {$ENDIF}
-  {$IFDEF WIN32}
+  {$ELSEIF DEFINED(WIN32)}
   //Note that this is the official ZLIB1 .DLL from the http://www.zlib.net/
 const
   libzlib = 'zlib1.dll';
-  {$ENDIF}
-  {$IFDEF WIN64}
+  {$ELSEIF DEFINED(WIN64)}
   //Note that this is not an official ZLIB .DLL.  It was obtained from:
   //http://www.winimage.com/zLibDll/
   //
@@ -889,12 +875,11 @@ const
   //conventions.  Get the DLL for Win32-x86.
 const
   libzlib = 'zlibwapi.dll';
-  {$ENDIF}
-  {$IFDEF WINCE}
+  {$ELSEIF DEFINED(WINCE)}
   //Note that zlibce can be found at http://www.tenik.co.jp/~adachi/wince/zlibce/
 const
   libzlib = 'zlibce';
-  {$ENDIF}
+  {$IFEND}
 
 constructor EIdZLibStubError.Build(const ATitle : String; AError : UInt32);
 begin
@@ -908,14 +893,14 @@ begin
   end;
 end;
 
-function FixupStub(const AName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
+function FixupStub(const AName: string): Pointer;
 begin
   if hZLib = 0 then begin
     if not Load then begin
       raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
     end;
   end;
-  Result := GetProcAddress(hZLib, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
+  Result := GetProcAddress(hZLib, PChar(AName));
   if Result = nil then begin
     raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 10022);
   end;

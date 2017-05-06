@@ -70,8 +70,8 @@ type
   protected
     procedure SendAck(const BlockNumber: UInt16);
     procedure RaiseError(const ErrorPacket: TIdBytes);
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Get(const ServerFile: String; DestinationStream: TStream); overload;
     procedure Get(const ServerFile, LocalFile: String); overload;
     procedure Put(SourceStream: TStream; const ServerFile: String); overload;
@@ -87,17 +87,21 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdComponent,
   IdExceptionCore,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdStack,
   SysUtils;
+
+constructor TIdTrivialFTP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  TransferMode := GTransferMode;
+  Port := IdPORT_TFTP;
+  FRequestedBlockSize := GFRequestedBlockSize;
+  ReceiveTimeout := GReceiveTimeout;
+end;
 
 procedure TIdTrivialFTP.CheckOptionAck(const OptionPacket: TIdBytes; Reading: Boolean);
 var
@@ -164,15 +168,6 @@ begin
       raise;
     end;
   end;
-end;
-
-procedure TIdTrivialFTP.InitComponent;
-begin
-  inherited;
-  TransferMode := GTransferMode;
-  Port := IdPORT_TFTP;
-  FRequestedBlockSize := GFRequestedBlockSize;
-  ReceiveTimeout := GReceiveTimeout;
 end;
 
 procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TStream);
@@ -300,7 +295,7 @@ begin
   try
     Get(ServerFile, fs);
   finally
-    FreeAndNil(fs);
+    fs.Free;
   end;
 end;
 
@@ -315,7 +310,7 @@ end;
 procedure TIdTrivialFTP.Put(SourceStream: TStream; const ServerFile: String);
 var
   Buffer, LServerFile, LMode, LBlockSize, LBlockOctets, LTransferSize, LTransferOctets: TIdBytes;
-  StreamLen: TIdStreamSize;
+  StreamLen: Int64;
   LOffset, DataLen: Integer;
   ExpectedBlockCtr, RecvdBlockCtr, wOp: UInt16;
   TerminateTransfer, WaitingForAck: Boolean;

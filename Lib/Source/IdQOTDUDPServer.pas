@@ -34,19 +34,23 @@
 unit IdQOTDUDPServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
   TIdQotdUDPGetEvent = procedure (ABinding: TIdSocketHandle; var AQuote : String) of object;
+
   TIdQotdUDPServer = class(TIdUDPServer)
   protected
     FOnCommandQOTD : TIdQotdUDPGetEvent;
     procedure DoOnCommandQUOTD(ABinding: TIdSocketHandle; var AQuote : String); virtual;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_QOTD;
     property OnCommandQOTD : TIdQotdUDPGetEvent read FOnCommandQOTD write FOnCommandQOTD;
@@ -56,9 +60,9 @@ implementation
 
 { TIdQotdUDPServer }
 
-procedure TIdQotdUDPServer.InitComponent;
+constructor TIdQotdUDPServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_QOTD;
 end;
 

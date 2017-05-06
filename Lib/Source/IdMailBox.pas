@@ -46,9 +46,11 @@ unit IdMailBox;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdBaseComponent,
   IdMessage,
   IdException,
@@ -79,10 +81,12 @@ type
     FUnseenMsgs: Integer;
 
     procedure SetMessageList(const Value: TIdMessageCollection);
-    procedure InitComponent; override;
   public
     DeletedMsgs: TIntArray;
     SearchResult: TIntArray;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure Clear; virtual;
     property Attributes: TIdMailBoxAttributes read FAttributes write FAttributes;
     property ChangeableFlags: TIdMessageFlagsSet read FChangeableFlags write FChangeableFlags;
     property FirstUnseenMsg: Integer read FFirstUnseenMsg write FFirstUnseenMsg;
@@ -95,8 +99,6 @@ type
     property UIDNext: String read FUIDNext write FUIDNext;
     property UIDValidity: String read FUIDValidity write FUIDValidity;
     property UnseenMsgs: Integer read FUnseenMsgs write FUnseenMsgs;
-    procedure Clear; virtual;
-    destructor Destroy; override;
   published
   end;
 
@@ -119,8 +121,21 @@ implementation
 
 uses
   SysUtils;
-  
+
 { TIdMailBox }
+
+constructor TIdMailBox.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FMessageList := TIdMessageCollection.Create;
+  Clear;
+end;
+
+destructor TIdMailBox.Destroy;
+begin
+  FMessageList.Free;
+  inherited Destroy;
+end;
 
 procedure TIdMailBox.Clear;
 begin
@@ -138,19 +153,6 @@ begin
   FFlags := [];
   FChangeableFlags := [];
   MessageList.Clear;
-end;
-
-procedure TIdMailBox.InitComponent;
-begin
-  inherited InitComponent;
-  FMessageList := TIdMessageCollection.Create;
-  Clear;
-end;
-
-destructor TIdMailBox.Destroy;
-begin
-  FreeAndNil(FMessageList);
-  inherited Destroy;
 end;
 
 procedure TIdMailBox.SetMessageList(const Value: TIdMessageCollection);

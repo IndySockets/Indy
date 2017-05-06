@@ -213,8 +213,8 @@ end;
 
 destructor TIdAuthentication.Destroy;
 begin
-  FreeAndNil(FAuthParams);
-  FreeAndNil(FParams);
+  FAuthParams.Free;
+  FParams.Free;
   inherited Destroy;
 end;
 

@@ -1175,13 +1175,13 @@ type
       ADirectoryListing: TStrings; const ACmd : String; const ASwitches : String);
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
-    procedure InitComponent; override;
     procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
     // overriden so we can close active transfers during a shutdown
     procedure DoTerminateContext(AContext: TIdContext); override;
     //overriden so we can handle telnet sequences
     function ReadCommandLine(AContext: TIdContext): string; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property SupportXAUTH : Boolean read FSupportXAUTH write SetSupportXAUTH;
   published
@@ -1273,11 +1273,6 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
@@ -1351,7 +1346,7 @@ const
 const
   NLSTEncType: array[Boolean] of IdTextEncodingType = (encASCII, encUTF8);
 
-function CalculateCheckSum(AHashClass: TIdHashClass; AStrm: TStream; ABeginPos, AEndPos: TIdStreamSize): String;
+function CalculateCheckSum(AHashClass: TIdHashClass; AStrm: TStream; ABeginPos, AEndPos: Int64): String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LHash: TIdHash;
@@ -1404,7 +1399,7 @@ end;
 destructor TIdFTPServerContext.Destroy;
 begin
   KillDataChannel;
-  FreeAndNil(FUserSecurity);
+  FUserSecurity.Free;
   inherited Destroy;
 end;
 
@@ -1449,9 +1444,9 @@ end;
 
 { TIdFTPServer }
 
-procedure TIdFTPServer.InitComponent;
+constructor TIdFTPServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   HelpReply.Code := ''; //we will handle the help ourselves
   FDataChannelCommands := TIdCommandHandlers.Create(Self, FReplyClass, ReplyTexts, ExceptionReply);
   FSITECommands := TIdCommandHandlers.Create(Self, FReplyClass, ReplyTexts, ExceptionReply);
@@ -1484,6 +1479,17 @@ begin
   FPASVBoundPortMax := DEF_PASV_BOUND_MAX;
   FPathProcessing := DEF_PATHPROCESSING;
   FDirFormat := DEF_DIRFORMAT;
+end;
+
+destructor TIdFTPServer.Destroy;
+begin
+  FAnonymousAccounts.Free;
+  FFTPSecurityOptions.Free;
+  FOPTSCommands.Free;
+  FDataChannelCommands.Free;
+  FSITECommands.Free;
+  FReplyUnknownSITECommand.Free;
+  inherited Destroy;
 end;
 
 function TIdFTPServer.GetReplyClass: TIdReplyClass;
@@ -1690,7 +1696,7 @@ begin
       end;
       ASender.Reply.SetReply(214, s);
     finally
-      FreeAndNil(LCmds);
+      LCmds.Free;
     end;
   end;
 end;
@@ -2507,17 +2513,6 @@ begin
   end;
 end;
 
-destructor TIdFTPServer.Destroy;
-begin
-  FreeAndNil(FAnonymousAccounts);
-  FreeAndNil(FFTPSecurityOptions);
-  FreeAndNil(FOPTSCommands);
-  FreeAndNil(FDataChannelCommands);
-  FreeAndNil(FSITECommands);
-  FreeAndNil(FReplyUnknownSITECommand);
-  inherited Destroy;
-end;
-
 procedure TIdFTPServer.ListDirectory(ASender: TIdFTPServerContext; ADirectory: string;
   ADirContents: TStrings; ADetails: Boolean; const ACmd : String = 'LIST';
   const ASwitches : String = ''); {do not localize}
@@ -2588,7 +2583,7 @@ begin
         LDirectoryList.NLISTOutputDir(ADirContents);
       end;
     finally
-      FreeAndNil(LDirectoryList);
+      LDirectoryList.Free;
     end;
   end else begin
     raise EIdFTPServerNoOnListDirectory.Create(RSFTPNoOnDirEvent);    {Do not Localize}
@@ -3614,7 +3609,7 @@ var
       end;
     finally
       if AContext.DataMode = dmDeflate then begin
-        FreeAndNil(LM);
+        LM.Free;
       end;
     end;
   end;
@@ -3622,7 +3617,7 @@ var
   procedure WriteToStream(AContext : TIdFTPServerContext; ACmdQueue : TStrings;
     ASrcStream : TStream; const AIgnoreCompression : Boolean = False);
   var
-    LBufSize : TIdStreamSize;
+    LBufSize : Int64;
     LOutStream : TStream;
   begin
     if AContext.DataMode = dmDeflate then begin
@@ -3651,7 +3646,7 @@ var
       until (LBufSize = 0) or (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
     finally
       if AContext.DataMode = dmDeflate then begin
-        FreeAndNil(LOutStream);
+        LOutStream.Free;
       end;
     end;
   end;
@@ -3697,7 +3692,7 @@ var
         LM.Position := 0;
         WriteToStream(AContext, ACmdQueue, LM, True);
       finally
-        FreeAndNil(LM);
+        LM.Free;
       end;
       Exit;
     end;
@@ -3795,7 +3790,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(LCmdQueue);
+      LCmdQueue.Free;
     end;
   finally
     FreeAndNil(LContext.FDataChannel);
@@ -3858,7 +3853,7 @@ begin
             ASender.Reply.Text.Add('    ' + TrimLeft(LStream[i])); {Do not Localize}
           end;
         finally
-          FreeAndNil(LStream);
+          LStream.Free;
         end;
       end;
       ASender.Reply.Text.Insert(0,RSFTPCmdStartOfStat);
@@ -3881,7 +3876,7 @@ begin
         ASender.PerformReply := True;
         ASender.Reply.SetReply(213, RSFTPCmdEndOfStat);
       finally
-        FreeAndNil(LStream);
+        LStream.Free;
       end;
     end;
   end;
@@ -4766,7 +4761,7 @@ begin
           DoOnCombineFiles(LContext, LTargetFileName, LFileParts);
           ASender.Reply.SetReply(250, RSFTPFileOpSuccess);
         finally
-          FreeAndNil(LFileParts);
+          LFileParts.Free;
         end;
       end else begin
         CmdInvalidParams(ASender);
@@ -4806,7 +4801,7 @@ begin
         AContext.Connection.Disconnect(False);
       end;
     finally
-      FreeAndNil(LGreeting);
+      LGreeting.Free;
     end;
   end else begin
     if (not GetFIPSMode) and FSupportXAUTH and (Greeting.NumericCode = 220)  then begin
@@ -4822,7 +4817,7 @@ begin
           AContext.Connection.Disconnect(False);
         end;
       finally
-        FreeAndNil(LGreeting);
+        LGreeting.Free;
       end;
     end else begin
       inherited DoConnect(AContext);
@@ -4906,7 +4901,7 @@ begin
             FOnMLST(LContext, LPath, LDir);
             LDir.MLISTOutputDir(LStream, LContext.MLSOpts);
           finally
-            FreeAndNil(LDir);
+            LDir.Free;
           end;
         end else begin
           //this part is kept just for backwards compatibility
@@ -4922,7 +4917,7 @@ begin
         ASender.Reply.Text.Add('End'); {do not localize}
         ASender.SendReply;
       finally
-        FreeAndNil(LStream);
+        LStream.Free;
       end;
     end;
   end else begin
@@ -5132,7 +5127,7 @@ begin
         ASender.Reply.SetReply(504, IndyFormat(RSFTPParamError, ['MFF']));  {Do not translate}
       end;
     finally
-      FreeAndNil(LFacts);
+      LFacts.Free;
     end;
   end;
 end;
@@ -5151,7 +5146,7 @@ begin
       Result := CalculateCheckSum(TIdHashMessageDigest5, LCalcStream, 0, LCalcStream.Size);
       DoOnMD5Verify(ASender, AFileName, Result);
     finally
-      FreeAndNil(LCalcStream);
+      LCalcStream.Free;
     end;
   end;
 end;
@@ -5191,7 +5186,7 @@ begin
         end;
         IdDelete(LRes,1,1);
       finally
-        FreeAndNil(LFiles);
+        LFiles.Free;
       end;
       if LError then begin
         //The http://www.potaroo.net/ietf/idref/draft-twine-ftpmd5/
@@ -5314,7 +5309,7 @@ begin
   LFileSystem := FTPFileSystem;
   if Assigned(LFileSystem) then begin
     LFileSystem.GetFileDate(ASender, AFileName, VFileDate);
-	  VFileDate := VFileDate - OffsetFromUTC;
+    VFileDate := VFileDate - OffsetFromUTC;
   end else if Assigned(FOnGetFileDate) then begin
     FOnGetFileDate(ASender, AFileName, VFileDate);
   end;
@@ -5819,7 +5814,7 @@ begin
       s := s + HelpText(LCmds) + FEndOfHelpLine;
       ASender.Reply.SetReply(214, s);
     finally
-      FreeAndNil(LCmds);
+      LCmds.Free;
     end;
   end;
 end;
@@ -6218,7 +6213,7 @@ const
 var
   LCalcStream : TStream;
   LFileName, LCheckSum, LBuf : String;
-  LBeginPos, LEndPos : TIdStreamSize;
+  LBeginPos, LEndPos : Int64;
   LContext : TIdFTPServerContext;
   LHashIdx: Integer;
   // under ARC, convert a weak reference to a strong reference before working with it
@@ -6278,7 +6273,7 @@ begin
           LCheckSum := CalculateCheckSum(HashTypes[LHashIdx], LCalcStream, LBeginPos, LEndPos);
           ASender.Reply.SetReply(250, LCheckSum);
         finally
-          FreeAndNil(LCalcStream);
+          LCalcStream.Free;
         end;
       end else begin
         CmdFileActionAborted(ASender);
@@ -6658,11 +6653,13 @@ var
 begin
   //First make the first word upper-case
   LTmp := UpCaseFirstWord(ALine);
+  if Assigned(AReply) then begin
+    LReply := AReply;
+  end else begin
+    LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
+  end;
   try
-    if Assigned(AReply) then begin
-      LReply := AReply;
-    end else begin
-      LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
+    if not Assigned(AReply) then begin
       LReply.Assign(ReplyUnknownCommand);
     end;
     LReply.Text.Clear;
@@ -6670,7 +6667,7 @@ begin
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
-      FreeAndNil(LReply);
+      LReply.Free;
     end;
   end;
 end;
@@ -7032,7 +7029,7 @@ begin
     ftpdfDOS:
       Result := not AContext.FMSDOSMode;
     ftpdfOSDependent:
-      if (GOSType = otWindows) or (GOSType = otDotNET) then begin
+      if GOSType = otWindows then begin
         Result := not AContext.FMSDOSMode;
       end;
   end;
@@ -7174,14 +7171,14 @@ end;
 
 destructor TIdDataChannel.Destroy;
 begin
-  FreeAndNil(FOKReply);
-  FreeAndNil(FErrorReply);
-  FreeAndNil(FReply);
+  FOKReply.Free;
+  FErrorReply.Free;
+  FReply.Free;
   {$IFNDEF USE_OBJECT_ARC}
   FDataChannel.IOHandler.Free;
   {$ENDIF}
   FDataChannel.IOHandler := nil;
-  FreeAndNil(FDataChannel);
+  FDataChannel.Free;
   inherited Destroy;
 end;
 

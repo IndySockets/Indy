@@ -424,92 +424,92 @@ var
 begin
   LCommand := TIdCommand.Create(Self);
   try
-    LCommand.FRawLine := AData;
-    LCommand.FContext := AContext;
-    LCommand.FUnparsedParams := AUnparsedParams;
-
-    if ParseParams then begin
-      DoParseParams(AUnparsedParams, LCommand.Params);
-    end;
-
-    // RLebeau 2/21/08: for the IRC protocol, RFC 2812 section 2.4 says that
-    // clients are not allowed to issue numeric replies for server-issued
-    // commands.  Added the PerformReplies property so TIdIRC can specify
-    // that behavior.
-    if Collection is TIdCommandHandlers then begin
-      LCommand.PerformReply := TIdCommandHandlers(Collection).PerformReplies;
-    end;
-
     try
-      if (LCommand.Reply.Code = '') and (NormalReply.Code <> '') then begin
-        LCommand.Reply.Assign(NormalReply);
+      LCommand.FRawLine := AData;
+      LCommand.FContext := AContext;
+      LCommand.FUnparsedParams := AUnparsedParams;
+
+      if ParseParams then begin
+        DoParseParams(AUnparsedParams, LCommand.Params);
       end;
 
-      //if code<>'' before DoCommand, then it breaks exception handling
-      Assert(LCommand.Reply.Code <> '');
-      LCommand.DoCommand;
-
-      if LCommand.Reply.Code = '' then begin
-        LCommand.Reply.Assign(NormalReply);
+      // RLebeau 2/21/08: for the IRC protocol, RFC 2812 section 2.4 says that
+      // clients are not allowed to issue numeric replies for server-issued
+      // commands.  Added the PerformReplies property so TIdIRC can specify
+      // that behavior.
+      if Collection is TIdCommandHandlers then begin
+        LCommand.PerformReply := TIdCommandHandlers(Collection).PerformReplies;
       end;
-      // UpdateText here in case user wants to add to it. SendReply also gets it in case
-      // a different reply is sent (ie exception, etc), or the user changes the code in the event
-      LCommand.Reply.UpdateText;
-    except
-      on E: Exception do begin
-        // If there is an unhandled exception, we override all replies
-        // If nothing specified to override with, we throw the exception again.
-        // If the user wants a custom value on exception other, its their responsibility
-        // to catch it before it reaches us
-        LCommand.Reply.Clear;
-        if LCommand.PerformReply then begin
-          // Try from command handler first
-          if ExceptionReply.Code <> '' then begin
-            LCommand.Reply.Assign(ExceptionReply);
-          // If still no go, from server
-          // Can be nil though. Typically only servers pass it in
-          end else if (Collection is TIdCommandHandlers) and (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
-            LCommand.Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
-          end;
-          if LCommand.Reply.Code <> '' then begin
-            //done this way in case an exception message has more than one line.
-            //otherwise you could get something like this:
-            //
-            // 550 System Error.  Code: 2
-            // The system cannot find the file specified
-            //
-            //and the second line would throw off some clients.
-            LCommand.Reply.Text.Text := E.Message;
-            //Reply.Text.Add(E.Message);
-            LCommand.SendReply;
+
+      try
+        if (LCommand.Reply.Code = '') and (NormalReply.Code <> '') then begin
+          LCommand.Reply.Assign(NormalReply);
+        end;
+
+        //if code<>'' before DoCommand, then it breaks exception handling
+        Assert(LCommand.Reply.Code <> '');
+        LCommand.DoCommand;
+
+        if LCommand.Reply.Code = '' then begin
+          LCommand.Reply.Assign(NormalReply);
+        end;
+        // UpdateText here in case user wants to add to it. SendReply also gets it in case
+        // a different reply is sent (ie exception, etc), or the user changes the code in the event
+        LCommand.Reply.UpdateText;
+      except
+        on E: Exception do begin
+          // If there is an unhandled exception, we override all replies
+          // If nothing specified to override with, we throw the exception again.
+          // If the user wants a custom value on exception other, its their responsibility
+          // to catch it before it reaches us
+          LCommand.Reply.Clear;
+          if LCommand.PerformReply then begin
+            // Try from command handler first
+            if ExceptionReply.Code <> '' then begin
+              LCommand.Reply.Assign(ExceptionReply);
+            // If still no go, from server
+            // Can be nil though. Typically only servers pass it in
+            end else if (Collection is TIdCommandHandlers) and (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
+              LCommand.Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
+            end;
+            if LCommand.Reply.Code <> '' then begin
+              //done this way in case an exception message has more than one line.
+              //otherwise you could get something like this:
+              //
+              // 550 System Error.  Code: 2
+              // The system cannot find the file specified
+              //
+              //and the second line would throw off some clients.
+              LCommand.Reply.Text.Text := E.Message;
+              //Reply.Text.Add(E.Message);
+              LCommand.SendReply;
+            end else begin
+              raise;
+            end;
           end else begin
             raise;
           end;
         end else begin
           raise;
         end;
-      end else begin
-        raise;
       end;
-    end;
 
-    if LCommand.PerformReply then begin
-      LCommand.SendReply;
-    end;
+      if LCommand.PerformReply then begin
+        LCommand.SendReply;
+      end;
 
-    if (LCommand.Response.Count > 0) or LCommand.SendEmptyResponse then begin
-      AContext.Connection.WriteRFCStrings(LCommand.Response);
-    end else if Response.Count > 0 then begin
-      AContext.Connection.WriteRFCStrings(Response);
-    end;
-  finally
-    try
+      if (LCommand.Response.Count > 0) or LCommand.SendEmptyResponse then begin
+        AContext.Connection.WriteRFCStrings(LCommand.Response);
+      end else if Response.Count > 0 then begin
+        AContext.Connection.WriteRFCStrings(Response);
+      end;
+    finally
       if LCommand.Disconnect then begin
         AContext.Connection.Disconnect;
       end;
-    finally
-      LCommand.Free;
     end;
+  finally
+    LCommand.Free;
   end;
 end;
 
@@ -582,10 +582,10 @@ end;
 
 destructor TIdCommandHandler.Destroy;
 begin
-  FreeAndNil(FResponse);
-  FreeAndNil(FNormalReply);
-  FreeAndNil(FDescription);
-  FreeAndNil(FExceptionReply);
+  FResponse.Free;
+  FNormalReply.Free;
+  FDescription.Free;
+  FExceptionReply.Free;
   inherited Destroy;
 end;
 
@@ -649,9 +649,9 @@ end;
 
 destructor TIdCommand.Destroy;
 begin
-  FreeAndNil(FReply);
-  FreeAndNil(FResponse);
-  FreeAndNil(FParams);
+  FReply.Free;
+  FResponse.Free;
+  FParams.Free;
   inherited Destroy;
 end;
 

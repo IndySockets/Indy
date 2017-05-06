@@ -779,7 +779,7 @@ begin
           sTemp := Trim(Email.Text);
           if (sTemp = '') or (sTemp = '<>') then {do not localize}
           begin
-            FreeAndNil(Email);
+            IdDisposeAndNil(Email);
           end;
           sTemp := '';
           IdDelete(AList, 1, iStart);
@@ -811,7 +811,7 @@ begin
       sTemp := Trim(Email.Text);
       if (sTemp = '') or (sTemp = '<>') then {do not localize}
       begin
-        FreeAndNil(Email);
+        IdDisposeAndNil(Email);
       end;
     end;
   end;

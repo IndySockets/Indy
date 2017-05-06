@@ -158,7 +158,8 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
 
 }
 
-{$RANGECHECKS OFF}
+{$I IdRangeCheckingOff.inc}
+
 {$IFDEF FPC}
   {$IFDEF WIN32}
     {$ALIGN OFF}
@@ -4181,7 +4182,7 @@ type
   LPSERVICE_ADDRESSES = PSERVICE_ADDRESSES;
   {$ENDIF}
 
-{$IFNDEF VCL_2007_OR_ABOVE}
+{$IFNDEF DCC_2007_OR_ABOVE}
 const
   {$EXTERNALSYM  RESOURCEDISPLAYTYPE_GENERIC}
   RESOURCEDISPLAYTYPE_GENERIC        = $00000000;
@@ -6057,13 +6058,13 @@ a version of GetProcAddress in the FreePascal dynlibs unit but that does a
 conversion from ASCII to Unicode which might not be necessary since most calls
 pass a constant anyway.
 }
-function FixupStub(hDll: THandle; const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
+function FixupStub(hDll: THandle; const AName: string): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if hDll = 0 then begin
     raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
   end;
-  Result := Windows.GetProcAddress(hDll, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
+  Result := Windows.GetProcAddress(hDll, PChar(AName));
   if Result = nil then begin
     raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
   end;
@@ -7640,11 +7641,11 @@ end;
 function INET_IS_ALIGNED_IN6_ADDR(Ptr : Pointer) : Boolean;
 type
   {$IFDEF WIN32}
-  {$ALIGN ON}
+    {$ALIGN ON}
   TempRec = record
     test: IN6_ADDR;
   end;
-  {$ALIGN OFF}
+    {$ALIGN OFF}
   {$ELSE}
   //Win64 and WinCE seem to require alignment for API records
   TempRec = record

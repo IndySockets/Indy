@@ -898,7 +898,6 @@ type
     class function InternalEncryptedTLSFXP(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean) : Boolean;
     class function InternalUnencryptedFXP(AFromSite, AToSite: TIdFTP; const ASourceFile, ADestFile: String; const ATargetUsesPasv : Boolean): Boolean;
     class function ValidateInternalIsTLSFXP(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv : Boolean): Boolean;
-    procedure InitComponent; override;
     procedure SetUseTLS(AValue : TIdUseTLS); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetDataPortProtection(AValue : TIdFTPDataPortSecurity);
@@ -917,9 +916,7 @@ type
     function IsAccountNeeded : Boolean;
     function GetSupportsVerification : Boolean;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
 
     procedure GetInternalResponse(AEncoding: IIdTextEncoding = nil); override;
     function CheckResponse(const AResponse: Int16; const AAllowedResponses: array of Int16): Int16; override;
@@ -960,17 +957,16 @@ type
     procedure Noop;
     procedure SetCmdOpt(const ACMD, AOptions : String);
     procedure Put(const ASource: TStream; const ADestFile: string;
-      const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1); overload;
+      const AAppend: Boolean = False; const AStartPos: Int64 = -1); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string = '';
-      const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1); overload;
+      const AAppend: Boolean = False; const AStartPos: Int64 = -1); overload;
 
-    procedure StoreUnique(const ASource: TStream; const AStartPos: TIdStreamSize = -1); overload;
-    procedure StoreUnique(const ASourceFile: string; const AStartPos: TIdStreamSize = -1); overload;
+    procedure StoreUnique(const ASource: TStream; const AStartPos: Int64 = -1); overload;
+    procedure StoreUnique(const ASourceFile: string; const AStartPos: Int64 = -1); overload;
 
     procedure SiteToSiteUpload(const AToSite : TIdFTP; const ASourceFile : String; const ADestFile : String = '');
     procedure SiteToSiteDownload(const AFromSite: TIdFTP; const ASourceFile : String; const ADestFile : String = '');
     procedure DisconnectNotifyPeer; override;
-    procedure Quit; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPECATED_MSG} 'Use Disconnect() instead'{$ENDIF};{$ENDIF}
     function  Quote(const ACommand: String): Int16;
     procedure RemoveDir(const ADirName: string);
     procedure Rename(const ASourceFile, ADestFile: string);
@@ -986,9 +982,9 @@ type
     function CRC(const AFIleName : String; const AStartPoint : Int64 = 0; const AEndPoint : Int64=0) : Int64;
     //verify file was uploaded, this is more comprehensive than the above
     function VerifyFile(ALocalFile : TStream; const ARemoteFile : String;
-      const AStartPoint : TIdStreamSize = 0; const AByteCount : TIdStreamSize = 0) : Boolean; overload;
+      const AStartPoint : Int64 = 0; const AByteCount : Int64 = 0) : Boolean; overload;
     function VerifyFile(const ALocalFile, ARemoteFile : String;
-      const AStartPoint : TIdStreamSize = 0; const AByteCount : TIdStreamSize = 0) : Boolean; overload;
+      const AStartPoint : Int64 = 0; const AByteCount : Int64 = 0) : Boolean; overload;
     //file parts must be in order in TStrings parameter
     //GlobalScape FTP Pro uses this for multipart simultanious file uploading
     procedure CombineFiles(const ATargetFile : String; AFileParts : TStrings);
@@ -1018,13 +1014,7 @@ type
     property CurrentTransferMode : TIdFTPTransferMode read FCurrentTransferMode write TransferMode;
 
   published
-    {$IFDEF DOTNET}
-      {$IFDEF DOTNET_2_OR_ABOVE}
     property IPVersion;
-      {$ENDIF}
-    {$ELSE}
-    property IPVersion;
-    {$ENDIF}
     property AutoIssueFEAT : Boolean read FAutoIssueFEAT write FAutoIssueFEAT default DEF_Id_FTP_AutoIssueFEAT;
     property AutoLogin: Boolean read FAutoLogin write FAutoLogin default DEF_Id_FTP_AutoLogin;
     // This is an object that can compress and decompress FTP Deflate encoding
@@ -1115,24 +1105,15 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF KYLIXCOMPAT}
+  {$IF DEFINED(KYLIXCOMPAT)}
   Libc,
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
+  {$ELSEIF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
   Posix.SysTime,
   Posix.Unistd,
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-  //facilitate inlining only.
+  {$ELSEIF DEFINED(WINDOWS)}
   Windows,
-  {$ENDIF}
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdComponent,
   IdFIPS,
   IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
@@ -1152,16 +1133,9 @@ type
     property UsedMLS: Boolean read FUsedMLS;
   end;
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdFTP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdFTP.InitComponent;
-begin
-  inherited InitComponent;
   //
   FAutoLogin := DEF_Id_FTP_AutoLogin;
   FRegularProtPort := IdPORT_FTP;
@@ -1292,9 +1266,6 @@ begin
 
     // RLebeau: must not send/receive UTF-8 before negotiating for it...
     IOHandler.DefStringEncoding := FDefStringEncoding;
-    {$IFDEF STRING_IS_ANSI}
-    IOHandler.DefAnsiEncoding := IndyTextEncoding_OSDefault;
-    {$ENDIF}
 
     // RLebeau: RFC 959 says that the greeting can be preceeded by a 1xx
     // reply and that the client should wait for the 220 reply when this 
@@ -1458,7 +1429,7 @@ begin
     LHost := FHost;
   end;
   if Socket <> nil then begin
-    if LHost = Socket.Binding.PeerIP then begin
+    if (IPVersion = Id_IPv6) and (MakeCanonicalIPv6Address(LHost) <> '') then begin
       LHost := '[' + LHost + ']'; {do not localize}
     end;
   end;
@@ -1536,7 +1507,7 @@ begin
   try
     Get(ASourceFile, LDestStream, AResume);
   finally
-    FreeAndNil(LDestStream);
+    LDestStream.Free;
   end;
 end;
 
@@ -1607,12 +1578,12 @@ begin
       FreeAndNil(FDirectoryListing);
       FDirFormat := '';
       LDest.Position := 0;
-      FListResult.Text := ReadStringFromStream(LDest, -1, IOHandler.DefStringEncoding{$IFDEF STRING_IS_ANSI}, IOHandler.DefAnsiEncoding{$ENDIF});
+      FListResult.Text := ReadStringFromStream(LDest, -1, IOHandler.DefStringEncoding);
       TIdFTPListResult(FListResult).FDetails := ADetails;
       TIdFTPListResult(FListResult).FUsedMLS := False;
       // FDirFormat will be updated in ParseFTPList...
     finally
-      FreeAndNil(LDest);
+      LDest.Free;
     end;
     if ADest <> nil then begin
       ADest.Assign(FListResult);
@@ -1705,7 +1676,8 @@ end;
 
 procedure TIdFTP.InternalPut(const ACommand: string; ASource: TStream;
   AFromBeginning: Boolean = True; AResume: Boolean = False);
-    {$IFNDEF MSWINDOWS}
+
+    {$IFNDEF WINDOWS}
     procedure WriteStreamFromBeginning;
     var
       LBuffer: TIdBytes;
@@ -1728,6 +1700,7 @@ procedure TIdFTP.InternalPut(const ACommand: string; ASource: TStream;
       end;
     end;
     {$ENDIF}
+
 var
   LIP: string;
   LPort: TIdPort;
@@ -1806,7 +1779,7 @@ begin
                   FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
               end else begin
                 if AFromBeginning then begin
-                  {$IFNDEF MSWINDOWS}
+                  {$IFNDEF WINDOWS}
                   WriteStreamFromBeginning;
                   {$ELSE}
                   FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
@@ -1884,7 +1857,7 @@ begin
               FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
           end else begin
             if AFromBeginning then begin
-              {$IFNDEF MSWINDOWS}
+              {$IFNDEF WINDOWS}
               WriteStreamFromBeginning;
               {$ELSE}
               FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
@@ -1898,7 +1871,7 @@ begin
         FinalizeDataOperation;
       end;
     end;
-  { This will silently ignore the STOR request if the server has forcibly disconnected 
+  { This will silently ignore the STOR request if the server has forcibly disconnected
     (kicked or timed out) before the request starts
   except
     //Note that you are likely to get an exception you abort a transfer
@@ -2133,13 +2106,6 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-procedure TIdFTP.Quit;
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  Disconnect;
-end;
-
 procedure TIdFTP.KillDataChannel;
 begin
   // Had kill the data channel ()
@@ -2226,12 +2192,11 @@ begin
   FDataChannel.IOHandler.RecvBufferSize := IOHandler.RecvBufferSize;
   FDataChannel.IOHandler.LargeStream := True;
  // FDataChannel.IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
- // FDataChannel.IOHandler.DefAnsiEncoding := IndyTextEncoding_OSDefault;
   FDataChannel.WorkTarget := Self;
 end;
 
 procedure TIdFTP.Put(const ASource: TStream; const ADestFile: string;
-  const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1);
+  const AAppend: Boolean = False; const AStartPos: Int64 = -1);
 begin
   if ADestFile = '' then begin
     raise EIdFTPUploadFileNameCanNotBeEmpty.Create(RSFTPFileNameCanNotBeEmpty);
@@ -2249,7 +2214,7 @@ begin
 end;
 
 procedure TIdFTP.Put(const ASourceFile: string; const ADestFile: string = '';
-  const AAppend: Boolean = False; const AStartPos: TIdStreamSize = -1);
+  const AAppend: Boolean = False; const AStartPos: Int64 = -1);
 var
   LSourceStream: TStream;
   LDestFileName : String;
@@ -2262,11 +2227,11 @@ begin
   try
     Put(LSourceStream, LDestFileName, AAppend, AStartPos);
   finally
-    FreeAndNil(LSourceStream);
+    LSourceStream.Free;
   end;
 end;
 
-procedure TIdFTP.StoreUnique(const ASource: TStream; const AStartPos: TIdStreamSize = -1);
+procedure TIdFTP.StoreUnique(const ASource: TStream; const AStartPos: Int64 = -1);
 begin
   if AStartPos > -1 then begin
     ASource.Position := AStartPos;
@@ -2276,7 +2241,7 @@ begin
   DoAfterPut;
 end;
 
-procedure TIdFTP.StoreUnique(const ASourceFile: string; const AStartPos: TIdStreamSize = -1);
+procedure TIdFTP.StoreUnique(const ASourceFile: string; const AStartPos: Int64 = -1);
 var
   LSourceStream: TStream;
 begin
@@ -2284,7 +2249,7 @@ begin
   try
     StoreUnique(LSourceStream, AStartPos);
   finally
-    FreeAndNil(LSourceStream);
+    LSourceStream.Free;
   end;
 end;
 
@@ -2473,9 +2438,6 @@ begin
     FSystemDesc := '';
     FTransferType := Id_TIdFTP_TransferType;
     IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
-    {$IFDEF STRING_IS_ANSI}
-    IOHandler.DefAnsiEncoding := IndyTextEncoding_OSDefault;
-    {$ENDIF}
     if FUsingSFTP and (FUseTLS <> utUseImplicitTLS) then begin
       (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
       FUsingSFTP := False;
@@ -2559,15 +2521,15 @@ end;
 
 destructor TIdFTP.Destroy;
 begin
-  FreeAndNil(FClientInfo);
-  FreeAndNil(FListResult);
-  FreeAndNil(FLoginMsg);
-  FreeAndNil(FDirectoryListing);
-  FreeAndNil(FLangsSupported);
-  FreeAndNil(FProxySettings); //APR
-  FreeAndNil(FTZInfo);
-  FreeAndNil(FAbortFlag);
-  FreeAndNil(FNATKeepAlive);
+  FClientInfo.Free;
+  FListResult.Free;
+  FLoginMsg.Free;
+  FDirectoryListing.Free;
+  FLangsSupported.Free;
+  FProxySettings.Free; //APR
+  FTZInfo.Free;
+  FAbortFlag.Free;
+  FNATKeepAlive.Free;
   inherited Destroy;
 end;
 
@@ -3170,13 +3132,13 @@ begin
     // RLebeau: using IndyTextEncoding_8Bit here.  TIdFTPListParseBase will
     // decode UTF-8 sequences later on...
     LEncoding := IndyTextEncoding_8Bit;
-    FListResult.Text := ReadStringFromStream(LDest, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    FListResult.Text := ReadStringFromStream(LDest, -1, LEncoding);
     LEncoding := nil;
     TIdFTPListResult(FListResult).FDetails := True;
     TIdFTPListResult(FListResult).FUsedMLS := True;
     FDirFormat := MLST;
   finally
-    FreeAndNil(LDest);
+    LDest.Free;
   end;
   if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
     ADest.Assign(FListResult);
@@ -3217,7 +3179,7 @@ begin
   try
     ExtListItem(LBuf, AFList, AItem);
   finally
-    FreeAndNil(LBuf);
+    LBuf.Free;
   end;
 end;
 
@@ -3529,7 +3491,7 @@ begin
     //Note that FormattedReply uses an assign in it's property set method.
     FLastCmdResult.FormattedReply := LResponse;
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 
@@ -4008,7 +3970,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LFacts);
+    LFacts.Free;
   end;
 end;
 
@@ -4208,7 +4170,7 @@ begin
   end;
 end;
 
-function TIdFTP.VerifyFile(const ALocalFile, ARemoteFile: String; const AStartPoint, AByteCount: TIdStreamSize): Boolean;
+function TIdFTP.VerifyFile(const ALocalFile, ARemoteFile: String; const AStartPoint, AByteCount: Int64): Boolean;
 var
   LLocalStream: TStream;
   LRemoteFileName : String;
@@ -4221,7 +4183,7 @@ begin
   try
     Result := VerifyFile(LLocalStream, LRemoteFileName, AStartPoint, AByteCount);
   finally
-    FreeAndNil(LLocalStream);
+    LLocalStream.Free;
   end;
 end;
 
@@ -4236,14 +4198,14 @@ XCRC - get CRC32 checksum
 The command preference is from first to last (going from longest length to shortest).
 }
 function TIdFTP.VerifyFile(ALocalFile: TStream; const ARemoteFile: String;
-  const AStartPoint, AByteCount: TIdStreamSize): Boolean;
+  const AStartPoint, AByteCount: Int64): Boolean;
 var
   LRemoteCRC : String;
   LLocalCRC : String;
   LCmd : String;
   LRemoteFile: String;
-  LStartPoint : TIdStreamSize;
-  LByteCount : TIdStreamSize;  //used instead of AByteCount so we don't exceed the file size
+  LStartPoint : Int64;
+  LByteCount : Int64;  //used instead of AByteCount so we don't exceed the file size
   LHashClass: TIdHashClass;
   LHash: TIdHash;
 begin

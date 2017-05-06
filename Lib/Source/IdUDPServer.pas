@@ -171,10 +171,10 @@ type
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
     function GetDefaultPort: TIdPort;
-    procedure InitComponent; override;
     procedure SetBindings(const Value: TIdSocketHandles);
     procedure SetDefaultPort(const AValue: TIdPort);
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property ThreadClass: TIdUDPListenerThreadClass read FThreadClass write FThreadClass;
   published
@@ -194,12 +194,26 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdGlobalCore, SysUtils;
+
+constructor TIdUDPServer.Create(AOwner: TComponent);
+begin
+  inherited Create(Owner);
+  FBindings := TIdSocketHandles.Create(Self);
+  FListenerThreads := TIdUDPListenerThreadList.Create;
+  FThreadClass := TIdUDPListenerThread;
+end;
+
+destructor TIdUDPServer.Destroy;
+begin
+  Active := False;
+  FBindings.Free;
+  FListenerThreads.Free;
+  inherited Destroy;
+end;
 
 procedure TIdUDPServer.BroadcastEnabledChanged;
 var
@@ -238,14 +252,6 @@ begin
     end;
   end;
   FCurrentBinding := nil;
-end;
-
-destructor TIdUDPServer.Destroy;
-begin
-  Active := False;
-  FreeAndNil(FBindings);
-  FreeAndNil(FListenerThreads);
-  inherited Destroy;
 end;
 
 procedure TIdUDPServer.DoBeforeBind(AHandle: TIdSocketHandle);
@@ -290,13 +296,11 @@ end;
 // Linux/Unix does not allow an IPv4 socket and an IPv6 socket
 // to listen on the same port at the same time! Windows does not
 // have that problem...
-{$DEFINE CanCreateTwoBindings}
-{$IFDEF LINUX} // should this be UNIX instead?
+{$IF DEFINED(LINUX) OR DEFINED(ANDROID)} // should this be UNIX instead?
   {$UNDEF CanCreateTwoBindings}
-{$ENDIF}
-{$IFDEF ANDROID}
-  {$UNDEF CanCreateTwoBindings}
-{$ENDIF}
+{$ELSE}
+  {$DEFINE CanCreateTwoBindings}
+{$IFEND}
 // TODO: Would this be solved by enabling the SO_REUSEPORT option on
 // platforms that support it?
 
@@ -336,11 +340,11 @@ begin
     try
       while i < Bindings.Count do begin
         LBinding := Bindings[i];
-{$IFDEF LINUX}
+        {$IFDEF LINUX}
         LBinding.AllocateSocket(Integer(Id_SOCK_DGRAM));
-{$ELSE}
+        {$ELSE}
         LBinding.AllocateSocket(Id_SOCK_DGRAM);
-{$ENDIF}
+        {$ENDIF}
         // do not overwrite if the default. This allows ReuseSocket to be set per binding
         if FReuseSocket <> rsOSDependent then begin
           LBinding.ReuseSocket := FReuseSocket;
@@ -363,13 +367,11 @@ begin
     for i := 0 to Bindings.Count - 1 do begin
       LListenerThread := FThreadClass.Create(Self, Bindings[i]);
       LListenerThread.Name := Name + ' Listener #' + IntToStr(i + 1); {do not localize}
-      {$IFDEF DELPHI_CROSS}
-        {$IFNDEF MACOSX}
+      {$IF DEFINED(DELPHI_CROSS) AND (NOT DEFINED(MACOSX))}
       //Todo: Implement proper priority handling for Linux
       //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
       LListenerThread.Priority := tpListener;
-        {$ENDIF}
-      {$ENDIF}
+      {$IFEND}
       FListenerThreads.Add(LListenerThread);
       LListenerThread.Start;
     end;
@@ -382,14 +384,6 @@ end;
 function TIdUDPServer.GetDefaultPort: TIdPort;
 begin
   Result := FBindings.DefaultPort;
-end;
-
-procedure TIdUDPServer.InitComponent;
-begin
-  inherited InitComponent;
-  FBindings := TIdSocketHandles.Create(Self);
-  FListenerThreads := TIdUDPListenerThreadList.Create;
-  FThreadClass := TIdUDPListenerThread;
 end;
 
 procedure TIdUDPServer.SetBindings(const Value: TIdSocketHandles);

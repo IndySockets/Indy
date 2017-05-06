@@ -192,7 +192,7 @@ end;
 
 destructor TIdWorkOpUnit.Destroy;
 begin
-  FreeAndNil(FException);
+  FException.Free;
   inherited;
 end;
 

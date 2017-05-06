@@ -375,7 +375,6 @@ type
     //
     procedure CheckConnected;
     procedure DoOnDisconnected; virtual;
-    procedure InitComponent; override;
     function GetIntercept: TIdConnectionIntercept; virtual;
     function GetReplyClass: TIdReplyClass; virtual;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -387,6 +386,9 @@ type
     procedure WorkEvent(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
     procedure PrepareCmd(var aCmd: string); virtual;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    //
     procedure CreateIOHandler(ABaseType: TIdIOHandlerClass = nil);
     procedure CheckForGracefulDisconnect(ARaiseExceptionIfDisconnected: Boolean = True); virtual;
     //
@@ -395,7 +397,6 @@ type
     function CheckResponse(const AResponse, AAllowedResponse: string): string; overload; virtual;
     //
     function Connected: Boolean; virtual;
-    destructor Destroy; override;
     // Dont allow override of this one, its for overload only
     procedure Disconnect; overload; // .Net overload
     procedure Disconnect(ANotifyPeer: Boolean); overload; virtual;
@@ -458,6 +459,33 @@ uses
   IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC,
   SysUtils;
 
+constructor TIdTCPConnection.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FReplyClass := GetReplyClass;
+  FGreeting := FReplyClass.CreateWithReplyTexts(nil, nil);
+  FLastCmdResult := FReplyClass.CreateWithReplyTexts(nil, nil);
+end;
+
+destructor TIdTCPConnection.Destroy;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LIOHandler: TIdIOHandler;
+begin
+  // Just close IOHandler directly. Dont call Disconnect - Disconnect may be override and
+  // try to read/write to the socket.
+  LIOHandler := IOHandler;
+  if Assigned(LIOHandler) then begin
+    LIOHandler.Close;
+    // This will free any managed IOHandlers
+    {$IFDEF USE_OBJECT_ARC}LIOHandler := nil;{$ENDIF}
+    SetIOHandler(nil);
+  end;
+  FLastCmdResult.Free;
+  FGreeting.Free;
+  inherited Destroy;
+end;
+
 function TIdTCPConnection.GetIntercept: TIdConnectionIntercept;
 var
   // under ARC, convert a weak reference to a strong reference before working with it
@@ -502,25 +530,6 @@ begin
   if Result then begin
     Result := LIOHandler.Connected;
   end;
-end;
-
-destructor TIdTCPConnection.Destroy;
-var
-  // under ARC, convert a weak reference to a strong reference before working with it
-  LIOHandler: TIdIOHandler;
-begin
-  // Just close IOHandler directly. Dont call Disconnect - Disconnect may be override and
-  // try to read/write to the socket.
-  LIOHandler := IOHandler;
-  if Assigned(LIOHandler) then begin
-    LIOHandler.Close;
-    // This will free any managed IOHandlers
-    {$IFDEF USE_OBJECT_ARC}LIOHandler := nil;{$ENDIF}
-    SetIOHandler(nil);
-  end;
-  FreeAndNil(FLastCmdResult);
-  FreeAndNil(FGreeting);
-  inherited Destroy;
 end;
 
 procedure TIdTCPConnection.Disconnect(ANotifyPeer: Boolean);
@@ -849,7 +858,7 @@ begin
     //Note that FormattedReply uses an assign in it's property set method.
     FLastCmdResult.FormattedReply := LResponse;
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 
@@ -909,14 +918,6 @@ procedure TIdTCPConnection.WorkEvent(ASender: TObject; AWorkMode: TWorkMode;
   AWorkCount: Int64);
 begin
   DoWork(AWorkMode, AWorkCount)
-end;
-
-procedure TIdTCPConnection.InitComponent;
-begin
-  inherited InitComponent;
-  FReplyClass := GetReplyClass;
-  FGreeting := FReplyClass.CreateWithReplyTexts(nil, nil);
-  FLastCmdResult := FReplyClass.CreateWithReplyTexts(nil, nil);
 end;
 
 procedure TIdTCPConnection.CheckConnected;

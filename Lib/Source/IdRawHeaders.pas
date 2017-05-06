@@ -35,9 +35,6 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF DOTNET}
-  System.Net,
-  {$ENDIF}
   IdGlobal,
   IdStruct;
 // TODO: research subtypes of ICMP header
@@ -1083,7 +1080,7 @@ end;
 
 destructor TIdICMPHdr.Destroy;
 begin
-  FreeAndNil(Ficmp_hun);
+  Ficmp_hun.Free;
   inherited Destroy;
 end;
 
@@ -1147,8 +1144,8 @@ end;
 
 destructor TIdIPHdr.Destroy;
 begin
-  FreeAndNil(Fip_src);
-  FreeAndNil(Fip_dst);
+  Fip_src.Free;
+  Fip_dst.Free;
   inherited Destroy;
 end;
 
@@ -1347,7 +1344,7 @@ end;
 
 destructor TIdIGMPHdr.Destroy;
 begin
-  FreeAndNil(Figmp_group);
+  Figmp_group.Free;
   inherited Destroy;
 end;
 
@@ -1421,8 +1418,8 @@ end;
 
 destructor TIdEthernetHdr.Destroy;
 begin
-  FreeAndNil(Fether_dhost);
-  FreeAndNil(Fether_shost);
+  Fether_dhost.Free;
+  Fether_shost.Free;
   inherited Destroy;
 end;
 
@@ -1469,10 +1466,10 @@ end;
 
 destructor TIdARPHdr.Destroy;
 begin
-  FreeAndNil(Farp_sha);
-  FreeAndNil(Farp_spa);
-  FreeAndNil(Farp_tha);
-  FreeAndNil(Farp_tpa);
+  Farp_sha.Free;
+  Farp_spa.Free;
+  Farp_tha.Free;
+  Farp_tpa.Free;
   inherited Destroy;
 end;
 
@@ -1709,7 +1706,7 @@ end;
 
 destructor TIdicmp6_hdr.Destroy;
 begin
-  FreeAndNil(Fdata);
+  Fdata.Free;
   inherited Destroy;
 end;
 

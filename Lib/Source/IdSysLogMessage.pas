@@ -155,10 +155,10 @@ type
     procedure Parse; virtual;
     procedure UpdatePRI; virtual;
     function DecodeTimeStamp(TimeStampString: String): TDateTime; virtual;
-    procedure InitComponent; override;
   public
-    procedure Assign(Source: TPersistent); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
     function EncodeMessage: String; virtual;
     procedure ReadFromBytes(const ASrc: TIdBytes; const APeer : String); virtual;
     //
@@ -385,6 +385,28 @@ begin
 end;
 
 { TIdSysLogMessage }
+
+constructor TIdSysLogMessage.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  PRI := 13; //default
+  {This stuff is necessary to prevent an AV in the IDE if GStack does not exist}
+  // RLebeau: should we really be doing this here? At the least, maybe detect
+  // DFM streaming and don't do this if it will just be overridden afterwards...
+  TIdStack.IncUsage;
+  try
+    Hostname := GStack.HostName;
+  finally
+    TIdStack.DecUsage;
+  end;
+  FMsg := TIdSysLogMsgPart.Create;
+end;
+
+destructor TIdSysLogMessage.Destroy;
+begin
+  FMsg.Free;
+  inherited Destroy;
+end;
 
 procedure TIdSysLogMessage.Assign(Source: TPersistent);
 var
@@ -639,22 +661,6 @@ begin
   end;
 end;
 
-procedure TIdSysLogMessage.InitComponent;
-begin
-  inherited;
-  PRI := 13; //default
-  {This stuff is necessary to prevent an AV in the IDE if GStack does not exist}
-  // RLebeau: should we really be doing this here? At the least, maybe detect
-  // DFM streaming and don't do this if it will just be overriden afterwards...
-  TIdStack.IncUsage;
-  try
-    Hostname := GStack.HostName;
-  finally
-    TIdStack.DecUsage;
-  end;
-  FMsg := TIdSysLogMsgPart.Create;
-end;
-
 procedure TIdSysLogMessage.CheckASCIIRange(var Data: String);
 var
   i: Integer;
@@ -683,12 +689,6 @@ begin
   {$ENDIF}
 end;
 
-destructor TIdSysLogMessage.Destroy;
-begin
-  FreeAndNil(FMsg);
-  inherited Destroy;
-end;
-
 procedure TIdSysLogMessage.SetMsg(const AValue: TIdSysLogMsgPart);
 begin
   FMsg.Assign(AValue);
@@ -704,14 +704,11 @@ begin
 end;
 
 procedure TIdSysLogMessage.SendToHost(const Dest: String);
-var
-  LEncoding: IIdTextEncoding;
 begin
   if not Assigned(FUDPCliComp) then begin
     FUDPCliComp := TIdUDPClient.Create(Self);
   end;
-  LEncoding := IndyTextEncoding_8Bit;
-  (FUDPCliComp as TIdUDPClient).Send(Dest, IdPORT_syslog, EncodeMessage, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  (FUDPCliComp as TIdUDPClient).Send(Dest, IdPORT_syslog, EncodeMessage, IndyTextEncoding_8Bit);
 end;
 
 { TIdSysLogMsgPart }

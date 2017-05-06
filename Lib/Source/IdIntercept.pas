@@ -99,13 +99,13 @@ type
     FOnReceive: TIdInterceptStreamEvent;
     FOnSend: TIdInterceptStreamEvent;
     //
-    procedure InitComponent; override;
     {$IFNDEF USE_OBJECT_ARC}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
     procedure SetIntercept(AValue: TIdConnectionIntercept);
     //
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Connect(AConnection: TComponent); virtual;
     procedure Disconnect; virtual;
     procedure Receive(var VBuffer: TIdBytes); virtual;
@@ -136,10 +136,17 @@ type
   end;
 
 implementation
+
 uses
   IdResourceStringsCore;
 
 { TIdIntercept }
+
+constructor TIdConnectionIntercept.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FIsClient := True;
+end;
 
 procedure TIdConnectionIntercept.Disconnect;
 var
@@ -246,11 +253,5 @@ begin
   inherited Notification(AComponent, OPeration);
 end;
 {$ENDIF}
-
-procedure TIdConnectionIntercept.InitComponent;
-begin
-  inherited InitComponent;
-  FIsClient := True;
-end;
 
 end.

@@ -70,16 +70,13 @@ interface
 {$UNDEF NotifyThreadNeeded}
 {$UNDEF TNotify_InternalDoNotify_Needed}
 
-{$IFNDEF HAS_STATIC_TThread_Synchronize}
+{$IF (NOT DEFINED(HAS_STATIC_TThread_Synchronize)) OR (NOT DEFINED(HAS_STATIC_TThread_Queue))}
   {$DEFINE NotifyThreadNeeded}
-{$ENDIF}
-{$IFNDEF HAS_STATIC_TThread_Queue}
-  {$DEFINE NotifyThreadNeeded}
-{$ELSE}
-  {$IFNDEF USE_OBJECT_ARC}
-    {$DEFINE TNotify_InternalDoNotify_Needed}
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
+
+{$IF DEFINED(HAS_STATIC_TThread_Queue) AND (NOT DEFINED(USE_OBJECT_ARC))}
+  {$DEFINE TNotify_InternalDoNotify_Needed}
+{$IFEND}
 
 uses
   Classes,
@@ -110,7 +107,7 @@ type
     {$IFNDEF HAS_STATIC_TThread_Synchronize}
     property Thread: TIdThread read FThread;
     {$ENDIF}
-  end {$IFDEF HAS_STATIC_TThread_Synchronize}{$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use static TThread.Synchronize()'{$ENDIF}{$ENDIF}{$ENDIF};
+  end {$IFDEF HAS_STATIC_TThread_Synchronize}deprecated 'Use static TThread.Synchronize()'{$ENDIF};
 
   TIdNotify = class(TObject)
   protected
@@ -124,12 +121,12 @@ type
     constructor Create; virtual; // here to make virtual
     procedure Notify;
     {$IFNDEF HAS_STATIC_TThread_Queue}
-    procedure WaitFor; {$IFDEF HAS_DEPRECATED}deprecated;{$ENDIF}
+    procedure WaitFor; deprecated;
     {$ENDIF}
     class procedure NotifyMethod(AMethod: TThreadMethod);
     //
     property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify; // deprecated
-  end {$IFDEF HAS_STATIC_TThread_Queue}{$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use static TThread.Queue()'{$ENDIF}{$ENDIF}{$ENDIF};
+  end {$IFDEF HAS_STATIC_TThread_Queue}deprecated 'Use static TThread.Queue()'{$ENDIF};
 
   {$I IdSymbolDeprecatedOff.inc}
   TIdNotifyMethod = class(TIdNotify)
@@ -139,32 +136,22 @@ type
     procedure DoNotify; override;
   public
     constructor Create(AMethod: TThreadMethod); reintroduce; virtual;
-  end {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} {$IFDEF HAS_STATIC_TThread_Queue}'Use static TThread.Queue()'{$ELSE}'Use TIdNotify.NotifyMethod()'{$ENDIF}{$ENDIF}{$ENDIF};
+  end deprecated {$IFDEF HAS_STATIC_TThread_Queue}'Use static TThread.Queue()'{$ELSE}'Use TIdNotify.NotifyMethod()'{$ENDIF};
   {$I IdSymbolDeprecatedOn.inc}
 
 implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF NotifyThreadNeeded}
-    {$IFDEF HAS_UNIT_Generics_Collections}
+  {$IF DEFINED(NotifyThreadNeeded) AND DEFINED(HAS_UNIT_Generics_Collections)}
   System.Generics.Collections,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
+  {$IFEND}
+  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
+  {$ELSEIF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
   Posix.SysTime,
-  {$ENDIF}
+  {$IFEND}
   SysUtils
   {$IFNDEF NotifyThreadNeeded}
   , IdThread
@@ -247,14 +234,8 @@ begin
   {$IFDEF HAS_STATIC_TThread_Synchronize}
   inherited Create;
   {$ELSE}
-    {$IFDEF DOTNET}
-  inherited Create;
-  CreateNotifyThread;
-  FThread := GNotifyThread;
-    {$ELSE}
   CreateNotifyThread;
   Create(GNotifyThread);
-    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -441,9 +422,7 @@ end;
 // notify thread frees the object.  Also, this makes the calling thread
 // block, so TIdSync should be used instead...
 
-{$I IdDeprecatedImplBugOff.inc}
 procedure TIdNotify.WaitFor;
-{$I IdDeprecatedImplBugOn.inc}
 var
   LNotifyIndex: Integer;
   LList: TIdNotifyList;
@@ -479,7 +458,7 @@ begin
   FEvent := TIdLocalEvent.Create;
   FNotifications := TIdNotifyThreadList.Create;
   // Must be before - Thread starts running when we call inherited
-  inherited Create(False, False, 'IdNotify');
+  inherited Create(False, False, 'IdNotify'); {do not localize}
 end;
 
 destructor TIdNotifyThread.Destroy;
@@ -498,15 +477,15 @@ begin
     {$ELSE}
     while LList.Count > 0 do begin
       LNotify := {$IFDEF HAS_GENERICS_TList}LList.Items[0]{$ELSE}TIdNotify(LList.Items[0]){$ENDIF};
-      LNotify.Free;
       LList.Delete(0);
+      LNotify.Free;
     end;
     {$ENDIF}
   finally
     FNotifications.UnlockList;
   end;
-  FreeAndNil(FNotifications);
-  FreeAndNil(FEvent);
+  FNotifications.Free;
+  FEvent.Free;
   inherited Destroy;
 end;
 
@@ -547,7 +526,7 @@ begin
           {$IFNDEF HAS_STATIC_TThread_Synchronize}Self,{$ENDIF}
           LNotify.DoNotify);
       finally
-        FreeAndNil(LNotify);
+        LNotify.Free;
       end;
     except // Catch all exceptions especially these which are raised during the application close
     end;
@@ -558,17 +537,13 @@ end;
 
 { TIdNotifyMethod }
 
-{$I IdDeprecatedImplBugOff.inc}
 constructor TIdNotifyMethod.Create(AMethod: TThreadMethod);
-{$I IdDeprecatedImplBugOn.inc}
 begin
   inherited Create;
   FMethod := AMethod;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
 procedure TIdNotifyMethod.DoNotify;
-{$I IdDeprecatedImplBugOn.inc}
 begin
   FMethod;
 end;

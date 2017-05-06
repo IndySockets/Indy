@@ -281,7 +281,7 @@ end;
 
 destructor TIdMLSTFTPListItem.Destroy;
 begin
-  FreeAndNil(FAttributes);
+  FAttributes.Free;
   inherited Destroy;
 end;
 
@@ -294,7 +294,7 @@ begin
     ParseFacts(Data, LFacts);
     Result := LFacts.Values[AName];
   finally
-    FreeAndNil(LFacts);
+    LFacts.Free;
   end;
 end;
 
@@ -308,7 +308,7 @@ end;
 
 destructor TIdDOSBaseFTPListItem.Destroy;
 begin
-  FreeAndNil(FAttributes);
+  FAttributes.Free;
   inherited Destroy;
 end;
 

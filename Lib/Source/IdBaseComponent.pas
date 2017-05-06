@@ -74,78 +74,26 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes
-  {$IFDEF DOTNET}
-  {$DEFINE IdDEBUG},
-  System.ComponentModel.Design.Serialization,
-  System.Collections.Specialized,
-  System.ComponentModel,
-  System.Threading,
-  System.Reflection,
-  System.IO // Necessary else System.IO below is confused with RTL System.
-  {$ENDIF};
+  Classes;
 
 
 // ***********************************************************
 // TIdBaseComponent is the base class for all Indy components.
 // ***********************************************************
 type
-  // TIdInitializerComponent exists to consolidate creation differences between .net and vcl.
-  // It looks funny, but because of .net restrictions on constructors we have to do some wierdo
-  // stuff to catch both constructors.
-  //
-  // TIdInitializerComponent implements InitComponent which all components must use to initialize
-  // other members instead of overriding constructors.
-  {$IFDEF DOTNET}
-  //IMPORTANT!!!
-  //Abstract classes should be hidden in the assembly designer.
-  //Otherwise, you get a mess.
-  [DesignTimeVisible(false), ToolboxItem(false)]
-  {$ENDIF}
-  TIdInitializerComponent = class(TComponent)
-  private
-  protected
-    {$IFDEF DOTNET}
-    // This event handler will take care about dynamically loaded assemblies after first initialization.
-    class procedure AssemblyLoadEventHandler(sender: &Object; args: AssemblyLoadEventArgs); static;
-    class procedure InitializeAssembly(AAssembly: Assembly);
-    {$ENDIF}
-    function GetIsLoading: Boolean;
-    function GetIsDesignTime: Boolean;
-    // This is here to handle both types of constructor initializations, VCL and .Net.
-    // It is not abstract so that not all descendants are required to override it.
-    procedure InitComponent; virtual;
-  public
-    {$IFDEF DOTNET}
-    // Should not be able to make this create virtual? But if not
-    // DCCIL complain in IdIOHandler about possible polymorphics....
-    constructor Create; overload; virtual;
-    // Must be overriden here - but VCL version will catch offenders
-    {$ELSE}
-    // Statics to prevent overrides. For Create(AOwner) see TIdBaseComponent
-    //
-    // Create; variant is here to allow calls from VCL the same as from .net
-    constructor Create; reintroduce; overload;
-    // Must be an override and thus virtual to catch when created at design time
-    //constructor Create(AOwner: TComponent); overload; override;
-    {$ENDIF}
-    constructor Create(AOwner: TComponent); overload; override;
-  end;
-
   // TIdBaseComponent is the base class for all Indy components. Utility components, and other non
   // socket based components typically inherit directly from this. While socket components inherit
   // from TIdComponent instead as it introduces OnWork, OnStatus, etc.
-  TIdBaseComponent = class(TIdInitializerComponent)
+  TIdBaseComponent = class(TComponent)
   protected
     function GetIndyVersion: string;
+    function GetIsLoading: Boolean;
+    function GetIsDesignTime: Boolean;
     property IsLoading: Boolean read GetIsLoading;
     property IsDesignTime: Boolean read GetIsDesignTime;
   public
-    // This is here to catch components trying to override at compile time and not let them.
-    // This does not work in .net, but we always test in VCL so this will catch it.
-    {$IFNDEF DOTNET}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create; reintroduce; overload;
+    constructor Create(AOwner: TComponent); overload; override;
     {$IFNDEF HAS_RemoveFreeNotification}
     procedure RemoveFreeNotification(AComponent: TComponent);
     {$ENDIF}
@@ -156,141 +104,29 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  System.Runtime.CompilerServices,
-  {$ENDIF}
   IdGlobal;
 
-{$IFDEF DOTNET}
-var
-  GInitsCalled: Integer = 0;
-{$ENDIF}
+{ TIdBaseComponent }
 
-{ TIdInitializerComponent }
-
-constructor TIdInitializerComponent.Create;
+constructor TIdBaseComponent.Create;
 begin
-  {-$IFDEF DOTNET}
-  inherited Create(nil); // Explicit just in case since are not an override
-  InitComponent;
-  {-$ELSE}
-//  Create(nil);
-  {-$ENDIF}
+  Create(nil);
 end;
 
-constructor TIdInitializerComponent.Create(AOwner: TComponent);
+constructor TIdBaseComponent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  // DCCIL will not call our other create from this one, only .Nets ancestor
-  // so InitComponent will NOT be called twice.
-  InitComponent;
 end;
 
-{$IFDEF DOTNET}
-class procedure TIdInitializerComponent.AssemblyLoadEventHandler(sender: &Object;
-  args: AssemblyLoadEventArgs);
-begin
-  if (args <> nil) then begin
-    InitializeAssembly(args.loadedAssembly);
-  end;
-end;
-
-class procedure TIdInitializerComponent.InitializeAssembly(AAssembly: Assembly);
-var
-  LTypesList: Array of &Type;
-  j: integer;
-  UnitType: &Type;
-begin
-    LTypesList := AAssembly.GetTypes();
-
-    for j := Low(LTypesList) to High(LTypesList) do begin
-      UnitType := LTypesList[j];
-
-      // Delphi 9 assemblies
-      if (Pos('.Units', UnitType.Namespace) > 0) and (UnitType.Name <> '$map$') then begin
-          RuntimeHelpers.RunClassConstructor(UnitType.TypeHandle);
-      end;
-      // Delphi 8 assemblies
-//      if UnitType.Name = 'Unit' then begin
-//        RuntimeHelpers.RunClassConstructor(UnitType.TypeHandle);
-//      end;
-    end;
-end;
-{$ENDIF}
-
-procedure TIdInitializerComponent.InitComponent;
-{$IFDEF DOTNET}
-var
-  LAssemblyList: array of Assembly;
-  i: integer;
-  LM : String;
-{$ENDIF}
-begin
-  {$IFDEF DOTNET}
-  try
-  // With .NET initialization sections are not called unless the unit is referenced. D.NET makes
-  // initializations and globals part of a "Unit" class. So init sections wont get called unless
-  // the Unit class is used. D8 EXEs are ok, but assemblies (ie VS.NET and probably asms in some
-  // cases when used from a D8 EXE) do not call their init sections. So we loop through the list of
-  // classes in the assembly, and for each one named Unit we call the class constructor which
-  // causes the init section to be called.
-  //
-  if Interlocked.CompareExchange(GInitsCalled, 1, 0) = 0 then begin
-    LAssemblyList := AppDomain.get_CurrentDomain.GetAssemblies;
-
-    // Becouse this can be called few times we have to exclu de every time
-    Exclude(AppDomain.get_CurrentDomain.AssemblyLoad, TIdInitializerComponent.AssemblyLoadEventHandler);
-    Include(AppDomain.get_CurrentDomain.AssemblyLoad, TIdInitializerComponent.AssemblyLoadEventHandler);
-
-    for i := low(LAssemblyList) to high(LAssemblyList) do begin
-      //We do things this way because we do not want to initialize stuff that is not
-      //ours.  That would cause errors.  It turns out that "AppDomain.get_CurrentDomain.GetAssemblies;" will
-      //list stuff that isn't ours.  Be careful.
-      if (Pos('Indy',LAssemblyList[i].GetName.Name)=1) then
-      begin
-        initializeAssembly(LAssemblyList[i]);
-      end;
-    end;
-  end;
-  except
-    on E : ReflectionTypeLoadException do
-    begin
-      LM := EOL;
-      LM := LM + 'Message:     ' + E.Message + EOL;
-      LM := LM + 'Source:      ' + E.Source + EOL;
-      LM := LM + 'Stack Trace: ' + E.StackTrace + EOL;
-      for i := Low(E.LoaderExceptions) to High(E.LoaderExceptions) do
-      begin
-        LM := LM + EOL;
-        LM := LM + 'Error #'       + i.ToString+EOL;
-        LM := LM + 'Message:     ' + E.LoaderExceptions[i].Message + EOL;
-        LM := LM + 'Source:      ' + E.LoaderExceptions[i].Source + EOL;
-        LM := LM + 'Stack Trace: ' + EOL+ E.LoaderExceptions[i].StackTrace + EOL;
-      end;
-      IndyRaiseOuterException(Exception.Create('Load Error'+EOL+LM));
-    end;
-  end;
-  {$ENDIF}
-end;
-
-function TIdInitializerComponent.GetIsLoading: Boolean;
+function TIdBaseComponent.GetIsLoading: Boolean;
 begin
   Result := (csLoading in ComponentState);
 end;
 
-function TIdInitializerComponent.GetIsDesignTime: Boolean;
+function TIdBaseComponent.GetIsDesignTime: Boolean;
 begin
   Result := (csDesigning in ComponentState);
 end;
-
-{ TIdBaseComponent }
-
-{$IFNDEF DOTNET}
-constructor TIdBaseComponent.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner); // Explicit just in case since are not an override
-end;
-{$ENDIF}
 
 {$IFNDEF HAS_RemoveFreeNotification}
 procedure TIdBaseComponent.RemoveFreeNotification(AComponent: TComponent);

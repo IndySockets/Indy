@@ -184,7 +184,6 @@ type
     procedure DoBeforeBind; virtual;
     procedure DoAfterBind; virtual;
     procedure DoSocketAllocated; virtual;
-    procedure InitComponent; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetDestination: string; override;
     procedure SetDestination(const AValue: string); override;
@@ -199,8 +198,9 @@ type
     function CheckForError(ALastResult: Integer): Integer; override;
     procedure RaiseError(AError: Integer); override;
   public
-    procedure AfterAccept; override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure AfterAccept; override;
     function BindingAllocated: Boolean;
     procedure Close; override;
     function Connected: Boolean; override;
@@ -228,11 +228,6 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF WIN32_OR_WIN64 }
   Windows,
   {$ENDIF}
@@ -242,6 +237,20 @@ uses
   IdSocks;
 
 { TIdIOHandlerSocket }
+
+constructor TIdIOHandlerSocket.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FUseNagle := True;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
+end;
+
+destructor TIdIOHandlerSocket.Destroy;
+begin
+  SetTransparentProxy(nil);
+  FBinding.Free;
+  inherited Destroy;
+end;
 
 procedure TIdIOHandlerSocket.AfterAccept;
 begin
@@ -314,13 +323,6 @@ end;
 function TIdIOHandlerSocket.Connected: Boolean;
 begin
   Result := (BindingAllocated and inherited Connected) or (not InputBufferIsEmpty);
-end;
-
-destructor TIdIOHandlerSocket.Destroy;
-begin
-  SetTransparentProxy(nil);
-  FreeAndNil(FBinding);
-  inherited Destroy;
 end;
 
 procedure TIdIOHandlerSocket.DoBeforeBind;
@@ -549,13 +551,6 @@ begin
     FImplicitTransparentProxy := False;
   end;
   inherited Notification(AComponent, Operation);
-end;
-
-procedure TIdIOHandlerSocket.InitComponent;
-begin
-  inherited InitComponent;
-  FUseNagle := True;
-  FIPVersion := ID_DEFAULT_IP_VERSION;
 end;
 
 function TIdIOHandlerSocket.SourceIsAvailable: Boolean;

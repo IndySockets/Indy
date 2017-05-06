@@ -54,9 +54,11 @@
 unit IdSNPP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdComponent, IdGlobal, IdException, IdGlobalProtocols,
   IdReplyRFC,
   IdTCPConnection,
@@ -100,8 +102,8 @@ type
   protected
     function Pager(APagerId: String): Boolean;
     function SNPPMsg(AMsg: String): Boolean;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Connect; override;
     procedure DisconnectNotifyPeer; override;
     procedure Reset;
@@ -123,9 +125,9 @@ uses
 
 { TIdSNPP }
 
-procedure TIdSNPP.InitComponent;
+constructor TIdSNPP.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Port := 7777;
 end;
 

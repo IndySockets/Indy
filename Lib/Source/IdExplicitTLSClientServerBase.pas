@@ -106,7 +106,8 @@ type
     procedure SetIOHandler(const AValue: TIdServerIOHandler); override;
     procedure SetUseTLS(AValue : TIdUseTLS); virtual;
     property UseTLS : TIdUseTLS read FUseTLS write SetUseTLS default  DEF_USETLS;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   end;
 
   TIdExplicitTLSClient = class(TIdTCPClientCustom)
@@ -141,9 +142,9 @@ type
     //Note TLSHandshake should be the ONLY method to do the actual TLS
     //or SSL handshake for explicit TLS clients.
     procedure TLSHandshake; virtual;
-    procedure InitComponent; override;
     property UseTLS : TIdUseTLS read FUseTLS write SetUseTLS default DEF_USETLS;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Connect; override;
     property SupportsTLS: boolean read GetSupportsTLS;
@@ -170,9 +171,9 @@ uses
 
 { TIdExplicitTLSServer }
 
-procedure TIdExplicitTLSServer.InitComponent;
+constructor TIdExplicitTLSServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FUseTLS := DEF_USETLS;
 end;
 
@@ -231,6 +232,19 @@ end;
 
 { TIdExplicitTLSClient }
 
+constructor TIdExplicitTLSClient.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FCapabilities := TStringList.Create;
+  FUseTLS := DEF_USETLS;
+end;
+
+destructor TIdExplicitTLSClient.Destroy;
+begin
+  FCapabilities.Free;
+  inherited Destroy;
+end;
+
 procedure TIdExplicitTLSClient.CheckIfCanUseTLS;
 begin
   if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
@@ -263,19 +277,6 @@ begin
     end;
   end;
   inherited Connect;
-end;
-
-procedure TIdExplicitTLSClient.InitComponent; 
-begin
-  inherited InitComponent;
-  FCapabilities := TStringList.Create;
-  FUseTLS := DEF_USETLS;
-end;
-
-destructor TIdExplicitTLSClient.Destroy;
-begin
-  FreeAndNil(FCapabilities);
-  inherited Destroy;
 end;
 
 //OnTLSHandShakeFailed

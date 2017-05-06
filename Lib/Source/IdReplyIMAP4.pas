@@ -226,7 +226,7 @@ end;
 
 destructor TIdReplyIMAP4.Destroy;
 begin
-  FreeAndNil(FExtra);
+  FExtra.Free;
   inherited Destroy;
 end;
 

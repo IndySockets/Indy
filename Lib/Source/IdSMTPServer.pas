@@ -210,7 +210,6 @@ type
     //  overrides for SMTP
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
-    procedure InitComponent; override;
     procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
     procedure InitializeCommandHandlers; override;
     //
@@ -219,10 +218,8 @@ type
     procedure MsgReceived(ASender: TIdCommand; AMsgData: TStream);
     procedure SetMaxMsgSize(AValue: Integer);
     function SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply; const ACmd, ADomain, AIdentity: String): Boolean;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   published
     //events
     property OnBeforeMsg : TOnDataStreamEvent read FOnBeforeMsg write FOnBeforeMsg;
@@ -302,12 +299,17 @@ uses
 
 { TIdSMTPServer }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdSMTPServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FContextClass := TIdSMTPServerContext;
+  HelpReply.Code := ''; //we will handle the help ourselves
+  FRegularProtPort := IdPORT_SMTP;
+  FImplicitTLSProtPort := IdPORT_ssmtp;
+  FExplicitTLSProtPort := 587; // TODO: define a constant for this!
+  DefaultPort := IdPORT_SMTP;
+  FServerName  := 'Indy SMTP Server'; {do not localize}
 end;
-{$ENDIF}
 
 procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string;
   const AReply: TIdReply);
@@ -329,7 +331,7 @@ begin
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
-      FreeAndNil(LReply);
+      LReply.Free;
     end;
   end;
 end;
@@ -402,18 +404,6 @@ end;
 function TIdSMTPServer.GetReplyClass: TIdReplyClass;
 begin
   Result := TIdReplySMTP;
-end;
-
-procedure TIdSMTPServer.InitComponent;
-begin
-  inherited InitComponent;
-  FContextClass := TIdSMTPServerContext;
-  HelpReply.Code := ''; //we will handle the help ourselves
-  FRegularProtPort := IdPORT_SMTP;
-  FImplicitTLSProtPort := IdPORT_ssmtp;
-  FExplicitTLSProtPort := 587; // TODO: define a constant for this!
-  DefaultPort := IdPORT_SMTP;
-  FServerName  := 'Indy SMTP Server'; {do not localize}
 end;
 
 procedure TIdSMTPServer.InitializeCommandHandlers;
@@ -601,10 +591,10 @@ begin
           end;
           LAuthFailed := False;
         finally
-          FreeAndNil(LDecoder);
+          LDecoder.Free;
         end;
       finally
-        FreeAndNil(LEncoder);
+        LEncoder.Free;
       end;
     except
     end;
@@ -827,7 +817,7 @@ begin
               FOnMailFrom(LContext, EMailAddress.Address, LParams, LM);
             end;
           finally
-            FreeAndNil(LParams);
+            LParams.Free;
           end;
           case LM of
             mAccept :
@@ -855,7 +845,7 @@ begin
           end;
         end;
       finally
-        FreeAndNil(EMailAddress);
+        EMailAddress.Free;
       end;
     end else begin
       InvalidSyntax(ASender);
@@ -915,7 +905,7 @@ begin
             SplitDelimitedString(S, LParams, True);
             FOnRcptTo(LContext, EMailAddress.Address, LParams, LAction, LForward);
           finally
-            FreeAndNil(LParams);
+            LParams.Free;
           end;
           case LAction of
             rAddressOk :
@@ -951,7 +941,7 @@ begin
           raise EIdSMTPServerNoRcptTo.Create(RSSMTPNoOnRcptTo);
         end;
       finally
-       FreeAndNil(EMailAddress);
+       EMailAddress.Free;
       end;
     end else begin
       SetEnhReply(ASender.Reply, 501, Id_EHR_PR_SYNTAX_ERR,RSSMTPSvrParmErrRcptTo,
@@ -1026,7 +1016,6 @@ const
 var
   LContext : TIdSMTPServerContext;
   LStream: TStream;
-  LEncoding: IIdTextEncoding;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
   if LContext.SMTPState <> idSMTPRcpt then begin
@@ -1044,14 +1033,14 @@ begin
       // RLebeau: TODO - do not even create the stream if the OnMsgReceive
       // event is not assigned, or at least create a stream that discards
       // any data received...
-      LEncoding := IndyTextEncoding(BodyEncType[LContext.FBodyType]);
       SetEnhReply(ASender.Reply, 354, '', RSSMTPSvrStartData, LContext.EHLO);
       ASender.SendReply;
       LContext.PipeLining := False;
-      LContext.Connection.IOHandler.Capture(LStream, '.', True, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});    {Do not Localize}
+      LContext.Connection.IOHandler.Capture(LStream, '.', True,    {Do not Localize}
+        IndyTextEncoding(BodyEncType[LContext.FBodyType]));
       MsgReceived(ASender, LStream);
     finally
-      FreeAndNil(LStream);
+      LStream.Free;
       DoReset(LContext);
     end;
   end else begin // No EHLO / HELO was received
@@ -1063,7 +1052,7 @@ end;
 procedure TIdSMTPServer.CommandBDAT(ASender: TIdCommand);
 var
   LContext : TIdSMTPServerContext;
-  LSize: TIdStreamSize;
+  LSize: Int64;
   LLast: Boolean;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
@@ -1189,7 +1178,7 @@ begin
       Result := AReceivedString;
     end;
   finally
-    FreeAndNil(LTokens);
+    LTokens.Free;
   end;
 end;
 
@@ -1217,7 +1206,7 @@ begin
       WriteStringToStream(VStream, ReplaceReceivedTokens(AContext, LReceivedString) + EOL);
     end;
   except
-    FreeAndNil(VStream);
+    VStream.Free;
     raise;
   end;
 end;
@@ -1295,7 +1284,7 @@ end;
 
 destructor TIdSMTPServerContext.Destroy;
 begin
-  FreeAndNil(FRCPTList);
+  FRCPTList.Free;
   inherited Destroy;
 end;
 

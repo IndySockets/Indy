@@ -637,7 +637,7 @@ begin
         LItem.ItemType := LDit;
         LItem.Data := LBuf;
         if not ParseLine(LItem) then begin
-          FreeAndNil(LItem);
+          IdDisposeAndNil(LItem);
           Exit;
         end;
       end
@@ -652,7 +652,7 @@ begin
           LItem.ItemType := LDit;
           LItem.Data := LLine;
           if not ParseLine(LItem) then begin
-            FreeAndNil(LItem);
+            IdDisposeAndNil(LItem);
             Exit;
           end;
         end;
@@ -674,7 +674,7 @@ begin
             LItem.ItemType := LDit;
             LItem.Data := LLine;
             if not ParseLine(LItem) then begin
-              FreeAndNil(LItem);
+              IdDisposeAndNil(LItem);
               Exit;
             end;
           end;
@@ -684,7 +684,7 @@ begin
           LItem.ItemType := LDit;
           LItem.Data := LLine;
           if not ParseLine(LItem) then begin
-            FreeAndNil(LItem);
+            IdDisposeAndNil(LItem);
             Exit;
           end;
         end;

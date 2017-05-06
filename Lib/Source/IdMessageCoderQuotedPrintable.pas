@@ -86,9 +86,12 @@ procedure TIdMessageEncoderQuotedPrintable.Encode(ASrc: TStream; ADest: TStream)
 var
   LEncoder: TIdEncoderQuotedPrintable;
 begin
-  LEncoder := TIdEncoderQuotedPrintable.Create(nil); try
+  LEncoder := TIdEncoderQuotedPrintable.Create(nil);
+  try
     LEncoder.Encode(ASrc, ADest);
-  finally FreeAndNil(LEncoder); end;
+  finally
+    LEncoder.Free;
+  end;
 end;
 
 initialization

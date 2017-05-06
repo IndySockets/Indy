@@ -50,6 +50,7 @@ unit IdInterceptSimLog;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -77,11 +78,6 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-    {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdException, IdResourceStringsCore, SysUtils;
 
 { TIdInterceptSimLog }

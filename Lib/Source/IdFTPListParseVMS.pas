@@ -368,7 +368,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -440,7 +440,7 @@ begin
         Result := ParseLine(LItem, LRelPath);
         if not Result then
         begin
-          FreeAndNil(LItem);
+          IdDisposeAndNil(LItem);
           Exit;
         end;
       end;

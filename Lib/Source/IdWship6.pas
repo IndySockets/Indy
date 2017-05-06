@@ -356,12 +356,11 @@ const
     {$ENDIF}
   {$ENDIF}
 
-{$UNDEF WINCE_UNICODE}
-{$IFDEF WINCE}
-  {$IFDEF UNICODE}
-    {$DEFINE WINCE_UNICODE}
-  {$ENDIF}
-{$ENDIF}
+{$IF DEFINED(WINCE) AND DEFINED(UNICODE)}
+  {$DEFINE WINCE_UNICODE}
+{$ELSE}
+  {$UNDEF WINCE_UNICODE}
+{$IFEND}
 
 var
   {$EXTERNALSYM getaddrinfo}
@@ -389,7 +388,7 @@ var
   getaddrinfo: LPFN_GETADDRINFO = nil;
   getnameinfo: LPFN_GETNAMEINFO = nil;
   freeaddrinfo: LPFN_FREEADDRINFO = nil;
-      {$IFNDEF WINCE}
+    {$IFNDEF WINCE}
   //These are here for completeness
   inet_pton : LPFN_inet_pton = nil;
   inet_ntop : LPFN_inet_ntop = nil;
@@ -429,9 +428,6 @@ var
   {$EXTERNALSYM WSAREVERTIMPERSONATION}
   WSARevertImpersonation : LPFN_WSAREVERTIMPERSONATION = nil;
   {$ENDIF}
-
-var
-  GIdIPv6FuncsAvailable: Boolean = False{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$ENDIF};
 
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
 
@@ -494,10 +490,6 @@ begin
   end;
   {$ENDIF}
 
-  {$I IdSymbolDeprecatedOff.inc}
-  GIdIPv6FuncsAvailable := False;
-  {$I IdSymbolDeprecatedOn.inc}
-
   {$IFDEF WINCE_UNICODE}
   getaddrinfoCE := nil;
   getnameinfoCE := nil;
@@ -520,8 +512,7 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF FPC} //{$IFDEF STRING_IS_ANSI}
-  {$IFDEF UNICODE}
+{$IF DEFINED(FPC) AND DEFINED(UNICODE)}
 
 // FreePascal does not have PWideChar overloads of these functions
 
@@ -559,8 +550,7 @@ begin
   end;
 end;
 
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 // The IPv6 functions were added to the Ws2_32.dll on Windows XP and later.
 // To execute an application that uses these functions on earlier versions of
@@ -1037,7 +1027,7 @@ begin
           {$IFNDEF UNICODE}
           inet_ntoa(PInAddr(@dwAddress)^)
           {$ELSE}
-          PWideChar(TIdUnicodeString(inet_ntoa(PInAddr(@dwAddress)^)))
+          PWideChar(UnicodeString(inet_ntoa(PInAddr(@dwAddress)^)))
           {$ENDIF}
           );
         if pptResult^.ai_canonname = nil then begin
@@ -1094,8 +1084,7 @@ var
   pszNode: PIdPlatformChar;
   pc: PIdPlatformChar;
   {$IFDEF UNICODE}
-  tmpService: TIdUnicodeString;
-  tmpNode: TIdUnicodeString;
+  tmpService, tmpNode: UnicodeString;
   {$ENDIF}
 begin
   StrCopy(szBuffer, '65535');
@@ -1147,7 +1136,7 @@ begin
         {$IFNDEF UNICODE}
         pszService := ptService^.s_name;
         {$ELSE}
-        tmpService := TIdUnicodeString(ptService^.s_name);
+        tmpService := UnicodeString(ptService^.s_name);
         pszService := PWideChar(tmpService);
         {$ENDIF}
       end else begin
@@ -1174,7 +1163,7 @@ begin
       {$IFNDEF UNICODE}
       pszNode := inet_ntoa(tAddress);
       {$ELSE}
-      tmpNode := TIdUnicodeString(inet_ntoa(tAddress));
+      tmpNode := UnicodeString(inet_ntoa(tAddress));
       pszNode := PWideChar(tmpNode);
       {$ENDIF}
     end else
@@ -1187,7 +1176,7 @@ begin
         {$IFNDEF UNICODE}
         pszNode := ptHost^.h_name;
         {$ELSE}
-        tmpNode := TIdUnicodeString(ptHost^.h_name);
+        tmpNode := UnicodeString(ptHost^.h_name);
         pszNode := PWideChar(tmpNode);
         {$ENDIF}
         if (iFlags and NI_NOFQDN) <> 0 then begin
@@ -1212,7 +1201,7 @@ begin
           {$IFNDEF UNICODE}
           pszNode := inet_ntoa(tAddress);
           {$ELSE}
-          tmpNode := TIdUnicodeString(inet_ntoa(tAddress));
+          tmpNode := UnicodeString(inet_ntoa(tAddress));
           pszNode := PWideChar(tmpNode);
           {$ENDIF}
         end;
@@ -1234,7 +1223,7 @@ end;
 
 function IndyStrdupAToW(const pszString: PAnsiChar): PWideChar;
 var
-  szStr: TIdUnicodeString;
+  szStr: UnicodeString;
   pszMemory: PWideChar;
   cchMemory: size_t;
 begin
@@ -1243,7 +1232,7 @@ begin
     Exit;
   end;
 
-  szStr := TIdUnicodeString(pszString);
+  szStr := UnicodeString(pszString);
   cchMemory := Length(szStr) + 1;
 
   pszMemory := PWideChar(WspiapiMalloc(cchMemory * SizeOf(WideChar)));
@@ -1413,10 +1402,10 @@ begin
   Result := getnameinfoCE(ptSocketAddress, tSocketLength, LPHost, LHostLen, LPServ, LServLen, iFlags);
   if Result = 0 then begin
     if pszNodeName <> nil then begin
-      StrPLCopy(pszNodeName, TIdUnicodeString(LPHost), tNodeLength);
+      StrPLCopy(pszNodeName, UnicodeString(LPHost), tNodeLength);
     end;
     if pszServiceName <> nil then begin
-      StrPLCopy(pszServiceName, TIdUnicodeString(LPServ), tServiceLength);
+      StrPLCopy(pszServiceName, UnicodeString(LPServ), tServiceLength);
     end;
   end;
 end;
@@ -1514,10 +1503,6 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
   getaddrinfo := Addr(WspiapiLegacyGetAddrInfo);
   getnameinfo := Addr(WspiapiLegacyGetNameInfo);
   freeaddrinfo := Addr(WspiapiLegacyFreeAddrInfo);
-
-  {$I IdSymbolDeprecatedOff.inc}
-  GIdIPv6FuncsAvailable := True;
-  {$I IdSymbolDeprecatedOn.inc}
 end;
 
 initialization

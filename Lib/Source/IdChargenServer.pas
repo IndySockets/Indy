@@ -46,6 +46,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -54,7 +55,8 @@ Type
   TIdChargenServer = class(TIdCustomTCPServer)
   protected
     function DoExecute(AContext:TIdContext): boolean; override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_CHARGEN;
   end;
@@ -62,17 +64,17 @@ Type
 implementation
 
 uses
- IdIOHandler;
+  IdIOHandler;
 
 { TIdChargenServer }
 
-procedure TIdChargenServer.InitComponent;
+constructor TIdChargenServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_CHARGEN;
 end;
 
-function TIdChargenServer.DoExecute(AContext:TIdContext): boolean;
+function TIdChargenServer.DoExecute(AContext: TIdContext): boolean;
 var
   Counter, Width, Base: integer;
   LIOHandler: TIdIOHandler;

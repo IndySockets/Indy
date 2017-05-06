@@ -62,21 +62,16 @@ interface
 
 uses
   Classes,
-{$IFDEF WIDGET_KYLIX}
-  QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt,
-{$ENDIF}
-{$IFDEF WIDGET_VCL_LIKE}
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
-{$ENDIF}
-{$IFDEF HAS_UNIT_Types}
+  {$IFDEF HAS_UNIT_Types}
   Types,
-{$ENDIF}
-{$IFDEF WINDOWS}
+  {$ENDIF}
+  {$IFDEF WINDOWS}
   Windows,
-{$ENDIF}
-{$IFDEF LCL}
+  {$ENDIF}
+  {$IFDEF LCL}
   LResources,
-{$ENDIF}
+  {$ENDIF}
   IdSocketHandle;
 {
   Design Note:  It turns out that in DotNET, there are no services file functions and
@@ -101,13 +96,13 @@ uses
 
 type
   TIdDsnPropEdBindingVCL = class(TForm)
-   {$IFDEF USE_TBitBtn}
+    {$IFDEF USE_TBitBtn}
     btnOk: TBitBtn;
     btnCancel: TBitBtn;
-  {$ELSE}
+    {$ELSE}
     btnOk: TButton;
     btnCancel: TButton;
-  {$ENDIF}
+    {$ENDIF}
     lblBindings: TLabel;
     edtPort: TComboBox;
     rdoBindingType: TRadioGroup;
@@ -186,7 +181,7 @@ begin
   LIP := TIdIPAddress.MakeAddressObject(AAddr);
   Result := Assigned(LIP);
   if Result then begin
-    FreeAndNil(LIP);
+    LIP.Free;
   end;
 end;
 
@@ -293,9 +288,7 @@ var
   LLocalAddresses: TIdStackLocalAddressList;
 begin
   inherited CreateNew(AOwner, 0);
-  {$IFNDEF WIDGET_KYLIX}
   Borderstyle := bsDialog;
-  {$ENDIF}
   BorderIcons := [biSystemMenu];
  // Width := 480;
  // Height := 252;
@@ -504,11 +497,7 @@ begin
     for i := 0 to IdPorts.Count - 1 do begin
       edtPort.Items.Add(
         PortDescription(
-          {$IFDEF HAS_GENERICS_TList}
-          IdPorts[i]
-          {$ELSE}
-          PtrInt(IdPorts[i])
-          {$ENDIF}
+          {$IFDEF HAS_GENERICS_TList}IdPorts[i]{$ELSE}PtrInt(IdPorts[i]){$ENDIF}
         )
       );
     end;
@@ -533,9 +522,9 @@ end;
 
 destructor TIdDsnPropEdBindingVCL.Destroy;
 begin
-  FreeAndNil(FIPv4Addresses);
-  FreeAndNil(FIPv6Addresses);
-  FreeAndNil(FHandles);
+  FIPv4Addresses.Free;
+  FIPv6Addresses.Free;
+  FHandles.Free;
   inherited Destroy;
 end;
 
@@ -621,12 +610,6 @@ begin
   lblPort.Enabled := Assigned(FCurrentHandle);
   edtPort.Enabled := Assigned(FCurrentHandle);
   rdoBindingType.Enabled := Assigned(FCurrentHandle);
-  {$IFDEF WIDGET_KYLIX}
-  //WOrkaround for CLX quirk that might be Kylix 1
-  for i := 0 to rdoBindingType.ControlCount -1 do begin
-    rdoBindingType.Controls[i].Enabled := Assigned(FCurrentHandle);
-  end;
-  {$ENDIF}
   {$IFDEF WIDGET_VCL_LIKE}
   //The Win32 VCL does not change the control background to a greyed look
   //when controls are disabled.  This quirk is not present in CLX.
@@ -643,15 +626,10 @@ begin
 end;
 
 procedure TIdDsnPropEdBindingVCL.btnBindingsDeleteExecute(Sender: TObject);
-var
-  LSH : TIdSocketHandle;
 begin
   if lbBindings.ItemIndex >= 0 then
   begin
-    // Delete is not available in D4's collection classes
-    // This should work just as well.
-    LSH := Handles[lbBindings.ItemIndex];
-    FreeAndNil(LSH);
+    Handles.Delete(lbBindings.ItemIndex);
     FCurrentHandle := nil;
     UpdateBindingList;
   end;

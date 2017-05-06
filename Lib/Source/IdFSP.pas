@@ -354,11 +354,11 @@ causes that directory can be listable even it do not have
       const AFilePosition : Int64; //in case FSP 3.0 does support more than 4GB
       var VData, VExtraData : TIdBytes; const ARaiseException : Boolean=True); overload;
     procedure ParseDirInfo(const ABuf, AExtraBuf: TIdBytes; ADir : TIdFSPDirInfo);
-    procedure InitComponent; override;
     function MaxBufferSize : Word;
     function PrefPayloadSize : Word;
     procedure SetClientMaxPacketSize(const AValue: Word);
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Connect; override; //this is so we can use it similarly to FTP
     procedure Disconnect; override;
@@ -406,31 +406,16 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF KYLIXCOMPAT}
+  {$IF DEFINED(KYLIXCOMPAT)}
   Libc,
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
+  {$ELSEIF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
   Posix.SysTime,
   Posix.Unistd,
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-    {$IFDEF USE_INLINE}
+  {$ELSEIF DEFINED(WINDOWS) AND (DEFINED(USE_INLINE) OR DEFINED(DCC_2009_OR_ABOVE))}
   Windows,
-    {$ELSE}
-  //facilitate inlining only.
-      {$IFDEF VCL_2009_OR_ABOVE}
-  Windows,
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}  
-  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream, SysUtils;
+  {$IFEND}
+  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
 
 function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : UInt32; var VPos : UInt32): String;
 var
@@ -483,6 +468,37 @@ end;
 
 { TIdFSP }
 
+constructor TIdFSP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FAbortFlag := TIdThreadSafeBoolean.Create;
+  FAbortFlag.Value := False;
+  //you have to use FPort or this will cause a stack overflow
+  FPort := IdPORT_FSP;
+  FSequence := 0;
+  FKey := 0;
+  FDirInfo := TIdFSPDirInfo.Create;
+  FDirectoryListing := TIdFSPListItems.Create;
+  FStatInfo := TIdFSPStatInfo.Create(nil);
+  BroadcastEnabled := False;
+  FConEstablished := False;
+  FClientMaxPacketSize := DEF_MAXSIZE;
+  FInCmd := TIdThreadSafeBoolean.Create;
+  FInCmd.Value := False;
+end;
+
+destructor TIdFSP.Destroy;
+begin
+  Disconnect;
+  FDirInfo.Free;
+  FDirectoryListing.Free;
+  FStatInfo.Free;
+  FAbortFlag.Free;
+  FInCmd.Free;
+
+  inherited Destroy;
+end;
+
 procedure TIdFSP.Connect;
 begin
   FSequence := 1;
@@ -490,18 +506,6 @@ begin
   FServerMaxThruPut := 0;
   FServerMaxPacketSize := DEF_MAXSIZE;
   inherited Connect;
-end;
-
-destructor TIdFSP.Destroy;
-begin
-  Disconnect;
-  FreeAndNil(FDirInfo);
-  FreeAndNil(FDirectoryListing);
-  FreeAndNil(FStatInfo);
-  FreeAndNil(FAbortFlag);
-  FreeAndNil(FInCmd);
-
-  inherited Destroy;
 end;
 
 procedure TIdFSP.Disconnect;
@@ -547,7 +551,7 @@ begin
           SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
           LLen := LRecvPacket.FDataLen; //Length(LRecvPacket.Data);
           if LLen > 0 then begin
-            TIdStreamHelper.Write(ADest, LRecvPacket.Data, LLen);
+            ADest.WriteBuffer(PByte(LRecvPacket.Data)^, LLen);
             DoWork(wmRead, LLen);
             Inc(LSendPacket.FFilePosition, LLen);
           end else begin
@@ -558,10 +562,10 @@ begin
         EndWork(wmRead);
       end;
     finally
-      FreeAndNil(LRecvPacket);
+      LRecvPacket.Free;
     end;
   finally
-    FreeAndNil(LSendPacket);
+    LSendPacket.Free;
   end;
 end;
 
@@ -583,34 +587,13 @@ begin
   try
     Get(ASourceFile, LDestStream, AResume);
   finally
-    FreeAndNil(LDestStream);
+    LDestStream.Free;
   end;
 end;
 
 procedure TIdFSP.GetDirInfo(const ADIR: String);
 begin
   GetDirInfo(ADir, FDirInfo);
-end;
-
-procedure TIdFSP.InitComponent;
-begin
-  inherited InitComponent;
-  FAbortFlag := TIdThreadSafeBoolean.Create;
-  FAbortFlag.Value := False;
-  //you have to use FPort or this will cause a stack overflow
-  FPort := IdPORT_FSP;
-  FSequence := 0;
-  FKey := 0;
-  FDirInfo := TIdFSPDirInfo.Create;
-  FDirectoryListing := TIdFSPListItems.Create;
-  FStatInfo := TIdFSPStatInfo.Create(nil);
-  BroadcastEnabled := False;
-  FConEstablished := False;
-  FClientMaxPacketSize := DEF_MAXSIZE;
-  FInCmd := TIdThreadSafeBoolean.Create;
-  FInCmd.Value := False;
-
-
 end;
 
 procedure TIdFSP.List;
@@ -659,10 +642,10 @@ begin
         end;
       until FDirectoryListing.ParseEntries(LRecvPacket.FData, LRecvPacket.FDataLen);
     finally
-      FreeAndNil(LRecvPacket);
+      LRecvPacket.Free;
     end;
   finally
-    FreeAndNil(LSendPacket);
+    LSendPacket.Free;
   end;
 end;
 
@@ -688,10 +671,10 @@ begin
       VData := LRecvPacket.Data;
       VExtraData := LRecvPacket.ExtraData;
     finally
-      FreeAndNil(LRecvPacket);
+      LRecvPacket.Free;
     end;
   finally
-    FreeAndNil(LSendPacket);
+    LSendPacket.Free;
   end;
 end;
 
@@ -882,8 +865,8 @@ begin
       LSendPacket.Cmd := CC_UP_LOAD;
 
       repeat
-        LLen := TIdStreamHelper.ReadBytes(ASource, LSendPacket.FData, PrefPayloadSize, 0);
-        if LLen = 0 then begin
+        LLen := ASource.Read(PByte(LSendPacket.FData)^, PrefPayloadSize);
+        if LLen <= 0 then begin
           Break;
         end;
 
@@ -891,9 +874,6 @@ begin
         LSendPacket.FilePosition := LPosition;
         SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
 
-        if LLen < PrefPayloadSize then begin
-          Break;
-        end;
         Inc(LPosition, LLen);
       until False;
 
@@ -912,10 +892,10 @@ begin
       end;
       SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
     finally
-      FreeAndNil(LRecvPacket);
+      LRecvPacket.Free;
     end;
   finally
-    FreeAndNil(LSendPacket);
+    LSendPacket.Free;
   end;
 end;
 
@@ -932,7 +912,7 @@ begin
   try
     Put(LSourceStream, LDestFileName, GetGMTDateByName(ASourceFile));
   finally
-    FreeAndNil(LSourceStream);
+    LSourceStream.Free;
   end;
 end;
 
@@ -1072,10 +1052,10 @@ begin
       VData := LRecvPacket.Data;
       VExtraData := LRecvPacket.ExtraData;
     finally
-      FreeAndNil(LRecvPacket);
+      LRecvPacket.Free;
     end;
   finally
-    FreeAndNil(LSendPacket);
+    LSendPacket.Free;
   end;
 end;
 

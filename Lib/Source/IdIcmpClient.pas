@@ -56,15 +56,6 @@
 
 unit IdIcmpClient;
 
-{
-  Note that we can NOT remove the DotNET IFDEFS from this unit.   The reason is
-  that Microsoft NET Framework 1.1 does not support ICMPv6 and that's required
-  for IPv6.  In Win32 and Linux, we definately can and want to support IPv6.
-
-  If we support a later version of the NET framework that has a better API, I may
-  consider revisiting this.
-}
-
 // SG 25/1/02: Modified the component to support multithreaded PING and traceroute
 
 interface
@@ -154,17 +145,12 @@ type
     FOnReply: TOnReplyEvent;
     FReplydata: String;
     //
-    {$IFNDEF DOTNET_1_1}
     function DecodeIPv6Packet(BytesRead: UInt32): Boolean;
-    {$ENDIF}
     function DecodeIPv4Packet(BytesRead: UInt32): Boolean;
     function DecodeResponse(BytesRead: UInt32): Boolean;
     procedure DoReply; virtual;
     procedure GetEchoReply;
-    procedure InitComponent; override;
-    {$IFNDEF DOTNET_1_1}
     procedure PrepareEchoRequestIPv6(const ABuffer: String);
-    {$ENDIF}
     procedure PrepareEchoRequestIPv4(const ABuffer: String);
     procedure PrepareEchoRequest(const ABuffer: String);
     procedure SendEchoRequest; overload;
@@ -182,6 +168,7 @@ type
     property OnReply: TOnReplyEvent read FOnReply write FOnReply;
 
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Send(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); override;
     procedure Send(const ABuffer : TIdBytes); override;
@@ -195,9 +182,7 @@ type
     property ReplyStatus;
   published
     property Host;
-    {$IFNDEF DOTNET_1_1}
     property IPVersion;
-    {$ENDIF}
     property PacketSize;
     property ReceiveTimeout default Id_TIDICMP_ReceiveTimeout;
     property OnReply;
@@ -207,14 +192,11 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
   Windows,
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+  {$ELSEIF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
   Macapi.CoreServices,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
   IdStack, IdStruct, SysUtils;
 
@@ -222,13 +204,11 @@ uses
 
 procedure TIdCustomIcmpClient.PrepareEchoRequest(const ABuffer: String);
 begin
-  {$IFNDEF DOTNET_1_1}
   if IPVersion = Id_IPv6 then begin
     PrepareEchoRequestIPv6(ABuffer);
-    Exit;
+  end else begin
+    PrepareEchoRequestIPv4(ABuffer);
   end;
-  {$ENDIF}
-  PrepareEchoRequestIPv4(ABuffer);
 end;
 
 { TIdIPv4_ICMP }
@@ -257,8 +237,8 @@ end;
   
 destructor TIdIPv4_ICMP.Destroy;
 begin
-  FreeAndNil(Fip_hdr);
-  FreeAndNil(Ficmp_hdr);
+  Fip_hdr.Free;
+  Ficmp_hdr.Free;
   inherited Destroy;
 end;
 
@@ -282,6 +262,23 @@ begin
 end;
 
 { TIdCustomIcmpClient }
+
+constructor TIdCustomIcmpClient.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FReplyStatus:= TReplyStatus.Create;
+  FProtocol := Id_IPPROTO_ICMP;
+  ProtocolIPv6 := Id_IPPROTO_ICMPv6;
+  wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
+  FReceiveTimeOut := Id_TIDICMP_ReceiveTimeout;
+  FPacketSize := DEF_PACKET_SIZE;
+end;
+
+destructor TIdCustomIcmpClient.Destroy;
+begin
+  FReplyStatus.Free;
+  inherited Destroy;
+end;
 
 procedure TIdCustomIcmpClient.SendEchoRequest;
 begin
@@ -311,13 +308,11 @@ begin
   end else
   begin
     FReplyStatus.ReplyStatusType := rsError;
-    {$IFNDEF DOTNET_1_1}
     if IPVersion = Id_IPv6 then begin
       Result := DecodeIPv6Packet(BytesRead);
-      Exit;
+    end else begin
+      Result := DecodeIPv4Packet(BytesRead);
     end;
-    {$ENDIF}
-    Result := DecodeIPv4Packet(BytesRead);
   end;
 end;
 
@@ -367,25 +362,6 @@ begin
   if Assigned(FOnReply) then begin
     FOnReply(Self, FReplyStatus);
   end;
-end;
-
-procedure TIdCustomIcmpClient.InitComponent;
-begin
-  inherited InitComponent;
-  FReplyStatus:= TReplyStatus.Create;
-  FProtocol := Id_IPPROTO_ICMP;
-  {$IFNDEF DOTNET_1_1}
-  ProtocolIPv6 := Id_IPPROTO_ICMPv6;
-  {$ENDIF}
-  wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
-  FReceiveTimeOut := Id_TIDICMP_ReceiveTimeout;
-  FPacketSize := DEF_PACKET_SIZE;
-end;
-
-destructor TIdCustomIcmpClient.Destroy;
-begin
-  FreeAndNil(FReplyStatus);
-  inherited Destroy;
 end;
 
 function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: UInt32): Boolean;
@@ -594,7 +570,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LIcmp);
+    LIcmp.Free;
   end;
 end;
 
@@ -627,11 +603,10 @@ begin
       CopyTIdBytes(LBuffer, 0, FBufIcmp, LIdx, LBufferLen);
     end;
   finally
-    FreeAndNil(LIcmp);
+    LIcmp.Free;
   end;
 end;
 
-{$IFNDEF DOTNET_1_1}
 procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const ABuffer: String);
 var
   LIcmp : TIdicmp6_hdr;
@@ -661,7 +636,7 @@ begin
       CopyTIdBytes(LBuffer, 0, FBufIcmp, LIdx, LBufferLen);
     end;
   finally
-    FreeAndNil(LIcmp);
+    LIcmp.Free;
   end;
 end;
 
@@ -754,10 +729,9 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LIcmp);
+    LIcmp.Free;
   end;
 end;
-{$ENDIF}
 
 procedure TIdCustomIcmpClient.Send(const AHost: string; const APort: TIdPort;
   const ABuffer: TIdBytes);

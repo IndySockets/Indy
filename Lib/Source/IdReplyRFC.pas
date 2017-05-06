@@ -122,7 +122,9 @@
 unit IdReplyRFC;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   Classes,
   IdReply;

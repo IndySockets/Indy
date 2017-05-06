@@ -348,12 +348,9 @@ type
     procedure SendSubNegotiationResp(const SbType: Byte; const ResponseData: TIdBytes);
     // Update the telnet status
     procedure DoTelnetCommand(Status: TIdTelnetCommand);
-    procedure InitComponent; override;
   public
     //
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
@@ -412,6 +409,21 @@ end;
 
 { TIdTelnet }
 
+constructor TIdTelnet.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Terminal := 'dumb';    {Do not Localize}
+  ThreadedEvent := False;
+  IamTelnet := False;
+  Port := IdPORT_TELNET;
+end;
+
+destructor TIdTelnet.Destroy;
+begin
+  Disconnect;
+  inherited Destroy;
+end;
+
 procedure TIdTelnet.SendCh(Ch : Char);
 begin
   // this  code is necessary to allow the client to receive data properly
@@ -443,28 +455,6 @@ begin
     except
     end;
   end;
-end;
-
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-constructor TIdTelnet.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdTelnet.InitComponent;
-begin
-  inherited InitComponent;
-  Terminal := 'dumb';    {Do not Localize}
-  ThreadedEvent := False;
-  IamTelnet := False;
-  Port := IdPORT_TELNET;
-end;
-
-destructor TIdTelnet.Destroy;
-begin
-  Disconnect;
-  inherited Destroy;
 end;
 
 procedure TIdTelnet.Disconnect(ANotifyPeer: Boolean);

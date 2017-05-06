@@ -361,10 +361,10 @@ begin
     // responsibility of the user (manual) or the scheduler (optional).
     Win32Check(DeleteFiber(FHandle));
   end;
-  FreeAndNil(FYarn);
-  FreeAndNil(FFinished);
-  FreeAndNil(FStarted);
-  FreeAndNil(FStopped);
+  FYarn.Free;
+  FFinished.Free;
+  FStarted.Free;
+  FStopped.Free;
   // Kudzu:
   // Docs say to call ReleaseException, but its empty. But it appears that since
   // we are taking the exception and taking it from the raise list, that instead
@@ -384,7 +384,7 @@ begin
   // VCL will free it as part of the final except block.
   //
   if FFreeFatalException then begin
-    FreeAndNil(FFatalException);
+    IdDisposeAndNil(FFatalException);
   end;
   //
   inherited;
@@ -575,7 +575,7 @@ end;
 
 destructor TIdFiberWithTask.Destroy;
 begin
-  FreeAndNil(FTask);
+  FTask.Free;
   inherited;
 end;
 

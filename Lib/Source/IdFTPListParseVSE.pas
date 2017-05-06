@@ -228,7 +228,7 @@ begin
         Result := (IndyPos(s[4], ValidFileTypeSet) > 0) and IsNumeric(s[3]);
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -263,7 +263,7 @@ begin
     AItem.ItemType := ditFile;
     AItem.SizeAvail := False;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -298,7 +298,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -354,7 +354,7 @@ begin
     LI.ItemType := ditFile;
     LI.ModifiedAvail := False;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -383,7 +383,7 @@ begin
         Result := (IndyPos(s[4], ValidFileTypeSet) > 0) and IsNumeric(s[3]);
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -422,7 +422,7 @@ begin
     LI.Size := IndyStrToInt64(LCols[3], 0);
     LI.ItemType := ditFile;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -493,7 +493,7 @@ begin
     //sublibraries are always types of directories
     LI.ItemType := ditDirectory;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -525,7 +525,7 @@ begin
                   (IndyPos(':', s[4]) > 0) and {do not localize}
                   CharIsInSet(s[s.Count-1], 1, VSE_SUBLIBTYPES);
       finally
-        FreeAndNil(s);
+        s.Free;
       end;
     end;
   end;
@@ -600,7 +600,7 @@ begin
     end;
     AItem.ItemType := ditFile;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;

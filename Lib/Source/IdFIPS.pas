@@ -18,20 +18,11 @@ interface
   functions and to control dependancies in Indy.
 }
 uses
-  IdException, IdGlobal
-  {$IFDEF DOTNET}
-  , System.Security.Cryptography
-  {$ENDIF}
-  ;
+  IdException, IdGlobal;
 
 type
-{$IFDEF DOTNET}
-  TIdHashIntCtx = System.Security.Cryptography.HashAlgorithm;
-  TIdHMACIntCtx = System.Security.Cryptography.HMAC;
-{$ELSE}
   TIdHashIntCtx = Pointer;
   TIdHMACIntCtx = Pointer;
-{$ENDIF}
 
   EIdFIPSAlgorithmNotAllowed = class(EIdException);
   TGetFIPSMode = function: Boolean;
@@ -96,21 +87,24 @@ uses
 
 // TODO: for .NET, implement functions that use .NET Hash/HMAC classes
 
-procedure CheckMD2Permitted; {$IFDEF USE_INLINE} inline; {$ENDIF}
+procedure CheckMD2Permitted;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if GetFIPSMode then begin
     FIPSAlgorithmNotAllowed('MD2');
   end;
 end;
 
-procedure CheckMD4Permitted; {$IFDEF USE_INLINE} inline; {$ENDIF}
+procedure CheckMD4Permitted;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if GetFIPSMode then begin
     FIPSAlgorithmNotAllowed('MD4');
   end;
 end;
 
-procedure CheckMD5Permitted; {$IFDEF USE_INLINE} inline; {$ENDIF}
+procedure CheckMD5Permitted;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if GetFIPSMode then begin
     FIPSAlgorithmNotAllowed('MD5');
@@ -118,7 +112,7 @@ begin
 end;
 
 procedure FIPSAlgorithmNotAllowed(const AAlgorithm: String);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   raise EIdFIPSAlgorithmNotAllowed.CreateFmt(RSFIPSAlgorithmNotAllowed, [AAlgorithm]);
 end;

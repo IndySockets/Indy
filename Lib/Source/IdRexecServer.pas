@@ -47,9 +47,11 @@ unit IdRexecServer;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
 
 type
@@ -61,7 +63,8 @@ type
     FOnCommand : TIdRexecCommandEvent;
     procedure DoCMD(AThread: TIdContext;
      AStdError : TIdTCPClient; AParam1, AParam2, ACommand : String); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property OnCommand : TIdRexecCommandEvent read FOnCommand write FOnCommand;
     property DefaultPort default Id_PORT_exec;
@@ -71,9 +74,9 @@ implementation
 
 { TIdRexecServer }
 
-procedure TIdRexecServer.InitComponent;
+constructor TIdRexecServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := Id_PORT_exec;
   {This variable is defined in the TIdRemoteCMDServer component.  We do not
   use it here because Rexec does not require it.  However, we have to set this to

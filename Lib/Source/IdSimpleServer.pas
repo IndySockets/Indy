@@ -126,10 +126,11 @@ type
     procedure DoBeforeBind; virtual;
     procedure DoAfterBind; virtual;
     function GetBinding: TIdSocketHandle;
-    procedure InitComponent; override;
     procedure SetIOHandler(AValue: TIdIOHandler); override;
     procedure SetIPVersion(const AValue: TIdIPVersion);
   public
+    constructor Create(AOwner: TComponent); override;
+    //
     procedure Abort; virtual;
     procedure BeginListen; virtual;
     procedure CreateBinding;
@@ -162,6 +163,13 @@ uses
   IdStack;
 
 { TIdSimpleServer }
+
+constructor TIdSimpleServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FAcceptWait := ID_ACCEPT_WAIT;
+  FListenHandle := Id_INVALID_SOCKET;
+end;
 
 procedure TIdSimpleServer.Abort;
 begin
@@ -339,13 +347,6 @@ begin
   if not LAccepted then begin
     raise EIdAcceptTimeout.Create(RSAcceptTimeout);
   end;
-end;
-
-procedure TIdSimpleServer.InitComponent;
-begin
-  inherited InitComponent;
-  FAcceptWait := ID_ACCEPT_WAIT;
-  FListenHandle := Id_INVALID_SOCKET;
 end;
 
 end.

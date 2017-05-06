@@ -53,23 +53,18 @@ Original Author: Hadi Hariri
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdAssignedNumbers,
   IdTCPClient;
 
 type
   TIdWhois = class(TIdTCPClientCustom)
-  protected
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     function WhoIs(const ADomain: string): string;
   published
     property Port default IdPORT_WHOIS;
@@ -84,26 +79,22 @@ uses
 
 { TIdWHOIS }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdWHOIS.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdWHOIS.InitComponent;
-begin
-  inherited;
   Host := 'whois.internic.net';    {Do not Localize}
   Port := IdPORT_WHOIS;
 end;
 
 function TIdWHOIS.WhoIs(const ADomain: string): string;
 begin
-  Connect; try
+  Connect;
+  try
     IOHandler.WriteLn(ADomain);
     Result := IOHandler.AllData;
-  finally Disconnect; end;
+  finally
+    Disconnect;
+  end;
 end;
 
 end.

@@ -41,21 +41,13 @@ uses
 
 type
   TIdEncoderMIME = class(TIdEncoder3to4)
-  protected
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   end;
 
   TIdDecoderMIME = class(TIdDecoder4to3)
-  protected
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   end;
 
   {WARNING: This is not a general-purpose decoder.  It is used, for example, by
@@ -80,11 +72,6 @@ var
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-    {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   SysUtils;
 
 { TIdDecoderMIMELineByLine }
@@ -114,7 +101,7 @@ begin
       LStream.Position := 0;
       inherited Decode(LStream);
     finally
-      FreeAndNil(LStream);
+      LStream.Free;
       SetLength(FLeftFromLastTime, 0);
     end;
   end;
@@ -145,22 +132,15 @@ begin
     LStream.Position := 0;
     inherited Decode(LStream, ABytes);
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 
 { TIdDecoderMIME }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdDecoderMIME.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdDecoderMIME.InitComponent;
-begin
-  inherited InitComponent;
   FDecodeTable := GBase64DecodeTable;
   FCodingTable := ToBytes(GBase64CodeTable);
   FFillChar := '=';  {Do not Localize}
@@ -168,16 +148,9 @@ end;
 
 { TIdEncoderMIME }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdEncoderMIME.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdEncoderMIME.InitComponent;
-begin
-  inherited InitComponent;
   FCodingTable := ToBytes(GBase64CodeTable);
   FFillChar := '=';   {Do not Localize}
 end;

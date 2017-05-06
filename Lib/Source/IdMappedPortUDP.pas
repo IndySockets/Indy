@@ -63,8 +63,9 @@ type
     FOnRequest: TNotifyEvent;
     //
     procedure DoRequestNotify; virtual;
-    procedure InitComponent; override;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property MappedHost: string read FMappedHost write FMappedHost;
     property MappedPort: TIdPort read FMappedPort write FMappedPort;
@@ -77,9 +78,9 @@ uses
   IdAssignedNumbers,
   IdUDPClient, SysUtils;
 
-procedure TIdMappedPortUDP.InitComponent;
+constructor TIdMappedPortUDP.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_DOMAIN;
 end;
 
@@ -111,7 +112,7 @@ begin
       ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, LData, 0, i, ABinding.IPVersion);
     end;
   finally
-    FreeAndNil(LClient);
+    LClient.Free;
   end;
 end;
 

@@ -41,7 +41,6 @@ type
     procedure InitHash; override;
   end;
 
-  {$IFNDEF DOTNET}
   TIdHMACSHA224 = class(TIdHMAC)
   protected
     procedure SetHashVars; override;
@@ -49,7 +48,6 @@ type
     function InitIntFInst(const AKey : TIdBytes) : TIdHMACIntCtx; override;
     procedure InitHash; override;
   end;
-  {$ENDIF}
 
   TIdHMACSHA256 = class(TIdHMAC)
   protected
@@ -111,8 +109,6 @@ end;
 
 { TIdHMACSHA224 }
 
-{$IFNDEF DOTNET}
-
 procedure TIdHMACSHA224.InitHash;
 begin
   if not TIdHashSHA224.IsAvailable then
@@ -136,8 +132,6 @@ begin
   FBlockSize := 64;
   FHashName := 'SHA224';
 end;
-
-{$ENDIF}
 
 { TIdHMACSHA256 }
 

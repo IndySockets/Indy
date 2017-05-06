@@ -1,5 +1,7 @@
 unit IdTransactedFileStream;
+
 interface
+
 {$I IdCompilerDefines.inc}
 
 {
@@ -54,13 +56,13 @@ been burnt with temporary files and server crashes before.
 
 }
 uses
- {$IFDEF WIN32_OR_WIN64}
- Windows,
+  {$IFDEF WIN32_OR_WIN64}
+  Windows,
   Consts,
- {$ENDIF}
- Classes, SysUtils, IdGlobal;
+  {$ENDIF}
+  Classes, SysUtils, IdGlobal;
 
- {$IFDEF WIN32_OR_WIN64}
+{$IFDEF WIN32_OR_WIN64}
 const
   TRANSACTION_DO_NOT_PROMOTE = 1;
 
@@ -96,9 +98,9 @@ var
   RollbackTransaction : TktmRollbackTransaction;
   CloseTransaction : TktmCloseTransaction;
 
-  {$ENDIF}
+{$ENDIF}
 
-Function IsTransactionsWorking : Boolean;
+function IsTransactionsWorking : Boolean;
 
 type
   TIdKernelTransaction = class (TObject)
@@ -114,19 +116,21 @@ type
   end;
 
   TIdTransactedFileStream = class(THandleStream)
-   {$IFNDEF WIN32_OR_WIN64}
+  {$IFNDEF WIN32_OR_WIN64}
   protected
     FFileStream : TFileStream;
-   {$ENDIF}
+  {$ENDIF}
   public
     constructor Create(const FileName: string; Mode: Word; oTransaction : TIdKernelTransaction);
     destructor Destroy; override;
   end;
 
 implementation
-uses RTLConsts;
 
- {$IFDEF WIN32_OR_WIN64}
+uses
+  RTLConsts;
+
+{$IFDEF WIN32_OR_WIN64}
 
 var
   GHandleKtm : HModule;
@@ -137,7 +141,7 @@ function DummyCreateTransaction(lpSecurityAttributes: PSecurityAttributes;
   IsolationFlags, Timeout : DWORD;
   Description : PWideChar) : THandle; stdcall;
 begin
-  result := 1;
+  Result := 1;
 end;
 
 function DummyCreateFileTransacted(lpFileName: PChar;
@@ -149,7 +153,7 @@ function DummyCreateFileTransacted(lpFileName: PChar;
   MiniVersion : Word;
   pExtendedParameter : Pointer): THandle; stdcall;
 begin
-  result := CreateFile(lpFilename, dwDesiredAccess, dwShareMode,
+  Result := CreateFile(lpFilename, dwDesiredAccess, dwShareMode,
     lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes,
     hTemplateFile);
 end;
@@ -157,19 +161,19 @@ end;
 function DummyCommitTransaction(hTransaction : THandle) : Boolean; stdcall;
 begin
   assert(hTransaction = 1);
-  result := true;
+  Result := True;
 end;
 
 function DummyRollbackTransaction(hTransaction : THandle) : Boolean; stdcall;
 begin
   assert(hTransaction = 1);
-  result := true;
+  Result := True;
 end;
 
 function DummyCloseTransaction(hTransaction : THandle) : Boolean; stdcall;
 begin
   assert(hTransaction = 1);
-  result := true;
+  Result := True;
 end;
 
 procedure LoadDll;
@@ -181,11 +185,7 @@ begin
     @CommitTransaction := GetProcAddress(GHandleKtm, 'CommitTransaction');
     @RollbackTransaction := GetProcAddress(GHandleKtm, 'RollbackTransaction');
     @CloseTransaction := GetProcAddress(GHandleKernel, 'CloseHandle');
-    {$IFDEF UNICODE}
-    @CreateFileTransacted := GetProcAddress(GHandleKernel, 'CreateFileTransactedW');
-    {$ELSE}
-    @CreateFileTransacted := GetProcAddress(GHandleKernel, 'CreateFileTransactedA');
-   {$ENDIF}
+    @CreateFileTransacted := GetProcAddress(GHandleKernel, {$IFDEF UNICODE}'CreateFileTransactedW'{$ELSE}'CreateFileTransactedA'{$ENDIF});
   end else begin
     @CreateTransaction := @DummyCreateTransaction;
     @CommitTransaction := @DummyCommitTransaction;
@@ -198,8 +198,10 @@ end;
 procedure UnloadDll;
 begin
   if GHandleKtm <> 0 then begin
-    freelibrary(GHandleKtm);
- //   freelibrary(GHandleKernel);
+    FreeLibrary(GHandleKtm);
+    GHandleKtm := 0;
+    //FreeLibrary(GHandleKernel);
+    //GHandleKernel := 0;
   end
 end;
 
@@ -214,49 +216,48 @@ end;
 function IsTransactionsWorking : Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  result := False;
+  Result := False;
 end;
 {$ENDIF}
 
 { TIdKernelTransaction }
 
 constructor TIdKernelTransaction.Create(const sDescription: String; bCanPromote : Boolean);
+{$IFDEF WIN32_OR_WIN64}
 var
-  pDesc : PWideChar;
+  Opts: DWORD;
+{$ENDIF}
 begin
   inherited Create;
-    {$IFDEF UNICODE}
-  GetMem(pDesc, length(sDescription)  + 2);
-  try
-    StringToWideChar(sDescription, pDesc, length(sDescription) + 2);
-    {$ELSE}
-  GetMem(pDesc, length(sDescription) * 2 + 4);
-  try
-    StringToWideChar(sDescription, pDesc, length(sDescription) * 2 + 4);
-    {$ENDIF}
-     {$IFDEF WIN32_OR_WIN64}
-    if bCanPromote Then begin
-      FHandle := CreateTransaction(nil, nil, 0, 0, 0, 0, pDesc);
-    end else begin
-      FHandle := CreateTransaction(nil, nil, TRANSACTION_DO_NOT_PROMOTE, 0, 0, 0, pDesc);
-    end;
-    {$ENDIF}
-  finally
-    FreeMem(pDesc);
+  {$IFDEF WIN32_OR_WIN64}
+  if bCanPromote then begin
+    Opts := 0;
+  end else begin
+    Opts := TRANSACTION_DO_NOT_PROMOTE;
   end;
+  FHandle := CreateTransaction(nil, nil, Opts, 0, 0, 0,
+    {$IFDEF STRING_UNICODE_MISMATCH}
+    PIdPlatformChar(TIdPlatformString(sDescription))
+    {$ELSE}
+    PChar(sDescription)
+    {$ENDIF}
+  );
+  {$ENDIF}
 end;
 
 destructor TIdKernelTransaction.Destroy;
 begin
- {$IFDEF WIN32_OR_WIN64}
-  CloseTransaction(FHandle);
+  {$IFDEF WIN32_OR_WIN64}
+  if FHandle <> INVALID_HANDLE_VALUE then begin
+    CloseTransaction(FHandle);
+  end;
   {$ENDIF}
   inherited Destroy;
 end;
 
 procedure TIdKernelTransaction.Commit;
 begin
- {$IFDEF WIN32_OR_WIN64}
+  {$IFDEF WIN32_OR_WIN64}
   if not CommitTransaction(FHandle) then begin
     IndyRaiseLastError;
   end;
@@ -265,29 +266,33 @@ end;
 
 function TIdKernelTransaction.IsTransactional: Boolean;
 begin
-  result := IsTransactionsWorking;
+  Result := IsTransactionsWorking;
 end;
 
 procedure TIdKernelTransaction.RollBack;
 begin
- {$IFDEF WIN32_OR_WIN64}
+  {$IFDEF WIN32_OR_WIN64}
   if not RollbackTransaction(FHandle) then begin
     IndyRaiseLastError;
   end;
   {$ENDIF}
 end;
 
- {$IFDEF WIN32_OR_WIN64}
+{$IFDEF WIN32_OR_WIN64}
+
 function FileCreateTransacted(const FileName: string; hTransaction : THandle): THandle;
 begin
-  Result := THandle(CreateFileTransacted(PChar(FileName), GENERIC_READ or GENERIC_WRITE,
-    0, nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0, hTransaction, 0, nil));
-  if result = INVALID_HANDLE_VALUE Then begin
+  Result := THandle(CreateFileTransacted(
+    {$IFDEF STRING_UNICODE_MISMATCH}
+    PIdPlatformChar(TIdPlatformString(FileName))
+    {$ELSE}PChar(FileName){$ENDIF},
+    GENERIC_READ or GENERIC_WRITE, 0, nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0, hTransaction, 0, nil));
+  if Result = INVALID_HANDLE_VALUE Then begin
     IndyRaiseLastError;
   end;
 end;
 
-function FileOpenTransacted(const FileName: string; Mode: LongWord;  hTransaction : THandle): THandle;
+function FileOpenTransacted(const FileName: string; Mode: LongWord; hTransaction: THandle): THandle;
 const
   AccessMode: array[0..2] of LongWord = (
     GENERIC_READ,
@@ -300,61 +305,66 @@ const
     FILE_SHARE_WRITE,
     FILE_SHARE_READ or FILE_SHARE_WRITE);
 begin
-  Result := THandle(CreateFileTransacted(PChar(FileName),AccessMode[Mode and 3],
-    ShareMode[(Mode and $F0) shr 4], nil, OPEN_EXISTING,
-    FILE_ATTRIBUTE_NORMAL, 0, hTransaction,TXFS_MINIVERSION_DEFAULT_VIEW, nil));
+  Result := THandle(CreateFileTransacted(
+    {$IFDEF STRING_UNICODE_MISMATCH}
+    PIdPlatformChar(TIdPlatformString(FileName))
+    {$ELSE}
+    PChar(FileName)
+    {$ENDIF},
+    AccessMode[Mode and 3], ShareMode[(Mode and $F0) shr 4], nil, OPEN_EXISTING,
+    FILE_ATTRIBUTE_NORMAL, 0, hTransaction, TXFS_MINIVERSION_DEFAULT_VIEW, nil));
 end;
-   {$ENDIF}
+
+{$ENDIF}
 
 { TIdTransactedFileStream }
 
- {$IFDEF WIN32_OR_WIN64}
+{$IFDEF WIN32_OR_WIN64}
 constructor TIdTransactedFileStream.Create(const FileName: string; Mode: Word; oTransaction: TIdKernelTransaction);
 var
-  aHandle : THandle;
+  LHandle : THandle;
 begin
   if Mode = fmCreate then begin
-    aHandle := FileCreateTransacted(FileName,  oTransaction.FHandle);
-    if aHandle = INVALID_HANDLE_VALUE then begin
+    LHandle := FileCreateTransacted(FileName, oTransaction.FHandle);
+    if LHandle = INVALID_HANDLE_VALUE then begin
       raise EFCreateError.CreateResFmt(@SFCreateError, [FileName]);
     end;
   end else begin
-    aHandle := FileOpenTransacted(FileName, Mode,  oTransaction.FHandle);
-    if aHandle = INVALID_HANDLE_VALUE then begin
+    LHandle := FileOpenTransacted(FileName, Mode, oTransaction.FHandle);
+    if LHandle = INVALID_HANDLE_VALUE then begin
       raise EFOpenError.CreateResFmt(@SFOpenError, [FileName]);
     end;
   end;
-  inherited Create(ahandle);
+  inherited Create(LHandle);
 end;
 {$ELSE}
 constructor TIdTransactedFileStream.Create(const FileName: string; Mode: Word; oTransaction: TIdKernelTransaction);
-var LStream : TFileStream;
 begin
-  LStream := FFileStream.Create(FileName,Mode);
-  inherited Create ( LStream.Handle);
-  FFileStream := LStream;
+  FFileStream := FFileStream.Create(FileName, Mode);
+  inherited Create(LStream.Handle);
 end;
 {$ENDIF}
 
-destructor TIdTransactedFileStream.Destroy ;
+destructor TIdTransactedFileStream.Destroy;
 begin
- {$IFDEF WIN32_OR_WIN64}
-  if Handle = INVALID_HANDLE_VALUE then begin
+  {$IFDEF WIN32_OR_WIN64}
+  if Handle <> INVALID_HANDLE_VALUE then begin
     FileClose(Handle);
   end;
   inherited Destroy;
   {$ELSE}
-  //we have to deference our copy of the THandle so we don't free it twice.
+  //we have to dereference our copy of the THandle so we don't free it twice.
   FHandle := INVALID_HANDLE_VALUE;
-  FreeAndNil( FFileStream );
+  FreeAndNil(FFileStream);
   inherited Destroy;
   {$ENDIF}
 end;
 
- {$IFDEF WIN32_OR_WIN64}
+{$IFDEF WIN32_OR_WIN64}
 initialization
   LoadDLL;
 finalization
   UnloadDLL;
 {$ENDIF}
-End.
+
+end.

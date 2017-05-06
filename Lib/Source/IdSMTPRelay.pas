@@ -222,13 +222,12 @@ type
     procedure SetSSLOptions(const Value: TIdSSLSupportOptions);
     procedure SetRelaySender(const Value: String);
     //
-    procedure InitComponent; override;
-    //
     // holger: .NET compatibility change
     property Port;
   public
-    procedure Assign(Source: TPersistent); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
     procedure DisconnectNotifyPeer; override;
     procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList); override;
   published
@@ -250,6 +249,22 @@ uses
   IdSSL, IdStackConsts, IdTCPClient, IdTCPConnection;
 
 { TIdSMTPRelay }
+
+constructor TIdSMTPRelay.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FSSLOptions := TIdSSLSupportOptions.Create(Self);
+  FMXServerList := TStringList.Create;
+  FStatusList := TIdSMTPRelayStatusList.Create(Self, TIdSMTPRelayStatusItem);
+end;
+
+destructor TIdSMTPRelay.Destroy;
+begin
+  FSSLOptions.Free;
+  FMXServerList.Free;
+  FStatusList.Free;
+  inherited Destroy;
+end;
 
 procedure TIdSMTPRelay.Assign(Source: TPersistent);
 begin
@@ -316,22 +331,6 @@ begin
   end;
 end;
 
-procedure TIdSMTPRelay.InitComponent;
-begin
-  inherited InitComponent;
-  FSSLOptions := TIdSSLSupportOptions.Create(Self);
-  FMXServerList := TStringList.Create;
-  FStatusList := TIdSMTPRelayStatusList.Create(Self, TIdSMTPRelayStatusItem);
-end;
-
-destructor TIdSMTPRelay.Destroy;
-begin
-  FreeAndNil(FSSLOptions);
-  FreeAndNil(FMXServerList);
-  FreeAndNil(FStatusList);
-  inherited Destroy;
-end;
-
 procedure TIdSMTPRelay.DisconnectNotifyPeer;
 begin
   inherited DisconnectNotifyPeer;
@@ -380,7 +379,7 @@ begin
     raise EIdDirectSMTPCannotResolveMX.CreateFmt(RSDirSMTPInvalidEMailAddress, [AAddress]);
   end;
   LDomain := Copy(AAddress, i+1, MaxInt);
-  IdDNSResolver1 := TIdDNSResolver.Create(Self);
+  IdDNSResolver1 := TIdDNSResolver.Create;
   try
     FMXServerList.Clear;
     IdDNSResolver1.AllowRecursiveQueries := True;
@@ -421,7 +420,7 @@ begin
       raise EIdDirectSMTPCannotResolveMX.CreateFmt(RSDirSMTPNoMXRecordsForDomain, [LDomain]);
     end;
   finally
-    FreeAndNil(IdDNSResolver1);
+    IdDNSResolver1.Free;
   end;
 end;
 
@@ -540,14 +539,14 @@ begin
           RelayInternalSend(AMsg, LFrom, LCurDomEntries);
         end;
       finally
-        FreeAndNil(LCurDomEntries);
+        LCurDomEntries.Free;
       end;
     finally
-      FreeAndNil(SDomains);
+      SDomains.Free;
     end;
   finally
     if not Assigned(ARecipients) then begin
-      FreeAndNil(LAllEntries);
+      LAllEntries.Free;
     end;
   end;
 end;
@@ -612,7 +611,7 @@ end;
 
 destructor TIdSMTPRelayStatusItem.Destroy;
 begin
-  FreeAndNil(FEnhancedCode);
+  FEnhancedCode.Free;
   inherited Destroy;
 end;
 

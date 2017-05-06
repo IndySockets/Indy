@@ -1,9 +1,4 @@
 @echo off
-call CB_Delphi_4\Fullc_4
-call CB_Delphi_5\Fullc_5
-call CB_Delphi_6\Fullc_6
-call BDS_2006\Fullc_2006
-call RADStudio_2007\Fullc_2007
 call RADStudio_2009\Fullc_2009
 call RADStudio_2010\Fullc_2010
 call RADStudio_XE\Fullc_XE
@@ -16,3 +11,4 @@ call RADStudio_XE7\Fullc_XE7
 call RADStudio_XE8\Fullc_XE8
 call RADStudio_10.0_Seattle\Fullc_Seattle
 call RADStudio_10.1_Berlin\Fullc_Berlin
+call RADStudio_10.2_Tokyo\Fullc_Tokyo

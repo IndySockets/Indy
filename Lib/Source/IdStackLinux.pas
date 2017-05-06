@@ -112,7 +112,7 @@ type
       var ABuffer; const ABufferLength, AFlags: Integer): Integer; override;
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer; const ABufferLength, AFlags: Integer): Integer; override;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer; override;
-    {$IFNDEF VCL_XE3_OR_ABOVE}
+    {$IFNDEF DCC_XE3_OR_ABOVE}
     procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -144,8 +144,8 @@ type
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
-    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
+    function HostToNetwork(AValue: UInt64): UInt64; override;
+    function NetworkToHost(AValue: UInt64): UInt64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
       var VIPVersion: TIdIPVersion): Integer; override;
@@ -157,7 +157,7 @@ type
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
       const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
-    {$IFDEF VCL_XE3_OR_ABOVE}
+    {$IFDEF DCC_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -347,10 +347,7 @@ begin
       IPVersionUnsupported;
     end;
   end;
-  CheckForSocketError(Libc.connect(
-    ASocket,
-    {$IFDEF KYLIX}Psockaddr(@LAddr)^{$ELSE}Psockaddr(@LAddr){$ENDIF},
-    LSize));
+  CheckForSocketError(Libc.connect(ASocket, Psockaddr(@LAddr), LSize));
 end;
 
 function TIdStackLinux.HostByName(const AHostName: string;
@@ -361,24 +358,15 @@ var
   LHost: PHostEnt;
 // ipv6
   LHints: TAddressInfo;
-  {$IFDEF KYLIX}
-  LAddrInfo: PAddressInfo;
-  {$ELSE}
   LAddrInfo: PAddrInfo;
-  {$ENDIF}
   LRetVal: Integer;
-  {$IFDEF STRING_IS_UNICODE}
   LAStr: AnsiString;
-  {$ENDIF}
 begin
   case AIPVersion of
     Id_IPv4: begin
-      {$IFDEF STRING_IS_UNICODE}
       LAStr := AnsiString(AHostName); // explicit convert to Ansi
-      {$ENDIF}
       // TODO: use getaddrinfo() instead for IPv4 as well...
-      LHost := Libc.gethostbyname(
-        PAnsiChar({$IFDEF STRING_IS_UNICODE}LAStr{$ELSE}AHostName{$ENDIF}));
+      LHost := Libc.gethostbyname(PAnsiChar(LAStr));
       if LHost <> nil then begin
         // TODO: gethostbyname() might return other things besides IPv4
         // addresses, so we should be validating the address type before
@@ -400,12 +388,8 @@ begin
       LHints.ai_socktype := Integer(SOCK_STREAM);
       LAddrInfo := nil;
 
-      {$IFDEF STRING_IS_UNICODE}
       LAStr := AnsiString(AHostName); // explicit convert to Ansi
-      {$ENDIF}
-      LRetVal := getaddrinfo(
-        PAnsiChar({$IFDEF STRING_IS_UNICODE}LAStr{$ELSE}AHostName{$ENDIF}),
-        nil, @LHints, {$IFDEF KYLIX}LAddrInfo{$ELSE}@LAddrInfo{$ENDIF});
+      LRetVal := getaddrinfo(PAnsiChar(LAStr), nil, @LHints, @LAddrInfo);
       if LRetVal <> 0 then begin
         if LRetVal = EAI_SYSTEM then begin
           IndyRaiseLastError;
@@ -620,10 +604,7 @@ begin
       IPVersionUnsupported;
     end;
   end;
-  LiSize := Libc.sendto(
-    ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL,
-    {$IFDEF KYLIX}Psockaddr(@LAddr)^{$ELSE}Psockaddr(@LAddr){$ENDIF},
-    LiSize);
+  LiSize := Libc.sendto(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, Psockaddr(@LAddr), LiSize);
   end;
   if LiSize = Id_SOCKET_ERROR then begin
     // TODO: move this into RaiseLastSocketError directly
@@ -638,7 +619,7 @@ begin
   end;
 end;
 
-procedure TIdStackLinux.{$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
+procedure TIdStackLinux.{$IFDEF DCC_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
   var AOptVal; var AOptLen: Integer);
 var
@@ -649,7 +630,7 @@ begin
   AOptLen := LLen;
 end;
 
-procedure TIdStackLinux.{$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
+procedure TIdStackLinux.{$IFDEF DCC_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
   const AOptVal; const AOptLen: Integer);
 begin
@@ -681,16 +662,10 @@ end;
 function TIdStackLinux.WSGetServByName(const AServiceName: string): TIdPort;
 var
   Lps: PServEnt;
-  {$IFDEF STRING_IS_UNICODE}
   LAStr: AnsiString;
-  {$ENDIF}
 begin
-  {$IFDEF STRING_IS_UNICODE}
   LAStr := AnsiString(AServiceName); // explicit convert to Ansi
-  {$ENDIF}
-  Lps := Libc.getservbyname(
-    PAnsiChar({$IFDEF STRING_IS_UNICODE}LAStr{$ELSE}AServiceName{$ENDIF},
-    nil);
+  Lps := Libc.getservbyname(PAnsiChar(LAStr), nil);
   if Lps <> nil then begin
     Result := ntohs(Lps^.s_port);
   end else begin
@@ -727,7 +702,7 @@ begin
       end;
     end;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -754,35 +729,46 @@ end;
 
 { RP - I'm not sure what endian Linux natively uses, thus the
 check to see if the bytes need swapping or not ... }
-function TIdStackLinux.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
+function TIdStackLinux.HostToNetwork(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
+  // TODO: enable this?
+  (*
+  LParts.LongWords[0] := htonl(UInt32(AValue shr 32));
+  LParts.LongWords[1] := htonl(UInt32(AValue));
+  Result := LParts.QuadPart;
+  *)
   if (htonl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue;
     L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result := LParts.QuadPart;
   end else begin
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    Result := AValue;
   end;
 end;
 
-function TIdStackLinux.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
+function TIdStackLinux.NetworkToHost(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
+  // TODO: enable this?
+  (*
+  LParts.QuadPart := AValue;
+  Result := (UInt64(ntohl(LParts.LongWords[0])) shl 32) or UInt64(ntohl(LParts.LongWords[1]));
+  *)
   if (ntohl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue;
     L := ntohl(LParts.HighPart);
     LParts.HighPart := ntohl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result := LParts.QuadPart;
   end else begin
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    Result := AValue;
   end;
 end;
 
@@ -907,13 +893,8 @@ var
   LHostNamePtr: TPtrWrapper;
   {$ENDIF}
   LRet : Integer;
-  {$IFDEF KYLIX}
-  LHints: TAddressInfo;
-  LAddrInfo: PAddressInfo;
-  {$ELSE}
   LHints: AddrInfo; //The T is no omission - that's what I found in the header
   LAddrInfo: PAddrInfo;
-  {$ENDIF}
 begin
   FillChar(LAddr, SizeOf(LAddr), 0);
   case AIPVersion of
@@ -1087,7 +1068,7 @@ begin
   Result := True;
 
   // TODO: enable this:
-  //Result := CheckForSocketError(AResult, [EAGAIN, EWOULDBLOCK]) <> 0;
+  //Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
 end;
 
 function TIdStackLinux.SupportsIPv4: Boolean;
@@ -1433,7 +1414,7 @@ begin
       Unlock;
     end;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;

@@ -276,12 +276,7 @@ implementation
 uses
   //facilitate inlining only.
   IdException,
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
     {$IFNDEF NEXTGEN}
   System.Contnrs,
     {$ENDIF}
@@ -1033,7 +1028,7 @@ begin
       ProcessPathLong(LRootPath, LRootPath, AOutput, HasSwitch(SWITCH_RECURSIVE));
     end;
   finally
-    FreeAndNil(LRootPath);
+    LRootPath.Free;
   end;
 end;
 
@@ -1463,8 +1458,8 @@ end;
 
 destructor TDirEntry.Destroy;
 begin
-  FreeAndNil(FFileList);
-  FreeAndNil(FSubDirs);
+  FFileList.Free;
+  FSubDirs.Free;
   inherited Destroy;
 end;
 

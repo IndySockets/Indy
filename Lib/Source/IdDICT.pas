@@ -79,15 +79,12 @@ type
     FClient : String;
     //feature negotiation stuff
     FCapabilities : TStrings;
-    procedure InitComponent; override;
     function IsCapaSupported(const ACapa : String) : Boolean;
     procedure SetClient(const AValue : String);
     procedure InternalGetList(const ACmd : String; AENtries : TCollection);
     procedure InternalGetStrs(const ACmd : String; AStrs : TStrings);
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Connect; override;
     procedure DisconnectNotifyPeer; override;
@@ -123,12 +120,23 @@ const
 
 { TIdDICT }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdDICT.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FCapabilities := TStringList.create;
+  FSASLMechanisms := TIdSASLEntries.Create(Self);
+  FPort := IdPORT_DICT;
+  FAuthType := DICT_AUTHDEF;
+  FHost := 'dict.org'; {do not localize}
+  FClient := IndyFormat(DEF_CLIENT_FMT, [gsIdVersion]);
 end;
-{$ENDIF}
+
+destructor TIdDICT.Destroy;
+begin
+  FSASLMechanisms.Free;
+  FCapabilities.Free;
+  inherited Destroy;
+end;
 
 procedure TIdDICT.Connect;
 var
@@ -242,13 +250,6 @@ begin
   end;
 end;
 
-destructor TIdDICT.Destroy;
-begin
-  FreeAndNil(FSASLMechanisms);
-  FreeAndNil(FCapabilities);
-  inherited Destroy;
-end;
-
 procedure TIdDICT.DisconnectNotifyPeer;
 begin
   inherited DisconnectNotifyPeer;
@@ -275,17 +276,6 @@ begin
   InternalGetStrs('SHOW SERVER', AResults); {do not localize}
 end;
 
-procedure TIdDICT.InitComponent;
-begin
-  inherited InitComponent;
-  FCapabilities := TStringList.create;
-  FSASLMechanisms := TIdSASLEntries.Create(Self);
-  FPort := IdPORT_DICT;
-  FAuthType := DICT_AUTHDEF;
-  FHost := 'dict.org'; {do not localize}
-  FClient := IndyFormat(DEF_CLIENT_FMT, [gsIdVersion]);
-end;
-
 procedure TIdDICT.InternalGetList(const ACmd: String; AENtries: TCollection);
 var
   LEnt : TIdGeneric;
@@ -307,7 +297,7 @@ begin
         LEnt.Desc := Fetch(s, '"');
       end;
     finally
-      FreeAndNil(LS);
+      LS.Free;
     end;
   finally
     AEntries.EndUpdate;
@@ -364,7 +354,7 @@ begin
         LM.Word := Fetch(s, '"');
       end;
     finally
-      FreeAndNil(LS);
+      LS.Free;
     end;
   finally
     AResults.EndUpdate;

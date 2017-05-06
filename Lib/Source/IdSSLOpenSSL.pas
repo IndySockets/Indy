@@ -433,7 +433,6 @@ type
     procedure Init;
     procedure OpenEncodedConnection; virtual;
     //some overrides from base classes
-    procedure InitComponent; override;
     procedure ConnectClient; override;
     function CheckForError(ALastResult: Integer): Integer; override;
     procedure RaiseError(AError: Integer); override;
@@ -445,6 +444,7 @@ type
     function GetIOHandlerSelf: TIdSSLIOHandlerSocketOpenSSL;
 
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function Clone :  TIdSSLIOHandlerSocketBase; override;
     procedure StartSSL; override;
@@ -484,7 +484,6 @@ type
 //TPasswordEventEx
     procedure DoGetPasswordEx(var VPassword: String; const AIsWrite : Boolean); virtual;
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean; virtual;
-    procedure InitComponent; override;
 
     { IIdSSLOpenSSLCallbackHelper }
     function GetPassword(const AIsWrite : Boolean): string;
@@ -493,13 +492,15 @@ type
     function GetIOHandlerSelf: TIdSSLIOHandlerSocketOpenSSL;
 
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    //
     procedure Init; override;
     procedure Shutdown; override;
     // AListenerThread is a thread and not a yarn. Its the listener thread.
     function Accept(ASocket: TIdSocketHandle; AListenerThread: TIdThread;
       AYarn: TIdYarn): TIdIOHandler; override;
 //    function Accept(ASocket: TIdSocketHandle; AThread: TIdThread) : TIdIOHandler;  override;
-    destructor Destroy; override;
     function MakeClientIOHandler : TIdSSLIOHandlerSocketBase; override;
     //
     function MakeFTPSvrPort : TIdSSLIOHandlerSocketBase; override;
@@ -829,9 +830,7 @@ type
 {$ENDIF}
 var
   Password: String;
-  {$IFDEF STRING_IS_UNICODE}
   LPassword: TIdBytes;
-  {$ENDIF}
   IdSSLContext: TIdSSLContext;
   LErr : Integer;
   LHelper: IIdSSLOpenSSLCallbackHelper;
@@ -849,7 +848,6 @@ begin
         LHelper := nil;
       end;
       FillChar(buf^, size, 0);
-      {$IFDEF STRING_IS_UNICODE}
       LPassword := IndyTextEncoding_OSDefault.GetBytes(Password);
       if Length(LPassword) > 0 then begin
         {$IFDEF USE_MARSHALLED_PTRS}
@@ -859,10 +857,6 @@ begin
         {$ENDIF}
       end;
       Result := Length(LPassword);
-      {$ELSE}
-      StrPLCopy(buf, Password, size);
-      Result := Length(Password);
-      {$ENDIF}
       buf[size-1] := #0; // RLebeau: truncate the password if needed
     finally
       LockPassCB.Leave;
@@ -963,7 +957,7 @@ begin
           LHelper := nil;
         end;
       finally
-        FreeAndNil(Certificate);
+        Certificate.Free;
       end;
     except
       VerifiedOK := False;
@@ -1079,7 +1073,7 @@ begin
       BIO_free(B);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -1151,7 +1145,7 @@ begin
       BIO_free(B);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -1166,9 +1160,7 @@ end;
   Pascal and made some modifications so that it will handle Unicode filenames.
 }
 
-{$IFDEF STRING_IS_UNICODE}
-
-  {$IFDEF WINDOWS}
+{$IF DEFINED(WINDOWS)}
 
 function Indy_unicode_X509_load_cert_crl_file(ctx: PX509_LOOKUP; const AFileName: String;
   const _type: TIdC_INT): TIdC_INT; forward;
@@ -1284,50 +1276,53 @@ begin
       X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_SYS_LIB);
       Exit;
     end;
-    case _type of
-      X509_FILETYPE_PEM:
-        begin
-          repeat
-            LX := PEM_read_bio_X509_AUX(Lin, nil, nil, nil);
-            if not Assigned(LX) then begin
-              if ((ERR_GET_REASON(ERR_peek_last_error())
-                    = PEM_R_NO_START_LINE) and (count > 0)) then begin
-                ERR_clear_error();
-                Break;
-              end else begin
-                X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_PEM_LIB);
+    try
+      case _type of
+        X509_FILETYPE_PEM:
+          begin
+            repeat
+              LX := PEM_read_bio_X509_AUX(Lin, nil, nil, nil);
+              if not Assigned(LX) then begin
+                if ((ERR_GET_REASON(ERR_peek_last_error())
+                      = PEM_R_NO_START_LINE) and (count > 0)) then begin
+                  ERR_clear_error();
+                  Break;
+                end else begin
+                  X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_PEM_LIB);
+                  Exit;
+                end;
+              end;
+              i := X509_STORE_add_cert(ctx^.store_ctx, LX);
+              if i = 0 then begin
                 Exit;
               end;
+              Inc(count);
+              X509_Free(LX);
+            until False;
+            Result := count;
+          end;
+        X509_FILETYPE_ASN1:
+          begin
+            LX := d2i_X509_bio(Lin, nil);
+            if not Assigned(LX) then begin
+              X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_ASN1_LIB);
+              Exit;
             end;
             i := X509_STORE_add_cert(ctx^.store_ctx, LX);
             if i = 0 then begin
               Exit;
             end;
-            Inc(count);
-            X509_Free(LX);
-          until False;
-          Result := count;
-        end;
-      X509_FILETYPE_ASN1:
-        begin
-          LX := d2i_X509_bio(Lin, nil);
-          if not Assigned(LX) then begin
-            X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_ASN1_LIB);
-            Exit;
+            Result := i;
           end;
-          i := X509_STORE_add_cert(ctx^.store_ctx, LX);
-          if i = 0 then begin
-            Exit;
-          end;
-          Result := i;
-        end;
-    else
-      X509err(X509_F_X509_LOAD_CERT_FILE, X509_R_BAD_X509_FILETYPE);
-      Exit;
+      else
+        X509err(X509_F_X509_LOAD_CERT_FILE, X509_R_BAD_X509_FILETYPE);
+        Exit;
+      end;
+    finally
+      BIO_free(Lin);
     end;
   finally
-    BIO_free(Lin);
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -1367,10 +1362,13 @@ begin
       X509err(X509_F_X509_LOAD_CERT_CRL_FILE, ERR_R_SYS_LIB);
       Exit;
     end;
-    Linf := PEM_X509_INFO_read_bio(Lin, nil, nil, nil);
+    try
+      Linf := PEM_X509_INFO_read_bio(Lin, nil, nil, nil);
+    finally
+      BIO_free(Lin);
+    end;
   finally
-    BIO_free(Lin);
-    FreeAndNil(LM);
+    LM.Free;
   end;
   if not Assigned(Linf) then begin
     X509err(X509_F_X509_LOAD_CERT_CRL_FILE, ERR_R_PEM_LIB);
@@ -1493,7 +1491,7 @@ begin
           SSLerr(SSL_F_SSL_LOAD_CLIENT_CA_FILE, ERR_R_MALLOC_FAILURE);
         end;
       finally
-        FreeAndNil(LM);
+        LM.Free;
       end;
     finally
       sk_X509_NAME_free(Lsk);
@@ -1563,7 +1561,7 @@ begin
       BIO_free(B);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -1623,7 +1621,7 @@ begin
       BIO_free(B);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -1713,7 +1711,7 @@ begin
       BIO_free(B);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -1811,13 +1809,11 @@ begin
       BIO_free(B);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
-  {$ENDIF} // WINDOWS
-
-  {$IFDEF UNIX}
+{$ELSEIF DEFINED(UNIX)}
 
 function IndySSL_load_client_CA_file(const AFileName: String) : PSTACK_OF_X509_NAME;
 {$IFDEF USE_MARSHALLED_PTRS}
@@ -1968,110 +1964,7 @@ begin
   end;
 end;
 
-  {$ENDIF} // UNIX
-
-{$ELSE} // STRING_IS_UNICODE
-
-function IndySSL_load_client_CA_file(const AFileName: String) : PSTACK_OF_X509_NAME;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_load_client_CA_file(PAnsiChar(AFileName));
-end;
-
-function IndySSL_CTX_use_PrivateKey_file(ctx: PSSL_CTX; const AFileName: String;
-  AType: Integer): TIdC_INT;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_CTX_use_PrivateKey_file(ctx, PAnsiChar(AFileName), AType);
-end;
-
-function IndySSL_CTX_use_certificate_file(ctx: PSSL_CTX;
-  const AFileName: String; AType: Integer): TIdC_INT;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_CTX_use_certificate_file(ctx, PAnsiChar(AFileName), AType);
-end;
-
-function IndySSL_CTX_use_certificate_chain_file(ctx :PSSL_CTX;
-  const AFileName: String) : TIdC_INT;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_CTX_use_certificate_chain_file(ctx, PAnsiChar(AFileName));
-end;
-
-function IndyX509_STORE_load_locations(ctx: PX509_STORE;
-  const AFileName, APathName: String): TIdC_INT;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  // RLebeau 4/18/2010: X509_STORE_load_locations() expects nil pointers
-  // for unused values, but casting a string directly to a PAnsiChar
-  // always produces a non-nil pointer, which causes X509_STORE_load_locations()
-  // to fail. Need to cast the string to an intermediate Pointer so the
-  // PAnsiChar cast is applied to the raw data and thus can be nil...
-  //
-  Result := X509_STORE_load_locations(ctx,
-    PAnsiChar(Pointer(AFileName)),
-    PAnsiChar(Pointer(APathName)));
-end;
-
-function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
-  const ACAFile, ACAPath: String): TIdC_INT;
-begin
-  // RLebeau 4/18/2010: X509_STORE_load_locations() expects nil pointers
-  // for unused values, but casting a string directly to a PAnsiChar
-  // always produces a non-nil pointer, which causes X509_STORE_load_locations()
-  // to fail. Need to cast the string to an intermediate Pointer so the
-  // PAnsiChar cast is applied to the raw data and thus can be nil...
-  //
-  Result := SSL_CTX_load_verify_locations(ctx,
-    PAnsiChar(Pointer(ACAFile)),
-    PAnsiChar(Pointer(ACAPath)));
-end;
-
-function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;
-  const AFileName: String; AType: Integer): TIdC_INT;
-var
-  B: PBIO;
-  LDH: PDH;
-  j: Integer;
-begin
-  Result := 0;
-  B := BIO_new_file(PAnsiChar(AFileName), 'r');
-  if Assigned(B) then begin
-    try
-      case AType of
-        // TODO
-        {
-        SSL_FILETYPE_ASN1:
-          begin
-            j := ERR_R_ASN1_LIB;
-            LDH := d2i_DHparams_bio(B, nil);
-          end;
-        }
-        SSL_FILETYPE_PEM:
-          begin
-            j := ERR_R_DH_LIB;
-            LDH := PEM_read_bio_DHparams(B, nil, ctx^.default_passwd_callback,
-              ctx^.default_passwd_callback_userdata);
-          end
-        else begin
-          SSLerr(SSL_F_SSL3_CTRL, SSL_R_BAD_SSL_FILETYPE);
-          Exit;
-        end;
-      end;
-      if not Assigned(LDH) then begin
-        SSLerr(SSL_F_SSL3_CTRL, j);
-        Exit;
-      end;
-      Result := SSL_CTX_set_tmp_dh(ctx, LDH);
-      DH_free(LDH);
-    finally
-      BIO_free(B);
-    end;
-  end;
-end;
-
-{$ENDIF}
+{$IFEND}
 
 function AddMins(const DT: TDateTime; const Mins: Extended): TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -2135,18 +2028,7 @@ begin
       X509_print(LMem, AX509);
       LLen := BIO_get_mem_data( LMem, LBufPtr);
       if (LLen > 0) and Assigned(LBufPtr) then begin
-        AOut.Text := IndyTextEncoding_UTF8.GetString(
-         {$IFNDEF VCL_6_OR_ABOVE}
-          // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
-          // version of 'GetString' that can be called with these arguments" compiler
-          // error if the PByte type-cast is used, even though GetString() actually
-          // expects a PByte as input.  Must be a compiler bug, as it compiles fine
-          // in Delphi 6...
-          LBufPtr
-          {$ELSE}
-          PByte(LBufPtr)
-          {$ENDIF}
-          , LLen);
+        AOut.Text := IndyTextEncoding_UTF8.GetString(PByte(LBufPtr), LLen);
       end;
     finally
       if Assigned(LMem) then begin
@@ -2371,7 +2253,7 @@ begin
   if Assigned(CRYPTO_set_locking_callback) then begin
     CRYPTO_set_locking_callback(nil);
   end;
-  CleanupRandom;
+  CleanupRandom; // <-- RLebeau: why is this here and not in IdSSLOpenSSLHeaders.Unload()?
   IdSSLOpenSSLHeaders.Unload;
   FreeAndNil(LockInfoCB);
   FreeAndNil(LockPassCB);
@@ -2487,15 +2369,15 @@ end;
 
 { TIdServerIOHandlerSSLOpenSSL }
 
-procedure TIdServerIOHandlerSSLOpenSSL.InitComponent;
+constructor TIdServerIOHandlerSSLOpenSSL.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   fxSSLOptions := TIdSSLOptions.Create;
 end;
 
 destructor TIdServerIOHandlerSSLOpenSSL.Destroy;
 begin
-  FreeAndNil(fxSSLOptions);
+  fxSSLOptions.Free;
   inherited Destroy;
 end;
 
@@ -2531,6 +2413,7 @@ function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
 var
   LIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
+  Result := nil;
   Assert(ASocket<>nil);
   Assert(fSSLContext<>nil);
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
@@ -2551,14 +2434,12 @@ begin
       //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
       //   SSL_CTX to go with that host name, then switch the SSL object to that
       //   SSL_CTX with SSL_set_SSL_CTX().
-    end else begin
-      FreeAndNil(LIO);
+      Result := LIO;
+      LIO := nil;
     end;
-  except
+  finally
     LIO.Free;
-    raise;
   end;
-  Result := LIO;
 end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.DoStatusInfo(const AMsg: String);
@@ -2709,9 +2590,9 @@ end;
 
 { TIdSSLIOHandlerSocketOpenSSL }
 
-procedure TIdSSLIOHandlerSocketOpenSSL.InitComponent;
+constructor TIdSSLIOHandlerSocketOpenSSL.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   IsPeer := False;
   fxSSLOptions := TIdSSLOptions.Create;
   fSSLLayerClosed := True;
@@ -2720,12 +2601,12 @@ end;
 
 destructor TIdSSLIOHandlerSocketOpenSSL.Destroy;
 begin
-  FreeAndNil(fSSLSocket);
+  fSSLSocket.Free;
   if not IsPeer then begin
     //we do not destroy these in IsPeer equals true
     //because these do not belong to us when we are in a server.
-    FreeAndNil(fSSLContext);
-    FreeAndNil(fxSSLOptions);
+    fSSLContext.Free;
+    fxSSLOptions.Free;
   end;
   inherited Destroy;
 end;
@@ -3246,13 +3127,7 @@ an invalid MAC when doing SSL.}
       {$IFDEF USE_MARSHALLED_PTRS}
       M.AsAnsi(fCipherList).ToPointer
       {$ELSE}
-      PAnsiChar(
-        {$IFDEF STRING_IS_ANSI}
-        fCipherList
-        {$ELSE}
-        AnsiString(fCipherList) // explicit cast to Ansi
-        {$ENDIF}
-      )
+      PAnsiChar(AnsiString(fCipherList)) // explicit cast to Ansi
       {$ENDIF}
     );
   end else begin
@@ -3534,8 +3409,8 @@ begin
     SSL_free(fSSL);
     fSSL := nil;
   end;
-  FreeAndNil(fSSLCipher);
-  FreeAndNil(fPeerCert);
+  fSSLCipher.Free;
+  fPeerCert.Free;
   inherited Destroy;
 end;
 
@@ -4019,11 +3894,11 @@ end;
 
 destructor TIdX509.Destroy;
 begin
-  FreeAndNil(FDisplayInfo);
-  FreeAndNil(FSubject);
-  FreeAndNil(FIssuer);
-  FreeAndNil(FFingerprints);
-  FreeAndNil(FSigInfo);
+  FDisplayInfo.Free;
+  FSubject.Free;
+  FIssuer.Free;
+  FFingerprints.Free;
+  FSigInfo.Free;
   { If the X.509 certificate handle was obtained from a certificate
   store or from the SSL connection as a peer certificate, then DO NOT
   free it here!  The memory is owned by the OpenSSL library and will

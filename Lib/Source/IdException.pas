@@ -59,7 +59,6 @@ type
     the other methods declared by the DotNet exception (particularly InnerException constructors)
     }
     constructor Create(const AMsg: string); overload; virtual;
-    class procedure Toss(const AMsg: string); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use raise instead'{$ENDIF};{$ENDIF}
   end;
 
   TClassIdException = class of EIdException;
@@ -71,17 +70,6 @@ type
   // EIdConnClosedGracefully is raised when remote side closes connection normally
   EIdConnClosedGracefully = class(EIdSilentException);
 
-  {$IFDEF DOTNET}
-  // This class used in DotNet. Under windows/linux, all errors that come out the
-  // indy layer descend from IdException (actually not all errors in theory, but
-  // certainly all errors in practice)
-  // With DotNet, the socket library itself may raise various exceptions. If the
-  // exception is a socket exception, then Indy will map this to an EIdSocketError.
-  // Otherwise Indy will raise an EIdWrapperException. In this case, the original
-  // exception will be available using the InnerException member
-  EIdWrapperException = class (EIdException);
-  {$ENDIF}
-  
   //used for index out of range
   {CH EIdRangeException = class(EIdException); }
 
@@ -105,13 +93,6 @@ implementation
 constructor EIdException.Create(const AMsg : String);
 begin
   inherited Create(AMsg);
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-class procedure EIdException.Toss(const AMsg: string);
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  raise Create(AMsg);
 end;
 
 end.

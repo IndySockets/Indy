@@ -87,7 +87,7 @@ end;
 
 destructor TIdMessageItem.Destroy;
 begin
-  FreeAndNil(FMsg);
+  FMsg.Free;
   inherited Destroy;
 end;
 

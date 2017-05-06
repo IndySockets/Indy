@@ -53,12 +53,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WIDGET_KYLIX}
-  QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList, QGraphics,
-  {$ENDIF}
-  {$IFDEF WIDGET_VCL_LIKE}
   Controls, Forms, StdCtrls, Buttons, ExtCtrls, ActnList, Graphics,
-  {$ENDIF}
   Classes, IdSASLCollection;
 
 type
@@ -117,14 +112,9 @@ uses
 
 { TfrmSASLListEditorVCL }
 
-{$IFNDEF WIDGET_LCL}
-  {$IFDEF WINDOWS}
+{$IF (NOT DEFINED(WIDGET_LCL)) AND (DEFINED(WINDOWS))}
   {$R IdSASLListEditorForm.RES}
-  {$ENDIF}
-  {$IFDEF KYLIX}
-  {$R IdSASLListEditorForm.RES}
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 constructor TfrmSASLListEditorVCL.Create(AOwner: TComponent);
 begin
@@ -205,12 +195,7 @@ begin
   Left := 292;
   Top := 239;
 
-  {$IFDEF WIDGET_KYLIX}
-  BorderStyle := fbsDialog;
-  {$ENDIF}
-  {$IFDEF WIDGET_VCL_LIKE}
   BorderStyle := bsDialog;
-  {$ENDIF}
 
   Caption := RSADlgSLCaption;
 
@@ -265,10 +250,8 @@ begin
   {$IFDEF WIDGET_LCL}
   sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
   {$ELSE}
-    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbAdd.Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
   sbAdd.NumGlyphs := 2;
-    {$ENDIF}
   {$ENDIF}
 
   sbRemove := TSpeedButton.Create(Self);
@@ -283,10 +266,8 @@ begin
   {$IFDEF WIDGET_LCL}
   sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
   {$ELSE}
-    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbRemove.Glyph.LoadFromResourceName(HInstance, 'ARROWLEFT'); {do not localize}
   sbRemove.NumGlyphs := 2;
-    {$ENDIF}
   {$ENDIF}
 
   Label1 := TLabel.Create(Self);
@@ -319,10 +300,8 @@ begin
   {$IFDEF WIDGET_LCL}
   sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
   {$ELSE}
-    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbUp.Glyph.LoadFromResourceName(HInstance, 'ARROWUP'); {do not localize}
   sbUp.NumGlyphs := 2;
-    {$ENDIF}
   {$ENDIF}
 
   sbDown := TSpeedButton.Create(Self);
@@ -337,10 +316,8 @@ begin
   {$IFDEF WIDGET_LCL}
   sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
   {$ELSE}
-    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbDown.Glyph.LoadFromResourceName(HInstance, 'ARROWDOWN'); {do not localize}
   sbDown.NumGlyphs := 2;
-    {$ENDIF}
   {$ENDIF}
 
   lbAvailable := TListBox.Create(Self);

@@ -455,7 +455,7 @@ end;
 
 destructor TIdReplySMTP.Destroy;
 begin
-  FreeAndNil(FEnhancedCode);
+  FEnhancedCode.Free;
   inherited;
 end;
 
@@ -560,7 +560,7 @@ end;
 
 destructor EIdSMTPReplyError.Destroy;
 begin
-  FreeAndNil(FEnhancedCode);
+  FEnhancedCode.Free;
   inherited Destroy;
 end;
 

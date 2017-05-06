@@ -83,7 +83,6 @@ type
     {This deletes lines which were folded}
     Procedure DeleteFoldedLines(Index : Integer);
     {This folds one line into several lines}
-    function FoldLine(AString : string): TStrings; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use FoldLineToList()'{$ENDIF};{$ENDIF}
     procedure FoldLineToList(AString : string; ALines: TStrings);
     {Folds lines and inserts them into a position, Index}
     procedure FoldAndInsert(AString : String; Index : Integer);
@@ -279,21 +278,8 @@ begin
       Dec(idx);
     end;
   finally
-    FreeAndNil(LStrs);
+    LStrs.Free;
   end;  //finally
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function TIdHeaderList.FoldLine(AString : string): TStrings;
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  Result := TStringList.Create;
-  try
-    FoldLineToList(AString, Result);
-  except
-    FreeAndNil(Result);
-    raise;
-  end;
 end;
 
 procedure TIdHeaderList.FoldLineToList(AString : string; ALines: TStrings);

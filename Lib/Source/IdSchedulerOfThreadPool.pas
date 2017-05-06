@@ -97,8 +97,8 @@ type
   protected
     FPoolSize: Integer;
     FThreadPool: TIdPoolThreadList;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function AcquireYarn: TIdYarn; override;
     procedure Init; override;
@@ -115,22 +115,26 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdGlobal, SysUtils;
 
 type
   TIdYarnOfThreadAccess = class(TIdYarnOfThread)
   end;
 
+constructor TIdSchedulerOfThreadPool.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FThreadPool := TIdPoolThreadList.Create;
+end;
+
 destructor TIdSchedulerOfThreadPool.Destroy;
 begin
   inherited Destroy;
   // Must be after, inherited calls TerminateThreads
-  FreeAndNil(FThreadPool);
+  FThreadPool.Free;
 end;
 
 function TIdSchedulerOfThreadPool.AcquireYarn: TIdYarn;
@@ -259,12 +263,6 @@ function TIdSchedulerOfThreadPool.NewThread: TIdThreadWithTask;
 begin
   Result := inherited NewThread;
   Result.StopMode := smSuspend;
-end;
-
-procedure TIdSchedulerOfThreadPool.InitComponent;
-begin
-  inherited;
-  FThreadPool := TIdPoolThreadList.Create;
 end;
 
 end.

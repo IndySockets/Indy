@@ -344,14 +344,8 @@ const
     ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'); {do not localize}
 
 type
-  //WinCE only has Unicode functions for files.
-  {$IFDEF WINCE}
-  TIdFileName = TIdUnicodeString;
-  PIdFileNameChar = PWideChar;
-  {$ELSE}
-  TIdFileName = String;
-  PIdFileNameChar = PChar;
-  {$ENDIF}
+  TIdFileName = UnicodeString deprecated 'use UnicodeString';
+  PIdFileNameChar = PWideChar deprecated 'use PWideChar';
 
   TIdReadLnFunction = function: string of object;
   TStringEvent = procedure(ASender: TComponent; const AString: String);
@@ -381,7 +375,7 @@ type
   public
     function _AddRef: Integer;
     function _Release: Integer;
-  end;
+  end deprecated 'Use TInterfacedObject';
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
 
@@ -396,7 +390,6 @@ type
   function BinStrToInt(const ABinary: String): Integer;
   function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
   function UInt32ToFourChar(AValue : UInt32): string;
-  function LongWordToFourChar(AValue : UInt32): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt32ToFourChar()'{$ENDIF};{$ENDIF}
   function CharRange(const AMin, AMax : Char): String;
   procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
   function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
@@ -404,34 +397,17 @@ type
   function ContentTypeToEncoding(const AContentType: string; AQuoteType: TIdHeaderQuotingType): IIdTextEncoding;
   function CharsetToEncoding(const ACharset: string): IIdTextEncoding;
 
-  function ReadStringAsContentType(AStream: TStream; const AContentType: String;
-    AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): String;
+  function ReadStringAsContentType(AStream: TStream; const AContentType: String; AQuoteType: TIdHeaderQuotingType): String;
+  procedure ReadStringsAsContentType(AStream: TStream; AStrings: TStrings; const AContentType: String; AQuoteType: TIdHeaderQuotingType);
 
-  procedure ReadStringsAsContentType(AStream: TStream; AStrings: TStrings;
-    const AContentType: String; AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF});
+  procedure WriteStringAsContentType(AStream: TStream; const AStr, AContentType: String; AQuoteType: TIdHeaderQuotingType);
+  procedure WriteStringsAsContentType(AStream: TStream; const AStrings: TStrings; const AContentType: String; AQuoteType: TIdHeaderQuotingType);
 
-  procedure WriteStringAsContentType(AStream: TStream; const AStr, AContentType: String;
-    AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
+  procedure WriteStringAsCharset(AStream: TStream; const AStr, ACharset: string);
+  procedure WriteStringsAsCharset(AStream: TStream; const AStrings: TStrings; const ACharset: string);
 
-  procedure WriteStringsAsContentType(AStream: TStream; const AStrings: TStrings;
-    const AContentType: String; AQuoteType: TIdHeaderQuotingType
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
-
-  procedure WriteStringAsCharset(AStream: TStream; const AStr, ACharset: string
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
-
-  procedure WriteStringsAsCharset(AStream: TStream; const AStrings: TStrings;
-    const ACharset: string
-    {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
-
-  function ReadStringAsCharset(AStream: TStream; const ACharset: String
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): String;
-
-  procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: string
-    {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF});
+  function ReadStringAsCharset(AStream: TStream; const ACharset: String): String;
+  procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: string);
 
   {
   These are for handling binary values that are in Network Byte order.  They call
@@ -444,12 +420,7 @@ type
   procedure CopyTIdNetworkUInt32(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer);
   procedure CopyTIdNetworkUInt16(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer);
 
-  procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt32); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyBytesToHostUInt32'{$ENDIF};{$ENDIF}
-  procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt16); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyBytesToHostWord'{$ENDIF};{$ENDIF}
-  procedure CopyTIdNetworkLongWord(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyTIdNetworkLongWord'{$ENDIF};{$ENDIF}
-  procedure CopyTIdNetworkWord(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use CopyTIdNetworkWord'{$ENDIF};{$ENDIF}
-
-  function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
+  function CopyFileTo(const Source, Destination: String): Boolean;
   function DomainName(const AHost: String): String;
   function EnsureMsgIDBrackets(const AMsgID: String): String;
   function ExtractHeaderItem(const AHeaderLine: String): String;
@@ -462,9 +433,9 @@ type
   function ExtractHeaderMediaSubType(const AHeaderLine: String): String;
   function IsHeaderValue(const AHeaderLine: String; const AValue: String): Boolean; overload;
   function IsHeaderValue(const AHeaderLine: String; const AValues: array of String): Boolean; overload;
-  function FileSizeByName(const AFilename: TIdFileName): Int64;
+  function FileSizeByName(const AFilename: String): Int64;
   {$IFDEF WINDOWS}
-  function IsVolume(const APathName : TIdFileName) : Boolean;
+  function IsVolume(const APathName : String) : Boolean;
   {$ENDIF}
   //MLIST FTP DateTime conversion functions
   function FTPMLSToGMTDateTime(const ATimeStamp : String):TDateTime;
@@ -474,15 +445,15 @@ type
   function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 
   function GetClockValue : Int64;
-  function GetMIMETypeFromFile(const AFile: TIdFileName): string;
-  function GetMIMEDefaultFileExt(const MIMEType: string): TIdFileName;
-  function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
+  function GetMIMETypeFromFile(const AFile: String): string;
+  function GetMIMEDefaultFileExt(const MIMEType: string): String;
+  function GetGMTDateByName(const AFileName : String) : TDateTime;
   function GmtOffsetStrToDateTime(const S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
   function CookieStrToLocalDateTime(S: string): TDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: UInt32): string;
-  function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
+  function IndyComputerName : String;
   function IndyCurrentYear : Integer;
 
   function IndyStrToBool(const AString: String): Boolean;
@@ -491,16 +462,11 @@ type
   function IsBinary(const AChar : Char) : Boolean;
   function IsHex(const AChar : Char) : Boolean;
   function IsHostname(const S: String): Boolean;
-  {$IFDEF STRING_IS_ANSI}
-  function IsLeadChar(ACh : Char): Boolean;
-  {$ENDIF}
   function IsTopDomain(const AStr: string): Boolean;
   function IsValidIP(const S: String): Boolean;
-  function MakeTempFilename(const APath: TIdFileName = ''): TIdFileName;
+  function MakeTempFilename(const APath: String = ''): String;
   function OrdFourByteToUInt32(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32;
-  function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use OrdFourByteToUInt32()'{$ENDIF};{$ENDIF}
   procedure UInt32ToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte);
-  procedure LongWordToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt32ToOrdFourByte()'{$ENDIF};{$ENDIF}
 
   function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
   function UnquotedStr(const AStr : String): String;
@@ -525,15 +491,12 @@ type
   function DateTimeToUnix(ADateTime: TDateTime): UInt32;
 
   function TwoCharToUInt16(AChar1, AChar2: Char): Word;
-  function TwoCharToWord(AChar1, AChar2: Char): Word; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TwoCharToUInt16()'{$ENDIF};{$ENDIF}
 
   function UpCaseFirst(const AStr: string): string;
   function UpCaseFirstWord(const AStr: string): string;
   function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
   procedure UInt16ToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
-  procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt16ToTwoBytes()'{$ENDIF};{$ENDIF}
   function UInt16ToStr(const Value: Word): String;
-  function WordToStr(const Value: Word): String; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt16ToStr()'{$ENDIF};{$ENDIF}
 
   //moved here so I can IFDEF a DotNET ver. that uses StringBuilder
   function IndyWrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
@@ -583,52 +546,35 @@ const
 implementation
 
 uses
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
   Macapi.CoreServices,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdIPAddress,
   {$IFDEF UNIX}
-    {$IFDEF KYLIXCOMPAT}
-  Libc,
-    {$ENDIF}
-    {$IFDEF FPC}
-      {$IFDEF USE_BASEUNIX}
-  BaseUnix,
-  Unix,
-  DateUtils,
-      {$ENDIF}
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
+    {$IF DEFINED(USE_VCL_POSIX)}
   DateUtils,
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
-    {$ENDIF}
+    {$ELSEIF DEFINED(KYLIXCOMPAT)}
+  Libc,
+    {$ELSEIF DEFINED(USE_BASEUNIX)}
+  BaseUnix, Unix,
+  DateUtils,
+    {$IFEND}
   {$ENDIF}
   {$IFDEF WINDOWS}
   Messages,
   Registry,
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  System.IO,
-  System.Text,
   {$ENDIF}
   IdAssignedNumbers,
   IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}
-    {$IFDEF VCL_XE2_OR_ABOVE}
-  , System.IOUtils
-    {$ELSE}
-  , IOUtils
-    {$ENDIF}
+  , {$IFDEF DCC_XE2_OR_ABOVE}System.{$ENDIF}IOUtils
   {$ENDIF}
-  {$IFDEF USE_OBJECT_ARC}
-    {$IFDEF HAS_UNIT_Generics_Collections}
+  {$IF DEFINED(USE_OBJECT_ARC) AND DEFINED(HAS_UNIT_Generics_Collections)}
   , System.Generics.Collections
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   ;
 
 //
@@ -664,40 +610,31 @@ begin
   Result := '';    {Do not Localize}
   while LPos <= LLineLen do begin
     LCurChar := ALine[LPos];
-    {$IFDEF STRING_IS_ANSI}
-    if IsLeadChar(LCurChar) then begin
-      Inc(LPos);
-      Inc(LCol);
-    end else begin //if CurChar in LeadBytes then
-    {$ENDIF}
-      if LCurChar = ABreakStr[1] then begin
+    if LCurChar = ABreakStr[1] then begin
+      if LQuoteChar = ' ' then begin   {Do not Localize}
+        LExistingBreak := TextIsSame(ABreakStr, Copy(ALine, LPos, LBreakLen));
+        if LExistingBreak then begin
+          Inc(LPos, LBreakLen-1);
+          LBreakPos := LPos;
+        end; //if ExistingBreak then
+      end // if QuoteChar = ' ' then    {Do not Localize}
+    end else begin// if CurChar = BreakStr[1] then
+      if CharIsInSet(LCurChar, 1, ABreakChars) then begin
         if LQuoteChar = ' ' then begin   {Do not Localize}
-          LExistingBreak := TextIsSame(ABreakStr, Copy(ALine, LPos, LBreakLen));
-          if LExistingBreak then begin
-            Inc(LPos, LBreakLen-1);
-            LBreakPos := LPos;
-          end; //if ExistingBreak then
-        end // if QuoteChar = ' ' then    {Do not Localize}
-      end else begin// if CurChar = BreakStr[1] then
-        if CharIsInSet(LCurChar, 1, ABreakChars) then begin
-          if LQuoteChar = ' ' then begin   {Do not Localize}
-            LBreakPos := LPos;
-          end;
-        end else begin // if CurChar in BreakChars then
-          if CharIsInSet(LCurChar, 1, QuoteChars) then begin
-            if LCurChar = LQuoteChar then begin
-              LQuoteChar := ' ';    {Do not Localize}
-            end else begin
-              if LQuoteChar = ' ' then begin   {Do not Localize}
-                LQuoteChar := LCurChar;
-              end;
+          LBreakPos := LPos;
+        end;
+      end else begin // if CurChar in BreakChars then
+        if CharIsInSet(LCurChar, 1, QuoteChars) then begin
+          if LCurChar = LQuoteChar then begin
+            LQuoteChar := ' ';    {Do not Localize}
+          end else begin
+            if LQuoteChar = ' ' then begin   {Do not Localize}
+              LQuoteChar := LCurChar;
             end;
           end;
         end;
       end;
-    {$IFDEF STRING_IS_ANSI}
     end;
-    {$ENDIF}
     Inc(LPos);
     Inc(LCol);
     if not (CharIsInSet(LQuoteChar, 1, QuoteChars)) and
@@ -760,7 +697,7 @@ end;
 
 {$IFDEF WINDOWS}
 var
-  GTempPath: TIdFileName;
+  GTempPath: String;
 {$ENDIF}
 
 function StartsWith(const ANSIStr, APattern : String) : Boolean;
@@ -768,10 +705,7 @@ function StartsWith(const ANSIStr, APattern : String) : Boolean;
 begin
   Result := TextStartsWith(ANSIStr, APattern) {do not localize}
   //tentative fix for a problem with Korean indicated by "SungDong Kim" <infi@acrosoft.pe.kr>
-  {$IFNDEF DOTNET}
-  //note that in DotNET, everything is MBCS
-    and (ByteType(ANSIStr, 1) = mbSingleByte)
-  {$ENDIF} ;
+    and (ByteType(ANSIStr, 1) = mbSingleByte);
   //just in case someone is doing a recursive listing and there's a dir with the name total
 end;
 
@@ -792,27 +726,11 @@ begin
   Result := Round((ADateTime - UnixStartDate) * 86400);
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt16);
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  CopyBytesToHostUInt16(ASource, ASourceIndex, VDest);
-end;
-
 procedure CopyBytesToHostUInt16(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt16);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   VDest := BytesToUInt16(ASource, ASourceIndex);
   VDest := GStack.NetworkToHost(VDest);
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt32);
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  CopyBytesToHostUInt32(ASource, ASourceIndex, VDest);
 end;
 
 procedure CopyBytesToHostUInt32(const ASource : TIdBytes; const ASourceIndex: Integer; var VDest : UInt32);
@@ -822,26 +740,10 @@ begin
   VDest := GStack.NetworkToHost(VDest);
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-procedure CopyTIdNetworkWord(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer);
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  CopyTIdNetworkUInt16(ASource, VDest, ADestIndex);
-end;
-
 procedure CopyTIdNetworkUInt16(const ASource: UInt16; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   CopyTIdUInt16(GStack.HostToNetwork(ASource),VDest,ADestIndex);
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-procedure CopyTIdNetworkLongWord(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer);
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  CopyTIdNetworkUInt32(ASource, VDest, ADestIndex);
 end;
 
 procedure CopyTIdNetworkUInt32(const ASource: UInt32; var VDest: TIdBytes; const ADestIndex: Integer);
@@ -856,14 +758,6 @@ begin
   Result := BytesToStringRaw(ToBytes(AValue));
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function LongWordToFourChar(AValue : UInt32): string;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := UInt32ToFourChar(AValue);
-end;
-
 procedure UInt16ToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
@@ -873,23 +767,11 @@ begin
   ByteArray[Index] := AWord mod 256;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  UInt16ToTwoBytes(AWord, ByteArray, Index);
-end;
-
 function StrToWord(const Value: String): Word;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   if Length(Value) > 1 then begin
-    {$IFDEF STRING_IS_UNICODE}
     Result := TwoCharToUInt16(Value[1], Value[2]);
-    {$ELSE}
-    Result := PWord(Pointer(Value))^;
-    {$ENDIF}
   end else begin
     Result := 0;
   end;
@@ -898,20 +780,7 @@ end;
 function UInt16ToStr(const Value: Word): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  {$IFDEF STRING_IS_UNICODE}
   Result := BytesToStringRaw(ToBytes(Value));
-  {$ELSE}
-  SetLength(Result, SizeOf(Value));
-  Move(Value, Result[1], SizeOf(Value));
-  {$ENDIF}
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function WordToStr(const Value: Word): String;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := UInt16ToStr(Value);
 end;
 
 function OrdFourByteToUInt32(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32;
@@ -927,14 +796,6 @@ begin
   Result := BytesToUInt32(LValue);
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): UInt32;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := OrdFourByteToUInt32(AByte1, AByte2, AByte3, AByte4);
-end;
-
 procedure UInt32ToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte);
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
@@ -945,14 +806,6 @@ begin
   VByte2 := LValue[1];
   VByte3 := LValue[2];
   VByte4 := LValue[3];
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-procedure LongWordToOrdFourByte(const AValue: UInt32; var VByte1, VByte2, VByte3, VByte4 : Byte);
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  UInt32ToOrdFourByte(AValue, VByte1, VByte2, VByte3, VByte4);
 end;
 
 function TwoCharToUInt16(AChar1, AChar2: Char): UInt16;
@@ -967,14 +820,6 @@ begin
   Result := BytesToUInt16(LWord);
 
 //  Result := Word((Ord(AChar1) shl 8) and $FF00) or Word(Ord(AChar2) and $00FF);
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function TwoCharToWord(AChar1, AChar2: Char): Word;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-begin
-  Result := TwoCharToUInt16(AChar1, AChar2);
 end;
 
 function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
@@ -1427,22 +1272,8 @@ begin
   end ;
 end;
 
-{$UNDEF NATIVEFILEAPI}
-{$UNDEF NATIVECOPYAPI}
-{$IFDEF DOTNET}
-  {$DEFINE NATIVEFILEAPI}
-  {$DEFINE NATIVECOPYAPI}
-{$ENDIF}
+function CopyFileTo(const Source, Destination: String): Boolean;
 {$IFDEF WINDOWS}
-  {$DEFINE NATIVEFILEAPI}
-  {$DEFINE NATIVECOPYAPI}
-{$ENDIF}
-{$IFDEF UNIX}
-  {$DEFINE NATIVEFILEAPI}
-{$ENDIF}
-
-function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
-{$IFDEF NATIVECOPYAPI}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
   {$IFDEF WIN32_OR_WIN64}
 var
@@ -1455,27 +1286,21 @@ var
   Buffer: array[1..2048] of Byte;
 {$ENDIF}
 begin
-  {$IFDEF DOTNET}
-  try
-    System.IO.File.Copy(Source, Destination, True);
-    Result := True; // or you'll get an exception
-  except
-    Result := False;
-  end;
-  {$ENDIF}
   {$IFDEF WINDOWS}
-    {$IFDEF WIN32_OR_WIN64}
+
+  {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try
-    {$ENDIF}
-    Result := CopyFile(PIdFileNameChar(Source), PIdFileNameChar(Destination), False);
-    {$IFDEF WIN32_OR_WIN64}
+  {$ENDIF}
+    Result := CopyFile(PChar(Source), PChar(Destination), False);
+  {$IFDEF WIN32_OR_WIN64}
   finally
     SetErrorMode(LOldErrorMode);
   end;
-    {$ENDIF}
   {$ENDIF}
-  {$IFNDEF NATIVECOPYAPI}
+
+  {$ELSE}
+
   //mostly from  http://delphi.about.com/od/fileio/a/untypedfiles.htm
 
   //note that I do use the I+ and I- directive.
@@ -1489,11 +1314,28 @@ begin
   // -TODO: Change to use a Linux copy function
   // There is no native Linux copy function (at least "cp" doesn't use one
   // and I can't find one anywhere (Johannes Berg))
-  
-  {$IFOPT I+} // detect IO checking
-    {$DEFINE _IPlusWasEnabled}
-    {$I-}
-  {$ENDIF}
+
+  {$I IdIOChecksOff.inc}
+
+  // TODO: use TFileStream instead...
+  {
+  try
+    SourceStrm := TIdReadFileExclusiveStream.Create(Source);
+    try
+      DestStrm := TIdFileCreateStream.Create(Destination);
+      try
+        DestStrm.CopyFrom(SourceStrm, 0);
+      finally
+        DestStrm.Free;
+      end;
+    finally
+      SourceStrm.Free;
+    end;
+    Result := True;
+  except
+    Result := False;
+  end;
+  }
 
   Assign(SourceF, Source);
   Reset(SourceF, 1);
@@ -1518,22 +1360,18 @@ begin
   end;
   Close(SourceF);
 
-  // Restore IO checking
-  {$IFDEF _IPlusWasEnabled} // detect previous setting
-    {$UNDEF _IPlusWasEnabled}
-    {$I+}
-  {$ENDIF}
+  {$I IdIOChecksOn.inc}
 
   {$ENDIF}
 end;
 
 {$IFDEF WINDOWS}
-function TempPath: TIdFileName;
+function TempPath: String;
 var
   i: Integer;
 begin
   SetLength(Result, MAX_PATH);
-  i := GetTempPath(MAX_PATH, PIdFileNameChar(Result));
+  i := GetTempPath(MAX_PATH, PChar(Result));
   if i > 0 then begin
     SetLength(Result, i);
     Result := IndyIncludeTrailingPathDelimiter(Result);
@@ -1543,11 +1381,11 @@ begin
 end;
 {$ENDIF}
 
-function MakeTempFilename(const APath: TIdFileName = ''): TIdFileName;
+function MakeTempFilename(const APath: String = ''): String;
 {$IFNDEF FPC}
 var
-  lPath: TIdFileName;
-  lExt: TIdFileName;
+  lPath: String;
+  lExt: String;
 {$ENDIF}
 begin
   {$IFDEF FPC}
@@ -1566,23 +1404,15 @@ begin
   lPath := APath;
   lExt := {$IFDEF UNIX}''{$ELSE}'.tmp'{$ENDIF}; {Do not Localize}
 
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
   if lPath = '' then begin
     lPath := GTempPath;
   end;
-  {$ELSE}
-    {$IFDEF DOTNET}
+  {$ELSEIF DEFINED(HAS_IOUtils_TPath)}
   if lPath = '' then begin
-    lPath := System.IO.Path.GetTempPath;
+    lPath := {$IFDEF DCC_XE2_OR_ABOVE}System.{$ENDIF}IOUtils.TPath.GetTempPath;
   end;
-    {$ELSE}
-      {$IFDEF HAS_IOUtils_TPath}
-  if lPath = '' then begin
-    lPath := {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}IOUtils.TPath.GetTempPath;
-  end;
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 
   Result := GetUniqueFilename(lPath, 'Indy', lExt);
 
@@ -1686,7 +1516,7 @@ begin
 end;
 
 {$IFDEF WINDOWS}
-function IsVolume(const APathName : TIdFileName) : Boolean;
+function IsVolume(const APathName : String) : Boolean;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := TextEndsWith(APathName, ':') or TextEndsWith(APathName, ':\');
@@ -1694,52 +1524,38 @@ end;
 {$ENDIF}
 
 // OS-independant version
-function FileSizeByName(const AFilename: TIdFileName): Int64;
+function FileSizeByName(const AFilename: String): Int64;
 //Leave in for HTTP Server
-{$IFDEF DOTNET}
-var
-  LFile : System.IO.FileInfo;
-{$ELSE}
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-  {$IFDEF WINDOWS}
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IF DEFINED(WINDOWS)}
 var
   LHandle : THandle;
   LRec : TWin32FindData;
-    {$IFDEF WIN32_OR_WIN64}
+  {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode : Integer;
-    {$ENDIF}
   {$ENDIF}
-  {$IFDEF UNIX}
+{$ELSEIF DEFINED(UNIX)}
 var
-    {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX)}
   LRec : _Stat;
-      {$IFDEF USE_MARSHALLED_PTRS}
+    {$IFDEF USE_MARSHALLED_PTRS}
   M: TMarshaller;
-      {$ENDIF}
-    {$ELSE}
-      {$IFDEF KYLIXCOMPAT}
+    {$ENDIF}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
   LRec : TStatBuf;
-      {$ELSE}
+  {$ELSE}
   LRec : TStat;
   LU : time_t;
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-  {$IFNDEF NATIVEFILEAPI}
+  {$IFEND}
+{$ELSE}
 var
   LStream: TIdReadFileExclusiveStream;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 begin
-  {$IFDEF DOTNET}
   Result := -1;
-  LFile := System.IO.FileInfo.Create(AFileName);
-  if LFile.Exists then begin
-    Result := LFile.Length;
-  end;
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-  Result := -1;
+
+  {$IF DEFINED(WINDOWS)}
+
   //check to see if something like "a:\" is specified and fail in that case.
   //FindFirstFile would probably succede even though a drive is not a proper
   //file.
@@ -1755,10 +1571,11 @@ begin
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
     try
     {$ENDIF}
-      LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+      LHandle := Windows.FindFirstFile(PChar(AFileName), LRec);
       if LHandle <> INVALID_HANDLE_VALUE then begin
         Windows.FindClose(LHandle);
         if (LRec.dwFileAttributes and Windows.FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
+          // TODO: use ULARGE_INTEGER instead...
           Result := (Int64(LRec.nFileSizeHigh) shl 32) + LRec.nFileSizeLow;
         end;
       end;
@@ -1768,46 +1585,25 @@ begin
     end;
     {$ENDIF}
   end;
-  {$ENDIF}
-  {$IFDEF UNIX}
-  Result := -1;
-    {$IFDEF USE_VCL_POSIX}
+
+  {$ELSEIF DEFINED(UNIX)}
+
   //This is messy with IFDEF's but I want to be able to handle 63 bit file sizes.
-  if stat(
-      {$IFDEF USE_MARSHALLED_PTRS}
-    M.AsAnsi(AFileName).ToPointer
-      {$ELSE}
-    PAnsiChar(
-        {$IFDEF STRING_IS_ANSI}
-      AFileName
-        {$ELSE}
-      AnsiString(AFileName) // explicit convert to Ansi
-        {$ENDIF}
-    )
-      {$ENDIF}
-    , LRec) = 0 then
-  begin
-    Result := LRec.st_size;
-  end;
-    {$ELSE}
   //Note that we can use stat here because we are only looking at the date.
-  if {$IFDEF KYLIXCOMPAT}stat{$ELSE}fpstat{$ENDIF}(
-    PAnsiChar(
-      {$IFDEF STRING_IS_ANSI}
-      AFileName
-      {$ELSE}
-      AnsiString(AFileName) // explicit convert to Ansi
-      {$ENDIF}
-    ), LRec) = 0 then
+  if {$IF DEFINED(USE_VCL_POSIX) OR DEFINED(KYLIXCOMPAT)}stat{$ELSE}fpstat{$IFEND}(
+    {$IF DEFINED(USE_MARSHALLED_PTRS)}
+    M.AsAnsi(AFileName).ToPointer
+    {$ELSE}
+    PAnsiChar(AnsiString(AFileName)) // explicit convert to Ansi
+    {$IFEND}
+    , LRec) = 0 then
   begin
     Result := LRec.st_Size;
   end;
-    {$ENDIF}
-  {$ENDIF}
-  {$IFNDEF NATIVEFILEAPI}
-  Result := -1;
+
+  {$ELSE}
+
   if FileExists(AFilename) then begin
-    // the other cases simply return -1 on error, so make sure to do the same here
     try
       // TODO: maybe use TIdReadFileNonExclusiveStream instead?
       LStream := TIdReadFileExclusiveStream.Create(AFilename);
@@ -1819,11 +1615,12 @@ begin
     except
     end;
   end;
-  {$ENDIF}
+
+  {$IFEND}
 end;
 
-function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
-{$IFDEF WINDOWS}
+function GetGMTDateByName(const AFileName : String) : TDateTime;
+{$IF DEFINED(WINDOWS)}
 var
   LRec : TWin32FindData;
   LHandle : THandle;
@@ -1831,39 +1628,39 @@ var
   {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode : Integer;
  {$ENDIF}
-{$ENDIF}
-{$IFDEF UNIX}
+{$ELSEIF DEFINED(UNIX)}
 var
   LTime : Integer;
-  {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX}
   LRec : _Stat;
     {$IFDEF USE_MARSHALLED_PTRS}
   M: TMarshaller;
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF KYLIXCOMPAT}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
   LRec : TStatBuf;
   LU : TUnixTime;
-  {$ENDIF}
-  {$IFDEF USE_BASEUNIX}
+  {$ELSEIF DEFINED(USE_BASEUNIX)}
   LRec : TStat;
-  LU : time_t;
-  {$ENDIF}
-{$ENDIF}
+  {$IFEND}
+{$IFEND}
 begin
   Result := -1;
-  {$IFDEF WINDOWS}
+
+  {$IF DEFINED(WINDOWS)}
+
   if not IsVolume(AFileName) then begin
     {$IFDEF WIN32_OR_WIN64}
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
     try
     {$ENDIF}
-      LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+      // TODO: GetFileAttributesEx() on systems that support it
+      LHandle := Windows.FindFirstFile(PChar(AFileName), LRec);
     {$IFDEF WIN32_OR_WIN64}
     finally
       SetErrorMode(LOldErrorMode);
     end;
     {$ENDIF}
+
     if LHandle <> INVALID_HANDLE_VALUE then begin
       Windows.FindClose(LHandle);
       {$IFDEF WINCE}
@@ -1875,50 +1672,42 @@ begin
       {$ENDIF}
     end;
   end;
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  if System.IO.File.Exists(AFileName) then begin
-    Result := System.IO.File.GetLastWriteTimeUtc(AFileName).ToOADate;
-  end;
-  {$ENDIF}
-  {$IFDEF UNIX}
+
+  {$ELSEIF DEFINED(UNIX)}
+
   //Note that we can use stat here because we are only looking at the date.
-    {$IFDEF USE_BASEUNIX}
-  if fpstat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
-  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX)}
   if stat(
-      {$IFDEF USE_MARSHALLED_PTRS}
+    {$IF DEFINED(USE_MARSHALLED_PTRS)}
     M.AsAnsi(AFileName).ToPointer
-      {$ELSE}
-    PAnsiChar(
-        {$IFDEF STRING_IS_ANSI}
-      AFileName
-        {$ELSE}
-      AnsiString(AFileName) // explicit convert to Ansi
-        {$ENDIF}
-    )
-      {$ENDIF}
+    {$ELSE}
+    PAnsiChar(AnsiString(AFileName)) // explicit convert to Ansi
+    {$IFEND}
     , LRec) = 0 then
-    {$ENDIF}
   begin
     LTime := LRec.st_mtime;
-    {$IFDEF KYLIXCOMPAT}
+    Result := DateUtils.UnixToDateTime(LTime);
+  end
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
+  if stat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
+  begin
     gmtime_r(@LTime, LU);
     Result := EncodeDate(LU.tm_year + 1900, LU.tm_mon + 1, LU.tm_mday) +
               EncodeTime(LU.tm_hour, LU.tm_min, LU.tm_sec, 0);
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
-    Result := UnixToDateTime(LTime);
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
-    Result := DateUtils.UnixToDateTime(LTime);
-    {$ENDIF}
   end;
-  {$ENDIF}
+  {$ELSEIF DEFINED(USE_BASEUNIX)}
+  if fpstat(PAnsiChar(AnsiString(AFileName)), LRec) = 0 then
+  begin
+    LTime := LRec.st_mtime;
+    Result := UnixToDateTime(LTime);
+  end;
+  {$ELSE}
+    {$message error stat is not called on this platform!}
+  {$IFEND}
+
+  {$ELSE}
+    {$message error GetGMTDateByName is not implemented on this platform!}
+  {$IFEND}
 end;
 
 function RightStr(const AStr: String; const Len: Integer): String;
@@ -1936,42 +1725,25 @@ end;
 
 function TimeZoneBias: TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$IFNDEF FPC}
-  {$IFDEF UNIX}
+{$IF (NOT DEFINED(FPC)) AND DEFINED(UNIX)}
 var
   T: Time_T;
   TV: TimeVal;
-    {$IFDEF USE_VCL_POSIX}
-  UT: tm;
-    {$ELSE}
-  UT: TUnixTime;
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
+  UT: {$IFDEF USE_VCL_POSIX}tm{$ELSE}TUnixTime{$ENDIF};
+{$IFEND}
 begin
-{$IFNDEF FPC}
-  {$IFDEF UNIX}
+  {$IF (NOT DEFINED(FPC)) AND DEFINED(UNIX)}
   // TODO: use -OffsetFromUTC here. It has this same Unix logic in it
   {from http://edn.embarcadero.com/article/27890 }
   gettimeofday(TV, nil);
   T := TV.tv_sec;
-    {$IFDEF USE_VCL_POSIX}
-  localtime_r(T, UT);
+  localtime_r({$IFNDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
 // __tm_gmtoff is the bias in seconds from the UTC to the current time.
 // so I multiply by -1 to compensate for this.
-  Result := (UT.tm_gmtoff / 60 / 60 / 24);
-    {$ELSE}
-  localtime_r(@T, UT);
-// __tm_gmtoff is the bias in seconds from the UTC to the current time.
-// so I multiply by -1 to compensate for this.
-  Result := (UT.__tm_gmtoff / 60 / 60 / 24);
-    {$ENDIF}
+  Result := (UT.{$IFNDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
   {$ELSE}
   Result := -OffsetFromUTC;
-  {$ENDIF}
-{$ELSE}
-  Result := -OffsetFromUTC;
-{$ENDIF}
+  {$IFEND}
 end;
 
 function IndyStrToBool(const AString : String) : Boolean;
@@ -2005,15 +1777,12 @@ var
 begin
   Result := False;
 
-  {$IFDEF LINUX}
+  {$IF DEFINED(LINUX)}
+
   //TODO: Implement SetTime for Linux. This call is not critical.
-  {$ENDIF}
 
-  {$IFDEF DOTNET}
-  //TODO: Figure out how to do this
-  {$ENDIF}
+  {$ELSEIF DEFINED(WINDOWS)}
 
-  {$IFDEF WINDOWS}
   {I admit that this routine is a little more complicated than the one
   in Indy 8.0.  However, this routine does support Windows NT privileges
   meaning it will work if you have administrative rights under that OS
@@ -2075,7 +1844,8 @@ begin
     Windows.CloseHandle(hToken);
   end;
     {$ENDIF}
-  {$ENDIF}
+
+  {$IFEND}
 end;
 
 function StrToDay(const ADay: string): Byte;
@@ -2279,7 +2049,7 @@ begin
   end;
 end;
 
-function GetMIMETypeFromFile(const AFile: TIdFileName): string;
+function GetMIMETypeFromFile(const AFile: String): string;
 var
   MIMEMap: TIdMIMETable;
 begin
@@ -2291,7 +2061,7 @@ begin
   end;
 end;
 
-function GetMIMEDefaultFileExt(const MIMEType: string): TIdFileName;
+function GetMIMEDefaultFileExt(const MIMEType: string): String;
 var
   MIMEMap: TIdMIMETable;
 begin
@@ -3297,7 +3067,8 @@ begin
     Exit;
   end;
 
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
+
   // Build the file type/MIME type map
   Reg := TRegistry.Create;
   try
@@ -3346,8 +3117,9 @@ begin
   finally
     Reg.Free;
   end;
-  {$ENDIF}
-  {$IFDEF UNIX}
+
+  {$ELSEIF DEFINED(UNIX)}
+
   {
     /etc/mime.types is not present in all Linux distributions.
 
@@ -3361,7 +3133,8 @@ begin
   LoadMIME('/etc/mime.types', AMIMEList);                   {do not localize}
   LoadMIME('/etc/htdig/mime.types', AMIMEList);             {do not localize}
   LoadMIME('/etc/usr/share/webmin/mime.types', AMIMEList);  {do not localize}
-  {$ENDIF}
+
+  {$IFEND}
 end;
 
 procedure TIdMimeTable.AddMimeType(const Ext, MIMEType: string; const ARaiseOnError: Boolean = True);
@@ -3421,7 +3194,7 @@ begin
     FillMIMETable(LKeys, LoadTypesFromOS);
     LoadFromStrings(LKeys);
   finally
-    FreeAndNil(LKeys);
+    LKeys.Free;
   end;
 end;
 
@@ -3438,8 +3211,8 @@ end;
 
 destructor TIdMimeTable.Destroy;
 begin
-  FreeAndNil(FMIMEList);
-  FreeAndNil(FFileExt);
+  FMIMEList.Free;
+  FFileExt.Free;
   inherited Destroy;
 end;
 
@@ -3691,8 +3464,8 @@ const
  HTML_HeadDocAttrs : array [0..3] of string = ('META','TITLE','SCRIPT','LINK'); {do not localize}
  HTML_MetaAttrs : array [0..1] of string = ('HTTP-EQUIV', 'charset'); {do not localize}
 
-function ParseUntilEndOfTag(const AStr : String; var VPos : Integer;
-  const ALen : Integer): String; {$IFDEF USE_INLINE}inline;{$ENDIF}
+function ParseUntilEndOfTag(const AStr : String; var VPos : Integer; const ALen : Integer): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LStart: Integer;
 begin
@@ -3706,8 +3479,8 @@ begin
   Result := Copy(AStr, LStart, VPos - LStart);
 end;
 
-procedure DiscardUntilEndOfTag(const AStr : String; var VPos : Integer;
-  const ALen : Integer); {$IFDEF USE_INLINE}inline;{$ENDIF}
+procedure DiscardUntilEndOfTag(const AStr : String; var VPos : Integer; const ALen : Integer);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   while VPos <= ALen do begin
     if AStr[VPos] = '>' then begin {do not localize}
@@ -3717,8 +3490,8 @@ begin
   end;
 end;
 
-function ExtractDocWhiteSpace(const AStr : String; var VPos : Integer;
-  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+function ExtractDocWhiteSpace(const AStr : String; var VPos : Integer; const ALen : Integer) : String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LStart: Integer;
 begin
@@ -3732,7 +3505,8 @@ begin
   Result := Copy(AStr, LStart, VPos-LStart);
 end;
 
-procedure DiscardDocWhiteSpace(const AStr : String; var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+procedure DiscardDocWhiteSpace(const AStr : String; var VPos : Integer; const ALen : Integer);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   while VPos <= ALen do begin
     if not CharIsInSet(AStr, VPos, HTML_DOCWHITESPACE) then begin
@@ -3742,8 +3516,8 @@ begin
   end;
 end;
 
-function ParseWord(const AStr : String; var VPos : Integer;
-  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+function ParseWord(const AStr : String; var VPos : Integer; const ALen : Integer) : String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LStart: Integer;
 begin
@@ -3757,8 +3531,8 @@ begin
   Result := Copy(AStr, LStart, VPos-LStart);
 end;
 
-procedure DiscardWord(const AStr : String; var VPos : Integer;
-  const ALen : Integer);  {$IFDEF USE_INLINE}inline;{$ENDIF}
+procedure DiscardWord(const AStr : String; var VPos : Integer; const ALen : Integer);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   while VPos <= ALen do begin
     if not CharIsInSet(AStr, VPos, HTML_ALLOWABLE_ALPHANUMBERIC) then begin
@@ -3768,8 +3542,9 @@ begin
   end;
 end;
 
-function ParseUntil(const AStr : String; const AChar : Char;
-  var VPos : Integer; const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+function ParseUntil(const AStr : String; const AChar : Char; var VPos : Integer;
+  const ALen : Integer) : String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LStart: Integer;
 begin
@@ -3783,8 +3558,9 @@ begin
   Result := Copy(AStr, LStart, VPos-LStart);
 end;
 
-procedure DiscardUntil(const AStr : String; const AChar : Char;
-  var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline;{$ENDIF}
+procedure DiscardUntil(const AStr : String; const AChar : Char; var VPos : Integer;
+  const ALen : Integer);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   while VPos <= ALen do begin
     if AStr[VPos] = AChar then begin
@@ -3794,8 +3570,9 @@ begin
   end;
 end;
 
-function ParseUntilCharOrEndOfTag(const AStr : String; const AChar: Char;
-  var VPos : Integer; const ALen : Integer): String; {$IFDEF USE_INLINE}inline;{$ENDIF}
+function ParseUntilCharOrEndOfTag(const AStr : String; const AChar: Char; var VPos : Integer;
+  const ALen : Integer): String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LStart: Integer;
 begin
@@ -3810,7 +3587,8 @@ begin
 end;
 
 procedure DiscardUntilCharOrEndOfTag(const AStr : String; const AChar: Char;
-  var VPos : Integer; const ALen : Integer); {$IFDEF USE_INLINE}inline;{$ENDIF}
+  var VPos : Integer; const ALen : Integer);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   while VPos <= ALen do begin
     if (AStr[VPos] = AChar) or (AStr[VPos] = '>') then begin {do not localize}
@@ -3821,7 +3599,8 @@ begin
 end;
 
 function ParseHTTPMetaEquiveData(const AStr : String; var VPos : Integer;
-  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+  const ALen : Integer) : String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LQuoteChar : Char;
   LWord : String;
@@ -3898,8 +3677,8 @@ begin
   until False;
 end;
 
-function ParseMetaCharsetData(const AStr : String; var VPos : Integer;
-  const ALen : Integer) : String;  {$IFDEF USE_INLINE}inline;{$ENDIF}
+function ParseMetaCharsetData(const AStr : String; var VPos : Integer; const ALen : Integer) : String;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LQuoteChar : Char;
   LWord : String;
@@ -3924,7 +3703,8 @@ begin
   Result := LWord;
 end;
 
-procedure DiscardToEndOfComment(const AStr : String; var VPos : Integer; const ALen : Integer);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+procedure DiscardToEndOfComment(const AStr : String; var VPos : Integer; const ALen : Integer);
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   i : Integer;
 begin
@@ -3945,7 +3725,8 @@ begin
   end;
 end;
 
-function ParseForCloseTag(const AStr, ATagWord : String; var VPos : Integer; const ALen : Integer) : String; {$IFDEF USE_INLINE}inline; {$ENDIF}
+function ParseForCloseTag(const AStr, ATagWord : String; var VPos : Integer; const ALen : Integer) : String;
+  {$IFDEF USE_INLINE}inline; {$ENDIF}
 var
   LWord, LTmp : String;
 begin
@@ -3971,7 +3752,8 @@ begin
 end;
 
 procedure DiscardUntilCloseTag(const AStr, ATagWord : String; var VPos : Integer;
-  const ALen : Integer; const AIsScript : Boolean = False);  {$IFDEF USE_INLINE}inline; {$ENDIF}
+  const ALen : Integer; const AIsScript : Boolean = False);
+  {$IFDEF USE_INLINE}inline; {$ENDIF}
 var
   LWord, LTmp : String;
 begin
@@ -4018,7 +3800,7 @@ begin
   AStream.Position := 0;
   LEncoding := IndyTextEncoding_8Bit;
   // TODO: parse the stream as-is without reading it into a String first...
-  LRawData := ReadStringFromStream(AStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  LRawData := ReadStringFromStream(AStream, -1, LEncoding);
   LEncoding := nil;
   LMode := none;
   LPos := 0;
@@ -4237,6 +4019,13 @@ begin
   LItem.Value := AValue;
   Items[AIndex] := LItem;
 end;
+
+{$ELSE}
+
+// TODO: flesh out to match TList<TIdHeaderNameValueItem> for non-Generics compilers
+type
+  TIdHeaderNameValueList = TStringList;
+
 {$ENDIF}
 
 procedure SplitHeaderSubItems(AHeaderLine: String;
@@ -4311,33 +4100,29 @@ end;
 function ExtractHeaderSubItem(const AHeaderLine, ASubItem: String;
   AQuoteType: TIdHeaderQuotingType): String;
 var
-  LItems: {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF};
-  {$IFNDEF USE_OBJECT_ARC}
-    {$IFNDEF HAS_TStringList_CaseSensitive}
+  LItems: TIdHeaderNameValueList;
+  {$IF (NOT DEFINED(USE_OBJECT_ARC)) AND (NOT DEFINED(HAS_TStringList_CaseSensitive))}
   I: Integer;
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 begin
   Result := '';
   // TODO: instead of splitting the header into a list of name=value pairs,
   // allocating memory for it, just parse the input string in-place and extract
   // the necessary substring from it...
-  LItems := {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF}.Create;
+  LItems := TIdHeaderNameValueList.Create;
   try
     SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
-    {$IFDEF USE_OBJECT_ARC}
+    {$IF DEFINED(USE_OBJECT_ARC)}
     Result := LItems.GetValue(ASubItem);
-    {$ELSE}
-      {$IFDEF HAS_TStringList_CaseSensitive}
+    {$ELSEIF DEFINED(HAS_TStringList_CaseSensitive)}
     LItems.CaseSensitive := False;
     Result := LItems.Values[ASubItem];
-      {$ELSE}
+    {$ELSE}
     I := IndyIndexOfName(LItems, ASubItem);
     if I <> -1 then begin
       Result := IndyValueFromIndex(LItems, I);
     end;
-      {$ENDIF}
-    {$ENDIF}
+    {$IFEND}
   finally
     LItems.Free;
   end;
@@ -4354,7 +4139,7 @@ end;
 function ReplaceHeaderSubItem(const AHeaderLine, ASubItem, AValue: String;
   var VOld: String; AQuoteType: TIdHeaderQuotingType): String;
 var
-  LItems: {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF};
+  LItems: TIdHeaderNameValueList;
   I: Integer;
   LValue: string;
 
@@ -4396,7 +4181,7 @@ begin
   // allocating memory for it, and then putting the list back together, just
   // parse the input string in-place and extract/replace the necessary
   // substring from it as needed, preserving the rest of the string as-is...
-  LItems := {$IFDEF USE_OBJECT_ARC}TIdHeaderNameValueList{$ELSE}TStringList{$ENDIF}.Create;
+  LItems := TIdHeaderNameValueList.Create;
   try
     SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
     {$IFDEF USE_OBJECT_ARC}
@@ -4527,10 +4312,7 @@ begin
 end;
 
 function GetClockValue : Int64;
-{$IFDEF DOTNET}
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
-{$IFDEF WINDOWS}
+{$IF DEFINED(WINDOWS)}
 type
   TInt64Rec = record
     case Integer of
@@ -4541,60 +4323,46 @@ type
 
 var
   LFTime : TFileTime;
-{$ENDIF}
-{$IFDEF UNIX}
-  {$IFNDEF USE_VCL_POSIX}
+{$ELSEIF DEFINED(UNIX) AND (NOT DEFINED(USE_VCL_POSIX))}
 var
   TheTms: tms;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 begin
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
+
     {$IFDEF WINCE}
     // TODO
+  {$message error GetClockValue is not implemented on this platform!}
+  Result := 0;
     {$ELSE}
   Windows.GetSystemTimeAsFileTime(LFTime);
   TInt64Rec(Result).Low := LFTime.dwLowDateTime;
   TInt64Rec(Result).High := LFTime.dwHighDateTime;
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF UNIX}
+
+  {$ELSEIF DEFINED(UNIX)}
+
   //Is the following correct?
-    {$IFDEF USE_BASEUNIX}
-  Result := fptimes(TheTms);
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
-  Result := Times(TheTms);
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX)}
   Result := time(nil);
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  Result := System.DateTime.Now.Ticks;
-  {$ENDIF}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
+  Result := Times(TheTms);
+  {$ELSEIF DEFINED(USE_BASEUNIX)}
+  Result := fptimes(TheTms);
+  {$ELSE}
+    {$message error time is not called on this platform!}
+  {$IFEND}
+
+  {$ELSE}
+    {$message error GetClockValue is not implemented on this platform!}
+  {$IFEND}
 end;
 
-{$UNDEF NO_NATIVE_ASM}
-{$IFDEF DOTNET}
+{$IF (DEFINED(IOS) AND DEFINED(CPUARM)) OR DEFINED(ANDROID) OR (DEFINED(FPC) AND (NOT DEFINED(CPUI386))) OR DEFINED(LINUX64)}
   {$DEFINE NO_NATIVE_ASM}
-{$ENDIF}
-{$IFDEF IOS}
-  {$IFDEF CPUARM}
-    {$DEFINE NO_NATIVE_ASM}
-  {$ENDIF}
-{$ENDIF}
-{$IFDEF ANDROID}
-  {$DEFINE NO_NATIVE_ASM}
-{$ENDIF}
-{$IFDEF FPC}
-  {$IFNDEF CPUI386}
-    {$DEFINE NO_NATIVE_ASM}
-  {$ENDIF}
-{$ENDIF}
-{$IFDEF LINUX64}
-  {$DEFINE NO_NATIVE_ASM}
-{$ENDIF}
+{$ELSE}
+  {$UNDEF NO_NATIVE_ASM}
+{$IFEND}
 
 {$IFDEF NO_NATIVE_ASM}
 function ROL(const AVal: UInt32; AShift: Byte): UInt32;
@@ -4633,10 +4401,7 @@ end;
 {$ENDIF}
 
 function IndyComputerName: string;
-{$IFDEF DOTNET}
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
-{$IFDEF UNIX}
+{$IF DEFINED(UNIX)}
 const
   sMaxHostName = 255;
 var
@@ -4644,8 +4409,7 @@ var
   {$IFDEF USE_MARSHALLED_PTRS}
   LHostPtr: TPtrWrapper;
   {$ENDIF}
-{$ENDIF}
-{$IFDEF WINDOWS}
+{$ELSEIF DEFINED(WINDOWS)}
 var
   {$IFDEF WINCE}
   Reg: TRegistry;
@@ -4653,42 +4417,39 @@ var
   LHost: array[0..MAX_COMPUTERNAME_LENGTH] of Char;
   i: DWORD;
   {$ENDIF}
-{$ENDIF}
+{$IFEND}
 begin
   Result := '';
 
-  {$IFDEF UNIX}
+  {$IF DEFINED(UNIX)}
+
+    {$IF DEFINED(KYLIXCOMPAT) OR DEFINED(USE_VCL_POSIX)}
   //TODO: No need for LHost at all? Prob can use just Result
-    {$IFDEF KYLIXCOMPAT}
-  if GetHostname(LHost, sMaxHostName) <> -1 then begin
-    Result := String(LHost);
-  end;
-    {$ENDIF}
-    {$IFDEF USE_BASE_UNIX}
-  Result := GetHostName;
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
       {$IFDEF USE_MARSHALLED_PTRS}
   LHostPtr := TPtrWrapper.Create(@LHost[0]);
       {$ENDIF}
-  if Posix.Unistd.gethostname(
-    {$IFDEF USE_MARSHALLED_PTRS}
+  if {$IFDEF USE_VCL_POSIX}Posix.Unistd.GetHostname{$ELSE}gethostname{$ENDIF}(
+      {$IFDEF USE_MARSHALLED_PTRS}
     LHostPtr.ToPointer
-    {$ELSE}
+      {$ELSE}
     LHost
-    {$ENDIF},
-    sMaxHostName) <> -1 then
+      {$ENDIF}
+    , sMaxHostName) <> -1 then
   begin
     LHost[sMaxHostName] := TIdAnsiChar(0);
-    {$IFDEF USE_MARSHALLED_PTRS}
+      {$IFDEF USE_MARSHALLED_PTRS}
     Result := TMarshal.ReadStringAsAnsi(LHostPtr);
-    {$ELSE}
+      {$ELSE}
     Result := String(LHost);
-    {$ENDIF}
+      {$ENDIF}
   end;
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WINDOWS}
+
+    {$ELSEIF DEFINED(USE_BASEUNIX)}
+  Result := GetHostName;
+    {$IFEND}
+
+  {$ELSEIF DEFINED(WINDOWS)}
+
     {$IFDEF WINCE}
   Reg := TRegistry.Create;
   try
@@ -4706,36 +4467,21 @@ begin
     SetString(Result, LHost, i);
   end;
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  Result := Environment.MachineName;
-  {$ENDIF}
-end;
 
-{$IFDEF STRING_IS_ANSI}
-function IsLeadChar(ACh : Char): Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := ACh in LeadBytes;
+  {$IFEND}
 end;
-{$ENDIF}
 
 function IdGetDefaultCharSet: TIdCharSet;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF UNIX}
+  {$IF DEFINED(UNIX)}
+
   Result := GIdDefaultCharSet;
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  Result := idcs_UNICODE_1_1;
-  // not a particular Unicode encoding - just unicode in general
-  // i.e. DotNet native string is 2 byte Unicode, we do not concern ourselves
-  // with Byte order. (though we have to concern ourselves once we start
-  // writing to some stream or Bytes
-  {$ENDIF}
-  {$IFDEF WINDOWS}
-  // Many defaults are set here when the choice is ambiguous. However for
-  // IdMessage OnInitializeISO can be used by user to choose other.
+
+  {$ELSEIF DEFINED(WINDOWS)}
+
+  // Many defaults are set here when the choice is ambiguous. However the
+  // TIdMessage.OnInitializeISO event can be used by the user to choose otherwise.
   case SysLocale.PriLangID of
     LANG_CHINESE: begin
       if SysLocale.SubLangID = SUBLANG_CHINESE_SIMPLIFIED then begin
@@ -4755,19 +4501,16 @@ begin
     // the Windows one so we default to it.
     LANG_UKRAINIAN: Result := idcs_windows_1251;
     else begin
-      {$IFDEF STRING_IS_UNICODE}
       Result := idcs_UNICODE_1_1;
       // not a particular Unicode encoding - just unicode in general
-      // i.e. Delphi/C++Builder 2009+ native string is 2 byte Unicode,
-      // we do not concern ourselves with Byte order. (though we have
-      // to concern ourselves once we start writing to some stream or
-      // Bytes
-      {$ELSE}
-      Result := idcs_ISO_8859_1;
-      {$ENDIF}
+      // i.e. Delphi/C++Builder 2009+ and FreePascal 3.0+ native string
+      // is 2 byte Unicode, we do not concern ourselves with Byte order.
+      // (though we have to concern ourselves once we start writing to
+      // some stream or Bytes
     end;
   end;
-  {$ENDIF}
+
+  {$IFEND}
 end;
 
 //The following is for working on email headers and message part headers.
@@ -4881,7 +4624,7 @@ begin
 end;
 
 function CharsetToEncoding(const ACharset: String): IIdTextEncoding;
-{$IFNDEF DOTNET_OR_ICONV}
+{$IFNDEF USE_ICONV}
 var
   CP: Word;
 {$ENDIF}
@@ -4926,7 +4669,7 @@ begin
     // as a workaround...
 
     try
-      {$IFDEF DOTNET_OR_ICONV}
+      {$IFDEF USE_ICONV}
       Result := IndyTextEncoding(ACharset);
       {$ELSE}
       CP := CharsetToCodePage(ACharset);
@@ -4952,15 +4695,13 @@ begin
 end;
 
 procedure WriteStringAsContentType(AStream: TStream; const AStr, AContentType: String;
-  AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
+  AQuoteType: TIdHeaderQuotingType);
 begin
-  WriteStringToStream(AStream, AStr, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+  WriteStringToStream(AStream, AStr, ContentTypeToEncoding(AContentType, AQuoteType));
 end;
 
 procedure WriteStringsAsContentType(AStream: TStream; const AStrings: TStrings;
-  const AContentType: String; AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
+  const AContentType: String; AQuoteType: TIdHeaderQuotingType);
 begin
   // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
   // anymore, as it may save a BOM which we do not want here...
@@ -4968,18 +4709,15 @@ begin
   // TODO: instead of writing AString.Text as a whole, loop through AStrings
   // writing the individual strings to avoid unnecessary memory allocations...
 
-  WriteStringToStream(AStream, AStrings.Text, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+  WriteStringToStream(AStream, AStrings.Text, ContentTypeToEncoding(AContentType, AQuoteType));
 end;
 
-procedure WriteStringAsCharset(AStream: TStream; const AStr, ACharset: string
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
+procedure WriteStringAsCharset(AStream: TStream; const AStr, ACharset: string);
 begin
-  WriteStringToStream(AStream, AStr, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+  WriteStringToStream(AStream, AStr, CharsetToEncoding(ACharset));
 end;
 
-procedure WriteStringsAsCharset(AStream: TStream; const AStrings: TStrings;
-  const ACharset: string
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
+procedure WriteStringsAsCharset(AStream: TStream; const AStrings: TStrings; const ACharset: string);
 begin
   // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
   // anymore, as it may save a BOM which we do not want here...
@@ -4987,21 +4725,17 @@ begin
   // TODO: instead of writing AString.Text as a whole, loop through AStrings
   // writing the individual strings to avoid unnecessary memory allocations...
 
-  WriteStringToStream(AStream, AStrings.Text, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+  WriteStringToStream(AStream, AStrings.Text, CharsetToEncoding(ACharset));
 end;
 
 function ReadStringAsContentType(AStream: TStream; const AContentType: String;
-  AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-): String;
+  AQuoteType: TIdHeaderQuotingType): String;
 begin
-  Result := ReadStringFromStream(AStream, -1, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := ReadStringFromStream(AStream, -1, ContentTypeToEncoding(AContentType, AQuoteType));
 end;
 
 procedure ReadStringsAsContentType(AStream: TStream; AStrings: TStrings;
-  const AContentType: String; AQuoteType: TIdHeaderQuotingType
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-);
+  const AContentType: String; AQuoteType: TIdHeaderQuotingType);
 begin
   // TODO: TStrings.Text truncates on an embedded null character, but the
   // decoded string may contain nulls, depending on the source!  Maybe use
@@ -5009,20 +4743,16 @@ begin
   // know to parse line breaks so it can handle CR, LF, and CRLF equally.
   // Otherwise, create a new function that mimics the TStrings.Text setter
   // but without the null character limitation...
-  AStrings.Text := ReadStringFromStream(AStream, -1, ContentTypeToEncoding(AContentType, AQuoteType){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  AStrings.Text := ReadStringFromStream(AStream, -1, ContentTypeToEncoding(AContentType, AQuoteType));
 end;
 
-function ReadStringAsCharset(AStream: TStream; const ACharset: String
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-): String;
+function ReadStringAsCharset(AStream: TStream; const ACharset: String): String;
 begin
   //TODO: Figure out what should happen with Unicode content type.
-  Result := ReadStringFromStream(AStream, -1, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := ReadStringFromStream(AStream, -1, CharsetToEncoding(ACharset));
 end;
 
-procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: String
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-);
+procedure ReadStringsAsCharset(AStream: TStream; AStrings: TStrings; const ACharset: String);
 begin
   // TODO: TStrings.Text truncates on an embedded null character, but the
   // decoded string may contain nulls, depending on the source!  Maybe use
@@ -5030,27 +4760,19 @@ begin
   // know to parse line breaks so it can handle CR, LF, and CRLF equally.
   // Otherwise, create a new function that mimics the TStrings.Text setter
   // but without the null character limitation...
-  AStrings.Text := ReadStringFromStream(AStream, -1, CharsetToEncoding(ACharset){$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  AStrings.Text := ReadStringFromStream(AStream, -1, CharsetToEncoding(ACharset));
 end;
 
 { TIdInterfacedObject }
 
 function TIdInterfacedObject._AddRef: Integer;
 begin
-  {$IFDEF DOTNET}
-  Result := 1;
-  {$ELSE}
   Result := inherited _AddRef;
-  {$ENDIF}
 end;
 
 function TIdInterfacedObject._Release: Integer;
 begin
-  {$IFDEF DOTNET}
-  Result := 1;
-  {$ELSE}
   Result := inherited _Release;
-  {$ENDIF}
 end;
 
 initialization

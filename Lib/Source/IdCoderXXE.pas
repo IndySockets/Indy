@@ -38,28 +38,18 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdCoder00E, IdCoder3to4;
 
 type
   TIdDecoderXXE = class(TIdDecoder00E)
-  protected
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   end;
 
   TIdEncoderXXE = class(TIdEncoder00E)
-  protected
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   end;
 
 const
@@ -75,32 +65,18 @@ uses
 
 { TIdEncoderXXE }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdEncoderXXE.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdEncoderXXE.InitComponent;
-begin
-  inherited InitComponent;
   FCodingTable := ToBytes(GXXECodeTable);
   FFillChar := GXXECodeTable[1];
 end;
 
 { TIdDecoderXXE }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdDecoderXXE.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdDecoderXXE.InitComponent;
-begin
-  inherited InitComponent;
   FDecodeTable := GXXEDecodeTable;
   FFillChar := GXXECodeTable[1];
 end;

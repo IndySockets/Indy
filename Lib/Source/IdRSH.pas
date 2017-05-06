@@ -41,18 +41,19 @@ unit IdRSH;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAssignedNumbers, IdGlobal, IdRemoteCMDClient, IdTCPClient;
+  Classes, IdAssignedNumbers, IdGlobal, IdRemoteCMDClient, IdTCPClient;
 
 type
   TIdRSH = class(TIdRemoteCMDClient)
   protected
     FClientUserName : String;
     FHostUserName : String;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     Function Execute(ACommand: String): String; override;
   published
     property ClientUserName : String read FClientUserName write FClientUserName;
@@ -74,9 +75,9 @@ uses
 
 { TIdRSH }
 
-procedure TIdRSH.InitComponent;
+constructor TIdRSH.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   Port := IdPORT_cmd;
   FClientUserName := '';    {Do not Localize}
   FHostUserName := '';    {Do not Localize}

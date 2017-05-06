@@ -37,12 +37,11 @@
 unit IdTimeUDPServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
@@ -50,11 +49,8 @@ type
   protected
     FBaseDate : TDateTime;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   end;
 
   TIdTimeUDPServer = class(TIdCustomTimeUDPServer)
@@ -75,16 +71,9 @@ uses
   {$ENDIF}
   IdGlobalProtocols, IdStack, SysUtils;
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdCustomTimeUDPServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdCustomTimeUDPServer.InitComponent;
-begin
-  inherited;
   DefaultPort := IdPORT_TIME;
   {This indicates that the default date is Jan 1, 1900 which was specified
    by RFC 868.}

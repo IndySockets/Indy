@@ -189,8 +189,8 @@ const
 {$ENDIF} // {$IFDEF WIN32_OR_WIN64}
 
 function UseIDNAPI : Boolean;
-function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
-function PunnyCodeToIDN(const APunnyCode : String) : TIdUnicodeString;
+function IDNToPunnyCode(const AIDN : UnicodeString) : String;
+function PunnyCodeToIDN(const APunnyCode : String) : UnicodeString;
 
 procedure InitIDNLibrary;
 procedure CloseIDNLibrary;
@@ -214,69 +214,43 @@ begin
   end;
 end;
 
-function PunnyCodeToIDN(const APunnyCode : String) : TIdUnicodeString;
+function PunnyCodeToIDN(const APunnyCode : String) : UnicodeString;
 var
-  {$IFNDEF STRING_IS_UNICODE}
-  LTemp: TIdUnicodeString;
-  {$ENDIF}
-  LIDN : TIdUnicodeString;
   Len : Integer;
 begin
   Result := '';
   if Assigned(IdnToUnicode) then
   begin
-    {$IFNDEF STRING_IS_UNICODE}
-    LTemp := TIdUnicodeString(APunnyCode); // explicit convert to Unicode
-    {$ENDIF}
-    Len := IdnToUnicode(0,
-      {$IFDEF STRING_IS_UNICODE}
-      PIdWideChar(APunnyCode), Length(APunnyCode)
-      {$ELSE}
-      PIdWideChar(LTemp), Length(LTemp)
-      {$ENDIF},
-      nil, 0);
+    Len := IdnToUnicode(0, PChar(APunnyCode), Length(APunnyCode), nil, 0);
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
-    SetLength(LIDN, Len);
-    Len := IdnToUnicode(0,
-      {$IFDEF STRING_IS_UNICODE}
-      PIdWideChar(APunnyCode), Length(APunnyCode)
-      {$ELSE}
-      PIdWideChar(LTemp), Length(LTemp)
-      {$ENDIF},
-      PIdWideChar(LIDN), Len);
+    SetLength(Result, Len);
+    Len := IdnToUnicode(0, PChar(APunnyCode), Length(APunnyCode), PWideChar(Result), Len);
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
-    Result := LIDN;
   end else begin
     // TODO: manual implementation here ...
   end;
 end;
 
-function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
+function IDNToPunnyCode(const AIDN : UnicodeString) : String;
 var
-  LPunnyCode : TIdUnicodeString;
   Len : Integer;
 begin
   Result := '';
   if Assigned(IdnToAscii) then
   begin
-    Len := IdnToAscii(0, PIdWideChar(AIDN), Length(AIDN), nil, 0);
+    Len := IdnToAscii(0, PWideChar(AIDN), Length(AIDN), nil, 0);
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
-    SetLength(LPunnyCode, Len);
-    Len := IdnToAscii(0, PIdWideChar(AIDN), Length(AIDN), PIdWideChar(LPunnyCode), Len);
+    SetLength(Result, Len);
+    Len := IdnToAscii(0, PWideChar(AIDN), Length(AIDN), PChar(Result), Len);
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
-    {$IFDEF STRING_IS_ANSI}
-    Result := AnsiString(LPunnyCode); // explicit convert to Ansi (no data loss because content is ASCII)
-    {$ELSE}
-    Result := LPunnyCode;
-    {$ENDIF}
   end else
   begin
     // TODO: manual implementation here ...
@@ -339,12 +313,12 @@ begin
   Result := False;
 end;
 
-function IDNToPunnyCode(const AIDN : TIdUnicodeString) : String;
+function IDNToPunnyCode(const AIDN : UnicodeString) : String;
 begin
   Todo('IDNToPunnyCode() is not implemented for this platform');
 end;
 
-function PunnyCodeToIDN(const APunnyCode : String) : TIdUnicodeString;
+function PunnyCodeToIDN(const APunnyCode : String) : UnicodeString;
 begin
   Todo('PunnyCodeToIDN() is not implemented for this platform');
 end;

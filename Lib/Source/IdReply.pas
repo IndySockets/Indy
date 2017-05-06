@@ -231,8 +231,8 @@ end;
 
 destructor TIdReply.Destroy;
 begin
-  FreeAndNil(FText);
-  FreeAndNil(FFormattedReply);
+  FText.Free;
+  FFormattedReply.Free;
   inherited Destroy;
 end;
 
@@ -353,7 +353,7 @@ begin
   try
     Result.SetReply(ACode, AText);
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;

@@ -29,14 +29,15 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
 type
   TIdQOTDUDP = class(TIdUDPClient)
   protected
     Function GetQuote : String;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     { This is the quote from the server }
     Property Quote: String read GetQuote;
   published
@@ -50,20 +51,17 @@ uses
 
 { TIdQOTDUDP }
 
-procedure TIdQOTDUDP.InitComponent;
+constructor TIdQOTDUDP.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   Port := IdPORT_QOTD;
 end;
 
 function TIdQOTDUDP.GetQuote: String;
-var
-  LEncoding: IIdTextEncoding;
 begin
   //The string can be anything - The RFC says the server should discard packets
   Send(' ');    {Do not Localize}
-  LEncoding := IndyTextEncoding_8Bit;
-  Result := ReceiveString(IdTimeoutDefault, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  Result := ReceiveString(IdTimeoutDefault, IndyTextEncoding_8Bit);
 end;
 
 end.

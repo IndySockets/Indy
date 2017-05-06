@@ -284,15 +284,10 @@ uses
   IdSMTP,
   IdSMTPRelay,
   IdSMTPServer,
-  {$IFNDEF DOTNET}
   IdSNMP,
-  {$ENDIF}
   IdSNPP,
   IdSNTP,
   IdSocksServer,
-  {$IFDEF DOTNET_2_OR_ABOVE}
-  IdSSLDotNET,
-  {$ENDIF}
   {$IFDEF USE_OPENSSL}
   IdSSLOpenSSL,
   {$ENDIF}
@@ -326,143 +321,11 @@ uses
   IdWhois,
   IdWhoIsServer;
 
-{$IFDEF DOTNET}
-  {$R IconsDotNet\TIdBlockCipherIntercept.bmp}
-  {$R IconsDotNet\TIdChargenServer.bmp}
-  {$R IconsDotNet\TIdChargenUDPServer.bmp}
-  {$R IconsDotNet\TIdConnectThroughHttpProxy.bmp}
-  {$R IconsDotNet\TIdCookieManager.bmp}
-  {$R IconsDotNet\TIdDateTimeStamp.bmp}
-  {$R IconsDotNet\TIdDayTime.bmp}
-  {$R IconsDotNet\TIdDayTimeServer.bmp}
-  {$R IconsDotNet\TIdDayTimeUDP.bmp}
-  {$R IconsDotNet\TIdDayTimeUDPServer.bmp}
-  {$R IconsDotNET\TIdDecoderBinHex4.bmp}  
-  {$R IconsDotNet\TIdDecoderMIME.bmp}
-  {$R IconsDotNet\TIdDecoderQuotedPrintable.bmp}
-  {$R IconsDotNet\TIdDecoderUUE.bmp}
-  {$R IconsDotNet\TIdDecoderXXE.bmp}
-  {$R IconsDotNet\TIdDICT.bmp}
-  {$R IconsDotNet\TIdDICTServer.bmp}
-  {$R IconsDotNet\TIdDISCARDServer.bmp}
-  {$R IconsDotNet\TIdDiscardUDPServer.bmp}
-  {$R IconsDotNet\TIdDNSResolver.bmp}
-  {$R IconsDotNet\TIdDNSServer.bmp}
-  {$R IconsDotNet\TIdEcho.bmp}
-  {$R IconsDotNet\TIdECHOServer.bmp}
-  {$R IconsDotNet\TIdEchoUDP.bmp}
-  {$R IconsDotNet\TIdEchoUDPServer.bmp}
-  {$R IconsDotNet\TIdEncoderBinHex4.bmp}
-  {$R IconsDotNet\TIdEncoderMIME.bmp}
-  {$R IconsDotNet\TIdEncoderQuotedPrintable.bmp}
-  {$R IconsDotNet\TIdEncoderUUE.bmp}
-  {$R IconsDotNet\TIdEncoderXXE.bmp}
-  {$R IconsDotNet\TIdFinger.bmp}
-  {$R IconsDotNet\TIdFingerServer.bmp}
-  {$R IconsDotNet\TIdFTP.bmp}
-  {$R IconsDotNet\TIdFSP.bmp}
-  {$R IconsDotNet\TIdFTPServer.bmp}
-  {$R IconsDotNet\TIdGopher.bmp}
-  {$R IconsDotNet\TIdGopherServer.bmp}
-  {$R IconsDotNet\TIdHostnameServer.bmp}
-  {$R IconsDotNet\TIdHTTP.bmp}
-  {$R IconsDotNet\TIdHTTPProxyServer.bmp}
-  {$R IconsDotNet\TIdHTTPServer.bmp}
-  {$R IconsDotNet\TIdIdent.bmp}
-  {$R IconsDotNet\TIdIdentServer.bmp}
-  {$R IconsDotNet\TIdIMAP4.bmp}
-  {$R IconsDotNet\TIdIMAP4Server.bmp}
-  {$R IconsDotNet\TIdIOHandlerChain.bmp}
-  {$R IconsDotNet\TIdIOHandlerSocket.bmp}
-  {$R IconsDotNet\TIdIOHandlerThrottle.bmp}
-  {$R IconsDotNet\TIdIPWatch.bmp}
-  {$R IconsDotNet\TIdIPAddrMon.bmp}
-  {$R IconsDotNet\TIdIRC.bmp}
-  {$R IconsDotNet\TIdIRCServer.bmp}
-  {$R IconsDotNet\TIdLPR.bmp}
-  {$R IconsDotNet\TIdMailBox.bmp}
-  {$R IconsDotNet\TIdMappedFTP.bmp}
-  {$R IconsDotNet\TIdMappedPOP3.bmp}
-  {$R IconsDotNet\TIdMappedPortTCP.bmp}
-  {$R IconsDotNet\TIdMappedPortUDP.bmp}
-  {$R IconsDotNet\TIdMappedTelnet.bmp}
-  {$R IconsDotNet\TIdMessage.bmp}
-  {$R IconsDotNet\TIdMessageDecoderMIME.bmp}
-  {$R IconsDotNet\TIdMessageDecoderYENC.bmp}
-  {$R IconsDotNet\TIdMessageEncoderMIME.bmp}
-  {$R IconsDotNet\TIdMessageEncoderYENC.bmp}
-  {$R IconsDotNet\TIdNetworkCalculator.bmp}
-  {$R IconsDotNet\TIdNNTP.bmp}
-  {$R IconsDotNet\TIdNNTPServer.bmp}
-  {$R IconsDotNet\TIdPOP3.bmp}
-  {$R IconsDotNet\TIdPOP3Server.bmp}
-  {$R IconsDotNet\TIdQOTD.bmp}
-  {$R IconsDotNet\TIdQOTDServer.bmp}
-  {$R IconsDotNet\TIdQOTDUDP.bmp}
-  {$R IconsDotNet\TIdQotdUDPServer.bmp}
-  {$R IconsDotNet\TIdRexec.bmp}
-  {$R IconsDotNet\TIdRexecServer.bmp}
-  {$R IconsDotNet\TIdRSH.bmp}
-  {$R IconsDotNet\TIdRSHServer.bmp}
-  {$R IconsDotNet\TIdSASL.bmp}
-  {$R IconsDotNet\TIdSASLAnonymous.bmp}
-  {$R IconsDotNet\TIdSASLCRAMMD5.bmp}
-  {$R IconsDotNet\TIdSASLDigest.bmp}
-  {$R IconsDotNet\TIdSASLExternal.bmp}
-  {$R IconsDotNet\TIdSASLList.bmp}
-  {$R IconsDotNet\TIdSASLLogin.bmp}
-  {$R IconsDotNet\TIdSASLOTP.bmp}
-  {$R IconsDotNet\TIdSASLPlain.bmp}
-  {$R IconsDotNet\TIdSASLSKey.bmp}
-  {$R IconsDotNet\TIdServerCompressionIntercept.bmp}
-  {$R IconsDotNet\TIdServerInterceptLogEvent.bmp}
-  {$R IconsDotNet\TIdServerInterceptLogFile.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerSocket.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerStream.bmp}
-  {$IFDEF DOTNET_2_OR_ABOVE}
-  {$R IconsDotNet\TIdSSLIOHandlerSocketNET.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerSSLNET.bmp}
-  {$ENDIF}
-  {$R IconsDotNet\TIdSMTP.bmp}
-  {$R IconsDotNet\TIdSMTPRelay.bmp}
-  {$R IconsDotNet\TIdSMTPServer.bmp}
-  {$R IconsDotNet\TIdSNPP.bmp}
-  {$R IconsDotNet\TIdSNTP.bmp}
-  {$R IconsDotNet\TIdSocksServer.bmp}
-  {$R IconsDotNet\TIdSysLog.bmp}
-  {$R IconsDotNet\TIdSysLogMessage.bmp}
-  {$R IconsDotNet\TIdSyslogServer.bmp}
-  {$R IconsDotNet\TIdSystat.bmp}
-  {$R IconsDotNet\TIdSystatServer.bmp}
-  {$R IconsDotNet\TIdSystatUDP.bmp}
-  {$R IconsDotNet\TIdSystatUDPServer.bmp}
-  {$R IconsDotNet\TIdTelnet.bmp}
-  {$R IconsDotNet\TIdTelnetServer.bmp}
-  {$R IconsDotNet\TIdTime.bmp}
-  {$R IconsDotNet\TIdTimeServer.bmp}
-  {$R IconsDotNet\TIdTimeUDP.bmp}
-  {$R IconsDotNet\TIdTimeUDPServer.bmp}
-  {$R IconsDotNet\TIdTrivialFTP.bmp}
-  {$R IconsDotNet\TIdTrivialFTPServer.bmp}
-  {$R IconsDotNet\TIdUnixTime.bmp}
-  {$R IconsDotNet\TIdUnixTimeServer.bmp}
-  {$R IconsDotNet\TIdUnixTimeUDP.bmp}
-  {$R IconsDotNet\TIdUnixTimeUDPServer.bmp}
-  {$R IconsDotNet\TIdUserAccounts.bmp}
-  {$R IconsDotNet\TIdUserManager.bmp}
-  {$R IconsDotNet\TIdUserPassProvider.bmp}
-  {$R IconsDotNet\TIdWebDav.bmp}
-  {$R IconsDotNet\TIdVCard.bmp}
-  {$R IconsDotNet\TIdWhois.bmp}
-  {$R IconsDotNet\TIdWhoIsServer.bmp}
-
-{$ELSE}
-  {$IFNDEF FPC}
-    {$IFDEF BORLAND}
+{$IFNDEF FPC}
+  {$IFDEF BORLAND}
     {$R IdRegister.dcr}
-    {$ELSE}
+  {$ELSE}
     {$R IdRegisterCool.dcr}
-    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -493,9 +356,7 @@ begin
    TIdRSH,
    TIdSMTP,
    TIdSMTPRelay,
-   {$IFNDEF DOTNET}
    TIdSNMP,
-   {$ENDIF}
    TIdSNPP,
    TIdSNTP,
 
@@ -568,12 +429,6 @@ begin
    TIdServerInterceptLogFile
    ]);
 
-   {$IFDEF DOTNET_2_OR_ABOVE}
-   RegisterComponents(RSRegIndyIOHandlers, [
-    TIdSSLIOHandlerSocketNET,
-    TIdServerIOHandlerSSLNET
-   ]);
-  {$ENDIF}
   {$IFDEF USE_OPENSSL}
   RegisterComponents(RSRegIndyIOHandlers, [
    TIdServerIOHandlerSSLOpenSSL,
@@ -596,18 +451,14 @@ begin
 
   RegisterComponents(RSRegIndyMisc, [
    TIdConnectThroughHttpProxy,
-   {$IFNDEF DOTNET}
    TIdCompressorZLib,
-   {$ENDIF}
    TIdCookieManager,
    TIdEncoderBinHex4,
    TIdEncoderMIME,
    TIdEncoderUUE,
    TIdEncoderXXE,
    TIdEncoderQuotedPrintable,
-   {$IFNDEF DOTNET}
    TIdDateTimeStamp,
-   {$ENDIF}
    TIdDecoderBinHex4,
    TIdDecoderMIME,
    TIdDecoderUUE,

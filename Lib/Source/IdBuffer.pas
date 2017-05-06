@@ -301,9 +301,6 @@ type
   protected
     FBytes: TIdBytes;
     FByteEncoding: IIdTextEncoding;
-    {$IFDEF STRING_IS_ANSI}
-    FAnsiEncoding: IIdTextEncoding;
-    {$ENDIF}
     FGrowthFactor: Integer;
     FHeadIndex: Integer;
     FOnBytesRemoved: TIdBufferBytesRemoved;
@@ -331,31 +328,20 @@ type
 
     }
     // will extract number of bytes and decode as specified
-    function Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToString()'{$ENDIF};{$ENDIF}
-    function ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
+    function ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil): string;
     // all 3 extract routines append to existing data, if any
     procedure ExtractToStream(const AStream: TStream; AByteCount: Integer = -1; const AIndex: Integer = -1);
     procedure ExtractToIdBuffer(ABuffer: TIdBuffer; AByteCount: Integer = -1; const AIndex : Integer = -1);
     procedure ExtractToBytes(var VBytes: TIdBytes; AByteCount: Integer = -1;
       AAppend: Boolean = True; AIndex : Integer = -1);
     function ExtractToUInt8(const AIndex : Integer): UInt8;
-    function ExtractToByte(const AIndex : Integer): UInt8; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToUInt8()'{$ENDIF};{$ENDIF}
     function ExtractToUInt16(const AIndex : Integer): UInt16;
-    function ExtractToWord(const AIndex : Integer): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToUInt16()'{$ENDIF};{$ENDIF}
     function ExtractToUInt32(const AIndex : Integer): UInt32;
-    function ExtractToLongWord(const AIndex : Integer): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToUInt32()'{$ENDIF};{$ENDIF}
-    function ExtractToUInt64(const AIndex : Integer): TIdUInt64;
+    function ExtractToUInt64(const AIndex : Integer): UInt64;
     procedure ExtractToIPv6(const AIndex : Integer; var VAddress: TIdIPv6Address);
     function IndexOf(const AByte: Byte; AStartPos: Integer = 0): Integer; overload;
     function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer; overload;
-    function IndexOf(const AString: string; AStartPos: Integer = 0;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): Integer; overload;
+    function IndexOf(const AString: string; AStartPos: Integer = 0; AByteEncoding: IIdTextEncoding = nil): Integer; overload;
     function PeekByte(AIndex: Integer): Byte;
     procedure Remove(AByteCount: Integer);
     procedure SaveToStream(const AStream: TStream);
@@ -366,14 +352,11 @@ type
         location in a random access manner.
       }
     // Write
-    procedure Write(const AString: string; AByteEncoding: IIdTextEncoding = nil;
-      const ADestIndex: Integer = -1
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+    procedure Write(const AString: string; AByteEncoding: IIdTextEncoding = nil; const ADestIndex: Integer = -1); overload;
     procedure Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
     procedure Write(const ABytes: TIdBytes; const ALength, AOffset : Integer; const ADestIndex: Integer = -1); overload;
     procedure Write(AStream: TStream; AByteCount: Integer = 0); overload;
-    procedure Write(const AValue: TIdUInt64; const ADestIndex: Integer = -1); overload;
+    procedure Write(const AValue: UInt64; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: UInt32; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: UInt16; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: UInt8; const ADestIndex: Integer = -1); overload;
@@ -388,9 +371,6 @@ type
     //
     property Capacity: Integer read GetCapacity write SetCapacity;
     property Encoding: IIdTextEncoding read FByteEncoding write FByteEncoding;
-    {$IFDEF STRING_IS_ANSI}
-    property AnsiEncoding: IIdTextEncoding read FAnsiEncoding write FAnsiEncoding;
-    {$ENDIF}
     property GrowthFactor: Integer read FGrowthFactor write FGrowthFactor;
     property Size: Integer read FSize;
     //useful for testing. returns buffer as string without extraction.
@@ -401,7 +381,6 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdStream,
   IdStack; //needed for byte order functions
 
 procedure TIdBuffer.CheckAdd(AByteCount : Integer; const AIndex : Integer);
@@ -466,19 +445,7 @@ begin
   TIdStack.DecUsage;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdBuffer.Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ExtractToString(AByteCount, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
-end;
-
-function TIdBuffer.ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdBuffer.ExtractToString(AByteCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil): string;
 var
   LBytes: TIdBytes;
 begin
@@ -491,16 +458,8 @@ begin
       AByteEncoding := FByteEncoding;
       EnsureEncoding(AByteEncoding);
     end;
-    {$IFDEF STRING_IS_ANSI}
-    if ADestEncoding = nil then begin
-      ADestEncoding := FAnsiEncoding;
-      EnsureEncoding(ADestEncoding, encOSDefault);
-    end;
-    {$ENDIF}
     ExtractToBytes(LBytes, AByteCount);
-    Result := BytesToString(LBytes, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      );
+    Result := BytesToString(LBytes, AByteEncoding);
   end else begin
     Result := '';
   end;
@@ -554,36 +513,31 @@ end;
 procedure TIdBuffer.ExtractToStream(const AStream: TStream; AByteCount: Integer = -1;
   const AIndex: Integer = -1);
 var
-  LIndex : Integer;
   LBytes : TIdBytes;
 begin
   if AByteCount < 0 then begin
     AByteCount := Size;
   end;
-  LIndex := IndyMax(AIndex, 0);
   if AIndex < 0 then
   begin
-    // TODO: remove CompactHead() here and pass FHeadIndex to TIdStreamHelper.Write():
+    // TODO: remove CompactHead() here and pass FHeadIndex to AStream.WriteBuffer():
     {
     CheckByteCount(AByteCount, FHeadIndex);
-    TIdStreamHelper.Write(AStream, FBytes, AByteCount, FHeadIndex);
+    AStream.WriteBuffer(FBytes[FHeadIndex], AByteCount);
     Remove(AByteCount);
     }
     CompactHead;
-    CheckByteCount(AByteCount, LIndex);
-    TIdStreamHelper.Write(AStream, FBytes, AByteCount);
+    CheckByteCount(AByteCount, 0);
+    AStream.WriteBuffer(PByte(FBytes)^, AByteCount);
     Remove(AByteCount);
   end else
   begin
-    // TODO: remove CopyTIdBytes() here and pass FBytes and AIndex to TIdStreamHelper.Write():
-    {
-    CheckByteCount(AByteCount, LIndex);
-    TIdStreamHelper.Write(AStream, FBytes, AByteCount, AIndex);
-    }
-    CheckByteCount(AByteCount, LIndex);
+    CheckByteCount(AByteCount, AIndex);
+    // TODO: remove CopyTIdBytes() here and pass FBytes and AIndex to AStream.WriteBuffer():
+    //AStream.WriteBuffer(FBytes[AIndex], AByteCount);
     SetLength(LBytes, AByteCount);
     CopyTIdBytes(FBytes, AIndex, LBytes, 0, AByteCount);
-    TIdStreamHelper.Write(AStream, LBytes, AByteCount);
+    AStream.WriteBuffer(PByte(LBytes)^, AByteCount);
   end;
 end;
 
@@ -623,45 +577,36 @@ end;
 
 procedure TIdBuffer.Write(AStream: TStream; AByteCount: Integer);
 var
-  LAdded: Integer;
+  LToAdd: Integer;
   LLength: Integer;
 begin
   if AByteCount < 0 then begin
     // Copy remaining
-    LAdded := AStream.Size - AStream.Position;
+    LToAdd := AStream.Size - AStream.Position;
   end else if AByteCount = 0 then begin
     // Copy all
     AStream.Position := 0;
-    LAdded := AStream.Size;
+    LToAdd := AStream.Size;
   end else begin
-    LAdded := IndyMin(AByteCount, AStream.Size - AStream.Position);
+    LToAdd := IndyMin(AByteCount, AStream.Size - AStream.Position);
   end;
-  if LAdded > 0 then begin
+  if LToAdd > 0 then begin
     LLength := Size;
-    CheckAdd(LAdded, 0);
+    CheckAdd(LToAdd, 0);
     CompactHead;
-    SetLength(FBytes, LLength + LAdded);
-    TIdStreamHelper.ReadBytes(AStream, FBytes, LAdded, LLength);
-    Inc(FSize, LAdded);
+    SetLength(FBytes, LLength + LToAdd);
+    AStream.ReadBuffer(FBytes[LLength], LToAdd);
+    Inc(FSize, LToAdd);
   end;
 end;
 
 function TIdBuffer.IndexOf(const AString: string; AStartPos: Integer = 0;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): Integer;
+  AByteEncoding: IIdTextEncoding = nil): Integer;
 begin
   if AByteEncoding = nil then begin
     AByteEncoding := FByteEncoding;
   end;
-  {$IFDEF STRING_IS_ANSI}
-  if ASrcEncoding = nil then begin
-    ASrcEncoding := FAnsiEncoding;
-  end;
-  {$ENDIF}
-  Result := IndexOf(
-    ToBytes(AString, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}),
-    AStartPos);
+  Result := IndexOf(ToBytes(AString, AByteEncoding), AStartPos);
 end;
 
 function TIdBuffer.IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer;
@@ -719,21 +664,12 @@ begin
 end;
 
 procedure TIdBuffer.Write(const AString: string; AByteEncoding: IIdTextEncoding = nil;
-  const ADestIndex : Integer = -1
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  const ADestIndex : Integer = -1);
 begin
   if AByteEncoding = nil then begin
     AByteEncoding := FByteEncoding;
   end;
-  {$IFDEF STRING_IS_ANSI}
-  if ASrcEncoding = nil then begin
-    ASrcEncoding := FAnsiEncoding;
-  end;
-  {$ENDIF}
-  Write(
-    ToBytes(AString, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}),
-    ADestIndex);
+  Write(ToBytes(AString, AByteEncoding), ADestIndex);
 end;
 
 function TIdBuffer.GetCapacity: Integer;
@@ -771,8 +707,10 @@ end;
 
 procedure TIdBuffer.SaveToStream(const AStream: TStream);
 begin
+  // TODO: remove CompactHead here and pass FBytes to AStream.WriteBuffer():
+  //AStream.WriteBuffer(FBytes[FHeadIndex], Size);
   CompactHead(False);
-  TIdStreamHelper.Write(AStream, FBytes, Size);
+  AStream.WriteBuffer(PByte(FBytes)^, Size);
 end;
 
 procedure TIdBuffer.ExtractToIPv6(const AIndex: Integer; var VAddress: TIdIPv6Address);
@@ -791,7 +729,7 @@ begin
   end;
 end;
 
-function TIdBuffer.ExtractToUInt64(const AIndex: Integer): TIdUInt64;
+function TIdBuffer.ExtractToUInt64(const AIndex: Integer): UInt64;
 var
   LIndex : Integer;
 begin
@@ -823,14 +761,6 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdBuffer.ExtractToLongWord(const AIndex: Integer): UInt32;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ExtractToUInt32(AIndex);
-end;
-
 function TIdBuffer.ExtractToUInt16(const AIndex: Integer): UInt16;
 var
   LIndex : Integer;
@@ -847,14 +777,6 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdBuffer.ExtractToWord(const AIndex: Integer): UInt16;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ExtractToUInt16(AIndex);
-end;
-
 function TIdBuffer.ExtractToUInt8(const AIndex: Integer): UInt8;
 var
   LIndex : Integer;
@@ -868,14 +790,6 @@ begin
   if AIndex < 0 then begin
     Remove(1);
   end;
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function TIdBuffer.ExtractToByte(const AIndex: Integer): UInt8;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ExtractToUInt8(AIndex);
 end;
 
 procedure TIdBuffer.Write(const AValue: UInt16; const ADestIndex: Integer);
@@ -936,9 +850,9 @@ begin
   end;
 end;
 
-procedure TIdBuffer.Write(const AValue: TIdUInt64; const ADestIndex: Integer);
+procedure TIdBuffer.Write(const AValue: UInt64; const ADestIndex: Integer);
 var
-  LVal: TIdUInt64;
+  LVal: UInt64;
   LIndex: Integer;
 begin
   if ADestIndex < 0 then
@@ -1020,9 +934,7 @@ end;
 
 function TIdBuffer.GetAsString: string;
 begin
-  Result := BytesToString(FBytes, FByteEncoding
-    {$IFDEF STRING_IS_ANSI}, FAnsiEncoding{$ENDIF}
-    );
+  Result := BytesToString(FBytes, FByteEncoding);
 end;
 
 end.

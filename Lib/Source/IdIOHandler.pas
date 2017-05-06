@@ -404,7 +404,7 @@ uses
   Classes,
   IdException,
   IdAntiFreezeBase, IdBuffer, IdBaseComponent, IdComponent, IdGlobal, IdExceptionCore,
-  IdIntercept, IdResourceStringsCore, IdStream;
+  IdIntercept, IdResourceStringsCore;
 
 (*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
 (*$HPPEMIT '#if !defined(UNICODE)' *)
@@ -472,25 +472,16 @@ type
     FWriteBuffer: TIdBuffer;
     FWriteBufferThreshold: Integer;
     FDefStringEncoding : IIdTextEncoding;
-    {$IFDEF STRING_IS_ANSI}
-    FDefAnsiEncoding : IIdTextEncoding;
-    {$ENDIF}
     procedure SetDefStringEncoding(const AEncoding : IIdTextEncoding);
-    {$IFDEF STRING_IS_ANSI}
-    procedure SetDefAnsiEncoding(const AEncoding: IIdTextEncoding);
-    {$ENDIF}
     //
     procedure BufferRemoveNotify(ASender: TObject; ABytes: Integer);
     function GetDestination: string; virtual;
-    procedure InitComponent; override;
     procedure InterceptReceive(var VBuffer: TIdBytes);
     {$IFNDEF USE_OBJECT_ARC}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
     procedure PerformCapture(const ADest: TObject; out VLineCount: Integer;
-     const ADelim: string; AUsesDotTransparency: Boolean; AByteEncoding: IIdTextEncoding = nil
-     {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-     ); virtual;
+     const ADelim: string; AUsesDotTransparency: Boolean; AByteEncoding: IIdTextEncoding = nil); virtual;
     procedure RaiseConnClosedGracefully;
     procedure SetDestination(const AValue: string); virtual;
     procedure SetHost(const AValue: string); virtual;
@@ -507,12 +498,10 @@ type
     function CheckForError(ALastResult: Integer): Integer; virtual; abstract;
     procedure RaiseError(AError: Integer); virtual; abstract;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure AfterAccept; virtual;
     function Connected: Boolean; virtual;
-    destructor Destroy; override;
     // CheckForDisconnect allows the implementation to check the status of the
     // connection at the request of the user or this base class.
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
@@ -535,9 +524,7 @@ type
     class procedure SetDefaultClass;
     function WaitFor(const AString: string; ARemoveFromBuffer: Boolean = True;
       AInclusive: Boolean = False; AByteEncoding: IIdTextEncoding = nil;
-      ATimeout: Integer = IdTimeoutDefault
-      {$IFDEF STRING_IS_ANSI}; AAnsiEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
+      ATimeout: Integer = IdTimeoutDefault): string;
     // This is different than WriteDirect. WriteDirect goes
     // directly to the network or next level. WriteBuffer allows for buffering
     // using WriteBuffers. This should be the only call to WriteDirect
@@ -562,24 +549,13 @@ type
     //
     // Only the ones that have a hope of being better optimized in descendants
     // have been marked virtual
-    procedure Write(const AOut: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload; virtual;
+    procedure Write(const AOut: string; AByteEncoding: IIdTextEncoding = nil); overload; virtual;
     procedure WriteLn(AEncoding: IIdTextEncoding = nil); overload;
-    procedure WriteLn(const AOut: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload; virtual;
-    procedure WriteLnRFC(const AOut: string = ''; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); virtual;
-    procedure Write(AValue: TStrings; AWriteLinesCount: Boolean = False;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload; virtual;
+    procedure WriteLn(const AOut: string; AByteEncoding: IIdTextEncoding = nil); overload; virtual;
+    procedure WriteLnRFC(const AOut: string = ''; AByteEncoding: IIdTextEncoding = nil); virtual;
+    procedure Write(AValue: TStrings; AWriteLinesCount: Boolean = False; AByteEncoding: IIdTextEncoding = nil); overload; virtual;
     procedure Write(AValue: Byte); overload;
-    procedure Write(AValue: Char; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+    procedure Write(AValue: Char; AByteEncoding: IIdTextEncoding = nil); overload;
 
     // for iOS64, Delphi's Longint and LongWord are 64bit, so we can't rely on
     // Write(Longint) and ReadLongint() being 32bit anymore, for instance when
@@ -591,97 +567,59 @@ type
     procedure Write(AValue: Int32; AConvert: Boolean = True); overload;
     procedure Write(AValue: UInt32; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
-    procedure Write(AValue: TIdUInt64; AConvert: Boolean = True); overload;
+    procedure Write(AValue: UInt64; AConvert: Boolean = True); overload;
     //
 
-    procedure Write(AStream: TStream; ASize: TIdStreamSize = 0;
+    procedure Write(AStream: TStream; ASize: Int64 = 0;
       AWriteByteCount: Boolean = False); overload; virtual;
-    procedure WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      );
+    procedure WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True; AByteEncoding: IIdTextEncoding = nil);
     // Not overloaded because it does not have a unique type for source
     // and could be easily unresolvable with future additions
     function WriteFile(const AFile: String; AEnableTransferFile: Boolean = False): Int64; virtual;
     //
     // Read methods
     //
-    function AllData(AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; virtual;
+    function AllData(AByteEncoding: IIdTextEncoding = nil): string; virtual;
     function InputLn(const AMask: string = ''; AEcho: Boolean = True;
       ATabWidth: Integer = 8; AMaxLineLength: Integer = -1;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; AAnsiEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; virtual;
+      AByteEncoding: IIdTextEncoding = nil): string; virtual;
     // Capture
     // Not virtual because each calls PerformCapture which is virtual
-    procedure Capture(ADest: TStream; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload; // .Net overload
+    procedure Capture(ADest: TStream; AByteEncoding: IIdTextEncoding = nil); overload; // .Net overload
     procedure Capture(ADest: TStream; ADelim: string;
-      AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+      AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil); overload;
     procedure Capture(ADest: TStream; out VLineCount: Integer;
       const ADelim: string = '.'; AUsesDotTransparency: Boolean = True;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
-    procedure Capture(ADest: TStrings; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload; // .Net overload
+      AByteEncoding: IIdTextEncoding = nil); overload;
+    procedure Capture(ADest: TStrings; AByteEncoding: IIdTextEncoding = nil); overload; // .Net overload
     procedure Capture(ADest: TStrings; const ADelim: string;
-      AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+      AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil); overload;
     procedure Capture(ADest: TStrings; out VLineCount: Integer;
       const ADelim: string = '.'; AUsesDotTransparency: Boolean = True;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+      AByteEncoding: IIdTextEncoding = nil); overload;
     //
     // Read___
     // Cannot overload, compiler cannot overload on return values
     //
     procedure ReadBytes(var VBuffer: TIdBytes; AByteCount: Integer; AAppend: Boolean = True); virtual;
     // ReadLn
-    function ReadLn(AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload; // .Net overload
-    function ReadLn(ATerminator: string; AByteEncoding: IIdTextEncoding
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function ReadLn(AByteEncoding: IIdTextEncoding = nil): string; overload; // .Net overload
+    function ReadLn(ATerminator: string; AByteEncoding: IIdTextEncoding): string; overload;
     function ReadLn(ATerminator: string; ATimeout: Integer = IdTimeoutDefault;
-      AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload; virtual;
+      AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil): string; overload; virtual;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: IIdTextEncoding = nil): string; overload;
     function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string;
-      const ADelim: string = '.'; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
-    function ReadLnWait(AFailCount: Integer = MaxInt;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; virtual;
+      const ADelim: string = '.'; AByteEncoding: IIdTextEncoding = nil): string; overload;
+    function ReadLnWait(AFailCount: Integer = MaxInt; AByteEncoding: IIdTextEncoding = nil): string; virtual;
     // Added for retrieving lines over 16K long}
     function ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
       ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
+      AByteEncoding: IIdTextEncoding = nil): string;
     // Read - Simple Types
-    function ReadChar(AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): Char;
+    function ReadChar(AByteEncoding: IIdTextEncoding = nil): Char;
     function ReadByte: Byte;
-    function ReadString(ABytes: Integer; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
+    function ReadString(ABytes: Integer; AByteEncoding: IIdTextEncoding = nil): string;
 
     // for iOS64, Delphi's Longint and LongWord are changed to 64bit, so we can't
     // rely on Write(Longint) and ReadLongint() being 32bit anymore, for instance
@@ -693,20 +631,11 @@ type
     function ReadInt32(AConvert: Boolean = True): Int32;
     function ReadUInt32(AConvert: Boolean = True): UInt32;
     function ReadInt64(AConvert: Boolean = True): Int64;
-    function ReadUInt64(AConvert: Boolean = True): TIdUInt64;
-    //
-    function ReadSmallInt(AConvert: Boolean = True): Int16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadInt16()'{$ENDIF};{$ENDIF}
-    function ReadWord(AConvert: Boolean = True): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadUInt16()'{$ENDIF};{$ENDIF}
-    function ReadLongInt(AConvert: Boolean = True): Int32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadInt32()'{$ENDIF};{$ENDIF}
-    function ReadLongWord(AConvert: Boolean = True): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ReadUInt32()'{$ENDIF};{$ENDIF}
+    function ReadUInt64(AConvert: Boolean = True): UInt64;
     //
 
-    procedure ReadStream(AStream: TStream; AByteCount: TIdStreamSize = -1;
-     AReadUntilDisconnect: Boolean = False); virtual;
-    procedure ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      );
+    procedure ReadStream(AStream: TStream; AByteCount: Int64 = -1; AReadUntilDisconnect: Boolean = False); virtual;
+    procedure ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1; AByteEncoding: IIdTextEncoding = nil);
     //
     procedure Discard(AByteCount: Int64);
     procedure DiscardAll;
@@ -728,9 +657,7 @@ type
     //
     // These two are direct access and do no reading of connection
     procedure InputBufferToStream(AStream: TStream; AByteCount: Integer = -1);
-    function InputBufferAsString(AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
+    function InputBufferAsString(AByteEncoding: IIdTextEncoding = nil): string;
     //
     // Properties
     //
@@ -750,9 +677,6 @@ type
     property ReadLnTimedout: Boolean read FReadLnTimedout ;
     property WriteBufferThreshold: Integer read FWriteBufferThreshold;
     property DefStringEncoding : IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
-    {$IFDEF STRING_IS_ANSI}
-    property DefAnsiEncoding : IIdTextEncoding read FDefAnsiEncoding write SetDefAnsiEncoding;
-    {$ENDIF}
     //
     // Events
     //
@@ -783,19 +707,11 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64}
+  {$IF DEFINED(WIN32_OR_WIN64)}
   Windows,
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+  {$ELSEIF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
   Macapi.CoreServices,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
@@ -814,24 +730,28 @@ var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;
   GIOHandlerClassList: TIdIOHandlerClassList = nil;
 
-{$IFDEF DCC}
-  {$IFNDEF VCL_7_OR_ABOVE}
-    // RLebeau 5/13/2015: The Write(Int64) and ReadInt64() methods produce an
-    // "Internal error URW533" compiler error in Delphi 5, and an "Internal
-    // error URW699" compiler error in Delphi 6, so need to use some workarounds
-    // for those versions...
-    {$DEFINE AVOID_URW_ERRORS}
-  {$ENDIF}
-{$ENDIF}
-
 { TIdIOHandler }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdIOHandler.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FRecvBufferSize := GRecvBufferSizeDefault;
+  FSendBufferSize := GSendBufferSizeDefault;
+  FMaxLineLength := IdMaxLineLengthDefault;
+  FMaxCapturedLines := Id_IOHandler_MaxCapturedLines;
+  FLargeStream := False;
+  FReadTimeOut := IdTimeoutDefault;
+  FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
+  FDefStringEncoding := IndyTextEncoding_ASCII;
 end;
-{$ENDIF}
+
+destructor TIdIOHandler.Destroy;
+begin
+  Close;
+  FInputBuffer.Free;
+  FWriteBuffer.Free;
+  inherited Destroy;
+end;
 
 procedure TIdIOHandler.Close;
 //do not do FInputBuffer.Clear; here.
@@ -849,14 +769,6 @@ begin
     FOpened := False;
     WriteBufferClear;
   end;
-end;
-
-destructor TIdIOHandler.Destroy;
-begin
-  Close;
-  FreeAndNil(FInputBuffer);
-  FreeAndNil(FWriteBuffer);
-  inherited Destroy;
 end;
 
 procedure TIdIOHandler.AfterAccept;
@@ -922,20 +834,6 @@ begin
   end;
 end;
 
-{$IFDEF STRING_IS_ANSI}
-procedure TIdIOHandler.SetDefAnsiEncoding(const AEncoding: IIdTextEncoding);
-var
-  LEncoding: IIdTextEncoding;
-begin
-  if FDefAnsiEncoding <> AEncoding then
-  begin
-    LEncoding := AEncoding;
-    EnsureEncoding(LEncoding, encOSDefault);
-    FDefAnsiEncoding := LEncoding;
-  end;
-end;
-{$ENDIF}
-
 class function TIdIOHandler.MakeDefaultIOHandler(AOwner: TComponent = nil): TIdIOHandler;
 begin
   Result := GIOHandlerClassDefault.Create(AOwner);
@@ -946,13 +844,11 @@ begin
   if GIOHandlerClassList = nil then begin
     GIOHandlerClassList := TIdIOHandlerClassList.Create;
   end;
-  {$IFNDEF DOTNET_EXCLUDE}
   //TODO: Reenable this. Dot net wont allow class references as objects
   // Use an array?
   if GIOHandlerClassList.IndexOf(Self) = -1 then begin
     GIOHandlerClassList.Add(Self);
   end;
-  {$ENDIF}
 end;
 
 {
@@ -1012,7 +908,9 @@ procedure TIdIOHandler.WriteBufferClose;
 begin
   try
     WriteBufferFlush;
-  finally FreeAndNil(FWriteBuffer); end;
+  finally
+    FreeAndNil(FWriteBuffer);
+  end;
 end;
 
 procedure TIdIOHandler.WriteBufferFlush(AByteCount: Integer);
@@ -1040,20 +938,11 @@ begin
   WriteBufferClose;
 end;
 
-procedure TIdIOHandler.Write(const AOut: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdIOHandler.Write(const AOut: string; AByteEncoding: IIdTextEncoding = nil);
 begin
   if AOut <> '' then begin
     AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-    {$IFDEF STRING_IS_ANSI}
-    ASrcEncoding := iif(ASrcEncoding, FDefAnsiEncoding, encOSDefault);
-    {$ENDIF}
-    Write(
-      ToBytes(AOut, -1, 1, AByteEncoding
-        {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-        )
-      );
+    Write(ToBytes(AOut, -1, 1, AByteEncoding));
   end;
 end;
 
@@ -1062,19 +951,10 @@ begin
   Write(ToBytes(AValue));
 end;
 
-procedure TIdIOHandler.Write(AValue: Char; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdIOHandler.Write(AValue: Char; AByteEncoding: IIdTextEncoding = nil);
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ASrcEncoding := iif(ASrcEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
-  Write(
-    ToBytes(AValue, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      )
-    );
+  Write(ToBytes(AValue, AByteEncoding));
 end;
 
 procedure TIdIOHandler.Write(AValue: UInt32; AConvert: Boolean = True);
@@ -1093,50 +973,15 @@ begin
   Write(ToBytes(AValue));
 end;
 
-{$IFDEF HAS_UInt64}
-  {$IFDEF BROKEN_UInt64_HPPEMIT}
-    {$DEFINE HAS_TIdUInt64_QuadPart}
-  {$ENDIF}
-{$ELSE}
-  {$IFNDEF HAS_QWord}
-    {$DEFINE HAS_TIdUInt64_QuadPart}
-  {$ENDIF}
-{$ENDIF}
-
 procedure TIdIOHandler.Write(AValue: Int64; AConvert: Boolean = True);
-{$IFDEF AVOID_URW_ERRORS}
-var
-  h: Int64;
-{$ELSE}
-  {$IFDEF HAS_TIdUInt64_QuadPart}
-var
-  h: TIdUInt64;
-  {$ENDIF}
-{$ENDIF}
 begin
   if AConvert then begin
-    {$IFDEF AVOID_URW_ERRORS}
-    // assigning to a local variable to avoid an "Internal error URW533" compiler
-    // error in Delphi 5, and an "Internal error URW699" compiler error in Delphi
-    // 6.  Later versions seem OK without it...
-    h := GStack.HostToNetwork(UInt64(AValue));
-    AValue := h;
-    {$ELSE}
-      {$IFDEF HAS_TIdUInt64_QuadPart}
-    // assigning to a local variable if UInt64 is not a native type, or if using
-    // a C++Builder version that has problems with UInt64 parameters...
-    h.QuadPart := UInt64(AValue);
-    h := GStack.HostToNetwork(h);
-    AValue := Int64(h.QuadPart);
-      {$ELSE}
     AValue := Int64(GStack.HostToNetwork(UInt64(AValue)));
-      {$ENDIF}
-    {$ENDIF}
   end;
   Write(ToBytes(AValue));
 end;
 
-procedure TIdIOHandler.Write(AValue: TIdUInt64; AConvert: Boolean = True);
+procedure TIdIOHandler.Write(AValue: UInt64; AConvert: Boolean = True);
 begin
   if AConvert then begin
     AValue := GStack.HostToNetwork(AValue);
@@ -1145,17 +990,12 @@ begin
 end;
 
 procedure TIdIOHandler.Write(AValue: TStrings; AWriteLinesCount: Boolean = False;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 var
   i: Integer;
   LBufferingStarted: Boolean;
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ASrcEncoding := iif(ASrcEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
   LBufferingStarted := not WriteBufferingActive;
   if LBufferingStarted then begin
     WriteBufferOpen;
@@ -1165,9 +1005,7 @@ begin
       Write(AValue.Count);
     end;
     for i := 0 to AValue.Count - 1 do begin
-      WriteLn(AValue.Strings[i], AByteEncoding
-        {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-        );
+      WriteLn(AValue.Strings[i], AByteEncoding);
     end;
     if LBufferingStarted then begin
       WriteBufferClose;
@@ -1196,44 +1034,30 @@ begin
   Write(ToBytes(AValue));
 end;
 
-function TIdIOHandler.ReadString(ABytes: Integer; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdIOHandler.ReadString(ABytes: Integer; AByteEncoding: IIdTextEncoding = nil): string;
 var
   LBytes: TIdBytes;
 begin
   if ABytes > 0 then begin
     ReadBytes(LBytes, ABytes, False);
     AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-    {$IFDEF STRING_IS_ANSI}
-    ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
-    {$ENDIF}
-    Result := BytesToString(LBytes, 0, ABytes, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      );
+    Result := BytesToString(LBytes, 0, ABytes, AByteEncoding);
   end else begin
     Result := '';
   end;
 end;
 
 procedure TIdIOHandler.ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 var
   i: Integer;
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
   if AReadLinesCount < 0 then begin
     AReadLinesCount := ReadInt32;
   end;
   for i := 0 to AReadLinesCount - 1 do begin
-    ADest.Add(ReadLn(AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      ));
+    ADest.Add(ReadLn(AByteEncoding));
   end;
 end;
 
@@ -1248,14 +1072,6 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdIOHandler.ReadWord(AConvert: Boolean = True): UInt16;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ReadUInt16(AConvert);
-end;
-
 function TIdIOHandler.ReadInt16(AConvert: Boolean = True): Int16;
 var
   LBytes: TIdBytes;
@@ -1267,41 +1083,21 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdIOHandler.ReadSmallInt(AConvert: Boolean = True): Int16;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ReadInt16(AConvert);
-end;
-
-function TIdIOHandler.ReadChar(AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): Char;
+function TIdIOHandler.ReadChar(AByteEncoding: IIdTextEncoding = nil): Char;
 var
   I, J, NumChars, NumBytes: Integer;
   LBytes: TIdBytes;
-  {$IFDEF DOTNET}
-  LChars: array[0..1] of Char;
-  {$ELSE}
   LChars: TIdWideChars;
-    {$IFDEF STRING_IS_ANSI}
-  LWTmp: TIdUnicodeString;
-  LATmp: TIdBytes;
-    {$ENDIF}
-  {$ENDIF}
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
+
   // 2 Chars to handle UTF-16 surrogates
   NumBytes := AByteEncoding.GetMaxByteCount(2);
   SetLength(LBytes, NumBytes);
-  {$IFNDEF DOTNET}
+
   SetLength(LChars, 2);
-  {$ENDIF}
   NumChars := 0;
+
   if NumBytes > 0 then
   begin
     for I := 1 to NumBytes do
@@ -1316,7 +1112,7 @@ begin
         // sequence, so we have to check if any of the returned characters are the
         // Unicode U+FFFD character, indicating bad data...
         for J := 0 to NumChars-1 do begin
-          if LChars[J] = TIdWideChar($FFFD) then begin
+          if LChars[J] = WideChar($FFFD) then begin
             // keep reading...
             NumChars := 0;
             Break;
@@ -1328,7 +1124,7 @@ begin
       end;
     end;
   end;
-  {$IFDEF STRING_IS_UNICODE}
+
   // RLebeau: if the bytes were decoded into surrogates, the second
   // surrogate is lost here, as it can't be returned unless we cache
   // it somewhere for the the next ReadChar() call to retreive.  Just
@@ -1336,16 +1132,6 @@ begin
   // read surrogates differently...
   Assert(NumChars = 1);
   Result := LChars[0];
-  {$ELSE}
-  // RLebeau: since we can only return an AnsiChar here, let's convert
-  // the decoded characters, surrogates and all, into their Ansi
-  // representation. This will have the same problem as above if the
-  // conversion results in a multibyte character sequence...
-  SetString(LWTmp, PWideChar(LChars), NumChars);
-  LATmp := ADestEncoding.GetBytes(LWTmp); // convert to Ansi
-  Assert(Length(LATmp) = 1);
-  Result := Char(LATmp[0]);
-  {$ENDIF}
 end;
 
 function TIdIOHandler.ReadByte: Byte;
@@ -1367,53 +1153,22 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdIOHandler.ReadLongInt(AConvert: Boolean): Int32;
-{$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ReadInt32(AConvert);
-end;
-
 function TIdIOHandler.ReadInt64(AConvert: boolean): Int64;
 var
   LBytes: TIdBytes;
-  {$IFDEF AVOID_URW_ERRORS}
-  h: Int64;
-  {$ELSE}
-    {$IFDEF HAS_TIdUInt64_QuadPart}
-  h: TIdUInt64;
-    {$ENDIF}
-  {$ENDIF}
 begin
   ReadBytes(LBytes, SizeOf(Int64), False);
   Result := BytesToInt64(LBytes);
   if AConvert then begin
-    {$IFDEF AVOID_URW_ERRORS}
-    // assigning to a local variable to avoid an "Internal error URW533" compiler
-    // error in Delphi 5, and an "Internal error URW699" compiler error in Delphi
-    // 6.  Later versions seem OK without it...
-    h := GStack.NetworkToHost(UInt64(Result));
-    Result := h;
-    {$ELSE}
-      {$IFDEF HAS_TIdUInt64_QuadPart}
-    // assigning to a local variable if UInt64 is not a native type, or if using
-    // a C++Builder version that has problems with UInt64 parameters...
-    h.QuadPart := UInt64(Result);
-    h := GStack.NetworkToHost(h);
-    Result := Int64(h.QuadPart);
-      {$ELSE}
     Result := Int64(GStack.NetworkToHost(UInt64(Result)));
-      {$ENDIF}
-    {$ENDIF}
   end;
 end;
 
-function TIdIOHandler.ReadUInt64(AConvert: boolean): TIdUInt64;
+function TIdIOHandler.ReadUInt64(AConvert: boolean): UInt64;
 var
   LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(TIdUInt64), False);
+  ReadBytes(LBytes, SizeOf(UInt64), False);
   Result := BytesToUInt64(LBytes);
   if AConvert then begin
     Result := GStack.NetworkToHost(Result);
@@ -1431,38 +1186,20 @@ begin
   end;
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdIOHandler.ReadLongWord(AConvert: Boolean): UInt32;
-{$I IdDeprecatedImplBugOn.inc}
+function TIdIOHandler.ReadLn(AByteEncoding: IIdTextEncoding = nil): string;
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  Result := ReadUInt32(AConvert);
+  Result := ReadLn(LF, IdTimeoutDefault, -1, AByteEncoding);
 end;
 
-function TIdIOHandler.ReadLn(AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdIOHandler.ReadLn(ATerminator: string; AByteEncoding: IIdTextEncoding): string;
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  Result := ReadLn(LF, IdTimeoutDefault, -1, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
-end;
-
-function TIdIOHandler.ReadLn(ATerminator: string; AByteEncoding: IIdTextEncoding
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
-begin
-  Result := ReadLn(ATerminator, IdTimeoutDefault, -1, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  Result := ReadLn(ATerminator, IdTimeoutDefault, -1, AByteEncoding);
 end;
 
 function TIdIOHandler.ReadLn(ATerminator: string; ATimeout: Integer = IdTimeoutDefault;
-  AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+  AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil): string;
 var
   LInputBufferSize: Integer;
   LStartPos: Integer;
@@ -1471,9 +1208,6 @@ var
   LTerm, LResult: TIdBytes;
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
   if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxLineLength;
   end;
@@ -1490,14 +1224,10 @@ begin
   if ATerminator = LF then begin
     LTerm := ToBytes(Byte($0A));
   end else begin
-    LTerm := ToBytes(ATerminator, AByteEncoding
-      {$IFDEF STRING_IS_ANSI, ADestEncoding{$ENDIF
-      );
+    LTerm := ToBytes(ATerminator, AByteEncoding);
   end;
   }
-  LTerm := ToBytes(ATerminator, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  LTerm := ToBytes(ATerminator, AByteEncoding);
   FReadLnSplit := False;
   FReadLnTimedOut := False;
   LTermPos := -1;
@@ -1522,9 +1252,7 @@ begin
       // and a sequence staddles the AMaxLineLength boundary, this will chop
       // the sequence, producing invalid data!
       FReadLnSplit := True;
-      Result := FInputBuffer.ExtractToString(AMaxLineLength, AByteEncoding
-        {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-        );
+      Result := FInputBuffer.ExtractToString(AMaxLineLength, AByteEncoding);
       Exit;
     end
     // ReadFromSource blocks - do not call unless we need to
@@ -1573,30 +1301,19 @@ begin
       Dec(LTermPos);
     end;
   end;
-  Result := BytesToString(LResult, 0, LTermPos, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  Result := BytesToString(LResult, 0, LTermPos, AByteEncoding);
 end;
 
-function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: IIdTextEncoding = nil): string;
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  Result := ReadLnRFC(VMsgEnd, LF, '.', AByteEncoding   {do not localize}
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  Result := ReadLnRFC(VMsgEnd, LF, '.', AByteEncoding);   {do not localize}
 end;
 
 function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string;
-  const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+  const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil): string;
 begin
-  Result := ReadLn(ALineTerminator, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  Result := ReadLn(ALineTerminator, AByteEncoding);
   // Do not use ATerminator since always ends with . (standard)
   if Result = ADelim then
   begin
@@ -1611,43 +1328,31 @@ end;
 
 function TIdIOHandler.ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
   ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+  AByteEncoding: IIdTextEncoding = nil): string;
 var
   FOldAction: TIdMaxLineAction;
 begin
   FOldAction := MaxLineAction;
   MaxLineAction := maSplit;
   try
-    Result := ReadLn(ATerminator, ATimeout, AMaxLineLength, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      );
+    Result := ReadLn(ATerminator, ATimeout, AMaxLineLength, AByteEncoding);
     AWasSplit := FReadLnSplit;
   finally
     MaxLineAction := FOldAction;
   end;
 end;
 
-function TIdIOHandler.ReadLnWait(AFailCount: Integer = MaxInt;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdIOHandler.ReadLnWait(AFailCount: Integer = MaxInt; AByteEncoding: IIdTextEncoding = nil): string;
 var
   LAttempts: Integer;
 begin
   // MtW: this is mostly used when empty lines could be sent.
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
   Result := '';
   LAttempts := 0;
   while LAttempts < AFailCount do
   begin
-    Result := Trim(ReadLn(AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      ));
+    Result := Trim(ReadLn(AByteEncoding));
     if Length(Result) > 0 then begin
       Exit;
     end;
@@ -1778,18 +1483,18 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.Write(AStream: TStream; ASize: TIdStreamSize = 0;
+procedure TIdIOHandler.Write(AStream: TStream; ASize: Int64 = 0;
   AWriteByteCount: Boolean = FALSE);
 var
   LBuffer: TIdBytes;
-  LStreamPos: TIdStreamSize;
+  LStreamPos: Int64;
   LBufSize: Integer;
   // LBufferingStarted: Boolean;
 begin
   // TODO: when AWriteByteCount is false, don't calculate the Size, just keep
   // sending data until the end of stream is reached.  This way, we can send
   // streams that are not able to report accurate Size values...
-  
+
   if ASize < 0 then begin //"-1" All from current position
     LStreamPos := AStream.Position;
     ASize := AStream.Size - LStreamPos;
@@ -1814,13 +1519,11 @@ begin
 
   if AWriteByteCount then begin
     if LargeStream then begin
-      Write(Int64(ASize));
+      Write(ASize);
     end else begin
-      {$IFDEF STREAM_SIZE_64}
       if ASize > High(Integer) then begin
         raise EIdIOHandlerRequiresLargeStream.Create(RSRequiresLargeStream);
       end;
-      {$ENDIF}
       Write(Int32(ASize));
     end;
   end;
@@ -1833,7 +1536,7 @@ begin
       // Do not use ReadBuffer. Some source streams are real time and will not
       // return as much data as we request. Kind of like recv()
       // NOTE: We use .Size - size must be supported even if real time
-      LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
+      LBufSize := AStream.Read(PByte(LBuffer)^, LBufSize);
       if LBufSize <= 0 then begin
         raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
@@ -1879,24 +1582,10 @@ end;
 procedure TIdIOHandler.WriteLn(AEncoding: IIdTextEncoding = nil);
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  {$IFNDEF VCL_6_OR_ABOVE}
-  // RLebeau: in Delphi 5, explicitly specifying the nil value for the third
-  // parameter causes a "There is no overloaded version of 'WriteLn' that can
-  // be called with these arguments" compiler error.  Must be a compiler bug,
-  // because it compiles fine in Delphi 6.  The parameter value is nil by default
-  // anyway, so we don't really need to specify it here at all, but I'm documenting
-  // this so we know for future reference...
-  //
   WriteLn('', AEncoding);
-  {$ELSE}
-  WriteLn('', AEncoding{$IFDEF STRING_IS_ANSI}, nil{$ENDIF});
-  {$ENDIF}
 end;
 
-procedure TIdIOHandler.WriteLn(const AOut: string;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdIOHandler.WriteLn(const AOut: string; AByteEncoding: IIdTextEncoding = nil);
 begin
   // TODO: RLebeau 1/2/2015: encountered an email that was using charset "cp1026",
   // which encodes a LF character to byte $25 instead of $0A (and decodes
@@ -1906,29 +1595,35 @@ begin
   //
   // But, what to do if the target encoding is UTF-16?
   {
-  Write(AOut, AByteEncoding{$IFDEF STRING_IS_ANSI, ASrcEncoding{$ENDIF);
-  Write(EOL, Indy8BitEncoding{$IFDEF STRING_IS_ANSI, Indy8BitEncoding{$ENDIF);
+  LBufferingStarted := not WriteBufferingActive;
+  if LBufferingStarted then begin
+    WriteBufferOpen;
+  end;
+  try
+    Write(AOut, AByteEncoding);
+    Write(EOL, Indy8BitEncoding);
+    if LBufferingStarted then begin
+      WriteBufferClose;
+    end;
+  except
+    if LBufferingStarted then begin
+      WriteBufferCancel;
+    end;
+    raise;
+  end;
   }
 
   // Do as one write so it only makes one call to network
-  Write(AOut + EOL, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-    );
+  Write(AOut + EOL, AByteEncoding);
 end;
 
 procedure TIdIOHandler.WriteLnRFC(const AOut: string = '';
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 begin
   if TextStartsWith(AOut, '.') then begin {do not localize}
-    WriteLn('.' + AOut, AByteEncoding     {do not localize}
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      );
+    WriteLn('.' + AOut, AByteEncoding);   {do not localize}
   end else begin
-    WriteLn(AOut, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      );
+    WriteLn(AOut, AByteEncoding);
   end;
 end;
 
@@ -1968,9 +1663,9 @@ begin
 end;
 
 // TODO: move this into IdGlobal.pas
-procedure AdjustStreamSize(const AStream: TStream; const ASize: TIdStreamSize);
+procedure AdjustStreamSize(const AStream: TStream; const ASize: Int64);
 var
-  LStreamPos: TIdStreamSize;
+  LStreamPos: Int64;
 begin
   LStreamPos := AStream.Position;
   AStream.Size := ASize;
@@ -1980,30 +1675,19 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.ReadStream(AStream: TStream; AByteCount: TIdStreamSize;
+procedure TIdIOHandler.ReadStream(AStream: TStream; AByteCount: Int64;
   AReadUntilDisconnect: Boolean);
 var
   i: Integer;
   LBuf: TIdBytes;
-  LByteCount, LPos: TIdStreamSize;
-  {$IFNDEF STREAM_SIZE_64}
-  LTmp: Int64;
-  {$ENDIF}
+  LByteCount, LPos: Int64;
 const
   cSizeUnknown = -1;
 begin
   if (AByteCount = cSizeUnknown) and (not AReadUntilDisconnect) then begin
     // Read size from connection
     if LargeStream then begin
-      {$IFDEF STREAM_SIZE_64}
       LByteCount := ReadInt64;
-      {$ELSE}
-      LTmp := ReadInt64;
-      if LTmp > MaxInt then begin
-        raise EIdIOHandlerStreamDataTooLarge.Create(RSDataTooLarge);
-      end;
-      LByteCount := TIdStreamSize(LTmp);
-      {$ENDIF}
     end else begin
       LByteCount := ReadInt32;
     end;
@@ -2015,7 +1699,7 @@ begin
   // Have an option for this? user might not want to presize, eg for int64 files
   if (AStream <> nil) and (LByteCount > -1) then begin
     LPos := AStream.Position;
-    if (High(TIdStreamSize) - LPos) < LByteCount then begin
+    if (High(Int64) - LPos) < LByteCount then begin
       raise EIdIOHandlerStreamDataTooLarge.Create(RSDataTooLarge);
     end;
     AdjustStreamSize(AStream, LPos + LByteCount);
@@ -2104,7 +1788,7 @@ begin
       finally
         if i > 0 then begin
           if AStream <> nil then begin
-            TIdStreamHelper.Write(AStream, LBuf, i);
+            AStream.WriteBuffer(PByte(LBuf)^, i);
           end;
           if not AReadUntilDisconnect then begin
             Dec(LByteCount, i);
@@ -2133,7 +1817,11 @@ begin
     BeginWork(wmRead, AByteCount);
     try
       repeat
-        LSize := iif(AByteCount < MaxInt, Integer(AByteCount), MaxInt);
+        if AByteCount < MaxInt then begin
+          LSize := Integer(AByteCount);
+        end else begin
+          LSize := MaxInt;
+        end;
         LSize := IndyMin(LSize, FInputBuffer.Size);
         if LSize > 0 then begin
           FInputBuffer.Remove(LSize);
@@ -2220,22 +1908,13 @@ begin
   raise EIdConnClosedGracefully.Create(RSConnectionClosedGracefully);
 end;
 
-function TIdIOHandler.InputBufferAsString(AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdIOHandler.InputBufferAsString(AByteEncoding: IIdTextEncoding = nil): string;
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
-  Result := FInputBuffer.ExtractToString(FInputBuffer.Size, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  Result := FInputBuffer.ExtractToString(FInputBuffer.Size, AByteEncoding);
 end;
 
-function TIdIOHandler.AllData(AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdIOHandler.AllData(AByteEncoding: IIdTextEncoding = nil): string;
 var
   LBytes: Integer;
 begin
@@ -2251,9 +1930,7 @@ begin
           until LBytes = 0; // -1 on timeout
         finally
           if not InputBufferIsEmpty then begin
-            Result := InputBufferAsString(AByteEncoding
-              {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-              );
+            Result := InputBufferAsString(AByteEncoding);
           end;
         end;
       except end;
@@ -2265,9 +1942,7 @@ end;
 
 procedure TIdIOHandler.PerformCapture(const ADest: TObject;
   out VLineCount: Integer; const ADelim: string;
-  AUsesDotTransparency: Boolean; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AUsesDotTransparency: Boolean; AByteEncoding: IIdTextEncoding = nil);
 var
   s: string;
   LStream: TStream;
@@ -2276,9 +1951,6 @@ begin
   VLineCount := 0;
 
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
 
   LStream := nil;
   LStrings := nil;
@@ -2296,9 +1968,7 @@ begin
   BeginWork(wmRead);
   try
     repeat
-      s := ReadLn(AByteEncoding
-        {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-        );
+      s := ReadLn(AByteEncoding);
       if s = ADelim then begin
         Exit;
       end;
@@ -2321,9 +1991,7 @@ begin
         LStrings.Add(s);
       end
       else if LStream <> nil then begin
-        WriteStringToStream(LStream, s+EOL, AByteEncoding
-          {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-          );
+        WriteStringToStream(LStream, s+EOL, AByteEncoding);
       end;
     until False;
   finally
@@ -2333,9 +2001,7 @@ end;
 
 function TIdIOHandler.InputLn(const AMask: String = ''; AEcho: Boolean = True;
   ATabWidth: Integer = 8; AMaxLineLength: Integer = -1;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; AAnsiEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): String;
+  AByteEncoding: IIdTextEncoding = nil): String;
 var
   i: Integer;
   LChar: Char;
@@ -2343,16 +2009,11 @@ var
 begin
   Result := '';
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  AAnsiEncoding := iif(AAnsiEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
   if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxLineLength;
   end;
   repeat
-    LChar := ReadChar(AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-      );
+    LChar := ReadChar(AByteEncoding);
     i := Length(Result);
     if i <= AMaxLineLength then begin
       case LChar of
@@ -2361,9 +2022,7 @@ begin
             if i > 0 then begin
               SetLength(Result, i - 1);
               if AEcho then begin
-                Write(BACKSPACE + ' ' + BACKSPACE, AByteEncoding
-                  {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-                  );
+                Write(BACKSPACE + ' ' + BACKSPACE, AByteEncoding);
               end;
             end;
           end;
@@ -2374,16 +2033,12 @@ begin
               LTmp := StringOfChar(' ', i);
               Result := Result + LTmp;
               if AEcho then begin
-                Write(LTmp, AByteEncoding
-                  {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-                  );
+                Write(LTmp, AByteEncoding);
               end;
             end else begin
               Result := Result + LChar;
               if AEcho then begin
-                Write(LChar, AByteEncoding
-                  {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-                  );
+                Write(LChar, AByteEncoding);
               end;
             end;
           end;
@@ -2394,13 +2049,9 @@ begin
         Result := Result + LChar;
         if AEcho then begin
           if Length(AMask) = 0 then begin
-            Write(LChar, AByteEncoding
-              {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-              );
+            Write(LChar, AByteEncoding);
           end else begin
-            Write(AMask, AByteEncoding
-              {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-              );
+            Write(AMask, AByteEncoding);
           end;
         end;
       end;
@@ -2422,33 +2073,22 @@ end;
 //TODO: Add a case insensitive option
 function TIdIOHandler.WaitFor(const AString: string; ARemoveFromBuffer: Boolean = True;
   AInclusive: Boolean = False; AByteEncoding: IIdTextEncoding = nil;
-  ATimeout: Integer = IdTimeoutDefault
-  {$IFDEF STRING_IS_ANSI}; AAnsiEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+  ATimeout: Integer = IdTimeoutDefault): string;
 var
   LBytes: TIdBytes;
   LPos: Integer;
 begin
   Result := '';
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  AAnsiEncoding := iif(AAnsiEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
-  LBytes := ToBytes(AString, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-    );
+  LBytes := ToBytes(AString, AByteEncoding);
   LPos := 0;
   repeat
     LPos := InputBuffer.IndexOf(LBytes, LPos);
     if LPos <> -1 then begin
       if ARemoveFromBuffer and AInclusive then begin
-        Result := InputBuffer.ExtractToString(LPos+Length(LBytes), AByteEncoding
-          {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-          );
+        Result := InputBuffer.ExtractToString(LPos+Length(LBytes), AByteEncoding);
       end else begin
-        Result := InputBuffer.ExtractToString(LPos, AByteEncoding
-          {$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF}
-          );
+        Result := InputBuffer.ExtractToString(LPos, AByteEncoding);
         if ARemoveFromBuffer then begin
           InputBuffer.Remove(Length(LBytes));
         end;
@@ -2463,73 +2103,50 @@ begin
   until False;
 end;
 
-procedure TIdIOHandler.Capture(ADest: TStream; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdIOHandler.Capture(ADest: TStream; AByteEncoding: IIdTextEncoding = nil);
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  Capture(ADest, '.', True, AByteEncoding     {do not localize}
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  Capture(ADest, '.', True, AByteEncoding);   {do not localize}
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStream; out VLineCount: Integer;
   const ADelim: string = '.'; AUsesDotTransparency: Boolean = True;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  PerformCapture(ADest, VLineCount, ADelim, AUsesDotTransparency, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  PerformCapture(ADest, VLineCount, ADelim, AUsesDotTransparency, AByteEncoding);
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStream; ADelim: string;
-  AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil);
 var
   LLineCount: Integer;
 begin
-  PerformCapture(ADest, LLineCount, '.', AUsesDotTransparency, AByteEncoding   {do not localize}
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  PerformCapture(ADest, LLineCount, '.', AUsesDotTransparency, AByteEncoding); {do not localize}
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStrings; out VLineCount: Integer;
   const ADelim: string = '.'; AUsesDotTransparency: Boolean = True;
   AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   );
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
 begin
-  PerformCapture(ADest, VLineCount, ADelim, AUsesDotTransparency, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  PerformCapture(ADest, VLineCount, ADelim, AUsesDotTransparency, AByteEncoding);
 end;
 
-procedure TIdIOHandler.Capture(ADest: TStrings; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdIOHandler.Capture(ADest: TStrings; AByteEncoding: IIdTextEncoding = nil);
 var
   LLineCount: Integer;
 begin
-  PerformCapture(ADest, LLineCount, '.', True, AByteEncoding    {do not localize}
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  PerformCapture(ADest, LLineCount, '.', True, AByteEncoding);  {do not localize}
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStrings; const ADelim: string;
-  AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AUsesDotTransparency: Boolean = True; AByteEncoding: IIdTextEncoding = nil);
 var
   LLineCount: Integer;
 begin
-  PerformCapture(ADest, LLineCount, ADelim, AUsesDotTransparency, AByteEncoding
-    {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-    );
+  PerformCapture(ADest, LLineCount, ADelim, AUsesDotTransparency, AByteEncoding);
 end;
 
 procedure TIdIOHandler.InputBufferToStream(AStream: TStream; AByteCount: Integer = -1);
@@ -2566,25 +2183,16 @@ begin
 end;
 
 procedure TIdIOHandler.WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 var
   i: Integer;
 begin
   AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
-  {$IFDEF STRING_IS_ANSI}
-  ASrcEncoding := iif(ASrcEncoding, FDefAnsiEncoding, encOSDefault);
-  {$ENDIF}
   for i := 0 to AStrings.Count - 1 do begin
-    WriteLnRFC(AStrings[i], AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      );
+    WriteLnRFC(AStrings[i], AByteEncoding);
   end;
   if AWriteTerminator then begin
-    WriteLn('.', AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}
-      );
+    WriteLn('.', AByteEncoding);
   end;
 end;
 
@@ -2608,7 +2216,7 @@ begin
       Write(LStream);
       Result := LStream.Size;
     finally
-      FreeAndNil(LStream);
+      LStream.Free;
     end;
   {$IFDEF WIN32_OR_WIN64}
   finally
@@ -2637,22 +2245,6 @@ begin
   if LIntercept <> nil then begin
     LIntercept.Receive(VBuffer);
   end;
-end;
-
-procedure TIdIOHandler.InitComponent;
-begin
-  inherited InitComponent;
-  FRecvBufferSize := GRecvBufferSizeDefault;
-  FSendBufferSize := GSendBufferSizeDefault;
-  FMaxLineLength := IdMaxLineLengthDefault;
-  FMaxCapturedLines := Id_IOHandler_MaxCapturedLines;
-  FLargeStream := False;
-  FReadTimeOut := IdTimeoutDefault;
-  FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
-  FDefStringEncoding := IndyTextEncoding_ASCII;
-  {$IFDEF STRING_IS_ANSI}
-  FDefAnsiEncoding := IndyTextEncoding_OSDefault;
-  {$ENDIF}
 end;
 
 procedure TIdIOHandler.WriteBufferFlush;
@@ -2723,4 +2315,5 @@ initialization
 
 finalization
   FreeAndNil(GIOHandlerClassList)
+
 end.

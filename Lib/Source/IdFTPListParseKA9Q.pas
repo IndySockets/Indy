@@ -119,7 +119,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
 end;
@@ -148,7 +148,7 @@ begin
         (LWords[1] = 'files') or (LWords[1] = 'file');  {do not localize}
     end;
   finally
-    FreeAndNil(LWords);
+    LWords.Free;
   end;
 end;
 

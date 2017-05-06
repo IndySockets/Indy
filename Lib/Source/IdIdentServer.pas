@@ -75,8 +75,8 @@ type
     FOnIdentQuery : TIdIdentQueryEvent;
     FQueryTimeOut : Integer;
     function DoExecute(AContext:TIdContext): boolean; override;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     Procedure ReplyError(AContext:TIdContext; AServerPort, AClientPort : TIdPort; AErr : TIdIdentErrorType);
     Procedure ReplyIdent(AContext:TIdContext; AServerPort, AClientPort : TIdPort; AOS, AUserName : String; const ACharset : String = '');    {Do not Localize}
     Procedure ReplyOther(AContext:TIdContext; AServerPort, AClientPort : TIdPort; AOther : String);
@@ -93,9 +93,9 @@ uses
 
 { TIdIdentServer }
 
-procedure TIdIdentServer.InitComponent;
+constructor TIdIdentServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_AUTH;
   FQueryTimeOut := IdDefIdentQueryTimeOut;
 end;

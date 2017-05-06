@@ -130,7 +130,7 @@ uses
   DesignEditors,
     {$ENDIF}
   TypInfo,
-    {$IFDEF VCL_2010_OR_ABOVE}
+    {$IFDEF DCC_2010_OR_ABOVE}
   Rtti,
     {$ENDIF}
   SysUtils,
@@ -144,9 +144,7 @@ uses
   IdCmdTCPClient,
   IdCmdTCPServer,
   IdIOHandlerStream,
-  {$IFNDEF DOTNET}
   IdIcmpClient,
-  {$ENDIF}
   IdInterceptSimLog,
   IdInterceptThrottler,
   IdIPMCastClient,
@@ -162,9 +160,7 @@ uses
   IdServerIOHandlerStack,
   IdSimpleServer,
   IdThreadComponent,
-  {$IFNDEF DOTNET}
   IdTraceRoute,
-  {$ENDIF}
   IdUDPClient,
   IdUDPServer,
   IdIOHandlerSocket,
@@ -173,39 +169,11 @@ uses
   IdTCPServer,
   IdTCPClient;
 
-{$IFDEF DOTNET}
-  {$R IconsDotNet\TIdAntiFreeze.bmp}
-  {$R IconsDotNet\TIdCmdTCPClient.bmp}
-  {$R IconsDotNet\TIdCmdTCPServer.bmp}
-  {$R IconsDotNet\TIdConnectionIntercept.bmp}
-  {$R IconsDotNet\TIdICMPClient.bmp}
-  {$R IconsDotNet\TIdInterceptSimLog.bmp}
-  {$R IconsDotNet\TIdInterceptThrottler.bmp}
-  {$R IconsDotNet\TIdIOHandlerStack.bmp}
-  {$R IconsDotNet\TIdIOHandlerStream.bmp}
-  {$R IconsDotNet\TIdLogDebug.bmp}
-  {$R IconsDotNet\TIdLogEvent.bmp}
-  {$R IconsDotNet\TIdLogFile.bmp}
-  {$R IconsDotNet\TIdLogStream.bmp}
-  {$R IconsDotNet\TIdSchedulerOfThreadDefault.bmp}
-  {$R IconsDotNet\TIdSchedulerOfThreadPool.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerStack.bmp}
-  {$R IconsDotNet\TIdSimpleServer.bmp}
-  {$R IconsDotNet\TIdTCPClient.bmp}
-  {$R IconsDotNet\TIdTCPServer.bmp}
-  {$R IconsDotNet\TIdThreadComponent.bmp}
-  {$R IconsDotNet\TIdUDPClient.bmp}
-  {$R IconsDotNet\TIdUDPServer.bmp}
-  {$R IconsDotNet\TIdIPMCastClient.bmp}
-  {$R IconsDotNet\TIdIPMCastServer.bmp}
-  {$R IconsDotNet\TIdSocksInfo.bmp}
-{$ELSE}
-  {$IFNDEF FPC}
-    {$IFDEF BORLAND}
-      {$R IdCoreRegister.dcr}
-    {$ELSE}
-      {$R IdCoreRegisterCool.dcr}
-    {$ENDIF}
+{$IFNDEF FPC}
+  {$IFDEF BORLAND}
+    {$R IdCoreRegister.dcr}
+  {$ELSE}
+    {$R IdCoreRegisterCool.dcr}
   {$ENDIF}
 {$ENDIF}
 
@@ -226,7 +194,7 @@ begin
   end;
 end;
 
-{$IFDEF VCL_XE2_OR_ABOVE}
+{$IFDEF DCC_XE2_OR_ABOVE}
 
 // in Delphi XE2 and later, TRttiInvokableType is used to enumerate parameters
 // and return values, and TRttiType reports fully qualified type names, so
@@ -253,17 +221,9 @@ end;
 // return values, but only certain versions implement rich enough RTTI to allow
 // that. Let's try to pull out what we can...
 
-{$IFDEF FPC_2_6_0_OR_ABOVE}
-  {$DEFINE HAS_tkEnumeration_UnitName}
+{$IF DEFINED(FPC) OR (DEFINED(DCC) AND DEFINED(DCC_2010_OR_ABOVE))}
   {$DEFINE HAS_tkMethod_ParamTypeInfo}
-{$ELSE}
-  {$IFDEF VCL_6_OR_ABOVE}
-    {$DEFINE HAS_tkEnumeration_UnitName}
-  {$ENDIF}
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$DEFINE HAS_tkMethod_ParamTypeInfo}
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 procedure SkipShortString(var P: PByte);
 begin
@@ -272,7 +232,7 @@ end;
 
 function ReadShortString(var P: PByte): String;
 begin
-  {$IFDEF VCL_2009_OR_ABOVE}
+  {$IFDEF DCC}
   Result := UTF8ToString(PShortString(P)^);
   {$ELSE}
   Result := PShortString(P)^;
@@ -280,7 +240,7 @@ begin
   SkipShortString(P);
 end;
 
-{$IFDEF FPC_2_6_0_OR_ABOVE}
+{$IFDEF FPC}
 function NextShortString(PS: PShortString): PShortString;
 begin
   Result := PShortString(Pointer(PS)+PByte(PS)^+1);
@@ -304,14 +264,12 @@ end;
 function GetUnitNameFromTypeInfo(const ATypeInfo: PPTypeInfo): String;
 var
   LTypeData: PTypeData;
-  {$IFDEF HAS_tkEnumeration_UnitName}
-    {$IFDEF FPC}
+  {$IFDEF FPC}
   PS, PSLast: PShortString;
-    {$ELSE}
+  {$ELSE}
   LBaseTypeData: PTypeData;
   Value: Integer;
   P: PByte;
-    {$ENDIF}
   {$ENDIF}
 begin
   Result := '';
@@ -323,10 +281,9 @@ begin
   end;
   LTypeData := GetTypeData(ATypeInfo^);
   case ATypeInfo^.Kind of
-    {$IFDEF HAS_tkEnumeration_UnitName}
     tkEnumeration: begin
       {$IFDEF FPC}
-      // the unit name iss the last string in the name list
+      // the unit name is the last string in the name list
       PS := @(LTypeData^.NameList);
       PSLast := nil;
       while PByte(PS)^ <> 0 do begin
@@ -356,50 +313,42 @@ begin
       Result := ReadShortString(P);
       {$ENDIF}
     end;
-    {$ENDIF}
     tkSet: begin
       Result := GetUnitNameFromTypeInfo(LTypeData^.CompType);
     end;
-    {$IFDEF VCL_5_OR_ABOVE}
     tkClass: begin
-        {$IFDEF VCL_2009_OR_ABOVE}
+      {$IFDEF DCC}
       Result := UTF8ToString(LTypeData^.UnitName);
-        {$ELSE}
+      {$ELSE}
       Result := LTypeData^.UnitName;
-        {$ENDIF}
+      {$ENDIF}
     end;
-    {$ENDIF}
-    {$IFDEF FPC_2_6_0_OR_ABOVE}
+    {$IFDEF FPC}
     tkHelper: begin
       Result := LTypeData^.HelperUnit;
     end;
     {$ENDIF}
-    {$IFDEF VCL_5_OR_ABOVE}
     tkInterface: begin
-        {$IFDEF VCL_2009_OR_ABOVE}
+      {$IFDEF DCC}
       Result := UTF8ToString(LTypeData^.IntfUnit);
-        {$ELSE}
+      {$ELSE}
       Result := LTypeData^.IntfUnit;
-        {$ENDIF}
+      {$ENDIF}
     end;
-    {$ENDIF}
-    {$IFDEF FPC_2_2_2_OR_ABOVE} // TODO: when was tkInterfaceRaw added?
+    {$IFDEF FPC}
     tkInterfaceRaw: begin
       Result := LTypeData^.RawIntfUnit;
     end;
-    {$ENDIF}
-    {$IFDEF VCL_6_OR_ABOVE}
     tkDynArray: begin
-        {$IFDEF VCL_2009_OR_ABOVE}
+      {$IFDEF DCC}
       Result := UTF8ToString(LTypeData^.DynUnitName);
-        {$ELSE}
+      {$ELSE}
       Result := LTypeData^.DynUnitName;
-        {$ENDIF}
+      {$ENDIF}
       if Result = '' then begin
         Result := GetUnitNameFromTypeInfo(LTypeData^.elType2);
       end;
     end;
-    {$ENDIF}
   end;
 end;
 
@@ -472,12 +421,12 @@ procedure TIdBaseComponentSelectionEditor.RequiresUnits(Proc: TGetStrProc);
 var
   Comp: TIdBaseComponent;
   I: Integer;
-  {$IFDEF VCL_2010_OR_ABOVE}
+  {$IFDEF DCC_2010_OR_ABOVE}
   Ctx: TRttiContext;
   RetreivedCtx: Boolean;
   PropInfo: TRttiProperty;
   PropValue: TValue;
-    {$IFDEF VCL_XE2_OR_ABOVE}
+    {$IFDEF DCC_XE2_OR_ABOVE}
   PropType: TRttiMethodType;
   Param: TRttiParameter;
     {$ENDIF}
@@ -491,7 +440,7 @@ begin
   inherited RequiresUnits(Proc);
   if (Designer = nil) or (Designer.Root = nil) then Exit;
 
-  {$IFDEF VCL_2010_OR_ABOVE}
+  {$IFDEF DCC_2010_OR_ABOVE}
   RetreivedCtx := False;
   {$ENDIF}
 
@@ -501,7 +450,7 @@ begin
     begin
       Comp := TIdBaseComponent(Designer.Root.Components[i]);
 
-      {$IFDEF VCL_2010_OR_ABOVE}
+      {$IFDEF DCC_2010_OR_ABOVE}
 
       if not RetreivedCtx then
       begin
@@ -528,7 +477,7 @@ begin
           begin
             // although the System.Rtti unit was introduced in Delphi 2010,
             // the TRttiInvokableType class was not added to it until XE2
-            {$IFDEF VCL_XE2_OR_ABOVE}
+            {$IFDEF DCC_XE2_OR_ABOVE}
             PropType := PropInfo.PropertyType as TRttiMethodType;
             for Param in PropType.GetParameters do begin
               SendUnitNameToProc(GetUnitNameForType(Param.ParamType), Proc);
@@ -572,15 +521,14 @@ end;
 procedure Register;
 begin
   {$IFNDEF FPC}
+
   RegisterComponents(RSRegIndyClients, [
    TIdTCPClient
    ,TIdUDPClient
    ,TIdCmdTCPClient
    ,TIdIPMCastClient
-   {$IFNDEF DOTNET}
    ,TIdIcmpClient
    ,TIdTraceRoute
-   {$ENDIF}
   ]);
   RegisterComponents(RSRegIndyServers, [
    TIdUDPServer,
@@ -622,7 +570,9 @@ begin
    TIdSchedulerOfThreadPool,
    TIdThreadComponent
   ]);
+
   {$ELSE}
+
   //This is a tempoary workaround for components not fitting on the palette
   //in Lazarus.  Unlike Delphi, Lazarus still does not have the ability to
   //scroll through a palette page.
@@ -631,10 +581,8 @@ begin
    ,TIdUDPClient
    ,TIdCmdTCPClient
    ,TIdIPMCastClient
-   {$IFNDEF DOTNET}
    ,TIdIcmpClient
    ,TIdTraceRoute
-   {$ENDIF}
   ]);
   RegisterComponents(RSRegIndyServers+CoreSuffix, [
    TIdUDPServer,
@@ -664,6 +612,7 @@ begin
    TIdSchedulerOfThreadPool,
    TIdThreadComponent
   ]);
+
   {$ENDIF}
 
   {$IFDEF HAS_TSelectionEditor}
@@ -675,4 +624,5 @@ end;
 initialization
 {$i IdRegisterCore.lrs}
 {$ENDIF}
+
 end.

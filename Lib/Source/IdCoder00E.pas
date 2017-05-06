@@ -57,27 +57,27 @@ implementation
 
 uses
   IdGlobal,
-  IdStream,
   SysUtils;
 
 { TIdDecoder00E }
 
 procedure TIdDecoder00E.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
 var
+  LFirstByte: Byte;
   LBuf: TIdBytes;
-  LSize: TIdStreamSize;
+  LSize: Int64;
   LDataLen, LExpected: Integer;
 begin
   LSize := IndyLength(ASrcStream, ABytes);
   if LSize > 0 then begin
     //Param 2 - Start at second char since 00E's have byte 1 as length
-    TIdStreamHelper.ReadBytes(ASrcStream, LBuf, 1);
+    ASrcStream.ReadBuffer(LFirstByte, 1);
     //Param 3 - Get output length of input. This is length in bytes,
     // not encoded chars. DO NOT include fill chars in calculation
-    {Assert(Ord(FDecodeTable[LBuf[0]]) = (((LSize-1) div 4) * 3));}
-    LDataLen := FDecodeTable[LBuf[0]];
+    {Assert(Ord(FDecodeTable[LFirstByte]) = (((LSize-1) div 4) * 3));}
+    LDataLen := FDecodeTable[LFirstByte];
     SetLength(LBuf, LSize-1);
-    TIdStreamHelper.ReadBytes(ASrcStream, LBuf, LSize-1);
+    ASrcStream.ReadBuffer(PByte(LBuf)^, LSize-1);
     // RLebeau 4/28/2014: encountered a situation where a UUE encoded attachment
     // had some encoded lines that were supposed to end with a space character
     // but were actually truncated off. Turns out that Outlook Express is known
@@ -91,7 +91,7 @@ begin
     end;
     LBuf := InternalDecode(LBuf, True);
     if Assigned(FStream) then begin
-      TIdStreamHelper.Write(FStream, LBuf, LDataLen);
+      FStream.WriteBuffer(PByte(LBuf)^, LDataLen);
     end;
   end;
 end;
@@ -101,11 +101,10 @@ end;
 procedure TIdEncoder00E.Encode(ASrcStream, ADestStream: TStream; const ABytes: Integer = -1);
 var
   LStream: TMemoryStream;
-  LSize: TIdStreamSize;
+  LSize: Int64;
   LEncodeSize: Integer;
-  LBuf: TIdBytes;
+  LByte: Byte;
 begin
-  SetLength(LBuf, 1);
   LStream := TMemoryStream.Create;
   try
     LSize := IndyLength(ASrcStream, ABytes);
@@ -114,8 +113,8 @@ begin
       LEncodeSize := IndyMin(LSize, Length(FCodingTable)-1);
       inherited Encode(ASrcStream, LStream, LEncodeSize);
       Dec(LSize, LEncodeSize);
-      LBuf[0] := FCodingTable[Integer(LEncodeSize)];
-      TIdStreamHelper.Write(ADestStream, LBuf, 1);
+      LByte := FCodingTable[Integer(LEncodeSize)];
+      ADestStream.WriteBuffer(LByte, 1);
       LStream.Position := 0;
       ADestStream.CopyFrom(LStream, 0);
       if LSize > 0 then begin
@@ -124,7 +123,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 

@@ -110,8 +110,8 @@ end;
 
 destructor TIdDigestAuthentication.Destroy;
 begin
-  FreeAndNil(FDomain);
-  FreeAndNil(FQopOptions);
+  FDomain.Free;
+  FQopOptions.Free;
   inherited Destroy;
 end;
 
@@ -285,9 +285,8 @@ begin
           else if PosInStrArray(FAlgorithm, ['MD5', 'MD5-sess'], False) = -1 then begin {do not localize}
             raise EIdInvalidAlgorithm.Create(RSHTTPAuthInvalidHash);
           end;
-
         finally
-          FreeAndNil(LParams);
+          LParams.Free;
         end;
 
         if Length(Username) > 0 then begin

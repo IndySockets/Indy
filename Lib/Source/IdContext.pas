@@ -132,7 +132,7 @@ implementation
 { TIdContext }
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.Types,
   {$ENDIF}
   IdGlobal,

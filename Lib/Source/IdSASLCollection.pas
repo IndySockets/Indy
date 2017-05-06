@@ -87,7 +87,6 @@ type
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH';      {Do not Localize}
       ACanAttemptIR: Boolean = True); overload;
-    function ParseCapaReply(ACapaReply: TStrings; const AAuthString: String = 'AUTH') : TStrings; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ParseCapaReplyToList()'{$ENDIF};{$ENDIF} {do not localize}
     procedure ParseCapaReplyToList(ACapaReply, ADestList: TStrings; const AAuthString: String = 'AUTH'); {do not localize}
     function FindSASL(const AServiceName: String): TIdSASL;
     function Insert(Index: Integer): TIdSASLListEntry;
@@ -371,7 +370,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(LSupportedSASL);
+      LSupportedSASL.Free;
     end;
 
     if LSASLList.Count = 0 then begin
@@ -409,16 +408,16 @@ begin
             raise EIdSASLNotReady.Create(RSSASLNotReady);
           end;
         finally
-          FreeAndNil(LError);
+          LError.Free;
         end;
       finally
-        FreeAndNil(LD);
+        LD.Free;
       end;
     finally
-      FreeAndNil(LE);
+      LE.Free;
     end;
   finally
-    FreeAndNil(LSASLList);
+    LSASLList.Free;
   end;
 end;
 
@@ -444,7 +443,7 @@ begin
       LSASL := FindSASL(AServiceName);
     end;
   finally
-    FreeAndNil(LSupportedSASL);
+    LSupportedSASL.Free;
   end;
 
   if LSASL = nil then begin
@@ -463,23 +462,10 @@ begin
         AClient.RaiseExceptionForLastCmdResult;
       end;
     finally
-      FreeAndNil(LD);
+      LD.Free;
     end;
   finally
-    FreeAndNil(LE);
-  end;
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function TIdSASLEntries.ParseCapaReply(ACapaReply: TStrings; const AAuthString: String): TStrings;
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  Result := TStringList.Create;
-  try
-    ParseCapaReplyToList(ACapaReply, Result, AAuthString);
-  except
-    FreeAndNil(Result);
-    raise;
+    LE.Free;
   end;
 end;
 

@@ -161,11 +161,8 @@ type
     procedure SetJobId(const Value: String);
     procedure InternalPrint(Data: TStream);
     function GetControlData: String;
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Connect; override;
     procedure Print(const AText: String); overload;
@@ -189,26 +186,14 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStackConsts,
   SysUtils;
 
 { TIdLPR }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdLPR.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdLPR.InitComponent;
-begin
-  inherited InitComponent;
 
   Port := IdPORT_LPD;
   Queue := 'pr1';    {Do not Localize}
@@ -220,6 +205,12 @@ begin
 
   BoundPortMin := 721;
   BoundPortMax := 731;
+end;
+
+destructor TIdLPR.Destroy;
+begin
+  FControlFile.Free;
+  inherited Destroy;
 end;
 
 procedure TIdLPR.Connect;
@@ -262,17 +253,14 @@ end;
 procedure TIdLPR.Print(const AText: String);
 var
   LStream: TStream;
-  LEncoding: IIdTextEncoding;
 begin
   LStream := TMemoryStream.Create;
   try
-    LEncoding := IndyTextEncoding_8Bit;
-    WriteStringToStream(LStream, AText, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
-    LEncoding := nil;
+    WriteStringToStream(LStream, AText, IndyTextEncoding_8Bit);
     LStream.Position := 0;
     InternalPrint(LStream);
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 
@@ -286,7 +274,7 @@ begin
     LStream.Position := 0;
     InternalPrint(LStream);
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 
@@ -301,7 +289,7 @@ begin
   try
     InternalPrint(LStream);
   finally
-    FreeAndNil(LStream);
+    LStream.Free;
   end;
 end;
 
@@ -483,12 +471,6 @@ end;
 procedure TIdLPR.SeTIdLPRControlFile(const Value: TIdLPRControlFile);
 begin
   FControlFile.Assign(Value);
-end;
-
-destructor TIdLPR.Destroy;
-begin
-  FreeAndNil(FControlFile);
-  inherited Destroy;
 end;
 
 procedure TIdLPR.PrintWaitingJobs;

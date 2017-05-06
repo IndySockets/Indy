@@ -76,6 +76,7 @@ interface
 //here to flip FPC into Delphi mode
 
 uses
+  Classes,
   IdComponent,
   IdGlobal,
   IdException,
@@ -108,7 +109,6 @@ type
     procedure BroadcastEnabledChanged; dynamic;
     procedure CloseBinding; virtual;
     function GetActive: Boolean; virtual;
-    procedure InitComponent; override;
     procedure SetActive(const Value: Boolean);
     procedure SetBroadcastEnabled(const AValue: Boolean);
     function GetBinding: TIdSocketHandle; virtual; abstract;
@@ -126,13 +126,11 @@ type
     property Host: string read GetHost write SetHost;
     property Port: TIdPort read GetPort write SetPort;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     //
     property Binding: TIdSocketHandle read GetBinding;
-    procedure Broadcast(const AData: string; const APort: TIdPort; const AIP: String = '';
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); overload;
+    procedure Broadcast(const AData: string; const APort: TIdPort; const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil); overload;
     procedure Broadcast(const AData: TIdBytes; const APort: TIdPort; const AIP: String = ''); overload;
     function ReceiveBuffer(var ABuffer : TIdBytes; var VPeerIP: string; var VPeerPort: TIdPort;
       AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
@@ -140,17 +138,10 @@ type
       var VIPVersion: TIdIPVersion; const AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
     function ReceiveBuffer(var ABuffer : TIdBytes;
      const AMSec: Integer = IdTimeoutDefault): Integer; overload;  virtual;
-    function ReceiveString(const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; overload;
+    function ReceiveString(const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil): string; overload;
     function ReceiveString(var VPeerIP: string; var VPeerPort: TIdPort;
-     const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil
-     {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-     ): string; overload;
-    procedure Send(const AHost: string; const APort: TIdPort; const AData: string;
-      AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      );
+     const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil): string; overload;
+    procedure Send(const AHost: string; const APort: TIdPort; const AData: string; AByteEncoding: IIdTextEncoding = nil);
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes); overload; virtual;
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer: TIdBytes); overload; virtual;
     //
@@ -163,7 +154,8 @@ type
      write SetBroadcastEnabled default False;
     property IPVersion: TIdIPVersion read GetIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
   end;
-  EIdUDPException = Class(EIdException);
+
+  EIdUDPException = class(EIdException);
   EIdUDPReceiveErrorZeroBytes = class(EIdUDPException);
 
 implementation
@@ -173,11 +165,28 @@ uses
 
 { TIdUDPBase }
 
-procedure TIdUDPBase.Broadcast(const AData: string; const APort: TIdPort;
-  const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF});
+constructor TIdUDPBase.Create(AOwner: TComponent);
 begin
-  Binding.Broadcast(AData, APort, AIP, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+  inherited Create(AOwner);
+  BufferSize := ID_UDP_BUFFERSIZE;
+  FReceiveTimeout := IdTimeoutInfinite;
+  FReuseSocket := rsOSDependent;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
+end;
+
+destructor TIdUDPBase.Destroy;
+begin
+  Active := False;
+  //double check that binding gets freed.
+  //sometimes possible that binding is allocated, but active=false
+  CloseBinding;
+  inherited Destroy;
+end;
+
+procedure TIdUDPBase.Broadcast(const AData: string; const APort: TIdPort;
+  const AIP: String = ''; AByteEncoding: IIdTextEncoding = nil);
+begin
+  Binding.Broadcast(AData, APort, AIP, AByteEncoding);
 end;
 
 procedure TIdUDPBase.Broadcast(const AData: TIdBytes; const APort: TIdPort;
@@ -196,15 +205,6 @@ end;
 procedure TIdUDPBase.CloseBinding;
 begin
   FreeAndNil(FBinding);
-end;
-
-destructor TIdUDPBase.Destroy;
-begin
-  Active := False;
-  //double check that binding gets freed.
-  //sometimes possible that binding is allocated, but active=false
-  CloseBinding;
-  inherited Destroy;
 end;
 
 function TIdUDPBase.GetActive: Boolean;
@@ -230,15 +230,6 @@ end;
 function TIdUDPBase.GetPort: TIdPort;
 begin
   Result := FPort;
-end;
-
-procedure TIdUDPBase.InitComponent;
-begin
-  inherited InitComponent;
-  BufferSize := ID_UDP_BUFFERSIZE;
-  FReceiveTimeout := IdTimeoutInfinite;
-  FReuseSocket := rsOSDependent;
-  FIPVersion := ID_DEFAULT_IP_VERSION;
 end;
 
 procedure TIdUDPBase.Loaded;
@@ -296,34 +287,29 @@ begin
 end;
 
 function TIdUDPBase.ReceiveString(var VPeerIP: string; var VPeerPort: TIdPort;
-  const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+  const AMSec: Integer = IdTimeoutDefault; AByteEncoding: IIdTextEncoding = nil): string;
 var
   i: Integer;
   LBuffer : TIdBytes;
 begin
   SetLength(LBuffer, BufferSize);
   i := ReceiveBuffer(LBuffer, VPeerIP, VPeerPort, AMSec);
-  Result := BytesToString(LBuffer, 0, i, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := BytesToString(LBuffer, 0, i, AByteEncoding);
 end;
 
 function TIdUDPBase.ReceiveString(const AMSec: Integer = IdTimeoutDefault;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): string;
+  AByteEncoding: IIdTextEncoding = nil): string;
 var
   VoidIP: string;
   VoidPort: TIdPort;
 begin
-  Result := ReceiveString(VoidIP, VoidPort, AMSec, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := ReceiveString(VoidIP, VoidPort, AMSec, AByteEncoding);
 end;
 
 procedure TIdUDPBase.Send(const AHost: string; const APort: TIdPort; const AData: string;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+  AByteEncoding: IIdTextEncoding = nil);
 begin
-  SendBuffer(AHost, APort, ToBytes(AData, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF}));
+  SendBuffer(AHost, APort, ToBytes(AData, AByteEncoding));
 end;
 
 procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer: TIdBytes);

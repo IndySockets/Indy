@@ -89,24 +89,19 @@ type
     FHeaders: TStrings;
     FPartType: TIdMessageCoderPartType;
     FSourceStream: TStream;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    //
     function ReadBody(ADestStream: TStream; var AMsgEnd: Boolean): TIdMessageDecoder; virtual; abstract;
     procedure ReadHeader; virtual;
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
-    function ReadLn(const ATerminator: string = LF; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string;
+    function ReadLn(const ATerminator: string = LF; AByteEncoding: IIdTextEncoding = nil): string;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): String; overload;
+    function ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: IIdTextEncoding = nil): String; overload;
     function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-      const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): String; overload; {do not localize}
-    destructor Destroy; override;
+      const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil): String; overload; {do not localize}
     //
     property Filename: string read FFilename;
     property FreeSourceStream: Boolean read FFreeSourceStream write FFreeSourceStream;
@@ -139,8 +134,8 @@ type
     FFilename: string;
     FPermissionCode: integer;
     //
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Encode(const AFilename: string; ADest: TStream); overload;
     procedure Encode(ASrc: TStream; ADest: TStrings); overload;
     procedure Encode(ASrc: TStream; ADest: TStream); overload; virtual; abstract;
@@ -232,7 +227,7 @@ begin
     TIdMessageDecoderInfo(FMessageCoders.Objects[i]).Free;
   end;
   {$ENDIF}
-  FreeAndNil(FMessageCoders);
+  FMessageCoders.Free;
   inherited Destroy;
 end;
 
@@ -254,18 +249,18 @@ end;
 
 { TIdMessageDecoder }
 
-procedure TIdMessageDecoder.InitComponent;
+constructor TIdMessageDecoder.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FFreeSourceStream := True;
   FHeaders := TStringList.Create;
 end;
 
 destructor TIdMessageDecoder.Destroy;
 begin
-  FreeAndNil(FHeaders);
+  FHeaders.Free;
   if FFreeSourceStream then begin
-    FreeAndNil(FSourceStream);
+    IdDisposeAndNil(FSourceStream);
   end else begin
     FSourceStream := nil;
   end;
@@ -280,9 +275,7 @@ end;
 // a TStream, with the same sematics as Idglobal.ReadLnFromStream() but with
 // support for searching for a caller-specified terminator.
 function DoReadLnFromStream(AStream: TStream; ATerminator: string;
-  AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+  AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil): string;
 const
   LBUFMAXSIZE = 2048;
 var
@@ -291,7 +284,7 @@ var
   LStartPos: Integer;
   LTermPos: Integer;
   LTerm, LTemp: TIdBytes;
-  LStrmStartPos, LStrmPos, LStrmSize: TIdStreamSize;
+  LStrmStartPos, LStrmPos, LStrmSize: Int64;
 begin
   Assert(AStream<>nil);
   LTerm := nil; // keep the compiler happy
@@ -313,9 +306,6 @@ begin
   LBuffer := TIdBuffer.Create;
   try
     EnsureEncoding(AByteEncoding);
-    {$IFDEF STRING_IS_ANSI}
-    EnsureEncoding(ADestEncoding, encOSDefault);
-    {$ENDIF}
     if AMaxLineLength < 0 then begin
       AMaxLineLength := MaxInt;
     end;
@@ -323,9 +313,7 @@ begin
     if ATerminator = '' then begin
       ATerminator := LF;
     end;
-    LTerm := ToBytes(ATerminator, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      );
+    LTerm := ToBytes(ATerminator, AByteEncoding);
     LTermPos := -1;
     LStartPos := 0;
     repeat
@@ -366,44 +354,30 @@ begin
     end;
 
     AStream.Position := LStrmPos;
-    Result := LBuffer.ExtractToString(LTermPos, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      );
+    Result := LBuffer.ExtractToString(LTermPos, AByteEncoding);
   finally
     LBuffer.Free;
   end;
 end;
 
-function TIdMessageDecoder.ReadLn(const ATerminator: string = LF;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+function TIdMessageDecoder.ReadLn(const ATerminator: string = LF; AByteEncoding: IIdTextEncoding = nil): string;
 begin
   if SourceStream is TIdTCPStream then begin
-    Result := TIdTCPStream(SourceStream).Connection.IOHandler.ReadLn(
-      ATerminator, IdTimeoutDefault, -1, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      );
+    Result := TIdTCPStream(SourceStream).Connection.IOHandler.ReadLn(ATerminator, IdTimeoutDefault, -1, AByteEncoding);
   end else begin
-    Result := DoReadLnFromStream(SourceStream, ATerminator, -1, AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      );
+    Result := DoReadLnFromStream(SourceStream, ATerminator, -1, AByteEncoding);
   end;
 end;
 
-function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): String;
+function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; AByteEncoding: IIdTextEncoding = nil): String;
 begin
-  Result := ReadLnRFC(VMsgEnd, LF, '.', AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}); {do not localize}
+  Result := ReadLnRFC(VMsgEnd, LF, '.', AByteEncoding); {do not localize}
 end;
 
 function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
-  const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): String;
+  const ADelim: String = '.'; AByteEncoding: IIdTextEncoding = nil): String;
 begin
-  Result := ReadLn(ALineTerminator, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := ReadLn(ALineTerminator, AByteEncoding);
   // Do not use ATerminator since always ends with . (standard)
   if Result = ADelim then {do not localize}
   begin
@@ -464,7 +438,7 @@ begin
     TIdMessageEncoderInfo(FMessageCoders.Objects[i]).Free;
   end;
   {$ENDIF}
-  FreeAndNil(FMessageCoders);
+  FMessageCoders.Free;
   inherited Destroy;
 end;
 
@@ -479,13 +453,22 @@ end;
 
 { TIdMessageEncoder }
 
+constructor TIdMessageEncoder.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FPermissionCode := 660;
+end;
+
 procedure TIdMessageEncoder.Encode(const AFilename: string; ADest: TStream);
 var
   LSrcStream: TStream;
 begin
-  LSrcStream := TIdReadFileExclusiveStream.Create(AFileName); try
+  LSrcStream := TIdReadFileExclusiveStream.Create(AFileName);
+  try
     Encode(LSrcStream, ADest);
-  finally FreeAndNil(LSrcStream); end;
+  finally
+    LSrcStream.Free;
+  end;
 end;
 
 procedure TIdMessageEncoder.Encode(ASrc: TStream; ADest: TStrings);
@@ -496,21 +479,19 @@ begin
   // to ADest without having to waste memory encoding the data entirely to
   // memory first. In Delphi 2009+ in particular, TStrings.LoadFromStream()
   // wastes a lot of memory handling large streams...
-  LDestStream := TMemoryStream.Create; try
+  LDestStream := TMemoryStream.Create;
+  try
     Encode(ASrc, LDestStream);
     LDestStream.Position := 0;
     ADest.LoadFromStream(LDestStream);
-  finally FreeAndNil(LDestStream); end;
-end;
-
-procedure TIdMessageEncoder.InitComponent;
-begin
-  inherited InitComponent;
-  FPermissionCode := 660;
+  finally
+    LDestStream.Free;
+  end;
 end;
 
 initialization
 finalization
   FreeAndNil(GMessageDecoderList);
   FreeAndNil(GMessageEncoderList);
+
 end.

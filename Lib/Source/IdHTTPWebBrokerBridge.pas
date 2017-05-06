@@ -57,7 +57,6 @@ uses
   HTTPApp,
   SysUtils,
   IdContext, IdCustomHTTPServer, IdException, IdTCPServer, IdIOHandlerSocket,
-  {$IFDEF CLR}System.Text,{$ENDIF}
   WebBroker, WebReq;
 
 type
@@ -70,7 +69,7 @@ type
   EWBBInvalidIdxSetStringVar = class(EWBBException);
   EWBBInvalidStringVar = class(EWBBException);
 
-  {$IFNDEF VCL_10_1_BERLIN_OR_ABOVE}
+  {$IFNDEF DCC_BERLIN_OR_ABOVE}
     {$DEFINE WBB_ANSI}
   {$ENDIF}
 
@@ -85,11 +84,11 @@ type
     function GetDateVariable(Index: Integer): TDateTime; override;
     function GetIntegerVariable(Index: Integer): Integer; override;
     function GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
-    {$IFDEF VCL_XE_OR_ABOVE}
+    {$IFDEF DCC_XE_OR_ABOVE}
     function GetRemoteIP: string; override;
     function GetRawPathInfo: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {$ENDIF}
-    {$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
+    {$IFDEF DCC_BERLIN_OR_ABOVE}
     function GetRawContent: TBytes; override;
     {$ENDIF}
   public
@@ -101,20 +100,12 @@ type
     {$ELSE}
     function GetFieldByName(const Name: string): string; override;
     {$ENDIF}
-    function ReadClient(var Buffer{$IFDEF CLR}: TBytes{$ENDIF}; Count: Integer): Integer; override;
+    function ReadClient(var Buffer; Count: Integer): Integer; override;
     function ReadString(Count: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {function ReadUnicodeString(Count: Integer): string;}
     function TranslateURI(const URI: string): string; override;
     function WriteClient(var ABuffer; ACount: Integer): Integer; override;
-    {$IFDEF VCL_6_OR_ABOVE}
-      {$DEFINE VCL_6_OR_ABOVE_OR_CLR}
-    {$ENDIF}
-    {$IFDEF CLR}
-      {$DEFINE VCL_6_OR_ABOVE_OR_CLR}
-    {$ENDIF}
-    {$IFDEF VCL_6_OR_ABOVE_OR_CLR}
     function WriteHeaders(StatusCode: Integer; const ReasonString, Headers: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean; override;
-    {$ENDIF}
     function WriteString(const AString: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean; override;
   end;
 
@@ -161,8 +152,8 @@ type
      AResponseInfo: TIdHTTPResponseInfo); override;
     procedure DoCommandOther(AThread: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
      AResponseInfo: TIdHTTPResponseInfo); override;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure RegisterWebModuleClass(AClass: TComponentClass);
   end;
 
@@ -170,8 +161,7 @@ implementation
 
 uses
   IdResourceStringsProtocols,
-  IdBuffer, IdHTTPHeaderInfo, IdGlobal, IdGlobalProtocols, IdCookie, IdStream,
-  {$IFDEF STRING_IS_UNICODE}IdCharsets,{$ENDIF}
+  IdBuffer, IdHTTPHeaderInfo, IdGlobal, IdGlobalProtocols, IdCookie, IdCharsets,
   Math
   {$IFDEF HAS_TNetEncoding}
   , System.NetEncoding
@@ -267,7 +257,7 @@ end;
 destructor TIdHTTPAppRequest.Destroy;
 begin
   if FFreeContentStream then begin
-    FreeAndNil(FContentStream);
+    IdDisposeAndNil(FContentStream);
   end;
   inherited;
 end;
@@ -289,7 +279,7 @@ begin
   Result := StrToIntDef(string(GetStringVariable(Index)), -1)
 end;
 
-{$IFDEF VCL_XE_OR_ABOVE}
+{$IFDEF DCC_XE_OR_ABOVE}
 function TIdHTTPAppRequest.GetRawPathInfo: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
 begin
   {$IFDEF WBB_ANSI}
@@ -305,17 +295,16 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
+{$IFDEF DCC_BERLIN_OR_ABOVE}
 function TIdHTTPAppRequest.GetRawContent: TBytes;
 var
-  LPos: TIdStreamSize;
+  LPos: Int64;
 begin
   LPos := FContentStream.Position;
   FContentStream.Position := 0;
   try
-    //TIdStreamHelper.ReadBytes(FContentStream, PIdBytes(@Result)^);
     SetLength(Result, FContentStream.Size);
-    FContentStream.Read(Result, 0, Length(Result));
+    FContentStream.ReadBuffer(PByte(Result)^, Length(Result));
   finally
     FContentStream.Position := LPos;
   end;
@@ -325,9 +314,9 @@ end;
 function TIdHTTPAppRequest.GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
 var
   LValue: string;
-  LPos: TIdStreamSize;
+  LPos: Int64;
   {$IFDEF WBB_ANSI}
-  LBytes: TIdBytes;
+  LCount: Integer;
   {$ENDIF}
 begin
   // RLebeau 1/15/2016: Now accessing FRequestInfo.RawHeaders.Values[] directly
@@ -336,10 +325,6 @@ begin
   // to have to IFDEF all of these fields, now doing one conversion at the end of
   // this method, which means having a local String variable. Don't want the
   // overhead of performing an AnsiString->String->AnsiString conversion...
-
-  {$IFDEF WBB_ANSI}
-  LBytes := nil;
-  {$ENDIF}
 
   case Index of
     INDEX_Method          : LValue := FRequestInfo.Command;
@@ -399,22 +384,20 @@ begin
 
           // Result := ReadStringAsCharSet(FContentStream, FRequestInfo.CharSet);
 
-          // TODO: instead of using a temp memory buffer, just pre-allocate the
-          // Result to the size of the stream and then read directly into it...
-          TIdStreamHelper.ReadBytes(FContentStream, LBytes);
+          LCount := Integer(IndyMin(FContentStream.Size, MaxInt));
+          if LCount > 0 then begin
+            // instead of using a temp memory buffer, just pre-allocate the
+            // Result to the size of the stream and then read directly into it...
+            SetLength(Result, LCount);
+            FContentStream.ReadBuffer(PAnsiChar(Result)^, LCount);
 
-            {$IFDEF DOTNET}
-          // RLebeau: how to handle this correctly in .NET?
-          Result := AnsiString(BytesToStringRaw(LBytes));
-            {$ELSE}
-          SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-              {$IFDEF VCL_2009_OR_ABOVE}
-          // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
-          // the proper codepage assigned to it as well so it can be converted
-          // correctly if assigned to other string variables later on...
-          SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FRequestInfo.CharSet), False);
-              {$ENDIF}
-            {$ENDIF}
+            // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
+            // the proper codepage assigned to it as well so it can be converted
+            // correctly if assigned to other string variables later on...
+            SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FRequestInfo.CharSet), False);
+          end else begin
+            Result := '';
+          end;
 
           {$ELSE}
 
@@ -450,14 +433,9 @@ begin
 end;
 {$ENDIF}
 
-function TIdHTTPAppRequest.ReadClient(var Buffer{$IFDEF CLR}: TBytes{$ENDIF};
-  Count: Integer): Integer;
+function TIdHTTPAppRequest.ReadClient(var Buffer; Count: Integer): Integer;
 begin
-  {$IFDEF CLR}
-  Result := TIdStreamHelper.ReadBytes(FContentStream, Buffer, Count);
-  {$ELSE}
   Result := FContentStream.Read(Buffer, Count);
-  {$ENDIF}
   // well, it shouldn't be less than 0. but let's not take chances
   if Result < 0 then begin
     Result := 0;
@@ -467,7 +445,7 @@ end;
 function TIdHTTPAppRequest.ReadString(Count: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
 {$IFDEF WBB_ANSI}
 var
-  LBytes: TIdBytes;
+  LCount: Integer;
 {$ENDIF}
 begin
   {$IFDEF WBB_ANSI}
@@ -479,21 +457,18 @@ begin
 
   // Result := AnsiString(ReadStringFromStream(FContentStream, Count));
 
-  LBytes := nil;
-  TIdStreamHelper.ReadBytes(FContentStream, LBytes, Count);
+  LCount := Integer(IndyLength(FContentStream, Count));
+  if LCount > 0 then begin
+    SetLength(Result, LCount);
+    FContentStream.ReadBuffer(PAnsiChar(Result)^, LCount);
 
-  {$IFDEF DOTNET}
-  // RLebeau: how to handle this correctly in .NET?
-  Result := AnsiString(BytesToStringRaw(LBytes));
-  {$ELSE}
-  SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-    {$IFDEF VCL_2009_OR_ABOVE}
-  // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
-  // the proper codepage assigned to it as well so it can be converted
-  // correctly if assigned to other string variables later on...
-  SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FRequestInfo.CharSet), False);
-    {$ENDIF}
-  {$ENDIF}
+    // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
+    // the proper codepage assigned to it as well so it can be converted
+    // correctly if assigned to other string variables later on...
+    SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FRequestInfo.CharSet), False);
+  end else begin
+    Result := '';
+  end;
 
   {$ELSE}
 
@@ -511,7 +486,6 @@ begin
   Result := URI;
 end;
 
-{$IFDEF VCL_6_OR_ABOVE_OR_CLR}
 function TIdHTTPAppRequest.WriteHeaders(StatusCode: Integer; const ReasonString, Headers: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean;
 begin
   FResponseInfo.ResponseNo := StatusCode;
@@ -520,7 +494,6 @@ begin
   FResponseInfo.WriteHeader;
   Result := True;
 end;
-{$ENDIF}
 
 function TIdHTTPAppRequest.WriteString(const AString: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}): Boolean;
 begin
@@ -533,13 +506,7 @@ var
   LBuffer: TIdBytes;
 begin
   SetLength(LBuffer, ACount);
-{$IFNDEF CLR}
-  Move(ABuffer, LBuffer[0], ACount);
-{$ELSE}
-  // RLebeau: this can't be right?  It is interpretting the source as a
-  // null-terminated character string, which is likely not the case...
-  CopyTIdBytes(ToBytes(string(ABuffer)), 0, LBuffer, 0, ACount);
-{$ENDIF}
+  Move(ABuffer, PByte(LBuffer)^, ACount);
   FThread.Connection.IOHandler.Write(LBuffer);
   Result := ACount;
 end;
@@ -574,35 +541,21 @@ begin
   // ContentType := 'text/html'; {do not localize}
 end;
 
-{$UNDEF CONVERT_UNICODE_TO_ANSI}
-{$IFDEF WBB_ANSI}
-  {$IFDEF STRING_IS_UNICODE}
-    {$DEFINE CONVERT_UNICODE_TO_ANSI}
-  {$ENDIF}
-{$ENDIF}
-
 function TIdHTTPAppResponse.GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
-{$IFDEF CONVERT_UNICODE_TO_ANSI}
+{$IFDEF WBB_ANSI}
 var
   LBytes: TIdBytes;
 {$ENDIF}
 begin
-  {$IFDEF CONVERT_UNICODE_TO_ANSI}
+  {$IFDEF WBB_ANSI}
   // RLebeau 2/21/2009: encode the content using the specified charset.
   Result := '';
   LBytes := CharsetToEncoding(FResponseInfo.CharSet).GetBytes(FResponseInfo.ContentText);
-    {$IFDEF DOTNET}
-  // RLebeau: how to handle this correctly in .NET?
-  Result := AnsiString(BytesToStringRaw(LBytes));
-    {$ELSE}
   SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-      {$IFDEF VCL_2009_OR_ABOVE}
   // RLebeau 2/21/2009: for D2009+, the AnsiString payload should have
   // the proper codepage assigned to it as well so it can be converted
   // correctly if assigned to other string variables later on...
   SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FResponseInfo.CharSet), False);
-      {$ENDIF}
-    {$ENDIF}
   {$ELSE}
   Result := FResponseInfo.ContentText;
   {$ENDIF}
@@ -753,7 +706,7 @@ begin
   // Reset to -1 so Indy will auto set it
   FResponseInfo.ContentLength := -1;
   MoveCookiesAndCustomHeaders;
-  {$IFDEF VCL_10_1_BERLIN_OR_ABOVE}
+  {$IFDEF DCC_BERLIN_OR_ABOVE}
   // TODO: This code may not be in the correct location.
   if (FResponseInfo.ContentType = '') and
     ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) and
@@ -776,32 +729,19 @@ begin
   Result := FSent;
 end;
 
-{$UNDEF CONVERT_ANSI_TO_UNICODE}
-{$IFDEF WBB_ANSI}
-  {$IFDEF STRING_IS_UNICODE}
-    {$DEFINE CONVERT_ANSI_TO_UNICODE}
-  {$ENDIF}
-{$ENDIF}
-
 procedure TIdHTTPAppResponse.SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF});
-{$IFDEF CONVERT_ANSI_TO_UNICODE}
+{$IFDEF WBB_ANSI}
 var
   LValue : string;
 {$ENDIF}
 begin
-  {$IFDEF CONVERT_ANSI_TO_UNICODE}
+  {$IFDEF WBB_ANSI}
 
   // AValue contains Encoded bytes
   if AValue <> '' then begin
     // RLebeau 3/28/2013: decode the content using the specified charset.
     if FResponseInfo.CharSet <> '' then begin
-      LValue := CharsetToEncoding(FResponseInfo.CharSet).GetString(
-        {$IFDEF DOTNET}
-        RawToBytes(PAnsiChar(AValue)^, Length(AValue))
-        {$ELSE}
-        PByte(PAnsiChar(AValue)), Length(AValue)
-        {$ENDIF}
-      );
+      LValue := CharsetToEncoding(FResponseInfo.CharSet).GetString(PByte(PAnsiChar(AValue)), Length(AValue));
     end else begin
       LValue := string(AValue);
     end;
@@ -865,17 +805,16 @@ end;
 
 { TIdHTTPWebBrokerBridge }
 
+constructor TIdHTTPWebBrokerBridge.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+ // FOkToProcessCommand := True;
+end;
+
 procedure TIdHTTPWebBrokerBridge.DoCommandOther(AThread: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
 begin
   DoCommandGet(AThread, ARequestInfo, AResponseInfo);
-
-end;
-
-procedure TIdHTTPWebBrokerBridge.InitComponent;
-begin
-  inherited InitComponent;
- // FOkToProcessCommand := True;
 end;
 
 type
@@ -886,11 +825,9 @@ type
   {$ENDIF}
   public
     constructor Create(AOwner: TComponent); override;
-    {$IFDEF HAS_CLASSVARS}
-      {$IFDEF HAS_CLASSDESTRUCTOR}
+    {$IF DEFINED(HAS_CLASSVARS) AND DEFINED(HAS_CLASSDESTRUCTOR)}
     class destructor Destroy;
-      {$ENDIF}
-    {$ENDIF}
+    {$IFEND}
     destructor Destroy; override;
     procedure Run(AThread: TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
   end;
@@ -916,10 +853,10 @@ begin
         AResponseInfo.FreeContentStream := False;
         HandleRequest(LRequest, LResponse);
       finally
-        FreeAndNil(LResponse);
+        LResponse.Free;
       end;
     finally
-      FreeAndNil(LRequest);
+      LRequest.Free;
     end;
   except
     // Let Indy handle this exception
@@ -939,14 +876,12 @@ begin
   inherited;
 end;
 
-{$IFDEF HAS_CLASSVARS}
-  {$IFDEF HAS_CLASSDESTRUCTOR}
+{$IF DEFINED(HAS_CLASSVARS) AND DEFINED(HAS_CLASSDESTRUCTOR)}
 class destructor TIdHTTPWebBrokerBridgeRequestHandler.Destroy;
 begin
-  FreeAndNil(FWebRequestHandler);
+  FWebRequestHandler.Free;
 end;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 function IdHTTPWebBrokerBridgeRequestHandler: TWebRequestHandler;
 begin
@@ -983,9 +918,7 @@ var
   LRequest: TIdHTTPAppRequest;
   LResponse: TIdHTTPAppResponse;
   LWebModule: TCustomWebDispatcher;
-  {$IFDEF VCL_6_OR_ABOVE}
   WebRequestHandler: IWebRequestHandler;
-  {$ENDIF}
   Handled: Boolean;
 begin
   LRequest := TIdHTTPAppRequest.Create(AThread, ARequestInfo, AResponseInfo);
@@ -997,7 +930,6 @@ begin
       // There are better ways in D6, but this works in D5
       LWebModule := FWebModuleClass.Create(nil) as TCustomWebDispatcher;
       try
-        {$IFDEF VCL_6_OR_ABOVE}
         if Supports(LWebModule, IWebRequestHandler, WebRequestHandler) then begin
           try
             Handled := WebRequestHandler.HandleRequest(LRequest, LResponse);
@@ -1007,20 +939,17 @@ begin
         end else begin
           Handled := TWebDispatcherAccess(LWebModule).DispatchAction(LRequest, LResponse);
         end;
-        {$ELSE}
-        Handled := TWebDispatcherAccess(LWebModule).DispatchAction(LRequest, LResponse);
-        {$ENDIF}
         if Handled and (not LResponse.Sent) then begin
           LResponse.SendResponse;
         end;
       finally
-        FreeAndNil(LWebModule);
+        LWebModule.Free;
       end;
     finally
-      FreeAndNil(LResponse);
+      LResponse.Free;
     end;
   finally
-    FreeAndNil(LRequest);
+    LRequest.Free;
   end;
 end;
 

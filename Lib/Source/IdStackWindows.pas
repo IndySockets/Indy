@@ -239,7 +239,7 @@ type
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer): Integer; override;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer; override;
-    {$IFNDEF VCL_XE3_OR_ABOVE}
+    {$IFNDEF DCC_XE3_OR_ABOVE}
     procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -250,11 +250,11 @@ type
       var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     function HostToNetwork(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
+    function HostToNetwork(AValue: UInt64): UInt64; override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
+    function NetworkToHost(AValue: UInt64): UInt64; override;
     procedure SetBlocking(ASocket: TIdStackSocketHandle; const ABlocking: Boolean); override;
     function WouldBlock(const AResult: Integer): Boolean; override;
     //
@@ -290,7 +290,7 @@ type
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
-    {$IFDEF VCL_XE3_OR_ABOVE}
+    {$IFDEF DCC_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -319,12 +319,10 @@ implementation
 
 {$DEFINE USE_IPHLPAPI}
 
-{$IFDEF USE_IPHLPAPI}
-  {$IFDEF VCL_XE2_OR_ABOVE}
-    {$DEFINE HAS_UNIT_IpTypes}
-    {$DEFINE HAS_UNIT_IpHlpApi}
-  {$ENDIF}
-{$ENDIF}
+{$IF DEFINED(USE_IPHLPAPI) AND DEFINED(DCC_XE2_OR_ABOVE)}
+  {$DEFINE HAS_UNIT_IpTypes}
+  {$DEFINE HAS_UNIT_IpHlpApi}
+{$IFEND}
 
 uses
   IdIDN, IdResourceStrings, IdWship6
@@ -720,12 +718,12 @@ var
   GetAdaptersAddresses: TGetAdaptersAddresses = nil;
   ConvertLengthToIpv4Mask: TConvertLengthToIpv4Mask = nil;
 
-function FixupIPHelperStub(const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; DefImpl: Pointer): Pointer;
+function FixupIPHelperStub(const AName: string; DefImpl: Pointer): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := nil;
   if hIpHlpApi <> 0 then begin
-    Result := Windows.GetProcAddress(hIpHlpApi, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
+    Result := Windows.GetProcAddress(hIpHlpApi, PChar(AName));
   end;
   if Result = nil then begin
     Result := DefImpl;
@@ -1118,30 +1116,39 @@ begin
   end;
 end;
 
+{$IFNDEF HAS_TryStrToInt}
+// TODO: use the implementation already in IdGlobalProtocols...
+function TryStrToInt(const S: string; out Value: Integer): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  E: Integer;
+begin
+  Val(S, Value, E);
+  Result := E = 0;
+end;
+{$ENDIF}
+
 function TIdStackWindows.WSGetServByName(const AServiceName: string): TIdPort;
 var
+  // Note that there is no Unicode version of getservbyname.
+  // Maybe use getaddrinfo() instead?
   ps: PServEnt;
-  {$IFDEF STRING_IS_UNICODE}
   LTemp: AnsiString;
-  {$ENDIF}
+  LPort: Integer;
 begin
-  {$IFDEF STRING_IS_UNICODE}
   LTemp := AnsiString(AServiceName); // explicit convert to Ansi
-  {$ENDIF}
-  ps := getservbyname(
-    PAnsiChar({$IFDEF STRING_IS_UNICODE}LTemp{$ELSE}AServiceName{$ENDIF}),
-    nil);
+  ps := getservbyname(PAnsiChar(LTemp), nil);
   if ps <> nil then begin
     Result := ntohs(ps^.s_port);
-  end else begin
-    try
-      Result := IndyStrToInt(AServiceName);
-    except
-      on EConvertError do begin
-        Result := 0;
-        IndyRaiseOuterException(EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]));
-      end;
+  end else
+  begin
+    if not TryStrToInt(AServiceName, LPort) then begin
+      raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
     end;
+    if (LPort < 0) or (LPort > High(TIdPort)) then begin
+      raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
+    end;
+    Result := TIdPort(LPort);
   end;
 end;
 
@@ -1197,56 +1204,67 @@ begin
   Result := ntohl(AValue);
 end;
 
-function TIdStackWindows.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
+function TIdStackWindows.HostToNetwork(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
+  // TODO: enable this?
+  (*
+  LParts.LongWords[0] := htonl(UInt32(AValue shr 32));
+  LParts.LongWords[1] := htonl(UInt32(AValue));
+  Result := LParts.QuadPart;
+  *)
+
   // TODO: ARM is bi-endian, so if Windows is running on ARM instead of x86,
   // can it ever be big endian? Or do ARM manufacturers put it in little endian
   // for Windows installations?
 
   //if (htonl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue;
     L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result := LParts.QuadPart;
   //end else begin
-  //  Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+  //  Result := AValue;
   //end;
 end;
 
-function TIdStackWindows.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
+function TIdStackWindows.NetworkToHost(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
+  // TODO: enable this?
+  (*
+  LParts.QuadPart := AValue;
+  Result := (UInt64(ntohl(LParts.LongWords[0])) shl 32) or UInt64(ntohl(LParts.LongWords[1]));
+  *)
+
   // TODO: ARM is bi-endian, so if Windows is running on ARM instead of x86,
   // can it ever be big endian? Or do ARM manufacturers put it in little endian
   // for Windows installations?
 
   //if (ntohl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue;
     L := ntohl(LParts.HighPart);
     LParts.HighPart := ntohl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result := LParts.QuadPart;
   //end else begin
-  //  Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+  //  Result := AValue;
   //end;
 end;
 
 procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
-{$IFNDEF USE_IPHLPAPI}
-  {$IFNDEF WINCE}
+{$IF (NOT DEFINED(USE_IPHLPAPI)) AND (NOT DEFINED(WINCE))}
 type
   TaPInAddr = array[0..250] of PInAddr;
   PaPInAddr = ^TaPInAddr;
   TaPIn6Addr = array[0..250] of PIn6Addr;
   PaPIn6Addr = ^TaPIn6Addr;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
   {$IFDEF USE_IPHLPAPI}
 
@@ -1554,7 +1572,7 @@ type
     end;
   end;
 
-    {$ELSE}
+  {$ELSE}
 
 var
     {$IFDEF UNICODE}
@@ -1890,14 +1908,14 @@ begin
       Unlock;
     end;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
 
 function TIdStackWindows.WouldBlock(const AResult: Integer): Boolean;
 begin
-  Result := CheckForSocketError(AResult, [WSAEWOULDBLOCK]) <> 0;
+  Result := AResult = WSAEWOULDBLOCK;
 end;
 
 function TIdStackWindows.HostByName(const AHostName: string;
@@ -1931,13 +1949,7 @@ begin
   LAddrInfo := nil;
 
   if UseIDNAPI then begin
-    LHostName := IDNToPunnyCode(
-      {$IFDEF STRING_IS_UNICODE}
-      AHostName
-      {$ELSE}
-      TIdUnicodeString(AHostName) // explicit convert to Unicode
-      {$ENDIF}
-    );
+    LHostName := IDNToPunnyCode(AHostName);
   end else begin
     LHostName := AHostName;
   end;
@@ -2025,7 +2037,7 @@ begin
   WSCloseSocket(ASocket);
 end;
 
-procedure TIdStackWindows.{$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
+procedure TIdStackWindows.{$IFDEF DCC_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
   var AOptVal; var AOptLen: Integer);
 begin
@@ -2042,7 +2054,7 @@ begin
   );
 end;
 
-procedure TIdStackWindows.{$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
+procedure TIdStackWindows.{$IFDEF DCC_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
   const AOptVal; const AOptLen: Integer);
 begin

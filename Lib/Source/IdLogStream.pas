@@ -37,8 +37,10 @@
 unit IdLogStream;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdLogBase, IdGlobal;
@@ -50,11 +52,11 @@ type
     FReceiveStream: TStream;
     FSendStream: TStream;
     //
-    procedure InitComponent; override;
     procedure LogStatus(const AText: string); override;
     procedure LogReceivedData(const AText, AData: string); override;
     procedure LogSentData(const AText, AData: string); override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Disconnect; override;
     //
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
@@ -63,7 +65,9 @@ type
   end;
 
 implementation
- uses SysUtils;
+
+uses
+  SysUtils;
 
 // TODO: This was orginally for VCL. For .Net what do we do? Convert back to
 // 7 bit? Log all? Logging all seems to be a disaster.
@@ -74,38 +78,32 @@ implementation
 
 { TIdLogStream }
 
+constructor TIdLogStream.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FFreeStreams := True;
+end;
+
 procedure TIdLogStream.Disconnect;
 begin
   inherited Disconnect;
   if FreeStreams then begin
-    FreeAndNil(FReceiveStream);
-    FreeAndNil(FSendStream);
+    IdDisposeAndNil(FReceiveStream);
+    IdDisposeAndNil(FSendStream);
   end;
 end;
 
-procedure TIdLogStream.InitComponent;
-begin
-  inherited InitComponent;
-  FFreeStreams := True;
-end;
-
 procedure TIdLogStream.LogReceivedData(const AText, AData: string);
-var
-  LEncoding: IIdTextEncoding;
 begin
   if FReceiveStream <> nil then begin
-    LEncoding := IndyTextEncoding_8Bit;
-    WriteStringToStream(FReceiveStream, AData, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    WriteStringToStream(FReceiveStream, AData, IndyTextEncoding_8Bit);
   end;
 end;
 
 procedure TIdLogStream.LogSentData(const AText, AData: string);
-var
-  LEncoding: IIdTextEncoding;
 begin
   if FSendStream <> nil then begin
-    LEncoding := IndyTextEncoding_8Bit;
-    WriteStringToStream(FSendStream, AData, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    WriteStringToStream(FSendStream, AData, IndyTextEncoding_8Bit);
   end;
 end;
 

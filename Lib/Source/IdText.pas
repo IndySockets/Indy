@@ -92,7 +92,7 @@ end;
 
 destructor TIdText.Destroy;
 begin
-  FreeAndNil(FBody);
+  FBody.Free;
   inherited Destroy;
 end;
 

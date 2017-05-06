@@ -51,9 +51,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdAssignedNumbers,
   IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,
   IdTCPServer;
@@ -76,13 +74,10 @@ type
     FReplyUnknownCommand: TIdReplyPOP3;
     FGreeting: TIdReplyPOP3;
     FUserHostDelimiter: String;
-    procedure InitComponent; override;
     procedure SetGreeting(AValue: TIdReplyPOP3);
     procedure SetReplyUnknownCommand(const AValue: TIdReplyPOP3);
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property Greeting : TIdReplyPOP3 read FGreeting write SetGreeting;
@@ -101,23 +96,9 @@ uses
 
 { TIdMappedPOP3 }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdMappedPOP3.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-destructor TIdMappedPOP3.Destroy;
-begin
-  FreeAndNil(FReplyUnknownCommand);
-  FreeAndNil(FGreeting);
-  inherited Destroy;
-end;
-
-procedure TIdMappedPOP3.InitComponent;
-Begin
-  inherited InitComponent;
 
   FUserHostDelimiter := '#';//standard    {Do not Localize}
   FGreeting := TIdReplyPOP3.Create(nil);
@@ -129,6 +110,13 @@ Begin
   DefaultPort := IdPORT_POP3;
   MappedPort := IdPORT_POP3;
   FContextClass := TIdMappedPOP3Context;
+end;
+
+destructor TIdMappedPOP3.Destroy;
+begin
+  FReplyUnknownCommand.Free;
+  FGreeting.Free;
+  inherited Destroy;
 end;
 
 procedure TIdMappedPOP3.SetGreeting(AValue: TIdReplyPOP3);

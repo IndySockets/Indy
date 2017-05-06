@@ -108,7 +108,7 @@ begin
                 (s[6] = '**');         {do not localize}
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -129,7 +129,7 @@ begin
                 (s[4] = 'name');        {do not localize}
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 

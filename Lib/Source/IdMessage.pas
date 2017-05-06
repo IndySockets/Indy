@@ -431,8 +431,8 @@ type
     procedure SetReplyTo(const AValue: TIdEmailAddressList);
     procedure SetSender(const AValue: TIdEmailAddressItem);
     procedure SetUseNowForDate(const AValue: Boolean);
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
     procedure AddHeader(const AValue: string);
@@ -444,13 +444,13 @@ type
     function  IsBodyEncodingRequired: Boolean;
     function  IsBodyEmpty: Boolean;
 
-    procedure LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False);
-    procedure LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False);
+    procedure LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False; const AUsesDotTransparency: Boolean = True);
+    procedure LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False; const AUsesDotTransparency: Boolean = True);
 
     procedure ProcessHeaders;
 
-    procedure SaveToFile(const AFileName : string; const AHeadersOnly: Boolean = False);
-    procedure SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False);
+    procedure SaveToFile(const AFileName : string; const AHeadersOnly: Boolean = False; const AUseDotTransparency: Boolean = True);
+    procedure SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False; const AUseDotTransparency: Boolean = True);
 
     procedure DoCreateAttachment(const AHeaders: TStrings; var VAttachment: TIdAttachment); virtual;
     //
@@ -524,11 +524,6 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
   IdIOHandlerStream, IdGlobal,
   IdMessageCoderMIME, // Here so the 'MIME' in create will always suceed
   IdCharSets, IdGlobalProtocols, IdMessageCoder, IdResourceStringsProtocols,
@@ -561,8 +556,8 @@ end;
 
 destructor TIdMIMEBoundary.Destroy;
 begin
-  FreeAndNil(FBoundaryList);
-  FreeAndNil(FParentPartList);
+  FBoundaryList.Free;
+  FParentPartList.Free;
   inherited;
 end;
 
@@ -602,6 +597,48 @@ begin
 end;
 
 { TIdMessage }
+
+constructor TIdMessage.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FBody := TStringList.Create;
+  TStringList(FBody).Duplicates := dupAccept;
+  FRecipients := TIdEmailAddressList.Create(Self);
+  FBccList := TIdEmailAddressList.Create(Self);
+  FCcList := TIdEmailAddressList.Create(Self);
+  FMessageParts := TIdMessageParts.Create(Self);
+  FNewsGroups := TStringList.Create;
+  FHeaders := TIdHeaderList.Create(QuoteRFC822);
+  FFromList := TIdEmailAddressList.Create(Self);
+  FReplyTo := TIdEmailAddressList.Create(Self);
+  FSender := TIdEmailAddressItem.Create;
+  FExtraHeaders := TIdHeaderList.Create(QuoteRFC822);
+  FReceiptRecipient := TIdEmailAddressItem.Create;
+  NoDecode := ID_MSG_NODECODE;
+  FMIMEBoundary := TIdMIMEBoundary.Create;
+  FLastGeneratedHeaders := TIdHeaderList.Create(QuoteRFC822);
+  Clear;
+  FEncoding := meDefault;
+end;
+
+destructor TIdMessage.Destroy;
+begin
+  FBody.Free;
+  FRecipients.Free;
+  FBccList.Free;
+  FCcList.Free;
+  FMessageParts.Free;
+  FNewsGroups.Free;
+  FHeaders.Free;
+  FExtraHeaders.Free;
+  FFromList.Free;
+  FReplyTo.Free;
+  FSender.Free;
+  FReceiptRecipient.Free;
+  FMIMEBoundary.Free;
+  FLastGeneratedHeaders.Free;
+  inherited Destroy;
+end;
 
 procedure TIdMessage.AddHeader(const AValue: string);
 begin
@@ -651,48 +688,6 @@ begin
   FConvertPreamble := True;  {By default, in MIME, we convert the preamble text to the 1st TIdText part}
   FSavingToFile := False;  {Only set True by SaveToFile}
   FIsMsgSinglePartMime := False;
-end;
-
-procedure TIdMessage.InitComponent;
-begin
-  inherited;
-  FBody := TStringList.Create;
-  TStringList(FBody).Duplicates := dupAccept;
-  FRecipients := TIdEmailAddressList.Create(Self);
-  FBccList := TIdEmailAddressList.Create(Self);
-  FCcList := TIdEmailAddressList.Create(Self);
-  FMessageParts := TIdMessageParts.Create(Self);
-  FNewsGroups := TStringList.Create;
-  FHeaders := TIdHeaderList.Create(QuoteRFC822);
-  FFromList := TIdEmailAddressList.Create(Self);
-  FReplyTo := TIdEmailAddressList.Create(Self);
-  FSender := TIdEmailAddressItem.Create;
-  FExtraHeaders := TIdHeaderList.Create(QuoteRFC822);
-  FReceiptRecipient := TIdEmailAddressItem.Create;
-  NoDecode := ID_MSG_NODECODE;
-  FMIMEBoundary := TIdMIMEBoundary.Create;
-  FLastGeneratedHeaders := TIdHeaderList.Create(QuoteRFC822);
-  Clear;
-  FEncoding := meDefault;
-end;
-
-destructor TIdMessage.Destroy;
-begin
-  FreeAndNil(FBody);
-  FreeAndNil(FRecipients);
-  FreeAndNil(FBccList);
-  FreeAndNil(FCcList);
-  FreeAndNil(FMessageParts);
-  FreeAndNil(FNewsGroups);
-  FreeAndNil(FHeaders);
-  FreeAndNil(FExtraHeaders);
-  FreeAndNil(FFromList);
-  FreeAndNil(FReplyTo);
-  FreeAndNil(FSender);
-  FreeAndNil(FReceiptRecipient);
-  FreeAndNil(FMIMEBoundary);
-  FreeAndNil(FLastGeneratedHeaders);
-  inherited Destroy;
 end;
 
 function  TIdMessage.IsBodyEmpty: Boolean;
@@ -791,8 +786,6 @@ begin
   InitializeISO(HeaderEncoding, ISOCharSet);
   FLastGeneratedHeaders.Assign(FHeaders);
   FIsMsgSinglePartMime := (Encoding = meMIME) and (MessageParts.Count = 1) and IsBodyEmpty;
-
-  // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
 
   {CC: If From has no Name field, use the Address field as the Name field by setting last param to True (for SA)...}
   FLastGeneratedHeaders.Values['From'] := EncodeAddress(FromList, HeaderEncoding, ISOCharSet, True); {do not localize}
@@ -1196,59 +1189,102 @@ begin
   end;
 end;
 
-procedure TIdMessage.LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False;
+  const AUseDotTransparency: Boolean = True);
 var
   LStream: TIdReadFileExclusiveStream;
 begin
-  if not FileExists(AFilename) then begin
-    raise EIdMessageCannotLoad.CreateFmt(RSIdMessageCannotLoad, [AFilename]);
+  try
+    LStream := TIdReadFileExclusiveStream.Create(AFilename);
+  except
+    IndyRaiseOuterException(EIdMessageCannotLoad.CreateFmt(RSIdMessageCannotLoad, [AFilename]));
   end;
-  LStream := TIdReadFileExclusiveStream.Create(AFilename); try
-    LoadFromStream(LStream, AHeadersOnly);
-  finally FreeAndNil(LStream); end;
+  try
+    LoadFromStream(LStream, AHeadersOnly, AUseDotTransparency);
+  finally
+    LStream.Free;
+  end;
 end;
 
-procedure TIdMessage.LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False;
+  const AUseDotTransparency: Boolean = True);
 var
   LMsgClient: TIdMessageClient;
+  LIOHandler: TIdIOHandlerStreamMsg;
 begin
   // clear message properties, headers before loading
   Clear;
   LMsgClient := TIdMessageClient.Create;
   try
-    LMsgClient.ProcessMessage(Self, AStream, AHeadersOnly);
+    // TODO: add AUsesDotTransparency parameter to ProcessMessage()...
+    //LMsgClient.ProcessMessage(Self, AStream, AHeadersOnly, AUsesDotTransparency);
+    LIOHandler := TIdIOHandlerStreamMsg.Create(nil, AStream);
+    try
+      LIOHandler.FreeStreams := False;
+      LIOHandler.EscapeLines := not AUsesDotTransparency; // <-- this is the key!
+      LMsgClient.IOHandler := LIOHandler;
+      try
+        LIOHandler.Open;
+        LMsgClient.ProcessMessage(Self, AHeaderOnly);
+      finally
+        LMsgClient.IOHandler := nil;
+      end;
+    finally
+      LIOHandler.Free;
+    end;
   finally
     LMsgClient.Free;
   end;
 end;
 
-procedure TIdMessage.SaveToFile(const AFileName: string; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.SaveToFile(const AFileName: string; const AHeadersOnly: Boolean = False;
+  const AUseDotTransparency: Boolean = True);
 var
   LStream : TFileStream;
 begin
-  LStream := TIdFileCreateStream.Create(AFileName); try
-    FSavingToFile := True; try
-      SaveToStream(LStream, AHeadersOnly);
-    finally FSavingToFile := False; end;
-  finally FreeAndNil(LStream); end;
+  LStream := TIdFileCreateStream.Create(AFileName);
+  try
+    FSavingToFile := True;
+    try
+      SaveToStream(LStream, AHeadersOnly, AUseDotTransparency);
+    finally
+      FSavingToFile := False;
+    end;
+  finally
+    LStream.Free;
+  end;
 end;
 
-procedure TIdMessage.SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False;
+  const AUseDotTransparency: Boolean = True);
 var
   LMsgClient: TIdMessageClient;
   LIOHandler: TIdIOHandlerStream;
 begin
-  LMsgClient := TIdMessageClient.Create(nil); try
-    LIOHandler := TIdIOHandlerStream.Create(nil, nil, AStream); try
+  LMsgClient := TIdMessageClient.Create(nil);
+  try
+    // TODO: add AUsesDotTransparency parameter to ProcessMessage()...
+    //LMsgClient.SendMsg(Self, AHeadersOnly, AUsesDotTransparency);
+    LIOHandler := TIdIOHandlerStreamMsg.Create(nil, nil, AStream);
+    try
       LIOHandler.FreeStreams := False;
+      LIOHandler.UnescapeLines := not AUseDotTransparency; // <-- this is the key!
       LMsgClient.IOHandler := LIOHandler;
-      LMsgClient.SendMsg(Self, AHeadersOnly);
-      // add the end of message marker when body is included
-      if not AHeadersOnly then begin
-        LMsgClient.IOHandler.WriteLn('.');  {do not localize}
+      try
+        LMsgClient.SendMsg(Self, AHeadersOnly);
+        // add the end of message marker when body is included
+        if (not AHeadersOnly) and AUseDotTransparency then begin
+          LMsgClient.IOHandler.WriteLn('.');  {do not localize}
+        end;
+      finally
+        LMsgClient.IOHandler := nil;
       end;
-    finally FreeAndNil(LIOHandler); end;
-  finally FreeAndNil(LMsgClient); end;
+    finally
+      LIOHandler.Free;
+    end;
+  finally
+    LMsgClient.Free;
+  end;
 end;
 
 procedure TIdMessage.DoInitializeISO(var VHeaderEncoding: Char; var VCharSet: string);

@@ -37,9 +37,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
@@ -47,11 +45,8 @@ type
   protected
     FTimeZone : String;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   published
     property TimeZone: String read FTimeZone write FTimeZone;
     property DefaultPort default IdPORT_DAYTIME;
@@ -64,16 +59,9 @@ uses
 
 { TIdDayTimeUDPServer }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdDayTimeUDPServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdDayTimeUDPServer.InitComponent;
-begin
-  inherited InitComponent;
   DefaultPort := IdPORT_DAYTIME;
   FTimeZone := 'EST';  {Do not Localize}
 end;

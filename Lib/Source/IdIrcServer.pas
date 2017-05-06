@@ -78,6 +78,7 @@ Original Author: Ozz Nixon
 }
 
 uses
+  Classes,
   IdAssignedNumbers, IdCommandHandlers, IdCmdTCPServer, IdContext, IdServerIOHandler;
 
 type
@@ -185,7 +186,8 @@ type
     //overrides for TLS support
     procedure DoConnect(AContext: TIdContext); override;
     procedure SetIOHandler(const AValue: TIdServerIOHandler); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_IRC;
     property OnCommandPass: TIdIRCOneParmEvent read fOnCommandPass write fOnCommandPass;
@@ -236,9 +238,9 @@ implementation
 uses
   IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, SysUtils;
 
-procedure TIdIRCServer.InitComponent;
+constructor TIdIRCServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_IRC;
 end;
 

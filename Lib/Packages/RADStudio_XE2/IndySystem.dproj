@@ -81,7 +81,7 @@
 		<PropertyGroup Condition="'$(Base_Win64)'!=''">
 			<DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<Icon_MainIcon>IndySystem_Icon.ico</Icon_MainIcon>
+			<Icon_MainIcon>..\IndySystem_Icon.ico</Icon_MainIcon>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_OSX32)'!=''">
 			<DCC_UnitSearchPath>$(BDS)\source\rtl\posix\osx;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
@@ -90,7 +90,7 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win32)'!=''">
 			<DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-			<Icon_MainIcon>IndySystem_Icon.ico</Icon_MainIcon>
+			<Icon_MainIcon>..\IndySystem_Icon.ico</Icon_MainIcon>
 			<DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>
@@ -129,23 +129,24 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="rtl.dcp"/>
-			<DCCReference Include="IdAntiFreezeBase.pas"/>
-			<DCCReference Include="IdBaseComponent.pas"/>
-			<DCCReference Include="IdCTypes.pas"/>
-			<DCCReference Include="IdComponent.pas"/>
-			<DCCReference Include="IdException.pas"/>
-			<DCCReference Include="IdGlobal.pas"/>
-			<DCCReference Include="IdIDN.pas"/>
-			<DCCReference Include="IdResourceStrings.pas"/>
-			<DCCReference Include="IdStack.pas"/>
-			<DCCReference Include="IdStackBSDBase.pas"/>
-			<DCCReference Include="IdStackConsts.pas"/>
-			<DCCReference Include="IdStackWindows.pas"/>
-			<DCCReference Include="IdStream.pas"/>
-			<DCCReference Include="IdStreamVCL.pas"/>
-			<DCCReference Include="IdStruct.pas"/>
-			<DCCReference Include="IdWinsock2.pas"/>
-			<DCCReference Include="IdWship6.pas">
+			<DCCReference Include="..\..\Source\IdAntiFreezeBase.pas"/>
+			<DCCReference Include="..\..\Source\IdBaseComponent.pas"/>
+			<DCCReference Include="..\..\Source\IdCTypes.pas"/>
+			<DCCReference Include="..\..\Source\IdComponent.pas"/>
+			<DCCReference Include="..\..\Source\IdException.pas"/>
+			<DCCReference Include="..\..\Source\IdGlobal.pas"/>
+			<DCCReference Include="..\..\Source\IdIDN.pas"/>
+			<DCCReference Include="..\..\Source\IdResourceStrings.pas"/>
+			<DCCReference Include="..\..\Source\IdResourceStringsUnix.pas"/>
+			<DCCReference Include="..\..\Source\IdResourceStringsVCLPosix.pas"/>
+			<DCCReference Include="..\..\Source\IdStack.pas"/>
+			<DCCReference Include="..\..\Source\IdStackBSDBase.pas"/>
+			<DCCReference Include="..\..\Source\IdStackConsts.pas"/>
+			<DCCReference Include="..\..\Source\IdStackVCLPosix.pas"/>
+			<DCCReference Include="..\..\Source\IdStream.pas"/>
+			<DCCReference Include="..\..\Source\IdStreamVCL.pas"/>
+			<DCCReference Include="..\..\Source\IdStruct.pas"/>
+			<DCCReference Include="..\..\Source\IdVCLPosixSupplemental.pas">
 				<Form>$ENDIF</Form>
 			</DCCReference>
 			<BuildConfiguration Include="Debug">

@@ -141,7 +141,6 @@ interface
 uses
   Classes,
   IdBaseComponent,
-  IdStream,
   IdIOHandler;
 
 type
@@ -199,63 +198,58 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TSt
 
   procedure GotoDataStart;
   var
-    LFlags: TIdBytes; //used as a byte
-    LExtra: TIdBytes; //used as a word
-    LNullFindChar: TIdBytes; //used as char
+    LFlags: Byte;
+    LExtra: array[0..1] of Byte;
+    LNullFindChar: Byte;
   begin
-    SetLength(LFlags,1);
-    SetLength(LExtra,2);
-    SetLength(LNullFindChar,1);
-
     //skip id1,id2,CompressionMethod (id1 should=31, id2=139, CM should=8)
-    TIdStreamHelper.Seek(AInStream, 3, soCurrent);
+    AInStream.Seek(3, soCurrent);
     //read Flag
-    TIdStreamHelper.ReadBytes(AInStream, LFlags, 1);
+    AInStream.ReadBuffer(LFlags, 1);
     //skip mtime,xfl,os
-    TIdStreamHelper.Seek(AInStream, 6, soCurrent);
+    AInStream.Seek(6, soCurrent);
 
     // at pos 10 now
 
-    if (LFlags[0] and $4) = $4 then begin // FEXTRA
-      TIdStreamHelper.ReadBytes(AInStream, LExtra, 2);
-      TIdStreamHelper.Seek(AInStream, BytesToUInt16(LExtra), soCurrent);
+    if (LFlags and $4) = $4 then begin // FEXTRA
+      AInStream.ReadBuffer(LExtra, 2);
+      AInStream.Seek(BytesToUInt16(LExtra), soCurrent);
     end;
 
-    if (LFlags[0] and $8) = $8 then begin // FNAME
+    if (LFlags and $8) = $8 then begin // FNAME
       repeat
-        TIdStreamHelper.ReadBytes(AInStream, LNullFindChar, 1);
-      until LNullFindChar[0] = 0;
+        AInStream.ReadBuffer(LNullFindChar, 1);
+      until LNullFindChar = 0;
     end;
 
-    if (LFlags[0] and $10) = $10 then begin // FCOMMENT
+    if (LFlags and $10) = $10 then begin // FCOMMENT
       repeat
-        TIdStreamHelper.ReadBytes(AInStream, LNullFindChar, 1);
-      until LNullFindChar[0] = 0;
+        AInStream.ReadBuffer(LNullFindChar, 1);
+      until LNullFindChar = 0;
     end;
 
-    if (LFlags[0] and $2) = $2 then begin // FHCRC
-      TIdStreamHelper.Seek(AInStream, 2, soCurrent); // CRC16
+    if (LFlags and $2) = $2 then begin // FHCRC
+      AInStream.Seek(2, soCurrent); // CRC16
     end;
   end;
 
 var
-  LBytes : TIdBytes;
+  LBytes : array[0..1] of Byte;
 begin
   Assert(AInStream<>nil);
   GotoDataStart;
-  TIdStreamHelper.Seek(AInStream, -2, soCurrent);
-  SetLength(LBytes, 2);
+  AInStream.Seek(-2, soCurrent);
   LBytes[0] := $78; //7=32K blocks, 8=deflate
   LBytes[1] := $9C;
-  TIdStreamHelper.Write(AInStream, LBytes, 2);
-  TIdStreamHelper.Seek(AInStream, -2, soCurrent);
-  AInStream.size := AInStream.size - 8; // remove the CRC32 and the size
+  AInStream.WriteBuffer(LBytes, 2);
+  AInStream.Seek(-2, soCurrent);
+  AInStream.Size := AInStream.Size - 8; // remove the CRC32 and the size
   InflateStream(AInStream, AOutStream);
 end;
 
 procedure TIdZLibCompressorBase.DecompressDeflateStream(AInStream, AOutStream : TStream);
 begin
-  TIdStreamHelper.Seek(AInStream, 10, soCurrent); // skip junk at front
+  AInStream.Seek(10, soCurrent); // skip junk at front
   InflateStream(AInStream, AOutStream);
 end;
 
@@ -296,21 +290,18 @@ end;
 
 procedure TIdZLibCompressorBase.DecompressHTTPDeflate(AInStream, AOutStream : TStream);
 var
-  LBCmp : TIdBytes; //used as Byte
-  LFlags : TIdBytes; //used as Byte
-  LDict : TIdBytes; //used as Cardinal
-  LOrgPos : TIdStreamSize;
+  LBCmp : Byte;
+  LFlags : Byte;
+  LDict : array[0..3] of Byte;
+  LOrgPos : Int64;
 begin
-  SetLength(LBCmp, 1);
-  SetLength(LFlags, 1);
-  SetLength(LDict, 4);
   LOrgPos := AInStream.Position;
-  TIdStreamHelper.ReadBytes(AInStream, LBCmp, 1);
-  TIdStreamHelper.ReadBytes(AInStream, LFlags, 1);
-  if (((LBCmp[0] * 256) + LFlags[0]) mod 31) <> 0 then begin
+  AInStream.ReadBuffer(LBCmp, 1);
+  AInStream.ReadBuffer(LFlags, 1);
+  if (((LBCmp * 256) + LFlags) mod 31) <> 0 then begin
     raise EIdException.Create('Error - invalid header'); {do not localize}
   end;
-  TIdStreamHelper.ReadBytes(AInStream, LDict, 4);
+  AInStream.ReadBuffer(LDict, 4);
   AInStream.Position := LOrgPos;
   InflateStream(AInStream, AOutStream);
   AInStream.Position := LOrgPos;

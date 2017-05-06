@@ -47,6 +47,7 @@ unit IdSystatUDPServer;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -60,7 +61,8 @@ type
   protected
     FOnSystat : TIdUDPSystatEvent;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property OnSystat : TIdUDPSystatEvent read FOnSystat write FOnSystat;
     property DefaultPort default IdPORT_SYSTAT;
@@ -87,14 +89,15 @@ support this.
 URL:
 http://www.manualy.sk/sock-faq/unix-socket-faq-5.html
 }
-const Max_UDPPacket = 548;
-      Max_Line_Len  = Max_UDPPacket - 2; //EOL deliniator
+const
+  Max_UDPPacket = 548;
+  Max_Line_Len  = Max_UDPPacket - 2; //EOL deliniator
 
 { TIdSystatUDPServer }
 
-procedure TIdSystatUDPServer.InitComponent;
+constructor TIdSystatUDPServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_SYSTAT;
 end;
 
@@ -142,7 +145,7 @@ begin
         ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s), ABinding.IPVersion);
       end;
     finally
-      FreeAndNil(LResults);
+      LResults.Free;
     end;
   end;
 end;

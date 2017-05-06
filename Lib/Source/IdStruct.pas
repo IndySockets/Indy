@@ -80,12 +80,10 @@ implementation
 
 // This is here to facilitate inlining
 
-{$IFDEF WINDOWS}
-  {$IFDEF USE_INLINE}
+{$IF DEFINED(WINDOWS) AND DEFINED(USE_INLINE)}
 uses
   Windows;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 { TIdStruct }
 

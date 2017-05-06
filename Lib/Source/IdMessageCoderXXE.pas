@@ -28,17 +28,18 @@
 unit IdMessageCoderXXE;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  IdMessageCoderUUE, IdMessageCoder, IdMessage;
+  Classes, IdMessageCoderUUE, IdMessageCoder, IdMessage;
 
 type
   // No Decoder - UUE handles XXE decoding
 
   TIdMessageEncoderXXE = class(TIdMessageEncoderUUEBase)
-  protected
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   end;
 
   TIdMessageEncoderInfoXXE = class(TIdMessageEncoderInfo)
@@ -61,9 +62,9 @@ end;
 
 { TIdMessageEncoderXXE }
 
-procedure TIdMessageEncoderXXE.InitComponent;
+constructor TIdMessageEncoderXXE.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FEncoderClass := TIdEncoderXXE;
 end;
 

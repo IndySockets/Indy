@@ -172,9 +172,9 @@ type
     FBodyEncoded: Boolean;
     FMIMEBoundary: string;
     function GetProperHeaderItem(const Line: string): string;
-    procedure InitComponent; override;
   public
-    constructor Create(AOwner: TComponent; const ALine: string); reintroduce; overload;
+    constructor Create(AOwner: TComponent); overload; override;
+    constructor Create(AOwner: TComponent; const ALine: string); overload;
     function ReadBody(ADestStream: TStream; var VMsgEnd: Boolean): TIdMessageDecoder; override;
     procedure CheckAndSetType(const AContentType, AContentDisposition: string);
     procedure ReadHeader; override;
@@ -332,9 +332,46 @@ end;
 
 { TIdMessageDecoderMIME }
 
-constructor TIdMessageDecoderMIME.Create(AOwner: TComponent; const ALine: string);
+constructor TIdMessageDecoderMIME.Create(AOwner: TComponent);
+var
+  LMsg: TIdMessage;
 begin
   inherited Create(AOwner);
+  FBodyEncoded := False;
+  if AOwner is TIdMessage then begin
+    LMsg := TIdMessage(AOwner);
+    FMIMEBoundary := LMsg.MIMEBoundary.Boundary;
+    {CC2: Check to see if this is an email of the type that is headers followed
+    by the body encoded in base64 or quoted-printable.  The problem with this type
+    is that the header may state it as MIME, but the MIME parts and their headers
+    will be encoded, so we won't find them - in this case, we will later take
+    all the info we need from the message header, and not try to take it from
+    the part header.}
+    if LMsg.ContentTransferEncoding <> '' then begin
+      // RLebeau 12/26/2014 - According to RFC 2045 Section 6.4:
+      // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
+      // permitted to have any value other than "7bit", "8bit" or "binary"."
+      //
+      // However, came across one message where the "Content-Type" was set to
+      // "multipart/related" and the "Content-Transfer-Encoding" was set to
+      // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
+      // the message correctly, but Indy was not.  So let's check for that scenario
+      // and ignore illegal "Content-Transfer-Encoding" values if present...
+      if (not IsHeaderMediaType(LMsg.ContentType, 'multipart')) and
+        {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
+        set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
+        the part header in plain-text.}
+         (not IsHeaderValue(LMsg.ContentTransferEncoding, ['8bit', '7bit', 'binary']))    {do not localize}
+      then begin
+        FBodyEncoded := True;
+      end;
+    end;
+  end;
+end;
+
+constructor TIdMessageDecoderMIME.Create(AOwner: TComponent; const ALine: string);
+begin
+  Create(AOwner);
   FFirstLine := ALine;
   FProcessFirstLine := True;
 end;
@@ -435,10 +472,10 @@ begin
           // very least, we need to detect the type of line break used (CRLF vs bare-LF) so
           // we can duplicate it correctly in the output.  Most systems use CRLF, per the RFCs,
           // but have seen systems use bare-LF instead...
-          LLine := ReadLnRFC(VMsgEnd, EOL, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
+          LLine := ReadLnRFC(VMsgEnd, EOL, '.', LEncoding); {do not localize}
           LBinaryLineBreak := EOL; // TODO: detect the actual line break used
         end else begin
-          LLine := ReadLnRFC(VMsgEnd, LF, '.', LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF}); {do not localize}
+          LLine := ReadLnRFC(VMsgEnd, LF, '.', LEncoding); {do not localize}
         end;
       end else begin
         LLine := FFirstLine;
@@ -483,15 +520,15 @@ begin
             LIsThisTheFirstLine := False;
           end else begin
             if Assigned(ADestStream) then begin
-              WriteStringToStream(ADestStream, LBinaryLineBreak, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+              WriteStringToStream(ADestStream, LBinaryLineBreak, LEncoding);
             end;
           end;
           if Assigned(ADestStream) then begin
-            WriteStringToStream(ADestStream, LLine, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+            WriteStringToStream(ADestStream, LLine, LEncoding);
           end;
         end else begin
           if Assigned(ADestStream) then begin
-            WriteStringToStream(ADestStream, LLine + EOL, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+            WriteStringToStream(ADestStream, LLine + EOL, LEncoding);
           end;
         end;
       end
@@ -521,7 +558,7 @@ begin
       LDecoder.DecodeEnd;
     end;
   finally
-    FreeAndNil(LDecoder);
+    LDecoder.Free;
   end;
 end;
 
@@ -723,7 +760,7 @@ procedure TIdMessageEncoderMIME.Encode(ASrc: TStream; ADest: TStream);
 var
   s: string;
   LEncoder: TIdEncoderMIME;
-  LSPos, LSSize : TIdStreamSize;
+  LSPos, LSSize : Int64;
 begin
   ASrc.Position := 0;
   LSPos := 0;
@@ -736,41 +773,7 @@ begin
       WriteStringToStream(ADest, s);
     end;
   finally
-    FreeAndNil(LEncoder);
-  end;
-end;
-
-procedure TIdMessageDecoderMIME.InitComponent;
-begin
-  inherited InitComponent;
-  FBodyEncoded := False;
-  if Owner is TIdMessage then begin
-    FMIMEBoundary := TIdMessage(Owner).MIMEBoundary.Boundary;
-    {CC2: Check to see if this is an email of the type that is headers followed
-    by the body encoded in base64 or quoted-printable.  The problem with this type
-    is that the header may state it as MIME, but the MIME parts and their headers
-    will be encoded, so we won't find them - in this case, we will later take
-    all the info we need from the message header, and not try to take it from
-    the part header.}
-    if TIdMessage(Owner).ContentTransferEncoding <> '' then begin
-      // RLebeau 12/26/2014 - According to RFC 2045 Section 6.4:
-      // "If an entity is of type "multipart" the Content-Transfer-Encoding is not
-      // permitted to have any value other than "7bit", "8bit" or "binary"."
-      //
-      // However, came across one message where the "Content-Type" was set to
-      // "multipart/related" and the "Content-Transfer-Encoding" was set to
-      // "quoted-printable".  Outlook and Thunderbird were apparently able to parse
-      // the message correctly, but Indy was not.  So let's check for that scenario
-      // and ignore illegal "Content-Transfer-Encoding" values if present...
-      if (not IsHeaderMediaType(TIdMessage(Owner).ContentType, 'multipart')) and
-        {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
-        set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
-        the part header in plain-text.}
-         (not IsHeaderValue(TIdMessage(Owner).ContentTransferEncoding, ['8bit', '7bit', 'binary']))    {do not localize}
-      then begin
-        FBodyEncoded := True;
-      end;
-    end;
+    LEncoder.Free;
   end;
 end;
 

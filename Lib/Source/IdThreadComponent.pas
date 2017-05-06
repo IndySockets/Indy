@@ -81,6 +81,7 @@ unit IdThreadComponent;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
 
@@ -157,7 +158,6 @@ type
     function GetTerminatingException: string;
     function GetTerminatingExceptionClass: TClass;
     function GetTerminated: Boolean;
-    procedure InitComponent; override;
     function IsRunning: Boolean;
     procedure Loaded; override;
     procedure SetActive(const AValue: Boolean); virtual;
@@ -174,6 +174,7 @@ type
     procedure SetReturnValue(const AValue: Integer);
     procedure SetStopMode(const AValue: TIdThreadStopMode);
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Start; virtual;
     procedure Stop; virtual;
@@ -297,21 +298,42 @@ end;
 
 { TIdThreadComponent }
 
+constructor TIdThreadComponent.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  StopMode := IdThreadComponentDefaultStopMode;
+  Priority := IdThreadComponentDefaultPriority;
+end;
+
+destructor TIdThreadComponent.Destroy;
+begin
+  {FThread.TerminateAndWaitFor;}
+  //make sure thread is not active before we attempt to destroy it
+  if Assigned(FThread) then begin
+    FThread.Terminate;
+    FThread.Start;//resume for terminate
+  end;
+  IdDisposeAndNil(FThread);
+  inherited Destroy;
+end;
+
 {$IFDEF INT_THREAD_PRIORITY}
 procedure TIdThreadComponent.DefineProperties(Filer: TFiler);
 begin
   inherited;
-  Filer.DefineProperty('Priority', ReadPriority, WritePriority, FPriority <> tpNormal);
+  Filer.DefineProperty('Priority', ReadPriority, WritePriority, FPriority <> tpNormal); {do not localize}
 end;
 
 procedure TIdThreadComponent.ReadPriority(Reader: TReader);
+const
+  PriorityStrings: array[0..6] of string = ('tpIdle', 'tpLowest', 'tpLower', 'tpNormal', 'tpHigher', 'tpHighest', 'tpTimeCritical'); {do not localize}
 var
   Value: Integer;
 begin
   if Reader.NextValue = vaIdent then
   begin
     // an older DFM that stored TThreadPriority as enum value names is being read, so convert to integer ...
-    case PosInStrArray(Reader.ReadIdent, ['tpIdle', 'tpLowest', 'tpLower', 'tpNormal', 'tpHigher', 'tpHighest', 'tpTimeCritical'], False) of {do not localize}
+    case PosInStrArray(Reader.ReadIdent, PriorityStrings, False) of
       0: Value := tpIdle;
       1: Value := tpLowest;
       2: Value := tpLower;
@@ -345,7 +367,7 @@ procedure TIdThreadComponent.DoAfterExecute;
 begin
   if Assigned(FOnAfterExecute) then
   begin
-    FOnAfterExecute(SELF);
+    FOnAfterExecute(Self);
   end;
 end;
 
@@ -353,7 +375,7 @@ procedure TIdThreadComponent.DoAfterRun;
 begin
   if Assigned(FOnAfterRun) then
   begin
-    FOnAfterRun(SELF);
+    FOnAfterRun(Self);
   end;
 end;
 
@@ -361,7 +383,7 @@ procedure TIdThreadComponent.DoBeforeExecute;
 begin
   if Assigned(FOnBeforeExecute) then
   begin
-    FOnBeforeExecute(SELF);
+    FOnBeforeExecute(Self);
   end;
 end;
 
@@ -369,7 +391,7 @@ procedure TIdThreadComponent.DoBeforeRun;
 begin
   if Assigned(FOnBeforeRun) then
   begin
-    FOnBeforeRun(SELF);
+    FOnBeforeRun(Self);
   end;
 end;
 
@@ -377,48 +399,36 @@ procedure TIdThreadComponent.DoCleanup;
 begin
   if Assigned(FOnCleanup) then
   begin
-    FOnCleanup(SELF);
+    FOnCleanup(Self);
   end;
-end;
-
-destructor TIdThreadComponent.Destroy;
-begin
-  {FThread.TerminateAndWaitFor;}
-  //make sure thread is not active before we attempt to destroy it
-  if Assigned(FThread) then begin
-    FThread.Terminate;
-    FThread.Start;//resume for terminate
-  end;
-  IdDisposeAndNil(FThread);
-  inherited Destroy;
 end;
 
 procedure TIdThreadComponent.DoException(AThread: TIdThread; AException: Exception);
 begin
   if Assigned(FOnException) then begin
-    FOnException(SELF,AException);
+    FOnException(Self, AException);
   end;
 end;
 
 function TIdThreadComponent.DoHandleRunException(AException: Exception): Boolean;
 begin
-  Result := FALSE;//not handled
+  Result := False;//not handled
   if Assigned(FOnHandleRunException) then begin
-    FOnHandleRunException(SELF,AException,Result);
+    FOnHandleRunException(Self, AException, Result);
   end;
 end;
 
 procedure TIdThreadComponent.DoStopped(AThread: TIdThread);
 begin
   if Assigned(FOnStopped) then begin
-    FOnStopped(SELF);
+    FOnStopped(Self);
   end;
 end;
 
 procedure TIdThreadComponent.DoTerminate;
 begin
   if Assigned(FOnTerminate) then begin
-    FOnTerminate(SELF);
+    FOnTerminate(Self);
   end;
 end;
 
@@ -455,10 +465,10 @@ end;
 
 function TIdThreadComponent.GetStopMode: TIdThreadStopMode;
 begin
-  if FThread = NIL then begin
-    Result := FStopMode;
-  end else begin
+  if Assigned(FThread) then begin
     Result := FThread.StopMode;
+  end else begin
+    Result := FStopMode;
   end;
 end;
 
@@ -467,7 +477,7 @@ begin
   if Assigned(FThread) then begin
     Result := FThread.Stopped;
   end else begin
-    Result := TRUE;
+    Result := True;
   end;
 end;
 
@@ -481,7 +491,7 @@ begin
   if Assigned(FThread) then begin
     Result := FThread.Terminated;
   end else begin
-    Result := TRUE;
+    Result := True;
   end;
 end;
 
@@ -514,7 +524,7 @@ end;
 procedure TIdThreadComponent.DoRun;
 begin
   if Assigned(FOnRun) then begin
-    FOnRun(SELF);
+    FOnRun(Self);
   end;
 end;
 
@@ -565,7 +575,7 @@ end;
 
 procedure TIdThreadComponent.SetStopMode(const AValue: TIdThreadStopMode);
 begin
-  if Assigned(FThread) and NOT FThread.Terminated then begin
+  if Assigned(FThread) and not FThread.Terminated then begin
     FThread.StopMode := AValue;
   end;
   FStopMode := AValue;
@@ -628,7 +638,7 @@ end;
 
 function TIdThreadComponent.GetPriority: TIdThreadPriority;
 begin
-  if FThread <> nil then begin
+  if Assigned(FThread) then begin
     Result := FThread.Priority;
   end else begin
     Result := FPriority;
@@ -647,10 +657,9 @@ end;
 
 function TIdThreadComponent.GetActive: Boolean;
 begin
-  Result := False;
   if IsDesignTime then begin
     Result := FActive;
-  end else if FThread <> nil then begin
+  end else begin
     Result := IsRunning;
   end;
 end;
@@ -685,18 +694,11 @@ end;
 
 function TIdThreadComponent.IsRunning: Boolean;
 begin
-  if FThread = nil then begin
-    Result := False;
+  if Assigned(FThread) then begin
+    Result := not FThread.Stopped;
   end else begin
-    Result := not FThread.Stopped
+    Result := False;
   end;
-end;
-
-procedure TIdThreadComponent.InitComponent;
-begin
-  inherited InitComponent;
-  StopMode := IdThreadComponentDefaultStopMode;
-  Priority := IdThreadComponentDefaultPriority;
 end;
 
 end.

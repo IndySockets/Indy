@@ -616,11 +616,9 @@ function IsBig5(ch1, ch2: Char) : Boolean;
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
-    {$IFNDEF NEXTGEN}
+  {$IF DEFINED(DCC_XE3_OR_ABOVE) AND (NOT DEFINED(NEXTGEN))}
   System.Contnrs,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   {$IFDEF HAS_UNIT_DateUtils}
   DateUtils,
   {$ENDIF}
@@ -816,7 +814,7 @@ begin
       Result := False;
     end;
   finally
-    FreeAndNil(Temps);
+    Temps.Free;
   end;
 end;
 
@@ -861,7 +859,7 @@ begin
     end;
     Result := ReplaceSpecString(Temps.CommaText, ',', ':'); {do not localize}
   finally
-    FreeAndNil(Temps);
+    Temps.Free;
   end;
 end;
 
@@ -1233,7 +1231,7 @@ end;
 
 destructor TIdTextModeResourceRecord.Destroy;
 begin
-  FreeAndNil(FRRDatas);
+  FRRDatas.Free;
   inherited Destroy;
 end;
 
@@ -1355,7 +1353,7 @@ end;
 
 destructor TIdTextModeRRs.Destroy;
 begin
-  FreeAndNil(FItemNames);
+  FItemNames.Free;
   inherited Destroy;
 end;
 

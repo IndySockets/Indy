@@ -129,10 +129,10 @@ type
     procedure DoStatusChanged;
 
   protected
-    procedure InitComponent; override;
     procedure Loaded; override;
 
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure CheckAdapters(Sender: TObject);
     procedure ForceCheck;
@@ -151,11 +151,6 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
@@ -163,9 +158,9 @@ uses
   IdStack,
   SysUtils;
 
-procedure TIdIPAddrMon.InitComponent;
+constructor TIdIPAddrMon.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
 
   FInterval := IdIPAddrMonInterval;
   FActive := False;

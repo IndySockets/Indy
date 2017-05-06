@@ -157,7 +157,6 @@ uses
   IdCoder,
   IdCoder3to4,
   IdGlobal,
-  IdStream,
   SysUtils;
 
 type
@@ -166,23 +165,16 @@ type
     FFileName: String;
     function GetCRC(const ABlock: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Word;
     procedure AddByteCRC(var ACRC: Word; AByte: Byte);
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     procedure Encode(ASrcStream: TStream; ADestStream: TStream; const ABytes: Integer = -1); override;
     //We need to specify this value before calling Encode...
     property FileName: String read FFileName write FFileName;
   end;
 
   TIdDecoderBinHex4 = class(TIdDecoder4to3)
-  protected
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     procedure Decode(ASrcStream: TStream; const ABytes: Integer = -1); override;
   end;
 
@@ -205,16 +197,9 @@ uses
 
 { TIdDecoderBinHex4 }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdDecoderBinHex4.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdDecoderBinHex4.InitComponent;
-begin
-  inherited InitComponent;
   FDecodeTable := GBinHex4DecodeTable;
   FCodingTable := ToBytes(GBinHex4CodeTable);
   FFillChar := '=';  {Do not Localize}
@@ -236,7 +221,7 @@ begin
   end;
 
   SetLength(LIn, LInSize);
-  TIdStreamHelper.ReadBytes(ASrcStream, LIn, LInSize);
+  ASrcStream.ReadBuffer(PByte(LIn)^, LInSize);
 
   //We don't need to check if the identification string is present, since the
   //attachment is bounded by a : at the start and end, and the identification
@@ -340,23 +325,16 @@ begin
 
   //At this point, LOut[LN] points to the actual data (the data fork, if there
   //is one, or else the resource fork if there is no data fork).
-  if Assigned(FStream) then begin
-    TIdStreamHelper.Write(FStream, LOut, LForkLength, LN);
+  if Assigned(FStream) and (LForkLength > 0) then begin
+    FStream.WriteBuffer(LOut[LN], LForkLength);
   end;
 end;
 
 { TIdEncoderBinHex4 }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdEncoderBinHex4.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdEncoderBinHex4.InitComponent;
-begin
-  inherited InitComponent;
   FCodingTable := ToBytes(GBinHex4CodeTable);
   FFillChar := '=';   {Do not Localize}
 end;
@@ -401,7 +379,7 @@ var
   LBlocks: Integer;
   LOut: TIdBytes;
   LSSize, LTemp: Integer;
-  LFileName: {$IFDEF HAS_AnsiString}AnsiString{$ELSE}TIdBytes{$ENDIF};
+  LFileName: TIdBytes;
   LCRC: word;
   LRemainder: integer;
 begin
@@ -412,15 +390,7 @@ begin
   LSSize := IndyLength(ASrcStream, ABytes);
   //BinHex4.0 allows filenames to be only 255 bytes long (because the length
   //is stored in a byte), so truncate the filename to 255 bytes...
-  {$IFNDEF HAS_AnsiString}
   LFileName := IndyTextEncoding_OSDefault.GetBytes(FFileName);
-  {$ELSE}
-    {$IFDEF STRING_IS_UNICODE}
-  LFileName := AnsiString(FFileName); // explicit convert to Ansi
-    {$ELSE}
-  LFileName := FFileName;
-    {$ENDIF}
-  {$ENDIF}
   if Length(FFileName) > 255 then begin
     SetLength(LFileName, 255);
   end;
@@ -428,7 +398,7 @@ begin
   SetLength(LOut, 1+Length(LFileName)+1+4+4+2+4+4+2+LSSize+2);
   LOut[0] := Length(LFileName);               //Length of filename in 1st byte
   for LN := 1 to Length(LFileName) do begin
-    LOut[LN] := {$IFNDEF HAS_AnsiString}LFileName[LN-1]{$ELSE}Byte(LFileName[LN]){$ENDIF};
+    LOut[LN] := LFileName[LN-1];
   end;
   LOffset := 1+Length(LFileName);             //Points to byte after filename
   LOut[LOffset] := 0;                         //Version
@@ -462,7 +432,7 @@ begin
   Inc(LOffset, 2);
   //Next comes the data fork (we will not be using the resource fork)...
   //Copy in the attachment...
-  TIdStreamHelper.ReadBytes(ASrcStream, LOut, LSSize, LOffset);
+  ASrcStream.ReadBuffer(LOut[LOffset], LSSize);
   LCRC := GetCRC(LOut, LOffset, LSSize);
   Inc(LOffset, LSSize);
   LOut[LOffset] := LCRC mod 256;              //CRC of data fork
@@ -495,12 +465,12 @@ begin
   //Put back in our CRLFs.  A max of 64 chars are allowed per line.
   LBlocks := Length(LOut) div 64;
   for LN := 0 to LBlocks-1 do begin
-    TIdStreamHelper.Write(ADestStream, LOut, 64, LN*64);
+    ADestStream.WriteBuffer(LOut[LN*64], 64);
     WriteStringToStream(ADestStream, EOL);
   end;
   LRemainder := Length(LOut) mod 64;
   if LRemainder > 0 then begin
-    TIdStreamHelper.Write(ADestStream, LOut, LRemainder, LBlocks*64);
+    ADestStream.Write(LOut[LBlocks*64], LRemainder);
     WriteStringToStream(ADestStream, EOL);
   end;
 end;

@@ -45,11 +45,11 @@ unit IdDsnCoreResourceStrings;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
 
 const
-  IndyPitCrew = 'Kudzu (Chad Z. Hower)'#13#10
-   + 'and the Indy Pit Crew';
+  IndyPitCrew = 'Kudzu (Chad Z. Hower)'#13#10'and the Indy Pit Crew';
 
 resourcestring
   { About Box stuff }
@@ -58,8 +58,7 @@ resourcestring
   RSAAboutMenuItemName = 'About Internet &Direct (Indy) %s...';
 
   RSAAboutBoxVersion = 'Version %s';
-  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2015'#13#10
-   + IndyPitCrew;
+  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2017'#13#10 + IndyPitCrew;
   RSAAboutBoxTitle1 = 'INDY';
   RSAAboutBoxTitle2 = 'Internet Direct';
   RSAAboutBoxLicences = 'Indy Modified BSD License'+#13#10+'Indy MPL License';

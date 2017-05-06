@@ -57,6 +57,7 @@
 unit IdCompressorZLib;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses

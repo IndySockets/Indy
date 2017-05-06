@@ -185,7 +185,7 @@ begin
                  (LCols[6] = 'RWEP')                {do not localize}
      end;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
 end;
 

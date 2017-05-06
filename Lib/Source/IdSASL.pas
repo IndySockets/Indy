@@ -72,8 +72,8 @@ type
   protected
     FSecurityLevel : UInt32;
     function GetSecurityLevel : UInt32;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     {
       The following 5 methods are called when SASL Authentication is
@@ -139,16 +139,16 @@ var
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.Types,
   {$ENDIF}
   SysUtils;
 
 { TIdSASL }
 
-procedure TIdSASL.InitComponent;
+constructor TIdSASL.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   GlobalSASLList.Add(Self);
 end;
 

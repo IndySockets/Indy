@@ -61,6 +61,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdGlobal,
   IdAssignedNumbers,
   IdTCPClient;
@@ -69,8 +70,8 @@ type
   TIdEcho = class(TIdTCPClient)
   protected
     FEchoTime: UInt32;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     {This sends Text to the peer and returns the reply from the peer}
     function Echo(const AText: String): String;
     {Time taken to send and receive data}
@@ -82,20 +83,18 @@ type
 implementation
 
 uses
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
   Macapi.CoreServices,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdComponent,
   IdTCPConnection,
   IdIOHandler;
 
 { TIdEcho }
 
-procedure TIdEcho.InitComponent;
+constructor TIdEcho.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   Port := IdPORT_ECHO;
 end;
 
@@ -106,13 +105,7 @@ var
   LLen: Integer;
   StartTime: TIdTicks;
 begin
-  LEncoding := IndyTextEncoding(
-    {$IFDEF STRING_IS_UNICODE}
-    encUTF16LE
-    {$ELSE}
-    encOSDefault
-    {$ENDIF}
-  );
+  LEncoding := IndyTextEncoding_UTF16LE; // TODO: use UTF-8 instead
   {Send time monitoring}
   LBuffer := ToBytes(AText, LEncoding);
   LLen := Length(LBuffer);

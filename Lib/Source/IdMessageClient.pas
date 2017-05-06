@@ -428,12 +428,8 @@ type
     ); override;  //Should this be reintroduce instead of override?
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; override;
     function ReadLn(ATerminator: string; ATimeout: Integer = IdTimeoutDefault;
-      AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-      ): string; override;
-    procedure WriteLn(const AOut: string; AByteEncoding: IIdTextEncoding = nil
-      {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-      ); override;
+      AMaxLineLength: Integer = -1; AByteEncoding: IIdTextEncoding = nil): string; override;
+    procedure WriteLn(const AOut: string; AByteEncoding: IIdTextEncoding = nil); override;
     property EscapeLines: Boolean read FEscapeLines write FEscapeLines;
     property UnescapeLines: Boolean read FUnescapeLines write FUnescapeLines;
   published
@@ -453,12 +449,8 @@ type
     procedure SendHeader(AMsg: TIdMessage); virtual;
     procedure EncodeAndWriteText(const ABody: TStrings; AEncoding: IIdTextEncoding);
     procedure WriteFoldedLine(const ALine : string);
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
-    destructor Destroy; override;
+    constructor Create(AOwner: TComponent); override;
     procedure ProcessMessage(AMsg: TIdMessage; AHeaderOnly: Boolean = False); overload;
     procedure ProcessMessage(AMsg: TIdMessage; AStream: TStream; AHeaderOnly: Boolean = False); overload;
     procedure ProcessMessage(AMsg: TIdMessage; const AFilename: string; AHeaderOnly: Boolean = False); overload;
@@ -472,13 +464,6 @@ type
 implementation
 
 uses
-  //facilitate inlining only.
-  {$IFDEF DOTNET}
-  System.IO,
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   //TODO: Remove these references and make it completely pluggable. Check other spots in Indy as well
   IdMessageCoderBinHex4, IdMessageCoderQuotedPrintable, IdMessageCoderMIME,
   IdMessageCoderUUE, IdMessageCoderXXE,
@@ -602,20 +587,15 @@ end;
 
 function TIdIOHandlerStreamMsg.ReadLn(ATerminator: string;
   ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1;
-  AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
-  ): string;
+  AByteEncoding: IIdTextEncoding = nil): string;
 begin
-  Result := inherited ReadLn(ATerminator, ATimeout, AMaxLineLength,
-    AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
+  Result := inherited ReadLn(ATerminator, ATimeout, AMaxLineLength, AByteEncoding);
   if FEscapeLines and TextStartsWith(Result, '.') and (not FTerminatorWasRead) then begin {Do not Localize}
     Result := '.' + Result; {Do not Localize}
   end;
 end;
 
-procedure TIdIOHandlerStreamMsg.WriteLn(const AOut: string; AByteEncoding: IIdTextEncoding = nil
-  {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
-  );
+procedure TIdIOHandlerStreamMsg.WriteLn(const AOut: string; AByteEncoding: IIdTextEncoding = nil);
 var
   LOut: String;
 begin
@@ -623,23 +603,16 @@ begin
   if FUnescapeLines and TextStartsWith(LOut, '..') then begin {Do not Localize}
     IdDelete(LOut, 1, 1);
   end;
-  inherited WriteLn(LOut, AByteEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
+  inherited WriteLn(LOut, AByteEncoding);
 end;
 
 ///////////////////
 // TIdMessageClient
 ///////////////////
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdMessageClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdMessageClient.InitComponent;
-begin
-  inherited InitComponent;
   FMsgLineLength := 79;
   FMsgLineFold := TAB;
 end;
@@ -703,19 +676,13 @@ var
   begin
     LMStream := TMemoryStream.Create;
     try
-      IOHandler.Capture(LMStream, ADelim, True, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
+      IOHandler.Capture(LMStream, ADelim, True, IndyTextEncoding_8Bit);
       LMStream.Position := 0;
-
-      // TODO: when String is AnsiString, TIdIMAP4 uses 8bit as the destination
-      // encoding, should this be doing the same? Otherwise, we could just use
-      // AMsg.Body.LoadFromStream() instead...
-
       // TODO: if the Content-Type is HTML, parse the HTML data looking for a charset
       // declaration, and if found then use that instead of the MIME charset...
-
-      ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, CharsetToEncoding(AMsg.CharSet){$ENDIF});
+      ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet);
     finally
-      FreeAndNil(LMStream);
+      LMStream.Free;
     end;
   end;
 
@@ -744,9 +711,6 @@ var
     i: integer;
     LTxt : TIdText;
     LNewDecoder: TIdMessageDecoder;
-    {$IFDEF STRING_IS_ANSI}
-    LAnsiEncoding: IIdTextEncoding;
-    {$ENDIF}
   begin
     LMStream := TMemoryStream.Create;
     try
@@ -758,23 +722,14 @@ var
           // TODO: if the Content-Type is HTML, parse the HTML data looking for a charset
           // declaration, and if found then use that instead of the MIME charset...
           if AMsg.IsMsgSinglePartMime then begin
-            {$IFDEF STRING_IS_ANSI}
-            LAnsiEncoding := CharsetToEncoding(AMsg.CharSet);
-            {$ENDIF}
-            ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+            ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet);
           end else begin
-            {$IFDEF STRING_IS_ANSI}
-            LAnsiEncoding := ContentTypeToEncoding(VDecoder.Headers.Values[SContentType], QuoteMIME);
-            {$ENDIF}
-            ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+            ReadStringsAsContentType(LMStream, AMsg.Body, VDecoder.Headers.Values[SContentType], QuoteMIME);
           end;
         end else begin
           LTxt := TIdText.Create(AMsg.MessageParts);
           try
-            {$IFDEF STRING_IS_ANSI}
-            LAnsiEncoding := ContentTypeToEncoding(GetHeaderValue(SContentType), QuoteMIME);
-            {$ENDIF}
-            ReadStringsAsContentType(LMStream, LTxt.Body, GetHeaderValue(SContentType), QuoteMIME{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+            ReadStringsAsContentType(LMStream, LTxt.Body, GetHeaderValue(SContentType), QuoteMIME);
             RemoveLastBlankLine(LTxt.Body);
             LTxt.ContentType := LTxt.ResolveContentType(GetHeaderValue(SContentType));
             LTxt.CharSet := LTxt.GetCharSet(GetHeaderValue(SContentType));       {do not localize}
@@ -827,7 +782,7 @@ var
       VDecoder.Free;
       VDecoder := LNewDecoder;
     finally
-      FreeAndNil(LMStream);
+      LMStream.Free;
     end;
   end;
 
@@ -1009,7 +964,7 @@ begin
             // and message termination, and THEN decode whatever is left using the
             // charset...
 
-            LLine := IOHandler.ReadLnRFC(LMsgEnd, LF, ADelim, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
+            LLine := IOHandler.ReadLnRFC(LMsgEnd, LF, ADelim, IndyTextEncoding_8Bit);
             if LMsgEnd then begin
               Break;
             end;
@@ -1018,7 +973,7 @@ begin
             end;
             // Check again, the if above can set it.
             if LActiveDecoder = nil then begin
-              LLine := LCharsetEncoding.GetString(ToBytes(LLine, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF}));
+              LLine := LCharsetEncoding.GetString(ToBytes(LLine, IndyTextEncoding_8Bit));
               AMsg.Body.Add(LLine);
             end else begin
               RemoveLastBlankLine(AMsg.Body);
@@ -1058,7 +1013,7 @@ begin
           end;
         end;
       finally
-        FreeAndNil(LActiveDecoder);
+        LActiveDecoder.Free;
       end;
     end;
   finally
@@ -1084,40 +1039,54 @@ var
   LEncoder: TIdMessageEncoder;
   LLine: string;
 
-  procedure EncodeStrings(AStrings: TStrings; AEncoderClass: TIdMessageEncoderClass; AByteEncoding: IIdTextEncoding
-    {$IFDEF STRING_IS_ANSI}; AAnsiEncoding: IIdTextEncoding{$ENDIF});
+  procedure EncodeStrings(AStrings: TStrings; AEncoderClass: TIdMessageEncoderClass; AByteEncoding: IIdTextEncoding);
   var
     LStrings: TStringList;
   begin
-    {$IFDEF STRING_IS_ANSI}
-    EnsureEncoding(AAnsiEncoding, encOSDefault);
-    {$ENDIF}
-    LStrings := TStringList.Create; try
-      LEncoder := AEncoderClass.Create(Self); try
-        LStrStream := TMemoryStream.Create; try
+    LStrings := TStringList.Create;
+    try
+      LEncoder := AEncoderClass.Create(nil);
+      try
+        LStrStream := TMemoryStream.Create;
+        try
           // RLebeau 10/06/2010: not using TStrings.SaveToStream() in D2009+
           // anymore, as it may save a BOM which we do not want here...
-          WriteStringToStream(LStrStream, AStrings.Text, AByteEncoding{$IFDEF STRING_IS_ANSI}, AAnsiEncoding{$ENDIF});
+          WriteStringToStream(LStrStream, AStrings.Text, AByteEncoding);
           LStrStream.Position := 0;
           LEncoder.Encode(LStrStream, LStrings);
-        finally FreeAndNil(LStrStream); end;
-      finally FreeAndNil(LEncoder); end;
+        finally
+          LStrStream.Free;
+        end;
+      finally
+        LEncoder.Free;
+      end;
       IOHandler.WriteRFCStrings(LStrings, False);
-    finally FreeAndNil(LStrings); end;
+    finally
+      LStrings.Free;
+    end;
   end;
 
   procedure EncodeAttachment(AAttachment: TIdAttachment; AEncoderClass: TIdMessageEncoderClass);
   var
     LAttachStream: TStream;
   begin
-    LDestStream := TIdTCPStream.Create(Self, 8192); try
-      LEncoder := AEncoderClass.Create(Self); try
+    LDestStream := TIdTCPStream.Create(Self, 8192);
+    try
+      LEncoder := AEncoderClass.Create(nil);
+      try
         LEncoder.Filename := AAttachment.Filename;
-        LAttachStream := AAttachment.OpenLoadStream; try
+        LAttachStream := AAttachment.OpenLoadStream;
+        try
           LEncoder.Encode(LAttachStream, LDestStream);
-        finally AAttachment.CloseLoadStream; end;
-      finally FreeAndNil(LEncoder); end;
-    finally FreeAndNil(LDestStream); end;
+        finally
+          AAttachment.CloseLoadStream;
+        end;
+      finally
+        LEncoder.Free;
+      end;
+    finally
+      LDestStream.Free;
+    end;
   end;
 
   procedure WriteTextPart(ATextPart: TIdText);
@@ -1159,7 +1128,6 @@ var
       ATextPart.ContentDisposition := 'inline'; {do not localize}
     end;
 
-    // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
     LFileName := EncodeHeader(ExtractFileName(ATextPart.FileName), '', HeaderEncoding, ISOCharSet); {do not localize}
 
     if ATextPart.ContentType <> '' then begin
@@ -1198,10 +1166,10 @@ var
 
     LEncoding := CharsetToEncoding(ATextPart.CharSet);
     case PosInStrArray(ExtractHeaderItem(ATextPart.ContentTransfer), ['quoted-printable', 'base64'], False) of  {do not localize}
-      0: EncodeStrings(ATextPart.Body, TIdMessageEncoderQuotedPrintable, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
-      1: EncodeStrings(ATextPart.Body, TIdMessageEncoderMIME, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      0: EncodeStrings(ATextPart.Body, TIdMessageEncoderQuotedPrintable, LEncoding);
+      1: EncodeStrings(ATextPart.Body, TIdMessageEncoderMIME, LEncoding);
     else
-      IOHandler.WriteRFCStrings(ATextPart.Body, False, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      IOHandler.WriteRFCStrings(ATextPart.Body, False, LEncoding);
       { No test for last line break necessary because IOHandler.WriteRFCStrings() uses WriteLn(). }
     end;
   end;
@@ -1233,9 +1201,9 @@ begin
       LEncoding := CharsetToEncoding(AMsg.CharSet);
       //CC2: Now output AMsg.Body in the chosen encoding...
       if TextIsSame(LContentTransferEncoding, 'base64') then begin  {do not localize}
-        EncodeStrings(AMsg.Body, TIdMessageEncoderMIME, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+        EncodeStrings(AMsg.Body, TIdMessageEncoderMIME, LEncoding);
       end else begin  {'quoted-printable'}
-        EncodeStrings(AMsg.Body, TIdMessageEncoderQuotedPrintable, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+        EncodeStrings(AMsg.Body, TIdMessageEncoderQuotedPrintable, LEncoding);
       end;
     end
     else if AMsg.Encoding = mePlainText then begin
@@ -1404,7 +1372,6 @@ begin
               end;
             end;
 
-            // TODO: when STRING_IS_ANSI is defined, provide a way for the user to specify the AnsiString encoding for header values...
             LFileName := EncodeHeader(ExtractFileName(LAttachment.FileName), '', HeaderEncoding, ISOCharSet); {do not localize}
 
             if TextIsSame(LContentTransferEncoding, 'binhex40') then begin   {do not localize}
@@ -1572,9 +1539,12 @@ procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; const AFilename: str
 var
   LStream: TStream;
 begin
-  LStream := TIdReadFileExclusiveStream.Create(AFileName); try
+  LStream := TIdReadFileExclusiveStream.Create(AFileName);
+  try
     ProcessMessage(AMsg, LStream, AHeaderOnly);
-  finally FreeAndNil(LStream); end;
+  finally
+    LStream.Free;
+  end;
 end;
 
 procedure TIdMessageClient.EncodeAndWriteText(const ABody: TStrings; AEncoding: IIdTextEncoding);
@@ -1583,11 +1553,6 @@ begin
   Assert(IOHandler<>nil);
   // TODO: encode the text...
   IOHandler.WriteRFCStrings(ABody, False, AEncoding);
-end;
-
-destructor TIdMessageClient.Destroy;
-begin
-  inherited Destroy;
 end;
 
 end.

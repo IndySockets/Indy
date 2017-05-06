@@ -149,8 +149,8 @@ type
   TIdMappedFTP = class(TIdMappedPortTCP)
   protected
     FOutboundDcMode: TIdMappedFtpOutboundDcMode;
-
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_FTP;
     property MappedPort default IdPORT_FTP;
@@ -176,9 +176,9 @@ const
 
 { TIdMappedFTP }
 
-procedure TIdMappedFTP.InitComponent;
+constructor TIdMappedFTP.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_FTP;
   MappedPort := IdPORT_FTP;
   FContextClass := TIdMappedFtpContext;
@@ -447,9 +447,9 @@ end;
 
 destructor TIdMappedFtpDataThread.Destroy;
 begin
-  FreeAndNil(FOutboundClient);
-  FreeAndNil(FConnection);
-  FreeAndNil(FReadList);
+  FOutboundClient.Free;
+  FConnection.Free;
+  FReadList.Free;
   inherited Destroy;
 end;
 

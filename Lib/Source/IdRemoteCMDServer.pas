@@ -73,64 +73,63 @@ var
 
   procedure ExecuteCMD;
   begin
+    Result := True;
+    StdError := nil;
     try
-     Result := True;
-     StdError := nil;
-     ErrorPort := IndyStrToInt(AThread.Connection.IOHandler.ReadLn(#0), 0);
+      ErrorPort := IndyStrToInt(AThread.Connection.IOHandler.ReadLn(#0), 0);
+      if ErrorPort <> 0 then
+      begin
+        StdError := TIdTCPClient.Create(nil);
+        if FStdErrorPortsInRange then
+        begin
+          StdError.BoundPortMin := 512;
+          StdError.BoundPortMax := 1023;
+        end;
+        StdError.BoundIP := AThread.Connection.Socket.Binding.IP;
+        StdError.Host := AThread.Connection.Socket.Binding.PeerIP;
+        StdError.Port := ErrorPort;
 
-     if ErrorPort <> 0 then
-     begin
-       StdError := TIdTCPClient.Create(nil);
-       if FStdErrorPortsInRange then
-       begin
-         StdError.BoundPortMin := 512;
-         StdError.BoundPortMax := 1023;
-       end;
-       StdError.BoundIP := AThread.Connection.Socket.Binding.IP;
-       StdError.Host := AThread.Connection.Socket.Binding.PeerIP;
-       StdError.Port := ErrorPort;
+        repeat
+          try
+            StdError.Connect;
+            Break;
+          except
+            on E: EIdSocketError do begin
+              // This will be uncommented after we have the fix into TIdTCPClient.Connect method
+              // There is one extra line that has to be added in order to run this code
+              //
+              // except
+              //   // This will free IOHandler
+              //   BoundPort := TIdIOHandlerSocket(IOHandler).Binding.Port;    // The extra line
+              //   DisconnectSocket;
+              //   raise;
+              // end;
+              //
+              // After we have this code we will know the exact Port on wich the exception has occured
 
-       repeat
-         try
-           StdError.Connect;
-           Break;
-         except
-           on E: EIdSocketError do begin
-             // This will be uncommented after we have the fix into TIdTCPClient.Connect method
-             // There is one extra line that has to be added in order to run this code
-             //
-             // except
-             //   // This will free IOHandler
-             //   BoundPort := TIdIOHandlerSocket(IOHandler).Binding.Port;    // The extra line
-             //   DisconnectSocket;
-             //   raise;
-             // end;
-             //
-             // After we have this code we will know the exact Port on wich the exception has occured
+              {if E.LastError = 10048 then begin
+                StdError.BoundPortMax := StdError.BoundPort - 1;
+                StdError.BoundPort := 0;
+                StdError.Disconnect;
+              end
+              else}
+                raise;
+            end;
+          end;
+        until False;
+      end;
 
-             {if E.LastError = 10048 then begin
-               StdError.BoundPortMax := StdError.BoundPort - 1;
-               StdError.BoundPort := 0;
-               StdError.Disconnect;
-             end
-             else}
-               raise;
-           end;
-         end;
-       until False;
-     end;
+      Param1 := AThread.Connection.IOHandler.ReadLn(#0);
+      Param2 := AThread.Connection.IOHandler.ReadLn(#0);
+      Command  := AThread.Connection.IOHandler.ReadLn(#0);
 
-     Param1 := AThread.Connection.IOHandler.ReadLn(#0);
-     Param2 := AThread.Connection.IOHandler.ReadLn(#0);
-     Command  := AThread.Connection.IOHandler.ReadLn(#0);
-
-     DoCMD(AThread, StdError, Param1, Param2, Command);
-     if Assigned(StdError) then
-     begin
-       StdError.Disconnect;
-     end;
+      DoCMD(AThread, StdError, Param1, Param2, Command);
+      if Assigned(StdError) then
+      begin
+        StdError.Disconnect;
+      end;
     finally
-      FreeAndNil(StdError);
+      StdError.Free;
     end;
   end;
 begin

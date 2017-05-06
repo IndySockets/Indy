@@ -33,13 +33,16 @@ type
     property SenderUserID : String read FSenderUserID write FSenderUserID;
     property MClass : String read FMClass write FMClass;
   end;
+
   TIdIEFTPGatewayLsShortListItem = class(TIdMinimalFTPListItem);
+
   TIdIEFTPGatewayLsFileNameListItem = class(TIdMinimalFTPListItem)
   protected
     FOrigFileName : String;
   public
     property OrigFileName : String read FOrigFileName write FOrigFileName;
   end;
+
   TIdIEFTPGatewayLSLibraryListItem = class(TIdUnixPermFTPListItem)
   protected
     FAccount : String;
@@ -55,6 +58,7 @@ type
   public
     class function GetIdent : String; override;
   end;
+
   TIdFTPLPIEFTPGatewayLSShort = class(TIdFTPLPNList)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
@@ -71,6 +75,7 @@ type
     class function GetIdent : String; override;
     class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
+
   TIdFTPLPIEFTPGatewayLSLibrary = class(TIdFTPListBaseHeader)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
@@ -90,6 +95,7 @@ type
   {$ENDIF}
 
 implementation
+
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
@@ -109,7 +115,8 @@ end;
 
 class function TIdFTPLPIEFTPGatewayLSLong.IsHeader(
   const AData: String): Boolean;
-var s : TStrings;
+var
+  s : TStrings;
 begin
 //"  Filename (MSGKEY)        Sender      Class   Size       Date   Time"
   s := TStringList.Create;
@@ -124,7 +131,7 @@ begin
       Result := False;
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -136,7 +143,8 @@ end;
 
 class function TIdFTPLPIEFTPGatewayLSLong.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var li : TIdIEFTPGatewayLsLongListItem;
+var
+  li : TIdIEFTPGatewayLsLongListItem;
   s : TStrings;
   d, m, y : Word;
   h, mn, sec : Word;
@@ -166,7 +174,7 @@ begin
 
     li.ModifiedAvail := True;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 
 end;
@@ -175,7 +183,8 @@ end;
 
 class function TIdFTPLPIEFTPGatewayLSFileName.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var LData : String;
+var
+  LData : String;
   i : Integer;
 begin
   Result := AListing.Count > 0;
@@ -207,7 +216,8 @@ end;
 
 class function TIdFTPLPIEFTPGatewayLSFileName.ParseLine(
   const AItem: TIdFTPListItem; const APath: String): Boolean;
-var li : TIdIEFTPGatewayLsFileNameListItem;
+var
+  li : TIdIEFTPGatewayLsFileNameListItem;
   LData : String;
 begin
   Result := True;
@@ -255,7 +265,8 @@ end;
 
 class function TIdFTPLPIEFTPGatewayLSLibrary.IsHeader(
   const AData: String): Boolean;
-var s : TStrings;
+var
+  s : TStrings;
 begin
 //"Access    Owner    Account Size  Last updated         Name"
   s := TStringList.Create;
@@ -270,7 +281,7 @@ begin
       Result := False;
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -282,7 +293,8 @@ end;
 
 class function TIdFTPLPIEFTPGatewayLSLibrary.ParseLine(
   const AItem: TIdFTPListItem; const APath: String): Boolean;
-var LI : TIdIEFTPGatewayLSLibraryListItem;
+var
+  LI : TIdIEFTPGatewayLSLibraryListItem;
   LData : String;
 begin
   Result := True;

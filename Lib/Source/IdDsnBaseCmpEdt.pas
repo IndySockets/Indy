@@ -32,29 +32,16 @@ unit IdDsnBaseCmpEdt;
 interface
 
 uses
-  {$IFDEF DOTNET}
-  Borland.Vcl.Design.DesignIntF,
-  Borland.Vcl.Design.DesignEditors
-  {$ELSE}
-    {$IFDEF FPC}
+  {$IFDEF FPC}
   ComponentEditors
-    {$ELSE}
-      {$IFDEF VCL_6_OR_ABOVE}
+  {$ELSE}
   DesignIntf,
   DesignEditors
-      {$ELSE}
-  Dsgnintf
-      {$ENDIF}
-    {$ENDIF}
   {$ENDIF}
   ;
 
 type
-  {$IFDEF FPC}
-  TIdBaseComponentEditor = class(TDefaultComponentEditor)
-  {$ELSE}
-  TIdBaseComponentEditor = class(TDefaultEditor)
-  {$ENDIF}
+  TIdBaseComponentEditor = class({$IFDEF FPC}TDefaultComponentEditor{$ELSE}TDefaultEditor{$ENDIF})
   public
     procedure ExecuteVerb(Index: Integer); override;
     function GetVerb(Index: Integer): string; override;
@@ -64,7 +51,7 @@ type
 implementation
 
 uses
-  IdAbout,
+  IdAboutVCL,
   IdGlobal,
   IdDsnCoreResourceStrings,
   SysUtils;
@@ -74,7 +61,7 @@ uses
 procedure TIdBaseComponentEditor.ExecuteVerb(Index: Integer);
 begin
   case Index of
-    0 : ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
+    0 : TfrmAbout.ShowDlg;
   end;
 end;
 

@@ -297,7 +297,8 @@ type
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure SendGreeting(AContext : TIdContext; AGreeting : TIdReply); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_POP3;
     // These procedures / functions are exposed
@@ -342,7 +343,7 @@ begin
     LReply.SetReply(ST_ERR, IndyFormat(RSPOP3SvrUnknownCmdFmt, [Fetch(LLine)]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
-    FreeAndNil(LReply);
+    LReply.Free;
   end;
 end;
 
@@ -665,9 +666,9 @@ end;
 
 { Constructor / Destructors }
 
-procedure TIdPOP3Server.InitComponent;
+constructor TIdPOP3Server.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FContextClass := TIdPOP3ServerContext;
   FRegularProtPort := IdPORT_POP3;
   FImplicitTLSProtPort := IdPORT_POP3S;
@@ -770,7 +771,7 @@ begin
       LGreeting.Code := ST_OK;
       AContext.Connection.IOHandler.Write(LGreeting.FormattedReply);
     finally
-      FreeAndNil(LGreeting);
+      LGreeting.Free;
     end;
   end
   else

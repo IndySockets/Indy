@@ -57,9 +57,11 @@ Original Author: Ozz Nixon
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -68,7 +70,8 @@ Type
   TIdECHOServer = class ( TIdCustomTCPServer )
   protected
     function DoExecute(AContext:TIdContext): boolean; override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_ECHO;
   end;
@@ -77,10 +80,10 @@ implementation
 
 uses
   IdGlobal, IdIOHandler;
-  
-procedure TIdECHOServer.InitComponent;
+
+constructor TIdECHOServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_ECHO;
 end;
 
@@ -92,6 +95,7 @@ begin
   Result := True;
   SetLength(LBuffer, 0);
   LIOHandler := AContext.Connection.IOHandler;
+  // TODO: avoid the temp buffer by passing TIdTCPStream to TIdIOHandler.ReadStream() instead
   LIOHandler.ReadBytes(LBuffer, -1);
   LIOHandler.Write(LBuffer);
 end;

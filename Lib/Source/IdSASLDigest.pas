@@ -242,9 +242,9 @@ begin
       ',response='+LstrResponse+
       ',qop='+Lqop;
   finally
-    FreeAndNil(LQopOptions);
-    FreeAndNil(LChallange);
-    FreeAndNil(LReply);
+    LQopOptions.Free;
+    LChallange.Free;
+    LReply.Free;
   end;
 end;
 

@@ -33,9 +33,7 @@ type
   public
     procedure Trace;
   published
-    {$IFDEF DOTNET_2_OR_ABOVE}
     property IPVersion;
-    {$ENDIF}
     property PacketSize;
     property ReceiveTimeout;
     property ResolveHostNames : Boolean read FResolveHostNames write FResolveHostNames;
@@ -51,18 +49,20 @@ uses
 
 procedure TIdTraceRoute.DoReply;
 begin
-  if FResolveHostNames and
-    (PosInStrArray(FReplyStatus.FromIpAddress, ['0.0.0.0', '::0']) = -1) then {do not localize}
+  if FResolveHostNames then
   begin
-    //resolve IP to hostname
-    try
-      FReplyStatus.HostName := GStack.HostByAddress(FReplyStatus.FromIpAddress, FBinding.IPVersion);
-    except
-      {
-      We do things this way because we are likely have a reverse DNS
-      failure if you have a computer with IP address and no DNS name at all.
-      }
-      FReplyStatus.HostName := FReplyStatus.FromIpAddress;
+    if PosInStrArray(FReplyStatus.FromIpAddress, ['0.0.0.0', '::0']) = -1 then {do not localize}
+    begin
+      //resolve IP to hostname
+      try
+        FReplyStatus.HostName := GStack.HostByAddress(FReplyStatus.FromIpAddress, FBinding.IPVersion);
+      except
+        {
+        We do things this way because we are likely have a reverse DNS
+        failure if you have a computer with IP address and no DNS name at all.
+        }
+        FReplyStatus.HostName := FReplyStatus.FromIpAddress;
+      end;
     end;
   end;
   inherited DoReply;

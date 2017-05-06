@@ -357,7 +357,6 @@ type
     procedure DoMaxConnectionsExceeded(AIOHandler: TIdIOHandler); virtual;
     procedure DoTerminateContext(AContext: TIdContext); virtual;
     function GetDefaultPort: TIdPort;
-    procedure InitComponent; override;
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     // This is needed for POP3's APOP authentication.  For that,
@@ -376,6 +375,7 @@ type
     property OnExecute: TIdServerThreadEvent read FOnExecute write FOnExecute;
 
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     //
     procedure StartListening;
@@ -405,7 +405,7 @@ type
     // Occurs in the context of the peer thread
     property OnException: TIdServerThreadExceptionEvent read FOnException write FOnException;
     property OnListenException: TIdListenExceptionEvent read FOnListenException write FOnListenException;
-    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent; // {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TIdSocketHandle.ReuseSocket'{$ENDIF};{$ENDIF}
+    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent; // deprecated 'Use TIdSocketHandle.ReuseSocket';
 //UseNagle should be set to true in most cases.
 //See: http://tangentsoft.net/wskfaq/intermediate.html#disable-nagle and
 //   http://tangentsoft.net/wskfaq/articles/lame-list.html#item19
@@ -423,17 +423,30 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdGlobalCore,
   IdResourceStringsCore, IdReplyRFC,
   IdSchedulerOfThreadDefault, IdStack,
   IdThreadSafe;
 
 { TIdCustomTCPServer }
+
+constructor TIdCustomTCPServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FBindings := TIdSocketHandles.Create(Self);
+  FContexts := TIdContextThreadList.Create;
+  FContextClass := TIdServerContext;
+  //
+  FTerminateWaitTime := 5000;
+  FListenQueue := IdListenQueueDefault;
+  FListenerThreads := TIdListenerThreadList.Create;
+  //TODO: When reestablished, use a sleeping thread instead
+//  fSessionTimer := TTimer.Create(self);
+  FUseNagle := true; // default
+end;
 
 procedure TIdCustomTCPServer.CheckActive;
 begin
@@ -456,10 +469,10 @@ begin
   SetIOHandler(nil);
 
   // Destroy bindings first
-  FreeAndNil(FBindings);
+  FBindings.Free;
   //
-  FreeAndNil(FContexts);
-  FreeAndNil(FListenerThreads);
+  FContexts.Free;
+  FListenerThreads.Free;
   //
   inherited Destroy;
 end;
@@ -512,8 +525,8 @@ begin
     LIntercept := LIOHandler.Intercept;
     if Assigned(LIntercept) then begin
       LIntercept.Disconnect;
-      FreeAndNil(LIntercept);
       LIOHandler.Intercept := nil;
+      LIntercept.Free;
     end;
   end;
 end;
@@ -813,7 +826,7 @@ begin
         LListenerThreads.Add(LListenerThread);
       except
         LBinding.CloseSocket;
-        FreeAndNil(LListenerThread);
+        LListenerThread.Free;
         raise;
       end;
       LListenerThread.Start;
@@ -846,14 +859,12 @@ begin
   end;
 end;
 
-{$IFDEF STRING_IS_UNICODE}
 //This is an ugly hack that's required because a ShortString does not seem
 //to be acceptable to D2009's Assert function.
 procedure AssertClassName(const ABool : Boolean; const AString : String); inline;
 begin
   Assert(ABool, AString);
 end;
-{$ENDIF}
 
 procedure TIdCustomTCPServer.TerminateAllThreads;
 var
@@ -875,11 +886,7 @@ begin
       for i := 0 to LList.Count - 1 do begin
         LContext := {$IFDEF HAS_GENERICS_TList}LList.Items[i]{$ELSE}TIdContext(LList.Items[i]){$ENDIF};
         Assert(LContext<>nil);
-        {$IFDEF STRING_IS_UNICODE}
         AssertClassName(LContext.Connection<>nil, LContext.ClassName);
-        {$ELSE}
-        Assert(LContext.Connection<>nil, LContext.ClassName);
-        {$ENDIF}
         // RLebeau: allow descendants to perform their own cleanups before
         // closing the connection.  FTP, for example, needs to abort an
         // active data transfer on a separate asociated connection
@@ -918,21 +925,6 @@ begin
   AContext.Connection.Disconnect(False);
 end;
 
-procedure TIdCustomTCPServer.InitComponent;
-begin
-  inherited InitComponent;
-  FBindings := TIdSocketHandles.Create(Self);
-  FContexts := TIdContextThreadList.Create;
-  FContextClass := TIdServerContext;
-  //
-  FTerminateWaitTime := 5000;
-  FListenQueue := IdListenQueueDefault;
-  FListenerThreads := TIdListenerThreadList.Create;
-  //TODO: When reestablished, use a sleeping thread instead
-//  fSessionTimer := TTimer.Create(self);
-  FUseNagle := true; // default
-end;
-
 procedure TIdCustomTCPServer.Shutdown;
 var
   // under ARC, convert the weak reference to a strong reference before working with it
@@ -961,13 +953,11 @@ end;
 // Linux/Unix does not allow an IPv4 socket and an IPv6 socket
 // to listen on the same port at the same time! Windows does not
 // have that problem...
-{$DEFINE CanCreateTwoBindings}
-{$IFDEF LINUX} // should this be UNIX instead?
+{$IF DEFINED(LINUX) OR DEFINED(ANDROID)} // should this be UNIX instead?
   {$UNDEF CanCreateTwoBindings}
-{$ENDIF}
-{$IFDEF ANDROID}
-  {$UNDEF CanCreateTwoBindings}
-{$ENDIF}
+{$ELSE}
+  {$DEFINE CanCreateTwoBindings}
+{$IFEND}
 // TODO: Would this be solved by enabling the SO_REUSEPORT option on
 // platforms that support it?
 
@@ -1135,8 +1125,8 @@ begin
       if LContext <> nil then begin
         TIdServerContextAccess(LContext).FOwnsConnection := False;
       end;
-      FreeAndNil(LContext);
-      FreeAndNil(LPeer);
+      LContext.Free;
+      LPeer.Free;
       // Must terminate - likely has not started yet
       if LYarn <> nil then begin
         Server.Scheduler.TerminateYarn(LYarn);

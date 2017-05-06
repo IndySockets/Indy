@@ -204,7 +204,7 @@ interface
     {$ALIGN ON}
   {$ENDIF}
   {$IFNDEF WIN32_OR_WIN64}
-    {$IFNDEF VCL_CROSS_COMPILE}
+    {$IFNDEF DCC_CROSS_COMPILE}
       {$message error error alignment!}
     {$ENDIF}
   {$ENDIF}
@@ -815,19 +815,17 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 uses
   IdException,
   IdGlobal,
-  {$IFDEF KYLIXCOMPAT}
-  libc,
-  {$ENDIF}
   {$IFDEF WINDOWS}
   Windows,
   IdWinsock2,
   {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
+  {$IF DEFINED(USE_VCL_POSIX)}
   Posix.SysSocket,
   Posix.SysTime,
   Posix.SysTypes,
-  {$ENDIF}
-  {$IFDEF USE_BASEUNIX}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
+  libc,
+  {$ELSEIF DEFINED(USE_BASEUNIX)}
   baseunix,
   sockets,
   {$ENDIF}
@@ -17010,7 +17008,7 @@ var
   {$ENDIF}
 
   {$EXTERNALSYM X509_new}
-  X509_new : function: PPX509 cdecl = nil;
+  X509_new : function: PX509 cdecl = nil;
   {$EXTERNALSYM X509_free}
   X509_free : procedure(x: PX509) cdecl = nil;
   {$EXTERNALSYM X509_NAME_new}
@@ -17985,6 +17983,8 @@ var
   CRYPTO_cleanup_all_ex_data : procedure cdecl = nil;
  {$EXTERNALSYM SSL_COMP_get_compression_methods}
   SSL_COMP_get_compression_methods : function: PSTACK_OF_SSL_COMP cdecl = nil;
+ {$EXTERNALSYM SSL_COMP_free_compression_methods}
+  SSL_COMP_free_compression_methods : procedure; cdecl = nil;
  {$EXTERNALSYM sk_pop_free}
   sk_pop_free : procedure(st: PSTACK; func: Tsk_pop_free_func) cdecl = nil;
  {$EXTERNALSYM sk_dup}
@@ -22140,6 +22140,7 @@ them in case we use them later.}
   {CH fn_SSL_get_current_expansion = 'SSL_get_current_expansion'; } {Do not localize}
   {CH fn_SSL_COMP_get_name = 'SSL_COMP_get_name'; } {Do not localize}
   fn_SSL_COMP_get_compression_methods = 'SSL_COMP_get_compression_methods'; {Do not localize}
+  fn_SSL_COMP_free_compression_methods = 'SSL_COMP_free_compression_methods'; {Do not localize}
   // GREGOR
   //fn_SSLeay_add_ssl_algorithms = 'mi_SSLeay_add_ssl_algorithms';  {Do not localize}
   //why does the function name not match?
@@ -22453,17 +22454,17 @@ a version of GetProcAddress in the FreePascal dynlibs unit but that does a
 conversion from ASCII to Unicode which might not be necessary since most calls
 pass a constant anyway.
 }
-function LoadFunction(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadFunction(const FceName: string; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdSSL, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdSSL, PChar(FceName));
   if (Result = nil) and ACritical then begin
     FFailedLoadList.Add(FceName); {do not localize}
   end;
 end;
 
-function LoadFunctionCLib(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadFunctionCLib(const FceName: string; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, PChar(FceName));
   if (Result = nil) and ACritical then begin
     FFailedLoadList.Add(FceName); {do not localize}
   end;
@@ -22478,11 +22479,11 @@ The OpenSSL developers changed that interface to a new "des_*" API.  They have s
  "_ossl_old_des_*" for backwards compatability with the old functions
  which are defined in des_old.h. 
 }
-function LoadOldCLib(const AOldName, ANewName : {$IFDEF WINCE}TIdUnicodeString{$ELSE}String{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadOldCLib(const AOldName, ANewName : String; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AOldName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, PChar(AOldName));
   if Result = nil then begin
-    Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
+    Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, PChar(ANewName));
     if (Result = nil) and ACritical then begin
       FFailedLoadList.Add(AOldName);
     end;
@@ -22519,14 +22520,6 @@ begin
 end;
 
 {$IFNDEF STATICLOAD_OPENSSL}
-{$UNDEF USE_BASEUNIX_OR_VCL_POSIX}
-{$IFDEF USE_BASEUNIX}
-  {$DEFINE USE_BASEUNIX_OR_VCL_POSIX}
-{$ENDIF}
-{$IFDEF USE_VCL_POSIX}
-  {$DEFINE USE_BASEUNIX_OR_VCL_POSIX}
-{$ENDIF}
-
 var
   GIdOpenSSLPath: String = '';
 
@@ -22541,31 +22534,23 @@ end;
 
 function LoadSSLCryptoLibrary: HMODULE;
 begin
-  {$IFDEF KYLIXCOMPAT}
-  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers);
-  {$ELSE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
-    {$ELSE}
-      {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
+  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+  Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers);
+  {$ELSEIF DEFINED(USE_BASEUNIX) OR DEFINED(USE_VCL_POSIX)}
   Result := HMODULE(HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers));
-      {$ELSE}
+  {$ELSE}
   Result := 0;
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 end;
 
 function LoadSSLLibrary: HMODULE;
 begin
-  {$IFDEF KYLIXCOMPAT}
-  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers);
-  {$ELSE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name);
@@ -22574,14 +22559,14 @@ begin
   if Result = 0 then begin
     Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
   end;
-    {$ELSE}
-      {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
+  {$ELSEIF DEFINED(KYLIXCOMPAT)}
+  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+  Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers);
+  {$ELSEIF DEFINED(USE_BASEUNIX) OR DEFINED(USE_VCL_POSIX)}
   Result := HMODULE(HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers));
-      {$ELSE}
+  {$ELSE}
   Result := 0;
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 end;
 
 {$ENDIF} // STATICLOAD_OPENSSL
@@ -22867,6 +22852,7 @@ we have to handle both cases.
   end;
   @CRYPTO_cleanup_all_ex_data := LoadFunctionCLib(fn_CRYPTO_cleanup_all_ex_data,False); //Used by Indy
   @SSL_COMP_get_compression_methods := LoadFunction(fn_SSL_COMP_get_compression_methods,False);
+  @SSL_COMP_free_compression_methods := LoadFunction(fn_SSL_COMP_free_compression_methods,False);
   @sk_pop_free := LoadFunctionCLib(fn_sk_pop_free,False);
   //RSA
   @RSA_free := LoadFunctionCLib(fn_RSA_free,False);
@@ -23044,14 +23030,14 @@ we have to handle both cases.
  // @EVP_des_ede_cfb8 := LoadFunctionCLib(fn_EVP_des_ede_cfb8,False);
   //#endif
   @EVP_des_ede3_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64);
-  @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede3_ofb := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_des_ede_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
-  @EVP_desx_cbc := LoadFunctionCLib(fn_EVP_des_cfb64,False);
+  @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_ede3_cfb1,False);
+  @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_ede3_cfb8,False);
+  @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_ofb,False);
+  @EVP_des_ede_ofb := LoadFunctionCLib(fn_EVP_des_ede_ofb,False);
+  @EVP_des_ede3_ofb := LoadFunctionCLib(fn_EVP_des_ede3_ofb,False);
+  @EVP_des_cbc := LoadFunctionCLib(fn_EVP_des_cbc,False);
+  @EVP_des_ede_cbc := LoadFunctionCLib(fn_EVP_des_ede_cbc,False);
+  @EVP_desx_cbc := LoadFunctionCLib(fn_EVP_desx_cbc,False);
 //* This should now be supported through the dev_crypto ENGINE. But also, why are
 // * rc4 and md5 declarations made here inside a "NO_DES" precompiler branch? */
 //#if 0
@@ -23618,6 +23604,7 @@ begin
   @ERR_remove_state := nil;
   @CRYPTO_cleanup_all_ex_data := nil;
   @SSL_COMP_get_compression_methods := nil;
+  @SSL_COMP_free_compression_methods := nil;
   @sk_pop_free := nil;
   //RSA
   @RSA_new := nil;
@@ -24196,9 +24183,12 @@ var
   LStack: Pointer;
 begin
   if {$IFDEF STATICLOAD_OPENSSL}bIsLoaded{$ELSE}hIdSSL <> 0{$ENDIF} then begin
+    if Assigned(SSL_COMP_free_compression_methods) then begin
+      SSL_COMP_free_compression_methods;
+    end
     //this is a workaround for a known leak in the openssl library
     //present in 0.9.8a
-    if Assigned(SSLeay) then begin
+    else if Assigned(SSLeay) then begin
       if SSLeay = $0090801f then begin
         if Assigned(SSL_COMP_get_compression_methods) and
            Assigned(sk_pop_free) and
@@ -24274,9 +24264,7 @@ var
   i, tz_dir: Integer;
   time_str: string;
   {$IFNDEF USE_MARSHALLED_PTRS}
-    {$IFNDEF STRING_IS_ANSI}
   LTemp: AnsiString;
-    {$ENDIF}
   {$ENDIF}
 begin
   Result := 1;
@@ -24286,12 +24274,8 @@ begin
   {$IFDEF USE_MARSHALLED_PTRS}
   time_str := TMarshal.ReadStringAsAnsi(TPtrWrapper.Create(UCTtime^.data), UCTtime^.length);
   {$ELSE}
-    {$IFDEF STRING_IS_ANSI}
-  SetString(time_str, UCTtime^.data, UCTtime^.length);
-    {$ELSE}
   SetString(LTemp, UCTtime^.data, UCTtime^.length);
   time_str := String(LTemp); // explicit convert to Unicode
-    {$ENDIF}
   {$ENDIF}
   // Check if first 12 chars are numbers
   if not IsNumeric(time_str, 12) then begin
@@ -24819,13 +24803,7 @@ begin
     {$IFDEF USE_MARSHALLED_PTRS}
     M.AsAnsi(name).ToPointer
     {$ELSE}
-    PAnsiChar(
-      {$IFDEF STRING_IS_ANSI}
-      name
-      {$ELSE}
-      AnsiString(name)  // explicit convert to Ansi
-      {$ENDIF}
-    )
+    PAnsiChar(AnsiString(name))  // explicit convert to Ansi
     {$ENDIF}
   );
 end;
@@ -24933,7 +24911,7 @@ end;
 function SSL_CTX_add_extra_chain_cert(ctx : PSSL_CTX; x509 : PX509) : TIdC_LONG;
  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-	Result := SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,x509);
+  Result := SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,x509);
 end;
 
 function SSL_CTX_get_extra_chain_certs(ctx : PSSL_CTX; var px509 : px509) : TIdC_LONG;

@@ -39,9 +39,7 @@ interface
 //here to flip FPC into Delphi mode
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdComponent, IdException, IdGlobal, IdSocketHandle,
   IdStack;
 
@@ -100,11 +98,9 @@ belonging to a single organization.}
     property MulticastGroup: string read FMulticastGroup write SetMulticastGroup;
     property Port: Integer read FPort write SetPort;
     property IPVersion: TIdIPVersion read GetIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
+    //
     function IsValidMulticastGroup(const Value: string): Boolean;
 {These two items are helper functions that allow you to specify the scope for
 a Variable Scope Multicast Addresses.  Some are listed in IdAssignedNumbers
@@ -124,7 +120,7 @@ you with more flexibility than you would get with IPv4 multicasting.}
   EIdMCastReceiveErrorZeroBytes = class(EIdMCastException);
 
 const
-  DEF_IPv6_MGROUP = 'FF01:0:0:0:0:0:0:1';
+  DEF_IPv6_MGROUP = 'FF01:0:0:0:0:0:0:1'; {do not localize}
 
 implementation
 
@@ -134,28 +130,17 @@ uses
 
 { TIdIPMCastBase }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdIPMCastBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FIPVersion := ID_DEFAULT_IP_VERSION;
+  FMultiCastGroup := {$IFDEF IdIPv6}DEF_IPv6_MGROUP{$ELSE}Id_IPMC_All_Systems{$ENDIF};
+  FReuseSocket := rsOSDependent;
 end;
-{$ENDIF}
 
 function TIdIPMCastBase.GetIPVersion: TIdIPVersion;
 begin
   Result := FIPVersion;
-end;
-
-procedure TIdIPMCastBase.InitComponent;
-begin
-  inherited InitComponent;
-  FIPVersion := ID_DEFAULT_IP_VERSION;
-  {$IFDEF IdIPv6}
-  FMultiCastGroup := DEF_IPv6_MGROUP;
-  {$ELSE}
-  FMultiCastGroup := Id_IPMC_All_Systems;
-  {$ENDIF}
-  FReuseSocket := rsOSDependent;
 end;
 
 function TIdIPMCastBase.GetActive: Boolean;
@@ -220,7 +205,7 @@ class function TIdIPMCastBase.SetIPv6AddrScope(const AVarIPv6Addr: String;
   const AScope: TIdIPMCValidScopes): String;
 begin
    //Replace the X in the Id_IPv6MC_V_ constants with the specified scope
-   Result := ReplaceOnlyFirst(AVarIPv6Addr,'X',IntToHex(AScope,1));
+   Result := ReplaceOnlyFirst(AVarIPv6Addr, 'X', IntToHex(AScope,1)); {do not localize}
 end;
 
 procedure TIdIPMCastBase.SetIPVersion(const AValue: TIdIPVersion);

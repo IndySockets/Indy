@@ -26,6 +26,7 @@
 unit IdTask;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -113,7 +114,7 @@ destructor TIdTask.Destroy;
 begin
   // Dont free the yarn, that is the responsibilty of the thread / fiber.
   // .Yarn here is just a reference, not an ownership
-  FreeAndNil({$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF});
+  {$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF}.Free;
   {$IFDEF USE_OBJECT_ARC}
   FDataValue := 0;
   {$ENDIF}

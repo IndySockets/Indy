@@ -471,7 +471,7 @@ begin
   LData := UpperCase(AData);
   Result := (IndyPos('TOTAL NUMBER OF ', LData) > 0) and  {do not localize}
             (IndyPos(' BATCH', LData) > 0) and            {do not localize}
-	    (IndyPos('LISTED:', LData) > 0);              {do not localize}
+            (IndyPos('LISTED:', LData) > 0);              {do not localize}
 end;
 
 initialization

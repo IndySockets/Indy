@@ -253,7 +253,7 @@ begin
         LI.LocalFileName := LName;
       end;
     finally
-      FreeAndNil(strs);
+      strs.Free;
     end;
   end;
   Result := True;

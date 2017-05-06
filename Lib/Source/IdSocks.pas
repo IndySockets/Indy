@@ -215,7 +215,6 @@ type
     function MakeUDPRequestPacket(const AData: TIdBytes;
       const AHost: String; const APort: TIdPort) : TIdBytes;
     function GetEnabled: Boolean; override;
-    procedure InitComponent; override;
     procedure AuthenticateSocks5Connection(AIOHandler: TIdIOHandler);
     // This must be defined with an port value that's a word so that we use the 2 byte Network Order byte functions instead
     // the 4 byte or 8 byte functions.  If we use the wrong byte order functions, we can get a zero port value causing an error.
@@ -234,8 +233,9 @@ type
     procedure MakeSocks5UDPAssociation(AHandle : TIdSocketHandle);
     procedure CloseSocks5UDPAssociation;
   public
-    procedure Assign(ASource: TPersistent); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Assign(ASource: TPersistent); override;
     procedure Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function  Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;override;
     procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string = ''; const APort: TIdPort = 0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -264,6 +264,22 @@ uses
   IdIOHandlerStack, SysUtils;
 
 { TIdSocksInfo }
+
+constructor TIdSocksInfo.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Authentication := ID_SOCKS_AUTH;
+  Version := ID_SOCKS_VER;
+  Port := IdPORT_SOCKS;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
+  FUDPSocksAssociation := TIdIOHandlerStack.Create;
+end;
+
+destructor TIdSocksInfo.Destroy;
+begin
+  FUDPSocksAssociation.Free;
+  inherited Destroy;
+end;
 
 procedure TIdSocksInfo.Assign(ASource: TPersistent);
 var
@@ -365,7 +381,7 @@ begin
       CopyTIdBytes(LAddr, 0, VBuf, 4, Length(LAddr));
       VLen := 4 + Length(LAddr);
     finally
-      FreeAndNil(LIP);
+      LIP.Free;
     end;
   end else
   begin
@@ -445,30 +461,33 @@ begin
     SetLength(LResponse, 8);
     TIdIOHandlerSocket(AIOHandler).TransparentProxy := nil;
     LClient.IOHandler := AIOHandler;
-    LClient.Host := Host;
-    LClient.Port := Port;
-    LClient.Connect;
-    TIdIOHandlerSocket(AIOHandler).TransparentProxy := Self;
-    MakeSocks4Request(AIOHandler, AHost, APort, $02); //bind
-    AIOHandler.ReadBytes(LResponse, 2, False);
-    case LResponse[1] of // OpCode
-      90: ;// request granted, do nothing
-      91: raise EIdSocksRequestFailed.Create(RSSocksRequestFailed);
-      92: raise EIdSocksRequestServerFailed.Create(RSSocksRequestServerFailed);
-      93: raise EIdSocksRequestIdentFailed.Create(RSSocksRequestIdentFailed);
-    else raise EIdSocksUnknownError.Create(RSSocksUnknownError);
-    end;
-
     try
-      // Socks server replies on connect, this is the second part
-      AIOHandler.ReadBytes(LResponse, 6, False); //overwrite the first part for now
-      TIdIOHandlerSocket(AIOHandler).Binding.SetBinding(BytesToIPv4Str(LResponse, 2), LResponse[0]*256+LResponse[1]);
-    except
-      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
+      LClient.Host := Host;
+      LClient.Port := Port;
+      LClient.Connect;
+      TIdIOHandlerSocket(AIOHandler).TransparentProxy := Self;
+      MakeSocks4Request(AIOHandler, AHost, APort, $02); //bind
+      AIOHandler.ReadBytes(LResponse, 2, False);
+      case LResponse[1] of // OpCode
+        90: ;// request granted, do nothing
+        91: raise EIdSocksRequestFailed.Create(RSSocksRequestFailed);
+        92: raise EIdSocksRequestServerFailed.Create(RSSocksRequestServerFailed);
+        93: raise EIdSocksRequestIdentFailed.Create(RSSocksRequestIdentFailed);
+      else raise EIdSocksUnknownError.Create(RSSocksUnknownError);
+      end;
+
+      try
+        // Socks server replies on connect, this is the second part
+        AIOHandler.ReadBytes(LResponse, 6, False); //overwrite the first part for now
+        TIdIOHandlerSocket(AIOHandler).Binding.SetBinding(BytesToIPv4Str(LResponse, 2), LResponse[0]*256+LResponse[1]);
+      except
+        IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
+      end;
+    finally
+      LClient.IOHandler := nil;
     end;
   finally
-    LClient.IOHandler := nil;
-    FreeAndNil(LClient);
+    LClient.Free;
   end;
 end;
 
@@ -484,16 +503,6 @@ function TIdSocksInfo.GetEnabled: Boolean;
 Begin
   Result := Version in [svSocks4, svSocks4A, svSocks5];
 End;//
-
-procedure TIdSocksInfo.InitComponent;
-begin
-  inherited InitComponent;
-  Authentication := ID_SOCKS_AUTH;
-  Version := ID_SOCKS_VER;
-  Port := IdPORT_SOCKS;
-  FIPVersion := ID_DEFAULT_IP_VERSION;
-  FUDPSocksAssociation := TIdIOHandlerStack.Create;
-end;
 
 procedure TIdSocksInfo.AuthenticateSocks5Connection(
   AIOHandler: TIdIOHandler);
@@ -583,69 +592,72 @@ begin
     SetLength(LBuf, 255);
     TIdIOHandlerSocket(AIOHandler).TransparentProxy := nil;
     LClient.IOHandler := AIOHandler;
-    LClient.Host := Host;
-    LClient.IPVersion := IPVersion;
-    LClient.Port := Port;
-    LClient.Connect;
-    TIdIOHandlerSocket(AIOHandler).TransparentProxy := Self;
-
-    AuthenticateSocks5Connection(AIOHandler);
-    // Bind process
-    MakeSocks5Request(AIOHandler, AHost, APort, $02, LBuf, LPos); //bind request
-    //
-    AIOHandler.Write(LBuf, LPos); // send the connection packet
     try
-      AIOHandler.ReadBytes(LBuf, 4, False);    // Socks server replies on connect, this is the first part
-    except
-      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
-    end;
+      LClient.Host := Host;
+      LClient.IPVersion := IPVersion;
+      LClient.Port := Port;
+      LClient.Connect;
+      TIdIOHandlerSocket(AIOHandler).TransparentProxy := Self;
 
-    case LBuf[1] of
-      0: ;// success, do nothing
-      1: raise EIdSocksServerGeneralError.Create(RSSocksServerGeneralError);
-      2: raise EIdSocksServerPermissionError.Create(RSSocksServerPermissionError);
-      3: raise EIdSocksServerNetUnreachableError.Create(RSSocksServerNetUnreachableError);
-      4: raise EIdSocksServerHostUnreachableError.Create(RSSocksServerHostUnreachableError);
-      5: raise EIdSocksServerConnectionRefusedError.Create(RSSocksServerConnectionRefusedError);
-      6: raise EIdSocksServerTTLExpiredError.Create(RSSocksServerTTLExpiredError);
-      7: raise EIdSocksServerCommandError.Create(RSSocksServerCommandError);
-      8: raise EIdSocksServerAddressError.Create(RSSocksServerAddressError);
-      else
-        raise EIdSocksUnknownError.Create(RSSocksUnknownError);
-    end;
-    LType := LBuf[3];
-    // type of destination address is domain name
-    case LType of
-      // IP V4
-      1: Lpos := 4 + 2; // 4 is for address and 2 is for port length
-      // FQDN
-      3: Lpos := LBuf[4] + 2; // 2 is for port length
-      // IP V6
-      4: LPos := 16 + 2; // 16 is for address and 2 is for port length
-    end;
-    try
-      // Socks server replies on connect, this is the second part
-      AIOHandler.ReadBytes(LBuf, Lpos, False); //overwrite the first part for now
-      case LType of
-        1 : begin
-              //IPv4
-              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf), LBuf[4]*256+LBuf[5], Id_IPv4);
-            end;
-        3 : begin
-              LIPVersion := TIdIOHandlerSocket(AIOHandler).IPVersion;
-              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2), LIPVersion), LBuf[4]*256+LBuf[5], LIPVersion);
-            end;
-        4 : begin
-              BytesToIPv6(LBuf, LAddress);
-              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IPv6AddressToStr(LAddress), LBuf[16]*256+LBuf[17], Id_IPv6);
-            end;
+      AuthenticateSocks5Connection(AIOHandler);
+      // Bind process
+      MakeSocks5Request(AIOHandler, AHost, APort, $02, LBuf, LPos); //bind request
+      //
+      AIOHandler.Write(LBuf, LPos); // send the connection packet
+      try
+        AIOHandler.ReadBytes(LBuf, 4, False);    // Socks server replies on connect, this is the first part
+      except
+        IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
       end;
-    except
-      IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
+
+      case LBuf[1] of
+        0: ;// success, do nothing
+        1: raise EIdSocksServerGeneralError.Create(RSSocksServerGeneralError);
+        2: raise EIdSocksServerPermissionError.Create(RSSocksServerPermissionError);
+        3: raise EIdSocksServerNetUnreachableError.Create(RSSocksServerNetUnreachableError);
+        4: raise EIdSocksServerHostUnreachableError.Create(RSSocksServerHostUnreachableError);
+        5: raise EIdSocksServerConnectionRefusedError.Create(RSSocksServerConnectionRefusedError);
+        6: raise EIdSocksServerTTLExpiredError.Create(RSSocksServerTTLExpiredError);
+        7: raise EIdSocksServerCommandError.Create(RSSocksServerCommandError);
+        8: raise EIdSocksServerAddressError.Create(RSSocksServerAddressError);
+        else
+          raise EIdSocksUnknownError.Create(RSSocksUnknownError);
+      end;
+      LType := LBuf[3];
+      // type of destination address is domain name
+      case LType of
+        // IP V4
+        1: Lpos := 4 + 2; // 4 is for address and 2 is for port length
+        // FQDN
+        3: Lpos := LBuf[4] + 2; // 2 is for port length
+        // IP V6
+        4: LPos := 16 + 2; // 16 is for address and 2 is for port length
+      end;
+      try
+        // Socks server replies on connect, this is the second part
+        AIOHandler.ReadBytes(LBuf, Lpos, False); //overwrite the first part for now
+        case LType of
+          1 : begin
+                //IPv4
+                TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(BytesToIPv4Str(LBuf), LBuf[4]*256+LBuf[5], Id_IPv4);
+              end;
+          3 : begin
+                LIPVersion := TIdIOHandlerSocket(AIOHandler).IPVersion;
+                TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2), LIPVersion), LBuf[4]*256+LBuf[5], LIPVersion);
+              end;
+          4 : begin
+                BytesToIPv6(LBuf, LAddress);
+                TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IPv6AddressToStr(LAddress), LBuf[16]*256+LBuf[17], Id_IPv6);
+              end;
+        end;
+      except
+        IndyRaiseOuterException(EIdSocksServerRespondError.Create(RSSocksServerRespondError));
+      end;
+    finally
+      LClient.IOHandler := nil;
     end;
   finally
-    LClient.IOHandler := nil;
-    FreeAndNil(LClient);
+    LClient.Free;
   end;
 end;
 
@@ -964,7 +976,7 @@ begin
       CopyTIdBytes(LAddr, 0, Result, 4, Length(LAddr));
       LLen := LLen + Length(LAddr);
     finally
-      FreeAndNil(LIP);
+      LIP.Free;
     end;
   end else
   begin
@@ -1021,12 +1033,6 @@ begin
   end;
   LBuf := MakeUDPRequestPacket(ABuffer, AHost, APort);
   AHandle.Send(LBuf, 0);
-end;
-
-destructor TIdSocksInfo.Destroy;
-begin
-  FreeAndNil(FUDPSocksAssociation);
-  inherited Destroy;
 end;
 
 end.

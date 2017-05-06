@@ -386,8 +386,8 @@ type
     procedure SetURLs(Value : TStrings);
     {This processes some types of variables after reading the string}
     procedure SetVariablesAfterRead;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     { This reads a VCard from a TStrings object }
     procedure ReadFromStrings(s : TStrings);
@@ -453,8 +453,6 @@ type
   function ParseISO8601DateTime(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
   function ParseISO8601DateAndOrTime(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
   function ParseISO8601DateTimeStamp(const DateString: string; var VDate: TIdISO8601DateComps; var VTime: TIdISO8601TimeComps): Boolean;
-
-  function ParseDateTimeStamp(const DateString: string): TDateTime; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ParseISO8601DateTimeStamp()'{$ENDIF};{$ENDIF}
 
 implementation
 
@@ -1064,18 +1062,6 @@ begin
   Result := ParseISO8601DateTime(DateString, VDate, VTime);
 end;
 
-function ParseDateTimeStamp(const DateString: string): TDateTime;
-var
-  LDate: TIdISO8601DateComps;
-  LTime: TIdISO8601TimeComps;
-begin
-  if ParseISO8601DateTimeStamp(DateString, LDate, LTime) then begin
-    Result := EncodeDate(LDate.Year, LDate.Month, LDate.Day) + EncodeTime(LTime.Hour, LTime.Min, LTime.Sec, LTime.MSec);
-  end else begin
-    Result := 0.0;
-  end;
-end;
-
 {This function returns a stringList with an item's
 attributes and sets value to the value of the item}
 function GetAttributesAndValue(Data : String; var Value : String) : TStringList;
@@ -1098,7 +1084,7 @@ begin
     end;
     Value := Data;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -1175,7 +1161,7 @@ begin
     end;
     PhoneObj.Number := Value;
   finally
-    FreeAndNil(attribs);
+    attribs.Free;
   end;
 end;
 
@@ -1221,7 +1207,7 @@ begin
     AddressObj.PostalCode := Fetch(Value, ';');    {Do not Localize}
     AddressObj.Nation := Fetch (Value, ';');    {Do not Localize}
   finally
-    FreeAndNil(Attribs);
+    Attribs.Free;
   end;
 end;
 
@@ -1262,7 +1248,7 @@ begin
     end;
     LabelObj.MailingLabel.Add(Value);
   finally
-    FreeAndNil(Attribs);
+    Attribs.Free;
   end;
 end;
 
@@ -1333,15 +1319,15 @@ begin
       end;
     end;
   finally
-    FreeAndNil(Attribs);
+    Attribs.Free;
   end;
 end;
 
 { TIdVCard }
 
-procedure TIdVCard.InitComponent;
+constructor TIdVCard.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FPhoto := TIdVCardEmbeddedObject.Create;
   FLogo  := TIdVCardEmbeddedObject.Create;
   FSound := TIdVCardEmbeddedObject.Create;
@@ -1361,21 +1347,21 @@ end;
 
 destructor TIdVCard.Destroy;
 begin
-  FreeAndNil(FKey);
-  FreeAndNil(FPhoto);
-  FreeAndNil(FLogo);
-  FreeAndNil(FSound);
-  FreeAndNil(FComments);
-  FreeAndNil(FMailingLabels);
-  FreeAndNil(FCategories);
-  FreeAndNil(FBusinessInfo);
-  FreeAndNil(FGeography);
-  FreeAndNil(FURLs);
-  FreeAndNil(FTelephones);
-  FreeAndNil(FAddresses);
-  FreeAndNil(FEMailAddresses);
-  FreeAndNil(FFullName);
-  FreeAndNil(FRawForm);
+  FKey.Free;
+  FPhoto.Free;
+  FLogo.Free;
+  FSound.Free;
+  FComments.Free;
+  FMailingLabels.Free;
+  FCategories.Free;
+  FBusinessInfo.Free;
+  FGeography.Free;
+  FURLs.Free;
+  FTelephones.Free;
+  FAddresses.Free;
+  FEMailAddresses.Free;
+  FFullName.Free;
+  FRawForm.Free;
   inherited Destroy;
 end;
 
@@ -1499,7 +1485,7 @@ var
         Dec(idx);
       end;
     finally
-      FreeAndNil(LAttribs);
+      LAttribs.Free;
     end;
   end;
 
@@ -1718,7 +1704,7 @@ begin
       Inc(idx);
     end;
   finally
-    FreeAndNil(QPCoder);
+    QPCoder.Free;
   end;
 end;
 
@@ -1821,8 +1807,8 @@ end;
 
 destructor TIdVCardName.Destroy;
 begin
-  FreeAndNil(FNickNames);
-  FreeAndNil(FOtherNames);
+  FNickNames.Free;
+  FOtherNames.Free;
   inherited Destroy;
 end;
 
@@ -1846,7 +1832,7 @@ end;
 
 destructor TIdVCardBusinessInfo.Destroy;
 begin
-  FreeAndNil(FDivisions);
+  FDivisions.Free;
   inherited Destroy;
 end;
 
@@ -1878,7 +1864,7 @@ end;
 
 destructor TIdVCardMailingLabelItem.Destroy;
 begin
-  FreeAndNil(FMailingLabel);
+  FMailingLabel.Free;
   inherited Destroy;
 end;
 
@@ -1919,7 +1905,7 @@ end;
 
 destructor TIdVCardEmbeddedObject.Destroy;
 begin
-  FreeAndNil(FEmbeddedData);
+  FEmbeddedData.Free;
   inherited Destroy;
 end;
 

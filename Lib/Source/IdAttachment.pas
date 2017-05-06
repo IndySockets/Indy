@@ -105,10 +105,11 @@ procedure TIdAttachment.LoadFromFile(const FileName: String);
 var
   LStrm: TIdReadFileExclusiveStream;
 begin
-  LStrm := TIdReadFileExclusiveStream.Create(FileName); try
+  LStrm := TIdReadFileExclusiveStream.Create(FileName);
+  try
     LoadFromStream(LStrm);
   finally
-    FreeAndNil(LStrm);
+    LStrm.Free;
   end;
 end;
 
@@ -133,10 +134,11 @@ procedure TIdAttachment.SaveToFile(const FileName: String);
 var
   LStrm: TIdFileCreateStream;
 begin
-  LStrm := TIdFileCreateStream.Create(FileName); try
+  LStrm := TIdFileCreateStream.Create(FileName);
+  try
     SaveToStream(LStrm);
   finally
-    FreeAndNil(LStrm);
+    LStrm.Free;
   end;
 end;
 

@@ -66,10 +66,11 @@ unit IdDICTServer;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols,
+  Classes, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols,
   IdAssignedNumbers, IdCommandHandlers, IdCmdTCPServer;
 
 type
@@ -108,7 +109,8 @@ type
       const AData, AMessage: String);
     //
     procedure InitializeCommandHandlers; override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_DICT;
     //
@@ -127,9 +129,9 @@ type
 
 implementation
 
-procedure TIdDICTServer.InitComponent;
+constructor TIdDICTServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_DICT;
 end;
 

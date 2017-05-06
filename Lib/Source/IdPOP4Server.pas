@@ -47,6 +47,7 @@ type
   TOnUserLoginEvent = procedure(ASender: TIdPOP4ServerContext; const AUsername, APassword: string;
     var VAuthenticated: Boolean) of object;
   TIdPOP4ServerState = (Auth, Trans, Update);
+
   TIdPOP4Server = class(TIdExplicitTLSServer)
   protected
     FOnUserLogin : TOnUserLoginEvent;
@@ -60,17 +61,20 @@ type
 
     function DoAuthLogin(ASender: TIdCommand; const Login:string): Boolean;
 
-    procedure InitComponent; override;
     procedure InitializeCommandHandlers; override;
     procedure CommandAUTH(ASender: TIdCommand);
     procedure CommandCAPA(ASender: TIdCommand);
     procedure CommandSTARTTLS(ASender : TIdCommand);
     procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
 
+  public
+    constructor Create(AOwner: TComponent); override;
+
   published
     property OnUserLogin : TOnUserLoginEvent read FOnUserLogin write FOnUserLogin;
     property DefaultPort default IdPORT_POP3;
   end;
+
   TIdPOP4ServerContext = class(TIdServerContext)
   protected
     FPipeLining : Boolean;
@@ -95,12 +99,25 @@ type
   end;
 
 implementation
-uses IdResourceStringsProtocols, IdCoderMIME, IdGlobal, IdGlobalProtocols, IdSSL, SysUtils;
+
+uses
+  IdResourceStringsProtocols, IdCoderMIME, IdGlobal, IdGlobalProtocols, IdSSL, SysUtils;
 
 { TIdPOP4Server }
 
+constructor TIdPOP4Server.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FContextClass := TIdPOP4ServerContext;
+  FRegularProtPort := POP4_PORT;
+  DefaultPort := POP4_PORT;
+  Self.Greeting.Code := '200';
+  Self.Greeting.Text.Text := 'Your text goes here!!!';
+end;
+
 procedure TIdPOP4Server.InitializeCommandHandlers;
-var LCmd : TIdCommandHandler;
+var
+  LCmd : TIdCommandHandler;
 begin
   inherited;
   LCmd := CommandHandlers.Add;
@@ -117,16 +134,6 @@ begin
   LCmd.NormalReply.SetReply(221,RSFTPQuitGoodby);    {Do not Localize}
   LCmd.Description.Text := 'Syntax: QUIT (terminate service)'; {do not localize}
 
-end;
-
-procedure TIdPOP4Server.InitComponent;
-begin
-  inherited;
-  FContextClass := TIdPOP4ServerContext;
-  FRegularProtPort := POP4_PORT;
-  DefaultPort := POP4_PORT;
-  Self.Greeting.Code := '200';
-  Self.Greeting.Text.Text := 'Your text goes here!!!';
 end;
 
 procedure TIdPOP4Server.CommandCAPA(ASender: TIdCommand);
@@ -147,7 +154,8 @@ begin
 end;
 
 procedure TIdPOP4Server.CommandSTARTTLS(ASender: TIdCommand);
-var LIO : TIdSSLIOHandlerSocketBase;
+var
+  LIO : TIdSSLIOHandlerSocketBase;
 begin
   if (IOHandler is TIdServerIOHandlerSSLBase) and (FUseTLS in ExplicitTLSVals) then begin
     if TIdPOP4ServerContext(ASender.Context).UsingTLS then begin // we are already using TLS
@@ -180,18 +188,20 @@ var
 begin
   //First make the first word uppercase
   LTmp := UpCaseFirstWord(ALine);
+  if Assigned(AReply) then begin
+    LReply := AReply;
+  end else begin
+    LReply := FReplyClass.Create(nil, ReplyTexts);
+  end;
   try
-    if Assigned(AReply) then begin
-      LReply := AReply;
-    end else begin
-      LReply := FReplyClass.Create(nil, ReplyTexts);
+    if not Assigned(AReply) then begin
       LReply.Assign(ReplyUnknownCommand);
     end;
-    LReply.SetReply(500, Sys.Format(RSFTPCmdNotRecognized, [LTmp]));
+    LReply.SetReply(500, Format(RSFTPCmdNotRecognized, [LTmp]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
-      Sys.FreeAndNil(LReply);
+      LReply.Free;
     end;
   end;
 end;

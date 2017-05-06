@@ -64,6 +64,7 @@
 unit IdSchedulerOfThreadDefault;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -80,8 +81,6 @@ type
 implementation
 
 uses
-{$IFDEF USE_VCL_POSIX}
-{$ENDIF}
   IdGlobal;
 
 { TIdSchedulerOfThreadDefault }

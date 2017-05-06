@@ -52,7 +52,9 @@ unit IdSystatServer;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdAssignedNumbers,
@@ -68,8 +70,8 @@ Type
     FOnSystat : TIdSystatEvent;
     //
     function DoExecute(AThread: TIdContext): boolean; override;
-
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property OnSystat : TIdSystatEvent read FOnSystat write FOnSystat;
     property DefaultPort default IdPORT_SYSTAT;
@@ -94,9 +96,9 @@ uses
 
 { TIdSystatServer }
 
-procedure TIdSystatServer.InitComponent;
+constructor TIdSystatServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_SYSTAT;
 end;
 
@@ -112,7 +114,7 @@ begin
       FOnSystat(AThread,s);
       AThread.Connection.IOHandler.Write(s);
     finally
-      FreeAndNil(s);
+      s.Free;
     end;
   end;
   AThread.Connection.Disconnect;

@@ -178,7 +178,7 @@ begin
         Result := IsSecondHeader(LCols);
       end;
     finally
-      FreeAndNil(LCols);
+      LCols.Free;
     end;
   end;
 end;
@@ -229,7 +229,7 @@ begin
     }
     LI.ModifiedAvail := False;
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;
@@ -277,7 +277,7 @@ begin
         Result := IsSecondHeader(LCols);
       end;
     finally
-      FreeAndNil(LCols);
+      LCols.Free;
     end;
   end;
 end;
@@ -330,7 +330,7 @@ begin
     Note that HP3000 does not give you the date at all.
     }
   finally
-    FreeAndNil(LCols);
+    LCols.Free;
   end;
   Result := True;
 end;

@@ -109,11 +109,8 @@ type
     procedure SetActive(Value: Boolean);
     procedure SetMaxHistoryEntries(Value: Integer);
     procedure SetWatchInterval(Value: UInt32);
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function ForceCheck: Boolean;
     procedure LoadHistory;
@@ -138,12 +135,6 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
@@ -151,6 +142,32 @@ uses
   IdStack, SysUtils;
 
 { TIdIPWatch }
+
+constructor TIdIPWatch.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FIPHistoryList := TStringList.Create;
+  FIsOnLine := False;
+  FOnLineCount := 0;
+  FWatchInterval := IP_WATCH_INTERVAL;
+  FActive := False;
+  FPreviousIP := '';    {Do not Localize}
+  FLocalIPHuntBusy := False;
+  FHistoryEnabled:= True;
+  FHistoryFilename:= IP_WATCH_HIST_FILENAME;
+  FMaxHistoryEntries:= IP_WATCH_HIST_MAX;
+end;
+
+destructor TIdIPWatch.Destroy;
+begin
+  if FIsOnLine then begin
+    AddToIPHistoryList(FCurrentIP);
+  end;
+  Active := False;
+  SaveHistory;
+  FIPHistoryList.Free;
+  inherited;
+end;
 
 procedure TIdIPWatch.AddToIPHistoryList(Value: string);
 begin
@@ -238,39 +255,6 @@ begin
     end;
   except
   end;
-end;
-
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-constructor TIdIPWatch.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdIPWatch.InitComponent;
-begin
-  inherited;
-  FIPHistoryList := TStringList.Create;
-  FIsOnLine := False;
-  FOnLineCount := 0;
-  FWatchInterval := IP_WATCH_INTERVAL;
-  FActive := False;
-  FPreviousIP := '';    {Do not Localize}
-  FLocalIPHuntBusy := False;
-  FHistoryEnabled:= True;
-  FHistoryFilename:= IP_WATCH_HIST_FILENAME;
-  FMaxHistoryEntries:= IP_WATCH_HIST_MAX;
-end;
-
-destructor TIdIPWatch.Destroy;
-begin
-  if FIsOnLine then begin
-    AddToIPHistoryList(FCurrentIP);
-  end;
-  Active := False;
-  SaveHistory;
-  FIPHistoryList.Free;
-  inherited;
 end;
 
 function TIdIPWatch.ForceCheck: Boolean;

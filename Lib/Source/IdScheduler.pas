@@ -72,11 +72,7 @@ uses
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ELSE}
-    {$IFDEF VCL_XE3_OR_ABOVE}
-  System.Classes,
-    {$ELSE}
-  Classes,
-    {$ENDIF}
+  {$IFDEF DCC_XE3_OR_ABOVE}System.{$ENDIF}Classes,
   {$ENDIF}
   IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;
 
@@ -94,8 +90,8 @@ type
   protected
     FActiveYarns: TIdYarnThreadList;
     //
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function AcquireYarn: TIdYarn; virtual; abstract;
     procedure Init; virtual;
@@ -114,50 +110,36 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS) AND DEFINED(DCC_2010_OR_ABOVE)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF USE_VCL_POSIX}
+  {$ELSEIF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
   Posix.SysTime,
+  {$IFEND}
+  {$IFDEF DCC_XE3_OR_ABOVE}
+  System.Types,    //here to facilitate inlining
   {$ENDIF}
   {$IFDEF HAS_UNIT_Generics_Collections}
-    {$IFDEF VCL_XE3_OR_ABOVE}
-  System.Classes,
-  System.Types,
-    {$ELSE}
-  Classes,
-    {$ENDIF}
-  {$ELSE}
-      {$IFDEF VCL_XE3_OR_ABOVE}
-  System.Types,    //here to facilitate inlining
-      {$ENDIF}
+  {$IFDEF DCC_XE3_OR_ABOVE}System.{$ENDIF}Classes,
   {$ENDIF}
   IdGlobal, SysUtils;
 
 { TIdScheduler }
 
+constructor TIdScheduler.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FActiveYarns := TIdYarnThreadList.Create;
+end;
+
 destructor TIdScheduler.Destroy;
 begin
-  FreeAndNil(FActiveYarns);
+  FActiveYarns.Free;
   inherited Destroy;
 end;
 
 procedure TIdScheduler.Init;
 begin
-end;
-
-procedure TIdScheduler.InitComponent;
-begin
-  inherited InitComponent;
-  FActiveYarns := TIdYarnThreadList.Create;
 end;
 
 procedure TIdScheduler.ReleaseYarn(AYarn: TIdYarn);

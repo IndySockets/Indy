@@ -43,9 +43,11 @@
 unit IdSysLogServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdBaseComponent,
   IdComponent,
@@ -69,7 +71,8 @@ type
     //
     procedure DoSyslogEvent(AMsg: TIdSysLogMessage; ABinding: TIdSocketHandle); virtual;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_syslog;
     property OnSyslog: TOnSyslogEvent read FOnSyslog write FOnSysLog;
@@ -82,26 +85,26 @@ uses
 
 { TIdSyslogServer }
 
+constructor TIdSyslogServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  DefaultPort := IdPORT_syslog;
+end;
+
 procedure TIdSyslogServer.DoUDPRead(AThread: TIdUDPListenerThread;
   const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
   LMsg: TIdSysLogMessage;
 begin
   inherited DoUDPRead(AThread, AData, ABinding);
-  LMsg := TIdSysLogMessage.Create(Self);
+  LMsg := TIdSysLogMessage.Create;
   try
     LMsg.ReadFromBytes(AData, ABinding.PeerIP);
   //  ReadFromStream(AData, (AData as TMemoryStream).Size, ABinding.PeerIP);
     DoSyslogEvent(LMsg, ABinding);
   finally
-    FreeAndNil(LMsg)
+    LMsg.Free;
   end;
-end;
-
-procedure TIdSyslogServer.InitComponent;
-begin
-  inherited;
-  DefaultPort := IdPORT_syslog;
 end;
 
 procedure TIdSyslogServer.DoSyslogEvent(AMsg: TIdSysLogMessage; ABinding: TIdSocketHandle);

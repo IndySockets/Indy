@@ -447,7 +447,7 @@ begin
       L64Bit := Hash4ToInt64(LMD4.HashBytes(LTmpBytes));
     end;
   finally
-    FreeAndNil(LMD4);
+    LMD4.Free;
   end;
   Result := ReverseEndian(L64Bit);
 end;
@@ -481,7 +481,7 @@ begin
       L64Bit := Hash4ToInt64(LMD5.HashBytes(LTmpBytes));
     end;
   finally
-    FreeAndNil(LMD5);
+    LMD5.Free;
   end;
   Result := ReverseEndian(L64Bit);
 end;
@@ -512,7 +512,7 @@ begin
       L64Bit := Hash5ToInt64(LSHA1.HashBytes(LTmpBytes));
     end;
   finally
-    FreeAndNil(LSHA1);
+    LSHA1.Free;
   end;
   Result := L64Bit;
 end;

@@ -244,7 +244,7 @@ end;
 
 destructor TIdOTPUserManager.Destroy;
 begin
-  FreeAndNil(FAccounts);
+  FAccounts.Free;
   inherited Destroy;;
 end;
 
@@ -405,7 +405,7 @@ end;
 
 destructor TIdOTPUserAccount.Destroy;
 begin
-  FreeAndNil(FNoReenter);
+  FNoReenter.Free;
   inherited Destroy;
 end;
 

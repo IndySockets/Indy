@@ -66,7 +66,6 @@ uses
   IdSASLUserPass;
 
 type
-
   TIdSASLCRAMSHA1 = class(TIdSASLCRAMBase)
   public
     class function BuildKeydAuth(const APassword, AChallenge: string): string; override;
@@ -82,18 +81,18 @@ uses
 
 class function TIdSASLCRAMSHA1.BuildKeydAuth(const APassword, AChallenge: string): string;
 var
- LHash:TIdHMACSHA1;
- LBuffer:TIdBytes;
+  LHash: TIdHMACSHA1;
+  LBuffer: TIdBytes;
 begin
- LHash:=TIdHMACSHA1.Create;
- try
-  LHash.Key:=ToBytes(APassword);
-  LBuffer:=ToBytes(AChallenge);
-  LBuffer:=LHash.HashValue(LBuffer);
-  Result:=LowerCase(ToHex(LBuffer));
- finally
-  FreeAndNil(LHash);
- end;
+  LHash := TIdHMACSHA1.Create;
+  try
+    LHash.Key := ToBytes(APassword);
+    LBuffer := ToBytes(AChallenge);
+    LBuffer := LHash.HashValue(LBuffer);
+    Result := LowerCase(ToHex(LBuffer));
+  finally
+    LHash.Free;
+  end;
 end;
 
 class function TIdSASLCRAMSHA1.ServiceName: TIdSASLServiceName;

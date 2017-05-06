@@ -432,7 +432,6 @@ Project -> Options -> Directories/Conditionals -> Search Path}
 
 uses
   Classes,
-  {$IFNDEF VCL_6_OR_ABOVE}IdCTypes,{$ENDIF}
   IdMessage,
   IdAssignedNumbers,
   IdMailBox,
@@ -463,10 +462,10 @@ type
   // TODO: make an IIdTextEncoding implementation for Modified UTF-7
   TIdMUTF7 = class(TObject)
   public
-    function Encode(const aString : TIdUnicodeString): String;
-    function Decode(const aString : String): TIdUnicodeString;
+    function Encode(const aString : UnicodeString): String;
+    function Decode(const aString : String): UnicodeString;
     function Valid(const aMUTF7String : String): Boolean;
-    function Append(const aMUTF7String: String; const aStr: TIdUnicodeString): String;
+    function Append(const aMUTF7String: String; const aStr: UnicodeString): String;
   end;
 
 { TIdIMAP4 }
@@ -769,10 +768,8 @@ varies between servers.  A typical line that gets parsed into this is:
     procedure ParseLastCmdResultButAppendInfo(ALine: string);
     function  InternalRetrieve(const AMsgNum: Integer; AUseUID: Boolean; AUsePeek: Boolean; AMsg: TIdMessage): Boolean;
     function  InternalRetrievePart(const AMsgNum: Integer; const APartNum: string;
-          AUseUID: Boolean; AUsePeek: Boolean;
-          ADestStream: TStream;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; {NOTE: var args cannot have default params}
+          AUseUID: Boolean; AUsePeek: Boolean; ADestStream: TStream;
+          var ABuffer: PByte; var ABufferLength: Integer; {NOTE: var args cannot have default params}
           ADestFileNameAndPath: string = '';                     {Do not Localize}
           AContentTransferEncoding: string = 'text'): Boolean;             {Do not Localize}
     //Retrieves the specified number of headers of the selected mailbox to the specified TIdMessageCollection.
@@ -799,14 +796,11 @@ varies between servers.  A typical line that gets parsed into this is:
     function  IsItDigitsAndOptionallyPeriod(const AStr: string; AAllowPeriod: Boolean): Boolean;
     {CC6: Override IdMessageClient's ReceiveBody due to the responses from some servers...}
     procedure ReceiveBody(AMsg: TIdMessage; const ADelim: string = '.'); override;     {Do not Localize}
-    procedure InitComponent; override;
     procedure SetMailBox(const Value: TIdMailBox);
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
   public
     { TIdIMAP4 Commands }
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     //Requests a listing of capabilities that the server supports...
     function  Capability: Boolean; overload;
@@ -931,12 +925,12 @@ varies between servers.  A typical line that gets parsed into this is:
           ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  RetrievePart(const AMsgNum: Integer; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  RetrievePart(const AMsgNum: Integer; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
@@ -944,13 +938,13 @@ varies between servers.  A typical line that gets parsed into this is:
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  RetrievePartToFile(const AMsgNum: Integer; const APartNum: Integer;
@@ -1025,24 +1019,24 @@ varies between servers.  A typical line that gets parsed into this is:
           var ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePart(const AMsgUID: String; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
           var ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: Integer;
-          var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABuffer: PByte; var ABufferLength: Integer;
+          AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePartToFile(const AMsgUID: String; const APartNum: Integer;
           ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
@@ -1096,8 +1090,6 @@ varies between servers.  A typical line that gets parsed into this is:
       ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string; reintroduce; overload;
     function  SendCmd(const ATag, AOut: string; AExpectedResponses: array of String;
       ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string; overload;
-    function  ReadLnWait: string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.ReadLnWait()'{$ENDIF};{$ENDIF}
-    procedure WriteLn(const AOut: string = ''); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.WriteLn()'{$ENDIF};{$ENDIF}
   { IdTCPConnection Commands }
   published
     property  OnAlert: TIdAlertEvent read FOnAlert write FOnAlert;
@@ -1140,24 +1132,7 @@ uses
   {$ENDIF}
   //facilitate inlining only.
   {$IFDEF WINDOWS}
-    {$IFDEF USE_INLINE}
   Windows,
-    {$ELSE}
-  //facilitate inlining only.
-      {$IFDEF VCL_2009_OR_ABOVE}
-  Windows,
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
   {$ENDIF}
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
@@ -1170,7 +1145,6 @@ uses
   IdExceptionCore,
   IdStack,
   IdStackConsts,
-  IdStream,
   IdTCPStream,
   IdText,
   IdAttachment,
@@ -1183,18 +1157,6 @@ uses
   IdSASL,
   IdMessageHelper,
   SysUtils;
-
-// TODO: move this to IdCompilerDefines.inc
-{$IFDEF DCC}
-  // class helpers were first introduced in D2005, but were buggy and not
-  // officially supported until D2006...
-  {$IFDEF VCL_2006_OR_ABOVE}
-    {$DEFINE HAS_CLASS_HELPER}
-  {$ENDIF}
-{$ENDIF}
-{$IFDEF FPC}
-  {$DEFINE HAS_CLASS_HELPER} // TODO: when were class helpers introduced?
-{$ENDIF}
 
 type
   TIdIMAP4FetchDataItem = (
@@ -1481,7 +1443,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(LSupportedSASL);
+      LSupportedSASL.Free;
     end;
 
     if LSASLList.Count = 0 then begin
@@ -1519,16 +1481,16 @@ begin
             raise EIdSASLNotReady.Create(RSSASLNotReady);
           end;
         finally
-          FreeAndNil(LError);
+          LError.Free;
         end;
       finally
-        FreeAndNil(LD);
+        LD.Free;
       end;
     finally
-      FreeAndNil(LE);
+      LE.Free;
     end;
   finally
-    FreeAndNil(LSASLList);
+    LSASLList.Free;
   end;
 end;
 
@@ -1590,7 +1552,7 @@ const
 
 // TODO: re-write this to derive from IdCoder3To4.pas or IdCoderMIME.pas classes...
 
-function TIdMUTF7.Encode(const aString: TIdUnicodeString): String;
+function TIdMUTF7.Encode(const aString: UnicodeString): String;
 { -- MUTF7Encode -------------------------------------------------------------
 PRE:  nothing
 POST: returns a string encoded as described in IETF RFC 3501, section 5.1.3
@@ -1702,7 +1664,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdMUTF7.Decode(const aString: String): TIdUnicodeString;
+function TIdMUTF7.Decode(const aString: String): UnicodeString;
 { -- mUTF7Decode -------------------------------------------------------------
 PRE:  aString encoding must conform to IETF RFC 3501, section 5.1.3
 POST: SUCCESS: an 8bit string
@@ -1825,7 +1787,7 @@ begin
   end;
 end;
 
-function TIdMUTF7.Append(const aMUTF7String: String; const aStr : TIdUnicodeString): String;
+function TIdMUTF7.Append(const aMUTF7String: String; const aStr : UnicodeString): String;
 { -- mUTF7Append -------------------------------------------------------------
 PRE:  aMUTF7String is complying to mUTF7Encode's description
 POST: SUCCESS: a concatenation of both input strings in mUTF
@@ -1867,6 +1829,50 @@ end;
 
 { TIdIMAP4 }
 
+constructor TIdIMAP4.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FMailBox := TIdMailBox.Create(Self);
+  //FSASLMechanisms := TIdSASLEntries.Create(Self);
+  FSASLMechanisms := TIdSASLEntriesIMAP4.Create(Self);
+  Port := IdPORT_IMAP4;
+  FLineStruct := TIdIMAPLineStruct.Create;
+  FCapabilities := TStringList.Create;
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  TStringList(FCapabilities).CaseSensitive := False;
+  {$ENDIF}
+  FMUTF7 := TIdMUTF7.Create;
+
+  //Todo:  Not sure which number is appropriate.  Should be tested further.
+  FRegularProtPort := IdPORT_IMAP4;
+  FImplicitTLSProtPort := IdPORT_IMAP4S;
+  FExplicitTLSProtPort := IdPORT_IMAP4;
+
+  FMilliSecsToWaitToClearBuffer := IDF_DEFAULT_MS_TO_WAIT_TO_CLEAR_BUFFER;
+  FCmdCounter := 0;
+  FConnectionState := csNonAuthenticated;
+  FRetrieveOnSelect := rsDisabled;
+  {CC2: FMailBoxSeparator is now detected when a mailbox is selected, following
+  line is probably redundant, but leave it here as a default just in case.}
+  FMailBoxSeparator := '/';                           {Do not Localize}
+end;
+
+destructor TIdIMAP4.Destroy;
+begin
+  {Disconnect before we die}
+  { Note we have to pass false to an overloaded method or an exception is
+    raised in the destructor.  That can cause weirdness in the IDE. }
+  if Connected then begin
+    Disconnect(False);
+  end;
+  FMailBox.Free;
+  FSASLMechanisms.Free;
+  FLineStruct.Free;
+  FCapabilities.Free;
+  FMUTF7.Free;
+  inherited Destroy;
+end;
+
 procedure TIdIMAP4.BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
 begin
   if Assigned(FOnWorkBeginForPart) then begin
@@ -1894,13 +1900,7 @@ begin
   // TODO: if the server advertises the "UTF8=ACCEPT" capability, use
   // a UTF-8 quoted string instead of IMAP's Modified UTF-7...
   try
-    Result := FMUTF7.Encode(
-      {$IFDEF STRING_IS_UNICODE}
-      aString
-      {$ELSE}
-      TIdUnicodeString(aString) // explicit convert to Unicode
-      {$ENDIF}
-    );
+    Result := FMUTF7.Encode(aString);
   except
     Result := aString;
   end;
@@ -1909,11 +1909,7 @@ end;
 function TIdIMAP4.DoMUTFDecode(const aString : String): String;
 begin
   try
-    {$IFDEF STRING_IS_UNICODE}
     Result := FMUTF7.Decode(aString);
-    {$ELSE}
-    Result := String(FMUTF7.Decode(aString)); // explicit convert to Ansi
-    {$ENDIF}
   except
     Result := aString;
   end;
@@ -2029,7 +2025,7 @@ begin
     //It does not allow us create folders under any level (read-only?)...
     Result := ftDoesNotAllowFolderCreation;
   finally
-    FreeAndNil(LUsersFolders);
+    LUsersFolders.Free;
   end;
 end;
 
@@ -2097,20 +2093,6 @@ begin
       end;
     end;
   end;
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-procedure TIdIMAP4.WriteLn(const AOut: string = '');
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  IOHandler.WriteLn(AOut);
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function  TIdIMAP4.ReadLnWait: string;
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  Result := IOHandler.ReadLnWait;  {This can have hit an exception of Connection Reset By Peer (timeout)}
 end;
 
 { IdTCPConnection Commands... }
@@ -2269,7 +2251,7 @@ begin
     end;
     Result := FLastCmdResult.Code;
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 
@@ -2423,41 +2405,6 @@ begin
   Result := True;
 end;
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-constructor TIdIMAP4.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdIMAP4.InitComponent;
-begin
-  inherited InitComponent;
-  FMailBox := TIdMailBox.Create(Self);
-  //FSASLMechanisms := TIdSASLEntries.Create(Self);
-  FSASLMechanisms := TIdSASLEntriesIMAP4.Create(Self);
-  Port := IdPORT_IMAP4;
-  FLineStruct := TIdIMAPLineStruct.Create;
-  FCapabilities := TStringList.Create;
-  {$IFDEF HAS_TStringList_CaseSensitive}
-  TStringList(FCapabilities).CaseSensitive := False;
-  {$ENDIF}
-  FMUTF7 := TIdMUTF7.Create;
-
-  //Todo:  Not sure which number is appropriate.  Should be tested further.
-  FRegularProtPort := IdPORT_IMAP4;
-  FImplicitTLSProtPort := IdPORT_IMAP4S;
-  FExplicitTLSProtPort := IdPORT_IMAP4;
-
-  FMilliSecsToWaitToClearBuffer := IDF_DEFAULT_MS_TO_WAIT_TO_CLEAR_BUFFER;
-  FCmdCounter := 0;
-  FConnectionState := csNonAuthenticated;
-  FRetrieveOnSelect := rsDisabled;
-  {CC2: FMailBoxSeparator is now detected when a mailbox is selected, following
-  line is probably redundant, but leave it here as a default just in case.}
-  FMailBoxSeparator := '/';                           {Do not Localize}
-end;
-
 procedure TIdIMAP4.Disconnect(ANotifyPeer: Boolean);
 begin
   try
@@ -2534,22 +2481,6 @@ function TIdIMAP4.GetNewCmdCounter: String;
 begin
   Inc(FCmdCounter);
   Result := 'C' + IntToStr(FCmdCounter);                    {Do not Localize}
-end;
-
-destructor TIdIMAP4.Destroy;
-begin
-  {Disconnect before we die}
-  { Note we have to pass false to an overloaded method or an exception is
-    raised in the destructor.  That can cause weirdness in the IDE. }
-  if Connected then begin
-    Disconnect(False);
-  end;
-  FreeAndNil(FMailBox);
-  FreeAndNil(FSASLMechanisms);
-  FreeAndNil(FLineStruct);
-  FreeAndNil(FCapabilities);
-  FreeAndNil(FMUTF7);
-  inherited Destroy;
 end;
 
 function TIdIMAP4.SelectMailBox(const AMBName: String): Boolean;
@@ -2846,10 +2777,10 @@ begin
             if LUseUTF8QuotedString then begin
               LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' ' + ASearchInfo[Ln].FieldName + ' *'; {Do not Localize}
               IOHandler.Write(LCmd);
-              IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+              IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding);
             end else
             begin
-              LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+              LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding);
               if LUseNonSyncLiteral then begin
                 LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
               end else begin
@@ -2893,10 +2824,10 @@ begin
             if LUseUTF8QuotedString then begin
               LCmd := LCmd + ' ' + IMAP4SearchKeys[ASearchInfo[Ln].SearchKey] + ' *'; {Do not Localize}
               IOHandler.Write(LCmd);
-              IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+              IOHandler.Write(IMAPQuotedStr(ASearchInfo[Ln].Text), LEncoding);
             end else
             begin
-              LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+              LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding);
               if LUseNonSyncLiteral then begin
                 LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
               end else begin
@@ -3034,7 +2965,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(LAuxMailBoxList);
+      LAuxMailBoxList.Free;
     end;
   end;
 end;
@@ -3240,7 +3171,7 @@ var
   LUseNonSyncLiteral: Boolean;
   Ln: Integer;
   LCmd: string;
-  LLength: TIdStreamSize;
+  LLength: Int64;
   LHeadersToSend, LCopiedHeaders: TIdHeaderList;
   LHeadersAsString: string;
   LHeadersAsBytes: TIdBytes;
@@ -3303,11 +3234,7 @@ begin
         slightly tweaked...}
 
         //AMsg.SaveToStream(LStream);
-        {$IFDEF HAS_CLASS_HELPER}
         AMsg.SaveToStream(LStream, False, False);
-        {$ELSE}
-        TIdMessageHelper_SaveToStream(AMsg, LStream, False, False);
-        {$ENDIF}
 
         LStream.Position := 0;
         {We are better off making up the headers as a string first rather than predicting
@@ -3404,7 +3331,7 @@ begin
           rest of the stream starting at its current Position...}
           IOHandler.Write(LStream, -1, False);
         finally
-          FreeAndNil(LHelper);
+          LHelper.Free;
         end;
         {WARNING: After we send the message (which should be exactly
         LLength bytes long), we need to send an EXTRA CRLF which is in
@@ -3437,7 +3364,7 @@ begin
   try
     Result := AppendMsgNoEncodeFromStream(AMBName, LSourceStream, AFlags, AInternalDateTimeGMT);
   finally
-    FreeAndNil(LSourceStream);
+    LSourceStream.Free;
   end;
 end;
 
@@ -3451,7 +3378,7 @@ var
   I: Integer;
   LFound: Boolean;
   LCmd: string;
-  LLength: TIdStreamSize;
+  LLength: Int64;
   LTempStream: TMemoryStream;
   LHelper: TIdIMAP4WorkHelper;
   LBuf: TIdBytes;
@@ -3490,7 +3417,7 @@ begin
         LTempStream.Position := 0;
       end;
       repeat
-        if TIdStreamHelper.ReadBytes(LTempStream, LBuf, 5) < 5 then begin
+        if LTempStream.Read(LBuf[0], 5) < 5 then begin
           Break;
         end;
         LFound := True;
@@ -3504,7 +3431,7 @@ begin
           LLength := LTempStream.Position-5;
           Break;
         end;
-        TIdStreamHelper.Seek(LTempStream, -4, soCurrent);
+        LTempStream.Seek(-4, soCurrent);
       until False;
 
       LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');     {Do not Localize}
@@ -3547,7 +3474,7 @@ begin
         try
           IOHandler.Write(LTempStream, LLength);
         finally
-          FreeAndNil(LHelper);
+          LHelper.Free;
         end;
         {WARNING: After we send the message (which should be exactly
         LLength bytes long), we need to send an EXTRA CRLF which is in
@@ -3566,7 +3493,7 @@ begin
         end;
       end;
     finally
-       FreeAndNil(LTempStream);
+       LTempStream.Free;
     end;
   end;
 end;
@@ -3798,7 +3725,7 @@ var
     LStream := TMemoryStream.Create;
     try
       if ADecoderClass <> nil then begin
-        LDecoder := ADecoderClass.Create(Self);
+        LDecoder := ADecoderClass.Create(nil);
         try
           LDecoder.DecodeBegin(LStream);
           try
@@ -3814,19 +3741,19 @@ var
                   StripCRLFs(LUnstrippedStream, LStrippedStream);
                   LDecoder.Decode(LStrippedStream.DataString);
                 finally
-                  FreeAndNil(LStrippedStream);
+                  LStrippedStream.Free;
                 end;
               end else begin
                 LDecoder.Decode(LUnstrippedStream.DataString);
               end;
             finally
-              FreeAndNil(LUnstrippedStream);
+              LUnstrippedStream.Free;
             end;
           finally
             LDecoder.DecodeEnd;
           end;
         finally
-          FreeAndNil(LDecoder);
+          LDecoder.Free;
         end;
       end else begin
         IOHandler.ReadStream(LStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
@@ -3834,12 +3761,12 @@ var
       LStream.Position := 0;
       if LCharSet <> '' then begin
         LEncoding := CharsetToEncoding(LCharSet);
-        AText := ReadStringFromStream(LStream, -1, LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+        AText := ReadStringFromStream(LStream, -1, LEncoding);
       end else begin
-        AText := ReadStringFromStream(LStream, -1, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
+        AText := ReadStringFromStream(LStream, -1, IndyTextEncoding_8Bit);
       end;
     finally
-      FreeAndNil(LStream);
+      LStream.Free;
     end;
   end;
 
@@ -3876,7 +3803,7 @@ begin
       LCharSet := LThePart.CharSet;
       LContentTransferEncoding := LThePart.ContentTransferEncoding;
     finally
-      FreeAndNil(LParts);
+      LParts.Free;
     end;
   end else begin
     // TODO: detect LCharSet and LContentTransferEncoding...
@@ -3923,7 +3850,7 @@ begin
           DoDecode();
         end;
       finally
-        FreeAndNil(LHelper);
+        LHelper.Free;
       end;
       IOHandler.ReadLnWait;  {Remove last line, ')' or 'UID 1)'}
       if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
@@ -3992,7 +3919,7 @@ end;
 function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: string;
   ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy1: PByte;
   LDummy2: Integer;
 begin
   IsNumberValid(AMsgNum);
@@ -4004,8 +3931,7 @@ begin
 end;
 
 function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
   Result := RetrievePart(AMsgNum, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
@@ -4013,8 +3939,7 @@ end;
 
 // Retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(AMsgNum);
   Result := InternalRetrievePart(AMsgNum, APartNum, False, False, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
@@ -4024,7 +3949,7 @@ end;
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
   ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy1: PByte;
   LDummy2: Integer;
 begin
   IsNumberValid(AMsgNum);
@@ -4036,8 +3961,7 @@ begin
 end;
 
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
   Result := RetrievePartPeek(AMsgNum, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
@@ -4045,8 +3969,7 @@ end;
 
 //Retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(AMsgNum);
   Result := InternalRetrievePart(AMsgNum, APartNum, False, True, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
@@ -4056,7 +3979,7 @@ end;
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: string;
   var ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy1: PByte;
   LDummy2: Integer;
 begin
   IsUIDValid(AMsgUID);
@@ -4068,8 +3991,7 @@ begin
 end;
 
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
   Result := UIDRetrievePart(AMsgUID, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
@@ -4077,8 +3999,7 @@ end;
 
 // Retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsUIDValid(AMsgUID);
   Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, False, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
@@ -4088,7 +4009,7 @@ end;
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
   var ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
-  LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy1: PByte;
   LDummy2: Integer;
 begin
   IsUIDValid(AMsgUID);
@@ -4100,16 +4021,14 @@ begin
 end;
 
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: Integer;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
   IsNumberValid(APartNum);
   Result := UIDRetrievePartPeek(AMsgUID, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
 end;
 
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABuffer: PByte; var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
   //Retrieve a specific individual part of a message
 begin
   IsUIDValid(AMsgUID);
@@ -4127,7 +4046,7 @@ end;
 function TIdIMAP4.RetrievePartToFile(const AMsgNum: Integer; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy: PByte;
 begin
   IsNumberValid(AMsgNum);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -4149,7 +4068,7 @@ end;
 function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: Integer; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy: PByte;
 begin
   IsNumberValid(AMsgNum);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -4171,7 +4090,7 @@ end;
 function TIdIMAP4.UIDRetrievePartToFile(const AMsgUID: String; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy: PByte;
 begin
   IsUIDValid(AMsgUID);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -4193,7 +4112,7 @@ end;
 function TIdIMAP4.UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNum: {Integer} string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
-  LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
+  LDummy: PByte;
 begin
   IsUIDValid(AMsgUID);
   if Length(ADestFileNameAndPath) = 0 then begin
@@ -4205,11 +4124,9 @@ begin
 end;
 
 // retrieve a specific individual part of a message
-// TODO: remove the ABufferLength output parameter under DOTNET, it is redundant...
 function TIdIMAP4.InternalRetrievePart(const AMsgNum: Integer; const APartNum: {Integer} string;
   AUseUID: Boolean; AUsePeek: Boolean; ADestStream: TStream;
-  var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; {NOTE: var args cannot have default params}
+  var ABuffer: PByte; var ABufferLength: Integer; {NOTE: var args cannot have default params}
   ADestFileNameAndPath: string;
   AContentTransferEncoding: string): Boolean;
 var
@@ -4233,7 +4150,7 @@ var
     end;
     try
       if ADecoderClass <> nil then begin
-        LDecoder := ADecoderClass.Create(Self);
+        LDecoder := ADecoderClass.Create(nil);
         try
           LDecoder.DecodeBegin(LStream);
           try
@@ -4249,44 +4166,35 @@ var
                   StripCRLFs(LUnstrippedStream, LStrippedStream);
                   LDecoder.Decode(LStrippedStream.DataString);
                 finally
-                  FreeAndNil(LStrippedStream);
+                  LStrippedStream.Free;
                 end;
               end else begin
                 LDecoder.Decode(LUnstrippedStream.DataString);
               end;
             finally
-              FreeAndNil(LUnstrippedStream);
+              LUnstrippedStream.Free;
             end;
           finally
             LDecoder.DecodeEnd;
           end;
         finally
-          FreeAndNil(LDecoder);
+          LDecoder.Free;
         end;
       end else begin
         IOHandler.ReadStream(LStream, ABufferLength); //ReadStream uses OnWork, most other methods dont
       end;
       if LDestStream = nil then begin
         ABufferLength := LStream.Size;
-        {$IFDEF DOTNET}
-        //ABuffer is a TIdBytes.
-        SetLength(ABuffer, ABufferLength);
-        if ABufferLength > 0 then begin
-          LStream.Position := 0;
-          ReadTIdBytesFromStream(LStream, ABuffer, ABufferLength);
-        end;
-        {$ELSE}
         //ABuffer is a PByte.
         GetMem(ABuffer, ABufferLength);
         if ABufferLength > 0 then begin
           LStream.Position := 0;
           LStream.ReadBuffer(ABuffer^, ABufferLength);
         end;
-        {$ENDIF}
       end;
     finally
       if LDestStream = nil then begin
-        FreeAndNil(LStream);
+        LStream.Free;
       end;
     end;
   end;
@@ -4363,11 +4271,11 @@ begin
             DoDecode;
           end;
         finally
-          FreeAndNil(LHelper);
+          LHelper.Free;
         end;
       finally
         if bCreatedStream then begin
-          FreeAndNil(LDestStream);
+          LDestStream.Free;
         end;
       end;
       IOHandler.ReadLnWait;  {Remove last line, ')' or 'UID 1)'}
@@ -4646,7 +4554,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4679,7 +4587,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4712,7 +4620,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4745,7 +4653,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4790,7 +4698,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4823,7 +4731,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4856,7 +4764,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4889,7 +4797,7 @@ begin
       Result := True;
     end;
   finally
-    FreeAndNil(LMsg);
+    LMsg.Free;
   end;
 end;
 
@@ -4948,7 +4856,7 @@ begin
           try
             IOHandler.ReadStream(LDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
           finally
-            FreeAndNil(LHelper);
+            LHelper.Free;
           end;
           {Feed stream into the standard message parser...}
           LDestStream.Position := 0;
@@ -4961,13 +4869,9 @@ begin
           and slightly tweaked...}
 
           //AMsg.LoadFromStream(LDestStream);
-          {$IFDEF HAS_CLASS_HELPER}
           AMsg.LoadFromStream(LDestStream, False, False);
-          {$ELSE}
-          TIdMessageHelper_LoadFromStream(AMsg, LDestStream, False, False);
-          {$ENDIF}
         finally
-          FreeAndNil(LDestStream);
+          LDestStream.Free;
         end;
       end;
       LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
@@ -5375,7 +5279,7 @@ begin
         AThisImapPart.FBodyType := '';
       end;
     finally
-      FreeAndNil(LSubParts);
+      LSubParts.Free;
     end;
   end;
 end;
@@ -5422,7 +5326,7 @@ begin
         AThisMessagePart.ParentPart := AParentMessagePart.Index;
       end;
     finally
-      FreeAndNil(LSubParts);
+      LSubParts.Free;
     end;
   end;
 end;
@@ -5495,7 +5399,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LTempList);
+    LTempList.Free;
   end;
 end;
 
@@ -5866,7 +5770,7 @@ begin
       Result := Result + '; ' + Copy(LParse[LN*2], 2, Length(LParse[LN*2])-2) + '=' + LParse[(LN*2)+1]; {Do not Localize}
     end;
   finally
-    FreeAndNil(LParse);
+    LParse.Free;
   end;
 end;
 
@@ -5897,7 +5801,7 @@ begin
       Result := Copy(LParse[0], 2, Length(LParse[0])-2) + LParams;
     end;
   finally
-    FreeAndNil(LParse);
+    LParse.Free;
   end;
 end;
 
@@ -6012,7 +5916,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LSlExpunge);
+    LSlExpunge.Free;
   end;
 end;
 
@@ -6036,7 +5940,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LSlFlags);
+    LSlFlags.Free;
   end;
 end;
 
@@ -6060,7 +5964,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LSlAttributes);
+    LSlAttributes.Free;
   end;
 end;
 
@@ -6082,7 +5986,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LSlSearch);
+    LSlSearch.Free;
   end;
 end;
 
@@ -6134,7 +6038,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LSlStatus);
+    LSlStatus.Free;
   end;
 end;
 
@@ -6260,7 +6164,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(LSlRetrieve);
+      LSlRetrieve.Free;
     end;
   finally
     AMBList.EndUpdate;
@@ -6278,9 +6182,7 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
   var
     LStr, LTemp: String;
     I: Integer;
-    {$IFNDEF DOTNET}
     LPChar: PChar;
-    {$ENDIF}
   begin
     if TextStartsWith(AAddressStr, '(') and TextEndsWith(AAddressStr, ')') and  {Do not Localize}
       Assigned(AEmailAddressItem) then begin
@@ -6297,12 +6199,8 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
       end else begin
         I := Pos('" ', LStr);
         LTemp := Copy(LStr, 1, I);  
-        {$IFDEF DOTNET}
-        AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {ExtractQuotedStr ( LTemp, '"' );  {Do not Localize}
-        {$ELSE}
         LPChar := PChar(LTemp);
         AEmailAddressItem.Name := AnsiExtractQuotedStr(LPChar, '"');  {Do not Localize}
-        {$ENDIF}
         LStr := Copy(LStr, I+2, MaxInt);  {Do not Localize}
       end;
       //Gets the source root part
@@ -6311,12 +6209,8 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
       end else begin
         I := Pos('" ', LStr);
         LTemp := Copy(LStr, 1, I);
-        {$IFDEF DOTNET}
-        AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );  {Do not Localize}
-        {$ELSE}
         LPChar := PChar(LTemp);
         AEmailAddressItem.Name := AnsiExtractQuotedStr(LPChar, '"');  {Do not Localize}
-        {$ENDIF}
         LStr := Copy(LStr, I+2, MaxInt);  {Do not Localize}
       end;
       //Gets the mailbox name part
@@ -6325,25 +6219,16 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
       end else begin
         I := Pos('" ', LStr);
         LTemp := Copy(LStr, 1, I);  {Do not Localize}
-        {$IFDEF DOTNET}
-        AEmailAddressItem.Address := Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );  {Do not Localize}
-        {$ELSE}
         LPChar := PChar(LTemp);
         AEmailAddressItem.Address := AnsiExtractQuotedStr(LPChar, '"');  {Do not Localize}
-        {$ENDIF}
         LStr := Copy(LStr, I+2, MaxInt);  {Do not Localize}
       end;
       //Gets the host name part
       if not TextIsSame(LStr, 'NIL') then begin  {Do not Localize}
         LTemp := Copy(LStr, 1, MaxInt);
-        {$IFDEF DOTNET}
-        AEmailAddressItem.Address := AEmailAddressItem.Address + '@' +  {Do not Localize}
-          Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );  {Do not Localize}
-        {$ELSE}
         LPChar := PChar(LTemp);
         AEmailAddressItem.Address := AEmailAddressItem.Address + '@' +  {Do not Localize}
           AnsiExtractQuotedStr(LPChar, '"');  {Do not Localize}
-        {$ENDIF}
       end;
     end;
   end;
@@ -6370,9 +6255,7 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
 var
   LStr, LTemp: String;
   I: Integer;
-  {$IFNDEF DOTNET}
   LPChar: PChar;
-  {$ENDIF}
 begin
   //The fields of the envelope structure are in the
   //following order: date, subject, from, sender,
@@ -6401,12 +6284,8 @@ begin
   end else begin
     I := Pos('" ', ACmdResultStr);             {Do not Localize}
     LTemp := Copy(ACmdResultStr, 1, I);
-    {$IFDEF DOTNET}
-    LStr := Copy(LTemp, 2, Length(LTemp)-2);
-    {$ELSE}
     LPChar := PChar(LTemp);
     LStr := AnsiExtractQuotedStr(LPChar, '"');                         {Do not Localize}
-    {$ENDIF}
     AMsg.Date := GMTToLocalDateTime(LStr);
     ACmdResultStr := Copy(ACmdResultStr, I+2, MaxInt);
   end;
@@ -6424,12 +6303,8 @@ begin
     end else begin
       I := Pos('" ', ACmdResultStr);             {Do not Localize}
       LTemp := Copy(ACmdResultStr, 1, I);
-      {$IFDEF DOTNET}
-      LStr := Copy(LTemp, 2, Length(LTemp)-2);
-      {$ELSE}
       LPChar := PChar(LTemp);
       LStr := AnsiExtractQuotedStr(LPChar, '"');                       {Do not Localize}
-      {$ENDIF}
       AMsg.Subject := LStr;
       ACmdResultStr := Copy(ACmdResultStr, I+2, MaxInt);       {Do not Localize}
     end;
@@ -6502,12 +6377,8 @@ begin
   end else begin
     I := Pos('" ', ACmdResultStr);             {Do not Localize}
     LTemp := Copy(ACmdResultStr, 1, I);
-    {$IFDEF DOTNET}
-    LStr := Copy(LTemp, 2, Length(LTemp)-2);
-    {$ELSE}
     LPChar := PChar(LTemp);
     LStr := AnsiExtractQuotedStr(LPChar, '"');                         {Do not Localize}
-    {$ENDIF}
     AMsg.InReplyTo := LStr;
     ACmdResultStr := Copy(ACmdResultStr, I+2, MaxInt);
   end;
@@ -6516,12 +6387,8 @@ begin
   if TextStartsWith(ACmdResultStr, 'NIL ') then begin     {Do not Localize}
     ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
   end else begin
-    {$IFDEF DOTNET}
-    LStr := Copy(ACmdResultStr, 2, Length(ACmdResultStr)-2);
-    {$ELSE}
     LPChar := PChar(ACmdResultStr);
     LStr := AnsiExtractQuotedStr(LPChar, '"');                         {Do not Localize}
-    {$ENDIF}
     AMsg.MsgId := Trim(LStr);
   end;
 end;
@@ -6727,7 +6594,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LWords);
+    LWords.Free;
   end;
 end;
 
@@ -6767,7 +6634,7 @@ begin
       LWords.Delete(LPos);
     end;
   finally
-    FreeAndNil(LWords);
+    LWords.Free;
   end;
 end;
 
@@ -6809,19 +6676,18 @@ end;
 
 procedure TIdIMAP4.StripCRLFs(ASourceStream, ADestStream: TStream);
 var
-  LByte: TIdBytes;
-  LNumSourceBytes: TIdStreamSize;
+  LByte: Byte;
+  LNumSourceBytes: Int64;
   LBytesRead: Int64;
 begin
-  SetLength(LByte, 1);
   ASourceStream.Position := 0;
   ADestStream.Size := 0;
   LNumSourceBytes := ASourceStream.Size;
   LBytesRead := 0;
   while LBytesRead < LNumSourceBytes do begin
-    TIdStreamHelper.ReadBytes(ASourceStream, LByte, 1);
-    if not ByteIsInEOL(LByte, 0) then begin
-      TIdStreamHelper.Write(ADestStream, LByte, 1);
+    ASourceStream.ReadBuffer(LByte, 1);
+    if (LByte <> 13) and (LByte <> 10) then begin
+      ADestStream.WriteBuffer(LByte, 1);
     end;
     Inc(LBytesRead);
   end;
@@ -6886,12 +6752,11 @@ const
   begin
     LMStream := TMemoryStream.Create;
     try
-      IOHandler.Capture(LMStream, LDelim, True, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
+      IOHandler.Capture(LMStream, LDelim, True, IndyTextEncoding_8Bit);
       LMStream.Position := 0;
-      // TODO: when String is AnsiString, TIdMessageClient uses AMsg.ChaarSet as
-      // the destination encoding, should this be doing the same? Otherwise, we
-      // could just use AMsg.Body.LoadFromStream() instead...
-      ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
+      // TODO: if the Content-Type is HTML, parse the HTML data looking for a charset
+      // declaration, and if found then use that instead of the MIME charset...
+      ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet);
     finally
       LMStream.Free;
     end;
@@ -6908,9 +6773,6 @@ const
     Li: integer;
     LTxt: TIdText;
     LNewDecoder: TIdMessageDecoder;
-    {$IFDEF STRING_IS_ANSI}
-    LAnsiEncoding: IIdTextEncoding;
-    {$ENDIF}
     LContentType, LCharSet: string;
   begin
     LDestStream := TMemoryStream.Create;
@@ -6956,10 +6818,7 @@ const
               );
             end;
           end;
-          {$IFDEF STRING_IS_ANSI}
-          LAnsiEncoding := CharsetToEncoding(LCharSet);
-          {$ENDIF}
-          ReadStringsAsCharset(LDestStream, LTxt.Body, LCharSet{$IFDEF STRING_IS_ANSI}, LAnsiEncoding{$ENDIF});
+          ReadStringsAsCharset(LDestStream, LTxt.Body, LCharSet);
         except
           //this should also remove the Item from the TCollection.
           //Note that Delete does not exist in the TCollection.
@@ -6973,7 +6832,7 @@ const
       VDecoder.Free;
       VDecoder := LNewDecoder;
     finally
-      FreeAndNil(LDestStream);
+      LDestStream.Free;
     end;
   end;
 
@@ -7077,7 +6936,7 @@ Begin
           end;
         until LMsgEnd;
       finally
-        FreeAndNil(LActiveDecoder);
+        LActiveDecoder.Free;
       end;
     finally
       EndWork(wmRead);
@@ -7172,7 +7031,7 @@ begin
       end;
     until False;
   finally
-    FreeAndNil(LResponse);
+    LResponse.Free;
   end;
 end;
 

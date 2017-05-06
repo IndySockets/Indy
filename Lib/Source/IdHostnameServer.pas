@@ -46,6 +46,7 @@ Based on RFC 953
 }
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -80,7 +81,8 @@ Type
     FOnCommandALLINGWAY: TIdContextEvent;
     //
     function DoExecute(AContext: TIdContext): Boolean; override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property DefaultPort default IdPORT_HOSTNAME;
     property OnCommandHNAME: THostNameOneParmEvent read fOnCommandHNAME write fOnCommandHNAME;
@@ -100,9 +102,9 @@ uses
   IdGlobalCore,
   IdGlobal;
 
-procedure TIdHostNameServer.InitComponent;
+constructor TIdHostNameServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_HOSTNAME;
 end;
 

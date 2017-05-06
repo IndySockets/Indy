@@ -160,16 +160,13 @@ type
     fTrapRecvBinding: TIdSocketHandle;
     procedure SetCommunity(const Value: string);
     procedure SetTrapPort(const AValue: TIdPort);
-    procedure InitComponent; override;
     function GetBinding: TIdSocketHandle; override;
     procedure CloseBinding; override;
   public
     Query : TSNMPInfo;
     Reply : TSNMPInfo;
     Trap  : TSNMPInfo;
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function SendQuery : Boolean;
     function QuickSend(const Mib, DestCommunity, DestHost: string; var Value: string):Boolean;
@@ -304,10 +301,10 @@ end;
 destructor TSNMPInfo.Destroy;
 begin
   {$IFDEF HAS_GENERICS_TList}
-  FreeAndNil(MIBValues);
+  MIBValues.Free;
   {$ELSE}
-  FreeAndNil(MIBValue);
-  FreeAndNil(MIBOID);
+  MIBValue.Free;
+  MIBOID.Free;
   {$ENDIF}
   inherited Destroy;
 end;
@@ -644,16 +641,9 @@ end;
  | Parameters:                                                                |
  |   aOwner : TComponent                                                      |
  *----------------------------------------------------------------------------*)
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdSNMP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdSNMP.InitComponent;
-begin
-  inherited InitComponent;
   Port := 161;
   fTrapPort := 162;
   fCommunity := 'public';    {Do not Localize}
@@ -673,9 +663,9 @@ end;
  *----------------------------------------------------------------------------*)
 destructor TIdSNMP.Destroy;
 begin
-  FreeAndNil(Reply);
-  FreeAndNil(Query);
-  FreeAndNil(Trap);
+  Reply.Free;
+  Query.Free;
+  Trap.Free;
   inherited Destroy;
 end;
 
@@ -739,9 +729,9 @@ begin
   Reply.Clear;
   Query.Buffer := Query.EncodeBuf;
   LEncoding := IndyTextEncoding_8Bit;
-  Send(Query.Host, Query.Port, Query.Buffer, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  Send(Query.Host, Query.Port, Query.Buffer, LEncoding);
   try
-    Reply.Buffer := ReceiveString(Reply.Host, Reply.Port, FReceiveTimeout, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    Reply.Buffer := ReceiveString(Reply.Host, Reply.Port, FReceiveTimeout, LEncoding);
   except
     on e : EIdSocketError do
     begin
@@ -793,13 +783,10 @@ end;
  | The function returns 1                                                     |
  *----------------------------------------------------------------------------*)
 function TIdSNMP.SendTrap: Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Trap.PDUType := PDUTrap;
   Trap.EncodeTrap;
-  LEncoding := IndyTextEncoding_8Bit;
-  Send(Trap.Host, Trap.Port, Trap.Buffer, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  Send(Trap.Host, Trap.Port, Trap.Buffer, IndyTextEncoding_8Bit);
   Result := True;
 end;
 

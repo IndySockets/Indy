@@ -40,10 +40,13 @@ procedure TIdMessageEncoderBinHex4.Encode(ASrc: TStream; ADest: TStream);
 var
   LEncoder: TIdEncoderBinHex4;
 begin
-  LEncoder := TIdEncoderBinHex4.Create(nil); try
+  LEncoder := TIdEncoderBinHex4.Create(nil);
+  try
     LEncoder.FileName := FileName;
     LEncoder.Encode(ASrc, ADest);
-  finally FreeAndNil(LEncoder); end;
+  finally
+    LEncoder.Free;
+  end;
 end;
 
 initialization

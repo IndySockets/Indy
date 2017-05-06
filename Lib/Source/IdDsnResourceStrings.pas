@@ -24,6 +24,7 @@ unit IdDsnResourceStrings;
 { This is only for resource strings that appear in the design-time editors in the main Indy package }
 
 interface
+
 //Here just so we can IFDEF some things for a Lazarus Workaround
 //This should make things a little easier for GNU Make.
 {$I IdCompilerDefines.inc}

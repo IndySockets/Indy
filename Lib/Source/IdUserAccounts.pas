@@ -215,8 +215,8 @@ type
     function  GetOptions: TIdCustomUserManagerOptions; override;
     procedure SetAccounts(AValue: TIdUserAccounts);
     procedure SetOptions(const AValue: TIdCustomUserManagerOptions); override;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property Accounts: TIdUserAccounts read FAccounts write SetAccounts;
@@ -370,7 +370,7 @@ end;
 
 destructor TIdUserAccount.Destroy;
 begin
-  FreeAndNil(FAttributes);
+  FAttributes.Free;
   inherited Destroy;
 end;
 
@@ -431,15 +431,15 @@ end;
 
 { IdUserAccounts - Main Component }
 
-procedure TIdUserManager.InitComponent;
+constructor TIdUserManager.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FAccounts := TIdUserAccounts.Create(Self);
 end;
 
 destructor TIdUserManager.Destroy;
 begin
-  FreeAndNil(FAccounts);
+  FAccounts.Free;
   inherited Destroy;
 end;
 

@@ -169,12 +169,10 @@ type
   EIdNotASocket = class(EIdSocketError);
 
   // TODO: move this to IdStackVCLPosix...
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(ANDROID)}
   EIdAndroidPermissionNeeded = class(EIdSocketError);
   EIdInternetPermissionNeeded = class(EIdAndroidPermissionNeeded);
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 
   TIdServeFile = function(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
 
@@ -262,6 +260,8 @@ type
     function GetAddress(AIndex: Integer): TIdStackLocalAddress;
   public
     constructor Create; reintroduce;
+    function FirstIPOf(AIPVersion: TIdIPVersion): TIdStackLocalAddress;
+    function HasAnyIPOf(AIPVersion: TIdIPVersion): Boolean;
     function IndexOfIP(const AIP: String): Integer; overload;
     function IndexOfIP(const AIP: String; AIPVersion: TIdIPVersion): Integer; overload;
     property Addresses[AIndex: Integer]: TIdStackLocalAddress read GetAddress; default;
@@ -269,15 +269,11 @@ type
 
   TIdStack = class(TObject)
   protected
-    FLocalAddresses: TStrings;
-    //
     procedure IPVersionUnsupported;
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
-    function MakeCanonicalIPv6Address(const AAddr: string): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IdGlobal.MakeCanonicalIPv6Address()'{$ENDIF};{$ENDIF}
     function ReadHostName: string; virtual; abstract;
     function GetLocalAddress: string;
-    function GetLocalAddresses: TStrings;
   public
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort): TIdStackSocketHandle; overload;
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
@@ -305,7 +301,7 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
     function HostToNetwork(AValue: UInt16): UInt16; overload; virtual; abstract;
     function HostToNetwork(AValue: UInt32): UInt32; overload; virtual; abstract;
-    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; overload; virtual; abstract;
+    function HostToNetwork(AValue: UInt64): UInt64; overload; virtual; abstract;
     function HostToNetwork(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     function IsIP(AIP: string): Boolean;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
@@ -321,7 +317,7 @@ type
       : TIdStackSocketHandle; virtual; abstract;
     function NetworkToHost(AValue: UInt16): UInt16; overload; virtual; abstract;
     function NetworkToHost(AValue: UInt32): UInt32; overload; virtual; abstract;
-    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; overload; virtual; abstract;
+    function NetworkToHost(AValue: UInt64): UInt64; overload; virtual; abstract;
     function NetworkToHost(const AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
@@ -383,14 +379,12 @@ type
       var VBuffer : TIdBytes; const AOffset : Integer; const AIP : String;
       const APort : TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     //
-    procedure AddLocalAddressesToList(AAddresses: TStrings); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use GetLocalAddressList()'{$ENDIF};{$ENDIF}
     procedure GetLocalAddressList(AAddresses: TIdStackLocalAddressList); virtual; abstract;
     //
     // Properties
     //
     property HostName: string read ReadHostName;
-    property LocalAddress: string read GetLocalAddress; // {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use GetLocalAddressList()'{$ENDIF};{$ENDIF}
-    property LocalAddresses: TStrings read GetLocalAddresses; // {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'use GetLocalAddressList()'{$ENDIF};{$ENDIF}
+    property LocalAddress: string read GetLocalAddress; // deprecated 'use GetLocalAddressList()';
   end;
 
   TIdStackClass = class of TIdStack;
@@ -404,59 +398,50 @@ var
   procedure SetStackClass( AStackClass: TIdStackClass );
 
 // TODO: move this to IdStackVCLPosix...
-{$IFDEF USE_VCL_POSIX}
-  {$IFDEF ANDROID}
+{$IF DEFINED(USE_VCL_POSIX) AND DEFINED(ANDROID)}
 function HasAndroidPermission(const Permission: string): Boolean;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 implementation
 
-{$O-}
+{$I IdOptimizationsOff.inc}
 
 uses
   //done this way so we can have a separate stack for FPC under Unix systems
-  {$IFDEF UNIX}
-    {$IFDEF USE_VCL_POSIX}
-  IdStackVCLPosix,
-    {$ENDIF}
-    {$IFDEF KYLIXCOMPAT}
-  IdStackLibc,
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
-  IdStackUnix,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
     {$IFDEF USE_INLINE}
   Windows,
     {$ENDIF}
   IdStackWindows,
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  IdStackDotNet,
-  {$ENDIF}
+  {$ELSEIF DEFINED(USE_VCL_POSIX)}
+  IdStackVCLPosix,
+  {$ELSEIF DEFINED(UNIX)}
+    {$IF DEFINED(KYLIXCOMPAT)}
+  IdStackLibc,
+    {$ELSEIF DEFINED(USE_BASEUNIX)}
+  IdStackUnix,
+    {$IFEND}
+  {$IFEND}
 
   // TODO: move this to IdStackVCLPosix...
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
-      {$IFNDEF VCL_XE6_OR_ABOVE}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(ANDROID)}
+    {$IF (NOT DEFINED(DCC_XE6_OR_ABOVE)) OR DEFINED(DCC_SEATTLE_OR_ABOVE)}
   // StringToJString() is here in XE5
+  // StringToJString() is inline in Seattle and later
   Androidapi.JNI.JavaTypes,
-      {$ENDIF}
-      {$IFNDEF VCL_XE7_OR_ABOVE}
+    {$ENDIF}
+    {$IFNDEF DCC_XE7_OR_ABOVE}
   // SharedActivityContext() is here in XE5 and XE6
   FMX.Helpers.Android,
-      {$ENDIF}
-      {$IFDEF VCL_XE6_OR_ABOVE}
+    {$ENDIF}
+    {$IFDEF DCC_XE6_OR_ABOVE}
   // StringToJString() was moved here in XE6
   // SharedActivityContext() was moved here in XE7
   // TAndroidHelper was added here in Seattle
   Androidapi.Helpers,
-      {$ENDIF}
-  Androidapi.JNI.GraphicsContentViewText,
     {$ENDIF}
-  {$ENDIF}
+  Androidapi.JNI.GraphicsContentViewText,
+  {$IFEND}
 
   IdResourceStrings;
 
@@ -507,7 +492,7 @@ End;
 
 destructor TIdSocketList.Destroy;
 begin
-  FreeAndNil(FLock);
+  FLock.Free;
   inherited Destroy;
 end;
 
@@ -561,9 +546,29 @@ begin
   inherited Create(TIdStackLocalAddress);
 end;
 
+function TIdStackLocalAddressList.FirstIPOf(AIPVersion: TIdIPVersion): TIdStackLocalAddress;
+var
+  I: Integer;
+  LAddr: TIdStackLocalAddress;
+begin
+  Result := nil;
+  for I := 0 to Count-1 do begin
+    LAddr := Addresses[I];
+    if LAddr.IPVersion = AIPVersion then begin
+      Result := LAddr;
+      Exit;
+    end;
+  end;
+end;
+
 function TIdStackLocalAddressList.GetAddress(AIndex: Integer): TIdStackLocalAddress;
 begin
   Result := TIdStackLocalAddress(inherited Items[AIndex]);
+end;
+
+function TIdStackLocalAddressList.HasAnyIPOf(AIPVersion: TIdIPVersion): Boolean;
+begin
+  Result := (FirstIPOf(AIPVersion) <> nil);
 end;
 
 function TIdStackLocalAddressList.IndexOfIP(const AIP: String): Integer;
@@ -604,7 +609,6 @@ end;
 
 destructor TIdStack.Destroy;
 begin
-  FreeAndNil(FLocalAddresses);
   inherited Destroy;
 end;
 
@@ -637,84 +641,21 @@ begin
   GetSocketName(ASocket, VIP, VPort, LIPVersion);
 end;
 
-{$I IdDeprecatedImplBugOff.inc}
-procedure TIdStack.AddLocalAddressesToList(AAddresses: TStrings);
-{$I IdDeprecatedImplBugOn.inc}
-var
-  LList: TIdStackLocalAddressList;
-  I: Integer;
-begin
-  LList := TIdStackLocalAddressList.Create;
-  try
-    // for backwards compatibility, return only IPv4 addresses
-    GetLocalAddressList(LList);
-    if LList.Count > 0 then begin
-      AAddresses.BeginUpdate;
-      try
-        for I := 0 to LList.Count-1 do begin
-          if LList[I].IPVersion = Id_IPv4 then begin
-            AAddresses.Add(LList[I].IPAddress);
-          end;
-        end;
-      finally
-        AAddresses.EndUpdate;
-      end;
-    end;
-  finally
-    LList.Free;
-  end;
-end;
-
-function TIdStack.GetLocalAddresses: TStrings;
-var
-  LList: TIdStackLocalAddressList;
-  I: Integer;
-begin
-  if FLocalAddresses = nil then begin
-    FLocalAddresses := TStringList.Create;
-  end;
-  FLocalAddresses.BeginUpdate;
-  try
-    FLocalAddresses.Clear;
-    LList := TIdStackLocalAddressList.Create;
-    try
-      // for backwards compatibility, return only IPv4 addresses
-      GetLocalAddressList(LList);
-      for I := 0 to LList.Count-1 do begin
-        if LList[I].IPVersion = Id_IPv4 then begin
-          FLocalAddresses.Add(LList[I].IPAddress);
-        end;
-      end;
-    finally
-      LList.Free;
-    end;
-  finally
-    FLocalAddresses.EndUpdate;
-  end;
-  Result := FLocalAddresses;
-end;
-
 function TIdStack.GetLocalAddress: string;
 var
   LList: TIdStackLocalAddressList;
+  LAddr: TIdStackLocalAddress;
   I: Integer;
 begin
-  // RLebeau: using a local list instead of the LocalAddresses
-  // property so this method can be thread-safe...
-  //
-  // old code:
-  // Result := LocalAddresses[0];
-
   Result := '';
   LList := TIdStackLocalAddressList.Create;
   try
-    // for backwards compatibility, return only IPv4 addresses
     GetLocalAddressList(LList);
-    for I := 0 to LList.Count-1 do begin
-      if LList[I].IPVersion = Id_IPv4 then begin
-        Result := LList[I].IPAddress;
-        Exit;
-      end;
+    // for backwards compatibility, return only IPv4 addresses
+    // TODO: if connected to an IPv6-only network, return an IPv6 address
+    LAddr := List.FirstIPOf(Id_IPv4);
+    if LAddr <> nil then begin
+      Result := LAddr.IPAddress;
     end;
   finally
     LList.Free;
@@ -723,28 +664,11 @@ end;
 
 function TIdStack.IsIP(AIP: string): Boolean;
 var
-  i: Integer;
+  LErr: Boolean;
 begin
   // TODO: support IPv6
-
-//
-//Result := Result and ((i > 0) and (i < 256));
-//
-  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
-  Result := (i > -1) and (i < 256);
-  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
-  Result := Result and ((i > -1) and (i < 256));
-  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
-  Result := Result and ((i > -1) and (i < 256));
-  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
-  Result := Result and ((i > -1) and (i < 256)) and (AIP = '');
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function TIdStack.MakeCanonicalIPv6Address(const AAddr: string): string;
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  Result := IdGlobal.MakeCanonicalIPv6Address(AAddr);
+  IdGlobal.IPv4ToUInt32(AIP, LErr);
+  Result := not LErr;
 end;
 
 function TIdStack.ResolveHost(const AHost: string;
@@ -887,23 +811,18 @@ begin
 end;
 
 // TODO: move this to IdStackVCLPosix...
-{$IFDEF USE_VCL_POSIX}
-  {$IFDEF ANDROID}
-function GetActivityContext: JContext; {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IF DEFINED(USE_VCL_POSIX) AND DEFINED(ANDROID)}
+function GetActivityContext: JContext;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF HAS_TAndroidHelper}
-  Result := TAndroidHelper.Context;
-  {$ELSE}
-  Result := SharedActivityContext;
-  {$ENDIF}
+  Result := {$IFDEF HAS_TAndroidHelper}TAndroidHelper.Context{$ELSE}SharedActivityContext{$ENDIF};
 end;
 
 function HasAndroidPermission(const Permission: string): Boolean;
 begin
   Result := GetActivityContext.checkCallingOrSelfPermission(StringToJString(Permission)) = TJPackageManager.JavaClass.PERMISSION_GRANTED;
 end;
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 procedure TIdStack.RaiseSocketError(AErr: integer);
 begin
@@ -926,15 +845,13 @@ begin
   end;
 
   // TODO: move this to IdStackVCLPosix...
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(ANDROID)}
   if (AErr = 9{EBADF}) or (AErr = 12{EBADR?}) or (AErr = 13{EACCES}) then begin
     if not HasAndroidPermission('android.permission.INTERNET') then begin {Do not Localize}
       raise EIdInternetPermissionNeeded.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
     end;
   end;
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 
   (*
     It is normal to receive a 10038 exception (10038, NOT others!) here when
@@ -1163,19 +1080,11 @@ begin
   Result := not UInt16(LCRC);
 end;
 
-{$UNDEF HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
-{$IFDEF HAS_TCP_KEEPIDLE}
-  {$DEFINE HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
-{$ENDIF}
-{$IFDEF HAS_TCP_KEEPINTVL}
-  {$DEFINE HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
-{$ENDIF}
-
 procedure TIdStack.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 begin
   SetSocketOption(ASocket, Id_SOL_SOCKET, Id_SO_KEEPALIVE, iif(AEnabled, 1, 0));
-  {$IFDEF HAS_TCP_KEEPIDLE_OR_KEEPINTVL}
+  {$IF DEFINED(HAS_TCP_KEEPIDLE) OR DEFINED(HAS_TCP_KEEPINTVL)}
   if AEnabled then
   begin
     // TODO: support TCP_KEEPCNT
@@ -1186,36 +1095,27 @@ begin
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval);
     {$ENDIF}
   end;
-  {$ENDIF}
+  {$IFEND}
 end;
 
 initialization
   //done this way so we can have a separate stack just for FPC under Unix systems
   GStackClass :=
-    {$IFDEF USE_VCL_POSIX}
+    {$IF DEFINED(WINDOWS)}
+    TIdStackWindows
+    {$ELSEIF DEFINED(USE_VCL_POSIX)}
     TIdStackVCLPosix
-    {$ELSE}
-      {$IFDEF UNIX}
-        {$IFDEF KYLIXCOMPAT}
-        TIdStackLibc
-        {$ENDIF}
-        {$IFDEF USE_BASEUNIX}
-        TIdStackUnix
-        {$ENDIF}
-      {$ENDIF}
-      {$IFDEF WINDOWS}
-      TIdStackWindows
-      {$ENDIF}
-      {$IFDEF DOTNET}
-      TIdStackDotNet
-      {$ENDIF}
-    {$ENDIF}
+    {$ELSEIF DEFINED(UNIX)}
+      {$IF DEFINED(KYLIXCOMPAT)}
+    TIdStackLibc
+      {$ELSEIF DEFINED(USE_BASEUNIX)}
+    TIdStackUnix
+      {$IFEND}
+    {$IFEND}
   ;
   GStackCriticalSection := TIdCriticalSection.Create;
-  {$IFNDEF DOTNET}
-    {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
   IndyRegisterExpectedMemoryLeak(GStackCriticalSection);
-    {$ENDIF}
   {$ENDIF}
 finalization
   // Dont Free. If shutdown is from another Init section, it can cause GPF when stack
@@ -1223,4 +1123,7 @@ finalization
   {$IFDEF FREE_ON_FINAL}
   FreeAndNil(GStackCriticalSection);
   {$ENDIF}
+
+{$I IdOptimizationsOn.inc}
+
 end.

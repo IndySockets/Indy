@@ -169,7 +169,7 @@ begin
       LI.FileName := s[6];
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
   Result := True;
 end;

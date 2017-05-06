@@ -322,6 +322,8 @@ procedure CRYPTO_cleanup_all_ex_data_proc cdecl; external SSLCLIB_LIB_name name 
 
 function SSL_COMP_get_compression_methods_func: PSTACK_OF_SSL_COMP cdecl; external SSL_LIB_NAME name 'SSL_COMP_get_compression_methods';
 
+procedure SSL_COMP_free_compression_methods_func; cdecl; external SSL_LIB_NAME name 'SSL_COMP_free_compression_methods'
+
 procedure sk_pop_free_proc(st: PSTACK; func: Tsk_pop_free_func) cdecl; external SSLCLIB_LIB_name name 'sk_pop_free';
 
 procedure RSA_free_proc(rsa: PRSA) cdecl; external SSLCLIB_LIB_name name 'RSA_free';
@@ -426,7 +428,7 @@ function X509_get_default_cert_file_func: PIdAnsiChar cdecl; external SSLCLIB_LI
 
 function X509_get_default_cert_file_env_func: PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'X509_get_default_cert_file_env';
 
-function X509_new_func: PPX509 cdecl; external SSLCLIB_LIB_name name 'X509_new';
+function X509_new_func: PX509 cdecl; external SSLCLIB_LIB_name name 'X509_new';
 
 procedure X509_free_proc(x: PX509) cdecl; external SSLCLIB_LIB_name name 'X509_free';
 
@@ -847,6 +849,7 @@ we have to handle both cases.
 //  end;
   CRYPTO_cleanup_all_ex_data := CRYPTO_cleanup_all_ex_data_proc;
   SSL_COMP_get_compression_methods := SSL_COMP_get_compression_methods_func;
+  SSL_COMP_free_compression_methods := SSL_COMP_free_compression_methods_func;
   sk_pop_free := sk_pop_free_proc;
   //RSA
   RSA_free := RSA_free_proc;

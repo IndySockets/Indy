@@ -194,7 +194,6 @@ type
     procedure SetOnSocketAllocated(const AValue: TNotifyEvent);
     //
     procedure SetIOHandler(AValue: TIdIOHandler); override;
-    procedure InitComponent; override;
     //
     function GetReadTimeout: Integer;
     function GetReuseSocket: TIdReuseSocket;
@@ -206,6 +205,7 @@ type
     property Port: TIdPort read FPort write SetPort;
     property Username: string read FUsername write FUsername;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Connect; overload; virtual;
     // This is overridden and not as default params so that descendants
     // do not have to worry about the arguments.
@@ -259,9 +259,9 @@ uses
 
 { TIdTCPClientCustom }
 
-procedure TIdTCPClientCustom.InitComponent;
+constructor TIdTCPClientCustom.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FReadTimeOut := IdTimeoutDefault;
   FBoundPort := DEF_PORT_ANY;
   FBoundPortMin := DEF_PORT_ANY;

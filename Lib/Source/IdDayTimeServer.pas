@@ -47,12 +47,11 @@ Original Author: Ozz Nixon
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
-  {$ENDIF}
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -62,12 +61,9 @@ Type
   protected
     FTimeZone: String;
     //
-    function DoExecute(AContext:TIdContext): boolean; override;
-    procedure InitComponent; override;
-  {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
+    function DoExecute(AContext: TIdContext): boolean; override;
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-  {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
   published
     property TimeZone: String read FTimeZone write FTimeZone;
     property DefaultPort default IdPORT_DAYTIME;
@@ -78,21 +74,14 @@ implementation
 uses
   IdGlobal, SysUtils;
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdDayTimeServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdDayTimeServer.InitComponent;
-begin
-  inherited InitComponent;
   DefaultPort := IdPORT_DAYTIME;
   FTimeZone := 'EST';  {Do not Localize}
 end;
 
-function TIdDayTimeServer.DoExecute(AContext:TIdContext ): boolean;
+function TIdDayTimeServer.DoExecute(AContext: TIdContext): boolean;
 begin
   Result := True;
   AContext.Connection.IOHandler.WriteLn(FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Now) + '-' + FTimeZone);    {Do not Localize}

@@ -54,6 +54,7 @@ unit IdAntiFreeze;
 interface
 
 {$I IdCompilerDefines.inc}
+
 uses
   Classes,
   IdAntiFreezeBase,
@@ -104,34 +105,22 @@ type
 implementation
 
 uses
-  {$IFDEF WIDGET_KYLIX}
-  QForms,
-  {$ENDIF}
   {$IFDEF WIDGET_VCL_LIKE}
   Forms,
   {$ENDIF}
-  {$IFDEF WINDOWS}
-    {$IFNDEF FMX}
+  {$IF DEFINED(WINDOWS) AND (NOT DEFINED(FMX))}
   Messages,
   Windows,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WIDGET_WINFORMS}
-  System.Windows.Forms,
-  {$ENDIF}
+  {$IFEND}
   IdGlobal;
 
-{$IFDEF UNIX}
+{$IF DEFINED(UNIX) OR (DEFINED(WINDOWS) AND DEFINED(FMX))}
 procedure TIdAntiFreeze.Process;
 begin
   //TODO: Handle ApplicationHasPriority
   Application.ProcessMessages;
 end;
-{$ENDIF}
-
-{$IFDEF WINDOWS}
-
-  {$IFNDEF FMX}
+{$ELSEIF DEFINED(WINDOWS)}
 procedure TIdAntiFreeze.Process;
 var
   LMsg: TMsg;
@@ -145,22 +134,6 @@ begin
     end;
   end;
 end;
-  {$ELSE}
-procedure TIdAntiFreeze.Process;
-begin
-  //TODO: Handle ApplicationHasPriority
-  Application.ProcessMessages;
-end;
-  {$ENDIF}
-
-{$ENDIF}
-
-{$IFDEF WIDGET_WINFORMS}
-procedure TIdAntiFreeze.Process;
-begin
-  //TODO: Handle ApplicationHasPriority
-  Application.DoEvents;
-end;
-{$ENDIF}
+{$IFEND}
 
 end.

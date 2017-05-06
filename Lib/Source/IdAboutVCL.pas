@@ -5,12 +5,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-{$IFDEF WIDGET_KYLIX}
-  QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt,
-{$ENDIF}
-{$IFDEF WIDGET_VCL_LIKE}
   StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
-{$ENDIF}
 {$IFDEF HAS_UNIT_Types}
   Types,
 {$ENDIF}
@@ -59,24 +54,17 @@ type
 
 implementation
 
-{$IFNDEF WIDGET_LCL}
-  {$IFDEF WIN32_OR_WIN64}
+{$IF (NOT DEFINED(WIDGET_LCL)) AND DEFINED(WIN32_OR_WIN64)}
   {$R IdAboutVCL.RES}
-  {$ENDIF}
-  {$IFDEF KYLIX}
-  {$R IdAboutVCL.RES}
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 uses
   {$IFDEF WIN32_OR_WIN64}ShellApi, {$ENDIF}
-  {$IFNDEF WIDGET_LCL}
-   //done this way because we reference HInstance in Delphi for loading
-   //resources.  Lazarus does something different.
-    {$IFDEF WIN32_OR_WIN64}
+  {$IF (NOT DEFINED(WIDGET_LCL)) AND DEFINED(WIN32_OR_WIN64)}
+  //done this way because we reference HInstance in Delphi for loading
+  //resources.  Lazarus does something different.
   Windows,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   IdDsnCoreResourceStrings,
   IdGlobal;
 
@@ -144,12 +132,11 @@ begin
   FimLogo.Picture.Pixmap.LoadFromLazarusResource('IndyAboutBkgnd'); //this is XPM format, so Pixmap is used
   FimLogo.Align := alClient;
   FimLogo.Stretch := True;
-  {$ELSE} // Because Lazarus is also WIDGET_VCL_LIKE_OR_KYLIX
-    {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
+  {$ELSE}
+  // Because Lazarus is also WIDGET_VCL_LIKE
   FimLogo.Picture.Bitmap.LoadFromResourceName(HInstance, 'INDY_ABOUT_BACKGROUND');    {Do not Localize}
   FimLogo.Align := alClient;
   FimLogo.Stretch := True;
-    {$ENDIF}
   {$ENDIF}
 
   FlblName.Name := 'lblName';
@@ -232,18 +219,10 @@ begin
   // 1. the names are pretty specific and not likely to change with localization;
   // 2. we are trying to avoid using IFDEFs in resource units, per Embarcadero's request;
   // 3. I don't want to create more product-specific resource units unless we really need them;
-  {$IFDEF WIDGET_KYLIX}
-  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['Kylix']);
-  {$ELSE}
-    {$IFDEF WIDGET_VCL}
-  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['VCL']);
-    {$ELSE}
-      {$IFDEF WIDGET_LCL}
+  {$IFDEF WIDGET_LCL}
   FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['Lazarus']);
-      {$ELSE}
-  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['Unknown']);
-      {$ENDIF}
-    {$ENDIF}
+  {$ELSE}
+  FlblBuiltFor.Caption := IndyFormat(RSAAboutBoxBuiltFor, ['VCL']);
   {$ENDIF}
 
   FlblLicense.Name := 'lblLicense';
@@ -417,4 +396,5 @@ end;
 initialization
   {$i IdAboutVCL.lrs}
 {$ENDIF}
+
 end.

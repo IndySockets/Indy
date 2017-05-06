@@ -45,21 +45,12 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF DOTNET}
-  Borland.Vcl.Design.DesignIntf,
-  Borland.Vcl.Design.DesignEditors
-  {$ELSE}
-    {$IFDEF FPC}
+  {$IFDEF FPC}
   PropEdits,
   ComponentEditors
-    {$ELSE}
-      {$IFDEF VCL_6_OR_ABOVE}
+  {$ELSE}
   DesignIntf,
   DesignEditors
-      {$ELSE}
-  Dsgnintf
-      {$ENDIF}
-    {$ENDIF}
   {$ENDIF}
   ;
 
@@ -104,7 +95,7 @@ begin
       LF.GetList(LList);
     end;
   finally
-    FreeAndNil(LF);
+    LF.Free;
   end;
 end;
 

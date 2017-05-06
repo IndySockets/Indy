@@ -29,7 +29,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdSASL, IdTCPConnection;
+  Classes, IdSASL, IdTCPConnection;
 
 {
   Implements RFC 2222: External SASL Mechanism
@@ -40,10 +40,10 @@ type
   TIdSASLExternal = class(TIdSASL)
   protected
     FAuthIdentity: String;
-    procedure InitComponent; override;
   public
-    function IsReadyToStart: Boolean; override;
+    constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
+    function IsReadyToStart: Boolean; override;
     function TryStartAuthenticate(const AHost, AProtocolName: String; var VInitialResponse: string): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName: String): String; override;
   published
@@ -54,9 +54,9 @@ implementation
 
 { TIdSASLExternal }
 
-procedure TIdSASLExternal.InitComponent;
+constructor TIdSASLExternal.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FSecurityLevel := 0; // unknown, depends on what the server does
 end;
 

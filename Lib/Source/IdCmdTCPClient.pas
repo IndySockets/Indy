@@ -100,6 +100,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdContext,
   IdException,
   IdGlobal,
@@ -126,7 +127,7 @@ type
   public
     property Client: TIdCmdTCPClient read FClient;
   end;
-  
+
   TIdCmdTCPClientListeningThread = class(TIdThread)
   protected
     FContext: TIdCmdClientContext;
@@ -156,12 +157,12 @@ type
       AContext: TIdContext);
     procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); virtual;
     function GetCmdHandlerClass: TIdCommandHandlerClass; virtual;
-    procedure InitComponent; override;
     procedure SetCommandHandlers(AValue: TIdCommandHandlers);
     procedure SetExceptionReply(AValue: TIdReply);
   public
-    procedure Connect; override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Connect; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
   published
     property CommandHandlers: TIdCommandHandlers read FCommandHandlers write SetCommandHandlers;
@@ -200,7 +201,7 @@ end;
 destructor TIdCmdTCPClientListeningThread.Destroy;
 begin
   inherited Destroy;
-  FreeAndNil(FContext);
+  FContext.Free;
 end;
 
 procedure TIdCmdTCPClientListeningThread.Run;
@@ -217,11 +218,26 @@ end;
 
 { TIdCmdTCPClient }
 
+constructor TIdCmdTCPClient.Create(AOwner: TComponent);
+var
+  LHandlerClass: TIdCommandHandlerClass;
+begin
+  inherited Create(AOwner);
+
+  FExceptionReply := FReplyClass.Create(nil);
+  ExceptionReply.SetReply(500, 'Unknown Internal Error'); {do not localize}
+
+  LHandlerClass := GetCmdHandlerClass;
+  FCommandHandlers := TIdCommandHandlers.Create(Self, FReplyClass, nil, ExceptionReply, LHandlerClass);
+  FCommandHandlers.OnAfterCommandHandler := DoAfterCommandHandler;
+  FCommandHandlers.OnBeforeCommandHandler := DoBeforeCommandHandler;
+end;
+
 destructor TIdCmdTCPClient.Destroy;
 begin
   Disconnect;
-  FreeAndNil(FExceptionReply);
-  FreeAndNil(FCommandHandlers);
+  FExceptionReply.Free;
+  FCommandHandlers.Free;
   inherited Destroy;
 end;
 
@@ -275,21 +291,6 @@ end;
 function TIdCmdTCPClient.GetCmdHandlerClass: TIdCommandHandlerClass;
 begin
   Result := TIdCommandHandler;
-end;
-
-procedure TIdCmdTCPClient.InitComponent;
-var
-  LHandlerClass: TIdCommandHandlerClass;
-begin
-  inherited InitComponent;
-
-  FExceptionReply := FReplyClass.Create(nil);
-  ExceptionReply.SetReply(500, 'Unknown Internal Error'); {do not localize}
-
-  LHandlerClass := GetCmdHandlerClass;
-  FCommandHandlers := TIdCommandHandlers.Create(Self, FReplyClass, nil, ExceptionReply, LHandlerClass);
-  FCommandHandlers.OnAfterCommandHandler := DoAfterCommandHandler;
-  FCommandHandlers.OnBeforeCommandHandler := DoBeforeCommandHandler;
 end;
 
 procedure TIdCmdTCPClient.SetCommandHandlers(AValue: TIdCommandHandlers);

@@ -84,8 +84,8 @@ Type
     procedure DoOnCreate; virtual;
     procedure DoOnDestroy; virtual;
     function DoOnNewCookie(ACookie: TIdCookie): Boolean; virtual;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     //
     procedure AddServerCookie(const ACookie: String; AURL: TIdURI);
@@ -116,11 +116,20 @@ uses
 
 { TIdCookieManager }
 
+constructor TIdCookieManager.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FCookieCollection := TIdCookies.Create(Self);
+  // TODO: move DoOnCreate() to AfterConstruction()
+  DoOnCreate;
+end;
+
 destructor TIdCookieManager.Destroy;
 begin
   CleanupCookieList;
+  // TODO: move DoOnDestroy() to BeforeDestruction()
   DoOnDestroy;
-  FreeAndNil(FCookieCollection);
+  FCookieCollection.Free;
   inherited Destroy;
 end;
 
@@ -325,13 +334,6 @@ begin
   finally
     FCookieCollection.UnlockCookieList(caReadWrite);
   end;
-end;
-
-procedure TIdCookieManager.InitComponent;
-begin
-  inherited InitComponent;
-  FCookieCollection := TIdCookies.Create(Self);
-  DoOnCreate;
 end;
 
 end.

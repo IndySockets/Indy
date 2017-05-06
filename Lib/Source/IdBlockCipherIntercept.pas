@@ -70,8 +70,8 @@ type
     procedure Decrypt (var VData : TIdBytes); virtual;
     procedure Encrypt (var VData : TIdBytes); virtual;
     procedure SetBlockSize(const Value: Integer);
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Receive(var VBuffer: TIdBytes); override; //Decrypt
     procedure Send(var VBuffer: TIdBytes); override; //Encrypt
     procedure CopySettingsFrom (ASrcBlockCipherIntercept: TIdBlockCipherIntercept); // warning: copies Data too
@@ -82,8 +82,8 @@ type
   TIdServerBlockCipherIntercept = class(TIdServerIntercept)
   protected
     FBlockSize: Integer;
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Init; override;
     function Accept(AConnection: TComponent): TIdConnectionIntercept; override;
   published
@@ -99,6 +99,13 @@ uses
   SysUtils;
 
 { TIdBlockCipherIntercept }
+
+constructor TIdBlockCipherIntercept.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FBlockSize := IdBlockCipherBlockSizeDefault;
+  SetLength(FIncoming, 0);
+end;
 
 //const
 //  bitLongTail = $80; //future: for IdBlockCipherBlockSizeMax>256
@@ -244,18 +251,11 @@ Begin
   end;
 end;
 
-procedure TIdBlockCipherIntercept.InitComponent;
-begin
-  inherited InitComponent;
-  FBlockSize := IdBlockCipherBlockSizeDefault;
-  SetLength(FIncoming, 0);
-end;
-
 { TIdServerBlockCipherIntercept }
 
-procedure TIdServerBlockCipherIntercept.InitComponent;
+constructor TIdServerBlockCipherIntercept.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FBlockSize := IdBlockCipherBlockSizeDefault;
 end;
 

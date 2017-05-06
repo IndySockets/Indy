@@ -68,8 +68,8 @@ function BytesToHexString(APtr: Pointer; ALen: Integer): String;
 function MDAsString(const AMD: TIdSSLEVP_MD): String;
 procedure GetStateVars(const sslSocket: PSSL; AWhere, Aret: TIdC_INT; var VTypeStr, VMsg : String);
 
-{$IFDEF STRING_IS_UNICODE}
-  {$IFDEF WINDOWS}
+{$IFDEF WINDOWS}
+
 {
   This is for some file lookup definitions for a LOOKUP method that
   uses Unicode filesnames instead of ASCII or UTF8.  It is not meant to be portable
@@ -92,7 +92,6 @@ const
     get_by_alias: nil // * get_by_alias */
     );
 
-  {$ENDIF}
 {$ENDIF}
 
 implementation
@@ -164,9 +163,7 @@ end;
   Pascal and made some modifications so that it will handle Unicode filenames.
 }
 
-{$IFDEF STRING_IS_UNICODE}
-
-  {$IFDEF WINDOWS}
+{$IF DEFINED(WINDOWS)}
 
 function Indy_unicode_X509_load_cert_crl_file(ctx: PX509_LOOKUP; const AFileName: String;
   const _type: TIdC_INT): TIdC_INT; forward;
@@ -246,7 +243,11 @@ begin
   try
     LM.LoadFromFile(AFileName);
     Lin := BIO_new_mem_buf(LM.Memory, LM.Size);
-    if Assigned(Lin) then begin
+    if not Assigned(Lin) then begin
+      X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_SYS_LIB);
+      Exit;
+    end;
+    try
       case _type of
         X509_FILETYPE_PEM:
           begin
@@ -281,15 +282,12 @@ begin
         X509err(X509_F_X509_LOAD_CERT_FILE, X509_R_BAD_X509_FILETYPE);
         // goto err;
       end;
-    end else begin
-      X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_SYS_LIB);
-      // goto err;
+    finally
+      BIO_free(Lin);
     end;
   finally
-    BIO_free(Lin);
-    FreeAndNil(LM);
+    LM.Free;
   end;
-
 end;
 
 function Indy_unicode_X509_load_cert_crl_file(ctx: PX509_LOOKUP; const AFileName: String;
@@ -306,30 +304,34 @@ begin
   Lin := nil;
   if _type <> X509_FILETYPE_PEM then begin
     Result := Indy_unicode_X509_load_cert_file(ctx, AFileName, _type);
-    exit;
+    Exit;
   end;
-  LM := TMemoryStream.Create;
   try
-    LM.LoadFromFile(AFileName);
-    Lin := BIO_new_mem_buf(LM.Memory, LM.Size);
-    if Assigned(Lin) then begin
-      Linf := PEM_X509_INFO_read_bio(Lin, nil, nil, nil);
-    end else begin
-      X509err(X509_F_X509_LOAD_CERT_CRL_FILE, ERR_R_SYS_LIB);
+    LM := TMemoryStream.Create;
+    try
+      LM.LoadFromFile(AFileName);
+      Lin := BIO_new_mem_buf(LM.Memory, LM.Size);
+      if not Assigned(Lin) then begin
+        X509err(X509_F_X509_LOAD_CERT_CRL_FILE, ERR_R_SYS_LIB);
+      end else begin
+        try
+          Linf := PEM_X509_INFO_read_bio(Lin, nil, nil, nil);
+        finally
+          BIO_free(Lin);
+        end;
+      end;
+    finally
+      LM.Free;
     end;
-    BIO_free(Lin);
-    FreeAndNil(LM);
+  except
     // Surpress exception here since it's going to be called by the OpenSSL .DLL
     // Follow the OpenSSL .DLL Error conventions.
-  except
     X509err(X509_F_X509_LOAD_CERT_CRL_FILE, ERR_R_SYS_LIB);
-    BIO_free(Lin);
-    FreeAndNil(LM);
-    exit;
+    Exit;
   end;
   if not Assigned(Linf) then begin
     X509err(X509_F_X509_LOAD_CERT_CRL_FILE, ERR_R_PEM_LIB);
-    exit;
+    Exit;
   end;
   try
     for i := 0 to sk_X509_INFO_num(Linf) - 1 do begin
@@ -416,7 +418,7 @@ begin
           SSLerr(SSL_F_SSL_LOAD_CLIENT_CA_FILE, ERR_R_MALLOC_FAILURE);
         end;
       finally
-        FreeAndNil(LM);
+        LM.Free;
       end;
     finally
       sk_X509_NAME_free(Lsk);
@@ -462,21 +464,22 @@ begin
           j := SSL_R_BAD_SSL_FILETYPE;
         end;
         if Assigned(LKey) then begin
-          Result := SSL_CTX_use_PrivateKey(ctx, LKey) > 0;
-          EVP_PKEY_free(LKey);
+          try
+            Result := SSL_CTX_use_PrivateKey(ctx, LKey) > 0;
+          finally
+            EVP_PKEY_free(LKey);
+          end;
         end else begin
           SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, j);
         end;
       finally
-        if Assigned(B) then begin
-          BIO_free(B);
-        end;
+        BIO_free(B);
       end;
     end else begin
       SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_BUF_LIB);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -512,8 +515,11 @@ begin
             j := SSL_R_BAD_SSL_FILETYPE;
         end;
         if Assigned(LX) then begin
-          Result := SSL_CTX_use_certificate(ctx, LX) > 0;
-          X509_free(LX);
+          try
+            Result := SSL_CTX_use_certificate(ctx, LX) > 0;
+          finally
+            X509_free(LX);
+          end;
         end else begin
           SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, j);
         end;
@@ -524,7 +530,7 @@ begin
       SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_BUF_LIB);
     end;
   finally
-    FreeAndNil(LM);
+    LM.Free;
   end;
 end;
 
@@ -559,9 +565,7 @@ begin
   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
 end;
 
-  {$ENDIF} // WINDOWS
-
-  {$IFDEF UNIX}
+{$ELSEIF DEFINED(UNIX)}
 
 function IndySSL_load_client_CA_file(const AFileName: String) : PSTACK_OF_X509_NAME;
 begin
@@ -606,60 +610,7 @@ begin
   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
 end;
 
-  {$ENDIF} // UNIX
-
-{$ELSE} // STRING_IS_UNICODE
-
-function IndySSL_load_client_CA_file(const AFileName: String) : PSTACK_OF_X509_NAME;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_load_client_CA_file(PAnsiChar(AFileName));
-end;
-
-function IndySSL_CTX_use_PrivateKey_file(ctx: PSSL_CTX; const AFileName: String;
-  AType: Integer): Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_CTX_use_PrivateKey_file(ctx, PAnsiChar(AFileName), AType) > 0;
-end;
-
-function IndySSL_CTX_use_certificate_file(ctx: PSSL_CTX;
-  const AFileName: String; AType: Integer): Boolean;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := SSL_CTX_use_certificate_file(ctx, PAnsiChar(AFileName), AType) > 0;
-end;
-
-function IndyX509_STORE_load_locations(ctx: PX509_STORE;
-  const AFileName, APathName: String): TIdC_INT;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  // RLebeau 4/18/2010: X509_STORE_load_locations() expects nil pointers
-  // for unused values, but casting a string directly to a PAnsiChar
-  // always produces a non-nil pointer, which causes X509_STORE_load_locations()
-  // to fail. Need to cast the string to an intermediate Pointer so the
-  // PAnsiChar cast is applied to the raw data and thus can be nil...
-  //
-  Result := X509_STORE_load_locations(ctx,
-    PAnsiChar(Pointer(AFileName)),
-    PAnsiChar(Pointer(APathName)));
-end;
-
-function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
-  const ACAFile, ACAPath: String): TIdC_INT;
-begin
-  // RLebeau 4/18/2010: X509_STORE_load_locations() expects nil pointers
-  // for unused values, but casting a string directly to a PAnsiChar
-  // always produces a non-nil pointer, which causes X509_STORE_load_locations()
-  // to fail. Need to cast the string to an intermediate Pointer so the
-  // PAnsiChar cast is applied to the raw data and thus can be nil...
-  //
-  Result := SSL_CTX_load_verify_locations(ctx,
-    PAnsiChar(Pointer(ACAFile)),
-    PAnsiChar(Pointer(ACAPath)));
-end;
-
-{$ENDIF}
+{$IFEND}
 
 function AddMins(const DT: TDateTime; const Mins: Extended): TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}

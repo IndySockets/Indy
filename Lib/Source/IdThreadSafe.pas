@@ -79,21 +79,20 @@ type
 
   // Yes we know that integer operations are "atomic". However we do not like to rely on
   // internal compiler implementation. This is a safe and proper way to keep our code independent
-  TIdThreadSafeInteger = class(TIdThreadSafe)
+
+  TIdThreadSafeInt32 = class(TIdThreadSafe)
   protected
-    FValue: Integer;
+    FValue: Int32;
     //
-    function GetValue: Integer;
-    procedure SetValue(const AValue: Integer);
+    function GetValue: Int32;
+    procedure SetValue(const AValue: Int32);
   public
-    function Decrement: Integer;  overload;
-    function Decrement(const AValue : Integer) : Integer; overload;
-    function Increment: Integer;   overload;
-    function Increment(const AValue : Integer) : Integer; overload;
+    function Decrement(const AValue : Int32 = 1) : Int32;
+    function Increment(const AValue : Int32 = 1) : Int32;
     //
-    property Value: Integer read GetValue write SetValue;
+    property Value: Int32 read GetValue write SetValue;
   end;
-  TIdThreadSafeInt32 = TIdThreadSafeInteger;
+  TIdThreadSafeInteger = TIdThreadSafeInt32 deprecated 'use TIdThreadSafeInt32';
 
   TIdThreadSafeBoolean = class(TIdThreadSafe)
   protected
@@ -107,35 +106,44 @@ type
     property Value: Boolean read GetValue write SetValue;
   end;
 
-  TIdThreadSafeCardinal = class(TIdThreadSafe)
+  TIdThreadSafeUInt32 = class(TIdThreadSafe)
   protected
-    FValue: Cardinal;
+    FValue: UInt32;
     //
-    function GetValue: Cardinal;
-    procedure SetValue(const AValue: Cardinal);
+    function GetValue: UInt32;
+    procedure SetValue(const AValue: UInt32);
   public
-    function Decrement: Cardinal; overload;
-    function Decrement(const AValue : Cardinal) : Cardinal; overload;
-    function Increment: Cardinal; overload;
-    function Increment(const AValue : Cardinal) : Cardinal; overload;
+    function Decrement(const AValue : UInt32 = 1) : UInt32;
+    function Increment(const AValue : UInt32 = 1) : UInt32;
     //
     property Value: Cardinal read GetValue write SetValue;
   end;
-  TIdThreadSafeUInt32 = TIdThreadSafeCardinal;
+  TIdThreadSafeCardinal = TIdThreadSafeUInt32 deprecated 'use TIdThreadSafeUInt32';
 
   TIdThreadSafeInt64 = class(TIdThreadSafe)
   protected
-    FValue:  Int64;
+    FValue: Int64;
     //
     function GetValue: Int64;
     procedure SetValue(const AValue: Int64);
   public
-    function Decrement: Int64; overload;
-    function Decrement(const AValue : Int64) : Int64; overload;
-    function Increment: Int64; overload;
-    function Increment(const AValue : Int64) : Int64; overload;
+    function Decrement(const AValue : Int64 = 1) : Int64;
+    function Increment(const AValue : Int64 = 1) : Int64;
     //
     property Value:  Int64 read GetValue write SetValue;
+  end;
+
+  TIdThreadSafeUInt64 = class(TIdThreadSafe)
+  protected
+    FValue: UInt64;
+    //
+    function GetValue: UInt64;
+    procedure SetValue(const AValue: UInt64);
+  public
+    function Decrement(const AValue : UInt64 = 1) : UInt64;
+    function Increment(const AValue : UInt64 = 1) : UInt64;
+    //
+    property Value: UInt64 read GetValue write SetValue;
   end;
 
   TIdThreadSafeString = class(TIdThreadSafe)
@@ -235,12 +243,10 @@ type
 implementation
 
 uses
-  {$IFDEF VCL_2010_OR_ABOVE}
-    {$IFDEF WINDOWS}
+  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
   Windows,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFEND}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.SyncObjs,
   {$ENDIF}
   SysUtils;
@@ -255,7 +261,7 @@ end;
 
 destructor TIdThreadSafe.Destroy;
 begin
-  FreeAndNil(FCriticalSection);
+  FCriticalSection.Free;
   inherited Destroy;
 end;
 
@@ -269,31 +275,20 @@ begin
   FCriticalSection.Leave;
 end;
 
-{ TIdThreadSafeInteger }
+{ TIdThreadSafeInt32 }
 
-function TIdThreadSafeInteger.Decrement: Integer;
+function TIdThreadSafeInt32.Decrement(const AValue: Int32 = 1): Int32;
 begin
   Lock;
   try
     Result := FValue;
-    Dec(FValue);
+    Dec(FValue, AValue);
   finally
     Unlock;
   end;
 end;
 
-function TIdThreadSafeInteger.Decrement(const AValue: Integer): Integer;
-begin
-  Lock;
-  try
-    Result := FValue;
-    Dec(FValue,AValue);
-  finally
-    Unlock;
-  end;
-end;
-
-function TIdThreadSafeInteger.GetValue: Integer;
+function TIdThreadSafeInt32.GetValue: Int32;
 begin
   Lock;
   try
@@ -303,29 +298,18 @@ begin
   end;
 end;
 
-function TIdThreadSafeInteger.Increment: Integer;
+function TIdThreadSafeInt32.Increment(const AValue: Int32 = 1): Int32;
 begin
   Lock;
   try
     Result := FValue;
-    Inc(FValue);
+    Inc(FValue, AValue);
   finally
     Unlock;
   end;
 end;
 
-function TIdThreadSafeInteger.Increment(const AValue: Integer): Integer;
-begin
-  Lock;
-  try
-    Result := FValue;
-    Inc(FValue,AValue);
-  finally
-    Unlock;
-  end;
-end;
-
-procedure TIdThreadSafeInteger.SetValue(const AValue: Integer);
+procedure TIdThreadSafeInt32.SetValue(const AValue: Int32);
 begin
   Lock;
   try
@@ -419,7 +403,7 @@ destructor TIdThreadSafeStringList.Destroy;
 begin
   inherited Lock;
   try
-    FreeAndNil(FValue);
+    FValue.Free;
   finally
     inherited Unlock;
   end;
@@ -496,31 +480,20 @@ begin
   inherited Unlock;
 end;
 
-{ TIdThreadSafeCardinal }
+{ TIdThreadSafeUInt32 }
 
-function TIdThreadSafeCardinal.Decrement: Cardinal;
+function TIdThreadSafeUInt32.Decrement(const AValue: UInt32 = 1): UInt32;
 begin
   Lock;
   try
     Result := FValue;
-    Dec(FValue);
+    Dec(FValue, AValue);
   finally
     Unlock;
   end;
 end;
 
-function TIdThreadSafeCardinal.Decrement(const AValue: Cardinal): Cardinal;
-begin
-  Lock;
-  try
-    Result := FValue;
-    Dec(FValue,AValue);
-  finally
-    Unlock;
-  end;
-end;
-
-function TIdThreadSafeCardinal.GetValue: Cardinal;
+function TIdThreadSafeUInt32.GetValue: UInt32;
 begin
   Lock;
   try
@@ -530,29 +503,18 @@ begin
   end;
 end;
 
-function TIdThreadSafeCardinal.Increment: Cardinal;
+function TIdThreadSafeUInt32.Increment(const AValue: UInt32 = 1): UInt32;
 begin
   Lock;
   try
     Result := FValue;
-    Inc(FValue);
+    Inc(FValue, AValue);
   finally
     Unlock;
   end;
 end;
 
-function TIdThreadSafeCardinal.Increment(const AValue: Cardinal): Cardinal;
-begin
-  Lock;
-  try
-    Result := FValue;
-    Inc(FValue,AValue);
-  finally
-    Unlock;
-  end;
-end;
-
-procedure TIdThreadSafeCardinal.SetValue(const AValue: Cardinal);
+procedure TIdThreadSafeUInt32.SetValue(const AValue: UInt32);
 begin
   Lock;
   try
@@ -829,23 +791,12 @@ end;
 
 { TIdThreadSafeInt64 }
 
-function TIdThreadSafeInt64.Decrement(const AValue: Int64): Int64;
+function TIdThreadSafeInt64.Decrement(const AValue: Int64 = 1): Int64;
 begin
   Lock;
   try
     Result := FValue;
-    Dec(FValue,AValue);
-  finally
-    Unlock;
-  end;
-end;
-
-function TIdThreadSafeInt64.Decrement: Int64;
-begin
-  Lock;
-  try
-    Result := FValue;
-    Dec(FValue);
+    Dec(FValue, AValue);
   finally
     Unlock;
   end;
@@ -861,29 +812,62 @@ begin
   end;
 end;
 
-function TIdThreadSafeInt64.Increment(const AValue: Int64): Int64;
+function TIdThreadSafeInt64.Increment(const AValue: Int64 = 1): Int64;
 begin
   Lock;
   try
     Result := FValue;
-    Inc(FValue,AValue);
-  finally
-    Unlock;
-  end;
-end;
-
-function TIdThreadSafeInt64.Increment: Int64;
-begin
-  Lock;
-  try
-    Result := FValue;
-    Inc(FValue);
+    Inc(FValue, AValue);
   finally
     Unlock;
   end;
 end;
 
 procedure TIdThreadSafeInt64.SetValue(const AValue: Int64);
+begin
+  Lock;
+  try
+    FValue := AValue;
+  finally
+    Unlock;
+  end;
+end;
+
+{ TIdThreadSafeUInt64 }
+
+function TIdThreadSafeUInt64.Decrement(const AValue: UInt64 = 1): UInt64;
+begin
+  Lock;
+  try
+    Result := FValue;
+    Dec(FValue, AValue);
+  finally
+    Unlock;
+  end;
+end;
+
+function TIdThreadSafeUInt64.GetValue: UInt64;
+begin
+  Lock;
+  try
+    Result := FValue;
+  finally
+    Unlock;
+  end;
+end;
+
+function TIdThreadSafeUInt64.Increment(const AValue: UInt64 = 1): UInt64;
+begin
+  Lock;
+  try
+    Result := FValue;
+    Inc(FValue, AValue);
+  finally
+    Unlock;
+  end;
+end;
+
+procedure TIdThreadSafeUInt64.SetValue(const AValue: UInt64);
 begin
   Lock;
   try

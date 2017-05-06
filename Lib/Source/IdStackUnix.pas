@@ -133,7 +133,7 @@ type
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer): Integer; override;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer; override;
-    {$IFNDEF VCL_XE3_OR_ABOVE}
+    {$IFNDEF DCC_XE3_OR_ABOVE}
     procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -166,8 +166,8 @@ type
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
-    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
+    function HostToNetwork(AValue: UInt64): UInt64; override;
+    function NetworkToHost(AValue: UInt64): UInt64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
       var VIPVersion: TIdIPVersion): Integer; override;
@@ -179,7 +179,7 @@ type
     function WSSocket(AFamily, AStruct, AProtocol: Integer;
      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
-    {$IFDEF VCL_XE3_OR_ABOVE}
+    {$IFDEF DCC_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -657,7 +657,7 @@ begin
   end;
 end;
 
-procedure TIdStackUnix.{$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
+procedure TIdStackUnix.{$IFDEF DCC_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
   var AOptVal; var AOptLen: Integer);
 var
@@ -668,7 +668,7 @@ begin
   AOptLen := LLen;
 end;
 
-procedure TIdStackUnix.{$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
+procedure TIdStackUnix.{$IFDEF DCC_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
   const AOptVal; const AOptLen: Integer);
 begin
@@ -718,82 +718,65 @@ end;
 
 function TIdStackUnix.HostToNetwork(AValue: UInt32): UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  {$I IdRangeCheckingOff.inc}
   Result := htonl(AValue);
-  // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$I IdRangeCheckingOn.inc}
 end;
 
 function TIdStackUnix.NetworkToHost(AValue: UInt32): UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  {$I IdRangeCheckingOff.inc}
   Result := ntohl(AValue);
-  // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$I IdRangeCheckingOn.inc}
 end;
 
 { RP - I'm not sure what endian Linux natively uses, thus the
 check to see if the bytes need swapping or not ... }
-function TIdStackUnix.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
+function TIdStackUnix.HostToNetwork(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  // TODO: enable this?
+  (*
+  LParts.LongWords[0] := htonl(UInt32(AValue shr 32));
+  LParts.LongWords[1] := htonl(UInt32(AValue));
+  Result := LParts.QuadPart;
+  *)
+  {$I IdRangeCheckingOff.inc}
   if (htonl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue;
     L := htonl(LParts.HighPart);
     LParts.HighPart := htonl(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result := LParts.QuadPart;
   end else begin
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    Result := AValue;
   end;
-  // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$I IdRangeCheckingOn.inc}
 end;
 
-function TIdStackUnix.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
+function TIdStackUnix.NetworkToHost(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  {$I IdRangeCheckingOff.inc}
+  // TODO: enable this?
+  (*
+  LParts.QuadPart := AValue;
+  Result := (UInt64(ntohl(LParts.LongWords[0])) shl 32) or UInt64(ntohl(LParts.LongWords[1]));
+  *)
   if (ntohl(1) <> 1) then begin
-    LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    LParts.QuadPart := AValue;
     L := ntohl(LParts.HighPart);
     LParts.HighPart := NetworkToHost(LParts.LowPart);
     LParts.LowPart := L;
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := LParts.QuadPart;
+    Result := LParts.QuadPart;
   end else begin
-    Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
+    Result := AValue;
   end;
-  // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$I IdRangeCheckingOn.inc}
 end;
 
 {$IFDEF HAS_getifaddrs}
@@ -1042,7 +1025,7 @@ begin
   Result := True;
 
   // TODO: enable this:
-  //Result := CheckForSocketError(AResult, [EAGAIN, EWOULDBLOCK]) <> 0;
+  //Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
 end;
 
 function TIdStackUnix.SupportsIPv4: Boolean;
@@ -1360,7 +1343,7 @@ begin
       Unlock;
     end;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;

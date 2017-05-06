@@ -117,7 +117,6 @@ type
     //
     procedure DoStatus(AStatus: TIdStatus); overload;
     procedure DoStatus(AStatus: TIdStatus; const AArgs: array of const); overload;
-    procedure InitComponent; override;
     {$IFNDEF USE_OBJECT_ARC}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
@@ -127,8 +126,9 @@ type
     property OnWorkBegin: TWorkBeginEvent read FOnWorkBegin write FOnWorkBegin;
     property OnWorkEnd: TWorkEndEvent read FOnWorkEnd write FOnWorkEnd;
   public
-    procedure BeginWork(AWorkMode: TWorkMode; const ASize: Int64 = 0); virtual;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure BeginWork(AWorkMode: TWorkMode; const ASize: Int64 = 0); virtual;
     procedure DoWork(AWorkMode: TWorkMode; const ACount: Int64); virtual;
     procedure EndWork(AWorkMode: TWorkMode); virtual;
     //
@@ -140,6 +140,12 @@ type
 implementation
 
 { TIdComponent }
+
+constructor TIdComponent.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  TIdStack.IncUsage;
+end;
 
 destructor TIdComponent.Destroy;
 begin
@@ -221,12 +227,6 @@ begin
     end;
     Dec(FWorkInfos[AWorkMode].Level);
   end;
-end;
-
-procedure TIdComponent.InitComponent;
-begin
-  inherited InitComponent;
-  TIdStack.IncUsage;
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically

@@ -98,8 +98,8 @@ type
   end;
 
   TIdMessageEncoderUUE = class(TIdMessageEncoderUUEBase)
-  protected
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   end;
 
   TIdMessageEncoderInfoUUE = class(TIdMessageEncoderInfo)
@@ -140,7 +140,7 @@ begin
   Result := nil;
   AMsgEnd := False;
   LEncoding := IndyTextEncoding_8Bit;
-  LLine := ReadLnRFC(LMsgEnd, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  LLine := ReadLnRFC(LMsgEnd, LEncoding);
   if LMsgEnd then begin
     Exit;
   end;
@@ -208,12 +208,12 @@ begin
         end else begin
           LDecoder.Decode(LLine);
         end;
-        LLine := ReadLnRFC(LMsgEnd, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+        LLine := ReadLnRFC(LMsgEnd, LEncoding);
       until TextIsSame(Trim(LLine), 'end') or LMsgEnd;    {Do not Localize}
       LDecoder.DecodeEnd;
     end;
   finally
-    FreeAndNil(LDecoder);
+    LDecoder.Free;
   end;
 end;
 
@@ -233,20 +233,23 @@ var
 begin
   ASrc.Position := 0;
   WriteStringToStream(ADest, 'begin ' + IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
-  LEncoder := FEncoderClass.Create(nil); try
+  LEncoder := FEncoderClass.Create(nil);
+  try
     while ASrc.Position < ASrc.Size do begin
       LEncoder.Encode(ASrc, ADest, 45);
       WriteStringToStream(ADest, EOL);
     end;
     WriteStringToStream(ADest, String(LEncoder.FillChar) + EOL + 'end' + EOL); {Do not Localize}
-  finally FreeAndNil(LEncoder); end;
+  finally
+    LEncoder.Free;
+  end;
 end;
 
 { TIdMessageEncoderUUE }
 
-procedure TIdMessageEncoderUUE.InitComponent;
+constructor TIdMessageEncoderUUE.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   FEncoderClass := TIdEncoderUUE;
 end;
 

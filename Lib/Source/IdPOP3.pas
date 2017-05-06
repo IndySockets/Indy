@@ -225,13 +225,13 @@ type
     function GetReplyClass:TIdReplyClass; override;
     function GetSupportsTLS: Boolean; override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
-    procedure InitComponent; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     function CheckMessages: Integer;
     procedure Connect; override;
     procedure Login; virtual;
-    destructor Destroy; override;
     function Delete(const MsgNum: Integer): Boolean;
     procedure DisconnectNotifyPeer; override;
     procedure KeepAlive;
@@ -281,6 +281,24 @@ uses
   SysUtils;
 
 { TIdPOP3 }
+
+constructor TIdPOP3.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FAutoLogin := True;
+  FSASLMechanisms := TIdSASLEntries.Create(Self);
+  FRegularProtPort := IdPORT_POP3;
+  FImplicitTLSProtPort := IdPORT_POP3S;
+  FExplicitTLSProtPort := IdPORT_POP3;
+  Port := IdPORT_POP3;
+  FAuthType := DEF_ATYPE;
+end;
+
+destructor TIdPOP3.Destroy;
+begin
+  FSASLMechanisms.Free;
+  inherited;
+end;
 
 function TIdPOP3.CheckMessages: Integer;
 var
@@ -345,18 +363,6 @@ begin
   end;
 end;
 
-procedure TIdPOP3.InitComponent;
-begin
-  inherited;
-  FAutoLogin := True;
-  FSASLMechanisms := TIdSASLEntries.Create(Self);
-  FRegularProtPort := IdPORT_POP3;
-  FImplicitTLSProtPort := IdPORT_POP3S;
-  FExplicitTLSProtPort := IdPORT_POP3;
-  Port := IdPORT_POP3;
-  FAuthType := DEF_ATYPE;
-end;
-
 function TIdPOP3.Delete(const MsgNum: Integer): Boolean;
 begin
   Result := (SendCmd('DELE ' + IntToStr(MsgNum), '') = ST_OK);   {do not localize}
@@ -384,24 +390,18 @@ begin
 end;
 
 function TIdPOP3.RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings): boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := (SendCmd('RETR ' + IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(aDest, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(aDest, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdPOP3.RetrieveRaw(const aMsgNo: Integer; const aDest: TStream): boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := (SendCmd('RETR ' + IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(aDest, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(aDest, IndyTextEncoding_8Bit);
   end;
 end;
 
@@ -475,8 +475,6 @@ begin
 end;
 
 function TIdPOP3.List(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   if AMsgNum >= 0 then begin
     Result := (SendCmd('LIST ' + IntToStr(AMsgNum), '') = ST_OK);    {Do not Localize}
@@ -487,8 +485,7 @@ begin
   else begin
     Result := (SendCmd('LIST', '') = ST_OK);    {Do not Localize}
     if Result then begin
-      LEncoding := IndyTextEncoding_8Bit;
-      IOHandler.Capture(ADest, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      IOHandler.Capture(ADest, IndyTextEncoding_8Bit);
     end;
   end;
 end;
@@ -500,8 +497,6 @@ begin
 end;
 
 function TIdPOP3.UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   if AMsgNum >= 0 then begin
     Result := (SendCmd('UIDL ' + IntToStr(AMsgNum), '') = ST_OK);    {Do not Localize}
@@ -512,8 +507,7 @@ begin
   else begin
     Result := (SendCmd('UIDL', '') = ST_OK);    {Do not Localize}
     if Result then begin
-      LEncoding := IndyTextEncoding_8Bit;
-      IOHandler.Capture(ADest, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      IOHandler.Capture(ADest, IndyTextEncoding_8Bit);
     end;
   end;
 end;
@@ -527,7 +521,6 @@ end;
 function TIdPOP3.Top(const AMsgNum: Integer; const ADest: TStrings; const AMaxLines: Integer = 0): boolean;
 var
   Cmd: String;
-  LEncoding: IIdTextEncoding;
 begin
   Cmd := 'TOP ' + IntToStr(AMsgNum); {Do not Localize}
   if AMaxLines <> 0 then begin
@@ -535,15 +528,8 @@ begin
   end;
   Result := (SendCmd(Cmd,'') = ST_OK);
   if Result then begin
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(ADest, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(ADest, IndyTextEncoding_8Bit);
   end;
-end;
-
-destructor TIdPOP3.Destroy;
-begin
-  FreeAndNil(FSASLMechanisms);
-  inherited;
 end;
 
 function TIdPOP3.CAPA: Boolean;

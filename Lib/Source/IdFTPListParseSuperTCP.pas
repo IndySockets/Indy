@@ -147,8 +147,7 @@ end;
 
 class function TIdFTPLPSuperTCP.IsValidMSDOSFileName(const AFileName: String): Boolean;
 const
-  VALID_DOS_CHARS =
-	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtstuvwxyz0123456789_$~!#%&-{}()@'''+Char(180); {Do not localize}
+  VALID_DOS_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtstuvwxyz0123456789_$~!#%&-{}()@''+Char(180); {Do not localize}
 var
   LFileName, LExt : String;
   i : Integer;
@@ -165,7 +164,7 @@ begin
   begin
     for i := 1 to Length(LFileName) do
     begin
-	  if IndyPos(LFileName[i], VALID_DOS_CHARS) = 0 then begin
+      if IndyPos(LFileName[i], VALID_DOS_CHARS) = 0 then begin
         Exit;
       end;
     end;

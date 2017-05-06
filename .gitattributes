@@ -354,7 +354,6 @@ Lib/Packages/RADStudio_2009/IndyCore.proj -text
 Lib/Packages/RADStudio_2009/IndyCore.rc -text
 Lib/Packages/RADStudio_2009/IndyCore.rc.tmpl -text
 Lib/Packages/RADStudio_2009/IndyCore.res -text
-Lib/Packages/RADStudio_2009/IndyCoreNet.dpk -text
 Lib/Packages/RADStudio_2009/IndyProtocols.cfg1 -text
 Lib/Packages/RADStudio_2009/IndyProtocols.cfg2 -text
 Lib/Packages/RADStudio_2009/IndyProtocols.dpk -text
@@ -362,7 +361,6 @@ Lib/Packages/RADStudio_2009/IndyProtocols.proj -text
 Lib/Packages/RADStudio_2009/IndyProtocols.rc -text
 Lib/Packages/RADStudio_2009/IndyProtocols.rc.tmpl -text
 Lib/Packages/RADStudio_2009/IndyProtocols.res -text
-Lib/Packages/RADStudio_2009/IndyProtocolsNet.dpk -text
 Lib/Packages/RADStudio_2009/IndySystem.cfg1 -text
 Lib/Packages/RADStudio_2009/IndySystem.cfg2 -text
 Lib/Packages/RADStudio_2009/IndySystem.dpk -text
@@ -370,7 +368,6 @@ Lib/Packages/RADStudio_2009/IndySystem.proj -text
 Lib/Packages/RADStudio_2009/IndySystem.rc -text
 Lib/Packages/RADStudio_2009/IndySystem.rc.tmpl -text
 Lib/Packages/RADStudio_2009/IndySystem.res -text
-Lib/Packages/RADStudio_2009/IndySystemNet.dpk -text
 Lib/Packages/RADStudio_2009/dclIndyCore.RES -text
 Lib/Packages/RADStudio_2009/dclIndyCore.cfg1 -text
 Lib/Packages/RADStudio_2009/dclIndyCore.dpk -text
@@ -384,7 +381,6 @@ Lib/Packages/RADStudio_2009/dclIndyProtocols.dpk -text
 Lib/Packages/RADStudio_2009/dclIndyProtocols.proj -text
 Lib/Packages/RADStudio_2009/dclIndyProtocols.rc -text
 Lib/Packages/RADStudio_2009/dclIndyProtocols.rc.tmpl -text
-Lib/Packages/RADStudio_2009/dclIndyProtocolsNet.dpk -text
 Lib/Packages/RADStudio_2010/Fullc_2010.bat -text
 Lib/Packages/RADStudio_2010/IndyCore.RES -text
 Lib/Packages/RADStudio_2010/IndyCore.cfg1 -text
@@ -649,7 +645,6 @@ Lib/Packages/lspFix.exe -text svneol=unset#unset
 Lib/Packages/makeD12.proj -text
 Lib/Packages/makeindyrpm.sh eol=lf
 Lib/Packages/makeindyrpm.sh.tmpl -text
-Lib/Source/AboutIndyNET.resources -text svneol=unset#unset
 Lib/Source/AboutProg.res -text svneol=unset#unset
 Lib/Source/DelphiZLib.lib -text svneol=unset#unset
 Lib/Source/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
@@ -846,11 +841,6 @@ Lib/Source/IdAbout.TfrmAbout.resources -text svneol=unset#unset
 Lib/Source/IdAbout.pas -text
 Lib/Source/IdAbout.resources -text svneol=unset#unset
 Lib/Source/IdAbout.resx -text
-Lib/Source/IdAboutDotNET.TfrmAbout.resources -text svneol=unset#unset
-Lib/Source/IdAboutDotNET.pas -text
-Lib/Source/IdAboutDotNET.resources -text svneol=unset#unset
-Lib/Source/IdAboutDotNET.resx -text
-Lib/Source/IdAboutNET.resources -text svneol=unset#unset
 Lib/Source/IdAboutVCL.RES -text svneol=unset#unset
 Lib/Source/IdAboutVCL.lrs -text
 Lib/Source/IdAboutVCL.pas -text
@@ -858,7 +848,6 @@ Lib/Source/IdAboutVCL.rc -text
 Lib/Source/IdAboutVCL.xpm -text
 Lib/Source/IdAllAuthentications.pas -text
 Lib/Source/IdAllFTPListParsers.pas -text
-Lib/Source/IdAllHeaderCoders.pas -text
 Lib/Source/IdAntiFreeze.pas -text
 Lib/Source/IdAntiFreezeBase.pas -text
 Lib/Source/IdAssemblyInfo.pas -text
@@ -893,6 +882,9 @@ Lib/Source/IdCoderUUE.pas -text
 Lib/Source/IdCoderXXE.pas -text
 Lib/Source/IdCommandHandlers.pas -text
 Lib/Source/IdCompilerDefines.inc -text
+Lib/Source/IdCompilerDefines_DCC.inc -text
+Lib/Source/IdCompilerDefines_FPC.inc -text
+Lib/Source/IdCompilerDetectDCC.inc -text
 Lib/Source/IdComponent.pas -text
 Lib/Source/IdCompressionIntercept.pas -text
 Lib/Source/IdCompressorZLib.pas -text
@@ -921,25 +913,16 @@ Lib/Source/IdDayTime.pas -text
 Lib/Source/IdDayTimeServer.pas -text
 Lib/Source/IdDayTimeUDP.pas -text
 Lib/Source/IdDayTimeUDPServer.pas -text
-Lib/Source/IdDeprecatedImplBugOff.inc -text
-Lib/Source/IdDeprecatedImplBugOn.inc -text
 Lib/Source/IdDiscardServer.pas -text
 Lib/Source/IdDiscardUDPServer.pas -text
 Lib/Source/IdDsnBaseCmpEdt.pas -text
 Lib/Source/IdDsnCoreResourceStrings.pas -text
-Lib/Source/IdDsnNETCompEditor.pas -text
 Lib/Source/IdDsnPropEdBinding.pas -text
-Lib/Source/IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources -text svneol=unset#unset
-Lib/Source/IdDsnPropEdBindingNET.pas -text
-Lib/Source/IdDsnPropEdBindingNET.resx -text
 Lib/Source/IdDsnPropEdBindingVCL.pas -text
 Lib/Source/IdDsnRegister.pas -text
 Lib/Source/IdDsnResourceStrings.pas -text
 Lib/Source/IdDsnSASLListEditor.pas -text
 Lib/Source/IdDsnSASLListEditorForm.pas -text
-Lib/Source/IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources -text svneol=unset#unset
-Lib/Source/IdDsnSASLListEditorFormNET.pas -text
-Lib/Source/IdDsnSASLListEditorFormNET.resx -text
 Lib/Source/IdDsnSASLListEditorFormVCL.lrs -text
 Lib/Source/IdDsnSASLListEditorFormVCL.pas -text
 Lib/Source/IdDummyUnit.pas -text
@@ -1029,22 +1012,20 @@ Lib/Source/IdHashIntf.pas -text
 Lib/Source/IdHashMessageDigest.pas -text
 Lib/Source/IdHashSHA.pas -text
 Lib/Source/IdHashSHA1.pas -text
-Lib/Source/IdHeaderCoder2022JP.pas -text
-Lib/Source/IdHeaderCoderBase.pas -text
-Lib/Source/IdHeaderCoderBig5.pas -text
-Lib/Source/IdHeaderCoderIndy.pas -text
-Lib/Source/IdHeaderCoderPlain.pas -text
 Lib/Source/IdHeaderList.pas -text
+Lib/Source/IdHintsOff.inc -text
+Lib/Source/IdHintsOn.inc -text
 Lib/Source/IdHostnameServer.pas -text
 Lib/Source/IdIDN.pas -text
 Lib/Source/IdIMAP4.pas -text
 Lib/Source/IdIMAP4Server.pas -text
+Lib/Source/IdIOChecksOff.inc -text
+Lib/Source/IdIOChecksOn.inc -text
 Lib/Source/IdIOHandler.pas -text
 Lib/Source/IdIOHandlerChain.pas -text
 Lib/Source/IdIOHandlerSocket.pas -text
 Lib/Source/IdIOHandlerStack.pas -text
 Lib/Source/IdIOHandlerStream.pas -text
-Lib/Source/IdIOHandlerTls.pas -text
 Lib/Source/IdIPAddrMon.pas -text
 Lib/Source/IdIPAddress.pas -text
 Lib/Source/IdIPMCastBase.pas -text
@@ -1087,7 +1068,6 @@ Lib/Source/IdMessageCoderUUE.pas -text
 Lib/Source/IdMessageCoderXXE.pas -text
 Lib/Source/IdMessageCoderYenc.pas -text
 Lib/Source/IdMessageCollection.pas -text
-Lib/Source/IdMessageHelper.pas -text
 Lib/Source/IdMessageParts.pas -text
 Lib/Source/IdMultipartFormData.pas -text
 Lib/Source/IdNNTP.pas -text
@@ -1097,6 +1077,10 @@ Lib/Source/IdNTLMv2.pas -text
 Lib/Source/IdNetworkCalculator.pas -text
 Lib/Source/IdOSFileName.pas -text
 Lib/Source/IdOTPCalculator.pas -text
+Lib/Source/IdOptimizationsOff.inc -text
+Lib/Source/IdOptimizationsOn.inc -text
+Lib/Source/IdOverflowCheckingOff.inc -text
+Lib/Source/IdOverflowCheckingOn.inc -text
 Lib/Source/IdPOP3.pas -text
 Lib/Source/IdPOP3Server.pas -text
 Lib/Source/IdPOP4Server.pas -text
@@ -1107,6 +1091,8 @@ Lib/Source/IdQotd.pas -text
 Lib/Source/IdQotdServer.pas -text
 Lib/Source/IdRSH.pas -text
 Lib/Source/IdRSHServer.pas -text
+Lib/Source/IdRangeCheckingOff.inc -text
+Lib/Source/IdRangeCheckingOn.inc -text
 Lib/Source/IdRawBase.pas -text
 Lib/Source/IdRawClient.pas -text
 Lib/Source/IdRawFunctions.pas -text
@@ -1117,7 +1103,6 @@ Lib/Source/IdRegister.pas -text
 Lib/Source/IdRegisterCool.dcr -text svneol=unset#unset
 Lib/Source/IdRegisterCore.lrs -text
 Lib/Source/IdRegisterCore.pas -text
-Lib/Source/IdRegisterSecurity.pas -text
 Lib/Source/IdRemoteCMDClient.pas -text
 Lib/Source/IdRemoteCMDServer.pas -text
 Lib/Source/IdReply.pas -text
@@ -1128,12 +1113,10 @@ Lib/Source/IdReplyRFC.pas -text
 Lib/Source/IdReplySMTP.pas -text
 Lib/Source/IdResourceStrings.pas -text
 Lib/Source/IdResourceStringsCore.pas -text
-Lib/Source/IdResourceStringsDotNet11.pas -text
 Lib/Source/IdResourceStringsIconv.pas -text
 Lib/Source/IdResourceStringsKylixCompat.pas -text
 Lib/Source/IdResourceStringsOpenSSL.pas -text
 Lib/Source/IdResourceStringsProtocols.pas -text
-Lib/Source/IdResourceStringsSSLDotNet.pas -text
 Lib/Source/IdResourceStringsSSPI.pas -text
 Lib/Source/IdResourceStringsTextEncoding.pas -text
 Lib/Source/IdResourceStringsUnix.pas -text
@@ -1166,7 +1149,6 @@ Lib/Source/IdSNPP.pas -text
 Lib/Source/IdSNTP.pas -text
 Lib/Source/IdSSH.pas -text
 Lib/Source/IdSSL.pas -text
-Lib/Source/IdSSLDotNET.pas -text
 Lib/Source/IdSSLOpenSSL.pas -text
 Lib/Source/IdSSLOpenSSLHeaders.pas -text
 Lib/Source/IdSSLOpenSSLHeaders_static.pas -text
@@ -1183,7 +1165,6 @@ Lib/Source/IdServerIOHandlerChain.pas -text
 Lib/Source/IdServerIOHandlerSSLOpenSSL.pas -text
 Lib/Source/IdServerIOHandlerSocket.pas -text
 Lib/Source/IdServerIOHandlerStack.pas -text
-Lib/Source/IdServerIOHandlerTls.pas -text
 Lib/Source/IdServerInterceptLogBase.pas -text
 Lib/Source/IdServerInterceptLogEvent.pas -text
 Lib/Source/IdServerInterceptLogFile.pas -text
@@ -1195,14 +1176,13 @@ Lib/Source/IdSocksServer.pas -text
 Lib/Source/IdStack.pas -text
 Lib/Source/IdStackBSDBase.pas -text
 Lib/Source/IdStackConsts.pas -text
-Lib/Source/IdStackDotNet.pas -text
+Lib/Source/IdStackFramesOff.inc -text
+Lib/Source/IdStackFramesOn.inc -text
 Lib/Source/IdStackLibc.pas -text
 Lib/Source/IdStackLinux.pas -text
 Lib/Source/IdStackUnix.pas -text
 Lib/Source/IdStackVCLPosix.pas -text
 Lib/Source/IdStackWindows.pas -text
-Lib/Source/IdStream.pas -text
-Lib/Source/IdStreamNET.pas -text
 Lib/Source/IdStreamVCL.pas -text
 Lib/Source/IdStrings.pas -text
 Lib/Source/IdStruct.pas -text

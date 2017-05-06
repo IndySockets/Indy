@@ -196,7 +196,7 @@ const
 
   Z_DEFLATED = 8;
 
-{$IFNDEF VCL_XE2_OR_ABOVE}
+{$IFNDEF DCC_XE2_OR_ABOVE}
   {$L adler32.obj}
   {$L compress.obj}
   {$L crc32.obj}

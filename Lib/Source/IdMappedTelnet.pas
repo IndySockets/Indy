@@ -40,6 +40,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdMappedPortTCP,
   IdTCPServer;
@@ -66,8 +67,8 @@ type
     procedure DoCheckHostPort (AContext: TIdMappedPortContext; const AHostPort: String; var VHost, VPort: String); virtual;
     procedure SetAllowedConnectAttempts(const Value: Integer);
     procedure ExtractHostAndPortFromLine(AContext: TIdMappedPortContext; const AHostPort: String);
-    procedure InitComponent; override;
   public
+    constructor Create(AOwner: TComponent); override;
     //
     property  AllowedConnectAttempts: Integer read FAllowedConnectAttempts write SetAllowedConnectAttempts default -1;
     //
@@ -95,9 +96,9 @@ const
 
 { TIdCustomMappedTelnet }
 
-procedure TIdCustomMappedTelnet.InitComponent;
+constructor TIdCustomMappedTelnet.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FAllowedConnectAttempts := -1;
   FContextClass := TIdMappedTelnetContext;
   DefaultPort := IdPORT_TELNET;

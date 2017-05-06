@@ -37,9 +37,11 @@
 unit IdSASLSKey;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
-  IdSASLUserPass, IdSASL;
+  Classes, IdSASLUserPass, IdSASL;
 
 {
 S/KEY SASL mechanism based on RFC 2222.
@@ -53,11 +55,10 @@ is only provided for backwards compatiability with some older systems.
 
 type
   TIdSASLSKey = class(TIdSASLUserPass)
-  protected
-    procedure InitComponent; override;
   public
-    function IsReadyToStart: Boolean; override;
+    constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
+    function IsReadyToStart: Boolean; override;
     function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
     function StartAuthenticate(const AChallenge, AHost, AProtocolName : String) : String; override;
     function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
@@ -73,6 +74,13 @@ const
 
 { TIdSASLSKey }
 
+constructor TIdSASLSKey.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  //less than 1000 because MD4 is broken and this is depreciated
+  FSecurityLevel := 900;
+end;
+
 function TIdSASLSKey.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
 var
   LBuf, LSeed : String;
@@ -82,13 +90,6 @@ begin
   LCount := IndyStrToInt(Fetch(LBuf), 0);
   LSeed := Fetch(LBuf);
   Result := TIdOTPCalculator.GenerateSixWordKey('md4', LSeed, GetPassword, LCount); {do not localize}
-end;
-
-procedure TIdSASLSKey.InitComponent;
-begin
-  inherited InitComponent;
-  //less than 1000 because MD4 is broken and this is depreciated
-  FSecurityLevel := 900;
 end;
 
 function TIdSASLSKey.IsReadyToStart: Boolean;

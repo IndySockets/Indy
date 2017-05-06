@@ -202,16 +202,15 @@ type
     function ConvertDateTimeDist(ADate: TDateTime; AGMT: boolean;
      ADistributions: string): string;
     function GetSupportsTLS : boolean; override;
-    procedure InitComponent; override;
     procedure ProcessGroupList(ACmd: string; AResponse: integer;
      ALisTIdEvent: TIdEvenTIdNewsgroupList);
     procedure XHDRCommon(AHeader, AParam : String);
     procedure XOVERCommon(AParam : String);
     procedure StartTLS;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Check(AMsgIDs: TStrings; AResponses: TStrings);
     procedure Connect; override;
-    destructor Destroy; override;
     procedure DisconnectNotifyPeer; override;
     function GetArticle(AMsg: TIdMessage): Boolean; overload;
     function GetArticle(AMsgNo: Int64; AMsg: TIdMessage): Boolean; overload;
@@ -264,8 +263,7 @@ type
     procedure ParseXHDRLine(ALine : String; out AMsg : String; out AHeaderData : String);
     procedure Post(AMsg: TIdMessage); overload;
     procedure Post(AStream: TStream); overload;
-    function SendCmd(AOut: string; const AResponse: array of Int16;
-      AEncoding: IIdTextEncoding = nil): Int16; override;
+    function SendCmd(AOut: string; const AResponse: array of Int16; AEncoding: IIdTextEncoding = nil): Int16; override;
     function SelectArticle(AMsgNo: Int64): Boolean;
     procedure SelectGroup(AGroup: string);
     function TakeThis(AMsgID: string; AMsg: TStream): string;
@@ -316,6 +314,19 @@ uses
   IdResourceStringsProtocols,
   IdSSL, SysUtils;
 
+constructor TIdNNTP.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Mode := mtReader;
+  Port := IdPORT_NNTP;
+  ForceAuth := false;
+
+  FRegularProtPort := IdPORT_NNTP;
+  FImplicitTLSProtPort := IdPORT_SNEWS;
+  FExplicitTLSProtPort := IdPORT_NNTP;
+end;
+
+
 procedure TIdNNTP.ParseXOVER(Aline : String;
   var AArticleIndex : Int64;
   var ASubject,
@@ -359,18 +370,6 @@ begin
   AStatus := ALine;
 end;
 
-procedure TIdNNTP.InitComponent;
-begin
-  inherited InitComponent;
-  Mode := mtReader;
-  Port := IdPORT_NNTP;
-  ForceAuth := false;
-
-  FRegularProtPort := IdPORT_NNTP;
-  FImplicitTLSProtPort := IdPORT_SNEWS;
-  FExplicitTLSProtPort := IdPORT_NNTP;
-end;
-
 function TIdNNTP.SendCmd(AOut: string; const AResponse: Array of Int16;
   AEncoding: IIdTextEncoding = nil): Int16;
 begin
@@ -404,12 +403,9 @@ end;
 
 { This procedure gets the overview format as suported by the server }
 procedure TIdNNTP.GetOverviewFMT(AResponse: TStrings);
-var
-  LEncoding: IIdTextEncoding;
 begin
   SendCmd('LIST OVERVIEW.FMT', 215);  {do not localize}
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AResponse, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AResponse, IndyTextEncoding_8Bit);
 end;
 
 { Send the XOVER Command.  XOVER [Range]
@@ -419,21 +415,15 @@ end;
   Remember to select a group first and to issue a GetOverviewFMT so that you
   can interpret the information sent by the server corectly. }
 procedure TIdNNTP.XOVER(AParam: string; AResponse: TStrings);
-var
-  LEncoding: IIdTextEncoding;
 begin
   XOVERCommon(AParam);
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AResponse, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AResponse, IndyTextEncoding_8Bit);
 end;
 
 procedure TIdNNTP.XOVER(AParam: string; AResponse: TStream);
-var
-  LEncoding: IIdTextEncoding;
 begin
   XOVERCommon(AParam);
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AResponse, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AResponse, IndyTextEncoding_8Bit);
 end;
 
 { Send the XHDR Command.  XHDR Header (Range | Message-ID)
@@ -443,8 +433,6 @@ end;
   Parm is either the Range or the MessageID of the articles you want. They
   are Mutually Exclusive}
 procedure TIdNNTP.XHDR(AHeader: string; AParam: String; AResponse: TStrings);
-var
-  LEncoding: IIdTextEncoding;
 begin
   { This method will send the XHDR command.
   The programmer is responsible for choosing the correct header. Headers
@@ -475,8 +463,7 @@ begin
       Xref
     }
   XHDRCommon(AHeader,AParam);
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AResponse, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AResponse, IndyTextEncoding_8Bit);
 end;
 
 procedure TIdNNTP.SelectGroup(AGroup: string);
@@ -811,32 +798,23 @@ begin
 end;
 
 procedure TIdNNTP.GetNewsgroupList(AList: TStrings);
-var
-  LEncoding: IIdTextEncoding;
 begin
   SendCmd('LIST', 215); {do not localize}
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AList, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AList, IndyTextEncoding_8Bit);
 end;
 
 procedure TIdNNTP.GetNewGroupsList(ADate: TDateTime; AGMT: boolean;
  ADistributions: string; AList: TStrings);
-var
-  LEncoding: IIdTextEncoding;
 begin
   SendCmd('NEWGROUPS ' + ConvertDateTimeDist(ADate, AGMT, ADistributions), 231);  {do not localize}
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AList, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AList, IndyTextEncoding_8Bit);
 end;
 
 procedure TIdNNTP.GetNewNewsList(ANewsgroups: string; ADate: TDateTime;
  AGMT: boolean; ADistributions: string; AList: TStrings);
-var
-  LEncoding: IIdTextEncoding;
 begin
   SendCmd('NEWNEWS ' + ANewsgroups + ' ' + ConvertDateTimeDist(ADate, AGMT, ADistributions), 230);  {do not localize}
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AList, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AList, IndyTextEncoding_8Bit);
 end;
 
 function TIdNNTP.ConvertDateTimeDist(ADate: TDateTime; AGMT: boolean;
@@ -976,16 +954,13 @@ begin
 end;
 
 function TIdNNTP.GetArticle(AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := True;
   SendCmd('ARTICLE', 220);  {do not localize}
   AMsg.Clear;
   // per RFC 3977, headers should be in UTF-8, but are not required to,
   // so lets read them as 8-bit...
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
 end;
 
 function TIdNNTP.GetArticle(AMsgNo: Int64; AMsg: TStrings): Boolean;
@@ -1002,34 +977,26 @@ begin
 end;
 
 function TIdNNTP.GetArticle(AMsgID: string; AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := SendCmd('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
   if Result then begin
     AMsg.Clear;
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdNNTP.GetArticle(AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := True;
   SendCmd('ARTICLE', 220);  {do not localize}
   // per RFC 3977, headers should be in UTF-8, but are not required to,
   // so lets read them as 8-bit...
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
 end;
 
 function TIdNNTP.GetArticle(AMsgNo: Int64; AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   // RLebeau: 430 is not supposed to be used with this version of ARTICLE,
   // but have seen servers that do, so let's check for it as well...
@@ -1037,21 +1004,17 @@ begin
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdNNTP.GetArticle(AMsgID: string; AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := SendCmd('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
@@ -1090,62 +1053,47 @@ begin
 end;
 
 function TIdNNTP.GetBody(AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := True;
   SendCmd('BODY', 222); {do not localize}
   AMsg.Clear;
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
 end;
 
 function TIdNNTP.GetBody(AMsgNo: Int64; AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   // RLebeau: 430 is not supposed to be used with this version of BODY,
   // but have seen servers that do, so let's check for it as well...
   Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdNNTP.GetBody(AMsgID: string; AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := SendCmd('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdNNTP.GetBody(AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := True;
   SendCmd('BODY', 222); {do not localize}
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
 end;
 
 function TIdNNTP.GetBody(AMsgNo: Int64; AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   // RLebeau: 430 is not supposed to be used with this version of BODY,
   // but have seen servers that do, so let's check for it as well...
   Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
   if Result then begin
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
@@ -1155,8 +1103,7 @@ var
 begin
   Result := SendCmd('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
   if Result then begin
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
@@ -1189,21 +1136,16 @@ begin
 end;
 
 function TIdNNTP.GetHeader(AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := True;
   SendCmd('HEAD', 221); {do not localize}
   AMsg.Clear;
   // per RFC 3977, headers should be in UTF-8, but are not required to,
   // so lets read them as 8-bit...
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
 end;
 
 function TIdNNTP.GetHeader(AMsgNo: Int64; AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   // RLebeau: 430 is not supposed to be used with this version of HEAD,
   // but have seen servers that do, so let's check for it as well...
@@ -1212,40 +1154,31 @@ begin
     AMsg.Clear;
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdNNTP.GetHeader(AMsgID: string; AMsg: TStrings): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := SendCmd('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
   if Result then begin
     AMsg.Clear;
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdNNTP.GetHeader(AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := True;
   SendCmd('HEAD', 221); {do not localize}
   // per RFC 3977, headers should be in UTF-8, but are not required to,
   // so lets read them as 8-bit...
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
 end;
 
 function TIdNNTP.GetHeader(AMsgNo: Int64; AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   // RLebeau: 430 is not supposed to be used with this version of HEAD,
   // but have seen servers that do, so let's check for it as well...
@@ -1253,31 +1186,24 @@ begin
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 function TIdNNTP.GetHeader(AMsgID: string; AMsg: TStream): Boolean;
-var
-  LEncoding: IIdTextEncoding;
 begin
   Result := SendCmd('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
-    LEncoding := IndyTextEncoding_8Bit;
-    IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+    IOHandler.Capture(AMsg, IndyTextEncoding_8Bit);
   end;
 end;
 
 procedure TIdNNTP.GetNewsgroupList(AStream: TStream);
-var
-  LEncoding: IIdTextEncoding;
 begin
   SendCmd('LIST', 215); {do not localize}
-  LEncoding := IndyTextEncoding_8Bit;
-  IOHandler.Capture(AStream, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+  IOHandler.Capture(AStream, IndyTextEncoding_8Bit);
 end;
 
 procedure TIdNNTP.AfterConnect;
@@ -1327,11 +1253,6 @@ begin
     Disconnect;
     Raise;
   end;
-end;
-
-destructor TIdNNTP.Destroy;
-begin
-  inherited Destroy;
 end;
 
 procedure TIdNNTP.GetCapability;

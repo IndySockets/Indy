@@ -132,7 +132,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -148,7 +148,7 @@ begin
       Result := (s[0] = 'Report') and (s[1] = 'for:');
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -199,7 +199,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    s.Free;
   end;
 end;
 
@@ -221,7 +221,7 @@ begin
           LItem.Data := UnfoldLines(AListing[i], i, AListing);
           Result := ParseLine(LItem);
           if not Result then begin
-            FreeAndNil(LItem);
+            IdDisposeAndNil(LItem);
             Exit;
           end;
         end;

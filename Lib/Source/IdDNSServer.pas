@@ -432,9 +432,9 @@ type
     FAccessControl: Boolean;
     //
     procedure DoConnect(AContext: TIdContext); override;
-    procedure InitComponent; override;
     procedure SetAccessList(const Value: TStrings);
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property AccessList : TStrings read FAccessList write SetAccessList;
@@ -532,18 +532,16 @@ type
     //procedure UpdateTree(TreeRoot : TIdDNTreeNode; RR : TResultRecord); overload;
     //MoveTo Public section for RaidenDNSD.
 
-    procedure InitComponent; override;
     // Hide this property temporily, this property is prepared to maintain the
     // TTL expired record auto updated;
     property AutoUpdateZoneInfo : boolean read FAutoUpdateZoneInfo write FAutoUpdateZoneInfo;
     property CS: TIdCriticalSection read FCS;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
     function AXFR(Header : TDNSHeader; Question : string; var Answer : TIdBytes) : string;
-    function CompleteQuery(DNSHeader: TDNSHeader; Question: string;
-      OriginalQuestion: TIdBytes; var Answer : TIdBytes; QType, QClass : UInt16;
-      DNSResolver : TIdDNSResolver) : string; {$IFDEF HAS_DEPRECATED}deprecated;{$ENDIF}
     function LoadZoneFromMasterFile(MasterFileName : String) : boolean;
     function LoadZoneStrings(FileStrings: TStrings; Filename : String;
       TreeRoot : TIdDNTreeNode): Boolean;
@@ -589,27 +587,28 @@ type
     procedure SetTCPACLActive(const Value: Boolean);
     procedure SetBindings(const Value: TIdSocketHandles);
     procedure TimeToUpdateNodeData(Sender : TObject);
-    procedure InitComponent; override;
   public
-     BackupDNSMap : TIdDNSMap;
+    BackupDNSMap : TIdDNSMap;
 
-     destructor Destroy; override;
-     procedure CheckIfExpire(Sender: TObject);
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+
+    procedure CheckIfExpire(Sender: TObject);
   published
-     property Active : Boolean read FActive write SetActive;
-     property AccessList : TStrings read FAccessList write SetAccessList;
-     property Bindings: TIdSocketHandles read FBindings write SetBindings;
+    property Active : Boolean read FActive write SetActive;
+    property AccessList : TStrings read FAccessList write SetAccessList;
+    property Bindings: TIdSocketHandles read FBindings write SetBindings;
 
-     property TCPACLActive : Boolean read FTCPACLActive write SetTCPACLActive;
-     property ServerType: TDNSServerTypes read FServerType write FServerType;
-     property TCPTunnel : TIdDNS_TCPServer read FTCPTunnel write FTCPTunnel;
-     property UDPTunnel : TIdDNS_UDPServer read FUDPTunnel write FUDPTunnel;
+    property TCPACLActive : Boolean read FTCPACLActive write SetTCPACLActive;
+    property ServerType: TDNSServerTypes read FServerType write FServerType;
+    property TCPTunnel : TIdDNS_TCPServer read FTCPTunnel write FTCPTunnel;
+    property UDPTunnel : TIdDNS_UDPServer read FUDPTunnel write FUDPTunnel;
   end;
 
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
     {$IFNDEF NEXTGEN}
   System.Contnrs,
     {$ENDIF}
@@ -617,12 +616,6 @@ uses
   System.Types,
   {$ENDIF}
   IdException,
-  {$IFDEF DOTNET}
-    {$IFDEF USE_INLINE}
-  System.Threading,
-  System.IO,
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
@@ -700,7 +693,7 @@ begin
   try
     SubTree.Add(Result);
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -714,7 +707,7 @@ end;
 
 destructor TIdMWayTreeNode.Destroy;
 begin
-  FreeAndNil(SubTree);
+  SubTree.Free;
   inherited Destroy;
 end;
 
@@ -729,7 +722,7 @@ begin
   try
     SubTree.Insert(Index, Result);
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -760,7 +753,7 @@ begin
   try
     SubTree.Add(Result);
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -799,8 +792,8 @@ end;
 
 destructor TIdDNTreeNode.Destroy;
 begin
-  FreeAndNil(FRRs);
-  FreeAndNil(FChildIndex);
+  FRRs.Free;
+  FChildIndex.Free;
   inherited Destroy;
 end;
 
@@ -874,7 +867,7 @@ begin
   try
     SubTree.Insert(Index, Result);
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -895,7 +888,7 @@ begin
     ToDo('SaveToFile() method of TIdDNTreeNode class is not implemented yet'); {do not localized}
 //    DNSs.SaveToFile(Filename);
   finally
-    FreeAndNil(DNSs);
+    DNSs.Free;
   end;
 end;
 
@@ -933,87 +926,9 @@ end;
 
 { TIdDNSServer }
 
-{$I IdDeprecatedImplBugOff.inc}
-function TIdDNS_UDPServer.CompleteQuery(DNSHeader : TDNSHeader; Question: string;
-  OriginalQuestion: TIdBytes; var Answer: TIdBytes; QType, QClass: UInt16;
-  DNSResolver : TIdDNSResolver): string;
-{$I IdDeprecatedImplBugOn.inc}
-var
-  IsMyDomains : Boolean;
-  LAnswer: TIdBytes;
-  WildQuestion, TempDomain : string;
+constructor TIdDNS_UDPServer.Create(AOwner: TComponent);
 begin
-  // QClass = 1  => IN, we support only "IN" class now.
-  // QClass = 2  => CS,
-  // QClass = 3  => CH,
-  // QClass = 4  => HS.
-
-  if QClass <> 1 then begin
-    Result := cRCodeQueryNotImplement;
-    Exit;
-  end;
-
-  TempDomain := LowerCase(Question);
-  IsMyDomains := (Handed_DomainList.IndexOf(TempDomain) > -1);
-  if not IsMyDomains then begin
-    Fetch(TempDomain, '.');
-    IsMyDomains := (Handed_DomainList.IndexOf(TempDomain) > -1);
-  end;
-
-  if IsMyDomains then begin
-    InternalSearch(DNSHeader, Question, QType, LAnswer, True, False, False);
-    Answer := LAnswer;
-
-    if (QType in [TypeCode_A, TypeCode_AAAA]) and (Length(Answer) = 0) then
-    begin
-      InternalSearch(DNSHeader, Question, TypeCode_CNAME, LAnswer, True, False, True);
-      AppendBytes(Answer, LAnswer);
-    end;
-
-    WildQuestion := Question;
-    Fetch(WildQuestion, '.');
-    WildQuestion := '*.' + WildQuestion;
-    InternalSearch(DNSHeader, WildQuestion, QType, LAnswer, True, False, False, True, Question);
-    AppendBytes(Answer, LAnswer);
-
-    if Length(Answer) > 0 then begin
-      Result := cRCodeQueryOK;
-    end else begin
-      Result := cRCodeQueryNotFound;
-    end;
-  end else
-  begin
-    InternalSearch(DNSHeader, Question, QType, Answer, True, True, False);
-
-    if (QType in [TypeCode_A, TypeCode_AAAA]) and (Length(Answer) = 0) then
-    begin
-      InternalSearch(DNSHeader, Question, TypeCode_CNAME, LAnswer, True, True, False);
-      AppendBytes(Answer, LAnswer);
-    end;
-
-    if Length(Answer) > 0 then begin
-      Result := cRCodeQueryCacheOK;
-      Exit;
-    end;
-
-    InternalSearch(DNSHeader, Question, TypeCode_Error, Answer, True, True, False);
-    if BytesToString(Answer) = 'Error' then begin {do not localize}
-      Result := cRCodeQueryCacheFindError;
-      Exit;
-    end;
-
-    ExternalSearch(DNSResolver, DNSHeader, OriginalQuestion, Answer);
-    if Length(Answer) > 0 then begin
-      Result := cRCodeQueryReturned;
-    end else begin
-      Result := cRCodeQueryNotImplement;
-    end;
-  end
-end;
-
-procedure TIdDNS_UDPServer.InitComponent;
-begin
-  inherited InitComponent;
+  inherited Create(AOwner);
 
   FRootDNS_NET := TStringList.Create;
   FRootDNS_NET.Add('209.92.33.150'); // nic.net         {do not localize}
@@ -1043,13 +958,13 @@ end;
 
 destructor TIdDNS_UDPServer.Destroy;
 begin
-  FreeAndNil(FCached_Tree);
-  FreeAndNil(FHanded_Tree);
-  FreeAndNil(FRootDNS_NET);
-  FreeAndNil(FHanded_DomainList);
-  FreeAndNil(FZoneMasterFiles);
-  FreeAndNil(FCS);
-  FreeAndNil(FGlobalCS);
+  FCached_Tree.Free;
+  FHanded_Tree.Free;
+  FRootDNS_NET.Free;
+  FHanded_DomainList.Free;
+  FZoneMasterFiles.Free;
+  FCS.Free;
+  FGlobalCS.Free;
   inherited Destroy;
 end;
 
@@ -1081,7 +996,7 @@ begin
   end;
   Server_Index := 0;
   if ADNSResolver = nil then begin
-    MyDNSResolver := TIdDNSResolver.Create(Self);
+    MyDNSResolver := TIdDNSResolver.Create;
     MyDNSResolver.WaitingTime := 5000;
   end else begin
     MyDNSResolver := ADNSResolver;
@@ -1110,7 +1025,7 @@ begin
     until (Server_Index >= RootDNS_NET.Count) or (Length(Answer) > 0);
   finally
     if ADNSResolver = nil then begin
-       FreeAndNil(MyDNSResolver);
+       MyDNSResolver.Free;
     end;
   end;
 end;
@@ -1146,7 +1061,7 @@ begin
 //      FileStrings.LoadFromFile(MasterFileName);
       Result := LoadZoneStrings(FileStrings, MasterFileName, Handed_Tree);
     finally
-      FreeAndNil(FileStrings);
+      FileStrings.Free;
     end;
   end;
   {FreeTagList;}
@@ -1188,7 +1103,7 @@ var
         until Count >= (namepart.Count-2);
       end;
     finally
-      FreeAndNil(namepart);
+      namepart.Free;
     end;
   end;
 
@@ -1219,7 +1134,7 @@ var
       TagList.Add(cInclude);
       //TagList.Add(cAt);
     except
-      FreeAndNil(TagList);
+      TagList.Free;
       raise;
     end;
   end;
@@ -1430,7 +1345,7 @@ var
       end;
       Result := not Stop;
     finally
-      FreeAndNil(EachLinePart);
+      EachLinePart.Free;
     end;
   end;
 
@@ -1814,11 +1729,7 @@ var
 
                           //LLRR_SOA.RRName:= LLRR_SOA.MName;
                           if (SingleHostName = '') and (LastDenotedDomain = '') then begin
-                            {$IFDEF STRING_IS_UNICODE}
                             LastDenotedDomain := String(LLRR_SOA.MName); // explicit convert to Unicode
-                            {$ELSE}
-                            LastDenotedDomain := LLRR_SOA.MName;
-                            {$ENDIF}
                             Fetch(LastDenotedDomain, '.');
                             SingleHostName := LastDenotedDomain;
                           end;
@@ -1854,11 +1765,7 @@ var
 
                           Checks := TStringList.Create;
                           try
-                            {$IFDEF STRING_IS_UNICODE}
                             RName := String(LLRR_SOA.RName); // explicit convert to Unicode
-                            {$ELSE}
-                            RName := LLRR_SOA.RName;
-                            {$ENDIF}
 
                             while RName <> '' do begin
                               Checks.Add(Fetch(RName, '.'));
@@ -1873,7 +1780,7 @@ var
 
                             LLRR_SOA.RName := RName;
                           finally
-                            FreeAndNil(Checks);
+                            Checks.Free;
                           end;
 
                           LLRR_SOA.Serial := EachLinePart.Strings[TagField + 3];
@@ -1905,10 +1812,10 @@ var
         end;
         Result := not Stop;
       finally
-        FreeAndNil(DenotedDomain);
+        DenotedDomain.Free;
       end;
     finally
-      FreeAndNil(EachLinePart);
+      EachLinePart.Free;
     end;
    end;
 
@@ -1943,7 +1850,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(TempResolver);
+    TempResolver.Free;
   end;
 end;
 
@@ -2019,7 +1926,7 @@ begin
       Result := NodeCursor;
     end;
   finally
-    FreeAndNil(NameLabels);
+    NameLabels.Free;
   end;
 end;
 
@@ -2356,7 +2263,7 @@ begin
         end;
     end;
   finally
-    FreeAndNil(NameNode);
+    NameNode.Free;
   end;
 end;
 
@@ -2582,7 +2489,7 @@ begin
         end;
     end;
   finally
-    FreeAndNil(NameNode);
+    NameNode.Free;
   end;
 end;
 
@@ -2964,7 +2871,7 @@ begin
           end else begin
             // Need add AAAA Search in future.
             //QType := TypeCode_A;
-            LDNSResolver := TIdDNSResolver.Create(Self);
+            LDNSResolver := TIdDNSResolver.Create;
             try
               Server_Index := 0;
               repeat
@@ -2977,7 +2884,7 @@ begin
 
               AppendBytes(LocalAnswer, AResult, 12);
             finally
-              FreeAndNil(LDNSResolver);
+              LDNSResolver.Free;
             end;
           end;
 
@@ -3255,19 +3162,15 @@ begin
       end;
     end;
   finally
-    FreeAndNil(MoreAddrSearch);
+    MoreAddrSearch.Free;
   end;
 end;
 
 { TIdDNSServer }
 
-procedure TIdDNSServer.CheckIfExpire(Sender: TObject);
+constructor TIdDNSServer.Create(AOwner: TComponent);
 begin
-end;
-
-procedure TIdDNSServer.InitComponent;
-begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FAccessList := TStringList.Create;
   FUDPTunnel := TIdDNS_UDPServer.Create(Self);
   FTCPTunnel := TIdDNS_TCPServer.Create(Self);
@@ -3281,12 +3184,16 @@ end;
 
 destructor TIdDNSServer.Destroy;
 begin
-  FreeAndNil(FAccessList);
-  FreeAndNil(FUDPTunnel);
-  FreeAndNil(FTCPTunnel);
-  FreeAndNil(FBindings);
-  FreeAndNil(BackupDNSMap);
+  FAccessList.Free;
+  FUDPTunnel.Free;
+  FTCPTunnel.Free;
+  FBindings.Free;
+  BackupDNSMap.Free;
   inherited Destroy;
+end;
+
+procedure TIdDNSServer.CheckIfExpire(Sender: TObject);
+begin
 end;
 
 procedure TIdDNSServer.SetAccessList(const Value: TStrings);
@@ -3349,21 +3256,21 @@ begin
       UDPTunnel.UpdateTree(UDPTunnel.Handed_Tree, Resolver.QueryResult.Items[Count]);
     end;
   finally
-    FreeAndNil(Resolver);
+    Resolver.Free;
   end;
 end;
 
 { TIdDNS_TCPServer }
 
-procedure TIdDNS_TCPServer.InitComponent;
+constructor TIdDNS_TCPServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   FAccessList := TStringList.Create;
 end;
 
 destructor TIdDNS_TCPServer.Destroy;
 begin
-  FreeAndNil(FAccessList);
+  FAccessList.Free;
   inherited Destroy;
 end;
 
@@ -3397,7 +3304,7 @@ var
         QResult := TIdDNSServer(Owner).UDPTunnel.AXFR(TestHeader, QName, Answer);
       end;
     finally
-      FreeAndNil(TestHeader);
+      TestHeader.Free;
     end;
   end;
 
@@ -3410,7 +3317,7 @@ var
       TestHeader.RCode := iRCodeRefused;
       Answer := TestHeader.GenerateBinaryHeader;
     finally
-      FreeAndNil(TestHeader);
+      TestHeader.Free;
     end;
   end;
 
@@ -3496,9 +3403,12 @@ end;
 
 destructor TIdDomainNameServerMapping.Destroy;
 begin
-  //Self.CheckScheduler.TerminateAndWaitFor;
-  CheckScheduler.Terminate;
-  FreeAndNil(CheckScheduler);
+  if Assigned(CheckScheduler) then
+  begin
+    //Self.CheckScheduler.TerminateAndWaitFor;
+    CheckScheduler.Terminate;
+    CheckScheduler.Free;
+  end;
   inherited Destroy;
 end;
 
@@ -3599,7 +3509,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(Resolver);
+      Resolver.Free;
     end;
   finally
     FBusy := False;
@@ -3623,8 +3533,8 @@ begin
   if Count > 0 then begin
     for I := Count-1 downto 0 do begin
       DNSMP := Items[I];
-      FreeAndNil(DNSMP);
       Delete(I);
+      DNSMP.Free;
     end;
   end;
   inherited Destroy;
@@ -3695,9 +3605,11 @@ destructor TIdDNS_ProcessThread.Destroy;
 begin
   FServer := nil;
   FMainBinding := nil;
-  FMyBinding.CloseSocket;
-  FreeAndNil(FMyBinding);
-  FreeAndNil(FMyData);
+  if Assigned(FMyBinding) then begin
+    FMyBinding.CloseSocket;
+    FMyBinding.Free;
+  end;
+  FMyData.Free;
   inherited Destroy;
 end;
 
@@ -3784,7 +3696,7 @@ begin
           FServer.DoAfterCacheSaved(Self.FServer.FCached_Tree);
         end;
       finally
-        FreeAndNil(DNSHeader_Processing);
+        DNSHeader_Processing.Free;
       end;
     end;
   end;
@@ -3864,7 +3776,7 @@ begin
     until (Server_Index >= FServer.RootDNS_NET.Count) or (Length(Answer) > 0);
   finally
     if ADNSResolver = nil then begin
-      FreeAndNil(MyDNSResolver);
+      MyDNSResolver.Free;
     end;
   end;
 end;
@@ -3904,7 +3816,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(TempResolver);
+    TempResolver.Free;
   end;
 end;
 
@@ -3981,7 +3893,7 @@ begin
       Result := NodeCursor;
     end;
   finally
-    FreeAndNil(NameLabels);
+    NameLabels.Free;
   end;
 end;
 
@@ -4153,7 +4065,7 @@ begin
 
     PThread := TIdDNS_ProcessThread.Create(True, AData, ABinding, BBinding, Self);
   except
-    FreeAndNil(BBinding);
+    BBinding.Free;
     raise;
   end;
 

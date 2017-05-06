@@ -115,8 +115,8 @@ type
     procedure DoLog(const AMsg: String; const AAppendSize: Boolean = True);
     procedure DoLogFmt(const AFormat: string; const Args: array of const; AAppendSize: Boolean = True);
     //Low-level utility functions:
-    function  GetMultipleUnicodeOrString8String(AType: Word): TIdUnicodeString;
-    function  GetUnicodeOrString8String(AType: Word): TIdUnicodeString;
+    function  GetMultipleUnicodeOrString8String(AType: Word): UnicodeString;
+    function  GetUnicodeOrString8String(AType: Word): UnicodeString;
     function  GetByte: Byte;
     function  GetBytes(ALength: Integer; APeek: Boolean = False): TIdBytes;
     function  GetByteAsHexString: string; overload;
@@ -167,8 +167,6 @@ type
     //The TIdBytes and string versions are really for debugging...
     procedure Parse(const AIn: TIdBytes; AMsg: TIdMessage; ALog: Boolean = False); overload;
     procedure Parse(const AIn: string; AMsg: TIdMessage; ALog: Boolean = False);   overload;
-    //Tells you if a filename matches TNEF semantics (winmail.dat, att0001.dat)
-    class function IsFilenameTnef(const AFilename: string): Boolean; static; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use standalone IsFilenameTnef() function'{$ENDIF};{$ENDIF}
     property  Key: Word read FKey;  //TODO: Does this have a meaningful use?
     property  Log: string read FLog;
   end;
@@ -185,12 +183,13 @@ type
   EIdTnefUnknownMapiType = class(EIdException);
   EIdTnefCorruptData = class(EIdException);
 
+//Tells you if a filename matches TNEF semantics (winmail.dat, att0001.dat)
 function IsFilenameTnef(const AFilename: string): Boolean;
 
 implementation
 
 uses
-  DateUtils, IdMessageClient, IdText, IdStream;
+  DateUtils, IdMessageClient, IdText;
 
 const
   //Initial RTF-compression decode string...
@@ -1508,11 +1507,6 @@ begin
   end;
 end;
 
-class function TIdCoderTNEF.IsFilenameTnef(const AFilename: string): Boolean;
-begin
-  Result := IdCoderTNEF.IsFilenameTnef(AFilename);
-end;
-
 function IsFilenameTnef(const AFilename: string): Boolean;
 begin
   if TextIsSame(AFilename, 'winmail.dat') then begin
@@ -1525,7 +1519,7 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetMultipleUnicodeOrString8String(AType: Word): TIdUnicodeString;
+function TIdCoderTNEF.GetMultipleUnicodeOrString8String(AType: Word): UnicodeString;
 var
   LIndex, LCount: LongWord;
 begin
@@ -1545,10 +1539,9 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetUnicodeOrString8String(AType: Word): TIdUnicodeString;
+function TIdCoderTNEF.GetUnicodeOrString8String(AType: Word): UnicodeString;
 var
   LLength: LongWord;
-  LsTemp: AnsiString;
   LBuf: TIdBytes;
 begin
   Result := '';
@@ -1560,14 +1553,13 @@ begin
   case AType of
     IdTNEF_PT_UNICODE: begin
       LBuf := GetBytes(LLength);
-      SetString(Result, PWideChar(LBuf), (LLength div SizeOf(TIdWideChar))-1);
+      SetString(Result, PWideChar(LBuf), (LLength div SizeOf(WideChar))-1);
     end;
     IdTNEF_PT_STRING8: begin
       LBuf := GetBytes(LLength);
       // TODO: use the value from the attOemCodepage attribute to decode the data:
-      // Result := IndyTextEncoding(attOemCodepage).GetString(LBuf, 0, Length(LBuf)-1);
-      SetString(LsTemp, PAnsiChar(LBuf), LLength-1);
-      Result := TIdUnicodeString(LsTemp);
+      // Result := IndyTextEncoding(attOemCodepage).GetString(LBuf, 0, LLength-1);
+      Result := IndyTextEncoding_OSDefault.GetString(LBuf, 0, LLength-1);
     end;
     else begin
       Skip(LLength);
@@ -1639,7 +1631,7 @@ end;
 
 function TIdCoderTNEF.GetBytes(ALength: Integer; APeek: Boolean = False): TIdBytes;
 var
-  LPos: TIdStreamSize;
+  LPos: Int64;
 begin
   Result := nil;
   CheckForEof(ALength);
@@ -1681,7 +1673,7 @@ end;
 function TIdCoderTNEF.GetString(ALength: Word): string;
 begin
   if ALength > 0 then begin
-    Result := ReadStringFromStream(FData, ALength-1, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
+    Result := ReadStringFromStream(FData, ALength-1, IndyTextEncoding_8Bit);
     Skip(1) //Skip terminating null
   end else begin
     Result := '';
@@ -1732,7 +1724,7 @@ end;
 procedure TIdCoderTNEF.CheckForEof(ANumBytesRequested: integer);
 begin
   //See if you have enough bytes left to satisfy the request for nNumBytesRequested...
-  if (FData.Size - FData.Position) < TIdStreamSize(ANumBytesRequested) then begin
+  if (FData.Size - FData.Position) < Int64(ANumBytesRequested) then begin
     raise EIdTnefRanOutOfBytes.Create('Hit end of file prematurely - TNEF is corrupt or truncated');  {Do not localize}
   end;
 end;
@@ -1743,7 +1735,7 @@ var
 begin
   LIn := TMemoryStream.Create;
   try
-    WriteStringToStream(LIn, AIn, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
+    WriteStringToStream(LIn, AIn, IndyTextEncoding_8Bit);
     LIn.Position := 0;
     Parse(LIn, AMsg, ALog);
   finally
@@ -1996,7 +1988,7 @@ var
   LCount, LLength: LongWord;
   LMagicNumber: LongWord;
   LCompressedSize, LUncompressedSize: LongWord;
-  LPos: TIdStreamSize;
+  LPos: Int64;
 begin
   SetLength(Result, 0);
   LCount := GetLongWord;
@@ -2189,7 +2181,7 @@ end;
 
 function TIdCoderTNEF.InternalGetMapiItemAsBytes(ACount, ALength: LongWord; AType: Word; const AText: string): TIdBytes;
 var
-  LPos: TIdStreamSize;
+  LPos: Int64;
 begin
   if FDoLogging then begin
     DoLogFmt('     Item had %d bytes.', [ALength]);  {Do not localize}

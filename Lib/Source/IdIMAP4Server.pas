@@ -214,11 +214,6 @@ interface
 
 {$i IdCompilerDefines.inc}
 
-{$IFDEF DOTNET}
-{$I IdUnitPlatformOff.inc}
-{$I IdSymbolPlatformOff.inc}
-{$ENDIF}
-
 uses
   Classes,
   IdAssignedNumbers,
@@ -423,12 +418,8 @@ type
     procedure DoCommandSTARTTLS(ASender: TIdCommand);
     // common code for command handlers
     procedure MustUseTLS(ASender: TIdCommand);
-    //
-    procedure InitComponent; override;
   public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property DefaultPort default IdPORT_IMAP4;
@@ -496,8 +487,32 @@ uses
   IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStream,
   SysUtils;
+
+constructor TIdIMAP4Server.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  //Todo:  Not sure which number is appropriate.  Should be tested
+  FRegularProtPort := IdPORT_IMAP4;
+  FImplicitTLSProtPort := IdPORT_IMAP4S;  //Id_PORT_imap4_ssl_dp;
+  FExplicitTLSProtPort := IdPORT_IMAP4;
+  DefaultPort := IdPORT_IMAP4;
+  ContextClass := TIdIMAP4PeerContext;
+  FSaferMode := False;
+  FUseDefaultMechanismsForUnassignedCommands := True;
+  {$IFDEF UNIX}
+  FRootPath := GPathDelim + 'var' + GPathDelim + 'imapmail'; {Do not Localize}
+  {$ELSE}
+  FRootPath := GPathDelim + 'imapmail'; {Do not Localize}
+  {$ENDIF}
+  FDefaultPassword := 'admin'; {Do not Localize}
+  FMailBoxSeparator := '.';   {Do not Localize}
+end;
+
+destructor TIdIMAP4Server.Destroy;
+begin
+  inherited Destroy;
+end;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;
 begin
@@ -572,38 +587,6 @@ begin
   SendNoReply(ASender, IndyFormat(AFormat, Args));
 end;
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-constructor TIdIMAP4Server.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdIMAP4Server.InitComponent;
-begin
-  inherited InitComponent;
-  //Todo:  Not sure which number is appropriate.  Should be tested
-  FRegularProtPort := IdPORT_IMAP4;
-  FImplicitTLSProtPort := IdPORT_IMAP4S;  //Id_PORT_imap4_ssl_dp;
-  FExplicitTLSProtPort := IdPORT_IMAP4;
-  DefaultPort := IdPORT_IMAP4;
-  ContextClass := TIdIMAP4PeerContext;
-  FSaferMode := False;
-  FUseDefaultMechanismsForUnassignedCommands := True;
-{$IFDEF UNIX}
-  FRootPath := GPathDelim + 'var' + GPathDelim + 'imapmail'; {Do not Localize}
-{$ELSE}
-  FRootPath := GPathDelim + 'imapmail'; {Do not Localize}
-{$ENDIF}
-  FDefaultPassword := 'admin'; {Do not Localize}
-  FMailBoxSeparator := '.';   {Do not Localize}
-end;
-
-destructor TIdIMAP4Server.Destroy;
-begin
-  inherited Destroy;
-end;
-
 function TIdIMAP4Server.CreateExceptionReply: TIdReply;
 begin
   Result := TIdReplyIMAP4.CreateWithReplyTexts(nil, ReplyTexts);
@@ -644,8 +627,8 @@ end;
 
 destructor TIdIMAP4PeerContext.Destroy;
 begin
-  FreeAndNil(FLastCommand);
-  FreeAndNil(FMailBox);
+  FLastCommand.Free;
+  FMailBox.Free;
   inherited Destroy;
 end;
 
@@ -970,14 +953,14 @@ begin
               end else begin
                 DoSendReply(ASender.Context, '* %d FETCH (RFC822.HEADER {%d}',  {Do not Localize}
                   [LRecord+1, LSize]);
-	      end;
+              end;
               for LM := 0 to LMessageTemp.Headers.Count-1 do begin
                 DoSendReply(ASender.Context, LMessageTemp.Headers.Strings[LM]);
               end;
               DoSendReply(ASender.Context, ')');  {Do not Localize}
               //Finished with the headers, free the memory...
             finally
-              FreeAndNil(LMessageTemp);
+              LMessageTemp.Free;
             end;
           end
           else if TextIsSame(LDataItems[LLO], 'RFC822.SIZE') then begin  {Do not Localize}
@@ -995,8 +978,8 @@ begin
                 [LRecord+1, LMessageNumbers[LN], LSize]);
             end else begin
               DoSendReply(ASender.Context, '* %d FETCH (RFC822.SIZE %d)',  {Do not Localize}
-	        [LRecord+1, LSize]);
-	    end;
+                [LRecord+1, LSize]);
+            end;
           end
           else if PosInStrArray(LDataItems[LLO], ['BODY.PEEK[]', 'BODY[]', 'RFC822', 'RFC822.PEEK'], False) <> -1 then   {Do not Localize}
           begin
@@ -1020,7 +1003,7 @@ begin
               end else begin
                 DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s) %s {%d}',  {Do not Localize}
                   [LRecord+1, MessageFlagSetToStr(LMessageToCheck.Flags), LTemp, LSize]);
-	      end;
+              end;
               for LM := 0 to LMessageToCheck.Headers.Count-1 do begin
                 DoSendReply(ASender.Context, LMessageRaw.Strings[LM]);
               end;
@@ -1028,7 +1011,7 @@ begin
               DoSendReply(ASender.Context, ')');  {Do not Localize}
               //Free the memory...
             finally
-	      FreeAndNil(LMessageRaw);
+              LMessageRaw.Free;
             end;
           end
           else if TextIsSame(LDataItems[LLO], 'BODYSTRUCTURE') then begin  {Do not Localize}
@@ -1054,10 +1037,10 @@ begin
         end;
       end;
     finally
-      FreeAndNil(LDataItems);
+      LDataItems.Free;
     end;
   finally
-    FreeAndNil(LMessageNumbers);
+    LMessageNumbers.Free;
   end;
   SendOkReply(ASender, 'Completed');  {Do not Localize}
 end;
@@ -1111,7 +1094,7 @@ begin
       end;
       case LItem of
         0: // FROM   {Do not Localize}
-	  begin
+          begin
             if Pos(UpperCase(LSearchString), UpperCase(LMessageTemp.From.Address)) > 0 then begin
               if AUseUID then begin
                 LHits := LHits + LMessageToCheck.UID + ' ';  {Do not Localize}
@@ -1121,7 +1104,7 @@ begin
             end;
           end;
         1: // TO   {Do not Localize}
-	  begin
+          begin
             for LM := 0 to LMessageTemp.Recipients.Count-1 do begin
               if Pos(UpperCase(LSearchString), UpperCase(LMessageTemp.Recipients.Items[LM].Address)) > 0 then begin
                 if AUseUID then begin
@@ -1172,7 +1155,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LMessageTemp);
+    LMessageTemp.Free;
   end;
   DoSendReply(ASender.Context, '* SEARCH ' + TrimRight(LHits)); {Do not Localize}
   SendOkReply(ASender, 'Completed');  {Do not Localize}
@@ -1216,8 +1199,8 @@ begin
       if AUseUID then begin
         LRecord := GetRecordForUID(LMessageNumbers[LN], LContext.MailBox);
         if LRecord = -1 then begin //It is OK to skip non-existent UID records
-	  Continue;
-	end;
+          Continue;
+        end;
       end else begin
         LRecord := IndyStrToInt(LMessageNumbers[LN])-1;
       end;
@@ -1236,7 +1219,7 @@ begin
       SendNoReply(ASender, 'Copy failed for one or more messages'); {Do not Localize}
     end;
   finally
-    FreeAndNil(LMessageNumbers);
+    LMessageNumbers.Free;
   end;
 end;
 
@@ -1351,10 +1334,10 @@ begin
       end;
       SendOkReply(ASender, 'STORE Completed'); {Do not Localize}
     finally
-      FreeAndNil(LFlagList);
+      LFlagList.Free;
     end;
   finally
-    FreeAndNil(LMessageNumbers);
+    LMessageNumbers.Free;
   end;
   Result := True;
 end;
@@ -1675,7 +1658,7 @@ begin
     LContext.FConnectionState := csAuthenticated;
     SendOkReply(ASender, 'Completed');  {Do not Localize}
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -1790,7 +1773,7 @@ begin
       SendNoReply(ASender, 'Create failed'); {Do not Localize}
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -1853,7 +1836,7 @@ begin
       SendNoReply(ASender, 'Delete failed'); {Do not Localize}
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -1923,7 +1906,7 @@ begin
       SendNoReply(ASender, 'Delete failed'); {Do not Localize}
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2026,13 +2009,13 @@ begin
           SendNoReply(ASender, 'List failed'); {Do not Localize}
         end;
       finally
-        FreeAndNil(LMailBoxFlags);
+        LMailBoxFlags.Free;
       end;
     finally
-      FreeAndNil(LMailBoxNames);
+      LMailBoxNames.Free;
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2094,13 +2077,13 @@ begin
           SendNoReply(ASender, 'List failed'); {Do not Localize}
         end;
       finally
-        FreeAndNil(LMailBoxFlags);
+        LMailBoxFlags.Free;
       end;
     finally
-      FreeAndNil(LMailBoxNames);
+      LMailBoxNames.Free;
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2170,28 +2153,28 @@ begin
             LTemp := Copy(LTemp, 1, Length(LTemp)-1);
           end;
           case PosInStrArray(LTemp, ['MESSAGES', 'RECENT', 'UIDNEXT', 'UIDVALIDITY', 'UNSEEN'], False) of
-	    0: // MESSAGES   {Do not Localize}
+            0: // MESSAGES   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
+                LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
               end;
             1: // RECENT   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
+                LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
               end;
             2: // UIDNEXT   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDNext + ' ';  {Do not Localize}
-	      end;
+                LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDNext + ' ';  {Do not Localize}
+              end;
             3: // UIDVALIDITY   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDValidity + ' ';  {Do not Localize}
+                LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDValidity + ' ';  {Do not Localize}
               end;
             4: // UNSEEN   {Do not Localize}
               begin
                 LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.UnseenMsgs) + ' ';  {Do not Localize}
               end;
           else
-	    begin
+            begin
               SendBadReply(ASender, 'Parameter not supported: ' + LTemp);   {Do not Localize}
               Exit;
             end;
@@ -2205,10 +2188,10 @@ begin
       DoSendReply(ASender.Context, LAnswer);
       SendOkReply(ASender, 'Completed');  {Do not Localize}
     finally
-      FreeAndNil(LMailBox);
+      LMailBox.Free;
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2335,20 +2318,20 @@ begin
             end;
             if not ProcessStore(True, ASender, LParams2) then begin
               //Have to reverse out our changes if ANYTHING fails..
-              LMessage := TIdMessage.Create(Self);
+              LMessage := TIdMessage.Create;
               try
                 LMessage.UID := LUID;  //This is all we need for deletion
                 OnDefMechDeleteMessage(LContext.LoginName, LContext.MailBox.Name, LMessage);
               finally
-                FreeAndNil(LMessage);
+                LMessage.Free;
               end;
               Exit;
             end;
           finally
-            FreeAndNil(LFlagsList);
+            LFlagsList.Free;
           end;
         finally
-          FreeAndNil(LParams2);
+          LParams2.Free;
         end;
       end;
       //Update the next free UID in the .uid file...
@@ -2361,10 +2344,10 @@ begin
       end;
       }
     finally
-      FreeAndNil(LStream);
+      LStream.Free;
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2478,7 +2461,7 @@ begin
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessSearch(False, ASender, LParams);
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2511,7 +2494,7 @@ begin
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessFetch(False, ASender, LParams);
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2541,7 +2524,7 @@ begin
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessStore(False, ASender, LParams);
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2601,7 +2584,7 @@ begin
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessCopy(False, ASender, LParams);
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 
@@ -2677,7 +2660,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LParams);
+    LParams.Free;
   end;
 end;
 

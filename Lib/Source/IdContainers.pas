@@ -66,13 +66,11 @@ interface
 
 uses
   Classes
-  {$IFDEF HAS_UNIT_Generics_Collections}
+  {$IF DEFINED(HAS_UNIT_Generics_Collections)}
   , System.Generics.Collections
-  {$ELSE}
-    {$IFDEF HAS_TObjectList}
+  {$ELSEIF DEFINED(HAS_TObjectList)}
   , Contnrs
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   ;
 
 type
@@ -84,31 +82,27 @@ type
 
   {TIdObjectList}
 
-  {$IFDEF HAS_GENERICS_TObjectList}
+  {$IF DEFINED(HAS_GENERICS_TObjectList)}
   TIdObjectList<T: class> = class(TObjectList<T>)
   public
     procedure BubbleSort(ACompare : TIdSortCompare<T>);
     procedure Assign(Source: TIdObjectList<T>);
   end;
-  {$ELSE}
-    {$IFDEF HAS_TObjectList}
+  {$ELSEIF DEFINED(HAS_TObjectList)}
   TIdObjectList = class(TObjectList)
   public
     procedure BubbleSort(ACompare : TIdSortCompare);
-    // Delphi 5 does not have TList.Assign.
     // This is a simplyfied Assign method that does only support the copy operation.
-    procedure Assign(Source: TIdObjectList); {$IFDEF VCL_6_OR_ABOVE}reintroduce;{$ENDIF}
+    procedure Assign(Source: TIdObjectList); reintroduce;
   end;
-    {$ELSE}
+  {$ELSE}
   TIdObjectList = class(TList)
   private
     FOwnsObjects: Boolean;
   protected
     function GetItem(AIndex: Integer): TObject;
     procedure SetItem(AIndex: Integer; AObject: TObject);
-    {$IFNDEF DOTNET}
     procedure Notify(AItemPtr: Pointer; AAction: TListNotification); override;
-    {$ENDIF}
   public
     constructor Create; overload;
     constructor Create(AOwnsObjects: Boolean); overload;
@@ -122,8 +116,7 @@ type
     property Items[AIndex: Integer]: TObject read GetItem write SetItem; default;
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
 
   TIdStringListSortCompare = function(List: TStringList; Index1, Index2: Integer): Integer;
 
@@ -134,15 +127,14 @@ type
 
 implementation
 
-{$IFDEF VCL_XE3_OR_ABOVE}
+{$IFDEF DCC_XE3_OR_ABOVE}
 uses
   System.Types;
 {$ENDIF}
 
 { TIdObjectList }
 
-{$IFNDEF HAS_GENERICS_TObjectList}
-  {$IFNDEF HAS_TObjectList}
+{$IF (NOT DEFINED(HAS_GENERICS_TObjectList)) AND (NOT DEFINED(HAS_TObjectList))}
 
 constructor TIdObjectList.Create;
 begin
@@ -198,7 +190,6 @@ begin
   inherited Insert(AIndex, AObject);
 end;
 
-{$IFNDEF DOTNET}
 procedure TIdObjectList.Notify(AItemPtr: Pointer; AAction: TListNotification);
 begin
   if OwnsObjects and (AAction = lnDeleted) then begin
@@ -206,7 +197,6 @@ begin
   end;
   inherited Notify(AItemPtr, AAction);
 end;
-{$ENDIF}
 
 function TIdObjectList.Remove(AObject: TObject): Integer;
 begin
@@ -218,8 +208,7 @@ begin
   inherited Items[AIndex] := AObject;
 end;
 
-  {$ENDIF}
-{$ENDIF}
+{$IFEND}
 
 {$IFDEF HAS_GENERICS_TObjectList}
 procedure TIdObjectList<T>.BubbleSort(ACompare: TIdSortCompare<T>);

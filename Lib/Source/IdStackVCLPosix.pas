@@ -28,11 +28,9 @@ uses
   IdStackBSDBase;
 
 type
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF ANDROID}
+  {$IFDEF ANDROID}
   EIdAccessWifiStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
   EIdAccessNetworkStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
-    {$ENDIF}
   {$ENDIF}
 
   TIdSocketListVCLPosix = class (TIdSocketList)
@@ -74,7 +72,7 @@ type
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer): Integer; override;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer; override;
-    {$IFNDEF VCL_XE3_OR_ABOVE}
+    {$IFNDEF DCC_XE3_OR_ABOVE}
     procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -106,8 +104,8 @@ type
     function NetworkToHost(AValue: UInt16): UInt16; override;
     function HostToNetwork(AValue: UInt32): UInt32; override;
     function NetworkToHost(AValue: UInt32): UInt32; override;
-    function HostToNetwork(AValue: TIdUInt64): TIdUInt64; override;
-    function NetworkToHost(AValue: TIdUInt64): TIdUInt64; override;
+    function HostToNetwork(AValue: UInt64): UInt64; override;
+    function NetworkToHost(AValue: UInt64): UInt64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle;
       var VBuffer; const ALength, AFlags: Integer; var VIP: string;
       var VPort: TIdPort; var VIPVersion: TIdIPVersion): Integer; override;
@@ -119,7 +117,7 @@ type
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
       const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
-    {$IFDEF VCL_XE3_OR_ABOVE}
+    {$IFDEF DCC_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -148,7 +146,7 @@ type
 
 implementation
 
-{$O-}
+{$I IdOptimizationsOff.inc}
 
 uses
   IdResourceStrings,
@@ -256,7 +254,7 @@ begin
       Unlock;
     end;
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;
@@ -653,13 +651,7 @@ begin
     {$IFDEF USE_MARSHALLED_PTRS}
     M.AsAnsi(LHostName).ToPointer
     {$ELSE}
-    PAnsiChar(
-      {$IFDEF STRING_IS_ANSI}
-      LHostName
-      {$ELSE}
-      AnsiString(LHostName) // explicit convert to Ansi
-      {$ENDIF}
-    )
+    PAnsiChar(AnsiString(LHostName)) // explicit convert to Ansi
     {$ENDIF},
     nil, Hints, LAddrList);
   if LRetVal <> 0 then begin
@@ -962,13 +954,7 @@ begin
     {$IFDEF USE_MARSHALLED_PTRS}
     M.AsAnsi(AHostName).ToPointer
     {$ELSE}
-    PAnsiChar(
-      {$IFDEF STRING_IS_ANSI}
-      AHostName
-      {$ELSE}
-      AnsiString(AHostName) // explicit convert to Ansi
-      {$ENDIF}
-    )
+    PAnsiChar(AnsiString(AHostName)) // explicit convert to Ansi
     {$ENDIF},
     nil, LHints, LAddrInfo);
   if LRetVal <> 0 then begin
@@ -999,11 +985,17 @@ begin
   Result := htons(AValue);
 end;
 
-function TIdStackVCLPosix.HostToNetwork(AValue: TIdUInt64): TIdUInt64;
+function TIdStackVCLPosix.HostToNetwork(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
+  // TODO: enable this?
+  {
+  LParts.LongWords[0] := htonl(UInt32(AValue shr 32));
+  LParts.LongWords[1] := htonl(UInt32(AValue));
+  Result := LParts.QuadPart;
+  }
   if (htonl(1) <> 1) then begin
     LParts.QuadPart := AValue;
     L := htonl(LParts.HighPart);
@@ -1032,11 +1024,16 @@ begin
   Result := ntohl(AValue);
 end;
 
-function TIdStackVCLPosix.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
+function TIdStackVCLPosix.NetworkToHost(AValue: UInt64): UInt64;
 var
-  LParts: TIdUInt64Parts;
+  LParts: TIdUInt64Parts;//TIdUInt64Words
   L: UInt32;
 begin
+  // TODO: enable this?
+  {
+  LParts.QuadPart := AValue;
+  Result := (UInt64(ntohl(LParts.LongWords[0])) shl 32) or UInt64(ntohl(LParts.LongWords[1]));
+  }
   if (ntohl(1) <> 1) then begin
     LParts.QuadPart := AValue;
     L := ntohl(LParts.HighPart);
@@ -1238,7 +1235,7 @@ begin
   __error^ := AError;
 end;
 
-procedure TIdStackVCLPosix.{$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
+procedure TIdStackVCLPosix.{$IFDEF DCC_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
   var AOptVal; var AOptLen: Integer);
 var
@@ -1249,7 +1246,7 @@ begin
   AOptLen := LLen;
 end;
 
-procedure TIdStackVCLPosix.{$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
+procedure TIdStackVCLPosix.{$IFDEF DCC_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}
   (ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
   const AOptVal; const AOptLen: Integer);
 begin
@@ -1278,7 +1275,7 @@ begin
   Result := True;
 
   // TODO: enable this:
-  //Result := CheckForSocketError(AResult, [EAGAIN, EWOULDBLOCK]) <> 0;
+  //Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
 end;
 
 procedure TIdStackVCLPosix.WriteChecksum(s: TIdStackSocketHandle;
@@ -1329,13 +1326,7 @@ begin
     {$IFDEF USE_MARSHALLED_PTRS}
     M.AsAnsi(AServiceName).ToPointer
     {$ELSE}
-    PAnsiChar(
-      {$IFDEF STRING_IS_ANSI}
-      AServiceName
-      {$ELSE}
-      AnsiString(AServiceName) // explicit convert to Ansi
-      {$ENDIF}
-    )
+    PAnsiChar(AnsiString(AServiceName)) // explicit convert to Ansi
     {$ENDIF},
     nil);
   if Lps <> nil then begin
@@ -1465,4 +1456,7 @@ end;
 {$I IdSymbolPlatformOn.inc}
 initialization
   GSocketListClass := TIdSocketListVCLPosix;
+
+{$I IdOptimizationsOn.inc}
+
 end.

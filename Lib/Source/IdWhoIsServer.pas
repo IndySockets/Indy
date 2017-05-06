@@ -72,6 +72,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -84,7 +85,8 @@ type
     FOnCommandLookup: TGetEvent;
     //
     function DoExecute(AContext:TIdContext): boolean; override;
-    procedure InitComponent; override;
+  public
+    constructor Create(AOwner: TComponent); override;
   published
     property OnCommandLookup: TGetEvent read FOnCommandLookup write FOnCommandLookup;
     property DefaultPort default IdPORT_WHOIS;
@@ -94,9 +96,9 @@ implementation
 
 { TIdWhoIsServer }
 
-procedure TIdWhoIsServer.InitComponent;
+constructor TIdWhoIsServer.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_WHOIS;
 end;
 

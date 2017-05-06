@@ -122,8 +122,7 @@ uses
   Classes,
   IdBaseComponent,
   IdGlobal,
-  IdIOHandler,
-  IdStream;
+  IdIOHandler;
 
 type
   TIdIOHandlerStream = class;
@@ -139,18 +138,17 @@ type
     FSendStream: TStream;
     FStreamType: TIdIOHandlerStreamType;
     //
-    procedure InitComponent; override;
     function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
     function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     function SourceIsAvailable: Boolean; override;
     function CheckForError(ALastResult: Integer): Integer; override;
     procedure RaiseError(AError: Integer); override;
   public
+    constructor Create(AOwner: TComponent); overload; override;
+    constructor Create(AOwner: TComponent; AReceiveStream: TStream; ASendStream: TStream = nil); overload; virtual;
     function StreamingAvailable: Boolean;
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
       AIgnoreBuffer: Boolean = False); override;
-    constructor Create(AOwner: TComponent; AReceiveStream: TStream; ASendStream: TStream = nil); reintroduce; overload; virtual;
-    constructor Create(AOwner: TComponent); reintroduce; overload;
     function Connected: Boolean; override;
     procedure Close; override;
     procedure Open; override;
@@ -172,10 +170,28 @@ uses
 
 { TIdIOHandlerStream }
 
-procedure TIdIOHandlerStream.InitComponent;
+constructor TIdIOHandlerStream.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  Create(AOwner, nil, nil);
+end;
+
+constructor TIdIOHandlerStream.Create(AOwner: TComponent; AReceiveStream: TStream;
+  ASendStream: TStream = nil);
+begin
+  inherited Create(AOwner);
+  //
   FDefStringEncoding := IndyTextEncoding_8Bit;
+  FFreeStreams := True;
+  FReceiveStream := AReceiveStream;
+  FSendStream := ASendStream;
+  //
+  if Assigned(FReceiveStream) and (not Assigned(FSendStream)) then begin
+    FStreamType := stRead;
+  end else if (not Assigned(FReceiveStream)) and Assigned(FSendStream) then begin
+    FStreamType := stWrite;
+  end else begin
+    FStreamType := stReadWrite;
+  end;
 end;
 
 procedure TIdIOHandlerStream.CheckForDisconnect(
@@ -209,8 +225,8 @@ procedure TIdIOHandlerStream.Close;
 begin
   inherited Close;
   if FreeStreams then begin
-    FreeAndNil(FReceiveStream);
-    FreeAndNil(FSendStream);
+    IdDisposeAndNil(FReceiveStream);
+    IdDisposeAndNil(FSendStream);
   end else begin
     FReceiveStream := nil;
     FSendStream := nil;
@@ -230,31 +246,6 @@ end;
 function TIdIOHandlerStream.Connected: Boolean;
 begin
   Result := (StreamingAvailable and inherited Connected) or (not InputBufferIsEmpty);
-end;
-
-constructor TIdIOHandlerStream.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-  FFreeStreams := True;
-  FStreamType := stReadWrite;
-end;
-
-constructor TIdIOHandlerStream.Create(AOwner: TComponent; AReceiveStream: TStream;
-  ASendStream: TStream = nil);
-begin
-  inherited Create(AOwner);
-  //
-  FFreeStreams := True;
-  FReceiveStream := AReceiveStream;
-  FSendStream := ASendStream;
-  //
-  if Assigned(FReceiveStream) and (not Assigned(FSendStream)) then begin
-    FStreamType := stRead;
-  end else if (not Assigned(FReceiveStream)) and Assigned(FSendStream) then begin
-    FStreamType := stWrite;
-  end else begin
-    FStreamType := stReadWrite;
-  end;
 end;
 
 procedure TIdIOHandlerStream.Open;
@@ -295,7 +286,7 @@ begin
   if Assigned(FReceiveStream) then begin
     Result := IndyMin(32 * 1024, Length(VBuffer));
     if Result > 0 then begin
-      Result := TIdStreamHelper.ReadBytes(FReceiveStream, VBuffer, Result);
+      Result := FReceiveStream.Read(VBuffer[0], Result);
     end;
   end else begin
     Result := 0;
@@ -304,10 +295,9 @@ end;
 
 function TIdIOHandlerStream.WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer;
 begin
-  if Assigned(FSendStream) then begin
-    Result := TIdStreamHelper.Write(FSendStream, ABuffer, ALength, AOffset);
-  end else begin
-    Result := IndyLength(ABuffer, ALength, AOffset);
+  Result := IndyLength(ABuffer, ALength, AOffset);
+  if Assigned(FSendStream) and (Result > 0) then begin
+    Result := FSendStream.Write(ABuffer[AOffset], ALength);
   end;
 end;
 

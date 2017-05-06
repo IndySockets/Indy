@@ -73,7 +73,7 @@ type
     procedure Reset; override;
 
     function InitHash : TIdHashIntCtx; override;
-    function NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
+    function NativeGetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
     constructor Create; override;
@@ -84,7 +84,7 @@ type
   protected
     FState: T4x4LongWordRecord;
 
-    function NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
+    function NativeGetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
 
     procedure MDCoder; override;
@@ -106,13 +106,8 @@ type
   end;
 
 implementation
+
 uses
-  {$IFDEF DOTNET}
-  System.Security.Cryptography,
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdGlobalProtocols;
 
 { TIdHashMessageDigest }
@@ -201,7 +196,7 @@ begin
   end;
 end;
 
-function TIdHashMessageDigest2.NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes;
+function TIdHashMessageDigest2.NativeGetHashBytes(AStream: TStream; ASize: Int64): TIdBytes;
 var
   LStartPos: Integer;
   LSize: Integer;
@@ -247,7 +242,7 @@ end;
 
 function TIdHashMessageDigest2.HashToHex(const AHash: TIdBytes): String;
 begin
-  Result := LongWordHashToHex(AHash, 4);
+  Result := UInt32HashToHex(AHash, 4);
 end;
 
 function TIdHashMessageDigest2.InitHash: TIdHashIntCtx;
@@ -266,7 +261,7 @@ const
   MD4_INIT_VALUES: T4x4LongWordRecord = (
     $67452301, $EFCDAB89, $98BADCFE, $10325476);
 
-{$Q-} // Arithmetic operations performed modulo $100000000
+{$I IdOverflowCheckingOff.inc} // Arithmetic operations performed modulo $100000000
 
 constructor TIdHashMessageDigest4.Create;
 begin
@@ -343,12 +338,13 @@ begin
   Inc(FState[2], C);
   Inc(FState[3], D);
 end;
-{$Q+}
 
-function TIdHashMessageDigest4.NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TidBytes;
+{$I IdOverflowCheckingOn.inc}
+
+function TIdHashMessageDigest4.NativeGetHashBytes(AStream: TStream; ASize: Int64): TidBytes;
 var
   LStartPos: Integer;
-  LSize: TIdStreamSize;
+  LSize: Int64;
   LBitSize: Int64;
   I, LReadSize: Integer;
 begin
@@ -414,7 +410,7 @@ end;
 
 function TIdHashMessageDigest4.HashToHex(const AHash: TIdBytes): String;
 begin
-  Result := LongWordHashToHex(AHash, 4);
+  Result := UInt32HashToHex(AHash, 4);
 end;
 
 class function TIdHashMessageDigest4.IsIntfAvailable: Boolean;
@@ -444,8 +440,7 @@ const
    $f7537e82, $bd3af235, $2ad7d2bb, $eb86d391
   );
 
-{$Q-} // Arithmetic operations performed modulo $100000000
-
+{$I IdOverflowCheckingOff.inc} // Arithmetic operations performed modulo $100000000
 
 function TIdHashMessageDigest5.InitHash: TIdHashIntCtx;
 begin
@@ -562,6 +557,7 @@ begin
   Inc(FState[2], C);
   Inc(FState[3], D);
 end;
-{$Q+}
+
+{$I IdOverflowCheckingOn.inc}
 
 end.

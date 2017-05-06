@@ -115,7 +115,6 @@ type
 
     property ClientCookie: String read GetClientCookie;
     property CookieName: String read FName write FName;
-    property CookieText: String read GetServerCookie; // {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPECATED_MSG} 'Use ServerCookie property instead'{$ENDIF};{$ENDIF}
     property Domain: String read FDomain write FDomain;
     property Expires: TDateTime read FExpires write FExpires;
     property HttpOnly: Boolean read FHttpOnly write FHttpOnly;
@@ -200,7 +199,7 @@ function CanonicalizeHostName(const AHost: String): String;
 implementation
 
 uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
+  {$IFDEF DCC_XE3_OR_ABOVE}
   System.Types,
   {$ENDIF}
   IdAssignedNumbers, IdResourceStringsProtocols;
@@ -725,7 +724,7 @@ begin
 
     Result := True;
   finally
-    FreeAndNil(CookieProp);
+    CookieProp.Free;
   end;
 end;
 
@@ -867,7 +866,7 @@ begin
 
     Result := True;
   finally
-    FreeAndNil(CookieProp);
+    CookieProp.Free;
   end;
 end;
 
@@ -884,8 +883,8 @@ destructor TIdCookies.Destroy;
 begin
   // This will force the Cookie removing process before we free FCookieList and FRWLock
   Self.Clear;
-  FreeAndNil(FCookieList);
-  FreeAndNil(FRWLock);
+  FCookieList.Free;
+  FRWLock.Free;
   inherited Destroy;
 end;
 

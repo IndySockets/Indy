@@ -66,7 +66,6 @@ uses
   IdSASLUserPass;
 
 type
-
   TIdSASLCRAMMD5 = class(TIdSASLCRAMBase)
   public
     class function BuildKeydAuth(const APassword, AChallenge: string): string; override;
@@ -85,18 +84,18 @@ uses
 
 class function TIdSASLCRAMMD5.BuildKeydAuth(const APassword, AChallenge: string): string;
 var
- LHash:TIdHMACMD5;
- LBuffer:TIdBytes;
+  LHash: TIdHMACMD5;
+  LBuffer: TIdBytes;
 begin
- LHash:=TIdHMACMD5.Create;
- try
-   LHash.Key:=ToBytes(APassword);
-   LBuffer:=ToBytes(AChallenge);
-   LBuffer:=LHash.HashValue(LBuffer);
-   Result:=LowerCase(ToHex(LBuffer));
- finally
-  FreeAndNil(LHash);
- end;
+  LHash := TIdHMACMD5.Create;
+  try
+    LHash.Key := ToBytes(APassword);
+    LBuffer := ToBytes(AChallenge);
+    LBuffer := LHash.HashValue(LBuffer);
+    Result := LowerCase(ToHex(LBuffer));
+  finally
+    LHash.Free;
+  end;
 end;
 
 function TIdSASLCRAMMD5.IsReadyToStart: Boolean;
@@ -106,7 +105,7 @@ end;
 
 class function TIdSASLCRAMMD5.ServiceName: TIdSASLServiceName;
 begin
-  result := 'CRAM-MD5'; {do not localize}
+  Result := 'CRAM-MD5'; {do not localize}
 end;
 
 end.

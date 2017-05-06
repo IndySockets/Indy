@@ -25,15 +25,16 @@
 unit IdDiscardUDPServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAssignedNumbers, IdSocketHandle, IdUDPBase, IdUDPServer;
+  Classes, IdAssignedNumbers, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
    TIdDiscardUDPServer = class(TIdUDPServer)
-   protected
-     procedure InitComponent; override;
+   public
+     constructor Create(AOwner: TComponent); override;
    published
      property DefaultPort default IdPORT_DISCARD;
    end;
@@ -42,9 +43,9 @@ implementation
 
 { TIdDiscardUDPServer }
 
-procedure TIdDiscardUDPServer.InitComponent;
+constructor TIdDiscardUDPServer.Create(AOwner: TComponent);
 begin
-  inherited InitComponent;
+  inherited Create(AOwner);
   DefaultPort := IdPORT_DISCARD;
 end;
 

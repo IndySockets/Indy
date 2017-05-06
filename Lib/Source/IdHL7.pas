@@ -289,11 +289,8 @@ type
 
     procedure HandleIncoming(const AMsg : String; AConnection: TIdTCPConnection);
     function HandleMessage(const AMsg: String; AConn: TIdTCPConnection; var VReply: String): Boolean;
-    procedure InitComponent; override;
   Public
-    {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-    constructor Create(AOwner: TComponent); reintroduce; overload;
-    {$ENDIF}
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; Override;
 
     procedure EnforceWaitReplyTimeout;
@@ -431,7 +428,7 @@ uses
   IdResourceStringsProtocols;
 
 type
-  TQueuedMessage = class(TIdInterfacedObject)
+  TQueuedMessage = class(TInterfacedObject)
   Private
     FEvent: TIdLocalEvent;
     FMsg: String;
@@ -457,8 +454,7 @@ end;
 
 destructor TQueuedMessage.Destroy;
 begin
-  assert(self <> NIL);
-  FreeAndNil(FEvent);
+  FEvent.Free;
   inherited;
 end;
 
@@ -490,16 +486,9 @@ end;
 
 { TIdHL7 }
 
-{$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdHL7.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-end;
-{$ENDIF}
-
-procedure TIdHL7.InitComponent;
-begin
-  inherited;
 
   raise EIdException.create(RSHL7Broken); {do not localize}
 
@@ -541,17 +530,16 @@ end;
 
 destructor TIdHL7.Destroy;
 begin
-  assert(Assigned(Self));
   try
     if Going then
     begin
       Stop;
     end;
   finally
-    FreeAndNil(FMsgQueue);
-    FreeAndNil(FHndMsgQueue);
-    FreeAndNil(FWaitEvent);
-    FreeAndNil(FLock);
+    FMsgQueue.Free;
+    FHndMsgQueue.Free;
+    FWaitEvent.Free;
+    FLock.Free;
     inherited;
   end;
 end;
@@ -907,16 +895,15 @@ begin
     FreeAndNil(FServer);
     InternalSetStatus(IsStopped, RSHL7StatusStopped);
   except
-    on e:
-    Exception do
-      begin
+    on e: Exception do
+    begin
       // somewhat arbitrary decision: if for some reason we fail to shutdown,
       // we will stubbornly refuse to work again.
       InternalSetStatus(IsUnusable, IndyFormat(RSHL7StatusFailedToStop, [e.message]));
       FServer := NIL;
-      raise
-      end;
+      raise;
     end;
+  end;
 end;
 
 procedure TIdHL7.ServerConnect(AContext: TIdContext);
@@ -1060,7 +1047,7 @@ procedure TIdHL7.StartClient;
 begin
   assert(Assigned(Self));
   CheckClientParameters;
-  FClientThread := TIdHL7ClientThread.Create(self);
+  FClientThread := TIdHL7ClientThread.Create(Self);
   InternalSetStatus(isConnecting, RSHL7StatusConnecting);
 end;
 
@@ -1127,10 +1114,9 @@ end;
 
 destructor TIdHL7ClientThread.Destroy;
 begin
-  assert(Assigned(Self));
   assert(Assigned(FOwner));
   assert(Assigned(FOwner.FLock));
-  FreeAndNil(FCloseEvent);
+  FCloseEvent.Free;
   try
     FOwner.FLock.Enter;
     try
@@ -1138,12 +1124,12 @@ begin
       FOwner.InternalSetStatus(isStopped, RSHL7StatusStopped);
     finally
       FOwner.FLock.Leave;
-      end;
+    end;
   except
     // it's really vaguely possible that the owner
     // may be dead before we are. If that is the case, we blow up here.
     // who cares.
-    end;
+  end;
   inherited;
 end;
 
@@ -1190,9 +1176,8 @@ procedure TIdHL7ClientThread.Execute;
 var
   LRecTime: TDateTime;
 begin
-  assert(Assigned(Self));
   try
-    FClient := TIdTCPClient.Create(NIL);
+    FClient := TIdTCPClient.Create(nil);
     try
       FClient.Host := FOwner.FAddress;
       FClient.Port := FOwner.FPort;
@@ -1204,24 +1189,23 @@ begin
           try
             FClient.Connect;
           except
-            on e:
-            Exception do
-              begin
+            on e: Exception do
+            begin
               LRecTime := Now + ((FOwner.FReconnectDelay / 1000) * {second length} (1 / (24 * 60 * 60)));
               //not we can take more liberties with the time and date output because it's only
               //for human consumption (probably in a log
               FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DateTimeToStr(LRecTime), e.message])); {do not localize??}
-              end;
             end;
-          if not Terminated and not FClient.Connected then
-            begin
+          end;
+          if not Terminated and (not FClient.Connected) then
+          begin
             FCloseEvent.WaitFor(FOwner.FReconnectDelay);
-            end;
+          end;
         until Terminated or FClient.Connected;
         if Terminated then
-          begin
-          exit;
-          end;
+        begin
+          Exit;
+        end;
 
         FOwner.FLock.Enter;
         try
@@ -1229,11 +1213,11 @@ begin
           FOwner.InternalSetStatus(IsConnected, rsHL7StatusConnected);
         finally
           FOwner.FLock.Leave;
-          end;
+        end;
         if Assigned(FOwner.FOnConnect) then
-          begin
+        begin
           FOwner.FOnConnect(FOwner);
-          end;
+        end;
         try
           PollStack;
         finally
@@ -1243,27 +1227,26 @@ begin
             FOwner.InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
           finally
             FOwner.FLock.Leave;
-            end;
-          if Assigned(FOwner.FOnDisconnect) then
-            begin
-            FOwner.FOnDisconnect(FOwner);
-            end;
           end;
-        if not Terminated then
+          if Assigned(FOwner.FOnDisconnect) then
           begin
+            FOwner.FOnDisconnect(FOwner);
+          end;
+        end;
+        if not Terminated then
+        begin
           // we got disconnected. ReconnectDelay applies.
           FCloseEvent.WaitFor(FOwner.FReconnectDelay);
-          end;
-      until terminated;
+        end;
+      until Terminated;
     finally
-      FreeAndNil(FClient);
-      end;
+      FClient.Free;
+    end;
   except
-    on e:
-    Exception do
+    on e: Exception do
       // presumably some comms or indy related exception
       // there's not really anyplace good to put this????
-    end;
+  end;
 end;
 
 {==========================================================

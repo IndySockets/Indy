@@ -154,11 +154,6 @@ interface
 
 {$I IdCompilerDefines.inc}
 
-{$IFDEF DOTNET}
-Improper compile.
-This unit must NOT be linked into DotNet applications.
-{$ENDIF}
-
 uses
   Classes,
   IdException, IdStack, IdStackConsts, IdGlobal;
@@ -180,6 +175,7 @@ type
     1: (
       QuadPart: Int64);
   end;
+
   TIdUInt64Parts = packed record
     case Integer of
     0: (
@@ -193,6 +189,14 @@ type
     1: (
       QuadPart: UInt64);
   end;
+
+  {
+  TIdUInt64Words = packed record
+    case Integer of
+      0: (LongWords: array[0..1] of UInt32);
+      1: (QuadPart: UInt64);
+  end;
+  }
 
   TIdIPv6AddressRec = packed array[0..7] of UInt16;
 
@@ -257,7 +261,7 @@ type
      const ABufferLength, AFlags: Integer): Integer; virtual; abstract;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
      virtual; abstract;
-    {$IFNDEF VCL_XE3_OR_ABOVE}
+    {$IFNDEF DCC_XE3_OR_ABOVE}
     procedure WSGetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); virtual; abstract;
     procedure WSSetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -281,15 +285,14 @@ type
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; out AOptVal: Integer); overload; override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
-      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); {$IFDEF VCL_XE3_OR_ABOVE}overload; virtual; abstract;{$ELSE}reintroduce; overload;{$ENDIF}
+      AOptName: TIdSocketOption; var AOptVal; var AOptLen: Integer); {$IFDEF DCC_XE3_OR_ABOVE}overload; virtual; abstract;{$ELSE}reintroduce; overload;{$ENDIF}
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; AOptVal: Integer); overload; override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
-      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); {$IFDEF VCL_XE3_OR_ABOVE}overload; virtual; abstract;{$ELSE}reintroduce; overload;{$ENDIF}
+      AOptName: TIdSocketOption; const AOptVal; const AOptLen: Integer); {$IFDEF DCC_XE3_OR_ABOVE}overload; virtual; abstract;{$ELSE}reintroduce; overload;{$ENDIF}
     function TranslateTInAddrToString(var AInAddr; const AIPVersion: TIdIPVersion): string;
     procedure TranslateStringToTInAddr(const AIP: string; var AInAddr; const AIPVersion: TIdIPVersion);
     function WSGetServByName(const AServiceName: string): TIdPort; virtual; abstract;
-    function WSGetServByPort(const APortNumber: TIdPort): TStrings; virtual; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use AddServByPortToList()'{$ENDIF};{$ENDIF}
     procedure AddServByPortToList(const APortNumber: TIdPort; AAddresses: TStrings); virtual; abstract;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var ABuffer;
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
@@ -337,23 +340,17 @@ implementation
 
 uses
   //done this way so we can have a separate stack for the Unix systems in FPC
-  {$IFDEF UNIX}
-    {$IFDEF KYLIXCOMPAT}
-  IdStackLibc,
-    {$ENDIF}
-    {$IFDEF USE_BASEUNIX}
-  IdStackUnix,
-    {$ENDIF}
-    {$IFDEF USE_VCL_POSIX}
-  IdStackVCLPosix,
-    {$ENDIF}
-  {$ENDIF}
-  {$IFDEF WINDOWS}
+  {$IF DEFINED(WINDOWS)}
   IdStackWindows,
-  {$ENDIF}
-  {$IFDEF DOTNET}
-  IdStackDotNet,
-  {$ENDIF}
+  {$ELSEIF DEFINED(USE_VCL_POSIX)}
+  IdStackVCLPosix,
+  {$ELSEIF DEFINED(UNIX)}
+    {$IF DEFINED(KYLIXCOMPAT)}
+  IdStackLibc,
+    {$ELSEIF DEFINED(USE_BASEUNIX)}
+  IdStackUnix,
+    {$IFEND}
+  {$IFEND}
   IdResourceStrings,
   SysUtils;
 
@@ -389,22 +386,23 @@ end;
 procedure TIdStackBSDBase.TranslateStringToTInAddr(const AIP: string;
   var AInAddr; const AIPVersion: TIdIPVersion);
 var
-  LIP: String;
-  LAddress: TIdIPv6Address;
+  LIPv4: UInt32;
+  LIPv6: TIdIPv6Address;
 begin
   case AIPVersion of
     Id_IPv4: begin
       // TODO: use RtlIpv4StringToAddress() on Windows when available...
-      LIP := AIP;
-      TIdIn4Addr(AInAddr).S_un_b.s_b1 := IndyStrToInt(Fetch(LIP, '.'));    {Do not Localize}
-      TIdIn4Addr(AInAddr).S_un_b.s_b2 := IndyStrToInt(Fetch(LIP, '.'));    {Do not Localize}
-      TIdIn4Addr(AInAddr).S_un_b.s_b3 := IndyStrToInt(Fetch(LIP, '.'));    {Do not Localize}
-      TIdIn4Addr(AInAddr).S_un_b.s_b4 := IndyStrToInt(Fetch(LIP, '.'));    {Do not Localize}
+      //TIdIn4Addr(AInAddr).S_addr := HostToNetwork(IPv4ToUInt32(AIP));
+      LIPv4 := IPv4ToUInt32(AIP);
+      TIdIn4Addr(AInAddr).S_un_b.s_b1 := ((LIPv4 shr 24) and $FF);
+      TIdIn4Addr(AInAddr).S_un_b.s_b2 := ((LIPv4 shr 16) and $FF);
+      TIdIn4Addr(AInAddr).S_un_b.s_b3 := ((LIPv4 shr 8) and $FF);
+      TIdIn4Addr(AInAddr).S_un_b.s_b4 := ( LIPv4 and $FF);
     end;
     Id_IPv6: begin
       // TODO: use RtlIpv6StringToAddress() on Windows when available...
-      IPv6ToIdIPv6Address(AIP, LAddress);
-      TIdIPv6Address(TIdIn6Addr(AInAddr).s6_addr16) := HostToNetwork(LAddress);
+      IPv6ToIdIPv6Address(AIP, LIPv6);
+      TIdIPv6Address(TIdIn6Addr(AInAddr).s6_addr16) := HostToNetwork(LIPv6);
     end;
     else begin
       IPVersionUnsupported;
@@ -494,11 +492,11 @@ var
   LBuf, LLen: Integer;
 begin
   LLen := SizeOf(LBuf);
-  {$IFDEF VCL_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}(ASocket, ALevel, AOptName, LBuf, LLen);
+  {$IFDEF DCC_XE3_OR_ABOVE}GetSocketOption{$ELSE}WSGetSocketOption{$ENDIF}(ASocket, ALevel, AOptName, LBuf, LLen);
   AOptVal := LBuf;
 end;
 
-{$IFNDEF VCL_XE3_OR_ABOVE}
+{$IFNDEF DCC_XE3_OR_ABOVE}
 procedure TIdStackBSDBase.GetSocketOption(ASocket: TIdStackSocketHandle;
   ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; var AOptVal;
   var AOptLen: Integer);
@@ -510,10 +508,10 @@ end;
 procedure TIdStackBSDBase.SetSocketOption(ASocket: TIdStackSocketHandle;
   ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
 begin
-  {$IFDEF VCL_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}(ASocket, ALevel, AOptName, AOptVal, SizeOf(AOptVal));
+  {$IFDEF DCC_XE3_OR_ABOVE}SetSocketOption{$ELSE}WSSetSocketOption{$ENDIF}(ASocket, ALevel, AOptName, AOptVal, SizeOf(AOptVal));
 end;
 
-{$IFNDEF VCL_XE3_OR_ABOVE}
+{$IFNDEF DCC_XE3_OR_ABOVE}
 procedure TIdStackBSDBase.SetSocketOption(ASocket: TIdStackSocketHandle;
   ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; const AOptVal;
   const AOptLen: Integer);
@@ -617,19 +615,6 @@ begin
     else begin
       IPVersionUnsupported;
     end;
-  end;
-end;
-
-{$I IdDeprecatedImplBugOff.inc}
-function TIdStackBSDBase.WSGetServByPort(const APortNumber: TIdPort): TStrings;
-{$I IdDeprecatedImplBugOn.inc}
-begin
-  Result := TStringList.Create;
-  try
-    AddServByPortToList(APortNumber, Result);
-  except
-    FreeAndNil(Result);
-    raise;
   end;
 end;
 

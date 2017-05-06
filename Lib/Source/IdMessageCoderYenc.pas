@@ -120,11 +120,6 @@ const
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdHashCRC,
   IdResourceStringsProtocols,
   SysUtils;
@@ -188,7 +183,7 @@ begin
       LYenc.FFilename := GetName;
       LYenc.FPartType := mcptAttachment;
     except
-      FreeAndNil(LYenc);
+      LYenc.Free;
       raise;
     end;
     Result := LYenc;
@@ -249,7 +244,7 @@ begin
     // break something, and storing in an extra buffer will just eat space
     LEncoding := IndyTextEncoding_8Bit;
     repeat
-      LLine := ReadLnRFC(LMsgEnd, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
+      LLine := ReadLnRFC(LMsgEnd, LEncoding);
       if (IndyPos('=yend', LowerCase(LLine)) <> 0) or LMsgEnd then {Do not Localize}
       begin
         Break;
@@ -295,7 +290,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LH);
+    LH.Free;
   end;
 end;
 
@@ -317,7 +312,7 @@ const
   LineSize = 128;
 var
   s: String;
-  i, LSSize: TIdStreamSize;
+  i, LSSize: Int64;
   LInput: Byte;
   LOutput: Byte;
   LCurrentLineLength: Integer;
@@ -406,7 +401,7 @@ begin
 
     WriteStringToStream(ADest, s);
   finally
-    FreeAndNil(LH);
+    LH.Free;
   end;
 end;
 

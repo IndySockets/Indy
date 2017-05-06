@@ -209,7 +209,6 @@ type
     function GetReplyClass: TIdReplyClass; virtual;
     function GetReplyUnknownCommand: TIdReply;
     procedure InitializeCommandHandlers; virtual;
-    procedure InitComponent; override;
     // This is used by command handlers as the only input. This can be overriden to filter, modify,
     // or preparse the input.
     function ReadCommandLine(AContext: TIdContext): string; virtual;
@@ -222,6 +221,7 @@ type
     procedure SetReplyUnknownCommand(AValue: TIdReply);
     procedure SetReplyTexts(AValue: TIdReplies);
   public
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property CommandHandlers: TIdCommandHandlers read FCommandHandlers
@@ -258,16 +258,29 @@ begin
   Result := TIdRepliesRFC;
 end;
 
+constructor TIdCmdTCPServer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FReplyClass := GetReplyClass;
+
+  // Before Command handlers as they need FReplyTexts, but after FReplyClass is set
+  FReplyTexts := GetRepliesClass.Create(Self, FReplyClass);
+
+  FCommandHandlers := TIdCommandHandlers.Create(Self, FReplyClass, ReplyTexts, ExceptionReply);
+  FCommandHandlers.OnAfterCommandHandler := DoAfterCommandHandler;
+  FCommandHandlers.OnBeforeCommandHandler := DoBeforeCommandHandler;
+end;
+
 destructor TIdCmdTCPServer.Destroy;
 begin
   inherited Destroy;
-  FreeAndNil(FReplyUnknownCommand);
-  FreeAndNil(FReplyTexts);
-  FreeAndNil(FMaxConnectionReply);
-  FreeAndNil(FHelpReply);
-  FreeAndNil(FGreeting);
-  FreeAndNil(FExceptionReply);
-  FreeAndNil(FCommandHandlers);
+  FReplyUnknownCommand.Free;
+  FReplyTexts.Free;
+  FMaxConnectionReply.Free;
+  FHelpReply.Free;
+  FGreeting.Free;
+  FExceptionReply.Free;
+  FCommandHandlers.Free;
 end;
 
 procedure TIdCmdTCPServer.DoAfterCommandHandler(ASender: TIdCommandHandlers;
@@ -318,12 +331,13 @@ var
   LReply: TIdReply;
 begin
   if CommandHandlers.PerformReplies then begin
-    LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts); try
+    LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
+    try
       LReply.Assign(ReplyUnknownCommand);
       LReply.Text.Add(ALine);
       AContext.Connection.IOHandler.Write(LReply.FormattedReply);
     finally
-      FreeAndNil(LReply);
+      LReply.Free;
     end;
   end;
 end;
@@ -342,11 +356,12 @@ begin
   if AContext.Connection.Connected then begin
     if Greeting.ReplyExists then begin
       ReplyTexts.UpdateText(Greeting);
-      LGreeting := FReplyClass.Create(nil); try // SendGreeting calls TIdReply.GetFormattedReply
+      LGreeting := FReplyClass.Create(nil);   // SendGreeting calls TIdReply.GetFormattedReply
+      try
         LGreeting.Assign(Greeting);           // and that changes the reply object, so we have to
         SendGreeting(AContext, LGreeting);    // clone it to make it thread-safe
       finally
-        FreeAndNil(LGreeting);
+        LGreeting.Free;
       end;
     end;
   end;
@@ -396,7 +411,7 @@ begin
           LAddedHandler.Response.Add(''); {do not localize}
         end;
       finally
-        FreeAndNil(LHelpList);
+        LHelpList.Free;
       end;
     end;
   end;
@@ -505,19 +520,6 @@ end;
 procedure TIdCmdTCPServer.SetReplyTexts(AValue: TIdReplies);
 begin
   FReplyTexts.Assign(AValue);
-end;
-
-procedure TIdCmdTCPServer.InitComponent;
-begin
-  inherited InitComponent;
-  FReplyClass := GetReplyClass;
-
-  // Before Command handlers as they need FReplyTexts, but after FReplyClass is set
-  FReplyTexts := GetRepliesClass.Create(Self, FReplyClass);
-
-  FCommandHandlers := TIdCommandHandlers.Create(Self, FReplyClass, ReplyTexts, ExceptionReply);
-  FCommandHandlers.OnAfterCommandHandler := DoAfterCommandHandler;
-  FCommandHandlers.OnBeforeCommandHandler := DoBeforeCommandHandler;
 end;
 
 function TIdCmdTCPServer.ReadCommandLine(AContext: TIdContext): string;
