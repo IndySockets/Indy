@@ -1,217 +1,9 @@
 * text=auto !eol
 Lib/Packages/AboutBackground.bmp -text
-Lib/Packages/BDS_2005/DsnIndy.bdsproj -text
-Lib/Packages/BDS_2005/DsnIndy.dpr -text
-Lib/Packages/BDS_2005/Fulld_2005.bat eol=crlf
-Lib/Packages/BDS_2005/IndyCore.RES -text svneol=unset#unset
-Lib/Packages/BDS_2005/IndyCore.bdsproj -text
-Lib/Packages/BDS_2005/IndyCore.dpk -text
-Lib/Packages/BDS_2005/IndyCore.rc -text
-Lib/Packages/BDS_2005/IndyCore.rc.tmpl -text
-Lib/Packages/BDS_2005/IndyCoreNet.dpk -text
-Lib/Packages/BDS_2005/IndyNet.dpk -text
-Lib/Packages/BDS_2005/IndyProtocols.bdsproj -text
-Lib/Packages/BDS_2005/IndyProtocols.dpk -text
-Lib/Packages/BDS_2005/IndyProtocols.rc -text
-Lib/Packages/BDS_2005/IndyProtocols.rc.tmpl -text
-Lib/Packages/BDS_2005/IndyProtocols.res -text svneol=unset#unset
-Lib/Packages/BDS_2005/IndyProtocolsNet.bdsproj -text
-Lib/Packages/BDS_2005/IndyProtocolsNet.dpk -text
-Lib/Packages/BDS_2005/IndySecurityNet.bdsproj -text
-Lib/Packages/BDS_2005/IndySecurityNet.dpk -text
-Lib/Packages/BDS_2005/IndySystem.bdsproj -text
-Lib/Packages/BDS_2005/IndySystem.dpk -text
-Lib/Packages/BDS_2005/IndySystem.rc -text
-Lib/Packages/BDS_2005/IndySystem.rc.tmpl -text
-Lib/Packages/BDS_2005/IndySystem.res -text svneol=unset#unset
-Lib/Packages/BDS_2005/IndySystemNet.bdsproj -text
-Lib/Packages/BDS_2005/IndySystemNet.dpk -text
-Lib/Packages/BDS_2005/dclIndyCore.bdsproj -text
-Lib/Packages/BDS_2005/dclIndyCore.dpk -text
-Lib/Packages/BDS_2005/dclIndyCore.rc -text
-Lib/Packages/BDS_2005/dclIndyCore.rc.tmpl -text
-Lib/Packages/BDS_2005/dclIndyCore.res -text svneol=unset#unset
-Lib/Packages/BDS_2005/dclIndyCoreNet.bdsproj -text
-Lib/Packages/BDS_2005/dclIndyCoreNet.dpk -text
-Lib/Packages/BDS_2005/dclIndyProtocols.bdsproj -text
-Lib/Packages/BDS_2005/dclIndyProtocols.dpk -text
-Lib/Packages/BDS_2005/dclIndyProtocols.rc -text
-Lib/Packages/BDS_2005/dclIndyProtocols.rc.tmpl -text
-Lib/Packages/BDS_2005/dclIndyProtocols.res -text svneol=unset#unset
-Lib/Packages/BDS_2005/dclIndyProtocolsNet.bdsproj -text
-Lib/Packages/BDS_2005/dclIndyProtocolsNet.dpk -text
-Lib/Packages/BDS_2005/dclIndySecurityNet.bdsproj -text
-Lib/Packages/BDS_2005/dclIndySecurityNet.dpk -text
-Lib/Packages/BDS_2006/Fullc_2006.bat -text
-Lib/Packages/BDS_2006/Fulld_2006.bat eol=crlf
-Lib/Packages/BDS_2006/IndyCore.bdsproj -text
-Lib/Packages/BDS_2006/IndyCore.cfg1 -text
-Lib/Packages/BDS_2006/IndyCore.cfg2 -text
-Lib/Packages/BDS_2006/IndyCore.dpk -text
-Lib/Packages/BDS_2006/IndyCore.rc -text
-Lib/Packages/BDS_2006/IndyCore.rc.tmpl -text
-Lib/Packages/BDS_2006/IndyCore.res -text svneol=unset#unset
-Lib/Packages/BDS_2006/IndyCoreNet.bdsproj -text
-Lib/Packages/BDS_2006/IndyCoreNet.dpk -text
-Lib/Packages/BDS_2006/IndyNet.dpk -text
-Lib/Packages/BDS_2006/IndyProtocols.bdsproj -text
-Lib/Packages/BDS_2006/IndyProtocols.cfg1 -text
-Lib/Packages/BDS_2006/IndyProtocols.cfg2 -text
-Lib/Packages/BDS_2006/IndyProtocols.dpk -text
-Lib/Packages/BDS_2006/IndyProtocols.rc -text
-Lib/Packages/BDS_2006/IndyProtocols.rc.tmpl -text
-Lib/Packages/BDS_2006/IndyProtocols.res -text svneol=unset#unset
-Lib/Packages/BDS_2006/IndyProtocolsNet.bdsproj -text
-Lib/Packages/BDS_2006/IndyProtocolsNet.dpk -text
-Lib/Packages/BDS_2006/IndySecurityNet.bdsproj -text
-Lib/Packages/BDS_2006/IndySecurityNet.dpk -text
-Lib/Packages/BDS_2006/IndySystem.bdsproj -text
-Lib/Packages/BDS_2006/IndySystem.cfg1 -text
-Lib/Packages/BDS_2006/IndySystem.cfg2 -text
-Lib/Packages/BDS_2006/IndySystem.dpk -text
-Lib/Packages/BDS_2006/IndySystem.rc -text
-Lib/Packages/BDS_2006/IndySystem.rc.tmpl -text
-Lib/Packages/BDS_2006/IndySystem.res -text svneol=unset#unset
-Lib/Packages/BDS_2006/IndySystemNet.bdsproj -text
-Lib/Packages/BDS_2006/IndySystemNet.dpk -text
-Lib/Packages/BDS_2006/dclIndyCore.bdsproj -text
-Lib/Packages/BDS_2006/dclIndyCore.cfg1 -text
-Lib/Packages/BDS_2006/dclIndyCore.dpk -text
-Lib/Packages/BDS_2006/dclIndyCore.rc -text
-Lib/Packages/BDS_2006/dclIndyCore.rc.tmpl -text
-Lib/Packages/BDS_2006/dclIndyCore.res -text svneol=unset#unset
-Lib/Packages/BDS_2006/dclIndyCoreNet.bdsproj -text
-Lib/Packages/BDS_2006/dclIndyCoreNet.dpk -text
-Lib/Packages/BDS_2006/dclIndyProtocols.RES -text
-Lib/Packages/BDS_2006/dclIndyProtocols.bdsproj -text
-Lib/Packages/BDS_2006/dclIndyProtocols.cfg1 -text
-Lib/Packages/BDS_2006/dclIndyProtocols.dpk -text
-Lib/Packages/BDS_2006/dclIndyProtocols.rc -text
-Lib/Packages/BDS_2006/dclIndyProtocols.rc.tmpl -text
-Lib/Packages/BDS_2006/dclIndyProtocolsNet.bdsproj -text
-Lib/Packages/BDS_2006/dclIndyProtocolsNet.dpk -text
-Lib/Packages/BDS_2006/dclIndySecurityNet.bdsproj -text
-Lib/Packages/BDS_2006/dclIndySecurityNet.dpk -text
-Lib/Packages/CB_Delphi_4/Fullc_4.bat eol=crlf
-Lib/Packages/CB_Delphi_4/IndyCore40.RES -text
-Lib/Packages/CB_Delphi_4/IndyCore40.dpk -text
-Lib/Packages/CB_Delphi_4/IndyCore40.rc -text
-Lib/Packages/CB_Delphi_4/IndyCore40.rc.tmpl -text
-Lib/Packages/CB_Delphi_4/IndyProtocols40.dpk -text
-Lib/Packages/CB_Delphi_4/IndyProtocols40.rc -text
-Lib/Packages/CB_Delphi_4/IndyProtocols40.rc.tmpl -text
-Lib/Packages/CB_Delphi_4/IndyProtocols40.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_4/IndySystem40.dpk -text
-Lib/Packages/CB_Delphi_4/IndySystem40.rc -text
-Lib/Packages/CB_Delphi_4/IndySystem40.rc.tmpl -text
-Lib/Packages/CB_Delphi_4/IndySystem40.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_4/dclIndyCore40.RES -text
-Lib/Packages/CB_Delphi_4/dclIndyCore40.dpk -text
-Lib/Packages/CB_Delphi_4/dclIndyCore40.rc -text
-Lib/Packages/CB_Delphi_4/dclIndyCore40.rc.tmpl -text
-Lib/Packages/CB_Delphi_4/dclIndyProtocols40.RES -text
-Lib/Packages/CB_Delphi_4/dclIndyProtocols40.dpk -text
-Lib/Packages/CB_Delphi_4/dclIndyProtocols40.rc -text
-Lib/Packages/CB_Delphi_4/dclIndyProtocols40.rc.tmpl -text
-Lib/Packages/CB_Delphi_5/Fullc_5.bat eol=crlf
-Lib/Packages/CB_Delphi_5/Fulld_5.bat eol=crlf
-Lib/Packages/CB_Delphi_5/IndyCore50.RES -text svneol=unset#unset
-Lib/Packages/CB_Delphi_5/IndyCore50.cfg1 -text
-Lib/Packages/CB_Delphi_5/IndyCore50.cfg2 -text
-Lib/Packages/CB_Delphi_5/IndyCore50.dpk -text
-Lib/Packages/CB_Delphi_5/IndyCore50.rc -text
-Lib/Packages/CB_Delphi_5/IndyCore50.rc.tmpl -text
-Lib/Packages/CB_Delphi_5/IndyProtocols50.cfg1a -text
-Lib/Packages/CB_Delphi_5/IndyProtocols50.cfg1b -text
-Lib/Packages/CB_Delphi_5/IndyProtocols50.cfg2 -text
-Lib/Packages/CB_Delphi_5/IndyProtocols50.dpk -text
-Lib/Packages/CB_Delphi_5/IndyProtocols50.rc -text
-Lib/Packages/CB_Delphi_5/IndyProtocols50.rc.tmpl -text
-Lib/Packages/CB_Delphi_5/IndyProtocols50.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_5/IndySystem50.cfg1 -text
-Lib/Packages/CB_Delphi_5/IndySystem50.cfg2 -text
-Lib/Packages/CB_Delphi_5/IndySystem50.dpk -text
-Lib/Packages/CB_Delphi_5/IndySystem50.rc -text
-Lib/Packages/CB_Delphi_5/IndySystem50.rc.tmpl -text
-Lib/Packages/CB_Delphi_5/IndySystem50.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_5/dclIndyCore50.cfg1 -text
-Lib/Packages/CB_Delphi_5/dclIndyCore50.cfg2 -text
-Lib/Packages/CB_Delphi_5/dclIndyCore50.dpk -text
-Lib/Packages/CB_Delphi_5/dclIndyCore50.rc -text
-Lib/Packages/CB_Delphi_5/dclIndyCore50.rc.tmpl -text
-Lib/Packages/CB_Delphi_5/dclIndyCore50.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_5/dclIndyProtocols50.RES -text svneol=unset#unset
-Lib/Packages/CB_Delphi_5/dclIndyProtocols50.cfg1 -text
-Lib/Packages/CB_Delphi_5/dclIndyProtocols50.cfg2 -text
-Lib/Packages/CB_Delphi_5/dclIndyProtocols50.dpk -text
-Lib/Packages/CB_Delphi_5/dclIndyProtocols50.rc -text
-Lib/Packages/CB_Delphi_5/dclIndyProtocols50.rc.tmpl -text
-Lib/Packages/CB_Delphi_6/Fullc_6.bat eol=crlf
-Lib/Packages/CB_Delphi_6/Fulld_6.bat eol=crlf
-Lib/Packages/CB_Delphi_6/IndyCore.RES -text svneol=unset#unset
-Lib/Packages/CB_Delphi_6/IndyCore.cfg1 -text
-Lib/Packages/CB_Delphi_6/IndyCore.cfg2 -text
-Lib/Packages/CB_Delphi_6/IndyCore.dpk -text
-Lib/Packages/CB_Delphi_6/IndyCore.rc -text
-Lib/Packages/CB_Delphi_6/IndyCore.rc.tmpl -text
-Lib/Packages/CB_Delphi_6/IndyProtocols.cfg1 -text
-Lib/Packages/CB_Delphi_6/IndyProtocols.cfg2 -text
-Lib/Packages/CB_Delphi_6/IndyProtocols.dpk -text
-Lib/Packages/CB_Delphi_6/IndyProtocols.rc -text
-Lib/Packages/CB_Delphi_6/IndyProtocols.rc.tmpl -text
-Lib/Packages/CB_Delphi_6/IndyProtocols.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_6/IndySystem.cfg1 -text
-Lib/Packages/CB_Delphi_6/IndySystem.cfg2 -text
-Lib/Packages/CB_Delphi_6/IndySystem.dpk -text
-Lib/Packages/CB_Delphi_6/IndySystem.rc -text
-Lib/Packages/CB_Delphi_6/IndySystem.rc.tmpl -text
-Lib/Packages/CB_Delphi_6/IndySystem.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_6/dclIndyCore.cfg1 -text
-Lib/Packages/CB_Delphi_6/dclIndyCore.cfg2 -text
-Lib/Packages/CB_Delphi_6/dclIndyCore.dpk -text
-Lib/Packages/CB_Delphi_6/dclIndyCore.rc -text
-Lib/Packages/CB_Delphi_6/dclIndyCore.rc.tmpl -text
-Lib/Packages/CB_Delphi_6/dclIndyCore.res -text svneol=unset#unset
-Lib/Packages/CB_Delphi_6/dclIndyProtocols.RES -text svneol=unset#unset
-Lib/Packages/CB_Delphi_6/dclIndyProtocols.cfg1 -text
-Lib/Packages/CB_Delphi_6/dclIndyProtocols.cfg2 -text
-Lib/Packages/CB_Delphi_6/dclIndyProtocols.dpk -text
-Lib/Packages/CB_Delphi_6/dclIndyProtocols.rc -text
-Lib/Packages/CB_Delphi_6/dclIndyProtocols.rc.tmpl -text
 Lib/Packages/Clean.bat eol=crlf
 Lib/Packages/Computil.dpr -text
 Lib/Packages/Computil.dproj -text
 Lib/Packages/Computil.exe -text svneol=unset#unset
-Lib/Packages/Delphi_7/Fulld_7.bat eol=crlf
-Lib/Packages/Delphi_7/IndyCore.RES -text svneol=unset#unset
-Lib/Packages/Delphi_7/IndyCore.dpk -text
-Lib/Packages/Delphi_7/IndyCore.rc -text
-Lib/Packages/Delphi_7/IndyCore.rc.tmpl -text
-Lib/Packages/Delphi_7/IndyProtocols.dpk -text
-Lib/Packages/Delphi_7/IndyProtocols.rc -text
-Lib/Packages/Delphi_7/IndyProtocols.rc.tmpl -text
-Lib/Packages/Delphi_7/IndyProtocols.res -text svneol=unset#unset
-Lib/Packages/Delphi_7/IndySuperCore.dpk -text
-Lib/Packages/Delphi_7/IndySuperCore.res -text svneol=unset#unset
-Lib/Packages/Delphi_7/IndySystem.dpk -text
-Lib/Packages/Delphi_7/IndySystem.rc -text
-Lib/Packages/Delphi_7/IndySystem.rc.tmpl -text
-Lib/Packages/Delphi_7/IndySystem.res -text svneol=unset#unset
-Lib/Packages/Delphi_7/dclIndyCore.dpk -text
-Lib/Packages/Delphi_7/dclIndyCore.rc -text
-Lib/Packages/Delphi_7/dclIndyCore.rc.tmpl -text
-Lib/Packages/Delphi_7/dclIndyCore.res -text svneol=unset#unset
-Lib/Packages/Delphi_7/dclIndyProtocols.dpk -text
-Lib/Packages/Delphi_7/dclIndyProtocols.rc -text
-Lib/Packages/Delphi_7/dclIndyProtocols.rc.tmpl -text
-Lib/Packages/Delphi_7/dclIndyProtocols.res -text svneol=unset#unset
-Lib/Packages/Delphi_7/dclIndySuperCore.dpk -text
-Lib/Packages/Delphi_7/dclIndySuperCore.res -text svneol=unset#unset
-Lib/Packages/Delphi_8/IndyProtocols.dpk -text
-Lib/Packages/Delphi_8/IndyProtocolsNet.dpk -text
-Lib/Packages/Delphi_8/IndySystemNet.bdsproj -text
-Lib/Packages/Delphi_8/IndySystemNet.dpk -text
-Lib/Packages/Delphi_8/dclIndyCoreNet.dpk -text
 Lib/Packages/DsnIndy.bdsproj -text
 Lib/Packages/DsnIndy.dpr -text
 Lib/Packages/FPC_Lazarus/Makefile_core.fpc -text
@@ -244,13 +36,6 @@ Lib/Packages/IndyProtocols_Icon.ico -text
 Lib/Packages/IndySystem.rc -text
 Lib/Packages/IndySystem.rc.tmpl -text
 Lib/Packages/IndySystem_Icon.ico -text
-Lib/Packages/Kylix_3/IndyCore.dpk -text
-Lib/Packages/Kylix_3/IndyProtocols.dpk -text
-Lib/Packages/Kylix_3/IndySystem.dpk -text
-Lib/Packages/Kylix_3/dclIndyProtocols.dpk -text
-Lib/Packages/Kylix_3/dclindycore.dpk -text
-Lib/Packages/Kylix_3/dclindycore.dpkl -text
-Lib/Packages/Kylix_3/dclindycore.res -text svneol=unset#unset
 Lib/Packages/RADStudio_10_0_Seattle/Fullc_Seattle.bat -text
 Lib/Packages/RADStudio_10_0_Seattle/Indy.groupproj -text
 Lib/Packages/RADStudio_10_0_Seattle/IndyCore.dpk -text
@@ -305,46 +90,6 @@ Lib/Packages/RADStudio_10_1_Berlin/dclIndyProtocols.dproj -text
 Lib/Packages/RADStudio_10_1_Berlin/dclIndyProtocols.rc -text
 Lib/Packages/RADStudio_10_1_Berlin/dclIndyProtocols.rc.tmpl -text
 Lib/Packages/RADStudio_10_1_Berlin/dclIndyProtocols.res -text
-Lib/Packages/RADStudio_2007/Fullc_2007.bat -text
-Lib/Packages/RADStudio_2007/Fulld_2007.bat -text
-Lib/Packages/RADStudio_2007/Indy.groupproj -text
-Lib/Packages/RADStudio_2007/IndyCore.RES -text
-Lib/Packages/RADStudio_2007/IndyCore.cfg1 -text
-Lib/Packages/RADStudio_2007/IndyCore.cfg2 -text
-Lib/Packages/RADStudio_2007/IndyCore.dpk -text
-Lib/Packages/RADStudio_2007/IndyCore.rc -text
-Lib/Packages/RADStudio_2007/IndyCore.rc.tmpl -text
-Lib/Packages/RADStudio_2007/IndyCoreNet.dpk -text
-Lib/Packages/RADStudio_2007/IndyNet.dpk -text
-Lib/Packages/RADStudio_2007/IndyProtocols.RES -text
-Lib/Packages/RADStudio_2007/IndyProtocols.cfg1 -text
-Lib/Packages/RADStudio_2007/IndyProtocols.cfg2 -text
-Lib/Packages/RADStudio_2007/IndyProtocols.dpk -text
-Lib/Packages/RADStudio_2007/IndyProtocols.rc -text
-Lib/Packages/RADStudio_2007/IndyProtocols.rc.tmpl -text
-Lib/Packages/RADStudio_2007/IndyProtocolsNet.dpk -text
-Lib/Packages/RADStudio_2007/IndySecurityNet.dpk -text
-Lib/Packages/RADStudio_2007/IndySystem.RES -text
-Lib/Packages/RADStudio_2007/IndySystem.cfg1 -text
-Lib/Packages/RADStudio_2007/IndySystem.cfg2 -text
-Lib/Packages/RADStudio_2007/IndySystem.dpk -text
-Lib/Packages/RADStudio_2007/IndySystem.rc -text
-Lib/Packages/RADStudio_2007/IndySystem.rc.tmpl -text
-Lib/Packages/RADStudio_2007/IndySystemNet.dpk -text
-Lib/Packages/RADStudio_2007/dclIndy.groupproj -text
-Lib/Packages/RADStudio_2007/dclIndyCore.RES -text
-Lib/Packages/RADStudio_2007/dclIndyCore.cfg1 -text
-Lib/Packages/RADStudio_2007/dclIndyCore.dpk -text
-Lib/Packages/RADStudio_2007/dclIndyCore.rc -text
-Lib/Packages/RADStudio_2007/dclIndyCore.rc.tmpl -text
-Lib/Packages/RADStudio_2007/dclIndyCoreNet.dpk -text
-Lib/Packages/RADStudio_2007/dclIndyProtocols.RES -text
-Lib/Packages/RADStudio_2007/dclIndyProtocols.cfg1 -text
-Lib/Packages/RADStudio_2007/dclIndyProtocols.dpk -text
-Lib/Packages/RADStudio_2007/dclIndyProtocols.rc -text
-Lib/Packages/RADStudio_2007/dclIndyProtocols.rc.tmpl -text
-Lib/Packages/RADStudio_2007/dclIndyProtocolsNet.dpk -text
-Lib/Packages/RADStudio_2007/dclIndySecurityNet.dpk -text
 Lib/Packages/RADStudio_2009/FullD_2009.bat -text
 Lib/Packages/RADStudio_2009/Fullc_2009.bat -text
 Lib/Packages/RADStudio_2009/IndyCore.cfg1 -text
@@ -628,10 +373,6 @@ Lib/Packages/RADStudio_XE8/dclIndyProtocols.dproj -text
 Lib/Packages/RADStudio_XE8/dclIndyProtocols.rc -text
 Lib/Packages/RADStudio_XE8/dclIndyProtocols.rc.tmpl -text
 Lib/Packages/RADStudio_XE8/dclIndyProtocols.res -text
-Lib/Packages/VisualStudio/Indy.Sockets.bdsproj -text
-Lib/Packages/VisualStudio/Indy.Sockets.dpr -text
-Lib/Packages/VisualStudio/Indy.SocketsDebug.bdsproj -text
-Lib/Packages/VisualStudio/Indy.SocketsDebug.dpr -text
 Lib/Packages/buildres.bat -text
 Lib/Packages/dclIndyCore.rc -text
 Lib/Packages/dclIndyCore.rc.tmpl -text
