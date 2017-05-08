@@ -2158,20 +2158,33 @@ end;
 
 procedure TIdFTP.InitDataChannel;
 var
-  LSSL : TIdSSLIOHandlerSocketBase;
+  LIOHandler : TIdIOHandler;
 begin
   if FDataChannel = nil then begin
     Exit;
   end;
   if FDataPortProtection = ftpdpsPrivate then begin
-    LSSL := TIdSSLIOHandlerSocketBase(IOHandler);
-    FDataChannel.IOHandler := LSSL.Clone;
+    LIOHandler := TIdSSLIOHandlerSocketBase(IOHandler).Clone;
+    {$IFDEF USE_OBJECT_ARC}
+    // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
+    // TIdSSLIOHandlerSocketBase.Clone() returns an IOHandler with no Owner
+    // assigned, so lets make FDataChannel become the Owner in order to keep
+    // the IOHandler alive when this method exits.
+    //
+    // TODO: should we assign Ownership unconditionally on all platforms?
+    //
+    // TODO: add an AOwner parameter to Clone()
+    //
+    FDataChannel.InsertComponent(LIOHandler);
+    {$ENDIF}
     //we have to delay the actual negotiation until we get the reply and
-    //and just before the readString
-    TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := True;
+    //just before the readString
+    TIdSSLIOHandlerSocketBase(LIOHandler).PassThrough := True;
   end else begin
-    FDataChannel.IOHandler := TIdIOHandler.MakeDefaultIOHandler(Self);
+    LIOHandler := TIdIOHandler.MakeDefaultIOHandler(FDataChannel);
   end;
+  FDataChannel.IOHandler := LIOHandler;
+  FDataChannel.ManagedIOHandler := True;
   if FDataChannel is TIdTCPClient then
   begin
     TIdTCPClient(FDataChannel).IPVersion := IPVersion;
@@ -2192,6 +2205,7 @@ begin
   FDataChannel.IOHandler.RecvBufferSize := IOHandler.RecvBufferSize;
   FDataChannel.IOHandler.LargeStream := True;
  // FDataChannel.IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
+ // FDataChannel.IOHandler.DefAnsiEncoding := IndyTextEncoding_OSDefault;
   FDataChannel.WorkTarget := Self;
 end;
 

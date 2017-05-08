@@ -3287,7 +3287,7 @@ begin
             LStream.Size := LContext.FALLOSize;
           end;
           if LAppend then begin
-            LStream.Position := LStream.Size;
+            LStream.Seek(0, soEnd);
           end else begin
             LStream.Position := LContext.FRESTPos;
             LContext.FRESTPos := 0;
@@ -7147,15 +7147,30 @@ begin
     end else begin
       LIO := TIdServerIOHandlerSSLBase(AServer.IOHandler).MakeFTPSvrPort;
     end;
-    (LIO as TIdSSLIOHandlerSocketBase).PassThrough := True;
+    TIdSSLIOHandlerSocketBase(LIO).PassThrough := True;
     // always uses a ssl iohandler, but passthrough is true...
   end else begin
     LIO := FServer.IOHandler.MakeClientIOHandler(nil) as TIdIOHandlerSocket;
   end;
 
+  {$IFDEF USE_OBJECT_ARC}
+  // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
+  // MakeFTPSvrPasv(), MakeFTPSvrPort(), and MakeClientIOHandler() return an
+  // IOHandler with no Owner assigned, so lets make the TIdTCPConnection become
+  // the Owner in order to keep the IOHandler alive when this method exits.
+  //
+  // TODO: should we assign Ownership unconditionally on all platforms?
+  //
+  // TODO: add an AOwner parameter to MakeFTPSvrPasv(), MakeFTPSvrPort() and
+  // MakeClientIOHandler
+  //
+  FDataChannel.InsertComponent(LIO);
+  {$ENDIF}
+  FDataChannel.IOHandler := LIO;
+  FDataChannel.ManagedIOHandler := True;
+
   LIO.OnBeforeBind := AControlContext.PortOnBeforeBind;
   LIO.OnAfterBind := AControlContext.PortOnAfterBind;
-  FDataChannel.IOHandler := LIO;
 
   if LIO is TIdSSLIOHandlerSocketBase then begin
     case AControlContext.DataProtection of
@@ -7174,59 +7189,72 @@ begin
   FOKReply.Free;
   FErrorReply.Free;
   FReply.Free;
-  {$IFNDEF USE_OBJECT_ARC}
-  FDataChannel.IOHandler.Free;
-  {$ENDIF}
-  FDataChannel.IOHandler := nil;
+  if Assigned(FDataChannel) then begin
+    FDataChannel.IOHandler := nil;
+  end;
   FDataChannel.Free;
   inherited Destroy;
 end;
 
-function TIdDataChannel.GetPeerIP: String;
+function GetBinding(AConnection: TIdTCPConnection): TIdSocketHandle;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LSocket: TIdIOHandlerSocket;
 begin
-  Result := '';
-  if Assigned(FDataChannel) then begin
-    if Assigned(FDataChannel.Socket) then begin
-      if Assigned(FDataChannel.Socket.Binding) then begin
-        Result := FDataChannel.Socket.Binding.PeerIP;
-      end;
+  Result := nil;
+  if Assigned(AConnection) then begin
+    LSocket := AConnection.Socket;
+    if Assigned(LSocket) then begin
+      Result := LSocket.Binding;
     end;
+  end;
+end;
+
+function TIdDataChannel.GetPeerIP: String;
+var
+  LBinding: TIdSocketHandle;
+begin
+  LBinding := GetBinding(FDataChannel);
+  if Assigned(LBinding) then begin
+    Result := LBinding.PeerIP;
+  end else begin
+    Result := '';
   end;
 end;
 
 function TIdDataChannel.GetPeerPort: TIdPort;
+var
+  LBinding: TIdSocketHandle;
 begin
-  Result := 0;
-  if Assigned(FDataChannel) then begin
-    if Assigned(FDataChannel.Socket) then begin
-      if Assigned(FDataChannel.Socket.Binding) then begin
-        Result := FDataChannel.Socket.Binding.PeerPort;
-      end;
-    end;
+  LBinding := GetBinding(FDataChannel);
+  if Assigned(LBinding) then begin
+    Result := LBinding.PeerPort;
+  end else begin
+    Result := 0;
   end;
 end;
 
 function TIdDataChannel.GetLocalIP: String;
+var
+  LBinding: TIdSocketHandle;
 begin
-  Result := '';
-  if Assigned(FDataChannel) then begin
-    if Assigned(FDataChannel.Socket) then begin
-      if Assigned(FDataChannel.Socket.Binding) then begin
-        Result := FDataChannel.Socket.Binding.IP;
-      end;
-    end;
+  LBinding := GetBinding(FDataChannel);
+  if Assigned(LBinding) then begin
+    Result := LBinding.IP;
+  end else begin
+    Result := '';
   end;
 end;
 
 function TIdDataChannel.GetLocalPort: TIdPort;
+var
+  LBinding: TIdSocketHandle;
 begin
-  Result := 0;
-  if Assigned(FDataChannel) then begin
-    if Assigned(FDataChannel.Socket) then begin
-      if Assigned(FDataChannel.Socket.Binding) then begin
-        Result := FDataChannel.Socket.Binding.Port;
-      end;
-    end;
+  LBinding := GetBinding(FDataChannel);
+  if Assigned(LBinding) then begin
+    Result := LBinding.Port;
+  end else begin
+    Result := 0;
   end;
 end;
 
