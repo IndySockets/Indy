@@ -1406,6 +1406,8 @@ begin
 
   {$IF DEFINED(WINDOWS)}
   if lPath = '' then begin
+    // TODO: query this dynamically, in case the user changes the path after this unit
+    // is initialized. This is the only spot where GTempPath is used...
     lPath := GTempPath;
   end;
   {$ELSEIF DEFINED(HAS_IOUtils_TPath)}
@@ -1425,8 +1427,9 @@ var
 {$IFDEF FPC}
   LPrefix: string;
 {$ELSE}
-  LNamePart : TIdTicks;
-  LFQE : String;
+  LTicks : TIdTicks;
+  LNamePart : Int64;
+  LExt : String;
   LFName: String;
 {$ENDIF}
 begin
@@ -1449,12 +1452,12 @@ begin
 
   // TODO: on Windows, use Winapi.GetTempFileName(), at least...
 
-  LFQE := AExt;
+  LExt := AExt;
 
   // period is optional in the extension... force it
-  if LFQE <> '' then begin
-    if LFQE[1] <> '.' then begin
-      LFQE := '.' + LFQE;
+  if LExt <> '' then begin
+    if LExt[1] <> '.' then begin
+      LExt := '.' + LExt;
     end;
   end;
 
@@ -1472,13 +1475,25 @@ begin
     LFName := APrefix;
   end;
 
-  LNamePart := Ticks64;
+  // TODO: use a GUID instead of ticks on platforms that support that...
+
+  LTicks := Ticks64;
+  if LTicks > High(Int64) then begin
+    LTicks := High(Int64);
+  end;
+
+  LNamePart := Int64(LTicks);
   repeat
-    Result := LFName + IntToHex(LNamePart, 8) + LFQE;
+    Result := LFName + IntToHex(LNamePart, 8) + LExt;
     if not FileExists(Result) then begin
       Break;
     end;
-    Inc(LNamePart);
+    if LNamePart = High(Int64) then begin
+      LNamePart := 0; // wrap to zero, not negative
+    end else begin;
+      Inc(LNamePart);
+    end;
+    // TODO: if we wrap all the way back around to the starting value, fail with an error...
   until False;
 
   {$ENDIF}
