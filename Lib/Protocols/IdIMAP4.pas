@@ -5995,24 +5995,34 @@ end;
 
 procedure TIdIMAP4.ParseExpungeResult(AMB: TIdMailBox; ACmdResultDetails: TStrings);
 var
-  Ln : Integer;
+  Ln, LCnt: Integer;
   LSlExpunge : TStringList;
 begin
   SetLength(AMB.DeletedMsgs, 0);
-  LSlExpunge := TStringList.Create;
-  try
-    if ACmdResultDetails.Count > 1 then begin
-      for Ln := 0 to ACmdResultDetails.Count - 1 do begin
-        BreakApart(ACmdResultDetails[Ln], ' ', LSlExpunge); {Do not Localize}
-        if TextIsSame(LSlExpunge[1], IMAP4Commands[cmdExpunge]) then begin
-           SetLength(AMB.DeletedMsgs, (Length(AMB.DeletedMsgs) + 1));
-           AMB.DeletedMsgs[Length(AMB.DeletedMsgs) - 1] := IndyStrToInt(LSlExpunge[0]);
+  if ACmdResultDetails.Count > 0 then begin
+    LSlExpunge := TStringList.Create;
+    try
+      // TODO: count the number of EXPUNGE entries and allocate the DeletedMsgs array one time...
+      LCnt := 0;
+      try
+        for Ln := 0 to ACmdResultDetails.Count - 1 do begin
+          // TODO: maybe use Fetch() instead and get rid of the TStringList altogether?
+          BreakApart(ACmdResultDetails[Ln], ' ', LSlExpunge); {Do not Localize}
+          if LSlExpunge.Count > 1 then begin
+            if TextIsSame(LSlExpunge[1], IMAP4Commands[cmdExpunge]) then begin
+              SetLength(AMB.DeletedMsgs, LCnt + 1);
+              AMB.DeletedMsgs[LCnt] := IndyStrToInt(LSlExpunge[0]);
+              Inc(LCnt);
+            end;
+          end;
+          LSlExpunge.Clear;
         end;
-        LSlExpunge.Clear;
+      finally
+        SetLength(AMB.DeletedMsgs, LCnt);
       end;
+    finally
+      FreeAndNil(LSlExpunge);
     end;
-  finally
-    FreeAndNil(LSlExpunge);
   end;
 end;
 
@@ -6065,24 +6075,35 @@ begin
 end;
 
 procedure TIdIMAP4.ParseSearchResult(AMB: TIdMailBox; ACmdResultDetails: TStrings);
-var Ln: Integer;
+var
+  Ln, LCnt: Integer;
   LSlSearch: TStringList;
 begin
-  LSlSearch := TStringList.Create;
-  try
-    SetLength(AMB.SearchResult, 0);
-    if ACmdResultDetails.Count > 0 then begin
-      if Pos(IMAP4Commands[cmdSearch], ACmdResultDetails[0]) > 0 then begin
-        BreakApart(ACmdResultDetails[0], ' ', LSlSearch); {Do not Localize}
-        for Ln := 1 to LSlSearch.Count - 1 do begin
-           // TODO: for a UID search, store LSlSearch[Ln] as-is without converting it to an Integer...
-           SetLength(AMB.SearchResult, (Length(AMB.SearchResult) + 1));
-           AMB.SearchResult[Length(AMB.SearchResult) - 1] := IndyStrToInt(LSlSearch[Ln]);
+  SetLength(AMB.SearchResult, 0);
+  if ACmdResultDetails.Count > 0 then begin
+    LSlSearch := TStringList.Create;
+    try
+      // TODO: maybe use a Fetch() loop instead and get rid of the TStringList altogether?
+      BreakApart(ACmdResultDetails[0], ' ', LSlSearch); {Do not Localize}
+      if LSlSearch.Count > 0 then begin
+        if TextIsSame(LSlSearch[0], IMAP4Commands[cmdSearch]) then begin
+          SetLength(AMB.SearchResult, LSlSearch.Count - 1);
+          LCnt := 0;
+          try
+            for Ln := 1 to LSlSearch.Count - 1 do
+            begin
+              // TODO: for a UID search, store LSlSearch[Ln] as-is without converting it to an Integer...
+              AMB.SearchResult[LCnt] := IndyStrToInt(LSlSearch[Ln]);
+              Inc(LCnt);
+            end;
+          finally
+            SetLength(AMB.SearchResult, LCnt);
+          end;
         end;
       end;
+    finally
+      FreeAndNil(LSlSearch);
     end;
-  finally
-    FreeAndNil(LSlSearch);
   end;
 end;
 
