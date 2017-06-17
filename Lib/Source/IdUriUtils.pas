@@ -61,6 +61,15 @@ begin
   {$ELSEIF DEFINED(HAS_TCharacter)}
   TCharacter.ConvertToUtf32(AStr, AIndex, Result);
   {$ELSE}
+  // TODO: use GetUTF16Codepoint() here...
+  {
+  C := GetUTF16Codepoint(AStr, AIndex);
+  if (C >= #$10000) and (C <= #$10FFFF) then begin
+    Result := 2;
+  end else begin
+    Result := 1;
+  end;
+  }
   if (AIndex < 1) or (AIndex > Length(AStr)) then
   begin
     raise EIdUTF16IndexOutOfRange.CreateResFmt(@RSUTF16IndexOutOfRange, [AIndex, Length(AStr)]);
