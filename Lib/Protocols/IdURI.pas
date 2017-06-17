@@ -145,7 +145,7 @@ end;
 
 class procedure TIdURI.NormalizePath(var APath: string);
 var
-  i: Integer;
+  i, PathLen: Integer;
   LChar: Char;
   {$IFDEF STRING_IS_IMMUTABLE}
   LSB: TIdStringBuilder;
@@ -173,7 +173,8 @@ begin
     i := 1;
   end;
 
-  while i <= Length(APath) do begin
+  PathLen := Length(APath);
+  while i <= PathLen do begin
     LChar := APath[i];
     {$IFDEF STRING_IS_ANSI}
     if IsLeadChar(LChar) then begin
@@ -334,7 +335,7 @@ class function TIdURI.URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = n
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
-  i: Integer;
+  i, SrcLen: Integer;
   ESC: string;
   LChars: TIdWideChars;
   LBytes: TIdBytes;
@@ -348,7 +349,8 @@ begin
   // S.G. 27/11/2002: well, a space
   // ASrc := ReplaceAll(ASrc, '+', ' ');  {do not localize}
   i := 1;
-  while i <= Length(ASrc) do begin
+  SrcLen := Length(ASrc);
+  while i <= SrcLen do begin
     if ASrc[i] <> '%' then begin  {do not localize}
       AppendByte(LBytes, Ord(ASrc[i])); // Copy the char
       Inc(i); // Then skip it
@@ -390,13 +392,40 @@ begin
   {$ENDIF}
 end;
 
+{$IFNDEF STRING_IS_UNICODE}
+// RLebeau 6/16/2017: IdGlobal.IsHexidecimal() expects Ansi input, but we need
+// a Unicode version here, so we don't truncate wide characters into something
+// that happen to be valid hex characters...
+function IsHexidecimal(const AChar: TIdWideChar): Boolean; overload;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := ((AChar >= '0') and (AChar <= '9'))  {Do not Localize}
+         or ((AChar >= 'A') and (AChar <= 'F'))  {Do not Localize}
+         or ((AChar >= 'a') and (AChar <= 'f')); {Do not Localize}
+end;
+{$ENDIF}
+
+function IsPercentEncoded(const ASrc: {$IFDEF STRING_IS_UNICODE}string{$ELSE}TIdWideChars{$ENDIF}; AIndex: Integer): Boolean;
+begin
+  {$IFDEF STRING_IS_UNICODE}
+  Result := (AIndex + 2) <= Length(ASrc);
+  {$ELSE}
+  Result := (AIndex + 2) < Length(ASrc);
+  {$ENDIF}
+  if Result then begin
+    Result := (ASrc[AIndex] = '%') {Do not Localize}
+          and IsHexidecimal(ASrc[AIndex+1])
+          and IsHexidecimal(ASrc[AIndex+2]);
+  end;
+end;
+
 class function TIdURI.ParamsEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 const
   UnsafeChars: TIdUnicodeString = '*<>#%"{}|\^[]`';  {do not localize}
 var
-  I, J, CharLen, ByteLen: Integer;
+  I, J, SrcLen, CharLen, ByteLen: Integer;
   Buf: TIdBytes;
   {$IFDEF STRING_IS_ANSI}
   LChars: TIdWideChars;
@@ -425,37 +454,52 @@ begin
   SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
 
   I := 0;
-  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
+  SrcLen := Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF});
+  while I < SrcLen do
   begin
-    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+    // RLebeau 6/9/2017: if LChar is '%', check if it belongs to a pre-encoded
+    // '%HH' octet, and if so then preserve the whole sequence as-is...
 
-    // S.G. 27/11/2002: Changed the parameter encoding: Even in parameters, a space
-    // S.G. 27/11/2002: is much more likely to be meaning "space" than "this is
-    // S.G. 27/11/2002: a new parameter"
-    // S.G. 27/11/2002: ref: Message-ID: <3de30169@newsgroups.borland.com> borland.public.delphi.internet.winsock
-    // S.G. 27/11/2002: Most low-ascii is actually Ok in parameters encoding.
-
-    // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
-    // may change characters >= #128 from their Ansi codepage value to their true
-    // Unicode codepoint value, depending on the codepage used for the source code.
-    // For instance, #128 may become #$20AC...
-
-    if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
-    begin
-      CharLen := CalcUTF16CharLength(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
-        ); // calculate length including surrogates
-      ByteLen := AByteEncoding.GetBytes(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
-        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
-      for J := 0 to ByteLen-1 do begin
-        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
-      end;
-      Inc(I, CharLen);
+    if IsPercentEncoded({$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}) then begin
+      {$IFDEF STRING_IS_UNICODE}
+      Result := Result + Copy(ASrc, I+1, 3);
+      {$ELSE}
+      for J := 0 to 2 do begin
+        Result := Result + Char(LChars[I+J]);  {do not localize}
+      {$ENDIF}
+      Inc(I, 3);
     end else
     begin
-      Result := Result + Char(LChar);
-      Inc(I);
+      LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+
+      // S.G. 27/11/2002: Changed the parameter encoding: Even in parameters, a space
+      // S.G. 27/11/2002: is much more likely to be meaning "space" than "this is
+      // S.G. 27/11/2002: a new parameter"
+      // S.G. 27/11/2002: ref: Message-ID: <3de30169@newsgroups.borland.com> borland.public.delphi.internet.winsock
+      // S.G. 27/11/2002: Most low-ascii is actually Ok in parameters encoding.
+
+      // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
+      // may change characters >= #128 from their Ansi codepage value to their true
+      // Unicode codepoint value, depending on the codepage used for the source code.
+      // For instance, #128 may become #$20AC...
+
+      if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
+      begin
+        CharLen := CalcUTF16CharLength(
+          {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
+          ); // calculate length including surrogates
+        ByteLen := AByteEncoding.GetBytes(
+          {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
+          CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+        for J := 0 to ByteLen-1 do begin
+          Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
+        end;
+        Inc(I, CharLen);
+      end else
+      begin
+        Result := Result + Char(LChar);
+        Inc(I);
+      end;
     end;
   end;
 end;
@@ -464,9 +508,9 @@ class function TIdURI.PathEncode(const ASrc: string; AByteEncoding: IIdTextEncod
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 const
-  UnsafeChars = '*<>#%"{}|\^[]`+';  {do not localize}
+  UnsafeChars: TIdUnicodeString = '*<>#%"{}|\^[]`+';  {do not localize}
 var
-  I, J, CharLen, ByteLen: Integer;
+  I, J, SrcLen, CharLen, ByteLen: Integer;
   Buf: TIdBytes;
   {$IFDEF STRING_IS_ANSI}
   LChars: TIdWideChars;
@@ -495,26 +539,41 @@ begin
   SetLength(Buf, AByteEncoding.GetMaxByteCount(2));
 
   I := 0;
-  while I < Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF}) do
+  SrcLen := Length({$IFDEF STRING_IS_UNICODE}ASrc{$ELSE}LChars{$ENDIF});
+  while I < SrcLen do
   begin
-    LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+    // RLebeau 6/9/2017: if LChar is '%', check if it belongs to a pre-encoded
+    // '%HH' octet, and if so then preserve the whole sequence as-is...
 
-    if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
-    begin
-      CharLen := CalcUTF16CharLength(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
-        ); // calculate length including surrogates
-      ByteLen := AByteEncoding.GetBytes(
-        {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
-        CharLen, Buf, 0); // explicit Unicode->Ansi conversion
-      for J := 0 to ByteLen-1 do begin
-        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
-      end;
-      Inc(I, CharLen);
+    if IsPercentEncoded({$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}) then begin
+      {$IFDEF STRING_IS_UNICODE}
+      Result := Result + Copy(ASrc, I+1, 3);
+      {$ELSE}
+      for J := 0 to 2 do begin
+        Result := Result + Char(LChars[I+J]);  {do not localize}
+      {$ENDIF}
+      Inc(I, 3);
     end else
     begin
-      Result := Result + Char(LChar);
-      Inc(I);
+      LChar := {$IFDEF STRING_IS_UNICODE}ASrc[I+1]{$ELSE}LChars[I]{$ENDIF};
+
+      if WideCharIsInSet(UnsafeChars, LChar) or (Ord(LChar) < 33) or (Ord(LChar) > 127) then
+      begin
+        CharLen := CalcUTF16CharLength(
+          {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
+          ); // calculate length including surrogates
+        ByteLen := AByteEncoding.GetBytes(
+          {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF},
+          CharLen, Buf, 0); // explicit Unicode->Ansi conversion
+        for J := 0 to ByteLen-1 do begin
+          Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
+        end;
+        Inc(I, CharLen);
+      end else
+      begin
+        Result := Result + Char(LChar);
+        Inc(I);
+      end;
     end;
   end;
 end;

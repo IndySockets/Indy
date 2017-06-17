@@ -88,6 +88,15 @@ begin
       {$IFDEF HAS_TCharacter}
   TCharacter.ConvertToUtf32(AStr, AIndex, Result);
       {$ELSE}
+  // TODO: use GetUTF16Codepoint() here...
+  {
+  C := GetUTF16Codepoint(AStr, AIndex);
+  if (C >= #$10000) and (C <= #$10FFFF) then begin
+    Result := 2;
+  end else begin
+    Result := 1;
+  end;
+  }
   if (AIndex < {$IFDEF STRING_IS_UNICODE}1{$ELSE}0{$ENDIF}) or
      (AIndex > (Length(AStr){$IFNDEF STRING_IS_UNICODE}-1{$ENDIF})) then
   begin
