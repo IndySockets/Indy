@@ -466,6 +466,7 @@ begin
       {$ELSE}
       for J := 0 to 2 do begin
         Result := Result + Char(LChars[I+J]);  {do not localize}
+      end;
       {$ENDIF}
       Inc(I, 3);
     end else
@@ -551,6 +552,7 @@ begin
       {$ELSE}
       for J := 0 to 2 do begin
         Result := Result + Char(LChars[I+J]);  {do not localize}
+      end;
       {$ENDIF}
       Inc(I, 3);
     end else

@@ -1641,8 +1641,9 @@ begin
   // TODO: use a GUID instead of ticks on platforms that support that...
 
   LTicks := Ticks64;
-  if LTicks > High(Int64) then begin
-    LTicks := High(Int64);
+  // RLebeau 6/20/2017: casting to TIdTicks to address a compiler bug in Delphi 7
+  if LTicks > TIdTicks(High(Int64)) then begin
+    LTicks := TIdTicks(High(Int64));
   end;
 
   LNamePart := Int64(LTicks);
