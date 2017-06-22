@@ -491,6 +491,9 @@
   // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 30000)}
+    {$DEFINE FPC_3_0_0_OR_ABOVE}
+  {$IFEND}
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 20701)}
     {$DEFINE FPC_2_7_1_OR_ABOVE}
   {$IFEND}
@@ -523,6 +526,9 @@
   {$IFEND}
 
   // just in case
+  {$IFDEF FPC_3_0_0}
+    {$DEFINE FPC_3_0_0_OR_ABOVE}
+  {$ENDIF}
   {$IFDEF FPC_2_7_1}
     {$DEFINE FPC_2_7_1_OR_ABOVE}
   {$ENDIF}
@@ -552,6 +558,14 @@
   {$ENDIF}
   {$IFDEF FPC_2_1_5}
     {$DEFINE FPC_2_1_5_OR_ABOVE}
+  {$ENDIF}
+
+  {$IFDEF FPC_3_0_0_OR_ABOVE}
+    {$DEFINE FPC_2_7_1_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_2_7_1}
+      {$DEFINE FPC_2_7_1_OR_ABOVE}
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF FPC_2_7_1_OR_ABOVE}
@@ -1185,6 +1199,7 @@
   {.$WARN IMPLICIT_INTEGER_CAST_LOSS OFF}
   {.$WARN IMPLICIT_CONVERSION_LOSS OFF}
   {.$WARN COMBINING_SIGNED_UNSIGNED64 OFF}
+  {$DEFINE HAS_STATIC_TThread_ForceQueue}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -1266,6 +1281,7 @@
     {$DEFINE DEPRECATED_TThread_SuspendResume}
     {$DEFINE HAS_DEPRECATED} // TODO: when was deprecated introduced? Possibly 1.9.x
     {$DEFINE HAS_DEPRECATED_MSG} // TODO: when was message support added? Possibly 2.4.x
+    {$DEFINE HAS_STATIC_TThread_Synchronize}
     {$IFNDEF FPC_2_6_2_OR_ABOVE}
       {$DEFINE USE_SEMICOLON_BEFORE_DEPRECATED} // TODO: which earlier versions require a semicolon?
     {$ENDIF}
@@ -1289,6 +1305,9 @@
     {$DEFINE HAS_PUInt16}
     {$DEFINE HAS_PInt32}
     {$DEFINE HAS_PUInt32}
+  {$ENDIF}
+  {$IFDEF FPC_3_0_0_OR_ABOVE}
+    {$DEFINE HAS_STATIC_TThread_Queue}
   {$ENDIF}
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE STRING_IS_UNICODE}
