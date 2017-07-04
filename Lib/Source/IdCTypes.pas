@@ -85,7 +85,7 @@ type
   //this is necessary because Borland still doesn't support QWord
   // (unsigned 64bit type).
   {$IFNDEF HAS_QWord}
-  qword = {$IFDEF HAS_UInt64}UInt64{$ELSE}Int64{$ENDIF};
+  qword = UInt64;
   {$ENDIF}
 
   TIdC_LONG  = LongInt;
@@ -139,11 +139,6 @@ type
   PIdC_DOUBLE = ^TIdC_DOUBLE;
   TIdC_LONGDOUBLE = Extended;
   PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE;
-
-  //Some headers require this in D5 or earlier.
-  //FreePascal already has this in its system unit.
-  {$IFNDEF HAS_PByte}PByte = ^Byte;{$ENDIF}
-  {$IFNDEF HAS_PWord}PWord = ^Word;{$ENDIF}
 
   {$ENDIF}
 

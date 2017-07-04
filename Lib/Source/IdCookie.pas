@@ -458,18 +458,6 @@ begin
             ((not HttpOnly) or (HttpOnly and IsHTTP(AURI.Protocol)));
 end;
 
-{$IFNDEF HAS_TryStrToInt64}
-// TODO: move this to IdGlobalProtocols...
-function TryStrToInt64(const S: string; out Value: Int64): Boolean;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-var
-  E: Integer;
-begin
-  Val(S, Value, E);
-  Result := E = 0;
-end;
-{$ENDIF}
-
 function TIdCookie.ParseServerCookie(const ACookieText: String; AURI: TIdURI): Boolean;
 const
   cTokenSeparators = '()<>@,;:\"/[]?={} '#9;

@@ -137,12 +137,6 @@ const
   SOCKET_INFO_CONNECTION_ENCRYPTED = $00000002;
 
 type
-  // RLebeau: find a better place for this
-  {$IFNDEF HAS_UInt64}
-  {$EXTERNALSYM UINT64}
-  UINT64 = {$IFDEF HAS_QWord}QWord{$ELSE}Int64{$ENDIF};
-  {$ENDIF}
-
   {$NODEFINE PPaddrinfo}
   PPaddrinfo = ^PAddrInfo;
   {$NODEFINE PPaddrinfoW}
@@ -842,18 +836,6 @@ begin
     ptNext := ptHead;
   end;
 end;
-
-{$IFNDEF HAS_TryStrToInt}
-// TODO: use the implementation already in IdGlobalProtocols...
-function TryStrToInt(const S: string; out Value: Integer): Boolean;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-var
-  E: Integer;
-begin
-  Val(S, Value, E);
-  Result := E = 0;
-end;
-{$ENDIF}
 
 function WspiapiLegacyGetAddrInfo(const pszNodeName: PIdPlatformChar; const pszServiceName: PIdPlatformChar;
   const ptHints: {$IFDEF UNICODE}PaddrinfoW{$ELSE}Paddrinfo{$ENDIF};

@@ -6,9 +6,7 @@ interface
 
 uses
   StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
-{$IFDEF HAS_UNIT_Types}
   Types,
-{$ENDIF}
 {$IFDEF WIDGET_LCL}
   LResources,
 {$ENDIF}

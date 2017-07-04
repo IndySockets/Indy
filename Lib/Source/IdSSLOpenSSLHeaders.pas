@@ -11125,10 +11125,6 @@ const
 type
   {$EXTERNALSYM PPByte}
   PPByte = ^PByte;
-  {$IFNDEF HAS_PPointer}
-  {$EXTERNALSYM PPointer}
-  PPointer = ^Pointer;
-  {$ENDIF}
 
 //This is just a synthasis since Pascal probably has what we need.
 //In C, the OpenSSL developers were using the PQ_64BIT moniker

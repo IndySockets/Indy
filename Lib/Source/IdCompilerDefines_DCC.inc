@@ -28,14 +28,6 @@
       {$DEFINE DELPHI_2009}
     {$ENDIF}
   {$IFEND}
-  {$DEFINE DCC_4_OR_ABOVE}
-  {$DEFINE DCC_5_OR_ABOVE}
-  {$DEFINE DCC_6_OR_ABOVE}
-  {$DEFINE DCC_7_OR_ABOVE}
-  {$DEFINE DCC_8_OR_ABOVE}
-  {$DEFINE DCC_2005_OR_ABOVE}
-  {$DEFINE DCC_2006_OR_ABOVE}
-  {$DEFINE DCC_2007_OR_ABOVE}
   {$DEFINE DCC_2009_OR_ABOVE}
 {$IFEND}
 
@@ -282,45 +274,14 @@
 // Check for available features
 
 {$DEFINE HAS_RemoveFreeNotification}
-{$DEFINE HAS_GetObjectProp}
-{$DEFINE HAS_TObjectList}
-
-{$DEFINE STREAM_SIZE_64}
-{$DEFINE HAS_PCardinal}
-{$DEFINE HAS_PByte}
-{$DEFINE HAS_PWord}
-{$DEFINE HAS_PPointer}
-{$DEFINE HAS_TList_Assign}
-{$DEFINE HAS_sLineBreak}
-{$DEFINE HAS_RaiseLastOSError}
-{$DEFINE HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
-{$DEFINE HAS_SysUtils_DirectoryExists}
-{$DEFINE HAS_UNIT_DateUtils}
-{$DEFINE HAS_UNIT_StrUtils}
-{$DEFINE HAS_UNIT_Types}
-{$DEFINE HAS_TryStrToInt}
-{$DEFINE HAS_TryStrToInt64}
-{$DEFINE HAS_TryEncodeDate}
-{$DEFINE HAS_TryEncodeTime}
-{$DEFINE HAS_ENUM_ELEMENT_VALUES}
 {$DEFINE HAS_IInterface}
 {$DEFINE HAS_TSelectionEditor}
-{$DEFINE HAS_TStringList_CaseSensitive}
-{$DEFINE HAS_AcquireExceptionObject}
-{$DEFINE HAS_DEPRECATED}
 {$DEFINE HAS_SYMBOL_PLATFORM}
 {$DEFINE HAS_UNIT_PLATFORM}
-//Widget defines are omitted in .NET
-{$DEFINE VCL_60_PLUS}
 
-{$DEFINE HAS_UInt64}
 {$DEFINE HAS_NAMED_THREADS}
 {$DEFINE HAS_TStrings_NameValueSeparator}
 {$DEFINE HAS_TStrings_ValueFromIndex}
-{$DEFINE HAS_TFormatSettings}
-{$DEFINE HAS_PosEx}
-{$DEFINE HAS_STATIC_TThread_Queue}
-{$DEFINE HAS_STATIC_TThread_Synchronize}
 
 {$DEFINE USE_INLINE}
 {$DEFINE HAS_2PARAM_FileAge}
@@ -333,16 +294,13 @@
 // Native(U)Int exist but are buggy, so do not use them yet
 {.$DEFINE HAS_NativeInt}
 {.$DEFINE HAS_NativeUInt}
-{$DEFINE HAS_StrToInt64Def}
 {$DEFINE HAS_DWORD_PTR}
 {$DEFINE HAS_ULONG_PTR}
 {$DEFINE HAS_ULONGLONG}
-{$DEFINE HAS_PGUID}
 {$DEFINE HAS_PPAnsiChar}
 {$DEFINE HAS_CurrentYear}
 {$DEFINE HAS_TIMEUNITS}
 
-{$DEFINE HAS_UnicodeString}
 {$DEFINE HAS_TEncoding}
 {$DEFINE HAS_TCharacter}
 {$DEFINE HAS_InterlockedCompareExchangePointer}
@@ -355,14 +313,7 @@
   {$DEFINE BROKEN_FmtStr}
 {$ENDIF}
 {$DEFINE HAS_CLASSVARS}
-{$DEFINE HAS_DEPRECATED_MSG}
 {$DEFINE HAS_TBytes}
-{$DEFINE HAS_Int8}
-{$DEFINE HAS_UInt8}
-{$DEFINE HAS_Int16}
-{$DEFINE HAS_UInt16}
-{$DEFINE HAS_Int32}
-{$DEFINE HAS_UInt32}
 {$IFDEF WINDOWS}
   // Exception.RaiseOuterException() is only available on Windows at this time
   {$DEFINE HAS_Exception_RaiseOuterException}
@@ -373,6 +324,7 @@
   {$DEFINE HAS_CLASSDESTRUCTOR}
   {$DEFINE HAS_DELAYLOAD}
   {$DEFINE HAS_TThread_NameThreadForDebugging}
+  {$DEFINE THREADNAME_IS_ANSISTRING} // NameThreadForDebugging() uses AnsiString
   {$DEFINE DEPRECATED_TThread_SuspendResume}
   // Native(U)Int are finally ok to use now
   {$DEFINE HAS_NativeInt}
@@ -408,6 +360,7 @@
 {$IFDEF DCC_XE3_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_ZEROBASEDSTRINGS}
   {$DEFINE HAS_SysUtils_TStringHelper}
+  {$UNDEF THREADNAME_IS_ANSISTRING} // NameThreadForDebugging() now uses (Unicode)String
   {$IFDEF NEXTGEN}
     {$DEFINE DCC_NEXTGEN}
     {$DEFINE HAS_MarshaledAString}
@@ -488,7 +441,6 @@
   {$UNDEF KYLIXCOMPAT}
 {$ENDIF}
 
-{$DEFINE WIDGET_VCL_LIKE}
 {$DEFINE WIDGET_VCL}
 
 {$IFDEF DCC_NEXTGEN}

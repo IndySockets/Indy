@@ -65,12 +65,12 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes
-  {$IF DEFINED(HAS_UNIT_Generics_Collections)}
-  , System.Generics.Collections
-  {$ELSEIF DEFINED(HAS_TObjectList)}
-  , Contnrs
-  {$IFEND}
+  Classes,
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections
+  {$ELSE}
+  Contnrs
+  {$ENDIF}
   ;
 
 type
@@ -82,41 +82,20 @@ type
 
   {TIdObjectList}
 
-  {$IF DEFINED(HAS_GENERICS_TObjectList)}
+  {$IFDEF HAS_GENERICS_TObjectList}
   TIdObjectList<T: class> = class(TObjectList<T>)
   public
     procedure BubbleSort(ACompare : TIdSortCompare<T>);
     procedure Assign(Source: TIdObjectList<T>);
   end;
-  {$ELSEIF DEFINED(HAS_TObjectList)}
+  {$ELSE}
   TIdObjectList = class(TObjectList)
   public
     procedure BubbleSort(ACompare : TIdSortCompare);
     // This is a simplyfied Assign method that does only support the copy operation.
     procedure Assign(Source: TIdObjectList); reintroduce;
   end;
-  {$ELSE}
-  TIdObjectList = class(TList)
-  private
-    FOwnsObjects: Boolean;
-  protected
-    function GetItem(AIndex: Integer): TObject;
-    procedure SetItem(AIndex: Integer; AObject: TObject);
-    procedure Notify(AItemPtr: Pointer; AAction: TListNotification); override;
-  public
-    constructor Create; overload;
-    constructor Create(AOwnsObjects: Boolean); overload;
-    procedure BubbleSort(ACompare : TIdSortCompare);
-    function Add(AObject: TObject): Integer;
-    function FindInstanceOf(AClassRef: TClass; AMatchExact: Boolean = True; AStartPos: Integer = 0): Integer;
-    function IndexOf(AObject: TObject): Integer;
-    function Remove(AObject: TObject): Integer;
-    procedure Insert(AIndex: Integer; AObject: TObject);
-    procedure Assign(Source: TIdObjectList);
-    property Items[AIndex: Integer]: TObject read GetItem write SetItem; default;
-    property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
-  end;
-  {$IFEND}
+  {$ENDIF}
 
   TIdStringListSortCompare = function(List: TStringList; Index1, Index2: Integer): Integer;
 
@@ -133,82 +112,6 @@ uses
 {$ENDIF}
 
 { TIdObjectList }
-
-{$IF (NOT DEFINED(HAS_GENERICS_TObjectList)) AND (NOT DEFINED(HAS_TObjectList))}
-
-constructor TIdObjectList.Create;
-begin
-  inherited Create;
-  FOwnsObjects := True;
-end;
-
-constructor TIdObjectList.Create(AOwnsObjects: Boolean);
-begin
-  inherited Create;
-  FOwnsObjects := AOwnsObjects;
-end;
-
-function TIdObjectList.Add(AObject: TObject): Integer;
-begin
-  Result := inherited Add(AObject);
-end;
-
-function TIdObjectList.FindInstanceOf(AClassRef: TClass;
-  AMatchExact: Boolean = True; AStartPos: Integer = 0): Integer;
-var
-  iPos: Integer;
-  bIsAMatch: Boolean;
-begin
-  Result := -1;   // indicates item is not in object list
-
-  for iPos := AStartPos to Count - 1 do
-  begin
-    bIsAMatch :=
-      ((not AMatchExact) and Items[iPos].InheritsFrom(AClassRef)) or
-      (AMatchExact and (Items[iPos].ClassType = AClassRef));
-
-    if bIsAMatch then
-    begin
-      Result := iPos;
-      Break;
-    end;
-  end;
-end;
-
-function TIdObjectList.GetItem(AIndex: Integer): TObject;
-begin
-  Result := inherited Items[AIndex];
-end;
-
-function TIdObjectList.IndexOf(AObject: TObject): Integer;
-begin
-  Result := inherited IndexOf(AObject);
-end;
-
-procedure TIdObjectList.Insert(AIndex: Integer; AObject: TObject);
-begin
-  inherited Insert(AIndex, AObject);
-end;
-
-procedure TIdObjectList.Notify(AItemPtr: Pointer; AAction: TListNotification);
-begin
-  if OwnsObjects and (AAction = lnDeleted) then begin
-    TObject(AItemPtr).Free;
-  end;
-  inherited Notify(AItemPtr, AAction);
-end;
-
-function TIdObjectList.Remove(AObject: TObject): Integer;
-begin
-  Result := inherited Remove(AObject);
-end;
-
-procedure TIdObjectList.SetItem(AIndex: Integer; AObject: TObject);
-begin
-  inherited Items[AIndex] := AObject;
-end;
-
-{$IFEND}
 
 {$IFDEF HAS_GENERICS_TObjectList}
 procedure TIdObjectList<T>.BubbleSort(ACompare: TIdSortCompare<T>);
@@ -239,7 +142,6 @@ procedure TIdObjectList.Assign(Source: TIdObjectList);
 var
   I: Integer;
 begin
-  // Delphi 5 does not have TList.Assign.
   // This is a simplyfied Assign method that does only support the copy operation.
   Clear;
   Capacity := Source.Capacity;

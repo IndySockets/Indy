@@ -550,76 +550,41 @@ uses
   IdException;
 
 
-{$IFNDEF HAS_PCardinal}
-type
-  PCardinal = ^Cardinal;
-{$ENDIF}
-
 {$IF DEFINED(HAS_QWord) AND (NOT DEFINED(HAS_PQWord))}
 type
   PQWord = ^QWord;
 {$IFEND}
 
-{$IFNDEF HAS_Int8}
-type
-  Int8 = Shortint;
-  {$NODEFINE Int8}
-{$ENDIF}
 {$IFNDEF HAS_PInt8}
 type
   PInt8 = PShortint;
   {$NODEFINE PInt8}
 {$ENDIF}
 
-{$IFNDEF HAS_UInt8}
-type
-  UInt8 = Byte;
-  {$NODEFINE UInt8}
-{$ENDIF}
 {$IFNDEF HAS_PUInt8}
 type
   PUInt8 = PByte;
   {$NODEFINE PUInt8}
 {$ENDIF}
 
-{$IFNDEF HAS_Int16}
-type
-  Int16 = Smallint;
-  {$NODEFINE Int16}
-{$ENDIF}
 {$IFNDEF HAS_PInt16}
 type
   PInt16 = PSmallint;
   {$NODEFINE PInt16}
 {$ENDIF}
 
-{$IFNDEF HAS_UInt16}
-type
-  UInt16 = Word;
-  {$NODEFINE UInt16}
-{$ENDIF}
 {$IFNDEF HAS_PUInt16}
 type
   PUInt16 = PWord;
   {$NODEFINE PUInt16}
 {$ENDIF}
 
-{$IFNDEF HAS_Int32}
-type
-  Int32 = Integer;
-  {$NODEFINE Int32}
-{$ENDIF}
 {$IFNDEF HAS_PInt32}
 type
   PInt32 = PInteger;
   {$NODEFINE PInt32}
 {$ENDIF}
 
-{$IFNDEF HAS_UInt32}
-type
-  UInt32 = Cardinal;
-  {$NODEFINE UInt32}
-{$ENDIF}
 {$IFNDEF HAS_PUInt32}
 type
   PUInt32 = PCardinal;
@@ -629,10 +594,10 @@ type
 type
   TIdUInt64 = UInt64 deprecated 'use UInt64';
 
-{$IF DEFINED(HAS_UInt64) AND (NOT DEFINED(HAS_PUInt64))}
+{$IFNDEF HAS_PUInt64}
 type
   PUInt64 = ^UInt64;
-{$IFEND}
+{$ENDIF}
 
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
@@ -1092,14 +1057,6 @@ const
   ID_DEFAULT_IP_VERSION = Id_IPv4;
   {$ENDIF}
 
-  {$IFNDEF HAS_sLineBreak}
-    {$IFDEF WINDOWS}
-  sLineBreak = CR + LF;
-    {$ELSE}
-  sLineBreak = LF;
-    {$ENDIF}
-  {$ENDIF}
-
 //The power constants are for processing IP addresses
 //They are powers of 255.
 const
@@ -1116,8 +1073,8 @@ function IndyLength(const ABuffer: TIdBytes; const ALength: Integer = -1; const 
 function IndyLength(const ABuffer: TStream; const ALength: Int64 = -1): Int64; overload;
 
 function IndyFormat(const AFormat: string; const Args: array of const): string;
-function IndyIncludeTrailingPathDelimiter(const S: string): string;
-function IndyExcludeTrailingPathDelimiter(const S: string): string;
+function IndyIncludeTrailingPathDelimiter(const S: string): string; deprecated 'Use SysUtils.IncludeTrailingPathDelimiter()';
+function IndyExcludeTrailingPathDelimiter(const S: string): string; deprecated 'Use SysUtils.ExcludeTrailingPathDelimiter()';
 
 procedure IndyRaiseLastError;
 
@@ -1133,7 +1090,7 @@ function IndyStrToInt(const S: string): Integer; overload;
 function IndyStrToInt(const S: string; ADefault: Integer): Integer; overload;
 
 function IndyFileAge(const AFileName: string): TDateTime;
-function IndyDirectoryExists(const ADirectory: string): Boolean;
+function IndyDirectoryExists(const ADirectory: string): Boolean; deprecated 'Use SysUtils.DirectoryExists()';
 
 //You could possibly use the standard StrToInt and StrToInt64Def
 //functions but these also remove spaces using the trim function
@@ -1144,7 +1101,7 @@ function IndyStrToInt64(const S: string): Int64;  overload;
 function IndyStrToStreamSize(const S: string; const ADefault: Int64): Int64; overload;
 function IndyStrToStreamSize(const S: string): Int64; overload;
 
-function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
+function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime; deprecated 'Use DateUtils.IncMilliSecond()';
 
 // To and From Bytes conversion routines
 function ToBytes(const AValue: string; ADestEncoding: IIdTextEncoding = nil): TIdBytes; overload;
@@ -1222,7 +1179,10 @@ function ReadStringFromStream(AStream: TStream; ASize: Integer = -1; AByteEncodi
 procedure WriteStringToStream(AStream: TStream; const AStr: string; ADestEncoding: IIdTextEncoding); overload;
 procedure WriteStringToStream(AStream: TStream; const AStr: string; const ALength: Integer = -1; const AIndex: Integer = 1; ADestEncoding: IIdTextEncoding = nil); overload;
 function ReadCharFromStream(AStream: TStream; var VChar: Char; AByteEncoding: IIdTextEncoding = nil): Integer;
-function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Int64; const AIndex: Integer = 0): Int64;
+
+// RLebeau: must use a 'var' and not an 'out' for the VBytes parameter,
+// or else any preallocated buffer the caller passes in will get wiped out!
+function ReadTIdBytesFromStream(const AStream: TStream; var VBytes: TIdBytes; const ACount: Int64; const AIndex: Integer = 0): Int64;
 procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1; const AIndex: Integer = 0);
 
 function ByteToHex(const AByte: Byte): string;
@@ -1428,15 +1388,11 @@ function TwoByteToUInt16(AByte1, AByte2: Byte): UInt16;
 function IndyAddPair(AStrings: TStrings; const AName, AValue: String): TStrings; overload;
 function IndyAddPair(AStrings: TStrings; const AName, AValue: String; AObject: TObject): TStrings; overload;
 
-function IndyIndexOf(AStrings: TStrings; const AStr: string; const ACaseSensitive: Boolean = False): Integer;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
-{$IFDEF HAS_TStringList_CaseSensitive}
+function IndyIndexOf(AStrings: TStrings; const AStr: string; const ACaseSensitive: Boolean = False): Integer; overload;
 function IndyIndexOf(AStrings: TStringList; const AStr: string; const ACaseSensitive: Boolean = False): Integer; overload;
-{$ENDIF}
 
-function IndyIndexOfName(AStrings: TStrings; const AName: string; const ACaseSensitive: Boolean = False): Integer;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
-{$IFDEF HAS_TStringList_CaseSensitive}
+function IndyIndexOfName(AStrings: TStrings; const AName: string; const ACaseSensitive: Boolean = False): Integer; overload;
 function IndyIndexOfName(AStrings: TStringList; const AName: string; const ACaseSensitive: Boolean = False): Integer; overload;
-{$ENDIF}
 
 function IndyValueFromIndex(AStrings: TStrings; const AIndex: Integer): String;
 
@@ -1507,19 +1463,16 @@ uses
   Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
-  {$IF DEFINED(REGISTER_EXPECTED_MEMORY_LEAK) AND NOT DEFINED(HAS_System_RegisterExpectedMemoryLeak)}
+  {$IF DEFINED(REGISTER_EXPECTED_MEMORY_LEAK) AND (NOT DEFINED(HAS_System_RegisterExpectedMemoryLeak))}
     {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
     {$IFDEF USE_MADEXCEPT}madExcept,{$ENDIF}
   {$IFEND}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
-  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
+  DateUtils,
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
-  IdResourceStrings
-  {$IF DEFINED(HAS_PosEx) AND DEFINED(HAS_UNIT_StrUtils)}
-  ,StrUtils
-  {$IFEND}
-  ;
+  IdResourceStrings,
+  StrUtils;
 
 {$IF DEFINED(FPC) AND DEFINED(WINCE)}
 //FreePascal for WindowsCE may not define these.
@@ -3331,11 +3284,7 @@ end;
 procedure IndyRaiseLastError;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFNDEF HAS_RaiseLastOSError}
-  RaiseLastWin32Error;
-  {$ELSE}
   RaiseLastOSError;
-  {$ENDIF}
 end;
 
 {$IF DEFINED(HAS_Exception_RaiseOuterException)}
@@ -4636,9 +4585,9 @@ end;
 function IsHexidecimal(const AChar: Char): Boolean; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := IsNumeric(AChar)
-   or ((AChar >= 'A') and (AChar <= 'F')) {Do not Localize}
-   or ((AChar >= 'a') and (AChar <= 'f')); {Do not Localize}
+  Result := ((AChar >= '0') and (AChar <= '9'))  {Do not Localize}
+         or ((AChar >= 'A') and (AChar <= 'F'))  {Do not Localize}
+         or ((AChar >= 'a') and (AChar <= 'f')); {Do not Localize}
 end;
 
 function IsHexidecimal(const AString: string; const ALength: Integer = -1; const AIndex: Integer = 1): Boolean; overload;
@@ -4696,25 +4645,6 @@ begin
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
   Result := (AChar >= '0') and (AChar <= '9'); {Do not Localize}
 end;
-
-{
-This is an adaptation of the StrToInt64 routine in SysUtils.
-We had to adapt it to work with Int64 because the one with Integers
-can not deal with anything greater than MaxInt and IP addresses are
-always $0-$FFFFFFFF (unsigned)
-}
-{$IFNDEF HAS_StrToInt64Def}
-function StrToInt64Def(const S: string; const Default: Integer): Int64;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-var
-  E: Integer;
-begin
-  Val(S, Result, E);
-  if E <> 0 then begin
-    Result := Default;
-  end;
-end;
-{$ENDIF}
 
 function IPv4MakeUInt32InRange(const AInt: Int64; const A256Power: Integer): UInt32;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -5392,10 +5322,9 @@ end;
 {$ENDIF}
 
 procedure SetThreadName(const AName: string; AThreadID: UInt32 = $FFFFFFFF);
-{$IFDEF HAS_NAMED_THREADS}
-  {$IF DEFINED(HAS_TThread_NameThreadForDebugging)}
-    {$IFDEF USE_INLINE}inline;{$ENDIF}
-  {$ELSEIF DEFINED(WINDOWS)}
+{$IF DEFINED(HAS_TThread_NameThreadForDebugging)}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$ELSEIF DEFINED(HAS_NAMED_THREADS) AND DEFINED(WINDOWS)}
 const
   MS_VC_EXCEPTION = $406D1388;
 type
@@ -5408,23 +5337,19 @@ type
 var
   LName: AnsiString;
   LThreadNameInfo: TThreadNameInfo;
-  {$IFEND}
-{$ENDIF}
+{$IFEND}
 begin
-  {$IFDEF HAS_NAMED_THREADS}
-
-    {$IF DEFINED(HAS_TThread_NameThreadForDebugging)}
+  {$IF DEFINED(HAS_TThread_NameThreadForDebugging)}
 
   TThread.NameThreadForDebugging(
-      {$IFDEF HAS_AnsiString}
-    AnsiString(AName) // explicit convert to Ansi
-      {$ELSE}
+    {$IFDEF THREADNAME_IS_ANSISTRING}
+    AnsiString(AName)
+    {$ELSE}
     AName
-      {$ENDIF},
-    AThreadID
-  );
+    {$ENDIF},
+    AThreadID);
 
-    {$ELSEIF DEFINED(WINDOWS)}
+  {$ELSEIF DEFINED(HAS_NAMED_THREADS) AND DEFINED(WINDOWS)}
 
   LName := AnsiString(AName); // explicit convert to Ansi
   LThreadNameInfo.RecType := $1000;
@@ -5438,13 +5363,11 @@ begin
   except
   end;
 
-    {$IFEND}
-
   {$ELSE}
 
   // Do nothing. No support in this compiler for it.
 
-  {$ENDIF}
+  {$IFEND}
 end;
 
 { TIdLocalEvent }
@@ -5517,9 +5440,6 @@ const
   monthnames: array[1..12] of string = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', {do not localize}
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'); {do not localize}
 
-{$IFDEF HAS_TFormatSettings}
-//Delphi5 does not have TFormatSettings
-//this should be changed to a singleton?
 function GetEnglishSetting: TFormatSettings;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -5585,7 +5505,6 @@ begin
 
   Result.ListSeparator := ',';                                {do not localize}
 end;
-{$ENDIF}
 
 // RLebeau 10/24/2008: In the RTM release of Delphi/C++Builder 2009, the
 // overloaded version of SysUtils.Format() that has a TFormatSettings parameter
@@ -5594,18 +5513,15 @@ end;
 // for details.  The bug is fixed in 2009 Update 1.  For RTM, call FormatBuf()
 // directly to work around the problem...
 function IndyFormat(const AFormat: string; const Args: array of const): string;
-{$IFDEF HAS_TFormatSettings}
 var
   EnglishFmt: TFormatSettings;
   {$IFDEF BROKEN_FmtStr}
   Len, BufLen: Integer;
   Buffer: array[0..4095] of Char;
   {$ENDIF}
-{$ENDIF}
 begin
-  {$IFDEF HAS_TFormatSettings}
   EnglishFmt := GetEnglishSetting;
-    {$IFDEF BROKEN_FmtStr}
+  {$IFDEF BROKEN_FmtStr}
   BufLen := Length(Buffer);
   if Length(AFormat) < (Length(Buffer) - (Length(Buffer) div 4)) then
   begin
@@ -5631,17 +5547,8 @@ begin
   begin
     SetString(Result, Buffer, Len);
   end;
-    {$ELSE}
-  Result := SysUtils.Format(AFormat, Args, EnglishFmt);
-    {$ENDIF}
   {$ELSE}
-  //Is there a way to get delphi5 to use locale in format? something like:
-  //  SetThreadLocale(TheNewLocaleId);
-  //  GetFormatSettings;
-  //  Application.UpdateFormatSettings := False; //needed?
-  //  format()
-  //  set locale back to prior
-  Result := SysUtils.Format(AFormat, Args);
+  Result := SysUtils.Format(AFormat, Args, EnglishFmt);
   {$ENDIF}
 end;
 
@@ -5855,21 +5762,13 @@ end;
 function IndyIncludeTrailingPathDelimiter(const S: string): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
   Result := SysUtils.IncludeTrailingPathDelimiter(S);
-  {$ELSE}
-  Result := SysUtils.IncludeTrailingBackslash(S);
-  {$ENDIF}
 end;
 
 function IndyExcludeTrailingPathDelimiter(const S: string): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
   Result := SysUtils.ExcludeTrailingPathDelimiter(S);
-  {$ELSE}
-  Result := SysUtils.ExcludeTrailingBackslash(S);
-  {$ENDIF}
 end;
 
 function StringsReplace(const S: String; const OldPattern, NewPattern: array of string): string;
@@ -5885,48 +5784,6 @@ begin
     Result := ReplaceAll(Result, OldPattern[i], NewPattern[i]);
   end;
 end;
-
-{$IFNDEF HAS_PosEx}
-function PosEx(const SubStr, S: string; Offset: Integer): Integer;
-var
-  I, LIterCnt, L, J: Integer;
-  PSubStr, PS: PChar;
-begin
-  Result := 0;
-  if SubStr = '' then begin
-    Exit;
-  end;
-
-  { Calculate the number of possible iterations. Not valid if Offset < 1. }
-  LIterCnt := Length(S) - Offset - Length(SubStr) + 1;
-
-  { Only continue if the number of iterations is positive or zero (there is space to check) }
-  if (Offset > 0) and (LIterCnt >= 0) then
-  begin
-    L := Length(SubStr);
-    PSubStr := PChar(SubStr);
-    PS := PChar(S);
-    Inc(PS, Offset - 1);
-
-    for I := 0 to LIterCnt do
-    begin
-      J := 0;
-      while (J >= 0) and (J < L) do
-      begin
-        if PS[I + J] = PSubStr[J] then begin
-          Inc(J);
-        end else begin
-          J := -1;
-        end;
-      end;
-      if J >= L then begin
-        Result := I + Offset;
-        Exit;
-      end;
-    end;
-  end;
-end;
-{$ENDIF}
 
 function ReplaceAll(const S: String; const OldPattern, NewPattern: String): String;
 var
@@ -5994,20 +5851,9 @@ begin
 end;
 
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
-{$IFDEF HAS_UNIT_DateUtils}
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
-{$ELSE}
-var
-  LTM : TTimeStamp;
-{$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF HAS_UNIT_DateUtils}
   Result := DateUtils.IncMilliSecond(ADateTime, AMSec);
-  {$ELSE}
-  LTM := DateTimeToTimeStamp(ADateTime);
-  LTM.Time := LTM.Time + AMSec;
-  Result := TimeStampToDateTime(LTM);
-  {$ENDIF}
 end;
 
 function IndyFileAge(const AFileName: string): TDateTime;
@@ -6034,26 +5880,9 @@ begin
 end;
 
 function IndyDirectoryExists(const ADirectory: string): Boolean;
-{$IFDEF HAS_SysUtils_DirectoryExists}
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
-{$ELSE}
-var
-  Code: Integer;
-{$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF HAS_SysUtils_DirectoryExists}
   Result := SysUtils.DirectoryExists(ADirectory);
-  {$ELSE}
-  // RLebeau 2/16/2006: Removed dependency on the FileCtrl unit
-  Code := GetFileAttributes(
-    {$IFDEF STRING_UNICODE_MISMATCH}
-    PIdPlatformChar(TIdPlatformString(ADirectory)) // explicit convert to Ansi/Unicode
-    {$ELSE}
-    PChar(ADirectory)
-    {$ENDIF}
-  );
-  Result := (Code <> -1) and ((Code and FILE_ATTRIBUTE_DIRECTORY) <> 0);
-  {$ENDIF}
 end;
 
 function IndyStrToInt64(const S: string; const ADefault: Int64): Int64;
@@ -6460,18 +6289,18 @@ begin
   end;
 end;
 
-function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes;
-  const Count: Int64; const AIndex: Integer = 0): Int64;
+function ReadTIdBytesFromStream(const AStream: TStream; var VBytes: TIdBytes;
+  const ACount: Int64; const AIndex: Integer = 0): Int64;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LSize: Integer;
 begin
-  LSize := Integer(IndyLength(AStream, IndyMin(Count, MaxInt)));
+  LSize := Integer(IndyLength(AStream, IndyMin(ACount, MaxInt)));
   if LSize > 0 then begin
-    if Length(ABytes) < (AIndex+LSize) then begin
-      SetLength(ABytes, AIndex+LSize);
+    if Length(VBytes) < (AIndex+LSize) then begin
+      SetLength(VBytes, AIndex+LSize);
     end;
-    Result := AStream.Read(ABytes[AIndex], LSize);
+    Result := AStream.Read(VBytes[AIndex], LSize);
   end else begin
     Result := 0;
   end;
@@ -7277,16 +7106,13 @@ end;
 function IndyIndexOf(AStrings: TStrings; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
 begin
-  {$IFDEF HAS_TStringList_CaseSensitive}
   if AStrings is TStringList then begin
     Result := IndyIndexOf(TStringList(AStrings), AStr, ACaseSensitive);
-    Exit;
+  end else begin
+    Result := InternalIndyIndexOf(AStrings, AStr, ACaseSensitive);
   end;
-  {$ENDIF}
-  Result := InternalIndyIndexOf(AStrings, AStr, ACaseSensitive);
 end;
 
-{$IFDEF HAS_TStringList_CaseSensitive}
 function IndyIndexOf(AStrings: TStringList; const AStr: string;
   const ACaseSensitive: Boolean = False): Integer;
 begin
@@ -7296,7 +7122,6 @@ begin
     Result := InternalIndyIndexOf(AStrings, AStr, ACaseSensitive);
   end;
 end;
-{$ENDIF}
 
 function InternalIndyIndexOfName(AStrings: TStrings; const AName: string;
   const ACaseSensitive: Boolean = False): Integer;
@@ -7322,16 +7147,13 @@ end;
 function IndyIndexOfName(AStrings: TStrings; const AName: string;
   const ACaseSensitive: Boolean = False): Integer;
 begin
-  {$IFDEF HAS_TStringList_CaseSensitive}
   if AStrings is TStringList then begin
     Result := IndyIndexOfName(TStringList(AStrings), AName, ACaseSensitive);
-    Exit;
+  end else begin
+    Result := InternalIndyIndexOfName(AStrings, AName, ACaseSensitive);
   end;
-  {$ENDIF}
-  Result := InternalIndyIndexOfName(AStrings, AName, ACaseSensitive);
 end;
 
-{$IFDEF HAS_TStringList_CaseSensitive}
 function IndyIndexOfName(AStrings: TStringList; const AName: string;
   const ACaseSensitive: Boolean = False): Integer;
 begin
@@ -7341,7 +7163,6 @@ begin
     Result := InternalIndyIndexOfName(AStrings, AName, ACaseSensitive);
   end;
 end;
-{$ENDIF}
 
 function IndyValueFromIndex(AStrings: TStrings; const AIndex: Integer): String;
 {$IFNDEF HAS_TStrings_ValueFromIndex}

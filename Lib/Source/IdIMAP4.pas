@@ -1838,9 +1838,7 @@ begin
   Port := IdPORT_IMAP4;
   FLineStruct := TIdIMAPLineStruct.Create;
   FCapabilities := TStringList.Create;
-  {$IFDEF HAS_TStringList_CaseSensitive}
   TStringList(FCapabilities).CaseSensitive := False;
-  {$ENDIF}
   FMUTF7 := TIdMUTF7.Create;
 
   //Todo:  Not sure which number is appropriate.  Should be tested further.
@@ -1977,11 +1975,15 @@ var
 begin
   LUsersFolders := TStringList.Create;
   try
-    {$IFDEF HAS_TStringList_CaseSensitive}
     LUsersFolders.CaseSensitive := False;
-    {$ENDIF}
+
     //Get folder names...
-    if (not ListMailBoxes(LUsersFolders)) or (LUsersFolders.Count = 0) then begin
+    if not ListMailBoxes(LUsersFolders) then begin
+      Result := ftCannotRetrieveAnyFolders;
+      Exit;
+    end;
+
+    if LUsersFolders.Count = 0 then begin
       Result := ftCannotRetrieveAnyFolders;
       Exit;
     end;

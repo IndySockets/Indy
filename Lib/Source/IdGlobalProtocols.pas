@@ -2298,18 +2298,6 @@ begin
   end;
 end;
 
-{$IFNDEF HAS_TryStrToInt}
-// TODO: declare this in the interface section...
-function TryStrToInt(const S: string; out Value: Integer): Boolean;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-var
-  E: Integer;
-begin
-  Val(S, Value, E);
-  Result := E = 0;
-end;
-{$ENDIF}
-
 { Using the algorithm defined in RFC 6265 section 5.1.1 }
 function CookieStrToLocalDateTime(S: string): TDateTime;
 const
@@ -4116,9 +4104,6 @@ function ExtractHeaderSubItem(const AHeaderLine, ASubItem: String;
   AQuoteType: TIdHeaderQuotingType): String;
 var
   LItems: TIdHeaderNameValueList;
-  {$IF (NOT DEFINED(USE_OBJECT_ARC)) AND (NOT DEFINED(HAS_TStringList_CaseSensitive))}
-  I: Integer;
-  {$IFEND}
 begin
   Result := '';
   // TODO: instead of splitting the header into a list of name=value pairs,
@@ -4127,17 +4112,12 @@ begin
   LItems := TIdHeaderNameValueList.Create;
   try
     SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
-    {$IF DEFINED(USE_OBJECT_ARC)}
+    {$IFDEF USE_OBJECT_ARC}
     Result := LItems.GetValue(ASubItem);
-    {$ELSEIF DEFINED(HAS_TStringList_CaseSensitive)}
+    {$ELSE}
     LItems.CaseSensitive := False;
     Result := LItems.Values[ASubItem];
-    {$ELSE}
-    I := IndyIndexOfName(LItems, ASubItem);
-    if I <> -1 then begin
-      Result := IndyValueFromIndex(LItems, I);
-    end;
-    {$IFEND}
+    {$ENDIF}
   finally
     LItems.Free;
   end;
@@ -4202,9 +4182,7 @@ begin
     {$IFDEF USE_OBJECT_ARC}
     I := LItems.IndexOfName(ASubItem);
     {$ELSE}
-      {$IFDEF HAS_TStringList_CaseSensitive}
     LItems.CaseSensitive := False;
-      {$ENDIF}
     I := IndyIndexOfName(LItems, ASubItem);
     {$ENDIF}
     if I >= 0 then begin

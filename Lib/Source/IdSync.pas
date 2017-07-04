@@ -68,11 +68,11 @@ interface
 {$i IdCompilerDefines.inc}
 
 
-{$IF (NOT DEFINED(HAS_STATIC_TThread_Synchronize)) OR (NOT DEFINED(HAS_STATIC_TThread_Queue)) OR (NOT DEFINED(HAS_STATIC_TThread_ForceQueue))}
+{$IFNDEF HAS_STATIC_TThread_ForceQueue}
   {$DEFINE NotifyThreadNeeded}
 {$ELSE}
   {$UNDEF NotifyThreadNeeded}
-{$IFEND}
+{$ENDIF}
 
 uses
   Classes,
@@ -85,25 +85,13 @@ uses
 type
   TIdSync = class(TObject)
   protected
-    {$IFNDEF HAS_STATIC_TThread_Synchronize}
-    FThread: TIdThread;
-    {$ENDIF}
-    //
     procedure DoSynchronize; virtual; abstract;
   public
-    {$IFDEF HAS_STATIC_TThread_Synchronize}
     constructor Create; virtual;
-    {$ELSE}
-    constructor Create; overload; virtual;
-    constructor Create(AThread: TIdThread); overload; virtual;
-    {$ENDIF}
     procedure Synchronize;
     class procedure SynchronizeMethod(AMethod: TThreadMethod);
     //
-    {$IFNDEF HAS_STATIC_TThread_Synchronize}
-    property Thread: TIdThread read FThread;
-    {$ENDIF}
-  end {$IFDEF HAS_STATIC_TThread_Synchronize}deprecated 'Use static TThread.Synchronize()'{$ENDIF};
+  end deprecated 'Use static TThread.Synchronize()';
 
   TIdNotify = class(TObject)
   protected
@@ -116,16 +104,13 @@ type
   public
     constructor Create; virtual; // here to make virtual
     procedure Notify;
-    {$IFNDEF HAS_STATIC_TThread_Queue}
-    procedure WaitFor; deprecated;
-    {$ENDIF}
     class procedure NotifyMethod(AMethod: TThreadMethod; AForceQueue: Boolean = False);
     //
     property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify; // deprecated
   end
-  {$IF DEFINED(HAS_STATIC_TThread_Queue) AND DEFINED(HAS_STATIC_TThread_ForceQueue)}
+  {$IFDEF HAS_STATIC_TThread_ForceQueue}
   deprecated 'Use static TThread.Queue() or TThread.ForceQueue()'
-  {$IFEND}
+  {$ENDIF}
   ;
 
   {$I IdSymbolDeprecatedOff.inc}
@@ -136,7 +121,7 @@ type
     procedure DoNotify; override;
   public
     constructor Create(AMethod: TThreadMethod); reintroduce; virtual;
-  end deprecated {$IFDEF HAS_STATIC_TThread_Queue}{$IFDEF HAS_STATIC_TThread_ForceQueue}'Use static TThread.Queue() or TThread.ForceQueue()'{$ELSE}'Use static TThread.Queue()'{$ENDIF}{$ELSE}'Use TIdNotify.NotifyMethod()'{$ENDIF};
+  end deprecated {$IFDEF HAS_STATIC_TThread_ForceQueue}'Use static TThread.Queue() or TThread.ForceQueue()'{$ELSE}'Use static TThread.Queue()'{$ENDIF};
   {$I IdSymbolDeprecatedOn.inc}
 
 implementation
@@ -146,7 +131,7 @@ uses
   {$IF DEFINED(NotifyThreadNeeded) AND DEFINED(HAS_UNIT_Generics_Collections)}
   System.Generics.Collections,
   {$IFEND}
-  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
+  {$IF DEFINED(WINDOWS) AND DEFINED(DCC_2010_OR_ABOVE)}
   Windows,
   {$ELSEIF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
@@ -221,29 +206,12 @@ end;
 
 { TIdSync }
 
-{$IFNDEF HAS_STATIC_TThread_Synchronize}
-constructor TIdSync.Create(AThread: TIdThread);
-begin
-  inherited Create;
-  FThread := AThread;
-end;
-{$ENDIF}
-
 constructor TIdSync.Create;
 begin
-  {$IFDEF HAS_STATIC_TThread_Synchronize}
   inherited Create;
-  {$ELSE}
-  CreateNotifyThread;
-  Create(GNotifyThread);
-  {$ENDIF}
 end;
 
-procedure DoThreadSync(
-  {$IFNDEF HAS_STATIC_TThread_Synchronize}
-  AThread: TIdThread;
-  {$ENDIF}
-  SyncProc: TThreadMethod);
+procedure DoThreadSync(SyncProc: TThreadMethod);
 begin
   {
   if not Assigned(Classes.WakeMainThread) then
@@ -267,56 +235,21 @@ begin
     // RLebeau 6/7/2016: there are race conditions if multiple threads call
     // TThread.Synchronize() on the same TThread object at the same time
     // (such as this unit's GNotifyThread object)...
-    {$IFDEF HAS_STATIC_TThread_Synchronize}
+
     // Fortunately, the static versions of TThread.Synchronize() can skip the
     // race conditions when the AThread parameter is nil, so we are safe here...
     TThread.Synchronize(nil, SyncProc);
-    {$ELSE}
-    // However, in Delphi 7 and later, the static versions of TThread.Synchronize()
-    // call the non-static versions when AThread is not nil, and the non-static
-    // versions are not even close to being thread-safe (see QualityPortal #RSP-15139).
-    // They share a private FSynchronize variable that is not protected from
-    // concurrent access.
-    //
-    // In Delphi 6, TThread.Synchronize() is thread-safe UNLESS a synch'ed method
-    // raises an uncaught exception, then there is a race condition on a private
-    // FSynchronizeException variable used to capture and re-raise the exception,
-    // so multiple threads could potentially re-raise the same exception object,
-    // or cancel out another thread's exception before it can be re-raised.
-    //
-    // In Delphi 5, there are race conditions on private FSynchronizeException and
-    // FMethod variables, making Synchronize() basically not thread-safe at all.
-    //
-    // So, in Delphi 5 and 6 at least, we need a way for TIdSync to synch
-    // a method more safely.  Thread.Queue() does not exist in those versions.
-    //
-    // At this time, I do not know if FreePascal's implementation of TThread
-    // has any issues.
-    //
-    // TODO: We might need to expand TIdNotifyThread to handle both TIdSync and
-    // TIdNotify from within its own context...
-    //
-    AThread.Synchronize(SyncProc);
-    {$ENDIF}
   // end;
 end;
 
 procedure TIdSync.Synchronize;
 begin
-  DoThreadSync(
-    {$IFNDEF HAS_STATIC_TThread_Synchronize}FThread,{$ENDIF}
-    DoSynchronize
-  );
+  DoThreadSync(DoSynchronize);
 end;
 
 class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
 begin
-  {$IFDEF HAS_STATIC_TThread_Synchronize}
   DoThreadSync(AMethod);
-  {$ELSE}
-  CreateNotifyThread;
-  DoThreadSync(GNotifyThread, AMethod);
-  {$ENDIF}
 end;
 
 { TIdNotify }
@@ -326,13 +259,6 @@ begin
   inherited Create;
 end;
 
-{$IF DEFINED(HAS_STATIC_TThread_Queue) OR DEFINED(HAS_STATIC_TThread_ForceQueue)}
-  {$DEFINE USE_DoThreadQueue}
-{$ELSE}
-  {$UNDEF USE_DoThreadQueue}
-{$IFEND}
-
-{$IFDEF USE_DoThreadQueue}
 procedure DoThreadQueue(QueueProc: TThreadMethod
   {$IFDEF HAS_STATIC_TThread_ForceQueue}
   ; AForceQueue: Boolean = False
@@ -369,7 +295,6 @@ begin
     {$ENDIF}
   // end;
 end;
-{$ENDIF}
 
 procedure TIdNotify.Notify;
 begin
@@ -421,7 +346,6 @@ begin
     {$IFNDEF USE_OBJECT_ARC}
     try
     {$ENDIF}
-      {$IFDEF HAS_STATIC_TThread_Queue}
       DoThreadQueue(
         {$IFNDEF USE_OBJECT_ARC}
         InternalDoNotify
@@ -429,10 +353,6 @@ begin
         DoNotify
         {$ENDIF}
       );
-      {$ELSE}
-      CreateNotifyThread;
-      GNotifyThread.AddNotification(Self);
-      {$ENDIF}
     {$IFNDEF USE_OBJECT_ARC}
     except
       Free;
@@ -471,43 +391,10 @@ begin
       {$I IdSymbolDeprecatedOn.inc}
     end;
   end else begin
-    {$IFDEF HAS_STATIC_TThread_Queue}
     DoThreadQueue(AMethod);
-    {$ELSE}
-    {$I IdSymbolDeprecatedOff.inc}
-    TIdNotifyMethod.Create(AMethod).Notify;
-    {$I IdSymbolDeprecatedOn.inc}
-    {$ENDIF}
   end;
   {$ENDIF}
 end;
-
-{$IFNDEF HAS_STATIC_TThread_Queue}
-// RLebeau: this method does not make sense.  The Self pointer is not
-// guaranteed to remain valid while this method is running since the
-// notify thread frees the object.  Also, this makes the calling thread
-// block, so TIdSync should be used instead...
-
-procedure TIdNotify.WaitFor;
-var
-  LNotifyIndex: Integer;
-  LList: TIdNotifyList;
-begin
-  repeat
-    LList := GNotifyThread.FNotifications.LockList;
-    try
-      LNotifyIndex := LList.IndexOf(Self);
-    finally
-      GNotifyThread.FNotifications.UnlockList;
-    end;
-    if LNotifyIndex = -1 then begin
-      Break;
-    end;
-    IndySleep(10);
-  until False;
-end;
-
-{$ENDIF}
 
 {$IFDEF NotifyThreadNeeded}
 
@@ -585,7 +472,6 @@ begin
   // other threads from queuing new notifications while a notification
   // is running...
   {
-  ($IFDEF Use_DoThreadQueue)
   if not Stopped then begin
     try
       LNotifications := FNotifications.LockList;
@@ -615,7 +501,6 @@ begin
     except // Catch all exceptions especially these which are raised during the application close
     end;
   end;
-  ($ENDIF)
   }
 
   // If terminated while waiting on the event or during the loop
@@ -631,28 +516,18 @@ begin
       finally
         FNotifications.UnlockList;
       end;
-      {$IFDEF USE_DoThreadQueue}
-        {$IFNDEF USE_OBJECT_ARC}
+      {$IFNDEF USE_OBJECT_ARC}
       try
         DoThreadQueue(LNotify.InternalDoNotify);
       except
         LNotify.Free;
         raise;
       end;
-        {$ELSE}
+      {$ELSE}
       try
         DoThreadQueue(LNotify.DoNotify);
       finally
         LNotify := nil;
-      end;
-        {$ENDIF}
-      {$ELSE}
-      try
-        DoThreadSync(
-          {$IFNDEF HAS_STATIC_TThread_Synchronize}Self,{$ENDIF}
-          LNotify.DoNotify);
-      finally
-        LNotify.Free;
       end;
       {$ENDIF}
     except // Catch all exceptions especially these which are raised during the application close

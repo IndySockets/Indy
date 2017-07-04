@@ -221,7 +221,7 @@ end;
 // return values, but only certain versions implement rich enough RTTI to allow
 // that. Let's try to pull out what we can...
 
-{$IF DEFINED(FPC) OR (DEFINED(DCC) AND DEFINED(DCC_2010_OR_ABOVE))}
+{$IF DEFINED(FPC) OR DEFINED(DCC_2010_OR_ABOVE)}
   {$DEFINE HAS_tkMethod_ParamTypeInfo}
 {$IFEND}
 

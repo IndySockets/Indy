@@ -1170,19 +1170,6 @@ begin
   end;
 end;
 
-{$IFNDEF HAS_TryEncodeDate}
-// TODO: move this to IdGlobal or IdGlobalProtocols...
-function TryEncodeDate(Year, Month, Day: Word; out VDate: TDateTime): Boolean;
-begin
-  try
-    VDate := EncodeDate(Year, Month, Day);
-    Result := True;
-  except
-    Result := False;
-  end;
-end;
-{$ENDIF}
-
 {EPLF Date processing}
 
 function EPLFDateToLocalDateTime(const AData: String): TDateTime;
@@ -1464,9 +1451,8 @@ function Y2Year(const AYear : Integer): Integer;
 This function ensures that 2 digit dates returned
 by some FTP servers are interpretted just like Borland's year
 handling routines.
-}
-{$IFDEF HAS_TFormatSettings}
-{For Delphi 7+, we have a format settings object that includes a member
+
+Delphi and FreePascal, we have a format settings object that includes a member
 for two digit year processing.  Use that instead because that is thread-safe.
 
 Also note, that TFormatSettings is a record (in XE+, with associated functions
@@ -1474,23 +1460,20 @@ and procedures plus a creator).  Since we allocate it on the stack with the
 definition, we can't "free" it with FreeAndNil.  }
 var
   LFormatSettings: SysUtils.TFormatSettings;
-{$ENDIF}
 begin
   Result := AYear;
   //Y2K Complience for current code
   //Note that some OS/2 servers return years greater than 100 for
   //years such as 2000 and 2003
   if Result < 1000 then begin
-    {$IFDEF HAS_TFormatSettings}
-      //use default locale
-      {$IFDEF HAS_TFormatSettings_Create}
+    //use default locale
+    {$IFDEF HAS_TFormatSettings_Create}
     LFormatSettings := TFormatSettings.Create('');
-      {$ELSE}
+    {$ELSE}
     GetLocaleFormatSettings(0, LFormatSettings);
-      {$ENDIF}
     {$ENDIF}
-    if {$IFDEF HAS_TFormatSettings}LFormatSettings.{$ENDIF}TwoDigitYearCenturyWindow > 0 then begin
-      if Result > {$IFDEF HAS_TFormatSettings}LFormatSettings.{$ENDIF}TwoDigitYearCenturyWindow then begin
+    if LFormatSettings.TwoDigitYearCenturyWindow > 0 then begin
+      if Result > LFormatSettings.TwoDigitYearCenturyWindow then begin
         Inc(Result, ((IndyCurrentYear div 100)-1)*100);
       end else begin
         Inc(Result, (IndyCurrentYear div 100)*100);

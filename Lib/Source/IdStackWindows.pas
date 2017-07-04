@@ -389,46 +389,21 @@ type
   NET_IF_NETWORK_GUID     = TGUID;
 
   IP_PREFIX_ORIGIN = (
-    IpPrefixOriginOther,
+    IpPrefixOriginOther = 0,
     IpPrefixOriginManual,
     IpPrefixOriginWellKnown,
     IpPrefixOriginDhcp,
     IpPrefixOriginRouterAdvertisement,
-    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
-    ippoUnused5,
-    ippoUnused6,
-    ippoUnused7,
-    ippoUnused8,
-    ippoUnused9,
-    ippoUnused10,
-    ippoUnused11,
-    ippoUnused12,
-    ippoUnused13,
-    ippoUnused14,
-    ippoUnused15,
-    {$ENDIF}
-    IpPrefixOriginUnchanged);
+    IpPrefixOriginUnchanged = 16);
 
   IP_SUFFIX_ORIGIN = (
-    IpSuffixOriginOther,
+    IpSuffixOriginOther = 0,
     IpSuffixOriginManual,
     IpSuffixOriginWellKnown,
     IpSuffixOriginDhcp,
     IpSuffixOriginLinkLayerAddress,
     IpSuffixOriginRandom,
-    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
-    ipsoUnued6,
-    ipsoUnued7,
-    ipsoUnued8,
-    ipsoUnued9,
-    ipsoUnued10,
-    ipsoUnued11,
-    ipsoUnued12,
-    ipsoUnued13,
-    ipsoUnued14,
-    ipsoUnued15,
-    {$ENDIF}
-    IpSuffixOriginUnchanged);
+    IpSuffixOriginUnchanged = 16);
 
   IP_DAD_STATE = (
     IpDadStateInvalid,
@@ -438,12 +413,7 @@ type
     IpDadStatePreferred);
 
   IF_OPER_STATUS = (
-    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
-    ifosUnused,
-    IfOperStatusUp,
-    {$ELSE}
     IfOperStatusUp = 1,
-    {$ENDIF}
     IfOperStatusDown,
     IfOperStatusTesting,
     IfOperStatusUnknown,
@@ -452,12 +422,7 @@ type
     IfOperStatusLowerLayerDown);
 
   NET_IF_CONNECTION_TYPE = (
-    {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
-    nictUnused,
-    NetIfConnectionDedicated,
-    {$ELSE}
     NetIfConnectionDedicated = 1,
-    {$ENDIF}
     NetIfConnectionPassive,
     NetIfConnectionDemand,
     NetIfConnectionMaximum);
@@ -1115,18 +1080,6 @@ begin
     Result := IdWinsock2.socket(AFamily, AStruct, AProtocol);
   end;
 end;
-
-{$IFNDEF HAS_TryStrToInt}
-// TODO: use the implementation already in IdGlobalProtocols...
-function TryStrToInt(const S: string; out Value: Integer): Boolean;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
-var
-  E: Integer;
-begin
-  Val(S, Value, E);
-  Result := E = 0;
-end;
-{$ENDIF}
 
 function TIdStackWindows.WSGetServByName(const AServiceName: string): TIdPort;
 var

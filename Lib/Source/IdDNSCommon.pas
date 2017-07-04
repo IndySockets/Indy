@@ -619,9 +619,7 @@ uses
   {$IF DEFINED(DCC_XE3_OR_ABOVE) AND (NOT DEFINED(NEXTGEN))}
   System.Contnrs,
   {$IFEND}
-  {$IFDEF HAS_UNIT_DateUtils}
   DateUtils,
-  {$ENDIF}
   IdGlobalProtocols,
   IdStack, SysUtils;
 

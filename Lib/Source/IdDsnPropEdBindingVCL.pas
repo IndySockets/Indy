@@ -63,9 +63,7 @@ interface
 uses
   Classes,
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
-  {$IFDEF HAS_UNIT_Types}
   Types,
-  {$ENDIF}
   {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
@@ -610,7 +608,7 @@ begin
   lblPort.Enabled := Assigned(FCurrentHandle);
   edtPort.Enabled := Assigned(FCurrentHandle);
   rdoBindingType.Enabled := Assigned(FCurrentHandle);
-  {$IFDEF WIDGET_VCL_LIKE}
+
   //The Win32 VCL does not change the control background to a greyed look
   //when controls are disabled.  This quirk is not present in CLX.
   if Assigned(FCurrentHandle) then
@@ -622,7 +620,6 @@ begin
     edtIPAddress.Color := clBtnFace;
     edtPort.Color := clBtnFace;
   end;
-  {$ENDIF}
 end;
 
 procedure TIdDsnPropEdBindingVCL.btnBindingsDeleteExecute(Sender: TObject);
