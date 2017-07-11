@@ -10,7 +10,8 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value=".;Core;Design;FCL;Protocols;Security;SuperCore;System"/>
+        <IncludeFiles Value=".;Core;Protocols;System"/>
+        <OtherUnitFiles Value=".;Core;Protocols;System"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Parsing>
@@ -19,6 +20,10 @@
           <UseAnsiStrings Value="False"/>
         </SyntaxOptions>
       </Parsing>
+      <Other>
+        <CustomOptions Value="$(IDEBuildOptions)
+-dDEBUG"/>
+      </Other>
     </CompilerOptions>
     <License Value="Duel License
 
