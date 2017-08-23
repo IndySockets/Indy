@@ -446,6 +446,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    // TODO: add an AOwner parameter
     function Clone :  TIdSSLIOHandlerSocketBase; override;
     procedure StartSSL; override;
     procedure AfterAccept; override;
@@ -1726,6 +1727,11 @@ begin
     if not Assigned(lookup) then begin
       Exit;
     end;
+    // RLebeau: the PAnsiChar(Pointer(...)) cast below looks weird, but it is
+    // intentional. X509_LOOKUP_load_file() takes a PAnsiChar as input, but
+    // we are using Unicode strings here.  So casting the UnicodeString to a
+    // raw Pointer and then passing that to X509_LOOKUP_load_file() as PAnsiChar.
+    // Indy_Unicode_X509_LOOKUP_file will process it as a PWideChar...
     if (X509_LOOKUP_load_file(lookup, PAnsiChar(Pointer(AFileName)),
         X509_FILETYPE_PEM) <> 1) then begin
       Exit;
@@ -1880,6 +1886,18 @@ begin
     {$ENDIF});
 end;
 
+{$IFDEF USE_MARSHALLED_PTRS}
+function AsUtf8OrNil(var M: TMarshaller; const S: String): Pointer;
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  if S <> '' then begin
+    Result := M.AsUtf8(S).ToPointer;
+  end else begin
+    Result := nil;
+  end;
+end;
+{$ENDIF}
+
 function IndyX509_STORE_load_locations(ctx: PX509_STORE;
   const AFileName, APathName: String): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -1894,10 +1912,14 @@ begin
   // to fail. Need to cast the string to an intermediate Pointer so the
   // PAnsiChar cast is applied to the raw data and thus can be nil...
   //
+  // RLebeau 8/18/2017: TMarshaller also produces a non-nil TPtrWrapper for
+  // an empty string, so need to handle nil specially with marshalled
+  // strings as well...
+  //
   Result := X509_STORE_load_locations(ctx,
     {$IFDEF USE_MARSHALLED_PTRS}
-    M.AsUtf8(AFileName).ToPointer,
-    M.AsUtf8(APathName).ToPointer
+    AsUtf8OrNil(M, AFileName),
+    AsUtf8OrNil(M, APathName)
     {$ELSE}
     PAnsiChar(Pointer(UTF8String(AFileName))),
     PAnsiChar(Pointer(UTF8String(APathName)))
@@ -1909,6 +1931,20 @@ function IndySSL_CTX_load_verify_locations(ctx: PSSL_CTX;
   const ACAFile, ACAPath: String): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
+  // RLebeau: why are we calling X509_STORE_load_locations() directly
+  // instead of just calling SSL_CTX_load_verify_locations() with
+  // UTF-8 input?
+
+  //Result := SSL_CTX_load_verify_locations(ctx,
+  //  {$IFDEF USE_MARSHALLED_PTRS}
+  //  AsUtf8OrNl(ACAFile),
+  //  AsUtf8OrNil(ACAPath)
+  //  {$ELSE}
+  //  PAnsiChar(Pointer(UTF8String(ACAFile))),
+  //  PAnsiChar(Pointer(UTF8String(ACAPath)))
+  //  {$ENDIF}
+  //);
+
   Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
 end;
 
@@ -2902,6 +2938,8 @@ begin
   end;
 end;
 
+
+// TODO: add an AOwner parameter
 function TIdSSLIOHandlerSocketOpenSSL.Clone: TIdSSLIOHandlerSocketBase;
 var
   LIO : TIdSSLIOHandlerSocketOpenSSL;
