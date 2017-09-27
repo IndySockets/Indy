@@ -2058,17 +2058,23 @@ begin
 end;
 
 constructor TIdDotNetEncoding.Create(const ACharset: String);
-var
-  LCharset: string;
 begin
   inherited Create;
   // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
   // instead of 'utf-8', so let's check for that...
-  LCharset := ACharset;
-  if TextIsSame(LCharset, 'utf8') then begin {Do not Localize}
-    LCharset := 'UTF-8'; {Do not Localize}
+
+  // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
+
+  case PosInStrArray(ACharset, ['UTF7', 'UTF8', 'UTF16', 'UTF16LE', 'UTF16BE', 'UTF32', 'UTF32LE', 'UTF32BE'], False) of {Do not Localize}
+    0:   FEncoding := System.Text.Encoding.UTF7;
+    1:   FEncoding := System.Text.Encoding.UTF8;
+    2,3: FEncoding := System.Text.Encoding.Unicode;
+    4:   FEncoding := System.Text.Encoding.BigEndianUnicode;
+    5,6: FEncoding := System.Text.Encoding.UTF32;
+    7:   FEncoding := System.Text.Encoding.GetEncoding(12001);
+  else
+    FEncoding := System.Text.Encoding.GetEncoding(ACharset);
   end;
-  FEncoding := System.Text.Encoding.GetEncoding(LCharset);
 end;
 
 constructor TIdDotNetEncoding.Create(const ACodepage: UInt16);
@@ -2737,9 +2743,18 @@ begin
 
   // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
   // instead of 'utf-8', so let's check for that...
-  FCharSet := CharSet;
-  if TextIsSame(FCharSet, 'utf8') then begin {Do not Localize}
-    FCharSet := 'UTF-8'; {Do not Localize}
+
+  // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
+
+  case PosInStrArray(CharSet, ['UTF7', 'UTF8', 'UTF16', 'UTF16LE', 'UTF16BE', 'UTF32', 'UTF32LE', 'UTF32BE'], False) of {Do not Localize}
+    0:   FCharSet := 'UTF-7';    {Do not Localize}
+    1:   FCharSet := 'UTF-8';    {Do not Localize}
+    2,3: FCharSet := 'UTF-16LE'; {Do not Localize}
+    4:   FCharSet := 'UTF-16BE'; {Do not Localize}
+    5,6: FCharSet := 'UTF-32LE'; {Do not Localize}
+    7:   FCharSet := 'UTF-32BE'; {Do not Localize}
+  else
+    FCharSet := CharSet;
   end;
 
   FMaxCharSize := GetByteCount(PIdWideChar(@cValue[0]), 2);
@@ -2851,10 +2866,10 @@ begin
   end;
 
   if AToUTF16 then begin
-    LToCharSet := cUTF16CharSet + LFlags; // explicit convert to Ansi
-    LFromCharSet := ACharSet; // explicit convert to Ansi
+    LToCharSet := cUTF16CharSet + LFlags;
+    LFromCharSet := ACharSet;
   end else begin
-    LToCharSet := ACharSet + LFlags; // explicit convert to Ansi
+    LToCharSet := ACharSet + LFlags;
     LFromCharSet := cUTF16CharSet;
   end;
 
@@ -3215,22 +3230,39 @@ begin
   {$IFDEF USE_ICONV}
   // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
   // instead of 'utf-8', so let's check for that...
-  case PosInStrArray(FCharSet, ['utf-8', 'utf8', 'utf-16', 'utf-16le', 'utf-16be'], False) of {do not localize}
+
+  // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
+
+  case PosInStrArray(FCharSet, ['UTF-8', 'UTF8', 'UTF-16', 'UTF16' 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE', 'UTF-32', 'UTF32', 'UTF-32LE', 'UTF32LE', 'UTF-32BE', 'UTF32BE'], False) of {do not localize}
     0, 1: begin
       SetLength(Result, 3);
       Result[0] := $EF;
       Result[1] := $BB;
       Result[2] := $BF;
     end;
-    2, 3: begin
+    2..5: begin
       SetLength(Result, 2);
       Result[0] := $FF;
       Result[1] := $FE;
     end;
-    4: begin
+    6, 7: begin
       SetLength(Result, 2);
       Result[0] := $FE;
       Result[1] := $FF;
+    end;
+    8..11: begin
+      SetLength(Result, 4);
+      Result[0] := $FF;
+      Result[1] := $FE;
+      Result[2] := $00;
+      Result[3] := $00;
+    end
+    12, 13: begin
+      SetLength(Result, 4);
+      Result[0] := $00;
+      Result[1] := $00;
+      Result[2] := $FE;
+      Result[3] := $FF;
     end;
   else
     SetLength(Result, 0);
@@ -3253,6 +3285,20 @@ begin
       SetLength(Result, 2);
       Result[0] := $FE;
       Result[1] := $FF;
+    end;
+    12000: begin
+      SetLength(Result, 4);
+      Result[0] := $FF;
+      Result[1] := $FE;
+      Result[2] := $00;
+      Result[3] := $00;
+    end;
+    12001: begin
+      SetLength(Result, 4);
+      Result[0] := $00;
+      Result[1] := $00;
+      Result[2] := $FE;
+      Result[3] := $FF;
     end;
   else
     SetLength(Result, 0);
@@ -3709,10 +3755,20 @@ var
 begin
   // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
   // instead of 'utf-8', so let's check for that...
-  LCharset := ACharset;
-  if TextIsSame(LCharset, 'utf8') then begin {Do not Localize}
-    LCharset := 'UTF-8'; {Do not Localize}
+
+  // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
+
+  case PosInStrArray(ACharset, ['UTF7', 'UTF8', 'UTF16', 'UTF16LE', 'UTF16BE', 'UTF32', 'UTF32LE', 'UTF32BE'], False) of {Do not Localize}
+    0:   LCharset := 'UTF-7';    {Do not Localize}
+    1:   LCharset := 'UTF-8';    {Do not Localize}
+    2,3: LCharset := 'UTF-16LE'; {Do not Localize}
+    4:   LCharset := 'UTF-16BE'; {Do not Localize}
+    5,6: LCharset := 'UTF-32LE'; {Do not Localize}
+    7:   LCharset := 'UTF-32BE'; {Do not Localize}
+  else
+    LCharset := ACharset;
   end;
+
   Create(TEncoding.GetEncoding(LCharset), True);
 end;
 {$ENDIF}
@@ -3798,6 +3854,7 @@ begin
       Result := IndyTextEncoding_UTF7;
     65001:
       Result := IndyTextEncoding_UTF8;
+    // TODO: add support for UTF-32...
   else
     {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
     Result := TIdMBCSEncoding.Create(ACodepage);
@@ -3826,11 +3883,16 @@ begin
   end else begin
     // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
     // instead of 'utf-8', so let's check for that...
-    case PosInStrArray(ACharSet, ['utf-16be', 'utf-16le', 'utf-16', 'utf-7', 'utf-8', 'utf8'], False) of {do not localize}
-      0:    Result := IndyTextEncoding_UTF16BE;
-      1, 2: Result := IndyTextEncoding_UTF16LE;
-      3:    Result := IndyTextEncoding_UTF7;
-      4, 5: Result := IndyTextEncoding_UTF8;
+
+    // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
+
+    // TODO: add support for UTF-32...
+    case PosInStrArray(ACharset, ['UTF-7', 'UTF7', 'UTF-8', 'UTF8', 'UTF-16', 'UTF16', 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE'], False) of {Do not Localize}
+      0, 1: Result := IndyTextEncoding_UTF7;
+      2, 3: Result := IndyTextEncoding_UTF8;
+      4..7: Result := IndyTextEncoding_UTF16LE;
+      8, 9: Result := IndyTextEncoding_UTF16BE;
+      // TODO: add support for UTF-32...
     else
       {$IFDEF USE_ICONV}
       Result := TIdMBCSEncoding.Create(ACharSet);
