@@ -3884,17 +3884,27 @@ var
   Lcset: TIdCharset;
 begin
   Result := idcs_INVALID;
+
   for Lcset := Low(TIdCharSet) to High(TIdCharSet) do begin
     if TextIsSame(IdCharsetNames[Lcset], ACharSet) then begin
       Result := Lcset;
       Exit;
     end;
   end;
+
   // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8' instead
   // of 'utf-8', so let's check for that.  Not adding 'utf8' to TIdCharSet at
   // this time, as I don't want to cause any compatibility issues...
-  if TextIsSame(ACharset, 'utf8') then begin {Do not Localize}
-    Result := idcs_UTF_8;
+
+  // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
+
+  case PosInStrArray(ACharset, ['UTF7', 'UTF8', 'UTF16', 'UTF16LE', 'UTF16BE', 'UTF32', 'UTF32LE', 'UTF32BE'], False) of {Do not Localize}
+    0:   Result := idcs_UTF_7;
+    1:   Result := idcs_UTF_8;
+    2,3: Result := idcs_UTF_16LE;
+    4:   Result := idcs_UTF_16BE;
+    5,6: Result := idcs_UTF_32LE;
+    7:   Result := idcs_UTF_32BE;
   end;
 end;
 
