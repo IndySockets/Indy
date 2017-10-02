@@ -91,7 +91,14 @@ type
     procedure Synchronize;
     class procedure SynchronizeMethod(AMethod: TThreadMethod);
     //
-  end deprecated 'Use static TThread.Synchronize()';
+  end
+  // TODO: deprecate TIdSync only if anonymous procedures are supported?
+  // Delphi's TThread.Synchronize() supports them, but FreePascal's does not...
+  {.$IFDEF HAS_STATIC_TThread_Synchronize_AnonProc}
+    //deprecated 'Use static TThread.Synchronize() with an anonymous procedure'
+    deprecated 'Use static TThread.Synchronize()'
+  {.$ENDIF}
+  ;
 
   TIdNotify = class(TObject)
   protected
@@ -109,7 +116,12 @@ type
     property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify; // deprecated
   end
   {$IFDEF HAS_STATIC_TThread_ForceQueue}
-  deprecated 'Use static TThread.Queue() or TThread.ForceQueue()'
+    // TODO: deprecate TIdNotify only if anonymous procedures are available?
+    // Delphi's TThread.(Force)Queue() supports them, but FreePascal's does not...
+    {.$IFDEF HAS_STATIC_TThread_Queue_AnonProc}
+      //deprecated 'Use static TThread.Queue() or TThread.ForceQueue() with an anonymous procedure'
+      deprecated 'Use static TThread.Queue() or TThread.ForceQueue()'
+    {.$ENDIF}
   {$ENDIF}
   ;
 
@@ -291,6 +303,15 @@ begin
       TThread.Queue(nil, QueueProc);
     end;
     {$ELSE}
+
+    // TODO: FreePascal/Lazarus has Application.QueueAsyncCall(), but it is in the Forms unit!
+    {
+    if AForceQueue then begin
+      Application.QueueAsyncCall(NotifyAsync, @QueueProc);
+    else
+      TThread.Queue(nil, QueueProc);
+    }
+
     TThread.Queue(nil, QueueProc);
     {$ENDIF}
   // end;
@@ -330,6 +351,25 @@ begin
       {$ENDIF}
     end else
     begin
+      // TODO: if available, use TThread.CreateAnonymousThread() to call TThread.Queue()?
+      //TThread.CreateAnonymousThread(Notify).Start;
+
+      // TODO: FreePascal/Lazarus has Application.QueueAsyncCall(), but it is in the Forms unit!
+      {
+      uses Forms;
+
+      procedure TIdNotify.NotifyAsync(Data: PtrInt);
+      begin
+        ($IFNDEF USE_OBJECT_ARC)
+        InternalDoNotify;
+        ($ELSE)
+        DoNotify;
+        ($ENDIF)
+      end;
+
+      Application.QueueAsyncCall(@NotifyAsync, 0);
+      }
+
       {$IFNDEF USE_OBJECT_ARC}
       try
       {$ENDIF}
@@ -421,7 +461,7 @@ var
   {$ENDIF}
   LList: TIdNotifyList;
 begin
-  // Free remaining Notifications if there is somthing that is still in
+  // Free remaining Notifications if there is something that is still in
   // the queue after thread was terminated
   LList := FNotifications.LockList;
   try
@@ -552,6 +592,7 @@ end;
 
 {$IFDEF NotifyThreadNeeded}
 initialization
+  //CreateNotifyThread; // created on demand
 finalization
   TIdNotifyThread.FreeThread;
 {$ENDIF}

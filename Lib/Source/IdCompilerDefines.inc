@@ -11,8 +11,8 @@
 {$DEFINE IdIPv4} // use IPv4 by default
 {.$IFDEF IdIPv6} // use IPv6 by default
 
-{$DEFINE INDY100}
-{$DEFINE 10_6_2}  //so developers can IFDEF for this specific version
+{$DEFINE INDY110}
+{$DEFINE 11_0_0}  //so developers can IFDEF for this specific version
 
 {$UNDEF USE_OPENSSL}
 {$UNDEF STATICLOAD_OPENSSL}
