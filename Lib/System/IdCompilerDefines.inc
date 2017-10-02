@@ -491,6 +491,9 @@
   // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 30101)}
+    {$DEFINE FPC_3_1_1_OR_ABOVE}
+  {$IFEND}
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 30000)}
     {$DEFINE FPC_3_0_0_OR_ABOVE}
   {$IFEND}
@@ -526,6 +529,9 @@
   {$IFEND}
 
   // just in case
+  {$IFDEF FPC_3_1_1}
+    {$DEFINE FPC_3_1_1_OR_ABOVE}
+  {$ENDIF}
   {$IFDEF FPC_3_0_0}
     {$DEFINE FPC_3_0_0_OR_ABOVE}
   {$ENDIF}
@@ -558,6 +564,14 @@
   {$ENDIF}
   {$IFDEF FPC_2_1_5}
     {$DEFINE FPC_2_1_5_OR_ABOVE}
+  {$ENDIF}
+
+  {$IFDEF FPC_3_1_1_OR_ABOVE}
+    {$DEFINE FPC_3_0_0_OR_ABOVE}
+  {$ELSE}
+    {$IFDEF FPC_3_0_0}
+      {$DEFINE FPC_3_0_0_OR_ABOVE}
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF FPC_3_0_0_OR_ABOVE}
@@ -1311,6 +1325,9 @@
   {$ENDIF}
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE STRING_IS_UNICODE}
+  {$ENDIF}
+  {$IFDEF FPC_3_1_1_OR_ABOVE}
+    {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
   {$ENDIF}
 {$ENDIF}
 
