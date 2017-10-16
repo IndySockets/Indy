@@ -198,6 +198,8 @@ begin
       Bindings[i].AddMulticastMembership(FMulticastGroup);
     end;
     FCurrentBinding := Bindings[0];
+    // RLebeau: why only one listener thread total, instead of one per Binding,
+    // like TIdUDPServer uses?
     FListenerThread := TIdIPMCastListenerThread.Create(Self);
     FListenerThread.Start;
   end;
@@ -285,17 +287,19 @@ begin
       begin
         IncomingData := FServer.Bindings.BindingByHandle(TIdStackSocketHandle(LReadList[i]));
         ByteCount := IncomingData.RecvFrom(LBuffer, PeerIP, PeerPort, PeerIPVersion);
-        if ByteCount <= 0 then
+        // RLebeau: some protocols make use of 0-length messages, so don't discard
+        // them here. This is not connection-oriented, so recvfrom() only returns
+        // 0 if a 0-length packet was actually received...
+        if ByteCount >= 0 then
         begin
-          raise EIdUDPReceiveErrorZeroBytes.Create(RSIPMCastReceiveError0);
-        end;
-        SetLength(FBuffer, ByteCount);
-        CopyTIdBytes(LBuffer, 0, FBuffer, 0, ByteCount);
-        IncomingData.SetPeer(PeerIP, PeerPort, PeerIPVersion);
-        if FServer.ThreadedEvent then begin
-          IPMCastRead;
-        end else begin
-          Synchronize(IPMCastRead);
+          SetLength(FBuffer, ByteCount);
+          CopyTIdBytes(LBuffer, 0, FBuffer, 0, ByteCount);
+          IncomingData.SetPeer(PeerIP, PeerPort, PeerIPVersion);
+          if FServer.ThreadedEvent then begin
+            IPMCastRead;
+          end else begin
+            Synchronize(IPMCastRead);
+          end;
         end;
       end;
     end;
