@@ -174,7 +174,7 @@ uses
 
 const
   IPv6Wildcard1 = '::';                 {do not localize}
-  {CH IPv6Wildcard2 = '0:0:0:0:0:0:0:0'; }    {do not localize}
+  IPv6Wildcard2 = '0:0:0:0:0:0:0:0';    {do not localize}
   IPv6Loopback  = '::1';                {do not localize}
   IPv4Wildcard  = '0.0.0.0';            {do not localize}
   IPv4Loopback  = '127.0.0.1';          {do not localize}
@@ -568,7 +568,10 @@ end;
 procedure TIdDsnPropEdBindingVCL.btnBindingsNewExecute(Sender: TObject);
 begin
   FCurrentHandle := FHandles.Add;
-  FCurrentHandle.IP := IPv4Wildcard;
+  case FCurrentHandle.IPVersion of
+    Id_IPv4: FCurrentHandle.IP := IPv4Wildcard;
+    Id_IPv6: FCurrentHandle.IP := IPv6Wildcard1;
+  end;
   FCurrentHandle.Port := FDefaultPort;
   UpdateBindingList;
   edtIPAddress.Items.Assign(FIPv4Addresses);

@@ -580,7 +580,10 @@ end;
 procedure TIdDsnPropEdBindingNET.btnNew_Click(sender: System.Object; e: System.EventArgs);
 begin
   FCurrentHandle := FHandles.Add;
-  FCurrentHandle.IP := IPv4Wildcard;
+  case FCurrentHandle.IPVersion of
+    Id_IPv4: FCurrentHandle.IP := IPv4Wildcard;
+    Id_IPv6: FCurrentHandle.IP := IPv6Wildcard1;
+  end;
   FCurrentHandle.Port := FDefaultPort;
   UpdateBindingList;
   FillComboBox(edtIPAddress, FIPv4Addresses);
