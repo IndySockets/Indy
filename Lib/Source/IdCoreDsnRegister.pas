@@ -77,6 +77,10 @@ uses
   Classes,
   IdDsnPropEdBindingVCL,
   IdAboutVCL,
+  {$IFDEF DCC}
+  ToolsAPI,
+  SysUtils,
+  {$IFEND}
   IdDsnCoreResourceStrings,
   IdBaseComponent,
   IdComponent,
@@ -165,5 +169,41 @@ begin
   RegisterPropertyEditor(TypeInfo(TIdSocketHandles), nil, '', TIdPropEdBinding);    {Do not Localize}
   RegisterComponentEditor(TIdBaseComponent, TIdBaseComponentEditor);
 end;
+
+{$IFDEF DCC}
+var
+  AboutBoxServices: IOTAAboutBoxServices = nil;
+  AboutBoxIndex: Integer = -1;
+
+procedure RegisterAboutBox;
+begin
+  if Supports(BorlandIDEServices, IOTAAboutBoxServices, AboutBoxServices) then
+  begin
+    AboutBoxIndex := AboutBoxServices.AddPluginInfo(
+      RSAAboutBoxCompName + ' ' + gsIdVersion,
+      RSAAboutBoxDescription + sLineBreak + sLineBreak
+        + RSAAboutBoxCopyright + sLineBreak + sLineBreak
+        + RSAAboutBoxPleaseVisit + sLineBreak + RSAAboutBoxIndyWebsite,
+      0,
+      False,
+      RSAAboutBoxLicences,
+      '');
+  end;
+end;
+
+procedure UnregisterAboutBox;
+begin
+  if (AboutBoxIndex <> -1) and (AboutBoxServices <> nil) then
+  begin
+    AboutBoxServices.RemovePluginInfo(AboutBoxIndex);
+  end;
+end;
+
+initialization
+  RegisterAboutBox;
+finalization
+  UnregisterAboutBox;
+
+{$ENDIF}
 
 end.

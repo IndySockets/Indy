@@ -64,6 +64,10 @@ resourcestring
   RSAAboutBoxLicences = 'Indy Modified BSD License'+#13#10+'Indy MPL License';
   RSAAboutBoxBuiltFor = 'Indy.Sockets (%s)';
 
+  RSAAboutBoxDescription = 'Internet Direct is an open source library which supports '
+                          + 'clients and servers of TCP, UDP and RAW sockets as well '
+                          + 'as over 100 higher level protocols.';
+
   RSAAboutBoxPleaseVisit = 'For the latest updates and information please visit:';
   RSAAboutBoxIndyWebsite = 'http://www.indyproject.org/';    {Do not Localize}
 
