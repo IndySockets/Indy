@@ -45,11 +45,11 @@ unit IdDsnCoreResourceStrings;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
 
 const
-  IndyPitCrew = 'Kudzu (Chad Z. Hower)'#13#10
-   + 'and the Indy Pit Crew';
+  IndyPitCrew = 'Kudzu (Chad Z. Hower)'#13#10'and the Indy Pit Crew';
 
 resourcestring
   { About Box stuff }
@@ -58,12 +58,15 @@ resourcestring
   RSAAboutMenuItemName = 'About Internet &Direct (Indy) %s...';
 
   RSAAboutBoxVersion = 'Version %s';
-  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2015'#13#10
-   + IndyPitCrew;
+  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2017'#13#10 + IndyPitCrew;
   RSAAboutBoxTitle1 = 'INDY';
   RSAAboutBoxTitle2 = 'Internet Direct';
   RSAAboutBoxLicences = 'Indy Modified BSD License'+#13#10+'Indy MPL License';
   RSAAboutBoxBuiltFor = 'Indy.Sockets (%s)';
+
+  RSAAboutBoxDescription = 'Internet Direct is an open source library which supports '
+                          + 'clients and servers of TCP, UDP and RAW sockets as well '
+                          + 'as over 100 higher level protocols.';
 
   RSAAboutBoxPleaseVisit = 'For the latest updates and information please visit:';
   RSAAboutBoxIndyWebsite = 'http://www.indyproject.org/';    {Do not Localize}
