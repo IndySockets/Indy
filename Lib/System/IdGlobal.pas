@@ -3233,7 +3233,7 @@ begin
 
   // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
 
-  case PosInStrArray(FCharSet, ['UTF-8', 'UTF8', 'UTF-16', 'UTF16' 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE', 'UTF-32', 'UTF32', 'UTF-32LE', 'UTF32LE', 'UTF-32BE', 'UTF32BE'], False) of {do not localize}
+  case PosInStrArray(FCharSet, ['UTF-8', 'UTF8', 'UTF-16', 'UTF16', 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE', 'UTF-32', 'UTF32', 'UTF-32LE', 'UTF32LE', 'UTF-32BE', 'UTF32BE'], False) of {do not localize}
     0, 1: begin
       SetLength(Result, 3);
       Result[0] := $EF;
@@ -3256,7 +3256,7 @@ begin
       Result[1] := $FE;
       Result[2] := $00;
       Result[3] := $00;
-    end
+    end;
     12, 13: begin
       SetLength(Result, 4);
       Result[0] := $00;
