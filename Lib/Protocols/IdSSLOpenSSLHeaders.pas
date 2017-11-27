@@ -16789,11 +16789,11 @@ var
 		enc : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CipherUpdate}
   EVP_CipherUpdate : function(ctx : PEVP_CIPHER_CTX; _out : PIdAnsiChar;
-		outl : TIdC_INT; _in : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT cdecl = nil;
+		outl : PIdC_INT; _in : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CipherFinal}
   EVP_CipherFinal : function(ctx : PEVP_CIPHER_CTX; outm : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_CipherFinal_ex}
-  EVP_CipherFinal_ex: function(ctx : PEVP_CIPHER_CTX; outm : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT;
+  EVP_CipherFinal_ex: function(ctx : PEVP_CIPHER_CTX; outm : PIdAnsiChar; outl : PIdC_INT) : TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_SignFinal}
   EVP_SignFinal : function(ctx : PEVP_MD_CTX; md : PIdAnsiChar; s : PIdC_INT;
 		pkey : PEVP_PKEY) : TIdC_INT cdecl = nil;
@@ -16887,7 +16887,7 @@ var
   {$EXTERNALSYM EVP_PKEY_assign}
   EVP_PKEY_assign : function(pkey: PEVP_PKEY; _type: TIdC_INT; key: PIdAnsiChar): TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_get_cipherbyname}
-  EVP_get_cipherbyname : function(const name : PIdAnsiChar): EVP_CIPHER cdecl = nil;
+  EVP_get_cipherbyname : function(const name : PIdAnsiChar): PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_get_digestbyname}
   EVP_get_digestbyname : function(const name: PIdAnsiChar): PEVP_MD cdecl = nil;
   {$EXTERNALSYM EVP_MD_type}
@@ -18602,9 +18602,9 @@ function EVP_get_digestbynid(a : TIdC_INT) : PEVP_MD;
  {$EXTERNALSYM EVP_get_digestbyobj}
 function EVP_get_digestbyobj(a : PASN1_OBJECT) : PEVP_MD;
  {$EXTERNALSYM EVP_get_cipherbynid}
-function EVP_get_cipherbynid(a : TIdC_INT) : EVP_CIPHER;
+function EVP_get_cipherbynid(a : TIdC_INT) : PEVP_CIPHER;
  {$EXTERNALSYM EVP_get_cipherbyobj}
-function EVP_get_cipherbyobj(a : PASN1_OBJECT) : EVP_CIPHER;
+function EVP_get_cipherbyobj(a : PASN1_OBJECT) : PEVP_CIPHER;
  {$EXTERNALSYM EVP_MD_nid}
 function EVP_MD_nid(e : PEVP_MD) : TIdC_INT;
  {$EXTERNALSYM EVP_MD_name}
@@ -25899,13 +25899,13 @@ begin
   Result := EVP_get_digestbynid(OBJ_obj2nid(a));
 end;
 
-function EVP_get_cipherbynid(a : TIdC_INT) : EVP_CIPHER;
+function EVP_get_cipherbynid(a : TIdC_INT) : PEVP_CIPHER;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := EVP_get_cipherbyname(OBJ_nid2sn(a));
 end;
 
-function EVP_get_cipherbyobj(a : PASN1_OBJECT) : EVP_CIPHER;
+function EVP_get_cipherbyobj(a : PASN1_OBJECT) : PEVP_CIPHER;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := EVP_get_cipherbynid(OBJ_obj2nid(a))
