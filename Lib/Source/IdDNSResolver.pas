@@ -717,7 +717,7 @@ end;
 procedure TRDATARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FIPAddress := MakeUInt32IntoIPv4Address(ParseUInt16(RData, APos));
+  FIPAddress := MakeUInt32IntoIPv4Address(ParseUInt32(CompleteMessage, APos));
 end;
 
 { TMXRecord }
@@ -1419,7 +1419,7 @@ begin
     UInt16ToTwoBytes(w, TempBytes, 0);
     AppendBytes(AQuestion, TempBytes); // record type (OPT)
 
-    w := 1280; // TODO: make this configurable
+    w := 1280{8192}; // TODO: make this configurable
     w := GStack.HostToNetwork(w);
     UInt16ToTwoBytes(w, TempBytes, 0);
     AppendBytes(AQuestion, TempBytes); // record class (OPT UDP size)
@@ -1722,7 +1722,7 @@ begin
 
       UDP_Tunnel.SendBuffer(InternalQuery);
 
-      SetLength(LResult, 8192);
+      SetLength(LResult, 8192); // TODO: make this configurable
       BytesReceived := UDP_Tunnel.ReceiveBuffer(LResult, WaitingTime);
     finally
       UDP_Tunnel.Free;
