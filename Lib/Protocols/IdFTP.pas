@@ -1016,6 +1016,7 @@ type
     property UsingNATFastTrack : Boolean read FUsingNATFastTrack;
     property UsingSFTP : Boolean read FUsingSFTP;
     property CurrentTransferMode : TIdFTPTransferMode read FCurrentTransferMode write TransferMode;
+    property DefStringEncoding : IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
 
   published
     {$IFDEF DOTNET}
@@ -1039,7 +1040,6 @@ type
     property DataPort: TIdPort read FDataPort write FDataPort default 0;
     property DataPortMin: TIdPort read FDataPortMin write FDataPortMin default 0;
     property DataPortMax: TIdPort read FDataPortMax write FDataPortMax default 0;
-    property DefStringEncoding : IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
     property ExternalIP : String read FExternalIP write FExternalIP;
     property Password;
     property TransferType: TIdFTPTransferType read FTransferType write SetTransferType default Id_TIdFTP_TransferType;
