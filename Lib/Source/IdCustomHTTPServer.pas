@@ -1359,71 +1359,88 @@ begin
               Break;
             end;
 
-            if LRequestInfo.PostStream <> nil then begin
-              if TextIsSame(LContentType, ContentTypeFormUrlencoded) then
-              begin
-                // decoding percent-encoded octets and applying the CharSet is handled by DecodeAndSetParams() further below...
-                EnsureEncoding(LEncoding, enc8Bit);
-                LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream, -1, LEncoding);
-                DoneWithPostStream(AContext, LRequestInfo); // don't need the PostStream anymore
+            try
+              if LRequestInfo.PostStream <> nil then begin
+                if TextIsSame(LContentType, ContentTypeFormUrlencoded) then
+                begin
+                  // decoding percent-encoded octets and applying the CharSet is handled by DecodeAndSetParams() further below...
+                  EnsureEncoding(LEncoding, enc8Bit);
+                  LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream, -1, LEncoding);
+                  DoneWithPostStream(AContext, LRequestInfo); // don't need the PostStream anymore
+                end;
               end;
-            end;
 
-            // glue together parameters passed in the URL and those
-            //
-            // RLebeau: should we really be doing this?  For a GET, it might
-            // makes sense to do, but for a POST the FormParams is the content
-            // and the QueryParams belongs to the URL only, not the content.
-            // We should be keeping everything separate for accuracy...
-            LRequestInfo.UnparsedParams := LRequestInfo.FormParams;
-            if Length(LRequestInfo.QueryParams) > 0 then begin
-              if Length(LRequestInfo.UnparsedParams) = 0 then begin
-                LRequestInfo.FUnparsedParams := LRequestInfo.QueryParams;
-              end else begin
-                LRequestInfo.FUnparsedParams := LRequestInfo.UnparsedParams + '&'  {Do not Localize}
-                 + LRequestInfo.QueryParams;
-              end;
-            end;
-
-            // Parse Params
-            if ParseParams then begin
-              if TextIsSame(LContentType, ContentTypeFormUrlencoded) then begin
-                // TODO: decode the data using the algorithm outlined in HTML5 section 4.10.22.6 "URL-encoded form data"
-                LRequestInfo.DecodeAndSetParams(LRequestInfo.UnparsedParams);
-              end else begin
-                // Parse only query params when content type is not 'application/x-www-form-urlencoded'    {Do not Localize}
-                // TODO: decode the data using a user-specified charset, defaulting to UTF-8
-                LRequestInfo.DecodeAndSetParams(LRequestInfo.QueryParams);
-              end;
-            end;
-
-            // Cookies
-            ReadCookiesFromRequestHeader;
-
-            // Authentication
-            s := LRequestInfo.RawHeaders.Values['Authorization'];    {Do not Localize}
-            if Length(s) > 0 then begin
-              LAuthType := Fetch(s, ' ');
-              LRequestInfo.FAuthExists := DoParseAuthentication(AContext, LAuthType, s, LRequestInfo.FAuthUsername, LRequestInfo.FAuthPassword);
-              if not LRequestInfo.FAuthExists then begin
-                raise EIdHTTPUnsupportedAuthorisationScheme.Create(
-                 RSHTTPUnsupportedAuthorisationScheme);
-              end;
-            end;
-
-            // Session management
-            GetSessionFromCookie(AContext, LRequestInfo, LResponseInfo, LContinueProcessing);
-            if LContinueProcessing then begin
-              try
-                // These essentially all "retrieve" so they are all "Get"s
-                if LRequestInfo.CommandType in [hcGET, hcPOST, hcHEAD] then begin
-                  DoCommandGet(AContext, LRequestInfo, LResponseInfo);
+              // glue together parameters passed in the URL and those
+              //
+              // RLebeau: should we really be doing this?  For a GET, it might
+              // makes sense to do, but for a POST the FormParams is the content
+              // and the QueryParams belongs to the URL only, not the content.
+              // We should be keeping everything separate for accuracy...
+              LRequestInfo.UnparsedParams := LRequestInfo.FormParams;
+              if Length(LRequestInfo.QueryParams) > 0 then begin
+                if Length(LRequestInfo.UnparsedParams) = 0 then begin
+                  LRequestInfo.FUnparsedParams := LRequestInfo.QueryParams;
                 end else begin
-                  DoCommandOther(AContext, LRequestInfo, LResponseInfo);
+                  LRequestInfo.FUnparsedParams := LRequestInfo.UnparsedParams + '&'  {Do not Localize}
+                   + LRequestInfo.QueryParams;
+                end;
+              end;
+
+              // Parse Params
+              if ParseParams then begin
+                if TextIsSame(LContentType, ContentTypeFormUrlencoded) then begin
+                  // TODO: decode the data using the algorithm outlined in HTML5 section 4.10.22.6 "URL-encoded form data"
+                  LRequestInfo.DecodeAndSetParams(LRequestInfo.UnparsedParams);
+                end else begin
+                  // Parse only query params when content type is not 'application/x-www-form-urlencoded'    {Do not Localize}
+                  // TODO: decode the data using a user-specified charset, defaulting to UTF-8
+                  LRequestInfo.DecodeAndSetParams(LRequestInfo.QueryParams);
+                end;
+              end;
+
+              // Cookies
+              ReadCookiesFromRequestHeader;
+
+              try
+                // Authentication
+                s := LRequestInfo.RawHeaders.Values['Authorization'];    {Do not Localize}
+                if Length(s) > 0 then begin
+                  LAuthType := Fetch(s, ' ');
+                  LRequestInfo.FAuthExists := DoParseAuthentication(AContext, LAuthType, s, LRequestInfo.FAuthUsername, LRequestInfo.FAuthPassword);
+                  if not LRequestInfo.FAuthExists then begin
+                    raise EIdHTTPUnsupportedAuthorisationScheme.Create(
+                      RSHTTPUnsupportedAuthorisationScheme);
+                  end;
+                end;
+
+                // Session management
+                GetSessionFromCookie(AContext, LRequestInfo, LResponseInfo, LContinueProcessing);
+                if LContinueProcessing then begin
+                  // These essentially all "retrieve" so they are all "Get"s
+                  if LRequestInfo.CommandType in [hcGET, hcPOST, hcHEAD] then begin
+                    DoCommandGet(AContext, LRequestInfo, LResponseInfo);
+                  end else begin
+                    DoCommandOther(AContext, LRequestInfo, LResponseInfo);
+                  end;
                 end;
               except
                 on E: EIdSocketError do begin // don't stop socket exceptions
                   raise;
+                end;
+                on E: EIdHTTPUnsupportedAuthorisationScheme do begin
+                  LResponseInfo.ResponseNo := 401;
+                  LResponseInfo.ContentText := E.Message;
+                  LContinueProcessing := True;
+                  for i := 0 to LResponseInfo.WWWAuthenticate.Count - 1 do begin
+                    S := LResponseInfo.WWWAuthenticate[i];
+                    if TextIsSame(Fetch(S), 'Basic') then begin {Do not localize}
+                      LContinueProcessing := False;
+                      Break;
+                    end;
+                  end;
+                  if LContinueProcessing then begin
+                    LResponseInfo.WWWAuthenticate.Add('Basic');
+                  end;
                 end;
                 on E: Exception do begin
                   LResponseInfo.ResponseNo := 500;
@@ -1431,16 +1448,20 @@ begin
                   DoCommandError(AContext, LRequestInfo, LResponseInfo, E);
                 end;
               end;
-            end;
 
-            // Write even though WriteContent will, may be a redirect or other
-            if not LResponseInfo.HeaderHasBeenWritten then begin
-              LResponseInfo.WriteHeader;
-            end;
-            // Always check ContentText first
-            if (Length(LResponseInfo.ContentText) > 0)
-             or Assigned(LResponseInfo.ContentStream) then begin
-              LResponseInfo.WriteContent;
+              // Write even though WriteContent will, may be a redirect or other
+              if not LResponseInfo.HeaderHasBeenWritten then begin
+                LResponseInfo.WriteHeader;
+              end;
+              // Always check ContentText first
+              if (Length(LResponseInfo.ContentText) > 0)
+               or Assigned(LResponseInfo.ContentStream) then begin
+                LResponseInfo.WriteContent;
+              end;
+            finally
+              if LRequestInfo.PostStream <> nil then begin
+                DoneWithPostStream(AContext, LRequestInfo); // don't need the PostStream anymore
+              end;
             end;
           finally
             LCloseConnection := LResponseInfo.CloseConnection;
@@ -1699,13 +1720,18 @@ procedure TIdCustomHTTPServer.DoneWithPostStream(ASender: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo);
 var
   LCanFree: Boolean;
+  LStream: TStream;
 begin
   LCanFree := True;
   if Assigned(FOnDoneWithPostStream) then begin
     FOnDoneWithPostStream(ASender, ARequestInfo, LCanFree);
   end;
   if LCanFree then begin
-    IdDisposeAndNil(ARequestInfo.FPostStream);
+    LStream := ARequestInfo.FPostStream;
+    ARequestInfo.FPostStream := nil;
+    IdDisposeAndNil(LStream);
+  end else begin
+    ARequestInfo.FPostStream := nil;
   end;
 end;
 
@@ -1932,6 +1958,8 @@ begin
 end;
 
 procedure TIdHTTPResponseInfo.SetHeaders;
+var
+  I: Integer;
 begin
   inherited SetHeaders;
   if Server <> '' then begin
@@ -1943,9 +1971,21 @@ begin
   if FLastModified > 0 then begin
     FRawHeaders.Values['Last-Modified'] := LocalDateTimeToHttpStr(FLastModified); {do not localize}
   end;
-  if AuthRealm <> '' then begin
+  if FWWWAuthenticate.Count > 0 then begin
+    FRawHeaders.Values['WWW-Authenticate'] := ''; {Do not Localize}
+    for I := 0 to FWWWAuthenticate.Count-1 do begin
+      FRawHeaders.AddValue('WWW-Authenticate', FWWWAuthenticate[I]);    {Do not Localize}
+    end;
+  end
+  else if AuthRealm <> '' then begin
     FRawHeaders.Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '"';    {Do not Localize}
   end;
+  if FProxyAuthenticate.Count > 0 then begin
+    FRawHeaders.Values['Proxy-Authenticate'] := ''; {Do not Localize}
+    for I := 0 to FProxyAuthenticate.Count-1 do begin
+      FRawHeaders.AddValue('Proxy-Authenticate', FProxyAuthenticate[I]);    {Do not Localize}
+    end;
+  end
 end;
 
 procedure TIdHTTPResponseInfo.SetResponseNo(const AValue: Integer);
