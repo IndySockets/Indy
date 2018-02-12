@@ -2056,7 +2056,7 @@ procedure DumpCert(AOut: TStrings; AX509: PX509);
 var
   LMem: PBIO;
   LLen : TIdC_INT;
-  LBufPtr : Pointer;
+  LBufPtr : PIdAnsiChar;
 begin
   if Assigned(X509_print) then begin
     LMem := BIO_new(BIO_s_mem);
