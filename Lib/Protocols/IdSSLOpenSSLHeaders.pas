@@ -18638,10 +18638,10 @@ function EVP_VerifyInit_ex(a: PEVP_MD_CTX; b: PEVP_MD; c: PENGINE) : TIdC_INT;
  {$EXTERNALSYM EVP_VerifyInit}
 function EVP_VerifyInit(a: PEVP_MD_CTX; b: PEVP_MD) : TIdC_INT;
  {$EXTERNALSYM EVP_VerifyUpdate}
-function EVP_VerifyUpdate(a: PEVP_MD_CTX;b: Pointer; c : size_t) : TIdC_INT;
+function EVP_VerifyUpdate(a: PEVP_MD_CTX; b: Pointer; c : size_t) : TIdC_INT;
  {$EXTERNALSYM EVP_OpenUpdate}
-function EVP_OpenUpdate(a:PEVP_CIPHER_CTX; b : PIdAnsiChar; c : PIdC_INT;
-  d: PIdAnsiChar; e : TIdC_INT) : TIdC_INT;
+function EVP_OpenUpdate(a: PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT;
+  _in : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT;
  {$EXTERNALSYM EVP_SealUpdate}
 function EVP_SealUpdate(a : PEVP_CIPHER_CTX; b: PIdAnsiChar; c : PIdC_INT;
   d: PIdAnsiChar; e : TIdC_INT) : TIdC_INT;
@@ -26007,17 +26007,17 @@ begin
   Result := EVP_DigestInit(a,b);
 end;
 
-function EVP_VerifyUpdate(a: PEVP_MD_CTX;b: Pointer; c : size_t) : TIdC_INT;
+function EVP_VerifyUpdate(a: PEVP_MD_CTX; b: Pointer; c : size_t) : TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result :=	EVP_DigestUpdate(a,b,c);
+  Result := EVP_DigestUpdate(a,b,c);
 end;
 
-function EVP_OpenUpdate(a:PEVP_CIPHER_CTX; b : PIdAnsiChar; var c : TIdC_INT;
-  d: PIdAnsiChar; e : TIdC_INT) : TIdC_INT;
+function EVP_OpenUpdate(a: PEVP_CIPHER_CTX; _out : PIdAnsiChar; outl : PIdC_INT;
+  _in : PIdAnsiChar; inl : TIdC_INT) : TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := EVP_DecryptUpdate(a,b,c,d,e);
+  Result := EVP_DecryptUpdate(a,_out,outl,_in,inl);
 end;
 
 function EVP_SealUpdate(a : PEVP_CIPHER_CTX; b: PIdAnsiChar; c : PIdC_INT;
@@ -26026,7 +26026,6 @@ function EVP_SealUpdate(a : PEVP_CIPHER_CTX; b: PIdAnsiChar; c : PIdC_INT;
 begin
   Result := EVP_EncryptUpdate(a,b,c,d,e)
 end;
-
 
 function EVP_DigestSignUpdate(a : PEVP_MD_CTX; b : Pointer; c : size_t) : TIdC_Int;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
