@@ -1214,6 +1214,11 @@
   {.$WARN IMPLICIT_CONVERSION_LOSS OFF}
   {.$WARN COMBINING_SIGNED_UNSIGNED64 OFF}
   {$DEFINE HAS_STATIC_TThread_ForceQueue}
+  // In Delphi 10.2 Tokyo, TThread.ForceQueue() is broken on Android, the
+  // passed in procedure is called immediately instead of being delayed!
+  {$IFDEF ANDROID}
+    {$DEFINE BROKEN_TThread_ForceQueue}
+  {$ENDIF}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
