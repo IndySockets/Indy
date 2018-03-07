@@ -67,6 +67,9 @@ interface
 
 {$i IdCompilerDefines.inc}
 
+{$IF DEFINED(HAS_STATIC_TThread_ForceQueue) AND DEFINED(BROKEN_TThread_ForceQueue)}
+  {$UNDEF HAS_STATIC_TThread_ForceQueue}
+{$ENDIF}
 
 {$IFNDEF HAS_STATIC_TThread_ForceQueue}
   {$DEFINE NotifyThreadNeeded}
