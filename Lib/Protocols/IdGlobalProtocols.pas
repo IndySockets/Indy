@@ -2107,31 +2107,35 @@ const
   // may change characters >= #128 from their Ansi codepage value to their true
   // Unicode codepoint value, depending on the codepage used for the source code.
   // For instance, #128 may become #$20AC...
-  Months: array[0..7] of array[1..12] of string = (
+  Months: array[0..8] of array[1..12] of string = (
 
     // English
     ('JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'),
 
     // English - alt. 4 letter abbreviations (Netware Print Services may return a 4 char month such as Sept)
-    ('',    '',    '',    '',    '',   'JUNE','JULY', '',   'SEPT', '',    '',    ''),
+    ('', '', '', '', '', 'JUNE', 'JULY', '', 'SEPT', '', '', ''),
+
+    // English - full spellings
+    ('JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', '', '', '', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'),
 
     // German
-    ('',    '',    'MRZ', '',    'MAI', '',    '',    '',    '',    'OKT', '',    'DEZ'),
+    ('', '', 'MRZ', '', 'MAI', '', '', '', '', 'OKT', '', 'DEZ'),
 
     // Spanish
-    ('ENO', 'FBRO','MZO', 'AB',  '',    '',    '',    'AGTO','SBRE','OBRE','NBRE','DBRE'),
+    ('ENO', 'FBRO', 'MZO', 'AB', '', '', '', 'AGTO', 'SBRE', 'OBRE', 'NBRE', 'DBRE'),
 
     // Dutch
-    ('',    '',    'MRT', '',    'MEI', '',    '',    '',    '',    'OKT', '',    ''),
+    ('', '', 'MRT', '', 'MEI', '', '', '', '', 'OKT', '', ''),
 
     // French
-    ('JANV','F'+Char($C9)+'V', 'MARS','AVR', 'MAI', 'JUIN','JUIL','AO'+Char($DB), 'SEPT','',    '',    'D'+Char($C9)+'C'),
+    ('JANV', 'F'+Char($C9)+'V', 'MARS', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AO'+Char($DB), 'SEPT', '', '', 'D'+Char($C9)+'C'),
 
     // French (alt)
-    ('',    'F'+Char($C9)+'VR','',    '',    '',    '',    'JUI',    'AO'+Char($DB)+'T','',    '',    '',    ''),
+    ('', 'F'+Char($C9)+'VR', '', '', '', '', 'JUI', 'AO'+Char($DB)+'T', '', '', '', ''),
 
     // Slovenian
-    ('',    '',     '',   '', 'MAJ',    '',    '',       '',     'AVG',    '',    '',  ''));
+    ('', '', '', '', 'MAJ', '', '', '', 'AVG', '', '', '')
+  );
 var
   i: Integer;
 begin
