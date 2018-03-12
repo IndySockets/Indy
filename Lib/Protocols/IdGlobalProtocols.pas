@@ -2107,49 +2107,142 @@ const
   // may change characters >= #128 from their Ansi codepage value to their true
   // Unicode codepoint value, depending on the codepage used for the source code.
   // For instance, #128 may become #$20AC...
-  Months: array[0..8] of array[1..12] of string = (
+
+  // RLebeau 3/12/2018: adding full-length month names.
+
+  // duplicate values shared by multiple languages are not duplicated in the array
+  Months: array[0..14] of array[1..12] of string = (
 
     // English
-    ('JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'),
-
-    // English - alt. 4 letter abbreviations (Netware Print Services may return a 4 char month such as Sept)
-    ('', '', '', '', '', 'JUNE', 'JULY', '', 'SEPT', '', '', ''),
-
-    // English - full spellings
-    ('JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', '', '', '', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'),
+    ('JAN',     'FEB',      'MAR',   'APR',   'MAY', 'JUN',  'JUL',  'AUG',    'SEP',       'OCT',     'NOV',      'DEC'),
+    ('JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', '',    'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'),
+    ('',        '',         '',      '',      '',    '',     '',     '',       'SEPT',      '',        '',         ''),
 
     // German
-    ('', '', 'MRZ', '', 'MAI', '', '', '', '', 'OKT', '', 'DEZ'),
+    ('J'+Char($C4)+'N', '',        'MRZ',              '', 'MAI', 'JUNI', 'JULI', '', '', 'OKT',     '', 'DEZ'),
+    ('JANUAR',          'FEBRUAR', 'M'+Char($C4)+'RZ', '', 'MAI', '',     '',     '', '', 'OKTOBER', '', 'DEZEMBER'),
 
     // Spanish
-    ('ENO', 'FBRO', 'MZO', 'AB', '', '', '', 'AGTO', 'SBRE', 'OBRE', 'NBRE', 'DBRE'),
+    ('ENO',   'FBRO',   'MZO',   'ABR',   '',     '',      '',      'AGTO',   'SBRE',       'OBRE',    'NBRE',      'DBRE'),
+    ('ENERO', 'FBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'),
+    ('',      '',       '',      'AB',    '',     '',      '',      '',       'SET',        '',        '',          'DIC'),
 
     // Dutch
-    ('', '', 'MRT', '', 'MEI', '', '', '', '', 'OKT', '', ''),
+    ('',        '',         'MRT',   '', '',    '',  '', '',         '', '', '', ''),
+    ('JANUARI', 'FEBRUARI', 'MAART', '', 'MEI', '',  '', 'AUGUSTUS', '', '', '', ''),
 
     // French
-    ('JANV', 'F'+Char($C9)+'V', 'MARS', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AO'+Char($DB), 'SEPT', '', '', 'D'+Char($C9)+'C'),
-
-    // French (alt)
-    ('', 'F'+Char($C9)+'VR', '', '', '', '', 'JUI', 'AO'+Char($DB)+'T', '', '', '', ''),
+    ('JANV',    'F'+Char($C9)+'V',     '',     'AVR',   '', '',     'JUIL',    'AO'+Char($DB),     '',          '',        '',         'D'+Char($C9)+'C'),
+    ('JANVIER', 'F'+Char($C9)+'VRIER', 'MARS', 'AVRIL', '', 'JUIN', 'JUILLET', 'AO'+Char($DB)+'T', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'D'+Char($C9)+'CEMBRE'),
+    ('',        'F'+Char($C9)+'VR',    '',     '',      '', '',     'JUI',     '',                 '',          '',        '',         ''),
 
     // Slovenian
-    ('', '', '', '', 'MAJ', '', '', '', 'AVG', '', '', '')
-  );
+    ('', '', '',      '', '',    '',      '',      'AVG',    '', '', '', ''),
+    ('', '', 'MAREC', '', 'MAJ', 'JUNJI', 'JULIJ', 'AVGUST', '', '', '', ''));
 var
-  i: Integer;
+  i, j: Integer;
 begin
-  if AMonth <> '' then begin
+  Result := 0;
+  if AMonth = '' then begin
+    Exit;
+  end;
   for i := Low(Months) to High(Months) do begin
-      for Result := Low(Months[i]) to High(Months[i]) do begin
-        if TextIsSame(AMonth, Months[i][Result]) then begin
+    for j := Low(Months[i]) to High(Months[i]) do begin
+      if Months[i][j] <> '' then begin
+        if TextIsSame(AMonth, Months[i][j]) then begin
+          Result := j;
           Exit;
         end;
       end;
     end;
   end;
-  Result := 0;
 end;
+
+// TODO: use this instead?
+{
+function StrToMonth(const AMonth: string): Byte;
+const
+  Months: array[1..12] of array[0..9] of string = (
+    ('JAN', 'JANUARY', 'JANUAR', 'ENERO', 'ENO', 'JANUARI', 'JANVIER', 'JANV', '', ''),
+    ('FEB', 'FEBRUARY', 'FEBRUAR'. 'FBRERO', 'FBRO', 'FEBRUARI', 'F'+Char($C9)+'VRIER', 'F'+Char($C9)+'V', 'F'+Char($C9)+'VR', ''),
+    ('MAR', 'MARCH', 'M'+Char($C4)+'RZ', 'MRZ', 'MARZO', 'MZO', 'MAART', 'MRT', 'MARS', 'MAJ'),
+    ('APR', 'APRIL', 'ABRIL', 'ABR', 'AB', 'AVRIL', 'AVR', '', '', ''),
+    ('MAY', 'MAI', 'MAYO', 'MEI', 'MAJ', '', '', '', '', ''),
+    ('JUN', 'JUNE', 'JUNI', 'JUNIO', 'JUIN', 'JUNJI', '', '', '', ''),
+    ('JUL', 'JULY', 'JULI', 'JULIO', 'JUILLET', 'JUIL', 'JUI', 'JULIJ', '', ''),
+    ('AUG', 'AUGUST', 'AGOSTO', 'AGTO', 'AUGUSTUS', 'AO'+Char($DB)+'T', 'AO'+Char($DB), 'AVGUST', 'AVG', ''),
+    ('SEP', 'SEPTEMBER', 'SEPT', 'SEPTIEMBRE', 'SBRE', 'SET', 'SEPTEMBRE', '', '', ''),
+    ('OCT', 'OCTOBER', 'OKTOBER', 'OKT', 'OCTUBRE', 'OBRE', 'OCTOBRE', '', '', ''),
+    ('NOV', 'NOVEMBER', 'NOVIEMBRE', 'NBRE', 'NOVEMBRE', '', '', '', '', ''),
+    ('DEC', 'DECEMBER', 'DEZEMBER', 'DEZ', 'DICIEMBRE', 'DBRE', 'DIC', 'D'+Char($C9)+'CEMBRE', 'D'+Char($C9)+'C', ''));
+var
+  i, j: Integer;
+begin
+  Result := 0;
+  if AMonth = '' then begin
+    Exit;
+  end;
+  case AMonth[0] of
+    'J', 'j': begin
+      if PosInStrArray(AMonth, Months[1], False) <> -1 then begin
+        Result := 1;
+      end;
+      if PosInStrArray(AMonth, Months[6], False) <> -1 then begin
+        Result := 6;
+      end;
+      if PosInStrArray(AMonth, Months[7], False) <> -1 then begin
+        Result := 7;
+      end;
+    end;
+    'E', 'e': begin
+      if PosInStrArray(AMonth, Months[1], False) <> -1 then begin
+        Result := 1;
+      end;
+    end;
+    'F', 'f': begin
+      if PosInStrArray(AMonth, Months[2], False) <> -1 then begin
+        Result := 2;
+      end;
+    end;
+    'M', 'm': begin
+      if PosInStrArray(AMonth, Months[3], False) <> -1 then begin
+        Result := 3;
+      end;
+      if PosInStrArray(AMonth, Months[5], False) <> -1 then begin
+        Result := 5;
+      end;
+    end;
+    'A', 'a': begin
+      if PosInStrArray(AMonth, Months[4], False) <> -1 then begin
+        Result := 4;
+      end;
+      if PosInStrArray(AMonth, Months[8], False) <> -1 then begin
+        Result := 8;
+      end;
+    end;
+    'S', 's': begin
+      if PosInStrArray(AMonth, Months[9], False) <> -1 then begin
+        Result := 4;
+      end;
+    end;
+    'O', 'o': begin
+      if PosInStrArray(AMonth, Months[10], False) <> -1 then begin
+        Result := 10;
+      end;
+    end;
+    'N', 'n': begin
+      if PosInStrArray(AMonth, Months[11], False) <> -1 then begin
+        Result := 11;
+      end;
+    end;
+    'D', 'd': begin
+      if PosInStrArray(AMonth, Months[12], False) <> -1 then begin
+        Result := 12;
+      end;
+    end;
+  end;
+end;
+}
 
 function UpCaseFirst(const AStr: string): string;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
@@ -2368,6 +2461,7 @@ end;
 
 // RLebeau: other abbreviations taken from:
 // http://www.timeanddate.com/library/abbreviations/timezones/
+// http://en.wikipedia.org/wiki/List_of_time_zone_abbreviations
 
 function TimeZoneToGmtOffsetStr(const ATimeZone: String): String;
 type
@@ -2376,53 +2470,118 @@ type
     Offset: String;
   end;
 const
-  cTimeZones: array[0..90] of TimeZoneOffset = (
+  cTimeZones: array[0..244] of TimeZoneOffset = (
     (TimeZone:'A';    Offset:'+0100'), // Alpha Time Zone - Military                             {do not localize}
     (TimeZone:'ACDT'; Offset:'+1030'), // Australian Central Daylight Time                       {do not localize}
     (TimeZone:'ACST'; Offset:'+0930'), // Australian Central Standard Time                       {do not localize}
+    (TimeZone:'ACT';  Offset:'+0800'), // ASEAN Common Time                                      {do not localize}
     (TimeZone:'ADT';  Offset:'-0300'), // Atlantic Daylight Time - North America                 {do not localize}
     (TimeZone:'AEDT'; Offset:'+1100'), // Australian Eastern Daylight Time                       {do not localize}
     (TimeZone:'AEST'; Offset:'+1000'), // Australian Eastern Standard Time                       {do not localize}
+    (TimeZone:'AFT';  Offset:'+0430'), // Afghanistan Time                                       {do not localize}
     (TimeZone:'AKDT'; Offset:'-0800'), // Alaska Daylight Time                                   {do not localize}
     (TimeZone:'AKST'; Offset:'-0900'), // Alaska Standard Time                                   {do not localize}
+    (TimeZone:'AMST'; Offset:'-0300'), // Amazon Summer Time (Brazil)                            {do not localize}
+    (TimeZone:'AMST'; Offset:'+0500'), // Armenia Summer Time                                    {do not localize}
+    (TimeZone:'AMT';  Offset:'-0400'), // Amazon Time (Brazil)                                   {do not localize}
+    (TimeZone:'AMT';  Offset:'+0400'), // Armenia Time                                           {do not localize}
+    (TimeZone:'ART';  Offset:'-0300'), // Argentina Time                                         {do not localize}
     (TimeZone:'AST';  Offset:'-0400'), // Atlantic Standard Time - North America                 {do not localize}
+    (TimeZone:'AST';  Offset:'+0300'), // Arabia Standard Time                                   {do not localize}
     (TimeZone:'AWDT'; Offset:'+0900'), // Australian Western Daylight Time                       {do not localize}
     (TimeZone:'AWST'; Offset:'+0800'), // Australian Western Standard Time                       {do not localize}
+    (TimeZone:'AZOST';Offset:'-0100'), // Azores Standard Time                                   {do not localize}
+    (TimeZone:'AZT';  Offset:'+0400'), // Azerbaijan Time                                        {do not localize}
     (TimeZone:'B';    Offset:'+0200'), // Bravo Time Zone - Military                             {do not localize}
+    (TimeZone:'BDT';  Offset:'+0800'), // Brunei Time                                            {do not localize}
+    (TimeZone:'BIOT'; Offset:'+0600'), // British Indian Ocean Time                              {do not localize}
+    (TimeZone:'BIT';  Offset:'-1200'), // Baker Island Time                                      {do not localize}
+    (TimeZone:'BOT';  Offset:'-0400'), // Bolivia Time                                           {do not localize}
+    (TimeZone:'BRT';  Offset:'-0300'), // Brasilia Time                                          {do not localize}
     (TimeZone:'BST';  Offset:'+0100'), // British Summer Time - Europe                           {do not localize}
+    (TimeZone:'BST';  Offset:'+0600'), // Bangladesh Standard Time                               {do not localize}
+    (TimeZone:'BTT';  Offset:'+0600'), // Bhutan Time                                            {do not localize}
     (TimeZone:'C';    Offset:'+0300'), // Charlie Time Zone - Military                           {do not localize}
+    (TimeZone:'CAT';  Offset:'+0200'), // Central Africa Time                                    {do not localize}
+    (TimeZone:'CCT';  Offset:'+0630'), // Cocos Islands Time                                     {do not localize}
     (TimeZone:'CDT';  Offset:'+1030'), // Central Daylight Time - Australia                      {do not localize}
     (TimeZone:'CDT';  Offset:'-0500'), // Central Daylight Time - North America                  {do not localize}
     (TimeZone:'CEDT'; Offset:'+0200'), // Central European Daylight Time                         {do not localize}
     (TimeZone:'CEST'; Offset:'+0200'), // Central European Summer Time                           {do not localize}
     (TimeZone:'CET';  Offset:'+0100'), // Central European Time                                  {do not localize}
+    (TimeZone:'CHADT';Offset:'+1345'), // Chatham Daylight Time                                  {do not localize}
+    (TimeZone:'CHAST';Offset:'+1245'), // Chatham Standard Time                                  {do not localize}
+    (TimeZone:'CHOT'; Offset:'+0800'), // Choibalsan                                             {do not localize}
+    (TimeZone:'ChST'; Offset:'+1000'), // Chamorro Standard Time                                 {do not localize}
+    (TimeZone:'CHUT'; Offset:'+1000'), // Chuuk Time                                             {do not localize}
+    (TimeZone:'CIST'; Offset:'-0800'), // Clipperton Island Standard Time                        {do not localize}
+    (TimeZone:'CIT';  Offset:'+0800'), // Central Indonesia Time                                 {do not localize}
+    (TimeZone:'CKT';  Offset:'-1000'), // Cook Island Time                                       {do not localize}
+    (TimeZone:'CLST'; Offset:'-0300'), // Chile Summer Time                                      {do not localize}
+    (TimeZone:'CLT';  Offset:'-0400'), // Chile Standard Time                                    {do not localize}
+    (TimeZone:'COST'; Offset:'-0400'), // Colombia Summer Time                                   {do not localize}
+    (TimeZone:'COT';  Offset:'-0500'), // Colombia Time                                          {do not localize}
     (TimeZone:'CST';  Offset:'+1030'), // Central Summer Time - Australia                        {do not localize}
     (TimeZone:'CST';  Offset:'+0930'), // Central Standard Time - Australia                      {do not localize}
     (TimeZone:'CST';  Offset:'-0600'), // Central Standard Time - North America                  {do not localize}
+    (TimeZone:'CST';  Offset:'+0800'), // China Standard Time                                    {do not localize}
+    (TimeZone:'CST';  Offset:'-0500'), // Cuba Standard Time                                     {do not localize}
+    (TimeZone:'CT';   Offset:'+0800'), // China time                                             {do not localize}
+    (TimeZone:'CVT';  Offset:'-0100'), // Cape Verde Time                                        {do not localize}
+    (TimeZone:'CWST'; Offset:'+0845'), // Central Western Standard Time (Australia) unofficial   {do not localize}
     (TimeZone:'CXT';  Offset:'+0700'), // Christmas Island Time - Australia                      {do not localize}
     (TimeZone:'D';    Offset:'+0400'), // Delta Time Zone - Military                             {do not localize}
+    (TimeZone:'DAVT'; Offset:'+0700'), // Davis Time                                             {do not localize}
+    (TimeZone:'DDUT'; Offset:'+1000'), // Dumont d'Urville Time                                  {do not localize}
+    (TimeZone:'DFT';  Offset:'+0100'), // AIX specific equivalent of Central European Time       {do not localize}
     (TimeZone:'E';    Offset:'+0500'), // Echo Time Zone - Military                              {do not localize}
+    (TimeZone:'EASST';Offset:'-0500'), // Easter Island Standard Summer Time                     {do not localize}
+    (TimeZone:'EAST'; Offset:'-0600'), // Easter Island Standard Time                            {do not localize}
+    (TimeZone:'EAT';  Offset:'+0300'), // East Africa Time                                       {do not localize}
+    (TimeZone:'ECT';  Offset:'-0400'), // Eastern Caribbean Time (does not recognise DST)        {do not localize}
+    (TimeZone:'ECT';  Offset:'-0500'), // Ecuador Time                                           {do not localize}
     (TimeZone:'EDT';  Offset:'+1100'), // Eastern Daylight Time - Australia                      {do not localize}
     (TimeZone:'EDT';  Offset:'-0400'), // Eastern Daylight Time - North America                  {do not localize}
     (TimeZone:'EEDT'; Offset:'+0300'), // Eastern European Daylight Time                         {do not localize}
     (TimeZone:'EEST'; Offset:'+0300'), // Eastern European Summer Time                           {do not localize}
     (TimeZone:'EET';  Offset:'+0200'), // Eastern European Time                                  {do not localize}
+    (TimeZone:'EGST'; Offset:'+0000'), // Eastern Greenland Summer Time                          {do not localize}
+    (TimeZone:'EGT';  Offset:'-0100'), // Eastern Greenland Time                                 {do not localize}
+    (TimeZone:'EIT';  Offset:'+0900'), // Eastern Indonesian Time                                {do not localize}
     (TimeZone:'EST';  Offset:'+1100'), // Eastern Summer Time - Australia                        {do not localize}
     (TimeZone:'EST';  Offset:'+1000'), // Eastern Standard Time - Australia                      {do not localize}
     (TimeZone:'EST';  Offset:'-0500'), // Eastern Standard Time - North America                  {do not localize}
     (TimeZone:'F';    Offset:'+0600'), // Foxtrot Time Zone - Military                           {do not localize}
+    (TimeZone:'FET';  Offset:'+0300'), // Further-eastern European Time                          {do not localize}
+    (TimeZone:'FJT';  Offset:'+1200'), // Fiji Time                                              {do not localize}
+    (TimeZone:'FKST'; Offset:'-0300'), // Falkland Islands Standard Time                         {do not localize}
+    (TimeZone:'FKST'; Offset:'-0300'), // Falkland Islands Summer Time                           {do not localize}
+    (TimeZone:'FKT';  Offset:'-0400'), // Falkland Islands Time                                  {do not localize}
+    (TimeZone:'FNT';  Offset:'-0200'), // Fernando de Noronha Time                               {do not localize}
     (TimeZone:'G';    Offset:'+0700'), // Golf Time Zone - Military                              {do not localize}
+    (TimeZone:'GALT'; Offset:'-0600'), // Galapagos Time                                         {do not localize}
+    (TimeZone:'GAMT'; Offset:'-0900'), // Gambier Islands                                        {do not localize}
+    (TimeZone:'GET';  Offset:'+0400'), // Georgia Standard Time                                  {do not localize}
+    (TimeZone:'GFT';  Offset:'-0300'), // French Guiana Time                                     {do not localize}
+    (TimeZone:'GILT'; Offset:'+1200'), // Gilbert Island Time                                    {do not localize}
+    (TimeZone:'GIT';  Offset:'-0900'), // Gambier Island Time                                    {do not localize}
     (TimeZone:'GMT';  Offset:'+0000'), // Greenwich Mean Time - Europe                           {do not localize}
+    (TimeZone:'GST';  Offset:'-0200'), // South Georgia and the South Sandwich Islands           {do not localize}
+    (TimeZone:'GST';  Offset:'+0400'), // Gulf Standard Time                                     {do not localize}
+    (TimeZone:'GYT';  Offset:'-0400'), // Guyana Time                                            {do not localize}
     (TimeZone:'H';    Offset:'+0800'), // Hotel Time Zone - Military                             {do not localize}
     (TimeZone:'HAA';  Offset:'-0300'), // Heure Avancée de l'Atlantique - North America          {do not localize}
     (TimeZone:'HAC';  Offset:'-0500'), // Heure Avancée du Centre - North America                {do not localize}
     (TimeZone:'HADT'; Offset:'-0900'), // Hawaii-Aleutian Daylight Time - North America          {do not localize}
     (TimeZone:'HAE';  Offset:'-0400'), // Heure Avancée de l'Est - North America                 {do not localize}
+    (TimeZone:'HAEC'; Offset:'+0200'), // Heure Avancée d'Europe Centrale francised name for CEST {do not localize}
     (TimeZone:'HAP';  Offset:'-0700'), // Heure Avancée du Pacifique - North America             {do not localize}
     (TimeZone:'HAR';  Offset:'-0600'), // Heure Avancée des Rocheuses - North America            {do not localize}
     (TimeZone:'HAST'; Offset:'-1000'), // Hawaii-Aleutian Standard Time - North America          {do not localize}
     (TimeZone:'HAT';  Offset:'-0230'), // Heure Avancée de Terre-Neuve - North America           {do not localize}
     (TimeZone:'HAY';  Offset:'-0800'), // Heure Avancée du Yukon - North America                 {do not localize}
+    (TimeZone:'HKT';  Offset:'+0800'), // Hong Kong Time                                         {do not localize}
+    (TimeZone:'HMT';  Offset:'+0500'), // Heard and McDonald Islands Time                        {do not localize}
     (TimeZone:'HNA';  Offset:'-0400'), // Heure Normale de l'Atlantique - North America          {do not localize}
     (TimeZone:'HNC';  Offset:'-0600'), // Heure Normale du Centre - North America                {do not localize}
     (TimeZone:'HNE';  Offset:'-0500'), // Heure Normale de l'Est - North America                 {do not localize}
@@ -2430,43 +2589,132 @@ const
     (TimeZone:'HNR';  Offset:'-0700'), // Heure Normale des Rocheuses - North America            {do not localize}
     (TimeZone:'HNT';  Offset:'-0330'), // Heure Normale de Terre-Neuve - North America           {do not localize}
     (TimeZone:'HNY';  Offset:'-0900'), // Heure Normale du Yukon - North America                 {do not localize}
+    (TimeZone:'HOVT'; Offset:'+0700'), // Khovd Time                                             {do not localize}
+    (TimeZone:'HST';  Offset:'-1000'), // Hawaii Standard Time                                   {do not localize}
     (TimeZone:'I';    Offset:'+0900'), // India Time Zone - Military                             {do not localize}
+    (TimeZone:'ICT';  Offset:'+0700'), // Indochina Time                                         {do not localize}
+    (TimeZone:'IDT';  Offset:'+0300'), // Israel Daylight Time                                   {do not localize}
+    (TimeZone:'IOT';  Offset:'+0300'), // Indian Ocean Time                                      {do not localize}
+    (TimeZone:'IRDT'; Offset:'+0430'), // Iran Daylight Time                                     {do not localize}
+    (TimeZone:'IRKT'; Offset:'+0900'), // Irkutsk Time                                           {do not localize}
+    (TimeZone:'IRST'; Offset:'+0330'), // Iran Standard Time                                     {do not localize}
     (TimeZone:'IST';  Offset:'+0100'), // Irish Summer Time - Europe                             {do not localize}
+    (TimeZone:'IST';  Offset:'+0530'), // Indian Standard Time                                   {do not localize}
+    (TimeZone:'IST';  Offset:'+0200'), // Israel Standard Time                                   {do not localize}
+    (TimeZone:'JST';  Offset:'+0900'), // Japan Standard Time                                    {do not localize}
     (TimeZone:'K';    Offset:'+1000'), // Kilo Time Zone - Military                              {do not localize}
+    (TimeZone:'KGT';  Offset:'+0600'), // Kyrgyzstan time                                        {do not localize}
+    (TimeZone:'KOST'; Offset:'+1100'), // Kosrae Time                                            {do not localize}
+    (TimeZone:'KRAT'; Offset:'+0700'), // Krasnoyarsk Time                                       {do not localize}
+    (TimeZone:'KST';  Offset:'+0900'), // Korea Standard Time                                    {do not localize}
     (TimeZone:'L';    Offset:'+1100'), // Lima Time Zone - Military                              {do not localize}
+    (TimeZone:'LHST'; Offset:'+1030'), // Lord Howe Standard Time                                {do not localize}
+    (TimeZone:'LHST'; Offset:'+1100'), // Lord Howe Summer Time                                  {do not localize}
+    (TimeZone:'LINT'; Offset:'+1400'), // Line Islands Time                                      {do not localize}
     (TimeZone:'M';    Offset:'+1200'), // Mike Time Zone - Military                              {do not localize}
+    (TimeZone:'MAGT'; Offset:'+1200'), // Magadan Time                                           {do not localize}
+    (TimeZone:'MART'; Offset:'-0930'), // Marquesas Islands Time                                 {do not localize}
+    (TimeZone:'MAWT'; Offset:'+0500'), // Mawson Station Time                                    {do not localize}
     (TimeZone:'MDT';  Offset:'-0600'), // Mountain Daylight Time - North America                 {do not localize}
     (TimeZone:'MEHSZ';Offset:'+0300'), // Mitteleuropäische Hochsommerzeit - Europe              {do not localize}
+    (TimeZone:'MEST'; Offset:'+0200'), // Middle European Saving Time Same zone as CEST          {do not localize}
     (TimeZone:'MESZ'; Offset:'+0200'), // Mitteleuroäische Sommerzeit - Europe                   {do not localize}
+    (TimeZone:'MET';  Offset:'+0100'), // Middle European Time Same zone as CET                  {do not localize}
     (TimeZone:'MEZ';  Offset:'+0100'), // Mitteleuropäische Zeit - Europe                        {do not localize}
+    (TimeZone:'MHT';  Offset:'+1200'), // Marshall Islands                                       {do not localize}
+    (TimeZone:'MIST'; Offset:'+1100'), // Macquarie Island Station Time                          {do not localize}
+    (TimeZone:'MIT';  Offset:'-0930'), // Marquesas Islands Time                                 {do not localize}
+    (TimeZone:'MMT';  Offset:'+0630'), // Myanmar Time                                           {do not localize}
     (TimeZone:'MSD';  Offset:'+0400'), // Moscow Daylight Time - Europe                          {do not localize}
     (TimeZone:'MSK';  Offset:'+0300'), // Moscow Standard Time - Europe                          {do not localize}
     (TimeZone:'MST';  Offset:'-0700'), // Mountain Standard Time - North America                 {do not localize}
+    (TimeZone:'MST';  Offset:'+0800'), // Malaysia Standard Time                                 {do not localize}
+    (TimeZone:'MST';  Offset:'+0630'), // Myanmar Standard Time                                  {do not localize}
+    (TimeZone:'MUT';  Offset:'+0400'), // Mauritius Time                                         {do not localize}
+    (TimeZone:'MVT';  Offset:'+0500'), // Maldives Time                                          {do not localize}
+    (TimeZone:'MYT';  Offset:'+0800'), // Malaysia Time                                          {do not localize}
     (TimeZone:'N';    Offset:'-0100'), // November Time Zone - Military                          {do not localize}
+    (TimeZone:'NCT';  Offset:'+1100'), // New Caledonia Time                                     [do not localize}
     (TimeZone:'NDT';  Offset:'-0230'), // Newfoundland Daylight Time - North America             {do not localize}
     (TimeZone:'NFT';  Offset:'+1130'), // Norfolk (Island), Time - Australia                     {do not localize}
+    (TimeZone:'NPT';  Offset:'+0545'), // Nepal Time                                             {do not localize}
     (TimeZone:'NST';  Offset:'-0330'), // Newfoundland Standard Time - North America             {do not localize}
+    (TimeZone:'NT';   Offset:'-0330'), // Newfoundland Time                                      {do not localize}
+    (TimeZone:'NUT';  Offset:'-1100'), // Niue Time                                              {do not localize}
+    (TimeZone:'NZDT'; Offset:'+1300'), // New Zealand Daylight Time                              {do not localize}
+    (TimeZone:'NZST'; Offset:'+1200'), // New Zealand Standard Time                              {do not localize}
     (TimeZone:'O';    Offset:'-0200'), // Oscar Time Zone - Military                             {do not localize}
+    (TimeZone:'OMST'; Offset:'+0700'), // Omsk Time                                              {do not localize}
+    (TimeZone:'ORAT'; Offset:'+0500'), // Oral Time                                              {do not localize}
     (TimeZone:'P';    Offset:'-0300'), // Papa Time Zone - Military                              {do not localize}
     (TimeZone:'PDT';  Offset:'-0700'), // Pacific Daylight Time - North America                  {do not localize}
+    (TimeZone:'PET';  Offset:'-0500'), // Peru Time                                              {do not localize}
+    (TimeZone:'PETT'; Offset:'+1200'), // Kamchatka Time                                         {do not localize}
+    (TimeZone:'PGT';  Offset:'+1000'), // Papua New Guinea Time                                  {do not localize}
+    (TimeZone:'PHOT'; Offset:'+1300'), // Phoenix Island Time                                    {do not localize}
+    (TimeZone:'PKT';  Offset:'+0500'), // Pakistan Standard Time                                 {do not localize}
+    (TimeZone:'PMDT'; Offset:'-0200'), // Saint Pierre and Miquelon Daylight time                {do not localize}
+    (TimeZone:'PMST'; Offset:'-0300'), // Saint Pierre and Miquelon Standard Time                {do not localize}
+    (TimeZone:'PONT'; Offset:'+1100'), // Pohnpei Standard Time                                  [do not localize]
     (TimeZone:'PST';  Offset:'-0800'), // Pacific Standard Time - North America                  {do not localize}
+    (TimeZone:'PST';  Offset:'+0800'), // Philippine Standard Time                               {do not localize}
+    (TimeZone:'PYST'; Offset:'-0300'), // Paraguay Summer Time (South America)                   {do not localize}
+    (TimeZone:'PYT';  Offset:'-0400'), // Paraguay Time (South America)                          {do not localize}
     (TimeZone:'Q';    Offset:'-0400'), // Quebec Time Zone - Military                            {do not localize}
     (TimeZone:'R';    Offset:'-0500'), // Romeo Time Zone - Military                             {do not localize}
+    (TimeZone:'RET';  Offset:'+0400'), // Réunion Time                                           {do not localize}
+    (TimeZone:'ROTT'; Offset:'-0300'), // Rothera Research Station Time                          {do not localize}
     (TimeZone:'S';    Offset:'-0600'), // Sierra Time Zone - Military                            {do not localize}
+    (TimeZone:'SAKT'; Offset:'+1100'), // Sakhalin Island time                                   {do not localize}
+    (TimeZone:'SAMT'; Offset:'+0400'), // Samara Time                                            {do not localize}
+    (TimeZone:'SAST'; Offset:'+0200'), // South African Standard Time                            {do not localize}
+    (TimeZone:'SBT';  Offset:'+1100'), // Solomon Islands Time                                   {do not localize}
+    (TimeZone:'SCT';  Offset:'+0400'), // Seychelles Time                                        {do not localize}
+    (TimeZone:'SGT';  Offset:'+0800'), // Singapore Time                                         {do not localize}
+    (TimeZone:'SLST'; Offset:'+0530'), // Sri Lanka Time                                         {do not localize}
+    (TimeZone:'SRT';  Offset:'-0300'), // Suriname Time                                          {do not localize}
+    (TimeZone:'SST';  Offset:'-1100'), // Samoa Standard Time                                    {do not localize}
+    (TimeZone:'SST';  Offset:'+0800'), // Singapore Standard Time                                {do not localize}
+    (TimeZone:'SYOT'; Offset:'+0300'), // Showa Station Time                                     {do not localize}
     (TimeZone:'T';    Offset:'-0700'), // Tango Time Zone - Military                             {do not localize}
+    (TimeZone:'TAHT'; Offset:'-1000'), // Tahiti Time                                            {do not localize}
+    (TimeZone:'THA';  Offset:'+0700'), // Thailand Standard Time                                 {do not localize}
+    (TimeZone:'TFT';  Offset:'+0500'), // Indian/Kerguelen                                       {do not localize}
+    (TimeZone:'TJT';  Offset:'+0500'), // Tajikistan Time                                        {do not localize}
+    (TimeZone:'TKT';  Offset:'+1300'), // Tokelau Time                                           {do not localize}
+    (TimeZone:'TLT';  Offset:'+0900'), // Timor Leste Time                                       {do not localize}
+    (TimeZone:'TMT';  Offset:'+0500'), // Turkmenistan Time                                      {do not localize}
+    (TimeZone:'TOT';  Offset:'+1300'), // Tonga Time                                             {do not localize}
+    (TimeZone:'TVT';  Offset:'+1200'), // Tuvalu Time                                            {do not localize}
     (TimeZone:'U';    Offset:'-0800'), // Uniform Time Zone - Military                           {do not localize}
+    (TimeZone:'UCT';  Offset:'+0000'), // Coordinated Universal Time                             {do not localize}
+    (TimeZone:'ULAT'; Offset:'+0800'), // Ulaanbaatar Time                                       {do not localize}
     (TimeZone:'UT';   Offset:'+0000'), // Universal Time - Europe                                {do not localize}
     (TimeZone:'UTC';  Offset:'+0000'), // Coordinated Universal Time - Europe                    {do not localize}
+    (TimeZone:'UYST'; Offset:'-0200'), // Uruguay Summer Time                                    {do not localize}
+    (TimeZone:'UYT';  Offset:'-0300'), // Uruguay Standard Time                                  {do not localize}
+    (TimeZone:'UZT';  Offset:'+0500'), // Uzbekistan Time                                        {do not localize}
     (TimeZone:'V';    Offset:'-0900'), // Victor Time Zone - Military                            {do not localize}
+    (TimeZone:'VET';  Offset:'-0430'), // Venezuelan Standard Time                               {do not localize}
+    (TimeZone:'VLAT'; Offset:'+1000'), // Vladivostok Time                                       {do not localize}
+    (TimeZone:'VOLT'; Offset:'+0400'), // Volgograd Time                                         {do not localize}
+    (TimeZone:'VOST'; Offset:'+0600'), // Vostok Station Time                                    {do not localize}
+    (TimeZone:'VUT';  Offset:'+1100'), // Vanuatu Time                                           {do not localize}
     (TimeZone:'W';    Offset:'-1000'), // Whiskey Time Zone - Military                           {do not localize}
+    (TimeZone:'WAKT'; Offset:'+1200'), // Wake Island Time                                       {do not localize}
+    (TimeZone:'WAST'; Offset:'+0200'), // West Africa Summer Time                                {do not localize}
+    (TimeZone:'WAT';  Offset:'+0100'), // West Africa Time                                       {do not localize}
     (TimeZone:'WDT';  Offset:'+0900'), // Western Daylight Time - Australia                      {do not localize}
     (TimeZone:'WEDT'; Offset:'+0100'), // Western European Daylight Time - Europe                {do not localize}
     (TimeZone:'WEST'; Offset:'+0100'), // Western European Summer Time - Europe                  {do not localize}
     (TimeZone:'WET';  Offset:'+0000'), // Western European Time - Europe                         {do not localize}
+    (TimeZone:'WIT';  Offset:'+0700'), // Western Indonesian Time                                {do not localize}
     (TimeZone:'WST';  Offset:'+0900'), // Western Summer Time - Australia                        {do not localize}
     (TimeZone:'WST';  Offset:'+0800'), // Western Standard Time - Australia                      {do not localize}
     (TimeZone:'X';    Offset:'-1100'), // X-ray Time Zone - Military                             {do not localize}
     (TimeZone:'Y';    Offset:'-1200'), // Yankee Time Zone - Military                            {do not localize}
+    (TimeZone:'YAKT'; Offset:'+1000'), // Yakutsk Time                                           {do not localize}
+    (TimeZone:'YEKT'; Offset:'+0600'), // Yekaterinburg Time                                     {do not localize}
     (TimeZone:'Z';    Offset:'+0000')  // Zulu Time Zone - Military                              {do not localize}
   );
 var
