@@ -6562,15 +6562,17 @@ end;
 
 function TIdMemoryBufferStream.Write(const Buffer; Count: Longint): Longint;
 var
+  LAvailable: Int64;
   LNumToCopy: Longint;
 begin
   Result := 0;
-  if (Position >= 0) and (Size > 0) and (Count > 0) then
+  LAvailable := Size - Position;
+  if LAvailable > 0 then
   begin
-    LNumToCopy := Longint(IndyMin(Size - Position, Int64(Count)));
+    LNumToCopy := Longint(IndyMin(LAvailable, Int64(Count)));
     if LNumToCopy > 0 then
     begin
-      System.Move(Buffer, Pointer(PtrUInt(Memory) + Position)^, LNumToCopy);
+      System.Move(Buffer, (PByte(Memory) + Position)^, LNumToCopy);
       Seek(LNumToCopy, soCurrent);
       Result := LNumToCopy;
     end;
