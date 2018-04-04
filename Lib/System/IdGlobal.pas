@@ -8562,17 +8562,32 @@ begin
   SetPointer(APtr, ASize);
 end;
 
+{$UNDEF USE_PBYTE_ARITHMETIC}
+{$IFDEF FPC}
+  {$DEFINE USE_PBYTE_ARITHMETIC}
+{$ELSE}
+  {$IFDEF VCL_XE2_OR_ABOVE}
+    {$DEFINE USE_PBYTE_ARITHMETIC}
+  {$ENDIF}
+{$ENDIF}
+
 function TIdMemoryBufferStream.Write(const Buffer; Count: Longint): Longint;
 var
+  LAvailable: TIdStreamSize;
   LNumToCopy: Longint;
 begin
   Result := 0;
-  if (Position >= 0) and (Size > 0) and (Count > 0) then
+  LAvailable := Size - Position;
+  if LAvailable > 0 then
   begin
-    LNumToCopy := IndyMin(Size - Position, Count);
+    {$IFDEF STREAM_SIZE_64}
+    LNumToCopy := Longint(IndyMin(LAvailable, TIdStreamSize(Count)));
+    {$ELSE}
+    LNumToCopy := IndyMin(LAvailable, Count);
+    {$ENDIF}
     if LNumToCopy > 0 then
     begin
-      System.Move(Buffer, Pointer(PtrUInt(Memory) + Position)^, LNumToCopy);
+      System.Move(Buffer, ({$IFDEF USE_PBYTE_ARITHMETIC}PByte{$ELSE}PIdAnsiChar{$ENDIF}(Memory) + Position)^, LNumToCopy);
       TIdStreamHelper.Seek(Self, LNumToCopy, soCurrent);
       Result := LNumToCopy;
     end;
