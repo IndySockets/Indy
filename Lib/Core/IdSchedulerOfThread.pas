@@ -218,7 +218,7 @@ var
 begin
   Assert(AYarn<>nil);
   LYarn := TIdYarnOfThread(AYarn);
-  if (LYarn.Thread <> nil) and (not LYarn.Thread.Suspended) then begin
+  if (LYarn.Thread <> nil) and (not LYarn.Thread.Stopped) then begin
     // Is still running and will free itself
     LYarn.Thread.Stop;
     // Dont free the yarn. The thread frees it (IdThread.pas)
