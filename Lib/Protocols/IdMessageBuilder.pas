@@ -549,26 +549,23 @@ begin
   if LUsePlain or LUseHtml then
   begin
     LTextPart := TIdText.Create(AMsg.MessageParts, FPlainText);
-    begin
-      if LUseHtml and (not LUsePlain) then
-      begin
-        LTextPart.Body.Text := FHtmlViewerNeededMsg;
-      end;
-      LTextPart.ContentType := cTextPlain;
-      LTextPart.CharSet := FPlainTextCharSet;
-      {$IFDEF STRING_IS_UNICODE}
-      if LTextPart.CharSet = '' then begin
-        LTextPart.CharSet := cUTF8;
-      end;
-      {$ELSE}
-      // TODO: which default charset to use, if any?
-      {$ENDIF}
-      LTextPart.ContentTransfer := FPlainTextContentTransfer;
-      if LTextPart.ContentTransfer = '' then begin
-        LTextPart.ContentTransfer := cQuotedPrintable;
-      end;
-      LTextPart.ParentPart := LAlternativeIndex;
+    if LUseHtml and (not LUsePlain) then begin
+      LTextPart.Body.Text := FHtmlViewerNeededMsg;
     end;
+    LTextPart.ContentType := cTextPlain;
+    LTextPart.CharSet := FPlainTextCharSet;
+    {$IFDEF STRING_IS_UNICODE}
+    if LTextPart.CharSet = '' then begin
+      LTextPart.CharSet := cUTF8;
+    end;
+    {$ELSE}
+    // TODO: which default charset to use, if any?
+    {$ENDIF}
+    LTextPart.ContentTransfer := FPlainTextContentTransfer;
+    if LTextPart.ContentTransfer = '' then begin
+      LTextPart.ContentTransfer := cQuotedPrintable;
+    end;
+    LTextPart.ParentPart := LAlternativeIndex;
   end;
 
   // Is HTML present?
@@ -766,8 +763,7 @@ begin
   if LUsePlain or LUseRtf then
   begin
     LTextPart := TIdText.Create(AMsg.MessageParts, FPlainText);
-    if LUseRtf and (not LUsePlain) then
-    begin
+    if LUseRtf and (not LUsePlain) then begin
       LTextPart.Body.Text := FRtfViewerNeededMsg;
     end;
     LTextPart.ContentType := cTextPlain;
