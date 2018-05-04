@@ -18146,6 +18146,9 @@ procedure Unload;
 function WhichFailedToLoad: String;
 function GetCryptLibHandle : Integer;
 procedure IdOpenSSLSetLibPath(const APath: String);
+  {$IFDEF UNIX}
+procedure IdOpenSSLSetLoadSymLinksFirst(ALoadFirst: Boolean);
+  {$ENDIF}
 {$ENDIF}
 //
 procedure InitializeRandom;
@@ -19480,7 +19483,10 @@ const
   where the symbolic link libbsl.so and libcrypto.so do not exist}
   SSL_DLL_name         = 'libssl'; {Do not localize}
   SSLCLIB_DLL_name     = 'libcrypto'; {Do not localize}
-  SSLDLLVers : array [0..8] of string = ('','.10','.1.0.2','.1.0.1','.1.0.0','0.9.9','.0.9.8','.0.9.7','0.9.6');
+  SSLDLLVers : array [0..7] of string = ('.10','.1.0.2','.1.0.1','.1.0.0','0.9.9','.0.9.8','.0.9.7','0.9.6');
+  SSLDLLVersChar : array [0..26] of string = ('','a','b','c','d','e','f','g','h','i',
+                                                 'j','k','l','m','n','o','p','q','r',
+                                                 's','t','u','v','w','x','y','z');
   {$ENDIF}
   {$IFDEF WINDOWS}
 const
@@ -22530,6 +22536,14 @@ end;
   {$DEFINE USE_BASEUNIX_OR_VCL_POSIX}
 {$ENDIF}
 
+{$UNDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+{$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
+  {$UNDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+{$ENDIF}
+{$IFDEF KYLIXCOMPAT}
+  {$UNDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+{$ENDIF}
+
 var
   GIdOpenSSLPath: String = '';
 
@@ -22542,27 +22556,70 @@ begin
   end;
 end;
 
+  {$IFDEF UNIX}
+var
+  GIdLoadSymLinksFirst: Boolean = True;
+
+procedure IdOpenSSLSetLoadSymLinksFirst(ALoadFirst: Boolean);
+begin
+  GIdLoadSymLinksFirst := ALoadFirst;
+end;
+  {$ENDIF}
+
 function LoadSSLCryptoLibrary: HMODULE;
+{$IFNDEF WINDOWS}
+  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+var
+  i, j: Integer;
+  LLibVersions: array [0..26] of string;
+  {$ENDIF}
+{$ENDIF}
 begin
   {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
   {$ELSE}
-    {$IFDEF KYLIXCOMPAT}
+    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers);
-    {$ELSE}
-      {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
-  Result := HMODULE(HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, SSLDLLVers));
-      {$ELSE}
   Result := 0;
-      {$ENDIF}
+  if GIdLoadSymLinksFirst then begin
+    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
+      HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, [])
+      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+  end;
+  if Result = 0 then begin
+    for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
+      for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
+        LLibVersions[j] := SSLDLLVers[i] + SSLDLLVersChar[j];
+      end;
+      Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
+        HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, LLibVersions)
+        {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+      if Result <> 0 then begin
+        Break;
+      end;
+    end;
+  end;
+  if (Result = 0) and (not GIdLoadSymLinksFirst) then begin
+    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
+      HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, [])
+      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+  end;
+    {$ELSE}
+  Result := 0;
     {$ENDIF}
   {$ENDIF}
 end;
 
 function LoadSSLLibrary: HMODULE;
+{$IFNDEF WINDOWS}
+  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+var
+  i, j: Integer;
+  LLibVersions: array [0..26] of string;
+  {$ENDIF}
+{$ENDIF}
 begin
   {$IFDEF WINDOWS}
   //On Windows, you should use SafeLoadLibrary because
@@ -22574,15 +22631,34 @@ begin
     Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
   end;
   {$ELSE}
-    {$IFDEF KYLIXCOMPAT}
+    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers);
-    {$ELSE}
-      {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
-  Result := HMODULE(HackLoad(GIdOpenSSLPath + SSL_DLL_name, SSLDLLVers));
-      {$ELSE}
   Result := 0;
-      {$ENDIF}
+  if GIdLoadSymLinksFirst then begin
+    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
+      HackLoad(GIdOpenSSLPath + SSL_DLL_name, [])
+      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+  end;
+  if Result = 0 then begin
+    for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
+      for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
+        LLibVersions[j] := SSLDLLVers[i] + SSLDLLVersChar[j];
+      end;
+      Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
+        HackLoad(GIdOpenSSLPath + SSL_DLL_name, LLibVersions)
+        {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+      if Result <> 0 then begin
+        Break;
+      end;
+    end;
+  end;
+  if (Result = 0) and (not GIdLoadSymLinksFirst) then begin
+    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
+      HackLoad(GIdOpenSSLPath + SSL_DLL_name, [])
+      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+  end;
+    {$ELSE}
+  Result := 0;
     {$ENDIF}
   {$ENDIF}
 end;
