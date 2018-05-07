@@ -22538,10 +22538,10 @@ end;
 
 {$UNDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
 {$IFDEF USE_BASEUNIX_OR_VCL_POSIX}
-  {$UNDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+  {$DEFINE USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
 {$ENDIF}
 {$IFDEF KYLIXCOMPAT}
-  {$UNDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+  {$DEFINE USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
 {$ENDIF}
 
 var
@@ -22568,7 +22568,7 @@ end;
 
 function LoadSSLCryptoLibrary: HMODULE;
 {$IFNDEF WINDOWS}
-  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
   i, j: Integer;
   LLibVersions: array [0..26] of string;
@@ -22580,7 +22580,7 @@ begin
   //the LoadLibrary API call messes with the FPU control word.
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
   {$ELSE}
-    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := 0;
   if GIdLoadSymLinksFirst then begin
@@ -22614,7 +22614,7 @@ end;
 
 function LoadSSLLibrary: HMODULE;
 {$IFNDEF WINDOWS}
-  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
   i, j: Integer;
   LLibVersions: array [0..26] of string;
@@ -22631,7 +22631,7 @@ begin
     Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
   end;
   {$ELSE}
-    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT}
+    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := 0;
   if GIdLoadSymLinksFirst then begin
