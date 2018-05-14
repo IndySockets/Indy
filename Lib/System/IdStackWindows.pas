@@ -1897,7 +1897,7 @@ end;
 
 function TIdStackWindows.WouldBlock(const AResult: Integer): Boolean;
 begin
-  Result := CheckForSocketError(AResult, [WSAEWOULDBLOCK]) <> 0;
+  Result := (AResult = WSAEWOULDBLOCK);
 end;
 
 function TIdStackWindows.HostByName(const AHostName: string;
