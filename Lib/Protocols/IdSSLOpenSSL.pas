@@ -2159,7 +2159,6 @@ end;
 
 {$IFNDEF OPENSSL_NO_BIO}
 procedure DumpCert(AOut: TStrings; AX509: PX509);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMem: PBIO;
   LLen : TIdC_INT;
@@ -2167,25 +2166,25 @@ var
 begin
   if Assigned(X509_print) then begin
     LMem := BIO_new(BIO_s_mem);
-    try
-      X509_print(LMem, AX509);
-      LLen := BIO_get_mem_data( LMem, LBufPtr);
-      if (LLen > 0) and Assigned(LBufPtr) then begin
-        AOut.Text := IndyTextEncoding_UTF8.GetString(
-         {$IFNDEF VCL_6_OR_ABOVE}
-          // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
-          // version of 'GetString' that can be called with these arguments" compiler
-          // error if the PByte type-cast is used, even though GetString() actually
-          // expects a PByte as input.  Must be a compiler bug, as it compiles fine
-          // in Delphi 6...
-          LBufPtr
-          {$ELSE}
-          PByte(LBufPtr)
-          {$ENDIF}
-          , LLen);
-      end;
-    finally
-      if Assigned(LMem) then begin
+    if LMem <> nil then begin
+      try
+        X509_print(LMem, AX509);
+        LLen := BIO_get_mem_data(LMem, LBufPtr);
+        if (LLen > 0) and (LBufPtr <> nil) then begin
+          AOut.Text := IndyTextEncoding_UTF8.GetString(
+            {$IFNDEF VCL_6_OR_ABOVE}
+            // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+            // version of 'GetString' that can be called with these arguments" compiler
+            // error if the PByte type-cast is used, even though GetString() actually
+            // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+            // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+            RawToBytes(LBufPtr^, LLen)
+            {$ELSE}
+            PByte(LBufPtr), LLen
+            {$ENDIF}
+          );
+        end;
+      finally
         BIO_free(LMem);
       end;
     end;
