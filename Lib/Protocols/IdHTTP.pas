@@ -1661,19 +1661,21 @@ begin
     end;
   end;
 
-  LCreateTmpContent := (LParseMeth <> 0) and not (AResponse.ContentStream is TCustomMemoryStream);
-
+  // under ARC, AResponse.ContentStream uses weak referencing, so need to
+  // use local strong references to keep the streams alive...
   LOrigStream := AResponse.ContentStream;
+  LCreateTmpContent := (LParseMeth <> 0) and not (LOrigStream is TCustomMemoryStream);
   if LCreateTmpContent then begin
-    // under ARC, AResponse.ContentStream uses weak referencing, so need to
-    // use a local strong reference to keep the temp stream alive...
     LTmpStream := TMemoryStream.Create;
-    AResponse.ContentStream := LTmpStream;
   end else begin
     LTmpStream := nil;
   end;
 
   try
+    if LCreateTmpContent then begin
+      AResponse.ContentStream := LTmpStream;
+    end;
+
     // we need to determine what type of decompression may need to be used
     // before we read from the IOHandler.  If there is compression, then we
     // use a local stream to download the compressed data and decompress it.
@@ -1752,7 +1754,7 @@ begin
     if LCreateTmpContent then
     begin
       try
-        LOrigStream.CopyFrom(AResponse.ContentStream, 0);
+        LOrigStream.CopyFrom(LTmpStream, 0);
       finally
         {$IFNDEF USE_OBJECT_ARC}
         LTmpStream.Free;
@@ -1929,6 +1931,20 @@ var
   LOldProxy: TIdHTTPConnectionType;
   LNewDest: string;
 begin
+  // RLebeau 5/29/2018: before doing anything else, clear the InputBuffer.  If a
+  // previous HTTPS request through an SSL/TLS proxy fails due to a user-defined
+  // OnVerifyPeer handler returning False, the proxy tunnel is still established,
+  // but the underlying socket may be closed, and unread data left behind in the
+  // InputBuffer that will cause Connected() below to return True when it should
+  // be False instead.  This leads to a situation where TIdHTTP can skip sending
+  // a CONNECT request when it creates a new socket connection to the proxy, but
+  // send an unencrypted HTTP request to the proxy, which may then get forwarded
+  // to the HTTPS server over a previously cached SSL/TLS tunnel...
+  
+  if Assigned(IOHandler) then begin
+    IOHandler.InputBuffer.Clear;
+  end;
+
   LNewDest := URL.Host + ':' + URL.Port;
 
   LOldProxy := ARequest.FUseProxy;
@@ -2054,8 +2070,32 @@ begin
               TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
             end;
             Break;
-          end else begin
-            LLocalHTTP.ProcessResponse([]);
+          end;
+
+          case LLocalHTTP.ProcessResponse([]) of
+            wnAuthRequest:
+              begin
+                LLocalHTTP.Request.URL := ARequest.Destination;
+              end;
+            wnReadAndGo:
+              begin
+                ReadResult(LLocalHTTP.Request, LLocalHTTP.Response);
+                FAuthRetries := 0;
+                FAuthProxyRetries := 0;
+              end;
+            wnGoToURL:
+              begin
+                FAuthRetries := 0;
+                FAuthProxyRetries := 0;
+              end;
+            wnJustExit: 
+              begin
+                Break;
+              end;
+            wnDontKnow:
+              begin
+                raise EIdException.Create(RSHTTPNotAcceptable);
+              end;
           end;
         until False;
       except
@@ -2225,7 +2265,10 @@ begin
   // RLebeau 11/18/2014: what about SSPI? It does not require an explicit
   // username/password as it can use the identity of the user token associated
   // with the calling thread!
-  //
+
+  // TODO: get rid of this check here.  Let Request.Authentication validate the
+  // username/password as needed.  Don't validate OnAuthorization unless
+  // wnAskTheProgram is requested...  
   Result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
 
   if not Result then begin
@@ -2330,7 +2373,10 @@ begin
   // RLebeau 11/18/2014: what about SSPI? It does not require an explicit
   // username/password as it can use the identity of the user token associated
   // with the calling thread!
-  //
+
+  // TODO: get rid of this check here.  Let ProxyParams.Authentication validate
+  // the username/password as needed.  Don't validate OnProxyAuthorization unless
+  // wnAskTheProgram is requested...  
   Result := Assigned(OnProxyAuthorization) or (Trim(ProxyParams.ProxyPassword) <> '');
 
   if not Result then begin
@@ -2408,8 +2454,9 @@ end;
 
 procedure TIdCustomHTTP.DoOnDisconnected;
 var
-  // under ARC, convert a weak reference to a strong reference before working with it
+  // under ARC, convert weak references to strong references before working with them
   LAuthManager: TIdAuthenticationManager;
+  LAuth: TIdAuthentication;
 begin
   // TODO: in order to handle the case where authentications are used when
   // keep-alives are in effect, move this logic somewhere more appropriate,
@@ -2417,22 +2464,22 @@ begin
 
   inherited DoOnDisconnected;
 
-  if Assigned(Request.Authentication) and
-    (Request.Authentication.CurrentStep = Request.Authentication.Steps) then
+  LAuth := Request.Authentication;
+  if Assigned(LAuth) and (LAuth.CurrentStep = LAuth.Steps) then
   begin
     LAuthManager := AuthenticationManager;
     if Assigned(LAuthManager) then begin
-      LAuthManager.AddAuthentication(Request.Authentication, URL);
+      LAuthManager.AddAuthentication(LAuth, URL);
     end;
     {$IFNDEF USE_OBJECT_ARC}
-    Request.Authentication.Free;
+    LAuth.Free;
     {$ENDIF}
     Request.Authentication := nil;
   end;
 
-  if Assigned(ProxyParams.Authentication) and
-    (ProxyParams.Authentication.CurrentStep = ProxyParams.Authentication.Steps) then begin
-    ProxyParams.Authentication.Reset;
+  LAuth := ProxyParams.Authentication;
+  if Assigned(LAuth) and (LAuth.CurrentStep = LAuth.Steps) then begin
+    LAuth.Reset;
   end;
 end;
 
@@ -2691,7 +2738,7 @@ begin
         FHTTP.IOHandler.WriteLn(Request.RawHeaders.Strings[i]);
       end;
     end;
-    FHTTP.IOHandler.WriteLn('');     {do not localize}
+    FHTTP.IOHandler.WriteLn;
     if LBufferingStarted then begin
       FHTTP.IOHandler.WriteBufferClose;
     end;
@@ -3049,6 +3096,7 @@ end;
 
 function TIdCustomHTTP.InternalReadLn: String;
 begin
+  // TODO: add ReadLnTimeoutAction property to TIdIOHandler...
   Result := IOHandler.ReadLn;
   if IOHandler.ReadLnTimedout then begin
     raise EIdReadTimeout.Create(RSReadTimeout);
