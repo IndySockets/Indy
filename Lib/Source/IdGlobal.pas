@@ -597,6 +597,7 @@ type
 {$IFNDEF HAS_PUInt64}
 type
   PUInt64 = ^UInt64;
+  {$NODEFINE PUInt64}
 {$ENDIF}
 
 const
@@ -709,6 +710,8 @@ const
   DEF_PORT_ANY = 0;
 
 type
+  TIdUnicodeString = UnicodeString deprecated 'Use UnicodeString';
+
   // the Delphi next-gen compiler eliminates AnsiString/AnsiChar/PAnsiChar,
   // but we still need to deal with Ansi data. Unfortunately, the compiler
   // won't let us use its secret _AnsiChr types either, so we have to use
@@ -733,6 +736,9 @@ type
   {$ELSE}
   PPIdAnsiChar = ^PIdAnsiChar;
   {$ENDIF}
+
+  TIdWideChar = WideChar deprecated 'Use WideChar';
+  PIdWideChar = PWideChar deprecated 'Use PWideChar';
 
   {$IFDEF WINDOWS}
   // Delphi 2009+ supports UNICODE strings natively!
@@ -996,6 +1002,19 @@ type
   TStrScanProc = function(Str: PChar; Chr: Char): PChar;
   TIdReuseSocket = (rsOSDependent, rsTrue, rsFalse);
 
+  TIdBaseStream = class(TStream)
+  protected
+    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
+    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; virtual; abstract;
+    procedure IdSetSize(ASize: Int64); virtual; abstract;
+    procedure SetSize(const NewSize: Int64); override;
+  public
+    function Read(var Buffer; Count: Longint): Longint; override;
+    function Write(const Buffer; Count: Longint): Longint; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; override;
+  end deprecated 'Use TStream';
+
   TIdCalculateSizeStream = class(TStream)
   protected
     FPosition: Int64;
@@ -1047,6 +1066,10 @@ const
   GOSType = otWindows;
   GPathDelim = '\'; {do not localize}
   Infinite = Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
+
+  {$ELSE}
+
+  GOSType = otUnknown;
 
   {$IFEND}
 
@@ -1480,6 +1503,28 @@ const
   CP_UTF7 = 65000;
   CP_UTF8 = 65001;
 {$IFEND}
+
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF HAS_System_RegisterExpectedMemoryLeak}
+    {$IFDEF USE_FASTMM4}
+// RLebeau 7/5/2018: Prior to Delphi 2009+, FastMM manually defines several of
+// Delphi's native types.  Most importantly, it defines PByte, which then causes
+// problems for IIdTextEncoding implementations below.  So, lets make sure that
+// our definitions below are using the same RTL types that their declarations
+// above were using, and not use FastMM's types by mistake, otherwise we get
+// compiler errors!
+type
+  PByte = System.PByte;
+  //NativeInt = System.NativeInt;
+  //NativeUInt = System.NativeUInt;
+  //PNativeUInt = System.PNativeUInt;
+  {$IFDEF DOTNET}
+  IntPtr = System.IntPtr;
+  {$ENDIF}
+  //UIntPtr = System.UIntPtr;
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
 
 procedure EnsureEncoding(var VEncoding : IIdTextEncoding; ADefEncoding: IdTextEncodingType = encIndyDefault);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -6468,6 +6513,36 @@ begin
     LBytes := ToBytes(AStr, LLength, AIndex, ADestEncoding);
     AStream.WriteBuffer(PByte(LBytes)^, Length(LBytes));
   end;
+end;
+
+procedure TIdBaseStream.SetSize(const NewSize: Int64);
+begin
+  IdSetSize(NewSize);
+end;
+
+function TIdBaseStream.Read(var Buffer; Count: Longint): Longint;
+var
+  LBytes: TIdBytes;
+begin
+  SetLength(LBytes, Count);
+  Result := IdRead(LBytes, 0, Count);
+  if Result > 0 then begin
+    Move(LBytes[0], Buffer, Result);
+  end;
+end;
+
+function TIdBaseStream.Write(const Buffer; Count: Longint): Longint;
+begin
+  if Count > 0 then begin
+    Result := IdWrite(RawToBytes(Buffer, Count), 0, Count);
+  end else begin
+    Result := 0;
+  end;
+end;
+
+function TIdBaseStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
+begin
+  Result := IdSeek(Offset, Origin);
 end;
 
 function TIdCalculateSizeStream.Read(var Buffer; Count: Longint): Longint;
