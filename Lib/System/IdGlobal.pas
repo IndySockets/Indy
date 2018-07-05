@@ -1978,6 +1978,28 @@ const
   {$ENDIF}
 {$ENDIF}
 
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF HAS_System_RegisterExpectedMemoryLeak}
+    {$IFDEF USE_FASTMM4}
+// RLebeau 7/5/2018: Prior to Delphi 2009+, FastMM manually defines several of
+// Delphi's native types.  Most importantly, it defines PByte, which then causes
+// problems for IIdTextEncoding implementations below.  So, lets make sure that
+// our definitions below are using the same RTL types that their declarations
+// above were using, and not use FastMM's types by mistake, otherwise we get
+// compiler errors!
+type
+  PByte = System.PByte;
+  //NativeInt = System.NativeInt;
+  //NativeUInt = System.NativeUInt;
+  //PNativeUInt = System.PNativeUInt;
+  {$IFDEF DOTNET}
+  IntPtr = System.IntPtr;
+  {$ENDIF}
+  //UIntPtr = System.UIntPtr;
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 procedure EnsureEncoding(var VEncoding : IIdTextEncoding; ADefEncoding: IdTextEncodingType = encIndyDefault);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
