@@ -3252,6 +3252,7 @@ an invalid MAC when doing SSL.}
     SSL_CTX_set_default_passwd_cb(fContext, @PasswordCallback);
     SSL_CTX_set_default_passwd_cb_userdata(fContext, Self);
 //  end;
+
   SSL_CTX_set_default_verify_paths(fContext);
   // load key and certificate files
   if (RootCertFile <> '') or (VerifyDirs <> '') then begin    {Do not Localize}
@@ -3293,6 +3294,11 @@ an invalid MAC when doing SSL.}
       {$ENDIF}
     );
   end else begin
+    // RLebeau: don't override OpenSSL's default.  As OpenSSL evolves, the
+    // SSL_DEFAULT_CIPHER_LIST constant defined in the C/C++ SDK may change,
+    // while Indy's define of it might take some time to catch up.  We don't
+    // want users using an older default with newer DLLs...
+    {
     error := SSL_CTX_set_cipher_list(fContext,
       {$IFDEF USE_MARSHALLED_PTRS}
       M.AsAnsi(SSL_DEFAULT_CIPHER_LIST).ToPointer
@@ -3300,6 +3306,8 @@ an invalid MAC when doing SSL.}
       SSL_DEFAULT_CIPHER_LIST
       {$ENDIF}
     );
+    }
+    error := 1;
   end;
   if error <= 0 then begin
     // TODO: should this be using EIdOSSLSettingCipherError.RaiseException() instead?
@@ -3437,6 +3445,9 @@ begin
 
       Todo:  Figure out a better fallback.
       }
+      // TODO: get rid of this fallack!  If the user didn't choose TLS 1.0, then
+      // don't falback to it, just fail instead, like with all of the other SSL/TLS
+      // versions...
     sslvTLSv1:
       Result := SelectTLS1Method(fMode);
     sslvTLSv1_1:
@@ -3562,10 +3573,12 @@ begin
   if fSSL <> nil then begin
     // TODO: should this be moved to TIdSSLContext instead?  Is this here
     // just to make sure the SSL shutdown does not log any messages?
+    {
     if (fSSLContext <> nil) and (fSSLContext.StatusInfoOn) and
        (fSSLContext.fContext <> nil) then begin
       SSL_CTX_set_info_callback(fSSLContext.fContext, nil);
     end;
+    }
     //SSL_set_shutdown(fSSL, SSL_SENT_SHUTDOWN);
     SSL_shutdown(fSSL);
     SSL_free(fSSL);
