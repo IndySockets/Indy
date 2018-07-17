@@ -3298,7 +3298,7 @@ an invalid MAC when doing SSL.}
     // SSL_DEFAULT_CIPHER_LIST constant defined in the C/C++ SDK may change,
     // while Indy's define of it might take some time to catch up.  We don't
     // want users using an older default with newer DLLs...
-    {
+    (*
     error := SSL_CTX_set_cipher_list(fContext,
       {$IFDEF USE_MARSHALLED_PTRS}
       M.AsAnsi(SSL_DEFAULT_CIPHER_LIST).ToPointer
@@ -3306,7 +3306,7 @@ an invalid MAC when doing SSL.}
       SSL_DEFAULT_CIPHER_LIST
       {$ENDIF}
     );
-    }
+    *)
     error := 1;
   end;
   if error <= 0 then begin
