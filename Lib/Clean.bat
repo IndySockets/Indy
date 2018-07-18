@@ -36,3 +36,5 @@ if exist %1Debug\iOS rmdir /S /Q %1Debug\iOS > nul
 if exist %1Release\iOS rmdir /S /Q %1Release\iOS > nul
 if exist %1Debug\Android rmdir /S /Q %1Debug\Android > nul
 if exist %1Release\Android rmdir /S /Q %1Release\Android > nul
+if exist %1Debug\Linux64 rmdir /S /Q %1Debug\Linux64 > nul
+if exist %1Release\Linux64 rmdir /S /Q %1Release\Linux64 > nul

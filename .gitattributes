@@ -953,6 +953,11 @@ Lib/Core/IndyCore240.dproj -text
 Lib/Core/IndyCore240.rc -text
 Lib/Core/IndyCore240.rc.tmpl -text
 Lib/Core/IndyCore240.res -text
+Lib/Core/IndyCore250.dpk -text
+Lib/Core/IndyCore250.dproj -text
+Lib/Core/IndyCore250.rc -text
+Lib/Core/IndyCore250.rc.tmpl -text
+Lib/Core/IndyCore250.res -text
 Lib/Core/IndyCore40.RES -text
 Lib/Core/IndyCore40.rc -text
 Lib/Core/IndyCore40.rc.tmpl -text
@@ -1078,6 +1083,11 @@ Lib/Core/dclIndyCore240.dproj -text
 Lib/Core/dclIndyCore240.rc -text
 Lib/Core/dclIndyCore240.rc.tmpl -text
 Lib/Core/dclIndyCore240.res -text
+Lib/Core/dclIndyCore250.dpk -text
+Lib/Core/dclIndyCore250.dproj -text
+Lib/Core/dclIndyCore250.rc -text
+Lib/Core/dclIndyCore250.rc.tmpl -text
+Lib/Core/dclIndyCore250.res -text
 Lib/Core/dclIndyCore40.RES -text
 Lib/Core/dclIndyCore40.dpk -text
 Lib/Core/dclIndyCore40.rc -text
@@ -1145,6 +1155,7 @@ Lib/Fullc_6.bat eol=crlf
 Lib/Fullc_All.bat -text
 Lib/Fullc_Berlin.bat -text
 Lib/Fullc_Seattle.bat -text
+Lib/Fullc_Tokyo.bat -text
 Lib/Fullc_XE.bat -text
 Lib/Fullc_XE2.bat -text
 Lib/Fullc_XE3.bat -text
@@ -1175,6 +1186,7 @@ Lib/Indy210.groupproj -text
 Lib/Indy220.groupproj -text
 Lib/Indy230.groupproj -text
 Lib/Indy240.groupproj -text
+Lib/Indy250.groupproj -text
 Lib/Indy90Net.dpk -text
 Lib/Protocols/DelphiZLib.lib -text svneol=unset#unset
 Lib/Protocols/IconsDotNet/TIdBlockCipherIntercept.bmp -text svneol=unset#unset
@@ -1714,6 +1726,11 @@ Lib/Protocols/IndyProtocols240.dproj -text
 Lib/Protocols/IndyProtocols240.rc -text
 Lib/Protocols/IndyProtocols240.rc.tmpl -text
 Lib/Protocols/IndyProtocols240.res -text
+Lib/Protocols/IndyProtocols250.dpk -text
+Lib/Protocols/IndyProtocols250.dproj -text
+Lib/Protocols/IndyProtocols250.rc -text
+Lib/Protocols/IndyProtocols250.rc.tmpl -text
+Lib/Protocols/IndyProtocols250.res -text
 Lib/Protocols/IndyProtocols40.dpk -text
 Lib/Protocols/IndyProtocols40.rc -text
 Lib/Protocols/IndyProtocols40.rc.tmpl -text
@@ -1915,6 +1932,11 @@ Lib/Protocols/dclIndyProtocols240.dproj -text
 Lib/Protocols/dclIndyProtocols240.rc -text
 Lib/Protocols/dclIndyProtocols240.rc.tmpl -text
 Lib/Protocols/dclIndyProtocols240.res -text
+Lib/Protocols/dclIndyProtocols250.dpk -text
+Lib/Protocols/dclIndyProtocols250.dproj -text
+Lib/Protocols/dclIndyProtocols250.rc -text
+Lib/Protocols/dclIndyProtocols250.rc.tmpl -text
+Lib/Protocols/dclIndyProtocols250.res -text
 Lib/Protocols/dclIndyProtocols40.RES -text
 Lib/Protocols/dclIndyProtocols40.dpk -text
 Lib/Protocols/dclIndyProtocols40.rc -text
@@ -2144,6 +2166,11 @@ Lib/System/IndySystem240.dproj -text
 Lib/System/IndySystem240.rc -text
 Lib/System/IndySystem240.rc.tmpl -text
 Lib/System/IndySystem240.res -text
+Lib/System/IndySystem250.dpk -text
+Lib/System/IndySystem250.dproj -text
+Lib/System/IndySystem250.rc -text
+Lib/System/IndySystem250.rc.tmpl -text
+Lib/System/IndySystem250.res -text
 Lib/System/IndySystem40.dpk -text
 Lib/System/IndySystem40.rc -text
 Lib/System/IndySystem40.rc.tmpl -text

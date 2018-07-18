@@ -1,13 +1,13 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{AAF2F84A-3A33-4B85-A44A-44CDC2D7C52A}</ProjectGuid>
-        <MainSource>dclIndyCore240.dpk</MainSource>
+        <ProjectGuid>{4E8DDBD8-D8AF-4F3D-84D6-66B54D54486B}</ProjectGuid>
+        <MainSource>IndyCore250.dpk</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>None</FrameworkType>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.3</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -28,6 +28,12 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -40,30 +46,35 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_Description>Indy 10 Core Design Time</DCC_Description>
+        <DCC_Description>Indy 10 Core</DCC_Description>
+        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
         <DCC_N>false</DCC_N>
-        <GenPackage>true</GenPackage>
-        <DCC_S>false</DCC_S>
-        <GenDll>true</GenDll>
+        <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
         <DCC_E>false</DCC_E>
-        <SanitizedProjectName>dclIndyCore240</SanitizedProjectName>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;$(DCC_Namespace)</DCC_Namespace>
-        <DesignOnlyPackage>true</DesignOnlyPackage>
+        <GenDll>true</GenDll>
+        <DCC_S>false</DCC_S>
+        <SanitizedProjectName>IndyCore250</SanitizedProjectName>
         <DCC_ImageBase>00400000</DCC_ImageBase>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
-        <DCC_K>false</DCC_K>
         <DCC_F>false</DCC_F>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
+        <GenPackage>true</GenPackage>
+        <DCC_K>false</DCC_K>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>IndyCore240;IndySystem240;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_ObjOutput>..\Output\OBJ\$(Platform)\$(Config)</DCC_ObjOutput>
+        <DCC_HppOutput>..\Output\HPP\$(Platform)\$(Config)</DCC_HppOutput>
+        <DCC_BpiOutput>..\Output\BPI\$(Platform)\$(Config)</DCC_BpiOutput>
+        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(ModuleName);FileDescription=$(ModuleName);ProductName=$(ModuleName)</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>IndyCore240;IndySystem240;$(DCC_UsePackage)</DCC_UsePackage>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(ModuleName);FileDescription=$(ModuleName);ProductName=$(ModuleName)</VerInfo_Keys>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -71,28 +82,83 @@
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(ModuleName);FileDescription=$(ModuleName);ProductName=$(ModuleName)</VerInfo_Keys>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(ModuleName);FileDescription=$(ModuleName);ProductName=$(ModuleName)</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="designide.dcp"/>
-        <DCCReference Include="IndySystem240.dcp"/>
-        <DCCReference Include="IndyCore240.dcp"/>
-        <DCCReference Include="IdAboutVCL.pas"/>
-        <DCCReference Include="IdAntiFreeze.pas"/>
-        <DCCReference Include="IdCoreDsnRegister.pas"/>
-        <DCCReference Include="IdDsnCoreResourceStrings.pas"/>
-        <DCCReference Include="IdDsnPropEdBindingVCL.pas"/>
-        <DCCReference Include="IdRegisterCore.pas"/>
+        <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="IndySystem250.dcp"/>
+        <DCCReference Include="IdAssignedNumbers.pas"/>
+        <DCCReference Include="IdBuffer.pas"/>
+        <DCCReference Include="IdCmdTCPClient.pas"/>
+        <DCCReference Include="IdCmdTCPServer.pas"/>
+        <DCCReference Include="IdCommandHandlers.pas"/>
+        <DCCReference Include="IdContext.pas"/>
+        <DCCReference Include="IdCustomTCPServer.pas"/>
+        <DCCReference Include="IdCustomTransparentProxy.pas"/>
+        <DCCReference Include="IdExceptionCore.pas"/>
+        <DCCReference Include="IdGlobalCore.pas"/>
+        <DCCReference Include="IdIOHandler.pas"/>
+        <DCCReference Include="IdIOHandlerSocket.pas"/>
+        <DCCReference Include="IdIOHandlerStack.pas"/>
+        <DCCReference Include="IdIOHandlerStream.pas"/>
+        <DCCReference Include="IdIPAddress.pas"/>
+        <DCCReference Include="IdIPMCastBase.pas"/>
+        <DCCReference Include="IdIPMCastClient.pas"/>
+        <DCCReference Include="IdIPMCastServer.pas"/>
+        <DCCReference Include="IdIcmpClient.pas"/>
+        <DCCReference Include="IdIntercept.pas"/>
+        <DCCReference Include="IdInterceptSimLog.pas"/>
+        <DCCReference Include="IdInterceptThrottler.pas"/>
+        <DCCReference Include="IdLogBase.pas"/>
+        <DCCReference Include="IdLogDebug.pas"/>
+        <DCCReference Include="IdLogEvent.pas"/>
+        <DCCReference Include="IdLogFile.pas"/>
+        <DCCReference Include="IdLogStream.pas"/>
+        <DCCReference Include="IdRawBase.pas"/>
+        <DCCReference Include="IdRawClient.pas"/>
+        <DCCReference Include="IdRawFunctions.pas"/>
+        <DCCReference Include="IdRawHeaders.pas"/>
+        <DCCReference Include="IdReply.pas"/>
+        <DCCReference Include="IdReplyRFC.pas"/>
+        <DCCReference Include="IdResourceStringsCore.pas"/>
+        <DCCReference Include="IdScheduler.pas"/>
+        <DCCReference Include="IdSchedulerOfThread.pas"/>
+        <DCCReference Include="IdSchedulerOfThreadDefault.pas"/>
+        <DCCReference Include="IdSchedulerOfThreadPool.pas"/>
+        <DCCReference Include="IdServerIOHandler.pas"/>
+        <DCCReference Include="IdServerIOHandlerSocket.pas"/>
+        <DCCReference Include="IdServerIOHandlerStack.pas"/>
+        <DCCReference Include="IdSimpleServer.pas"/>
+        <DCCReference Include="IdSocketHandle.pas"/>
+        <DCCReference Include="IdSocks.pas"/>
+        <DCCReference Include="IdSync.pas"/>
+        <DCCReference Include="IdTCPClient.pas"/>
+        <DCCReference Include="IdTCPConnection.pas"/>
+        <DCCReference Include="IdTCPServer.pas"/>
+        <DCCReference Include="IdTCPStream.pas"/>
+        <DCCReference Include="IdTask.pas"/>
+        <DCCReference Include="IdThread.pas"/>
+        <DCCReference Include="IdThreadComponent.pas"/>
+        <DCCReference Include="IdThreadSafe.pas"/>
+        <DCCReference Include="IdTraceRoute.pas"/>
+        <DCCReference Include="IdUDPBase.pas"/>
+        <DCCReference Include="IdUDPClient.pas"/>
+        <DCCReference Include="IdUDPServer.pas"/>
+        <DCCReference Include="IdYarn.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -111,18 +177,19 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">dclIndyCore240.dpk</Source>
+                    <Source Name="MainSource">IndyCore250.dpk</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k240.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp240.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k240.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp240.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k250.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp250.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
+                <Platform value="Linux64">False</Platform>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="3">
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">

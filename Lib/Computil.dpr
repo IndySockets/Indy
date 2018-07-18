@@ -42,12 +42,12 @@ type
    woSetupD2,woSetupD3,woSetupD4,woSetupD5,woSetupD6,woSetupD7,woSetupD8,
    woSetupD9,woSetupD10,woSetupD11,woSetupD12,woSetupD14,woSetupD15,woSetupD16,
    woSetupD17,woSetupD18,woSetupD19,woSetupD20,woSetupD21,woSetupD22,woSetupD23,
-   woSetupD24,woSetupD25,
+   woSetupD24,woSetupD25,woSetupD26,
 
    woSetupC1,woSetupC3,woSetupC4,woSetupC5,woSetupC6,woSetupC7,woSetupC8,
    woSetupC9,woSetupC10,woSetupC11,woSetupC12,woSetupC14,woSetupC15,woSetupC16,
    woSetupC17,woSetupC18,woSetupC19,woSetupC20,woSetupC21,woSetupC22,woSetupC23,
-   woSetupC24,woSetupC25,
+   woSetupC24,woSetupC25,woSetupC26,
 
    woInvalid);
 
@@ -58,12 +58,12 @@ var
     'SetupD2','SetupD3','SetupD4','SetupD5','SetupD6','SetupD7','SetupD8',
     'SetupD9','SetupD10','SetupD11','SetupD12','SetupD14','SetupD15','SetupD16',
     'SetupD17','SetupD18','SetupD19','SetupD20','SetupD21','SetupD22','SetupD23',
-    'SetupD24','SetupD25',
+    'SetupD24','SetupD25','SetupD26',
 
     'SetupC1','SetupC3','SetupC4','SetupC5','SetupC6','SetupC7','SetupC8',
     'SetupC9','SetupC10','SetupC11','SetupC12','SetupC14','SetupC15','SetupC16',
     'SetupC17','SetupC18','SetupC19','SetupC20','SetupC21','SetupC22','SetupC23',
-    'SetupC24','SetupC25',
+    'SetupC24','SetupC25','SetupC26',
 
     'Invalid'
     );
@@ -205,6 +205,7 @@ begin
 
   Case WhichOption of
     woHppModify: HPPModify;
+
     woSetupD2:  SetPath('NDD2','Software\Borland\Delphi\2.0');
     woSetupD3:  SetPath('NDD3','Software\Borland\Delphi\3.0');
     woSetupD4:  SetPath('NDD4','Software\Borland\Delphi\4.0');
@@ -228,6 +229,8 @@ begin
     woSetupD23: SetPath('NDD23','Software\Embarcadero\BDS\17.0');
     woSetupD24: SetPath('NDD24','Software\Embarcadero\BDS\18.0');
     woSetupD25: SetPath('NDD25','Software\Embarcadero\BDS\19.0');
+    woSetupD26: SetPath('NDD26','Software\Embarcadero\BDS\20.0');
+
     woSetupC1:  SetPath('NDC1','Software\Borland\C++Builder\1.0');
     woSetupC3:  SetPath('NDC3','Software\Borland\C++Builder\3.0');
     woSetupC4:  SetPath('NDC4','Software\Borland\C++Builder\4.0');
@@ -248,6 +251,8 @@ begin
     woSetupC23: SetPath('NDC23','Software\Embarcadero\BDS\17.0');
     woSetupC24: SetPath('NDC24','Software\Embarcadero\BDS\18.0');
     woSetupC25: SetPath('NDC25','Software\Embarcadero\BDS\19.0');
+    woSetupC26: SetPath('NDC26','Software\Embarcadero\BDS\20.0');
+
     woInvalid:  Writeln('Invalid Parameter');
   end; { case }
 end.
