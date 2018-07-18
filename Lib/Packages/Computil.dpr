@@ -205,6 +205,7 @@ begin
 
   Case WhichOption of
     woHppModify: HPPModify;
+
     woSetupD2:  SetPath('NDD2','Software\Borland\Delphi\2.0');
     woSetupD3:  SetPath('NDD3','Software\Borland\Delphi\3.0');
     woSetupD4:  SetPath('NDD4','Software\Borland\Delphi\4.0');
@@ -229,6 +230,7 @@ begin
     woSetupD24: SetPath('NDD24','Software\Embarcadero\BDS\18.0');
     woSetupD25: SetPath('NDD25','Software\Embarcadero\BDS\19.0');
     woSetupD26: SetPath('NDD26','Software\Embarcadero\BDS\20.0');
+
     woSetupC1:  SetPath('NDC1','Software\Borland\C++Builder\1.0');
     woSetupC3:  SetPath('NDC3','Software\Borland\C++Builder\3.0');
     woSetupC4:  SetPath('NDC4','Software\Borland\C++Builder\4.0');
@@ -250,6 +252,7 @@ begin
     woSetupC24: SetPath('NDC24','Software\Embarcadero\BDS\18.0');
     woSetupC25: SetPath('NDC25','Software\Embarcadero\BDS\19.0');
     woSetupC26: SetPath('NDC26','Software\Embarcadero\BDS\20.0');
+
     woInvalid:  Writeln('Invalid Parameter');
   end; { case }
 end.

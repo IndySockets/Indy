@@ -1,0 +1,83 @@
+package IndySystem;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$DEFINE VER320}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$IFNDEF WINDOWS}
+  {$IFDEF MSWINDOWS}
+    {$DEFINE WINDOWS}
+  {$ENDIF}
+{$ENDIF}
+
+requires
+  rtl
+  {$IFNDEF WINDOWS}
+  , fmx
+  {$ENDIF}
+  ;
+
+contains
+  IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\IdBaseComponent.pas',
+  IdCTypes in '..\..\Source\IdCTypes.pas',
+  IdComponent in '..\..\Source\IdComponent.pas',
+  IdException in '..\..\Source\IdException.pas',
+  IdGlobal in '..\..\Source\IdGlobal.pas',
+  IdIDN in '..\..\Source\IdIDN.pas',
+  IdResourceStrings in '..\..\Source\IdResourceStrings.pas',
+  {$IFNDEF WINDOWS}
+  IdResourceStringsUnix in '..\..\Source\IdResourceStringsUnix.pas',
+  IdResourceStringsVCLPosix in '..\..\Source\IdResourceStringsVCLPosix.pas',
+  {$ENDIF}
+  IdStack in '..\..\Source\IdStack.pas',
+  IdStackBSDBase in '..\..\Source\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Source\IdStackConsts.pas',
+  {$IFDEF WINDOWS}
+  IdStackWindows in '..\..\Source\IdStackWindows.pas',
+  {$ELSE}
+  IdStackVCLPosix in '..\..\Source\IdStackVCLPosix.pas',
+  {$ENDIF}
+  IdStream in '..\..\Source\IdStream.pas',
+  IdStreamVCL in '..\..\Source\IdStreamVCL.pas',
+  IdStruct in '..\..\Source\IdStruct.pas',
+  {$IFDEF WINDOWS}
+  IdWinsock2 in '..\..\Source\IdWinsock2.pas',
+  IdWship6 in '..\..\Source\IdWship6.pas'
+  {$ELSE}
+  IdVCLPosixSupplemental in '..\..\Source\IdVCLPosixSupplemental.pas'
+  {$ENDIF}
+  ;
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
+
+end.

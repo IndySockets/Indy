@@ -1,0 +1,111 @@
+package IndyCore;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$DEFINE VER320}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Indy 10 Core'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$IF DEFINED(NEXTGEN) AND DEFINED(IOS)}
+  // there is no RTL package available for iOS
+  {$UNDEF HAS_PKG_RTL}
+{$ELSE}
+  {$DEFINE HAS_PKG_RTL}
+{$IFEND}
+
+requires
+  {$IFDEF HAS_PKG_RTL}
+  rtl,
+  {$ENDIF}
+  IndySystem;
+
+contains
+  IdAssignedNumbers in '..\..\Source\IdAssignedNumbers.pas',
+  IdBuffer in '..\..\Source\IdBuffer.pas',
+  IdCmdTCPClient in '..\..\Source\IdCmdTCPClient.pas',
+  IdCmdTCPServer in '..\..\Source\IdCmdTCPServer.pas',
+  IdCommandHandlers in '..\..\Source\IdCommandHandlers.pas',
+  IdContext in '..\..\Source\IdContext.pas',
+  IdCustomTCPServer in '..\..\Source\IdCustomTCPServer.pas',
+  IdCustomTransparentProxy in '..\..\Source\IdCustomTransparentProxy.pas',
+  IdExceptionCore in '..\..\Source\IdExceptionCore.pas',
+  IdGlobalCore in '..\..\Source\IdGlobalCore.pas',
+  IdIOHandler in '..\..\Source\IdIOHandler.pas',
+  IdIOHandlerSocket in '..\..\Source\IdIOHandlerSocket.pas',
+  IdIOHandlerStack in '..\..\Source\IdIOHandlerStack.pas',
+  IdIOHandlerStream in '..\..\Source\IdIOHandlerStream.pas',
+  IdIPAddress in '..\..\Source\IdIPAddress.pas',
+  IdIPMCastBase in '..\..\Source\IdIPMCastBase.pas',
+  IdIPMCastClient in '..\..\Source\IdIPMCastClient.pas',
+  IdIPMCastServer in '..\..\Source\IdIPMCastServer.pas',
+  IdIcmpClient in '..\..\Source\IdIcmpClient.pas',
+  IdIntercept in '..\..\Source\IdIntercept.pas',
+  IdInterceptSimLog in '..\..\Source\IdInterceptSimLog.pas',
+  IdInterceptThrottler in '..\..\Source\IdInterceptThrottler.pas',
+  IdLogBase in '..\..\Source\IdLogBase.pas',
+  IdLogDebug in '..\..\Source\IdLogDebug.pas',
+  IdLogEvent in '..\..\Source\IdLogEvent.pas',
+  IdLogFile in '..\..\Source\IdLogFile.pas',
+  IdLogStream in '..\..\Source\IdLogStream.pas',
+  IdRawBase in '..\..\Source\IdRawBase.pas',
+  IdRawClient in '..\..\Source\IdRawClient.pas',
+  IdRawFunctions in '..\..\Source\IdRawFunctions.pas',
+  IdRawHeaders in '..\..\Source\IdRawHeaders.pas',
+  IdReply in '..\..\Source\IdReply.pas',
+  IdReplyRFC in '..\..\Source\IdReplyRFC.pas',
+  IdResourceStringsCore in '..\..\Source\IdResourceStringsCore.pas',
+  IdScheduler in '..\..\Source\IdScheduler.pas',
+  IdSchedulerOfThread in '..\..\Source\IdSchedulerOfThread.pas',
+  IdSchedulerOfThreadDefault in '..\..\Source\IdSchedulerOfThreadDefault.pas',
+  IdSchedulerOfThreadPool in '..\..\Source\IdSchedulerOfThreadPool.pas',
+  IdServerIOHandler in '..\..\Source\IdServerIOHandler.pas',
+  IdServerIOHandlerSocket in '..\..\Source\IdServerIOHandlerSocket.pas',
+  IdServerIOHandlerStack in '..\..\Source\IdServerIOHandlerStack.pas',
+  IdSimpleServer in '..\..\Source\IdSimpleServer.pas',
+  IdSocketHandle in '..\..\Source\IdSocketHandle.pas',
+  IdSocks in '..\..\Source\IdSocks.pas',
+  IdSync in '..\..\Source\IdSync.pas',
+  IdTCPClient in '..\..\Source\IdTCPClient.pas',
+  IdTCPConnection in '..\..\Source\IdTCPConnection.pas',
+  IdTCPServer in '..\..\Source\IdTCPServer.pas',
+  IdTCPStream in '..\..\Source\IdTCPStream.pas',
+  IdTask in '..\..\Source\IdTask.pas',
+  IdThread in '..\..\Source\IdThread.pas',
+  IdThreadComponent in '..\..\Source\IdThreadComponent.pas',
+  IdThreadSafe in '..\..\Source\IdThreadSafe.pas',
+  IdTraceRoute in '..\..\Source\IdTraceRoute.pas',
+  IdUDPBase in '..\..\Source\IdUDPBase.pas',
+  IdUDPClient in '..\..\Source\IdUDPClient.pas',
+  IdUDPServer in '..\..\Source\IdUDPServer.pas',
+  IdYarn in '..\..\Source\IdYarn.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
+
+end.
