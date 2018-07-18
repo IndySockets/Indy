@@ -3140,7 +3140,8 @@ end;
 function TIdMBCSEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
-  LBytes: array[0..3] of Byte;
+  // TODO: size this dynamically to accomodate FMaxCharSize, plus some extra padding for safety...
+  LBytes: array[0..7] of Byte;
 {$ENDIF}
 begin
   {$IFDEF USE_ICONV}
