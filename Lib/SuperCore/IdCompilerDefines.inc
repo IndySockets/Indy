@@ -1129,6 +1129,7 @@
   {$DEFINE HAS_TFormatSettings_Object}
   {$DEFINE HAS_LocaleCharsFromUnicode}
   {$DEFINE HAS_UnicodeFromLocaleChars}
+  {$DEFINE HAS_PLongBool}
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
   {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}

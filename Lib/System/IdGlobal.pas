@@ -2757,12 +2757,17 @@ end;
 {$IFNDEF USE_ICONV}
   {$IFNDEF HAS_LocaleCharsFromUnicode}
     {$IFDEF WINDOWS}
+{$IFNDEF HAS_PLongBool}
+type
+  PLongBool = ^LongBool;
+{$ENDIF}
+
 function LocaleCharsFromUnicode(CodePage, Flags: Cardinal;
   UnicodeStr: PWideChar; UnicodeStrLen: Integer; LocaleStr: PAnsiChar;
   LocaleStrLen: Integer; DefaultChar: PAnsiChar; UsedDefaultChar: PLongBool): Integer; overload;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := WideCharToMultiByte(CodePage, Flags, UnicodeStr, UnicodeStrLen, LocaleStr, LocaleStrLen, DefaultChar, UsedDefaultChar);
+  Result := WideCharToMultiByte(CodePage, Flags, UnicodeStr, UnicodeStrLen, LocaleStr, LocaleStrLen, DefaultChar, PBOOL(UsedDefaultChar));
 end;
       {$DEFINE HAS_LocaleCharsFromUnicode}
     {$ENDIF}
