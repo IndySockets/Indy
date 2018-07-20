@@ -15,7 +15,7 @@
 // detect compiler versions
 
 {$IF CompilerVersion < 20}
-  {$MESSAGE WARN 'Unsupported compiler version detected!'}
+  {$MESSAGE ERROR 'Unsupported compiler version detected!'}
 {$IFEND}
 
 //Delphi & C++Builder 2009 (Tiburon)
@@ -199,7 +199,7 @@
 {$IFEND}
 
 {$IF CompilerVersion >= 33}
-  {$MESSAGE WARN 'Unsupported compiler version detected!'}
+  {$MESSAGE ERROR 'Unsupported compiler version detected!'}
 {$IFEND}
 
 // Normalize Delphi compiler defines to match FPC for consistency:
@@ -337,6 +337,7 @@
   {$DEFINE HAS_TFormatSettings_Create}
   {$DEFINE HAS_LocaleCharsFromUnicode}
   {$DEFINE HAS_UnicodeFromLocaleChars}
+  {$DEFINE HAS_PLongBool}
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
   {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}

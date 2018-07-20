@@ -2101,14 +2101,19 @@ end;
 
 
 {$IF (NOT DEFINED(USE_ICONV)) AND (NOT DEFINED(HAS_LocaleCharsFromUnicode)) AND DEFINED(WINDOWS)}
+  {$IFNDEF HAS_PLongBool}
+type
+  PLongBool = ^LongBool;
+  {$ENDIF}
+
 function LocaleCharsFromUnicode(CodePage, Flags: Cardinal;
   UnicodeStr: PWideChar; UnicodeStrLen: Integer; LocaleStr: PAnsiChar;
   LocaleStrLen: Integer; DefaultChar: PAnsiChar; UsedDefaultChar: PLongBool): Integer; overload;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := WideCharToMultiByte(CodePage, Flags, UnicodeStr, UnicodeStrLen, LocaleStr, LocaleStrLen, DefaultChar, UsedDefaultChar);
+  Result := WideCharToMultiByte(CodePage, Flags, UnicodeStr, UnicodeStrLen, LocaleStr, LocaleStrLen, DefaultChar, PBOOL(UsedDefaultChar));
 end;
-{$DEFINE HAS_LocaleCharsFromUnicode}
+  {$DEFINE HAS_LocaleCharsFromUnicode}
 {$IFEND}
 
 {$IF (NOT DEFINED(USE_ICONV)) AND (NOT DEFINED(HAS_UnicodeFromLocaleChars)) AND DEFINED(WINDOWS)}
@@ -2118,7 +2123,7 @@ function UnicodeFromLocaleChars(CodePage, Flags: Cardinal; LocaleStr: PAnsiChar;
 begin
   Result := MultiByteToWideChar(CodePage, Flags, LocaleStr, LocaleStrLen, UnicodeStr, UnicodeStrLen);
 end;
-{$DEFINE HAS_UnicodeFromLocaleChars}
+  {$DEFINE HAS_UnicodeFromLocaleChars}
 {$IFEND}
 
 constructor TIdMBCSEncoding.Create;
