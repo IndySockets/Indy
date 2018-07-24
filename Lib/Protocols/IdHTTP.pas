@@ -603,7 +603,7 @@ type
     property AuthProxyRetries: Integer read FAuthProxyRetries;
     // maximum number of Authentication retries permitted
     property MaxAuthRetries: Integer read FMaxAuthRetries write FMaxAuthRetries default Id_TIdHTTP_MaxAuthRetries;
-    property AllowCookies: Boolean read FAllowCookies write SetAllowCookies;
+    property AllowCookies: Boolean read FAllowCookies write SetAllowCookies default True;
     {Do we handle redirect requests or simply raise an exception and let the
      developer deal with it}
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default Id_TIdHTTP_HandleRedirects;
@@ -1167,14 +1167,16 @@ var
   // under ARC, convert a weak reference to a strong reference before working with it
   LCookieManager: TIdCookieManager;
 begin
-  LCookieManager := FCookieManager;
-  if Assigned(LCookieManager) and AllowCookies then
-  begin
-    // Send secure cookies only if we have Secured connection
-    LCookieManager.GenerateClientCookies(
-      AURL,
-      TextIsSame(AURL.Protocol, 'HTTPS'), {do not localize}
-      ARequest.RawHeaders);
+  if AllowCookies then begin
+    LCookieManager := FCookieManager;
+    if Assigned(LCookieManager) then
+    begin
+      // Send secure cookies only if we have Secured connection
+      LCookieManager.GenerateClientCookies(
+        AURL,
+        TextIsSame(AURL.Protocol, 'HTTPS'), {do not localize}
+        ARequest.RawHeaders);
+    end;
   end;
 end;
 
@@ -2136,15 +2138,16 @@ var
   // under ARC, convert a weak reference to a strong reference before working with it
   LCookieManager: TIdCookieManager;
 begin
-  LCookieManager := FCookieManager;
+  if AllowCookies then
+  begin
+    LCookieManager := FCookieManager;
 
-  if (not Assigned(LCookieManager)) and AllowCookies then begin
-    LCookieManager := TIdCookieManager.Create(Self);
-    SetCookieManager(LCookieManager);
-    FImplicitCookieManager := True;
-  end;
+    if not Assigned(LCookieManager) then begin
+      LCookieManager := TIdCookieManager.Create(Self);
+      SetCookieManager(LCookieManager);
+      FImplicitCookieManager := True;
+    end;
 
-  if Assigned(LCookieManager) and AllowCookies then begin
     LCookies := TStringList.Create;
     try
       AResponse.RawHeaders.Extract('Set-Cookie', LCookies);  {do not localize}
@@ -2184,8 +2187,8 @@ var
 begin
   LCookieManager := FCookieManager;
 
-  if LCookieManager <> ACookieManager then begin
-
+  if LCookieManager <> ACookieManager then
+  begin
     // under ARC, all weak references to a freed object get nil'ed automatically
 
     if Assigned(LCookieManager) then begin

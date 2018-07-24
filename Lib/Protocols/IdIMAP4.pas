@@ -1366,7 +1366,9 @@ end;
 
 function CheckStrFail(const AStr : String; const AOk, ACont: array of string) : Boolean;
 begin
-  Result := (PosInStrArray(AStr, AOk) = -1) and (PosInStrArray(AStr, ACont) = -1);
+  //Result := PosInStrArray(AStr, AOk + ACont) = -1;
+  Result := (PosInStrArray(AStr, AOk) = -1) and
+            (PosInStrArray(AStr, ACont) = -1);
 end;
 
 function PerformSASLLogin_IMAP(ASASL: TIdSASL; AEncoder: TIdEncoder;
@@ -1751,7 +1753,7 @@ begin
         Result := Result + WideChar(ch);
         {$ENDIF}
       end else begin
-        raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);    {do not localize}
+        raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [Integer(ch)]);    {do not localize}
       end;
     end else begin // we're escaped
       { break out of escape mode }
@@ -1781,7 +1783,7 @@ begin
       end else begin // still escaped
         // check range for ch: must be < 128 and in b64table
         if (ch >= $80) or (b64Index[ch] = -1) then begin
-          raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);    {do not localize}
+          raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [Integer(ch)]);    {do not localize}
         end;
         ch := b64Index[ch];
         bitBuf := (bitBuf shl 6) or (ch and $3F);
@@ -1931,7 +1933,11 @@ end;
 
 function TIdIMAP4.CheckConnectionState(AAllowedState: TIdIMAP4ConnectionState): TIdIMAP4ConnectionState;
 begin
-  Result := CheckConnectionState([AAllowedState]);
+  if FConnectionState = AAllowedState then begin
+    Result := FConnectionState;
+  end else begin
+    raise EIdConnectionStateError.CreateFmt(RSIMAP4ConnectionStateError, [GetConnectionStateName]);
+  end;
 end;
 
 function TIdIMAP4.CheckConnectionState(const AAllowedStates: array of TIdIMAP4ConnectionState): TIdIMAP4ConnectionState;
@@ -1984,8 +1990,14 @@ begin
     {$IFDEF HAS_TStringList_CaseSensitive}
     LUsersFolders.CaseSensitive := False;
     {$ENDIF}
+
     //Get folder names...
-    if (not ListMailBoxes(LUsersFolders)) or (LUsersFolders.Count = 0) then begin
+    if not ListMailBoxes(LUsersFolders) then begin
+      Result := ftCannotRetrieveAnyFolders;
+      Exit;
+    end;
+
+    if LUsersFolders.Count = 0 then begin
       Result := ftCannotRetrieveAnyFolders;
       Exit;
     end;
@@ -2049,7 +2061,7 @@ function TIdIMAP4.IsUIDValid(const AUID: string): Boolean;
 begin
   //Must be digits only (no - or .)
   IsItDigitsAndOptionallyPeriod(AUID, False);
-  Result := IsNumberValid(IndyStrToInt(AUID));
+  Result := IsNumberValid(IndyStrToInt(AUID, -1));
 end;
 
 function TIdIMAP4.IsImapPartNumberValid(const AUID: string): Boolean;
@@ -3329,6 +3341,8 @@ begin
           end;
         end;
 
+        // TODO: if AInternalDateTimeGMT is not 0.0, should we adjust the 'Date' header of the sent email to match?
+
         if LCopiedHeaders <> nil then begin
           {Use the copied headers that the user has passed to us, adjusting the MIME boundary...}
           LCopiedHeaders.Params['Content-Type', 'boundary'] := LMimeBoundary; {do not localize}
@@ -3406,6 +3420,7 @@ begin
         finally
           FreeAndNil(LHelper);
         end;
+
         {WARNING: After we send the message (which should be exactly
         LLength bytes long), we need to send an EXTRA CRLF which is in
         addition to the count in LLength, because this CRLF terminates the
@@ -3473,6 +3488,10 @@ begin
       LDateTime := '"' + DateTimeGMTToImapStr(AInternalDateTimeGMT) + '"'; {Do not Localize}
     end;
     LLength := AStream.Size - AStream.Position;
+    if LLength < 0 then begin
+      LLength := 0;
+    end;
+
     LTempStream := TMemoryStream.Create;
     try
       //Hunt for CRLF.CRLF, if present then we need to remove it...
@@ -3542,6 +3561,8 @@ begin
           end;
         end;
 
+        // TODO: if AInternalDateTimeGMT is not 0.0, should we adjust the 'Date' header of the sent email to match?
+
         LTempStream.Position := 0;
         LHelper := TIdIMAP4WorkHelper.Create(Self);
         try
@@ -3549,6 +3570,7 @@ begin
         finally
           FreeAndNil(LHelper);
         end;
+
         {WARNING: After we send the message (which should be exactly
         LLength bytes long), we need to send an EXTRA CRLF which is in
         addition to the count in LLength, because this CRLF terminates the
@@ -3566,7 +3588,7 @@ begin
         end;
       end;
     finally
-       FreeAndNil(LTempStream);
+      FreeAndNil(LTempStream);
     end;
   end;
 end;
@@ -6909,7 +6931,7 @@ const
     try
       IOHandler.Capture(LMStream, LDelim, True, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
       LMStream.Position := 0;
-      // TODO: when String is AnsiString, TIdMessageClient uses AMsg.ChaarSet as
+      // TODO: when String is AnsiString, TIdMessageClient uses AMsg.CharSet as
       // the destination encoding, should this be doing the same? Otherwise, we
       // could just use AMsg.Body.LoadFromStream() instead...
       ReadStringsAsCharSet(LMStream, AMsg.Body, AMsg.CharSet{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});

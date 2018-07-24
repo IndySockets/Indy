@@ -1896,19 +1896,21 @@ var
   IndyPos: TPosProc = nil;
 
 {$IFDEF UNIX}
+  {$UNDEF DARWIN_OR_IOS}
+  {$IFDEF DARWIN}
+    {$DEFINE DARWIN_OR_IOS}
+  {$ENDIF}
+  {$IFDEF IOS}
+    {$DEFINE DARWIN_OR_IOS}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF UNIX}
 const
   {$IFDEF HAS_SharedSuffix}
   LIBEXT = '.' + SharedSuffix; {do not localize}
   {$ELSE}
-    {$UNDEF LIBEXT_IS_DYLIB}
-    {$IFDEF DARWIN}
-      {$DEFINE LIBEXT_IS_DYLIB}
-    {$ELSE}
-      {$IFDEF IOS}
-        {$DEFINE LIBEXT_IS_DYLIB}
-      {$ENDIF}
-    {$ENDIF}
-    {$IFDEF LIBEXT_IS_DYLIB}
+    {$IFDEF DARWIN_OR_IOS}
   LIBEXT = '.dylib'; {do not localize}
     {$ELSE}
   LIBEXT = '.so'; {do not localize}
@@ -4302,32 +4304,34 @@ end;
 {$IFDEF UNIX}
 function HackLoadFileName(const ALibName, ALibVer : String) : string;  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  {$IFDEF DARWIN}
+  {$IFDEF DARWIN_OR_IOS}
   Result := ALibName+ALibVer+LIBEXT;
   {$ELSE}
-    {$IFDEF IOS}
-  Result := ALibName+ALibVer+LIBEXT;
-    {$ELSE}
   Result := ALibName+LIBEXT+ALibVer;
-    {$ENDIF}
   {$ENDIF}
 end;
 
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
 var
   i : Integer;
+  FileName: string;
 begin
   Result := NilHandle;
   for i := Low(ALibVersions) to High(ALibVersions) do
   begin
+    FileName := HackLoadFileName(ALibName, ALibVersions[i]);
     {$IFDEF USE_SAFELOADLIBRARY}
-    Result := SafeLoadLibrary(HackLoadFileName(ALibName,ALibVersions[i]));
+    Result := SafeLoadLibrary(FileName);
     {$ELSE}
       {$IFDEF KYLIXCOMPAT}
     // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-    Result := HMODULE(dlopen(PAnsiChar(HackLoadFileName(ALibName,ALibVersions[i])), RTLD_LAZY));
+    // TODO: use ToSingleByteFileSystemEncodedFileName() to encode the filename:
+    // Result := HMODULE(dlopen(PAnsiChar(ToSingleByteFileSystemEncodedFileName(FileName)), RTLD_LAZY));
+    // TODO: use dynlibs.SysLoadLibraryU() instead:
+    // Result := HMODULE(SysLoadLibraryU(FileName));
+    Result := HMODULE(dlopen(PAnsiChar(FileName), RTLD_LAZY));
       {$ELSE}
-    Result := LoadLibrary(HackLoadFileName(ALibName,ALibVersions[i]));
+    Result := LoadLibrary(FileName);
       {$ENDIF}
     {$ENDIF}
     {$IFDEF USE_INVALIDATE_MOD_CACHE}
@@ -4550,7 +4554,7 @@ end;
 function InterlockedCompareExchangeObj(var VTarget: TObject; const AValue, Compare: TObject): TObject;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF USE_OBJECT_ARC}
+  {$IFDEF HAS_TInterlocked}
   // for ARC, we have to use the TObject overload of TInterlocked to ensure
   // that the reference counts of the objects are managed correctly...
   Result := TInterlocked.CompareExchange(VTarget, AValue, Compare);
@@ -4562,7 +4566,8 @@ end;
 function InterlockedCompareExchangeIntf(var VTarget: IInterface; const AValue, Compare: IInterface): IInterface;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  // we have to ensure that the reference counts of the interfaces are managed correctly...
+  // TInterlocked does not have an overload for IInterface.
+  // We have to ensure that the reference counts of the interfaces are managed correctly...
   if AValue <> nil then begin
     AValue._AddRef;
   end;
@@ -4711,7 +4716,7 @@ end;
 // Delphi 2010 to allow other flags to be specified along with fmCreate.  So
 // at best, we will now be able to allow read-only access to other processes
 // in Delphi 2010 and later, and at worst we will continue having exclusive
-// right to the file in Delphi 2009 and earlier, just like we always did...
+// rights to the file in Delphi 2009 and earlier, just like we always did...
 
 constructor TIdFileCreateStream.Create(const AFile : String);
 begin
@@ -5315,6 +5320,8 @@ var
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
+  // TODO: support other debugging platforms
+
   {$IFDEF KYLIX}
   __write(stderr, AText, Length(AText));
   __write(stderr, EOL, Length(EOL));
@@ -5519,7 +5526,8 @@ function Impl_GetTickCount64: UInt64; stdcall;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   // TODO: implement some kind of accumulator so the Result
-  // keeps growing even when GetTickCount() wraps back to 0
+  // keeps growing even when GetTickCount() wraps back to 0.
+  // Or maybe access the CPU's TSC via the x86 RDTSC instruction...
   Result := UInt64(Windows.GetTickCount);
 end;
 
@@ -7125,6 +7133,7 @@ begin
   Result.LongTimeFormat := 'h:mm:ss AMPM';                    {do not localize}
   Result.ShortTimeFormat := 'h:mm AMPM';                      {do not localize}
 
+  // TODO: use hard-coded names instead?
   Result.ShortMonthNames[1] := monthnames[1]; //'Jan';
   Result.ShortMonthNames[2] := monthnames[2]; //'Feb';
   Result.ShortMonthNames[3] := monthnames[3]; //'Mar';
@@ -7151,6 +7160,7 @@ begin
   Result.LongMonthNames[11] := 'November';                    {do not localize}
   Result.LongMonthNames[12] := 'December';                    {do not localize}
 
+  // TODO: use hard-coded names instead?
   Result.ShortDayNames[1] := wdays[1]; //'Sun';
   Result.ShortDayNames[2] := wdays[2]; //'Mon';
   Result.ShortDayNames[3] := wdays[3]; //'Tue';
@@ -9218,8 +9228,11 @@ function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   // use only System.RegisterExpectedMemoryLeak() on systems that support
-  // it. We should use whatever the RTL's active memory manager is.  Fallback
-  // to specific memory managers only if System.RegisterExpectedMemoryLeak()
+  // it. We should use whatever the RTL's active memory manager is. The user
+  // can override the RTL's version of FastMM (2006+ only) with any memory
+  // manager they want, such as MadExcept.
+  //
+  // Fallback to specific memory managers if System.RegisterExpectedMemoryLeak()
   // is not available.
 
   {$IFDEF HAS_System_RegisterExpectedMemoryLeak}

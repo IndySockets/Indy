@@ -453,7 +453,7 @@ uses
   FMX.Helpers.Android,
       {$ENDIF}
       {$IFDEF VCL_XE6_OR_ABOVE}
-        {$IFDEF VCL_10_0_SEATTLE_OR_ABOVE}
+        {$IFDEF VCL_10_0_OR_ABOVE}
   // StringToJString() is inline in Seattle and later, so we need JavaTypes again...
   Androidapi.JNI.JavaTypes,
         {$ENDIF}

@@ -1065,18 +1065,22 @@ begin
   {$IFDEF USE_MARSHALLED_PTRS}
   LStrPtr := TPtrWrapper.Create(@LStr[0]);
   {$ENDIF}
-  gethostname(
+  if gethostname(
     {$IFDEF USE_MARSHALLED_PTRS}
     LStrPtr.ToPointer
     {$ELSE}
     LStr
-    {$ENDIF}, sMaxHostSize);
-  LStr[sMaxHostSize] := TIdAnsiChar(0);
-  {$IFDEF USE_MARSHALLED_PTRS}
-  Result := TMarshal.ReadStringAsAnsi(LStrPtr);
-  {$ELSE}
-  Result := String(LStr);
-  {$ENDIF}
+    {$ENDIF}, sMaxHostSize) = 0 then
+  begin
+    {$IFDEF USE_MARSHALLED_PTRS}
+    Result := TMarshal.ReadStringAsAnsiUpTo(0, LStrPtr, sMaxHostSize);
+    {$ELSE}
+    LStr[sMaxHostSize] := TIdAnsiChar(0);
+    Result := String(LStr);
+    {$ENDIF}
+  end else begin
+    Result := '';
+  end;
 end;
 
 function TIdStackVCLPosix.ReceiveMsg(ASocket: TIdStackSocketHandle;

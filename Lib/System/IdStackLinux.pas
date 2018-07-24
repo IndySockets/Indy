@@ -427,11 +427,14 @@ end;
 
 function TIdStackLinux.ReadHostName: string;
 var
-  LStr: AnsiString;
+  LStr: array[0..250] of AnsiChar;
 begin
-  SetLength(LStr, 250);
-  Libc.gethostname(PAnsiChar(LStr), 250);
-  Result := PAnsiChar(LStr);
+  if Libc.gethostname(LStr, 250) = 0 then begin
+    LStr[250] := #0;
+    Result := String(LStr);
+  end else begin
+    Result := '';
+  end;
 end;
 
 procedure TIdStackLinux.Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);

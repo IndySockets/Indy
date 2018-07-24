@@ -512,8 +512,8 @@ begin
     LIntercept := LIOHandler.Intercept;
     if Assigned(LIntercept) then begin
       LIntercept.Disconnect;
-      FreeAndNil(LIntercept);
       LIOHandler.Intercept := nil;
+      FreeAndNil(LIntercept);
     end;
   end;
 end;
@@ -641,6 +641,8 @@ begin
   FBindings.DefaultPort := AValue;
 end;
 
+// RLebeau: not IFDEF'ing the entire method since it is virtual and could be
+// overridden in user code...
 procedure TIdCustomTCPServer.SetIntercept(const AValue: TIdServerIntercept);
 begin
   {$IFDEF USE_OBJECT_ARC}
@@ -745,6 +747,8 @@ begin
     // Ensure we will no longer be notified when the component is freed
     if Assigned(LIOHandler) then begin
       LIOHandler.RemoveFreeNotification(Self);
+      // TODO: do we need this?
+      // LIOHandler.SetScheduler(nil);
     end;
     {$ENDIF}
 
@@ -831,6 +835,9 @@ var
 begin
   LListenerThreads := FListenerThreads.LockList;
   try
+    // TODO: use two loops - one to close all of the sockets and signal all
+    // of the threads to terminate, then another to free the threads.
+    // This will be faster than doing everything one thread at a time...
     while LListenerThreads.Count > 0 do begin
       LListener := {$IFDEF HAS_GENERICS_TThreadList}LListenerThreads[0]{$ELSE}TIdListenerThread(LListenerThreads[0]){$ENDIF};
       // Stop listening
@@ -916,6 +923,10 @@ begin
   // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
   // is still running which often causes AVs and other.
   AContext.Connection.Disconnect(False);
+  // TODO: use AContext.Binding.CloseSocket() instead. Just close the socket without
+  // closing the IOHandler itself.  Doing so can cause AVs and other, such as in
+  // TIdSSLIOHandlerSocketOpenSSL, when Disconnect() calls IOHandler.Close() which
+  // frees internal objects that may still be in use...
 end;
 
 procedure TIdCustomTCPServer.InitComponent;
@@ -1143,6 +1154,8 @@ begin
       end;
       // EAbort is used to kick out above and destroy yarns and other, but
       // we dont want to show the user
+      // TODO: should we include EIdSilentException here, too?
+      // To ignore EIdConnClosedGracefully, for instance...
       if not (E is EAbort) then begin
         Server.DoListenException(Self, E);
       end;

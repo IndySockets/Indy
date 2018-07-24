@@ -474,7 +474,7 @@ type
     TunnelTypeIPHTTPS);
 
   IP_ADDRESS_STRING = record
-    S: array [0..15] of AnsiChar;
+    S: array [0..15] of TIdAnsiChar;
   end;
   IP_MASK_STRING = IP_ADDRESS_STRING;
 
@@ -490,8 +490,8 @@ type
   IP_ADAPTER_INFO = record
     Next: PIP_ADAPTER_INFO;
     ComboIndex: DWORD;
-    AdapterName: array [0..MAX_ADAPTER_NAME_LENGTH + 3] of AnsiChar;
-    Description: array [0..MAX_ADAPTER_DESCRIPTION_LENGTH + 3] of AnsiChar;
+    AdapterName: array [0..MAX_ADAPTER_NAME_LENGTH + 3] of TIdAnsiChar;
+    Description: array [0..MAX_ADAPTER_DESCRIPTION_LENGTH + 3] of TIdAnsiChar;
     AddressLength: UINT;
     Address: array [0..MAX_ADAPTER_ADDRESS_LENGTH - 1] of BYTE;
     Index: DWORD;
@@ -646,7 +646,7 @@ type
           IfIndex: DWORD);
     end;
     Next: PIP_ADAPTER_ADDRESSES;
-    AdapterName: PAnsiChar;
+    AdapterName: PIdAnsiChar;
     FirstUnicastAddress: PIP_ADAPTER_UNICAST_ADDRESS;
     FirstAnycastAddress: PIP_ADAPTER_ANYCAST_ADDRESS;
     FirstMulticastAddress: PIP_ADAPTER_MULTICAST_ADDRESS;
@@ -984,14 +984,33 @@ function TIdStackWindows.ReadHostName: string;
 var
   // Note that there is no Unicode version of gethostname.
   // Maybe use getnameinfo() instead?
-  LStr: AnsiString;
+  LStr: array[0..SIZE_HOSTNAME] of TIdAnsiChar;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  LStrPtr: TPtrWrapper;
+  {$ENDIF}
 begin
-  SetLength(LStr, SIZE_HOSTNAME);
-  gethostname(PAnsiChar(LStr), SIZE_HOSTNAME);
-  //we have to specifically type cast a PAnsiChar to a string for D2009+.
-  //otherwise, we will get a warning about implicit typecast from AnsiString
-  //to string
-  Result := String(PAnsiChar(LStr));
+  {$IFDEF USE_MARSHALLED_PTRS}
+  LStrPtr := TPtrWrapper.Create(@LStr[0]);
+  {$ENDIF}
+  if gethostname(
+    {$IFDEF USE_MARSHALLED_PTRS}
+    LStrPtr.ToPointer
+    {$ELSE}
+    LStr
+    {$ENDIF}, SIZE_HOSTNAME) <> Id_SOCKET_ERROR then
+  begin
+    {$IFDEF USE_MARSHALLED_PTRS}
+    Result := TMarshal.ReadStringAsAnsiUpTo(CP_ACP, LStrPtr, SIZE_HOSTNAME);
+    {$ELSE}
+    //we have to specifically type cast a PIdAnsiChar to a string for D2009+.
+    //otherwise, we will get a warning about implicit typecast from AnsiString
+    //to string
+    LStr[SIZE_HOSTNAME] := TIdAnsiChar(0);
+    Result := String(LStr);
+    {$ENDIF}
+  end else begin
+    Result := '';
+  end;
 end;
 
 procedure TIdStackWindows.Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);
@@ -1120,28 +1139,42 @@ end;
 
 function TIdStackWindows.WSGetServByName(const AServiceName: string): TIdPort;
 var
+  // Note that there is no Unicode version of getservbyname.
+  // Maybe use getaddrinfo() instead?
   ps: PServEnt;
-  {$IFDEF STRING_IS_UNICODE}
-  LTemp: AnsiString;
+  LPort: Integer;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
   {$ENDIF}
 begin
-  {$IFDEF STRING_IS_UNICODE}
-  LTemp := AnsiString(AServiceName); // explicit convert to Ansi
-  {$ENDIF}
   ps := getservbyname(
-    PAnsiChar({$IFDEF STRING_IS_UNICODE}LTemp{$ELSE}AServiceName{$ENDIF}),
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(AServiceName).ToPointer
+    {$ELSE}
+    PIdAnsiChar(
+      {$IFDEF STRING_IS_ANSI}
+      AServiceName
+      {$ELSE}
+      AnsiString(AServiceName) // explicit convert to Ansi
+      {$ENDIF}
+    )
+    {$ENDIF},
     nil);
   if ps <> nil then begin
     Result := ntohs(ps^.s_port);
   end else begin
     try
-      Result := IndyStrToInt(AServiceName);
+      LPort := IndyStrToInt(AServiceName);
     except
       on EConvertError do begin
-        Result := 0;
+        LPort := -1;
         IndyRaiseOuterException(EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]));
       end;
     end;
+    if (LPort < 0) or (LPort > High(TIdPort)) then begin
+      raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
+    end;
+    Result := TIdPort(LPort);
   end;
 end;
 
@@ -1149,7 +1182,7 @@ procedure TIdStackWindows.AddServByPortToList(const APortNumber: TIdPort; AAddre
 type
   // Note that there is no Unicode version of getservbyport.
   PPAnsiCharArray = ^TPAnsiCharArray;
-  TPAnsiCharArray = packed array[0..(MaxInt div SizeOf(PAnsiChar))-1] of PAnsiChar;
+  TPAnsiCharArray = packed array[0..(MaxInt div SizeOf(PIdAnsiChar))-1] of PIdAnsiChar;
 var
   ps: PServEnt;
   i: integer;
@@ -1161,7 +1194,7 @@ begin
   end;
   AAddresses.BeginUpdate;
   try
-    //we have to specifically type cast a PAnsiChar to a string for D2009+.
+    //we have to specifically type cast a PIdAnsiChar to a string for D2009+.
     //otherwise, we will get a warning about implicit typecast from AnsiString
     //to string
     AAddresses.Add(String(ps^.s_name));
@@ -1238,15 +1271,6 @@ begin
 end;
 
 procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
-{$IFNDEF USE_IPHLPAPI}
-  {$IFNDEF WINCE}
-type
-  TaPInAddr = array[0..250] of PInAddr;
-  PaPInAddr = ^TaPInAddr;
-  TaPIn6Addr = array[0..250] of PIn6Addr;
-  PaPIn6Addr = ^TaPIn6Addr;
-  {$ENDIF}
-{$ENDIF}
 
   {$IFDEF USE_IPHLPAPI}
 
@@ -1300,7 +1324,9 @@ type
         begin
           pRow := @(Table^.table[0]);
           for I := 0 to Table^.dwNumEntries-1 do begin
-            IndyAddPair(ASubNetMasks, TranslateTInAddrToString(pRow^.dwAddr, Id_IPv4), TranslateTInAddrToString(pRow^.dwMask, Id_IPv4));
+            IndyAddPair(ASubNetMasks,
+              TranslateTInAddrToString(pRow^.dwAddr, Id_IPv4),
+              TranslateTInAddrToString(pRow^.dwMask, Id_IPv4));
             Inc(pRow);
           end;
         end;
@@ -1401,7 +1427,8 @@ type
                         TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr);
                       end;
                       AF_INET6: begin
-                        TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
+                        TIdStackLocalAddressIPv6.Create(AAddresses,
+                          TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
                       end;
                     end;
                   end;
@@ -1477,7 +1504,7 @@ type
     UniDirAddresses: TStringList;
     Adapter, Adapters: PIP_ADAPTER_INFO;
     IPAddr: PIP_ADDR_STRING;
-    IPStr: String;
+    IPStr, MaskStr: String;
   begin
     BufLen := 1024*15;
     GetMem(Adapters, BufLen);
@@ -1527,7 +1554,11 @@ type
             repeat
               IPAddr := @(Adapter^.IpAddressList);
               repeat
+                {$IFDEF USE_MARSHALLED_PTRS}
+                IPStr := TMarshal.ReadStringAsAnsiUpTo(CP_ACP, TPtrWrapper.Create(@(IPAddr^.IpAddress.S[0]), 15);
+                {$ELSE}
                 IPStr := String(IPAddr^.IpAddress.S);
+                {$ENDIF}
                 if (IPStr <> '') and (IPStr <> '0.0.0.0') then
                 begin
                   if UniDirAddresses <> nil then begin
@@ -1536,7 +1567,12 @@ type
                       Continue;
                     end;
                   end;
-                  TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, String(IPAddr^.IpMask.S));
+                  {$IFDEF USE_MARSHALLED_PTRS}
+                  MaskStr := TMarshal.ReadStringAsAnsiUpTo(CP_ACP, TPtrWrapper.Create(@(IPAddr^.IpMask.S[0]), 15);
+                  {$ELSE}
+                  MaskStr := String(IPAddr^.IpMask.S);
+                  {$ENDIF}
+                  TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, MaskStr);
                 end;
                 IPAddr := IPAddr^.Next;
               until IPAddr = nil;
@@ -1554,25 +1590,69 @@ type
     end;
   end;
 
-    {$ELSE}
+  {$ELSE}
 
-var
+  procedure GetLocalAddressesByHostName;
+  var
     {$IFDEF UNICODE}
-  Hints: TAddrInfoW;
-  LAddrList, LAddrInfo: pAddrInfoW;
+    Hints: TAddrInfoW;
+    LAddrList, LAddrInfo: pAddrInfoW;
     {$ELSE}
-  Hints: TAddrInfo;
-  LAddrList, LAddrInfo: pAddrInfo;
+    Hints: TAddrInfo;
+    LAddrList, LAddrInfo: pAddrInfo;
     {$ENDIF}
-  RetVal: Integer;
-  LHostName: String;
+    RetVal: Integer;
+    LHostName: String;
     {$IFDEF STRING_UNICODE_MISMATCH}
-  LTemp: TIdPlatformString;
+    LTemp: TIdPlatformString;
     {$ENDIF}
+  begin
+    LHostName := HostName;
+
+    ZeroMemory(@Hints, SIZE_TADDRINFO);
+    Hints.ai_family := PF_UNSPEC; // returns both IPv4 and IPv6 addresses
+    Hints.ai_socktype := SOCK_STREAM;
+    LAddrList := nil;
+
+    {$IFDEF STRING_UNICODE_MISMATCH}
+    LTemp := TIdPlatformString(LHostName); // explicit convert to Ansi/Unicode
+    {$ENDIF}
+
+    RetVal := getaddrinfo(
+      {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(LHostName){$ENDIF},
+      nil, @Hints, @LAddrList);
+    if RetVal <> 0 then begin
+      RaiseSocketError(gaiErrorToWsaError(RetVal));
+    end;
+    try
+      AAddresses.BeginUpdate;
+      try
+        LAddrInfo := LAddrList;
+        repeat
+          case LAddrInfo^.ai_addr^.sa_family of
+            AF_INET: begin
+              TIdStackLocalAddressIPv4.Create(AAddresses,
+                TranslateTInAddrToString(PSockAddrIn(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4),
+                ''); // TODO: SubNet
+            end;
+            AF_INET6: begin
+              TIdStackLocalAddressIPv6.Create(AAddresses,
+                TranslateTInAddrToString(PSockAddrIn6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6));
+            end;
+          end;
+          LAddrInfo := LAddrInfo^.ai_next;
+        until LAddrInfo = nil;
+      finally
+        AAddresses.EndUpdate;
+      end;
+    finally
+      freeaddrinfo(LAddrList);
+    end;
+  end;
 
   {$ENDIF}
 begin
-  // Using gethostname() and gethostbyname/getaddrinfo() may not always return
+  // Using gethostname() and (gethostbyname|getaddrinfo)() may not always return
   // just the machine's IP addresses. Technically speaking, they will return
   // the local hostname, and then return the address(es) to which that hostname
   // resolves. It is possible for a machine to (a) be configured such that its
@@ -1583,53 +1663,12 @@ begin
   // IPv4, but GetAdaptersAddresses() supports both IPv4 and IPv6...
 
   {$IFDEF USE_IPHLPAPI}
-
   // try GetAdaptersAddresses() first, then fall back to GetAdaptersInfo()...
   if not GetLocalAddressesByAdaptersAddresses then begin
     GetLocalAddressesByAdaptersInfo;
   end;
-
   {$ELSE}
-
-  LHostName := HostName;
-
-  ZeroMemory(@Hints, SIZE_TADDRINFO);
-  Hints.ai_family := PF_UNSPEC; // returns both IPv4 and IPv6 addresses
-  Hints.ai_socktype := SOCK_STREAM;
-  LAddrList := nil;
-
-  {$IFDEF STRING_UNICODE_MISMATCH}
-  LTemp := TIdPlatformString(LHostName); // explicit convert to Ansi/Unicode
-  {$ENDIF}
-
-  RetVal := getaddrinfo(
-    {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(LHostName){$ENDIF},
-    nil, @Hints, @LAddrList);
-  if RetVal <> 0 then begin
-    RaiseSocketError(gaiErrorToWsaError(RetVal));
-  end;
-  try
-    AAddresses.BeginUpdate;
-    try
-      LAddrInfo := LAddrList;
-      repeat
-        case LAddrInfo^.ai_addr^.sa_family of
-          Id_AF_INET: begin
-            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4), ''); // TODO: SubNet
-          end;
-          Id_AF_INET6: begin
-            TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6));
-          end;
-        end;
-        LAddrInfo := LAddrInfo^.ai_next;
-      until LAddrInfo = nil;
-    finally
-      AAddresses.EndUpdate;
-    end;
-  finally
-    freeaddrinfo(LAddrList);
-  end;
-
+  GetLocalAddressesByHostName;
   {$ENDIF}
 end;
 
@@ -1902,11 +1941,6 @@ end;
 
 function TIdStackWindows.HostByName(const AHostName: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
-{$IFNDEF WINCE}
-type
-  TaPInAddr = array[0..250] of PInAddr;
-  PaPInAddr = ^TaPInAddr;
-{$ENDIF}
 var
   {$IFDEF UNICODE}
   LAddrInfo: pAddrInfoW;
@@ -2033,9 +2067,9 @@ begin
     getsockopt(ASocket, ALevel, AOptName,
       {$IFNDEF HAS_PAnsiChar}
       // TODO: use TPtrWrapper here?
-      {PAnsiChar}@AOptVal
+      {PIdAnsiChar}@AOptVal
       {$ELSE}
-      PAnsiChar(@AOptVal)
+      PIdAnsiChar(@AOptVal)
       {$ENDIF},
       AOptLen
     )
@@ -2050,9 +2084,9 @@ begin
     setsockopt(ASocket, ALevel, Aoptname,
       {$IFNDEF HAS_PAnsiChar}
       // TODO: use TPtrWrapper here?
-      {PAnsiChar}@AOptVal
+      {PIdAnsiChar}@AOptVal
       {$ELSE}
-      PAnsiChar(@AOptVal)
+      PIdAnsiChar(@AOptVal)
       {$ENDIF},
       AOptLen
     )
@@ -2284,7 +2318,7 @@ begin
     SetLength(LControl, LSize);
 
     LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
-    LMsgBuf.buf := PAnsiChar(Pointer(VBuffer)); // @VMsgData[0];
+    LMsgBuf.buf := PIdAnsiChar(Pointer(VBuffer)); // @VMsgData[0];
 
     FillChar(LMsg, SIZE_TWSAMSG, 0);
 
@@ -2292,7 +2326,7 @@ begin
     LMsg.dwBufferCount := 1;
 
     LMsg.Control.Len := LSize;
-    LMsg.Control.buf := PAnsiChar(Pointer(LControl));
+    LMsg.Control.buf := PIdAnsiChar(Pointer(LControl));
 
     // RLebeau: despite that we are not performing an overlapped I/O operation,
     // WSARecvMsg() does not like the SOCKADDR variable being allocated on the
