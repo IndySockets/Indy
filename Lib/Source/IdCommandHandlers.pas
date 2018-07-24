@@ -170,18 +170,12 @@ type
   protected
     FCmdDelimiter: Char;
     FCommand: string;
-    {$IFDEF USE_OBJECT_ARC}
     // When ARC is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so
     // we will provide separate properties for those purposes
-    //
-    // TODO; use TValue instead of separating them
-    //
     FDataObject: TObject;
     FDataValue: PtrInt;
-    {$ELSE}
-    FData: TObject;
-    {$ENDIF}
+    //
     FDescription: TStrings;
     FDisconnect: boolean;
     FEnabled: boolean;
@@ -211,11 +205,10 @@ type
 //    function GetNamePath: string; override;
     function NameIs(const ACommand: string): Boolean;
     //
-    {$IFDEF USE_OBJECT_ARC}
     property DataObject: TObject read FDataObject write FDataObject;
     property DataValue: PtrInt read FDataValue write FDataValue;
-    {$ELSE}
-    property Data: TObject read FData write FData;
+    {$IFNDEF USE_OBJECT_ARC}
+    property Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValu property.';
     {$ENDIF}
   published
     property CmdDelimiter: Char read FCmdDelimiter write FCmdDelimiter;

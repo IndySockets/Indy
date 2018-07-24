@@ -32,13 +32,12 @@ package IndyProtocols;
 
 // RLebeau: cannot use IdCompilerDefines.inc here!
 
-{$DEFINE HAS_PKG_RTL}
-{$IFDEF NEXTGEN}
-  {$IFDEF IOS}
-    // there is no RTL package available for iOS
-    {$UNDEF HAS_PKG_RTL}
-  {$ENDIF}
-{$ENDIF}
+{$IF DEFINED(NEXTGEN) AND DEFINED(IOS)}
+  // there is no RTL package available for iOS
+  {$UNDEF HAS_PKG_RTL}
+{$ELSE}
+  {$DEFINE HAS_PKG_RTL}
+{$IFEND}
 
 requires
   {$IFDEF HAS_PKG_RTL}
@@ -47,11 +46,9 @@ requires
   IndySystem,
   IndyCore;
 
-{$IFNDEF WINDOWS}
-  {$IFDEF MSWINDOWS}
-    {$DEFINE WINDOWS}
-  {$ENDIF}
-{$ENDIF}
+{$IF (NOT DEFINED(WINDOWS)) AND DEFINED(MSWINDOWS)}
+  {$DEFINE WINDOWS}
+{$IFEND}
 
 contains
   IdASN1Util in '..\..\Source\IdASN1Util.pas',

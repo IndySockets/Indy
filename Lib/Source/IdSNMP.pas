@@ -103,7 +103,10 @@ type
 
   TSNMPInfo = class(TObject)
   private
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} fOwner : TIdSNMP;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} fOwner : TIdSNMP;
+    //
     fCommunity: string;
     function GetValue (idx : Integer) : string;
     function GetValueCount: Integer;

@@ -32,18 +32,21 @@ package IndySystem;
 
 // RLebeau: cannot use IdCompilerDefines.inc here!
 
-{$IFNDEF WINDOWS}
-  {$IFDEF MSWINDOWS}
-    {$DEFINE WINDOWS}
-  {$ENDIF}
+{$IF DEFINED(NEXTGEN) AND DEFINED(IOS)}
+  // there is no RTL package available for iOS
+  {$UNDEF HAS_PKG_RTL}
+{$ELSE}
+  {$DEFINE HAS_PKG_RTL}
 {$ENDIF}
 
+{$IFDEF HAS_PKG_RTL}
 requires
-  rtl
-  {$IFNDEF WINDOWS}
-  , fmx
-  {$ENDIF}
-  ;
+  rtl;
+{$ENDIF}
+
+{$IF (NOT DEFINED(WINDOWS)) AND DEFINED(MSWINDOWS)}
+  {$DEFINE WINDOWS}
+{$IFEND}
 
 contains
   IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',

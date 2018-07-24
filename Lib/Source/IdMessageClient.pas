@@ -1342,6 +1342,9 @@ begin
               IOHandler.WriteLn('--' + LBoundary + '--');  {do not localize}
               IOHandler.WriteLn;
               AMsg.MIMEBoundary.Pop;  //This also pops AMsg.MIMEBoundary.ParentPart
+              if AMsg.MIMEBoundary.Count = 0 then begin
+                raise EIdException.Create(RSMsgClientUnexpectedEndOfMIMEBoundaries);
+              end;
               LBoundary := AMsg.MIMEBoundary.Boundary;
             end;
             IOHandler.WriteLn('--' + LBoundary);  {do not localize}

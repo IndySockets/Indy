@@ -1,8 +1,7 @@
-unit IdSSLOpenSSLUtils;
+{$I IdCompilerDefines.inc}
+unit IdSSLOpenSSLUtils {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
 
 interface
-
-{$I IdCompilerDefines.inc}
 
 uses
   IdCTypes,
@@ -678,7 +677,7 @@ begin
         We could have used RawToBytes() but that would have made a copy of the
         output buffer.
         }
-        AOut.Text := TIdTextEncoding.UTF8.GetString( TIdBytes(LBufPtr^), 0, LLen);
+        AOut.Text := IndyTextEncoding_UTF8.GetString(PByte(LBufPtr), LLen);
       end;
     finally
       if Assigned(LMem) then begin

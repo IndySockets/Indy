@@ -253,6 +253,7 @@ begin
 
     // Fortunately, the static versions of TThread.Synchronize() can skip the
     // race conditions when the AThread parameter is nil, so we are safe here...
+    //·RS-78837
     TThread.Synchronize(nil, SyncProc);
   // end;
 end;

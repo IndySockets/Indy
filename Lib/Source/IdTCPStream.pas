@@ -142,7 +142,7 @@ begin
   end;
   if Count > 0 then
   begin
-    LStream := TIdMemoryBufferStream.Create(@Buffer, Count);
+    LStream := TIdReadOnlyMemoryBufferStream.Create(@Buffer, Count);
     try
       Connection.IOHandler.Write(LStream, Count, False);
     finally

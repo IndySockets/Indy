@@ -74,7 +74,7 @@ var
   iconv_close : TIdiconv_close = nil;
 {$ENDIF}
 
-{$IFDEF WIN32_OR_WIN64}
+{$IF DEFINED(WIN32) OR DEFINED(WIN64)}
 //errno.h constants that are needed for this and possibly other API's.
 //It's here only because it seems to be the most sensible place to put it.
 //These are defined in other operating systems.
@@ -169,7 +169,7 @@ type
     property ErrorMessage : String read FErrorMessage;
     property Title : String read FTitle;
   end;
-{$ENDIF}
+{$IFEND}
 
 const
   FN_ICONV_OPEN = 'iconv_open';  {Do not localize}
@@ -220,19 +220,32 @@ to link to msvcrtd.dll in Debug configuration, rather than msvcrt.dll. I have
 written a C++ wrapper for iconv use, which does this, and I will be adding it to
 WinMerge (on sourceforge) shortly.
 }
-{$IFDEF WIN32_OR_WIN64}
+{$IF DEFINED(WIN32) OR DEFINED(WIN64)}
 var
   errno : function : PIdC_INT; cdecl;
 
 function errnoStr(const AErrNo : TIdC_INT) : String;
-{$ENDIF}
+{$IFEND}
 
 implementation
 
-{$IFNDEF STATICLOAD_ICONV}
-uses
-  IdResourceStrings, SysUtils;
+{$IF (NOT DEFINED(STATICLOAD_ICONV)) OR DEFINED(WIN32) OR DEFINED(WIN64)}
+  {$DEFINE USE_InterlockedExchangeTHandle}
+{$ELSE}
+  {$UNDEF USE_InterlockedExchangeTHandle}
+{$IFEND}
 
+{$IFDEF USE_InterlockedExchangeTHandle}
+uses
+  IdGlobal
+  {$IFNDEF STATICLOAD_ICONV}
+  , IdResourceStrings
+  , SysUtils
+  {$ENDIF}
+  ;
+{$ENDIF}
+
+{$IFNDEF STATICLOAD_ICONV}
 var
   {$IFDEF UNIX}
   hIconv: HModule = nilhandle;
@@ -241,13 +254,13 @@ var
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF WIN32_OR_WIN64}
+{$IF DEFINED(WIN32) OR (DEFINED(WIN64)}
 var
   hmsvcrt : THandle = 0;
 
 function Stub_errno : PIdC_INT; cdecl; forward;
-{$ENDIF}
-  
+{$IFEND}
+
 {$IFNDEF STATICLOAD_ICONV}
 constructor EIdIconvStubError.Build(const ATitle : String; AError : LongWord);
 begin
@@ -263,7 +276,7 @@ begin
 
 end;
 
-function Fixup(const AName: string): Pointer;
+function FixupStub(const AName: string): Pointer;
 begin
   if hIconv = 0 then begin
     if not Load then begin
@@ -291,22 +304,22 @@ end;
 
 function Stub_iconv_open(__tocode : PAnsiChar; __fromcode : PAnsiChar) : iconv_t;  cdecl;
 begin
-  iconv_open := Fixup(FN_ICONV_OPEN);
+  @iconv_open := FixupStub(FN_ICONV_OPEN);
   Result := iconv_open(__tocode, __fromcode);
 end;
 
-function stub_iconv(__cd : iconv_t; __inbuf : PPAnsiChar; 
-                    __inbytesleft : Psize_t; 
+function stub_iconv(__cd : iconv_t; __inbuf : PPAnsiChar;
+                    __inbytesleft : Psize_t;
 		    __outbuf : PPAnsiChar;
 		    __outbytesleft : Psize_t ) : size_t; cdecl;
 begin
-  iconv := Fixup(FN_ICONV);
+  @iconv := FixupStub(FN_ICONV);
   Result := iconv(__cd,__inbuf,__inbytesleft,__outbuf,__outbytesleft);
 end;
 
 function stub_iconv_close(__cd : iconv_t) : TIdC_INT; cdecl;
 begin
-  iconv_close := Fixup(FN_ICONV_CLOSE);
+  @iconv_close := FixupStub(FN_ICONV_CLOSE);
   Result := iconv_close(__cd);
 end;
 
@@ -316,76 +329,78 @@ end;
 
 procedure InitializeStubs;
 begin
-{$IFNDEF STATICLOAD_ICONV}
-  iconv_open  := Stub_iconv_open;
-  iconv       := Stub_iconv;
-  iconv_close := Stub_iconv_close;
-{$ENDIF}
-{$IFDEF WIN32_OR_WIN64}
-  errno       := Stub_errno;
-{$ENDIF}
+  {$IFNDEF STATICLOAD_ICONV}
+  @iconv_open  := Stub_iconv_open;
+  @iconv       := Stub_iconv;
+  @iconv_close := Stub_iconv_close;
+  {$ENDIF}
+  {$IF DEFINED(WIN32) OR DEFINED(WIN64)}
+  @errno       := Stub_errno;
+  {$IFEND}
 end;
 
 function Load : Boolean;
 {$IFDEF STATICLOAD_ICONV}
-  {$IFDEF USE_INLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
-{$IFDEF STATICLOAD_ICONV}
+  {$IFDEF STATICLOAD_ICONV}
   Result := True;
-{$ELSE}
+  {$ELSE}
   if not Loaded then begin
+    {$IF DEFINED(WINDOWS)}
     //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
     //call because LoadLibrary messes with the FPU control word.
-    {$IFDEF WINDOWS}
     hIconv := SafeLoadLibrary(LICONV);
     if hIconv = 0 then begin
       hIconv := SafeLoadLibrary(LICONV_ALT);
     end;
-    {$ELSE}
-      {$IFDEF UNIX}
+    {$ELSEIF DEFINED(UNIX)}
     hIconv := LoadLibrary(LICONV);
     if hIconv = NilHandle then  begin
       hIconv := LoadLibrary(LIBC);
     end;
-      {$ELSE}
+    {$ELSE}
     hIconv := LoadLibrary(LICONV);
-      {$ENDIF}
-    {$ENDIF}
+    {$IFEND}
     Result := Loaded;
   end;
-{$ENDIF}
+  {$ENDIF}
 end;
 
 procedure Unload;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFDEF USE_InterlockedExchangeTHandle}
+var
+  h: THandle;
+{$ENDIF}
 begin
-{$IFNDEF STATICLOAD_ICONV}
-  if Loaded then begin
-    FreeLibrary(hIconv);
-    hIconv := 0;
+  {$IFNDEF STATICLOAD_ICONV}
+  h := IdGlobal.InterlockedExchangeTHandle(hIconv, 0);
+  if h <> 0 then begin
+    FreeLibrary(h);
   end;
-{$ENDIF}
-{$IFDEF WIN32_OR_WIN64}
-  if hmsvcrt <> 0 then begin
-    FreeLibrary(hmsvcrt);
-    hmsvcrt := 0;
+  {$ENDIF}
+  {$IF DEFINED(WIN32) OR DEFINED(WIN64)}
+  h := IdGlobal.InterlockedExchangeTHandle(hmsvcrt, 0);
+  if h <> 0 then begin
+    FreeLibrary(h);
   end;
-{$ENDIF}
+  {$IFEND}
   InitializeStubs;
 end;
 
 function Loaded : Boolean;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-{$IFDEF STATICLOAD_ICONV}
+  {$IFDEF STATICLOAD_ICONV}
   Result := True;
-{$ELSE}
+  {$ELSE}
   Result := (hIconv <> 0);
-{$ENDIF}
+  {$ENDIF}
 end;
 
-{$IFDEF WIN32_OR_WIN64}
+{$IF DEFINED(WIN32) OR DEFINED(WIN64)}
 const
   FN_errno = '_errno';
 
@@ -405,66 +420,71 @@ end;
 function errnoStr(const AErrNo : TIdC_INT) : String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
- case AErrNo of
-  EPERM        : Result := 'EPERM';
-  ENOENT       : Result := 'ENOENT';
-  ESRCH        : Result := 'ESRCH';
-  EINTR        : Result := 'EINTR';
-  EIO          : Result := 'EIO';
-  ENXIO        : Result := 'ENXIO';
-  E2BIG        : Result := 'E2BIG';
-  ENOEXEC      : Result := 'ENOEXEC';
-  EBADF        : Result := 'EBADF';
-  ECHILD       : Result := 'ECHILD';
-  EAGAIN       : Result := 'EAGAIN';
-  ENOMEM       : Result := 'ENOMEM';
-  EACCES       : Result := 'EACCES';
-  EFAULT       : Result := 'EFAULT';
-  EBUSY        : Result := 'EBUSY';
-  EEXIST       : Result := 'EEXIST';
-  EXDEV        : Result := 'EXDEV';
-  ENODEV       : Result := 'ENODEV';
-  ENOTDIR      : Result := 'ENOTDIR';
-  EISDIR       : Result := 'EISDIR';
-  EINVAL       : Result := 'EINVAL';
-  ENFILE       : Result := 'ENFILE';
-  EMFILE       : Result := 'EMFILE';
-  ENOTTY       : Result := 'ENOTTY';
-  EFBIG        : Result := 'EFBIG';
-  ENOSPC       : Result := 'ENOSPC';
-  ESPIPE       : Result := 'ESPIPE';
-  EROFS        : Result := 'EROFS';
-  EMLINK       : Result := 'EMLINK';
-  EPIPE        : Result := 'EPIPE';
-  EDOM         : Result := 'EDOM';
-  ERANGE       : Result := 'ERANGE';
-  EDEADLK      : Result := 'EDEADLK';
-  ENAMETOOLONG : Result := 'ENAMETOOLONG';
-  ENOLCK       : Result := 'ENOLCK';
-  ENOSYS       : Result := 'ENOSYS';
-  ENOTEMPTY    : Result := 'ENOTEMPTY';
-  EILSEQ       : Result := 'EILSEQ';
+  case AErrNo of
+    EPERM        : Result := 'EPERM';
+    ENOENT       : Result := 'ENOENT';
+    ESRCH        : Result := 'ESRCH';
+    EINTR        : Result := 'EINTR';
+    EIO          : Result := 'EIO';
+    ENXIO        : Result := 'ENXIO';
+    E2BIG        : Result := 'E2BIG';
+    ENOEXEC      : Result := 'ENOEXEC';
+    EBADF        : Result := 'EBADF';
+    ECHILD       : Result := 'ECHILD';
+    EAGAIN       : Result := 'EAGAIN';
+    ENOMEM       : Result := 'ENOMEM';
+    EACCES       : Result := 'EACCES';
+    EFAULT       : Result := 'EFAULT';
+    EBUSY        : Result := 'EBUSY';
+    EEXIST       : Result := 'EEXIST';
+    EXDEV        : Result := 'EXDEV';
+    ENODEV       : Result := 'ENODEV';
+    ENOTDIR      : Result := 'ENOTDIR';
+    EISDIR       : Result := 'EISDIR';
+    EINVAL       : Result := 'EINVAL';
+    ENFILE       : Result := 'ENFILE';
+    EMFILE       : Result := 'EMFILE';
+    ENOTTY       : Result := 'ENOTTY';
+    EFBIG        : Result := 'EFBIG';
+    ENOSPC       : Result := 'ENOSPC';
+    ESPIPE       : Result := 'ESPIPE';
+    EROFS        : Result := 'EROFS';
+    EMLINK       : Result := 'EMLINK';
+    EPIPE        : Result := 'EPIPE';
+    EDOM         : Result := 'EDOM';
+    ERANGE       : Result := 'ERANGE';
+    EDEADLK      : Result := 'EDEADLK';
+    ENAMETOOLONG : Result := 'ENAMETOOLONG';
+    ENOLCK       : Result := 'ENOLCK';
+    ENOSYS       : Result := 'ENOSYS';
+    ENOTEMPTY    : Result := 'ENOTEMPTY';
+    EILSEQ       : Result := 'EILSEQ';
   else
     Result := '';
   end;
 end;
 
 function Stub_errno : PIdC_INT; cdecl;
+
+  function GetImpl: Pointer;
+  begin
+    Result := GetProcAddress(hmsvcrt, PChar(FN_errno));
+    if Result = nil then begin
+      raise EIdMSVCRTStubError.Build('Failed to load ' + FN_errno + ' in ' + LIBMSVCRTL, 0);
+    end;
+  end;
+
 begin
   if hmsvcrt = 0 then begin
     hmsvcrt := SafeLoadLibrary(LIBMSVCRTL);
     if hmsvcrt = 0 then begin
       raise EIdMSVCRTStubError.Build('Failed to load ' + LIBMSVCRTL, 0);
     end;
-    errno := GetProcAddress(hmsvcrt, PChar(FN_errno));
-    if not Assigned(errno) then begin
-      errno := Stub_errno;
-      raise EIdMSVCRTStubError.Build('Failed to load ' + FN_errno + ' in ' + LIBMSVCRTL, 0);
-    end;
   end;
+  @errno := GetImpl();
   Result := errno();
 end;
-{$ENDIF}
+{$IFEND}
 
 initialization
   InitializeStubs;

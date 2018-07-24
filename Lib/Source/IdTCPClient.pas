@@ -270,6 +270,11 @@ begin
 end;
 
 procedure TIdTCPClientCustom.Connect;
+var
+  // under ARC, convert weak references to strong references before working with them
+  LIOHandler: TIdIOHandler;
+  LSocket: TIdIOHandlerSocket;
+  LIntercept: TIdConnectionIntercept;
 begin
   if Connected then begin
     raise EIdAlreadyConnected.Create(RSAlreadyConnected);
@@ -282,61 +287,68 @@ begin
     raise EIdPortRequired.Create('A Port is required'); {do not localize}
   end;
 
-  if IOHandler = nil then begin
-    IOHandler := MakeImplicitClientHandler;
+  LIOHandler := IOHandler;
+
+  if LIOHandler = nil then begin
+    LIOHandler := MakeImplicitClientHandler;
+    IOHandler := LIOHandler;
 
     // TODO: always assign the OnStatus event even if the IOHandler is not implicit?
-    IOHandler.OnStatus := OnStatus;
-
-    ManagedIOHandler := True;
+    LIOHandler.OnStatus := OnStatus;
   end;
 
   try
     // Bypass GetDestination
     if FDestination <> '' then begin
-      IOHandler.Destination := FDestination;
+      LIOHandler.Destination := FDestination;
     end;
 
 {BGO: not any more, TIdTCPClientCustom has precedence now (for port protocols, and things like that)
     // We retain the settings that are in here (filled in by the user)
     // we only do this when the iohandler has no settings,
     // because the iohandler has precedence
-    if (IOHandler.Port = 0) and (IOHandler.Host = '') then begin
-      IOHandler.Port := FPort;
-      IOHandler.Host := FHost;
+    if (LIOHandler.Port = 0) and (LIOHandler.Host = '') then begin
+      LIOHandler.Port := FPort;
+      LIOHandler.Host := FHost;
     end;
 }
 
-    IOHandler.Port := FPort; //BGO: just to make sure
-    IOHandler.Host := FHost;
-    IOHandler.ConnectTimeout := FConnectTimeout;
-    IOHandler.ReadTimeout := FReadTimeout;
+    LIOHandler.Port := FPort; //BGO: just to make sure
+    LIOHandler.Host := FHost;
+    LIOHandler.ConnectTimeout := FConnectTimeout;
+    LIOHandler.ReadTimeout := FReadTimeout;
 
-    if Socket <> nil then begin
-      Socket.BoundIP := FBoundIP;
-      Socket.BoundPort := FBoundPort;
-      Socket.BoundPortMin := FBoundPortMin;
-      Socket.BoundPortMax := FBoundPortMax;
-      Socket.IPVersion := FIPVersion;
-      Socket.ReuseSocket := FReuseSocket;
-      Socket.UseNagle := FUseNagle;
-      Socket.OnBeforeBind := FOnBeforeBind;
-      Socket.OnAfterBind := FOnAfterBind;
-      Socket.OnSocketAllocated := FOnSocketAllocated;
+    LSocket := Socket;
+    if LSocket <> nil then begin
+      LSocket.BoundIP := FBoundIP;
+      LSocket.BoundPort := FBoundPort;
+      LSocket.BoundPortMin := FBoundPortMin;
+      LSocket.BoundPortMax := FBoundPortMax;
+      LSocket.IPVersion := FIPVersion;
+      LSocket.ReuseSocket := FReuseSocket;
+      LSocket.UseNagle := FUseNagle;
+      LSocket.OnBeforeBind := FOnBeforeBind;
+      LSocket.OnAfterBind := FOnAfterBind;
+      LSocket.OnSocketAllocated := FOnSocketAllocated;
+      {$IFDEF USE_OBJECT_ARC}LSocket := nil;{$ENDIF}
     end;
 
-    IOHandler.Open;
-    if IOHandler.Intercept <> nil then begin
-      IOHandler.Intercept.Connect(Self);
+    LIOHandler.Open;
+
+    LIntercept := LIOHandler.Intercept;
+    if LIntercept <> nil then begin
+      LIntercept.Connect(Self);
+      {$IFDEF USE_OBJECT_ARC}LIntercept := nil;{$ENDIF}
     end;
 
     DoStatus(hsConnected, [Host]);
     DoOnConnected;
   except
-    if IOHandler <> nil then begin
-      IOHandler.Close;
-      if ManagedIOHandler then begin
-        IOHandler := nil; // RLebeau - SetIOHandler() will free the IOHandler
+    if LIOHandler <> nil then begin
+      LIOHandler.Close;
+      if LIOHandler.Owner = Self then begin
+        {$IFDEF USE_OBJECT_ARC}LIOHandler := nil;{$ENDIF}
+        SetIOHandler(nil); // RLebeau - will free the implicit IOHandler
       end;
     end;
     raise;

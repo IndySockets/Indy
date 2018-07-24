@@ -101,7 +101,7 @@ resourcestring
   Error Message by Number
   }
 
-  RSHTTPSSPIErrorMsg = 'SSPI %s returns error #%d(0x%x): %s';
+  RSHTTPSSPIErrorMsg = 'SSPI %0:s returns error #%1:d(0x%2:x): %3:s';
 
   RSHTTPSSPIInterfaceInitFailed = 'SSPI interface has failed to initialise properly';
   RSHTTPSSPINoPkgInfoSpecified = 'No PSecPkgInfo specified';

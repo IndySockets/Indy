@@ -341,13 +341,11 @@ end;
 
 class function TIdEncoder.EncodeBytes(const ABytes: TIdBytes): string;
 var
-  LStream: TMemoryStream;
+  LStream: TIdMemoryBufferStream;
 begin
   if ABytes <> nil then begin
-    LStream := TMemoryStream.Create;
+    LStream := TIdMemoryBufferStream.Create(PByte(ABytes), Length(ABytes));
     try
-      WriteTIdBytesToStream(LStream, ABytes);
-      LStream.Position := 0;
       Result := EncodeStream(LStream);
     finally
       LStream.Free;
@@ -359,13 +357,11 @@ end;
 
 class procedure TIdEncoder.EncodeBytes(const ABytes: TIdBytes; ADestStrings: TStrings);
 var
-  LStream: TMemoryStream;
+  LStream: TIdMemoryBufferStream;
 begin
   if ABytes <> nil then begin
-    LStream := TMemoryStream.Create;
+    LStream := TIdMemoryBufferStream.Create(PByte(ABytes), Length(ABytes));
     try
-      WriteTIdBytesToStream(LStream, ABytes);
-      LStream.Position := 0;
       EncodeStream(LStream, ADestStrings);
     finally
       LStream.Free;
@@ -375,13 +371,11 @@ end;
 
 class procedure TIdEncoder.EncodeBytes(const ABytes: TIdBytes; ADestStream: TStream);
 var
-  LStream: TMemoryStream;
+  LStream: TIdMemoryBufferStream;
 begin
   if ABytes <> nil then begin
-    LStream := TMemoryStream.Create;
+    LStream := TIdMemoryBufferStream.Create(PByte(ABytes), Length(ABytes));
     try
-      WriteTIdBytesToStream(LStream, ABytes);
-      LStream.Position := 0;
       EncodeStream(LStream, ADestStream);
     finally
       LStream.Free;

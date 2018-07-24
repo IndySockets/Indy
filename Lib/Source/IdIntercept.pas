@@ -79,27 +79,24 @@ type
   TIdConnectionIntercept = class(TIdBaseComponent)
   protected
     FConnection: TComponent;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdConnectionIntercept;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FIntercept: TIdConnectionIntercept;
+
     FIsClient: Boolean;
-    {$IFDEF USE_OBJECT_ARC}
     // When ARC is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so
     // we will provide separate properties for those purposes
-    //
-    // TODO; use TValue instead of separating them
-    //
     FDataObject: TObject;
     FDataValue: PtrInt;
-    {$ELSE}
-    FData: TObject;
-    {$ENDIF}
 
     FOnConnect: TIdInterceptNotifyEvent;
     FOnDisconnect: TIdInterceptNotifyEvent;
     FOnReceive: TIdInterceptStreamEvent;
     FOnSend: TIdInterceptStreamEvent;
     //
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
     procedure SetIntercept(AValue: TIdConnectionIntercept);
@@ -114,12 +111,11 @@ type
     property Connection: TComponent read FConnection;
     property IsClient: Boolean read FIsClient;
 
-    // user can use this to keep context
-    {$IFDEF USE_OBJECT_ARC}
+    // user can use these to keep context
     property DataObject: TObject read FDataObject write FDataObject;
     property DataValue: PtrInt read FDataValue write FDataValue;
-    {$ELSE}
-    property Data: TObject read FData write FData;
+    {$IFNDEF USE_OBJECT_ARC}
+    property Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValue property.';
     {$ENDIF}
   published
     property Intercept: TIdConnectionIntercept read FIntercept write SetIntercept;
@@ -208,11 +204,12 @@ end;
 
 procedure TIdConnectionIntercept.SetIntercept(AValue: TIdConnectionIntercept);
 var
-  // under ARC, convert a weak reference to a strong reference before working with it
+  // under ARC, convert weak references to strong references before working with them
   LIntercept: TIdConnectionIntercept;
   LNextValue: TIdConnectionIntercept;
 begin
   LIntercept := FIntercept;
+
   if LIntercept <> AValue then
   begin
     LNextValue := AValue;
@@ -225,8 +222,8 @@ begin
 
     // under ARC, all weak references to a freed object get nil'ed automatically
 
-    {$IFNDEF USE_OBJECT_ARC}
-    // remove self from the Intercept's free notification list    {Do not Localize}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
+    // remove self from the Intercept's free notification list
     if Assigned(LIntercept) then begin
       LIntercept.RemoveFreeNotification(Self);
     end;
@@ -234,8 +231,8 @@ begin
 
     FIntercept := AValue;
 
-    {$IFNDEF USE_OBJECT_ARC}
-    // add self to the Intercept's free notification list    {Do not Localize}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
+    // add self to the Intercept's free notification list
     if Assigned(AValue) then begin
       AValue.FreeNotification(Self);
     end;
@@ -244,10 +241,10 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-{$IFNDEF USE_OBJECT_ARC}
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdConnectionIntercept.Notification(AComponent: TComponent; Operation: TOperation);
 begin
-  if (Operation = opRemove) and (AComponent = Intercept) then begin
+  if (Operation = opRemove) and (AComponent = FIntercept) then begin
     FIntercept := nil;
   end;
   inherited Notification(AComponent, OPeration);

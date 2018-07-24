@@ -99,13 +99,18 @@ type
     FOnConnected : TNotifyEvent;
     FOnDisconnected: TNotifyEvent;
     FConnected : Boolean;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FTransparentProxy: TIdCustomTransparentProxy;
-    FImplicitTransparentProxy: Boolean;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFENDIF} FTransparentProxy: TIdCustomTransparentProxy;
+
     function UseProxy : Boolean;
     procedure RaiseUseProxyError;
     procedure DoOnConnected; virtual;
     procedure DoOnDisconnected; virtual;
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$ENDIF}
     //property methods
     procedure SetIPVersion(const AValue: TIdIPVersion); override;
     procedure SetHost(const AValue : String); override;
@@ -307,21 +312,20 @@ begin
   if LTransparentProxy = nil then begin
     LTransparentProxy := TIdSocksInfo.Create(Self); //default
     FTransparentProxy := LTransparentProxy;
-    FImplicitTransparentProxy := True;
   end;
   Result := LTransparentProxy;
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-// so this is mostly redundant
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdUDPClient.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FTransparentProxy) then begin
     FTransparentProxy := nil;
-    FImplicitTransparentProxy := False;
   end;
   inherited Notification(AComponent, Operation);
 end;
+{$ENDIF}
 
 procedure TIdUDPClient.OpenProxy;
 begin
@@ -456,8 +460,8 @@ begin
 
     if Assigned(AProxy) then begin
       if not Assigned(AProxy.Owner) then begin
-        if Assigned(LTransparentProxy) and (not FImplicitTransparentProxy) then begin
-          {$IFNDEF USE_OBJECT_ARC}
+        if Assigned(LTransparentProxy) and (LTransparentProxy.Owner <> Self) then begin
+          {$IFDEF USE_OBJECT_REF_FREENOTIF}
           LTransparentProxy.RemoveFreeNotification(Self);
           {$ENDIF}
           LTransparentProxy := nil;
@@ -465,43 +469,39 @@ begin
         LClass := TIdCustomTransparentProxyClass(AProxy.ClassType);
         if Assigned(LTransparentProxy) and (LTransparentProxy.ClassType <> LClass) then begin
           FTransparentProxy := nil;
-          FImplicitTransparentProxy := False;
           IdDisposeAndNil(LTransparentProxy);
         end;
         if not Assigned(LTransparentProxy) then begin
           LTransparentProxy := LClass.Create(Self);
           FTransparentProxy := LTransparentProxy;
-          FImplicitTransparentProxy := True;
         end;
         LTransparentProxy.Assign(AProxy);
       end else begin
         if Assigned(LTransparentProxy) then begin
-          if FImplicitTransparentProxy then begin
+          if LTransparentProxy.Owner = Self then begin
             FTransparentProxy := nil;
-            FImplicitTransparentProxy := False;
             IdDisposeAndNil(LTransparentProxy);
-          end else begin
-            {$IFNDEF USE_OBJECT_ARC}
+          end
+          {$IFDEF USE_OBJECT_REF_FREENOTIF}
+          else begin
             LTransparentProxy.RemoveFreeNotification(Self);
-            {$ENDIF}
-          end;
+          end
+          {$ENDIF}
+          ;
         end;
-
         FTransparentProxy := AProxy;
-
-        {$IFNDEF USE_OBJECT_ARC}
+        {$IFDEF USE_OBJECT_REF_FREENOTIF}
         AProxy.FreeNotification(Self);
         {$ENDIF}
       end;
     end
     else if Assigned(LTransparentProxy) then begin
-      if FImplicitTransparentProxy then begin
+      if LTransparentProxy.Owner = Self then begin
         FTransparentProxy := nil;
-        FImplicitTransparentProxy := False;
         IdDisposeAndNil(LTransparentProxy);
       end else begin
         FTransparentProxy := nil; //remove link
-        {$IFNDEF USE_OBJECT_ARC}
+        {$IFDEF USE_OBJECT_REF_FREENOTIF}
         LTransparentProxy.RemoveFreeNotification(Self);
         {$ENDIF}
       end;

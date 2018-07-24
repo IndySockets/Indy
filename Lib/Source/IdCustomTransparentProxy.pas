@@ -86,12 +86,15 @@ type
     FPort: TIdPort;
     FIPVersion : TIdIPVersion;
     FUsername: String;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FChainedProxy: TIdCustomTransparentProxy;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECTREF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FChainedProxy: TIdCustomTransparentProxy;
     //
     function  GetEnabled: Boolean; virtual; abstract;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
     procedure SetChainedProxy(const AValue: TIdCustomTransparentProxy);
@@ -177,7 +180,7 @@ Begin
 End;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-{$IFNDEF USE_OBJECT_ARC}
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdCustomTransparentProxy.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FChainedProxy) then begin
@@ -189,8 +192,8 @@ end;
 
 procedure TIdCustomTransparentProxy.SetChainedProxy(const AValue: TIdCustomTransparentProxy);
 var
+  // under ARC, convert weak references to strong references before working with them
   LNextValue: TIdCustomTransparentProxy;
-  // under ARC, convert a weak reference to a strong reference before working with it
   LChainedProxy: TIdCustomTransparentProxy;
 begin
   LChainedProxy := FChainedProxy;
@@ -207,7 +210,7 @@ begin
 
     // under ARC, all weak references to a freed object get nil'ed automatically
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     if Assigned(LChainedProxy) then begin
       LChainedProxy.RemoveFreeNotification(Self);
     end;
@@ -215,7 +218,7 @@ begin
 
     FChainedProxy := AValue;
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     if Assigned(AValue) then begin
       AValue.FreeNotification(Self);
     end;

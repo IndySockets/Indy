@@ -188,18 +188,12 @@ type
 
   TIdThread = class(TThread)
   protected
-    {$IFDEF USE_OBJECT_ARC}
     // When ARC is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so
     // we will provide separate properties for those purposes
-    //
-    // TODO; use TValue instead of separating them
-    //
     FDataObject: TObject;
     FDataValue: PtrInt;
-    {$ELSE}
-    FData: TObject;
-    {$ENDIF}
+    //
     FLock: TIdCriticalSection;
     FLoop: Boolean;
     FName: string;
@@ -229,8 +223,7 @@ type
     function GetStopped: Boolean;
     function HandleRunException(AException: Exception): Boolean; virtual;
     procedure Run; virtual; abstract;
-    class procedure WaitAllThreadsTerminated(
-     AMSec: Integer = IdWaitAllThreadsTerminatedCount);
+    class procedure WaitAllThreadsTerminated(AMSec: Integer = IdWaitAllThreadsTerminatedCount);
   public
     constructor Create(ACreateSuspended: Boolean = True;
      ALoop: Boolean = True; const AName: string = ''); virtual;
@@ -243,11 +236,10 @@ type
     procedure Terminate; virtual;
     procedure TerminateAndWaitFor; virtual;
     //
-    {$IFDEF USE_OBJECT_ARC}
     property DataObject: TObject read FDataObject write FDataObject;
     property DataValue: PtrInt read FDataValue write FDataValue;
-    {$ELSE}
-    property Data: TObject read FData write FData;
+    {$IFNDEF USE_OBJECT_ARC}
+    property Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValue property.';
     {$ENDIF}
     property Loop: Boolean read FLoop write FLoop;
     property Name: string read FName write FName;
@@ -279,10 +271,7 @@ type
     // Defaults because
     // Must always create suspended so task can be set
     // And a bit crazy to create a non looped task
-    constructor Create(
-      ATask: TIdTask = nil;
-      const AName: string = ''
-      ); reintroduce; virtual;
+    constructor Create(ATask: TIdTask = nil; const AName: string = ''); reintroduce; virtual;
     destructor Destroy; override;
     //
     // Must be writeable because tasks are often created after thread or
@@ -595,11 +584,11 @@ begin
   Exclude(FOptions, itoReqCleanup);
   IdDisposeAndNil(FYarn);
   if itoDataOwner in FOptions then begin
-    {$IFDEF USE_OBJECT_ARC}FDataObject{$ELSE}FData{$ENDIF}.Free;
+    IdDisposeAndNil(FDataObject);
+  end else begin
+    FDataObject := nil;
   end;
-  {$IFDEF USE_OBJECT_ARC}
   FDataValue := 0;
-  {$ENDIF}
 end;
 
 function TIdThread.HandleRunException(AException: Exception): Boolean;

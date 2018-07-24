@@ -202,6 +202,7 @@ resourcestring
   RSMsgClientEncodingAttachment = 'Encoding attachment';
   RSMsgClientInvalidEncoding = 'Invalid Encoding. UU only allows Body and Attachments.';
   RSMsgClientInvalidForTransferEncoding = 'Message parts cannot be used in a message which has a ContentTransferEncoding value.';
+  RSMsgClientUnexpectedEndOfMIMEBoundaries = 'Unexpected end of MIME boundaries detected. Message parts are likely out of order.';
 
   // NNTP Exceptions
   RSNNTPConnectionRefused = 'Connection explicitly refused by NNTP server.';
@@ -292,8 +293,8 @@ resourcestring
   RSFTPInvalidIP = 'Invalid IP Address';
   RSFTPOnCustomFTPProxyReq = 'OnCustomFTPProxy required but not assigned';
   RSFTPDataConnAssuranceFailure = 'Data connection assurance check failed.'#10#13+
-                                  'Server reported IP: %s  Port: %d'#10#13+
-                                  'Our socket IP: %s  Port: %d';
+                                  'Server reported IP: %0:s  Port: %1:d'#10#13+
+                                  'Our socket IP: %2:s  Port: %3:d';
   RSFTPProtocolNotSupported = 'Protocol not supported, use'; { may not include '(' or ')' }
   RSFTPMustUseExtWithIPv6 = 'UseExtensionDataPort must be true for IPv6 connections.';
   RSFTPMustUseExtWithNATFastTrack = 'UseExtensionDataPort must be true for NAT fasttracking.';
@@ -343,7 +344,8 @@ resourcestring
   RSQueryInvalidHeaderID = 'Invalid Header Id %d';
   RSQueryLessThanTwelve = 'Received Packet is too small. Less than 12 bytes. %d';
   RSQueryPackReceivedTooSmall = 'Received Packet is too small. %d';
-  RSQueryUnknownError = 'Unknown Error %d, Id %d';
+  RSQueryUnknownError = 'Unknown Error %0:d, Id %1:d';
+  RSQueryInvalidIpV4 = 'Invalid IP V4 Address. %s';
   RSQueryInvalidIpV6 = 'Invalid IP V6 Address. %s';
   RSQueryMustProvideSOARecord = 'You have to provide a TIdRR_SOA object with Serial number and Name to progress IXFR. %d';
  
@@ -353,7 +355,7 @@ resourcestring
   RSLPDDirectoryDoesNotExist = 'Directory %s does not exist';
   RSLPDServerStartTitle = 'Winshoes LPD Server %s ';
   RSLPDServerActive = 'Server status: active';
-  RSLPDQueueStatus  = 'Queue %s status: %s';
+  RSLPDQueueStatus  = 'Queue %0:s status: %1:s';
   RSLPDClosingConnection = 'closing connection';
   RSLPDUnknownQueue = 'Unknown queue %s';
   RSLPDConnectTo = 'connected with %s';
@@ -366,13 +368,13 @@ resourcestring
 
   { Trivial FTP Exception Messages }
   RSTimeOut = 'Timeout';
-  RSTFTPUnexpectedOp = 'Unexpected operation from %s:%d';
+  RSTFTPUnexpectedOp = 'Unexpected operation from %0:s:%1:d';
   RSTFTPUnsupportedTrxMode = 'Unsupported transfer mode: "%s"';
   RSTFTPDiskFull = 'Unable to complete write request, progress halted at %d bytes';
   RSTFTPFileNotFound = 'Unable to open %s';
   RSTFTPAccessDenied = 'Access to %s denied';
   RSTFTPUnsupportedOption = 'Unsupported option: "%s"';
-  RSTFTPUnsupportedOptionValue = 'Unsupported value "%s" for option: "%s"';
+  RSTFTPUnsupportedOptionValue = 'Unsupported value "%0:s" for option: "%1:s"';
 
   { MESSAGE Exception messages }
   RSTIdTextInvalidCount = 'Invalid Text count. Must have more than 1 TIdText object.';
@@ -435,7 +437,7 @@ resourcestring
   {}
 
   { Tunnel messages }
-  RSTunnelGetByteRange = 'Call to %s.GetByte [property Bytes] with index <> [0..%d]';
+  RSTunnelGetByteRange = 'Call to %0:s.GetByte [property Bytes] with index <> [0..%1:d]';
   RSTunnelTransformErrorBS = 'Error in transformation before send';
   RSTunnelTransformError = 'Transform failed';
   RSTunnelCRCFailed = 'CRC Failed';
@@ -576,9 +578,9 @@ resourcestring
   RSSMTPSvrBadSequence = 'Bad sequence of commands';
   RSSMTPNotLoggedIn = 'Not logged in';
   RSSMTPMailboxUnavailable = 'Requested action not taken: mailbox unavailable';
-  RSSMTPUserNotLocal = 'User %s not local; please try <%s>';
+  RSSMTPUserNotLocal = 'User %0:s not local; please try <%1:s>';
   RSSMTPUserNotLocalNoAddr = 'User %s not local; no forwarding address';
-  RSSMTPUserNotLocalFwdAddr = 'User %s not local; will forward to <%s>';
+  RSSMTPUserNotLocalFwdAddr = 'User %0:s not local; will forward to <%1:s>';
   RSSMTPTooManyRecipients = 'Too Many recipients.';
   RSSMTPAccountDisabled = '%s Account Disabled';
   RSSMTPLocalProcessingError = 'Local Processing Error';
@@ -734,7 +736,7 @@ resourcestring
   //%s is the umask number
   RSFTPUMaskIs = 'Current UMASK is %.3d';
   //first %d is the new value, second one is the old value
-  RSFTPUMaskSet = 'UMASK set to %.3d (was %.3d)';
+  RSFTPUMaskSet = 'UMASK set to %0:.3d (was %1:.3d)';
   RSFTPPermissionDenied = 'Permission denied.';
   RSFTPCHMODSuccessful = 'CHMOD command successful.';
   RSFTPHelpBegining = 'The following commands are recognized (* => unimplemented, + => extension).';
@@ -783,9 +785,9 @@ resourcestring
   STR_SYSLOG_SEVERITY_UNKNOWN       = 'Unknown or illegale security code';
 
   {LPR Messages}
-  RSLPRError = 'Reply %d on Job ID %s';
+  RSLPRError = 'Reply %0:d on Job ID %1:s';
   RSLPRUnknown = 'Unknown';
-  RSCannotBindRange = 'Cannot bind to a LPR port from range %d to %d (No free Port)';
+  RSLPRCannotBindRange = 'Cannot bind to an LPR port in range %0:d - %1:d (no free port)';
 
   {IRC Messages}
   RSIRCCanNotConnect = 'IRC Connect Failed';
@@ -805,7 +807,7 @@ resourcestring
   RSHL7StatusFailedToStop      = 'Failed to Stop: %s';
   RSHL7StatusConnected         = 'Connected';
   RSHL7StatusConnecting        = 'Connecting';
-  RSHL7StatusReConnect         = 'Reconnect at %s: %s';
+  RSHL7StatusReConnect         = 'Reconnect at %0:s: %1:s';
   RSHL7NotWhileWorking         = 'You cannot set %s while the HL7 Component is working';
   RSHL7NotWorking              = 'Attempt to %s while the HL7 Component is not working';
   RSHL7NotFailedToStop         = 'Interface is unusable due to failure to stop';
@@ -834,6 +836,7 @@ resourcestring
   RSMFDInvalidObjectType        = 'Unsupported object type. You can assign only one of the following types or their descendants: TStrings, TStream.';
   RSMFDInvalidTransfer          = 'Unsupported transfer type. You can assign only an empty string or one of the following values: 7bit, 8bit, binary, quoted-printable, base64.';
   RSMFDInvalidEncoding          = 'Unsupported encoding. You can assign only one of the following values: Q, B, 8.';
+  RSMFDInvalidContentType       = 'Unsupported content type. You can assign only a value that begins with ''multipart''';
 
   { TIdURI exceptions }
   RSURINoProto                 = 'Protocol field is empty';

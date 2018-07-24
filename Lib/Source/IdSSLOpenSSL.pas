@@ -434,6 +434,7 @@ type
     procedure OpenEncodedConnection; virtual;
     //some overrides from base classes
     procedure ConnectClient; override;
+    function SourceIsAvailable: Boolean; override;
     function CheckForError(ALastResult: Integer): Integer; override;
     procedure RaiseError(AError: Integer); override;
 
@@ -2052,7 +2053,6 @@ end;
 
 {$IFNDEF OPENSSL_NO_BIO}
 procedure DumpCert(AOut: TStrings; AX509: PX509);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   LMem: PBIO;
   LLen : TIdC_INT;
@@ -2060,14 +2060,14 @@ var
 begin
   if Assigned(X509_print) then begin
     LMem := BIO_new(BIO_s_mem);
-    try
-      X509_print(LMem, AX509);
-      LLen := BIO_get_mem_data( LMem, LBufPtr);
-      if (LLen > 0) and Assigned(LBufPtr) then begin
-        AOut.Text := IndyTextEncoding_UTF8.GetString(PByte(LBufPtr), LLen);
-      end;
-    finally
-      if Assigned(LMem) then begin
+    if LMem <> nil then begin
+      try
+        X509_print(LMem, AX509);
+        LLen := BIO_get_mem_data(LMem, LBufPtr);
+        if (LLen > 0) and Assigned(LBufPtr) then begin
+          AOut.Text := IndyTextEncoding_UTF8.GetString(PByte(LBufPtr), LLen);
+        end;
+      finally
         BIO_free(LMem);
       end;
     end;
@@ -2959,6 +2959,16 @@ begin
   Result := LIO;
 end;
 
+function TIdSSLIOHandlerSocketOpenSSL.SourceIsAvailable: Boolean;
+begin
+  if not fPassThrough then
+  begin
+    Result := (fSSLSocket <> nil);
+    if not Result then Exit;
+  end;
+  Result := inherited SourceIsAvailable;
+end;
+
 function TIdSSLIOHandlerSocketOpenSSL.CheckForError(ALastResult: Integer): Integer;
 //var
 //  err: Integer;
@@ -3134,6 +3144,7 @@ an invalid MAC when doing SSL.}
     SSL_CTX_set_default_passwd_cb(fContext, @PasswordCallback);
     SSL_CTX_set_default_passwd_cb_userdata(fContext, Self);
 //  end;
+
   SSL_CTX_set_default_verify_paths(fContext);
   // load key and certificate files
   if (RootCertFile <> '') or (VerifyDirs <> '') then begin    {Do not Localize}
@@ -3531,35 +3542,48 @@ var
 begin
   Assert(fSSL=nil);
   Assert(fSSLContext<>nil);
+
+  if Supports(fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+    LParentIO := LHelper.GetIOHandlerSelf;
+  end else begin
+    LParentIO := nil;
+  end;
+
   fSSL := SSL_new(fSSLContext.fContext);
   if fSSL = nil then begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
   end;
+
   error := SSL_set_app_data(fSSL, Self);
   if error <= 0 then begin
     EIdOSSLDataBindingError.RaiseException(fSSL, error, RSSSLDataBindingError);
   end;
+
   error := SSL_set_fd(fSSL, pHandle);
   if error <= 0 then begin
     EIdOSSLFDSetError.RaiseException(fSSL, error, RSSSLFDSetError);
   end;
+
+  if LParentIO <> nil then begin
+    LParentIO.DoStatus(ioHandshakeStarting);
+  end;
+
   // RLebeau: if this socket's IOHandler was cloned, no need to reuse the
   // original IOHandler's active session ID, since this is a server socket
   // that generates its own sessions...
+
   error := SSL_accept(fSSL);
   if error <= 0 then begin
     EIdOSSLAcceptError.RaiseException(fSSL, error, RSSSLAcceptError);
   end;
-  if Supports(fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
-    LParentIO := LHelper.GetIOHandlerSelf;
-    if LParentIO <> nil then begin
-      StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
-                   'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-                   'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
-                   'version = ' + Cipher.Version + '; ';    {Do not Localize}
-      LParentIO.DoStatusInfo(StatusStr);
-    end;
-    LHelper := nil;
+
+  if LParentIO <> nil then begin
+    StatusStr := IndyFormat(RSOSSLCipherStatus, [Cipher.Name, Cipher.Description, Cipher.Bits, Cipher.Version]);
+    LParentIO.DoStatusInfo(StatusStr);
+  end;
+
+  if LParentIO <> nil then begin
+    LParentIO.DoStatus(ioHandshakeComplete);
   end;
 end;
 
@@ -3572,23 +3596,28 @@ var
 begin
   Assert(fSSL=nil);
   Assert(fSSLContext<>nil);
+
   if Supports(fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
     LParentIO := LHelper.GetIOHandlerSelf;
   end else begin
     LParentIO := nil;
   end;
+
   fSSL := SSL_new(fSSLContext.fContext);
   if fSSL = nil then begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
   end;
+
   error := SSL_set_app_data(fSSL, Self);
   if error <= 0 then begin
     EIdOSSLDataBindingError.RaiseException(fSSL, error, RSSSLDataBindingError);
   end;
+
   error := SSL_set_fd(fSSL, pHandle);
   if error <= 0 then begin
     EIdOSSLFDSetError.RaiseException(fSSL, error, RSSSLFDSetError);
   end;
+
   // RLebeau: if this socket's IOHandler was cloned, reuse the
   // original IOHandler's active session ID...
   if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
@@ -3596,6 +3625,7 @@ begin
   begin
     SSL_copy_session_id(fSSL, LParentIO.fSSLSocket.fSSL);
   end;
+
   {$IFNDEF OPENSSL_NO_TLSEXT}
   error := SSL_set_tlsext_host_name(fSSL, fHostName);
   if error <= 0 then begin
@@ -3605,6 +3635,11 @@ begin
     //EIdOSSLSettingTLSHostNameError.RaiseException(fSSL, error, RSSSLSettingTLSHostNameError);
   end;
   {$ENDIF}
+
+  if LParentIO <> nil then begin
+    LParentIO.DoStatus(ioHandshakeStarting);
+  end;
+
   error := SSL_connect(fSSL);
   if error <= 0 then begin
     // TODO: if sslv23 is being used, but sslv23 is not being used on the
@@ -3613,6 +3648,7 @@ begin
     // version, maybe one will succeed...
     EIdOSSLConnectError.RaiseException(fSSL, error, RSSSLConnectError);
   end;
+
   // TODO: even if SSL_connect() returns success, the connection might
   // still be insecure if SSL_connect() detected that certificate validation
   // actually failed, but ignored it because SSL_VERIFY_PEER was disabled!
@@ -3620,12 +3656,10 @@ begin
   // returning an error code, so we should call SSL_get_verify_result() here
   // to make sure...
   if LParentIO <> nil then begin
-    StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
-                 'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-                 'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
-                 'version = ' + Cipher.Version + '; ';    {Do not Localize}
+    StatusStr := IndyFormat(RSOSSLCipherStatus, [Cipher.Name, Cipher.Description, Cipher.Bits, Cipher.Version]);
     LParentIO.DoStatusInfo(StatusStr);
   end;
+
   // TODO: enable this
   {
   var
@@ -3643,6 +3677,10 @@ begin
     X509_free(peercert);
   end;
 }
+
+  if LParentIO <> nil then begin
+    LParentIO.DoStatus(ioHandshakeComplete);
+  end;
 end;
 
 function TIdSSLSocket.Recv(var ABuffer: TIdBytes): Integer;

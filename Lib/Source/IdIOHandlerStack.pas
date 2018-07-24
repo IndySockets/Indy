@@ -358,6 +358,10 @@ begin
     LPort := Port;
     LIPVersion := IPVersion;
   end;
+  // TODO: maybe remove these IP checks here and just call GStack.ResolveHost()
+  // unconditionally? It performs the same IP checks internally.  The downside
+  // would be that OnStatus(hsResolving) would then be fired for all Host values,
+  // even IP addresses.  Maybe that is OK, though...
   if LIPVersion = Id_IPv4 then
   begin
     if not GStack.IsIP(LHost) then begin

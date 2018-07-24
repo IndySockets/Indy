@@ -335,7 +335,11 @@ type
     FContent: TStrings;
     FLastTimeStamp: TDateTime;
     FLock: TIdCriticalSection;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FOwner: TIdHTTPCustomSessionList;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF}[Weak]
+    {$IFEND} FOwner: TIdHTTPCustomSessionList;
+
     FSessionID: string;
     FRemoteHost: string;
     //
@@ -416,8 +420,11 @@ type
     FParseParams: Boolean;
     FServerSoftware: string;
     FMIMETable: TIdThreadSafeMimeTable;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FSessionList: TIdHTTPCustomSessionList;
-    FImplicitSessionList: Boolean;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FSessionList: TIdHTTPCustomSessionList;
+
     FSessionState: Boolean;
     FSessionTimeOut: Integer;
     //
@@ -472,7 +479,9 @@ type
     function GetSessionFromCookie(AContext:TIdContext;
      AHTTPrequest: TIdHTTPRequestInfo; AHTTPResponse: TIdHTTPResponseInfo;
      var VContinueProcessing: Boolean): TIdHTTPSession;
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$ENDIF}
     { to be published in TIdHTTPServer}
     property OnCreatePostStream: TIdHTTPCreatePostStream read FOnCreatePostStream write FOnCreatePostStream;
     property OnDoneWithPostStream: TIdHTTPDoneWithPostStream read FOnDoneWithPostStream write FOnDoneWithPostStream;
@@ -636,7 +645,8 @@ end;
 type
   TIdHTTPSessionCleanerThread = Class(TIdThread)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FSessionList: TIdHTTPCustomSessionList;
+    // TODO: use [Unsafe] instead?
+    {$IFDEF HAS_WEAK_OBJECT_REF}[Weak]{$ENDIF} FSessionList: TIdHTTPCustomSessionList;
   public
     constructor Create(SessionList: TIdHTTPCustomSessionList); reintroduce;
     procedure AfterRun; override;
@@ -889,31 +899,22 @@ begin
 end;
 
 destructor TIdCustomHTTPServer.Destroy;
-var
-  // under ARC, convert a weak reference to a strong reference before working with it
-  LSessionList: TIdHTTPCustomSessionList;
 begin
   Active := False; // Set Active to false in order to close all active sessions.
   FMIMETable.Free;
-  LSessionList := FSessionList;
-  if Assigned(LSessionList) and FImplicitSessionList then begin
-    FSessionList := nil;
-    FImplicitSessionList := False;
-    IdDisposeAndNil(LSessionList);
-  end;
   inherited Destroy;
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-// so this is mostly redundant
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdCustomHTTPServer.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FSessionList) then begin
     FSessionList := nil;
-    FImplicitSessionList := False;
   end;
   inherited Notification(AComponent, Operation);
 end;
+{$ENDIF}
 
 function TIdCustomHTTPServer.DoParseAuthentication(ASender: TIdContext;
   const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean;
@@ -928,7 +929,7 @@ begin
   if (not Result) and TextIsSame(AAuthType, 'Basic') then begin    {Do not Localize}
     LDecoder := TIdDecoderMIME.Create;
     try
-      s := LDecoder.DecodeString(AAuthData);
+      s := LDecoder.DecodeString(AAuthData, IndyTextEncoding_UTF8);
     finally
       LDecoder.Free;
     end;
@@ -1596,7 +1597,6 @@ begin
   if not Assigned(LSessionList) then begin
     LSessionList := TIdHTTPDefaultSessionList.Create(Self);
     FSessionList := LSessionList;
-    FImplicitSessionList := True;
   end;
 
   if FSessionTimeOut <> 0 then begin
@@ -1631,7 +1631,7 @@ begin
   // called due to an exception raised in Startup()...
   LSessionList := FSessionList;
   if Assigned(LSessionList) then begin
-    if FImplicitSessionList then begin
+    if LSessionList.Owner = Self then begin
       SetSessionList(nil);
     end else begin
       LSessionList.Clear;
@@ -1660,19 +1660,17 @@ begin
 
     // under ARC, all weak references to a freed object get nil'ed automatically
 
-    // If implicit one already exists free it
-    // Free the default SessionList
-    if FImplicitSessionList then begin
+    // Free the default implicit SessionList
+    if LSessionList.Owner = Self then begin
       // Under D8 notification gets called after .Free of FreeAndNil, but before
       // its set to nil with a side effect of IDisposable. To counteract this we
       // set it to nil first.
       // -Kudzu
       FSessionList := nil;
-      FImplicitSessionList := False;
       IdDisposeAndNil(LSessionList);
     end;
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     // Ensure we will no longer be notified when the component is freed
     if LSessionList <> nil then begin
       LSessionList.RemoveFreeNotification(Self);
@@ -1681,7 +1679,7 @@ begin
 
     FSessionList := AValue;
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     // Ensure we will be notified when the component is freed, even is it's on
     // another form
     if AValue <> nil then begin
@@ -2384,7 +2382,8 @@ begin
     begin
       LSession := TIdHTTPSession(LSessionList[i]);
       // the stale sessions check has been removed... the cleanup thread should suffice plenty
-      if Assigned(LSession) and TextIsSame(LSession.FSessionID, SessionID) and ((Length(RemoteIP) = 0) or TextIsSame(LSession.RemoteHost, RemoteIP)) then
+      if Assigned(LSession) and TextIsSame(LSession.FSessionID, SessionID) and
+        ((Length(RemoteIP) = 0) or TextIsSame(LSession.RemoteHost, RemoteIP)) then
       begin
         // Session found
         // TODO: use a timer to signal when the session becomes stale, instead of
@@ -2467,6 +2466,7 @@ begin
   LSessionList := FSessionList;
   if Assigned(LSessionList) then begin
     LSessionList.PurgeStaleSessions(True);
+    {$IFDEF USE_OBJECT_ARC}LSessionList := nil;{$ENDIF}
   end;
   inherited AfterRun;
 end;

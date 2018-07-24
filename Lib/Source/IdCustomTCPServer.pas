@@ -316,13 +316,22 @@ type
   TIdCustomTCPServer = class(TIdComponent)
   protected
     FActive: Boolean;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FScheduler: TIdScheduler;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF}[Weak]
+    {$IFEND} FScheduler: TIdScheduler;
+
     FBindings: TIdSocketHandles;
     FContextClass: TIdServerContextClass;
-    FImplicitScheduler: Boolean;
-    FImplicitIOHandler: Boolean;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdServerIntercept;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIOHandler: TIdServerIOHandler;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FIntercept: TIdServerIntercept;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FIOHandler: TIdServerIOHandler;
+
     FListenerThreads: TIdListenerThreadList;
     FListenQueue: integer;
     FMaxConnections: Integer;
@@ -358,7 +367,9 @@ type
     procedure DoTerminateContext(AContext: TIdContext); virtual;
     function GetDefaultPort: TIdPort;
     procedure Loaded; override;
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$ENDIF}
     // This is needed for POP3's APOP authentication.  For that,
     // you send a unique challenge to the client dynamically.
     procedure SendGreeting(AContext: TIdContext; AGreeting: TIdReply); virtual;
@@ -383,8 +394,6 @@ type
     //
     property Contexts: TIdContextThreadList read FContexts;
     property ContextClass: TIdServerContextClass read FContextClass write FContextClass;
-    property ImplicitIOHandler: Boolean read FImplicitIOHandler;
-    property ImplicitScheduler: Boolean read FImplicitScheduler;
   published
     property Active: Boolean read FActive write SetActive default False;
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
@@ -423,7 +432,7 @@ type
 implementation
 
 uses
-  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
+  {$IF DEFINED(WINDOWS) AND DEFINED(DCC_2010_OR_ABOVE)}
   Windows,
   {$IFEND}
   IdGlobalCore,
@@ -597,25 +606,24 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-// so this is mostly redundant
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdCustomTCPServer.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   // Remove the reference to the linked components if they are deleted
   if (Operation = opRemove) then begin
     if (AComponent = FScheduler) then begin
       FScheduler := nil;
-      FImplicitScheduler := False;
     end
     else if (AComponent = FIntercept) then begin
       FIntercept := nil;
     end
     else if (AComponent = FIOHandler) then begin
       FIOHandler := nil;
-      FImplicitIOHandler := False;
     end;
   end;
   inherited Notification(AComponent, Operation);
 end;
+{$ENDIF}
 
 procedure TIdCustomTCPServer.SetActive(AValue: Boolean);
 begin
@@ -654,12 +662,11 @@ begin
   FBindings.DefaultPort := AValue;
 end;
 
+// RLebeau: not IFDEF'ing the entire method since it is virtual and could be
+// overridden in user code...
 procedure TIdCustomTCPServer.SetIntercept(const AValue: TIdServerIntercept);
 begin
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, all weak references to a freed object get nil'ed automatically
-  FIntercept := AValue;
-  {$ELSE}
+  {$IFDEF USE_OBJECT_REF_FREENOTIF}
   if FIntercept <> AValue then
   begin
     // Remove self from the intercept's notification list
@@ -672,6 +679,9 @@ begin
       FIntercept.FreeNotification(Self);
     end;
   end;
+  {$ELSE}
+  // under ARC, all weak references to a freed object get nil'ed automatically
+  FIntercept := AValue;
   {$ENDIF}
 end;
 
@@ -694,19 +704,17 @@ begin
 
     // under ARC, all weak references to a freed object get nil'ed automatically
 
-    // If implicit one already exists free it
-    // Free the default Thread manager
-    if FImplicitScheduler then begin
+    // Free the default implicit Thread manager
+    if Assigned(LScheduler) and (LScheduler.Owner = Self) then begin
       // Under D8 notification gets called after .Free of FreeAndNil, but before
       // its set to nil with a side effect of IDisposable. To counteract this we
       // set it to nil first.
       // -Kudzu
       FScheduler := nil;
-      FImplicitScheduler := False;
       IdDisposeAndNil(LScheduler);
     end;
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     // Ensure we will no longer be notified when the component is freed
     if LScheduler <> nil then begin
       LScheduler.RemoveFreeNotification(Self);
@@ -715,7 +723,7 @@ begin
 
     FScheduler := AValue;
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     // Ensure we will be notified when the component is freed, even is it's on
     // another form
     if AValue <> nil then begin
@@ -748,23 +756,24 @@ begin
     end;
     }
 
-    if FImplicitIOHandler then begin
+    if Assigned(LIOHandler) and (LIOHandler.Owner = Self) then begin
       FIOHandler := nil;
-      FImplicitIOHandler := False;
       IdDisposeAndNil(LIOHandler);
     end;
 
-    {$IFNDEF USE_OBJECT_ARC}
-    // Ensure we will no longer be notified when the component is freed
     if Assigned(LIOHandler) then begin
+      {$IFDEF USE_OBJECT_REF_FREENOTIF}
+      // Ensure we will no longer be notified when the component is freed
       LIOHandler.RemoveFreeNotification(Self);
+      {$ENDIF}
+      // TODO: do we need this?
+      // LIOHandler.SetScheduler(nil);
     end;
-    {$ENDIF}
 
     FIOHandler := AValue;
 
     if AValue <> nil then begin
-      {$IFNDEF USE_OBJECT_ARC}
+      {$IFDEF USE_OBJECT_REF_FREENOTIF}
       // Ensure we will be notified when the component is freed, even is it's on
       // another form
       AValue.FreeNotification(Self);
@@ -923,12 +932,17 @@ begin
   // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
   // is still running which often causes AVs and other.
   AContext.Connection.Disconnect(False);
+  // TODO: use AContext.Binding.CloseSocket() instead. Just close the socket without
+  // closing the IOHandler itself.  Doing so can cause AVs and other, such as in
+  // TIdSSLIOHandlerSocketOpenSSL, when Disconnect() calls IOHandler.Close() which
+  // frees internal objects that may still be in use...
 end;
 
 procedure TIdCustomTCPServer.Shutdown;
 var
-  // under ARC, convert the weak reference to a strong reference before working with it
+  // under ARC, convert weak references to strong references before working with them
   LIOHandler: TIdServerIOHandler;
+  LScheduler: TIdScheduler;
 begin
   // tear down listening threads
   StopListening;
@@ -939,8 +953,14 @@ begin
   finally
     {//bgo TODO: fix this: and Threads.IsCountLessThan(1)}
     // DONE -oAPR: BUG! Threads still live, Mgr dead ;-(
-    if ImplicitScheduler then begin
-      SetScheduler(nil);
+    LScheduler := FScheduler;
+    if Assigned(LScheduler) then begin
+      if LScheduler.Owner = Self then begin
+        {$IFDEF USE_OBJECT_ARC}LScheduler := nil;{$ENDIF}
+        SetScheduler(nil);
+      end else begin
+        LScheduler := nil;
+      end;
     end;
   end;
 
@@ -998,7 +1018,6 @@ begin
   if not Assigned(LIOHandler) then begin
     LIOHandler := TIdServerIOHandlerStack.Create(Self);
     SetIOHandler(LIOHandler);
-    FImplicitIOHandler := True;
   end;
   LIOHandler.Init;
 
@@ -1007,7 +1026,6 @@ begin
   if not Assigned(FScheduler) then begin
     LScheduler := TIdSchedulerOfThreadDefault.Create(Self);
     SetScheduler(LScheduler);
-    FImplicitScheduler := True;
     // Useful in debugging and for thread names
     LScheduler.Name := Name + 'Scheduler';   {do not localize}
   end;
@@ -1079,18 +1097,17 @@ begin
     end else begin
       // We have accepted the connection and need to handle it
       LPeer := TIdTCPConnection.Create(nil);
-      {$IFDEF USE_OBJECT_ARC}
-      // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
+
+      // under ARC, the TIdTCPConnection.IOHandler property is a weak/unsafe reference.
       // TIdServerIOHandler.Accept() returns an IOHandler with no Owner assigned,
       // so lets make the TIdTCPConnection become the Owner in order to keep the
-      // IOHandler alive whic this method exits.
+      // IOHandler alive when this method exits.
       //
-      // TODO: should we assign Ownership unconditionally on all platforms?
+      // Let's assign Ownership unconditionally on all platforms...
       //
       LPeer.InsertComponent(LIOHandler);
-      {$ENDIF}
+
       LPeer.IOHandler := LIOHandler;
-      LPeer.ManagedIOHandler := True;
     end;
 
     // LastRcvTimeStamp := Now;  // Added for session timeout support
@@ -1133,6 +1150,8 @@ begin
       end;
       // EAbort is used to kick out above and destroy yarns and other, but
       // we dont want to show the user
+      // TODO: should we include EIdSilentException here, too?
+      // To ignore EIdConnClosedGracefully, for instance...
       if not (E is EAbort) then begin
         Server.DoListenException(Self, E);
       end;

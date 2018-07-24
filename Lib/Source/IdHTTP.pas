@@ -402,11 +402,18 @@ type
   //
   TIdHTTPResponse = class(TIdResponseHeaderInfo)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FHTTP: TIdCustomHTTP;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FHTTP: TIdCustomHTTP;
+    //
     FResponseCode: Integer;
     FResponseText: string;
     FKeepAlive: Boolean;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FContentStream: TStream;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FContentStream: TStream;
+
     FResponseVersion: TIdHTTPProtocolVersion;
     FMetaHTTPEquiv :  TIdMetaHTTPEquiv;
     //
@@ -429,10 +436,17 @@ type
 
   TIdHTTPRequest = class(TIdRequestHeaderInfo)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FHTTP: TIdCustomHTTP;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FHTTP: TIdCustomHTTP;
+    //
     FURL: string;
     FMethod: TIdHTTPMethod;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FSourceStream: TStream;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FSourceStream: TStream;
+
     FUseProxy: TIdHTTPConnectionType;
     FIPVersion: TIdIPVersion;
     FDestination: string;
@@ -448,7 +462,10 @@ type
 
   TIdHTTPProtocol = class(TObject)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FHTTP: TIdCustomHTTP;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FHTTP: TIdCustomHTTP;
+    //
     FRequest: TIdHTTPRequest;
     FResponse: TIdHTTPResponse;
   public
@@ -468,14 +485,24 @@ type
     FAuthRetries: Integer;
     {Retries counter for proxy authorization}
     FAuthProxyRetries: Integer;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FCookieManager: TIdCookieManager;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FCompressor : TIdZLibCompressorBase;
-    FImplicitCookieManager: Boolean;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FCookieManager: TIdCookieManager;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FCompressor : TIdZLibCompressorBase;
+
     {Max retries for authorization}
     FMaxAuthRetries: Integer;
     FMaxHeaderLines: integer;
     FAllowCookies: Boolean;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FAuthenticationManager: TIdAuthenticationManager;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FAuthenticationManager: TIdAuthenticationManager;
+
     FProtocolVersion: TIdHTTPProtocolVersion;
 
     {this is an internal counter for redirects}
@@ -503,7 +530,9 @@ type
       ASource, AResponseContent: TStream; const AIgnoreReplies: array of Int16); virtual;
     function CreateProtocol: TIdHTTPProtocol; virtual;
     function InternalReadLn: String;
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure SetAuthenticationManager(Value: TIdAuthenticationManager);
+    {$ENDIF}
     procedure SetCookieManager(ACookieManager: TIdCookieManager);
     procedure SetAllowCookies(AValue: Boolean);
     function GetResponseCode: Integer;
@@ -511,7 +540,9 @@ type
     function DoOnAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnProxyAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnRedirect(var Location: string; var VMethod: TIdHTTPMethod; RedirectCount: integer): boolean; virtual;
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$IFEND}
     procedure ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function SetHostAndPort: TIdHTTPConnectionType;
     procedure SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
@@ -607,7 +638,7 @@ type
     // Cookie stuff
     property CookieManager: TIdCookieManager read FCookieManager write SetCookieManager;
     //
-    property AuthenticationManager: TIdAuthenticationManager read FAuthenticationManager write SetAuthenticationManager;
+    property AuthenticationManager: TIdAuthenticationManager read FAuthenticationManager write {$IFDEF USE_OBJECT_REF_FREENOTIF}SetAuthenticationManager{$ELSE}FAuthenticationManager{$ENDIF};
   end;
 
   TIdHTTP = class(TIdCustomHTTP)
@@ -1595,6 +1626,7 @@ begin
   // use local strong references to keep the streams alive...
   LOrigStream := AResponse.ContentStream;
   LCreateTmpContent := (LParseMeth <> 0) and not (LOrigStream is TCustomMemoryStream);
+
   if LCreateTmpContent then begin
     LTmpStream := TMemoryStream.Create;
   end else begin
@@ -1832,7 +1864,6 @@ begin
           if IOHandler = nil then begin
             raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
           end;
-          ManagedIOHandler := True;
           IOHandler.OnStatus := OnStatus;
         end
         else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
@@ -2071,7 +2102,6 @@ begin
   if (not Assigned(LCookieManager)) and AllowCookies then begin
     LCookieManager := TIdCookieManager.Create(Self);
     SetCookieManager(LCookieManager);
-    FImplicitCookieManager := True;
   end;
 
   if Assigned(LCookieManager) and AllowCookies then begin
@@ -2087,25 +2117,23 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-// so this is mostly redundant
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdCustomHTTP.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if Operation = opRemove then begin
     if (AComponent = FCookieManager) then begin
       FCookieManager := nil;
-      FImplicitCookieManager := False;
     end
-    {$IFNDEF USE_OBJECT_ARC}
     else if (AComponent = FAuthenticationManager) then begin
       FAuthenticationManager := nil;
-    end else if (AComponent = FCompressor) then begin
-      FCompressor := nil;
     end
-    {$ENDIF}
-    ;
+    else if (AComponent = FCompressor) then begin
+      FCompressor := nil;
+    end;
   end;
   inherited Notification(AComponent, Operation);
 end;
+{$ENDIF}
 
 procedure TIdCustomHTTP.SetCookieManager(ACookieManager: TIdCookieManager);
 var
@@ -2119,21 +2147,22 @@ begin
     // under ARC, all weak references to a freed object get nil'ed automatically
 
     if Assigned(LCookieManager) then begin
-      if FImplicitCookieManager then begin
+      if LCookieManager.Owner = Self then begin
         FCookieManager := nil;
-        FImplicitCookieManager := False;
         IdDisposeAndNil(LCookieManager);
-      end else begin
-        {$IFNDEF USE_OBJECT_ARC}
+      end
+      {$IFDEF USE_OBJECT_REF_FREENOTIF}
+      else begin
         LCookieManager.RemoveFreeNotification(Self);
-        {$ENDIF}
-      end;
+      end
+      {$ENDIF}
+      ;
     end;
 
-    FCookieManager := ACookieManager;
-    FImplicitCookieManager := False;
 
-    {$IFNDEF USE_OBJECT_ARC}
+    FCookieManager := ACookieManager;
+
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     if Assigned(ACookieManager) then begin
       ACookieManager.FreeNotification(Self);
     end;
@@ -2413,12 +2442,10 @@ begin
   end;
 end;
 
+// under ARC, all weak references to a freed object get nil'ed automatically
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdCustomHTTP.SetAuthenticationManager(Value: TIdAuthenticationManager);
 begin
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, all weak references to a freed object get nil'ed automatically
-  FAuthenticationManager := Value;
-  {$ELSE}
   if FAuthenticationManager <> Value then begin
     if Assigned(FAuthenticationManager) then begin
       FAuthenticationManager.RemoveFreeNotification(self);
@@ -2428,8 +2455,8 @@ begin
       FAuthenticationManager.FreeNotification(Self);
     end;
   end;
-  {$ENDIF}
 end;
+{$ENDIF}
 
 {
 procedure TIdCustomHTTP.SetHost(const Value: string);
@@ -3006,7 +3033,6 @@ begin
   FAuthRetries := 0;
   FAuthProxyRetries := 0;
   AllowCookies := True;
-  FImplicitCookieManager := False;
   FOptions := [hoForceEncodeParams];
 
   FRedirectMax := Id_TIdHTTP_RedirectMax;

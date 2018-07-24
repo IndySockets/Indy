@@ -147,18 +147,12 @@ type
   TIdUserAccount = class(TCollectionItem)
   protected
     FAttributes: TStrings;
-    {$IFDEF USE_OBJECT_ARC}
     // When ARC is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so
     // we will provide separate properties for those purposes
-    //
-    // TODO; use TValue instead of separating them
-    //
     FDataObject: TObject;
     FDataValue: PtrInt;
-    {$ELSE}
-    FData: TObject;
-    {$ENDIF}
+    //
     FUserName: string;
     FPassword: string;
     FRealName: string;
@@ -172,11 +166,10 @@ type
     //
     function  CheckPassword(const APassword: String): Boolean; virtual;
     //
-    {$IFDEF USE_OBJECT_ARC}
     property  Data: TObject read FDataObject write FDataObject;
     property  DataValue: PtrInt read FDataValue write FDataValue;
-    {$ELSE}
-    property  Data: TObject read FData write FData;
+    {$IFNDEF USE_OBJECT_ARC}
+    property  Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValue property.';
     {$ENDIF}
   published
     property  Access: TIdUserAccess read FAccess write FAccess default IdUserAccountDefaultAccess;

@@ -38,11 +38,9 @@ requires
   IndySystem,
   IndyCore;
 
-{$IFNDEF WINDOWS}
-  {$IFDEF MSWINDOWS}
-    {$DEFINE WINDOWS}
-  {$ENDIF}
-{$ENDIF}
+{$IF (NOT DEFINED(WINDOWS)) AND DEFINED(MSWINDOWS)}
+  {$DEFINE WINDOWS}
+{$IFEND}
 
 contains
   IdASN1Util in '..\..\Source\IdASN1Util.pas',

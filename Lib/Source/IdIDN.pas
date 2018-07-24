@@ -216,6 +216,7 @@ end;
 
 function PunnyCodeToIDN(const APunnyCode : String) : UnicodeString;
 var
+  LIDN : UnicodeString;
   Len : Integer;
 begin
   Result := '';
@@ -225,11 +226,12 @@ begin
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
-    SetLength(Result, Len);
-    Len := IdnToUnicode(0, PChar(APunnyCode), Length(APunnyCode), PWideChar(Result), Len);
+    SetLength(LIDN, Len);
+    Len := IdnToUnicode(0, PChar(APunnyCode), Length(APunnyCode), PWideChar(LIDN), Len);
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
+    Result := LIDN;
   end else begin
     // TODO: manual implementation here ...
   end;
@@ -237,6 +239,7 @@ end;
 
 function IDNToPunnyCode(const AIDN : UnicodeString) : String;
 var
+  LPunnyCode : String;
   Len : Integer;
 begin
   Result := '';
@@ -246,11 +249,12 @@ begin
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
-    SetLength(Result, Len);
-    Len := IdnToAscii(0, PWideChar(AIDN), Length(AIDN), PChar(Result), Len);
+    SetLength(LPunnyCode, Len);
+    Len := IdnToAscii(0, PWideChar(AIDN), Length(AIDN), PChar(LPunnyCode), Len);
     if Len = 0 then begin
       IndyRaiseLastError;
     end;
+    Result := LPunnyCode;
   end else
   begin
     // TODO: manual implementation here ...

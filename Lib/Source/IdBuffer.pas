@@ -396,7 +396,7 @@ begin
     VByteCount := Size+AIndex;
   end
   else if VByteCount > (Size+AIndex) then begin
-    raise EIdNotEnoughDataInBuffer.CreateFmt('%s (%d/%d)', [RSNotEnoughDataInBuffer, VByteCount, Size]); {do not localize}
+    raise EIdNotEnoughDataInBuffer.CreateFmt(RSNotEnoughDataInBuffer, [VByteCount, Size]); {do not localize}
   end;
 end;
 

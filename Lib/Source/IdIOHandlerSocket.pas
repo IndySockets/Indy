@@ -174,8 +174,11 @@ type
     FOnBeforeBind: TNotifyEvent;
     FOnAfterBind: TNotifyEvent;
     FOnSocketAllocated: TNotifyEvent;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FTransparentProxy: TIdCustomTransparentProxy;
-    FImplicitTransparentProxy: Boolean;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FTransparentProxy: TIdCustomTransparentProxy;
+
     FUseNagle: Boolean;
     FReuseSocket: TIdReuseSocket;
     FIPVersion: TIdIPVersion;
@@ -184,7 +187,9 @@ type
     procedure DoBeforeBind; virtual;
     procedure DoAfterBind; virtual;
     procedure DoSocketAllocated; virtual;
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$ENDIF}
     function GetDestination: string; override;
     procedure SetDestination(const AValue: string); override;
     function GetReuseSocket: TIdReuseSocket;
@@ -459,50 +464,48 @@ begin
 
     if Assigned(AProxy) then begin
       if not Assigned(AProxy.Owner) then begin
-        if Assigned(LTransparentProxy) and (not FImplicitTransparentProxy) then begin
+        if Assigned(LTransparentProxy) and (LTransparentProxy.Owner <> Self) then begin
           FTransparentProxy := nil;
-          {$IFNDEF USE_OBJECT_ARC}
+          {$IFDEF USE_OBJECT_REF_FREENOTIF}
           LTransparentProxy.RemoveFreeNotification(Self);
           {$ENDIF}
         end;
         LClass := TIdCustomTransparentProxyClass(AProxy.ClassType);
         if Assigned(LTransparentProxy) and (LTransparentProxy.ClassType <> LClass) then begin
           FTransparentProxy := nil;
-          FImplicitTransparentProxy := False;
           IdDisposeAndNil(LTransparentProxy);
         end;
         if not Assigned(LTransparentProxy) then begin
           LTransparentProxy := LClass.Create(Self);
           FTransparentProxy := LTransparentProxy;
-          FImplicitTransparentProxy := True;
         end;
         LTransparentProxy.Assign(AProxy);
       end else begin
         if Assigned(LTransparentProxy) then begin
-          if FImplicitTransparentProxy then begin
+          if LTransparentProxy.Owner = Self then begin
             FTransparentProxy := nil;
-            FImplicitTransparentProxy := False;
             IdDisposeAndNil(LTransparentProxy);
-          end else begin
-            {$IFNDEF USE_OBJECT_ARC}
+          end
+          {$IFDEF USE_OBJECT_REF_FREENOTIF}
+          else begin
             LTransparentProxy.RemoveFreeNotification(Self);
-            {$ENDIF}
-          end;
+          end
+          {$ENDIF}
+          ;
         end;
         FTransparentProxy := AProxy;
-        {$IFNDEF USE_OBJECT_ARC}
+        {$IFDEF USE_OBJECT_REF_FREENOTIF}
         AProxy.FreeNotification(Self);
         {$ENDIF}
       end;
     end
     else if Assigned(LTransparentProxy) then begin
-      if FImplicitTransparentProxy then begin
+      if LTransparentProxy.Owner = Self then begin
         FTransparentProxy := nil;
-        FImplicitTransparentProxy := False;
         IdDisposeAndNil(LTransparentProxy);
       end else begin
         FTransparentProxy := nil;
-        {$IFNDEF USE_OBJECT_ARC}
+        {$IFDEF USE_OBJECT_REF_FREENOTIF}
         LTransparentProxy.RemoveFreeNotification(Self);
         {$ENDIF}
       end;
@@ -520,7 +523,6 @@ begin
   if LTransparentProxy = nil then begin
     LTransparentProxy := TIdSocksInfo.Create(Self); //default
     FTransparentProxy := LTransparentProxy;
-    FImplicitTransparentProxy := True;
   end;
   Result := LTransparentProxy;
 end;
@@ -543,15 +545,15 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-// so this is mostly redundant
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdIOHandlerSocket.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FTransparentProxy) then begin
     FTransparentProxy := nil;
-    FImplicitTransparentProxy := False;
   end;
   inherited Notification(AComponent, Operation);
 end;
+{$ENDIF}
 
 function TIdIOHandlerSocket.SourceIsAvailable: Boolean;
 begin

@@ -115,7 +115,7 @@ type
 implementation
 
 uses
-  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
+  {$IF DEFINED(WINDOWS) AND DEFINED(DCC_2010_OR_ABOVE)}
   Windows,
   {$IFEND}
   IdGlobal, SysUtils;

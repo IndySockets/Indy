@@ -57,7 +57,10 @@ type
 
   TIdSASLListEntry = class(TCollectionItem)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FSASL : TIdSASL;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FSASL : TIdSASL;
+    //
     function GetDisplayName: String; override;
     function GetOwnerComponent: TComponent;
     function GetSASLEntries: TIdSASLEntries;
@@ -107,8 +110,8 @@ uses
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
-  IdCoderMIME,
   IdGlobal,
+  IdCoderMIME,
   IdGlobalProtocols,
   IdReply,
   IdResourceStringsProtocols,
@@ -126,9 +129,13 @@ begin
 end;
 
 function TIdSASLListEntry.GetDisplayName: String;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LSASL: TIdSASL;
 begin
-  if FSASL <> nil then begin
-    Result := String(FSASL.ServiceName);
+  LSASL := FSASL;
+  if Assigned(LSASL) then begin
+    Result := String(LSASL.ServiceName);
   end else begin
     Result := inherited GetDisplayName;
   end;
@@ -160,6 +167,13 @@ var
   LOwnerComp: TComponent;
 begin
   if FSASL <> AValue then begin
+    // the component that owns the TIdSASLEntries collection must override
+    // TComponent.Notification() to call TIdSASLEntries.RemoveByComp()...
+    //
+    // TODO: figure out a way to detect the free automatically.  Maybe have
+    // TIdSASL expose an event/callback that TIdSASLListEntry can subscribe to
+    // to remove itself from the list...
+    //
     LOwnerComp := OwnerComponent;
     if (FSASL <> nil) and (LOwnerComp <> nil) then begin
       FSASL.RemoveFreeNotification(LOwnerComp);
@@ -182,8 +196,9 @@ end;
 
 function CheckStrFail(const AStr : String; const AOk, ACont: array of string) : Boolean;
 begin
+  //Result := PosInStrArray(AStr, AOk + ACont) = -1;
   Result := (PosInStrArray(AStr, AOk) = -1) and
-    (PosInStrArray(AStr, ACont) = -1);
+            (PosInStrArray(AStr, ACont) = -1);
 end;
 
 function PerformSASLLogin(const ACmd, AHost, AProtocolName: String; ASASL: TIdSASL;

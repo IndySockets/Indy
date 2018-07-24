@@ -162,43 +162,56 @@
 //Delphi & CBuilder 10.0 Seattle (Aitana)
 {$IF CompilerVersion >= 30}
   {$IF CompilerVersion < 31}
-    {$DEFINE DCC_SEATTLE}
+    {$DEFINE DCC_10_0}
     {$IFDEF CBUILDER}
-      {$DEFINE CBUILDER_SEATTLE}
+      {$DEFINE CBUILDER_10_0}
     {$ELSE}
-      {$DEFINE DELPHI_SEATTLE}
+      {$DEFINE DELPHI_10_0}
     {$ENDIF}
   {$IFEND}
-  {$DEFINE DCC_SEATTLE_OR_ABOVE}
+  {$DEFINE DCC_10_0_OR_ABOVE}
 {$IFEND}
 
 //Delphi & CBuilder 10.1 Berlin (BigBen)
 {$IF CompilerVersion >= 31}
   {$IF CompilerVersion < 32}
-    {$DEFINE DCC_BERLIN}
+    {$DEFINE DCC_10_1}
     {$IFDEF CBUILDER}
-      {$DEFINE CBUILDER_BERLIN}
+      {$DEFINE CBUILDER_10_1}
     {$ELSE}
-      {$DEFINE DELPHI_BERLIN}
+      {$DEFINE DELPHI_10_1}
     {$ENDIF}
   {$IFEND}
-  {$DEFINE DCC_BERLIN_OR_ABOVE}
+  {$DEFINE DCC_10_1_OR_ABOVE}
 {$IFEND}
 
 //Delphi & CBuilder 10.2 Tokyo (Godzilla)
 {$IF CompilerVersion >= 32}
   {$IF CompilerVersion < 33}
-    {$DEFINE DCC_TOKYO}
+    {$DEFINE DCC_10_2}
     {$IFDEF CBUILDER}
-      {$DEFINE CBUILDER_TOKYO}
+      {$DEFINE CBUILDER_10_2}
     {$ELSE}
-      {$DEFINE DELPHI_TOKYO}
+      {$DEFINE DELPHI_10_2}
     {$ENDIF}
   {$IFEND}
-  {$DEFINE DCC_TOKYO_OR_ABOVE}
+  {$DEFINE DCC_10_2_OR_ABOVE}
 {$IFEND}
 
+//Delphi & CBuilder 10.3 "Name TBD" (Carnival)
 {$IF CompilerVersion >= 33}
+  {$IF CompilerVersion < 34}
+    {$DEFINE DCC_10_3}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_10_3}
+    {$ELSE}
+      {$DEFINE DELPHI_10_3}
+    {$ENDIF}
+  {$ENDIF}
+  {$DEFINE DCC_10_3_OR_ABOVE}
+{$IFEND}
+
+{$IF CompilerVersion >= 34}
   {$MESSAGE ERROR 'Unsupported compiler version detected!'}
 {$IFEND}
 
@@ -306,7 +319,6 @@
 {$DEFINE HAS_InterlockedCompareExchangePointer}
 {$DEFINE HAS_WIDE_TCharArray}
 {$DEFINE HAS_UNIT_AnsiStrings}
-{$DEFINE HAS_PUInt64}
 {$IFDEF DCC_2009}
   // TODO: need to differentiate between RTM and Update 1
   // FmtStr() is broken in RTM but was fixed in Update 1
@@ -314,10 +326,7 @@
 {$ENDIF}
 {$DEFINE HAS_CLASSVARS}
 {$DEFINE HAS_TBytes}
-{$IFDEF WINDOWS}
-  // Exception.RaiseOuterException() is only available on Windows at this time
-  {$DEFINE HAS_Exception_RaiseOuterException}
-{$ENDIF}
+
 
 {$IFDEF DCC_2010_OR_ABOVE}
   {$DEFINE HAS_CLASSCONSTRUCTOR}
@@ -344,6 +353,11 @@
   // Exception.RaiseOuterException() is now available on all platforms
   {$DEFINE HAS_Exception_RaiseOuterException}
   {$DEFINE HAS_TInterlocked}
+{$ELSE}
+  {$IFDEF WINDOWS}
+    // Exception.RaiseOuterException() is only available on Windows at this time
+    {$DEFINE HAS_Exception_RaiseOuterException}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF DCC_XE2_OR_ABOVE}
@@ -361,15 +375,8 @@
 {$IFDEF DCC_XE3_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_ZEROBASEDSTRINGS}
   {$DEFINE HAS_SysUtils_TStringHelper}
+  {$DEFINE HAS_System_Pos_Offset}
   {$UNDEF THREADNAME_IS_ANSISTRING} // NameThreadForDebugging() now uses (Unicode)String
-  {$IFDEF NEXTGEN}
-    {$DEFINE DCC_NEXTGEN}
-    {$DEFINE HAS_MarshaledAString}
-    {$DEFINE USE_MARSHALLED_PTRS}
-    {$IFDEF AUTOREFCOUNT}
-      {$DEFINE USE_OBJECT_ARC}
-    {$ENDIF}
-  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF DCC_XE4_OR_ABOVE}
@@ -404,24 +411,26 @@
   {.$DEFINE HAS_ComponentPlatformsAttribute_WinIoT32}
 {$ENDIF}
 
-{$IFDEF DCC_SEATTLE_OR_ABOVE}
+{$IFDEF DCC_10_0_OR_ABOVE}
   {$IFDEF ANDROID}
     {$DEFINE HAS_TAndroidHelper}
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF DCC_BERLIN_OR_ABOVE}
+{$IFDEF DCC_10_1_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_HPPEMIT_LEGACYHPP}
   {$DEFINE HAS_TStrings_AddPair}
+  {.$DEFINE HAS_UNSAFE_INTF_REF}
+  {.$DEFINE HAS_WEAK_INTF_REF}
 {$ENDIF}
 
-{$IFDEF DCC_TOKYO_OR_ABOVE}
+{$IFDEF DCC_10_2_OR_ABOVE}
   {.$WARN IMPLICIT_INTEGER_CAST_LOSS OFF}
   {.$WARN IMPLICIT_CONVERSION_LOSS OFF}
   {.$WARN COMBINING_SIGNED_UNSIGNED64 OFF}
   {$DEFINE HAS_STATIC_TThread_ForceQueue}
   // In Delphi 10.2 Tokyo, TThread.ForceQueue() is broken on Android, the
-  // passed in procedure is called immediately instead of delayed!
+  // passed in procedure is called immediately instead of being delayed!
   {$IFDEF ANDROID}
     {$DEFINE BROKEN_TThread_ForceQueue}
   {$ENDIF}
@@ -447,34 +456,49 @@
   {$UNDEF KYLIXCOMPAT}
 {$ENDIF}
 
-{$DEFINE WIDGET_VCL}
-
-{$IFDEF DCC_NEXTGEN}
+{$IFDEF NEXTGEN}
+  {$DEFINE DCC_NEXTGEN}
+  {$IFDEF DCC_XE3_OR_ABOVE}
+    {$DEFINE HAS_MarshaledAString}
+    {$DEFINE USE_MARSHALLED_PTRS}
+  {$ENDIF}
   {$DEFINE NO_ANSI_TYPES}
   {.$DEFINE STRING_IS_IMMUTABLE} // Strings are NOT immutable in NEXTGEN yet
-  {$IFDEF USE_OBJECT_ARC}
-    // TODO: move these to an appropriate section. Not doing this yet because
-    // it is a major interface change to switch to Generics and we should
-    // maintain backwards compatibility with earlier compilers for the time
-    // being. Defining them only here for now because the non-Generic versions
-    // of these classes have become deprecated by ARC and so we need to start
-    // taking advantage of the Generics versions...
-    {$DEFINE HAS_UNIT_Generics_Collections}
-    {$DEFINE HAS_UNIT_Generics_Defaults}
-    {$DEFINE HAS_GENERICS_TDictionary}
-    {$DEFINE HAS_GENERICS_TList}
-    {$DEFINE HAS_GENERICS_TObjectList}
-    {$DEFINE HAS_GENERICS_TThreadList}
-    // TArray<T>.Copy() was introduced in XE7 but was buggy. It was fixed in XE8:
-    //
-    // RSP-9763 TArray.Copy<T> copies from destination to source for unmanaged types
-    // https://quality.embarcadero.com/browse/RSP-9763
-    //
-    {$IFDEF DCC_XE8_OR_ABOVE}
-      {$DEFINE HAS_GENERICS_TArray_Copy}
-    {$ENDIF}
+{$ENDIF}
+
+// ARC *may* come to the desktop compilers someday, so separating AUTOREFCOUNT
+// handling from NEXTGEN handling...
+{$IFDEF AUTOREFCOUNT}
+  {$DEFINE USE_OBJECT_ARC}
+  // For TComponent descendants that have references to external components,
+  // we can reduce some runtime overhead, and reuse some code with non-ARC
+  // systems, by using [Unsafe] references with TComponent.FreeNotification(),
+  // instead of using less-efficient [Weak] references...
+  {$DEFINE HAS_UNSAFE_OBJECT_REF}
+  {$DEFINE HAS_WEAK_OBJECT_REF}
+  // TODO: move these to an appropriate section. Not doing this yet because
+  // it is a major interface change to switch to Generics and we should
+  // maintain backwards compatibility with earlier compilers for the time
+  // being. Defining them only here for now because the non-Generic versions
+  // of these classes have become deprecated by ARC and so we need to start
+  // taking advantage of the Generics versions...
+  {$DEFINE HAS_UNIT_Generics_Collections}
+  {$DEFINE HAS_UNIT_Generics_Defaults}
+  {$DEFINE HAS_GENERICS_TDictionary}
+  {$DEFINE HAS_GENERICS_TList}
+  {$DEFINE HAS_GENERICS_TObjectList}
+  {$DEFINE HAS_GENERICS_TThreadList}
+  // TArray<T>.Copy() was introduced in XE7 but was buggy. It was fixed in XE8:
+  //
+  // RSP-9763 TArray.Copy<T> copies from destination to source for unmanaged types
+  // https://quality.embarcadero.com/browse/RSP-9763
+  //
+  {$IFDEF DCC_XE8_OR_ABOVE}
+    {$DEFINE HAS_GENERICS_TArray_Copy}
   {$ENDIF}
 {$ENDIF}
+
+{$DEFINE WIDGET_VCL}
 
 // TODO: Ansi data types were disabled on mobile platforms in XE3, but
 // UTF8String and RawByteString were re-enabled in 10.1 Berlin! What else,
@@ -486,6 +510,7 @@
   {$UNDEF HAS_PPAnsiChar}
   {$UNDEF HAS_UNIT_AnsiStrings}
   {$UNDEF HAS_AnsiStrings_StrPLCopy}
+  {$UNDEF HAS_AnsiStrings_StrLen}
 {$ENDIF}
 
 //IMPORTANT!!!!

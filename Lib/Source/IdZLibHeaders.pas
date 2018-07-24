@@ -70,6 +70,12 @@ uses
   , IdException
   {$ENDIF};
 
+{$IF DEFINED(LINUX64) OR DEFINED(IOS64)}
+  {$UNDEF USE_PRAGMA PACK_1}
+{$ELSE}
+  {$DEFINE USE_PRAGMA PACK_1}
+{$IFEND}
+
 {$IFDEF STATICLOAD_ZLIB}
 (*$HPPEMIT '// For Win32, we use some .obj files.  These .objs were compiled from the ZLib'*)
 (*$HPPEMIT '// source-code folder with "make -f contrib\delphi\zlibd32.mak" using Borland's'*)
@@ -102,7 +108,9 @@ uses
 (*$HPPEMIT ''*)
 (*$HPPEMIT 'typedef void __cdecl (*free_func)(void * opaque, void * address);'*)
 (*$HPPEMIT ''*)
+{$IFDEF USE_PRAGMA PACK_1}
 (*$HPPEMIT '#pragma pack(push,1)'*)
+{$ENDIF}
 {$IFDEF DCC_XE_OR_ABOVE}
 (*$HPPEMIT 'struct DECLSPEC_DRECORD z_stream'*)
 {$ELSE}
@@ -113,20 +121,22 @@ uses
 (*$HPPEMIT 'public:'*)
 (*$HPPEMIT '	char *next_in;'*)
 (*$HPPEMIT '	unsigned avail_in;'*)
-(*$HPPEMIT '	unsigned total_in;'*)
+(*$HPPEMIT '	unsigned long total_in;'*)
 (*$HPPEMIT '	char *next_out;'*)
 (*$HPPEMIT '	unsigned avail_out;'*)
-(*$HPPEMIT '	unsigned total_out;'*)
+(*$HPPEMIT '	unsigned long total_out;'*)
 (*$HPPEMIT '	char *msg;'*)
 (*$HPPEMIT '	void *state;'*)
 (*$HPPEMIT '	alloc_func zalloc;'*)
 (*$HPPEMIT '	free_func zfree;'*)
 (*$HPPEMIT '	void *opaque;'*)
 (*$HPPEMIT '	int data_type;'*)
-(*$HPPEMIT '	unsigned adler;'*)
-(*$HPPEMIT '	unsigned reserved;'*)
+(*$HPPEMIT '	unsigned long adler;'*)
+(*$HPPEMIT '	unsigned long reserved;'*)
 (*$HPPEMIT '};'*)
+{$IFDEF USE_PRAGMA PACK_1}
 (*$HPPEMIT '#pragma pack(pop)'*)
+{$ENDIF}
 (*$HPPEMIT ''*)
 (*$HPPEMIT '#if !defined(__clang__) && !defined(__CPP__)'*)
 (*$HPPEMIT '#if sizeof(z_stream) < 56'*)
@@ -157,7 +167,9 @@ uses
 (*$HPPEMIT 'struct gz_header;'*)
 (*$HPPEMIT 'typedef gz_header *gz_headerp;'*)
 (*$HPPEMIT ''*)
+{$IFDEF USE_PRAGMA PACK_1}
 (*$HPPEMIT '#pragma pack(push,1)'*)
+{$ENDIF}
 {$IFDEF DCC_XE_OR_ABOVE}
 (*$HPPEMIT 'struct DECLSPEC_DRECORD gz_header'*)
 {$ELSE}
@@ -167,7 +179,7 @@ uses
 (*$HPPEMIT '	'*)
 (*$HPPEMIT 'public:'*)
 (*$HPPEMIT '	int text;'*)
-(*$HPPEMIT '	unsigned time;'*)
+(*$HPPEMIT '	unsigned long time;'*)
 (*$HPPEMIT '	int xflags;'*)
 (*$HPPEMIT '	int os;'*)
 (*$HPPEMIT '	System::Byte *extra;'*)
@@ -180,7 +192,9 @@ uses
 (*$HPPEMIT '	int hcrc;'*)
 (*$HPPEMIT '	int done;'*)
 (*$HPPEMIT '};'*)
+{$IFDEF USE_PRAGMA PACK_1}
 (*$HPPEMIT '#pragma pack(pop)'*)
+{$ENDIF}
 (*$HPPEMIT ''*)
 (*$HPPEMIT '#if !defined(__clang__) && !defined(__CPP__)'*)
 (*$HPPEMIT '#if sizeof(gz_header) < 52'*)

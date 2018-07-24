@@ -119,7 +119,7 @@ resourcestring
   RSInvalidIPAddress = 'Invalid IP Address';
   RSInterceptCircularLink = '%s: Circular links are not allowed';
 
-  RSNotEnoughDataInBuffer = 'Not enough data in buffer. (%d/%d)';
+  RSNotEnoughDataInBuffer = 'Not enough data in buffer. (%0:d/%1:d)';
   RSTooMuchDataInBuffer = 'Too much data in buffer.';
   RSCapacityTooSmall = 'Capacity cannot be smaller than Size.';
   RSBufferIsEmpty = 'No bytes in buffer.';

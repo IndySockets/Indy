@@ -297,7 +297,7 @@ function TIdIOHandlerStream.WriteDataToTarget(const ABuffer: TIdBytes; const AOf
 begin
   Result := IndyLength(ABuffer, ALength, AOffset);
   if Assigned(FSendStream) and (Result > 0) then begin
-    Result := FSendStream.Write(ABuffer[AOffset], ALength);
+    FSendStream.WriteBuffer(ABuffer[AOffset], Result);
   end;
 end;
 

@@ -1,6 +1,11 @@
 // {$LIBSUFFIX} was added in Delphi/C++Builder 6, the same version
 // that CONDITIONALEXPRESSIONS and {$IF} were added...
 
+// TODO:
+{.$SONAME '?.so.?'}
+{.$LIBPREFIX ''}
+{.$LIBVERSION '?'}
+
 {$IFDEF CONDITIONALEXPRESSIONS}
 
   // Must be at the top...
@@ -8,8 +13,12 @@
     {$LEGACYIFEND ON}
   {$IFEND}
 
-  {$IF CompilerVersion >= 33}
-    {$MESSAGE WARN 'Unsupported compiler version detected!'}
+  {$IF CompilerVersion >= 34}
+    {$MESSAGE ERROR 'Unsupported compiler version detected!'}
+
+  //Delphi & CBuilder 10.3 "Name TBD" (Carnival)
+  {$ELSEIF CompilerVersion >= 33}
+    {$LIBSUFFIX '260'}
 
   //Delphi & CBuilder 10.2 Tokyo (Godzilla)
   {$ELSEIF CompilerVersion >= 32}

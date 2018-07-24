@@ -591,14 +591,14 @@ type
   {$NODEFINE PUInt32}
 {$ENDIF}
 
-type
-  TIdUInt64 = UInt64 deprecated 'use UInt64';
-
 {$IFNDEF HAS_PUInt64}
 type
   PUInt64 = ^UInt64;
   {$NODEFINE PUInt64}
 {$ENDIF}
+
+type
+  TIdUInt64 = UInt64 deprecated 'Use UInt64';
 
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
@@ -810,7 +810,7 @@ type
   // In .NET and Delphi next-gen, strings are immutable (and zero-indexed), so we
   // need to use a StringBuilder whenever we need to modify individual characters
   // of a string...
-  TIdStringBuilder = TStringBuilder;
+  TIdStringBuilder = TStringBuilder deprecated 'Use TStringBuilder';
   {$ENDIF}
 
   {
@@ -1054,6 +1054,11 @@ type
     function Write(const Buffer; Count: Longint): Longint; override;
   end;
 
+  TIdReadOnlyMemoryBufferStream = class(TIdMemoryBufferStream)
+  public
+    function Write(const Buffer; Count: Longint): Longint; override;
+  end;
+
 const
   {$IF DEFINED(UNIX)}
 
@@ -1158,7 +1163,7 @@ procedure ToBytesF(var Bytes: TIdBytes; const AValue: UInt64); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0); overload;
 // RLebeau - not using the same "ToBytesF" naming convention for RawToBytesF()
 // in order to prevent ambiquious errors with ToBytesF(TIdBytes) above
-procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
+procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer; const ADestIndex: Integer = 0);
 
 function ToHex(const AValue: TIdBytes; const ACount: Integer = -1; const AIndex: Integer = 0): string; overload;
 function ToHex(const AValue: array of UInt32): string; overload; // for IdHash
@@ -1206,7 +1211,8 @@ function ReadCharFromStream(AStream: TStream; var VChar: Char; AByteEncoding: II
 // RLebeau: must use a 'var' and not an 'out' for the VBytes parameter,
 // or else any preallocated buffer the caller passes in will get wiped out!
 function ReadTIdBytesFromStream(const AStream: TStream; var VBytes: TIdBytes; const ACount: Int64; const AIndex: Integer = 0): Int64;
-procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1; const AIndex: Integer = 0);
+function WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1; const AIndex: Integer = 0): Integer;
+function SeekStream(const AStream: TStream; const AOffset: Int64; const AOrigin: TSeekOrigin): Int64; deprecated 'Use TStream.Seek()';
 
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
@@ -1342,6 +1348,7 @@ function IsNumeric(const AString: string): Boolean; overload;
 function IsNumeric(const AString: string; const ALength: Integer; const AIndex: Integer = 1): Boolean; overload;
 function IsOctal(const AChar: Char): Boolean; overload;
 function IsOctal(const AString: string; const ALength: Integer = -1; const AIndex: Integer = 1): Boolean; overload;
+function InterlockedExchangePtr(var VTarget: Pointer; const AValue: Pointer): Pointer;
 function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: THandle): THandle;
 function InterlockedCompareExchangePtr(var VTarget: Pointer; const AValue, Compare: Pointer): Pointer;
 function InterlockedCompareExchangeObj(var VTarget: TObject; const AValue, Compare: TObject): TObject;
@@ -1416,6 +1423,8 @@ function IndyIndexOf(AStrings: TStringList; const AStr: string; const ACaseSensi
 
 function IndyIndexOfName(AStrings: TStrings; const AName: string; const ACaseSensitive: Boolean = False): Integer; overload;
 function IndyIndexOfName(AStrings: TStringList; const AName: string; const ACaseSensitive: Boolean = False): Integer; overload;
+function IndyValueFromName(AStrings: TStrings; const AName: String; const ACaseSensitive: Boolean = False): String;{$IFDEF HAS_TStringList_CaseSensitive} overload;{$ENDIF}
+function IndyValueFromName(AStrings: TStringList; const AName: String; const ACaseSensitive: Boolean = False): String; overload;
 
 function IndyValueFromIndex(AStrings: TStrings; const AIndex: Integer): String;
 
@@ -1446,7 +1455,7 @@ var
   {$IFDEF UNIX}
 
   // For linux the user needs to set this variable to be accurate where used (mail, etc)
-  GOffsetFromUTC: TDateTime = 0 deprecated;
+  GOffsetFromUTC: TDateTime = 0{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated;
 
     {$IFDEF DARWIN}
   GMachTimeBaseInfo: TTimebaseInfoData;
@@ -1487,15 +1496,23 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IF DEFINED(REGISTER_EXPECTED_MEMORY_LEAK) AND (NOT DEFINED(HAS_System_RegisterExpectedMemoryLeak))}
-    {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
-    {$IFDEF USE_MADEXCEPT}madExcept,{$ENDIF}
+    {$IF DEFINED(USE_FASTMM4)}
+  FastMM4,
+    {$ELSEIF DEFINED(USE_MADEXCEPT)}
+  madExcept,
+    {$ELSEIF DEFINED(USE_LEAKCHECK)}
+  LeakCheck,
+    {$IFEND}
   {$IFEND}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
   DateUtils,
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
-  IdResourceStrings,
-  StrUtils;
+  IdResourceStrings
+  {$IFNDEF HAS_System_Pos_Offset}
+  ,StrUtils
+  {$ENDIF}
+  ;
 
 {$IF DEFINED(FPC) AND DEFINED(WINCE)}
 //FreePascal for WindowsCE may not define these.
@@ -2821,6 +2838,7 @@ function TIdUTF16LittleEndianEncoding.GetBytes(const AChars: PWideChar; ACharCou
 var
   I: Integer;
   LChars: PWideChar;
+  C: UInt16;
 {$ENDIF}
 begin
   // TODO: verify UTF-16 sequences
@@ -2828,9 +2846,10 @@ begin
   LChars := AChars;
   for I := ACharCount - 1 downto 0 do
   begin
-    ABytes^ := Hi(UInt16(LChars^));
+    C := UInt16(LChars^);
+    ABytes^ := Hi(C);
     Inc(ABytes);
-    ABytes^ := Lo(UInt16(LChars^));
+    ABytes^ := Lo(C);
     Inc(ABytes);
     Inc(LChars);
   end;
@@ -2899,15 +2918,17 @@ function TIdUTF16BigEndianEncoding.GetBytes(const AChars: PWideChar; ACharCount:
 var
   I: Integer;
   P: PWideChar;
+  C: UInt16;
 {$ENDIF}
 begin
   {$IFDEF ENDIAN_LITTLE}
   P := AChars;
   for I := ACharCount - 1 downto 0 do
   begin
-    ABytes^ := Hi(UInt16(P^));
+    C := UInt16(P^);
+    ABytes^ := Hi(C);
     Inc(ABytes);
-    ABytes^ := Lo(UInt16(P^));
+    ABytes^ := Lo(C);
     Inc(ABytes);
     Inc(P);
   end;
@@ -2961,28 +2982,68 @@ begin
 end;
 
 function TIdASCIIEncoding.GetByteCount(const AChars: PWideChar; ACharCount: Integer): Integer;
+var
+  P: PWideChar;
+  C: UInt16;
 begin
-  Result := ACharCount;
+  Result := 0;
+  P := AChars;
+  while ACharCount > 0 do begin
+    C := UInt16(P^);
+    Inc(P);
+    Dec(ACharCount);
+    if (C >= $D800) and (C <= $DFFF) then
+    begin
+      // UTF-16 surrogates should never be used to encode ASCII codepoints,
+      // so surrogates will be replaced with '?' in GetBytes(), but we still
+      // need to read them properly...
+      if (C <= $DBFF) and (ACharCount > 0) then begin
+        C := UInt16(P^);
+        if (C >= $DC00) and (C <= $DFFF) then begin
+          Inc(P);
+          Dec(ACharCount);
+        end;
+      end;
+    end;
+    Inc(Result);
+  end;
 end;
 
 function TIdASCIIEncoding.GetBytes(const AChars: PWideChar; ACharCount: Integer;
   ABytes: PByte; AByteCount: Integer): Integer;
 var
   P: PWideChar;
-  i : Integer;
+  C: UInt16;
 begin
+  Result := 0;
   P := AChars;
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
-    // replace illegal characters > $7F
-    if UInt16(P^) > $007F then begin
-      ABytes^ := Byte(Ord('?'));
-    end else begin
-      ABytes^ := Byte(P^);
-    end;
-    //advance to next char
+  while (ACharCount > 0) and (AByteCount > 0) do begin
+    C := UInt16(P^);
     Inc(P);
+    Dec(ACharCount);
+    if (C >= $D800) and (C <= $DFFF) then
+    begin
+      // UTF-16 surrogates should never be used to encode ASCII codepoints,
+      // so surrogates will be replaced with '?', but we still need to read
+      // them properly...
+      if (C <= $DBFF) and (ACharCount > 0) then begin
+        C := UInt16(P^);
+        if (C >= $DC00) and (C <= $DFFF) then begin
+          Inc(P);
+          Dec(ACharCount);
+        end;
+      end;
+      ABytes^ := Byte(Ord('?')); {do not localize} 
+    end
+    else if C > $007F then begin
+      ABytes^ := Byte(Ord('?')); {do not localize} 
+    end else begin
+      ABytes^ := Byte(C);
+    end;
+    Inc(Result);
+    // advance to next char
     Inc(ABytes);
+    Dec(AByteCount);
   end;
 end;
 
@@ -2995,20 +3056,22 @@ function TIdASCIIEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
   AChars: PWideChar; ACharCount: Integer): Integer;
 var
   P: PByte;
-  i : Integer;
 begin
+  Result := 0;
   P := ABytes;
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
-    // This is an invalid byte in the ASCII encoding.
+  while (AByteCount > 0) and (ACharCount > 0) do begin
     if P^ > $7F then begin
+      // This is an invalid byte in the ASCII encoding.
       UInt16(AChars^) := $FFFD;
     end else begin
       UInt16(AChars^) := P^;
     end;
-    //advance to next byte
-    Inc(AChars);
+    Inc(Result);
+    // advance to next byte
     Inc(P);
+    Dec(AByteCount);
+    Inc(AChars);
+    Dec(ACharCount);
   end;
 end;
 
@@ -3032,28 +3095,68 @@ begin
 end;
 
 function TId8BitEncoding.GetByteCount(const AChars: PWideChar; ACharCount: Integer): Integer;
+var
+  P: PWideChar;
+  C: UInt16;
 begin
-  Result := ACharCount;
+  Result := 0;
+  P := AChars;
+  while ACharCount > 0 do begin
+    C := UInt16(P^);
+    Inc(P);
+    Dec(ACharCount);
+    if (C >= $D800) and (C <= $DFFF) then
+    begin
+      // UTF-16 surrogates should never be used to encode 8-bit codepoints,
+      // so surrogates will be replaced with '?' in GetBytes(), but we still
+      // need to read them properly...
+      if (C <= $DBFF) and (ACharCount > 0) then begin
+        C := UInt16(P^);
+        if (C >= $DC00) and (C <= $DFFF) then begin
+          Inc(P);
+          Dec(ACharCount);
+        end;
+      end;
+    end;
+    Inc(Result);
+  end;
 end;
 
 function TId8BitEncoding.GetBytes(const AChars: PWideChar; ACharCount: Integer;
   ABytes: PByte; AByteCount: Integer): Integer;
 var
   P: PWideChar;
-  i : Integer;
+  C: UInt16;
 begin
+  Result := 0;
   P := AChars;
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
-    // replace illegal characters > $FF
-    if UInt16(P^) > $00FF then begin
-      ABytes^ := Byte(Ord('?'));
-    end else begin
-      ABytes^ := Byte(P^);
-    end;
-    //advance to next char
+  while (ACharCount > 0) and (AByteCount > 0) do begin
+    C := UInt16(P^);
     Inc(P);
+    Dec(ACharCount);
+    if (C >= $D800) and (C <= $DFFF) then
+    begin
+      // UTF-16 surrogates should never be used to encode 8-bit codepoints,
+      // so surrogates will be replaced with '?', but we still need to read
+      // them properly...
+      if (C <= $DBFF) and (ACharCount > 0) then begin
+        C := UInt16(P^);
+        if (C >= $DC00) and (C <= $DFFF) then begin
+          Inc(P);
+          Dec(ACharCount);
+        end;
+      end;
+      ABytes^ := Byte(Ord('?')); {do not localize} 
+    end
+    else if C > $00FF then begin
+      ABytes^ := Byte(Ord('?')); {do not localize} 
+    end else begin
+      ABytes^ := Byte(C);
+    end;
+    Inc(Result);
+    // advance to next char
     Inc(ABytes);
+    Dec(AByteCount);
   end;
 end;
 
@@ -3066,15 +3169,17 @@ function TId8BitEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
   AChars: PWideChar; ACharCount: Integer): Integer;
 var
   P: PByte;
-  i : Integer;
 begin
+  Result := 0;
   P := ABytes;
-  Result := IndyMin(ACharCount, AByteCount);
-  for i := 1 to Result do begin
+  while (AByteCount > 0) and (ACharCount > 0) do begin
     UInt16(AChars^) := P^;
-    //advance to next char
-    Inc(AChars);
+    Inc(Result);
+    // advance to next byte
     Inc(P);
+    Dec(AByteCount);
+    Inc(AChars);
+    Dec(ACharCount);
   end;
 end;
 
@@ -3310,9 +3415,7 @@ begin
     // SysUtils.TEncoding.Default uses ANSI on Windows
     // but uses UTF-8 on POSIX, so we should do the same...
     LEncoding := {$IFDEF WINDOWS}TIdMBCSEncoding{$ELSE}TIdUTF8Encoding{$ENDIF}.Create;
-    if InterlockedCompareExchangeIntf(IInterface(GIdOSDefaultEncoding), LEncoding, nil) <> nil then begin
-      LEncoding := nil;
-    end;
+    InterlockedCompareExchangeIntf(IInterface(GIdOSDefaultEncoding), LEncoding, nil);
   end;
   Result := GIdOSDefaultEncoding;
 end;
@@ -3323,9 +3426,7 @@ var
 begin
   if GId8BitEncoding = nil then begin
     LEncoding := TId8BitEncoding.Create;
-    if InterlockedCompareExchangeIntf(IInterface(GId8BitEncoding), LEncoding, nil) <> nil then begin
-      LEncoding := nil;
-    end;
+    InterlockedCompareExchangeIntf(IInterface(GId8BitEncoding), LEncoding, nil);
   end;
   Result := GId8BitEncoding;
 end;
@@ -3336,9 +3437,7 @@ var
 begin
   if GIdASCIIEncoding = nil then begin
     LEncoding := TIdASCIIEncoding.Create;
-    if InterlockedCompareExchangeIntf(IInterface(GIdASCIIEncoding), LEncoding, nil) <> nil then begin
-      LEncoding := nil;
-    end;
+    InterlockedCompareExchangeIntf(IInterface(GIdASCIIEncoding), LEncoding, nil);
   end;
   Result := GIdASCIIEncoding;
 end;
@@ -3349,9 +3448,7 @@ var
 begin
   if GIdUTF16BigEndianEncoding = nil then begin
     LEncoding := TIdUTF16BigEndianEncoding.Create;
-    if InterlockedCompareExchangeIntf(IInterface(GIdUTF16BigEndianEncoding), LEncoding, nil) <> nil then begin
-      LEncoding := nil;
-    end;
+    InterlockedCompareExchangeIntf(IInterface(GIdUTF16BigEndianEncoding), LEncoding, nil);
   end;
   Result := GIdUTF16BigEndianEncoding;
 end;
@@ -3362,9 +3459,7 @@ var
 begin
   if GIdUTF16LittleEndianEncoding = nil then begin
     LEncoding := TIdUTF16LittleEndianEncoding.Create;
-    if InterlockedCompareExchangeIntf(IInterface(GIdUTF16LittleEndianEncoding), LEncoding, nil) <> nil then begin
-      LEncoding := nil;
-    end;
+    InterlockedCompareExchangeIntf(IInterface(GIdUTF16LittleEndianEncoding), LEncoding, nil);
   end;
   Result := GIdUTF16LittleEndianEncoding;
 end;
@@ -3375,9 +3470,7 @@ var
 begin
   if GIdUTF7Encoding = nil then begin
     LEncoding := TIdUTF7Encoding.Create;
-    if InterlockedCompareExchangeIntf(IInterface(GIdUTF7Encoding), LEncoding, nil) <> nil then begin
-      LEncoding := nil;
-    end;
+    InterlockedCompareExchangeIntf(IInterface(GIdUTF7Encoding), LEncoding, nil);
   end;
   Result := GIdUTF7Encoding;
 end;
@@ -3388,9 +3481,7 @@ var
 begin
   if GIdUTF8Encoding = nil then begin
     LEncoding := TIdUTF8Encoding.Create;
-    if InterlockedCompareExchangeIntf(IInterface(GIdUTF8Encoding), LEncoding, nil) <> nil then begin
-      LEncoding := nil;
-    end;
+    InterlockedCompareExchangeIntf(IInterface(GIdUTF8Encoding), LEncoding, nil);
   end;
   Result := GIdUTF8Encoding;
 end;
@@ -3448,11 +3539,11 @@ begin
   Exception.RaiseOuterException(AOuterException);
 end;
 {$ELSEIF DEFINED(DCC)}
-// RLebeau: There is no Exception.InnerException property to capture the inner
-// exception into, but we can still raise the outer exception using Delphi's
-// 'raise ... at [address]' syntax, at least.  This way, the debugger (and
-// exception loggers) can show the outer exception occuring in the caller
-// rather than inside this function...
+  // RLebeau: There is no Exception.InnerException property to capture the inner
+  // exception into, but we may be able to raise the outer exception using the
+  // 'raise ... at [address]' syntax, at least.  This way, the debugger (and
+  // exception loggers) can show the outer exception occuring in the caller
+  // rather than inside this function...
   {$IFDEF HAS_System_ReturnAddress}
 procedure IndyRaiseOuterException(AOuterException: Exception);
 begin
@@ -3517,11 +3608,24 @@ begin
 end;
 {$IFEND}
 
+function InterlockedExchangePtr(var VTarget: Pointer; const AValue: Pointer): Pointer;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  {$IFDEF HAS_TInterlocked}
+  Result := TInterlocked.Exchange(VTarget, AValue);
+  {$ELSE}
+  Result := Pointer(
+    {$IFDEF CPU64}InterlockedExchange64{$ELSE}InterlockedExchange{$ENDIF}
+      (PtrInt(VTarget), PtrInt(AValue))
+  );
+  {$ENDIF}
+end;
+
 function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: THandle): THandle;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IF DEFINED(THANDLE_32)}
-  Result := THandle({$IFDEF HAS_TInterlocked}TInterlocked.Exchange{$ELSE}InterlockedExchange{$ENDIF}(Integer(VTarget), Integer(AValue)));
+  Result := THandle({$IFDEF HAS_TInterlocked}TInterlocked.Exchange{$ELSE}InterlockedExchange{$ENDIF}(Int32(VTarget), Int32(AValue)));
   {$ELSEIF DEFINED(THANDLE_64)}
   //Temporary workaround.  TInterlocked for Emb really should accept 64 bit unsigned values as set of parameters
   //for TInterlocked.Exchange since 64-bit wide integers are common on 64 bit platforms.
@@ -3621,7 +3725,7 @@ end;
 function InterlockedCompareExchangeObj(var VTarget: TObject; const AValue, Compare: TObject): TObject;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  {$IFDEF USE_OBJECT_ARC}
+  {$IFDEF HAS_TInterlocked}
   // for ARC, we have to use the TObject overload of TInterlocked to ensure
   // that the reference counts of the objects are managed correctly...
   Result := TInterlocked.CompareExchange(VTarget, AValue, Compare);
@@ -3633,7 +3737,8 @@ end;
 function InterlockedCompareExchangeIntf(var VTarget: IInterface; const AValue, Compare: IInterface): IInterface;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  // we have to ensure that the reference counts of the interfaces are managed correctly...
+  // TInterlocked does not have an overload for IInterface.
+  // We have to ensure that the reference counts of the interfaces are managed correctly...
   if AValue <> nil then begin
     AValue._AddRef;
   end;
@@ -4182,6 +4287,8 @@ procedure DebugOutput(const AText: string);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
+  // TODO: support other debugging platforms
+
   {$IFDEF WINDOWS}
   OutputDebugString(
     {$IFDEF DEBUG_STRING_MISMATCH}
@@ -4306,7 +4413,8 @@ function Impl_GetTickCount64: UInt64; stdcall;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   // TODO: implement some kind of accumulator so the Result
-  // keeps growing even when GetTickCount() wraps back to 0
+  // keeps growing even when GetTickCount() wraps back to 0.
+  // Or maybe access the CPU's TSC via the x86 RDTSC instruction...
   Result := UInt64(Windows.GetTickCount);
 end;
 
@@ -4872,6 +4980,7 @@ begin
     Dec(L256Power);
   until False;
   VErr := False;
+  // Restore overflow checking
   {$I IdOverflowCheckingOn.inc}
 end;
 
@@ -5235,14 +5344,14 @@ begin
   end;
 end;
 
-function SBPos(const Substr, S: string): Integer;
+function InternalSBPos(const Substr, S: string): Integer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   // Necessary because of "Compiler magic"
   Result := Pos(Substr, S);
 end;
 
-function SBStrScan(Str: PChar; Chr: Char): PChar;
+function InternalSBStrScan(Str: PChar; Chr: Char): PChar;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := SysUtils.StrScan(Str, Chr);
@@ -5495,23 +5604,28 @@ var
 begin
   {$IF DEFINED(HAS_TThread_NameThreadForDebugging)}
 
+  // TODO: FreePascal's implementation of TThread.NameThreadForDebugging() is empty!
+  // It is provided only for compatibility with Delphi code. Indy does not define
+  // HAS_NAMED_THREADS for FPC, so maybe IFDEF out this call completely on FPC?
   TThread.NameThreadForDebugging(
     {$IFDEF THREADNAME_IS_ANSISTRING}
-    AnsiString(AName)
+    AnsiString(AName) // explicit convert to Ansi
     {$ELSE}
     AName
     {$ENDIF},
-    AThreadID);
+    AThreadID
+  );
 
   {$ELSEIF DEFINED(HAS_NAMED_THREADS) AND DEFINED(WINDOWS)}
 
+  // TODO: use SetThreadDescription() on Win10 and later...
   LName := AnsiString(AName); // explicit convert to Ansi
   LThreadNameInfo.RecType := $1000;
   LThreadNameInfo.Name := PAnsiChar(LName);
   LThreadNameInfo.ThreadID := AThreadID;
   LThreadNameInfo.Flags := 0;
   try
-    // This is a wierdo Windows way to pass the info in
+    // This is a wierdo Windows way to pass the info in to the debugger
     RaiseException(MS_VC_EXCEPTION, 0, SizeOf(LThreadNameInfo) div SizeOf(UInt32),
       PDWord(@LThreadNameInfo));
   except
@@ -5594,6 +5708,7 @@ const
   monthnames: array[1..12] of string = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', {do not localize}
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'); {do not localize}
 
+//this should be changed to a singleton?
 function GetEnglishSetting: TFormatSettings;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -5615,6 +5730,7 @@ begin
   Result.LongTimeFormat := 'h:mm:ss AMPM';                    {do not localize}
   Result.ShortTimeFormat := 'h:mm AMPM';                      {do not localize}
 
+  // TODO: use hard-coded names instead?
   Result.ShortMonthNames[1] := monthnames[1]; //'Jan';
   Result.ShortMonthNames[2] := monthnames[2]; //'Feb';
   Result.ShortMonthNames[3] := monthnames[3]; //'Mar';
@@ -5641,6 +5757,7 @@ begin
   Result.LongMonthNames[11] := 'November';                    {do not localize}
   Result.LongMonthNames[12] := 'December';                    {do not localize}
 
+  // TODO: use hard-coded names instead?
   Result.ShortDayNames[1] := wdays[1]; //'Sun';
   Result.ShortDayNames[2] := wdays[2]; //'Mon';
   Result.ShortDayNames[3] := wdays[3]; //'Tue';
@@ -5851,16 +5968,18 @@ begin
 
     {$IF DEFINED(KYLIXCOMPAT) OR DEFINED(USE_VCL_POSIX)}
 
-  {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
+  {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1 - WHY???}
 
   gettimeofday(TV, nil);
   T := TV.tv_sec;
   localtime_r({$IFDEF KYLIXCOMPAT}@{$ENDIF}T, UT);
-  Result := UT.{$IFDEF KYLIXCOMPAT}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24;
+  // __tm_gmtoff is the bias in seconds from the UTC to the current time.
+  Result := {-1 *} (UT.{$IFDEF KYLIXCOMPAT}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
 
     {$ELSEIF DEFINED(USE_BASEUNIX)}
 
   fpGetTimeOfDay (@TimeVal, @TimeZone);
+  { tz_minuteswest is the minutes west of Greenwich }
   Result := -1 * (timezone.tz_minuteswest / 60 / 24)
 
     {$ELSE}
@@ -5903,7 +6022,7 @@ begin
     end;
     Result := LSB.ToString;
     {$ELSE}
-    Result := s; {do not localize}
+    Result := s;
     if AOffset < 0.0 then begin
       Result[1] := '-'; {do not localize}
     end else begin
@@ -5953,7 +6072,7 @@ begin
       NumBytes := PatLen * SizeOf(Char);
       repeat
         Move(PChar(NewPattern)^, Result[I], NumBytes);
-        I := PosEx(OldPattern, Result, I + PatLen);
+        I := {$IFDEF HAS_System_Pos_Offset}Pos{$ELSE}PosEx{$ENDIF}(OldPattern, Result, I + PatLen);
      until I = 0;
     end;
   end else begin
@@ -5980,28 +6099,9 @@ begin
 end;
 
 function CompareDate(const D1, D2: TDateTime): Integer;
-var
-  LTM1, LTM2 : TTimeStamp;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  LTM1 := DateTimeToTimeStamp(D1);
-  LTM2 := DateTimeToTimeStamp(D2);
-  if LTM1.Date = LTM2.Date then begin
-    if LTM1.Time < LTM2.Time then begin
-      Result := -1;
-    end
-    else if LTM1.Time > LTM2.Time then begin
-      Result := 1;
-    end
-    else begin
-      Result := 0;
-    end;
-  end
-  else if LTM1.Date > LTM2.Date then begin
-    Result := 1;
-  end
-  else begin
-    Result := -1;
-  end;
+  Result := DateUtils.CompareDateTime(D1, D2);
 end;
 
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
@@ -6066,7 +6166,12 @@ end;
 function ToBytes(const AValue: string; ADestEncoding: IIdTextEncoding = nil): TIdBytes; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := ToBytes(AValue, -1, 1, ADestEncoding);
+  if AValue <> '' then begin
+    EnsureEncoding(ADestEncoding);
+    Result := ADestEncoding.GetBytes(AValue);
+  end else begin
+    SetLength(Result, 0);
+  end;
 end;
 
 function ToBytes(const AValue: string; const ALength: Integer; const AIndex: Integer = 1;
@@ -6241,12 +6346,12 @@ begin
   CopyTIdBytes(AValue, AIndex, Bytes, 0, ASize);
 end;
 
-procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
+procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer; const ADestIndex: Integer = 0);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Assert(Length(Bytes) >= ASize);
+  Assert(Length(Bytes) >= (ADestIndex+ASize));
   if ASize > 0 then begin
-    Move(AValue, Bytes[0], ASize);
+    Move(AValue, Bytes[ADestIndex], ASize);
   end;
 end;
 
@@ -6534,8 +6639,8 @@ begin
   VChar := LChars[0];
 end;
 
-procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes;
-  const ASize: Integer = -1; const AIndex: Integer = 0);
+function WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes;
+  const ASize: Integer = -1; const AIndex: Integer = 0): Integer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LSize: Integer;
@@ -6543,6 +6648,9 @@ begin
   LSize := IndyLength(ABytes, ASize, AIndex);
   if LSize > 0 then begin
     AStream.WriteBuffer(ABytes[AIndex], LSize);
+    Result := LSize;
+  end else begin
+    Result := 0;
   end;
 end;
 
@@ -6568,6 +6676,13 @@ begin
     LBytes := ToBytes(AStr, LLength, AIndex, ADestEncoding);
     AStream.WriteBuffer(PByte(LBytes)^, Length(LBytes));
   end;
+end;
+
+function SeekStream(const AStream: TStream; const AOffset: Int64;
+  const AOrigin: TSeekOrigin) : Int64;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := AStream.Seek(AOffset, AOrigin);
 end;
 
 procedure TIdBaseStream.SetSize(const NewSize: Int64);
@@ -6690,6 +6805,12 @@ begin
   SetPointer(APtr, ASize);
 end;
 
+{$IF DEFINED(FPC) OR DEFINED(DCC_XE2_OR_ABOVE)}
+  {$DEFINE USE_PBYTE_ARITHMETIC}
+{$ELSE}
+  {$UNDEF USE_PBYTE_ARITHMETIC}
+{$ENDIF}
+
 function TIdMemoryBufferStream.Write(const Buffer; Count: Longint): Longint;
 var
   LAvailable: Int64;
@@ -6702,11 +6823,20 @@ begin
     LNumToCopy := Longint(IndyMin(LAvailable, Int64(Count)));
     if LNumToCopy > 0 then
     begin
-      System.Move(Buffer, (PByte(Memory) + Position)^, LNumToCopy);
+      System.Move(Buffer,
+        ({$IFDEF USE_PBYTE_ARITHMETIC}PByte{$ELSE}PAnsiChar{$ENDIF}(Memory) + Position)^,
+        LNumToCopy
+      );
       Seek(LNumToCopy, soCurrent);
       Result := LNumToCopy;
     end;
   end;
+end;
+
+function TIdReadOnlyMemoryBufferStream.Write(const Buffer; Count: Longint): Longint;
+begin
+  // TODO: raise an exception instead?
+  Result := 0;
 end;
 
 procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0; const ALength: Integer = -1);
@@ -7086,7 +7216,7 @@ function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1;
 begin
   if (not ReadLnFromStream(AStream, Result, AMaxLineLength, AByteEncoding)) and AExceptionIfEOF then
   begin
-    raise EIdEndOfStream.CreateFmt(RSEndOfStream, ['ReadLnFromStream', AStream.Position]);
+    raise EIdEndOfStream.CreateFmt(RSEndOfStream, ['ReadLnFromStream', AStream.Position]); // do not localize
   end;
 end;
 
@@ -7229,6 +7359,10 @@ begin
 
   Result := madExcept.HideLeak(AAddress);
 
+  {$ELSEIF DEFINED(USE_LEAKCHECK)}
+
+  Result := LeakCheck.RegisterExpectedMemoryLeak(AAddress);
+
   {$ELSE}
 
   Result := False;
@@ -7347,6 +7481,36 @@ begin
     Result := AStrings.IndexOfName(AName);
   end else begin
     Result := InternalIndyIndexOfName(AStrings, AName, ACaseSensitive);
+  end;
+end;
+
+function IndyValueFromName(AStrings: TStrings; const AName: String;
+  const ACaseSensitive: Boolean = False): String;
+var
+  I: Integer;
+begin
+  if AStrings is TStringList then begin
+    Result := IndyValueFromName(TStringList(AStrings), AName, ACaseSensitive);
+  end else begin
+    I := IndyIndexOfName(AStrings, AName, ACaseSensitive);
+    if I >= 0 then begin
+      Result := IndyValueFromIndex(AStrings, I);
+    end else begin
+      Result := '';
+    end;
+  end;
+end;
+
+function IndyValueFromName(AStrings: TStringList; const AName: String;
+  const ACaseSensitive: Boolean = False): String;
+var
+  I: Integer;
+begin
+  I := IndyIndexOfName(AStrings, AName, ACaseSensitive);
+  if I >= 0 then begin
+    Result := IndyValueFromIndex(AStrings, I);
+  end else begin
+    Result := '';
   end;
 end;
 
@@ -7485,7 +7649,7 @@ end;
 initialization
   // AnsiPos does not handle strings with #0 and is also very slow compared to Pos
   if LeadBytes = [] then begin
-    IndyPos := SBPos;
+    IndyPos := InternalSBPos;
   end else begin
     IndyPos := InternalAnsiPos;
   end;

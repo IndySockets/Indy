@@ -497,15 +497,11 @@ var
 begin
   CheckMD4Permitted;
   LHash := TIdHashMessageDigest4.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     Result := LHash.HashBytes(IndyTextEncoding_UTF16LE.GetBytes(APassword));
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHash.Free;
   end;
-  {$ENDIF}
 end;
 
 {/*
@@ -619,15 +615,11 @@ begin
   CheckMD4Permitted;
   nt_pw := IndyTextEncoding_UTF16LE.GetBytes(APassword);
   LHash := TIdHashMessageDigest4.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     vntlmhash := LHash.HashBytes(nt_pw);
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHash.Free;
   end;
-  {$ENDIF}
   SetLength( nt_hpw, 21);
   FillChar( nt_hpw[ 17], 5, 0);
   CopyTIdBytes( vntlmhash, 0, nt_hpw, 0, 16);
@@ -651,15 +643,11 @@ begin
   SetLength(Result,24);
   nt_pw := IndyTextEncoding_UTF16LE.GetBytes(APassword);
   LHash := TIdHashMessageDigest4.Create;
-  {$IFNDEF USE_OBJECT_ARC
   try
-  {$ENDIF
     nt_hpw128 := LHash.HashBytes(nt_pw);//LHash.HashString( nt_pw);
-  {$IFNDEF USE_OBJECT_ARC
   finally
     LHash.Free;
   end;
-  {$ENDIF
   Move( nt_hpw128[ 0], nt_hpw[ 1], 16);
   FillChar( nt_hpw[ 17], 5, 0);
   DESL(pdes_cblock( @nt_hpw[1]), nonce, Pdes_key_schedule( @Result[ 0]));
@@ -794,28 +782,20 @@ begin
   LEncoding := nil;
 
   LHMac := TIdHMACMD5.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     LHMac.Key := NTOWFv1(APassword);
     Vntlm2hash := LHMac.HashValue(LLmUserDom);
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHMac.Free;
   end;
-  {$ENDIF}
   Blob := MakeBlob(ATimestamp,ATargetInfo,cnonce);
   LHMac := TIdHMACMD5.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     LHMac.Key := Vntlm2hash;
     Result := LHMac.HashValue(ConcateBytes(nonce,Blob));
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHMac.Free;
   end;
-  {$ENDIF}
   AppendBytes(Result,Blob);
 
 end;
@@ -845,15 +825,11 @@ var
 begin
   CheckMD4Permitted;
   LHash := TIdHashMessageDigest4.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     Result := LHash.HashBytes(AHash);
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHash.Free;
   end;
-  {$ENDIF}
 end;
 
 function UserLMv2SessionKey(const AHash : TIdBytes; const ABlob : TIdBytes; ACNonce : TIdBytes) : TIdBytes;
@@ -865,16 +841,12 @@ begin
   LBuf := ABlob;
   AppendBytes(LBuf,ACNonce);
   LHMac := TIdHMACMD5.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     LHMac.Key := AHash;
     Result := LHMac.HashValue(LHMac.HashValue(LBuf));
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHMac.Free;
   end;
-  {$ENDIF}
 end;
 
 function UserNTLMv2SessionKey(const AHash : TIdBytes; const ABlob : TIdBytes; const AServerNonce : TIdBytes) : TIdBytes;
@@ -890,16 +862,12 @@ var
   LHash: TIdHMACMD5;
 begin
   LHash := TIdHMACMD5.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     LHash.Key := ANTLMv1SessionKey;
     Result := LHash.HashValue(AServerNonce);
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHash.Free;
   end;
-  {$ENDIF}
 end;
 
 function LanManagerSessionKey(const ALMHash : TIdBytes) : TIdBytes;
@@ -935,29 +903,21 @@ begin
   LEncoding := nil;
 
   LHMac := TIdHMACMD5.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     LHMac.Key := NTOWFv1(APassword);
     VntlmHash := LHMac.HashValue(LLmUserDom);
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHMac.Free;
   end;
-  {$ENDIF}
   LChall := AServerNonce;
   IdGlobal.AppendBytes(LChall,cnonce);
   LHMac := TIdHMACMD5.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     LHMac.Key := vntlmhash;
     Result := LHMac.HashValue(LChall);
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHMac.Free;
   end;
-  {$ENDIF}
   AppendBytes(Result,cnonce);
 end;
 
@@ -978,17 +938,13 @@ begin
   LChall := nonce;
   IdGlobal.AppendBytes(LChall,cnonce);
   LHash := TIdHashMessageDigest5.Create;
-  {$IFNDEF USE_OBJECT_ARC}
   try
-  {$ENDIF}
     Vntlmseshash := LHash.HashBytes(LChall);
     //we do this copy because we may need the value later.
     lntlmseshash := Vntlmseshash;
-  {$IFNDEF USE_OBJECT_ARC}
   finally
     LHash.Free;
   end;
-  {$ENDIF}
   SetLength(lntlmseshash,8);
   SetLength(LPassHash,21);
   FillBytes( LPassHash,21, 0);

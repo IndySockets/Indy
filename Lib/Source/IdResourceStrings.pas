@@ -41,8 +41,8 @@ resourcestring
 
   RSInvalidCodePage = 'Invalid codepage (%d)';
   RSInvalidCharSet = 'Invalid character set (%s)';
-  RSInvalidCharSetConv = 'Invalid character set conversion (%s <-> %s)';
-  RSInvalidCharSetConvWithFlags = 'Invalid character set conversion (%s <-> %s, %s)';
+  RSInvalidCharSetConv = 'Invalid character set conversion (%0:s <-> %1:s)';
+  RSInvalidCharSetConvWithFlags = 'Invalid character set conversion (%0:s <-> %1:s, %2:s)';
 
   RSUnsupportedCodePage = 'Unsupported codepage (%d)';
   RSUnsupportedCharSet = 'Unsupported character set (%s)';
@@ -61,7 +61,7 @@ resourcestring
   RSStatusDisconnected = 'Disconnected.';
   RSStatusText = '%s';
   // Stack
-  RSStackError = 'Socket Error # %d' + #13#10 + '%s';
+  RSStackError = 'Socket Error # %0:d' + #13#10 + '%1:s';
   RSStackEINTR = 'Interrupted system call.';
   RSStackEBADF = 'Bad file number.';
   RSStackEACCES = 'Access denied.';
@@ -106,11 +106,11 @@ resourcestring
   // Other
   RSAntiFreezeOnlyOne = 'Only one TIdAntiFreeze can exist per application.';
   RSCannotSetIPVersionWhenConnected = 'Cannot change IPVersion when connected';
-  RSCannotBindRange = 'Can not bind in port range (%d - %d)';
+  RSCannotBindRange = 'Can not bind in port range (%0:d - %1:d)';
   RSConnectionClosedGracefully = 'Connection Closed Gracefully.';
   RSCorruptServicesFile = '%s is corrupt.';
   RSCouldNotBindSocket = 'Could not bind socket. Address and port are already in use.';
-  RSInvalidPortRange = 'Invalid Port Range (%d - %d)';
+  RSInvalidPortRange = 'Invalid Port Range (%0:d - %1:d)';
   RSInvalidServiceName = '%s is not a valid service.';
   RSIPv6Unavailable = 'IPv6 unavailable';
   RSInvalidIPv6Address = '%s is not a valid IPv6 address';
@@ -120,7 +120,7 @@ resourcestring
   RSSetSizeExceeded = 'Set Size Exceeded.';
   RSNoEncodingSpecified = 'No encoding specified.';
   {CH RSStreamNotEnoughBytes = 'Not enough bytes read from stream.'; }
-  RSEndOfStream = 'End of stream: Class %s at %d';
+  RSEndOfStream = 'End of stream: %0:s at %1:d';
 
   //DNS Resolution error messages
   RSMaliciousPtrRecord = 'Malicious PTR Record';

@@ -247,7 +247,7 @@ begin
   end;
 
   // no local ports could be bound successfully
-  raise EIdCanNotBindPortInRange.CreateFmt(RSCannotBindRange, [BoundPortMin, BoundPortMax]);
+  raise EIdCanNotBindPortInRange.CreateFmt(RSLPRCannotBindRange, [BoundPortMin, BoundPortMax]);
 end;
 
 procedure TIdLPR.Print(const AText: String);
@@ -266,12 +266,10 @@ end;
 
 procedure TIdLPR.Print(const ABuffer: TIdBytes);
 var
-  LStream: TMemoryStream;
+  LStream: TStream;
 begin
-  LStream := TMemoryStream.Create;
+  LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(ABuffer), Length(ABuffer));
   try
-    WriteTIdBytesToStream(LStream, ABuffer);
-    LStream.Position := 0;
     InternalPrint(LStream);
   finally
     LStream.Free;

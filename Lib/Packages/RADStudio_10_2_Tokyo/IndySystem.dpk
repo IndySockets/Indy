@@ -32,11 +32,9 @@ package IndySystem;
 
 // RLebeau: cannot use IdCompilerDefines.inc here!
 
-{$IFNDEF WINDOWS}
-  {$IFDEF MSWINDOWS}
-    {$DEFINE WINDOWS}
-  {$ENDIF}
-{$ENDIF}
+{$IF (NOT DEFINED(WINDOWS)) AND DEFINED(MSWINDOWS)}
+  {$DEFINE WINDOWS}
+{$IFEND}
 
 requires
   rtl

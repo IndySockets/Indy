@@ -62,7 +62,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFNDEF USE_OBJECT_ARC}
+  {$IFDEF USE_OBJECT_REF_FREENOTIF}
   Classes,
   {$ENDIF}
   IdBaseComponent, IdGlobal, IdResourceStrings,
@@ -113,14 +113,17 @@ type
     FOnWorkBegin: TWorkBeginEvent;
     FOnWorkEnd: TWorkEndEvent;
     FWorkInfos: array[TWorkMode] of TWorkInfo;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FWorkTarget: TIdComponent;
+    //
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FWorkTarget: TIdComponent;
     //
     procedure DoStatus(AStatus: TIdStatus); overload;
     procedure DoStatus(AStatus: TIdStatus; const AArgs: array of const); overload;
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    {$ENDIF}
     procedure SetWorkTarget(AValue: TIdComponent);
+    {$ENDIF}
     //
     property OnWork: TWorkEvent read FOnWork write FOnWork;
     property OnWorkBegin: TWorkBeginEvent read FOnWorkBegin write FOnWorkBegin;
@@ -132,7 +135,7 @@ type
     procedure DoWork(AWorkMode: TWorkMode; const ACount: Int64); virtual;
     procedure EndWork(AWorkMode: TWorkMode); virtual;
     //
-    property WorkTarget: TIdComponent read FWorkTarget write SetWorkTarget;
+    property WorkTarget: TIdComponent read FWorkTarget write {$IFDEF USE_OBJECT_REF_FREENOTIF}SetWorkTarget{$ELSE}FWorkTarget{$ENDIF};
   published
     property OnStatus: TIdStatusEvent read FOnStatus write FOnStatus;
   end;
@@ -175,7 +178,7 @@ end;
 
 procedure TIdComponent.BeginWork(AWorkMode: TWorkMode; const ASize: Int64 = 0);
 var
-  // under ARC, convert a weak reference to a strong reference before working with it
+  // under ARC, convert a weak/unsafe reference to a strong reference before working with it
   LWorkTarget: TIdComponent;
 begin
   LWorkTarget := FWorkTarget;
@@ -195,7 +198,7 @@ end;
 
 procedure TIdComponent.DoWork(AWorkMode: TWorkMode; const ACount: Int64);
 var
-  // under ARC, convert a weak reference to a strong reference before working with it
+  // under ARC, convert a weak/unsafe reference to a strong reference before working with it
   LWorkTarget: TIdComponent;
 begin
   LWorkTarget := FWorkTarget;
@@ -230,7 +233,7 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-{$IFNDEF USE_OBJECT_ARC}
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdComponent.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FWorkTarget) then begin
@@ -238,14 +241,9 @@ begin
   end;
   inherited Notification(AComponent, Operation);
 end;
-{$ENDIF}
 
 procedure TIdComponent.SetWorkTarget(AValue: TIdComponent);
 begin
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, all weak references to a freed object get nil'ed automatically
-  FWorkTarget := AValue;
-  {$ELSE}
   if FWorkTarget <> AValue then begin
     if Assigned(FWorkTarget) then begin
       FWorkTarget.RemoveFreeNotification(Self);
@@ -255,7 +253,7 @@ begin
       AValue.FreeNotification(Self);
     end;
   end;
-  {$ENDIF}
 end;
+{$ENDIF}
 
 end.

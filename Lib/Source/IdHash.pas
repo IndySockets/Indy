@@ -164,11 +164,8 @@ function TIdHash.HashBytes(const ASrc: TIdBytes): TIdBytes;
 var
   LStream: TStream;
 begin
-  // TODO: use TBytesStream on versions that support it
-  LStream := TMemoryStream.Create;
+  LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(ASrc), Length(ASrc));
   try
-    WriteTIdBytesToStream(LStream, ASrc);
-    LStream.Position := 0;
     Result := HashStream(LStream);
   finally
     LStream.Free;
@@ -419,7 +416,7 @@ end;
 
 procedure TIdHashIntf.UpdateHash(ACtx: TIdHashIntCtx; const AIn: TIdBytes);
 begin
-  UpdateHashInst(ACtx,AIn);
+  IdFIPS.UpdateHashInst(ACtx,AIn);
 end;
 
 { TIdHashNativeAndIntF }

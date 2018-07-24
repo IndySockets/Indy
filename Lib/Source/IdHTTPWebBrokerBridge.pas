@@ -69,8 +69,10 @@ type
   EWBBInvalidIdxSetStringVar = class(EWBBException);
   EWBBInvalidStringVar = class(EWBBException);
 
-  {$IFNDEF DCC_BERLIN_OR_ABOVE}
+  {$IFNDEF DCC_10_1_OR_ABOVE}
     {$DEFINE WBB_ANSI}
+  {$ELSE}
+    {$UNDEF WBB_ANSI}
   {$ENDIF}
 
   TIdHTTPAppRequest = class(TWebRequest)
@@ -88,7 +90,7 @@ type
     function GetRemoteIP: string; override;
     function GetRawPathInfo: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {$ENDIF}
-    {$IFDEF DCC_BERLIN_OR_ABOVE}
+    {$IFDEF DCC_10_1_OR_ABOVE}
     function GetRawContent: TBytes; override;
     {$ENDIF}
   public
@@ -295,7 +297,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF DCC_BERLIN_OR_ABOVE}
+{$IFDEF DCC_10_1_OR_ABOVE}
 function TIdHTTPAppRequest.GetRawContent: TBytes;
 var
   LPos: Int64;
@@ -503,11 +505,14 @@ end;
 
 function TIdHTTPAppRequest.WriteClient(var ABuffer; ACount: Integer): Integer;
 var
-  LBuffer: TIdBytes;
+  LStream: TStream;
 begin
-  SetLength(LBuffer, ACount);
-  Move(ABuffer, PByte(LBuffer)^, ACount);
-  FThread.Connection.IOHandler.Write(LBuffer);
+  LStream := TIdReadOnlyMemoryBufferStream.Create(@ABuffer, ACount);
+  try
+    FThread.Connection.IOHandler.Write(LStream, 0, False);
+  finally
+    LStream.Free;
+  end;
   Result := ACount;
 end;
 
@@ -541,13 +546,19 @@ begin
   // ContentType := 'text/html'; {do not localize}
 end;
 
-function TIdHTTPAppResponse.GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
 {$IFDEF WBB_ANSI}
+  {$DEFINE CONVERT_UNICODE_TO_ANSI}
+{$ELSE}
+  {$UNDEF CONVERT_UNICODE_TO_ANSI}
+{$ENDIF}
+
+function TIdHTTPAppResponse.GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
+{$IFDEF CONVERT_UNICODE_TO_ANSI}
 var
   LBytes: TIdBytes;
 {$ENDIF}
 begin
-  {$IFDEF WBB_ANSI}
+  {$IFDEF CONVERT_UNICODE_TO_ANSI}
   // RLebeau 2/21/2009: encode the content using the specified charset.
   Result := '';
   LBytes := CharsetToEncoding(FResponseInfo.CharSet).GetBytes(FResponseInfo.ContentText);
@@ -706,7 +717,7 @@ begin
   // Reset to -1 so Indy will auto set it
   FResponseInfo.ContentLength := -1;
   MoveCookiesAndCustomHeaders;
-  {$IFDEF DCC_BERLIN_OR_ABOVE}
+  {$IFDEF DCC_10_1_OR_ABOVE}
   // TODO: This code may not be in the correct location.
   if (FResponseInfo.ContentType = '') and
     ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) and
@@ -729,13 +740,19 @@ begin
   Result := FSent;
 end;
 
-procedure TIdHTTPAppResponse.SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF});
 {$IFDEF WBB_ANSI}
+  {$DEFINE CONVERT_ANSI_TO_UNICODE}
+{$ELSE}
+  {$UNDEF CONVERT_ANSI_TO_UNICODE}
+{$ENDIF}
+
+procedure TIdHTTPAppResponse.SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF});
+{$IFDEF CONVERT_ANSI_TO_UNICODE}
 var
   LValue : string;
 {$ENDIF}
 begin
-  {$IFDEF WBB_ANSI}
+  {$IFDEF CONVERT_ANSI_TO_UNICODE}
 
   // AValue contains Encoded bytes
   if AValue <> '' then begin

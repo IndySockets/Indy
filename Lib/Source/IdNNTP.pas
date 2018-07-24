@@ -653,7 +653,14 @@ begin
   if Length(NewsAgent) > 0 then begin
     AMsg.ExtraHeaders.Values['X-Newsreader'] := NewsAgent;  {do not localize}
   end;
-  SendMsg(AMsg);
+  try
+    SendMsg(AMsg);
+  except
+    // the state of the communication is indeterminate at this point, so the
+    // only sane thing to do is just close the socket...
+    Disconnect(False);
+    raise;
+  end;
   SendCmd('.', 240);
 end;
 

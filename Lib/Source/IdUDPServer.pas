@@ -96,19 +96,15 @@ type
     FBuffer: TIdBytes;
     FCurrentException: String;
     FCurrentExceptionClass: TClass;
-    {$IFDEF USE_OBJECT_ARC}
-    // When AutoRefCounting is enabled, object references MUST be valid objects.
-    // It is common for users to store non-object values, though, so we will
-    // provide separate properties for those purpose
-    //
-    // TODO; use TValue instead of separating them
-    //
+    // When ARC is enabled, object references MUST be valid objects.
+    // It is common for users to store non-object values, though, so
+    // we will provide separate properties for those purpose
     FDataObject: TObject;
     FDataValue: PtrInt;
-    {$ELSE}
-    FData: TObject;
-    {$ENDIF}
-    FServer: TIdUDPServer;
+    //
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FServer: TIdUDPServer;
     //
     procedure AfterRun; override;
     procedure Run; override;
@@ -124,11 +120,10 @@ type
     property AcceptWait: integer read FAcceptWait write FAcceptWait;
     property Binding: TIdSocketHandle read FBinding;
     property Server: TIdUDPServer read FServer;
-    {$IFDEF USE_OBJECT_ARC}
     property DataObject: TObject read FDataObject write FDataObject;
     property DataValue: PtrInt read FDataValue write FDataValue;
-    {$ELSE}
-    property Data: TObject read FData write FData;
+    {$IFNDEF USE_OBJECT_ARC}
+    property Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValue property.';
     {$ENDIF}
   end;
 
@@ -194,7 +189,7 @@ type
 implementation
 
 uses
-  {$IF DEFINED(DCC_2010_OR_ABOVE) AND DEFINED(WINDOWS)}
+  {$IF DEFINED(WINDOWS) AND DEFINED(DCC_2010_OR_ABOVE)}
   Windows,
   {$IFEND}
   IdGlobalCore, SysUtils;

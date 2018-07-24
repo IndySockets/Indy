@@ -358,13 +358,13 @@ const
 type
   {$EXTERNALSYM hostent}
   hostent = record
-    h_name: PAnsiChar;             // official name of host
-    h_aliases: ^PAnsiChar;         // alias list
+    h_name: PIdAnsiChar;             // official name of host
+    h_aliases: PPIdAnsiChar;         // alias list
     h_addrtype: short;             // host address type
     h_length: short;               // length of address
     case Byte of
-      0: (h_address_list: ^PAnsiChar);
-      1: (h_addr: PAnsiChar);     // address, for backward compat
+      0: (h_address_list: PPIdAnsiChar);
+      1: (h_addr: PIdAnsiChar);   // address, for backward compat
   end;
   {$NODEFINE THostEnt}
   THostEnt = hostent;
@@ -375,8 +375,8 @@ type
 //  fits in 32 bits.
   {$EXTERNALSYM netent}
   netent = record
-    n_name: PAnsiChar;             // official name of net
-    n_aliases: ^PAnsiChar;         // alias list
+    n_name: PIdAnsiChar;           // official name of net
+    n_aliases: PPIdAnsiChar;       // alias list
     n_addrtype: short;             // net address type
     n_net: u_long;                 // network #
   end;
@@ -387,14 +387,14 @@ type
 
   {$EXTERNALSYM servent}
   servent = record
-    s_name: PAnsiChar;             // official service name
-    s_aliases: ^PAnsiChar;         // alias list
+    s_name: PIdAnsiChar;           // official service name
+    s_aliases: PPIdAnsiChar;       // alias list
     {$IFDEF _WIN64}
-    s_proto: PAnsiChar;            // protocol to use
+    s_proto: PIdAnsiChar;          // protocol to use
     s_port: short;                 // port #
     {$ELSE}
     s_port: short;                 // port #
-    s_proto: PAnsiChar;            // protocol to use
+    s_proto: PIdAnsiChar;          // protocol to use
     {$ENDIF}
   end;
   {$NODEFINE TServEnt}
@@ -404,8 +404,8 @@ type
 
   {$EXTERNALSYM protoent}
   protoent = record
-    p_name: PAnsiChar;             // official protocol name
-    p_aliases: ^PAnsiChar;         // alias list
+    p_name: PIdAnsiChar;           // official protocol name
+    p_aliases: PPIdAnsiChar;       // alias list
     p_proto: short;                // protocol #
   end;
   {$NODEFINE TProtoEnt}
@@ -880,9 +880,9 @@ type
       0: (sin_family : u_short;
           sin_port   : u_short;
           sin_addr   : TInAddr;
-          sin_zero   : array[0..7] of AnsiChar);
+          sin_zero   : array[0..7] of TIdAnsiChar);
       1: (sa_family  : u_short;
-          sa_data    : array[0..13] of AnsiChar)
+          sa_data    : array[0..13] of TIdAnsiChar)
   end;
   {$NODEFINE TSockAddrIn}
   TSockAddrIn = sockaddr_in;
@@ -901,16 +901,16 @@ type
 
   {$EXTERNALSYM SOCKADDR_STORAGE}
   SOCKADDR_STORAGE = record
-    ss_family: short;                                // Address family.
-    __ss_pad1: array[0.._SS_PAD1SIZE-1] of AnsiChar; // 6 byte pad, this is to make
-                                                     // implementation specific pad up to
-                                                     // alignment field that follows explicit
-                                                     // in the data structure.
-    __ss_align: Int64;                               // Field to force desired structure.
-    __ss_pad2: array[0.._SS_PAD2SIZE-1] of AnsiChar; // 112 byte pad to achieve desired size;
-                                                     // _SS_MAXSIZE value minus size of
-                                                     // ss_family, __ss_pad1, and
-                                                     // __ss_align fields is 112.
+    ss_family: short;                                   // Address family.
+    __ss_pad1: array[0.._SS_PAD1SIZE-1] of TIdAnsiChar; // 6 byte pad, this is to make
+                                                        // implementation specific pad up to
+                                                        // alignment field that follows explicit
+                                                        // in the data structure.
+    __ss_align: Int64;                                  // Field to force desired structure.
+    __ss_pad2: array[0.._SS_PAD2SIZE-1] of TIdAnsiChar; // 112 byte pad to achieve desired size;
+                                                        // _SS_MAXSIZE value minus size of
+                                                        // ss_family, __ss_pad1, and
+                                                        // __ss_align fields is 112.
   end;
   {$NODEFINE TSockAddrStorage}
   TSockAddrStorage = SOCKADDR_STORAGE;
@@ -1386,15 +1386,15 @@ type
     {$IFDEF _WIN64}
     iMaxSockets    : Word;
     iMaxUdpDg      : Word;
-    lpVendorInfo   : PAnsiChar;
-    szDescription  : array[0..WSADESCRIPTION_LEN] of AnsiChar;
-    szSystemStatus : array[0..WSASYS_STATUS_LEN] of AnsiChar;
+    lpVendorInfo   : PIdAnsiChar;
+    szDescription  : array[0..WSADESCRIPTION_LEN] of TIdAnsiChar;
+    szSystemStatus : array[0..WSASYS_STATUS_LEN] of TIdAnsiChar;
     {$ELSE}
-    szDescription  : array[0..WSADESCRIPTION_LEN] of AnsiChar;
-    szSystemStatus : array[0..WSASYS_STATUS_LEN] of AnsiChar;
+    szDescription  : array[0..WSADESCRIPTION_LEN] of TIdAnsiChar;
+    szSystemStatus : array[0..WSASYS_STATUS_LEN] of TIdAnsiChar;
     iMaxSockets    : Word;
     iMaxUdpDg      : Word;
-    lpVendorInfo   : PAnsiChar;
+    lpVendorInfo   : PIdAnsiChar;
     {$ENDIF}
   end;
   {$NODEFINE TWSAData}
@@ -1426,8 +1426,8 @@ type
 
   {$EXTERNALSYM WSABUF}
   WSABUF = record
-    len: u_long;    { the length of the buffer }
-    buf: PAnsiChar; { the pointer to the buffer }
+    len: u_long;      { the length of the buffer }
+    buf: PIdAnsiChar; { the pointer to the buffer }
   end;
   {$NODEFINE TWSABuf}
   TWSABuf = WSABUF;
@@ -1594,6 +1594,10 @@ type
 
 {$IFNDEF HAS_LPGUID}
 type
+  {$IFNDEF HAS_PGUID}
+  {$NODEFINE PGUID}
+  PGUID = ^TGUID;
+  {$ENDIF}
   {$EXTERNALSYM LPGUID}
   LPGUID = PGUID;
 {$ENDIF}
@@ -1646,7 +1650,7 @@ type
     iSecurityScheme: Integer;
     dwMessageSize: DWORD;
     dwProviderReserved: DWORD;
-    szProtocol: Array[0..WSAPROTOCOL_LEN+1-1] of AnsiChar;
+    szProtocol: Array[0..WSAPROTOCOL_LEN+1-1] of TIdAnsiChar;
   end;
   {$NODEFINE TWSAProtocol_InfoA}
   TWSAProtocol_InfoA = WSAPROTOCOL_INFOA;
@@ -2009,15 +2013,15 @@ const
 
 { Well known value names for Service Types }
   {$EXTERNALSYM SERVICE_TYPE_VALUE_IPXPORTA}
-  SERVICE_TYPE_VALUE_IPXPORTA  : PAnsiChar = 'IpxSocket';    {Do not Localize}
+  SERVICE_TYPE_VALUE_IPXPORTA  : PIdAnsiChar = 'IpxSocket';    {Do not Localize}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_SAPIDA}
-  SERVICE_TYPE_VALUE_SAPIDA    : PAnsiChar = 'SapId';    {Do not Localize}
+  SERVICE_TYPE_VALUE_SAPIDA    : PIdAnsiChar = 'SapId';    {Do not Localize}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_TCPPORTA}
-  SERVICE_TYPE_VALUE_TCPPORTA  : PAnsiChar = 'TcpPort';    {Do not Localize}
+  SERVICE_TYPE_VALUE_TCPPORTA  : PIdAnsiChar = 'TcpPort';    {Do not Localize}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_UDPPORTA}
-  SERVICE_TYPE_VALUE_UDPPORTA  : PAnsiChar = 'UdpPort';    {Do not Localize}
+  SERVICE_TYPE_VALUE_UDPPORTA  : PIdAnsiChar = 'UdpPort';    {Do not Localize}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_OBJECTIDA}
-  SERVICE_TYPE_VALUE_OBJECTIDA : PAnsiChar = 'ObjectId';    {Do not Localize}
+  SERVICE_TYPE_VALUE_OBJECTIDA : PIdAnsiChar = 'ObjectId';    {Do not Localize}
 
   {$EXTERNALSYM SERVICE_TYPE_VALUE_IPXPORTW}
   SERVICE_TYPE_VALUE_IPXPORTW : PWideChar  = 'IpxSocket';    {Do not Localize}
@@ -2040,10 +2044,10 @@ const
   SERVICE_TYPE_VALUE_UDPPORT : PWideChar = 'UdpPort';     {Do not Localize}
   SERVICE_TYPE_VALUE_OBJECTID : PWideChar = 'ObjectId';   {Do not Localize}
   {$ELSE}
-  SERVICE_TYPE_VALUE_SAPID : PAnsiChar =  'SapId';        {Do not Localize}
-  SERVICE_TYPE_VALUE_TCPPORT : PAnsiChar = 'TcpPort';     {Do not Localize}
-  SERVICE_TYPE_VALUE_UDPPORT : PAnsiChar = 'UdpPort';     {Do not Localize}
-  SERVICE_TYPE_VALUE_OBJECTID : PAnsiChar = 'ObjectId';   {Do not Localize}
+  SERVICE_TYPE_VALUE_SAPID : PIdAnsiChar =  'SapId';        {Do not Localize}
+  SERVICE_TYPE_VALUE_TCPPORT : PIdAnsiChar = 'TcpPort';     {Do not Localize}
+  SERVICE_TYPE_VALUE_UDPPORT : PIdAnsiChar = 'UdpPort';     {Do not Localize}
+  SERVICE_TYPE_VALUE_OBJECTID : PIdAnsiChar = 'ObjectId';   {Do not Localize}
   {$ENDIF}
 
 // SockAddr Information
@@ -2123,16 +2127,16 @@ type
   {$EXTERNALSYM WSAQUERYSETA}
   WSAQUERYSETA = record
     dwSize                  : DWORD;
-    lpszServiceInstanceName : PAnsiChar;
+    lpszServiceInstanceName : PIdAnsiChar;
     lpServiceClassId        : PGUID;
     lpVersion               : LPWSAVERSION;
-    lpszComment             : PAnsiChar;
+    lpszComment             : PIdAnsiChar;
     dwNameSpace             : DWORD;
     lpNSProviderId          : PGUID;
-    lpszContext             : PAnsiChar;
+    lpszContext             : PIdAnsiChar;
     dwNumberOfProtocols     : DWORD;
     lpafpProtocols          : LPAFPROTOCOLS;
-    lpszQueryString         : PAnsiChar;
+    lpszQueryString         : PIdAnsiChar;
     dwNumberOfCsAddrs       : DWORD;
     lpcsaBuffer             : LPCSADDR_INFO;
     dwOutputFlags           : DWORD;
@@ -2281,7 +2285,7 @@ type
 { Service Installation/Removal Data Types. }
   {$EXTERNALSYM WSANSCLASSINFOA}
   WSANSCLASSINFOA = record
-    lpszName    : PAnsiChar;
+    lpszName    : PIdAnsiChar;
     dwNameSpace : DWORD;
     dwValueType : DWORD;
     dwValueSize : DWORD;
@@ -2328,7 +2332,7 @@ type
   {$EXTERNALSYM WSASERVICECLASSINFOA}
   WSASERVICECLASSINFOA = record
     lpServiceClassId     : PGUID;
-    lpszServiceClassName : PAnsiChar;
+    lpszServiceClassName : PIdAnsiChar;
     dwCount              : DWORD;
     lpClassInfos         : LPWSANSCLASSINFOA;
   end;
@@ -2375,7 +2379,7 @@ type
     dwNameSpace    : DWORD;
     fActive        : DWORD{Bool};
     dwVersion      : DWORD;
-    lpszIdentifier : PAnsiChar;
+    lpszIdentifier : PIdAnsiChar;
   end;
   {$NODEFINE TWSANameSpace_InfoA}
   TWSANameSpace_InfoA = WSANAMESPACE_INFOA;
@@ -2697,15 +2701,15 @@ type
   {$EXTERNALSYM LPFN_GETSOCKNAME}
   LPFN_GETSOCKNAME = function(const s: TSocket; const name: PSOCKADDR; var namelen: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETSOCKOPT}
-  LPFN_GETSOCKOPT = function(const s: TSocket; const level, optname: Integer; optval: PAnsiChar; var optlen: Integer): Integer; stdcall;
+  LPFN_GETSOCKOPT = function(const s: TSocket; const level, optname: Integer; optval: PIdAnsiChar; var optlen: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_HTONL}
   LPFN_HTONL = function(hostlong: u_long): u_long; stdcall;
   {$EXTERNALSYM LPFN_HTONS}
   LPFN_HTONS = function(hostshort: u_short): u_short; stdcall;
   {$EXTERNALSYM LPFN_INET_ADDR}
-  LPFN_INET_ADDR = function(cp: PAnsiChar): u_long; stdcall;
+  LPFN_INET_ADDR = function(cp: PIdAnsiChar): u_long; stdcall;
   {$EXTERNALSYM LPFN_INET_NTOA}
-  LPFN_INET_NTOA = function(inaddr: TInAddr): PAnsiChar; stdcall;
+  LPFN_INET_NTOA = function(inaddr: TInAddr): PIdAnsiChar; stdcall;
   {$EXTERNALSYM LPFN_LISTEN}
   LPFN_LISTEN = function(const s: TSocket; backlog: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_NTOHL}
@@ -2723,7 +2727,7 @@ type
   {$EXTERNALSYM LPFN_SENDTO}
   LPFN_SENDTO = function(const s: TSocket; const Buf; const len, flags: Integer; const addrto: PSOCKADDR; const tolen: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_SETSOCKOPT}
-  LPFN_SETSOCKOPT = function(const s: TSocket; const level, optname: Integer; optval: PAnsiChar; const optlen: Integer): Integer; stdcall;
+  LPFN_SETSOCKOPT = function(const s: TSocket; const level, optname: Integer; optval: PIdAnsiChar; const optlen: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_SHUTDOWN}
   LPFN_SHUTDOWN = function(const s: TSocket; const how: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_SOCKET}
@@ -2731,22 +2735,22 @@ type
   {$EXTERNALSYM LPFN_GETHOSTBYADDR}
   LPFN_GETHOSTBYADDR = function(AAddr: Pointer; const len, addrtype: Integer): PHostEnt; stdcall;
   {$EXTERNALSYM LPFN_GETHOSTBYNAME}
-  LPFN_GETHOSTBYNAME = function(name: PAnsiChar): PHostEnt; stdcall;
+  LPFN_GETHOSTBYNAME = function(name: PIdAnsiChar): PHostEnt; stdcall;
   {$EXTERNALSYM LPFN_GETHOSTNAME}
-  LPFN_GETHOSTNAME = function(name: PAnsiChar; len: Integer): Integer; stdcall;
+  LPFN_GETHOSTNAME = function(name: PIdAnsiChar; len: Integer): Integer; stdcall;
 {$IFDEF WINCE}
   // WinCE specific for setting the host name
   {$EXTERNALSYM LPFN_SETHOSTNAME} 
-  LPFN_SETHOSTNAME = function(pName : PAnsiChar; len : Integer) : Integer; stdcall;
+  LPFN_SETHOSTNAME = function(pName : PIdAnsiChar; len : Integer) : Integer; stdcall;
 {$ENDIF}
   {$EXTERNALSYM LPFN_GETSERVBYPORT}
-  LPFN_GETSERVBYPORT = function(const port: Integer; const proto: PAnsiChar): PServEnt; stdcall;
+  LPFN_GETSERVBYPORT = function(const port: Integer; const proto: PIdAnsiChar): PServEnt; stdcall;
   {$EXTERNALSYM LPFN_GETSERVBYNAME}
-  LPFN_GETSERVBYNAME = function(const name, proto: PAnsiChar): PServEnt; stdcall;
+  LPFN_GETSERVBYNAME = function(const name, proto: PIdAnsiChar): PServEnt; stdcall;
   {$EXTERNALSYM LPFN_GETPROTOBYNUMBER}
   LPFN_GETPROTOBYNUMBER = function(const proto: Integer): PProtoEnt; stdcall;
   {$EXTERNALSYM LPFN_GETPROTOBYNAME}
-  LPFN_GETPROTOBYNAME = function(const name: PAnsiChar): PProtoEnt; stdcall;
+  LPFN_GETPROTOBYNAME = function(const name: PIdAnsiChar): PProtoEnt; stdcall;
   {$EXTERNALSYM LPFN_WSASETLASTERROR}
   LPFN_WSASETLASTERROR = procedure(const iError: Integer); stdcall;
   {$EXTERNALSYM LPFN_WSAGETLASTERROR}
@@ -2763,17 +2767,17 @@ type
   {$EXTERNALSYM LPFN_WSACANCELBLOCKINGCALL}
   LPFN_WSACANCELBLOCKINGCALL = function: Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETSERVBYNAME}
-  LPFN_WSAASYNCGETSERVBYNAME = function(HWindow: HWND; wMsg: u_int; name, proto, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+  LPFN_WSAASYNCGETSERVBYNAME = function(HWindow: HWND; wMsg: u_int; name, proto, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETSERVBYPORT}
-  LPFN_WSAASYNCGETSERVBYPORT = function(HWindow: HWND; wMsg, port: u_int; proto, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+  LPFN_WSAASYNCGETSERVBYPORT = function(HWindow: HWND; wMsg, port: u_int; proto, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETPROTOBYNAME}
-  LPFN_WSAASYNCGETPROTOBYNAME = function(HWindow: HWND; wMsg: u_int; name, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+  LPFN_WSAASYNCGETPROTOBYNAME = function(HWindow: HWND; wMsg: u_int; name, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETPROTOBYNUMBER}
-  LPFN_WSAASYNCGETPROTOBYNUMBER = function(HWindow: HWND; wMsg: u_int; number: Integer; buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+  LPFN_WSAASYNCGETPROTOBYNUMBER = function(HWindow: HWND; wMsg: u_int; number: Integer; buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETHOSTBYNAME}
-  LPFN_WSAASYNCGETHOSTBYNAME = function(HWindow: HWND; wMsg: u_int; name, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+  LPFN_WSAASYNCGETHOSTBYNAME = function(HWindow: HWND; wMsg: u_int; name, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETHOSTBYADDR}
-  LPFN_WSAASYNCGETHOSTBYADDR = function(HWindow: HWND; wMsg: u_int; AAddr: PAnsiChar; len, istruct: Integer; buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+  LPFN_WSAASYNCGETHOSTBYADDR = function(HWindow: HWND; wMsg: u_int; AAddr: PIdAnsiChar; len, istruct: Integer; buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCSELECT}
   LPFN_WSAASYNCSELECT = function(const s: TSocket; HWindow: HWND; wMsg: u_int; lEvent: Longint): Integer; stdcall;
 {$ENDIF}
@@ -2812,7 +2816,7 @@ type
     timeout : Ptimeval; Reserved : LPWSAOVERLAPPED):LongBool; stdcall;
   {$EXTERNALSYM LPFN_WSACONNECTBYNAMEA}
   LPFN_WSACONNECTBYNAMEA = function(const s : TSOCKET;
-    nodename : PAnsiChar; servicename : PAnsiChar;
+    nodename : PIdAnsiChar; servicename : PIdAnsiChar;
     var LocalAddressLength : DWORD; LocalAddress : LPSOCKADDR;
     var RemoteAddressLength : DWORD; RemoteAddress : LPSOCKADDR;
     timeout : Ptimeval;  Reserved : LPWSAOVERLAPPED) : Integer; stdcall;
@@ -2918,7 +2922,7 @@ type
 
   {$EXTERNALSYM LPFN_WSAADDRESSTOSTRINGA}
   LPFN_WSAADDRESSTOSTRINGA = function(lpsaAddress : PSOCKADDR; const dwAddressLength : DWORD; const lpProtocolInfo : LPWSAPROTOCOL_INFOA;
-      const lpszAddressString : PAnsiChar; var lpdwAddressStringLength : DWORD): Integer; stdcall;
+      const lpszAddressString : PIdAnsiChar; var lpdwAddressStringLength : DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAADDRESSTOSTRINGW}
   LPFN_WSAADDRESSTOSTRINGW = function(lpsaAddress : PSOCKADDR; const dwAddressLength : DWORD; const lpProtocolInfo : LPWSAPROTOCOL_INFOW;
       const lpszAddressString : PWideChar; var lpdwAddressStringLength : DWORD): Integer; stdcall;
@@ -2930,7 +2934,7 @@ type
   {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSASTRINGTOADDRESSA}
-  LPFN_WSASTRINGTOADDRESSA = function(const AddressString : PAnsiChar; const AddressFamily: Integer; const lpProtocolInfo : LPWSAPROTOCOL_INFOA;
+  LPFN_WSASTRINGTOADDRESSA = function(const AddressString : PIdAnsiChar; const AddressFamily: Integer; const lpProtocolInfo : LPWSAPROTOCOL_INFOA;
       var lpAddress : TSockAddr; var lpAddressLength : Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSASTRINGTOADDRESSW}
   LPFN_WSASTRINGTOADDRESSW = function(const AddressString : PWideChar; const AddressFamily: Integer; const lpProtocolInfo : LPWSAPROTOCOL_INFOW;
@@ -3013,7 +3017,7 @@ type
     {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA}
-  LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA = function(const lpServiceClassId: LPGUID; lpszServiceClassName: PAnsiChar; var lpdwBufferLength: DWORD): Integer; stdcall;
+  LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA = function(const lpServiceClassId: LPGUID; lpszServiceClassName: PIdAnsiChar; var lpdwBufferLength: DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW}
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW = function(const lpServiceClassId: LPGUID; lpszServiceClassName: PWideChar; var lpdwBufferLength: DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSID}
@@ -3106,7 +3110,7 @@ type
   {$EXTERNALSYM LPFN_RIONOTIFY}
   LPFN_RIONOTIFY = function (CQ : RIO_CQ) : Integer stdcall;
   {$EXTERNALSYM LPFN_RIOREGISTERBUFFER}
-  LPFN_RIOREGISTERBUFFER = function (DataBuffer : PAnsiChar;  const DataLength : DWORD) : BOOL stdcall;
+  LPFN_RIOREGISTERBUFFER = function (DataBuffer : PIdAnsiChar;  const DataLength : DWORD) : BOOL stdcall;
   {$EXTERNALSYM LPFN_RIORESIZECOMPLETIONQUEUE}
   LPFN_RIORESIZECOMPLETIONQUEUE = function(const CQ : RIO_CQ; const QueueSize : DWORD) : BOOL stdcall;
   {$EXTERNALSYM LPFN_RIORESIZEREQUESTQUEUE}
@@ -4224,13 +4228,13 @@ type
   {$EXTERNALSYM SERVICE_INFOA}
   SERVICE_INFOA = record
      lpServiceType : LPGUID;
-     lpServiceName : PAnsiChar;
-     lpComment : PAnsiChar;
-     lpLocale : PAnsiChar;
+     lpServiceName : PIdAnsiChar;
+     lpComment : PIdAnsiChar;
+     lpLocale : PIdAnsiChar;
      dwDisplayHint : DWORD;
      dwVersion : DWORD;
      dwTime : DWORD;
-     lpMachineName : PAnsiChar;
+     lpMachineName : PIdAnsiChar;
      lpServiceAddress : LPSERVICE_ADDRESSES;
      ServiceSpecificInfo : BLOB;
   end;
@@ -4382,8 +4386,8 @@ type
     ai_family       : Integer;      // PF_xxx
     ai_socktype     : Integer;      // SOCK_xxx
     ai_protocol     : Integer;      // 0 or IPPROTO_xxx for IPv4 and IPv6
-    ai_addrlen      : size_t;        // Length of ai_addr
-    ai_canonname    : PAnsiChar;    // Canonical name for nodename
+    ai_addrlen      : size_t;       // Length of ai_addr
+    ai_canonname    : PIdAnsiChar;  // Canonical name for nodename
     ai_addr         : PSOCKADDR;    // Binary address
     ai_next         : PAddrInfo;    // Next structure in linked list
   end;
@@ -4449,8 +4453,8 @@ type
     ai_family : Integer;      // PF_xxx
     ai_socktype : Integer;    // SOCK_xxx
     ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
-    ai_addrlen : size_t;     // Length of ai_addr
-    ai_canonname : PAnsiChar;   // Canonical name for nodename
+    ai_addrlen : size_t;      // Length of ai_addr
+    ai_canonname : PIdAnsiChar; // Canonical name for nodename
     ai_addr : Psockaddr;        // Binary address
     ai_blob : Pointer;
     ai_bloblen : size_t;
@@ -4491,15 +4495,15 @@ type
     ai_family : Integer;      // PF_xxx
     ai_socktype : Integer;    // SOCK_xxx
     ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
-    ai_addrlen : size_t;     // Length of ai_addr
-    ai_canonname : PAnsiChar;   // Canonical name for nodename
+    ai_addrlen : size_t;      // Length of ai_addr
+    ai_canonname : PIdAnsiChar; // Canonical name for nodename
     ai_addr : Psockaddr;        // Binary address
     ai_blob : Pointer;
     ai_bloblen : size_t;
     ai_provider : LPGUID;
     ai_next : Paddrinfoex2A;        // Next structure in linked list
     ai_version : Integer;
-    ai_fqdn : PAnsiChar;
+    ai_fqdn : PIdAnsiChar;
   end;
   {$NODEFINE TAddrInfoEx2A}
   TAddrInfoEx2A = addrinfoex2A;
@@ -4615,8 +4619,8 @@ type
   {$EXTERNALSYM SOCKADDR_IPX}
   SOCKADDR_IPX = record
     sa_family : u_short;
-    sa_netnum : Array [0..3] of AnsiChar;
-    sa_nodenum : Array [0..5] of AnsiChar;
+    sa_netnum : Array [0..3] of TIdAnsiChar;
+    sa_nodenum : Array [0..5] of TIdAnsiChar;
     sa_socket : u_short;
   end;
   {$NODEFINE TSockAddrIPX}
@@ -4903,7 +4907,7 @@ type
   SOCKADDR_NB = record
     snb_family : short;
     snb_type   : u_short;
-    snb_name   : array[0..NETBIOS_NAME_LENGTH-1] of AnsiChar;
+    snb_name   : array[0..NETBIOS_NAME_LENGTH-1] of TIdAnsiChar;
   end;
   {$NODEFINE TSockAddrNB}
   TSockAddrNB  = SOCKADDR_NB;
@@ -4927,7 +4931,7 @@ const
 
 //	A macro convenient for setting up NETBIOS SOCKADDRs.
 {$EXTERNALSYM SET_NETBIOS_SOCKADDR}
-procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PAnsiChar; const Port : AnsiChar);
+procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PIdAnsiChar; const Port : TIdAnsiChar);
 
 
 //=============================================================
@@ -6133,7 +6137,7 @@ begin
   Result := getsockname(s, name, namelen);
 end;
 
-function Stub_getsockopt(const s: TSocket; const level, optname: Integer; optval: PAnsiChar; var optlen: Integer): Integer; stdcall;
+function Stub_getsockopt(const s: TSocket; const level, optname: Integer; optval: PIdAnsiChar; var optlen: Integer): Integer; stdcall;
 begin
   @getsockopt := FixupStub(hWinSockDll, 'getsockopt'); {Do not Localize}
   Result := getsockopt(s, level, optname, optval, optlen);
@@ -6151,13 +6155,13 @@ begin
   Result := htons(hostshort);
 end;
 
-function Stub_inet_addr(cp: PAnsiChar): u_long; stdcall;
+function Stub_inet_addr(cp: PIdAnsiChar): u_long; stdcall;
 begin
   @inet_addr := FixupStub(hWinSockDll, 'inet_addr'); {Do not Localize}
   Result := inet_addr(cp);
 end;
 
-function Stub_inet_ntoa(inaddr: TInAddr): PAnsiChar; stdcall;
+function Stub_inet_ntoa(inaddr: TInAddr): PIdAnsiChar; stdcall;
 begin
   @inet_ntoa := FixupStub(hWinSockDll, 'inet_ntoa'); {Do not Localize}
   Result := inet_ntoa(inaddr);
@@ -6211,7 +6215,7 @@ begin
   Result := sendto(s, Buf, len, flags, addrto, tolen);
 end;
 
-function Stub_setsockopt(const s: TSocket; const level, optname: Integer; optval: PAnsiChar; const optlen: Integer): Integer; stdcall;
+function Stub_setsockopt(const s: TSocket; const level, optname: Integer; optval: PIdAnsiChar; const optlen: Integer): Integer; stdcall;
 begin
   @setsockopt := FixupStub(hWinSockDll, 'setsockopt'); {Do not Localize}
   Result := setsockopt(s, level, optname, optval, optlen);
@@ -6235,33 +6239,33 @@ begin
   Result := gethostbyaddr(AAddr, len, addrtype);
 end;
 
-function Stub_gethostbyname(name: PAnsiChar): PHostEnt; stdcall;
+function Stub_gethostbyname(name: PIdAnsiChar): PHostEnt; stdcall;
 begin
   @gethostbyname := FixupStub(hWinSockDll, 'gethostbyname'); {Do not Localize}
   Result := gethostbyname(name);
 end;
 
 {$IFDEF WINCE}
-function Stub_sethostname(pName : PAnsiChar; cName : Integer) : Integer; stdcall;
+function Stub_sethostname(pName : PIdAnsiChar; cName : Integer) : Integer; stdcall;
 begin
   @sethostname := FixupStub(hWinSockDll, 'sethostname'); {Do not Localize}
-  Result := sethostname(pName, cName);  
+  Result := sethostname(pName, cName);
 end;
 {$ENDIF}
 
-function Stub_gethostname(name: PAnsiChar; len: Integer): Integer; stdcall;
+function Stub_gethostname(name: PIdAnsiChar; len: Integer): Integer; stdcall;
 begin
   @gethostname := FixupStub(hWinSockDll, 'gethostname'); {Do not Localize}
   Result := gethostname(name, len);
 end;
 
-function Stub_getservbyport(const port: Integer; const proto: PAnsiChar): PServEnt; stdcall;
+function Stub_getservbyport(const port: Integer; const proto: PIdAnsiChar): PServEnt; stdcall;
 begin
   @getservbyport := FixupStub(hWinSockDll, 'getservbyport'); {Do not Localize}
   Result := getservbyport(port, proto);
 end;
 
-function Stub_getservbyname(const name, proto: PAnsiChar): PServEnt; stdcall;
+function Stub_getservbyname(const name, proto: PIdAnsiChar): PServEnt; stdcall;
 begin
   @getservbyname := FixupStub(hWinSockDll, 'getservbyname'); {Do not Localize}
   Result := getservbyname(name, proto);
@@ -6273,7 +6277,7 @@ begin
   Result := getprotobynumber(proto);
 end;
 
-function Stub_getprotobyname(const name: PAnsiChar): PProtoEnt; stdcall;
+function Stub_getprotobyname(const name: PIdAnsiChar): PProtoEnt; stdcall;
 begin
   @getprotobyname := FixupStub(hWinSockDll, 'getprotobyname'); {Do not Localize}
   Result := getprotobyname(name);
@@ -6316,37 +6320,37 @@ begin
   Result := WSACancelBlockingCall;
 end;
 
-function Stub_WSAAsyncGetServByName(HWindow: HWND; wMsg: u_int; name, proto, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+function Stub_WSAAsyncGetServByName(HWindow: HWND; wMsg: u_int; name, proto, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
 begin
   @WSAAsyncGetServByName := FixupStub(hWinSockDll, 'WSAAsyncGetServByName'); {Do not Localize}
   Result := WSAAsyncGetServByName(HWindow, wMsg, name, proto, buf, buflen);
 end;
 
-function Stub_WSAAsyncGetServByPort(HWindow: HWND; wMsg, port: u_int; proto, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+function Stub_WSAAsyncGetServByPort(HWindow: HWND; wMsg, port: u_int; proto, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
 begin
   @WSAAsyncGetServByPort := FixupStub(hWinSockDll, 'WSAAsyncGetServByPort'); {Do not Localize}
   Result := WSAAsyncGetServByPort(HWindow, wMsg, port, proto, buf, buflen);
 end;
 
-function Stub_WSAAsyncGetProtoByName(HWindow: HWND; wMsg: u_int; name, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+function Stub_WSAAsyncGetProtoByName(HWindow: HWND; wMsg: u_int; name, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
 begin
   @WSAAsyncGetProtoByName := FixupStub(hWinSockDll, 'WSAAsyncGetProtoByName'); {Do not Localize}
   Result := WSAAsyncGetProtoByName(HWindow, wMsg, name, buf, buflen);
 end;
 
-function Stub_WSAAsyncGetProtoByNumber(HWindow: HWND; wMsg: u_int; number: Integer; buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+function Stub_WSAAsyncGetProtoByNumber(HWindow: HWND; wMsg: u_int; number: Integer; buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
 begin
   @WSAAsyncGetProtoByNumber := FixupStub(hWinSockDll, 'WSAAsyncGetProtoByNumber'); {Do not Localize}
   Result := WSAAsyncGetProtoByNumber(HWindow, wMsg, number, buf, buflen);
 end;
 
-function Stub_WSAAsyncGetHostByName(HWindow: HWND; wMsg: u_int; name, buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+function Stub_WSAAsyncGetHostByName(HWindow: HWND; wMsg: u_int; name, buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
 begin
   @WSAAsyncGetHostByName := FixupStub(hWinSockDll, 'WSAAsyncGetHostByName'); {Do not Localize}
   Result := WSAAsyncGetHostByName(HWindow, wMsg, name, buf, buflen);
 end;
 
-function Stub_WSAAsyncGetHostByAddr(HWindow: HWND; wMsg: u_int; AAddr: PAnsiChar; len, istruct: Integer; buf: PAnsiChar; buflen: Integer): THandle; stdcall;
+function Stub_WSAAsyncGetHostByAddr(HWindow: HWND; wMsg: u_int; AAddr: PIdAnsiChar; len, istruct: Integer; buf: PIdAnsiChar; buflen: Integer): THandle; stdcall;
 begin
   @WSAAsyncGetHostByAddr := FixupStub(hWinSockDll, 'WSAAsyncGetHostByAddr'); {Do not Localize}
   Result := WSAAsyncGetHostByAddr(HWindow, wMsg, AAddr, len, istruct, buf, buflen);
@@ -6581,7 +6585,7 @@ begin
   Result := WSAWaitForMultipleEvents(cEvents, lphEvents, fWaitAll, dwTimeout, fAlertable);
 end;
 
-function Stub_WSAAddressToStringA(lpsaAddress: PSockAddr; const dwAddressLength: DWORD; const lpProtocolInfo: LPWSAPROTOCOL_INFOA; const lpszAddressString: PAnsiChar; var lpdwAddressStringLength: DWORD): Integer; stdcall;
+function Stub_WSAAddressToStringA(lpsaAddress: PSockAddr; const dwAddressLength: DWORD; const lpProtocolInfo: LPWSAPROTOCOL_INFOA; const lpszAddressString: PIdAnsiChar; var lpdwAddressStringLength: DWORD): Integer; stdcall;
 begin
   @WSAAddressToStringA := FixupStub(hWinSockDll, 'WSAAddressToStringA'); {Do not Localize}
   Result := WSAAddressToStringA(lpsaAddress, dwAddressLength, lpProtocolInfo, lpszAddressString, lpdwAddressStringLength);
@@ -6594,7 +6598,7 @@ begin
 end;
 
 function Stub_WSAAddressToString(lpsaAddress: PSockAddr; const dwAddressLength: DWORD; const lpProtocolInfo: LPWSAPROTOCOL_INFO;
-  const lpszAddressString: {$IFDEF UNICODE}PWideChar{$ELSE}PAnsiChar{$ENDIF}; var lpdwAddressStringLength: DWORD): Integer; stdcall;
+  const lpszAddressString: PIdPlatformChar; var lpdwAddressStringLength: DWORD): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
   @WSAAddressToString := FixupStub(hWinSockDll, 'WSAAddressToStringW'); {Do not Localize}
@@ -6604,7 +6608,7 @@ begin
   Result := WSAAddressToString(lpsaAddress, dwAddressLength, lpProtocolInfo, lpszAddressString, lpdwAddressStringLength);
 end;
 
-function Stub_WSAStringToAddressA(const AddressString: PAnsiChar; const AddressFamily: Integer; const lpProtocolInfo: LPWSAPROTOCOL_INFOA; var lpAddress: TSockAddr; var lpAddressLength: Integer): Integer; stdcall;
+function Stub_WSAStringToAddressA(const AddressString: PIdAnsiChar; const AddressFamily: Integer; const lpProtocolInfo: LPWSAPROTOCOL_INFOA; var lpAddress: TSockAddr; var lpAddressLength: Integer): Integer; stdcall;
 begin
   @WSAStringToAddressA := FixupStub(hWinSockDll, 'WSAStringToAddressA'); {Do not Localize}
   Result := WSAStringToAddressA(AddressString, AddressFamily, lpProtocolInfo, lpAddress, lpAddressLength);
@@ -6616,7 +6620,7 @@ begin
   Result := WSAStringToAddressW(AddressString, AddressFamily, lpProtocolInfo, lpAddress, lpAddressLength);
 end;
 
-function Stub_WSAStringToAddress (const AddressString: {$IFDEF UNICODE}PWideChar{$ELSE}PAnsiChar{$ENDIF};
+function Stub_WSAStringToAddress (const AddressString: PIdPlatformChar;
   const AddressFamily: Integer; const lpProtocolInfo: LPWSAProtocol_Info;
   var lpAddress: TSockAddr; var lpAddressLength: Integer): Integer; stdcall;
 begin
@@ -6761,7 +6765,7 @@ begin
   Result := WSAEnumNameSpaceProviders(lpdwBufferLength, lpnspBuffer);
 end;
 
-function Stub_WSAGetServiceClassNameByClassIdA(const lpServiceClassId: PGUID; lpszServiceClassName: PAnsiChar; var lpdwBufferLength: DWORD): Integer; stdcall;
+function Stub_WSAGetServiceClassNameByClassIdA(const lpServiceClassId: PGUID; lpszServiceClassName: PIdAnsiChar; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
   @WSAGetServiceClassNameByClassIdA := FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdA'); {Do not Localize}
   Result := WSAGetServiceClassNameByClassIdA(lpServiceClassId, lpszServiceClassName, lpdwBufferLength);
@@ -6774,8 +6778,7 @@ begin
 end;
 
 function Stub_WSAGetServiceClassNameByClassId(const lpServiceClassId: PGUID;
-  lpszServiceClassName: {$IFDEF UNICODE}PWideChar{$ELSE}PAnsiChar{$ENDIF};
-  var lpdwBufferLength: DWORD): Integer; stdcall;
+  lpszServiceClassName: PIdPlatformChar; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
   @WSAGetServiceClassNameByClassId := FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdW'); {Do not Localize}
@@ -7174,14 +7177,14 @@ type
   {$IFDEF WIN32}
   {$ALIGN ON}
   TempRec = record
-    x: AnsiChar;
+    x: TIdAnsiChar;
     test: WSACMSGHDR;
   end;
   {$ALIGN OFF}
   {$ELSE}
   //Win64 and WinCE seem to require alignment for API records
   TempRec = record
-    x: AnsiChar;
+    x: TIdAnsiChar;
     test: WSACMSGHDR;
   end;
   {$ENDIF}
@@ -7254,7 +7257,7 @@ begin
    if ((buffer)^.TotalLength >= RIO_CMSG_BASE_SIZE) then
    begin
         if (((buffer)^.TotalLength - RIO_CMSG_BASE_SIZE) >= sizeof(WSACMSGHDR)) then begin
-          Result := PWSACMSGHDR((PAnsiChar(buffer)) + RIO_CMSG_BASE_SIZE);
+          Result := PWSACMSGHDR((PIdAnsiChar(buffer)) + RIO_CMSG_BASE_SIZE);
         end else begin
           Result := PWSACMSGHDR(nil);
         end;
@@ -7269,10 +7272,10 @@ begin
   if ((cmsg) = nil) then begin
     Result := RIO_CMSG_FIRSTHDR(buffer);
   end else begin
-    if (PAnsiChar(cmsg) + WSA_CMSGHDR_ALIGN((cmsg^.cmsg_len) + sizeof(WSACMSGHDR))  > (PAnsiChar(buffer) + (buffer)^.TotalLength)) then begin
+    if (PIdAnsiChar(cmsg) + WSA_CMSGHDR_ALIGN((cmsg^.cmsg_len) + sizeof(WSACMSGHDR))  > (PIdAnsiChar(buffer) + (buffer)^.TotalLength)) then begin
        Result := (PWSACMSGHDR(nil));
     end else begin
-       Result :=(PWSACMSGHDR(PAnsiChar(cmsg) + WSA_CMSGHDR_ALIGN(cmsg^.cmsg_len)));
+       Result :=(PWSACMSGHDR(PIdAnsiChar(cmsg) + WSA_CMSGHDR_ALIGN(cmsg^.cmsg_len)));
     end;
   end;
 end;
@@ -8960,21 +8963,25 @@ begin
 end;
 
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
-procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PAnsiChar; const Port : AnsiChar);
+procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PIdAnsiChar; const Port : TIdAnsiChar);
 var
   len : {$IFDEF FPC}sizeint{$ELSE}DWord{$ENDIF};
 begin
   if snb <> nil then begin
     snb^.snb_family := AF_NETBIOS;
     snb^.snb_type := SnbType;
+    {$IFDEF NEXTGEN}
+    len := Length(Name);
+    {$ELSE}
     len := {$IFDEF HAS_AnsiStrings_StrLen}AnsiStrings.{$ENDIF}StrLen(Name);
+    {$ENDIF}
     if len >= NETBIOS_NAME_LENGTH-1 then begin
       System.Move(Name^, snb^.snb_name, NETBIOS_NAME_LENGTH-1);
     end else begin
       if len > 0 then begin
         System.Move(Name^, snb^.snb_name, LongInt(len));
       end;
-      System.FillChar((PAnsiChar(@snb^.snb_name)+len)^, NETBIOS_NAME_LENGTH-1-len, ' ');    {Do not Localize}
+      System.FillChar((PIdAnsiChar(@snb^.snb_name)+len)^, NETBIOS_NAME_LENGTH-1-len, ' ');    {Do not Localize}
     end;
     snb^.snb_name[NETBIOS_NAME_LENGTH-1] := Port;
   end;

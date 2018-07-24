@@ -456,7 +456,10 @@ type
     // method does not need all of it.
     //
     FInputBuffer: TIdBuffer;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdConnectionIntercept;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FIntercept: TIdConnectionIntercept;
+
     FMaxCapturedLines: Integer;
     FMaxLineAction: TIdMaxLineAction;
     FMaxLineLength: Integer;
@@ -477,7 +480,7 @@ type
     procedure BufferRemoveNotify(ASender: TObject; ABytes: Integer);
     function GetDestination: string; virtual;
     procedure InterceptReceive(var VBuffer: TIdBytes);
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
     procedure PerformCapture(const ADest: TObject; out VLineCount: Integer;
@@ -786,7 +789,7 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-{$IFNDEF USE_OBJECT_ARC}
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdIOHandler.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FIntercept) then begin
@@ -796,12 +799,11 @@ begin
 end;
 {$ENDIF}
 
+// RLebeau: not IFDEF'ing the entire method since it is virtual and could be
+// overridden in user code...
 procedure TIdIOHandler.SetIntercept(AValue: TIdConnectionIntercept);
 begin
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, all weak references to a freed object get nil'ed automatically
-  FIntercept := AValue;
-  {$ELSE}
+  {$IFDEF USE_OBJECT_REF_FREENOTIF}
   if FIntercept <> AValue then begin
     // remove self from the Intercept's free notification list
     if Assigned(FIntercept) then begin
@@ -813,6 +815,9 @@ begin
       AValue.FreeNotification(Self);
     end;
   end;
+  {$ELSE}
+  // under ARC, all weak references to a freed object get nil'ed automatically
+  FIntercept := AValue;
   {$ENDIF}
 end;
 
@@ -1481,6 +1486,9 @@ begin
     // return whether at least 1 byte was received
     Result := (InputBuffer.Size > LPrevSize) or (ReadFromSource(False, ATimeout, False) > 0);
   end;
+  // TODO: since Connected() just calls ReadFromSource() anyway, maybe just
+  // call ReadFromSource() by itself and not call Connected() at all?
+  // Result := ReadFromSource(False, ATimeout, False) > 0;
 end;
 
 procedure TIdIOHandler.Write(AStream: TStream; ASize: Int64 = 0;

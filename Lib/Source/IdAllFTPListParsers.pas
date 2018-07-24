@@ -35,10 +35,10 @@ uses
   IdFTPListParseHellSoft,
   IdFTPListParseIEFTPGateway,
   IdFTPListParseKA9Q,
-  IdFTPListParseMicrowareOS9,
   IdFTPListParseMPEiX,
-  IdFTPListParseMusic,
   IdFTPListParseMVS,
+  IdFTPListParseMicrowareOS9,
+  IdFTPListParseMusic,
   IdFTPListParseNCSAForDOS,
   IdFTPListParseNCSAForMACOS,
   IdFTPListParseNovellNetware,
@@ -50,9 +50,9 @@ uses
   IdFTPListParseStercomUnixEnt,
   IdFTPListParseStratusVOS,
   IdFTPListParseSuperTCP,
-  IdFTPListParseTandemGuardian,
   IdFTPListParseTOPS20,
   IdFTPListParseTSXPlus,
+  IdFTPListParseTandemGuardian,
   IdFTPListParseUnisysClearPath,
   IdFTPListParseUnix,
   IdFTPListParseVM,
@@ -60,8 +60,8 @@ uses
   IdFTPListParseVSE,
   IdFTPListParseVxWorks,
   IdFTPListParseWfFTP,
-  IdFTPListParseWindowsNT,
   IdFTPListParseWinQVTNET,
+  IdFTPListParseWindowsNT,
   IdFTPListParseXecomMicroRTOS;
 
 {dee-duh-de-duh, that's all folks.}

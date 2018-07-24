@@ -41,6 +41,12 @@
 {.$DEFINE USE_MADEXCEPT}
 {$UNDEF USE_MADEXCEPT}
 
+// $DEFINE the following if LeakCheck has been installed manually in
+// BDS 2005 or earlier (System.RegisterExpectedMemoryLeak() was introduced
+// in BDS 2006)
+{.$DEFINE USE_LEAKCHECK}
+{$UNDEF USE_LEAKCHECK}
+
 // Make sure the following are $DEFINE'd only for Delphi/C++Builder 2009 onwards
 // as specified further below.  The VCL is fully Unicode, where the 'String'
 // type maps to System.UnicodeString, not System.AnsiString anymore
@@ -55,9 +61,16 @@
 {$DEFINE HAS_PAnsiChar}
 {$UNDEF HAS_PPAnsiChar}
 {$UNDEF NO_ANSI_TYPES}
+
+// Make sure the following are $DEFINE'd only for suitable environments
+// as specified further below.  Delphi/C++Builder Mobile/NextGen compilers
+// use ARC for TObject life time management.
 {$UNDEF USE_MARSHALLED_PTRS}
 {$UNDEF HAS_MarshaledAString}
 {$UNDEF USE_OBJECT_ARC}
+{$UNDEF HAS_UNSAFE_OBJECT_REF}
+{$UNDEF HAS_WEAK_OBJECT_REF}
+{$UNDEF USE_OBJECT_REF_FREENOTIF}
 
 // Make sure the following is $DEFINE'd only for suitable environments
 // as specified further below.
@@ -115,15 +128,19 @@
   {$ENDIF}
 {$ENDIF}
 
+{$IF (NOT DEFINED(USE_OBJECT_ARC)) OR DEFINED(HAS_UNSAFE_OBJECT_REF)}
+  {$DEFINE USE_OBJECT_REF_FREENOTIF}
+{$IFEND}
+
 {$IFNDEF UNICODE}
   {$DEFINE STRING_UNICODE_MISMATCH}
 {$ENDIF}
 
 {$IF DEFINED(WIN32) OR DEFINED(WIN64)}
   {$DEFINE WIN32_OR_WIN64}
-  {$DEFINE USE_OPENSSL}
   {$DEFINE USE_ZLIB_UNIT}
   {$IFNDEF DCC_NEXTGEN}
+    {$DEFINE USE_OPENSSL} // !!!·MOVED·HERE·BY·EMBT
     {$DEFINE USE_SSPI}
     {$DEFINE SSPI_UNICODE}
   {$ENDIF}
@@ -307,14 +324,17 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$ENDIF}
 
 {$IF NOT (DEFINED(FREE_ON_FINAL) OR DEFINED(REGISTER_EXPECTED_MEMORY_LEAK))}
-  {$IF DEFINED(USE_FASTMM4) OR DEEFINED(USE_MADEXCEPT)}
+  {$IF DEFINED(USE_FASTMM4) OR DEFINED(USE_MADEXCEPT) OR DEFINED(USE_LEAKCHECK)}
     {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
   {$IFEND}
 {$IFEND}
 
 {$IF DEFINED(REGISTER_EXPECTED_MEMORY_LEAK) AND DEFINED(DCC_CROSS_COMPILE)}
-  // RLebeau: should this be enabled for Windows, at least?
-  {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  // RLebeau: this should be enabled for Windows, at least...
+  // RLebeau: LeakCheck has leak reporting on other platforms...
+  {$IF NOT (DEFINED(MSWINDOWS) OR DEFINED(USE_LEAKCHECK))}
+    {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFEND}
 {$IFEND}
 
 {

@@ -365,19 +365,31 @@ type
   TIdTCPConnection = class(TIdComponent)
   protected
     FGreeting: TIdReply; // TODO: Only TIdFTP uses it, so it should be moved!
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIntercept: TIdConnectionIntercept;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FIOHandler: TIdIOHandler;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FIntercept: TIdConnectionIntercept;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FIOHandler: TIdIOHandler;
+
     FLastCmdResult: TIdReply;
-    FManagedIOHandler: Boolean;
     FOnDisconnected: TNotifyEvent;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FSocket: TIdIOHandlerSocket;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FSocket: TIdIOHandlerSocket;
+
     FReplyClass: TIdReplyClass;
     //
     procedure CheckConnected;
     procedure DoOnDisconnected; virtual;
     function GetIntercept: TIdConnectionIntercept; virtual;
     function GetReplyClass: TIdReplyClass; virtual;
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    {$ENDIF}
     procedure SetIntercept(AValue: TIdConnectionIntercept); virtual;
     procedure SetIOHandler(AValue: TIdIOHandler); virtual;
     procedure SetGreeting(AValue: TIdReply);
@@ -441,7 +453,6 @@ type
     procedure WriteRFCStrings(AStrings: TStrings);
     //
     property LastCmdResult: TIdReply read FLastCmdResult;
-    property ManagedIOHandler: Boolean read FManagedIOHandler write FManagedIOHandler;
     property Socket: TIdIOHandlerSocket read FSocket;
   published
     property Intercept: TIdConnectionIntercept read GetIntercept write SetIntercept;
@@ -514,7 +525,6 @@ begin
   end else begin
     IOHandler := TIdIOHandler.MakeDefaultIOHandler(Self);
   end;
-  ManagedIOHandler := True;
 end;
 
 function TIdTCPConnection.Connected: Boolean;
@@ -623,28 +633,26 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-// so this is mostly redundant
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdTCPConnection.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) then begin
-    {$IFNDEF USE_OBJECT_ARC}
     if (AComponent = FIntercept) then begin
       FIntercept := nil;
-    end else
-    {$ENDIF}
-    if (AComponent = FIOHandler) then begin
+    end
+    else if (AComponent = FIOHandler) then begin
       FIOHandler := nil;
       FSocket := nil;
-      FManagedIOHandler := False;
     end;
   end;
   inherited Notification(AComponent, Operation);
 end;
+{$ENDIF}
 
 procedure TIdTCPConnection.SetIntercept(AValue: TIdConnectionIntercept);
 var
   // under ARC, convert weak references to strong references before working with them
-  LIntercept: TIdConnectionIntercept;
+  LIntercept, LOtherIntercept: TIdConnectionIntercept;
   LIOHandler: TIdIOHandler;
 begin
   LIntercept := FIntercept;
@@ -665,23 +673,30 @@ begin
     // old code: if Assigned(IOHandler) and Assigned(IOHandler.Intercept) and Assigned(AValue) and (AValue <> IOHandler.Intercept) then begin
     //
     if Assigned(LIOHandler) and Assigned(AValue) then begin
-      if Assigned(LIOHandler.Intercept) and (LIOHandler.Intercept <> AValue) then begin
-        raise EIdException.Create(RSInterceptIsDifferent);
+      LOtherIntercept := LIOHandler.Intercept;
+      if Assigned(LOtherIntercept) then begin
+        if LOtherIntercept <> AValue then begin
+          raise EIdException.Create(RSInterceptIsDifferent);
+        end;
+        {$IFDEF USE_OBJECT_ARC}LOtherIntercept := nil;{$ENDIF}
       end;
     end;
 
     // TODO: should LIntercept.Connection be set to nil here if LIntercept
     // is not nil and LIntercept.Connection is set to Self?
 
-    {$IFDEF USE_OBJECT_ARC}
     // under ARC, all weak references to a freed object get nil'ed automatically
-    FIntercept := AValue;
-    {$ELSE}
+
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     // remove self from the Intercept's free notification list
     if Assigned(LIntercept) then begin
       LIntercept.RemoveFreeNotification(Self);
     end;
+    {$ENDIF}
+
     FIntercept := AValue;
+
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     // add self to the Intercept's free notification list
     if Assigned(AValue) then begin
       AValue.FreeNotification(Self);
@@ -728,31 +743,28 @@ begin
       end;
     end;
 
-    if ManagedIOHandler then begin
-      if Assigned(LIOHandler) then begin
-        FIOHandler := nil;
-        IdDisposeAndNil(LIOHandler);
-      end;
-      ManagedIOHandler := False;
+    if Assigned(LIOHandler) and (LIOHandler.Owner = Self) then begin
+      FIOHandler := nil;
+      IdDisposeAndNil(LIOHandler);
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
 
     // Reset this if nil (to match nil, but not needed) or when a new IOHandler is specified
     // If true, code must set it after the IOHandler is set
-    // Must do after call to FreeManagedIOHandler
+    // Must do after freeing the implicit IOHandler
     FSocket := nil;
 
     // Clear out old values whether setting AValue to nil, or setting a new value
     if Assigned(LIOHandler) then begin
       LIOHandler.WorkTarget := nil;
-      {$IFNDEF USE_OBJECT_ARC}
+      {$IFDEF USE_OBJECT_REF_FREENOTIF}
       LIOHandler.RemoveFreeNotification(Self);
       {$ENDIF}
     end;
 
     if Assigned(AValue) then begin
-      {$IFNDEF USE_OBJECT_ARC}
+      {$IFDEF USE_OBJECT_REF_FREENOTIF}
       // add self to the IOHandler's free notification list
       AValue.FreeNotification(Self);
       {$ENDIF}

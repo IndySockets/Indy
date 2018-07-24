@@ -78,7 +78,10 @@ uses
 type
   TIdEntityHeaderInfo = class(TPersistent)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FOwner: TPersistent;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FOwner: TPersistent;
+    //
     FCacheControl: String;
     FRawHeaders: TIdHeaderList;
     FCharSet: String;

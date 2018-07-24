@@ -58,24 +58,24 @@ uses
 type
   TIdServerIOHandler = class(TIdComponent)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FScheduler: TIdScheduler;
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FScheduler: TIdScheduler;
+    //
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
   public
     // This is a thread and not a yarn. Its the listener thread.
-    function Accept(
-      ASocket: TIdSocketHandle;
-      AListenerThread: TIdThread;
-      AYarn: TIdYarn
-      ): TIdIOHandler;
-      virtual;
+    function Accept(ASocket: TIdSocketHandle; AListenerThread: TIdThread; AYarn: TIdYarn ): TIdIOHandler; virtual;
     function MakeClientIOHandler(AYarn: TIdYarn): TIdIOHandler; virtual;
     // Init is called when the server goes active
     procedure Init; virtual;
     procedure Shutdown; virtual;
     // SetScheduler is called by the user (normally TCPServer) automatically
     procedure SetScheduler(AScheduler: TIdScheduler); virtual;
+    //
+    property Scheduler: TIdScheduler read FScheduler: write SetScheduler;
   end;
 
 implementation
@@ -84,11 +84,8 @@ procedure TIdServerIOHandler.Init;
 begin
 end;
 
-function TIdServerIOHandler.Accept(
-  ASocket: TIdSocketHandle;
-  AListenerThread: TIdThread;
-  AYarn: TIdYarn
-  ): TIdIOHandler;
+function TIdServerIOHandler.Accept(ASocket: TIdSocketHandle; AListenerThread: TIdThread;
+  AYarn: TIdYarn): TIdIOHandler;
 begin
   Result := nil;
 end;
@@ -99,7 +96,7 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-{$IFNDEF USE_OBJECT_ARC}
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdServerIOHandler.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   // Remove the reference to the linked Scheduler if it is deleted
@@ -110,12 +107,11 @@ begin
 end;
 {$ENDIF}
 
+// RLebeau: not IFDEF'ing the entire method since it is virtual and could be
+// overridden in user code...
 procedure TIdServerIOHandler.SetScheduler(AScheduler: TIdScheduler);
 begin
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, all weak references to a freed object get nil'ed automatically
-  FScheduler := AScheduler;
-  {$ELSE}
+  {$IFDEF USE_OBJECT_REF_FREENOTIF}
   if FScheduler <> AScheduler then begin
     // Remove self from the Scheduler's notification list
     if Assigned(FScheduler) then begin
@@ -127,6 +123,9 @@ begin
       FScheduler.FreeNotification(Self);
     end;
   end;
+  {$ELSE}
+  // under ARC, all weak references to a freed object get nil'ed automatically
+  FScheduler := AScheduler;
   {$ENDIF}
 end;
 

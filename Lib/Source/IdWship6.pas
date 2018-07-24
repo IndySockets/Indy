@@ -60,9 +60,7 @@ uses
   {$IFDEF HAS_TInterlocked}
   syncobjs, //here to facilitate inlining with Delphi
   {$ENDIF}
-  {$IFNDEF HAS_SIZE_T}
   IdGlobal,
-  {$ENDIF}
   Windows,
   IdWinsock2;
 
@@ -210,13 +208,13 @@ type
 
 type
   {$EXTERNALSYM LPFN_GETADDRINFO}
-  LPFN_GETADDRINFO = function(NodeName: PAnsiChar; ServiceName: PAnsiChar; Hints: Paddrinfo; ppResult: PPaddrinfo): Integer; stdcall;
+  LPFN_GETADDRINFO = function(NodeName: PIdAnsiChar; ServiceName: PIdAnsiChar; Hints: Paddrinfo; ppResult: PPaddrinfo): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETADDRINFOW}
   LPFN_GETADDRINFOW = function(NodeName: PWideChar; ServiceName: PWideChar; Hints: PaddrinfoW; ppResult: PPaddrinfoW): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFO}
   //The IPv6 preview for Win2K defines hostlen and servelen as size_t but do not use them
   //for these definitions as the newer SDK's define those as DWORD.
-  LPFN_GETNAMEINFO = function(sa: psockaddr; salen: u_int; host: PAnsiChar; hostlen: u_int; serv: PAnsiChar; servlen: u_int; flags: Integer): Integer; stdcall;
+  LPFN_GETNAMEINFO = function(sa: psockaddr; salen: u_int; host: PIdAnsiChar; hostlen: u_int; serv: PIdAnsiChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFOW}
   LPFN_GETNAMEINFOW = function(sa: psockaddr; salen: u_int; host: PWideChar; hostlen: u_int; serv: PWideChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_FREEADDRINFO}
@@ -234,19 +232,19 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
 }
  {$IFNDEF WINCE}
   {$EXTERNALSYM LPFN_INET_PTON}
-  LPFN_INET_PTON = function (af: Integer; const src: PAnsiChar; dst: Pointer): Integer; stdcall;
+  LPFN_INET_PTON = function (af: Integer; const src: PIdAnsiChar; dst: Pointer): Integer; stdcall;
   {$EXTERNALSYM LPFN_INET_PTONW}
   LPFN_INET_PTONW = function (af: Integer; const src: PWideChar; dst: Pointer): Integer; stdcall;
   {$EXTERNALSYM LPFN_INET_NTOP}
-  LPFN_INET_NTOP = function (af: Integer; const src: Pointer; dst: PAnsiChar; size: size_t): PAnsiChar; stdcall;
+  LPFN_INET_NTOP = function (af: Integer; const src: Pointer; dst: PIdAnsiChar; size: size_t): PIdAnsiChar; stdcall;
   {$EXTERNALSYM LPFN_INET_NTOPW}
-  LPFN_INET_NTOPW = function (af: Integer; const src: Pointer; dst: PWideChar; size: size_t): PAnsiChar; stdcall;
+  LPFN_INET_NTOPW = function (af: Integer; const src: Pointer; dst: PWideChar; size: size_t): PIdAnsiChar; stdcall;
 
 { end the following are not used, nor tested}
 //These are provided in case we need them later
 //Windows Vista
   {$EXTERNALSYM LPFN_GETADDRINFOEXA}
-  LPFN_GETADDRINFOEXA = function(pName : PAnsiChar; pServiceName : PAnsiChar;
+  LPFN_GETADDRINFOEXA = function(pName : PIdAnsiChar; pServiceName : PIdAnsiChar;
     const dwNameSpace: DWord; lpNspId : LPGUID; hints : PADDRINFOEXA;
     var ppResult : PADDRINFOEXA; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE;
@@ -258,7 +256,7 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE;
     lpNameHandle : PHandle) : Integer; stdcall;
   {$EXTERNALSYM LPFN_SETADDRINFOEXA}
-  LPFN_SETADDRINFOEXA= function(pName : PAnsiChar; pServiceName : PAnsiChar;
+  LPFN_SETADDRINFOEXA= function(pName : PIdAnsiChar; pServiceName : PIdAnsiChar;
     pAddresses : PSOCKET_ADDRESS; const dwAddressCount : DWord; lpBlob : LPBLOB;
     const dwFlags : DWord; const dwNameSpace : DWord; lpNspId : LPGUID;
     timeout : Ptimeval;
@@ -433,10 +431,7 @@ procedure CloseLibrary;
 implementation
 
 uses
-  SysUtils
-  {$IFDEF HAS_SIZE_T}
-  , IdGlobal
-  {$ENDIF};
+  SysUtils;
 
 var
   hWship6Dll : THandle = 0; // Wship6.dll handle
@@ -607,6 +602,9 @@ var
   dwAddress: DWORD;
   pcNext: PIdPlatformChar;
   iCount: Integer;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+  {$ENDIF}
 begin
   iCount := 0;
 
@@ -626,10 +624,14 @@ begin
   // return an error if dwAddress is INADDR_NONE (255.255.255.255)
   // since this is never a valid argument to getaddrinfo.
   dwAddress := inet_addr(
-    {$IFNDEF UNICODE}
-    pszAddress
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(pszAddress).ToPointer
     {$ELSE}
-    PAnsiChar(AnsiString(pszAddress))
+      {$IFNDEF UNICODE}
+    pszAddress
+      {$ELSE}
+    PIdAnsiChar(AnsiString(pszAddress)) // explicit convert to Ansi
+      {$ENDIF}
     {$ENDIF}
   );
   if dwAddress = INADDR_NONE then begin
@@ -683,6 +685,9 @@ var
   pptNext: {$IFDEF UNICODE}PPaddrinfoW{$ELSE}PPaddrinfo{$ENDIF};
   ptHost: Phostent;
   ppAddresses: ^PInAddr;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+  {$ENDIF}
 begin
   pptNext := @pptResult;
 
@@ -690,10 +695,14 @@ begin
   pszAlias^ := TIdPlatformChar(0);
 
   ptHost := gethostbyname(
-    {$IFNDEF UNICODE}
-    pszNodeName
+    {$IFDEF USE_MARSHALLED_PTRS}
+    M.AsAnsi(pszNodeName).ToPointer
     {$ELSE}
-    PAnsiChar(AnsiString(pszNodeName))
+      {$IFNDEF UNICODE}
+    pszNodeName
+      {$ELSE}
+    PIdAnsiChar(AnsiString(pszNodeName)) // explicit convert to Ansi
+      {$ENDIF}
     {$ENDIF}
   );
   if ptHost <> nil then begin
@@ -852,6 +861,9 @@ var
   bClone: BOOL;
   wTcpPort: WORD;
   wUdpPort: WORD;
+  {$IFDEF USE_MARSHALLED_PTRS}
+  M: TMarshaller;
+  {$ENDIF}
 begin
   iError := 0;
   iFlags := 0;
@@ -939,10 +951,14 @@ begin
     begin
       if (iSocketType = 0) or (iSocketType = SOCK_DGRAM) then begin
         ptService := getservbyname(
-          {$IFNDEF UNICODE}
-          pszServiceName
+          {$IFDEF USE_MARSHALLED_PTRS}
+          M.AsAnsi(pszServiceName).ToPointer
           {$ELSE}
-          PAnsiChar(AnsiString(pszServiceName))
+            {$IFNDEF UNICODE}
+          pszServiceName
+            {$ELSE}
+          PIdAnsiChar(AnsiString(pszServiceName)) // explicit convert to Ansi
+            {$ENDIF}
           {$ENDIF}
           , 'udp'); {do not localize}
         if ptService <> nil then begin
@@ -953,10 +969,14 @@ begin
 
       if (iSocketType = 0) or (iSocketType = SOCK_STREAM) then begin
         ptService := getservbyname(
-          {$IFNDEF UNICODE}
-          pszServiceName
+          {$IFDEF USE_MARSHALLED_PTRS}
+          M.AsAnsi(pszServiceName).ToPointer
           {$ELSE}
-          PAnsiChar(AnsiString(pszServiceName))
+            {$IFNDEF UNICODE}
+          pszServiceName
+            {$ELSE}
+          PIdAnsiChar(AnsiString(pszServiceName)) // explicit convert to Ansi
+            {$ENDIF}
           {$ENDIF}
           , 'tcp'); {do not localize}
         if ptService <> nil then begin
@@ -1043,7 +1063,7 @@ begin
   Result := iError;
 end;
 
-function iif(ATest: Boolean; const ATrue, AFalse: PAnsiChar): PAnsiChar;
+function iif(ATest: Boolean; const ATrue, AFalse: PIdAnsiChar): PIdAnsiChar;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ATest then begin
@@ -1066,7 +1086,8 @@ var
   pszNode: PIdPlatformChar;
   pc: PIdPlatformChar;
   {$IFDEF UNICODE}
-  tmpService, tmpNode: UnicodeString;
+  tmpService: UnicodeString;
+  tmpNode: UnicodeString;
   {$ENDIF}
 begin
   StrCopy(szBuffer, '65535');
@@ -1151,7 +1172,7 @@ begin
     end else
     begin
       // return node name corresponding to address.
-      ptHost := gethostbyaddr(PAnsiChar(@tAddress), SizeOf(in_addr), AF_INET);
+      ptHost := gethostbyaddr(PIdAnsiChar(@tAddress), SizeOf(in_addr), AF_INET);
       if (ptHost <> nil) and (ptHost^.h_name <> nil) then begin
         // DNS lookup successful.
         // stop copying at a "." if NI_NOFQDN is specified.
@@ -1203,7 +1224,7 @@ end;
 
 {$IFDEF WINCE_UNICODE}
 
-function IndyStrdupAToW(const pszString: PAnsiChar): PWideChar;
+function IndyStrdupAToW(const pszString: PIdAnsiChar): PWideChar;
 var
   szStr: UnicodeString;
   pszMemory: PWideChar;
@@ -1304,9 +1325,9 @@ function IndyGetAddrInfoW(const pszNodeName: PWideChar; const pszServiceName: PW
   const ptHints: PaddrinfoW; var pptResult: PaddrinfoW): Integer; stdcall;
 var
   LNodeName: AnsiString;
-  LPNodeName: PAnsiChar;
+  LPNodeName: PIdAnsiChar;
   LServiceName: AnsiString;
-  LPServiceName: PAnsiChar;
+  LPServiceName: PIdAnsiChar;
   LHints: addrinfo;
   LPHints: Paddrinfo;
   LResult: Paddrinfo;
@@ -1316,14 +1337,14 @@ begin
 
   if pszNodeName <> nil then begin
     LNodeName := AnsiString(pszNodeName);
-    LPNodeName := PAnsiChar(LNodeName);
+    LPNodeName := PIdAnsiChar(LNodeName);
   end else begin
     LPNodeName := nil;
   end;
 
   if pszServiceName <> nil then begin
     LServiceName := AnsiString(pszServiceName);
-    LPServiceName := PAnsiChar(LServiceName);
+    LPServiceName := PIdAnsiChar(LServiceName);
   end else begin
     LPServiceName := nil;
   end;
@@ -1356,11 +1377,11 @@ function IndyGetNameInfoW(ptSocketAddress: Psockaddr; tSocketLength: u_int;
   pszNodeName: PWideChar; tNodeLength: size_t; pszServiceName: PWideChar;
   tServiceLength: size_t; iFlags: Integer): Integer; stdcall;
 var
-  LHost: array[0..NI_MAXHOST-1] of AnsiChar;
-  LPHost: PAnsiChar;
+  LHost: array[0..NI_MAXHOST-1] of TIdAnsiChar;
+  LPHost: PIdAnsiChar;
   LHostLen: u_int;
-  LServ: array[0..NI_MAXSERV-1] of AnsiChar;
-  LPServ: PAnsiChar;
+  LServ: array[0..NI_MAXSERV-1] of TIdAnsiChar;
+  LPServ: PIdAnsiChar;
   LServLen: u_int;
 begin
   if pszNodeName <> nil then

@@ -1748,14 +1748,18 @@ var
 {$IFEND}
 begin
   {$IF (NOT DEFINED(FPC)) AND DEFINED(UNIX)}
-  // TODO: use -OffsetFromUTC here. It has this same Unix logic in it
+  // TODO: use OffsetFromUTC() here. It has this same Unix logic in it, though
+  // oddly it does NOT return a value that needs to be multiplied by -1 on this
+  // platform, but does on other platforms!
+  //
+  //Result := {-}OffsetFromUTC;
+
   {from http://edn.embarcadero.com/article/27890 }
   gettimeofday(TV, nil);
   T := TV.tv_sec;
   localtime_r({$IFNDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
 // __tm_gmtoff is the bias in seconds from the UTC to the current time.
-// so I multiply by -1 to compensate for this.
-  Result := (UT.{$IFNDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
+  Result := {-1 *} (UT.{$IFNDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
   {$ELSE}
   Result := -OffsetFromUTC;
   {$IFEND}

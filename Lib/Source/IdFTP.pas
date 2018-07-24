@@ -803,7 +803,10 @@ type
 
     FTZInfo : TIdFTPTZInfo;
 
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FCompressor : TIdZLibCompressorBase;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FCompressor : TIdZLibCompressorBase;
+
     //ZLib settings
     FZLibCompressionLevel : Integer; //7
     FZLibWindowBits : Integer; //-15
@@ -2140,18 +2143,18 @@ begin
   end;
   if FDataPortProtection = ftpdpsPrivate then begin
     LIOHandler := TIdSSLIOHandlerSocketBase(IOHandler).Clone;
-    {$IFDEF USE_OBJECT_ARC}
-    // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
+
+    // under ARC, the TIdTCPConnection.IOHandler property is a weak/unsafe reference.
     // TIdSSLIOHandlerSocketBase.Clone() returns an IOHandler with no Owner
     // assigned, so lets make FDataChannel become the Owner in order to keep
     // the IOHandler alive when this method exits.
     //
-    // TODO: should we assign Ownership unconditionally on all platforms?
+    // Let's assign Ownership unconditionally on all platforms...
     //
     // TODO: add an AOwner parameter to Clone()
     //
     FDataChannel.InsertComponent(LIOHandler);
-    {$ENDIF}
+
     //we have to delay the actual negotiation until we get the reply and
     //just before the readString
     TIdSSLIOHandlerSocketBase(LIOHandler).PassThrough := True;
@@ -2159,7 +2162,7 @@ begin
     LIOHandler := TIdIOHandler.MakeDefaultIOHandler(FDataChannel);
   end;
   FDataChannel.IOHandler := LIOHandler;
-  FDataChannel.ManagedIOHandler := True;
+
   if FDataChannel is TIdTCPClient then
   begin
     TIdTCPClient(FDataChannel).IPVersion := IPVersion;
@@ -3426,7 +3429,7 @@ begin
   if LCompressor <> AValue then begin
     // under ARC, all weak references to a freed object get nil'ed automatically
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     if Assigned(LCompressor) then begin
       LCompressor.RemoveFreeNotification(Self);
     end;
@@ -3434,12 +3437,13 @@ begin
 
     FCompressor := AValue;
 
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     if Assigned(AValue) then begin
-      {$IFNDEF USE_OBJECT_ARC}
       AValue.FreeNotification(Self);
-      {$ENDIF}
-    end
-    else if Connected then begin
+    end;
+    {$ENDIF}
+
+    if (not Assigned(AValue)) and Connected then begin
       TransferMode(dmStream);
     end;
   end;
@@ -3998,6 +4002,8 @@ begin
   Result := IsOldServU or IsBPFTP or IsTitan;
 end;
 
+// RLebeau: not IFDEF'ing this method since it needs to update the stream mode
+// when the Compressor is set to nil...
 procedure TIdFTP.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FCompressor) then begin

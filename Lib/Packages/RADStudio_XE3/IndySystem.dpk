@@ -36,11 +36,9 @@ requires
   rtl;
 {$ENDIF}
 
-{$IFNDEF WINDOWS}
-  {$IFDEF MSWINDOWS}
-    {$DEFINE WINDOWS}
-  {$ENDIF}
-{$ENDIF}
+{$IF (NOT DEFINED(WINDOWS)) AND DEFINED(MSWINDOWS)}
+  {$DEFINE WINDOWS}
+{$IFEND}
 
 contains
   IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',
@@ -50,6 +48,7 @@ contains
   IdException in '..\..\Source\IdException.pas',
   IdGlobal in '..\..\Source\IdGlobal.pas',
   IdIDN in '..\..\Source\IdIDN.pas',
+  IdResourceStrings in '..\..\Source\IdResourceStrings.pas',
   {$IFNDEF WINDOWS}
   IdResourceStringsUnix in '..\..\Source\IdResourceStringsUnix.pas',
   IdResourceStringsVCLPosix in '..\..\Source\IdResourceStringsVCLPosix.pas',

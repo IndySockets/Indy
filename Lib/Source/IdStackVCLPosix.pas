@@ -550,6 +550,7 @@ begin
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
       until LAddrInfo = nil;
+      // TODO: sort AAddresses by IPVersion...
     finally
       AAddresses.EndUpdate;
     end;
@@ -559,72 +560,104 @@ begin
 
   {$ELSE}
 
-  // TODO: on Android, either implement getifaddrs() (https://github.com/kmackay/android-ifaddrs)
+  // TODO: on Android, either implement getifaddrs() (https://github.com/morristech/android-ifaddrs)
   // or use the Java API to enumerate the local network interfaces and their IP addresses, eg:
   {
-  var
-    en, enumIpAddr: Enumeration;
-    intf: NetworkInterface;
-    inetAddress: InetAddress;
-  begin
-    try
-      en := NetworkInterface.getNetworkInterfaces;
-      if en.hasMoreElements then begin
-        AAddresses.BeginUpdate;
-        try
-          repeat
-            intf := en.nextElement;
-            enumIpAddr := intf.getInetAddresses();
-            while enumIpAddr.hasMoreElements do begin
-              inetAddress := enumIpAddr.nextElement;
-              if not inetAddress.isLoopbackAddress then begin
-                if (inetAddress instanceof Inet4Address) then begin
-                  TIdStackLocalAddressIPv4.Create(AAddresses, inetAddress.getHostAddress.toString, ''); // TODO: subnet mask
-                end
-                else if (inetAddress instanceof Inet6Address) then begin
-                  TIdStackLocalAddressIPv6.Create(AAddresses, inetAddress.getHostAddress.toString);
-                end;
-              end;
-            end;
-          until not en.hasMoreElements;
-        finally
-          AAddresses.EndUpdate;
-        end;
-       end;
-     except
-       if not HasAndroidPermission('android.permission.ACCESS_NETWORK_STATE') then begin
-         IndyRaiseOuterException(EIdAccessNetworkStatePermissionNeeded.CreateError(0, ''));
-       end;
-       if not HasAndroidPermission('android.permission.INTERNET') then begin
-         IndyRaiseOuterException(EIdInternetPermissionNeeded.CreateError(0, ''));
-       end;
-       raise;
-     end;
-   end;
 
-  Note that this requires the application to have ACCESS_NETWORK_STATE and INTERNET permissions.
-
-  Or:
+  Note that the following requires the application to have ACCESS_NETWORK_STATE and INTERNET permissions.
 
   uses
-    if XE7+
-      Androidapi.Helpers 
-    else
-      FMX.Helpers.Android 
+    Androidapi.JNI.Java.Net,
+    Androidapi.JNI.JavaTypes,
+    Androidapi.JNIBridge,
+    ($IFDEF VCL_XE7_OR_ABOVE)
+    Androidapi.Helpers
+    ($ELSE)
+    FMX.Helpers.Android
+    ($ENDIF)
     ;
 
   var
-    wifiManager: WifiManager;
+    LInterfaces, LAddresses: JEnumeration;
+    LInterface: JNetworkInterface;
+    LAddress: JInetAddress;
+    LName, LHostAddress: string;
+    LPos: Integer;
+  begin
+    try
+      LInterfaces := TJNetworkInterface.JavaClass.getNetworkInterfaces;
+      if LInterfaces.hasMoreElements then
+      begin
+        AAddresses.BeginUpdate;
+        try
+          repeat
+            LInterface := TJNetworkInterface.Wrap(JObjectToID(LInterfaces.nextElement));
+            LAddresses := LInterface.getInetAddresses;
+            while LAddresses.hasMoreElements do
+            begin
+              LAddress := TJInetAddress.Wrap(JObjectToID(LAddresses.nextElement));
+              if LAddress.isLoopbackAddress then begin
+                Continue;
+              end;
+              LHostAddress := JStringToString(LAddress.getHostAddress);
+              // Trim excess stuff
+              LPos := Pos('%', LHostAddress);
+              if LPos <> 0 then begin
+                LHostAddress := Copy(LHostAddress, 1, LPos-1);
+              end;
+              // Hack until I can find out how to check properly
+              //if (LAddress instanceof Inet4Address) then begin
+              //  TIdStackLocalAddressIPv4.Create(AAddresses, LHostAddress, ''); // TODO: subnet mask
+              //end
+              // else if (LAddress instanceof Inet6Address) then begin
+              // TIdStackLocalAddressIPv6.Create(AAddresses, LHostAddress);
+              //end;
+              LName := JStringToString(LAddress.getClass.getName);
+              if Pos('Inet4Address', LName) <> 0 then begin
+                TIdStackLocalAddressIPv4.Create(AAddresses, LHostAddress, ''); // TODO: subnet mask
+              end
+              else if Pos('Inet6Address', LName) <> 0 then begin
+                TIdStackLocalAddressIPv6.Create(AAddresses, LHostAddress);
+              end;
+            end;
+          until not LInterfaces.hasMoreElements;
+        finally
+          AAddresses.EndUpdate;
+        end;
+      end;
+    except
+      if not HasAndroidPermission('android.permission.ACCESS_NETWORK_STATE') then begin
+        IndyRaiseOuterException(EIdAccessNetworkStatePermissionNeeded.CreateError(0, ''));
+      end;
+      if not HasAndroidPermission('android.permission.INTERNET') then begin
+        IndyRaiseOuterException(EIdInternetPermissionNeeded.CreateError(0, ''));
+      end;
+      raise;
+    end;
+  end;
+
+  Or the following, which requires only ACCESS_WIFI_STATE permission.
+
+  uses
+    if XE7+
+      Androidapi.Helpers
+    else
+      FMX.Helpers.Android
+    ;
+
+  var
+    wifiManager: JWifiManager;
     ipAddress: Integer;
   begin
     try
-      wifiManager := (WifiManager) GetActivityContext.getSystemService(WIFI_SERVICE);
+      wifiManager := TJWifiManager.Wrap(JObjectToID(SharedActivityContext.getSystemService(TJContext.JavaClass.WIFI_SERVICE)));
       ipAddress := wifiManager.getConnectionInfo.getIpAddress;
     except
       if not HasAndroidPermission('android.permission.ACCESS_WIFI_STATE') then begin
         IndyRaiseOuterException(EIdAccessWifiStatePermissionNeeded.CreateError(0, ''));
+      end else begin
+        raise;
       end;
-      raise;
     end;
 
     // WiFiInfo only supports IPv4
@@ -633,8 +666,6 @@ begin
       '' // TODO: subnet mask
     );
   end;
-
-  This requires only ACCESS_WIFI_STATE permission.
   }
 
   //IMPORTANT!!!
@@ -666,7 +697,7 @@ begin
     try
       LAddrInfo := LAddrList;
       repeat
-        case LAddrInfo^.ai_addr^.sa_family of
+        case LAddrInfo^.ai_family{LAddrInfo^.ai_addr^.sa_family} of
         Id_PF_INET4 :
           begin
             TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4), ''); // TODO: SubNet
@@ -1062,18 +1093,22 @@ begin
   {$IFDEF USE_MARSHALLED_PTRS}
   LStrPtr := TPtrWrapper.Create(@LStr[0]);
   {$ENDIF}
-  gethostname(
+  if gethostname(
     {$IFDEF USE_MARSHALLED_PTRS}
     LStrPtr.ToPointer
     {$ELSE}
     LStr
-    {$ENDIF}, sMaxHostSize);
-  LStr[sMaxHostSize] := TIdAnsiChar(0);
-  {$IFDEF USE_MARSHALLED_PTRS}
-  Result := TMarshal.ReadStringAsAnsi(LStrPtr);
-  {$ELSE}
-  Result := String(LStr);
-  {$ENDIF}
+    {$ENDIF}, sMaxHostSize) = 0 then
+  begin
+    {$IFDEF USE_MARSHALLED_PTRS}
+    Result := TMarshal.ReadStringAsAnsiUpTo(0, LStrPtr, sMaxHostSize);
+    {$ELSE}
+    LStr[sMaxHostSize] := TIdAnsiChar(0);
+    Result := String(LStr);
+    {$ENDIF}
+  end else begin
+    Result := '';
+  end;
 end;
 
 function TIdStackVCLPosix.ReceiveMsg(ASocket: TIdStackSocketHandle;

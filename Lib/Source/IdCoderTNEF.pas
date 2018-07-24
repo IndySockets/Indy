@@ -1594,30 +1594,24 @@ begin
 end;
 
 function TIdCoderTNEF.GetByteAsHexString(AByte: Byte): string;
-var
-  LsTemp: string;
 begin
-  LsTemp := IndyFormat('%x', [AByte]);    {Do not localize}
-  Result := PadWithZeroes(LsTemp, 2);
+  Result := IndyFormat('%.2x', [AByte]);    {Do not localize}
 end;
 
 function TIdCoderTNEF.GetByteAsHexString: string;
-var
-  LnTemp: Byte;
-  LsTemp: string;
 begin
-  LnTemp := GetByte;
-  LsTemp := IndyFormat('%x', [LnTemp]);  {Do not localize}
-  Result := PadWithZeroes(LsTemp, 2);
+  Result := GetByteAsHexString(GetByte);
 end;
 
 function TIdCoderTNEF.GetBytesAsHexString(ACount: integer): string;
 var
   i: integer;
+  LTemp: TIdBytes;
 begin
   Result := '';
+  LTemp := GetBytes(ACount);
   for i := 0 to ACount-1 do begin
-    Result := Result + GetByteAsHexString + ' ';  {Do not localize}
+    Result := Result + GetByteAsHexString(LTemp[i]) + ' ';  {Do not localize}
   end;
 end;
 
@@ -2241,7 +2235,7 @@ begin
   //Initially, just parse out the common attributes and the ones we are interested in.
   if LAttribute >= $8000 then begin
     //A named property: this has a GUID and some other optional stuff...
-    LGUID := GetBytesAsHexString(16);
+    LGUID := GetBytesAsHexString(16); // TODO: format this as a proper GUID
     if FDoLogging then begin
       DoLog('     MAPI item has a named property, GUID: ' + LGUID);  {Do not localize}
     end;
@@ -2539,6 +2533,13 @@ begin
         end;
         Skip(8);
       end;
+      IdTNEF_PT_CLSID: begin
+        if FDoLogging then begin
+          LGUID := GetBytesAsHexString(16); // TODO: format this as a proper GUID
+          DoLogFmt('     Skipping MAPI attribute 0x%x of type %s, GUID: %s', [LAttribute, GetStringForMapiType(LType), LGUID]);  {Do not localize}
+        end else begin
+          Skip(16);
+        end;
     else
       raise EIdTnefUnknownMapiType.CreateFmt('Encountered unknown MAPI type: %d, attribute: %d', [LType, LAttribute]);  {Do not localize}
     end;

@@ -764,7 +764,7 @@ varies between servers.  A typical line that gets parsed into this is:
     procedure ParseStatusResult (AMB: TIdMailBox; ACmdResultDetails: TStrings);
     procedure ParseSearchResult (AMB: TIdMailBox; ACmdResultDetails: TStrings);
     procedure ParseEnvelopeResult (AMsg: TIdMessage; ACmdResultStr: String);
-    function  ParseLastCmdResult(ALine: string; AExpectedCommand: string; AExpectedIMAPFunction: array of string): Boolean;
+    function  ParseLastCmdResult(ALine: string; AExpectedCommand: string; const AExpectedIMAPFunction: array of string): Boolean;
     procedure ParseLastCmdResultButAppendInfo(ALine: string);
     function  InternalRetrieve(const AMsgNum: Integer; AUseUID: Boolean; AUsePeek: Boolean; AMsg: TIdMessage): Boolean;
     function  InternalRetrievePart(const AMsgNum: Integer; const APartNum: string;
@@ -1083,12 +1083,12 @@ varies between servers.  A typical line that gets parsed into this is:
     //mailboxes as returned by the LSUB command.
     function  UnsubscribeMailBox(const AMBName: String): Boolean;
     { IdTCPConnection Commands }
-    function  GetInternalResponse(const ATag: String; AExpectedResponses: array of String; ASingleLineMode: Boolean;
+    function  GetInternalResponse(const ATag: String; const AExpectedResponses: array of String; ASingleLineMode: Boolean;
           ASingleLineMayBeSplit: Boolean = True): string; reintroduce; overload;
     function  GetResponse: string; reintroduce; overload;
-    function  SendCmd(const AOut: string; AExpectedResponses: array of String;
+    function  SendCmd(const AOut: string; const AExpectedResponses: array of String;
       ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string; reintroduce; overload;
-    function  SendCmd(const ATag, AOut: string; AExpectedResponses: array of String;
+    function  SendCmd(const ATag, AOut: string; const AExpectedResponses: array of String;
       ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string; overload;
   { IdTCPConnection Commands }
   published
@@ -1713,7 +1713,7 @@ begin
         Result := Result + WideChar(ch);
         {$ENDIF}
       end else begin
-        raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);    {do not localize}
+        raise EMUTF7Decode.CreateFmt(RSIMAP4UTFIllegalChar, [Integer(ch)]);
       end;
     end else begin // we're escaped
       { break out of escape mode }
@@ -1743,7 +1743,7 @@ begin
       end else begin // still escaped
         // check range for ch: must be < 128 and in b64table
         if (ch >= $80) or (b64Index[ch] = -1) then begin
-          raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);    {do not localize}
+          raise EMUTF7Decode.CreateFmt(RSIMAP4UTFIllegalChar, [Integer(ch)]);
         end;
         ch := b64Index[ch];
         bitBuf := (bitBuf shl 6) or (ch and $3F);
@@ -2099,7 +2099,7 @@ end;
 
 { IdTCPConnection Commands... }
 
-function TIdIMAP4.GetInternalResponse(const ATag: String; AExpectedResponses: array of String;
+function TIdIMAP4.GetInternalResponse(const ATag: String; const AExpectedResponses: array of String;
   ASingleLineMode: Boolean; ASingleLineMayBeSplit: Boolean {= True}): string;
 {ASingleLineMode is True if the caller just wants the FIRST line of the response,
 e.g., he may be looking only for "* FETCH (blah blah)", because he needs to parse
@@ -2257,13 +2257,13 @@ begin
   end;
 end;
 
-function TIdIMAP4.SendCmd(const AOut: string; AExpectedResponses: array of String;
+function TIdIMAP4.SendCmd(const AOut: string; const AExpectedResponses: array of String;
   ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string;
 begin
   Result := SendCmd(NewCmdCounter, AOut, AExpectedResponses, ASingleLineMode, ASingleLineMayBeSplit);
 end;
 
-function TIdIMAP4.SendCmd(const ATag, AOut: string; AExpectedResponses: array of String;
+function TIdIMAP4.SendCmd(const ATag, AOut: string; const AExpectedResponses: array of String;
   ASingleLineMode: Boolean = False; ASingleLineMayBeSplit: Boolean = True): string;
 var
   LCmd: String;
@@ -2589,7 +2589,8 @@ begin
   Result := StatusMailBox(AMBName, AMB, AStatusDataItems);
 end;
 
-function TIdIMAP4.StatusMailBox(const AMBName: String; AMB: TIdMailBox; const AStatusDataItems: array of TIdIMAP4StatusDataItem): Boolean;
+function TIdIMAP4.StatusMailBox(const AMBName: String; AMB: TIdMailBox;
+  const AStatusDataItems: array of TIdIMAP4StatusDataItem): Boolean;
 var
   LDataItems : string;
   Ln : Integer;
@@ -3832,7 +3833,7 @@ begin
       {For an invalid request (non-existent part or message), NIL is returned as the size...}
       if (LastCmdResult.Text.Count < 1)
         or (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch],
-          [IMAP4FetchDataItem[fdBody]+'['+'TEXT'+']' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
+          [IMAP4FetchDataItem[fdBody]+'[TEXT]' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
         or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1) {do not localize}
         or (FLineStruct.ByteCount < 1) then
       begin
@@ -6416,7 +6417,7 @@ begin
   end;
 end;
 
-function TIdIMAP4.ParseLastCmdResult(ALine: string; AExpectedCommand: string; AExpectedIMAPFunction: array of string): Boolean;
+function TIdIMAP4.ParseLastCmdResult(ALine: string; AExpectedCommand: string; const AExpectedIMAPFunction: array of string): Boolean;
 var
   LPos: integer;
   LWord: string;
@@ -6709,7 +6710,7 @@ begin
   LBytesRead := 0;
   while LBytesRead < LNumSourceBytes do begin
     ASourceStream.ReadBuffer(LByte, 1);
-    if (LByte <> 13) and (LByte <> 10) then begin
+    if (LByte <> $0D) and (LByte <> $0A) then begin
       ADestStream.WriteBuffer(LByte, 1);
     end;
     Inc(LBytesRead);

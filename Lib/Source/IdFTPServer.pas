@@ -939,7 +939,11 @@ type
     FPASVBoundPortMax : TIdPort;
     FSystemType: string;
     FDefaultDataPort : TIdPort;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FUserAccounts: TIdCustomUserManager;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FUserAccounts: TIdCustomUserManager;
+
     FOnUserAccount : TOnFTPUserAccountEvent;
     FOnAfterUserLogin: TOnAfterUserLoginEvent;
     FOnUserLogin: TOnFTPUserLoginEvent;
@@ -981,7 +985,11 @@ type
     FOnDataPortAfterBind : TOnDataPortBind;
     FOnPASVBeforeBind : TIdOnPASVRange;
     FOnPASVReply : TIdOnPASV;
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FFTPFileSystem: TIdFTPBaseFileSystem;
+
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FFTPFileSystem: TIdFTPBaseFileSystem;
+
     FEndOfHelpLine : String;
     FCustomSystID : String;
     FReplyUnknownSITECommand : TIdReply;
@@ -1150,7 +1158,7 @@ type
     procedure ListDirectory(ASender: TIdFTPServerContext; ADirectory: string;
       ADirContents: TStrings; ADetails: Boolean; const ACmd : String = 'LIST';
       const ASwitches : String = ''); {do not localize}
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
     procedure SetAnonymousAccounts(const AValue: TStrings);
@@ -1161,7 +1169,9 @@ type
     procedure SetReplyUnknownSITECommand(AValue: TIdReply);
     procedure SetSITECommands(AValue: TIdCommandHandlers);
     procedure ThreadException(AThread: TIdThread; AException: Exception);
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure SetFTPFileSystem(const AValue: TIdFTPBaseFileSystem);
+    {$ENDIF}
     function  GetMD5Checksum(ASender : TIdFTPServerContext; const AFileName : String) : String;
     //overrides from TIdTCPServer
     procedure DoConnect(AContext:TIdContext); override;
@@ -1197,7 +1207,7 @@ type
     property AnonymousPassStrictCheck: Boolean read FAnonymousPassStrictCheck
      write FAnonymousPassStrictCheck default Id_DEF_PassStrictCheck;
     property DefaultDataPort : TIdPort read FDefaultDataPort write FDefaultDataPort default IdPORT_FTP_DATA;
-    property FTPFileSystem:TIdFTPBaseFileSystem read FFTPFileSystem write SetFTPFileSystem;
+    property FTPFileSystem:TIdFTPBaseFileSystem read FFTPFileSystem write {$IFDEF USE_OBJECT_REF_FREENOTIF}SetFTPFileSystem{$ELSE}FFTPFileSystem{$ENDIF};
     property FTPSecurityOptions : TIdFTPSecurityOptions read FFTPSecurityOptions write SetFTPSecurityOptions;
     property EndOfHelpLine : String read FEndOfHelpLine write FEndOfHelpLine;
     property PASVBoundPortMin : TIdPort read FPASVBoundPortMin write SetPASVBoundPortMin default DEF_PASV_BOUND_MIN;
@@ -2600,7 +2610,7 @@ begin
   if LUserAccounts <> AValue then begin
     // under ARC, all weak references to a freed object get nil'ed automatically
 
-    {$IFNDEF USE_OBJECT_ARC}
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     if Assigned(LUserAccounts) then begin
       LUserAccounts.RemoveFreeNotification(Self);
     end;
@@ -2609,12 +2619,12 @@ begin
     FUserAccounts := AValue;
 
     if Assigned(AValue) then begin
-      {$IFNDEF USE_OBJECT_ARC}
+      {$IFDEF USE_OBJECT_REF_FREENOTIF}
       AValue.FreeNotification(Self);
       {$ENDIF}
       FOnUserAccount := nil;
       //XAUT can not work with an account manager that sends
-      //a challange because that command is a USER/PASS rolled into
+      //a challenge because that command is a USER/PASS rolled into
       //one command.
       if AValue.SendsChallange then begin
         FSupportXAUTH := False;
@@ -2623,12 +2633,10 @@ begin
   end;
 end;
 
+// under ARC, all weak references to a freed object get nil'ed automatically
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdFTPServer.SetFTPFileSystem(const AValue: TIdFTPBaseFileSystem);
 begin
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, all weak references to a freed object get nil'ed automatically
-  FFTPFileSystem := AValue;
-  {$ELSE}
   if FFTPFileSystem <> AValue then begin
     if Assigned(FFTPFileSystem) then begin
       FFTPFileSystem.RemoveFreeNotification(Self);
@@ -2638,8 +2646,8 @@ begin
       AValue.FreeNotification(Self);
     end;
   end;
-  {$ENDIF}
 end;
+{$ENDIF}
 
 procedure TIdFTPServer.SetReplyUnknownSITECommand(AValue: TIdReply);
 begin
@@ -2652,7 +2660,7 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-{$IFNDEF USE_OBJECT_ARC}
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdFTPServer.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if Operation = opRemove then begin
@@ -5693,7 +5701,7 @@ end;
 procedure TIdFTPServer.CommandSiteUMASK(ASender: TIdCommand);
 var
   LContext : TIdFTPServerContext;
-  LNewMask : Integer;
+  LOldMask, LNewMask : Integer;
   LPermitted : Boolean;
 begin
   LContext := ASender.Context as TIdFTPServerContext;
@@ -5705,8 +5713,9 @@ begin
           LNewMask := IndyStrToInt(ASender.Params[0], 0);
           DoOnSiteUMASK(LContext, LNewMask, LPermitted);
           if LPermitted then begin
-            ASender.Reply.SetReply(200, IndyFormat(RSFTPUMaskSet, [LNewMask, LContext.FUMask]));
+            LOldMask := LContext.FUMask;
             LContext.FUMask := LNewMask;
+            ASender.Reply.SetReply(200, IndyFormat(RSFTPUMaskSet, [LNewMask, LOldMask]));
           end else begin
             ASender.Reply.SetReply(553, RSFTPPermissionDenied);
           end;
@@ -7153,21 +7162,19 @@ begin
     LIO := FServer.IOHandler.MakeClientIOHandler(nil) as TIdIOHandlerSocket;
   end;
 
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, the TIdTCPConnection.IOHandler property is a weak reference.
+  // under ARC, the TIdTCPConnection.IOHandler property is a weak/unsafe reference.
   // MakeFTPSvrPasv(), MakeFTPSvrPort(), and MakeClientIOHandler() return an
   // IOHandler with no Owner assigned, so lets make the TIdTCPConnection become
   // the Owner in order to keep the IOHandler alive when this method exits.
   //
-  // TODO: should we assign Ownership unconditionally on all platforms?
+  // Let's assign Ownership unconditionally on all platforms...
   //
   // TODO: add an AOwner parameter to MakeFTPSvrPasv(), MakeFTPSvrPort() and
   // MakeClientIOHandler
   //
   FDataChannel.InsertComponent(LIO);
-  {$ENDIF}
+
   FDataChannel.IOHandler := LIO;
-  FDataChannel.ManagedIOHandler := True;
 
   LIO.OnBeforeBind := AControlContext.PortOnBeforeBind;
   LIO.OnAfterBind := AControlContext.PortOnAfterBind;

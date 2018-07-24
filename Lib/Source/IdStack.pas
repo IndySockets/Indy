@@ -239,6 +239,7 @@ type
     constructor Create(ACollection: TCollection; const AIPVersion: TIdIPVersion; const AIPAddress: string); reintroduce;
     property IPVersion: TIdIPVersion read FIPVersion;
     property IPAddress: String read FIPAddress;
+    // TODO: add InterfaceName
   end;
 
   TIdStackLocalAddressIPv4 = class(TIdStackLocalAddress)
@@ -425,7 +426,7 @@ uses
 
   // TODO: move this to IdStackVCLPosix...
   {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(ANDROID)}
-    {$IF (NOT DEFINED(DCC_XE6_OR_ABOVE)) OR DEFINED(DCC_SEATTLE_OR_ABOVE)}
+    {$IF (NOT DEFINED(DCC_XE6_OR_ABOVE)) OR DEFINED(DCC_10_0_OR_ABOVE)}
   // StringToJString() is here in XE5
   // StringToJString() is inline in Seattle and later
   Androidapi.JNI.JavaTypes,
@@ -654,6 +655,9 @@ begin
     // for backwards compatibility, return only IPv4 addresses
     // TODO: if connected to an IPv6-only network, return an IPv6 address
     LAddr := List.FirstIPOf(Id_IPv4);
+    {if LAddr = nil then begin
+      LAddr := List.FirstIPOf(Id_IPv6);
+    end;}
     if LAddr <> nil then begin
       Result := LAddr.IPAddress;
     end;
