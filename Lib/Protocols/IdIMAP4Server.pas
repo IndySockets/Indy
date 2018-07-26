@@ -1295,7 +1295,7 @@ begin
       //Assemble remaining flags back into a string...
       LTemp := AParams[2];
       for LN := 3 to AParams.Count-1 do begin
-        LTemp := ' ' + AParams[LN];  {Do not Localize}
+        LTemp := LTemp + ' ' + AParams[LN];  {Do not Localize}
       end;
       if not FlagStringToFlagList(LFlagList, LTemp) then begin
         SendBadReply(ASender, 'Error in syntax of flag set parameter'); {Do not Localize}
