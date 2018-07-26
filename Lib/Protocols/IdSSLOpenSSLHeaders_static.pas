@@ -724,13 +724,12 @@ begin
   TLSv1_method := TLSv1_method_func;
   TLSv1_server_method := TLSv1_server_method_func;
   TLSv1_client_method := TLSv1_client_method_func;
-//  TLSv1_1_method := TLSv1_1_method_func;
-//  TLSv1_1_server_method := TLSv1_1_server_method_func;
-//  TLSv1_1_client_method := TLSv1_1_client_method_func;
-//  TLSv1_2_method := TLSv1_2_method_func;
-//  TLSv1_2_server_method := TLSv1_2_server_method_func;
-//  TLSv1_2_client_method := TLSv1_2_client_method_func;
-
+  TLSv1_1_method := TLSv1_1_method_func;
+  TLSv1_1_server_method := TLSv1_1_server_method_func;
+  TLSv1_1_client_method := TLSv1_1_client_method_func;
+  TLSv1_2_method := TLSv1_2_method_func;
+  TLSv1_2_server_method := TLSv1_2_server_method_func;
+  TLSv1_2_client_method := TLSv1_2_client_method_func;
   DTLSv1_method := DTLSv1_method_func;
   DTLSv1_server_method := DTLSv1_server_method_func;
   DTLSv1_client_method := DTLSv1_client_method_func;
