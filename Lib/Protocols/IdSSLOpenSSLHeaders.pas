@@ -18188,7 +18188,7 @@ function Load: Boolean;
 procedure Unload;
 {$IFNDEF STATICLOAD_OPENSSL}
 function WhichFailedToLoad: String;
-function GetCryptLibHandle : Integer;
+function GetCryptLibHandle : HMODULE;
 procedure IdOpenSSLSetLibPath(const APath: String);
   {$IFDEF UNIX}
 procedure IdOpenSSLSetLoadSymLinksFirst(ALoadFirst: Boolean);
@@ -19568,7 +19568,7 @@ var
   {$ENDIF}
 
 {$IFNDEF STATICLOAD_OPENSSL}
-function GetCryptLibHandle : Integer;
+function GetCryptLibHandle : HMODULE;
 begin
   Result := hIdCrypto;
 end;
