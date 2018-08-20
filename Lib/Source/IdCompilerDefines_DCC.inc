@@ -318,7 +318,6 @@
 {$DEFINE HAS_TCharacter}
 {$DEFINE HAS_InterlockedCompareExchangePointer}
 {$DEFINE HAS_WIDE_TCharArray}
-{$DEFINE HAS_UNIT_AnsiStrings}
 {$IFDEF DCC_2009}
   // TODO: need to differentiate between RTM and Update 1
   // FmtStr() is broken in RTM but was fixed in Update 1
@@ -508,7 +507,6 @@
   {$UNDEF HAS_AnsiChar}
   {$UNDEF HAS_PAnsiChar}
   {$UNDEF HAS_PPAnsiChar}
-  {$UNDEF HAS_UNIT_AnsiStrings}
   {$UNDEF HAS_AnsiStrings_StrPLCopy}
   {$UNDEF HAS_AnsiStrings_StrLen}
 {$ENDIF}

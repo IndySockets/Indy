@@ -135,9 +135,6 @@ const
 implementation
 
 uses
-  {$IFDEF HAS_UNIT_AnsiStrings}
-  AnsiStrings,
-  {$ENDIF}
   SysUtils,
   IdFIPS,
   IdGlobalProtocols,
