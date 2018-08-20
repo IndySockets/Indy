@@ -1108,7 +1108,6 @@
     {$DEFINE HAS_TCharacter}
     {$DEFINE HAS_InterlockedCompareExchangePointer}
     {$DEFINE HAS_WIDE_TCharArray}
-    {$DEFINE HAS_UNIT_AnsiStrings}
     {$DEFINE HAS_PUInt64}
     {$IFDEF VCL_2009}
       // TODO: need to differentiate between RTM and Update 1
@@ -1439,7 +1438,6 @@
   {$UNDEF HAS_AnsiChar}
   {$UNDEF HAS_PAnsiChar}
   {$UNDEF HAS_PPAnsiChar}
-  {$UNDEF HAS_UNIT_AnsiStrings}
   {$UNDEF HAS_AnsiStrings_StrPLCopy}
   {$UNDEF HAS_AnsiStrings_StrLen}
 {$ENDIF}

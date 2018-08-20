@@ -276,9 +276,6 @@ const
 implementation
 
 uses
-  {$IFDEF HAS_UNIT_AnsiStrings}
-  AnsiStrings,
-  {$ENDIF}
   SysUtils,
   {$IFDEF DOTNET}
   System.Text,
