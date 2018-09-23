@@ -19529,7 +19529,7 @@ const
   where the symbolic link libbsl.so and libcrypto.so do not exist}
   SSL_DLL_name         = 'libssl'; {Do not localize}
   SSLCLIB_DLL_name     = 'libcrypto'; {Do not localize}
-  SSLDLLVers : array [0..7] of string = ('.10','.1.0.2','.1.0.1','.1.0.0','0.9.9','.0.9.8','.0.9.7','0.9.6');
+  SSLDLLVers : array [0..7] of string = ('.10','.1.0.2','.1.0.1','.1.0.0','.0.9.9','.0.9.8','.0.9.7','.0.9.6');
   SSLDLLVersChar : array [0..26] of string = ('','a','b','c','d','e','f','g','h','i',
                                                  'j','k','l','m','n','o','p','q','r',
                                                  's','t','u','v','w','x','y','z');
