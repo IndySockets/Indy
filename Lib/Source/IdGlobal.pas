@@ -3500,12 +3500,13 @@ end;
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
 var
   i : Integer;
-  FileName: string;
-begin
-  Result := NilHandle;
-  for i := Low(ALibVersions) to High(ALibVersions) do
+
+  function LoadLibVer(const ALibVer: string): HMODULE;
+  var
+    FileName: string;
   begin
-    FileName := HackLoadFileName(ALibName, ALibVersions[i]);
+    FileName := HackLoadFileName(ALibName, ALibVer);
+
     {$IF DEFINED(USE_SAFELOADLIBRARY)}
     Result := SafeLoadLibrary(FileName);
     {$ELSEIF DEFINED(KYLIXCOMPAT)}
@@ -3516,12 +3517,24 @@ begin
     {$ELSE}
     Result := LoadLibrary(FileName);
     {$IFEND}
+
     {$IFDEF USE_INVALIDATE_MOD_CACHE}
     InvalidateModuleCache;
     {$ENDIF}
-    if Result <> NilHandle then begin
-      break;
+  end;
+
+begin
+  if High(ALibVersions) > -1 then begin
+    Result := NilHandle;
+    for i := Low(ALibVersions) to High(ALibVersions) do
+    begin
+      Result := LoadLibVer(ALibVersions[i]);
+      if Result <> NilHandle then begin
+        Break;
+      end;
     end;
+  end else begin
+    Result := LoadLibVer('');
   end;
 end;
 {$ENDIF}
