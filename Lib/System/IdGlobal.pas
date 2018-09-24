@@ -4302,24 +4302,26 @@ begin
 end;
 
 {$IFDEF UNIX}
-function HackLoadFileName(const ALibName, ALibVer : String) : string;  {$IFDEF USE_INLINE} inline; {$ENDIF}
+function HackLoadFileName(const ALibName, ALibVer : String) : string;
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF DARWIN_OR_IOS}
-  Result := ALibName+ALibVer+LIBEXT;
+  Result := ALibName + ALibVer + LIBEXT;
   {$ELSE}
-  Result := ALibName+LIBEXT+ALibVer;
+  Result := ALibName + LIBEXT + ALibVer;
   {$ENDIF}
 end;
 
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
 var
   i : Integer;
-  FileName: string;
-begin
-  Result := NilHandle;
-  for i := Low(ALibVersions) to High(ALibVersions) do
+
+  function LoadLibVer(const ALibVer: string): HMODULE;
+  var
+    FileName: string;
   begin
-    FileName := HackLoadFileName(ALibName, ALibVersions[i]);
+    FileName := HackLoadFileName(ALibName, ALibVer);
+
     {$IFDEF USE_SAFELOADLIBRARY}
     Result := SafeLoadLibrary(FileName);
     {$ELSE}
@@ -4334,12 +4336,24 @@ begin
     Result := LoadLibrary(FileName);
       {$ENDIF}
     {$ENDIF}
+
     {$IFDEF USE_INVALIDATE_MOD_CACHE}
     InvalidateModuleCache;
     {$ENDIF}
-    if Result <> NilHandle then begin
-      break;
+  end;
+
+begin
+  if High(ALibVersions) > -1 then begin
+    Result := NilHandle;
+    for i := Low(ALibVersions) to High(ALibVersions) do
+    begin
+      Result := LoadLibVer(ALibVersions[i]);
+      if Result <> NilHandle then begin
+        Break;
+      end;
     end;
+  end else begin
+    Result := LoadLibVer('');
   end;
 end;
 {$ENDIF}
