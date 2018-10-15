@@ -442,7 +442,7 @@ type
     property Method: TIdHTTPMethod read FMethod write FMethod;
     property Source: TStream read FSourceStream write FSourceStream;
     property UseProxy: TIdHTTPConnectionType read FUseProxy;
-    property IPVersion: TIdIPversion read FIPVersion write FIPVersion;
+    property IPVersion: TIdIPVersion read FIPVersion write FIPVersion;
     property Destination: string read FDestination write FDestination;
   end;
 
@@ -3006,6 +3006,12 @@ begin
 
     if LResponseDigit <> 2 then begin
       case LResponseCode of
+        101:
+          begin
+            Response.KeepAlive := True;
+            Result := wnJustExit;
+            Exit;
+          end;
         401:
           begin // HTTP Server authorization required
             if (FHTTP.AuthRetries >= FHTTP.MaxAuthRetries) or
@@ -3165,11 +3171,17 @@ begin
       //
       // This is also necessary as servers are allowed to send any number of
       // 1xx informational responses before sending the final response.
+      //
+      // Except in the case of 101 SWITCHING PROTOCOLS, which is a final response.
+      // The protocol on the line is then switched to the requested protocol, per
+      // the response's 'Upgrade' header, following the 101 response, so we need to
+      // stop and exit immediately if 101 is received, and let the caller handle
+      // the new protocol as needed.
       repeat
         Response.ResponseText := InternalReadLn;
         FHTTPProto.RetrieveHeaders(MaxHeaderLines);
         ProcessCookies(Request, Response);
-      until (Response.ResponseCode div 100) <> 1;
+      until ((Response.ResponseCode div 100) <> 1) or (Response.ResponseCode = 101);
 
       case FHTTPProto.ProcessResponse(AIgnoreReplies) of
         wnAuthRequest:
@@ -3195,7 +3207,7 @@ begin
             FAuthRetries := 0;
             FAuthProxyRetries := 0;
           end;
-        wnJustExit: 
+        wnJustExit:
           begin
             Break;
           end;
