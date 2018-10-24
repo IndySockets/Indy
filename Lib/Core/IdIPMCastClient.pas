@@ -259,48 +259,57 @@ var
   PeerPort: TIdPort;
   PeerIPVersion: TIdIPVersion;
   ByteCount: Integer;
-  LReadList: TIdSocketList;
+  LSocketList, LReadList: TIdSocketList;
   i: Integer;
   LBuffer : TIdBytes;
 begin
   SetLength(LBuffer, FBufferSize);
 
   // create a socket list to select for read
-  LReadList := TIdSocketList.CreateSocketList;
+  LSocketList := TIdSocketList.CreateSocketList;
   try
     // fill list of socket handles for reading
     for i := 0 to FServer.Bindings.Count - 1 do
     begin
-      LReadList.Add(FServer.Bindings[i].Handle);
+      LSocketList.Add(FServer.Bindings[i].Handle);
     end;
 
     // select the handles for reading
-    LReadList.SelectRead(AcceptWait);
-
-    for i := 0 to LReadList.Count - 1 do
+    LReadList := nil;
+    if LSocketList.SelectReadList(LReadList, AcceptWait) then
     begin
-      // Doublecheck to see if we've been stopped
-      // Depending on timing - may not reach here
-      // if stopped the run method of the ancestor
-
-      if not Stopped then
-      begin
-        IncomingData := FServer.Bindings.BindingByHandle(TIdStackSocketHandle(LReadList[i]));
-        ByteCount := IncomingData.RecvFrom(LBuffer, PeerIP, PeerPort, PeerIPVersion);
-        // RLebeau: some protocols make use of 0-length messages, so don't discard
-        // them here. This is not connection-oriented, so recvfrom() only returns
-        // 0 if a 0-length packet was actually received...
-        if ByteCount >= 0 then
+      try
+        for i := 0 to LReadList.Count - 1 do
         begin
-          SetLength(FBuffer, ByteCount);
-          CopyTIdBytes(LBuffer, 0, FBuffer, 0, ByteCount);
-          IncomingData.SetPeer(PeerIP, PeerPort, PeerIPVersion);
-          if FServer.ThreadedEvent then begin
-            IPMCastRead;
-          end else begin
-            Synchronize(IPMCastRead);
+          // Doublecheck to see if we've been stopped
+          // Depending on timing - may not reach here
+          // if stopped the run method of the ancestor
+
+          if not Stopped then
+          begin
+            IncomingData := FServer.Bindings.BindingByHandle(LReadList[i]);
+            if IncomingData <> nil then
+            begin
+              ByteCount := IncomingData.RecvFrom(LBuffer, PeerIP, PeerPort, PeerIPVersion);
+              // RLebeau: some protocols make use of 0-length messages, so don't discard
+              // them here. This is not connection-oriented, so recvfrom() only returns
+              // 0 if a 0-length packet was actually received...
+              if ByteCount >= 0 then
+              begin
+                SetLength(FBuffer, ByteCount);
+                CopyTIdBytes(LBuffer, 0, FBuffer, 0, ByteCount);
+                IncomingData.SetPeer(PeerIP, PeerPort, PeerIPVersion);
+                if FServer.ThreadedEvent then begin
+                  IPMCastRead;
+                end else begin
+                  Synchronize(IPMCastRead);
+                end;
+              end;
+            end;
           end;
         end;
+      finally
+        LReadList.Free;
       end;
     end;
   finally

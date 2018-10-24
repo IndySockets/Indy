@@ -183,7 +183,7 @@ implementation
 
 uses
   IdResourceStrings, IdResourceStringsProtocols, IdReplyRFC, IdTCPClient, IdURI,
-  IdGlobalProtocols, IdStack, IdTCPStream, IdException, SysUtils;
+  IdGlobalProtocols, IdStack, IdStackConsts, IdTCPStream, IdException, SysUtils;
 
 constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;
   AYarn: TIdYarn; AList: TIdContextThreadList = nil);
@@ -366,6 +366,7 @@ var
   LContext: TIdHTTPProxyServerContext;
   LReadList, LDataAvailList: TIdSocketList;
   LClientToServerStream, LServerToClientStream: TStream;
+  LConnectionHandle, LOutBoundHandle: TIdStackSocketHandle;
 begin
   // RLebeau 7/31/09: we can't make any assumptions about the contents of
   // the data being exchanged after the connection has been established.
@@ -380,82 +381,85 @@ begin
  
   LContext.FOutboundClient := TIdTCPClient.Create(nil);
   try
-    LClientToServerStream := nil;
-    LServerToClientStream := nil;
+    LClientToServerStream := TIdTCPStream.Create(LContext.FOutboundClient);
     try
-      LClientToServerStream := TIdTCPStream.Create(LContext.FOutboundClient);
       LServerToClientStream := TIdTCPStream.Create(LContext.Connection);
-
-      LRemoteHost := LContext.Target;
-      TIdTCPClient(LContext.FOutboundClient).Host := Fetch(LRemoteHost, ':', True);
-      TIdTCPClient(LContext.FOutboundClient).Port := IndyStrToInt(LRemoteHost, 443);
-
-      LContext.Headers.Clear;
-      LContext.Connection.IOHandler.Capture(LContext.Headers, '', False);
-      LContext.FTransferMode := FDefTransferMode;
-      LContext.FTransferSource := tsClient;
-      DoHTTPBeforeCommand(LContext);
-
-      LReadList := nil;
-      LDataAvailList := nil;
       try
-        LReadList := TIdSocketList.CreateSocketList;
-        LDataAvailList := TIdSocketList.CreateSocketList;
+        LRemoteHost := LContext.Target;
+        TIdTCPClient(LContext.FOutboundClient).Host := Fetch(LRemoteHost, ':', True);
+        TIdTCPClient(LContext.FOutboundClient).Port := IndyStrToInt(LRemoteHost, 443);
+
+        LContext.Headers.Clear;
+        LContext.Connection.IOHandler.Capture(LContext.Headers, '', False);
+        LContext.FTransferMode := FDefTransferMode;
+        LContext.FTransferSource := tsClient;
+        DoHTTPBeforeCommand(LContext);
 
         TIdTCPClient(LContext.FOutboundClient).Connect;
         try
-          LReadList.Add(LContext.Connection.Socket.Binding.Handle);
-          LReadList.Add(LContext.FOutboundClient.Socket.Binding.Handle);
+          LConnectionHandle := LContext.Connection.Socket.Binding.Handle;
+          LOutBoundHandle := LContext.FOutboundClient.Socket.Binding.Handle;
 
-          LContext.Connection.IOHandler.WriteLn('HTTP/1.0 200 Connection established'); {do not localize}
-          LContext.Connection.IOHandler.WriteLn('Proxy-agent: Indy-Proxy/1.1'); {do not localize}
-          LContext.Connection.IOHandler.WriteLn;
+          LReadList := TIdSocketList.CreateSocketList;
+          try
+            LReadList.Add(LConnectionHandle);
+            LReadList.Add(LOutBoundHandle);
 
-          LContext.Connection.IOHandler.ReadTimeout := 100;
-          LContext.FOutboundClient.IOHandler.ReadTimeout := 100;
+            LDataAvailList := TIdSocketList.CreateSocketList;
+            try
+              LContext.Connection.IOHandler.WriteLn('HTTP/1.0 200 Connection established'); {do not localize}
+              LContext.Connection.IOHandler.WriteLn('Proxy-agent: Indy-Proxy/1.1'); {do not localize}
+              LContext.Connection.IOHandler.WriteLn;
 
-          while LContext.Connection.Connected and LContext.FOutboundClient.Connected do
-          begin
-            if LReadList.SelectReadList(LDataAvailList, IdTimeoutInfinite) then
-            begin
-              if LDataAvailList.ContainsSocket(LContext.Connection.Socket.Binding.Handle) then
+              LContext.Connection.IOHandler.ReadTimeout := 100;
+              LContext.FOutboundClient.IOHandler.ReadTimeout := 100;
+
+              while LContext.Connection.Connected and LContext.FOutboundClient.Connected do
               begin
-                LContext.Connection.IOHandler.CheckForDataOnSource(0);
-              end;
-              if LDataAvailList.ContainsSocket(LContext.FOutboundClient.Socket.Binding.Handle) then
-              begin
-                LContext.FOutboundClient.IOHandler.CheckForDataOnSource(0);
+                if LReadList.SelectReadList(LDataAvailList, IdTimeoutInfinite) then
+                begin
+                  if LDataAvailList.ContainsSocket(LConnectionHandle) then
+                  begin
+                    LContext.Connection.IOHandler.CheckForDataOnSource(0);
+                  end;
+                  if LDataAvailList.ContainsSocket(LOutBoundHandle) then
+                  begin
+                    LContext.FOutboundClient.IOHandler.CheckForDataOnSource(0);
+                  end;
+
+                  if not LContext.Connection.IOHandler.InputBufferIsEmpty then
+                  begin
+                    LContext.Connection.IOHandler.InputBuffer.ExtractToStream(LClientToServerStream);
+                  end;
+                  if not LContext.FOutboundClient.IOHandler.InputBufferIsEmpty then
+                  begin
+                    LContext.FOutboundClient.IOHandler.InputBuffer.ExtractToStream(LServerToClientStream);
+                  end;
+                end;
               end;
 
-              if not LContext.Connection.IOHandler.InputBufferIsEmpty then
+              if LContext.FOutboundClient.Connected and (not LContext.Connection.IOHandler.InputBufferIsEmpty) then
               begin
                 LContext.Connection.IOHandler.InputBuffer.ExtractToStream(LClientToServerStream);
               end;
-              if not LContext.FOutboundClient.IOHandler.InputBufferIsEmpty then
+              if LContext.Connection.Connected and (not LContext.FOutboundClient.IOHandler.InputBufferIsEmpty) then
               begin
                 LContext.FOutboundClient.IOHandler.InputBuffer.ExtractToStream(LServerToClientStream);
               end;
+            finally
+              FreeAndNil(LDataAvailList);
             end;
-          end;
-
-          if LContext.FOutboundClient.Connected and (not LContext.Connection.IOHandler.InputBufferIsEmpty) then
-          begin
-            LContext.Connection.IOHandler.InputBuffer.ExtractToStream(LClientToServerStream);
-          end;
-          if LContext.Connection.Connected and (not LContext.FOutboundClient.IOHandler.InputBufferIsEmpty) then
-          begin
-            LContext.FOutboundClient.IOHandler.InputBuffer.ExtractToStream(LServerToClientStream);
+          finally
+            FreeAndNil(LReadList);
           end;
         finally
           LContext.FOutboundClient.Disconnect;
         end;
       finally
-        FreeAndNil(LDataAvailList);
-        FreeAndNil(LReadList);
+        FreeAndNil(LServerToClientStream);
       end;
     finally
       FreeAndNil(LClientToServerStream);
-      FreeAndNil(LServerToClientStream);
     end;
   finally
     FreeAndNil(LContext.FOutboundClient);
