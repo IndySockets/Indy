@@ -455,8 +455,8 @@ end;
 
 procedure TIdMappedFtpDataThread.Run;
 var
-  LConnectionHandle: TIdStackSocketHandle;
-  LOutBoundHandle: TIdStackSocketHandle;
+  LConnectionHandle, LOutBoundHandle: TIdStackSocketHandle;
+  LReadList: TIdSocketList;
 begin
   try
     try
@@ -467,29 +467,34 @@ begin
       FReadList.Add(LConnectionHandle);
       FReadList.Add(LOutBoundHandle);
 
-      if FReadList.SelectRead(IdTimeoutInfinite) then
+      LReadList := nil;
+      if FReadList.SelectReadList(LReadList, IdTimeoutInfinite) then
       begin
-        if FReadList.ContainsSocket(LConnectionHandle) then
-        begin
-          Connection.IOHandler.CheckForDataOnSource(0);
-          SetLength(FNetData, 0);
-          Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
-          if Length(FNetData) > 0 then
+        try
+          if LReadList.ContainsSocket(LConnectionHandle) then
           begin
-            // TODO: DoLocalClientData(TIdMappedPortThread(AThread));//bServer
-            FOutboundClient.IOHandler.Write(FNetData);
+            Connection.IOHandler.CheckForDataOnSource(0);
+            SetLength(FNetData, 0);
+            Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
+            if Length(FNetData) > 0 then
+            begin
+              // TODO: DoLocalClientData(TIdMappedPortThread(AThread));//bServer
+              FOutboundClient.IOHandler.Write(FNetData);
+            end;
           end;
-        end;
-        if FReadList.ContainsSocket(LOutBoundHandle) then
-        begin
-          Connection.IOHandler.CheckForDataOnSource(0);
-          SetLength(FNetData, 0);
-          FOutboundClient.IOHandler.InputBuffer.ExtractToBytes(FNetData);
-          if Length(FNetData) > 0 then
+          if LReadList.ContainsSocket(LOutBoundHandle) then
           begin
-            // TODO: DoOutboundClientData(TIdMappedPortThread(AThread));
-            FConnection.IOHandler.Write(FNetData);
+            Connection.IOHandler.CheckForDataOnSource(0);
+            SetLength(FNetData, 0);
+            FOutboundClient.IOHandler.InputBuffer.ExtractToBytes(FNetData);
+            if Length(FNetData) > 0 then
+            begin
+              // TODO: DoOutboundClientData(TIdMappedPortThread(AThread));
+              FConnection.IOHandler.Write(FNetData);
+            end;
           end;
+        finally
+          LReadList.Free;
         end;
       end;
     finally
