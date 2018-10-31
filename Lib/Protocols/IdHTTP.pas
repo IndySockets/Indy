@@ -2379,8 +2379,20 @@ begin
 
   // TODO: get rid of this check here.  Let ProxyParams.Authentication validate
   // the username/password as needed.  Don't validate OnProxyAuthorization unless
-  // wnAskTheProgram is requested...  
-  Result := Assigned(OnProxyAuthorization) or (Trim(ProxyParams.ProxyPassword) <> '');
+  // wnAskTheProgram is requested...
+  //  Result := Assigned(OnProxyAuthorization) or (Trim(ProxyParams.ProxyPassword) <> '');
+
+  // MForte 10/26/2018: Rather than getting rid of the above check, which might
+  // cause adverse consequences that I can't imagine, I moved the logic into
+  // the TIdAuthentication class.
+  // TIdAuthentication.AuthorizationAttemptMerited has exactly the same logic as
+  // above, while TIdSSPINTLMAuthentication.AuthorizationAttemptMerited always
+  // returns True.
+  Result :=
+    ProxyParams.Authentication.AuthorizationAttemptMerited(
+        (Trim(ProxyParams.ProxyPassword) <> ''),
+        Assigned(OnProxyAuthorization)
+      );
 
   if not Result then begin
     Exit;
