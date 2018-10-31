@@ -418,6 +418,8 @@ type
     destructor Destroy; override;
     function Authentication: string; override;
     function KeepAlive: Boolean; override;
+    function AuthorizationAttemptMerited(
+      const AProxyPasswordeExists, AOnProxyAuthorizationExists: Boolean): Boolean; override;
     property Domain: String read GetDomain write SetDomain;
   end;
 
@@ -1052,8 +1054,6 @@ function TCustomSSPIConnectionContext.UpdateAndGenerateReply
 var
   fOutBuff: SecBuffer;
 begin
-  Result := False;
-
   { check credentials }
   CheckCredentials;
   { prepare input buffer }
@@ -1306,6 +1306,13 @@ begin
     Delete(S, 1, Length(Domain) + 1);
   end;
   inherited SetUserName(S);
+end;
+
+function TIdSSPINTLMAuthentication.AuthorizationAttemptMerited(
+  const AProxyPasswordeExists, AOnProxyAuthorizationExists: Boolean): Boolean;
+begin
+  // This type of authentication does not require either
+  Result := True;
 end;
 
 destructor TIdSSPINTLMAuthentication.Destroy;

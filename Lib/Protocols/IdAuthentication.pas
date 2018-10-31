@@ -85,6 +85,8 @@ type
 
     function Authentication: String; virtual; abstract;
     function KeepAlive: Boolean; virtual;
+    function AuthorizationAttemptMerited(
+      const AProxyPasswordeExists, AOnProxyAuthorizationExists: Boolean): Boolean; virtual;
     function Next: TIdAuthWhatsNext;
 
     property AuthParams: TIdHeaderList read FAuthParams write SetAuthParams;
@@ -282,6 +284,42 @@ end;
 function TIdAuthentication.GetSteps: Integer;
 begin
   Result := 0;
+end;
+
+function TIdAuthentication.AuthorizationAttemptMerited(
+  const AProxyPasswordeExists, AOnProxyAuthorizationExists: Boolean): Boolean;
+begin
+  {
+    MForte 10/26/2018: Added this virtual method to allow the
+    TIdAuthentication class to determine whether or not an authorization
+    attempt is merited.  Before, in TIdCustomHTTP.DoOnProxyAuthorization,
+    the following code existed:
+
+      // RLebeau 11/18/2014: Added part about the password. Not testing user name
+      // as some proxies do not require user name, only password.
+      //
+      // RLebeau 11/18/2014: what about SSPI? It does not require an explicit
+      // username/password as it can use the identity of the user token associated
+      // with the calling thread!
+
+      // TODO: get rid of this check here.  Let ProxyParams.Authentication validate
+      // the username/password as needed.  Don't validate OnProxyAuthorization unless
+      // wnAskTheProgram is requested...
+      Result :=
+        Assigned(OnProxyAuthorization) or
+        (Trim(ProxyParams.ProxyPassword) <> '');
+
+      if not Result then begin
+        Exit;
+      end;
+
+    As a result, classes such as TIdSSPINTLMAuthentication, which do not need any
+    username or password, would not be given the opportunity to attempt to authorize.
+
+    Now, all TIdAuthentication classes behave exactly the same as they did before
+    unless they override this virtual method, as TIdSSPINTLMAuthentication now does.
+  }
+  Result := AProxyPasswordeExists or AOnProxyAuthorizationExists;
 end;
 
 { TIdBasicAuthentication }
