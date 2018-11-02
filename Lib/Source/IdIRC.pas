@@ -786,6 +786,7 @@ procedure TIdIRC.Raw(const ALine: String);
 begin
   if Connected then begin
     if Assigned(FOnRaw) then begin
+      // TODO: use FListeningThread.FContext instead of nil...
       FOnRaw(nil, False, ALine);
     end;
     IOHandler.WriteLn(IRCQuote(ALine));

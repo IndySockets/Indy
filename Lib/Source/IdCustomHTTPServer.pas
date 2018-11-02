@@ -959,6 +959,8 @@ begin
   if SessionState then begin
     LSessionList := FSessionList;
     if Assigned(LSessionList) then begin
+      // TODO: pass the RemoteIP to the OnCreateSession event handler, or even
+      // better the entire HTTPRequest object...
       DoOnCreateSession(AContext, Result);
       if not Assigned(Result) then begin
         Result := LSessionList.CreateUniqueSession(HTTPRequest.RemoteIP);
@@ -1261,6 +1263,9 @@ begin
         if i = 0 then begin
           raise EIdHTTPErrorParsingCommand.Create(RSHTTPErrorParsingCommand);
         end;
+        // TODO: don't recreate the Request and Response objects on each loop
+        // iteration. Just create them once before entering the loop, and then
+        // reset them as needed on each iteration...
         LRequestInfo := TIdHTTPRequestInfo.Create(Self);
         try
           LResponseInfo := TIdHTTPResponseInfo.Create(Self, LRequestInfo, LConn);
@@ -2361,11 +2366,18 @@ var
   SessionID: String;
 begin
   SessionID := GetRandomString(15);
-  while GetSession(SessionID, RemoteIP) <> nil do
-  begin
-    SessionID := GetRandomString(15);
-  end;    // while
-  Result := CreateSession(RemoteIP, SessionID);
+  // TODO: shouldn't this lock the SessionList before entering the
+  // loop to prevent race conditions across multiple threads?
+  {SessionList.LockList;
+  try}
+    while GetSession(SessionID, RemoteIP) <> nil do
+    begin
+      SessionID := GetRandomString(15);
+    end;    // while
+    Result := CreateSession(RemoteIP, SessionID);
+  {finally
+    SessionList.UnlockList;
+  end;}
 end;
 
 function TIdHTTPDefaultSessionList.GetSession(const SessionID, RemoteIP: string): TIdHTTPSession;

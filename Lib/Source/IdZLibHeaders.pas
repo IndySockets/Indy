@@ -861,11 +861,7 @@ function inflateGetHeader; external;
 {$ELSE}
 
 var
-  {$IFDEF UNIX}
-  hZlib: HModule = nilhandle;
-  {$ELSE}
   hZLib: THandle = 0;
-  {$ENDIF}
 
   {$IF DEFINED(UNIX)}
 const
@@ -873,6 +869,7 @@ const
   //This is a little messy because symbolic links to libraries may not always be the same
   //in various Unix types.  Even then, there could possibly be differences.
   libzlib = 'libz';
+  // TODO: setup this array more like the SSLDLLVers arrays in the IdSSLOpenSSLHeaders unit...
   libvers : array [0..3] of string = ('.1','','.3','.2');
   {$ELSEIF DEFINED(NETWARE)}  {zlib.nlm comes with netware6}
 const

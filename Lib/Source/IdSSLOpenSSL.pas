@@ -2064,7 +2064,7 @@ begin
       try
         X509_print(LMem, AX509);
         LLen := BIO_get_mem_data(LMem, LBufPtr);
-        if (LLen > 0) and Assigned(LBufPtr) then begin
+        if (LLen > 0) and (LBufPtr <> nil) then begin
           AOut.Text := IndyTextEncoding_UTF8.GetString(PByte(LBufPtr), LLen);
         end;
       finally
@@ -3209,6 +3209,8 @@ an invalid MAC when doing SSL.}
   if RootCertFile <> '' then begin    {Do not Localize}
     SSL_CTX_set_client_CA_list(fContext, IndySSL_load_client_CA_file(RootCertFile));
   end
+
+  // TODO: provide an event so users can apply their own settings as needed...
 end;
 
 procedure TIdSSLContext.SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean);
@@ -3688,7 +3690,7 @@ var
   ret, err: Integer;
 begin
   repeat
-    ret := SSL_read(fSSL, @ABuffer[0], Length(ABuffer));
+    ret := SSL_read(fSSL, PByte(ABuffer), Length(ABuffer));
     if ret > 0 then begin
       Result := ret;
       Exit;

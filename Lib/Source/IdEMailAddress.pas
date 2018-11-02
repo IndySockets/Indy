@@ -288,6 +288,7 @@ var
   i: Integer;
 begin
   Result := '';
+  // TODO: use RPos() or LastDelimiter() instead of a manual loop...
   for i := Length(FAddress) downto 1 do
   begin
     if FAddress[i] = '@' then {do not localize}

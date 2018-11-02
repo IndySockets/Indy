@@ -198,7 +198,7 @@
   {$DEFINE DCC_10_2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 10.3 "Name TBD" (Carnival)
+//Delphi & CBuilder 10.3 Rio (Carnival)
 {$IF CompilerVersion >= 33}
   {$IF CompilerVersion < 34}
     {$DEFINE DCC_10_3}

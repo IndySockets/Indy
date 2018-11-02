@@ -16,7 +16,7 @@
   {$IF CompilerVersion >= 34}
     {$MESSAGE ERROR 'Unsupported compiler version detected!'}
 
-  //Delphi & CBuilder 10.3 "Name TBD" (Carnival)
+  //Delphi & CBuilder 10.3 Rio (Carnival)
   {$ELSEIF CompilerVersion >= 33}
     {$LIBSUFFIX '260'}
 
