@@ -18188,7 +18188,7 @@ function Load: Boolean;
 procedure Unload;
 {$IFNDEF STATICLOAD_OPENSSL}
 function WhichFailedToLoad: String;
-function GetCryptLibHandle : HMODULE;
+function GetCryptLibHandle : THandle;
 procedure IdOpenSSLSetLibPath(const APath: String);
   {$IFDEF UNIX}
 procedure IdOpenSSLSetLoadSymLinksFirst(ALoadFirst: Boolean);
@@ -19550,8 +19550,8 @@ var
   {$IFDEF STATICLOAD_OPENSSL}
   bIsLoaded : Boolean = False;
   {$ELSE}
-  hIdSSL    : HMODULE = 0;
-  hIdCrypto : HMODULE = 0;
+  hIdSSL    : THandle = 0;
+  hIdCrypto : THandle = 0;
   FFailedLoadList : TStringList;
   {$ENDIF}
 
@@ -19568,7 +19568,7 @@ var
   {$ENDIF}
 
 {$IFNDEF STATICLOAD_OPENSSL}
-function GetCryptLibHandle : HMODULE;
+function GetCryptLibHandle : THandle;
 begin
   Result := hIdCrypto;
 end;
@@ -22612,7 +22612,7 @@ begin
 end;
   {$ENDIF}
 
-function LoadSSLCryptoLibrary: HMODULE;
+function LoadSSLCryptoLibrary: THandle;
 {$IFNDEF WINDOWS}
   {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
@@ -22630,27 +22630,21 @@ begin
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := 0;
   if GIdLoadSymLinksFirst then begin
-    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
-      HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, [])
-      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+    Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, []);
   end;
   if Result = 0 then begin
     for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
       for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
         LLibVersions[j] := SSLDLLVers[i] + SSLDLLVersChar[j];
       end;
-      Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
-        HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, LLibVersions)
-        {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+      Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, LLibVersions);
       if Result <> 0 then begin
         Break;
       end;
     end;
   end;
   if (Result = 0) and (not GIdLoadSymLinksFirst) then begin
-    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
-      HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, [])
-      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+    Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, []);
   end;
     {$ELSE}
   Result := 0;
@@ -22658,7 +22652,7 @@ begin
   {$ENDIF}
 end;
 
-function LoadSSLLibrary: HMODULE;
+function LoadSSLLibrary: THandle;
 {$IFNDEF WINDOWS}
   {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
@@ -22681,27 +22675,21 @@ begin
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := 0;
   if GIdLoadSymLinksFirst then begin
-    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
-      HackLoad(GIdOpenSSLPath + SSL_DLL_name, [])
-      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+    Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, []);
   end;
   if Result = 0 then begin
     for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
       for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
         LLibVersions[j] := SSLDLLVers[i] + SSLDLLVersChar[j];
       end;
-      Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
-        HackLoad(GIdOpenSSLPath + SSL_DLL_name, LLibVersions)
-        {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+      Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, LLibVersions);
       if Result <> 0 then begin
         Break;
       end;
     end;
   end;
   if (Result = 0) and (not GIdLoadSymLinksFirst) then begin
-    Result := {$IFNDEF KYLIXCOMPAT}HMODULE({$ENDIF}
-      HackLoad(GIdOpenSSLPath + SSL_DLL_name, [])
-      {$IFNDEF KYLIXCOMPAT}){$ENDIF};
+    Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, []);
   end;
     {$ELSE}
   Result := 0;
@@ -23584,6 +23572,15 @@ we have to handle both cases.
   @_FIPS_mode := LoadFunctionCLib(fn_FIPS_mode,False);
   {$ENDIF}
 
+  // TODO: expose a global callback function pointer, or an optional input
+  // parameter to Load(), so users can choose to load additional OpenSSL
+  // functions as desired using the DLL handles that we've already loaded...
+  {
+  if Assigned(LoadSSLFuncsCallback) then begin
+    LoadSSLFuncsCallback(hIdSSL, hIdCrypto, FFailedLoadList);
+  end;
+  }
+
   Result := (FFailedLoadList.Count = 0);
 
 {$ENDIF}
@@ -24316,6 +24313,15 @@ begin
   @_FIPS_mode_set := nil;
   @_FIPS_mode := nil;
   {$ENDIF}
+
+  // TODO: expose a global callback function pointer, or an optional input
+  // parameter to InitializeFuncPointers(), so users can reset any additional
+  // OpenSSL function pointers they loaded manually during Load()...
+  {
+  if Assigned(UnloadSSLFuncsCallback) then begin
+    UnloadSSLFuncsCallback();
+  end;
+  }
 end;
 
 procedure Unload;

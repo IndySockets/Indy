@@ -288,6 +288,7 @@ var
   i: Integer;
 begin
   Result := '';
+  // TODO: use RPos() or LastDelimiter() instead of a manual loop...
   for i := Length(FAddress) downto 1 do
   begin
     if FAddress[i] = '@' then {do not localize}
@@ -779,7 +780,7 @@ begin
           sTemp := Trim(Email.Text);
           if (sTemp = '') or (sTemp = '<>') then {do not localize}
           begin
-            FreeAndNil(Email);
+            IdDisposeAndNil(Email);
           end;
           sTemp := '';
           IdDelete(AList, 1, iStart);
@@ -811,7 +812,7 @@ begin
       sTemp := Trim(Email.Text);
       if (sTemp = '') or (sTemp = '<>') then {do not localize}
       begin
-        FreeAndNil(Email);
+        IdDisposeAndNil(Email);
       end;
     end;
   end;

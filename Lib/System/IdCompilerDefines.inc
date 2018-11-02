@@ -386,7 +386,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.3 "Name TBD" (Carnival)
+  //Delphi & CBuilder 10.3 Rio (Carnival)
   {$IFDEF VER330}
     {$DEFINE VCL_10_3}
     {$IFDEF CBUILDER}

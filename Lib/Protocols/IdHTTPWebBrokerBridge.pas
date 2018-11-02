@@ -806,7 +806,11 @@ begin
       LValue := string(AValue);
     end;
   end;
+
   FResponseInfo.ContentText := LValue;
+  // TODO: use Length(AValue) instead, as the ContentText *should* get re-encoded
+  // back to the same value as AValue when transmitted.  Or, just set ContentLength
+  // to -1 and let Indy calculate it later...
   FResponseInfo.ContentLength := Length(LValue);
 
   {$ELSE}

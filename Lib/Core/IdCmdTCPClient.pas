@@ -126,7 +126,7 @@ type
   public
     property Client: TIdCmdTCPClient read FClient;
   end;
-  
+
   TIdCmdTCPClientListeningThread = class(TIdThread)
   protected
     FContext: TIdCmdClientContext;
@@ -189,6 +189,9 @@ type
 
 constructor TIdCmdTCPClientListeningThread.Create(AClient: TIdCmdTCPClient);
 begin
+  // TODO: move this into TIdCmdTCPClient itself so the Context is always
+  // available even if the thread is not running...
+  //
   FClient := AClient;
   FContext := TIdCmdClientContext.Create(AClient, nil, nil);
   FContext.FClient := AClient;

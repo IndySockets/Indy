@@ -3323,6 +3323,8 @@ an invalid MAC when doing SSL.}
   if RootCertFile <> '' then begin    {Do not Localize}
     SSL_CTX_set_client_CA_list(fContext, IndySSL_load_client_CA_file(RootCertFile));
   end
+
+  // TODO: provide an event so users can apply their own settings as needed...
 end;
 
 procedure TIdSSLContext.SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean);
@@ -3775,7 +3777,7 @@ var
   ret, err: Integer;
 begin
   repeat
-    ret := SSL_read(fSSL, @ABuffer[0], Length(ABuffer));
+    ret := SSL_read(fSSL, PByte(ABuffer), Length(ABuffer));
     if ret > 0 then begin
       Result := ret;
       Exit;
