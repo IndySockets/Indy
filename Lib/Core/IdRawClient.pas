@@ -30,14 +30,13 @@ uses
 
 type
   TIdRawClient = class(TIdRawBase)
-
   published
     property ReceiveTimeout;
     property Host;
     property Port;
     property Protocol;
     property ProtocolIPv6;
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
   end;
 
 implementation

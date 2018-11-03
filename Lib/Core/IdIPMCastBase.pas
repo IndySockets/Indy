@@ -150,11 +150,7 @@ procedure TIdIPMCastBase.InitComponent;
 begin
   inherited InitComponent;
   FIPVersion := ID_DEFAULT_IP_VERSION;
-  {$IFDEF IdIPv6}
-  FMultiCastGroup := DEF_IPv6_MGROUP;
-  {$ELSE}
-  FMultiCastGroup := Id_IPMC_All_Systems;
-  {$ENDIF}
+  FMultiCastGroup := {$IFDEF IdIPv6}DEF_IPv6_MGROUP{$ELSE}Id_IPMC_All_Systems{$ENDIF};
   FReuseSocket := rsOSDependent;
 end;
 

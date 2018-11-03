@@ -141,7 +141,7 @@ type
     property BoundPort: TIdPort read FBoundPort write FBoundPort default DEF_PORT_ANY;
     property BoundPortMin: TIdPort read FBoundPortMin write FBoundPortMin default DEF_PORT_ANY;
     property BoundPortMax: TIdPort read FBoundPortMax write FBoundPortMax default DEF_PORT_ANY;
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property Host;
     property Port;
     property ReceiveTimeout;

@@ -23,6 +23,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFDEF DOTNET_2_OR_ABOVE}
+  IdGlobal,
+  {$ENDIF}
   IdIcmpClient, IdRawBase, IdRawClient, IdThread;
 
 type
@@ -34,7 +37,7 @@ type
     procedure Trace;
   published
     {$IFDEF DOTNET_2_OR_ABOVE}
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     {$ENDIF}
     property PacketSize;
     property ReceiveTimeout;
@@ -45,7 +48,10 @@ type
 implementation
 
 uses
-  IdGlobal, IdStack;
+  {$IFNDEF DOTNET_2_OR_ABOVE}
+  IdGlobal,
+  {$ENDIF}
+  IdStack;
 
 { TIdTraceRoute }
 

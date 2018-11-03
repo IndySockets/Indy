@@ -280,7 +280,7 @@ procedure TIdRawBase.InitComponent;
 begin
   inherited InitComponent;
   FBinding := TIdSocketHandle.Create(nil);
-  FBinding.IPVersion := Id_IPv4;
+  FBinding.IPVersion := ID_DEFAULT_IP_VERSION;
   FPkt := TIdPacketInfo.Create;
   ReceiveTimeout := GReceiveTimeout;
   FPort := Id_TIdRawBase_Port;

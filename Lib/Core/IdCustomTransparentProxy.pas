@@ -88,6 +88,7 @@ type
     FUsername: String;
     {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FChainedProxy: TIdCustomTransparentProxy;
     //
+    procedure InitComponent; override;
     function  GetEnabled: Boolean; virtual; abstract;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
@@ -126,6 +127,12 @@ uses
   IdResourceStringsCore, IdExceptionCore;
 
 { TIdCustomTransparentProxy }
+
+procedure TIdCustomTransparentProxy.InitComponent;
+begin
+  inherited;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
+end;
 
 procedure TIdCustomTransparentProxy.Assign(ASource: TPersistent);
 var
