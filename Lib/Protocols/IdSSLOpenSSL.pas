@@ -2769,10 +2769,18 @@ procedure TIdSSLIOHandlerSocketOpenSSL.ConnectClient;
 var
   LPassThrough: Boolean;
 begin
+  // RLebeau: initialize OpenSSL before connecting the socket...
+  try
+    Init;
+  except
+    on EIdOSSLCouldNotLoadSSLLibrary do begin
+      if not PassThrough then raise;
+    end;
+  end;
   // RLebeau 1/11/07: In case a proxy is being used, pass through
   // any data from the base class unencrypted when setting up that
   // connection.  We should do this anyway since SSL hasn't been
-  // initialized yet!
+  // negotiated yet!
   LPassThrough := fPassThrough;
   fPassThrough := True;
   try
@@ -2788,13 +2796,6 @@ end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.StartSSL;
 begin
-  try
-    Init;
-  except
-    on EIdOSSLCouldNotLoadSSLLibrary do begin
-      if not PassThrough then raise;
-    end;
-  end;
   if not PassThrough then begin
     OpenEncodedConnection;
   end;
@@ -2866,6 +2867,14 @@ procedure TIdSSLIOHandlerSocketOpenSSL.AfterAccept;
 begin
   try
     inherited AfterAccept;
+    // RLebeau: initialize OpenSSL after accepting a client socket...
+    try
+      Init;
+    except
+      on EIdOSSLCouldNotLoadSSLLibrary do begin
+        if not PassThrough then raise;
+      end;
+    end;
     StartSSL;
   except
     Close;
@@ -2946,6 +2955,8 @@ var
   {$ENDIF}
   LMode: TIdSSLMode;
   LHost: string;
+
+  // TODO: move the following to TIdSSLIOHandlerSocketBase...
 
   function GetURIHost: string;
   var
