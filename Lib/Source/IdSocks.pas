@@ -250,7 +250,7 @@ type
     property Host;
     property Password;
     property Port default IdPORT_SOCKS;
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property Username;
     property Version: TSocksVersion read FVersion write FVersion default ID_SOCKS_VER;
     property  ChainedProxy;

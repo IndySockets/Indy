@@ -144,7 +144,7 @@ type
     property BoundPortMin: TIdPort read FBoundPortMin write FBoundPortMin;
     property BoundPortMax: TIdPort read FBoundPortMax write FBoundPortMax;
     property Binding: TIdSocketHandle read GetBinding;
-    property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
+    property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
 
     property OnBeforeBind: TNotifyEvent read FOnBeforeBind write FOnBeforeBind;
     property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
@@ -167,6 +167,7 @@ uses
 constructor TIdSimpleServer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FIPVersion := ID_DEFAULT_IP_VERSION;
   FAcceptWait := ID_ACCEPT_WAIT;
   FListenHandle := Id_INVALID_SOCKET;
 end;

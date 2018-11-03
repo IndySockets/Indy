@@ -23,7 +23,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdIcmpClient, IdRawBase, IdRawClient, IdThread;
+  IdGlobal, IdIcmpClient, IdRawBase, IdRawClient, IdThread;
 
 type
   TIdTraceRoute = class(TIdCustomICMPClient)
@@ -33,7 +33,7 @@ type
   public
     procedure Trace;
   published
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property PacketSize;
     property ReceiveTimeout;
     property ResolveHostNames : Boolean read FResolveHostNames write FResolveHostNames;
@@ -43,7 +43,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdStack;
+  IdStack;
 
 { TIdTraceRoute }
 

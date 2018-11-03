@@ -2641,6 +2641,7 @@ begin
   inherited Create(AHTTP);
   FHTTP := AHTTP;
   FUseProxy := ctNormal;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
 end;
 
 { TIdHTTPProtocol }

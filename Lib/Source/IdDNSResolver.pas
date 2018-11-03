@@ -560,7 +560,7 @@ type
     property AllowRecursiveQueries : boolean read FAllowRecursiveQueries write FAllowRecursiveQueries;
     property Host : string read FHost write FHost;
     property Port : TIdPort read FPort write SetPort default IdPORT_DOMAIN;
-    property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
+    property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
   end;
 
 function DNSStrToDomain(const DNSStr: TIdBytes; var VPos: Integer): string;
@@ -1198,6 +1198,7 @@ end;
 constructor TIdDNSResolver.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FIPVersion := ID_DEFAULT_IP_VERSION;
   Port := IdPORT_DOMAIN;
   FQueryResult := TQueryResult.Create;
   FDNSHeader := TDNSHeader.Create;
@@ -1758,7 +1759,7 @@ end;
 
 procedure TIdDNSResolver.SetIPVersion(const AValue: TIdIPVersion);
 begin
-   FIPVersion := AValue;
+  FIPVersion := AValue;
 end;
 
 procedure TIdDNSResolver.SetPlainTextResult(const Value: TIdBytes);

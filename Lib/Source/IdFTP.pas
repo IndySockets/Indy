@@ -1018,7 +1018,7 @@ type
     property DefStringEncoding : IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
 
   published
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property AutoIssueFEAT : Boolean read FAutoIssueFEAT write FAutoIssueFEAT default DEF_Id_FTP_AutoIssueFEAT;
     property AutoLogin: Boolean read FAutoLogin write FAutoLogin default DEF_Id_FTP_AutoLogin;
     // This is an object that can compress and decompress FTP Deflate encoding
@@ -1139,6 +1139,8 @@ type
 constructor TIdFTP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  //
+  FIPVersion := ID_DEFAULT_IP_VERSION;
   //
   FAutoLogin := DEF_Id_FTP_AutoLogin;
   FRegularProtPort := IdPORT_FTP;

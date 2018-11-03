@@ -182,7 +182,7 @@ type
     property ReplyStatus;
   published
     property Host;
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property PacketSize;
     property ReceiveTimeout default Id_TIDICMP_ReceiveTimeout;
     property OnReply;

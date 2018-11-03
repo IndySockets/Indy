@@ -104,7 +104,7 @@ type
     destructor Destroy; override;
     //
   published
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property Active;
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
     property BufferSize: Integer read FBufferSize write FBufferSize default ID_UDP_BUFFERSIZE;

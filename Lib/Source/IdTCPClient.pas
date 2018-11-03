@@ -239,7 +239,7 @@ type
     property BoundPort;
     property ConnectTimeout;
     property Host;
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property Port;
     property ReadTimeout;
     property ReuseSocket;
@@ -262,6 +262,7 @@ uses
 constructor TIdTCPClientCustom.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FIPVersion := ID_DEFAULT_IP_VERSION;
   FReadTimeOut := IdTimeoutDefault;
   FBoundPort := DEF_PORT_ANY;
   FBoundPortMin := DEF_PORT_ANY;

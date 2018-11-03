@@ -99,6 +99,7 @@ type
     {$ENDIF}
     procedure SetChainedProxy(const AValue: TIdCustomTransparentProxy);
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Assign(ASource: TPersistent); override;
     procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string = ''; const APort: TIdPort = 0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual;
     procedure CloseUDP(AHandle: TIdSocketHandle); virtual;
@@ -129,6 +130,12 @@ uses
   IdResourceStringsCore, IdExceptionCore;
 
 { TIdCustomTransparentProxy }
+
+constructor TIdCustomTransparentProxy.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FIPVersion := ID_DEFAULT_IP_VERSION;
+end;
 
 procedure TIdCustomTransparentProxy.Assign(ASource: TPersistent);
 var

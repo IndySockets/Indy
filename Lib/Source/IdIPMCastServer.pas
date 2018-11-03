@@ -99,7 +99,7 @@ type
     property BoundPort: TIdPort read FBoundPort write FBoundPort;
     property Loopback: Boolean read FLoopback write SetLoopback default DEF_IMP_LOOPBACK;
     property MulticastGroup;
-    property IPVersion;
+    property IPVersion default ID_DEFAULT_IP_VERSION;
     property Port;
     property ReuseSocket;
     property TimeToLive: Byte read FTimeToLive write SetTTL default DEF_IMP_TTL;
