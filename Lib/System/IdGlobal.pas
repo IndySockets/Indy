@@ -1951,6 +1951,7 @@ uses
     {$IFNDEF HAS_System_RegisterExpectedMemoryLeak}
       {$IFDEF USE_FASTMM4}FastMM4,{$ENDIF}
       {$IFDEF USE_MADEXCEPT}madExcept,{$ENDIF}
+      {$IFDEF USE_LEAKCHECK}LeakCheck,{$ENDIF}
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
@@ -9321,7 +9322,11 @@ begin
       {$IFDEF USE_MADEXCEPT}
   Result := madExcept.HideLeak(AAddress);
       {$ELSE}
+        {$IFDEF USE_LEAKCHECK}
+  Result := LeakCheck.RegisterExpectedMemoryLeak(AAddress);
+        {$ELSE}
   Result := False;
+        {$ENDIF}
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
