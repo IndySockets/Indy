@@ -1486,7 +1486,7 @@
   {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
-{$IFDEF LINUX64}
+{$IFDEF LINUX}
   {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
@@ -1553,7 +1553,7 @@
 //This also must go before the THandle size calculations.
 {$IFDEF VCL_CROSS_COMPILE}
   {$IFDEF POSIX}
-    {$IFNDEF LINUX64}
+    {$IFNDEF LINUX}
       {$DEFINE BSD}
     {$ENDIF}
     {$DEFINE USE_SAFELOADLIBRARY}
