@@ -298,36 +298,93 @@ begin
   end;
 end;
 
+// TODO: move this into the 'interface' section, or maybe the IdGlobalProtocols unit...
+function Unquote(var S: String): String;
+var
+  I, Len: Integer;
+begin
+  Len := Length(S);
+  I := 2; // skip first quote
+  while I <= Len do
+  begin
+    if S[I] = '"' then begin
+      Break;
+    end;
+    if S[I] = '\' then begin
+      Inc(I);
+    end;
+    Inc(I);
+  end;
+  Result := Copy(S, 2, I-2);
+  S := Copy(S, I+1, MaxInt);
+
+  // TODO: use a PosEx() loop instead
+  {
+  I := Pos('\', Result);
+  while I <> 0 do
+  begin
+    IdDelete(Result, I, 1);
+    I := PosEx('\', Result, I+1);
+  end;
+  }
+  Len := Length(Result);
+  I := 1;
+  while I <= Len do
+  begin
+    if Result[I] = '\' then begin
+      IdDelete(Result, I, 1);
+    end;
+    Inc(I);
+  end;
+end;
+
 function TIdBasicAuthentication.DoNext: TIdAuthWhatsNext;
 var
-  S, LSep: String;
+  S, LName, LValue: String;
+  LParams: TStringList;
 begin
   S := ReadAuthInfo('Basic');        {Do not Localize}
   Fetch(S);
 
-  LSep := Params.NameValueSeparator;
-  while Length(S) > 0 do begin
-    // realm have 'realm="SomeRealmValue"' format    {Do not Localize}
-    // FRealm never assigned without StringReplace
-    Params.Add(ReplaceOnlyFirst(Fetch(S, ', '), '=', LSep));  {do not localize}
-  end;
+  LParams := TStringList.Create;
+  try
+    {$IFDEF HAS_TStringList_CaseSensitive}
+    LParams.CaseSensitive := False;
+    {$ENDIF}
 
-  FRealm := UnquotedStr(Params.Values['realm']);   {Do not Localize}
-
-  FCharset := UnquotedStr(Params.Values['charset']); // RFC 7617
-  if FCharset = '' then begin
-    FCharset := UnquotedStr(Params.Values['accept-charset']); // draft-reschke-basicauth-enc-05 onwards
-    if FCharset = '' then begin
-      FCharset := UnquotedStr(Params.Values['encoding']); // draft-reschke-basicauth-enc-04
-      if FCharset = '' then begin
-        FCharset := UnquotedStr(Params.Values['enc']); // I saw this mentioned in a Mozilla bug report, and apparently Opera supports it
+    while Length(S) > 0 do begin
+      // RLebeau: Apache sends a space after each comma, but IIS does not!
+      LName := Trim(Fetch(S, '=')); {do not localize}
+      S := TrimLeft(S);
+      if TextStartsWith(S, '"') then begin {do not localize}
+        LValue := Unquote(S); {do not localize}
+        Fetch(S, ','); {do not localize}
+      end else begin
+        LValue := Trim(Fetch(S, ','));
       end;
+      IndyAddPair(LParams, LName, LValue);
+      S := TrimLeft(S);
+    end;
+
+    FRealm := LParams.Values['realm'];   {Do not Localize}
+
+    FCharset := LParams.Values['charset']; // RFC 7617
+    if FCharset = '' then begin
+      FCharset := LParams.Values['accept-charset']; // draft-reschke-basicauth-enc-05 onwards
       if FCharset = '' then begin
-        // TODO: check the user's input and encode using ISO-8859-1 only if
-        // the characters will actually fit, otherwise use UTF-8 instead?
-        FCharset := 'ISO-8859-1';
+        FCharset := LParams.Values['encoding']; // draft-reschke-basicauth-enc-04
+        if FCharset = '' then begin
+          FCharset := LParams.Values['enc']; // I saw this mentioned in a Mozilla bug report, and apparently Opera supports it
+        end;
+        if FCharset = '' then begin
+          // TODO: check the user's input and encode using ISO-8859-1 only if
+          // the characters will actually fit, otherwise use UTF-8 instead?
+          FCharset := 'ISO-8859-1';
+        end;
       end;
     end;
+  finally
+    FreeAndNil(LParams);
   end;
 
   if FCurrentStep = 0 then

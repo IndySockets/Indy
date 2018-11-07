@@ -199,6 +199,7 @@ begin
   end;
 end;
 
+// TODO: move this to the IdAuthentication unit, or maybe the IdGlobalProtocols unit...
 function Unquote(var S: String): String;
 var
   I, Len: Integer;
@@ -217,6 +218,25 @@ begin
   end;
   Result := Copy(S, 2, I-2);
   S := Copy(S, I+1, MaxInt);
+
+  // TODO: use a PosEx() loop instead
+  {
+  I := Pos('\', Result);
+  while I <> 0 do
+  begin
+    IdDelete(Result, I, 1);
+    I := PosEx('\', Result, I+1);
+  end;
+  }
+  Len := Length(Result);
+  I := 1;
+  while I <= Len do
+  begin
+    if Result[I] = '\' then begin
+      IdDelete(Result, I, 1);
+    end;
+    Inc(I);
+  end;
 end;
 
 function TIdDigestAuthentication.DoNext: TIdAuthWhatsNext;
@@ -247,6 +267,10 @@ begin
 
         LParams := TStringList.Create;
         try
+          {$IFDEF HAS_TStringList_CaseSensitive}
+          LParams.CaseSensitive := False;
+          {$ENDIF}
+
           while Length(S) > 0 do begin
             // RLebeau: Apache sends a space after each comma, but IIS does not!
             LName := Trim(Fetch(S, '=')); {do not localize}
@@ -262,6 +286,7 @@ begin
           end;
 
           FRealm := LParams.Values['realm']; {do not localize}
+
           LTempNonce := LParams.Values['nonce']; {do not localize}
           if FNonce <> LTempNonce then
           begin

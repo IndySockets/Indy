@@ -1199,26 +1199,10 @@ function TIdSSPINTLMAuthentication.DoNext: TIdAuthWhatsNext;
 begin
   Result := wnDoRequest;
   case FCurrentStep of
-    0:
+    //Authentication() does the 2>3 progression
+    0, 1, 3:
       begin
-        {if (Length(Username) > 0) and (Length(Password) > 0) then
-        begin}
-        Result := wnDoRequest;
-        FCurrentStep := 1;
-        {end
-        else begin
-          result := wnAskTheProgram;
-        end;}
-      end;
-    1:
-      begin
-        FCurrentStep := 2;
-        Result := wnDoRequest;
-      end;
-    //Authentication does the 2>3 progression
-    3:
-      begin
-        FCurrentStep := 4;
+        Inc(FCurrentStep);
         Result := wnDoRequest;
       end;
     4:
@@ -1297,13 +1281,15 @@ begin
 end;
 
 procedure TIdSSPINTLMAuthentication.SetUserName(const Value: String);
-Var
+var
   S: String;
+  Idx: Integer;
 begin
   S := Value;
-  if IndyPos('\', S) > 0 then begin
-    Domain := Copy(S, 1, IndyPos('\', S) - 1);
-    Delete(S, 1, Length(Domain) + 1);
+  Idx := IndyPos('\', S);
+  if Idx > 0 then begin
+    Domain := Copy(S, 1, Idx - 1);
+    Delete(S, 1, Idx);
   end;
   inherited SetUserName(S);
 end;
