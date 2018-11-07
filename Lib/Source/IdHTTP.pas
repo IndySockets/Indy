@@ -2225,15 +2225,6 @@ begin
   // username/password as it can use the identity of the user token associated
   // with the calling thread!
 
-  // TODO: get rid of this check here.  Let Request.Authentication validate the
-  // username/password as needed.  Don't validate OnAuthorization unless
-  // wnAskTheProgram is requested...  
-  Result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
-
-  if not Result then begin
-    Exit;
-  end;
-
   LAuth := ARequest.Authentication;
   LAuth.Username := ARequest.Username;
   LAuth.Password := ARequest.Password;
@@ -2248,21 +2239,23 @@ begin
     case LAuth.Next of
       wnAskTheProgram:
         begin // Ask the user porgram to supply us with authorization information
-          if Assigned(FOnAuthorization) then
+          if not Assigned(FOnAuthorization) then
           begin
-            LAuth.UserName := ARequest.Username;
-            LAuth.Password := ARequest.Password;
-
-            OnAuthorization(Self, LAuth, Result);
-
-            if Result then begin
-              ARequest.BasicAuthentication := True;
-              ARequest.Username := LAuth.UserName;
-              ARequest.Password := LAuth.Password;
-            end else begin
-              Break;
-            end;
+            Result := False;
+            Break;
           end;
+
+          LAuth.UserName := ARequest.Username;
+          LAuth.Password := ARequest.Password;
+
+          OnAuthorization(Self, LAuth, Result);
+          if not Result then begin
+            Break;
+          end;
+
+          ARequest.BasicAuthentication := True;
+          ARequest.Username := LAuth.UserName;
+          ARequest.Password := LAuth.Password;
         end;
       wnDoRequest:
         begin
@@ -2333,15 +2326,6 @@ begin
   // username/password as it can use the identity of the user token associated
   // with the calling thread!
 
-  // TODO: get rid of this check here.  Let ProxyParams.Authentication validate
-  // the username/password as needed.  Don't validate OnProxyAuthorization unless
-  // wnAskTheProgram is requested...  
-  Result := Assigned(OnProxyAuthorization) or (Trim(ProxyParams.ProxyPassword) <> '');
-
-  if not Result then begin
-    Exit;
-  end;
-
   LAuth := ProxyParams.Authentication;
   LAuth.Username := ProxyParams.ProxyUsername;
   LAuth.Password := ProxyParams.ProxyPassword;
@@ -2355,22 +2339,24 @@ begin
     case LAuth.Next of
       wnAskTheProgram: // Ask the user porgram to supply us with authorization information
         begin
-          if Assigned(OnProxyAuthorization) then
+          if not Assigned(OnProxyAuthorization) then
           begin
-            LAuth.Username := ProxyParams.ProxyUsername;
-            LAuth.Password := ProxyParams.ProxyPassword;
-
-            OnProxyAuthorization(Self, LAuth, Result);
-
-            if Result then begin
-              // TODO: do we need to set this, like DoOnAuthorization does?
-              //ProxyParams.BasicAuthentication := True;
-              ProxyParams.ProxyUsername := LAuth.Username;
-              ProxyParams.ProxyPassword := LAuth.Password;
-            end else begin
-              Break;
-            end;
+            Result := False;
+            Break;
           end;
+
+          LAuth.Username := ProxyParams.ProxyUsername;
+          LAuth.Password := ProxyParams.ProxyPassword;
+
+          OnProxyAuthorization(Self, LAuth, Result);
+          if not Result then begin
+            Break;
+          end;
+
+          // TODO: do we need to set this, like DoOnAuthorization does?
+          //ProxyParams.BasicAuthentication := True;
+          ProxyParams.ProxyUsername := LAuth.Username;
+          ProxyParams.ProxyPassword := LAuth.Password;
         end;
       wnDoRequest:
         begin

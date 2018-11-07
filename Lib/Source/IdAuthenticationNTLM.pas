@@ -118,14 +118,9 @@ begin
           Result := wnAskTheProgram;
         end;
       end;
-    1:
+    1, 2:
       begin
-        FCurrentStep := 2;
-        Result := wnDoRequest;
-      end;
-    2:
-      begin
-        FCurrentStep := 3;
+        Inc(FCurrentStep);
         Result := wnDoRequest;
       end;
     3:
