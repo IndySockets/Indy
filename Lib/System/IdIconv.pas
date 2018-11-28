@@ -234,11 +234,7 @@ uses
   IdResourceStrings, SysUtils;
 
 var
-  {$IFDEF UNIX}
-  hIconv: HModule = nilhandle;
-  {$ELSE}
   hIconv: THandle = 0;
-  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF WIN32_OR_WIN64}
@@ -345,7 +341,7 @@ begin
     {$ELSE}
       {$IFDEF UNIX}
     hIconv := LoadLibrary(LICONV);
-    if hIconv = NilHandle then  begin
+    if hIconv = 0 then  begin
       hIconv := LoadLibrary(LIBC);
     end;
       {$ELSE}
