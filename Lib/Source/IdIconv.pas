@@ -247,11 +247,7 @@ uses
 
 {$IFNDEF STATICLOAD_ICONV}
 var
-  {$IFDEF UNIX}
-  hIconv: HModule = nilhandle;
-  {$ELSE}
   hIconv: THandle = 0;
-  {$ENDIF}
 {$ENDIF}
 
 {$IF DEFINED(WIN32) OR (DEFINED(WIN64)}
@@ -357,7 +353,7 @@ begin
     end;
     {$ELSEIF DEFINED(UNIX)}
     hIconv := LoadLibrary(LICONV);
-    if hIconv = NilHandle then  begin
+    if hIconv = 0 then  begin
       hIconv := LoadLibrary(LIBC);
     end;
     {$ELSE}

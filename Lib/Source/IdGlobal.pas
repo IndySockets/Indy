@@ -619,6 +619,7 @@ const
   MSecsPerDay   = SecsPerDay * MSecsPerSec;
   {$ENDIF}
 
+  // TODO: deprecate NilHandle, as TLibHandle is no longer being used
   {$IFDEF DCC}
   NilHandle = 0;
   {$ENDIF}
@@ -3525,11 +3526,11 @@ var
 
 begin
   if High(ALibVersions) > -1 then begin
-    Result := NilHandle;
+    Result := 0;
     for i := Low(ALibVersions) to High(ALibVersions) do
     begin
       Result := LoadLibVer(ALibVersions[i]);
-      if Result <> NilHandle then begin
+      if Result <> 0 then begin
         Break;
       end;
     end;
