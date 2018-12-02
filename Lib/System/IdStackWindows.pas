@@ -713,7 +713,7 @@ type
   TConvertLengthToIpv4Mask = function(MaskLength: ULONG; var Mask: ULONG): NETIO_STATUS; stdcall;
 
 var
-  hIpHlpApi: THandle = 0;
+  hIpHlpApi: TIdLibHandle = IdNilHandle;
   GetIpAddrTable: TGetIpAddrTable = nil;
   GetUniDirectionalAdapterInfo: TGetUniDirectionalAdapterInfo = nil;
   GetAdaptersInfo: TGetAdaptersInfo = nil;
@@ -724,7 +724,7 @@ function FixupIPHelperStub(const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}stri
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := nil;
-  if hIpHlpApi <> 0 then begin
+  if hIpHlpApi <> IdNilHandle then begin
     Result := Windows.GetProcAddress(hIpHlpApi, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
   end;
   if Result = nil then begin
@@ -808,17 +808,17 @@ end;
 
 procedure InitializeIPHelperAPI;
 begin
-  if hIpHlpApi = 0 then begin
+  if hIpHlpApi = IdNilHandle then begin
     hIpHlpApi := SafeLoadLibrary(IPHLPAPI_DLL);
   end;
 end;
 
 procedure UninitializeIPHelperAPI;
 begin
-  if hIpHlpApi <> 0 then
+  if hIpHlpApi <> IdNilHandle then
   begin
     FreeLibrary(hIpHlpApi);
-    hIpHlpApi := 0;
+    hIpHlpApi := IdNilHandle;
   end;
   InitializeIPHelperStubs;
 end;

@@ -5971,19 +5971,19 @@ uses
   // (c) March 2001,  "Alex Konshin"<alexk@mtgroup.ru>
 
 var
-  hWinSockDll : THandle = 0; // WS2_32.DLL handle
+  hWinSockDll : TIdLibHandle = IdNilHandle; // WS2_32.DLL handle
   {$IFNDEF WINCE}
-  hMSWSockDll : THandle = 0; // MSWSOCK.DLL handle
+  hMSWSockDll : TIdLibHandle = IdNilHandle; // MSWSOCK.DLL handle
   {$ENDIF}
-  
-function WinsockHandle : THandle;
+
+function WinsockHandle : TIdLibHandle;
 begin
   Result := hWinSockDll;
 end;
 
 function Winsock2Loaded : Boolean;
 begin
-  Result := hWinSockDll <> 0;
+  Result := hWinSockDll <> IdNilHandle;
 end;
 
 procedure InitializeWinSock;
@@ -5991,15 +5991,15 @@ var
   LData: TWSAData;
   LError: DWORD;
 begin
-  if hWinSockDll = 0 then begin
+  if hWinSockDll = IdNilHandle then begin
     hWinSockDll := SafeLoadLibrary(WINSOCK2_DLL);
-    if hWinSockDll <> 0 then begin
+    if hWinSockDll <> IdNilHandle then begin
       LError := WSAStartup($202, LData);
       if LError = 0 then begin
         Exit;
       end;
       Windows.FreeLibrary(hWinSockDll);
-      hWinSockDll := 0;
+      hWinSockDll := IdNilHandle;
     end else begin
       LError := Windows.GetLastError;
     end;
@@ -6011,9 +6011,9 @@ end;
 procedure LoadMSWSock;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  if hMSWSockDll = 0 then begin
+  if hMSWSockDll = IdNilHandle then begin
     hMSWSockDll := SafeLoadLibrary(MSWSOCK_DLL);
-    if hMSWSockDll = 0 then begin
+    if hMSWSockDll = IdNilHandle then begin
       raise EIdWinsockStubError.Build(Windows.GetLastError, RSWinsockLoadError, [MSWSOCK_DLL]);
     end;
   end;
@@ -6023,17 +6023,17 @@ end;
 procedure UninitializeWinSock;
 begin
 {$IFNDEF WINCE}
-  if hMSWSockDll <> 0 then
+  if hMSWSockDll <> IdNilHandle then
   begin
     FreeLibrary(hMSWSockDll);
-    hMSWSockDll := 0;
+    hMSWSockDll := IdNilHandle;
   end;
 {$ENDIF}
-  if hWinSockDll <> 0 then
+  if hWinSockDll <> IdNilHandle then
   begin
     WSACleanup;
     FreeLibrary(hWinSockDll);
-    hWinSockDll := 0;
+    hWinSockDll := IdNilHandle;
   end;
 end;
 
@@ -6057,10 +6057,10 @@ a version of GetProcAddress in the FreePascal dynlibs unit but that does a
 conversion from ASCII to Unicode which might not be necessary since most calls
 pass a constant anyway.
 }
-function FixupStub(hDll: THandle; const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
+function FixupStub(hDll: TIdLibHandle; const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  if hDll = 0 then begin
+  if hDll = IdNilHandle then begin
     raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
   end;
   Result := Windows.GetProcAddress(hDll, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));

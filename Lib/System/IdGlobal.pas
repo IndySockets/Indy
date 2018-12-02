@@ -763,13 +763,9 @@ const
   INFINITE = UInt32($FFFFFFFF);     { Infinite timeout }
   {$ENDIF}
 
-  // TODO: deprecate NilHandle, as TLibHandle is no longer being used
-  {$IFDEF KYLIX}
-  NilHandle = 0;
-  {$ENDIF}
-  {$IFDEF DELPHI}
-  NilHandle = 0;
-  {$ENDIF}
+  // FPC's DynLibs unit is not included in this unit's interface 'uses' clause, only
+  // in the implementation's 'uses' clause, so map to what DynLibs.NilHandle maps to...
+  IdNilHandle = {$IFDEF FPC}{DynLibs.NilHandle}PtrInt(0){$ELSE}THandle(0){$ENDIF};
   LF = #10;
   CR = #13;
 
@@ -1020,6 +1016,27 @@ type
   {$EXTERNALSYM Psize_t}
   Psize_t = ^size_t;
   {$ENDIF}
+
+  // RLebeau 12/1/2018: FPC's System unit defines an HMODULE type as a PtrUInt. But,
+  // the DynLibs unit defines its own HModule type that is a TLibHandle, which is a
+  // PtrInt instead. And to make matters worse, although FPC's System.THandle is a
+  // platform-dependant type, it is not always defined as 8 bytes on 64bit platforms,
+  // which has been known to cause overflows when dynamic libraries are loaded at
+  // high addresses! (FPC bug?)  So, we can't rely on THandle to hold correct handles
+  // for libraries that we load dynamically at runtime (which is probably why FPC
+  // defines TLibHandle in the first place, but why is it signed instead of unsigned?).
+  //
+  // Delphi's HMODULE is a System.THandle, which is a NativeUInt, and so is defined
+  // with a proper byte size across all 32bit and 64bit platforms.
+  //
+  // Since (Safe)LoadLibrary(), GetProcAddress(), etc all use TLibHandle in FPC, but
+  // use HMODULE in Delphi. this does mean we have a small descrepency between using
+  // signed vs unsigned library handles.  I would prefer to use unsigned everywhere,
+  // but we should use what is more natural for each compiler...
+
+  // FPC's DynLibs unit is not included in this unit's interface 'uses' clause, only
+  // in the implementation's 'uses' clause, so map to what DynLibs.TLibHandle maps to...
+  TIdLibHandle = {$IFDEF FPC}{DynLibs.TLibHandle}PtrInt{$ELSE}THandle{$ENDIF};
 
   {$IFDEF STRING_IS_IMMUTABLE}
   // In .NET and Delphi next-gen, strings are immutable (and zero-indexed), so we
@@ -1763,6 +1780,7 @@ function IsOctal(const AChar: Char): Boolean; overload;
 function IsOctal(const AString: string; const ALength: Integer = -1; const AIndex: Integer = 1): Boolean; overload;
 {$IFNDEF DOTNET}
 function InterlockedExchangeTHandle(var VTarget: THandle; const AValue: THandle): THandle;
+function InterlockedExchangeTLibHandle(var VTarget: TIdLibHandle; const AValue: TIdLibHandle): TIdLibHandle;
 function InterlockedCompareExchangePtr(var VTarget: Pointer; const AValue, Compare: Pointer): Pointer;
 function InterlockedCompareExchangeObj(var VTarget: TObject; const AValue, Compare: TObject): TObject;
 function InterlockedCompareExchangeIntf(var VTarget: IInterface; const AValue, Compare: IInterface): IInterface;
@@ -1785,7 +1803,7 @@ function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
   {$ENDIF}
 {$ENDIF}
 {$IFDEF UNIX}
-function HackLoad(const ALibName : String; const ALibVersions : array of String) : THandle;
+function HackLoad(const ALibName : String; const ALibVersions : array of String) : TIdLibHandle;
 {$ENDIF}
 {$IFNDEF DOTNET}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
@@ -4314,11 +4332,11 @@ begin
   {$ENDIF}
 end;
 
-function HackLoad(const ALibName : String; const ALibVersions : array of String) : THandle;
+function HackLoad(const ALibName : String; const ALibVersions : array of String) : TIdLibHandle;
 var
   i : Integer;
 
-  function LoadLibVer(const ALibVer: string): THandle;
+  function LoadLibVer(const ALibVer: string): TIdLibHandle;
   var
     FileName: string;
   begin
@@ -4330,10 +4348,10 @@ var
       {$IFDEF KYLIXCOMPAT}
     // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
     // TODO: use ToSingleByteFileSystemEncodedFileName() to encode the filename:
-    // Result := THandle(dlopen(PAnsiChar(ToSingleByteFileSystemEncodedFileName(FileName)), RTLD_LAZY));
+    // Result := TIdLibHandle(dlopen(PAnsiChar(ToSingleByteFileSystemEncodedFileName(FileName)), RTLD_LAZY));
     // TODO: use dynlibs.SysLoadLibraryU() instead:
-    // Result := THandle(SysLoadLibraryU(FileName));
-    Result := THandle(dlopen(PAnsiChar(FileName), RTLD_LAZY));
+    // Result := SysLoadLibraryU(FileName);
+    Result := TIdLibHandle(dlopen(PAnsiChar(FileName), RTLD_LAZY));
       {$ELSE}
     Result := LoadLibrary(FileName);
       {$ENDIF}
@@ -4346,11 +4364,11 @@ var
 
 begin
   if High(ALibVersions) > -1 then begin
-    Result := 0;
+    Result := IdNilHandle;
     for i := Low(ALibVersions) to High(ALibVersions) do
     begin
       Result := LoadLibVer(ALibVersions[i]);
-      if Result <> 0 then begin
+      if Result <> IdNilHandle then begin
         Break;
       end;
     end;
@@ -4469,6 +4487,28 @@ begin
   Result := THandle(InterlockedExchange64(Int64(VTarget), Int64(AValue)));
     {$ENDIF}
   {$ENDIF}
+end;
+
+function InterlockedExchangeTLibHandle(var VTarget: TIdLibHandle; const AValue: TIdLibHandle): TIdLibHandle;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := TIdLibHandle(
+    {$IFDEF HAS_TInterlocked}
+    TInterlocked.Exchange(
+      {$IFDEF CPU64}
+      Int64(VTarget), Int64(AValue)
+      {$ELSE}
+      Integer(VTarget), Integer(AValue)
+      {$ENDIF}
+    )
+    {$ELSE}
+      {$IFDEF CPU64}
+    InterlockedExchange64(Int64(VTarget), Int64(AValue))
+      {$ELSE}
+    InterlockedExchange(Integer(VTarget), Integer(AValue))
+      {$ENDIF}
+    {$ENDIF}
+  );
 end;
 
 {$UNDEF DYNAMICLOAD_InterlockedCompareExchange}

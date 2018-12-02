@@ -877,7 +877,7 @@ function inflateMark; external;
 function inflateGetHeader; external;
 {$ELSE}
 var
-  hZLib: THandle = 0;
+  hZLib: TIdLibHandle = IdNilHandle;
 
   {$IFDEF UNIX}
 const
@@ -926,7 +926,7 @@ end;
 
 function FixupStub(const AName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
 begin
-  if hZLib = 0 then begin
+  if hZLib = IdNilHandle then begin
     if not Load then begin
       raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
     end;
@@ -1401,14 +1401,14 @@ begin
     {$IFDEF DELPHI_CROSS}
     InvalidateModuleCache;
     {$ENDIF}
-    hZLib := 0;
+    hZLib := IdNilHandle;
     InitializeStubs;
   end;
 end;
 
 function Loaded : Boolean;
 begin
-  Result := (hZLib <> 0);
+  Result := (hZLib <> IdNilHandle);
 end;
 {$ENDIF}
 

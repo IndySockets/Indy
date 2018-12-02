@@ -444,11 +444,11 @@ uses
   SysUtils;
 
 var
-  hWship6Dll : THandle = 0; // Wship6.dll handle
+  hWship6Dll : TIdLibHandle = IdNilHandle; // Wship6.dll handle
   //Use this instead of hWship6Dll because this will point to the correct lib.
-  hProcHandle : THandle = 0;
+  hProcHandle : TIdLibHandle = IdNilHandle;
   {$IFNDEF WINCE}
-  hfwpuclntDll : THandle = 0;
+  hfwpuclntDll : TIdLibHandle = IdNilHandle;
   {$ENDIF}
 
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
@@ -478,13 +478,13 @@ procedure CloseLibrary;
 var
   h : THandle;
 begin
-  h := InterlockedExchangeTHandle(hWship6Dll, 0);
-  if h <> 0 then begin
+  h := InterlockedExchangeTLibHandle(hWship6Dll, IdNilHandle);
+  if h <> IdNilHandle then begin
     FreeLibrary(h);
   end;
   {$IFNDEF WINCE}
-  h := InterlockedExchangeTHandle(hfwpuclntDll, 0);
-  if h <> 0 then begin
+  h := InterlockedExchangeTLibHandle(hfwpuclntDll, IdNilHandle);
+  if h <> IdNilHandle then begin
     FreeLibrary(h);
   end;
   {$ENDIF}
@@ -1511,7 +1511,7 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
         SetAddrInfoEx := GetProcAddress(hProcHandle, fn_SetAddrInfoEx); {Do not localize}
         FreeAddrInfoEx := GetProcAddress(hProcHandle, fn_FreeAddrInfoEx); {Do not localize}
         hfwpuclntDll := SafeLoadLibrary(fwpuclnt_dll);
-        if hfwpuclntDll <> 0 then
+        if hfwpuclntDll <> IdNilHandle then
         begin
           WSASetSocketSecurity := GetProcAddress(hfwpuclntDll,
              'WSASetSocketSecurity');

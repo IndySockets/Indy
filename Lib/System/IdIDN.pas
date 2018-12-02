@@ -203,8 +203,8 @@ uses
   SysUtils;
 
 var
-  hIdnDL : THandle = 0;
-  hNormaliz : THandle = 0;
+  hIdnDL : TIdLibHandle = IdNilHandle;
+  hNormaliz : TIdLibHandle = IdNilHandle;
 
 function UseIDNAPI : Boolean;
 begin
@@ -285,10 +285,10 @@ end;
 
 procedure InitIDNLibrary;
 begin
-  if hIdnDL = 0 then
+  if hIdnDL = IdNilHandle then
   begin
     hIdnDL := SafeLoadLibrary(LibNDL);
-    if hIdnDL <> 0 then
+    if hIdnDL <> IdNilHandle then
     begin
       DownlevelGetLocaleScripts := GetProcAddress(hIdnDL, fn_DownlevelGetLocaleScripts);
       DownlevelGetStringScripts := GetProcAddress(hIdnDL, fn_DownlevelGetStringScripts);
@@ -296,10 +296,10 @@ begin
     end;
   end;
 
-  if hNormaliz = 0 then
+  if hNormaliz = IdNilHandle then
   begin
     hNormaliz := SafeLoadLibrary(LibNormaliz);
-    if hNormaliz <> 0 then
+    if hNormaliz <> IdNilHandle then
     begin
       IdnToUnicode := GetProcAddress(hNormaliz, fn_IdnToUnicode);
       IdnToNameprepUnicode := GetProcAddress(hNormaliz, fn_IdnToNameprepUnicode);
@@ -312,15 +312,15 @@ end;
 
 procedure CloseIDNLibrary;
 var
-  h : THandle;
+  h : TIdLibHandle;
 begin
-  h := InterlockedExchangeTHandle(hIdnDL, 0);
-  if h <> 0 then begin
+  h := InterlockedExchangeTLibHandle(hIdnDL, IdNilHandle);
+  if h <> IdNilHandle then begin
     FreeLibrary(h);
   end;
 
-  h := InterlockedExchangeTHandle(hNormaliz, 0);
-  if h <> 0 then begin
+  h := InterlockedExchangeTLibHandle(hNormaliz, IdNilHandle);
+  if h <> IdNilHandle then begin
     FreeLibrary(h);
   end;
 
