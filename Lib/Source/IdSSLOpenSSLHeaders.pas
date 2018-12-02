@@ -18182,7 +18182,7 @@ function Load: Boolean;
 procedure Unload;
 {$IFNDEF STATICLOAD_OPENSSL}
 function WhichFailedToLoad: String;
-function GetCryptLibHandle : THandle;
+function GetCryptLibHandle : TIdLibHandle;
 procedure IdOpenSSLSetLibPath(const APath: String);
   {$IFDEF UNIX}
 procedure IdOpenSSLSetLoadSymLinksFirst(ALoadFirst: Boolean);
@@ -19544,8 +19544,8 @@ var
   {$IFDEF STATICLOAD_OPENSSL}
   bIsLoaded : Boolean = False;
   {$ELSE}
-  hIdSSL    : THandle = 0;
-  hIdCrypto : THandle = 0;
+  hIdSSL    : TIdLibHandle = IdNilHandle;
+  hIdCrypto : TIdLibHandle = IdNilHandle;
   FFailedLoadList : TStringList;
   {$ENDIF}
 
@@ -19562,7 +19562,7 @@ var
   {$ENDIF}
 
 {$IFNDEF STATICLOAD_OPENSSL}
-function GetCryptLibHandle : THandle;
+function GetCryptLibHandle : TIdLibHandle;
 begin
   Result := hIdCrypto;
 end;
@@ -22590,7 +22590,7 @@ begin
 end;
   {$ENDIF}
 
-function LoadSSLCryptoLibrary: THandle;
+function LoadSSLCryptoLibrary: TIdLibHandle;
 {$IF (NOT DEFINED(WINDOWS)) AND (DEFINED(USE_BASEUNIX) OR DEFINED(USE_VCL_POSIX) OR DEFINED(KYLIXCOMPAT))} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
   i, j: Integer;
@@ -22603,30 +22603,30 @@ begin
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSLCLIB_DLL_name);
   {$ELSEIF DEFINED(USE_BASEUNIX) OR DEFINED(USE_VCL_POSIX) OR DEFINED(KYLIXCOMPAT)} // TODO: use {$IF DEFINED(UNIX)} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := 0;
+  Result := IdNilHandle;
   if GIdLoadSymLinksFirst then begin
     Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, []);
   end;
-  if Result = 0 then begin
+  if Result = IdNilHandle then begin
     for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
       for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
         LLibVersions[j] := SSLDLLVers[i] + SSLDLLVersChar[j];
       end;
       Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, LLibVersions);
-      if Result <> 0 then begin
+      if Result <> IdNilHandle then begin
         Break;
       end;
     end;
   end;
-  if (Result = 0) and (not GIdLoadSymLinksFirst) then begin
+  if (Result = IdNilHandle) and (not GIdLoadSymLinksFirst) then begin
     Result := HackLoad(GIdOpenSSLPath + SSLCLIB_DLL_name, []);
   end;
   {$ELSE}
-  Result := 0;
+  Result := IdNilHandle;
   {$IFEND}
 end;
 
-function LoadSSLLibrary: THandle;
+function LoadSSLLibrary: TIdLibHandle;
 {$IF (NOT DEFINED(WINDOWS)) AND (DEFINED(USE_BASEUNIX) OR DEFINED(USE_VCL_POSIX) OR DEFINED(KYLIXCOMPAT))} // TODO: use {$IF DEFINED(UNIX)} instead?
 var
   i, j: Integer;
@@ -22639,31 +22639,31 @@ begin
   Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name);
   //This is a workaround for mingw32-compiled SSL .DLL which
   //might be named 'libssl32.dll'.
-  if Result = 0 then begin
+  if Result = IdNilHandle then begin
     Result := SafeLoadLibrary(GIdOpenSSLPath + SSL_DLL_name_alt);
   end;
   {$ELSEIF DEFINED(USE_BASEUNIX) OR DEFINED(USE_VCL_POSIX) OR DEFINED(KYLIXCOMPAT)} // TODO: use {$IF DEFINED(UNIX)} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-  Result := 0;
+  Result := IdNilHandle;
   if GIdLoadSymLinksFirst then begin
     Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, []);
   end;
-  if Result = 0 then begin
+  if Result = IdNilHandle then begin
     for i := Low(SSLDLLVers) to High(SSLDLLVers) do begin
       for j := Low(SSLDLLVersChar) to High(SSLDLLVersChar) do begin
         LLibVersions[j] := SSLDLLVers[i] + SSLDLLVersChar[j];
       end;
       Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, LLibVersions);
-      if Result <> 0 then begin
+      if Result <> IdNilHandle then begin
         Break;
       end;
     end;
   end;
-  if (Result = 0) and (not GIdLoadSymLinksFirst) then begin
+  if (Result = IdNilHandle) and (not GIdLoadSymLinksFirst) then begin
     Result := HackLoad(GIdOpenSSLPath + SSL_DLL_name, []);
   end;
   {$ELSE}
-  Result := 0;
+  Result := IdNilHandle;
   {$IFEND}
 end;
 
@@ -22719,24 +22719,24 @@ begin
   Result := False;
   Assert(FFailedLoadList<>nil);
 
-  if (hIdCrypto <> 0) and (hIdSSL <> 0) and (FFailedLoadList.Count = 0) then begin
+  if (hIdCrypto <> IdNilHandle) and (hIdSSL <> IdNilHandle) and (FFailedLoadList.Count = 0) then begin
     Result := True;
     Exit;
   end;
 
   FFailedLoadList.Clear;
 
-  if hIdCrypto = 0 then begin
+  if hIdCrypto = IdNilHandle then begin
     hIdCrypto := LoadSSLCryptoLibrary;
-    if hIdCrypto = 0 then begin
+    if hIdCrypto = IdNilHandle then begin
       FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSLCLIB_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
       Exit;
     end;
   end;
 
-  if hIdSSL = 0 then begin
+  if hIdSSL = IdNilHandle then begin
     hIdSSL := LoadSSLLibrary;
-    if hIdSSL = 0 then begin
+    if hIdSSL = IdNilHandle then begin
       FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSL_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
       Exit;
     end;
@@ -24300,7 +24300,7 @@ procedure Unload;
 var
   LStack: Pointer;
 begin
-  if {$IFDEF STATICLOAD_OPENSSL}bIsLoaded{$ELSE}hIdSSL <> 0{$ENDIF} then begin
+  if {$IFDEF STATICLOAD_OPENSSL}bIsLoaded{$ELSE}hIdSSL <> IdNilHandle{$ENDIF} then begin
     if Assigned(SSL_COMP_free_compression_methods) then begin
       SSL_COMP_free_compression_methods;
     end
@@ -24336,14 +24336,14 @@ begin
     bIsLoaded := False;
     {$ELSE}
     {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdSSL);
-    hIdSSL := 0;
+    hIdSSL := IdNilHandle;
     {$ENDIF}
   end;
 
   {$IFNDEF STATICLOAD_OPENSSL}
-  if hIdCrypto <> 0 then begin
+  if hIdCrypto <> IdNilHandle then begin
     {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdCrypto);
-    hIdCrypto := 0;
+    hIdCrypto := IdNilHandle;
   end;
   {$ENDIF}
 

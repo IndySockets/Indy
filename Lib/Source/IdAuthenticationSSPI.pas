@@ -238,7 +238,7 @@ type
   private
     fLoadPending, fIsAvailable: Boolean;
     fPFunctionTable: PSecurityFunctionTable;
-    fDLLHandle: THandle;
+    fDLLHandle: TIdLibHandle;
     procedure ReleaseFunctionTable;
     procedure CheckAvailable;
     function GetFunctionTable: SecurityFunctionTable;
@@ -683,7 +683,7 @@ function TSSPIInterface.IsAvailable: Boolean;
     //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
     //call because LoadLibrary messes with the FPU control word.
     fDLLHandle := SafeLoadLibrary(dllName);
-    if fDLLHandle > 0 then begin
+    if fDLLHandle <> IdNilHandle then begin
       { get InitSecurityInterface entry point
         and call it to fetch SPPI function table}
       entrypoint := GetProcAddress(fDLLHandle, SECURITY_ENTRYPOINT);
@@ -737,7 +737,10 @@ end;
 destructor TSSPIInterface.Destroy;
 begin
   ReleaseFunctionTable;
-  FreeLibrary(fDLLHandle);
+  if fDLLHandle <> IdNilHandle then begin
+    FreeLibrary(fDLLHandle);
+    fDLLHandle := IdNilHandle;
+  end;
   inherited Destroy;
 end;
 
