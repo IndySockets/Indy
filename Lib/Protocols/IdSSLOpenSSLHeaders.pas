@@ -16169,15 +16169,15 @@ _des_cblock = DES_cblock
     read_mac_secret : array [0..EVP_MAX_MD_SIZE -1] of TIdAnsiChar;
     write_sequence : array [0..7] of TIdAnsiChar;
     write_mac_secret_size : TIdC_INT;
-    write_mac_secret : array [0..EVP_MAX_MD_SIZE] of TIdAnsiChar;
+    write_mac_secret : array [0..EVP_MAX_MD_SIZE - 1] of TIdAnsiChar;
     server_random : array [0..SSL3_RANDOM_SIZE - 1] of TIdAnsiChar;
     client_random : array [0..SSL3_RANDOM_SIZE -1] of TIdAnsiChar;
     // flags for countermeasure against known-IV weakness
     need_empty_fragments : TIdC_INT;
     empty_fragment_done : TIdC_INT;
 
-  	//* The value of 'extra' when the buffers were initialized */
-	  init_extra : TIdC_INT;
+    //* The value of 'extra' when the buffers were initialized */
+    init_extra : TIdC_INT;
     rbuf : PSSL3_BUFFER;    //* read IO goes into here */
     wbuf : PSSL3_BUFFER;	//* write IO goes into here */
     rrec : PSSL3_RECORD;    //* each decoded record goes in here */
@@ -16196,10 +16196,10 @@ _des_cblock = DES_cblock
     wpend_buf : PByte;
     // used during startup, digest all incoming/outgoing packets */
     handshake_buffer : PBIO;
-	//* When set of handshake digests is determined, buffer is hashed
-	// * and freed and MD_CTX-es for all required digests are stored in
-	// * this array */
-	  handshake_dgst : PPEVP_MD_CTX;
+    //* When set of handshake digests is determined, buffer is hashed
+    // * and freed and MD_CTX-es for all required digests are stored in
+    // * this array */
+    handshake_dgst : PPEVP_MD_CTX;
 
     finish_dgst2 : PEVP_MD_CTX;
     // this is set whenerver we see a change_cipher_spec message
@@ -16209,8 +16209,8 @@ _des_cblock = DES_cblock
     fatal_alert : TIdC_INT;
     // we allow one fatal and one warning alert to be outstanding,
     // send close alert via the warning alert */
-     alert_dispatch : TIdC_INT;
-     send_alert : array [0..1] of TIdAnsiChar;
+    alert_dispatch : TIdC_INT;
+    send_alert : array [0..1] of TIdAnsiChar;
     // This flag is set when we should renegotiate ASAP, basically when
     // there is no more data in the read or write buffers
     renegotiate : TIdC_INT;
@@ -16218,13 +16218,13 @@ _des_cblock = DES_cblock
     num_renegotiations : TIdC_INT;
     in_read_app_data : TIdC_INT;
 
-	//* Opaque PRF input as used for the current handshake.
-	// * These fields are used only if TLSEXT_TYPE_opaque_prf_input is defined
-	// * (otherwise, they are merely present to improve binary compatibility) */
-	  client_opaque_prf_input : Pointer;
-  	client_opaque_prf_input_len : size_t;
-	  server_opaque_prf_input : Pointer;
-	  server_opaque_prf_input_len : size_t;
+    //* Opaque PRF input as used for the current handshake.
+    // * These fields are used only if TLSEXT_TYPE_opaque_prf_input is defined
+    // * (otherwise, they are merely present to improve binary compatibility) */
+    client_opaque_prf_input : Pointer;
+    client_opaque_prf_input_len : size_t;
+    server_opaque_prf_input : Pointer;
+    server_opaque_prf_input_len : size_t;
     // actually only needs to be 16+20
     tmp_cert_verify_md: array [0..(EVP_MAX_MD_SIZE*2)-1] of TIdAnsiChar;
     // actually only need to be 16+20 for SSLv3 and 12 for TLS
@@ -16265,14 +16265,14 @@ _des_cblock = DES_cblock
     tmp_cert_request : TIdC_INT;
 
     //* Connection binding to prevent renegotiation attacks */
-        previous_client_finished : array [0..EVP_MAX_MD_SIZE - 1] of TIdAnsiChar;
-        previous_client_finished_len : Byte;
-        previous_server_finished : array [0..EVP_MAX_MD_SIZE - 1] of TIdAnsiChar;
-        previous_server_finished_len : Byte;
-        send_connection_binding : TIdC_INT; //* TODOEKR */
+    previous_client_finished : array [0..EVP_MAX_MD_SIZE - 1] of TIdAnsiChar;
+    previous_client_finished_len : Byte;
+    previous_server_finished : array [0..EVP_MAX_MD_SIZE - 1] of TIdAnsiChar;
+    previous_server_finished_len : Byte;
+    send_connection_binding : TIdC_INT; //* TODOEKR */
 {$ifndef OPENSSL_NO_NEXTPROTONEG}
-	//* Set if we saw the Next Protocol Negotiation extension from our peer. */
-	  next_proto_neg_seen : TIdC_INT;
+    //* Set if we saw the Next Protocol Negotiation extension from our peer. */
+    next_proto_neg_seen : TIdC_INT;
 {$endif}
   end;
   {$ENDIF}
