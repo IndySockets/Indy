@@ -424,6 +424,10 @@ function i2d_NETSCAPE_CERT_SEQUENCE_func(x: PNETSCAPE_CERT_SEQUENCE; buf: PPByte
 
 function d2i_NETSCAPE_CERT_SEQUENCE_func(pr : PNETSCAPE_CERT_SEQUENCE; _in : PPByte; len : TIdC_INT): PNETSCAPE_CERT_SEQUENCE cdecl; external SSLCLIB_LIB_name name 'd2i_NETSCAPE_CERT_SEQUENCE';
 
+function i2d_PUBKEY_func(x: PEVP_PKEY; buf: PPByte): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'i2d_PUBKEY';
+
+function d2i_PUBKEY_func(pr : PEVP_PKEY; _in : PPByte; len : TIdC_INT): PEVP_PKEY cdecl; external SSLCLIB_LIB_name name 'd2i_PUBKEY';
+
 function X509_get_default_cert_file_func: PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'X509_get_default_cert_file';
 
 function X509_get_default_cert_file_env_func: PIdAnsiChar cdecl; external SSLCLIB_LIB_name name 'X509_get_default_cert_file_env';
@@ -489,6 +493,8 @@ function PEM_read_bio_DSAparams_func(bp : PBIO; x : PPDSA; cb : ppem_password_cb
 function PEM_read_bio_NETSCAPE_CERT_SEQUENCE_func(bp : PBIO; x : PPNETSCAPE_CERT_SEQUENCE;
   cb : ppem_password_cb; u : Pointer) : PNETSCAPE_CERT_SEQUENCE cdecl; external SSLCLIB_LIB_name name 'PEM_read_bio_NETSCAPE_CERT_SEQUENCE';
 
+function PEM_read_bio_PUBKEY_func(bp : PBIO; x : PPEVP_PKEY; cb : ppem_password_cb; u : Pointer) : PEVP_PKEY cdecl; external SSLCLIB_LIB_name name 'PEM_read_bio_PUBKEY';
+
 function PEM_write_bio_X509_func(b: PBIO; x: PX509): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'PEM_write_bio_X509';
 
 function PEM_write_bio_X509_REQ_func(bp: PBIO; x: PX509_REQ): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'PEM_write_bio_X509_REQ';
@@ -516,6 +522,8 @@ function PEM_write_bio_NETSCAPE_CERT_SEQUENCE_func(bp : PBIO; x : PDSA) : TIdC_I
 
 function PEM_write_bio_PKCS8PrivateKey_func(bp: PBIO; key: PEVP_PKEY; enc: PEVP_CIPHER;
   kstr: PIdAnsiChar; klen: TIdC_INT; cb: ppem_password_cb; u: Pointer): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'PEM_write_bio_PKCS8PrivateKey';
+
+function PEM_write_bio_PUBKEY_func(bp: PBIO; x: PEVP_PKEY): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'PEM_write_bio_PUBKEY';
 {$ELSE}
 function PEM_ASN1_write_bio_func(i2d: i2d_of_void; const name: PIdAnsiChar;
   bp: PBIO; x: PIdAnsiChar; const enc: PEVP_CIPHER; kstr: PIdAnsiChar; klen: TIdC_INT;
@@ -565,13 +573,21 @@ function EVP_md4_func: PEVP_MD cdecl; external SSLCLIB_LIB_name name 'EVP_md4';
 
 procedure EVP_MD_CTX_init_proc(ctx : PEVP_MD_CTX) cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_init';
 
+function EVP_MD_CTX_cleanup_func(ctx : PEVP_MD_CTX) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_cleanup';
+
+function EVP_MD_CTX_create_func : PEVP_MD_CTX cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_create';
+
+procedure EVP_MD_CTX_destroy_proc(ctx : PEVP_MD_CTX) cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_destroy';
+
+function EVP_MD_CTX_copy_func(_out : PEVP_MD_CTX; _in: PEVP_MD_CTX) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_copy';
+
+function EVP_MD_CTX_copy_ex_func(_out : PEVP_MD_CTX; const _in: PEVP_MD_CTX) : TIdC_INT cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_copy_ex';
+
 function  EVP_DigestInit_ex_func(ctx : PEVP_MD_CTX; const AType : PEVP_MD; impl : PENGINE) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_DigestInit_ex';
 
 function  EVP_DigestUpdate_func(ctx : PEVP_MD_CTX; d : Pointer; cnt : size_t) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_DigestUpdate';
 
 function EVP_DigestFinal_ex_func(ctx : PEVP_MD_CTX; md : PIdAnsiChar; var s : TIdC_UInt) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_DigestFinal_ex';
-
-function EVP_MD_CTX_cleanup_func(ctx : PEVP_MD_CTX) : TIdC_Int cdecl; external SSLCLIB_LIB_name name 'EVP_MD_CTX_cleanup';
 
 function EVP_PKEY_type_func(_type : TIdC_INT): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'EVP_PKEY_type';
 
@@ -906,6 +922,8 @@ we have to handle both cases.
   d2i_DHparams := d2i_DHparams_func;
   i2d_NETSCAPE_CERT_SEQUENCE := i2d_NETSCAPE_CERT_SEQUENCE_func;
   d2i_NETSCAPE_CERT_SEQUENCE := d2i_NETSCAPE_CERT_SEQUENCE_func;
+  i2d_PUBKEY := i2d_PUBKEY_func;
+  d2i_PUBKEY := d2i_PUBKEY_func;
 
   //X509
   X509_get_default_cert_file := X509_get_default_cert_file_func;
@@ -941,6 +959,7 @@ we have to handle both cases.
   _PEM_read_bio_DHparams := PEM_read_bio_DHparams_func;
   _PEM_read_bio_DSAparams := PEM_read_bio_DSAparams_func;
   _PEM_read_bio_NETSCAPE_CERT_SEQUENCE := PEM_read_bio_NETSCAPE_CERT_SEQUENCE_func;
+  _PEM_read_bio_PUBKEY := PEM_read_bio_PUBKEY_func;
   _PEM_write_bio_X509 := PEM_write_bio_X509_func;
   _PEM_write_bio_X509_REQ := PEM_write_bio_X509_REQ_func;
   _PEM_write_bio_X509_CRL := PEM_write_bio_X509_CRL_func;
@@ -953,6 +972,7 @@ we have to handle both cases.
   _PEM_write_bio_DSAparams := PEM_write_bio_DSAparams_func;
   _PEM_write_bio_NETSCAPE_CERT_SEQUENCE := PEM_write_bio_NETSCAPE_CERT_SEQUENCE_func;
   _PEM_write_bio_PKCS8PrivateKey := PEM_write_bio_PKCS8PrivateKey_func;
+  _PEM_write_bio_PUBKEY := PEM_write_bio_PUBKEY_func;
   {$ELSE}
   PEM_ASN1_write_bio := PEM_ASN1_write_bio_func;
   PEM_ASN1_read_bio := PEM_ASN1_read_bio_func;
@@ -984,6 +1004,11 @@ we have to handle both cases.
 //  EVP_md2 := EVP_md2_func;
 //  {$ENDIF}
   EVP_MD_CTX_init := EVP_MD_CTX_init_proc;
+  EVP_MD_CTX_cleanup := EVP_MD_CTX_cleanup_func;
+  EVP_MD_CTX_create := EVP_MD_CTX_create_func;
+  EVP_MD_CTX_destroy := EVP_MD_CTX_destroy_proc;
+  EVP_MD_CTX_copy := EVP_MD_CTX_copy_func;
+  EVP_MD_CTX_copy_ex := EVP_MD_CTX_copy_ex_func;
   EVP_DigestInit_ex := EVP_DigestInit_ex_func;
   EVP_DigestUpdate := EVP_DigestUpdate_func;
   EVP_DigestFinal_ex := EVP_DigestFinal_ex_func;
