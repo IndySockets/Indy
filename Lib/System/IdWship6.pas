@@ -476,7 +476,7 @@ end;
 
 procedure CloseLibrary;
 var
-  h : THandle;
+  h : TIdLibHandle;
 begin
   h := InterlockedExchangeTLibHandle(hWship6Dll, IdNilHandle);
   if h <> IdNilHandle then begin

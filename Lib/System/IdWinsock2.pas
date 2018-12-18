@@ -5566,7 +5566,7 @@ type
   {$NODEFINE UninitializeWinSock}
   procedure UninitializeWinSock;
   function Winsock2Loaded: Boolean;
-  function WinsockHandle : THandle;
+  function WinsockHandle : TIdLibHandle;
 
 //JPM
 {
