@@ -48,9 +48,7 @@ uses
   SysUtils;
 
 type
-  // EIdExceptionBase is the base class which extends Exception. It is separate from EIdException
-  // to allow other users of Indy to use EIdExceptionBase while still being able to separate from
-  // EIdException.
+  // EIdException is the base class for all Exceptions raised in the Indy library.
   EIdException = class(Exception)
   public
     {
