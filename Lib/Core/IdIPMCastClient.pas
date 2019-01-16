@@ -313,7 +313,7 @@ begin
       end;
     end;
   finally
-    LReadList.Free;
+    LSocketList.Free;
   end;
 end;
 
