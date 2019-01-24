@@ -296,6 +296,9 @@ type
     procedure SetSSLVersions(const AValue : TIdSSLVersions);
     procedure SetMethod(const AValue : TIdSSLVersion);
   public
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} Parent: TObject;
     constructor Create;
     // procedure Assign(ASource: TPersistent); override;
   published
@@ -336,7 +339,9 @@ type
     function GetVerifyMode: TIdSSLVerifyModeSet;
     procedure InitContext(CtxMode: TIdSSLCtxMode);
   public
-    Parent: TObject;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} Parent: TObject;
     constructor Create;
     destructor Destroy; override;
     function Clone : TIdSSLContext;
@@ -367,7 +372,9 @@ type
 
   TIdSSLSocket = class(TObject)
   protected
-    fParent: TObject;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} fParent: TObject;
     fPeerCert: TIdX509;
     fSSL: PSSL;
     fSSLCipher: TIdSSLCipher;
@@ -2409,6 +2416,7 @@ constructor TIdServerIOHandlerSSLOpenSSL.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   fxSSLOptions := TIdSSLOptions.Create;
+  fxSSLOptions.Parent := Self;
 end;
 
 destructor TIdServerIOHandlerSSLOpenSSL.Destroy;
@@ -2458,6 +2466,9 @@ begin
     LIO.Open;
     if LIO.Binding.Accept(ASocket.Handle) then begin
       //we need to pass the SSLOptions for the socket from the server
+      // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
+      // here? Do we really need to share ownership of it?
+      // LIO.fxSSLOptions.Assign(fxSSLOptions);
       FreeAndNil(LIO.fxSSLOptions);
       LIO.IsPeer := True;
       LIO.fxSSLOptions := fxSSLOptions;
@@ -2526,10 +2537,9 @@ begin
     LIO.PassThrough := True;
     LIO.OnGetPassword := DoGetPassword;
     LIO.OnGetPasswordEx := OnGetPasswordEx;
-    //todo memleak here - setting IsPeer causes SSLOptions to not free
     LIO.IsPeer := True;
     LIO.SSLOptions.Assign(SSLOptions);
-    LIO.SSLOptions.Mode := sslmBoth;{doesn't really matter}
+    LIO.SSLOptions.Mode := sslmBoth;{or sslmClient}{doesn't really matter}
     LIO.SSLContext := SSLContext;
   except
     LIO.Free;
@@ -2631,6 +2641,7 @@ begin
   inherited Create(AOwner);
   IsPeer := False;
   fxSSLOptions := TIdSSLOptions.Create;
+  fxSSLOptions.Parent := Self;
   fSSLLayerClosed := True;
   fSSLContext := nil;
 end;
@@ -2638,10 +2649,12 @@ end;
 destructor TIdSSLIOHandlerSocketOpenSSL.Destroy;
 begin
   fSSLSocket.Free;
-  if not IsPeer then begin
-    //we do not destroy these in IsPeer equals true
-    //because these do not belong to us when we are in a server.
+  //we do not destroy these if their Parent is not Self
+  //because these do not belong to us when we are in a server.
+  if (fSSLContext <> nil) and (fSSLContext.Parent = Self) then begin
     fSSLContext.Free;
+  end;
+  if (fxSSLOptions <> nil) and (fxSSLOptions.Parent = Self) then begin
     fxSSLOptions.Free;
   end;
   inherited Destroy;
@@ -2686,8 +2699,12 @@ end;
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
   FreeAndNil(fSSLSocket);
-  if not IsPeer then begin
-    FreeAndNil(fSSLContext);
+  if fSSLContext <> nil then begin
+    if fSSLContext.Parent = Self then begin
+      FreeAndNil(fSSLContext);
+    end else begin
+      fSSLContext := nil;
+    end;
   end;
   inherited Close;
 end;
@@ -2858,7 +2875,7 @@ var
 
   function GetProxyTargetHost: string;
   var
-    // under ARC, convert a weak reference to a strong reference before working with it
+    // under ARC, convert a weak/unsafe reference to a strong reference before working with it
     LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
   begin
     Result := '';
