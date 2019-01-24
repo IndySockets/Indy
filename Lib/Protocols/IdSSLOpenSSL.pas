@@ -336,7 +336,7 @@ type
     function GetVerifyMode: TIdSSLVerifyModeSet;
     procedure InitContext(CtxMode: TIdSSLCtxMode);
   public
-    Parent: TObject;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} Parent: TObject;
     constructor Create;
     destructor Destroy; override;
     function Clone : TIdSSLContext;
@@ -367,7 +367,7 @@ type
 
   TIdSSLSocket = class(TObject)
   protected
-    fParent: TObject;
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} fParent: TObject;
     fPeerCert: TIdX509;
     fSSL: PSSL;
     fSSLCipher: TIdSSLCipher;
@@ -708,6 +708,14 @@ type
   TIdCriticalSectionThreadList = TThreadList;
   TIdCriticalSectionList = TList;
   {$ENDIF}
+
+  // RLebeau 1/24/2019: defining this as a private implementation for now to
+  // avoid a change in the public interface above.  This should be rolled into
+  // the public interface at some point...
+  TIdSSLOptions_Internal = class(TIdSSLOptions)
+  public
+    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} Parent: TObject;
+  end;
 
 var
   SSLIsLoaded: TIdThreadSafeBoolean = nil;
@@ -2525,7 +2533,8 @@ end;
 procedure TIdServerIOHandlerSSLOpenSSL.InitComponent;
 begin
   inherited InitComponent;
-  fxSSLOptions := TIdSSLOptions.Create;
+  fxSSLOptions := TIdSSLOptions_Internal.Create;
+  TIdSSLOptions_Internal(fxSSLOptions).Parent := Self;
 end;
 
 destructor TIdServerIOHandlerSSLOpenSSL.Destroy;
@@ -2574,6 +2583,9 @@ begin
     LIO.Open;
     if LIO.Binding.Accept(ASocket.Handle) then begin
       //we need to pass the SSLOptions for the socket from the server
+      // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
+      // here? Do we really need to share ownership of it?
+      // LIO.fxSSLOptions.Assign(fxSSLOptions);
       FreeAndNil(LIO.fxSSLOptions);
       LIO.IsPeer := True;
       LIO.fxSSLOptions := fxSSLOptions;
@@ -2644,10 +2656,9 @@ begin
     LIO.PassThrough := True;
     LIO.OnGetPassword := DoGetPassword;
     LIO.OnGetPasswordEx := OnGetPasswordEx;
-    //todo memleak here - setting IsPeer causes SSLOptions to not free
-    LIO.IsPeer := True;
+    LIO.IsPeer := True; // RLebeau 1/24/2019: is this still needed now?
     LIO.SSLOptions.Assign(SSLOptions);
-    LIO.SSLOptions.Mode := sslmBoth;{doesn't really matter}
+    LIO.SSLOptions.Mode := sslmBoth;{or sslmClient}{doesn't really matter}
     LIO.SSLContext := SSLContext;
   except
     LIO.Free;
@@ -2671,7 +2682,6 @@ begin
     LIO.PassThrough := True;
     LIO.OnGetPassword := DoGetPassword;
     LIO.OnGetPasswordEx := OnGetPasswordEx;
-    //todo memleak here - setting IsPeer causes SSLOptions to not free
     LIO.IsPeer := True;
     LIO.SSLOptions.Assign(SSLOptions);
     LIO.SSLOptions.Mode := sslmBoth;{or sslmServer}
@@ -2748,7 +2758,8 @@ procedure TIdSSLIOHandlerSocketOpenSSL.InitComponent;
 begin
   inherited InitComponent;
   IsPeer := False;
-  fxSSLOptions := TIdSSLOptions.Create;
+  fxSSLOptions := TIdSSLOptions_Internal.Create;
+  TIdSSLOptions_Internal(fxSSLOptions).Parent := Self;
   fSSLLayerClosed := True;
   fSSLContext := nil;
 end;
@@ -2756,10 +2767,15 @@ end;
 destructor TIdSSLIOHandlerSocketOpenSSL.Destroy;
 begin
   FreeAndNil(fSSLSocket);
-  if not IsPeer then begin
-    //we do not destroy these in IsPeer equals true
-    //because these do not belong to us when we are in a server.
+  //we do not destroy these if their Parent is not Self
+  //because these do not belong to us when we are in a server.
+  if (fSSLContext <> nil) and (fSSLContext.Parent = Self) then begin
     FreeAndNil(fSSLContext);
+  end;
+  if (fxSSLOptions <> nil) and
+     (fxSSLOptions is TIdSSLOptions_Internal) and
+     (TIdSSLOptions_Internal(fxSSLOptions).Parent = Self) then
+  begin
     FreeAndNil(fxSSLOptions);
   end;
   inherited Destroy;
@@ -2804,8 +2820,12 @@ end;
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
   FreeAndNil(fSSLSocket);
-  if not IsPeer then begin
-    FreeAndNil(fSSLContext);
+  if fSSLContext <> nil then begin
+    if fSSLContext.Parent = Self then begin
+      FreeAndNil(fSSLContext);
+    end else begin
+      fSSLContext := nil;
+    end;
   end;
   inherited Close;
 end;
