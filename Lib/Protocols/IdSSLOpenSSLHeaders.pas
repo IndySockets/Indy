@@ -811,6 +811,11 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 (*$HPPEMIT '}'*)
 (*$HPPEMIT 'struct RSA;'*)
 (*$HPPEMIT 'typedef RSA* PRSA;'*)
+(*$HPPEMIT 'struct DSA;'*)
+(*$HPPEMIT 'typedef DSA* PDSA;'*)
+(*$HPPEMIT 'struct DH;'*)
+(*$HPPEMIT 'typedef DH* PDH;'*)
+(*$HPPEMIT 'typedef void* PEC_KEY;'*)
 
 uses
   IdException,
@@ -16942,7 +16947,7 @@ var
   {$EXTERNALSYM EVP_PKEY_free}
   EVP_PKEY_free : procedure(pkey: PEVP_PKEY) cdecl = nil;
   {$EXTERNALSYM EVP_PKEY_assign}
-  EVP_PKEY_assign : function(pkey: PEVP_PKEY; _type: TIdC_INT; key: PIdAnsiChar): TIdC_INT cdecl = nil;
+  EVP_PKEY_assign : function(pkey: PEVP_PKEY; _type: TIdC_INT; key: Pointer): TIdC_INT cdecl = nil;
   {$EXTERNALSYM EVP_get_cipherbyname}
   EVP_get_cipherbyname : function(const name : PIdAnsiChar): PEVP_CIPHER cdecl = nil;
   {$EXTERNALSYM EVP_get_digestbyname}
@@ -18647,22 +18652,22 @@ procedure CRYPTO_SetMemCheck(const aEnabled: Boolean);
 
 {$IFNDEF OPENSSL_NO_RSA}
  {$EXTERNALSYM EVP_PKEY_assign_RSA} 
-function EVP_PKEY_assign_RSA(pkey: PEVP_PKEY; rsa: PIdAnsiChar): TIdC_INT;
+function EVP_PKEY_assign_RSA(pkey: PEVP_PKEY; rsa: PRSA): TIdC_INT;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_DSA}
  {$EXTERNALSYM EVP_PKEY_assign_DSA}
-function EVP_PKEY_assign_DSA(pkey : PEVP_PKEY; dsa : PIdAnsiChar) : TIdC_INT;
+function EVP_PKEY_assign_DSA(pkey : PEVP_PKEY; dsa : PDSA) : TIdC_INT;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_DH}
  {$EXTERNALSYM EVP_PKEY_assign_DH} 
-function EVP_PKEY_assign_DH(pkey : PEVP_PKEY; dh : PIdAnsiChar) : TIdC_INT;
+function EVP_PKEY_assign_DH(pkey : PEVP_PKEY; dh : PDH) : TIdC_INT;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_EC}
  {$EXTERNALSYM EVP_PKEY_assign_EC_KEY}
-function EVP_PKEY_assign_EC_KEY(pkey : PEVP_PKEY; eckey : PIdAnsiChar) : TIdC_INT;
+function EVP_PKEY_assign_EC_KEY(pkey : PEVP_PKEY; eckey : PEC_KEY) : TIdC_INT;
 {$ENDIF}
 
 //* Add some extra combinations */
@@ -26057,7 +26062,7 @@ begin
 end;
 
 {$IFNDEF OPENSSL_NO_RSA}
-function EVP_PKEY_assign_RSA(pkey: PEVP_PKEY; rsa: PIdAnsiChar): TIdC_INT;
+function EVP_PKEY_assign_RSA(pkey: PEVP_PKEY; rsa: PRSA): TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := EVP_PKEY_assign(pkey, EVP_PKEY_RSA, rsa);
@@ -26065,25 +26070,25 @@ end;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_DSA}
-function EVP_PKEY_assign_DSA(pkey : PEVP_PKEY; dsa : PIdAnsiChar) : TIdC_INT;
+function EVP_PKEY_assign_DSA(pkey : PEVP_PKEY; dsa : PDSA) : TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := EVP_PKEY_assign(pkey,EVP_PKEY_DSA,	dsa);
+  Result := EVP_PKEY_assign(pkey, EVP_PKEY_DSA, dsa);
 end;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_DH}
-function EVP_PKEY_assign_DH(pkey : PEVP_PKEY; dh : PIdAnsiChar) : TIdC_INT;
+function EVP_PKEY_assign_DH(pkey : PEVP_PKEY; dh : PDH) : TIdC_INT;
 begin
-  Result := EVP_PKEY_assign(pkey,EVP_PKEY_DH,dh);
+  Result := EVP_PKEY_assign(pkey, EVP_PKEY_DH, dh);
 end;
 {$ENDIF}
 
 {$IFNDEF OPENSSL_NO_EC}
-function EVP_PKEY_assign_EC_KEY(pkey : PEVP_PKEY; eckey : PIdAnsiChar) : TIdC_INT;
+function EVP_PKEY_assign_EC_KEY(pkey : PEVP_PKEY; eckey : PEC_KEY) : TIdC_INT;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := EVP_PKEY_assign(pkey,EVP_PKEY_EC,eckey);
+  Result := EVP_PKEY_assign(pkey, EVP_PKEY_EC, eckey);
 end;
 {$ENDIF}
 

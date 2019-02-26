@@ -595,7 +595,7 @@ function EVP_PKEY_new_func: PEVP_PKEY cdecl; external SSLCLIB_LIB_name name 'EVP
 
 procedure EVP_PKEY_free_proc(pkey: PEVP_PKEY) cdecl; external SSLCLIB_LIB_name name 'EVP_PKEY_free';
 
-function EVP_PKEY_assign_func(pkey: PEVP_PKEY; _type: TIdC_INT; key: PIdAnsiChar): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'EVP_PKEY_assign';
+function EVP_PKEY_assign_func(pkey: PEVP_PKEY; _type: TIdC_INT; key: Pointer): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'EVP_PKEY_assign';
 
 function EVP_get_digestbyname_func(const name: PIdAnsiChar): PEVP_MD cdecl; external SSLCLIB_LIB_name name 'EVP_get_digestbyname';
 
