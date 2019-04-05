@@ -382,7 +382,7 @@ begin
   if FAvailable <> AValue then
   begin
     FAvailable := AValue;
-    if AValue then
+    if not AValue then
     begin
       FStatusClass := CLASS_DEF;
       FSubject := NODETAILS;
