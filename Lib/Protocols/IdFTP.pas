@@ -2642,20 +2642,19 @@ begin
     SendCmd('CLNT ' + LClnt);  {do not localize}
   end;
 
+  // RLebeau 10/1/13: per RFC 2640, OPTS commands are no longer used to
+  // activate UTF-8. If the server reports the 'UTF8' capability, it is
+  // required to detect and accept UTF-8 encoded paths/filenames...
   if IsExtSupported('UTF8') then begin {do not localize}
-    // RLebeau 10/1/13: per RFC 2640, OPTS commands are no longer used to
-    // activate UTF-8. If the server reports the 'UTF8' capability, it is
-    // required to detect and accept UTF-8 encoded paths/filenames...
-    {
-    // trying non-standard UTF-8 extension first, many servers use this...
-    // Cerberus and RaidenFTP return 220, but TitanFTP and Gene6 return 200 instead...
-    if not SendCmd('OPTS UTF8 ON') in [200, 220] then begin {do not localize
-      // trying draft-ietf-ftpext-utf-8-option-00.txt next...
-      if SendCmd('OPTS UTF-8 NLST') <> 200 then begin {do not localize
-        Exit;
-      end;
-    end;
-    }
+    IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
+  end
+  // trying non-standard UTF-8 extension next, many servers use this...
+  // Cerberus and RaidenFTP return 220, but TitanFTP and Gene6 return 200 instead...
+  else if SendCmd('OPTS UTF8 ON') in [200, 220] then begin {do not localize}
+    IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
+  end
+  // trying draft-ietf-ftpext-utf-8-option-00.txt next...
+  else if SendCmd('OPTS UTF-8 NLST') = 200 then begin {do not localize}
     IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
   end;
 end;
@@ -3150,8 +3149,21 @@ begin
 end;
 
 procedure TIdFTP.SetCmdOpt(const ACmd, AOptions: String);
+var
+  LCmd: string;
 begin
-  SendCmd('OPTS ' + ACmd + ' ' + AOptions, 200); {do not localize}
+  LCmd := 'OPTS ' + ACmd; {do not localize}
+  // RLebeau 4/23/2019: RFC 2389 defines the command-options parameter
+  // as optional, so lets not send it if the user didn't provide anything...
+  if AOptions <> '' then begin
+    LCmd := LCmd + ' ' + AOptions; {do not localize}
+  end;
+  // RLebeau 4/23/2019: the only official success reply allowed for OPTS
+  // is 200, but for OPTS UTF8 ON, Cerberus and RaidenFTP return 220 instead.
+  // So lets just accept any 2xx reply...
+  if (SendCmd(LCmd) div 100) <> 2 then begin
+    RaiseExceptionForLastCmdResult;
+  end;
 end;
 
 procedure TIdFTP.ExtListDir(ADest: TStrings = nil; const ADirectory: string = '');
