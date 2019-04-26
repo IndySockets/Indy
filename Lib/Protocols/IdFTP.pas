@@ -1605,7 +1605,7 @@ begin
   try
     LDest := TMemoryStream.Create;
     try
-      InternalGet(Trim(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LDest); {do not localize}
+      InternalGet(TrimRight(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LDest); {do not localize}
       FreeAndNil(FDirectoryListing);
       FDirFormat := '';
       LDest.Position := 0;
@@ -2510,7 +2510,7 @@ end;
 
 procedure TIdFTP.Help(AHelpContents: TStrings; ACommand: String = ''); {do not localize}
 begin
-  if SendCmd(Trim('HELP ' + ACommand), [211, 214, 500]) <> 500 then begin      {do not localize}
+  if SendCmd(TrimRight('HELP ' + ACommand), [211, 214, 500]) <> 500 then begin      {do not localize}
     AHelpContents.Text := LastCmdResult.Text.Text;
   end;
 end;
@@ -2642,20 +2642,21 @@ begin
     SendCmd('CLNT ' + LClnt);  {do not localize}
   end;
 
-  // RLebeau 10/1/13: per RFC 2640, OPTS commands are no longer used to
-  // activate UTF-8. If the server reports the 'UTF8' capability, it is
-  // required to detect and accept UTF-8 encoded paths/filenames...
+  // RLebeau 4/26/2019: per RFC 2640, if the server reports the 'UTF8'
+  // capability, it is REQUIRED to detect and accept UTF-8 encoded
+  // paths/filenames in commands.  But, it is not REQUIRED to send UTF-8
+  // in responses and directory listings.  For that, we need to use the
+  // OPTS command to inform the server that we actually want UTF-8...
   if IsExtSupported('UTF8') then begin {do not localize}
-    IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
-  end
-  // trying non-standard UTF-8 extension next, many servers use this...
-  // Cerberus and RaidenFTP return 220, but TitanFTP and Gene6 return 200 instead...
-  else if SendCmd('OPTS UTF8 ON') in [200, 220] then begin {do not localize}
-    IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
-  end
-  // trying draft-ietf-ftpext-utf-8-option-00.txt next...
-  else if SendCmd('OPTS UTF-8 NLST') = 200 then begin {do not localize}
-    IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
+    // trying non-standard UTF-8 extension first, many servers use this...
+    // Cerberus and RaidenFTP return 220, but TitanFTP and Gene6 return 200 instead...
+    if (SendCmd('OPTS UTF8 ON') div 100) = 2 then begin {do not localize}
+      IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
+    end
+    // trying draft-ietf-ftpext-utf-8-option-00.txt next...
+    else if SendCmd('OPTS UTF-8 NLST') = 200 then begin {do not localize}
+      IOHandler.DefStringEncoding := IndyTextEncoding_UTF8;
+    end;
   end;
 end;
 
@@ -2869,7 +2870,7 @@ begin
     end;
   fpcmUserHostFireWallID :  //USER hostuserId@hostname firewallUsername
     begin
-       if SendCmd(Trim('USER ' + Username + '@' + FtpHost + ' ' + ProxySettings.UserName), [230, 331]) = 331 then begin   {do not localize}
+       if SendCmd(TrimRight('USER ' + Username + '@' + FtpHost + ' ' + ProxySettings.UserName), [230, 331]) = 331 then begin   {do not localize}
          if SendCmd('PASS ' + GetLoginPassword, [230,232,202,332]) = 332 then begin
            SendCmd('ACCT ' + ProxySettings.Password, [230,232,332]);
            if IsAccountNeeded then begin
@@ -2902,7 +2903,7 @@ send ("USER %FwUserId$%HostUserId$%HostAddress")
 //send ("PASS %FwPassword$%HostPassword")
 
 }
-      if SendCmd(Trim('USER ' + ProxySettings.UserName + '$' + Username + '$' + FtpHost), [230, 331]) = 331 then begin   {do not localize}
+      if SendCmd(TrimRight('USER ' + ProxySettings.UserName + '$' + Username + '$' + FtpHost), [230, 331]) = 331 then begin   {do not localize}
         if SendCmd('PASS ' + ProxySettings.UserName + '$' + GetLoginPassword, [230,232,202,332]) = 332 then begin
           if IsAccountNeeded then begin
             if CheckAccount then begin
@@ -3149,19 +3150,11 @@ begin
 end;
 
 procedure TIdFTP.SetCmdOpt(const ACmd, AOptions: String);
-var
-  LCmd: string;
 begin
-  LCmd := 'OPTS ' + ACmd; {do not localize}
-  // RLebeau 4/23/2019: RFC 2389 defines the command-options parameter
-  // as optional, so lets not send it if the user didn't provide anything...
-  if AOptions <> '' then begin
-    LCmd := LCmd + ' ' + AOptions; {do not localize}
-  end;
-  // RLebeau 4/23/2019: the only official success reply allowed for OPTS
+  // RLebeau 4/26/2019: the only official success reply allowed for OPTS
   // is 200, but for OPTS UTF8 ON, Cerberus and RaidenFTP return 220 instead.
   // So lets just accept any 2xx reply...
-  if (SendCmd(LCmd) div 100) <> 2 then begin
+  if (SendCmd(TrimRight('OPTS ' + ACmd + ' ' + AOptions)) div 100) <> 2 then begin
     RaiseExceptionForLastCmdResult;
   end;
 end;
@@ -3186,7 +3179,7 @@ begin
 
   LDest := TMemoryStream.Create;
   try
-    InternalGet(Trim('MLSD ' + ADirectory), LDest);  {do not localize}
+    InternalGet(TrimRight('MLSD ' + ADirectory), LDest);  {do not localize}
     FreeAndNil(FDirectoryListing);
     FDirFormat := '';
     DoOnRetrievedDir;
@@ -3214,7 +3207,8 @@ begin
   ADest.BeginUpdate;
   try
     ADest.Clear;
-    SendCmd(Trim('MLST ' + AItem), 250, IndyTextEncoding_8Bit);  {do not localize}
+    IOHandler.WriteLn(TrimRight('MLST ' + AItem));  {do not localize}
+    GetResponse(250, IndyTextEncoding_8Bit);
     for i := 0 to LastCmdResult.Text.Count -1 do begin
       if IndyPos(';', LastCmdResult.Text[i]) > 0 then begin
         ADest.Add(LastCmdResult.Text[i]);
@@ -3344,7 +3338,7 @@ end;
 procedure TIdFTP.SetLang(const ALangTag: String);
 begin
   if IsExtSupported('LANG') then begin {do not localize}
-    SendCMD('LANG ' + ALangTag, 200);  {do not localize}
+    SendCmd(TrimRight('LANG ' + ALangTag), 200);  {do not localize}
   end;
 end;
 
@@ -4066,6 +4060,7 @@ function TIdFTP.IsIIS: Boolean;
 begin
   Result := TextStartsWith(FServerDesc, 'Microsoft FTP Service'); {do not localize}
 end;
+
 function TIdFTP.IsServerMDTZAndListTForm: Boolean;
 begin
   Result := IsOldServU or IsBPFTP or IsTitan;
