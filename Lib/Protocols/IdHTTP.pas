@@ -2823,8 +2823,8 @@ var
         end;
         if LRaiseException then begin
           LTempStream.Position := 0;
-          raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText,
-            ReadStringAsCharset(LTempStream, FHTTP.Response.CharSet));
+          raise EIdHTTPProtocolException.CreateError(LResponseCode, Response.ResponseText,
+            ReadStringAsCharset(LTempStream, Response.CharSet));
         end;
       finally
         if LRaiseException or LDiscardContent then begin
