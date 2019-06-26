@@ -421,9 +421,9 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-	  {$IFDEF DARWIN}
+    {$IFDEF OSX}
  CoreServices,
-	  {$ENDIF}
+    {$ENDIF}
   PosixSysSelect,
   PosixSysTime,
   {$ENDIF}

@@ -584,7 +584,7 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+    {$IFDEF OSX}
   Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
@@ -4857,6 +4857,9 @@ begin
   {$ENDIF}
 end;
 
+// TODO: should we just get rid of the inline assembly here altogether
+// and let the compiler generate its own opcode as needed?
+
 {$UNDEF NO_NATIVE_ASM}
 {$IFDEF DOTNET}
   {$DEFINE NO_NATIVE_ASM}
@@ -4866,7 +4869,7 @@ end;
     {$DEFINE NO_NATIVE_ASM}
   {$ENDIF}
 {$ENDIF}
-{$IFDEF MACOS} // !!! ADDED MACOS BY EMBT
+{$IFDEF OSX} // !!! ADDED OSX BY EMBT
   {$IFDEF CPUX64}
     {$DEFINE NO_NATIVE_ASM}
   {$ENDIF}
@@ -4884,6 +4887,7 @@ end;
 {$ENDIF}
 
 {$IFDEF NO_NATIVE_ASM}
+
 function ROL(const AVal: UInt32; AShift: Byte): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin

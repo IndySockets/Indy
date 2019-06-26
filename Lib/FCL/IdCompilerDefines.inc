@@ -1615,12 +1615,18 @@
   // DCC defines MACOS for both iOS and OS X platforms, need to differentiate
   {$IFDEF MACOS}
     {$IFNDEF IOS}
+      {$DEFINE OSX}
       {$DEFINE DARWIN}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 {$IFDEF FPC}
   // FPC defines DARWIN for both OSX and iOS, need to differentiate
+  {$IFDEF DARWIN}
+    {$IFNDEF IOS}
+      {$DEFINE OSX}
+    {$ENDIF}
+  {$ENDIF}
   {$IFDEF MACOS}
     {$DEFINE MACOS_CLASSIC}
   {$ENDIF}
@@ -1669,12 +1675,10 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
       {$ENDIF}
       {$DEFINE THANDLE_32}
     {$ENDIF}
-  {$ELSE}
-    {$IFDEF DARWIN}  // !!! ADDED DARWIN BY EMBT
-      {$IFNDEF MACOS_CLASSIC}
-        {$DEFINE THANDLE_CPUBITS}
-      {$ENDIF}
-    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF OSX}  // !!! ADDED OSX BY EMBT
+    {$DEFINE THANDLE_CPUBITS}
+  {$ENDIF}
  {$ENDIF}
 {$ENDIF}
 {$IFDEF EMBEDDED}

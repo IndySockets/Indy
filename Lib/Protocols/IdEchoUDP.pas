@@ -55,7 +55,7 @@ type
 implementation
 
 {$IFDEF USE_VCL_POSIX}
-  {$IFDEF DARWIN}
+  {$IFDEF OSX}
 uses
   Macapi.CoreServices;
   {$ENDIF}

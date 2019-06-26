@@ -1152,7 +1152,7 @@ begin
             {$IFDEF IOS}
             ToDo('PKTINFO not implemented for IPv4 under iOS yet');
             {$ELSE}
-              {$IFNDEF DARWIN}
+              {$IFNDEF OSX}
               //This is not supported in OS X.
               with Pin_pktinfo(CMSG_DATA(LCurCmsg))^ do begin
                 APkt.DestIP := TranslateTInAddrToString(ipi_addr, Id_IPv4);

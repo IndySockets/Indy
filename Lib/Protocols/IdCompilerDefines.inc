@@ -1613,14 +1613,16 @@
 //will mean OS X.  In FreePascal, the DEFINE MACOS means MacIntosh System OS Classic.
 {$IFDEF DCC}
   // DCC defines MACOS for both iOS and OS X platforms, need to differentiate
-  {$IFDEF MACOS}
-    {$IFNDEF IOS}
-      {$DEFINE DARWIN}
-    {$ENDIF}
-  {$ENDIF}
+  {$IF DEFINED(MACOS) AND (NOT DEFINED(IOS))}
+    {$DEFINE OSX}
+    {$DEFINE DARWIN}
+  {$IFEND}
 {$ENDIF}
 {$IFDEF FPC}
   // FPC defines DARWIN for both OSX and iOS, need to differentiate
+  {$IF DEFINED(DARWIN) AND (NOT DEFINED(IOS))}
+    {$DEFINE OSX}
+  {$IFEND}
   {$IFDEF MACOS}
     {$DEFINE MACOS_CLASSIC}
   {$ENDIF}
@@ -1669,12 +1671,10 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
       {$ENDIF}
       {$DEFINE THANDLE_32}
     {$ENDIF}
-  {$ELSE}
-    {$IFDEF DARWIN}  // !!! ADDED DARWIN BY EMBT
-      {$IFNDEF MACOS_CLASSIC}
-        {$DEFINE THANDLE_CPUBITS}
-      {$ENDIF}
-    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF OSX}  // !!! ADDED OSX BY EMBT
+    {$DEFINE THANDLE_CPUBITS}
+  {$ENDIF}
  {$ENDIF}
 {$ENDIF}
 {$IFDEF EMBEDDED}
