@@ -111,7 +111,9 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Win64}
 {$UNDEF HAS_ComponentPlatformsAttribute_OSX32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32}
 {$UNDEF HAS_ComponentPlatformsAttribute_Android}
+{$UNDEF HAS_ComponentPlatformsAttribute_Android32Arm}
 {$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device32}
@@ -119,6 +121,16 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
 {$UNDEF HAS_ComponentPlatformsAttribute_WinIoT32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device64}
+{$UNDEF HAS_ComponentPlatformsAttribute_WinARM}
+{$UNDEF HAS_ComponentPlatformsAttribute_WinARM32}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSX64}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSXNX64}
+{$UNDEF HAS_ComponentPlatformsAttribute_Linux32Arm}
+{$UNDEF HAS_ComponentPlatformsAttribute_Linux64Arm}
+{$UNDEF HAS_ComponentPlatformsAttribute_Android64}
+{$UNDEF HAS_ComponentPlatformsAttribute_Android64Arm}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$UNDEF HAS_ComponentPlatformsAttribute_AllPlatforms}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 
 // Define for Delphi to auto-generate platform-appropriate '#pragma link' statements in HPP files
@@ -1192,6 +1204,12 @@
       {$DEFINE USE_OBJECT_ARC}
     {$ENDIF}
   {$ENDIF}
+  // technically, these are present in XE3, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Android}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinNX32}
 {$ENDIF}
 
 {$IFDEF VCL_XE4_OR_ABOVE}
@@ -1200,10 +1218,6 @@
   {$DEFINE HAS_Character_TCharHelper}
   {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator}
   {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device}
-  // technically, these are present in XE4, but they are not used yet
-  {.$DEFINE HAS_ComponentPlatformsAttribute_Android}
-  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32}
-  {.$DEFINE HAS_ComponentPlatformsAttribute_WinNX32}
 {$ENDIF}
 
 {$IFDEF VCL_XE5_OR_ABOVE}
@@ -1230,11 +1244,19 @@
   {$IFDEF ANDROID}
     {$DEFINE HAS_TAndroidHelper}
   {$ENDIF}
+  // technically, these are present in 10.0 Seattle, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinARM}
 {$ENDIF}
 
 {$IFDEF VCL_10_1_OR_ABOVE}
   {$DEFINE HAS_DIRECTIVE_HPPEMIT_LEGACYHPP}
   {$DEFINE HAS_TStrings_AddPair}
+  // technically, these are present in 10.1 Berlin, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_OSXNX64}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32Arm}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux64Arm}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Android64}
 {$ENDIF}
 
 {$IFDEF VCL_10_2_OR_ABOVE}
@@ -1247,6 +1269,19 @@
   {$IFDEF ANDROID}
     {$DEFINE BROKEN_TThread_ForceQueue}
   {$ENDIF}
+{$ENDIF}
+
+{$IFDEF VCL_10_3_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Android32Arm}
+  {$DEFINE HAS_ComponentPlatformsAttribute_WinARM32}
+  {$UNDEF HAS_ComponentPlatformsAttribute_OSXNX64} // removed in 10.3 Rio
+  // technically, these are present in 10.3 Rio, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$ENDIF}
+
+{$IFDEF VCL_10_3_UPDATE2_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -1634,12 +1669,13 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
       {$ENDIF}
       {$DEFINE THANDLE_32}
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF MACOS}  // !!! MOVED HERE BY EMBT
-    {$DEFINE THANDLE_CPUBITS}
   {$ELSE}
-    {$DEFINE THANDLE_32}
-  {$ENDIF}
+    {$IFDEF DARWIN}  // !!! ADDED DARWIN BY EMBT
+      {$IFNDEF MACOS_CLASSIC}
+        {$DEFINE THANDLE_CPUBITS}
+      {$ENDIF}
+    {$ENDIF}
+ {$ENDIF}
 {$ENDIF}
 {$IFDEF EMBEDDED}
   {$DEFINE THANDLE_CPUBITS}
