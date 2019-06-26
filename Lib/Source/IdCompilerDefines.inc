@@ -99,7 +99,9 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Win64}
 {$UNDEF HAS_ComponentPlatformsAttribute_OSX32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32}
 {$UNDEF HAS_ComponentPlatformsAttribute_Android}
+{$UNDEF HAS_ComponentPlatformsAttribute_Android32Arm}
 {$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device32}
@@ -107,6 +109,16 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
 {$UNDEF HAS_ComponentPlatformsAttribute_WinIoT32}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device64}
+{$UNDEF HAS_ComponentPlatformsAttribute_WinARM}
+{$UNDEF HAS_ComponentPlatformsAttribute_WinARM32}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSX64}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSXNX64}
+{$UNDEF HAS_ComponentPlatformsAttribute_Linux32Arm}
+{$UNDEF HAS_ComponentPlatformsAttribute_Linux64Arm}
+{$UNDEF HAS_ComponentPlatformsAttribute_Android64}
+{$UNDEF HAS_ComponentPlatformsAttribute_Android64Arm}
+{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$UNDEF HAS_ComponentPlatformsAttribute_AllPlatforms}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 {$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
 
@@ -270,7 +282,7 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 
 {$IF DEFINED(BSD)}
   //I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
-  {$IFDEF IOS}
+  {$IF DEFINED(IOS)}
     {$IFDEF CPUARM64}
       {$DEFINE CPU64}
       {$DEFINE THANDLE_64}
@@ -280,12 +292,9 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
       {$ENDIF}
       {$DEFINE THANDLE_32}
     {$ENDIF}
-  {$ENDIF}
-  {$IFDEF MACOS}  // !!! ADDED MACOS BY EMBT
+  {$ELSEIF DEFINED(DARWIN) AND (NOT DEFINED(MACOS_CLASSIC))}  // !!! ADDED DARWIN BY EMBT
     {$DEFINE THANDLE_CPUBITS}
-  {$ELSE}
-    {$DEFINE THANDLE_32}
-  {$ENDIF}
+  {$IFEND}
 
 {$ELSEIF DEFINED(LINUX)}
   {$IFDEF LINUX64}

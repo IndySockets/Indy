@@ -376,6 +376,12 @@
   {$DEFINE HAS_SysUtils_TStringHelper}
   {$DEFINE HAS_System_Pos_Offset}
   {$UNDEF THREADNAME_IS_ANSISTRING} // NameThreadForDebugging() now uses (Unicode)String
+  // technically, these are present in XE3, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Android}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinNX32}
 {$ENDIF}
 
 {$IFDEF DCC_XE4_OR_ABOVE}
@@ -384,10 +390,6 @@
   {$DEFINE HAS_Character_TCharHelper}
   {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator}
   {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Device}
-  // technically, these are present in XE4, but they are not used yet
-  {.$DEFINE HAS_ComponentPlatformsAttribute_Android}
-  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32}
-  {.$DEFINE HAS_ComponentPlatformsAttribute_WinNX32}
 {$ENDIF}
 
 {$IFDEF DCC_XE5_OR_ABOVE}
@@ -414,6 +416,8 @@
   {$IFDEF ANDROID}
     {$DEFINE HAS_TAndroidHelper}
   {$ENDIF}
+  // technically, these are present in 10.0 Seattle, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_WinARM}
 {$ENDIF}
 
 {$IFDEF DCC_10_1_OR_ABOVE}
@@ -421,6 +425,12 @@
   {$DEFINE HAS_TStrings_AddPair}
   {.$DEFINE HAS_UNSAFE_INTF_REF}
   {.$DEFINE HAS_WEAK_INTF_REF}
+  // technically, these are present in 10.1 Berlin, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_OSXNX64}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux32Arm}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Linux64Arm}
+  {.$DEFINE HAS_ComponentPlatformsAttribute_Android64}
 {$ENDIF}
 
 {$IFDEF DCC_10_2_OR_ABOVE}
@@ -433,6 +443,19 @@
   {$IFDEF ANDROID}
     {$DEFINE BROKEN_TThread_ForceQueue}
   {$ENDIF}
+{$ENDIF}
+
+{$IFDEF DCC_10_3_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_Android32Arm}
+  {$DEFINE HAS_ComponentPlatformsAttribute_WinARM32}
+  {$UNDEF HAS_ComponentPlatformsAttribute_OSXNX64} // removed in 10.3 Rio
+  // technically, these are present in 10.3 Rio, but they are not used yet
+  {.$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$ENDIF}
+
+{$IFDEF DCC_10_3_UPDATE2_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
