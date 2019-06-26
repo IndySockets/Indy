@@ -194,7 +194,7 @@ uses
   //facilitate inlining only.
   {$IF DEFINED(WINDOWS)}
   Windows,
-  {$ELSEIF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
+  {$ELSEIF DEFINED(USE_VCL_POSIX) AND DEFINED(OSX)}
   Macapi.CoreServices,
   {$IFEND}
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,

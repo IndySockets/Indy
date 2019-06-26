@@ -1509,7 +1509,7 @@ uses
   Posix.SysSocket,
   Posix.Time,
   Posix.SysTime,
-    {$IFDEF DARWIN}
+    {$IFDEF OSX}
   Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}

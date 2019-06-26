@@ -712,7 +712,7 @@ uses
   //facilitate inlining only.
   {$IF DEFINED(WIN32_OR_WIN64)}
   Windows,
-  {$ELSEIF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
+  {$ELSEIF DEFINED(USE_VCL_POSIX) AND DEFINED(OSX)}
   Macapi.CoreServices,
   {$IFEND}
   {$IFDEF HAS_UNIT_Generics_Collections}

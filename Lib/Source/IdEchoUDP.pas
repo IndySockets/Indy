@@ -56,7 +56,7 @@ type
 
 implementation
 
-{$IF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
+{$IF DEFINED(USE_VCL_POSIX) AND DEFINED(OSX)}
 uses
   Macapi.CoreServices;
 {$IFEND}

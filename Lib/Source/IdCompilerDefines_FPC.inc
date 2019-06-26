@@ -97,6 +97,11 @@
 //IMPORTANT!!!!
 //
 //In DCC, MACOS means OS X.  In FreePascal, MACOS means MacIntosh System OS Classic.
+
+//FPC defines DARWIN for both OSX and iOS, need to differentiate
+{$IF DEFINED(DARWIN) AND (NOT DEFINED(IOS))}
+  {$DEFINE OSX}
+{$IFEND}
 {$IFDEF MACOS}
   {$DEFINE MACOS_CLASSIC}
 {$ENDIF}

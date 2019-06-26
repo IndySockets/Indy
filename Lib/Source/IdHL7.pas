@@ -418,7 +418,7 @@ implementation
 
 uses
   {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+    {$IFDEF OSX}
  CoreServices,
     {$ENDIF}
   PosixSysSelect,
@@ -999,7 +999,7 @@ begin
     if Assigned(AContext.Connection.IOHandler) then
       begin
       s := AContext.Connection.IOHandler.ReadLn(MSG_END);
-      if length(s) > 0 then
+      if s <> '' then
         begin
         HandleIncoming(s, AContext.Connection);
         end;

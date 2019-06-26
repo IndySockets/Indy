@@ -546,7 +546,7 @@ const
 implementation
 
 uses
-  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(OSX)}
   Macapi.CoreServices,
   {$IFEND}
   IdIPAddress,
@@ -4608,13 +4608,17 @@ begin
   {$IFEND}
 end;
 
-{$IF (DEFINED(IOS) AND DEFINED(CPUARM)) OR (DEFINED(MACOS) AND DEFINED(CPUX64)) OR DEFINED(ANDROID) OR (DEFINED(FPC) AND (NOT DEFINED(CPUI386))) OR DEFINED(LINUX64)}
+// TODO: should we just get rid of the inline assembly here altogether
+// and let the compiler generate its own opcode as needed?
+
+{$IF (DEFINED(IOS) AND DEFINED(CPUARM)) OR (DEFINED(OSX) AND DEFINED(CPUX64)) OR DEFINED(ANDROID) OR (DEFINED(FPC) AND (NOT DEFINED(CPUI386))) OR DEFINED(LINUX64)}
   {$DEFINE NO_NATIVE_ASM}
 {$ELSE}
   {$UNDEF NO_NATIVE_ASM}
 {$IFEND}
 
 {$IFDEF NO_NATIVE_ASM}
+
 function ROL(const AVal: UInt32; AShift: Byte): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin

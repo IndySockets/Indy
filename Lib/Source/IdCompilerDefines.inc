@@ -22,6 +22,7 @@
 
 // $DEFINE the following if the global objects in the IdStack and IdThread
 // units should be freed on finalization
+// TODO: can this be enabled by default now?
 {.$DEFINE FREE_ON_FINAL}
 {$UNDEF FREE_ON_FINAL}
 

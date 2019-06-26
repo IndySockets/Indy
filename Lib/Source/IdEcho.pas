@@ -83,7 +83,7 @@ type
 implementation
 
 uses
-  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(DARWIN)}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(OSX)}
   Macapi.CoreServices,
   {$IFEND}
   IdComponent,

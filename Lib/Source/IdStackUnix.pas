@@ -404,7 +404,7 @@ begin
       IPVersionUnsupported;
     end;
   end;
-  {$IFDEF DARWIN}
+  {$IFDEF DARWIN} // TODO: use HAS_SOCKET_NOSIGPIPE instead...
   SetSocketOption(ASocket, Id_SOL_SOCKET, SO_NOSIGPIPE, 1);
   {$ENDIF}
 end;

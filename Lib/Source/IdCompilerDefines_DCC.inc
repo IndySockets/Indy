@@ -540,6 +540,7 @@
 
 // DCC defines MACOS for both iOS and OS X platforms, need to differentiate
 {$IF DEFINED(MACOS) AND NOT DEFINED(IOS)}
+  {$DEFINE OSX}
   {$DEFINE DARWIN}
 {$IFEND}
 

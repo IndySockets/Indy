@@ -8,7 +8,7 @@ interface
 
 uses
   {$IFDEF USE_VCL_POSIX}
-    {$IFDEF DARWIN}
+    {$IFDEF OSX}
   Macapi.CoreFoundation,
   Macapi.CoreServices,
     {$ENDIF}
