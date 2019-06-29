@@ -63,6 +63,7 @@ type
     procedure DoMakeConnection(AIOHandler: TIdIOHandler; const AHost: string;
       const APort: TIdPort; const ALogin:boolean; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);virtual;
   public
+    procedure Assign(ASource: TPersistent); override;
   published
     property Enabled;
     property Host;
@@ -78,6 +79,15 @@ uses
   IdCoderMIME, IdExceptionCore, IdHeaderList, IdGlobalProtocols, SysUtils;
 
 { TIdConnectThroughHttpProxy }
+
+procedure TIdConnectThroughHttpProxy.Assign(ASource: TPersistent);
+begin
+  if ASource is TIdConnectThroughHttpProxy then begin
+    FEnabled := TIdConnectThroughHttpProxy(ASource).Enabled;
+  end;
+  // always allow TIdCustomTransparentProxy to assign its properties as well
+  inherited Assign(ASource);
+end;
 
 function TIdConnectThroughHttpProxy.GetEnabled: Boolean;
 begin
