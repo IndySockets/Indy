@@ -1679,7 +1679,6 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
   {$IFDEF OSX}  // !!! ADDED OSX BY EMBT
     {$DEFINE THANDLE_CPUBITS}
   {$ENDIF}
- {$ENDIF}
 {$ENDIF}
 {$IFDEF EMBEDDED}
   {$DEFINE THANDLE_CPUBITS}
