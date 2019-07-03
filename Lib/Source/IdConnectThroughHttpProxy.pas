@@ -49,7 +49,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdCustomTransparentProxy, IdGlobal, IdIOHandler;
+  Classes, IdCustomTransparentProxy, IdGlobal, IdIOHandler;
 
 type
   TIdConnectThroughHttpProxy = class(TIdCustomTransparentProxy)
