@@ -517,7 +517,7 @@ type
     FEncoding: TIdMessageEncoding;
     FCharSet: string;
     FContentTransferEncoding: string;
-    FSize: integer;
+    FSize: Int64;
     FUnparsedEntry: string; {Text returned from server: useful for debugging or workarounds}
     FBoundary: string; {Only used for multisection parts}
     FParentPart: Integer;
@@ -531,7 +531,7 @@ type
     property Encoding: TIdMessageEncoding read FEncoding write FEncoding;
     property CharSet: string read FCharSet write FCharSet;
     property ContentTransferEncoding : String read FContentTransferEncoding write FContentTransferEncoding;
-    property Size : integer read FSize write FSize;
+    property Size : Int64 read FSize write FSize;
     property UnparsedEntry : string read FUnparsedEntry write FUnparsedEntry;
     property Boundary : string read FBoundary write FBoundary;
     property ParentPart: integer read FParentPart write FParentPart;
@@ -667,7 +667,7 @@ varies between servers.  A typical line that gets parsed into this is:
 
   TIdIMAP4SearchRec = record
     Date: TDateTime;
-    Size: Integer;
+    Size: Int64;
     Text: String;
     SearchKey : TIdIMAP4SearchKey;
     FieldName: String;
@@ -736,7 +736,7 @@ varies between servers.  A typical line that gets parsed into this is:
     property  LastCmdCounter: String read GetCmdCounter;
     property  NewCmdCounter: String read GetNewCmdCounter;
     { General Functions }
-    function  ArrayToNumberStr (const AMsgNumList: array of Integer): String;
+    function  ArrayToNumberStr (const AMsgNumList: array of UInt32): String;
     function  MessageFlagSetToStr (const AFlags: TIdMessageFlagsSet): String;
     procedure StripCRLFs(var AText: string); overload; virtual;  //Allow users to optimise
     procedure StripCRLFs(ASourceStream, ADestStream: TStream); overload;
@@ -767,8 +767,8 @@ varies between servers.  A typical line that gets parsed into this is:
     procedure ParseEnvelopeResult (AMsg: TIdMessage; ACmdResultStr: String);
     function  ParseLastCmdResult(ALine: string; AExpectedCommand: string; AExpectedIMAPFunction: array of string): Boolean;
     procedure ParseLastCmdResultButAppendInfo(ALine: string);
-    function  InternalRetrieve(const AMsgNum: Integer; AUseUID: Boolean; AUsePeek: Boolean; AMsg: TIdMessage): Boolean;
-    function  InternalRetrievePart(const AMsgNum: Integer; const APartNum: string;
+    function  InternalRetrieve(const AMsgNum: UInt32; AUseUID: Boolean; AUsePeek: Boolean; AMsg: TIdMessage): Boolean;
+    function  InternalRetrievePart(const AMsgNum: UInt32; const APartNum: string;
           AUseUID: Boolean; AUsePeek: Boolean;
           ADestStream: TStream;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
@@ -782,20 +782,21 @@ varies between servers.  A typical line that gets parsed into this is:
     function  InternalSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec; AUseUID: Boolean; const ACharSet: string): Boolean;
     function  ParseBodyStructureSectionAsEquates(AParam: string): string;
     function  ParseBodyStructureSectionAsEquates2(AParam: string): string;
-    function  InternalRetrieveText(const AMsgNum: Integer; var AText: string;
+    function  InternalRetrieveText(const AMsgNum: UInt32; var AText: string;
           AUseUID: Boolean; AUsePeek: Boolean; AUseFirstPartInsteadOfText: Boolean): Boolean;
     function  IsCapabilityListed(ACapability: string): Boolean;
-    function  InternalRetrieveEnvelope(const AMsgNum: Integer; AMsg: TIdMessage; ADestList: TStrings): Boolean;
+    function  InternalRetrieveEnvelope(const AMsgNum: UInt32; AMsg: TIdMessage; ADestList: TStrings): Boolean;
     function  UIDInternalRetrieveEnvelope(const AMsgUID: String; AMsg: TIdMessage; ADestList: TStrings): Boolean;
-    function  InternalRetrievePartHeader(const AMsgNum: Integer; const APartNum: string; const AUseUID: Boolean;
+    function  InternalRetrievePartHeader(const AMsgNum: UInt32; const APartNum: string; const AUseUID: Boolean;
           AHeaders: TIdHeaderList): Boolean;
     function  ReceiveHeader(AMsg: TIdMessage; const AAltTerm: string = ''): string; override;
     {CC3: Need to validate message numbers (relative and UIDs) and part numbers, because otherwise
     the routines wait for a response that never arrives and so functions never return.
     Also used for validating part numbers.}
-    function  IsNumberValid(const ANumber: Integer): Boolean;
+    function  IsNumberValid(const ANumber: UInt32): Boolean;
     function  IsUIDValid(const AUID: string): Boolean;
-    function  IsImapPartNumberValid(const AUID: string): Boolean;
+    function  IsImapPartNumberValid(const APartNum: Integer): Boolean; overload;
+    function  IsImapPartNumberValid(const APartNum: string): Boolean; overload;
     function  IsItDigitsAndOptionallyPeriod(const AStr: string; AAllowPeriod: Boolean): Boolean;
     {CC6: Override IdMessageClient's ReceiveBody due to the responses from some servers...}
     procedure ReceiveBody(AMsg: TIdMessage; const ADelim: string = '.'); override;     {Do not Localize}
@@ -836,7 +837,7 @@ varies between servers.  A typical line that gets parsed into this is:
     //Requests a checkpoint of the currently selected mailbox.  Does NOTHING on most servers.
     function  CheckMailBox: Boolean;
     //Checks if the message was read or not.
-    function  CheckMsgSeen(const AMsgNum: Integer): Boolean;
+    function  CheckMsgSeen(const AMsgNum: UInt32): Boolean;
     //Method for logging in manually if you didn't login at connect
     procedure Login; virtual;
     //Connects and logins to the IMAP4 account.
@@ -848,7 +849,7 @@ varies between servers.  A typical line that gets parsed into this is:
     //Deletes the specified mailbox from the account.
     function  DeleteMailBox(const AMBName: String): Boolean;
     //Marks messages for deletion, it will be deleted when the mailbox is purged.
-    function  DeleteMsgs(const AMsgNumList: array of Integer): Boolean;
+    function  DeleteMsgs(const AMsgNumList: array of UInt32): Boolean;
     //Logouts and disconnects from the IMAP account.
     procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure DisconnectNotifyPeer; override;
@@ -883,25 +884,25 @@ varies between servers.  A typical line that gets parsed into this is:
     function  StatusMailBox(const AMBName: String; AMB: TIdMailBox;
           const AStatusDataItems: array of TIdIMAP4StatusDataItem): Boolean; overload;
     //Changes (adds or removes) message flags.
-    function  StoreFlags(const AMsgNumList: array of Integer; const AStoreMethod: TIdIMAP4StoreDataItem;
+    function  StoreFlags(const AMsgNumList: array of UInt32; const AStoreMethod: TIdIMAP4StoreDataItem;
           const AFlags: TIdMessageFlagsSet): Boolean;
     //Changes (adds or removes) a message value.
-    function  StoreValue(const AMsgNumList: array of Integer; const AStoreMethod: TIdIMAP4StoreDataItem;
+    function  StoreValue(const AMsgNumList: array of UInt32; const AStoreMethod: TIdIMAP4StoreDataItem;
           const AField, AValue: String): Boolean;
     //Adds the specified mailbox name to the server's set of "active" or "subscribed"
     //mailboxes as returned by the LSUB command.
     function  SubscribeMailBox(const AMBName: String): Boolean;
     {CC8: Added CopyMsg, should have always been there...}
-    function  CopyMsg(const AMsgNum: Integer; const AMBName: String): Boolean;
+    function  CopyMsg(const AMsgNum: UInt32; const AMBName: String): Boolean;
     //Copies a message from the current selected mailbox to the specified mailbox.     {Do not Localize}
-    function  CopyMsgs(const AMsgNumList: array of Integer; const AMBName: String): Boolean;
+    function  CopyMsgs(const AMsgNumList: array of UInt32; const AMBName: String): Boolean;
     //Retrieves a whole message while marking it read.
-    function  Retrieve(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+    function  Retrieve(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
     //Retrieves a whole message "raw" and saves it to file, while marking it read.
-    function  RetrieveNoDecodeToFile(const AMsgNum: Integer; ADestFile: string): Boolean;
-    function  RetrieveNoDecodeToFilePeek(const AMsgNum: Integer; ADestFile: string): Boolean;
-    function  RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TStream): Boolean;
-    function  RetrieveNoDecodeToStreamPeek(const AMsgNum: Integer; AStream: TStream): Boolean;
+    function  RetrieveNoDecodeToFile(const AMsgNum: UInt32; ADestFile: string): Boolean;
+    function  RetrieveNoDecodeToFilePeek(const AMsgNum: UInt32; ADestFile: string): Boolean;
+    function  RetrieveNoDecodeToStream(const AMsgNum: UInt32; AStream: TStream): Boolean;
+    function  RetrieveNoDecodeToStreamPeek(const AMsgNum: UInt32; AStream: TStream): Boolean;
     //Retrieves all envelope of the selected mailbox to the specified TIdMessageCollection.
     function  RetrieveAllEnvelopes(AMsgList: TIdMessageCollection): Boolean;
     //Retrieves all headers of the selected mailbox to the specified TIdMessageCollection.
@@ -913,82 +914,82 @@ varies between servers.  A typical line that gets parsed into this is:
     //Retrieves the first NN messages of the selected mailbox to the specified TIdMessageCollection.
     function  RetrieveFirstMsgs(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
     //Retrieves the message envelope, parses it, and discards the envelope.
-    function  RetrieveEnvelope(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+    function  RetrieveEnvelope(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
     //Retrieves the message envelope into a TStringList but does NOT parse it.
-    function  RetrieveEnvelopeRaw(const AMsgNum: Integer; ADestList: TStrings): Boolean;
+    function  RetrieveEnvelopeRaw(const AMsgNum: UInt32; ADestList: TStrings): Boolean;
     //Returnes the message flag values.
-    function  RetrieveFlags(const AMsgNum: Integer; var AFlags: TIdMessageFlagsSet): Boolean;
+    function  RetrieveFlags(const AMsgNum: UInt32; var AFlags: TIdMessageFlagsSet): Boolean;
     //Returnes a requested message value.
-    function  RetrieveValue(const AMsgNum: Integer; const AField: string; var AValue: string): Boolean;
+    function  RetrieveValue(const AMsgNum: UInt32; const AField: string; var AValue: string): Boolean;
     {CC2: Following added for retrieving individual parts of a message...}
-    function  InternalRetrieveStructure(const AMsgNum: Integer; AMsg: TIdMessage; AParts: TIdImapMessageParts): Boolean;
+    function  InternalRetrieveStructure(const AMsgNum: UInt32; AMsg: TIdMessage; AParts: TIdImapMessageParts): Boolean;
     //Retrieve only the message structure (this tells you what parts are in the message).
-    function  RetrieveStructure(const AMsgNum: Integer; AMsg: TIdMessage): Boolean; overload;
-    function  RetrieveStructure(const AMsgNum: Integer; AParts: TIdImapMessageParts): Boolean; overload;
+    function  RetrieveStructure(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean; overload;
+    function  RetrieveStructure(const AMsgNum: UInt32; AParts: TIdImapMessageParts): Boolean; overload;
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')...}
-    function  RetrievePart(const AMsgNum: Integer; const APartNum: string;
+    function  RetrievePart(const AMsgNum: UInt32; const APartNum: string;
           ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
-    function  RetrievePart(const AMsgNum: Integer; const APartNum: string;
+    function  RetrievePart(const AMsgNum: UInt32; const APartNum: string;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
-    function  RetrievePart(const AMsgNum: Integer; const APartNum: Integer;
+    function  RetrievePart(const AMsgNum: UInt32; const APartNum: Integer;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
-    function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
+    function  RetrievePartPeek(const AMsgNum: UInt32; const APartNum: string;
           ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'
      without marking the message as "read"...}
-    function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
+    function  RetrievePartPeek(const AMsgNum: UInt32; const APartNum: string;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)
      without marking the message as "read"...}
-    function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: Integer;
+    function  RetrievePartPeek(const AMsgNum: UInt32; const APartNum: Integer;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
-    function  RetrievePartToFile(const AMsgNum: Integer; const APartNum: Integer;
+    function  RetrievePartToFile(const AMsgNum: UInt32; const APartNum: Integer;
           ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
-    function  RetrievePartToFile(const AMsgNum: Integer; const APartNum: string;
+    function  RetrievePartToFile(const AMsgNum: UInt32; const APartNum: string;
           ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)
      without marking the message as "read"...}
-    function  RetrievePartToFilePeek(const AMsgNum: Integer; const APartNum: Integer;
+    function  RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: Integer;
           ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;  overload;
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'
      without marking the message as "read"...}
-    function  RetrievePartToFilePeek(const AMsgNum: Integer; const APartNum: string;
+    function  RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: string;
           ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
     {CC3: Following added for retrieving the text-only part of a message...}
-    function  RetrieveText(const AMsgNum: Integer; var AText: string): Boolean;
+    function  RetrieveText(const AMsgNum: UInt32; var AText: string): Boolean;
     {CC4: An alternative for retrieving the text-only part of a message which
     may give a better response from some IMAP implementations...}
-    function  RetrieveText2(const AMsgNum: Integer; var AText: string): Boolean;
+    function  RetrieveText2(const AMsgNum: UInt32; var AText: string): Boolean;
     {CC3: Following added for retrieving the text-only part of a message
      without marking the message as "read"...}
-    function  RetrieveTextPeek(const AMsgNum: Integer; var AText: string): Boolean;
-    function  RetrieveTextPeek2(const AMsgNum: Integer; var AText: string): Boolean;
+    function  RetrieveTextPeek(const AMsgNum: UInt32; var AText: string): Boolean;
+    function  RetrieveTextPeek2(const AMsgNum: UInt32; var AText: string): Boolean;
     //Retrieves only the message header.
-    function  RetrieveHeader (const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+    function  RetrieveHeader (const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
     //CCD: Retrieve the header for a particular part...
-    function  RetrievePartHeader(const AMsgNum: Integer; const APartNum: string; AHeaders: TIdHeaderList): Boolean;
+    function  RetrievePartHeader(const AMsgNum: UInt32; const APartNum: string; AHeaders: TIdHeaderList): Boolean;
     //Retrives the current selected mailbox size.
-    function  RetrieveMailBoxSize: Integer;
+    function  RetrieveMailBoxSize: Int64;
     //Returnes the message size.
-    function  RetrieveMsgSize(const AMsgNum: Integer): Integer;
+    function  RetrieveMsgSize(const AMsgNum: UInt32): Int64;
     //Retrieves a whole message while keeping its Seen flag unchanged
     //(preserving the previous value).
-    function  RetrievePeek(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+    function  RetrievePeek(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
     //Get the UID corresponding to a relative message number.
-    function  GetUID(const AMsgNum: Integer; var AUID: string): Boolean;
+    function  GetUID(const AMsgNum: UInt32; var AUID: string): Boolean;
     //Copies a message from the current selected mailbox to the specified mailbox.
     function  UIDCopyMsg(const AMsgUID: String; const AMBName: String): Boolean;
     {CC8: Added UID version of CopyMsgs...}
@@ -1066,9 +1067,9 @@ varies between servers.  A typical line that gets parsed into this is:
     //Retrieve the header for a particular part...
     function  UIDRetrievePartHeader(const AMsgUID: String; const APartNum: string; AHeaders: TIdHeaderList): Boolean;
     //Retrives the current selected mailbox size.
-    function  UIDRetrieveMailBoxSize: Integer;
+    function  UIDRetrieveMailBoxSize: Int64;
     //Returnes the message size.
-    function  UIDRetrieveMsgSize(const AMsgUID: String): Integer;
+    function  UIDRetrieveMsgSize(const AMsgUID: String): Int64;
     //Retrieves a whole message while keeping its Seen flag untucked
     //(preserving the previous value).
     function  UIDRetrievePeek(const AMsgUID: String; AMsg: TIdMessage): Boolean;
@@ -2045,7 +2046,7 @@ begin
   end;
 end;
 
-function TIdIMAP4.IsNumberValid(const ANumber: Integer): Boolean;
+function TIdIMAP4.IsNumberValid(const ANumber: UInt32): Boolean;
   {CC3: Need to validate message numbers (relative and UIDs), because otherwise
   the routines wait for a response that never arrives and so functions never return.}
 begin
@@ -2055,19 +2056,56 @@ begin
   Result := True;
 end;
 
+{$IFNDEF HAS_TryStrToInt64}
+// TODO: move this to IdGlobalProtocols...
+function TryStrToInt64(const S: string; out Value: Int64): Boolean;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+var
+  E: Integer;
+begin
+  Val(S, Value, E);
+  Result := E = 0;
+end;
+{$ENDIF}
+
+function UIDToUInt32(const AUID: String): UInt32;
+var
+  LNumber: Int64;
+begin
+  if Length(AUID) = 0 then begin
+    raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
+  end;
+  if not TryStrToInt64(AUID, LNumber) then begin
+    raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
+  end;
+  if (LNumber < 1) or (LNumber > Int64(High(UInt32))) then begin
+    raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
+  end;
+  Result := UInt32(LNumber);
+end;
+
 function TIdIMAP4.IsUIDValid(const AUID: string): Boolean;
   {CC3: Need to validate message numbers (relative and UIDs), because otherwise
   the routines wait for a response that never arrives and so functions never return.}
 begin
   //Must be digits only (no - or .)
   IsItDigitsAndOptionallyPeriod(AUID, False);
-  Result := IsNumberValid(IndyStrToInt(AUID, -1));
+  UIDToUInt32(AUID);
+  Result := True;
 end;
 
-function TIdIMAP4.IsImapPartNumberValid(const AUID: string): Boolean;
+function TIdIMAP4.IsImapPartNumberValid(const APartNum: Integer): Boolean;
+begin
+  if APartNum < 1 then begin
+    raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
+  end;
+  Result := True;
+end;
+
+function TIdIMAP4.IsImapPartNumberValid(const APartNum: string): Boolean;
   {CC3: IMAP part numbers are 3 or 4.5 etc, i.e. digits or period allowed}
 begin
-  Result := IsItDigitsAndOptionallyPeriod(AUID, True);
+  Result := IsItDigitsAndOptionallyPeriod(APartNum, True);
 end;
 
 function TIdIMAP4.IsItDigitsAndOptionallyPeriod(const AStr: string; AAllowPeriod: Boolean): Boolean;
@@ -2077,17 +2115,22 @@ begin
   if Length(AStr) = 0 then begin
     raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
   end;
-  for LN := 1 to Length(AStr) do begin
-    if not IsNumeric(AStr[LN]) then begin
-      if (not AAllowPeriod) or (AStr[LN] <> '.') then begin  {Do not Localize}
-        raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
+  if AAllowPeriod then begin
+    for LN := 1 to Length(AStr) do begin
+      if not IsNumeric(AStr[LN]) then begin
+        if AStr[LN] <> '.' then begin  {Do not Localize}
+          raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
+        end;
       end;
     end;
+  end
+  else if not IsNumeric(AStr) then begin
+    raise EIdNumberInvalid.Create(RSIMAP4NumberInvalid);
   end;
   Result := True;
 end;
 
-function TIdIMAP4.GetUID(const AMsgNum: Integer; var AUID: string): Boolean;
+function TIdIMAP4.GetUID(const AMsgNum: UInt32; var AUID: string): Boolean;
 {This gets the message UID from the message relative number.}
 begin
   Result := False;
@@ -2098,7 +2141,7 @@ begin
   {Some servers return NO if the requested message number is not present
   (e.g. Cyrus), others return OK but no data (CommuniGate).}
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdUID] + ')', {Do not Localize}
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdUID] + ')', {Do not Localize}
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     //Might as well leave 3rd param as [] because ParseLastCmdResult always grabs the UID...
@@ -3065,13 +3108,13 @@ begin
   end;
 end;
 
-function TIdIMAP4.StoreFlags(const AMsgNumList: array of Integer;
+function TIdIMAP4.StoreFlags(const AMsgNumList: array of UInt32;
   const AStoreMethod: TIdIMAP4StoreDataItem; const AFlags: TIdMessageFlagsSet): Boolean;
 begin
   Result := StoreValue(AMsgNumList, AStoreMethod, IMAP4FetchDataItem[fdFlags], MessageFlagSetToStr(AFlags));
 end;
 
-function TIdIMAP4.StoreValue(const AMsgNumList: array of Integer;
+function TIdIMAP4.StoreValue(const AMsgNumList: array of UInt32;
   const AStoreMethod: TIdIMAP4StoreDataItem; const AField, AValue: String): Boolean;
 var
   LDataItem,
@@ -3173,7 +3216,7 @@ begin
   end;
 end;
 
-function TIdIMAP4.CopyMsgs(const AMsgNumList: array of Integer; const AMBName: String): Boolean;
+function TIdIMAP4.CopyMsgs(const AMsgNumList: array of UInt32; const AMBName: String): Boolean;
 var
   LMsgSet : String;
 begin
@@ -3213,13 +3256,13 @@ begin
   end;
 end;
 
-function TIdIMAP4.CopyMsg(const AMsgNum: Integer; const AMBName: String): Boolean;
+function TIdIMAP4.CopyMsg(const AMsgNum: UInt32; const AMBName: String): Boolean;
 //Copies a message from the current selected mailbox to the specified mailbox.
 begin
   Result := False;
   IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
-  SendCmd(NewCmdCounter, IMAP4Commands[cmdCopy] + ' ' + IntToStr(AMsgNum) + ' "' + DoMUTFEncode(AMBName) + '"', []);  {Do not Localize}
+  SendCmd(NewCmdCounter, IMAP4Commands[cmdCopy] + ' ' + IntToStr(Int64(AMsgNum)) + ' "' + DoMUTFEncode(AMBName) + '"', []);  {Do not Localize}
   if LastCmdResult.Code = IMAP_OK then begin
     Result := True;
   end;
@@ -3593,26 +3636,26 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrieveEnvelope(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+function TIdIMAP4.RetrieveEnvelope(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
 begin
   Result := InternalRetrieveEnvelope(AMsgNum, AMsg, nil);
 end;
 
-function TIdIMAP4.RetrieveEnvelopeRaw(const AMsgNum: Integer; ADestList: TStrings): Boolean;
+function TIdIMAP4.RetrieveEnvelopeRaw(const AMsgNum: UInt32; ADestList: TStrings): Boolean;
 begin
   Result := InternalRetrieveEnvelope(AMsgNum, nil, ADestList);
 end;
 
-function TIdIMAP4.InternalRetrieveEnvelope(const AMsgNum: Integer; AMsg: TIdMessage; ADestList: TStrings): Boolean;
+function TIdIMAP4.InternalRetrieveEnvelope(const AMsgNum: UInt32; AMsg: TIdMessage; ADestList: TStrings): Boolean;
 begin
   {CC2: Return False if message number is invalid...}
-  IsNumberValid(AMsgNum);
   Result := False;
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   {Some servers return NO if the requested message number is not present
   (e.g. Cyrus), others return OK but no data (CommuniGate).}
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdEnvelope] + ')',    {Do not Localize}
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdEnvelope] + ')',    {Do not Localize}
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if LastCmdResult.Text.Count > 0 then begin
@@ -3647,9 +3690,9 @@ end;
 
 function TIdIMAP4.UIDInternalRetrieveEnvelope(const AMsgUID: String; AMsg: TIdMessage; ADestList: TStrings): Boolean;
 begin
-  IsUIDValid(AMsgUID);
   {CC2: Return False if message number is invalid...}
   Result := False;
+  IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
   {Some servers return NO if the requested message number is not present
   (e.g. Cyrus), others return OK but no data (CommuniGate).}
@@ -3741,63 +3784,55 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrieveText(const AMsgNum: Integer; var AText: string): Boolean;
+function TIdIMAP4.RetrieveText(const AMsgNum: UInt32; var AText: string): Boolean;
   //Retrieve a specific individual part of a message
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieveText(AMsgNum, AText, False, False, False);
 end;
 
-function TIdIMAP4.RetrieveText2(const AMsgNum: Integer; var AText: string): Boolean;
+function TIdIMAP4.RetrieveText2(const AMsgNum: UInt32; var AText: string): Boolean;
   //Retrieve a specific individual part of a message
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieveText(AMsgNum, AText, False, False, True);
 end;
 
-function TIdIMAP4.RetrieveTextPeek(const AMsgNum: Integer; var AText: string): Boolean;
+function TIdIMAP4.RetrieveTextPeek(const AMsgNum: UInt32; var AText: string): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieveText(AMsgNum, AText, False, True, False);
 end;
 
-function TIdIMAP4.RetrieveTextPeek2(const AMsgNum: Integer; var AText: string): Boolean;
+function TIdIMAP4.RetrieveTextPeek2(const AMsgNum: UInt32; var AText: string): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieveText(AMsgNum, AText, False, True, True);
 end;
 
 function TIdIMAP4.UIDRetrieveText(const AMsgUID: String; var AText: string): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrieveText(IndyStrToInt(AMsgUID), AText, True, False, False);
+  Result := InternalRetrieveText(UIDToUInt32(AMsgUID), AText, True, False, False);
 end;
 
 function TIdIMAP4.UIDRetrieveText2(const AMsgUID: String; var AText: string): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrieveText(IndyStrToInt(AMsgUID), AText, True, False, True);
+  Result := InternalRetrieveText(UIDToUInt32(AMsgUID), AText, True, False, True);
 end;
 
 function TIdIMAP4.UIDRetrieveTextPeek(const AMsgUID: String; var AText: string): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrieveText(IndyStrToInt(AMsgUID), AText, True, True, False);
+  Result := InternalRetrieveText(UIDToUInt32(AMsgUID), AText, True, True, False);
 end;
 
 function TIdIMAP4.UIDRetrieveTextPeek2(const AMsgUID: String; var AText: string): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrieveText(IndyStrToInt(AMsgUID), AText, True, True, True);
+  Result := InternalRetrieveText(UIDToUInt32(AMsgUID), AText, True, True, True);
 end;
 
-function TIdIMAP4.InternalRetrieveText(const AMsgNum: Integer; var AText: string;
+function TIdIMAP4.InternalRetrieveText(const AMsgNum: UInt32; var AText: string;
   AUseUID: Boolean; AUsePeek: Boolean; AUseFirstPartInsteadOfText: Boolean): Boolean;
   {CC3: Added: Retrieve the text part of the message...}
 var
@@ -3868,6 +3903,7 @@ var
 begin
   Result := False;
   AText := '';                                {Do not Localize}
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   LTextPart := 0;  {The text part is usually part 1 but could be part 2}
   if AUseFirstPartInsteadOfText then begin
@@ -3876,7 +3912,7 @@ begin
     LParts := TIdImapMessageParts.Create(nil);
     try
       if AUseUID then begin
-        if not UIDRetrieveStructure(IntToStr(AMsgNum), LParts) then begin
+        if not UIDRetrieveStructure(IntToStr(Int64(AMsgNum)), LParts) then begin
           Exit;
         end;
       end else begin
@@ -3907,7 +3943,7 @@ begin
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';               {Do not Localize}
   end;
-  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' ('; {Do not Localize}
+  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' ('; {Do not Localize}
   if AUsePeek then begin
     LCmd := LCmd + IMAP4FetchDataItem[fdBody]+'.PEEK';            {Do not Localize}
   end else begin
@@ -3925,7 +3961,7 @@ begin
       {For an invalid request (non-existent part or message), NIL is returned as the size...}
       if (LastCmdResult.Text.Count < 1)
         or (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch],
-          [IMAP4FetchDataItem[fdBody]+'['+'TEXT'+']' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
+          [IMAP4FetchDataItem[fdBody]+'[TEXT]' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
         or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1) {do not localize}
         or (FLineStruct.ByteCount < 1) then
       begin
@@ -3962,26 +3998,25 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrieveStructure(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+function TIdIMAP4.RetrieveStructure(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieveStructure(AMsgNum, AMsg, nil);
 end;
 
-function TIdIMAP4.RetrieveStructure(const AMsgNum: Integer; AParts: TIdImapMessageParts): Boolean;
+function TIdIMAP4.RetrieveStructure(const AMsgNum: UInt32; AParts: TIdImapMessageParts): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieveStructure(AMsgNum, nil, AParts);
 end;
 
-function TIdIMAP4.InternalRetrieveStructure(const AMsgNum: Integer; AMsg: TIdMessage; AParts: TIdImapMessageParts): Boolean;
+function TIdIMAP4.InternalRetrieveStructure(const AMsgNum: UInt32; AMsg: TIdMessage; AParts: TIdImapMessageParts): Boolean;
 var
   LTheParts: TIdMessageParts;
 begin
   Result := False;
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdBodyStructure] + ')',
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdBodyStructure] + ')',
     [IMAP4Commands[cmdFetch]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
@@ -4011,66 +4046,62 @@ begin
 end;
 
 // retrieve a specific individual part of a message
-function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: string;
+function TIdIMAP4.RetrievePart(const AMsgNum: UInt32; const APartNum: string;
   ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
-  IsNumberValid(AMsgNum);
   if ADestStream = nil then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(AMsgNum, APartNum, False, False, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
   end;
-  Result := InternalRetrievePart(AMsgNum, APartNum, False, False, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
-function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: Integer;
+function TIdIMAP4.RetrievePart(const AMsgNum: UInt32; const APartNum: Integer;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := RetrievePart(AMsgNum, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
 end;
 
 // Retrieve a specific individual part of a message
-function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: string;
+function TIdIMAP4.RetrievePart(const AMsgNum: UInt32; const APartNum: string;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrievePart(AMsgNum, APartNum, False, False, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 // retrieve a specific individual part of a message
-function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
+function TIdIMAP4.RetrievePartPeek(const AMsgNum: UInt32; const APartNum: string;
   ADestStream: TStream; AContentTransferEncoding: string): Boolean;
 var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
-  IsNumberValid(AMsgNum);
   if ADestStream = nil then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(AMsgNum, APartNum, False, True, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
   end;
-  Result := InternalRetrievePart(AMsgNum, APartNum, False, True, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
-function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: Integer;
+function TIdIMAP4.RetrievePartPeek(const AMsgNum: UInt32; const APartNum: Integer;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := RetrievePartPeek(AMsgNum, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
 end;
 
 //Retrieve a specific individual part of a message
-function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
+function TIdIMAP4.RetrievePartPeek(const AMsgNum: UInt32; const APartNum: string;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrievePart(AMsgNum, APartNum, False, True, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
@@ -4081,19 +4112,18 @@ var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
-  IsUIDValid(AMsgUID);
   if ADestStream = nil then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(UIDToUInt32(AMsgUID), APartNum, True, False, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
   end;
-  Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, False, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: Integer;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := UIDRetrievePart(AMsgUID, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
 end;
 
@@ -4102,8 +4132,7 @@ function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: string;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, False, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
+  Result := InternalRetrievePart(UIDToUInt32(AMsgUID), APartNum, True, False, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 // retrieve a specific individual part of a message
@@ -4113,19 +4142,18 @@ var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
 begin
-  IsUIDValid(AMsgUID);
   if ADestStream = nil then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(UIDToUInt32(AMsgUID), APartNum, True, True, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
   end;
-  Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, True, ADestStream, LDummy1, LDummy2, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: Integer;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := UIDRetrievePartPeek(AMsgUID, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
 end;
 
@@ -4134,58 +4162,55 @@ function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: str
   var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
   //Retrieve a specific individual part of a message
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, True, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
+  Result := InternalRetrievePart(UIDToUInt32(AMsgUID), APartNum, True, True, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
-function TIdIMAP4.RetrievePartToFile(const AMsgNum: Integer; const APartNum: Integer;
+function TIdIMAP4.RetrievePartToFile(const AMsgNum: UInt32; const APartNum: Integer;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := RetrievePartToFile(AMsgNum, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
 // retrieve a specific individual part of a message
-function TIdIMAP4.RetrievePartToFile(const AMsgNum: Integer; const APartNum: string;
+function TIdIMAP4.RetrievePartToFile(const AMsgNum: UInt32; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
-  IsNumberValid(AMsgNum);
   if Length(ADestFileNameAndPath) = 0 then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(AMsgNum, APartNum, False, False, nil,
+      LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
   end;
-  Result := InternalRetrievePart(AMsgNum, APartNum, False, False, nil,
-    LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
-function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: Integer; const APartNum: Integer;
+function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: Integer;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := RetrievePartToFilePeek(AMsgNum, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
 // retrieve a specific individual part of a message
-function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: Integer; const APartNum: string;
+function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: string;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
-  IsNumberValid(AMsgNum);
   if Length(ADestFileNameAndPath) = 0 then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(AMsgNum, APartNum, False, True, nil,
+      LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
   end;
-  Result := InternalRetrievePart(AMsgNum, APartNum, False, True, nil,
-    LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
 function TIdIMAP4.UIDRetrievePartToFile(const AMsgUID: String; const APartNum: Integer;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := UIDRetrievePartToFile(AMsgUID, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
@@ -4195,19 +4220,18 @@ function TIdIMAP4.UIDRetrievePartToFile(const AMsgUID: String; const APartNum: s
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
-  IsUIDValid(AMsgUID);
   if Length(ADestFileNameAndPath) = 0 then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(UIDToUInt32(AMsgUID), APartNum, True, False, nil,
+      LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
   end;
-  Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, False, nil,
-    LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
 function TIdIMAP4.UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNum: Integer;
   ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
 begin
-  IsNumberValid(APartNum);
+  IsImapPartNumberValid(APartNum);
   Result := UIDRetrievePartToFilePeek(AMsgUID, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
@@ -4217,18 +4241,17 @@ function TIdIMAP4.UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNu
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
-  IsUIDValid(AMsgUID);
   if Length(ADestFileNameAndPath) = 0 then begin
     Result := False;
-    Exit;
+  end else begin
+    Result := InternalRetrievePart(UIDToUInt32(AMsgUID), APartNum, True, True,
+      nil, LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
   end;
-  Result := InternalRetrievePart(IndyStrToInt(AMsgUID), APartNum, True, True,
-    nil, LDummy, ALength, ADestFileNameAndPath, AContentTransferEncoding);
 end;
 
 // retrieve a specific individual part of a message
 // TODO: remove the ABufferLength output parameter under DOTNET, it is redundant...
-function TIdIMAP4.InternalRetrievePart(const AMsgNum: Integer; const APartNum: {Integer} string;
+function TIdIMAP4.InternalRetrievePart(const AMsgNum: UInt32; const APartNum: {Integer} string;
   AUseUID: Boolean; AUsePeek: Boolean; ADestStream: TStream;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; {NOTE: var args cannot have default params}
@@ -4314,9 +4337,9 @@ var
   end;
 
 begin
+  Result := False;
   {CCC: Make sure part number is valid since it is now passed as a string...}
   IsImapPartNumberValid(APartNum);
-  Result := False;
   ABuffer := nil;
   ABufferLength := 0;
   CheckConnectionState(csSelected);
@@ -4324,7 +4347,7 @@ begin
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';               {Do not Localize}
   end;
-  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' ('; {Do not Localize}
+  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' ('; {Do not Localize}
   if AUsePeek then begin
     LCmd := LCmd + IMAP4FetchDataItem[fdBody]+'.PEEK';            {Do not Localize}
   end else begin
@@ -4409,13 +4432,11 @@ end;
 
 function TIdIMAP4.UIDRetrieveStructure(const AMsgUID: String; AMsg: TIdMessage): Boolean;
 begin
-  IsUIDValid(AMsgUID);
   Result := UIDInternalRetrieveStructure(AMsgUID, AMsg, nil);
 end;
 
 function TIdIMAP4.UIDRetrieveStructure(const AMsgUID: String; AParts: TIdImapMessageParts): Boolean;
 begin
-  IsUIDValid(AMsgUID);
   Result := UIDInternalRetrieveStructure(AMsgUID, nil, AParts);
 end;
 
@@ -4426,6 +4447,7 @@ var
   LTheParts: TIdMessageParts;
 begin
   Result := False;
+  IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
 
   //Note: The normal single-line response may be split for huge bodystructures,
@@ -4461,7 +4483,7 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrieveHeader(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+function TIdIMAP4.RetrieveHeader(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
 var
   LStr: string;
 begin
@@ -4470,7 +4492,7 @@ begin
   CheckConnectionState(csSelected);
 
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdRFC822Header] + ')', {Do not Localize}
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdRFC822Header] + ')', {Do not Localize}
     [IMAP4Commands[cmdFetch]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
     {CC3: Catch "Connection reset by peer"...}
@@ -4552,30 +4574,29 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrievePartHeader(const AMsgNum: Integer; const APartNum: string; AHeaders: TIdHeaderList): Boolean;
+function TIdIMAP4.RetrievePartHeader(const AMsgNum: UInt32; const APartNum: string; AHeaders: TIdHeaderList): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrievePartHeader(AMsgNum, APartNum, False, AHeaders);
 end;
 
 function TIdIMAP4.UIDRetrievePartHeader(const AMsgUID: String; const APartNum: string; AHeaders: TIdHeaderList): Boolean;
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrievePartHeader(IndyStrToInt(AMsgUID), APartNum, True, AHeaders);
+  Result := InternalRetrievePartHeader(UIDToUInt32(AMsgUID), APartNum, True, AHeaders);
 end;
 
-function TIdIMAP4.InternalRetrievePartHeader(const AMsgNum: Integer; const APartNum: string;
+function TIdIMAP4.InternalRetrievePartHeader(const AMsgNum: UInt32; const APartNum: string;
   const AUseUID: Boolean; AHeaders: TIdHeaderList): Boolean;
 var
   LCmd: string;
 begin
   Result := False;
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   LCmd := '';
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';          {Do not Localize}
   end;
-  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdBody] + '[' + APartNum + '.' + IMAP4FetchDataItem[fdHeader] + '])'; {Do not Localize}
+  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdBody] + '[' + APartNum + '.' + IMAP4FetchDataItem[fdHeader] + '])'; {Do not Localize}
 
   SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
   if LastCmdResult.Code = IMAP_OK then begin
@@ -4633,19 +4654,17 @@ begin
   AMsg.ProcessHeaders;
 end;
 
-function TIdIMAP4.Retrieve(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+function TIdIMAP4.Retrieve(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieve(AMsgNum, False, False, AMsg);
 end;
 
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
-function  TIdIMAP4.RetrieveNoDecodeToFile(const AMsgNum: Integer; ADestFile: string): Boolean;
+function  TIdIMAP4.RetrieveNoDecodeToFile(const AMsgNum: UInt32; ADestFile: string): Boolean;
 var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsNumberValid(AMsgNum);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
@@ -4673,12 +4692,11 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file
-function  TIdIMAP4.RetrieveNoDecodeToFilePeek(const AMsgNum: Integer; ADestFile: string): Boolean;
+function  TIdIMAP4.RetrieveNoDecodeToFilePeek(const AMsgNum: UInt32; ADestFile: string): Boolean;
 var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsNumberValid(AMsgNum);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
@@ -4706,12 +4724,11 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
-function  TIdIMAP4.RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TStream): Boolean;
+function  TIdIMAP4.RetrieveNoDecodeToStream(const AMsgNum: UInt32; AStream: TStream): Boolean;
 var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsNumberValid(AMsgNum);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
@@ -4739,12 +4756,11 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file
-function  TIdIMAP4.RetrieveNoDecodeToStreamPeek(const AMsgNum: Integer; AStream: TStream): Boolean;
+function  TIdIMAP4.RetrieveNoDecodeToStreamPeek(const AMsgNum: UInt32; AStream: TStream): Boolean;
 var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsNumberValid(AMsgNum);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
@@ -4771,16 +4787,14 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrievePeek(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
+function TIdIMAP4.RetrievePeek(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := InternalRetrieve(AMsgNum, False, True, AMsg);
 end;
 
 function TIdIMAP4.UIDRetrieve(const AMsgUID: String; AMsg: TIdMessage): Boolean;
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrieve(IndyStrToInt(AMsgUID), True, False, AMsg);
+  Result := InternalRetrieve(UIDToUInt32(AMsgUID), True, False, AMsg);
 end;
 
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
@@ -4789,12 +4803,11 @@ var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsUIDValid(AMsgUID);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
-    if InternalRetrieve(IndyStrToInt(AMsgUID), True, False, LMsg) then begin
+    if InternalRetrieve(UIDToUInt32(AMsgUID), True, False, LMsg) then begin
       {RLebeau 12/09/2012: NOT currently using the same workaround here that
       is being used in AppendMsg() to avoid SMTP dot transparent output from
       TIdMessage.SaveToStream().  The reason for this is because I don't
@@ -4822,12 +4835,11 @@ var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsUIDValid(AMsgUID);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
-    if InternalRetrieve(IndyStrToInt(AMsgUID), True, True, LMsg) then begin
+    if InternalRetrieve(UIDToUInt32(AMsgUID), True, True, LMsg) then begin
       {RLebeau 12/09/2012: NOT currently using the same workaround here that
       is being used in AppendMsg() to avoid SMTP dot transparent output from
       TIdMessage.SaveToStream().  The reason for this is because I don't
@@ -4855,12 +4867,11 @@ var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsUIDValid(AMsgUID);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
-    if InternalRetrieve(IndyStrToInt(AMsgUID), True, False, LMsg) then begin
+    if InternalRetrieve(UIDToUInt32(AMsgUID), True, False, LMsg) then begin
       {RLebeau 12/09/2012: NOT currently using the same workaround here that
       is being used in AppendMsg() to avoid SMTP dot transparent output from
       TIdMessage.SaveToStream().  The reason for this is because I don't
@@ -4888,12 +4899,11 @@ var
   LMsg: TIdMessage;
 begin
   Result := False;
-  IsUIDValid(AMsgUID);
   LMsg := TIdMessage.Create(nil);
   try
     LMsg.NoDecode := True;
     LMsg.NoEncode := True;
-    if InternalRetrieve(IndyStrToInt(AMsgUID), True, True, LMsg) then begin
+    if InternalRetrieve(UIDToUInt32(AMsgUID), True, True, LMsg) then begin
       {RLebeau 12/09/2012: NOT currently using the same workaround here that
       is being used in AppendMsg() to avoid SMTP dot transparent output from
       TIdMessage.SaveToStream().  The reason for this is because I don't
@@ -4917,11 +4927,10 @@ end;
 
 function TIdIMAP4.UIDRetrievePeek(const AMsgUID: String; AMsg: TIdMessage): Boolean;
 begin
-  IsUIDValid(AMsgUID);
-  Result := InternalRetrieve(IndyStrToInt(AMsgUID), True, True, AMsg);
+  Result := InternalRetrieve(UIDToUInt32(AMsgUID), True, True, AMsg);
 end;
 
-function TIdIMAP4.InternalRetrieve(const AMsgNum: Integer; AUseUID: Boolean; AUsePeek: Boolean; AMsg: TIdMessage): Boolean;
+function TIdIMAP4.InternalRetrieve(const AMsgNum: UInt32; AUseUID: Boolean; AUsePeek: Boolean; AMsg: TIdMessage): Boolean;
 var
   LStr: String;
   LCmd: string;
@@ -4929,12 +4938,13 @@ var
   LHelper: TIdIMAP4WorkHelper;
 begin
   Result := False;
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   LCmd := '';
   if AUseUID then begin
     LCmd := LCmd + IMAP4Commands[cmdUID] + ' ';               {Do not Localize}
   end;
-  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) + ' ('; {Do not Localize}
+  LCmd := LCmd + IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' ('; {Do not Localize}
   if AUsePeek then begin
     LCmd := LCmd + IMAP4FetchDataItem[fdBodyPeek];              {Do not Localize}
   end else begin
@@ -4972,6 +4982,7 @@ begin
           finally
             FreeAndNil(LHelper);
           end;
+
           {Feed stream into the standard message parser...}
           LDestStream.Position := 0;
 
@@ -5076,14 +5087,13 @@ begin
   end;
 end;
 
-function TIdIMAP4.DeleteMsgs(const AMsgNumList: array of Integer): Boolean;
+function TIdIMAP4.DeleteMsgs(const AMsgNumList: array of UInt32): Boolean;
 begin
   Result := StoreFlags(AMsgNumList, sdAdd, [mfDeleted]);
 end;
 
 function TIdIMAP4.UIDDeleteMsg(const AMsgUID: String): Boolean;
 begin
-  IsUIDValid(AMsgUID);
   Result := UIDStoreFlags(AMsgUID, sdAdd, [mfDeleted]);
 end;
 
@@ -5092,12 +5102,12 @@ begin
   Result := UIDStoreFlags(AMsgUIDList, sdAdd, [mfDeleted]);
 end;
 
-function TIdIMAP4.RetrieveMailBoxSize: Integer;
+function TIdIMAP4.RetrieveMailBoxSize: Int64;
 var
   Ln : Integer;
 begin
-  CheckConnectionState(csSelected);
   Result := -1;
+  CheckConnectionState(csSelected);
   {CC2: This should not be checking FMailBox.TotalMsgs because the server may
   have added messages to the mailbox unknown to us, and we are going to ask the
   server anyway (if it's empty, we will return 0 anyway}
@@ -5108,7 +5118,7 @@ begin
     Result := 0;
     for Ln := 0 to FMailBox.TotalMsgs - 1 do begin
       if ParseLastCmdResult(LastCmdResult.Text[Ln], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Size]]) then begin
-        Result := Result + IndyStrToInt( FLineStruct.IMAPValue );
+        Result := Result + IndyStrToInt64( FLineStruct.IMAPValue );
       end else begin
         {CC2: Return -1, not 0, if we cannot parse the result...}
         Result := -1;
@@ -5118,12 +5128,12 @@ begin
   end;
 end;
 
-function TIdIMAP4.UIDRetrieveMailBoxSize: Integer;
+function TIdIMAP4.UIDRetrieveMailBoxSize: Int64;
 var
   Ln : Integer;
 begin
-  CheckConnectionState(csSelected);
   Result := -1;
+  CheckConnectionState(csSelected);
   {CC2: This should not be checking FMailBox.TotalMsgs because the server may
   have added messages to the mailbox unknown to us, and we are going to ask the
   server anyway (if it's empty, we will return 0 anyway}
@@ -5134,7 +5144,7 @@ begin
     Result := 0;
     for Ln := 0 to FMailBox.TotalMsgs - 1 do begin
       if ParseLastCmdResult(LastCmdResult.Text[Ln], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Size]]) then begin
-        Result := Result + IndyStrToInt(FLineStruct.IMAPValue);
+        Result := Result + IndyStrToInt64(FLineStruct.IMAPValue);
       end else begin
         {CC2: Return -1, not 0, if we cannot parse the result...}
         Result := -1;
@@ -5144,26 +5154,26 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrieveMsgSize(const AMsgNum: Integer): Integer;
+function TIdIMAP4.RetrieveMsgSize(const AMsgNum: UInt32): Int64;
 begin
   Result := -1;
   IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr ( AMsgNum ) + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')',      {Do not Localize}
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')',      {Do not Localize}
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Size]]) then begin
-      Result := IndyStrToInt(FLineStruct.IMAPValue);
+      Result := IndyStrToInt64(FLineStruct.IMAPValue);
     end;
   end;
 end;
 
-function TIdIMAP4.UIDRetrieveMsgSize(const AMsgUID: String): Integer;
+function TIdIMAP4.UIDRetrieveMsgSize(const AMsgUID: String): Int64;
 begin
-  IsUIDValid(AMsgUID);
   Result := -1;
+  IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
     IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdRFC822Size] + ')', {Do not Localize}
@@ -5171,18 +5181,18 @@ begin
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
       ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch], [IMAP4FetchDataItem[fdRFC822Size]]) then begin
-      Result := IndyStrToInt(FLineStruct.IMAPValue);
+      Result := IndyStrToInt64(FLineStruct.IMAPValue);
     end;
   end;
 end;
 
-function TIdIMAP4.CheckMsgSeen(const AMsgNum: Integer): Boolean;
+function TIdIMAP4.CheckMsgSeen(const AMsgNum: UInt32): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := False;
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr(AMsgNum) + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
@@ -5197,11 +5207,11 @@ end;
 
 function TIdIMAP4.UIDCheckMsgSeen(const AMsgUID: String): Boolean;
 begin
-  IsUIDValid(AMsgUID);
   {Default to unseen, so if get no flags back (i.e. no \Seen flag)
   we return False (i.e. we return it is unseen)
   Some servers return nothing at all if no flags set (the better ones return an empty set).}
   Result := False;
+  IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
     IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
@@ -5217,15 +5227,15 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrieveFlags(const AMsgNum: Integer; var AFlags: {Pointer}TIdMessageFlagsSet): Boolean;
+function TIdIMAP4.RetrieveFlags(const AMsgNum: UInt32; var AFlags: {Pointer}TIdMessageFlagsSet): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := False;
   {CC: Empty set to avoid returning results from a previous call if call fails}
   AFlags := [];
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr (AMsgNum) + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + IMAP4FetchDataItem[fdFlags] + ')', {Do not Localize}
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
@@ -5239,10 +5249,10 @@ end;
 
 function TIdIMAP4.UIDRetrieveFlags(const AMsgUID: String; var AFlags: TIdMessageFlagsSet): Boolean;
 begin
-  IsUIDValid(AMsgUID);
   Result := False;
   {BUG FIX: Empty set to avoid returning results from a previous call if call fails}
   AFlags := [];
+  IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
     IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + IMAP4FetchDataItem[fdFlags] + ')',  {Do not Localize}
@@ -5257,15 +5267,15 @@ begin
   end;
 end;
 
-function TIdIMAP4.RetrieveValue(const AMsgNum: Integer; const AField: String; var AValue: String): Boolean;
+function TIdIMAP4.RetrieveValue(const AMsgNum: UInt32; const AField: String; var AValue: String): Boolean;
 begin
-  IsNumberValid(AMsgNum);
   Result := False;
   {CC: Empty string to avoid returning results from a previous call if call fails}
   AValue := '';
+  IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
-    IMAP4Commands[cmdFetch] + ' ' + IntToStr (AMsgNum) + ' (' + AField + ')', {Do not Localize}
+    IMAP4Commands[cmdFetch] + ' ' + IntToStr(Int64(AMsgNum)) + ' (' + AField + ')', {Do not Localize}
     [IMAP4Commands[cmdFetch]]);
   if LastCmdResult.Code = IMAP_OK then begin
     if (LastCmdResult.Text.Count > 0) and
@@ -5287,10 +5297,10 @@ end;
 
 function TIdIMAP4.UIDRetrieveValue(const AMsgUID: String; const AField: String; var AValue: String): Boolean;
 begin
-  IsUIDValid(AMsgUID);
   Result := False;
   {CC: Empty string to avoid returning results from a previous call if call fails}
   AValue := '';
+  IsUIDValid(AMsgUID);
   CheckConnectionState(csSelected);
   SendCmd(NewCmdCounter,
     IMAP4Commands[cmdUID] + ' ' + IMAP4Commands[cmdFetch] + ' ' + AMsgUID + ' (' + AField + ')', {Do not Localize}
@@ -5531,7 +5541,7 @@ var
   LFilename: string;
   LDescription: string;
   LTemp: string;
-  LSize: integer;
+  LSize: Int64;
   LPos: Integer;
 begin
   {Individual parameters may be strings like "text", NIL, a number, or bracketted pairs like
@@ -5598,7 +5608,7 @@ begin
 
     LSize := 0;
     if (not TextIsSame(LParams[6], 'NIL')) and (Length(LParams[6]) <> 0) then begin
-      LSize := IndyStrToInt(LParams[6]); {Do not Localize}
+      LSize := IndyStrToInt64(LParams[6]); {Do not Localize}
     end;
 
     LDescription := '';  {Do not Localize}
@@ -6033,7 +6043,7 @@ begin
           if LSlExpunge.Count > 1 then begin
             if TextIsSame(LSlExpunge[1], IMAP4Commands[cmdExpunge]) then begin
               SetLength(AMB.DeletedMsgs, LCnt + 1);
-              AMB.DeletedMsgs[LCnt] := IndyStrToInt(LSlExpunge[0]);
+              AMB.DeletedMsgs[LCnt] := UInt32(IndyStrToInt64(LSlExpunge[0]));
               Inc(LCnt);
             end;
           end;
@@ -6115,7 +6125,7 @@ begin
             for Ln := 1 to LSlSearch.Count - 1 do
             begin
               // TODO: for a UID search, store LSlSearch[Ln] as-is without converting it to an Integer...
-              AMB.SearchResult[LCnt] := IndyStrToInt(LSlSearch[Ln]);
+              AMB.SearchResult[LCnt] := UInt32(IndyStrToInt64(LSlSearch[Ln]));
               Inc(LCnt);
             end;
           finally
@@ -6231,7 +6241,7 @@ begin
     LPos := Pos('[UNSEEN ', LLine); {Do not Localize}
     if LPos> 0 then begin
       Inc(LPos, 8);
-      AMB.FirstUnseenMsg := IndyStrToInt(Copy(LLine, LPos, (Integer(PosIdx(']', LLine, LPos)) - LPos))); {Do not Localize}
+      AMB.FirstUnseenMsg := UInt32(IndyStrToInt64(Copy(LLine, LPos, (Integer(PosIdx(']', LLine, LPos)) - LPos)))); {Do not Localize}
       Continue;
     end;
     LPos := Pos('[READ-', LLine); {Do not Localize}
@@ -6816,12 +6826,12 @@ end;
 
 { ...Parser Functions }
 
-function TIdIMAP4.ArrayToNumberStr(const AMsgNumList: array of Integer): String;
+function TIdIMAP4.ArrayToNumberStr(const AMsgNumList: array of UInt32): String;
 var
   Ln : Integer;
 begin
   for Ln := 0 to Length(AMsgNumList) - 1 do begin
-    Result := Result + IntToStr(AMsgNumList[Ln]) + ',';                    {Do not Localize}
+    Result := Result + IntToStr(Int64(AMsgNumList[Ln])) + ',';                    {Do not Localize}
   end;
   SetLength(Result, (Length(Result) - 1 ));
 end;

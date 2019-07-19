@@ -236,12 +236,12 @@ type
     procedure DisconnectNotifyPeer; override;
     procedure KeepAlive;
     function List(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
-    procedure ParseLIST(ALine: String; var VMsgNum, VMsgSize: Integer);
+    procedure ParseLIST(ALine: String; var VMsgNum: Integer; var VMsgSize: Int64);
     procedure ParseUIDL(ALine: String; var VMsgNum: Integer; var VUidl: String);
     function Reset: Boolean;
     function Retrieve(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
     function RetrieveHeader(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
-    function RetrieveMsgSize(const MsgNum: Integer): Integer;
+    function RetrieveMsgSize(const MsgNum: Integer): Int64;
     function RetrieveMailBoxSize: Int64;
     function RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings): boolean; overload;
     function RetrieveRaw(const aMsgNo: Integer; const aDest: TStream): boolean; overload;
@@ -442,7 +442,7 @@ begin
   end;
 end;
 
-function TIdPOP3.RetrieveMsgSize(const MsgNum: Integer): Integer;
+function TIdPOP3.RetrieveMsgSize(const MsgNum: Integer): Int64;
 var
   s: string;
 begin
@@ -454,7 +454,7 @@ begin
     // RL - ignore the message number, grab just the octets,
     // and ignore everything else that may be present
     Fetch(s);
-    Result := IndyStrToInt(Fetch(s), -1);
+    Result := IndyStrToInt64(Fetch(s), -1);
   end;
 end;
 
@@ -493,10 +493,10 @@ begin
   end;
 end;
 
-procedure TIdPOP3.ParseLIST(ALine: String; var VMsgNum, VMsgSize: Integer);
+procedure TIdPOP3.ParseLIST(ALine: String; var VMsgNum: Integer; var VMsgSize: Int64);
 begin
   VMsgNum := IndyStrToInt(Fetch(ALine), -1);
-  VMsgSize := IndyStrToInt(Fetch(ALine), -1);
+  VMsgSize := IndyStrToInt64(Fetch(ALine), -1);
 end;
 
 function TIdPOP3.UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
