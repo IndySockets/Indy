@@ -63,13 +63,13 @@ type
 
   TIdMailBoxAttributesSet = set of TIdMailBoxAttributes;
 
-  TIntArray = array of Integer;
+  TUInt32Array = array of UInt32;
 
   TIdMailBox = class(TIdBaseComponent)
   protected
     FAttributes: TIdMailBoxAttributes;
     FChangeableFlags: TIdMessageFlagsSet;
-    FFirstUnseenMsg: Integer;
+    FFirstUnseenMsg: UInt32;
     FFlags: TIdMessageFlagsSet;
     FName: String;
     FMessageList: TIdMessageCollection;
@@ -82,14 +82,14 @@ type
 
     procedure SetMessageList(const Value: TIdMessageCollection);
   public
-    DeletedMsgs: TIntArray;
-    SearchResult: TIntArray;
+    DeletedMsgs: TUInt32Array;
+    SearchResult: TUInt32Array;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Clear; virtual;
     property Attributes: TIdMailBoxAttributes read FAttributes write FAttributes;
     property ChangeableFlags: TIdMessageFlagsSet read FChangeableFlags write FChangeableFlags;
-    property FirstUnseenMsg: Integer read FFirstUnseenMsg write FFirstUnseenMsg;
+    property FirstUnseenMsg: UInt32 read FFirstUnseenMsg write FFirstUnseenMsg;
     property Flags: TIdMessageFlagsSet read FFlags write FFlags;
     property Name: String read FName write FName;
     property MessageList: TIdMessageCollection read FMessageList write SetMessageList;
