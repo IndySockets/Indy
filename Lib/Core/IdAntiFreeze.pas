@@ -93,14 +93,14 @@ uses
 type
   {$IFDEF HAS_ComponentPlatformsAttribute}
   [ComponentPlatformsAttribute(
-    {$IFDEF HAS_ComponentPlatformsAttribute_AllPlatforms}pidAllPlatforms{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_AllPlatforms}pidAllPlatforms
     {$ELSE}
     pidWin32
     {$IFDEF HAS_ComponentPlatformsAttribute_Win64} or pidWin64{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_OSX32} or pidOSX32{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32} or pidiOSSimulator32{$ENDIF}{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32}or pidiOSSimulator32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator} or pidiOSSimulator{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android32Arm} or pidAndroid32Arm{$ENDIF}{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Android32Arm} or pidAndroid32Arm{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_Android} or pidAndroid{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_Linux32} or pidLinux32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device32} or pidiOSDevice32{$ELSE}
@@ -109,13 +109,13 @@ type
     {$IFDEF HAS_ComponentPlatformsAttribute_WinNX32} or pidWinNX32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_WinIoT32} or pidWinIoT32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device64} or pidiOSDevice64{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_WinARM32} or pidWinARM32{$ENDIF}{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_WinARM32} or pidWinARM32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_WinARM} or pidWinARM{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_OSXNX64} or pidOSXNX64{$ENDIF}{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_OSXNX64} or pidOSXNX64{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_OSX64} or pidOSX64{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_Linux32Arm} or pidLinux32Arm{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_Linux64Arm} or pidLinux64Arm{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android64Arm} or pidAndroid64Arm{$ENDIF}{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Android64Arm} or pidAndroid64Arm{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_Android64} or pidAndroid64{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64} or pidiOSSimulator64{$ENDIF}
     {$ENDIF}
