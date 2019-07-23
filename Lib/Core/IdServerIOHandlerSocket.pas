@@ -128,7 +128,7 @@ begin
     LIOHandler.Open;
     while not AListenerThread.Stopped do begin
       if ASocket.Select(250) then begin
-        if LIOHandler.Binding.Accept(ASocket.Handle) then begin
+        if (not AListenerThread.Stopped) and LIOHandler.Binding.Accept(ASocket.Handle) then begin
           LIOHandler.AfterAccept;
           Result := LIOHandler;
           LIOHandler := nil;
