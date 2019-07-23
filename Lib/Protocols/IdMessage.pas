@@ -439,7 +439,7 @@ type
     procedure Clear; virtual;
     procedure ClearBody;
     procedure ClearHeader;
-    procedure GenerateHeader;
+    procedure GenerateHeader; virtual;
     procedure InitializeISO(var VHeaderEncoding: Char; var VCharSet: String);
     function  IsBodyEncodingRequired: Boolean;
     function  IsBodyEmpty: Boolean;
@@ -447,7 +447,7 @@ type
     procedure LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False);
     procedure LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False);
 
-    procedure ProcessHeaders;
+    procedure ProcessHeaders; virtual;
 
     procedure SaveToFile(const AFileName : string; const AHeadersOnly: Boolean = False);
     procedure SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False);
