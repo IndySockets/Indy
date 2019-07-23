@@ -530,9 +530,11 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
 
   {$IFDEF USE_VCL_POSIX}
   // Shutdown Options
-  Id_SD_Recv = SHUT_RD;
-  Id_SD_Send = SHUT_WR;
-  Id_SD_Both = SHUT_RDWR;
+  // RLebeau 7/23/2019: Delphi 10.2 Tokyo defines SHUT_WR and SHUT_RDWR incorrectly
+  // for Linux! So just define them manually... (Was this ever fixed in a later version?)
+  Id_SD_Recv = 0{SHUT_RD};
+  Id_SD_Send = 1{SHUT_WR};
+  Id_SD_Both = 2{SHUT_RDWR};
   //
   //Temp defines.  They should be in Delphi's Posix.Errno.pas
   ESOCKTNOSUPPORT	= 44;		//* Socket type not supported */
