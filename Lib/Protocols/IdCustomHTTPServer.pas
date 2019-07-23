@@ -2213,6 +2213,7 @@ procedure TIdHTTPResponseInfo.WriteHeader;
 var
   i: Integer;
   LBufferingStarted: Boolean;
+  LCharSet: string;
 begin
   if HeaderHasBeenWritten then begin
     raise EIdHTTPHeaderAlreadyWritten.Create(RSHTTPHeaderAlreadyWritten);
@@ -2233,8 +2234,12 @@ begin
   // RLebeau 5/15/2012: for backwards compatibility. We really should
   // make the user set this every time instead...
   if ContentType = '' then begin
-    if (ContentText <> '') or (Assigned(ContentStream)) then begin
-      ContentType := 'text/html; charset=ISO-8859-1'; {Do not Localize}
+    if (ContentText <> '') or Assigned(ContentStream) then begin
+      LCharSet := FCharSet;
+      if LCharSet = '' then begin
+        LCharSet := 'ISO-8859-1'; {Do not Localize}
+      end;
+      ContentType := 'text/html; charset=' + LCharSet; {Do not Localize}
     end;
   end;
 

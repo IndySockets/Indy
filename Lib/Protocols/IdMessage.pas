@@ -1085,7 +1085,7 @@ begin
       Exit;
     end;
 
-    if (LCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
+    if (LCharSet = '') and (FCharSet = '') and IsHeaderMediaType(FContentType, 'text') then begin {do not localize}
       LCharSet := 'us-ascii'; {do not localize}
     end;
 
