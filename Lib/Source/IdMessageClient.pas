@@ -891,7 +891,7 @@ begin
       if IsHeaderMediaType(AMsg.ContentType, 'application/mac-binhex40') then begin  {Do not Localize}
         LContentTransferEncoding := 'binhex40'; {do not localize}
       end
-      else if (AMsg.Encoding = meMIME) and (AMsg.MIMEBoundary.Count > 0) then begin
+      else if (AMsg.Encoding = meMIME) and (AMsg.MIMEBoundary.Count > 0) and (not AMsg.NoDecode) then begin
         LContentTransferEncoding := '7bit'; {do not localize}
       end;
     end
@@ -1526,6 +1526,7 @@ begin
   LIOHandler := TIdIOHandlerStreamMsg.Create(nil, AStream);
   try
     LIOHandler.FreeStreams := False;
+    LIOHandler.MaxLineLength := MaxInt;
     IOHandler := LIOHandler;
     try
       IOHandler.Open;
