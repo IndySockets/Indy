@@ -49,6 +49,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFNDEF HAS_UInt32}
+  IdGlobal,
+  {$ENDIF}
   IdBaseComponent,
   IdMessage,
   IdException,
