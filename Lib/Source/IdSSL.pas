@@ -83,7 +83,9 @@ type
     procedure SetPassThrough(const AValue: Boolean); virtual;
     procedure SetURIToCheck(const AValue: String); virtual;
   public
-    function Clone :  TIdSSLIOHandlerSocketBase; virtual; abstract;
+    constructor Create(AOwner: TComponent); override;
+    // TODO: add an AOwner parameter
+    function Clone : TIdSSLIOHandlerSocketBase; virtual; abstract;
     procedure StartSSL; virtual; abstract;
     property PassThrough: Boolean read fPassThrough write SetPassThrough;
     property IsPeer : Boolean read fIsPeer write fIsPeer;
@@ -173,6 +175,12 @@ begin
 end;
 
 { TIdSSLIOHandlerSocketBase }
+
+constructor TIdSSLIOHandlerSocketBase.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  fPassThrough := True;
+end;
 
 function TIdSSLIOHandlerSocketBase.ReadDataFromSource(var VBuffer: TIdBytes): Integer;
 begin

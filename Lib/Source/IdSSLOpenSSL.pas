@@ -2481,12 +2481,14 @@ begin
       //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
       //   SSL_CTX to go with that host name, then switch the SSL object to that
       //   SSL_CTX with SSL_set_SSL_CTX().
-      Result := LIO;
-      LIO := nil;
+    end else begin
+      FreeAndNil(LIO);
     end;
-  finally
+  except
     LIO.Free;
+    raise;
   end;
+  Result := LIO;
 end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.DoStatusInfo(const AMsg: String);
@@ -2537,7 +2539,7 @@ begin
     LIO.PassThrough := True;
     LIO.OnGetPassword := DoGetPassword;
     LIO.OnGetPasswordEx := OnGetPasswordEx;
-    LIO.IsPeer := True;
+    LIO.IsPeer := True; // RLebeau 1/24/2019: is this still needed now?
     LIO.SSLOptions.Assign(SSLOptions);
     LIO.SSLOptions.Mode := sslmBoth;{or sslmClient}{doesn't really matter}
     LIO.SSLContext := SSLContext;
@@ -2736,16 +2738,29 @@ begin
           raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
         end;
       end;
-    {$IFDEF WIN32_OR_WIN64}
-    // begin bug fix
     end
-    else if BindingAllocated and IndyCheckWindowsVersion(6) then
-    begin
-      // disables Vista+ SSL_Read and SSL_Write timeout fix
-      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, 0);
-      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, 0);
-    // end bug fix
-    {$ENDIF}
+    else begin
+      // RLebeau 8/16/2019: need to call SSL_shutdown() here if the SSL/TLS session is active.
+      // This is for FTP when handling CCC and REIN commands. The SSL/TLS session needs to be
+      // shutdown cleanly on both ends without closing the underlying socket connection because
+      // it is going to be used for continued unsecure communications!
+      if (fSSLSocket <> nil) and (fSSLSocket.fSSL <> nil) then begin
+        // if SSL_shutdown() returns 0, a "close notify" was sent to the peer and SSL_shutdown()
+        // needs to be called again to receive the peer's "close notify" in response...
+        if SSL_shutdown(fSSLSocket.fSSL) = 0 then begin
+          SSL_shutdown(fSSLSocket.fSSL);
+        end;
+      end;
+      {$IFDEF WIN32_OR_WIN64}
+      // begin bug fix
+      if BindingAllocated and IndyCheckWindowsVersion(6) then
+      begin
+        // disables Vista+ SSL_Read and SSL_Write timeout fix
+        Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, 0);
+        Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, 0);
+      end;
+      // end bug fix
+      {$ENDIF}
     end;
     fPassThrough := Value;
   end;
