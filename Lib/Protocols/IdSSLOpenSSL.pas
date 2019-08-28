@@ -1293,49 +1293,52 @@ begin
       X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_SYS_LIB);
       Exit;
     end;
-    case _type of
-      X509_FILETYPE_PEM:
-        begin
-          repeat
-            LX := PEM_read_bio_X509_AUX(Lin, nil, nil, nil);
-            if not Assigned(LX) then begin
-              if ((ERR_GET_REASON(ERR_peek_last_error())
-                    = PEM_R_NO_START_LINE) and (count > 0)) then begin
-                ERR_clear_error();
-                Break;
-              end else begin
-                X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_PEM_LIB);
+    try
+      case _type of
+        X509_FILETYPE_PEM:
+          begin
+            repeat
+              LX := PEM_read_bio_X509_AUX(Lin, nil, nil, nil);
+              if not Assigned(LX) then begin
+                if ((ERR_GET_REASON(ERR_peek_last_error())
+                      = PEM_R_NO_START_LINE) and (count > 0)) then begin
+                  ERR_clear_error();
+                  Break;
+                end else begin
+                  X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_PEM_LIB);
+                  Exit;
+                end;
+              end;
+              i := X509_STORE_add_cert(ctx^.store_ctx, LX);
+              if i = 0 then begin
                 Exit;
               end;
+              Inc(count);
+              X509_Free(LX);
+            until False;
+            Result := count;
+          end;
+        X509_FILETYPE_ASN1:
+          begin
+            LX := d2i_X509_bio(Lin, nil);
+            if not Assigned(LX) then begin
+              X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_ASN1_LIB);
+              Exit;
             end;
             i := X509_STORE_add_cert(ctx^.store_ctx, LX);
             if i = 0 then begin
               Exit;
             end;
-            Inc(count);
-            X509_Free(LX);
-          until False;
-          Result := count;
-        end;
-      X509_FILETYPE_ASN1:
-        begin
-          LX := d2i_X509_bio(Lin, nil);
-          if not Assigned(LX) then begin
-            X509err(X509_F_X509_LOAD_CERT_FILE, ERR_R_ASN1_LIB);
-            Exit;
+            Result := i;
           end;
-          i := X509_STORE_add_cert(ctx^.store_ctx, LX);
-          if i = 0 then begin
-            Exit;
-          end;
-          Result := i;
-        end;
-    else
-      X509err(X509_F_X509_LOAD_CERT_FILE, X509_R_BAD_X509_FILETYPE);
-      Exit;
+      else
+        X509err(X509_F_X509_LOAD_CERT_FILE, X509_R_BAD_X509_FILETYPE);
+        Exit;
+      end;
+    finally
+      BIO_free(Lin);
     end;
   finally
-    BIO_free(Lin);
     FreeAndNil(LM);
   end;
 end;
@@ -1376,9 +1379,12 @@ begin
       X509err(X509_F_X509_LOAD_CERT_CRL_FILE, ERR_R_SYS_LIB);
       Exit;
     end;
-    Linf := PEM_X509_INFO_read_bio(Lin, nil, nil, nil);
+    try
+      Linf := PEM_X509_INFO_read_bio(Lin, nil, nil, nil);
+    finally
+      BIO_free(Lin);
+    end;
   finally
-    BIO_free(Lin);
     FreeAndNil(LM);
   end;
   if not Assigned(Linf) then begin
@@ -2575,6 +2581,7 @@ function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
 var
   LIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
+  Result := nil;
   Assert(ASocket<>nil);
   Assert(fSSLContext<>nil);
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
@@ -2857,16 +2864,29 @@ begin
           raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
         end;
       end;
-    {$IFDEF WIN32_OR_WIN64}
-    // begin bug fix
     end
-    else if BindingAllocated and IndyCheckWindowsVersion(6) then
-    begin
-      // disables Vista+ SSL_Read and SSL_Write timeout fix
-      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, 0);
-      Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, 0);
-    // end bug fix
-    {$ENDIF}
+    else begin
+      // RLebeau 8/16/2019: need to call SSL_shutdown() here if the SSL/TLS session is active.
+      // This is for FTP when handling CCC and REIN commands. The SSL/TLS session needs to be
+      // shutdown cleanly on both ends without closing the underlying socket connection because
+      // it is going to be used for continued unsecure communications!
+      if (fSSLSocket <> nil) and (fSSLSocket.fSSL <> nil) then begin
+        // if SSL_shutdown() returns 0, a "close notify" was sent to the peer and SSL_shutdown()
+        // needs to be called again to receive the peer's "close notify" in response...
+        if SSL_shutdown(fSSLSocket.fSSL) = 0 then begin
+          SSL_shutdown(fSSLSocket.fSSL);
+        end;
+      end;
+      {$IFDEF WIN32_OR_WIN64}
+      // begin bug fix
+      if BindingAllocated and IndyCheckWindowsVersion(6) then
+      begin
+        // disables Vista+ SSL_Read and SSL_Write timeout fix
+        Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_RCVTIMEO, 0);
+        Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, 0);
+      end;
+      // end bug fix
+      {$ENDIF}
     end;
     fPassThrough := Value;
   end;

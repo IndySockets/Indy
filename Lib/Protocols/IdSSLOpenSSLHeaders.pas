@@ -19523,6 +19523,8 @@ begin
       {Note that if LErrQueue returns 0 and ARetCode = -1, there probably
       is an error in the underlying socket so you should raise a socket error}
       if ARetCode = -1 then begin
+        // TODO: catch the socket exception and re-raise it as the InnerException
+        // for an EIdOpenSSLAPISSLError exception...
         GStack.RaiseLastSocketError;
       end;
     end;
@@ -24592,6 +24594,7 @@ end;
 function X509_STORE_CTX_get_app_data(ctx: PX509_STORE_CTX):Pointer;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
+  // TODO: use SSL_get_ex_data_X509_STORE_CTX_idx() instead of 0 to get the true index of the SSL pointer
   Result := X509_STORE_CTX_get_ex_data(ctx, 0);
 end;
 

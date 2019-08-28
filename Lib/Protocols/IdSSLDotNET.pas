@@ -36,12 +36,14 @@ type
   TOnValidatePeerCertificate = procedure (ASender : TObject;
     ACertificate : X509Certificate; AChain : X509Chain;
     AsslPolicyErrors : SslPolicyErrors; var VValid : Boolean) of object;
+
   TOnLocalCertificateSelectionCallback = procedure (ASender : TObject;
       AtargetHost : String;
       AlocalCertificates : X509CertificateCollection;
       AremoteCertificate : X509Certificate;
       AacceptableIssuers : array of String;
       VCert : X509Certificate) of object;
+
   TIdSSLIOHandlerSocketNET = class(TIdSSLIOHandlerSocketBase)
   protected
     FenabledSslProtocols: System.Security.Authentication.SslProtocols;
@@ -179,7 +181,6 @@ begin
     FreeAndNil(FSSL);
   end;
   inherited;
-
 end;
 
 procedure TIdSSLIOHandlerSocketNET.ConnectClient;
@@ -194,7 +195,6 @@ begin
   fPassThrough := True;
   try
     inherited ConnectClient;
-
   finally
     fPassThrough := LPassThrough;
   end;
@@ -372,7 +372,7 @@ end;
 procedure TIdSSLIOHandlerSocketNET.OpenEncodedConnection;
 begin
   FSSL := System.Net.Security.SslStream.Create(
-     System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False),False,
+     System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False),True,
      ValidatePeerCertificate,LocalCertificateSelectionCallback);
   if IsPeer then
   begin
@@ -429,6 +429,10 @@ begin
       if BindingAllocated then begin
         OpenEncodedConnection;
       end;
+    end
+    else if FSSL <> nil then begin
+      FSSL.Close;
+      FreeAndNil(FSSL);
     end;
     fPassThrough := Value;
   end;
@@ -486,29 +490,22 @@ begin
   LIO.PassThrough := True;
   LIO.IsPeer := True;
   LIO.Open;
-  if LIO.Binding.Accept(ASocket.Handle) then
-  begin
-
+  if LIO.Binding.Accept(ASocket.Handle) then begin
     SetIOHandlerValues(LIO);
-    Result := LIO;
-  end
-  else
-  begin
-    Result := nil;
+  end else begin
     FreeAndNil(LIO);
   end;
+  Result := LIO;
 end;
 
 destructor TIdServerIOHandlerSSLNET.Destroy;
 begin
-
   inherited;
 end;
 
 procedure TIdServerIOHandlerSSLNET.Init;
 begin
   inherited;
-
 end;
 
 procedure TIdServerIOHandlerSSLNET.InitComponent;
@@ -517,7 +514,6 @@ begin
   FenabledSslProtocols := System.Security.Authentication.SslProtocols.Default;
   FclientCertificateRequired := DEF_clientCertificateRequired;
   FcheckCertificateRevocation := DEF_checkCertificateRevocation;
-
 end;
 
 function TIdServerIOHandlerSSLNET.MakeClientIOHandler: TIdSSLIOHandlerSocketBase;
@@ -551,7 +547,6 @@ begin
   LIO.IsPeer := True;
   SetIOHandlerValues(LIO);
   Result := LIO;
-
 end;
 
 procedure TIdServerIOHandlerSSLNET.SetIOHandlerValues(
@@ -570,7 +565,6 @@ end;
 procedure TIdServerIOHandlerSSLNET.Shutdown;
 begin
   inherited;
-
 end;
 
 initialization

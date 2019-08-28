@@ -76,6 +76,7 @@ type
     fPassThrough: Boolean;
     fIsPeer : Boolean;
     FURIToCheck : String;
+    procedure InitComponent; override;
     function RecvEnc(var ABuffer: TIdBytes): Integer; virtual; abstract;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; virtual; abstract;
     function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
@@ -174,6 +175,12 @@ begin
 end;
 
 { TIdSSLIOHandlerSocketBase }
+
+procedure TIdSSLIOHandlerSocketBase.InitComponent;
+begin
+  inherited;
+  fPassThrough := True;
+end;
 
 function TIdSSLIOHandlerSocketBase.ReadDataFromSource(var VBuffer: TIdBytes): Integer;
 begin
