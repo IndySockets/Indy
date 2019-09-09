@@ -1172,7 +1172,7 @@ begin
   end;
   if FLastModified > 0 then
   begin
-    RawHeaders.Values['Last-Modified'] := DateTimeGMTToHttpStr(FLastModified); {do not localize}
+    RawHeaders.Values['Last-Modified'] := LocalDateTimeToHttpStr(FLastModified); {do not localize}
   end;
 end;
 
