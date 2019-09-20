@@ -223,7 +223,7 @@ type
     function GetStopped: Boolean;
     function HandleRunException(AException: Exception): Boolean; virtual;
     procedure Run; virtual; abstract;
-    class procedure WaitAllThreadsTerminated(AMSec: Integer = IdWaitAllThreadsTerminatedCount);
+    class procedure WaitAllThreadsTerminated(AMSec: Integer = IdWaitAllThreadsTerminatedCount); deprecated;
   public
     constructor Create(ACreateSuspended: Boolean = True;
      ALoop: Boolean = True; const AName: string = ''); virtual;
@@ -288,7 +288,7 @@ var
   // finalization can run and thus when the finalization accesses GThreadCount
   // in TerminateAll an error occurs. Moving this declaration to the interface
   // "fixes" it.
-  GThreadCount: TIdThreadSafeInt32 = nil;
+  GThreadCount: TIdThreadSafeInteger = nil{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated;
 
 implementation
 
@@ -309,10 +309,12 @@ uses
   Androidapi.NativeActivity,
     {$ENDIF}
   {$ENDIF}
+  IdSchedulerOfThread, IdScheduler,
   IdResourceStringsCore;
 
 class procedure TIdThread.WaitAllThreadsTerminated(AMSec: Integer = IdWaitAllThreadsTerminatedCount);
 begin
+  {$I IdSymbolDeprecatedOff.inc}
   while AMSec > 0 do begin
     if GThreadCount.Value = 0 then begin
       Break;
@@ -320,6 +322,7 @@ begin
     IndySleep(IdWaitAllThreadsTerminatedStep);
     AMSec := AMSec - IdWaitAllThreadsTerminatedStep;
   end;
+  {$I IdSymbolDeprecatedOn.inc}
 end;
 
 procedure TIdThread.TerminateAndWaitFor;
@@ -479,7 +482,9 @@ begin
   // not suspended will start before we initialize
   inherited Create(ACreateSuspended);
   // Last, so we only do this if successful
+  {$I IdSymbolDeprecatedOff.inc}
   GThreadCount.Increment;
+  {$I IdSymbolDeprecatedOn.inc}
 end;
 
 destructor TIdThread.Destroy;
@@ -501,9 +506,11 @@ begin
       // And thread was terminated there before Start method is completed.
       FLock.Enter; try
       finally FLock.Leave; end;
-
       FLock.Free;
+
+      {$I IdSymbolDeprecatedOff.inc}
       GThreadCount.Decrement;
+      {$I IdSymbolDeprecatedOn.inc}
     end;
   end;
 end;
@@ -579,10 +586,47 @@ begin
   finally FLock.Leave; end;
 end;
 
+type
+  TIdYarnOfThreadAccess = class(TIdYarnOfThread)
+  end;
+
 procedure TIdThread.Cleanup;
+var
+  LScheduler: TIdScheduler;
+  LList: TIdYarnList;
 begin
   Exclude(FOptions, itoReqCleanup);
-  IdDisposeAndNil(FYarn);
+
+  // RLebeau 9/20/2019: there is a race condition here with TIdScheduler.TerminateAllYarns().
+  // Notify TIdScheduler of the Yarn being freed here, otherwise, a double free of the Yarn
+  // can happen if TIdThread.Cleanup() and TIdSchedulerOfThread.TerminateYarn() try to destroy
+  // the Yarn at the same time.  TerminateYarn() destroys the Yarn inside the ActiveYarns lock,
+  // so the destroy here needs to be done inside of the same lock...
+
+  //IdDisposeAndNil(FYarn);
+  if FYarn is TIdYarnOfThread then
+  begin
+    LScheduler := TIdYarnOfThreadAccess(FYarn).FScheduler;
+    if Assigned(LScheduler) then
+    begin
+      LList := LScheduler.ActiveYarns.LockList;
+      try
+        // if the Yarn is still in the list, remove and destroy it now.
+        // If not, assume TIdScheduler has already done so ...
+        if LList.Remove(FYarn) <> -1 then begin
+          IdDisposeAndNil(FYarn);
+        end;
+      finally
+        LScheduler.ActiveYarns.UnlockList;
+      end;
+    end;
+  end else
+  begin
+    // just free the Yarn normally and let it figure out what to do...
+    // TODO: is special handling needed for TIdYarnOfFiber like above?
+    IdDisposeAndNil(FYarn);
+  end;
+
   if itoDataOwner in FOptions then begin
     IdDisposeAndNil(FDataObject);
   end else begin
@@ -674,11 +718,13 @@ initialization
   // So, DO NOT uncomment the following line...
   // SetThreadName('Main');  {do not localize}
 
+  {$I IdSymbolDeprecatedOff.inc}
   GThreadCount := TIdThreadSafeInt32.Create;
   {$IF (NOT DEFINED(FREE_ON_FINAL)) AND DEFINED(REGISTER_EXPECTED_MEMORY_LEAK)}
   IndyRegisterExpectedMemoryLeak(GThreadCount);
   IndyRegisterExpectedMemoryLeak(TIdThreadSafeInt32Access(GThreadCount).FCriticalSection);
   {$IFEND}
+  {$I IdSymbolDeprecatedOn.inc}
 finalization
   // This call hangs if not all threads have been properly destroyed.
   // But without this, bad threads can often have worse results. Catch 22.
@@ -686,6 +732,8 @@ finalization
 
   {$IFDEF FREE_ON_FINAL}
   //only enable this if you know your code exits thread-clean
+  {$I IdSymbolDeprecatedOff.inc}
   FreeAndNil(GThreadCount);
+  {$I IdSymbolDeprecatedOn.inc}
   {$ENDIF}
 end.
