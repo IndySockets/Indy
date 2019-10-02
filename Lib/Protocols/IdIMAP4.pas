@@ -2784,7 +2784,7 @@ var
   LCharSet: string;
   LEncoding: IIdTextEncoding;
   LLiteral: string;
-  LUseNonSyncLiteral: Boolean;
+  LCanUseNonSyncLiteral, LNonSyncLiteralIsLimited, LUseNonSyncLiteral: Boolean;
   LUseUTF8QuotedString: Boolean;
 
   function RequiresEncoding(const S: String): Boolean;
@@ -2838,7 +2838,9 @@ begin
   end;
   LCmd := LCmd + IMAP4Commands[cmdSearch];
   if IsCharsetNeeded then begin
-    LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');         {Do not localize}
+    LNonSyncLiteralIsLimited := IsCapabilityListed('LITERAL-');   {Do not localize}
+    LCanUseNonSyncLiteral := LNonSyncLiteralIsLimited or
+                             IsCapabilityListed('LITERAL+');      {Do not localize}
     LUseUTF8QuotedString := IsCapabilityListed('UTF8=ACCEPT') or  {Do not localize}
                             IsCapabilityListed('UTF8=ONLY') or    {Do not localize}
                             IsCapabilityListed('UTF8=ALL');       {Do not localize}
@@ -2853,7 +2855,7 @@ begin
     LCmd := LCmd + ' CHARSET ' + LCharSet;        {Do not localize}
     LEncoding := CharsetToEncoding(LCharSet);
   end else begin
-    LUseNonSyncLiteral := False;
+    LCanUseNonSyncLiteral := False;
     LUseUTF8QuotedString := False;
   end;
 
@@ -2905,6 +2907,7 @@ begin
             end else
             begin
               LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+              LUseNonSyncLiteral := LCanUseNonSyncLiteral and ((not LNonSyncLiteralIsLimited) or (Length(LTextBuf) <= 4096));
               if LUseNonSyncLiteral then begin
                 LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
               end else begin
@@ -2952,6 +2955,7 @@ begin
             end else
             begin
               LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_OSDefault{$ENDIF});
+              LUseNonSyncLiteral := LCanUseNonSyncLiteral and ((not LNonSyncLiteralIsLimited) or (Length(LLTextBuf) <= 4096));
               if LUseNonSyncLiteral then begin
                 LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
               end else begin
@@ -3420,7 +3424,15 @@ begin
       to get the size of the message we are going to send...}
       LLength := Length(LHeadersAsBytes) + (LStream.Size - LStream.Position);
 
-      LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');         {Do not Localize}
+      // TODO: check the server's APPENDLIMIT capability (RFC 7889) to see if
+      // LLength is too large, and if so then we can bail out here...
+
+      if IsCapabilityListed('LITERAL-') then begin                  {Do not Localize}
+        LUseNonSyncLiteral := LLength <= 4096;
+      end else begin
+        LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');       {Do not Localize}
+      end;
+
       if LUseNonSyncLiteral then begin
         LMsgLiteral := '{' + IntToStr ( LLength ) + '+}';           {Do not Localize}
       end else begin
@@ -3569,7 +3581,12 @@ begin
         TIdStreamHelper.Seek(LTempStream, -4, soCurrent);
       until False;
 
-      LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');     {Do not Localize}
+      if IsCapabilityListed('LITERAL-') then begin              {Do not Localize}
+        LUseNonSyncLiteral := LLength <= 4096;
+      end else begin
+        LUseNonSyncLiteral := IsCapabilityListed('LITERAL+');   {Do not Localize}
+      end;
+
       if LUseNonSyncLiteral then begin
         LMsgLiteral := '{' + IntToStr(LLength) + '+}';          {Do not Localize}
       end else begin
