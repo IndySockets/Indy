@@ -2877,7 +2877,7 @@ begin
             end else
             begin
               LTextBuf := ToBytes(ASearchInfo[Ln].Text, LEncoding);
-              LUseNonSyncLiteral := LCanUseNonSyncLiteral and ((not LNonSyncLiteralIsLimited) or (Length(LLTextBuf) <= 4096));
+              LUseNonSyncLiteral := LCanUseNonSyncLiteral and ((not LNonSyncLiteralIsLimited) or (Length(LTextBuf) <= 4096));
               if LUseNonSyncLiteral then begin
                 LLiteral := '{' + IntToStr(Length(LTextBuf)) + '+}'; {Do not Localize}
               end else begin
