@@ -272,9 +272,9 @@ begin
     0: ; // Do nothing
 
     SOCKET_ERROR: begin
-      LLastError := GWindowsStack.WSGetLastError;
+      LLastError := WSAGetLastError;
       if LLastError <> WSA_IO_PENDING then begin
-        GWindowsStack.RaiseSocketError(LLastError);
+        GStack.RaiseSocketError(LLastError);
       end;
     end;
 
@@ -315,10 +315,10 @@ begin
     0: ; // Do nothing
 
     SOCKET_ERROR: begin
-      LLastError := GWindowsStack.WSGetLastError;
+      LLastError := WSAGetLastError;
       // If its WSA_IO_PENDING this is normal and its been queued
       if LLastError <> WSA_IO_PENDING then begin
-        GWindowsStack.RaiseSocketError(LLastError);
+        GStack.RaiseSocketError(LLastError);
       end;
     end;
 

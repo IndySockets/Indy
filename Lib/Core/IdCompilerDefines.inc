@@ -408,6 +408,16 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 10.4 (Denali)
+  {$IFDEF VER340}
+    {$DEFINE VCL_10_4}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_10_4}
+    {$ELSE}
+      {$DEFINE DELPHI_10_4}
+    {$ENDIF}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
@@ -706,8 +716,19 @@
 
 // end FPC
 
-{$IFDEF VCL_10_3}
+{$IFDEF VCL_10_4}
+  {$DEFINE VCL_10_4_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_10_4_OR_ABOVE}
   {$DEFINE VCL_10_3_OR_ABOVE}
+  {$DEFINE VCL_10_3_UPDATE2_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_10_3}
+    {$DEFINE VCL_10_3_OR_ABOVE}
+    // TODO: figure out how to detect this version
+    {.$DEFINE VCL_10_3_UPDATE2_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_10_3_OR_ABOVE}
@@ -1149,6 +1170,7 @@
       {$DEFINE HAS_Exception_RaiseOuterException}
     {$ENDIF}
   {$ENDIF}
+  {$DEFINE HAS_SetCodePage}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
@@ -1278,6 +1300,17 @@
   {$UNDEF HAS_ComponentPlatformsAttribute_OSXNX64} // removed in 10.3 Rio
   // technically, these are present in 10.3 Rio, but they are not used yet
   {.$DEFINE HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+  {$IFDEF DCC}
+    {$IFDEF LINUX}
+      // RLebeau 9/25/2019: there is a bug in the IDE when debugging Linux projects
+      // where the EThreadNameException exception raised by TThread.NameThreadForDebugging()
+      // is not handled correctly.
+      {$UNDEF HAS_NAMED_THREADS}
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF ANDROID}
+    {$UNDEF BROKEN_TThread_ForceQueue}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_10_3_UPDATE2_OR_ABOVE}
@@ -1390,6 +1423,7 @@
   {$ENDIF}
   {$IFDEF FPC_3_0_0_OR_ABOVE}
     {$DEFINE HAS_STATIC_TThread_Queue}
+    {$DEFINE HAS_SetCodePage}
   {$ENDIF}
   {$IFDEF FPC_UNICODESTRINGS}
     {$DEFINE STRING_IS_UNICODE}
@@ -1397,6 +1431,9 @@
   {$IFDEF FPC_3_1_1_OR_ABOVE}
     {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
   {$ENDIF}
+  {$DEFINE HAS_GetLocalTimeOffset} // TODO: when was GetLocalTimeOffset() introduced?
+  {$DEFINE HAS_UniversalTimeToLocal} // TODO: when was UniversalTimeToLocal() introduced?
+  {$DEFINE HAS_LocalTimeToUniversal} // TODO: when was LocalTimeToUniversal() introduced?
 {$ENDIF}
 
 {$IFDEF DOTNET}

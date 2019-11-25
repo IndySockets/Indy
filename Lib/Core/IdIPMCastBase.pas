@@ -124,7 +124,7 @@ you with more flexibility than you would get with IPv4 multicasting.}
   EIdMCastReceiveErrorZeroBytes = class(EIdMCastException);
 
 const
-  DEF_IPv6_MGROUP = 'FF01:0:0:0:0:0:0:1';
+  DEF_IPv6_MGROUP = 'FF01:0:0:0:0:0:0:1'; {do not localize}
 
 implementation
 
@@ -170,28 +170,25 @@ begin
 end;
 
 procedure TIdIPMCastBase.Loaded;
-var
-  b: Boolean;
 begin
   inherited Loaded;
-  b := FDsgnActive;
-  FDsgnActive := False;
-  Active := b;
+  if FDsgnActive then begin
+    FDsgnActive := False;
+    Active := True;
+  end;
 end;
 
 procedure TIdIPMCastBase.SetActive(const Value: Boolean);
 begin
-  if Active <> Value then begin
-    if not (IsDesignTime or IsLoading) then begin
-      if Value then begin
-        GetBinding;
-      end
-      else begin
-        CloseBinding;
-      end;
-    end
-    else begin  // don't activate at designtime (or during loading of properties)    {Do not Localize}
-      FDsgnActive := Value;
+  if IsDesignTime or IsLoading then begin
+    // don't activate at designtime (or during loading of properties)    {Do not Localize}
+    FDsgnActive := Value;
+  end
+  else if Active <> Value then begin
+    if Value then begin
+      GetBinding;
+    end else begin
+      CloseBinding;
     end;
   end;
 end;
@@ -216,7 +213,7 @@ class function TIdIPMCastBase.SetIPv6AddrScope(const AVarIPv6Addr: String;
   const AScope: TIdIPMCValidScopes): String;
 begin
    //Replace the X in the Id_IPv6MC_V_ constants with the specified scope
-   Result := ReplaceOnlyFirst(AVarIPv6Addr,'X',IntToHex(AScope,1));
+   Result := ReplaceOnlyFirst(AVarIPv6Addr, 'X', IntToHex(AScope,1)); {do not localize}
 end;
 
 procedure TIdIPMCastBase.SetIPVersion(const AValue: TIdIPVersion);

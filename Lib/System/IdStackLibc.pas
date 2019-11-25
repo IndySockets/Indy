@@ -162,7 +162,7 @@ type
       const ABufferLength, AFlags: Integer;
       const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
+      const ANonBlocking: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     {$IFDEF VCL_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -677,16 +677,9 @@ begin
 end;
 
 function TIdStackLibc.WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
+  const ANonBlocking: Boolean = False): TIdStackSocketHandle; override;
 begin
-  // TODO: enable this?
-  {
-  if AOverlapped then begin
-    Result := Libc.socket(AFamily, AStruct or SOCK_NONBLOCK, AProtocol);
-  end else begin
-  }
-    Result := Libc.socket(AFamily, AStruct, AProtocol);
-  //end;
+  Result := Libc.socket(AFamily, AStruct or iif(ANonBlocking, SOCK_NONBLOCK, 0), AProtocol);
 end;
 
 function TIdStackLibc.WSGetServByName(const AServiceName: string): TIdPort;
@@ -796,6 +789,12 @@ begin
   end;
 end;
 
+{$IFDEF HAS_getifaddrs}
+type
+  TIdStackLocalAddressAccess = class(TIdStackLocalAddress)
+  end;
+{$ENDIF}
+
 procedure TIdStackLibc.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 {$IFNDEF HAS_getifaddrs}
 type
@@ -808,6 +807,7 @@ var
   {$IFDEF HAS_getifaddrs}
   LAddrList, LAddrInfo: pifaddrs;
   LSubNetStr: string;
+  LAddress: TIdStackLocalAddress;
   {$ELSE}
   Li: Integer;
   LAHost: PHostEnt;
@@ -835,6 +835,7 @@ begin
       repeat
         if (LAddrInfo^.ifa_addr <> nil) and ((LAddrInfo^.ifa_flags and IFF_LOOPBACK) = 0) then
         begin
+          LAddress := nil;
           case LAddrInfo^.ifa_addr^.sa_family of
             Id_PF_INET4: begin
               if LAddrInfo^.ifa_netmask <> nil then begin
@@ -842,11 +843,17 @@ begin
               end else begin
                 LSubNetStr := '';
               end;
-              TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
+              LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
             end;
             Id_PF_INET6: begin
-              TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+              LAddress := TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
             end;
+          end;
+          if LAddress <> nil then begin
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LAddrInfo^.ifa_name;
+            {$IFDEF HAS_if_nametoindex}
+            TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
+            {$ENDIF}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -1100,11 +1107,7 @@ end;
 
 function TIdStackLibc.WouldBlock(const AResult: Integer): Boolean;
 begin
-  //non-blocking does not exist in Linux, always indicate things will block
-  Result := True;
-
-  // TODO: enable this:
-  //Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
+  Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
 end;
 
 function TIdStackLibc.SupportsIPv4: Boolean;
@@ -1385,9 +1388,10 @@ end;
 
 procedure TIdStackLibc.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
+var
+  LFlags: Integer;
+  //LValue: UInt32;
 begin
-  // TODO: enable this
-  {
   LFlags := CheckForSocketError(Libc.fcntl(ASocket, F_GETFL, 0));
   if ABlocking then begin
     LFlags := LFlags and not O_NONBLOCK;
@@ -1395,15 +1399,10 @@ begin
     LFlags := LFlags or O_NONBLOCK;
   end;
   CheckForSocketError(Libc.fcntl(ASocket, F_SETFL, LFlags));
-
-or
-
+  {
   LValue := UInt32(not ABlocking);
   CheckForSocketError(Libc.ioctl(ASocket, FIONBIO, @LValue));
   }
-  if not ABlocking then begin
-    raise EIdBlockingNotSupported.Create(RSStackNotSupportedOnUnix);
-  end;
 end;
 
 (*

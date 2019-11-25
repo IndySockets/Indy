@@ -306,7 +306,7 @@ implementation
 
 uses
   IdComponent, IdException, IdExceptionCore, IdStack, IdResourceStrings, IdWorkOpUnits,
-  IdStackWindows,
+  IdStackBSDBase, IdStackWindows,
   SysUtils;
 
 const
@@ -336,8 +336,8 @@ begin
   case ConnectMode of
     cmNonBlock: begin
       //TODO: Non blocking DNS resolution too?
-      Binding.SetPeer(GWindowsStack.ResolveHost(Host), Port);
-      GWindowsStack.SetBlocking(Binding.Handle, False);
+      Binding.SetPeer(GStack.ResolveHost(Host), Port);
+      GBSDStack.SetBlocking(Binding.Handle, False);
       // Does not block
       Binding.Connect;
     end;
@@ -348,7 +348,7 @@ begin
       //TODO: Resolution too?
       Binding.SetPeer(GStack.ResolveHost(Host), Port);
       Binding.Connect;
-      GWindowsStack.SetBlocking(Binding.Handle, False);
+      GBSDStack.SetBlocking(Binding.Handle, False);
     end;
     else begin
       raise EIdException.Create('Unrecognized ConnectMode'); {do not localize}

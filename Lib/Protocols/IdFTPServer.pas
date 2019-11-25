@@ -3017,7 +3017,7 @@ begin
     if (FUseTLS in ExplicitTLSVals) then begin
       LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
       if not LIO.PassThrough then begin
-        LIO.Passthrough := True;
+        LIO.PassThrough := True;
       end;
       LContext.FCCC := False;
     end;
@@ -4536,16 +4536,16 @@ end;
 
 procedure TIdFTPServer.CommandAUTH(ASender: TIdCommand);
 var
-  LIO : TIdSSLIOHandlerSocketBase;
   LContext : TIdFTPServerContext;
 begin
   LContext := ASender.Context as TIdFTPServerContext;
-  if (PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) > -1) and (IOHandler is TIdServerIOHandlerSSLBase)
-    and (FUseTLS in ExplicitTLSVals) then begin
+  if (PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) > -1) and
+     (ASender.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and
+     (FUseTLS in ExplicitTLSVals) then
+  begin
     ASender.Reply.SetReply(234,RSFTPAuthSSL);
     ASender.SendReply;
-    LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-    LIO.Passthrough := False;
+    (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
     {
     This is from:
 
@@ -4641,7 +4641,6 @@ end;
 
 procedure TIdFTPServer.CommandCCC(ASender: TIdCommand);
 var
-  LIO : TIdSSLIOHandlerSocketBase;
   LContext : TIdFTPServerContext;
 begin
   LContext := ASender.Context as TIdFTPServerContext;
@@ -4653,8 +4652,7 @@ begin
       if LContext.FUserSecurity.PermitCCC then begin
         ASender.Reply.SetReply(200, RSFTPClearCommandConnection);
         ASender.SendReply;
-        LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-        LIO.Passthrough := True;
+        (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
         LContext.FCCC := True;
       end else begin
         ASender.Reply.SetReply(534, RSFTPClearCommandNotPermitted);
@@ -4787,7 +4785,7 @@ begin
       TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
     end;
   end;
-   (AContext as TIdFTPServerContext).FXAUTKey := MakeXAUTKey;
+  (AContext as TIdFTPServerContext).FXAUTKey := MakeXAUTKey;
   if Assigned(OnGreeting) then begin
     LGreeting := TIdReplyRFC.Create(nil);
     try
@@ -7284,7 +7282,7 @@ begin
         if AConnectMode then begin
           LIO.IsPeer := False;
         end;
-        LIO.Passthrough := False;
+        LIO.PassThrough := False;
       end;
     end
     else if FDataChannel is TIdTCPClient then begin
@@ -7294,7 +7292,7 @@ begin
         if AConnectMode then begin
           LIO.IsPeer := False;
         end;
-        LIO.Passthrough := False;
+        LIO.PassThrough := False;
       end;
     end;
   except

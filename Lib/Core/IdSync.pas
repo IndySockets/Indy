@@ -243,8 +243,8 @@ begin
   // Need to use something like InterlockedCompareExchangeObj() so any
   // duplicate threads can be freed...
   {
-  Thread := TIdNotifyThread.Create(True);
-  if InterlockedCompareExchangeObj(GNotifyThread, Thread, nil) <> nil then begin
+  Thread := TIdNotifyThread.Create;
+  if InterlockedCompareExchangeObj(TObject(GNotifyThread), Thread, nil) <> nil then begin
     Thread.Free;
   end else begin
     Thread.Start;
@@ -252,6 +252,7 @@ begin
   }
   if GNotifyThread = nil then begin
     GNotifyThread := TIdNotifyThread.Create;
+    GNotifyThread.Start;
   end;
 end;
 {$ENDIF}
@@ -614,10 +615,9 @@ end;
 
 constructor TIdNotifyThread.Create;
 begin
+  inherited Create(True, False, 'IdNotify'); {do not localize}
   FEvent := TIdLocalEvent.Create;
   FNotifications := TIdNotifyThreadList.Create;
-  // Must be before - Thread starts running when we call inherited
-  inherited Create(False, False, 'IdNotify'); {do not localize}
 end;
 
 destructor TIdNotifyThread.Destroy;

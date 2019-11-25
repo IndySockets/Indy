@@ -322,7 +322,7 @@ begin
     if TextEndsWith(LI.FileName, '/') then
     begin
       LI.ItemType := ditDirectory;
-      LI.FileName := Copy(AItem.FileName, 1, Length(LI.FileName) - 1);
+      LI.FileName := Copy(LI.FileName, 1, Length(LI.FileName) - 1);
     end else begin
       LI.ItemType := ditFile;
     end;

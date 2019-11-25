@@ -1548,7 +1548,6 @@ end;
 function TIdCoderTNEF.GetUnicodeOrString8String(AType: Word): TIdUnicodeString;
 var
   LLength: LongWord;
-  LsTemp: AnsiString;
   LBuf: TIdBytes;
 begin
   Result := '';
@@ -1565,9 +1564,7 @@ begin
     IdTNEF_PT_STRING8: begin
       LBuf := GetBytes(LLength);
       // TODO: use the value from the attOemCodepage attribute to decode the data:
-      // Result := IndyTextEncoding(attOemCodepage).GetString(LBuf, 0, Length(LBuf)-1);
-      SetString(LsTemp, PAnsiChar(LBuf), LLength-1);
-      Result := TIdUnicodeString(LsTemp);
+      Result := {IndyTextEncoding(attOemCodepage)}IndyTextEncoding_8Bit.GetString(LBuf, 0, Length(LBuf)-1);
     end;
     else begin
       Skip(LLength);

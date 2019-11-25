@@ -853,7 +853,7 @@ begin
     FLastGeneratedHeaders.Params['Content-Type', 'charset'] := LCharSet;  {do not localize}
     FLastGeneratedHeaders.Values['Content-Transfer-Encoding'] := ContentTransferEncoding; {do not localize}
   end;
-  FLastGeneratedHeaders.Values['Sender'] := Sender.Text; {do not localize}
+  FLastGeneratedHeaders.Values['Sender'] := EncodeAddressItem(Sender, HeaderEncoding, ISOCharSet); {do not localize}
   FLastGeneratedHeaders.Values['Reply-To'] := EncodeAddress(ReplyTo, HeaderEncoding, ISOCharSet); {do not localize}
   FLastGeneratedHeaders.Values['Organization'] := EncodeHeader(Organization, '', HeaderEncoding, ISOCharSet); {do not localize}
 

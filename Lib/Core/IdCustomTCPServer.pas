@@ -437,7 +437,7 @@ uses
 
 procedure TIdCustomTCPServer.CheckActive;
 begin
-  if Active and (not IsDesignTime) and (not IsLoading) then begin
+  if Active and not (IsDesignTime or IsLoading) then begin
     raise EIdTCPServerError.Create(RSCannotPerformTaskWhileServerIsActive);
   end;
 end;
@@ -771,6 +771,7 @@ var
   LListenerThread: TIdListenerThread;
   I: Integer;
   LBinding: TIdSocketHandle;
+  LName: string;
 begin
   LListenerThreads := FListenerThreads.LockList;
   try
@@ -803,13 +804,19 @@ begin
     end;
 
     // Set up any threads that are not already running
+
+    LName := Name;
+    if LName = '' then begin
+      LName := 'IdCustomTCPServer'; {do not localize}
+    end;
+
     for I := LListenerThreads.Count to Bindings.Count - 1 do
     begin
       LBinding := Bindings[I];
       LBinding.Listen(FListenQueue);
       LListenerThread := TIdListenerThread.Create(Self, LBinding);
       try
-        LListenerThread.Name := Name + ' Listener #' + IntToStr(I + 1); {do not localize}
+        LListenerThread.Name := LName + ' Listener #' + IntToStr(I + 1); {do not localize}
         LListenerThread.OnBeforeRun := DoBeforeListenerRun;
         //Todo: Implement proper priority handling for Linux
         //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html

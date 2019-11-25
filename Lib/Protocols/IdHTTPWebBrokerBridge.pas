@@ -408,7 +408,7 @@ begin
           Result := AnsiString(BytesToStringRaw(LBytes));
             {$ELSE}
           SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-              {$IFDEF VCL_2009_OR_ABOVE}
+              {$IFDEF HAS_SetCodePage}
           // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
           // the proper codepage assigned to it as well so it can be converted
           // correctly if assigned to other string variables later on...
@@ -487,7 +487,7 @@ begin
   Result := AnsiString(BytesToStringRaw(LBytes));
   {$ELSE}
   SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-    {$IFDEF VCL_2009_OR_ABOVE}
+    {$IFDEF HAS_SetCodePage}
   // RLebeau 2/21/2009: For D2009+, the AnsiString payload should have
   // the proper codepage assigned to it as well so it can be converted
   // correctly if assigned to other string variables later on...
@@ -596,7 +596,7 @@ begin
   Result := AnsiString(BytesToStringRaw(LBytes));
     {$ELSE}
   SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-      {$IFDEF VCL_2009_OR_ABOVE}
+      {$IFDEF HAS_SetCodePage}
   // RLebeau 2/21/2009: for D2009+, the AnsiString payload should have
   // the proper codepage assigned to it as well so it can be converted
   // correctly if assigned to other string variables later on...

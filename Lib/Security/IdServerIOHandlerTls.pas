@@ -81,15 +81,15 @@ type
 
 function TIdServerSideIOHandlerTls.Clone: TIdSSLIOHandlerSocketBase;
 var
-  TEmpResult : TIdServerSideIOHandlerTls;
+  TempResult : TIdServerSideIOHandlerTls;
 begin
   TempResult := TIdServerSideIOHandlerTls.Create;
   TempResult.Options.ClientNeedsCertificate := Options.ClientNeedsCertificate;
   TempResult.Options.PrivateKey := Options.PrivateKey;
   TempResult.Options.Protocol := Options.Protocol;
   TempResult.Options.PublicCertificate := Options.PublicCertificate;
-	TempResult.IsPeer := IsPeer;
-	TempResult.PassThrough := PassThrough;
+  TempResult.IsPeer := IsPeer;
+  TempResult.PassThrough := PassThrough;
   Result := TempResult;
 end;
 

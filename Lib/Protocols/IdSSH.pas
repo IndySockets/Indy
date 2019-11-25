@@ -28,7 +28,9 @@
 unit IdSSH;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdContainers,
@@ -41,28 +43,29 @@ uses
 
 type
   //client
-   TIdSSHIOHandlerSocketBase = class(TIdIOHandlerStack)
-   protected
-      fPassThrough: Boolean;
-      fIsPeer : Boolean;
-     procedure SetPassThrough(const AValue: Boolean); virtual;
-   public
-     function Clone :  TIdSSHIOHandlerSocketBase; virtual; abstract;
-     procedure StartSSH; virtual; abstract;
-     property PassThrough: Boolean read fPassThrough write SetPassThrough;
-     property IsPeer : Boolean read fIsPeer write fIsPeer;
-   end;
+  TIdSSHIOHandlerSocketBase = class(TIdIOHandlerStack)
+  protected
+    fPassThrough: Boolean;
+    fIsPeer : Boolean;
+    procedure InitComponent; override;
+    procedure SetPassThrough(const AValue: Boolean); virtual;
+  public
+    function Clone :  TIdSSHIOHandlerSocketBase; virtual; abstract;
+    procedure StartSSH; virtual; abstract;
+    property PassThrough: Boolean read fPassThrough write SetPassThrough;
+    property IsPeer : Boolean read fIsPeer write fIsPeer;
+  end;
 
-   //server
-   TIdServerIOHandlerSSHBase = class(TIdServerIOHandler)
-   protected
-   public
-     //this is for the FTP Server to make a client IOHandler for it's data connection's IOHandler
-     function MakeClientIOHandler(ATheThread:TIdThreadHandle ): TIdIOHandler; overload; override;
-     function MakeClientIOHandler : TIdSSHIOHandlerSocketBase; reintroduce; overload; virtual; abstract;
-     function MakeFTPSvrPort : TIdSSHIOHandlerSocketBase; virtual; abstract;
-     function MakeFTPSvrPasv : TIdSSHIOHandlerSocketBase; virtual; abstract;
-   end;
+  //server
+  TIdServerIOHandlerSSHBase = class(TIdServerIOHandler)
+  protected
+  public
+    //this is for the FTP Server to make a client IOHandler for it's data connection's IOHandler
+    function MakeClientIOHandler(ATheThread:TIdThreadHandle ): TIdIOHandler; overload; override;
+    function MakeClientIOHandler : TIdSSHIOHandlerSocketBase; reintroduce; overload; virtual; abstract;
+    function MakeFTPSvrPort : TIdSSHIOHandlerSocketBase; virtual; abstract;
+    function MakeFTPSvrPasv : TIdSSHIOHandlerSocketBase; virtual; abstract;
+  end;
 
 type
   TIdClientSSHClass = class of TIdSSHIOHandlerSocketBase;
@@ -91,6 +94,7 @@ type
     property ClientClass : TIdClientSSHClass read FClientClass write FClientClass;
     property ServerClass : TIdServerSSHClass read FServerClass write FServerClass;
   end;
+
   TIdSSHRegistry = class(TCollection)
   protected
     function GetItem ( Index: Integer ) : TIdSSHRegEntry;
@@ -126,6 +130,12 @@ end;
 
 { TIdSSHIOHandlerSocketBase }
 
+procedure TIdSSHIOHandlerSocketBase.InitComponent;
+begin
+  inherited;
+  fPassThrough := True;
+end;
+
 procedure TIdSSHIOHandlerSocketBase.SetPassThrough(const AValue: Boolean);
 begin
   fPassThrough := AValue;
@@ -135,7 +145,7 @@ end;
 
 function TIdServerIOHandlerSSHBase.MakeClientIOHandler(ATheThread:TIdThreadHandle ): TIdIOHandler;
 begin
-  result:=MakeClientIOHandler;
+  Result := MakeClientIOHandler;
 end;
 
 { TIdSSHRegistry }

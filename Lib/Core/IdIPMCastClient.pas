@@ -45,9 +45,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  {$IFDEF VCL_2010_OR_ABOVE}
-  Classes,    //here to facilitate inlining
-  {$ENDIF}
+  Classes,
   IdException,
   IdGlobal,
   IdIPMCastBase,
@@ -88,10 +86,14 @@ type
     FBufferSize: Integer;
     FCurrentBinding: TIdSocketHandle;
     FListenerThread: TIdIPMCastListenerThread;
+    FOnBeforeBind: TIdSocketHandleEvent;
+    FOnAfterBind: TNotifyEvent;
     FOnIPMCastRead: TIPMCastReadEvent;
     FThreadedEvent: boolean;
     //
     procedure CloseBinding; override;
+    procedure DoBeforeBind(AHandle: TIdSocketHandle); virtual;
+    procedure DoAfterBind; virtual;
     procedure DoIPMCastRead(const AData: TIdBytes; ABinding: TIdSocketHandle);virtual;
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
@@ -112,6 +114,8 @@ type
     property MulticastGroup;
     property ReuseSocket;
     property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default DEF_IMP_THREADEDEVENT;
+    property OnBeforeBind: TIdSocketHandleEvent read FOnBeforeBind write FOnBeforeBind;
+    property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
     property OnIPMCastRead: TIPMCastReadEvent read FOnIPMCastRead write FOnIPMCastRead;
   end;
 
@@ -168,16 +172,37 @@ begin
   end;
 end;
 
+procedure TIdIPMCastClient.DoBeforeBind(AHandle: TIdSocketHandle);
+begin
+  if Assigned(FOnBeforeBind) then begin
+    FOnBeforeBind(AHandle);
+  end;
+end;
+
+procedure TIdIPMCastClient.DoAfterBind;
+begin
+  if Assigned(FOnAfterBind) then begin
+    FOnAfterBind(Self);
+  end;
+end;
+
 function TIdIPMCastClient.GetActive: Boolean;
 begin
-  // inherited GetActive keeps track of design-time Active property
-  Result := inherited GetActive or
-            (Assigned(FCurrentBinding) and FCurrentBinding.HandleAllocated);
+  if IsDesignTime then begin
+    // inherited GetActive keeps track of design-time Active property
+    Result := inherited GetActive;
+  end else begin
+    Result := Assigned(FCurrentBinding);
+    if Result then begin
+      Result := FCurrentBinding.HandleAllocated;
+    end;
+  end;
 end;
 
 function TIdIPMCastClient.GetBinding: TIdSocketHandle;
 var
   i: integer;
+  LBinding: TIdSocketHandle;
 begin
   if not Assigned(FCurrentBinding) then
   begin
@@ -188,21 +213,31 @@ begin
         raise EIdMCastNoBindings.Create(RSNoBindingsSpecified);
       end;
     end;
+
     for i := 0 to Bindings.Count - 1 do begin
-      Bindings[i].AllocateSocket(Id_SOCK_DGRAM);
+    try
+      LBinding := Bindings[i];
+      LBinding.AllocateSocket(Id_SOCK_DGRAM);
       // do not overwrite if the default. This allows ReuseSocket to be set per binding
       if FReuseSocket <> rsOSDependent then begin
-        Bindings[i].ReuseSocket := FReuseSocket;
+        LBinding.ReuseSocket := FReuseSocket;
       end;
-      Bindings[i].Bind;
-      Bindings[i].AddMulticastMembership(FMulticastGroup);
+      DoBeforeBind(LBinding);
+      LBinding.Bind;
+      LBinding.AddMulticastMembership(FMulticastGroup);
+      if not Assigned(FCurrentBinding) then begin
+        FCurrentBinding := LBinding;
+      end;
+    except
     end;
-    FCurrentBinding := Bindings[0];
+
+    DoAfterBind;
+
     // RLebeau: why only one listener thread total, instead of one per Binding,
     // like TIdUDPServer uses?
     FListenerThread := TIdIPMCastListenerThread.Create(Self);
-    FListenerThread.Start;
   end;
+
   Result := FCurrentBinding;
 end;
 
@@ -240,12 +275,18 @@ end;
 { TIdIPMCastListenerThread }
 
 constructor TIdIPMCastListenerThread.Create(AOwner: TIdIPMCastClient);
+var
+  LName: string;
 begin
-  inherited Create(True);
   FAcceptWait := 1000;
   FBufferSize := AOwner.BufferSize;
   FBuffer := nil;
   FServer := AOwner;
+  LName := AOwner.Name;
+  if LName = '' then begin
+    LName := 'IdIPMCastClient'; {do not localize}
+  end;
+  inherited Create(False, False, LName + ' Listener'); {do not localize}
 end;
 
 destructor TIdIPMCastListenerThread.Destroy;
@@ -274,19 +315,23 @@ begin
       LSocketList.Add(FServer.Bindings[i].Handle);
     end;
 
-    // select the handles for reading
-    LReadList := nil;
-    if LSocketList.SelectReadList(LReadList, AcceptWait) then
-    begin
-      try
-        for i := 0 to LReadList.Count - 1 do
+    LReadList := TIdSocketList.CreateSocketList;
+    try
+      while not Stopped do
+      begin
+        // select the handles for reading
+        LReadList.Clear;
+        if LSocketList.SelectReadList(LReadList, AcceptWait) then
         begin
-          // Doublecheck to see if we've been stopped
-          // Depending on timing - may not reach here
-          // if stopped the run method of the ancestor
-
-          if not Stopped then
+          for i := 0 to LReadList.Count - 1 do
           begin
+            // Doublecheck to see if we've been stopped
+            // Depending on timing - may not reach here
+            // if stopped the run method of the ancestor
+            if Stopped then begin
+              Exit;
+            end;
+
             IncomingData := FServer.Bindings.BindingByHandle(LReadList[i]);
             if IncomingData <> nil then
             begin
@@ -308,9 +353,9 @@ begin
             end;
           end;
         end;
-      finally
-        LReadList.Free;
       end;
+    finally
+      LReadList.Free;
     end;
   finally
     LSocketList.Free;

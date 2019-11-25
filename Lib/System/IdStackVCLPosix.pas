@@ -117,7 +117,7 @@ type
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
+      const ANonBlocking: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     {$IFDEF VCL_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -496,6 +496,14 @@ end;
 {$IFDEF HAS_getifaddrs}
 function getifaddrs(var ifap: pifaddrs): Integer; cdecl; external libc name _PU + 'getifaddrs'; {do not localize}
 procedure freeifaddrs(ifap: pifaddrs); cdecl; external libc name _PU + 'freeifaddrs'; {do not localize}
+  {$IFDEF HAS_if_nametoindex}
+function if_nametoindex(const ifname: PIdAnsiChar): UInt32; cdecl; external libc name _PU + 'if_nametoindex'; {do not localize}
+  {$ENDIF}
+
+type
+  TIdStackLocalAddressAccess = class(TIdStackLocalAddress)
+  end;
+
 {$ELSE}
   {$IFDEF ANDROID}
   // TODO: implement getifaddrs() manually using code from https://github.com/morristech/android-ifaddrs
@@ -508,6 +516,7 @@ var
   {$IFDEF HAS_getifaddrs}
   LAddrList, LAddrInfo: pifaddrs;
   LSubNetStr: String;
+  LAddress: TIdStackLocalAddress;
   {$ELSE}
   LRetVal: Integer;
   LHostName: string;
@@ -536,6 +545,7 @@ begin
       repeat
         if (LAddrInfo^.ifa_addr <> nil) and ((LAddrInfo^.ifa_flags and IFF_LOOPBACK) = 0) then
         begin
+          LAddress := nil;
           case LAddrInfo^.ifa_addr^.sa_family of
             Id_PF_INET4: begin
               if LAddrInfo^.ifa_netmask <> nil then begin
@@ -543,11 +553,17 @@ begin
               end else begin
                 LSubNetStr := '';
               end;
-              TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
+              LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
             end;
             Id_PF_INET6: begin
-              TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+              LAddress := TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
             end;
+          end;
+          if LAddress <> nil then begin
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(LAddrInfo^.ifa_name);
+            {$IFDEF HAS_if_nametoindex}
+            TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
+            {$ENDIF}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -568,6 +584,7 @@ begin
     en, enumIpAddr: Enumeration;
     intf: NetworkInterface;
     inetAddress: InetAddress;
+    LAddress: TIdStackLocalAddress;
   begin
     try
       en := NetworkInterface.getNetworkInterfaces;
@@ -576,15 +593,20 @@ begin
         try
           repeat
             intf := en.nextElement;
-            enumIpAddr := intf.getInetAddresses();
+            enumIpAddr := intf.getInetAddresses;
             while enumIpAddr.hasMoreElements do begin
               inetAddress := enumIpAddr.nextElement;
               if not inetAddress.isLoopbackAddress then begin
+                LAddress := nil;
                 if (inetAddress instanceof Inet4Address) then begin
-                  TIdStackLocalAddressIPv4.Create(AAddresses, inetAddress.getHostAddress.toString, ''); // TODO: subnet mask
+                  LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, inetAddress.getHostAddress.toString, ''); // TODO: subnet mask
                 end
                 else if (inetAddress instanceof Inet6Address) then begin
-                  TIdStackLocalAddressIPv6.Create(AAddresses, inetAddress.getHostAddress.toString);
+                  LAddress := TIdStackLocalAddressIPv6.Create(AAddresses, inetAddress.getHostAddress.toString);
+                end;
+                if LAddress <> nil then begin
+                  TIdStackLocalAddressAccess(LAddress).FInterfaceName := intf.getName;
+                  TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := intf.getIndex (+1?);
                 end;
               end;
             end;
@@ -616,12 +638,15 @@ begin
     ;
 
   var
-    wifiManager: WifiManager;
-    ipAddress: Integer;
+    LWifiManager: WifiManager;
+    LWifiInfo: WifiInfo;
+    LIPAddress: Integer;
   begin
     try
-      wifiManager := (WifiManager) GetActivityContext.getSystemService(WIFI_SERVICE);
-      ipAddress := wifiManager.getConnectionInfo.getIpAddress;
+      LWifiManager := (WifiManager) GetActivityContext.getSystemService(WIFI_SERVICE);
+      LWifiInfo := LWifiManager.getConnectionInfo;
+      LIPAddress := LWifiInfo.getIpAddress;
+      // TODO: can we use the NetworkId or MacAddress to help find the network interface name and index?
     except
       if not HasAndroidPermission('android.permission.ACCESS_WIFI_STATE') then begin
         IndyRaiseOuterException(EIdAccessWifiStatePermissionNeeded.CreateError(0, ''));
@@ -631,7 +656,7 @@ begin
 
     // WiFiInfo only supports IPv4
     TIdStackLocalAddressIPv4.Create(AAddresses,
-      Format('%d.%d.%d.%d', [ipAddress and $ff, (ipAddress shr 8) and $ff, (ipAddress shr 16) and $ff, (ipAddress shr 24) and $ff]),
+      Format('%d.%d.%d.%d', [LIPAddress and $ff, (LIPAddress shr 8) and $ff, (LIPAddress shr 16) and $ff, (LIPAddress shr 24) and $ff]),
       '' // TODO: subnet mask
     );
   end;
@@ -1217,13 +1242,9 @@ end;
 
 procedure TIdStackVCLPosix.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
-{
 var
   LFlags: Integer;
-}
 begin
-  // TODO: enable this
-  {
   LFlags := CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_GETFL, 0));
   if ABlocking then begin
     LFlags := LFlags and not O_NONBLOCK;
@@ -1231,10 +1252,6 @@ begin
     LFlags := LFlags or O_NONBLOCK;
   end;
   CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_SETFL, LFlags));
-  }
-  if not ABlocking then begin
-    raise EIdNonBlockingNotSupported.Create(RSStackNonBlockingNotSupported);
-  end;
 end;
 
 procedure TIdStackVCLPosix.SetLastError(const AError: Integer);
@@ -1278,11 +1295,7 @@ end;
 
 function TIdStackVCLPosix.WouldBlock(const AResult: Integer): Boolean;
 begin
-  //non-blocking does not exist in Linux, always indicate things will block
-  Result := True;
-
-  // TODO: enable this:
-  //Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
+  Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
 end;
 
 procedure TIdStackVCLPosix.WriteChecksum(s: TIdStackSocketHandle;
@@ -1455,14 +1468,22 @@ begin
 end;
 
 function TIdStackVCLPosix.WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle;
+  const ANonBlocking: Boolean = False): TIdStackSocketHandle;
+var
+  LFlags: Integer;
 begin
   Result := Posix.SysSocket.socket(AFamily, AStruct, AProtocol);
-  {$IFDEF HAS_SOCKET_NOSIGPIPE}
   if Result <> INVALID_SOCKET then begin
+    {$IFDEF HAS_SOCKET_NOSIGPIPE}
     SetSocketOption(Result, SOL_SOCKET, SO_NOSIGPIPE, 1);
+    {$ENDIF}
+    //SetBlocking(Result, not ANonBlocking);
+    if ANonBlocking then begin
+      LFlags := Posix.SysSocket.fcntl(Result, F_GETFL, 0);
+      LFlags := LFlags or O_NONBLOCK;
+      Posix.SysSocket.fcntl(Result, F_SETFL, LFlags);
+    end;
   end;
-  {$ENDIF}
 end;
 
 {$I IdUnitPlatformOn.inc}

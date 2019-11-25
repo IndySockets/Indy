@@ -219,7 +219,7 @@ type
     function  NewSocketHandle(const ASocketType: TIdSocketType;
       const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-      const AOverlapped: Boolean = False) : TIdStackSocketHandle; override;
+      const ANonBlocking: Boolean = False) : TIdStackSocketHandle; override;
     // Result:
     // > 0: Number of bytes received
     //   0: Connection closed gracefully
@@ -532,10 +532,11 @@ end;
 
 function TIdStackDotNet.NewSocketHandle(const ASocketType: TIdSocketType;
   const AProtocol: TIdSocketProtocol; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-  const AOverlapped: Boolean = False): TIdStackSocketHandle;
+  const ANonBlocking: Boolean = False): TIdStackSocketHandle;
 begin
   try
     Result := Socket.Create(IdIPFamily[AIPVersion], ASocketType, AProtocol);
+    Result.Blocking := not ANonBlocking;
   except
     on E: Exception do begin
       DoRaiseException(Self, E);

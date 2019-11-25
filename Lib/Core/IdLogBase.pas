@@ -51,7 +51,6 @@ type
     FActive: Boolean;
     FLogTime: Boolean;
     FReplaceCRLF: Boolean;
-    FStreamedActive: Boolean;
     //
     procedure InitComponent; override;
     procedure LogStatus(const AText: string); virtual; abstract;
@@ -121,9 +120,13 @@ begin
 end;
 
 procedure TIdLogBase.Loaded;
+var
+  b: Boolean;
 begin
   inherited Loaded;
-  Active := FStreamedActive;
+  b := FActive;
+  FActive := False;
+  Active := b;
 end;
 
 procedure TIdLogBase.Open;
@@ -180,16 +183,16 @@ end;
 procedure TIdLogBase.SetActive(AValue: Boolean);
 begin
   if IsDesignTime or IsLoading then begin
-    FStreamedActive := AValue;
+    FActive := AValue;
   end
   else if FActive <> AValue then
   begin
-    FActive := AValue;
-    if FActive then begin
+    if AValue then begin
       Open;
     end else begin
       Close;
     end;
+    FActive := AValue;
   end;
 end;
 

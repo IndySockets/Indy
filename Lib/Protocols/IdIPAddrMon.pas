@@ -372,12 +372,10 @@ begin
         FThread.FOnTimerEvent := CheckAdapters;
         FThread.FInterval := Self.Interval;
         FThread.Start;
-      end else
-      begin
-        if FThread <> nil then begin
-          FThread.TerminateAndWaitFor;
-          FreeAndNil(FThread);
-        end;
+      end
+      else if FThread <> nil then begin
+        FThread.TerminateAndWaitFor;
+        FreeAndNil(FThread);
       end;
     end;
     FActive := Value;

@@ -1224,33 +1224,30 @@ begin
   case cmd of
     X509_L_FILE_LOAD:
       begin
+        // Note that typecasting an AnsiChar as a WideChar below is normally a crazy
+        // thing to do.  The thing is that the OpenSSL API is based on PAnsiChar, and
+        // we are writing this function just for Unicode filenames.  argc is actually
+        // a PWideChar that has been coerced into a PAnsiChar so it can pass through
+        // OpenSSL APIs...
         case argl of
           X509_FILETYPE_DEFAULT:
             begin
-              LFileName := GetEnvironmentVariable
-                (String(X509_get_default_cert_file_env));
-              if LFileName <> '' then begin
-                LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName,
-                  X509_FILETYPE_PEM) <> 0);
-              end else begin
-                LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx,
-                  String(X509_get_default_cert_file), X509_FILETYPE_PEM) <> 0);
+              LFileName := GetEnvironmentVariable(String(X509_get_default_cert_file_env));
+              if LFileName = '' then begin
+                LFileName := String(X509_get_default_cert_file);
               end;
+              LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName, X509_FILETYPE_PEM) <> 0);
               if LOk = 0 then begin
                 X509err(X509_F_BY_FILE_CTRL, X509_R_LOADING_DEFAULTS);
               end;
             end;
           X509_FILETYPE_PEM:
             begin
-              // Note that typecasting an AnsiChar as a WideChar is normally a crazy
-              // thing to do.  The thing is that the OpenSSL API is based on ASCII or
-              // UTF8, not Unicode and we are writing this just for Unicode filenames.
-              LFileName := PWideChar(argc);
-              LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName,
-                X509_FILETYPE_PEM) <> 0);
+              LFileName := PWideChar(Pointer(argc));
+              LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName, X509_FILETYPE_PEM) <> 0);
             end;
         else
-          LFileName := PWideChar(argc);
+          LFileName := PWideChar(Pointer(argc));
           LOk := Ord(Indy_unicode_X509_load_cert_file(ctx, LFileName, TIdC_INT(argl)) <> 0);
         end;
       end;
@@ -1747,14 +1744,13 @@ begin
     // intentional. X509_LOOKUP_load_file() takes a PAnsiChar as input, but
     // we are using Unicode strings here.  So casting the UnicodeString to a
     // raw Pointer and then passing that to X509_LOOKUP_load_file() as PAnsiChar.
-    // Indy_Unicode_X509_LOOKUP_file will process it as a PWideChar...
-    if (X509_LOOKUP_load_file(lookup, PAnsiChar(Pointer(AFileName)),
-        X509_FILETYPE_PEM) <> 1) then begin
+    // Indy_Unicode_X509_LOOKUP_file will cast it back to PWideChar for processing...
+    if (X509_LOOKUP_load_file(lookup, PAnsiChar(Pointer(AFileName)), X509_FILETYPE_PEM) <> 1) then begin
       Exit;
     end;
   end;
   if APathName <> '' then begin
-    { TODO: Figure out how to do the hash dir lookup with Unicode. }
+    { TODO: Figure out how to do the hash dir lookup with a Unicode path. }
     if (X509_STORE_load_locations(ctx, nil, PAnsiChar(AnsiString(APathName))) <> 1) then begin
       Exit;
     end;

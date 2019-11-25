@@ -209,9 +209,11 @@ end;
 
 function TIdUDPBase.GetActive: Boolean;
 begin
-  Result := FDsgnActive;
-  if not Result then begin
-    if Assigned(FBinding) then begin
+  if IsDesignTime then begin
+    Result := FDsgnActive;
+  end else begin
+    Result := Assigned(FBinding);
+    if Result then begin
       Result := FBinding.HandleAllocated;
     end;
   end;
@@ -342,17 +344,15 @@ end;
 
 procedure TIdUDPBase.SetActive(const Value: Boolean);
 begin
-  if Active <> Value then begin
-    if not (IsDesignTime or IsLoading) then begin
-      if Value then begin
-        GetBinding;
-      end
-      else begin
-        CloseBinding;
-      end;
-    end
-    else begin  // don't activate at designtime (or during loading of properties)    {Do not Localize}
-      FDsgnActive := Value;
+  if IsDesignTime or IsLoading then begin
+    // don't activate at designtime (or during loading of properties)    {Do not Localize}
+    FDsgnActive := Value;
+  end
+  else if Active <> Value then begin
+    if Value then begin
+      GetBinding;
+    end else begin
+      CloseBinding;
     end;
   end;
 end;

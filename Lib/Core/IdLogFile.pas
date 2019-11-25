@@ -117,7 +117,8 @@ end;
 
 procedure TIdLogFile.Open;
 begin
-  if not IsDesignTime then begin
+  // RLebeau: this check is redundant, as TIdLogBase.SetActive() already checks for this before calling Open()...
+  if not IsDesignTime then begin 
     FFileStream := TIdAppendFileStream.Create(Filename);
   end;
 end;

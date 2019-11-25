@@ -37,8 +37,10 @@
 unit IdLogStream;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdLogBase, IdGlobal;
@@ -63,7 +65,9 @@ type
   end;
 
 implementation
- uses SysUtils;
+
+uses
+  SysUtils;
 
 // TODO: This was orginally for VCL. For .Net what do we do? Convert back to
 // 7 bit? Log all? Logging all seems to be a disaster.

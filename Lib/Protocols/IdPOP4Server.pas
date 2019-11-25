@@ -147,22 +147,21 @@ begin
 end;
 
 procedure TIdPOP4Server.CommandSTARTTLS(ASender: TIdCommand);
-var LIO : TIdSSLIOHandlerSocketBase;
 begin
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (FUseTLS in ExplicitTLSVals) then begin
+  if (ASender.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS in ExplicitTLSVals) then begin
     if TIdPOP4ServerContext(ASender.Context).UsingTLS then begin // we are already using TLS
       InvalidSyntax(ASender);
       Exit;
     end;
-    if TIdPOP4ServerContext(ASender.Context).State<>Auth then begin //STLS only allowed in auth-state
+    if TIdPOP4ServerContext(ASender.Context).State <> Auth then begin //STLS only allowed in auth-state
       ASender.Reply.SetReply(501, RSPOP3SvrNotInThisState);    {Do not Localize}
       Exit;
     end;
     ASender.Reply.SetReply(220, RSPOP3SvrBeginTLSNegotiation);
+    ASender.SendReply;
     //You should never pipeline STARTTLS
     TIdPOP4ServerContext(ASender.Context).PipeLining := False;
-    LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-    LIO.Passthrough := False;
+    (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
   end else begin
     CmdSyntaxError(ASender);
   end;
@@ -348,10 +347,9 @@ end;
 
 function TIdPOP4ServerContext.GetUsingTLS: boolean;
 begin
-  Result:=Connection.IOHandler is TIdSSLIOHandlerSocketBase;
-  if result then
-  begin
-    Result:=not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  Result := Connection.IOHandler is TIdSSLIOHandlerSocketBase;
+  if Result then begin
+    Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
   end;
 end;
 

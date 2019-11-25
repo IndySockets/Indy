@@ -363,7 +363,8 @@ var
   LContext : TIdSMTPServerContext;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
-
+  //Note you can not use PIPELINING with EHLO
+  LContext.PipeLining := False;  
   DoReset(LContext);
   LContext.EHLO := True;
   LContext.HeloString := ASender.UnparsedParams;
@@ -540,6 +541,8 @@ var
   LContext : TIdSMTPServerContext;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
+  //Note you can not use PIPELINING with HELO
+  LContext.PipeLining := False;
   if LContext.SMTPState <> idSMTPNone then begin
     BadSequenceError(ASender);
     Exit;
@@ -970,6 +973,7 @@ begin
   LContext := TIdSMTPServerContext(ASender.Context);
   if not LContext.EHLO then begin
     BadSequenceError(ASender);
+    LContext.PipeLining := False;
     Exit;
   end;
   if not LContext.CanUseExplicitTLS then begin
@@ -979,17 +983,19 @@ begin
   end;
   if LContext.UsingTLS then begin // we are already using TLS
     BadSequenceError(ASender);
+    LContext.PipeLining := False;
     Exit;
   end;
   SetEnhReply(ASender.Reply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS, LContext.EHLO);
   ASender.SendReply;
+  LContext.PipeLining := False;
   TIdSSLIOHandlerSocketBase(LContext.Connection.IOHandler).PassThrough := False;
   DoReset(LContext, True);
 end;
 
 procedure TIdSMTPServer.CommandNOOP(ASender: TIdCommand);
 begin
-//we just use the default NOOP and only clear pipelining for synchronization
+  //we just use the default NOOP and only clear pipelining for synchronization
   TIdSMTPServerContext(ASender.Context).PipeLining := False;
 end;
 
@@ -1031,12 +1037,14 @@ begin
   LContext := TIdSMTPServerContext(ASender.Context);
   if LContext.SMTPState <> idSMTPRcpt then begin
     BadSequenceError(ASender);
+    LContext.PipeLining := False;
     Exit;
   end;
   if LContext.HELO or LContext.EHLO then begin
     // BINARYMIME cannot be used with the DATA command
     if LContext.FBodyType = idSMTPBinaryMime then begin
       BadSequenceError(ASender);
+      LContext.PipeLining := False;
       Exit;
     end;
     MsgBegan(LContext, LStream);
@@ -1069,21 +1077,23 @@ begin
   LContext := TIdSMTPServerContext(ASender.Context);
   if not (LContext.SMTPState in [idSMTPRcpt, idSMTPBDat]) then begin
     BadSequenceError(ASender);
+    LContext.PipeLining := False;
     Exit;
   end;
   if LContext.HELO or LContext.EHLO then begin
-    LContext.PipeLining := False;
     if ASender.Params.Count > 0 then begin
       LSize := IndyStrToStreamSize(ASender.Params[0], -1);
       if LSize < 0 then
       begin
         CmdSyntaxError(ASender);
+        LContext.PipeLining := False;
         Exit;
       end;
       if ASender.Params.Count > 1 then begin
         if not TextIsSame(ASender.Params[1], 'LAST') then begin {do not localize}
           LContext.Connection.IOHandler.Discard(LSize);
           CmdSyntaxError(ASender);
+          LContext.PipeLining := False;
           Exit;
         end;
         LLast := True;

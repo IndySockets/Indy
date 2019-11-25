@@ -298,14 +298,14 @@ type
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle; virtual; abstract;
+      const ANonBlocking: Boolean = False): TIdStackSocketHandle; virtual; abstract;
     procedure SetBlocking(ASocket: TIdStackSocketHandle;
      const ABlocking: Boolean); virtual; abstract;
     function WouldBlock(const AResult: Integer): Boolean; virtual; abstract;
     function NewSocketHandle(const ASocketType: TIdSocketType;
       const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-      const AOverlapped: Boolean = False)
+      const ANonBlocking: Boolean = False)
      : TIdStackSocketHandle; override;
     //multicast stuff Kudzu permitted me to add here.
     procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
@@ -419,14 +419,14 @@ end;
 function TIdStackBSDBase.NewSocketHandle(const ASocketType:TIdSocketType;
   const AProtocol: TIdSocketProtocol;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-  const AOverlapped: Boolean = False): TIdStackSocketHandle;
+  const ANonBlocking: Boolean = False): TIdStackSocketHandle;
 begin
   // RLebeau 04/17/2008: Don't use CheckForSocketError() here.  It expects
   // an Integer error code, not a TSocket handle.  When WSSocket() fails,
   // it returns Id_INVALID_SOCKET.  Although that is technically the same
   // value as Id_SOCKET_ERROR, passing Id_INVALID_SOCKET to CheckForSocketError()
   // causes a range check error to be raised.
-  Result := WSSocket(IdIPFamily[AIPVersion], ASocketType, AProtocol, AOverlapped);
+  Result := WSSocket(IdIPFamily[AIPVersion], ASocketType, AProtocol, ANonBlocking);
   if Result = Id_INVALID_SOCKET then begin
     RaiseLastSocketError;
   end;

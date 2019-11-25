@@ -106,6 +106,7 @@ type
     //
     procedure AddToIPHistoryList(Value: string);
     procedure CheckStatus(Sender: TObject);
+    procedure Loaded; override;
     procedure SetActive(Value: Boolean);
     procedure SetMaxHistoryEntries(Value: Integer);
     procedure SetWatchInterval(Value: UInt32);
@@ -281,6 +282,16 @@ begin
   Result := FIsOnline;
 end;
 
+procedure TIdIPWatch.Loaded;
+var
+  b: Boolean;
+begin
+  inherited Loaded;
+  b := FActive;
+  FActive := False;
+  Active := b;
+end;
+
 procedure TIdIPWatch.LoadHistory;
 begin
   if not IsDesignTime then begin
@@ -318,19 +329,19 @@ end;
 
 procedure TIdIPWatch.SetActive(Value: Boolean);
 begin
-  if Value <> FActive then begin
-    if not IsDesignTime then begin
-      if Value then begin
-        FThread := TIdIPWatchThread.Create(True);
-        FThread.FTimerEvent := CheckStatus;
-        FThread.FInterval := FWatchInterval;
-        FThread.Start;
-      end else begin
-        if FThread <> nil then begin
-          FThread.TerminateAndWaitFor;
-          FreeAndNil(FThread);
-        end;
-      end;
+  if IsDesignTime or IsLoading then begin
+    FActive := Value;
+  end
+  else if Value <> FActive then begin
+    if Value then begin
+      FThread := TIdIPWatchThread.Create(True);
+      FThread.FTimerEvent := CheckStatus;
+      FThread.FInterval := FWatchInterval;
+      FThread.Start;
+    end
+    else if FThread <> nil then begin
+      FThread.TerminateAndWaitFor;
+      FreeAndNil(FThread);
     end;
     FActive := Value;
   end;

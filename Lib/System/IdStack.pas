@@ -237,10 +237,14 @@ type
   protected
     FIPVersion: TIdIPVersion;
     FIPAddress: String;
+    FInterfaceName: String;
+    FInterfaceIndex: Integer;
   public
     constructor Create(ACollection: TCollection; const AIPVersion: TIdIPVersion; const AIPAddress: string); reintroduce;
     property IPVersion: TIdIPVersion read FIPVersion;
     property IPAddress: String read FIPAddress;
+    property InterfaceName: String read FInterfaceName;
+    property InterfaceIndex: UInt32 read FInterfaceIndex;
   end;
 
   TIdStackLocalAddressIPv4 = class(TIdStackLocalAddress)
@@ -317,7 +321,7 @@ type
     procedure RaiseLastSocketError;
     procedure RaiseSocketError(AErr: integer); virtual;
     function NewSocketHandle(const ASocketType: TIdSocketType; const AProtocol: TIdSocketProtocol;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const AOverlapped: Boolean = False)
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const ANonBlocking: Boolean = False)
       : TIdStackSocketHandle; virtual; abstract;
     function NetworkToHost(AValue: UInt16): UInt16; overload; virtual; abstract;
     function NetworkToHost(AValue: UInt32): UInt32; overload; virtual; abstract;
@@ -551,6 +555,7 @@ begin
   inherited Create(ACollection);
   FIPVersion := AIPVersion;
   FIPAddress := AIPAddress;
+  FInterfaceIndex := -1;
 end;
 
 constructor TIdStackLocalAddressIPv4.Create(ACollection: TCollection; const AIPAddress, ASubNetMask: string);

@@ -252,7 +252,7 @@ type
   TIdIMAP4DefMech5  = function(ALoginName, AMailBoxName: string; AMailBoxNames: TStrings; AMailBoxFlags: TStrings): Boolean of object;
   TIdIMAP4DefMech6  = function(ALoginName, AMailbox: string; AMessage: TIdMessage): Boolean of object;
   TIdIMAP4DefMech7  = function(ALoginName, ASourceMailBox, AMessageUID, ADestinationMailbox: string): Boolean of object;
-  TIdIMAP4DefMech8  = function(ALoginName, AMailbox: string; AMessage: TIdMessage): integer of object;
+  TIdIMAP4DefMech8  = function(ALoginName, AMailbox: string; AMessage: TIdMessage): Int64 of object;
   TIdIMAP4DefMech9  = function(ALoginName, AMailbox: string; AMessage, ATargetMessage: TIdMessage): Boolean of object;
   TIdIMAP4DefMech10 = function(ALoginName, AMailbox: string; AMessage: TIdMessage; ALines: TStrings): Boolean of object;
   TIdIMAP4DefMech11 = function(ASender: TIdCommand; AReadOnly: Boolean): Boolean of object;
@@ -370,7 +370,7 @@ type
     //The following are used internally by the default mechanism...
     function  ExpungeRecords(ASender: TIdCommand): Boolean;
     function  MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand; AMessageNumbers: TStrings; AMessageSet: string): Boolean;
-    function  GetRecordForUID(const AUID: String; AMailBox: TIdMailBox): Integer;
+    function  GetRecordForUID(const AUID: String; AMailBox: TIdMailBox): Int64;
     procedure ProcessFetch(AUseUID: Boolean; ASender: TIdCommand; AParams: TStrings);
     procedure ProcessCopy(AUseUID: Boolean; ASender: TIdCommand; AParams: TStrings);
     function  ProcessStore(AUseUID: Boolean; ASender: TIdCommand; AParams: TStrings): Boolean;
@@ -702,9 +702,9 @@ function TIdIMAP4Server.MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TI
 or maybe '1:*'}
 var
   LPos: integer;
-  LStart: integer;
-  LN: integer;
-  LEnd: integer;
+  LStart: Int64;
+  LN: Int64;
+  LEnd: Int64;
   LTemp: string;
   LContext: TIdIMAP4PeerContext;
 begin
@@ -716,25 +716,19 @@ begin
     LPos := IndyPos(':', AMessageSet);      {Do not Localize}
     if LPos > 0 then begin
       LTemp := Copy(AMessageSet, 1, LPos-1);
-      LStart := IndyStrToInt(LTemp);
+      LStart := IndyStrToInt64(LTemp);
       LTemp := Copy(AMessageSet, LPos+1, MAXINT);
       if LTemp = '*' then begin  {Do not Localize}
         if AUseUID then begin
-          LEnd := IndyStrToInt(LContext.MailBox.UIDNext)-1;
-          for LN := LStart to LEnd do begin
-            AMessageNumbers.Add(IntToStr(LN));
-          end;
+          LEnd := IndyStrToInt64(LContext.MailBox.UIDNext)-1;
         end else begin
           LEnd := LContext.MailBox.MessageList.Count;
-          for LN := LStart to LEnd do begin
-            AMessageNumbers.Add(IntToStr(LN));
-          end;
         end;
       end else begin
-        LEnd := IndyStrToInt(LTemp);
-        for LN := LStart to LEnd do begin
-          AMessageNumbers.Add(IntToStr(LN));
-        end;
+        LEnd := IndyStrToInt64(LTemp);
+      end;
+      for LN := LStart to LEnd do begin
+        AMessageNumbers.Add(IntToStr(LN));
       end;
     end else begin
       //See is it a comma-separated list...
@@ -752,14 +746,15 @@ begin
 end;
 
 //Return -1 if not found
-function TIdIMAP4Server.GetRecordForUID(const AUID: String; AMailBox: TIdMailBox): Integer;
+function TIdIMAP4Server.GetRecordForUID(const AUID: String; AMailBox: TIdMailBox): Int64;
 var
-  LN, LUID: Integer;
+  LN: Integer;
+  LUID: Int64;
 begin
   // TODO: do string comparisons instead so that conversions are not needed?
-  LUID := IndyStrToInt(AUID);
+  LUID := IndyStrToInt64(AUID);
   for LN := 0 to AMailBox.MessageList.Count-1 do begin
-    if IndyStrToInt(AMailBox.MessageList.Messages[LN].UID) = LUID then begin
+    if IndyStrToInt64(AMailBox.MessageList.Messages[LN].UID) = LUID then begin
       Result := LN;
       Exit;
     end;
@@ -886,8 +881,8 @@ var
   LM: integer;
   LN: integer;
   LLO: integer;
-  LRecord: integer;
-  LSize: integer;
+  LRecord: Int64;
+  LSize: Int64;
   LMessageToCheck, LMessageTemp: TIdMessage;
   LMessageRaw: TStringList;
   LTemp: string;
@@ -915,7 +910,7 @@ begin
             Continue;
           end;
         end else begin
-          LRecord := IndyStrToInt(LMessageNumbers[LN])-1;
+          LRecord := IndyStrToInt64(LMessageNumbers[LN])-1;
         end;
         if (LRecord < 0) or (LRecord > LContext.MailBox.MessageList.Count) then begin
           SendBadReply(ASender, 'Message number %d does not exist', [LRecord+1]); {Do not Localize}
@@ -970,7 +965,7 @@ begin
               end else begin
                 DoSendReply(ASender.Context, '* %d FETCH (RFC822.HEADER {%d}',  {Do not Localize}
                   [LRecord+1, LSize]);
-	      end;
+              end;
               for LM := 0 to LMessageTemp.Headers.Count-1 do begin
                 DoSendReply(ASender.Context, LMessageTemp.Headers.Strings[LM]);
               end;
@@ -995,8 +990,8 @@ begin
                 [LRecord+1, LMessageNumbers[LN], LSize]);
             end else begin
               DoSendReply(ASender.Context, '* %d FETCH (RFC822.SIZE %d)',  {Do not Localize}
-	        [LRecord+1, LSize]);
-	    end;
+                [LRecord+1, LSize]);
+            end;
           end
           else if PosInStrArray(LDataItems[LLO], ['BODY.PEEK[]', 'BODY[]', 'RFC822', 'RFC822.PEEK'], False) <> -1 then   {Do not Localize}
           begin
@@ -1020,7 +1015,7 @@ begin
               end else begin
                 DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s) %s {%d}',  {Do not Localize}
                   [LRecord+1, MessageFlagSetToStr(LMessageToCheck.Flags), LTemp, LSize]);
-	      end;
+              end;
               for LM := 0 to LMessageToCheck.Headers.Count-1 do begin
                 DoSendReply(ASender.Context, LMessageRaw.Strings[LM]);
               end;
@@ -1111,7 +1106,7 @@ begin
       end;
       case LItem of
         0: // FROM   {Do not Localize}
-	  begin
+          begin
             if Pos(UpperCase(LSearchString), UpperCase(LMessageTemp.From.Address)) > 0 then begin
               if AUseUID then begin
                 LHits := LHits + LMessageToCheck.UID + ' ';  {Do not Localize}
@@ -1121,7 +1116,7 @@ begin
             end;
           end;
         1: // TO   {Do not Localize}
-	  begin
+          begin
             for LM := 0 to LMessageTemp.Recipients.Count-1 do begin
               if Pos(UpperCase(LSearchString), UpperCase(LMessageTemp.Recipients.Items[LM].Address)) > 0 then begin
                 if AUseUID then begin
@@ -1182,7 +1177,7 @@ procedure TIdIMAP4Server.ProcessCopy(AUseUID: Boolean; ASender: TIdCommand; APar
 var
   LMessageNumbers: TStringList;
   LN: Integer;
-  LRecord: integer;
+  LRecord: Int64;
   LResult: Boolean;
   LContext: TIdIMAP4PeerContext;
 begin
@@ -1216,10 +1211,10 @@ begin
       if AUseUID then begin
         LRecord := GetRecordForUID(LMessageNumbers[LN], LContext.MailBox);
         if LRecord = -1 then begin //It is OK to skip non-existent UID records
-	  Continue;
-	end;
+          Continue;
+        end;
       end else begin
-        LRecord := IndyStrToInt(LMessageNumbers[LN])-1;
+        LRecord := IndyStrToInt64(LMessageNumbers[LN])-1;
       end;
       if (LRecord < 0) or (LRecord >= LContext.MailBox.MessageList.Count) then begin
         LResult := False;
@@ -1248,7 +1243,7 @@ var
   LFlagList: TStringList;
   LN: integer;
   LM: integer;
-  LRecord: integer;
+  LRecord: Int64;
   LFlag: integer;
   LTemp: string;
   LStoreMethod: TIdIMAP4StoreDataItem;
@@ -1308,7 +1303,7 @@ begin
             Continue;
           end;
         end else begin
-          LRecord := IndyStrToInt(LMessageNumbers[LN])-1;
+          LRecord := IndyStrToInt64(LMessageNumbers[LN])-1;
         end;
         if (LRecord < 0) or (LRecord > LContext.MailBox.MessageList.Count) then begin
           SendBadReply(ASender, 'Message number %d does not exist', [LRecord+1]); {Do not Localize}
@@ -1595,7 +1590,7 @@ begin
     sacrafice interoperability over security.  It comes down to sensible administrative
     judgement.
     }
-    if (FUseTLS = utUseRequireTLS) and (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then begin
+    if (FUseTLS = utUseRequireTLS) and (not TIdIMAP4PeerContext(ASender.Context).UsingTLS) then begin
       MustUseTLS(ASender);
     end else begin
       OnCommandAUTHENTICATE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).IMAP4Tag, ASender.UnparsedParams);
@@ -1625,7 +1620,7 @@ begin
     sacrafice interoperability over security.  It comes down to sensible administrative
     judgement.
     }
-    if (FUseTLS = utUseRequireTLS) and (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then begin
+    if (FUseTLS = utUseRequireTLS) and (not TIdIMAP4PeerContext(ASender.Context).UsingTLS) then begin
       MustUseTLS(ASender);
     end else begin
       OnCommandLOGIN(ASender.Context, LContext.IMAP4Tag, ASender.UnparsedParams);
@@ -2221,7 +2216,7 @@ var
   LParams: TStringList;
   LParams2: TStringList;
   LFlagsList: TStringList;
-  LSize: integer;
+  LSize: Int64;
   LFlags, LInternalDateTime: string;
   LN: integer;
   LMessage: TIdMessage;
@@ -2298,7 +2293,7 @@ begin
       SendBadReply(ASender, 'Size parameter is invalid.'); {Do not Localize}
       Exit;
     end;
-    LSize := IndyStrToInt(Copy(LTemp, 2, Length(LTemp)-2));
+    LSize := IndyStrToInt64(Copy(LTemp, 2, Length(LTemp)-2));
     //Grab the next UID...
     LUID := OnDefMechGetNextFreeUID(LContext.LoginName, LParams[0]);
     //Get the message...
@@ -2352,7 +2347,7 @@ begin
         end;
       end;
       //Update the next free UID in the .uid file...
-      OnDefMechUpdateNextFreeUID(LContext.LoginName, LContext.MailBox.Name, IntToStr(IndyStrToInt(LUID)+1));
+      OnDefMechUpdateNextFreeUID(LContext.LoginName, LContext.MailBox.Name, IntToStr(IndyStrToInt64(LUID)+1));
       // TODO: implement this
       {
       if LInternalDateTime <> '' then
@@ -2705,7 +2700,7 @@ begin
   end;
   // TODO: STARTTLS may only be issued in auth-state
   DoSendReply(ASender.Context, 'OK %s', [RSIMAP4SvrBeginTLSNegotiation]);  {do not localize}
-  (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).Passthrough := False;
+  (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
 end;
 
 end.

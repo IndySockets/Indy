@@ -300,7 +300,8 @@ begin
       // Bind is may be 0.0.0.0 (INADDR_ANY). After connect it will be a real IP.
       UpdateBindingLocal;
       //TODO: Could Peer binding ever be other than what we specified above?
-      // Need to reread it?
+      // Need to reread it? If not, call SetPeer() here...
+      // SetPeer(PeerIP, PeerPort, FIPVersion);
       UpdateBindingPeer;
     end;
   finally
@@ -409,10 +410,22 @@ begin
     if (FClientPortMin > FClientPortMax) then begin
       raise EIdInvalidPortRange.CreateFmt(RSInvalidPortRange, [FClientPortMin, FClientPortMax]);
     end else if not BindPortReserved then begin
+      // TODO: skip BindPortReserved() and call GStack.Bind() directly so the
+      // Exception.InnerException property can be set to report the real reason
+      // why the port cannot be bound...
       raise EIdCanNotBindPortInRange.CreateFmt(RSCannotBindRange, [FClientPortMin, FClientPortMax]);
     end;
-  end else if not TryBind(Port) then begin
-    raise EIdCouldNotBindSocket.Create(RSCouldNotBindSocket);
+  end else {if not TryBind(Port) then} begin
+    // RLebeau 1/8/2019: skipping TryBind() and calling GStack.Bind() directly so
+    // the Exception.InnerException property can be set to report the real reason
+    // why the port cannot be bound...
+    //raise EIdCouldNotBindSocket.Create(RSCouldNotBindSocket);
+    try
+      GStack.Bind(Handle, FIP, Port, FIPVersion);
+      UpdateBindingLocal;
+    except
+      IndyRaiseOuterException(EIdCouldNotBindSocket.Create(RSCouldNotBindSocket));
+    end;
   end;
 end;
 
@@ -507,9 +520,14 @@ begin
   LAcceptedSocket := GStack.Accept(ASocket, LIP, LPort);
   Result := (LAcceptedSocket <> Id_INVALID_SOCKET);
   if Result then begin
+    // TODO: do we need to lock FConnectionHandle here, like Connect() does?
     SetHandle(LAcceptedSocket);
     // UpdateBindingLocal is necessary as it may be listening on multiple IPs/Ports
     UpdateBindingLocal;
+    //TODO: Could Peer binding ever be other than what we receive above?
+    // Need to reread it? If not, use the Accept() overload that returns IPVersion
+    // as well, and then call SetPeer() here...
+    // SetPeer(LIP, LPort, LIPVersion);
     UpdateBindingPeer;
   end;
 end;

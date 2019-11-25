@@ -383,12 +383,17 @@ begin
       end;
     end;
   end;
-  {$IFDEF STRING_IS_ANSI}
+  {$IFDEF STRING_IS_UNICODE}
+  Result := AByteEncoding.GetString(LBytes);
+  {$ELSE}
   EnsureEncoding(ADestEncoding, encOSDefault);
   CheckByteEncoding(LBytes, AByteEncoding, ADestEncoding);
   SetString(Result, PAnsiChar(LBytes), Length(LBytes));
-  {$ELSE}
-  Result := AByteEncoding.GetString(LBytes);
+    {$IFDEF HAS_SetCodePage}
+  // on compilers that support AnsiString codepages,
+  // set the string's codepage to match ADestEncoding...
+  SetCodePage(PRawByteString(@Result)^, GetEncodingCodePage(ADestEncoding), False);
+    {$ENDIF}
   {$ENDIF}
 end;
 

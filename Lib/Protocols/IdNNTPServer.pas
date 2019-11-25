@@ -2091,7 +2091,6 @@ end;
 
 procedure TIdNNTPServer.CommandSTARTTLS(ASender: TIdCommand);
 var
-  LIO : TIdSSLIOHandlerSocketBase;
   LContext: TIdNNTPContext;
 begin
   LContext := TIdNNTPContext(ASender.Context);
@@ -2099,8 +2098,7 @@ begin
     if not LContext.UsingTLS then begin
       ASender.Reply.NumericCode := 382;
       ASender.SendReply;
-      LIO := (LContext.Connection.IOHandler as TIdSSLIOHandlerSocketBase);
-      LIO.Passthrough := False;
+      (LContext.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
       //reset the connection state as required by http://www.ietf.org/internet-drafts/draft-ietf-nntpext-tls-nntp-00.txt
       LContext.FUserName := '';  {do not localize}
       LContext.FPassword := '';  {do not localize}

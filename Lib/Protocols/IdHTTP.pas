@@ -1610,6 +1610,13 @@ var
           begin
             LSize := LIndex + Length(LMIMEBoundary);
             if Assigned(LS) then begin
+              // TODO: use TIdBuffer.ExtractToStream() instead, bypassing the
+              // overhead of TIdIOHandler.ReadStream() allocating a local buffer
+              // and calling IOHandler.ReadBytes() to fill that buffer in even
+              // multiples of the IOHandler's RecvBufferSize. The data we want
+              // is already in the Buffer's memory, so just read it directly...
+              //
+              // IOHandler.InputBuffer.ExtractToStream(LS, LSize);
               IOHandler.ReadStream(LS, LSize);
             end else begin
               IOHandler.Discard(LSize);
@@ -1620,6 +1627,13 @@ var
           LSize := IOHandler.InputBuffer.Size - (Length(LMIMEBoundary)-1);
           if LSize > 0 then begin
             if Assigned(LS) then begin
+              // TODO: use TIdBuffer.ExtractToStream() instead, bypassing the
+              // overhead of TIdIOHandler.ReadStream() allocating a local buffer
+              // and calling IOHandler.ReadBytes() to fill that buffer in even
+              // multiples of the IOHandler's RecvBufferSize. The data we want
+              // is already in the Buffer's memory, so just read it directly...
+              //
+              // IOHandler.InputBuffer.ExtractToStream(LS, LSize);
               IOHandler.ReadStream(LS, LSize);
             end else begin
               IOHandler.Discard(LSize);

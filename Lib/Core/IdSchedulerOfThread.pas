@@ -215,12 +215,14 @@ end;
 procedure TIdSchedulerOfThread.TerminateYarn(AYarn: TIdYarn);
 var
   LYarn: TIdYarnOfThread;
+  LThread: TIdThreadWithTask;
 begin
   Assert(AYarn<>nil);
   LYarn := TIdYarnOfThread(AYarn);
-  if (LYarn.Thread <> nil) and (not LYarn.Thread.Suspended) then begin
+  LThread := LYarn.Thread;
+  if (LThread <> nil) and (not LThread.Suspended) then begin
     // Is still running and will free itself
-    LYarn.Thread.Stop;
+    LThread.Stop;
     // Dont free the yarn. The thread frees it (IdThread.pas)
   end else
   begin

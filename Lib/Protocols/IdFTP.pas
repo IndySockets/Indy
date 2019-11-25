@@ -1798,7 +1798,7 @@ begin
           try
             if FDataChannel <> nil then begin
               if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-                TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+                TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
               end;
               if Assigned(LCompressor) then begin
                 LCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
@@ -1990,7 +1990,7 @@ begin
         begin
           if LPasvCl <> nil then begin
             if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-              TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+              TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
             end;
             if Assigned(LCompressor) then begin
               LCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
@@ -3020,7 +3020,10 @@ begin
       if FUseCCC then begin
         FUsingCCC := (SendCmd('CCC') div 100) = 2; {do not localize}
         if FUsingCCC then begin
-         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
+          (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
+          // TODO: uncomment this? Reinitialize() resets them after setting PassThrough=True...
+          {FUsingSFTP := False;
+          FUseCCC := False;}
         end;
       end;
     end;

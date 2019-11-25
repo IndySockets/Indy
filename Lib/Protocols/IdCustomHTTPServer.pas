@@ -1895,7 +1895,7 @@ begin
     // which charset to use for decoding query string parameters.  We
     // should not be using the 'Content-Type' charset for that.  For
     // 'application/x-www-form-urlencoded' forms, we should be, though...
-    LEncoding := CharsetToEncoding(CharSet);
+    LEncoding := CharsetToEncoding(CharSet);//IndyTextEncoding_UTF8;
     i := 1;
     while i <= Length(AValue) do
     begin
@@ -2514,7 +2514,7 @@ end;
 
 constructor TIdHTTPSessionCleanerThread.Create(SessionList: TIdHTTPCustomSessionList);
 begin
-  inherited Create(false);
+  inherited Create(False);
   // thread priority used to be set to tpIdle but this is not supported
   // under DotNet. How low do you want to go?
   IndySetThreadPriority(Self, tpLowest);

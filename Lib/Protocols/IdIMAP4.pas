@@ -5722,7 +5722,7 @@ begin
         Dec(LBracketLevel);
         if LBracketLevel = 0 then begin
           LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
-          AParams.Add(LParamater);
+          AParams.Add(ResolveQuotedSpecials(LParamater));
           LInPart := 0;
         end;
       end;
@@ -5833,7 +5833,7 @@ begin
             end else begin
               LParamater := Copy(APartString, LStartPos+1, Ln-LStartPos-1);
             end;
-            AParams.Add(LParamater);
+            AParams.Add(ResolveQuotedSpecials(LParamater));
             LInPart := 0;
           end;
         end;
@@ -5875,7 +5875,7 @@ begin
       if (not AKeepBrackets) and TextEndsWith(LParamater, ')') then begin    {Do not Localize}
         LParamater := Copy(LParamater, 1, Length(LParamater)-1);
       end;
-      AParams.Add(LParamater);
+      AParams.Add(ResolveQuotedSpecials(LParamater));
     end else if LInPart = 1 then begin
       LParamater := Copy(APartString, LStartPos+1, MaxInt);
       if TextEndsWith(LParamater, '"') then begin    {Do not Localize}

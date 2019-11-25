@@ -1647,6 +1647,7 @@ begin
               raise EIdDnsResolverError.Create(GetErrorStr(2,3));
             end;
           end else begin
+            // TODO: use EIdNotEnoughData instead?
             raise EIdDnsResolverError.Create(RSDNSTimeout);
           end;
         finally
@@ -1696,6 +1697,7 @@ begin
               raise EIdDnsResolverError.Create(GetErrorStr(2,3));
             end;
           end else begin
+            // TODO: use EIdNotEnoughData instead?
             raise EIdDnsResolverError.Create(RSDNSTimeout);
           end;
         finally
@@ -1739,13 +1741,17 @@ begin
     PlainTextResult := LResult;
 
     if BytesReceived > 4 then begin
-      // TODO: if the response has the TrunCation flag set, retry the query
+      // TODO: if the response has the Truncation flag set, retry the query
       // in TCP to handle larger responses...
       FillResult(LResult);
       if QueryResult.Count = 0 then begin
         raise EIdDnsResolverError.Create(GetErrorStr(2,3));
       end;
     end else begin
+      // TODO: differentiate between a true Timeout versus a too-small response
+      {if BytesReceived > 0 then begin
+        raise EIdNotEnoughData.Create('');
+      end;}
       raise EIdDnsResolverError.Create(RSDNSTimeout);
     end;
   end;

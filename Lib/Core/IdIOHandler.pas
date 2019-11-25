@@ -1230,10 +1230,15 @@ begin
   if AReadLinesCount < 0 then begin
     AReadLinesCount := ReadInt32;
   end;
-  for i := 0 to AReadLinesCount - 1 do begin
-    ADest.Add(ReadLn(AByteEncoding
-      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-      ));
+  ADest.BeginUpdate;
+  try
+    for i := 0 to AReadLinesCount - 1 do begin
+      ADest.Add(ReadLn(AByteEncoding
+        {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
+        ));
+    end;
+  finally
+    ADest.EndUpdate;
   end;
 end;
 
@@ -1682,6 +1687,12 @@ begin
   if SourceIsAvailable then begin
     repeat
       LByteCount := 0;
+      // TODO: move the handling of Readable() into ReadDataFromSource() of descendant
+      // classes. For a plain socket, it makes sense to check for readability before
+      // attempting to read. Or just perform a blocking read w/ timeout applied. But for
+      // OpenSSL, you are not really supposed to check for readability first!  You are
+      // supposed to attempt to read first, and then wait for new data w/ timeout only
+      // if OpenSSL explicitly asks you to do so after the read fails...
       if Readable(ATimeout) then begin
         if Opened then begin
           // No need to call AntiFreeze, the Readable does that.
@@ -1776,6 +1787,9 @@ begin
     // return whether at least 1 byte was received
     Result := (InputBuffer.Size > LPrevSize) or (ReadFromSource(False, ATimeout, False) > 0);
   end;
+  // TODO: since Connected() just calls ReadFromSource() anyway, maybe just
+  // call ReadFromSource() by itself and not call Connected() at all?
+  // Result := ReadFromSource(False, ATimeout, False) > 0;
 end;
 
 procedure TIdIOHandler.Write(AStream: TStream; ASize: TIdStreamSize = 0;
@@ -1789,7 +1803,7 @@ begin
   // TODO: when AWriteByteCount is false, don't calculate the Size, just keep
   // sending data until the end of stream is reached.  This way, we can send
   // streams that are not able to report accurate Size values...
-  
+
   if ASize < 0 then begin //"-1" All from current position
     LStreamPos := AStream.Position;
     ASize := AStream.Size - LStreamPos;
@@ -1983,12 +1997,29 @@ end;
 procedure TIdIOHandler.ReadStream(AStream: TStream; AByteCount: TIdStreamSize;
   AReadUntilDisconnect: Boolean);
 var
-  i: Integer;
-  LBuf: TIdBytes;
   LByteCount, LPos: TIdStreamSize;
   {$IFNDEF STREAM_SIZE_64}
   LTmp: Int64;
   {$ENDIF}
+
+  procedure CheckInputBufferForData;
+  var
+    i: Integer;
+  begin
+    i := FInputBuffer.Size;
+    if i > 0 then begin
+      if not AReadUntilDisconnect then begin
+        i := IndyMin(FInputBuffer.Size, LByteCount);
+        Dec(LByteCount, i);
+      end;
+      if AStream <> nil then begin
+        FInputBuffer.ExtractToStream(AStream, i);
+      end else begin
+        FInputBuffer.Remove(i);
+      end;
+    end;
+  end;
+
 const
   cSizeUnknown = -1;
 begin
@@ -1998,6 +2029,8 @@ begin
       {$IFDEF STREAM_SIZE_64}
       LByteCount := ReadInt64;
       {$ELSE}
+      // TODO: if the peer is sending more than 2GB of data, don't fail
+      // here, just read it all in a loop until finished...
       LTmp := ReadInt64;
       if LTmp > MaxInt then begin
         raise EIdIOHandlerStreamDataTooLarge.Create(RSDataTooLarge);
@@ -2034,85 +2067,35 @@ begin
 
   try
     // If data already exists in the buffer, write it out first.
-    // should this loop for all data in buffer up to workcount? not just one block?
-    if FInputBuffer.Size > 0 then begin
-      if AReadUntilDisconnect then begin
-        i := FInputBuffer.Size;
-      end else begin
-        i := IndyMin(FInputBuffer.Size, LByteCount);
-        Dec(LByteCount, i);
-      end;
-      if AStream <> nil then begin
-        FInputBuffer.ExtractToStream(AStream, i);
-      end else begin
-        FInputBuffer.Remove(i);
-      end;
-    end;
+    CheckInputBufferForData;
 
-    // RLebeau - don't call Connected() here!  ReadBytes() already
-    // does that internally. Calling Connected() here can cause an
+    // RLebeau - don't call Connected() here!  It can cause an
     // EIdConnClosedGracefully exception that breaks the loop
     // prematurely and thus leave unread bytes in the InputBuffer.
-    // Let the loop catch the exception before exiting...
+    // Let the loop handle disconnects before exiting...
 
-    SetLength(LBuf, RecvBufferSize); // preallocate the buffer
-    repeat
-      if AReadUntilDisconnect then begin
-        i := Length(LBuf);
-      end else begin
-        i := IndyMin(LByteCount, Length(LBuf));
-        if i < 1 then begin
-          Break;
-        end;
-      end;
+    // RLebeau 5/21/2019: rewritting this method to no longer use
+    // ReadBytes(), to avoid side-effects of an FMX issue with catching
+    // and reraising exceptions here during TIdFTP data transfers on iOS,
+    // per this blog:
+    //
+    // https://www.delphiworlds.com/2013/10/fixing-tidftp-for-ios-devices/
+    //
+    // Besides, using ReadBytes() with exception handling here was always
+    // an ugly hack that we wanted to get rid of anyway, now its gone...
 
-      //TODO: Improve this - dont like the use of the exception handler
-      //DONE -oAPR: Dont use a string, use a memory buffer or better yet the buffer itself.
-
-      //TODO: Don't use ReadBytes() here. It is just a waste of memory. Use
-      //ReadFromSource() directly to populate the InputBuffer (ReadBytes()
-      //would have done that anyway) and then use InputBuffer.ExtractToStream()
-      //to copy directly into the TStream. We don't really need another memory
-      //buffer here...
-
+    while AReadUntilDisconnect or (LByteCount > 0) do begin
       try
-        try
-          ReadBytes(LBuf, i, False);
-        except
-          on E: Exception do begin
-            // RLebeau - ReadFromSource() inside of ReadBytes()
-            // could have filled the InputBuffer with more bytes
-            // than actually requested, so don't extract too
-            // many bytes here...
-            i := IndyMin(i, FInputBuffer.Size);
-            FInputBuffer.ExtractToBytes(LBuf, i, False);
-            if AReadUntilDisconnect then begin
-              if E is EIdConnClosedGracefully then begin
-                Exit;
-              end
-              else if E is EIdSocketError then begin
-                case EIdSocketError(E).LastError of
-                  Id_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET: begin
-                    Exit;
-                  end;
-                end;
-              end;
-            end;
-            raise;
-          end;
+        // Read from stack to get more data
+        if ReadFromSource(not AReadUntilDisconnect) < 1 then begin
+          CheckForDisconnect(False);
+          Break;
         end;
         TIdAntiFreezeBase.DoProcess;
       finally
-        if i > 0 then begin
-          if AStream <> nil then begin
-            TIdStreamHelper.Write(AStream, LBuf, i);
-          end;
-          if not AReadUntilDisconnect then begin
-            Dec(LByteCount, i);
-          end;
-        end;
+        CheckInputBufferForData;
       end;
-    until False;
+    end;
   finally
     EndWork(wmRead);
     if AStream <> nil then begin
@@ -2120,7 +2103,6 @@ begin
         AStream.Size := AStream.Position;
       end;
     end;
-    LBuf := nil;
   end;
 end;
 
@@ -2296,37 +2278,46 @@ begin
 
   BeginWork(wmRead);
   try
-    repeat
-      s := ReadLn(AByteEncoding
-        {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
-        );
-      if s = ADelim then begin
-        Exit;
-      end;
-      // S.G. 6/4/2004: All the consumers to protect themselves against memory allocation attacks
-      if FMaxCapturedLines > 0 then  begin
-        if VLineCount > FMaxCapturedLines then begin
-          raise EIdMaxCaptureLineExceeded.Create(RSMaximumNumberOfCaptureLineExceeded);
-        end;
-      end;
-      // For RFC retrieves that use dot transparency
-      // No length check necessary, if only one byte it will be byte x + #0.
-      if AUsesDotTransparency then begin
-        if TextStartsWith(s, '..') then begin
-          Delete(s, 1, 1);
-        end;
-      end;
-      // Write to output
-      Inc(VLineCount);
-      if LStrings <> nil then begin
-        LStrings.Add(s);
-      end
-      else if LStream <> nil then begin
-        WriteStringToStream(LStream, s+EOL, AByteEncoding
+    if LStrings <> nil then begin
+      LStrings.BeginUpdate;
+    end;
+    try
+      repeat
+        s := ReadLn(AByteEncoding
           {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
           );
+        if s = ADelim then begin
+          Exit;
+        end;
+        // S.G. 6/4/2004: All the consumers to protect themselves against memory allocation attacks
+        if FMaxCapturedLines > 0 then  begin
+          if VLineCount > FMaxCapturedLines then begin
+            raise EIdMaxCaptureLineExceeded.Create(RSMaximumNumberOfCaptureLineExceeded);
+          end;
+        end;
+        // For RFC retrieves that use dot transparency
+        // No length check necessary, if only one byte it will be byte x + #0.
+        if AUsesDotTransparency then begin
+          if TextStartsWith(s, '..') then begin
+            Delete(s, 1, 1);
+          end;
+        end;
+        // Write to output
+        Inc(VLineCount);
+        if LStrings <> nil then begin
+          LStrings.Add(s);
+        end
+        else if LStream <> nil then begin
+          WriteStringToStream(LStream, s+EOL, AByteEncoding
+            {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
+            );
+        end;
+      until False;
+    finally
+      if LStrings <> nil then begin
+        LStrings.EndUpdate;
       end;
-    until False;
+    end;
   finally
     EndWork(wmRead);
   end;

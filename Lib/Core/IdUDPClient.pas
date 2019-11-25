@@ -223,10 +223,9 @@ function TIdUDPClient.Connected: Boolean;
 begin
   Result := FConnected;
   if Result then begin
-    if Assigned(FBinding) then begin
+    Result := Assigned(FBinding);
+    if Result then begin
       Result := FBinding.HandleAllocated;
-    end else begin
-      Result := False;
     end;
   end;
 end;

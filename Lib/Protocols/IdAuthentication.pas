@@ -375,11 +375,11 @@ begin
         FCharset := LParams.Values['encoding']; // draft-reschke-basicauth-enc-04
         if FCharset = '' then begin
           FCharset := LParams.Values['enc']; // I saw this mentioned in a Mozilla bug report, and apparently Opera supports it
-        end;
-        if FCharset = '' then begin
-          // TODO: check the user's input and encode using ISO-8859-1 only if
-          // the characters will actually fit, otherwise use UTF-8 instead?
-          FCharset := 'ISO-8859-1';
+          if FCharset = '' then begin
+            // TODO: check the user's input and encode using ISO-8859-1 only if
+            // the characters will actually fit, otherwise use UTF-8 instead?
+            FCharset := 'ISO-8859-1';
+          end;
         end;
       end;
     end;
