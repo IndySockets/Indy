@@ -954,21 +954,31 @@
   {$ENDIF}
   // TODO: map Pulsar's non-Windows platform defines...
   {$IFDEF VCL_XE2_OR_ABOVE}
-    {$IFDEF CPU386}
-      //any 32-bit CPU
-      {$DEFINE CPU32}
-      //Intel 386 compatible chip architecture
-      {$DEFINE CPUI386}
-    {$ENDIF}
-    {$IFDEF CPUX86}
-      {$DEFINE CPU32}
-    {$ENDIF}
-    {$IFDEF CPUX64}
-      //any 64-bit CPU
-      {$DEFINE CPU64}
-      //AMD64 compatible chip architecture
-      {$DEFINE CPUX86_64}  //historical name for AMD64
-      {$DEFINE CPUAMD64}
+    {$IFDEF VCL_XE8_OR_ABOVE}
+      {$IFDEF CPU32BITS}
+        //any 32-bit CPU
+        {$DEFINE CPU32}
+      {$ENDIF}
+      {$IFDEF CPU64BITS}
+        {$DEFINE CPU64}
+      {$ENDIF}
+    {$ELSE}
+      {$IFDEF CPU386}
+        //any 32-bit CPU
+        {$DEFINE CPU32}
+        //Intel 386 compatible chip architecture
+        {$DEFINE CPUI386}
+      {$ENDIF}
+      {$IFDEF CPUX86}
+        {$DEFINE CPU32}
+      {$ENDIF}
+      {$IFDEF CPUX64}
+        //any 64-bit CPU
+        {$DEFINE CPU64}
+        //AMD64 compatible chip architecture
+        {$DEFINE CPUX86_64}  //historical name for AMD64
+        {$DEFINE CPUAMD64}
+      {$ENDIF}
     {$ENDIF}
   {$ELSE}
     {$IFNDEF DOTNET}
