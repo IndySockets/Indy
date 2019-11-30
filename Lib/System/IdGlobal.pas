@@ -7503,7 +7503,7 @@ function LocalDateTimeToHttpStr(const Value: TDateTime) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := DateTimeGMTToHttpStr(
-    {IFDEF HAS_LocalTimeToUniversal}
+    {$IFDEF HAS_LocalTimeToUniversal}
     LocalTimeToUniversal(Value)
     {$ELSE}
     Value - OffsetFromUTC
