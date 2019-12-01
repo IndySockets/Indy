@@ -2913,6 +2913,34 @@ begin
   Create(CodePage, 0, 0);
 end;
 
+{$IFDEF WINDOWS}
+  // TODO: move this into IdCompilerDefines.inc?
+  {$IFDEF DCC}
+    {$IFDEF VCL_2009_OR_ABOVE}
+      {$DEFINE HAS_GetCPInfoEx}
+    {$ELSE}
+      {$UNDEF HAS_GetCPInfoEx}
+    {$ENDIF}
+  {$ELSE}
+    // TODO: when was GetCPInfoEx() added to FreePascal?
+    {$DEFINE HAS_GetCPInfoEx}
+  {$ENDIF}
+
+  {$IFNDEF HAS_GetCPInfoEx}
+type
+  TCPInfoEx = record
+    MaxCharSize: UINT;                       { max length (bytes) of a char }
+    DefaultChar: array[0..MAX_DEFAULTCHAR - 1] of Byte; { default character }
+    LeadByte: array[0..MAX_LEADBYTES - 1] of Byte;      { lead byte ranges }
+    UnicodeDefaultChar: WideChar;
+    Codepage: UINT;
+    CodePageName: array[0..MAX_PATH -1] of {$IFDEF UNICODE}WideChar{$ELSE}AnsiChar{$ENDIF};
+  end;
+
+function GetCPInfoEx(CodePage: UINT; dwFlags: DWORD; var lpCPInfoEx: TCPInfoEx): BOOL; stdcall; external 'KERNEL32' name {$IFDEF UNICODE}'GetCPInfoExW'{$ELSE}'GetCPInfoExA'{$ENDIF};
+  {$ENDIF}
+{$ENDIF}
+
 constructor TIdMBCSEncoding.Create(CodePage, MBToWCharFlags, WCharToMBFlags: Integer);
 {$IFNDEF WINDOWS}
 const
@@ -8494,6 +8522,7 @@ begin
     // set the string's codepage to match ADestEncoding...
     SetCodePage(PRawByteString(@Result)^, GetEncodingCodePage(ADestEncoding), False);
       {$ENDIF}
+    {$ENDIF}
   end else begin
     Result := '';
   end;
