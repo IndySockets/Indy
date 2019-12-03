@@ -1422,6 +1422,9 @@
     {$DEFINE HAS_UInt16}
     {$DEFINE HAS_Int32}
     {$DEFINE HAS_UInt32}
+    {$DEFINE HAS_GetLocalTimeOffset}
+    {$DEFINE HAS_UniversalTimeToLocal}
+    {$DEFINE HAS_LocalTimeToUniversal}
   {$ENDIF}
   {$IFDEF FPC_2_6_4_OR_ABOVE}
     {$DEFINE HAS_PInt8}
@@ -1441,9 +1444,6 @@
   {$IFDEF FPC_3_1_1_OR_ABOVE}
     {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
   {$ENDIF}
-  {$DEFINE HAS_GetLocalTimeOffset} // TODO: when was GetLocalTimeOffset() introduced?
-  {$DEFINE HAS_UniversalTimeToLocal} // TODO: when was UniversalTimeToLocal() introduced?
-  {$DEFINE HAS_LocalTimeToUniversal} // TODO: when was LocalTimeToUniversal() introduced?
 {$ENDIF}
 
 {$IFDEF DOTNET}
