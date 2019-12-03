@@ -215,20 +215,21 @@ begin
     end;
 
     for i := 0 to Bindings.Count - 1 do begin
-    try
-      LBinding := Bindings[i];
-      LBinding.AllocateSocket(Id_SOCK_DGRAM);
-      // do not overwrite if the default. This allows ReuseSocket to be set per binding
-      if FReuseSocket <> rsOSDependent then begin
-        LBinding.ReuseSocket := FReuseSocket;
+      try
+        LBinding := Bindings[i];
+        LBinding.AllocateSocket(Id_SOCK_DGRAM);
+        // do not overwrite if the default. This allows ReuseSocket to be set per binding
+        if FReuseSocket <> rsOSDependent then begin
+          LBinding.ReuseSocket := FReuseSocket;
+        end;
+        DoBeforeBind(LBinding);
+        LBinding.Bind;
+        LBinding.AddMulticastMembership(FMulticastGroup);
+        if not Assigned(FCurrentBinding) then begin
+          FCurrentBinding := LBinding;
+        end;
+      except
       end;
-      DoBeforeBind(LBinding);
-      LBinding.Bind;
-      LBinding.AddMulticastMembership(FMulticastGroup);
-      if not Assigned(FCurrentBinding) then begin
-        FCurrentBinding := LBinding;
-      end;
-    except
     end;
 
     DoAfterBind;
@@ -243,7 +244,7 @@ end;
 
 function TIdIPMCastClient.GetDefaultPort: integer;
 begin
-  result := FBindings.DefaultPort;
+  Result := FBindings.DefaultPort;
 end;
 
 procedure TIdIPMCastClient.PacketReceived(const AData: TIdBytes; ABinding: TIdSocketHandle);
