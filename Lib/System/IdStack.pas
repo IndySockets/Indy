@@ -238,7 +238,7 @@ type
     FIPVersion: TIdIPVersion;
     FIPAddress: String;
     FInterfaceName: String;
-    FInterfaceIndex: Integer;
+    FInterfaceIndex: UInt32;
   public
     constructor Create(ACollection: TCollection; const AIPVersion: TIdIPVersion; const AIPAddress: string); reintroduce;
     property IPVersion: TIdIPVersion read FIPVersion;
@@ -555,7 +555,7 @@ begin
   inherited Create(ACollection);
   FIPVersion := AIPVersion;
   FIPAddress := AIPAddress;
-  FInterfaceIndex := -1;
+  FInterfaceIndex := 0;
 end;
 
 constructor TIdStackLocalAddressIPv4.Create(ACollection: TCollection; const AIPAddress, ASubNetMask: string);
