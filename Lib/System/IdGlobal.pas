@@ -920,6 +920,12 @@ type
   PPIdAnsiChar = ^PIdAnsiChar;
   {$ENDIF}
 
+  {$IFDEF HAS_SetCodePage}
+    {$IFNDEF HAS_PRawByteString}
+    PRawByteString = ^RawByteString;
+    {$ENDIF}
+  {$ENDIF}
+
   {$IFDEF STRING_IS_UNICODE}
   TIdWideChar = Char;
   PIdWideChar = PChar;

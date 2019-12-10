@@ -1443,6 +1443,7 @@
   {$ENDIF}
   {$IFDEF FPC_3_1_1_OR_ABOVE}
     {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
+    {$DEFINE HAS_PRawByteString}
   {$ENDIF}
 {$ENDIF}
 
