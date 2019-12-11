@@ -1056,10 +1056,11 @@ end;
 
 function TIdStackUnix.WouldBlock(const AResult: Integer): Boolean;
 begin
-  if (AResult = Id_WSAEAGAIN) or (AResult = Id_WSAEWOULDBLOCK) or (AResult = Id_WSAEINPROGRESS) then
-    Result := True
-  else
-    Result := False;
+  // using if-else instead of in..range because EAGAIN and EWOULDBLOCK
+  // have often the same value and so FPC might report a range error
+  Result := (AResult = Id_WSAEAGAIN) or
+            (AResult = Id_WSAEWOULDBLOCK) or
+            (AResult = Id_WSAEINPROGRESS);
 end;
 
 function TIdStackUnix.SupportsIPv4: Boolean;
