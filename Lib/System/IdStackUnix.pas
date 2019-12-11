@@ -221,6 +221,7 @@ implementation
 uses
   netdb,
   unix,
+  termio,
   IdResourceStrings,
   IdResourceStringsUnix,
   IdException,
@@ -1055,7 +1056,10 @@ end;
 
 function TIdStackUnix.WouldBlock(const AResult: Integer): Boolean;
 begin
-  Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
+  if (AResult = Id_WSAEAGAIN) or (AResult = Id_WSAEWOULDBLOCK) or (AResult = Id_WSAEINPROGRESS) then
+    Result := True
+  else
+    Result := False;
 end;
 
 function TIdStackUnix.SupportsIPv4: Boolean;

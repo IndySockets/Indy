@@ -554,6 +554,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_WSAEFAULT          = EFAULT;
   Id_WSAEINVAL          = EINVAL;
   Id_WSAEMFILE          = EMFILE;
+  Id_WSAEAGAIN          = EAGAIN;
   Id_WSAEWOULDBLOCK     = EWOULDBLOCK;
   Id_WSAEINPROGRESS     = EINPROGRESS;
   Id_WSAEALREADY        = EALREADY;
@@ -600,6 +601,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_WSAEFAULT          = EFAULT;
   Id_WSAEINVAL          = EINVAL;
   Id_WSAEMFILE          = EMFILE;
+  Id_WSAEAGAIN          = EAGAIN;
   Id_WSAEWOULDBLOCK     = EWOULDBLOCK;
   Id_WSAEINPROGRESS     = EINPROGRESS;
   Id_WSAEALREADY        = EALREADY;
@@ -658,6 +660,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_WSAEFAULT          = ESysEFAULT;
   Id_WSAEINVAL          = ESysEINVAL;
   Id_WSAEMFILE          = ESysEMFILE;
+  Id_WSAEAGAIN          = ESysEAGAIN;
   Id_WSAEWOULDBLOCK     = ESysEWOULDBLOCK;
   Id_WSAEINPROGRESS     = ESysEINPROGRESS;
   Id_WSAEALREADY        = ESysEALREADY;
