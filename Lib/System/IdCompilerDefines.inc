@@ -1181,6 +1181,7 @@
     {$ENDIF}
   {$ENDIF}
   {$DEFINE HAS_SetCodePage}
+  {$DEFINE HAS_PRawByteString}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}

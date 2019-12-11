@@ -922,7 +922,8 @@ type
 
   {$IFDEF HAS_SetCodePage}
     {$IFNDEF HAS_PRawByteString}
-    PRawByteString = ^RawByteString;
+  {$EXTERNALSYM PRawByteString}
+  PRawByteString = ^RawByteString;
     {$ENDIF}
   {$ENDIF}
 
