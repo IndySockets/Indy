@@ -19561,7 +19561,17 @@ const
   where the symbolic link libbsl.so and libcrypto.so do not exist}
   SSL_DLL_name         = 'libssl'; {Do not localize}
   SSLCLIB_DLL_name     = 'libcrypto'; {Do not localize}
-  SSLDLLVers : array [0..7] of string = ('.10','.1.0.2','.1.0.1','.1.0.0','.0.9.9','.0.9.8','.0.9.7','.0.9.6');
+  SSLDLLVers : array [0..10] of string = (
+    '.10',
+    '.1.0.2','.1.0.1',
+    // TODO: IFDEF the following for OSX only?
+    '.44',              // MacOS LibreSSL forked from which OpenSSL version? Sometimes found ...
+    '.43',              // MacOS LibreSSL forked from which OpenSSL version? Sometimes found ...
+                        // TODO: Add '.41' as well?
+    '.35',              // MacOS LibreSSL forked from OpenSSL version 1.0.1, almost always found
+    //
+    '.1.0.0','.0.9.9','.0.9.8','.0.9.7','.0.9.6'
+  );
   SSLDLLVersChar : array [0..26] of string = ('','a','b','c','d','e','f','g','h','i',
                                                  'j','k','l','m','n','o','p','q','r',
                                                  's','t','u','v','w','x','y','z');
@@ -24497,6 +24507,7 @@ begin
   SetString(time_str, UCTtime^.data, UCTtime^.length);
     {$ELSE}
   SetString(LTemp, UCTtime^.data, UCTtime^.length);
+  // TODO: do we need to use SetCodePage() here?
   time_str := String(LTemp); // explicit convert to Unicode
     {$ENDIF}
   {$ENDIF}
