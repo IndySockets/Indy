@@ -593,22 +593,22 @@ uses
   {$ENDIF}
   IdIPAddress,
   {$IFDEF HAS_GetLocalTimeOffset}
-    DateUtils,
+  DateUtils,
   {$ENDIF}
   {$IFDEF UNIX}
     {$IFDEF USE_VCL_POSIX}
       {$IFNDEF HAS_GetLocalTimeOffset}
-        DateUtils,
+  DateUtils,
       {$ENDIF}
-      Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
+  Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
     {$ELSE}
       {$IFDEF KYLIXCOMPAT}
-        Libc,
+  Libc,
       {$ELSE}
         {$IFDEF USE_BASEUNIX}
-          BaseUnix, Unix,
+  BaseUnix, Unix,
           {$IFNDEF HAS_GetLocalTimeOffset}
-            DateUtils,
+  DateUtils,
           {$ENDIF}
         {$ENDIF}
       {$ENDIF}
