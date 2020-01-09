@@ -843,7 +843,7 @@ begin
           end;
           if LAddress <> nil then begin
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := LAddrInfo^.ifa_name;
-            {$IF HAS_if_nametoindex}
+            {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
           end;
