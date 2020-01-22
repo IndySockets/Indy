@@ -168,6 +168,7 @@ uses
   Posix.SysTypes,
   Posix.SysUio,
   Posix.Unistd,
+  Posix.Fcntl,
   SysUtils;
 
   {$UNDEF HAS_MSG_NOSIGNAL}
@@ -1245,13 +1246,13 @@ procedure TIdStackVCLPosix.SetBlocking(ASocket: TIdStackSocketHandle;
 var
   LFlags: Integer;
 begin
-  LFlags := CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_GETFL, 0));
+  LFlags := CheckForSocketError(fcntl(ASocket, F_GETFL, 0));
   if ABlocking then begin
     LFlags := LFlags and not O_NONBLOCK;
   end else begin
     LFlags := LFlags or O_NONBLOCK;
   end;
-  CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_SETFL, LFlags));
+  CheckForSocketError(fcntl(ASocket, F_SETFL, LFlags));
 end;
 
 procedure TIdStackVCLPosix.SetLastError(const AError: Integer);
@@ -1483,9 +1484,9 @@ begin
     {$ENDIF}
     //SetBlocking(Result, not ANonBlocking);
     if ANonBlocking then begin
-      LFlags := Posix.SysSocket.fcntl(Result, F_GETFL, 0);
+      LFlags := fcntl(Result, F_GETFL, 0);
       LFlags := LFlags or O_NONBLOCK;
-      Posix.SysSocket.fcntl(Result, F_SETFL, LFlags);
+      fcntl(Result, F_SETFL, LFlags);
     end;
   end;
 end;
