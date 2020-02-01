@@ -65,7 +65,7 @@ type
 
   TIdC_INT32 = cint32;
   PIdC_INT32 = pcint32;
-  TIdC_UINT32 = cint32;
+  TIdC_UINT32 = cuint32;
   PIdC_UINT32 = pcuint32;
 
   TIdC_INT64 = cint64;
