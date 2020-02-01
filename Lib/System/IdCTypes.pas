@@ -1,17 +1,17 @@
 unit IdCTypes;
 
-// TODO: deprecate this unit and move the declarations to the IdGlobal unit.
-
 interface
 
 {$I IdCompilerDefines.inc}
 
-{This unit should not contain ANY program code.  It is meant to be extremely 
+{
+This unit should not contain ANY program code.  It is meant to be extremely 
 thin.  The idea is that the unit will contain type mappings that used for headers
 and API calls using the headers.  The unit is here because in cross-platform
 headers, the types may not always be the same as they would for Win32 on x86
 Intel architecture.  We also want to be completely compatiable with Borland
-Delphi for Win32.}
+Delphi for Win32.
+}
 
 {$IFDEF HAS_UNIT_ctypes}
 uses
@@ -23,7 +23,6 @@ IMPORTANT!!!
 
 The types below are defined to hide architecture differences for various C++
 types while also making this header compile with Borland Delphi.
-
 }
 type 
   {$IFDEF FPC}
@@ -80,9 +79,23 @@ type
   TIdC_LONGDOUBLE = clongdouble;
   PIdC_LONGDOUBLE =  pclongdouble;
 
+  TIdC_SIZET = csize_t;
+  PIdC_SIZET = pcsize_t;
+  {$IFDEF HAS_NativeInt}
+    TIdC_SSIZET = NativeInt;
+  {$ELSE}
+    {$IFDEF CPU32}
+      TIdC_SSIZET = TIdC_INT32;
+    {$ENDIF}
+    {$IFDEF CPU64}
+      TIdC_SSIZET = TIdC_INT64;
+    {$ENDIF}
+  {$ENDIF}
+  PIdC_SSIZET = ^TIdC_SSIZET;
+
   {$ELSE}
 
-  //this is necessary because Borland still doesn't support QWord
+  // this is necessary because Borland still doesn't support QWord
   // (unsigned 64bit type).
   {$IFNDEF HAS_QWord}
   qword = {$IFDEF HAS_UInt64}UInt64{$ELSE}Int64{$ENDIF};
@@ -140,8 +153,36 @@ type
   TIdC_LONGDOUBLE = Extended;
   PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE;
 
-  //Some headers require this in D5 or earlier.
-  //FreePascal already has this in its system unit.
+  {$IFDEF HAS_SIZE_T}
+    TIdC_SIZET = size_t;
+  {$ELSE}
+    {$IFDEF HAS_NativeUInt}
+      TIdC_SIZET = NativeUInt;
+    {$ELSE}
+      {$IFDEF CPU32}
+        TIdC_SIZET = TIdC_UINT32;
+      {$ENDIF}
+      {$IFDEF CPU64}
+        TIdC_SIZET = TIdC_UINT64;
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+  PIdC_SIZET = ^TIdC_SIZET;
+
+  {$IFDEF HAS_NativeInt}
+    TIdC_SSIZET = NativeInt;
+  {$ELSE}
+    {$IFDEF CPU32}
+      TIdC_SSIZET = TIdC_INT32;
+    {$ENDIF}
+    {$IFDEF CPU64}
+      TIdC_SSIZET = TIdC_INT64;
+    {$ENDIF}
+  {$ENDIF}
+  PIdC_SSIZET = ^TIdC_SSIZET;
+
+  // Some headers require this in D5 or earlier.
+  // FreePascal already has this in its system unit.
   {$IFNDEF HAS_PByte}PByte = ^Byte;{$ENDIF}
   {$IFNDEF HAS_PWord}PWord = ^Word;{$ENDIF}
 
