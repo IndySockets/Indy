@@ -117,8 +117,8 @@ type
   TIdServerSSLClass = class of TIdServerIOHandlerSSLBase;
 
 type
-  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2);
-  TIdSSLVersions = set of TIdSSLVersion;
+  TIdTLSVersion = (tlsvTLS_flexible, tlsvTLSv1_0, tlsvTLSv1_1, tlsvTLSv1_2, tlsvTLSv1_3);
+  TIdTLSVersions = set of TIdTLSVersion;
 
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
