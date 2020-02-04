@@ -727,8 +727,18 @@ begin
       end else begin
         LEnd := IndyStrToInt64(LTemp);
       end;
+      // RLebeau 2/4/2020: using a 'while' loop instead of a 'for' loop, because the
+      // LN variable is an Int64 and Delphi prior to XE8 will fail to compile on it
+      // with a "For loop control variable must have ordinal type" error...
+      {
       for LN := LStart to LEnd do begin
         AMessageNumbers.Add(IntToStr(LN));
+      end;
+      }
+      LN := LStart;
+      while LN <= LEnd do begin
+        AMessageNumbers.Add(IntToStr(LN));
+        Inc(LN);
       end;
     end else begin
       //See is it a comma-separated list...
@@ -2165,28 +2175,28 @@ begin
             LTemp := Copy(LTemp, 1, Length(LTemp)-1);
           end;
           case PosInStrArray(LTemp, ['MESSAGES', 'RECENT', 'UIDNEXT', 'UIDVALIDITY', 'UNSEEN'], False) of
-	    0: // MESSAGES   {Do not Localize}
+            0: // MESSAGES   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
+                LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
               end;
             1: // RECENT   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
+                LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
               end;
             2: // UIDNEXT   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDNext + ' ';  {Do not Localize}
-	      end;
+                LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDNext + ' ';  {Do not Localize}
+              end;
             3: // UIDVALIDITY   {Do not Localize}
               begin
-	        LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDValidity + ' ';  {Do not Localize}
+                LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDValidity + ' ';  {Do not Localize}
               end;
             4: // UNSEEN   {Do not Localize}
               begin
                 LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.UnseenMsgs) + ' ';  {Do not Localize}
               end;
           else
-	    begin
+            begin
               SendBadReply(ASender, 'Parameter not supported: ' + LTemp);   {Do not Localize}
               Exit;
             end;
