@@ -79,19 +79,53 @@ type
   TIdC_LONGDOUBLE = clongdouble;
   PIdC_LONGDOUBLE =  pclongdouble;
 
-  TIdC_SIZET = csize_t;
-  PIdC_SIZET = pcsize_t;
-  {$IFDEF HAS_NativeInt}
-    TIdC_SSIZET = NativeInt;
+  {$IFDEF HAS_SIZE_T}
+    TIdC_SIZET = size_t;
   {$ELSE}
-    {$IFDEF CPU32}
-      TIdC_SSIZET = TIdC_INT32;
+    {$IFDEF HAS_NativeUInt}
+      TIdC_SIZET = NativeUInt;
+    {$ELSE}
+      {$IFDEF CPU32}
+        TIdC_SIZET = TIdC_UINT32;
+      {$ENDIF}
+      {$IFDEF CPU64}
+        TIdC_SIZET = TIdC_UINT64;
+      {$ENDIF}
     {$ENDIF}
-    {$IFDEF CPU64}
-      TIdC_SSIZET = TIdC_INT64;
+  {$ENDIF}
+  PIdC_SIZET = ^TIdC_SIZET;
+
+  {$IFDEF HAS_SSIZE_T}
+    TIdC_SSIZET = ssize_t;
+  {$ELSE}
+    {$IFDEF HAS_NativeInt}
+      TIdC_SSIZET = NativeInt;
+    {$ELSE}
+      {$IFDEF CPU32}
+        TIdC_SSIZET = TIdC_INT32;
+      {$ENDIF}
+      {$IFDEF CPU64}
+        TIdC_SSIZET = TIdC_INT64;
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   PIdC_SSIZET = ^TIdC_SSIZET;
+
+  {$IFDEF HAS_TIME_T}
+    TIdC_TIMET = time_t;
+  {$ELSE}
+    {$IFDEF HAS_NativeUInt}
+      TIdC_TIMET = NativeUInt;
+    {$ELSE}
+      {$IFDEF CPU32}
+        TIdC_TIMET = TIdC_UINT32;
+      {$ENDIF}
+      {$IFDEF CPU64}
+        TIdC_TIMET = TIdC_UINT64;
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+  PIdC_TIMET = ^TIdC_TIMET;
 
   {$ELSE}
 
@@ -169,17 +203,37 @@ type
   {$ENDIF}
   PIdC_SIZET = ^TIdC_SIZET;
 
-  {$IFDEF HAS_NativeInt}
-    TIdC_SSIZET = NativeInt;
+  {$IFDEF HAS_SSIZE_T}
+    TIdC_SSIZET = ssize_t;
   {$ELSE}
-    {$IFDEF CPU32}
-      TIdC_SSIZET = TIdC_INT32;
-    {$ENDIF}
-    {$IFDEF CPU64}
-      TIdC_SSIZET = TIdC_INT64;
+    {$IFDEF HAS_NativeInt}
+      TIdC_SSIZET = NativeInt;
+    {$ELSE}
+      {$IFDEF CPU32}
+        TIdC_SSIZET = TIdC_INT32;
+      {$ENDIF}
+      {$IFDEF CPU64}
+        TIdC_SSIZET = TIdC_INT64;
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   PIdC_SSIZET = ^TIdC_SSIZET;
+
+  {$IFDEF HAS_TIME_T}
+    TIdC_TIMET = time_t;
+  {$ELSE}
+    {$IFDEF HAS_NativeUInt}
+      TIdC_TIMET = NativeUInt;
+    {$ELSE}
+      {$IFDEF CPU32}
+        TIdC_TIMET = TIdC_UINT32;
+      {$ENDIF}
+      {$IFDEF CPU64}
+        TIdC_TIMET = TIdC_UINT64;
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+  PIdC_TIMET = ^TIdC_TIMET;
 
   // Some headers require this in D5 or earlier.
   // FreePascal already has this in its system unit.
