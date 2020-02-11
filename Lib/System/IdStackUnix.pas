@@ -726,30 +726,17 @@ end;
 
 function TIdStackUnix.HostToNetwork(AValue: UInt32): UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  {$i IdRangeCheckingOff.inc} // disable range checking
   Result := htonl(AValue);
-  // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$i IdRangeCheckingOn.inc} // Restore range checking
 end;
 
 function TIdStackUnix.NetworkToHost(AValue: UInt32): UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  {$i IdRangeCheckingOff.inc} // disable range checking
   Result := ntohl(AValue);
   // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$i IdRangeCheckingOn.inc} // Restore range checking
 end;
 
 { RP - I'm not sure what endian Linux natively uses, thus the
@@ -759,10 +746,7 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  {$i IdRangeCheckingOff.inc} // disable range checking
   if (htonl(1) <> 1) then begin
     LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
     L := htonl(LParts.HighPart);
@@ -772,11 +756,7 @@ begin
   end else begin
     Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   end;
-  // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$i IdRangeCheckingOn.inc} // Restore range checking
 end;
 
 function TIdStackUnix.NetworkToHost(AValue: TIdUInt64): TIdUInt64;
@@ -784,10 +764,7 @@ var
   LParts: TIdUInt64Parts;
   L: UInt32;
 begin
-  {$IFOPT R+} // detect range checking
-    {$DEFINE _RPlusWasEnabled}
-    {$R-}
-  {$ENDIF}
+  {$i IdRangeCheckingOff.inc} // disable range checking
   if (ntohl(1) <> 1) then begin
     LParts.QuadPart := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
     L := ntohl(LParts.HighPart);
@@ -797,11 +774,7 @@ begin
   end else begin
     Result{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF} := AValue{$IFDEF TIdUInt64_HAS_QuadPart}.QuadPart{$ENDIF};
   end;
-  // Restore range checking
-  {$IFDEF _RPlusWasEnabled} // detect previous setting
-    {$UNDEF _RPlusWasEnabled}
-    {$R+}
-  {$ENDIF}
+  {$i IdRangeCheckingOn.inc} // Restore range checking
 end;
 
 {$IFDEF HAS_getifaddrs}

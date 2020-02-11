@@ -84,7 +84,9 @@ begin
   SetLength(FCBuffer, 64);
 end;
 
-{$Q-,R-} // Operations performed modulo $100000000
+{$i IdOverflowCheckingOff.inc} // Operations performed modulo $100000000
+{$i IdRangeCheckingOff.inc}
+
 procedure TIdHashSHA1.Coder;
 var
   T, A, B, C, D, E: UInt32;

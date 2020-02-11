@@ -61,7 +61,7 @@ unit IdASN1Util;
 |==============================================================================|
 }
 
-{$Q-}
+{$i IdOverflowCheckingOff.inc}
 {$WEAKPACKAGEUNIT ON}
 
 interface

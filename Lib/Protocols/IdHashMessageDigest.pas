@@ -266,7 +266,8 @@ const
   MD4_INIT_VALUES: T4x4LongWordRecord = (
     $67452301, $EFCDAB89, $98BADCFE, $10325476);
 
-{$Q-} // Arithmetic operations performed modulo $100000000
+{$i IdOverflowCheckingOff.inc} // Arithmetic operations performed modulo $100000000
+{$i IdRangeCheckingOff.inc}
 
 constructor TIdHashMessageDigest4.Create;
 begin
@@ -343,7 +344,9 @@ begin
   Inc(FState[2], C);
   Inc(FState[3], D);
 end;
-{$Q+}
+
+{$i IdRangeCheckingOn.inc}
+{$i IdOverflowCheckingOn.inc}
 
 function TIdHashMessageDigest4.NativeGetHashBytes(AStream: TStream; ASize: TIdStreamSize): TidBytes;
 var
@@ -444,8 +447,8 @@ const
    $f7537e82, $bd3af235, $2ad7d2bb, $eb86d391
   );
 
-{$Q-} // Arithmetic operations performed modulo $100000000
-
+{$i IdOverflowCheckingOff.inc} // Arithmetic operations performed modulo $100000000
+{$i IdRangeCheckingOff.inc}
 
 function TIdHashMessageDigest5.InitHash: TIdHashIntCtx;
 begin
@@ -562,6 +565,8 @@ begin
   Inc(FState[2], C);
   Inc(FState[3], D);
 end;
-{$Q+}
+
+{$i IdRangeCheckingOn.inc}
+{$i IdOverflowCheckingOn.inc}
 
 end.
