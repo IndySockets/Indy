@@ -7466,6 +7466,9 @@ begin
   end else
   begin
     SetString(Result, Buffer, Len);
+    {$IFDEF STRING_IS_ANSI}
+    // TODO: do we need to use SetCodePage() here?
+    {$ENDIF}
   end;
       {$ELSE}
   Result := SysUtils.Format(AFormat, Args, EnglishFmt);
@@ -9533,8 +9536,11 @@ begin
   // System.RegisterExpectedMemoryLeak() redirects to the leak registration
   // code of the installed memory manager."
 
+    {$I IdSymbolPlatformOff.inc}
   //Result := System.SysRegisterExpectedMemoryLeak(AAddress);
   Result := System.RegisterExpectedMemoryLeak(AAddress);
+    {$I IdSymbolPlatformOn.inc}
+
   {$ELSE}
     // RLebeau 10/5/2014: the user can override the RTL's version of FastMM
     // (2006+ only) with any memory manager, such as MadExcept, so check for
