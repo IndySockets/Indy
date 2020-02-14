@@ -149,8 +149,11 @@ REM Copy over all generated files
 REM ************************************************************
 copy "%BDSCOMMONDIR%\hpp\Id*.hpp" %IndyPlatform%\%IndyConfig%
 copy "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
+copy "%BDSCOMMONDIR%\Bpl\%IndyPlatform%\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
 copy "%BDSCOMMONDIR%\Dcp\Indy*.bpi" %IndyPlatform%\%IndyConfig%
+copy "%BDSCOMMONDIR%\Dcp\%IndyPlatform%\Indy*.bpi" %IndyPlatform%\%IndyConfig%
 copy "%BDSCOMMONDIR%\Dcp\Indy*.Lib" %IndyPlatform%\%IndyConfig%
+copy "%BDSCOMMONDIR%\Dcp\%IndyPlatform%\Indy*.Lib" %IndyPlatform%\%IndyConfig%
 copy indysystem160.res %IndyPlatform%\%IndyConfig%
 copy indycore160.res %IndyPlatform%\%IndyConfig%
 copy indyprotocols160.res %IndyPlatform%\%IndyConfig%
@@ -162,9 +165,13 @@ REM ************************************************************
 del "%BDSCOMMONDIR%\hpp\Id*.hpp" > nul
 del "%BDSCOMMONDIR%\hpp\Indy*.hpp" > nul
 del "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" > nul
+del "%BDSCOMMONDIR%\Bpl\%IndyPlatform%\*Indy*.bpl" > nul
 del "%BDSCOMMONDIR%\Dcp\Indy*.bpi" > nul
+del "%BDSCOMMONDIR%\Dcp\%IndyPlatform%\Indy*.bpi" > nul
 del "%BDSCOMMONDIR%\Dcp\Indy*.Lib" > nul
+del "%BDSCOMMONDIR%\Dcp\%IndyPlatform%\Indy*.Lib" > nul
 del "%BDSCOMMONDIR%\Dcp\*Indy*.dcp" > nul
+del "%BDSCOMMONDIR%\Dcp\%IndyPlatform%\*Indy*.dcp" > nul
 del /Q ZLib\i386-Win32-ZLib\*.*
 del /Q ZLib\x86_64-Win64-ZLib\*.*
 del /Q *.*
