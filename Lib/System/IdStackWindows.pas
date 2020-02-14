@@ -1446,7 +1446,7 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                         end;
                         LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr);
                         TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
-                        TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.IfIndex;
+                        TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Union.IfIndex;
                       end;
                       AF_INET6: begin
                         LAddress := TIdStackLocalAddressIPv6.Create(AAddresses,
