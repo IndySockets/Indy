@@ -80,48 +80,48 @@ type
   PIdC_LONGDOUBLE =  pclongdouble;
 
   {$IFDEF HAS_SIZE_T}
-    TIdC_SIZET = size_t;
+  TIdC_SIZET = size_t;
   {$ELSE}
     {$IFDEF HAS_NativeUInt}
-      TIdC_SIZET = NativeUInt;
+  TIdC_SIZET = NativeUInt;
     {$ELSE}
       {$IFDEF CPU32}
-        TIdC_SIZET = TIdC_UINT32;
+  TIdC_SIZET = TIdC_UINT32;
       {$ENDIF}
       {$IFDEF CPU64}
-        TIdC_SIZET = TIdC_UINT64;
+  TIdC_SIZET = TIdC_UINT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   PIdC_SIZET = ^TIdC_SIZET;
 
   {$IFDEF HAS_SSIZE_T}
-    TIdC_SSIZET = ssize_t;
+  TIdC_SSIZET = ssize_t;
   {$ELSE}
     {$IFDEF HAS_NativeInt}
-      TIdC_SSIZET = NativeInt;
+  TIdC_SSIZET = NativeInt;
     {$ELSE}
       {$IFDEF CPU32}
-        TIdC_SSIZET = TIdC_INT32;
+  TIdC_SSIZET = TIdC_INT32;
       {$ENDIF}
       {$IFDEF CPU64}
-        TIdC_SSIZET = TIdC_INT64;
+  TIdC_SSIZET = TIdC_INT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   PIdC_SSIZET = ^TIdC_SSIZET;
 
   {$IFDEF HAS_TIME_T}
-    TIdC_TIMET = time_t;
+  TIdC_TIMET = time_t;
   {$ELSE}
     {$IFDEF HAS_NativeUInt}
-      TIdC_TIMET = NativeUInt;
+  TIdC_TIMET = NativeUInt;
     {$ELSE}
       {$IFDEF CPU32}
-        TIdC_TIMET = TIdC_UINT32;
+  TIdC_TIMET = TIdC_UINT32;
       {$ENDIF}
       {$IFDEF CPU64}
-        TIdC_TIMET = TIdC_UINT64;
+  TIdC_TIMET = TIdC_UINT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -188,48 +188,48 @@ type
   PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE;
 
   {$IFDEF HAS_SIZE_T}
-    TIdC_SIZET = size_t;
+  TIdC_SIZET = size_t;
   {$ELSE}
     {$IFDEF HAS_NativeUInt}
-      TIdC_SIZET = NativeUInt;
+  TIdC_SIZET = NativeUInt;
     {$ELSE}
       {$IFDEF CPU32}
-        TIdC_SIZET = TIdC_UINT32;
+  TIdC_SIZET = TIdC_UINT32;
       {$ENDIF}
       {$IFDEF CPU64}
-        TIdC_SIZET = TIdC_UINT64;
+  TIdC_SIZET = TIdC_UINT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   PIdC_SIZET = ^TIdC_SIZET;
 
   {$IFDEF HAS_SSIZE_T}
-    TIdC_SSIZET = ssize_t;
+  TIdC_SSIZET = ssize_t;
   {$ELSE}
     {$IFDEF HAS_NativeInt}
-      TIdC_SSIZET = NativeInt;
+  TIdC_SSIZET = NativeInt;
     {$ELSE}
       {$IFDEF CPU32}
-        TIdC_SSIZET = TIdC_INT32;
+  TIdC_SSIZET = TIdC_INT32;
       {$ENDIF}
       {$IFDEF CPU64}
-        TIdC_SSIZET = TIdC_INT64;
+  TIdC_SSIZET = TIdC_INT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   PIdC_SSIZET = ^TIdC_SSIZET;
 
   {$IFDEF HAS_TIME_T}
-    TIdC_TIMET = time_t;
+  TIdC_TIMET = time_t;
   {$ELSE}
     {$IFDEF HAS_NativeUInt}
-      TIdC_TIMET = NativeUInt;
+  TIdC_TIMET = NativeUInt;
     {$ELSE}
       {$IFDEF CPU32}
-        TIdC_TIMET = TIdC_UINT32;
+  TIdC_TIMET = TIdC_UINT32;
       {$ENDIF}
       {$IFDEF CPU64}
-        TIdC_TIMET = TIdC_UINT64;
+  TIdC_TIMET = TIdC_UINT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
