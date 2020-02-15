@@ -1217,6 +1217,8 @@
 {$IFDEF VCL_XE2_OR_ABOVE}
   {$DEFINE HAS_SIZE_T}
   {$DEFINE HAS_PSIZE_T}
+  {$DEFINE HAS_SSIZE_T}
+  {$DEFINE HAS_PSSIZE_T}
   {$DEFINE HAS_LONG}
   {$DEFINE HAS_ComponentPlatformsAttribute}
   {$DEFINE HAS_ComponentPlatformsAttribute_Win32}

@@ -16,6 +16,10 @@ Delphi for Win32.
 {$IFDEF HAS_UNIT_ctypes}
 uses
   ctypes;
+{$ELSE}
+  // Delphi defines (P)SIZE_T and (P)SSIZE_T in the Winapi.Windows unit in
+  // XE2+, but we don't want to pull in that whole unit here just to define
+  // a few aliases...
 {$ENDIF}
 
 {
@@ -93,7 +97,11 @@ type
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF HAS_PSIZE_T}
+  PIdC_SIZET = psize_t;
+  {$ELSE}
   PIdC_SIZET = ^TIdC_SIZET;
+  {$ENDIF}
 
   {$IFDEF HAS_SSIZE_T}
   TIdC_SSIZET = ssize_t;
@@ -109,7 +117,11 @@ type
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF HAS_PSSIZE_T}
+  PIdC_SSIZET = pssize_t;
+  {$ELSE}
   PIdC_SSIZET = ^TIdC_SSIZET;
+  {$ENDIF}
 
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
@@ -125,7 +137,11 @@ type
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF HAS_PTIME_T}
+  PIdC_TIMET = ptime_t;
+  {$ELSE}
   PIdC_TIMET = ^TIdC_TIMET;
+  {$ENDIF}
 
   {$ELSE}
 
@@ -161,35 +177,35 @@ type
   PIdC_UNSIGNED = ^TIdC_UNSIGNED;
 
   TIdC_INT8 = Shortint;
-  PIdC_INT8  = ^TIdC_INT8;
+  PIdC_INT8  = ^TIdC_INT8{PShortint};
   TIdC_UINT8 = Byte;
-  PIdC_UINT8 = ^TIdC_UINT8;
+  PIdC_UINT8 = ^TIdC_UINT8{PByte};
 
   TIdC_INT16 = Smallint;
-  PIdC_INT16 = ^TIdC_INT16;
+  PIdC_INT16 = ^TIdC_INT16{PSmallint};
   TIdC_UINT16 = Word;
-  PIdC_UINT16 = ^TIdC_UINT16;
+  PIdC_UINT16 = ^TIdC_UINT16{PWord};
 
   TIdC_INT32 = Integer;
-  PIdC_INT32 = ^TIdC_INT32;
+  PIdC_INT32 = ^TIdC_INT32{PInteger};
   TIdC_UINT32 = Cardinal;
-  PIdC_UINT32 = ^TIdC_UINT32;
+  PIdC_UINT32 = ^TIdC_UINT32{PCardinal};
 
   TIdC_INT64 = Int64;
-  PIdC_INT64 = ^TIdC_INT64;
+  PIdC_INT64 = ^TIdC_INT64{PInt64};
   TIdC_UINT64 = QWord;
-  PIdC_UINT64 = ^TIdC_UINT64;
+  PIdC_UINT64 = ^TIdC_UINT64{PQWord};
 
   TIdC_FLOAT = Single;
-  PIdC_FLOAT = ^TIdC_FLOAT;
+  PIdC_FLOAT = ^TIdC_FLOAT{PSingle};
   TIdC_DOUBLE = Double;
-  PIdC_DOUBLE = ^TIdC_DOUBLE;
+  PIdC_DOUBLE = ^TIdC_DOUBLE{PDouble};
   TIdC_LONGDOUBLE = Extended;
-  PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE;
+  PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE{PExtended};
 
-  {$IFDEF HAS_SIZE_T}
-  TIdC_SIZET = size_t;
-  {$ELSE}
+  {.$IFDEF HAS_SIZE_T}
+  //TIdC_SIZET = Winapi.Windows.SIZE_T;
+  {.$ELSE}
     {$IFDEF HAS_NativeUInt}
   TIdC_SIZET = NativeUInt;
     {$ELSE}
@@ -200,12 +216,16 @@ type
   TIdC_SIZET = TIdC_UINT64;
       {$ENDIF}
     {$ENDIF}
-  {$ENDIF}
+  {.$ENDIF}
+  {.$IFDEF HAS_PSIZE_T}
+  //PIdC_SIZET = Winapi.Windows.PSIZE_T;
+  {.$ELSE}
   PIdC_SIZET = ^TIdC_SIZET;
+  {.$ENDIF}
 
-  {$IFDEF HAS_SSIZE_T}
-  TIdC_SSIZET = ssize_t;
-  {$ELSE}
+  {.$IFDEF HAS_SSIZE_T}
+  //TIdC_SSIZET = Winapi.Windows.SSIZE_T;
+  {.$ELSE}
     {$IFDEF HAS_NativeInt}
   TIdC_SSIZET = NativeInt;
     {$ELSE}
@@ -216,8 +236,12 @@ type
   TIdC_SSIZET = TIdC_INT64;
       {$ENDIF}
     {$ENDIF}
-  {$ENDIF}
+  {.$ENDIF}
+  {.$IFDEF HAS_PSSIZE_T};
+  //PIdC_SSIZET = Winapi.Windows.PSSIZE_T;
+  {.$ELSE}
   PIdC_SSIZET = ^TIdC_SSIZET;
+  {.$ENDIF}
 
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
@@ -233,7 +257,11 @@ type
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
+  {$IFDEF HAS_PTIME_T}
+  PIdC_TIMET = PTIME_T;
+  {$ELSE}
   PIdC_TIMET = ^TIdC_TIMET;
+  {$ENDIF}
 
   // Some headers require this in D5 or earlier.
   // FreePascal already has this in its system unit.

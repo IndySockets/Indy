@@ -21,16 +21,6 @@ uses
 {.$DEFINE STATICLOAD_ICONV}
 //These should be defined in libc.pas.
 type
-  {$IFDEF WINDOWS}
-  {$EXTERNALSYM SIZE_T}
-    {$IFDEF CPU64}
-  size_t = QWord;
-    {$ELSE}
-  size_t = DWord;
-    {$ENDIF}
-  Psize_t = ^size_t;
-  {$ENDIF}
-
   Piconv_t = ^iconv_t;
   iconv_t = Pointer;
 
@@ -49,7 +39,7 @@ type
   TIdiconv = function (__cd : iconv_t; __inbuf : PPAnsiChar;
                     __inbytesleft : Psize_t;
 		    __outbuf : PPAnsiChar;
-		    __outbytesleft : Psize_t ) : size_t; cdecl;
+		    __outbytesleft : PIdC_SIZET ) : TIdC_SIZET; cdecl;
 //   This function is a possible cancellation points and therefore not
 //   marked with __THROW.  */
 //extern int iconv_close (iconv_t __cd);
@@ -197,9 +187,9 @@ function iconv_open(__tocode : PAnsiChar; __fromcode : PAnsiChar) : iconv_t; cde
   external LICONV name FN_ICONV_OPEN;
 
 function iconv(__cd : iconv_t; __inbuf : PPAnsiChar;
-                    __inbytesleft : Psize_t;
+                    __inbytesleft : PIdC_SIZET;
 		    __outbuf : PPAnsiChar;
-		    __outbytesleft : Psize_t ) : size_t; cdecl;
+		    __outbytesleft : PIdC_SIZET ) : TIdC_SIZET; cdecl;
   external LICONV name FN_ICONV;
 
 function iconv_close(__cd : iconv_t) : TIdC_INT; cdecl;
@@ -292,9 +282,9 @@ begin
 end;
 
 function stub_iconv(__cd : iconv_t; __inbuf : PPAnsiChar; 
-                    __inbytesleft : Psize_t; 
+                    __inbytesleft : PIdC_SIZET; 
 		    __outbuf : PPAnsiChar;
-		    __outbytesleft : Psize_t ) : size_t; cdecl;
+		    __outbytesleft : PIdC_SIZET ) : TIdC_SIZET; cdecl;
 begin
   iconv := Fixup(FN_ICONV);
   Result := iconv(__cd,__inbuf,__inbytesleft,__outbuf,__outbytesleft);
