@@ -237,7 +237,7 @@ type
       {$ENDIF}
     {$ENDIF}
   {.$ENDIF}
-  {.$IFDEF HAS_PSSIZE_T};
+  {.$IFDEF HAS_PSSIZE_T}
   //PIdC_SSIZET = Winapi.Windows.PSSIZE_T;
   {.$ELSE}
   PIdC_SSIZET = ^TIdC_SSIZET;
