@@ -22953,10 +22953,6 @@ begin
   @X509_STORE_CTX_get_current_cert := LoadFunctionCLib(fn_X509_STORE_CTX_get_current_cert);  //Used by Indy
   @X509_STORE_add_lookup := LoadFunctionCLib(fn_X509_STORE_add_lookup);  //Used by Indy
   @X509_STORE_load_locations := LoadFunctionCLib(fn_X509_STORE_load_locations);  //Used by Indy
-  @i2d_DSAPrivateKey := LoadFunctionCLib(fn_i2d_DSAPrivateKey); //Used by Indy
-  @d2i_DSAPrivateKey := LoadFunctionCLib(fn_d2i_DSAPrivateKey); //Used by Indy
-  @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);  //Used by Indy
-  @d2i_PrivateKey_bio := LoadFunctionCLib(fn_d2i_PrivateKey_bio);  //Used by Indy
   @X509_sign := LoadFunctionCLib(fn_X509_sign,False);
   @X509_REQ_sign := LoadFunctionCLib(fn_X509_REQ_sign,False);
   @X509_REQ_add_extensions := LoadFunctionCLib(fn_X509_REQ_add_extensions,False);
@@ -23107,15 +23103,18 @@ we have to handle both cases.
   @d2i_RSAPublicKey := LoadFunctionCLib(fn_d2i_RSAPublicKey,False);
   @i2d_PrivateKey := LoadFunctionCLib(fn_i2d_PrivateKey,False);
   @d2i_PrivateKey := LoadFunctionCLib(fn_d2i_PrivateKey);  //Used by Indy
+  @d2i_PrivateKey_bio := LoadFunctionCLib(fn_d2i_PrivateKey_bio);  //Used by Indy
 
+  @i2d_DSAPrivateKey := LoadFunctionCLib(fn_i2d_DSAPrivateKey); //Used by Indy
+  @d2i_DSAPrivateKey := LoadFunctionCLib(fn_d2i_DSAPrivateKey); //Used by Indy
   @i2d_DSAparams := LoadFunctionCLib(fn_i2d_DSAparams,False);
   @d2i_DSAparams := LoadFunctionCLib(fn_d2i_DSAparams,False);
   @i2d_DHparams := LoadFunctionCLib(fn_i2d_DHparams,False);
   @d2i_DHparams := LoadFunctionCLib(fn_d2i_DHparams);  //Used by Indy
   @i2d_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE,False);
-  @d2i_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_i2d_NETSCAPE_CERT_SEQUENCE);  //Indy by Indy
+  @d2i_NETSCAPE_CERT_SEQUENCE := LoadFunctionCLib(fn_d2i_NETSCAPE_CERT_SEQUENCE);  //Indy by Indy
   @i2d_PUBKEY := LoadFunctionCLib(fn_i2d_PUBKEY,False);
-  @d2i_PUBKEY := LoadFunctionCLib(fn_i2d_PUBKEY,False);
+  @d2i_PUBKEY := LoadFunctionCLib(fn_d2i_PUBKEY,False);
 
   //X509
   @X509_get_default_cert_file := LoadFunctionCLib(fn_X509_get_default_cert_file); //Used by Indy
@@ -23226,7 +23225,7 @@ we have to handle both cases.
  // @EVP_des_ede_cfb1 := LoadFunctionCLib(fn_EVP_des_ede_cfb1,False);
  // @EVP_des_ede_cfb8 := LoadFunctionCLib(fn_EVP_des_ede_cfb8,False);
   //#endif
-  @EVP_des_ede3_cfb64 := LoadFunctionCLib(fn_EVP_des_cfb64);
+  @EVP_des_ede3_cfb64 := LoadFunctionCLib(fn_EVP_des_ede3_cfb64,False);
   @EVP_des_ede3_cfb1 := LoadFunctionCLib(fn_EVP_des_ede3_cfb1,False);
   @EVP_des_ede3_cfb8 := LoadFunctionCLib(fn_EVP_des_ede3_cfb8,False);
   @EVP_des_ofb := LoadFunctionCLib(fn_EVP_des_ofb,False);
@@ -23420,7 +23419,6 @@ we have to handle both cases.
   @BIO_set_cipher :=LoadFunctionCLib(fn_BIO_set_cipher,False);
 {$endif}
 
-  @EVP_PKEY_type := LoadFunctionCLib(fn_EVP_PKEY_type);
   @EVP_PKEY_new := LoadFunctionCLib(fn_EVP_PKEY_new);
   @EVP_PKEY_free := LoadFunctionCLib(fn_EVP_PKEY_free);  //USED in Indy
   @EVP_PKEY_assign := LoadFunctionCLib(fn_EVP_PKEY_assign);
