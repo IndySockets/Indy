@@ -13,13 +13,24 @@ Intel architecture.  We also want to be completely compatiable with Borland
 Delphi for Win32.
 }
 
-{$IFDEF HAS_UNIT_ctypes}
+{$IFDEF FPC}
 uses
-  ctypes;
+  ctypes
+  {$IFDEF HAS_UNIT_UnixType}
+  , UnixType
+  {$ENDIF}
+  ;
 {$ELSE}
   // Delphi defines (P)SIZE_T and (P)SSIZE_T in the Winapi.Windows unit in
   // XE2+, but we don't want to pull in that whole unit here just to define
   // a few aliases...
+  {
+  ($IFDEF WINDOWS)
+    ($IFDEF VCL_XE2_OR_ABOVE)
+uses Winapi.Windows;
+    ($ENDIF)
+  ($ENDIF)
+  }
 {$ENDIF}
 
 {
@@ -86,8 +97,8 @@ type
   {$IFDEF HAS_SIZE_T}
   TIdC_SIZET = size_t;
   {$ELSE}
-    {$IFDEF HAS_NativeUInt}
-  TIdC_SIZET = NativeUInt;
+    {$IFDEF HAS_PtrUInt}
+  TIdC_SIZET = PtrUInt;
     {$ELSE}
       {$IFDEF CPU32}
   TIdC_SIZET = TIdC_UINT32;
@@ -106,8 +117,8 @@ type
   {$IFDEF HAS_SSIZE_T}
   TIdC_SSIZET = ssize_t;
   {$ELSE}
-    {$IFDEF HAS_NativeInt}
-  TIdC_SSIZET = NativeInt;
+    {$IFDEF HAS_PtrInt}
+  TIdC_SSIZET = PtrInt;
     {$ELSE}
       {$IFDEF CPU32}
   TIdC_SSIZET = TIdC_INT32;
@@ -126,8 +137,8 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-    {$IFDEF HAS_NativeUInt}
-  TIdC_TIMET = NativeUInt;
+    {$IFDEF HAS_PtrUInt}
+  TIdC_TIMET = PtrUInt;
     {$ELSE}
       {$IFDEF CPU32}
   TIdC_TIMET = TIdC_UINT32;
