@@ -129,7 +129,8 @@ type
     {$ENDIF}
   {$ENDIF}
   {$IFDEF HAS_PSSIZE_T}
-  PIdC_SSIZET = pssize_t;
+  // in ptypes.inc, pssize_t is missing, but pSSize is present, and it is defined as ^ssize_t...
+  PIdC_SSIZET = {pssize_t}pSSize;
   {$ELSE}
   PIdC_SSIZET = ^TIdC_SSIZET;
   {$ENDIF}
