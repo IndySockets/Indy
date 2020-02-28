@@ -1381,7 +1381,7 @@
   {$IFDEF FPC_2_2_4_OR_ABOVE}
     // these types are only available on Unix systems (FreeBSD, Linux, etc)
     {$IFDEF UNIX}
-      {$IFDEF HAS_UNIT_UnixType}
+      {$DEFINE HAS_UNIT_UnixType}
       {$DEFINE HAS_SIZE_T}
       {$DEFINE HAS_PSIZE_T}
       {$DEFINE HAS_SSIZE_T}
