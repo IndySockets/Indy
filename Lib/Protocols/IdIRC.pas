@@ -386,6 +386,8 @@ type
     property Port default IdPORT_IRC;
     property Replies: TIdIRCReplies read FReplies write SetIdIRCReplies;
     property UserMode: TIdIRCUserModes read FUserMode write SetIdIRCUserMode;
+    property SenderNick: String read FSenderNick;
+    property SenderHost: String read FSenderHost;
     { Events }
     property OnServerWelcome: TIdIRCServerMsgEvent read FOnSWelcome write FOnSWelcome;
     property OnYourHost: TIdIRCServerMsgEvent read FOnYourHost write FOnYourHost;
