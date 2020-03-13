@@ -18933,7 +18933,9 @@ uses
   IdResourceStringsOpenSSL,
   IdStack
   {$IFDEF FPC}
-    , DynLibs  // better add DynLibs only for fpc
+    {$IFNDEF WINDOWS}
+      , DynLibs  // needed for FreeLibrary
+    {$ENDIF}
   {$ENDIF};
 
 {$IFNDEF OPENSSL_NO_HMAC}
@@ -22561,17 +22563,17 @@ pass a constant anyway.
 }
 function LoadFunction(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdSSL, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := LoadLibFunction(hIdSSL, FceName);
   if (Result = nil) and ACritical then begin
-    FFailedLoadList.Add(FceName); {do not localize}
+    FFailedLoadList.Add(FceName);
   end;
 end;
 
 function LoadFunctionCLib(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(FceName));
+  Result := LoadLibFunction(hIdCrypto, FceName);
   if (Result = nil) and ACritical then begin
-    FFailedLoadList.Add(FceName); {do not localize}
+    FFailedLoadList.Add(FceName);
   end;
 end;
 
@@ -22586,9 +22588,9 @@ The OpenSSL developers changed that interface to a new "des_*" API.  They have s
 }
 function LoadOldCLib(const AOldName, ANewName : {$IFDEF WINCE}TIdUnicodeString{$ELSE}String{$ENDIF}; const ACritical : Boolean = True): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AOldName));
+  Result := LoadLibFunction(hIdCrypto, AOldName);
   if Result = nil then begin
-    Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(hIdCrypto, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(ANewName));
+    Result := LoadLibFunction(hIdCrypto, ANewName);
     if (Result = nil) and ACritical then begin
       FFailedLoadList.Add(AOldName);
     end;
