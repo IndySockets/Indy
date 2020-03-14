@@ -273,10 +273,10 @@ var
 begin
   if TIdFiberBase.HaveFiberSupport then begin
     LKernel32Handle := GetModuleHandle(kernel32);
-    SwitchToFiber := Getprocaddress(LKernel32Handle,'SwitchToFiber'); {do not localize}
-    CreateFiber := Getprocaddress(LKernel32Handle,'CreateFiber'); {do not localize}
-    DeleteFiber := Getprocaddress(LKernel32Handle,'DeleteFiber'); {do not localize}
-    ConvertThreadToFiber := Getprocaddress(LKernel32Handle,'ConvertThreadToFiber'); {do not localize}
+    SwitchToFiber := LoadLibFunction(LKernel32Handle,'SwitchToFiber'); {do not localize}
+    CreateFiber := LoadLibFunction(LKernel32Handle,'CreateFiber'); {do not localize}
+    DeleteFiber := LoadLibFunction(LKernel32Handle,'DeleteFiber'); {do not localize}
+    ConvertThreadToFiber := LoadLibFunction(LKernel32Handle,'ConvertThreadToFiber'); {do not localize}
     if Assigned(@SwitchToFiber) and
      Assigned(@CreateFiber) and
      Assigned(@DeleteFiber) and

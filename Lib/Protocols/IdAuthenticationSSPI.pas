@@ -686,7 +686,7 @@ function TSSPIInterface.IsAvailable: Boolean;
     if fDLLHandle <> IdNilHandle then begin
       { get InitSecurityInterface entry point
         and call it to fetch SPPI function table}
-      entrypoint := GetProcAddress(fDLLHandle, SECURITY_ENTRYPOINT);
+      entrypoint := LoadLibFunction(fDLLHandle, SECURITY_ENTRYPOINT);
       fPFunctionTable := entrypoint();
       { let's see what SSPI functions are available
         and if we can continue on with the set }
@@ -706,10 +706,10 @@ function TSSPIInterface.IsAvailable: Boolean;
       {$IFDEF SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
       { fudge for Encrypt/DecryptMessage }
       if not Assigned(fPFunctionTable^.EncryptMessage) then begin
-        fPFunctionTable^.EncryptMessage := GetProcAddress(fDLLHandle, ENCRYPT_MESSAGE);
+        fPFunctionTable^.EncryptMessage := LoadLibFunction(fDLLHandle, ENCRYPT_MESSAGE);
       end;
       if not Assigned(fPFunctionTable^.DecryptMessage) then begin
-        fPFunctionTable^.DecryptMessage := GetProcAddress(fDLLHandle, DECRYPT_MESSAGE);
+        fPFunctionTable^.DecryptMessage := LoadLibFunction(fDLLHandle, DECRYPT_MESSAGE);
       end;
       {$ENDIF}
     end;

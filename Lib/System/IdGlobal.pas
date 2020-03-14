@@ -1045,6 +1045,21 @@ type
   // in the implementation's 'uses' clause, so map to what DynLibs.TLibHandle maps to...
   TIdLibHandle = {$IFDEF FPC}{DynLibs.TLibHandle}PtrInt{$ELSE}THandle{$ENDIF};
 
+  { IMPORTANT!!!
+
+  WindowsCE only has a Unicode (WideChar) version of GetProcAddress.  We could use
+  a version of GetProcAddress in the FreePascal dynlibs unit but that does a
+  conversion from ASCII to Unicode which might not be necessary since most calls
+  pass a constant anyway.
+  }
+  {$IFDEF WINCE}
+  TIdLibFuncName = TIdUnicodeString;
+  PIdLibFuncNameChar = PWideChar;
+  {$ELSE}
+  TIdLibFuncName = String;
+  PIdLibFuncNameChar = PChar;
+  {$ENDIF}
+
   {$IFDEF STRING_IS_IMMUTABLE}
   // In .NET and Delphi next-gen, strings are immutable (and zero-indexed), so we
   // need to use a StringBuilder whenever we need to modify individual characters
@@ -1817,7 +1832,7 @@ function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): U
 function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
   {$ENDIF}
 {$ENDIF}
-function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}String{$ENDIF}): Pointer;
+function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: TIdLibFuncName): Pointer;
 {$IFDEF UNIX}
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : TIdLibHandle;
 {$ENDIF}
@@ -4449,16 +4464,9 @@ begin
 end;
 {$ENDIF}
 
-{ IMPORTANT!!!
-
-WindowsCE only has a Unicode (WideChar) version of GetProcAddress.  We could use
-a version of GetProcAddress in the FreePascal dynlibs unit but that does a
-conversion from ASCII to Unicode which might not be necessary since most calls
-pass a constant anyway.
-}
-function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}String{$ENDIF}): Pointer;
+function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: TIdLibFuncName): Pointer;
 begin
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(ALibHandle, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AProcName));
+  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(ALibHandle, PIdLibFuncNameChar(AProcName));
 end;
 
 {$IFDEF UNIX}
@@ -4702,7 +4710,7 @@ function Stub_InterlockedCompareExchange(var Destination: PtrInt; Exchange, Comp
     // TODO: what is Embarcadero's 64-bit define going to be?
     cInterlockedCompareExchange = {$IFDEF CPU64}'InterlockedCompareExchange64'{$ELSE}'InterlockedCompareExchange'{$ENDIF}; {do not localize}
   begin
-    Result := GetProcAddress(GetModuleHandle(cKernel32), cInterlockedCompareExchange);
+    Result := LoadLibFunction(GetModuleHandle(cKernel32), cInterlockedCompareExchange);
     if Result = nil then begin
       Result := @Impl_InterlockedCompareExchange;
     end;
@@ -5773,7 +5781,7 @@ function Stub_GetTickCount64: UInt64; stdcall;
 
   function GetImpl: Pointer;
   begin
-    Result := GetProcAddress(GetModuleHandle('KERNEL32'), 'GetTickCount64'); {do not localize}
+    Result := LoadLibFunction(GetModuleHandle('KERNEL32'), 'GetTickCount64'); {do not localize}
     if Result = nil then begin
       Result := @Impl_GetTickCount64;
     end;

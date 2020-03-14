@@ -290,9 +290,9 @@ begin
     hIdnDL := SafeLoadLibrary(LibNDL);
     if hIdnDL <> IdNilHandle then
     begin
-      DownlevelGetLocaleScripts := GetProcAddress(hIdnDL, fn_DownlevelGetLocaleScripts);
-      DownlevelGetStringScripts := GetProcAddress(hIdnDL, fn_DownlevelGetStringScripts);
-      DownlevelVerifyScripts := GetProcAddress(hIdnDL, fn_DownlevelVerifyScripts);
+      DownlevelGetLocaleScripts := LoadLibFunction(hIdnDL, fn_DownlevelGetLocaleScripts);
+      DownlevelGetStringScripts := LoadLibFunction(hIdnDL, fn_DownlevelGetStringScripts);
+      DownlevelVerifyScripts := LoadLibFunction(hIdnDL, fn_DownlevelVerifyScripts);
     end;
   end;
 
@@ -301,11 +301,11 @@ begin
     hNormaliz := SafeLoadLibrary(LibNormaliz);
     if hNormaliz <> IdNilHandle then
     begin
-      IdnToUnicode := GetProcAddress(hNormaliz, fn_IdnToUnicode);
-      IdnToNameprepUnicode := GetProcAddress(hNormaliz, fn_IdnToNameprepUnicode);
-      IdnToAscii := GetProcAddress(hNormaliz, fn_IdnToAscii);
-      IsNormalizedString := GetProcAddress(hNormaliz,fn_IsNormalizedString);
-      NormalizeString := GetProcAddress(hNormaliz, fn_NormalizeString);
+      IdnToUnicode := LoadLibFunction(hNormaliz, fn_IdnToUnicode);
+      IdnToNameprepUnicode := LoadLibFunction(hNormaliz, fn_IdnToNameprepUnicode);
+      IdnToAscii := LoadLibFunction(hNormaliz, fn_IdnToAscii);
+      IsNormalizedString := LoadLibFunction(hNormaliz,fn_IsNormalizedString);
+      NormalizeString := LoadLibFunction(hNormaliz, fn_NormalizeString);
     end;
   end;
 end;

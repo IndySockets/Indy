@@ -22554,14 +22554,7 @@ them in case we use them later.}
   {$ENDIF}
 
 
-{ IMPORTANT!!!
-
-WindowsCE only has a Unicode (WideChar) version of GetProcAddress.  We could use
-a version of GetProcAddress in the FreePascal dynlibs unit but that does a
-conversion from ASCII to Unicode which might not be necessary since most calls
-pass a constant anyway.
-}
-function LoadFunction(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadFunction(const FceName: TIdLibFuncName; const ACritical : Boolean = True): Pointer;
 begin
   Result := LoadLibFunction(hIdSSL, FceName);
   if (Result = nil) and ACritical then begin
@@ -22569,7 +22562,7 @@ begin
   end;
 end;
 
-function LoadFunctionCLib(const FceName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadFunctionCLib(const FceName: TIdLibFuncName; const ACritical : Boolean = True): Pointer;
 begin
   Result := LoadLibFunction(hIdCrypto, FceName);
   if (Result = nil) and ACritical then begin
@@ -22586,7 +22579,7 @@ The OpenSSL developers changed that interface to a new "des_*" API.  They have s
  "_ossl_old_des_*" for backwards compatability with the old functions
  which are defined in des_old.h. 
 }
-function LoadOldCLib(const AOldName, ANewName : {$IFDEF WINCE}TIdUnicodeString{$ELSE}String{$ENDIF}; const ACritical : Boolean = True): Pointer;
+function LoadOldCLib(const AOldName, ANewName : TIdLibFuncName; const ACritical : Boolean = True): Pointer;
 begin
   Result := LoadLibFunction(hIdCrypto, AOldName);
   if Result = nil then begin

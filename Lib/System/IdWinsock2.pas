@@ -158,7 +158,8 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
 
 }
 
-{$RANGECHECKS OFF}
+{$I IdRangeCheckingOff.inc}
+
 {$IFDEF FPC}
   {$IFDEF WIN32}
     {$ALIGN OFF}
@@ -6050,20 +6051,13 @@ begin
   end;
 end;
 
-{ IMPORTANT!!!
-
-WindowsCE only has a Unicode (WideChar) version of GetProcAddress.  We could use
-a version of GetProcAddress in the FreePascal dynlibs unit but that does a
-conversion from ASCII to Unicode which might not be necessary since most calls
-pass a constant anyway.
-}
-function FixupStub(hDll: TIdLibHandle; const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
+function FixupStub(hDll: TIdLibHandle; const AName: TIdLibFuncName): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if hDll = IdNilHandle then begin
     raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
   end;
-  Result := Windows.GetProcAddress(hDll, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
+  Result := LoadLibFunction(hDll, AName);
   if Result = nil then begin
     raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
   end;

@@ -177,14 +177,14 @@ begin
   GHandleKtm := LoadLibrary('ktmw32.dll');
   if GHandleKtm <> 0 Then begin
     GHandleKernel := GetModuleHandle('Kernel32.dll'); //LoadLibrary('kernel32.dll');
-    @CreateTransaction := GetProcAddress(GHandleKtm, 'CreateTransaction');
-    @CommitTransaction := GetProcAddress(GHandleKtm, 'CommitTransaction');
-    @RollbackTransaction := GetProcAddress(GHandleKtm, 'RollbackTransaction');
-    @CloseTransaction := GetProcAddress(GHandleKernel, 'CloseHandle');
+    @CreateTransaction := LoadLibFunction(GHandleKtm, 'CreateTransaction');
+    @CommitTransaction := LoadLibFunction(GHandleKtm, 'CommitTransaction');
+    @RollbackTransaction := LoadLibFunction(GHandleKtm, 'RollbackTransaction');
+    @CloseTransaction := LoadLibFunction(GHandleKernel, 'CloseHandle');
     {$IFDEF UNICODE}
-    @CreateFileTransacted := GetProcAddress(GHandleKernel, 'CreateFileTransactedW');
+    @CreateFileTransacted := LoadLibFunction(GHandleKernel, 'CreateFileTransactedW');
     {$ELSE}
-    @CreateFileTransacted := GetProcAddress(GHandleKernel, 'CreateFileTransactedA');
+    @CreateFileTransacted := LoadLibFunction(GHandleKernel, 'CreateFileTransactedA');
    {$ENDIF}
   end else begin
     @CreateTransaction := @DummyCreateTransaction;

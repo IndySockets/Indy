@@ -574,9 +574,9 @@ begin
   Result := IdSSLOpenSSLHeaders.Load;
   if Result then begin
     h := IdSSLOpenSSLHeaders.GetCryptLibHandle;
-    GRC4_Options := GetProcAddress(h,'RC4_options');
-    GRC4_set_key := GetProcAddress(h,'RC4_set_key');
-    GRC4 := GetProcAddress(h,'RC4');
+    GRC4_Options := LoadLibFunction(h,'RC4_options');
+    GRC4_set_key := LoadLibFunction(h,'RC4_set_key');
+    GRC4 := LoadLibFunction(h,'RC4');
   end;
   Result := RC4FunctionsLoaded;
 end;

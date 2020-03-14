@@ -924,14 +924,14 @@ begin
   end;
 end;
 
-function FixupStub(const AName: {$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}): Pointer;
+function FixupStub(const AName: TIdLibFuncName): Pointer;
 begin
   if hZLib = IdNilHandle then begin
     if not Load then begin
       raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
     end;
   end;
-  Result := GetProcAddress(hZLib, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
+  Result := LoadLibFunction(hZLib, AName);
   if Result = nil then begin
     raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 10022);
   end;

@@ -1474,20 +1474,20 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
   end;
   hProcHandle := IdWinsock2.WinsockHandle;
 
-  gai := GetProcAddress(hProcHandle, fn_getaddrinfo);
+  gai := LoadLibFunction(hProcHandle, fn_getaddrinfo);
   if not Assigned(gai) then
   begin
     hWship6Dll := SafeLoadLibrary(Wship6_dll);
     hProcHandle := hWship6Dll;
-    gai := GetProcAddress(hProcHandle, fn_getaddrinfo);  {do not localize}
+    gai := LoadLibFunction(hProcHandle, fn_getaddrinfo);
   end;
 
   if Assigned(gai) then
   begin
-    gni := GetProcAddress(hProcHandle, fn_getnameinfo);  {do not localize}
+    gni := LoadLibFunction(hProcHandle, fn_getnameinfo);
     if Assigned(gni) then
     begin
-      fai := GetProcAddress(hProcHandle, fn_freeaddrinfo);  {do not localize}
+      fai := LoadLibFunction(hProcHandle, fn_freeaddrinfo);
       if Assigned(fai) then
       begin
         {$IFDEF WINCE_UNICODE}
@@ -1505,22 +1505,20 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
 
         //Additional functions should be initialized here.
         {$IFNDEF WINCE}
-        inet_pton := GetProcAddress(hProcHandle, fn_inet_pton);  {do not localize}
-        inet_ntop := GetProcAddress(hProcHandle, fn_inet_ntop);  {do not localize}
-        GetAddrInfoEx := GetProcAddress(hProcHandle, fn_GetAddrInfoEx); {Do not localize}
-        SetAddrInfoEx := GetProcAddress(hProcHandle, fn_SetAddrInfoEx); {Do not localize}
-        FreeAddrInfoEx := GetProcAddress(hProcHandle, fn_FreeAddrInfoEx); {Do not localize}
+        inet_pton := LoadLibFunction(hProcHandle, fn_inet_pton);
+        inet_ntop := LoadLibFunction(hProcHandle, fn_inet_ntop);
+        GetAddrInfoEx := LoadLibFunction(hProcHandle, fn_GetAddrInfoEx);
+        SetAddrInfoEx := LoadLibFunction(hProcHandle, fn_SetAddrInfoEx);
+        FreeAddrInfoEx := LoadLibFunction(hProcHandle, fn_FreeAddrInfoEx);
         hfwpuclntDll := SafeLoadLibrary(fwpuclnt_dll);
         if hfwpuclntDll <> IdNilHandle then
         begin
-          WSASetSocketSecurity := GetProcAddress(hfwpuclntDll,
-             'WSASetSocketSecurity');
-          WSAQuerySocketSecurity := GetProcAddress(hfwpuclntDll, 'WSAQuerySocketSecurity'); {Do not localize}
-          WSASetSocketPeerTargetName := GetProcAddress(hfwpuclntDll, 'WSASetSocketPeerTargetName'); {Do not localize}
-          WSADeleteSocketPeerTargetName := GetProcAddress(hfwpuclntDll, 'WSADeleteSocketPeerTargetName');  {Do not localize}
-          WSAImpersonateSocketPeer := GetProcAddress(hfwpuclntDll, 'WSAImpersonateSocketPeer'); {Do not localize}
-
-          WSARevertImpersonation := GetProcAddress(hfwpuclntDll, 'WSARevertImpersonation'); {Do not localize}
+          WSASetSocketSecurity := LoadLibFunction(hfwpuclntDll, 'WSASetSocketSecurity'); {Do not localize}
+          WSAQuerySocketSecurity := LoadLibFunction(hfwpuclntDll, 'WSAQuerySocketSecurity'); {Do not localize}
+          WSASetSocketPeerTargetName := LoadLibFunction(hfwpuclntDll, 'WSASetSocketPeerTargetName'); {Do not localize}
+          WSADeleteSocketPeerTargetName := LoadLibFunction(hfwpuclntDll, 'WSADeleteSocketPeerTargetName');  {Do not localize}
+          WSAImpersonateSocketPeer := LoadLibFunction(hfwpuclntDll, 'WSAImpersonateSocketPeer'); {Do not localize}
+          WSARevertImpersonation := LoadLibFunction(hfwpuclntDll, 'WSARevertImpersonation'); {Do not localize}
         end;
         {$ENDIF}
 

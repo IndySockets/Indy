@@ -256,7 +256,7 @@ begin
       raise EIdIconvStubError.Build(Format(RSIconvCallError, [AName]), 0);
     end;
   end;
-  Result := GetProcAddress(hIconv, PChar(AName));
+  Result := LoadLibFunction(hIconv, AName);
   {
   IMPORTANT!!!
 
@@ -266,7 +266,7 @@ begin
   IOW, CYA!!!
   }
   if Result = nil then begin
-    Result := GetProcAddress(hIconv, PChar('lib'+AName));
+    Result := LoadLibFunction(hIconv, 'lib'+AName);
     if Result = nil then begin
       raise EIdIconvStubError.Build(Format(RSIconvCallError, [AName]), 10022);
     end;
@@ -442,7 +442,7 @@ begin
     if hmsvcrt = 0 then begin
       raise EIdMSVCRTStubError.Build('Failed to load ' + LIBMSVCRTL, 0);
     end;
-    errno := GetProcAddress(hmsvcrt, PChar(FN_errno));
+    errno := LoadLibFunction(hmsvcrt, FN_errno);
     if not Assigned(errno) then begin
       errno := Stub_errno;
       raise EIdMSVCRTStubError.Build('Failed to load ' + FN_errno + ' in ' + LIBMSVCRTL, 0);

@@ -720,12 +720,12 @@ var
   GetAdaptersAddresses: TGetAdaptersAddresses = nil;
   ConvertLengthToIpv4Mask: TConvertLengthToIpv4Mask = nil;
 
-function FixupIPHelperStub(const AName:{$IFDEF WINCE}TIdUnicodeString{$ELSE}string{$ENDIF}; DefImpl: Pointer): Pointer;
+function FixupIPHelperStub(const AName: TIdLibFuncName; DefImpl: Pointer): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := nil;
   if hIpHlpApi <> IdNilHandle then begin
-    Result := Windows.GetProcAddress(hIpHlpApi, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(AName));
+    Result := LoadLibFunction(hIpHlpApi, AName);
   end;
   if Result = nil then begin
     Result := DefImpl;
@@ -2532,7 +2532,7 @@ initialization
   // Check if we are running under windows NT
   {$IFNDEF WINCE}
   if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-    GetFileSizeEx := Windows.GetProcAddress(GetModuleHandle('Kernel32.dll'), 'GetFileSizeEx');
+    GetFileSizeEx := LoadLibFunction(GetModuleHandle('Kernel32.dll'), 'GetFileSizeEx');
     GServeFileProc := ServeFile;
   end;
   {$ENDIF}
