@@ -17065,7 +17065,7 @@ var
   {$EXTERNALSYM d2i_X509_bio}
   d2i_X509_bio : function(bp: PBIO; x: PPx509): PX509 cdecl = nil;
   {$EXTERNALSYM i2d_X509_REQ_bio}
-  i2d_X509_REQ_bio : function(x: PX509_REQ; bp: PBIO): TIdC_INT cdecl = nil;
+  i2d_X509_REQ_bio : function(bp: PBIO; x: PX509_REQ): TIdC_INT cdecl = nil;
   {$EXTERNALSYM i2d_X509_bio}
   i2d_X509_bio : function(bp: PBIO; x: PX509): TIdC_INT cdecl = nil;
   {$EXTERNALSYM i2d_PrivateKey_bio}
