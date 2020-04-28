@@ -1919,6 +1919,11 @@ function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 
 // For Nextgen compilers: IdDisposeAndNil calls TObject.DisposeOf() to ensure
 // the object is freed immediately even if it has active references to it,
 // for instance when freeing an Owned component
+
+// Embarcadero changed the signature of FreeAndNil() in 10.4 Denali:
+// procedure FreeAndNil(const [ref] Obj: TObject); inline;
+
+// TODO: Change the signature of IdDisposeAndNil() to match FreeAndNil() in 10.4+...
 procedure IdDisposeAndNil(var Obj); {$IFDEF USE_INLINE}inline;{$ENDIF}
 
 //RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
@@ -2984,7 +2989,7 @@ begin
   FMBToWCharFlags := MBToWCharFlags;
   FWCharToMBFlags := WCharToMBFlags;
 
-  {$IFDEF FPC}
+  {$IFDEF FPC} // TODO: do this for Delphi 2009+, too...
   if FCodePage = CP_ACP then begin
     FCodePage := DefaultSystemCodePage;
   end;
@@ -9797,6 +9802,16 @@ begin
 end;
 {$ENDIF}
 
+// Embarcadero changed the signature of FreeAndNil() in 10.4 Denali...
+{$UNDEF HAS_FreeAndNil_ConstRef_Param}
+{$IFNDEF USE_OBJECT_ARC}
+  {$IFDEF DCC}
+    {$IFDEF VCL_10_4_OR_ABOVE}
+      {$DEFINE HAS_FreeAndNil_TObject_Param}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 procedure IdDisposeAndNil(var Obj);
 {$IFDEF USE_OBJECT_ARC}
 var
@@ -9819,7 +9834,7 @@ begin
   Temp.DisposeOf;
   // __ObjRelease() is called when Temp goes out of scope
   {$ELSE}
-  FreeAndNil(Obj);
+  FreeAndNil({$IFDEF HAS_FreeAndNil_TObject_Param}TObject(Obj){$ELSE}Obj{$ENDIF});
   {$ENDIF}
 end;
 
