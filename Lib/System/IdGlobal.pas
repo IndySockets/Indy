@@ -2943,18 +2943,20 @@ end;
 
 {$IFDEF WINDOWS}
   // TODO: move this into IdCompilerDefines.inc?
-  {$IFDEF DCC}
-    {$IFDEF VCL_2009_OR_ABOVE}
-      {$DEFINE HAS_GetCPInfoEx}
+  {$IFNDEF WINCE}
+    {$IFDEF DCC}
+      {$IFDEF VCL_2009_OR_ABOVE}
+        {$DEFINE HAS_GetCPInfoEx}
+      {$ELSE}
+        {$UNDEF HAS_GetCPInfoEx}
+      {$ENDIF}
     {$ELSE}
-      {$UNDEF HAS_GetCPInfoEx}
+      // TODO: when was GetCPInfoEx() added to FreePascal?
+      {$DEFINE HAS_GetCPInfoEx}
     {$ENDIF}
-  {$ELSE}
-    // TODO: when was GetCPInfoEx() added to FreePascal?
-    {$DEFINE HAS_GetCPInfoEx}
-  {$ENDIF}
 
-  {$IFNDEF HAS_GetCPInfoEx}
+    {$IFNDEF HAS_GetCPInfoEx}
+// TODO: implement GetCPInfoEx() as a stub that falls back to GetCPInfo() if needed
 type
   TCPInfoEx = record
     MaxCharSize: UINT;                       { max length (bytes) of a char }
@@ -2966,6 +2968,7 @@ type
   end;
 
 function GetCPInfoEx(CodePage: UINT; dwFlags: DWORD; var lpCPInfoEx: TCPInfoEx): BOOL; stdcall; external 'KERNEL32' name {$IFDEF UNICODE}'GetCPInfoExW'{$ELSE}'GetCPInfoExA'{$ENDIF};
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
@@ -2979,7 +2982,7 @@ const
   cValue: array[0..1] of UInt16 = ($DBFF, $DFFF);
 {$ELSE}
 var
-  LCPInfo: TCPInfoEx;
+  LCPInfo: {$IFDEF WINCE}TCPInfo{$ELSE}TCPInfoEx{$ENDIF};
   LError: Boolean;
 {$ENDIF}
 begin
@@ -2996,23 +2999,29 @@ begin
   {$ENDIF}
 
   {$IFDEF WINDOWS}
-  LError := not GetCPInfoEx(FCodePage, 0, LCPInfo);
+
+  LError := not {$IFDEF WINCE}GetCPInfo(FCodePage, LCPInfo){$ELSE}GetCPInfoEx(FCodePage, 0, LCPInfo){$ENDIF};
   if LError and (FCodePage = 20127) then begin
     // RLebeau: 20127 is the official codepage for ASCII, but not
     // all OS versions support that codepage, so fallback to 1252
     // or even 437...
-    LError := not GetCPInfoEx(1252, 0, LCPInfo);
+    LError := not {$IFDEF WINCE}GetCPInfo(1252, LCPInfo){$ELSE}GetCPInfoEx(1252, 0, LCPInfo){$ENDIF};
     // just in case...
     if LError then begin
-      LError := not GetCPInfoEx(437, 0, LCPInfo);
+      LError := not {$IFDEF WINCE}GetCPInfo(437, LCPInfo){$ELSE}GetCPInfoEx(437, 0, LCPInfo){$ENDIF};
     end;
   end;
   if LError then begin
     raise EIdException.CreateResFmt(PResStringRec(@RSInvalidCodePage), [FCodePage]);
   end;
+
+  {$IFNDEF WINCE}
   FCodePage := LCPInfo.CodePage;
+  {$ENDIF}
   FMaxCharSize := LCPInfo.MaxCharSize;
+
   {$ELSE}
+
   case FCodePage of
     65000: begin
       FMaxCharSize := 5;
@@ -3038,11 +3047,13 @@ begin
     // FMaxCharSize gets set to 0, preventing any character conversions.  So
     // force FMaxCharSize to 1 if GetByteCount() fails, until a better solution
     // can be found.  Maybe loop through the codepoints until we find the largest
-    // one that is supported by this codepage (though that will take time)...
+    // one that is supported by this codepage (though that will take time). Or
+    // at least implement a lookup table for the more commonly used charsets...
     if FMaxCharSize = 0 then begin
       FMaxCharSize := 1;
     end;
   end;
+
   {$ENDIF}
 
   FIsSingleByte := (FMaxCharSize = 1);
