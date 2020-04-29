@@ -2855,6 +2855,8 @@ begin
     LCmd := LCmd + ' CHARSET ' + LCharSet;        {Do not localize}
     LEncoding := CharsetToEncoding(LCharSet);
   end else begin
+    // keep the compiler happy...
+    LNonSyncLiteralIsLimited := False;
     LCanUseNonSyncLiteral := False;
     LUseUTF8QuotedString := False;
   end;
