@@ -763,9 +763,14 @@ const
   INFINITE = UInt32($FFFFFFFF);     { Infinite timeout }
   {$ENDIF}
 
-  // FPC's DynLibs unit is not included in this unit's interface 'uses' clause, only
-  // in the implementation's 'uses' clause, so map to what DynLibs.NilHandle maps to...
-  IdNilHandle = {$IFDEF FPC}{DynLibs.NilHandle}PtrInt(0){$ELSE}THandle(0){$ENDIF};
+  // FPC's DynLibs unit is not included in this unit's interface 'uses' clause on
+  // all platforms, so map to what DynLibs.NilHandle maps to...
+  {$IFDEF FPC}
+  IdNilHandle = {DynLibs.NilHandle}{$IFDEF WINDOWS}PtrUInt(0){$ELSE}PtrInt(0){$ENDIF};
+  {$ELSE}
+  IdNilHandle = THandle(0);
+  {$ENDIF}
+
   LF = #10;
   CR = #13;
 
@@ -1027,11 +1032,12 @@ type
   // RLebeau 12/1/2018: FPC's System unit defines an HMODULE type as a PtrUInt. But,
   // the DynLibs unit defines its own HModule type that is a TLibHandle, which is a
   // PtrInt instead. And to make matters worse, although FPC's System.THandle is a
-  // platform-dependant type, it is not always defined as 8 bytes on 64bit platforms,
-  // which has been known to cause overflows when dynamic libraries are loaded at
-  // high addresses! (FPC bug?)  So, we can't rely on THandle to hold correct handles
-  // for libraries that we load dynamically at runtime (which is probably why FPC
-  // defines TLibHandle in the first place, but why is it signed instead of unsigned?).
+  // platform-dependant type, it is not always defined as 8 bytes on 64bit platforms
+  // (https://bugs.freepascal.org/view.php?id=21669), which has been known to cause
+  // overflows when dynamic libraries are loaded at high addresses! (FPC bug?)  So,
+  // we can't rely on THandle to hold correct handles for libraries that we load
+  // dynamically at runtime (which is probably why FPC defines TLibHandle in the first
+  // place, but why is it signed instead of unsigned?).
   //
   // Delphi's HMODULE is a System.THandle, which is a NativeUInt, and so is defined
   // with a proper byte size across all 32bit and 64bit platforms.
@@ -1041,9 +1047,23 @@ type
   // signed vs unsigned library handles.  I would prefer to use unsigned everywhere,
   // but we should use what is more natural for each compiler...
 
-  // FPC's DynLibs unit is not included in this unit's interface 'uses' clause, only
-  // in the implementation's 'uses' clause, so map to what DynLibs.TLibHandle maps to...
-  TIdLibHandle = {$IFDEF FPC}{DynLibs.TLibHandle}PtrInt{$ELSE}THandle{$ENDIF};
+  // FPC's DynLibs unit is not included in this unit's interface 'uses' clause on all
+  // platforms, so map to what DynLibs.TLibHandle maps to...
+
+  // RLebeau 4/29/2020: to make metters worse, FPC defines TLibHandle as System.THandle
+  // on Windows, not as PtrInt as previously observed!  And FPC's Windows.GetProcAddress()
+  // uses HINST, which is also defined as System.THandle.  But, as we know from above,
+  // FPC's System.THandle has problems on some 64bit systems! But does that apply on
+  // Windows?  I THINK the latest FPC uses QWord/DWord (aka PtrUInt) for all Windows
+  // platforms, which is good...
+
+  {$IFDEF FPC}
+  // TODO: use the THANDLE_(32|64|CPUBITS) defines in IdCompilerDefines.inc to decide
+  // how to define TIdLibHandle when not using the DynLibs unit?
+  TIdLibHandle = {DynLibs.TLibHandle}{$IFDEF WINDOWS}PtrUInt{$ELSE}PtrInt{$ENDIF};
+  {$ELSE}
+  TIdLibHandle = THandle;
+  {$ENDIF}
 
   { IMPORTANT!!!
 
@@ -4482,7 +4502,9 @@ end;
 
 function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: TIdLibFuncName): Pointer;
 begin
+  {$I IdRangeCheckingOff.inc}
   Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(ALibHandle, PIdLibFuncNameChar(AProcName));
+  {$I IdRangeCheckingOn.inc}
 end;
 
 {$IFDEF UNIX}
