@@ -1896,7 +1896,7 @@ begin
             IOHandler.WriteLn(ACommand);
 
             LReadList := nil;
-            if not LSocketList.SelectReadList(LReadList, ListenTimeout) then
+            if not LSocketList.SelectReadList(LReadList, ListenTimeout) then begin
               raise EIdAcceptTimeout.Create(RSAcceptTimeout);
             end;
             try
@@ -2124,7 +2124,7 @@ begin
           IOHandler.Write(ACommand);
 
           LReadList := nil;
-          if not LSocketList.SelectReadList(LReadList, ListenTimeout) then
+          if not LSocketList.SelectReadList(LReadList, ListenTimeout) then begin
             raise EIdAcceptTimeout.Create(RSAcceptTimeout);
           end;
           try
