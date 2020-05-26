@@ -1869,15 +1869,6 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
   {$IFDEF DOTNET}
     {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
   {$ENDIF}
-  {$IFDEF VCL_CROSS_COMPILE}
-    // RLebeau: this should be enabled for Windows, at least...
-    {$IFNDEF MSWINDOWS}
-      // RLebeau: LeakCheck has leak reporting on other platforms...
-      {$IFNDEF USE_LEAKCHECK}
-        {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
 {$ENDIF}
 
 {
