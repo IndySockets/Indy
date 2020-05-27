@@ -70,97 +70,97 @@ const
 
   (* These are used to specify which ciphers to use and not to use *)
 
-  SSL_TXT_LOW = 'LOW';
-  SSL_TXT_MEDIUM = 'MEDIUM';
-  SSL_TXT_HIGH = 'HIGH';
-  SSL_TXT_FIPS = 'FIPS';
+  SSL_TXT_LOW = AnsiString('LOW');
+  SSL_TXT_MEDIUM = AnsiString('MEDIUM');
+  SSL_TXT_HIGH = AnsiString('HIGH');
+  SSL_TXT_FIPS = AnsiString('FIPS');
 
-  SSL_TXT_aNULL = 'aNULL';
-  SSL_TXT_eNULL = 'eNULL';
-  SSL_TXT_NULL = 'NULL';
+  SSL_TXT_aNULL = AnsiString('aNULL');
+  SSL_TXT_eNULL = AnsiString('eNULL');
+  SSL_TXT_NULL = AnsiString('NULL');
 
-  SSL_TXT_kRSA = 'kRSA';
-  SSL_TXT_kDHr = 'kDHr';
-  SSL_TXT_kDHd = 'kDHd';
-  SSL_TXT_kDH = 'kDH';
-  SSL_TXT_kEDH = 'kEDH';
-  SSL_TXT_kDHE = 'kDHE';
-  SSL_TXT_kECDHr = 'kECDHr';
-//const SSL_TXT_kECDHe = 'kECDHe';
-  SSL_TXT_kECDH = 'kECDH';
-  SSL_TXT_kEECDH = 'kEECDH';
-  SSL_TXT_kECDHE = 'kECDHE';
-  SSL_TXT_kPSK = 'kPSK';
-  SSL_TXT_kRSAPSK = 'kRSAPSK';
-  SSL_TXT_kECDHEPSK = 'kECDHEPSK';
-  SSL_TXT_kDHEPSK = 'kDHEPSK';
-  SSL_TXT_kGOST = 'kGOST';
-  SSL_TXT_kSRP = 'kSRP';
+  SSL_TXT_kRSA = AnsiString('kRSA');
+  SSL_TXT_kDHr = AnsiString('kDHr');
+  SSL_TXT_kDHd = AnsiString('kDHd');
+  SSL_TXT_kDH = AnsiString('kDH');
+  SSL_TXT_kEDH = AnsiString('kEDH');
+  SSL_TXT_kDHE = AnsiString('kDHE');
+  SSL_TXT_kECDHr = AnsiString('kECDHr');
+//const SSL_TXT_kECDHe = AnsiString('kECDHe');
+  SSL_TXT_kECDH = AnsiString('kECDH');
+  SSL_TXT_kEECDH = AnsiString('kEECDH');
+  SSL_TXT_kECDHE = AnsiString('kECDHE');
+  SSL_TXT_kPSK = AnsiString('kPSK');
+  SSL_TXT_kRSAPSK = AnsiString('kRSAPSK');
+  SSL_TXT_kECDHEPSK = AnsiString('kECDHEPSK');
+  SSL_TXT_kDHEPSK = AnsiString('kDHEPSK');
+  SSL_TXT_kGOST = AnsiString('kGOST');
+  SSL_TXT_kSRP = AnsiString('kSRP');
 
-  SSL_TXT_aRSA = 'aRSA';
-  SSL_TXT_aDSS = 'aDSS';
-  SSL_TXT_aDH = 'aDH';
-  SSL_TXT_aECDH = 'aECDH';
-  SSL_TXT_aECDSA = 'aECDSA';
-  SSL_TXT_aPSK = 'aPSK';
-  SSL_TXT_aGOST94 = 'aGOST94';
-  SSL_TXT_aGOST01 = 'aGOST01';
-  SSL_TXT_aGOST12 = 'aGOST12';
-  SSL_TXT_aGOST = 'aGOST';
-  SSL_TXT_aSRP = 'aSRP';
+  SSL_TXT_aRSA = AnsiString('aRSA');
+  SSL_TXT_aDSS = AnsiString('aDSS');
+  SSL_TXT_aDH = AnsiString('aDH');
+  SSL_TXT_aECDH = AnsiString('aECDH');
+  SSL_TXT_aECDSA = AnsiString('aECDSA');
+  SSL_TXT_aPSK = AnsiString('aPSK');
+  SSL_TXT_aGOST94 = AnsiString('aGOST94');
+  SSL_TXT_aGOST01 = AnsiString('aGOST01');
+  SSL_TXT_aGOST12 = AnsiString('aGOST12');
+  SSL_TXT_aGOST = AnsiString('aGOST');
+  SSL_TXT_aSRP = AnsiString('aSRP');
 
-  SSL_TXT_DSS = 'DSS';
-  SSL_TXT_DH = 'DH';
-  SSL_TXT_DHE = 'DHE';
-  SSL_TXT_EDH = 'EDH';
-  //SSL_TXT_ADH = 'ADH';
-  SSL_TXT_RSA = 'RSA';
-  SSL_TXT_ECDH = 'ECDH';
-  SSL_TXT_EECDH = 'EECDH';
-  SSL_TXT_ECDHE = 'ECDHE';
-  //SSL_TXT_AECDH = 'AECDH';
-  SSL_TXT_ECDSA = 'ECDSA';
-  SSL_TXT_PSK = 'PSK';
-  SSL_TXT_SRP = 'SRP';
+  SSL_TXT_DSS = AnsiString('DSS');
+  SSL_TXT_DH = AnsiString('DH');
+  SSL_TXT_DHE = AnsiString('DHE');
+  SSL_TXT_EDH = AnsiString('EDH');
+  //SSL_TXT_ADH = AnsiString('ADH');
+  SSL_TXT_RSA = AnsiString('RSA');
+  SSL_TXT_ECDH = AnsiString('ECDH');
+  SSL_TXT_EECDH = AnsiString('EECDH');
+  SSL_TXT_ECDHE = AnsiString('ECDHE');
+  //SSL_TXT_AECDH = AnsiString('AECDH');
+  SSL_TXT_ECDSA = AnsiString('ECDSA');
+  SSL_TXT_PSK = AnsiString('PSK');
+  SSL_TXT_SRP = AnsiString('SRP');
 
-  SSL_TXT_DES = 'DES';
-  SSL_TXT_3DES = '3DES';
-  SSL_TXT_RC4 = 'RC4';
-  SSL_TXT_RC2 = 'RC2';
-  SSL_TXT_IDEA = 'IDEA';
-  SSL_TXT_SEED = 'SEED';
-  SSL_TXT_AES128 = 'AES128';
-  SSL_TXT_AES256 = 'AES256';
-  SSL_TXT_AES = 'AES';
-  SSL_TXT_AES_GCM = 'AESGCM';
-  SSL_TXT_AES_CCM = 'AESCCM';
-  SSL_TXT_AES_CCM_8 = 'AESCCM8';
-  SSL_TXT_CAMELLIA128 = 'CAMELLIA128';
-  SSL_TXT_CAMELLIA256 = 'CAMELLIA256';
-  SSL_TXT_CAMELLIA = 'CAMELLIA';
-  SSL_TXT_CHACHA20 = 'CHACHA20';
-  SSL_TXT_GOST = 'GOST89';
-  SSL_TXT_ARIA = 'ARIA';
-  SSL_TXT_ARIA_GCM = 'ARIAGCM';
-  SSL_TXT_ARIA128 = 'ARIA128';
-  SSL_TXT_ARIA256 = 'ARIA256';
+  SSL_TXT_DES = AnsiString('DES');
+  SSL_TXT_3DES = AnsiString('3DES');
+  SSL_TXT_RC4 = AnsiString('RC4');
+  SSL_TXT_RC2 = AnsiString('RC2');
+  SSL_TXT_IDEA = AnsiString('IDEA');
+  SSL_TXT_SEED = AnsiString('SEED');
+  SSL_TXT_AES128 = AnsiString('AES128');
+  SSL_TXT_AES256 = AnsiString('AES256');
+  SSL_TXT_AES = AnsiString('AES');
+  SSL_TXT_AES_GCM = AnsiString('AESGCM');
+  SSL_TXT_AES_CCM = AnsiString('AESCCM');
+  SSL_TXT_AES_CCM_8 = AnsiString('AESCCM8');
+  SSL_TXT_CAMELLIA128 = AnsiString('CAMELLIA128');
+  SSL_TXT_CAMELLIA256 = AnsiString('CAMELLIA256');
+  SSL_TXT_CAMELLIA = AnsiString('CAMELLIA');
+  SSL_TXT_CHACHA20 = AnsiString('CHACHA20');
+  SSL_TXT_GOST = AnsiString('GOST89');
+  SSL_TXT_ARIA = AnsiString('ARIA');
+  SSL_TXT_ARIA_GCM = AnsiString('ARIAGCM');
+  SSL_TXT_ARIA128 = AnsiString('ARIA128');
+  SSL_TXT_ARIA256 = AnsiString('ARIA256');
 
-  SSL_TXT_MD5 = 'MD5';
-  SSL_TXT_SHA1 = 'SHA1';
-  SSL_TXT_SHA = 'SHA';
-  SSL_TXT_GOST94 = 'GOST94';
-  SSL_TXT_GOST89MAC = 'GOST89MAC';
-  SSL_TXT_GOST12 = 'GOST12';
-  SSL_TXT_GOST89MAC12 = 'GOST89MAC12';
-  SSL_TXT_SHA256 = 'SHA256';
-  SSL_TXT_SHA384 = 'SHA384';
+  SSL_TXT_MD5 = AnsiString('MD5');
+  SSL_TXT_SHA1 = AnsiString('SHA1');
+  SSL_TXT_SHA = AnsiString('SHA');
+  SSL_TXT_GOST94 = AnsiString('GOST94');
+  SSL_TXT_GOST89MAC = AnsiString('GOST89MAC');
+  SSL_TXT_GOST12 = AnsiString('GOST12');
+  SSL_TXT_GOST89MAC12 = AnsiString('GOST89MAC12');
+  SSL_TXT_SHA256 = AnsiString('SHA256');
+  SSL_TXT_SHA384 = AnsiString('SHA384');
 
-  SSL_TXT_SSLV3 = 'SSLv3';
-  SSL_TXT_TLSV1 = 'TLSv1';
-  SSL_TXT_TLSV1_1 = 'TLSv1.1';
-  SSL_TXT_TLSV1_2 = 'TLSv1.2';
+  SSL_TXT_SSLV3 = AnsiString('SSLv3');
+  SSL_TXT_TLSV1 = AnsiString('TLSv1');
+  SSL_TXT_TLSV1_1 = AnsiString('TLSv1.1');
+  SSL_TXT_TLSV1_2 = AnsiString('TLSv1.2');
 
-  SSL_TXT_ALL = 'ALL';
+  SSL_TXT_ALL = AnsiString('ALL');
 
   (*-
    * COMPLEMENTOF* definitions. These identifiers are used to (de-select)
@@ -176,17 +176,17 @@ const
    * DEFAULT gets, as only selection is being done and no sorting as needed
    * for DEFAULT.
    *)
-  SSL_TXT_CMPALL = 'COMPLEMENTOFALL';
-  SSL_TXT_CMPDEF = 'COMPLEMENTOFDEFAULT';
+  SSL_TXT_CMPALL = AnsiString('COMPLEMENTOFALL');
+  SSL_TXT_CMPDEF = AnsiString('COMPLEMENTOFDEFAULT');
 
   (*
    * The following cipher list is used by default. It also is substituted when
    * an application-defined cipher list string starts with 'DEFAULT'.
    * This applies to ciphersuites for TLSv1.2 and below.
    *)
-  SSL_DEFAULT_CIPHER_LIST = 'ALL:!COMPLEMENTOFDEFAULT:!eNULL';
+  SSL_DEFAULT_CIPHER_LIST = AnsiString('ALL:!COMPLEMENTOFDEFAULT:!eNULL');
   (* This is the default set of TLSv1.3 ciphersuites *)
-  TLS_DEFAULT_CIPHERSUITES = 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256';
+  TLS_DEFAULT_CIPHERSUITES = AnsiString('TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256');
 
   (*
    * As of OpenSSL 1.0.0, ssl_create_cipher_list() in ssl/ssl_ciph.c always

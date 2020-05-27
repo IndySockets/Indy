@@ -161,7 +161,7 @@ end;
 function TOpenSSLLoader.Load: Boolean;
 var
   LLibCrypto, LLibSSL: TIdLibHandle;
-begin
+begin                                  //FI:C101
   Result := True;
   FLoadCount.Lock();
   try
@@ -256,7 +256,7 @@ begin
 end;
 
 procedure TOpenSSLLoader.Unload;
-begin
+begin                            //FI:C101
   FLoadCount.Lock();
   try
     FLoadCount.Decrement();

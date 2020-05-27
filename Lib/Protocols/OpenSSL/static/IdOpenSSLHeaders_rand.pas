@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 11.05.2020 08:36:43
 
 unit IdOpenSSLHeaders_rand;
 
@@ -53,7 +53,7 @@ type
   rand_meth_st_pseudorand = function (buf: PByte; num: TIdC_INT): TIdC_INT; cdecl;
   rand_meth_st_status = function: TIdC_INT; cdecl;
 
-  rand_meth_st = class
+  rand_meth_st = record
     seed: rand_meth_st_seed;
     bytes: rand_meth_st_bytes;
     cleanup: rand_meth_st_cleanup;

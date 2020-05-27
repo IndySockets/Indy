@@ -102,10 +102,10 @@ end;
 
 function IntToBool(const AInt: Integer): Boolean;
 begin
-  if BoolConverter[True] = AInt then
-    Result := True
+  if BoolConverter[False] = AInt then
+    Result := False
   else
-    Result := False;
+    Result := True;
 end;
 
 end.

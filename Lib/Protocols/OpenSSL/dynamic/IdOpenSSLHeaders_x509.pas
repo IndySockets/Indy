@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 11.05.2020 08:36:42
 
 unit IdOpenSSLHeaders_x509;
 
@@ -232,7 +232,7 @@ type
   x509_trust_st = record
     trust: TIdC_INT;
     flags: TIdC_INT;
-    check_trust: function(v1: Px509_trust_st; v2: PX509; v3: TIdC_INT): TIdC_INT;
+    check_trust: function(v1: Px509_trust_st; v2: PX509; v3: TIdC_INT): TIdC_INT; cdecl;
     name: PIdAnsiChar;
     arg1: TIdC_INT;
     arg2: Pointer;

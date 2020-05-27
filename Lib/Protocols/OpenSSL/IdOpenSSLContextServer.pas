@@ -53,6 +53,8 @@ type
   protected
     function GetVerifyMode(const AOptions: TIdOpenSSLOptionsBase): TIdC_INT; override;
   public
+    constructor Create;
+
     function Init(const AOptions: TIdOpenSSLOptionsServer): Boolean;
     function CreateSocket: TIdOpenSSLSocket; override;
   end;
@@ -69,6 +71,12 @@ uses
   IdOpenSSLUtils;
 
 { TIdOpenSSLContextServer }
+
+constructor TIdOpenSSLContextServer.Create;
+begin
+  inherited;
+  FSessionIdCtxFallback := -1;
+end;
 
 function TIdOpenSSLContextServer.CreateSocket: TIdOpenSSLSocket;
 begin
@@ -131,42 +139,41 @@ procedure TIdOpenSSLContextServer.SetSessionContext(
 var
   LBio: PBIO;
   LX509: PX509;
+  LSessionContext: PByte;
   LLen: Integer;
 begin
-  if ACAFile = '' then
-  begin
-    Randomize();
-    FSessionIdCtxFallback := Random(High(Integer));
-    if SSL_CTX_set_session_id_context(
-      AContext,
-      PByte(@FSessionIdCtxFallback),
-      SizeOf(FSessionIdCtxFallback)) <> 1 then
-    begin
-      EIdOpenSSLSessionIdContextError.&Raise();
-    end;
-    Exit;
-  end;
-
-  LBio := BIO_new_file(GetPAnsiChar(ACAFile), 'r');
-  if not Assigned(LBio) then
-    EIdOpenSSLSessionIdContextError.&Raise();
+  LX509 := nil;
+  LBio := nil;
   try
-    LX509 := PEM_read_bio_X509(LBio, nil, nil, nil);
-    if not Assigned(LX509) then
-      EIdOpenSSLSessionIdContextError.&Raise();
-    try
+    if ACAFile <> '' then
+    begin
+      LSessionContext := @FSessionIdCtx[0];
       LLen := SSL_MAX_SID_CTX_LENGTH;
+
+      LBio := BIO_new_file(GetPAnsiChar(ACAFile), 'r');
+      if not Assigned(LBio) then
+        EIdOpenSSLSessionIdContextError.&Raise();
+
+      LX509 := PEM_read_bio_X509(LBio, nil, nil, nil);
+      if not Assigned(LX509) then
+        EIdOpenSSLSessionIdContextError.&Raise();
+
       FillChar(FSessionIdCtx[0], LLen, 0);
       if X509_digest(LX509, EVP_sha1, @FSessionIdCtx[0], @LLen) <> 1 then
         EIdOpenSSLSessionIdContextError.&Raise();
-
-      if SSL_CTX_set_session_id_context(AContext, @FSessionIdCtx[0], LLen) <> 1 then
-        EIdOpenSSLSessionIdContextError.&Raise();
-    finally
-      X509_free(LX509);
+    end
+    else
+    begin
+      LSessionContext := @FSessionIdCtxFallback;
+      LLen := SizeOf(FSessionIdCtxFallback);
     end;
+
+    if SSL_CTX_set_session_id_context(AContext, LSessionContext, LLen) <> 1 then
+      EIdOpenSSLSessionIdContextError.&Raise();
   finally
-    BIO_free(LBio);
+    // Both are nil-safe
+    X509_free(LX509);
+    BIO_vfree(LBio);
   end;
 end;
 

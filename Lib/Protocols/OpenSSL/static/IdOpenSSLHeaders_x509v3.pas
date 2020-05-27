@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 11.05.2020 08:36:43
 
 unit IdOpenSSLHeaders_x509v3;
 
@@ -555,7 +555,7 @@ type
     purpose: TIdC_INT;
     trust: TIdC_INT;                  (* Default trust ID *)
     flags: TIdC_INT;
-    check_purpose: function(const v1: PX509_PURPOSE; const v2: PX509; v3: TIdC_INT): TIdC_INT;
+    check_purpose: function(const v1: PX509_PURPOSE; const v2: PX509; v3: TIdC_INT): TIdC_INT; cdecl;
     name: PIdAnsiChar;
     sname: PIdAnsiChar;
     usr_data: Pointer;

@@ -47,7 +47,7 @@ type
   rand_meth_st_pseudorand = function (buf: PByte; num: TIdC_INT): TIdC_INT; cdecl;
   rand_meth_st_status = function: TIdC_INT; cdecl;
 
-  rand_meth_st = class
+  rand_meth_st = record
     seed: rand_meth_st_seed;
     bytes: rand_meth_st_bytes;
     cleanup: rand_meth_st_cleanup;

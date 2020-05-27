@@ -111,7 +111,7 @@ uses
   Math,
   SysUtils;
 
-function FreeString(const Value: string): Boolean;
+function TryFinalizeString(const Value: string): Boolean;
 var
   refCount: Integer;
 begin
@@ -154,13 +154,13 @@ begin
 
   // Override memory to prevent reading password via memory dump
   FillChar(LPasswordBytes[0], LPasswordByteLength, 0);
-  FreeString(LPassword);
+  TryFinalizeString(LPassword);
 
   buf[size-1] := #0; // RLebeau: truncate the password if needed
   Result := IndyMin(LPasswordByteLength, size);
 end;
 
-function VerifyCallback(preverify_ok: TIdC_INT; x509_ctx: PX509_STORE_CTX): TIdC_INT; cdecl;
+function VerifyCallback(preverify_ok: TIdC_INT; x509_ctx: PX509_STORE_CTX): TIdC_INT; cdecl; //FI:C103
 var
   LCertOpenSSL: PX509;
   LCertIndy: TIdOpenSSLX509;
@@ -249,7 +249,6 @@ begin
 
   FreeContext(FContext);
   FContext := SSL_CTX_new(TLS_method());
-//  FContext := SSL_CTX_new(TLS_method());
   if not Assigned(FContext) then
     EIdOpenSSLNewSSLCtxError.&Raise(RIdOpenSSLNewSSLCtxError);
 

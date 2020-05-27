@@ -304,43 +304,40 @@ begin
 end;
 
 function TIdOpenSSLX509Name.GetNameEntry(const nid: TIdC_INT): string;
+
+  function TryGetPosition(const name: PX509_NAME; const nid: TIdC_INT; var lastpos: TIdC_INT): Boolean;
+  begin
+    lastpos := X509_NAME_get_index_by_NID(name, nid, lastpos);
+    Result := not (lastpos = -1);
+  end;
+
 var
   LPos: TIdC_INT;
   LEntry: PX509_NAME_ENTRY;
   LString: PASN1_STRING;
-  LBuffer: PPByte;
+  LBuffer: PByte;
   LReturn: TIdC_INT;
 begin
   Result := '';
-  New(LBuffer);
-  try
-    // First Entry
-    LPos := X509_NAME_get_index_by_NID(FName, nid, -1);
-    if LPos = -1 then
+
+  LPos := -1;
+  while TryGetPosition(FName, nid, LPos) do
+  begin
+    LEntry := X509_NAME_get_entry(FName, LPos);
+    if not Assigned(LEntry) then
       Exit;
+    LString := X509_NAME_ENTRY_get_data(LEntry);
 
-    repeat
-      LEntry := X509_NAME_get_entry(FName, LPos);
-      if not Assigned(LEntry) then
-        Exit;
-      LString := X509_NAME_ENTRY_get_data(LEntry);
-
-      LReturn := ASN1_STRING_to_UTF8(LBuffer, LString);
-      if LReturn < 0 then
-        Exit;
-      try
-        if not (Result = '') then
-          Result := Result + ' ';
-        Result := Result + GetString(PIdAnsiChar(LBuffer^));
-      finally
-        OPENSSL_free(LBuffer^);
-      end;
-
-      // Next Entry
-      LPos := X509_NAME_get_index_by_NID(FName, nid, LPos);
-    until LPos = -1;
-  finally
-    Dispose(LBuffer);
+    LReturn := ASN1_STRING_to_UTF8(@LBuffer, LString);
+    if LReturn < 0 then
+      Exit;
+    try
+      if not (Result = '') then
+        Result := Result + ' ';
+      Result := Result + GetString(PIdAnsiChar(LBuffer));
+    finally
+      OPENSSL_free(LBuffer);
+    end;
   end;
 end;
 

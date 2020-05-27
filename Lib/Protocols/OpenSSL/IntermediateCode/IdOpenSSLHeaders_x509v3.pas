@@ -549,7 +549,7 @@ type
     purpose: TIdC_INT;
     trust: TIdC_INT;                  (* Default trust ID *)
     flags: TIdC_INT;
-    check_purpose: function(const v1: PX509_PURPOSE; const v2: PX509; v3: TIdC_INT): TIdC_INT;
+    check_purpose: function(const v1: PX509_PURPOSE; const v2: PX509; v3: TIdC_INT): TIdC_INT; cdecl;
     name: PIdAnsiChar;
     sname: PIdAnsiChar;
     usr_data: Pointer;

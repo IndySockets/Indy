@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 11.05.2020 08:36:42
 
 unit IdOpenSSLHeaders_dh;
 
@@ -91,15 +91,15 @@ const
   EVP_PKEY_CTRL_DH_PAD                   = (EVP_PKEY_ALG_CTRL + 16);
 
 type
-  DH_meth_generate_key_cb = function(dh: PDH): TIdC_INT;
-  DH_meth_compute_key_cb = function(key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT;
+  DH_meth_generate_key_cb = function(dh: PDH): TIdC_INT cdecl;
+  DH_meth_compute_key_cb = function(key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT cdecl;
   DH_meth_bn_mod_exp_cb = function(
     const dh: PDH; r: PBIGNUM; const a: PBIGNUM;
     const p: PBIGNUM; const m: PBIGNUM;
-    ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT;
-  DH_meth_init_cb = function(dh: PDH): TIdC_INT;
-  DH_meth_finish_cb = function(dh: PDH): TIdC_INT;
-  DH_meth_generate_params_cb = function(dh: PDH; prime_len: TIdC_INT; generator: TIdC_INT; cb: PBN_GENCB): TIdC_INT;
+    ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT cdecl;
+  DH_meth_init_cb = function(dh: PDH): TIdC_INT cdecl;
+  DH_meth_finish_cb = function(dh: PDH): TIdC_INT cdecl;
+  DH_meth_generate_params_cb = function(dh: PDH; prime_len: TIdC_INT; generator: TIdC_INT; cb: PBN_GENCB): TIdC_INT cdecl;
 
 {$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);

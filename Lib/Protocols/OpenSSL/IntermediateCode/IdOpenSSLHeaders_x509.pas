@@ -225,7 +225,7 @@ type
   x509_trust_st = record
     trust: TIdC_INT;
     flags: TIdC_INT;
-    check_trust: function(v1: Px509_trust_st; v2: PX509; v3: TIdC_INT): TIdC_INT;
+    check_trust: function(v1: Px509_trust_st; v2: PX509; v3: TIdC_INT): TIdC_INT; cdecl;
     name: PIdAnsiChar;
     arg1: TIdC_INT;
     arg2: Pointer;
