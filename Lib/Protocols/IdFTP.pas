@@ -2786,11 +2786,11 @@ var
   end;
 
 begin
-//This has to be here because the Rein command clears encryption.
-//RFC 4217
   //TLS part
-  FUsingSFTP := False;
   if UseTLS in ExplicitTLSVals then begin
+    //This has to be here because the Rein command clears encryption.
+    //RFC 4217
+    FUsingSFTP := False;
     if FAUTHCmd = tAuto then begin
       {Note that we can not call SupportsTLS at all.  That depends upon the FEAT response
       and unfortunately, some servers such as WS_FTP Server 4.0.0 (78162662)
@@ -2831,10 +2831,15 @@ begin
         ProcessTLSNegCmdFailed;
       end;
     end;
-  end;
-  // TODO: should this be moved inside the 'if UseTLS in ExplicitTLSVals' block?
-  if not FUsingSFTP then begin
-    ProcessTLSNotAvail;
+    if not FUsingSFTP then begin
+      ProcessTLSNotAvail;
+    end;
+  end
+  else if UseTLS = utUseImplicitTLS then begin
+    FUsingSFTP := True;
+  end
+  else begin
+    FUsingSFTP := False;
   end;
   //login
   case ProxySettings.ProxyType of
