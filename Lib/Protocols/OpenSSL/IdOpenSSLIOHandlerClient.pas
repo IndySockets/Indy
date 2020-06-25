@@ -71,6 +71,9 @@ uses
   IdURI,
   SysUtils;
 
+type
+  TIdOpenSSLContextClientAccessor = class(TIdOpenSSLContextClient);
+
 { TIdOpenSSLIOHandlerClient }
 
 procedure TIdOpenSSLIOHandlerClient.EnsureContext;
@@ -116,6 +119,9 @@ function TIdOpenSSLIOHandlerClient.Clone: TIdSSLIOHandlerSocketBase;
 begin
   Result := inherited;
   Options.AssignTo(TIdOpenSSLIOHandlerClient(Result).Options);
+  TIdOpenSSLIOHandlerClient(Result).EnsureContext();
+  TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Result).FContext).FSession :=
+    TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Self).FContext).FSession;
 end;
 
 destructor TIdOpenSSLIOHandlerClient.Destroy;

@@ -40,8 +40,8 @@ uses
 type
   TIdOpenSSLContextClient = class(TIdOpenSSLContext)
   private
-    FSession: Pointer;
   protected
+    FSession: Pointer;
     function GetVerifyMode(const AOptions: TIdOpenSSLOptionsBase): TIdC_INT; override;
   public
     function Init(const AOptions: TIdOpenSSLOptionsClient): Boolean;
