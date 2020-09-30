@@ -21,9 +21,6 @@ rem this generates setenv.bat, containing  the environment variables used for co
 rem e.g.:
 rem SET NDD11=\path\to\delphi2007
 rem SET NDWINSYS=\path\to\system32
-rem todo: this could be done in a way that does not require modifying the dll for each Delphi version
-rem       e.g. SET NDD=\path\to\[whatever Delphi version we currently compile]
-rem       %NDD%\Bin\dcc32.exe [project to compile]
 computil SetupD11
 if exist setenv.bat call setenv.bat
 
@@ -81,7 +78,7 @@ rem copy ..\..\D11\IndySystem110.bpl %NDWINSYS% >nul
 popd
 
 ECHO **************
-ECHO  Compile Core    
+ECHO  Compile Core
 ECHO **************
 pushd Core
 %DCC32% IndyCore110.dpk %OPTIONS% %EXEOUTPUTDIRS% %OTHEROUTPUTDIRS% /$%SWITCHES% %2 %3 %4
@@ -96,13 +93,13 @@ ECHO *******************
 ECHO  Compile Protocols
 ECHO *******************
 pushd Protocols
-echo on
+
 ECHO ************************
 ECHO  IdCompressionIntercept
 ECHO ************************
 rem %DCC32% IdCompressionIntercept.pas %OPTIONS% /JPHNE %EXEOUTPUTDIRS% %OTHEROUTPUTDIRS% /$%SWITCHES%
 rem %NDD11%\Bin\dcc32.exe -DBCB -B -M -JPHNE -N..\..\D11 /U..\..\D11 -H -W -Z IdCompressionIntercept.pas -$d-l-
-if errorlevel 1 goto enderror
+rem if errorlevel 1 goto enderror
 
 %DCC32% IndyProtocols110.dpk %OPTIONS% %EXEOUTPUTDIRS% %OTHEROUTPUTDIRS% /$%SWITCHES% %2 %3 %4
 if errorlevel 1 goto enderror
@@ -115,7 +112,7 @@ popd
 
 goto endok
 :enderror
-cd ..
+popd
 call clean.bat
 echo Error!
 :endok
