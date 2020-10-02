@@ -5008,16 +5008,13 @@ begin
 end;
 
 constructor TIdAppendFileStream.Create(const AFile : String);
-var
-  LFlags: Word;
 begin
-  LFlags := fmOpenReadWrite or fmShareDenyWrite;
-  if not FileExists(AFile) then begin
-    LFlags := LFLags or fmCreate;
-  end;
-  inherited Create(AFile, LFlags);
-  if (LFlags and fmCreate) = 0 then begin
+  if FileExists(AFile) then begin
+    inherited Create(AFile, fmOpenReadWrite or fmShareDenyWrite);
     TIdStreamHelper.Seek(Self, 0, soEnd);
+  end
+  else begin
+    inherited Create(AFile, fmCreate or fmOpenReadWrite or fmShareDenyWrite);
   end;
 end;
 
