@@ -170,8 +170,13 @@ begin                                  //FI:C101
   try
     if FLoadCount.Value <= 0 then
     begin
+      {$IFDEF MSWINDOWS}
       LLibCrypto := SafeLoadLibrary(FOpenSSLPath + CLibCrypto, SEM_FAILCRITICALERRORS);
       LLibSSL := SafeLoadLibrary(FOpenSSLPath + CLibSSL, SEM_FAILCRITICALERRORS);
+      {$ELSE}
+      LLibCrypto := HMODULE(HackLoad(FOpenSSLPath + CLibCryptoRaw, SSLDLLVers));
+      LLibSSL := HMODULE(HackLoad(FOpenSSLPath + CLibSSLRaw, SSLDLLVers));
+      {$ENDIF}
       Result := not (LLibCrypto = IdNilHandle) and not (LLibSSL = IdNilHandle);
       if not Result then
         Exit;
