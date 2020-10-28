@@ -26,6 +26,10 @@ implementation
 
 {$IFNDEF STATICLOAD_OPENSSL}
 uses
+{$IFDEF MSWINDOWS}
+  Windows,
+{$ENDIF}
+
   IdOpenSSLHeaders_aes,
   IdOpenSSLHeaders_asn1,
   IdOpenSSLHeaders_asn1err,
@@ -166,8 +170,8 @@ begin                                  //FI:C101
   try
     if FLoadCount.Value <= 0 then
     begin
-      LLibCrypto := SafeLoadLibrary(FOpenSSLPath + CLibCrypto);
-      LLibSSL := SafeLoadLibrary(FOpenSSLPath + CLibSSL);
+      LLibCrypto := SafeLoadLibrary(FOpenSSLPath + CLibCrypto, SEM_FAILCRITICALERRORS);
+      LLibSSL := SafeLoadLibrary(FOpenSSLPath + CLibSSL, SEM_FAILCRITICALERRORS);
       Result := not (LLibCrypto = IdNilHandle) and not (LLibSSL = IdNilHandle);
       if not Result then
         Exit;
