@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:43
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_x509v3;
 
@@ -46,8 +46,7 @@ uses
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_asn1,
   IdOpenSSLHeaders_asn1t,
-  IdOpenSSLHeaders_x509,
-  System.Types;
+  IdOpenSSLHeaders_x509;
 
 const
   (* ext_flags values *)
@@ -262,7 +261,7 @@ type
 //                                  STACK_OF(CONF_VALUE) *values);
   //X509V3_EXT_I2S = function(method: Pv3_ext_method; ext: Pointer): PIdAnsiChar; cdecl;
   //X509V3_EXT_S2I = function(method: Pv3_ext_method; ctx: Pv3_ext_ctx; const str: PIdAnsiChar): Pointer; cdecl;
-  //X509V3_EXT_I2R = function(const method: Pv3_ext_method; ext: Pointer; &out: PBIO; indent: TIdC_INT): TIdC_INT; cdecl;
+  //X509V3_EXT_I2R = function(const method: Pv3_ext_method; ext: Pointer; out_: PBIO; indent: TIdC_INT): TIdC_INT; cdecl;
   //X509V3_EXT_R2I = function(const method: Pv3_ext_method; ctx: Pv3_ext_ctx; const str: PIdAnsiChar): Pointer; cdecl;
 
 //  (* V3 extension structure *)
@@ -342,7 +341,7 @@ type
   PEDIPARTYNAME = ^EDIPARTYNAME;
 
   GENERAL_NAME_st_union = record
-    case DWORD of
+    case TIdC_INT of
       0: (ptr: PIdAnsiChar);
       1: (otherName: POTHERNAME);   (* otherName *)
       2: (rfc822Name: PASN1_IA5STRING);
@@ -362,7 +361,7 @@ type
       14: (other: PASN1_TYPE);       (* x400Address *)
   end;
   GENERAL_NAME_st = record
-    &type: TIdC_INT;
+    type_: TIdC_INT;
     d: GENERAL_NAME_st_union;
   end;
   GENERAL_NAME = GENERAL_NAME_st;
@@ -387,12 +386,12 @@ type
 
 //  DEFINE_STACK_OF(ACCESS_DESCRIPTION)
 //  DIST_POINT_NAME_st_union = record
-//    case DWord of
+//    case TIdC_INT of
 //      0: (GENERAL_NAMES *fullname);
 //      1: (STACK_OF(X509_NAME_ENTRY) *relativename);
 //  end;
   DIST_POINT_NAME_st = record
-    &type: TIdC_INT;
+    type_: TIdC_INT;
     (* If relativename then this contains the full distribution point name *)
     dpname: PX509_NAME;
   end;
@@ -449,7 +448,7 @@ type
 //  PUSERNOTICE = ^USERNOTICE;
 
 //  POLICYQUALINFO_st_union = record
-//    case DWord of
+//    case TIdC_INT of
 //      0: (cpsuri: PASN1_IA5STRING);
 //      1: (usernotice: PUSERNOTICE);
 //      2: (other: PASN1_TYPE);
@@ -575,8 +574,8 @@ type
   PASRange = ^ASRange;
 
   ASIdOrRange_st = record
-    &type: TIdC_INT;
-    case u: DWord of
+    type_: TIdC_INT;
+    case u: TIdC_INT of
       0: (id: PASN1_INTEGER);
       1: (range: PASRange);
   end;
@@ -586,8 +585,8 @@ type
 //  DEFINE_STACK_OF(ASIdOrRange)
 
 //  ASIdentifierChoice_st = record
-//    &type: TIdC_INT;
-//    case u: DWORD of
+//    type_: TIdC_INT;
+//    case u: TIdC_INT of
 //      0: (inherit: PASN1_NULL);
 //      1: (asIdsOrRanges: PASIdOrRanges);
 //  end;
@@ -612,8 +611,8 @@ type
   PIPAddressRange = ^IPAddressRange;
 
   IPAddressOrRange_st = record
-    &type: TIdC_INT;
-    case u: DWORD of
+    type_: TIdC_INT;
+    case u: TIdC_INT of
       0: (addressPrefix: PASN1_BIT_STRING);
       1: (addressRange: PIPAddressRange);
   end;
@@ -624,8 +623,8 @@ type
 //  DEFINE_STACK_OF(IPAddressOrRange)
 
 //  IPAddressChoice_st = record
-//    &type: TIdC_INT;
-//    case u: DWORD of
+//    type_: TIdC_INT;
+//    case u: TIdC_INT of
 //      0: (inherit: PASN1_NULL);
 //      1: (addressesOrRanges: PIPAddressOrRanges);
 //  end;
@@ -702,7 +701,7 @@ type
 //  DECLARE_ASN1_FUNCTIONS(OTHERNAME)
 //  DECLARE_ASN1_FUNCTIONS(EDIPARTYNAME)
   function OTHERNAME_cmp(a: POTHERNAME; b: POTHERNAME): TIdC_INT cdecl; external CLibCrypto;
-  procedure GENERAL_NAME_set0_value(a: PGENERAL_NAME; &type: TIdC_INT; value: Pointer) cdecl; external CLibCrypto;
+  procedure GENERAL_NAME_set0_value(a: PGENERAL_NAME; type_: TIdC_INT; value: Pointer) cdecl; external CLibCrypto;
   function GENERAL_NAME_get0_value(const a: PGENERAL_NAME; ptype: PIdC_INT): Pointer cdecl; external CLibCrypto;
   function GENERAL_NAME_set0_othername(gen: PGENERAL_NAME; oid: PASN1_OBJECT; value: PASN1_TYPE): TIdC_INT cdecl; external CLibCrypto;
   function GENERAL_NAME_get0_otherName(const gen: PGENERAL_NAME; poid: PPASN1_OBJECT; pvalue: PPASN1_TYPE): TIdC_INT cdecl; external CLibCrypto;
@@ -906,9 +905,9 @@ type
   procedure NAMING_AUTHORITY_set0_authorityURL(n: PNAMING_AUTHORITY; namingAuthorityUrl: PASN1_IA5STRING) cdecl; external CLibCrypto;
   procedure NAMING_AUTHORITY_set0_authorityText(n: PNAMING_AUTHORITY; namingAuthorityText: PASN1_STRING) cdecl; external CLibCrypto;
 
-  function ADMISSION_SYNTAX_get0_admissionAuthority(const &as: ADMISSION_SYNTAX): PGENERAL_NAME cdecl; external CLibCrypto;
+  function ADMISSION_SYNTAX_get0_admissionAuthority(const as_: ADMISSION_SYNTAX): PGENERAL_NAME cdecl; external CLibCrypto;
   procedure ADMISSION_SYNTAX_set0_admissionAuthority(&as: ADMISSION_SYNTAX; aa: PGENERAL_NAME) cdecl; external CLibCrypto;
-//  const STACK_OF(ADMISSIONS) *ADMISSION_SYNTAX_get0_contentsOfAdmissions(const &as: ADMISSION_SYNTAX);
+//  const STACK_OF(ADMISSIONS) *ADMISSION_SYNTAX_get0_contentsOfAdmissions(const as_: ADMISSION_SYNTAX);
 //  void ADMISSION_SYNTAX_set0_contentsOfAdmissions(&as: ADMISSION_SYNTAX; STACK_OF(ADMISSIONS) *a);
   function ADMISSIONS_get0_admissionAuthority(const a: PADMISSIONS): PGENERAL_NAME cdecl; external CLibCrypto;
   procedure ADMISSIONS_set0_admissionAuthority(a: PADMISSIONS; aa: PGENERAL_NAME) cdecl; external CLibCrypto;

@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_evp;
 
@@ -412,18 +412,18 @@ type
 
   EVP_CIPHER_meth_init = function(ctx: PEVP_CIPHER_CTX; const key: PByte;
     const iv: PByte; enc: TIdC_SIZET): TIdC_INT; cdecl;
-  EVP_CIPHER_meth_do_cipher = function(ctx: PEVP_CIPHER_CTX; &out: PByte;
-    const &in: PByte; inl: TIdC_SIZET): TIdC_INT; cdecl;
+  EVP_CIPHER_meth_do_cipher = function(ctx: PEVP_CIPHER_CTX; out_: PByte;
+    const in_: PByte; inl: TIdC_SIZET): TIdC_INT; cdecl;
   EVP_CIPHER_meth_cleanup = function(v1: PEVP_CIPHER_CTX): TIdC_INT; cdecl;
   EVP_CIPHER_meth_set_asn1_params = function(v1: PEVP_CIPHER_CTX;
     v2: PASN1_TYPE): TIdC_INT; cdecl;
   EVP_CIPHER_meth_get_asn1_params = function(v1: PEVP_CIPHER_CTX;
     v2: PASN1_TYPE): TIdC_INT; cdecl;
-  EVP_CIPHER_meth_ctrl = function(v1: PEVP_CIPHER_CTX; &type: TIdC_INT;
+  EVP_CIPHER_meth_ctrl = function(v1: PEVP_CIPHER_CTX; type_: TIdC_INT;
     arg: TIdC_INT; ptr: Pointer): TIdC_INT; cdecl;
 
   EVP_CTRL_TLS1_1_MULTIBLOCK_PARAM = record
-    &out: PByte;
+    out_: PByte;
     inp: PByte;
     len: TIdC_SIZET;
     interleave: TidC_UINT;
@@ -437,20 +437,17 @@ type
 
   EVP_MD_CTX_update = function(ctx: PEVP_MD_CTX; const data: Pointer; count: TIdC_SIZET): TIdC_INT; cdecl;
 
-  fn = procedure(const ciph: PEVP_CIPHER; const from: PIdAnsiChar; const &to: PIdAnsiChar; x: Pointer); cdecl;
+  fn = procedure(const ciph: PEVP_CIPHER; const from: PIdAnsiChar; const to_: PIdAnsiChar; x: Pointer); cdecl;
 
   rsa_st = type Pointer;
   Prsa_st = ^rsa_st;
 
   dsa_st = type Pointer;
-
   Pdsa_st = ^dsa_st;
 
   dh_st = type Pointer;
-
   Pdh_st = ^dh_st;
   ec_key_st = type Pointer;
-
   Pec_key_st = ^ec_key_st;
 
   pub_decode = function(pk: PEVP_PKEY; pub: PX509_PUBKEY): TIdC_INT; cdecl;
@@ -531,19 +528,19 @@ type
   PEVP_PKEY_meth_verifyctx = ^EVP_PKEY_meth_verifyctx;
   EVP_PKEY_meth_encrypt_init = function(ctx: PEVP_PKEY_CTX): TIdC_INT; cdecl;
   PEVP_PKEY_meth_encrypt_init = ^EVP_PKEY_meth_encrypt_init;
-  EVP_PKEY_meth_encrypt = function(ctx: PEVP_PKEY_CTX; &out: PByte;
-    outlen: TIdC_SIZET; const &in: PByte): TIdC_INT; cdecl;
+  EVP_PKEY_meth_encrypt = function(ctx: PEVP_PKEY_CTX; out_: PByte;
+    outlen: TIdC_SIZET; const in_: PByte): TIdC_INT; cdecl;
   PEVP_PKEY_meth_encrypt = ^ EVP_PKEY_meth_encrypt;
   EVP_PKEY_meth_decrypt_init = function(ctx: PEVP_PKEY_CTX): TIdC_INT; cdecl;
   PEVP_PKEY_meth_decrypt_init = ^EVP_PKEY_meth_decrypt_init;
-  EVP_PKEY_meth_decrypt = function(ctx: PEVP_PKEY_CTX; &out: PByte;
-    outlen: TIdC_SIZET; const &in: PByte; inlen: TIdC_SIZET): TIdC_INT; cdecl;
+  EVP_PKEY_meth_decrypt = function(ctx: PEVP_PKEY_CTX; out_: PByte;
+    outlen: TIdC_SIZET; const in_: PByte; inlen: TIdC_SIZET): TIdC_INT; cdecl;
   PEVP_PKEY_meth_decrypt = ^EVP_PKEY_meth_decrypt;
   EVP_PKEY_meth_derive_init = function(ctx: PEVP_PKEY_CTX): TIdC_INT; cdecl;
   PEVP_PKEY_meth_derive_init = ^EVP_PKEY_meth_derive_init;
   EVP_PKEY_meth_derive = function(ctx: PEVP_PKEY_CTX; key: PByte; keylen: PIdC_SIZET): TIdC_INT; cdecl;
   PEVP_PKEY_meth_derive = ^EVP_PKEY_meth_derive;
-  EVP_PKEY_meth_ctrl = function(ctx: PEVP_PKEY_CTX; &type: TIdC_INT; p1: TIdC_INT; p2: Pointer): TIdC_INT; cdecl;
+  EVP_PKEY_meth_ctrl = function(ctx: PEVP_PKEY_CTX; type_: TIdC_INT; p1: TIdC_INT; p2: Pointer): TIdC_INT; cdecl;
   PEVP_PKEY_meth_ctrl = ^EVP_PKEY_meth_ctrl;
   EVP_PKEY_meth_ctrl_str = function(ctx: PEVP_PKEY_CTX; key: PByte; keylen: PIdC_SIZET): TIdC_INT; cdecl;
   PEVP_PKEY_meth_ctrl_str = ^EVP_PKEY_meth_ctrl_str;
@@ -569,19 +566,15 @@ type
   PEVP_PBE_KEYGEN = ^EVP_PBE_KEYGEN;
   PPEVP_PBE_KEYGEN = ^PEVP_PBE_KEYGEN;
 
-{$REGION 'C compiler macros'}
 function EVP_PKEY_assign_RSA(pkey: PEVP_PKEY; rsa: Pointer): TIdC_INT;
 function EVP_PKEY_assign_DSA(pkey: PEVP_PKEY; dsa: Pointer): TIdC_INT;
 function EVP_PKEY_assign_DH(pkey: PEVP_PKEY; dh: Pointer): TIdC_INT;
 function EVP_PKEY_assign_EC_KEY(pkey: PEVP_PKEY; eckey: Pointer): TIdC_INT;
 function EVP_PKEY_assign_SIPHASH(pkey: PEVP_PKEY; shkey: Pointer): TIdC_INT;
 function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
-{$ENDREGION}
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   EVP_MD_meth_new: function(md_type: TIdC_INT; pkey_type: TIdC_INT): PEVP_MD cdecl = nil;
@@ -594,7 +587,7 @@ var
   EVP_MD_meth_set_flags: function(md: PEVP_MD; flags: TIdC_ULONG): TIdC_INT cdecl = nil;
   EVP_MD_meth_set_init: function(md: PEVP_MD; init: EVP_MD_meth_init): TIdC_INT cdecl = nil;
   EVP_MD_meth_set_update: function(md: PEVP_MD; update: EVP_MD_meth_update): TIdC_INT cdecl = nil;
-  EVP_MD_meth_set_final: function(md: PEVP_MD; &final: EVP_MD_meth_final): TIdC_INT cdecl = nil;
+  EVP_MD_meth_set_final: function(md: PEVP_MD; final_: EVP_MD_meth_final): TIdC_INT cdecl = nil;
   EVP_MD_meth_set_copy: function(md: PEVP_MD; copy: EVP_MD_meth_copy): TIdC_INT cdecl = nil;
   EVP_MD_meth_set_cleanup: function(md: PEVP_MD; cleanup: EVP_MD_meth_cleanup): TIdC_INT cdecl = nil;
   EVP_MD_meth_set_ctrl: function(md: PEVP_MD; ctrl: EVP_MD_meth_ctrl): TIdC_INT cdecl = nil;
@@ -675,7 +668,7 @@ var
   EVP_CIPHER_CTX_buf_noconst: function(ctx: PEVP_CIPHER_CTX): PByte cdecl = nil;
   EVP_CIPHER_CTX_num: function(const ctx: PEVP_CIPHER_CTX): TIdC_INT cdecl = nil;
   EVP_CIPHER_CTX_set_num: procedure(ctx: PEVP_CIPHER_CTX; num: TIdC_INT) cdecl = nil;
-  EVP_CIPHER_CTX_copy: function(&out: PEVP_CIPHER_CTX; const &in: PEVP_CIPHER_CTX): TIdC_INT cdecl = nil;
+  EVP_CIPHER_CTX_copy: function(&out: PEVP_CIPHER_CTX; const in_: PEVP_CIPHER_CTX): TIdC_INT cdecl = nil;
   EVP_CIPHER_CTX_get_app_data: function(const ctx: PEVP_CIPHER_CTX): Pointer cdecl = nil;
   EVP_CIPHER_CTX_set_app_data: procedure(ctx: PEVP_CIPHER_CTX; data: Pointer) cdecl = nil;
   EVP_CIPHER_CTX_get_cipher_data: function(const ctx: PEVP_CIPHER_CTX): Pointer cdecl = nil;
@@ -708,7 +701,7 @@ var
   //# define BIO_get_cipher_status(b)   BIO_ctrl(b;BIO_C_GET_CIPHER_STATUS;0;NULL)
   //# define BIO_get_cipher_ctx(b;c_pp) BIO_ctrl(b;BIO_C_GET_CIPHER_CTX;0; (PIdAnsiChar)(c_pp))
 
-  //function EVP_Cipher(c: PEVP_CIPHER_CTX; &out: PByte; const &in: PByte; in1: TIdC_UINT): TIdC_INT;
+  //function EVP_Cipher(c: PEVP_CIPHER_CTX; out_: PByte; const in_: PByte; in1: TIdC_UINT): TIdC_INT;
 
   //# define EVP_add_cipher_alias(n;alias) OBJ_NAME_add((alias);OBJ_NAME_TYPE_CIPHER_METH|OBJ_NAME_ALIAS;(n))
   //# define EVP_add_digest_alias(n;alias) OBJ_NAME_add((alias);OBJ_NAME_TYPE_MD_METH|OBJ_NAME_ALIAS;(n))
@@ -722,17 +715,17 @@ var
   //# define EVP_MD_CTX_create()     EVP_MD_CTX_new()
   //# define EVP_MD_CTX_init(ctx)    EVP_MD_CTX_reset((ctx))
   //# define EVP_MD_CTX_destroy(ctx) EVP_MD_CTX_free((ctx))
-  EVP_MD_CTX_copy_ex: function(&out: PEVP_MD_CTX; const &in: PEVP_MD_CTX): TIdC_INT cdecl = nil;
+  EVP_MD_CTX_copy_ex: function(&out: PEVP_MD_CTX; const in_: PEVP_MD_CTX): TIdC_INT cdecl = nil;
   EVP_MD_CTX_set_flags: procedure(ctx: PEVP_MD_CTX; flags: TIdC_INT) cdecl = nil;
   EVP_MD_CTX_clear_flags: procedure(ctx: PEVP_MD_CTX; flags: TIdC_INT) cdecl = nil;
   EVP_MD_CTX_test_flags: function(const ctx: PEVP_MD_CTX; flags: TIdC_INT): TIdC_INT cdecl = nil;
-  EVP_DigestInit_ex: function(ctx: PEVP_MD_CTX; const &type: PEVP_MD; impl: PENGINE): TIdC_INT cdecl = nil;
+  EVP_DigestInit_ex: function(ctx: PEVP_MD_CTX; const type_: PEVP_MD; impl: PENGINE): TIdC_INT cdecl = nil;
   EVP_DigestUpdate: function(ctx: PEVP_MD_CTX; const d: Pointer; cnt: TIdC_SIZET): TIdC_INT cdecl = nil;
   EVP_DigestFinal_ex: function(ctx: PEVP_MD_CTX; md: PByte; s: PIdC_UINT): TIdC_INT cdecl = nil;
-  EVP_Digest: function(const data: Pointer; count: TIdC_SIZET; md: PByte; size: PIdC_UINT; const &type: PEVP_MD; impl: PENGINE): TIdC_INT cdecl = nil;
+  EVP_Digest: function(const data: Pointer; count: TIdC_SIZET; md: PByte; size: PIdC_UINT; const type_: PEVP_MD; impl: PENGINE): TIdC_INT cdecl = nil;
 
-  EVP_MD_CTX_copy: function(&out: PEVP_MD_CTX; const &in: PEVP_MD_CTX): TIdC_INT cdecl = nil;
-  EVP_DigestInit: function(ctx: PEVP_MD_CTX; const &type: PEVP_MD): TIdC_INT cdecl = nil;
+  EVP_MD_CTX_copy: function(&out: PEVP_MD_CTX; const in_: PEVP_MD_CTX): TIdC_INT cdecl = nil;
+  EVP_DigestInit: function(ctx: PEVP_MD_CTX; const type_: PEVP_MD): TIdC_INT cdecl = nil;
   EVP_DigestFinal: function(ctx: PEVP_MD_CTX; md: PByte; s: PIdC_UINT): TIdC_INT cdecl = nil;
   EVP_DigestFinalXOF: function(ctx: PEVP_MD_CTX; md: PByte; len: TIdC_SIZET): TIdC_INT cdecl = nil;
 
@@ -740,7 +733,7 @@ var
   EVP_read_pw_string_min: function(buf: PIdAnsiChar; minlen: TIdC_INT; maxlen: TIdC_INT; const prompt: PIdAnsiChar; verify: TIdC_INT): TIdC_INT cdecl = nil;
   EVP_set_pw_prompt: procedure(const prompt: PIdAnsiChar) cdecl = nil;
   EVP_get_pw_prompt: function: PIdAnsiChar cdecl = nil;
-  EVP_BytesToKey: function(const &type: PEVP_CIPHER; const md: PEVP_MD; const salt: PByte; const data: PByte; data1: TIdC_INT; count: TIdC_INT; key: PByte; iv: PByte): TIdC_INT cdecl = nil;
+  EVP_BytesToKey: function(const type_: PEVP_CIPHER; const md: PEVP_MD; const salt: PByte; const data: PByte; data1: TIdC_INT; count: TIdC_INT; key: PByte; iv: PByte): TIdC_INT cdecl = nil;
 
   EVP_CIPHER_CTX_set_flags: procedure(ctx: PEVP_CIPHER_CTX; flags: TIdC_INT) cdecl = nil;
   EVP_CIPHER_CTX_clear_flags: procedure(ctx: PEVP_CIPHER_CTX; flags: TIdC_INT) cdecl = nil;
@@ -748,19 +741,19 @@ var
 
   EVP_EncryptInit: function(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; const key: PByte; const iv: PByte): TIdC_INT cdecl = nil;
   EVP_EncryptInit_ex: function(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; impl: PENGINE; const key: PByte; const iv: PByte): TIdC_INT cdecl = nil;
-  EVP_EncryptUpdate: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PIdC_INT; const &in: PByte; &in1: TIdC_INT): TIdC_INT cdecl = nil;
-  EVP_EncryptFinal_ex: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
-  EVP_EncryptFinal: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
+  EVP_EncryptUpdate: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; &in1: TIdC_INT): TIdC_INT cdecl = nil;
+  EVP_EncryptFinal_ex: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
+  EVP_EncryptFinal: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
 
-  EVP_DecryptInit: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PidC_INT): TIdC_INT cdecl = nil;
+  EVP_DecryptInit: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PidC_INT): TIdC_INT cdecl = nil;
   EVP_DecryptInit_ex: function(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; impl: PENGINE; const key: PByte; const iv: PByte): TIdC_INT cdecl = nil;
-  EVP_DecryptUpdate: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PIdC_INT; const &in: PByte; &in1: TIdC_INT): TIdC_INT cdecl = nil;
+  EVP_DecryptUpdate: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; &in1: TIdC_INT): TIdC_INT cdecl = nil;
   EVP_DecryptFinal: function(ctx: PEVP_CIPHER_CTX; outm: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
   EVP_DecryptFinal_ex: function(ctx: PEVP_MD_CTX; outm: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
 
   EVP_CipherInit: function(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; const key: PByte; const iv: PByte; enc: TIdC_INT): TIdC_INT cdecl = nil;
   EVP_CipherInit_ex: function(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; impl: PENGINE; const key: PByte; const iv: PByte; enc: TidC_INT): TIdC_INT cdecl = nil;
-  EVP_CipherUpdate: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PIdC_INT; const &in: PByte; in1: TIdC_INT): TIdC_INT cdecl = nil;
+  EVP_CipherUpdate: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; in1: TIdC_INT): TIdC_INT cdecl = nil;
   EVP_CipherFinal: function(ctx: PEVP_CIPHER_CTX; outm: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
   EVP_CipherFinal_ex: function(ctx: PEVP_CIPHER_CTX; outm: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
 
@@ -772,30 +765,30 @@ var
 
   EVP_DigestVerify: function(ctx: PEVP_CIPHER_CTX; const sigret: PByte; siglen: TIdC_SIZET; const tbs: PByte; tbslen: TIdC_SIZET): TIdC_INT cdecl = nil;
 
-  EVP_DigestSignInit: function(ctx: PEVP_CIPHER_CTX; pctx: PPEVP_PKEY_CTX; const &type: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  EVP_DigestSignInit: function(ctx: PEVP_CIPHER_CTX; pctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
   EVP_DigestSignFinal: function(ctx: PEVP_CIPHER_CTX; sigret: PByte; siglen: PIdC_SIZET): TIdC_INT cdecl = nil;
 
-  EVP_DigestVerifyInit: function(ctx: PEVP_MD_CTX; ppctx: PPEVP_PKEY_CTX; const &type: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  EVP_DigestVerifyInit: function(ctx: PEVP_MD_CTX; ppctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
   EVP_DigestVerifyFinal: function(ctx: PEVP_MD_CTX; const sig: PByte; siglen: TIdC_SIZET): TIdC_INT cdecl = nil;
 
-  EVP_OpenInit: function(ctx: PEVP_CIPHER_CTX; const &type: PEVP_CIPHER; const ek: PByte; ek1: TIdC_INT; const iv: PByte; priv: PEVP_PKEY): TIdC_INT cdecl = nil;
-  EVP_OpenFinal: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
+  EVP_OpenInit: function(ctx: PEVP_CIPHER_CTX; const type_: PEVP_CIPHER; const ek: PByte; ek1: TIdC_INT; const iv: PByte; priv: PEVP_PKEY): TIdC_INT cdecl = nil;
+  EVP_OpenFinal: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
 
-  EVP_SealInit: function(ctx: PEVP_CIPHER_CTX; const &type: EVP_CIPHER; ek: PPByte; ek1: PIdC_INT; iv: PByte; pubk: PPEVP_PKEY; npubk: TIdC_INT): TIdC_INT cdecl = nil;
-  EVP_SealFinal: function(ctx: PEVP_CIPHER_CTX; &out: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
+  EVP_SealInit: function(ctx: PEVP_CIPHER_CTX; const type_: EVP_CIPHER; ek: PPByte; ek1: PIdC_INT; iv: PByte; pubk: PPEVP_PKEY; npubk: TIdC_INT): TIdC_INT cdecl = nil;
+  EVP_SealFinal: function(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
 
   EVP_ENCODE_CTX_new: function: PEVP_ENCODE_CTX cdecl = nil;
   EVP_ENCODE_CTX_free: procedure(ctx: PEVP_ENCODE_CTX) cdecl = nil;
   EVP_ENCODE_CTX_copy: function(dctx: PEVP_ENCODE_CTX; sctx: PEVP_ENCODE_CTX): TIdC_INT cdecl = nil;
   EVP_ENCODE_CTX_num: function(ctx: PEVP_ENCODE_CTX): TIdC_INT cdecl = nil;
   EVP_EncodeInit: procedure(ctx: PEVP_ENCODE_CTX) cdecl = nil;
-  EVP_EncodeUpdate: function(ctx: PEVP_ENCODE_CTX; &out: PByte; out1: PIdC_INT; const &in: PByte; in1: TIdC_INT): TIdC_INT cdecl = nil;
-  EVP_EncodeFinal: procedure(ctx: PEVP_ENCODE_CTX; &out: PByte; out1: PIdC_INT) cdecl = nil;
+  EVP_EncodeUpdate: function(ctx: PEVP_ENCODE_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; in1: TIdC_INT): TIdC_INT cdecl = nil;
+  EVP_EncodeFinal: procedure(ctx: PEVP_ENCODE_CTX; out_: PByte; out1: PIdC_INT) cdecl = nil;
   EVP_EncodeBlock: function(t: PByte; const f: PByte; n: TIdC_INT): TIdC_INT cdecl = nil;
 
   EVP_DecodeInit: procedure(ctx: PEVP_ENCODE_CTX) cdecl = nil;
-  EVP_DecodeUpdate: function(ctx: PEVP_ENCODE_CTX; &out: PByte; out1: PIdC_INT; const &in: PByte; in1: TIdC_INT): TIdC_INT cdecl = nil;
-  EVP_DecodeFinal: function(ctx: PEVP_ENCODE_CTX; &out: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
+  EVP_DecodeUpdate: function(ctx: PEVP_ENCODE_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; in1: TIdC_INT): TIdC_INT cdecl = nil;
+  EVP_DecodeFinal: function(ctx: PEVP_ENCODE_CTX; out_: PByte; out1: PIdC_INT): TIdC_INT cdecl = nil;
   EVP_DecodeBlock: function(t: PByte; const f: PByte; n: TIdC_INT): TIdC_INT cdecl = nil;
 
   EVP_CIPHER_CTX_new: function: PEVP_CIPHER_CTX cdecl = nil;
@@ -803,7 +796,7 @@ var
   EVP_CIPHER_CTX_free: procedure(c: PEVP_CIPHER_CTX) cdecl = nil;
   EVP_CIPHER_CTX_set_key_length: function(x: PEVP_CIPHER_CTX; keylen: TIdC_INT): TIdC_INT cdecl = nil;
   EVP_CIPHER_CTX_set_padding: function(c: PEVP_CIPHER_CTX; pad: TIdC_INT): TIdC_INT cdecl = nil;
-  EVP_CIPHER_CTX_ctrl: function(ctx: PEVP_CIPHER_CTX; &type: TIdC_INT; arg: TIdC_INT; ptr: Pointer): TIdC_INT cdecl = nil;
+  EVP_CIPHER_CTX_ctrl: function(ctx: PEVP_CIPHER_CTX; type_: TIdC_INT; arg: TIdC_INT; ptr: Pointer): TIdC_INT cdecl = nil;
   EVP_CIPHER_CTX_rand_key: function(ctx: PEVP_CIPHER_CTX; key: PByte): TIdC_INT cdecl = nil;
 
   BIO_f_md: function: PBIO_METHOD cdecl = nil;
@@ -1030,12 +1023,12 @@ var
   EVP_PKEY_size: function(const pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
   EVP_PKEY_set_type: function(pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
   EVP_PKEY_set_type_str: function(pkey: PEVP_PKEY; const str: PIdAnsiChar; len: TIdC_INT): TIdC_INT cdecl = nil;
-  EVP_PKEY_set_alias_type: function(pkey: PEVP_PKEY; &type: TIdC_INT): TIdC_INT cdecl = nil;
+  EVP_PKEY_set_alias_type: function(pkey: PEVP_PKEY; type_: TIdC_INT): TIdC_INT cdecl = nil;
 
   EVP_PKEY_set1_engine: function(pkey: PEVP_PKEY; e: PENGINE): TIdC_INT cdecl = nil;
   EVP_PKEY_get0_engine: function(const pkey: PEVP_PKEY): PENGINE cdecl = nil;
 
-  EVP_PKEY_assign: function(pkey: PEVP_PKEY; &type: TIdC_INT; key: Pointer): TIdC_INT cdecl = nil;
+  EVP_PKEY_assign: function(pkey: PEVP_PKEY; type_: TIdC_INT; key: Pointer): TIdC_INT cdecl = nil;
   EVP_PKEY_get0: function(const pkey: PEVP_PKEY): Pointer cdecl = nil;
   EVP_PKEY_get0_hmac: function(const pkey: PEVP_PKEY; len: PIdC_SIZET): PByte cdecl = nil;
   EVP_PKEY_get0_poly1305: function(const pkey: PEVP_PKEY; len: PIdC_SIZET): PByte cdecl = nil;
@@ -1087,17 +1080,17 @@ var
   EVP_CIPHER_type: function(const ctx: PEVP_CIPHER): TIdC_INT cdecl = nil;
 
   (* calls methods *)
-  EVP_CIPHER_param_to_asn1: function(c: PEVP_CIPHER_CTX; &type: PASN1_TYPE): TIdC_INT cdecl = nil;
-  EVP_CIPHER_asn1_to_param: function(c: PEVP_CIPHER_CTX; &type: PASN1_TYPE): TIdC_INT cdecl = nil;
+  EVP_CIPHER_param_to_asn1: function(c: PEVP_CIPHER_CTX; type_: PASN1_TYPE): TIdC_INT cdecl = nil;
+  EVP_CIPHER_asn1_to_param: function(c: PEVP_CIPHER_CTX; type_: PASN1_TYPE): TIdC_INT cdecl = nil;
 
   (* These are used by EVP_CIPHER methods *)
-  EVP_CIPHER_set_asn1_iv: function(c: PEVP_CIPHER_CTX; &type: PASN1_TYPE): TIdC_INT cdecl = nil;
-  EVP_CIPHER_get_asn1_iv: function(c: PEVP_CIPHER_CTX; &type: PASN1_TYPE): TIdC_INT cdecl = nil;
+  EVP_CIPHER_set_asn1_iv: function(c: PEVP_CIPHER_CTX; type_: PASN1_TYPE): TIdC_INT cdecl = nil;
+  EVP_CIPHER_get_asn1_iv: function(c: PEVP_CIPHER_CTX; type_: PASN1_TYPE): TIdC_INT cdecl = nil;
 
   (* PKCS5 password based encryption *)
   PKCS5_PBE_keyivgen: function(ctx: PEVP_CIPHER_CTX; const pass: PIdAnsiChar; passlen: TIdC_INT; param: PASN1_TYPE; const cipher: PEVP_CIPHER; const md: PEVP_MD; en_de: TIdC_INT): TIdC_INT cdecl = nil;
-  PKCS5_PBKDF2_HMAC_SHA1: function(const pass: PIdAnsiChar; passlen: TIdC_INT; const salt: PByte; saltlen: TIdC_INT; iter: TIdC_INT; keylen: TIdC_INT; &out: PByte): TIdC_INT cdecl = nil;
-  PKCS5_PBKDF2_HMAC: function(const pass: PIdAnsiChar; passlen: TIdC_INT; const salt: PByte; saltlen: TIdC_INT; iter: TIdC_INT; const digest: PEVP_MD; keylen: TIdC_INT; &out: PByte): TIdC_INT cdecl = nil;
+  PKCS5_PBKDF2_HMAC_SHA1: function(const pass: PIdAnsiChar; passlen: TIdC_INT; const salt: PByte; saltlen: TIdC_INT; iter: TIdC_INT; keylen: TIdC_INT; out_: PByte): TIdC_INT cdecl = nil;
+  PKCS5_PBKDF2_HMAC: function(const pass: PIdAnsiChar; passlen: TIdC_INT; const salt: PByte; saltlen: TIdC_INT; iter: TIdC_INT; const digest: PEVP_MD; keylen: TIdC_INT; out_: PByte): TIdC_INT cdecl = nil;
   PKCS5_v2_PBE_keyivgen: function(ctx: PEVP_CIPHER_CTX; const pass: PIdAnsiChar; passlen: TIdC_INT; param: PASN1_TYPE; const cipher: PEVP_CIPHER; const md: PEVP_MD; en_de: TIdC_INT): TIdC_INT cdecl = nil;
 
   EVP_PBE_scrypt: function(const pass: PIdAnsiChar; passlen: TIdC_SIZET; const salt: PByte; saltlen: TIdC_SIZET; N: TIdC_UINT64; r: TIdC_UINT64; p: TIdC_UINT64; maxmem: TIdC_UINT64; key: PByte; keylen: TIdC_SIZET): TIdC_INT cdecl = nil;
@@ -1117,7 +1110,7 @@ var
 
   EVP_PKEY_asn1_get_count: function: TIdC_INT cdecl = nil;
   EVP_PKEY_asn1_get0: function(idx: TIdC_INT): PEVP_PKEY_ASN1_METHOD cdecl = nil;
-  EVP_PKEY_asn1_find: function(pe: PPENGINE; &type: TIdC_INT): PEVP_PKEY_ASN1_METHOD cdecl = nil;
+  EVP_PKEY_asn1_find: function(pe: PPENGINE; type_: TIdC_INT): PEVP_PKEY_ASN1_METHOD cdecl = nil;
   EVP_PKEY_asn1_find_str: function(pe: PPENGINE; const str: PIdAnsiChar; len: TIdC_INT): PEVP_PKEY_ASN1_METHOD cdecl = nil;
   EVP_PKEY_asn1_add0: function(const ameth: PEVP_PKEY_ASN1_METHOD): TIdC_INT cdecl = nil;
   EVP_PKEY_asn1_add_alias: function(&to: TIdC_INT; from: TIdC_INT): TIdC_INT cdecl = nil;
@@ -1167,7 +1160,7 @@ var
   EVP_PKEY_CTX_free: procedure(ctx: PEVP_PKEY_CTX) cdecl = nil;
 
   EVP_PKEY_CTX_ctrl: function(ctx: PEVP_PKEY_CTX; keytype: TIdC_INT; optype: TIdC_INT; cmd: TIdC_INT; p1: TIdC_INT; p2: Pointer): TIdC_INT cdecl = nil;
-  EVP_PKEY_CTX_ctrl_str: function(ctx: PEVP_PKEY_CTX; const &type: PIdAnsiChar; const value: PIdAnsiChar): TIdC_INT cdecl = nil;
+  EVP_PKEY_CTX_ctrl_str: function(ctx: PEVP_PKEY_CTX; const type_: PIdAnsiChar; const value: PIdAnsiChar): TIdC_INT cdecl = nil;
   EVP_PKEY_CTX_ctrl_uint64: function(ctx: PEVP_PKEY_CTX; keytype: TIdC_INT; optype: TIdC_INT; cmd: TIdC_INT; value: TIdC_UINT64): TIdC_INT cdecl = nil;
 
   EVP_PKEY_CTX_str2ctrl: function(ctx: PEVP_PKEY_CTX; cmd: TIdC_INT; const str: PIdAnsiChar): TIdC_INT cdecl = nil;
@@ -1202,9 +1195,9 @@ var
   EVP_PKEY_verify_recover_init: function(ctx: PEVP_PKEY_CTX): TIdC_INT cdecl = nil;
   EVP_PKEY_verify_recover: function(ctx: PEVP_PKEY_CTX; rout: PByte; routlen: PIdC_SIZET; const sig: PByte; siglen: TIdC_SIZET): TIdC_INT cdecl = nil;
   EVP_PKEY_encrypt_init: function(ctx: PEVP_PKEY_CTX): TIdC_INT cdecl = nil;
-  EVP_PKEY_encrypt: function(ctx: PEVP_PKEY_CTX; &out: PByte; outlen: PIdC_SIZET; const &in: PByte; inlen: TIdC_SIZET): TIdC_INT cdecl = nil;
+  EVP_PKEY_encrypt: function(ctx: PEVP_PKEY_CTX; out_: PByte; outlen: PIdC_SIZET; const in_: PByte; inlen: TIdC_SIZET): TIdC_INT cdecl = nil;
   EVP_PKEY_decrypt_init: function(ctx: PEVP_PKEY_CTX): TIdC_INT cdecl = nil;
-  EVP_PKEY_decrypt: function(ctx: PEVP_PKEY_CTX; &out: PByte; outlen: PIdC_SIZET; const &in: PByte; inlen: TIdC_SIZET): TIdC_INT cdecl = nil;
+  EVP_PKEY_decrypt: function(ctx: PEVP_PKEY_CTX; out_: PByte; outlen: PIdC_SIZET; const in_: PByte; inlen: TIdC_SIZET): TIdC_INT cdecl = nil;
 
   EVP_PKEY_derive_init: function(ctx: PEVP_PKEY_CTX): TIdC_INT cdecl = nil;
   EVP_PKEY_derive_set_peer: function(ctx: PEVP_PKEY_CTX; peer: PEVP_PKEY): TIdC_INT cdecl = nil;
@@ -1307,7 +1300,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -2345,9 +2337,7 @@ begin
   EVP_PKEY_meth_get_digest_custom := nil;
   EVP_add_alg_module := nil;
 end;
-{$ENDREGION}
 
-{$REGION 'C compiler macros'}
 //#  define EVP_PKEY_assign_RSA(pkey,rsa) EVP_PKEY_assign((pkey),EVP_PKEY_RSA, (char *)(rsa))
 function EVP_PKEY_assign_RSA(pkey: PEVP_PKEY; rsa: Pointer): TIdC_INT;
 begin
@@ -2383,6 +2373,5 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
 begin
   Result := EVP_PKEY_assign(pkey, EVP_PKEY_POLY1305, polykey);
 end;
-{$ENDREGION}
 
 end.

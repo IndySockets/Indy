@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_dh;
 
@@ -90,15 +90,15 @@ const
   EVP_PKEY_CTRL_DH_PAD                   = (EVP_PKEY_ALG_CTRL + 16);
 
 type
-  DH_meth_generate_key_cb = function(dh: PDH): TIdC_INT;
-  DH_meth_compute_key_cb = function(key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT;
+  DH_meth_generate_key_cb = function(dh: PDH): TIdC_INT cdecl;
+  DH_meth_compute_key_cb = function(key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT cdecl;
   DH_meth_bn_mod_exp_cb = function(
     const dh: PDH; r: PBIGNUM; const a: PBIGNUM;
     const p: PBIGNUM; const m: PBIGNUM;
-    ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT;
-  DH_meth_init_cb = function(dh: PDH): TIdC_INT;
-  DH_meth_finish_cb = function(dh: PDH): TIdC_INT;
-  DH_meth_generate_params_cb = function(dh: PDH; prime_len: TIdC_INT; generator: TIdC_INT; cb: PBN_GENCB): TIdC_INT;
+    ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT cdecl;
+  DH_meth_init_cb = function(dh: PDH): TIdC_INT cdecl;
+  DH_meth_finish_cb = function(dh: PDH): TIdC_INT cdecl;
+  DH_meth_generate_params_cb = function(dh: PDH; prime_len: TIdC_INT; generator: TIdC_INT; cb: PBN_GENCB): TIdC_INT cdecl;
 
 {
   # define DH_CHECK_P_NOT_STRONG_PRIME     DH_CHECK_P_NOT_SAFE_PRIME
@@ -170,7 +170,7 @@ type
   function DH_new_by_nid(nid: TIdC_INT): PDH cdecl; external CLibCrypto;
   function DH_get_nid(const dh: PDH): TIdC_INT cdecl; external CLibCrypto;
 
-  function DH_KDF_X9_42( &out: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; key_oid: PASN1_OBJECT; const ukm: PByte; ukmlen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT cdecl; external CLibCrypto;
+  function DH_KDF_X9_42( out_: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; key_oid: PASN1_OBJECT; const ukm: PByte; ukmlen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT cdecl; external CLibCrypto;
 
   procedure DH_get0_pqg(const dh: PDH; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM) cdecl; external CLibCrypto;
   function DH_set0_pqg(dh: PDH; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT cdecl; external CLibCrypto;

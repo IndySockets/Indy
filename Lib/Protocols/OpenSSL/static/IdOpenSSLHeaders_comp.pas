@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_comp;
 
@@ -53,8 +53,8 @@ uses
   function COMP_get_name(const meth: PCOMP_METHOD): PIdAnsiChar cdecl; external CLibCrypto;
   procedure COMP_CTX_free(ctx: PCOMP_CTX) cdecl; external CLibCrypto;
 
-  function COMP_compress_block(ctx: PCOMP_CTX; &out: PByte; olen: TIdC_INT; &in: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function COMP_expand_block(ctx: PCOMP_CTX; &out: PByte; olen: TIdC_INT; &in: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function COMP_compress_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function COMP_expand_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
   function COMP_zlib: PCOMP_METHOD cdecl; external CLibCrypto;
 

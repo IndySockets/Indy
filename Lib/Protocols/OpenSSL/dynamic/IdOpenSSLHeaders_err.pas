@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_err;
 
@@ -182,22 +182,20 @@ type
 
   ERR_string_data_st = record
     error: TIdC_ULONG;
-    &string: PIdAnsiChar;
+    string_: PIdAnsiChar;
   end;
   ERR_STRING_DATA = ERR_string_data_st;
   PERR_STRING_DATA = ^ERR_STRING_DATA;
 
   ERR_print_errors_cb_cb = function(str: PIdAnsiChar; len: TIdC_SIZET; u: Pointer): TIdC_INT; cdecl;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
 // DEFINE_LHASH_OF(ERR_STRING_DATA);
 
-  ERR_put_error: procedure(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; &file: PIdAnsiChar; line: TIdC_INT) cdecl = nil;
+  ERR_put_error: procedure(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT) cdecl = nil;
   ERR_set_error_data: procedure(data: PIdAnsiChar; flags: TIdC_INT) cdecl = nil;
   
   ERR_get_error: function: TIdC_ULONG cdecl = nil;
@@ -236,7 +234,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -308,6 +305,5 @@ begin
   ERR_pop_to_mark := nil;
   ERR_clear_last_mark := nil;
 end;
-{$ENDREGION}
 
 end.

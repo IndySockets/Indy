@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_idea;
 
@@ -63,12 +63,12 @@ type
   PIDEA_KEY_SCHEDULE = ^IDEA_KEY_SCHEDULE;
 
   function IDEA_options: PIdAnsiChar cdecl; external CLibCrypto;
-  procedure IDEA_ecb_encrypt(const &in: PByte; &out: PByte; ks: PIDEA_KEY_SCHEDULE) cdecl; external CLibCrypto;
+  procedure IDEA_ecb_encrypt(const in_: PByte; out_: PByte; ks: PIDEA_KEY_SCHEDULE) cdecl; external CLibCrypto;
   procedure IDEA_set_encrypt_key(const key: PByte; ks: PIDEA_KEY_SCHEDULE) cdecl; external CLibCrypto;
   procedure IDEA_set_decrypt_key(ek: PIDEA_KEY_SCHEDULE; dk: PIDEA_KEY_SCHEDULE) cdecl; external CLibCrypto;
-  procedure IDEA_cbc_encrypt(const &in: PByte; &out: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; enc: TIdC_INT) cdecl; external CLibCrypto;
-  procedure IDEA_cfb64_encrypt(const &in: PByte; &out: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT; enc: TIdC_INT) cdecl; external CLibCrypto;
-  procedure IDEA_ofb64_encrypt(const &in: PByte; &out: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT) cdecl; external CLibCrypto;
+  procedure IDEA_cbc_encrypt(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; enc: TIdC_INT) cdecl; external CLibCrypto;
+  procedure IDEA_cfb64_encrypt(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT; enc: TIdC_INT) cdecl; external CLibCrypto;
+  procedure IDEA_ofb64_encrypt(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT) cdecl; external CLibCrypto;
   procedure IDEA_encrypt(&in: PIdC_LONG; ks: PIDEA_KEY_SCHEDULE) cdecl; external CLibCrypto;
 
 implementation

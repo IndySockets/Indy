@@ -1,4 +1,4 @@
-﻿{******************************************************************************}
+{******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
 {                                                                              }
@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_aes;
 
@@ -66,10 +66,8 @@ type
   AES_KEY = aes_key_st;
   PAES_KEY = ^AES_KEY;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   AES_options: function: PIdAnsiChar cdecl = nil;
@@ -77,26 +75,25 @@ var
   AES_set_encrypt_key: function(const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT cdecl = nil;
   AES_set_decrypt_key: function(const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT cdecl = nil;
 
-  AES_encrypt: procedure(const &in: PByte; &out: PByte; const key: PAES_KEY) cdecl = nil;
-  AES_decrypt: procedure(const &in: PByte; &out: PByte; const key: PAES_KEY) cdecl = nil;
+  AES_encrypt: procedure(const in_: PByte; out_: PByte; const key: PAES_KEY) cdecl = nil;
+  AES_decrypt: procedure(const in_: PByte; out_: PByte; const key: PAES_KEY) cdecl = nil;
 
-  AES_ecb_encrypt: procedure(const &in: PByte; &out: PByte; const key: PAES_KEY; const enc: TIdC_INT) cdecl = nil;
-  AES_cbc_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
-  AES_cfb128_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
-  AES_cfb1_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
-  AES_cfb8_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
-  AES_ofb128_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT) cdecl = nil;
+  AES_ecb_encrypt: procedure(const in_: PByte; out_: PByte; const key: PAES_KEY; const enc: TIdC_INT) cdecl = nil;
+  AES_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
+  AES_cfb128_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
+  AES_cfb1_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
+  AES_cfb8_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
+  AES_ofb128_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT) cdecl = nil;
   (* NB: the IV is _two_ blocks long *)
-  AES_ige_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
+  AES_ige_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
   (* NB: the IV is _four_ blocks long *)
-  AES_bi_ige_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; const key2: PAES_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
+  AES_bi_ige_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; const key2: PAES_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
 
-  AES_wrap_key: function(key: PAES_KEY; const iv: PByte; &out: PByte; const &in: PByte; inlen: TIdC_UINT): TIdC_INT cdecl = nil;
-  AES_unwrap_key: function(key: PAES_KEY; const iv: PByte; &out: PByte; const &in: PByte; inlen: TIdC_UINT): TIdC_INT cdecl = nil;
+  AES_wrap_key: function(key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT cdecl = nil;
+  AES_unwrap_key: function(key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT cdecl = nil;
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -142,6 +139,5 @@ begin
   AES_wrap_key := nil;
   AES_unwrap_key := nil;
 end;
-{$ENDREGION}
 
 end.

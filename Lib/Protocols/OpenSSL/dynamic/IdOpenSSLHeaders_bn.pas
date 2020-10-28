@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_bn;
 
@@ -78,10 +78,8 @@ type
   BN_GENCB_set_old_cb = procedure (a: TIdC_INT; b: TIdC_INT; c: Pointer); cdecl;
   BN_GENCB_set_cb = function (a: TIdC_INT; b: TIdC_INT; c: PBN_GENCB): TIdC_INT; cdecl;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   BN_set_flags: procedure(b: PBIGNUM; n: TIdC_INT) cdecl = nil;
@@ -215,12 +213,12 @@ var
   BN_copy: function(a: PBIGNUM; b: PBIGNUM): PBIGNUM cdecl = nil;
   BN_swap: procedure(a: PBIGNUM; b: PBIGNUM) cdecl = nil;
   BN_bin2bn: function(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM cdecl = nil;
-  BN_bn2bin: function(const a: PBIGNUM; &to: PByte): TIdC_INT cdecl = nil;
-  BN_bn2binpad: function(const a: PBIGNUM; &to: PByte; tolen: TIdC_INT): TIdC_INT cdecl = nil;
+  BN_bn2bin: function(const a: PBIGNUM; to_: PByte): TIdC_INT cdecl = nil;
+  BN_bn2binpad: function(const a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT cdecl = nil;
   BN_lebin2bn: function(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM cdecl = nil;
-  BN_bn2lebinpad: function(a: PBIGNUM; &to: PByte; tolen: TIdC_INT): TIdC_INT cdecl = nil;
+  BN_bn2lebinpad: function(a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT cdecl = nil;
   BN_mpi2bn: function(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM cdecl = nil;
-  BN_bn2mpi: function(a: PBIGNUM; &to: PByte): TIdC_INT cdecl = nil;
+  BN_bn2mpi: function(a: PBIGNUM; to_: PByte): TIdC_INT cdecl = nil;
   BN_sub: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT cdecl = nil;
   BN_usub: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT cdecl = nil;
   BN_uadd: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT cdecl = nil;
@@ -309,11 +307,11 @@ var
   BN_to_montgomery: function(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT cdecl = nil;
   BN_from_montgomery: function(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT cdecl = nil;
   BN_MONT_CTX_free: procedure(mont: PBN_MONT_CTX) cdecl = nil;
-  BN_MONT_CTX_set: function(mont: PBN_MONT_CTX; &mod: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl = nil;
+  BN_MONT_CTX_set: function(mont: PBN_MONT_CTX; mod_: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl = nil;
   BN_MONT_CTX_copy: function(&to: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX cdecl = nil;
-//  function BN_MONT_CTX_set_locked(pmont: ^PBN_MONT_CTX; lock: CRYPTO_RWLOCK; &mod: PBIGNUM; ctx: PBN_CTX): PBN_MONT_CTX;
+//  function BN_MONT_CTX_set_locked(pmont: ^PBN_MONT_CTX; lock: CRYPTO_RWLOCK; mod_: PBIGNUM; ctx: PBN_CTX): PBN_MONT_CTX;
 
-  BN_BLINDING_new: function(const A: PBIGNUM; const Ai: PBIGNUM; &mod: PBIGNUM): PBN_BLINDING cdecl = nil;
+  BN_BLINDING_new: function(const A: PBIGNUM; const Ai: PBIGNUM; mod_: PBIGNUM): PBN_BLINDING cdecl = nil;
   BN_BLINDING_free: procedure(b: PBN_BLINDING) cdecl = nil;
   BN_BLINDING_update: function(b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT cdecl = nil;
   BN_BLINDING_convert: function(n: PBIGNUM; b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT cdecl = nil;
@@ -419,7 +417,7 @@ var
 //int (*BN_nist_mod_func(const BIGNUM *p)) (BIGNUM *r, const BIGNUM *a,
 //                                          const BIGNUM *field, BN_CTX *ctx);
 
-  BN_generate_dsa_nonce: function(&out: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const &message: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT cdecl = nil;
+  BN_generate_dsa_nonce: function(&out: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT cdecl = nil;
 
   (* Primes from RFC 2409 *)
   BN_get_rfc2409_prime_768: function(bn: PBIGNUM ): PBIGNUM cdecl = nil;
@@ -437,7 +435,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -779,7 +776,6 @@ begin
   BN_get_rfc3526_prime_8192 := nil;
   BN_bntest_rand := nil;
 end;
-{$ENDREGION}
 
 end.
 

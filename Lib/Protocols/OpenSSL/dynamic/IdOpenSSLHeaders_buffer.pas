@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_buffer;
 
@@ -57,10 +57,8 @@ type
     flags: TIdC_ULONG;
   end;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   BUF_MEM_new: function: PBUF_MEM cdecl = nil;
@@ -68,11 +66,10 @@ var
   BUF_MEM_free: procedure(a: PBUF_MEM) cdecl = nil;
   BUF_MEM_grow: function(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl = nil;
   BUF_MEM_grow_clean: function(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl = nil;
-  BUF_reverse: procedure(&out: PByte; const &in: PByte; siz: TIdC_SIZET) cdecl = nil;
+  BUF_reverse: procedure(&out: PByte; const in_: PByte; siz: TIdC_SIZET) cdecl = nil;
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -100,6 +97,5 @@ begin
   BUF_MEM_grow_clean := nil;
   BUF_reverse := nil;
 end;
-{$ENDREGION}
 
 end.

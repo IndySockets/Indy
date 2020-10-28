@@ -41,7 +41,7 @@ uses
 
 type
   obj_name_st = record
-    &type: TIdC_INT;
+    type_: TIdC_INT;
     alias: TIdC_INT;
     name: PIdAnsiChar;
     data: PIdAnsiChar;
@@ -56,13 +56,13 @@ var
   //TIdC_INT OBJ_NAME_new_index(TIdC_ULONG (*hash_func) (const PIdAnsiChar *);
   //                       TIdC_INT (*cmp_func) (const PIdAnsiChar *; const PIdAnsiChar *);
   //                       void (*free_func) (const PIdAnsiChar *; TIdC_INT; const PIdAnsiChar *));
-  function OBJ_NAME_get(const name: PIdAnsiChar; &type: TIdC_INT): PIdAnsiChar;
-  function OBJ_NAME_add(const name: PIdAnsiChar; &type: TIdC_INT; const data: PIdAnsiChar): TIdC_INT;
-  function OBJ_NAME_remove(const name: PIdAnsiChar; &type: TIdC_INT): TIdC_INT;
+  function OBJ_NAME_get(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar;
+  function OBJ_NAME_add(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT;
+  function OBJ_NAME_remove(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT;
   procedure OBJ_NAME_cleanup(&type: TIdC_INT);
-//  void OBJ_NAME_do_all(TIdC_INT &type; void (*fn) (const OBJ_NAME *; void *arg);
+//  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
-//  void OBJ_NAME_do_all_sorted(TIdC_INT &type;
+//  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
 //                              void (*fn) (const OBJ_NAME *; void *arg);
 //                              void *arg);
 

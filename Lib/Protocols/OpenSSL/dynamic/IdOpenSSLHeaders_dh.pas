@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:42
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_dh;
 
@@ -101,10 +101,8 @@ type
   DH_meth_finish_cb = function(dh: PDH): TIdC_INT cdecl;
   DH_meth_generate_params_cb = function(dh: PDH; prime_len: TIdC_INT; generator: TIdC_INT; cb: PBN_GENCB): TIdC_INT cdecl;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
 {
@@ -177,7 +175,7 @@ var
   DH_new_by_nid: function(nid: TIdC_INT): PDH cdecl = nil;
   DH_get_nid: function(const dh: PDH): TIdC_INT cdecl = nil;
 
-  DH_KDF_X9_42: function( &out: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; key_oid: PASN1_OBJECT; const ukm: PByte; ukmlen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT cdecl = nil;
+  DH_KDF_X9_42: function( out_: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; key_oid: PASN1_OBJECT; const ukm: PByte; ukmlen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT cdecl = nil;
 
   DH_get0_pqg: procedure(const dh: PDH; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM) cdecl = nil;
   DH_set0_pqg: function(dh: PDH; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT cdecl = nil;
@@ -310,7 +308,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -468,6 +465,5 @@ begin
   DH_meth_get_generate_params := nil;
   DH_meth_set_generate_params := nil;
 end;
-{$ENDREGION}
 
 end.

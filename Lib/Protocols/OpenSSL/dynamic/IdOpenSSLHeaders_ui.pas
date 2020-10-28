@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_ui;
 
@@ -131,10 +131,8 @@ type
   UI_method_data_destructor_cb = procedure(ui: PUI; ui_data: Pointer);
   UI_method_prompt_constructor_cb = function(ui: PUI; const object_desc: PIdAnsiChar; const object_name: PIdAnsiChar): PIdAnsiChar;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   (*
@@ -387,7 +385,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -527,6 +524,5 @@ begin
   UI_UTIL_read_pw := nil;
   UI_UTIL_wrap_read_pem_callback := nil;
 end;
-{$ENDREGION}
 
 end.

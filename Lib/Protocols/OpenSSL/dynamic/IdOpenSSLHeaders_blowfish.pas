@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_blowfish;
 
@@ -65,10 +65,8 @@ type
   BF_KEY = bf_key_st;
   PBF_KEY = ^BF_KEY;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   BF_set_key: procedure(key: PBF_KEY; len: TIdC_INT; const data: PByte) cdecl = nil;
@@ -76,16 +74,15 @@ var
   BF_encrypt: procedure(data: PBF_LONG; const key: PBF_KEY) cdecl = nil;
   BF_decrypt: procedure(data: PBF_LONG; const key: PBF_KEY) cdecl = nil;
 
-  BF_ecb_encrypt: procedure(const &in: PByte; &out: PByte; key: PBF_KEY; enc: TIdC_INT) cdecl = nil;
-  BF_cbc_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; enc: TIdC_INT) cdecl = nil;
-  BF_cfb64_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT; enc: TIdC_INT) cdecl = nil;
-  BF_ofb64_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT) cdecl = nil;
+  BF_ecb_encrypt: procedure(const in_: PByte; out_: PByte; key: PBF_KEY; enc: TIdC_INT) cdecl = nil;
+  BF_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; enc: TIdC_INT) cdecl = nil;
+  BF_cfb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT; enc: TIdC_INT) cdecl = nil;
+  BF_ofb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT) cdecl = nil;
 
   BF_options: function: PIdAnsiChar cdecl = nil;
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -117,6 +114,5 @@ begin
   BF_ofb64_encrypt := nil;
   BF_options := nil;
 end;
-{$ENDREGION}
 
 end.

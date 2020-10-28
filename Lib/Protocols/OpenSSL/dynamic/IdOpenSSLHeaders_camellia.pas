@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_camellia;
 
@@ -75,28 +75,25 @@ type
   TCamellia_ctr128_encrypt_ivec = array[0 .. CAMELLIA_TABLE_WORD_LEN - 1] of Byte;
   TCamellia_ctr128_encrypt_ecount_buf = array[0 .. CAMELLIA_TABLE_WORD_LEN - 1] of Byte;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   Camellia_set_key: function(const userKey: PByte; const bits: TIdC_INT; key: PCAMELLIA_KEY): TIdC_INT cdecl = nil;
 
-  Camellia_encrypt: procedure(const &in: PByte; const &out: PByte; const key: PCAMELLIA_KEY) cdecl = nil;
-  Camellia_decrypt: procedure(const &in: PByte; const &out: PByte; const key: PCAMELLIA_KEY) cdecl = nil;
+  Camellia_encrypt: procedure(const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY) cdecl = nil;
+  Camellia_decrypt: procedure(const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY) cdecl = nil;
 
-  Camellia_ecb_encrypt: procedure( const &in: PByte; const &out: PByte; const key: PCAMELLIA_KEY; const enc: TIdC_INT) cdecl = nil;
-  Camellia_cbc_encrypt: procedure( const &in: PByte; const &out: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
-  Camellia_cfb128_encrypt: procedure( const &in: PByte; const &out: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
-  Camellia_cfb1_encrypt: procedure( const &in: PByte; const &out: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
-  Camellia_cfb8_encrypt: procedure( const &in: PByte; const &out: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
-  Camellia_ofb128_encrypt: procedure( const &in: PByte; const &out: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT) cdecl = nil;
-  Camellia_ctr128_encrypt: procedure( const &in: PByte; const &out: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: TCamellia_ctr128_encrypt_ivec; ecount_buf: TCamellia_ctr128_encrypt_ecount_buf; num: PIdC_INT) cdecl = nil;
+  Camellia_ecb_encrypt: procedure( const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY; const enc: TIdC_INT) cdecl = nil;
+  Camellia_cbc_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; const enc: TIdC_INT) cdecl = nil;
+  Camellia_cfb128_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
+  Camellia_cfb1_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
+  Camellia_cfb8_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT) cdecl = nil;
+  Camellia_ofb128_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT) cdecl = nil;
+  Camellia_ctr128_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: TCamellia_ctr128_encrypt_ivec; ecount_buf: TCamellia_ctr128_encrypt_ecount_buf; num: PIdC_INT) cdecl = nil;
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -132,6 +129,5 @@ begin
   Camellia_ofb128_encrypt := nil;
   Camellia_ctr128_encrypt := nil;
 end;
-{$ENDREGION}
 
 end.

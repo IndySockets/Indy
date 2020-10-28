@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_ossl_typ;
 
@@ -45,10 +45,10 @@ uses
   IdOpenSSLConsts;
 
 type
-{$REGION 'moved from unit "asn1" to prevent circular references'}
+// moved from unit "asn1" to prevent circular references
   asn1_string_st = record
     length: TIdC_INT;
-    &type: TIdC_INT;
+    type_: TIdC_INT;
     data: PByte;
     (*
      * The value of the following field depends on the type being held.  It
@@ -57,7 +57,6 @@ type
      *)
     flags: TIdC_LONG;
   end;
-{$ENDREGION}
 
   // moved from asn1  
   ASN1_VALUE_st = type Pointer;
@@ -424,7 +423,7 @@ type
   OSSL_STORE_SEARCH = ossl_store_search_st;
   POSSL_STORE_SEARCH = ^OSSL_STORE_SEARCH;
 
-{$REGION 'moved from unit "asn1" to prevent circular references'}
+// moved from unit "asn1" to prevent circular references'
 const
   V_ASN1_UNIVERSAL = $00;
   V_ASN1_APPLICATION = $40;
@@ -471,7 +470,7 @@ const
 
 type
   asn1_type_st = record
-    case &type: TIdC_INT of
+    case type_: TIdC_INT of
 //      (ptr: PIdAnsichar);
       V_ASN1_BOOLEAN: (boolean: ASN1_BOOLEAN);
 //      (asn1_string: PASN1_STRING);
@@ -513,14 +512,13 @@ type
   ASN1_TYPE = asn1_type_st;
   PASN1_TYPE = ^ASN1_TYPE;
   PPASN1_TYPE = ^PASN1_TYPE;
-{$ENDREGION}
 
-{$REGION 'moved from unit "x509" to prevent circular references'}
+// moved from unit "x509" to prevent circular references
   X509_algor_st = record
     algorithm: PASN1_OBJECT;
     parameter: PASN1_TYPE;
   end; (* X509_ALGOR *)
-{$ENDREGION}
+
   X509_ALGOR = X509_algor_st;
   PX509_ALGOR = ^X509_ALGOR;
   PPX509_ALGOR = ^PX509_ALGOR;

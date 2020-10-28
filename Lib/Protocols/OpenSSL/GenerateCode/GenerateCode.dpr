@@ -162,7 +162,6 @@ begin
       Inc(LOffset);
 
   Insert(AFile, '', LOffset);
-  Insert(AFile, '{$REGION ''Generated loading and unloading methods''}', LOffSet);
   Insert(AFile, 'procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);', LOffset);
   Insert(AFile, '', LOffset);
   Insert(AFile, '  function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;', LOffset);
@@ -184,16 +183,13 @@ begin
   for LMethod in AMethods do
     Insert(AFile, Format('  %s := nil;', [LMethod]), LOffset);
   Insert(AFile, 'end;', LOffset);
-  Insert(AFile, '{$ENDREGION}', LOffSet);
 
   if AVarIndex = -1 then
     Exit;
   LOffSet := Pred(AVarIndex);
   Insert(AFile, '', LOffSet);
-  Insert(AFile, '{$REGION ''Generated loading and unloading methods''}', LOffSet);
   Insert(AFile, 'procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);', LOffSet);
   Insert(AFile, 'procedure UnLoad;', LOffSet);
-  Insert(AFile, '{$ENDREGION}', LOffSet);
 
   LOffSet := Succ(AUsesIndex);
   Insert(AFile, '  Classes,', LOffset);

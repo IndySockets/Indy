@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_x509_vfy;
 
@@ -257,12 +257,12 @@ type
   X509_LOOKUP_ctrl_fn = function(ctx: PX509_LOOKUP; cmd: TIdC_INT;
     const argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar): TIdC_INT;
   X509_LOOKUP_get_by_subject_fn = function(ctx: PX509_LOOKUP;
-    &type: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT;
+    type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT;
   X509_LOOKUP_get_by_issuer_serial_fn = function(ctx: PX509_LOOKUP;
-    &type: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT;
-  X509_LOOKUP_get_by_fingerprint_fn = function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE;
+    type_: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT;
+  X509_LOOKUP_get_by_fingerprint_fn = function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE;
     const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT;
-  X509_LOOKUP_get_by_alias_fn = function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE;
+  X509_LOOKUP_get_by_alias_fn = function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE;
     const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT;
 
   //DEFINE_STACK_OF(X509_LOOKUP)
@@ -423,28 +423,28 @@ type
   function X509_STORE_add_cert(ctx: PX509_STORE; x: PX509): TIdC_INT cdecl; external CLibCrypto;
   function X509_STORE_add_crl(ctx: PX509_STORE; x: PX509_CRL): TIdC_INT cdecl; external CLibCrypto;
 
-  function X509_STORE_CTX_get_by_subject(vs: PX509_STORE_CTX; &type: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
-  function X509_STORE_CTX_get_obj_by_subject(vs: PX509_STORE_CTX; &type: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT cdecl; external CLibCrypto;
+  function X509_STORE_CTX_get_by_subject(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_STORE_CTX_get_obj_by_subject(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT cdecl; external CLibCrypto;
 
   function X509_LOOKUP_ctrl(ctx: PX509_LOOKUP; cmd: TIdC_INT; const argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
 
-  function X509_load_cert_file(ctx: PX509_LOOKUP; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function X509_load_crl_file(ctx: PX509_LOOKUP; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function X509_load_cert_crl_file(ctx: PX509_LOOKUP; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_load_cert_file(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_load_crl_file(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_load_cert_crl_file(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
   function X509_LOOKUP_new(method: PX509_LOOKUP_METHOD): PX509_LOOKUP cdecl; external CLibCrypto;
   procedure X509_LOOKUP_free(ctx: PX509_LOOKUP) cdecl; external CLibCrypto;
   function X509_LOOKUP_init(ctx: PX509_LOOKUP): TIdC_INT cdecl; external CLibCrypto;
-  function X509_LOOKUP_by_subject(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
-  function X509_LOOKUP_by_issuer_serial(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
-  function X509_LOOKUP_by_fingerprint(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
-  function X509_LOOKUP_by_alias(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_LOOKUP_by_subject(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_LOOKUP_by_issuer_serial(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_LOOKUP_by_fingerprint(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_LOOKUP_by_alias(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl; external CLibCrypto;
   function X509_LOOKUP_set_method_data(ctx: PX509_LOOKUP; data: Pointer): TIdC_INT cdecl; external CLibCrypto;
   function X509_LOOKUP_get_method_data(const ctx: PX509_LOOKUP): Pointer cdecl; external CLibCrypto;
   function X509_LOOKUP_get_store(const ctx: PX509_LOOKUP): PX509_STORE cdecl; external CLibCrypto;
   function X509_LOOKUP_shutdown(ctx: PX509_LOOKUP): TIdC_INT cdecl; external CLibCrypto;
 
-  function X509_STORE_load_locations(ctx: PX509_STORE; const &file: PIdAnsiChar; const dir: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function X509_STORE_load_locations(ctx: PX509_STORE; const file_: PIdAnsiChar; const dir: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
   function X509_STORE_set_default_paths(ctx: PX509_STORE): TIdC_INT cdecl; external CLibCrypto;
 
   //#define X509_STORE_CTX_get_ex_new_index(l, p, newf, dupf, freef) \

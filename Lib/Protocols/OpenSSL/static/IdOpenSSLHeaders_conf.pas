@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_conf;
 
@@ -150,7 +150,7 @@ const
   procedure NCONF_free(conf: PCONF) cdecl; external CLibCrypto;
   procedure NCONF_free_data(conf: PCONF) cdecl; external CLibCrypto;
 
-  function NCONF_load(conf: PCONF; const &file: PAnsiChar; eline: PIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
+  function NCONF_load(conf: PCONF; const file_: PAnsiChar; eline: PIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
   function NCONF_load_bio(conf: PCONF; bp: PBIO; eline: PIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
   //STACK_OF(CONF_VALUE) *NCONF_get_section(const CONF *conf,
   //                                        const char *section);

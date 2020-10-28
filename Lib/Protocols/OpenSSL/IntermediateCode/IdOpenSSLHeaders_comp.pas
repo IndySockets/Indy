@@ -48,8 +48,8 @@ var
   function COMP_get_name(const meth: PCOMP_METHOD): PIdAnsiChar;
   procedure COMP_CTX_free(ctx: PCOMP_CTX);
 
-  function COMP_compress_block(ctx: PCOMP_CTX; &out: PByte; olen: TIdC_INT; &in: PByte; ilen: TIdC_INT): TIdC_INT;
-  function COMP_expand_block(ctx: PCOMP_CTX; &out: PByte; olen: TIdC_INT; &in: PByte; ilen: TIdC_INT): TIdC_INT;
+  function COMP_compress_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT;
+  function COMP_expand_block(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT;
 
   function COMP_zlib: PCOMP_METHOD;
 

@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_ec;
 
@@ -107,7 +107,7 @@ type
   PECDSA_SIG = ^ECDSA_SIG;
   PPECDSA_SIG = ^PECDSA_SIG;
 
-  ECDH_compute_key_KDF = function(const &in: Pointer; inlen: TIdC_SIZET; &out: Pointer; outlen: PIdC_SIZET): Pointer; cdecl;
+  ECDH_compute_key_KDF = function(const in_: Pointer; inlen: TIdC_SIZET; out_: Pointer; outlen: PIdC_SIZET): Pointer; cdecl;
 
   EC_KEY_METHOD_init_init = function(key: PEC_KEY): TIdC_INT; cdecl;
   EC_KEY_METHOD_init_finish = procedure(key: PEC_KEY); cdecl;
@@ -145,10 +145,8 @@ type
   PEC_KEY_METHOD_verify_verify = ^EC_KEY_METHOD_verify_verify;
   PEC_KEY_METHOD_verify_verify_sig = ^EC_KEY_METHOD_verify_verify_sig;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   EC_GFp_simple_method: function: PEC_METHOD cdecl = nil;
@@ -266,8 +264,8 @@ var
   EC_GROUP_get_trinomial_basis: function(const group: PEC_GROUP; k: PIdC_UINT): TIdC_INT cdecl = nil;
   EC_GROUP_get_pentanomial_basis: function(const group: PEC_GROUP; k1: PIdC_UINT; k2: PIdC_UINT; k3: PIdC_UINT): TIdC_INT cdecl = nil;
 
-  d2i_ECPKParameters: function(group: PPEC_GROUP; const &in: PPByte; len: TIdC_LONG): PEC_GROUP cdecl = nil;
-  i2d_ECPKParameters: function(const group: PEC_GROUP; &out: PPByte): TIdC_INT cdecl = nil;
+  d2i_ECPKParameters: function(group: PPEC_GROUP; const in_: PPByte; len: TIdC_LONG): PEC_GROUP cdecl = nil;
+  i2d_ECPKParameters: function(const group: PEC_GROUP; out_: PPByte): TIdC_INT cdecl = nil;
 
   ECPKParameters_print: function(bp: PBIO; const x: PEC_GROUP; off: TIdC_INT): TIdC_INT cdecl = nil;
 
@@ -305,10 +303,10 @@ var
   EC_KEY_priv2oct: function(const key: PEC_KEY; buf: PByte; len: TIdC_SIZET): TIdC_SIZET cdecl = nil;
   EC_KEY_priv2buf: function(const eckey: PEC_KEY; buf: PPByte): TIdC_SIZET cdecl = nil;
 
-  d2i_ECPrivateKey: function(key: PPEC_KEY; const &in: PPByte; len: TIdC_LONG): PEC_KEY cdecl = nil;
-  i2d_ECPrivateKey: function(key: PEC_KEY; &out: PPByte): TIdC_INT cdecl = nil;
-  o2i_ECPublicKey: function(key: PPEC_KEY; const &in: PPByte; len: TIdC_LONG): PEC_KEY cdecl = nil;
-  i2o_ECPublicKey: function(const key: PEC_KEY; &out: PPByte): TIdC_INT cdecl = nil;
+  d2i_ECPrivateKey: function(key: PPEC_KEY; const in_: PPByte; len: TIdC_LONG): PEC_KEY cdecl = nil;
+  i2d_ECPrivateKey: function(key: PEC_KEY; out_: PPByte): TIdC_INT cdecl = nil;
+  o2i_ECPublicKey: function(key: PPEC_KEY; const in_: PPByte; len: TIdC_LONG): PEC_KEY cdecl = nil;
+  i2o_ECPublicKey: function(const key: PEC_KEY; out_: PPByte): TIdC_INT cdecl = nil;
 
   ECParameters_print: function(bp: PBIO; const key: PEC_KEY): TIdC_INT cdecl = nil;
   EC_KEY_print: function(bp: PBIO; const key: PEC_KEY; off: TIdC_INT): TIdC_INT cdecl = nil;
@@ -356,7 +354,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -722,6 +719,5 @@ begin
   EC_KEY_METHOD_get_sign := nil;
   EC_KEY_METHOD_get_verify := nil;
 end;
-{$ENDREGION}
 
 end.

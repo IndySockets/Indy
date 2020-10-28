@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:43
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_tls1;
 
@@ -1097,14 +1097,12 @@ type
     data: Pointer;
   end;
 
-{$REGION 'C compiler macros'}
 function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
-{$ENDREGION}
 
   function SSL_CTX_set_tlsext_max_fragment_length(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT cdecl; external CLibSSL;
   function SSL_set_tlsext_max_fragment_length(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT cdecl; external CLibSSL;
 
-  function SSL_get_servername(const s: PSSL; const &type: TIdC_INT): PIdAnsiChar cdecl; external CLibSSL;
+  function SSL_get_servername(const s: PSSL; const type_: TIdC_INT): PIdAnsiChar cdecl; external CLibSSL;
   function SSL_get_servername_type(const s: PSSL): TIdC_INT cdecl; external CLibSSL;
   (*
    * SSL_export_keying_material exports a value derived from the master secret,
@@ -1113,7 +1111,7 @@ function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
    * flag controls whether a context is included.) It returns 1 on success and
    * 0 or -1 otherwise.
    *)
-  function SSL_export_keying_material(s: PSSL; &out: PByte; olen: TIdC_SIZET; const &label: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT cdecl; external CLibSSL;
+  function SSL_export_keying_material(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT cdecl; external CLibSSL;
 
   (*
    * SSL_export_keying_material_early exports a value derived from the
@@ -1122,7 +1120,7 @@ function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
    * |olen| bytes to |out| given a label and optional context. It
    * returns 1 on success and 0 otherwise.
    *)
-  function SSL_export_keying_material_early(s: PSSL; &out: PByte; olen: TIdC_SIZET; const &label: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT cdecl; external CLibSSL;
+  function SSL_export_keying_material_early(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT cdecl; external CLibSSL;
 
   function SSL_get_peer_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl; external CLibSSL;
   function SSL_get_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl; external CLibSSL;
@@ -1200,13 +1198,10 @@ implementation
 uses
   IdOpenSSLHeaders_ssl;
 
-
-{$REGION 'C compiler macros'}
 //# define SSL_set_tlsext_host_name(s,name)         SSL_ctrl(s,SSL_CTRL_SET_TLSEXT_HOSTNAME,TLSEXT_NAMETYPE_host_name, (void *)name)
 function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name, Pointer(name));
 end;
-{$ENDREGION}
 
 end.

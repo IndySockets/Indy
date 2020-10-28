@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_buffer;
 
@@ -61,7 +61,7 @@ type
   procedure BUF_MEM_free(a: PBUF_MEM) cdecl; external CLibCrypto;
   function BUF_MEM_grow(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl; external CLibCrypto;
   function BUF_MEM_grow_clean(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl; external CLibCrypto;
-  procedure BUF_reverse(&out: PByte; const &in: PByte; siz: TIdC_SIZET) cdecl; external CLibCrypto;
+  procedure BUF_reverse(&out: PByte; const in_: PByte; siz: TIdC_SIZET) cdecl; external CLibCrypto;
 
 implementation
 

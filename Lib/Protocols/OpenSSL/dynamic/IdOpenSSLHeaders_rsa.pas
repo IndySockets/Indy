@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_rsa;
 
@@ -169,7 +169,7 @@ type
   //DECLARE_ASN1_ENCODE_FUNCTIONS_const(RSA, RSAPrivateKey)
 
   RSA_meth_set_priv_dec_priv_dec = function(flen: TIdC_INT; const from: PByte;
-    &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl;
+    to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl;
 
   RSA_meth_set_mod_exp_mod_exp = function(r0: PBIGNUM; const i: PBIGNUM;
     rsa: PRSA; ctx: PBN_CTX): TIdC_INT; cdecl;
@@ -258,10 +258,8 @@ type
 //# define RSA_set_app_data(s,arg)         RSA_set_ex_data(s,0,arg)
 //# define RSA_get_app_data(s)             RSA_get_ex_data(s,0)
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   RSA_new: function: PRSA cdecl = nil;
@@ -308,10 +306,10 @@ var
   RSA_check_key: function(const v1: PRSA): TIdC_INT cdecl = nil;
   RSA_check_key_ex: function(const v1: PRSA; cb: BN_GENCB): TIdC_INT cdecl = nil;
   (* next 4 return -1 on error *)
-  RSA_public_encrypt: function(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
-  RSA_private_encrypt: function(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
-  RSA_public_decrypt: function(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
-  RSA_private_decrypt: function(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
+  RSA_public_encrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
+  RSA_private_encrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
+  RSA_public_decrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
+  RSA_private_decrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl = nil;
 
   RSA_free: procedure(r: PRSA) cdecl = nil;
   (* "up" the RSA object's reference count *)
@@ -427,7 +425,7 @@ var
   //int (*RSA_meth_get_finish(const RSA_METHOD *meth)) (RSA *rsa);
   RSA_meth_set_finish: function(rsa: PRSA_METHOD; finish: RSA_meth_set_finish_finish): TIdC_INT cdecl = nil;
   //int (*RSA_meth_get_sign(const RSA_METHOD *meth))
-  //    (int &type,
+  //    (int type_,
   //     const unsigned char *m, unsigned int m_length,
   //     unsigned char *sigret, unsigned int *siglen,
   //     const RSA *rsa);
@@ -446,7 +444,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -652,6 +649,5 @@ begin
   RSA_meth_set_keygen := nil;
   RSA_meth_set_multi_prime_keygen := nil;
 end;
-{$ENDREGION}
 
 end.

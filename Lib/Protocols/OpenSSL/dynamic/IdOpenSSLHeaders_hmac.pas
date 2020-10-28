@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_hmac;
 
@@ -46,10 +46,8 @@ uses
   IdOpenSSLConsts,
   IdOpenSSLHeaders_ossl_typ;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   HMAC_size: function(const e: PHMAC_CTX): TIdC_SIZET cdecl = nil;
@@ -68,7 +66,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -106,6 +103,5 @@ begin
   HMAC_CTX_set_flags := nil;
   HMAC_CTX_get_md := nil;
 end;
-{$ENDREGION}
 
 end.

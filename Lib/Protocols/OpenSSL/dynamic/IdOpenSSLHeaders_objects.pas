@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_objects;
 
@@ -48,7 +48,7 @@ uses
 
 type
   obj_name_st = record
-    &type: TIdC_INT;
+    type_: TIdC_INT;
     alias: TIdC_INT;
     name: PIdAnsiChar;
     data: PIdAnsiChar;
@@ -58,23 +58,21 @@ type
 
 //# define         OBJ_create_and_add_object(a,b,c) OBJ_create(a,b,c)
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   OBJ_NAME_init: function: TIdC_INT cdecl = nil;
   //TIdC_INT OBJ_NAME_new_index(TIdC_ULONG (*hash_func) (const PIdAnsiChar *);
   //                       TIdC_INT (*cmp_func) (const PIdAnsiChar *; const PIdAnsiChar *);
   //                       void (*free_func) (const PIdAnsiChar *; TIdC_INT; const PIdAnsiChar *));
-  OBJ_NAME_get: function(const name: PIdAnsiChar; &type: TIdC_INT): PIdAnsiChar cdecl = nil;
-  OBJ_NAME_add: function(const name: PIdAnsiChar; &type: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl = nil;
-  OBJ_NAME_remove: function(const name: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
+  OBJ_NAME_get: function(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar cdecl = nil;
+  OBJ_NAME_add: function(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl = nil;
+  OBJ_NAME_remove: function(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
   OBJ_NAME_cleanup: procedure(&type: TIdC_INT) cdecl = nil;
-//  void OBJ_NAME_do_all(TIdC_INT &type; void (*fn) (const OBJ_NAME *; void *arg);
+//  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
-//  void OBJ_NAME_do_all_sorted(TIdC_INT &type;
+//  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
 //                              void (*fn) (const OBJ_NAME *; void *arg);
 //                              void *arg);
 
@@ -190,7 +188,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -258,6 +255,5 @@ begin
   OBJ_add_sigid := nil;
   OBJ_sigid_free := nil;
 end;
-{$ENDREGION}
 
 end.

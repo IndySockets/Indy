@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_x509_vfy;
 
@@ -258,18 +258,16 @@ type
   X509_LOOKUP_ctrl_fn = function(ctx: PX509_LOOKUP; cmd: TIdC_INT;
     const argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar): TIdC_INT;
   X509_LOOKUP_get_by_subject_fn = function(ctx: PX509_LOOKUP;
-    &type: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT;
+    type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT;
   X509_LOOKUP_get_by_issuer_serial_fn = function(ctx: PX509_LOOKUP;
-    &type: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT;
-  X509_LOOKUP_get_by_fingerprint_fn = function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE;
+    type_: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT;
+  X509_LOOKUP_get_by_fingerprint_fn = function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE;
     const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT;
-  X509_LOOKUP_get_by_alias_fn = function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE;
+  X509_LOOKUP_get_by_alias_fn = function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE;
     const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   //DEFINE_STACK_OF(X509_LOOKUP)
@@ -430,28 +428,28 @@ var
   X509_STORE_add_cert: function(ctx: PX509_STORE; x: PX509): TIdC_INT cdecl = nil;
   X509_STORE_add_crl: function(ctx: PX509_STORE; x: PX509_CRL): TIdC_INT cdecl = nil;
 
-  X509_STORE_CTX_get_by_subject: function(vs: PX509_STORE_CTX; &type: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
-  X509_STORE_CTX_get_obj_by_subject: function(vs: PX509_STORE_CTX; &type: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT cdecl = nil;
+  X509_STORE_CTX_get_by_subject: function(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
+  X509_STORE_CTX_get_obj_by_subject: function(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT cdecl = nil;
 
   X509_LOOKUP_ctrl: function(ctx: PX509_LOOKUP; cmd: TIdC_INT; const argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar): TIdC_INT cdecl = nil;
 
-  X509_load_cert_file: function(ctx: PX509_LOOKUP; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
-  X509_load_crl_file: function(ctx: PX509_LOOKUP; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
-  X509_load_cert_crl_file: function(ctx: PX509_LOOKUP; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
+  X509_load_cert_file: function(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
+  X509_load_crl_file: function(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
+  X509_load_cert_crl_file: function(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
 
   X509_LOOKUP_new: function(method: PX509_LOOKUP_METHOD): PX509_LOOKUP cdecl = nil;
   X509_LOOKUP_free: procedure(ctx: PX509_LOOKUP) cdecl = nil;
   X509_LOOKUP_init: function(ctx: PX509_LOOKUP): TIdC_INT cdecl = nil;
-  X509_LOOKUP_by_subject: function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
-  X509_LOOKUP_by_issuer_serial: function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
-  X509_LOOKUP_by_fingerprint: function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
-  X509_LOOKUP_by_alias: function(ctx: PX509_LOOKUP; &type: X509_LOOKUP_TYPE; const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
+  X509_LOOKUP_by_subject: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
+  X509_LOOKUP_by_issuer_serial: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
+  X509_LOOKUP_by_fingerprint: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
+  X509_LOOKUP_by_alias: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT cdecl = nil;
   X509_LOOKUP_set_method_data: function(ctx: PX509_LOOKUP; data: Pointer): TIdC_INT cdecl = nil;
   X509_LOOKUP_get_method_data: function(const ctx: PX509_LOOKUP): Pointer cdecl = nil;
   X509_LOOKUP_get_store: function(const ctx: PX509_LOOKUP): PX509_STORE cdecl = nil;
   X509_LOOKUP_shutdown: function(ctx: PX509_LOOKUP): TIdC_INT cdecl = nil;
 
-  X509_STORE_load_locations: function(ctx: PX509_STORE; const &file: PIdAnsiChar; const dir: PIdAnsiChar): TIdC_INT cdecl = nil;
+  X509_STORE_load_locations: function(ctx: PX509_STORE; const file_: PIdAnsiChar; const dir: PIdAnsiChar): TIdC_INT cdecl = nil;
   X509_STORE_set_default_paths: function(ctx: PX509_STORE): TIdC_INT cdecl = nil;
 
   //#define X509_STORE_CTX_get_ex_new_index(l, p, newf, dupf, freef) \
@@ -565,7 +563,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -897,6 +894,5 @@ begin
   X509_policy_node_get0_policy := nil;
   X509_policy_node_get0_parent := nil;
 end;
-{$ENDREGION}
 
 end.

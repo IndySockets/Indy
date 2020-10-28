@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_engine;
 
@@ -370,10 +370,8 @@ type
   dynamic_bind_engine = function(e: PENGINE; const id: PIdAnsiChar;
     const fns: dynamic_fns): TIdC_INT; cdecl;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   //
@@ -722,7 +720,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -974,6 +971,5 @@ begin
   ENGINE_add_conf_module := nil;
   ENGINE_get_static_state := nil;
 end;
-{$ENDREGION}
 
 end.

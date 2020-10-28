@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_err;
 
@@ -181,7 +181,7 @@ type
 
   ERR_string_data_st = record
     error: TIdC_ULONG;
-    &string: PIdAnsiChar;
+    string_: PIdAnsiChar;
   end;
   ERR_STRING_DATA = ERR_string_data_st;
   PERR_STRING_DATA = ^ERR_STRING_DATA;
@@ -190,7 +190,7 @@ type
 
 // DEFINE_LHASH_OF(ERR_STRING_DATA);
 
-  procedure ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; &file: PIdAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  procedure ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
   procedure ERR_set_error_data(data: PIdAnsiChar; flags: TIdC_INT) cdecl; external CLibCrypto;
   
   function ERR_get_error: TIdC_ULONG cdecl; external CLibCrypto;

@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:42
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_pem;
 
@@ -94,10 +94,8 @@ const
 type
   pem_password_cb = function(buf: PIdAnsiChar; size: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   PEM_get_EVP_CIPHER_INFO: function(header: PIdAnsiChar; cipher: PEVP_CIPHER_INFO): TIdC_INT cdecl = nil;
@@ -114,14 +112,14 @@ var
   //function PEM_X509_INFO_read_bio(bp: PBIO; sk: PSTACK_OF_X509_INFO; cb: pem_password_cb; u: Pointer): PSTACK_OF_X509_INFO;
   PEM_X509_INFO_write_bio: function(bp: PBIO; xi: PX509_INFO; enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cd: pem_password_cb; u: Pointer): TIdC_INT cdecl = nil;
 
-  PEM_SignInit: function(ctx: PEVP_MD_CTX; &type: PEVP_MD): TIdC_INT cdecl = nil;
+  PEM_SignInit: function(ctx: PEVP_MD_CTX; type_: PEVP_MD): TIdC_INT cdecl = nil;
   PEM_SignUpdate: function(ctx: PEVP_MD_CTX; d: PByte; cnt: Byte): TIdC_INT cdecl = nil;
   PEM_SignFinal: function(ctx: PEVP_MD_CTX; sigret: PByte; siglen: PIdC_UINT; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
 
   (* The default pem_password_cb that's used internally *)
   PEM_def_callback: function(buf: PIdAnsiChar; num: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT cdecl = nil;
-  PEM_proc_type: procedure(buf: PIdAnsiChar; &type: TIdC_INT) cdecl = nil;
-  PEM_dek_info: procedure(buf: PIdAnsiChar; const &type: PIdAnsiChar; len: TIdC_INT; str: PIdAnsiChar) cdecl = nil;
+  PEM_proc_type: procedure(buf: PIdAnsiChar; type_: TIdC_INT) cdecl = nil;
+  PEM_dek_info: procedure(buf: PIdAnsiChar; const type_: PIdAnsiChar; len: TIdC_INT; str: PIdAnsiChar) cdecl = nil;
 
   PEM_read_bio_X509: function(bp: PBIO; x: PPX509; cb: pem_password_cb; u: Pointer): PX509 cdecl = nil;
   PEM_write_bio_X509: function(bp: PBIO; x: PX509): TIdC_INT cdecl = nil;
@@ -205,8 +203,8 @@ var
   PEM_read_bio_Parameters: function(bp: PBIO; x: PPEVP_PKEY): PEVP_PKEY cdecl = nil;
   PEM_write_bio_Parameters: function(bp: PBIO; x: PEVP_PKEY): TIdC_INT cdecl = nil;
 
-  b2i_PrivateKey: function(const &in: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl = nil;
-  b2i_PublicKey: function(const &in: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl = nil;
+  b2i_PrivateKey: function(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl = nil;
+  b2i_PublicKey: function(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl = nil;
   b2i_PrivateKey_bio: function(&in: PBIO): PEVP_PKEY cdecl = nil;
   b2i_PublicKey_bio: function(&in: PBIO): PEVP_PKEY cdecl = nil;
   i2b_PrivateKey_bio: function(&out: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl = nil;
@@ -216,7 +214,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -376,6 +373,5 @@ begin
   b2i_PVK_bio := nil;
   i2b_PVK_bio := nil;
 end;
-{$ENDREGION}
 
 end.

@@ -1091,15 +1091,13 @@ type
     data: Pointer;
   end;
 
-{$REGION 'C compiler macros'}
 function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
-{$ENDREGION}
 
 var
   function SSL_CTX_set_tlsext_max_fragment_length(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT;
   function SSL_set_tlsext_max_fragment_length(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT;
 
-  function SSL_get_servername(const s: PSSL; const &type: TIdC_INT): PIdAnsiChar;
+  function SSL_get_servername(const s: PSSL; const type_: TIdC_INT): PIdAnsiChar;
   function SSL_get_servername_type(const s: PSSL): TIdC_INT;
   (*
    * SSL_export_keying_material exports a value derived from the master secret,
@@ -1108,7 +1106,7 @@ var
    * flag controls whether a context is included.) It returns 1 on success and
    * 0 or -1 otherwise.
    *)
-  function SSL_export_keying_material(s: PSSL; &out: PByte; olen: TIdC_SIZET; const &label: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT;
+  function SSL_export_keying_material(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT;
 
   (*
    * SSL_export_keying_material_early exports a value derived from the
@@ -1117,7 +1115,7 @@ var
    * |olen| bytes to |out| given a label and optional context. It
    * returns 1 on success and 0 otherwise.
    *)
-  function SSL_export_keying_material_early(s: PSSL; &out: PByte; olen: TIdC_SIZET; const &label: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT;
+  function SSL_export_keying_material_early(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT;
 
   function SSL_get_peer_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT;
   function SSL_get_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT;
@@ -1191,15 +1189,14 @@ var
   //                (void (*)(void))cb)
 
 implementation
-uses
+
+uses
   IdOpenSSLHeaders_ssl;
 
-{$REGION 'C compiler macros'}
 //# define SSL_set_tlsext_host_name(s,name)         SSL_ctrl(s,SSL_CTRL_SET_TLSEXT_HOSTNAME,TLSEXT_NAMETYPE_host_name, (void *)name)
 function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name, Pointer(name));
 end;
-{$ENDREGION}
 
 end.

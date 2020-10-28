@@ -297,7 +297,7 @@ type
 
   (* Netscape certificate sequence structure *)
 //  Netscape_certificate_sequence: record
-//    &type: PASN1_OBJECT;
+//    type_: PASN1_OBJECT;
 //    certs: P --> STACK_OF(X509) <--;
 //  end;
 //  NETSCAPE_CERT_SEQUENCE = Netscape_certificate_sequence;
@@ -389,11 +389,11 @@ var
 
   function NETSCAPE_SPKI_sign(x: PNETSCAPE_SPKI; pkey: PEVP_PKEY; const md: PEVP_MD): TIdC_INT;
 
-  function X509_pubkey_digest(const data: PX509; const &type: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
-  function X509_digest(const data: PX509; const &type: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
-  function X509_CRL_digest(const data: PX509_CRL; const &type: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
-  function X509_REQ_digest(const data: PX509_REQ; const &type: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
-  function X509_NAME_digest(const data: PX509_NAME; const &type: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
+  function X509_pubkey_digest(const data: PX509; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
+  function X509_digest(const data: PX509; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
+  function X509_CRL_digest(const data: PX509_CRL; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
+  function X509_REQ_digest(const data: PX509_REQ; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
+  function X509_NAME_digest(const data: PX509_NAME; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT;
 
   //# ifndef OPENSSL_NO_STDIO
   //X509 *d2i_X509_fp(FILE *fp, X509 **x509);
@@ -501,18 +501,18 @@ var
 
   function X509_ALGOR_new: PX509_ALGOR;
   procedure X509_ALGOR_free(v1: PX509_ALGOR);
-  function d2i_X509_ALGOR(a: PPX509_ALGOR; const &in: PPByte; len: TIdC_LONG): PX509_ALGOR;
-  function i2d_X509_ALGOR(a: PX509_ALGOR; &out: PPByte): TIdC_INT;
+  function d2i_X509_ALGOR(a: PPX509_ALGOR; const in_: PPByte; len: TIdC_LONG): PX509_ALGOR;
+  function i2d_X509_ALGOR(a: PX509_ALGOR; out_: PPByte): TIdC_INT;
   //DECLARE_ASN1_ENCODE_FUNCTIONS(X509_ALGORS, X509_ALGORS, X509_ALGORS)
   function X509_VAL_new: PX509_VAL;
   procedure X509_VAL_free(v1: PX509_VAL);
-  function d2i_X509_VAL(a: PPX509_VAL; const &in: PPByte; len: TIdC_LONG): PX509_VAL;
-  function i2d_X509_VAL(a: PX509_VAL; &out: PPByte): TIdC_INT;
+  function d2i_X509_VAL(a: PPX509_VAL; const in_: PPByte; len: TIdC_LONG): PX509_VAL;
+  function i2d_X509_VAL(a: PX509_VAL; out_: PPByte): TIdC_INT;
 
   function X509_PUBKEY_new: PX509_PUBKEY;
   procedure X509_PUBKEY_free(v1: PX509_PUBKEY);
-  function d2i_X509_PUBKEY(a: PPX509_PUBKEY; const &in: PPByte; len: TIdC_LONG): PX509_PUBKEY;
-  function i2d_X509_PUBKEY(a: PX509_PUBKEY; &out: PPByte): TIdC_INT;
+  function d2i_X509_PUBKEY(a: PPX509_PUBKEY; const in_: PPByte; len: TIdC_LONG): PX509_PUBKEY;
+  function i2d_X509_PUBKEY(a: PX509_PUBKEY; out_: PPByte): TIdC_INT;
 
   function X509_PUBKEY_set(x: PPX509_PUBKEY; pkey: PEVP_PKEY): TIdC_INT;
   function X509_PUBKEY_get0(key: PX509_PUBKEY): PEVP_PKEY;
@@ -533,42 +533,42 @@ var
 
   function X509_SIG_new: PX509_SIG;
   procedure X509_SIG_free(v1: PX509_SIG);
-  function d2i_X509_SIG(a: PPX509_SIG; const &in: PPByte; len: TIdC_LONG): PX509_SIG;
-  function i2d_X509_SIG(a: PX509_SIG; &out: PPByte): TIdC_INT;
+  function d2i_X509_SIG(a: PPX509_SIG; const in_: PPByte; len: TIdC_LONG): PX509_SIG;
+  function i2d_X509_SIG(a: PX509_SIG; out_: PPByte): TIdC_INT;
   procedure X509_SIG_get0(const sig: PX509_SIG; const palg: PPX509_ALGOR; const pdigest: PPASN1_OCTET_STRING);
   procedure X509_SIG_getm(sig: X509_SIG; palg: PPX509_ALGOR; pdigest: PPASN1_OCTET_STRING);
 
   function X509_REQ_INFO_new: PX509_REQ_INFO;
   procedure X509_REQ_INFO_free(v1: PX509_REQ_INFO);
-  function d2i_X509_REQ_INFO(a: PPX509_REQ_INFO; const &in: PPByte; len: TIdC_LONG): PX509_REQ_INFO;
-  function i2d_X509_REQ_INFO(a: PX509_REQ_INFO; &out: PPByte): TIdC_INT;
+  function d2i_X509_REQ_INFO(a: PPX509_REQ_INFO; const in_: PPByte; len: TIdC_LONG): PX509_REQ_INFO;
+  function i2d_X509_REQ_INFO(a: PX509_REQ_INFO; out_: PPByte): TIdC_INT;
 
   function X509_REQ_new: PX509_REQ;
   procedure X509_REQ_free(v1: PX509_REQ);
-  function d2i_X509_REQ(a: PPX509_REQ; const &in: PPByte; len: TIdC_LONG): PX509_REQ;
-  function i2d_X509_REQ(a: PX509_REQ; &out: PPByte): TIdC_INT;
+  function d2i_X509_REQ(a: PPX509_REQ; const in_: PPByte; len: TIdC_LONG): PX509_REQ;
+  function i2d_X509_REQ(a: PX509_REQ; out_: PPByte): TIdC_INT;
 
   function X509_ATTRIBUTE_new: PX509_ATTRIBUTE;
   procedure X509_ATTRIBUTE_free(v1: PX509_ATTRIBUTE);
-  function d2i_X509_ATTRIBUTE(a: PPX509_ATTRIBUTE; const &in: PPByte; len: TIdC_LONG): PX509_ATTRIBUTE;
-  function i2d_X509_ATTRIBUTE(a: PX509_ATTRIBUTE; &out: PPByte): TIdC_INT;
+  function d2i_X509_ATTRIBUTE(a: PPX509_ATTRIBUTE; const in_: PPByte; len: TIdC_LONG): PX509_ATTRIBUTE;
+  function i2d_X509_ATTRIBUTE(a: PX509_ATTRIBUTE; out_: PPByte): TIdC_INT;
   function X509_ATTRIBUTE_create(nid: TIdC_INT; trtype: TIdC_INT; value: Pointer): PX509_ATTRIBUTE;
 
   function X509_EXTENSION_new: PX509_EXTENSION;
   procedure X509_EXTENSION_free(v1: PX509_EXTENSION);
-  function d2i_X509_EXTENSION(a: PPX509_EXTENSION; const &in: PPByte; len: TIdC_LONG): PX509_EXTENSION;
-  function i2d_X509_EXTENSION(a: PX509_EXTENSION; &out: PPByte): TIdC_INT;
+  function d2i_X509_EXTENSION(a: PPX509_EXTENSION; const in_: PPByte; len: TIdC_LONG): PX509_EXTENSION;
+  function i2d_X509_EXTENSION(a: PX509_EXTENSION; out_: PPByte): TIdC_INT;
   //DECLARE_ASN1_ENCODE_FUNCTIONS(X509_EXTENSIONS, X509_EXTENSIONS, X509_EXTENSIONS)
 
   function X509_NAME_ENTRY_new: PX509_NAME_ENTRY;
   procedure X509_NAME_ENTRY_free(v1: PX509_NAME_ENTRY);
-  function d2i_X509_NAME_ENTRY(a: PPX509_NAME_ENTRY; const &in: PPByte; len: TIdC_LONG): PX509_NAME_ENTRY;
-  function i2d_X509_NAME_ENTRY(a: PX509_NAME_ENTRY; &out: PPByte): TIdC_INT;
+  function d2i_X509_NAME_ENTRY(a: PPX509_NAME_ENTRY; const in_: PPByte; len: TIdC_LONG): PX509_NAME_ENTRY;
+  function i2d_X509_NAME_ENTRY(a: PX509_NAME_ENTRY; out_: PPByte): TIdC_INT;
 
   function X509_NAME_new: PX509_NAME;
   procedure X509_NAME_free(v1: PX509_NAME);
-  function d2i_X509_NAME(a: PPX509_NAME; const &in: PPByte; len: TIdC_LONG): PX509_NAME;
-  function i2d_X509_NAME(a: PX509_NAME; &out: PPByte): TIdC_INT;
+  function d2i_X509_NAME(a: PPX509_NAME; const in_: PPByte; len: TIdC_LONG): PX509_NAME;
+  function i2d_X509_NAME(a: PX509_NAME; out_: PPByte): TIdC_INT;
 
   function X509_NAME_set(xn: PPX509_NAME; name: PX509_NAME): TIdC_INT;
 
@@ -576,8 +576,8 @@ var
 
   function X509_new: PX509;
   procedure X509_free(v1: PX509);
-  function d2i_X509(a: PPX509; const &in: PPByte; len: TIdC_LONG): PX509;
-  function i2d_X509(a: PX509; &out: PPByte): TIdC_INT;
+  function d2i_X509(a: PPX509; const in_: PPByte; len: TIdC_LONG): PX509;
+  function i2d_X509(a: PX509; out_: PPByte): TIdC_INT;
 
   //DECLARE_ASN1_FUNCTIONS(X509_CERT_AUX)
   //
@@ -616,16 +616,16 @@ var
   //
   function X509_REVOKED_new: PX509_REVOKED;
   procedure X509_REVOKED_free(v1: PX509_REVOKED);
-  function d2i_X509_REVOKED(a: PPX509_REVOKED; const &in: PPByte; len: TIdC_LONG): PX509_REVOKED;
-  function i2d_X509_REVOKED(a: PX509_REVOKED; &out: PPByte): TIdC_INT;
+  function d2i_X509_REVOKED(a: PPX509_REVOKED; const in_: PPByte; len: TIdC_LONG): PX509_REVOKED;
+  function i2d_X509_REVOKED(a: PX509_REVOKED; out_: PPByte): TIdC_INT;
   function X509_CRL_INFO_new: PX509_CRL_INFO;
   procedure X509_CRL_INFO_free(v1: PX509_CRL_INFO);
-  function d2i_X509_CRL_INFO(a: PPX509_CRL_INFO; const &in: PPByte; len: TIdC_LONG): PX509_CRL_INFO;
-  function i2d_X509_CRL_INFO(a: PX509_CRL_INFO; &out: PPByte): TIdC_INT;
+  function d2i_X509_CRL_INFO(a: PPX509_CRL_INFO; const in_: PPByte; len: TIdC_LONG): PX509_CRL_INFO;
+  function i2d_X509_CRL_INFO(a: PX509_CRL_INFO; out_: PPByte): TIdC_INT;
   function X509_CRL_new: PX509_CRL;
   procedure X509_CRL_free(v1: PX509_CRL);
-  function d2i_X509_CRL(a: PPX509_CRL; const &in: PPByte; len: TIdC_LONG): PX509_CRL;
-  function i2d_X509_CRL(a: PX509_CRL; &out: PPByte): TIdC_INT;
+  function d2i_X509_CRL(a: PPX509_CRL; const in_: PPByte; len: TIdC_LONG): PX509_CRL;
+  function i2d_X509_CRL(a: PX509_CRL; out_: PPByte): TIdC_INT;
 
   function X509_CRL_add0_revoked(crl: PX509_CRL; rev: PX509_REVOKED): TIdC_INT;
   function X509_CRL_get0_by_serial(crl: PX509_CRL; ret: PPX509_REVOKED; serial: PASN1_INTEGER): TIdC_INT;
@@ -652,11 +652,11 @@ var
 //                X509_ALGOR *algor2, ASN1_BIT_STRING *signature,
 //                char *data, EVP_PKEY *pkey, const EVP_MD *type);
 
-  function ASN1_item_digest(const it: PASN1_ITEM; const &type: PEVP_MD; data: Pointer; md: PByte; len: PIdC_UINT): TIdC_INT;
+  function ASN1_item_digest(const it: PASN1_ITEM; const type_: PEVP_MD; data: Pointer; md: PByte; len: PIdC_UINT): TIdC_INT;
 
   function ASN1_item_verify(const it: PASN1_ITEM; algor1: PX509_ALGOR; signature: PASN1_BIT_STRING; data: Pointer; pkey: PEVP_PKEY): TIdC_INT;
 
-  function ASN1_item_sign(const it: PASN1_ITEM; algor1: PX509_ALGOR; algor2: PX509_ALGOR; signature: PASN1_BIT_STRING; data: Pointer; pkey: PEVP_PKEY; const &type: PEVP_MD): TIdC_INT;
+  function ASN1_item_sign(const it: PASN1_ITEM; algor1: PX509_ALGOR; algor2: PX509_ALGOR; signature: PASN1_BIT_STRING; data: Pointer; pkey: PEVP_PKEY; const type_: PEVP_MD): TIdC_INT;
   function ASN1_item_sign_ctx(const it: PASN1_ITEM; algor1: PX509_ALGOR; algor2: PX509_ALGOR; signature: PASN1_BIT_STRING; asn: Pointer; ctx: PEVP_MD_CTX): TIdC_INT;
 
   function X509_get_version(const x: PX509): TIdC_LONG;
@@ -716,9 +716,9 @@ var
   function X509_REQ_get_attr(const req: PX509_REQ; loc: TIdC_INT): PX509_ATTRIBUTE;
   function X509_REQ_delete_attr(req: PX509_REQ; loc: TIdC_INT): PX509_ATTRIBUTE;
   function X509_REQ_add1_attr(req: PX509_REQ; attr: PX509_ATTRIBUTE): TIdC_INT;
-  function X509_REQ_add1_attr_by_OBJ(req: PX509_REQ; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
-  function X509_REQ_add1_attr_by_NID(req: PX509_REQ; nid: TIdC_INT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
-  function X509_REQ_add1_attr_by_txt(req: PX509_REQ; const attrname: PIdAnsiChar; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function X509_REQ_add1_attr_by_OBJ(req: PX509_REQ; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function X509_REQ_add1_attr_by_NID(req: PX509_REQ; nid: TIdC_INT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function X509_REQ_add1_attr_by_txt(req: PX509_REQ; const attrname: PIdAnsiChar; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
 
   function X509_CRL_set_version(x: PX509_CRL; version: TIdC_LONG): TIdC_INT;
   function X509_CRL_set_issuer_name(x: PX509_CRL; name: PX509_NAME): TIdC_INT;
@@ -804,15 +804,15 @@ var
   function X509_NAME_get_index_by_OBJ(name: PX509_NAME; const obj: PASN1_OBJECT; lastpos: TIdC_INT): TIdC_INT;
   function X509_NAME_get_entry(const name: PX509_NAME; loc: TIdC_INT): PX509_NAME_ENTRY;
   function X509_NAME_delete_entry(name: PX509_NAME; loc: TIdC_INT): pX509_NAME_ENTRY;
-  function X509_NAME_add_entry(name: PX509_NAME; const ne: PX509_NAME_ENTRY; loc: TIdC_INT; &set: TIdC_INT): TIdC_INT;
-  function X509_NAME_add_entry_by_OBJ(name: PX509_NAME; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT; loc: TIdC_INT; &set: TIdC_INT): TIdC_INT;
-  function X509_NAME_add_entry_by_NID(name: PX509_NAME; nid: TIdC_INT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT; loc: TIdC_INT; &set: TIdC_INT): TIdC_INT;
-  function X509_NAME_ENTRY_create_by_txt(ne: PPX509_NAME_ENTRY; const field: PIdAnsiChar; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_NAME_ENTRY;
-  function X509_NAME_ENTRY_create_by_NID(ne: PPX509_NAME_ENTRY; nid: TIdC_INT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_NAME_ENTRY;
-  function X509_NAME_add_entry_by_txt(name: PX509_NAME; const field: PIdAnsiChar; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT; loc: TIdC_INT; &set: TIdC_INT): TIdC_INT;
-  function X509_NAME_ENTRY_create_by_OBJ(ne: PPX509_NAME_ENTRY; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_NAME_ENTRY;
+  function X509_NAME_add_entry(name: PX509_NAME; const ne: PX509_NAME_ENTRY; loc: TIdC_INT; set_: TIdC_INT): TIdC_INT;
+  function X509_NAME_add_entry_by_OBJ(name: PX509_NAME; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT; loc: TIdC_INT; set_: TIdC_INT): TIdC_INT;
+  function X509_NAME_add_entry_by_NID(name: PX509_NAME; nid: TIdC_INT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT; loc: TIdC_INT; set_: TIdC_INT): TIdC_INT;
+  function X509_NAME_ENTRY_create_by_txt(ne: PPX509_NAME_ENTRY; const field: PIdAnsiChar; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_NAME_ENTRY;
+  function X509_NAME_ENTRY_create_by_NID(ne: PPX509_NAME_ENTRY; nid: TIdC_INT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_NAME_ENTRY;
+  function X509_NAME_add_entry_by_txt(name: PX509_NAME; const field: PIdAnsiChar; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT; loc: TIdC_INT; set_: TIdC_INT): TIdC_INT;
+  function X509_NAME_ENTRY_create_by_OBJ(ne: PPX509_NAME_ENTRY; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_NAME_ENTRY;
   function X509_NAME_ENTRY_set_object(ne: PX509_NAME_ENTRY; const obj: PASN1_OBJECT): TIdC_INT;
-  function X509_NAME_ENTRY_set_data(ne: PX509_NAME_ENTRY; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function X509_NAME_ENTRY_set_data(ne: PX509_NAME_ENTRY; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
   function X509_NAME_ENTRY_get_object(const ne: PX509_NAME_ENTRY): PASN1_OBJECT;
   function X509_NAME_ENTRY_get_data(const ne: PX509_NAME_ENTRY): PASN1_STRING;
   function X509_NAME_ENTRY_set(const ne: PX509_NAME_ENTRY): TIdC_INT;
@@ -897,7 +897,7 @@ var
   //                              const ASN1_OBJECT *obj, TIdC_INT lastpos, TIdC_INT type);
   function X509_ATTRIBUTE_create_by_NID(attr: PPX509_ATTRIBUTE; nid: TIdC_INT; atrtype: TIdC_INT; const data: Pointer; len: TIdC_INT): PX509_ATTRIBUTE;
   function X509_ATTRIBUTE_create_by_OBJ(attr: PPX509_ATTRIBUTE; const obj: PASN1_OBJECT; atrtype: TIdC_INT; const data: Pointer; len: TIdC_INT): PX509_ATTRIBUTE;
-  function X509_ATTRIBUTE_create_by_txt(attr: PPX509_ATTRIBUTE; const atrname: PIdAnsiChar; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_ATTRIBUTE;
+  function X509_ATTRIBUTE_create_by_txt(attr: PPX509_ATTRIBUTE; const atrname: PIdAnsiChar; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): PX509_ATTRIBUTE;
   function X509_ATTRIBUTE_set1_object(attr: PX509_ATTRIBUTE; const obj: PASN1_OBJECT): TIdC_INT;
   function X509_ATTRIBUTE_set1_data(attr: PX509_ATTRIBUTE; attrtype: TIdC_INT; const data: Pointer; len: TIdC_INT): TIdC_INT;
   function X509_ATTRIBUTE_get0_data(attr: PX509_ATTRIBUTE; idx: TIdC_INT; atrtype: TIdC_INT; data: Pointer): Pointer;
@@ -911,9 +911,9 @@ var
   function EVP_PKEY_get_attr(const key: PEVP_PKEY; loc: TIdC_INT): PX509_ATTRIBUTE;
   function EVP_PKEY_delete_attr(key: PEVP_PKEY; loc: TIdC_INT): PX509_ATTRIBUTE;
   function EVP_PKEY_add1_attr(key: PEVP_PKEY; attr: PX509_ATTRIBUTE): TIdC_INT;
-  function EVP_PKEY_add1_attr_by_OBJ(key: PEVP_PKEY; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
-  function EVP_PKEY_add1_attr_by_NID(key: PEVP_PKEY; nid: TIdC_INT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
-  function EVP_PKEY_add1_attr_by_txt(key: PEVP_PKEY; const attrname: PIdAnsiChar; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function EVP_PKEY_add1_attr_by_OBJ(key: PEVP_PKEY; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function EVP_PKEY_add1_attr_by_NID(key: PEVP_PKEY; nid: TIdC_INT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function EVP_PKEY_add1_attr_by_txt(key: PEVP_PKEY; const attrname: PIdAnsiChar; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
 
   function X509_verify_cert(ctx: PX509_STORE_CTX): TIdC_INT;
 
@@ -950,7 +950,7 @@ var
 
   //const STACK_OF(X509_ATTRIBUTE) *
   //PKCS8_pkey_get0_attrs(const PKCS8_PRIV_KEY_INFO *p8);
-  function PKCS8_pkey_add1_attr_by_NID(p8: PPKCS8_PRIV_KEY_INFO; nid: TIdC_INT; &type: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
+  function PKCS8_pkey_add1_attr_by_NID(p8: PPKCS8_PRIV_KEY_INFO; nid: TIdC_INT; type_: TIdC_INT; const bytes: PByte; len: TIdC_INT): TIdC_INT;
 
   function X509_PUBKEY_set0_param(pub: PX509_PUBKEY; aobj: PASN1_OBJECT; ptype: TIdC_INT; pval: Pointer; penc: PByte; penclen: TIdC_INT): TIdC_INT;
   function X509_PUBKEY_get0_param(ppkalg: PPASN1_OBJECT; const pk: PPByte; ppklen: PIdC_INT; pa: PPX509_ALGOR; pub: PX509_PUBKEY): TIdC_INT;

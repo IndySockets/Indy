@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_crypto;
 
@@ -45,7 +45,7 @@ uses
   IdOpenSSLConsts,
   IdOpenSSLHeaders_bio,
   IdOpenSSLHeaders_ossl_typ,
-  System.Types;
+  {$IFDEF VCL_XE3_OR_ABOVE}System.Types{$ELSE}Types{$ENDIF};
 
 {$MINENUMSIZE 4}
 
@@ -148,7 +148,6 @@ type
   CRYPTO_ONCE = type TIdC_LONG;
   PCRYPTO_ONCE = ^CRYPTO_ONCE;
 
-{$REGION 'C compiler macros'}
 function OPENSSL_malloc(num: TIdC_SIZET): Pointer;
 function OPENSSL_zalloc(num: TIdC_SIZET): Pointer;
 function OPENSSL_realloc(addr: Pointer; num: TIdC_SIZET): Pointer;
@@ -163,7 +162,6 @@ function OPENSSL_secure_zalloc(num: TIdC_SIZET): Pointer;
 procedure OPENSSL_secure_free(addr: Pointer);
 procedure OPENSSL_secure_clear_free(addr: Pointer; num: TIdC_SIZET);
 function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
-{$ENDREGION}
 
   function CRYPTO_THREAD_lock_new: PCRYPTO_RWLOCK cdecl; external CLibCrypto;
   function CRYPTO_THREAD_read_lock(lock: PCRYPTO_RWLOCK): TIdC_INT cdecl; external CLibCrypto;
@@ -197,7 +195,7 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
    * given class (invokes whatever per-class callbacks are applicable)
    *)
    function CRYPTO_new_ex_data(class_index: TIdC_INT; obj: Pointer; ad: PCRYPTO_EX_DATA): TIdC_INT cdecl; external CLibCrypto;
-   function CRYPTO_dup_ex_data(class_index: TIdC_INT; &to: PCRYPTO_EX_DATA; const from: PCRYPTO_EX_DATA): TIdC_INT cdecl; external CLibCrypto;
+   function CRYPTO_dup_ex_data(class_index: TIdC_INT; to_: PCRYPTO_EX_DATA; const from: PCRYPTO_EX_DATA): TIdC_INT cdecl; external CLibCrypto;
 
    procedure CRYPTO_free_ex_data(class_index: TIdC_INT; obj: Pointer; ad: PCRYPTO_EX_DATA) cdecl; external CLibCrypto;
 
@@ -252,22 +250,22 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
   //        void *(**r) (void *, TIdC_SIZET, const char *, int),
   //        void (**f) (void *, const char *, int));
 
-  function CRYPTO_malloc(num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
-  function CRYPTO_zalloc(num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
-  function CRYPTO_memdup(const str: Pointer; siz: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
-  function CRYPTO_strdup(const str: PAnsiChar; const &file: PAnsiChar; line: TIdC_INT): PAnsiChar cdecl; external CLibCrypto;
-  function CRYPTO_strndup(const str: PAnsiChar; s: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): PAnsiChar cdecl; external CLibCrypto;
-  procedure CRYPTO_free(ptr: Pointer; const &file: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
-  procedure CRYPTO_clear_free(ptr: Pointer; num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
-  function CRYPTO_realloc(addr: Pointer; num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
-  function CRYPTO_clear_realloc(addr: Pointer; old_num: TIdC_SIZET; num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  function CRYPTO_malloc(num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  function CRYPTO_zalloc(num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  function CRYPTO_memdup(const str: Pointer; siz: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  function CRYPTO_strdup(const str: PAnsiChar; const file_: PAnsiChar; line: TIdC_INT): PAnsiChar cdecl; external CLibCrypto;
+  function CRYPTO_strndup(const str: PAnsiChar; s: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): PAnsiChar cdecl; external CLibCrypto;
+  procedure CRYPTO_free(ptr: Pointer; const file_: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  procedure CRYPTO_clear_free(ptr: Pointer; num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  function CRYPTO_realloc(addr: Pointer; num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  function CRYPTO_clear_realloc(addr: Pointer; old_num: TIdC_SIZET; num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
 
   function CRYPTO_secure_malloc_init(sz: TIdC_SIZET; minsize: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function CRYPTO_secure_malloc_done: TIdC_INT cdecl; external CLibCrypto;
-  function CRYPTO_secure_malloc(num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
-  function CRYPTO_secure_zalloc(num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
-  procedure CRYPTO_secure_free(ptr: Pointer; const &file: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
-  procedure CRYPTO_secure_clear_free(ptr: Pointer; num: TIdC_SIZET; const &file: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  function CRYPTO_secure_malloc(num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  function CRYPTO_secure_zalloc(num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  procedure CRYPTO_secure_free(ptr: Pointer; const file_: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  procedure CRYPTO_secure_clear_free(ptr: Pointer; num: TIdC_SIZET; const file_: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
   function CRYPTO_secure_allocated(const ptr: Pointer): TIdC_INT cdecl; external CLibCrypto;
   function CRYPTO_secure_malloc_initialized: TIdC_INT cdecl; external CLibCrypto;
   function CRYPTO_secure_actual_size(ptr: Pointer): TIdC_SIZET cdecl; external CLibCrypto;
@@ -275,7 +273,7 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
 
   procedure OPENSSL_cleanse(ptr: Pointer; len: TIdC_SIZET) cdecl; external CLibCrypto;
 
-  function CRYPTO_mem_debug_push(const info: PAnsiChar; const &file: PAnsiChar; line: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function CRYPTO_mem_debug_push(const info: PAnsiChar; const file_: PAnsiChar; line: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function CRYPTO_mem_debug_pop: TIdC_INT cdecl; external CLibCrypto;
   procedure CRYPTO_get_alloc_counts(mcount: PIdC_INT; rcount: PIdC_INT; fcount: PIdC_INT) cdecl; external CLibCrypto;
 
@@ -285,9 +283,9 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
    *   0:   called before the actual memory allocation has taken place
    *   1:   called after the actual memory allocation has taken place
    *)
-  procedure CRYPTO_mem_debug_malloc(addr: Pointer; num: TIdC_SIZET; flag: TIdC_INT; const &file: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
-  procedure CRYPTO_mem_debug_realloc(addr1: Pointer; addr2: Pointer; num: TIdC_SIZET; flag: TIdC_INT; const &file: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
-  procedure CRYPTO_mem_debug_free(addr: Pointer; flag: TIdC_INT; const &file: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  procedure CRYPTO_mem_debug_malloc(addr: Pointer; num: TIdC_SIZET; flag: TIdC_INT; const file_: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  procedure CRYPTO_mem_debug_realloc(addr1: Pointer; addr2: Pointer; num: TIdC_SIZET; flag: TIdC_INT; const file_: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
+  procedure CRYPTO_mem_debug_free(addr: Pointer; flag: TIdC_INT; const file_: PAnsiChar; line: TIdC_INT) cdecl; external CLibCrypto;
 
   function CRYPTO_mem_leaks_cb(cb: CRYPTO_mem_leaks_cb_cb; u: Pointer): TIdC_INT cdecl; external CLibCrypto;
 
@@ -352,7 +350,6 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
 
 implementation
 
-{$REGION 'C compiler macros'}
 // OPENSSL_FILE = __FILE__ = C preprocessor macro
 // OPENSSL_LINE = __LINE__ = C preprocessor macro
 // FPC hase an equivalent with {$I %FILE%} and {$I %LINE%}, see https://www.freepascal.org/docs-html/prog/progsu41.html#x47-460001.1.41
@@ -441,6 +438,5 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
 begin
   Result := CRYPTO_secure_actual_size(ptr);
 end;
-{$ENDREGION}
 
 end.

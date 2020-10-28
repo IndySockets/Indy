@@ -140,8 +140,8 @@ var
   function i2d_CMS_bio(bp: PBIO; cms: PCMS_ContentInfo): TIdC_INT;
 
   function BIO_new_CMS(&out: PBIO; cms: PCMS_ContentInfo): PBIO;
-  function i2d_CMS_bio_stream(&out: PBIO; cms: PCMS_ContentInfo; &in: PBIO; flags: TIdC_INT): TIdC_INT;
-  function PEM_write_bio_CMS_stream(&out: PBIO; cms: PCMS_ContentInfo; &in: PBIO; flags: TIdC_INT): TIdC_INT;
+  function i2d_CMS_bio_stream(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT;
+  function PEM_write_bio_CMS_stream(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT;
   function SMIME_read_CMS(bio: PBIO; bcont: PPBIO): PCMS_ContentInfo;
   function SMIME_write_CMS(bio: PBIO; cms: PCMS_ContentInfo; data: PBIO; flags: TIdC_INT): TIdC_INT;
 
@@ -151,27 +151,27 @@ var
 
 //  function CMS_sign_receipt(si: PCMS_SignerInfo; signcert: PX509; pkey: PEVP_PKEY; {STACK_OF(X509) *certs;} flags: TIdC_UINT): PCMS_ContentInfo;
 
-  function CMS_data(cms: PCMS_ContentInfo; &out: PBIO; flags: TIdC_UINT): TIdC_INT;
+  function CMS_data(cms: PCMS_ContentInfo; out_: PBIO; flags: TIdC_UINT): TIdC_INT;
   function CMS_data_create(&in: PBIO; flags: TIdC_UINT): PCMS_ContentInfo;
 
-  function CMS_digest_verify(cms: PCMS_ContentInfo; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT;
+  function CMS_digest_verify(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT;
   function CMS_digest_create(&in: PBIO; const md: PEVP_MD; flags: TIdC_UINT): PCMS_ContentInfo;
 
-  function CMS_EncryptedData_decrypt(cms: PCMS_ContentInfo; const key: PByte; keylen: TIdC_SIZET; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT;
+  function CMS_EncryptedData_decrypt(cms: PCMS_ContentInfo; const key: PByte; keylen: TIdC_SIZET; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT;
 
   function CMS_EncryptedData_encrypt(&in: PBIO; const cipher: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET; flags: TIdC_UINT): PCMS_ContentInfo;
 
   function CMS_EncryptedData_set1_key(cms: PCMS_ContentInfo; const ciph: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET): TIdC_INT;
 
-//  function CMS_verify(cms: PCMS_ContentInfo; {STACK_OF(X509) *certs;} store: PX509_STORE; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT;
+//  function CMS_verify(cms: PCMS_ContentInfo; {STACK_OF(X509) *certs;} store: PX509_STORE; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT;
 
 //  function CMS_verify_receipt(rcms: PCMS_ContentInfo; ocms: PCMS_ContentInfo; {STACK_OF(x509) *certs;} store: PX509_STORE; flags: TIdC_UINT): TIdC_INT;
 
   // STACK_OF(X509) *CMS_get0_signers(CMS_ContentInfo *cms);
 
-//  function CMS_encrypt({STACK_OF(x509) *certs;} &in: PBIO; const cipher: PEVP_CIPHER; flags: TIdC_UINT): PCMS_ContentInfo;
+//  function CMS_encrypt({STACK_OF(x509) *certs;} in_: PBIO; const cipher: PEVP_CIPHER; flags: TIdC_UINT): PCMS_ContentInfo;
 
-  function CMS_decrypt(cms: PCMS_ContentInfo; pkey: PEVP_PKEY; cert: PX509; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT;
+  function CMS_decrypt(cms: PCMS_ContentInfo; pkey: PEVP_PKEY; cert: PX509; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT;
 
   function CMS_decrypt_set1_pkey(cms: PCMS_ContentInfo; pk: PEVP_PKEY; cert: PX509): TIdC_INT;
   function CMS_decrypt_set1_key(cms: PCMS_ContentInfo; key: PByte; keylen: TIdC_SIZET; const id: PByte; idlen: TIdC_SIZET): TIdC_INT;
@@ -202,7 +202,7 @@ var
   function CMS_RecipientInfo_decrypt(cms: PCMS_ContentInfo; ri: PCMS_RecipientInfo): TIdC_INT;
   function CMS_RecipientInfo_encrypt(cms: PCMS_ContentInfo; ri: PCMS_RecipientInfo): TIdC_INT;
 
-  function CMS_uncompress(cms: PCMS_ContentInfo; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT;
+  function CMS_uncompress(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT;
   function CMS_compress(&in: PBIO; comp_nid: TIdC_INT; flags: TIdC_UINT): PCMS_ContentInfo;
 
   function CMS_set1_eContentType(cms: CMS_ContentInfo; const oit: PASN1_OBJECT): TIdC_INT;
@@ -244,10 +244,10 @@ var
   function CMS_signed_get_attr(const si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE;
   function CMS_signed_delete_attr(const si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE;
   function CMS_signed_add1_attr(si: PCMS_SignerInfo; loc: TIdC_INT): TIdC_INT;
-  function CMS_signed_add1_attr_by_OBJ(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
-  function CMS_signed_add1_attr_by_NID(si: PCMS_SignerInfo; nid: TIdC_INT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
-  function CMS_signed_add1_attr_by_txt(si: PCMS_SignerInfo; const attrname: PAnsiChar; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
-  function CMS_signed_get0_data_by_OBJ(si: PCMS_SignerInfo; const oid: PASN1_OBJECT; lastpos: TIdC_INT; &type: TIdC_INT): Pointer;
+  function CMS_signed_add1_attr_by_OBJ(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
+  function CMS_signed_add1_attr_by_NID(si: PCMS_SignerInfo; nid: TIdC_INT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
+  function CMS_signed_add1_attr_by_txt(si: PCMS_SignerInfo; const attrname: PAnsiChar; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
+  function CMS_signed_get0_data_by_OBJ(si: PCMS_SignerInfo; const oid: PASN1_OBJECT; lastpos: TIdC_INT; type_: TIdC_INT): Pointer;
 
   function CMS_unsigned_get_attr_count(const si: PCMS_SignerInfo): TIdC_INT;
   function CMS_unsigned_get_attr_by_NID(const si: PCMS_SignerInfo; nid: TIdC_INT; lastpos: TIdC_INT): TIdC_INT;
@@ -255,10 +255,10 @@ var
   function CMS_unsigned_get_attr(const si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE;
   function CMS_unsigned_delete_attr(si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE;
   function CMS_unsigned_add1_attr(si: PCMS_SignerInfo; attr: PX509_ATTRIBUTE): TIdC_INT;
-  function CMS_unsigned_add1_attr_by_OBJ(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
-  function CMS_unsigned_add1_attr_by_NID(si: PCMS_SignerInfo; nid: TIdC_INT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
-  function CMS_unsigned_add1_attr_by_txt(si: PCMS_SignerInfo; const attrname: PAnsiChar; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
-  function CMS_unsigned_get0_data_by_OBJ(si: PCMS_SignerInfo; oid: PASN1_OBJECT; lastpos: TIdC_INT; &type: TIdC_INT): Pointer;
+  function CMS_unsigned_add1_attr_by_OBJ(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
+  function CMS_unsigned_add1_attr_by_NID(si: PCMS_SignerInfo; nid: TIdC_INT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
+  function CMS_unsigned_add1_attr_by_txt(si: PCMS_SignerInfo; const attrname: PAnsiChar; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT;
+  function CMS_unsigned_get0_data_by_OBJ(si: PCMS_SignerInfo; oid: PASN1_OBJECT; lastpos: TIdC_INT; type_: TIdC_INT): Pointer;
 
   function CMS_get1_ReceiptRequest(si: PCMS_SignerInfo; prr: PPCMS_ReceiptRequest): TIdC_INT;
 //  function CMS_ReceiptRequest_create0(id: PByte; idlen: TIdC_INT; allorfirst: TIdC_INT

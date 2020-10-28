@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_srtp;
 
@@ -59,10 +59,8 @@ const
   SRTP_AEAD_AES_128_GCM = $0007;
   SRTP_AEAD_AES_256_GCM = $0008;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   SSL_CTX_set_tlsext_use_srtp: function(ctx: PSSL_CTX; const profiles: PIdAnsiChar): TIdC_INT cdecl = nil;
@@ -73,7 +71,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -95,6 +92,5 @@ begin
   SSL_set_tlsext_use_srtp := nil;
   SSL_get_selected_srtp_profile := nil;
 end;
-{$ENDREGION}
 
 end.

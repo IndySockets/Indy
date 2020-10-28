@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_ts;
 
@@ -212,10 +212,8 @@ type
   TS_VERIFY_CTX = type Pointer;
   PTS_VERIFY_CTX = ^TS_VERIFY_CTX;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   TS_REQ_new: function: PTS_REQ cdecl = nil;
@@ -546,7 +544,7 @@ var
    *)
 
   TS_CONF_load_cert: function(&file: PIdAnsiChar): PX509 cdecl = nil;
-  TS_CONF_load_key: function( &file: PIdAnsiChar; pass: PIdAnsiChar): PEVP_PKey cdecl = nil;
+  TS_CONF_load_key: function( file_: PIdAnsiChar; pass: PIdAnsiChar): PEVP_PKey cdecl = nil;
   TS_CONF_set_serial: function(conf: PCONF; section: PIdAnsiChar; cb: TS_serial_cb; ctx: PTS_RESP_CTX): TIdC_INT cdecl = nil;
   //STACK_OF(X509) *TS_CONF_load_certs(const char *file);
   TS_CONF_get_tsa_section: function(conf: PCONF; const section: PIdAnsiChar): PIdAnsiChar cdecl = nil;
@@ -568,7 +566,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -958,6 +955,5 @@ begin
   TS_CONF_set_ess_cert_id_chain := nil;
   TS_CONF_set_ess_cert_id_digest := nil;
 end;
-{$ENDREGION}
 
 end.

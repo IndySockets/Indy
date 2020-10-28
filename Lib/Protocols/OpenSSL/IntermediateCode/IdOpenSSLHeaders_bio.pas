@@ -43,14 +43,11 @@ uses
 
 const
   (* There are the classes of BIOs *)
-  {$REGION 'BIO_TYPE_*'}
   BIO_TYPE_DESCRIPTOR = $0100;
   BIO_TYPE_FILTER = $0200;
   BIO_TYPE_SOURCE_SINK = $0400;
-  {$ENDREGION}
 
   (* These are the 'types' of BIOs *)
-  {$REGION 'BIO_TYPE_*'}
   BIO_TYPE_NONE = 0;
   BIO_TYPE_MEM =  1 or BIO_TYPE_SOURCE_SINK;
   BIO_TYPE_FILE =  2 or BIO_TYPE_SOURCE_SINK;
@@ -74,7 +71,6 @@ const
   BIO_TYPE_ASN1        = 22 or BIO_TYPE_FILTER;
   BIO_TYPE_COMP        = 23 or BIO_TYPE_FILTER;
   BIO_TYPE_DGRAM_SCTP  = 24 or BIO_TYPE_SOURCE_SINK or BIO_TYPE_DESCRIPTOR;
-  {$ENDREGION}
 
   BIO_TYPE_START = 128;
 
@@ -82,15 +78,12 @@ const
    * BIO_FILENAME_READ|BIO_CLOSE to open or close on free.
    * BIO_set_fp(in,stdin,BIO_NOCLOSE);
    *)
-  {$REGION}
   BIO_NOCLOSE = $00;
   BIO_CLOSE   = $01;
-  {$ENDREGION}
 
   (*
    * These are used in the following macros and are passed to BIO_ctrl()
    *)
-  {$REGION 'BIO_CTRL_*'}
   BIO_CTRL_RESET        = 1;(* opt - rewind/zero etc *)
   BIO_CTRL_EOF          = 2;(* opt - are we at the eof *)
   BIO_CTRL_INFO         = 3;(* opt - extra tit-bits *)
@@ -161,7 +154,6 @@ const
   BIO_CTRL_DGRAM_SCTP_SAVE_SHUTDOWN     = 70;
 
   BIO_CTRL_DGRAM_SET_PEEK_MODE          = 71;
-  {$ENDREGION}
 
   (* modifiers *)
   BIO_FP_READ            = $02;
@@ -169,7 +161,6 @@ const
   BIO_FP_APPEND          = $08;
   BIO_FP_TEXT            = $10;
 
-  {$REGION 'BIO_FLAGS_*}
   BIO_FLAGS_READ         = $01;
   BIO_FLAGS_WRITE        = $02;
   BIO_FLAGS_IO_SPECIAL   = $04;
@@ -185,18 +176,14 @@ const
    *)
   BIO_FLAGS_MEM_RDONLY   = $200;
   BIO_FLAGS_NONCLEAR_RST = $400;
-  {$ENDREGION}
 
-  {$REGION 'BIO_RR_*'}
   BIO_RR_SSL_X509_LOOKUP = $01;
   (* Returned from the connect BIO when a connect would have blocked *)
   BIO_RR_CONNECT         = $02;
   (* Returned from the accept BIO when an accept would have blocked *)
   BIO_RR_ACCEPT          = $03;
-  {$ENDREGION}
 
   (* These are passed by the BIO callback *)
-  {$REGION 'BIO_CB_*'}
   BIO_CB_FREE  = $01;
   BIO_CB_READ  = $02;
   BIO_CB_WRITE = $03;
@@ -211,9 +198,7 @@ const
 //# define BIO_CB_return(a) ((a)|BIO_CB_RETURN)
 //# define BIO_cb_pre(a)   (!((a)&BIO_CB_RETURN))
 //# define BIO_cb_post(a)  ((a)&BIO_CB_RETURN)
-  {$ENDREGION}
 
-  {$REGION 'BIO_C_*'}
   BIO_C_SET_CONNECT                 = 100;
   BIO_C_DO_STATE_MACHINE            = 101;
   BIO_C_SET_NBIO                    = 102;
@@ -275,15 +260,12 @@ const
   BIO_C_GET_EX_ARG                  = 154;
 
   BIO_C_SET_CONNECT_MODE            = 155;
-  {$ENDREGION}
 
-  {$REGION 'BIO_SOCK_*'}
   BIO_SOCK_REUSEADDR = $01;
   BIO_SOCK_V6_ONLY   = $02;
   BIO_SOCK_KEEPALIVE = $04;
   BIO_SOCK_NONBLOCK  = $08;
   BIO_SOCK_NODELAY   = $10;
-  {$ENDREGION}
 
 type
   BIO_ADDR = Pointer; // bio_addr_st
@@ -672,7 +654,7 @@ var
 
   function BIO_set_tcp_ndelay(sock: TIdC_INT; turn_on: TIdC_INT): TIdC_INT;
 
-  function BIO_sock_info(sock: TIdC_INT; &type: BIO_sock_info_type; info: PBIO_sock_info_u): TIdC_INT;
+  function BIO_sock_info(sock: TIdC_INT; type_: BIO_sock_info_type; info: PBIO_sock_info_u): TIdC_INT;
 
   function BIO_socket(domain: TIdC_INT; socktype: TIdC_INT; protocol: TIdC_INT; options: TIdC_INT): TIdC_INT;
   function BIO_connect(sock: TIdC_INT; const addr: PBIO_ADDR; options: TIdC_INT): TIdC_INT;
@@ -732,7 +714,6 @@ var
 
 implementation
 
-{$REGION 'C compiler macros'}
 // # define BIO_get_flags(b) BIO_test_flags(b, ~(0x0))
 function BIO_get_flags(const b: PBIO): TIdC_INT;
 begin
@@ -821,7 +802,6 @@ function BIO_do_handshake(b: PBIO): TIdC_LONG;
 begin
   Result := BIO_ctrl(b, BIO_C_DO_STATE_MACHINE, 0, nil);
 end;
-{$ENDREGION}
 
 end.
 

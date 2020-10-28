@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:42
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_rand;
 
@@ -63,10 +63,8 @@ type
     status: rand_meth_st_status;
   end;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   RAND_set_rand_method: function(const meth: PRAND_METHOD): TIdC_INT cdecl = nil;
@@ -82,8 +80,8 @@ var
   RAND_keep_random_devices_open: procedure(keep: TIdC_INT) cdecl = nil;
 
   RAND_add: procedure(const buf: Pointer; num: TIdC_INT; randomness: TIdC_DOUBLE) cdecl = nil;
-  RAND_load_file: function(const &file: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT cdecl = nil;
-  RAND_write_file: function(const &file: PIdAnsiChar): TIdC_INT cdecl = nil;
+  RAND_load_file: function(const file_: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT cdecl = nil;
+  RAND_write_file: function(const file_: PIdAnsiChar): TIdC_INT cdecl = nil;
   RAND_status: function: TIdC_INT cdecl = nil;
 
   RAND_query_egd_bytes: function(const path: PIdAnsiChar; buf: PByte; bytes: TIdC_INT): TIdC_INT cdecl = nil;
@@ -94,7 +92,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -142,6 +139,5 @@ begin
   RAND_egd_bytes := nil;
   RAND_poll := nil;
 end;
-{$ENDREGION}
 
 end.

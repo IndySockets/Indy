@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_cms;
 
@@ -132,10 +132,8 @@ const
   CMS_KEY_PARAM                   = $40000;
   CMS_ASCIICRLF                   = $80000;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   CMS_get0_type: function(const cms: PCMS_ContentInfo): PASN1_OBJECT cdecl = nil;
@@ -152,8 +150,8 @@ var
   i2d_CMS_bio: function(bp: PBIO; cms: PCMS_ContentInfo): TIdC_INT cdecl = nil;
 
   BIO_new_CMS: function(&out: PBIO; cms: PCMS_ContentInfo): PBIO cdecl = nil;
-  i2d_CMS_bio_stream: function(&out: PBIO; cms: PCMS_ContentInfo; &in: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
-  PEM_write_bio_CMS_stream: function(&out: PBIO; cms: PCMS_ContentInfo; &in: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
+  i2d_CMS_bio_stream: function(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
+  PEM_write_bio_CMS_stream: function(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
   SMIME_read_CMS: function(bio: PBIO; bcont: PPBIO): PCMS_ContentInfo cdecl = nil;
   SMIME_write_CMS: function(bio: PBIO; cms: PCMS_ContentInfo; data: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
 
@@ -163,27 +161,27 @@ var
 
 //  function CMS_sign_receipt(si: PCMS_SignerInfo; signcert: PX509; pkey: PEVP_PKEY; {STACK_OF(X509) *certs;} flags: TIdC_UINT): PCMS_ContentInfo;
 
-  CMS_data: function(cms: PCMS_ContentInfo; &out: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
+  CMS_data: function(cms: PCMS_ContentInfo; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
   CMS_data_create: function(&in: PBIO; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
-  CMS_digest_verify: function(cms: PCMS_ContentInfo; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
+  CMS_digest_verify: function(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
   CMS_digest_create: function(&in: PBIO; const md: PEVP_MD; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
-  CMS_EncryptedData_decrypt: function(cms: PCMS_ContentInfo; const key: PByte; keylen: TIdC_SIZET; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
+  CMS_EncryptedData_decrypt: function(cms: PCMS_ContentInfo; const key: PByte; keylen: TIdC_SIZET; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
 
   CMS_EncryptedData_encrypt: function(&in: PBIO; const cipher: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
   CMS_EncryptedData_set1_key: function(cms: PCMS_ContentInfo; const ciph: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET): TIdC_INT cdecl = nil;
 
-//  function CMS_verify(cms: PCMS_ContentInfo; {STACK_OF(X509) *certs;} store: PX509_STORE; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT;
+//  function CMS_verify(cms: PCMS_ContentInfo; {STACK_OF(X509) *certs;} store: PX509_STORE; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT;
 
 //  function CMS_verify_receipt(rcms: PCMS_ContentInfo; ocms: PCMS_ContentInfo; {STACK_OF(x509) *certs;} store: PX509_STORE; flags: TIdC_UINT): TIdC_INT;
 
   // STACK_OF(X509) *CMS_get0_signers(CMS_ContentInfo *cms);
 
-//  function CMS_encrypt({STACK_OF(x509) *certs;} &in: PBIO; const cipher: PEVP_CIPHER; flags: TIdC_UINT): PCMS_ContentInfo;
+//  function CMS_encrypt({STACK_OF(x509) *certs;} in_: PBIO; const cipher: PEVP_CIPHER; flags: TIdC_UINT): PCMS_ContentInfo;
 
-  CMS_decrypt: function(cms: PCMS_ContentInfo; pkey: PEVP_PKEY; cert: PX509; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
+  CMS_decrypt: function(cms: PCMS_ContentInfo; pkey: PEVP_PKEY; cert: PX509; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
 
   CMS_decrypt_set1_pkey: function(cms: PCMS_ContentInfo; pk: PEVP_PKEY; cert: PX509): TIdC_INT cdecl = nil;
   CMS_decrypt_set1_key: function(cms: PCMS_ContentInfo; key: PByte; keylen: TIdC_SIZET; const id: PByte; idlen: TIdC_SIZET): TIdC_INT cdecl = nil;
@@ -214,7 +212,7 @@ var
   CMS_RecipientInfo_decrypt: function(cms: PCMS_ContentInfo; ri: PCMS_RecipientInfo): TIdC_INT cdecl = nil;
   CMS_RecipientInfo_encrypt: function(cms: PCMS_ContentInfo; ri: PCMS_RecipientInfo): TIdC_INT cdecl = nil;
 
-  CMS_uncompress: function(cms: PCMS_ContentInfo; dcont: PBIO; &out: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
+  CMS_uncompress: function(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
   CMS_compress: function(&in: PBIO; comp_nid: TIdC_INT; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
   CMS_set1_eContentType: function(cms: CMS_ContentInfo; const oit: PASN1_OBJECT): TIdC_INT cdecl = nil;
@@ -256,10 +254,10 @@ var
   CMS_signed_get_attr: function(const si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE cdecl = nil;
   CMS_signed_delete_attr: function(const si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE cdecl = nil;
   CMS_signed_add1_attr: function(si: PCMS_SignerInfo; loc: TIdC_INT): TIdC_INT cdecl = nil;
-  CMS_signed_add1_attr_by_OBJ: function(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
-  CMS_signed_add1_attr_by_NID: function(si: PCMS_SignerInfo; nid: TIdC_INT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
-  CMS_signed_add1_attr_by_txt: function(si: PCMS_SignerInfo; const attrname: PAnsiChar; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
-  CMS_signed_get0_data_by_OBJ: function(si: PCMS_SignerInfo; const oid: PASN1_OBJECT; lastpos: TIdC_INT; &type: TIdC_INT): Pointer cdecl = nil;
+  CMS_signed_add1_attr_by_OBJ: function(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
+  CMS_signed_add1_attr_by_NID: function(si: PCMS_SignerInfo; nid: TIdC_INT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
+  CMS_signed_add1_attr_by_txt: function(si: PCMS_SignerInfo; const attrname: PAnsiChar; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
+  CMS_signed_get0_data_by_OBJ: function(si: PCMS_SignerInfo; const oid: PASN1_OBJECT; lastpos: TIdC_INT; type_: TIdC_INT): Pointer cdecl = nil;
 
   CMS_unsigned_get_attr_count: function(const si: PCMS_SignerInfo): TIdC_INT cdecl = nil;
   CMS_unsigned_get_attr_by_NID: function(const si: PCMS_SignerInfo; nid: TIdC_INT; lastpos: TIdC_INT): TIdC_INT cdecl = nil;
@@ -267,10 +265,10 @@ var
   CMS_unsigned_get_attr: function(const si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE cdecl = nil;
   CMS_unsigned_delete_attr: function(si: PCMS_SignerInfo; loc: TIdC_INT): PX509_ATTRIBUTE cdecl = nil;
   CMS_unsigned_add1_attr: function(si: PCMS_SignerInfo; attr: PX509_ATTRIBUTE): TIdC_INT cdecl = nil;
-  CMS_unsigned_add1_attr_by_OBJ: function(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
-  CMS_unsigned_add1_attr_by_NID: function(si: PCMS_SignerInfo; nid: TIdC_INT; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
-  CMS_unsigned_add1_attr_by_txt: function(si: PCMS_SignerInfo; const attrname: PAnsiChar; &type: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
-  CMS_unsigned_get0_data_by_OBJ: function(si: PCMS_SignerInfo; oid: PASN1_OBJECT; lastpos: TIdC_INT; &type: TIdC_INT): Pointer cdecl = nil;
+  CMS_unsigned_add1_attr_by_OBJ: function(si: PCMS_SignerInfo; const obj: PASN1_OBJECT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
+  CMS_unsigned_add1_attr_by_NID: function(si: PCMS_SignerInfo; nid: TIdC_INT; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
+  CMS_unsigned_add1_attr_by_txt: function(si: PCMS_SignerInfo; const attrname: PAnsiChar; type_: TIdC_INT; const bytes: Pointer; len: TIdC_INT): TIdC_INT cdecl = nil;
+  CMS_unsigned_get0_data_by_OBJ: function(si: PCMS_SignerInfo; oid: PASN1_OBJECT; lastpos: TIdC_INT; type_: TIdC_INT): Pointer cdecl = nil;
 
   CMS_get1_ReceiptRequest: function(si: PCMS_SignerInfo; prr: PPCMS_ReceiptRequest): TIdC_INT cdecl = nil;
 //  function CMS_ReceiptRequest_create0(id: PByte; idlen: TIdC_INT; allorfirst: TIdC_INT
@@ -301,7 +299,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -505,6 +502,5 @@ begin
   CMS_RecipientInfo_kari_decrypt := nil;
   CMS_SharedInfo_encode := nil;
 end;
-{$ENDREGION}
 
 end.

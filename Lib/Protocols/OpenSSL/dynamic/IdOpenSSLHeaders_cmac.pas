@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_cmac;
 
@@ -53,26 +53,23 @@ type
   CMAC_CTX = CMAC_CTX_st;
   PCMAC_CTX = ^CMAC_CTX;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   CMAC_CTX_new: function: PCMAC_CTX cdecl = nil;
   CMAC_CTX_cleanup: procedure(ctx: PCMAC_CTX) cdecl = nil;
   CMAC_CTX_free: procedure(ctx: PCMAC_CTX) cdecl = nil;
   CMAC_CTX_get0_cipher_ctx: function(ctx: PCMAC_CTX): PEVP_CIPHER_CTX cdecl = nil;
-  CMAC_CTX_copy: function(out: PCMAC_CTX; const &in: PCMAC_CTX): TIdC_INT cdecl = nil;
+  CMAC_CTX_copy: function(out: PCMAC_CTX; const in_: PCMAC_CTX): TIdC_INT cdecl = nil;
   CMAC_Init: function(ctx: PCMAC_CTX; const key: Pointer; keylen: TIdC_SIZET; const cipher: PEVP_Cipher; impl: PENGINe): TIdC_INT cdecl = nil;
   CMAC_Update: function(ctx: PCMAC_CTX; const data: Pointer; dlen: TIdC_SIZET): TIdC_INT cdecl = nil;
-  CMAC_Final: function(ctx: PCMAC_CTX; &out: PByte; poutlen: PIdC_SIZET): TIdC_INT cdecl = nil;
+  CMAC_Final: function(ctx: PCMAC_CTX; out_: PByte; poutlen: PIdC_SIZET): TIdC_INT cdecl = nil;
   CMAC_resume: function(ctx: PCMAC_CTX): TIdC_INT cdecl = nil;
 
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -106,6 +103,5 @@ begin
   CMAC_Final := nil;
   CMAC_resume := nil;
 end;
-{$ENDREGION}
 
 end.

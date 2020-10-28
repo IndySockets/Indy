@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:43
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_rand;
 
@@ -75,8 +75,8 @@ type
   procedure RAND_keep_random_devices_open(keep: TIdC_INT) cdecl; external CLibCrypto;
 
   procedure RAND_add(const buf: Pointer; num: TIdC_INT; randomness: TIdC_DOUBLE) cdecl; external CLibCrypto;
-  function RAND_load_file(const &file: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
-  function RAND_write_file(const &file: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_load_file(const file_: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT cdecl; external CLibCrypto;
+  function RAND_write_file(const file_: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
   function RAND_status: TIdC_INT cdecl; external CLibCrypto;
 
   function RAND_query_egd_bytes(const path: PIdAnsiChar; buf: PByte; bytes: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;

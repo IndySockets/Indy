@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_conf;
 
@@ -104,10 +104,8 @@ const
   CONF_MFLAGS_IGNORE_MISSING_FILE = $10;
   CONF_MFLAGS_DEFAULT_SECTION = $20;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   CONF_set_default_method: function(meth: PCONF_METHOD): TIdC_INT cdecl = nil;
@@ -157,7 +155,7 @@ var
   NCONF_free: procedure(conf: PCONF) cdecl = nil;
   NCONF_free_data: procedure(conf: PCONF) cdecl = nil;
 
-  NCONF_load: function(conf: PCONF; const &file: PAnsiChar; eline: PIdC_LONG): TIdC_INT cdecl = nil;
+  NCONF_load: function(conf: PCONF; const file_: PAnsiChar; eline: PIdC_LONG): TIdC_INT cdecl = nil;
   NCONF_load_bio: function(conf: PCONF; bp: PBIO; eline: PIdC_LONG): TIdC_INT cdecl = nil;
   //STACK_OF(CONF_VALUE) *NCONF_get_section(const CONF *conf,
   //                                        const char *section);
@@ -193,7 +191,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -261,6 +258,5 @@ begin
   CONF_parse_list := nil;
   OPENSSL_load_builtin_modules := nil;
 end;
-{$ENDREGION}
 
 end.

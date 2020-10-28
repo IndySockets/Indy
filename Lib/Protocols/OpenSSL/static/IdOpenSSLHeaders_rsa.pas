@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_rsa;
 
@@ -168,7 +168,7 @@ type
   //DECLARE_ASN1_ENCODE_FUNCTIONS_const(RSA, RSAPrivateKey)
 
   RSA_meth_set_priv_dec_priv_dec = function(flen: TIdC_INT; const from: PByte;
-    &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl;
+    to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl;
 
   RSA_meth_set_mod_exp_mod_exp = function(r0: PBIGNUM; const i: PBIGNUM;
     rsa: PRSA; ctx: PBN_CTX): TIdC_INT; cdecl;
@@ -301,10 +301,10 @@ type
   function RSA_check_key(const v1: PRSA): TIdC_INT cdecl; external CLibCrypto;
   function RSA_check_key_ex(const v1: PRSA; cb: BN_GENCB): TIdC_INT cdecl; external CLibCrypto;
   (* next 4 return -1 on error *)
-  function RSA_public_encrypt(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function RSA_private_encrypt(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function RSA_public_decrypt(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function RSA_private_decrypt(flen: TIdC_INT; const from: PByte; &to: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_public_encrypt(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_private_encrypt(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_public_decrypt(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_private_decrypt(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
   procedure RSA_free(r: PRSA) cdecl; external CLibCrypto;
   (* "up" the RSA object's reference count *)
@@ -420,7 +420,7 @@ type
   //int (*RSA_meth_get_finish(const RSA_METHOD *meth)) (RSA *rsa);
   function RSA_meth_set_finish(rsa: PRSA_METHOD; finish: RSA_meth_set_finish_finish): TIdC_INT cdecl; external CLibCrypto;
   //int (*RSA_meth_get_sign(const RSA_METHOD *meth))
-  //    (int &type,
+  //    (int type_,
   //     const unsigned char *m, unsigned int m_length,
   //     unsigned char *sigret, unsigned int *siglen,
   //     const RSA *rsa);

@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:43
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_objects;
 
@@ -47,7 +47,7 @@ uses
 
 type
   obj_name_st = record
-    &type: TIdC_INT;
+    type_: TIdC_INT;
     alias: TIdC_INT;
     name: PIdAnsiChar;
     data: PIdAnsiChar;
@@ -61,13 +61,13 @@ type
   //TIdC_INT OBJ_NAME_new_index(TIdC_ULONG (*hash_func) (const PIdAnsiChar *);
   //                       TIdC_INT (*cmp_func) (const PIdAnsiChar *; const PIdAnsiChar *);
   //                       void (*free_func) (const PIdAnsiChar *; TIdC_INT; const PIdAnsiChar *));
-  function OBJ_NAME_get(const name: PIdAnsiChar; &type: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
-  function OBJ_NAME_add(const name: PIdAnsiChar; &type: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
-  function OBJ_NAME_remove(const name: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_NAME_get(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
+  function OBJ_NAME_add(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_NAME_remove(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   procedure OBJ_NAME_cleanup(&type: TIdC_INT) cdecl; external CLibCrypto;
-//  void OBJ_NAME_do_all(TIdC_INT &type; void (*fn) (const OBJ_NAME *; void *arg);
+//  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
-//  void OBJ_NAME_do_all_sorted(TIdC_INT &type;
+//  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
 //                              void (*fn) (const OBJ_NAME *; void *arg);
 //                              void *arg);
 

@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 14:51:27
+// Generation date: 28.10.2020 15:24:33
 
 unit IdOpenSSLHeaders_bn;
 
@@ -208,12 +208,12 @@ type
   function BN_copy(a: PBIGNUM; b: PBIGNUM): PBIGNUM cdecl; external CLibCrypto;
   procedure BN_swap(a: PBIGNUM; b: PBIGNUM) cdecl; external CLibCrypto;
   function BN_bin2bn(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM cdecl; external CLibCrypto;
-  function BN_bn2bin(const a: PBIGNUM; &to: PByte): TIdC_INT cdecl; external CLibCrypto;
-  function BN_bn2binpad(const a: PBIGNUM; &to: PByte; tolen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function BN_bn2bin(const a: PBIGNUM; to_: PByte): TIdC_INT cdecl; external CLibCrypto;
+  function BN_bn2binpad(const a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function BN_lebin2bn(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM cdecl; external CLibCrypto;
-  function BN_bn2lebinpad(a: PBIGNUM; &to: PByte; tolen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function BN_bn2lebinpad(a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function BN_mpi2bn(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM cdecl; external CLibCrypto;
-  function BN_bn2mpi(a: PBIGNUM; &to: PByte): TIdC_INT cdecl; external CLibCrypto;
+  function BN_bn2mpi(a: PBIGNUM; to_: PByte): TIdC_INT cdecl; external CLibCrypto;
   function BN_sub(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT cdecl; external CLibCrypto;
   function BN_usub(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT cdecl; external CLibCrypto;
   function BN_uadd(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT cdecl; external CLibCrypto;
@@ -302,11 +302,11 @@ type
   function BN_to_montgomery(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
   function BN_from_montgomery(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
   procedure BN_MONT_CTX_free(mont: PBN_MONT_CTX) cdecl; external CLibCrypto;
-  function BN_MONT_CTX_set(mont: PBN_MONT_CTX; &mod: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function BN_MONT_CTX_set(mont: PBN_MONT_CTX; mod_: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
   function BN_MONT_CTX_copy(&to: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX cdecl; external CLibCrypto;
-//  function BN_MONT_CTX_set_locked(pmont: ^PBN_MONT_CTX; lock: CRYPTO_RWLOCK; &mod: PBIGNUM; ctx: PBN_CTX): PBN_MONT_CTX;
+//  function BN_MONT_CTX_set_locked(pmont: ^PBN_MONT_CTX; lock: CRYPTO_RWLOCK; mod_: PBIGNUM; ctx: PBN_CTX): PBN_MONT_CTX;
 
-  function BN_BLINDING_new(const A: PBIGNUM; const Ai: PBIGNUM; &mod: PBIGNUM): PBN_BLINDING cdecl; external CLibCrypto;
+  function BN_BLINDING_new(const A: PBIGNUM; const Ai: PBIGNUM; mod_: PBIGNUM): PBN_BLINDING cdecl; external CLibCrypto;
   procedure BN_BLINDING_free(b: PBN_BLINDING) cdecl; external CLibCrypto;
   function BN_BLINDING_update(b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
   function BN_BLINDING_convert(n: PBIGNUM; b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
@@ -412,7 +412,7 @@ type
 //int (*BN_nist_mod_func(const BIGNUM *p)) (BIGNUM *r, const BIGNUM *a,
 //                                          const BIGNUM *field, BN_CTX *ctx);
 
-  function BN_generate_dsa_nonce(&out: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const &message: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function BN_generate_dsa_nonce(&out: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
 
   (* Primes from RFC 2409 *)
   function BN_get_rfc2409_prime_768(bn: PBIGNUM ): PBIGNUM cdecl; external CLibCrypto;

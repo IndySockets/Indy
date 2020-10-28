@@ -145,7 +145,7 @@ var
   procedure NCONF_free(conf: PCONF);
   procedure NCONF_free_data(conf: PCONF);
 
-  function NCONF_load(conf: PCONF; const &file: PAnsiChar; eline: PIdC_LONG): TIdC_INT;
+  function NCONF_load(conf: PCONF; const file_: PAnsiChar; eline: PIdC_LONG): TIdC_INT;
   function NCONF_load_bio(conf: PCONF; bp: PBIO; eline: PIdC_LONG): TIdC_INT;
   //STACK_OF(CONF_VALUE) *NCONF_get_section(const CONF *conf,
   //                                        const char *section);

@@ -64,10 +64,10 @@ var
   procedure BF_encrypt(data: PBF_LONG; const key: PBF_KEY);
   procedure BF_decrypt(data: PBF_LONG; const key: PBF_KEY);
 
-  procedure BF_ecb_encrypt(const &in: PByte; &out: PByte; key: PBF_KEY; enc: TIdC_INT);
-  procedure BF_cbc_encrypt(const &in: PByte; &out: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; enc: TIdC_INT);
-  procedure BF_cfb64_encrypt(const &in: PByte; &out: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT; enc: TIdC_INT);
-  procedure BF_ofb64_encrypt(const &in: PByte; &out: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT);
+  procedure BF_ecb_encrypt(const in_: PByte; out_: PByte; key: PBF_KEY; enc: TIdC_INT);
+  procedure BF_cbc_encrypt(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; enc: TIdC_INT);
+  procedure BF_cfb64_encrypt(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT; enc: TIdC_INT);
+  procedure BF_ofb64_encrypt(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT);
 
   function BF_options: PIdAnsiChar;
 

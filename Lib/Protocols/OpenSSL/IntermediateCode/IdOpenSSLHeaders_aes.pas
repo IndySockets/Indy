@@ -1,4 +1,4 @@
-﻿{******************************************************************************}
+{******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
 {                                                                              }
@@ -65,22 +65,22 @@ var
   function AES_set_encrypt_key(const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT;
   function AES_set_decrypt_key(const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT;
 
-  procedure AES_encrypt(const &in: PByte; &out: PByte; const key: PAES_KEY);
-  procedure AES_decrypt(const &in: PByte; &out: PByte; const key: PAES_KEY);
+  procedure AES_encrypt(const in_: PByte; out_: PByte; const key: PAES_KEY);
+  procedure AES_decrypt(const in_: PByte; out_: PByte; const key: PAES_KEY);
 
-  procedure AES_ecb_encrypt(const &in: PByte; &out: PByte; const key: PAES_KEY; const enc: TIdC_INT);
-  procedure AES_cbc_encrypt(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT);
-  procedure AES_cfb128_encrypt(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT);
-  procedure AES_cfb1_encrypt(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT);
-  procedure AES_cfb8_encrypt(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT);
-  procedure AES_ofb128_encrypt(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT);
+  procedure AES_ecb_encrypt(const in_: PByte; out_: PByte; const key: PAES_KEY; const enc: TIdC_INT);
+  procedure AES_cbc_encrypt(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT);
+  procedure AES_cfb128_encrypt(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT);
+  procedure AES_cfb1_encrypt(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT);
+  procedure AES_cfb8_encrypt(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT);
+  procedure AES_ofb128_encrypt(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT);
   (* NB: the IV is _two_ blocks long *)
-  procedure AES_ige_encrypt(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT);
+  procedure AES_ige_encrypt(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT);
   (* NB: the IV is _four_ blocks long *)
-  procedure AES_bi_ige_encrypt(const &in: PByte; &out: PByte; length: TIdC_SIZET; const key: PAES_KEY; const key2: PAES_KEY; ivec: PByte; const enc: TIdC_INT);
+  procedure AES_bi_ige_encrypt(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; const key2: PAES_KEY; ivec: PByte; const enc: TIdC_INT);
 
-  function AES_wrap_key(key: PAES_KEY; const iv: PByte; &out: PByte; const &in: PByte; inlen: TIdC_UINT): TIdC_INT;
-  function AES_unwrap_key(key: PAES_KEY; const iv: PByte; &out: PByte; const &in: PByte; inlen: TIdC_UINT): TIdC_INT;
+  function AES_wrap_key(key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT;
+  function AES_unwrap_key(key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT;
 
 implementation
 

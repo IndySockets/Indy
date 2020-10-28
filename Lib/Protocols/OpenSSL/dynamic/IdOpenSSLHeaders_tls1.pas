@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:42
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_tls1;
 
@@ -1098,20 +1098,16 @@ type
     data: Pointer;
   end;
 
-{$REGION 'C compiler macros'}
 function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
-{$ENDREGION}
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   SSL_CTX_set_tlsext_max_fragment_length: function(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT cdecl = nil;
   SSL_set_tlsext_max_fragment_length: function(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT cdecl = nil;
 
-  SSL_get_servername: function(const s: PSSL; const &type: TIdC_INT): PIdAnsiChar cdecl = nil;
+  SSL_get_servername: function(const s: PSSL; const type_: TIdC_INT): PIdAnsiChar cdecl = nil;
   SSL_get_servername_type: function(const s: PSSL): TIdC_INT cdecl = nil;
   (*
    * SSL_export_keying_material exports a value derived from the master secret,
@@ -1120,7 +1116,7 @@ var
    * flag controls whether a context is included.) It returns 1 on success and
    * 0 or -1 otherwise.
    *)
-  SSL_export_keying_material: function(s: PSSL; &out: PByte; olen: TIdC_SIZET; const &label: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT cdecl = nil;
+  SSL_export_keying_material: function(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT cdecl = nil;
 
   (*
    * SSL_export_keying_material_early exports a value derived from the
@@ -1129,7 +1125,7 @@ var
    * |olen| bytes to |out| given a label and optional context. It
    * returns 1 on success and 0 otherwise.
    *)
-  SSL_export_keying_material_early: function(s: PSSL; &out: PByte; olen: TIdC_SIZET; const &label: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT cdecl = nil;
+  SSL_export_keying_material_early: function(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT cdecl = nil;
 
   SSL_get_peer_signature_type_nid: function(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl = nil;
   SSL_get_signature_type_nid: function(const s: PSSl; pnid: PIdC_INT): TIdC_INT cdecl = nil;
@@ -1207,7 +1203,6 @@ implementation
 uses
   IdOpenSSLHeaders_ssl;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -1243,15 +1238,11 @@ begin
   SSL_get_sigalgs := nil;
   SSL_get_shared_sigalgs := nil;
 end;
-{$ENDREGION}
 
-
-{$REGION 'C compiler macros'}
 //# define SSL_set_tlsext_host_name(s,name)         SSL_ctrl(s,SSL_CTRL_SET_TLSEXT_HOSTNAME,TLSEXT_NAMETYPE_host_name, (void *)name)
 function SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name, Pointer(name));
 end;
-{$ENDREGION}
 
 end.

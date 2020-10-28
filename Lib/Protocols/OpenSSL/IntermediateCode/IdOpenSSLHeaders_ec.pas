@@ -100,7 +100,7 @@ type
   PECDSA_SIG = ^ECDSA_SIG;
   PPECDSA_SIG = ^PECDSA_SIG;
 
-  ECDH_compute_key_KDF = function(const &in: Pointer; inlen: TIdC_SIZET; &out: Pointer; outlen: PIdC_SIZET): Pointer; cdecl;
+  ECDH_compute_key_KDF = function(const in_: Pointer; inlen: TIdC_SIZET; out_: Pointer; outlen: PIdC_SIZET): Pointer; cdecl;
 
   EC_KEY_METHOD_init_init = function(key: PEC_KEY): TIdC_INT; cdecl;
   EC_KEY_METHOD_init_finish = procedure(key: PEC_KEY); cdecl;
@@ -254,8 +254,8 @@ var
   function EC_GROUP_get_trinomial_basis(const group: PEC_GROUP; k: PIdC_UINT): TIdC_INT;
   function EC_GROUP_get_pentanomial_basis(const group: PEC_GROUP; k1: PIdC_UINT; k2: PIdC_UINT; k3: PIdC_UINT): TIdC_INT;
 
-  function d2i_ECPKParameters(group: PPEC_GROUP; const &in: PPByte; len: TIdC_LONG): PEC_GROUP;
-  function i2d_ECPKParameters(const group: PEC_GROUP; &out: PPByte): TIdC_INT;
+  function d2i_ECPKParameters(group: PPEC_GROUP; const in_: PPByte; len: TIdC_LONG): PEC_GROUP;
+  function i2d_ECPKParameters(const group: PEC_GROUP; out_: PPByte): TIdC_INT;
 
   function ECPKParameters_print(bp: PBIO; const x: PEC_GROUP; off: TIdC_INT): TIdC_INT;
 
@@ -293,10 +293,10 @@ var
   function EC_KEY_priv2oct(const key: PEC_KEY; buf: PByte; len: TIdC_SIZET): TIdC_SIZET;
   function EC_KEY_priv2buf(const eckey: PEC_KEY; buf: PPByte): TIdC_SIZET;
 
-  function d2i_ECPrivateKey(key: PPEC_KEY; const &in: PPByte; len: TIdC_LONG): PEC_KEY;
-  function i2d_ECPrivateKey(key: PEC_KEY; &out: PPByte): TIdC_INT;
-  function o2i_ECPublicKey(key: PPEC_KEY; const &in: PPByte; len: TIdC_LONG): PEC_KEY;
-  function i2o_ECPublicKey(const key: PEC_KEY; &out: PPByte): TIdC_INT;
+  function d2i_ECPrivateKey(key: PPEC_KEY; const in_: PPByte; len: TIdC_LONG): PEC_KEY;
+  function i2d_ECPrivateKey(key: PEC_KEY; out_: PPByte): TIdC_INT;
+  function o2i_ECPublicKey(key: PPEC_KEY; const in_: PPByte; len: TIdC_LONG): PEC_KEY;
+  function i2o_ECPublicKey(const key: PEC_KEY; out_: PPByte): TIdC_INT;
 
   function ECParameters_print(bp: PBIO; const key: PEC_KEY): TIdC_INT;
   function EC_KEY_print(bp: PBIO; const key: PEC_KEY; off: TIdC_INT): TIdC_INT;

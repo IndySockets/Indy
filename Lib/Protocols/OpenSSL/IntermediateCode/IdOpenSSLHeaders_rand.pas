@@ -70,8 +70,8 @@ var
   procedure RAND_keep_random_devices_open(keep: TIdC_INT);
 
   procedure RAND_add(const buf: Pointer; num: TIdC_INT; randomness: TIdC_DOUBLE);
-  function RAND_load_file(const &file: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT;
-  function RAND_write_file(const &file: PIdAnsiChar): TIdC_INT;
+  function RAND_load_file(const file_: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT;
+  function RAND_write_file(const file_: PIdAnsiChar): TIdC_INT;
   function RAND_status: TIdC_INT;
 
   function RAND_query_egd_bytes(const path: PIdAnsiChar; buf: PByte; bytes: TIdC_INT): TIdC_INT;

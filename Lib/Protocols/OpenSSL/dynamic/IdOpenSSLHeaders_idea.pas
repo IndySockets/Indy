@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_idea;
 
@@ -63,24 +63,21 @@ type
   IDEA_KEY_SCHEDULE = idea_key_st;
   PIDEA_KEY_SCHEDULE = ^IDEA_KEY_SCHEDULE;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   IDEA_options: function: PIdAnsiChar cdecl = nil;
-  IDEA_ecb_encrypt: procedure(const &in: PByte; &out: PByte; ks: PIDEA_KEY_SCHEDULE) cdecl = nil;
+  IDEA_ecb_encrypt: procedure(const in_: PByte; out_: PByte; ks: PIDEA_KEY_SCHEDULE) cdecl = nil;
   IDEA_set_encrypt_key: procedure(const key: PByte; ks: PIDEA_KEY_SCHEDULE) cdecl = nil;
   IDEA_set_decrypt_key: procedure(ek: PIDEA_KEY_SCHEDULE; dk: PIDEA_KEY_SCHEDULE) cdecl = nil;
-  IDEA_cbc_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; enc: TIdC_INT) cdecl = nil;
-  IDEA_cfb64_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT; enc: TIdC_INT) cdecl = nil;
-  IDEA_ofb64_encrypt: procedure(const &in: PByte; &out: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT) cdecl = nil;
+  IDEA_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; enc: TIdC_INT) cdecl = nil;
+  IDEA_cfb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT; enc: TIdC_INT) cdecl = nil;
+  IDEA_ofb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT) cdecl = nil;
   IDEA_encrypt: procedure(&in: PIdC_LONG; ks: PIDEA_KEY_SCHEDULE) cdecl = nil;
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -112,6 +109,5 @@ begin
   IDEA_ofb64_encrypt := nil;
   IDEA_encrypt := nil;
 end;
-{$ENDREGION}
 
 end.

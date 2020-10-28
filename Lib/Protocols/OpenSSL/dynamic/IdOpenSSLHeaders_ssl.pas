@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.05.2020 08:36:42
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_ssl;
 
@@ -555,9 +555,9 @@ const
 
   (*
    * Most of the following state values are no longer used and are defined to be
-   * the closest equivalent value &in the current state machine code. Not all
+   * the closest equivalent value in_ the current state machine code. Not all
    * defines have an equivalent and are set to a dummy value (-1). SSL_ST_CONNECT
-   * and SSL_ST_ACCEPT are still &in use &in the definition of SSL_CB_ACCEPT_LOOP,
+   * and SSL_ST_ACCEPT are still in_ use in_ the definition of SSL_CB_ACCEPT_LOOP,
    * SSL_CB_ACCEPT_EXIT, SSL_CB_CONNECT_LOOP and SSL_CB_CONNECT_EXIT.
    *)
   SSL_ST_CONNECT = $1000;
@@ -812,7 +812,7 @@ const
   //SSLv23_server_method = TLS_server_method;
   //SSLv23_client_method = TLS_client_method;
 
-  (* What the 'other' parameter contains &in security callback *)
+  (* What the 'other' parameter contains in_ security callback *)
   (* Mask for type *)
   SSL_SECOP_OTHER_TYPE = $ffff0000;
   SSL_SECOP_OTHER_NONE = 0;
@@ -940,13 +940,13 @@ type
   //DEFINE_STACK_OF(SRTP_PROTECTION_PROFILE)
 
   (* Typedefs for handling custom extensions *)
-  custom_ext_add_cb = function (s: PSSL; ext_type: TIdC_UINT; const &out: PByte; outlen: PIdC_SIZET; al: PIdC_INT; add_arg: Pointer): TIdC_INT; cdecl;
-  custom_ext_free_cb = procedure (s: PSSL; ext_type: TIdC_UINT; const &out: PByte; add_arg: Pointer); cdecl;
-  custom_ext_parse_cb = function (s: PSSL; ext_type: TIdC_UINT; const &in: PByte; inlen: TIdC_SIZET; al: PIdC_INT; parse_arg: Pointer): TIdC_INT; cdecl;
+  custom_ext_add_cb = function (s: PSSL; ext_type: TIdC_UINT; const out_: PByte; outlen: PIdC_SIZET; al: PIdC_INT; add_arg: Pointer): TIdC_INT; cdecl;
+  custom_ext_free_cb = procedure (s: PSSL; ext_type: TIdC_UINT; const out_: PByte; add_arg: Pointer); cdecl;
+  custom_ext_parse_cb = function (s: PSSL; ext_type: TIdC_UINT; const in_: PByte; inlen: TIdC_SIZET; al: PIdC_INT; parse_arg: Pointer): TIdC_INT; cdecl;
 
-  SSL_custom_ext_add_cb_ex = function (s: PSSL; ext_type: TIdC_UINT; context: TIdC_UINT; const &out: PByte; outlen: PIdC_SIZET; x: Px509; chainidx: TIdC_SIZET; al: PIdC_INT; add_arg: Pointer): TIdC_INT; cdecl;
-  SSL_custom_ext_free_cb_ex = procedure (s: PSSL; ext_type: TIdC_UINT; context: TIdC_UINT; const &out: PByte; add_arg: Pointer); cdecl;
-  SSL_custom_ext_parse_cb_ex = function (s: PSSL; ext_type: TIdC_UINT; context: TIdC_UINT; const &in: PByte; inlen: TIdC_SIZET; x: Px509; chainidx: TIdC_SIZET; al: PIdC_INT; parse_arg: Pointer): TIdC_INT; cdecl;
+  SSL_custom_ext_add_cb_ex = function (s: PSSL; ext_type: TIdC_UINT; context: TIdC_UINT; const out_: PByte; outlen: PIdC_SIZET; x: Px509; chainidx: TIdC_SIZET; al: PIdC_INT; add_arg: Pointer): TIdC_INT; cdecl;
+  SSL_custom_ext_free_cb_ex = procedure (s: PSSL; ext_type: TIdC_UINT; context: TIdC_UINT; const out_: PByte; add_arg: Pointer); cdecl;
+  SSL_custom_ext_parse_cb_ex = function (s: PSSL; ext_type: TIdC_UINT; context: TIdC_UINT; const in_: PByte; inlen: TIdC_SIZET; x: Px509; chainidx: TIdC_SIZET; al: PIdC_INT; parse_arg: Pointer): TIdC_INT; cdecl;
 
   (* Typedef for verification callback *)
   SSL_verify_cb = function (preverify_ok: TIdC_INT; x509_ctx: PX509_STORE_CTX): TIdC_INT; cdecl;
@@ -954,20 +954,20 @@ type
   tls_session_ticket_ext_cb_fn = function (s: PSSL; const data: PByte; len: TIdC_INT; arg: Pointer): TIdC_INT; cdecl;
 
   (*
-   * This callback type is used inside SSL_CTX, SSL, and &in the functions that
-   * set them. It is used to override the generation of SSL/TLS session IDs &in
+   * This callback type is used inside SSL_CTX, SSL, and in_ the functions that
+   * set them. It is used to override the generation of SSL/TLS session IDs in_
    * a server. Return value should be zero on an error, non-zero to proceed.
    * Also, callbacks should themselves check if the id they generate is unique
    * otherwise the SSL handshake will fail with an error - callbacks can do
    * this using the 'ssl' value they're passed by;
-   * SSL_has_matching_session_id(ssl, id, *id_len) The length value passed &in
-   * is set at the maximum size the session ID can be. &in SSLv3/TLSv1 it is 32
+   * SSL_has_matching_session_id(ssl, id, *id_len) The length value passed in_
+   * is set at the maximum size the session ID can be. in_ SSLv3/TLSv1 it is 32
    * bytes. The callback can alter this length to be less if desired. It is
    * also an error for the callback to set the size to zero.
    *)
   GEN_SESSION_CB = function (ssl: PSSL; id: PByte; id_len: PIdC_UINT): TIdC_INT; cdecl;
 
-  SSL_CTX_info_callback = procedure (const ssl: PSSL; &type: TIdC_INT; val: TIdC_INT); cdecl;
+  SSL_CTX_info_callback = procedure (const ssl: PSSL; type_: TIdC_INT; val: TIdC_INT); cdecl;
   SSL_CTX_client_cert_cb = function (ssl: PSSL; x509: PPx509; pkey: PPEVP_PKEY): TIdC_INT; cdecl;
 
   SSL_CTX_cookie_verify_cb = function (ssl: PSSL; cookie: PByte; cookie_len: PIdC_UINT): TIdC_INT; cdecl;
@@ -975,7 +975,7 @@ type
   SSL_CTX_set_stateless_cookie_generate_cb_gen_stateless_cookie_cb = function (ssl: PSSL; cookie: PByte; cookie_len: PIdC_SIZET): TIdC_INT; cdecl;
   SSL_CTX_set_stateless_cookie_verify_cb_verify_stateless_cookie_cb = function (ssl: PSSL; const cookie: PByte; cookie_len: TIdC_SIZET): TIdC_INT; cdecl;
 
-  SSL_CTX_alpn_select_cb_func = function (ssl: PSSL; const &out: PPByte; outlen: PByte; const &in: PByte; inlen: TIdC_UINT; arg: Pointer): TIdC_INT; cdecl;
+  SSL_CTX_alpn_select_cb_func = function (ssl: PSSL; const out_: PPByte; outlen: PByte; const in_: PByte; inlen: TIdC_UINT; arg: Pointer): TIdC_INT; cdecl;
   SSL_psk_client_cb_func = function (ssl: PSSL; const hint: PIdAnsiChar; identity: PIdAnsiChar; max_identity_len: TIdC_UINT; psk: PByte; max_psk_len: TIdC_UINT): TIdC_UINT; cdecl;
   SSL_psk_server_cb_func = function (ssl: PSSL; const identity: PIdAnsiChar; psk: PByte; max_psk_len: TIdC_UINT): TIdC_UINT; cdecl;
   SSL_psk_find_session_cb_func = function (ssl: PSSL; const identity: PByte; identity_len: TIdC_SIZET; sess: PPSSL_SESSION): TIdC_INT; cdecl;
@@ -1059,15 +1059,15 @@ type
   SSL_client_hello_cb_fn = function (s: PSSL; al: PIdC_INT; arg: Pointer): TIdC_INT; cdecl;
   SSL_callback_ctrl_v3 = procedure; cdecl;
   SSL_CTX_callback_ctrl_v3 = procedure; cdecl;
-  SSL_info_callback = procedure (const ssl: PSSL; &type: TIdC_INT; val: TIdC_INT); cdecl;
+  SSL_info_callback = procedure (const ssl: PSSL; type_: TIdC_INT; val: TIdC_INT); cdecl;
 
   (* NB: the |keylength| is only applicable when is_export is true *)
   SSL_CTX_set_tmp_dh_callback_dh = function (ssl: PSSL; is_export: TIdC_INT; keylength: TIdC_INT): PDH; cdecl;
   SSL_set_tmp_dh_callback_dh = function (ssl: PSSL; is_export: TIdC_INT; keylength: TIdC_INT): PDH; cdecl;
   SSL_CTX_set_not_resumable_session_callback_cb = function (ssl: PSSL; is_forward_secure: TIdC_INT): TIdC_INT; cdecl;
   SSL_set_not_resumable_session_callback_cb = function (ssl: PSSL; is_forward_secure: TIdC_INT): TIdC_INT; cdecl;
-  SSL_CTX_set_record_padding_callback_cb = function (ssl: PSSL; &type: TIdC_INT; len: TIdC_SIZET; arg: Pointer): TIdC_SIZET; cdecl;
-  SSL_set_record_padding_callback_cb = function (ssl: PSSL; &type: TIdC_INT; len: TIdC_SIZET; arg: Pointer): TIdC_SIZET; cdecl;
+  SSL_CTX_set_record_padding_callback_cb = function (ssl: PSSL; type_: TIdC_INT; len: TIdC_SIZET; arg: Pointer): TIdC_SIZET; cdecl;
+  SSL_set_record_padding_callback_cb = function (ssl: PSSL; type_: TIdC_INT; len: TIdC_SIZET; arg: Pointer): TIdC_SIZET; cdecl;
   
   (*
    * The validation type enumerates the available behaviours of the built-in SSL
@@ -1096,7 +1096,6 @@ type
 
   SSL_CTX_sess_remove_cb = procedure(ctx: PSSL_CTX; sess: PSSL_SESSION); cdecl;
 
-{$REGION 'C compiler macros'}
 function SSL_CTX_set_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
 function SSL_CTX_clear_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
 
@@ -1175,12 +1174,9 @@ function SSL_set_min_proto_version(s: PSSL; version: TIdC_LONG): TIdC_LONG;
 function SSL_set_max_proto_version(s: PSSL; version: TIdC_LONG): TIdC_LONG;
 function SSL_get_min_proto_version(s: PSSL): TIdC_LONG;
 function SSL_get_max_proto_version(s: PSSL): TIdC_LONG;
-{$ENDREGION}
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   //typedef TIdC_INT (*tls_session_secret_cb_fn)(s: PSSL, void *secret, TIdC_INT *secret_len,
@@ -1392,7 +1388,7 @@ var
 
   ///*
   // * These need to be after the above set of includes due to a compiler bug
-  // * &in VisualStudio 2015
+  // * in_ VisualStudio 2015
   // */
   //DEFINE_STACK_OF_CONST(SSL_CIPHER)
   //DEFINE_STACK_OF(SSL_COMP)
@@ -1549,20 +1545,20 @@ var
   (* Set serverinfo data for the current active cert. *)
   SSL_CTX_use_serverinfo: function(ctx: PSSL_CTX; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT cdecl = nil;
   SSL_CTX_use_serverinfo_ex: function(ctx: PSSL_CTX; version: TIdC_UINT; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT cdecl = nil;
-  SSL_CTX_use_serverinfo_file: function(ctx: PSSL_CTX; const &file: PIdAnsiChar): TIdC_INT cdecl = nil;
+  SSL_CTX_use_serverinfo_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT cdecl = nil;
 
-  SSL_use_RSAPrivateKey_file: function(ssl: PSSL; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
+  SSL_use_RSAPrivateKey_file: function(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
 
-  SSL_use_PrivateKey_file: function(ssl: PSSL; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
-  SSL_use_certificate_file: function(ssl: PSSL; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
+  SSL_use_PrivateKey_file: function(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
+  SSL_use_certificate_file: function(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
 
-  SSL_CTX_use_RSAPrivateKey_file: function(ctx: PSSL_CTX; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
+  SSL_CTX_use_RSAPrivateKey_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
 
-  SSL_CTX_use_PrivateKey_file: function(ctx: PSSL_CTX; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
-  SSL_CTX_use_certificate_file: function(ctx: PSSL_CTX; const &file: PIdAnsiChar; &type: TIdC_INT): TIdC_INT cdecl = nil;
+  SSL_CTX_use_PrivateKey_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
+  SSL_CTX_use_certificate_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
   (* PEM type *)
-  SSL_CTX_use_certificate_chain_file: function(ctx: PSSL_CTX; const &file: PIdAnsiChar): TIdC_INT cdecl = nil;
-  SSL_use_certificate_chain_file: function(ssl: PSSL; const &file: PIdAnsiChar): TIdC_INT cdecl = nil;
+  SSL_CTX_use_certificate_chain_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT cdecl = nil;
+  SSL_use_certificate_chain_file: function(ssl: PSSL; const file_: PIdAnsiChar): TIdC_INT cdecl = nil;
   //__owur STACK_OF(X509_NAME) *SSL_load_client_CA_file(const PIdAnsiChar *file);
   //__owur TIdC_INT SSL_add_file_cert_subjects_to_stack(STACK_OF(X509_NAME) *stackCAs,
   //                                               const PIdAnsiChar *file);
@@ -1719,12 +1715,12 @@ var
   SSL_CTX_set_client_hello_cb: procedure(c: PSSL_CTX; cb: SSL_client_hello_cb_fn; arg: Pointer) cdecl = nil;
   SSL_client_hello_isv2: function(s: PSSL): TIdC_INT cdecl = nil;
   SSL_client_hello_get0_legacy_version: function(s: PSSL): TIdC_UINT cdecl = nil;
-  SSL_client_hello_get0_random: function(s: PSSL; const &out: PPByte): TIdC_SIZET cdecl = nil;
-  SSL_client_hello_get0_session_id: function(s: PSSL; const &out: PPByte): TIdC_SIZET cdecl = nil;
-  SSL_client_hello_get0_ciphers: function(s: PSSL; const &out: PPByte): TIdC_SIZET cdecl = nil;
-  SSL_client_hello_get0_compression_methods: function(s: PSSL; const &out: PPByte): TIdC_SIZET cdecl = nil;
-  SSL_client_hello_get1_extensions_present: function(s: PSSL; &out: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT cdecl = nil;
-  SSL_client_hello_get0_ext: function(s: PSSL; &type: TIdC_UINT; const &out: PPByte; outlen: PIdC_SIZET): TIdC_INT cdecl = nil;
+  SSL_client_hello_get0_random: function(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl = nil;
+  SSL_client_hello_get0_session_id: function(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl = nil;
+  SSL_client_hello_get0_ciphers: function(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl = nil;
+  SSL_client_hello_get0_compression_methods: function(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl = nil;
+  SSL_client_hello_get1_extensions_present: function(s: PSSL; out_: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT cdecl = nil;
+  SSL_client_hello_get0_ext: function(s: PSSL; type_: TIdC_UINT; const out_: PPByte; outlen: PIdC_SIZET): TIdC_INT cdecl = nil;
   SSL_certs_clear: procedure(s: PSSL) cdecl = nil;
   SSL_free: procedure(ssl: PSSL) cdecl = nil;
 
@@ -1860,10 +1856,10 @@ var
   SSL_get_verify_result: function(const ssl: PSSL): TIdC_LONG cdecl = nil;
   //__owur STACK_OF(X509) *SSL_get0_verified_chain(const s: PSSL);
 
-  SSL_get_client_random: function(const ssl: PSSL; &out: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl = nil;
-  SSL_get_server_random: function(const ssl: PSSL; &out: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl = nil;
-  SSL_SESSION_get_master_key: function(const sess: PSSL_SESSION; &out: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl = nil;
-  SSL_SESSION_set1_master_key: function(sess: PSSL_SESSION; const &in: PByte; len: TIdC_SIZET): TIdC_INT cdecl = nil;
+  SSL_get_client_random: function(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl = nil;
+  SSL_get_server_random: function(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl = nil;
+  SSL_SESSION_get_master_key: function(const sess: PSSL_SESSION; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl = nil;
+  SSL_SESSION_set1_master_key: function(sess: PSSL_SESSION; const in_: PByte; len: TIdC_SIZET): TIdC_INT cdecl = nil;
   SSL_SESSION_get_max_fragment_length: function(const sess: PSSL_SESSION): TIdC_UINT8 cdecl = nil;
 
   //#define SSL_get_ex_new_index(l, p, newf, dupf, freef) \
@@ -2024,7 +2020,7 @@ var
   ///*
   // * The validation type enumerates the available behaviours of the built-&in SSL
   // * CT validation callback selected via SSL_enable_ct() and SSL_CTX_enable_ct().
-  // * The underlying callback is a static function &in libssl.
+  // * The underlying callback is a static function in_ libssl.
   // */
 
   ///*
@@ -2033,7 +2029,7 @@ var
   // * continues the handshake, the application can make appropriate decisions at
   // * handshake completion.  The SSL_CT_VALIDATION_STRICT variant requires at
   // * least one valid SCT, or else handshake termination will be requested.  The
-  // * handshake may continue anyway if SSL_VERIFY_NONE is &in effect.
+  // * handshake may continue anyway if SSL_VERIFY_NONE is in_ effect.
   // */
   SSL_enable_ct: function(s: PSSL; validation_mode: TIdC_INT): TIdC_INT cdecl = nil;
   SSL_CTX_enable_ct: function(ctx: PSSL_CTX; validation_mode: TIdC_INT): TIdC_INT cdecl = nil;
@@ -2101,7 +2097,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -2877,19 +2872,12 @@ begin
   SSL_CTX_set_allow_early_data_cb := nil;
   SSL_set_allow_early_data_cb := nil;
 end;
-{$ENDREGION}
-
-
-{$REGION 'C compiler macros'}
 
 //# define SSL_CTX_set_mode(ctx,op)      SSL_CTX_ctrl((ctx),SSL_CTRL_MODE,(op),NULL)
 function SSL_CTX_set_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
-
 begin
-
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_MODE, op, nil);
 end;
-
 
 //# define SSL_CTX_clear_mode(ctx,op)   SSL_CTX_ctrl((ctx),SSL_CTRL_CLEAR_MODE,(op),NULL)
 function SSL_CTX_clear_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG;
@@ -3340,6 +3328,5 @@ function SSL_get_max_proto_version(s: PSSL): TIdC_LONG;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_MAX_PROTO_VERSION, 0, nil);
 end;
-{$ENDREGION}
 
 end.

@@ -102,14 +102,14 @@ var
   //function PEM_X509_INFO_read_bio(bp: PBIO; sk: PSTACK_OF_X509_INFO; cb: pem_password_cb; u: Pointer): PSTACK_OF_X509_INFO;
   function PEM_X509_INFO_write_bio(bp: PBIO; xi: PX509_INFO; enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cd: pem_password_cb; u: Pointer): TIdC_INT;
 
-  function PEM_SignInit(ctx: PEVP_MD_CTX; &type: PEVP_MD): TIdC_INT;
+  function PEM_SignInit(ctx: PEVP_MD_CTX; type_: PEVP_MD): TIdC_INT;
   function PEM_SignUpdate(ctx: PEVP_MD_CTX; d: PByte; cnt: Byte): TIdC_INT;
   function PEM_SignFinal(ctx: PEVP_MD_CTX; sigret: PByte; siglen: PIdC_UINT; pkey: PEVP_PKEY): TIdC_INT;
 
   (* The default pem_password_cb that's used internally *)
   function PEM_def_callback(buf: PIdAnsiChar; num: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT;
-  procedure PEM_proc_type(buf: PIdAnsiChar; &type: TIdC_INT);
-  procedure PEM_dek_info(buf: PIdAnsiChar; const &type: PIdAnsiChar; len: TIdC_INT; str: PIdAnsiChar);
+  procedure PEM_proc_type(buf: PIdAnsiChar; type_: TIdC_INT);
+  procedure PEM_dek_info(buf: PIdAnsiChar; const type_: PIdAnsiChar; len: TIdC_INT; str: PIdAnsiChar);
 
   function PEM_read_bio_X509(bp: PBIO; x: PPX509; cb: pem_password_cb; u: Pointer): PX509;
   function PEM_write_bio_X509(bp: PBIO; x: PX509): TIdC_INT;
@@ -193,8 +193,8 @@ var
   function PEM_read_bio_Parameters(bp: PBIO; x: PPEVP_PKEY): PEVP_PKEY;
   function PEM_write_bio_Parameters(bp: PBIO; x: PEVP_PKEY): TIdC_INT;
 
-  function b2i_PrivateKey(const &in: PPByte; length: TIdC_LONG): PEVP_PKEY;
-  function b2i_PublicKey(const &in: PPByte; length: TIdC_LONG): PEVP_PKEY;
+  function b2i_PrivateKey(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY;
+  function b2i_PublicKey(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY;
   function b2i_PrivateKey_bio(&in: PBIO): PEVP_PKEY;
   function b2i_PublicKey_bio(&in: PBIO): PEVP_PKEY;
   function i2b_PrivateKey_bio(&out: PBIO; pk: PEVP_PKEY): TIdC_INT;

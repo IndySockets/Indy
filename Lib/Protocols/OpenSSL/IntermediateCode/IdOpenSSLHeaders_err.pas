@@ -175,7 +175,7 @@ type
 
   ERR_string_data_st = record
     error: TIdC_ULONG;
-    &string: PIdAnsiChar;
+    string_: PIdAnsiChar;
   end;
   ERR_STRING_DATA = ERR_string_data_st;
   PERR_STRING_DATA = ^ERR_STRING_DATA;
@@ -184,7 +184,7 @@ type
 var
 // DEFINE_LHASH_OF(ERR_STRING_DATA);
 
-  procedure ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; &file: PIdAnsiChar; line: TIdC_INT);
+  procedure ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT);
   procedure ERR_set_error_data(data: PIdAnsiChar; flags: TIdC_INT);
   
   function ERR_get_error: TIdC_ULONG;

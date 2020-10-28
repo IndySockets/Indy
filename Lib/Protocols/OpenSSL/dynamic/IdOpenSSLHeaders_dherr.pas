@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_dherr;
 
@@ -102,17 +102,14 @@ const
   DH_R_SHARED_INFO_ERROR         = 113;
   DH_R_UNABLE_TO_CHECK_GENERATOR = 121;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   ERR_load_DH_strings: function: TIdC_INT cdecl = nil;
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -130,6 +127,5 @@ procedure UnLoad;
 begin
   ERR_load_DH_strings := nil;
 end;
-{$ENDREGION}
 
 end.

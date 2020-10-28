@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 27.04.2020 15:01:04
+// Generation date: 28.10.2020 15:24:13
 
 unit IdOpenSSLHeaders_comp;
 
@@ -47,10 +47,8 @@ uses
   IdOpenSSLHeaders_bio,
   IdOpenSSLHeaders_ossl_typ;
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
-{$ENDREGION}
 
 var
   COMP_CTX_new: function(meth: PCOMP_METHOD): PCOMP_CTX cdecl = nil;
@@ -60,8 +58,8 @@ var
   COMP_get_name: function(const meth: PCOMP_METHOD): PIdAnsiChar cdecl = nil;
   COMP_CTX_free: procedure(ctx: PCOMP_CTX) cdecl = nil;
 
-  COMP_compress_block: function(ctx: PCOMP_CTX; &out: PByte; olen: TIdC_INT; &in: PByte; ilen: TIdC_INT): TIdC_INT cdecl = nil;
-  COMP_expand_block: function(ctx: PCOMP_CTX; &out: PByte; olen: TIdC_INT; &in: PByte; ilen: TIdC_INT): TIdC_INT cdecl = nil;
+  COMP_compress_block: function(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl = nil;
+  COMP_expand_block: function(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT cdecl = nil;
 
   COMP_zlib: function: PCOMP_METHOD cdecl = nil;
 
@@ -69,7 +67,6 @@ var
 
 implementation
 
-{$REGION 'Generated loading and unloading methods'}
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 
   function LoadFunction(const AMethodName: string; const AFailed: TStringList): Pointer;
@@ -105,6 +102,5 @@ begin
   COMP_zlib := nil;
   BIO_f_zlib := nil;
 end;
-{$ENDREGION}
 
 end.
