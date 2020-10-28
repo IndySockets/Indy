@@ -232,7 +232,9 @@ end;
 function TIdOpenSSLContext.AreOptionsUnchanged(
   const AOptions: TIdOpenSSLOptionsBase): Boolean;
 begin
-  Result := not Assigned(FOptions) or not FOptions.Equals(AOptions);
+  Result := False;
+  if Assigned(FOptions) then
+    Result := FOptions.Equals(AOptions);
 end;
 
 destructor TIdOpenSSLContext.Destroy;

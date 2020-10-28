@@ -44,6 +44,7 @@ type
     FOpenSSLLoaded: Boolean;
     function GetTargetHost: string;
     function GetClientSocket: TIdOpenSSLSocketClient; {$IFDEF USE_INLINE}inline;{$ENDIF}
+    procedure EnsureOpenSSLLoaded;
   protected
     FOptions: TIdOpenSSLOptionsClient;
     function GetOptionClass: TIdOpenSSLOptionsClientClass; virtual;
@@ -77,17 +78,11 @@ type
 { TIdOpenSSLIOHandlerClient }
 
 procedure TIdOpenSSLIOHandlerClient.EnsureContext;
-var
-  LLoader: IOpenSSLLoader;
 begin
-  if Assigned(FContext) then
-    Exit;
-  FContext := TIdOpenSSLContextClient.Create();
+  if not Assigned(FContext) then
+    FContext := TIdOpenSSLContextClient.Create();
 
-  LLoader := GetOpenSSLLoader();
-  if not FOpenSSLLoaded and Assigned(LLoader) and not LLoader.Load() then
-    raise EIdOpenSSLLoadError.Create('Failed to load OpenSSL');
-  FOpenSSLLoaded := True;
+  EnsureOpenSSLLoaded();
   try
     BeforeInitContext(FContext);
     TIdOpenSSLContextClient(FContext).Init(FOptions);
@@ -102,6 +97,19 @@ begin
       end;
       raise EIdOpenSSLLoadError.Create('Failed to load OpenSSL');
     end;
+  end;
+end;
+
+procedure TIdOpenSSLIOHandlerClient.EnsureOpenSSLLoaded;
+var
+  LLoader: IOpenSSLLoader;
+begin
+  if not FOpenSSLLoaded then
+  begin
+    LLoader := GetOpenSSLLoader();
+    if Assigned(LLoader) and not LLoader.Load() then
+      raise EIdOpenSSLLoadError.Create('Failed to load OpenSSL');
+    FOpenSSLLoaded := True;
   end;
 end;
 
