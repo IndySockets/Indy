@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 28.10.2020 16:52:17
 
 unit IdOpenSSLHeaders_evp;
 
@@ -438,17 +438,6 @@ type
   EVP_MD_CTX_update = function(ctx: PEVP_MD_CTX; const data: Pointer; count: TIdC_SIZET): TIdC_INT; cdecl;
 
   fn = procedure(const ciph: PEVP_CIPHER; const from: PIdAnsiChar; const to_: PIdAnsiChar; x: Pointer); cdecl;
-
-  rsa_st = type Pointer;
-  Prsa_st = ^rsa_st;
-
-  dsa_st = type Pointer;
-  Pdsa_st = ^dsa_st;
-
-  dh_st = type Pointer;
-  Pdh_st = ^dh_st;
-  ec_key_st = type Pointer;
-  Pec_key_st = ^ec_key_st;
 
   pub_decode = function(pk: PEVP_PKEY; pub: PX509_PUBKEY): TIdC_INT; cdecl;
   pub_encode = function(pub: PX509_PUBKEY; const pk: PEVP_PKEY): TIdC_INT; cdecl;
@@ -1035,20 +1024,20 @@ var
   EVP_PKEY_get0_siphash: function(const pkey: PEVP_PKEY; len: PIdC_SIZET): PByte cdecl = nil;
 
   EVP_PKEY_set1_RSA: function(pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
-  EVP_PKEY_get0_RSA: function(pkey: PEVP_PKEY): Prsa_st cdecl = nil;
-  EVP_PKEY_get1_RSA: function(pkey: PEVP_PKEY): Prsa_st cdecl = nil;
+  EVP_PKEY_get0_RSA: function(pkey: PEVP_PKEY): PRSA cdecl = nil;
+  EVP_PKEY_get1_RSA: function(pkey: PEVP_PKEY): PRSA cdecl = nil;
 
   EVP_PKEY_set1_DSA: function(pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
-  EVP_PKEY_get0_DSA: function(pkey: PEVP_PKEY): Pdsa_st cdecl = nil;
-  EVP_PKEY_get1_DSA: function(pkey: PEVP_PKEY): Pdsa_st cdecl = nil;
+  EVP_PKEY_get0_DSA: function(pkey: PEVP_PKEY): PDSA cdecl = nil;
+  EVP_PKEY_get1_DSA: function(pkey: PEVP_PKEY): PDSA cdecl = nil;
 
-  EVP_PKEY_set1_DH: function(pkey: PEVP_PKEY; key: Pdh_st): TIdC_INT cdecl = nil;
-  EVP_PKEY_get0_DH: function(pkey: PEVP_PKEY): Pdh_st cdecl = nil;
-  EVP_PKEY_get1_DH: function(pkey: PEVP_PKEY): Pdh_st cdecl = nil;
+  EVP_PKEY_set1_DH: function(pkey: PEVP_PKEY; key: PDH): TIdC_INT cdecl = nil;
+  EVP_PKEY_get0_DH: function(pkey: PEVP_PKEY): PDH cdecl = nil;
+  EVP_PKEY_get1_DH: function(pkey: PEVP_PKEY): PDH cdecl = nil;
 
-  EVP_PKEY_set1_EC_KEY: function(pkey: PEVP_PKEY; key: Pec_key_st): TIdC_INT cdecl = nil;
-  EVP_PKEY_get0_EC_KEY: function(pkey: PEVP_PKEY): Pec_key_st cdecl = nil;
-  EVP_PKEY_get1_EC_KEY: function(pkey: PEVP_PKEY): Pec_key_st cdecl = nil;
+  EVP_PKEY_set1_EC_KEY: function(pkey: PEVP_PKEY; key: PEC_KEY): TIdC_INT cdecl = nil;
+  EVP_PKEY_get0_EC_KEY: function(pkey: PEVP_PKEY): PEC_KEY cdecl = nil;
+  EVP_PKEY_get1_EC_KEY: function(pkey: PEVP_PKEY): PEC_KEY cdecl = nil;
 
   EVP_PKEY_new: function: PEVP_PKEY cdecl = nil;
   EVP_PKEY_up_ref: function(pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
