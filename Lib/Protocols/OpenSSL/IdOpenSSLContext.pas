@@ -40,11 +40,12 @@ uses
   IdOpenSSLTypes,
   IdOpenSSLVersion;
 
+const
+  CExDataIndexSelf = 0;
+  // CExDataIndexOptions = 1;
+
 type
   TIdOpenSSLContext = class(TObject)
-  public const
-    CExDataIndexSelf = 0;
-//    CExDataIndexOptions = 1;
   private
     FContext: PSSL_CTX;
     FOptions: TIdOpenSSLOptionsBase;
@@ -117,15 +118,21 @@ var
 begin
   // clear passed string if its refcount allows for it, removes the value from
   //  memory of the process
+  {$IFDEF VCL_2010_OR_ABOVE}
   refCount := StringRefCount(Value);
+  {$ELSE}
+  refCount := 1;
+  {$ENDIF}
   Result := (refCount > -1) and (refCount < 2);
   if Result then
     FillChar(PByte(Value)^, Length(Value) * SizeOf(Char), 0);
 end;
 
 function GetPasswordCallback(buf: PIdAnsiChar; size: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl;
+{$IFDEF USE_MARSHALLED_PTRS}
 type
   PBytesPtr = ^TBytes;
+{$ENDIF}
 var
   LContext: TIdOpenSSLContext;
   LPassword: string;
@@ -175,9 +182,9 @@ begin
 
   LSSL := X509_STORE_CTX_get_ex_data(x509_ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
   LCtx := SSL_get_SSL_CTX(LSSL);
-  LContext := TIdOpenSSLContext(SSL_ctx_get_ex_data(LCtx, TIdOpenSSLContext.CExDataIndexSelf));
+  LContext := TIdOpenSSLContext(SSL_ctx_get_ex_data(LCtx, CExDataIndexSelf));
   if not Assigned(LContext) then
-    EIdOpenSSLGetExDataError.&Raise(RIdOpenSSLGetExDataError);
+    EIdOpenSSLGetExDataError.Raise_(RIdOpenSSLGetExDataError);
 
   if not Assigned(LContext.FOptions.OnVerify) then
   begin
@@ -207,11 +214,11 @@ var
   LContext: TIdOpenSSLContext;
 begin
   LCtx := SSL_get_SSL_CTX(ssl);
-  LContext := TIdOpenSSLContext(SSL_ctx_get_ex_data(LCtx, TIdOpenSSLContext.CExDataIndexSelf));
+  LContext := TIdOpenSSLContext(SSL_ctx_get_ex_data(LCtx, CExDataIndexSelf));
   if not Assigned(LContext) then
-    EIdOpenSSLGetExDataError.&Raise(RIdOpenSSLGetExDataError);
+    EIdOpenSSLGetExDataError.Raise_(RIdOpenSSLGetExDataError);
 
-//  LOptions := TIdOpenSSLOptionsBase(SSL_ctx_get_ex_data(LCtx, TIdOpenSSLContext.CExDataIndexOptions));
+//  LOptions := TIdOpenSSLOptionsBase(SSL_ctx_get_ex_data(LCtx, CExDataIndexOptions));
 //  if not Assigned(LOptions) then
 //    EIdOpenSSLGetExDataError.&Raise(RIdOpenSSLGetExDataError);
 
@@ -250,7 +257,7 @@ begin
   FreeContext(FContext);
   FContext := SSL_CTX_new(TLS_method());
   if not Assigned(FContext) then
-    EIdOpenSSLNewSSLCtxError.&Raise(RIdOpenSSLNewSSLCtxError);
+    EIdOpenSSLNewSSLCtxError.Raise_(RIdOpenSSLNewSSLCtxError);
 
   FOptions.Free();
   FOptions := AOptions.Clone() as TIdOpenSSLOptionsBase;
@@ -291,14 +298,14 @@ begin
   if ACertificateFile <> '' then
 //    if SSL_CTX_use_certificate_file(FContext, GetPAnsiChar(ACertificateFile), SSL_FILETYPE_PEM) <> 1 then
     if SSL_CTX_use_certificate_chain_file(AContext, GetPAnsiChar(ACertificateFile)) <> 1 then
-      EIdOpenSSLSetCertificateError.&Raise();
+      EIdOpenSSLSetCertificateError.Raise_();
 
   if APrivateKeyFile <> '' then
     if SSL_CTX_use_PrivateKey_file(AContext, GetPAnsiChar(APrivateKeyFile), SSL_FILETYPE_PEM) <> 1 then
-      EIdOpenSSLSetPrivateKeyError.&Raise();
+      EIdOpenSSLSetPrivateKeyError.Raise_();
 
   if SSL_CTX_check_private_key(AContext) <> 1 then
-    EIdOpenSSLCertAndPrivKeyMisMatchError.&Raise();
+    EIdOpenSSLCertAndPrivKeyMisMatchError.Raise_();
 end;
 
 procedure TIdOpenSSLContext.SetCiphers(
@@ -309,10 +316,10 @@ procedure TIdOpenSSLContext.SetCiphers(
 begin
   if ACipherList <> '' then
     if SSL_CTX_set_cipher_list(AContext, GetPAnsiChar(ACipherList)) <> 1 then
-      EIdOpenSSLSetCipherListError.&Raise(RIdOpenSSLSetCipherListError);
+      EIdOpenSSLSetCipherListError.Raise_(RIdOpenSSLSetCipherListError);
   if ACipherSuites <> '' then
     if SSL_CTX_set_ciphersuites(AContext, GetPAnsiChar(ACipherSuites)) <> 1 then
-      EIdOpenSSLSetCipherSuiteError.&Raise(RIdOpenSSLSetCipherSuiteError);
+      EIdOpenSSLSetCipherSuiteError.Raise_(RIdOpenSSLSetCipherSuiteError);
 
   if AUseServerCipherPreferences then
     SSL_CTX_set_options(AContext, SSL_OP_CIPHER_SERVER_PREFERENCE)
@@ -324,7 +331,7 @@ procedure TIdOpenSSLContext.SetExData(const AContext: PSSL_CTX; AIndex: Integer;
   const AObj: TObject);
 begin
   if SSL_CTX_set_ex_data(AContext, AIndex, Pointer(AObj)) <> 1 then
-    EIdOpenSSLSetExDataError.&Raise(RIdOpenSSLSetExDataError);
+    EIdOpenSSLSetExDataError.Raise_(RIdOpenSSLSetExDataError);
 end;
 
 procedure TIdOpenSSLContext.SetKeylogCallback(
@@ -387,7 +394,7 @@ begin
       LCert,
       LDir) = 0 then
     begin
-      EIdOpenSSLSetVerifyLocationError.&Raise(RIdOpenSSLSetVerifyLocationError);
+      EIdOpenSSLSetVerifyLocationError.Raise_(RIdOpenSSLSetVerifyLocationError);
     end;
   end;
 end;

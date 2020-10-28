@@ -117,7 +117,7 @@ end;
 
 function TIdOpenSSLIOHandlerClient.Clone: TIdSSLIOHandlerSocketBase;
 begin
-  Result := inherited;
+  Result := inherited Clone();
   Options.AssignTo(TIdOpenSSLIOHandlerClient(Result).Options);
   TIdOpenSSLIOHandlerClient(Result).EnsureContext();
   TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Result).FContext).FSession :=

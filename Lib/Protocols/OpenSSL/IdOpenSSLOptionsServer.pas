@@ -34,12 +34,13 @@ uses
   Classes,
   IdOpenSSLOptions;
 
+const
+  CDefaultRequestCertificate = False;
+  CDefaultFailIfNoPeerCertificate = False;
+  CDefaultRequestCertificateOnlyOnce = False;
+
 type
   TIdOpenSSLOptionsServer = class(TIdOpenSSLOptionsBase)
-  strict private const
-    CDefaultRequestCertificate = False;
-    CDefaultFailIfNoPeerCertificate = False;
-    CDefaultRequestCertificateOnlyOnce = False;
   private
     FRequestCertificate: Boolean;
     FFailIfNoPeerCertificate: Boolean;
@@ -111,7 +112,7 @@ function TIdOpenSSLOptionsServer.Equals(Obj: TObject): Boolean;
 var
   LObj: TIdOpenSSLOptionsServer;
 begin
-  Result := inherited;
+  Result := inherited Equals(Obj);
   if Result and (Obj is TIdOpenSSLOptionsServer) then
   begin
     LObj := TIdOpenSSLOptionsServer(Obj);

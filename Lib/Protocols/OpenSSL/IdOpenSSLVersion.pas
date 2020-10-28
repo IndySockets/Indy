@@ -31,7 +31,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 type
-  {$SCOPEDENUMS ON}
+  {$IFDEF VCL_2010_OR_ABOVE}
+    {$SCOPEDENUMS ON}
+  {$ENDIF}
   TIdOpenSSLVersion =
   (
     Undefined,

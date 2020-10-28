@@ -8,11 +8,10 @@ uses
 type
   IOpenSSLLoader = interface
     ['{BBB0F670-CC26-42BC-A9E0-33647361941A}']
-  {$REGION 'Property Getter/Setter'}
+
     function GetOpenSSLPath: string;
     procedure SetOpenSSLPath(const Value: string);
     function GetFailedToLoad: TStringList;
-  {$ENDREGION}
 
     function Load: Boolean;
     procedure Unload;

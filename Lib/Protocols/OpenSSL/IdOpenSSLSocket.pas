@@ -207,7 +207,7 @@ function TIdOpenSSLSocket.StartSSL(const AContext: PSSL_CTX): PSSL;
 begin
   Result := SSL_new(AContext);
   if not Assigned(Result) then
-    EIdOpenSSLNewSSLError.&Raise(RIdOpenSSLNewSSLError);
+    EIdOpenSSLNewSSLError.Raise_(RIdOpenSSLNewSSLError);
   FDoNotCallShutdown := False;
 end;
 

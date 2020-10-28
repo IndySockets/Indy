@@ -65,7 +65,7 @@ begin
   LCtx := SSL_get_SSL_CTX(ssl);
   if not Assigned(LCtx) then
     Exit;
-  LContext := TIdOpenSSLContextClient(SSL_ctx_get_ex_data(LCtx, TIdOpenSSLContext.CExDataIndexSelf));
+  LContext := TIdOpenSSLContextClient(SSL_ctx_get_ex_data(LCtx, CExDataIndexSelf));
   if not Assigned(LContext) then
     Exit;
   LContext.FSession := session;
@@ -79,7 +79,7 @@ procedure remove_session_cb(ctx: PSSL_CTX; session: PSSL_SESSION); cdecl;
 var
   LContext: TIdOpenSSLContextClient;
 begin
-  LContext := TIdOpenSSLContextClient(SSL_ctx_get_ex_data(ctx, TIdOpenSSLContext.CExDataIndexSelf));
+  LContext := TIdOpenSSLContextClient(SSL_ctx_get_ex_data(ctx, CExDataIndexSelf));
   if not Assigned(LContext) then
     Exit;
   if LContext.FSession = session then

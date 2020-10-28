@@ -156,9 +156,9 @@ function TIdOpenSSLX509.ASN1TimeToDateTime(
 var
   LTime: TIdC_TM;
 begin
-  if ASN1_TIME_to_tm(ATimeASN1, @LTime) = 0 then
-    Exit(0);
-  Result := TMToDateTime(LTime);
+  Result := 0;
+  if ASN1_TIME_to_tm(ATimeASN1, @LTime) = 1 then
+    Result := TMToDateTime(LTime);
 end;
 
 procedure TIdOpenSSLX509.AssignTo(Dest: TPersistent);

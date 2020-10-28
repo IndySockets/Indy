@@ -39,8 +39,8 @@ uses
 type
   EIdOpenSSLBaseError = class(EIdException)
   public
-    class procedure &Raise; overload;
-    class procedure &Raise(const AMsg: string); overload;
+    class procedure Raise_; overload;
+    class procedure Raise_(const AMsg: string); overload;
     class procedure RaiseFmt(const AMsg: string; const Args: array of const);
   end;
 
@@ -137,44 +137,60 @@ type
 implementation
 
 uses
+  IdGlobal,
   IdOpenSSLHeaders_err,
   StrUtils,
   SysUtils,
-  Types;
+  {$IFDEF VCL_XE3_OR_ABOVE}System.Types{$ELSE}Types{$ENDIF};
+
+const
+  CIndexOfReason = 4;
 
 { EIdOpenSSLBaseError }
 
-class procedure EIdOpenSSLBaseError.&Raise;
+class procedure EIdOpenSSLBaseError.Raise_;
 begin
-  raise Self.Create('') at
-  {$IFNDEF FPC}
-  ReturnAddress
+  {$IFDEF VCL_XE4_OR_ABOVE}
+    raise Self.Create('') at
+    {$IFNDEF FPC}
+    ReturnAddress
+    {$ELSE}
+    get_caller_addr(get_frame), get_caller_frame(get_frame)
+    {$ENDIF}
+    ;
   {$ELSE}
-  get_caller_addr(get_frame), get_caller_frame(get_frame)
+    IndyRaiseOuterException(Self.Create(''));
   {$ENDIF}
-  ;
 end;
 
-class procedure EIdOpenSSLBaseError.&Raise(const AMsg: string);
+class procedure EIdOpenSSLBaseError.Raise_(const AMsg: string);
 begin
-  raise Self.Create(AMsg) at
-  {$IFNDEF FPC}
-  ReturnAddress
+  {$IFDEF VCL_XE4_OR_ABOVE}
+    Self.Create(AMsg) at
+    {$IFNDEF FPC}
+    ReturnAddress
+    {$ELSE}
+    get_caller_addr(get_frame), get_caller_frame(get_frame)
+    {$ENDIF}
+    ;
   {$ELSE}
-  get_caller_addr(get_frame), get_caller_frame(get_frame)
+    IndyRaiseOuterException(Self.Create(AMsg));
   {$ENDIF}
-  ;
 end;
 
 class procedure EIdOpenSSLBaseError.RaiseFmt(const AMsg: string; const Args: array of const);
 begin
-  raise Self.Create(Format(AMsg, Args)) at
-  {$IFNDEF FPC}
-  ReturnAddress
+  {$IFDEF VCL_XE4_OR_ABOVE}
+    Self.Create(AMsg) at
+    {$IFNDEF FPC}
+    ReturnAddress
+    {$ELSE}
+    get_caller_addr(get_frame), get_caller_frame(get_frame)
+    {$ENDIF}
+    ;
   {$ELSE}
-  get_caller_addr(get_frame), get_caller_frame(get_frame)
+    IndyRaiseOuterException(Self.Create(Format(AMsg, Args)));
   {$ENDIF}
-  ;
 end;
 
 { EIdOpenSSLBaseErrorStackError }
@@ -217,8 +233,37 @@ end;
 
 class function EIdOpenSSLErrorStackBasedError.GetErrorReason(
   const AErrorText: string): string;
-const
-  CIndexOfReason = 4;
+
+{$IFNDEF VCL_XE4_OR_ABOVE}
+// D2007 does not have SplitString
+  function SplitString(const s, Delimiters: string): TStringArray;
+  var
+    i: integer;
+    Len: integer;
+    PosStart: integer;
+    PosDel: integer;
+    TempText:string;
+  begin
+    i := 0;
+    SetLength(Result, 1);
+    Len := Length(Delimiters);
+    PosStart := 1;
+    PosDel := Pos(Delimiters, s);
+    TempText := s;
+    while PosDel > 0 do
+      begin
+        Result[i] := Copy(TempText, PosStart, PosDel - PosStart);
+        PosStart := PosDel + Len;
+        TempText := Copy(TempText, PosStart, Length(TempText));
+        PosDel := Pos(Delimiters, TempText);
+        PosStart := 1;
+        Inc(i);
+        SetLength(Result, i + 1);
+      end;
+    Result[i] := Copy(TempText, PosStart, Length(TempText));
+  end;
+{$ENDIF}
+
 var
   LError: TStringDynArray;
 begin

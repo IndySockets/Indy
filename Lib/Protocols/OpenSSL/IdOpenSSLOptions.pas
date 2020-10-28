@@ -36,14 +36,15 @@ uses
   IdOpenSSLTypes,
   IdOpenSSLVersion;
 
+const
+  CDefaultMinumumTLSVersion = {$IFDEF VCL_2010_OR_ABOVE}TIdOpenSSLVersion.{$ENDIF}TLSv1;
+  CDefaultMaximumTLSVersion = {$IFDEF VCL_2010_OR_ABOVE}TIdOpenSSLVersion.{$ENDIF}Undefined;
+  CDefaultUseServerCipherPreferences = True;
+  CDefaultAllowUnsafeLegacyRenegotiation = False;
+  CDefaultUseLegacyServerConnect = False;
+
 type
   TIdOpenSSLOptionsBase = class(TIdOpenSSLPersistent)
-  strict private const
-    CDefaultMinumumTLSVersion = TIdOpenSSLVersion.TLSv1;
-    CDefaultMaximumTLSVersion = TIdOpenSSLVersion.Undefined;
-    CDefaultUseServerCipherPreferences = True;
-    CDefaultAllowUnsafeLegacyRenegotiation = False;
-    CDefaultUseLegacyServerConnect = False;
   private
     FCertFile: string;
     FCertKey: string;
@@ -241,7 +242,7 @@ end;
 
 function TIdOpenSSLOptionsBase.Equals(Obj: TObject): Boolean;
 
-  function EqualMethod(const ALeft, ARight: TMethod): Boolean; inline;
+  function EqualMethod(const ALeft, ARight: TMethod): Boolean; {$IFDEF USE_INLINE}inline;{$ENDIF}
   begin
     Result := (ALeft.Code = ARight.Code) and (ALeft.Data = ARight.Data);
   end;
@@ -249,8 +250,7 @@ function TIdOpenSSLOptionsBase.Equals(Obj: TObject): Boolean;
 var
   LObj: TIdOpenSSLOptionsBase;
 begin
-  inherited;
-  Result := Obj is TIdOpenSSLOptionsBase;
+  Result := inherited Equals(Obj) and (Obj is TIdOpenSSLOptionsBase);
   if Result then
   begin
     LObj := TIdOpenSSLOptionsBase(Obj);

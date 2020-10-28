@@ -34,10 +34,11 @@ uses
   Classes,
   IdOpenSSLOptions;
 
+const
+  CDefaultVerifyServerCertificate = True;
+
 type
   TIdOpenSSLOptionsClient = class(TIdOpenSSLOptionsBase)
-  strict private const
-    CDefaultVerifyServerCertificate = True;
   private
     FVerifyServerCertificate: Boolean;
   public
@@ -79,7 +80,7 @@ end;
 
 function TIdOpenSSLOptionsClient.Equals(Obj: TObject): Boolean;
 begin
-  Result := inherited;
+  Result := inherited Equals(Obj);
   if Result and (Obj is TIdOpenSSLOptionsClient) then
     Result := FVerifyServerCertificate = TIdOpenSSLOptionsClient(Obj).FVerifyServerCertificate;
 end;

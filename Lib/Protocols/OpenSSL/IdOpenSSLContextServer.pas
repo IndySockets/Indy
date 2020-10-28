@@ -117,14 +117,14 @@ var
 begin
   LBio := BIO_new_file(GetPAnsiChar(ACAFile), 'r');
   if not Assigned(LBio) then
-    EIdOpenSSLSetClientCAError.&Raise();
+    EIdOpenSSLSetClientCAError.Raise_();
   try
     LX509 := PEM_read_bio_X509(LBio, nil, nil, nil);
     if not Assigned(LX509) then
-      EIdOpenSSLSetClientCAError.&Raise();
+      EIdOpenSSLSetClientCAError.Raise_();
     try
       if SSL_CTX_add_client_CA(AContext, LX509) <> 1 then
-        EIdOpenSSLSetClientCAError.&Raise();
+        EIdOpenSSLSetClientCAError.Raise_();
     finally
       X509_free(LX509);
     end;
@@ -152,15 +152,15 @@ begin
 
       LBio := BIO_new_file(GetPAnsiChar(ACAFile), 'r');
       if not Assigned(LBio) then
-        EIdOpenSSLSessionIdContextError.&Raise();
+        EIdOpenSSLSessionIdContextError.Raise_();
 
       LX509 := PEM_read_bio_X509(LBio, nil, nil, nil);
       if not Assigned(LX509) then
-        EIdOpenSSLSessionIdContextError.&Raise();
+        EIdOpenSSLSessionIdContextError.Raise_();
 
       FillChar(FSessionIdCtx[0], LLen, 0);
       if X509_digest(LX509, EVP_sha1, @FSessionIdCtx[0], @LLen) <> 1 then
-        EIdOpenSSLSessionIdContextError.&Raise();
+        EIdOpenSSLSessionIdContextError.Raise_();
     end
     else
     begin
@@ -169,7 +169,7 @@ begin
     end;
 
     if SSL_CTX_set_session_id_context(AContext, LSessionContext, LLen) <> 1 then
-      EIdOpenSSLSessionIdContextError.&Raise();
+      EIdOpenSSLSessionIdContextError.Raise_();
   finally
     // Both are nil-safe
     X509_free(LX509);

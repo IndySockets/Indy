@@ -56,11 +56,10 @@ type
     function Accept(ASocket: TIdSocketHandle; AListenerThread: TIdThread;
       AYarn: TIdYarn): TIdIOHandler; override;
 
-    {$REGION 'abstract functions from TIdServerIOHandlerSSLBase'}
+    // Abstract functions from TIdServerIOHandlerSSLBase
     function MakeClientIOHandler: TIdSSLIOHandlerSocketBase; override;
     function MakeFTPSvrPort: TIdSSLIOHandlerSocketBase; override;
     function MakeFTPSvrPasv: TIdSSLIOHandlerSocketBase; override;
-    {$ENDREGION}
   published
     property Options: TIdOpenSSLOptionsServer read FOptions;
   end;

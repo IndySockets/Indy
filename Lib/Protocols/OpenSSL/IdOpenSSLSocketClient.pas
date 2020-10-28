@@ -71,10 +71,10 @@ begin
   SSL_set_fd(FSSL, AHandle);
   if ASNIHostname <> '' then
     if SSL_set_tlsext_host_name(FSSL, GetPAnsiChar(UTF8String(ASNIHostname))) <> 1 then
-      EIdOpenSSLSetSNIServerNameError.&Raise();
+      EIdOpenSSLSetSNIServerNameError.Raise_();
   if Assigned(FSession) then
     if SSL_set_session(FSSL, FSession) <> 1 then
-      EIdOpenSSLSetSessionError.&Raise();
+      EIdOpenSSLSetSessionError.Raise_();
 
   repeat
     LReturnCode := SSL_connect(FSSL);

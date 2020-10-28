@@ -13,6 +13,7 @@ type
     constructor Create; virtual;
 
     procedure AssignTo(Dest: TPersistent); override;
+    function Equals(Obj: TObject): Boolean; {$IFDEF VCL_XE4_OR_ABOVE}override;{$ELSE}virtual;{$ENDIF}
     function Clone: TIdOpenSSLPersistent; virtual;
   end;
   TIdOpenSSLPersistentClass = class of TIdOpenSSLPersistent;
@@ -25,6 +26,11 @@ procedure TIdOpenSSLPersistent.AssignTo(Dest: TPersistent);
 begin
   if not (Dest is TIdOpenSSLPersistent) then
     inherited;
+end;
+
+function TIdOpenSSLPersistent.Equals(Obj: TObject): Boolean;
+begin
+  Result := Assigned(Obj) and (Obj is TIdOpenSSLPersistent);
 end;
 
 function TIdOpenSSLPersistent.Clone: TIdOpenSSLPersistent;
