@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 16:52:17
+// Generation date: 29.10.2020 07:07:29
 
 unit IdOpenSSLHeaders_evp;
 
@@ -754,8 +754,8 @@ var
 
   EVP_DigestVerify: function(ctx: PEVP_CIPHER_CTX; const sigret: PByte; siglen: TIdC_SIZET; const tbs: PByte; tbslen: TIdC_SIZET): TIdC_INT cdecl = nil;
 
-  EVP_DigestSignInit: function(ctx: PEVP_CIPHER_CTX; pctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
-  EVP_DigestSignFinal: function(ctx: PEVP_CIPHER_CTX; sigret: PByte; siglen: PIdC_SIZET): TIdC_INT cdecl = nil;
+  EVP_DigestSignInit: function(ctx: PEVP_MD_CTX; pctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  EVP_DigestSignFinal: function(ctx: PEVP_MD_CTX; sigret: PByte; siglen: PIdC_SIZET): TIdC_INT cdecl = nil;
 
   EVP_DigestVerifyInit: function(ctx: PEVP_MD_CTX; ppctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
   EVP_DigestVerifyFinal: function(ctx: PEVP_MD_CTX; const sig: PByte; siglen: TIdC_SIZET): TIdC_INT cdecl = nil;
@@ -1023,11 +1023,11 @@ var
   EVP_PKEY_get0_poly1305: function(const pkey: PEVP_PKEY; len: PIdC_SIZET): PByte cdecl = nil;
   EVP_PKEY_get0_siphash: function(const pkey: PEVP_PKEY; len: PIdC_SIZET): PByte cdecl = nil;
 
-  EVP_PKEY_set1_RSA: function(pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  EVP_PKEY_set1_RSA: function(pkey: PEVP_PKEY; key: PRSA): TIdC_INT cdecl = nil;
   EVP_PKEY_get0_RSA: function(pkey: PEVP_PKEY): PRSA cdecl = nil;
   EVP_PKEY_get1_RSA: function(pkey: PEVP_PKEY): PRSA cdecl = nil;
 
-  EVP_PKEY_set1_DSA: function(pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
+  EVP_PKEY_set1_DSA: function(pkey: PEVP_PKEY; key: PDSA): TIdC_INT cdecl = nil;
   EVP_PKEY_get0_DSA: function(pkey: PEVP_PKEY): PDSA cdecl = nil;
   EVP_PKEY_get1_DSA: function(pkey: PEVP_PKEY): PDSA cdecl = nil;
 

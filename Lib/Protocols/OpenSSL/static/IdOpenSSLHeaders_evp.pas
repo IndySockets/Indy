@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 16:52:11
+// Generation date: 29.10.2020 07:07:33
 
 unit IdOpenSSLHeaders_evp;
 
@@ -749,8 +749,8 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
 
   function EVP_DigestVerify(ctx: PEVP_CIPHER_CTX; const sigret: PByte; siglen: TIdC_SIZET; const tbs: PByte; tbslen: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
 
-  function EVP_DigestSignInit(ctx: PEVP_CIPHER_CTX; pctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
-  function EVP_DigestSignFinal(ctx: PEVP_CIPHER_CTX; sigret: PByte; siglen: PIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_DigestSignInit(ctx: PEVP_MD_CTX; pctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_DigestSignFinal(ctx: PEVP_MD_CTX; sigret: PByte; siglen: PIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
 
   function EVP_DigestVerifyInit(ctx: PEVP_MD_CTX; ppctx: PPEVP_PKEY_CTX; const type_: PEVP_MD; e: PENGINE; pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
   function EVP_DigestVerifyFinal(ctx: PEVP_MD_CTX; const sig: PByte; siglen: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
@@ -1018,11 +1018,11 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
   function EVP_PKEY_get0_poly1305(const pkey: PEVP_PKEY; len: PIdC_SIZET): PByte cdecl; external CLibCrypto;
   function EVP_PKEY_get0_siphash(const pkey: PEVP_PKEY; len: PIdC_SIZET): PByte cdecl; external CLibCrypto;
 
-  function EVP_PKEY_set1_RSA(pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_PKEY_set1_RSA(pkey: PEVP_PKEY; key: PRSA): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PKEY_get0_RSA(pkey: PEVP_PKEY): PRSA cdecl; external CLibCrypto;
   function EVP_PKEY_get1_RSA(pkey: PEVP_PKEY): PRSA cdecl; external CLibCrypto;
 
-  function EVP_PKEY_set1_DSA(pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_PKEY_set1_DSA(pkey: PEVP_PKEY; key: PDSA): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PKEY_get0_DSA(pkey: PEVP_PKEY): PDSA cdecl; external CLibCrypto;
   function EVP_PKEY_get1_DSA(pkey: PEVP_PKEY): PDSA cdecl; external CLibCrypto;
 
