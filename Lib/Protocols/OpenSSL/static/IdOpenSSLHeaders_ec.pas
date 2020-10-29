@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 29.10.2020 09:34:09
 
 unit IdOpenSSLHeaders_ec;
 
@@ -282,7 +282,7 @@ type
   function EC_KEY_set_public_key(key: PEC_KEY; const pub: PEC_POINT): TIdC_INT cdecl; external CLibCrypto;
   function EC_KEY_get_enc_flags(const key: PEC_KEY): TIdC_UINT cdecl; external CLibCrypto;
   procedure EC_KEY_set_enc_flags(eckey: PEC_KEY; flags: TIdC_UINT) cdecl; external CLibCrypto;
-  function EC_KEY_get_conv_form(const key: Pec_key_st): point_conversion_form_t cdecl; external CLibCrypto;
+  function EC_KEY_get_conv_form(const key: PEC_KEY): point_conversion_form_t cdecl; external CLibCrypto;
   procedure EC_KEY_set_conv_form(eckey: PEC_KEY; cform: point_conversion_form_t) cdecl; external CLibCrypto;
   function EC_KEY_set_ex_data(key: PEC_KEY; idx: TIdC_INT; arg: Pointer): TIdC_INT cdecl; external CLibCrypto;
   function EC_KEY_get_ex_data(const key: PEC_KEY; idx: TIdC_INT): Pointer cdecl; external CLibCrypto;
