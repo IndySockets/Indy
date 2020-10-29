@@ -44,7 +44,7 @@ uses
   IdOpenSSLHeaders_pem,
   IdOpenSSLHeaders_tls1,
   IdOpenSSLHeaders_ssl3,
-  IdOpenSSLHeaders_X509;
+  IdOpenSSLHeaders_x509;
 
 {$MINENUMSIZE 4}
 

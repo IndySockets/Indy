@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 29.10.2020 07:09:32
 
 unit IdOpenSSLHeaders_ssl;
 
@@ -50,7 +50,7 @@ uses
   IdOpenSSLHeaders_pem,
   IdOpenSSLHeaders_tls1,
   IdOpenSSLHeaders_ssl3,
-  IdOpenSSLHeaders_X509;
+  IdOpenSSLHeaders_x509;
 
 {$MINENUMSIZE 4}
 
