@@ -166,7 +166,7 @@ end;
 class procedure EIdOpenSSLBaseError.Raise_(const AMsg: string);
 begin
   {$IFDEF VCL_XE4_OR_ABOVE}
-    Self.Create(AMsg) at
+    raise Self.Create(AMsg) at
     {$IFNDEF FPC}
     ReturnAddress
     {$ELSE}
@@ -181,7 +181,7 @@ end;
 class procedure EIdOpenSSLBaseError.RaiseFmt(const AMsg: string; const Args: array of const);
 begin
   {$IFDEF VCL_XE4_OR_ABOVE}
-    Self.Create(AMsg) at
+    raise Self.CreateFmt(AMsg, Args) at
     {$IFNDEF FPC}
     ReturnAddress
     {$ELSE}
