@@ -236,7 +236,7 @@ class function EIdOpenSSLErrorStackBasedError.GetErrorReason(
 
 {$IFNDEF VCL_XE4_OR_ABOVE}
 // D2007 does not have SplitString
-  function SplitString(const s, Delimiters: string): TStringArray;
+  function SplitString(const s, Delimiters: string): TStringDynArray;
   var
     i: integer;
     Len: integer;
