@@ -65,9 +65,11 @@ type
 implementation
 
 uses
+  Classes,
   IdCustomTransparentProxy,
   IdOpenSSLContextClient,
   IdOpenSSLExceptions,
+  IdOpenSSLHeaders_ssl,
   IdOpenSSLLoader,
   IdURI,
   SysUtils;
@@ -124,12 +126,17 @@ begin
 end;
 
 function TIdOpenSSLIOHandlerClient.Clone: TIdSSLIOHandlerSocketBase;
+var
+  LSessionCopies: TList;
+  i: Integer;
 begin
   Result := inherited Clone();
   Options.AssignTo(TIdOpenSSLIOHandlerClient(Result).Options);
   TIdOpenSSLIOHandlerClient(Result).EnsureContext();
-  TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Result).FContext).FSession :=
-    TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Self).FContext).FSession;
+  LSessionCopies := TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Result).FContext).FSessionList;
+  LSessionCopies.Assign(TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Self).FContext).FSessionList);
+  for i := 0 to LSessionCopies.Count-1 do
+    SSL_SESSION_up_ref(LSessionCopies[i]);
 end;
 
 destructor TIdOpenSSLIOHandlerClient.Destroy;

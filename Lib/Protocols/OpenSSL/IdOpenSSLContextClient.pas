@@ -31,6 +31,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdCTypes,
   IdOpenSSLContext,
   IdOpenSSLOptions,
@@ -41,9 +42,12 @@ type
   TIdOpenSSLContextClient = class(TIdOpenSSLContext)
   private
   protected
-    FSession: Pointer;
+    FSessionList: TList;
     function GetVerifyMode(const AOptions: TIdOpenSSLOptionsBase): TIdC_INT; override;
   public
+    constructor Create;
+    destructor Destroy; override;
+
     function Init(const AOptions: TIdOpenSSLOptionsClient): Boolean;
     function CreateSocket: TIdOpenSSLSocket; override;
   end;
@@ -53,7 +57,8 @@ implementation
 uses
   IdOpenSSLHeaders_ssl,
   IdOpenSSLSocketClient,
-  IdOpenSSLHeaders_ossl_typ;
+  IdOpenSSLHeaders_ossl_typ,
+  Types;
 
 // Is automatically called whenever a new session was negotiated
 function new_session_cb(ssl: PSSL; session: PSSL_SESSION): TIdC_INT; cdecl;
@@ -68,7 +73,7 @@ begin
   LContext := TIdOpenSSLContextClient(SSL_ctx_get_ex_data(LCtx, CExDataIndexSelf));
   if not Assigned(LContext) then
     Exit;
-  LContext.FSession := session;
+  LContext.FSessionList.Add(session);
   Result := 1;
 end;
 
@@ -78,20 +83,39 @@ end;
 procedure remove_session_cb(ctx: PSSL_CTX; session: PSSL_SESSION); cdecl;
 var
   LContext: TIdOpenSSLContextClient;
+  LSession: Pointer;
 begin
   LContext := TIdOpenSSLContextClient(SSL_ctx_get_ex_data(ctx, CExDataIndexSelf));
   if not Assigned(LContext) then
     Exit;
-  if LContext.FSession = session then
-    LContext.FSession := nil;
+  LSession := LContext.FSessionList.Extract(session);
+  if Assigned(LSession) then
+    SSL_SESSION_free(LSession);
 end;
 
 { TIdOpenSSLContextClient }
 
+constructor TIdOpenSSLContextClient.Create;
+begin
+  inherited Create();
+  FSessionList := TList.Create();
+end;
+
 function TIdOpenSSLContextClient.CreateSocket: TIdOpenSSLSocket;
 begin
   Result := TIdOpenSSLSocketClient.Create(OpenSSLContext);
-  TIdOpenSSLSocketClient(Result).SetSession(FSession);
+  if FSessionList.Count > 0 then
+    TIdOpenSSLSocketClient(Result).SetSession(FSessionList.Last());
+end;
+
+destructor TIdOpenSSLContextClient.Destroy;
+var
+  i: Integer;
+begin
+  for i := FSessionList.Count-1 downto 0 do
+    SSL_SESSION_free(FSessionList[i]);
+  FSessionList.Free();
+  inherited;
 end;
 
 function TIdOpenSSLContextClient.GetVerifyMode(

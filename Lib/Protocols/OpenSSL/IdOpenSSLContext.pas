@@ -86,7 +86,7 @@ type
     /// <remarks>
     ///   The function is nil-safe
     /// </remarks>
-    procedure FreeContext(const AContext: PSSL_CTX);
+    procedure FreeContext(var AContext: PSSL_CTX);
   protected
     function GetVerifyMode(const AOptions: TIdOpenSSLOptionsBase): TIdC_INT; virtual; abstract;
   public
@@ -244,10 +244,13 @@ begin
   inherited;
 end;
 
-procedure TIdOpenSSLContext.FreeContext(const AContext: PSSL_CTX);
+procedure TIdOpenSSLContext.FreeContext(var AContext: PSSL_CTX);
 begin
   if Assigned(AContext) then
+  begin
     SSL_CTX_Free(AContext); // SSL_CTX_Free is also nil-safe
+    AContext := nil;
+  end;
 end;
 
 function TIdOpenSSLContext.Init(const AOptions: TIdOpenSSLOptionsBase): Boolean;
