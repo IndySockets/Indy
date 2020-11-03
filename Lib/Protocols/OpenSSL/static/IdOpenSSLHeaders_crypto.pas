@@ -148,6 +148,10 @@ type
   CRYPTO_ONCE = type TIdC_LONG;
   PCRYPTO_ONCE = ^CRYPTO_ONCE;
 
+  CRYPTO_set_mem_functions_m = function(size: TIdC_SIZET; const filename: PIdAnsiChar; linenumber: TIdC_INT): Pointer; cdecl;
+  CRYPTO_set_mem_functions_r = function(buffer: Pointer; size: TIdC_SIZET; const filename: PIdAnsiChar; linenumber: TIdC_INT): Pointer; cdecl;
+  CRYPTO_set_mem_functions_f = procedure(buffer: Pointer; const filename: PIdAnsiChar; const linenumber: TIdC_INT); cdecl;
+
 function OPENSSL_malloc(num: TIdC_SIZET): Pointer;
 function OPENSSL_zalloc(num: TIdC_SIZET): Pointer;
 function OPENSSL_realloc(addr: Pointer; num: TIdC_SIZET): Pointer;
@@ -194,17 +198,17 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
    * Initialise/duplicate/free CRYPTO_EX_DATA variables corresponding to a
    * given class (invokes whatever per-class callbacks are applicable)
    *)
-   function CRYPTO_new_ex_data(class_index: TIdC_INT; obj: Pointer; ad: PCRYPTO_EX_DATA): TIdC_INT cdecl; external CLibCrypto;
-   function CRYPTO_dup_ex_data(class_index: TIdC_INT; to_: PCRYPTO_EX_DATA; const from: PCRYPTO_EX_DATA): TIdC_INT cdecl; external CLibCrypto;
+  function CRYPTO_new_ex_data(class_index: TIdC_INT; obj: Pointer; ad: PCRYPTO_EX_DATA): TIdC_INT cdecl; external CLibCrypto;
+  function CRYPTO_dup_ex_data(class_index: TIdC_INT; to_: PCRYPTO_EX_DATA; const from: PCRYPTO_EX_DATA): TIdC_INT cdecl; external CLibCrypto;
 
-   procedure CRYPTO_free_ex_data(class_index: TIdC_INT; obj: Pointer; ad: PCRYPTO_EX_DATA) cdecl; external CLibCrypto;
+  procedure CRYPTO_free_ex_data(class_index: TIdC_INT; obj: Pointer; ad: PCRYPTO_EX_DATA) cdecl; external CLibCrypto;
 
   (*
    * Get/set data in a CRYPTO_EX_DATA variable corresponding to a particular
    * index (relative to the class type involved)
    *)
-   function CRYPTO_set_ex_data(ad: PCRYPTO_EX_DATA; idx: TIdC_INT; val: Pointer): TIdC_INT cdecl; external CLibCrypto;
-   function CRYPTO_get_ex_data(const ad: PCRYPTO_EX_DATA; idx: TIdC_INT): Pointer cdecl; external CLibCrypto;
+  function CRYPTO_set_ex_data(ad: PCRYPTO_EX_DATA; idx: TIdC_INT; val: Pointer): TIdC_INT cdecl; external CLibCrypto;
+  function CRYPTO_get_ex_data(const ad: PCRYPTO_EX_DATA; idx: TIdC_INT): Pointer cdecl; external CLibCrypto;
 
   ///*
   // * The old locking functions have been removed completely without compatibility
@@ -240,11 +244,8 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
   //#  define CRYPTO_get_dynlock_destroy_callback()         (NULL)
   //# endif /* OPENSSL_API_COMPAT < 0x10100000L */
 
-  //int CRYPTO_set_mem_functions(
-  //        void *(*m) (TIdC_SIZET, const char *, int),
-  //        void *(*r) (void *, TIdC_SIZET, const char *, int),
-  //        void (*f) (void *, const char *, int));
-  //int CRYPTO_set_mem_debug(int flag);
+  function CRYPTO_set_mem_functions(m: CRYPTO_set_mem_functions_m; r: CRYPTO_set_mem_functions_r; f: CRYPTO_set_mem_functions_f): TIdC_INT cdecl; external CLibCrypto;
+  function CRYPTO_set_mem_debug(flag: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   //void CRYPTO_get_mem_functions(
   //        void *(**m) (TIdC_SIZET, const char *, int),
   //        void *(**r) (void *, TIdC_SIZET, const char *, int),
