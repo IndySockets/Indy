@@ -118,6 +118,8 @@ end;
 type
   TOpenSSLLoader = class(TInterfacedObject, IOpenSSLLoader)
   private
+    FLibCrypto: TIdLibHandle;
+    FLibSSL: TIdLibHandle;
     FOpenSSLPath: string;
     FFailed: TStringList;
     FLoadCount: TIdThreadSafeInteger;
@@ -162,8 +164,6 @@ begin
 end;
 
 function TOpenSSLLoader.Load: Boolean;
-var
-  LLibCrypto, LLibSSL: TIdLibHandle;
 begin                                  //FI:C101
   Result := True;
   FLoadCount.Lock();
@@ -171,87 +171,87 @@ begin                                  //FI:C101
     if FLoadCount.Value <= 0 then
     begin
       {$IFDEF MSWINDOWS}
-      LLibCrypto := SafeLoadLibrary(FOpenSSLPath + CLibCrypto, SEM_FAILCRITICALERRORS);
-      LLibSSL := SafeLoadLibrary(FOpenSSLPath + CLibSSL, SEM_FAILCRITICALERRORS);
+      FLibCrypto := SafeLoadLibrary(FOpenSSLPath + CLibCrypto, SEM_FAILCRITICALERRORS);
+      FLibSSL := SafeLoadLibrary(FOpenSSLPath + CLibSSL, SEM_FAILCRITICALERRORS);
       {$ELSE}
-      LLibCrypto := HMODULE(HackLoad(FOpenSSLPath + CLibCryptoRaw, SSLDLLVers));
-      LLibSSL := HMODULE(HackLoad(FOpenSSLPath + CLibSSLRaw, SSLDLLVers));
+      FLibCrypto := HMODULE(HackLoad(FOpenSSLPath + CLibCryptoRaw, SSLDLLVers));
+      FLibSSL := HMODULE(HackLoad(FOpenSSLPath + CLibSSLRaw, SSLDLLVers));
       {$ENDIF}
-      Result := not (LLibCrypto = IdNilHandle) and not (LLibSSL = IdNilHandle);
+      Result := not (FLibCrypto = IdNilHandle) and not (FLibSSL = IdNilHandle);
       if not Result then
         Exit;
 
       FLoadCount.Value := 1;
 
-      IdOpenSSLHeaders_aes.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_asn1.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_asn1err.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_asn1t.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_async.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_asyncerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_bio.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_bioerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_blowfish.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_bn.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_bnerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_buffer.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_buffererr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_camellia.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_cast.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_cmac.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_cms.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_cmserr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_comp.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_comperr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_conf.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_conf_api.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_conferr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_crypto.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_cryptoerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_cterr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_dh.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_dherr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_dsa.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_dsaerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_ebcdic.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_ec.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_ecerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_engine.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_engineerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_err.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_evp.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_evperr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_hmac.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_idea.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_kdferr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_objects.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_objectserr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_ocsperr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_pem.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_pemerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_pkcs7.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_pkcs7err.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_rand.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_randerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_rsa.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_rsaerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_sha.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_srtp.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_storeerr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_ts.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_tserr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_txt_db.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_ui.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_uierr.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_whrlpool.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_x509.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_x509_vfy.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_x509err.Load(LLibCrypto, FFailed);
-      IdOpenSSLHeaders_x509v3.Load(LLibCrypto, FFailed);
+      IdOpenSSLHeaders_aes.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_asn1.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_asn1err.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_asn1t.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_async.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_asyncerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_bio.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_bioerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_blowfish.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_bn.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_bnerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_buffer.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_buffererr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_camellia.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_cast.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_cmac.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_cms.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_cmserr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_comp.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_comperr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_conf.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_conf_api.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_conferr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_crypto.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_cryptoerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_cterr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_dh.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_dherr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_dsa.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_dsaerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_ebcdic.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_ec.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_ecerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_engine.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_engineerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_err.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_evp.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_evperr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_hmac.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_idea.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_kdferr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_objects.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_objectserr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_ocsperr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_pem.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_pemerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_pkcs7.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_pkcs7err.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_rand.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_randerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_rsa.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_rsaerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_sha.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_srtp.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_storeerr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_ts.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_tserr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_txt_db.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_ui.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_uierr.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_whrlpool.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_x509.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_x509_vfy.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_x509err.Load(FLibCrypto, FFailed);
+      IdOpenSSLHeaders_x509v3.Load(FLibCrypto, FFailed);
 
-      IdOpenSSLHeaders_ssl.Load(LLibSSL, FFailed);
-      IdOpenSSLHeaders_sslerr.Load(LLibSSL, FFailed);
-      IdOpenSSLHeaders_tls1.Load(LLibSSL, FFailed);
+      IdOpenSSLHeaders_ssl.Load(FLibSSL, FFailed);
+      IdOpenSSLHeaders_sslerr.Load(FLibSSL, FFailed);
+      IdOpenSSLHeaders_tls1.Load(FLibSSL, FFailed);
     end;
   finally
     FLoadCount.Unlock();
@@ -341,6 +341,9 @@ begin                            //FI:C101
       IdOpenSSLHeaders_tls1.Unload();
 
       FFailed.Clear();
+
+      FreeLibrary(FLibSSL);
+      FreeLibrary(FLibCrypto);
     end;
   finally
     FLoadCount.Unlock();
