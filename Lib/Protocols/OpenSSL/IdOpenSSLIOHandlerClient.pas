@@ -142,8 +142,9 @@ end;
 destructor TIdOpenSSLIOHandlerClient.Destroy;
 begin
   FOptions.Free();
-  FContext.Free();
   inherited;
+  // Destroy tls socket before context
+  FContext.Free();
 end;
 
 function TIdOpenSSLIOHandlerClient.GetClientSocket: TIdOpenSSLSocketClient;

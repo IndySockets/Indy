@@ -112,6 +112,8 @@ destructor TIdOpenSSLContextClient.Destroy;
 var
   i: Integer;
 begin
+  SSL_CTX_sess_set_remove_cb(OpenSSLContext, nil);
+  SSL_CTX_sess_set_new_cb(OpenSSLContext, nil);
   for i := FSessionList.Count-1 downto 0 do
     SSL_SESSION_free(FSessionList[i]);
   FSessionList.Free();
