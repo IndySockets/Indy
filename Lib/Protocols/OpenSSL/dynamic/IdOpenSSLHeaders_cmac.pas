@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 06.11.2020 07:16:50
 
 unit IdOpenSSLHeaders_cmac;
 
@@ -61,7 +61,7 @@ var
   CMAC_CTX_cleanup: procedure(ctx: PCMAC_CTX) cdecl = nil;
   CMAC_CTX_free: procedure(ctx: PCMAC_CTX) cdecl = nil;
   CMAC_CTX_get0_cipher_ctx: function(ctx: PCMAC_CTX): PEVP_CIPHER_CTX cdecl = nil;
-  CMAC_CTX_copy: function(out: PCMAC_CTX; const in_: PCMAC_CTX): TIdC_INT cdecl = nil;
+  CMAC_CTX_copy: function(out_: PCMAC_CTX; const in_: PCMAC_CTX): TIdC_INT cdecl = nil;
   CMAC_Init: function(ctx: PCMAC_CTX; const key: Pointer; keylen: TIdC_SIZET; const cipher: PEVP_Cipher; impl: PENGINe): TIdC_INT cdecl = nil;
   CMAC_Update: function(ctx: PCMAC_CTX; const data: Pointer; dlen: TIdC_SIZET): TIdC_INT cdecl = nil;
   CMAC_Final: function(ctx: PCMAC_CTX; out_: PByte; poutlen: PIdC_SIZET): TIdC_INT cdecl = nil;

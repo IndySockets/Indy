@@ -26,9 +26,8 @@ implementation
 
 {$IFNDEF STATICLOAD_OPENSSL}
 uses
-{$IFDEF MSWINDOWS}
-  Windows,
-{$ENDIF}
+  {$IFDEF MSWINDOWS}Windows,{$ENDIF}
+  {$IFDEF UNIX}{$IFDEF FPC}dynlibs,{$ENDIF}{$ENDIF}
 
   IdOpenSSLHeaders_aes,
   IdOpenSSLHeaders_asn1,
