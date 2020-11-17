@@ -504,16 +504,20 @@ const
     end;
 
     LValue := Trim(Copy(LNameValue, I+1, MaxInt));
+    // RLebeau 11/17/2020: no longer stripping off quotes here!
+    // Some servers require them to remain intact....
+    {
     if TextStartsWith(LValue, '"') then begin
       IdDelete(LValue, 1, 1);
       LNameValue := LValue;
       LValue := Fetch(LNameValue, '"');
     end;
+    }
     IndyAddPair(CookieProp, LName, LValue);
 
     while LAttrs <> '' do
     begin
-      IdDelete(LAttrs, 1, 1);
+      IdDelete(LAttrs, 1, 1); // remove the leading ';'
       I := Pos(';', LAttrs);
       if I > 0 then begin
         LAttr := Copy(LAttrs, 1, I-1);
@@ -529,6 +533,7 @@ const
         // RLebeau: RFC 6265 does not account for quoted attribute values,
         // despite several complaints asking for it.  We'll do it anyway in
         // the hopes that the RFC will be updated to "do the right thing"...
+        // RLebeau 11/17/2020: leaving this intact, for now...
         if TextStartsWith(LValue, '"') then begin
           IdDelete(LValue, 1, 1);
           LNameValue := LValue;
