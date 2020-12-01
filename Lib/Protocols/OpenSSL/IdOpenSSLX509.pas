@@ -88,9 +88,12 @@ type
     function ASN1TimeToDateTime(const ATimeASN1: PASN1_TIME): TDateTime;
     function GetValidToInGMT: TDateTime;
   public
-    constructor Create(const AX509: PX509); reintroduce;
+    constructor Create(const AX509: PX509); reintroduce; overload;
+    constructor Create(const AFile: string); reintroduce; overload;
     destructor Destroy; override;
     procedure AssignTo(Dest: TPersistent); override;
+
+    procedure SaveToFile(const AFile:string);
 
     /// <returns>
     ///   Returns the numerical value of the version field of the certificate.
@@ -141,11 +144,13 @@ implementation
 
 uses
   IdOpenSSLHeaders_asn1,
+  IdOpenSSLHeaders_bio,
   IdOpenSSLHeaders_bn,
   IdOpenSSLHeaders_crypto,
   IdOpenSSLHeaders_evp,
   IdOpenSSLHeaders_obj_mac,
   IdOpenSSLHeaders_objects,
+  IdOpenSSLHeaders_pem,
   IdOpenSSLHeaders_x509,
   IdOpenSSLUtils;
 
@@ -168,9 +173,20 @@ begin
     TIdOpenSSLX509(Dest).FX509 := FX509;
 end;
 
+constructor TIdOpenSSLX509.Create(const AFile: string);
+var
+  LBio: PBIO;
+begin
+  inherited Create();
+  LBio := BIO_new_file(GetPAnsiChar(UTF8String(AFile)), 'r');
+  if Assigned(LBio) then
+    FX509 := PEM_read_bio_X509(LBio, nil, nil, nil);
+end;
+
 constructor TIdOpenSSLX509.Create(const AX509: PX509);
 begin
   inherited Create();
+  X509_up_ref(AX509);
   FX509 := AX509;
 end;
 
@@ -178,6 +194,7 @@ destructor TIdOpenSSLX509.Destroy;
 begin
   FSubject.Free();
   FIssuer.Free();
+  X509_free(FX509);
   inherited;
 end;
 
@@ -266,6 +283,17 @@ end;
 function TIdOpenSSLX509.GetVersion: TIdC_Long;
 begin
   Result := X509_get_version(FX509);
+end;
+
+procedure TIdOpenSSLX509.SaveToFile(const AFile: string);
+var
+  LBio: BIO;
+begin
+  // w: Create an empty file for output operations. If a file with the same name
+  //    already exists, its contents are discarded and the file is treated as a
+  //    new empty file.
+  LBio := BIO_new_file(GetPAnsiChar(UTF8String(AFile)), 'w');
+  PEM_write_bio_X509(LBio, FX509);
 end;
 
 { TIdOpenSSLX509Name }
