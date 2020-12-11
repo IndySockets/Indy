@@ -6293,6 +6293,7 @@ end;
 
 procedure TIdIMAP4.InternalParseListResult(ACmd: string; AMBList: TStrings; ACmdResultDetails: TStrings);
 var Ln : Integer;
+  LIdx : Integer;
   LSlRetrieve : TStringList;
   LStr : String;
   LWord: string;
@@ -6319,15 +6320,17 @@ begin
           //Make sure 1st word is LIST (may be an unsolicited response)...
           if TextIsSame(LSlRetrieve[0], {IMAP4Commands[cmdList]} ACmd) then begin
             {Get the mailbox separator...}
-            LWord := Trim(LSlRetrieve[LSlRetrieve.Count-2]);
+            LWord := Trim(LSlRetrieve[2]);
             if TextIsSame(LWord, 'NIL') or (LWord = '') then begin {Do not Localize}
               FMailBoxSeparator := #0;
             end else begin
               FMailBoxSeparator := LWord[1];
             end;
             {Now get the mailbox name...}
-            LWord := Trim(LSlRetrieve[LSlRetrieve.Count-1]);
-            AMBList.Add(DoMUTFDecode(LWord));
+            LWord := LSlRetrieve[3];
+            for LIdx := 4 to LSlRetrieve.Count - 1 do
+              LWord := LWord  + ' ' + LSlRetrieve[LIdx];
+          AMBList.Add(DoMUTFDecode(LWord));
           end;
         end;
       end;
