@@ -477,6 +477,7 @@ type
   function GetMIMETypeFromFile(const AFile: TIdFileName): string;
   function GetMIMEDefaultFileExt(const MIMEType: string): TIdFileName;
   function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
+  function GetGMTOffsetStr(const S: string): string;
   function GmtOffsetStrToDateTime(const S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
   function CookieStrToLocalDateTime(S: string): TDateTime;
@@ -2748,6 +2749,16 @@ begin
     end;
   end;
   Result := '-0000' {do not localize}
+end;
+
+function GetGMTOffsetStr(const S: string): string;
+var
+  Ignored: TDateTime;
+begin
+  Result := S;
+  if not RawStrInternetToDateTime(Result, Ignored) then begin
+    Result := '';
+  end;
 end;
 
 function GmtOffsetStrToDateTime(const S: string): TDateTime;
