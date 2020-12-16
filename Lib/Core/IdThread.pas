@@ -247,7 +247,9 @@ type
     procedure Start; {$IFDEF DEPRECATED_TThread_SuspendResume}reintroduce;{$ENDIF} virtual;
     procedure Stop; virtual;
     procedure Synchronize(Method: TThreadMethod); overload;
-//BGO:TODO    procedure Synchronize(Method: TMethod); overload;
+    {$IFDEF HAS_TThreadProcedure}
+    procedure Synchronize(Method: TThreadProcedure); overload;
+    {$ENDIF}
     // Here to make virtual
     procedure Terminate; virtual;
     procedure TerminateAndWaitFor; virtual;
@@ -700,11 +702,13 @@ procedure TIdThread.Synchronize(Method: TThreadMethod);
 begin
   inherited Synchronize(Method);
 end;
-//BGO:TODO
-//procedure TIdThread.Synchronize(Method: TMethod);
-//begin
-//  inherited Synchronize(TThreadMethod(Method));
-//end;
+
+{$IFDEF HAS_TThreadProcedure}
+procedure TIdThread.Synchronize(Method: TThreadProcedure);
+begin
+  inherited Synchronize(Method);
+end;
+{$ENDIF}
 
 { TIdThreadWithTask }
 

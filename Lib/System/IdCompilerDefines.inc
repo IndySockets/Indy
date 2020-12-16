@@ -514,6 +514,7 @@
   {$IFDEF FPC_2_7_1_OR_ABOVE}
     {.$MODE DelphiUnicode}
     {.$MODESWITCH UnicodeStrings}
+    {.$CODEPAGE UTF8} // needed for Unicode string literals to work properly
   {$ENDIF}
   //note that we may need further defines for widget types depending on
   //what we do and what platforms we support in FPC.
@@ -1190,6 +1191,7 @@
   {$ENDIF}
   {$DEFINE HAS_SetCodePage}
   {$DEFINE HAS_PRawByteString}
+  {$DEFINE HAS_TThreadProcedure}
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
