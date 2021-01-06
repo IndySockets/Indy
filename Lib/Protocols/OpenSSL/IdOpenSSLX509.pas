@@ -313,7 +313,7 @@ end;
 
 procedure TIdOpenSSLX509.SaveToFile(const AFile: string);
 var
-  LBio: BIO;
+  LBio: PBIO;
 begin
   // w: Create an empty file for output operations. If a file with the same name
   //    already exists, its contents are discarded and the file is treated as a
