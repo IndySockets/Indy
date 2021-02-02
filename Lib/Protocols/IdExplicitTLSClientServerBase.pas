@@ -437,6 +437,9 @@ begin
   if Connected then begin
     Disconnect;
   end;
+  // This method should never be called in the context of an active 'except'
+  // block, so do not use IndyRaiseOuterException() to capture an inner exception
+  // when raising this exception...
   raise EIdTLSClientTLSNotAvailable.Create(RSTLSSLSSLNotAvailable);
 end;
 

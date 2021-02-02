@@ -438,6 +438,9 @@ begin
           tmData: begin
             try
               SetString(s, user.Receiver.Msg, user.Receiver.MsgLen);
+              {$IFDEF STRING_IS_ANSI}
+              // TODO: do we need to use SetCodePage() here?
+              {$ENDIF}
               ClientOperation(tmData, user.Receiver.Header.UserId, s);
             except
               ;

@@ -1919,7 +1919,7 @@ begin
             raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
           end;
           ManagedIOHandler := True;
-          IOHandler.OnStatus := OnStatus;
+          IOHandler.OnStatus := OnStatus; // TODO: assign DoStatus() instead of the handler directly...
         end
         else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
           raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
@@ -2001,6 +2001,8 @@ begin
         ARequest.URL := FURI.URI;
         if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
         begin
+          // TODO: per RFC 7230:
+          // "clients are encouraged not to send the Proxy-Connection header field in any requests."
           ARequest.ProxyConnection := 'keep-alive'; {do not localize}
         end;
         if hoNonSSLProxyUseConnectVerb in FOptions then begin
@@ -2061,6 +2063,8 @@ begin
       LLocalHTTP.Request.Pragma := 'no-cache';                       {do not localize}
       LLocalHTTP.Request.URL := ARequest.Destination;
       LLocalHTTP.Request.Method := Id_HTTPMethodConnect;
+      // TODO: per RFC 7230:
+      // "clients are encouraged not to send the Proxy-Connection header field in any requests."
       LLocalHTTP.Request.ProxyConnection := 'keep-alive';            {do not localize}
       LLocalHTTP.Request.FUseProxy := ARequest.UseProxy;
 

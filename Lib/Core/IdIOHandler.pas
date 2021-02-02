@@ -2009,7 +2009,7 @@ var
     i := FInputBuffer.Size;
     if i > 0 then begin
       if not AReadUntilDisconnect then begin
-        i := IndyMin(FInputBuffer.Size, LByteCount);
+        i := Integer(IndyMin(TIdStreamSize(i), LByteCount));
         Dec(LByteCount, i);
       end;
       if AStream <> nil then begin
@@ -2641,7 +2641,7 @@ begin
   FLargeStream := False;
   FReadTimeOut := IdTimeoutDefault;
   FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
-  FDefStringEncoding := IndyTextEncoding_ASCII;
+  FDefStringEncoding := IndyTextEncoding_ASCII; // TODO: use IndyTextEncoding_Default instead...
   {$IFDEF STRING_IS_ANSI}
   FDefAnsiEncoding := IndyTextEncoding_OSDefault;
   {$ENDIF}

@@ -222,7 +222,7 @@ begin
   SClient := TIdTCPClient.Create(nil);
 // POZOR MOŽNA NAPAKA
 //  SClient.OnStatus := self.DoStatus;  ORIGINAL
-  SClient.OnStatus := self.OnStatus;
+  SClient.OnStatus := self.OnStatus; // TODO: assign DoStatus() instead of the handler directly...
 
   ManualDisconnected := False;
   StopTransmiting := False;
@@ -519,6 +519,9 @@ begin
     res.Port := req.Port;
     res.IpAddr := req.IpAddr;
     SetString(s, PChar(@res), SizeOf(res));
+    {$IFDEF STRING_IS_ANSI}
+    // TODO: do we need to use SetCodePage() here?
+    {$ENDIF}
     Thread.Connection.Write(s);
   end;
 
@@ -919,6 +922,9 @@ begin
               begin
                 try
                   SetString(s, Receiver.Msg, Receiver.MsgLen);
+                  {$IFDEF STRING_IS_ANSI}
+                  // TODO: do we need to use SetCodePage() here?
+                  {$ENDIF}
                   SlaveParent.ClientOperation(1, Receiver.Header.UserId, s);
                 except
                   IndyRaiseOuterException(EIdTunnelMessageHandlingFailed.Create(RSTunnelMessageHandlingError));
@@ -939,6 +945,9 @@ begin
                 // Custom data interpretation
                 CustomMsg := '';    {Do not Localize}
                 SetString(CustomMsg, Receiver.Msg, Receiver.MsgLen);
+                {$IFDEF STRING_IS_ANSI}
+                // TODO: do we need to use SetCodePage() here?
+                {$ENDIF}
                 try
                   try
                     SlaveParent.DoInterpretMsg(CustomMsg);

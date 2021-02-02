@@ -162,7 +162,8 @@ uses
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
   const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass);
-var LR : TIdSSLRegEntry;
+var
+  LR : TIdSSLRegEntry;
 begin
   LR := GSSLRegistry.Add;
   LR.ProductName := AProduct;

@@ -381,6 +381,8 @@ begin
     begin
       // no plain text or formatting, only 1 non-related attachment
       //
+      // TODO: can we use AMsg.IsMsgSinglePartMime=True instead?
+      //
       LPart := AMsg.MessageParts[0];
       AMsg.ContentType := LPart.ContentType;
       AMsg.CharSet := LPart.CharSet;
@@ -490,7 +492,7 @@ end;
 
 procedure TIdMessageBuilderHtml.FillBody(AMsg: TIdMessage);
 var
-  LUsePlain, LUseHtml, LUseHtmlFiles, LUseAttachments: Boolean;
+  LUsePlain, LUseHtml, LUseViewerNeededMsg, LUseHtmlFiles, LUseAttachments: Boolean;
   LAlternativeIndex, LRelatedIndex: Integer;
   LTextPart: TIdText;
 begin
@@ -498,6 +500,7 @@ begin
   //
   LUsePlain := FPlainText.Count > 0;
   LUseHtml := FHtml.Count > 0;
+  LUseViewerMsg := FHtmlViewerNeededMsg <> '';
   LUseHtmlFiles := LUseHtml and (FHtmlFiles.Count > 0);
   LUseAttachments := FAttachments.Count > 0;
 
@@ -520,7 +523,7 @@ begin
 
   // Should the message contain only HTML?
   //
-  if LUseHtml and not (LUsePlain or LUseHtmlFiles or LUseAttachments) then
+  if LUseHtml and not (LUsePlain or LUseViewerMsg or LUseHtmlFiles or LUseAttachments) then
   begin
     // TODO: create "multipart/alternative" pieces if FHtmlViewerNeededMsg is not empty...
     AMsg.Body.Assign(FHtml);
@@ -618,10 +621,16 @@ begin
 end;
 
 procedure TIdMessageBuilderHtml.FillHeaders(AMsg: TIdMessage);
+var
+  LUsePlain, LUseHtml, LUseViewerMsg: Boolean;
 begin
   if FAttachments.Count = 0 then
   begin
-    if (FPlainText.Count > 0) and (FHtml.Count = 0) then
+    LUsePlain := FPlainText.Count > 0;
+    LUseHtml := FHtml.Count > 0;
+    LUseViewerMsg := FHtmlViewerNeededMsg <> '';
+
+    if LUsePlain and (not LUseHtml) then
     begin
       // plain text only
       //
@@ -639,9 +648,9 @@ begin
         AMsg.ContentTransferEncoding := cQuotedPrintable;
       end;
     end
-    else if FHtml.Count > 0 then
+    else if LUseHtml then
     begin
-      if (FPlainText.Count = 0) and (FHtmlFiles.Count = 0) then
+      if (not LUsePlain) and (not LUseViewerMsg) and (FHtmlFiles.Count = 0) then
       begin
         // HTML only
         //
@@ -666,6 +675,9 @@ begin
         AMsg.CharSet := '';
         AMsg.ContentTransferEncoding := '';
       end;
+    end else
+    begin
+      // TODO: what to put here??
     end;
   end else
   begin
@@ -707,7 +719,7 @@ end;
 
 procedure TIdMessageBuilderRtf.FillBody(AMsg: TIdMessage);
 var
-  LUsePlain, LUseRtf, LUseAttachments: Boolean;
+  LUsePlain, LUseRtf, LUseViewerMsg, LUseAttachments: Boolean;
   LAlternativeIndex: Integer;
   LTextPart: TIdText;
 begin
@@ -715,6 +727,7 @@ begin
   //
   LUsePlain := FPlainText.Count > 0;
   LUseRtf := FRtf.Count > 0;
+  LUseViewerMsg := FRtfViewerNeededMsg <> '';
   LUseAttachments := FAttachments.Count > 0;
   LAlternativeIndex := -1;
 
@@ -734,7 +747,7 @@ begin
 
   // Should the message contain only RTF?
   //
-  if LUseRtf and not (LUsePlain or LUseAttachments) then
+  if LUseRtf and not (LUsePlain or LUseViewerMsg or LUseAttachments) then
   begin
     // TODO: create "multipart/alternative" pieces if FRtfViewerNeededMsg is not empty...
     AMsg.Body.Assign(FRtf);
@@ -795,10 +808,16 @@ begin
 end;
 
 procedure TIdMessageBuilderRtf.FillHeaders(AMsg: TIdMessage);
+var
+  LUsePlain, LUseRtf, LUseViewerMsg: Boolean:
 begin
   if FAttachments.Count = 0 then
   begin
-    if (FPlainText.Count > 0) and (FRtf.Count = 0) then
+    LUsePlain := FPlainText.Count > 0;
+    LUseRtf := FRtf.Count > 0;
+    LUseViewerMsg := FRtfViewerNeededMsg <> '';
+
+    if (LUsePlain) and (not LUseRtf) then
     begin
       // plain text only
       //
@@ -816,20 +835,26 @@ begin
         AMsg.ContentTransferEncoding := cQuotedPrintable;
       end;
     end
-    else if (FRtf.Count > 0) and (FPlainText.Count = 0) then
+    else if LUseRtf then
     begin
-      // RTF only
-      //
-      AMsg.ContentType := cTextRtf[FRtfType];
-      AMsg.CharSet := '';
-      AMsg.ContentTransferEncoding := '';
+      if (not LUsePlain) and (not LUseViewerMsg) then
+      begin
+        // RTF only
+        //
+        AMsg.ContentType := cTextRtf[FRtfType];
+        AMsg.CharSet := '';
+        AMsg.ContentTransferEncoding := '';
+      end else
+      begin
+        // plain text and RTF and no non-related attachments
+        //
+        AMsg.ContentType := cMultipartAlternative;
+        AMsg.CharSet := '';
+        AMsg.ContentTransferEncoding := '';
+      end;
     end else
     begin
-      // plain text and RTF and no non-related attachments
-      //
-      AMsg.ContentType := cMultipartAlternative;
-      AMsg.CharSet := '';
-      AMsg.ContentTransferEncoding := '';
+      // TODO: what to put here?
     end;
   end else
   begin

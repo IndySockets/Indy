@@ -3642,6 +3642,7 @@ function TIdUTF16LittleEndianEncoding.GetBytes(const AChars: PIdWideChar; ACharC
 var
   I: Integer;
   LChars: PIdWideChar;
+  C: UInt16;
 {$ENDIF}
 begin
   // TODO: verify UTF-16 sequences
@@ -3649,9 +3650,10 @@ begin
   LChars := AChars;
   for I := ACharCount - 1 downto 0 do
   begin
-    ABytes^ := Hi(UInt16(LChars^));
+    C := UInt16(LChars^);
+    ABytes^ := Hi(C);
     Inc(ABytes);
-    ABytes^ := Lo(UInt16(LChars^));
+    ABytes^ := Lo(C);
     Inc(ABytes);
     Inc(LChars);
   end;
@@ -3720,15 +3722,17 @@ function TIdUTF16BigEndianEncoding.GetBytes(const AChars: PIdWideChar; ACharCoun
 var
   I: Integer;
   P: PIdWideChar;
+  C: UInt16;
 {$ENDIF}
 begin
   {$IFDEF ENDIAN_LITTLE}
   P := AChars;
   for I := ACharCount - 1 downto 0 do
   begin
-    ABytes^ := Hi(UInt16(P^));
+    C := UInt16(P^);
+    ABytes^ := Hi(C);
     Inc(ABytes);
-    ABytes^ := Lo(UInt16(P^));
+    ABytes^ := Lo(C);
     Inc(ABytes);
     Inc(P);
   end;
@@ -5185,31 +5189,37 @@ function ToHex(const AValue: TIdBytes; const ACount: Integer = -1;
  {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   I, LCount: Integer;
+  CH1, CH2: Char;
   {$IFDEF STRING_IS_IMMUTABLE}
   LSB: TIdStringBuilder;
+  {$ELSE}
+  LOffset: Integer;
   {$ENDIF}
 begin
+  Result := '';
   LCount := IndyLength(AValue, ACount, AIndex);
   if LCount > 0 then begin
     {$IFDEF STRING_IS_IMMUTABLE}
     LSB := TIdStringBuilder.Create(LCount*2);
     {$ELSE}
     SetLength(Result, LCount*2);
+    LOffset := 0;
     {$ENDIF}
     for I := 0 to LCount-1 do begin
+      CH1 := IdHexDigits[(AValue[AIndex+I] and $F0) shr 4];
+      CH2 := IdHexDigits[AValue[AIndex+I] and $F];
       {$IFDEF STRING_IS_IMMUTABLE}
-      LSB.Append(IdHexDigits[(AValue[AIndex+I] and $F0) shr 4]);
-      LSB.Append(IdHexDigits[AValue[AIndex+I] and $F]);
+      LSB.Append(CH1);
+      LSB.Append(CH2);
       {$ELSE}
-      Result[I*2+1] := IdHexDigits[(AValue[AIndex+I] and $F0) shr 4];
-      Result[I*2+2] := IdHexDigits[AValue[AIndex+I] and $F];
+      Result[LOffset+1] := CH1;
+      Result[LOffset+2] := CH2;
+      Inc(LOffset, 2);
       {$ENDIF}
     end;
     {$IFDEF STRING_IS_IMMUTABLE}
     Result := LSB.ToString;
     {$ENDIF}
-  end else begin
-    Result := '';
   end;
 end;
 
@@ -6296,9 +6306,9 @@ end;
 function IsHexidecimal(const AChar: Char): Boolean; overload;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := IsNumeric(AChar)
-   or ((AChar >= 'A') and (AChar <= 'F')) {Do not Localize}
-   or ((AChar >= 'a') and (AChar <= 'f')); {Do not Localize}
+  Result := ((AChar >= '0') and (AChar <= '9'))  {Do not Localize}
+         or ((AChar >= 'A') and (AChar <= 'F'))  {Do not Localize}
+         or ((AChar >= 'a') and (AChar <= 'f')); {Do not Localize}
 end;
 
 function IsHexidecimal(const AString: string; const ALength: Integer = -1; const AIndex: Integer = 1): Boolean; overload;

@@ -240,8 +240,18 @@ type
 
 function TIdIOHandlerStack.Connected: Boolean;
 begin
-  ReadFromSource(False, 0, False);
-  Result := inherited Connected;
+  try
+    ReadFromSource(False, 0, False);
+    Result := inherited Connected;
+  except
+    on E: EIdSocketError do begin
+      if E.LastError in [Id_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET] then begin
+        Result := False;
+        Exit;
+      end;
+      raise;
+    end;
+  end;
 end;
 
 procedure TIdIOHandlerStack.ConnectClient;

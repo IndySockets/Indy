@@ -288,7 +288,7 @@ begin
     ManagedIOHandler := True;
 
     // TODO: always assign the OnStatus event even if the IOHandler is not implicit?
-    IOHandler.OnStatus := OnStatus;
+    IOHandler.OnStatus := OnStatus; // TODO: assign DoStatus() instead of the handler directly...
   end;
 
   try

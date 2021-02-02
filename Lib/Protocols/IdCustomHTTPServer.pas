@@ -1126,6 +1126,7 @@ var
         LResponseInfo.ResponseText := LResponseText;
       end; 
       LResponseInfo.ContentText := LContentText;
+      LResponseInfo.CharSet := 'utf-8'; {Do not localize}
       LResponseInfo.CloseConnection := True;
       LResponseInfo.WriteHeader;
       if Length(LContentText) > 0 then begin
@@ -1472,6 +1473,7 @@ begin
                 on E: EIdHTTPUnsupportedAuthorisationScheme do begin
                   LResponseInfo.ResponseNo := 401;
                   LResponseInfo.ContentText := E.Message;
+                  LResponseInfo.CharSet := 'utf-8'; {Do no localize}
                   LContinueProcessing := True;
                   for i := 0 to LResponseInfo.WWWAuthenticate.Count - 1 do begin
                     S := LResponseInfo.WWWAuthenticate[i];
@@ -1487,6 +1489,7 @@ begin
                 on E: Exception do begin
                   LResponseInfo.ResponseNo := 500;
                   LResponseInfo.ContentText := E.Message;
+                  LResponseInfo.CharSet := 'utf-8'; {Do not localize}
                   DoCommandError(AContext, LRequestInfo, LResponseInfo, E);
                 end;
               end;
@@ -1883,7 +1886,7 @@ end;
 procedure TIdHTTPRequestInfo.DecodeAndSetParams(const AValue: String);
 var
   i, j : Integer;
-  s: string;
+  s, LCharSet: string;
   LEncoding: IIdTextEncoding;
 begin
   // Convert special characters
@@ -1895,7 +1898,11 @@ begin
     // which charset to use for decoding query string parameters.  We
     // should not be using the 'Content-Type' charset for that.  For
     // 'application/x-www-form-urlencoded' forms, we should be, though...
-    LEncoding := CharsetToEncoding(CharSet);//IndyTextEncoding_UTF8;
+    LCharSet := FCharSet;
+    if LCharSet = '' then begin
+      LCharSet := 'utf-8';  {Do not localize}
+    end;
+    LEncoding := CharsetToEncoding(LCharSet);//IndyTextEncoding_UTF8;
     i := 1;
     while i <= Length(AValue) do
     begin
@@ -2237,7 +2244,7 @@ begin
     if (ContentText <> '') or Assigned(ContentStream) then begin
       LCharSet := FCharSet;
       if LCharSet = '' then begin
-        LCharSet := 'ISO-8859-1'; {Do not Localize}
+        LCharSet := {$IFDEF STRING_IS_UNICODE}'utf-8'{$ELSE}'ISO-8859-1'{$ENDIF}; {Do not Localize}
       end;
       ContentType := 'text/html; charset=' + LCharSet; {Do not Localize}
     end;
