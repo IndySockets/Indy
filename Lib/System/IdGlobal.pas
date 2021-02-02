@@ -9833,7 +9833,7 @@ end;
 {$ENDIF}
 
 // Embarcadero changed the signature of FreeAndNil() in 10.4 Denali...
-{$UNDEF HAS_FreeAndNil_ConstRef_Param}
+{$UNDEF HAS_FreeAndNil_TObject_Param}
 {$IFNDEF USE_OBJECT_ARC}
   {$IFDEF DCC}
     {$IFDEF VCL_10_4_OR_ABOVE}
