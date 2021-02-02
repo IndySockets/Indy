@@ -1175,7 +1175,8 @@ begin
     nil);
   if ps <> nil then begin
     Result := ntohs(ps^.s_port);
-  end else begin
+  end else
+  begin
     // TODO: use TryStrToInt() instead...
     try
       LPort := IndyStrToInt(AServiceName);
@@ -1429,8 +1430,11 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                     case UnicastAddr^.Address.lpSockaddr.sin_family of
                       AF_INET: begin
                         IPAddr := TranslateTInAddrToString(PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr, Id_IPv4);
-                        // The OnLinkPrefixLength member is only available on Windows Vista and later
+                        // TODO: use the UnicastAddr^.Length field to determine which version of
+                        // IP_ADAPTER_UNICAST_ADDRESS is being provided, rather than checking the
+                        // OS version number...
                         if IndyCheckWindowsVersion(6) then begin
+                          // The OnLinkPrefixLength member is only available on Windows Vista and later
                           SubNetStr := IPv4MaskLengthToString(UnicastAddr^.OnLinkPrefixLength);
                         end else
                         begin

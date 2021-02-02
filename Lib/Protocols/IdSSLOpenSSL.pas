@@ -3720,6 +3720,17 @@ begin
   // RLebeau: if this socket's IOHandler was cloned, no need to reuse the
   // original IOHandler's active session ID, since this is a server socket
   // that generates its own sessions...
+  //
+  // RLebeau: is this actually true?  Should we be reusing the original
+  // IOHandler's active session ID regardless of whether this is a client
+  // or server socket?
+  {
+  if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
+     (LParentIO.fSSLSocket <> Self) then
+  begin
+    SSL_copy_session_id(fSSL, LParentIO.fSSLSocket.fSSL);
+  end;
+  }
   error := SSL_accept(fSSL);
   if error <= 0 then begin
     EIdOSSLAcceptError.RaiseException(fSSL, error, RSSSLAcceptError);

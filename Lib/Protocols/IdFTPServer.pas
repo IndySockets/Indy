@@ -6323,7 +6323,7 @@ begin
       Exit;
     end;
 
-    VIP := LContext.Connection.Socket.Binding.IP;
+    VIP := LContext.Binding.IP;
     VIPVersion := LContext.Binding.IPVersion;
 
     if (FPASVBoundPortMin <> 0) and (FPASVBoundPortMax <> 0) then begin
@@ -7123,7 +7123,7 @@ begin
   if APASV then begin
     FDataChannel := TIdSimpleServer.Create(nil);
     LDataChannelSvr := TIdSimpleServer(FDataChannel);
-    LDataChannelSvr.BoundIP := FControlContext.Connection.Socket.Binding.IP;
+    LDataChannelSvr.BoundIP := FControlContext.Binding.IP;
     if (AServer.PASVBoundPortMin <> 0) and (AServer.PASVBoundPortMax <> 0) then begin
       LDataChannelSvr.BoundPortMin := AServer.PASVBoundPortMin;
       LDataChannelSvr.BoundPortMax := AServer.PASVBoundPortMax;
@@ -7137,7 +7137,7 @@ begin
     FDataChannel := TIdTCPClient.Create(nil);
     //the TCPClient for the dataport must be bound to a default port
     LDataChannelCli := TIdTCPClient(FDataChannel);
-    LDataChannelCli.BoundIP := FControlContext.Connection.Socket.Binding.IP;
+    LDataChannelCli.BoundIP := FControlContext.Binding.IP;
     LDataChannelCli.BoundPort := AServer.DefaultDataPort;
     LDataChannelCli.IPVersion := FControlContext.Binding.IPVersion;
   end;

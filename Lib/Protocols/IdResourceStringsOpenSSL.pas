@@ -5,6 +5,7 @@ interface
 resourcestring
   {IdOpenSSL}
   RSOSSFailedToLoad = 'Failed to load %s.';
+  RSOSSUnsupportedVersion = 'Unsupported SSL Library version: %.8x.';
   RSOSSLModeNotSet = 'Mode has not been set.';
   RSOSSLCouldNotLoadSSLLibrary = 'Could not load SSL library.';
   RSOSSLStatusString = 'SSL status: "%s"';

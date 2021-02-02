@@ -218,8 +218,8 @@ begin
   end else begin
     //Note:  IndyComputerName gets the computer name.
     //This is not always reliable in Indy because in Dot.NET,
-    //it is done with This is available through System.Windows.Forms.SystemInformation.ComputerName
-    //and that requires that we link to a problematic dependancy (Wystem.Windows.Forms).
+    //it is done with System.Windows.Forms.SystemInformation.ComputerName
+    //and that requires that we link to a problematic dependancy (System.Windows.Forms).
     //Besides, I think RFC 821 was refering to the computer's Internet
     //DNS name.  We use the Computer name only if we can't get the DNS name.
      LNameToSend := GStack.HostName;
@@ -284,6 +284,9 @@ begin
   try
     WriteRecipientsNoPipelining(ARecipients);
     SendCmd(DATA_CMD, DATA_ACCEPT);
+    // TODO: if the server supports the UTF8SMTP extension, force TIdMessage
+    // to encode headers as raw 8bit UTF-8, even if the TIdMessage.OnInitializeISO
+    // event has a handler assigned...
     SendMsg(AMsg);
     SendCmd('.', DATA_PERIOD_ACCEPT);    {Do not Localize}
   except
@@ -291,19 +294,25 @@ begin
       SendCmd(RSET_CMD);
       raise;
     end;
+    on E: Exception do begin
+      // the state of the communication is indeterminate at this point, so the
+      // only sane thing to do is just close the socket...
+      Disconnect(False);
+      raise;
+    end;
   end;
 end;
 
 procedure TIdSMTPBase.SendPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
 var
-  LError : TIdReplySMTP;
+  LError : TIdReply;
   I, LFailedRecips : Integer;
   LCmd: string;
   LBufferingStarted: Boolean;
 
-  function SetupErrorReply: TIdReplySMTP;
+  function SetupErrorReply: TIdReply;
   begin
-    Result := TIdReplySMTP.Create(nil);
+    Result := FReplyClass.Create(nil);
     Result.Assign(LastCmdResult);
   end;
 
@@ -378,7 +387,17 @@ begin
     end;
     //DATA - last in the batch
     if PosInSmallIntArray(GetResponse, DATA_ACCEPT) <> -1 then begin
-      SendMsg(AMsg);
+      // TODO: if the server supports the UTF8SMTP extension, force TIdMessage
+      // to encode headers as raw 8bit UTF-8, even if the TIdMessage.OnInitializeISO
+      // event has a handler assigned...
+      try
+        SendMsg(AMsg);
+      except
+        // the state of the communication is indeterminate at this point, so the
+        // only sane thing to do is just close the socket...
+        Disconnect(False);
+        raise;
+      end;
       if PosInSmallIntArray(SendCmd('.'), DATA_PERIOD_ACCEPT) = -1 then begin {Do not Localize}
         if not Assigned(LError) then begin
           LError := SetupErrorReply;
@@ -417,6 +436,7 @@ begin
           if SendCmd('STARTTLS') = 220 then begin {do not localize}
             LSendQuitOnError := False;
             TLSHandshake;
+            LSendQuitOnError := True;
             //send EHLO
             SendGreeting;
           end else begin
@@ -428,7 +448,7 @@ begin
       end;
     end;
   except
-    Disconnect(LSendQuitOnError); // RLebeau: do not send the QUIT command if the handshake was started
+    Disconnect(LSendQuitOnError); // RLebeau: do not send the QUIT command during the TLS handshake
     Raise;
   end;
 end;

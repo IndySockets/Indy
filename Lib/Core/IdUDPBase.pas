@@ -338,8 +338,34 @@ procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: TIdPort;
 var
   LIP : String;
 begin
+  //TODO: fire OnStatus(hsResolving) event if AHost is not an IP address...
+  {
+  if AIPVersion = Id_IPv4 then
+  begin
+    if not GStack.IsIP(AHost) then begin
+      if Assigned(OnStatus) then begin
+        DoStatus(hsResolving, [AHost]);
+      end;
+      LIP := GStack.ResolveHost(AHost, AIPVersion);
+    end else begin
+      LIP := AHost;
+    end;
+  end
+  else
+  begin  //IPv6
+    LIP := MakeCanonicalIPv6Address(AHost);
+    if LIP = '' then begin  //if MakeCanonicalIPv6Address failed, we have a hostname
+      if Assigned(OnStatus) then begin
+        DoStatus(hsResolving, [AHost]);
+      end;
+      LIP := GStack.ResolveHost(AHost, AIPVersion);
+    end else begin
+      LIP := AHost;
+    end;
+  end;
+  }
   LIP := GStack.ResolveHost(AHost, AIPVersion);
-  Binding.SendTo(LIP, APort, ABuffer,AIPVersion);
+  Binding.SendTo(LIP, APort, ABuffer, AIPVersion);
 end;
 
 procedure TIdUDPBase.SetActive(const Value: Boolean);

@@ -1481,6 +1481,7 @@ begin
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFDEF WIN32_OR_WIN64}
+  // TODO: use SetThreadErrorMode() instead, when available...
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try
     {$ENDIF}
@@ -1778,6 +1779,7 @@ begin
     ready or there's some other critical I/O error.
     }
     {$IFDEF WIN32_OR_WIN64}
+    // TODO: use SetThreadErrorMode() instead, when available...
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
     try
     {$ENDIF}
@@ -1893,9 +1895,11 @@ begin
 
   if not IsVolume(AFileName) then begin
       {$IFDEF WIN32_OR_WIN64}
+    // TODO: use SetThreadErrorMode() instead, when available...
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
     try
       {$ENDIF}
+      // TODO: use GetFileAttributesEx() on systems that support it
       LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
       {$IFDEF WIN32_OR_WIN64}
     finally

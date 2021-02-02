@@ -133,6 +133,11 @@ var
     until not AIOHandler.Connected;
     }
 
+    // TODO: ReadStream() has been re-written to not use ReadBytes() anymore, it
+    // now reads directly from the InputBuffer into the target TStream via
+    // IOHandler.ReadFromSource() and IOHandler.InputBuffer.ExtractToStream(),
+    // so we should do something similar here...
+
     // copied from TIdIOHandler.ReadStream() and trimmed down...
     try
       AIOHandler.ReadBytes(ABuffer, AMax, False);

@@ -223,8 +223,10 @@ begin
     //Header.IpAddr := IPAddr;
     Move(Header, pMsg^, Headerlen);
     Move(buffer^, (pMsg + Headerlen)^, bufLen);
-    SetLength(Msg, Header.MsgLen);
     SetString(Msg, pMsg, Header.MsgLen);
+    {$IFDEF STRING_IS_ANSI}
+    // TODO: do we need to use SetCodePage() here?
+    {$ENDIF}
   finally
     Locker.Leave;
   end;

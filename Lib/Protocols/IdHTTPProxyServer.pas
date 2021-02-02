@@ -397,7 +397,7 @@ begin
 
         TIdTCPClient(LContext.FOutboundClient).Connect;
         try
-          LConnectionHandle := LContext.Connection.Socket.Binding.Handle;
+          LConnectionHandle := LContext.Binding.Handle;
           LOutBoundHandle := LContext.FOutboundClient.Socket.Binding.Handle;
 
           LReadList := TIdSocketList.CreateSocketList;

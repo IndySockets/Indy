@@ -283,7 +283,7 @@ begin
 
   //cache
   LContext.FReadList.Clear;
-  LContext.FReadList.Add(AContext.Connection.Socket.Binding.Handle);
+  LContext.FReadList.Add(AContext.Binding.Handle);
   LContext.FReadList.Add(LContext.FOutboundClient.Socket.Binding.Handle);
 end;
 

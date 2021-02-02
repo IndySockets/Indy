@@ -936,6 +936,7 @@ begin
     FillChar(FGZHeader.name^, FGZHeader.name_max, 0);
     TMarshal.Copy(TBytesPtr(@LBytes)^, 0, TPtrWrapper.Create(FGZHeader.name), IndyMin(Length(LBytes), FGZHeader.name_max));
     {$ELSE}
+    // TODO: use Move() instead...
     SetString(LName, PAnsiChar(LBytes), Length(LBytes));
     {$IFDEF HAS_AnsiStrings_StrPLCopy}AnsiStrings.{$ENDIF}StrPLCopy(FGZHeader.name, LName, FGZHeader.name_max);
     {$ENDIF}

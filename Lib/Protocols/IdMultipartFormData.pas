@@ -369,6 +369,8 @@ end;
 
 function TIdMultiPartFormDataStream.GenerateUniqueBoundary: string;
 begin
+  // TODO: add a way for a user-defined prefix to be placed in between
+  // the dashes and the random data, such as 'WebKitFormBoundary'...
   Result := '--------' + FormatDateTime('mmddyyhhnnsszzz', Now);  {do not localize}
 end;
 

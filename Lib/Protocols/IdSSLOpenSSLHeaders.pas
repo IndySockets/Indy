@@ -22620,6 +22620,7 @@ begin
 end;
 
 {$IFNDEF STATICLOAD_OPENSSL}
+
 {$UNDEF USE_BASEUNIX_OR_VCL_POSIX}
 {$IFDEF USE_BASEUNIX}
   {$DEFINE USE_BASEUNIX_OR_VCL_POSIX}
@@ -22797,15 +22798,20 @@ begin
 end;
 {$ENDIF}
 
-function Load: Boolean;
-begin
 {$IFDEF STATICLOAD_OPENSSL}
 
+function Load: Boolean;
+begin
   bIsLoaded := True;
   Result := True;
+end;
 
 {$ELSE}
 
+function Load: Boolean;
+var
+  LVersion, LMajor, LMinor: TIdC_ULONG;
+begin
   Result := False;
   Assert(FFailedLoadList<>nil);
 
@@ -22828,6 +22834,27 @@ begin
     hIdSSL := LoadSSLLibrary;
     if hIdSSL = IdNilHandle then begin
       FFailedLoadList.Add(IndyFormat(RSOSSFailedToLoad, [GIdOpenSSLPath + SSL_DLL_name {$IFDEF UNIX}+ LIBEXT{$ENDIF}]));
+      Exit;
+    end;
+  end;
+
+  // RLebeau 2/2/2021: verify the version is 1.0.2 or earlier, as 1.1.0 made MAJOR changes that we do not support yet...
+
+  @_SSLeay_version := LoadOldCLib(fn_SSLeay_version, 'OpenSSL_version'); {Do not localize} //Used by Indy 
+  @SSLeay := LoadOldCLib(fn_SSLeay, 'OpenSSL_version_num'); {Do not localize} //Used by Indy 
+
+  if Assigned(SSLeay) then
+  begin
+    LVersion := SSLeay;
+    LMajor := (LVersion and $F0000000) shr 28;
+    LMinor := (LVersion and $0FF00000) shr 20;
+    if (LMajor = 0) and (LMinor = 0) then begin // < 0.9.3
+      LMajor := (LVersion and $F000) shr 12;
+      LMinor := (LVersion and $0F00) shr 8;
+    end;
+    if (LMajor > 1) or ((LMajor = 1) and (LMinor > 0)) then // 1.1.0 or higher
+    begin
+      FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedVersion, [LVersion]));
       Exit;
     end;
   end;
@@ -22926,8 +22953,6 @@ begin
   end;
   {$ENDIF}
    // CRYPTO LIB
-  @_SSLeay_version := LoadFunctionCLib(fn_SSLeay_version); //Used by Indy
-  @SSLeay := LoadFunctionCLib(fn_SSLeay);    //Used by Indy
   @d2i_X509_NAME := LoadFunctionCLib(fn_d2i_X509_NAME);
   @i2d_X509_NAME := LoadFunctionCLib(fn_i2d_X509_NAME);
   @X509_NAME_oneline := LoadFunctionCLib(fn_X509_NAME_oneline);//Used by Indy
@@ -23646,9 +23671,9 @@ we have to handle both cases.
   }
 
   Result := (FFailedLoadList.Count = 0);
-
-{$ENDIF}
 end;
+
+{$ENDIF} // STATICLOAD_OPENSSL
 
 procedure InitializeFuncPointers;
 begin
