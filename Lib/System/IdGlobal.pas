@@ -1864,6 +1864,9 @@ function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): 
 function OffsetFromUTC: TDateTime;
 function UTCOffsetToStr(const AOffset: TDateTime; const AUseGMTStr: Boolean = False): string;
 
+function LocalTimeToUTCTime(const Value: TDateTime): TDateTime;
+function UTCTimeToLocalTime(const Value: TDateTime): TDateTime;
+
 function PosIdx(const ASubStr, AStr: string; AStartPos: UInt32 = 0): UInt32; //For "ignoreCase" use AnsiUpperCase
 function PosInSmallIntArray(const ASearchInt: Int16; const AArray: array of Int16): Integer;
 function PosInStrArray(const SearchStr: string; const Contents: array of string; const CaseSensitive: Boolean = True): Integer;
@@ -7596,37 +7599,19 @@ end;
 function LocalDateTimeToHttpStr(const Value: TDateTime) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DateTimeGMTToHttpStr(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(Value)
-    {$ELSE}
-    Value - OffsetFromUTC
-    {$ENDIF}
-  );
+  Result := DateTimeGMTToHttpStr(LocalTimeToUTCTime(Value));
 end;
 
 function LocalDateTimeToCookieStr(const Value: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DateTimeGMTToCookieStr(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(Value)
-    {$ELSE}
-    Value - OffsetFromUTC
-    {$ENDIF}
-    , AUseNetscapeFmt);
+  Result := DateTimeGMTToCookieStr(LocalTimeToUTCTime(Value), AUseNetscapeFmt);
 end;
 
 function LocalDateTimeToImapStr(const Value: TDateTime) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DateTimeGMTToImapStr(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(Value)
-    {$ELSE}
-    Value - OffsetFromUTC
-    {$ENDIF}
-  );
+  Result := DateTimeGMTToImapStr(LocalTimeToUTCTime(Value));
 end;
 
 {$I IdDeprecatedImplBugOff.inc}
@@ -7694,7 +7679,16 @@ begin
   {$IFDEF DOTNET}
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
   {$ELSE}
-    {$IFDEF WINDOWS}
+    {$IFDEF HAS_GetLocalTimeOffset}
+  // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
+  // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
+  // function must be used to re-initialize the timezone information...
+  Result := GetLocalTimeOffset() / 60 / 24;
+    {$ELSE}
+      {$IFDEF HAS_DateUtils_TTimeZone}
+  Result := TTimeZone.Local.UtcOffset.TotalMinutes / 60 / 24;
+      {$ELSE}
+        {$IFDEF WINDOWS}
   case GetTimeZoneInformation({$IFDEF WINCE}@{$ENDIF}tmez) of
     TIME_ZONE_ID_INVALID  :
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
@@ -7726,37 +7720,32 @@ begin
   if iBias > 0 then begin
     Result := 0.0 - Result;
   end;
-    {$ELSE}
-      {$IFDEF HAS_GetLocalTimeOffset}
-  // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
-  // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
-  // function must be used to re-initialize the timezone information...
-  Result := -1 * (GetLocalTimeOffset() / 60 / 24);
-      {$ELSE}
-        {$IFDEF UNIX}
+        {$ELSE}
+          {$IFDEF UNIX}
 
   // TODO: raise EIdFailedToRetreiveTimeZoneInfo if gettimeofday() fails...
 
-          {$IFDEF KYLIXCOMPAT_OR_VCL_POSIX}
+            {$IFDEF KYLIXCOMPAT_OR_VCL_POSIX}
   {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
 
   gettimeofday(TV, nil);
   T := TV.tv_sec;
   localtime_r({$IFDEF KYLIXCOMPAT}@{$ENDIF}T, UT);
   Result := UT.{$IFDEF KYLIXCOMPAT}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24;
-          {$ELSE}
-            {$IFDEF USE_BASEUNIX}
+            {$ELSE}
+              {$IFDEF USE_BASEUNIX}
   fpGetTimeOfDay (@TimeVal, @TimeZone);
   Result := -1 * (timezone.tz_minuteswest / 60 / 24);
-            {$ELSE}
+              {$ELSE}
   {$message error gettimeofday is not called on this platform!}
   Result := GOffsetFromUTC;
+              {$ENDIF}
             {$ENDIF}
-          {$ENDIF}
 
-        {$ELSE}
+          {$ELSE}
   {$message error no platform API called to get UTC offset!}
   Result := GOffsetFromUTC;
+          {$ENDIF}
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
@@ -7796,6 +7785,32 @@ begin
     end;
     {$ENDIF}
   end;
+end;
+
+function LocalTimeToUTCTime(const Value: TDateTime): TDateTime;
+begin
+  {$IFDEF HAS_LocalTimeToUniversal}
+  Result := LocalTimeToUniversal(Value);
+  {$ELSE}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  Result := TTimeZone.Local.ToUniversalTime(Value);
+    {$ELSE}
+  Result := Value - OffsetFromUTC;
+    {$ENDIF}
+  {$ENDIF}
+end;
+
+function UTCTimeToLocalTime(const Value: TDateTime): TDateTime;
+begin
+  {$IFDEF HAS_UniversalTimeToLocal}
+  Result := UniversalTimeToLocal(Value);
+  {$ELSE}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  Result := TTimeZone.Local.ToLocalTime(Value);
+    {$ELSE}
+  Result := Value + OffsetFromUTC;
+    {$ENDIF}
+  {$ENDIF}
 end;
 
 function IndyIncludeTrailingPathDelimiter(const S: string): string;

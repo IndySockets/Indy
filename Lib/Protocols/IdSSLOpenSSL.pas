@@ -2131,12 +2131,6 @@ begin
   Result := DT + Hrs / 24.0;
 end;
 
-function GetLocalTime(const DT: TDateTime): TDateTime;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := DT - TimeZoneBias { / (24 * 60) } ;
-end;
-
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
 
 function IdMalloc(num: UInt32): Pointer cdecl;
@@ -2287,12 +2281,11 @@ var
   tz_m: Integer;
 begin
   Result := 0;
-  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h,
-    tz_m) > 0 then begin
+  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 then begin
     Result := EncodeDate(year, month, day) + EncodeTime(hour, min, sec, 0);
     AddMins(Result, tz_m);
     AddHrs(Result, tz_h);
-    Result := GetLocalTime(Result);
+    Result := UTCTimeToLocalTime(Result);
   end;
 end;
 
