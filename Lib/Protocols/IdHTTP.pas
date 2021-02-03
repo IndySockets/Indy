@@ -864,6 +864,7 @@ var
   {$ENDIF}
   LChar: WideChar;
   Encoded: Boolean;
+  LTempStr: TIdUnicodeString;
 begin
   Result := '';    {Do not Localize}
 
@@ -909,12 +910,25 @@ begin
     begin
       // HTML 5 Section 4.10.16.4 says:
       //
-      // For each character ... that cannot be expressed using the selected character
+      // 1. For each character ... that cannot be expressed using the selected character
       // encoding, replace the character by a string consisting of a U+0026 AMPERSAND
       // character (&), a U+0023 NUMBER SIGN character (#), one or more characters in
       // the range U+0030 DIGIT ZERO (0) to U+0039 DIGIT NINE (9) representing the
       // Unicode code point of the character in base ten, and finally a U+003B
       // SEMICOLON character (;).
+      //
+      // 2. For each character in the entry's name and value, apply the following subsubsteps:
+      //
+      //   1. If the character isn't in the range U+0020, U+002A, U+002D, U+002E, U+0030 .. U+0039,
+      //      U+0041 .. U+005A, U+005F, U+0061 .. U+007A then replace the character with a string
+      //      formed as follows: Start with the empty string, and then, taking each byte of the
+      //      character when expressed in the selected character encoding in turn, append to the
+      //      string a U+0025 PERCENT SIGN character (%) followed by two characters in the ranges
+      //      U+0030 DIGIT ZERO (0) to U+0039 DIGIT NINE (9) and U+0041 LATIN CAPITAL LETTER A to
+      //      U+005A LATIN CAPITAL LETTER Z representing the hexadecimal value of the byte
+      //      (zero-padded if necessary).
+      //
+      //   2. If the character is a U+0020 SPACE character, replace it with a single U+002B PLUS SIGN character (+).
       //
       CharLen := CalcUTF16CharLength(
         {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF}
@@ -933,14 +947,21 @@ begin
         end;
       end;
 
-      if Encoded then begin
-        for J := 0 to ByteLen-1 do begin
-          Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
-        end;
-      end else begin
+      // Note, the way 4.10.16.4 is written, it sounds like the '&#dddd;' replacement is
+      // supposed to take place BEFORE the resulting bytes are then percent-encoded in '%HH'
+      // format!  So that is what we will do...
+
+      if not Encoded then begin
         J := GetUTF16Codepoint(
           {$IFDEF STRING_IS_UNICODE}ASrc, I+1{$ELSE}LChars, I{$ENDIF});
-        Result := Result + '&#' + IntToStr(J) + ';';  {do not localize}
+        LTempStr := '&#' + IntToStr(J) + ';';  {do not localize}
+        ByteLen := AByteEncoding.GetBytes(
+          {$IFDEF STRING_IS_UNICODE}LTempStr{$ELSE}TIdUnicodeString(LTempStr){$ENDIF},
+          1, Length(LTempStr), Buf, 0);
+      end;
+
+      for J := 0 to ByteLen-1 do begin
+        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
       end;
 
       Inc(I, CharLen);
