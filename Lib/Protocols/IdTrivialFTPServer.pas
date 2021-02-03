@@ -81,9 +81,10 @@ type
     function StrToMode(mode: string): TIdTFTPMode;
   protected
     procedure DoReadFile(FileName: String; const Mode: TIdTFTPMode;
-      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; IncludeTransferSize: Boolean); virtual;
+      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; const RequestedOptions: TIdTFTPOptions); virtual;
     procedure DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
-      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize); virtual;
+      const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize;
+      const RequestedOptions: TIdTFTPOptions); virtual;
     procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; var SourceStream: TStream; const WriteOperation: Boolean); virtual;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
     procedure InitComponent; override;
@@ -144,6 +145,7 @@ type
     FRequestedBlkSize: Integer;
     FEOT, FFreeStrm: Boolean;
     FOwner: TIdTrivialFTPServer;
+    FRequestedOptions: TIdTFTPOptions;
     procedure AfterRun; override;
     procedure BeforeRun; override;
     function HandleRunException(AException: Exception): Boolean; override;
@@ -151,20 +153,18 @@ type
   public
     constructor Create(AOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; AStream: TStream; const FreeStreamOnTerminate: Boolean;
-      const RequestedBlockSize: Integer); reintroduce;
+      const RequestedBlockSize: Integer; const RequestedOptions: TIdTFTPOptions); reintroduce;
     destructor Destroy; override;
   end;
 
   TIdTFTPServerSendFileThread = class(TIdTFTPServerThread)
-  private
-    FSendTransferSize: Boolean;
   protected
     procedure BeforeRun; override;
     procedure Run; override;
   public
     constructor Create(AOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; AStream: TStream; const FreeStreamOnTerminate: Boolean;
-      const RequestedBlockSize: Integer; SendTransferSize: Boolean); reintroduce;
+      const RequestedBlockSize: Integer; const RequestedOptions: TIdTFTPOptions); reintroduce;
   end;
 
   TIdTFTPServerReceiveFileThread = class(TIdTFTPServerThread)
@@ -180,7 +180,8 @@ type
   public
     constructor Create(AOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; AStream: TStream; const FreeStreamOnTerminate: Boolean;
-      const RequestedBlockSize: Integer; const RequestedTransferSize: TIdStreamSize); reintroduce;
+      const RequestedBlockSize: Integer; const RequestedTransferSize: TIdStreamSize;
+      const RequestedOptions: TIdTFTPOptions); reintroduce;
   end;
 
 { TIdTrivialFTPServer }
@@ -193,7 +194,7 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoReadFile(FileName: String; const Mode: TIdTFTPMode;
-  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; IncludeTransferSize: Boolean);
+  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; const RequestedOptions: TIdTFTPOptions);
 var
   CanRead,
   FreeOnComplete: Boolean;
@@ -218,7 +219,7 @@ begin
       FreeOnComplete := True;
     end;
 
-    TIdTFTPServerSendFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, IncludeTransferSize);
+    TIdTFTPServerSendFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, RequestedOptions);
 
   {$IFNDEF DOTNET}
   except
@@ -249,9 +250,12 @@ var
   RequestedTxSize: Int64;
   Mode: TIdTFTPMode;
   PeerInfo: TPeerInfo;
+  RequestedOptions: TIdTFTPOptions;
 begin
   inherited DoUDPRead(AThread, AData, ABinding);
   try
+    RequestedOptions := [];
+
     if Length(AData) > 1 then begin
       wOp := GStack.NetworkToHost(BytesToUInt16(AData));
     end else begin
@@ -307,6 +311,15 @@ begin
         if (RequestedBlkSize < 8) or (RequestedBlkSize > 65464) then begin
           raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
         end;
+        Include(RequestedOptions, optBlkSize);
+      end
+      else if TextStartsWith(LOptName, sBlockSize2) then
+      begin
+        RequestedBlkSize := IndyStrToInt(LOptValue);
+        if (RequestedBlkSize < 8) or (RequestedBlkSize > 32768) or (not IsPowerOf2(RequestedBlkSize)) then begin
+          raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
+        end;
+        Include(RequestedOptions, optBlkSize2);
       end
       else if TextStartsWith(LOptName, sTransferSize) then
       begin
@@ -319,6 +332,7 @@ begin
         else if RequestedTxSize > High(TIdStreamSize) then begin
           raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
         end;
+        Include(RequestedOptions, optTransferSize);
       end;
     end;
 
@@ -326,9 +340,9 @@ begin
     PeerInfo.PeerPort := ABinding.PeerPort;
 
     if wOp = TFTP_RRQ then begin
-      DoReadFile(FileName, Mode, PeerInfo, RequestedBlkSize, RequestedTxSize = 0);
+      DoReadFile(FileName, Mode, PeerInfo, RequestedBlkSize, RequestedOptions);
     end else begin
-      DoWriteFile(FileName, Mode, PeerInfo, RequestedBlkSize, TIdStreamSize(RequestedTxSize));
+      DoWriteFile(FileName, Mode, PeerInfo, RequestedBlkSize, TIdStreamSize(RequestedTxSize), RequestedOptions);
     end;
   except
     on E: EIdTFTPException do begin
@@ -355,7 +369,8 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
-  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize);
+  const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; RequestedTransferSize: TIdStreamSize;
+  const RequestedOptions: TIdTFTPOptions);
 var
   CanWrite,
   FreeOnComplete: Boolean;
@@ -389,7 +404,7 @@ begin
       end;
     end;
 
-    TIdTFTPServerReceiveFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, RequestedTransferSize);
+    TIdTFTPServerReceiveFileThread.Create(Self, Mode, PeerInfo, LStream, FreeOnComplete, RequestedBlockSize, RequestedTransferSize, RequestedOptions);
 
   {$IFNDEF DOTNET}
   except
@@ -445,13 +460,15 @@ end;
 
 constructor TIdTFTPServerThread.Create(AOwner: TIdTrivialFTPServer;
   const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo; AStream: TStream;
-  const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer);
+  const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer;
+  const RequestedOptions: TIdTFTPOptions);
 begin
   inherited Create(False);
   FreeOnTerminate := True;
   FStream := AStream;
   FFreeStrm := FreeStreamOnTerminate;
   FOwner := AOwner;
+  FRequestedOptions := RequestedOptions;
   FUDPClient := TIdUDPClient.Create(nil);
   FUDPClient.IPVersion := FOwner.IPVersion;
   FUDPClient.ReceiveTimeout := 1500;
@@ -486,13 +503,21 @@ begin
   FRetryCtr := 0;
   FEOT := False;
 
-  if FUDPClient.BufferSize <> 516 then
+  if FRequestedOptions <> [] then
   begin
     FResponse := ToBytes(GStack.HostToNetwork(UInt16(TFTP_OACK)));
-    AppendString(FResponse, sBlockSize, -1, IndyTextEncoding_ASCII);
-    AppendByte(FResponse, 0);
-    AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, IndyTextEncoding_ASCII);
-    AppendByte(FResponse, 0);
+    if optBlkSize in FRequestedOptions then begin
+      AppendString(FResponse, sBlockSize, -1, IndyTextEncoding_ASCII);
+      AppendByte(FResponse, 0);
+      AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, IndyTextEncoding_ASCII);
+      AppendByte(FResponse, 0);
+    end;
+    if optBlkSize2 in FRequestedOptions then begin
+      AppendString(FResponse, sBlockSize2, -1, IndyTextEncoding_ASCII);
+      AppendByte(FResponse, 0);
+      AppendString(FResponse, IntToStr(FUDPClient.BufferSize - 4), -1, IndyTextEncoding_ASCII);
+      AppendByte(FResponse, 0);
+    end;
   end else begin
     SetLength(FResponse, 0);
   end;
@@ -518,20 +543,16 @@ end;
 constructor TIdTFTPServerSendFileThread.Create(AOwner: TIdTrivialFTPServer;
   const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo; AStream: TStream;
   const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer;
-  SendTransferSize: Boolean);
+  const RequestedOptions: TIdTFTPOptions);
 begin
-  inherited Create(AOwner, Mode, PeerInfo, AStream, FreeStreamOnTerminate, RequestedBlockSize);
-  FSendTransferSize := SendTransferSize;
+  inherited Create(AOwner, Mode, PeerInfo, AStream, FreeStreamOnTerminate, RequestedBlockSize, RequestedOptions);
 end;
 
 procedure TIdTFTPServerSendFileThread.BeforeRun;
 begin
   inherited BeforeRun;
-  if FSendTransferSize then
+  if optTransferSize in FRequestedOptions then
   begin
-    if Length(FResponse) = 0 then begin
-      FResponse := ToBytes(GStack.HostToNetwork(UInt16(TFTP_OACK)));
-    end;
     AppendString(FResponse, sTransferSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
     AppendString(FResponse, IntToStr(FStream.Size - FStream.Position), -1, IndyTextEncoding_ASCII);
@@ -609,9 +630,9 @@ end;
 constructor TIdTFTPServerReceiveFileThread.Create(AOwner: TIdTrivialFTPServer;
   const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo; AStream: TStream;
   const FreeStreamOnTerminate: Boolean; const RequestedBlockSize: Integer;
-  const RequestedTransferSize: TIdStreamSize);
+  const RequestedTransferSize: TIdStreamSize; const RequestedOptions: TIdTFTPOptions);
 begin
-  inherited Create(AOwner, Mode, PeerInfo, AStream, FreeStreamOnTerminate, RequestedBlockSize);
+  inherited Create(AOwner, Mode, PeerInfo, AStream, FreeStreamOnTerminate, RequestedBlockSize, RequestedOptions);
   FTransferSize := RequestedTransferSize;
 end;
 
@@ -619,11 +640,8 @@ procedure TIdTFTPServerReceiveFileThread.BeforeRun;
 begin
   inherited BeforeRun;
   FReceivedSize := 0;
-  if FTransferSize <> -1 then
+  if optTransferSize in FRequestedOptions then
   begin
-    if Length(FResponse) = 0 then begin
-      FResponse := ToBytes(GStack.HostToNetwork(UInt16(TFTP_OACK)));
-    end;
     AppendString(FResponse, sTransferSize, -1, IndyTextEncoding_ASCII);
     AppendByte(FResponse, 0);
     AppendString(FResponse, IntToStr(FTransferSize), -1, IndyTextEncoding_ASCII);

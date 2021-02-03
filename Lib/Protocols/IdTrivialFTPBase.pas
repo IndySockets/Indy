@@ -44,7 +44,12 @@ uses
 type
   TIdTFTPMode = (tfNetAscii, tfOctet);
 
+  TIdTFTPOption = (optBlkSize, optBlkSize2, optTransferSize);
+  TIdTFTPOptions = set of TIdTFTPOption;
+
 // Procs
+
+function IsPowerOfTwo(x: Integer): Boolean; 
 
 function MakeActPkt(const BlockNumber: Word): TIdBytes;
 procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string); overload;
@@ -74,12 +79,37 @@ const  // TFTP error codes
 const
   // TFTP options
   sBlockSize = 'blksize';  {do not localize}
+  sBlockSize2 = 'blksize2';  {do not localize}
   sTransferSize = 'tsize'; {do not localize}
 
 implementation
 
 uses
   IdGlobalProtocols, IdExceptionCore, IdStack;
+
+function IsPowerOfTwo(x: Integer): Boolean; 
+begin
+  // from: https://www.geeksforgeeks.org/program-to-find-whether-a-no-is-power-of-two/
+
+  {$IFDEF VCL_10_4_OR_ABOVE}
+  { All power of two numbers have only one bit set. So count the no. of set bits
+  and if you get 1 then number is a power of 2. }
+  Result := CountPopulation32(x) = 1;
+  {$ELSE}
+  { If we subtract a power of 2 number by 1 then all unset bits after the only
+  set bit become set; and the set bit become unset.
+
+  For example for 4 (100) and 16 (10000), we get following after subtracting 1
+  3 –> 011
+  15 –> 01111
+
+  So, if a number n is a power of 2 then bitwise AND of n and (n-1) will be zero.
+  We can say n is a power of 2 or not based on value of (n & (n-1)). The expression
+  (n & (n-1)) will not work when n is 0. }
+
+  Result := (x <> 0) and ((x and (x - 1)) = 0); 
+  {$ENDIF}
+end;
 
 function MakeActPkt(const BlockNumber: Word): TIdBytes;
 begin
