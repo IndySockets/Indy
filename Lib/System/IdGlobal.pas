@@ -4651,7 +4651,13 @@ end;
 // Not Delphi, so just raise the exception as-is until we know what else to do with it...
 procedure IndyRaiseOuterException(AOuterException: Exception);
 begin
+    {$IFDEF FPC}
+  // TODO: is get_caller_frame() optional here?
+  raise AOuterException at get_caller_addr(get_frame), get_caller_frame(get_frame);
+    {$ELSE}
+  // Just raise the exception as-is until we know what else to do with it...
   raise AOuterException;
+    {$ENDIF}
 end;
   {$ENDIF}
 {$ENDIF}
