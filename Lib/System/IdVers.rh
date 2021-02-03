@@ -1,0 +1,14 @@
+#define IDVER_FILEVERSION			10,6,2,0
+#define IDVER_FILEVERSION_STR			"10.6.2.0\0"
+
+#define IDVER_PRODUCTVERSION			10,6,2
+#define IDVER_PRODUCTVERSION_STR		"10.6.2\0"
+
+#define IDVER_COPYRIGHT_STR					"Copyright © 1993 - 2021 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
+
+#define IDVER_FILEDESC_RTPKG_SYSTEM_STR		"Internet Direct (Indy) 10.6.2 - System Run-Time Package\0"
+#define IDVER_FILEDESC_RTPKG_CORE_STR		"Internet Direct (Indy) 10.6.2 - Core Run-Time Package\0"
+#define IDVER_FILEDESC_RTPKG_PROTOCOLS_STR	"Internet Direct (Indy) 10.6.2 - Protocols Run-Time Package\0"
+
+#define IDVER_FILEDESC_DTPKG_CORE_STR		"Internet Direct (Indy) 10.6.2 - Core Design-Time Package\0"
+#define IDVER_FILEDESC_DTPKG_PROTOCOLS_STR	"Internet Direct (Indy) 10.6.2 - Protocols Design-Time Package\0"
