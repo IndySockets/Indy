@@ -3191,7 +3191,7 @@ var
 begin
   Result := 0;
 
-  if (AChars = nil) or (ACharCount = 0) then begin
+  if (AChars = nil) or (ACharCount < 1) or ((ABytes <> nil) and (AByteCount < 1)) then begin
     Exit;
   end;
 
@@ -3314,7 +3314,7 @@ var
 begin
   Result := 0;
 
-  if (ABytes = nil) or (AByteCount = 0) then begin
+  if (ABytes = nil) or (AByteCount = 0) or ((AChars <> nil) and (ACharCount < 1)) then begin
     Exit;
   end;
 
@@ -5346,7 +5346,8 @@ begin
   //if these asserts fail, then it indicates an attempted buffer overrun.
   Assert(ASourceIndex >= 0);
   Assert((ASourceIndex+ALength) <= Length(ASource));
-  Move(ASource[ASourceIndex], VDest[ADestIndex], ALength);
+  if ALength > 0 then
+    Move(ASource[ASourceIndex], VDest[ADestIndex], ALength);
   {$ENDIF}
 end;
 
