@@ -245,11 +245,10 @@ begin
     Result := inherited Connected;
   except
     on E: EIdSocketError do begin
-      if E.LastError in [Id_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET] then begin
-        Result := False;
-        Exit;
+      if not ((E.LastError = Id_WSAESHUTDOWN) or (E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
+        raise;
       end;
-      raise;
+      Result := False;
     end;
   end;
 end;
