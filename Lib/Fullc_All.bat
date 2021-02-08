@@ -18,3 +18,4 @@ call Fullc_Seattle
 call Fullc_Berlin
 call Fullc_Tokyo
 call Fullc_Rio
+call Fullc_Sydney
