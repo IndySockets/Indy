@@ -492,7 +492,7 @@ end;
 
 procedure TIdMessageBuilderHtml.FillBody(AMsg: TIdMessage);
 var
-  LUsePlain, LUseHtml, LUseViewerNeededMsg, LUseHtmlFiles, LUseAttachments: Boolean;
+  LUsePlain, LUseHtml, LUseViewerMsg, LUseHtmlFiles, LUseAttachments: Boolean;
   LAlternativeIndex, LRelatedIndex: Integer;
   LTextPart: TIdText;
 begin
@@ -809,7 +809,7 @@ end;
 
 procedure TIdMessageBuilderRtf.FillHeaders(AMsg: TIdMessage);
 var
-  LUsePlain, LUseRtf, LUseViewerMsg: Boolean:
+  LUsePlain, LUseRtf, LUseViewerMsg: Boolean;
 begin
   if FAttachments.Count = 0 then
   begin

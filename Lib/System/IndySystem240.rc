@@ -14,7 +14,7 @@ FILESUBTYPE 0x0L
   BLOCK "000104E4"
   {
    VALUE "CompanyName", "Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
-   VALUE "FileDescription", IDVER_FILEDESC_RTPKG_SYTEM_STR
+   VALUE "FileDescription", IDVER_FILEDESC_RTPKG_SYSTEM_STR
    VALUE "FileVersion", IDVER_FILEVERSION_STR
    VALUE "InternalName", "IndySystem240\0"
    VALUE "LegalCopyright", IDVER_COPYRIGHT_STR
