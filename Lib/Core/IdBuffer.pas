@@ -344,11 +344,11 @@ type
       AAppend: Boolean = True; AIndex : Integer = -1);
     function ExtractToUInt8(const AIndex : Integer): UInt8;
     function ExtractToByte(const AIndex : Integer): UInt8; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToUInt8()'{$ENDIF};{$ENDIF}
-    function ExtractToUInt16(const AIndex : Integer): UInt16;
+    function ExtractToUInt16(const AIndex : Integer; AConvert: Boolean = True): UInt16;
     function ExtractToWord(const AIndex : Integer): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToUInt16()'{$ENDIF};{$ENDIF}
-    function ExtractToUInt32(const AIndex : Integer): UInt32;
+    function ExtractToUInt32(const AIndex : Integer; AConvert: Boolean = True): UInt32;
     function ExtractToLongWord(const AIndex : Integer): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ExtractToUInt32()'{$ENDIF};{$ENDIF}
-    function ExtractToUInt64(const AIndex : Integer): TIdUInt64;
+    function ExtractToUInt64(const AIndex : Integer; AConvert: Boolean = True): TIdUInt64;
     procedure ExtractToIPv6(const AIndex : Integer; var VAddress: TIdIPv6Address);
     function IndexOf(const AByte: Byte; AStartPos: Integer = 0): Integer; overload;
     function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer; overload;
@@ -497,6 +497,15 @@ begin
       EnsureEncoding(ADestEncoding, encOSDefault);
     end;
     {$ENDIF}
+    // TODO: convert directly from FBytes without allocating a local TIdBytes anymore...
+    {
+    CheckByteCount(AByteCount, 0);
+    try
+      Result := BytesToString(FBytes, FHeadIndex, AByteCount, AByteEncoding($IFDEF STRING_IS_ANSI), ADestEncoding($ENDIF));
+    finally
+      Remove(AByteCount);
+    end;
+    }
     ExtractToBytes(LBytes, AByteCount);
     Result := BytesToString(LBytes, AByteEncoding
       {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
@@ -791,7 +800,7 @@ begin
   end;
 end;
 
-function TIdBuffer.ExtractToUInt64(const AIndex: Integer): TIdUInt64;
+function TIdBuffer.ExtractToUInt64(const AIndex: Integer; AConvert: Boolean = True): TIdUInt64;
 var
   LIndex : Integer;
 begin
@@ -801,13 +810,15 @@ begin
     LIndex := AIndex;
   end;
   Result := BytesToUInt64(FBytes, LIndex);
-  Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(8);
   end;
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
+  end;
 end;
 
-function TIdBuffer.ExtractToUInt32(const AIndex: Integer): UInt32;
+function TIdBuffer.ExtractToUInt32(const AIndex: Integer; AConvert: Boolean = True): UInt32;
 var
   LIndex : Integer;
 begin
@@ -817,9 +828,11 @@ begin
     LIndex := AIndex;
   end;
   Result := BytesToUInt32(FBytes, LIndex);
-  Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(4);
+  end;
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
   end;
 end;
 
@@ -831,7 +844,7 @@ begin
   Result := ExtractToUInt32(AIndex);
 end;
 
-function TIdBuffer.ExtractToUInt16(const AIndex: Integer): UInt16;
+function TIdBuffer.ExtractToUInt16(const AIndex: Integer; AConvert: Boolean = True): UInt16;
 var
   LIndex : Integer;
 begin
@@ -841,9 +854,11 @@ begin
     LIndex := AIndex;
   end;
   Result := BytesToUInt16(FBytes, LIndex);
-  Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(2);
+  end;
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
   end;
 end;
 
