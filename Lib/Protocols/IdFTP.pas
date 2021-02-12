@@ -417,7 +417,7 @@
   P for both implicit and explicit TLS.  Data ports should work in PASV again.
 
   Rev 1.35    9/28/2003 11:41:06 PM  JPMugaas
-  Reworked Eldos's proposed FTP fix as suggested by Henrick HellstrÃ¶m by moving
+  Reworked Eldos's proposed FTP fix as suggested by Henrick Hellström by moving
   all of the IOHandler creation code to InitDataChannel.  This should reduce
   the likelihood of error.
 
@@ -555,10 +555,10 @@
   Rev 1.0    11/14/2002 02:20:00 PM  JPMugaas
 
 2002-10-25 - J. Peter Mugaas
-  - added XCRC support - specified by "GlobalSCAPE Secure FTP Server Userâ€™s Guide"
+  - added XCRC support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
     which is available at http://www.globalscape.com
     and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
-  - added COMB support - specified by "GlobalSCAPE Secure FTP Server Userâ€™s Guide"
+  - added COMB support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
     which is available at http://www.globalscape.com
     and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
 
@@ -922,7 +922,8 @@ type
     {$ENDIF}
 
     procedure GetInternalResponse(AEncoding: IIdTextEncoding = nil); override;
-    function CheckResponse(const AResponse: Int16; const AAllowedResponses: array of Int16): Int16; override;
+    function {$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(
+     const AResponse: Int16; const AAllowedResponses: array of Int16): Int16; override;
 
     function IsExtSupported(const ACmd : String):Boolean;
     procedure ExtractFeatFacts(const ACmd : String; AResults : TStrings);
@@ -1310,7 +1311,7 @@ begin
       DoOnBannerWarning(LastCmdResult.FormattedReply);
       GetResponse(220);
     end else begin
-      CheckResponse(LastCmdResult.NumericCode, [220]);
+      {$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(LastCmdResult.NumericCode, [220]);
     end;
 
     LSendQuitOnError := True;
@@ -1397,7 +1398,7 @@ begin
       end;
 
       // OpenVMS 7.1 replies with 200 instead of 215 - What does the RFC say about this?
-      // if SendCmd('SYST', [200, 215, 500]) = 500 then begin  {do not localize}
+      // if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('SYST', [200, 215, 500]) = 500 then begin  {do not localize}
       //Do not fault if SYST was not understood by the server.  Novel Netware FTP
       //may not understand SYST.
       if SendCmd('SYST') = 500 then begin  {do not localize}
@@ -1430,10 +1431,10 @@ begin
       end;
 
       SendTransferType(FTransferType);
-      DoStatus(ftpReady, [RSFTPStatusReady]);
+      {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(ftpReady, [RSFTPStatusReady]);
     end else begin
       // OpenVMS 7.1 replies with 200 instead of 215 - What does the RFC say about this?
-      // if SendCmd('SYST', [200, 215, 500]) = 500 then begin  {do not localize}
+      // if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('SYST', [200, 215, 500]) = 500 then begin  {do not localize}
       //Do not fault if SYST was not understood by the server.  Novel Netware FTP
       //may not understand SYST.
       if SendCmd('SYST') = 500 then begin  {do not localize}
@@ -1658,16 +1659,16 @@ This is a bug fix for servers will do something like this:
   }
   if (LastCmdResult.NumericCode div 100) > 2 then
   begin
-    DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(ftpAborted, [RSFTPStatusAbortTransfer]);
     Exit;
   end;
-  DoStatus(ftpReady, [RSFTPStatusDoneTransfer]);
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(ftpReady, [RSFTPStatusDoneTransfer]);
   // 226 = download successful, 225 = Abort successful}
   if FAbortFlag.Value then begin
-    LResponse := GetResponse(AcceptableAbortReplies);
+    LResponse := {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}(AcceptableAbortReplies);
 //Experimental -
     if PosInSmallIntArray(LResponse,AbortedReplies) > -1 then begin
-      GetResponse([226, 225]);
+      {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([226, 225]);
     end;
 //IMPORTANT!!!  KEEP THIS COMMENT!!!
 //
@@ -1691,14 +1692,14 @@ This is a bug fix for servers will do something like this:
 //
     if LResponse = 226 then begin
       if IOHandler.Readable(10) then begin
-        GetResponse(AbortedReplies);
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}(AbortedReplies);
       end;
     end;
-    DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(ftpAborted, [RSFTPStatusAbortTransfer]);
 //end experimental section
   end else begin
     //ftp.marist.edu returns 250
-    GetResponse([226, 225, 250]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([226, 225, 250]);
   end;
 end;
 
@@ -1753,7 +1754,7 @@ begin
   //for SSL FXP, we have to do it here because there is no command were a client
   //submits data through a data port where the SSCN setting is ignored.
   ClearSSCN;
-  DoStatus(ftpTransfer, [RSFTPStatusStartTransfer]);
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(ftpTransfer, [RSFTPStatusStartTransfer]);
   // try
     if FPassive then begin
       SendPret(ACommand);
@@ -1766,7 +1767,7 @@ begin
       // TODO: InternalGet() does not send these commands until after the data channel
       // is established, should we be doing the same here?
       if AResume then begin
-        Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
+        Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
       end;
       IOHandler.WriteLn(ACommand);
       //
@@ -1800,7 +1801,7 @@ begin
           LPasvCl.Connect;
         end;
         try
-          Self.GetResponse([110, 125, 150]);
+          Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([110, 125, 150]);
           try
             if FDataChannel <> nil then begin
               if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
@@ -1865,7 +1866,7 @@ begin
           end;
 
           if AResume then begin
-            Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
+            Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
           end;
 
           // RLebeau 5/15/2020: there are some FTP servers (vsFTPd, etc) that will try to
@@ -1884,7 +1885,7 @@ begin
           // the connection, and cases where a server opens the connection first and then sends
           // a reply, we need to monitor both ports simultaneously and act accordingly...
 
-          //Self.SendCmd(ACommand, [125, 150]);
+          //Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(ACommand, [125, 150]);
 
           LSocketList := TIdSocketList.CreateSocketList;
           try
@@ -1903,10 +1904,10 @@ begin
               if LReadList.ContainsSocket(LDataSocket) then
               begin
                 LPortSv.Listen(0);
-                Self.GetResponse([125, 150]);
+                Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([125, 150]);
               end else
               begin
-                Self.GetResponse([125, 150]);
+                Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([125, 150]);
                 LPortSv.Listen(ListenTimeout); // TODO: minus elapsed time already used by SelectReadList()
               end;
             finally
@@ -1945,9 +1946,9 @@ begin
           }
 
           if AResume then begin
-            Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
+            Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
           end;
-          Self.SendCmd(ACommand, [125, 150]);
+          Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(ACommand, [125, 150]);
 
         end;
       finally
@@ -1968,8 +1969,8 @@ begin
   if (LResponse = 426) or (LResponse = 450) then
   begin
     // some servers respond with 226 on ABOR
-    GetResponse([226, 225]);
-    DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
+    ($IFDEF OVERLOADED_OPENARRAY_BUG)GetResponseArr($ELSE)GetResponse($ENDIF)([226, 225]);
+    ($IFDEF OVERLOADED_OPENARRAY_BUG)DoStatusArr($ELSE)DoStatus($ENDIF)(ftpAborted, [RSFTPStatusAbortTransfer]);
   end;
   }
 end;
@@ -1999,7 +2000,7 @@ begin
     end;
   end;
 
-  DoStatus(ftpTransfer, [RSFTPStatusStartTransfer]);
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(ftpTransfer, [RSFTPStatusStartTransfer]);
   if FPassive then begin
     SendPret(ACommand);
     //PASV or EPSV
@@ -2039,13 +2040,13 @@ begin
       end;
       try
         if AResume then begin
-          Self.SendCmd('REST ' + IntToStr(ADest.Position), [350]);   {do not localize}
+          Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('REST ' + IntToStr(ADest.Position), [350]);   {do not localize}
         end;
         // APR: Ericsson Switch FTP
         //
         // RLebeau: some servers send 450 when no files are
         // present, so do not read the stream in that case
-        if Self.SendCmd(ACommand, [125, 150, 154, 450]) <> 450 then
+        if Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(ACommand, [125, 150, 154, 450]) <> 450 then
         begin
           if LPasvCl <> nil then begin
             if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
@@ -2131,10 +2132,10 @@ begin
             if LReadList.ContainsSocket(LDataSocket) then
             begin
               LPortSv.Listen(0);
-              Self.GetResponse([125, 150, 154]);
+              Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([125, 150, 154]);
             end else
             begin
-              Self.GetResponse([125, 150, 154]);
+              Self.{$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([125, 150, 154]);
               LPortSv.Listen(ListenTimeout); // TODO: minus elapsed time already used by SelectReadList()
             end;
           finally
@@ -2178,10 +2179,10 @@ begin
   // ToDo: Change that to properly handle response code (not just success or except)
   // 226 = download successful, 225 = Abort successful}
   //commented out in case we need to revert back to this.
-{  LResponse := GetResponse([225, 226, 250, 426, 450]);
+{  LResponse := ($IFDEF OVERLOADED_OPENARRAY_BUG)GetResponseArr($ELSE)GetResponse($ENDIF)([225, 226, 250, 426, 450]);
   if (LResponse = 426) or (LResponse = 450) then begin
-    GetResponse([226, 225]);
-    DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
+    ($IFDEF OVERLOADED_OPENARRAY_BUG)GetResponseArr($ELSE)GetResponse($ENDIF)([226, 225]);
+    ($IFDEF OVERLOADED_OPENARRAY_BUG)DoStatusArr($ELSE)DoStatus($ENDIF)(ftpAborted, [RSFTPStatusAbortTransfer]);
   end; }
 end;
 
@@ -2279,7 +2280,7 @@ begin
   if Assigned(FDataChannel) then begin
     FAbortFlag.Value := True;
   end else begin
-    GetResponse([]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([]);
   end;
 end;
 
@@ -2295,7 +2296,7 @@ end;
 procedure TIdFTP.SendPort(const AIP: String; const APort: TIdPort);
 begin
   SendDataSettings;
-  SendCmd('PORT ' + ReplaceAll(AIP, '.', ',')   {do not localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PORT ' + ReplaceAll(AIP, '.', ',')   {do not localize}
     + ',' + IntToStr(APort div 256) + ',' + IntToStr(APort mod 256), [200]); {do not localize}
 end;
 
@@ -2493,7 +2494,7 @@ end;
 procedure TIdFTP.Delete(const AFilename: string);
 begin
   // Linksys NSLU2 NAS returns 200, Ultimodule IDAL returns 257
-  SendCmd('DELE ' + AFilename, [200, 250, 257]); {do not localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('DELE ' + AFilename, [200, 250, 257]); {do not localize}
 end;
 
 (*
@@ -2512,7 +2513,7 @@ CWD
 *)
 procedure TIdFTP.ChangeDir(const ADirName: string);
 begin
-  SendCmd('CWD ' + ADirName, [200, 250, 257]); //APR: Ericsson Switch FTP     {do not localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('CWD ' + ADirName, [200, 250, 257]); //APR: Ericsson Switch FTP     {do not localize}
 end;
 
 (*
@@ -2534,7 +2535,7 @@ begin
   // RFC lists 200 as the proper response, but in another section says that it can return the
   // same as CWD, which expects 250. That is it contradicts itself.
   // MS in their infinite wisdom chnaged IIS 5 FTP to return 250.
-  SendCmd('CDUP', [200, 250]);   {do not localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('CDUP', [200, 250]);   {do not localize}
 end;
 
 procedure TIdFTP.Site(const ACommand: string);
@@ -2581,7 +2582,7 @@ end;
 procedure TIdFTP.ReInitialize(ADelay: UInt32 = 10);
 begin
   IndySleep(ADelay); //Added
-  if SendCmd('REIN', [120, 220, 500]) <> 500 then begin  {do not localize}
+  if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('REIN', [120, 220, 500]) <> 500 then begin  {do not localize}
     FLoginMsg.Clear;
     FCanResume := False;
     if Assigned(FDirectoryListing) then begin
@@ -2608,19 +2609,19 @@ end;
 
 procedure TIdFTP.Allocate(AAllocateBytes: Integer);
 begin
-  SendCmd('ALLO ' + IntToStr(AAllocateBytes), [200]); {do not localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ALLO ' + IntToStr(AAllocateBytes), [200]); {do not localize}
 end;
 
 procedure TIdFTP.Status(AStatusList: TStrings);
 begin
-  if SendCmd('STAT', [211, 212, 213, 500]) <> 500 then begin  {do not localize}
+  if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('STAT', [211, 212, 213, 500]) <> 500 then begin  {do not localize}
     AStatusList.Text := LastCmdResult.Text.Text;
   end;
 end;
 
 procedure TIdFTP.Help(AHelpContents: TStrings; ACommand: String = ''); {do not localize}
 begin
-  if SendCmd(TrimRight('HELP ' + ACommand), [211, 214, 500]) <> 500 then begin      {do not localize}
+  if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(TrimRight('HELP ' + ACommand), [211, 214, 500]) <> 500 then begin      {do not localize}
     AHelpContents.Text := LastCmdResult.Text.Text;
   end;
 end;
@@ -2635,14 +2636,14 @@ end;
 
 procedure TIdFTP.StructureMount(APath: String);
 begin
-  SendCmd('SMNT ' + APath, [202, 250, 500]);  {do not localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('SMNT ' + APath, [202, 250, 500]);  {do not localize}
 end;
 
 procedure TIdFTP.FileStructure(AStructure: TIdFTPDataStructure);
 const
   StructureTypes: array[TIdFTPDataStructure] of String = ('F', 'R', 'P'); {do not localize}
 begin
-  SendCmd('STRU ' + StructureTypes[AStructure], [200, 500]);  {do not localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('STRU ' + StructureTypes[AStructure], [200, 500]);  {do not localize}
   { TODO: Needs to be finished }
 end;
 
@@ -2848,22 +2849,22 @@ begin
       LCmd := MakeXAUTCmd(Greeting.Text.Text, FUserName, GetLoginPassword);
       if (LCmd <> '') and (not GetFIPSMode) then
       begin
-        if SendCmd(LCmd, [230, 232, 331]) = 331 then begin
+        if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(LCmd, [230, 232, 331]) = 331 then begin
           if IsAccountNeeded then begin
             if CheckAccount then begin
-              SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+              {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
             end else begin
               RaiseExceptionForLastCmdResult;
             end;
           end;
         end;
       end
-      else if SendCmd('USER ' + FUserName, [230, 232, 331]) = 331 then {do not localize}
+      else if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + FUserName, [230, 232, 331]) = 331 then {do not localize}
       begin
-        SendCmd('PASS ' + GetLoginPassword, [230, 332]);  {do not localize}
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230, 332]);  {do not localize}
         if IsAccountNeeded then begin
           if CheckAccount then begin
-            SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
           end else begin
             RaiseExceptionForLastCmdResult;
           end;
@@ -2874,25 +2875,25 @@ begin
     begin
       //This also supports WinProxy
       if Length(ProxySettings.UserName) > 0 then begin
-        if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then {do not localize}
+        if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + ProxySettings.UserName, [230, 331]) = 331 then {do not localize}
         begin
           SendCmd('PASS ' + ProxySettings.Password, 230); {do not localize}
           if IsAccountNeeded then begin
             if CheckAccount then begin
-              SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+              {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
             end else begin
               RaiseExceptionForLastCmdResult;
             end;
           end;
         end;
       end;
-      if SendCmd('USER ' + FUserName + '@' + FtpHost, [230, 232, 331]) = 331 then {do not localize}
+      if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + FUserName + '@' + FtpHost, [230, 232, 331]) = 331 then {do not localize}
       begin
-        SendCmd('PASS ' + GetLoginPassword, [230, 331]);  {do not localize}
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230, 331]);  {do not localize}
         if IsAccountNeeded then
         begin
           if CheckAccount then begin
-            SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
           end else begin
             RaiseExceptionForLastCmdResult;
           end;
@@ -2902,16 +2903,16 @@ begin
   fpcmSite:
     begin
       if Length(ProxySettings.UserName) > 0 then begin
-        if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin {do not localize}
+        if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin {do not localize}
           SendCmd('PASS ' + ProxySettings.Password, 230); {do not localize}
         end;
       end;
       SendCmd('SITE ' + FtpHost); // ? Server Reply? 220?   {do not localize}
-      if SendCmd('USER ' + FUserName, [230, 232, 331]) = 331 then begin {do not localize}
-        SendCmd('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
+      if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + FUserName, [230, 232, 331]) = 331 then begin {do not localize}
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
         if IsAccountNeeded then begin
           if CheckAccount then begin
-            SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
           end else begin
             RaiseExceptionForLastCmdResult;
           end;
@@ -2921,11 +2922,11 @@ begin
   fpcmOpen:
     begin
       if Length(ProxySettings.UserName) > 0 then begin
-        if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin   {do not localize}
-          SendCmd('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
+        if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin   {do not localize}
+          {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
           if IsAccountNeeded then begin
             if CheckAccount then begin
-              SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+              {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
             end else begin
               RaiseExceptionForLastCmdResult;
             end;
@@ -2933,11 +2934,11 @@ begin
         end;
       end;
       SendCmd('OPEN ' + FtpHost);//? Server Reply? 220?     {do not localize}
-      if SendCmd('USER ' + FUserName, [230, 232, 331]) = 331 then begin  {do not localize}
-        SendCmd('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
+      if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + FUserName, [230, 232, 331]) = 331 then begin  {do not localize}
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
         if IsAccountNeeded then begin
           if CheckAccount then begin
-            SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
           end else begin
             RaiseExceptionForLastCmdResult;
           end;
@@ -2946,17 +2947,17 @@ begin
     end;
   fpcmUserPass: //USER user@firewalluser@hostname / PASS pass@firewallpass
     begin
-      if SendCmd(IndyFormat('USER %s@%s@%s',
+      if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(IndyFormat('USER %s@%s@%s',
         [FUserName, ProxySettings.UserName, FtpHost]), [230, 232, 331]) = 331 then begin    {do not localize}
         if Length(ProxySettings.Password) > 0 then begin
-          SendCmd('PASS ' + GetLoginPassword + '@' + ProxySettings.Password, [230, 332]); {do not localize}
+          {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword + '@' + ProxySettings.Password, [230, 332]); {do not localize}
         end else begin
           //// needs otp ////
-          SendCmd('PASS ' + GetLoginPassword, [230,332]);  {do not localize}
+          {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230,332]);  {do not localize}
         end;
         if IsAccountNeeded then begin
           if CheckAccount then begin
-            SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
           end else begin
             RaiseExceptionForLastCmdResult;
           end;
@@ -2968,15 +2969,15 @@ begin
       //I think  fpcmTransparent means to connect to the regular host and the firewalll
       //intercepts the login information.
       if Length(ProxySettings.UserName) > 0 then begin
-        if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin    {do not localize}
-          SendCmd('PASS ' + ProxySettings.Password, [230,332]);     {do not localize}
+        if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin    {do not localize}
+          {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + ProxySettings.Password, [230,332]);     {do not localize}
         end;
       end;
-      if SendCmd('USER ' + FUserName, [230, 232, 331]) = 331 then begin   {do not localize}
-        SendCmd('PASS ' + GetLoginPassword, [230,332]); {do not localize}
+      if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('USER ' + FUserName, [230, 232, 331]) = 331 then begin   {do not localize}
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230,332]); {do not localize}
         if IsAccountNeeded then begin
           if CheckAccount then begin
-            SendCmd('ACCT ' + FAccount, [202, 230, 500]);
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);
           end else begin
             RaiseExceptionForLastCmdResult;
           end;
@@ -2985,12 +2986,12 @@ begin
     end;
   fpcmUserHostFireWallID :  //USER hostuserId@hostname firewallUsername
     begin
-       if SendCmd(TrimRight('USER ' + Username + '@' + FtpHost + ' ' + ProxySettings.UserName), [230, 331]) = 331 then begin   {do not localize}
-         if SendCmd('PASS ' + GetLoginPassword, [230,232,202,332]) = 332 then begin
-           SendCmd('ACCT ' + ProxySettings.Password, [230,232,332]);
+       if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(TrimRight('USER ' + Username + '@' + FtpHost + ' ' + ProxySettings.UserName), [230, 331]) = 331 then begin   {do not localize}
+         if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + GetLoginPassword, [230,232,202,332]) = 332 then begin
+           {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + ProxySettings.Password, [230,232,332]);
            if IsAccountNeeded then begin
              if CheckAccount then begin
-               SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+               {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
              end else begin
                RaiseExceptionForLastCmdResult;
              end;
@@ -3007,7 +3008,7 @@ USER ProxyUserName$ DestFTPUserName$DestFTPHostName
 PASS UsereDirectoryPassword$ DestFTPPassword
 
 Novell BorderManager 3.8 Proxy and Firewall Overview and Planning Guide
-Copyright Â© 1997-1998, 2001, 2002-2003, 2004 Novell, Inc. All rights reserved.
+Copyright © 1997-1998, 2001, 2002-2003, 2004 Novell, Inc. All rights reserved.
 ===
 From a WS-FTP Pro firescript at:
 
@@ -3018,11 +3019,11 @@ send ("USER %FwUserId$%HostUserId$%HostAddress")
 //send ("PASS %FwPassword$%HostPassword")
 
 }
-      if SendCmd(TrimRight('USER ' + ProxySettings.UserName + '$' + Username + '$' + FtpHost), [230, 331]) = 331 then begin   {do not localize}
-        if SendCmd('PASS ' + ProxySettings.UserName + '$' + GetLoginPassword, [230,232,202,332]) = 332 then begin
+      if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(TrimRight('USER ' + ProxySettings.UserName + '$' + Username + '$' + FtpHost), [230, 331]) = 331 then begin   {do not localize}
+        if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('PASS ' + ProxySettings.UserName + '$' + GetLoginPassword, [230,232,202,332]) = 332 then begin
           if IsAccountNeeded then begin
             if CheckAccount then begin
-              SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+              {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
             end else begin
               RaiseExceptionForLastCmdResult;
             end;
@@ -3669,8 +3670,8 @@ begin
   end;
 end;
 
-function TIdFTP.CheckResponse(const AResponse: Int16;
-  const AAllowedResponses: array of Int16): Int16;
+function TIdFTP.{$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(
+  const AResponse: Int16; const AAllowedResponses: array of Int16): Int16;
 begin
   // any FTP command can return a 421 reply if the server is going to shut
   // down the command connection.  This way, we can close the connection
@@ -3693,7 +3694,7 @@ begin
     RaiseExceptionForLastCmdResult;
   end;
 
-  Result := inherited CheckResponse(AResponse, AAllowedResponses);
+  Result := inherited {$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(AResponse, AAllowedResponses);
 end;
 
 function TIdFTP.GetReplyClass: TIdReplyClass;
@@ -3854,17 +3855,17 @@ begin
   if LDestFile = '' then begin
     LDestFile := ASourceFile;
   end;
-  AToSite.SendCmd('STOR ' + LDestFile, [110, 125, 150]); {do not localize}
+  AToSite.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('STOR ' + LDestFile, [110, 125, 150]); {do not localize}
   try
-    AFromSite.SendCmd('RETR ' + ASourceFile, [110, 125, 150]); {do not localize}
+    AFromSite.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('RETR ' + ASourceFile, [110, 125, 150]); {do not localize}
   except
     AToSite.Abort;
     raise;
   end;
   AToSite.GetInternalResponse;
   AFromSite.GetInternalResponse;
-  AToSite.CheckResponse(AToSite.LastCmdResult.NumericCode, [225, 226, 250]);
-  AFromSite.CheckResponse(AFromSite.LastCmdResult.NumericCode, [225, 226, 250]);
+  AToSite.{$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(AToSite.LastCmdResult.NumericCode, [225, 226, 250]);
+  AFromSite.{$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(AFromSite.LastCmdResult.NumericCode, [225, 226, 250]);
 end;
 
 class procedure TIdFTP.FXPSetTransferPorts(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv: Boolean);
@@ -3977,7 +3978,7 @@ Indy would use are:
 
 Syntax 1:
 
-1) MDTM 0103220000 MyFile.exe Â (notice the 22 hour)
+1) MDTM 0103220000 MyFile.exe  (notice the 22 hour)
 
 Syntax 2:
 
@@ -4032,7 +4033,7 @@ begin
   end;
 
   // When using MDTM, Titan FTP 5 returns 200 and vsFTPd returns 213
-  SendCmd(LCmd, [200, 213, 253]);
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(LCmd, [200, 213, 253]);
 end;
 
 {
@@ -4081,7 +4082,7 @@ begin
   end;
 
   // When using MDTM, Titan FTP 5 returns 200 and vsFTPd returns 213
-  SendCmd(LCmd, [200, 213, 253]);
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(LCmd, [200, 213, 253]);
 end;
 
 {Improvement from Tobias Giesen http://www.superflexible.com

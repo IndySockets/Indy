@@ -264,8 +264,8 @@ type
     procedure ParseXHDRLine(ALine : String; out AMsg : String; out AHeaderData : String);
     procedure Post(AMsg: TIdMessage); overload;
     procedure Post(AStream: TStream); overload;
-    function SendCmd(AOut: string; const AResponse: array of Int16;
-      AEncoding: IIdTextEncoding = nil): Int16; override;
+    function {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(
+      AOut: string; const AResponse: array of Int16; AEncoding: IIdTextEncoding = nil): Int16; override;
     function SelectArticle(AMsgNo: Int64): Boolean;
     procedure SelectGroup(AGroup: string);
     function TakeThis(AMsgID: string; AMsg: TStream): string;
@@ -371,18 +371,18 @@ begin
   FExplicitTLSProtPort := IdPORT_NNTP;
 end;
 
-function TIdNNTP.SendCmd(AOut: string; const AResponse: Array of Int16;
-  AEncoding: IIdTextEncoding = nil): Int16;
+function TIdNNTP.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(
+  AOut: string; const AResponse: array of Int16; AEncoding: IIdTextEncoding = nil): Int16;
 begin
   // NOTE: Responses must be passed as arrays so that the proper inherited SendCmd is called
   // and a stack overflow is not caused.
-  Result := inherited SendCmd(AOut, [], AEncoding);
+  Result := inherited {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(AOut, [], AEncoding);
   if (Result = 480) or (Result = 450) then
   begin
     SendAuth;
-    Result := inherited SendCmd(AOut, AResponse, AEncoding);
+    Result := inherited {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(AOut, AResponse, AEncoding);
   end else begin
-    CheckResponse(Result, AResponse);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(Result, AResponse);
   end;
 end;
 
@@ -770,7 +770,7 @@ end;
 *)
 function TIdNNTP.Next: Boolean;
 begin
-  Result := SendCmd('NEXT', [223, 421]) = 223;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('NEXT', [223, 421]) = 223;  {do not localize}
 end;
 
 (*
@@ -802,12 +802,12 @@ end;
 *)
 function TIdNNTP.Previous: Boolean;
 begin
-  Result := SendCmd('LAST', [223, 422]) = 223;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('LAST', [223, 422]) = 223;  {do not localize}
 end;
 
 function TIdNNTP.SelectArticle(AMsgNo: Int64): Boolean;
 begin
-  Result := SendCmd('STAT ' + IntToStr(AMsgNo), [223, 423]) = 223;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('STAT ' + IntToStr(AMsgNo), [223, 423]) = 223;  {do not localize}
 end;
 
 procedure TIdNNTP.GetNewsgroupList(AList: TStrings);
@@ -951,7 +951,7 @@ function TIdNNTP.GetArticle(AMsgNo: Int64; AMsg: TIdMessage): Boolean;
 begin
   // RLebeau: 430 is not supposed to be used with this version of ARTICLE,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423, 430]) = 220; {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ARTICLE ' + IntToStr(AMsgNo), [220, 423, 430]) = 220; {do not localize}
   if Result then begin
     AMsg.Clear;
     //Don't call ReceiveBody if the message ended at the end of the headers
@@ -964,7 +964,7 @@ end;
 
 function TIdNNTP.GetArticle(AMsgID: string; AMsg: TIdMessage): Boolean;
 begin
-  Result := SendCmd('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
   if Result then begin
     AMsg.Clear;
     //Don't call ReceiveBody if the message ended at the end of the headers
@@ -992,7 +992,7 @@ function TIdNNTP.GetArticle(AMsgNo: Int64; AMsg: TStrings): Boolean;
 begin
   // RLebeau: 430 is not supposed to be used with this version of ARTICLE,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423, 430]) = 220; {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ARTICLE ' + IntToStr(AMsgNo), [220, 423, 430]) = 220; {do not localize}
   if Result then begin
     AMsg.Clear;
     // per RFC 3977, headers should be in UTF-8, but are not required to,
@@ -1005,7 +1005,7 @@ function TIdNNTP.GetArticle(AMsgID: string; AMsg: TStrings): Boolean;
 var
   LEncoding: IIdTextEncoding;
 begin
-  Result := SendCmd('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
   if Result then begin
     AMsg.Clear;
     // per RFC 3977, headers should be in UTF-8, but are not required to,
@@ -1033,7 +1033,7 @@ var
 begin
   // RLebeau: 430 is not supposed to be used with this version of ARTICLE,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423, 430]) = 220; {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ARTICLE ' + IntToStr(AMsgNo), [220, 423, 430]) = 220; {do not localize}
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
@@ -1046,7 +1046,7 @@ function TIdNNTP.GetArticle(AMsgID: string; AMsg: TStream): Boolean;
 var
   LEncoding: IIdTextEncoding;
 begin
-  Result := SendCmd('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('ARTICLE ' + EnsureMsgIDBrackets(AMsgID), [220, 430]) = 220; {do not localize}
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
@@ -1062,7 +1062,7 @@ begin
   // All of the single-parameter TStrings and TStream versions of GetArticle(),
   // GetHeader(), and GetBody() do as well. So why is this one method acting
   // differently?  Why is it not raising an exception on 420 like the others do?
-  Result := SendCmd('BODY', [222, 420]) = 222; {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('BODY', [222, 420]) = 222; {do not localize}
   if Result then begin
     AMsg.Clear;
     ReceiveBody(AMsg);
@@ -1073,7 +1073,7 @@ function TIdNNTP.GetBody(AMsgNo: Int64; AMsg: TIdMessage): Boolean;
 begin
   // RLebeau: 430 is not supposed to be used with this version of BODY,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
     ReceiveBody(AMsg);
@@ -1082,7 +1082,7 @@ end;
 
 function TIdNNTP.GetBody(AMsgID: string; AMsg: TIdMessage): Boolean;
 begin
-  Result := SendCmd('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
     ReceiveBody(AMsg);
@@ -1106,7 +1106,7 @@ var
 begin
   // RLebeau: 430 is not supposed to be used with this version of BODY,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
     LEncoding := IndyTextEncoding_8Bit;
@@ -1118,7 +1118,7 @@ function TIdNNTP.GetBody(AMsgID: string; AMsg: TStrings): Boolean;
 var
   LEncoding: IIdTextEncoding;
 begin
-  Result := SendCmd('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
     LEncoding := IndyTextEncoding_8Bit;
@@ -1142,7 +1142,7 @@ var
 begin
   // RLebeau: 430 is not supposed to be used with this version of BODY,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('BODY ' + IntToStr(AMsgNo), [222, 423, 430]) = 222;  {do not localize}
   if Result then begin
     LEncoding := IndyTextEncoding_8Bit;
     IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
@@ -1153,7 +1153,7 @@ function TIdNNTP.GetBody(AMsgID: string; AMsg: TStream): Boolean;
 var
   LEncoding: IIdTextEncoding;
 begin
-  Result := SendCmd('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('BODY ' + EnsureMsgIDBrackets(AMsgID), [222, 430]) = 222;  {do not localize}
   if Result then begin
     LEncoding := IndyTextEncoding_8Bit;
     IOHandler.Capture(AMsg, LEncoding{$IFDEF STRING_IS_ANSI}, LEncoding{$ENDIF});
@@ -1172,7 +1172,7 @@ function TIdNNTP.GetHeader(AMsgNo: Int64; AMsg: TIdMessage): Boolean;
 begin
   // RLebeau: 430 is not supposed to be used with this version of HEAD,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423, 430]) = 221;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('HEAD ' + IntToStr(AMsgNo), [221, 423, 430]) = 221;  {do not localize}
   if Result then begin
     AMsg.Clear;
     ReceiveHeader(AMsg);
@@ -1181,7 +1181,7 @@ end;
 
 function TIdNNTP.GetHeader(AMsgID: string; AMsg: TIdMessage): Boolean;
 begin
-  Result := SendCmd('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
   if Result then begin
     AMsg.Clear;
     ReceiveHeader(AMsg);
@@ -1207,7 +1207,7 @@ var
 begin
   // RLebeau: 430 is not supposed to be used with this version of HEAD,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423, 430]) = 221;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('HEAD ' + IntToStr(AMsgNo), [221, 423, 430]) = 221;  {do not localize}
   if Result then begin
     AMsg.Clear;
     // per RFC 3977, headers should be in UTF-8, but are not required to,
@@ -1221,7 +1221,7 @@ function TIdNNTP.GetHeader(AMsgID: string; AMsg: TStrings): Boolean;
 var
   LEncoding: IIdTextEncoding;
 begin
-  Result := SendCmd('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
   if Result then begin
     AMsg.Clear;
     // per RFC 3977, headers should be in UTF-8, but are not required to,
@@ -1249,7 +1249,7 @@ var
 begin
   // RLebeau: 430 is not supposed to be used with this version of HEAD,
   // but have seen servers that do, so let's check for it as well...
-  Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423, 430]) = 221;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('HEAD ' + IntToStr(AMsgNo), [221, 423, 430]) = 221;  {do not localize}
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
@@ -1262,7 +1262,7 @@ function TIdNNTP.GetHeader(AMsgID: string; AMsg: TStream): Boolean;
 var
   LEncoding: IIdTextEncoding;
 begin
-  Result := SendCmd('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('HEAD ' + EnsureMsgIDBrackets(AMsgID), [221, 430]) = 221;  {do not localize}
   if Result then begin
     // per RFC 3977, headers should be in UTF-8, but are not required to,
     // so lets read them as 8-bit...
@@ -1489,7 +1489,7 @@ begin
   //http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-18.txt
   //says the correct reply code is 225 but RFC 2980 specifies 221 for the
   //XHDR command so we should accept both to CYA.
-    SendCmd('HDR '+ AHeader + ' ' + AParam, [225, 221]);  {do not localize}
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('HDR '+ AHeader + ' ' + AParam, [225, 221]);  {do not localize}
   end else
   begin
     SendCmd('XHDR ' + AHeader + ' ' + AParam, 221); {do not localize}
@@ -1518,7 +1518,7 @@ begin
 
   // RLebeau - RFC 2980 says that if the password is not required,
   // then 281 will be returned for the username request, not 381.
-  if (inherited SendCmd('AUTHINFO USER ' + Username, [281, 381]) = 381) then begin {do not localize}
+  if (inherited {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('AUTHINFO USER ' + Username, [281, 381]) = 381) then begin {do not localize}
     inherited SendCmd('AUTHINFO PASS ' + Password, 281);  {do not localize}
   end;
 end;

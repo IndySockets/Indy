@@ -352,7 +352,7 @@ begin
           LEncoder := TIdEncoderMIME.Create(nil);
           try
             SendCmd('AUTH LOGIN', 334);
-            if SendCmd(LEncoder.Encode(Username), [235, 334]) = 334 then begin
+            if {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(LEncoder.Encode(Username), [235, 334]) = 334 then begin
               SendCmd(LEncoder.Encode(Password), 235);
             end;
           finally
@@ -400,7 +400,7 @@ end;
 
 procedure TIdSMTP.Expand(AUserName: String; AResults: TStrings);
 begin
-  SendCmd('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
 end;
 
 procedure InternalQuickSend(const AHost, ASubject, ATo, AFrom, AText,
@@ -486,7 +486,7 @@ End;
 
 function TIdSMTP.Verify(AUserName: string): string;
 begin
-  SendCmd('VRFY ' + AUserName, [250, 251]);    {Do not Localize}
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('VRFY ' + AUserName, [250, 251]);    {Do not Localize}
   Result := LastCmdResult.Text[0];
 end;
 

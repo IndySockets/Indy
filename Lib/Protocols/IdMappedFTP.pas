@@ -327,9 +327,10 @@ var
     OutboundHost := LDataChannel.Binding.IP;
     OutboundPort := LDataChannel.Binding.Port;
 
-    OutboundClient.SendCmd('PORT ' + ReplaceAll(OutboundHost, '.', ',')+    {Do not Localize}
+    OutboundClient.SendCmd(
+      'PORT ' + ReplaceAll(OutboundHost, '.', ',') +    {Do not Localize}
       ',' + IntToStr(OutboundPort div 256) + ',' +    {Do not Localize}
-      IntToStr(OutboundPort mod 256), [200]);
+      IntToStr(OutboundPort mod 256), 200);
   end;
 
   procedure SendPasv;

@@ -221,7 +221,7 @@ begin
 
   if ACanAttemptIR then begin
     if ASASL.TryStartAuthenticate(AHost, AProtocolName, S) then begin
-      AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), []);//[334, 504]);
+      AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S));//[334, 504]
       if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
         ASASL.FinishAuthenticate;
         Exit; // this mechanism is not supported
@@ -230,7 +230,7 @@ begin
     end;
   end;
   if not AuthStarted then begin
-    AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName), []);//[334, 504]);
+    AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName));//[334, 504]
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
       Exit; // this mechanism is not supported
     end;

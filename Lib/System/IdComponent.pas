@@ -115,8 +115,9 @@ type
     FWorkInfos: array[TWorkMode] of TWorkInfo;
     {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FWorkTarget: TIdComponent;
     //
-    procedure DoStatus(AStatus: TIdStatus); overload;
-    procedure DoStatus(AStatus: TIdStatus; const AArgs: array of const); overload;
+    procedure DoStatus(AStatus: TIdStatus); {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF}
+    procedure {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(
+      AStatus: TIdStatus; const AArgs: array of const); {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF}
     procedure InitComponent; override;
     {$IFNDEF USE_OBJECT_ARC}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -150,10 +151,11 @@ end;
 
 procedure TIdComponent.DoStatus(AStatus: TIdStatus);
 begin
-  DoStatus(AStatus, []);
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(AStatus, []);
 end;
 
-procedure TIdComponent.DoStatus(AStatus: TIdStatus; const AArgs: array of const);
+procedure TIdComponent.{$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(
+  AStatus: TIdStatus; const AArgs: array of const);
 begin
   // We do it this way because Format() can sometimes cause an AV if the
   // variable array is blank and there is something like a %s or %d.  This

@@ -330,7 +330,7 @@ begin
       IOHandler.Intercept.Connect(Self);
     end;
 
-    DoStatus(hsConnected, [Host]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsConnected, [Host]);
     DoOnConnected;
   except
     if IOHandler <> nil then begin

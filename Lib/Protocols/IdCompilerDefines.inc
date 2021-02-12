@@ -1033,6 +1033,26 @@
     {$IFNDEF KYLIX}
       {$DEFINE HAS_RemoveFreeNotification}
     {$ENDIF}
+    // In Delphi 5 only, there are some really nasty bugs in the compiler and IDE that affect Indy:
+    //
+    // - when a class method is overloaded, and one of the overloads has an open array parameter, the
+    //   compiler produces bad codegen that corrupts the call stack.  This affects many methods in Indy,
+    //   particularly the CheckResponse(), GetResponse(), and SendCmd() methods of TIdTCPConnection, which
+    //   are used in many Indy components.
+    //
+    // - at design-time, the TransparentProxy property getter of TIdUDPClient and TIdIOHandlerSocket
+    //   causes a Stack Overflow error when the default TIdSocksInfo is created.  When the Object
+    //   Inspector is open, the getter gets called recursively, and I don't know why.  But even weirder,
+    //   if the getter doesn't do anything and just returns nil, the error still happens!  Support for
+    //   nested components was first added in Delphi 6, so this might be a side-effect of that missing
+    //   support in Delphi 5.  So, lets disable the getters.  Whatever "SOAP support" the getters were
+    //   needed for, do they really matter anymore?
+    //
+    //   These issues were fixed in Delphi 6.
+    {$IFDEF VCL_50}
+      {$DEFINE OVERLOADED_OPENARRAY_BUG}
+      {$DEFINE TRANSPARENTPROXY_GETTER_BUG}
+    {$ENDIF}
   {$ENDIF}
   {$DEFINE HAS_GetObjectProp}
   {$DEFINE HAS_TObjectList}

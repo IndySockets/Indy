@@ -1557,7 +1557,7 @@ var
     LTrailHeader: String;
     LChunk : TIdBytes;
   begin
-    DoStatus(hsStatusText, [RSHTTPChunkStarted]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [RSHTTPChunkStarted]);
     BeginWork(wmRead);
     try
       LSize := ChunkSize;

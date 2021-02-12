@@ -316,8 +316,9 @@ type
     function WSGetLastError: Integer; virtual; abstract;
     procedure WSSetLastError(const AErr : Integer); virtual; abstract;
     function WSTranslateSocketErrorMsg(const AErr: integer): string; virtual;
-    function CheckForSocketError(const AResult: Integer): Integer; overload;
-    function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload;
+    function CheckForSocketError(const AResult: Integer): Integer; {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF}
+    function {$IFDEF OVERLOADED_OPENARRAY_BUG}CheckForSocketErrorArr{$ELSE}CheckForSocketError{$ENDIF}(
+      const AResult: Integer; const AIgnore: array of Integer): Integer; {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF}
     procedure RaiseLastSocketError;
     procedure RaiseSocketError(AErr: integer); virtual;
     function NewSocketHandle(const ASocketType: TIdSocketType; const AProtocol: TIdSocketProtocol;
@@ -875,8 +876,8 @@ begin
   Result := AResult;
 end;
 
-function TIdStack.CheckForSocketError(const AResult: Integer;
-  const AIgnore: array of integer): Integer;
+function TIdStack.{$IFDEF OVERLOADED_OPENARRAY_BUG}CheckForSocketErrorArr{$ELSE}CheckForSocketError{$ENDIF}(
+  const AResult: Integer; const AIgnore: array of integer): Integer;
 var
   i: Integer;
   LLastError: Integer;

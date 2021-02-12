@@ -372,7 +372,7 @@ begin
   begin
     if not GStack.IsIP(LHost) then begin
       if Assigned(OnStatus) then begin
-        DoStatus(hsResolving, [LHost]);
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsResolving, [LHost]);
       end;
       LIP := GStack.ResolveHost(LHost, LIPVersion);
     end else begin
@@ -384,7 +384,7 @@ begin
     LIP := MakeCanonicalIPv6Address(LHost);
     if LIP='' then begin  //if MakeCanonicalIPv6Address failed, we have a hostname
       if Assigned(OnStatus) then begin
-        DoStatus(hsResolving, [LHost]);
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsResolving, [LHost]);
       end;
       LIP := GStack.ResolveHost(LHost, LIPVersion);
     end else begin
@@ -396,7 +396,7 @@ begin
   //note for status events, we check specifically for them here
   //so we don't do a string conversion in Binding.PeerIP.
   if Assigned(OnStatus) then begin
-    DoStatus(hsConnecting, [Binding.PeerIP]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsConnecting, [Binding.PeerIP]);
   end;
 
   LTimeout := ConnectTimeout;

@@ -190,7 +190,9 @@ type
     procedure SetDestination(const AValue: string); override;
     function GetReuseSocket: TIdReuseSocket;
     procedure SetReuseSocket(AValue: TIdReuseSocket);
+    {$IFNDEF TRANSPARENTPROXY_GETTER_BUG}
     function GetTransparentProxy: TIdCustomTransparentProxy; virtual;
+    {$ENDIF}
     procedure SetTransparentProxy(AProxy: TIdCustomTransparentProxy); virtual;
     function GetUseNagle: Boolean;
     procedure SetUseNagle(AValue: Boolean);
@@ -220,7 +222,7 @@ type
     property DefaultPort: TIdPort read FDefaultPort write FDefaultPort;
     property IPVersion: TIdIPVersion read FIPVersion write FIPVersion default ID_DEFAULT_IP_VERSION;
     property ReuseSocket: TIdReuseSocket read GetReuseSocket write SetReuseSocket default rsOSDependent;
-    property TransparentProxy: TIdCustomTransparentProxy read GetTransparentProxy write SetTransparentProxy;
+    property TransparentProxy: TIdCustomTransparentProxy read {$IFDEF TRANSPARENTPROXY_GETTER_BUG}FTransparentProxy{$ELSE}GetTransparentProxy{$ENDIF} write SetTransparentProxy;
     property UseNagle: boolean read GetUseNagle write SetUseNagle default True;
   end;
 
@@ -508,6 +510,7 @@ begin
   end;
 end;
 
+{$IFNDEF TRANSPARENTPROXY_GETTER_BUG}
 function TIdIOHandlerSocket.GetTransparentProxy: TIdCustomTransparentProxy;
 var
   // under ARC, convert a weak reference to a strong reference before working with it
@@ -515,13 +518,22 @@ var
 begin
   LTransparentProxy := FTransparentProxy;
   // Necessary at design time for Borland SOAP support
+  // TODO: can we remove this getter and just require the user to link up a
+  // TransparentProxy component manually at design-time?  What problem, if any,
+  // will this cause for SOAP support?
   if LTransparentProxy = nil then begin
     LTransparentProxy := TIdSocksInfo.Create(Self); //default
+    {$IFDEF VCL_6_OR_ABOVE}
+    if IsDesignTime then begin
+      LTransparentProxy.SetSubComponent(True);
+    end;
+    {$ENDIF}
     FTransparentProxy := LTransparentProxy;
     FImplicitTransparentProxy := True;
   end;
   Result := LTransparentProxy;
 end;
+{$ENDIF}
 
 function TIdIOHandlerSocket.GetUseNagle: Boolean;
 begin
@@ -565,7 +577,8 @@ end;
 
 function TIdIOHandlerSocket.CheckForError(ALastResult: Integer): Integer;
 begin
-  Result := GStack.CheckForSocketError(ALastResult, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET, Id_WSAETIMEDOUT]);
+  Result := GStack.{$IFDEF OVERLOADED_OPENARRAY_BUG}CheckForSocketErrorArr{$ELSE}CheckForSocketError{$ENDIF}(
+    ALastResult, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET, Id_WSAETIMEDOUT]);
 end;
 
 procedure TIdIOHandlerSocket.RaiseError(AError: Integer);

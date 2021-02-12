@@ -113,7 +113,9 @@ type
     procedure SetPort(const AValue : TIdPort); override;
     procedure SetTransparentProxy(AProxy : TIdCustomTransparentProxy);
     function GetBinding: TIdSocketHandle; override;
+    {$IFNDEF TRANSPARENTPROXY_GETTER_BUG}
     function GetTransparentProxy: TIdCustomTransparentProxy;
+    {$ENDIF}
   public
     destructor Destroy; override;
     procedure OpenProxy;
@@ -146,7 +148,7 @@ type
     property Port;
     property ReceiveTimeout;
     property ReuseSocket;
-    property TransparentProxy: TIdCustomTransparentProxy read GetTransparentProxy write SetTransparentProxy;
+    property TransparentProxy: TIdCustomTransparentProxy read {$IFDEF TRANSPARENTPROXY_GETTER_BUG}FTransparentProxy{$ELSE}GetTransparentProxy{$ENDIF} write SetTransparentProxy;
     property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
     property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
   end;
@@ -192,7 +194,7 @@ begin
   begin
     if not GStack.IsIP(Host) then begin
       if Assigned(OnStatus) then begin
-        DoStatus(hsResolving, [Host]);
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsResolving, [Host]);
       end;
       LIP := GStack.ResolveHost(Host, FIPVersion);
     end else begin
@@ -204,7 +206,7 @@ begin
     LIP := MakeCanonicalIPv6Address(Host);
     if LIP = '' then begin  //if MakeCanonicalIPv6Address failed, we have a hostname
       if Assigned(OnStatus) then begin
-        DoStatus(hsResolving, [Host]);
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsResolving, [Host]);
       end;
       LIP := GStack.ResolveHost(Host, FIPVersion);
     end else begin
@@ -214,7 +216,7 @@ begin
   Binding.SetPeer(LIP, Port, FIPVersion);
   Binding.Connect;
 
-  DoStatus(hsConnected, [Host]);
+  {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsConnected, [Host]);
   DoOnConnected;
   FConnected := True;
 end;
@@ -277,6 +279,7 @@ begin
   Result := FBinding;
 end;
 
+{$IFNDEF TRANSPARENTPROXY_GETTER_BUG}
 function TIdUDPClient.GetTransparentProxy: TIdCustomTransparentProxy;
 var
   // under ARC, convert a weak reference to a strong reference before working with it
@@ -284,13 +287,22 @@ var
 begin
   LTransparentProxy := FTransparentProxy;
   // Necessary at design time for Borland SOAP support
+  // TODO: can we remove this getter and just require the user to link up a
+  // TransparentProxy component manually at design-time?  What problem, if any,
+  // will this cause for SOAP support?
   if LTransparentProxy = nil then begin
     LTransparentProxy := TIdSocksInfo.Create(Self); //default
+    {$IFDEF VCL_6_OR_ABOVE}
+    if IsDesignTime then begin
+      LTransparentProxy.SetSubComponent(True);
+    end;
+    {$ENDIF}
     FTransparentProxy := LTransparentProxy;
     FImplicitTransparentProxy := True;
   end;
   Result := LTransparentProxy;
 end;
+{$ENDIF}
 
 procedure TIdUDPClient.InitComponent;
 begin

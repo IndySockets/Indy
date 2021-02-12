@@ -390,9 +390,9 @@ type
     procedure CreateIOHandler(ABaseType: TIdIOHandlerClass = nil);
     procedure CheckForGracefulDisconnect(ARaiseExceptionIfDisconnected: Boolean = True); virtual;
     //
-    function CheckResponse(const AResponse: Int16;
-     const AAllowedResponses: array of Int16): Int16; overload; virtual;
-    function CheckResponse(const AResponse, AAllowedResponse: string): string; overload; virtual;
+    function {$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(
+     const AResponse: Int16; const AAllowedResponses: array of Int16): Int16; {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF} virtual;
+    function CheckResponse(const AResponse, AAllowedResponse: string): string; {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF} virtual;
     //
     function Connected: Boolean; virtual;
     destructor Destroy; override;
@@ -413,8 +413,8 @@ type
     // match a single number into an array. IIRC newer ones do.
     function GetResponse(const AAllowedResponse: Int16 = -1;
       AEncoding: IIdTextEncoding = nil): Int16; overload;
-    function GetResponse(const AAllowedResponses: array of Int16;
-      AEncoding: IIdTextEncoding = nil): Int16; overload; virtual;
+    function {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}(
+      const AAllowedResponses: array of Int16; AEncoding: IIdTextEncoding = nil): Int16; {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF} virtual;
     // No array type for strings as ones that use strings are usually bastard
     // protocols like POP3/IMAP which dont include proper substatus anyways.
     //
@@ -431,8 +431,8 @@ type
     // These are extended GetResponses, so see the comments for GetResponse
     function SendCmd(AOut: string; const AResponse: Int16 = -1;
       AEncoding: IIdTextEncoding = nil): Int16; overload;
-    function SendCmd(AOut: string; const AResponse: array of Int16;
-      AEncoding: IIdTextEncoding = nil): Int16; overload; virtual;
+    function {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(
+      AOut: string; const AResponse: array of Int16; AEncoding: IIdTextEncoding = nil): Int16; {$IFNDEF OVERLOADED_OPENARRAY_BUG}overload;{$ENDIF} virtual;
     function SendCmd(AOut: string; const AResponse: string;
       AEncoding: IIdTextEncoding = nil): string; overload;
     //
@@ -586,11 +586,11 @@ begin
   end;
 end;
 
-function TIdTCPConnection.GetResponse(const AAllowedResponses: array of Int16;
-  AEncoding: IIdTextEncoding = nil): Int16;
+function TIdTCPConnection.{$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}(
+  const AAllowedResponses: array of Int16; AEncoding: IIdTextEncoding = nil): Int16;
 begin
   GetInternalResponse(AEncoding);
-  Result := CheckResponse(LastCmdResult.NumericCode, AAllowedResponses);
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(LastCmdResult.NumericCode, AAllowedResponses);
 end;
 
 procedure TIdTCPConnection.RaiseExceptionForLastCmdResult(
@@ -604,13 +604,13 @@ begin
   LastCmdResult.RaiseReplyError;
 end;
 
-function TIdTCPConnection.SendCmd(AOut: string; const AResponse: Array of Int16;
-  AEncoding: IIdTextEncoding = nil): Int16;
+function TIdTCPConnection.{$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(
+  AOut: string; const AResponse: Array of Int16; AEncoding: IIdTextEncoding = nil): Int16;
 begin
   CheckConnected;
   PrepareCmd(AOut);
   IOHandler.WriteLn(AOut, AEncoding);
-  Result := GetResponse(AResponse, AEncoding);
+  Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}(AResponse, AEncoding);
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
@@ -798,9 +798,9 @@ function TIdTCPConnection.SendCmd(AOut: string; const AResponse: Int16 = -1;
   AEncoding: IIdTextEncoding = nil): Int16;
 begin
   if AResponse < 0 then begin
-    Result := SendCmd(AOut, [], AEncoding);
+    Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(AOut, [], AEncoding);
   end else begin
-    Result := SendCmd(AOut, [AResponse], AEncoding);
+    Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(AOut, [AResponse], AEncoding);
   end;
 end;
 
@@ -817,8 +817,8 @@ begin
   end;
 end;
 
-function TIdTCPConnection.CheckResponse(const AResponse: Int16;
- const AAllowedResponses: array of Int16): Int16;
+function TIdTCPConnection.{$IFDEF OVERLOADED_OPENARRAY_BUG}CheckResponseArr{$ELSE}CheckResponse{$ENDIF}(
+  const AResponse: Int16; const AAllowedResponses: array of Int16): Int16;
 begin
   if High(AAllowedResponses) > -1 then begin
     if PosInSmallIntArray(AResponse, AAllowedResponses) = -1 then begin
@@ -863,9 +863,9 @@ function TIdTCPConnection.GetResponse(const AAllowedResponse: Int16 = -1;
   AEncoding: IIdTextEncoding = nil): Int16;
 begin
   if AAllowedResponse < 0 then begin
-    Result := GetResponse([], AEncoding);
+    Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([], AEncoding);
   end else begin
-    Result := GetResponse([AAllowedResponse], AEncoding);
+    Result := {$IFDEF OVERLOADED_OPENARRAY_BUG}GetResponseArr{$ELSE}GetResponse{$ENDIF}([AAllowedResponse], AEncoding);
   end;
 end;
 

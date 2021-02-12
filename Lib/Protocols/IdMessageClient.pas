@@ -1229,7 +1229,7 @@ begin
         raise EIdException.Create(RSMsgClientInvalidForTransferEncoding);
       end;
       IOHandler.WriteLn;     //This is the blank line after the headers
-      DoStatus(hsStatusText, [RSMsgClientEncodingText]);
+      {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [RSMsgClientEncodingText]);
       LEncoding := CharsetToEncoding(AMsg.CharSet);
       //CC2: Now output AMsg.Body in the chosen encoding...
       if TextIsSame(LContentTransferEncoding, 'base64') then begin  {do not localize}
@@ -1241,7 +1241,7 @@ begin
     else if AMsg.Encoding = mePlainText then begin
       IOHandler.WriteLn;     //This is the blank line after the headers
       //CC2: It is NOT Mime.  It is a body followed by optional attachments
-      DoStatus(hsStatusText, [RSMsgClientEncodingText]);
+      {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [RSMsgClientEncodingText]);
       // Write out Body first
       LEncoding := CharsetToEncoding(AMsg.CharSet);
       EncodeAndWriteText(AMsg.Body, LEncoding);
@@ -1253,13 +1253,13 @@ begin
           if AMsg.MessageParts.Items[i] is TIdText then begin
             IOHandler.WriteLn;
             IOHandler.WriteLn('------- Start of text attachment -------'); {do not localize}
-            DoStatus(hsStatusText,  [RSMsgClientEncodingText]);
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText,  [RSMsgClientEncodingText]);
             WriteTextPart(TIdText(AMsg.MessageParts.Items[i]));
             IOHandler.WriteLn('------- End of text attachment -------');   {do not localize}
           end
           else if AMsg.MessageParts.Items[i] is TIdAttachment then begin
             LAttachment := TIdAttachment(AMsg.MessageParts[i]);
-            DoStatus(hsStatusText, [RSMsgClientEncodingAttachment]);
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [RSMsgClientEncodingAttachment]);
             if LAttachment.ContentTransfer = '' then begin
               //The user has nothing specified: see has he set a preference in
               //TIdMessage.AttachmentEncoding (AttachmentEncoding is really an
@@ -1347,7 +1347,7 @@ begin
       LLastPart := AMsg.MessageParts.Count - 1;
       if LAddedTextPart then begin
         IOHandler.WriteLn('--' + LBoundary);       {do not localize}
-        DoStatus(hsStatusText, [RSMsgClientEncodingText]);
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [RSMsgClientEncodingText]);
         WriteTextPart(AMsg.MessageParts.Items[LLastPart] as TIdText);
         IOHandler.WriteLn;
         Dec(LLastPart);  //Don't output it again in the following "for" loop
@@ -1379,13 +1379,13 @@ begin
             IOHandler.WriteLn('--' + LBoundary);  {do not localize}
           end;
           if AMsg.MessageParts.Items[i] is TIdText then begin
-            DoStatus(hsStatusText,  [RSMsgClientEncodingText]);
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText,  [RSMsgClientEncodingText]);
             WriteTextPart(AMsg.MessageParts.Items[i] as TIdText);
             IOHandler.WriteLn;
           end
           else if AMsg.MessageParts.Items[i] is TIdAttachment then begin
             LAttachment := TIdAttachment(AMsg.MessageParts[i]);
-            DoStatus(hsStatusText, [RSMsgClientEncodingAttachment]);
+            {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [RSMsgClientEncodingAttachment]);
             if LAttachment.ContentTransfer = '' then begin
               LContentTransferEncoding := 'base64'; {do not localize}
               LAttachment.ContentTransfer := LContentTransferEncoding;

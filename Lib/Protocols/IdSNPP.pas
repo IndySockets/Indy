@@ -156,7 +156,7 @@ begin
   if SendCmd('PAGER ' + APagerID) = 250 then begin {do not localize}
     Result := True;
   end else begin
-    DoStatus(hsStatusText, [LastCmdResult.Text[0]]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [LastCmdResult.Text[0]]);
   end;
 end;
 
@@ -187,7 +187,7 @@ begin
   if SendCmd('MESS ' + AMsg) = 250 then begin {do not localize}
     Result := True;
   end else begin
-    DoStatus(hsStatusText, [LastCmdResult.Text.Text]);
+    {$IFDEF OVERLOADED_OPENARRAY_BUG}DoStatusArr{$ELSE}DoStatus{$ENDIF}(hsStatusText, [LastCmdResult.Text.Text]);
   end;
 end;
 
