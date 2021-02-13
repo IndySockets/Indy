@@ -4138,13 +4138,30 @@ begin
 end;
 {$ENDIF}
 
+function GetIndyDefaultTextEncoding: IdTextEncodingType;
+begin
+  // RLebeau 1/14/2021: if the system encoding is UTF-8 then return that, otherwise return US-ASCII...
+  {$IFDEF HAS_DefaultSystemCodePage}
+  if DefaultSystemCodePage = CP_UTF8 then
+    Result := encUTF8
+  else
+  {$ELSE}
+    {$IFDEF WINDOWS}
+  if GetACP() = CP_UTF8 then
+    Result := encUTF8
+  else
+    {$ENDIF}
+  {$ENDIF}
+    Result := encASCII;
+end;
+
 function IndyTextEncoding_Default: IIdTextEncoding;
 var
   LType: IdTextEncodingType;
 begin
   LType := GIdDefaultTextEncoding;
   if LType = encIndyDefault then begin
-    LType := encASCII;
+    LType := GetIndyDefaultTextEncoding;
   end;
   Result := IndyTextEncoding(LType);
 end;
@@ -9880,6 +9897,7 @@ begin
 end;
 
 initialization
+  GIdDefaultTextEncoding := GetIndyDefaultTextEncoding;
   // AnsiPos does not handle strings with #0 and is also very slow compared to Pos
   {$IFDEF DOTNET}
   IndyPos := SBPos;

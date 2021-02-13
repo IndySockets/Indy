@@ -1087,6 +1087,7 @@
     {$DEFINE HAS_NAMED_THREADS}
     {$DEFINE HAS_TStrings_NameValueSeparator}
     {$DEFINE HAS_TStrings_ValueFromIndex}
+    {$DEFINE HAS_DefaultSystemCodePage}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
   {$DEFINE HAS_PosEx}
@@ -1471,6 +1472,7 @@
     {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
     {$DEFINE HAS_PRawByteString}
   {$ENDIF}
+  {$DEFINE HAS_DefaultSystemCodePage} // TODO: when was DefaultSystemCodePage introduced?
 {$ENDIF}
 
 {$IFDEF DOTNET}
