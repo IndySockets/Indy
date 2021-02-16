@@ -228,7 +228,7 @@ begin
 
   LTokenPos := IndyPos('://', LURI);    {Do not Localize}
   if (LTokenPos = 0) and TextStartsWith(LURI, '//') then begin {Do not Localize}
-    LTokenPos = 1;
+    LTokenPos := 1;
   end;
   if LTokenPos > 0 then begin
     // absolute URI
