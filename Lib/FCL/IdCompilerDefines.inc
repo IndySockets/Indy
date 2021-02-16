@@ -110,6 +110,7 @@
 // Make sure that this is defined only for environments where we are using
 // the iconv library to charactor conversions.
 {.$UNDEF USE_ICONV}
+{.$UNDEF USE_LCONVENC}
 
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
@@ -1655,6 +1656,13 @@
 {$IFDEF WINDOWS}
   {$UNDEF USE_ICONV_ENC}
   {$DEFINE USE_SAFELOADLIBRARY}
+{$ENDIF}
+// Use here for all *nix systems that you do not want to use iconv library
+{$IFDEF FPC}
+  {$IFDEF ANDROID}
+    {$UNDEF USE_ICONV}
+    {$DEFINE USE_LCONVENC}
+  {$ENDIF}
 {$ENDIF}
 
 {$UNDEF USE_INVALIDATE_MOD_CACHE}
