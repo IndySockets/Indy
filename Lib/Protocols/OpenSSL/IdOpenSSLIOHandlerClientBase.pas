@@ -56,6 +56,9 @@ type
     procedure ConnectClient; override;
     procedure Close; override;
 
+    function CheckForError(ALastResult: Integer): Integer; override;
+    procedure RaiseError(AError: Integer); override;
+
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; override;
 
     function Clone: TIdSSLIOHandlerSocketBase; override;
@@ -64,8 +67,13 @@ type
 implementation
 
 uses
+  IdOpenSSLExceptions,
+  IdOpenSSLHeaders_ssl,
   IdStackConsts,
   SysUtils;
+
+type
+  TIdOpenSSLSocketAccessor = class(TIdOpenSSLSocket);
 
 { TIdOpenSSLIOHandlerClientBase }
 
@@ -99,6 +107,29 @@ begin
   // no FContext.Free() here, if a derived class creates an own instance that
   // class should free that object
   inherited;
+end;
+
+function TIdOpenSSLIOHandlerClientBase.CheckForError(ALastResult: Integer): Integer;
+begin
+  if PassThrough then
+  begin
+    Result := inherited CheckForError(ALastResult);
+    Exit;
+  end;
+
+  Result := FTLSSocket.GetErrorCode(ALastResult);
+  case Result of
+    SSL_ERROR_SYSCALL:
+      inherited CheckForError(ALastResult);
+//      inherited CheckForError(Integer(Id_SOCKET_ERROR));
+    SSL_ERROR_NONE:
+    begin
+      Result := 0;
+      Exit;
+    end;
+  else
+    raise EIdOpenSSLUnspecificStackError.Create('', Result);
+  end;
 end;
 
 function TIdOpenSSLIOHandlerClientBase.Clone: TIdSSLIOHandlerSocketBase;
@@ -135,6 +166,22 @@ begin
       FreeAndNil(FTLSSocket);
     end;
   end;
+end;
+
+procedure TIdOpenSSLIOHandlerClientBase.RaiseError(AError: Integer);
+
+  function IsSocketError(const AError: Integer): Boolean; {$IFDEF USE_INLINE}inline;{$ENDIF}
+  begin
+    Result := (AError = Id_WSAESHUTDOWN)
+      or (AError = Id_WSAECONNABORTED)
+      or (AError = Id_WSAECONNRESET)
+  end;
+
+begin
+  if PassThrough or IsSocketError(AError) or not Assigned(FTLSSocket) then
+    inherited RaiseError(AError)
+  else
+    raise EIdOpenSSLUnspecificError.Create(TIdOpenSSLSocketAccessor(FTLSSocket).FSSL, AError, '');
 end;
 
 function TIdOpenSSLIOHandlerClientBase.Readable(AMSec: Integer): Boolean;

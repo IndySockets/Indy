@@ -118,6 +118,7 @@ type
   EIdOpenSSLCertAndPrivKeyMisMatchError = class(EIdOpenSSLErrorStackBasedError);
   EIdOpenSSLSessionIdContextError = class(EIdOpenSSLErrorStackBasedError);
   EIdOpenSSLSetSessionError = class(EIdOpenSSLErrorStackBasedError);
+  EIdOpenSSLUnspecificStackError = class(EIdOpenSSLErrorStackBasedError);
 
   /// <summary>
   ///   Base class for errors that are based on the ssl error return codes
@@ -133,6 +134,7 @@ type
   EIdOpenSSLConnectError = class(EIdOpenSSLSSLBasedError);
   EIdOpenSSLAcceptError = class(EIdOpenSSLSSLBasedError);
   EIdOpenSSLShutdownError = class(EIdOpenSSLSSLBasedError);
+  EIdOpenSSLUnspecificError = class(EidOpenSSLSSLBasedError);
 
 implementation
 

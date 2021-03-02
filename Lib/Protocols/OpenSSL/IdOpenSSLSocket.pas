@@ -54,6 +54,7 @@ type
     ///   connection is closed from the peer
     /// </param>
     function ShouldRetry(const ASSL: PSSL; var AReturnCode: Integer): Boolean;
+    function GetErrorCode(const ASSL: PSSL; const AReturnCode: Integer): Integer; overload;
   public
     constructor Create(const AContext: PSSL_CTX);
     destructor Destroy; override;
@@ -64,6 +65,8 @@ type
     function Receive(var ABuffer: TIdBytes): Integer;
 
     function HasReadableData: Boolean;
+
+    function GetErrorCode(const AReturnCode: Integer): Integer; overload;
   end;
 
 implementation
@@ -110,6 +113,16 @@ begin
   inherited;
 end;
 
+function TIdOpenSSLSocket.GetErrorCode(const AReturnCode: Integer): Integer;
+begin
+  Result := GetErrorCode(FSSL, AReturnCode);
+end;
+
+function TIdOpenSSLSocket.GetErrorCode(const ASSL: PSSL; const AReturnCode: Integer): Integer;
+begin
+  Result := SSL_get_error(ASSL, AReturnCode);
+end;
+
 function TIdOpenSSLSocket.HasReadableData: Boolean;
 begin
   Result := SSL_pending(FSSL) > 0;
@@ -123,7 +136,7 @@ begin
   if AReturnCode > 0 then
     Exit;
 
-  case SSL_get_error(ASSL, AReturnCode) of
+  case GetErrorCode(ASSL, AReturnCode) of
     SSL_ERROR_NONE:
     // The TLS/SSL I/O operation completed. This result code is returned if and
     // only if AReturnCode > 0
