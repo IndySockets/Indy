@@ -46,7 +46,9 @@ type
 implementation
 
 uses
-  IdOpenSSLSocketServer;
+  IdOpenSSLExceptions,
+  IdOpenSSLSocketServer,
+  SysUtils;
 
 { TIdOpenSSLIOHandlerClientForServer }
 
@@ -67,7 +69,16 @@ begin
   inherited;
   if PassThrough then
     Exit;
-  (FTLSSocket as TIdOpenSSLSocketServer).Accept(Binding.Handle);
+  try
+    (FTLSSocket as TIdOpenSSLSocketServer).Accept(Binding.Handle);
+  except
+    on E: EIdOpenSSLAcceptError do
+    begin
+      if Binding.PeerIP <> '' then
+        E.Message := Format('%s [%s]:[%d]', [E.Message, Binding.PeerIP, Binding.PeerPort]);
+      raise;
+    end;
+  end;
 end;
 
 end.
