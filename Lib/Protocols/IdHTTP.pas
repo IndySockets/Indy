@@ -3224,8 +3224,8 @@ begin
   finally
     if not (
       Response.KeepAlive or
-      ((hoNoReadMultipartMIME in FOptions) and IsHeaderMediaType(Response.ContentType, 'multipart')) or {do not localize}
-      ((hoNoReadChunked in FOptions) and IndyPos('chunked', LowerCase(Response.TransferEncoding)) > 0)  {do not localize}
+      ((hoNoReadMultipartMIME in FOptions) and IsHeaderMediaType(Response.ContentType, 'multipart')) or   {do not localize}
+      ((hoNoReadChunked in FOptions) and (IndyPos('chunked', LowerCase(Response.TransferEncoding)) > 0))  {do not localize}
     ) then
     begin
       Disconnect;
