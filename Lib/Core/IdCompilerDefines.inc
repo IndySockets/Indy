@@ -426,6 +426,16 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 10.5
+  {$IFDEF VER350}
+    {$DEFINE VCL_10_5}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_10_5}
+    {$ELSE}
+      {$DEFINE DELPHI_10_5}
+    {$ENDIF}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
@@ -725,8 +735,16 @@
 
 // end FPC
 
-{$IFDEF VCL_10_4}
+{$IFDEF VCL_10_5}
+  {$DEFINE VCL_10_5_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_10_5_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_10_4}
+    {$DEFINE VCL_10_4_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_10_4_OR_ABOVE}
