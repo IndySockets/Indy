@@ -22903,6 +22903,7 @@ end;
 function Load: Boolean;
 var
   LVersion, LMajor, LMinor: TIdC_ULONG;
+  LVersionStr: string;
 begin
   Result := False;
   Assert(FFailedLoadList<>nil);
@@ -22928,25 +22929,52 @@ begin
     end;
   end;
 
-  // RLebeau 2/2/2021: verify the version is 1.0.2 or earlier, as 1.1.0 made MAJOR changes that we do not support yet...
+  // RLebeau 6/8/2021: verify the type of library is supported...
 
   @_SSLeay_version := LoadOldCLib(fn_SSLeay_version, 'OpenSSL_version'); {Do not localize} //Used by Indy 
   @SSLeay := LoadOldCLib(fn_SSLeay, 'OpenSSL_version_num'); {Do not localize} //Used by Indy 
 
-  if Assigned(SSLeay) then
+  if Assigned(_SSLeay_version) then begin
+    LVersionStr := String(_SSLeay_version(SSLEAY_VERSION));
+  end;
+
+  if TextStartsWith(LVersionStr, 'LibreSSL') then {do not localize}
   begin
-    LVersion := SSLeay;
-    LMajor := (LVersion and $F0000000) shr 28;
-    LMinor := (LVersion and $0FF00000) shr 20;
-    if (LMajor = 0) and (LMinor = 0) then begin // < 0.9.3
-      LMajor := (LVersion and $F000) shr 12;
-      LMinor := (LVersion and $0F00) shr 8;
-    end;
-    if (LMajor > 1) or ((LMajor = 1) and (LMinor > 0)) then // 1.1.0 or higher
+    {
+    According to the LibreSSL Portable GitHub repo:
+    https://github.com/libressl-portable/portable
+
+    LibreSSL is API compatible with OpenSSL 1.0.1, but does not yet include all new APIs from OpenSSL 1.0.2 and later.
+    LibreSSL also includes APIs not yet present in OpenSSL. The current common API subset is OpenSSL 1.0.1.
+
+    LibreSSL is not ABI compatible with any release of OpenSSL, or necessarily earlier releases of LibreSSL.
+    You will need to relink your programs to LibreSSL in order to use it, just as in moving between major versions
+    of OpenSSL. LibreSSL's installed library version numbers are incremented to account for ABI and API changes.
+    }
+    // TODO: add version checking?
+  end
+  else if TextStartsWith(LVersionStr, 'OpenSSL') or (LVersionStr = '') then {do not localize}
+  begin
+    // RLebeau 2/2/2021: verify the version is OpenSSL 1.0.2 or earlier, as OpenSSL 1.1.0 made MAJOR changes that we do not support yet...
+    if Assigned(SSLeay) then
     begin
-      FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedVersion, [LVersion]));
-      Exit;
+      LVersion := SSLeay;
+      LMajor := (LVersion and $F0000000) shr 28;
+      LMinor := (LVersion and $0FF00000) shr 20;
+      if (LMajor = 0) and (LMinor = 0) then begin // < 0.9.3
+        LMajor := (LVersion and $F000) shr 12;
+        LMinor := (LVersion and $0F00) shr 8;
+      end;
+      if (LMajor > 1) or ((LMajor = 1) and (LMinor > 0)) then // OpenSSL 1.1.0 or higher
+      begin
+        FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedVersion, [LVersion]));
+        Exit;
+      end;
     end;
+  end else 
+  begin
+    FFailedLoadList.Add(IndyFormat(RSOSSUnsupportedLibrary, [LVersionStr]));
+    Exit;
   end;
 
   // TODO: stop loading non-critical functions here.  We should use per-function

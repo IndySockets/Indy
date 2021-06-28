@@ -8,6 +8,7 @@ resourcestring
   RSOSSFailedToLoad_WithErrCode = 'Failed to load %s (error #%d).';
   RSOSSMissingExport_WithErrCode = '%s (error #%d)';
   RSOSSUnsupportedVersion = 'Unsupported SSL Library version: %.8x.';
+  RSOSSUnsupportedLibrary = 'Unsupported SSL Library: %s.';
   RSOSSLModeNotSet = 'Mode has not been set.';
   RSOSSLCouldNotLoadSSLLibrary = 'Could not load SSL library.';
   RSOSSLStatusString = 'SSL status: "%s"';
