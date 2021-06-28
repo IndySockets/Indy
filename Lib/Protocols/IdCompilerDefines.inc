@@ -110,6 +110,7 @@
 // Make sure that this is defined only for environments where we are using
 // the iconv library to charactor conversions.
 {.$UNDEF USE_ICONV}
+{.$UNDEF USE_LCONVENC}
 
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
@@ -425,6 +426,16 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 10.5
+  {$IFDEF VER350}
+    {$DEFINE VCL_10_5}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_10_5}
+    {$ELSE}
+      {$DEFINE DELPHI_10_5}
+    {$ENDIF}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
@@ -724,8 +735,16 @@
 
 // end FPC
 
-{$IFDEF VCL_10_4}
+{$IFDEF VCL_10_5}
+  {$DEFINE VCL_10_5_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_10_5_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_10_4}
+    {$DEFINE VCL_10_4_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_10_4_OR_ABOVE}
@@ -1656,6 +1675,13 @@
 {$IFDEF WINDOWS}
   {$UNDEF USE_ICONV_ENC}
   {$DEFINE USE_SAFELOADLIBRARY}
+{$ENDIF}
+// Use here for all *nix systems that you do not want to use iconv library
+{$IFDEF FPC}
+  {$IFDEF ANDROID}
+    {$UNDEF USE_ICONV}
+    {$DEFINE USE_LCONVENC}
+  {$ENDIF}
 {$ENDIF}
 
 {$UNDEF USE_INVALIDATE_MOD_CACHE}
