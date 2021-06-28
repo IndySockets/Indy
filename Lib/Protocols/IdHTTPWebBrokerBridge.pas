@@ -74,6 +74,10 @@ type
     {$DEFINE WBB_ANSI}
   {$ENDIF}
 
+  {$IFDEF VCL_10_5_OR_ABOVE}
+    {$DEFINE WBB_BIG_INTS}
+  {$ENDIF}
+
   TIdHTTPAppRequest = class(TWebRequest)
   protected
     FRequestInfo   : TIdHTTPRequestInfo;
@@ -83,7 +87,7 @@ type
     FFreeContentStream : Boolean;
     //
     function GetDateVariable(Index: Integer): TDateTime; override;
-    function GetIntegerVariable(Index: Integer): Integer; override;
+    function GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF}; override;
     function GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {$IFDEF VCL_XE_OR_ABOVE}
     function GetRemoteIP: string; override;
@@ -130,7 +134,7 @@ type
     function GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     function GetDateVariable(Index: Integer): TDateTime; override;
     function GetStatusCode: Integer; override;
-    function GetIntegerVariable(Index: Integer): Integer; override;
+    function GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF}; override;
     function GetLogMessage: string; override;
     function GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     procedure SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}); override;
@@ -138,7 +142,7 @@ type
     procedure SetStatusCode(AValue: Integer); override;
     procedure SetStringVariable(Index: Integer; const Value: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}); override;
     procedure SetDateVariable(Index: Integer; const Value: TDateTime); override;
-    procedure SetIntegerVariable(Index: Integer; Value: Integer); override;
+    procedure SetIntegerVariable(Index: Integer; Value: {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF}); override;
     procedure SetLogMessage(const Value: string); override;
     procedure MoveCookiesAndCustomHeaders;
   public
@@ -284,9 +288,9 @@ begin
   end;
 end;
 
-function TIdHTTPAppRequest.GetIntegerVariable(Index: Integer): Integer;
+function TIdHTTPAppRequest.GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF};
 begin
-  Result := StrToIntDef(string(GetStringVariable(Index)), -1)
+  Result := {$IFDEF WBB_BIG_INTS}StrToInt64Def{$ELSE}StrToIntDef{$ENDIF}(string(GetStringVariable(Index)), -1)
 end;
 
 {$IFDEF VCL_XE_OR_ABOVE}
@@ -624,7 +628,7 @@ function TIdHTTPAppResponse.GetDateVariable(Index: Integer): TDateTime;
   begin
     Result := ADateTime;
     if Result <> -1 then
-      Result := Result - OffsetFromUTC;
+      Result := LocalTimeToUTCTime(Result);
   end;
 begin
   //TODO: resource string these
@@ -643,7 +647,7 @@ procedure TIdHTTPAppResponse.SetDateVariable(Index: Integer; const Value: TDateT
   begin
     Result := ADateTime;
     if Result <> -1 then
-      Result := Result + OffsetFromUTC;
+      Result := UTCTimeToLocalTime(Result);
   end;
 begin
   //TODO: resource string these
@@ -656,7 +660,7 @@ begin
   end;
 end;
 
-function TIdHTTPAppResponse.GetIntegerVariable(Index: Integer): Integer;
+function TIdHTTPAppResponse.GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF};
 begin
   //TODO: resource string these
   case Index of
@@ -666,7 +670,8 @@ begin
   end;
 end;
 
-procedure TIdHTTPAppResponse.SetIntegerVariable(Index, Value: Integer);
+procedure TIdHTTPAppResponse.SetIntegerVariable(Index: Integer;
+  Value: {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF});
 begin
   //TODO: resource string these
   case Index of
