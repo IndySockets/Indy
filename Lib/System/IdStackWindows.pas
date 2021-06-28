@@ -1428,7 +1428,6 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                 begin
                   if UnicastAddr^.DadState = IpDadStatePreferred then
                   begin
-                    LAddress := nil;
                     case UnicastAddr^.Address.lpSockaddr.sin_family of
                       AF_INET: begin
                         IPAddr := TranslateTInAddrToString(PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr, Id_IPv4);
@@ -1797,7 +1796,6 @@ end;
 
 function TIdSocketListWindows.GetItem(AIndex: Integer): TIdStackSocketHandle;
 begin
-  Result := 0;
   Lock;
   try
     //We can't redefine AIndex to be a UInt32 because the libc Interface
@@ -1805,6 +1803,7 @@ begin
     if (AIndex >= 0) and (u_int(AIndex) < FFDSet.fd_count) then begin
       Result := FFDSet.fd_array[AIndex];
     end else begin
+      // TODO: just return 0/invalid, like most of the other Stack classes do?
       raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
     end;
   finally

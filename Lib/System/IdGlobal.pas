@@ -7803,29 +7803,31 @@ function OffsetFromUTC: TDateTime;
 {$IFDEF DOTNET}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
-  {$IFDEF WINDOWS}
+  {$IFNDEF HAS_GetLocalTimeOffset}
+    {$IFNDEF HAS_DateUtils_TTimeZone}
+      {$IFDEF WINDOWS}
 var
   iBias: Integer;
   tmez: TTimeZoneInformation;
-  {$ELSE}
-    {$IFNDEF HAS_GetLocalTimeOffset}
-      {$IFDEF UNIX}
-        {$IFDEF USE_VCL_POSIX}
+      {$ELSE}
+        {$IFDEF UNIX}
+          {$IFDEF USE_VCL_POSIX}
 var
   T : Time_t;
   TV : TimeVal;
   UT : tm;
-        {$ELSE}
-          {$IFDEF KYLIXCOMPAT}
+          {$ELSE}
+            {$IFDEF KYLIXCOMPAT}
 var
   T : Time_T;
   TV : TTimeVal;
   UT : TUnixTime;
-          {$ELSE}
-            {$IFDEF USE_BASEUNIX}
+            {$ELSE}
+              {$IFDEF USE_BASEUNIX}
  var
    timeval: TTimeVal;
    timezone: TTimeZone;
+              {$ENDIF}
             {$ENDIF}
           {$ENDIF}
         {$ENDIF}
