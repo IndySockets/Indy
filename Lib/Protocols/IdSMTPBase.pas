@@ -124,6 +124,8 @@ const
 type
   TIdSMTPFailedRecipient = procedure(Sender: TObject; const AAddress, ACode, AText: String;
     var VContinue: Boolean) of object;
+  TIdSMTPFailedEHLO = procedure(Sender: TObject; const ACode, AText: String;
+    var VContinue: Boolean) of object;
 
   TIdSMTPBase = class(TIdMessageClient)
   protected
@@ -134,6 +136,7 @@ type
     FUseVerp : Boolean;
     FVerpDelims: string;
     FOnFailedRecipient: TIdSMTPFailedRecipient;
+    FOnFailedEHLO: TIdSMTPFailedEHLO;
     //
     function GetSupportsTLS : Boolean; override;
     function GetReplyClass: TIdReplyClass; override;
@@ -168,6 +171,7 @@ type
     property VerpDelims: string read FVerpDelims write FVerpDelims;
     //
     property OnFailedRecipient: TIdSMTPFailedRecipient read FOnFailedRecipient write FOnFailedRecipient;
+    property OnFailedEHLO: TIdSMTPFailedEHLO read FOnFailedEHLO write FOnFailedEHLO;
   end;
 
 implementation
@@ -211,6 +215,8 @@ end;
 procedure TIdSMTPBase.SendGreeting;
 var
   LNameToSend : String;
+  LContinue: Boolean;
+  LError: TIdReply;
 begin
   Capabilities.Clear;
   if HeloName <> '' then begin
@@ -228,15 +234,33 @@ begin
        LNameToSend := IndyComputerName;
      end;
   end;
-  if UseEhlo and (SendCmd('EHLO ' + LNameToSend ) = 250) then begin //APR: user can prevent EHLO    {Do not Localize}
-    Capabilities.AddStrings(LastCmdResult.Text);
-    if Capabilities.Count > 0 then begin
-      //we drop the initial greeting.  We only want the feature list
-      Capabilities.Delete(0);
+  if UseEhlo then begin //APR: user can prevent EHLO
+    if SendCmd('EHLO ' + LNameToSend) = 250 then begin {Do not Localize}
+      Capabilities.AddStrings(LastCmdResult.Text);
+      if Capabilities.Count > 0 then begin
+        //we drop the initial greeting.  We only want the feature list
+        Capabilities.Delete(0);
+      end;
+      Exit;
     end;
-  end else begin
-    SendCmd('HELO ' + LNameToSend, 250);    {Do not Localize}
+    // RLebeau: let the user decide whether to continue with HELO or QUIT...
+    LContinue := True;
+    if Assigned(FOnFailedEhlo) then begin
+      FOnFailedEhlo(Self, LastCmdResult.Code, LastCmdResult.Text.Text, LContinue);
+    end;
+    if not LContinue then begin
+      LError := FReplyClass.Create(nil);
+      try
+        LError.Assign(LastCmdResult);
+        Disconnect(True);
+        LError.RaiseReplyError;
+      finally
+        FreeAndNil(LError);
+      end;
+      Exit;
+    end;
   end;
+  SendCmd('HELO ' + LNameToSend, 250);    {Do not Localize}
 end;
 
 procedure TIdSMTPBase.SetPipeline(const AValue: Boolean);

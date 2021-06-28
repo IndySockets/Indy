@@ -463,7 +463,7 @@ begin
     if TextIsSame(LTimeStr, 'GMT') then  {do not localize}
     begin
       // Apply local offset
-      Result := Result + OffsetFromUTC;
+      Result := UTCTimeToLocalTime(Result);
     end;
   end else begin
     Result := 0.0;
@@ -652,7 +652,7 @@ end;
 procedure TIdNNTPServer.CommandDate(ASender: TIdCommand);
 begin
   if not SecLayerRequired(ASender) then begin
-    ASender.Reply.SetReply(111, FormatDateTime('yyyymmddhhnnss', Now + TimeZoneBias));  {do not localize}
+    ASender.Reply.SetReply(111, FormatDateTime('yyyymmddhhnnss', LocalTimeToUTCTime(Now)));  {do not localize}
   end;
 end;
 
@@ -1551,7 +1551,7 @@ begin
         LDate := LDate + NNTPTimeToTime(ASender.Params[1]);
         if ASender.Params.Count > 2 then begin
           if TextIsSame(ASender.Params[2], 'GMT') then begin {Do not translate}
-            LDate := LDate + OffSetFromUTC;
+            LDate := UTCTimeToLocalTime(LDate);
             if ASender.Params.Count > 3 then begin
               LDist := ASender.Params[3];
             end;
@@ -1587,7 +1587,7 @@ begin
         LDate := LDate + NNTPTimeToTime(ASender.Params[2]);
         if ASender.Params.Count > 3 then begin
           if TextIsSame(ASender.Params[3], 'GMT') then begin {Do not translate}
-            LDate := LDate + OffsetFromUTC;
+            LDate := UTCTimeToLocalTime(LDate);
             if ASender.Params.Count > 4 then begin
               LDist := ASender.Params[4];
             end;
