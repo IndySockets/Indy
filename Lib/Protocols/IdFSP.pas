@@ -473,7 +473,7 @@ begin
   CopyBytesToHostUInt32(AData, VI, LC);
 
   VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
-  VL.FModifiedDate := VL.FModifiedDateGMT + OffSetFromUTC;
+  VL.FModifiedDate := UTCTimeToLocalTime(VL.FModifiedDateGMT);
   Inc(VI, 4);
 
   CopyBytesToHostUInt32(AData, VI, LC);

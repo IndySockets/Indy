@@ -127,8 +127,7 @@ begin
   if BufCard <> 0 then begin
     {The formula is The Time cardinal we receive divided by (24 * 60*60 for days + RoundTrip divided by one-thousand since this is based on seconds
     - the Time Zone difference}
-    Result := ( ((BufCard + (FRoundTripDelay div 1000))/ (24 * 60 * 60) ) + Int(fBaseDate))
-                - TimeZoneBias;
+    Result := UTCTimeToLocalTime( ((BufCard + (FRoundTripDelay div 1000))/ (24 * 60 * 60) ) + Int(fBaseDate) );
   end else begin
     { Somehow, I really doubt we are ever going to really get a time such as
     12/30/1899 12:00 am so use that as a failure test}
