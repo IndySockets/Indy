@@ -736,7 +736,9 @@ type
   TIdOnDirSizeInfo = procedure(ASender : TIdFTPServerContext;
     const APathName : TIdFTPFileName;
     var VIsAFile : Boolean; var VSpace : Int64) of object;
+
   TIdFTPServer = class;
+
   TIdFTPSecurityOptions = class(TPersistent)
   protected
     // RFC 2577 Recommends these
@@ -920,6 +922,8 @@ type
   TIdOnGetCustomListFormat = procedure(ASender: TIdFTPServer; AItem: TIdFTPListItem;
     var VText: string) of object;
 
+  TIdOnQuerySSLPort = procedure(APort: TIdPort; var VUseSSL: Boolean) of object;
+
   { FTP Server }
   TIdFTPServer = class(TIdExplicitTLSServer)
   protected
@@ -989,6 +993,8 @@ type
     FOnMLST : TIdOnMLST;
     FOnSiteUTIME : TOnSiteUTIME;
     FOnHostCheck : TOnHostCheck;
+    FOnQuerySSLPort: TIdOnQuerySSLPort;
+
     procedure SetOnUserAccount(AValue : TOnFTPUserAccountEvent);
     procedure AuthenticateUser(ASender: TIdCommand);
     function SupportTaDirSwitches(AContext : TIdFTPServerContext) : Boolean;
@@ -1173,6 +1179,9 @@ type
     procedure DoOnDataPortAfterBind(ASender : TIdFTPServerContext); virtual;
     procedure DoOnCustomListDirectory(ASender: TIdFTPServerContext; const APath: string;
       ADirectoryListing: TStrings; const ACmd : String; const ASwitches : String);
+
+    function DoQuerySSLPort(APort: TIdPort): Boolean; virtual;
+
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure InitComponent; override;
@@ -1263,6 +1272,8 @@ type
     property MLSDFacts : TIdMLSDAttrs read  FMLSDFacts write FMLSDFacts;
     property OnClientID : TIdOnClientID read FOnClientID write FOnClientID;
     property ReplyUnknownSITCommand: TIdReply read FReplyUnknownSITECommand write SetReplyUnknownSITECommand;
+
+    property OnQuerySSLPort: TIdOnQuerySSLPort read FOnQuerySSLPort write FOnQuerySSLPort;
   end;
 
   {This is used internally for some Telnet sequence parsing}
@@ -4780,11 +4791,23 @@ var
   LGreeting : TIdReplyRFC;
 begin
   AContext.Connection.IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
+
+  // RLebeau 2/2/2021: let the user decide whether to enable SSL in their
+  // own event handler.  Indy should not be making any assumptions about
+  // whether to implicitally force SSL on any given connection.  This
+  // prevents a single server from handling both SSL and non-SSL connections
+  // together.  The whole point of the PassThrough property is to allow
+  // per-connection SSL handling.
+  //
+  // TODO: move this new logic into TIdCustomTCPServer directly somehow
+
   if AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase then begin
     if FUseTLS = utUseImplicitTLS then begin
-      TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
+      TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := 
+        not DoQuerySSLPort(AContext.Binding.Port);
     end;
   end;
+
   (AContext as TIdFTPServerContext).FXAUTKey := MakeXAUTKey;
   if Assigned(OnGreeting) then begin
     LGreeting := TIdReplyRFC.Create(nil);
@@ -4825,6 +4848,15 @@ begin
     end else begin
       inherited DoConnect(AContext);
     end;
+  end;
+end;
+
+function TIdFTPServer.DoQuerySSLPort(APort: TIdPort): Boolean;
+begin
+  // check for the default FTPS port, but let the user override that if desired...
+  Result := (APort = IdPORT_ftps);
+  if Assigned(FOnQuerySSLPort) then begin
+    FOnQuerySSLPort(APort, Result);
   end;
 end;
 
@@ -5312,7 +5344,7 @@ begin
   LFileSystem := FTPFileSystem;
   if Assigned(LFileSystem) then begin
     LFileSystem.GetFileDate(ASender, AFileName, VFileDate);
-	  VFileDate := VFileDate - OffsetFromUTC;
+    VFileDate := LocalTimeToUTCTime(VFileDate);
   end else if Assigned(FOnGetFileDate) then begin
     FOnGetFileDate(ASender, AFileName, VFileDate);
   end;
@@ -5477,7 +5509,7 @@ procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
     if IsValidTimeStamp(ALSender.Params[0]) then begin
       LFileName := ALSender.UnparsedParams;
       //This is local Time
-      LgMTime := FTPMLSToGMTDateTime(Fetch(LFileName)) - OffsetFromUTC;
+      LgMTime := UTCTimeToLocalTime(FTPMLSToGMTDateTime(Fetch(LFileName)));
       LFileName := DoProcessPath(AContext, LFileName);
       if Assigned(FOnSiteUTIME) then
       begin
@@ -6200,14 +6232,16 @@ end;
 procedure TIdFTPServer.CommandSiteZONE(ASender: TIdCommand);
 var
   LMin : Integer;
+  LFmt: string;
 begin
   LMin := MinutesFromGMT;
   //plus must always be displayed for positive numbers
   if LMin < 0 then begin
-    ASender.Reply.SetReply(210, IndyFormat('UTC%d', [MinutesFromGMT])); {do not localize}
+    LFmt := 'UTC%d'; {do not localize}
   end else begin
-    ASender.Reply.SetReply(210, IndyFormat('UTC+%d', [MinutesFromGMT])); {do not localize}
+    LFmt := 'UTC+%d'; {do not localize}
   end;
+  ASender.Reply.SetReply(210, IndyFormat(LFmt, [LMin]));
 end;
 
 procedure TIdFTPServer.CommandCheckSum(ASender: TIdCommand);
