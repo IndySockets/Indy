@@ -694,7 +694,7 @@ begin
     LChar := Result[LN];
     for LIdx := 1 to Length(InvalidWindowsFilenameChars) do begin
       if InvalidWindowsFilenameChars[LIdx] = LChar then begin
-        LSB[LN] := '_';    {do not localize}
+        Result[LN] := '_';    {do not localize}
         Break;
       end;
     end;
