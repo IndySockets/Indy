@@ -2051,6 +2051,11 @@ uses
   ,StrUtils
     {$ENDIF}
   {$ENDIF}
+  {$IFNDEF DOTNET}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  ,System.TimeSpan
+    {$ENDIF}
+  {$ENDIF}
   ;
 
 {$IFDEF FPC}
