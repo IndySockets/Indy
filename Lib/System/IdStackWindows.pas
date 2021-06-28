@@ -313,7 +313,7 @@ type
 
 var
 //This is for the Win32-only package (SuperCore)
-  GWindowsStack : TIdStackWindows = nil;
+  GWindowsStack : TIdStackWindows = nil{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use GStack or GBSDStack instead'{$ENDIF}{$ENDIF};
 
 implementation
 
@@ -845,7 +845,9 @@ begin
     end;
     GStarted := True;
   end;
+  {$I IdSymbolDeprecatedOff.inc}
   GWindowsStack := Self;
+  {$I IdSymbolDeprecatedOn.inc}
 end;
 
 destructor TIdStackWindows.Destroy;
