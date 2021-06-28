@@ -138,6 +138,9 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64}
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64Arm}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm32}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm64}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSXArm64}
 {$UNDEF HAS_ComponentPlatformsAttribute_AllPlatforms}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 
@@ -426,7 +429,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.5
+  //Delphi & CBuilder 10.5 (Olympus)
   {$IFDEF VER350}
     {$DEFINE VCL_10_5}
     {$IFDEF CBUILDER}
@@ -1366,6 +1369,12 @@
   // and now '[]' is 1-indexed again on all platforms - {$ZEROBASEDSTRINGS OFF}
   // is the default.
   {.$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+{$ENDIF}
+
+{$IFDEF VCL_10_5_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm64}
+  {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
