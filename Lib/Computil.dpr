@@ -253,7 +253,7 @@ begin
     woSetupC24: SetPath('NDC24','Software\Embarcadero\BDS\18.0');
     woSetupC25: SetPath('NDC25','Software\Embarcadero\BDS\19.0');
     woSetupC26: SetPath('NDC26','Software\Embarcadero\BDS\20.0');
-    woSetupC27: SetPath('NDC26','Software\Embarcadero\BDS\21.0');
+    woSetupC27: SetPath('NDC27','Software\Embarcadero\BDS\21.0');
 
     woInvalid:  Writeln('Invalid Parameter');
   end; { case }
