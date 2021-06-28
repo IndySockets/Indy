@@ -445,6 +445,7 @@ type
   TIdIOHandler = class(TIdComponent)
   private
     FLargeStream: Boolean;
+    procedure EnsureInputBytes(AByteCount: Integer);
   protected
     FClosedGracefully: Boolean;
     FConnectTimeout: Integer;
@@ -814,16 +815,6 @@ var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;
   GIOHandlerClassList: TIdIOHandlerClassList = nil;
 
-{$IFDEF DCC}
-  {$IFNDEF VCL_7_OR_ABOVE}
-    // RLebeau 5/13/2015: The Write(Int64) and ReadInt64() methods produce an
-    // "Internal error URW533" compiler error in Delphi 5, and an "Internal
-    // error URW699" compiler error in Delphi 6, so need to use some workarounds
-    // for those versions...
-    {$DEFINE AVOID_URW_ERRORS}
-  {$ENDIF}
-{$ENDIF}
-
 { TIdIOHandler }
 
 {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
@@ -1093,6 +1084,15 @@ begin
   Write(ToBytes(AValue));
 end;
 
+{$IFDEF DCC}
+  {$IFNDEF VCL_7_OR_ABOVE}
+    // RLebeau 5/13/2015: The Write(Int64) method produces an "Internal error URW533"
+    // compiler error in Delphi 5, and an "Internal error URW699" compiler error in
+    // Delphi 6, so need to use some workarounds for those versions...
+    {$DEFINE AVOID_URW_ERRORS}
+  {$ENDIF}
+{$ENDIF}
+
 {$IFDEF HAS_UInt64}
   {$IFDEF BROKEN_UInt64_HPPEMIT}
     {$DEFINE HAS_TIdUInt64_QuadPart}
@@ -1106,11 +1106,11 @@ end;
 procedure TIdIOHandler.Write(AValue: Int64; AConvert: Boolean = True);
 {$IFDEF AVOID_URW_ERRORS}
 var
-  h: Int64;
+  LTemp: Int64;
 {$ELSE}
   {$IFDEF HAS_TIdUInt64_QuadPart}
 var
-  h: TIdUInt64;
+  LTemp: TIdUInt64;
   {$ENDIF}
 {$ENDIF}
 begin
@@ -1119,15 +1119,15 @@ begin
     // assigning to a local variable to avoid an "Internal error URW533" compiler
     // error in Delphi 5, and an "Internal error URW699" compiler error in Delphi
     // 6.  Later versions seem OK without it...
-    h := GStack.HostToNetwork(UInt64(AValue));
-    AValue := h;
+    LTemp := GStack.HostToNetwork(UInt64(AValue));
+    AValue := LTemp;
     {$ELSE}
       {$IFDEF HAS_TIdUInt64_QuadPart}
     // assigning to a local variable if UInt64 is not a native type, or if using
     // a C++Builder version that has problems with UInt64 parameters...
-    h.QuadPart := UInt64(AValue);
-    h := GStack.HostToNetwork(h);
-    AValue := Int64(h.QuadPart);
+    LTemp.QuadPart := UInt64(AValue);
+    LTemp := GStack.HostToNetwork(LTemp);
+    AValue := Int64(LTemp.QuadPart);
       {$ELSE}
     AValue := Int64(GStack.HostToNetwork(UInt64(AValue)));
       {$ENDIF}
@@ -1196,19 +1196,43 @@ begin
   Write(ToBytes(AValue));
 end;
 
+procedure TIdIOHandler.EnsureInputBytes(AByteCount: Integer);
+begin
+  Assert(FInputBuffer<>nil);
+  if AByteCount > 0 then begin
+    // Read from stack until we have enough data
+    while InputBuffer.Size < AByteCount do begin
+      // RLebeau: in case the other party disconnects
+      // after all of the bytes were transmitted ok.
+      // No need to throw an exception just yet...
+      if ReadFromSource(False) > 0 then begin
+        if InputBuffer.Size >= AByteCount then begin
+          Break; // we have enough data now
+        end;
+      end;
+      CheckForDisconnect(True, True);
+    end;
+  end
+  else if AByteCount < 0 then begin
+    if InputBufferIsEmpty then begin
+      // Read whatever data is currently on the stack
+      ReadFromSource(False, ReadTimeout, False);
+      CheckForDisconnect(True, True);
+    end;
+  end;
+end;
+
 function TIdIOHandler.ReadString(ABytes: Integer; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
-var
-  LBytes: TIdBytes;
 begin
   if ABytes > 0 then begin
-    ReadBytes(LBytes, ABytes, False);
+    EnsureInputBytes(ABytes);
     AByteEncoding := iif(AByteEncoding, FDefStringEncoding);
     {$IFDEF STRING_IS_ANSI}
     ADestEncoding := iif(ADestEncoding, FDefAnsiEncoding, encOSDefault);
     {$ENDIF}
-    Result := BytesToString(LBytes, 0, ABytes, AByteEncoding
+    Result := InputBuffer.ExtractToString(ABytes, AByteEncoding
       {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
       );
   end else begin
@@ -1243,14 +1267,9 @@ begin
 end;
 
 function TIdIOHandler.ReadUInt16(AConvert: Boolean = True): UInt16;
-var
-  LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(UInt16), False);
-  Result := BytesToUInt16(LBytes);
-  if AConvert then begin
-    Result := GStack.NetworkToHost(Result);
-  end;
+  EnsureInputBytes(SizeOf(UInt16));
+  Result := InputBuffer.ExtractToUInt16(-1, AConvert);
 end;
 
 {$I IdDeprecatedImplBugOff.inc}
@@ -1262,14 +1281,9 @@ begin
 end;
 
 function TIdIOHandler.ReadInt16(AConvert: Boolean = True): Int16;
-var
-  LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(Int16), False);
-  Result := BytesToInt16(LBytes);
-  if AConvert then begin
-    Result := Int16(GStack.NetworkToHost(UInt16(Result)));
-  end;
+  EnsureInputBytes(Self, SizeOf(Int16));
+  Result := Int16(InputBuffer.ExtractToUInt16(-1, AConvert));
 end;
 
 {$I IdDeprecatedImplBugOff.inc}
@@ -1354,22 +1368,15 @@ begin
 end;
 
 function TIdIOHandler.ReadByte: Byte;
-var
-  LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, 1, False);
-  Result := LBytes[0];
+  EnsureInputBytes(SizeOf(Byte));
+  Result := InputBuffer.ExtractToUInt8(-1);
 end;
 
 function TIdIOHandler.ReadInt32(AConvert: Boolean): Int32;
-var
-  LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(Int32), False);
-  Result := BytesToInt32(LBytes);
-  if AConvert then begin
-    Result := Int32(GStack.NetworkToHost(UInt32(Result)));
-  end;
+  EnsureInputBytes(SizeOf(Int32));
+  Result := Int32(InputBuffer.ExtractToUInt32(-1, AConvert));
 end;
 
 {$I IdDeprecatedImplBugOff.inc}
@@ -1382,58 +1389,23 @@ end;
 
 function TIdIOHandler.ReadInt64(AConvert: boolean): Int64;
 var
-  LBytes: TIdBytes;
-  {$IFDEF AVOID_URW_ERRORS}
-  h: Int64;
-  {$ELSE}
-    {$IFDEF HAS_TIdUInt64_QuadPart}
-  h: TIdUInt64;
-    {$ENDIF}
-  {$ENDIF}
+  LTemp: TIdUInt64;
 begin
-  ReadBytes(LBytes, SizeOf(Int64), False);
-  Result := BytesToInt64(LBytes);
-  if AConvert then begin
-    {$IFDEF AVOID_URW_ERRORS}
-    // assigning to a local variable to avoid an "Internal error URW533" compiler
-    // error in Delphi 5, and an "Internal error URW699" compiler error in Delphi
-    // 6.  Later versions seem OK without it...
-    h := GStack.NetworkToHost(UInt64(Result));
-    Result := h;
-    {$ELSE}
-      {$IFDEF HAS_TIdUInt64_QuadPart}
-    // assigning to a local variable if UInt64 is not a native type, or if using
-    // a C++Builder version that has problems with UInt64 parameters...
-    h.QuadPart := UInt64(Result);
-    h := GStack.NetworkToHost(h);
-    Result := Int64(h.QuadPart);
-      {$ELSE}
-    Result := Int64(GStack.NetworkToHost(UInt64(Result)));
-      {$ENDIF}
-    {$ENDIF}
-  end;
+  EnsureInputBytes(SizeOf(Int64));
+  LTemp := InputBuffer.ExtractToUInt64(-1, AConvert);
+  Result := Int64(LTemp{$IFDEF HAS_TIdUInt64_QuadPart}.QuadPart{$ENDIF});
 end;
 
 function TIdIOHandler.ReadUInt64(AConvert: boolean): TIdUInt64;
-var
-  LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(TIdUInt64), False);
-  Result := BytesToUInt64(LBytes);
-  if AConvert then begin
-    Result := GStack.NetworkToHost(Result);
-  end;
+  EnsureInputBytes(SizeOf(TIdUInt64));
+  Result := InputBuffer.ExtractToUInt64(-1, AConvert);
 end;
 
 function TIdIOHandler.ReadUInt32(AConvert: Boolean): UInt32;
-var
-  LBytes: TIdBytes;
 begin
-  ReadBytes(LBytes, SizeOf(UInt32), False);
-  Result := BytesToUInt32(LBytes);
-  if AConvert then begin
-    Result := GStack.NetworkToHost(Result);
-  end;
+  EnsureInputBytes(SizeOf(UInt32));
+  Result := InputBuffer.ExtractToUInt32(-1, AConvert);
 end;
 
 {$I IdDeprecatedImplBugOff.inc}
@@ -1864,30 +1836,8 @@ end;
 
 procedure TIdIOHandler.ReadBytes(var VBuffer: TIdBytes; AByteCount: Integer; AAppend: Boolean = True);
 begin
-  Assert(FInputBuffer<>nil);
-  if AByteCount > 0 then begin
-    // Read from stack until we have enough data
-    while FInputBuffer.Size < AByteCount do begin
-      // RLebeau: in case the other party disconnects
-      // after all of the bytes were transmitted ok.
-      // No need to throw an exception just yet...
-      if ReadFromSource(False) > 0 then begin
-        if FInputBuffer.Size >= AByteCount then begin
-          Break; // we have enough data now
-        end;
-      end;
-      CheckForDisconnect(True, True);
-    end;
-    FInputBuffer.ExtractToBytes(VBuffer, AByteCount, AAppend);
-  end else if AByteCount < 0 then begin
-    // Return whatever data is currently in the InputBuffer
-    if InputBufferIsEmpty then begin
-      // Read whatever data is currently on the stack
-      ReadFromSource(False, ReadTimeout, False);
-      CheckForDisconnect(True, True);
-    end;
-    FInputBuffer.ExtractToBytes(VBuffer, -1, AAppend);
-  end;
+  EnsureInputBytes(AByteCount);
+  InputBuffer.ExtractToBytes(VBuffer, AByteCount, AAppend);
 end;
 
 procedure TIdIOHandler.WriteLn(AEncoding: IIdTextEncoding = nil);
