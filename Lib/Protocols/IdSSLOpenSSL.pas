@@ -2843,7 +2843,7 @@ function TIdSSLIOHandlerSocketOpenSSL.Readable(AMSec: Integer = IdTimeoutDefault
 begin
   if not fPassThrough then
   begin
-    Result := ssl_pending(fSSLSocket.fSSL) > 0;
+    Result := (fSSLSocket <> nil) and (ssl_pending(fSSLSocket.fSSL) > 0);
     if Result then Exit;
   end;
   Result := inherited Readable(AMSec);
