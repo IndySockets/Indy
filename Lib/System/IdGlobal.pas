@@ -551,6 +551,7 @@ uses
       BaseUnix, Unix, Sockets, UnixType, 
       {$ENDIF}
       {$IFDEF USE_ICONV_ENC}iconvenc, {$ENDIF}
+      {$IFDEF USE_LCONVENC}LConvEncoding, {$ENDIF}
     {$ENDIF}
     {$IFDEF OSX}
       {$IFNDEF FPC}
@@ -1864,6 +1865,9 @@ function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): 
 function OffsetFromUTC: TDateTime;
 function UTCOffsetToStr(const AOffset: TDateTime; const AUseGMTStr: Boolean = False): string;
 
+function LocalTimeToUTCTime(const Value: TDateTime): TDateTime;
+function UTCTimeToLocalTime(const Value: TDateTime): TDateTime;
+
 function PosIdx(const ASubStr, AStr: string; AStartPos: UInt32 = 0): UInt32; //For "ignoreCase" use AnsiUpperCase
 function PosInSmallIntArray(const ASearchInt: Int16; const AArray: array of Int16): Integer;
 function PosInStrArray(const SearchStr: string; const Contents: array of string; const CaseSensitive: Boolean = True): Integer;
@@ -2330,8 +2334,16 @@ type
     function GetString(const ABytes: PByte; AByteCount: Integer): TIdUnicodeString; overload;
   end;
 
+  {$UNDEF SUPPORTS_CHARSET_ENCODING}
+  {$IFDEF USE_ICONV}
+    {$DEFINE SUPPORTS_CHARSET_ENCODING}
+  {$ENDIF}
+  {$IFDEF USE_LCONVENC}
+    {$DEFINE SUPPORTS_CHARSET_ENCODING}
+  {$ENDIF}
+
   {$UNDEF SUPPORTS_CODEPAGE_ENCODING}
-  {$IFNDEF USE_ICONV}
+  {$IFNDEF SUPPORTS_CHARSET_ENCODING}
     {$IFDEF WINDOWS}
       {$DEFINE SUPPORTS_CODEPAGE_ENCODING}
     {$ENDIF}
@@ -2342,7 +2354,7 @@ type
 
   TIdMBCSEncoding = class(TIdTextEncodingBase)
   private
-    {$IFDEF USE_ICONV}
+    {$IFDEF SUPPORTS_CHARSET_ENCODING}
     FCharSet: String;
     {$ELSE}
       {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
@@ -2353,7 +2365,7 @@ type
     {$ENDIF}
   public
     constructor Create; overload; virtual;
-    {$IFDEF USE_ICONV}
+    {$IFDEF SUPPORTS_CHARSET_ENCODING}
     constructor Create(const CharSet: String); overload; virtual;
     {$ELSE}
       {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
@@ -2834,7 +2846,7 @@ begin
       ], False) <> -1;
 end;
 
-{$IFNDEF USE_ICONV}
+{$IFNDEF SUPPORTS_CHARSET_ENCODING}
   {$IFNDEF HAS_LocaleCharsFromUnicode}
     {$IFDEF WINDOWS}
 {$IFNDEF HAS_PLongBool}
@@ -2852,9 +2864,7 @@ end;
       {$DEFINE HAS_LocaleCharsFromUnicode}
     {$ENDIF}
   {$ENDIF}
-{$ENDIF}
 
-{$IFNDEF USE_ICONV}
   {$IFNDEF HAS_UnicodeFromLocaleChars}
     {$IFDEF WINDOWS}
 function UnicodeFromLocaleChars(CodePage, Flags: Cardinal; LocaleStr: PAnsiChar;
@@ -2873,15 +2883,19 @@ begin
   {$IFDEF USE_ICONV}
   Create(iif(GIdIconvUseLocaleDependantAnsiEncoding, 'char', 'ASCII')); {do not localize}
   {$ELSE}
-    {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
-  Create(CP_ACP, 0, 0);
+    {$IFDEF USE_LCONVENC}
+  Create(GetDefaultTextEncoding());
     {$ELSE}
+      {$IFDEF SUPPORTS_CODEPAGE_ENCODING}
+  Create(CP_ACP, 0, 0);
+      {$ELSE}
   ToDo('Constructor of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
  {$ENDIF}
 end;
 
-{$IFDEF USE_ICONV}
+{$IFDEF SUPPORTS_CHARSET_ENCODING}
 constructor TIdMBCSEncoding.Create(const CharSet: String);
 const
   // RLebeau: iconv() does not provide a maximum character byte size like
@@ -2903,6 +2917,8 @@ begin
   // codepoint a charset supports, let alone the max bytes needed to encode such
   // a codepoint, so use known values for select charsets, and calculate
   // MaxCharSize dynamically for the rest...
+
+  // TODO: normalize the FCharSet to make comparisons easier...
 
   case PosInStrArray(CharSet, ['UTF-7', 'UTF7', 'UTF-8', 'UTF8', 'UTF-16', 'UTF16', 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE', 'UTF-32', 'UTF32', 'UTF-32LE', 'UTF32LE', 'UTF-32BE', 'UTF32BE'], False) of {Do not Localize}
     0, 1: begin
@@ -3266,6 +3282,58 @@ begin
 end;
 {$ENDIF}
 
+{$IFDEF USE_LCONVENC}
+function DoLconvCharsToBytes(const ACharset: string; AChars: PIdWideChar; ACharCount: Integer;
+  ABytes: PByte; AByteCount: Integer): Integer;
+var
+  LTmpStr : TIdUnicodeString;
+  LUTF8, LConverted : RawByteString;
+  LEncoded : Boolean;
+begin
+  Result := 0;
+
+  if (AChars = nil) or (ACharCount < 1) or ((ABytes <> nil) and (AByteCount < 1)) then begin
+    Exit;
+  end;
+  
+  // TODO: encode the input chars directly to UTF-8 without
+  // having to create a temp UnicodeString first...
+  SetString(LTmpStr, PIdWideChar(AChars), ACharCount);
+  LUTF8 := UTF8Encode(LTmpStr);
+
+  case PosInStrArray(ACharSet, ['UTF-8', 'UTF8', EncodingAnsi], False) of {do not localize}
+    0, 1: begin
+      // For UTF-8 to UTF-8, ConvertEncodingFromUTF8() does nothing and returns False (FPC bug?).
+      // The input has already been converted above, so let's just use the existing bytes as-is...
+      LConverted := LUTF8;
+    end;
+    2: begin
+      // For UTF-8 to ANSI (system enc), ConvertEncodingFromUTF8() does nothing and returns False
+      // if ConvertUTF8ToAnsi is not assigned, so let's just assume UTF-8 for now...
+      LConverted := ConvertEncodingFromUTF8(LUTF8, ACharSet, LEncoded);
+      if not LEncoded then begin
+        LConverted := LUTF8;
+      end;
+    end;
+  else
+    LConverted := ConvertEncodingFromUTF8(LUTF8, ACharSet, LEncoded);
+    if not LEncoded then begin
+      // TODO: uncomment this?
+      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      Exit;
+    end;
+  end;
+
+  Result := Length(LConverted);
+
+  if (ABytes <> nil) and (Result > 0) then begin
+    Result := IndyMin(Result, AByteCount);
+    // TODO: don't output partial character sequences...
+    Move(PIdAnsiChar(LConverted)^, ABytes^, Result * SizeOf(TIdAnsiChar));
+  end;
+end;
+{$ENDIF}
+
 function TIdMBCSEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
@@ -3276,11 +3344,15 @@ begin
   {$IFDEF USE_ICONV}
   Result := DoIconvCharsToBytes(FCharset, AChars, ACharCount, @LBytes[0], Length(LBytes), True);
   {$ELSE}
-    {$IFDEF HAS_LocaleCharsFromUnicode}
-  Result := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, AChars, ACharCount, nil, 0, nil, nil);
+    {$IFDEF USE_LCONVENC}
+  Result := DoLconvCharsToBytes(FCharset, AChars, ACharCount, nil, 0);
     {$ELSE}
+      {$IFDEF HAS_LocaleCharsFromUnicode}
+  Result := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, AChars, ACharCount, nil, 0, nil, nil);
+      {$ELSE}
   Result := 0;
   ToDo('GetByteCount() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
@@ -3292,11 +3364,15 @@ begin
   Assert (ABytes <> nil, 'TIdMBCSEncoding.GetBytes Bytes can not be nil');
   Result := DoIconvCharsToBytes(FCharset, AChars, ACharCount, ABytes, AByteCount, False);
   {$ELSE}
-    {$IFDEF HAS_LocaleCharsFromUnicode}
-  Result := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, AChars, ACharCount, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, nil, nil);
+    {$IFDEF USE_LCONVENC}
+  Result := DoLconvCharsToBytes(FCharset, AChars, ACharCount, ABytes, AByteCount);
     {$ELSE}
+      {$IFDEF HAS_LocaleCharsFromUnicode}
+  Result := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, AChars, ACharCount, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, nil, nil);
+      {$ELSE}
   Result := 0;
   ToDo('GetBytes() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
@@ -3412,6 +3488,65 @@ begin
 end;
 {$ENDIF}
 
+{$IFDEF USE_LCONVENC}
+function DoLconvBytesToChars(const ACharset: string; const ABytes: PByte; AByteCount: Integer;
+  AChars: PWideChar; ACharCount: Integer): Integer;
+var
+  LBytes, LConverted: RawByteString;
+  LDecoded : TIdUnicodeString;
+  LEncoded : Boolean;
+  C: TIdWideChar;
+begin
+  Result := 0;
+
+  if (ABytes = nil) or (AByteCount < 1) or ((AChars <> nil) and (ACharCount < 1)) then begin
+    Exit;
+  end;
+
+  SetString(LBytes, PIdAnsiChar(ABytes), AByteCount);
+
+  case PosInStrArray(ACharSet, ['UTF-8', 'UTF8', EncodingAnsi], False) of {do not localize}
+    0, 1: begin
+      // For UTF-8 to UTF-8, ConvertEncodingToUTF8() does nothing and returns False (FPC bug?).
+      // The input is already in UTF-8, so let's just use the existing bytes as-is...
+      LConverted := LBytes;
+    end;
+    2: begin
+      // For ANSI (system enc) to UTF-8, ConvertEncodingToUTF8() does nothing and returns False
+      // if ConvertAnsiToUTF8 is not assigned, so let's just assume UTF-8 for now...
+      LConverted := ConvertEncodingToUTF8(LBytes, ACharSet, LEncoded);
+      if not LEncoded then begin
+        LConverted := LBytes;
+      end;
+    end;
+  else
+    LConverted := ConvertEncodingToUTF8(LBytes, ACharSet, LEncoded);
+    if not LEncoded then begin
+      // TODO: uncomment this?
+      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      Exit;
+    end;
+  end;
+
+  // TODO: decode the UTF-8 directly to the output chars without
+  // having to create a temp UnicodeString first...
+  LDecoded := UTF8Decode(LConverted);
+  Result := Length(LDecoded);
+
+  if (AChars <> nil) and (Result > 0) then begin
+    Result := IndyMin(Result, ACharCount);
+    // RLebeau: if the last encoded character is a UTF-16 high surrogate, don't output it...
+    if Result > 0 then begin
+      C := LDecoded[Result];
+      if (C >= #$D800) and (C <= #$DBFF) then begin
+        Dec(Result);
+      end;
+    end;
+    Move(PIdWideChar(LDecoded)^, AChars^, Result * SizeOf(TIdWideChar));
+  end;
+end;
+{$ENDIF}
+
 function TIdMBCSEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 {$IFDEF USE_ICONV}
 var
@@ -3421,11 +3556,15 @@ begin
   {$IFDEF USE_ICONV}
   Result := DoIconvBytesToChars(FCharSet, ABytes, AByteCount, @LChars[0], Length(LChars), FMaxCharSize, True);
   {$ELSE}
-    {$IFDEF HAS_UnicodeFromLocaleChars}
-  Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, nil, 0);
+    {$IFDEF USE_LCONVENC}
+  Result := DoLconvBytesToChars(FCharSet, ABytes, AByteCount, nil, 0);
     {$ELSE}
+      {$IFDEF HAS_UnicodeFromLocaleChars}
+  Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, nil, 0);
+      {$ELSE}
   Result := 0;
   ToDo('GetCharCount() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
@@ -3436,11 +3575,15 @@ begin
   {$IFDEF USE_ICONV}
   Result := DoIconvBytesToChars(FCharSet, ABytes, AByteCount, AChars, ACharCount, FMaxCharSize, False);
   {$ELSE}
-    {$IFDEF HAS_UnicodeFromLocaleChars}
-  Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, AChars, ACharCount);
+    {$IFDEF USE_LCONVENC}
+  Result := DoLconvBytesToChars(FCharSet, ABytes, AByteCount, AChars, ACharCount);
     {$ELSE}
+      {$IFDEF HAS_UnicodeFromLocaleChars}
+  Result := UnicodeFromLocaleChars(FCodePage, FMBToWCharFlags, {$IFNDEF HAS_PAnsiChar}Pointer{$ELSE}PAnsiChar{$ENDIF}(ABytes), AByteCount, AChars, ACharCount);
+      {$ELSE}
   Result := 0;
   ToDo('GetChars() method of TIdMBCSEncoding class is not implemented for this platform yet'); {do not localize}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 end;
@@ -3457,11 +3600,13 @@ end;
 
 function TIdMBCSEncoding.GetPreamble: TIdBytes;
 begin
-  {$IFDEF USE_ICONV}
+  {$IFDEF SUPPORTS_CHARSET_ENCODING}
   // RLebeau 5/2/2017: have seen some malformed emails that use 'utf8'
   // instead of 'utf-8', so let's check for that...
 
   // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
+
+  // TODO: normalize the FCharSet to make comparisons easier...
 
   case PosInStrArray(FCharSet, ['UTF-8', 'UTF8', 'UTF-16', 'UTF16', 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE', 'UTF-32', 'UTF32', 'UTF-32LE', 'UTF32LE', 'UTF-32BE', 'UTF32BE'], False) of {do not localize}
     0, 1: begin
@@ -3544,7 +3689,7 @@ end;
 
 constructor TIdUTF7Encoding.Create;
 begin
-  {$IFDEF USE_ICONV}
+  {$IFDEF SUPPORTS_CHARSET_ENCODING}
   // RLebeau 7/6/2018: iconv does not have a way to query the highest Unicode codepoint
   // a charset supports, let alone the max bytes needed to encode such a codepoint, so
   // the inherited constructor tries to calculate MaxCharSize dynamically, which doesn't
@@ -3580,7 +3725,7 @@ end;
 
 constructor TIdUTF8Encoding.Create;
 begin
-  {$IFDEF USE_ICONV}
+  {$IFDEF SUPPORTS_CHARSET_ENCODING}
   // RLebeau 7/6/2018: iconv does not have a way to query the highest Unicode codepoint
   // a charset supports, let alone the max bytes needed to encode such a codepoint, so
   // the inherited constructor tries to calculate MaxCharSize dynamically, which doesn't
@@ -3971,6 +4116,8 @@ begin
 
   // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
 
+  // normalize ACharset for easier comparisons...
+
   case PosInStrArray(ACharset, ['UTF7', 'UTF8', 'UTF16', 'UTF16LE', 'UTF16BE', 'UTF32', 'UTF32LE', 'UTF32BE'], False) of {Do not Localize}
     0:   LCharset := 'UTF-7';    {Do not Localize}
     1:   LCharset := 'UTF-8';    {Do not Localize}
@@ -4099,14 +4246,16 @@ begin
 
     // RLebeau 9/27/2017: updating to handle a few more UTFs without hyphens...
 
-    case PosInStrArray(ACharset, ['UTF-7', 'UTF7', 'UTF-8', 'UTF8', 'UTF-16', 'UTF16', 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE'], False) of {Do not Localize}
+    // TODO: normalize ACharSet for easier comparisons...
+
+    case PosInStrArray(ACharSet, ['UTF-7', 'UTF7', 'UTF-8', 'UTF8', 'UTF-16', 'UTF16', 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE'], False) of {Do not Localize}
       0, 1: Result := IndyTextEncoding_UTF7;
       2, 3: Result := IndyTextEncoding_UTF8;
       4..7: Result := IndyTextEncoding_UTF16LE;
       8, 9: Result := IndyTextEncoding_UTF16BE;
       // TODO: add support for UTF-32...
     else
-      {$IFDEF USE_ICONV}
+      {$IFDEF SUPPORTS_CHARSET_ENCODING}
       Result := TIdMBCSEncoding.Create(ACharSet);
       {$ELSE}
         {$IFDEF HAS_TEncoding_GetEncoding_ByEncodingName}
@@ -4437,9 +4586,10 @@ begin
 
   // RLebeau 2/15/2019: AEncoding is checked this way until IIdTextEncoding is updated to expose its assigned CodePage...
 
-  {$IFDEF USE_ICONV}
+  {$IFDEF SUPPORTS_CHARSET_ENCODING}
   {
   if AEncoding is TIdMBCSEncoding then begin
+    // TODO: normalize FCharSet for easier comparisons...
     case PosInStrArray(TIdMBCSEncoding(AEncoding).FCharSet, ['UTF-7', 'UTF7', 'UTF-8', 'UTF8', 'UTF-16', 'UTF16', 'UTF-16LE', 'UTF16LE', 'UTF-16BE', 'UTF16BE', 'char', 'ISO-8859-1'], False) of
       0, 1: Result := 65000;
       2, 3: Result := 65001;
@@ -7607,37 +7757,19 @@ end;
 function LocalDateTimeToHttpStr(const Value: TDateTime) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DateTimeGMTToHttpStr(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(Value)
-    {$ELSE}
-    Value - OffsetFromUTC
-    {$ENDIF}
-  );
+  Result := DateTimeGMTToHttpStr(LocalTimeToUTCTime(Value));
 end;
 
 function LocalDateTimeToCookieStr(const Value: TDateTime; const AUseNetscapeFmt: Boolean = True) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DateTimeGMTToCookieStr(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(Value)
-    {$ELSE}
-    Value - OffsetFromUTC
-    {$ENDIF}
-    , AUseNetscapeFmt);
+  Result := DateTimeGMTToCookieStr(LocalTimeToUTCTime(Value), AUseNetscapeFmt);
 end;
 
 function LocalDateTimeToImapStr(const Value: TDateTime) : String;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := DateTimeGMTToImapStr(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(Value)
-    {$ELSE}
-    Value - OffsetFromUTC
-    {$ENDIF}
-  );
+  Result := DateTimeGMTToImapStr(LocalTimeToUTCTime(Value));
 end;
 
 {$I IdDeprecatedImplBugOff.inc}
@@ -7705,7 +7837,16 @@ begin
   {$IFDEF DOTNET}
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
   {$ELSE}
-    {$IFDEF WINDOWS}
+    {$IFDEF HAS_GetLocalTimeOffset}
+  // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
+  // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
+  // function must be used to re-initialize the timezone information...
+  Result := GetLocalTimeOffset() / 60 / 24;
+    {$ELSE}
+      {$IFDEF HAS_DateUtils_TTimeZone}
+  Result := TTimeZone.Local.UtcOffset.TotalMinutes / 60 / 24;
+      {$ELSE}
+        {$IFDEF WINDOWS}
   case GetTimeZoneInformation({$IFDEF WINCE}@{$ENDIF}tmez) of
     TIME_ZONE_ID_INVALID  :
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
@@ -7737,37 +7878,32 @@ begin
   if iBias > 0 then begin
     Result := 0.0 - Result;
   end;
-    {$ELSE}
-      {$IFDEF HAS_GetLocalTimeOffset}
-  // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
-  // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
-  // function must be used to re-initialize the timezone information...
-  Result := -1 * (GetLocalTimeOffset() / 60 / 24);
-      {$ELSE}
-        {$IFDEF UNIX}
+        {$ELSE}
+          {$IFDEF UNIX}
 
   // TODO: raise EIdFailedToRetreiveTimeZoneInfo if gettimeofday() fails...
 
-          {$IFDEF KYLIXCOMPAT_OR_VCL_POSIX}
+            {$IFDEF KYLIXCOMPAT_OR_VCL_POSIX}
   {from http://edn.embarcadero.com/article/27890 but without multiplying the Result by -1}
 
   gettimeofday(TV, nil);
   T := TV.tv_sec;
   localtime_r({$IFDEF KYLIXCOMPAT}@{$ENDIF}T, UT);
   Result := UT.{$IFDEF KYLIXCOMPAT}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24;
-          {$ELSE}
-            {$IFDEF USE_BASEUNIX}
+            {$ELSE}
+              {$IFDEF USE_BASEUNIX}
   fpGetTimeOfDay (@TimeVal, @TimeZone);
   Result := -1 * (timezone.tz_minuteswest / 60 / 24);
-            {$ELSE}
+              {$ELSE}
   {$message error gettimeofday is not called on this platform!}
   Result := GOffsetFromUTC;
+              {$ENDIF}
             {$ENDIF}
-          {$ENDIF}
 
-        {$ELSE}
+          {$ELSE}
   {$message error no platform API called to get UTC offset!}
   Result := GOffsetFromUTC;
+          {$ENDIF}
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
@@ -7807,6 +7943,32 @@ begin
     end;
     {$ENDIF}
   end;
+end;
+
+function LocalTimeToUTCTime(const Value: TDateTime): TDateTime;
+begin
+  {$IFDEF HAS_LocalTimeToUniversal}
+  Result := LocalTimeToUniversal(Value);
+  {$ELSE}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  Result := TTimeZone.Local.ToUniversalTime(Value);
+    {$ELSE}
+  Result := Value - OffsetFromUTC;
+    {$ENDIF}
+  {$ENDIF}
+end;
+
+function UTCTimeToLocalTime(const Value: TDateTime): TDateTime;
+begin
+  {$IFDEF HAS_UniversalTimeToLocal}
+  Result := UniversalTimeToLocal(Value);
+  {$ELSE}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  Result := TTimeZone.Local.ToLocalTime(Value);
+    {$ELSE}
+  Result := Value + OffsetFromUTC;
+    {$ENDIF}
+  {$ENDIF}
 end;
 
 function IndyIncludeTrailingPathDelimiter(const S: string): string;

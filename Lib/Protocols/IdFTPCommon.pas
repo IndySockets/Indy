@@ -663,6 +663,7 @@ uses
   Posix.SysTime,
   Posix.Time,
   {$ENDIF}
+  {$IFDEF HAS_DateUtils_TTimeZone}DateUtils,{$ENDIF}
   IdException;
 
 {WS_FTP Pro XAUT Support}
@@ -1219,7 +1220,7 @@ var
   LSecs : Int64;
 begin
   LSecs := IndyStrToInt(AData);
-  Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(BASE_DATE)) - IdGlobalProtocols.TimeZoneBias;
+  Result := UTCTimeToLocalTime( Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(BASE_DATE)) );
 end;
 
 function EPLFDateToGMTDateTime(const AData: String): TDateTime;
@@ -1242,7 +1243,7 @@ end;
 function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := FloatToStr( Extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
+  Result := FloatToStr( Extended( LocalTimeToUTCTime(ADateTime) - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
 end;
 
 {Date routines}
@@ -1343,11 +1344,27 @@ begin
 end;
 
 function MinutesFromGMT : Integer;
+{$IFDEF HAS_GetLocalTimeOffset}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
+{$ELSE}
+  {$IFDEF HAS_DateUtils_TTimeZone}
+    {$IFDEF USE_INLINE} inline; {$ENDIF}
+  {$ELSE}
 var
   LD : TDateTime;
   LHour, LMin, LSec, LMSec : Word;
+  {$ENDIF}
+{$ENDIF}
 begin
+  {$IFDEF HAS_GetLocalTimeOffset}
+  // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
+  // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
+  // function must be used to re-initialize the timezone information...
+  Result := {-1 *} GetLocalTimeOffset();
+  {$ELSE}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  Result := {-1 *} TTimeZone.Local.UtcOffset.TotalMinutes;
+    {$ELSE}
   LD := OffsetFromUTC;
   DecodeTime(LD, LHour, LMin, LSec, LMSec);
   if LD < 0.0 then begin
@@ -1355,6 +1372,8 @@ begin
   end else begin
     Result := LHour * 60 + LMin;
   end;
+    {$ENDIF}
+  {$ENDIF}
 end;
 
 function FTPDateTimeToMDTMD(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
@@ -1415,7 +1434,7 @@ begin
       Result := EncodeDate(LYear, LMonth, LDay);
       Result := Result + EncodeTime(LHour, LMin, LSec, LMSec);
       if LOffset = '' then begin
-        Result := Result - OffsetFromUTC;
+        Result := LocalTimeToUTCTime(Result);
       end else begin
         Result := Result - MDTMOffset(LOffset);
       end;
