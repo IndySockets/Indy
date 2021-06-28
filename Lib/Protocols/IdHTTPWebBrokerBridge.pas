@@ -628,7 +628,7 @@ function TIdHTTPAppResponse.GetDateVariable(Index: Integer): TDateTime;
   begin
     Result := ADateTime;
     if Result <> -1 then
-      Result := Result - OffsetFromUTC;
+      Result := LocalTimeToUTCTime(Result);
   end;
 begin
   //TODO: resource string these
@@ -647,7 +647,7 @@ procedure TIdHTTPAppResponse.SetDateVariable(Index: Integer; const Value: TDateT
   begin
     Result := ADateTime;
     if Result <> -1 then
-      Result := Result + OffsetFromUTC;
+      Result := UTCTimeToLocalTime(Result);
   end;
 begin
   //TODO: resource string these
