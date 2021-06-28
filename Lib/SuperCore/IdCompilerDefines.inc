@@ -1254,6 +1254,7 @@
   {$DEFINE HAS_PVOID}
   {$DEFINE HAS_ULONG64}
   {$DEFINE HAS_TEncoding_GetEncoding_ByEncodingName}
+  {$DEFINE HAS_DateUtils_TTimeZone}
   {$IFDEF DCC}
     // Exception.RaiseOuterException() is now available on all platforms
     {$DEFINE HAS_Exception_RaiseOuterException}

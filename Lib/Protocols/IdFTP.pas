@@ -4025,7 +4025,7 @@ begin
   //syntax 3 - MDTM [local timestamp] Filename
   else if FTZInfo.FGMTOffsetAvailable then begin
     //send it relative to the server's time-zone
-    LCmd := 'MDTM '+ FTPDateTimeToMDTMD(ALocalTime - OffSetFromUTC + FTZInfo.FGMTOffset, False, False) + ' ' + AFileName; {do not localize}
+    LCmd := 'MDTM '+ FTPDateTimeToMDTMD(LocalTimeToUTCTime(ALocalTime) + FTZInfo.FGMTOffset, False, False) + ' ' + AFileName; {do not localize}
   end
   
   else begin
@@ -4068,7 +4068,7 @@ begin
   //Syntax 2 -  MDTM yyyymmddhhmmss[+-minutes from Universal Time] Filename
   //use old method for old versions of Serv-U and BPFTP Server
   else if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ] filename') > 0) or IsOldServU or IsBPFTP then begin {do not localize}
-    LCmd := 'MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC, False, True) + ' ' + AFileName; {do not localize}
+    LCmd := 'MDTM '+ FTPDateTimeToMDTMD(UTCTimeToLocalTime(AGMTTime), False, True) + ' ' + AFileName; {do not localize}
   end
   
   //syntax 3 - MDTM [local timestamp] Filename
@@ -4078,7 +4078,7 @@ begin
   end
 
   else begin
-    LCmd := 'MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC, False, False) + ' ' + AFileName; {do not localize}
+    LCmd := 'MDTM '+ FTPDateTimeToMDTMD(UTCTimeToLocalTime(AGMTTime), False, False) + ' ' + AFileName; {do not localize}
   end;
 
   // When using MDTM, Titan FTP 5 returns 200 and vsFTPd returns 213
