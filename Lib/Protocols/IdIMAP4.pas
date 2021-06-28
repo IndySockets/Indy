@@ -4533,6 +4533,8 @@ begin
           LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
           ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
           if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
+            AMsg.UID := FLineStruct.UID;
+            AMsg.Flags := FLineStruct.Flags;
             Result := True;
           end;
         end;
@@ -4578,6 +4580,11 @@ begin
           LStr := IOHandler.ReadLnWait;  {Remove trailing line after the message, probably a ')' }
           ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
           if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
+            AMsg.UID := FLineStruct.UID;
+            if AMsg.UID = '' then begin
+              AMsg.UID := AMsgUID;
+            end;
+            AMsg.Flags := FLineStruct.Flags;
             Result := True;
           end;
         end;
@@ -5026,6 +5033,9 @@ begin
       ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
       if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
         AMsg.UID := FLineStruct.UID;
+        if (AMsg.UID = '') and AUseUID then begin
+          AMsg.UID := IntToStr(Int64(AMsgNum));
+        end;
         AMsg.Flags := FLineStruct.Flags;
         Result := True;
       end;

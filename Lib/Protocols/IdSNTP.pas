@@ -149,7 +149,7 @@ procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: UInt
 var
   Value1, Value2: Double;
 begin
-  Value1 := (ADateTime + TimeZoneBias - 2) * 86400;
+  Value1 := (LocalTimeToUTCTime(ADateTime) - 2) * 86400;
   Value2 := Value1;
 
   if Value2 > NTPMaxInt then
@@ -191,7 +191,7 @@ begin
   // Value2 := Trunc(Value2 * 1000) / 1000;
 
   Value2 := Trunc(Value2 / NTPMaxInt * 1000) / 1000;
-  Result := ((Value1 + Value2) / 86400) - TimeZoneBias + 2;
+  Result := UTCTimeToLocalTime((Value1 + Value2) / 86400) + 2;
 end ;
 
 { TIdSNTP }
@@ -232,6 +232,7 @@ function TIdSNTP.GetDateTime: TDateTime;
 var
   LNTPDataGram: TNTPGram;
   LBuffer : TIdBytes;
+  LBytesRecvd: Integer;
 begin
   // DS default result is an empty TDateTime value
   Result := 0.0;
@@ -245,10 +246,10 @@ begin
   CopyTIdUInt32(GStack.HostToNetwork(LNTPDataGram.Xmit2), LBuffer, 44);
 
   SendBuffer(LBuffer);
-  ReceiveBuffer(LBuffer);
+  LBytesRecvd := ReceiveBuffer(LBuffer);
 
   // DS response may contain optional NTP authentication scheme info not in NTPGram
-  if Length(LBuffer) >= SizeOf(TNTPGram) then
+  if LBytesRecvd >= SizeOf(TNTPGram) then
   begin
     FDestinationTimeStamp := Now;
 
