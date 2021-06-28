@@ -596,7 +596,7 @@ end;
 function TIdFTPListOutput.GetLocalModTime(AItem: TIdFTPListOutputItem): TDateTime;
 begin
   if AItem.ModifiedDateGMT <> 0 then begin
-    Result := AItem.ModifiedDateGMT - TimeZoneBias;
+    Result := UTCTimeToLocalTime(AItem.ModifiedDateGMT);
   end else begin
     Result := AItem.ModifiedDate;
   end;

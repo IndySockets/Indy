@@ -97,7 +97,7 @@ var
   LTime : UInt32;
 begin
   inherited DoUDPRead(AThread, AData, ABinding);
-  LTime := Trunc(Extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60);
+  LTime := Trunc(Extended(LocalTimeToUTCTime(Now) - Int(FBaseDate)) * 24 * 60 * 60);
   LTime := GStack.HostToNetwork(LTime);
   ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(LTime), ABinding.IPVersion);
 end;

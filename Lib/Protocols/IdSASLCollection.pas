@@ -108,6 +108,7 @@ uses
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
+  IdAssignedNumbers,
   IdCoderMIME,
   IdGlobal,
   IdGlobalProtocols,
@@ -223,10 +224,13 @@ begin
     if ASASL.TryStartAuthenticate(AHost, AProtocolName, S) then begin
       AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), []);//[334, 504]);
       if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
-        ASASL.FinishAuthenticate;
-        Exit; // this mechanism is not supported
+        if not TextIsSame(AProtocolName, IdGSKSSN_pop) then begin
+          ASASL.FinishAuthenticate;
+          Exit; // this mechanism is not supported
+        end;
+      end else begin
+        AuthStarted := True;
       end;
-      AuthStarted := True;
     end;
   end;
   if not AuthStarted then begin

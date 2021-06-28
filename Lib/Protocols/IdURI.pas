@@ -227,12 +227,19 @@ begin
   FIPVersion := Id_IPv4;
 
   LTokenPos := IndyPos('://', LURI);    {Do not Localize}
+  if (LTokenPos = 0) and TextStartsWith(LURI, '//') then begin {Do not Localize}
+    LTokenPos := 1;
+  end;
   if LTokenPos > 0 then begin
     // absolute URI
     // What to do when data don't match configuration ??    {Do not Localize}
     // Get the protocol
-    FProtocol := Copy(LURI, 1, LTokenPos  - 1);
-    Delete(LURI, 1, LTokenPos + 2);
+    if LURI[LTokenPos] = ':' then begin {Do not Localize}
+      FProtocol := Copy(LURI, 1, LTokenPos - 1);
+      Delete(LURI, 1, LTokenPos + 2);
+    end else begin
+      Delete(LURI, 1, LTokenPos + 1);
+    end;
     // separate the path from the parameters
     LTokenPos := IndyPos('?', LURI);    {Do not Localize}
     // RLebeau: this is BAD! It messes up JSP and similar URLs that use '=' characters in the document

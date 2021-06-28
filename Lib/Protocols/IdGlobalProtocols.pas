@@ -523,7 +523,7 @@ type
   function StrToDay(const ADay: string): Byte;
   function StrToMonth(const AMonth: string): Byte;
   function StrToWord(const Value: String): Word;
-  function TimeZoneBias: TDateTime;
+  function TimeZoneBias: TDateTime; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IdGlobal.LocalTimeToUTCTime() or IdGlobal.UTCTimeToLocalTime()'{$ENDIF};{$ENDIF}
    //these are for FSP but may also help with MySQL
   function UnixDateTimeToDelphiDateTime(UnixDateTime: UInt32): TDateTime;
   function DateTimeToUnix(ADateTime: TDateTime): UInt32;
@@ -593,14 +593,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   IdIPAddress,
-  {$IFDEF HAS_GetLocalTimeOffset}
-  DateUtils,
-  {$ENDIF}
   {$IFDEF UNIX}
     {$IFDEF USE_VCL_POSIX}
-      {$IFNDEF HAS_GetLocalTimeOffset}
-  DateUtils,
-      {$ENDIF}
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
     {$ELSE}
       {$IFDEF KYLIXCOMPAT}
@@ -608,12 +602,12 @@ uses
       {$ELSE}
         {$IFDEF USE_BASEUNIX}
   BaseUnix, Unix,
-          {$IFNDEF HAS_GetLocalTimeOffset}
-  DateUtils,
-          {$ENDIF}
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}
+  DateUtils,
   {$ENDIF}
   {$IFDEF WINDOWS}
   Messages,
@@ -1352,7 +1346,7 @@ begin
   if ATimeStamp <> '' then begin
     Result := FTPMLSToGMTDateTime(ATimeStamp);
     // Apply local offset
-    Result := {$IFDEF HAS_UniversalTimeToLocal}UniversalTimeToLocal(Result){$ELSE}Result + OffsetFromUTC{$ENDIF};
+    Result := UTCTimeToLocalTime(Result);
   end;
 end;
 
@@ -1378,13 +1372,7 @@ stamps based on GMT)
 function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := FTPGMTDateTimeToMLS(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(ATimeStamp)
-    {$ELSE}
-    ATimeStamp - OffsetFromUTC
-    {$ENDIF}
-    , AIncludeMSecs);
+  Result := FTPGMTDateTimeToMLS(LocalTimeToUTCTime(ATimeStamp), AIncludeMSecs);
 end;
 
 
@@ -1981,36 +1969,12 @@ begin
   end;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function TimeZoneBias: TDateTime;
-{$IFNDEF FPC}
-  {$IFDEF UNIX}
-var
-  T: Time_T;
-  TV: TimeVal;
-  UT: {$IFDEF USE_VCL_POSIX}tm{$ELSE}TUnixTime{$ENDIF};
-  {$ELSE}
-    {$IFDEF USE_INLINE} inline; {$ENDIF}
-  {$ENDIF}
-{$ELSE}
+{$I IdDeprecatedImplBugOn.inc}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
 begin
-{$IFNDEF FPC}
-  {$IFDEF UNIX}
-  // TODO: use -OffsetFromUTC here. It has this same Unix logic in it
-  {from http://edn.embarcadero.com/article/27890 }
-  gettimeofday(TV, nil);
-  T := TV.tv_sec;
-  localtime_r({$IFNDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
-// __tm_gmtoff is the bias in seconds from the UTC to the current time.
-// so I multiply by -1 to compensate for this.
-  Result := (UT.{$IFNDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
-  {$ELSE}
   Result := -OffsetFromUTC;
-  {$ENDIF}
-{$ELSE}
-  Result := -OffsetFromUTC;
-{$ENDIF}
 end;
 
 function IndyStrToBool(const AString : String) : Boolean;
@@ -2810,8 +2774,7 @@ begin
   if RawStrInternetToDateTime(S, Result) then begin
     DateTimeOffset := GmtOffsetStrToDateTime(S);
     {-Apply GMT and local offsets}
-    Result := Result - DateTimeOffset;
-    Result := {$IFDEF HAS_UniversalTimeToLocal}UniversalTimeToLocal(Result){$ELSE}Result + OffsetFromUTC{$ENDIF};
+    Result := UTCTimeToLocalTime(Result - DateTimeOffset);
   end;
 end;
 
@@ -3066,7 +3029,7 @@ begin
     end;
 
     Result := EncodeDate(LYear, LMonth, LDayOfMonth) + EncodeTime(LHour, LMinute, LSecond, 0);
-    Result := {$IFDEF HAS_UniversalTimeToLocal}UniversalTimeToLocal(Result){$ELSE}Result + OffsetFromUTC{$ENDIF};
+    Result := UTCTimeToLocalTime(Result);
   except
     Result := 0.0;
   end;
