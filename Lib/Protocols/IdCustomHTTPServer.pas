@@ -251,6 +251,7 @@ type
     FQueryParams: string;
     FFormParams: string;
     FCommandType: THTTPCommandType;
+    FAuthType: string;
     //
     procedure DecodeAndSetParams(const AValue: String); virtual;
   public
@@ -261,6 +262,7 @@ type
     property Session: TIdHTTPSession read FSession;
     //
     property AuthExists: Boolean read FAuthExists;
+    property AuthType: string read FAuthType;
     property AuthPassword: string read FAuthPassword;
     property AuthUsername: string read FAuthUsername;
     property Command: string read FCommand;
@@ -1269,7 +1271,7 @@ var
 
 var
   i: integer;
-  s, LInputLine, LRawHTTPCommand, LCmd, LContentType, LAuthType: String;
+  s, LInputLine, LRawHTTPCommand, LCmd, LContentType: String;
   LURI: TIdURI;
   LContinueProcessing, LCloseConnection: Boolean;
   LConn: TIdTCPConnection;
@@ -1448,8 +1450,8 @@ begin
                 // Authentication
                 s := LRequestInfo.RawHeaders.Values['Authorization'];    {Do not Localize}
                 if Length(s) > 0 then begin
-                  LAuthType := Fetch(s, ' ');
-                  LRequestInfo.FAuthExists := DoParseAuthentication(AContext, LAuthType, s, LRequestInfo.FAuthUsername, LRequestInfo.FAuthPassword);
+                  LRequestInfo.FAuthType := Fetch(s, ' ');
+                  LRequestInfo.FAuthExists := DoParseAuthentication(AContext, LRequestInfo.FAuthType, s, LRequestInfo.FAuthUsername, LRequestInfo.FAuthPassword);
                   if not LRequestInfo.FAuthExists then begin
                     raise EIdHTTPUnsupportedAuthorisationScheme.Create(
                       RSHTTPUnsupportedAuthorisationScheme);
