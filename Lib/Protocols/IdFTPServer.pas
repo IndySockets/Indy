@@ -5312,7 +5312,7 @@ begin
   LFileSystem := FTPFileSystem;
   if Assigned(LFileSystem) then begin
     LFileSystem.GetFileDate(ASender, AFileName, VFileDate);
-	  VFileDate := VFileDate - OffsetFromUTC;
+    VFileDate := LocalTimeToUTCTime(VFileDate);
   end else if Assigned(FOnGetFileDate) then begin
     FOnGetFileDate(ASender, AFileName, VFileDate);
   end;
@@ -5477,7 +5477,7 @@ procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
     if IsValidTimeStamp(ALSender.Params[0]) then begin
       LFileName := ALSender.UnparsedParams;
       //This is local Time
-      LgMTime := FTPMLSToGMTDateTime(Fetch(LFileName)) - OffsetFromUTC;
+      LgMTime := UTCTimeToLocalTime(FTPMLSToGMTDateTime(Fetch(LFileName)));
       LFileName := DoProcessPath(AContext, LFileName);
       if Assigned(FOnSiteUTIME) then
       begin
@@ -6200,14 +6200,16 @@ end;
 procedure TIdFTPServer.CommandSiteZONE(ASender: TIdCommand);
 var
   LMin : Integer;
+  LFmt: string;
 begin
   LMin := MinutesFromGMT;
   //plus must always be displayed for positive numbers
   if LMin < 0 then begin
-    ASender.Reply.SetReply(210, IndyFormat('UTC%d', [MinutesFromGMT])); {do not localize}
+    LFmt := 'UTC%d'; {do not localize}
   end else begin
-    ASender.Reply.SetReply(210, IndyFormat('UTC+%d', [MinutesFromGMT])); {do not localize}
+    LFmt := 'UTC+%d'; {do not localize}
   end;
+  ASender.Reply.SetReply(210, IndyFormat(LFmt, [LMin]));
 end;
 
 procedure TIdFTPServer.CommandCheckSum(ASender: TIdCommand);
