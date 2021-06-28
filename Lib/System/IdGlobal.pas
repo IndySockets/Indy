@@ -1214,7 +1214,7 @@ var
   implements are based on ASCII specifically, not Ansi.  Non-ASCII data has
   to be explicitally allowed by RFCs, in which case the caller should not be
   using nil IIdTextEncoding objects to begin with...}
-  GIdDefaultTextEncoding: IdTextEncodingType = encASCII;
+  GIdDefaultTextEncoding: IdTextEncodingType = encASCII; // TODO: set to encIndyDefault by default...
 
   {$IFDEF USE_ICONV}
   // This indicates whether encOSDefault should map to an OS dependant Ansi
@@ -10059,7 +10059,7 @@ begin
 end;
 
 initialization
-  GIdDefaultTextEncoding := GetIndyDefaultTextEncoding;
+  GIdDefaultTextEncoding := GetIndyDefaultTextEncoding; // TODO remove this if GIdDefaultTextEncoding is initialized to encIndyDefault instead...
   // AnsiPos does not handle strings with #0 and is also very slow compared to Pos
   {$IFDEF DOTNET}
   IndyPos := SBPos;
