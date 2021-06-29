@@ -1400,7 +1400,7 @@ begin
     end else begin
       LFmt := '+%d'; {do not localize}
     end;
-    Result := Result + IndyFormat(LFmt, [LOfs]));
+    Result := Result + IndyFormat(LFmt, [LOfs]);
   end;
   Result := ReplaceAll(Result, ' ', '0');
 end;
