@@ -176,7 +176,15 @@ uses
   Classes,
   IdGlobal,
   IdGlobalProtocols,
-  SysUtils;
+  SysUtils
+  // to facilite inlining
+  {$IFNDEF HAS_GetLocalTimeOffset}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  ,{$IFDEF VCL_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF}
+  ,DateUtils
+    {$ENDIF}
+  {$ENDIF}
+  ;
 
 type
   TIdFTPTransferType = (ftASCII, ftBinary);
@@ -662,10 +670,6 @@ uses
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   Posix.Time,
-  {$ENDIF}
-  {$IFDEF HAS_DateUtils_TTimeZone}
-  {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}TimeSpan,
-  DateUtils,
   {$ENDIF}
   IdException;
 

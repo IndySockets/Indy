@@ -1277,9 +1277,7 @@ var
   LConn: TIdTCPConnection;
   LEncoding: IIdTextEncoding;
 begin
-  LContinueProcessing := True;
   Result := False;
-  LCloseConnection := not KeepAlive;
   try
     try
       LConn := AContext.Connection;
@@ -1289,6 +1287,7 @@ begin
         if i = 0 then begin
           raise EIdHTTPErrorParsingCommand.Create(RSHTTPErrorParsingCommand);
         end;
+        LCloseConnection := not KeepAlive;
         // TODO: don't recreate the Request and Response objects on each loop
         // iteration. Just create them once before entering the loop, and then
         // reset them as needed on each iteration...
@@ -1459,6 +1458,7 @@ begin
                 end;
 
                 // Session management
+                LContinueProcessing := True;
                 GetSessionFromCookie(AContext, LRequestInfo, LResponseInfo, LContinueProcessing);
                 if LContinueProcessing then begin
                   // These essentially all "retrieve" so they are all "Get"s

@@ -2036,7 +2036,17 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
-  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}
+    // to facilitate inlining
+    {$IFNDEF DOTNET}
+      {$IFNDEF HAS_GetLocalTimeOffset}
+        {$IFDEF HAS_DateUtils_TTimeZone}
+  {$IFDEF VCL_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF},
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
+  DateUtils,
+  {$ENDIF}
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
   IdResourceStrings,
@@ -2049,11 +2059,6 @@ uses
   {$IFDEF HAS_PosEx}
     {$IFDEF HAS_UNIT_StrUtils}
   ,StrUtils
-    {$ENDIF}
-  {$ENDIF}
-  {$IFNDEF DOTNET}
-    {$IFDEF HAS_DateUtils_TTimeZone}
-  ,System.TimeSpan
     {$ENDIF}
   {$ENDIF}
   ;
