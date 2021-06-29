@@ -129,7 +129,7 @@ uses
   {$ENDIF}
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Types,
-{$ENDIF}
+  {$ENDIF}
   IdUDPClient,
   SysUtils;
 
