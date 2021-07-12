@@ -43,6 +43,7 @@
 // as specified further below.  This works in conjunction with the
 // FREE_ON_FINAL define above.
 {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$UNDEF HAS_System_RegisterExpectedMemoryLeak}
 
 // FastMM is natively available in BDS 2006 and higher.  $DEFINE the
 // following if FastMM has been installed manually in earlier versions
@@ -1140,11 +1141,9 @@
 {$IFDEF VCL_2006_OR_ABOVE}
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
-  {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
-  {$IFNDEF FREE_ON_FINAL}
-    {$IFNDEF DOTNET}
-      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
-    {$ENDIF}
+  {$IFDEF WINDOWS}
+    // System.RegisterExpectedMemoryLeak() is only available on Windows at this time
+    {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
   {$ENDIF}
   // In C++Builder 2006 and 2007, UInt64 is emitted as signed __int64 in HPP
   // files instead of as unsigned __int64.  This causes conflicts in overloaded
@@ -1890,7 +1889,10 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$ENDIF}
 
 {$IFNDEF FREE_ON_FINAL}
-  {$IFNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF DOTNET}
+    {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
+      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+    {$ENDIF}
     {$IFDEF USE_FASTMM4}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
@@ -1900,12 +1902,6 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
     {$IFDEF USE_LEAKCHECK}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
-
-{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-  {$IFDEF DOTNET}
-    {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
   {$ENDIF}
 {$ENDIF}
 

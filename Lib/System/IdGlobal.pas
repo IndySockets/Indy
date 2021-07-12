@@ -1848,10 +1848,8 @@ function IndyMax(const AValueOne, AValueTwo: Int32): Int32; overload;
 function IndyMax(const AValueOne, AValueTwo: UInt16): UInt16; overload;
 function IPv4MakeUInt32InRange(const AInt: Int64; const A256Power: Integer): UInt32;
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IPv4MakeUInt32InRange()'{$ENDIF};{$ENDIF}
-{$IFNDEF DOTNET}
-  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
 function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
-  {$ENDIF}
 {$ENDIF}
 function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: TIdLibFuncName): Pointer;
 {$IFDEF UNIX}
@@ -9746,8 +9744,7 @@ begin
   Result := True;
 end;
 
-{$IFNDEF DOTNET}
-  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
 function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -9801,7 +9798,6 @@ begin
     {$ENDIF}
   {$ENDIF}
 end;
-  {$ENDIF}
 {$ENDIF}
 
 function IndyAddPair(AStrings: TStrings; const AName, AValue: String): TStrings;
