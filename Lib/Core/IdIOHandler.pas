@@ -1282,7 +1282,7 @@ end;
 
 function TIdIOHandler.ReadInt16(AConvert: Boolean = True): Int16;
 begin
-  EnsureInputBytes(Self, SizeOf(Int16));
+  EnsureInputBytes(SizeOf(Int16));
   Result := Int16(InputBuffer.ExtractToUInt16(-1, AConvert));
 end;
 
@@ -2537,7 +2537,6 @@ var
   LOldErrorMode : Integer;
   {$ENDIF}
 begin
-  Result := 0;
   {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try

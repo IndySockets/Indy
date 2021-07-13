@@ -176,7 +176,15 @@ uses
   Classes,
   IdGlobal,
   IdGlobalProtocols,
-  SysUtils;
+  SysUtils
+  // to facilite inlining
+  {$IFNDEF HAS_GetLocalTimeOffset}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  ,{$IFDEF VCL_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF}
+  ,DateUtils
+    {$ENDIF}
+  {$ENDIF}
+  ;
 
 type
   TIdFTPTransferType = (ftASCII, ftBinary);
@@ -663,7 +671,6 @@ uses
   Posix.SysTime,
   Posix.Time,
   {$ENDIF}
-  {$IFDEF HAS_DateUtils_TTimeZone}DateUtils,{$ENDIF}
   IdException;
 
 {WS_FTP Pro XAUT Support}
@@ -1363,7 +1370,7 @@ begin
   Result := {-1 *} GetLocalTimeOffset();
   {$ELSE}
     {$IFDEF HAS_DateUtils_TTimeZone}
-  Result := {-1 *} TTimeZone.Local.UtcOffset.TotalMinutes;
+  Result := {-1 *} Trunc(TTimeZone.Local.UtcOffset.TotalMinutes);
     {$ELSE}
   LD := OffsetFromUTC;
   DecodeTime(LD, LHour, LMin, LSec, LMSec);
@@ -1382,6 +1389,7 @@ var
   LYear, LMonth, LDay,
   LHour, LMin, LSec, LMSec : Word;
   LOfs : Integer;
+  LFmt : string;
 begin
   DecodeDate(ATimeStamp, LYear, LMonth, LDay);
   DecodeTime(ATimeStamp, LHour, LMin, LSec, LMSec);
@@ -1392,10 +1400,11 @@ begin
   if AIncludeGMTOffset then begin
     LOfs := MinutesFromGMT;
     if LOfs < 0 then begin
-      Result := Result + IntToStr(LOfs);
+      LFmt := '%d'; {do not localize}
     end else begin
-      Result := Result + '+' + IntToStr(LOfs);
+      LFmt := '+%d'; {do not localize}
     end;
+    Result := Result + IndyFormat(LFmt, [LOfs]);
   end;
   Result := ReplaceAll(Result, ' ', '0');
 end;

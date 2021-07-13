@@ -1228,6 +1228,7 @@ var
   LIndex, i: Integer;
 begin
   Result := 0;
+  // TODO: is this missing Lock/Unlock calls?
   LIndex := 0;
   //? use FMaxHandle div x
   for i:= 0 to __FD_SETSIZE - 1 do begin
