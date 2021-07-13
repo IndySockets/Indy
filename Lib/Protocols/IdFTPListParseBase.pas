@@ -336,7 +336,6 @@ var
   I: Integer;
   LCurParser : TIdFTPListParseClass;
 begin
-  Result := False;
   VFormat := '';
   ADir.BeginUpdate;
   try
