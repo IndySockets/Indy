@@ -43,6 +43,7 @@
 // as specified further below.  This works in conjunction with the
 // FREE_ON_FINAL define above.
 {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$UNDEF HAS_System_RegisterExpectedMemoryLeak}
 
 // FastMM is natively available in BDS 2006 and higher.  $DEFINE the
 // following if FastMM has been installed manually in earlier versions
@@ -138,6 +139,9 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64}
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64Arm}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm32}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm64}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSXArm64}
 {$UNDEF HAS_ComponentPlatformsAttribute_AllPlatforms}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 
@@ -426,13 +430,13 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.5
+  //Delphi & CBuilder 11.0 (Olympus)
   {$IFDEF VER350}
-    {$DEFINE VCL_10_5}
+    {$DEFINE VCL_11_0}
     {$IFDEF CBUILDER}
-      {$DEFINE CBUILDER_10_5}
+      {$DEFINE CBUILDER_11_0}
     {$ELSE}
-      {$DEFINE DELPHI_10_5}
+      {$DEFINE DELPHI_11_0}
     {$ENDIF}
   {$ENDIF}
 
@@ -735,11 +739,11 @@
 
 // end FPC
 
-{$IFDEF VCL_10_5}
-  {$DEFINE VCL_10_5_OR_ABOVE}
+{$IFDEF VCL_11_0}
+  {$DEFINE VCL_11_0_OR_ABOVE}
 {$ENDIF}
 
-{$IFDEF VCL_10_5_OR_ABOVE}
+{$IFDEF VCL_11_0_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_10_4}
@@ -1138,11 +1142,9 @@
 {$IFDEF VCL_2006_OR_ABOVE}
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
-  {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
-  {$IFNDEF FREE_ON_FINAL}
-    {$IFNDEF DOTNET}
-      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
-    {$ENDIF}
+  {$IFDEF WINDOWS}
+    // System.RegisterExpectedMemoryLeak() is only available on Windows at this time
+    {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
   {$ENDIF}
   // In C++Builder 2006 and 2007, UInt64 is emitted as signed __int64 in HPP
   // files instead of as unsigned __int64.  This causes conflicts in overloaded
@@ -1367,6 +1369,12 @@
   // and now '[]' is 1-indexed again on all platforms - {$ZEROBASEDSTRINGS OFF}
   // is the default.
   {.$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+{$ENDIF}
+
+{$IFDEF VCL_11_0_OR_ABOVE}
+  {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm32}
+  {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm64}
+  {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -1883,7 +1891,10 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
 {$ENDIF}
 
 {$IFNDEF FREE_ON_FINAL}
-  {$IFNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  {$IFNDEF DOTNET}
+    {$IFDEF HAS_System_RegisterExpectedMemoryLeak}
+      {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+    {$ENDIF}
     {$IFDEF USE_FASTMM4}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
@@ -1893,12 +1904,6 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
     {$IFDEF USE_LEAKCHECK}
       {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
     {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
-
-{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
-  {$IFDEF DOTNET}
-    {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
   {$ENDIF}
 {$ENDIF}
 

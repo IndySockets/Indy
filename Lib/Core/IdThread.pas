@@ -327,6 +327,7 @@ uses
   {$ENDIF}
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.SyncObjs,
+  System.Types,
   {$ENDIF}
   {$IFDEF PLATFORM_CLEANUP_NEEDED}
     {$IFDEF MACOS}
