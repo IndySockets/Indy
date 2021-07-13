@@ -207,6 +207,11 @@ type
     class function GenerateBoundary: String;
   end;
 
+  TIdMIMEFilenamePathDelimiterAction = (actTruncatePath, actReplaceWithUnderscore);
+
+var
+  DecodeFilenamePathDelimiterAction: TIdMIMEFilenamePathDelimiterAction = actReplaceWithUnderscore;
+
 implementation
 
 uses
@@ -651,17 +656,20 @@ const
   // MtW: Inversed: see http://support.microsoft.com/default.aspx?scid=kb;en-us;207188
   InvalidWindowsFilenameChars = '\/:*?"<>|'; {do not localize}
 var
-  LN: integer;
+  LN, LIdx: Integer;
+  LChar: Char;
   {$IFDEF STRING_IS_IMMUTABLE}
   LSB: TIdStringBuilder;
   {$ENDIF}
 begin
   Result := AFilename;
   //First, strip any Windows or Unix path...
-  for LN := Length(Result) downto 1 do begin
-    if ((Result[LN] = '/') or (Result[LN] = '\')) then begin  {do not localize}
-      Result := Copy(Result, LN+1, MaxInt);
-      Break;
+  if DecodeFilenamePathDelimiterAction = actTruncatePath then begin
+    for LN := Length(Result) downto 1 do begin
+      if ((Result[LN] = '/') or (Result[LN] = '\')) then begin  {do not localize}
+        Result := Copy(Result, LN+1, MaxInt);
+        Break;
+      end;
     end;
   end;
   //Now remove any invalid filename chars.
@@ -670,15 +678,25 @@ begin
   LSB := TIdStringBuilder.Create(Result);
   for LN := 0 to LSB.Length-1 do begin
     // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
-    if Pos(LSB[LN], InvalidWindowsFilenameChars) > 0 then begin
-      LSB[LN] := '_';    {do not localize}
+    // TODO: use CharIsInSet() instead?
+    LChar := LSB[LN];
+    for LIdx := 1 to Length(InvalidWindowsFilenameChars) do begin
+      if InvalidWindowsFilenameChars[LIdx] = LChar then begin
+        LSB[LN] := '_';    {do not localize}
+        Break;
+      end;
     end;
   end;
   {$ELSE}
   for LN := 1 to Length(Result) do begin
     // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
-    if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
-      Result[LN] := '_';    {do not localize}
+    // TODO: use CharIsInSet() instead?
+    LChar := Result[LN];
+    for LIdx := 1 to Length(InvalidWindowsFilenameChars) do begin
+      if InvalidWindowsFilenameChars[LIdx] = LChar then begin
+        Result[LN] := '_';    {do not localize}
+        Break;
+      end;
     end;
   end;
   {$ENDIF}

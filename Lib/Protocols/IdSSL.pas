@@ -140,6 +140,8 @@ type
     property ServerClass : TIdServerSSLClass read FServerClass write FServerClass;
   end {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
 
+  {$I IdSymbolDeprecatedOff.inc}
+
   TIdSSLRegistry = class(TCollection)
   protected
     function GetItem ( Index: Integer ) : TIdSSLRegEntry;
@@ -153,6 +155,8 @@ type
 
 var
   GSSLRegistry : TIdSSLRegistry{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$ENDIF};
+
+  {$I IdSymbolDeprecatedOn.inc}
 
 implementation
 
