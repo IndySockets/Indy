@@ -210,7 +210,7 @@ type
   TIdMIMEFilenamePathDelimiterAction = (actTruncatePath, actReplaceWithUnderscore);
 
 var
-  DecodeFilenamePathDelimiterAction: TIdMIMEFilenamePathDelimiterAction := actReplaceWithUnderscore;
+  DecodeFilenamePathDelimiterAction: TIdMIMEFilenamePathDelimiterAction = actReplaceWithUnderscore;
 
 implementation
 

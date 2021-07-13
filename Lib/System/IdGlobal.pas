@@ -1848,10 +1848,8 @@ function IndyMax(const AValueOne, AValueTwo: Int32): Int32; overload;
 function IndyMax(const AValueOne, AValueTwo: UInt16): UInt16; overload;
 function IPv4MakeUInt32InRange(const AInt: Int64; const A256Power: Integer): UInt32;
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IPv4MakeUInt32InRange()'{$ENDIF};{$ENDIF}
-{$IFNDEF DOTNET}
-  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
 function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
-  {$ENDIF}
 {$ENDIF}
 function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: TIdLibFuncName): Pointer;
 {$IFDEF UNIX}
@@ -2036,7 +2034,17 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_LIBC}Libc,{$ENDIF}
-  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}
+    // to facilitate inlining
+    {$IFNDEF DOTNET}
+      {$IFNDEF HAS_GetLocalTimeOffset}
+        {$IFDEF HAS_DateUtils_TTimeZone}
+  {$IFDEF VCL_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF},
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
+  DateUtils,
+  {$ENDIF}
   //do not bring in our IdIconv unit if we are using the libc unit directly.
   {$IFDEF USE_ICONV_UNIT}IdIconv, {$ENDIF}
   IdResourceStrings,
@@ -7803,29 +7811,31 @@ function OffsetFromUTC: TDateTime;
 {$IFDEF DOTNET}
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 {$ELSE}
-  {$IFDEF WINDOWS}
+  {$IFNDEF HAS_GetLocalTimeOffset}
+    {$IFNDEF HAS_DateUtils_TTimeZone}
+      {$IFDEF WINDOWS}
 var
   iBias: Integer;
   tmez: TTimeZoneInformation;
-  {$ELSE}
-    {$IFNDEF HAS_GetLocalTimeOffset}
-      {$IFDEF UNIX}
-        {$IFDEF USE_VCL_POSIX}
+      {$ELSE}
+        {$IFDEF UNIX}
+          {$IFDEF USE_VCL_POSIX}
 var
   T : Time_t;
   TV : TimeVal;
   UT : tm;
-        {$ELSE}
-          {$IFDEF KYLIXCOMPAT}
+          {$ELSE}
+            {$IFDEF KYLIXCOMPAT}
 var
   T : Time_T;
   TV : TTimeVal;
   UT : TUnixTime;
-          {$ELSE}
-            {$IFDEF USE_BASEUNIX}
+            {$ELSE}
+              {$IFDEF USE_BASEUNIX}
  var
    timeval: TTimeVal;
    timezone: TTimeZone;
+              {$ENDIF}
             {$ENDIF}
           {$ENDIF}
         {$ENDIF}
@@ -9734,8 +9744,7 @@ begin
   Result := True;
 end;
 
-{$IFNDEF DOTNET}
-  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
 function IndyRegisterExpectedMemoryLeak(AAddress: Pointer): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
@@ -9789,7 +9798,6 @@ begin
     {$ENDIF}
   {$ENDIF}
 end;
-  {$ENDIF}
 {$ENDIF}
 
 function IndyAddPair(AStrings: TStrings; const AName, AValue: String): TStrings;
