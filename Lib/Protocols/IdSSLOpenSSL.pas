@@ -930,10 +930,10 @@ begin
     Result := Result or SSL_VERIFY_PEER;
   end;
   if sslvrfFailIfNoPeerCert in Mode then begin
-    Result:= Result or SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+    Result := Result or SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
   end;
   if sslvrfClientOnce in Mode then begin
-    Result:= Result or SSL_VERIFY_CLIENT_ONCE;
+    Result := Result or SSL_VERIFY_CLIENT_ONCE;
   end;
 end;
 
@@ -1273,7 +1273,6 @@ var
 begin
   Result := 0;
   count := 0;
-  Lin := nil;
 
   if AFileName = '' then begin
     Result := 1;
@@ -1360,7 +1359,6 @@ begin
   Result := 0;
   count := 0;
   LM := nil;
-  Lin := nil;
 
   if _type <> X509_FILETYPE_PEM then begin
     Result := Indy_unicode_X509_load_cert_file(ctx, AFileName, _type);
@@ -2578,7 +2576,6 @@ function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
 var
   LIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
-  Result := nil;
   Assert(ASocket<>nil);
   Assert(fSSLContext<>nil);
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
@@ -4267,6 +4264,8 @@ function TIdSSLCipher.GetVersion:String;
 begin
   Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
+
+{$I IdSymbolDeprecatedOff.inc}
 
 initialization
   Assert(SSLIsLoaded=nil);
