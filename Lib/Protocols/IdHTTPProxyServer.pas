@@ -182,8 +182,8 @@ type
 implementation
 
 uses
-  IdResourceStrings, IdResourceStringsProtocols, IdReplyRFC, IdTCPClient, IdURI,
-  IdGlobalProtocols, IdStack, IdStackConsts, IdTCPStream, IdException, SysUtils;
+  IdResourceStrings, IdResourceStringsProtocols, IdReplyRFC, IdIOHandler, IdTCPClient,
+  IdURI, IdGlobalProtocols, IdStack, IdStackConsts, IdTCPStream, IdException, SysUtils;
 
 constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;
   AYarn: TIdYarn; AList: TIdContextThreadList = nil);
