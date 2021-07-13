@@ -118,7 +118,7 @@ type
 
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
-  const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass);
+  const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass); {$IFDEF HAS_DEPRECATED}deprecated;{$ENDIF}
 
 type
   TIdSSLRegEntry = class(TCollectionItem)
@@ -138,7 +138,9 @@ type
     property URL : String read FURL write FURL;
     property ClientClass : TIdClientSSLClass read FClientClass write FClientClass;
     property ServerClass : TIdServerSSLClass read FServerClass write FServerClass;
-  end;
+  end {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
+
+  {$I IdSymbolDeprecatedOff.inc}
 
   TIdSSLRegistry = class(TCollection)
   protected
@@ -149,15 +151,19 @@ type
     function Add: TIdSSLRegEntry;
     property Items [ Index: Integer ] : TIdSSLRegEntry read GetItem
       write SetItem; default;
-  end;
+  end {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
 
 var
-  GSSLRegistry : TIdSSLRegistry;
+  GSSLRegistry : TIdSSLRegistry{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$ENDIF};
+
+  {$I IdSymbolDeprecatedOn.inc}
 
 implementation
 
 uses
   SysUtils;
+
+{$I IdSymbolDeprecatedOff.inc}
 
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
@@ -174,6 +180,8 @@ begin
   LR.ClientClass := AClientClass;
   LR.ServerClass := AServerClass;
 end;
+
+{$I IdSymbolDeprecatedOn.inc}
 
 { TIdSSLIOHandlerSocketBase }
 
@@ -220,6 +228,8 @@ begin
 end;
 
 { TIdSSLRegistry }
+
+{$I IdSymbolDeprecatedOff.inc}
 
 function TIdSSLRegistry.Add: TIdSSLRegEntry;
 begin

@@ -313,7 +313,7 @@ type
 
 var
 //This is for the Win32-only package (SuperCore)
-  GWindowsStack : TIdStackWindows = nil;
+  GWindowsStack : TIdStackWindows = nil{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use GStack or GBSDStack instead'{$ENDIF}{$ENDIF};
 
 implementation
 
@@ -845,7 +845,9 @@ begin
     end;
     GStarted := True;
   end;
+  {$I IdSymbolDeprecatedOff.inc}
   GWindowsStack := Self;
+  {$I IdSymbolDeprecatedOn.inc}
 end;
 
 destructor TIdStackWindows.Destroy;
@@ -1426,7 +1428,6 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                 begin
                   if UnicastAddr^.DadState = IpDadStatePreferred then
                   begin
-                    LAddress := nil;
                     case UnicastAddr^.Address.lpSockaddr.sin_family of
                       AF_INET: begin
                         IPAddr := TranslateTInAddrToString(PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr, Id_IPv4);
@@ -1795,7 +1796,6 @@ end;
 
 function TIdSocketListWindows.GetItem(AIndex: Integer): TIdStackSocketHandle;
 begin
-  Result := 0;
   Lock;
   try
     //We can't redefine AIndex to be a UInt32 because the libc Interface
@@ -1803,6 +1803,7 @@ begin
     if (AIndex >= 0) and (u_int(AIndex) < FFDSet.fd_count) then begin
       Result := FFDSet.fd_array[AIndex];
     end else begin
+      // TODO: just return 0/invalid, like most of the other Stack classes do?
       raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
     end;
   finally

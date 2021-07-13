@@ -100,8 +100,9 @@ type
     {$IFDEF HAS_ComponentPlatformsAttribute_OSX32} or pidOSX32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32}or pidiOSSimulator32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator} or pidiOSSimulator{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_AndroidArm32} or pidAndroidArm32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_Android32Arm} or pidAndroid32Arm{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android} or pidAndroid{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Android} or pidAndroid{$ENDIF}{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_Linux32} or pidLinux32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device32} or pidiOSDevice32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device} or pidiOSDevice{$ENDIF}{$ENDIF}
@@ -115,9 +116,11 @@ type
     {$IFDEF HAS_ComponentPlatformsAttribute_OSX64} or pidOSX64{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_Linux32Arm} or pidLinux32Arm{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_Linux64Arm} or pidLinux64Arm{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_AndroidArm64} or pidAndroidArm64{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_Android64Arm} or pidAndroid64Arm{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android64} or pidAndroid64{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Android64} or pidAndroid64{$ENDIF}{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64} or pidiOSSimulator64{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_OSXArm64} or pidOSXArm64{$ENDIF}
     {$ENDIF}
   )]
   {$ENDIF}
