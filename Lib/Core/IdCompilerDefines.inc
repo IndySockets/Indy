@@ -430,13 +430,13 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.5 (Olympus)
+  //Delphi & CBuilder 11.0 (Olympus)
   {$IFDEF VER350}
-    {$DEFINE VCL_10_5}
+    {$DEFINE VCL_11_0}
     {$IFDEF CBUILDER}
-      {$DEFINE CBUILDER_10_5}
+      {$DEFINE CBUILDER_11_0}
     {$ELSE}
-      {$DEFINE DELPHI_10_5}
+      {$DEFINE DELPHI_11_0}
     {$ENDIF}
   {$ENDIF}
 
@@ -739,11 +739,11 @@
 
 // end FPC
 
-{$IFDEF VCL_10_5}
-  {$DEFINE VCL_10_5_OR_ABOVE}
+{$IFDEF VCL_11_0}
+  {$DEFINE VCL_11_0_OR_ABOVE}
 {$ENDIF}
 
-{$IFDEF VCL_10_5_OR_ABOVE}
+{$IFDEF VCL_11_0_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_10_4}
@@ -1370,7 +1370,7 @@
   {.$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
 {$ENDIF}
 
-{$IFDEF VCL_10_5_OR_ABOVE}
+{$IFDEF VCL_11_0_OR_ABOVE}
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm32}
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm64}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
