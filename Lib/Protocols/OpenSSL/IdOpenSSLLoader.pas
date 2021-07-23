@@ -167,7 +167,7 @@ begin                                  //FI:C101
   Result := True;
   FLoadCount.Lock();
   try
-    if FLoadCount.Value <= 0 then
+    if FLoadCount.Increment() = 0 then
     begin
       {$IFDEF MSWINDOWS}
       FLibCrypto := SafeLoadLibrary(FOpenSSLPath + CLibCrypto, SEM_FAILCRITICALERRORS);
@@ -179,8 +179,6 @@ begin                                  //FI:C101
       Result := not (FLibCrypto = IdNilHandle) and not (FLibSSL = IdNilHandle);
       if not Result then
         Exit;
-
-      FLoadCount.Value := 1;
 
       IdOpenSSLHeaders_aes.Load(FLibCrypto, FFailed);
       IdOpenSSLHeaders_asn1.Load(FLibCrypto, FFailed);
@@ -266,8 +264,7 @@ procedure TOpenSSLLoader.Unload;
 begin                            //FI:C101
   FLoadCount.Lock();
   try
-    FLoadCount.Decrement();
-    if FLoadCount.Value = 0 then
+    if FLoadCount.Decrement() = 1 then
     begin
       IdOpenSSLHeaders_aes.Unload();
       IdOpenSSLHeaders_asn1.Unload();
