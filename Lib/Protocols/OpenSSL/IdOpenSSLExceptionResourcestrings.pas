@@ -38,7 +38,7 @@ resourcestring
   RIdOpenSSLSetVerifyLocationError = 'The processing at one of the locations specified failed.';
   RIdOpenSSLNewSSLCtxError = 'The creation of a new SSL_CTX object failed.';
   RIdOpenSSLNewSSLError = 'The creation of a new SSL structure failed.';
-  RIdOpenSSLShutdownError = 'Failed to shutdown with result reason code %d.';
+  RIdOpenSSLShutdownError = 'Failed to shutdown the TLS connection.';
 
 implementation
 

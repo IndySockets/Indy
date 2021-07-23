@@ -93,7 +93,7 @@ begin
     begin
       LSSLErrorCode := SSL_get_error(FSSL, LReturnCode);
       if LSSLErrorCode <> SSL_ERROR_ZERO_RETURN then
-        EIdOpenSSLShutdownError.RaiseFmt(RIdOpenSSLShutdownError, [LSSLErrorCode]);
+        raise EIdOpenSSLShutdownError.Create(FSSL, LReturnCode, RIdOpenSSLShutdownError);
     end;
   end
   else
