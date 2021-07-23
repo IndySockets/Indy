@@ -466,6 +466,14 @@ type
   BIT_STRING_BITNAME = BIT_STRING_BITNAME_st;
   PBIT_STRING_BITNAME = ^BIT_STRING_BITNAME;
 
+//DECLARE_ASN1_FUNCTIONS(type) -->
+//        type *name##_new(void); \
+//        void name##_free(type *a);
+//        type *d2i_##name(type **a, const unsigned char **in, long len); \
+//        int i2d_##name(type *a, unsigned char **out); \
+//#  define DECLARE_ASN1_ITEM(name) \
+//        OPENSSL_EXTERN const ASN1_ITEM name##_it;
+
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
 
@@ -517,7 +525,11 @@ var
   ASN1_BIT_STRING_num_asc: function(const name: PIdAnsiChar; tbl: PBIT_STRING_BITNAME): TIdC_INT cdecl = nil;
   ASN1_BIT_STRING_set_asc: function(bs: PASN1_BIT_STRING; const name: PIdAnsiChar; value: TIdC_INT; tbl: PBIT_STRING_BITNAME): TIdC_INT cdecl = nil;
 
-  //DECLARE_ASN1_FUNCTIONS(ASN1_INTEGER)
+  ASN1_INTEGER_new: function: PASN1_INTEGER cdecl = nil;
+  ASN1_INTEGER_free: procedure(a: PASN1_INTEGER) cdecl = nil;
+  d2i_ASN1_INTEGER: function(a: PPASN1_INTEGER; const in_: PPByte; len: TIdC_Long): PASN1_INTEGER cdecl = nil;
+  i2d_ASN1_INTEGER: function(a: PASN1_INTEGER; out_: PPByte): TIdC_Int cdecl = nil;
+
   d2i_ASN1_UINTEGER: function(a: PPASN1_INTEGER; const pp: PPByte; length: TIdC_LONG): PASN1_INTEGER cdecl = nil;
   ASN1_INTEGER_dup: function(const x: PASN1_INTEGER): PASN1_INTEGER cdecl = nil;
   ASN1_INTEGER_cmp: function(const x: PASN1_INTEGER; const y: PASN1_INTEGER): TIdC_INT cdecl = nil;

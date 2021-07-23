@@ -459,6 +459,14 @@ type
   BIT_STRING_BITNAME = BIT_STRING_BITNAME_st;
   PBIT_STRING_BITNAME = ^BIT_STRING_BITNAME;
 
+//DECLARE_ASN1_FUNCTIONS(type) -->
+//        type *name##_new(void); \
+//        void name##_free(type *a);
+//        type *d2i_##name(type **a, const unsigned char **in, long len); \
+//        int i2d_##name(type *a, unsigned char **out); \
+//#  define DECLARE_ASN1_ITEM(name) \
+//        OPENSSL_EXTERN const ASN1_ITEM name##_it;
+
 var
 // DECLARE_ASN1_FUNCTIONS_fname(ASN1_TYPE, ASN1_ANY, ASN1_TYPE)
   function ASN1_TYPE_get(const a: PASN1_TYPE): TIdC_INT;
@@ -507,7 +515,11 @@ var
   function ASN1_BIT_STRING_num_asc(const name: PIdAnsiChar; tbl: PBIT_STRING_BITNAME): TIdC_INT;
   function ASN1_BIT_STRING_set_asc(bs: PASN1_BIT_STRING; const name: PIdAnsiChar; value: TIdC_INT; tbl: PBIT_STRING_BITNAME): TIdC_INT;
 
-  //DECLARE_ASN1_FUNCTIONS(ASN1_INTEGER)
+  function ASN1_INTEGER_new: PASN1_INTEGER;
+  procedure ASN1_INTEGER_free(a: PASN1_INTEGER);
+  function d2i_ASN1_INTEGER(a: PPASN1_INTEGER; const in_: PPByte; len: TIdC_Long): PASN1_INTEGER;
+  function i2d_ASN1_INTEGER(a: PASN1_INTEGER; out_: PPByte): TIdC_Int;
+
   function d2i_ASN1_UINTEGER(a: PPASN1_INTEGER; const pp: PPByte; length: TIdC_LONG): PASN1_INTEGER;
   function ASN1_INTEGER_dup(const x: PASN1_INTEGER): PASN1_INTEGER;
   function ASN1_INTEGER_cmp(const x: PASN1_INTEGER; const y: PASN1_INTEGER): TIdC_INT;
