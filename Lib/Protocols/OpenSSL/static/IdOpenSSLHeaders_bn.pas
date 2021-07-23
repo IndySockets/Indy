@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_bn;
 
@@ -412,7 +412,7 @@ type
 //int (*BN_nist_mod_func(const BIGNUM *p)) (BIGNUM *r, const BIGNUM *a,
 //                                          const BIGNUM *field, BN_CTX *ctx);
 
-  function BN_generate_dsa_nonce(&out: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function BN_generate_dsa_nonce(out_: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
 
   (* Primes from RFC 2409 *)
   function BN_get_rfc2409_prime_768(bn: PBIGNUM ): PBIGNUM cdecl; external CLibCrypto;

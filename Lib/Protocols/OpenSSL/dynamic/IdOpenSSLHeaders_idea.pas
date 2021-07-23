@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_idea;
 
@@ -74,7 +74,7 @@ var
   IDEA_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; enc: TIdC_INT) cdecl = nil;
   IDEA_cfb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT; enc: TIdC_INT) cdecl = nil;
   IDEA_ofb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT) cdecl = nil;
-  IDEA_encrypt: procedure(&in: PIdC_LONG; ks: PIDEA_KEY_SCHEDULE) cdecl = nil;
+  IDEA_encrypt: procedure(in_: PIdC_LONG; ks: PIDEA_KEY_SCHEDULE) cdecl = nil;
 
 implementation
 

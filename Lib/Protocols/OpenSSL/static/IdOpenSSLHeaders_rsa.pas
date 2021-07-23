@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_rsa;
 
@@ -180,7 +180,7 @@ type
 
   RSA_meth_set_finish_finish = function(rsa: PRSA): TIdC_INT; cdecl;
 
-  RSA_meth_set_sign_sign = function(&type: TIdC_INT; const m: PByte;
+  RSA_meth_set_sign_sign = function(type_: TIdC_INT; const m: PByte;
     m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; const rsa: PRSA): TIdC_INT; cdecl;
 
   RSA_meth_set_verify_verify = function(dtype: TIdC_INT; const m: PByte;
@@ -329,15 +329,15 @@ type
    * The following 2 functions sign and verify a X509_SIG ASN1 object inside
    * PKCS#1 padded RSA encryption
    *)
-  function RSA_sign(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
-  function RSA_verify(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; const sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_sign(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_verify(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; const sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
 
   (*
    * The following 2 function sign and verify a ASN1_OCTET_STRING object inside
    * PKCS#1 padded RSA encryption
    *)
-  function RSA_sign_ASN1_OCTET_STRING(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
-  function RSA_verify_ASN1_OCTET_STRING(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_sign_ASN1_OCTET_STRING(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
+  function RSA_verify_ASN1_OCTET_STRING(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl; external CLibCrypto;
 
   function RSA_blinding_on(rsa: PRSA; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
   procedure RSA_blinding_off(rsa: PRSA) cdecl; external CLibCrypto;

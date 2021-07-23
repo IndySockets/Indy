@@ -113,11 +113,11 @@ type
 
   EC_KEY_METHOD_compute_key_ckey = function(psec: PPByte; pseclen: PIdC_SIZET; const pub_key: PEC_POINT; const ecdh: PEC_KEY): TIdC_INT; cdecl;
 
-  EC_KEY_METHOD_sign_sign = function(&type: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const r: PBIGNUM; eckey: PEC_KEY): TIdC_INT; cdecl;
+  EC_KEY_METHOD_sign_sign = function(type_: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const r: PBIGNUM; eckey: PEC_KEY): TIdC_INT; cdecl;
   EC_KEY_METHOD_sign_sign_setup = function(eckey: PEC_KEY; ctx_in: PBN_CTX; kinvp: PPBIGNUM; rp: PPBIGNUM): TIdC_INT; cdecl;
   EC_KEY_METHOD_sign_sign_sig = function(const dgst: PByte; dgst_len: TIdC_INT; const in_kinv: PBIGNUM; const in_r: PBIGNUM; eckey: PEC_KEY): PECDSA_SIG; cdecl;
 
-  EC_KEY_METHOD_verify_verify = function(&type: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; sig_len: TIdC_INT; eckey: PEC_KEY): TIdC_INT; cdecl;
+  EC_KEY_METHOD_verify_verify = function(type_: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; sig_len: TIdC_INT; eckey: PEC_KEY): TIdC_INT; cdecl;
   EC_KEY_METHOD_verify_verify_sig = function(const dgst: PByte; dgst_len: TIdC_INT; const sig: PECDSA_SIG; eckey: PEC_KEY): TIdC_INT; cdecl;
 
   PEC_KEY_METHOD_init_init = ^EC_KEY_METHOD_init_init;
@@ -308,8 +308,8 @@ var
   function EC_KEY_set_method(key: PEC_KEY; const meth: PEC_KEY_METHOD): TIdC_INT;
   function EC_KEY_new_method(engine: PENGINE): PEC_KEY;
 
-  function ECDH_KDF_X9_62(&out: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; const sinfo: PByte; sinfolen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT;
-  function ECDH_compute_key(&out: Pointer; oulen: TIdC_SIZET; const pub_key: PEC_POINT; const ecdh: PEC_KEY; kdf: ECDH_compute_key_KDF): TIdC_INT;
+  function ECDH_KDF_X9_62(out_: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; const sinfo: PByte; sinfolen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT;
+  function ECDH_compute_key(out_: Pointer; oulen: TIdC_SIZET; const pub_key: PEC_POINT; const ecdh: PEC_KEY; kdf: ECDH_compute_key_KDF): TIdC_INT;
 
   function ECDSA_SIG_new: PECDSA_SIG;
   procedure ECDSA_SIG_free(sig: PECDSA_SIG);
@@ -323,9 +323,9 @@ var
   function ECDSA_do_sign_ex(const dgst: PByte; dgst_len: TIdC_INT; const kinv: PBIGNUM; const rp: PBIGNUM; eckey: PEC_KEY): PECDSA_SIG;
   function ECDSA_do_verify(const dgst: PByte; dgst_len: TIdC_INT; const sig: PECDSA_SIG; eckey: PEC_KEY): TIdC_INT;
   function ECDSA_sign_setup(eckey: PEC_KEY; ctx: PBN_CTX; kiv: PPBIGNUM; rp: PPBIGNUM): TIdC_INT;
-  function ECDSA_sign(&type: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; eckey: PEC_KEY): TIdC_INT;
-  function ECDSA_sign_ex(&type: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const rp: PBIGNUM; eckey: PEC_KEY): TIdC_INT;
-  function ECDSA_verify(&type: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; const sig: PByte; siglen: TIdC_INT; eckey: PEC_KEY): TIdC_INT;
+  function ECDSA_sign(type_: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; eckey: PEC_KEY): TIdC_INT;
+  function ECDSA_sign_ex(type_: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const rp: PBIGNUM; eckey: PEC_KEY): TIdC_INT;
+  function ECDSA_verify(type_: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; const sig: PByte; siglen: TIdC_INT; eckey: PEC_KEY): TIdC_INT;
   function ECDSA_size(const eckey: PEC_KEY): TIdC_INT;
 
   function EC_KEY_METHOD_new(const meth: PEC_KEY_METHOD): PEC_KEY_METHOD;

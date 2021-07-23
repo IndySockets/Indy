@@ -1598,7 +1598,7 @@ var
   function SSL_SESSION_print_keylog(bp: PBIO; const x: PSSL_SESSION): TIdC_INT;
   function SSL_SESSION_up_ref(ses: PSSL_SESSION): TIdC_INT;
   procedure SSL_SESSION_free(ses: PSSL_SESSION);
-  //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *&in, Byte **pp);
+  //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *in_, Byte **pp);
   function SSL_set_session(&to: PSSL; session: PSSL_SESSION): TIdC_INT;
   function SSL_CTX_add_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT;
   function SSL_CTX_remove_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT;
@@ -2008,13 +2008,13 @@ var
   //        ((void) SSL_CTX_set_validation_callback((ctx), NULL, NULL))
 
   ///*
-  // * The validation type enumerates the available behaviours of the built-&in SSL
+  // * The validation type enumerates the available behaviours of the built-in SSL
   // * CT validation callback selected via SSL_enable_ct() and SSL_CTX_enable_ct().
   // * The underlying callback is a static function in_ libssl.
   // */
 
   ///*
-  // * Enable CT by setting up a callback that implements one of the built-&in
+  // * Enable CT by setting up a callback that implements one of the built-in
   // * validation variants.  The SSL_CT_VALIDATION_PERMISSIVE variant always
   // * continues the handshake, the application can make appropriate decisions at
   // * handshake completion.  The SSL_CT_VALIDATION_STRICT variant requires at

@@ -569,7 +569,7 @@ var
   function BIO_get_retry_BIO(bio: PBIO; reason: TIdC_INT): PBIO;
   function BIO_get_retry_reason(bio: PBIO): TIdC_INT;
   procedure BIO_set_retry_reason(bio: PBIO; reason: TIdC_INT);
-  function BIO_dup_chain(&in: PBIO): PBIO;
+  function BIO_dup_chain(in_: PBIO): PBIO;
 
   function BIO_nread0(bio: PBIO; buf: PPIdAnsiChar): TIdC_INT;
   function BIO_nread(bio: PBIO; buf: PPIdAnsiChar; num: TIdC_INT): TIdC_INT;
@@ -623,7 +623,7 @@ var
 //  function BIO_dump_fp(fp: cFile; const s: PByte; len: TIdC_INT): TIdC_INT;
 //  function BIO_dump_indent_fp(fp: cFile; const s: PByte; len: TIdC_INT; indent: TIdC_INT): TIdC_INT;
 
-  function BIO_hex_string(&out: PBIO; indent: TIdC_INT; width: TIdC_INT; data: PByte; datalen: TIdC_INT): TIdC_INT;
+  function BIO_hex_string(out_: PBIO; indent: TIdC_INT; width: TIdC_INT; data: PByte; datalen: TIdC_INT): TIdC_INT;
 
   function BIO_ADDR_new: PBIO_ADDR;
   function BIO_ADDR_rawmake(ap: PBIO_ADDR; familiy: TIdC_INT; const where: Pointer; wherelen: TIdC_SIZET; port: TIdC_SHORT): TIdC_INT;

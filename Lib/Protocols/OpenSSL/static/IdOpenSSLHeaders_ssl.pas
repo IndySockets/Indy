@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 29.10.2020 07:09:32
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_ssl;
 
@@ -1603,7 +1603,7 @@ function SSL_get_max_proto_version(s: PSSL): TIdC_LONG;
   function SSL_SESSION_print_keylog(bp: PBIO; const x: PSSL_SESSION): TIdC_INT cdecl; external CLibSSL;
   function SSL_SESSION_up_ref(ses: PSSL_SESSION): TIdC_INT cdecl; external CLibSSL;
   procedure SSL_SESSION_free(ses: PSSL_SESSION) cdecl; external CLibSSL;
-  //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *&in, Byte **pp);
+  //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *in_, Byte **pp);
   function SSL_set_session(&to: PSSL; session: PSSL_SESSION): TIdC_INT cdecl; external CLibSSL;
   function SSL_CTX_add_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl; external CLibSSL;
   function SSL_CTX_remove_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl; external CLibSSL;
@@ -2013,13 +2013,13 @@ function SSL_get_max_proto_version(s: PSSL): TIdC_LONG;
   //        ((void) SSL_CTX_set_validation_callback((ctx), NULL, NULL))
 
   ///*
-  // * The validation type enumerates the available behaviours of the built-&in SSL
+  // * The validation type enumerates the available behaviours of the built-in SSL
   // * CT validation callback selected via SSL_enable_ct() and SSL_CTX_enable_ct().
   // * The underlying callback is a static function in_ libssl.
   // */
 
   ///*
-  // * Enable CT by setting up a callback that implements one of the built-&in
+  // * Enable CT by setting up a callback that implements one of the built-in
   // * validation variants.  The SSL_CT_VALIDATION_PERMISSIVE variant always
   // * continues the handshake, the application can make appropriate decisions at
   // * handshake completion.  The SSL_CT_VALIDATION_STRICT variant requires at

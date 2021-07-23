@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_buffer;
 
@@ -66,7 +66,7 @@ var
   BUF_MEM_free: procedure(a: PBUF_MEM) cdecl = nil;
   BUF_MEM_grow: function(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl = nil;
   BUF_MEM_grow_clean: function(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET cdecl = nil;
-  BUF_reverse: procedure(&out: PByte; const in_: PByte; siz: TIdC_SIZET) cdecl = nil;
+  BUF_reverse: procedure(out_: PByte; const in_: PByte; siz: TIdC_SIZET) cdecl = nil;
 
 implementation
 

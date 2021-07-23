@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_cms;
 
@@ -149,9 +149,9 @@ var
   d2i_CMS_bio: function(bp: PBIO; cms: PPCMS_ContentInfo): PCMS_ContentInfo cdecl = nil;
   i2d_CMS_bio: function(bp: PBIO; cms: PCMS_ContentInfo): TIdC_INT cdecl = nil;
 
-  BIO_new_CMS: function(&out: PBIO; cms: PCMS_ContentInfo): PBIO cdecl = nil;
-  i2d_CMS_bio_stream: function(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
-  PEM_write_bio_CMS_stream: function(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
+  BIO_new_CMS: function(out_: PBIO; cms: PCMS_ContentInfo): PBIO cdecl = nil;
+  i2d_CMS_bio_stream: function(out_: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
+  PEM_write_bio_CMS_stream: function(out_: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
   SMIME_read_CMS: function(bio: PBIO; bcont: PPBIO): PCMS_ContentInfo cdecl = nil;
   SMIME_write_CMS: function(bio: PBIO; cms: PCMS_ContentInfo; data: PBIO; flags: TIdC_INT): TIdC_INT cdecl = nil;
 
@@ -162,14 +162,14 @@ var
 //  function CMS_sign_receipt(si: PCMS_SignerInfo; signcert: PX509; pkey: PEVP_PKEY; {STACK_OF(X509) *certs;} flags: TIdC_UINT): PCMS_ContentInfo;
 
   CMS_data: function(cms: PCMS_ContentInfo; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
-  CMS_data_create: function(&in: PBIO; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
+  CMS_data_create: function(in_: PBIO; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
   CMS_digest_verify: function(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
-  CMS_digest_create: function(&in: PBIO; const md: PEVP_MD; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
+  CMS_digest_create: function(in_: PBIO; const md: PEVP_MD; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
   CMS_EncryptedData_decrypt: function(cms: PCMS_ContentInfo; const key: PByte; keylen: TIdC_SIZET; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
 
-  CMS_EncryptedData_encrypt: function(&in: PBIO; const cipher: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
+  CMS_EncryptedData_encrypt: function(in_: PBIO; const cipher: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
   CMS_EncryptedData_set1_key: function(cms: PCMS_ContentInfo; const ciph: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET): TIdC_INT cdecl = nil;
 
@@ -213,7 +213,7 @@ var
   CMS_RecipientInfo_encrypt: function(cms: PCMS_ContentInfo; ri: PCMS_RecipientInfo): TIdC_INT cdecl = nil;
 
   CMS_uncompress: function(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl = nil;
-  CMS_compress: function(&in: PBIO; comp_nid: TIdC_INT; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
+  CMS_compress: function(in_: PBIO; comp_nid: TIdC_INT; flags: TIdC_UINT): PCMS_ContentInfo cdecl = nil;
 
   CMS_set1_eContentType: function(cms: CMS_ContentInfo; const oit: PASN1_OBJECT): TIdC_INT cdecl = nil;
   CMS_get0_eContentType: function(cms: PCMS_ContentInfo): PASN1_OBJECT cdecl = nil;

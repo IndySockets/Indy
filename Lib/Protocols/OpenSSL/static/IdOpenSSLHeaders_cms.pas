@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_cms;
 
@@ -144,9 +144,9 @@ const
   function d2i_CMS_bio(bp: PBIO; cms: PPCMS_ContentInfo): PCMS_ContentInfo cdecl; external CLibCrypto;
   function i2d_CMS_bio(bp: PBIO; cms: PCMS_ContentInfo): TIdC_INT cdecl; external CLibCrypto;
 
-  function BIO_new_CMS(&out: PBIO; cms: PCMS_ContentInfo): PBIO cdecl; external CLibCrypto;
-  function i2d_CMS_bio_stream(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function PEM_write_bio_CMS_stream(&out: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function BIO_new_CMS(out_: PBIO; cms: PCMS_ContentInfo): PBIO cdecl; external CLibCrypto;
+  function i2d_CMS_bio_stream(out_: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function PEM_write_bio_CMS_stream(out_: PBIO; cms: PCMS_ContentInfo; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function SMIME_read_CMS(bio: PBIO; bcont: PPBIO): PCMS_ContentInfo cdecl; external CLibCrypto;
   function SMIME_write_CMS(bio: PBIO; cms: PCMS_ContentInfo; data: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
@@ -157,14 +157,14 @@ const
 //  function CMS_sign_receipt(si: PCMS_SignerInfo; signcert: PX509; pkey: PEVP_PKEY; {STACK_OF(X509) *certs;} flags: TIdC_UINT): PCMS_ContentInfo;
 
   function CMS_data(cms: PCMS_ContentInfo; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl; external CLibCrypto;
-  function CMS_data_create(&in: PBIO; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
+  function CMS_data_create(in_: PBIO; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
 
   function CMS_digest_verify(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl; external CLibCrypto;
-  function CMS_digest_create(&in: PBIO; const md: PEVP_MD; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
+  function CMS_digest_create(in_: PBIO; const md: PEVP_MD; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
 
   function CMS_EncryptedData_decrypt(cms: PCMS_ContentInfo; const key: PByte; keylen: TIdC_SIZET; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl; external CLibCrypto;
 
-  function CMS_EncryptedData_encrypt(&in: PBIO; const cipher: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
+  function CMS_EncryptedData_encrypt(in_: PBIO; const cipher: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
 
   function CMS_EncryptedData_set1_key(cms: PCMS_ContentInfo; const ciph: PEVP_CIPHER; const key: PByte; keylen: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
 
@@ -208,7 +208,7 @@ const
   function CMS_RecipientInfo_encrypt(cms: PCMS_ContentInfo; ri: PCMS_RecipientInfo): TIdC_INT cdecl; external CLibCrypto;
 
   function CMS_uncompress(cms: PCMS_ContentInfo; dcont: PBIO; out_: PBIO; flags: TIdC_UINT): TIdC_INT cdecl; external CLibCrypto;
-  function CMS_compress(&in: PBIO; comp_nid: TIdC_INT; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
+  function CMS_compress(in_: PBIO; comp_nid: TIdC_INT; flags: TIdC_UINT): PCMS_ContentInfo cdecl; external CLibCrypto;
 
   function CMS_set1_eContentType(cms: CMS_ContentInfo; const oit: PASN1_OBJECT): TIdC_INT cdecl; external CLibCrypto;
   function CMS_get0_eContentType(cms: PCMS_ContentInfo): PASN1_OBJECT cdecl; external CLibCrypto;

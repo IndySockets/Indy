@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_rsa;
 
@@ -181,7 +181,7 @@ type
 
   RSA_meth_set_finish_finish = function(rsa: PRSA): TIdC_INT; cdecl;
 
-  RSA_meth_set_sign_sign = function(&type: TIdC_INT; const m: PByte;
+  RSA_meth_set_sign_sign = function(type_: TIdC_INT; const m: PByte;
     m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; const rsa: PRSA): TIdC_INT; cdecl;
 
   RSA_meth_set_verify_verify = function(dtype: TIdC_INT; const m: PByte;
@@ -334,15 +334,15 @@ var
    * The following 2 functions sign and verify a X509_SIG ASN1 object inside
    * PKCS#1 padded RSA encryption
    *)
-  RSA_sign: function(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
-  RSA_verify: function(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; const sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
+  RSA_sign: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
+  RSA_verify: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; const sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
 
   (*
    * The following 2 function sign and verify a ASN1_OCTET_STRING object inside
    * PKCS#1 padded RSA encryption
    *)
-  RSA_sign_ASN1_OCTET_STRING: function(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
-  RSA_verify_ASN1_OCTET_STRING: function(&type: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
+  RSA_sign_ASN1_OCTET_STRING: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
+  RSA_verify_ASN1_OCTET_STRING: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT cdecl = nil;
 
   RSA_blinding_on: function(rsa: PRSA; ctx: PBN_CTX): TIdC_INT cdecl = nil;
   RSA_blinding_off: procedure(rsa: PRSA) cdecl = nil;

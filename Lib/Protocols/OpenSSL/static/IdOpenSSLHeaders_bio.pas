@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_bio;
 
@@ -574,7 +574,7 @@ function BIO_do_handshake(b: PBIO): TIdC_LONG;
   function BIO_get_retry_BIO(bio: PBIO; reason: TIdC_INT): PBIO cdecl; external CLibCrypto;
   function BIO_get_retry_reason(bio: PBIO): TIdC_INT cdecl; external CLibCrypto;
   procedure BIO_set_retry_reason(bio: PBIO; reason: TIdC_INT) cdecl; external CLibCrypto;
-  function BIO_dup_chain(&in: PBIO): PBIO cdecl; external CLibCrypto;
+  function BIO_dup_chain(in_: PBIO): PBIO cdecl; external CLibCrypto;
 
   function BIO_nread0(bio: PBIO; buf: PPIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
   function BIO_nread(bio: PBIO; buf: PPIdAnsiChar; num: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
@@ -628,7 +628,7 @@ function BIO_do_handshake(b: PBIO): TIdC_LONG;
 //  function BIO_dump_fp(fp: cFile; const s: PByte; len: TIdC_INT): TIdC_INT;
 //  function BIO_dump_indent_fp(fp: cFile; const s: PByte; len: TIdC_INT; indent: TIdC_INT): TIdC_INT;
 
-  function BIO_hex_string(&out: PBIO; indent: TIdC_INT; width: TIdC_INT; data: PByte; datalen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function BIO_hex_string(out_: PBIO; indent: TIdC_INT; width: TIdC_INT; data: PByte; datalen: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
   function BIO_ADDR_new: PBIO_ADDR cdecl; external CLibCrypto;
   function BIO_ADDR_rawmake(ap: PBIO_ADDR; familiy: TIdC_INT; const where: Pointer; wherelen: TIdC_SIZET; port: TIdC_SHORT): TIdC_INT cdecl; external CLibCrypto;

@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_objects;
 
@@ -69,7 +69,7 @@ var
   OBJ_NAME_get: function(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar cdecl = nil;
   OBJ_NAME_add: function(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl = nil;
   OBJ_NAME_remove: function(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl = nil;
-  OBJ_NAME_cleanup: procedure(&type: TIdC_INT) cdecl = nil;
+  OBJ_NAME_cleanup: procedure(type_: TIdC_INT) cdecl = nil;
 //  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
 //  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
@@ -176,7 +176,7 @@ var
   OBJ_new_nid: function(num: TIdC_INT): TIdC_INT cdecl = nil;
   OBJ_add_object: function(const obj: PASN1_OBJECT): TIdC_INT cdecl = nil;
   OBJ_create: function(const oid: PIdAnsiChar; const sn: PIdAnsiChar; const ln: PIdAnsiChar): TIdC_INT cdecl = nil;
-  OBJ_create_objects: function(&in: PBIO): TIdC_INT cdecl = nil;
+  OBJ_create_objects: function(in_: PBIO): TIdC_INT cdecl = nil;
 
   OBJ_length: function(const obj: PASN1_OBJECT): TIdC_SIZET cdecl = nil;
   OBJ_get0_data: function(const obj: PASN1_OBJECT): PByte cdecl = nil;

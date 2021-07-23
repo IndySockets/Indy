@@ -56,7 +56,7 @@ var
   procedure BUF_MEM_free(a: PBUF_MEM);
   function BUF_MEM_grow(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET;
   function BUF_MEM_grow_clean(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET;
-  procedure BUF_reverse(&out: PByte; const in_: PByte; siz: TIdC_SIZET);
+  procedure BUF_reverse(out_: PByte; const in_: PByte; siz: TIdC_SIZET);
 
 implementation
 

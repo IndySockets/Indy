@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_pkcs7;
 
@@ -220,8 +220,8 @@ type
   function PKCS7_dup(p7: PPKCS7): PPKCS7 cdecl; external CLibCrypto;
   function d2i_PKCS7_bio(bp: PBIO; p7: PPPKCS7): PPKCS7 cdecl; external CLibCrypto;
   function i2d_PKCS7_bio(bp: PBIO; p7: PPKCS7): TIdC_INT cdecl; external CLibCrypto;
-  function i2d_PKCS7_bio_stream(&out: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function PEM_write_bio_PKCS7_stream(&out: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function i2d_PKCS7_bio_stream(out_: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function PEM_write_bio_PKCS7_stream(out_: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
 //  function PKCS7_SIGNER_INFO_new: PPKCS7_SIGNER_INFO;
 //  procedure PKCS7_SIGNER_INFO_free(a: PPKCS7_SIGNER_INFO);
@@ -282,7 +282,7 @@ type
 //  function PKCS7_ATTR_VERIFY_it: PASN1_ITEM;
 //
 //  function i2d_PKCS7_NDEF(const a: PPKCS7; out_: PPByte): TIdC_INT;
-//  function PKCS7_print_ctx(&out: PBIO; const x: PPKCS7; indent: TIdC_INT; const pctx: PASN1_PCTX): TIdC_INT;
+//  function PKCS7_print_ctx(out_: PBIO; const x: PPKCS7; indent: TIdC_INT; const pctx: PASN1_PCTX): TIdC_INT;
 
   function PKCS7_ctrl(p7: PPKCS7; cmd: TIdC_INT; larg: TIdC_LONG; parg: PIdAnsiChar): TIdC_LONG cdecl; external CLibCrypto;
 
@@ -345,7 +345,7 @@ type
   function SMIME_write_PKCS7(bio: PBIO; p7: PPKCS7; data: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function SMIME_read_PKCS7(bio: PBIO; bcont: PPBIO): PPKCS7 cdecl; external CLibCrypto;
 
-  function BIO_new_PKCS7(&out: PBIO; p7: PPKCS7): PBIO cdecl; external CLibCrypto;
+  function BIO_new_PKCS7(out_: PBIO; p7: PPKCS7): PBIO cdecl; external CLibCrypto;
 
 implementation
 

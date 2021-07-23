@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_x509;
 
@@ -375,7 +375,7 @@ type
   function NETSCAPE_SPKI_get_pubkey(x: PNETSCAPE_SPKI): PEVP_PKEY cdecl; external CLibCrypto;
   function NETSCAPE_SPKI_set_pubkey(x: PNETSCAPE_SPKI; pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
 
-  function NETSCAPE_SPKI_print(&out: PBIO; spki: PNETSCAPE_SPKI): TIdC_INT cdecl; external CLibCrypto;
+  function NETSCAPE_SPKI_print(out_: PBIO; spki: PNETSCAPE_SPKI): TIdC_INT cdecl; external CLibCrypto;
 
   function X509_signature_dump(bp: PBIO; const sig: PASN1_STRING; indent: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function X509_signature_print(bp: PBIO; const alg: PX509_ALGOR; const sig: PASN1_STRING): TIdC_INT cdecl; external CLibCrypto;
@@ -776,7 +776,7 @@ type
 
   function X509_CRL_cmp(const a: PX509_CRL; const b: PX509_CRL): TIdC_INT cdecl; external CLibCrypto;
   function X509_CRL_match(const a: PX509_CRL; const b: PX509_CRL): TIdC_INT cdecl; external CLibCrypto;
-  function X509_aux_print(&out: PBIO; x: PX509; indent: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function X509_aux_print(out_: PBIO; x: PX509; indent: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   //# ifndef OPENSSL_NO_STDIO
   //TIdC_INT X509_print_ex_fp(FILE *bp, X509 *x, unsigned TIdC_LONG nmflag,
   //                     unsigned TIdC_LONG cflag);
@@ -788,11 +788,11 @@ type
   //# endif
 
   function X509_NAME_print(bp: PBIO; const name: PX509_NAME; obase: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  function X509_NAME_print_ex(&out: PBIO; const nm: PX509_NAME; indent: TIdC_INT; flags: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
+  function X509_NAME_print_ex(out_: PBIO; const nm: PX509_NAME; indent: TIdC_INT; flags: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
   function X509_print_ex(bp: PBIO; x: PX509; nmflag: TIdC_ULONG; cflag: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
   function X509_print(bp: PBIO; x: PX509): TIdC_INT cdecl; external CLibCrypto;
   function X509_ocspid_print(bp: PBIO; x: PX509): TIdC_INT cdecl; external CLibCrypto;
-  function X509_CRL_print_ex(&out: PBIO; x: PX509_CRL; nmflag: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
+  function X509_CRL_print_ex(out_: PBIO; x: PX509_CRL; nmflag: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
   function X509_CRL_print(bp: PBIO; x: PX509_CRL): TIdC_INT cdecl; external CLibCrypto;
   function X509_REQ_print_ex(bp: PBIO; x: PX509_REQ; nmflag: TIdC_ULONG; cflag: TIdC_ULONG): TIdC_INT cdecl; external CLibCrypto;
   function X509_REQ_print(bp: PBIO; req: PX509_REQ): TIdC_INT cdecl; external CLibCrypto;

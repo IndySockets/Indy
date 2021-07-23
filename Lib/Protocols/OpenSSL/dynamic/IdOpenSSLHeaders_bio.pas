@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_bio;
 
@@ -579,7 +579,7 @@ var
   BIO_get_retry_BIO: function(bio: PBIO; reason: TIdC_INT): PBIO cdecl = nil;
   BIO_get_retry_reason: function(bio: PBIO): TIdC_INT cdecl = nil;
   BIO_set_retry_reason: procedure(bio: PBIO; reason: TIdC_INT) cdecl = nil;
-  BIO_dup_chain: function(&in: PBIO): PBIO cdecl = nil;
+  BIO_dup_chain: function(in_: PBIO): PBIO cdecl = nil;
 
   BIO_nread0: function(bio: PBIO; buf: PPIdAnsiChar): TIdC_INT cdecl = nil;
   BIO_nread: function(bio: PBIO; buf: PPIdAnsiChar; num: TIdC_INT): TIdC_INT cdecl = nil;
@@ -633,7 +633,7 @@ var
 //  function BIO_dump_fp(fp: cFile; const s: PByte; len: TIdC_INT): TIdC_INT;
 //  function BIO_dump_indent_fp(fp: cFile; const s: PByte; len: TIdC_INT; indent: TIdC_INT): TIdC_INT;
 
-  BIO_hex_string: function(&out: PBIO; indent: TIdC_INT; width: TIdC_INT; data: PByte; datalen: TIdC_INT): TIdC_INT cdecl = nil;
+  BIO_hex_string: function(out_: PBIO; indent: TIdC_INT; width: TIdC_INT; data: PByte; datalen: TIdC_INT): TIdC_INT cdecl = nil;
 
   BIO_ADDR_new: function: PBIO_ADDR cdecl = nil;
   BIO_ADDR_rawmake: function(ap: PBIO_ADDR; familiy: TIdC_INT; const where: Pointer; wherelen: TIdC_SIZET; port: TIdC_SHORT): TIdC_INT cdecl = nil;

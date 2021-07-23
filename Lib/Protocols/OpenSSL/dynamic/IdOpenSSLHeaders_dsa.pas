@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_dsa;
 
@@ -119,8 +119,8 @@ var
   DSA_size: function(const v1: PDSA): TIdC_INT cdecl = nil;
   DSA_bits: function(const d: PDSA): TIdC_INT cdecl = nil;
   DSA_security_bits: function(const d: PDSA): TIdC_INT cdecl = nil;
-  DSA_sign: function(&type: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; dsa: PDSA): TIdC_INT cdecl = nil;
-  DSA_verify: function(&type: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; siglen: TIdC_INT; dsa: PDSA): TIdC_INT cdecl = nil;
+  DSA_sign: function(type_: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; dsa: PDSA): TIdC_INT cdecl = nil;
+  DSA_verify: function(type_: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; siglen: TIdC_INT; dsa: PDSA): TIdC_INT cdecl = nil;
   //#define DSA_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_DSA, l, p, newf, dupf, freef)
   DSA_set_ex_data: function(d: PDSA; idx: TIdC_INT; arg: Pointer): TIdC_INT cdecl = nil;

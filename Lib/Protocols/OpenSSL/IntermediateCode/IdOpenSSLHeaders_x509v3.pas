@@ -686,7 +686,7 @@ var
   //function s2i_ASN1_IA5STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; const str: PIdAnsiChar): PASN1_IA5STRING;
 
 //  STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(method: PX509V3_EXT_METHOD; gen: PGENERAL_NAME; STACK_OF(CONF_VALUE) *ret);
-  function GENERAL_NAME_print(&out: PBIO; gen: PGENERAL_NAME): TIdC_INT;
+  function GENERAL_NAME_print(out_: PBIO; gen: PGENERAL_NAME): TIdC_INT;
 
 //  DECLARE_ASN1_FUNCTIONS(GENERAL_NAMES)
 
@@ -741,10 +741,10 @@ var
 //  DECLARE_ASN1_ALLOC_FUNCTIONS(POLICY_CONSTRAINTS)
 //  DECLARE_ASN1_ITEM(POLICY_CONSTRAINTS)
 
-  //function a2i_GENERAL_NAME(&out: PGENERAL_NAME; const method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; TIdC_INT gen_type; const value: PIdAnsiChar; is_nc: TIdC_INT): GENERAL_NAME;
+  //function a2i_GENERAL_NAME(out_: PGENERAL_NAME; const method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; TIdC_INT gen_type; const value: PIdAnsiChar; is_nc: TIdC_INT): GENERAL_NAME;
 
   //function v2i_GENERAL_NAME(const method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; cnf: PCONF_VALUE): PGENERAL_NAME;
-  //function v2i_GENERAL_NAME_ex(&out: PGENERAL_NAME; const method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; cnf: PCONF_VALUE; is_nc: TIdC_INT): PGENERAL_NAME;
+  //function v2i_GENERAL_NAME_ex(out_: PGENERAL_NAME; const method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; cnf: PCONF_VALUE; is_nc: TIdC_INT): PGENERAL_NAME;
   //procedure X509V3_conf_free(val: PCONF_VALUE);
 
   function X509V3_EXT_nconf_nid(conf: PCONF; ctx: PX509V3_CTX; ext_nid: TIdC_INT; const value: PIdAnsiChar): PX509_EXTENSION;
@@ -800,9 +800,9 @@ var
   function X509V3_EXT_i2d(ext_nid: TIdC_INT; crit: TIdC_INT; ext_struc: Pointer): PX509_EXTENSION;
 //  TIdC_INT X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x; nid: TIdC_INT; value: Pointer; crit: TIdC_INT; TIdC_ULONG flags);
 
-//  void X509V3_EXT_val_prn(&out: PBIO; STACK_OF(CONF_VALUE) *val; indent: TIdC_INT; TIdC_INT ml);
-  function X509V3_EXT_print(&out: PBIO; ext: PX509_EXTENSION; flag: TIdC_ULONG; indent: TIdC_INT): TIdC_INT;
-//  TIdC_INT X509V3_extensions_print(&out: PBIO; const PIdAnsiChar *title; const STACK_OF(X509_EXTENSION) *exts; flag: TIdC_ULONG; indent: TIdC_INT);
+//  void X509V3_EXT_val_prn(out_: PBIO; STACK_OF(CONF_VALUE) *val; indent: TIdC_INT; TIdC_INT ml);
+  function X509V3_EXT_print(out_: PBIO; ext: PX509_EXTENSION; flag: TIdC_ULONG; indent: TIdC_INT): TIdC_INT;
+//  TIdC_INT X509V3_extensions_print(out_: PBIO; const PIdAnsiChar *title; const STACK_OF(X509_EXTENSION) *exts; flag: TIdC_ULONG; indent: TIdC_INT);
 
   function X509_check_ca(x: PX509): TIdC_INT;
   function X509_check_purpose(x: PX509; id: TIdC_INT; ca: TIdC_INT): TIdC_INT;
@@ -847,7 +847,7 @@ var
   function a2i_IPADDRESS_NC(const ipasc: PIdAnsiChar): PASN1_OCTET_STRING;
 //  TIdC_INT X509V3_NAME_from_section(X509_NAME *nm; STACK_OF(CONF_VALUE) *dn_sk; TIdC_ULONG chtype);
 
-  procedure X509_POLICY_NODE_print(&out: PBIO; node: PX509_POLICY_NODE; indent: TIdC_INT);
+  procedure X509_POLICY_NODE_print(out_: PBIO; node: PX509_POLICY_NODE; indent: TIdC_INT);
 //  DEFINE_STACK_OF(X509_POLICY_NODE)
 
   (*

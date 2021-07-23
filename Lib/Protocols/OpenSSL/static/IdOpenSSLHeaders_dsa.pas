@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_dsa;
 
@@ -114,8 +114,8 @@ type
   function DSA_size(const v1: PDSA): TIdC_INT cdecl; external CLibCrypto;
   function DSA_bits(const d: PDSA): TIdC_INT cdecl; external CLibCrypto;
   function DSA_security_bits(const d: PDSA): TIdC_INT cdecl; external CLibCrypto;
-  function DSA_sign(&type: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; dsa: PDSA): TIdC_INT cdecl; external CLibCrypto;
-  function DSA_verify(&type: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; siglen: TIdC_INT; dsa: PDSA): TIdC_INT cdecl; external CLibCrypto;
+  function DSA_sign(type_: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; dsa: PDSA): TIdC_INT cdecl; external CLibCrypto;
+  function DSA_verify(type_: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; siglen: TIdC_INT; dsa: PDSA): TIdC_INT cdecl; external CLibCrypto;
   //#define DSA_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_DSA, l, p, newf, dupf, freef)
   function DSA_set_ex_data(d: PDSA; idx: TIdC_INT; arg: Pointer): TIdC_INT cdecl; external CLibCrypto;

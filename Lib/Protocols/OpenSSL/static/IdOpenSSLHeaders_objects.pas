@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_objects;
 
@@ -64,7 +64,7 @@ type
   function OBJ_NAME_get(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
   function OBJ_NAME_add(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
   function OBJ_NAME_remove(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
-  procedure OBJ_NAME_cleanup(&type: TIdC_INT) cdecl; external CLibCrypto;
+  procedure OBJ_NAME_cleanup(type_: TIdC_INT) cdecl; external CLibCrypto;
 //  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
 //  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
@@ -171,7 +171,7 @@ type
   function OBJ_new_nid(num: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function OBJ_add_object(const obj: PASN1_OBJECT): TIdC_INT cdecl; external CLibCrypto;
   function OBJ_create(const oid: PIdAnsiChar; const sn: PIdAnsiChar; const ln: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
-  function OBJ_create_objects(&in: PBIO): TIdC_INT cdecl; external CLibCrypto;
+  function OBJ_create_objects(in_: PBIO): TIdC_INT cdecl; external CLibCrypto;
 
   function OBJ_length(const obj: PASN1_OBJECT): TIdC_SIZET cdecl; external CLibCrypto;
   function OBJ_get0_data(const obj: PASN1_OBJECT): PByte cdecl; external CLibCrypto;

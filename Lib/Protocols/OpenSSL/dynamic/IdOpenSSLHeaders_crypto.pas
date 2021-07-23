@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 03.11.2020 09:35:33
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_crypto;
 
@@ -192,7 +192,7 @@ var
   // # define OPENSSL_MALLOC_MAX_NELEMS(type)  (((1U<<(sizeof(int)*8-1))-1)/sizeof(type))
 
   OpenSSL_version_num: function: TIdC_ULONG cdecl = nil;
-  OpenSSL_version: function(&type: TIdC_INT): PIdAnsiChar cdecl = nil;
+  OpenSSL_version: function(type_: TIdC_INT): PIdAnsiChar cdecl = nil;
 
   OPENSSL_issetugid: function: TIdC_INT cdecl = nil;
 

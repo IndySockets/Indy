@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_x509;
 
@@ -380,7 +380,7 @@ var
   NETSCAPE_SPKI_get_pubkey: function(x: PNETSCAPE_SPKI): PEVP_PKEY cdecl = nil;
   NETSCAPE_SPKI_set_pubkey: function(x: PNETSCAPE_SPKI; pkey: PEVP_PKEY): TIdC_INT cdecl = nil;
 
-  NETSCAPE_SPKI_print: function(&out: PBIO; spki: PNETSCAPE_SPKI): TIdC_INT cdecl = nil;
+  NETSCAPE_SPKI_print: function(out_: PBIO; spki: PNETSCAPE_SPKI): TIdC_INT cdecl = nil;
 
   X509_signature_dump: function(bp: PBIO; const sig: PASN1_STRING; indent: TIdC_INT): TIdC_INT cdecl = nil;
   X509_signature_print: function(bp: PBIO; const alg: PX509_ALGOR; const sig: PASN1_STRING): TIdC_INT cdecl = nil;
@@ -781,7 +781,7 @@ var
 
   X509_CRL_cmp: function(const a: PX509_CRL; const b: PX509_CRL): TIdC_INT cdecl = nil;
   X509_CRL_match: function(const a: PX509_CRL; const b: PX509_CRL): TIdC_INT cdecl = nil;
-  X509_aux_print: function(&out: PBIO; x: PX509; indent: TIdC_INT): TIdC_INT cdecl = nil;
+  X509_aux_print: function(out_: PBIO; x: PX509; indent: TIdC_INT): TIdC_INT cdecl = nil;
   //# ifndef OPENSSL_NO_STDIO
   //TIdC_INT X509_print_ex_fp(FILE *bp, X509 *x, unsigned TIdC_LONG nmflag,
   //                     unsigned TIdC_LONG cflag);
@@ -793,11 +793,11 @@ var
   //# endif
 
   X509_NAME_print: function(bp: PBIO; const name: PX509_NAME; obase: TIdC_INT): TIdC_INT cdecl = nil;
-  X509_NAME_print_ex: function(&out: PBIO; const nm: PX509_NAME; indent: TIdC_INT; flags: TIdC_ULONG): TIdC_INT cdecl = nil;
+  X509_NAME_print_ex: function(out_: PBIO; const nm: PX509_NAME; indent: TIdC_INT; flags: TIdC_ULONG): TIdC_INT cdecl = nil;
   X509_print_ex: function(bp: PBIO; x: PX509; nmflag: TIdC_ULONG; cflag: TIdC_ULONG): TIdC_INT cdecl = nil;
   X509_print: function(bp: PBIO; x: PX509): TIdC_INT cdecl = nil;
   X509_ocspid_print: function(bp: PBIO; x: PX509): TIdC_INT cdecl = nil;
-  X509_CRL_print_ex: function(&out: PBIO; x: PX509_CRL; nmflag: TIdC_ULONG): TIdC_INT cdecl = nil;
+  X509_CRL_print_ex: function(out_: PBIO; x: PX509_CRL; nmflag: TIdC_ULONG): TIdC_INT cdecl = nil;
   X509_CRL_print: function(bp: PBIO; x: PX509_CRL): TIdC_INT cdecl = nil;
   X509_REQ_print_ex: function(bp: PBIO; x: PX509_REQ; nmflag: TIdC_ULONG; cflag: TIdC_ULONG): TIdC_INT cdecl = nil;
   X509_REQ_print: function(bp: PBIO; req: PX509_REQ): TIdC_INT cdecl = nil;

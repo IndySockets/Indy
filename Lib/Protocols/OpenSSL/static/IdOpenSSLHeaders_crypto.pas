@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 03.11.2020 09:35:30
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_crypto;
 
@@ -187,7 +187,7 @@ function OPENSSL_secure_actual_size(ptr: Pointer): TIdC_SIZET;
   // # define OPENSSL_MALLOC_MAX_NELEMS(type)  (((1U<<(sizeof(int)*8-1))-1)/sizeof(type))
 
   function OpenSSL_version_num: TIdC_ULONG cdecl; external CLibCrypto;
-  function OpenSSL_version(&type: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
+  function OpenSSL_version(type_: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
 
   function OPENSSL_issetugid: TIdC_INT cdecl; external CLibCrypto;
 

@@ -182,7 +182,7 @@ var
   // # define OPENSSL_MALLOC_MAX_NELEMS(type)  (((1U<<(sizeof(int)*8-1))-1)/sizeof(type))
 
   function OpenSSL_version_num: TIdC_ULONG;
-  function OpenSSL_version(&type: TIdC_INT): PIdAnsiChar;
+  function OpenSSL_version(type_: TIdC_INT): PIdAnsiChar;
 
   function OPENSSL_issetugid: TIdC_INT;
 

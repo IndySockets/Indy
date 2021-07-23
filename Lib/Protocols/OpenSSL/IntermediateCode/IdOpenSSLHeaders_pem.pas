@@ -195,12 +195,12 @@ var
 
   function b2i_PrivateKey(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY;
   function b2i_PublicKey(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY;
-  function b2i_PrivateKey_bio(&in: PBIO): PEVP_PKEY;
-  function b2i_PublicKey_bio(&in: PBIO): PEVP_PKEY;
-  function i2b_PrivateKey_bio(&out: PBIO; pk: PEVP_PKEY): TIdC_INT;
-  function i2b_PublicKey_bio(&out: PBIO; pk: PEVP_PKEY): TIdC_INT;
-  function b2i_PVK_bio(&in: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY;
-  function i2b_PVK_bio(&out: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT;
+  function b2i_PrivateKey_bio(in_: PBIO): PEVP_PKEY;
+  function b2i_PublicKey_bio(in_: PBIO): PEVP_PKEY;
+  function i2b_PrivateKey_bio(out_: PBIO; pk: PEVP_PKEY): TIdC_INT;
+  function i2b_PublicKey_bio(out_: PBIO; pk: PEVP_PKEY): TIdC_INT;
+  function b2i_PVK_bio(in_: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY;
+  function i2b_PVK_bio(out_: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT;
 
 implementation
 

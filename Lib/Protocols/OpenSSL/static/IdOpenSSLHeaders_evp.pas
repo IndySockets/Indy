@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 29.10.2020 07:07:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_evp;
 
@@ -441,20 +441,20 @@ type
   pub_decode = function(pk: PEVP_PKEY; pub: PX509_PUBKEY): TIdC_INT; cdecl;
   pub_encode = function(pub: PX509_PUBKEY; const pk: PEVP_PKEY): TIdC_INT; cdecl;
   pub_cmd = function(const a: PEVP_PKEY; const b: PEVP_PKEY): TIdC_INT; cdecl;
-  pub_print = function(&out: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT; cdecl;
+  pub_print = function(out_: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT; cdecl;
   pkey_size = function(const pk: PEVP_PKEY): TIdC_INT; cdecl;
   pkey_bits = function(const pk: PEVP_PKEY): TIdC_INT; cdecl;
 
   priv_decode = function(pk: PEVP_PKEY; const p8inf: PKCS8_PRIV_KEY_INFO): TIdC_INT; cdecl;
   priv_encode = function(p8: PPKCS8_PRIV_KEY_INFO; const pk: PEVP_PKEY): TIdC_INT; cdecl;
-  priv_print = function(&out: PBIO; const pkea: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT; cdecl;
+  priv_print = function(out_: PBIO; const pkea: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT; cdecl;
 
   param_decode = function(pkey: PEVP_PKEY; const pder: PPByte; derlen: TIdC_INT): TIdC_INT; cdecl;
   param_encode = function(const pkey: PEVP_PKEY; pder: PPByte): TIdC_INT; cdecl;
   param_missing = function(const pk: PEVP_PKEY): TIdC_INT; cdecl;
   param_copy = function(&to: PEVP_PKEY; const from: PEVP_PKEY): TIdC_INT; cdecl;
   param_cmp = function(const a: PEVP_PKEY; const b: PEVP_PKEY): TIdC_INT; cdecl;
-  param_print = function(&out: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT; cdecl;
+  param_print = function(out_: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT; cdecl;
 
   pkey_free = procedure(pkey: PEVP_PKEY); cdecl;
   pkey_ctrl = function(pkey: PEVP_PKEY; op: TIdC_INT; arg1: TIdC_LONG; arg2: Pointer): TIdC_INT; cdecl;
@@ -652,7 +652,7 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
   function EVP_CIPHER_CTX_buf_noconst(ctx: PEVP_CIPHER_CTX): PByte cdecl; external CLibCrypto;
   function EVP_CIPHER_CTX_num(const ctx: PEVP_CIPHER_CTX): TIdC_INT cdecl; external CLibCrypto;
   procedure EVP_CIPHER_CTX_set_num(ctx: PEVP_CIPHER_CTX; num: TIdC_INT) cdecl; external CLibCrypto;
-  function EVP_CIPHER_CTX_copy(&out: PEVP_CIPHER_CTX; const in_: PEVP_CIPHER_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_CIPHER_CTX_copy(out_: PEVP_CIPHER_CTX; const in_: PEVP_CIPHER_CTX): TIdC_INT cdecl; external CLibCrypto;
   function EVP_CIPHER_CTX_get_app_data(const ctx: PEVP_CIPHER_CTX): Pointer cdecl; external CLibCrypto;
   procedure EVP_CIPHER_CTX_set_app_data(ctx: PEVP_CIPHER_CTX; data: Pointer) cdecl; external CLibCrypto;
   function EVP_CIPHER_CTX_get_cipher_data(const ctx: PEVP_CIPHER_CTX): Pointer cdecl; external CLibCrypto;
@@ -699,7 +699,7 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
   //# define EVP_MD_CTX_create()     EVP_MD_CTX_new()
   //# define EVP_MD_CTX_init(ctx)    EVP_MD_CTX_reset((ctx))
   //# define EVP_MD_CTX_destroy(ctx) EVP_MD_CTX_free((ctx))
-  function EVP_MD_CTX_copy_ex(&out: PEVP_MD_CTX; const in_: PEVP_MD_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_MD_CTX_copy_ex(out_: PEVP_MD_CTX; const in_: PEVP_MD_CTX): TIdC_INT cdecl; external CLibCrypto;
   procedure EVP_MD_CTX_set_flags(ctx: PEVP_MD_CTX; flags: TIdC_INT) cdecl; external CLibCrypto;
   procedure EVP_MD_CTX_clear_flags(ctx: PEVP_MD_CTX; flags: TIdC_INT) cdecl; external CLibCrypto;
   function EVP_MD_CTX_test_flags(const ctx: PEVP_MD_CTX; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
@@ -708,7 +708,7 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
   function EVP_DigestFinal_ex(ctx: PEVP_MD_CTX; md: PByte; s: PIdC_UINT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_Digest(const data: Pointer; count: TIdC_SIZET; md: PByte; size: PIdC_UINT; const type_: PEVP_MD; impl: PENGINE): TIdC_INT cdecl; external CLibCrypto;
 
-  function EVP_MD_CTX_copy(&out: PEVP_MD_CTX; const in_: PEVP_MD_CTX): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_MD_CTX_copy(out_: PEVP_MD_CTX; const in_: PEVP_MD_CTX): TIdC_INT cdecl; external CLibCrypto;
   function EVP_DigestInit(ctx: PEVP_MD_CTX; const type_: PEVP_MD): TIdC_INT cdecl; external CLibCrypto;
   function EVP_DigestFinal(ctx: PEVP_MD_CTX; md: PByte; s: PIdC_UINT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_DigestFinalXOF(ctx: PEVP_MD_CTX; md: PByte; len: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
@@ -725,13 +725,13 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
 
   function EVP_EncryptInit(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; const key: PByte; const iv: PByte): TIdC_INT cdecl; external CLibCrypto;
   function EVP_EncryptInit_ex(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; impl: PENGINE; const key: PByte; const iv: PByte): TIdC_INT cdecl; external CLibCrypto;
-  function EVP_EncryptUpdate(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; &in1: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_EncryptUpdate(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; in_1: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_EncryptFinal_ex(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_EncryptFinal(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
   function EVP_DecryptInit(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PidC_INT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_DecryptInit_ex(ctx: PEVP_CIPHER_CTX; const cipher: PEVP_CIPHER; impl: PENGINE; const key: PByte; const iv: PByte): TIdC_INT cdecl; external CLibCrypto;
-  function EVP_DecryptUpdate(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; &in1: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_DecryptUpdate(ctx: PEVP_CIPHER_CTX; out_: PByte; out1: PIdC_INT; const in_: PByte; in_1: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_DecryptFinal(ctx: PEVP_CIPHER_CTX; outm: PByte; out1: PIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_DecryptFinal_ex(ctx: PEVP_MD_CTX; outm: PByte; out1: PIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
@@ -999,7 +999,7 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
 
   function EVP_PKEY_decrypt_old(dec_key: PByte; const enc_key: PByte; enc_key_len: TIdC_INT; private_key: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PKEY_encrypt_old(dec_key: PByte; const enc_key: PByte; key_len: TIdC_INT; pub_key: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
-  function EVP_PKEY_type(&type: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_PKEY_type(type_: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PKEY_id(const pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PKEY_base_id(const pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PKEY_bits(const pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
@@ -1038,10 +1038,10 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
   function EVP_PKEY_up_ref(pkey: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
   procedure EVP_PKEY_free(pkey: PEVP_PKEY) cdecl; external CLibCrypto;
 
-  function d2i_PublicKey(&type: TIdC_INT; a: PPEVP_PKEY; const pp: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl; external CLibCrypto;
+  function d2i_PublicKey(type_: TIdC_INT; a: PPEVP_PKEY; const pp: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl; external CLibCrypto;
   function i2d_PublicKey(a: PEVP_PKEY; pp: PPByte): TIdC_INT cdecl; external CLibCrypto;
 
-  function d2i_PrivateKey(&type: TIdC_INT; a: PEVP_PKEY; const pp: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl; external CLibCrypto;
+  function d2i_PrivateKey(type_: TIdC_INT; a: PEVP_PKEY; const pp: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl; external CLibCrypto;
   function d2i_AutoPrivateKey(a: PPEVP_PKEY; const pp: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl; external CLibCrypto;
   function i2d_PrivateKey(a: PEVP_PKEY; pp: PPByte): TIdC_INT cdecl; external CLibCrypto;
 
@@ -1052,9 +1052,9 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
 
   function EVP_PKEY_cmp(const a: PEVP_PKEY; const b: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
 
-  function EVP_PKEY_print_public(&out: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT cdecl; external CLibCrypto;
-  function EVP_PKEY_print_private(&out: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT cdecl; external CLibCrypto;
-  function EVP_PKEY_print_params(&out: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_PKEY_print_public(out_: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_PKEY_print_private(out_: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_PKEY_print_params(out_: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT cdecl; external CLibCrypto;
 
   function EVP_PKEY_get_default_digest_nid(pkey: PEVP_PKEY; pnid: PIdC_INT): TIdC_INT cdecl; external CLibCrypto;
 
@@ -1088,7 +1088,7 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
   (* PBE type *)
   function EVP_PBE_alg_add_type(pbe_type: TIdC_INT; pbe_nid: TIdC_INT; cipher_nid: TIdC_INT; md_nid: TIdC_INT; keygen: PEVP_PBE_KEYGEN): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PBE_alg_add(nid: TIdC_INT; const cipher: PEVP_CIPHER; const md: PEVP_MD; keygen: PEVP_PBE_KEYGEN): TIdC_INT cdecl; external CLibCrypto;
-  function EVP_PBE_find(&type: TIdC_INT; pbe_nid: TIdC_INT; pcnid: PIdC_INT; pmnid: PIdC_INT; pkeygen: PPEVP_PBE_KEYGEN): TIdC_INT cdecl; external CLibCrypto;
+  function EVP_PBE_find(type_: TIdC_INT; pbe_nid: TIdC_INT; pcnid: PIdC_INT; pmnid: PIdC_INT; pkeygen: PPEVP_PBE_KEYGEN): TIdC_INT cdecl; external CLibCrypto;
   procedure EVP_PBE_cleanup cdecl; external CLibCrypto;
   function EVP_PBE_get(ptype: PIdC_INT; ppbe_nid: PIdC_INT; num: TIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
 
@@ -1128,7 +1128,7 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
 
   procedure EVP_PKEY_asn1_set_security_bits(ameth: PEVP_PKEY_ASN1_METHOD; APkey_security_bits: pkey_security_bits) cdecl; external CLibCrypto;
 
-  function EVP_PKEY_meth_find(&type: TIdC_INT): PEVP_PKEY_METHOD cdecl; external CLibCrypto;
+  function EVP_PKEY_meth_find(type_: TIdC_INT): PEVP_PKEY_METHOD cdecl; external CLibCrypto;
   function EVP_PKEY_meth_new(id: TIdC_INT; flags: TIdC_INT): PEVP_PKEY_METHOD cdecl; external CLibCrypto;
   procedure EVP_PKEY_meth_get0_info(ppkey_id: PIdC_INT; pflags: PIdC_INT; const meth: PEVP_PKEY_METHOD) cdecl; external CLibCrypto;
   procedure EVP_PKEY_meth_copy(dst: PEVP_PKEY_METHOD; const src: PEVP_PKEY_METHOD) cdecl; external CLibCrypto;
@@ -1155,9 +1155,9 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT;
   function EVP_PKEY_CTX_get_operation(ctx: PEVP_PKEY_CTX): TIdC_INT cdecl; external CLibCrypto;
   procedure EVP_PKEY_CTX_set0_keygen_info(ctx: PEVP_PKEY_CTX; dat: PIdC_INT; datlen: TIdC_INT) cdecl; external CLibCrypto;
 
-  function EVP_PKEY_new_mac_key(&type: TIdC_INT; e: PENGINE; const key: PByte; keylen: TIdC_INT): PEVP_PKEY cdecl; external CLibCrypto;
-  function EVP_PKEY_new_raw_private_key(&type: TIdC_INT; e: PENGINE; const priv: PByte; len: TIdC_SIZET): PEVP_PKEY cdecl; external CLibCrypto;
-  function EVP_PKEY_new_raw_public_key(&type: TIdC_INT; e: PENGINE; const pub: PByte; len: TIdC_SIZET): PEVP_PKEY cdecl; external CLibCrypto;
+  function EVP_PKEY_new_mac_key(type_: TIdC_INT; e: PENGINE; const key: PByte; keylen: TIdC_INT): PEVP_PKEY cdecl; external CLibCrypto;
+  function EVP_PKEY_new_raw_private_key(type_: TIdC_INT; e: PENGINE; const priv: PByte; len: TIdC_SIZET): PEVP_PKEY cdecl; external CLibCrypto;
+  function EVP_PKEY_new_raw_public_key(type_: TIdC_INT; e: PENGINE; const pub: PByte; len: TIdC_SIZET): PEVP_PKEY cdecl; external CLibCrypto;
   function EVP_PKEY_get_raw_private_key(const pkey: PEVP_PKEY; priv: PByte; len: PIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
   function EVP_PKEY_get_raw_public_key(const pkey: PEVP_PKEY; pub: PByte; len: PIdC_SIZET): TIdC_INT cdecl; external CLibCrypto;
 

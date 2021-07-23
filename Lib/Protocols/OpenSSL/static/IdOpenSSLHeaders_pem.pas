@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:33
+// Generation date: 23.07.2021 14:35:33
 
 unit IdOpenSSLHeaders_pem;
 
@@ -200,12 +200,12 @@ type
 
   function b2i_PrivateKey(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl; external CLibCrypto;
   function b2i_PublicKey(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl; external CLibCrypto;
-  function b2i_PrivateKey_bio(&in: PBIO): PEVP_PKEY cdecl; external CLibCrypto;
-  function b2i_PublicKey_bio(&in: PBIO): PEVP_PKEY cdecl; external CLibCrypto;
-  function i2b_PrivateKey_bio(&out: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
-  function i2b_PublicKey_bio(&out: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
-  function b2i_PVK_bio(&in: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY cdecl; external CLibCrypto;
-  function i2b_PVK_bio(&out: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT cdecl; external CLibCrypto;
+  function b2i_PrivateKey_bio(in_: PBIO): PEVP_PKEY cdecl; external CLibCrypto;
+  function b2i_PublicKey_bio(in_: PBIO): PEVP_PKEY cdecl; external CLibCrypto;
+  function i2b_PrivateKey_bio(out_: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
+  function i2b_PublicKey_bio(out_: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl; external CLibCrypto;
+  function b2i_PVK_bio(in_: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY cdecl; external CLibCrypto;
+  function i2b_PVK_bio(out_: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT cdecl; external CLibCrypto;
 
 implementation
 

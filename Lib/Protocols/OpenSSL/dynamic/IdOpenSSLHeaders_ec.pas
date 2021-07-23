@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 29.10.2020 09:34:06
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_ec;
 
@@ -120,11 +120,11 @@ type
 
   EC_KEY_METHOD_compute_key_ckey = function(psec: PPByte; pseclen: PIdC_SIZET; const pub_key: PEC_POINT; const ecdh: PEC_KEY): TIdC_INT; cdecl;
 
-  EC_KEY_METHOD_sign_sign = function(&type: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const r: PBIGNUM; eckey: PEC_KEY): TIdC_INT; cdecl;
+  EC_KEY_METHOD_sign_sign = function(type_: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const r: PBIGNUM; eckey: PEC_KEY): TIdC_INT; cdecl;
   EC_KEY_METHOD_sign_sign_setup = function(eckey: PEC_KEY; ctx_in: PBN_CTX; kinvp: PPBIGNUM; rp: PPBIGNUM): TIdC_INT; cdecl;
   EC_KEY_METHOD_sign_sign_sig = function(const dgst: PByte; dgst_len: TIdC_INT; const in_kinv: PBIGNUM; const in_r: PBIGNUM; eckey: PEC_KEY): PECDSA_SIG; cdecl;
 
-  EC_KEY_METHOD_verify_verify = function(&type: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; sig_len: TIdC_INT; eckey: PEC_KEY): TIdC_INT; cdecl;
+  EC_KEY_METHOD_verify_verify = function(type_: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; sig_len: TIdC_INT; eckey: PEC_KEY): TIdC_INT; cdecl;
   EC_KEY_METHOD_verify_verify_sig = function(const dgst: PByte; dgst_len: TIdC_INT; const sig: PECDSA_SIG; eckey: PEC_KEY): TIdC_INT; cdecl;
 
   PEC_KEY_METHOD_init_init = ^EC_KEY_METHOD_init_init;
@@ -318,8 +318,8 @@ var
   EC_KEY_set_method: function(key: PEC_KEY; const meth: PEC_KEY_METHOD): TIdC_INT cdecl = nil;
   EC_KEY_new_method: function(engine: PENGINE): PEC_KEY cdecl = nil;
 
-  ECDH_KDF_X9_62: function(&out: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; const sinfo: PByte; sinfolen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT cdecl = nil;
-  ECDH_compute_key: function(&out: Pointer; oulen: TIdC_SIZET; const pub_key: PEC_POINT; const ecdh: PEC_KEY; kdf: ECDH_compute_key_KDF): TIdC_INT cdecl = nil;
+  ECDH_KDF_X9_62: function(out_: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; const sinfo: PByte; sinfolen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT cdecl = nil;
+  ECDH_compute_key: function(out_: Pointer; oulen: TIdC_SIZET; const pub_key: PEC_POINT; const ecdh: PEC_KEY; kdf: ECDH_compute_key_KDF): TIdC_INT cdecl = nil;
 
   ECDSA_SIG_new: function: PECDSA_SIG cdecl = nil;
   ECDSA_SIG_free: procedure(sig: PECDSA_SIG) cdecl = nil;
@@ -333,9 +333,9 @@ var
   ECDSA_do_sign_ex: function(const dgst: PByte; dgst_len: TIdC_INT; const kinv: PBIGNUM; const rp: PBIGNUM; eckey: PEC_KEY): PECDSA_SIG cdecl = nil;
   ECDSA_do_verify: function(const dgst: PByte; dgst_len: TIdC_INT; const sig: PECDSA_SIG; eckey: PEC_KEY): TIdC_INT cdecl = nil;
   ECDSA_sign_setup: function(eckey: PEC_KEY; ctx: PBN_CTX; kiv: PPBIGNUM; rp: PPBIGNUM): TIdC_INT cdecl = nil;
-  ECDSA_sign: function(&type: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; eckey: PEC_KEY): TIdC_INT cdecl = nil;
-  ECDSA_sign_ex: function(&type: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const rp: PBIGNUM; eckey: PEC_KEY): TIdC_INT cdecl = nil;
-  ECDSA_verify: function(&type: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; const sig: PByte; siglen: TIdC_INT; eckey: PEC_KEY): TIdC_INT cdecl = nil;
+  ECDSA_sign: function(type_: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; eckey: PEC_KEY): TIdC_INT cdecl = nil;
+  ECDSA_sign_ex: function(type_: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; const kinv: PBIGNUM; const rp: PBIGNUM; eckey: PEC_KEY): TIdC_INT cdecl = nil;
+  ECDSA_verify: function(type_: TIdC_INT; const dgst: PByte; dgstlen: TIdC_INT; const sig: PByte; siglen: TIdC_INT; eckey: PEC_KEY): TIdC_INT cdecl = nil;
   ECDSA_size: function(const eckey: PEC_KEY): TIdC_INT cdecl = nil;
 
   EC_KEY_METHOD_new: function(const meth: PEC_KEY_METHOD): PEC_KEY_METHOD cdecl = nil;

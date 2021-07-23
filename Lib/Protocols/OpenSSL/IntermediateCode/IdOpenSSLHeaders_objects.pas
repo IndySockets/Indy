@@ -59,7 +59,7 @@ var
   function OBJ_NAME_get(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar;
   function OBJ_NAME_add(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT;
   function OBJ_NAME_remove(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT;
-  procedure OBJ_NAME_cleanup(&type: TIdC_INT);
+  procedure OBJ_NAME_cleanup(type_: TIdC_INT);
 //  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
 //  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
@@ -166,7 +166,7 @@ var
   function OBJ_new_nid(num: TIdC_INT): TIdC_INT;
   function OBJ_add_object(const obj: PASN1_OBJECT): TIdC_INT;
   function OBJ_create(const oid: PIdAnsiChar; const sn: PIdAnsiChar; const ln: PIdAnsiChar): TIdC_INT;
-  function OBJ_create_objects(&in: PBIO): TIdC_INT;
+  function OBJ_create_objects(in_: PBIO): TIdC_INT;
 
   function OBJ_length(const obj: PASN1_OBJECT): TIdC_SIZET;
   function OBJ_get0_data(const obj: PASN1_OBJECT): PByte;

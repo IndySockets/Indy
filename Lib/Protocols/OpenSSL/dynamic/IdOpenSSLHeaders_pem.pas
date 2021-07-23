@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 23.07.2021 14:40:17
 
 unit IdOpenSSLHeaders_pem;
 
@@ -205,12 +205,12 @@ var
 
   b2i_PrivateKey: function(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl = nil;
   b2i_PublicKey: function(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY cdecl = nil;
-  b2i_PrivateKey_bio: function(&in: PBIO): PEVP_PKEY cdecl = nil;
-  b2i_PublicKey_bio: function(&in: PBIO): PEVP_PKEY cdecl = nil;
-  i2b_PrivateKey_bio: function(&out: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl = nil;
-  i2b_PublicKey_bio: function(&out: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl = nil;
-  b2i_PVK_bio: function(&in: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY cdecl = nil;
-  i2b_PVK_bio: function(&out: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT cdecl = nil;
+  b2i_PrivateKey_bio: function(in_: PBIO): PEVP_PKEY cdecl = nil;
+  b2i_PublicKey_bio: function(in_: PBIO): PEVP_PKEY cdecl = nil;
+  i2b_PrivateKey_bio: function(out_: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl = nil;
+  i2b_PublicKey_bio: function(out_: PBIO; pk: PEVP_PKEY): TIdC_INT cdecl = nil;
+  b2i_PVK_bio: function(in_: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY cdecl = nil;
+  i2b_PVK_bio: function(out_: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT cdecl = nil;
 
 implementation
 

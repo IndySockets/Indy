@@ -407,7 +407,7 @@ var
 //int (*BN_nist_mod_func(const BIGNUM *p)) (BIGNUM *r, const BIGNUM *a,
 //                                          const BIGNUM *field, BN_CTX *ctx);
 
-  function BN_generate_dsa_nonce(&out: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT;
+  function BN_generate_dsa_nonce(out_: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT;
 
   (* Primes from RFC 2409 *)
   function BN_get_rfc2409_prime_768(bn: PBIGNUM ): PBIGNUM;
