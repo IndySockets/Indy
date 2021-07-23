@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 23.07.2021 14:35:33
+// Generation date: 23.07.2021 15:01:39
 
 unit IdOpenSSLHeaders_bn;
 
@@ -280,9 +280,9 @@ type
   function BN_clear_bit(a: PBIGNUM; n: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function BN_bn2hex(a: PBIGNUM): PIdAnsiChar cdecl; external CLibCrypto;
   function BN_bn2dec(a: PBIGNUM): PIdAnsiChar cdecl; external CLibCrypto;
-  function BN_hex2bn(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
-  function BN_dec2bn(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
-  function BN_asc2bn(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function BN_hex2bn(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function BN_dec2bn(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
+  function BN_asc2bn(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl; external CLibCrypto;
   function BN_gcd(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
   function BN_kronecker(a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
 

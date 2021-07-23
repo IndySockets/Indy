@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 23.07.2021 14:40:17
+// Generation date: 23.07.2021 15:01:42
 
 unit IdOpenSSLHeaders_bn;
 
@@ -285,9 +285,9 @@ var
   BN_clear_bit: function(a: PBIGNUM; n: TIdC_INT): TIdC_INT cdecl = nil;
   BN_bn2hex: function(a: PBIGNUM): PIdAnsiChar cdecl = nil;
   BN_bn2dec: function(a: PBIGNUM): PIdAnsiChar cdecl = nil;
-  BN_hex2bn: function(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl = nil;
-  BN_dec2bn: function(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl = nil;
-  BN_asc2bn: function(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl = nil;
+  BN_hex2bn: function(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl = nil;
+  BN_dec2bn: function(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl = nil;
+  BN_asc2bn: function(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT cdecl = nil;
   BN_gcd: function(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl = nil;
   BN_kronecker: function(a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl = nil;
 

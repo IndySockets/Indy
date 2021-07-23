@@ -275,9 +275,9 @@ var
   function BN_clear_bit(a: PBIGNUM; n: TIdC_INT): TIdC_INT;
   function BN_bn2hex(a: PBIGNUM): PIdAnsiChar;
   function BN_bn2dec(a: PBIGNUM): PIdAnsiChar;
-  function BN_hex2bn(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT;
-  function BN_dec2bn(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT;
-  function BN_asc2bn(a: PBIGNUM; str: PIdAnsiChar): TIdC_INT;
+  function BN_hex2bn(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT;
+  function BN_dec2bn(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT;
+  function BN_asc2bn(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT;
   function BN_gcd(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT;
   function BN_kronecker(a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT;
 
