@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.10.2020 15:24:13
+// Generation date: 26.07.2021 11:39:49
 
 unit IdOpenSSLHeaders_ossl_typ;
 
@@ -110,6 +110,7 @@ type
 
   ASN1_TIME = type asn1_string_st;
   PASN1_TIME = ^ASN1_TIME;
+  PPASN1_TIME = ^PASN1_TIME;
 
   ASN1_GENERALIZEDTIME = type asn1_string_st;
   PASN1_GENERALIZEDTIME = ^ASN1_GENERALIZEDTIME;

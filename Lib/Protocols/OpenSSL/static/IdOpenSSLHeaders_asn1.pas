@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 23.07.2021 14:35:33
+// Generation date: 26.07.2021 11:35:36
 
 unit IdOpenSSLHeaders_asn1;
 
@@ -568,7 +568,11 @@ type
   //DECLARE_ASN1_FUNCTIONS(ASN1_GENERALSTRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_UTCTIME)
   //DECLARE_ASN1_FUNCTIONS(ASN1_GENERALIZEDTIME)
-  //DECLARE_ASN1_FUNCTIONS(ASN1_TIME)
+
+  function ASN1_TIME_new: PASN1_TIME cdecl; external CLibCrypto;
+  procedure ASN1_TIME_free(a: PASN1_TIME) cdecl; external CLibCrypto;
+  function d2i_ASN1_TIME(a: PPASN1_TIME; const in_: PPByte; len: TIdC_LONG): PASN1_TIME cdecl; external CLibCrypto;
+  function i2d_ASN1_TIME(a: PASN1_TIME; out_: PPByte): TIdC_INT cdecl; external CLibCrypto;
 
   // DECLARE_ASN1_ITEM(ASN1_OCTET_STRING_NDEF)
 
