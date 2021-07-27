@@ -3861,6 +3861,7 @@ var
   LCharSet: String;
   LContentTransferEncoding: string;
   LTextPart: integer;
+  LTextPartNum: string;
   LHelper: TIdIMAP4WorkHelper;
 
   procedure DoDecode(ADecoderClass: TIdDecoderClass = nil; AStripCRLFs: Boolean = False);
@@ -3924,7 +3925,6 @@ begin
   AText := '';                                {Do not Localize}
   IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
-  LTextPart := 0;  {The text part is usually part 1 but could be part 2}
   if AUseFirstPartInsteadOfText then begin
     {In this case, we need the body structure to find out what
     encoding has been applied to part 1...}
@@ -3942,16 +3942,27 @@ begin
 
       {Get the info we want out of LParts...}
       {Some emails have their first parts empty, so search for the first non-empty part.}
-      repeat
+      LTextPartNum := '';
+      for LTextPart := 0 to LParts.Count-1 do begin
         LThePart := LParts.Items[LTextPart];
-        if (LThePart.FSize <> 0) then begin
+        if (LThePart.ImapPartNumber <> '') and (LThePart.FSize <> 0) then begin
+          LTextPartNum := LThePart.ImapPartNumber;
+          LCharSet := LThePart.CharSet;
+          LContentTransferEncoding := LThePart.ContentTransferEncoding;
           Break;
         end;
-        Inc(LTextPart);
-      until LTextPart >= LParts.Count - 1;
+      end;
 
-      LCharSet := LThePart.CharSet;
-      LContentTransferEncoding := LThePart.ContentTransferEncoding;
+      // RLebeau 7/27/2021: for backwards compatibility, if no item was selected above,
+      // use the last item in the structure.  This is likely wrong, but it is what the
+      // previous logic was doing, so preserving it...
+      if (LTextPartNum = '') and (LParts.Count > 0) then begin
+        LThePart := LParts.Items[LParts.Count-1];
+        LTextPartNum := LThePart.ImapPartNumber;
+        LCharSet := LThePart.CharSet;
+        LContentTransferEncoding := LThePart.ContentTransferEncoding;
+      end;
+
     finally
       FreeAndNil(LParts);
     end;
@@ -3971,7 +3982,7 @@ begin
   if not AUseFirstPartInsteadOfText then begin
     LCmd := LCmd + '[TEXT])';                         {Do not Localize}
   end else begin
-    LCmd := LCmd + '[' + IntToStr(LTextPart+1) + '])';            {Do not Localize}
+    LCmd := LCmd + '[' + LTextPartNum + '])';            {Do not Localize}
   end;
 
   SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
@@ -3980,7 +3991,7 @@ begin
       {For an invalid request (non-existent part or message), NIL is returned as the size...}
       if (LastCmdResult.Text.Count < 1)
         or (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch],
-          [IMAP4FetchDataItem[fdBody]+'[TEXT]' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
+          [IMAP4FetchDataItem[fdBody]+'[TEXT]' , IMAP4FetchDataItem[fdBody]+'['+LTextPartNum+']']))             {do not localize}
         or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1) {do not localize}
         or (FLineStruct.ByteCount < 1) then
       begin
