@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 26.07.2021 11:35:34
+// Generation date: 28.07.2021 14:11:11
 
 unit IdOpenSSLHeaders_asn1;
 
@@ -571,8 +571,16 @@ var
   //DECLARE_ASN1_FUNCTIONS(ASN1_T61STRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_IA5STRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_GENERALSTRING)
-  //DECLARE_ASN1_FUNCTIONS(ASN1_UTCTIME)
-  //DECLARE_ASN1_FUNCTIONS(ASN1_GENERALIZEDTIME)
+
+  ASN1_UTCTIME_new: function: PASN1_UTCTIME cdecl = nil;
+  ASN1_UTCTIME_free: procedure(a: PASN1_UTCTIME) cdecl = nil;
+  d2i_ASN1_UTCTIME: function(a: PPASN1_UTCTIME; const in_: PPByte; len: TIdC_LONG): PASN1_UTCTIME cdecl = nil;
+  i2d_ASN1_UTCTIME: function(a: PASN1_UTCTIME; out_: PPByte): TIdC_INT cdecl = nil;
+
+  ASN1_GENERALIZEDTIME_new: function: PASN1_GENERALIZEDTIME cdecl = nil;
+  ASN1_GENERALIZEDTIME_free: procedure(a: PASN1_GENERALIZEDTIME) cdecl = nil;
+  d2i_ASN1_GENERALIZEDTIME: function(a: PPASN1_GENERALIZEDTIME; const in_: PPByte; len: TIdC_LONG): PASN1_GENERALIZEDTIME cdecl = nil;
+  i2d_ASN1_GENERALIZEDTIME: function(a: PASN1_GENERALIZEDTIME; out_: PPByte): TIdC_INT cdecl = nil;
 
   ASN1_TIME_new: function: PASN1_TIME cdecl = nil;
   ASN1_TIME_free: procedure(a: PASN1_TIME) cdecl = nil;
@@ -861,6 +869,14 @@ begin
   ASN1_OCTET_STRING_set := LoadFunction('ASN1_OCTET_STRING_set', AFailed);
   UTF8_getc := LoadFunction('UTF8_getc', AFailed);
   UTF8_putc := LoadFunction('UTF8_putc', AFailed);
+  ASN1_UTCTIME_new := LoadFunction('ASN1_UTCTIME_new', AFailed);
+  ASN1_UTCTIME_free := LoadFunction('ASN1_UTCTIME_free', AFailed);
+  d2i_ASN1_UTCTIME := LoadFunction('d2i_ASN1_UTCTIME', AFailed);
+  i2d_ASN1_UTCTIME := LoadFunction('i2d_ASN1_UTCTIME', AFailed);
+  ASN1_GENERALIZEDTIME_new := LoadFunction('ASN1_GENERALIZEDTIME_new', AFailed);
+  ASN1_GENERALIZEDTIME_free := LoadFunction('ASN1_GENERALIZEDTIME_free', AFailed);
+  d2i_ASN1_GENERALIZEDTIME := LoadFunction('d2i_ASN1_GENERALIZEDTIME', AFailed);
+  i2d_ASN1_GENERALIZEDTIME := LoadFunction('i2d_ASN1_GENERALIZEDTIME', AFailed);
   ASN1_TIME_new := LoadFunction('ASN1_TIME_new', AFailed);
   ASN1_TIME_free := LoadFunction('ASN1_TIME_free', AFailed);
   d2i_ASN1_TIME := LoadFunction('d2i_ASN1_TIME', AFailed);
@@ -1032,6 +1048,14 @@ begin
   ASN1_OCTET_STRING_set := nil;
   UTF8_getc := nil;
   UTF8_putc := nil;
+  ASN1_UTCTIME_new := nil;
+  ASN1_UTCTIME_free := nil;
+  d2i_ASN1_UTCTIME := nil;
+  i2d_ASN1_UTCTIME := nil;
+  ASN1_GENERALIZEDTIME_new := nil;
+  ASN1_GENERALIZEDTIME_free := nil;
+  d2i_ASN1_GENERALIZEDTIME := nil;
+  i2d_ASN1_GENERALIZEDTIME := nil;
   ASN1_TIME_new := nil;
   ASN1_TIME_free := nil;
   d2i_ASN1_TIME := nil;

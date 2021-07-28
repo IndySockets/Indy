@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 26.07.2021 11:35:36
+// Generation date: 28.07.2021 14:11:10
 
 unit IdOpenSSLHeaders_asn1;
 
@@ -566,8 +566,16 @@ type
   //DECLARE_ASN1_FUNCTIONS(ASN1_T61STRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_IA5STRING)
   //DECLARE_ASN1_FUNCTIONS(ASN1_GENERALSTRING)
-  //DECLARE_ASN1_FUNCTIONS(ASN1_UTCTIME)
-  //DECLARE_ASN1_FUNCTIONS(ASN1_GENERALIZEDTIME)
+
+  function ASN1_UTCTIME_new: PASN1_UTCTIME cdecl; external CLibCrypto;
+  procedure ASN1_UTCTIME_free(a: PASN1_UTCTIME) cdecl; external CLibCrypto;
+  function d2i_ASN1_UTCTIME(a: PPASN1_UTCTIME; const in_: PPByte; len: TIdC_LONG): PASN1_UTCTIME cdecl; external CLibCrypto;
+  function i2d_ASN1_UTCTIME(a: PASN1_UTCTIME; out_: PPByte): TIdC_INT cdecl; external CLibCrypto;
+
+  function ASN1_GENERALIZEDTIME_new: PASN1_GENERALIZEDTIME cdecl; external CLibCrypto;
+  procedure ASN1_GENERALIZEDTIME_free(a: PASN1_GENERALIZEDTIME) cdecl; external CLibCrypto;
+  function d2i_ASN1_GENERALIZEDTIME(a: PPASN1_GENERALIZEDTIME; const in_: PPByte; len: TIdC_LONG): PASN1_GENERALIZEDTIME cdecl; external CLibCrypto;
+  function i2d_ASN1_GENERALIZEDTIME(a: PASN1_GENERALIZEDTIME; out_: PPByte): TIdC_INT cdecl; external CLibCrypto;
 
   function ASN1_TIME_new: PASN1_TIME cdecl; external CLibCrypto;
   procedure ASN1_TIME_free(a: PASN1_TIME) cdecl; external CLibCrypto;

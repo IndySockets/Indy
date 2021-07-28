@@ -101,6 +101,7 @@ type
 
   ASN1_UTCTIME = type asn1_string_st;
   PASN1_UTCTIME = ^ASN1_UTCTIME;
+  PPASN1_UTCTIME = ^PASN1_UTCTIME;
 
   ASN1_TIME = type asn1_string_st;
   PASN1_TIME = ^ASN1_TIME;

@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 26.07.2021 11:39:47
+// Generation date: 28.07.2021 14:11:10
 
 unit IdOpenSSLHeaders_ossl_typ;
 
@@ -107,6 +107,7 @@ type
 
   ASN1_UTCTIME = type asn1_string_st;
   PASN1_UTCTIME = ^ASN1_UTCTIME;
+  PPASN1_UTCTIME = ^PASN1_UTCTIME;
 
   ASN1_TIME = type asn1_string_st;
   PASN1_TIME = ^ASN1_TIME;
