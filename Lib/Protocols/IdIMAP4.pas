@@ -1100,6 +1100,8 @@ varies between servers.  A typical line that gets parsed into this is:
     function  ReadLnWait: string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.ReadLnWait()'{$ENDIF};{$ENDIF}
     procedure WriteLn(const AOut: string = ''); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.WriteLn()'{$ENDIF};{$ENDIF}
   { IdTCPConnection Commands }
+
+    property IPVersion;
   published
     property  OnAlert: TIdAlertEvent read FOnAlert write FOnAlert;
     property  Password;
