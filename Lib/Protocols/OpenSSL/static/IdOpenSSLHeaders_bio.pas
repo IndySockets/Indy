@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 23.07.2021 14:35:33
+// Generation date: 28.07.2021 14:11:10
 
 unit IdOpenSSLHeaders_bio;
 
@@ -342,6 +342,11 @@ function BIO_do_connect(b: PBIO): TIdC_LONG;
 function BIO_do_accept(b: PBIO): TIdC_LONG;
 function BIO_do_handshake(b: PBIO): TIdC_LONG;
 
+function BIO_get_mem_data(b: PBIO; pp: PIdAnsiChar) : TIdC_INT;
+function BIO_set_mem_buf(b: PBIO; bm: PIdAnsiChar; c: TIdC_INT): TIdC_INT;
+function BIO_get_mem_ptr(b: PBIO; pp: PIdAnsiChar): TIdC_INT;
+function BIO_set_mem_eof_return(b: PBIO; v: TIdC_INT): TIdC_INT;
+
   function BIO_get_new_index: TIdC_INT cdecl; external CLibCrypto;
   procedure BIO_set_flags(b: PBIO; flags: TIdC_INT) cdecl; external CLibCrypto;
   function BIO_test_flags(const b: PBIO; flags: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
@@ -462,13 +467,6 @@ function BIO_do_handshake(b: PBIO): TIdC_LONG;
 //
 //  (* defined in evp.h *)
 //  (* #define BIO_set_md(b,md)     BIO_ctrl(b,BIO_C_SET_MD,1,(char )(md)) *)
-//
-//  {$HPPEMIT '# define BIO_get_mem_data(b,pp)  BIO_ctrl(b,BIO_CTRL_INFO,0,(char (pp))'}
-//  {$HPPEMIT '# define BIO_set_mem_buf(b,bm,c) BIO_ctrl(b,BIO_C_SET_BUF_MEM,c,(char (bm))'}
-//  {$HPPEMIT '# define BIO_get_mem_ptr(b,pp)   BIO_ctrl(b,BIO_C_GET_BUF_MEM_PTR,0,'}
-//                                            (char (pp))
-//  {$HPPEMIT '# define BIO_set_mem_eof_return(b,v)'}
-//                                  BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,0)
 //
 //  (* For the BIO_f_buffer() type *)
 //  {$HPPEMIT '# define BIO_get_buffer_num_lines(b)     BIO_ctrl(b,BIO_C_GET_BUFF_NUM_LINES,0,NULL)'}
@@ -806,6 +804,30 @@ end;
 function BIO_do_handshake(b: PBIO): TIdC_LONG;
 begin
   Result := BIO_ctrl(b, BIO_C_DO_STATE_MACHINE, 0, nil);
+end;
+
+//# define BIO_get_mem_data(b,pp)  BIO_ctrl(b,BIO_CTRL_INFO,0,(char (pp))
+function BIO_get_mem_data(b: PBIO; pp: PIdAnsiChar) : TIdC_INT;
+begin
+  Result := BIO_ctrl(b, BIO_CTRL_INFO, 0, pp);
+end;
+
+//# define BIO_set_mem_buf(b,bm,c) BIO_ctrl(b,BIO_C_SET_BUF_MEM,c,(char (bm))
+function BIO_set_mem_buf(b: PBIO; bm: PIdAnsiChar; c: TIdC_INT): TIdC_INT;
+begin
+  Result := BIO_ctrl(b, BIO_C_SET_BUF_MEM, c, bm);
+end;
+
+//# define BIO_get_mem_ptr(b,pp)   BIO_ctrl(b,BIO_C_GET_BUF_MEM_PTR,0,(char (pp))
+function BIO_get_mem_ptr(b: PBIO; pp: PIdAnsiChar): TIdC_INT;
+begin
+  Result := BIO_ctrl(b, BIO_C_GET_BUF_MEM_PTR, 0, pp);
+end;
+
+//# define BIO_set_mem_eof_return(b,v) BIO_ctrl(b,BIO_C_SET_BUF_MEM_EOF_RETURN,v,0)
+function BIO_set_mem_eof_return(b: PBIO; v: TIdC_INT): TIdC_INT;
+begin
+  Result := BIO_ctrl(b, BIO_C_SET_BUF_MEM_EOF_RETURN, v, nil);
 end;
 
 end.
