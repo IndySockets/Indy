@@ -266,6 +266,7 @@ type
   x509_revoked_st = type Pointer;
   X509_REVOKED = x509_revoked_st;
   PX509_REVOKED = ^X509_REVOKED;
+  PPX509_REVOKED = ^PX509_REVOKED;
   X509_name_st = type Pointer;
   X509_NAME = X509_name_st;
   PX509_NAME = ^X509_NAME;

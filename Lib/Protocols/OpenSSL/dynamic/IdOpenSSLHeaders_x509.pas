@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 23.07.2021 14:40:17
+// Generation date: 28.07.2021 14:11:12
 
 unit IdOpenSSLHeaders_x509;
 
@@ -243,10 +243,6 @@ type
   //DEFINE_STACK_OF(X509_TRUST)
 
   //DEFINE_STACK_OF(X509_REVOKED)
-  X509_REVOKED = type Pointer;   //////////////////////////////////////////////
-  PX509_REVOKED = ^X509_REVOKED; //////////////////////////////////////////////
-  PPX509_REVOKED = ^PX509_REVOKED;/////////////////////////////////////////////
-
   X509_CRL_INFO = type Pointer; // X509_crl_info_st
   PX509_CRL_INFO = ^X509_CRL_INFO;
   PPX509_CRL_INFO = ^PX509_CRL_INFO;
