@@ -166,6 +166,8 @@ type
     property X509: PX509 read FX509 write FX509;
   end;
 
+function LoadCertificate(const AFile: string): PX509;
+
 implementation
 
 uses
@@ -179,6 +181,20 @@ uses
   IdOpenSSLHeaders_pem,
   IdOpenSSLHeaders_x509,
   IdOpenSSLUtils;
+
+function LoadCertificate(const AFile: string): PX509;
+var
+  LBio: PBIO;
+begin
+  LBio := Bio_new_file(PAnsiChar(UTF8Encode(AFile)), 'r');
+  if not Assigned(LBio) then
+    Exit(nil);
+  try
+    Result := PEM_read_bio_X509(LBio, nil, nil, nil);
+  finally
+    BIO_free(LBio);
+  end;
+end;
 
 { TIdOpenSSLX509 }
 
@@ -200,13 +216,9 @@ begin
 end;
 
 constructor TIdOpenSSLX509.Create(const AFile: string);
-var
-  LBio: PBIO;
 begin
   inherited Create();
-  LBio := BIO_new_file(GetPAnsiChar(UTF8String(AFile)), 'r');
-  if Assigned(LBio) then
-    FX509 := PEM_read_bio_X509(LBio, nil, nil, nil);
+  FX509 := LoadCertificate(AFile);
 end;
 
 constructor TIdOpenSSLX509.Create(const AX509: PX509);
