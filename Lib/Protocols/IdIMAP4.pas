@@ -717,7 +717,6 @@ varies between servers.  A typical line that gets parsed into this is:
     FHasCapa : Boolean;
     FSASLMechanisms : TIdSASLEntries;
     FAuthType : TIdIMAP4AuthenticationType;
-    FCapabilities: TStrings;
     FLineStruct: TIdIMAPLineStruct;
     function  GetReplyClass:TIdReplyClass; override;
     function  GetSupportsTLS: Boolean; override;
@@ -2493,7 +2492,6 @@ begin
   FSASLMechanisms := TIdSASLEntriesIMAP4.Create(Self);
   Port := IdPORT_IMAP4;
   FLineStruct := TIdIMAPLineStruct.Create;
-  FCapabilities := TStringList.Create;
   {$IFDEF HAS_TStringList_CaseSensitive}
   TStringList(FCapabilities).CaseSensitive := False;
   {$ENDIF}
@@ -2602,7 +2600,6 @@ begin
   FreeAndNil(FMailBox);
   FreeAndNil(FSASLMechanisms);
   FreeAndNil(FLineStruct);
-  FreeAndNil(FCapabilities);
   FreeAndNil(FMUTF7);
   inherited Destroy;
 end;
