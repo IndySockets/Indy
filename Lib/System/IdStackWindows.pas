@@ -320,6 +320,7 @@ implementation
 {$DEFINE USE_IPHLPAPI}
 
 {$IFDEF USE_IPHLPAPI}
+  // TODO: Move this to IdCompilerDefines.inc
   {$IFDEF VCL_XE2_OR_ABOVE}
     {$DEFINE HAS_UNIT_IpTypes}
     {$DEFINE HAS_UNIT_IpHlpApi}
@@ -330,10 +331,10 @@ uses
   IdIDN, IdResourceStrings, IdWship6
   {$IFDEF USE_IPHLPAPI}
     {$IFDEF HAS_UNIT_IpTypes}
-  , IpTypes
+  , Winapi.IpTypes
     {$ENDIF}
     {$IFDEF HAS_UNIT_IpHlpApi}
-  , IpHlpApi
+  , Winapi.IpHlpApi
     {$ENDIF}
   {$ENDIF}
   ;
