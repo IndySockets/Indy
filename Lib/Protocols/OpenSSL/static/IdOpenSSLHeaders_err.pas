@@ -194,16 +194,16 @@ type
   procedure ERR_set_error_data(data: PIdAnsiChar; flags: TIdC_INT) cdecl; external CLibCrypto;
   
   function ERR_get_error: TIdC_ULONG cdecl; external CLibCrypto;
-  function ERR_get_error_line(&file: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
-  function ERR_get_error_line_data(&file: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_get_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_get_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
 
   function ERR_peek_error: TIdC_ULONG cdecl; external CLibCrypto;
-  function ERR_peek_error_line(&file: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
-  function ERR_peek_error_line_data(&file: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
 
   function ERR_peek_last_error: TIdC_ULONG cdecl; external CLibCrypto;
-  function ERR_peek_last_error_line(&file: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
-  function ERR_peek_last_error_line_data(&file: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_last_error_line(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
+  function ERR_peek_last_error_line_data(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl; external CLibCrypto;
 
   procedure ERR_clear_error cdecl; external CLibCrypto;
   function ERR_error_string(e: TIdC_ULONG; buf: PIdAnsiChar): PIdAnsiChar cdecl; external CLibCrypto;

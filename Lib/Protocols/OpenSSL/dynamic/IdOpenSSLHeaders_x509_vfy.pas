@@ -494,8 +494,8 @@ var
 
   X509_VERIFY_PARAM_new: function: PX509_VERIFY_PARAM cdecl = nil;
   X509_VERIFY_PARAM_free: procedure(param: PX509_VERIFY_PARAM) cdecl = nil;
-  X509_VERIFY_PARAM_inherit: function(&to: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT cdecl = nil;
-  X509_VERIFY_PARAM_set1: function(&to: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT cdecl = nil;
+  X509_VERIFY_PARAM_inherit: function(to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT cdecl = nil;
+  X509_VERIFY_PARAM_set1: function(to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT cdecl = nil;
   X509_VERIFY_PARAM_set1_name: function(param: PX509_VERIFY_PARAM; const name: PIdAnsiChar): TIdC_INT cdecl = nil;
   X509_VERIFY_PARAM_set_flags: function(param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT cdecl = nil;
   X509_VERIFY_PARAM_clear_flags: function(param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT cdecl = nil;

@@ -533,7 +533,7 @@ var
    * ts/ts_conf.c
    *)
 
-  function TS_CONF_load_cert(&file: PIdAnsiChar): PX509;
+  function TS_CONF_load_cert(file_: PIdAnsiChar): PX509;
   function TS_CONF_load_key( file_: PIdAnsiChar; pass: PIdAnsiChar): PEVP_PKey;
   function TS_CONF_set_serial(conf: PCONF; section: PIdAnsiChar; cb: TS_serial_cb; ctx: PTS_RESP_CTX): TIdC_INT;
   //STACK_OF(X509) *TS_CONF_load_certs(const char *file);

@@ -1464,7 +1464,7 @@ var
   function BIO_new_ssl(ctx: PSSL_CTX; client: TIdC_INT): PBIO;
   function BIO_new_ssl_connect(ctx: PSSL_CTX): PBIO;
   function BIO_new_buffer_ssl_connect(ctx: PSSL_CTX): PBIO;
-  function BIO_ssl_copy_session_id(&to: PBIO; from: PBIO): TIdC_INT;
+  function BIO_ssl_copy_session_id(to_: PBIO; from: PBIO): TIdC_INT;
 
   function SSL_CTX_set_cipher_list(v1: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT;
   function SSL_CTX_new(const meth: PSSL_METHOD): PSSL_CTX;
@@ -1583,7 +1583,7 @@ var
   procedure SSL_SESSION_get0_ticket(const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET);
   function SSL_SESSION_get_max_early_data(const s: PSSL_SESSION): TIdC_UINT32;
   function SSL_SESSION_set_max_early_data(s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT;
-  function SSL_copy_session_id(&to: PSSL; const from: PSSL): TIdC_INT;
+  function SSL_copy_session_id(to_: PSSL; const from: PSSL): TIdC_INT;
   function SSL_SESSION_get0_peer(s: PSSL_SESSION): PX509;
   function SSL_SESSION_set1_id_context(s: PSSL_SESSION; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT;
   function SSL_SESSION_set1_id(s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT;
@@ -1599,7 +1599,7 @@ var
   function SSL_SESSION_up_ref(ses: PSSL_SESSION): TIdC_INT;
   procedure SSL_SESSION_free(ses: PSSL_SESSION);
   //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *in_, Byte **pp);
-  function SSL_set_session(&to: PSSL; session: PSSL_SESSION): TIdC_INT;
+  function SSL_set_session(to_: PSSL; session: PSSL_SESSION): TIdC_INT;
   function SSL_CTX_add_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT;
   function SSL_CTX_remove_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT;
   function SSL_CTX_set_generate_session_id(ctx: PSSL_CTX; cb: GEN_SESSION_CB): TIdC_INT;

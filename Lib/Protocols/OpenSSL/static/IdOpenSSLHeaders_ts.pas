@@ -538,7 +538,7 @@ type
    * ts/ts_conf.c
    *)
 
-  function TS_CONF_load_cert(&file: PIdAnsiChar): PX509 cdecl; external CLibCrypto;
+  function TS_CONF_load_cert(file_: PIdAnsiChar): PX509 cdecl; external CLibCrypto;
   function TS_CONF_load_key( file_: PIdAnsiChar; pass: PIdAnsiChar): PEVP_PKey cdecl; external CLibCrypto;
   function TS_CONF_set_serial(conf: PCONF; section: PIdAnsiChar; cb: TS_serial_cb; ctx: PTS_RESP_CTX): TIdC_INT cdecl; external CLibCrypto;
   //STACK_OF(X509) *TS_CONF_load_certs(const char *file);

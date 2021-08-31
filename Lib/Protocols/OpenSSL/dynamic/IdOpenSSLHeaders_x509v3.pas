@@ -911,9 +911,9 @@ var
   NAMING_AUTHORITY_set0_authorityText: procedure(n: PNAMING_AUTHORITY; namingAuthorityText: PASN1_STRING) cdecl = nil;
 
   ADMISSION_SYNTAX_get0_admissionAuthority: function(const as_: ADMISSION_SYNTAX): PGENERAL_NAME cdecl = nil;
-  ADMISSION_SYNTAX_set0_admissionAuthority: procedure(&as: ADMISSION_SYNTAX; aa: PGENERAL_NAME) cdecl = nil;
+  ADMISSION_SYNTAX_set0_admissionAuthority: procedure(as_: ADMISSION_SYNTAX; aa: PGENERAL_NAME) cdecl = nil;
 //  const STACK_OF(ADMISSIONS) *ADMISSION_SYNTAX_get0_contentsOfAdmissions(const as_: ADMISSION_SYNTAX);
-//  void ADMISSION_SYNTAX_set0_contentsOfAdmissions(&as: ADMISSION_SYNTAX; STACK_OF(ADMISSIONS) *a);
+//  void ADMISSION_SYNTAX_set0_contentsOfAdmissions(as_: ADMISSION_SYNTAX; STACK_OF(ADMISSIONS) *a);
   ADMISSIONS_get0_admissionAuthority: function(const a: PADMISSIONS): PGENERAL_NAME cdecl = nil;
   ADMISSIONS_set0_admissionAuthority: procedure(a: PADMISSIONS; aa: PGENERAL_NAME) cdecl = nil;
   ADMISSIONS_get0_namingAuthority: function(const a: PADMISSIONS): PNAMING_AUTHORITY cdecl = nil;

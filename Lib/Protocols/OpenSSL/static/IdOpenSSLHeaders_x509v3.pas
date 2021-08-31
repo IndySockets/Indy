@@ -906,9 +906,9 @@ type
   procedure NAMING_AUTHORITY_set0_authorityText(n: PNAMING_AUTHORITY; namingAuthorityText: PASN1_STRING) cdecl; external CLibCrypto;
 
   function ADMISSION_SYNTAX_get0_admissionAuthority(const as_: ADMISSION_SYNTAX): PGENERAL_NAME cdecl; external CLibCrypto;
-  procedure ADMISSION_SYNTAX_set0_admissionAuthority(&as: ADMISSION_SYNTAX; aa: PGENERAL_NAME) cdecl; external CLibCrypto;
+  procedure ADMISSION_SYNTAX_set0_admissionAuthority(as_: ADMISSION_SYNTAX; aa: PGENERAL_NAME) cdecl; external CLibCrypto;
 //  const STACK_OF(ADMISSIONS) *ADMISSION_SYNTAX_get0_contentsOfAdmissions(const as_: ADMISSION_SYNTAX);
-//  void ADMISSION_SYNTAX_set0_contentsOfAdmissions(&as: ADMISSION_SYNTAX; STACK_OF(ADMISSIONS) *a);
+//  void ADMISSION_SYNTAX_set0_contentsOfAdmissions(as_: ADMISSION_SYNTAX; STACK_OF(ADMISSIONS) *a);
   function ADMISSIONS_get0_admissionAuthority(const a: PADMISSIONS): PGENERAL_NAME cdecl; external CLibCrypto;
   procedure ADMISSIONS_set0_admissionAuthority(a: PADMISSIONS; aa: PGENERAL_NAME) cdecl; external CLibCrypto;
   function ADMISSIONS_get0_namingAuthority(const a: PADMISSIONS): PNAMING_AUTHORITY cdecl; external CLibCrypto;

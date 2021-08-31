@@ -471,7 +471,7 @@ type
 //      (ptr: PIdAnsichar);
       V_ASN1_BOOLEAN: (boolean: ASN1_BOOLEAN);
 //      (asn1_string: PASN1_STRING);
-      V_ASN1_OBJECT: (&object: PASN1_OBJECT);
+      V_ASN1_OBJECT: (object_: PASN1_OBJECT);
       V_ASN1_INTEGER: (integer: PASN1_INTEGER);
       V_ASN1_ENUMERATED: (enumerated: PASN1_ENUMERATED);
       V_ASN1_BIT_STRING: (bit_string: PASN1_BIT_STRING);
@@ -490,7 +490,7 @@ type
        * set and sequence are left complete and still contain the set or
        * sequence bytes
        *)
-      V_ASN1_SET: (&set: PASN1_STRING);
+      V_ASN1_SET: (set_: PASN1_STRING);
       V_ASN1_SEQUENCE: (sequence: PASN1_STRING);
 //      (asn1_value: PASN1_VALUE);
 

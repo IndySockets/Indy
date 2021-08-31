@@ -483,8 +483,8 @@ var
 
   function X509_VERIFY_PARAM_new: PX509_VERIFY_PARAM;
   procedure X509_VERIFY_PARAM_free(param: PX509_VERIFY_PARAM);
-  function X509_VERIFY_PARAM_inherit(&to: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT;
-  function X509_VERIFY_PARAM_set1(&to: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT;
+  function X509_VERIFY_PARAM_inherit(to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT;
+  function X509_VERIFY_PARAM_set1(to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT;
   function X509_VERIFY_PARAM_set1_name(param: PX509_VERIFY_PARAM; const name: PIdAnsiChar): TIdC_INT;
   function X509_VERIFY_PARAM_set_flags(param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT;
   function X509_VERIFY_PARAM_clear_flags(param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT;

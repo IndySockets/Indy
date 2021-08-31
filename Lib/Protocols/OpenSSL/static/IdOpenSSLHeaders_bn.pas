@@ -303,7 +303,7 @@ type
   function BN_from_montgomery(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
   procedure BN_MONT_CTX_free(mont: PBN_MONT_CTX) cdecl; external CLibCrypto;
   function BN_MONT_CTX_set(mont: PBN_MONT_CTX; mod_: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl; external CLibCrypto;
-  function BN_MONT_CTX_copy(&to: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX cdecl; external CLibCrypto;
+  function BN_MONT_CTX_copy(to_: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX cdecl; external CLibCrypto;
 //  function BN_MONT_CTX_set_locked(pmont: ^PBN_MONT_CTX; lock: CRYPTO_RWLOCK; mod_: PBIGNUM; ctx: PBN_CTX): PBN_MONT_CTX;
 
   function BN_BLINDING_new(const A: PBIGNUM; const Ai: PBIGNUM; mod_: PBIGNUM): PBN_BLINDING cdecl; external CLibCrypto;

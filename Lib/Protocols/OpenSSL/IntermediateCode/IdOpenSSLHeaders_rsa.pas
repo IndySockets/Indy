@@ -337,21 +337,21 @@ var
   function RSA_blinding_on(rsa: PRSA; ctx: PBN_CTX): TIdC_INT;
   procedure RSA_blinding_off(rsa: PRSA);
   function RSA_setup_blinding(rsa: PRSA; ctx: PBN_CTX): PBN_BLINDING;
-  function RSA_padding_add_PKCS1_type_1(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
-  function RSA_padding_check_PKCS1_type_1(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
-  function RSA_padding_add_PKCS1_type_2(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
-  function RSA_padding_check_PKCS1_type_2(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
+  function RSA_padding_add_PKCS1_type_1(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
+  function RSA_padding_check_PKCS1_type_1(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
+  function RSA_padding_add_PKCS1_type_2(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
+  function RSA_padding_check_PKCS1_type_2(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
   function PKCS1_MGF1(mask: PByte; len: TIdC_LONG; const seed: PByte; seedlen: TIdC_LONG; const dgst: PEVP_MD): TIdC_INT;
-  function RSA_padding_add_PKCS1_OAEP(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT;
-  function RSA_padding_check_PKCS1_OAEP(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT;
-  function RSA_padding_add_PKCS1_OAEP_mgf1(&to: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT;
-  function RSA_padding_check_PKCS1_OAEP_mgf1(&to: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; num: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT;
-  function RSA_padding_add_SSLv23(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
-  function RSA_padding_check_SSLv23(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
-  function RSA_padding_add_none(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
-  function RSA_padding_check_none(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
-  function RSA_padding_add_X931(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
-  function RSA_padding_check_X931(&to: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
+  function RSA_padding_add_PKCS1_OAEP(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT;
+  function RSA_padding_check_PKCS1_OAEP(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT;
+  function RSA_padding_add_PKCS1_OAEP_mgf1(to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT;
+  function RSA_padding_check_PKCS1_OAEP_mgf1(to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; num: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT;
+  function RSA_padding_add_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
+  function RSA_padding_check_SSLv23(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
+  function RSA_padding_add_none(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
+  function RSA_padding_check_none(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
+  function RSA_padding_add_X931(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT;
+  function RSA_padding_check_X931(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT;
   function RSA_X931_hash_id(nid: TIdC_INT): TIdC_INT;
 
   function RSA_verify_PKCS1_PSS(rsa: PRSA; const mHash: PByte; const Hash: PEVP_MD; const EM: PByte; sLen: TIdC_INT): TIdC_INT;
@@ -379,28 +379,28 @@ var
 
   //int (*RSA_meth_get_pub_enc(const RSA_METHOD *meth))
   //    (int flen, const unsigned char *from,
-  //     unsigned char *&to, RSA *rsa, int padding);
+  //     unsigned char *to_, RSA *rsa, int padding);
   //int RSA_meth_set_pub_enc(RSA_METHOD *rsa,
   //                         int (*pub_enc) (int flen, const unsigned char *from,
-  //                                         unsigned char *&to, RSA *rsa,
+  //                                         unsigned char *to_, RSA *rsa,
   //                                         int padding));
   //int (*RSA_meth_get_pub_dec(const RSA_METHOD *meth))
   //    (int flen, const unsigned char *from,
-  //     unsigned char *&to, RSA *rsa, int padding);
+  //     unsigned char *to_, RSA *rsa, int padding);
   //int RSA_meth_set_pub_dec(RSA_METHOD *rsa,
   //                         int (*pub_dec) (int flen, const unsigned char *from,
-  //                                         unsigned char *&to, RSA *rsa,
+  //                                         unsigned char *to_, RSA *rsa,
   //                                         int padding));
   //int (*RSA_meth_get_priv_enc(const RSA_METHOD *meth))
   //    (int flen, const unsigned char *from,
-  //     unsigned char *&to, RSA *rsa, int padding);
+  //     unsigned char *to_, RSA *rsa, int padding);
   //int RSA_meth_set_priv_enc(RSA_METHOD *rsa,
   //                          int (*priv_enc) (int flen, const unsigned char *from,
-  //                                           unsigned char *&to, RSA *rsa,
+  //                                           unsigned char *to_, RSA *rsa,
   //                                           int padding));
   //int (*RSA_meth_get_priv_dec(const RSA_METHOD *meth))
   //    (int flen, const unsigned char *from,
-  //     unsigned char *&to, RSA *rsa, int padding);
+  //     unsigned char *to_, RSA *rsa, int padding);
   function RSA_meth_set_priv_dec(rsa: PRSA_METHOD; priv_dec: RSA_meth_set_priv_dec_priv_dec): TIdC_INT;
 
   //int (*RSA_meth_get_mod_exp(const RSA_METHOD *meth))

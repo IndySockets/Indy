@@ -398,7 +398,7 @@ type
   EVP_MD_meth_update = function(ctx: PEVP_MD_CTX; const data: Pointer;
     count: TIdC_SIZET): TIdC_INT; cdecl;
   EVP_MD_meth_final = function(ctx: PEVP_MD_CTX; const md: PByte): TIdC_INT; cdecl;
-  EVP_MD_meth_copy = function(&to: PEVP_MD_CTX; const from: PEVP_MD_CTX): TIdC_INT; cdecl;
+  EVP_MD_meth_copy = function(to_: PEVP_MD_CTX; const from: PEVP_MD_CTX): TIdC_INT; cdecl;
   EVP_MD_meth_cleanup = function(ctx: PEVP_MD_CTX): TIdC_INT; cdecl;
   EVP_MD_meth_ctrl = function(ctx: PEVP_MD_CTX; cmd: TIdC_INT; p1: TIdC_INT;
     p2: Pointer): TIdC_INT; cdecl;
@@ -446,7 +446,7 @@ type
   param_decode = function(pkey: PEVP_PKEY; const pder: PPByte; derlen: TIdC_INT): TIdC_INT; cdecl;
   param_encode = function(const pkey: PEVP_PKEY; pder: PPByte): TIdC_INT; cdecl;
   param_missing = function(const pk: PEVP_PKEY): TIdC_INT; cdecl;
-  param_copy = function(&to: PEVP_PKEY; const from: PEVP_PKEY): TIdC_INT; cdecl;
+  param_copy = function(to_: PEVP_PKEY; const from: PEVP_PKEY): TIdC_INT; cdecl;
   param_cmp = function(const a: PEVP_PKEY; const b: PEVP_PKEY): TIdC_INT; cdecl;
   param_print = function(out_: PBIO; const pkey: PEVP_PKEY; indent: TIdC_INT; pctx: PASN1_PCTX): TIdC_INT; cdecl;
 
@@ -1040,7 +1040,7 @@ var
   function d2i_AutoPrivateKey(a: PPEVP_PKEY; const pp: PPByte; length: TIdC_LONG): PEVP_PKEY;
   function i2d_PrivateKey(a: PEVP_PKEY; pp: PPByte): TIdC_INT;
 
-  function EVP_PKEY_copy_parameters(&to: PEVP_PKEY; const from: PEVP_PKEY): TIdC_INT;
+  function EVP_PKEY_copy_parameters(to_: PEVP_PKEY; const from: PEVP_PKEY): TIdC_INT;
   function EVP_PKEY_missing_parameters(const pkey: PEVP_PKEY): TIdC_INT;
   function EVP_PKEY_save_parameters(pkey: PEVP_PKEY; mode: TIdC_INT): TIdC_INT;
   function EVP_PKEY_cmp_parameters(const a: PEVP_PKEY; const b: PEVP_PKEY): TIdC_INT;
@@ -1092,7 +1092,7 @@ var
   function EVP_PKEY_asn1_find(pe: PPENGINE; type_: TIdC_INT): PEVP_PKEY_ASN1_METHOD;
   function EVP_PKEY_asn1_find_str(pe: PPENGINE; const str: PIdAnsiChar; len: TIdC_INT): PEVP_PKEY_ASN1_METHOD;
   function EVP_PKEY_asn1_add0(const ameth: PEVP_PKEY_ASN1_METHOD): TIdC_INT;
-  function EVP_PKEY_asn1_add_alias(&to: TIdC_INT; from: TIdC_INT): TIdC_INT;
+  function EVP_PKEY_asn1_add_alias(to_: TIdC_INT; from: TIdC_INT): TIdC_INT;
   function EVP_PKEY_asn1_get0_info(ppkey_id: PIdC_INT; pkey_base_id: PIdC_INT; ppkey_flags: PIdC_INT; const pinfo: PPIdAnsiChar; const ppem_str: PPIdAnsiChar; const ameth: PEVP_PKEY_ASN1_METHOD): TIdC_INT;
 
   function EVP_PKEY_get0_asn1(const pkey: PEVP_PKEY): PEVP_PKEY_ASN1_METHOD;

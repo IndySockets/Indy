@@ -1474,7 +1474,7 @@ var
   BIO_new_ssl: function(ctx: PSSL_CTX; client: TIdC_INT): PBIO cdecl = nil;
   BIO_new_ssl_connect: function(ctx: PSSL_CTX): PBIO cdecl = nil;
   BIO_new_buffer_ssl_connect: function(ctx: PSSL_CTX): PBIO cdecl = nil;
-  BIO_ssl_copy_session_id: function(&to: PBIO; from: PBIO): TIdC_INT cdecl = nil;
+  BIO_ssl_copy_session_id: function(to_: PBIO; from: PBIO): TIdC_INT cdecl = nil;
 
   SSL_CTX_set_cipher_list: function(v1: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT cdecl = nil;
   SSL_CTX_new: function(const meth: PSSL_METHOD): PSSL_CTX cdecl = nil;
@@ -1593,7 +1593,7 @@ var
   SSL_SESSION_get0_ticket: procedure(const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET) cdecl = nil;
   SSL_SESSION_get_max_early_data: function(const s: PSSL_SESSION): TIdC_UINT32 cdecl = nil;
   SSL_SESSION_set_max_early_data: function(s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT cdecl = nil;
-  SSL_copy_session_id: function(&to: PSSL; const from: PSSL): TIdC_INT cdecl = nil;
+  SSL_copy_session_id: function(to_: PSSL; const from: PSSL): TIdC_INT cdecl = nil;
   SSL_SESSION_get0_peer: function(s: PSSL_SESSION): PX509 cdecl = nil;
   SSL_SESSION_set1_id_context: function(s: PSSL_SESSION; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl = nil;
   SSL_SESSION_set1_id: function(s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT cdecl = nil;
@@ -1609,7 +1609,7 @@ var
   SSL_SESSION_up_ref: function(ses: PSSL_SESSION): TIdC_INT cdecl = nil;
   SSL_SESSION_free: procedure(ses: PSSL_SESSION) cdecl = nil;
   //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *in_, Byte **pp);
-  SSL_set_session: function(&to: PSSL; session: PSSL_SESSION): TIdC_INT cdecl = nil;
+  SSL_set_session: function(to_: PSSL; session: PSSL_SESSION): TIdC_INT cdecl = nil;
   SSL_CTX_add_session: function(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl = nil;
   SSL_CTX_remove_session: function(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl = nil;
   SSL_CTX_set_generate_session_id: function(ctx: PSSL_CTX; cb: GEN_SESSION_CB): TIdC_INT cdecl = nil;

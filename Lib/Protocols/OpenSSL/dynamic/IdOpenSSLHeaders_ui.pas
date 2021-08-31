@@ -333,7 +333,7 @@ var
   UI_method_set_flusher: function(method: PUI_Method; flusher: UI_method_flusher_cb): TIdC_INT cdecl = nil;
   UI_method_set_reader: function(method: PUI_Method; reader: UI_method_reader_cb): TIdC_INT cdecl = nil;
   UI_method_set_closer: function(method: PUI_Method; closer: UI_method_closer_cb): TIdC_INT cdecl = nil;
-  UI_method_set_data_duplicator: function(method: PUI_Method; duplicator: UI_method_data_duplicator_cb; &destructor: UI_method_data_destructor_cb): TIdC_INT cdecl = nil;
+  UI_method_set_data_duplicator: function(method: PUI_Method; duplicator: UI_method_data_duplicator_cb; destructor_: UI_method_data_destructor_cb): TIdC_INT cdecl = nil;
   UI_method_set_prompt_constructor: function(method: PUI_Method; prompt_constructor: UI_method_prompt_constructor_cb): TIdC_INT cdecl = nil;
   UI_method_set_ex_data: function(method: PUI_Method; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl = nil;
 

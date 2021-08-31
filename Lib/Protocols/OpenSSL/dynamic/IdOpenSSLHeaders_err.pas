@@ -199,16 +199,16 @@ var
   ERR_set_error_data: procedure(data: PIdAnsiChar; flags: TIdC_INT) cdecl = nil;
   
   ERR_get_error: function: TIdC_ULONG cdecl = nil;
-  ERR_get_error_line: function(&file: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl = nil;
-  ERR_get_error_line_data: function(&file: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl = nil;
+  ERR_get_error_line: function(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl = nil;
+  ERR_get_error_line_data: function(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl = nil;
 
   ERR_peek_error: function: TIdC_ULONG cdecl = nil;
-  ERR_peek_error_line: function(&file: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl = nil;
-  ERR_peek_error_line_data: function(&file: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl = nil;
+  ERR_peek_error_line: function(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl = nil;
+  ERR_peek_error_line_data: function(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl = nil;
 
   ERR_peek_last_error: function: TIdC_ULONG cdecl = nil;
-  ERR_peek_last_error_line: function(&file: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl = nil;
-  ERR_peek_last_error_line_data: function(&file: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl = nil;
+  ERR_peek_last_error_line: function(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG cdecl = nil;
+  ERR_peek_last_error_line_data: function(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG cdecl = nil;
 
   ERR_clear_error: procedure cdecl = nil;
   ERR_error_string: function(e: TIdC_ULONG; buf: PIdAnsiChar): PIdAnsiChar cdecl = nil;

@@ -188,7 +188,7 @@ var
 begin
   LBio := Bio_new_file(PAnsiChar(UTF8Encode(AFile)), 'r');
   if not Assigned(LBio) then
-    Exit(nil);
+    Exit;
   try
     Result := PEM_read_bio_X509(LBio, nil, nil, nil);
   finally

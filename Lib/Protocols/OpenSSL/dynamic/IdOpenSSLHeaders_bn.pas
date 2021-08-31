@@ -308,7 +308,7 @@ var
   BN_from_montgomery: function(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT cdecl = nil;
   BN_MONT_CTX_free: procedure(mont: PBN_MONT_CTX) cdecl = nil;
   BN_MONT_CTX_set: function(mont: PBN_MONT_CTX; mod_: PBIGNUM; ctx: PBN_CTX): TIdC_INT cdecl = nil;
-  BN_MONT_CTX_copy: function(&to: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX cdecl = nil;
+  BN_MONT_CTX_copy: function(to_: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX cdecl = nil;
 //  function BN_MONT_CTX_set_locked(pmont: ^PBN_MONT_CTX; lock: CRYPTO_RWLOCK; mod_: PBIGNUM; ctx: PBN_CTX): PBN_MONT_CTX;
 
   BN_BLINDING_new: function(const A: PBIGNUM; const Ai: PBIGNUM; mod_: PBIGNUM): PBN_BLINDING cdecl = nil;

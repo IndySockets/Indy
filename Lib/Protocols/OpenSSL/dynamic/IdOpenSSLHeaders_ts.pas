@@ -543,7 +543,7 @@ var
    * ts/ts_conf.c
    *)
 
-  TS_CONF_load_cert: function(&file: PIdAnsiChar): PX509 cdecl = nil;
+  TS_CONF_load_cert: function(file_: PIdAnsiChar): PX509 cdecl = nil;
   TS_CONF_load_key: function( file_: PIdAnsiChar; pass: PIdAnsiChar): PEVP_PKey cdecl = nil;
   TS_CONF_set_serial: function(conf: PCONF; section: PIdAnsiChar; cb: TS_serial_cb; ctx: PTS_RESP_CTX): TIdC_INT cdecl = nil;
   //STACK_OF(X509) *TS_CONF_load_certs(const char *file);
