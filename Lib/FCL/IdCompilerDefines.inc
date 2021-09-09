@@ -430,7 +430,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 11.0 (Olympus)
+  //Delphi & CBuilder 11.0 Alexandria (Olympus)
   {$IFDEF VER350}
     {$DEFINE VCL_11_0}
     {$IFDEF CBUILDER}
