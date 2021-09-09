@@ -186,6 +186,7 @@ function LoadCertificate(const AFile: string): PX509;
 var
   LBio: PBIO;
 begin
+  Result := nil;
   LBio := Bio_new_file(PAnsiChar(UTF8Encode(AFile)), 'r');
   if not Assigned(LBio) then
     Exit;
