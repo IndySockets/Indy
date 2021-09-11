@@ -929,11 +929,16 @@ procedure TIdCustomTCPServer.DoTerminateContext(AContext: TIdContext);
 begin
   // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
   // is still running which often causes AVs and other.
-  AContext.Connection.Disconnect(False);
-  // TODO: use AContext.Binding.CloseSocket() instead. Just close the socket without
+  //AContext.Connection.Disconnect(False);
+
+  // RLebeau 9/10/2021: not calling disconnect here anymore. Just close the socket without
   // closing the IOHandler itself.  Doing so can cause AVs and other, such as in
   // TIdSSLIOHandlerSocketOpenSSL, when Disconnect() calls IOHandler.Close() which
   // frees internal objects that may still be in use...
+  AContext.Binding.CloseSocket;
+
+  // TODO: since we are in the mist of a server shutdown, should the socket's SO_LINGER
+  // option to enabled and set to 0 seconds to force an abortive (RSET) closure?
 end;
 
 procedure TIdCustomTCPServer.InitComponent;
