@@ -31,13 +31,14 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  IdIOHandler,
+  IdOpenSSLContext,
   IdOpenSSLContextServer,
   IdOpenSSLOptionsServer,
   IdSSL,
   IdSocketHandle,
   IdThread,
-  IdYarn,
-  IdIOHandler;
+  IdYarn;
 
 type
   TIdOpenSSLIOHandlerServer = class(TIdServerIOHandlerSSLBase)
@@ -48,6 +49,8 @@ type
   protected
     function GetOptionClass: TIdOpenSSLOptionsServerClass; virtual;
     procedure InitComponent; override;
+    procedure BeforeInitContext(const AContext: TIdOpenSSLContext); virtual;
+    procedure AfterInitContext(const AContext: TIdOpenSSLContext); virtual;
   public
     destructor Destroy; override;
 
@@ -92,6 +95,16 @@ begin
   Result := LIOHandler;
 end;
 
+procedure TIdOpenSSLIOHandlerServer.AfterInitContext(
+  const AContext: TIdOpenSSLContext);
+begin
+end;
+
+procedure TIdOpenSSLIOHandlerServer.BeforeInitContext(
+  const AContext: TIdOpenSSLContext);
+begin
+end;
+
 destructor TIdOpenSSLIOHandlerServer.Destroy;
 begin
   FOptions.Free();
@@ -116,7 +129,9 @@ begin
 
   FContext := TIdOpenSSLContextServer.Create();
   try
+    BeforeInitContext(FContext);
     FContext.Init(FOptions);
+    AfterInitContext(FContext);
   except
     on E: EExternalException do
     begin
