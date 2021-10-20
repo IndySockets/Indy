@@ -238,12 +238,14 @@ type
     FIPVersion: TIdIPVersion;
     FIPAddress: String;
     FInterfaceName: String;
+    FDescription: String;    
     FInterfaceIndex: UInt32;
   public
     constructor Create(ACollection: TCollection; const AIPVersion: TIdIPVersion; const AIPAddress: string); reintroduce;
     property IPVersion: TIdIPVersion read FIPVersion;
     property IPAddress: String read FIPAddress;
     property InterfaceName: String read FInterfaceName;
+    property Description: String read FDescription;
     property InterfaceIndex: UInt32 read FInterfaceIndex;
   end;
 

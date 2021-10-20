@@ -1452,12 +1452,14 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                         end;
                         LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr);
                         TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
+                        TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);                        
                         TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Union.IfIndex;
                       end;
                       AF_INET6: begin
                         LAddress := TIdStackLocalAddressIPv6.Create(AAddresses,
                           TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
                         TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
+                        TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
                         // The Ipv6IfIndex member is only available on Windows XP SP1 and later
                         if IndyCheckWindowsVersion(5, 2) or (IndyCheckWindowsVersion(5, 1) {TODO: and SP1+}) then begin
                           TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Ipv6IfIndex;
@@ -1608,6 +1610,7 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                   {$ENDIF}
                   LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, MaskStr);
                   TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
+                  TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
                   TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Index;
                 end;
                 IPAddr := IPAddr^.Next;
