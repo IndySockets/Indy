@@ -158,6 +158,7 @@ contains
   IdHMACSHA1 in 'IdHMACSHA1.pas',
   IdHTTP in 'IdHTTP.pas',
   IdHTTPHeaderInfo in 'IdHTTPHeaderInfo.pas',
+  IdHTTPHelper in 'IdHTTPHelper.pas',
   IdHTTPProxyServer in 'IdHTTPProxyServer.pas',
   IdHTTPServer in 'IdHTTPServer.pas',
   IdHash in 'IdHash.pas',

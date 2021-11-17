@@ -1135,12 +1135,16 @@
     // parameters until Delphi 2005, when it was switched to Longint parameters
     // instead to match the actual Win32 API declaration.
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
+    // class helpers were first introduced in D2005, but were buggy and not
+    // officially supported until D2006...
+    {.$DEFINE HAS_CLASS_HELPER}
   {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_2006_OR_ABOVE}
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
+  {$DEFINE HAS_CLASS_HELPER}
   {$IFDEF WINDOWS}
     // System.RegisterExpectedMemoryLeak() is only available on Windows at this time
     {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
@@ -1468,6 +1472,7 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
+    {$DEFINE HAS_CLASS_HELPER}
   {$ENDIF}
   {$IFDEF FPC_2_6_2_OR_ABOVE}
     {$DEFINE HAS_Int8}
