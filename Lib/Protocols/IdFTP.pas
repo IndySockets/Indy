@@ -2121,7 +2121,7 @@ begin
           LSocketList.Add(Socket.Binding.Handle);
           LSocketList.Add(LDataSocket);
 
-          IOHandler.Write(ACommand);
+          IOHandler.WriteLn(ACommand);
 
           LReadList := nil;
           if not LSocketList.SelectReadList(LReadList, ListenTimeout) then begin
