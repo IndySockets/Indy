@@ -38,6 +38,10 @@ uses
   Classes;
 
 type
+  /// <summary>
+  ///   Wrapper around a name entry.
+  ///   Could contain subject or issuer information
+  /// </summary>
   TIdOpenSSLX509Name = class(TIdOpenSSLPersistent)
   private
     FName: PX509_NAME;
@@ -93,6 +97,10 @@ type
   end;
 
   // https://zakird.com/2013/10/13/certificate-parsing-with-openssl
+  /// <summary>
+  ///   Class wrapper around a PX509 instance of OpenSSL.
+  ///   Contains most function to retrieve detail information of that instance.
+  /// </summary>
   TIdOpenSSLX509 = class(TIdOpenSSLPersistent)
   private
     FX509: PX509;
