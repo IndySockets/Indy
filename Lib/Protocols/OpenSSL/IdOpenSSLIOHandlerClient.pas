@@ -206,7 +206,7 @@ begin
   inherited;
   if PassThrough then
     Exit;
-  GetClientSocket().Connect(Binding.Handle, GetTargetHost());
+  GetClientSocket().Connect(Binding.Handle, GetTargetHost(), FOptions.VerifyHostName);
 end;
 
 end.

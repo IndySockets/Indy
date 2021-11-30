@@ -20,7 +20,8 @@
 {                               fbiehn@aagon.com (German & English)            }
 {                                                                              }
 {        Contributers:                                                         }
-{                               Here could be your name                        }
+{                               Christopher Wagner                             }
+{                               cwagner@aagon.com (German & English)           }
 {                                                                              }
 {******************************************************************************}
 
@@ -52,6 +53,7 @@ type
   EIdOpenSSLSetCipherSuiteError = class(EIdOpenSSLBaseError);
   EIdOpenSSLSetClientCAError = class(EIdOpenSSLBaseError);
   EIdOpenSSLSetSNIServerNameError = class(EIdOpenSSLBaseError);
+  EIdOpenSSLSetVerifyParamHostError = class(EIdOpenSSLBaseError);
 
   /// <summary>
   ///   Base class for errors that are based on the error stack in err.h
