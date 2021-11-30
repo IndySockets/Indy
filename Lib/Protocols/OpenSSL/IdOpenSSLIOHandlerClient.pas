@@ -166,7 +166,7 @@ function TIdOpenSSLIOHandlerClient.GetTargetHost: string;
     Result := '';
     if AUriToCheck = '' then
       Exit;
-    LURI := TIdURI.Create(URIToCheck);
+    LURI := TIdURI.Create(AURIToCheck);
     try
       Result := LURI.Host;
     finally
