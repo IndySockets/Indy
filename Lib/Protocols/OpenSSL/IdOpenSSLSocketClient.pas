@@ -65,7 +65,6 @@ function TIdOpenSSLSocketClient.Connect(
 var
   LReturnCode: TIdC_INT;
   LShouldRetry: Boolean;
-//  x: Boolean;
 begin
   FSSL := StartSSL(FContext);
   SSL_set_fd(FSSL, AHandle);
@@ -84,11 +83,6 @@ begin
     if not LShouldRetry and (LReturnCode < 0) then
       raise EIdOpenSSLConnectError.Create(FSSL, LReturnCode, '');
   until not LShouldRetry;
-
-  // The specification recommends that applications only use a session once
-  // (although this may not be enforced). Now we enforce this on our own :)
-//  SSL_CTX_remove_session(FContext, FSession);
-//  x := SSL_session_reused(FSSL) = 1;
 end;
 
 procedure TIdOpenSSLSocketClient.SetSession(const ASession: Pointer);
