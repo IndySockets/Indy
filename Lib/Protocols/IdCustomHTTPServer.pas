@@ -175,7 +175,7 @@ uses
 
 type
   // Enums
-  THTTPCommandType = (hcUnknown, hcHEAD, hcGET, hcPOST, hcDELETE, hcPUT, hcTRACE, hcOPTION);
+  THTTPCommandType = (hcUnknown, hcHEAD, hcGET, hcPOST, hcDELETE, hcPUT, hcTRACE, hcOPTION, hcPATCH);
 
 const
   Id_TId_HTTPServer_KeepAlive = false;
@@ -191,7 +191,7 @@ const
   GServerSoftware = gsIdProductName + '/' + gsIdVersion;    {Do not Localize}
   GContentType = 'text/html';    {Do not Localize}
   GSessionIDCookie = 'IDHTTPSESSIONID';    {Do not Localize}
-  HTTPRequestStrings: array[0..Ord(High(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS'); {do not localize}
+  HTTPRequestStrings: array[0..Ord(High(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS', 'PATCH'); {do not localize}
 
 type
   // Forwards
@@ -1120,6 +1120,8 @@ var
     LResponseText, LContentText, S: String;
   begin
     // let the user decide if the request headers are acceptable
+    // TODO pass the whole LRequestInfo object so the user has access
+    // to the request method, too...
     Result := DoHeadersAvailable(AContext, LRequestInfo.URI, LRequestInfo.RawHeaders);
     if not Result then begin
       DoHeadersBlocked(AContext, LRequestInfo.RawHeaders, LResponseNo, LResponseText, LContentText);
