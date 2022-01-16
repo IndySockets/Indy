@@ -808,6 +808,7 @@ var
   LAddrList, LAddrInfo: pifaddrs;
   LSubNetStr: string;
   LAddress: TIdStackLocalAddress;
+  LName: string;
   {$ELSE}
   Li: Integer;
   LAHost: PHostEnt;
@@ -850,7 +851,10 @@ begin
             end;
           end;
           if LAddress <> nil then begin
-            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LAddrInfo^.ifa_name;
+            LName := LAddrInfo^.ifa_name;
+            TIdStackLocalAddressAccess(LAddress).FDescription := LName;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
