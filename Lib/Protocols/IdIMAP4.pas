@@ -1195,7 +1195,9 @@ uses
   {$ENDIF}
 {$ENDIF}
 {$IFDEF FPC}
-  {$DEFINE HAS_CLASS_HELPER} // TODO: when were class helpers introduced?
+  {$IFDEF FPC_2_6_0_OR_ABOVE}
+    {$DEFINE HAS_CLASS_HELPER}
+  {$ENDIF}
 {$ENDIF}
 
 type
@@ -1384,6 +1386,9 @@ var
 begin
   Result := False;
   AuthStarted := False;
+
+  // TODO: use UTF-8 when base64-encoding strings...
+
   if AClient.IsCapabilityListed('SASL-IR') then begin {Do not localize}
     if ASASL.TryStartAuthenticate(AClient.Host, IdGSKSSN_imap, S) then begin
       AClient.SendCmd(AClient.NewCmdCounter, 'AUTHENTICATE ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), [], True); {Do not Localize}
@@ -2495,7 +2500,7 @@ begin
   Port := IdPORT_IMAP4;
   FLineStruct := TIdIMAPLineStruct.Create;
   {$IFDEF HAS_TStringList_CaseSensitive}
-  TStringList(FCapabilities).CaseSensitive := False;
+  TStringList(FCapabilities).CaseSensitive := False; // TODO: move this to TIdExplicitTLSClient.InitComponent()
   {$ENDIF}
   FMUTF7 := TIdMUTF7.Create;
 
