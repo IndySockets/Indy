@@ -796,8 +796,12 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 // compiling in C++ without having to re-define
 // OpenSSL data types and without having to
 // include the OpenSSL header files
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT OPENNAMESPACE}
+{$ELSE}
 (*$HPPEMIT 'namespace Idsslopensslheaders'*)
 (*$HPPEMIT '{'*)
+{$ENDIF}
 (*$HPPEMIT '	struct SSL;'*)
 (*$HPPEMIT '	typedef SSL* PSSL;'*)
 (*$HPPEMIT '	struct SSL_CTX;'*)
@@ -808,7 +812,12 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 (*$HPPEMIT '	typedef X509* PX509;'*)
 (*$HPPEMIT '	struct X509_NAME;'*)
 (*$HPPEMIT '	typedef X509_NAME* PX509_NAME;'*)
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT CLOSENAMESPACE}
+{$ELSE}
 (*$HPPEMIT '}'*)
+{$ENDIF}
+
 // RLebeau: why are the following types not being placed in
 // the Idsslopensslheaders namespace with the types above?
 (*$HPPEMIT 'struct RSA;'*)
@@ -22703,6 +22712,9 @@ end;
 
   {$IFDEF UNIX}
 var
+  // TODO: default these to False instead, as modern systems now
+  // use symlinks that point to OpenSSL 1.1.x+, which is not
+  // compatible with this unit...
   GIdCanLoadSymLinks: Boolean = True;
   GIdLoadSymLinksFirst: Boolean = True;
 

@@ -710,8 +710,12 @@ type
   end;
   {$NODEFINE TIdUInt64}
 
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT OPENNAMESPACE}
+  {$ELSE}
   (*$HPPEMIT 'namespace Idglobal'*)
   (*$HPPEMIT '{'*)
+  {$ENDIF}
   (*$HPPEMIT '    #pragma pack(push, 1)' *)
   (*$HPPEMIT '    struct TIdUInt64'*)
   (*$HPPEMIT '    {'*)
@@ -733,7 +737,11 @@ type
   (*$HPPEMIT '        TIdUInt64& operator=(unsigned __int64 value) { QuadPart = value; return *this; }'*)
   (*$HPPEMIT '    };'*)
   (*$HPPEMIT '    #pragma pack(pop)' *)
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT CLOSENAMESPACE}
+  {$ELSE}
   (*$HPPEMIT '}'*)
+  {$ENDIF}
 {$ENDIF}
 
 const
@@ -1341,8 +1349,13 @@ type
   // don't want to use a bunch of IFDEF's trying to figure out where
   // UInt16 is coming from...
   //
+
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT OPENNAMESPACE}
+  {$ELSE}
   (*$HPPEMIT 'namespace Idglobal'*)
   (*$HPPEMIT '{'*)
+  {$ENDIF}
   (*$HPPEMIT '    struct TIdIPv6Address'*)
   (*$HPPEMIT '    {'*)
   (*$HPPEMIT '        ::System::Word data[8];'*)
@@ -1351,7 +1364,11 @@ type
   (*$HPPEMIT '        operator const ::System::Word*() const { return data; }'*)
   (*$HPPEMIT '        operator ::System::Word*() { return data; }'*)
   (*$HPPEMIT '    };'*)
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT CLOSENAMESPACE}
+  {$ELSE}
   (*$HPPEMIT '}'*)
+  {$ENDIF}
 
   {This way instead of a boolean for future expansion of other actions}
   TIdMaxLineAction = (maException, maSplit);
