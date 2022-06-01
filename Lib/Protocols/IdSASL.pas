@@ -86,9 +86,9 @@ type
       which can remove an unnecessary round-trip if both parties support it.
     }
     //SASL AProtocolName must be a name from "http://www.iana.org/assignments/gssapi-service-names"
-    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: string): Boolean; virtual; overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use overload with APort parameter'{$ENDIF};{$ENDIF}
-    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string): string; virtual; overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use overload with APort parameter'{$ENDIF};{$ENDIF}
-    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; virtual; overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use overload with APort parameter'{$ENDIF};{$ENDIF}
+    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: string): Boolean; virtual; overload;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string): string; virtual; overload;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; virtual; overload;
 
     function TryStartAuthenticate(const AHost: string; const APort: TIdPort; const AProtocolName : string; var VInitialResponse: string): Boolean; virtual; overload;
     function StartAuthenticate(const AChallenge, AHost: string; const APort: TIdPort; const AProtocolName : string): string; virtual; overload;
