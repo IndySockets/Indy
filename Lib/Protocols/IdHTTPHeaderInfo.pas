@@ -493,6 +493,10 @@ begin
 end;
 
 procedure TIdEntityHeaderInfo.SetHeaders;
+var
+  sUnits: String;
+  sCR: String;
+  sCI: String;
 begin
   FRawHeaders.Clear;
   if Length(FConnection) > 0 then
@@ -525,7 +529,19 @@ begin
     FRawHeaders.Values['Content-Length'] := IntToStr(FContentLength); {do not localize}
   end;
 
-  { removed setting Content-Range header for entities... deferred to response }
+  // Rlebeau 10/11/2021: Content-Range is allowed in client requests, not just responses.
+  // For instance, Microsoft's Graph API uses it!
+  if HasContentRange or HasContentRangeInstance then
+  begin
+    sUnits := iif(FContentRangeUnits <> '',
+      FContentRangeUnits, 'bytes'); {do not localize}
+    sCR := iif(HasContentRange,
+      IndyFormat('%d-%d', [FContentRangeStart, FContentRangeEnd]), '*'); {do not localize}
+    sCI := iif(HasContentRangeInstance,
+      IndyFormat('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
+
+    FRawHeaders.Values['Content-Range'] := sUnits + ' ' + sCR + '/' + sCI; {do not localize}
+  end;
 
   if Length(FCacheControl) > 0 then
   begin
@@ -1140,28 +1156,8 @@ begin
 end;
 
 procedure TIdResponseHeaderInfo.SetHeaders;
-var
-  sUnits: String;
-  sCR: String;
-  sCI: String;
 begin
   inherited SetHeaders;
-
-  {
-    setting the content-range header is allowed in server responses...
-    moved here TIdEntityHeaderInfo
-  }
-  if HasContentRange or HasContentRangeInstance then
-  begin
-    sUnits := iif(FContentRangeUnits <> '',
-      FContentRangeUnits, 'bytes'); {do not localize}
-    sCR := iif(HasContentRange,
-      IndyFormat('%d-%d', [FContentRangeStart, FContentRangeEnd]), '*'); {do not localize}
-    sCI := iif(HasContentRangeInstance,
-      IndyFormat('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
-
-    RawHeaders.Values['Content-Range'] := sUnits + ' ' + sCR + '/' + sCI; {do not localize}
-  end;
   if Length(FAcceptPatch) > 0 then
   begin
     RawHeaders.Values['Accept-Patch'] := FAcceptPatch; {do not localize}
