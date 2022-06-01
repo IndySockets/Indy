@@ -2368,7 +2368,7 @@ begin
   begin
     //we call the macro twice because we specified two possible structures.
     //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
-    LSize := WSA_CMSG_LEN(WSA_CMSG_LEN(Length(VBuffer)));
+    LSize := WSA_CMSG_SPACE(SizeOf(Byte)) + WSA_CMSG_SPACE(SizeOf(IN6_PKTINFO));
     SetLength(LControl, LSize);
 
     LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
