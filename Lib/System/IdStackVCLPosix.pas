@@ -1135,8 +1135,8 @@ var
 begin
   //we call the macro twice because we specified two possible structures.
   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
-  LSize := CMSG_LEN(CMSG_LEN(Length(VBuffer)));
-  SetLength( LControl,LSize);
+  LSize := CMSG_SPACE(SizeOf(Byte)) + CMSG_SPACE(SizeOf(in6_pktinfo));
+  SetLength(LControl, LSize);
 
   LIOV.iov_len := Length(VBuffer); // Length(VMsgData);
   LIOV.iov_base := @VBuffer[0]; // @VMsgData[0];
