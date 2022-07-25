@@ -49,6 +49,7 @@ uses
   IdBaseComponent,
   IdCoder,
   IdException,
+  IdGlobal,
   IdSASL,
   IdTCPConnection;
 
@@ -83,7 +84,7 @@ type
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH';      {Do not Localize}
       ACanAttemptIR: Boolean = True); overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use overload with APort parameter'{$ENDIF};{$ENDIF}
-    procedure LoginSASL(const ACmd, AHost; const APort: TIdPort; const AProtocolName: String;
+    procedure LoginSASL(const ACmd, AHost: String; const APort: TIdPort; const AProtocolName: String;
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH';      {Do not Localize}
       ACanAttemptIR: Boolean = True); overload;
@@ -91,7 +92,7 @@ type
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH';      {Do not Localize}
       ACanAttemptIR: Boolean = True); overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use overload with APort parameter'{$ENDIF};{$ENDIF}
-    procedure LoginSASL(const ACmd, AHost; const APort: TIdPort; const AProtocolName, AServiceName: String;
+    procedure LoginSASL(const ACmd, AHost: String; const APort: TIdPort; const AProtocolName, AServiceName: String;
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH';      {Do not Localize}
       ACanAttemptIR: Boolean = True); overload;
@@ -118,7 +119,6 @@ uses
   {$ENDIF}
   IdAssignedNumbers,
   IdCoderMIME,
-  IdGlobal,
   IdGlobalProtocols,
   IdReply,
   IdResourceStringsProtocols,
@@ -354,7 +354,7 @@ begin
   LoginSASL(ACmd, AHost, 0, AProtocolName, AOkReplies, AContinueReplies, AClient, ACapaReply, AAuthString, ACanAttemptIR);
 end;
 
-procedure TIdSASLEntries.LoginSASL(const ACmd, AHost; const APort: TIdPort; const AProtocolName: String;
+procedure TIdSASLEntries.LoginSASL(const ACmd, AHost: String; const APort: TIdPort; const AProtocolName: String;
   const AOkReplies, AContinueReplies: array of string; AClient: TIdTCPConnection;
   ACapaReply: TStrings; const AAuthString: String; ACanAttemptIR: Boolean);
 var
@@ -454,7 +454,7 @@ begin
   LoginSASL(ACmd, AHost, 0, AProtocolName, AServiceName, AOkReplies, AContinueReplies, AClient, ACapaReply, AAuthString, ACanAttemptIR);
 end;
 
-procedure TIdSASLEntries.LoginSASL(const ACmd, AHost: string; const APort: TIdPort;
+procedure TIdSASLEntries.LoginSASL(const ACmd, AHost: String; const APort: TIdPort;
   const AProtocolName, AServiceName: String;
   const AOkReplies, AContinueReplies: array of string; AClient: TIdTCPConnection;
   ACapaReply: TStrings; const AAuthString: String; ACanAttemptIR: Boolean);
