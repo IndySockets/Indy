@@ -153,7 +153,7 @@ end;
 procedure TIdAttachmentFile.SaveToFile(const FileName: String);
 begin
   if not CopyFileTo(StoredPathname, FileName) then begin
-    raise EIdException.Create(RSTIdMessageErrorSavingAttachment);
+    raise EIdException.Create(RSTIdMessageErrorSavingAttachment); // TODO: create a new Exception class for this
   end;
 end;
 

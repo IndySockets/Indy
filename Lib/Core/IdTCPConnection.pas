@@ -479,7 +479,7 @@ end;
 procedure TIdTCPConnection.CreateIOHandler(ABaseType:TIdIOHandlerClass=nil);
 begin
   if Connected then begin
-    raise EIdException.Create(RSIOHandlerCannotChange);
+    raise EIdException.Create(RSIOHandlerCannotChange); // TODO: create a new Exception class for this
   end;
   if Assigned(ABaseType) then begin
     IOHandler := TIdIOHandler.MakeIOHandler(ABaseType, Self);
@@ -657,7 +657,7 @@ begin
     //
     if Assigned(LIOHandler) and Assigned(AValue) then begin
       if Assigned(LIOHandler.Intercept) and (LIOHandler.Intercept <> AValue) then begin
-        raise EIdException.Create(RSInterceptIsDifferent);
+        raise EIdException.Create(RSInterceptIsDifferent); // TODO: create a new Exception class for this
       end;
     end;
 
@@ -713,7 +713,7 @@ begin
       LOtherIntercept := AValue.Intercept;
       if Assigned(LOtherIntercept) then begin
         if LOtherIntercept <> LIntercept then begin
-          raise EIdException.Create(RSInterceptIsDifferent);
+          raise EIdException.Create(RSInterceptIsDifferent); // TODO: create a new Exception class for this
         end;
         {$IFDEF USE_OBJECT_ARC}LOtherIntercept := nil;{$ENDIF}
       end;
@@ -813,7 +813,7 @@ begin
   if Assigned(LIOHandler) then begin
     LIOHandler.CheckForDisconnect(ARaiseExceptionIfDisconnected);
   end else if ARaiseExceptionIfDisconnected then begin
-    raise EIdException.Create(RSNotConnected);
+    raise EIdException.Create(RSNotConnected); // TODO: create a new Exception class for this
   end;
 end;
 

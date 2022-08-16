@@ -282,14 +282,14 @@ var
 begin
   if FCode <> AValue then begin
     if not CheckIfCodeIsValid(AValue) then begin
-      raise EIdException.CreateFmt(RSReplyInvalidCode, [AValue]);
+      raise EIdException.CreateFmt(RSReplyInvalidCode, [AValue]); // TODO: create a new Exception class for this
     end;
     // Only check for duplicates if we are in a collection. NormalReply etc are not in collections
     // Also dont check FReplyTexts, as non members can be duplicates of members
     if Collection <> nil then begin
       LMatchedReply := TIdReplies(Collection).Find(AValue);
       if Assigned(LMatchedReply) then begin
-        raise EIdException.CreateFmt(RSReplyCodeAlreadyExists, [AValue]);
+        raise EIdException.CreateFmt(RSReplyCodeAlreadyExists, [AValue]); // TODO: create a new Exception class for this
       end;
     end;
     Clear;
