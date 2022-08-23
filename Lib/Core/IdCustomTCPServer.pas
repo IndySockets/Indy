@@ -678,7 +678,7 @@ begin
     // gets called by Notification() if the Scheduler is freed while
     // the server is still Active?
     if Active then begin
-      raise EIdException.Create(RSTCPServerSchedulerAlreadyActive);
+      raise EIdException.Create(RSTCPServerSchedulerAlreadyActive); // TODO: create a new Exception class for this
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
@@ -733,7 +733,7 @@ begin
     // IOHandler is freed while the server is still Active?
     {
     if Active then begin
-      raise EIdException.Create(RSTCPServerIOHandlerAlreadyActive);
+      raise EIdException.Create(RSTCPServerIOHandlerAlreadyActive); // TODO: create a new Exception class for this
     end;
     }
 

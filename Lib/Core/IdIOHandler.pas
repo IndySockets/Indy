@@ -954,7 +954,7 @@ class function TIdIOHandler.MakeIOHandler(ABaseType: TIdIOHandlerClass;
 begin
   Result := TryMakeIOHandler(ABaseType, AOwner);
   if not Assigned(Result) then begin
-    raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]);
+    raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]); // TODO: create a new Exception class for this
   end;
 end;
 

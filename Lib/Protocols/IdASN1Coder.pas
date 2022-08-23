@@ -373,7 +373,7 @@ end;
 procedure TIdASN1Decoder.Check(bCondition: Boolean; const sMethod, sMessage: String);
 begin
   if not bCondition then
-    raise EIdException.create(sMessage);
+    raise EIdException.create(sMessage); // TODO: create a new Exception class for this
 end;
 
 Procedure TIdASN1Decoder.StartReading;
@@ -422,7 +422,7 @@ begin
     Result := 0;
     iNext := iNext and $7F;
     if iNext = 0 then
-      raise EIdException.create('Indefinite lengths are not yet handled');
+      raise EIdException.create('Indefinite lengths are not yet handled'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
     for iLoop := 1 to iNext do
     begin
       Result := Result * 256;
@@ -450,7 +450,7 @@ begin
     result.IdClass := TIdASN1IdentifierClass(iNext shr 6);
     if iNext and $1F = $1F then
       begin
-      raise EIdException.create('Todo');
+      raise EIdException.create('Todo'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
       end
     else
       result.TagValue := iNext and $1F;

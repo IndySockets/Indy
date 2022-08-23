@@ -327,7 +327,7 @@ begin
       else if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
         TIdTCPClient(LContext.FOutboundClient).Port := IdPORT_https;
       end else begin
-        raise EIdException.Create(RSHTTPUnknownProtocol);
+        raise EIdException.Create(RSHTTPUnknownProtocol); // TODO: create a new Exception class for this
       end;
 
       //We have to remove the host and port from the request
@@ -342,8 +342,16 @@ begin
     LContext.FTransferSource := tsClient;
     DoHTTPBeforeCommand(LContext);
 
+    // TODO: update the LContext.Headers to set the 'Connection' header to 'close', since
+    // the connection to the target server is disconnected below after the response is received...
+
     TIdTCPClient(LContext.FOutboundClient).Connect;
     try
+      // TODO: if FDefTransferMode is tmStreaming, send the request and receive the response
+      // in parallel, similar to how CommandCONNECT() does.  This would also facilitate the
+      // server being able to send back an error reponse while the client is still sending
+      // its request...
+
       TransferData(LContext, LContext.Connection, LContext.FOutboundClient);
 
       LContext.Headers.Clear;
@@ -423,7 +431,7 @@ begin
 
         LContext.Headers.Clear;
         LConnectionIO.Capture(LContext.Headers, '', False);
-        LContext.FTransferMode := FDefTransferMode;
+        LContext.FTransferMode := FDefTransferMode; // TODO: should this be forced to tmStreaming instead?
         LContext.FTransferSource := tsClient;
         DoHTTPBeforeCommand(LContext);
 

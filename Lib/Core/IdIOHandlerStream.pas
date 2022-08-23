@@ -320,13 +320,13 @@ function TIdIOHandlerStream.CheckForError(ALastResult: Integer): Integer;
 begin
   Result := ALastResult;
   if Result < 0 then begin
-    raise EIdException.Create('Stream error'); {do not localize}
+    raise EIdException.Create('Stream error'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
 end;
 
 procedure TIdIOHandlerStream.RaiseError(AError: Integer);
 begin
-  raise EIdException.Create('Stream error'); {do not localize}
+  raise EIdException.Create('Stream error'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 end.

@@ -206,7 +206,7 @@ end;
 function TIdSchedulerOfThread.NewYarn(AThread: TIdThreadWithTask): TIdYarnOfThread;
 begin
   if not Assigned(AThread) then begin
-    raise EIdException.Create(RSThreadSchedulerThreadRequired);
+    raise EIdException.Create(RSThreadSchedulerThreadRequired); // TODO: create a new Exception class for this
   end;
   // Create Yarn
   Result := TIdYarnOfThread.Create(Self, AThread);

@@ -302,6 +302,8 @@ begin
     if SupportsTLS then begin
       if SendCmd('STLS','') = ST_OK then begin {Do not translate}
         TLSHandshake;
+        //obtain capabilities again - RFC2595
+        CAPA;
       end else begin
         ProcessTLSNegCmdFailed;
       end;
