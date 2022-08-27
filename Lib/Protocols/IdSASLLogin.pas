@@ -54,7 +54,7 @@ type
 implementation
 
 uses
-  IdUserPassProvider, IdBaseComponent;
+  IdGlobal, IdUserPassProvider, IdBaseComponent;
 
 function IsUsernameChallenge(const AChallenge: string): Boolean;
 begin
