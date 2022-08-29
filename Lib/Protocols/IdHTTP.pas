@@ -1916,13 +1916,13 @@ begin
         if IOHandler = nil then begin
           IOHandler := TIdIOHandler.TryMakeIOHandler(TIdSSLIOHandlerSocketBase, Self);
           if IOHandler = nil then begin
-            raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
+            raise EIdSSLIOHandlerRequired.Create(RSHTTPSRequiresSSLIOHandler);
           end;
           ManagedIOHandler := True;
           IOHandler.OnStatus := OnStatus; // TODO: assign DoStatus() instead of the handler directly...
         end
         else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-          raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
+          raise EIdSSLIOHandlerRequired.Create(RSHTTPSRequiresSSLIOHandler);
         end;
         TIdSSLIOHandlerSocketBase(IOHandler).URIToCheck := FURI.URI;
         TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := (ARequest.UseProxy = ctSSLProxy);

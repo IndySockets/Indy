@@ -185,6 +185,7 @@ type
 
   { IdIOHandler }
   EIdMaxCaptureLineExceeded = class(EIdException); // S.G. 6/4/2004: triggered when a capture command exceeds the maximum number of line allowed
+  EIdSSLIOHandlerRequired = class(EIdIOHandlerPropInvalid);
 
 implementation
 
