@@ -375,7 +375,7 @@ begin
         // TODO: look in the SASLMechanisms if XOAuth2 is enabled, and if so
         // then disable Initial-Response...
 
-        FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL',  {do not localize}
+        FSASLMechanisms.LoginSASL('AUTH', FHost, FPort, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL',  {do not localize}
           FSASLCanAttemptIR and HasCAPA and IsSASLSupported
         );
       end;
