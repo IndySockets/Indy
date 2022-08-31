@@ -208,7 +208,7 @@ begin
   if ADest is TIdReplyIMAP4 then begin
     LR := TIdReplyIMAP4(ADest);
     //set code first as it possibly clears the reply
-    LR.NumericCode := NumericCode;
+    LR.Code := Code;
     LR.FSequenceNumber := SequenceNumber;
     LR.Extra.Assign(Extra);
     LR.Text.Assign(Text);
