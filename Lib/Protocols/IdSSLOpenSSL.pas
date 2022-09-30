@@ -3673,30 +3673,30 @@ begin
                 Result := 0;
               end
               else begin
-                raise EIdException.Create(RSOSSLConnectionDropped);
+                raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
               end;
             end;
         end;
       end;}
 
-        //raise EIdException.Create(RSOSSLConnectionDropped);
+        //raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
       // X509_LOOKUP event is not really an error, just an event
     // SSL_ERROR_WANT_X509_LOOKUP:
-        // raise EIdException.Create(RSOSSLCertificateLookup);
+        // raise EIdException.Create(RSOSSLCertificateLookup); // TODO: create a new Exception class for this
     SSL_ERROR_SYSCALL:
       Result := SSL_ERROR_SYSCALL;
       // Result := SSL_ERROR_NONE;
 
-        {//raise EIdException.Create(RSOSSLInternal);
+        {//raise EIdException.Create(RSOSSLInternal); // TODO: create a new Exception class for this
         if (retCode <> 0) or (DataLen <> 0) then begin
-          raise EIdException.Create(RSOSSLConnectionDropped);
+          raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
         end
         else begin
           Result := 0;
         end;}
 
     SSL_ERROR_SSL:
-      // raise EIdException.Create(RSOSSLInternal);
+      // raise EIdException.Create(RSOSSLInternal); // TODO: create a new Exception class for this
       Result := SSL_ERROR_SSL;
       // Result := SSL_ERROR_NONE;
   end;

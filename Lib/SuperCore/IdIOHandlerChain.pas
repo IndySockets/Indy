@@ -351,7 +351,7 @@ begin
       GBSDStack.SetBlocking(Binding.Handle, False);
     end;
     else begin
-      raise EIdException.Create('Unrecognized ConnectMode'); {do not localize}
+      raise EIdException.Create('Unrecognized ConnectMode'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
     end;
   end;
   QueueAndWait(TIdWorkOpUnitWaitConnected.Create);
@@ -408,7 +408,7 @@ function TIdIOHandlerChain.ReadFromSource(
  ARaiseExceptionOnTimeout: Boolean): Integer;
 begin
   Result := 0;
-  raise EIdException.Create('Fall through error in ' + ClassName); {do not localize}
+  raise EIdException.Create('Fall through error in ' + ClassName); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdIOHandlerChain.ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
@@ -462,7 +462,7 @@ begin
     if (AMaxLineLength <> 0) and (LTermPos > AMaxLineLength) then begin
       case FMaxLineAction of
         // TODO: find the right exception class here
-        maException: raise EIdException.Create('MaxLineLength exceded'); {do not localize}
+        maException: raise EIdException.Create('MaxLineLength exceded'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
         maSplit: Result := FInputBuffer.Extract(AMaxLineLength);
       end;
     end else begin
@@ -717,7 +717,7 @@ end;
 
 procedure TIdChainEngine.RemoveSocket(AIOHandler: TIdIOHandlerChain);
 begin
-//  raise EIdException.Create('Fall through error in ' + Self.ClassName+'.RemoveSocket');
+//  raise EIdException.Create('Fall through error in ' + Self.ClassName+'.RemoveSocket'); // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdChainEngine.AddWork(AWorkOpUnit: TIdWorkOpUnit);
@@ -805,7 +805,7 @@ begin
     if ServiceQueryTransmitFile(AWorkOpUnit.IOHandler.Binding.Handle,LHFile,0,0,POverlapped(LPOverlapped),nil,0) then begin
       AWorkOpUnit.Fiber.Relinquish;
     end else begin
-      raise EIdException.Create('error in ServiceQueryTransmitFile');
+      raise EIdException.Create('error in ServiceQueryTransmitFile'); // TODO: add a resource string, and create a new Exception class for this
     end;
   finally
     CloseHandle(LHFile);

@@ -25481,9 +25481,13 @@ end;
 //* #define BIO_set_nbio(b,n)	BIO_ctrl(b,BIO_C_SET_NBIO,(n),NULL) */
 function BIO_set_nbio_accept(b : PBIO; n : TIdC_INT) : TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  a: array[0..1] of TIdAnsiChar;
 begin
   if n <> 0 then begin
-    Result := BIO_ctrl(b, BIO_C_SET_ACCEPT, 1, PIdAnsiChar('a'));
+    a[0] := TIdAnsiChar('a');
+    a[1] := TIdAnsiChar(#0);
+    Result := BIO_ctrl(b, BIO_C_SET_ACCEPT, 1, @a[0]);
   end else begin
     Result := BIO_ctrl(b, BIO_C_SET_ACCEPT, 1, nil);
   end;
@@ -25492,7 +25496,7 @@ end;
 function BIO_set_accept_bios(b : PBIO; bio : PBIO) : TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := BIO_ctrl(b,BIO_C_SET_ACCEPT, 2, PIdAnsiChar(bio));
+  Result := BIO_ctrl(b,BIO_C_SET_ACCEPT, 2, bio);
 end;
 
 function BIO_set_bind_mode(b : PBIO; mode : TIdC_LONG) : TIdC_LONG;
