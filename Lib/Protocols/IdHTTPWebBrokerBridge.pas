@@ -74,7 +74,7 @@ type
     {$DEFINE WBB_ANSI}
   {$ENDIF}
 
-  {$IFDEF VCL_10_5_OR_ABOVE}
+  {$IFDEF VCL_11_0_OR_ABOVE}
     {$DEFINE WBB_BIG_INTS}
   {$ENDIF}
 
