@@ -16,7 +16,7 @@ if not defined BDS goto NoBDS
 
 set logfn=CleanD19.log
 
-call CleanDDelete.cmd
+call Clean_IDE.cmd
 goto END
 
 :NoCompUtil
