@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.07.2021 14:11:10
+// Generation date: 10.10.2022 11:49:08
 
 unit IdOpenSSLHeaders_ossl_typ;
 
@@ -262,6 +262,9 @@ type
   X509 = x509_st;
   PX509 = ^X509;
   PPX509 = ^PX509;
+  Stack_Of_X509 = type Pointer;
+  PStack_Of_X509 = ^Stack_Of_X509;
+  PPStack_Of_X509 = ^PStack_Of_X509;
   X509_crl_st = type Pointer;
   X509_CRL = X509_crl_st;
   PX509_CRL = ^X509_CRL;
