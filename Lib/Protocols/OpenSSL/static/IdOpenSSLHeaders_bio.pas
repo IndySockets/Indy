@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.07.2021 14:11:10
+// Generation date: 10.10.2022 12:36:39
 
 unit IdOpenSSLHeaders_bio;
 
@@ -581,27 +581,27 @@ function BIO_set_mem_eof_return(b: PBIO; v: TIdC_INT): TIdC_INT;
 
   function BIO_debug_callback(bio: PBIO; cmd: TIdC_INT; const argp: PIdAnsiChar; argi: TIdC_INT; argl: TIdC_LONG; ret: TIdC_LONG): TIdC_LONG cdecl; external CLibCrypto;
 
-  function BIO_s_mem: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_s_secmem: BIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_mem: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_secmem: PBIO_METHOD cdecl; external CLibCrypto;
   function BIO_new_mem_buf(const buf: Pointer; len: TIdC_INT): PBIO cdecl; external CLibCrypto;
 
-  function BIO_s_socket: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_s_connect: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_s_accept: BIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_socket: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_connect: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_accept: PBIO_METHOD cdecl; external CLibCrypto;
 
-  function BIO_s_fd: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_s_log: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_s_bio: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_s_null: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_f_null: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_f_buffer: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_f_linebuffer: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_f_nbio_test: BIO_METHOD cdecl; external CLibCrypto;
-  function BIO_s_datagram: BIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_fd: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_log: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_bio: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_null: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_f_null: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_f_buffer: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_f_linebuffer: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_f_nbio_test: PBIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_datagram: PBIO_METHOD cdecl; external CLibCrypto;
   function BIO_dgram_non_fatal_error(error: TIdC_INT): TIdC_INT cdecl; external CLibCrypto;
   function BIO_new_dgram(fd: TIdC_INT; close_flag: TIdC_INT): PBIO cdecl; external CLibCrypto;
 
-  function BIO_s_datagram_sctp: BIO_METHOD cdecl; external CLibCrypto;
+  function BIO_s_datagram_sctp: PBIO_METHOD cdecl; external CLibCrypto;
   function BIO_new_dgram_sctp(fd: TIdC_INT; close_flag: TIdC_INT): PBIO cdecl; external CLibCrypto;
   function BIO_dgram_is_sctp(bio: PBIO): TIdC_INT cdecl; external CLibCrypto;
 //  function BIO_dgram_sctp_notification_cb(bio: PBIO; handle_notifications(PBIO;

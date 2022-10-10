@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 28.07.2021 14:11:11
+// Generation date: 10.10.2022 12:36:53
 
 unit IdOpenSSLHeaders_bio;
 
@@ -586,27 +586,27 @@ var
 
   BIO_debug_callback: function(bio: PBIO; cmd: TIdC_INT; const argp: PIdAnsiChar; argi: TIdC_INT; argl: TIdC_LONG; ret: TIdC_LONG): TIdC_LONG cdecl = nil;
 
-  BIO_s_mem: function: BIO_METHOD cdecl = nil;
-  BIO_s_secmem: function: BIO_METHOD cdecl = nil;
+  BIO_s_mem: function: PBIO_METHOD cdecl = nil;
+  BIO_s_secmem: function: PBIO_METHOD cdecl = nil;
   BIO_new_mem_buf: function(const buf: Pointer; len: TIdC_INT): PBIO cdecl = nil;
 
-  BIO_s_socket: function: BIO_METHOD cdecl = nil;
-  BIO_s_connect: function: BIO_METHOD cdecl = nil;
-  BIO_s_accept: function: BIO_METHOD cdecl = nil;
+  BIO_s_socket: function: PBIO_METHOD cdecl = nil;
+  BIO_s_connect: function: PBIO_METHOD cdecl = nil;
+  BIO_s_accept: function: PBIO_METHOD cdecl = nil;
 
-  BIO_s_fd: function: BIO_METHOD cdecl = nil;
-  BIO_s_log: function: BIO_METHOD cdecl = nil;
-  BIO_s_bio: function: BIO_METHOD cdecl = nil;
-  BIO_s_null: function: BIO_METHOD cdecl = nil;
-  BIO_f_null: function: BIO_METHOD cdecl = nil;
-  BIO_f_buffer: function: BIO_METHOD cdecl = nil;
-  BIO_f_linebuffer: function: BIO_METHOD cdecl = nil;
-  BIO_f_nbio_test: function: BIO_METHOD cdecl = nil;
-  BIO_s_datagram: function: BIO_METHOD cdecl = nil;
+  BIO_s_fd: function: PBIO_METHOD cdecl = nil;
+  BIO_s_log: function: PBIO_METHOD cdecl = nil;
+  BIO_s_bio: function: PBIO_METHOD cdecl = nil;
+  BIO_s_null: function: PBIO_METHOD cdecl = nil;
+  BIO_f_null: function: PBIO_METHOD cdecl = nil;
+  BIO_f_buffer: function: PBIO_METHOD cdecl = nil;
+  BIO_f_linebuffer: function: PBIO_METHOD cdecl = nil;
+  BIO_f_nbio_test: function: PBIO_METHOD cdecl = nil;
+  BIO_s_datagram: function: PBIO_METHOD cdecl = nil;
   BIO_dgram_non_fatal_error: function(error: TIdC_INT): TIdC_INT cdecl = nil;
   BIO_new_dgram: function(fd: TIdC_INT; close_flag: TIdC_INT): PBIO cdecl = nil;
 
-  BIO_s_datagram_sctp: function: BIO_METHOD cdecl = nil;
+  BIO_s_datagram_sctp: function: PBIO_METHOD cdecl = nil;
   BIO_new_dgram_sctp: function(fd: TIdC_INT; close_flag: TIdC_INT): PBIO cdecl = nil;
   BIO_dgram_is_sctp: function(bio: PBIO): TIdC_INT cdecl = nil;
 //  function BIO_dgram_sctp_notification_cb(bio: PBIO; handle_notifications(PBIO;
