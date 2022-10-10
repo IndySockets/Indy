@@ -35,8 +35,8 @@ uses
   IdOpenSSLContext,
   IdOpenSSLContextServer,
   IdOpenSSLOptionsServer,
-  IdSSL,
   IdSocketHandle,
+  IdSSL,
   IdThread,
   IdYarn;
 
