@@ -35,7 +35,8 @@ uses
   IdOpenSSLHeaders_ossl_typ,
   IdCTypes,
   IdGlobal,
-  Classes;
+  Classes,
+  SysUtils;
 
 type
   /// <summary>
@@ -124,6 +125,7 @@ type
   public
     constructor Create(const AX509: PX509); reintroduce; overload;
     constructor Create(const AFile: string); reintroduce; overload;
+    constructor Create(const ACert: TBytes); reintroduce; overload;
     destructor Destroy; override;
     procedure AssignTo(Dest: TPersistent); override;
 
@@ -245,6 +247,21 @@ begin
   inherited Create();
   X509_up_ref(AX509);
   FX509 := AX509;
+end;
+
+constructor TIdOpenSSLX509.Create(const ACert: TBytes);
+var
+  LBIO: PBIO;
+begin
+  inherited Create();
+  LBIO := BIO_new_mem_buf(@ACert[0], Length(ACert));
+  if not Assigned(LBio) then
+    Exit;
+  try
+    FX509 := LoadFromBio(LBIO);
+  finally
+    BIO_free(LBIO);
+  end;
 end;
 
 destructor TIdOpenSSLX509.Destroy;
