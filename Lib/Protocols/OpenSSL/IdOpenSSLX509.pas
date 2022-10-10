@@ -264,7 +264,7 @@ var
   LAsAsn1Int: PASN1_INTEGER;
   LAsBN: PBIGNUM;
 begin
-  LAsAsn1Int := X509_get_serialNumber(FX509);
+  LAsAsn1Int := X509_get0_serialNumber(FX509);
   LAsBN := ASN1_INTEGER_to_BN(LAsAsn1Int, nil);
   Result := GetString(BN_bn2hex(LAsBN));
 end;
