@@ -190,6 +190,16 @@ uses
   IdOpenSSLHeaders_x509,
   IdOpenSSLUtils;
 
+function LoadFromBio(const ABIO: PBIO): PX509;
+begin
+  Result := PEM_read_bio_X509(ABio, nil, nil, nil);
+  if not Assigned(Result) then
+  begin
+    BIO_ctrl(ABio, BIO_CTRL_RESET, 0, nil); // long version for makro BIO_reset
+    Result := PEM_read_bio_X509_AUX(ABio, nil, nil, nil); // Retry for -----BEGIN TRUSTED CERTIFICATE-----
+  end;
+end;
+
 function LoadCertificate(const AFile: string): PX509;
 var
   LBio: PBIO;
@@ -199,7 +209,7 @@ begin
   if not Assigned(LBio) then
     Exit;
   try
-    Result := PEM_read_bio_X509(LBio, nil, nil, nil);
+    Result := LoadFromBio(LBIO);
   finally
     BIO_free(LBio);
   end;
