@@ -61,6 +61,11 @@ uses
   Types;
 
 // Is automatically called whenever a new session was negotiated
+// Returning 0 = the session will be immediately removed from the internal cache and the reference
+//   count released
+// Returning 1 = the application retains the reference (for an entry in the application-maintained
+//   "external session cache"), and is responsible for calling SSL_SESSION_free() when the session
+//   reference is no longer in use
 function new_session_cb(ssl: PSSL; session: PSSL_SESSION): TIdC_INT; cdecl;
 var
   LCtx: PSSL_CTX;
