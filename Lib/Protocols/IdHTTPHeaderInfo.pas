@@ -392,6 +392,8 @@ begin
   FLastModified := 0;
   FETag := '';
   FExpires := 0;
+
+  FCustomHeaders.Clear;
   FRawHeaders.Clear;
 end;
 
