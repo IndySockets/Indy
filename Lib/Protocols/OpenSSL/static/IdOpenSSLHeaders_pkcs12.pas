@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 10.10.2022 12:13:38
+// Generation date: 11.10.2022 07:55:34
 
 unit IdOpenSSLHeaders_pkcs12;
 
@@ -42,6 +42,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
+  IdOpenSSLConsts,
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_pkcs7,
   IdOpenSSLHeaders_x509;

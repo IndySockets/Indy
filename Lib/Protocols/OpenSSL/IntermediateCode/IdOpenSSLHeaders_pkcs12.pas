@@ -36,6 +36,7 @@ interface
 uses
   IdCTypes,
   IdGlobal,
+  IdOpenSSLConsts,
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_pkcs7,
   IdOpenSSLHeaders_x509;
