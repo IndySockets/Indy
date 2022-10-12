@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.10.2022 07:55:23
+// Generation date: 11.10.2022 09:03:47
 
 unit IdOpenSSLHeaders_pkcs12;
 
@@ -76,7 +76,8 @@ const
 type
   PKCS12_MAC_DATA_st = type Pointer;
   PKCS12_MAC_DATA = PKCS12_MAC_DATA_st;
-  PPPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
+  PPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
+  PPPKCS12_MAC_DATA = ^PPKCS12_MAC_DATA;
 
   PKCS12_st = type Pointer;
   PKCS12 = PKCS12_st;
@@ -86,12 +87,14 @@ type
   PKCS12_SAFEBAG_st = type Pointer;
   PKCS12_SAFEBAG = PKCS12_SAFEBAG_st;
   PPKCS12_SAFEBAG = ^PKCS12_SAFEBAG;
+  PPPKCS12_SAFEBAG = ^PPKCS12_SAFEBAG;
 
 //  DEFINE_STACK_OF(PKCS12_SAFEBAG)
 
   pkcs12_bag_st = type Pointer;
   PKCS12_BAGS = pkcs12_bag_st;
   PPKCS12_BAGS = ^PKCS12_BAGS;
+  PPPKCS12_BAGS = ^PPKCS12_BAGS;
 
 procedure Load(const ADllHandle: TIdLibHandle; const AFailed: TStringList);
 procedure UnLoad;
@@ -160,13 +163,29 @@ var
   OPENSSL_utf82uni: function(const asc: PIdAnsiChar; asclen: TIdC_INT; uni: PPByte; unilen: PIdC_INT): PByte cdecl = nil;
   OPENSSL_uni2utf8: function(const uni: PByte; unilen: TIdC_INT): PIdAnsiChar cdecl = nil;
 
-//  DECLARE_ASN1_FUNCTIONS(PKCS12)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_MAC_DATA)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_SAFEBAG)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_BAGS)
+  PKCS12_new: function: PPKCS12 cdecl = nil;
+  PKCS12_free: procedure(a: PPKCS12) cdecl = nil;
+  d2i_PKCS12: function(a: PPPKCS12; const in_: PPByte; len: TIdC_LONG): PPKCS12 cdecl = nil;
+  i2d_PKCS12: function(a: PPKCS12; out_: PPByte): TIdC_INT cdecl = nil;
+  PKCS12_it: function: PASN1_ITEM cdecl = nil;
 
-//  DECLARE_ASN1_ITEM(PKCS12_SAFEBAGS)
-//  DECLARE_ASN1_ITEM(PKCS12_AUTHSAFES)
+  PKCS12_MAC_DATA_new: function: PPKCS12_MAC_DATA cdecl = nil;
+  PKCS12_MAC_DATA_free: procedure(a: PPKCS12_MAC_DATA) cdecl = nil;
+  d2i_PKCS12_MAC_DATA: function(a: PPPKCS12_MAC_DATA; const in_: PPByte; len: TIdC_LONG): PPKCS12_MAC_DATA cdecl = nil;
+  i2d_PKCS12_MAC_DATA: function(a: PPKCS12_MAC_DATA; out_: PPByte): TIdC_INT cdecl = nil;
+  PKCS12_MAC_DATA_it: function: PASN1_ITEM cdecl = nil;
+
+  PKCS12_SAFEBAG_new: function: PPKCS12_SAFEBAG cdecl = nil;
+  PKCS12_SAFEBAG_free: procedure(a: PPKCS12_SAFEBAG) cdecl = nil;
+  d2i_PKCS12_SAFEBAG: function(a: PPPKCS12_SAFEBAG; const in_: PPByte; len: TIdC_LONG): PPKCS12_SAFEBAG cdecl = nil;
+  i2d_PKCS12_SAFEBAG: function(a: PPKCS12_SAFEBAG; out_: PPByte): TIdC_INT cdecl = nil;
+  PKCS12_SAFEBAG_it: function: PASN1_ITEM cdecl = nil;
+
+  PKCS12_BAGS_new: function: PPKCS12_BAGS cdecl = nil;
+  PKCS12_BAGS_free: procedure(a: PPKCS12_BAGS) cdecl = nil;
+  d2i_PKCS12_BAGS: function(a: PPPKCS12_BAGS; const in_: PPByte; len: TIdC_LONG): PPKCS12_BAGS cdecl = nil;
+  i2d_PKCS12_BAGS: function(a: PPKCS12_BAGS; out_: PPByte): TIdC_INT cdecl = nil;
+  PKCS12_BAGS_it: function: PASN1_ITEM cdecl = nil;
 
   PKCS12_PBE_add: procedure(v: Pointer) cdecl = nil;
   PKCS12_parse: function(p12: PPKCS12; const pass: PIdAnsiChar; pkey: PPEVP_PKEY; cert: PPX509; ca: PPStack_Of_X509): TIdC_INT cdecl = nil;
@@ -239,6 +258,26 @@ begin
   OPENSSL_uni2asc := LoadFunction('OPENSSL_uni2asc', AFailed);
   OPENSSL_utf82uni := LoadFunction('OPENSSL_utf82uni', AFailed);
   OPENSSL_uni2utf8 := LoadFunction('OPENSSL_uni2utf8', AFailed);
+  PKCS12_new := LoadFunction('PKCS12_new', AFailed);
+  PKCS12_free := LoadFunction('PKCS12_free', AFailed);
+  d2i_PKCS12 := LoadFunction('d2i_PKCS12', AFailed);
+  i2d_PKCS12 := LoadFunction('i2d_PKCS12', AFailed);
+  PKCS12_it := LoadFunction('PKCS12_it', AFailed);
+  PKCS12_MAC_DATA_new := LoadFunction('PKCS12_MAC_DATA_new', AFailed);
+  PKCS12_MAC_DATA_free := LoadFunction('PKCS12_MAC_DATA_free', AFailed);
+  d2i_PKCS12_MAC_DATA := LoadFunction('d2i_PKCS12_MAC_DATA', AFailed);
+  i2d_PKCS12_MAC_DATA := LoadFunction('i2d_PKCS12_MAC_DATA', AFailed);
+  PKCS12_MAC_DATA_it := LoadFunction('PKCS12_MAC_DATA_it', AFailed);
+  PKCS12_SAFEBAG_new := LoadFunction('PKCS12_SAFEBAG_new', AFailed);
+  PKCS12_SAFEBAG_free := LoadFunction('PKCS12_SAFEBAG_free', AFailed);
+  d2i_PKCS12_SAFEBAG := LoadFunction('d2i_PKCS12_SAFEBAG', AFailed);
+  i2d_PKCS12_SAFEBAG := LoadFunction('i2d_PKCS12_SAFEBAG', AFailed);
+  PKCS12_SAFEBAG_it := LoadFunction('PKCS12_SAFEBAG_it', AFailed);
+  PKCS12_BAGS_new := LoadFunction('PKCS12_BAGS_new', AFailed);
+  PKCS12_BAGS_free := LoadFunction('PKCS12_BAGS_free', AFailed);
+  d2i_PKCS12_BAGS := LoadFunction('d2i_PKCS12_BAGS', AFailed);
+  i2d_PKCS12_BAGS := LoadFunction('i2d_PKCS12_BAGS', AFailed);
+  PKCS12_BAGS_it := LoadFunction('PKCS12_BAGS_it', AFailed);
   PKCS12_PBE_add := LoadFunction('PKCS12_PBE_add', AFailed);
   PKCS12_parse := LoadFunction('PKCS12_parse', AFailed);
   PKCS12_create := LoadFunction('PKCS12_create', AFailed);
@@ -292,6 +331,26 @@ begin
   OPENSSL_uni2asc := nil;
   OPENSSL_utf82uni := nil;
   OPENSSL_uni2utf8 := nil;
+  PKCS12_new := nil;
+  PKCS12_free := nil;
+  d2i_PKCS12 := nil;
+  i2d_PKCS12 := nil;
+  PKCS12_it := nil;
+  PKCS12_MAC_DATA_new := nil;
+  PKCS12_MAC_DATA_free := nil;
+  d2i_PKCS12_MAC_DATA := nil;
+  i2d_PKCS12_MAC_DATA := nil;
+  PKCS12_MAC_DATA_it := nil;
+  PKCS12_SAFEBAG_new := nil;
+  PKCS12_SAFEBAG_free := nil;
+  d2i_PKCS12_SAFEBAG := nil;
+  i2d_PKCS12_SAFEBAG := nil;
+  PKCS12_SAFEBAG_it := nil;
+  PKCS12_BAGS_new := nil;
+  PKCS12_BAGS_free := nil;
+  d2i_PKCS12_BAGS := nil;
+  i2d_PKCS12_BAGS := nil;
+  PKCS12_BAGS_it := nil;
   PKCS12_PBE_add := nil;
   PKCS12_parse := nil;
   PKCS12_create := nil;

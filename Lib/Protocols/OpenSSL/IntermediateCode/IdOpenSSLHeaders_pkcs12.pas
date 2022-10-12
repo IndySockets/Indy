@@ -69,7 +69,8 @@ const
 type
   PKCS12_MAC_DATA_st = type Pointer;
   PKCS12_MAC_DATA = PKCS12_MAC_DATA_st;
-  PPPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
+  PPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
+  PPPKCS12_MAC_DATA = ^PPKCS12_MAC_DATA;
 
   PKCS12_st = type Pointer;
   PKCS12 = PKCS12_st;
@@ -79,12 +80,14 @@ type
   PKCS12_SAFEBAG_st = type Pointer;
   PKCS12_SAFEBAG = PKCS12_SAFEBAG_st;
   PPKCS12_SAFEBAG = ^PKCS12_SAFEBAG;
+  PPPKCS12_SAFEBAG = ^PPKCS12_SAFEBAG;
 
 //  DEFINE_STACK_OF(PKCS12_SAFEBAG)
 
   pkcs12_bag_st = type Pointer;
   PKCS12_BAGS = pkcs12_bag_st;
   PPKCS12_BAGS = ^PKCS12_BAGS;
+  PPPKCS12_BAGS = ^PPKCS12_BAGS;
 
 var
   //ASN1_TYPE *PKCS8_get_attr(PKCS8_PRIV_KEY_INFO *p8, TIdC_INT attr_nid);
@@ -150,13 +153,29 @@ var
   function OPENSSL_utf82uni(const asc: PIdAnsiChar; asclen: TIdC_INT; uni: PPByte; unilen: PIdC_INT): PByte;
   function OPENSSL_uni2utf8(const uni: PByte; unilen: TIdC_INT): PIdAnsiChar;
 
-//  DECLARE_ASN1_FUNCTIONS(PKCS12)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_MAC_DATA)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_SAFEBAG)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_BAGS)
+  function PKCS12_new: PPKCS12;
+  procedure PKCS12_free(a: PPKCS12);
+  function d2i_PKCS12(a: PPPKCS12; const in_: PPByte; len: TIdC_LONG): PPKCS12;
+  function i2d_PKCS12(a: PPKCS12; out_: PPByte): TIdC_INT;
+  function PKCS12_it: PASN1_ITEM;
 
-//  DECLARE_ASN1_ITEM(PKCS12_SAFEBAGS)
-//  DECLARE_ASN1_ITEM(PKCS12_AUTHSAFES)
+  function PKCS12_MAC_DATA_new: PPKCS12_MAC_DATA;
+  procedure PKCS12_MAC_DATA_free(a: PPKCS12_MAC_DATA);
+  function d2i_PKCS12_MAC_DATA(a: PPPKCS12_MAC_DATA; const in_: PPByte; len: TIdC_LONG): PPKCS12_MAC_DATA;
+  function i2d_PKCS12_MAC_DATA(a: PPKCS12_MAC_DATA; out_: PPByte): TIdC_INT;
+  function PKCS12_MAC_DATA_it: PASN1_ITEM;
+
+  function PKCS12_SAFEBAG_new: PPKCS12_SAFEBAG;
+  procedure PKCS12_SAFEBAG_free(a: PPKCS12_SAFEBAG);
+  function d2i_PKCS12_SAFEBAG(a: PPPKCS12_SAFEBAG; const in_: PPByte; len: TIdC_LONG): PPKCS12_SAFEBAG;
+  function i2d_PKCS12_SAFEBAG(a: PPKCS12_SAFEBAG; out_: PPByte): TIdC_INT;
+  function PKCS12_SAFEBAG_it: PASN1_ITEM;
+
+  function PKCS12_BAGS_new: PPKCS12_BAGS;
+  procedure PKCS12_BAGS_free(a: PPKCS12_BAGS);
+  function d2i_PKCS12_BAGS(a: PPPKCS12_BAGS; const in_: PPByte; len: TIdC_LONG): PPKCS12_BAGS;
+  function i2d_PKCS12_BAGS(a: PPKCS12_BAGS; out_: PPByte): TIdC_INT;
+  function PKCS12_BAGS_it: PASN1_ITEM;
 
   procedure PKCS12_PBE_add(v: Pointer);
   function PKCS12_parse(p12: PPKCS12; const pass: PIdAnsiChar; pkey: PPEVP_PKEY; cert: PPX509; ca: PPStack_Of_X509): TIdC_INT;

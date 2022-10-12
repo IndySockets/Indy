@@ -28,7 +28,7 @@
 // Any change to this file should be made in the
 // corresponding unit in the folder "intermediate"!
 
-// Generation date: 11.10.2022 07:55:34
+// Generation date: 11.10.2022 09:03:30
 
 unit IdOpenSSLHeaders_pkcs12;
 
@@ -75,7 +75,8 @@ const
 type
   PKCS12_MAC_DATA_st = type Pointer;
   PKCS12_MAC_DATA = PKCS12_MAC_DATA_st;
-  PPPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
+  PPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
+  PPPKCS12_MAC_DATA = ^PPKCS12_MAC_DATA;
 
   PKCS12_st = type Pointer;
   PKCS12 = PKCS12_st;
@@ -85,12 +86,14 @@ type
   PKCS12_SAFEBAG_st = type Pointer;
   PKCS12_SAFEBAG = PKCS12_SAFEBAG_st;
   PPKCS12_SAFEBAG = ^PKCS12_SAFEBAG;
+  PPPKCS12_SAFEBAG = ^PPKCS12_SAFEBAG;
 
 //  DEFINE_STACK_OF(PKCS12_SAFEBAG)
 
   pkcs12_bag_st = type Pointer;
   PKCS12_BAGS = pkcs12_bag_st;
   PPKCS12_BAGS = ^PKCS12_BAGS;
+  PPPKCS12_BAGS = ^PPKCS12_BAGS;
 
   //ASN1_TYPE *PKCS8_get_attr(PKCS8_PRIV_KEY_INFO *p8, TIdC_INT attr_nid);
   function PKCS12_mac_present(const p12: PPKCS12): TIdC_INT cdecl; external CLibCrypto;
@@ -155,13 +158,29 @@ type
   function OPENSSL_utf82uni(const asc: PIdAnsiChar; asclen: TIdC_INT; uni: PPByte; unilen: PIdC_INT): PByte cdecl; external CLibCrypto;
   function OPENSSL_uni2utf8(const uni: PByte; unilen: TIdC_INT): PIdAnsiChar cdecl; external CLibCrypto;
 
-//  DECLARE_ASN1_FUNCTIONS(PKCS12)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_MAC_DATA)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_SAFEBAG)
-//  DECLARE_ASN1_FUNCTIONS(PKCS12_BAGS)
+  function PKCS12_new: PPKCS12 cdecl; external CLibCrypto;
+  procedure PKCS12_free(a: PPKCS12) cdecl; external CLibCrypto;
+  function d2i_PKCS12(a: PPPKCS12; const in_: PPByte; len: TIdC_LONG): PPKCS12 cdecl; external CLibCrypto;
+  function i2d_PKCS12(a: PPKCS12; out_: PPByte): TIdC_INT cdecl; external CLibCrypto;
+  function PKCS12_it: PASN1_ITEM cdecl; external CLibCrypto;
 
-//  DECLARE_ASN1_ITEM(PKCS12_SAFEBAGS)
-//  DECLARE_ASN1_ITEM(PKCS12_AUTHSAFES)
+  function PKCS12_MAC_DATA_new: PPKCS12_MAC_DATA cdecl; external CLibCrypto;
+  procedure PKCS12_MAC_DATA_free(a: PPKCS12_MAC_DATA) cdecl; external CLibCrypto;
+  function d2i_PKCS12_MAC_DATA(a: PPPKCS12_MAC_DATA; const in_: PPByte; len: TIdC_LONG): PPKCS12_MAC_DATA cdecl; external CLibCrypto;
+  function i2d_PKCS12_MAC_DATA(a: PPKCS12_MAC_DATA; out_: PPByte): TIdC_INT cdecl; external CLibCrypto;
+  function PKCS12_MAC_DATA_it: PASN1_ITEM cdecl; external CLibCrypto;
+
+  function PKCS12_SAFEBAG_new: PPKCS12_SAFEBAG cdecl; external CLibCrypto;
+  procedure PKCS12_SAFEBAG_free(a: PPKCS12_SAFEBAG) cdecl; external CLibCrypto;
+  function d2i_PKCS12_SAFEBAG(a: PPPKCS12_SAFEBAG; const in_: PPByte; len: TIdC_LONG): PPKCS12_SAFEBAG cdecl; external CLibCrypto;
+  function i2d_PKCS12_SAFEBAG(a: PPKCS12_SAFEBAG; out_: PPByte): TIdC_INT cdecl; external CLibCrypto;
+  function PKCS12_SAFEBAG_it: PASN1_ITEM cdecl; external CLibCrypto;
+
+  function PKCS12_BAGS_new: PPKCS12_BAGS cdecl; external CLibCrypto;
+  procedure PKCS12_BAGS_free(a: PPKCS12_BAGS) cdecl; external CLibCrypto;
+  function d2i_PKCS12_BAGS(a: PPPKCS12_BAGS; const in_: PPByte; len: TIdC_LONG): PPKCS12_BAGS cdecl; external CLibCrypto;
+  function i2d_PKCS12_BAGS(a: PPKCS12_BAGS; out_: PPByte): TIdC_INT cdecl; external CLibCrypto;
+  function PKCS12_BAGS_it: PASN1_ITEM cdecl; external CLibCrypto;
 
   procedure PKCS12_PBE_add(v: Pointer) cdecl; external CLibCrypto;
   function PKCS12_parse(p12: PPKCS12; const pass: PIdAnsiChar; pkey: PPEVP_PKEY; cert: PPX509; ca: PPStack_Of_X509): TIdC_INT cdecl; external CLibCrypto;
