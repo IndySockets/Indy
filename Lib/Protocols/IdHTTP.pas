@@ -722,7 +722,16 @@ end;
 
 function IsContentTypeAppJson(AInfo: TIdEntityHeaderInfo) : Boolean;
 begin
-  Result := IsHeaderMediaType(AInfo.ContentType, 'application/json'); {do not localize}
+  Result := IsHeaderMediaTypes(AInfo.ContentType,
+    ['application/json', 'application/javascript', 'application/x-javascript'] {do not localize}
+    );
+  if not Result then
+  begin
+    Result := not IsHeaderMediaType(AInfo.ContentType, 'text'); {do not localize}
+    if Result then begin
+      Result := TextEndsWith(ExtractHeaderMediaSubType(AInfo.ContentType), '+json'); {do not localize}
+    end;
+  end;
 end;
 
 destructor TIdCustomHTTP.Destroy;
