@@ -501,7 +501,7 @@ procedure TIdHL7.InitComponent;
 begin
   inherited;
 
-  raise EIdException.create(RSHL7Broken); {do not localize}
+  raise EIdException.create(RSHL7Broken); {do not localize} // TODO: create a new Exception class for this
 
   // partly redundant initialization of properties
 

@@ -518,6 +518,7 @@ var
   LAddrList, LAddrInfo: pifaddrs;
   LSubNetStr: String;
   LAddress: TIdStackLocalAddress;
+  LName: string;
   {$ELSE}
   LRetVal: Integer;
   LHostName: string;
@@ -561,7 +562,10 @@ begin
             end;
           end;
           if LAddress <> nil then begin
-            TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(LAddrInfo^.ifa_name);
+            LName := String(LAddrInfo^.ifa_name);
+            TIdStackLocalAddressAccess(LAddress).FDescription := LName;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
@@ -606,6 +610,7 @@ begin
                   LAddress := TIdStackLocalAddressIPv6.Create(AAddresses, inetAddress.getHostAddress.toString);
                 end;
                 if LAddress <> nil then begin
+                  TIdStackLocalAddressAccess(LAddress).FDescription := intf.getDisplayName;
                   TIdStackLocalAddressAccess(LAddress).FInterfaceName := intf.getName;
                   TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := intf.getIndex (+1?);
                 end;
@@ -642,6 +647,7 @@ begin
     LWifiManager: WifiManager;
     LWifiInfo: WifiInfo;
     LIPAddress: Integer;
+    LAddress: TIdStackLocalAddressIPv4;
   begin
     try
       LWifiManager := (WifiManager) GetActivityContext.getSystemService(WIFI_SERVICE);
@@ -656,10 +662,13 @@ begin
     end;
 
     // WiFiInfo only supports IPv4
-    TIdStackLocalAddressIPv4.Create(AAddresses,
+    LAddress := TIdStackLocalAddressIPv4.Create(AAddresses,
       Format('%d.%d.%d.%d', [LIPAddress and $ff, (LIPAddress shr 8) and $ff, (LIPAddress shr 16) and $ff, (LIPAddress shr 24) and $ff]),
       '' // TODO: subnet mask
     );
+    LAddress.FDescription := ?; // LWifiInfo.getNetworkId()? LWifiInfo.getSSID()? LWifiInfo.toString()?
+    LAddress.FInterfaceName := ?;
+    LAddress.FInterfaceIndex := ?;
   end;
 
   This requires only ACCESS_WIFI_STATE permission.
@@ -1126,8 +1135,8 @@ var
 begin
   //we call the macro twice because we specified two possible structures.
   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
-  LSize := CMSG_LEN(CMSG_LEN(Length(VBuffer)));
-  SetLength( LControl,LSize);
+  LSize := CMSG_SPACE(SizeOf(Byte)) + CMSG_SPACE(SizeOf(in6_pktinfo));
+  SetLength(LControl, LSize);
 
   LIOV.iov_len := Length(VBuffer); // Length(VMsgData);
   LIOV.iov_base := @VBuffer[0]; // @VMsgData[0];

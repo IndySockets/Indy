@@ -176,7 +176,7 @@ begin
       LServer.ExtractHostAndPortFromLine(Self, LHostPort);
 
       if Length(LClient.Host) < 1 then begin
-        raise EIdException.Create(RSEmptyHost);
+        raise EIdException.Create(RSEmptyHost); // TODO: create a new Exception class for this
       end;
 
       LClient.ConnectTimeout := Self.FConnectTimeOut;

@@ -158,6 +158,7 @@ type
     TIdReplyRFC.CheckIfCodeIsValid which will only convert numeric
     codes like '22' to integer 22.}
     function CheckIfCodeIsValid(const ACode: string): Boolean; override;
+    procedure AssignTo(ADest: TPersistent); override;
   public
     constructor CreateWithReplyTexts(
       ACollection: TCollection = nil;
@@ -199,6 +200,22 @@ uses
   IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdReplyIMAP4 }
+
+procedure TIdReplyIMAP4.AssignTo(ADest: TPersistent);
+var
+  LR: TIdReplyIMAP4;
+begin
+  if ADest is TIdReplyIMAP4 then begin
+    LR := TIdReplyIMAP4(ADest);
+    //set code first as it possibly clears the reply
+    LR.Code := Code;
+    LR.FSequenceNumber := SequenceNumber;
+    LR.Extra.Assign(Extra);
+    LR.Text.Assign(Text);
+  end else begin
+    inherited AssignTo(ADest);
+  end;
+end;
 
 function TIdReplyIMAP4.ParseRequest(ARequest: string): Boolean;
 begin

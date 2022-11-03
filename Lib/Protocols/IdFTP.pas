@@ -1798,6 +1798,7 @@ begin
 
           DoOnDataChannelCreate;
 
+          // TODO: if Connect() fails and PassiveUseControlHost is false, try connecting to the command host...
           LPasvCl.Connect;
         end;
         try
@@ -2036,6 +2037,7 @@ begin
 
         DoOnDataChannelCreate;
 
+        // TODO: if Connect() fails and PassiveUseControlHost is false, try connecting to the command host...
         LPasvCl.Connect;
       end;
       try
@@ -2122,7 +2124,7 @@ begin
           LSocketList.Add(Socket.Binding.Handle);
           LSocketList.Add(LDataSocket);
 
-          IOHandler.Write(ACommand);
+          IOHandler.WriteLn(ACommand);
 
           LReadList := nil;
           if not LSocketList.SelectReadList(LReadList, ListenTimeout) then begin
@@ -3301,7 +3303,6 @@ begin
     InternalGet(TrimRight('MLSD ' + ADirectory), LDest);  {do not localize}
     FreeAndNil(FDirectoryListing);
     FDirFormat := '';
-    DoOnRetrievedDir;
     LDest.Position := 0;
     // RLebeau: using IndyTextEncoding_8Bit here.  TIdFTPListParseBase will
     // decode UTF-8 sequences later on...
@@ -3317,6 +3318,7 @@ begin
   if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
     ADest.Assign(FListResult);
   end;
+  DoOnRetrievedDir;
 end;
 
 procedure TIdFTP.ExtListItem(ADest: TStrings; AFList : TIdFTPListItems; const AItem: string);

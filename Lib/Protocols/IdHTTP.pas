@@ -1850,7 +1850,7 @@ begin
       (PosInStrArray(ARequest.MethodOverride, Requires_HTTP_1_1, False) > -1) then
     begin
       if ProtocolVersion <> pv1_1 then  begin
-        raise EIdException.Create(RSHTTPMethodRequiresVersion);
+        raise EIdException.Create(RSHTTPMethodRequiresVersion); // TODO: create a new Exception class for this
       end;
     end;
 
@@ -2114,7 +2114,7 @@ begin
               end;
             wnDontKnow:
               begin
-                raise EIdException.Create(RSHTTPNotAcceptable);
+                raise EIdException.Create(RSHTTPNotAcceptable); // TODO: create a new Exception class for this
               end;
           end;
         until False;
@@ -3217,7 +3217,7 @@ begin
           end;
         wnDontKnow:
           begin
-            raise EIdException.Create(RSHTTPNotAcceptable);
+            raise EIdException.Create(RSHTTPNotAcceptable); // TODO: create a new Exception class for this
           end;
       end;
     until False;

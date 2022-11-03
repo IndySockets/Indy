@@ -511,8 +511,8 @@ function TIdStackLibc.ReceiveMsg(ASocket: TIdStackSocketHandle;
 begin
   //we call the macro twice because we specified two possible structures.
   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
-  LSize := CMSG_LEN(CMSG_LEN(Length(VBuffer)));
-  SetLength( LControl,LSize);
+  LSize := CMSG_SPACE(SizeOf(Byte)) + CMSG_SPACE(SizeOf(in6_pktinfo));
+  SetLength(LControl, LSize);
 
   LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
   LMsgBuf.buf := @VBuffer[0]; // @VMsgData[0];
@@ -561,8 +561,7 @@ begin
       break;
     end;
     case LCurCmsg^.cmsg_type of
-      IP_PKTINFO :     //done this way because IPV6_PKTINF and  IP_PKTINFO
-      //are both 19
+      IP_PKTINFO :     //done this way because IPV6_PKTINF and  IP_PKTINFO are both 19
       begin
         case LAddr.sin6_family of
           Id_PF_INET4:
@@ -808,6 +807,7 @@ var
   LAddrList, LAddrInfo: pifaddrs;
   LSubNetStr: string;
   LAddress: TIdStackLocalAddress;
+  LName: string;
   {$ELSE}
   Li: Integer;
   LAHost: PHostEnt;
@@ -850,7 +850,10 @@ begin
             end;
           end;
           if LAddress <> nil then begin
-            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LAddrInfo^.ifa_name;
+            LName := LAddrInfo^.ifa_name;
+            TIdStackLocalAddressAccess(LAddress).FDescription := LName;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}

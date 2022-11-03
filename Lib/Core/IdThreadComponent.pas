@@ -672,7 +672,7 @@ end;
 procedure TIdThreadComponent.SetLoop(const AValue: Boolean);
 begin
   if IsRunning then begin
-    raise EIdException.Create(RSThreadComponentLoopAlreadyRunning);
+    raise EIdException.Create(RSThreadComponentLoopAlreadyRunning); // TODO: create a new Exception class for this
   end;
   FLoop := AValue;
 end;
@@ -680,7 +680,7 @@ end;
 procedure TIdThreadComponent.SetThreadName(const AValue: string);
 begin
   if IsRunning then begin
-    raise EIdException.Create(RSThreadComponentThreadNameAlreadyRunning);
+    raise EIdException.Create(RSThreadComponentThreadNameAlreadyRunning); // TODO: create a new Exception class for this
   end;
   FThreadName := AValue;
 end;
