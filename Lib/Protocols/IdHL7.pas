@@ -139,6 +139,7 @@ uses
   IdTCPClient,
   IdTCPConnection,
   IdTCPServer,
+  IdThread,
   SysUtils;
 
 const
@@ -198,12 +199,12 @@ type
   TIdHL7 = class;
   TIdHL7ConnCountEvent = procedure (ASender : TIdHL7; AConnCount : integer) of object;
 
-  TIdHL7ClientThread = class(TThread)
+  TIdHL7ClientThread = class(TIdThread)
   Protected
     FClient: TIdTCPClient;
     FCloseEvent: TIdLocalEvent;
     FOwner: TIdHL7;
-    procedure Execute; Override;
+    procedure Run; Override;
     procedure PollStack;
   Public
     constructor Create(aOwner: TIdHL7);
@@ -1186,7 +1187,7 @@ begin
   until Terminated or not FClient.Connected;
 end;
 
-procedure TIdHL7ClientThread.Execute;
+procedure TIdHL7ClientThread.Run;
 var
   LRecTime: TDateTime;
 begin
