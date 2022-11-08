@@ -239,12 +239,16 @@ type
     FIPAddress: String;
     FInterfaceName: String;
     FInterfaceIndex: UInt32;
+    FDescription: String;
+    FFriendlyName: String;
   public
     constructor Create(ACollection: TCollection; const AIPVersion: TIdIPVersion; const AIPAddress: string); reintroduce;
     property IPVersion: TIdIPVersion read FIPVersion;
     property IPAddress: String read FIPAddress;
     property InterfaceName: String read FInterfaceName;
     property InterfaceIndex: UInt32 read FInterfaceIndex;
+    property Description: String read FDescription;
+    property FriendlyName: String read FFriendlyName;
   end;
 
   TIdStackLocalAddressIPv4 = class(TIdStackLocalAddress)

@@ -149,7 +149,7 @@ begin
   else if assigned(oMessage.extendedResp) then
     WriteextendedResp(oMessage.extendedResp) // TIdLDAPV3ExtendedResponse
   else
-    raise EIdException.create('No Protocol Choice operation on message');
+    raise EIdException.create('No Protocol Choice operation on message'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   StopSequence;
   StopWriting;
 end;
@@ -174,7 +174,7 @@ end;
 
 procedure TIdLDAPV3Encoder.WriteunbindRequest(oUnbindRequest : TIdLDAPV3UnbindRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritesearchRequest(oSearchRequest : TIdLDAPV3SearchRequest);
@@ -208,78 +208,78 @@ end;
 
 procedure TIdLDAPV3Encoder.WritesearchResRef(oSearchResRef : TIdLDAPV3SearchResultReference);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritemodifyRequest(oModifyRequest : TIdLDAPV3ModifyRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritemodifyResponse(oModifyResponse : TIdLDAPV3ModifyResponse);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WriteaddRequest(oAddRequest : TIdLDAPV3AddRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WriteaddResponse(oAddResponse : TIdLDAPV3AddResponse);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritedelRequest(oDelRequest : TIdLDAPV3DelRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritedelResponse(oDelResponse : TIdLDAPV3DelResponse);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritemodDNRequest(oModDNRequest : TIdLDAPV3ModifyDNRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritemodDNResponse(oModDNResponse : TIdLDAPV3ModifyDNResponse);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritecompareRequest(oCompareRequest : TIdLDAPV3CompareRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WritecompareResponse(oCompareResponse : TIdLDAPV3CompareResponse);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WriteabandonRequest(oAbandonRequest : TIdLDAPV3AbandonRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WriteextendedReq(oExtendedReq : TIdLDAPV3ExtendedRequest);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WriteextendedResp(oExtendedResp : TIdLDAPV3ExtendedResponse);
 begin
-  raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WriteAuthentication(oAuthentication: TIdLDAPv3AuthenticationChoice);
 begin
   if assigned(oAuthentication.sasl) then
-    raise EIdException.create('sasl not handled yet')
+    raise EIdException.create('sasl not handled yet') {do not localize} // TODO: add a resource string, and create a new Exception class for this
   else
     WriteString(0, oAuthentication.simple);
 end;
@@ -307,7 +307,7 @@ begin
   else if assigned(oFilter.extensibleMatch) then
     WriteMatchingRuleAssertion(oFilter.extensibleMatch, 9)
   else
-    raise EIdException.create('No operation Choice on Filter');
+    raise EIdException.create('No operation Choice on Filter'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;
 
 procedure TIdLDAPV3Encoder.WriteFilterList(oFilterList : TIdLDAPV3FilterList; iTag : integer);
@@ -425,9 +425,9 @@ begin
   oMessage.bindRequest.name := ReadString;
   case NextTag Of
     0: oMessage.bindRequest.authentication.simple := ReadString;
-    3: raise EIdException.create('SASL not handled yet');
+    3: raise EIdException.create('SASL not handled yet'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   else
-    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag)); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   ReadSequenceend;
 end;
@@ -483,7 +483,7 @@ begin
         ReadMatchingRuleAssertion(oFilter.extensibleMatch);
        end;
   else
-    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag)); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
 end;
 
@@ -514,7 +514,7 @@ begin
     1 : oString.any     := ReadString;
     2 : oString.final   := ReadString;
   else
-    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag)); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   ReadSequenceend;
 end;
@@ -616,7 +616,7 @@ begin
 //    23  : ReadExtendedRequest(oMessage);
 //    24  : ReadExtendedResponse(oMessage);
   else
-    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag)); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   // while not SequenceEnded do
   //   readControl....

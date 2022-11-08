@@ -58,7 +58,7 @@ uses
   SysUtils,
   IdContext, IdCustomHTTPServer, IdException, IdTCPServer, IdIOHandlerSocket,
   {$IFDEF CLR}System.Text,{$ENDIF}
-  WebBroker, WebReq;
+  WebReq;
 
 type
   EWBBException = class(EIdException);
@@ -74,7 +74,7 @@ type
     {$DEFINE WBB_ANSI}
   {$ENDIF}
 
-  {$IFDEF VCL_10_5_OR_ABOVE}
+  {$IFDEF VCL_11_OR_ABOVE}
     {$DEFINE WBB_BIG_INTS}
   {$ENDIF}
 

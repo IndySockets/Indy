@@ -1367,7 +1367,13 @@ begin
   // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
   // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
   // function must be used to re-initialize the timezone information...
-  Result := {-1 *} GetLocalTimeOffset();
+
+  // RLebeau 1/15/2022: the value returned by MinutesFromGMT() is meant to be *subtracted*
+  // from a local time, and *added* to a UTC time.  However, the value returned by
+  // FPC's GetLocalTimeOffset() is the opposite - it is meant to be *added* to local time,
+  // and *subtracted* from UTC time.  So, we need to flip its sign here... 
+
+  Result := -1 * GetLocalTimeOffset();
   {$ELSE}
     {$IFDEF HAS_DateUtils_TTimeZone}
   Result := {-1 *} Trunc(TTimeZone.Local.UtcOffset.TotalMinutes);

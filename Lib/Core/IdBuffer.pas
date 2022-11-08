@@ -682,10 +682,10 @@ begin
   // Dont search if it empty
   if Size > 0 then begin
     if Length(ABytes) = 0 then begin
-      raise EIdException.Create(RSBufferMissingTerminator);
+      raise EIdException.Create(RSBufferMissingTerminator); // TODO: create a new Exception class for this
     end;
     if (AStartPos < 0) or (AStartPos >= Size) then begin
-      raise EIdException.Create(RSBufferInvalidStartPos);
+      raise EIdException.Create(RSBufferInvalidStartPos); // TODO: create a new Exception class for this
     end;
     BytesLen := Length(ABytes);
     LEnd := FHeadIndex + Size;
@@ -716,7 +716,7 @@ begin
   // Dont search if it empty
   if Size > 0 then begin
     if (AStartPos < 0) or (AStartPos >= Size) then begin
-      raise EIdException.Create(RSBufferInvalidStartPos);
+      raise EIdException.Create(RSBufferInvalidStartPos); // TODO: create a new Exception class for this
     end;
     for i := (FHeadIndex + AStartPos) to (FHeadIndex + Size - 1) do begin
       if FBytes[i] = AByte then begin
@@ -753,7 +753,7 @@ end;
 procedure TIdBuffer.SetCapacity(AValue: Integer);
 begin
   if AValue < Size then begin
-    raise EIdException.Create('Capacity cannot be smaller than Size'); {do not localize}
+    raise EIdException.Create('Capacity cannot be smaller than Size'); {do not localize}  // TODO: add a resource string, and create a new Exception class for this
   end;
   CompactHead;
   SetLength(FBytes, AValue);
@@ -770,10 +770,10 @@ end;
 function TIdBuffer.PeekByte(AIndex: Integer): Byte;
 begin
   if Size = 0 then begin
-    raise EIdException.Create('No bytes in buffer.'); {do not localize}
+    raise EIdException.Create('No bytes in buffer.'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   if (AIndex < 0) or (AIndex >= Size) then begin
-    raise EIdException.Create('Index out of bounds.'); {do not localize}
+    raise EIdException.Create('Index out of bounds.'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   Result := FBytes[FHeadIndex + AIndex];
 end;

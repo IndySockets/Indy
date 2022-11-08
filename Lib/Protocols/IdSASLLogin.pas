@@ -54,7 +54,30 @@ type
 implementation
 
 uses
-  IdUserPassProvider, IdBaseComponent;
+  IdGlobal, IdUserPassProvider, IdBaseComponent;
+
+function IsUsernameChallenge(const AChallenge: string): Boolean;
+begin
+  // in the original spec for LOGIN (draft-murchison-sasl-login-00.txt), the
+  // username prompt is defined as 'User Name'. However, the spec also mentions
+  // that there is at least one widely deployed client that expects 'Username:'
+  // instead, and that is the prompt that most 3rd party documentations of LOGIN
+  // describe.  So we will look for that one first, falling back to the original
+  // speced one.  Also throwing in 'Username' just for good measure, as I have
+  // seen that one mentioned in passing...
+  Result := PosInStrArray(AChallenge, ['Username:', 'User Name', 'Username'], False) <> -1; {Do not Localize}
+end;
+
+function IsPasswordChallenge(const AChallenge: string): Boolean;
+begin
+  // in the original spec for LOGIN (draft-murchison-sasl-login-00.txt), the
+  // password prompt is defined as 'Password'. However, the spec also mentions
+  // that there is at least one widely deployed client that expects 'Password:'
+  // instead, and that is the prompt that most 3rd party documentations of LOGIN
+  // describe.  So we will look for that one first, falling back to the original
+  // speced one...
+  Result := PosInStrArray(AChallenge, ['Password:', 'Password'], False) <> -1; {Do not Localize}
+end;
 
 { TIdSASLLogin }
 
@@ -67,12 +90,29 @@ end;
 
 function TIdSASLLogin.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
 begin
-  Result := GetUsername;
+  if IsUsernameChallenge(AChallenge) then begin // the usual case
+    Result := GetUsername;
+  end else begin
+    Result := ''; // TODO: throw an exception instead?
+  end;
 end;
 
 function TIdSASLLogin.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): String;
 begin
-  Result := GetPassword;
+  // RLebeau 8/26/2022: TIdSMTP calls TIdSASLEntries.LoginSASL() with ACanAttemptIR=True,
+  // so the Username will be sent in the AUTH command's optional Initial-Response parameter.
+  // Most SMTP servers support Initial-Response, but some do not, and unfortunately there
+  // is no server advertisement for Initial-Response support defined for SMTP (unlike in
+  // other protocols).  If the server does not reject the AUTH command, but does not support
+  // Initial-Response, the initial prompt will be for the username, not the password.
+  // However, LoginSASL() will have already moved on from the initial step, and will call
+  // ContinueAuthenticate() instead of StartAuthenticate(), so we need to handle both prompts
+  // here ...
+  if IsPasswordChallenge(ALastResponse) then begin // the usual case, so check it first
+    Result := GetPassword;
+  end else begin // if the Initial-Response is ignored
+    Result := StartAuthenticate(ALastResponse, AHost, AProtocolName);
+  end;
 end;
 
 procedure TIdSASLLogin.InitComponent;

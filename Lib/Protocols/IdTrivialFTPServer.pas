@@ -705,7 +705,7 @@ begin
           WriteTIdBytesToStream(FStream, Buffer, Length(Buffer) - 4, 4);
           Inc(FReceivedSize, Length(Buffer) - 4);
           SetLength(FResponse, 0);
-          FEOT := Length(Buffer) < (FUDPClient.BufferSize - 4);
+          FEOT := (Length(Buffer) - 4) < (FUDPClient.BufferSize - 4);
         end;
       end;
     TFTP_ERROR:

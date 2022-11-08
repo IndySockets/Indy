@@ -1,0 +1,212 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{FB5D40D5-0FF6-417D-A77E-D7F5B9A6511E}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="System\IndySystem150.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Core\IndyCore150.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Protocols\IndyProtocols150.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Core\dclIndyCore150.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="Protocols\dclIndyProtocols150.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="IndySystem150">
+			<MSBuild Projects="System\IndySystem150.dproj"/>
+		</Target>
+		<Target Name="IndySystem150:Clean">
+			<MSBuild Projects="System\IndySystem150.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="IndySystem150:Make">
+			<MSBuild Projects="System\IndySystem150.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="IndyCore150">
+			<MSBuild Projects="Core\IndyCore150.dproj"/>
+		</Target>
+		<Target Name="IndyCore150:Clean">
+			<MSBuild Projects="Core\IndyCore150.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="IndyCore150:Make">
+			<MSBuild Projects="Core\IndyCore150.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="IndyProtocols150">
+			<MSBuild Projects="Protocols\IndyProtocols150.dproj"/>
+		</Target>
+		<Target Name="IndyProtocols150:Clean">
+			<MSBuild Projects="Protocols\IndyProtocols150.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="IndyProtocols150:Make">
+			<MSBuild Projects="Protocols\IndyProtocols150.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="dclIndyCore150">
+			<MSBuild Projects="Core\dclIndyCore150.dproj"/>
+		</Target>
+		<Target Name="dclIndyCore150:Clean">
+			<MSBuild Projects="Core\dclIndyCore150.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="dclIndyCore150:Make">
+			<MSBuild Projects="Core\dclIndyCore150.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="dclIndyProtocols150">
+			<MSBuild Projects="Protocols\dclIndyProtocols150.dproj"/>
+		</Target>
+		<Target Name="dclIndyProtocols150:Clean">
+			<MSBuild Projects="Protocols\dclIndyProtocols150.dproj" Targets="Clean"/>
+		</Target>
+		<Target Name="dclIndyProtocols150:Make">
+			<MSBuild Projects="Protocols\dclIndyProtocols150.dproj" Targets="Make"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="IndySystem150;IndyCore150;IndyProtocols150;dclIndyCore150;dclIndyProtocols150"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="IndySystem150:Clean;IndyCore150:Clean;IndyProtocols150:Clean;dclIndyCore150:Clean;dclIndyProtocols150:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="IndySystem150:Make;IndyCore150:Make;IndyProtocols150:Make;dclIndyCore150:Make;dclIndyProtocols150:Make"/>
+		</Target>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')" Project="$(BDS)\Bin\CodeGear.Group.Targets"/>
+		<ItemGroup Condition="'$(BuildGroup)'=='Win32'">
+			<BuildGroupProject Include="System\IndySystem150.dproj">
+				<ProjectGuid>{C726B9E7-FEB4-441E-800A-3A727F302AE3}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore150.dproj">
+				<ProjectGuid>{A30E4C28-2A4C-43F3-B789-8807F704E355}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols150.dproj">
+				<ProjectGuid>{D77B0A19-761C-4EC5-A064-3E7E602328AB}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore150.dproj">
+				<ProjectGuid>{452585E7-39C4-4A25-8395-D9CF81F8FBD8}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\dclIndyProtocols150.dproj">
+				<ProjectGuid>{6797E8F7-D419-4042-B442-405DFDBCA6BC}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
+		<ItemGroup Condition="'$(BuildGroup)'=='OSX32'">
+			<BuildGroupProject Include="System\IndySystem150.dproj">
+				<ProjectGuid>{C726B9E7-FEB4-441E-800A-3A727F302AE3}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore150.dproj">
+				<ProjectGuid>{A30E4C28-2A4C-43F3-B789-8807F704E355}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols150.dproj">
+				<ProjectGuid>{D77B0A19-761C-4EC5-A064-3E7E602328AB}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore150.dproj">
+				<ProjectGuid>{452585E7-39C4-4A25-8395-D9CF81F8FBD8}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\dclIndyProtocols150.dproj">
+				<ProjectGuid>{6797E8F7-D419-4042-B442-405DFDBCA6BC}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
+		<ItemGroup Condition="'$(BuildGroup)'=='Win64'">
+			<BuildGroupProject Include="System\IndySystem150.dproj">
+				<ProjectGuid>{C726B9E7-FEB4-441E-800A-3A727F302AE3}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore150.dproj">
+				<ProjectGuid>{A30E4C28-2A4C-43F3-B789-8807F704E355}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols150.dproj">
+				<ProjectGuid>{D77B0A19-761C-4EC5-A064-3E7E602328AB}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore150.dproj">
+				<ProjectGuid>{452585E7-39C4-4A25-8395-D9CF81F8FBD8}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\dclIndyProtocols150.dproj">
+				<ProjectGuid>{6797E8F7-D419-4042-B442-405DFDBCA6BC}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
+		<ItemGroup Condition="'$(BuildGroup)'=='All Platforms'">
+			<BuildGroupProject Include="System\IndySystem150.dproj">
+				<ProjectGuid>{C726B9E7-FEB4-441E-800A-3A727F302AE3}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\IndyCore150.dproj">
+				<ProjectGuid>{A30E4C28-2A4C-43F3-B789-8807F704E355}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\IndyProtocols150.dproj">
+				<ProjectGuid>{D77B0A19-761C-4EC5-A064-3E7E602328AB}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Core\dclIndyCore150.dproj">
+				<ProjectGuid>{452585E7-39C4-4A25-8395-D9CF81F8FBD8}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+			<BuildGroupProject Include="Protocols\dclIndyProtocols150.dproj">
+				<ProjectGuid>{6797E8F7-D419-4042-B442-405DFDBCA6BC}</ProjectGuid>
+				<Configurations>Debug</Configurations>
+				<Platforms/>
+				<Enabled>False</Enabled>
+			</BuildGroupProject>
+		</ItemGroup>
+	</Project>

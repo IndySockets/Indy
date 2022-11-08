@@ -191,7 +191,7 @@ begin
   // Value2 := Trunc(Value2 * 1000) / 1000;
 
   Value2 := Trunc(Value2 / NTPMaxInt * 1000) / 1000;
-  Result := UTCTimeToLocalTime((Value1 + Value2) / 86400) + 2;
+  Result := UTCTimeToLocalTime(((Value1 + Value2) / 86400) + 2);
 end ;
 
 { TIdSNTP }

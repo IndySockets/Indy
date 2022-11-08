@@ -2568,37 +2568,54 @@ function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
 var
   LIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
+  //using a custom scheduler, AYarn may be nil, so don't assert
   Assert(ASocket<>nil);
   Assert(fSSLContext<>nil);
+  Assert(AListenerThread<>nil);
+
+  Result := nil;
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   try
     LIO.PassThrough := True;
     LIO.Open;
-    if LIO.Binding.Accept(ASocket.Handle) then begin
-      //we need to pass the SSLOptions for the socket from the server
-      // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
-      // here? Do we really need to share ownership of it?
-      // LIO.fxSSLOptions.Assign(fxSSLOptions);
-      FreeAndNil(LIO.fxSSLOptions);
-      LIO.IsPeer := True;
-      LIO.fxSSLOptions := fxSSLOptions;
-      LIO.fSSLSocket := TIdSSLSocket.Create(Self);
-      LIO.fSSLContext := fSSLContext;
-      // TODO: to enable server-side SNI, we need to:
-      // - Set up an additional SSL_CTX for each different certificate;
-      // - Add a servername callback to each SSL_CTX using SSL_CTX_set_tlsext_servername_callback();
-      // - In the callback, retrieve the client-supplied servername with
-      //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
-      //   SSL_CTX to go with that host name, then switch the SSL object to that
-      //   SSL_CTX with SSL_set_SSL_CTX().
-    end else begin
-      FreeAndNil(LIO);
+    while not AListenerThread.Stopped do begin
+      if ASocket.Select(250) then begin
+        if (not AListenerThread.Stopped) and LIO.Binding.Accept(ASocket.Handle) then begin
+          //we need to pass the SSLOptions for the socket from the server
+          // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
+          // here? Do we really need to share ownership of it?
+          // LIO.fxSSLOptions.Assign(fxSSLOptions);
+          FreeAndNil(LIO.fxSSLOptions);
+          LIO.IsPeer := True;
+          LIO.fxSSLOptions := fxSSLOptions;
+          LIO.fSSLSocket := TIdSSLSocket.Create(Self);
+          LIO.fSSLContext := fSSLContext;
+          // TODO: to enable server-side SNI, we need to:
+          // - Set up an additional SSL_CTX for each different certificate;
+          // - Add a servername callback to each SSL_CTX using SSL_CTX_set_tlsext_servername_callback();
+          // - In the callback, retrieve the client-supplied servername with
+          //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
+          //   SSL_CTX to go with that host name, then switch the SSL object to that
+          //   SSL_CTX with SSL_set_SSL_CTX().
+
+          // RLebeau 2/1/2022: note, the following call is basically a no-op for OpenSSL,
+          // because PassThrough=True and fSSLContext are both assigned above, so there
+          // is really nothing for TIdSSLIOHandlerSocketOpenSSL.Init() or
+          // TIdSSLIOHandlerSocketOpenSSL.StartSSL() to do when called by
+          // TIdSSLIOHandlerSocketOpenSSL.AfterAccept().  If anything, all this will
+          // really do is update the Binding's IPVersion.  But, calling this is consistent
+          // with other server Accept() implementations, so we should do it here, too...
+          LIO.AfterAccept;
+
+          Result := LIO;
+          LIO := nil;
+          Break;
+        end;
+      end;
     end;
-  except
-    LIO.Free;
-    raise;
+  finally
+    FreeAndNil(LIO);
   end;
-  Result := LIO;
 end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.DoStatusInfo(const AMsg: String);
@@ -3656,30 +3673,30 @@ begin
                 Result := 0;
               end
               else begin
-                raise EIdException.Create(RSOSSLConnectionDropped);
+                raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
               end;
             end;
         end;
       end;}
 
-        //raise EIdException.Create(RSOSSLConnectionDropped);
+        //raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
       // X509_LOOKUP event is not really an error, just an event
     // SSL_ERROR_WANT_X509_LOOKUP:
-        // raise EIdException.Create(RSOSSLCertificateLookup);
+        // raise EIdException.Create(RSOSSLCertificateLookup); // TODO: create a new Exception class for this
     SSL_ERROR_SYSCALL:
       Result := SSL_ERROR_SYSCALL;
       // Result := SSL_ERROR_NONE;
 
-        {//raise EIdException.Create(RSOSSLInternal);
+        {//raise EIdException.Create(RSOSSLInternal); // TODO: create a new Exception class for this
         if (retCode <> 0) or (DataLen <> 0) then begin
-          raise EIdException.Create(RSOSSLConnectionDropped);
+          raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
         end
         else begin
           Result := 0;
         end;}
 
     SSL_ERROR_SSL:
-      // raise EIdException.Create(RSOSSLInternal);
+      // raise EIdException.Create(RSOSSLInternal); // TODO: create a new Exception class for this
       Result := SSL_ERROR_SSL;
       // Result := SSL_ERROR_NONE;
   end;
