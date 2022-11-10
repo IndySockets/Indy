@@ -150,6 +150,25 @@ implementation
 
 {$O-}
 
+// On Mac M1, it seems as though DNS resolution is not cached by the system.
+// so we're going to cache it here.
+{$IFDEF DCC}
+  {$IFDEF CPUARM64}
+    // DCC defines MACOS for both OSX and iOS
+    {$IFDEF MACOS}
+      {$DEFINE DNSCACHE}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+{$IFDEF FPC}
+  {$IFDEF CPUAARCH64}
+    // FPC defines DARWIN for both OSX and iOS
+    {$IFDEF DARWIN}
+      {$DEFINE DNSCACHE}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 uses
   IdResourceStrings,
   IdResourceStringsUnix,
@@ -984,6 +1003,10 @@ begin
   if not (AIPVersion in [Id_IPv4, Id_IPv6]) then begin
     IPVersionUnsupported;
   end;
+  {$IFDEF USE_DNSCACHE}
+  Result := GetCachedDnsHostAddress(AHostName, AIPVersion);
+  if Result <> '' then Exit;
+  {$ENDIF}
   //IMPORTANT!!!
   //
   //The Hints structure must be zeroed out or you might get an AV.
@@ -1019,6 +1042,9 @@ begin
     end else begin
       Result := TranslateTInAddrToString( PSockAddr_In6( LAddrInfo^.ai_addr)^.sin6_addr, AIPVersion);
     end;
+    {$IFDEF USE_DNSCACHE}
+    AddHostAddressToDnsCache(AHostName, AIPVersion, Result);
+    {$ENDIF}
   finally
     freeaddrinfo(LAddrInfo^);
   end;

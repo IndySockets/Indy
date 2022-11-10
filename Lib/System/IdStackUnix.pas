@@ -218,6 +218,25 @@ type
 
 implementation
 
+// On Mac M1, it seems as though DNS resolution is not cached by the system.
+// so we're going to cache it here.
+{$IFDEF DCC}
+  {$IFDEF CPUARM64}
+    // DCC defines MACOS for both OSX and iOS
+    {$IFDEF MACOS}
+      {$DEFINE USE_DNSCACHE}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+{$IFDEF FPC}
+  {$IFDEF CPUAARCH64}
+    // FPC defines DARWIN for both OSX and iOS
+    {$IFDEF DARWIN}
+      {$DEFINE USE_DNSCACHE}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
+
 uses
   netdb,
   unix,
@@ -225,6 +244,7 @@ uses
   IdResourceStrings,
   IdResourceStringsUnix,
   IdException,
+  {$IFDEF USE_DNSCACHE}IdStackDnsHostCache,{$ENDIF}
   SysUtils;
 
 
@@ -418,20 +438,25 @@ var
   LH4 : THostEntry;
   LRetVal : Integer;
 begin
+  {$IFDEF USE_DNSCACHE}
+  Result := GetCachedDnsHostAddress(AHostName, AIPVersion);
+  if Result <> '' then Exit;
+  {$ENDIF}
   case AIPVersion of
     Id_IPv4 :
     begin
       if GetHostByName(AHostName, LH4) then
       begin
         Result := HostAddrToStr(LH4.Addr);
-        Exit;
+      end else
+      begin
+        SetLength(LI4, 10);
+        LRetVal := ResolveName(AHostName, LI4);
+        if LRetVal < 1 then begin
+          raise EIdResolveError.CreateFmt(RSResolveError, [AHostName, 'Error', LRetVal]); {do not localize}
+        end;
+        Result := NetAddrToStr(LI4[0]);
       end;
-      SetLength(LI4, 10);
-      LRetVal := ResolveName(AHostName, LI4);
-      if LRetVal < 1 then begin
-        raise EIdResolveError.CreateFmt(RSResolveError, [AHostName, 'Error', LRetVal]); {do not localize}
-      end;
-      Result := NetAddrToStr(LI4[0]);
     end;
     Id_IPv6 :
     begin
@@ -442,7 +467,14 @@ begin
       end;
       Result := NetAddrToStr6(LI6[0]);
     end;
+  else
+    Result := '';
   end;
+  {$IFDEF USE_DNSCACHE}
+  if Result <> '' then begin
+    AddHostAddressToDnsCache(AHostName, AIPVersion, Result);
+  end;
+  {$ENDIF}
 end;
 
 function TIdStackUnix.ReadHostName: string;
