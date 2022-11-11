@@ -156,7 +156,7 @@ implementation
   {$IFDEF CPUARM64}
     // DCC defines MACOS for both OSX and iOS
     {$IFDEF MACOS}
-      {$DEFINE DNSCACHE}
+      {$DEFINE USE_DNSCACHE}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
@@ -164,7 +164,7 @@ implementation
   {$IFDEF CPUAARCH64}
     // FPC defines DARWIN for both OSX and iOS
     {$IFDEF DARWIN}
-      {$DEFINE DNSCACHE}
+      {$DEFINE USE_DNSCACHE}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
@@ -174,6 +174,7 @@ uses
   IdResourceStringsUnix,
   IdResourceStringsVCLPosix,
   IdException,
+  {$IFDEF USE_DNSCACHE}IdStackDnsHostCache,{$ENDIF}
   IdVCLPosixSupplemental,
   Posix.Base,
   Posix.ArpaInet,
