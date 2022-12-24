@@ -806,6 +806,7 @@ resourcestring
   RSHL7StatusConnected         = 'Connected';
   RSHL7StatusConnecting        = 'Connecting';
   RSHL7StatusReConnect         = 'Reconnect at %s: %s';
+  RSHL7StatusTimedOut          = 'Not Connected - Timed out, waiting for a message';
   RSHL7NotWhileWorking         = 'You cannot set %s while the HL7 Component is working';
   RSHL7NotWorking              = 'Attempt to %s while the HL7 Component is not working';
   RSHL7NotFailedToStop         = 'Interface is unusable due to failure to stop';
