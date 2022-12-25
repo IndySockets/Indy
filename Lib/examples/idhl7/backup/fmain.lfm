@@ -1,0 +1,106 @@
+object Form1: TForm1
+  Left = 432
+  Height = 639
+  Top = 219
+  Width = 1022
+  Caption = 'idHL7 Sample Client and Server'
+  ClientHeight = 639
+  ClientWidth = 1022
+  DesignTimePPI = 120
+  LCLVersion = '2.2.4.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 112
+    Top = 0
+    Width = 1022
+    Align = alTop
+    ClientHeight = 112
+    ClientWidth = 1022
+    TabOrder = 0
+    object Label1: TLabel
+      Left = 32
+      Height = 20
+      Top = 15
+      Width = 39
+      Caption = 'Mode'
+      ParentColor = False
+    end
+    object cmbMode: TComboBox
+      Left = 96
+      Height = 28
+      Top = 15
+      Width = 152
+      ItemHeight = 20
+      ItemIndex = 0
+      Items.Strings = (
+        'Client'
+        'Server'
+      )
+      TabOrder = 0
+      Text = 'Client'
+    end
+    object btnStart: TButton
+      Left = 264
+      Height = 31
+      Top = 15
+      Width = 94
+      Caption = 'Start'
+      OnClick = btnStartClick
+      TabOrder = 1
+    end
+    object Label2: TLabel
+      Left = 32
+      Height = 20
+      Top = 62
+      Width = 41
+      Caption = 'Server'
+      ParentColor = False
+    end
+    object edtServer: TEdit
+      Left = 120
+      Height = 28
+      Top = 62
+      Width = 128
+      TabOrder = 2
+      Text = '127.0.0.1'
+    end
+    object Label3: TLabel
+      Left = 270
+      Height = 20
+      Top = 62
+      Width = 26
+      Caption = 'Port'
+      ParentColor = False
+    end
+    object edtPort: TEdit
+      Left = 318
+      Height = 28
+      Top = 62
+      Width = 100
+      TabOrder = 3
+      Text = '1234'
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 527
+    Top = 112
+    Width = 1022
+    Align = alClient
+    TabOrder = 1
+  end
+  object idHl7Client: TIdHL7
+    KeepAlive = False
+    IPRestriction = '0.0.0.0'
+    IPMask = '0.0.0.0'
+    Left = 80
+    Top = 56
+  end
+  object idHl7Server: TIdHL7
+    KeepAlive = True
+    IPRestriction = '0.0.0.0'
+    IPMask = '0.0.0.0'
+    Left = 840
+    Top = 40
+  end
+end
