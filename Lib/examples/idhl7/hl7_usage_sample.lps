@@ -20,6 +20,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="45"/>
         <CursorPos X="70" Y="56"/>
         <UsageCount Value="61"/>
@@ -28,7 +29,6 @@
       </Unit>
       <Unit>
         <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="1539"/>
         <CursorPos X="9" Y="1550"/>

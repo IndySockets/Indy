@@ -267,7 +267,7 @@ object Form1: TForm1
     ConnectionLimit = 10
     IPRestriction = '0.0.0.0'
     IPMask = '0.0.0.0'
-    CommunicationMode = cmAsynchronous
+    CommunicationMode = cmSynchronous
     OnConnect = idHl7ServerConnect
     OnDisconnect = idHl7ServerDisconnect
     OnConnCountChange = idHl7ServerConnCountChange

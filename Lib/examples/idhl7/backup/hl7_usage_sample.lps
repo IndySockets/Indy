@@ -30,8 +30,8 @@
         <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="330"/>
-        <CursorPos X="33" Y="330"/>
+        <TopLine Value="1539"/>
+        <CursorPos X="9" Y="1550"/>
         <UsageCount Value="13"/>
         <Bookmarks Count="2">
           <Item0 X="84" Y="359" ID="1"/>
@@ -58,14 +58,6 @@
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
-        <Caret Line="1590" Column="25" TopLine="1577"/>
-      </Position>
-      <Position>
-        <Filename Value="fmain.pas"/>
-        <Caret Line="178" TopLine="158"/>
-      </Position>
       <Position>
         <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
         <Caret Line="1581" TopLine="1577"/>
@@ -176,6 +168,14 @@
       <Position>
         <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
         <Caret Line="1512" Column="38" TopLine="1501"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="330" Column="33" TopLine="330"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="1535" Column="51" TopLine="1525"/>
       </Position>
     </JumpHistory>
     <RunParams>

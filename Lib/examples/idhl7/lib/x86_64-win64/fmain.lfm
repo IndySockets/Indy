@@ -139,11 +139,11 @@ object Form1: TForm1
         Width = 509
         Align = alTop
         Lines.Strings = (
-          'MSH|^~\&|Radiology|PACS|CRIS|Radiology|20140616051341||ORU^R01|30081|IW|2.3.1|||1|1|ZAF|'
-          'PID|||6803030974084|QP-201389|MGEDEZI^NOROYI M^NM^^MISS||196803030300|F||541170-20140616-104412-9415-253||||||||KRC1507337|6803030974084|'
-          'PV1||O|KI|||||^^^^^||||||||0||||||||||||||||||||||||||||201406160600|'
-          'OBR|1|2014061600054^KRC|KRC1507337^KRC|12310^X-RAY ORBITS LESS THAN 3 VIEWS||201406160600|201406160600||||||X-RAY ORBITS LESS THAN 3 VIEWS|||HOLTS^HOLT^^S^^DR||KRC1507337|KRK^KINGBURY RADIOLOGY KINGBURY|||189912301200||KRC|F|||^||||FBD^KAREL BUITENDAG||NA|^189912301200|201406160600|'
-          'OBX|0|TX|||Accession Number : KR C1507337||||||F||||'
+          'MSH|^~\&|Radiology|IDHL7|HL7ID|Radiology|20140616051341||ORU^R01|30081|IW|2.3.1|||1|1|ZAF|'
+          'PID|||1234567890012|QP-201389|WILCO^ROGER^R^^MR||1994803030300|M||041170-20140616-104412-9415-253||||||||SQ1507337|1234567890012|'
+          'PV1||O|PH|||||^^^^^||||||||0||||||||||||||||||||||||||||201406160600|'
+          'OBR|1|2014061600054^PHL|SQ1507337^PHL|12310^X-RAY ORBITS LESS THAN 3 VIEWS||201406160600|201406160600||||||X-RAY ORBITS LESS THAN 3 VIEWS|||SPIKE^PET^^S^^DR||SQ1507337|KRK^PHEELBUB RADIOLOGY PHEELBUB|||189912301200||PHL|F|||^||||FBD^KIEKIE ORBETAL||NA|^189912301200|201406160600|'
+          'OBX|0|TX|||Accession Number : SQ1507337||||||F||||'
           'OBX|1|TX|||||||||F||||'
           'OBX|2|TX|||CT ORBITS||||||F||||'
           'OBX|3|TX|||Facial trauma? Blowout fracture.||||||F||||'
@@ -156,7 +156,7 @@ object Form1: TForm1
           'OBX|10|TX|||There is a blowout fracture involving the posteromedial wall of the right orbit (lamina papyracea) with protruding medial rectus muscle.||||||F||||'
           'OBX|11|TX|||||||||F||||'
           'OBX|12|TX|||||||||F||||'
-          'OBX|13|TX|||VERIFIED BY: KAREL BUITENDAG on 2014/06/16 5:13 PM||||||F||||'
+          'OBX|13|TX|||VERIFIED BY: KIEKIE ORBETAL on 2254/02/14 5:13 PM||||||F||||'
         )
         TabOrder = 0
         WordWrap = False
@@ -215,10 +215,8 @@ object Form1: TForm1
         Width = 503
         Align = alClient
         Lines.Strings = (
-          'MSH|^~\&|RECEIVER|SMARTHL7|||||ADR^A19|MSG_{TIMESTAMP}|T|2.3'
-          'MSA|AA|{MESSAGE_CONTROL_ID}||||'
-          'QRD|{TIMESTAMP}|R|I|7034287|||200^RD|0123456^^^^^^^^N001^^^^N001|DEM'
-          'PID|||0123456||SMITH^Mary^^^Mrs^^L||19550430|F||4|1 Healthy St^^Springfield^NY^52134^1001^HOME||2328077470||1001|1|3223||5234123222||||3213|||||3213'
+          'MSH|^~\&|IDHl7|HL7ID|||||ORU^R01|22540214051541|T|2.3'
+          'MSA|AA|30081||||'
         )
         TabOrder = 2
         WordWrap = False
