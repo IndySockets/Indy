@@ -356,7 +356,7 @@ type
     procedure WaitForConnection(AMaxLength: Integer); // milliseconds
 
     // asynchronous.
-    function AsynchronousSend(AMsg: String): TSendResponse;
+    function AsynchronousSend(AMsg: String;ASyncConnection: TIdTCPConnection = nil): TSendResponse;
     property OnMessageArrive: TMessageArriveEvent Read FOnMessageArrive Write FOnMessageArrive;
 
     // synchronous
@@ -1681,7 +1681,7 @@ end;
 // strategies are available to prevent this but they significantly
 // increase the scope of the locks, which costs more than it gains
 
-function TIdHL7.AsynchronousSend(AMsg: String): TSendResponse;
+function TIdHL7.AsynchronousSend(AMsg: String;ASyncConnection: TIdTCPConnection = nil): TSendResponse;
 var
   LBytes : TIdBytes;
   LString : String;
@@ -1696,39 +1696,31 @@ begin
     End;
   FLock.Enter;
   try
-    if not Going then
-      begin
+    if not Going then begin
       raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWorking, [RSHL7SendMessage]))
-      end
-    else if GetStatus <> isConnected then
-      begin
-      Result := srNoConnection
-      end
-    else
-      begin
-      if FIsServer then
-        begin
-        if Assigned(FServerConn) then
-          begin
-          LString := MSG_START + AMsg + MSG_END;
-          LBytes := ToBytes(LString, FDefSendEncoding) ;
-          FServerConn.IOHandler.Write(LBytes);
-          Result := srSent
-          end
-        else
-          begin
-          raise EHL7CommunicationError.Create(Name, RSHL7NoConnectionFound);
-          end
-        end
-      else
-        begin
+    end else if GetStatus <> isConnected then begin
+          Result := srNoConnection
+    end else begin
+      if FIsServer then begin
+        LString := MSG_START + AMsg + MSG_END;
+        LBytes := ToBytes(LString, FDefSendEncoding) ;
+        if ((FCommunicationMode = cmAsynchronous) and Assigned(ASyncConnection)) then begin
+          ASyncConnection.IOHandler.Write(LBytes);
+            Result := srSent
+        end else if Assigned(FServerConn) then begin
+            FServerConn.IOHandler.Write(LBytes);
+            Result := srSent
+        end else begin
+            raise EHL7CommunicationError.Create(Name, RSHL7NoConnectionFound);
+        end;
+      end else begin
         LString := MSG_START + AMsg + MSG_END;
         LBytes := ToBytes(LString, FDefSendEncoding) ;
         FClient.IOHandler.Write(LBytes);
         FClientThread.FLastTraffic := Now;
         Result := srSent
-        end;
       end;
+    end;
   finally
     FLock.Leave;
     end
