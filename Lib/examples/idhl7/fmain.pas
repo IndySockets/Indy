@@ -179,7 +179,7 @@ var
   iX: integer;
   sAnt: string;
 //  vR : TSendResponse;
-  vMsg : Pointer;
+  vMsg : IInterface;
 begin
   if idHl7Client.Status <> isConnected then begin
     idHl7Client.Start;
@@ -195,7 +195,7 @@ begin
     if vMsg <> nil (*vR = srOK*) then begin
       memClientReplyText.Lines.text := 'success : '+sAnt;
       break
-(*    end else if vR = srError then begin
+(*  end else if vR = srError then begin
       memClientReplyText.Lines.text := 'error : '+sAnt;
       break;
     end else if vR = srTimeout then begin
@@ -220,9 +220,7 @@ begin
     end;
     btnListen.Caption := 'Start';
     btnListen.Tag := 0;
-
   end;
-
 end;
 
 end.

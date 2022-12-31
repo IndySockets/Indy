@@ -179,7 +179,7 @@ var
   iX: integer;
   sAnt: string;
 //  vR : TSendResponse;
-  vMsg : Pointer;
+  vMsg : IInterface;
 begin
   if idHl7Client.Status <> isConnected then begin
     idHl7Client.Start;
