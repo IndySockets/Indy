@@ -45,8 +45,6 @@
 
   2    Indy10    1.1         4/19/2005 10:15:26 AM  J. Peter Mugaas Updates
 
-  Rev 1.32	   01/01/2022 07:07AM EJ Pretorius / Shoraitek
-	Change TIdInterfacedObject to adapt for FPC compile (Lazarus) https://github.com/IndySockets/Indy/pull/442
   Rev 1.31    04/03/2005 21:21:56  HHariri
   Fix for DirectoryExists and removal of FileCtrl dependency
 

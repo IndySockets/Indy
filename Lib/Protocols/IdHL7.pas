@@ -504,7 +504,7 @@ type
     property Reply: String read GetReply write SetReply;
   end;
 
-  TIdQueuedMessage = class(TInterfacedObject, IIdQueuedMessage)
+  TIdQueuedMessage = class(TIdInterfacedObject, IIdQueuedMessage)
   private
     FEvent: TIdLocalEvent;
     FMsg: String;
