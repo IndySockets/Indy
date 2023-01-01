@@ -18,6 +18,133 @@ interface
 
 {$I IdCompilerDefines.inc}
 
+{$IFDEF HAS_UNIT_System_ZLib}
+
+{$DEFINE STATICLOAD_ZLIB}
+
+uses
+  System.ZLib;
+
+const
+  {$EXTERNALSYM ZLIB_VERSION}
+  ZLIB_VERSION = System.ZLib.ZLIB_VERSION;
+  {$EXTERNALSYM ZLIB_VERNUM}
+  ZLIB_VERNUM = System.ZLib.ZLIB_VERNUM;
+  {$EXTERNALSYM ZLIB_VER_MAJOR}
+  ZLIB_VER_MAJOR = System.ZLib.ZLIB_VER_MAJOR;
+  {$EXTERNALSYM ZLIB_VER_MINOR}
+  ZLIB_VER_MINOR = System.ZLib.ZLIB_VER_MINOR;
+  {$EXTERNALSYM ZLIB_VER_REVISION}
+  ZLIB_VER_REVISION = System.ZLib.ZLIB_VER_REVISION;
+  {$EXTERNALSYM ZLIB_VER_SUBREVISION}
+  ZLIB_VER_SUBREVISION = System.ZLib.ZLIB_VER_SUBREVISION;
+
+type
+  {$EXTERNALSYM z_off_t}
+  z_off_t = Sytem.ZLib.z_off_t;
+
+  {$EXTERNALSYM alloc_func}
+  alloc_func = Sytem.ZLib.alloc_func;
+  {$EXTERNALSYM TAlloc}
+  TAlloc     = alloc_func;
+  {$EXTERNALSYM free_func}
+  free_func  = System.ZLib.free_func;
+  {$EXTERNALSYM TFree}
+  TFree      = free_func;
+  {$EXTERNALSYM in_func}
+  in_func    = Sytem.ZLib.in_func;
+  {$EXTERNALSYM TInFunc}
+  TInFunc    = in_func;
+  {$EXTERNALSYM out_func}
+  out_func   = System.ZLib.out_func;
+  {$EXTERNALSYM TOutFunc}
+  TOutFunc   = out_func;
+  {$EXTERNALSYM z_streamp}
+  z_streamp = System.ZLib.z_streamp;
+  {$EXTERNALSYM z_stream}
+  z_stream = System.ZLib.z_stream;
+  {$EXTERNALSYM TZStreamRec}
+  TZStreamRec = z_stream;
+  {$EXTERNALSYM PZStreamRec}
+  PZStreamRec = z_streamp;
+
+  {$EXTERNALSYM gz_headerp}
+  gz_headerp = System.ZLib.gz_headerp;
+  {$EXTERNALSYM gz_header}
+  gz_header = System.ZLib.gz_header;
+  {$EXTERNALSYM PgzHeaderRec}
+  PgzHeaderRec = gz_headerp;
+  {$EXTERNALSYM TgzHeaderRec}
+  TgzHeaderRec = gz_header;
+
+const
+  Z_NO_FLUSH      = System.ZLib.Z_NO_FLUSH;
+  {$EXTERNALSYM Z_NO_FLUSH}
+  Z_PARTIAL_FLUSH = System.ZLib.Z_PARTIAL_FLUSH;
+  {$EXTERNALSYM Z_PARTIAL_FLUSH}
+  Z_SYNC_FLUSH    = System.ZLib.Z_SYNC_FLUSH;
+  {$EXTERNALSYM Z_SYNC_FLUSH}
+  Z_FULL_FLUSH    = System.ZLib.Z_FULL_FLUSH;
+  {$EXTERNALSYM Z_FULL_FLUSH}
+  Z_FINISH        = System.ZLib.Z_FINISH;
+  {$EXTERNALSYM Z_FINISH}
+  Z_BLOCK         = System.ZLib.Z_BLOCK;
+  {$EXTERNALSYM Z_BLOCK}
+  Z_TREES         = System.ZLib.Z_TREES;
+  {$EXTERNALSYM Z_TREES}
+  Z_OK            = System.ZLib.Z_OK;
+  {$EXTERNALSYM Z_OK}
+  Z_STREAM_END    = System.ZLib.Z_STREAM_END;
+  {$EXTERNALSYM Z_STREAM_END}
+  Z_NEED_DICT     = System.ZLib.Z_NEED_DICT;
+  {$EXTERNALSYM Z_NEED_DICT}
+  Z_ERRNO         = System.ZLib.Z_ERRNO;
+  {$EXTERNALSYM Z_ERRNO}
+  Z_STREAM_ERROR  = System.ZLib.Z_STREAM_ERROR;
+  {$EXTERNALSYM Z_STREAM_ERROR}
+  Z_DATA_ERROR    = System.ZLib.Z_DATA_ERROR;
+  {$EXTERNALSYM Z_DATA_ERROR}
+  Z_MEM_ERROR     = System.ZLib.Z_MEM_ERROR;
+  {$EXTERNALSYM Z_MEM_ERROR}
+  Z_BUF_ERROR     = Sytem.ZLib.Z_BUF_ERROR;
+  {$EXTERNALSYM Z_BUF_ERROR}
+  Z_VERSION_ERROR = System.ZLib.Z_VERSION_ERROR;
+  {$EXTERNALSYM Z_VERSION_ERROR}
+
+  Z_NO_COMPRESSION       = System.ZLib.Z_NO_COMPRESSION;
+  {$EXTERNALSYM Z_NO_COMPRESSION}
+  Z_BEST_SPEED           = System.ZLib.Z_BEST_SPEED;
+  {$EXTERNALSYM Z_BEST_SPEED}
+  Z_BEST_COMPRESSION     = System.ZLib.Z_BEST_COMPRESSION;
+  {$EXTERNALSYM Z_BEST_COMPRESSION}
+  Z_DEFAULT_COMPRESSION  = System.ZLib.Z_DEFAULT_COMPRESSION;
+  {$EXTERNALSYM Z_DEFAULT_COMPRESSION}
+
+  Z_FILTERED            = System.ZLib.Z_FILTERED;
+  {$EXTERNALSYM Z_FILTERED}
+  Z_HUFFMAN_ONLY        = System.ZLib.Z_HUFFMAN_ONLY;
+  {$EXTERNALSYM Z_HUFFMAN_ONLY}
+  Z_RLE                 = System.ZLib.Z_RLE;
+  {$EXTERNALSYM Z_RLE}
+  Z_DEFAULT_STRATEGY    = System.ZLib.Z_DEFAULT_STRATEGY;
+  {$EXTERNALSYM Z_DEFAULT_STRATEGY}
+
+  Z_BINARY   = System.ZLib.Z_BINARY;
+  {$EXTERNALSYM Z_BINARY}
+  Z_TEXT     = System.ZLib.Z_TEXT;
+  {$EXTERNALSYM Z_TEXT}
+  Z_ASCII    = System.ZLib.Z_ASCII;
+  {$EXTERNALSYM Z_ASCII}
+  Z_UNKNOWN  = System.ZLib.Z_UNKNOWN;
+  {$EXTERNALSYM Z_UNKNOWN}
+
+  Z_DEFLATED = System.ZLib.Z_DEFLATED;
+  {$EXTERNALSYM Z_DEFLATED}
+  Z_NULL = System.ZLib.Z_NULL;
+  {$EXTERNALSYM Z_NULL}
+
+{$ELSE}
+
 {$WRITEABLECONST OFF}
 {
 TODO:  Wait for Emb to decide how to approach ZLib for their 64-bit support
@@ -411,6 +538,9 @@ const
   Z_NULL = 0;  //* for initializing zalloc, zfree, opaque */
   {$EXTERNALSYM Z_NULL}
 
+{$ENDIF}
+
+const
   MAX_WBITS = 15; { 32K LZ77 window }
   {$EXTERNALSYM MAX_WBITS}
 
@@ -448,6 +578,99 @@ function deflateInitEx(var strm: z_stream; level: TIdC_INT; streamtype: TZStream
 
 {$EXTERNALSYM inflateInitEx}
 function inflateInitEx(var strm: z_stream; streamtype: TZStreamType = zsZLib): TIdC_INT;
+
+{$IFDEF HAS_UNIT_System_ZLib}
+
+const
+  {$EXTERNALSYM adler32}
+  adler32: function(adler: LongWord; buf: PByte; len: Cardinal): LongWord; cdecl = System.ZLib.adler32;
+  {$EXTERNALSYM adler32_combine}
+  adler32_combine: function(adler1, adler2: LongWord; len2: z_off_t): LongWord; cdecl = System.ZLib.adler32_combine;
+  {$EXTERNALSYM compress}
+  compress: function(dest: PByte; var destLen: LongWord; source: PByte; sourceLen: LongWord): Integer; cdecl = System.ZLib.compress;
+  {$EXTERNALSYM compress2}
+  compress2: function(dest: PByte; var destLen: LongWord; source: PByte; sourceLen: LongWord; level: Integer): Integer; cdecl = System.ZLib.compress2;
+  {$EXTERNALSYM compressBound}
+  compressBound: function(sourceLen: LongWord): LongWord; cdecl = System.ZLib.compressBound;
+  {$EXTERNALSYM crc32}
+  crc32: function(crc: UInt32; buf: PByte; len: Cardinal): UInt32; cdecl = System.ZLib.crc32;
+  {$EXTERNALSYM crc32_combine}
+  crc32_combine: function(crc1, crc2: LongWord; len2: z_off_t): LongWord; cdecl = System.ZLib.crc32_combine;
+  {$EXTERNALSYM deflate}
+  deflate: function(var strm: z_stream; flush: Integer): Integer; cdecl = System.ZLib.deflate;
+  {$EXTERNALSYM deflateBound}
+  deflateBound: function(var strm: z_stream; sourceLen: Cardinal): LongWord; cdecl = System.ZLib.deflateBound;
+  {$EXTERNALSYM deflateCopy}
+  deflateCopy: function(var dest: z_stream; const source: z_stream): Integer; cdecl = System.ZLib.deflateCopy;
+  {$EXTERNALSYM deflateEnd}
+  deflateEnd: function(var strm: z_stream): Integer; cdecl = System.ZLib.deflateEnd;
+  {$EXTERNALSYM deflateInit_}
+  deflateInit_: function(var strm: z_stream; level: Integer; version: MarshaledAString; stream_size: Integer): Integer; cdecl = System.ZLib.deflateInit_;
+  {$EXTERNALSYM deflateInit2_}
+  deflateInit2_: function(var strm: z_stream; level, method, windowBits, memLevel, strategy: Integer; version: MarshaledAString; stream_size: Integer): Integer; cdecl = System.ZLib.deflateInit2_;
+  {$EXTERNALSYM deflateParams}
+  deflateParams: function(var strm: z_stream; level, strategy: Integer): Integer; cdecl = System.ZLib.deflateParams;
+  {$EXTERNALSYM deflatePrime}
+  deflatePrime: function(var strm: z_stream; bits, value: Integer): Integer; cdecl = System.ZLib.deflatePrime;
+  {$EXTERNALSYM deflateTune}
+  deflateTune: function(var strm: z_stream; good_length, max_lazy, nice_length, max_chain: Integer): Integer; cdecl = System.ZLib.deflateTune;
+  {$EXTERNALSYM deflateReset}
+  deflateReset: function(var strm: z_stream): Integer; cdecl = System.ZLib.deflateReset;
+  {$EXTERNALSYM deflateSetDictionary}
+  deflateSetDictionary: function(var strm: z_stream; dictionary: PByte; dictLength: Cardinal): Integer; cdecl = System.ZLib.deflateSetDictionary;
+  {$EXTERNALSYM inflate}
+  inflate: function(var strm: z_stream; flush: Integer): Integer; cdecl = System.ZLib.inflate;
+  {$EXTERNALSYM inflateBack}
+  inflateBack: function(var strm: z_stream; in_: in_func; in_desc: Pointer; out_: out_func; out_desc: Pointer): Integer; cdecl = System.ZLib.inflateBack;
+  {$EXTERNALSYM inflateBackEnd}
+  inflateBackEnd: function(var strm: z_stream): Integer; cdecl = System.ZLib.inflateBackEnd;
+  {$EXTERNALSYM inflateBackInit_}
+  inflateBackInit_: function(var strm: z_stream; windowBits: Integer; window: PByte; version: MarshaledAString; stream_size: Integer): Integer; cdecl = System.ZLib.inflateBackInit_;
+  {$EXTERNALSYM inflateCopy}
+  inflateCopy: function(var dest, source: z_stream): Integer; cdecl = System.ZLib.inflateCopy;
+  {$EXTERNALSYM inflateEnd}
+  inflateEnd: function(var strm: z_stream): Integer; cdecl = System.ZLib.inflateEnd;
+  {$EXTERNALSYM inflateInit_}
+  inflateInit_: function(var strm: z_stream; version: MarshaledAString; stream_size: Integer): Integer; cdecl = System.ZLib.inflateInit_;
+  {$EXTERNALSYM inflateInit2_}
+  inflateInit2_: function(var strm: z_stream; windowBits: Integer; version: MarshaledAString; stream_size: Integer): Integer; cdecl = System.ZLib.inflateInit2_;
+  {$EXTERNALSYM inflateReset}
+  inflateReset: function(var strm: z_stream): Integer; cdecl = System.ZLib.inflateReset;
+  {$EXTERNALSYM inflateReset2}
+  inflateReset2: function(var strm: z_stream; windowBits: Integer): Integer; cdecl = System.ZLib.inflateReset2;
+  {$EXTERNALSYM inflateSetDictionary}
+  inflateSetDictionary: function(var strm: z_stream; dictionary: PByte; dictLength: Cardinal): Integer; cdecl = System.ZLib.inflateSetDictionary;
+  {$EXTERNALSYM inflateSync}
+  inflateSync: function(var strm: z_stream): Integer; cdecl = System.ZLib.inflateSync;
+  {$EXTERNALSYM uncompress}
+  uncompress: function(dest: PByte; var destLen: LongWord; source: PByte; sourceLen: LongWord): Integer; cdecl = System.ZLib.uncompress;
+  {$EXTERNALSYM zlibCompileFlags}
+  zlibCompileFlags: function: LongWord; cdecl = System.ZLib.zlibCompileFlags;
+  {$EXTERNALSYM zError}
+  zError: function(Err: Integer): MarshaledAString; cdecl = System.ZLib.zError;
+  {$EXTERNALSYM inflateSyncPoint}
+  inflateSyncPoint: function(stream: z_streamp): Integer; cdecl = System.ZLib.inflateSyncPoint;
+  {$EXTERNALSYM get_crc_table}
+  get_crc_table: function: PLongWord; cdecl = System.ZLib.get_crc_table;
+  {$EXTERNALSYM inflateUndermine}
+  inflateUndermine: function(stream: z_streamp; size: Integer): Integer; cdecl = System.ZLib.inflateUndermine;
+  {$EXTERNALSYM zlibVersion}
+  zlibVersion: function: MarshaledAString; cdecl = System.ZLib.zlibVersion;
+  {$EXTERNALSYM deflateSetHeader}
+  deflateSetHeader: function(var strm: z_stream; var head: gz_header): Integer; cdecl = System.ZLib.deflateSetHeader;
+  {$EXTERNALSYM inflatePrime}
+  inflatePrime: function(var strm: z_stream; bits, value: Integer): Integer; cdecl = System.ZLib.inflatePrime;
+  {$EXTERNALSYM inflateMark}
+  inflateMark: function(var strm: z_stream): LongInt; cdecl = System.ZLib.inflateMark;
+  {$EXTERNALSYM inflateGetHeader}
+  inflateGetHeader: function(var strm: z_stream; var head: gz_header): Integer; cdecl = System.ZLib.inflateGetHeader;
+
+  {$EXTERNALSYM zlibAllocMem}
+  zlibAllocMem: function(AppData: Pointer; Items, Size: TIdC_UINT): Pointer; cdecl = System.ZLib.zlibAllocMem;
+  {$EXTERNALSYM zlibFreeMem}
+  zlibFreeMem: procedure(AppData, Block: Pointer); cdecl = System.ZLib.zlibFreeMem;
+
+{$ELSE}
 
 {$EXTERNALSYM adler32}
 {$EXTERNALSYM adler32_combine}
@@ -745,6 +968,9 @@ function inflateGetHeader(var strm: z_stream; var head: gz_header): TIdC_INT;  {
 function zlibAllocMem(AppData: Pointer; Items, Size: TIdC_UINT): Pointer; cdecl;
 {$EXTERNALSYM zlibFreeMem}
 procedure zlibFreeMem(AppData, Block: Pointer); cdecl;
+
+{$ENDIF}
+
 {$EXTERNALSYM Load}
 function Load : Boolean;
 {$EXTERNALSYM Unload}
@@ -763,6 +989,8 @@ procedure _memset(P: Pointer; B: Byte; count: Integer); cdecl;
 procedure _memcpy(dest, source: Pointer; count: Integer); cdecl;
 
 implementation
+
+{$IFNDEF HAS_UNIT_System_ZLib}
 
 uses
   SysUtils
@@ -1257,6 +1485,8 @@ begin
 end;
 {$ENDIF}
 
+{$ENDIF}
+
 function deflateInit(var strm: z_stream; level: TIdC_INT): TIdC_INT;
 begin
 //  if not Assigned(strm.zalloc) then strm.zalloc := zlibAllocMem;
@@ -1333,6 +1563,7 @@ begin
   Move(source^, dest^, count);
 end;
 
+{$IFNDEF HAS_UNIT_System_ZLib}
 function zlibAllocMem(AppData: Pointer; Items, Size: TIdC_UINT): Pointer; cdecl;
 begin
   GetMem(Result, Items*Size);
@@ -1343,6 +1574,7 @@ procedure zlibFreeMem(AppData, Block: Pointer); cdecl;
 begin
   FreeMem(Block);
 end;
+{$ENDIF}
 
 {$IFDEF STATICLOAD_ZLIB}
 function Load : Boolean;
