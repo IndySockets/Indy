@@ -379,8 +379,8 @@ type
 
   TIdInterfacedObject = class (TInterfacedObject)
   public
-    function _AddRef: Integer;
-    function _Release: Integer;
+    function _AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
+    function _Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
   end;
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
@@ -5347,7 +5347,7 @@ end;
 
 { TIdInterfacedObject }
 
-function TIdInterfacedObject._AddRef: Integer;
+function TIdInterfacedObject._AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
@@ -5356,7 +5356,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdInterfacedObject._Release: Integer;
+function TIdInterfacedObject._Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;

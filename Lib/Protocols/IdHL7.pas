@@ -504,7 +504,7 @@ type
     property Reply: String read GetReply write SetReply;
   end;
 
-  TIdQueuedMessage = class(TIdInterfacedObject, IIdQueuedMessage)
+  TIdQueuedMessage = class(TInterfacedObject, IIdQueuedMessage)
   private
     FEvent: TIdLocalEvent;
     FMsg: String;
@@ -559,7 +559,7 @@ end;
 function TIdQueuedMessage.GetMessage: String;
 begin
   Assert(Assigned(Self));
-  Resut := FMsg;
+  Result := FMsg;
 end;
 
 function TIdQueuedMessage.GetReply: String;
