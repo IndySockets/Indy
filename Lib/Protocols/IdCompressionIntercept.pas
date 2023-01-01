@@ -93,6 +93,11 @@ interface
 
 uses
   Classes,
+  {$IFDEF HAS_UNIT_System_ZLib}
+    {$IFDEF USE_INLINE}
+  System.ZLib, // here to facilitate inlining
+    {$ENDIF}
+  {$ENDIF}
   IdException,
   IdGlobal,
   IdGlobalProtocols,

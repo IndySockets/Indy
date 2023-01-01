@@ -41,6 +41,11 @@ interface
 uses
   SysUtils,
   Classes,
+  {$IFDEF HAS_UNIT_System_ZLib}
+    {$IFDEF USE_INLINE}
+  System.ZLib, // here to facilitate inlining
+    {$ENDIF}
+  {$ENDIF}
   IdCTypes,
   IdGlobal,
   IdZLibHeaders;
