@@ -664,7 +664,7 @@ end;
 
 destructor TIdHL7.Destroy;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   try
     if Going then
     begin
@@ -1263,7 +1263,6 @@ end;
 
 procedure TIdHL7.ServerExecute(AContext: TIdContext);
 var
-  //s : String;
   LBuffer: TIdBytes;
 begin
   Assert(Assigned(Self));
@@ -1271,12 +1270,8 @@ begin
 
   try
     // 1. prompt the network for content.
-    //AContext.Connection.IOHandler.ReadLn(MSG_START); // throw this content away
     while Assigned(AContext.Connection.IOHandler) do
     begin
-      // here, we use AnsiEncoding - whatever the bytes that are sent, they will be round tripped into a
-      // ansi string which is actually bytes not chars. But usually it would be chars anyway
-      //s := AThread.Connection.IOHandler.ReadLn(MSG_END, FReceiveTimeout, -1, IndyTextEncoding_8Bit);
       AContext.Connection.IOHandler.ReadBytes(LBuffer, -1, True);
       HandleIncoming(LBuffer, AContext.Connection);
     end;
@@ -1372,7 +1367,7 @@ begin
   Assert(Assigned(FLock));
   FLock.Enter;
   try
-    if Assigned(FClientThread) and Assigned(FClientThread.FClient) then
+    if Assigned(FClientThread) then
     begin
       FClientThread.FClient.Disconnect;
     end
@@ -1392,6 +1387,11 @@ begin
   Assert(Assigned(AOwner));
   FOwner := AOwner;
   FCloseEvent := TIdLocalEvent.Create(True, False);
+  FClient := TIdTCPClient.Create(nil);
+  FClient.Host := AOwner.Address;
+  FClient.Port := AOwner.Port;
+  FClient.ReadTimeout := AOwner.ReceiveTimeout;
+  FClient.UseNagle := True;
   inherited Create(False);
   FreeOnTerminate := True;
 end;
@@ -1401,7 +1401,6 @@ begin
   Assert(Assigned(Self));
   Assert(Assigned(FOwner));
   Assert(Assigned(FOwner.FLock));
-  FreeAndNil(FCloseEvent);
   try
     FOwner.FLock.Enter;
     try
@@ -1417,6 +1416,8 @@ begin
     // may be dead before we are. If that is the case, we blow up here.
     // who cares.
   end;
+  FreeAndNil(FCloseEvent);
+  FreeAndNil(FClient);
   inherited;
 end;
 
@@ -1478,92 +1479,82 @@ procedure TIdHL7ClientThread.Execute;
 begin
   Assert(Assigned(Self));
   try
-    FClient := TIdTCPClient.Create(nil);
-    try
-      FClient.Host := FOwner.FAddress;
-      FClient.Port := FOwner.FPort;
-      FClient.UseNagle := True;
+    repeat
+      // try to connect. Try indefinitely but wait Owner.FReconnectDelay
+      // between attempts. Problems: how long does Connect take?
       repeat
-        // try to connect. Try indefinitely but wait Owner.FReconnectDelay
-        // between attempts. Problems: how long does Connect take?
-        repeat
-          FOwner.InternalSetStatus(IsConnecting, rsHL7StatusConnecting);
-          try
-            FClient.Connect;
-            Break;
-          except
-            on e: Exception do
-            begin
-              //now we can take more liberties with the time and date output because it's only
-              //for human consumption (probably in a log
-              FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DescribePeriod(FOwner.FReconnectDelay), e.Message]));
-            end;
+        FOwner.InternalSetStatus(IsConnecting, rsHL7StatusConnecting);
+        try
+          FClient.Connect;
+          Break;
+        except
+          on e: Exception do
+          begin
+            //now we can take more liberties with the time and date output because it's only
+            //for human consumption (probably in a log
+            FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DescribePeriod(FOwner.FReconnectDelay), e.Message]));
           end;
-          if Terminated then Break;
-          // TODO: run this in a smaller loop checking Terminated on each iteration,
-          // or hook up this event to TThread.TerminatedSet()...
-          FCloseEvent.WaitFor(FOwner.FReconnectDelay);
-        until Terminated;
-        if Terminated then
-        begin
-          Exit;
         end;
+        if Terminated then Break;
+        // TODO: run this in a smaller loop checking Terminated on each iteration,
+        // or hook up this event to TThread.TerminatedSet()...
+        FCloseEvent.WaitFor(FOwner.FReconnectDelay);
+      until Terminated;
+      if Terminated then
+      begin
+        Exit;
+      end;
 
-        FClient.IOHandler.ReadTimeout := FOwner.ReceiveTimeout;
+      if FOwner.FKeepAlive.UseKeepAlive then
+      begin
+        FClient.Socket.Binding.SetKeepAliveValues(True, FOwner.FKeepAlive.IdleTimeMS, FOwner.FKeepAlive.IntervalMS);
+      end;
 
-        if FOwner.FKeepAlive.UseKeepAlive then
-        begin
-          FClient.Socket.Binding.SetKeepAliveValues(True, FOwner.FKeepAlive.IdleTimeMS, FOwner.FKeepAlive.IntervalMS);
-        end;
+      FLastTraffic := Ticks64;
 
-        FLastTraffic := Ticks64;
-
+      FOwner.FLock.Enter;
+      try
+        FOwner.FClient := FClient;
+        FOwner.InternalSetStatus(IsConnected, rsHL7StatusConnected);
+      finally
+        FOwner.FLock.Leave;
+      end;
+      if Assigned(FOwner.FOnConnect) then
+      begin
+        FOwner.FOnConnect(FOwner);
+      end;
+      try
+        PollStack;
+      finally
         FOwner.FLock.Enter;
         try
-          FOwner.FClient := FClient;
-          FOwner.InternalSetStatus(IsConnected, rsHL7StatusConnected);
+          FOwner.FClient := nil;
+          if TimedOut then begin
+            FOwner.InternalSetStatus(isTimedOut, RSHL7StatusTimedout);
+          end else begin
+            FOwner.InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
+          end;
         finally
           FOwner.FLock.Leave;
         end;
-        if Assigned(FOwner.FOnConnect) then
+        if Assigned(FOwner.FOnDisconnect) then
         begin
-          FOwner.FOnConnect(FOwner);
+          FOwner.FOnDisconnect(FOwner);
         end;
-        try
-          PollStack;
-        finally
-          FOwner.FLock.Enter;
-          try
-            FOwner.FClient := nil;
-            if TimedOut then begin
-              FOwner.InternalSetStatus(isTimedOut, RSHL7StatusTimedout);
-            end else begin
-              FOwner.InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
-            end;
-          finally
-            FOwner.FLock.Leave;
-          end;
-          if Assigned(FOwner.FOnDisconnect) then
-          begin
-            FOwner.FOnDisconnect(FOwner);
-          end;
-        end;
-        if TimedOut then
-        begin
-          FClient.Disconnect;
-        end
-        else if not Terminated then
-        begin
-          // we got disconnected. ReconnectDelay applies.
-          FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DescribePeriod(FOwner.FReconnectDelay), 'Disconnected'])); {do not localize}
-          // TODO: run this in a smaller loop checking Terminated on each iteration,
-          // or hook up this event to TThread.TerminatedSet()...
-          FCloseEvent.WaitFor(FOwner.FReconnectDelay);
-        end;
-      until Terminated or (not FOwner.IsListener and TimedOut);
-    finally
-      FreeAndNil(FClient);
-    end;
+      end;
+      if TimedOut then
+      begin
+        FClient.Disconnect;
+      end
+      else if not Terminated then
+      begin
+        // we got disconnected. ReconnectDelay applies.
+        FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DescribePeriod(FOwner.FReconnectDelay), 'Disconnected'])); {do not localize}
+        // TODO: run this in a smaller loop checking Terminated on each iteration,
+        // or hook up this event to TThread.TerminatedSet()...
+        FCloseEvent.WaitFor(FOwner.FReconnectDelay);
+      end;
+    until Terminated or (not FOwner.IsListener and TimedOut);
   except
     on e: Exception do
     begin
