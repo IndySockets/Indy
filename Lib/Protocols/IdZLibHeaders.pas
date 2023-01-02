@@ -72,12 +72,12 @@ uses
   , IdException
   {$ENDIF};
 
-{$DEFINE USE_PRAGMA PACK_1}
+{$DEFINE USE_PRAGMA_PACK_1}
 {$IFDEF LINUX64}
-  {$UNDEF USE_PRAGMA PACK_1}
+  {$UNDEF USE_PRAGMA_PACK_1}
 {$ENDIF}
 {$IFDEF IOS64}
-  {$UNDEF USE_PRAGMA PACK_1}
+  {$UNDEF USE_PRAGMA_PACK_1}
 {$ENDIF}
 
 {$IFDEF STATICLOAD_ZLIB}
@@ -112,7 +112,7 @@ uses
 (*$HPPEMIT ''*)
 (*$HPPEMIT 'typedef void __cdecl (*free_func)(void * opaque, void * address);'*)
 (*$HPPEMIT ''*)
-{$IFDEF USE_PRAGMA PACK_1}
+{$IFDEF USE_PRAGMA_PACK_1}
 (*$HPPEMIT '#pragma pack(push,1)'*)
 {$ENDIF}
 {$IFDEF VCL_XE_OR_ABOVE}
@@ -138,7 +138,7 @@ uses
 (*$HPPEMIT '	unsigned long adler;'*)
 (*$HPPEMIT '	unsigned long reserved;'*)
 (*$HPPEMIT '};'*)
-{$IFDEF USE_PRAGMA PACK_1}
+{$IFDEF USE_PRAGMA_PACK_1}
 (*$HPPEMIT '#pragma pack(pop)'*)
 {$ENDIF}
 (*$HPPEMIT ''*)
@@ -171,7 +171,7 @@ uses
 (*$HPPEMIT 'struct gz_header;'*)
 (*$HPPEMIT 'typedef gz_header *gz_headerp;'*)
 (*$HPPEMIT ''*)
-{$IFDEF USE_PRAGMA PACK_1}
+{$IFDEF USE_PRAGMA_PACK_1}
 (*$HPPEMIT '#pragma pack(push,1)'*)
 {$ENDIF}
 {$IFDEF VCL_XE_OR_ABOVE}
@@ -196,7 +196,7 @@ uses
 (*$HPPEMIT '	int hcrc;'*)
 (*$HPPEMIT '	int done;'*)
 (*$HPPEMIT '};'*)
-{$IFDEF USE_PRAGMA PACK_1}
+{$IFDEF USE_PRAGMA_PACK_1}
 (*$HPPEMIT '#pragma pack(pop)'*)
 {$ENDIF}
 (*$HPPEMIT ''*)

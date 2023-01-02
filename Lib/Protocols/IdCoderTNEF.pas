@@ -190,7 +190,8 @@ function IsFilenameTnef(const AFilename: string): Boolean;
 implementation
 
 uses
-  DateUtils, IdMessageClient, IdText, IdStream;
+  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
+  IdMessageClient, IdText, IdStream;
 
 const
   //Initial RTF-compression decode string...
