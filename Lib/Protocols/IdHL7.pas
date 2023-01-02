@@ -1200,7 +1200,6 @@ begin
       begin
         InternalSetStatus(IsConnected, RSHL7StatusConnected);
       end;
-      AContext.Data := Self;
       AContext.Connection.IOHandler.ReadTimeout := FReceiveTimeout;
     end;
   finally
@@ -1224,7 +1223,6 @@ begin
     // it would be better to stop getting here in the case of an invalid connection
     // cause here we drop it - nasty for the client. To be investigated later
     AContext.Connection.Disconnect;
-    AContext.Data := nil;
   end;
 end;
 
@@ -1236,7 +1234,6 @@ begin
   Assert(Assigned(Self));
   Assert(Assigned(AContext));
   Assert(Assigned(FLock));
-  AContext.Data := nil;
   FLock.Enter;
   try
     FServerConnections.Remove(AContext);
