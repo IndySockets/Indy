@@ -6,11 +6,24 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  IdHL7, IdTCPConnection,idGlobal;
+  IdHL7, IdTCPConnection,idGlobal,idSync;
 
 type
 
   { TForm1 }
+
+
+
+
+    { TLog }
+
+    TLog = class(TIdNotify)
+    protected
+      FMsg: string;
+      procedure DoNotify; override;
+    public
+      class procedure LogMsg(const AMsg :string);
+    end;
 
   TForm1 = class(TForm)
     btnStart: TButton;
@@ -52,7 +65,6 @@ type
     procedure idHl7ServerReceiveError(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; AException: Exception; var VReply: string; var VDropConnection: boolean);
     procedure Panel3Click(Sender: TObject);
   protected
-    FLock: TIdCriticalSection;
     procedure hl7ServerReceive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; var VHandled: boolean; var VReply: string);
     procedure hl7ServerMsgArrive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string);
     procedure hl7clientReceive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; var VHandled: boolean; var VReply: string);
@@ -71,6 +83,25 @@ var
 implementation
 
 {$R *.lfm}
+
+{ TLog }
+
+procedure TLog.DoNotify;
+begin
+      Form1.memGeneral.Lines.Add(Fmsg);
+end;
+
+class procedure TLog.LogMsg(const AMsg :string);
+begin
+   with TLog.Create do
+  try
+    FMsg := AMsg;
+    Notify;
+  except
+    Free;
+    raise;
+  end;
+end;
 
 { TForm1 }
 
@@ -95,7 +126,6 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  FLock := TIdCriticalSection.Create;
   idHl7Server.OnReceiveMessage := @hl7ServerReceive;
   idHl7Server.OnMessageArrive := @hl7ServerMsgArrive;
   idHl7Client.OnReceiveMessage:= @hl7clientReceive;
@@ -126,7 +156,7 @@ end;
 procedure TForm1.idHl7ServerConnCountChange(ASender: TIdHL7; AConnCount: integer);
 begin
   //Currently if evcents log to memo even in critical section it breaks the whole thread schedule system
-  //logGeneral('servercon_count change : ');
+  logGeneral('servercon_count change : ');
 end;
 
 procedure TForm1.idHl7ServerConnect(Sender: TObject);
@@ -137,7 +167,7 @@ end;
 procedure TForm1.idHl7ServerDisconnect(Sender: TObject);
 begin
   //Currently if evcents log to memo even in critical section it breaks the whole thread schedule system
-  //logGeneral('serverdisconnect : ');
+  logGeneral('serverdisconnect : ');
 end;
 
 procedure TForm1.idHl7ServerReceiveError(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; AException: Exception; var VReply: string; var VDropConnection: boolean);
@@ -150,6 +180,7 @@ procedure TForm1.Panel3Click(Sender: TObject);
 begin
 
 end;
+
 
 procedure TForm1.hl7ServerReceive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; var VHandled: boolean; var VReply: string);
 begin
@@ -181,13 +212,8 @@ end;
 
 procedure TForm1.logGeneral(sText: String);
 begin
+  TLog.LogMsg(sText);
 
-  try
-    FLock.Enter;
-    memGeneral.Lines.Add(sText);
-  finally
-    FLock.Leave;
-  end;
 end;
 
 procedure TForm1.clientSend;

@@ -12,7 +12,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="62"/>
+        <UsageCount Value="65"/>
       </Unit>
       <Unit>
         <Filename Value="fmain.pas"/>
@@ -21,23 +21,22 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="71"/>
-        <CursorPos X="30" Y="79"/>
-        <UsageCount Value="62"/>
+        <TopLine Value="117"/>
+        <CursorPos X="56" Y="130"/>
+        <UsageCount Value="65"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="763"/>
-        <CursorPos Y="775"/>
-        <UsageCount Value="14"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="551"/>
+        <CursorPos X="33" Y="559"/>
+        <UsageCount Value="15"/>
         <Bookmarks Count="4">
-          <Item0 X="28" Y="281" ID="1"/>
-          <Item1 X="10" Y="1113" ID="2"/>
-          <Item2 X="3" Y="1227" ID="3"/>
-          <Item3 X="3" Y="1145" ID="4"/>
+          <Item0 X="3" Y="1269" ID="3"/>
+          <Item1 X="3" Y="1187" ID="4"/>
+          <Item2 X="6" Y="255" ID="1"/>
+          <Item3 X="23" Y="215" ID="2"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -51,115 +50,107 @@
       </Unit>
       <Unit>
         <Filename Value="..\..\Core\IdIOHandler.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="2134"/>
         <CursorPos X="109" Y="2153"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\Core\IdCustomTCPServer.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="543"/>
         <CursorPos X="17" Y="560"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\Core\IdContext.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="177"/>
         <CursorPos Y="189"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\Core\IdTask.pas"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="121"/>
         <CursorPos Y="137"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\Core\IdThread.pas"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="447"/>
         <CursorPos Y="458"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\System\IdGlobal.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="414"/>
         <CursorPos X="33" Y="434"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\..\..\lcl\interfaces\win32\win32memostrings.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="143"/>
+        <CursorPos X="29" Y="150"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\..\..\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="1494"/>
+        <CursorPos X="15" Y="1506"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\..\..\lcl\include\application.inc"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="2218"/>
+        <CursorPos X="78" Y="2218"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="138" Column="5" TopLine="125"/>
+        <Caret Line="158" TopLine="145"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="47" Column="15" TopLine="40"/>
+        <Caret Line="157" TopLine="145"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="117" Column="29" TopLine="114"/>
-      </Position>
-      <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="1145" TopLine="1133"/>
+        <Caret Line="195" Column="81" TopLine="178"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="232" TopLine="215"/>
+        <Caret Line="190" Column="25" TopLine="179"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="227" Column="26" TopLine="215"/>
-      </Position>
-      <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="1145" Column="49" TopLine="1133"/>
-      </Position>
-      <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="332" Column="15" TopLine="318"/>
+        <Caret Line="51" Column="15" TopLine="49"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="63" Column="17" TopLine="48"/>
-      </Position>
-      <Position>
-        <Filename Value="fmain.pas"/>
-        <Caret Line="198" Column="3" TopLine="190"/>
-      </Position>
-      <Position>
-        <Filename Value="fmain.pas"/>
-        <Caret Line="59" Column="15" TopLine="52"/>
-      </Position>
-      <Position>
-        <Filename Value="fmain.pas"/>
-        <Caret Line="185" Column="53" TopLine="179"/>
-      </Position>
-      <Position>
-        <Filename Value="fmain.pas"/>
-        <Caret Line="51" Column="15" TopLine="48"/>
-      </Position>
-      <Position>
-        <Filename Value="fmain.pas"/>
-        <Caret Line="138" Column="3" TopLine="135"/>
+        <Caret Line="141" Column="3" TopLine="137"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
@@ -167,63 +158,95 @@
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="128" Column="3" TopLine="125"/>
+        <Caret Line="141" Column="22" TopLine="126"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="232" TopLine="215"/>
-      </Position>
-      <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="1145" TopLine="1133"/>
+        <Caret Line="56" Column="15" TopLine="40"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="223" Column="14" TopLine="215"/>
+        <Caret Line="157" Column="46" TopLine="147"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="59" Column="15" TopLine="49"/>
+        <Caret Line="156" Column="69" TopLine="147"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="191" Column="63" TopLine="179"/>
+        <Caret Line="60" Column="15" TopLine="45"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="232" TopLine="215"/>
-      </Position>
-      <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="1145" TopLine="1133"/>
+        <Caret Line="193" Column="40" TopLine="178"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="230" Column="18" TopLine="215"/>
+        <Caret Line="56" Column="15" TopLine="49"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="49" Column="15" TopLine="46"/>
+        <Caret Line="157" Column="38" TopLine="145"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="128" Column="105" TopLine="125"/>
+        <Caret Line="60" Column="15" TopLine="45"/>
       </Position>
       <Position>
         <Filename Value="fmain.pas"/>
-        <Caret Line="234" TopLine="217"/>
+        <Caret Line="193" Column="44" TopLine="187"/>
       </Position>
       <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="1145" TopLine="1133"/>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="56" Column="15" TopLine="49"/>
       </Position>
       <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="1232" TopLine="1220"/>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="157" Column="37" TopLine="145"/>
       </Position>
       <Position>
-        <Filename Value="..\..\Protocols\IdHL7.pas"/>
-        <Caret Line="775" TopLine="763"/>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="153" Column="32" TopLine="145"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="22" TopLine="3"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="23" TopLine="5"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="93" Column="38" TopLine="91"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="16" Column="3" TopLine="4"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="25" Column="42" TopLine="13"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="100" Column="13" TopLine="84"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="73" Column="23" TopLine="54"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="223" TopLine="219"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="68" TopLine="62"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="185" TopLine="166"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -238,35 +261,14 @@
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="fmain.pas"/>
-        <Line Value="215"/>
+        <Line Value="241"/>
       </Item>
       <Item>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="..\..\Protocols\IdHL7.pas"/>
-        <Line Value="1153"/>
-      </Item>
-      <Item>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="..\..\Protocols\IdHL7.pas"/>
-        <Line Value="1232"/>
-      </Item>
-      <Item>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="..\..\Protocols\IdHL7.pas"/>
-        <Line Value="1145"/>
-      </Item>
-      <Item>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="fmain.pas"/>
-        <Line Value="234"/>
+        <Line Value="1195"/>
       </Item>
     </BreakPoints>
   </Debugging>
