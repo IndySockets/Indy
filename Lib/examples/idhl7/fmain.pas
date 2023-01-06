@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  IdHL7, IdTCPConnection;
+  IdHL7, IdTCPConnection,idGlobal;
 
 type
 
@@ -52,9 +52,11 @@ type
     procedure idHl7ServerReceiveError(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; AException: Exception; var VReply: string; var VDropConnection: boolean);
     procedure Panel3Click(Sender: TObject);
   protected
+    FLock: TIdCriticalSection;
     procedure hl7ServerReceive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; var VHandled: boolean; var VReply: string);
     procedure hl7ServerMsgArrive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string);
     procedure hl7clientReceive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; var VHandled: boolean; var VReply: string);
+    procedure logGeneral(sText  : String);
 
 
   private
@@ -74,7 +76,7 @@ implementation
 
 procedure TForm1.btnStartClick(Sender: TObject);
 begin
-    if idHl7Client.Status = isConnected then begin
+    if idHl7Client.Connected then begin
     idHl7Client.Stop;
   end;
 
@@ -93,6 +95,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+  FLock := TIdCriticalSection.Create;
   idHl7Server.OnReceiveMessage := @hl7ServerReceive;
   idHl7Server.OnMessageArrive := @hl7ServerMsgArrive;
   idHl7Client.OnReceiveMessage:= @hl7clientReceive;
@@ -101,43 +104,45 @@ end;
 
 procedure TForm1.idHl7ClientConnCountChange(ASender: TIdHL7; AConnCount: integer);
 begin
-  memGeneral.Lines.add('clientcon_count change : ');
+  logGeneral('clientcon_count change : ');
 end;
 
 procedure TForm1.idHl7ClientConnect(Sender: TObject);
 begin
-  memGeneral.Lines.add('clientconnect : ');
+  logGeneral('clientconnect : ');
 end;
 
 procedure TForm1.idHl7ClientDisconnect(Sender: TObject);
 begin
-  memGeneral.Lines.add('clientdisconenct : ');
+  logGeneral('clientdisconnect : ');
 end;
 
 procedure TForm1.idHl7ClientReceiveError(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; AException: Exception; var VReply: string; var VDropConnection: boolean);
 begin
-  memGeneral.Lines.add('clientrcverr : ' + AException.Message);
+  logGeneral('clientrcverr : ' + AException.Message);
   VDropConnection := True;
 end;
 
 procedure TForm1.idHl7ServerConnCountChange(ASender: TIdHL7; AConnCount: integer);
 begin
-  memGeneral.Lines.add('servercon_count change : ');
+  //Currently if evcents log to memo even in critical section it breaks the whole thread schedule system
+  //logGeneral('servercon_count change : ');
 end;
 
 procedure TForm1.idHl7ServerConnect(Sender: TObject);
 begin
-  memGeneral.Lines.add('serverconnect : ');
+  logGeneral('serverconnect : ');
 end;
 
 procedure TForm1.idHl7ServerDisconnect(Sender: TObject);
 begin
-  memGeneral.Lines.add('serverdisconenct : ');
+  //Currently if evcents log to memo even in critical section it breaks the whole thread schedule system
+  //logGeneral('serverdisconnect : ');
 end;
 
 procedure TForm1.idHl7ServerReceiveError(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string; AException: Exception; var VReply: string; var VDropConnection: boolean);
 begin
-  memGeneral.Lines.add('servrcverr : ' + AException.Message);
+  logGeneral('servrcverr : ' + AException.Message);
   VDropConnection := True;
 end;
 
@@ -151,14 +156,14 @@ begin
   vReply := memServerReply.Lines.Text;
   memServer.lines.text := Amsg;
   vhandled := True;
-  memGeneral.Lines.add('servreceived '+AMsg+
+  logGeneral('servreceived '+AMsg+
                       '- reply provided '+vReply);
 
 end;
 
 procedure TForm1.hl7ServerMsgArrive(ASender: TObject; AConnection: TIdTCPConnection; AMsg: string);
 begin
-  memGeneral.Lines.add('servmsgarrive : ' + AMsg);
+  logGeneral('servmsgarrive : ' + AMsg);
   memServer.lines.add(amsg);
 
   idHl7Server.AsynchronousSend(memServerReply.Lines.text,AConnection);
@@ -170,8 +175,19 @@ procedure TForm1.hl7clientReceive(ASender: TObject;
 begin
   memClientReplyText.lines.text := Amsg;
   vhandled := True;
-  memGeneral.Lines.add('clreceived '+AMsg);
+  logGeneral('clreceived '+AMsg);
 
+end;
+
+procedure TForm1.logGeneral(sText: String);
+begin
+
+  try
+    FLock.Enter;
+    memGeneral.Lines.Add(sText);
+  finally
+    FLock.Leave;
+  end;
 end;
 
 procedure TForm1.clientSend;
@@ -215,9 +231,7 @@ begin
     btnListen.Tag := 1;
     btnListen.Caption := 'Stop';
   end else begin
-    if idHl7Server.Status = isConnected then begin
-      idHl7Server.Stop;
-    end;
+    idHl7Server.Stop;
     btnListen.Caption := 'Start';
     btnListen.Tag := 0;
   end;
