@@ -384,7 +384,7 @@ function i2d_PrivateKey_bio_func(b: PBIO; pkey: PEVP_PKEY): TIdC_INT cdecl; exte
 
 function d2i_X509_bio_func(bp: PBIO; x: PPx509): PX509 cdecl; external SSLCLIB_LIB_name name 'd2i_X509_bio';
 
-function i2d_X509_REQ_bio_func(x: PX509_REQ; bp: PBIO): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'i2d_X509_REQ_bio';
+function i2d_X509_REQ_bio_func(bp: PBIO; x: PX509_REQ): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'i2d_X509_REQ_bio';
 
 function i2d_PKCS7_func(x: PPKCS7; buf: PPByte): TIdC_INT cdecl; external SSLCLIB_LIB_name name 'i2d_PKCS7';
 

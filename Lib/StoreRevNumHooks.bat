@@ -29,7 +29,7 @@ CALL %0 start %5
 GOTO End
 
 :DoIt
-SET IndyLib="C:\Development\Projects\Indy\Indy 10\Source\Lib"
+SET IndyLib="C:\Users\Ryan\Development\Projects\Indy\Indy 10\Source\Restructure Lib"
 CALL %IndyLib%\StoreRevNum.bat %2
 
 :End

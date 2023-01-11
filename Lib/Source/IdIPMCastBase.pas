@@ -159,28 +159,25 @@ begin
 end;
 
 procedure TIdIPMCastBase.Loaded;
-var
-  b: Boolean;
 begin
   inherited Loaded;
-  b := FDsgnActive;
-  FDsgnActive := False;
-  Active := b;
+  if FDsgnActive then begin
+    FDsgnActive := False;
+    Active := True;
+  end;
 end;
 
 procedure TIdIPMCastBase.SetActive(const Value: Boolean);
 begin
-  if Active <> Value then begin
-    if not (IsDesignTime or IsLoading) then begin
-      if Value then begin
-        GetBinding;
-      end
-      else begin
-        CloseBinding;
-      end;
-    end
-    else begin  // don't activate at designtime (or during loading of properties)    {Do not Localize}
-      FDsgnActive := Value;
+  if IsDesignTime or IsLoading then begin
+    // don't activate at designtime (or during loading of properties)    {Do not Localize}
+    FDsgnActive := Value;
+  end
+  else if Active <> Value then begin
+    if Value then begin
+      GetBinding;
+    end else begin
+      CloseBinding;
     end;
   end;
 end;

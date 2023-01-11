@@ -155,7 +155,7 @@ var
   function TrimRightWhiteSpace(const ABuf: TIdBytes): TIdBytes;
   var
     LSaveBytes: TIdBytes;
-    li, LLen: Integer;
+    li, LLen, LSaveBytesLen: Integer;
   begin
     SetLength(LSaveBytes, 0);
     LLen := Length(ABuf);
@@ -174,12 +174,13 @@ var
       end;
       Dec(LLen);
     end;
-    SetLength(Result, LLen + Length(LSaveBytes));
+    LSaveBytesLen := Length(LSaveBytes);
+    SetLength(Result, LLen + LSaveBytesLen);
     if LLen > 0 then begin
       CopyTIdBytes(ABuf, 0, Result, 0, LLen);
     end;
-    if Length(LSaveBytes) > 0 then begin
-      CopyTIdBytes(LSaveBytes, 0, Result, LLen, Length(LSaveBytes));
+    if LSaveBytesLen > 0 then begin
+      CopyTIdBytes(LSaveBytes, 0, Result, LLen, LSaveBytesLen);
     end;
   end;
 

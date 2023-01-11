@@ -1,4 +1,5 @@
 unit indysystemfpc;
+
 interface
 
 uses
@@ -11,8 +12,6 @@ uses
   IdResourceStrings,
   IdStack,
   IdStackConsts,
-  IdStream,
-  IdStreamVCL,
   IdStruct;
 
 implementation

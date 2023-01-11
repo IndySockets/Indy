@@ -26,9 +26,9 @@ package IndyCore;
 {$DEFINE DEBUG}
 {$DEFINE VER270}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Indy 10 Core'}
+{$DESCRIPTION 'Indy 11 Core'}
 {$RUNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 // RLebeau: cannot use IdCompilerDefines.inc here!
 

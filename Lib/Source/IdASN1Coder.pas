@@ -192,7 +192,7 @@ end;
 procedure TIdASN1Encoder.WriteToStream(Stream : TStream);
 begin
   Assert(FReadyToWrite, 'not ready to write');
-  if Length(FSequences[0].Contents) <> 0 then
+  if FSequences[0].Contents <> '' then
     WriteStringToStream(Stream, FSequences[0].Contents, IndyTextEncoding_8Bit);
 end;
 

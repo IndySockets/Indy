@@ -222,7 +222,7 @@ begin
   SClient := TIdTCPClient.Create(nil);
 // POZOR MOŽNA NAPAKA
 //  SClient.OnStatus := self.DoStatus;  ORIGINAL
-  SClient.OnStatus := self.OnStatus;
+  SClient.OnStatus := self.OnStatus; // TODO: assign DoStatus() instead of the handler directly...
 
   ManualDisconnected := False;
   StopTransmiting := False;
@@ -601,7 +601,7 @@ begin
     try
 
       if not StopTransmiting then begin
-        if Length(s) > 0 then begin
+        if s <> '' then begin
           try
             // Custom data transformation before send
             tmpString := s;
@@ -946,7 +946,7 @@ begin
                   except
                     IndyRaiseOuterException(EIdTunnelInterpretationOfMessageFailed.Create(RSTunnelMessageInterpretError));
                   end;
-                  if Length(CustomMsg) > 0 then begin
+                  if CustomMsg <> '' then begin
                     Header.MsgType := 99;
                     Header.UserId := 0;
                     SlaveParent.SendMsg(Header, CustomMsg);
@@ -1003,7 +1003,7 @@ begin
   except
     ;
   end;
-  if Length(tmpString) > 0 then begin
+  if tmpString <> '' then begin
     Header.MsgType := 99;
     Header.UserId := 0;
     SlaveParent.SendMsg(Header, tmpString);

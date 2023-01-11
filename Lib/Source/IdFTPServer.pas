@@ -736,7 +736,9 @@ type
   TIdOnDirSizeInfo = procedure(ASender : TIdFTPServerContext;
     const APathName : TIdFTPFileName;
     var VIsAFile : Boolean; var VSpace : Int64) of object;
+
   TIdFTPServer = class;
+
   TIdFTPSecurityOptions = class(TPersistent)
   protected
     // RFC 2577 Recommends these
@@ -920,6 +922,8 @@ type
   TIdOnGetCustomListFormat = procedure(ASender: TIdFTPServer; AItem: TIdFTPListItem;
     var VText: string) of object;
 
+  TIdOnQuerySSLPort = procedure(APort: TIdPort; var VUseSSL: Boolean) of object;
+
   { FTP Server }
   TIdFTPServer = class(TIdExplicitTLSServer)
   protected
@@ -997,6 +1001,8 @@ type
     FOnMLST : TIdOnMLST;
     FOnSiteUTIME : TOnSiteUTIME;
     FOnHostCheck : TOnHostCheck;
+    FOnQuerySSLPort: TIdOnQuerySSLPort;
+
     procedure SetOnUserAccount(AValue : TOnFTPUserAccountEvent);
     procedure AuthenticateUser(ASender: TIdCommand);
     function SupportTaDirSwitches(AContext : TIdFTPServerContext) : Boolean;
@@ -1183,6 +1189,9 @@ type
     procedure DoOnDataPortAfterBind(ASender : TIdFTPServerContext); virtual;
     procedure DoOnCustomListDirectory(ASender: TIdFTPServerContext; const APath: string;
       ADirectoryListing: TStrings; const ACmd : String; const ASwitches : String);
+
+    function DoQuerySSLPort(APort: TIdPort): Boolean; virtual;
+
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
@@ -1273,6 +1282,8 @@ type
     property MLSDFacts : TIdMLSDAttrs read  FMLSDFacts write FMLSDFacts;
     property OnClientID : TIdOnClientID read FOnClientID write FOnClientID;
     property ReplyUnknownSITCommand: TIdReply read FReplyUnknownSITECommand write SetReplyUnknownSITECommand;
+
+    property OnQuerySSLPort: TIdOnQuerySSLPort read FOnQuerySSLPort write FOnQuerySSLPort;
   end;
 
   {This is used internally for some Telnet sequence parsing}
@@ -1425,6 +1436,7 @@ begin
     if not FDataChannel.Stopped then begin
       FDataChannel.Stopped := True;
       FDataChannel.FDataChannel.Disconnect(False);
+      // TODO: use FDataChannel.FDataChannel.Binding.CloseSocket() instead?
     end;
     FreeAndNil(FDataChannel);
   end;
@@ -2725,7 +2737,7 @@ begin
     ASender.Reply.SetReply(331, RSFTPAnonymousUserOkay);
   end else begin
     LContext.UserType := utNormalUser;
-    if Length(ASender.UnparsedParams) > 0 then begin
+    if ASender.UnparsedParams <> '' then begin
       LContext.Username := ASender.UnparsedParams;
       LUserAccounts := FUserAccounts;
       if Assigned(LUserAccounts) then begin
@@ -2761,7 +2773,7 @@ begin
     case LContext.FUserType of
       utAnonymousUser:
       begin
-        LValidated := Length(LContext.Password ) > 0;
+        LValidated := LContext.Password <> '';
         if FAnonymousPassStrictCheck and LValidated then begin
           LValidated := False;
           if FindFirstOf('@.', LContext.Password) > 0 then begin    {Do not Localize}
@@ -3333,7 +3345,7 @@ begin
   LContext := TIdFTPServerContext(ASender.Context);
   if LContext.IsAuthenticated(ASender) then begin
     LALLOSize := '';
-    if Length(ASender.UnparsedParams) > 0 then begin
+    if ASender.UnparsedParams <> '' then begin
       if TextStartsWith(ASender.UnparsedParams, 'R ') then begin {Do not localize}
         LALLOSize := TrimLeft(Copy(s, 3, MaxInt));
       end else begin
@@ -4234,7 +4246,7 @@ begin
   if LContext.IsAuthenticated(ASender) then begin
     LContext.FPASV := False;
     LParm := ASender.UnparsedParams;
-    if Length(LParm) = 0 then begin
+    if LParm = '' then begin
       LContext.FDataPortDenied := True;
       CmdInvalidParamNum(ASender);
       Exit;
@@ -4284,7 +4296,7 @@ begin
       end;
     end;
     LIP := Fetch(LParm, LDelim);
-    if Length(LIP) = 0 then begin
+    if LIP = '' then begin
       LContext.FDataPort := 0;
       LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(500, RSFTPInvalidIP);
@@ -4340,7 +4352,7 @@ begin
     LIPVersion := LContext.Binding.IPVersion;
     LReqIPVersion := LIPVersion;
     LParam := ASender.UnparsedParams;
-    if Length(LParam) > 0 then begin
+    if LParam <> '' then begin
       case IndyStrToInt(LParam, -1) of
         1: begin
           if not GStack.SupportsIPv4 then begin
@@ -4785,12 +4797,24 @@ var
   LGreeting : TIdReplyRFC;
 begin
   AContext.Connection.IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
+
+  // RLebeau 6/11/2020: let the user decide whether to enable SSL in their
+  // own event handler.  Indy should not be making any assumptions about
+  // whether to implicitally force SSL on any given connection.  This
+  // prevents a single server from handling both SSL and non-SSL connections
+  // together.  The whole point of the PassThrough property is to allow
+  // per-connection SSL handling.
+  //
+  // TODO: move this new logic into TIdCustomTCPServer directly somehow
+
   if AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase then begin
     if FUseTLS = utUseImplicitTLS then begin
-      TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
+      TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := 
+        not DoQuerySSLPort(AContext.Binding.Port);
     end;
   end;
-   (AContext as TIdFTPServerContext).FXAUTKey := MakeXAUTKey;
+
+  (AContext as TIdFTPServerContext).FXAUTKey := MakeXAUTKey;
   if Assigned(OnGreeting) then begin
     LGreeting := TIdReplyRFC.Create(nil);
     try
@@ -5317,6 +5341,7 @@ begin
   LFileSystem := FTPFileSystem;
   if Assigned(LFileSystem) then begin
     LFileSystem.GetFileDate(ASender, AFileName, VFileDate);
+    // TODO: use LocalTimeToUniversal() (FPC) or TTimeZone.Local.ToUniversalTime() (DCC) instead
     VFileDate := VFileDate - OffsetFromUTC;
   end else if Assigned(FOnGetFileDate) then begin
     FOnGetFileDate(ASender, AFileName, VFileDate);
@@ -5482,6 +5507,7 @@ procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
     if IsValidTimeStamp(ALSender.Params[0]) then begin
       LFileName := ALSender.UnparsedParams;
       //This is local Time
+      // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
       LgMTime := FTPMLSToGMTDateTime(Fetch(LFileName)) - OffsetFromUTC;
       LFileName := DoProcessPath(AContext, LFileName);
       if Assigned(FOnSiteUTIME) then
@@ -5979,8 +6005,8 @@ begin
       Result := Result + ';';  {Do not localize}
     end;
   end;
-  if Length(Result)>0 then begin
-    IdDelete(Result,Length(Result),1);
+  if Result <> '' then begin
+    SetLength(Result, Length(Result)-1);
   end;
 end;
 

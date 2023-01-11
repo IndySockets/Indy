@@ -141,7 +141,7 @@ begin
     HdrArp.arp_tpa.CopyFrom(ATargetPr);
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, Id_ICMP_ECHO_HSIZE, Length(APayload));
     end;
 
@@ -179,7 +179,7 @@ begin
     HdrDns.dns_num_addi_rr := GStack.HostToNetwork(ANumAddRecs);
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, Id_DNS_HSIZE, Length(APayload));
     end;
 
@@ -217,7 +217,7 @@ begin
     HdrEth.WriteStruct(VBuffer, LIdx);
 
     // copy payload if present
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
@@ -260,7 +260,7 @@ begin
     HdrIp.WriteStruct(VBuffer, LIdx);
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
@@ -290,7 +290,7 @@ begin
     HdrIcmp.icmp_hun.echo_seq := GStack.HostToNetwork(ASeq);
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, Id_ICMP_ECHO_HSIZE, Length(APayload));
     end;
 
@@ -360,7 +360,7 @@ begin
     HdrIcmp.WriteStruct(VBuffer, LIdx);
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
@@ -512,7 +512,7 @@ begin
     HdrIcmp.WriteStruct(VBuffer, LIdx);
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, LIdx, Length(APayload));
     end;
   finally
@@ -617,7 +617,7 @@ begin
     HdrRip.rip_metric   := GStack.HostToNetwork(AMetric);
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, Id_RIP_HSIZE, Length(APayload));
     end;
 
@@ -659,7 +659,7 @@ begin
     HdrTcp.tcp_urp      := AnUrgent;                              // urgent pointer
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, Id_TCP_HSIZE, Length(APayload));
     end;
 
@@ -695,7 +695,7 @@ begin
     HdrUdp.udp_sum      := 0;
 
     // copy payload
-    if Length(APayload) > 0 then begin
+    if APayload <> nil then begin
       CopyTIdBytes(APayload, 0, VBuffer, Id_UDP_HSIZE, Length(APayload));
     end;
 

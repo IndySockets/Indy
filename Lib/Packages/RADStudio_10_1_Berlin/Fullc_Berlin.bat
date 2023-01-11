@@ -67,12 +67,12 @@ REM ************************************************************
 REM Copy over the Source files
 REM ************************************************************
 
-copy IndySystem240.dpk ..\..\..\C24 > nul
-copy IndySystem240.dproj ..\..\..\C24 > nul
-copy *IndyCore240.dpk ..\..\..\C24 > nul
-copy *IndyCore240.dproj ..\..\..\C24 > nul
-copy *IndyProtocols240.dpk ..\..\..\C24 > nul
-copy *IndyProtocols240.dproj ..\..\..\C24 > nul
+copy IndySystem.dpk ..\..\..\C24 > nul
+copy IndySystem.dproj ..\..\..\C24 > nul
+copy *IndyCore.dpk ..\..\..\C24 > nul
+copy *IndyCore.dproj ..\..\..\C24 > nul
+copy *IndyProtocols.dpk ..\..\..\C24 > nul
+copy *IndyProtocols.dproj ..\..\..\C24 > nul
 
 cd ..\..\Source
 copy zlib\i386-Win32-ZLib\*.obj ..\..\C24\ZLib\i386-Win32-ZLib > nul
@@ -90,7 +90,7 @@ REM ************************************************************
 REM Build IndySystem
 REM ************************************************************
 
-msbuild IndySystem240.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild IndySystem.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror2
 
 
@@ -98,13 +98,13 @@ REM ************************************************************
 REM Build IndyCore
 REM ************************************************************
 
-msbuild IndyCore240.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild IndyCore.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror2
 
 REM design time is for Win32 only
 if not "%IndyPlatform%" == "Win32" goto indyprotocols
 
-msbuild dclIndyCore240.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild dclIndyCore.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror2
 
 
@@ -113,13 +113,13 @@ REM Build IndyProtocols
 REM ************************************************************
 :indyprotocols
 
-msbuild IndyProtocols240.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild IndyProtocols.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror2
 
 REM design time is for Win32 only
 if not "%IndyPlatform%" == "Win32" goto copygenerated
 
-msbuild dclIndyProtocols240.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
+msbuild dclIndyProtocols.dproj /t:Rebuild /p:Config=%IndyConfig%;Platform=%IndyPlatform%;DCC_Define="BCB"
 if errorlevel 1 goto enderror2
 
 
@@ -130,6 +130,7 @@ REM ************************************************************
 
 copy ..\Output\hpp\%IndyPlatform%\%IndyConfig%\Id*.hpp %IndyPlatform%\%IndyConfig%
 copy "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
+copy *Indy*.bpl %IndyPlatform%\%IndyConfig%
 copy ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\Indy*.bpi %IndyPlatform%\%IndyConfig%
 if "%IndyPlatform%" == "Win32" copy "..\Output\Obj\%IndyPlatform%\%IndyConfig%\Indy*.Lib" %IndyPlatform%\%IndyConfig%
 copy indysystem.res %IndyPlatform%\%IndyConfig%

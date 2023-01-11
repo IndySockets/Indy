@@ -1,0 +1,14 @@
+#define IDVER_FILEVERSION			11,0,0,0
+#define IDVER_FILEVERSION_STR			"11.0.0.0\0"
+
+#define IDVER_PRODUCTVERSION			11,0,0
+#define IDVER_PRODUCTVERSION_STR		"11.0.0\0"
+
+#define IDVER_FILEDESC_RTPKG_CORE_STR		"Internet Direct (Indy) 11.0.0 - Core Run-Time Package\0"
+#define IDVER_FILEDESC_RTPKG_PROTOCOLS_STR	"Internet Direct (Indy) 11.0.0 - Protocols Run-Time Package\0"
+#define IDVER_FILEDESC_RTPKG_SYSTEM_STR		"Internet Direct (Indy) 11.0.0 - System Run-Time Package\0"
+
+#define IDVER_FILEDESC_DTPKG_CORE_STR		"Internet Direct (Indy) 11.0.0 - Core Design-Time Package\0"
+#define IDVER_FILEDESC_DTPKG_PROTOCOLS_STR	"Internet Direct (Indy) 11.0.0 - Protocols Design-Time Package\0"
+
+

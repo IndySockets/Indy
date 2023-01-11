@@ -207,6 +207,11 @@ type
     class function GenerateBoundary: String;
   end;
 
+  TIdMIMEFilenamePathDelimiterAction = (actTruncatePath, actReplaceWithUnderscore);
+
+var
+  DecodeFilenamePathDelimiterAction: TIdMIMEFilenamePathDelimiterAction = actReplaceWithUnderscore;
+
 implementation
 
 uses
@@ -571,7 +576,9 @@ begin
     // Get filename from Content-Type
     LValue := ExtractHeaderSubItem(AContentType, 'name', QuoteMIME); {do not localize}
   end;
-  if Length(LValue) > 0 then begin
+  if LValue <> '' then begin
+    // TODO: if the '=?charset?encoding?data?=' MIME format is not detected,
+    // decode as raw UTF-8 if no other charset is known, per RFC 7578 section 5.1.3...
     Result := RemoveInvalidCharsFromFilename(DecodeHeader(LValue));
   end else begin
     Result := '';
@@ -667,7 +674,7 @@ begin
     if IsHeaderMediaType(s, 'multipart') then begin  {do not localize}
       ABoundary := ExtractHeaderSubItem(s, 'boundary', QuoteMIME);  {do not localize}
       if Owner is TIdMessage then begin
-        if Length(ABoundary) > 0 then begin
+        if ABoundary <> '' then begin
           TIdMessage(Owner).MIMEBoundary.Push(ABoundary, TIdMessage(Owner).MessageParts.Count);
           // Also update current boundary
           FMIMEBoundary := ABoundary;
@@ -695,10 +702,12 @@ var
 begin
   Result := AFilename;
   //First, strip any Windows or Unix path...
-  for LN := Length(Result) downto 1 do begin
-    if ((Result[LN] = '/') or (Result[LN] = '\')) then begin  {do not localize}
-      Result := Copy(Result, LN+1, MaxInt);
-      Break;
+  if DecodeFilenamePathDelimiterAction = actTruncatePath then begin
+    for LN := Length(Result) downto 1 do begin
+      if ((Result[LN] = '/') or (Result[LN] = '\')) then begin  {do not localize}
+        Result := Copy(Result, LN+1, MaxInt);
+        Break;
+      end;
     end;
   end;
   //Now remove any invalid filename chars.

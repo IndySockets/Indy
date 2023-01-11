@@ -507,6 +507,7 @@ begin
     if TextIsSame(LTimeStr, 'GMT') then  {do not localize}
     begin
       // Apply local offset
+      // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
       Result := Result + OffsetFromUTC;
     end;
   end else begin
@@ -1320,11 +1321,11 @@ begin
       if Assigned(FOnCheckListGroup) and Assigned(FOnListGroup) then begin
         LContext := TIdNNTPContext(ASender.Context);
         LGroup := Trim(ASender.UnparsedParams);
-        if Length(LGroup) = 0 then begin
+        if LGroup = '' then begin
           LGroup := LContext.CurrentGroup;
         end;
         LCanJoin := False;
-        if Length(LGroup) > 0 then begin
+        if LGroup <> '' then begin
           FOnCheckListGroup(LContext, LGroup, LCanJoin, LFirstIdx);
         end;
         if LCanJoin then begin
@@ -1595,6 +1596,7 @@ begin
         LDate := LDate + NNTPTimeToTime(ASender.Params[1]);
         if ASender.Params.Count > 2 then begin
           if TextIsSame(ASender.Params[2], 'GMT') then begin {Do not translate}
+            // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
             LDate := LDate + OffSetFromUTC;
             if ASender.Params.Count > 3 then begin
               LDist := ASender.Params[3];
@@ -1631,6 +1633,7 @@ begin
         LDate := LDate + NNTPTimeToTime(ASender.Params[2]);
         if ASender.Params.Count > 3 then begin
           if TextIsSame(ASender.Params[3], 'GMT') then begin {Do not translate}
+            // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
             LDate := LDate + OffsetFromUTC;
             if ASender.Params.Count > 4 then begin
               LDist := ASender.Params[4];
@@ -2796,7 +2799,7 @@ var
 begin
   if (atGeneric in SupportedAuthTypes) and Assigned(FOnAuth) then begin
     s := Trim(ASender.UnparsedParams);
-    if (Length(s) > 0) and (IndyPos('..', s) = 0) then begin
+    if (s <> nil) and (IndyPos('..', s) = 0) then begin
       LContext := TIdNNTPContext(ASender.Context);
       LContext.FAuthenticator := Fetch(s);
       LContext.FAuthParams := Trim(s);
@@ -2841,7 +2844,7 @@ begin
 
   LIsMsgID := TextStartsWith(s, '<');
   if not LIsMsgID then begin
-    if Length(LContext.CurrentGroup) = 0 then begin
+    if LContext.CurrentGroup = '' then begin
       ASender.Reply.NumericCode := 412; // No newsgroup has been selected
       Exit;
     end;
@@ -2861,7 +2864,7 @@ begin
     }
   end
   else begin
-    if Length(s) = 0 then begin
+    if s = '' then begin
       VNo := LContext.CurrentArticle;
       if VNo <= 0 then begin
         ASender.Reply.NumericCode := 420;  // Current article not set.
@@ -2873,7 +2876,7 @@ begin
       if VNo > 0 then begin
         VId := DoCheckMsgNo(LContext, VNo);
       end;
-      if Length(VId) = 0 then begin
+      if VId = '' then begin
         ASender.Reply.NumericCode := 423;  // Article does not exist
         Exit;
       end;
@@ -2893,14 +2896,14 @@ begin
   Result := False;
   LContext := TIdNNTPContext(ASender.Context);
 
-  if Length(LContext.CurrentGroup) = 0 then begin
+  if LContext.CurrentGroup = '' then begin
     ASender.Reply.NumericCode := 412;
     Exit;
   end;
 
   s := Trim(AData);
 
-  if Length(s) = 0 then begin
+  if s = '' then begin
     IsRange := False;
     VMsgFirst := LContext.CurrentArticle;
   end else begin
@@ -2919,7 +2922,7 @@ begin
 
   if IsRange then begin
     s := Trim(s);
-    if Length(s) = 0 then begin
+    if s = '' then begin
       VMsgLast := 0;  // return all from VMsgFirst onwards
     end else begin
       VMsgLast := IndyStrToInt64(s, 0);

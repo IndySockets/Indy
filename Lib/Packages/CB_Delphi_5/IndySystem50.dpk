@@ -1,0 +1,47 @@
+package IndySystem50;
+
+{$R *.res}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  Vcl50;
+
+contains
+  IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\IdBaseComponent.pas',
+  IdCTypes in '..\..\Source\IdCTypes.pas',
+  IdComponent in '..\..\Source\IdComponent.pas',
+  IdException in '..\..\Source\IdException.pas',
+  IdGlobal in '..\..\Source\IdGlobal.pas',
+  IdIDN in '..\..\Source\IdIDN.pas',
+  IdResourceStrings in '..\..\Source\IdResourceStrings.pas',
+  IdStack in '..\..\Source\IdStack.pas',
+  IdStackBSDBase in '..\..\Source\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Source\IdStackConsts.pas',
+  IdStackWindows in '..\..\Source\IdStackWindows.pas',
+  IdStream in '..\..\Source\IdStream.pas',
+  IdStreamVCL in '..\..\Source\IdStreamVCL.pas',
+  IdStruct in '..\..\Source\IdStruct.pas',
+  IdWinsock2 in '..\..\Source\IdWinsock2.pas',
+  IdWship6 in '..\..\Source\IdWship6.pas';
+
+// LIBSUFFIX does not exist in this version!
+
+end.

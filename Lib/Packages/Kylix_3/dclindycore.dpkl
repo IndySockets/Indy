@@ -1,0 +1,48 @@
+package dclindycore;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST ON}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $600000}
+{$DESCRIPTION 'Internet Direct (Indy) 10.00.0.17-B - Core 10.00.0.17-B'}
+{$SONAME 'dclindycore.so.6.9'}
+{$LIBPREFIX ''}
+{$LIBVERSION '.6.9.0'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  designide,
+  indycore;
+
+contains
+  IdAbout in '..\..\Source\IdAbout.pas',
+  IdAntiFreeze in '..\..\Source\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Source\IdCoreDsnRegister.pas',
+  IdCoreRegister in '..\..\Source\IdCoreRegister.pas',
+  IdDsnBaseCmpEdt in '..\..\Source\IdDsnBaseCmpEdt.pas',
+  IdDsnCoreResourceStrings in '..\..\Source\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBinding in '..\..\Source\IdDsnPropEdBinding.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
+
+end.

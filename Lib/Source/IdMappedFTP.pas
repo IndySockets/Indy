@@ -202,7 +202,7 @@ var
 begin
   repeat
     s := Connection.IOHandler.ReadLn;  //USeR REQuest
-    if Length(s) > 0 then
+    if s <> '' then
     begin
       FFtpParams := s;
       FFtpCommand := UpperCase(Fetch(FFtpParams, ' ', True));    {Do not Localize}
@@ -404,7 +404,7 @@ End;}
 
 function TIdMappedFtpContext.GetFtpCmdLine: string;
 begin
-  if Length(FFtpParams) > 0 then begin
+  if FFtpParams <> '' then begin
     Result := FFtpCommand + ' ' + FFtpParams;    {Do not Localize}
   end else begin
     Result := FFtpCommand;
@@ -476,7 +476,7 @@ begin
             Connection.IOHandler.CheckForDataOnSource(0);
             SetLength(FNetData, 0);
             Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
-            if Length(FNetData) > 0 then
+            if FNetData <> nil then
             begin
               // TODO: DoLocalClientData(TIdMappedPortThread(AThread));//bServer
               FOutboundClient.IOHandler.Write(FNetData);
@@ -487,7 +487,7 @@ begin
             Connection.IOHandler.CheckForDataOnSource(0);
             SetLength(FNetData, 0);
             FOutboundClient.IOHandler.InputBuffer.ExtractToBytes(FNetData);
-            if Length(FNetData) > 0 then
+            if FNetData <> nil then
             begin
               // TODO: DoOutboundClientData(TIdMappedPortThread(AThread));
               FConnection.IOHandler.Write(FNetData);

@@ -117,21 +117,22 @@ procedure TIdCustomMappedTelnet.ExtractHostAndPortFromLine(AContext: TIdMappedPo
   const AHostPort: String);
 var
   LHost, LPort: String;
-  i : Integer;
+  i, LHostPortLen : Integer;
 Begin
   LHost := '';    {Do not Localize}
   LPort := '';    {Do not Localize}
 
-  if Length(AHostPort) > 0 then
+  LHostPortLen := Length(AHostPort);
+  if LHostPortLen > 0 then
   begin
     i := 1;
-    while (i <= Length(AHostPort)) and (not CharIsInSet(AHostPort, i, NAMESEP)) do
+    while (i <= LHostPortLen) and (not CharIsInSet(AHostPort, i, NAMESEP)) do
     begin
       LHost := LHost + AHostPort[i];
       Inc(i);
     end;
     Inc(i);
-    while (i <= Length(AHostPort)) and (not CharIsInSet(AHostPort, i, NAMESEP)) do
+    while (i <= LHostPortLen) and (not CharIsInSet(AHostPort, i, NAMESEP)) do
     begin
       LPort := LPort + AHostPort[i];
       Inc(i);
@@ -142,11 +143,11 @@ Begin
 
   DoCheckHostPort(AContext, AHostPort, LHost, LPort);
 
-  if Length(LHost) > 0 then begin
+  if LHost <> '' then begin
     TIdTcpClient(AContext.OutboundClient).Host := LHost;
   end;
 
-  if Length(LPort) > 0 then begin
+  if LPort <> '' then begin
     TIdTcpClient(AContext.OutboundClient).Port := IndyStrToInt(LPort, TIdTcpClient(AContext.OutboundClient).Port);
   end;
 end;
@@ -176,7 +177,7 @@ begin
       LHostPort := Trim(Connection.IOHandler.InputLn); //~telnet input
       LServer.ExtractHostAndPortFromLine(Self, LHostPort);
 
-      if Length(LClient.Host) < 1 then begin
+      if LClient.Host = '' then begin
         raise EIdException.Create(RSEmptyHost);
       end;
 

@@ -216,7 +216,7 @@ end;
 
 procedure TIdComponent.EndWork(AWorkMode: TWorkMode);
 var
-  // under ARC, convert a weak reference to a strong reference before working with it
+  // under ARC, convert a weak/unsafe reference to a strong reference before working with it
   LWorkTarget: TIdComponent;
 begin
   LWorkTarget := FWorkTarget;

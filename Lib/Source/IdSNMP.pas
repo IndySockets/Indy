@@ -213,8 +213,8 @@ begin
   begin
     t := '';    {Do not Localize}
     s := Copy(Host, IndyPos('.', Host), Length(Host));    {Do not Localize}
-    t := Copy(Host, 1, (Length(Host) - Length(s)));
-    Delete(Host, 1, (Length(Host) - Length(s) + 1));
+    t := Copy(Host, 1, Length(Host) - Length(s));
+    Delete(Host, 1, Length(t) + 1);
     i := IndyStrToInt(t, 0);
     Result := Result + Chr(i);
   end;

@@ -1181,7 +1181,7 @@ var
   i : Integer;
 begin
   inherited Parse(CompleteMessage, APos);
-  if Length(RData) > 0 then begin
+  if RData <> nil then begin
     if Length(RData) < 16 then begin
       raise EIdNotEnoughData.Create('');
     end;
@@ -1221,7 +1221,7 @@ procedure TIdDNSResolver.CreateQuery(ADomain: string; SOARR : TIdRR_SOA;
     LLen : Byte;
   begin
     SetLength(Result, 0);
-    while Length(ADNS) > 0 do begin
+    while ADNS <> '' do begin
       BufStr := Fetch(ADNS, '.');    {Do not Localize}
       LLen := Length(BufStr);
       AppendByte(Result, LLen);
@@ -1460,7 +1460,7 @@ begin
     raise EIdDnsResolverError.Create(GetErrorStr(5, 29));
   end;
 {
-  if Length(AResult) < Self.FQuestionLength then begin
+  if Length(AResult) < FQuestionLength then begin
     raise EIdDnsResolverError.Create(GetErrorStr(5, 30));
   end;
 }

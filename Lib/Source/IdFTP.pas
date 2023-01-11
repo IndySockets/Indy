@@ -1230,7 +1230,7 @@ begin
       //I think  fpcmTransparent means to connect to the regular host and the firewalll
       //intercepts the login information.
       if (ProxySettings.ProxyType <> fpcmNone) and (ProxySettings.ProxyType <> fpcmTransparent) and
-        (Length(ProxySettings.Host) > 0) then begin
+        (ProxySettings.Host <> '') then begin
         FHost := ProxySettings.Host;
         FPort := ProxySettings.Port;
       end;
@@ -1686,6 +1686,8 @@ var
   LPort: TIdPort;
   LPasvCl : TIdTCPClient;
   LPortSv : TIdSimpleServer;
+  LSocketList, LReadList: TIdSocketList;
+  LDataSocket: TIdStackSocketHandle;
   // under ARC, convert a weak reference to a strong reference before working with it
   LCompressor : TIdZLibCompressorBase;
 begin
@@ -1714,10 +1716,14 @@ begin
       end else begin
         SendPassive(LIP, LPort);
       end;
+
+      // TODO: InternalGet() does not send these commands until after the data channel
+      // is established, should we be doing the same here?
       if AResume then begin
         Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
       end;
       IOHandler.WriteLn(ACommand);
+      //
 
       if Socket <> nil then begin
         FDataChannel := TIdTCPClient.Create(nil);
@@ -1752,7 +1758,7 @@ begin
           try
             if FDataChannel <> nil then begin
               if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-                TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+                TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
               end;
               if Assigned(LCompressor) then begin
                 LCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
@@ -1811,7 +1817,78 @@ begin
           end else begin
             SendPort(LPortSv.Binding);
           end;
-        end else begin
+
+          if AResume then begin
+            Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
+          end;
+
+          // RLebeau 5/15/2020: there are some FTP servers (vsFTPd, etc) that will try to
+          // establish the transfer connection as soon as they receive the STOR/STOU/APPE
+          // command and before sending a response, thus causing SendCmd() to hang and the
+          // connection to fail. Per RFC 959 Section 3.2:
+          //
+          // "The passive data transfer process (this may be a user-DTP or a second server-DTP)
+          // shall "listen" on the data port prior to sending a transfer request command.  The
+          // FTP request command determines the direction of the data transfer.  The server,
+          // upon receiving the transfer request, will initiate the data connection to the port.
+          // When the connection is established, the data transfer begins between DTP's, and the
+          // server-PI sends a confirming reply to the user-PI."
+          //
+          // So, since we have now seen cases where a server sends a reply first and then opens
+          // the connection, and cases where a server opens the connection first and then sends
+          // a reply, we need to monitor both ports simultaneously and act accordingly...
+
+          //Self.SendCmd(ACommand, [125, 150]);
+
+          LSocketList := TIdSocketList.CreateSocketList;
+          try
+            LDataSocket := LPortSv.Binding.Handle;
+
+            LSocketList.Add(Socket.Binding.Handle);
+            LSocketList.Add(LDataSocket);
+
+            IOHandler.WriteLn(ACommand);
+
+            LReadList := nil;
+            if not LSocketList.SelectReadList(LReadList, ListenTimeout) then begin
+              raise EIdAcceptTimeout.Create(RSAcceptTimeout);
+            end;
+            try
+              if LReadList.ContainsSocket(LDataSocket) then
+              begin
+                LPortSv.Listen(0);
+                Self.GetResponse([125, 150]);
+              end else
+              begin
+                Self.GetResponse([125, 150]);
+                LPortSv.Listen(ListenTimeout); // TODO: minus elapsed time already used by SelectReadList()
+              end;
+            finally
+              LReadList.Free;
+            end;
+          finally
+            LSocketList.Free;
+          end;
+
+          if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
+            TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
+          end;
+          if Assigned(LCompressor) then begin
+            LCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
+              FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
+          end
+          else if AFromBeginning then begin
+            {$IFNDEF WINDOWS}
+            WriteStreamFromBeginning;
+            {$ELSE}
+            FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
+            {$ENDIF}
+          end else begin
+            FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
+          end;
+
+        end else
+        begin
           // TODO:
           {
           if FUsingExtDataPort then begin
@@ -1820,32 +1897,12 @@ begin
             SendPort(?);
           end;
           }
-        end;
 
-        if AResume then begin
-          Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
-        end;
-        Self.SendCmd(ACommand, [125, 150]);
+          if AResume then begin
+            Self.SendCmd('REST ' + IntToStr(ASource.Position), [350]);   {do not localize}
+          end;
+          Self.SendCmd(ACommand, [125, 150]);
 
-        if LPortSv <> nil then begin
-          LPortSv.Listen(ListenTimeout);
-          if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-            TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
-          end;
-          if Assigned(LCompressor) then begin
-            LCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
-              FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
-          end else begin
-            if AFromBeginning then begin
-              {$IFNDEF WINDOWS}
-              WriteStreamFromBeginning;
-              {$ELSE}
-              FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
-              {$ENDIF}
-            end else begin
-              FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
-            end;
-          end;
         end;
       finally
         FinalizeDataOperation;
@@ -1878,6 +1935,8 @@ var
   LPort: TIdPort;
   LPasvCl : TIdTCPClient;
   LPortSv : TIdSimpleServer;
+  LSocketList, LReadList: TIdSocketList;
+  LDataSocket: TIdStackSocketHandle;
   // under ARC, convert a weak reference to a strong reference before working with it
   LCompressor: TIdZLibCompressorBase;
 begin
@@ -1944,7 +2003,7 @@ begin
         begin
           if LPasvCl <> nil then begin
             if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-              TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+              TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
             end;
             if Assigned(LCompressor) then begin
               LCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
@@ -1987,24 +2046,58 @@ begin
         end else begin
           SendPort(LPortSv.Binding);
         end;
-      end else begin
-        // TODO:
-        {
-        if FUsingExtDataPort then begin
-          SendEPort(?);
-        end else begin
-          SendPort(?);
+
+        if AResume then begin
+          SendCmd('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
         end;
-        }
-      end;
 
-      if AResume then begin
-        SendCmd('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
-      end;
-      SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
+        // RLebeau 5/15/2020: there are some FTP servers (vsFTPd, etc) that will try to
+        // establish the transfer connection as soon as they receive the STOR/STOU/APPE
+        // command and before sending a response, thus causing SendCmd() to hang and the
+        // connection to fail. Per RFC 959 Section 3.2:
+        //
+        // "The passive data transfer process (this may be a user-DTP or a second server-DTP)
+        // shall "listen" on the data port prior to sending a transfer request command.  The
+        // FTP request command determines the direction of the data transfer.  The server,
+        // upon receiving the transfer request, will initiate the data connection to the port.
+        // When the connection is established, the data transfer begins between DTP's, and the
+        // server-PI sends a confirming reply to the user-PI."
+        //
+        // So, since we have now seen cases where a server sends a reply first and then opens
+        // the connection, and cases where a server opens the connection first and then sends
+        // a reply, we need to monitor both ports simultaneously and act accordingly...
 
-      if LPortSv <> nil then begin
-        LPortSv.Listen(ListenTimeout);
+        //SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
+        LSocketList := TIdSocketList.CreateSocketList;
+        try
+          LDataSocket := LPortSv.Binding.Handle;
+
+          LSocketList.Add(Socket.Binding.Handle);
+          LSocketList.Add(LDataSocket);
+
+          IOHandler.WriteLn(ACommand);
+
+          LReadList := nil;
+          if not LSocketList.SelectReadList(LReadList, ListenTimeout) then begin
+            raise EIdAcceptTimeout.Create(RSAcceptTimeout);
+          end;
+          try
+            if LReadList.ContainsSocket(LDataSocket) then
+            begin
+              LPortSv.Listen(0);
+              Self.GetResponse([125, 150, 154]);
+            end else
+            begin
+              Self.GetResponse([125, 150, 154]);
+              LPortSv.Listen(ListenTimeout); // TODO: minus elapsed time already used by SelectReadList()
+            end;
+          finally
+            LReadList.Free;
+          end;
+        finally
+          LSocketList.Free;
+        end;
+
         if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
           TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
         end;
@@ -2013,6 +2106,23 @@ begin
         end else begin
           FDataChannel.IOHandler.ReadStream(ADest, -1, True);
         end;
+
+      end else
+      begin
+        // TODO:
+        {
+        if FUsingExtDataPort then begin
+          SendEPort(?);
+        end else begin
+          SendPort(?);
+        end;
+        }
+
+        if AResume then begin
+          SendCmd('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
+        end;
+        SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
+
       end;
     finally
       FinalizeDataOperation;
@@ -2620,11 +2730,11 @@ var
   end;
 
 begin
-//This has to be here because the Rein command clears encryption.
-//RFC 4217
   //TLS part
-  FUsingSFTP := False;
   if UseTLS in ExplicitTLSVals then begin
+    //This has to be here because the Rein command clears encryption.
+    //RFC 4217
+    FUsingSFTP := False;
     if FAUTHCmd = tAuto then begin
       {Note that we can not call SupportsTLS at all.  That depends upon the FEAT response
       and unfortunately, some servers such as WS_FTP Server 4.0.0 (78162662)
@@ -2665,10 +2775,15 @@ begin
         ProcessTLSNegCmdFailed;
       end;
     end;
-  end;
-  // TODO: should this be moved inside the 'if UseTLS in ExplicitTLSVals' block?
-  if not FUsingSFTP then begin
-    ProcessTLSNotAvail;
+    if not FUsingSFTP then begin
+      ProcessTLSNotAvail;
+    end;
+  end
+  else if UseTLS = utUseImplicitTLS then begin
+    FUsingSFTP := True;
+  end
+  else begin
+    FUsingSFTP := False;
   end;
   //login
   case ProxySettings.ProxyType of
@@ -2702,7 +2817,7 @@ begin
   fpcmUserSite:
     begin
       //This also supports WinProxy
-      if Length(ProxySettings.UserName) > 0 then begin
+      if ProxySettings.UserName <> '' then begin
         if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then {do not localize}
         begin
           SendCmd('PASS ' + ProxySettings.Password, 230); {do not localize}
@@ -2730,7 +2845,7 @@ begin
     end;
   fpcmSite:
     begin
-      if Length(ProxySettings.UserName) > 0 then begin
+      if ProxySettings.UserName <> '' then begin
         if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin {do not localize}
           SendCmd('PASS ' + ProxySettings.Password, 230); {do not localize}
         end;
@@ -2749,7 +2864,7 @@ begin
     end;
   fpcmOpen:
     begin
-      if Length(ProxySettings.UserName) > 0 then begin
+      if ProxySettings.UserName <> '' then begin
         if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin   {do not localize}
           SendCmd('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
           if IsAccountNeeded then begin
@@ -2777,7 +2892,7 @@ begin
     begin
       if SendCmd(IndyFormat('USER %s@%s@%s',
         [FUserName, ProxySettings.UserName, FtpHost]), [230, 232, 331]) = 331 then begin    {do not localize}
-        if Length(ProxySettings.Password) > 0 then begin
+        if ProxySettings.Password <> '' then begin
           SendCmd('PASS ' + GetLoginPassword + '@' + ProxySettings.Password, [230, 332]); {do not localize}
         end else begin
           //// needs otp ////
@@ -2796,7 +2911,7 @@ begin
     begin
       //I think  fpcmTransparent means to connect to the regular host and the firewalll
       //intercepts the login information.
-      if Length(ProxySettings.UserName) > 0 then begin
+      if ProxySettings.UserName <> '' then begin
         if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin    {do not localize}
           SendCmd('PASS ' + ProxySettings.Password, [230,332]);     {do not localize}
         end;
@@ -2964,7 +3079,10 @@ begin
       if FUseCCC then begin
         FUsingCCC := (SendCmd('CCC') div 100) = 2; {do not localize}
         if FUsingCCC then begin
-         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
+          (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
+          // TODO: uncomment this? Reinitialize() resets them after setting PassThrough=True...
+          {FUsingSFTP := False;
+          FUseCCC := False;}
         end;
       end;
     end;
@@ -3851,6 +3969,7 @@ begin
   //syntax 3 - MDTM [local timestamp] Filename
   else if FTZInfo.FGMTOffsetAvailable then begin
     //send it relative to the server's time-zone
+    // TODO: use LocalTimeToUniversal() (FPC) or TTimeZone.Local.ToUniversalTime() (DCC) instead
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(ALocalTime - OffSetFromUTC + FTZInfo.FGMTOffset, False, False) + ' ' + AFileName; {do not localize}
   end
   
@@ -3894,6 +4013,7 @@ begin
   //Syntax 2 -  MDTM yyyymmddhhmmss[+-minutes from Universal Time] Filename
   //use old method for old versions of Serv-U and BPFTP Server
   else if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ] filename') > 0) or IsOldServU or IsBPFTP then begin {do not localize}
+    // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC, False, True) + ' ' + AFileName; {do not localize}
   end
   
@@ -3904,6 +4024,7 @@ begin
   end
 
   else begin
+    // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
     LCmd := 'MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC, False, False) + ' ' + AFileName; {do not localize}
   end;
 

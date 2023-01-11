@@ -373,8 +373,8 @@ type
 
   TIdInterfacedObject = class (TInterfacedObject)
   public
-    function _AddRef: Integer;
-    function _Release: Integer;
+    function _AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
+    function _Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
   end deprecated 'Use TInterfacedObject';
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
@@ -448,6 +448,7 @@ type
   function GetMIMETypeFromFile(const AFile: String): string;
   function GetMIMEDefaultFileExt(const MIMEType: string): String;
   function GetGMTDateByName(const AFileName : String) : TDateTime;
+  function GetGMTOffsetStr(const S: string): string;
   function GmtOffsetStrToDateTime(const S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
   function CookieStrToLocalDateTime(S: string): TDateTime;
@@ -473,9 +474,12 @@ type
 
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
+
   // still to figure out how to reproduce these under .Net
+  // TODO: deprecate these, as Indy does not use them at all...
   function ROL(const AVal: UInt32; AShift: Byte): UInt32;
   function ROR(const AVal: UInt32; AShift: Byte): UInt32;
+
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
   function IndySetLocalTime(Value: TDateTime): Boolean;
 
@@ -485,7 +489,7 @@ type
   function StrToDay(const ADay: string): Byte;
   function StrToMonth(const AMonth: string): Byte;
   function StrToWord(const Value: String): Word;
-  function TimeZoneBias: TDateTime;
+  function TimeZoneBias: TDateTime; deprecated 'Use IdGlobal.LocalTimeToUTCTime() or IdGlobal.UTCTimeToLocalTime()';
    //these are for FSP but may also help with MySQL
   function UnixDateTimeToDelphiDateTime(UnixDateTime: UInt32): TDateTime;
   function DateTimeToUnix(ADateTime: TDateTime): UInt32;
@@ -552,14 +556,15 @@ uses
   IdIPAddress,
   {$IFDEF UNIX}
     {$IF DEFINED(USE_VCL_POSIX)}
-  DateUtils,
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
     {$ELSEIF DEFINED(KYLIXCOMPAT)}
   Libc,
     {$ELSEIF DEFINED(USE_BASEUNIX)}
   BaseUnix, Unix,
-  DateUtils,
     {$IFEND}
+  {$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}
+  DateUtils,
   {$ENDIF}
   {$IFDEF WINDOWS}
   Messages,
@@ -1010,7 +1015,7 @@ begin
   VDateTime := 0.0;
 
   Value := Trim(Value);
-  if Length(Value) = 0 then begin
+  if Value = '' then begin
     Exit;
   end;
 
@@ -1187,7 +1192,7 @@ begin
   if ATimeStamp <> '' then begin
     Result := FTPMLSToGMTDateTime(ATimeStamp);
     // Apply local offset
-    Result := Result + OffsetFromUTC;
+    Result := UTCTimeToLocalTime(Result);
   end;
 end;
 
@@ -1213,7 +1218,7 @@ stamps based on GMT)
 function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := FTPGMTDateTimeToMLS(ATimeStamp - OffsetFromUTC, AIncludeMSecs);
+  Result := FTPGMTDateTimeToMLS(LocalTimeToUTCTime(ATimeStamp), AIncludeMSecs);
 end;
 
 
@@ -1264,7 +1269,7 @@ begin
       Inc(iPos);
     end ;
     sTemp := Trim(Copy(Value, iStart, iEnd - iStart));
-    if Length(sTemp) > 0 then begin
+    if sTemp <> '' then begin
       AList.Add(sTemp);
     end;
     iPos := iEnd + 1 ;
@@ -1289,6 +1294,7 @@ begin
   {$IFDEF WINDOWS}
 
   {$IFDEF WIN32_OR_WIN64}
+  // TODO: use SetThreadErrorMode() instead, when available...
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try
   {$ENDIF}
@@ -1583,9 +1589,11 @@ begin
     ready or there's some other critical I/O error.
     }
     {$IFDEF WIN32_OR_WIN64}
+    // TODO: use SetThreadErrorMode() instead, when available...
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
     try
     {$ENDIF}
+      // TODO: use GetFileAttributesEx(GetFileExInfoStandard) if available...
       LHandle := Windows.FindFirstFile(PChar(AFileName), LRec);
       if LHandle <> INVALID_HANDLE_VALUE then begin
         Windows.FindClose(LHandle);
@@ -1665,6 +1673,7 @@ begin
 
   if not IsVolume(AFileName) then begin
     {$IFDEF WIN32_OR_WIN64}
+    // TODO: use SetThreadErrorMode() instead, when available...
     LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
     try
     {$ENDIF}
@@ -1739,30 +1748,9 @@ begin
 end;
 
 function TimeZoneBias: TDateTime;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-{$IF (NOT DEFINED(FPC)) AND DEFINED(UNIX)}
-var
-  T: Time_T;
-  TV: TimeVal;
-  UT: {$IFDEF USE_VCL_POSIX}tm{$ELSE}TUnixTime{$ENDIF};
-{$IFEND}
+  {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  {$IF (NOT DEFINED(FPC)) AND DEFINED(UNIX)}
-  // TODO: use OffsetFromUTC() here. It has this same Unix logic in it, though
-  // oddly it does NOT return a value that needs to be multiplied by -1 on this
-  // platform, but does on other platforms!
-  //
-  //Result := {-}OffsetFromUTC;
-
-  {from http://edn.embarcadero.com/article/27890 }
-  gettimeofday(TV, nil);
-  T := TV.tv_sec;
-  localtime_r({$IFNDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
-// __tm_gmtoff is the bias in seconds from the UTC to the current time.
-  Result := {-1 *} (UT.{$IFNDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
-  {$ELSE}
   Result := -OffsetFromUTC;
-  {$IFEND}
 end;
 
 function IndyStrToBool(const AString : String) : Boolean;
@@ -2115,7 +2103,7 @@ begin
         If IsNumeric(AText[i]) then begin
           LNum := LNum + AText[i];
           if IndyStrToInt(LNum, 0) > $FF then begin
-            IdDelete(LNum,Length(LNum),1);
+            SetLength(LNum, Length(LNum)-1);
             Result := Result + Char(IndyStrToInt(LNum, 0));
             LR := Data;
             Result := Result + AText[i];
@@ -2132,7 +2120,7 @@ begin
         If IsHex(AText[i]) and (Length(LNum) < 2) then begin
           LNum := LNum + AText[i];
           if IndyStrToInt('$'+LNum, 0) > $FF  then begin
-            IdDelete(LNum,Length(LNum),1);
+            SetLength(LNum, Length(LNum)-1);
             Result := Result + Char(IndyStrToInt(LNum,0));
             LR := Data;
             Result := Result + AText[i];
@@ -2149,7 +2137,7 @@ begin
         If IsBinary(AText[i]) and (Length(LNum)<8) then begin
           LNum := LNum + AText[i];
           if (BinStrToInt(LNum)>$FF) then begin
-            IdDelete(LNum,Length(LNum),1);
+            SetLength(LNum, Length(LNum)-1);
             Result := Result + Char(BinStrToInt(LNum));
             LR := Data;
             Result := Result + AText[i];
@@ -2506,6 +2494,16 @@ begin
   Result := '-0000' {do not localize}
 end;
 
+function GetGMTOffsetStr(const S: string): string;
+var
+  Ignored: TDateTime;
+begin
+  Result := S;
+  if not RawStrInternetToDateTime(Result, Ignored) then begin
+    Result := '';
+  end;
+end;
+
 function GmtOffsetStrToDateTime(const S: string): TDateTime;
 var
   sTmp: String;
@@ -2513,7 +2511,7 @@ begin
   Result := 0.0;
   sTmp := Trim(S);
   sTmp := Fetch(sTmp);
-  if Length(sTmp) > 0 then begin
+  if sTmp <> '' then begin
     if not CharIsInSet(sTmp, 1, '-+') then begin {do not localize}
       sTmp := TimeZoneToGmtOffsetStr(sTmp);
     end else
@@ -2551,7 +2549,7 @@ begin
   if RawStrInternetToDateTime(S, Result) then begin
     DateTimeOffset := GmtOffsetStrToDateTime(S);
     {-Apply GMT and local offsets}
-    Result := Result - DateTimeOffset + OffsetFromUTC;
+    Result := UTCTimeToLocalTime(Result - DateTimeOffset);
   end;
 end;
 
@@ -2793,7 +2791,8 @@ begin
       raise Exception.Create('Invalid Cookie Date format');
     end;
 
-    Result := EncodeDate(LYear, LMonth, LDayOfMonth) + EncodeTime(LHour, LMinute, LSecond, 0) + OffsetFromUTC;
+    Result := EncodeDate(LYear, LMonth, LDayOfMonth) + EncodeTime(LHour, LMinute, LSecond, 0);
+    Result := UTCTimeToLocalTime(Result);
   except
     Result := 0.0;
   end;
@@ -3345,7 +3344,7 @@ begin
         if TextStartsWith(LExt, '.') then begin  {do not localize}
           if Reg.OpenKeyReadOnly(LExt) then begin
             s := Reg.ReadString('Content Type');  {do not localize}
-            if Length(s) > 0 then begin
+            if s <> '' then begin
               AMIMEList.Values[IndyLowerCase(LExt)] := IndyLowerCase(s);
             end;
             Reg.CloseKey;
@@ -3361,7 +3360,7 @@ begin
         for i := 0 to KeyList.Count - 1 do begin
           if Reg.OpenKeyReadOnly('\MIME\Database\Content Type\' + KeyList[i]) then begin {do not localize}
             LExt := IndyLowerCase(Reg.ReadString('Extension'));  {do not localize}
-            if Length(LExt) > 0 then begin
+            if LExt <> '' then begin
               if LExt[1] <> '.' then begin
                 LExt := '.' + LExt; {do not localize}
               end;
@@ -3404,7 +3403,7 @@ var
 begin
   { Check and fix extension }
   LExt := IndyLowerCase(Ext);
-  if Length(LExt) = 0 then begin
+  if LExt = '' then begin
     if ARaiseOnError then begin
       raise EIdException.Create(RSMIMEExtensionEmpty);
     end;
@@ -3412,7 +3411,7 @@ begin
   end;
   { Check and fix MIMEType }
   LMIMEType := IndyLowerCase(MIMEType);
-  if Length(LMIMEType) = 0 then begin
+  if LMIMEType = '' then begin
     if ARaiseOnError then begin
       raise EIdException.Create(RSMIMEMIMETypeEmpty);
     end;
@@ -3423,6 +3422,10 @@ begin
   end;
   { Check list }
   if FFileExt.IndexOf(LExt) = -1 then begin
+    // TODO: multiple MIME types can belong to the same file extension.
+    // Change this logic to have FFileExt contain "<ext>=<mimetype>"
+    // pairs so an extension can map to a prefered MIME type, and have
+    // FMIMEList contain "<mimetype>=<ext>" pairs for simple lookup.
     FFileExt.Add(LExt);
     FMIMEList.Add(LMIMEType);
   end else begin
@@ -3488,6 +3491,10 @@ begin
     Index := FMIMEList.IndexOf(LMIMEType);
   end;
   if Index <> -1 then begin
+    // TODO: multiple MIME types can belong to the same file extension.
+    // Change this logic to have FFileExt contain "<ext>=<mimetype>"
+    // pairs so an extension can map to a prefered MIME type, and have
+    // FMIMEList contain "<mimetype>=<ext>" pairs for simple lookup.
     Result := FFileExt[Index];
   end else begin
     Result := '';    {Do not Localize}
@@ -3507,6 +3514,10 @@ begin
     Index := FFileExt.IndexOf(LExt);
   end;
   if Index <> -1 then begin
+    // TODO: multiple MIME types can belong to the same file extension.
+    // Change this logic to have FFileExt contain "<ext>=<mimetype>"
+    // pairs so an extension can map to a prefered MIME type, and have
+    // FMIMEList contain "<mimetype>=<ext>" pairs for simple lookup.
     Result := FMIMEList[Index];
   end else begin
     Result := 'application/octet-stream' {do not localize}
@@ -3664,14 +3675,14 @@ begin
     Result := APath;
   end else begin
     Result := '';    {Do not Localize}
-    LPreserveTrail := (Length(APath) = 0) or TextEndsWith(APath, APathDelim);
+    LPreserveTrail := (APath = '') or TextEndsWith(APath, APathDelim);
     LWork := ABasePath;
     // If LWork = '' then we just want it to be APath, no prefixed /    {Do not Localize}
-    if (Length(LWork) > 0) and (not TextEndsWith(LWork, APathDelim)) then begin
+    if (LWork <> '') and (not TextEndsWith(LWork, APathDelim)) then begin
       LWork := LWork + APathDelim;
     end;
     LWork := LWork + APath;
-    if Length(LWork) > 0 then begin
+    if LWork <> '' then begin
       i := 1;
       while i <= Length(LWork) do begin
         if LWork[i] = APathDelim then begin
@@ -3687,10 +3698,10 @@ begin
             // If it doesnt follow a PathDelim, its part of a filename
             if TextEndsWith(Result, APathDelim) and (Copy(LWork, i, 2) = '..') then begin    {Do not Localize}
               // Delete the last PathDelim
-              Delete(Result, Length(Result), 1);
+              SetLength(Result, Length(Result)-1);
               // Delete up to the next PathDelim
-              while (Length(Result) > 0) and (not TextEndsWith(Result, APathDelim)) do begin
-                Delete(Result, Length(Result), 1);
+              while (Result <> '') and (not TextEndsWith(Result, APathDelim)) do begin
+                SetLength(Result, Length(Result)-1);
               end;
               // Skip over second .
               Inc(i);
@@ -3707,7 +3718,7 @@ begin
     // Sometimes .. semantics can put a PathDelim on the end
     // But dont modify if it is only a PathDelim and nothing else, or it was there to begin with
     if (Result <> APathDelim) and TextEndsWith(Result, APathDelim) and (not LPreserveTrail) then begin
-      Delete(Result, Length(Result), 1);
+      SetLength(Result, Length(Result)-1);
     end;
   end;
 end;
@@ -4193,7 +4204,7 @@ function EnsureMsgIDBrackets(const AMsgID: String): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   Result := AMsgID;
-  if Length(Result) > 0 then begin
+  if Result <> '' then begin
     if Result[1] <> '<' then begin {do not localize}
       Result := '<' + Result; {do not localize}
     end;
@@ -4402,7 +4413,7 @@ var
     LNeedQuotes, LNeedEscape: String;
   begin
     Result := '';
-    if Length(S) = 0 then begin
+    if S = '' then begin
       Exit;
     end;
     LAddQuotes := AForceQuotes;
@@ -4608,17 +4619,13 @@ begin
   {$IFEND}
 end;
 
-// TODO: should we just get rid of the inline assembly here altogether
-// and let the compiler generate its own opcode as needed?
-
-{$IF (DEFINED(IOS) AND DEFINED(CPUARM)) OR (DEFINED(OSX) AND DEFINED(CPUX64)) OR DEFINED(ANDROID) OR (DEFINED(FPC) AND (NOT DEFINED(CPUI386))) OR DEFINED(LINUX64)}
+{$IF (DEFINED(IOS) AND DEFINED(CPUARM)) OR (DEFINED(MACOS) AND DEFINED(CPUX64)) OR DEFINED(ANDROID) OR (DEFINED(FPC) AND (NOT DEFINED(CPUI386))) OR DEFINED(LINUX64)}
   {$DEFINE NO_NATIVE_ASM}
 {$ELSE}
   {$UNDEF NO_NATIVE_ASM}
 {$IFEND}
 
 {$IFDEF NO_NATIVE_ASM}
-
 function ROL(const AVal: UInt32; AShift: Byte): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
@@ -4717,7 +4724,7 @@ begin
   end;
     {$ELSE}
   i := MAX_COMPUTERNAME_LENGTH;
-  if GetComputerName(LHost, i) then begin
+  if GetComputerNameW(LHost, i) then begin
     SetString(Result, LHost, i);
   end;
     {$ENDIF}
@@ -4808,7 +4815,7 @@ var
   I, LLength, LPos: Integer;
 begin
   Result := 0;
-  if Length(AFind) > 0 then begin
+  if AFind <> '' then begin
     LLength := IndyLength(AText, ALength, AStartPos);
     if LLength > 0 then begin
       for I := 0 to LLength-1 do begin
@@ -4830,7 +4837,7 @@ begin
   Result := 0;
   LLength := IndyLength(AText, ALength, AStartPos);
   if LLength > 0 then begin
-    if Length(AFind) = 0 then begin
+    if AFind = '' then begin
       Result := AStartPos;
       Exit;
     end;
@@ -4878,10 +4885,13 @@ begin
 end;
 
 function CharsetToEncoding(const ACharset: String): IIdTextEncoding;
-{$IFNDEF USE_ICONV}
+const
+  cCodePages: array[0..2] of UInt16 = (28591, 28592, 1252);
 var
+  Index: Integer;
+  {$IF (NOT DEFINED(USE_ICONV) AND (NOT DEFINED(USE_LCONVENC))}
   CP: Word;
-{$ENDIF}
+  {$ENDIF}
 begin
   Result := nil;
   if ACharSet <> '' then
@@ -4913,25 +4923,41 @@ begin
     end;
     }
 
-    // RLebeau 3/13/09: if there is a problem initializing an encoding
-    // class for the requested charset, either because the charset is
-    // not known to Indy, or because the OS does not support it natively,
-    // just return the 8-bit encoding as a fallback for now.  The data
-    // being handled by it likely won't be encoded/decoded properly, but
-    // at least the error won't cause exceptions in the user's code, and
-    // maybe the user will know how to encode/decode the data manually
-    // as a workaround...
-
-    try
-      {$IFDEF USE_ICONV}
-      Result := IndyTextEncoding(ACharset);
-      {$ELSE}
-      CP := CharsetToCodePage(ACharset);
+    {
+    Result := IndyTextEncoding(ACharSet);
+    if Result = nil then
+    begin
+      CP := CharsetToCodePage(ACharSet);
       if CP <> 0 then begin
         Result := IndyTextEncoding(CP);
       end;
-      {$ENDIF}
-    except end;
+    end;
+    }
+    Index := PosInStrArray(ACharSet, ['ISO-8859-1', 'ISO-8859-2', 'Windows-1252'], False);
+    if Index <> -1 then begin
+      Result := IndyTextEncoding(cCodePages[Index]);
+    end else
+    begin
+      // RLebeau 3/13/09: if there is a problem initializing an encoding
+      // class for the requested charset, either because the charset is
+      // not known to Indy, or because the OS does not support it natively,
+      // just return the 8-bit encoding as a fallback for now.  The data
+      // being handled by it likely won't be encoded/decoded properly, but
+      // at least the error won't cause exceptions in the user's code, and
+      // maybe the user will know how to encode/decode the data manually
+      // as a workaround...
+
+      try
+        {$IF DEFINED(USE_ICONV) OR DEFINED(USE_LCONVENC)}
+        Result := IndyTextEncoding(ACharSet);
+        {$ELSE}
+        CP := CharsetToCodePage(ACharSet);
+        if CP <> 0 then begin
+          Result := IndyTextEncoding(CP);
+        end;
+        {$ENDIF}
+      except end;
+    end;
   end;
 
   {JPM - I have decided to temporarily make this 8-bit because I'm concerned
@@ -5019,12 +5045,12 @@ end;
 
 { TIdInterfacedObject }
 
-function TIdInterfacedObject._AddRef: Integer;
+function TIdInterfacedObject._AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
 begin
   Result := inherited _AddRef;
 end;
 
-function TIdInterfacedObject._Release: Integer;
+function TIdInterfacedObject._Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
 begin
   Result := inherited _Release;
 end;

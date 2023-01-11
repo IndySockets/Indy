@@ -650,10 +650,10 @@ var
   LIdx : Integer;
   LLen: Byte;
 begin
-  if Length(ADomain) = 0 then begin
+  if ADomain = '' then begin
     SetLength(Result, 0);
   end else begin
-    // TODO: ned to re-write this...
+    // TODO: need to re-write this...
     SetLength(Result, Length(ADomain)+1);
     LIdx := 0;
     LDomain := ADomain;
@@ -799,7 +799,7 @@ begin
         for Count := 0 to Temps.Count -1 do begin
           All := All + Temps.Strings[Count];
         end;
-        Result := Length(All) > 0;
+        Result := All <> '';
         for Count := 1 to Length(All) do begin
           Result := CharIsInSet(All, Count, ValidHexChars);
           if not Result then begin
@@ -1240,7 +1240,7 @@ end;
 
 function TIdTextModeResourceRecord.FormatQName(const AName, AFullName: string): string;
 begin
-  if Copy(AName, Length(AName), 1) <> '.' then begin
+  if not TextEndsWith(AName, '.') then begin
     Result := AName + '.' + AFullName;
   end else begin
     Result := AName;
@@ -1379,7 +1379,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := DomainNameToDNSStr(CName);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1413,7 +1413,7 @@ function TIdRR_HINFO.BinQueryRecord(AFullName: string): TIdBytes;
 var
   RRData: TIdBytes;
 begin
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := NormalStrToDNSStr(CPU);
     AppendBytes(RRData, NormalStrToDNSStr(OS));
     FAnswer := FormatRecord(AFullName, RRData);
@@ -1461,7 +1461,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := DomainNameToDNSStr(MADName);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1496,7 +1496,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := DomainNameToDNSStr(MGMName);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1540,7 +1540,7 @@ From: http://www.its.uq.edu.au/DMT/RFC/rfc1035.html#MINFO_RR
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 }
 begin
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := DomainNameToDNSStr(Responsible_Mail);
     AppendBytes(RRData, DomainNameToDNSStr(ErrorHandle_Mail));
     FAnswer := FormatRecord(AFullName, RRData);
@@ -1588,7 +1588,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := DomainNameToDNSStr(NewName);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1624,7 +1624,7 @@ var
   Pref : UInt16;
 begin
   Tmp := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     Pref := IndyStrToInt(Preference);
     RRData := ToBytes(GStack.HostToNetwork(Pref));
     Tmp := DomainNameToDNSStr(FormatQName(Exchange,AFullName));
@@ -1673,7 +1673,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := DomainNameToDNSStr(NSDName);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1708,7 +1708,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := DomainNameToDNSStr(PTRDName);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1748,7 +1748,7 @@ begin
   LRName := nil;
   RRData := nil;
 
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     LMName := DomainNameToDNSStr(MName);
     LRName := DomainNameToDNSStr(RName);
 
@@ -1875,7 +1875,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(Self.FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := IPAddrToDNSStr(Address);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1910,7 +1910,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     RRData := IPv6AAAAToDNSStr(Address);
     FAnswer := FormatRecord(AFullName, RRData);
   end;
@@ -1945,7 +1945,7 @@ var
   RRData: TIdBytes;
 begin
   RRData := nil; // keep the compiler happy
-  if Length(FAnswer) = 0 then begin
+  if FAnswer = nil then begin
     //Fix here, make the RRData being DNSStr.
     //Fixed in 2005 Jan 25.
     RRData := NormalStrToDNSStr(TXT);

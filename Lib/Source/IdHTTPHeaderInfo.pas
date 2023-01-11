@@ -395,6 +395,8 @@ begin
   FLastModified := 0;
   FETag := '';
   FExpires := 0;
+
+  FCustomHeaders.Clear;
   FRawHeaders.Clear;
 end;
 
@@ -496,29 +498,33 @@ begin
 end;
 
 procedure TIdEntityHeaderInfo.SetHeaders;
+var
+  sUnits: String;
+  sCR: String;
+  sCI: String;
 begin
   FRawHeaders.Clear;
-  if Length(FConnection) > 0 then
+  if FConnection <> '' then
   begin
     FRawHeaders.Values['Connection'] := FConnection; {do not localize}
   end;
-  if Length(FContentVersion) > 0 then
+  if FContentVersion <> '' then
   begin
     FRawHeaders.Values['Content-Version'] := FContentVersion; {do not localize}
   end;
-  if Length(FContentDisposition) > 0 then
+  if FContentDisposition <> '' then
   begin
     FRawHeaders.Values['Content-Disposition'] := FContentDisposition; {do not localize}
   end;
-  if Length(FContentEncoding) > 0 then
+  if FContentEncoding <> '' then
   begin
     FRawHeaders.Values['Content-Encoding'] := FContentEncoding; {do not localize}
   end;
-  if Length(FContentLanguage) > 0 then
+  if FContentLanguage <> '' then
   begin
     FRawHeaders.Values['Content-Language'] := FContentLanguage; {do not localize}
   end;
-  if Length(FContentType) > 0 then
+  if FContentType <> '' then
   begin
     FRawHeaders.Values['Content-Type'] := FContentType; {do not localize}
     FRawHeaders.Params['Content-Type', 'charset'] := FCharSet; {do not localize}
@@ -528,9 +534,21 @@ begin
     FRawHeaders.Values['Content-Length'] := IntToStr(FContentLength); {do not localize}
   end;
 
-  { removed setting Content-Range header for entities... deferred to response }
+  // Rlebeau 10/11/2021: Content-Range is allowed in client requests, not just responses.
+  // For instance, Microsoft's Graph API uses it!
+  if HasContentRange or HasContentRangeInstance then
+  begin
+    sUnits := iif(FContentRangeUnits <> '',
+      FContentRangeUnits, 'bytes'); {do not localize}
+    sCR := iif(HasContentRange,
+      IndyFormat('%d-%d', [FContentRangeStart, FContentRangeEnd]), '*'); {do not localize}
+    sCI := iif(HasContentRangeInstance,
+      IndyFormat('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
 
-  if Length(FCacheControl) > 0 then
+    FRawHeaders.Values['Content-Range'] := sUnits + ' ' + sCR + '/' + sCI; {do not localize}
+  end;
+
+  if FCacheControl <> '' then
   begin
     FRawHeaders.Values['Cache-control'] := FCacheControl; {do not localize}
   end;
@@ -538,7 +556,7 @@ begin
   begin
     FRawHeaders.Values['Date'] := LocalDateTimeToHttpStr(FDate); {do not localize}
   end;
-  if Length(FETag) > 0 then
+  if FETag <> '' then
   begin
     FRawHeaders.Values['ETag'] := FETag; {do not localize}
   end;
@@ -546,11 +564,11 @@ begin
   begin
     FRawHeaders.Values['Expires'] := LocalDateTimeToHttpStr(FExpires); {do not localize}
   end;
-  if Length(FPragma) > 0 then
+  if FPragma <> '' then
   begin
     FRawHeaders.Values['Pragma'] := FPragma; {do not localize}
   end;
-  if Length(FTransferEncoding) > 0 then
+  if FTransferEncoding <> '' then
   begin
     FRawHeaders.Values['Transfer-Encoding'] := FTransferEncoding; {do not localize}
   end;
@@ -749,7 +767,7 @@ begin
   end else begin
     S := '';
   end;
-  if Length(S) > 0 then begin
+  if S <> '' then begin
     Headers.Values['Proxy-Authorization'] := S;             {do not localize}
   end;
 end;
@@ -1022,44 +1040,44 @@ var
 begin
   inherited SetHeaders;
 
-  if Length(FProxyConnection) > 0 then
+  if FProxyConnection <> '' then
   begin
     FRawHeaders.Values['Proxy-Connection'] := FProxyConnection; {do not localize}
   end;
-  if Length(FHost) > 0 then
+  if FHost <> '' then
   begin
     FRawHeaders.Values['Host'] := FHost; {do not localize}
   end;
-  if Length(FAccept) > 0 then
+  if FAccept <> '' then
   begin
     FRawHeaders.Values['Accept'] := FAccept; {do not localize}
   end;
-  if Length(FAcceptCharset) > 0 then
+  if FAcceptCharset <> '' then
   begin
     FRawHeaders.Values['Accept-Charset'] := FAcceptCharSet;   {do not localize}
   end;
-  if Length(FAcceptEncoding) > 0 then
+  if FAcceptEncoding <> '' then
   begin
     FRawHeaders.Values['Accept-Encoding'] := FAcceptEncoding; {do not localize}
   end;
-  if Length(FAcceptLanguage) > 0 then
+  if FAcceptLanguage <> '' then
   begin
     FRawHeaders.Values['Accept-Language'] := FAcceptLanguage; {do not localize}
   end;
-  if Length(FFrom) > 0 then
+  if FFrom <> '' then
   begin
     FRawHeaders.Values['From'] := FFrom;                      {do not localize}
   end;
-  if Length(FReferer) > 0 then
+  if FReferer <> '' then
   begin
     FRawHeaders.Values['Referer'] := FReferer;                {do not localize}
   end;
-  if Length(FUserAgent) > 0 then
+  if FUserAgent <> '' then
   begin
     FRawHeaders.Values['User-Agent'] := FUserAgent;           {do not localize}
   end;
   S := FRanges.Text;
-  if Length(S) > 0 then
+  if S <> '' then
   begin
     FRawHeaders.Values['Range'] := S; {do not localize}
   end;
@@ -1083,12 +1101,12 @@ begin
   end else begin
     S := '';
   end;
-  if Length(S) > 0 then
+  if S <> '' then
   begin
     FRawHeaders.Values['Authorization'] := S;                 {do not localize}
   end;
 
-  if Length(FMethodOverride) > 0 then
+  if FMethodOverride <> '' then
   begin
     FRawHeaders.Values['X-HTTP-Method-Override'] := FMethodOverride; {Do not Localize}
   end;
@@ -1143,33 +1161,13 @@ begin
 end;
 
 procedure TIdResponseHeaderInfo.SetHeaders;
-var
-  sUnits: String;
-  sCR: String;
-  sCI: String;
 begin
   inherited SetHeaders;
-
-  {
-    setting the content-range header is allowed in server responses...
-    moved here TIdEntityHeaderInfo
-  }
-  if HasContentRange or HasContentRangeInstance then
-  begin
-    sUnits := iif(FContentRangeUnits <> '',
-      FContentRangeUnits, 'bytes'); {do not localize}
-    sCR := iif(HasContentRange,
-      IndyFormat('%d-%d', [FContentRangeStart, FContentRangeEnd]), '*'); {do not localize}
-    sCI := iif(HasContentRangeInstance,
-      IndyFormat('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
-
-    RawHeaders.Values['Content-Range'] := sUnits + ' ' + sCR + '/' + sCI; {do not localize}
-  end;
-  if Length(FAcceptPatch) > 0 then
+  if FAcceptPatch <> '' then
   begin
     RawHeaders.Values['Accept-Patch'] := FAcceptPatch; {do not localize}
   end;
-  if Length(FAcceptRanges) > 0 then
+  if FAcceptRanges <> '' then
   begin
     RawHeaders.Values['Accept-Ranges'] := FAcceptRanges; {do not localize}
   end;

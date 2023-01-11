@@ -563,6 +563,9 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
+    procedure CustomRequest(const AMethod: TIdHTTPMethod; AURL: string;
+      ASource, AResponseContent: TStream; const AIgnoreReplies: array of Int16);
+
     procedure Delete(AURL: string; AResponseContent: TStream); overload;
     function Delete(AURL: string): string; overload;
 
@@ -853,8 +856,9 @@ var
   Buf: TIdBytes;
   LChar: WideChar;
   Encoded: Boolean;
+  LTempStr: UnicodeString;
 begin
-  Result := '';    {Do not Localize}
+  Result := '';
 
   // keep the compiler happy
   Buf := nil;
@@ -878,7 +882,7 @@ begin
     // their true Unicode codepoint value, depending on the codepage used for
     // the source code. For instance, #128 may become #$20AC...
 
-    if Ord(LChar) = 32 then {do not localize}
+    if Ord(LChar) = 32 then
     begin
       Result := Result + '+'; {do not localize}
       Inc(I);
@@ -891,12 +895,26 @@ begin
     begin
       // HTML 5 Section 4.10.16.4 says:
       //
-      // For each character ... that cannot be expressed using the selected character
+      // 1. For each character ... that cannot be expressed using the selected character
       // encoding, replace the character by a string consisting of a U+0026 AMPERSAND
       // character (&), a U+0023 NUMBER SIGN character (#), one or more characters in
       // the range U+0030 DIGIT ZERO (0) to U+0039 DIGIT NINE (9) representing the
       // Unicode code point of the character in base ten, and finally a U+003B
       // SEMICOLON character (;).
+      //
+      //
+      // 2. For each character in the entry's name and value, apply the following subsubsteps:
+      //
+      //   1. If the character isn't in the range U+0020, U+002A, U+002D, U+002E, U+0030 .. U+0039,
+      //      U+0041 .. U+005A, U+005F, U+0061 .. U+007A then replace the character with a string
+      //      formed as follows: Start with the empty string, and then, taking each byte of the
+      //      character when expressed in the selected character encoding in turn, append to the
+      //      string a U+0025 PERCENT SIGN character (%) followed by two characters in the ranges
+      //      U+0030 DIGIT ZERO (0) to U+0039 DIGIT NINE (9) and U+0041 LATIN CAPITAL LETTER A to
+      //      U+005A LATIN CAPITAL LETTER Z representing the hexadecimal value of the byte
+      //      (zero-padded if necessary).
+      //
+      //   2. If the character is a U+0020 SPACE character, replace it with a single U+002B PLUS SIGN character (+).
       //
       CharLen := CalcUTF16CharLength(ASrc, I+1); // calculate length including surrogates
       ByteLen := AByteEncoding.GetBytes(ASrc, I+1, CharLen, Buf, 0); // explicit Unicode->Ansi conversion
@@ -911,13 +929,18 @@ begin
         end;
       end;
 
-      if Encoded then begin
-        for J := 0 to ByteLen-1 do begin
-          Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
-        end;
-      end else begin
+      // Note, the way 4.10.16.4 is written, it sounds like the '&#dddd;' replacement is
+      // supposed to take place BEFORE the resulting bytes are then percent-encoded in '%HH'
+      // format!  So that is what we will do...
+
+      if not Encoded then begin
         J := GetUTF16Codepoint(ASrc, I+1);
-        Result := Result + '&#' + IntToStr(J) + ';';  {do not localize}
+        LTempStr := '&#' + IntToStr(J) + ';';  {do not localize}
+        ByteLen := AByteEncoding.GetBytes(LTempStr, 1, Length(LTempStr), Buf, 0);
+      end;
+
+      for J := 0 to ByteLen-1 do begin
+        Result := Result + '%' + IntToHex(Ord(Buf[J]), 2);  {do not localize}
       end;
 
       Inc(I, CharLen);
@@ -961,7 +984,7 @@ begin
           // bottleneck for code that makes a lot of calls to Pos() in a loop, so we
           // will scan through the string looking for the character without a conversion...
           //
-          // LPos := IndyPos(LTemp.NameValueSeparator, LStr); {do not localize}
+          // LPos := IndyPos(LTemp.NameValueSeparator, LStr);
           //
           LChar := LTemp.NameValueSeparator;
           LPos := 0;
@@ -1148,7 +1171,7 @@ var
   LPort: Integer;
 begin
   // First check to see if a Proxy has been specified.
-  if Length(ProxyParams.ProxyServer) > 0 then begin
+  if ProxyParams.ProxyServer <> '' then begin
     if (not TextIsSame(FHost, ProxyParams.ProxyServer)) or (FPort <> ProxyParams.ProxyPort) then begin
       if Connected then begin
         Disconnect;
@@ -1569,6 +1592,13 @@ var
           begin
             LSize := LIndex + Length(LMIMEBoundary);
             if Assigned(LS) then begin
+              // TODO: use TIdBuffer.ExtractToStream() instead, bypassing the
+              // overhead of TIdIOHandler.ReadStream() allocating a local buffer
+              // and calling IOHandler.ReadBytes() to fill that buffer in even
+              // multiples of the IOHandler's RecvBufferSize. The data we want
+              // is already in the Buffer's memory, so just read it directly...
+              //
+              // IOHandler.InputBuffer.ExtractToStream(LS, LSize);
               IOHandler.ReadStream(LS, LSize);
             end else begin
               IOHandler.Discard(LSize);
@@ -1579,6 +1609,13 @@ var
           LSize := IOHandler.InputBuffer.Size - (Length(LMIMEBoundary)-1);
           if LSize > 0 then begin
             if Assigned(LS) then begin
+              // TODO: use TIdBuffer.ExtractToStream() instead, bypassing the
+              // overhead of TIdIOHandler.ReadStream() allocating a local buffer
+              // and calling IOHandler.ReadBytes() to fill that buffer in even
+              // multiples of the IOHandler's RecvBufferSize. The data we want
+              // is already in the Buffer's memory, so just read it directly...
+              //
+              // IOHandler.InputBuffer.ExtractToStream(LS, LSize);
               IOHandler.ReadStream(LS, LSize);
             end else begin
               IOHandler.Discard(LSize);
@@ -1739,7 +1776,7 @@ begin
   LURI := TIdURI.Create(ARequest.URL);
 
   try
-    if Length(LURI.Username) > 0 then begin
+    if LURI.Username <> '' then begin
       ARequest.Username := LURI.Username;
       ARequest.Password := LURI.Password;
     end;
@@ -1751,11 +1788,11 @@ begin
     FURI.Document := LURI.Document;
     FURI.Params := LURI.Params;
 
-    if Length(LURI.Host) > 0 then begin
+    if LURI.Host <> '' then begin
       FURI.Host := LURI.Host;
     end;
 
-    if Length(LURI.Protocol) > 0 then begin
+    if LURI.Protocol <> '' then begin
       FURI.Protocol := LURI.Protocol;
     end
     // non elegant solution - to be recoded, only for pointing the bug / GREGOR
@@ -1766,7 +1803,7 @@ begin
       FURI.Protocol := 'http';  {do not localize}
     end;
 
-    if Length(LURI.Port) > 0 then begin
+    if LURI.Port <> '' then begin
       FURI.Port := LURI.Port;
     end
     else if TextIsSame(LURI.Protocol, 'http') then begin     {do not localize}
@@ -1775,7 +1812,7 @@ begin
     else if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
       FURI.Port := IntToStr(IdPORT_https);
     end
-    else if Length(FURI.Port) = 0 then begin
+    else if FURI.Port = '' then begin
       raise EIdUnknownProtocol.Create(RSHTTPUnknownProtocol);
     end;
 
@@ -1862,12 +1899,12 @@ begin
         if IOHandler = nil then begin
           IOHandler := TIdIOHandler.TryMakeIOHandler(TIdSSLIOHandlerSocketBase, Self);
           if IOHandler = nil then begin
-            raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
+            raise EIdSSLIOHandlerRequired.Create(RSHTTPSRequiresSSLIOHandler);
           end;
-          IOHandler.OnStatus := OnStatus;
+          IOHandler.OnStatus := OnStatus; // TODO: assign DoStatus() instead of the handler directly...
         end
         else if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-          raise EIdIOHandlerPropInvalid.Create(RSIOHandlerPropInvalid);
+          raise EIdSSLIOHandlerRequired.Create(RSHTTPSRequiresSSLIOHandler);
         end;
         TIdSSLIOHandlerSocketBase(IOHandler).URIToCheck := FURI.URI;
         TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := (ARequest.UseProxy = ctSSLProxy);
@@ -1929,7 +1966,7 @@ begin
   case ARequest.UseProxy of
     ctNormal, ctSSL:
       begin
-        if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
+        if (ProtocolVersion = pv1_0) and (ARequest.Connection = '') then
         begin
           ARequest.Connection := 'keep-alive';      {do not localize}
         end;
@@ -1944,8 +1981,10 @@ begin
     ctProxy:
       begin
         ARequest.URL := FURI.URI;
-        if (ProtocolVersion = pv1_0) and (Length(ARequest.Connection) = 0) then
+        if (ProtocolVersion = pv1_0) and (ARequest.Connection = '') then
         begin
+          // TODO: per RFC 7230:
+          // "clients are encouraged not to send the Proxy-Connection header field in any requests."
           ARequest.ProxyConnection := 'keep-alive'; {do not localize}
         end;
         if hoNonSSLProxyUseConnectVerb in FOptions then begin
@@ -2006,6 +2045,8 @@ begin
       LLocalHTTP.Request.Pragma := 'no-cache';                       {do not localize}
       LLocalHTTP.Request.URL := ARequest.Destination;
       LLocalHTTP.Request.Method := Id_HTTPMethodConnect;
+      // TODO: per RFC 7230:
+      // "clients are encouraged not to send the Proxy-Connection header field in any requests."
       LLocalHTTP.Request.ProxyConnection := 'keep-alive';            {do not localize}
       LLocalHTTP.Request.FUseProxy := ARequest.UseProxy;
 
@@ -2016,7 +2057,7 @@ begin
           LLocalHTTP.BuildAndSendRequest(nil);
 
           LLocalHTTP.Response.ResponseText := InternalReadLn;
-          if Length(LLocalHTTP.Response.ResponseText) = 0 then begin
+          if LLocalHTTP.Response.ResponseText = '' then begin
             // Support for HTTP responses without status line and headers
             LLocalHTTP.Response.ResponseText := 'HTTP/1.0 200 OK'; {do not localize}
             LLocalHTTP.Response.Connection := 'close';             {do not localize}
@@ -2676,11 +2717,11 @@ begin
     FHTTP.IOHandler.WriteLn(Request.Method + ' ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
     // write the headers
     for i := 0 to Request.RawHeaders.Count - 1 do begin
-      if Length(Request.RawHeaders.Strings[i]) > 0 then begin
+      if Request.RawHeaders.Strings[i] <> '' then begin
         FHTTP.IOHandler.WriteLn(Request.RawHeaders.Strings[i]);
       end;
     end;
-    FHTTP.IOHandler.WriteLn('');     {do not localize}
+    FHTTP.IOHandler.WriteLn;
     if LBufferingStarted then begin
       FHTTP.IOHandler.WriteBufferClose;
     end;
@@ -3050,8 +3091,16 @@ begin
   inherited Destroy;
 end;
 
+procedure TIdCustomHTTP.CustomRequest(const AMethod: TIdHTTPMethod;
+  AURL: string; ASource, AResponseContent: TStream;
+  const AIgnoreReplies: array of Int16);
+begin
+  DoRequest(AMethod, AURL, ASource, AResponseContent, AIgnoreReplies);
+end;
+
 function TIdCustomHTTP.InternalReadLn: String;
 begin
+  // TODO: add ReadLnTimeoutAction property to TIdIOHandler...
   Result := IOHandler.ReadLn;
   if IOHandler.ReadLnTimedout then begin
     raise EIdReadTimeout.Create(RSReadTimeout);
@@ -3162,9 +3211,12 @@ begin
       end;
     until False;
   finally
-    if not Response.KeepAlive then begin
-      // TODO: do not disconnect if hoNoReadMultipartMIME is in effect
-      // TODO: do not disconnect if hoNoReadChunked is in effect
+    if not (
+      Response.KeepAlive or
+      ((hoNoReadMultipartMIME in FOptions) and IsHeaderMediaType(Response.ContentType, 'multipart')) or   {do not localize}
+      ((hoNoReadChunked in FOptions) and (IndyPos('chunked', LowerCase(Response.TransferEncoding)) > 0))  {do not localize}
+    ) then
+    begin
       Disconnect;
     end;
   end;

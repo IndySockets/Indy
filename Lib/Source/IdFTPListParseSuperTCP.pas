@@ -150,7 +150,7 @@ const
   VALID_DOS_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtstuvwxyz0123456789_$~!#%&-{}()@''+Char(180); {Do not localize}
 var
   LFileName, LExt : String;
-  i : Integer;
+  i, LFileNameLen : Integer;
 begin
   Result := False;
   if (AFileName = CUR_DIR) or (AFileName = PARENT_DIR) then
@@ -160,9 +160,10 @@ begin
   end;
   LExt := AFileName;
   LFileName := Fetch(LExt, '.'); {Do not localize}
-  if (Length(LFileName) > 0) and (Length(LFileName) < 9) then
+  LFileNameLen := Length(LFileName);
+  if (LFileNameLen > 0) and (Length(LFileName) < 9) then
   begin
-    for i := 1 to Length(LFileName) do
+    for i := 1 to LFileNameLen do
     begin
       if IndyPos(LFileName[i], VALID_DOS_CHARS) = 0 then begin
         Exit;
@@ -184,7 +185,7 @@ const
   WIN32_INVALID_CHARS = '"*/:<>?\|' + #0; {Do not localize}
   WIN32_INVALID_LAST  = ' .';  //not permitted as the last character in Win32 {Do not localize}
 var
-  i : Integer;
+  i, LFilenameLen : Integer;
 begin
   Result := False;
   if (AFileName = CUR_DIR) or (AFileName = PARENT_DIR) then
@@ -192,12 +193,13 @@ begin
     Result := True;
     Exit;
   end;
-  if Length(AFileName) > 0 then
+  LFilenameLen := Length(AFileName);
+  if LFilenameLen > 0 then
   begin
-    if IndyPos(AFileName[Length(AFileName)], WIN32_INVALID_LAST) > 0 then begin
+    if IndyPos(AFileName[LFilenameLen], WIN32_INVALID_LAST) > 0 then begin
       Exit;
     end;
-    for i := 1 to Length(AFileName) do
+    for i := 1 to LFilenameLen do
     begin
       if IndyPos(AFileName[i], WIN32_INVALID_CHARS) > 0 then begin
         Exit;

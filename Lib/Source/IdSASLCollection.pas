@@ -82,11 +82,11 @@ type
   public
     constructor Create ( AOwner : TPersistent ); reintroduce;
     function Add: TIdSASLListEntry;
-    procedure LoginSASL(const ACmd, AHost, AProtocolName: String;
+    procedure LoginSASL(const ACmd, AHost: string; const APort: TIdPort; const AProtocolName: String;
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH';      {Do not Localize}
       ACanAttemptIR: Boolean = True); overload;
-    procedure LoginSASL(const ACmd, AHost, AProtocolName, AServiceName: String;
+    procedure LoginSASL(const ACmd, AHost: string; const APort: TIdPort; const AProtocolName, AServiceName: String;
       const AOkReplies, AContinueReplies: array of string; AClient : TIdTCPConnection;
       ACapaReply : TStrings; const AAuthString : String = 'AUTH';      {Do not Localize}
       ACanAttemptIR: Boolean = True); overload;
@@ -110,8 +110,9 @@ uses
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
-  IdGlobal,
+  IdAssignedNumbers,
   IdCoderMIME,
+  IdGlobal,
   IdGlobalProtocols,
   IdReply,
   IdResourceStringsProtocols,
@@ -196,13 +197,12 @@ end;
 
 function CheckStrFail(const AStr : String; const AOk, ACont: array of string) : Boolean;
 begin
-  //Result := PosInStrArray(AStr, AOk + ACont) = -1;
   Result := (PosInStrArray(AStr, AOk) = -1) and
             (PosInStrArray(AStr, ACont) = -1);
 end;
 
-function PerformSASLLogin(const ACmd, AHost, AProtocolName: String; ASASL: TIdSASL;
-  AEncoder: TIdEncoder; ADecoder: TIdDecoder; const AOkReplies, AContinueReplies: array of string;
+function PerformSASLLogin(const ACmd, AHost: string; const APort: TIdPort; const AProtocolName: String;
+  ASASL: TIdSASL; AEncoder: TIdEncoder; ADecoder: TIdDecoder; const AOkReplies, AContinueReplies: array of string;
   AClient : TIdTCPConnection; ACanAttemptIR: Boolean): Boolean;
 var
   S: String;
@@ -234,13 +234,16 @@ begin
   // exiting with a failure.
 
   if ACanAttemptIR then begin
-    if ASASL.TryStartAuthenticate(AHost, AProtocolName, S) then begin
+    if ASASL.TryStartAuthenticate(AHost, APort, AProtocolName, S) then begin
       AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), []);//[334, 504]);
-      if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
-        ASASL.FinishAuthenticate;
-        Exit; // this mechanism is not supported
-      end;
-      AuthStarted := True;
+    if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
+        if not TextIsSame(AProtocolName, IdGSKSSN_pop) then begin
+      ASASL.FinishAuthenticate;
+          Exit; // this mechanism is not supported
+    end;
+      end else begin
+        AuthStarted := True;
+    end;
     end;
   end;
   if not AuthStarted then begin
@@ -259,7 +262,7 @@ begin
   // must be a continue reply...
   if not AuthStarted then begin
     S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
-    S := ASASL.StartAuthenticate(S, AHost, AProtocolName);
+    S := ASASL.StartAuthenticate(S, AHost, APort, AProtocolName);
     AClient.SendCmd(AEncoder.Encode(S));
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
     begin
@@ -269,7 +272,7 @@ begin
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
     S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
-    S := ASASL.ContinueAuthenticate(S, AHost, AProtocolName);
+    S := ASASL.ContinueAuthenticate(S, AHost, APort, AProtocolName);
     AClient.SendCmd(AEncoder.Encode(S));
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
     begin
@@ -345,9 +348,10 @@ type
   TIdSASLList = TList;
   {$ENDIF}
 
-procedure TIdSASLEntries.LoginSASL(const ACmd, AHost, AProtocolName: String; const AOkReplies,
-  AContinueReplies: array of string; AClient: TIdTCPConnection;
-  ACapaReply: TStrings; const AAuthString: String; ACanAttemptIR: Boolean);
+procedure TIdSASLEntries.LoginSASL(const ACmd, AHost: string; const APort: TIdPort;
+  const AProtocolName: String; const AOkReplies, AContinueReplies: array of string;
+  AClient: TIdTCPConnection; ACapaReply: TStrings; const AAuthString: String;
+  ACanAttemptIR: Boolean);
 var
   i : Integer;
   LE : TIdEncoderMIME;
@@ -410,7 +414,7 @@ begin
             if not Assigned(LD) then begin
               LD := TIdDecoderMIME.Create(nil);
             end;
-            if PerformSASLLogin(ACmd, AHost, AProtocolName, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient, ACanAttemptIR) then begin
+            if PerformSASLLogin(ACmd, AHost, APort, AProtocolName, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient, ACanAttemptIR) then begin
               Exit;
             end;
             if not Assigned(LError) then begin
@@ -436,9 +440,10 @@ begin
   end;
 end;
 
-procedure TIdSASLEntries.LoginSASL(const ACmd, AHost, AProtocolName, AServiceName: String;
-  const AOkReplies, AContinueReplies: array of string; AClient: TIdTCPConnection;
-  ACapaReply: TStrings; const AAuthString: String; ACanAttemptIR: Boolean);
+procedure TIdSASLEntries.LoginSASL(const ACmd, AHost: string; APort: TIdPort;
+  const AProtocolName, AServiceName: String; const AOkReplies, AContinueReplies: array of string;
+  AClient: TIdTCPConnection; ACapaReply: TStrings; const AAuthString: String;
+  ACanAttemptIR: Boolean);
 var
   LE : TIdEncoderMIME;
   LD : TIdDecoderMIME;
@@ -473,7 +478,7 @@ begin
   try
     LD := TIdDecoderMIME.Create(nil);
     try
-      if not PerformSASLLogin(ACmd, AHost, AProtocolName, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient, ACanAttemptIR) then begin
+      if not PerformSASLLogin(ACmd, AHost, APort, AProtocolName, LSASL, LE, LD, AOkReplies, AContinueReplies, AClient, ACanAttemptIR) then begin
         AClient.RaiseExceptionForLastCmdResult;
       end;
     finally
@@ -505,7 +510,7 @@ begin
       begin
         s := UpperCase(Copy(s, Length(AAuthString)+1, MaxInt));
         s := ReplaceAll(s, '=', ' ');    {Do not Localize}
-        while Length(s) > 0 do
+        while s <> '' do
         begin
           LEntry := Fetch(s, ' ');    {Do not Localize}
           if LEntry <> '' then

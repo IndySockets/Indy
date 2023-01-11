@@ -23,7 +23,7 @@ GOTO End
 
 :DoIt
 REM *** Set the Indy Lib path
-SET IndyLib="C:\Development\Projects\Indy\Indy 10\Source\Lib"
+SET IndyLib="C:\Users\Ryan\Development\Projects\Indy\Indy 10\Source\Restructure Lib"
 
 REM *** Generate the files. Using "%%~dpnsI.tmpl" for the second
 REM *** parameter of SubWCRev.exe because "%%~fsI" erroneously

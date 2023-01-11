@@ -203,6 +203,10 @@ type
 
 implementation
 
+{$IF (NOT DEFINED(USE_VCL_POSIX) AND DEFINED(WINDOWS)}
+  {.$DEFINE SUPPORTS_NON_BLOCKING}
+{$IFEND}
+
 uses
   {$IF DEFINED(USE_VCL_POSIX)}
   Posix.SysSelect,
@@ -239,8 +243,17 @@ type
 
 function TIdIOHandlerStack.Connected: Boolean;
 begin
-  ReadFromSource(False, 0, False);
-  Result := inherited Connected;
+  try
+    ReadFromSource(False, 0, False);
+    Result := inherited Connected;
+  except
+    on E: EIdSocketError do begin
+      if not ((E.LastError = Id_WSAESHUTDOWN) or (E.LastError = Id_WSAECONNABORTED) or (E.LastError = Id_WSAECONNRESET)) then begin
+        raise;
+      end;
+      Result := False;
+    end;
+  end;
 end;
 
 procedure TIdIOHandlerStack.ConnectClient;

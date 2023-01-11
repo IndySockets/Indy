@@ -70,6 +70,9 @@ uses
   IdYarn;
 
 type
+  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2);
+  TIdSSLVersions = set of TIdSSLVersion;
+
   //client
   TIdSSLIOHandlerSocketBase = class(TIdIOHandlerStack)
   protected
@@ -101,78 +104,21 @@ matches the identity information present in the server certificate.
     property URIToCheck : String read FURIToCheck write SetURIToCheck;
   end;
 
-   //server
-   TIdServerIOHandlerSSLBase = class(TIdServerIOHandler)
-   protected
-   public
-     //this is for the FTP Server to make a client IOHandler for it's data connection's IOHandler
-     function MakeClientIOHandler(ATheThread:TIdYarn ): TIdIOHandler; overload; override;
-     function MakeClientIOHandler : TIdSSLIOHandlerSocketBase; reintroduce; overload; virtual; abstract;
-     function MakeFTPSvrPort : TIdSSLIOHandlerSocketBase; virtual; abstract;
-     function MakeFTPSvrPasv : TIdSSLIOHandlerSocketBase; virtual; abstract;
-   end;
+  //server
+  TIdServerIOHandlerSSLBase = class(TIdServerIOHandler)
+  protected
+  public
+    //this is for the FTP Server to make a client IOHandler for it's data connection's IOHandler
+    function MakeClientIOHandler(ATheThread:TIdYarn ): TIdIOHandler; overload; override;
+    function MakeClientIOHandler : TIdSSLIOHandlerSocketBase; reintroduce; overload; virtual; abstract;
+    function MakeFTPSvrPort : TIdSSLIOHandlerSocketBase; virtual; abstract;
+    function MakeFTPSvrPasv : TIdSSLIOHandlerSocketBase; virtual; abstract;
+  end;
 
-type
   TIdClientSSLClass = class of TIdSSLIOHandlerSocketBase;
   TIdServerSSLClass = class of TIdServerIOHandlerSSLBase;
 
-Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
-  ADescription, AURL : String;
-  const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass);
-
-type
-  TIdSSLRegEntry = class(TCollectionItem)
-  protected
-    FProductName : String;
-    FVendor : String;
-    FCopyright : String;
-    FDescription : String;
-    FURL : String;
-    FClientClass : TIdClientSSLClass;
-    FServerClass : TIdServerSSLClass;
-  public
-    property ProductName : String read FProductName write FProductName;
-    property Vendor : String read FVendor write FVendor;
-    property Copyright : String read  FCopyright write  FCopyright;
-    property Description : String read FDescription write FDescription;
-    property URL : String read FURL write FURL;
-    property ClientClass : TIdClientSSLClass read FClientClass write FClientClass;
-    property ServerClass : TIdServerSSLClass read FServerClass write FServerClass;
-  end;
-
-  TIdSSLRegistry = class(TCollection)
-  protected
-    function GetItem ( Index: Integer ) : TIdSSLRegEntry;
-    procedure SetItem ( Index: Integer; const Value: TIdSSLRegEntry );
-  public
-    constructor Create; reintroduce;
-    function Add: TIdSSLRegEntry;
-    property Items [ Index: Integer ] : TIdSSLRegEntry read GetItem
-      write SetItem; default;
-  end;
-
-var
-  GSSLRegistry : TIdSSLRegistry;
-
 implementation
-
-uses
-  SysUtils;
-
-Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
-  ADescription, AURL : String;
-  const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass);
-var LR : TIdSSLRegEntry;
-begin
-  LR := GSSLRegistry.Add;
-  LR.ProductName := AProduct;
-  LR.Vendor := AVendor;
-  LR.Copyright := ACopyRight;
-  LR.Description := ADescription;
-  LR.URL := AURL;
-  LR.ClientClass := AClientClass;
-  LR.ServerClass := AServerClass;
-end;
 
 { TIdSSLIOHandlerSocketBase }
 
@@ -213,36 +159,9 @@ end;
 
 { TIdServerIOHandlerSSLBase }
 
-function TIdServerIOHandlerSSLBase.MakeClientIOHandler(ATheThread:TIdYarn ): TIdIOHandler;
+function TIdServerIOHandlerSSLBase.MakeClientIOHandler(ATheThread: TIdYarn): TIdIOHandler;
 begin
   Result := MakeClientIOHandler;
 end;
 
-{ TIdSSLRegistry }
-
-function TIdSSLRegistry.Add: TIdSSLRegEntry;
-begin
-  Result := TIdSSLRegEntry( inherited Add );
-end;
-
-constructor TIdSSLRegistry.Create;
-begin
-  inherited Create(TIdSSLRegEntry);
-end;
-
-function TIdSSLRegistry.GetItem(Index: Integer): TIdSSLRegEntry;
-begin
-  Result := TIdSSLRegEntry ( inherited GetItem(Index) );
-end;
-
-procedure TIdSSLRegistry.SetItem(Index: Integer;
-  const Value: TIdSSLRegEntry);
-begin
-  inherited SetItem(Index,Value);
-end;
-
-initialization
-  GSSLRegistry := TIdSSLRegistry.Create;
-finalization
-  FreeAndNil(GSSLRegistry);
 end.

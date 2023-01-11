@@ -175,10 +175,12 @@ uses
 
 type
   // Enums
-  THTTPCommandType = (hcUnknown, hcHEAD, hcGET, hcPOST, hcDELETE, hcPUT, hcTRACE, hcOPTION);
+  THTTPCommandType = (hcUnknown, hcHEAD, hcGET, hcPOST, hcDELETE, hcPUT, hcTRACE, hcOPTION, hcPATCH);
 
 const
   Id_TId_HTTPServer_KeepAlive = false;
+  Id_TId_HTTPServer_KeepAliveMaxRequests = 0;
+  Id_TId_HTTPServer_KeepAliveTimeout = 0;
   Id_TId_HTTPServer_ParseParams = True;
   Id_TId_HTTPServer_SessionState = False;
   Id_TId_HTTPSessionTimeOut = 0;
@@ -191,7 +193,7 @@ const
   GServerSoftware = gsIdProductName + '/' + gsIdVersion;    {Do not Localize}
   GContentType = 'text/html';    {Do not Localize}
   GSessionIDCookie = 'IDHTTPSESSIONID';    {Do not Localize}
-  HTTPRequestStrings: array[0..Ord(High(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS'); {do not localize}
+  HTTPRequestStrings: array[0..Ord(High(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS', 'PATCH'); {do not localize}
 
 type
   // Forwards
@@ -251,6 +253,7 @@ type
     FQueryParams: string;
     FFormParams: string;
     FCommandType: THTTPCommandType;
+    FAuthType: string;
     //
     procedure DecodeAndSetParams(const AValue: String); virtual;
   public
@@ -261,6 +264,7 @@ type
     property Session: TIdHTTPSession read FSession;
     //
     property AuthExists: Boolean read FAuthExists;
+    property AuthType: string read FAuthType;
     property AuthPassword: string read FAuthPassword;
     property AuthUsername: string read FAuthUsername;
     property Command: string read FCommand;
@@ -283,6 +287,7 @@ type
   TIdHTTPResponseInfo = class(TIdResponseHeaderInfo)
   protected
     FAuthRealm: string;
+    FAuthCharset: string;
     FConnection: TIdTCPConnection;
     FResponseNo: Integer;
     FCookies: TIdCookies;
@@ -315,6 +320,7 @@ type
     function ServeFile(AContext: TIdContext; const AFile: String): Int64; virtual;
     function SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; const AFile: String): Int64;
     //
+    property AuthCharset: string read FAuthCharset write FAuthCharset;
     property AuthRealm: string read FAuthRealm write FAuthRealm;
     property CloseConnection: Boolean read FCloseConnection write SetCloseConnection;
     property ContentStream: TStream read FContentStream write FContentStream;
@@ -417,6 +423,8 @@ type
   protected
     FAutoStartSession: Boolean;
     FKeepAlive: Boolean;
+    FKeepAliveMaxRequests: Integer;
+    FKeepAliveTimeout: Integer;
     FParseParams: Boolean;
     FServerSoftware: string;
     FMIMETable: TIdThreadSafeMimeTable;
@@ -500,6 +508,8 @@ type
     property AutoStartSession: boolean read FAutoStartSession write FAutoStartSession default Id_TId_HTTPAutoStartSession;
     property DefaultPort default IdPORT_HTTP;
     property KeepAlive: Boolean read FKeepAlive write FKeepAlive default Id_TId_HTTPServer_KeepAlive;
+    property KeepAliveMaxRequests: Integer read FKeepAliveMaxRequests write FKeepAliveMaxRequests default Id_TId_HTTPServer_KeepAliveMaxRequests;
+    property KeepAliveTimeout: Integer read FKeepAliveTimeout write FKeepAliveTimeout default Id_TId_HTTPServer_KeepAliveTimeout;
     property MaximumHeaderLineCount: Integer read FMaximumHeaderLineCount write FMaximumHeaderLineCount default Id_TId_HTTPMaximumHeaderLineCount;
     property ParseParams: boolean read FParseParams write FParseParams default Id_TId_HTTPServer_ParseParams;
     property ServerSoftware: string read FServerSoftware write FServerSoftware;
@@ -894,6 +904,8 @@ begin
   FSessionTimeOut := Id_TId_HTTPSessionTimeOut;
   FAutoStartSession := Id_TId_HTTPAutoStartSession;
   FKeepAlive := Id_TId_HTTPServer_KeepAlive;
+  FKeepAliveMaxRequests := Id_TId_HTTPServer_KeepAliveMaxRequests;
+  FKeepAliveTimeout := Id_TId_HTTPServer_KeepAliveTimeout;
   FMaximumHeaderLineCount := Id_TId_HTTPMaximumHeaderLineCount;
   FSessionIDCookieName := GSessionIDCookie;
 end;
@@ -1095,17 +1107,20 @@ var
     LResponseText, LContentText, S: String;
   begin
     // let the user decide if the request headers are acceptable
+    // TODO pass the whole LRequestInfo object so the user has access
+    // to the request method, too...
     Result := DoHeadersAvailable(AContext, LRequestInfo.URI, LRequestInfo.RawHeaders);
     if not Result then begin
       DoHeadersBlocked(AContext, LRequestInfo.RawHeaders, LResponseNo, LResponseText, LContentText);
       LResponseInfo.ResponseNo := LResponseNo;
-      if Length(LResponseText) > 0 then begin
+      if LResponseText <> '' then begin
         LResponseInfo.ResponseText := LResponseText;
-      end; 
+      end;
       LResponseInfo.ContentText := LContentText;
+      LResponseInfo.CharSet := 'utf-8'; {Do not localize}
       LResponseInfo.CloseConnection := True;
       LResponseInfo.WriteHeader;
-      if Length(LContentText) > 0 then begin
+      if LContentText <> '' then begin
         LResponseInfo.WriteContent;
       end;
       Exit;
@@ -1120,7 +1135,7 @@ var
     // MUST report a 400 (Bad Request) error if an HTTP/1.1
     // request does not include a 'Host' header
     S := LRequestInfo.RawHeaders.Values['Host'];
-    if Length(S) = 0 then begin
+    if S = '' then begin
       LResponseInfo.ResponseNo := 400;
       LResponseInfo.CloseConnection := True;
       LResponseInfo.WriteHeader;
@@ -1135,7 +1150,7 @@ var
     end;
 
     S := LRequestInfo.RawHeaders.Values['Expect'];
-    if Length(S) = 0 then begin
+    if S = '' then begin
       Exit;
     end;
 
@@ -1178,6 +1193,17 @@ var
         LResponseInfo.WriteHeader;
         Exit;
       end;
+      // there is no good reason for GET/HEAD requests to ever have a non-empty
+      // message body, but some REST APIs do allow DELETE requests to carry a
+      // body to identify the resource(s) to be deleted...
+      // TODO: check if the 1st chunk is 0 bytes...
+      if LRequestInfo.CommandType in [hcGET, hcHEAD{, hcDELETE}] then
+      begin
+        LResponseInfo.ResponseNo := 400; // bad request
+        LResponseInfo.CloseConnection := True;
+        LResponseInfo.WriteHeader;
+        Exit;
+      end;
       CreatePostStream(AContext, LRequestInfo.RawHeaders, LRequestInfo.FPostStream);
       if LRequestInfo.FPostStream = nil then begin
         LRequestInfo.FPostStream := TMemoryStream.Create;
@@ -1207,6 +1233,16 @@ var
     end
     else if LRequestInfo.HasContentLength then
     begin
+      // there is no good reason for GET/HEAD requests to ever have a non-empty
+      // message body, but some REST APIs do allow DELETE requests to carry a
+      // body to identify the resource(s) to be deleted...
+      if (LRequestInfo.CommandType in [hcGET, hcHEAD{, hcDELETE}]) and (LRequestInfo.ContentLength <> 0) then
+      begin
+        LResponseInfo.ResponseNo := 400; // bad request
+        LResponseInfo.CloseConnection := True;
+        LResponseInfo.WriteHeader;
+        Exit;
+      end;
       CreatePostStream(AContext, LRequestInfo.RawHeaders, LRequestInfo.FPostStream);
       if LRequestInfo.FPostStream = nil then begin
         LRequestInfo.FPostStream := TMemoryStream.Create;
@@ -1245,11 +1281,12 @@ var
 
 var
   i: integer;
-  s, LInputLine, LRawHTTPCommand, LCmd, LContentType, LAuthType: String;
+  s, LInputLine, LRawHTTPCommand, LCmd, LContentType: String;
   LURI: TIdURI;
   LContinueProcessing, LCloseConnection: Boolean;
   LConn: TIdTCPConnection;
   LEncoding: IIdTextEncoding;
+  LNumRequests, LMaxRequests: Integer;
 begin
   LContinueProcessing := True;
   Result := False;
@@ -1257,6 +1294,15 @@ begin
   try
     try
       LConn := AContext.Connection;
+      if (FKeepAliveTimeout > 0) and
+         AContext.Connection.IOHandler.InputBufferIsEmpty then
+      begin
+        AContext.Connection.IOHandler.CheckForDataOnSource(FKeepAliveTimeout * 1000);
+        if AContext.Connection.IOHandler.InputBufferIsEmpty then begin
+          Exit;
+        end;
+      end;
+      LNumRequests := 0;
       repeat
         LInputLine := InternalReadLn(LConn.IOHandler);
         i := RPos(' ', LInputLine, -1);    {Do not Localize}
@@ -1348,7 +1394,7 @@ begin
                 // SG 29/11/01: Per request of Doychin
                 // Try to fill the "host" parameter
                 LRequestInfo.FDocument := TIdURI.URLDecode(LURI.Path) + TIdURI.URLDecode(LURI.Document);
-                if (Length(LURI.Host) > 0) and (Length(LRequestInfo.FHost) = 0) then begin
+                if (LURI.Host <> '') and (LRequestInfo.FHost = '') then begin
                   LRequestInfo.FHost := LURI.Host;
                 end;
               finally
@@ -1396,8 +1442,8 @@ begin
               // and the QueryParams belongs to the URL only, not the content.
               // We should be keeping everything separate for accuracy...
               LRequestInfo.UnparsedParams := LRequestInfo.FormParams;
-              if Length(LRequestInfo.QueryParams) > 0 then begin
-                if Length(LRequestInfo.UnparsedParams) = 0 then begin
+              if LRequestInfo.QueryParams <> '' then begin
+                if LRequestInfo.UnparsedParams = '' then begin
                   LRequestInfo.FUnparsedParams := LRequestInfo.QueryParams;
                 end else begin
                   LRequestInfo.FUnparsedParams := LRequestInfo.UnparsedParams + '&'  {Do not Localize}
@@ -1423,16 +1469,16 @@ begin
               try
                 // Authentication
                 s := LRequestInfo.RawHeaders.Values['Authorization'];    {Do not Localize}
-                if Length(s) > 0 then begin
-                  LAuthType := Fetch(s, ' ');
-                  LRequestInfo.FAuthExists := DoParseAuthentication(AContext, LAuthType, s, LRequestInfo.FAuthUsername, LRequestInfo.FAuthPassword);
+                if s <> '' then begin
+                  LRequestInfo.FAuthType := Fetch(s, ' ');
+                  LRequestInfo.FAuthExists := DoParseAuthentication(AContext, LRequestInfo.FAuthType, s, LRequestInfo.FAuthUsername, LRequestInfo.FAuthPassword);
                   if not LRequestInfo.FAuthExists then begin
-                    raise EIdHTTPUnsupportedAuthorisationScheme.Create(
-                      RSHTTPUnsupportedAuthorisationScheme);
+                    raise EIdHTTPUnsupportedAuthorisationScheme.Create(RSHTTPUnsupportedAuthorisationScheme);
                   end;
                 end;
 
                 // Session management
+                LContinueProcessing := True;
                 GetSessionFromCookie(AContext, LRequestInfo, LResponseInfo, LContinueProcessing);
                 if LContinueProcessing then begin
                   // These essentially all "retrieve" so they are all "Get"s
@@ -1449,6 +1495,7 @@ begin
                 on E: EIdHTTPUnsupportedAuthorisationScheme do begin
                   LResponseInfo.ResponseNo := 401;
                   LResponseInfo.ContentText := E.Message;
+                  LResponseInfo.CharSet := 'utf-8'; {Do no localize}
                   LContinueProcessing := True;
                   for i := 0 to LResponseInfo.WWWAuthenticate.Count - 1 do begin
                     S := LResponseInfo.WWWAuthenticate[i];
@@ -1464,6 +1511,7 @@ begin
                 on E: Exception do begin
                   LResponseInfo.ResponseNo := 500;
                   LResponseInfo.ContentText := E.Message;
+                  LResponseInfo.CharSet := 'utf-8'; {Do not localize}
                   DoCommandError(AContext, LRequestInfo, LResponseInfo, E);
                 end;
               end;
@@ -1473,7 +1521,7 @@ begin
                 LResponseInfo.WriteHeader;
               end;
               // Always check ContentText first
-              if (Length(LResponseInfo.ContentText) > 0)
+              if (LResponseInfo.ContentText <> '')
                or Assigned(LResponseInfo.ContentStream) then begin
                 LResponseInfo.WriteContent;
               end;
@@ -1487,7 +1535,27 @@ begin
             LResponseInfo.Free;
           end;
         finally
+          if not LCloseConnection then begin
+            LMaxRequests := IndyStrToInt(LRequestInfo.RawHeaders.Params['Keep-Alive', 'max'], -1);
+          end else begin
+            LMaxRequests := -1;
+          end;
           LRequestInfo.Free;
+        end;
+        Inc(LNumRequests);
+        if (not LCloseConnection) and (LMaxRequests > 0) then
+        begin
+          LCloseConnection := (LNumRequests >= LMaxRequests);
+        end;
+        if (not LCloseConnection) and (FKeepAliveMaxRequests > 0) then
+        begin
+          LCloseConnection := (LNumRequests >= FKeepAliveMaxRequests);
+        end;
+        if (not LCloseConnection) and (FKeepAliveTimeout > 0) and
+          AContext.Connection.IOHandler.InputBufferIsEmpty then
+        begin
+          AContext.Connection.IOHandler.CheckForDataOnSource(FKeepAliveTimeout * 1000);
+          LCloseConnection := AContext.Connection.IOHandler.InputBufferIsEmpty;
         end;
       until LCloseConnection;
     except
@@ -1856,8 +1924,8 @@ end;
 
 procedure TIdHTTPRequestInfo.DecodeAndSetParams(const AValue: String);
 var
-  i, j : Integer;
-  s: string;
+  i, j, LLen: Integer;
+  s, LCharSet: string;
   LEncoding: IIdTextEncoding;
 begin
   // Convert special characters
@@ -1869,12 +1937,17 @@ begin
     // which charset to use for decoding query string parameters.  We
     // should not be using the 'Content-Type' charset for that.  For
     // 'application/x-www-form-urlencoded' forms, we should be, though...
-    LEncoding := CharsetToEncoding(CharSet);
+    LCharSet := FCharSet;
+    if LCharSet = '' then begin
+      LCharSet := 'utf-8';  {Do not localize}
+    end;
+    LEncoding := CharsetToEncoding(LCharSet);//IndyTextEncoding_UTF8;
     i := 1;
-    while i <= Length(AValue) do
+    LLen := Length(AValue);
+    while i <= LLen do
     begin
       j := i;
-      while (j <= Length(AValue)) and (AValue[j] <> '&') do {do not localize}
+      while (j <= LLen) and (AValue[j] <> '&') do {do not localize}
       begin
         Inc(j);
       end;
@@ -1969,9 +2042,16 @@ end;
 
 procedure TIdHTTPResponseInfo.SetCloseConnection(const Value: Boolean);
 begin
-  Connection := iif(Value, 'close', 'keep-alive');    {Do not Localize}
-  // TODO: include a 'Keep-Alive' header to specify a timeout value
   FCloseConnection := Value;
+  Connection := iif(Value, 'close', 'keep-alive');    {Do not Localize}
+  if not Value then begin
+    if HTTPServer.KeepAliveTimeout > 0 then begin
+      CustomHeaders.Params['Keep-Alive', 'timeout'] := IntToStr(HTTPServer.KeepAliveTimeout); {do not localize}
+    end;
+    if HTTPServer.KeepAliveMaxRequests > 0 then begin
+      CustomHeaders.Params['Keep-Alive', 'max'] := IntToStr(HTTPServer.KeepAliveMaxRequests); {do not localize}
+    end;
+  end;
 end;
 
 procedure TIdHTTPResponseInfo.SetCookies(const AValue: TIdCookies);
@@ -1981,6 +2061,7 @@ end;
 
 procedure TIdHTTPResponseInfo.SetHeaders;
 var
+  LCharset: string;
   I: Integer;
 begin
   inherited SetHeaders;
@@ -2000,7 +2081,11 @@ begin
     end;
   end
   else if AuthRealm <> '' then begin
-    FRawHeaders.Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '"';    {Do not Localize}
+    LCharset := AuthCharset;
+    if LCharset = '' then begin
+      LCharset := 'UTF-8'; {Do not Localize}
+    end;
+    FRawHeaders.Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '" charset="' + LCharset + '"';    {Do not Localize}
   end;
   if FProxyAuthenticate.Count > 0 then begin
     FRawHeaders.Values['Proxy-Authenticate'] := ''; {Do not Localize}
@@ -2075,11 +2160,11 @@ function TIdHTTPResponseInfo.ServeFile(AContext: TIdContext; const AFile: String
 var
   EnableTransferFile: Boolean;
 begin
-  if Length(ContentType) = 0 then begin
+  if ContentType = '' then begin
     ContentType := HTTPServer.MIMETable.GetFileMIMEType(AFile);
   end;
   ContentLength := FileSizeByName(AFile);
-  if Length(ContentDisposition) = 0 then begin
+  if ContentDisposition = '' then begin
     // TODO: use EncodeHeader() here...
     ContentDisposition := IndyFormat('attachment; filename="%s";', [ExtractFileName(AFile)]);  {do not localize}
   end;
@@ -2197,7 +2282,7 @@ begin
   if AuthRealm <> '' then
   begin
     ResponseNo := 401;
-    if (Length(ContentText) = 0) and (not Assigned(ContentStream)) then
+    if (ContentText = '') and (not Assigned(ContentStream)) then
     begin
       ContentType := 'text/html; charset=utf-8';    {Do not Localize}
       ContentText := '<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText + '</B></BODY></HTML>';    {Do not Localize}
@@ -2400,7 +2485,7 @@ begin
       LSession := TIdHTTPSession(LSessionList[i]);
       // the stale sessions check has been removed... the cleanup thread should suffice plenty
       if Assigned(LSession) and TextIsSame(LSession.FSessionID, SessionID) and
-        ((Length(RemoteIP) = 0) or TextIsSame(LSession.RemoteHost, RemoteIP)) then
+        ((RemoteIP = '') or TextIsSame(LSession.RemoteHost, RemoteIP)) then
       begin
         // Session found
         // TODO: use a timer to signal when the session becomes stale, instead of

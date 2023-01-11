@@ -140,7 +140,7 @@ var
   LI : TIdUnixPermFTPListItem;
 begin
   LI := AItem as TIdFTPLPGOS8ListItem;
-  if Length(AItem.Data) > 0 then
+  if AItem.Data <> '' then
   begin
     if LI.Data[1] = 'd' then begin
       LI.ItemType := ditDirectory;
@@ -148,7 +148,7 @@ begin
       LI.ItemType := ditFile;
     end;
 
-    LI.FileName := Copy(AItem.Data, 60, Length(AItem.Data));
+    LI.FileName := Copy(AItem.Data, 60, MaxInt);
     //These may correspond roughly to Unix permissions
     //The values are the same as reported with Unix emulation mode
     LI.UnixOwnerPermissions := Copy(AItem.Data, 3, 3);
@@ -160,7 +160,7 @@ begin
 
     LI.ModifiedDate := DateMMDDYY(Copy(AItem.Data, 27, 8));
     LBuf := Copy(AItem.Data, 36, 8);
-    if Length(Trim(LBuf)) > 0 then begin
+    if Trim(LBuf) <> '' then begin
       LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(LBuf);
     end;
   end;

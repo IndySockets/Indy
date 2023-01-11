@@ -284,8 +284,6 @@
         <DCCReference Include="IdStackBSDBase.pas"/>
         <DCCReference Include="IdStackConsts.pas"/>
         <DCCReference Include="IdStackWindows.pas"/>
-        <DCCReference Include="IdStream.pas"/>
-        <DCCReference Include="IdStreamVCL.pas"/>
         <DCCReference Include="IdStruct.pas"/>
         <DCCReference Include="IdWinsock2.pas"/>
         <DCCReference Include="IdWship6.pas">

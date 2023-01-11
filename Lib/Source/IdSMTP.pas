@@ -339,7 +339,7 @@ begin
         RLebeau: TODO - implement the following code in the future instead
         of the code below.  This way, TIdSASLLogin can be utilized here.
 
-        SASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_smtp, 'LOGIN', ['235'], ['334'], Self, Capabilities);
+        SASLMechanisms.LoginSASL('AUTH', FHost, FPort, IdGSKSSN_smtp, 'LOGIN', ['235'], ['334'], Self, Capabilities);
         FDidAuthenticate := True;
 
         Or better, if the SASLMechanisms is empty, put some default entries
@@ -376,7 +376,7 @@ begin
       end;
     satSASL:
       begin
-        SASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_smtp, ['235'], ['334'], Self, Capabilities); {do not localize}
+        SASLMechanisms.LoginSASL('AUTH', FHost, FPort, IdGSKSSN_smtp, ['235'], ['334'], Self, Capabilities); {do not localize}
         FDidAuthenticate := True;
       end;
   end;

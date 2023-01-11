@@ -109,7 +109,7 @@ begin
   if Assigned(FOnCommandVerboseFinger) and TextEndsWith(s, '/W') then {Do not Localize}
   begin
     {we remove the /W switch before calling the event}
-    s := Copy(s, 1, Length(s)-2);
+    SetLength(s, Length(s)-2);
     OnCommandVerboseFinger(AContext, s, LResponse);
     AContext.Connection.IOHandler.Write(LResponse);
   end

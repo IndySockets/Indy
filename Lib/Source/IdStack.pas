@@ -235,20 +235,28 @@ type
   protected
     FIPVersion: TIdIPVersion;
     FIPAddress: String;
+    FInterfaceName: String;
+    FInterfaceIndex: UInt32;
+    FDescription: String;
+    FFriendlyName: String;
   public
     constructor Create(ACollection: TCollection; const AIPVersion: TIdIPVersion; const AIPAddress: string); reintroduce;
     property IPVersion: TIdIPVersion read FIPVersion;
     property IPAddress: String read FIPAddress;
-    // TODO: add InterfaceName
+    property InterfaceName: String read FInterfaceName;
+    property InterfaceIndex: UInt32 read FInterfaceIndex;
+    property Description: String read FDescription;
+    property FriendlyName: String read FFriendlyName;
   end;
 
   TIdStackLocalAddressIPv4 = class(TIdStackLocalAddress)
   protected
     FSubNetMask: String;
+    FBroadcastIP: String;
   public
-    constructor Create(ACollection: TCollection; const AIPAddress, ASubNetMask: string); reintroduce;
+    constructor Create(ACollection: TCollection; const AIPAddress: string; const ASubNetMask: string = ''; const ABroadcastIP: string = ''); reintroduce;
     property SubNetMask: String read FSubNetMask;
-    // TODO: add BroadcastIP
+    property BroadcastIP: String read FBroadcastIP;
   end;
 
   TIdStackLocalAddressIPv6 = class(TIdStackLocalAddress)
@@ -314,7 +322,7 @@ type
     procedure RaiseLastSocketError;
     procedure RaiseSocketError(AErr: integer); virtual;
     function NewSocketHandle(const ASocketType: TIdSocketType; const AProtocol: TIdSocketProtocol;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const AOverlapped: Boolean = False)
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const ANonBlocking: Boolean = False)
       : TIdStackSocketHandle; virtual; abstract;
     function NetworkToHost(AValue: UInt16): UInt16; overload; virtual; abstract;
     function NetworkToHost(AValue: UInt32): UInt32; overload; virtual; abstract;
@@ -529,13 +537,16 @@ begin
   inherited Create(ACollection);
   FIPVersion := AIPVersion;
   FIPAddress := AIPAddress;
+  FInterfaceIndex := 0;
 end;
 
-constructor TIdStackLocalAddressIPv4.Create(ACollection: TCollection; const AIPAddress, ASubNetMask: string);
+constructor TIdStackLocalAddressIPv4.Create(ACollection: TCollection; const AIPAddress: string;
+  const ASubNetMask: string = ''; const ABroadcastIP: string = '');
 begin
   inherited Create(ACollection, Id_IPv4, AIPAddress);
   FSubNetMask := ASubNetMask;
-end;
+  FBroadcastIP := ABroadcastIP;
+ end;
 
 constructor TIdStackLocalAddressIPv6.Create(ACollection: TCollection; const AIPAddress: string);
 begin

@@ -1060,7 +1060,7 @@ begin
     if i = 0 then
     begin
       SetYear(IndyStrToInt(s));
-      if Length(AString) > 0 then
+      if AString <> '' then
       begin
         i := IndyPos('-', AString);     {Do not Localize}
         if TextStartsWith(AString, 'W') then  {Do not Localize}
@@ -1071,12 +1071,12 @@ begin
 
           week := -1;
           i := -1;
-          if (Length(AString) > 0) and (FindFirstNotOf(DIGITS, AString) = 0) then
+          if (AString <> '') and (FindFirstNotOf(DIGITS, AString) = 0) then
           begin
             i := IndyStrToInt(AString);
           end;
 
-          if (Length(s) > 0) and (FindFirstNotOf(DIGITS, AString) = 0) then
+          if (s <> '') and (FindFirstNotOf(DIGITS, AString) = 0) then
           begin
             week := IndyStrToInt(s);
           end;
@@ -1101,13 +1101,13 @@ begin
           AString := Trim(Copy(AString, i + 1, MaxInt));
 
           // Set the day first due to internal format.
-          if (Length(AString) > 0) and (FindFirstNotOf(DIGITS, s) = 0) then
+          if (AString <> '') and (FindFirstNotOf(DIGITS, s) = 0) then
           begin
             SetDay(IndyStrToInt(AString));
           end;
           
           // Add the months.
-          if (Length(s) > 0) and (FindFirstNotOf(DIGITS, s) = 0) then
+          if (s <> '') and (FindFirstNotOf(DIGITS, s) = 0) then
           begin
             AddMonths(IndyStrToInt(s) - 1);
           end;
@@ -1139,17 +1139,17 @@ begin
   AString := Trim(Copy(AString, i + 1, MaxInt));
 
   // Set seconds first due to internal format.
-  if (Length(AString) > 0) and (FindFirstNotOf(DIGITS, AString) = 0) then
+  if (AString <> '') and (FindFirstNotOf(DIGITS, AString) = 0) then
   begin
     SetSecond(IndyStrToInt(AString));
   end;
 
-  if (Length(Minute) > 0) and (FindFirstNotOf(DIGITS, Minute) = 0) then
+  if (Minute <> '') and (FindFirstNotOf(DIGITS, Minute) = 0) then
   begin
     AddMinutes(IndyStrToInt(Minute));
-  end;  
+  end;
 
-  if (Length(Hour) > 0) and (FindFirstNotOf(DIGITS, Hour) = 0) then
+  if (Hour <> '') and (FindFirstNotOf(DIGITS, Hour) = 0) then
   begin
     AddHours(IndyStrToInt(Hour));
   end;

@@ -279,10 +279,12 @@ end;
 
 function TIdUDPServer.GetActive: Boolean;
 begin
-  // inherited GetActive keeps track of design-time Active property
-  Result := inherited GetActive;
-  if not Result then begin
-    if Assigned(FCurrentBinding) then begin
+  if IsDesignTime then begin
+    // inherited GetActive keeps track of design-time Active property
+    Result := inherited GetActive;
+  end else begin
+    Result := Assigned(FCurrentBinding);
+    if Result then begin
       Result := FCurrentBinding.HandleAllocated;
     end;
   end;
@@ -304,6 +306,7 @@ var
   LListenerThread: TIdUDPListenerThread;
   i: Integer;
   LBinding: TIdSocketHandle;
+  LName: string;
 begin
   if FCurrentBinding = nil then begin
     if Bindings.Count = 0 then begin
@@ -346,6 +349,9 @@ begin
         end;
         DoBeforeBind(LBinding);
         LBinding.Bind;
+        if FCurrentBinding = nil then begin
+          FCurrentBinding := Bindings[i];
+        end;
         Inc(i);
       end;
     except
@@ -359,20 +365,34 @@ begin
 
     DoAfterBind;
 
-    for i := 0 to Bindings.Count - 1 do begin
-      LListenerThread := FThreadClass.Create(Self, Bindings[i]);
-      LListenerThread.Name := Name + ' Listener #' + IntToStr(i + 1); {do not localize}
-      {$IF DEFINED(DELPHI_CROSS) AND (NOT DEFINED(MACOSX))}
-      //Todo: Implement proper priority handling for Linux
-      //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
-      LListenerThread.Priority := tpListener;
-      {$IFEND}
-      FListenerThreads.Add(LListenerThread);
-      LListenerThread.Start;
+    LName := Name;
+    if LName = '' then begin
+      LName := 'IdUDPServer'; {do not localize}
     end;
-    FCurrentBinding := Bindings[0];
+
+    for i := 0 to Bindings.Count - 1 do begin
+      try
+        LListenerThread := FThreadClass.Create(Self, Bindings[i]);
+        try
+          LListenerThread.Name := LName + ' Listener #' + IntToStr(i + 1); {do not localize}
+          {$IF DEFINED(DELPHI_CROSS) AND (NOT DEFINED(MACOSX))}
+          //Todo: Implement proper priority handling for Linux
+          //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
+          LListenerThread.Priority := tpListener;
+          {$IFEND}
+          FListenerThreads.Add(LListenerThread);
+        except
+          LListenerThread.Free;
+          raise;
+        end;
+        LListenerThread.Start;
+      except
+      end;
+    end;
+
     BroadcastEnabledChanged;
   end;
+
   Result := FCurrentBinding;
 end;
 

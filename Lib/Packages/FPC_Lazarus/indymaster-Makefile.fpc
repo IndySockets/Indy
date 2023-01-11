@@ -288,8 +288,6 @@ implicitunits=IdASN1Util \
   IdSocks \
   IdStack \
   IdStackConsts \
-  IdStream \
-  IdStreamVCL \
   IdStrings \
   IdStruct \
   IdSync \

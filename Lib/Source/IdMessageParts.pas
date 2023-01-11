@@ -375,7 +375,7 @@ begin
   FRelatedPartCount := 0;
   FTextPartCount := 0;
   for i := 0 to Count - 1 do begin
-    if Length(TIdMessagePart(Items[i]).ContentID) > 0 then begin
+    if TIdMessagePart(Items[i]).ContentID <> '' then begin
       Inc(FRelatedPartCount);
     end;
     case TIdMessagePart(Items[i]).PartType of

@@ -637,6 +637,7 @@ uses
   Posix.SysTime,
   Posix.Time,
   {$ENDIF}
+  {$IFDEF HAS_DateUtils_TTimeZone}DateUtils,{$ENDIF}
   IdException;
 
 {WS_FTP Pro XAUT Support}
@@ -963,7 +964,7 @@ begin
       Break;
     end;
   end;
-  Result := Copy(AData, LPos, Length(AData));
+  Result := Copy(AData, LPos, MaxInt);
 end;
 
 {Path processing}
@@ -1180,7 +1181,7 @@ var
   LSecs : Int64;
 begin
   LSecs := IndyStrToInt(AData);
-  Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(BASE_DATE)) - IdGlobalProtocols.TimeZoneBias;
+  Result := UTCTimeToLocalTime( Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(BASE_DATE)) );
 end;
 
 function EPLFDateToGMTDateTime(const AData: String): TDateTime;
@@ -1203,7 +1204,7 @@ end;
 function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := FloatToStr( Extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
+  Result := FloatToStr( Extended( LocalTimeToUTCTime(ADateTime) - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
 end;
 
 {Date routines}
@@ -1304,11 +1305,28 @@ begin
 end;
 
 function MinutesFromGMT : Integer;
+{$IF DEFINED(HAS_GetLocalTimeOffset) OR DEFINED(HAS_DateUtils_TTimeZone)}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
+{$ELSE}
 var
   LD : TDateTime;
   LHour, LMin, LSec, LMSec : Word;
+{$IFEND}
 begin
+  {$IF DEFINED(HAS_GetLocalTimeOffset)}
+  // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
+  // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
+  // function must be used to re-initialize the timezone information...
+
+  // RLebeau 1/15/2022: the value returned by MinutesFromGMT() is meant to be *subtracted*
+  // from a local time, and *added* to a UTC time.  However, the value returned by
+  // FPC's GetLocalTimeOffset() is the opposite - it is meant to be *added* to local time,
+  // and *subtracted* from UTC time.  So, we need to flip its sign here... 
+
+  Result := -1 * GetLocalTimeOffset();
+  {$ELSEIF DEFINED(HAS_DateUtils_TTimeZone)}
+  Result := {-1 *} TTimeZone.Local.UtcOffset.TotalMinutes;
+  {$ELSE}
   LD := OffsetFromUTC;
   DecodeTime(LD, LHour, LMin, LSec, LMSec);
   if LD < 0.0 then begin
@@ -1316,6 +1334,7 @@ begin
   end else begin
     Result := LHour * 60 + LMin;
   end;
+  {$IFEND}
 end;
 
 function FTPDateTimeToMDTMD(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
@@ -1376,7 +1395,7 @@ begin
       Result := EncodeDate(LYear, LMonth, LDay);
       Result := Result + EncodeTime(LHour, LMin, LSec, LMSec);
       if LOffset = '' then begin
-        Result := Result - OffsetFromUTC;
+        Result := LocalTimeToUTCTime(Result);
       end else begin
         Result := Result - MDTMOffset(LOffset);
       end;
@@ -1843,16 +1862,19 @@ end;
 
 function PermStringToModeBits(const APerms : String): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  LLen: Integer;
 begin
   Result := 0;
+  LLen := Length(APerms);
   //owner bits
-  if (Length(APerms) > 0) and (APerms[1] = 'r') then begin
+  if (LLen > 0) and (APerms[1] = 'r') then begin
     Result := Result or IdS_IRUSR;
   end;
-  if (Length(APerms) > 1) and (APerms[2] = 'w') then begin
+  if (LLen > 1) and (APerms[2] = 'w') then begin
     Result := Result or IdS_IWUSR;
   end;
-  if Length(APerms) > 2 then begin
+  if LLen > 2 then begin
     case APerms[3] of
       'x' : //exec
         begin
@@ -1870,13 +1892,13 @@ begin
     end;
   end;
   //group bits
-  if (Length(APerms) > 3) and (APerms[4] = 'r') then begin
+  if (LLen > 3) and (APerms[4] = 'r') then begin
     Result := Result or IdS_IRGRP;
   end;
-  if (Length(APerms) > 4) and (APerms[5] = 'w') then begin
+  if (LLen > 4) and (APerms[5] = 'w') then begin
     Result := Result or IdS_IWGRP;
   end;
-  if Length(APerms) > 5 then begin
+  if LLen > 5 then begin
     case APerms[6] of
       'x' : //exec
         begin
@@ -1894,17 +1916,17 @@ begin
     end;
   end;
   //Other permissions
-  if (Length(APerms) > 6) and (APerms[7] = 'r') then begin
+  if (LLen > 6) and (APerms[7] = 'r') then begin
     Result := Result or IdS_IROTH;
   end;
-  if (Length(APerms) > 7) and (APerms[8] = 'w') then begin
+  if (LLen > 7) and (APerms[8] = 'w') then begin
     Result := Result or IdS_IWOTH;
   end;
-  if Length(APerms) > 8 then begin
+  if LLen > 8 then begin
     case APerms[9] of
       'x' :
         begin
-	        Result := Result or IdS_IXOTH;
+          Result := Result or IdS_IXOTH;
         end;
       't' :
         begin

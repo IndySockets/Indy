@@ -143,8 +143,6 @@
 			<DCCReference Include="..\..\Source\IdStackBSDBase.pas"/>
 			<DCCReference Include="..\..\Source\IdStackConsts.pas"/>
 			<DCCReference Include="..\..\Source\IdStackVCLPosix.pas"/>
-			<DCCReference Include="..\..\Source\IdStream.pas"/>
-			<DCCReference Include="..\..\Source\IdStreamVCL.pas"/>
 			<DCCReference Include="..\..\Source\IdStruct.pas"/>
 			<DCCReference Include="..\..\Source\IdVCLPosixSupplemental.pas">
 				<Form>$ENDIF</Form>

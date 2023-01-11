@@ -130,7 +130,7 @@ begin
       LOptValue := BytesToString(OptionPacket, LOffset, Idx-LOffset, IndyTextEncoding_ASCII);
       LOffset := Idx+1;
 
-      OptionIdx := PosInStrArray(LOptName, [sBlockSize, sTransferSize], False);
+      OptionIdx := PosInStrArray(LOptName, [sBlockSize, sBlockSize2, sTransferSize], False);
       if OptionIdx = -1 then begin
         // RLebeau 12/6/2011: workaround for bug in PicoMOD3 devices
         if (LOptName = '') and (LOptValue = '') then begin
@@ -149,6 +149,14 @@ begin
             BufferSize := 4 + LRequestedBlkSize;
           end;
         1:
+          begin
+            LRequestedBlkSize := IndyStrToInt(LOptValue);
+            if (LRequestedBlkSize < 8) or (LRequestedBlkSize > 32768) or (not IsPowerOf2(LRequestedBlkSize)) then begin
+              raise EIdTFTPOptionNegotiationFailed.CreateFmt(RSTFTPUnsupportedOptionValue, [LOptValue, LOptName]);
+            end;
+            BufferSize := 4 + LRequestedBlkSize;
+          end;
+        2:
           begin
             if Reading then
             begin
@@ -172,7 +180,7 @@ end;
 
 procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TStream);
 var
-  Buffer, LServerFile, LMode, LBlockSize, LBlockOctets, LTransferSize, LTransferOctets: TIdBytes;
+  Buffer, LServerFile, LMode, LBlockSize, LBlockOctets, {LBlockSize2, LBlockOctets,} LTransferSize, LTransferOctets: TIdBytes;
   DataLen, LOffset: Integer;
   ExpectedBlockCtr, RecvdBlockCtr: UInt16;
   TerminateTransfer: Boolean;
@@ -184,10 +192,14 @@ begin
     LMode := ToBytes(ModeToStr);
     LBlockSize := ToBytes(sBlockSize);
     LBlockOctets := ToBytes(IntToStr(FRequestedBlockSize));
+    { TODO:
+    LBlockSize2 := ToBytes(sBlockSize2);
+    LBlockOctets2 := ToBytes(IntToStr(FRequestedBlockSize));
+    }
     LTransferSize := ToBytes(sTransferSize);
     LTransferOctets := ToBytes(IntToStr(0));
 
-    SetLength(Buffer, 2+Length(LServerFile)+1+Length(LMode)+1+Length(LBlockSize)+1+Length(LBlockOctets)+1+Length(LTransferSize)+1+Length(LTransferOctets)+1);
+    SetLength(Buffer, 2+Length(LServerFile)+1+Length(LMode)+1+Length(LBlockSize)+1+Length(LBlockOctets){+1+Length(LBlockSize2)+1+Length(LBlockOctets2)}+1+Length(LTransferSize)+1+Length(LTransferOctets)+1);
     LOffset := 0;
 
     CopyTIdUInt16(GStack.HostToNetwork(UInt16(TFTP_RRQ)), Buffer, LOffset);
@@ -208,6 +220,16 @@ begin
     Inc(LOffset, Length(LBlockOctets));
     Buffer[LOffset] := 0;
     Inc(LOffset);
+    { TODO:
+    CopyTIdBytes(LBlockSize2, 0, Buffer, LOffset, Length(LBlockSize2));
+    Inc(LOffset, Length(LBlockSize2));
+    Buffer[LOffset] := 0;
+    Inc(LOffset);
+    CopyTIdBytes(LBlockOctets2, 0, Buffer, LOffset, Length(LBlockOctets2));
+    Inc(LOffset, Length(LBlockOctets2));
+    Buffer[LOffset] := 0;
+    Inc(LOffset);
+    }
     CopyTIdBytes(LTransferSize, 0, Buffer, LOffset, Length(LTransferSize));
     Inc(LOffset, Length(LTransferSize));
     Buffer[LOffset] := 0;
@@ -309,7 +331,7 @@ end;
 
 procedure TIdTrivialFTP.Put(SourceStream: TStream; const ServerFile: String);
 var
-  Buffer, LServerFile, LMode, LBlockSize, LBlockOctets, LTransferSize, LTransferOctets: TIdBytes;
+  Buffer, LServerFile, LMode, LBlockSize, LBlockOctets, {LBlockSize2, LBlockOctets2,} LTransferSize, LTransferOctets: TIdBytes;
   StreamLen: Int64;
   LOffset, DataLen: Integer;
   ExpectedBlockCtr, RecvdBlockCtr, wOp: UInt16;
@@ -349,10 +371,14 @@ begin
     LMode := ToBytes(ModeToStr);
     LBlockSize := ToBytes(sBlockSize);
     LBlockOctets := ToBytes(IntToStr(FRequestedBlockSize));
+    { TODO:
+    LBlockSize2 := ToBytes(sBlockSize2);
+    LBlockOctets2 := ToBytes(IntToStr(FRequestedBlockSize));
+    }
     LTransferSize := ToBytes(sTransferSize);
     LTransferOctets := ToBytes(IntToStr(StreamLen));
 
-    SetLength(Buffer, 2+Length(LServerFile)+1+Length(LMode)+1+Length(LBlockSize)+1+Length(LBlockOctets)+1+Length(LTransferSize)+1+Length(LTransferOctets)+1);
+    SetLength(Buffer, 2+Length(LServerFile)+1+Length(LMode)+1+Length(LBlockSize)+1+Length(LBlockOctets){+1+Length(LBlockSize2)+1+Length(LBlockOctets2)}+1+Length(LTransferSize)+1+Length(LTransferOctets)+1);
     LOffset := 0;
 
     CopyTIdUInt16(GStack.HostToNetwork(UInt16(TFTP_WRQ)), Buffer, LOffset);
@@ -373,6 +399,16 @@ begin
     Inc(LOffset, Length(LBlockOctets));
     Buffer[LOffset] := 0;
     Inc(LOffset);
+    {
+    CopyTIdBytes(LBlockSize2, 0, Buffer, LOffset, Length(LBlockSize2));
+    Inc(LOffset, Length(LBlockSize2));
+    Buffer[LOffset] := 0;
+    Inc(LOffset);
+    CopyTIdBytes(LBlockOctets2, 0, Buffer, LOffset, Length(LBlockOctets2));
+    Inc(LOffset, Length(LBlockOctets2));
+    Buffer[LOffset] := 0;
+    Inc(LOffset);
+    }
     CopyTIdBytes(LTransferSize, 0, Buffer, LOffset, Length(LTransferSize));
     Inc(LOffset, Length(LTransferSize));
     Buffer[LOffset] := 0;

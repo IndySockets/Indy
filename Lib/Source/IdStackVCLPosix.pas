@@ -115,7 +115,7 @@ type
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
+      const ANonBlocking: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     {$IFDEF DCC_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -160,12 +160,17 @@ uses
   Posix.NetDB,
   {$IFDEF HAS_getifaddrs}
   Posix.NetIf,
+  {$ELSE}
+    {$IFDEF ANDROID}
+  //IdIfAddrs,
+    {$ENDIF}
   {$ENDIF}
   Posix.NetinetIn,
   Posix.StrOpts,
   Posix.SysTypes,
   Posix.SysUio,
   Posix.Unistd,
+  Posix.Fcntl,
   SysUtils;
 
   {$UNDEF HAS_MSG_NOSIGNAL}
@@ -494,9 +499,17 @@ end;
 {$IFDEF HAS_getifaddrs}
 function getifaddrs(var ifap: pifaddrs): Integer; cdecl; external libc name _PU + 'getifaddrs'; {do not localize}
 procedure freeifaddrs(ifap: pifaddrs); cdecl; external libc name _PU + 'freeifaddrs'; {do not localize}
+  {$IFDEF HAS_if_nametoindex}
+function if_nametoindex(const ifname: PIdAnsiChar): UInt32; cdecl; external libc name _PU + 'if_nametoindex'; {do not localize}
+  {$ENDIF}
+
+type
+  TIdStackLocalAddressAccess = class(TIdStackLocalAddress)
+  end;
+
 {$ELSE}
   {$IFDEF ANDROID}
-  // TODO: implement getifaddrs() manually using code from https://github.com/kmackay/android-ifaddrs
+  // IdIfAddrs.pas has a getifaddrs() implementation ported from code at https://github.com/morristech/android-ifaddrs
   {.$DEFINE HAS_getifaddrs}
   {$ENDIF}
 {$ENDIF}
@@ -505,7 +518,9 @@ procedure TIdStackVCLPosix.GetLocalAddressList(AAddresses: TIdStackLocalAddressL
 var
   {$IFDEF HAS_getifaddrs}
   LAddrList, LAddrInfo: pifaddrs;
-  LSubNetStr: String;
+  LSubNetStr, LBroadcastStr: String;
+  LAddress: TIdStackLocalAddress;
+  LName: string;
   {$ELSE}
   LRetVal: Integer;
   LHostName: string;
@@ -534,6 +549,7 @@ begin
       repeat
         if (LAddrInfo^.ifa_addr <> nil) and ((LAddrInfo^.ifa_flags and IFF_LOOPBACK) = 0) then
         begin
+          LAddress := nil;
           case LAddrInfo^.ifa_addr^.sa_family of
             Id_PF_INET4: begin
               if LAddrInfo^.ifa_netmask <> nil then begin
@@ -541,11 +557,25 @@ begin
               end else begin
                 LSubNetStr := '';
               end;
-              TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
+              if ((LAddrInfo^.ifa_flags and IFF_BROADCAST) <> 0) and (LAddrInfo^.ifa_broadaddr <> nil) then
+                LBroadcastStr := TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_broadaddr)^.sin_addr, Id_IPv4);
+              end else begin
+                LBroadcastStr := '';
+              end;
+              LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr, LBroadcastStr);
             end;
             Id_PF_INET6: begin
-              TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+              LAddress := TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
             end;
+          end;
+          if LAddress <> nil then begin
+            LName := String(LAddrInfo^.ifa_name);
+            TIdStackLocalAddressAccess(LAddress).FDescription := LName;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
+            {$IFDEF HAS_if_nametoindex}
+            TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
+            {$ENDIF}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -578,11 +608,26 @@ begin
     ;
 
   var
-    LInterfaces, LAddresses: JEnumeration;
+    LInterfaces: JEnumeration;
     LInterface: JNetworkInterface;
+    LAddresses: JList;
+    LInterfaceAddress: JInterfaceAddress;
     LAddress: JInetAddress;
-    LName, LHostAddress: string;
-    LPos: Integer;
+    LName, LHostAddress, LBroadcastAddress: string;
+    I, LPos: Integer;
+
+    function PrefixLengthToString(PrefixLength: Int16): String;
+    var
+      LMask: UInt32;
+    begin
+      if (PrefixLength > 0) and (PrefixLength < 32) then begin
+        LMask := $FFFFFFFF shl (32 - PrefixLength);
+        Result := Format('%d.%d.%d.%d', [(LMask shr 24) and $FF, (LMask shr 16) and $FF, (LMask shr 8) and $FF, LMask and $FF]);
+      end else begin
+        Result := '';
+      end;
+    end;
+
   begin
     try
       LInterfaces := TJNetworkInterface.JavaClass.getNetworkInterfaces;
@@ -592,10 +637,14 @@ begin
         try
           repeat
             LInterface := TJNetworkInterface.Wrap(JObjectToID(LInterfaces.nextElement));
-            LAddresses := LInterface.getInetAddresses;
-            while LAddresses.hasMoreElements do
+            LAddresses := LInterface.getInterfaceAddresses;
+            if LAddresses = nil then begin
+              Continue;
+            end;
+            for I := 0 to LAddresses.size - 1 do
             begin
-              LAddress := TJInetAddress.Wrap(JObjectToID(LAddresses.nextElement));
+              LInterfaceAddress := TJInterfaceAddress.Wrap(JObjectToID(LAddresses.get(I)));
+              LAddress := LInterfaceAddress.getAddress;
               if LAddress.isLoopbackAddress then begin
                 Continue;
               end;
@@ -607,15 +656,27 @@ begin
               end;
               // Hack until I can find out how to check properly
               //if (LAddress instanceof Inet4Address) then begin
-              //  TIdStackLocalAddressIPv4.Create(AAddresses, LHostAddress, ''); // TODO: subnet mask
-              //end
-              // else if (LAddress instanceof Inet6Address) then begin
-              // TIdStackLocalAddressIPv6.Create(AAddresses, LHostAddress);
-              //end;
               LName := JStringToString(LAddress.getClass.getName);
               if Pos('Inet4Address', LName) <> 0 then begin
-                TIdStackLocalAddressIPv4.Create(AAddresses, LHostAddress, ''); // TODO: subnet mask
+                // NOTE: java.lang.System.setProperty("java.net.preferIPv4Stack", "true") needs to be called
+                // before NetworkInterface.getNetworkInterfaces() is called for the first time or else the
+                // InterfaceAddress.getBroadcast() method will not work reliably for IPv4 on systems with an
+                // IPv6 stack installed, it will usually just report 255.255.255.255 instead (see
+                // https://enigma2eureka.blogspot.com/2009/08/finding-your-ip-v4-broadcast-address.html)...
+                LAddress := LAddress.getBroadcast;
+                if LAddress <> nil then begin
+                  LBroadcastAddress := JStringToString(LAddress.getHostAddress);
+                  // Trim excess stuff
+                  LPos := Pos('%', LBroadcastAddress);
+                  if LPos <> 0 then begin
+                    LBroadcastAddress := Copy(LBroadcastAddress, 1, LPos-1);
+                  end;
+                end else begin
+                  LBroadcastAddress := '';
+                end;
+                TIdStackLocalAddressIPv4.Create(AAddresses, LHostAddress, PrefixLengthToString(LAddress.getNetworkPrefixLength), LBroadcastAddress);
               end
+              // else if (LAddress instanceof Inet6Address) then begin
               else if Pos('Inet6Address', LName) <> 0 then begin
                 TIdStackLocalAddressIPv6.Create(AAddresses, LHostAddress);
               end;
@@ -647,11 +708,25 @@ begin
 
   var
     wifiManager: JWifiManager;
-    ipAddress: Integer;
+    dhcp: JDhcpInfo;
+    ipAddress, netMask, bcAddress: Integer;
+
+    function IntToIPv4Str(Addr: Integer): String;
+    begin
+      Result := Format('%d.%d.%d.%d', [Addr and $FF, (Addr shr 8) and $FF, (Addr shr 16) and $FF, (Addr shr 24) and $FF]),
+    end;
+
   begin
+    // WiFiInfo and DhcoInfo only support IPv4
     try
       wifiManager := TJWifiManager.Wrap(JObjectToID(SharedActivityContext.getSystemService(TJContext.JavaClass.WIFI_SERVICE)));
-      ipAddress := wifiManager.getConnectionInfo.getIpAddress;
+      dhcp := wifiManager.getDhcpInfo;
+      if dhcp = nil then begin
+        Exit;
+      end;
+      ipAddress := dhcp.getIpAddress;
+      netMask := dhcp.getNetMask;
+      bcAddress := (ipAddress and netMask) or (not netMask);
     except
       if not HasAndroidPermission('android.permission.ACCESS_WIFI_STATE') then begin
         IndyRaiseOuterException(EIdAccessWifiStatePermissionNeeded.CreateError(0, ''));
@@ -659,12 +734,7 @@ begin
         raise;
       end;
     end;
-
-    // WiFiInfo only supports IPv4
-    TIdStackLocalAddressIPv4.Create(AAddresses,
-      Format('%d.%d.%d.%d', [ipAddress and $ff, (ipAddress shr 8) and $ff, (ipAddress shr 16) and $ff, (ipAddress shr 24) and $ff]),
-      '' // TODO: subnet mask
-    );
+    TIdStackLocalAddressIPv4.Create(AAddresses, IntToIPv4Str(ipAddress), IntToIPv4Str(netMask), IntToIPv4Str(bcAddress));
   end;
   }
 
@@ -697,10 +767,10 @@ begin
     try
       LAddrInfo := LAddrList;
       repeat
-        case LAddrInfo^.ai_family{LAddrInfo^.ai_addr^.sa_family} of
+        case LAddrInfo^.ai_family of
         Id_PF_INET4 :
           begin
-            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4), ''); // TODO: SubNet
+            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString( PSockAddr_In(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4), '', ''); // TODO: SubNetMask and BroadcastIP
           end;
         Id_PF_INET6 :
           begin
@@ -1245,24 +1315,16 @@ end;
 
 procedure TIdStackVCLPosix.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
-{
 var
   LFlags: Integer;
-}
 begin
-  // TODO: enable this
-  {
-  LFlags := CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_GETFL, 0));
+  LFlags := CheckForSocketError(fcntl(ASocket, F_GETFL, 0));
   if ABlocking then begin
     LFlags := LFlags and not O_NONBLOCK;
   end else begin
     LFlags := LFlags or O_NONBLOCK;
   end;
-  CheckForSocketError(Posix.SysSocket.fcntl(ASocket, F_SETFL, LFlags));
-  }
-  if not ABlocking then begin
-    raise EIdNonBlockingNotSupported.Create(RSStackNonBlockingNotSupported);
-  end;
+  CheckForSocketError(fcntl(ASocket, F_SETFL, LFlags));
 end;
 
 procedure TIdStackVCLPosix.SetLastError(const AError: Integer);
@@ -1306,11 +1368,11 @@ end;
 
 function TIdStackVCLPosix.WouldBlock(const AResult: Integer): Boolean;
 begin
-  //non-blocking does not exist in Linux, always indicate things will block
-  Result := True;
-
-  // TODO: enable this:
-  //Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
+  // using if-else instead of in..range because EAGAIN and EWOULDBLOCK
+  // have often the same value and so FPC might report a range error
+  Result := (AResult = Id_WSAEAGAIN) or
+            (AResult = Id_WSAEWOULDBLOCK) or
+            (AResult = Id_WSAEINPROGRESS);
 end;
 
 procedure TIdStackVCLPosix.WriteChecksum(s: TIdStackSocketHandle;
@@ -1477,14 +1539,22 @@ begin
 end;
 
 function TIdStackVCLPosix.WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle;
+  const ANonBlocking: Boolean = False): TIdStackSocketHandle;
+var
+  LFlags: Integer;
 begin
   Result := Posix.SysSocket.socket(AFamily, AStruct, AProtocol);
-  {$IFDEF HAS_SOCKET_NOSIGPIPE}
   if Result <> INVALID_SOCKET then begin
+    {$IFDEF HAS_SOCKET_NOSIGPIPE}
     SetSocketOption(Result, SOL_SOCKET, SO_NOSIGPIPE, 1);
+    {$ENDIF}
+    //SetBlocking(Result, not ANonBlocking);
+    if ANonBlocking then begin
+      LFlags := fcntl(Result, F_GETFL, 0);
+      LFlags := LFlags or O_NONBLOCK;
+      fcntl(Result, F_SETFL, LFlags);
+    end;
   end;
-  {$ENDIF}
 end;
 
 {$I IdUnitPlatformOn.inc}

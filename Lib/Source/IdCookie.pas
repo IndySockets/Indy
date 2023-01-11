@@ -94,6 +94,7 @@ type
     FHostOnly: Boolean;
     FLastAccessed: TDateTime;
     FPersistent: Boolean;
+    FSameSite: String;
 
     function GetIsExpired: Boolean;
 
@@ -130,6 +131,7 @@ type
     property HostOnly: Boolean read FHostOnly write FHostOnly;
     property LastAccessed: TDateTime read FLastAccessed write FLastAccessed;
     property Persistent: Boolean read FPersistent write FPersistent;
+    property SameSite: String read FSameSite write FSameSite;
   end;
 
   TIdCookieClass = class of TIdCookie;
@@ -299,6 +301,7 @@ begin
     end
     else if TextEndsWith(LHost, LDomain) then
     begin
+      // TODO: use CharEquals() instead
       if TextEndsWith(Copy(LHost, 1, Length(LHost)-Length(LDomain)), '.') then begin
         Result := IsHostName(LHost);
       end;
@@ -335,7 +338,12 @@ end;
 
 function IsHTTP(const AProtocol: String): Boolean;
 begin
-  Result := PosInStrArray(AProtocol, ['http', 'https'], False) <> -1; {do not localize}
+  Result := PosInStrArray(AProtocol, ['http', 'https', 'shttp'], False) <> -1; {do not localize}
+end;
+
+function IsSecure(const AProtocol: String): Boolean;
+begin
+  Result := PosInStrArray(AProtocol, ['https', 'shttp'{, ...}], False) <> -1; {do not localize}
 end;
 
 { base functions used for construction of Cookie text }
@@ -343,9 +351,9 @@ end;
 procedure AddCookieProperty(var VCookie: String;
   const AProperty, AValue: String);
 begin
-  if Length(AValue) > 0 then
+  if AValue <> '' then
   begin
-    if Length(VCookie) > 0 then begin
+    if VCookie <> '' then begin
       VCookie := VCookie + '; '; {Do not Localize}
     end;
     // TODO: encode illegal characters?
@@ -355,7 +363,7 @@ end;
 
 procedure AddCookieFlag(var VCookie: String; const AFlag: String);
 begin
-  if Length(VCookie) > 0 then begin
+  if VCookie <> '' then begin
     VCookie := VCookie + '; '; { Do not Localize }
   end;
   VCookie := VCookie + AFlag;
@@ -455,7 +463,10 @@ begin
   // using the algorithm defined in RFC 6265 section 5.4...
   Result := MatchesHost and IsPathMatch(AURI.Path, Path) and
             ((not Secure) or (Secure and SecureOnly)) and
-            ((not HttpOnly) or (HttpOnly and IsHTTP(AURI.Protocol)));
+            ((not HttpOnly) or (HttpOnly and IsHTTP(AURI.Protocol)))
+            // TODO:
+            //and ((SameSite = 'None') or (not CrossSite) or ((SameSite = 'Lax') and (Request.Method is safe) and (Request.TargetBrowsingContext = TopLevelBrowsingContext)))
+            ;
 end;
 
 function TIdCookie.ParseServerCookie(const ACookieText: String; AURI: TIdURI): Boolean;
@@ -491,16 +502,20 @@ const
     end;
 
     LValue := Trim(Copy(LNameValue, I+1, MaxInt));
+    // RLebeau 11/17/2020: no longer stripping off quotes here!
+    // Some servers require them to remain intact....
+    {
     if TextStartsWith(LValue, '"') then begin
       IdDelete(LValue, 1, 1);
       LNameValue := LValue;
       LValue := Fetch(LNameValue, '"');
     end;
+    }
     IndyAddPair(CookieProp, LName, LValue);
 
     while LAttrs <> '' do
     begin
-      IdDelete(LAttrs, 1, 1);
+      IdDelete(LAttrs, 1, 1); // remove the leading ';'
       I := Pos(';', LAttrs);
       if I > 0 then begin
         LAttr := Copy(LAttrs, 1, I-1);
@@ -516,6 +531,7 @@ const
         // RLebeau: RFC 6265 does not account for quoted attribute values,
         // despite several complaints asking for it.  We'll do it anyway in
         // the hopes that the RFC will be updated to "do the right thing"...
+        // RLebeau 11/17/2020: leaving this intact, for now...
         if TextStartsWith(LValue, '"') then begin
           IdDelete(LValue, 1, 1);
           LNameValue := LValue;
@@ -526,7 +542,7 @@ const
         LValue := '';
       end;
 
-      case PosInStrArray(LName, ['Expires', 'Max-Age', 'Domain', 'Path', 'Secure', 'HttpOnly'], False) of
+      case PosInStrArray(LName, ['Expires', 'Max-Age', 'Domain', 'Path', 'Secure', 'HttpOnly', 'SameSite'], False) of
         0: begin
           if TryStrToInt64(LValue, LSecs) then begin
             // Not in the RFCs, but some servers specify Expires as an
@@ -588,6 +604,16 @@ const
         5: begin
           IndyAddPair(CookieProp, 'HTTPONLY', ''); {do not localize}
         end;
+        6: begin
+          if TextIsSame(LValue, 'Strict') then begin {do not localize}
+            IndyAddPair(CookieProp, 'SAMESITE', 'Strict'); {do not localize}
+          end
+          else if TextIsSame(LValue, 'Lax') then begin {do not localize}
+            IndyAddPair(CookieProp, 'SAMESITE', 'Lax'); {do not localize}
+          end else begin
+            IndyAddPair(CookieProp, 'SAMESITE', 'None'); {do not localize}
+          end;
+        end;
       end;
     end;
   end;
@@ -611,7 +637,7 @@ const
 //Darcy: moved down the variables! Android compiler... bad boy!
 var
   CookieProp: TStringList;
-  S: string;
+  S, LPathFromProps: string;
 begin
   Result := False;
 
@@ -684,7 +710,7 @@ begin
       }
     end;
 
-    if Length(S) > 0 then
+    if S <> '' then
     begin
       if not IsDomainMatch(AURI.Host, S) then begin
         Exit;
@@ -697,16 +723,114 @@ begin
       FDomain := CanonicalizeHostName(AURI.Host);
     end;
 
-    if GetLastValueOf(CookieProp, 'PATH', S) then begin {Do not Localize}
-      FPath := S;
+    if GetLastValueOf(CookieProp, 'PATH', LPathFromProps) then begin {Do not Localize}
+      FPath := LPathFromProps;
     end else begin
       FPath := GetDefaultPath(AURI);
     end;
 
     FSecure := CookieProp.IndexOfName('SECURE') <> -1; { Do not Localize }
-    FHttpOnly := CookieProp.IndexOfName('HTTPONLY') <> -1; { Do not Localize }
+    if FSecure and (not IsSecure(AURI.Protocol)) then begin
+      Exit;
+    end;
 
+    FHttpOnly := CookieProp.IndexOfName('HTTPONLY') <> -1; { Do not Localize }
     if FHttpOnly and (not IsHTTP(AURI.Protocol)) then begin
+      Exit;
+    end;
+
+    if (not FSecure) and (not IsSecure(AURI.Protocol)) then begin
+      // TODO
+      {
+        If the cookie's secure-only-flag is not set, and the scheme
+        component of request-uri does not denote a "secure" protocol,
+        then abort these steps and ignore the cookie entirely if the
+        cookie store contains one or more cookies that meet all of the
+        following criteria:
+
+        1.  Their name matches the name of the newly-created cookie.
+
+        2.  Their secure-only-flag is true.
+
+        3.  Their domain domain-matches the domain of the newly-created
+            cookie, or vice-versa.
+
+        4.  The path of the newly-created cookie path-matches the path
+            of the existing cookie.
+
+        Note: The path comparison is not symmetric, ensuring only that a
+        newly-created, non-secure cookie does not overlay an existing
+        secure cookie, providing some mitigation against cookie-fixing
+        attacks.  That is, given an existing secure cookie named 'a'
+        with a path of '/login', a non-secure cookie named 'a' could be
+        set for a path of '/' or '/foo', but not for a path of '/login'
+        or '/login/en'.	  }
+      {
+      for I := 0 to CookieList.Count-1 do
+      begin
+        LCookie := CookieList[I];
+        if TextIsSame(LCookie.CookieName, FName) and
+           LCookie.Secure and
+           (IsDomainMatch(LCookie.Domain, FDomain) or IsDomainMatch(FDomain, LCookie.Domain)) and
+           IsPathMatch(FPath, LCookie.Path) then
+        begin
+          Exit;
+        end;
+      end;
+      }
+    end;
+
+    // TODO: implement https://tools.ietf.org/html/draft-west-cookie-incrementalism-01
+
+    if GetLastValueOf(CookieProp, 'SAMESITE', S) then begin {Do not Localize}
+      FSameSite := S;
+    end else begin
+      FSameSite := 'None'; {Do not Localize}
+    end;
+
+    if FSameSite <> 'None' then
+    begin
+      // TODO
+      {
+        1.  If the cookie was received from a "non-HTTP" API, and the
+            API was called from a context whose "site for cookies" is
+            not an exact match for request-uri's host's registrable
+            domain, then abort these steps and ignore the newly created
+            cookie entirely.
+
+        2.  If the cookie was received from a "same-site" request (as
+            defined in Section 5.2), skip the remaining substeps and
+            continue processing the cookie.
+
+        3.  If the cookie was received from a request which is
+            navigating a top-level browsing context [HTML] (e.g. if the
+            request's "reserved client" is either "null" or an
+            environment whose "target browsing context" is a top-level
+            browing context), skip the remaining substeps and continue
+            processing the cookie.
+
+            Note: Top-level navigations can create a cookie with any
+            "SameSite" value, even if the new cookie wouldn't have been
+            sent along with the request had it already existed prior to
+            the navigation.
+
+        4.  Abort these steps and ignore the newly created cookie
+            entirely.
+      }
+      {
+      if ((not IsHTTP(AURI.Protocol)) and (SiteForCookies <> RegistrableDomain(AURI.Host))) or
+         ((IsCrossSite) and (not TopLevelBrowsingContext)) then
+      begin
+  	    Exit;
+      end;
+      }
+    end;
+
+    if TextStartsWith(FName, '__Secure-') and (not FSecure) then begin {do not localize}
+      Exit;
+    end;
+
+    if TextStartsWith(FName, '__Host-') and not (FSecure and FHostOnly and (LPathFromAttrs = '/')) then begin {do not localize}
       Exit;
     end;
 
@@ -898,6 +1022,9 @@ begin
           Continue;
         end;
         if not TextIsSame(LOldCookie.Domain, ACookie.Domain) then begin
+          Continue;
+        end;
+        if LOldCookie.HostOnly <> ACookie.HostOnly then begin
           Continue;
         end;
         if not TextIsSame(LOldCookie.Path, ACookie.Path) then begin

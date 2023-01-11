@@ -516,7 +516,7 @@ begin
     AuthFailed(ASender);
     Exit;
   end;
-  if Length(ASender.UnparsedParams) > 0 then begin
+  if ASender.UnparsedParams <> '' then begin
     S := ASender.UnparsedParams;
     LMech := Fetch(S);
     DoAuthLogin(ASender, LMech, Trim(S));

@@ -262,6 +262,7 @@ const
     $67452301, $EFCDAB89, $98BADCFE, $10325476);
 
 {$I IdOverflowCheckingOff.inc} // Arithmetic operations performed modulo $100000000
+{$I IdRangeCheckingOff.inc}
 
 constructor TIdHashMessageDigest4.Create;
 begin
@@ -339,6 +340,7 @@ begin
   Inc(FState[3], D);
 end;
 
+{$I IdRangeCheckingOn.inc}
 {$I IdOverflowCheckingOn.inc}
 
 function TIdHashMessageDigest4.NativeGetHashBytes(AStream: TStream; ASize: Int64): TidBytes;
@@ -441,6 +443,7 @@ const
   );
 
 {$I IdOverflowCheckingOff.inc} // Arithmetic operations performed modulo $100000000
+{$I IdRangeCheckingOff.inc}
 
 function TIdHashMessageDigest5.InitHash: TIdHashIntCtx;
 begin
@@ -558,6 +561,7 @@ begin
   Inc(FState[3], D);
 end;
 
+{$I IdRangeCheckingOn.inc}
 {$I IdOverflowCheckingOn.inc}
 
 end.

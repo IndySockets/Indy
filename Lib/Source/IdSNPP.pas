@@ -173,7 +173,7 @@ begin
   begin
     raise EIdSNPPNoMultiLineMessages.Create(RSSNPPNoMultiLine);
   end;
-  if (Length(APagerId) > 0) and (Length(AMsg) > 0) then begin
+  if (APagerId <> '') and (AMsg <> '') then begin
     if Pager(APagerID) then begin
       if SNPPMsg(AMsg) then begin
         WriteLn('SEND');    {do not localize}

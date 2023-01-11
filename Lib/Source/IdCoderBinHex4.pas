@@ -256,7 +256,7 @@ begin
     raise EIdMissingColon.Create('Block passed to TIdDecoderBinHex4.Decode is missing a terminating colon :'); {Do not Localize}
   end;
 
-  if Length(LIn) = 0 then begin
+  if LIn = nil then begin
     Exit;
   end;
 

@@ -26,7 +26,7 @@ package dclIndyCore;
 {$DEFINE DEBUG}
 {$DEFINE VER250}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESCRIPTION 'Indy 11 Core Design Time'}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
 

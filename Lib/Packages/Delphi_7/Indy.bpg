@@ -1,0 +1,33 @@
+#------------------------------------------------------------------------------
+VERSION = BWS.01
+#------------------------------------------------------------------------------
+!ifndef ROOT
+ROOT = $(MAKEDIR)\..
+!endif
+#------------------------------------------------------------------------------
+MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
+DCC = $(ROOT)\bin\dcc32.exe $**
+BRCC = $(ROOT)\bin\brcc32.exe $**
+#------------------------------------------------------------------------------
+PROJECTS = IndySystem70.bpl IndyCore70.bpl IndyProtocols70.bpl \
+  dclIndyCore70.bpl dclIndyProtocols70.bpl
+#------------------------------------------------------------------------------
+default: $(PROJECTS)
+#------------------------------------------------------------------------------
+
+IndySystem70.bpl: IndySystem.dpk
+  $(DCC)
+
+IndyCore70.bpl: IndyCore.dpk
+  $(DCC)
+
+IndyProtocols70.bpl: IndyProtocols.dpk
+  $(DCC)
+
+dclIndyCore70.bpl: dclIndyCore.dpk
+  $(DCC)
+
+dclIndyProtocols70.bpl: dclIndyProtocols.dpk
+  $(DCC)
+
+

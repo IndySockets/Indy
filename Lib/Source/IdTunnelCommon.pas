@@ -223,7 +223,6 @@ begin
     //Header.IpAddr := IPAddr;
     Move(Header, pMsg^, Headerlen);
     Move(buffer^, (pMsg + Headerlen)^, bufLen);
-    SetLength(Msg, Header.MsgLen);
     SetString(Msg, pMsg, Header.MsgLen);
   finally
     Locker.Leave;

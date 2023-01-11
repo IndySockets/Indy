@@ -686,7 +686,7 @@ function TSSPIInterface.IsAvailable: Boolean;
     if fDLLHandle <> IdNilHandle then begin
       { get InitSecurityInterface entry point
         and call it to fetch SPPI function table}
-      entrypoint := GetProcAddress(fDLLHandle, SECURITY_ENTRYPOINT);
+      entrypoint := LoadLibFunction(fDLLHandle, SECURITY_ENTRYPOINT);
       fPFunctionTable := entrypoint();
       { let's see what SSPI functions are available
         and if we can continue on with the set }
@@ -706,10 +706,10 @@ function TSSPIInterface.IsAvailable: Boolean;
       {$IFDEF SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
       { fudge for Encrypt/DecryptMessage }
       if not Assigned(fPFunctionTable^.EncryptMessage) then begin
-        fPFunctionTable^.EncryptMessage := GetProcAddress(fDLLHandle, ENCRYPT_MESSAGE);
+        fPFunctionTable^.EncryptMessage := LoadLibFunction(fDLLHandle, ENCRYPT_MESSAGE);
       end;
       if not Assigned(fPFunctionTable^.DecryptMessage) then begin
-        fPFunctionTable^.DecryptMessage := GetProcAddress(fDLLHandle, DECRYPT_MESSAGE);
+        fPFunctionTable^.DecryptMessage := LoadLibFunction(fDLLHandle, DECRYPT_MESSAGE);
       end;
       {$ENDIF}
     end;
@@ -893,7 +893,7 @@ var
   pai: PVOID;
 begin
   Use := aUse;
-  if (Length(aDomain) > 0) and (Length(aUserName) > 0) then begin
+  if (aDomain <> '') and (aUserName <> '') then begin
     ai.User := PUSHORT(PWideChar(aUserName));
     ai.UserLength := Length(aUserName);
     ai.Domain := PUSHORT(PWideChar(aDomain));
@@ -1041,7 +1041,7 @@ begin
 
   fInBuff.cbBuffer := Length(aFromPeerToken);
 
-  //Assert(Length(aFromPeerToken)>0);
+  //Assert(aFromPeerToken <> nil);
   if fInBuff.cbBuffer > 0 then begin
     fInBuff.pvBuffer := @aFromPeerToken[0];
   end;
@@ -1210,7 +1210,7 @@ begin
   case FCurrentStep of
     1:
       begin
-        if Length(Username) = 0 then begin
+        if Username = '' then begin
           FSSPIClient.SetCredentialsAsCurrentUser;
         end else begin
           FSSPIClient.SetCredentials(Domain, Username, Password);
@@ -1220,12 +1220,12 @@ begin
       end;
     2:
       begin
-        if Length(FNTLMInfo) = 0 then begin
+        if FNTLMInfo = '' then begin
           FNTLMInfo := ReadAuthInfo('NTLM');  {Do not translate}
           Fetch(FNTLMInfo);
         end;
 
-        if Length(FNTLMInfo) = 0 then begin
+        if FNTLMInfo = '' then begin
           Reset;
           Abort;
         end;

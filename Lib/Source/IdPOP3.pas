@@ -320,6 +320,8 @@ begin
     if SupportsTLS then begin
       if SendCmd('STLS','') = ST_OK then begin {Do not translate}
         TLSHandshake;
+        //obtain capabilities again - RFC2595
+        CAPA;
       end else begin
         ProcessTLSNegCmdFailed;
       end;
@@ -358,7 +360,7 @@ begin
         // (which was formalized in RFC 5034). So, until we can handle that
         // descrepency better, we will simply disable Initial-Response for now.
 
-        FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL', False); {do not localize}
+        FSASLMechanisms.LoginSASL('AUTH', FHost, FPort, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
       end;
   end;
 end;
@@ -450,7 +452,7 @@ begin
   // Returns the size of the message. if an error ocurrs, returns -1.
   SendCmd('LIST ' + IntToStr(MsgNum), ST_OK);    {Do not Localize}
   s := LastCmdResult.Text[0];
-  if Length(s) > 0 then begin
+  if s <> '' then begin
     // RL - ignore the message number, grab just the octets,
     // and ignore everything else that may be present
     Fetch(s);
@@ -467,7 +469,7 @@ begin
   Result := (SendCmd('STAT', '') = ST_OK);    {Do not Localize}
   if Result then begin
     s := LastCmdResult.Text[0];
-    if Length(s) > 0 then begin
+    if s <> '' then begin
       VMsgCount := IndyStrToInt(Fetch(s));
       VMailBoxSize := IndyStrToInt64(Fetch(s));
     end;
@@ -598,7 +600,7 @@ begin
         FAPOPToken := Copy(S, 1, I);
       end;
     end;
-    FHasAPOP := (Length(FAPOPToken) > 0);
+    FHasAPOP := (FAPOPToken <> '');
     CAPA;
     if FAutoLogin then begin
       Login;

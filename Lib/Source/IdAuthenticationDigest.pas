@@ -268,7 +268,7 @@ begin
         try
           LParams.CaseSensitive := False;
 
-          while Length(S) > 0 do begin
+          while S <> '' do begin
             // RLebeau: Apache sends a space after each comma, but IIS does not!
             LName := Trim(Fetch(S, '=')); {do not localize}
             S := TrimLeft(S);
@@ -311,7 +311,7 @@ begin
           LParams.Free;
         end;
 
-        if Length(Username) > 0 then begin
+        if Username <> '' then begin
           FCurrentStep := 1;
           Result := wnDoRequest;
         end else begin

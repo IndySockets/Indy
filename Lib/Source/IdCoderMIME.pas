@@ -88,8 +88,8 @@ var
   LStream: TMemoryStream;
   LPos: Integer;
 begin
-  if Length(FLeftFromLastTime) > 0 then begin
-    LPos := Length(FLeftFromLastTime);
+  LPos := Length(FLeftFromLastTime);
+  if LPos > 0 then begin
     SetLength(FLeftFromLastTime, 4);
     while LPos < 4 do begin
       FLeftFromLastTime[LPos] := Ord(FFillChar);

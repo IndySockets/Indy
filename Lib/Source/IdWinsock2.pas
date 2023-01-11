@@ -285,11 +285,20 @@ const
 (*$HPPEMIT '#include <ws2atm.h>'*)
 (*$HPPEMIT '#include <mswsock.h>'*)
 (*$HPPEMIT ''*)
+
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT OPENNAMESPACE}
+{$ELSE}
 (*$HPPEMIT 'namespace Idwinsock2'*)
 (*$HPPEMIT '{'*)
+{$ENDIF}
 (*$HPPEMIT '    typedef fd_set *PFDSet;'*) // due to name conflict with procedure FD_SET
 (*$HPPEMIT '    typedef fd_set TFDSet;'*)  // due to name conflict with procedure FD_SET
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT CLOSENAMESPACE}
+{$ELSE}
 (*$HPPEMIT '}'*)
+{$ENDIF}
 (*$HPPEMIT ''*)
 
 type
@@ -6052,20 +6061,13 @@ begin
   end;
 end;
 
-{ IMPORTANT!!!
-
-WindowsCE only has a Unicode (WideChar) version of GetProcAddress.  We could use
-a version of GetProcAddress in the FreePascal dynlibs unit but that does a
-conversion from ASCII to Unicode which might not be necessary since most calls
-pass a constant anyway.
-}
-function FixupStub(hDll: TIdLibHandle; const AName: string): Pointer;
+function FixupStub(hDll: TIdLibHandle; const AName: UnicodeString): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if hDll = IdNilHandle then begin
     raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
   end;
-  Result := Windows.GetProcAddress(hDll, PChar(AName));
+  Result := LoadLibFunction(hDll, AName);
   if Result = nil then begin
     raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
   end;

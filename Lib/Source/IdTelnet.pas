@@ -527,7 +527,7 @@ begin
   Resp := nil;
   case SbType of
     TNO_TERMTYPE:
-      if (Length(SbData) > 0) and (SbData[0] = TNOS_TERMTYPE_SEND) then
+      if (SbData <> nil) and (SbData[0] = TNOS_TERMTYPE_SEND) then
       begin
         // if someone inadvertantly sets Terminal to null
         // You can set terminal to anything you want I suppose but be
@@ -663,7 +663,7 @@ begin
       TNC_EOR:
         begin
           // send any current data to the app
-          if Length(nBuf) > 0 then
+          if nBuf <> nil then
           begin
             DoOnDataAvailable(nBuf);
             SetLength(nBuf, 0);
@@ -676,7 +676,7 @@ begin
 
           // send any current data to the app, as the sub-negotiation
           // may affect how subsequent data needs to be processed...
-          if Length(nBuf) > 0 then
+          if nBuf <> nil then
           begin
              DoOnDataAvailable(nBuf);
             SetLength(nBuf, 0);
@@ -717,7 +717,7 @@ begin
   until IOHandler.InputBufferIsEmpty;
 
   // if any data remains then send this data to the app
-  if Length(nBuf) > 0 then begin
+  if nBuf <> nil then begin
     DoOnDataAvailable(nBuf);
   end;
 end;

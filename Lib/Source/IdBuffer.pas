@@ -335,9 +335,9 @@ type
     procedure ExtractToBytes(var VBytes: TIdBytes; AByteCount: Integer = -1;
       AAppend: Boolean = True; AIndex : Integer = -1);
     function ExtractToUInt8(const AIndex : Integer): UInt8;
-    function ExtractToUInt16(const AIndex : Integer): UInt16;
-    function ExtractToUInt32(const AIndex : Integer): UInt32;
-    function ExtractToUInt64(const AIndex : Integer): UInt64;
+    function ExtractToUInt16(const AIndex : Integer; AConvert: Boolean = True): UInt16;
+    function ExtractToUInt32(const AIndex : Integer; AConvert: Boolean = True): UInt32;
+    function ExtractToUInt64(const AIndex : Integer; AConvert: Boolean = True): UInt64;
     procedure ExtractToIPv6(const AIndex : Integer; var VAddress: TIdIPv6Address);
     function IndexOf(const AByte: Byte; AStartPos: Integer = 0): Integer; overload;
     function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer; overload;
@@ -356,9 +356,9 @@ type
     procedure Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
     procedure Write(const ABytes: TIdBytes; const ALength, AOffset : Integer; const ADestIndex: Integer = -1); overload;
     procedure Write(AStream: TStream; AByteCount: Integer = 0); overload;
-    procedure Write(const AValue: UInt64; const ADestIndex: Integer = -1); overload;
-    procedure Write(const AValue: UInt32; const ADestIndex: Integer = -1); overload;
-    procedure Write(const AValue: UInt16; const ADestIndex: Integer = -1); overload;
+    procedure Write(const AValue: UInt64; const ADestIndex: Integer = -1; AConvert: Boolean = True); overload;
+    procedure Write(const AValue: UInt32; const ADestIndex: Integer = -1; AConvert: Boolean = True); overload;
+    procedure Write(const AValue: UInt16; const ADestIndex: Integer = -1; AConvert: Boolean = True); overload;
     procedure Write(const AValue: UInt8; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: TIdIPv6Address; const ADestIndex: Integer = -1); overload;
     //
@@ -404,7 +404,7 @@ procedure TIdBuffer.Clear;
 begin
   SetLength(FBytes, 0);
   FHeadIndex := 0;
-  FSize := Length(FBytes);
+  FSize := 0;
 end;
 
 constructor TIdBuffer.Create(AGrowthFactor: Integer);
@@ -458,6 +458,15 @@ begin
       AByteEncoding := FByteEncoding;
       EnsureEncoding(AByteEncoding);
     end;
+    // TODO: convert directly from FBytes without allocating a local TIdBytes anymore...
+    {
+    CheckByteCount(AByteCount, 0);
+    try
+      Result := BytesToString(FBytes, FHeadIndex, AByteCount, AByteEncoding);
+    finally
+      Remove(AByteCount);
+    end;
+    }
     ExtractToBytes(LBytes, AByteCount);
     Result := BytesToString(LBytes, AByteEncoding);
   end else begin
@@ -580,6 +589,7 @@ var
   LToAdd: Integer;
   LLength: Integer;
 begin
+  // TODO: handle sizes > 2GB...
   if AByteCount < 0 then begin
     // Copy remaining
     LToAdd := AStream.Size - AStream.Position;
@@ -590,6 +600,7 @@ begin
   end else begin
     LToAdd := IndyMin(AByteCount, AStream.Size - AStream.Position);
   end;
+  //Assert(LToAdd <= MaxInt);
   if LToAdd > 0 then begin
     LLength := Size;
     CheckAdd(LToAdd, 0);
@@ -617,13 +628,13 @@ begin
   Result := -1;
   // Dont search if it empty
   if Size > 0 then begin
-    if Length(ABytes) = 0 then begin
+    BytesLen := Length(ABytes);
+    if BytesLen = 0 then begin
       raise EIdException.Create(RSBufferMissingTerminator);
     end;
     if (AStartPos < 0) or (AStartPos >= Size) then begin
       raise EIdException.Create(RSBufferInvalidStartPos);
     end;
-    BytesLen := Length(ABytes);
     LEnd := FHeadIndex + Size;
     for i := FHeadIndex + AStartPos to LEnd - BytesLen do begin
       LFound := True;
@@ -729,7 +740,7 @@ begin
   end;
 end;
 
-function TIdBuffer.ExtractToUInt64(const AIndex: Integer): UInt64;
+function TIdBuffer.ExtractToUInt64(const AIndex: Integer; AConvert: Boolean = True): UInt64;
 var
   LIndex : Integer;
 begin
@@ -739,13 +750,15 @@ begin
     LIndex := AIndex;
   end;
   Result := BytesToUInt64(FBytes, LIndex);
-  Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(8);
   end;
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
+  end;
 end;
 
-function TIdBuffer.ExtractToUInt32(const AIndex: Integer): UInt32;
+function TIdBuffer.ExtractToUInt32(const AIndex: Integer; AConvert: Boolean = True): UInt32;
 var
   LIndex : Integer;
 begin
@@ -755,13 +768,15 @@ begin
     LIndex := AIndex;
   end;
   Result := BytesToUInt32(FBytes, LIndex);
-  Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(4);
   end;
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
+  end;
 end;
 
-function TIdBuffer.ExtractToUInt16(const AIndex: Integer): UInt16;
+function TIdBuffer.ExtractToUInt16(const AIndex: Integer; AConvert: Boolean = True): UInt16;
 var
   LIndex : Integer;
 begin
@@ -771,9 +786,11 @@ begin
     LIndex := AIndex;
   end;
   Result := BytesToUInt16(FBytes, LIndex);
-  Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(2);
+  end;
+  if AConvert then begin
+    Result := GStack.NetworkToHost(Result);
   end;
 end;
 
@@ -792,7 +809,7 @@ begin
   end;
 end;
 
-procedure TIdBuffer.Write(const AValue: UInt16; const ADestIndex: Integer);
+procedure TIdBuffer.Write(const AValue: UInt16; const ADestIndex: Integer; AConvert: Boolean = True);
 var
   LVal : UInt16;
   LIndex : Integer;
@@ -805,7 +822,10 @@ begin
   begin
     LIndex := ADestIndex;
   end;
-  LVal := GStack.HostToNetwork(AValue);
+  LVal := AValue;
+  if AConvert then begin
+    LVal := GStack.HostToNetwork(LVal);
+  end;
   CopyTIdUInt16(LVal, FBytes, LIndex);
   if LIndex >= FSize then begin
     FSize := LIndex+2;
@@ -850,7 +870,7 @@ begin
   end;
 end;
 
-procedure TIdBuffer.Write(const AValue: UInt64; const ADestIndex: Integer);
+procedure TIdBuffer.Write(const AValue: UInt64; const ADestIndex: Integer; AConvert: Boolean = True);
 var
   LVal: UInt64;
   LIndex: Integer;
@@ -863,14 +883,17 @@ begin
   begin
     LIndex := ADestIndex;
   end;
-  LVal := GStack.HostToNetwork(AValue);
+  LVal := AValue;
+  if AConvert then begin
+    LVal := GStack.HostToNetwork(LVal);
+  end;
   CopyTIdUInt64(LVal, FBytes, LIndex);
   if LIndex >= FSize then begin
     FSize := LIndex + 8;
   end;
 end;
 
-procedure TIdBuffer.Write(const AValue: UInt32; const ADestIndex: Integer);
+procedure TIdBuffer.Write(const AValue: UInt32; const ADestIndex: Integer; AConvert: Boolean = True);
 var
   LVal : UInt32;
   LIndex : Integer;
@@ -883,7 +906,10 @@ begin
   begin
     LIndex := ADestIndex;
   end;
-  LVal := GStack.HostToNetwork(AValue);
+  LVal := AValue;
+  if AConvert then begin
+    LVal := GStack.HostToNetwork(LVal);
+  end;
   CopyTIdUInt32(LVal, FBytes, LIndex);
   if LIndex >= FSize then begin
     FSize := LIndex+4;

@@ -16,7 +16,7 @@ package IndyProtocols;
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DESCRIPTION 'Indy 10 Protocols'}
+{$DESCRIPTION 'Indy 11 Protocols'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
@@ -198,7 +198,10 @@ contains
   IdReplyIMAP4 in '..\..\Source\IdReplyIMAP4.pas',
   IdReplyPOP3 in '..\..\Source\IdReplyPOP3.pas',
   IdReplySMTP in '..\..\Source\IdReplySMTP.pas',
+  IdResourceStringsOpenSSL in '..\..\Source\IdResourceStringsOpenSSL.pas',
   IdResourceStringsProtocols in '..\..\Source\IdResourceStringsProtocols.pas',
+  IdResourceStringsSSPI in '..\..\Source\IdResourceStringsSSPI.pas',
+  IdResourceStringsUriUtils in '..\..\Source\IdResourceStringsUriUtils.pas',
   IdRexec in '..\..\Source\IdRexec.pas',
   IdRexecServer in '..\..\Source\IdRexecServer.pas',
   IdSASL in '..\..\Source\IdSASL.pas',

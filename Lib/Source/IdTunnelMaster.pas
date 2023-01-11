@@ -506,7 +506,7 @@ begin
           tmCustom: begin
             CustomMsg := '';    {Do not Localize}
             DoInterpretMsg(Thread, CustomMsg);
-            if Length(CustomMsg) > 0 then begin
+            if CustomMsg <> '' then begin
               Header.MsgType := tmCustom;
               Header.UserId := 0;
               SendMsg(Thread, Header, CustomMsg);

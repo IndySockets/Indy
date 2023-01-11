@@ -356,6 +356,8 @@ end;
 
 function TIdMultiPartFormDataStream.GenerateUniqueBoundary: string;
 begin
+  // TODO: add a way for a user-defined prefix to be placed in between
+  // the dashes and the random data, such as 'WebKitFormBoundary'...
   Result := '--------' + FormatDateTime('mmddyyhhnnsszzz', Now);  {do not localize}
 end;
 
@@ -390,9 +392,9 @@ begin
   LTotalRead := 0;
   LBufferCount := 0;
 
-  while (LTotalRead < Count) and ((Length(FInternalBuffer) > 0) or Assigned(FInputStream) or (FCurrentItem < FFields.Count)) do
+  while (LTotalRead < Count) and ((FInternalBuffer <> nil) or Assigned(FInputStream) or (FCurrentItem < FFields.Count)) do
   begin
-    if (Length(FInternalBuffer) = 0) and (not Assigned(FInputStream)) then
+    if (FInternalBuffer = nil) and (not Assigned(FInputStream)) then
     begin
       LItem := FFields.Items[FCurrentItem];
       EnsureEncoding(LEncoding, enc8Bit);
@@ -405,7 +407,7 @@ begin
       end;
     end;
 
-    if Length(FInternalBuffer) > 0 then begin
+    if FInternalBuffer <> nil then begin
       LCount := IndyMin(Count - LBufferCount, Length(FInternalBuffer));
       if LCount > 0 then begin
         LRemaining := Length(FInternalBuffer) - LCount;
@@ -420,7 +422,7 @@ begin
       end;
     end;
 
-    if (LTotalRead < Count) and (Length(FInternalBuffer) = 0) and Assigned(FInputStream) then begin
+    if (LTotalRead < Count) and (FInternalBuffer = nil) and Assigned(FInputStream) then begin
       LCount := FInputStream.Read(Pointer(PtrUInt(@Buffer)+(Count-LTotalRead))^, LBufferCount);
       if LCount > 0 then begin
         LBufferCount := LBufferCount + LCount;
@@ -441,7 +443,7 @@ begin
       end;
     end;
 
-    if (Length(FInternalBuffer) = 0) and (not Assigned(FInputStream)) and (FCurrentItem = FFields.Count) then begin
+    if (FInternalBuffer = nil) and (not Assigned(FInputStream)) and (FCurrentItem = FFields.Count) then begin
       AppendString(FInternalBuffer, '--' + Boundary + '--' + CRLF);     {do not localize}
       Inc(FCurrentItem);
     end;
@@ -561,22 +563,22 @@ begin
   Result := IndyFormat('%s' + CRLF + sContentDispositionPlaceHolder,
     [LBoundary, EncodeHeader(FieldName, '', FHeaderEncoding, FHeaderCharSet)]);       {do not localize}
 
-  if Length(FileName) > 0 then begin
+  if FileName <> '' then begin
     Result := Result + IndyFormat(sFileNamePlaceHolder,
       [EncodeHeader(FileName, '', FHeaderEncoding, FHeaderCharSet)]);                 {do not localize}
   end;
 
   Result := Result + CRLF;
 
-  if Length(ContentType) > 0 then begin
+  if ContentType <> '' then begin
     Result := Result + IndyFormat(sContentTypePlaceHolder, [ContentType]);      {do not localize}
-    if Length(CharSet) > 0 then begin
+    if CharSet <> '' then begin
       Result := Result + IndyFormat(sCharsetPlaceHolder, [Charset]);            {do not localize}
     end;
     Result := Result + CRLF;
   end;
 
-  if Length(FContentTransfer) > 0 then begin
+  if FContentTransfer <> '' then begin
     Result := Result + IndyFormat(sContentTransferPlaceHolder + CRLF, [FContentTransfer]);
   end;
 
@@ -618,7 +620,7 @@ begin
       end;
     end;
   end
-  else if Length(FFieldValue) > 0 then begin
+  else if FFieldValue <> '' then begin
     I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
     if I <= 0 then begin
       // 7bit
@@ -687,7 +689,7 @@ begin
       VCanFree := True;
     end;
   end
-  else if Length(FFieldValue) > 0 then begin
+  else if FFieldValue <> '' then begin
     Result := TMemoryStream.Create;
     try
       I := PosInStrArray(FContentTransfer, cAllowedContentTransfers, False);
@@ -747,7 +749,7 @@ end;
 
 procedure TIdFormDataField.SetContentTransfer(const Value: string);
 begin
-  if Length(Value) > 0 then begin
+  if Value <> '' then begin
     if PosInStrArray(Value, cAllowedContentTransfers, False) = -1 then begin
       raise EIdUnsupportedTransfer.Create(RSMFDInvalidTransfer);
     end;
@@ -759,10 +761,10 @@ procedure TIdFormDataField.SetContentType(const Value: string);
 var
   LContentType, LCharSet: string;
 begin
-  if Length(Value) > 0 then begin
+  if Value <> '' then begin
     LContentType := Value;
   end
-  else if Length(FFileName) > 0 then begin
+  else if FFileName <> '' then begin
     LContentType := GetMIMETypeFromFile(FFileName);
   end
   else begin

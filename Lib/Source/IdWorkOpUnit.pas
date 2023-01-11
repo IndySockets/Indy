@@ -303,7 +303,7 @@ begin
   LFlags := 0;
   // Initialize byte array and pass it to overlapped
   SetLength(FBytes, WOPageSize);
-  LOverlapped := GetOverlapped(@FBytes[0], Length(FBytes));
+  LOverlapped := GetOverlapped(PByte(FBytes), WOPageSize);
   //TODO: What is this 997? Need to check for it? If changed, do in Write too
 //   GStack.CheckForSocketError(        // can raise a 997
   case WSARecv(SocketHandle, LOverlapped.Buffer, 1, LBytesReceived, LFlags

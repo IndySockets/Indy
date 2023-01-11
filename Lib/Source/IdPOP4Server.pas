@@ -260,7 +260,7 @@ begin
         ASender.Reply.SetReply(334, s);    {Do not Localize}
         ASender.SendReply;
         s := Trim(ASender.Context.Connection.IOHandler.ReadLn);
-        if Length(s) = 0 then
+        if s = '' then
         begin
           LAuthFailed := True;
         end

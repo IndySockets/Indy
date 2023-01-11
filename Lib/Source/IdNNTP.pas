@@ -650,7 +650,7 @@ procedure TIdNNTP.Post(AMsg: TIdMessage);
 begin
   SendCmd('POST', 340); {do not localize}
   //Header
-  if Length(NewsAgent) > 0 then begin
+  if NewsAgent <> '' then begin
     AMsg.ExtraHeaders.Values['X-Newsreader'] := NewsAgent;  {do not localize}
   end;
   try
@@ -831,7 +831,7 @@ begin
   if AGMT then begin
     Result:= Result + ' GMT'; {do not localize}
   end;
-  if Length(ADistributions) > 0 then begin
+  if ADistributions <> '' then begin
     Result := ' <' + ADistributions + '>';
   end;
 end;

@@ -81,7 +81,7 @@ uses
 
 // until Delphi 10.3.2 can be detected in IdCompilerDefines.inc,
 // use {$IF DECLARED(...) here to enable the new platform values...)
-{$IF DEFINED(VCL_10_3_OR_ABOVE) AND (NOT DEFINED(VCL_10_3_UPDATE2_OR_ABOVE))}
+{$IF DEFINED(VCL_10_3_OR_ABOVE) AND (NOT DEFINED(VCL_10_3_UPDATE2_OR_ABOVE))} // TODO: does RTLVersion1032 exist?
   {$IF DECLARED(pidAllPlatforms)}
     {$DEFINE HAS_ComponentPlatformsAttribute_AllPlatforms}
     {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
@@ -91,32 +91,40 @@ uses
 type
   {$IFDEF HAS_ComponentPlatformsAttribute}
   [ComponentPlatformsAttribute(
-    {$IFDEF HAS_ComponentPlatformsAttribute_AllPlatforms}pidAllPlatforms
+    {$IF DECLARED(pidAllPlatforms)}pidAllPlatforms
     {$ELSE}
     pidWin32
-    {$IFDEF HAS_ComponentPlatformsAttribute_Win64} or pidWin64{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_OSX32} or pidOSX32{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32}or pidiOSSimulator32{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator} or pidiOSSimulator{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android32Arm} or pidAndroid32Arm{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android} or pidAndroid{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Linux32} or pidLinux32{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device32} or pidiOSDevice32{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device} or pidiOSDevice{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Linux64} or pidLinux64{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_WinNX32} or pidWinNX32{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_WinIoT32} or pidWinIoT32{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device64} or pidiOSDevice64{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_WinARM32} or pidWinARM32{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_WinARM} or pidWinARM{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_OSXNX64} or pidOSXNX64{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_OSX64} or pidOSX64{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Linux32Arm} or pidLinux32Arm{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Linux64Arm} or pidLinux64Arm{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android64Arm} or pidAndroid64Arm{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android64} or pidAndroid64{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64} or pidiOSSimulator64{$ENDIF}
-    {$ENDIF}
+    {$IF DECLARED(pidWin64)} or pidWin64{$IFEND}
+    {$IF DECLARED(pidOSX32)} or pidOSX32{$IFEND}
+    {$IF DECLARED(pidiOSSimulator32)}or pidiOSSimulator32
+    {$ELSEIF DECLARED(pidiOSSimulator)} or pidiOSSimulator{$IFEND}
+    {$IF DECLARED(pidAndroidArm32)} or pidAndroidArm32
+    {$ELSEIF DECLARED(pidAndroid32Arm)} or pidAndroid32Arm
+    {$ELSEIF DECLARED(pidAndroid)} or pidAndroid{$IFEND}
+    {$IF DECLARED(pidLinux32)} or pidLinux32{$IFEND}
+    {$IF DECLARED(pidiOSDevice32)} or pidiOSDevice32
+    {$ELSEIF DECLARED(pidiOSDevice)} or pidiOSDevice{$IFEND}
+    {$IF DECLARED(pidLinux64)} or pidLinux64{$IFEND}
+    {$IF DECLARED(pidWinNX32)} or pidWinNX32{$IFEND}
+    {$IF DECLARED(pidWinIoT32)} or pidWinIoT32{$IFEND}
+    {$IF DECLARED(pidiOSDevice64)} or pidiOSDevice64{$IFEND}
+    {$IF DECLARED(pidWinARM32)} or pidWinARM32
+    {$ELSEIF DECLARED(pidWin32ARM)} or pidWin32ARM
+    {$ELSEIF DECLARED(pidWinARM)} or pidWinARM{$IFEND}
+    {$IF DECLARED(pidOSXNX64)} or pidOSXNX64
+    {$ELSEIF DECLARED(pidOSX64)} or pidOSX64{$IFEND}
+    {$IF DECLARED(pidLinuxArm32)} or pidLinuxArm32
+    {$ELSEIF DECLARED(pidLinux32Arm)} or pidLinux32Arm{$IFEND}
+    {$IF DECLARED(pidLinuxArm64)} or pidLinuxArm64
+    {$ELSEIF DECLARED(pidLinux64Arm)} or pidLinux64Arm{$IFEND}
+    {$IF DECLARED(pidAndroidArm64)} or pidAndroidArm64
+    {$ELSEIF DECLARED(pidAndroid64Arm)} or pidAndroid64Arm
+    {$ELSEIF DECLARED(pidAndroid64)} or pidAndroid64{$IFEND}
+    {$IF DECLARED(pidiOSSimulator64)} or pidiOSSimulator64{$IFEND}
+    {$IF DECLARED(pidOSXArm64)} or pidOSXArm64{$IFEND}
+    {$IF DECLARED(pidWinArm64)} or pidWinArm64{$IFEND}
+    {$IF DECLARED(pidiOSSimulatorArm64)} or pidiOSSimulatorArm64{$IFEND}
+    {$IFEND}
   )]
   {$ENDIF}
   TIdAntiFreeze = class(TIdAntiFreezeBase)

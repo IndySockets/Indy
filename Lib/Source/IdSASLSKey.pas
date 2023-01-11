@@ -59,9 +59,9 @@ type
     constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
     function IsReadyToStart: Boolean; override;
-    function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
-    function StartAuthenticate(const AChallenge, AHost, AProtocolName : String) : String; override;
-    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
+    function TryStartAuthenticate(const AHost: string; APort: TIdPort; const AProtocolName : String; var VInitialResponse: String): Boolean; override;
+    function StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort; const AProtocolName : String) : String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost: string; APort: TIdPort; const AProtocolName : String): String; override;
   end;
 
 implementation
@@ -81,15 +81,29 @@ begin
   FSecurityLevel := 900;
 end;
 
-function TIdSASLSKey.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
+function TIdSASLSKey.ContinueAuthenticate(const ALastResponse, AHost: string;
+  APort: TIdPort; const AProtocolName : String): String;
 var
   LBuf, LSeed : String;
   LCount : UInt32;
 begin
-  LBuf := Trim(ALastResponse);
-  LCount := IndyStrToInt(Fetch(LBuf), 0);
-  LSeed := Fetch(LBuf);
-  Result := TIdOTPCalculator.GenerateSixWordKey('md4', LSeed, GetPassword, LCount); {do not localize}
+  // RLebeau 4/17/2018: TIdSMTP calls TIdSASLEntries.LoginSASL() with ACanAttemptIR=True,
+  // so the Username will be sent in the AUTH command's optional Initial-Response parameter.
+  // Most SMTP servers support Initial-Response, but some do not, and unfortunately there
+  // is no server advertisement for Initial-Response support defined for SMTP (unlike in
+  // other protocols).  If the server does not reject the AUTH command, but does not support
+  // Initial-Response, the initial prompt will be for the username, not the password.
+  // However, LoginSASL() will have already moved on from the initial step, and will call
+  // ContinueAuthenticate() instead of StartAuthenticate(), so we need to handle both prompts
+  // here ...
+  if IsNumeric(ALastResponse, 1) then begin // the usual case, so check it first...
+    LBuf := Trim(ALastResponse);
+    LCount := IndyStrToInt(Fetch(LBuf), 0);
+    LSeed := Fetch(LBuf);
+    Result := TIdOTPCalculator.GenerateSixWordKey('md4', LSeed, GetPassword, LCount); {do not localize}
+  end else begin // if the Initial-Response is ignored
+    Result := StartAuthenticate(ALastResponse, AHost, APort, AProtocolName);
+  end;
 end;
 
 function TIdSASLSKey.IsReadyToStart: Boolean;
@@ -102,14 +116,15 @@ begin
   Result := SKEYSERVICENAME;
 end;
 
-function TIdSASLSKey.TryStartAuthenticate(const AHost, AProtocolName : String;
-  var VInitialResponse: String): Boolean;
+function TIdSASLSKey.TryStartAuthenticate(const AHost: string; APort: TIdPort;
+  const AProtocolName : String; var VInitialResponse: String): Boolean;
 begin
   VInitialResponse := GetUsername;
   Result := True;
 end;
 
-function TIdSASLSKey.StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String;
+function TIdSASLSKey.StartAuthenticate(const AChallenge, AHost: string;
+  APort: TIdPort; const AProtocolName : String): String;
 begin
   Result := GetUsername;
 end;

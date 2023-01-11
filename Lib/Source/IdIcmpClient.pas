@@ -133,6 +133,9 @@ type
   // TODO: on MacOSX (and maybe iOS?), can use a UDP socket instead of a RAW
   // socket so that non-privilege processes do not require root access...
 
+  // TODO: on Windows, can use IcmpSendEcho() instead of a RAW so that
+  // non-privilege processes do not require admin access...
+
   TIdCustomIcmpClient = class(TIdRawClient)
   protected
     FStartTime : TIdTicks; //this is a fallback if no packet is returned
@@ -266,7 +269,7 @@ end;
 constructor TIdCustomIcmpClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FReplyStatus:= TReplyStatus.Create;
+  FReplyStatus := TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
   ProtocolIPv6 := Id_IPPROTO_ICMPv6;
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0

@@ -266,6 +266,7 @@ resourcestring
   RSHTTPCannotSwitchSessionStateWhenActive = 'Cannot change session state when the server is active.';
   RSHTTPCannotSwitchSessionListWhenActive = 'Cannot change session list when the server is active.';
   RSHTTPCannotSwitchSessionIDCookieNameWhenActive = 'Cannot change session ID cookie name when the server is active.';
+  RSHTTPSRequiresSSLIOHandler = 'HTTPS requires an SSL IOHandler';
 
   //HTTP Authentication
   RSHTTPAuthAlreadyRegistered = 'This authentication method is already registered with class name %s.';
@@ -808,6 +809,7 @@ resourcestring
   RSHL7StatusConnected         = 'Connected';
   RSHL7StatusConnecting        = 'Connecting';
   RSHL7StatusReConnect         = 'Reconnect at %0:s: %1:s';
+  RSHL7StatusTimedOut          = 'Timed out waiting for a message';
   RSHL7NotWhileWorking         = 'You cannot set %s while the HL7 Component is working';
   RSHL7NotWorking              = 'Attempt to %s while the HL7 Component is not working';
   RSHL7NotFailedToStop         = 'Interface is unusable due to failure to stop';
@@ -825,11 +827,11 @@ resourcestring
   RSHL7NoConnectionFound       = 'Server Connection not locatable when sending message';
   RSHL7WaitForAnswer           = 'You cannot send a message while you are still waiting for an answer';
   //TIdHL7 error messages
-  RSHL7ErrInternalsrNone       =  'Internal error in IdHL7.pas: SynchronousSend returned srNone';
-  RSHL7ErrNotConn              =   'Not connected';
-  RSHL7ErrInternalsrSent       =  'Internal error in IdHL7.pas: SynchronousSend returned srSent';
-  RSHL7ErrNoResponse           =  'No response from remote system';
-  RSHL7ErrInternalUnknownVal   =  'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ';
+  RSHL7ErrInternalsrNone       = 'Internal error in IdHL7.pas: SynchronousSend returned srNone';
+  RSHL7ErrNotConn              = 'Not connected';
+  RSHL7ErrInternalsrSent       = 'Internal error in IdHL7.pas: SynchronousSend returned srSent';
+  RSHL7ErrNoResponse           = 'No response from remote system';
+  RSHL7ErrInternalUnknownVal   = 'Internal error in IdHL7.pas: SynchronousSend returned an unknown value %d';
   RSHL7Broken                  = 'IdHL7 is broken in Indy 10 for the present';
 
   { TIdMultipartFormDataStream exceptions }

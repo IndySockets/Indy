@@ -442,13 +442,13 @@ user@DOMAIN
    i := IndyPos('\', AUsername);
    if i > 0 then begin    //was -1
      VDomain := Copy( AUsername, 1, i - 1);
-     VUserName := Copy( AUsername, i + 1, Length( AUserName));
+     VUserName := Copy( AUsername, i + 1, MaxInt);
    end else begin
      i := IndyPos('@',AUsername);
      if i > 0 then   //was -1 
      begin
        VUsername := Copy( AUsername, 1, i - 1);
-       VDomain := Copy( AUsername, i + 1, Length( AUserName));
+       VDomain := Copy( AUsername, i + 1, MaxInt);
      end
      else
      begin
@@ -475,9 +475,9 @@ begin
   Result := IdSSLOpenSSLHeaders.Load;
   if Result then begin
     h := IdSSLOpenSSLHeaders.GetCryptLibHandle;
-    GRC4_Options := GetProcAddress(h,'RC4_options');
-    GRC4_set_key := GetProcAddress(h,'RC4_set_key');
-    GRC4 := GetProcAddress(h,'RC4');
+    GRC4_Options := LoadLibFunction(h,'RC4_options');
+    GRC4_set_key := LoadLibFunction(h,'RC4_set_key');
+    GRC4 := LoadLibFunction(h,'RC4');
   end;
   Result := RC4FunctionsLoaded;
 end;
@@ -1114,7 +1114,7 @@ begin
   if LFlags and IdNTLMSSP_NEGOTIATE_UNICODE <> 0 then begin
     LEncoding := IndyTextEncoding_UTF16LE;
     if LFlags and IdNTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED > 0 then begin
-      if Length(ATargetName) > 0 then begin
+      if ATargetName <> '' then begin
         LDom := ATargetName;
       end else begin
         LDom := LEncoding.GetBytes(UpperCase(ADomain));

@@ -308,7 +308,7 @@ begin
   // keep existing user info in the address... use new domain info
   lPos := IndyPos('@', S); {do not localize}
   if lPos > 0 then begin
-    IdDelete(S, lPos, Length(S));
+    IdDelete(S, lPos, MaxInt);
   end;
   FAddress := S + '@' + ADomain; {do not localize}
 end;
@@ -337,7 +337,7 @@ begin
   // discard old user info... keep existing domain in the address
   lPos := IndyPos('@', S);
   if lPos > 0 then begin
-    IdDelete(S, 1, lPos); {do not localize}
+    IdDelete(S, 1, lPos);
   end;
   FAddress := AUsername + '@' + S;
 end;

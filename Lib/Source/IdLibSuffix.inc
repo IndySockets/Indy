@@ -13,8 +13,12 @@
     {$LEGACYIFEND ON}
   {$IFEND}
 
+  // NOTE: {$LIBSUFFIX AUTO} was added in 10.4, but it is not supported by the IDE yet!
+  // Update: IDE support for AUTO was added in 10.4.1...
+
+  //Delphi & CBuilder 10.4 Sydney (Denali) and later
   {$IF CompilerVersion >= 34}
-    {$MESSAGE ERROR 'Unsupported compiler version detected!'}
+    {$LIBSUFFIX AUTO} //{$LIBSUFFIX '270'}
 
   //Delphi & CBuilder 10.3 Rio (Carnival)
   {$ELSEIF CompilerVersion >= 33}

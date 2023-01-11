@@ -30,6 +30,7 @@
 // as specified further below.  This works in conjunction with the
 // FREE_ON_FINAL define above.
 {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
+{$UNDEF HAS_System_RegisterExpectedMemoryLeak}
 
 // FastMM is natively available in BDS 2006 and higher.  $DEFINE the
 // following if FastMM has been installed manually in earlier versions
@@ -51,12 +52,17 @@
 // Make sure the following are $DEFINE'd only for Delphi/C++Builder 2009 onwards
 // as specified further below.  The VCL is fully Unicode, where the 'String'
 // type maps to System.UnicodeString, not System.AnsiString anymore
+{$UNDEF STRING_IS_UNICODE}
+{$UNDEF STRING_IS_ANSI}
 {$UNDEF STRING_UNICODE_MISMATCH}
 
 // Make sure the following are $DEFINE'd only for suitable environments
 // as specified further below.  Delphi/C++Builder Mobile/NextGen compilers
 // do not support Ansi data types anymore, and is moving away from raw
 // pointers as well.
+//
+// UPDATE: in Delphi/C++Builder 10.4, all Ansi types are supported again on
+// all platforms, including the mobile compilers.
 {$DEFINE HAS_AnsiString}
 {$DEFINE HAS_AnsiChar}
 {$DEFINE HAS_PAnsiChar}
@@ -66,6 +72,10 @@
 // Make sure the following are $DEFINE'd only for suitable environments
 // as specified further below.  Delphi/C++Builder Mobile/NextGen compilers
 // use ARC for TObject life time management.
+//
+// UPDATE: ARC for TObject lifetime management has been removed in
+// Delphi/C++Builder 10.4 mobile compilers.  All platforms now use a single
+// unified memory management model!
 {$UNDEF USE_MARSHALLED_PTRS}
 {$UNDEF HAS_MarshaledAString}
 {$UNDEF USE_OBJECT_ARC}
@@ -92,6 +102,7 @@
 // Make sure that this is defined only for environments where we are using
 // the iconv library to charactor conversions.
 {.$UNDEF USE_ICONV}
+{.$UNDEF USE_LCONVENC}
 
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
@@ -119,6 +130,9 @@
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64}
 {$UNDEF HAS_ComponentPlatformsAttribute_Android64Arm}
 {$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm32}
+{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm64}
+{$UNDEF HAS_ComponentPlatformsAttribute_OSXArm64}
 {$UNDEF HAS_ComponentPlatformsAttribute_AllPlatforms}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
 {$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
@@ -186,7 +200,10 @@
 
 {$IFDEF IOS}
   {$DEFINE USE_OPENSSL}
-  {$IFDEF CPUARM}
+
+  // Support for 64-bit ARM iOS Simulator was added in Delphi 11.2
+  // TODO: how to detect iOS Simulator in FPC? Does it support 64-bit ARM?
+  {$IF DEFINED(CPUARM) AND (NOT DEFINED(IOSSIMULATOR))}
     // RLebeau: For iOS devices, OpenSSL cannot be used as an external library,
     // it must be statically linked into the app.  For the iOS simulator, this
     // is not true.  Users who want to use OpenSSL in iOS device apps will need
@@ -194,7 +211,7 @@
     // IdSSLOpenSSLHeaders_static unit in their uses clause. It hooks up the
     // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
     {$DEFINE STATICLOAD_OPENSSL}
-  {$ENDIF}
+  {$IFEND}
 {$ENDIF}
 
 //
@@ -229,6 +246,11 @@
 {$IFDEF WINDOWS}
   {$UNDEF USE_ICONV_ENC}
   {$DEFINE USE_SAFELOADLIBRARY}
+{$ENDIF}
+// Use here for all *nix systems that you do not want to use iconv library
+{$IFDEF ANDROID}
+  {$UNDEF USE_ICONV}
+  {$DEFINE USE_LCONVENC}
 {$ENDIF}
 
 //This must come after the iconv defines because this compiler targets a Unix-like
@@ -293,8 +315,12 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
       {$ENDIF}
       {$DEFINE THANDLE_32}
     {$ENDIF}
-  {$ELSEIF DEFINED(OSX)}  // !!! ADDED OSX BY EMBT
-    {$DEFINE THANDLE_CPUBITS}
+  {$ELSEIF DEFINED(OSX)}
+    {$IFDEF FPC}
+      {$DEFINE THANDLE_32}
+	{$ELSE}
+      {$DEFINE THANDLE_CPUBITS} // !!! ADDED OSX BY EMBT
+	{$ENDIF}
   {$IFEND}
 
 {$ELSEIF DEFINED(LINUX)}
@@ -336,18 +362,9 @@ word to an 8 bit byte and an 8 bit byte field named sa_len was added.
   {$ENDIF}
 {$ENDIF}
 
-{$IF NOT (DEFINED(FREE_ON_FINAL) OR DEFINED(REGISTER_EXPECTED_MEMORY_LEAK))}
-  {$IF DEFINED(USE_FASTMM4) OR DEFINED(USE_MADEXCEPT) OR DEFINED(USE_LEAKCHECK)}
-    {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
-  {$IFEND}
-{$IFEND}
-
-{$IF DEFINED(REGISTER_EXPECTED_MEMORY_LEAK) AND DEFINED(DCC_CROSS_COMPILE)}
-  // RLebeau: this should be enabled for Windows, at least...
-  // RLebeau: LeakCheck has leak reporting on other platforms...
-  {$IF NOT (DEFINED(MSWINDOWS) OR DEFINED(USE_LEAKCHECK))}
-    {$UNDEF REGISTER_EXPECTED_MEMORY_LEAK}
-  {$IFEND}
+{$IF (NOT DEFINED(FREE_ON_FINAL))
+  AND (DEFINED(HAS_System_RegisterExpectedMemoryLeak) OR DEFINED(USE_FASTMM4) OR DEFINED(USE_MADEXCEPT) OR DEFINED(USE_LEAKCHECK))}
+  {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
 {$IFEND}
 
 {

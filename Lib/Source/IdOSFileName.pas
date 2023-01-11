@@ -195,7 +195,7 @@ begin
   Result := EnsureValidCharsByInvalidSet(AUnixFileName,WIN32_INVALID_CHARS);
   if Result <> '' then begin
     if CharIsInSet(Result, Length(Result), WIN32_INVALID_LAST) then begin
-      Delete(Result,Length(Result),1);
+      SetLength(Result, Length(Result)-1);
       if Result = '' then begin
         Result := '_';
       end;

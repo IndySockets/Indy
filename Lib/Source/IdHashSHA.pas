@@ -124,8 +124,7 @@ begin
   Result := IsHashingIntfAvail and  IsSHA1HashIntfAvail;
 end;
 
-// Operations performed modulo $100000000
-{$I IdOverflowCheckingOff.inc}
+{$I IdOverflowCheckingOff.inc} // Operations performed modulo $100000000
 {$I IdRangeCheckingOff.inc}
 
 procedure TIdHashSHA1.Coder;

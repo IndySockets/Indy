@@ -170,7 +170,7 @@ Begin
         Continue;
       end;//if
 
-      if Length(TIdTCPClient(FOutboundClient).Host) < 1 then begin
+      if TIdTCPClient(FOutboundClient).Host = '' then begin
         raise EIdException.Create(RSEmptyHost);
       end;
 

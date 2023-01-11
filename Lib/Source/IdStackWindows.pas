@@ -274,7 +274,7 @@ type
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
 
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
+      const ANonBlocking: Boolean = False): TIdStackSocketHandle; override;
     function WSTranslateSocketErrorMsg(const AErr: integer): string; override;
     function WSGetLastError: Integer; override;
     procedure WSSetLastError(const AErr : Integer); override;
@@ -313,7 +313,7 @@ type
 
 var
 //This is for the Win32-only package (SuperCore)
-  GWindowsStack : TIdStackWindows = nil;
+  GWindowsStack : TIdStackWindows = nil{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use GStack or GBSDStack instead'{$ENDIF}{$ENDIF};
 
 implementation
 
@@ -328,10 +328,10 @@ uses
   IdIDN, IdResourceStrings, IdWship6
   {$IFDEF USE_IPHLPAPI}
     {$IFDEF HAS_UNIT_IpTypes}
-  , IpTypes
+  , Winapi.IpTypes
     {$ENDIF}
     {$IFDEF HAS_UNIT_IpHlpApi}
-  , IpHlpApi
+  , Winapi.IpHlpApi
     {$ENDIF}
   {$ENDIF}
   ;
@@ -683,12 +683,12 @@ var
   GetAdaptersAddresses: TGetAdaptersAddresses = nil;
   ConvertLengthToIpv4Mask: TConvertLengthToIpv4Mask = nil;
 
-function FixupIPHelperStub(const AName: string; DefImpl: Pointer): Pointer;
+function FixupIPHelperStub(const AName: UnicodeString; DefImpl: Pointer): Pointer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Result := nil;
   if hIpHlpApi <> IdNilHandle then begin
-    Result := Windows.GetProcAddress(hIpHlpApi, PChar(AName));
+    Result := LoadLibFunction(hIpHlpApi, AName);
   end;
   if Result = nil then begin
     Result := DefImpl;
@@ -808,7 +808,9 @@ begin
     end;
     GStarted := True;
   end;
+  {$I IdSymbolDeprecatedOff.inc}
   GWindowsStack := Self;
+  {$I IdSymbolDeprecatedOn.inc}
 end;
 
 destructor TIdStackWindows.Destroy;
@@ -1091,10 +1093,23 @@ begin
 end;
 
 function TIdStackWindows.WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-  const AOverlapped: Boolean = False): TIdStackSocketHandle;
+  const ANonBlocking: Boolean = False): TIdStackSocketHandle;
+{
+var
+  LValue: UInt32;
+}
 begin
-  if AOverlapped then begin
+  if ANonBlocking then begin
     Result := WSASocket(AFamily, AStruct, AProtocol, nil, 0, WSA_FLAG_OVERLAPPED);
+    // TODO: do this instead?
+    {
+    Result := IdWinsock2.socket(AFamily, AStruct, AProtocol);
+    if Result <> INVALID_SOCKET then begin
+      //SetBlocking(Result, False);
+      LValue := 1;
+      ioctlsocket(Result, FIONBIO, LValue);
+    end;
+    }
   end else begin
     Result := IdWinsock2.socket(AFamily, AStruct, AProtocol);
   end;
@@ -1242,6 +1257,10 @@ begin
   //end;
 end;
 
+type
+  TIdStackLocalAddressAccess = class(TIdStackLocalAddress)
+  end;
+
 procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 {$IF (NOT DEFINED(USE_IPHLPAPI)) AND (NOT DEFINED(WINCE))}
 type
@@ -1252,17 +1271,6 @@ type
 {$IFEND}
 
   {$IFDEF USE_IPHLPAPI}
-
-  function IPv4MaskLengthToString(MaskLength: ULONG): String;
-  var
-    Mask: ULONG;
-  begin
-    if ConvertLengthToIpv4Mask(MaskLength, Mask) = ERROR_SUCCESS then begin
-      Result := TranslateTInAddrToString(Mask, Id_IPv4);
-    end else begin
-      Result := '';
-    end;
-  end;
 
   procedure GetIPv4SubNetMasks(ASubNetMasks: TStrings);
   var
@@ -1303,7 +1311,9 @@ type
         begin
           pRow := @(Table^.table[0]);
           for I := 0 to Table^.dwNumEntries-1 do begin
-            IndyAddPair(ASubNetMasks, TranslateTInAddrToString(pRow^.dwAddr, Id_IPv4), TranslateTInAddrToString(pRow^.dwMask, Id_IPv4));
+            IndyAddPair(ASubNetMasks,
+              TranslateTInAddrToString(pRow^.dwAddr, Id_IPv4),
+              TranslateTInAddrToString(pRow^.dwMask, Id_IPv4));
             Inc(pRow);
           end;
         end;
@@ -1320,8 +1330,10 @@ type
     Adapter, Adapters: PIP_ADAPTER_ADDRESSES;
     UnicastAddr: PIP_ADAPTER_UNICAST_ADDRESS;
     IPAddr: string;
-    SubNetStr: String;
+    SubNetStr, BroadcastStr: string;
     SubNetMasks: TStringList;
+    SubNetMask, BroadcastAddr: ULONG;
+    LAddress: TIdStackLocalAddress;
   begin
     // assume True unless ERROR_NOT_SUPPORTED is reported...
     Result := True;
@@ -1339,7 +1351,7 @@ type
       repeat
         // TODO: include GAA_FLAG_INCLUDE_PREFIX on XPSP1+?
         // TODO: include GAA_FLAG_INCLUDE_ALL_INTERFACES on Vista+?
-        Ret := GetAdaptersAddresses(PF_UNSPEC, GAA_FLAG_SKIP_ANYCAST or GAA_FLAG_SKIP_MULTICAST or GAA_FLAG_SKIP_DNS_SERVER or GAA_FLAG_SKIP_FRIENDLY_NAME, nil, Adapters, BufLen);
+        Ret := GetAdaptersAddresses(PF_UNSPEC, GAA_FLAG_SKIP_ANYCAST or GAA_FLAG_SKIP_MULTICAST or GAA_FLAG_SKIP_DNS_SERVER, nil, Adapters, BufLen);
         case Ret of
           ERROR_SUCCESS:
           begin
@@ -1383,12 +1395,20 @@ type
                 begin
                   if UnicastAddr^.DadState = IpDadStatePreferred then
                   begin
+                    LAddress := nil;
                     case UnicastAddr^.Address.lpSockaddr.sin_family of
                       AF_INET: begin
                         IPAddr := TranslateTInAddrToString(PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr, Id_IPv4);
-                        // The OnLinkPrefixLength member is only available on Windows Vista and later
+                        // TODO: use the UnicastAddr^.Length field to determine which version of
+                        // IP_ADAPTER_UNICAST_ADDRESS is being provided, rather than checking the
+                        // OS version number...
                         if IndyCheckWindowsVersion(6) then begin
-                          SubNetStr := IPv4MaskLengthToString(UnicastAddr^.OnLinkPrefixLength);
+                          // The OnLinkPrefixLength member is only available on Windows Vista and later
+                          if ConvertLengthToIpv4Mask(UnicastAddr^.OnLinkPrefixLength, SubNetMask) = ERROR_SUCCESS then begin
+                            SubNetStr := TranslateTInAddrToString(SubNetMask, Id_IPv4);
+                          end else begin
+                            SubNetMask := 0;
+                          end;
                         end else
                         begin
                           // TODO: on XP SP1+, can the subnet mask be determined
@@ -1400,12 +1420,34 @@ type
                             GetIPv4SubNetMasks(SubNetMasks);
                           end;
                           SubNetStr := SubNetMasks.Values[IPAddr];
+                          if SubNetStr <> '' then begin
+                            TranslateStringToTInAddr(SubNetStr, SubNetMask, Id_IPv4);
+                          end else begin
+                            SubNetMask := 0;
+                          end;
                         end;
-                        TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr);
+                        if SubNetMask <> 0 then begin
+                          BroadcastAddr := (PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr.s_addr and SubNetMask) or (not SubNetMask);
+                          BroadcastStr := TranslateTInAddrToString(BroadcastAddr, Id_IPv4);
+                        end else begin
+                          BroadcastStr := '';
+                        end;
+                        LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr, BroadcastStr);
+                        TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Union.IfIndex;
                       end;
                       AF_INET6: begin
-                        TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
+                        LAddress := TIdStackLocalAddressIPv6.Create(AAddresses,
+                          TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
+                        // The Ipv6IfIndex member is only available on Windows XP SP1 and later
+                        if IndyCheckWindowsVersion(5, 2) or (IndyCheckWindowsVersion(5, 1) {TODO: and SP1+}) then begin
+                          TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Ipv6IfIndex;
+                        end;
                       end;
+                    end;
+                    if LAddress <> nil then begin
+                      TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
+                      TIdStackLocalAddressAccess(LAddress).FFriendlyName := String(Adapter^.FriendlyName);
+                      TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
                     end;
                   end;
                   UnicastAddr := UnicastAddr^.Next;
@@ -1480,7 +1522,9 @@ type
     UniDirAddresses: TStringList;
     Adapter, Adapters: PIP_ADAPTER_INFO;
     IPAddr: PIP_ADDR_STRING;
-    IPStr, MaskStr: String;
+    IPStr, SubNetStr, BroadcastStr: String;
+    IPAddrNum, SubNetMask, BroadcastAddr: ULONG;
+    LAddress: TIdStackLocalAddress;
   begin
     BufLen := 1024*15;
     GetMem(Adapters, BufLen);
@@ -1531,7 +1575,7 @@ type
               IPAddr := @(Adapter^.IpAddressList);
               repeat
                 {$IFDEF USE_MARSHALLED_PTRS}
-                IPStr := TMarshal.ReadStringAsAnsiUpTo(CP_ACP, TPtrWrapper.Create(@(IPAddr^.IpAddress.S[0]), 16);
+                IPStr := TMarshal.ReadStringAsAnsiUpTo(CP_ACP, TPtrWrapper.Create(@(IPAddr^.IpAddress.S[0]), 15);
                 {$ELSE}
                 IPStr := String(IPAddr^.IpAddress.S);
                 {$ENDIF}
@@ -1544,11 +1588,23 @@ type
                     end;
                   end;
                   {$IFDEF USE_MARSHALLED_PTRS}
-                  MaskStr := TMarshal.ReadStringAsAnsiUpTo(CP_ACP, TPtrWrapper.Create(@(IPAddr^.IpMask.S[0]), 16);
+                  SubNetStr := TMarshal.ReadStringAsAnsiUpTo(CP_ACP, TPtrWrapper.Create(@(IPAddr^.IpMask.S[0]), 16);
                   {$ELSE}
-                  MaskStr := String(IPAddr^.IpMask.S);
+                  SubNetStr := String(IPAddr^.IpMask.S);
                   {$ENDIF}
-                  TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, MaskStr);
+                  if (SubNetStr <> '') and (SubNetStr <> '0.0.0.0') then
+                    TranslateStringToTInAddr(IPStr, IPAddrNum, Id_IPv4);
+                    TranslateStringToTInAddr(SubNetStr, SubNetMask, Id_IPv4);
+                    BroadcastAddr := (IPAddrNum and SubNetMask) or (not SubNetMask);
+                    BroadcastStr := TranslateTInAddrToString(BroadcastAddr, Id_IPv4);
+                  end else begin
+                    BroadcastStr := '';
+                  end;
+                  LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, SubNetStr, BroadcastStr);
+                  TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
+                  TIdStackLocalAddressAccess(LAddress).FFriendlyName := String(Adapter^.AdapterName);
+                  TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
+                  TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Index;
                 end;
                 IPAddr := IPAddr^.Next;
               until IPAddr = nil;
@@ -1568,23 +1624,78 @@ type
 
   {$ELSE}
 
-var
+  procedure GetLocalAddressesByHostName;
+  var
     {$IFDEF UNICODE}
-  Hints: TAddrInfoW;
-  LAddrList, LAddrInfo: pAddrInfoW;
+    Hints: TAddrInfoW;
+    LAddrList, LAddrInfo: pAddrInfoW;
     {$ELSE}
-  Hints: TAddrInfo;
-  LAddrList, LAddrInfo: pAddrInfo;
+    Hints: TAddrInfo;
+    LAddrList, LAddrInfo: pAddrInfo;
     {$ENDIF}
-  RetVal: Integer;
-  LHostName: String;
+    RetVal: Integer;
+    LHostName: String;
     {$IFDEF STRING_UNICODE_MISMATCH}
-  LTemp: TIdPlatformString;
+    LTemp: TIdPlatformString;
     {$ENDIF}
+    //LAddress: TIdStackLocalAddress;
+  begin
+    LHostName := HostName;
+
+    ZeroMemory(@Hints, SIZE_TADDRINFO);
+    Hints.ai_family := PF_UNSPEC; // returns both IPv4 and IPv6 addresses
+    Hints.ai_socktype := SOCK_STREAM;
+    LAddrList := nil;
+
+    {$IFDEF STRING_UNICODE_MISMATCH}
+    LTemp := TIdPlatformString(LHostName); // explicit convert to Ansi/Unicode
+    {$ENDIF}
+
+    RetVal := getaddrinfo(
+      {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(LHostName){$ENDIF},
+      nil, @Hints, @LAddrList);
+    if RetVal <> 0 then begin
+      RaiseSocketError(gaiErrorToWsaError(RetVal));
+    end;
+    try
+      AAddresses.BeginUpdate;
+      try
+        LAddrInfo := LAddrList;
+        repeat
+          //LAddress := nil;
+          case LAddrInfo^.ai_addr^.sa_family of
+            AF_INET: begin
+              {LAddress :=} TIdStackLocalAddressIPv4.Create(AAddresses,
+                TranslateTInAddrToString(PSockAddrIn(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4),
+                '', ''); // TODO: SubNet and BroadcastIP
+            end;
+            AF_INET6: begin
+              {LAddress :=} TIdStackLocalAddressIPv6.Create(AAddresses,
+                TranslateTInAddrToString(PSockAddrIn6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6));
+            end;
+          end;
+          // TODO: implement this...
+          {
+          if LAddress <> nil then begin
+            TIdStackLocalAddressAccess(LAddress).FDescription := ?;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := ?;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := ?;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := ?;
+          end;
+          }
+          LAddrInfo := LAddrInfo^.ai_next;
+        until LAddrInfo = nil;
+      finally
+        AAddresses.EndUpdate;
+      end;
+    finally
+      freeaddrinfo(LAddrList);
+    end;
+  end;
 
   {$ENDIF}
 begin
-  // Using gethostname() and gethostbyname/getaddrinfo() may not always return
+  // Using gethostname() and (gethostbyname|getaddrinfo)() may not always return
   // just the machine's IP addresses. Technically speaking, they will return
   // the local hostname, and then return the address(es) to which that hostname
   // resolves. It is possible for a machine to (a) be configured such that its
@@ -1595,53 +1706,12 @@ begin
   // IPv4, but GetAdaptersAddresses() supports both IPv4 and IPv6...
 
   {$IFDEF USE_IPHLPAPI}
-
   // try GetAdaptersAddresses() first, then fall back to GetAdaptersInfo()...
   if not GetLocalAddressesByAdaptersAddresses then begin
     GetLocalAddressesByAdaptersInfo;
   end;
-
   {$ELSE}
-
-  LHostName := HostName;
-
-  ZeroMemory(@Hints, SIZE_TADDRINFO);
-  Hints.ai_family := PF_UNSPEC; // returns both IPv4 and IPv6 addresses
-  Hints.ai_socktype := SOCK_STREAM;
-  LAddrList := nil;
-
-  {$IFDEF STRING_UNICODE_MISMATCH}
-  LTemp := TIdPlatformString(LHostName); // explicit convert to Ansi/Unicode
-  {$ENDIF}
-
-  RetVal := getaddrinfo(
-    {$IFDEF STRING_UNICODE_MISMATCH}PIdPlatformChar(LTemp){$ELSE}PChar(LHostName){$ENDIF},
-    nil, @Hints, @LAddrList);
-  if RetVal <> 0 then begin
-    RaiseSocketError(gaiErrorToWsaError(RetVal));
-  end;
-  try
-    AAddresses.BeginUpdate;
-    try
-      LAddrInfo := LAddrList;
-      repeat
-        case LAddrInfo^.ai_addr^.sa_family of
-          Id_AF_INET: begin
-            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn(LAddrInfo^.ai_addr)^.sin_addr, Id_IPv4), ''); // TODO: SubNet
-          end;
-          Id_AF_INET6: begin
-            TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddrIn6(LAddrInfo^.ai_addr)^.sin6_addr, Id_IPv6));
-          end;
-        end;
-        LAddrInfo := LAddrInfo^.ai_next;
-      until LAddrInfo = nil;
-    finally
-      AAddresses.EndUpdate;
-    end;
-  finally
-    freeaddrinfo(LAddrList);
-  end;
-
+  GetLocalAddressesByHostName;
   {$ENDIF}
 end;
 
@@ -1909,7 +1979,7 @@ end;
 
 function TIdStackWindows.WouldBlock(const AResult: Integer): Boolean;
 begin
-  Result := AResult = WSAEWOULDBLOCK;
+  Result := (AResult = WSAEWOULDBLOCK);
 end;
 
 function TIdStackWindows.HostByName(const AHostName: string;
@@ -2026,6 +2096,7 @@ end;
 procedure TIdStackWindows.Disconnect(ASocket: TIdStackSocketHandle);
 begin
   // Windows uses Id_SD_Send, Linux should use Id_SD_Both
+  // RLebeau: why Id_SD_Send and not Id_SD_Both on Windows? What if a blocking read is in progress?
   WSShutdown(ASocket, Id_SD_Send);
   // SO_LINGER is false - socket may take a little while to actually close after this
   WSCloseSocket(ASocket);
@@ -2464,7 +2535,7 @@ initialization
   // Check if we are running under windows NT
   {$IFNDEF WINCE}
   if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-    GetFileSizeEx := Windows.GetProcAddress(GetModuleHandle('Kernel32.dll'), 'GetFileSizeEx');
+    GetFileSizeEx := LoadLibFunction(GetModuleHandle('Kernel32.dll'), 'GetFileSizeEx');
     GServeFileProc := ServeFile;
   end;
   {$ENDIF}

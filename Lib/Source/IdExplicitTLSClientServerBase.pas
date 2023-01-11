@@ -211,19 +211,32 @@ begin
       end;
     end;
     case AValue of
+      utNoTLSSupport: begin
+        if (DefaultPort = FImplicitTLSProtPort) or (DefaultPort = FExplicitTLSProtPort) then begin
+          DefaultPort := FRegularProtPort;
+        end;
+        if DefaultImplicitTLSPort = FImplicitTLSProtPort then begin
+          DefaultImplicitTLSPort := 0;
+        end;
+      end;
       utUseImplicitTLS: begin
         if (DefaultPort = FRegularProtPort) or (DefaultPort = FExplicitTLSProtPort) then begin
           DefaultPort := FImplicitTLSProtPort;
+        end;
+        if DefaultImplicitTLSPort = 0 then begin
+          DefaultImplicitTLSPort := FImplicitTLSProtPort;
         end;
       end;
       utUseExplicitTLS: begin
         if (DefaultPort = FRegularProtPort) or (DefaultPort = FImplicitTLSProtPort) then begin
           DefaultPort := iif(FExplicitTLSProtPort <> 0, FExplicitTLSProtPort, FRegularProtPort);
         end;
+        if DefaultImplicitTLSPort = FImplicitTLSProtPort then begin
+          DefaultImplicitTLSPort := 0;
+        end;
       end;
-    else
-      if (DefaultPort = FImplicitTLSProtPort) or (DefaultPort = FExplicitTLSProtPort) then begin
-        DefaultPort := FRegularProtPort;
+      utUseRequireTLS: begin
+        // TODO: what to set the DefaultPort and DefaultImplicitTLSPort to here?
       end;
     end;
     FUseTLS := AValue;
@@ -379,6 +392,11 @@ begin
       CheckIfCanUseTLS;
     end;
     case AValue of
+      utNoTLSSupport: begin
+        if (Port = FImplicitTLSProtPort) or (Port = FExplicitTLSProtPort) then begin
+          Port := FRegularProtPort;
+        end;
+      end;
       utUseImplicitTLS: begin
         if (Port = FRegularProtPort) or (Port = FExplicitTLSProtPort) then begin
           Port := FImplicitTLSProtPort;
@@ -389,9 +407,9 @@ begin
           Port := iif(FExplicitTLSProtPort <> 0, FExplicitTLSProtPort, FRegularProtPort);
         end;
       end;
-    else
-      if (Port = FImplicitTLSProtPort) or (Port = FExplicitTLSProtPort) then begin
-        Port := FRegularProtPort;
+      utUseRequireTLS: begin
+	    // this should not be used on the client side!  But sometimes users
+        // make that mistake.  So, should we update the Port here?
       end;
     end;
     FUseTLS := AValue;
@@ -438,6 +456,9 @@ begin
   if Connected then begin
     Disconnect;
   end;
+  // This method should never be called in the context of an active 'except'
+  // block, so do not use IndyRaiseOuterException() to capture an inner exception
+  // when raising this exception...
   raise EIdTLSClientTLSNotAvailable.Create(RSTLSSLSSLNotAvailable);
 end;
 

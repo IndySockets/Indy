@@ -557,7 +557,7 @@ begin
     Result := False;
     Exit;
   end;
-  LBuffer := Copy(LBuffer, 1, Length(LBuffer)-1);
+  SetLength(LBuffer, Length(LBuffer)-1);
   LCols := TStringList.Create;
   try
     SplitDelimitedString(LBuffer, LCols, True);

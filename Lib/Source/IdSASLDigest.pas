@@ -172,7 +172,7 @@ begin
   LQopOptions:= TStringList.Create;
   try
     LBuf := AChallenge;
-    while Length(LBuf) > 0 do begin
+    while LBuf <> '' do begin
       LName := Trim(Fetch(LBuf, '=')); {do not localize}
       LBuf := TrimLeft(LBuf);
       if TextStartsWith(LBuf, '"') then begin {do not localize}

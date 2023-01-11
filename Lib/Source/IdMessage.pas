@@ -760,7 +760,7 @@ begin
     LMIMEBoundary := TIdMIMEBoundaryStrings.GenerateBoundary;
     MIMEBoundary.Push(LMIMEBoundary, -1);  //-1 is "top level"
     //CC: Moved this logic up from SendBody to here, where it fits better...
-    if Length(ContentType) = 0 then begin
+    if ContentType = '' then begin
       //User has omitted ContentType.  We have to guess here, it is impossible
       //to determine without having procesed the parts.
       //See if it is multipart/alternative...
@@ -846,7 +846,7 @@ begin
     FLastGeneratedHeaders.Params['Content-Type', 'charset'] := LCharSet;  {do not localize}
     FLastGeneratedHeaders.Values['Content-Transfer-Encoding'] := ContentTransferEncoding; {do not localize}
   end;
-  FLastGeneratedHeaders.Values['Sender'] := Sender.Text; {do not localize}
+  FLastGeneratedHeaders.Values['Sender'] := EncodeAddressItem(Sender, HeaderEncoding, ISOCharSet); {do not localize}
   FLastGeneratedHeaders.Values['Reply-To'] := EncodeAddress(ReplyTo, HeaderEncoding, ISOCharSet); {do not localize}
   FLastGeneratedHeaders.Values['Organization'] := EncodeHeader(Organization, '', HeaderEncoding, ISOCharSet); {do not localize}
 
@@ -904,6 +904,7 @@ procedure TIdMessage.ProcessHeaders;
 var
   LBoundary: string;
   LMIMEVersion: string;
+  LTemp: string;
 
   // Some mailers send priority as text, number or combination of both
   function GetMsgPriority(APriority: string): TIdMessagePriority;
@@ -981,10 +982,11 @@ begin
   Organization := Headers.Values['Organization']; {do not localize}
   InReplyTo := Headers.Values['In-Reply-To']; {do not localize}
 
-  ReceiptRecipient.Text := Headers.Values['Disposition-Notification-To']; {do not localize}
-  if Length(ReceiptRecipient.Text) = 0 then begin
-    ReceiptRecipient.Text := Headers.Values['Return-Receipt-To']; {do not localize}
+  LTemp := Headers.Values['Disposition-Notification-To']; {do not localize}
+  if LTemp = '' then begin
+    LTemp := Headers.Values['Return-Receipt-To']; {do not localize}
   end;
+  ReceiptRecipient.Text := LTemp;
 
   References := Headers.Values['References']; {do not localize}
 
@@ -993,23 +995,23 @@ begin
   Date := GMTToLocalDateTime(Headers.Values['Date']); {do not localize}
   Sender.Text := Headers.Values['Sender']; {do not localize}
 
-  // RLebeau 2/2/2014: add a new Importance property 
-  if Length(Headers.Values['X-Priority']) > 0 then begin {do not localize}
-    // Examine X-Priority first - to get better resolution if possible and because it is the most common
-    Priority := GetMsgPriority(Headers.Values['X-Priority']); {do not localize}
-  end
-  else if Length(Headers.Values['Priority']) > 0 then begin {do not localize}
+  // RLebeau 2/2/2014: add a new Importance property
+  // Examine X-Priority first - to get better resolution if possible and because it is the most common
+  LTemp := Headers.Values['X-Priority']; {do not localize}
+  if LTemp = '' then begin
     // Which header should be here is matter of a bit of research, it might be that Importance might be checked first
-    Priority := GetMsgPriority(Headers.Values['Priority']) {do not localize}
-  end
-  else if Length(Headers.Values['Importance']) > 0 then begin {do not localize}
-    // Check Importance or Priority
-    Priority := GetMsgPriority(Headers.Values['Importance']) {do not localize}
-  end
-  else if Length(Headers.Values['X-MSMail-Priority']) > 0 then begin {do not localize}
-    // This is the least common header (or at least should be) so can be checked last
-    Priority := GetMsgPriority(Headers.Values['X-MSMail-Priority']) {do not localize}
-  end
+    LTemp := Headers.Values['Priority']; {do not localize}
+    if LTemp = '' then begin
+      // Check Importance or Priority
+      LTemp := Headers.Values['Importance']; {do not localize}
+      if LTemp = '' then begin
+        // This is the least common header (or at least should be) so can be checked last
+        LTemp := Headers.Values['X-MSMail-Priority']; {do not localize}
+      end;
+    end;
+  end;
+  if LTemp <> '' then begin
+    Priority := GetMsgPriority(LTemp);
   else begin
     Priority := mpNormal;
   end;

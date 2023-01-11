@@ -583,7 +583,7 @@ begin
         // HPUX can output the dates like "28. Jan., 16:48", "5. Mai, 05:34" or 
         // "7. Nov. 2004"
         if TextEndsWith(LTmp, '.') then begin
-          Delete(LTmp, Length(LTmp), 1);
+          SetLength(LTmp, Length(LTmp)-1);
         end;
         // Korean listings will have the Korean "month" character
         DeleteSuffix(LTmp,KoreanMonth);
@@ -600,10 +600,10 @@ begin
           // HPUX
           LTmp := Fetch(LData, ' ', False);
           if TextEndsWith(LTmp, ',') then begin
-            Delete(LTmp, Length(LTmp), 1);
+            SetLength(LTmp, Length(LTmp)-1);
           end;
           if TextEndsWith(LTmp, '.') then begin
-            Delete(LTmp, Length(LTmp), 1);
+            SetLength(LTmp, Length(LTmp)-1);
           end;
           // Handle dates where the day preceeds a string month (French, Dutch)
           i := StrToMonth(LTmp);
@@ -745,7 +745,13 @@ begin
     if IncYear(LI.ModifiedDate) <= (Now + 7) then
     begin
       Inc(wYear);
-      LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
+      if (wMonth = 2) and (wDay = 29) and (not IsLeapYear(wYear)) then
+      begin
+        {temporary workaround for Leap Year, February 29th. Encode with day - 1, but do NOT decrement wDay since this will give us the wrong day when we adjust/re-calculate the date later}
+        LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay - 1) + EncodeTime(wHour, wMin, wSec, wMSec);
+      end else begin
+        LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
+      end;
     end;
   end;
 
@@ -758,7 +764,7 @@ begin
     //is a directory
     if TextEndsWith(LLinkTo, PATH_FILENAME_SEP_UNIX) then begin
       LI.ItemType := ditSymbolicLinkDir;
-      LLinkTo := Copy(LLinkTo, 1, Length(LLinkTo)-1);
+      SetLength(LLinkTo, Length(LLinkTo)-1);
     end;
     LI.LinkedItemName := LLinkTo;
   end;
@@ -771,7 +777,7 @@ begin
   //The -F parameter does work with ftp.netscape.com and I have also tested a NcFTP server
   //which simulates the output of the ls command.
   if CharIsInSet(LName, Length(LName), PATH_FILENAME_SEP_UNIX + '*') then begin {Do not localize}
-    LName := Copy(LName, 1, Length(LName)-1);
+    SetLength(LName, Length(LName)-1);
   end;
 
   if APath <> '' then begin

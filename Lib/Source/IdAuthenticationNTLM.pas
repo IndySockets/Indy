@@ -111,7 +111,7 @@ begin
   case FCurrentStep of
     0:
       begin
-        if Length(UserName) > 0 then begin
+        if UserName <> '' then begin
           FCurrentStep := 1;
           Result := wnDoRequest;
         end else begin
@@ -148,13 +148,13 @@ begin
       end;
     2:
       begin
-        if Length(FNTLMInfo) = 0 then
+        if FNTLMInfo = '' then
         begin
           FNTLMInfo := ReadAuthInfo('NTLM');   {do not localize}
           Fetch(FNTLMInfo);
         end;
 
-        if Length(FNTLMInfo) = 0 then
+        if FNTLMInfo = '' then
         begin
           Reset;
           Abort;

@@ -136,7 +136,7 @@ var
   Buf : String;
 begin
   Buf := FetchOS;
-  if (Length(Buf) > 0) and (Pos(',', Buf) > 0) then begin   {Do not Localize}
+  if (Buf <> '') and (Pos(',', Buf) > 0) then begin   {Do not Localize}
     Result := Trim(Fetch(Buf,','));    {Do not Localize}
   end else begin
     Result := 'US-ASCII';    {Do not Localize}
@@ -148,7 +148,7 @@ var
   Buf : String;
 begin
   Buf := FetchOS;
-  if Length(Buf) > 0 then begin
+  if Buf <> '' then begin
     Result := Trim(Fetch(Buf,','));    {Do not Localize}
   end else begin
     Result := '';    {Do not Localize}

@@ -351,7 +351,7 @@ procedure TIdWorkOpUnitReadUntilDisconnect.Processing(
   );
 begin
   // 0 is disconnected, so keep requesting til 0
-  if Length(ABuffer) = 0 then begin
+  if ABuffer = nil then begin
     Complete;
   end else begin
     FStream.WriteBuffer(ABuffer[0], Length(ABuffer));
@@ -419,8 +419,10 @@ procedure TIdWorkOpUnitReadSizedStream.Processing(
   ABuffer: TIdBytes
   );
 begin
-  FStream.WriteBuffer(ABuffer[0], Length(ABuffer));
-  FSize := FSize - Length(ABuffer);
+  if ABuffer <> nil then begin
+    FStream.WriteBuffer(ABuffer[0], Length(ABuffer));
+    FSize := FSize - Length(ABuffer);
+  end;
   if FSize = 0 then begin
     Complete;
   end else begin

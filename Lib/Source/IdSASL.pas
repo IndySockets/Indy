@@ -86,9 +86,13 @@ type
       which can remove an unnecessary round-trip if both parties support it.
     }
     //SASL AProtocolName must be a name from "http://www.iana.org/assignments/gssapi-service-names"
-    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: string): Boolean; virtual;
-    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string): string; virtual; abstract;
-    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; virtual;
+    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: string): Boolean; virtual; overload;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string): string; virtual; overload;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string; virtual; overload;
+
+    function TryStartAuthenticate(const AHost: string; const APort: TIdPort; const AProtocolName : string; var VInitialResponse: string): Boolean; virtual; overload;
+    function StartAuthenticate(const AChallenge, AHost: string; const APort: TIdPort; const AProtocolName : string): string; virtual; overload;
+    function ContinueAuthenticate(const ALastResponse, AHost: string; const APort: TIdPort; const AProtocolName : string): string; virtual; overload;
 
     { For cleaning up after Authentication }
     procedure FinishAuthenticate; virtual;
@@ -163,9 +167,29 @@ begin
   Result := False;
 end;
 
+function TIdSASL.TryStartAuthenticate(const AHost: string; const APort: TIdPort; const AProtocolName : string; var VInitialResponse: string): Boolean;
+begin
+  Result := TryStartAuthenticate(AHost, AProtocolName, VInitialResponse);
+end;
+
+function TIdSASL.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): string;
+begin
+  Result := '';
+end;
+
+function TIdSASL.StartAuthenticate(const AChallenge, AHost: string; const APort: TIdPort; const AProtocolName : string): string;
+begin
+  Result := StartAuthenticate(AChallenge, AHost, AProtocolName);
+end;
+
 function TIdSASL.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : string): string;
 begin
-  // intentionally empty
+  Result := '';
+end;
+
+function TIdSASL.ContinueAuthenticate(const ALastResponse, AHost: string; const APort: TIdPort; const AProtocolName : string): string;
+begin
+  Result := ContinueAuthenticate(ALastResponse, AHost, AProtocolName);
 end;
 
 procedure TIdSASL.FinishAuthenticate;

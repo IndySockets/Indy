@@ -513,7 +513,7 @@ end;
 {This only adds Value to strs if it is not zero}
 procedure AddValueToStrings(strs : TStrings; Value : String);
 begin
-  if Length(Value) > 0 then begin
+  if Value <> '' then begin
     strs.Add(Value);
   end; //  if Legnth ( Value ) then
 end;
@@ -1077,7 +1077,7 @@ begin
       Buff := ReplaceAll(Buff, ',', ';');    {Do not Localize}
       while Buff <> '' do begin   {Do not Localize}
         Buff2 := Fetch(Buff, ';');    {Do not Localize}
-        if Length(Buff2) > 0 then begin
+        if Buff2 <> '' then begin
           Result.Add(Buff2);
         end;
       end;
@@ -1379,7 +1379,7 @@ begin
   end;
   {Keep adding until end VCard }
   while idx < s.Count do begin
-    if Length(s[idx]) > 0 then begin
+    if s[idx] <> '' then begin
       case PosInStrArray(Trim(s[idx]), ['BEGIN:VCARD', 'END:VCARD'], False) of {Do not Localize}
         0: begin
           // Have a new object - increment the counter & add
@@ -1613,7 +1613,7 @@ begin
         end;
 
         // Clean up variables
-        if Length(Attribs) <> 0 then begin
+        if Attribs <> '' then begin
           // Does Quoted-Printable occur in what's left?    {Do not Localize}
           if IndyPos('QUOTED-PRINTABLE', UpperCase(Attribs)) = 0 then begin   {Do not Localize}
             // Add to line

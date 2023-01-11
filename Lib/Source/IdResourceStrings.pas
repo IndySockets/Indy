@@ -109,7 +109,7 @@ resourcestring
   RSCannotBindRange = 'Can not bind in port range (%0:d - %1:d)';
   RSConnectionClosedGracefully = 'Connection Closed Gracefully.';
   RSCorruptServicesFile = '%s is corrupt.';
-  RSCouldNotBindSocket = 'Could not bind socket. Address and port are already in use.';
+  RSCouldNotBindSocket = 'Could not bind socket.';
   RSInvalidPortRange = 'Invalid Port Range (%0:d - %1:d)';
   RSInvalidServiceName = '%s is not a valid service.';
   RSIPv6Unavailable = 'IPv6 unavailable';

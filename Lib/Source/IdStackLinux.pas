@@ -155,7 +155,7 @@ type
       const ABufferLength, AFlags: Integer;
       const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
+      const ANonBlocking: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     {$IFDEF DCC_XE3_OR_ABOVE}
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
@@ -650,16 +650,9 @@ begin
 end;
 
 function TIdStackLinux.WSSocket(AFamily : Integer; AStruct : TIdSocketType; AProtocol: Integer;
-      const AOverlapped: Boolean = False): TIdStackSocketHandle;
+  const ANonBlocking: Boolean = False): TIdStackSocketHandle;
 begin
-  // TODO: enable this?
-  {
-  if AOverlapped then begin
-    Result := Libc.socket(AFamily, AStruct or SOCK_NONBLOCK, AProtocol);
-  end else begin
-  }
-    Result := Libc.socket(AFamily, AStruct, AProtocol);
-  //end;
+  Result := Libc.socket(AFamily, AStruct or iif(ANonBlocking, SOCK_NONBLOCK, 0), AProtocol);
 end;
 
 function TIdStackLinux.WSGetServByName(const AServiceName: string): TIdPort;
@@ -775,6 +768,12 @@ begin
   end;
 end;
 
+{$IFDEF HAS_getifaddrs}
+type
+  TIdStackLocalAddressAccess = class(TIdStackLocalAddress)
+  end;
+{$ENDIF}
+
 procedure TIdStackLinux.GetLocalAddressList(AAddresses: TIdStackLocalAddressList);
 {$IFNDEF HAS_getifaddrs}
 type
@@ -786,7 +785,9 @@ type
 var
   {$IFDEF HAS_getifaddrs}
   LAddrList, LAddrInfo: pifaddrs;
-  LSubNetStr: string;
+  LSubNetStr, LBroadcastStr: string;
+  LAddress: TIdStackLocalAddress;
+  LName: string;
   {$ELSE}
   Li: Integer;
   LAHost: PHostEnt;
@@ -811,8 +812,9 @@ begin
     try
       LAddrInfo := LAddrList;
       repeat
-        if (LAddrInfo^.ifa_addr <> nil) and ((LAddrInfo^.ifa_flags and IFF_LOOPBACK) = 0) then
+        if ((LAddrInfo^.ifa_flags and IFF_LOOPBACK) = 0) and (LAddrInfo^.ifa_addr <> nil) then
         begin
+          LAddress := nil;
           case LAddrInfo^.ifa_addr^.sa_family of
             Id_PF_INET4: begin
               if LAddrInfo^.ifa_netmask <> nil then begin
@@ -820,11 +822,25 @@ begin
               end else begin
                 LSubNetStr := '';
               end;
-              TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr);
+              if ((LAddrInfo^.ifa_flags and IFF_BROADCAST) <> 0) and (LAddrInfo^.ifa_broadaddr <> nil) then
+                LBroadcastStr := TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_broadaddr)^.sin_addr, Id_IPv4);
+              end else begin
+                LBroadcastStr := '';
+              end;
+              LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In(LAddrInfo^.ifa_addr)^.sin_addr, Id_IPv4), LSubNetStr, LBroadcastStr);
             end;
             Id_PF_INET6: begin
-              TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
+              LAddress := TIdStackLocalAddressIPv6.Create(AAddresses, TranslateTInAddrToString(PSockAddr_In6(LAddrInfo^.ifa_addr)^.sin6_addr, Id_IPv6));
             end;
+          end;
+          if LAddress <> nil then begin
+            LName := LAddrInfo^.ifa_name;
+            TIdStackLocalAddressAccess(LAddress).FDescription := LName;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
+            {$IFDEF HAS_if_nametoindex}
+            TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
+            {$ENDIF}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -858,7 +874,7 @@ begin
         AAddresses.BeginUpdate;
         try
           repeat
-            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4), ''); // TODO: SubNet
+            TIdStackLocalAddressIPv4.Create(AAddresses, TranslateTInAddrToString(LPAdrPtr^[Li]^, Id_IPv4), '', ''); // TODO: SubNetMask and BroadcastIP
             Inc(Li);
           until LPAdrPtr^[Li] = nil;
         finally
@@ -1067,11 +1083,11 @@ end;
 
 function TIdStackLinux.WouldBlock(const AResult: Integer): Boolean;
 begin
-  //non-blocking does not exist in Linux, always indicate things will block
-  Result := True;
-
-  // TODO: enable this:
-  //Result := (AResult in [EAGAIN, EWOULDBLOCK, EINPROGRESS]);
+  // using if-else instead of in..range because EAGAIN and EWOULDBLOCK
+  // have often the same value and so FPC might report a range error
+  Result := (AResult = Id_WSAEAGAIN) or
+            (AResult = Id_WSAEWOULDBLOCK) or
+            (AResult = Id_WSAEINPROGRESS);
 end;
 
 function TIdStackLinux.SupportsIPv4: Boolean;
@@ -1342,9 +1358,10 @@ end;
 
 procedure TIdStackLinux.SetBlocking(ASocket: TIdStackSocketHandle;
   const ABlocking: Boolean);
+var
+  LFlags: Integer;
+  //LValue: UInt32;
 begin
-  // TODO: enable this
-  {
   LFlags := CheckForSocketError(Libc.fcntl(ASocket, F_GETFL, 0));
   if ABlocking then begin
     LFlags := LFlags and not O_NONBLOCK;
@@ -1352,15 +1369,10 @@ begin
     LFlags := LFlags or O_NONBLOCK;
   end;
   CheckForSocketError(Libc.fcntl(ASocket, F_SETFL, LFlags));
-
-or
-
+  {
   LValue := UInt32(not ABlocking);
   CheckForSocketError(Libc.ioctl(ASocket, FIONBIO, @LValue));
   }
-  if not ABlocking then begin
-    raise EIdNonBlockingNotSupported.Create(RSStackNonBlockingNotSupported);
-  end;
 end;
 
 (*

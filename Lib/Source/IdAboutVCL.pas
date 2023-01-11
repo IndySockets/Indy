@@ -52,13 +52,13 @@ type
 
 implementation
 
-{$IF (NOT DEFINED(WIDGET_LCL)) AND DEFINED(WIN32_OR_WIN64)}
+{$IF (NOT DEFINED(WIDGET_LCL)) AND (DEFINED(WIN32) OR DEFINED(WIN64))}
   {$R IdAboutVCL.RES}
 {$IFEND}
 
 uses
   {$IFDEF WIN32_OR_WIN64}ShellApi, {$ENDIF}
-  {$IF (NOT DEFINED(WIDGET_LCL)) AND DEFINED(WIN32_OR_WIN64)}
+  {$IF (NOT DEFINED(WIDGET_LCL)) AND (DEFINED(WIN32) OR DEFINED(WIN64))}
   //done this way because we reference HInstance in Delphi for loading
   //resources.  Lazarus does something different.
   Windows,

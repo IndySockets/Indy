@@ -187,7 +187,7 @@ begin
       end;
     end else begin
       // TODO: move the 'dict' string to IdAssignedNumbers.pas with the other SASL protocol names...
-      FSASLMechanisms.LoginSASL('SASLAUTH',FHost, 'dict', ['230'], ['330'], Self, FCapabilities, ''); {do not localize}
+      FSASLMechanisms.LoginSASL('SASLAUTH', FHost, FPort, 'dict', ['230'], ['330'], Self, FCapabilities, ''); {do not localize}
     end;
     if FTryMIME and IsCapaSupported('MIME') then begin {do not localize}
       SendCmd('OPTION MIME'); {do not localize}

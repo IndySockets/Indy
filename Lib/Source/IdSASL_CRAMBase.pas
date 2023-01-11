@@ -95,7 +95,7 @@ end;
 
 function TIdSASLCRAMBase.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
 begin
-  if Length(AChallenge) > 0 then
+  if AChallenge <> '' then
   begin
     result := GetUsername + ' ' + BuildKeydAuth(GetPassword, AChallenge);
   end

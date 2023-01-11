@@ -1,0 +1,53 @@
+package IndySystemNet;
+
+{$ALIGN 0}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  Borland.Delphi,
+  Borland.VclRtl;
+
+contains
+  IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\IdBaseComponent.pas',
+  IdComponent in '..\..\Source\IdComponent.pas',
+  IdException in '..\..\Source\IdException.pas',
+  IdGlobal in '..\..\Source\IdGlobal.pas',
+  IdResourceStrings in '..\..\Source\IdResourceStrings.pas',
+  IdStack in '..\..\Source\IdStack.pas',
+  IdStackConsts in '..\..\Source\IdStackConsts.pas',
+  IdStackDotNet in '..\..\Source\IdStackDotNet.pas',
+  IdStream in '..\..\Source\IdStream.pas',
+  IdStreamRandomAccess in '..\..\Source\IdStreamRandomAccess.pas',
+  IdStreamVCL in '..\..\Source\IdStreamVCL.pas',
+  IdStreamVCLBase in '..\..\Source\IdStreamVCLBase.pas',
+  IdStreamVCLDotNet in '..\..\Source\IdStreamVCLDotNet.pas',
+  IdTStrings in '..\..\Source\IdTStrings.pas';
+{$I .\..\Source\IdSystem90ASM90.inc}
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
+
+end.

@@ -200,6 +200,22 @@ uses
 
 { TIdReplyIMAP4 }
 
+procedure TIdReplyIMAP4.AssignTo(ADest: TPersistent);
+var
+  LR: TIdReplyIMAP4;
+begin
+  if ADest is TIdReplyIMAP4 then begin
+    LR := TIdReplyIMAP4(ADest);
+    //set code first as it possibly clears the reply
+    LR.NumericCode := NumericCode;
+    LR.FSequenceNumber := SequenceNumber;
+    LR.Extra.Assign(Extra);
+    LR.Text.Assign(Text);
+  end else begin
+    inherited AssignTo(ADest);
+  end;
+end;
+
 function TIdReplyIMAP4.ParseRequest(ARequest: string): Boolean;
 begin
   FSequenceNumber := Fetch(ARequest);

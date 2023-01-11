@@ -21,16 +21,6 @@ uses
 {.$DEFINE STATICLOAD_ICONV}
 //These should be defined in libc.pas.
 type
-  {$IFDEF WINDOWS}
-  {$EXTERNALSYM SIZE_T}
-    {$IFDEF CPU64}
-  size_t = QWord;
-    {$ELSE}
-  size_t = DWord;
-    {$ENDIF}
-  Psize_t = ^size_t;
-  {$ENDIF}
-
   Piconv_t = ^iconv_t;
   iconv_t = Pointer;
 
@@ -49,7 +39,7 @@ type
   TIdiconv = function (__cd : iconv_t; __inbuf : PPAnsiChar;
                     __inbytesleft : Psize_t;
 		    __outbuf : PPAnsiChar;
-		    __outbytesleft : Psize_t ) : size_t; cdecl;
+		    __outbytesleft : PIdC_SIZET ) : TIdC_SIZET; cdecl;
 //   This function is a possible cancellation points and therefore not
 //   marked with __THROW.  */
 //extern int iconv_close (iconv_t __cd);
@@ -197,9 +187,9 @@ function iconv_open(__tocode : PAnsiChar; __fromcode : PAnsiChar) : iconv_t; cde
   external LICONV name FN_ICONV_OPEN;
 
 function iconv(__cd : iconv_t; __inbuf : PPAnsiChar;
-                    __inbytesleft : Psize_t;
+                    __inbytesleft : PIdC_SIZET;
 		    __outbuf : PPAnsiChar;
-		    __outbytesleft : Psize_t ) : size_t; cdecl;
+		    __outbytesleft : PIdC_SIZET ) : TIdC_SIZET; cdecl;
   external LICONV name FN_ICONV;
 
 function iconv_close(__cd : iconv_t) : TIdC_INT; cdecl;
@@ -272,14 +262,14 @@ begin
 
 end;
 
-function FixupStub(const AName: string): Pointer;
+function FixupStub(const AName: UnicodeString): Pointer;
 begin
   if hIconv = 0 then begin
     if not Load then begin
       raise EIdIconvStubError.Build(Format(RSIconvCallError, [AName]), 0);
     end;
   end;
-  Result := GetProcAddress(hIconv, PChar(AName));
+  Result := LoadLibFunction(hIconv, AName);
   {
   IMPORTANT!!!
 
@@ -289,7 +279,7 @@ begin
   IOW, CYA!!!
   }
   if Result = nil then begin
-    Result := GetProcAddress(hIconv, PChar('lib'+AName));
+    Result := LoadLibFunction(hIconv, 'lib'+AName);
     if Result = nil then begin
       raise EIdIconvStubError.Build(Format(RSIconvCallError, [AName]), 10022);
     end;
@@ -300,14 +290,14 @@ end;
 
 function Stub_iconv_open(__tocode : PAnsiChar; __fromcode : PAnsiChar) : iconv_t;  cdecl;
 begin
-  @iconv_open := FixupStub(FN_ICONV_OPEN);
+  iconv_open := FixupStub(FN_ICONV_OPEN);
   Result := iconv_open(__tocode, __fromcode);
 end;
 
-function stub_iconv(__cd : iconv_t; __inbuf : PPAnsiChar;
-                    __inbytesleft : Psize_t;
+function stub_iconv(__cd : iconv_t; __inbuf : PPAnsiChar; 
+                    __inbytesleft : PIdC_SIZET; 
 		    __outbuf : PPAnsiChar;
-		    __outbytesleft : Psize_t ) : size_t; cdecl;
+		    __outbytesleft : PIdC_SIZET ) : TIdC_SIZET; cdecl;
 begin
   @iconv := FixupStub(FN_ICONV);
   Result := iconv(__cd,__inbuf,__inbytesleft,__outbuf,__outbytesleft);
@@ -372,17 +362,26 @@ var
 {$ENDIF}
 begin
   {$IFNDEF STATICLOAD_ICONV}
+    {$IFDEF USE_InterlockedExchangeTHandle}
   h := IdGlobal.InterlockedExchangeTHandle(hIconv, 0);
   if h <> 0 then begin
     FreeLibrary(h);
   end;
+    {$ELSE}
+  if hIconv <> 0 then begin
+    FreeLibrary(hIconv);
+    hIconv := 0;
+  end;
+    {$ENDIF}
   {$ENDIF}
+
   {$IF DEFINED(WIN32) OR DEFINED(WIN64)}
   h := IdGlobal.InterlockedExchangeTHandle(hmsvcrt, 0);
   if h <> 0 then begin
     FreeLibrary(h);
   end;
   {$IFEND}
+
   InitializeStubs;
 end;
 
@@ -464,13 +463,14 @@ function Stub_errno : PIdC_INT; cdecl;
 
   function GetImpl: Pointer;
   begin
-    Result := GetProcAddress(hmsvcrt, PChar(FN_errno));
+    Result := LoadLibFunction(hmsvcrt, FN_errno);
     if Result = nil then begin
       raise EIdMSVCRTStubError.Build('Failed to load ' + FN_errno + ' in ' + LIBMSVCRTL, 0);
     end;
   end;
 
 begin
+  // TODO: use InterlockedCompareExchange() to set hmsvcrt safely...
   if hmsvcrt = 0 then begin
     hmsvcrt := SafeLoadLibrary(LIBMSVCRTL);
     if hmsvcrt = 0 then begin

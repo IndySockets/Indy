@@ -134,7 +134,7 @@ begin
       else if LBuf = 'r' then begin  {do not localize}
         LI.ItemType := ditFile;
       end
-      else if Length(LBuf) > 0 then
+      else if LBuf <> '' then
       begin
         case LBuf[1] of
           's':  {do not localize}

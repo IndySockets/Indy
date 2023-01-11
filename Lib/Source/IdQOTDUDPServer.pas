@@ -82,7 +82,7 @@ begin
   inherited DoUDPRead(AThread, AData, ABinding);
   s := '';    {Do not Localize}
   DoOnCommandQUOTD(ABinding, s);
-  if Length(s) > 0 then
+  if s <> '' then
   begin
     ABinding.SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s), ABinding.IPVersion);
   end;

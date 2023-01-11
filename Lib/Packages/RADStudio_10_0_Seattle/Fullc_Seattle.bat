@@ -31,6 +31,7 @@ if exist setenv.bat call setenv.bat
 if exist setenv.bat del setenv.bat > nul
 
 if (%NDC23%)==() goto enderror
+if not exist %NDC23%\bin\dcc32.exe goto endnocompiler
 
 REM Set up the environment
 call %NDC23%\bin\rsvars.bat
@@ -130,6 +131,7 @@ REM ************************************************************
 
 copy ..\Output\hpp\%IndyPlatform%\%IndyConfig%\Id*.hpp %IndyPlatform%\%IndyConfig%
 copy "%BDSCOMMONDIR%\Bpl\*Indy*.bpl" %IndyPlatform%\%IndyConfig%
+copy *Indy*.bpl %IndyPlatform%\%IndyConfig%
 copy ..\Output\Bpi\%IndyPlatform%\%IndyConfig%\Indy*.bpi %IndyPlatform%\%IndyConfig%
 if "%IndyPlatform%" == "Win32" copy "..\Output\Obj\%IndyPlatform%\%IndyConfig%\Indy*.Lib" %IndyPlatform%\%IndyConfig%
 copy indysystem.res %IndyPlatform%\%IndyConfig%

@@ -131,7 +131,7 @@ procedure TIdHashInt.UpdateHash(ACtx: TIdHashIntCtx; const AIn: TIdBytes);
 var
   LRet : TIdC_Int;
 begin
-  LRet := IdSslEvpDigestUpdate(@ACtx,@Ain[0],Length(AIn));
+  LRet := IdSslEvpDigestUpdate(@ACtx,PByte(Ain),Length(AIn));
   if LRet <> 1 then begin
     EIdDigestInitEx.RaiseException('EVP_DigestUpdate error');
   end;

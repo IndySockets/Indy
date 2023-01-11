@@ -458,6 +458,7 @@ begin
   CopyBytesToHostUInt32(AData, VI, LC);
 
   VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
+  // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
   VL.FModifiedDate := VL.FModifiedDateGMT + OffSetFromUTC;
   Inc(VI, 4);
 
@@ -711,9 +712,9 @@ servers do not wishes to be detected.
   }
   SetLength(LData, 0);
   SendCmdOnce(CC_VERSION, LData, LData, 0, LBuf, LExtraBuf);
-  if Length(LData) > 0 then begin
+  if LData <> nil then begin
     FSystemDesc := ParseASCIIZ(LBuf);
-    if Length(LExtraBuf) > 0 then begin
+    if LExtraBuf <> nil then begin
       LDetails := LExtraBuf[0];
       //bit 0 set - server does logging
       FSystemServerLogs := (LDetails and $01) = $01;
@@ -957,7 +958,7 @@ end;
 procedure TIdFSP.ParseDirInfo(const ABuf, AExtraBuf: TIdBytes; ADir : TIdFSPDirInfo);
 begin
   ADir.ReadMe := ParseASCIIZ(ABuf);
-  if Length(AExtraBuf) > 0 then begin
+  if AExtraBuf <> nil then begin
     //0 - caller owns the directory
     ADir.OwnsDir        := (AExtraBuf[0] and $01) = $01;
     //1 - files can be deleted from this dir

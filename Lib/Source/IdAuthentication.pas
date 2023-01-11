@@ -347,7 +347,7 @@ begin
   try
     LParams.CaseSensitive := False;
 
-    while Length(S) > 0 do begin
+    while S <> '' do begin
       // RLebeau: Apache sends a space after each comma, but IIS does not!
       LName := Trim(Fetch(S, '=')); {do not localize}
       S := TrimLeft(S);
@@ -370,11 +370,11 @@ begin
         FCharset := LParams.Values['encoding']; // draft-reschke-basicauth-enc-04
         if FCharset = '' then begin
           FCharset := LParams.Values['enc']; // I saw this mentioned in a Mozilla bug report, and apparently Opera supports it
-        end;
-        if FCharset = '' then begin
-          // TODO: check the user's input and encode using ISO-8859-1 only if
-          // the characters will actually fit, otherwise use UTF-8 instead?
-          FCharset := 'ISO-8859-1';
+          if FCharset = '' then begin
+            // TODO: check the user's input and encode using ISO-8859-1 only if
+            // the characters will actually fit, otherwise use UTF-8 instead?
+            FCharset := 'ISO-8859-1';
+          end;
         end;
       end;
     end;
@@ -384,7 +384,7 @@ begin
 
   if FCurrentStep = 0 then
   begin
-    if Length(Username) > 0 then begin
+    if Username <> '' then begin
       Result := wnDoRequest;
     end else begin
       Result := wnAskTheProgram;

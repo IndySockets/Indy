@@ -195,7 +195,7 @@ begin
   begin
     ATimeOut := FReceiveTimeout;
   end;
-  if Length(VBuffer) > 0 then
+  if VBuffer <> nil then
   begin
     if Binding.Readable(ATimeOut) then begin
       if FBinding.IPVersion = Id_IPv4 then

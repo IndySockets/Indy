@@ -12,3 +12,6 @@ call RADStudio_XE8\Fullc_XE8
 call RADStudio_10.0_Seattle\Fullc_Seattle
 call RADStudio_10.1_Berlin\Fullc_Berlin
 call RADStudio_10.2_Tokyo\Fullc_Tokyo
+call RADStudio_10.3_Rio\Fullc_Rio
+call RADStudio_10.4_Sydney\Fullc_Sydney
+call RADStudio_11_Alexandria\Fullc_Alexandria

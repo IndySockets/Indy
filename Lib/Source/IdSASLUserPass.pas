@@ -41,9 +41,12 @@ uses
 type
   TIdSASLUserPass = class(TIdSASL)
   protected
-    {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FUserPassProvider: TIdUserPassProvider;
+    {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
+    {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
+    {$IFEND} FUserPassProvider: TIdUserPassProvider;
+    //
+    {$IFDEF USE_OBJECT_REF_FREENOTIF}
     procedure SetUserPassProvider(const Value: TIdUserPassProvider);
-    {$IFNDEF USE_OBJECT_ARC}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     {$ENDIF}
     function GetUsername: string;
@@ -51,13 +54,15 @@ type
   public
     function IsReadyToStart: Boolean; override;
   published
-    property UserPassProvider: TIdUserPassProvider read FUserPassProvider write SetUserPassProvider;
+    property UserPassProvider: TIdUserPassProvider read FUserPassProvider write {$IFDEF USE_OBJECT_REF_FREENOTIF}SetUserPassProvider{$ELSE}FUserPassProvider{$ENDIF};
   end;
 
   EIdUserPassProviderUnassigned = class(EIdException);
 
 implementation
-uses IdResourceStringsProtocols;
+
+uses
+  IdResourceStringsProtocols;
 
 { TIdSASLUserPass }
 
@@ -101,7 +106,7 @@ begin
 end;
 
 // under ARC, all weak references to a freed object get nil'ed automatically
-{$IFNDEF USE_OBJECT_ARC}
+{$IFDEF USE_OBJECT_REF_FREENOTIF}
 procedure TIdSASLUserPass.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FUserPassProvider) then begin
@@ -109,14 +114,9 @@ begin
   end;
   inherited Notification(AComponent, Operation);
 end;
-{$ENDIF}
 
 procedure TIdSASLUserPass.SetUserPassProvider(const Value: TIdUserPassProvider);
 begin
-  {$IFDEF USE_OBJECT_ARC}
-  // under ARC, all weak references to a freed object get nil'ed automatically
-  FUserPassProvider := Value;
-  {$ELSE}
   if FUserPassProvider <> Value then begin
     if Assigned(FUserPassProvider) then begin
       FUserPassProvider.RemoveFreeNotification(Self);
@@ -126,7 +126,7 @@ begin
       Value.FreeNotification(Self);
     end;
   end;
-  {$ENDIF}
 end;
+{$ENDIF}
 
 end.

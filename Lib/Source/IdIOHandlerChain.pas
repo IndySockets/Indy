@@ -467,8 +467,8 @@ begin
       end;
     end else begin
       Result := FInputBuffer.Extract(LTermPos - 1);
-      if (ATerminator = LF) and (Copy(Result, Length(Result), 1) = CR) then begin
-        Delete(Result, Length(Result), 1);
+      if (ATerminator = LF) and TextEndsWith(Result, CR) then begin
+        SetLength(Result, Length(Result)-1);
       end;
       FInputBuffer.Extract(Length(ATerminator));// remove the terminator
     end;
@@ -560,7 +560,7 @@ procedure TIdIOHandlerChain.WriteDirect(
   ABuffer: TIdBytes
   );
 begin
-  QueueAndWait(TIdWorkOpUnitWriteBuffer.Create(@ABuffer[0], Length(ABuffer), False));
+  QueueAndWait(TIdWorkOpUnitWriteBuffer.Create(PByte(ABuffer), Length(ABuffer), False));
 end;
 
 procedure TIdIOHandlerChain.QueueAndWait(

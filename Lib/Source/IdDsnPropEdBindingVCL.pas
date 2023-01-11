@@ -199,21 +199,21 @@ begin
     try
       LItems.CommaText := AList;
       for i := 0 to LItems.Count-1 do begin
-        if Length(LItems[i]) > 0 then begin
-          if TextStartsWith(LItems[i], '[') then begin
+        LText := LItems[i];
+        if LText <> '' then begin
+          if TextStartsWith(LText, '[') then begin
            //  ipv6
             LIPVersion := Id_IPv6;
-            LText := Copy(LItems[i], 2, MaxInt);
+            Delete(LText, 1, 1);
             LAddr := Fetch(LText, ']:');
             LPort := StrToIntDef(LText, -1);
           end else begin
             // ipv4
             LIPVersion := Id_IPv4;
-            LText := LItems[i];
             LAddr := Fetch(LText, ':');
             LPort := StrToIntDef(LText, -1);
-            //Note that 0 is legal and indicates the server binds to a random port
           end;
+          //Note that 0 is legal and indicates the server binds to a random port
           if IsValidIP(LAddr) and (LPort > -1) and (LPort < 65536) then begin
             LSocket := ADest.Add;
             LSocket.IPVersion := LIPVersion;
@@ -245,7 +245,7 @@ begin
       Break;
     end;
   end;
-  if Length(Result) = 0 then begin
+  if Result = '' then begin
     Result := '0';
   end;
 end;
@@ -630,10 +630,13 @@ begin
 end;
 
 procedure TIdDsnPropEdBindingVCL.btnBindingsDeleteExecute(Sender: TObject);
+var
+  LIndex: Integer;
 begin
-  if lbBindings.ItemIndex >= 0 then
+  LIndex := lbBindings.ItemIndex;
+  if LIndex >= 0 then
   begin
-    Handles.Delete(lbBindings.ItemIndex);
+    Handles.Delete(LIndex);
     FCurrentHandle := nil;
     UpdateBindingList;
   end;

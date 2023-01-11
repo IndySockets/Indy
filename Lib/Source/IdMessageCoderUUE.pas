@@ -145,7 +145,7 @@ begin
     Exit;
   end;
   LDecoder := nil;
-  if Length(LLine) > 0 then
+  if LLine <> '' then
   begin
     case LLine[1] of
       #32..#85: begin    {Do not Localize}
@@ -202,7 +202,7 @@ begin
     begin
       LFillCharStr := String(LDecoder.FillChar);
       repeat
-        if (Length(Trim(LLine)) = 0) or (LLine = LFillCharStr) then begin
+        if (Trim(LLine) = '') or (LLine = LFillCharStr) then begin
           // UUE: Comes on the line before end. Supposed to be `, but some put a
           // blank line instead
         end else begin

@@ -764,7 +764,7 @@ uses
   , Windows
     {$ENDIF}
   {$ELSEIF DEFINED(DCC_XE2_OR_ABOVE)}
-  , System.Win.Crtl
+  , System.Win.Crtl {$NOINCLUDE System.Win.Crtl}
   {$IFEND};
 
 {$IFDEF STATICLOAD_ZLIB}
@@ -904,14 +904,14 @@ begin
   end;
 end;
 
-function FixupStub(const AName: string): Pointer;
+function FixupStub(const AName: UnicodeString): Pointer;
 begin
   if hZLib = IdNilHandle then begin
     if not Load then begin
       raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
     end;
   end;
-  Result := GetProcAddress(hZLib, PChar(AName));
+  Result := LoadLibFunction(hZLib, AName);
   if Result = nil then begin
     raise EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 10022);
   end;

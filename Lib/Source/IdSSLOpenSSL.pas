@@ -207,12 +207,19 @@ interface
 
 {$TYPEDADDRESS OFF}
 
+{.$DEFINE SNI_SUPPORT}
+
 uses
   //facilitate inlining only.
   {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
   Classes,
+  {$IFDEF SNI_SUPPORT}
+    {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+    {$ENDIF}
+  {$ENDIF}
   IdBuffer,
   IdCTypes,
   IdGlobal,
@@ -234,8 +241,8 @@ uses
   IdYarn;
 
 type
-  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2);
-  TIdSSLVersions = set of TIdSSLVersion;
+  TIdSSLVersion = IdSSL.TIdSSLVersion;
+  TIdSSLVersions = IdSSL.TIdSSLVersions;
   TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
   TIdSSLVerifyMode = (sslvrfPeer, sslvrfFailIfNoPeerCert, sslvrfClientOnce);
   TIdSSLVerifyModeSet = set of TIdSSLVerifyMode;
@@ -316,6 +323,13 @@ type
     property CipherList: String read fCipherList write fCipherList;
   end;
 
+  {$IFDEF SNI_SUPPORT}
+  TIdSNICertRec = record
+    ID: Integer;
+    Info: String;
+  end;
+  {$ENDIF}
+
   TIdSSLContext = class(TObject)
   protected
     fMethod: TIdSSLVersion;
@@ -327,17 +341,33 @@ type
 //    fVerifyFile: String;
     fVerifyDirs: String;
     fCipherList: String;
-    fContext: PSSL_CTX;
     fStatusInfoOn: Boolean;
 //    fPasswordRoutineOn: Boolean;
     fVerifyOn: Boolean;
     fSessionId: Integer;
+    {$IFDEF SNI_SUPPORT}
     fCtxMode: TIdSSLCtxMode;
+      {$IFDEF HAS_UNIT_Generics_Collections}
+    fContexts: TDictionary<String, PSSL_CTX>;
+      {$ELSE}
+    fContexts: TStringList;
+      {$ENDIF}
+    fContextsLock: TIdCriticalSection;
+    fSNICertRec: TIdSNICertRec;
+    {$ELSE}
+    fContext: PSSL_CTX;
+    {$ENDIF}
+
     procedure DestroyContext;
     function SetSSLMethod: PSSL_METHOD;
-    procedure SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean);
+    procedure SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean{$IFDEF SNI_SUPPORT}; const AContext: PSSL_CTX{$ENDIF});
     function GetVerifyMode: TIdSSLVerifyModeSet;
     procedure InitContext(CtxMode: TIdSSLCtxMode);
+
+    {$IFDEF SNI_SUPPORT}
+    function ContextFor(const AHostName: String; ASafe: Boolean = True): PSSL_CTX;
+    procedure FreeCallbacks;
+    {$ENDIF}
   public
     {$IF DEFINED(HAS_UNSAFE_OBJECT_REF)}[Unsafe]
     {$ELSEIF DEFINED(HAS_WEAK_OBJECT_REF)}[Weak]
@@ -345,10 +375,10 @@ type
     constructor Create;
     destructor Destroy; override;
     function Clone : TIdSSLContext;
-    function LoadRootCert: Boolean;
-    function LoadCert: Boolean;
-    function LoadKey: Boolean;
-    function LoadDHParams: Boolean;
+    function LoadRootCert({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
+    function LoadCert({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
+    function LoadKey({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
+    function LoadDHParams({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
     property StatusInfoOn: Boolean read fStatusInfoOn write fStatusInfoOn;
 //    property PasswordRoutineOn: Boolean read fPasswordRoutineOn write fPasswordRoutineOn;
     property VerifyOn: Boolean read fVerifyOn write fVerifyOn;
@@ -367,7 +397,9 @@ type
     property VerifyDirs: String read fVerifyDirs write fVerifyDirs;
     property VerifyMode: TIdSSLVerifyModeSet read fVerifyMode write fVerifyMode;
     property VerifyDepth: Integer read fVerifyDepth write fVerifyDepth;
-
+    {$IFDEF SNI_SUPPORT}
+    property SNICertRec: TIdSNICertRec read fSNICertRec write fSNICertRec;
+    {$ENDIF}
   end;
 
   TIdSSLSocket = class(TObject)
@@ -383,6 +415,9 @@ type
     function GetPeerCert: TIdX509;
     function GetSSLError(retCode: Integer): Integer;
     function GetSSLCipher: TIdSSLCipher;
+    {$IFDEF SNI_SUPPORT}
+    procedure SetHostName(const AHostName: String);
+    {$ENDIF}
   public
     constructor Create(Parent: TObject);
     destructor Destroy; override;
@@ -396,7 +431,7 @@ type
     //
     property PeerCert: TIdX509 read GetPeerCert;
     property Cipher: TIdSSLCipher read GetSSLCipher;
-    property HostName: String read fHostName;
+    property HostName: String read fHostName {$IFDEF SNI_SUPPORT}write SetHostName{$ENDIF};
   end;
 
   // TIdSSLIOHandlerSocketOpenSSL and TIdServerIOHandlerSSLOpenSSL have some common
@@ -612,6 +647,9 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     FSubject : TIdX509Name;
     FIssuer  : TIdX509Name;
     FDisplayInfo : TStrings;
+    {$IFDEF SNI_SUPPORT}
+    FSNICertRec: TIdSNICertRec;
+    {$ENDIF}
     function RSubject:TIdX509Name;
     function RIssuer:TIdX509Name;
     function RnotBefore:TDateTime;
@@ -637,6 +675,9 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property notAfter: TDateTime read RnotAfter;
     property SerialNumber : string read GetSerialNumber;
     property DisplayInfo : TStrings read GetDisplayInfo;
+    {$IFDEF SNI_SUPPORT}
+    property SNICertRec: TIdSNICertRec read FSNICertRec write FSNICertRec;
+    {$ENDIF}
     //
     property Certificate: PX509 read FX509;
   end;
@@ -658,7 +699,17 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property Bits: Integer read GetBits;
     property Version: String read GetVersion;
   end;
-  EIdOSSLCouldNotLoadSSLLibrary = class(EIdOpenSSLError);
+
+  EIdOSSLCouldNotLoadSSLLibrary = class(EIdOpenSSLError)
+  protected
+    FWhichFailedToLoad: TStringList;
+  public
+    constructor CreateWithList(const AMsg: string; AFailList: TStrings); reintroduce; virtual;
+    destructor Destroy; override;
+    //
+    property WhichFailedToLoad: TStringList read FWhichFailedToLoad;
+  end;
+
   EIdOSSLModeNotSet             = class(EIdOpenSSLError);
   EIdOSSLGetMethodError         = class(EIdOpenSSLError);
   EIdOSSLCreatingSessionError   = class(EIdOpenSSLError);
@@ -676,7 +727,8 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
   EIdOSSLSettingTLSHostNameError = class(EIdOpenSSLAPISSLError);
   {$ENDIF}
 
-function LoadOpenSSLLibrary: Boolean;
+function LoadOpenSSLLibrary: Boolean; overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use LoadOpenSSLLibrary(TStrings)'{$ENDIF};{$ENDIF}
+function LoadOpenSSLLibrary(AFailList: TStrings): Boolean; overload;
 procedure UnLoadOpenSSLLibrary;
 
 function OpenSSLVersion: string;
@@ -684,9 +736,9 @@ function OpenSSLVersion: string;
 implementation
 
 uses
-  {$IFDEF HAS_UNIT_Generics_Collections}
+  {$IF (NOT DEFINED(SNI_SUPPORT)) AND DEFINED(HAS_UNIT_Generics_Collections)}
   System.Generics.Collections,
-  {$ENDIF}
+  {$IFEND}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   Posix.Time,
@@ -724,6 +776,55 @@ var
   LockPassCB: TIdCriticalSection = nil;
   LockVerifyCB: TIdCriticalSection = nil;
   CallbackLockList: TIdCriticalSectionThreadList = nil;
+  {$IFDEF SNI_SUPPORT}
+  LockSNICB: TIdCriticalSection = nil;
+  {$ENDIF}
+
+{$IFDEF SNI_SUPPORT}
+function ChangeFilePathForHostName(const AFileDir, AHostName: String): String;
+begin
+  Result := IndyIncludeTrailingPathDelimiter(AFileDir);
+  if AHostName <> '' then begin
+    Result := IndyIncludeTrailingPathDelimiter(Result + AHostName);
+  end;
+end;
+
+function ChangeFileNameForHostName(const AFileName, AHostName: String): String;
+begin
+  Result := ChangeFilePathForHostName(ExtractFilePath(AFileName), AHostName) + ExtractFileName(AFileName);
+end;
+
+function ChangeFilePathsForHostName(AFileDirs: String; const AHostName: String): String;
+var
+  p:Integer;
+begin
+  Result := '';
+  while AFileDirs <> '' do begin
+    p := Pos(';', AFileDirs);
+    if p = 0 then begin
+      p := Length(aFileDirs)+1;
+    end;
+    if Result <> '' then begin
+      Result := Result + ';';
+    end;
+    Result := Result + ChangeFilePathForHostName(Copy(AFileDirs, 1, p-1), AHostName);
+    AFileDirs := Copy(AFileDirs, p+1, MaxInt);
+  end;
+end;
+{$ENDIF}
+
+constructor EIdOSSLCouldNotLoadSSLLibrary.CreateWithList(const AMsg: string; AFailList: TStrings);
+begin
+  inherited Create(AMsg);
+  FWhichFailedToLoad := TStringList.Create;
+  FWhichFailedToLoad.Assign(AFailList);
+end;
+
+destructor EIdOSSLCouldNotLoadSSLLibrary.Destroy;
+begin
+  FWhichFailedToLoad.Free;
+  inherited Destroy;
+end;
 
 procedure GetStateVars(const sslSocket: PSSL; AWhere, Aret: TIdC_INT; var VTypeStr, VMsg : String);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
@@ -832,6 +933,35 @@ begin
   end;          }
 end;
 
+{$IFDEF SNI_SUPPORT}
+function SNICallBack(ssl : PSSL; Para1 : TIdC_INT; Para2 : Pointer) : TIdC_INT; cdecl;
+var
+  LErr : Integer;
+  pServerName: PIdAnsiChar;
+  sn_Type: Integer;
+  IdSSLSocket: TIdSSLSocket;
+begin
+  LErr := GStack.WSGetLastError;
+  try
+    LockSNICB.Enter;
+    try
+      pServerName := SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name);
+      if pServerName <> nil then begin
+        IdSSLSocket := TIdSSLSocket(SSL_get_app_data(ssl));
+        if IdSSLSocket <> nil then begin
+          IdSSLSocket.ServerName := String(pServername);
+        end;
+      end;
+      Result := SSL_TLSEXT_ERR_OK;
+    finally
+      LockSNICB.Leave;
+    end;
+  finally
+     GStack.WSSetLastError(LErr);
+  end;
+end;
+{$ENDIF}
+
 function PasswordCallback(buf: PIdAnsiChar; size: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl;
 {$IFDEF USE_MARSHALLED_PTRS}
 type
@@ -858,7 +988,7 @@ begin
       end;
       FillChar(buf^, size, 0);
       LPassword := IndyTextEncoding_OSDefault.GetBytes(Password);
-      if Length(LPassword) > 0 then begin
+      if LPassword <> '' then begin
         {$IFDEF USE_MARSHALLED_PTRS}
         TMarshal.Copy(TBytesPtr(@LPassword)^, 0, TPtrWrapper.Create(buf), IndyMin(Length(LPassword), size));
         {$ELSE}
@@ -935,6 +1065,16 @@ var
   Error: Integer;
   LOk: Boolean;
   LHelper: IIdSSLOpenSSLCallbackHelper;
+
+  {$IFDEF SNI_SUPPORT}
+  procedure PassSSL_Certs;
+  begin
+    if VerifiedOK and (Depth = 0) then begin
+      IdSSLSocket.fSSLContext.SNICertRec := Certificate.SNICertRec;
+    end;
+  end;
+  {$ENDIF}
+
 begin
   LockVerifyCB.Enter;
   try
@@ -963,6 +1103,9 @@ begin
         end;
         if Supports(IdSSLSocket.fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
           VerifiedOK := LHelper.VerifyPeer(Certificate, LOk, Depth, Error);
+          {$IFDEF SNI_SUPPORT}
+          PassSSL_Certs;
+          {$ENDIF}
           LHelper := nil;
         end;
       finally
@@ -1216,33 +1359,30 @@ begin
   case cmd of
     X509_L_FILE_LOAD:
       begin
+        // Note that typecasting an AnsiChar as a WideChar below is normally a crazy
+        // thing to do.  The thing is that the OpenSSL API is based on PAnsiChar, and
+        // we are writing this function just for Unicode filenames.  argc is actually
+        // a PWideChar that has been coerced into a PAnsiChar so it can pass through
+        // OpenSSL APIs...
         case argl of
           X509_FILETYPE_DEFAULT:
             begin
-              LFileName := GetEnvironmentVariable
-                (String(X509_get_default_cert_file_env));
-              if LFileName <> '' then begin
-                LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName,
-                  X509_FILETYPE_PEM) <> 0);
-              end else begin
-                LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx,
-                  String(X509_get_default_cert_file), X509_FILETYPE_PEM) <> 0);
+              LFileName := GetEnvironmentVariable(String(X509_get_default_cert_file_env));
+              if LFileName = '' then begin
+                LFileName := String(X509_get_default_cert_file);
               end;
+              LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName, X509_FILETYPE_PEM) <> 0);
               if LOk = 0 then begin
                 X509err(X509_F_BY_FILE_CTRL, X509_R_LOADING_DEFAULTS);
               end;
             end;
           X509_FILETYPE_PEM:
             begin
-              // Note that typecasting an AnsiChar as a WideChar is normally a crazy
-              // thing to do.  The thing is that the OpenSSL API is based on ASCII or
-              // UTF8, not Unicode and we are writing this just for Unicode filenames.
-              LFileName := PWideChar(argc);
-              LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName,
-                X509_FILETYPE_PEM) <> 0);
+              LFileName := PWideChar(Pointer(argc));
+              LOk := Ord(Indy_unicode_X509_load_cert_crl_file(ctx, LFileName, X509_FILETYPE_PEM) <> 0);
             end;
         else
-          LFileName := PWideChar(argc);
+          LFileName := PWideChar(Pointer(argc));
           LOk := Ord(Indy_unicode_X509_load_cert_file(ctx, LFileName, TIdC_INT(argl)) <> 0);
         end;
       end;
@@ -1446,9 +1586,9 @@ begin
         if Assigned(LB) then begin
           try
             try
+              LX := nil;
               repeat
-                LX := PEM_read_bio_X509(LB, nil, nil, nil);
-                if LX = nil then begin
+                if PEM_read_bio_X509(LB, @LX, nil, nil) = nil then begin
                   Break;
                 end;
                 if not Assigned(Result) then begin
@@ -1480,16 +1620,14 @@ begin
                   sk_X509_NAME_push(Lsk, LXNDup);
                   sk_X509_NAME_push(Result, LXNDup);
                 end;
-                X509_free(LX);
-                LX := nil;
               until False;
             finally
-              if Assigned(LX) then begin
-                X509_free(LX);
-              end;
               if Failed and Assigned(Result) then begin
                 sk_X509_NAME_pop_free(Result, @X509_NAME_free);
                 Result := nil;
+              end;
+              if Assigned(LX) then begin
+                X509_free(LX);
               end;
             end;
           finally
@@ -1739,14 +1877,13 @@ begin
     // intentional. X509_LOOKUP_load_file() takes a PAnsiChar as input, but
     // we are using Unicode strings here.  So casting the UnicodeString to a
     // raw Pointer and then passing that to X509_LOOKUP_load_file() as PAnsiChar.
-    // Indy_Unicode_X509_LOOKUP_file will process it as a PWideChar...
-    if (X509_LOOKUP_load_file(lookup, PAnsiChar(Pointer(AFileName)),
-        X509_FILETYPE_PEM) <> 1) then begin
+    // Indy_Unicode_X509_LOOKUP_file will cast it back to PWideChar for processing...
+    if (X509_LOOKUP_load_file(lookup, PAnsiChar(Pointer(AFileName)), X509_FILETYPE_PEM) <> 1) then begin
       Exit;
     end;
   end;
   if APathName <> '' then begin
-    { TODO: Figure out how to do the hash dir lookup with Unicode. }
+    { TODO: Figure out how to do the hash dir lookup with a Unicode path. }
     if (X509_STORE_load_locations(ctx, nil, PAnsiChar(AnsiString(APathName))) <> 1) then begin
       Exit;
     end;
@@ -2234,6 +2371,11 @@ end;
 
 function LoadOpenSSLLibrary: Boolean;
 begin
+  Result := LoadOpenSSLLibrary(nil);
+end;
+
+function LoadOpenSSLLibrary(AFailList: TStrings): Boolean;
+begin
   Assert(SSLIsLoaded <> nil);
   SSLIsLoaded.Lock;
   try
@@ -2241,7 +2383,7 @@ begin
       Result := True;
       Exit;
     end;
-    Result := IdSSLOpenSSLHeaders.Load;
+    Result := IdSSLOpenSSLHeaders.Load(AFailList);
     if not Result then begin
       Exit;
     end;
@@ -2265,6 +2407,9 @@ begin
     LockInfoCB := TIdCriticalSection.Create;
     LockPassCB := TIdCriticalSection.Create;
     LockVerifyCB := TIdCriticalSection.Create;
+    {$IFDEF SNI_SUPPORT}
+    LockSNICB := TIdCriticalSection.Create;
+    {$ENDIF}
     // Handle internal OpenSSL locking
     CallbackLockList := TIdCriticalSectionThreadList.Create;
     PrepareOpenSSLLocking;
@@ -2301,6 +2446,9 @@ begin
   FreeAndNil(LockInfoCB);
   FreeAndNil(LockPassCB);
   FreeAndNil(LockVerifyCB);
+  {$IFDEF SNI_SUPPORT}
+  FreeAndNil(LockSNICB);
+  {$ENDIF}
   if Assigned(CallbackLockList) then begin
     {$IFDEF USE_OBJECT_ARC}
     CallbackLockList.Clear; // Items are auto-freed
@@ -2328,7 +2476,7 @@ begin
   // RLebeau 9/7/2015: even if LoadOpenSSLLibrary() fails, _SSLeay_version()
   // might have been loaded OK before the failure occured. LoadOpenSSLLibrary()
   // does not unload ..
-  IdSSLOpenSSL.LoadOpenSSLLibrary;
+  IdSSLOpenSSL.LoadOpenSSLLibrary(nil);
   if Assigned(_SSLeay_version) then begin
     Result := String(_SSLeay_version(SSLEAY_VERSION));
   end;
@@ -2457,38 +2605,54 @@ function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
 var
   LIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
-  Result := nil;
+  //using a custom scheduler, AYarn may be nil, so don't assert
   Assert(ASocket<>nil);
   Assert(fSSLContext<>nil);
+  Assert(AListenerThread<>nil);
+
+  Result := nil;
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   try
     LIO.PassThrough := True;
     LIO.Open;
-    if LIO.Binding.Accept(ASocket.Handle) then begin
-      //we need to pass the SSLOptions for the socket from the server
-      // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
-      // here? Do we really need to share ownership of it?
-      // LIO.fxSSLOptions.Assign(fxSSLOptions);
-      FreeAndNil(LIO.fxSSLOptions);
-      LIO.IsPeer := True;
-      LIO.fxSSLOptions := fxSSLOptions;
-      LIO.fSSLSocket := TIdSSLSocket.Create(Self);
-      LIO.fSSLContext := fSSLContext;
-      // TODO: to enable server-side SNI, we need to:
-      // - Set up an additional SSL_CTX for each different certificate;
-      // - Add a servername callback to each SSL_CTX using SSL_CTX_set_tlsext_servername_callback();
-      // - In the callback, retrieve the client-supplied servername with
-      //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
-      //   SSL_CTX to go with that host name, then switch the SSL object to that
-      //   SSL_CTX with SSL_set_SSL_CTX().
-    end else begin
-      FreeAndNil(LIO);
+    while not AListenerThread.Stopped do begin
+      if ASocket.Select(250) then begin
+        if (not AListenerThread.Stopped) and LIO.Binding.Accept(ASocket.Handle) then begin
+          //we need to pass the SSLOptions for the socket from the server
+          // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
+          // here? Do we really need to share ownership of it?
+          // LIO.fxSSLOptions.Assign(fxSSLOptions);
+          FreeAndNil(LIO.fxSSLOptions);
+          LIO.IsPeer := True;
+          LIO.fxSSLOptions := fxSSLOptions;
+          LIO.fSSLSocket := TIdSSLSocket.Create(Self);
+          LIO.fSSLContext := fSSLContext;
+          // TODO: to enable server-side SNI, we need to:
+          // - Set up an additional SSL_CTX for each different certificate;
+          // - Add a servername callback to each SSL_CTX using SSL_CTX_set_tlsext_servername_callback();
+          // - In the callback, retrieve the client-supplied servername with
+          //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
+          //   SSL_CTX to go with that host name, then switch the SSL object to that
+          //   SSL_CTX with SSL_set_SSL_CTX().
+
+          // RLebeau 2/1/2022: note, the following call is basically a no-op for OpenSSL,
+          // because PassThrough=True and fSSLContext are both assigned above, so there
+          // is really nothing for TIdSSLIOHandlerSocketOpenSSL.Init() or
+          // TIdSSLIOHandlerSocketOpenSSL.StartSSL() to do when called by
+          // TIdSSLIOHandlerSocketOpenSSL.AfterAccept().  If anything, all this will
+          // really do is update the Binding's IPVersion.  But, calling this is consistent
+          // with other server Accept() implementations, so we should do it here, too...
+          LIO.AfterAccept;
+
+          Result := LIO;
+          LIO := nil;
+          Break;
+        end;
+      end;
     end;
-  except
+  finally
     LIO.Free;
-    raise;
   end;
-  Result := LIO;
 end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.DoStatusInfo(const AMsg: String);
@@ -2721,7 +2885,7 @@ function TIdSSLIOHandlerSocketOpenSSL.Readable(AMSec: Integer = IdTimeoutDefault
 begin
   if not fPassThrough then
   begin
-    Result := ssl_pending(fSSLSocket.fSSL) > 0;
+    Result := (fSSLSocket <> nil) and (ssl_pending(fSSLSocket.fSSL) > 0);
     if Result then Exit;
   end;
   Result := inherited Readable(AMSec);
@@ -3004,12 +3168,7 @@ end;
 
 function TIdSSLIOHandlerSocketOpenSSL.SourceIsAvailable: Boolean;
 begin
-  if not fPassThrough then
-  begin
-    Result := (fSSLSocket <> nil);
-    if not Result then Exit;
-  end;
-  Result := inherited SourceIsAvailable;
+  Result := (fPassThrough or (fSSLSocket <> nil)) and inherited SourceIsAvailable;
 end;
 
 function TIdSSLIOHandlerSocketOpenSSL.CheckForError(ALastResult: Integer): Integer;
@@ -3077,31 +3236,280 @@ end;
 { TIdSSLContext }
 
 constructor TIdSSLContext.Create;
+var
+  LFailList: TStringList;
 begin
   inherited Create;
   //an exception here probably means that you are using the wrong version
   //of the openssl libraries. refer to comments at the top of this file.
-  if not LoadOpenSSLLibrary then begin
-    raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
+  LFailList := TStringList.Create;
+  try
+    if not LoadOpenSSLLibrary(LFailList) then begin
+      raise EIdOSSLCouldNotLoadSSLLibrary.CreateWithList(RSOSSLCouldNotLoadSSLLibrary, LFailList);
+    end;
+  finally
+    LFailList.Free;
   end;
   fVerifyMode := [];
   fMode := sslmUnassigned;
   fSessionId := 1;
+  {$IFDEF SNI_SUPPORT}
+    {$IFDEF HAS_UNIT_Generics_Collections}
+  fContexts := TDictionary<String, PSSL_CTX>.Create;
+    {$ELSE}
+  fContexts := TStringList.Create;
+    {$ENDIF}
+  fContextsLock := TIdCriticalSection.Create;
+  {$ENDIF}
 end;
 
 destructor TIdSSLContext.Destroy;
 begin
   DestroyContext;
+
+  {$IFDEF SNI_SUPPORT}
+  fContextsLock.Free;
+  fContexts.Free;
+  {$ENDIF}
+
   inherited Destroy;
 end;
 
-procedure TIdSSLContext.DestroyContext;
+{$IFDEF SNI_SUPPORT}
+procedure TIdSSLContext.FreeCallbacks;
+var
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  pCtx: PSSL_CTX;
+  {$ELSE}
+  i: Integer;
+  {$ENDIF}
 begin
+  fContextsLock.Enter;
+  try
+    {$IFDEF HAS_UNIT_Generics_Collections}
+    for pCtx in fContexts.Values do begin
+      SSL_CTX_set_info_callback(pCtx, nil);
+    end;
+    {$ELSE}
+    for i := fContexts.Count-1 downto 0 do begin
+      SSL_CTX_set_info_callback(PSSL_CTX(fContexts.Objects[i]), nil);
+    end;
+    {$ENDIF}
+  finally
+    fContextsLock.Leave;
+  end;
+end;
+{$ENDIF}
+
+
+procedure TIdSSLContext.DestroyContext;
+{$IFDEF SNI_SUPPORT}
+var
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  pCtx: PSSL_CTX;
+  {$LSE}
+  i: Integer;
+  {$ENDIF}
+{$ENDIF}
+begin
+  {$IFDEF SNI_SUPPORT}
+  if fContextsLock = nil then begin
+    Exit;
+  end;
+
+  fContextsLock.Enter;
+  try
+    //FreeCallbacks;
+    {$IFDEF HAS_UNIT_Generics_Collections}
+    for pCtx in fContexts.Values do begin
+      SSL_CTX_free(pCtx);
+    end;
+    fContexts.Clear;
+    {$ELSE}
+    for i := fContexts.Count-1 downto 0 do begin
+      SSL_CTX_free(PSSL_CTX(fContexts.Objects[i]));
+      fContexts.Delete(i);
+    end;
+    {$ENDIF}
+  finally
+    fContextsLock.Leave;
+  end;
+  {$ELSE}
   if fContext <> nil then begin
     SSL_CTX_free(fContext);
     fContext := nil;
   end;
+{$ENDIF}
 end;
+
+{$IFDEF SNI_SUPPORT}
+function TIdSSLContext.ContextFor(const AHostName: String; ASafe: Boolean = True): PSSL_CTX;
+var
+  {$IFNDEF HAS_UNIT_Generics_Collections}
+  idx: Integer;
+  {$ENDIF}
+  error: TIdC_INT;
+  SSLMethod: PSSL_METHOD;
+begin
+  fContextsLock.Enter;
+  try
+
+    {$IFDEF HAS_UNIT_Generics_Collections}
+    if fContexts.TryGetValue(AHostName, Result) then begin
+      Exit;
+    end;
+    {$ELSE}
+    if fContexts.Find(AHostName, idx) then begin
+      Result := PSSL_CTX(fContexts.Objects[idx]);
+      Exit;
+    end;
+    {$ENDIF}
+
+    if fMode = sslmUnassigned then begin
+      if fCtxMode = sslCtxServer then
+        fMode := sslmServer
+      else
+        fMode := sslmClient;
+    end;
+
+    SSLMethod := SetSSLMethod;
+    Result := SSL_CTX_new(SSLMethod);
+    if Result = nil then begin
+      raise EIdOSSLCreatingContextError.Create(RSSSLCreatingContextError);
+    end;
+    try
+      //set SSL Versions we will use
+      if not (sslvSSLv2 in SSLVersions) then begin
+        SSL_CTX_set_options(Result, SSL_OP_NO_SSLv2);
+      end;
+      if not (sslvSSLv3 in SSLVersions) then begin
+        SSL_CTX_set_options(Result, SSL_OP_NO_SSLv3);
+      end;
+      if not (sslvTLSv1 in SSLVersions) then begin
+        SSL_CTX_set_options(Result, SSL_OP_NO_TLSv1);
+      end;
+      {IMPORTANT!!!  Do not set SSL_CTX_set_options SSL_OP_NO_TLSv1_1 and
+      SSL_OP_NO_TLSv1_2 if that functionality is not available.  OpenSSL 1.0 and
+      earlier do not support those flags.  Those flags would only cause
+      an invalid MAC when doing SSL.}
+      if IsOpenSSL_TLSv1_1_Available then begin
+        if not ( sslvTLSv1_1 in SSLVersions) then begin
+          SSL_CTX_set_options(Result, SSL_OP_NO_TLSv1_1);
+        end;
+      end;
+      if IsOpenSSL_TLSv1_2_Available then begin
+        if not ( sslvTLSv1_2 in SSLVersions) then begin
+          SSL_CTX_set_options(Result, SSL_OP_NO_TLSv1_2);
+        end;
+      end;
+      SSL_CTX_set_mode(Result, SSL_MODE_AUTO_RETRY);
+      // assign a password lookup routine
+    //  if PasswordRoutineOn then begin
+        SSL_CTX_set_default_passwd_cb(Result, @PasswordCallback);
+        SSL_CTX_set_default_passwd_cb_userdata(Result, Self);
+    //  end;
+
+      SSL_CTX_set_tlsext_servername_callback(Result, @SNICallBack);
+
+      SSL_CTX_set_default_verify_paths(Result);
+      // load key and certificate files
+      if (RootCertFile <> '') or (VerifyDirs <> '') then begin    {Do not Localize}
+        if not LoadRootCert(Result, aHostName) then begin
+           EIdOSSLLoadingRootCertError.RaiseException(RSSSLLoadingRootCertError);
+        end;
+      end;
+      if CertFile <> '' then begin    {Do not Localize}
+        if not LoadCert(Result, aHostName) then begin
+          EIdOSSLLoadingCertError.RaiseException(RSSSLLoadingCertError);
+        end;
+      end;
+      if KeyFile <> '' then begin    {Do not Localize}
+        if not LoadKey(Result, aHostName) then begin
+          EIdOSSLLoadingKeyError.RaiseException(RSSSLLoadingKeyError);
+        end;
+      end;
+      if DHParamsFile <> '' then begin     {Do not Localize}
+        if not LoadDHParams(Result, aHostName) then begin
+          EIdOSSLLoadingDHParamsError.RaiseException(RSSSLLoadingDHParamsError);
+        end;
+      end;
+      if StatusInfoOn then begin
+        SSL_CTX_set_info_callback(Result, InfoCallback);
+      end;
+      //if_SSL_CTX_set_tmp_rsa_callback(hSSLContext, @RSACallback);
+      if fCipherList <> '' then begin    {Do not Localize}
+        error := SSL_CTX_set_cipher_list(Result,
+          {$IFDEF USE_MARSHALLED_PTRS}
+          M.AsAnsi(fCipherList).ToPointer
+          {$ELSE}
+          PAnsiChar(
+            {$IFDEF STRING_IS_ANSI}
+            fCipherList
+            {$ELSE}
+            AnsiString(fCipherList) // explicit cast to Ansi
+            {$ENDIF}
+          )
+          {$ENDIF}
+        );
+      end else begin
+        // RLebeau: don't override OpenSSL's default.  As OpenSSL evolves, the
+        // SSL_DEFAULT_CIPHER_LIST constant defined in the C/C++ SDK may change,
+        // while Indy's define of it might take some time to catch up.  We don't
+        // want users using an older default with newer DLLs...
+        (*
+        error := SSL_CTX_set_cipher_list(Result,
+          {$IFDEF USE_MARSHALLED_PTRS}
+          M.AsAnsi(SSL_DEFAULT_CIPHER_LIST).ToPointer
+          {$ELSE}
+          SSL_DEFAULT_CIPHER_LIST
+          {$ENDIF}
+        );
+        *)
+        error := 1;
+      end;
+      if error <= 0 then begin
+        raise EIdOSSLSettingCipherError.Create(RSSSLSettingCipherError);
+      end;
+      if fVerifyMode <> [] then begin
+        SetVerifyMode(fVerifyMode, VerifyOn, Result);
+      end;
+      if fCtxMode = sslCtxServer then begin
+        SSL_CTX_set_session_id_context(Result, PByte(@fSessionId), SizeOf(fSessionId));
+      end;
+      // CA list
+      if RootCertFile <> '' then begin    {Do not Localize}
+        SSL_CTX_set_client_CA_list(Result, IndySSL_load_client_CA_file(RootCertFile));
+      end
+
+    except
+      on E:Exception do begin
+        SSL_CTX_free(Result);
+        Result := nil;
+
+        If Assigned(Parent) then begin
+          if Parent is TIdServerIOHandlerSSLOpenSSL then
+            TIdServerIOHandlerSSLOpenSSL(Parent).DoStatusInfo('SSL SNI: exception on create context for "'+aHostName+'"'+#13#10+E.Message)
+          else
+            if (Parent is TIdSSLIOHandlerSocketOpenSSL) then
+              TIdSSLIOHandlerSocketOpenSSL(Parent).DoStatusInfo('SSL SNI: exception on create context for "'+aHostName+'"'+#13#10+E.Message)
+        end;
+        if aSafe then
+          Exit
+        else
+          raise;
+      end;
+    end;
+
+    {$IFDEF HAS_UNIT_Generics_Collections}
+    fContexts.Add(AHostName, Result);
+    {$ELSE}
+    fContexts.AddObject(AHostName, Pointer(Result));
+    {$ENDIF}
+  finally
+    fContextsLock.Leave;
+  end;
+end;
+{$ENDIF}
 
 procedure TIdSSLContext.InitContext(CtxMode: TIdSSLCtxMode);
 var
@@ -3114,6 +3522,9 @@ var
 begin
   // Destroy the context first
   DestroyContext;
+  {$IFDEF SNI_SUPPORT}
+  fCtxMode := CtxMode;
+  {$ENDIF}
   if fMode = sslmUnassigned then begin
     if CtxMode = sslCtxServer then begin
       fMode := sslmServer;
@@ -3121,6 +3532,9 @@ begin
       fMode := sslmClient;
     end
   end;
+  {$IFDEF SNI_SUPPORT}
+  ContextFor('', False);
+  {$ELSE}
   // get SSL method function (SSL2, SSL23, SSL3, TLS)
   SSLMethod := SetSSLMethod;
   // create new SSL context
@@ -3252,23 +3666,26 @@ an invalid MAC when doing SSL.}
   if RootCertFile <> '' then begin    {Do not Localize}
     SSL_CTX_set_client_CA_list(fContext, IndySSL_load_client_CA_file(RootCertFile));
   end
+  {$ENDIF}
 
   // TODO: provide an event so users can apply their own settings as needed...
 end;
 
-procedure TIdSSLContext.SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean);
+procedure TIdSSLContext.SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean{$IFDEF SNI_SUPPORT}; const AContext: PSSL_CTX{$ENDIF});
 var
   Func: TSSL_CTX_set_verify_callback;
+  LCtx: PSSL_CTX;
 begin
-  if fContext<>nil then begin
-//    SSL_CTX_set_default_verify_paths(fContext);
+  LCtx := {$IFDEF SNI_SUPPORT}AContext{$ELSE}fContext{$ENDIF};
+  if LCtx <> nil then begin
+//    SSL_CTX_set_default_verify_paths(LCtx);
     if CheckRoutine then begin
       Func := VerifyCallback;
     end else begin
       Func := nil;
     end;
-    SSL_CTX_set_verify(fContext, TranslateInternalVerifyToSSL(Mode), Func);
-    SSL_CTX_set_verify_depth(fContext, fVerifyDepth);
+    SSL_CTX_set_verify(LCtx, TranslateInternalVerifyToSSL(Mode), Func);
+    SSL_CTX_set_verify_depth(LCtx, fVerifyDepth);
   end;
 end;
 
@@ -3436,41 +3853,83 @@ begin
   end;
 end;
 
-function TIdSSLContext.LoadRootCert: Boolean;
+function TIdSSLContext.LoadRootCert({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
 begin
-  Result := IndySSL_CTX_load_verify_locations(fContext, RootCertFile, VerifyDirs) > 0;
+  Result := IndySSL_CTX_load_verify_locations(
+    {$IFDEF SNI_SUPPORT}
+    AContext, ChangeFileNameForHostName(RootCertFile, AHostName), ChangeFilePathsForHostName(VerifyDirs, AHostName)
+    {$ELSE}
+    fContext, RootCertFile, VerifyDirs
+    {$ENDIF}
+  ) > 0;
 end;
 
-function TIdSSLContext.LoadCert: Boolean;
+function TIdSSLContext.LoadCert({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
 begin
   if PosInStrArray(ExtractFileExt(CertFile), ['.p12', '.pfx'], False) <> -1 then begin
-    Result := IndySSL_CTX_use_certificate_file_PKCS12(fContext, CertFile) > 0;
+    Result := IndySSL_CTX_use_certificate_file_PKCS12(
+      {$IFDEF SNI_SUPPORT}
+      AContext, ChangeFileNameForHostName(CertFile, AHostName)
+      {$ELSE}
+      fContext, CertFile
+      {$ENDIF}
+    ) > 0;
   end else begin
     //OpenSSL 1.0.2 has a new function, SSL_CTX_use_certificate_chain_file
     //that handles a chain of certificates in a PEM file.  That is prefered.
     if Assigned(SSL_CTX_use_certificate_chain_file) then begin
-       Result := IndySSL_CTX_use_certificate_chain_file(fContext, CertFile) > 0;
+      Result := IndySSL_CTX_use_certificate_chain_file(
+        {$IFDEF SNI_SUPPORT}
+        AContext, ChangeFileNameForHostName(CertFile, AHostName)
+        {$ELSE}
+        fContext, CertFile
+        {$ENDIF}
+      ) > 0;
     end else begin
-      Result := IndySSL_CTX_use_certificate_file(fContext, CertFile, SSL_FILETYPE_PEM) > 0;
+      Result := IndySSL_CTX_use_certificate_file(
+        {$IFDEF SNI_SUPPORT}
+        AContext, ChangeFileNameForHostName(CertFile, AHostName)
+        {$ELSE}
+        fContext, CertFile
+        {$ENDIF}
+        , SSL_FILETYPE_PEM) > 0;
     end;
   end;
 end;
 
-function TIdSSLContext.LoadKey: Boolean;
+function TIdSSLContext.LoadKey({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
 begin
   if PosInStrArray(ExtractFileExt(KeyFile), ['.p12', '.pfx'], False) <> -1 then begin
-    Result := IndySSL_CTX_use_PrivateKey_file_PKCS12(fContext, KeyFile) > 0;
+    Result := IndySSL_CTX_use_PrivateKey_file_PKCS12(
+      {$IFDEF SNI_SUPPORT}
+      AContext, ChangeFileNameForHostName(KeyFile, AHostName)
+      {$ELSE}
+      fContext, KeyFile
+      {$ENDIF}
+    ) > 0;
   end else begin
-    Result := IndySSL_CTX_use_PrivateKey_file(fContext, KeyFile, SSL_FILETYPE_PEM) > 0;
+    Result := IndySSL_CTX_use_PrivateKey_file(
+      {$IFDEF SNI_SUPPORT}
+      AContext, ChangeFileNameForHostName(KeyFile, AHostName)
+      {$ELSE}
+      fContext, KeyFile
+      {$ENDIF}
+      , SSL_FILETYPE_PEM) > 0;
   end;
   if Result then begin
-    Result := SSL_CTX_check_private_key(fContext) > 0;
+    Result := SSL_CTX_check_private_key({$IFDEF SNI_SUPPORT}AContext{$ELSE}fContext{$ENDIF}) > 0;
   end;
 end;
 
-function TIdSSLContext.LoadDHParams: Boolean;
+function TIdSSLContext.LoadDHParams({$IFDEF SNI_SUPPORT}AContext: PSSL_CTX; const AHostName: String{$ENDIF}): Boolean;
 begin
-  Result := IndySSL_CTX_use_DHparams_file(fContext, fsDHParamsFile, SSL_FILETYPE_PEM) > 0;
+  Result := IndySSL_CTX_use_DHparams_file(
+    {$IFDEF SNI_SUPPORT}
+    AContext, ChangeFileNameForHostName(fsDHParamsFile, AHostName)
+    {$ELSE}
+    fContext, fsDHParamsFile
+    {$ENDIF}
+    , SSL_FILETYPE_PEM) > 0;
 end;
 
 //////////////////////////////////////////////////////////////
@@ -3504,12 +3963,18 @@ begin
   if fSSL <> nil then begin
     // TODO: should this be moved to TIdSSLContext instead?  Is this here
     // just to make sure the SSL shutdown does not log any messages?
-    {
+    (*
+    {$IFDEF SNI_SUPPORT}
+    if (fSSLContext <> nil) and (fSSLContext.StatusInfoOn) then begin
+      fSSLContext.FreeCallBacks;
+    end;
+    {$ELSE}
     if (fSSLContext <> nil) and (fSSLContext.StatusInfoOn) and
        (fSSLContext.fContext <> nil) then begin
       SSL_CTX_set_info_callback(fSSLContext.fContext, nil);
     end;
-    }
+    {$ENDIF}
+    *)
     //SSL_set_shutdown(fSSL, SSL_SENT_SHUTDOWN);
     SSL_shutdown(fSSL);
     SSL_free(fSSL);
@@ -3594,7 +4059,13 @@ begin
     LParentIO := nil;
   end;
 
-  fSSL := SSL_new(fSSLContext.fContext);
+  fSSL := SSL_new(
+    {$IFDEF SNI_SUPPORT}
+    fSSLContext.ContextFor(fHostName)
+    {$ELSE}
+    fSSLContext.fContext
+    {$ENDIF}
+  );
   if fSSL = nil then begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
   end;
@@ -3648,7 +4119,13 @@ begin
     LParentIO := nil;
   end;
 
-  fSSL := SSL_new(fSSLContext.fContext);
+  fSSL := SSL_new(
+    {$IFDEF SNI_SUPPORT}
+    fSSLContext.ContextFor(fHostName)
+    {$ELSE}
+    fSSLContext.fContext
+    {$ENDIF}
+  );
   if fSSL = nil then begin
     raise EIdOSSLCreatingSessionError.Create(RSSSLCreatingSessionError);
   end;
@@ -3800,6 +4277,29 @@ begin
   end;
   Result := fSSLCipher;
 end;
+
+{$IFDEF SNI_SUPPORT}
+procedure TIdSSLSocket.SetHostName(const AHostName: String);
+var
+  ctx2: PSSL_CTX;
+  LHelper: IIdSSLOpenSSLCallbackHelper;
+  LParentIO: TIdSSLIOHandlerSocketOpenSSL;
+begin
+  if fSSL <> nil then begin
+    ctx2 := fSSLContext.ContextFor(AHostName);
+    if ctx2 <> nil then begin
+      fHostName := AHostName;
+      SSL_set_SSL_CTX(fSSL, ctx2);
+      if Supports(fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
+        LParentIO := LHelper.GetIOHandlerSelf;
+        if LParentIO <> nil then begin
+          LParentIO.DoStatusInfo(IndyFormat(RSOSSLSNIHostNameChanged, [AHostName]));
+        end;
+      end;
+    end;
+  end;
+end;
+{$ENDIF}
 
 function TIdSSLSocket.GetSessionID: TIdSSLByteArray;
 var
@@ -4168,14 +4668,6 @@ end;
 initialization
   Assert(SSLIsLoaded=nil);
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
-  RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright '+Char(169)+' 1993 - 2014'#10#13 +                                     {do not localize}
-    'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
-    'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
-    'http://www.indyproject.org/'#10#13 +                                 {do not localize}
-    'Original Author - Gregor Ibic',                                        {do not localize}
-    TIdSSLIOHandlerSocketOpenSSL,
-    TIdServerIOHandlerSSLOpenSSL);
   TIdSSLIOHandlerSocketOpenSSL.RegisterIOHandler;
 finalization
   // TODO: TIdSSLIOHandlerSocketOpenSSL.UnregisterIOHandler;

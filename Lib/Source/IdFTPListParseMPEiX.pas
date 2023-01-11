@@ -197,7 +197,7 @@ begin
     //the filename here can be 8 chars long
     LI.FileName := Trim(Copy(AItem.Data, 1, 8));
     LBuf := Copy(AItem.Data, 8, MaxInt);
-    if (Length(LBuf) > 0) and (LBuf[1] <> ' ') then begin
+    if (LBuf <> '') and (LBuf[1] <> ' ') then begin
       Fetch(LBuf);
     end;
     SplitDelimitedString(LBuf, LCols, True);
@@ -322,7 +322,7 @@ begin
     if TextEndsWith(LI.FileName, '/') then
     begin
       LI.ItemType := ditDirectory;
-      LI.FileName := Copy(AItem.FileName, 1, Length(LI.FileName) - 1);
+      LI.FileName := Copy(LI.FileName, 1, Length(LI.FileName) - 1);
     end else begin
       LI.ItemType := ditFile;
     end;

@@ -374,7 +374,7 @@ begin
     // P - User identification
     Data := Data + 'P' + FControlFile.UserName + LF;    {Do not Localize}
     // J - Job name for banner page
-    if Length(FControlFile.JobName) > 0 then begin
+    if FControlFile.JobName <> '' then begin
       Data := Data + 'J' + FControlFile.JobName + LF;    {Do not Localize}
     end else begin
       Data := Data + 'JcfA' + JobId + FControlFile.HostName + LF;    {Do not Localize}
@@ -442,22 +442,22 @@ begin
         Data := Data + 'W' + IntToStr(FControlFile.OutputWidth) + LF;    {Do not Localize}
       end;
     end;
-    if Length(FControlFile.BannerClass) > 0 then begin
+    if FControlFile.BannerClass <> '' then begin
       Data := Data + 'C' + FControlFile.BannerClass + LF;    {Do not Localize}
     end;
     if FControlFile.BannerPage then begin
       Data := Data + 'L' + FControlFile.UserName + LF;    {Do not Localize}
     end;
-    if Length(FControlFile.TroffRomanFont) > 0 then begin
+    if FControlFile.TroffRomanFont <> '' then begin
       Data := Data + '1' + FControlFile.TroffRomanFont + LF;    {Do not Localize}
     end;
-    if Length(FControlFile.TroffItalicFont) > 0 then begin
+    if FControlFile.TroffItalicFont <> '' then begin
       Data := Data + '2' + FControlFile.TroffItalicFont + LF;    {Do not Localize}
     end;
-    if Length(FControlFile.TroffBoldFont) > 0 then begin
+    if FControlFile.TroffBoldFont <> '' then begin
       Data := Data + '3' + FControlFile.TroffBoldFont + LF;    {Do not Localize}
     end;
-    if Length(FControlFile.TroffSpecialFont) > 0 then begin
+    if FControlFile.TroffSpecialFont <> '' then begin
       Data := Data + '4' + FControlFile.TroffSpecialFont + LF;    {Do not Localize}
     end;
     Result := Data;

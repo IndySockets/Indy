@@ -160,7 +160,7 @@ begin
     // do protocol negotiation first
     DoNegotiate(AContext);
     // Welcome the user
-    if Length(LoginMessage) > 0 then
+    if LoginMessage <> '' then
     begin
       AContext.Connection.IOHandler.WriteLn(LoginMessage);
       AContext.Connection.IOHandler.WriteLn;    {Do not Localize}

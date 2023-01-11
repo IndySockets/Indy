@@ -57,7 +57,7 @@ uses
   HTTPApp,
   SysUtils,
   IdContext, IdCustomHTTPServer, IdException, IdTCPServer, IdIOHandlerSocket,
-  WebBroker, WebReq;
+  WebReq;
 
 type
   EWBBException = class(EIdException);
@@ -75,6 +75,12 @@ type
     {$UNDEF WBB_ANSI}
   {$ENDIF}
 
+  {$IFDEF DCC_11_OR_ABOVE}
+    {$DEFINE WBB_BIG_INTS}
+  {$ELSE}
+    {$UNDEF WBB_BIG_INTS}
+  {$ENDIF}
+
   TIdHTTPAppRequest = class(TWebRequest)
   protected
     FRequestInfo   : TIdHTTPRequestInfo;
@@ -84,7 +90,7 @@ type
     FFreeContentStream : Boolean;
     //
     function GetDateVariable(Index: Integer): TDateTime; override;
-    function GetIntegerVariable(Index: Integer): Integer; override;
+    function GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF}; override;
     function GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {$IFDEF DCC_XE_OR_ABOVE}
     function GetRemoteIP: string; override;
@@ -123,7 +129,7 @@ type
     function GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     function GetDateVariable(Index: Integer): TDateTime; override;
     function GetStatusCode: Integer; override;
-    function GetIntegerVariable(Index: Integer): Integer; override;
+    function GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF}; override;
     function GetLogMessage: string; override;
     function GetStringVariable(Index: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     procedure SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}); override;
@@ -131,7 +137,7 @@ type
     procedure SetStatusCode(AValue: Integer); override;
     procedure SetStringVariable(Index: Integer; const Value: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}); override;
     procedure SetDateVariable(Index: Integer; const Value: TDateTime); override;
-    procedure SetIntegerVariable(Index: Integer; Value: Integer); override;
+    procedure SetIntegerVariable(Index: Integer; Value: {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF}); override;
     procedure SetLogMessage(const Value: string); override;
     procedure MoveCookiesAndCustomHeaders;
   public
@@ -269,16 +275,16 @@ var
   LValue: string;
 begin
   LValue := string(GetStringVariable(Index));
-  if Length(LValue) > 0 then begin
+  if LValue <> '' then begin
     Result := ParseDate(LValue);
   end else begin
     Result := -1;
   end;
 end;
 
-function TIdHTTPAppRequest.GetIntegerVariable(Index: Integer): Integer;
+function TIdHTTPAppRequest.GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF};
 begin
-  Result := StrToIntDef(string(GetStringVariable(Index)), -1)
+  Result := {$IFDEF WBB_BIG_INTS}StrToInt64Def{$ELSE}StrToIntDef{$ENDIF}(string(GetStringVariable(Index)), -1)
 end;
 
 {$IFDEF DCC_XE_OR_ABOVE}
@@ -360,7 +366,7 @@ begin
     INDEX_ServerPort: begin
       LValue := FRequestInfo.Host;
       Fetch(LValue, ':');
-      if Length(LValue) = 0 then begin
+      if LValue = '' then begin
         LValue := IntToStr(FThread.Connection.Socket.Binding.Port);
         // LValue := '80';
       end;
@@ -524,7 +530,7 @@ begin
   FRequestInfo := ARequestInfo;
   FResponseInfo := AResponseInfo;
   inherited Create(AHTTPRequest);
-  if Length(FHTTPRequest.ProtocolVersion) = 0 then begin
+  if FHTTPRequest.ProtocolVersion = '' then begin
     Version := '1.0'; {do not localize}
   end;
   StatusCode := 200;
@@ -587,8 +593,9 @@ function TIdHTTPAppResponse.GetDateVariable(Index: Integer): TDateTime;
   function ToGMT(ADateTime: TDateTime): TDateTime;
   begin
     Result := ADateTime;
-    if Result <> -1 then
-      Result := Result - OffsetFromUTC;
+    if Result <> -1 then begin
+      Result := LocalTimeToUTCTime(Result);
+    end;
   end;
 begin
   //TODO: resource string these
@@ -606,8 +613,9 @@ procedure TIdHTTPAppResponse.SetDateVariable(Index: Integer; const Value: TDateT
   function ToLocal(ADateTime: TDateTime): TDateTime;
   begin
     Result := ADateTime;
-    if Result <> -1 then
-      Result := Result + OffsetFromUTC;
+    if Result <> -1 then begin
+      Result := UTCTimeToLocalTime(Result);
+    end;
   end;
 begin
   //TODO: resource string these
@@ -620,7 +628,7 @@ begin
   end;
 end;
 
-function TIdHTTPAppResponse.GetIntegerVariable(Index: Integer): Integer;
+function TIdHTTPAppResponse.GetIntegerVariable(Index: Integer): {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF};
 begin
   //TODO: resource string these
   case Index of
@@ -630,7 +638,8 @@ begin
   end;
 end;
 
-procedure TIdHTTPAppResponse.SetIntegerVariable(Index, Value: Integer);
+procedure TIdHTTPAppResponse.SetIntegerVariable(Index: Integer;
+  Value: {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF});
 begin
   //TODO: resource string these
   case Index of

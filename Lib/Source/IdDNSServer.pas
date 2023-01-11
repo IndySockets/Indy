@@ -1022,7 +1022,7 @@ begin
       end;
 
       Inc(Server_Index);
-    until (Server_Index >= RootDNS_NET.Count) or (Length(Answer) > 0);
+    until (Server_Index >= RootDNS_NET.Count) or (Answer <> nil);
   finally
     if ADNSResolver = nil then begin
        MyDNSResolver.Free;
@@ -2597,7 +2597,7 @@ begin
           { position of the full name. So we have to compare both of the
           { cases. }
           if TextEndsWith(QName, '.') then begin
-            QName := Copy(QName, 1, Length(QName)-1);
+            SetLength(QName, Length(QName)-1);
           end;
 
           RRIndex := TargetNode.RRs.ItemNames.IndexOf(LowerCase(QName));
@@ -2739,7 +2739,7 @@ begin
                 end;
             end;
 
-            if IsWildCard and (Length(LocalAnswer) > 0) then begin
+            if IsWildCard and (LocalAnswer <> nil) then begin
               {
               temp := DomainNameToDNSStr(QName+'.'+TargetNode.FullName);
               Fetch(LocalAnswer, temp);
@@ -2752,7 +2752,7 @@ begin
               //LocalAnswer := DomainNameToDNSStr(WildCardOrgName) + LocalAnswer;
             end;
 
-            if Length(LocalAnswer) > 0 then begin
+            if LocalAnswer <> nil then begin
               AppendBytes(Answer, LocalAnswer);
               if ((not Extra) and (not IsAdditional)) or (QType = TypeCode_AAAA) then begin
                 if (TargetNode.RRs.Items[RRIndex] is TIdRR_NS) then begin
@@ -2801,7 +2801,7 @@ begin
         // Finish the Loop, but n record is found, we need to search if
         // there is a widechar record in its subdomain.
         // Main, Cache, Additional, Wildcard
-        if Length(Answer) > 0 then begin
+        if Answer <> nil then begin
           InternalSearch(Header, '*.' + QName, QType, LocalAnswer, IfMAinQuestion, False, False, True, QName);
           if LocalAnswer <> nil then begin
             AppendBytes(Answer, LocalAnswer);
@@ -2838,7 +2838,7 @@ begin
             LocalAnswer, True, ifAdditional, True);
             }
 
-            if Length(LocalAnswer) = 0 then begin
+            if LocalAnswer = nil then begin
               temp := MoreAddrSearch.Strings[Count];
               Fetch(temp, '.');
               temp := '*.' + temp;
@@ -2856,7 +2856,7 @@ begin
             InternalSearch(Header, MoreAddrSearch.Strings[Count], TypeCode_AAAA, LocalAnswer, True, ifAdditional, True);
             }
 
-            if Length(LocalAnswer) = 0 then begin
+            if LocalAnswer = nil then begin
               temp := MoreAddrSearch.Strings[Count];
               Fetch(temp, '.');
               temp := '*.' + temp;
@@ -2880,7 +2880,7 @@ begin
                 LDNSResolver.Resolve(MoreAddrSearch.Strings[Count]);
                 AResult := LDNSResolver.PlainTextResult;
                 Header.ARCount := Header.ARCount + LDNSResolver.QueryResult.Count;
-              until (Server_Index >= (RootDNS_NET.Count-1)) or (Length(AResult) > 0);
+              until (Server_Index >= (RootDNS_NET.Count-1)) or (AResult <> nil);
 
               AppendBytes(LocalAnswer, AResult, 12);
             finally
@@ -2888,7 +2888,7 @@ begin
             end;
           end;
 
-          if Length(LocalAnswer) > 0 then begin
+          if LocalAnswer <> nil then begin
             AppendBytes(Answer, LocalAnswer);
           end;
           //Answer := LocalAnswer;
@@ -2898,7 +2898,7 @@ begin
       //Search the Cache Tree;
       { marked by Dennies Chang in 2004/7/15.
       { it's mark for querying cache only.
-      { if Length(Answer) = 0 then begin }
+      { if Answer = nil then begin }
       TargetNode := SearchTree(Cached_Tree, QName, QType);
       if TargetNode <> nil then begin
         //Assemble the Answer.
@@ -3047,7 +3047,7 @@ begin
             if BytesToString(LocalAnswer) = 'Error' then begin {do not localize}
               Stop := True;
             end else begin
-              if Length(LocalAnswer) > 0 then begin
+              if LocalAnswer <> nil then begin
                 AppendBytes(Answer, LocalAnswer);
                 if TargetNode.RRs.Items[RRIndex] is TIdRR_NS then begin
                   if IfMainQuestion then begin
@@ -3108,7 +3108,7 @@ begin
             // Main, Cache, Additional, Wildcard
             InternalSearch(Header, MoreAddrSearch.Strings[Count], TypeCode_A, LocalAnswer, True, False, ifAdditional, False);
 
-            if Length(LocalAnswer) = 0 then begin
+            if LocalAnswer = nil then begin
               temp := MoreAddrSearch.Strings[Count];
               Fetch(temp, '.');
               temp := '*.' + temp;
@@ -3120,7 +3120,7 @@ begin
             // Search for AAAA also.
             InternalSearch(Header, MoreAddrSearch.Strings[Count], TypeCode_AAAA, LocalAnswer, True, False, ifAdditional, True);
 
-            if Length(LocalAnswer) = 0 then begin
+            if LocalAnswer = nil then begin
               temp := MoreAddrSearch.Strings[Count];
               Fetch(temp, '.');
               temp := '*.' + temp;
@@ -3138,7 +3138,7 @@ begin
             // Main, Cache, Additional, Wildcard
             InternalSearch(Header, MoreAddrSearch.Strings[Count], TypeCode_A, LocalAnswer, True, True, ifAdditional, False);
 
-            if Length(LocalAnswer) = 0 then begin
+            if LocalAnswer = nil then begin
               temp := MoreAddrSearch.Strings[Count];
               Fetch(temp, '.');
               temp := '*.' + temp;
@@ -3146,12 +3146,12 @@ begin
             end;
 
             AppendBytes(TempAnswer, LocalAnswer);
-	          LocalAnswer := TempAnswer;
+            LocalAnswer := TempAnswer;
 
             // Search for AAAA also.
             InternalSearch(Header, MoreAddrSearch.Strings[Count], TypeCode_AAAA, LocalAnswer, True, True, ifAdditional, True);
 
-            if Length(LocalAnswer) > 0 then begin
+            if LocalAnswer <> nil then begin
               AppendBytes(TempAnswer, LocalAnswer);
               LocalAnswer := TempAnswer;
             end;
@@ -3773,7 +3773,7 @@ begin
       end;
 
       Inc(Server_Index);
-    until (Server_Index >= FServer.RootDNS_NET.Count) or (Length(Answer) > 0);
+    until (Server_Index >= FServer.RootDNS_NET.Count) or (Answer <> nil);
   finally
     if ADNSResolver = nil then begin
       MyDNSResolver.Free;
@@ -3928,9 +3928,9 @@ begin
           FServer.InternalSearch(DNSHeader, Question, QType, LAnswer, True, False, False);
           Answer := LAnswer;
 
-          if (QType in [TypeCode_A, TypeCode_AAAA]) and (Length(Answer) = 0) then begin
+          if (QType in [TypeCode_A, TypeCode_AAAA]) and (Answer = nil) then begin
             FServer.InternalSearch(DNSHeader, Question, TypeCode_CNAME, LAnswer, True, False, True);
-            if Length(LAnswer) > 0 then begin
+            if LAnswer <> nil then begin
               AppendBytes(Answer, LAnswer);
             end;
           end;
@@ -3942,11 +3942,11 @@ begin
           {
           FServer.InternalSearch(DNSHeader, Question, QType, LAnswer, True, True, False);
           }
-          if Length(LAnswer) > 0 then begin
+          if LAnswer <> nil then begin
             AppendBytes(Answer, LAnswer);
           end;
 
-          if Length(Answer) > 0 then begin
+          if Answer <> nil then begin
             Result := cRCodeQueryOK;
           end else begin
             Result := cRCodeQueryNotFound;
@@ -3954,14 +3954,14 @@ begin
         end else begin
           FServer.InternalSearch(DNSHeader, Question, QType, Answer, True, True, False);
 
-          if (QType in [TypeCode_A, TypeCode_AAAA]) and (Length(Answer) = 0) then begin
+          if (QType in [TypeCode_A, TypeCode_AAAA]) and (Answer = nil) then begin
             FServer.InternalSearch(DNSHeader, Question, TypeCode_CNAME, LAnswer, True, True, False);
-            if Length(LAnswer) > 0 then begin
+            if LAnswer <> nil then begin
               AppendBytes(Answer, LAnswer);
             end;
           end;
 
-          if Length(Answer) > 0 then begin
+          if Answer <> nil then begin
             Result := cRCodeQueryCacheOK;
           end else begin
             //QType := TypeCode_Error;
@@ -3972,7 +3972,7 @@ begin
             end else begin
               FServer.ExternalSearch(DNSResolver, DNSHeader, OriginalQuestion, Answer);
 
-              if Length(Answer) > 0 then begin
+              if Answer <> nil then begin
                 Result := cRCodeQueryReturned;
               end else begin
                 Result := cRCodeQueryNotImplement;

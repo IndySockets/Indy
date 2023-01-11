@@ -164,7 +164,7 @@ begin
   if i > -1 then
   begin
     VDomain := Copy(AUsername, 1, i - 1);
-    VUserName := Copy(AUsername, i + 1, Length(AUserName));
+    VUserName := Copy(AUsername, i + 1, MaxInt);
   end else
   begin
     VDomain := ' ';         {do not localize}

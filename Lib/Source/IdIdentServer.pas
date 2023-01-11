@@ -139,8 +139,9 @@ var s : String;
 begin
   s := IntToStr(AServerPort)+', '+IntToStr(AClientPort) + ' : USERID : ';    {Do not Localize}
   s := s + AOS;
-  if Length(ACharset) > 0 then
+  if ACharset <> '' then begin
     s := s + ','+ACharset;    {Do not Localize}
+  end;
   s := s + ' : '+AUserName;    {Do not Localize}
   AContext.Connection.IOHandler.WriteLn(s);
 end;

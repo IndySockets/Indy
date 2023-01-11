@@ -459,7 +459,7 @@ end;
 
 procedure TIdCustomTCPServer.CheckActive;
 begin
-  if Active and (not IsDesignTime) and (not IsLoading) then begin
+  if Active and not (IsDesignTime or IsLoading) then begin
     raise EIdTCPServerError.Create(RSCannotPerformTaskWhileServerIsActive);
   end;
 end;
@@ -789,6 +789,7 @@ var
   LListenerThread: TIdListenerThread;
   I: Integer;
   LBinding: TIdSocketHandle;
+  LName: string;
 begin
   LListenerThreads := FListenerThreads.LockList;
   try
@@ -821,13 +822,19 @@ begin
     end;
 
     // Set up any threads that are not already running
+
+    LName := Name;
+    if LName = '' then begin
+      LName := 'IdCustomTCPServer'; {do not localize}
+    end;
+
     for I := LListenerThreads.Count to Bindings.Count - 1 do
     begin
       LBinding := Bindings[I];
       LBinding.Listen(FListenQueue);
       LListenerThread := TIdListenerThread.Create(Self, LBinding);
       try
-        LListenerThread.Name := Name + ' Listener #' + IntToStr(I + 1); {do not localize}
+        LListenerThread.Name := LName + ' Listener #' + IntToStr(I + 1); {do not localize}
         LListenerThread.OnBeforeRun := DoBeforeListenerRun;
         //Todo: Implement proper priority handling for Linux
         //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
@@ -853,6 +860,9 @@ var
 begin
   LListenerThreads := FListenerThreads.LockList;
   try
+    // TODO: use two loops - one to close all of the sockets and signal all
+    // of the threads to terminate, then another to free the threads.
+    // This will be faster than doing everything one thread at a time...
     while LListenerThreads.Count > 0 do begin
       LListener := {$IFDEF HAS_GENERICS_TThreadList}LListenerThreads[0]{$ELSE}TIdListenerThread(LListenerThreads[0]){$ENDIF};
       // Stop listening
@@ -931,11 +941,16 @@ procedure TIdCustomTCPServer.DoTerminateContext(AContext: TIdContext);
 begin
   // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
   // is still running which often causes AVs and other.
-  AContext.Connection.Disconnect(False);
-  // TODO: use AContext.Binding.CloseSocket() instead. Just close the socket without
+  //AContext.Connection.Disconnect(False);
+
+  // RLebeau 9/10/2021: not calling disconnect here anymore. Just close the socket without
   // closing the IOHandler itself.  Doing so can cause AVs and other, such as in
   // TIdSSLIOHandlerSocketOpenSSL, when Disconnect() calls IOHandler.Close() which
   // frees internal objects that may still be in use...
+  AContext.Binding.CloseSocket;
+
+  // TODO: since we are in the mist of a server shutdown, should the socket's SO_LINGER
+  // option to enabled and set to 0 seconds to force an abortive (RSET) closure?
 end;
 
 procedure TIdCustomTCPServer.Shutdown;

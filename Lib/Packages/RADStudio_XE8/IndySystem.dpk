@@ -5,7 +5,7 @@ package IndySystem;
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO OFF}
+{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
@@ -26,22 +26,27 @@ package IndySystem;
 {$DEFINE DEBUG}
 {$DEFINE VER290}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Indy 10 System'}
+{$DESCRIPTION 'Indy 11 System'}
 {$RUNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 // RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$IF DEFINED(NEXTGEN) AND DEFINED(IOS)}
+  // there is no RTL package available for iOS
+  {$UNDEF HAS_PKG_RTL}
+{$ELSE}
+  {$DEFINE HAS_PKG_RTL}
+{$ENDIF}
+
+{$IFDEF HAS_PKG_RTL}
+requires
+  rtl;
+{$ENDIF}
 
 {$IF (NOT DEFINED(WINDOWS)) AND DEFINED(MSWINDOWS)}
   {$DEFINE WINDOWS}
 {$IFEND}
-
-requires
-  rtl
-  {$IFNDEF WINDOWS}
-  , fmx
-  {$ENDIF}
-  ;
 
 contains
   IdAntiFreezeBase in '..\..\Source\IdAntiFreezeBase.pas',

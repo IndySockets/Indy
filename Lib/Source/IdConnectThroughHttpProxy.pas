@@ -107,6 +107,7 @@ begin
   try
     AIOHandler.WriteLn(IndyFormat('CONNECT %s:%d HTTP/1.0', [AHost,APort])); {do not localize}
     if ALogin then begin
+      //AIOHandler.WriteLn('Proxy-Authorization: Basic ' + TIdEncoderMIME.EncodeString(Username + ':' + Password));  {do not localize}
       LEncoder := TIdEncoderMIME.Create;
       try
         AIOHandler.WriteLn('Proxy-Authorization: Basic ' + LEncoder.Encode(Username + ':' + Password));  {do not localize}
@@ -125,7 +126,7 @@ begin
       end;
       Fetch(LStatus);// to remove the http/1.0 or http/1.1
       LResponseCode := IndyStrToInt(Fetch(LStatus, ' ', False), 200); // if invalid response then we assume it succeeded
-      if (LResponseCode = 407) and (not ALogin) and ((Length(Username) > 0) or (Length(Password) > 0)) then begin // authorization required
+      if (LResponseCode = 407) and (not ALogin) and ((Username <> '') or (Password <> '')) then begin // authorization required
         if TextIsSame(LHeaders.Values['Proxy-Connection'], 'close') or {do not localize}
            TextIsSame(LHeaders.Values['Connection'], 'close') then begin {do not localize}
           // need to reconnect before trying again with login

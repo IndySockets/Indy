@@ -882,7 +882,7 @@ var
     for li := 0 to ACurDir.FileList.Count -1 do begin
       LTmp := LTmp + NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[li])) + ', ';
     end;
-    IdDelete(LTmp, Length(LTmp)-1, 2);
+    SetLength(LTmp, Length(LTmp)-2);
     ALOutput.Text := ALOutput.Text + IndyWrapText(LTmp, EOL + ' ', LWS + ',' , 79);  //79 good maxlen for text only terminals
     if Recurse and Assigned(ACurDir.SubDirs) then begin
       for li := 0 to ACurDir.SubDirs.Count -1 do begin

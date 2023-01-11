@@ -1,0 +1,42 @@
+package IndySuperCore;
+
+{$R *.res}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 SuperCore'}
+{$RUNONLY}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  IndySystem,
+  IndyCore;
+
+contains
+  IdFiber in '..\..\Source\IdFiber.pas',
+  IdFiberWeaver in '..\..\Source\IdFiberWeaver.pas',
+  IdFiberWeaverInline in '..\..\Source\IdFiberWeaverInline.pas',
+  IdFiberWeaverThreaded in '..\..\Source\IdFiberWeaverThreaded.pas',
+  IdIOHandlerChain in '..\..\Source\IdIOHandlerChain.pas',
+  IdSchedulerOfFiber in '..\..\Source\IdSchedulerOfFiber.pas',
+  IdServerIOHandlerChain in '..\..\Source\IdServerIOHandlerChain.pas',
+  IdWorkOpUnit in '..\..\Source\IdWorkOpUnit.pas',
+  IdWorkOpUnits in '..\..\Source\IdWorkOpUnits.pas';
+
+// the System unit is not accessible until after the 'contains' clause is closed
+{$I ..\..\Source\IdLibSuffix.inc}
+
+end.

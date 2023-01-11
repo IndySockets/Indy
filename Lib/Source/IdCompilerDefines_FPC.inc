@@ -1,3 +1,13 @@
+// detect compiler version
+
+{$MACRO ON} // must be on in order to use versioning macros
+
+{$IF FPC_FULLVERSION < 30000}
+  {$Error Unsupported compiler version detected!}
+{$IFEND}
+
+{$DEFINE FPC_3_0_0_OR_ABOVE}
+
 // In FreePascal 3.0.0+, a Delphi-like UnicodeString type is supported.
 // String/(P)Char map to UnicodeString/(P)WideChar if {$MODE DelphiUnicode}
 // or {$MODESWITCH UnicodeStrings} is used.  We are enabling them so Indy
@@ -6,6 +16,7 @@
 // However, FreePascal's RTL is largely not UnicodeString-enabled yet, so we
 // will have to deal with that as needed...
 {$MODE DelphiUnicode}
+{$CODEPAGE UTF8} // needed for Unicode string literals to work properly
 
 //note that we may need further defines for widget types depending on
 //what we do and what platforms we support in FPC.
@@ -24,16 +35,6 @@
   {$ENDIF}
 {$ENDIF}
 
-// detect compiler version
-
-{$MACRO ON} // must be on in order to use versioning macros
-
-{$IF FPC_FULLVERSION < 30000}
-  {$Warning Unsupported compiler version detected!}
-{$IFEND}
-
-{$DEFINE FPC_3_0_0_OR_ABOVE}
-
 // FreePascal's RTL mimic D7's RTL
 // TODO: replace these with appropriate HAS_xxx defines instead...
 {.$DEFINE DCC_7)
@@ -45,6 +46,7 @@
 {.$DEFINE HAS_RemoveFreeNotification}
 {.$DEFINE HAS_IInterface}
 {.$DEFINE HAS_TSelectionEditor}
+{.$DEFINE HAS_TStringList_CaseSensitive}
 {.$DEFINE HAS_SYMBOL_PLATFORM}
 {.$DEFINE HAS_UNIT_PLATFORM}
 {$DEFINE USE_INLINE}
@@ -56,13 +58,17 @@
 {$DEFINE BYTE_COMPARE_SETS}
 {$DEFINE HAS_QWord}
 {$DEFINE HAS_PQWord}
-{.$DEFINE HAS_PUInt64} // TODO: is this defined?
 {$DEFINE HAS_InterlockedCompareExchange_Pointers}
 {$DEFINE HAS_SharedSuffix}
-// size_t and psize_t are only available on Unix systems (FreeBSD, Linux, etc)
+// these types are only available on Unix systems (FreeBSD, Linux, etc)
 {$IFDEF UNIX}
+  {$DEFINE HAS_UNIT_UnixType}
   {$DEFINE HAS_SIZE_T}
   {$DEFINE HAS_PSIZE_T}
+  {$DEFINE HAS_SSIZE_T}
+  {$DEFINE HAS_PSSIZE_T}
+  {$DEFINE HAS_TIME_T}
+  {$DEFINE HAS_PTIME_T}
 {$ENDIF}
 {$DEFINE HAS_PtrInt}
 {$DEFINE HAS_PtrUInt}
@@ -86,9 +92,14 @@
 {$DEFINE HAS_PUInt16}
 {$DEFINE HAS_PInt32}
 {$DEFINE HAS_PUInt32}
+{$DEFINE HAS_GetLocalTimeOffset}
+{$DEFINE HAS_UniversalTimeToLocal}
+{$DEFINE HAS_LocalTimeToUniversal}
 {$IF FPC_FULLVERSION >= 30101}
   {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
+  {$DEFINE HAS_PRawByteString}
 {$ENDIF}
+{$DEFINE HAS_SetCodePage}
 
 {$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}
   {$DEFINE REQUIRES_PROPER_ALIGNMENT}

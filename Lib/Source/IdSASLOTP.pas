@@ -54,9 +54,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
-    function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
-    function StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String; override;
-    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
+    function TryStartAuthenticate(const AHost: string; APort: TIdPort; const AProtocolName : String; var VInitialResponse: String): Boolean; override;
+    function StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort; const AProtocolName : String): String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost: string; APort: TIdPort; const AProtocolName : String): String; override;
   end;
 
 implementation
@@ -72,9 +72,22 @@ begin
   FSecurityLevel := 1000;
 end;
 
-function TIdSASLOTP.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
+function TIdSASLOTP.ContinueAuthenticate(const ALastResponse, AHost: string; APort: TIdPort; const AProtocolName : String): String;
 begin
-  Result := GenerateOTP(ALastResponse, GetPassword);
+  // RLebeau 4/17/2018: TIdSMTP calls TIdSASLEntries.LoginSASL() with ACanAttemptIR=True,
+  // so the Username will be sent in the AUTH command's optional Initial-Response parameter.
+  // Most SMTP servers support Initial-Response, but some do not, and unfortunately there
+  // is no server advertisement for Initial-Response support defined for SMTP (unlike in
+  // other protocols).  If the server does not reject the AUTH command, but does not support
+  // Initial-Response, the initial prompt will be for the username, not the password.
+  // However, LoginSASL() will have already moved on from the initial step, and will call
+  // ContinueAuthenticate() instead of StartAuthenticate(), so we need to handle both prompts
+  // here ...
+  if TextStartsWith(ALastResponse, 'otp-') then begin // the usual case, so check it first...
+    Result := GenerateOTP(ALastResponse, GetPassword);
+  end else begin // if the Initial-Response is ignored
+    Result := StartAuthenticate(ALastResponse, AHost, APort, AProtocolName);
+  end;
 end;
 
 class function TIdSASLOTP.ServiceName: TIdSASLServiceName;
@@ -82,14 +95,14 @@ begin
   Result := 'OTP'; {Do not translate}
 end;
 
-function TIdSASLOTP.TryStartAuthenticate(const AHost, AProtocolName : string;
+function TIdSASLOTP.TryStartAuthenticate(const AHost: string; APort: TIdPort; const AProtocolName : string;
   var VInitialResponse: String): Boolean;
 begin
   VInitialResponse := GetUsername;
   Result := True;
 end;
 
-function TIdSASLOTP.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): String;
+function TIdSASLOTP.StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort; const AProtocolName : string): String;
 begin
   Result := GetUsername;
 end;

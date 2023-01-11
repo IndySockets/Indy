@@ -130,7 +130,7 @@ uses
 constructor TIdURI.Create(const AURI: string = '');    {Do not Localize}
 begin
   inherited Create;
-  if length(AURI) > 0 then begin
+  if AURI <> '' then begin
     URI := AURI;
   end;
 end;
@@ -251,7 +251,7 @@ begin
       Delete(LBuffer, 1, LTokenPos);
       FUserName := Fetch(FPassword, ':');    {Do not Localize}
       // Ignore cases where there is only password (http://:password@host/pat/doc)
-      if Length(FUserName) = 0 then begin
+      if FUserName = '' then begin
         FPassword := '';    {Do not Localize}
       end;
     end;

@@ -132,7 +132,7 @@ begin
   if TextEndsWith(LBuffer, '<DIR>') then {do not localize}
   begin
     AItem.ItemType := ditDirectory;
-    LBuffer := Copy(LBuffer, 1, Length(LBuffer)-5);
+    SetLength(LBuffer, Length(LBuffer)-5);
   end;
   //I hope filenames and dirs don't start or end with a space
   AItem.FileName := Trim(LBuffer);

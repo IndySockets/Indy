@@ -121,7 +121,7 @@ end;
 
 procedure TIdServerInterceptLogBase.LogWriteString(const AText: string);
 begin
-  if Length(AText) > 0 then begin
+  if AText <> '' then begin
     FLock.Enter;
     try
       if not FHasInit then begin

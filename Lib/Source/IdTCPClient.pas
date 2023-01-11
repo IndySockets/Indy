@@ -295,7 +295,7 @@ begin
     IOHandler := LIOHandler;
 
     // TODO: always assign the OnStatus event even if the IOHandler is not implicit?
-    LIOHandler.OnStatus := OnStatus;
+    LIOHandler.OnStatus := OnStatus; // TODO: assign DoStatus() instead of the handler directly...
   end;
 
   try
