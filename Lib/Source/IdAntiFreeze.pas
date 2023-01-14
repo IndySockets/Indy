@@ -79,15 +79,6 @@ uses
   {$ENDIF}
 {$ENDIF}
 
-// until Delphi 10.3.2 can be detected in IdCompilerDefines.inc,
-// use {$IF DECLARED(...) here to enable the new platform values...)
-{$IF DEFINED(VCL_10_3_OR_ABOVE) AND (NOT DEFINED(VCL_10_3_UPDATE2_OR_ABOVE))} // TODO: does RTLVersion1032 exist?
-  {$IF DECLARED(pidAllPlatforms)}
-    {$DEFINE HAS_ComponentPlatformsAttribute_AllPlatforms}
-    {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
-  {$IFEND}
-{$IFEND}
-
 type
   {$IFDEF HAS_ComponentPlatformsAttribute}
   [ComponentPlatformsAttribute(

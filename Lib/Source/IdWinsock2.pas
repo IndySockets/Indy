@@ -2640,20 +2640,9 @@ type
   {$EXTERNALSYM _RIO_NOTIFICATION_COMPLETION_TYPE}
   {$EXTERNALSYM RIO_EVENT_COMPLETION}
   {$EXTERNALSYM RIO_IOCP_COMPLETION}
-  {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
-    {$NODEFINE rnctUnused}
-  {$ENDIF}
-  // The Pascal compiler in Delphi/BCB prior to v6 does not
-  // support specifying values for individual enum items
   _RIO_NOTIFICATION_COMPLETION_TYPE = (
-    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
     RIO_EVENT_COMPLETION      = 1,
     RIO_IOCP_COMPLETION       = 2
-    {$ELSE}
-    rnctUnused,   // do not use
-    RIO_EVENT_COMPLETION,
-    RIO_IOCP_COMPLETION
-    {$ENDIF}
   );
   {$EXTERNALSYM RIO_NOTIFICATION_COMPLETION_TYPE}
   RIO_NOTIFICATION_COMPLETION_TYPE = _RIO_NOTIFICATION_COMPLETION_TYPE;
@@ -3808,10 +3797,7 @@ type
   {$ENDIF}
 {$ENDIF}
   {$EXTERNALSYM SCOPE_LEVEL}
-  // The Pascal compiler in Delphi/BCB prior to v6 does not
-  // support specifying values for individual enum items
   SCOPE_LEVEL = (
-    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
     ScopeLevelInterface    = 1,
     ScopeLevelLink         = 2,
     ScopeLevelSubnet       = 3,
@@ -3820,25 +3806,6 @@ type
     ScopeLevelOrganization = 8,
     ScopeLevelGlobal       = 14,
     ScopeLevelCount        = 16
-    {$ELSE}
-    slUnused0,               // do not use
-    ScopeLevelInterface,
-    ScopeLevelLink,
-    ScopeLevelSubnet,
-    ScopeLevelAdmin,
-    ScopeLevelSite,
-    slUnused6,               // do not use
-    slUnused7,               // do not use
-    ScopeLevelOrganization,
-    slUnused9,               // do not use
-    slUnused10,              // do not use
-    slUnused11,              // do not use
-    slUnused12,              // do not use
-    slUnused13,              // do not use
-    ScopeLevelGlobal,
-    slUnused15,              // do not use
-    ScopeLevelCount
-    {$ENDIF}
   );
   // Old IPv6 socket address structure (retained for sockaddr_gen definition below)
   {$EXTERNALSYM sockaddr_in6_old}
@@ -4114,19 +4081,10 @@ type
   {$EXTERNALSYM NAPI_PROVIDER_TYPE}
   {$EXTERNALSYM ProviderType_Application}
   {$EXTERNALSYM ProviderType_Service}
-  {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
-    {$NODEFINE nptUnused}
-  {$ENDIF}
-  // The Pascal compiler in Delphi/BCB prior to v6 does not
-  // support specifying values for individual enum items
   NAPI_PROVIDER_TYPE = (
-    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
     ProviderType_Application = 1,
-    {$ELSE}
-    nptUnused,  // Do not use
-    ProviderType_Application,
-    {$ENDIF}
-    ProviderType_Service);
+    ProviderType_Service = 2
+  );
   {$EXTERNALSYM NAPI_DOMAIN_DESCRIPTION_BLOB}
   NAPI_DOMAIN_DESCRIPTION_BLOB = record
     AuthLevel : DWORD;
@@ -4263,18 +4221,8 @@ type
 
   {$EXTERNALSYM SOCKET_USAGE_TYPE}
   {$EXTERNALSYM SYSTEM_CRITICAL_SOCKET}
-  {$IFNDEF HAS_ENUM_ELEMENT_VALUES}
-    {$NODEFINE sutUnused}
-  {$ENDIF}
-  // The Pascal compiler in Delphi/BCB prior to v6 does not
-  // support specifying values for individual enum items
   SOCKET_USAGE_TYPE = (
-    {$IFDEF HAS_ENUM_ELEMENT_VALUES}
     SYSTEM_CRITICAL_SOCKET = 1
-    {$ELSE}
-    sutUnused,  // do not use
-    SYSTEM_CRITICAL_SOCKET
-  {$ENDIF}
   );
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_DEFAULT}

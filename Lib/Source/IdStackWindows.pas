@@ -1129,13 +1129,7 @@ begin
     {$IFDEF USE_MARSHALLED_PTRS}
     M.AsAnsi(AServiceName).ToPointer
     {$ELSE}
-    PIdAnsiChar(
-      {$IFDEF STRING_IS_ANSI}
-      AServiceName
-      {$ELSE}
-      AnsiString(AServiceName) // explicit convert to Ansi
-      {$ENDIF}
-    )
+    PAnsiChar(AnsiString(AServiceName)) // explicit convert to Ansi
     {$ENDIF},
     nil);
   if ps <> nil then begin

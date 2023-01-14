@@ -52,8 +52,6 @@
 // Make sure the following are $DEFINE'd only for Delphi/C++Builder 2009 onwards
 // as specified further below.  The VCL is fully Unicode, where the 'String'
 // type maps to System.UnicodeString, not System.AnsiString anymore
-{$UNDEF STRING_IS_UNICODE}
-{$UNDEF STRING_IS_ANSI}
 {$UNDEF STRING_UNICODE_MISMATCH}
 
 // Make sure the following are $DEFINE'd only for suitable environments
@@ -107,35 +105,7 @@
 //Define for Delphi cross-compiler targetting Posix
 {$UNDEF USE_VCL_POSIX}
 {$UNDEF HAS_ComponentPlatformsAttribute}
-{$UNDEF HAS_ComponentPlatformsAttribute_Win32}
-{$UNDEF HAS_ComponentPlatformsAttribute_Win64}
-{$UNDEF HAS_ComponentPlatformsAttribute_OSX32}
-{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator}
-{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32}
-{$UNDEF HAS_ComponentPlatformsAttribute_Android}
-{$UNDEF HAS_ComponentPlatformsAttribute_Android32Arm}
-{$UNDEF HAS_ComponentPlatformsAttribute_Linux32}
-{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device}
-{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device32}
-{$UNDEF HAS_ComponentPlatformsAttribute_Linux64}
-{$UNDEF HAS_ComponentPlatformsAttribute_WinNX32}
-{$UNDEF HAS_ComponentPlatformsAttribute_WinIoT32}
-{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Device64}
-{$UNDEF HAS_ComponentPlatformsAttribute_WinARM}
-{$UNDEF HAS_ComponentPlatformsAttribute_WinARM32}
-{$UNDEF HAS_ComponentPlatformsAttribute_OSX64}
-{$UNDEF HAS_ComponentPlatformsAttribute_OSXNX64}
-{$UNDEF HAS_ComponentPlatformsAttribute_Linux32Arm}
-{$UNDEF HAS_ComponentPlatformsAttribute_Linux64Arm}
-{$UNDEF HAS_ComponentPlatformsAttribute_Android64}
-{$UNDEF HAS_ComponentPlatformsAttribute_Android64Arm}
-{$UNDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64}
-{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm32}
-{$UNDEF HAS_ComponentPlatformsAttribute_AndroidArm64}
-{$UNDEF HAS_ComponentPlatformsAttribute_OSXArm64}
-{$UNDEF HAS_ComponentPlatformsAttribute_AllPlatforms}
 {$UNDEF HAS_DIRECTIVE_WARN_DEFAULT}
-{$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
 
 // Define for Delphi to auto-generate platform-appropriate '#pragma link' statements in HPP files
 {$UNDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
@@ -248,10 +218,10 @@
   {$DEFINE USE_SAFELOADLIBRARY}
 {$ENDIF}
 // Use here for all *nix systems that you do not want to use iconv library
-{$IFDEF ANDROID}
+{$IF DEFINED(FPC) AND DEFINED(ANDROID)}
   {$UNDEF USE_ICONV}
   {$DEFINE USE_LCONVENC}
-{$ENDIF}
+{$IFEND}
 
 //This must come after the iconv defines because this compiler targets a Unix-like
 //operating system.  One key difference is that it does have a TEncoding class.

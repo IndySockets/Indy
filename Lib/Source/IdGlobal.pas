@@ -4117,7 +4117,7 @@ begin
       2, 3: Result := 65001;
       4..7: Result := 1200;
       8, 9: Result := 1201;
-      10:   Result := ($IFDEF HAS_SetCodePage)DefaultSystemCodePage($ELSE)0($ENDIF);
+      10:   Result := DefaultSystemCodePage;
       11:   Result := 28591;
       12:   Result := 28592;
       // TODO: add support for UTF-32...
@@ -4140,11 +4140,7 @@ begin
 
   if (AEncoding = GIdOSDefaultEncoding) then
   begin
-    {$IF DEFINED(HAS_SetCodePage)}
     Result := DefaultSystemCodePage;
-    {$ELSEIF DEFINED(WINDOWS)}
-    Result := GetACP();
-    {$IFEND}
   end
   else if (AEncoding = GId8BitEncoding) {or (AEncoding is TId8BitEncoding)} then
   begin

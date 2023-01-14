@@ -1293,17 +1293,17 @@ var
 begin
   {$IFDEF WINDOWS}
 
-  {$IFDEF WIN32_OR_WIN64}
+    {$IFDEF WIN32_OR_WIN64}
   // TODO: use SetThreadErrorMode() instead, when available...
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try
-  {$ENDIF}
+    {$ENDIF}
     Result := CopyFile(PChar(Source), PChar(Destination), False);
-  {$IFDEF WIN32_OR_WIN64}
+    {$IFDEF WIN32_OR_WIN64}
   finally
     SetErrorMode(LOldErrorMode);
   end;
-  {$ENDIF}
+    {$ENDIF}
 
   {$ELSE}
 
@@ -1871,7 +1871,6 @@ const
   // may change characters >= #128 from their Ansi codepage value to their true
   // Unicode codepoint value, depending on the codepage used for the source code.
   // For instance, #128 may become #$20AC...
-  Months: array[0..8] of array[1..12] of string = (
 
   // RLebeau 3/12/2018: adding full-length month names.
 
@@ -3405,7 +3404,7 @@ begin
   LExt := IndyLowerCase(Ext);
   if LExt = '' then begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEExtensionEmpty);
+      raise EIdException.Create(RSMIMEExtensionEmpty); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -3413,7 +3412,7 @@ begin
   LMIMEType := IndyLowerCase(MIMEType);
   if LMIMEType = '' then begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEMIMETypeEmpty);
+      raise EIdException.Create(RSMIMEMIMETypeEmpty); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -3430,7 +3429,7 @@ begin
     FMIMEList.Add(LMIMEType);
   end else begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEMIMEExtAlreadyExists);
+      raise EIdException.Create(RSMIMEMIMEExtAlreadyExists); // TODO: create a new Exception class for this
     end;
     Exit;
   end;

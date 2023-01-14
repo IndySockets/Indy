@@ -221,20 +221,13 @@ type
   TIdConnectThread = class(TThread)
   protected
     FBinding: TIdSocketHandle;
-    {$IFDEF HAS_AcquireExceptionObject}
     FConnectException: TObject;
-    {$ELSE}
-    FLastSocketError: Integer;
-    FExceptionMessage: string;
-    {$ENDIF}
     FExceptionOccured: Boolean;
     procedure Execute; override;
     procedure DoTerminate; override;
   public
     constructor Create(ABinding: TIdSocketHandle); reintroduce;
-    {$IFDEF HAS_AcquireExceptionObject}
     destructor Destroy; override;
-    {$ENDIF}
     procedure CheckForConnectError;
     property Terminated;
   end;
@@ -481,36 +474,22 @@ begin
   inherited Create(False);
 end;
 
-{$IFDEF HAS_AcquireExceptionObject}
 destructor TIdConnectThread.Destroy;
 begin
   FConnectException.Free;
   inherited;
 end;
-{$ENDIF}
 
 procedure TIdConnectThread.Execute;
 begin
   try
     FBinding.Connect;
   except
-    {$IFDEF HAS_AcquireExceptionObject}
     // TThread has a FatalException property, but we can't take ownership of it
     // so we can re-raise it, so using AcquireExceptionObject() instead to take
     // ownership of the exception before it can be assigned to FatalException...
     FExceptionOccured := True;
     FConnectException := AcquireExceptionObject;
-    {$ELSE}
-    on E: Exception do begin
-      FExceptionOccured := True;
-      FExceptionMessage := E.Message;
-      if E is EIdSocketError then begin
-        if (EIdSocketError(E).LastError <> Id_WSAEBADF) and (EIdSocketError(E).LastError <> Id_WSAENOTSOCK) then begin
-          FLastSocketError := EIdSocketError(E).LastError;
-        end;
-      end;
-    end;
-    {$ENDIF}
   end;
 end;
 
@@ -526,19 +505,11 @@ var
   LException: TObject;
 begin
   if FExceptionOccured then begin
-    {$IFDEF HAS_AcquireExceptionObject}
     LException := FConnectException;
     FConnectException := nil;
     if LException = nil then begin
       LException := EIdConnectException.Create(''); // TODO
     end;
-    {$ELSE}
-    if FLastSocketError <> 0 then begin
-      LException := EIdSocketError.CreateError(FLastSocketError, FExceptionMessage);
-    end else begin
-      LException := EIdConnectException.Create(FExceptionMessage);
-    end;
-    {$ENDIF}
     raise LException;
   end;
 end;

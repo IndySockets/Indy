@@ -3442,13 +3442,7 @@ begin
           {$IFDEF USE_MARSHALLED_PTRS}
           M.AsAnsi(fCipherList).ToPointer
           {$ELSE}
-          PAnsiChar(
-            {$IFDEF STRING_IS_ANSI}
-            fCipherList
-            {$ELSE}
-            AnsiString(fCipherList) // explicit cast to Ansi
-            {$ENDIF}
-          )
+          PAnsiChar(AnsiString(fCipherList)) // explicit cast to Ansi
           {$ENDIF}
         );
       end else begin

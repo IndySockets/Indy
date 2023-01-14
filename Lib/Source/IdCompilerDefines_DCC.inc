@@ -326,19 +326,6 @@
 
 // Check for available features
 
-{$IFDEF CBUILDER}
-  // When generating a C++ HPP file, if a class has no explicit constructor
-  // defined and contains compiler-managed members (xxxString, TDateTime,
-  // Variant, DelphiInterface, etc), the HPP will contain a forwarding
-  // inline constructor that implicitly initializes those managed members,
-  // which will overwrite any non-default initializations performed inside
-  // of InitComponent() overrides! In this situation, the workaround is to
-  // define an explicit constructor that calls the base class constructor
-  // manually, allowing those managed members to be initialized by the
-  // compiler before InitComponent() overrides then re-assign them.
-  {$DEFINE WORKAROUND_INLINE_CONSTRUCTORS}
-{$ENDIF}
-
 {$DEFINE HAS_RemoveFreeNotification}
 {$DEFINE HAS_IInterface}
 {$DEFINE HAS_TSelectionEditor}
@@ -383,13 +370,6 @@
 // Native(U)Int are still buggy, so do not use them yet
 {.$DEFINE HAS_NativeInt}
 {.$DEFINE HAS_NativeUInt}
-{$DEFINE HAS_Int8}
-{$DEFINE HAS_UInt8}
-{$DEFINE HAS_Int16}
-{$DEFINE HAS_UInt16}
-{$DEFINE HAS_Int32}
-{$DEFINE HAS_UInt32}
-{$DEFINE HAS_SetCodePage}
 {$DEFINE HAS_PRawByteString}
 {$DEFINE HAS_TThreadProcedure}
 
@@ -438,7 +418,6 @@
 {$ENDIF}
 
 {$IFDEF DCC_XE3_OR_ABOVE}
-  {$DEFINE HAS_DIRECTIVE_ZEROBASEDSTRINGS}
   {$DEFINE HAS_SysUtils_TStringHelper}
   {$IFDEF NEXTGEN}
     {$DEFINE DCC_NEXTGEN}
@@ -502,19 +481,6 @@
   {$IFDEF ANDROID}
     {$UNDEF BROKEN_TThread_ForceQueue}
   {$ENDIF}
-{$ENDIF}
-
-{$IFDEF DCC_10_3_UPDATE2_OR_ABOVE}
-  {$DEFINE HAS_ComponentPlatformsAttribute_AllPlatforms}
-  {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
-{$ENDIF}
-
-{$IFDEF DCC_10_4_OR_ABOVE}
-  // 0-based string indexing via '[]' is turned off by default in Delphi 10.4.
-  // TStringHelper is always 0-indexed, flat RTL functions are always 1-indexed,
-  // and now '[]' is 1-indexed again on all platforms - {$ZEROBASEDSTRINGS OFF}
-  // is the default.
-  {.$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -613,6 +579,12 @@
 // RLebeau 9/5/2013: it would take a lot of work to re-write Indy to support
 // both 0-based and 1-based string indexing, so we'll just turn off 0-based
 // indexing for now...
-{$IFDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
+//
+// RLebeau 5/26/2020: 0-based string indexing via '[]' is turned off by default
+// in Delphi 10.4. TStringHelper is always 0-indexed, flat RTL functions are
+// always 1-indexed, and now '[]' is 1-indexed again on all platforms -
+// {$ZEROBASEDSTRINGS OFF} is the default.
+
+{$IF DEFINED(DCC_XE3_OR_ABOVE) AND (NOT DEFINED(DCC_10_4_OR_ABOVE))}
   {$ZEROBASEDSTRINGS OFF}
 {$ENDIF}
