@@ -1188,7 +1188,7 @@ begin
   Lock;
   try
     if not FD_ISSET(AHandle, FFDSet) then begin
-      if Count >= __FD_SETSIZE then begin
+      if AHandle >= __FD_SETSIZE then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
       end;
       FD_SET(AHandle, FFDSet);
@@ -1244,7 +1244,9 @@ begin
     LTime.tv_usec := (ATimeout mod 1000) * 1000;
     LTimePtr := @LTime;
   end;
-  Result := Libc.select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  // TODO: calculate the actual nfds value based on the Sets provided...
+  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
+  Result := Libc.select(__FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 
 procedure TIdSocketListLibc.GetFDSet(var VSet: TFDSet);
