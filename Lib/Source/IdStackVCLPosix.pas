@@ -226,7 +226,7 @@ begin
   Lock;
   try
     if not __FD_ISSET(AHandle, FFDSet) then begin
-      if Count >= FD_SETSIZE then begin
+      if AHandle >= FD_SETSIZE then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
       end;
       __FD_SET(AHandle, FFDSet);
@@ -299,6 +299,7 @@ begin
     LTimePtr := @LTime;
   end;
   // TODO: calculate the actual nfds value based on the Sets provided...
+  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
   Result := Posix.SysSelect.select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 

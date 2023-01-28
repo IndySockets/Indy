@@ -1747,11 +1747,22 @@ procedure TIdSocketListWindows.Add(AHandle: TIdStackSocketHandle);
 begin
   Lock;
   try
-    if FFDSet.fd_count >= FD_SETSIZE then begin
-      raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
+    // TODO: on Windows, the number of sockets that select() can query is limited only
+    // by available memory, unlike other platforms which are limited to querying sockets
+    // whose descriptors are less than FD_SETSIZE (1024). However, the Winsock SDK does
+    // define FD_SETSIZE for compatibilty with other platforms, but it is a meesely 64
+    // by default, and the IdWinSock2 unit does use FD_SETSIZE in its definition of
+    // TFDSet. C/C++ programs can freely override the value of FD_SETSIZE at compile-time,
+    // but that is much more difficult for Pascal programs.  So, we need to find a way to
+    // make this more dynamic/configurable. For instance, by having this class hold a
+    // dynamic byte array that is casted to PFDSet when needed...
+    if not fd_isset(AHandle, FFDSet) then begin
+      if FFDSet.fd_count >= Length(FFDSet.fd_array){FD_SETSIZE} then begin
+        raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
+      end;
+      FFDSet.fd_array[FFDSet.fd_count] := AHandle;
+      Inc(FFDSet.fd_count);
     end;
-    FFDSet.fd_array[FFDSet.fd_count] := AHandle;
-    Inc(FFDSet.fd_count);
   finally
     Unlock;
   end;
@@ -1797,6 +1808,7 @@ begin
     if (AIndex >= 0) and (u_int(AIndex) < FFDSet.fd_count) then begin
       Result := FFDSet.fd_array[AIndex];
     end else begin
+      // TODO: just return 0/invalid, like most of the other Stack classes do?
       raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
     end;
   finally

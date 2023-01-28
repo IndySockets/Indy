@@ -1173,7 +1173,7 @@ begin
   Lock;
   try
     if fpFD_ISSET(AHandle, FFDSet) = 0 then begin
-      if Count >= FD_SETSIZE then begin
+      if AHandle >= FD_SETSIZE then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
       end;
       fpFD_SET(AHandle, FFDSet);
@@ -1229,6 +1229,7 @@ begin
     LTimePtr := @LTime;
   end;
   // TODO: calculate the actual nfds value based on the Sets provided...
+  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
   Result := fpSelect(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 
@@ -1247,6 +1248,7 @@ var
   LIndex, i: Integer;
 begin
   Result := 0;
+  // TODO: is this missing Lock/Unlock calls?
   LIndex := 0;
   //? use FMaxHandle div x
   for i:= 0 to __FD_SETSIZE - 1 do begin
