@@ -2356,6 +2356,17 @@ begin
     if not Result then begin
       Exit;
     end;
+//
+// Zdravko Gabrovski - Check for a global openSSL pointers
+//
+{$IFNDEF STATICLOAD_OPENSSL}
+  if ( GlobalIdCrypto <> IdNilHandle ) and ( GlobalIdSSL <> IdNilHandle ) then begin
+    SSLIsLoaded.Value := True;
+    Result := True;
+    Exit;
+  end;
+{$ENDIF}
+
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
     // has to be done before anything that uses memory
     IdSslCryptoMallocInit;
@@ -2403,6 +2414,17 @@ var
   LList: TIdCriticalSectionList;
 {$ENDIF}
 begin
+  //
+  // Zdravko Gabrovski - check for GLOBAL OpenSSL handlers
+  //
+  {$IFNDEF STATICLOAD_OPENSSL}
+    if ( GlobalIdCrypto <> IdNilHandle ) and ( GlobalIdSSL <> IdNilHandle ) then begin
+      InitializeFuncPointers;
+      SSLIsLoaded.Value := False;
+      Exit;
+    end;
+  {$ENDIF}
+
   // ssl was never loaded
   if Assigned(CRYPTO_set_locking_callback) then begin
     CRYPTO_set_locking_callback(nil);
