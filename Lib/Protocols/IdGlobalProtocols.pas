@@ -377,10 +377,19 @@ type
     property OnBuildCache: TNotifyEvent read FOnBuildCache write FOnBuildCache;
   end;
 
+  {$UNDEF INTF_USES_STDCALL}
+  {$IFDEF DCC}
+    {$DEFINE INTF_USES_STDCALL}
+  {$ELSE}
+    {$IFDEF WINDOWS}
+      {$DEFINE INTF_USES_STDCALL}
+    {$ENDIF}
+  {$ENDIF}
+
   TIdInterfacedObject = class (TInterfacedObject)
   public
-    function _AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
-    function _Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
+    function _AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
+    function _Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
   end;
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
@@ -5347,7 +5356,7 @@ end;
 
 { TIdInterfacedObject }
 
-function TIdInterfacedObject._AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
+function TIdInterfacedObject._AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
@@ -5356,7 +5365,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdInterfacedObject._Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
+function TIdInterfacedObject._Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
