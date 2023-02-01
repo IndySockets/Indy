@@ -20065,7 +20065,7 @@ them in case we use them later.}
   {CH fn__ossl_old_des_ncbc_encrypt = '_ossl_old_des_ncbc_encrypt'; } {Do not localize}
   {CH fn__ossl_old_des_xcbc_encrypt = '_ossl_old_des_xcbc_encrypt'; } {Do not localize}
   {CH fn__ossl_old_des_cfb_encrypt = '_ossl_old_des_cfb_encrypt'; } {Do not localize}
-  fn__ossl_old_des_ecb_encrypt = '_ossl_old_des_ecb_encrypt'; } {Do not localize}
+  fn__ossl_old_des_ecb_encrypt = '_ossl_old_des_ecb_encrypt'; {Do not localize}
   {CH fn__ossl_old_des_encrypt = '_ossl_old_des_encrypt'; } {Do not localize}
   {CH fn__ossl_old_des_encrypt2 = '_ossl_old_des_encrypt2'; } {Do not localize}
   {CH fn__ossl_old_des_encrypt3 = '_ossl_old_des_encrypt3'; } {Do not localize}
@@ -20094,7 +20094,7 @@ them in case we use them later.}
   {CH fn__ossl_old_des_read_2passwords = '_ossl_old_des_read_2passwords'; } {Do not localize}
   fn__ossl_old_des_set_odd_parity = '_ossl_old_des_set_odd_parity'; {Do not localize}
   {CH fn__ossl_old_des_is_weak_key = '_ossl_old_des_is_weak_key'; } {Do not localize}
-  fn__ossl_old_des_set_key = '_ossl_old_des_set_key'; } {Do not localize}
+  fn__ossl_old_des_set_key = '_ossl_old_des_set_key'; {Do not localize}
   {CH fn__ossl_old_des_key_sched = '_ossl_old_des_key_sched'; } {Do not localize}
   {CH fn__ossl_old_des_string_to_key = '_ossl_old_des_string_to_key'; } {Do not localize}
   {CH fn__ossl_old_des_string_to_2keys = '_ossl_old_des_string_to_2keys'; } {Do not localize}
