@@ -371,11 +371,7 @@ type
     property OnBuildCache: TNotifyEvent read FOnBuildCache write FOnBuildCache;
   end;
 
-  TIdInterfacedObject = class (TInterfacedObject)
-  public
-    function _AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
-    function _Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
-  end deprecated 'Use TInterfacedObject';
+  TIdInterfacedObject = TInterfacedObject deprecated 'Use TInterfacedObject';
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
 
@@ -5040,18 +5036,6 @@ begin
   // Otherwise, create a new function that mimics the TStrings.Text setter
   // but without the null character limitation...
   AStrings.Text := ReadStringFromStream(AStream, -1, CharsetToEncoding(ACharset));
-end;
-
-{ TIdInterfacedObject }
-
-function TIdInterfacedObject._AddRef: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
-begin
-  Result := inherited _AddRef;
-end;
-
-function TIdInterfacedObject._Release: {$IFNDEF FPC}Integer{$ELSE}longint{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF}{$ENDIF};
-begin
-  Result := inherited _Release;
 end;
 
 initialization
