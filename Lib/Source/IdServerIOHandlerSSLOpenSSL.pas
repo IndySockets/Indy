@@ -18,7 +18,7 @@
 {
 Classes are now located in IdSSLOpenSSL
 }
-unit IdServerIOHandlerSSLOpenSSL;
+unit IdServerIOHandlerSSLOpenSSL deprecated 'Use IdSSLOpenSSL unit';
 
 interface
 
