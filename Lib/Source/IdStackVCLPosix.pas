@@ -33,30 +33,6 @@ type
   EIdAccessNetworkStatePermissionNeeded = class(EIdAndroidPermissionNeeded);
   {$ENDIF}
 
-  TIdSocketListVCLPosix = class (TIdSocketList)
-  protected
-    FCount: Integer;
-    FFDSet: fd_set;
-    //
-    class function FDSelect(AReadSet, AWriteSet,
-      AExceptSet: Pfd_set; const ATimeout: Integer): Integer;
-    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
-  public
-    procedure Add(AHandle: TIdStackSocketHandle); override;
-    procedure Remove(AHandle: TIdStackSocketHandle); override;
-    function Count: Integer; override;
-    procedure Clear; override;
-    function Clone: TIdSocketList; override;
-    function ContainsSocket(AHandle: TIdStackSocketHandle): Boolean; override;
-    procedure GetFDSet(var VSet: fd_set);
-    procedure SetFDSet(var VSet: fd_set);
-    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
-      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectReadList(var VSocketList: TIdSocketList;
-      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-  end;
-
   TIdStackVCLPosix = class(TIdStackBSDBase)
   protected
     procedure WriteChecksumIPv6(s: TIdStackSocketHandle; var VBuffer: TIdBytes;
@@ -220,6 +196,31 @@ end;
 //
 
 { TIdSocketListVCLPosix }
+
+type
+  TIdSocketListVCLPosix = class (TIdSocketList)
+  protected
+    FCount: Integer;
+    FFDSet: fd_set;
+    //
+    class function FDSelect(AReadSet, AWriteSet,
+      AExceptSet: Pfd_set; const ATimeout: Integer): Integer;
+    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
+  public
+    procedure Add(AHandle: TIdStackSocketHandle); override;
+    procedure Remove(AHandle: TIdStackSocketHandle); override;
+    function Count: Integer; override;
+    procedure Clear; override;
+    function Clone: TIdSocketList; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): Boolean; override;
+    procedure GetFDSet(var VSet: fd_set);
+    procedure SetFDSet(var VSet: fd_set);
+    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
+      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectReadList(var VSocketList: TIdSocketList;
+      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+  end;
 
 procedure TIdSocketListVCLPosix.Add(AHandle: TIdStackSocketHandle);
 begin

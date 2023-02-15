@@ -743,6 +743,7 @@ type
   {$ELSE}
   PPIdAnsiChar = ^PIdAnsiChar;
   {$ENDIF}
+  PPPIdAnsiChar = ^PPIdAnsiChar;
 
   {$IFNDEF HAS_PRawByteString}
   {$EXTERNALSYM PRawByteString}

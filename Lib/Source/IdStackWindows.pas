@@ -201,29 +201,6 @@ uses
 type
   EIdIPv6Unavailable = class(EIdException);
 
-  TIdSocketListWindows = class(TIdSocketList)
-  protected
-    FFDSet: TFDSet;
-    //
-    class function FDSelect(AReadSet: PFDSet; AWriteSet: PFDSet; AExceptSet: PFDSet;
-     const ATimeout: Integer = IdTimeoutInfinite): Boolean;
-    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
-  public
-    procedure Add(AHandle: TIdStackSocketHandle); override;
-    procedure Remove(AHandle: TIdStackSocketHandle); override;
-    function Count: Integer; override;
-    procedure Clear; override;
-    function Clone: TIdSocketList; override;
-    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
-    procedure GetFDSet(var VSet: TFDSet);
-    procedure SetFDSet(var VSet: TFDSet);
-    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
-     AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectReadList(var VSocketList: TIdSocketList;
-      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-  end;
-
   TIdStackWindows = class(TIdStackBSDBase)
   protected
      procedure WSQuerryIPv6Route(ASocket: TIdStackSocketHandle;
@@ -1742,6 +1719,30 @@ begin
 end;
 
 { TIdSocketListWindows }
+
+type
+  TIdSocketListWindows = class(TIdSocketList)
+  protected
+    FFDSet: TFDSet;
+    //
+    class function FDSelect(AReadSet: PFDSet; AWriteSet: PFDSet; AExceptSet: PFDSet;
+     const ATimeout: Integer = IdTimeoutInfinite): Boolean;
+    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
+  public
+    procedure Add(AHandle: TIdStackSocketHandle); override;
+    procedure Remove(AHandle: TIdStackSocketHandle); override;
+    function Count: Integer; override;
+    procedure Clear; override;
+    function Clone: TIdSocketList; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
+    procedure GetFDSet(var VSet: TFDSet);
+    procedure SetFDSet(var VSet: TFDSet);
+    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
+     AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectReadList(var VSocketList: TIdSocketList;
+      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+  end;
 
 procedure TIdSocketListWindows.Add(AHandle: TIdStackSocketHandle);
 begin
