@@ -78,6 +78,7 @@ uses
 {$ENDIF}
 type
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListLibc = class (TIdSocketList)
   protected
     FCount: integer;

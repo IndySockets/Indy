@@ -94,6 +94,7 @@ type
   Psockaddr = ^sockaddr;
   {$ENDIF}
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListUnix = class (TIdSocketList)
   protected
     FCount: Integer;

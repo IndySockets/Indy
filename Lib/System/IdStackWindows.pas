@@ -201,6 +201,7 @@ uses
 type
   EIdIPv6Unavailable = class(EIdException);
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListWindows = class(TIdSocketList)
   protected
     FFDSet: TFDSet;
@@ -1769,9 +1770,9 @@ begin
     // define FD_SETSIZE for compatibilty with other platforms, but it is a meesely 64
     // by default, and the IdWinSock2 unit does use FD_SETSIZE in its definition of
     // TFDSet. C/C++ programs can freely override the value of FD_SETSIZE at compile-time,
-    // but that is much more difficult for Pascal programs.  So, we need to find a way to
-    // make this more dynamic/configurable. For instance, by having this class hold a
-    // dynamic byte array that is casted to PFDSet when needed...
+    // but that is not an option for Pascal programs.  So, we need to find a way to make
+    // this more dynamic/configurable. For instance, by having this class hold a dynamic
+    // byte array that is casted to PFDSet when needed...
     if not fd_isset(AHandle, FFDSet) then begin
       if FFDSet.fd_count >= Length(FFDSet.fd_array){FD_SETSIZE} then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);

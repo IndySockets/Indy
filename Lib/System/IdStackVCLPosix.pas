@@ -35,6 +35,7 @@ type
     {$ENDIF}
   {$ENDIF}
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListVCLPosix = class (TIdSocketList)
   protected
     FCount: Integer;
