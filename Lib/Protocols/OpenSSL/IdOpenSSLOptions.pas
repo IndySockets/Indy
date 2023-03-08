@@ -224,6 +224,10 @@ begin
     LDest.FTLSVersionMinimum := FTLSVersionMinimum;
     LDest.FTLSVersionMaximum := FTLSVersionMaximum;
     LDest.FCipherList := FCipherList;
+    LDest.FCipherSuites := FCipherSuites;
+    LDest.FUseServerCipherPreferences := FUseServerCipherPreferences;
+    LDest.FAllowUnsafeLegacyRenegotiation := FAllowUnsafeLegacyRenegotiation;
+    LDest.FUseLegacyServerConnect := FUseLegacyServerConnect;
     LDest.FOnGetPassword := FOnGetPassword;
     LDest.FOnKeyLogging := FOnKeyLogging;
     LDest.FOnVerify := FOnVerify;
