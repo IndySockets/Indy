@@ -482,6 +482,7 @@ begin
           VIP := NetAddrToStr(sin_addr);
           VPort := ntohs(sin_port);
         end;
+        VIPVersion := Id_IPV4;
       end;
     Id_PF_INET6:
       begin
