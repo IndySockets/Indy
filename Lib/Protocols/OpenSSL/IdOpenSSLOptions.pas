@@ -265,6 +265,10 @@ begin
       and (FTLSVersionMinimum = LObj.FTLSVersionMinimum)
       and (FTLSVersionMaximum = LObj.FTLSVersionMaximum)
       and (FCipherList = LObj.FCipherList)
+      and (FCipherSuites = LObj.FCipherSuites)
+      and (FUseServerCipherPreferences = LObj.FUseServerCipherPreferences)
+      and (FAllowUnsafeLegacyRenegotiation = LObj.FAllowUnsafeLegacyRenegotiation)
+      and (FUseLegacyServerConnect = LObj.FUseLegacyServerConnect)
       and EqualMethod(TMethod(FOnGetPassword), TMethod(LObj.FOnGetPassword))
       and EqualMethod(TMethod(FOnKeyLogging), TMethod(LObj.FOnKeyLogging))
       and EqualMethod(TMethod(FOnVerify), TMethod(LObj.FOnVerify));
