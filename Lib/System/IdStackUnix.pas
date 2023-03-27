@@ -787,7 +787,12 @@ type
   ifaddrs = record
     ifa_next: pifaddrs;       { Pointer to next struct }
     ifa_name: PIdAnsiChar;    { Interface name }
+// Solaris ifaddrs struct implements 64bit ifa_flags. (Details: https://docs.oracle.com/cd/E88353_01/html/E37843/getifaddrs-3c.html)
+{$IFDEF SOLARIS}
+    ifa_flags: UInt64;        { Interface flags }
+{$ELSE}   
     ifa_flags: Cardinal;      { Interface flags }
+{$ENDIF}
     ifa_addr: psockaddr;      { Interface address }
     ifa_netmask: psockaddr;   { Interface netmask }
     ifa_broadaddr: psockaddr; { Interface broadcast address }
