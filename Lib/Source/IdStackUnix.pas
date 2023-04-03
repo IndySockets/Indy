@@ -1137,6 +1137,8 @@ end;
 procedure TIdStackUnix.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 begin
+  inherited; // turn SO_KEEPALIVE on/off first...
+  // TODO: remove below, as it should be handled by TIdStack.SetKeepAliveValues() now...
   if AEnabled then begin
     {$IFDEF HAS_TCP_KEEPIDLE}
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS div MSecsPerSec);
@@ -1145,7 +1147,6 @@ begin
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval div MSecsPerSec);
     {$ENDIF}
   end;
-  inherited;
 end;
 
 { TIdSocketListUnix }

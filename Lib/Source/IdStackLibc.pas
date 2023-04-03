@@ -1147,11 +1147,12 @@ end;
 procedure TIdStackLibc.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 begin
+  inherited; // turn SO_KEEPALIVE on/off first...
+  // TODO: remove below, as it should be handled by TIdStack.SetKeepAliveValues() now...
   if AEnabled then begin
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS div MSecsPerSec);
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval div MSecsPerSec);
   end;
-  inherited;
 end;
 
 { TIdSocketListLibc }
