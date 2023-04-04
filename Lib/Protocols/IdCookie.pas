@@ -444,6 +444,7 @@ begin
     FHostOnly := LSource.FHostOnly;
     FLastAccessed := LSource.FLastAccessed;
     FPersistent := LSource.FPersistent;
+    FSameSite := LSource.FSameSite;
   end else
   begin
     inherited Assign(Source);
