@@ -224,6 +224,8 @@
     {$ENDIF}
   {$ENDIF}
   {$DEFINE DCC_10_4_OR_ABOVE}
+  // TODO: figure out how to detect this version
+  {.$DEFINE DCC_10_4_UPDATE2_OR_ABOVE}
   {$DEFINE DCC_10_3_UPDATE2_OR_ABOVE}
 {$IFEND}
 
@@ -238,6 +240,7 @@
     {$ENDIF}
   {$ENDIF}
   {$DEFINE DCC_11_OR_ABOVE}
+  {$DEFINE DCC_10_4_UPDATE2_OR_ABOVE}
 {$IFEND}
 
 {$IF CompilerVersion >= 36}

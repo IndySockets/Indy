@@ -132,6 +132,8 @@ type
     property LastAccessed: TDateTime read FLastAccessed write FLastAccessed;
     property Persistent: Boolean read FPersistent write FPersistent;
     property SameSite: String read FSameSite write FSameSite;
+
+    // TODO: add property for user-defined attributes...
   end;
 
   TIdCookieClass = class of TIdCookie;
@@ -442,6 +444,7 @@ begin
     FHostOnly := LSource.FHostOnly;
     FLastAccessed := LSource.FLastAccessed;
     FPersistent := LSource.FPersistent;
+    FSameSite := LSource.FSameSite;
   end else
   begin
     inherited Assign(Source);
@@ -909,6 +912,7 @@ begin
   if LExpires <> 0.0 then begin
     AddCookieProperty(Result, 'Expires', LocalDateTimeToCookieStr(LExpires)); {Do not Localize}
   end;
+  AddCookieProperty(Result, 'SameSite', FSameSite); {Do not Localize}
 end;
 
 {
