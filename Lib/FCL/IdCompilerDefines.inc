@@ -745,9 +745,12 @@
 
 {$IFDEF VCL_11_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
+  {$DEFINE VCL_10_4_UPDATE2_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_10_4}
     {$DEFINE VCL_10_4_OR_ABOVE}
+    // TODO: figure out how to detect this version
+    {.$DEFINE VCL_10_4_UPDATE2_OR_ABOVE}
   {$ENDIF}
 {$ENDIF}
 
