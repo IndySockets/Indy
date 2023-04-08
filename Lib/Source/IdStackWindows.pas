@@ -2314,11 +2314,11 @@ begin
   SetLength(LTmp, 40+Length(VBuffer));
 
   //16
-  Move(LSource, LTmp[0], SIZE_TSOCKADDRIN6);
-  LIdx := SIZE_TSOCKADDRIN6;
+  Move(LSource, LTmp[0], SIZE_TIN6ADDR);
+  LIdx := SIZE_TIN6ADDR;
   //32
-  Move(LDest, LTmp[LIdx], SIZE_TSOCKADDRIN6);
-  Inc(LIdx, SIZE_TSOCKADDRIN6);
+  Move(LDest, LTmp[LIdx], SIZE_TIN6ADDR);
+  Inc(LIdx, SIZE_TIN6ADDR);
   //use a word so you don't wind up using the wrong network byte order function
   LC := UInt32(Length(VBuffer));
   CopyTIdUInt32(HostToNetwork(LC), LTmp, LIdx);
