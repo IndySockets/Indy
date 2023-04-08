@@ -933,6 +933,7 @@ type
   {$ELSE}
   PPIdAnsiChar = ^PIdAnsiChar;
   {$ENDIF}
+  PPPIdAnsiChar = ^PPIdAnsiChar;
 
   {$IFDEF HAS_SetCodePage}
     {$IFNDEF HAS_PRawByteString}
