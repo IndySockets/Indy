@@ -833,7 +833,7 @@ begin
       Exit;
     end;
 
-    if TextStartsWith(FName, '__Host-') and not (FSecure and FHostOnly and (LPathFromAttrs = '/')) then begin {do not localize}
+    if TextStartsWith(FName, '__Host-') and not (FSecure and FHostOnly and (LPathFromProps = '/')) then begin {do not localize}
       Exit;
     end;
 
