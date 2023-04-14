@@ -1061,14 +1061,14 @@ begin
     { complete token if applicable }
     case fStatus of
       SEC_I_COMPLETE_NEEDED,
-        SEC_I_COMPLETE_AND_CONTINUE:
-        begin
-          if not Assigned(gSSPIInterface.FunctionTable.CompleteAuthToken) then begin
-            raise ESSPIException.Create(RSHTTPSSPICompleteTokenNotSupported);
-          end;
-          fStatus := gSSPIInterface.FunctionTable.CompleteAuthToken(Handle, @fOutBuffDesc);
-          gSSPIInterface.RaiseIfError(fStatus, 'CompleteAuthToken');   {Do not translate}
+      SEC_I_COMPLETE_AND_CONTINUE:
+      begin
+        if not Assigned(gSSPIInterface.FunctionTable.CompleteAuthToken) then begin
+          raise ESSPIException.Create(RSHTTPSSPICompleteTokenNotSupported);
         end;
+        fStatus := gSSPIInterface.FunctionTable.CompleteAuthToken(Handle, @fOutBuffDesc);
+        gSSPIInterface.RaiseIfError(fStatus, 'CompleteAuthToken');   {Do not translate}
+      end;
     end;
     Result :=
       (fStatus = SEC_I_CONTINUE_NEEDED) or
