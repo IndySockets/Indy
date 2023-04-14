@@ -1774,7 +1774,7 @@ begin
     // this more dynamic/configurable. For instance, by having this class hold a dynamic
     // byte array that is casted to PFDSet when needed...
     if not fd_isset(AHandle, FFDSet) then begin
-      if FFDSet.fd_count >= Length(FFDSet.fd_array){FD_SETSIZE} then begin
+      if FFDSet.fd_count >= u_int(Length(FFDSet.fd_array)){FD_SETSIZE} then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
       end;
       FFDSet.fd_array[FFDSet.fd_count] := AHandle;
@@ -1821,15 +1821,14 @@ begin
   try
     //We can't redefine AIndex to be a UInt32 because the libc Interface
     //and DotNET define it as a LongInt.  OS/2 defines it as a UInt16.
-    if (AIndex >= 0) and (u_int(AIndex) < FFDSet.fd_count) then begin
-      Result := FFDSet.fd_array[AIndex];
-    end else begin
+    if (AIndex < 0) or (u_int(AIndex) >= FFDSet.fd_count) then begin
       // TODO: just return 0/invalid, like most of the other Stack classes do?
       raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
     end;
+    Result := FFDSet.fd_array[AIndex];
   finally
     Unlock;
-   end;
+  end;
 end;
 
 procedure TIdSocketListWindows.Remove(AHandle: TIdStackSocketHandle);

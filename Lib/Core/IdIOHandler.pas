@@ -2537,6 +2537,8 @@ var
   LOldErrorMode : Integer;
   {$ENDIF}
 begin
+  Result := -1;
+
   {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try
