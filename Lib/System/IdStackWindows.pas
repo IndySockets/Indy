@@ -1817,6 +1817,11 @@ end;
 
 function TIdSocketListWindows.GetItem(AIndex: Integer): TIdStackSocketHandle;
 begin
+  // keep the compiler happy (when was this fixed exactly?)
+  {$IFDEF DCC}{$IFNDEF VCL_8_OR_ABOVE}  
+  Result := INVALID_SOCKET;
+  {$ENDIF}{$ENDIF}
+
   Lock;
   try
     //We can't redefine AIndex to be a UInt32 because the libc Interface

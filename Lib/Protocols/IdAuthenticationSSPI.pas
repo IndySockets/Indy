@@ -1055,7 +1055,10 @@ function TCustomSSPIConnectionContext.UpdateAndGenerateReply
 var
   fOutBuff: SecBuffer;
 begin
+  // keep the compiler happy (when was this fixed exactly?)
+  {$IFDEF DCC}{$IFNDEF VCL_8_OR_ABOVE}  
   Result := False;
+  {$ENDIF}{$ENDIF}
 
   { check credentials }
   CheckCredentials;
