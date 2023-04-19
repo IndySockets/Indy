@@ -1033,8 +1033,6 @@ function TCustomSSPIConnectionContext.UpdateAndGenerateReply
 var
   fOutBuff: SecBuffer;
 begin
-  Result := False;
-
   { check credentials }
   CheckCredentials;
   { prepare input buffer }
