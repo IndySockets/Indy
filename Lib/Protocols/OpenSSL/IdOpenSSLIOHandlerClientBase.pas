@@ -120,7 +120,7 @@ begin
   Result := FTLSSocket.GetErrorCode(ALastResult);
   case Result of
     SSL_ERROR_SYSCALL:
-      inherited CheckForError(ALastResult);
+      Result := inherited CheckForError(ALastResult);
 //      inherited CheckForError(Integer(Id_SOCKET_ERROR));
     SSL_ERROR_NONE:
     begin
