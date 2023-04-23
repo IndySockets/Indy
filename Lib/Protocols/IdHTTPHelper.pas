@@ -28,7 +28,7 @@ type
   end;
 
 {$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOff.inc}{$ENDIF}
-procedure TIdHTTPHelper_DoRequest(AHTTP: TIdHTTP; const AMethod: TIdHTTPMethod; AURL: string;
+procedure TIdHTTPHelper_CustomRequest(AHTTP: TIdHTTP; const AMethod: TIdHTTPMethod; AURL: string;
   ASource, AResponseContent: TStream; AIgnoreReplies: array of Int16);
 {$IFDEF HAS_CLASS_HELPER}{$I IdDeprecatedImplBugOn.inc}{$ENDIF}
 begin
