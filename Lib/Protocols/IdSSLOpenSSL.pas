@@ -3730,7 +3730,7 @@ begin
   //
   // RLebeau: is this actually true?  Should we be reusing the original
   // IOHandler's active session ID regardless of whether this is a client
-  // or server socket?
+  // or server socket? What about FTP in non-passive mode, for example?
   {
   if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
      (LParentIO.fSSLSocket <> Self) then
