@@ -432,11 +432,11 @@
 
   //Delphi & CBuilder 11.0 Alexandria (Olympus)
   {$IFDEF VER350}
-    {$DEFINE VCL_11_0}
+    {$DEFINE VCL_11}
     {$IFDEF CBUILDER}
-      {$DEFINE CBUILDER_11_0}
+      {$DEFINE CBUILDER_11}
     {$ELSE}
-      {$DEFINE DELPHI_11_0}
+      {$DEFINE DELPHI_11}
     {$ENDIF}
   {$ENDIF}
 
@@ -739,15 +739,18 @@
 
 // end FPC
 
-{$IFDEF VCL_11_0}
-  {$DEFINE VCL_11_0_OR_ABOVE}
+{$IFDEF VCL_11}
+  {$DEFINE VCL_11_OR_ABOVE}
 {$ENDIF}
 
-{$IFDEF VCL_11_0_OR_ABOVE}
+{$IFDEF VCL_11_OR_ABOVE}
   {$DEFINE VCL_10_4_OR_ABOVE}
+  {$DEFINE VCL_10_4_UPDATE2_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_10_4}
     {$DEFINE VCL_10_4_OR_ABOVE}
+    // TODO: figure out how to detect this version
+    {.$DEFINE VCL_10_4_UPDATE2_OR_ABOVE}
   {$ENDIF}
 {$ENDIF}
 
@@ -1372,7 +1375,7 @@
   {.$UNDEF HAS_DIRECTIVE_ZEROBASEDSTRINGS}
 {$ENDIF}
 
-{$IFDEF VCL_11_0_OR_ABOVE}
+{$IFDEF VCL_11_OR_ABOVE}
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm32}
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm64}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
@@ -1594,7 +1597,7 @@
 {$IFDEF WIN32_OR_WIN64}
   {$DEFINE USE_ZLIB_UNIT}
   {$IFNDEF DCC_NEXTGEN}
-    {$DEFINE USE_OPENSSL} // !!!稭OVED稨ERE稡Y稥MBT
+    {$DEFINE USE_OPENSSL} // !!!路MOVED路HERE路BY路EMBT
     {$DEFINE USE_SSPI}
     {$IFDEF STRING_IS_UNICODE}
       {$DEFINE SSPI_UNICODE}
@@ -1622,9 +1625,14 @@
 {$IFDEF UNIX}
   {$DEFINE USE_OPENSSL}
   {$DEFINE USE_ZLIB_UNIT}
+  {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
 {$IFDEF MACOS}
+  {$DEFINE HAS_getifaddrs}
+{$ENDIF}
+
+{$IFDEF DARWIN}
   {$DEFINE HAS_getifaddrs}
 {$ENDIF}
 
@@ -1635,14 +1643,19 @@
 {$IFDEF IOS}
   {$DEFINE HAS_getifaddrs}
   {$DEFINE USE_OPENSSL}
+
+  // Support for 64-bit ARM iOS Simulator was added in Delphi 11.2
+  // TODO: how to detect iOS Simulator in FPC? Does it support 64-bit ARM?
   {$IFDEF CPUARM}
-    // RLebeau: For iOS devices, OpenSSL cannot be used as an external library,
-    // it must be statically linked into the app.  For the iOS simulator, this
-    // is not true.  Users who want to use OpenSSL in iOS device apps will need
-    // to add the static OpenSSL library to the project and then include the
-    // IdSSLOpenSSLHeaders_static unit in their uses clause. It hooks up the
-    // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
-    {$DEFINE STATICLOAD_OPENSSL}
+    {$IFNDEF IOSSIMULATOR}
+      // RLebeau: For iOS devices, OpenSSL cannot be used as an external library,
+      // it must be statically linked into the app.  For the iOS simulator, this
+      // is not true.  Users who want to use OpenSSL in iOS device apps will need
+      // to add the static OpenSSL library to the project and then include the
+      // IdSSLOpenSSLHeaders_static unit in their uses clause. It hooks up the
+      // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
+      {$DEFINE STATICLOAD_OPENSSL}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
