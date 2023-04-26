@@ -35,24 +35,31 @@ type
     {$ENDIF}
   {$ENDIF}
 
+  // ----------------------------------------------------------------------------------
+  pollfd = record
+    fd      : TIdStackSocketHandle;
+    events  : Int16;
+    revents : Int16;
+  end;
+
   // TODO: move this class into the implementation section! It is not used outside of this unit
-  TIdSocketListVCLPosix = class (TIdSocketList)
+  TIdSocketListVCLPosix = class(TIdSocketList)
   protected
-    FCount: Integer;
-    FFDSet: fd_set;
+    FSockets: TList<TIdStackSocketHandle>;
     //
-    class function FDSelect(AReadSet, AWriteSet,
-      AExceptSet: Pfd_set; const ATimeout: Integer): Integer;
+    class function FDPoll(ASet: TList<pollfd>; const ATimeout: Integer): Boolean;
     function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
   public
+    constructor Create; override;
+    destructor Destroy; override;
     procedure Add(AHandle: TIdStackSocketHandle); override;
     procedure Remove(AHandle: TIdStackSocketHandle); override;
     function Count: Integer; override;
     procedure Clear; override;
     function Clone: TIdSocketList; override;
     function ContainsSocket(AHandle: TIdStackSocketHandle): Boolean; override;
-    procedure GetFDSet(var VSet: fd_set);
-    procedure SetFDSet(var VSet: fd_set);
+    procedure GetPollList(var VSet: TList<pollfd>; const AEvents: Int16);
+    procedure SetPollList(VSet: TList<pollfd>; const AEvents: Int16);
     class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
       AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
     function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
@@ -187,7 +194,19 @@ const
   {$ENDIF}
   Id_WSAEPIPE = EPIPE;
 
-
+  POLLIN     = $0001;
+  POLLPRI    = $0002;
+  POLLOUT    = $0004;
+  POLLERR    = $0008;
+  POLLHUP    = $0010;
+  POLLNVAL   = $0020;
+  POLLRDNORM = $0040;
+  POLLRDBAND = $0080;
+  POLLWRNORM = $0100;
+  POLLWRBAND = $0200;
+  POLLMSG    = $0400;
+  POLLREMOVE = $1000;
+  POLLRDHUP  = $2000;
 
 //helper functions for some structs
 
@@ -220,16 +239,24 @@ end;
 
 { TIdSocketListVCLPosix }
 
+constructor TIdSocketListVCLPosix.Create;
+begin
+  inherited;
+  FSockets := TList<TIdStackSocketHandle>.Create;
+end;
+
+destructor TIdSocketListVCLPosix.Destroy;
+begin
+  FSockets.Free;
+  inherited;
+end;
+
 procedure TIdSocketListVCLPosix.Add(AHandle: TIdStackSocketHandle);
 begin
   Lock;
   try
-    if not __FD_ISSET(AHandle, FFDSet) then begin
-      if AHandle >= FD_SETSIZE then begin
-        raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
-      end;
-      __FD_SET(AHandle, FFDSet);
-      Inc(FCount);
+    if not FSockets.Contains(AHandle) then begin
+      FSockets.Add(AHandle);
     end;
   finally
     Unlock;
@@ -240,8 +267,7 @@ procedure TIdSocketListVCLPosix.Clear;
 begin
   Lock;
   try
-    __FD_ZERO(FFDSet);
-    FCount := 0;
+    FSockets.Clear;
   finally
     Unlock;
   end;
@@ -253,7 +279,11 @@ begin
   try
     Lock;
     try
-      TIdSocketListVCLPosix(Result).SetFDSet(FFDSet);
+      with TIdSocketListVCLPosix(Result).FSockets do
+      begin
+        Clear;
+        AddRange(Self.FSockets);
+      end;
     finally
       Unlock;
     end;
@@ -268,7 +298,7 @@ function TIdSocketListVCLPosix.ContainsSocket(
 begin
   Lock;
   try
-    Result := __FD_ISSET(AHandle, FFDSet);
+    Result := FSockets.Contains(AHandle);
   finally
     Unlock;
   end;
@@ -278,57 +308,47 @@ function TIdSocketListVCLPosix.Count: Integer;
 begin
   Lock;
   try
-    Result := FCount;
+    Result := FSockets.Count;
   finally
     Unlock;
   end;
 end;
 
-class function TIdSocketListVCLPosix.FDSelect(AReadSet, AWriteSet,
-  AExceptSet: Pfd_set; const ATimeout: Integer): Integer;
-var
-  LTime: TimeVal;
-  LTimePtr: PTimeVal;
+function poll(Ptr: Pointer; nfds : Integer; timemout : Integer) : Integer; cdecl; external libc name _PU+'poll';
+
+class function TIdSocketListVCLPosix.FDPoll(ASet: TList<pollfd>;
+  const ATimeout: Integer): Boolean;
 begin
-  if ATimeout = IdTimeoutInfinite then begin
-    LTimePtr := nil;
-  end else begin
-    LTime.tv_sec := ATimeout div 1000;
-    LTime.tv_usec := (ATimeout mod 1000) * 1000;
-    LTimePtr := @LTime;
-  end;
-  // TODO: calculate the actual nfds value based on the Sets provided...
-  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
-  Result := Posix.SysSelect.select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  Result := poll(@(ASet.List[0]), ASet.Count, ATimeout) > 0;
 end;
 
-procedure TIdSocketListVCLPosix.GetFDSet(var VSet: fd_set);
+procedure TIdSocketListVCLPosix.GetPollList(var VSet: TList<pollfd>;
+  const AEvents: Int16);
+var
+  LPollFD: pollfd;
+  I: Integer;
 begin
   Lock;
   try
-    VSet := FFDSet;
+    for I := 0 to FSockets.Count-1 do begin
+      LPollFD.fd := FSockets[i];
+      LPollFD.events := AEvents;
+      LPollFD.revents := 0;
+      VSet.Add(LPollFD);
+    end;
   finally
     Unlock;
   end;
 end;
 
 function TIdSocketListVCLPosix.GetItem(AIndex: Integer): TIdStackSocketHandle;
-var
-  LIndex, i: Integer;
 begin
-  Result := 0;
   Lock;
   try
-    LIndex := 0;
-    //? use FMaxHandle div x
-    for i:= 0 to FD_SETSIZE - 1 do begin
-      if __FD_ISSET(i, FFDSet) then begin
-        if LIndex = AIndex then begin
-          Result := i;
-          Break;
-        end;
-        Inc(LIndex);
-      end;
+    if (AIndex >= 0) and (AIndex < FSockets.Count) then begin
+      Result := FSockets[AIndex];
+    end else begin
+      Result := -1;
     end;
   finally
     Unlock;
@@ -339,10 +359,7 @@ procedure TIdSocketListVCLPosix.Remove(AHandle: TIdStackSocketHandle);
 begin
   Lock;
   try
-    if __FD_ISSET(AHandle, FFDSet) then begin
-      Dec(FCount);
-      __FD_CLR(AHandle, FFDSet);
-    end;
+    FSockets.Remove(AHandle);
   finally
     Unlock;
   end;
@@ -350,85 +367,109 @@ end;
 
 class function TIdSocketListVCLPosix.Select(AReadList, AWriteList,
   AExceptList: TIdSocketList; const ATimeout: Integer): Boolean;
-
 var
-  LReadSet: fd_set;
-  LWriteSet: fd_set;
-  LExceptSet: fd_set;
-  LPReadSet: Pfd_set;
-  LPWriteSet: Pfd_set;
-  LPExceptSet: Pfd_set;
+  LPollList: TList<pollfd>;
 
-  procedure ReadSet(AList: TIdSocketList; var ASet: fd_set; var APSet: Pfd_set);
+  function SetCount(AList: TIdSocketList) : Integer;
   begin
     if AList <> nil then begin
-      TIdSocketListVCLPosix(AList).GetFDSet(ASet);
-      APSet := @ASet;
+      Result := AList.Count;
     end else begin
-      APSet := nil;
+      Result := 0;
+    end;
+  end;
+
+  procedure ReadSet(AList: TIdSocketList; const AEvents: Int16);
+  begin
+    if AList <> nil then begin
+      TIdSocketListVCLPosix(AList).GetPollList(LPollList, AEvents);
     end;
   end;
 
 begin
-  ReadSet(AReadList, LReadSet, LPReadSet);
-  ReadSet(AWriteList, LWriteSet, LPWriteSet);
-  ReadSet(AExceptList, LExceptSet, LPExceptSet);
-  //
-  Result := FDSelect(LPReadSet, LPWriteSet, LPExceptSet, ATimeout) >0;
-  //
-  if AReadList <> nil then begin
-    TIdSocketListVCLPosix(AReadList).SetFDSet(LReadSet);
-  end;
-  if AWriteList <> nil then begin
-    TIdSocketListVCLPosix(AWriteList).SetFDSet(LWriteSet);
-  end;
-  if AExceptList <> nil then begin
-    TIdSocketListVCLPosix(AExceptList).SetFDSet(LExceptSet);
+  LPollList := TList<pollfd>.Create;
+  try
+    LPollList.Capacity := SetCount(AReadList) + SetCount(AWriteList) + SetCount(AExceptList);
+    ReadSet(AReadList, POLLIN or POLLRDHUP);
+    ReadSet(AWriteList, POLLOUT);
+    ReadSet(AExceptList, POLLPRI);
+    //
+    Result := FDPoll(LPollList, ATimeout);
+    //
+    if AReadList <> nil then begin
+      TIdSocketListVCLPosix(AReadList).SetPollList(LPollList, POLLIN or POLLHUP);
+    end;
+    if AWriteList <> nil then begin
+      TIdSocketListVCLPosix(AWriteList).SetPollList(LPollList, POLLOUT);
+    end;
+    if AExceptList <> nil then begin
+      TIdSocketListVCLPosix(AExceptList).SetPollList(LPollList, POLLPRI);
+    end;
+  finally
+    LPollList.Free;
   end;
 end;
 
 function TIdSocketListVCLPosix.SelectRead(const ATimeout: Integer): Boolean;
 var
-  LSet: fd_set;
+  LPollList: TList<pollfd>;
 begin
-  Lock;
+  LPollList := TList<pollfd>.Create;
   try
-    LSet := FFDSet;
-    // select() updates this structure on return,
-    // so we need to copy it each time we need it
+    Lock;
+    try
+      LPollList.Capacity := FSockets.Count;
+      GetPollList(LPollList, POLLIN or POLLRDHUP);
+    finally
+      Unlock;
+    end;
+    Result := FDPoll(LPollList, ATimeout);
   finally
-    Unlock;
+    LPollList.Free;
   end;
-  Result := FDSelect(@LSet, nil, nil, ATimeout) > 0;
 end;
 
 function TIdSocketListVCLPosix.SelectReadList(var VSocketList: TIdSocketList;
   const ATimeout: Integer): Boolean;
 var
-  LSet: fd_set;
+  LPollList: TList<pollfd>;
 begin
-  Lock;
+  LPollList := TList<pollfd>.Create;
   try
-    LSet := FFDSet;
-    // select() updates this structure on return,
-    // so we need to copy it each time we need it
-  finally
-    Unlock;
-  end;
-  Result := FDSelect(@LSet, nil, nil, ATimeout) > 0;
-  if Result then begin
-    if VSocketList = nil then begin
-      VSocketList := TIdSocketList.CreateSocketList;
+    Lock;
+    try
+      LPollList.Capacity := FSockets.Count;
+      GetPollList(LPollList, POLLIN or POLLRDHUP);
+    finally
+      Unlock;
     end;
-    TIdSocketListVCLPosix(VSocketList).SetFDSet(LSet);
+    Result := FDPoll(LPollList, ATimeout);
+    if Result then begin
+      if VSocketList = nil then begin
+        VSocketList := TIdSocketList.CreateSocketList;
+      end;
+      TIdSocketListVCLPosix(VSocketList).SetPollList(LPollList, 0);
+    end;
+  finally
+    LPollList.Free;
   end;
 end;
 
-procedure TIdSocketListVCLPosix.SetFDSet(var VSet: fd_set);
+procedure TIdSocketListVCLPosix.SetPollList(VSet: TList<pollfd>;
+  const AEvents: Int16);
+var
+  LPollFD: pollfd;
+  I: Integer;
 begin
   Lock;
   try
-    FFDSet := VSet;
+    FSockets.Clear;
+    for I := 0 to VSet.Count-1 do begin
+      LPollFD := VSet[I];
+      if (AEvents = 0) or ((LPollFD.revents and AEvents) <> 0) then begin
+        FSockets.Add(LPollFD.fd);
+      end;
+    end;
   finally
     Unlock;
   end;
