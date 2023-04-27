@@ -185,6 +185,8 @@ const
   Id_TId_HTTPAutoStartSession = False;
 
   Id_TId_HTTPMaximumHeaderLineCount = 1024;
+  Id_TId_HTTPMaximumHeaderLineLength = IdMaxLineLengthDefault;
+  Id_TId_HTTPMaximumUriLength = IdMaxLineLengthDefault;
 
   GResponseNo = 200;
   GFContentLength = -1;
@@ -440,6 +442,8 @@ type
     //
     FSessionCleanupThread: TIdThread;
     FMaximumHeaderLineCount: Integer;
+    FMaximumHeaderLineLength: Integer;
+    FMaximumUriLength: Integer;
     FSessionIDCookieName: string;
     //
     procedure CreatePostStream(ASender: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TStream); virtual;
@@ -497,6 +501,8 @@ type
     property DefaultPort default IdPORT_HTTP;
     property KeepAlive: Boolean read FKeepAlive write FKeepAlive default Id_TId_HTTPServer_KeepAlive;
     property MaximumHeaderLineCount: Integer read FMaximumHeaderLineCount write FMaximumHeaderLineCount default Id_TId_HTTPMaximumHeaderLineCount;
+    property MaximumHeaderLineLength: Integer read FMaximumHeaderLineLength write FMaximumHeaderLineLength default Id_TId_HTTPMaximumHeaderLineLength;
+    property MaximumUriLength: Integer read FMaximumUriLength write FMaximumUriLength default Id_TId_HTTPMaximumUriLength;
     property ParseParams: boolean read FParseParams write FParseParams default Id_TId_HTTPServer_ParseParams;
     property ServerSoftware: string read FServerSoftware write FServerSoftware;
     property SessionState: Boolean read FSessionState write SetSessionState default Id_TId_HTTPServer_SessionState;
@@ -904,6 +910,8 @@ begin
   FAutoStartSession := Id_TId_HTTPAutoStartSession;
   FKeepAlive := Id_TId_HTTPServer_KeepAlive;
   FMaximumHeaderLineCount := Id_TId_HTTPMaximumHeaderLineCount;
+  FMaximumHeaderLineLength := Id_TId_HTTPMaximumHeaderLineLength;
+  FMaximumUriLength := Id_TId_HTTPMaximumUriLength;
   FSessionIDCookieName := GSessionIDCookie;
 end;
 
@@ -1114,6 +1122,46 @@ var
     end;
   end;
 
+  function GetRequestLine(var VInputLine: string): Boolean;
+  var
+    LWasSplit: Boolean;
+  begin
+    // send a 414 (Uri Too Long) response if the request line is too long...
+    VInputLine := AContext.Connection.IOHandler.ReadLnSplit(LWasSplit, LF, IdTimeoutDefault, MaximumUriLength);
+    if AContext.Connection.IOHandler.ReadLnTimedout then begin
+      raise EIdReadTimeout.Create(RSReadTimeout);
+    end;
+    Result := not LWasSplit;
+    if LWasSplit then begin
+      LResponseInfo.ResponseNo := 414; // uri too long
+      LResponseInfo.CloseConnection := True;
+      LResponseInfo.WriteHeader;
+    end;
+  end;
+
+  function ReadRequestHeaders: Boolean;
+  begin
+    Result := False;
+    // send a 431 (Request Header Fields Too Large) response if the headers are too long...
+    try
+      AContext.Connection.IOHandler.Capture(LRequestInfo.RawHeaders, '', False);    {Do not Localize}
+    except
+      on E: Exception do begin
+        if (E is EIdReadLnMaxLineLengthExceeded) or (E is EIdMaxCaptureLineExceeded) then begin
+          LResponseInfo.ResponseNo := 431; // header too long
+          LResponseInfo.CloseConnection := True;
+          LResponseInfo.WriteHeader;
+          Exit;
+        end;
+        raise;
+      end;
+    end;
+    if AContext.Connection.IOHandler.ReadLnTimedOut then begin
+      raise EIdReadTimeout.Create(RSReadTimeout);
+    end;
+    Result := True;
+  end;
+
   function HeadersCanContinue: Boolean;
   var
     LResponseNo: Integer;
@@ -1284,9 +1332,12 @@ begin
     try
       LConn := AContext.Connection;
       repeat
-        LInputLine := InternalReadLn(LConn.IOHandler);
+        if not GetRequestLine(LInputLine) then begin
+          Break;
+        end;
         i := RPos(' ', LInputLine, -1);    {Do not Localize}
         if i = 0 then begin
+          // TODO: send back a 400 (Bad Request) response
           raise EIdHTTPErrorParsingCommand.Create(RSHTTPErrorParsingCommand);
         end;
         LCloseConnection := not KeepAlive;
@@ -1301,9 +1352,10 @@ begin
             // Set the ServerSoftware string to what it's supposed to be.    {Do not Localize}
             LResponseInfo.ServerSoftware := Trim(ServerSoftware);
 
-            // S.G. 6/4/2004: Set the maximum number of lines that will be catured
+            // S.G. 6/4/2004: Set the maximum number of lines that will be captured
             // S.G. 6/4/2004: to prevent a remote resource starvation DOS
             LConn.IOHandler.MaxCapturedLines := MaximumHeaderLineCount;
+            LConn.IOHandler.MaxLineLength := MaximumHeaderLineLength;
 
             // Retrieve the HTTP version
             LRawHTTPCommand := LInputLine;
@@ -1318,7 +1370,10 @@ begin
 
             // Retrieve the HTTP header
             LRequestInfo.RawHeaders.Clear;
-            LConn.IOHandler.Capture(LRequestInfo.RawHeaders, '', False);    {Do not Localize}
+            if not ReadRequestHeaders then begin
+              Break;
+            end;
+
             // TODO: call HeadersCanContinue() here before the headers are parsed,
             // in case the user needs to overwrite any values...
             LRequestInfo.ProcessHeaders;
