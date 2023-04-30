@@ -113,16 +113,16 @@ const
   ST_ERR_IN_USE = 'IN-USE';     {Do not translate}  //already in use by another program
   ST_ERR_LOGIN_DELAY = 'LOGIN-DELAY';  {Do not translate}  //login delay time
   // RFC 3206
-  ST_ERR_SYS_TEMP = 'SYS/PERM';  {Do not translate}  //system failure - permenent
-  ST_ERR_SYS_PERM = 'SYS/TEMP'; {Do not translate} //system failure - temporary
+  ST_ERR_SYS_TEMP = 'SYS/TEMP';  {Do not translate}  //system failure - temporary
+  ST_ERR_SYS_PERM = 'SYS/PERM'; {Do not translate} //system failure - permenent
   ST_ERR_AUTH = 'AUTH'; {Do not translate}  //authentication credential problem
 
 const
   VALID_ENH_CODES : array[0..4] of string = (
     ST_ERR_IN_USE,
     ST_ERR_LOGIN_DELAY,
-    ST_ERR_SYS_TEMP,
     ST_ERR_SYS_PERM,
+    ST_ERR_SYS_TEMP,
     ST_ERR_AUTH
   );
 
@@ -144,6 +144,7 @@ type
       AReplyTexts: TIdReplies = nil
       ); override;
     procedure Assign(ASource: TPersistent); override;
+    procedure Clear; override;
     procedure RaiseReplyError; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
   published
@@ -209,6 +210,12 @@ var
 begin
   LOrd := PosInStrArray(ACode, VALID_POP3_STR, False);
   Result := (LOrd > -1) or (Trim(ACode) = '');
+end;
+
+procedure TIdReplyPOP3.Clear;
+begin
+  inherited Clear;
+  FEnhancedCode := '';
 end;
 
 constructor TIdReplyPOP3.CreateWithReplyTexts(ACollection: TCollection = nil; AReplyTexts: TIdReplies = nil);
