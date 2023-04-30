@@ -175,7 +175,7 @@ uses
 
 type
   // Enums
-  THTTPCommandType = (hcUnknown, hcHEAD, hcGET, hcPOST, hcDELETE, hcPUT, hcTRACE, hcOPTION);
+  THTTPCommandType = (hcUnknown, hcHEAD, hcGET, hcPOST, hcDELETE, hcPUT, hcTRACE, hcOPTION, hcPATCH);
 
 const
   Id_TId_HTTPServer_KeepAlive = false;
@@ -191,7 +191,7 @@ const
   GServerSoftware = gsIdProductName + '/' + gsIdVersion;    {Do not Localize}
   GContentType = 'text/html';    {Do not Localize}
   GSessionIDCookie = 'IDHTTPSESSIONID';    {Do not Localize}
-  HTTPRequestStrings: array[0..Ord(High(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS'); {do not localize}
+  HTTPRequestStrings: array[0..Ord(High(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS', 'PATCH'); {do not localize}
 
 type
   // Forwards
@@ -872,7 +872,7 @@ begin
       soEnd: LOffset := (FRangeEnd+1) + AOffset;
     else
       // TODO: move this into IdResourceStringsProtocols.pas
-      raise EIdException.Create('Unknown Seek Origin'); {do not localize}
+      raise EIdException.Create('Unknown Seek Origin'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
     end;
     LOffset := IndyMax(LOffset, FRangeStart);
     LOffset := IndyMin(LOffset, FRangeEnd+1);
@@ -1120,6 +1120,8 @@ var
     LResponseText, LContentText, S: String;
   begin
     // let the user decide if the request headers are acceptable
+    // TODO pass the whole LRequestInfo object so the user has access
+    // to the request method, too...
     Result := DoHeadersAvailable(AContext, LRequestInfo.URI, LRequestInfo.RawHeaders);
     if not Result then begin
       DoHeadersBlocked(AContext, LRequestInfo.RawHeaders, LResponseNo, LResponseText, LContentText);
@@ -1689,7 +1691,7 @@ begin
     // gets called by Notification() if the sessionList is freed while
     // the server is still Active?
     if Active then begin
-      raise EIdException.Create(RSHTTPCannotSwitchSessionListWhenActive);
+      raise EIdException.Create(RSHTTPCannotSwitchSessionListWhenActive); // TODO: create a new Exception class for this
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
@@ -1745,7 +1747,7 @@ begin
   LCookieName := Trim(AValue);
   if LCookieName = '' then begin
     // TODO: move this into IdResourceStringsProtocols.pas
-    raise EIdException.Create('Invalid cookie name'); {do not localize}
+    raise EIdException.Create('Invalid cookie name'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   FSessionIDCookieName := AValue;
 end;

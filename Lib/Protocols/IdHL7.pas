@@ -16,6 +16,28 @@
   $Log$
 }
 {
+  Rev 2.2 30/12/2022 5:40 PM RLebeau
+    Code Review:
+    Proper handling of TIdQueuedMessage as an interfaced object (removing manual reference counting).
+    Handling of incoming messages more efficiently (not reading byte by byte, not treating message delimiters as encoded strings).
+    Updating String encoding to support non-Unicode compilers.
+    General code cleanup
+
+  Rev 2.1 25/12/2022 12:32 AM EJPretorius/ ShoraiTek
+   Added DefStringEncoding for sending encoding control / default to utf8
+   Use dateutils functions rather where possible
+   remove TIdPeerThread  classes logic us TIdContext  rather directly
+   use indy KeepAlive functions (timeouts to be set)
+   use global.ticks rather
+   non-type casting of socket - use direct property rather
+   use IPv4ToUInt32 rather than custom function
+   reverse Cardinal change back to longword
+   readbyte ansichar cast changed to char cast for charsets
+
+  Rev 2.0   23/12/2022 19:52 PM EJPretorius
+  Combined Indy code with last source code release by original author (Grahame Grieve) in 2013
+    http://www.healthintersections.com.au/?p=1596  
+
   Rev 1.9    9/30/2004 5:04:18 PM  BGooijen
   Self was not initialized
 
@@ -58,20 +80,6 @@
   05/11/2001   Grahame Grieve      Merge into Indy
 
   03/09/2001   Grahame Grieve      Prepare for Indy
-}
-
-{
-  ==============================================================================
-  Warning: this code is currently broken in Indy 10.
-
-  The extensive changes to the IOHandler architecture mean that the way
-  this unit works - doing asynchronous IO in a single connection - can
-  no longer work without causing access violations whenever the socket
-  is closed
-
-  This code needs to be re-written to resolve these issues somehow, but
-  no clear design has emerged at this point
-  ==============================================================================
 }
 
 {
@@ -132,6 +140,7 @@ interface
 
 uses
   Classes,
+  Contnrs,
   IdBaseComponent,
   IdContext,
   IdException,
@@ -142,16 +151,20 @@ uses
   SysUtils;
 
 const
-  MSG_START = #$0B;       {do not localize}
-  MSG_END = #$1C#$0D;   {do not localize}
+  MSG_START: array[0..0] of Byte = ($0B);
+  MSG_END: array[0..1] of Byte = ($1C, $0D);
+  BUFFER_SIZE_LIMIT = $FFFFFFF;  // buffer is allowed to grow to this size without any valid messages. Will be truncated with no notice (DoS protection) (268MB)
+
+  WAIT_STOP = 5000; // how long we wait for things to shut down cleanly
+
 
 type
   EHL7CommunicationError = class(EIdException)
-  Protected
+  protected
     FInterfaceName: String;
-  Public
+  public
     constructor Create(AnInterfaceName, AMessage: String);
-    property InterfaceName: String Read FInterfaceName;
+    property InterfaceName: String read FInterfaceName;
   end;
 
 
@@ -172,7 +185,8 @@ type
     isConnecting,    // Client is attempting to connect
     isWaitReconnect, // Client is in delay loop prior to attempting to connect
     isConnected,     // connected OK
-    isUnusable       // Not Usable - stop failed
+    isUnusable,      // Not Usable - stop failed
+    isTimedOut       // we are a client, and there was no traffic, so we closed the connection (and we are not listening)
     );
 
 const
@@ -184,9 +198,10 @@ const
   NULL_IP = '0.0.0.0';  {do not localize}
   DEFAULT_CONN_LIMIT = 1;
   DEFAULT_RECONNECT_DELAY = 15000;
+  DEFAULT_CONNECTION_TIMEOUT = 0;
   DEFAULT_COMM_MODE = cmUnknown;
   DEFAULT_IS_LISTENER = True;
-  MILLISECOND_LENGTH = (1 / (24 * 60 * 60 * 1000));
+  SEND_RESPONSE_NAMES: array[TSendResponse] of String = ('None', 'Error', 'NoConnection', 'Sent', 'OK', 'Timeout'); {Do not Localize}
 
 type
   // the connection is provided in these events so that applications can obtain information about the
@@ -196,58 +211,76 @@ type
   TReceiveErrorEvent = procedure(ASender: TObject; AConnection: TIdTCPConnection; AMsg: String; AException: Exception; var VReply: String; var VDropConnection: Boolean) of object;
 
   TIdHL7 = class;
-  TIdHL7ConnCountEvent = procedure (ASender : TIdHL7; AConnCount : integer) of object;
+  TIdHL7ConnCountEvent = procedure(ASender: TIdHL7; AConnCount: integer) of object;
+
+  { TIdHL7KeepAlive }
+
+  TIdHL7KeepAlive = class(TPersistent)
+  protected
+    FUseKeepAlive: Boolean;
+    FIdleTimeMS: Integer;
+    FIntervalMS: Integer;
+  public
+    procedure Assign(Source: TPersistent); override;
+  published
+    property UseKeepAlive: Boolean read FUseKeepAlive write FUseKeepAlive;
+    property IdleTimeMS: Integer read FIdleTimeMS write FIdleTimeMS;
+    property IntervalMS: Integer read FIntervalMS write FIntervalMS;
+  end;
 
   TIdHL7ClientThread = class(TThread)
-  Protected
+  protected
     FClient: TIdTCPClient;
     FCloseEvent: TIdLocalEvent;
     FOwner: TIdHL7;
-    procedure Execute; Override;
+    FLastTraffic: TIdTicks;
+    procedure Execute; override;
     procedure PollStack;
-  Public
-    constructor Create(aOwner: TIdHL7);
-    destructor Destroy; Override;
+    function TimedOut: Boolean;
+  public
+    constructor Create(AOwner: TIdHL7);
+    destructor Destroy; override;
   end;
 
   TIdHL7 = class(TIdBaseComponent)
-  Protected
+  protected
     FLock: TIdCriticalSection;
     FStatus: TIdHL7Status;
     FStatusDesc: String;
 
     // these queues hold messages when running in singlethread mode
-    FMsgQueue: TList;
-    FHndMsgQueue: TList;
+    FMsgQueue: TInterfaceList;
+    FHndMsgQueue: TInterfaceList;
 
     FAddress: String;
     FCommunicationMode: THL7CommunicationMode;
     FConnectionLimit: Word;
     FIPMask: String;
     FIPRestriction: String;
+    FIPMaskVal: UInt32;
+    FIPRestrictionVal: UInt32;
     FIsListener: Boolean;
     FObject: TObject;
     FPreStopped: Boolean;
     FPort: Word;
     FReconnectDelay: LongWord;
-    FTimeOut: Cardinal;
+    FTimeOut: UInt32;
     FReceiveTimeout: LongWord;
+    FServerConnections: TObjectList;
 
     FOnConnect: TNotifyEvent;
     FOnDisconnect: TNotifyEvent;
-    FOnConnCountChange : TIdHL7ConnCountEvent;
+    FOnConnCountChange: TIdHL7ConnCountEvent;
     FOnMessageArrive: TMessageArriveEvent;
     FOnReceiveMessage: TMessageReceiveEvent;
     FOnReceiveError: TReceiveErrorEvent;
 
     FIsServer: Boolean;
-    // current connection count (server only) (can only exceed 1 when mode is not
-    // asynchronous and we are listening)
-    FConnCount: Integer;
     FServer: TIdTCPServer;
     // if we are a server, and the mode is not asynchronous, and we are not listening, then
     // we will track the current server connection with this, so we can initiate sending on it
     FServerConn: TIdTCPConnection;
+    FIsServerExecuting: Boolean;
 
     // A thread exists to connect and receive incoming tcp traffic
     FClientThread: TIdHL7ClientThread;
@@ -255,20 +288,35 @@ type
 
     // these fields are used for handling message response in synchronous mode
     FWaitingForAnswer: Boolean;
-    FWaitStop: TDateTime;
+    FWaitStart: TIdTicks;
     FMsgReply: String;
     FReplyResponse: TSendResponse;
     FWaitEvent: TIdLocalEvent;
 
+    FKeepAlive: TIdHL7KeepAlive;
+    FConnectionTimeout: UInt32;
+
+    FDefStringEncoding: IIdTextEncoding;
+    {$IFDEF STRING_IS_ANSI}
+    FDefAnsiEncoding: IIdTextEncoding;
+    {$ENDIF}
+
     procedure SetAddress(const AValue: String);
+    procedure SetKeepAlive(const AValue: TIdHL7KeepAlive);
     procedure SetConnectionLimit(const AValue: Word);
     procedure SetIPMask(const AValue: String);
     procedure SetIPRestriction(const AValue: String);
     procedure SetPort(const AValue: Word);
     procedure SetReconnectDelay(const AValue: LongWord);
-    procedure SetTimeOut(const AValue: LongWord);
+    procedure SetConnectionTimeout(const AValue: UInt32);
+    procedure SetTimeOut(const AValue: UInt32);
     procedure SetCommunicationMode(const AValue: THL7CommunicationMode);
     procedure SetIsListener(const AValue: Boolean);
+    procedure SetDefStringEncoding(const AValue: IIdTextEncoding);
+    {$IFDEF STRING_IS_ANSI}
+    procedure SetDefAnsiEncoding(const AValue: IIdTextEncoding);
+    {$ENDIF}
+
     function GetStatus: TIdHL7Status;
     function GetStatusDesc: String;
 
@@ -286,72 +334,89 @@ type
     procedure StartClient;
     procedure StopClient;
     procedure DropClientConnection;
+    procedure ReConnectFromTimeout;
 
-    procedure HandleIncoming(const AMsg : String; AConnection: TIdTCPConnection);
+    procedure HandleIncoming(var VBuffer: TIdBytes; AConnection: TIdTCPConnection);
     function HandleMessage(const AMsg: String; AConn: TIdTCPConnection; var VReply: String): Boolean;
     procedure InitComponent; override;
-  Public
+  public
     {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
     constructor Create(AOwner: TComponent); reintroduce; overload;
     {$ENDIF}
-    destructor Destroy; Override;
+    destructor Destroy; override;
 
     procedure EnforceWaitReplyTimeout;
 
     function Going: Boolean;
 
     // for the app to use to hold any related object
-    property ObjTag: TObject Read FObject Write FObject;
+    property ObjTag: TObject read FObject write FObject;
 
     // status
-    property Status: TIdHL7Status Read GetStatus;
-    property StatusDesc: String Read GetStatusDesc;
+    property Status: TIdHL7Status read GetStatus;
+    property StatusDesc: String read GetStatusDesc;
     function Connected: Boolean;
 
-    property IsServer: Boolean Read FIsServer;
+    property IsServer: Boolean read FIsServer;
+
     procedure Start;
     procedure PreStop; // call this in advance to start the shut down process. You do not need to call this
     procedure Stop;
 
-    procedure WaitForConnection(AMaxLength: Integer); // milliseconds
+    procedure WaitForConnection(AMaxLength: UInt32); // milliseconds
 
     // asynchronous.
-    function AsynchronousSend(AMsg: String): TSendResponse;
-    property OnMessageArrive: TMessageArriveEvent Read FOnMessageArrive Write FOnMessageArrive;
+    function AsynchronousSend(const AMsg: String; ASyncConnection: TIdTCPConnection = nil): TSendResponse;
+    property OnMessageArrive: TMessageArriveEvent read FOnMessageArrive write FOnMessageArrive;
 
     // synchronous
-    function SynchronousSend(AMsg: String; var VReply: String): TSendResponse;
-    property OnReceiveMessage: TMessageReceiveEvent Read FOnReceiveMessage Write FOnReceiveMessage;
-    procedure CheckSynchronousSendResult(AResult: TSendResponse; AMsg: String);
+    function SynchronousSend(const AMsg: String; var VReply: String): TSendResponse;
+    property OnReceiveMessage: TMessageReceiveEvent read FOnReceiveMessage write FOnReceiveMessage;
+    procedure CheckSynchronousSendResult(AResult: TSendResponse; const AMsg: String);
 
-    // single thread
-    procedure SendMessage(AMsg: String);
+    // single thread - like SynchronousSend, but don't hold the thread waiting
+    procedure SendMessage(const AMsg: String);
     // you can't call SendMessage again without calling GetReply first
     function GetReply(var VReply: String): TSendResponse;
-    function GetMessage(var VMsg: String): TObject;  // return nil if no messages
+    function GetMessage(var VMsg: String): IInterface;  // return nil if no messages
     // if you don't call SendReply then no reply will be sent.
-    procedure SendReply(AMsgHnd: TObject; AReply: String);
+    procedure SendReply(AMsgHnd: IInterface; const AReply: String);
 
-  Published
+    function HasClientConnection : Boolean;
+    procedure Disconnect;
+
+    property DefStringEncoding: IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
+    {$IFDEF STRING_IS_ANSI}
+    property DefAnsiEncoding: IIdTextEncoding read FDefAnsiEncoding write SetDefAnsiEncoding;
+    {$ENDIF}
+
+    property IsServerExecuting: Boolean read FIsServerExecuting;
+
+  published
     // basic properties
-    property Address: String Read FAddress Write SetAddress;  // leave blank and we will be server
-    property Port: Word Read FPort Write SetPort Default DEFAULT_PORT;
+    property Address: String read FAddress write SetAddress;  // leave blank and we will be server
+    property Port: Word read FPort write SetPort default DEFAULT_PORT;
+
+    property KeepAlive: TIdHL7KeepAlive read FKeepAlive write SetKeepAlive;
 
     // milliseconds - message timeout - how long we wait for other system to reply
-    property TimeOut: LongWord Read FTimeOut Write SetTimeOut Default DEFAULT_TIMEOUT;
+    property TimeOut: UInt32 read FTimeOut write SetTimeOut default DEFAULT_TIMEOUT;
 
     // milliseconds - message timeout. When running cmSingleThread, how long we wait for the application to process an incoming message before giving up
-    property ReceiveTimeout: LongWord Read FReceiveTimeout Write FReceiveTimeout Default DEFAULT_RECEIVE_TIMEOUT;
+    property ReceiveTimeout: LongWord read FReceiveTimeout write FReceiveTimeout default DEFAULT_RECEIVE_TIMEOUT;
 
     // server properties
-    property ConnectionLimit: Word Read FConnectionLimit Write SetConnectionLimit Default DEFAULT_CONN_LIMIT; // ignored if isListener is false
-    property IPRestriction: String Read FIPRestriction Write SetIPRestriction;
-    property IPMask: String Read FIPMask Write SetIPMask;
+    property ConnectionLimit: Word read FConnectionLimit write SetConnectionLimit default DEFAULT_CONN_LIMIT; // ignored if isListener is false
+    property IPRestriction: String read FIPRestriction write SetIPRestriction;
+    property IPMask: String read FIPMask write SetIPMask;
 
     // client properties
 
     // milliseconds - how long we wait after losing connection to retry
-    property ReconnectDelay: LongWord Read FReconnectDelay Write SetReconnectDelay Default DEFAULT_RECONNECT_DELAY;
+    property ReconnectDelay: LongWord read FReconnectDelay write SetReconnectDelay default DEFAULT_RECONNECT_DELAY;
+
+    // milliseconds - how long we allow a connection to be open without traffic (damn firewalls)
+    property ConnectionTimeout: UInt32 read FConnectionTimeout write SetConnectionTimeout default DEFAULT_CONNECTION_TIMEOUT;
 
     // message flow
 
@@ -392,7 +457,7 @@ type
     //       find out what is happening rather than being informed using
     //       an event in a different thread
 
-    property CommunicationMode: THL7CommunicationMode Read FCommunicationMode Write SetCommunicationMode Default DEFAULT_COMM_MODE;
+    property CommunicationMode: THL7CommunicationMode read FCommunicationMode write SetCommunicationMode default DEFAULT_COMM_MODE;
 
     // note that IsListener is not related to which end is client. Either end
     // may make the connection, and thereafter only one end will be the initiator
@@ -401,20 +466,20 @@ type
     // may lead to a state where the client has a phantom connection and it will
     // never find out since it doesn't initiate traffic. In this case, restart
     // the interface if there isn't traffic for a period
-    property IsListener: Boolean Read FIsListener Write SetIsListener Default DEFAULT_IS_LISTENER;
+    property IsListener: Boolean read FIsListener write SetIsListener default DEFAULT_IS_LISTENER;
 
     // useful for application
-    property OnConnect: TNotifyEvent Read FOnConnect Write FOnConnect;
-    property OnDisconnect: TNotifyEvent Read FOnDisconnect Write FOnDisconnect;
+    property OnConnect: TNotifyEvent read FOnConnect write FOnConnect;
+    property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
     // this is called whenever OnConnect and OnDisconnect are called, and at other times, but only when server
     // it will be called after OnConnect and before OnDisconnect
-    property OnConnCountChange : TIdHL7ConnCountEvent read FOnConnCountChange write FOnConnCountChange;
+    property OnConnCountChange: TIdHL7ConnCountEvent read FOnConnCountChange write FOnConnCountChange;
 
     // this is called when an unhandled exception is generated by the
     // hl7 object or the application. It allows the application to
     // construct a useful return error, log the exception, and drop the
     // connection if it wants
-    property OnReceiveError: TReceiveErrorEvent Read FOnReceiveError Write FOnReceiveError;
+    property OnReceiveError: TReceiveErrorEvent read FOnReceiveError write FOnReceiveError;
   end;
 
 implementation
@@ -422,7 +487,7 @@ implementation
 uses
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}
- CoreServices,
+  CoreServices,
     {$ENDIF}
   PosixSysSelect,
   PosixSysTime,
@@ -431,41 +496,99 @@ uses
   IdResourceStringsProtocols;
 
 type
-  TQueuedMessage = class(TIdInterfacedObject)
-  Private
+  IIdQueuedMessage = interface(IInterface)
+    ['{CF62BBC6-784E-4B79-B58B-4930330EB173}']
+    function GetMessage: String;
+    function GetReply: String;
+    procedure SetReply(const AValue: String);
+    procedure SetEvent;
+    procedure Wait;
+
+    property Message: String read GetMessage;
+    property Reply: String read GetReply write SetReply;
+  end;
+
+  TIdQueuedMessage = class(TIdInterfacedObject, IIdQueuedMessage)
+  private
     FEvent: TIdLocalEvent;
     FMsg: String;
     FTimeOut: LongWord;
     FReply: String;
+  public
+    constructor Create(const AMsg: String; ATimeOut: LongWord);
+    destructor Destroy; override;
+
+    function GetMessage: String;
+    function GetReply: String;
+    procedure SetReply(const AValue: String);
+    procedure SetEvent;
     procedure Wait;
-  Public
-    constructor Create(aMsg: String; ATimeOut: LongWord);
-    destructor Destroy; Override;
   end;
 
-  { TQueuedMessage }
+{ TIdHL7KeepAlive }
 
-constructor TQueuedMessage.Create(aMsg: String; ATimeOut: LongWord);
+procedure TIdHL7KeepAlive.Assign(Source: TPersistent);
+var
+  LSource: TIdHL7KeepAlive;
 begin
-  assert(aMsg <> '', 'Attempt to queue an empty message'); {do not localize}
-  assert(ATimeout <> 0, 'Attempt to queue a message with a 0 timeout'); {do not localize}
+  if Source is TIdHl7KeepAlive then begin
+    LSource := TIdHL7KeepAlive(Source);
+    FUseKeepAlive := LSource.UseKeepAlive;
+    FIdleTimeMS := LSource.IdleTimeMS;
+    FIntervalMS := LSource.IntervalMS;
+  end else begin
+    inherited Assign(Source);
+  end;
+end;
+
+{ TIdQueuedMessage }
+
+constructor TIdQueuedMessage.Create(const AMsg: String; ATimeOut: LongWord);
+begin
+  Assert(Length(AMsg) > 0, 'Attempt to queue an empty message'); {do not localize}
+  Assert(ATimeout <> 0, 'Attempt to queue a message with no timeout'); {do not localize}
   inherited Create;
   FEvent := TIdLocalEvent.Create(False, False);
-  FMsg := aMsg;
+  FMsg := AMsg;
   FTimeOut := ATimeOut;
 end;
 
-destructor TQueuedMessage.Destroy;
+destructor TIdQueuedMessage.Destroy;
 begin
-  assert(self <> NIL);
+  Assert(Assigned(Self));
   FreeAndNil(FEvent);
   inherited;
 end;
 
-procedure TQueuedMessage.Wait;
+function TIdQueuedMessage.GetMessage: String;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FEvent));
+  Assert(Assigned(Self));
+  Result := FMsg;
+end;
+
+function TIdQueuedMessage.GetReply: string;
+begin
+  Assert(Assigned(Self));
+  Result := FReply;
+end;
+
+procedure TIdQueuedMessage.SetReply(const AValue: String);
+begin
+  Assert(Assigned(Self));
+  FReply := AValue;
+end;
+
+procedure TIdQueuedMessage.SetEvent;
+begin
+  Assert(Assigned(Self));
+  Assert(Assigned(FEvent));
+  FEvent.SetEvent;
+end;
+
+procedure TIdQueuedMessage.Wait;
+begin
+  Assert(Assigned(Self));
+  Assert(Assigned(FEvent));
   FEvent.WaitFor(FTimeOut);
 end;
 
@@ -473,19 +596,17 @@ end;
 
 constructor EHL7CommunicationError.Create(AnInterfaceName, AMessage: String);
 begin
-  //  assert(AInterfaceName <> '', 'Attempt to create an exception for an unnamed interface')
-  //  assert(AMessage <> '', 'Attempt to create an exception with an empty message')
-  //  actually, we do not enforce either of these conditions, though they should both be true,
-  //  since we are already raising an exception
+  //Assert(AInterfaceName <> '', 'Attempt to create an exception for an unnamed interface')
+  //Assert(AMessage <> '', 'Attempt to create an exception with an empty message')
+  // actually, we do not enforce either of these conditions, though they should both be true,
+  // since we are already raising an exception
   FInterfaceName := AnInterfaceName;
-  if FInterfaceName <> '' then         {do not localize}
-    begin
-    inherited Create('[' + AnInterfaceName + '] ' + AMessage)
-    end
-  else
-    begin
+  if FInterfaceName <> '' then
+  begin
+    inherited Create('[' + AnInterfaceName + '] ' + AMessage); {do not localize}
+  end else begin
     inherited Create(AMessage);
-    end
+  end;
 end;
 
 { TIdHL7 }
@@ -501,10 +622,8 @@ procedure TIdHL7.InitComponent;
 begin
   inherited;
 
-  raise EIdException.create(RSHL7Broken); {do not localize}
-
   // partly redundant initialization of properties
-
+  FKeepAlive := TIdHL7KeepAlive.Create;
   FIsListener := DEFAULT_IS_LISTENER;
   FCommunicationMode := DEFAULT_COMM_MODE;
   FTimeOut := DEFAULT_TIMEOUT;
@@ -515,39 +634,47 @@ begin
   FIPRestriction := NULL_IP;
   FAddress := DEFAULT_ADDRESS;
   FPort := DEFAULT_PORT;
-  FOnReceiveMessage := NIL;
-  FOnConnect := NIL;
-  FOnDisconnect := NIL;
-  FObject := NIL;
+  FOnReceiveMessage := nil;
+  FOnConnect := nil;
+  FOnDisconnect := nil;
+  FObject := nil;
 
   // initialise status
   FStatus := IsStopped;
   FStatusDesc := RSHL7StatusStopped;
 
   // build internal infrastructure
-  Flock := TIdCriticalSection.Create;
-  FConnCount := 0;
-  FServer := NIL;
-  FServerConn := NIL;
-  FClientThread := NIL;
-  FClient := NIL;
-  FMsgQueue := TList.Create;
-  FHndMsgQueue := TList.Create;
+  FLock := TIdCriticalSection.Create;
+  FServer := nil;
+  FServerConn := nil;
+  FClientThread := nil;
+  FClient := nil;
+  FMsgQueue := TInterfaceList.Create;
+  FHndMsgQueue := TInterfaceList.Create;
   FWaitingForAnswer := False;
-  FMsgReply := '';   {do not localize}
+  FMsgReply := '';
   FReplyResponse := srNone;
   FWaitEvent := TIdLocalEvent.Create(False, False);
+  FServerConnections := TObjectList.Create;
+  FServerConnections.OwnsObjects := False;
+
+  FDefStringEncoding := IndyTextEncoding_UTF8;
+  {$IFDEF STRING_IS_ANSI}
+  FDefAnsiEncoding := IndyTextEncoding_OSDefault;
+  {$ENDIF}
 end;
 
 destructor TIdHL7.Destroy;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   try
     if Going then
     begin
       Stop;
     end;
   finally
+    FreeAndNil(FServerConnections);
+    FreeAndNil(FKeepAlive);
     FreeAndNil(FMsgQueue);
     FreeAndNil(FHndMsgQueue);
     FreeAndNil(FWaitEvent);
@@ -560,156 +687,194 @@ end;
   Property Servers
  ==========================================================}
 
+procedure TIdHL7.SetDefStringEncoding(const AValue: IIdTextEncoding);
+var
+  LEncoding: IIdTextEncoding;
+begin
+  Assert(Assigned(Self));
+  if Going then
+  begin
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['DefStringEncoding'])); {do not localize}
+  end;
+  if FDefStringEncoding <> AValue then
+  begin
+    LEncoding := AValue;
+    EnsureEncoding(LEncoding, encUTF8);
+    FDefStringEncoding := LEncoding;
+  end;
+end;
+
+{$IFDEF STRING_IS_ANSI}
+procedure TIdHL7.SetDefAnsiEncoding(const AValue: IIdTextEncoding);
+var
+  LEncoding: IIdTextEncoding;
+begin
+  Assert(Assigned(Self));
+  if Going then
+  begin
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['DefAnsiEncoding'])); {do not localize}
+  end;
+  if FDefAnsiEncoding <> AValue then
+  begin
+    LEncoding := AValue;
+    EnsureEncoding(LEncoding, encOSDefault);
+    FDefAnsiEncoding := LEncoding;
+  end;
+end;
+{$ENDIF}
+
 procedure TIdHL7.SetAddress(const AValue: String);
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   // we don't make any assertions about AValue - will be '' if we are a server
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Address']));   {do not localize??}
-    end;
+  end;
   FAddress := AValue;
 end;
 
 procedure TIdHL7.SetConnectionLimit(const AValue: Word);
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   // no restrictions on AValue
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['ConnectionLimit'])); {do not localize??}
-    end;
+  end;
   FConnectionLimit := AValue;
 end;
 
 procedure TIdHL7.SetIPMask(const AValue: String);
 begin
-  assert(Assigned(Self));
-  // to do: enforce that AValue is a valid Subnet mask
+  Assert(Assigned(Self));
+  // TODO: enforce that AValue is a valid Subnet mask
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['IP Mask']));  {do not localize??}
-    end;
+  end;
+  FIPMaskVal := IPv4ToUInt32(AValue);
   FIPMask := AValue;
 end;
 
-procedure TIdHL7.SetIPRestriction(const AValue: String);
+procedure TIdHL7.SetIPRestriction(const AValue: string);
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   // to do: enforce that AValue is a valid IP address range
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['IP Restriction']));    {do not localize??}
-    end;
+  end;
+  FIPRestrictionVal := IPv4ToUInt32(AValue);
   FIPRestriction := AValue;
 end;
 
 procedure TIdHL7.SetPort(const AValue: Word);
 begin
-  assert(Assigned(Self));
-  assert(AValue <> 0, 'Attempt to use Port 0 for HL7 Communications'); {do not localize}
+  Assert(Assigned(Self));
+  Assert(AValue <> 0, 'Attempt to use Port 0 for HL7 Communications'); {do not localize}
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Port'])); {do not localize}
-    end;
+  end;
   FPort := AValue;
 end;
 
 procedure TIdHL7.SetReconnectDelay(const AValue: LongWord);
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   // any value for AValue is accepted, although this may not make sense
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Reconnect Delay'])); {do not localize}
-    end;
+  end;
   FReconnectDelay := AValue;
 end;
 
-procedure TIdHL7.SetTimeOut(const AValue: LongWord);
+procedure TIdHL7.SetTimeOut(const AValue: UInt32);
 begin
-  assert(Assigned(Self));
-  assert(FTimeout > 0, 'Attempt to configure TIdHL7 with a Timeout of 0'); {do not localize}
-  // we don't fucntion at all if timeout is 0, though there is circumstances where it's not relevent
+  Assert(Assigned(Self));
+  Assert(AValue > 0, 'Attempt to configure TIdHL7 with a TimeOut of 0'); {do not localize}
+  // we don't function at all if timeout is 0, though there are circumstances where it's not relevent
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Time Out']));          {do not localize??}
-    end;
+  end;
   FTimeOut := AValue;
 end;
 
 procedure TIdHL7.SetCommunicationMode(const AValue: THL7CommunicationMode);
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   Assert((AValue >= Low(THL7CommunicationMode)) and (AValue <= High(THL7CommunicationMode)), 'Value for TIdHL7.CommunicationMode not in range'); {do not localize}
   // only could arise if someone is typecasting?
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Communication Mode'])); {do not localize}
-    end;
+  end;
   FCommunicationMode := AValue;
 end;
 
 procedure TIdHL7.SetIsListener(const AValue: Boolean);
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   // AValue isn't checked
   if Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['IsListener'])); {do not localize}
-    end;
+  end;
   FIsListener := AValue;
 end;
 
 function TIdHL7.GetStatus: TIdHL7Status;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
     Result := FStatus;
   finally
     FLock.Leave;
-    end;
+  end;
 end;
 
-function TIdHL7.Connected: Boolean;
+function TIdHL7.Connected: boolean;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
-    Result := FStatus = IsConnected;
+    Result := (FStatus = IsConnected);
   finally
     FLock.Leave;
-    end;
+  end;
 end;
 
 function TIdHL7.GetStatusDesc: String;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
     Result := FStatusDesc;
   finally
     FLock.Leave;
-    end;
+  end;
 end;
 
 procedure TIdHL7.InternalSetStatus(const AStatus: TIdHL7Status; ADesc: String);
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   Assert((AStatus >= Low(TIdHL7Status)) and (AStatus <= High(TIdHL7Status)), 'Value for TIdHL7.CommunicationMode not in range'); {do not localize}
   // ADesc is allowed to be anything at all
-  assert(Assigned(FLock));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
     FStatus := AStatus;
     FStatusDesc := ADesc;
   finally
     FLock.Leave;
-    end;
+  end;
 end;
 
 {==========================================================
@@ -720,97 +885,99 @@ procedure TIdHL7.Start;
 var
   LStatus: TIdHL7Status;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   LStatus := GetStatus;
   if LStatus = IsUnusable then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, RSHL7NotFailedToStop);
-    end;
+  end;
   if LStatus <> IsStopped then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, RSHL7AlreadyStarted);
-    end;
+  end;
   if FCommunicationMode = cmUnknown then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, RSHL7ModeNotSet);
-    end;
+  end;
   if FCommunicationMode = cmAsynchronous then
-    begin
+  begin
     if not Assigned(FOnMessageArrive) then
-      begin
+    begin
       raise EHL7CommunicationError.Create(Name, RSHL7NoAsynEvent);
-      end;
     end;
+  end;
   if (FCommunicationMode = cmSynchronous) and IsListener then
-    begin
+  begin
     if not Assigned(FOnReceiveMessage) then
-      begin
+    begin
       raise EHL7CommunicationError.Create(Name, RSHL7NoSynEvent);
-      end;
     end;
+  end;
   FIsServer := (FAddress = '');
-  if FIsServer then
-    begin
-    StartServer
-    end
-  else
-    begin
-    StartClient;
-    end;
   FPreStopped := False;
   FWaitingForAnswer := False;
+  if FIsServer then
+  begin
+    StartServer;
+  end else begin
+    StartClient;
+  end;
 end;
 
 procedure TIdHL7.PreStop;
-  procedure JolList(l: TList);
+
+  procedure JoltList(list: TInterfaceList);
   var
     i: Integer;
+  begin
+    for i := 0 to list.Count - 1 do
     begin
-    for i := 0 to l.Count - 1 do
-      begin
-      TQueuedMessage(l[i]).FEvent.SetEvent;
-      end;
+      IIdQueuedMessage(list[i]).SetEvent;
     end;
+  end;
+
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   if FCommunicationMode = cmSingleThread then
-    begin
-    assert(Assigned(FLock));
-    assert(Assigned(FMsgQueue));
-    assert(Assigned(FHndMsgQueue));
+  begin
+    Assert(Assigned(FLock));
+    Assert(Assigned(FMsgQueue));
+    Assert(Assigned(FHndMsgQueue));
     FLock.Enter;
     try
-      JolList(FMsgQueue);
-      JolList(FHndMsgQueue);
+      JoltList(FMsgQueue);
+      JoltList(FHndMsgQueue);
     finally
       FLock.Leave;
-      end;
     end;
+  end
+  else if FCommunicationMode = cmSynchronous then
+  begin
+    Assert(Assigned(FWaitEvent));
+    FWaitEvent.SetEvent;
+  end;
   FPreStopped := True;
 end;
 
 procedure TIdHL7.Stop;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   if not Going then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, RSHL7AlreadyStopped);
-    end;
+  end;
 
   if not FPreStopped then
-    begin
+  begin
     PreStop;
     IndySleep(10); // give other threads a chance to clean up
-    end;
+  end;
 
-  if FIsServer then
-    begin
-    StopServer
-    end
-  else
-    begin
+  if FIsServer then begin
+    StopServer;
+  end else begin
     StopClient;
-    end;
+  end;
 end;
 
 
@@ -828,195 +995,278 @@ function TIdHL7.Going: Boolean;
 var
   LStatus: TIdHL7Status;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   LStatus := GetStatus;
   Result := (LStatus <> IsStopped) and (LStatus <> IsUnusable);
 end;
 
-procedure TIdHL7.WaitForConnection(AMaxLength: Integer);
+procedure TIdHL7.WaitForConnection(AMaxLength: UInt32);
 var
-  LStopWaiting: TDateTime;
+  LStartTime: TIdTicks;
 begin
-  LStopWaiting := Now + (AMaxLength * ((1 / (24 * 60)) / (60 * 1000)));
-  while not Connected and (LStopWaiting > Now) do
+  LStartTime := Ticks64;
+  while (not Connected) and (GetElapsedTicks(LStartTime) < AMaxLength) do begin
     IndySleep(50);
+  end;
 end;
 
-procedure TIdHL7.CheckSynchronousSendResult(AResult: TSendResponse; AMsg: String);
+procedure TIdHL7.CheckSynchronousSendResult(AResult: TSendResponse; const AMsg: String);
 begin
   case AResult of
     srNone:
-      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalsrNone);
+      raise EHL7CommunicationError.Create(Name, RSHL7ErrInternalsrNone);
     srError:
       raise EHL7CommunicationError.Create(Name, AMsg);
     srNoConnection:
-      raise EHL7CommunicationError.Create(Name,RSHL7ErrNotConn);
+      raise EHL7CommunicationError.Create(Name, RSHL7ErrNotConn);
     srSent:
       // cause this should only be returned asynchronously
-      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalsrSent);
-    srOK:; // all ok
+      raise EHL7CommunicationError.Create(Name, RSHL7ErrInternalsrSent);
+    srOK: ; // all ok
     srTimeout:
-      raise EHL7CommunicationError.Create(Name,RSHL7ErrNoResponse);
+      raise EHL7CommunicationError.Create(Name, RSHL7ErrNoResponse);
     else
-      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalUnknownVal + IntToStr(Ord(AResult))); {do not localize}
+      raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7ErrInternalUnknownVal, [Ord(AResult)]));
+  end;
+end;
+
+procedure TIdHL7.SetConnectionTimeout(const AValue: UInt32);
+begin
+  Assert(Assigned(Self));
+  // any value for AValue is accepted, although this may not make sense
+  if Going then
+  begin
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Connection Timeout']));   {do not localize??}
+  end;
+  FConnectionTimeout := AValue;
+end;
+
+procedure TIdHL7.ReConnectFromTimeout;
+var
+  iLoop : Integer;
+begin
+  Assert(Assigned(Self));
+  Assert(not FIsServer, 'Cannot try to reconnect from a timeout if acting as a server'); {do not localize}
+  StartClient;
+  IndySleep(50);
+  iLoop := 0;
+  while (not Connected) and (iLoop < 100) and (not FPreStopped) do
+  begin
+    IndySleep(100);
+    Inc(iLoop);
+  end;
+  // TODO: raise an error if not connected or prestopped?
+end;
+
+procedure TIdHL7.SetKeepAlive(const AValue: TIdHL7KeepAlive);
+begin
+  if Going then
+  begin
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['KeepAlive']));   {do not localize??}
+  end;
+  FKeepAlive.Assign(AValue);
+end;
+
+function TIdHL7.HasClientConnection: Boolean;
+begin
+  Result := Assigned(FClientThread);
+end;
+
+procedure TIdHL7.Disconnect;
+var
+  i: Integer;
+begin
+  if FIsServer then
+  begin
+    FLock.Enter;
+    try
+      for i := 0 to FServerConnections.Count - 1 do begin
+        TIdContext(FServerConnections[i]).Connection.Disconnect;
+      end;
+    finally
+      FLock.Leave;
     end;
+  end
+  else if Assigned(FClientThread) then begin
+    FClientThread.FClient.Disconnect;
+  end;
 end;
 
 procedure TIdHL7.CheckServerParameters;
 begin
-  assert(Assigned(Self));
-  if (FCommunicationMode = cmAsynchronous) or not FIsListener then
-    begin
+  Assert(Assigned(Self));
+  if (FCommunicationMode = cmAsynchronous) or (not FIsListener) then
+  begin
     FConnectionLimit := 1;
-    end;
+  end;
 
   if (FPort < 1) then // though we have already ensured that this cannot happen
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7InvalidPort, [FPort]));
-    end;
+  end;
 end;
 
 procedure TIdHL7.StartServer;
+var
+  i: Integer;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   CheckServerParameters;
-  FServer := TIdTCPServer.Create(NIL);
+  FServer := TIdTCPServer.Create(nil);
   try
     FServer.DefaultPort := FPort;
-    Fserver.OnConnect := ServerConnect;
+    FServer.OnConnect := ServerConnect;
     FServer.OnExecute := ServerExecute;
     FServer.OnDisconnect := ServerDisconnect;
+    // RLebeau: this unit does not currently support restriction of IPv6 clients, so
+    // adding an explicit IPv4 binding to prevent TIdTCPServer from creating an implicit
+    // IPv6 binding on systems that allow dual IPv4/IPv6 bindings on the same ip/port...
+    FServer.Bindings.Add.IPVersion := Id_IPv4; // TODO: support IPv6 clients?
     FServer.Active := True;
-    InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
-  except
-    on e:
-    Exception do
-      begin
-      InternalSetStatus(IsStopped, IndyFormat(RSHL7StatusFailedToStart, [e.message]));
-      FreeAndNil(FServer);
-      raise;
+    if FKeepAlive.UseKeepAlive then
+    begin
+      for i := 0 to FServer.Bindings.Count - 1 do begin
+        FServer.Bindings[i].SetKeepAliveValues(True, FKeepAlive.IdleTimeMS, FKeepAlive.IntervalMS);
       end;
     end;
+    InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
+  except
+    on e: Exception do
+    begin
+      InternalSetStatus(IsStopped, IndyFormat(RSHL7StatusFailedToStart, [e.Message]));
+      FreeAndNil(FServer);
+      raise;
+    end;
+  end;
 end;
 
 procedure TIdHL7.StopServer;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   try
     FServer.Active := False;
     FreeAndNil(FServer);
     InternalSetStatus(IsStopped, RSHL7StatusStopped);
   except
-    on e:
-    Exception do
-      begin
+    on e: Exception do
+    begin
       // somewhat arbitrary decision: if for some reason we fail to shutdown,
       // we will stubbornly refuse to work again.
-      InternalSetStatus(IsUnusable, IndyFormat(RSHL7StatusFailedToStop, [e.message]));
-      FServer := NIL;
-      raise
-      end;
+      InternalSetStatus(IsUnusable, IndyFormat(RSHL7StatusFailedToStop, [e.Message]));
+      FServer := nil; // Note: potential memory leak!
+      raise;
     end;
+  end;
 end;
 
 procedure TIdHL7.ServerConnect(AContext: TIdContext);
 var
-  LNotify : Boolean;
-  LConnCount : integer;
-  LValid : Boolean;
+  LNotify: Boolean;
+  LConnCount: Integer;
+  LValid: Boolean;
+  LIPStr: String;
+  LIPVal: UInt32;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(AContext));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(AContext));
+  Assert(Assigned(AContext.Binding));
+  Assert(Assigned(FLock));
+  LConnCount := 0;
+  LIPStr := AContext.Binding.PeerIP;
+  LIPVal := IPv4ToUInt32(LIPStr);
+  if ((LIPVal xor FIPRestrictionVal) and FIPMaskVal) <> 0 then
+  begin
+    raise Exception.Create('Denied'); {do not localize}
+  end;
   FLock.Enter;
   try
-    LNotify := FConnCount = 0;
-    inc(FConnCount);
-    LConnCount := FConnCount;
-    // it would be better to stop getting here in the case of an invalid connection
-    // cause here we drop it - nasty for the client. To be investigated later
-    LValid := FConnCount <= FConnectionLimit;
-    if (FConnCount = 1) and (FCommunicationMode <> cmAsynchronous) and not IsListener then
+    LConnCount := FServerConnections.Count;
+    LNotify := (LConnCount = 0);
+    LValid := (LConnCount < FConnectionLimit);
+    if LValid then
+    begin
+      if (LConnCount = 0) then
       begin
-      FServerConn := AContext.Connection;
+        FServerConn := AContext.Connection;
+      end else begin
+        FServerConn := nil; // RLebeau: why?
       end;
-    if LNotify then
+      FServerConnections.Add(AContext);
+      Inc(LConnCount);
+      if LNotify then
       begin
-      InternalSetStatus(IsConnected, RSHL7StatusConnected);
+        InternalSetStatus(IsConnected, RSHL7StatusConnected);
       end;
+      AContext.Connection.IOHandler.ReadTimeout := FReceiveTimeout;
+    end;
   finally
     FLock.Leave;
-    end;
+  end;
+
   if LValid then
-    begin
-    if LNotify and Assigned(FOnConnect) then
-      begin
+  begin
+    if LNotify and Assigned(FOnConnect) then begin
       FOnConnect(self);
-      end;
-    if Assigned(FOnConnCountChange) and (FConnectionLimit <> 1) then
-      begin
-      FOnConnCountChange(Self, LConnCount);
-      end;
-    end
-  else
-    begin
-    // Thread exceeds connection limit
-    AContext.Connection.Disconnect;
     end;
+    if Assigned(FOnConnCountChange) and (FConnectionLimit <> 1) then begin
+      FOnConnCountChange(Self, LConnCount);
+    end;
+  end else begin
+    // Thread exceeds connection limit
+    // it would be better to stop getting here in the case of an invalid connection
+    // cause here we drop it - nasty for the client. To be investigated later
+    AContext.Connection.Disconnect;
+  end;
 end;
 
 procedure TIdHL7.ServerDisconnect(AContext: TIdContext);
 var
   LNotify: Boolean;
-  LConnCount : integer;
+  LConnCount: Integer;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(AContext));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(AContext));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
-    dec(FConnCount);
-    LNotify := FConnCount = 0;
-    LConnCount := FConnCount;
+    FServerConnections.Remove(AContext);
+    LConnCount := FServerConnections.Count;
+    LNotify := (LConnCount = 0);
+
     if AContext.Connection = FServerConn then
-      begin
-      FServerConn := NIL;
-      end;
+    begin
+      FServerConn := nil;
+    end;
     if LNotify then
-      begin
+    begin
       InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
-      end;
+    end;
   finally
     FLock.Leave;
-    end;
-  if Assigned(FOnConnCountChange)  and (FConnectionLimit <> 1) then
-    begin
-    FOnConnCountChange(Self, LConnCount);
-    end;
-  if LNotify and Assigned(FOnDisconnect) then
-    begin
-    FOnDisconnect(self);
-    end;
+  end;
+  //Note events outside of critical section as they are expected to have critical thread save logic build into them
+  if Assigned(FOnConnCountChange) and (FConnectionLimit <> 1) then begin
+    FOnConnCountChange(Self, LConnCount); //Current causes Thread to freeze if called event does something like write to memobox even if in a critical section
+  end;
+  if LNotify and Assigned(FOnDisconnect) then begin
+    FOnDisconnect(Self);  //Current causes Thread to freeze if called event does something like write to memobox even if in a critical section
+  end;
 end;
 
 procedure TIdHL7.ServerExecute(AContext: TIdContext);
 var
-  s : String;
+  LBuffer: TIdBytes;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(AContext));
-
+  Assert(Assigned(Self));
+  Assert(Assigned(AContext));
+  FIsServerExecuting := True;
   try
     // 1. prompt the network for content.
-    AContext.Connection.IOHandler.ReadLn(MSG_START); // throw this content away
-    if Assigned(AContext.Connection.IOHandler) then
-      begin
-      s := AContext.Connection.IOHandler.ReadLn(MSG_END);
-      if length(s) > 0 then
-        begin
-        HandleIncoming(s, AContext.Connection);
-        end;
-      end;
+    while Assigned(AContext.Connection.IOHandler) do
+    begin
+      AContext.Connection.IOHandler.ReadBytes(LBuffer, -1, True);
+      HandleIncoming(LBuffer, AContext.Connection);
+    end;
   except
     try
       // well, there was some network error. We aren't sure what it
@@ -1027,19 +1277,22 @@ begin
     except
     end;
   end;
+  FIsServerExecuting := False;
 end;
+
 
 procedure TIdHL7.DropServerConnection;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
-    if Assigned(FServerConn) then
+    if Assigned(FServerConn) then begin
       FServerConn.Disconnect;
+    end;
   finally
     FLock.Leave;
-    end;
+  end;
 end;
 
 
@@ -1049,110 +1302,118 @@ end;
 
 procedure TIdHL7.CheckClientParameters;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   if (FPort < 1) then
-    begin
+  begin
     raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7InvalidPort, [FPort]));
-    end;
+  end;
 end;
 
 procedure TIdHL7.StartClient;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   CheckClientParameters;
-  FClientThread := TIdHL7ClientThread.Create(self);
+  FClientThread := TIdHL7ClientThread.Create(Self);
   InternalSetStatus(isConnecting, RSHL7StatusConnecting);
 end;
 
 procedure TIdHL7.StopClient;
 var
   LFinished: Boolean;
-  LWaitStop: LongWord;
+  LStartTime: TIdTicks;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
-    FClientThread.Terminate;
-    FClientThread.FClient.Disconnect;
-    FClientThread.FCloseEvent.SetEvent;
+    if Assigned(FClientThread) then
+    begin
+      FClientThread.Terminate;
+      FClientThread.FClient.Disconnect;
+      FClientThread.FCloseEvent.SetEvent;
+    end else begin
+      InternalSetStatus(isStopped, 'Stopped'); {do not localize}
+    end;
   finally
     FLock.Leave;
-    end;
-  LWaitStop := Ticks + 5000;
+  end;
+  LStartTime := Ticks64;
   repeat
     LFinished := (GetStatus = IsStopped);
-    if not LFinished then
-      begin
+    if not LFinished then begin
       IndySleep(10);
-      end;
-  until LFinished or (Ticks > LWaitStop);
+    end;
+  until LFinished or (GetElapsedTicks(LStartTime) > WAIT_STOP);
   if GetStatus <> IsStopped then
-    begin
+  begin
     // for some reason the client failed to shutdown. We will stubbornly refuse to work again
     InternalSetStatus(IsUnusable, IndyFormat(RSHL7StatusFailedToStop, [RSHL7ClientThreadNotStopped]));
-    end;
+  end;
 end;
 
 
 procedure TIdHL7.DropClientConnection;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
-    if Assigned(FClientThread) and Assigned(FClientThread.FClient) then
-      begin
+    if Assigned(FClientThread) then begin
       FClientThread.FClient.Disconnect;
-      end
-    else
-      begin
+    end else begin
       // This may happen validly because both ends are trying to drop the connection simultaineously
-      end;
+    end;
   finally
     FLock.Leave;
-    end;
+  end;
 end;
 
 { TIdHL7ClientThread }
 
-constructor TIdHL7ClientThread.Create(aOwner: TIdHL7);
+constructor TIdHL7ClientThread.Create(AOwner: TIdHL7);
 begin
-  assert(Assigned(AOwner));
-  FOwner := aOwner;
+  Assert(Assigned(AOwner));
+  FOwner := AOwner;
   FCloseEvent := TIdLocalEvent.Create(True, False);
+  FClient := TIdTCPClient.Create(nil);
+  FClient.Host := AOwner.Address;
+  FClient.Port := AOwner.Port;
+  FClient.ReadTimeout := AOwner.ReceiveTimeout;
+  FClient.UseNagle := True;
   inherited Create(False);
   FreeOnTerminate := True;
 end;
 
 destructor TIdHL7ClientThread.Destroy;
 begin
-  assert(Assigned(Self));
-  assert(Assigned(FOwner));
-  assert(Assigned(FOwner.FLock));
-  FreeAndNil(FCloseEvent);
+  Assert(Assigned(Self));
+  Assert(Assigned(FOwner));
+  Assert(Assigned(FOwner.FLock));
   try
     FOwner.FLock.Enter;
     try
-      FOwner.FClientThread := NIL;
-      FOwner.InternalSetStatus(isStopped, RSHL7StatusStopped);
+      FOwner.FClientThread := nil;
+      if not TimedOut then begin
+        FOwner.InternalSetStatus(isStopped, RSHL7StatusStopped);
+      end;
     finally
       FOwner.FLock.Leave;
-      end;
+    end;
   except
     // it's really vaguely possible that the owner
     // may be dead before we are. If that is the case, we blow up here.
     // who cares.
-    end;
+  end;
+  FreeAndNil(FCloseEvent);
+  FreeAndNil(FClient);
   inherited;
 end;
 
 procedure TIdHL7ClientThread.PollStack;
 var
-  LBuffer: String;
+  LBuffer: TIdBytes;
 begin
-  assert(Assigned(Self));
-  LBuffer := '';
+  Assert(Assigned(Self));
   repeat
     // we don't send here - we just poll the stack for content
     // if the application wants to terminate us at this point,
@@ -1164,15 +1425,11 @@ begin
     // indy otherwise the client thread will terminate
 
     try
-      FClient.IOHandler.ReadLn(MSG_START); // we toss this content
-      if Assigned(FClient.IOHandler) then
-        begin
-        LBuffer := FClient.IOHandler.ReadLn(MSG_END);
-        if LBuffer <> '' then
-          begin
-          FOwner.HandleIncoming(LBuffer, FClient);
-          end;
-        end;
+      while Assigned(FClient.IOHandler) do
+      begin
+        FClient.IOHandler.ReadBytes(LBuffer, -1, True);
+        FOwner.HandleIncoming(LBuffer, FClient);
+      end;
     except
       try
         // well, there was some network error. We aren't sure what it
@@ -1181,115 +1438,246 @@ begin
         // to review: what happens to the error messages?
         FClient.Disconnect;
       except
-        end;
       end;
-  until Terminated or not FClient.Connected;
+    end;
+  until Terminated or (not FClient.Connected);
+end;
+
+const
+  SECOND_LENGTH = 1000;
+  MINUTE_LENGTH = SECOND_LENGTH * 60;
+  HOUR_LENGTH = MINUTE_LENGTH * 60;
+  DAY_LENGTH = HOUR_LENGTH * 24;
+
+function DescribePeriod(Period: LongWord): String;
+begin
+  if Period < SECOND_LENGTH then begin
+    Result := IntToStr(Period) + 'ms' {do not localize}
+  end
+  else if Period < (180 * SECOND_LENGTH) then begin
+    Result := IntToStr(trunc(Period / SECOND_LENGTH)) + 'sec' {do not localize}
+  end
+  else if Period < (180 * MINUTE_LENGTH) then begin
+    Result := IntToStr(trunc(Period / MINUTE_LENGTH)) + 'min' {do not localize}
+  end
+  else if Period < (72 * HOUR_LENGTH) then begin
+    Result := IntToStr(trunc(Period / HOUR_LENGTH)) + 'hr' {do not localize}
+  end else begin
+    Result := IntToStr(trunc(Period / DAY_LENGTH)) + ' days'; {do not localize}
+  end;
 end;
 
 procedure TIdHL7ClientThread.Execute;
-var
-  LRecTime: TDateTime;
 begin
-  assert(Assigned(Self));
+  Assert(Assigned(Self));
   try
-    FClient := TIdTCPClient.Create(NIL);
-    try
-      FClient.Host := FOwner.FAddress;
-      FClient.Port := FOwner.FPort;
+    repeat
+      // try to connect. Try indefinitely but wait Owner.FReconnectDelay
+      // between attempts. Problems: how long does Connect take?
       repeat
-        // try to connect. Try indefinitely but wait Owner.FReconnectDelay
-        // between attempts. Problems: how long does Connect take?
-        repeat
-          FOwner.InternalSetStatus(IsConnecting, rsHL7StatusConnecting);
-          try
-            FClient.Connect;
-          except
-            on e:
-            Exception do
-              begin
-              LRecTime := Now + ((FOwner.FReconnectDelay / 1000) * {second length} (1 / (24 * 60 * 60)));
-              //not we can take more liberties with the time and date output because it's only
-              //for human consumption (probably in a log
-              FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DateTimeToStr(LRecTime), e.message])); {do not localize??}
-              end;
-            end;
-          if not Terminated and not FClient.Connected then
-            begin
-            FCloseEvent.WaitFor(FOwner.FReconnectDelay);
-            end;
-        until Terminated or FClient.Connected;
-        if Terminated then
+        FOwner.InternalSetStatus(IsConnecting, rsHL7StatusConnecting);
+        try
+          FClient.Connect;
+          Break;
+        except
+          on e: Exception do
           begin
-          exit;
+            //now we can take more liberties with the time and date output because it's only
+            //for human consumption (probably in a log
+            FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DescribePeriod(FOwner.FReconnectDelay), e.Message]));
           end;
+        end;
+        if Terminated then Break;
+        // TODO: run this in a smaller loop checking Terminated on each iteration,
+        // or hook up this event to TThread.TerminatedSet()...
+        FCloseEvent.WaitFor(FOwner.FReconnectDelay);
+      until Terminated;
 
+      if Terminated then begin
+        Exit;
+      end;
+
+      if FOwner.FKeepAlive.UseKeepAlive then begin
+        FClient.Socket.Binding.SetKeepAliveValues(True, FOwner.FKeepAlive.IdleTimeMS, FOwner.FKeepAlive.IntervalMS);
+      end;
+
+      FLastTraffic := Ticks64;
+
+      FOwner.FLock.Enter;
+      try
+        FOwner.FClient := FClient;
+        FOwner.InternalSetStatus(IsConnected, rsHL7StatusConnected);
+      finally
+        FOwner.FLock.Leave;
+      end;
+
+      if Assigned(FOwner.FOnConnect) then begin
+        FOwner.FOnConnect(FOwner);
+      end;
+
+      try
+        PollStack;
+      finally
         FOwner.FLock.Enter;
         try
-          FOwner.FClient := FClient;
-          FOwner.InternalSetStatus(IsConnected, rsHL7StatusConnected);
+          FOwner.FClient := nil;
+          if TimedOut then begin
+            FOwner.InternalSetStatus(isTimedOut, RSHL7StatusTimedout);
+          end else begin
+            FOwner.InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
+          end;
         finally
           FOwner.FLock.Leave;
-          end;
-        if Assigned(FOwner.FOnConnect) then
-          begin
-          FOwner.FOnConnect(FOwner);
-          end;
-        try
-          PollStack;
-        finally
-          FOwner.FLock.Enter;
-          try
-            FOwner.FClient := NIL;
-            FOwner.InternalSetStatus(IsNotConnected, RSHL7StatusNotConnected);
-          finally
-            FOwner.FLock.Leave;
-            end;
-          if Assigned(FOwner.FOnDisconnect) then
-            begin
-            FOwner.FOnDisconnect(FOwner);
-            end;
-          end;
-        if not Terminated then
-          begin
-          // we got disconnected. ReconnectDelay applies.
-          FCloseEvent.WaitFor(FOwner.FReconnectDelay);
-          end;
-      until terminated;
-    finally
-      FreeAndNil(FClient);
+        end;
+        if Assigned(FOwner.FOnDisconnect) then begin
+          FOwner.FOnDisconnect(FOwner);
+        end;
       end;
+      if TimedOut then begin
+        FClient.Disconnect;
+      end
+      else if not Terminated then
+      begin
+        // we got disconnected. ReconnectDelay applies.
+        FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DescribePeriod(FOwner.FReconnectDelay), 'Disconnected'])); {do not localize}
+        // TODO: run this in a smaller loop checking Terminated on each iteration,
+        // or hook up this event to TThread.TerminatedSet()...
+        FCloseEvent.WaitFor(FOwner.FReconnectDelay);
+      end;
+    until Terminated or (not FOwner.IsListener and TimedOut);
   except
-    on e:
-    Exception do
+    on e: Exception do
+    begin
       // presumably some comms or indy related exception
-      // there's not really anyplace good to put this????
+      // there's not really any good place to put this????
     end;
+  end;
+end;
+
+function TIdHL7ClientThread.TimedOut: boolean;
+begin
+  Result := (FOwner.FConnectionTimeout > 0) and (GetElapsedTicks(FLastTraffic) > FOwner.FConnectionTimeout);
 end;
 
 {==========================================================
   Internal process management
  ==========================================================}
 
-procedure TIdHL7.HandleIncoming(const AMsg : String; AConnection: TIdTCPConnection);
+function EncodeHL7Message(const AMsg: String; AByteEncoding: IIdTextEncoding
+  {$IFDEF STRING_IS_ANSI}; AAnsiEncoding: IIdTextEncoding{$ENDIF}
+  ): TIdBytes;
 var
-  LReply: String;
+  LMsgLen, LIndex: Integer;
+  {$IFDEF STRING_IS_ANSI}
+  LTemp: TIdUnicodeString;
+  {$ENDIF}
 begin
-  assert(Assigned(Self));
-  assert(AMsg <> '', 'Attempt to handle an empty Message'); {do not localize}
-  assert(Assigned(AConnection));
+  {$IFDEF STRING_IS_ANSI}
+  if AMsg <> '' then begin
+    LTemp := AAnsiEncoding.GetString(RawToBytes(AMsg[1], Length(AMsg)));
+  end;
+  LMsgLen := AByteEncoding.GetByteCount(LTemp);
+  {$ELSE}
+  LMsgLen := AByteEncoding.GetByteCount(AMsg);
+  {$ENDIF}
+
+  SetLength(Result, Length(MSG_START) + LMsgLen + Length(MSG_END));
+  LIndex := 0;
+
+  CopyTIdByteArray(MSG_START, 0, Result, LIndex, Length(MSG_START));
+  Inc(LIndex, Length(MSG_START));
+
+  AByteEncoding.GetBytes(
+    {$IFDEF STRING_IS_ANSI}LTemp{$ELSE}AMsg{$ENDIF},
+    1, Length({$IFDEF STRING_IS_ANSI}LTemp{$ELSE}AMsg{$ENDIF}),
+    Result, LIndex
+  );
+  Inc(LIndex, LMsgLen);
+
+  CopyTIdByteArray(MSG_END, 0, Result, LIndex, Length(MSG_END));
+end;
+
+procedure TIdHL7.HandleIncoming(var VBuffer: TIdBytes; AConnection: TIdTCPConnection);
+var
+  LStart, LEnd: Integer;
+  LMsg, LReply: String;
+  LBytes: TIdBytes;
+  {$IFDEF STRING_IS_ANSI}
+  LTemp: TIdUnicodeString;
+  {$ENDIF}
+
+  function FindBytes(const ABytesToSearch: TIdBytes; const ABytesToFind: array of Byte; AStart: Integer): Integer;
+  var
+    I: Integer;
+    LBytesLen, LFindLen: Integer;
+    LMatches: Boolean;
+  begin
+    LBytesLen := Length(ABytesToSearch);
+    LFindLen := Length(ABytesToFind);
+    while (AStart + LFindLen) <= LBytesLen do
+    begin
+      Result := ByteIndex(ABytesToFind[0], ABytesToSearch, AStart);
+      if Result = -1 then Exit;
+      LMatches := True;
+      for I := 1 to High(ABytesToFind) do
+      begin
+        if ABytesToSearch[Result + I] <> ABytesToFind[I] then
+        begin
+          LMatches := False;
+          Break;
+        end;
+      end;
+      if LMatches then Exit;
+      Inc(AStart);
+    end;
+    Result := -1;
+  end;
+
+begin
+  Assert(Assigned(Self));
+  Assert(Length(VBuffer) > 0, 'Attempt to handle an empty buffer'); {do not localize}
+  Assert(Assigned(AConnection));
   try
     // process any messages in the buffer (may get more than one per packet)
-    if HandleMessage(AMsg, AConnection, LReply) then
-      begin
-      if LReply <> '' then
-        begin
-        AConnection.IOHandler.Write(MSG_START + LReply + MSG_END);
-        end;
-      end
-    else
-      begin
-      AConnection.Disconnect;
+    repeat
+      LStart := FindBytes(VBuffer, MSG_START, 0);
+      if LStart >= 0 then begin
+        Inc(LStart, Length(MSG_START));
+        LEnd := FindBytes(VBuffer, MSG_END, LStart);
+      end else begin
+        LEnd := FindBytes(VBuffer, MSG_END, 0);
       end;
+
+      if (LStart >= 0) and (LEnd >= 0) then
+      begin
+        {$IFDEF STRING_IS_ANSI}
+        LTemp := FDefStringEncoding.GetString(VBuffer, LStart, LEnd - LStart);
+        LBytes := FDefAnsiEncoding.GetBytes(LTemp);
+        SetString(LMsg, PAnsiChar(LBytes), Length(LBytes));
+        {$ELSE}
+        LMsg := FDefStringEncoding.GetString(VBuffer, LStart, LEnd - LStart);
+        {$ENDIF}
+
+        if HandleMessage(LMsg, AConnection, LReply) then
+        begin
+          if Length(LReply) > 0 then
+          begin
+            LBytes := EncodeHL7Message(LReply, FDefStringEncoding
+              {$IFDEF STRING_IS_ANSI}, FDefAnsiEncoding{$ENDIF}
+            );
+            AConnection.IOHandler.Write(LBytes);
+          end;
+        end else begin
+          AConnection.Disconnect;
+        end;
+      end;
+      if LEnd >= 0 then begin
+        VBuffer := Copy(VBuffer, LEnd + Length(MSG_END), MaxInt);
+      end;
+    until LEnd = -1;
+    if Length(VBuffer) > BUFFER_SIZE_LIMIT then begin
+      AConnection.Disconnect;
+    end;
   except
     // well, we need to suppress the exception, and force a reconnection
     // we don't know why an exception has been allowed to propagate back
@@ -1308,104 +1696,94 @@ end;
 
 function TIdHL7.HandleMessage(const AMsg: String; AConn: TIdTCPConnection; var VReply: String): Boolean;
 var
-  LQueMsg: TQueuedMessage;
-  LIndex: Integer;
+  LQueMsg: IIdQueuedMessage;
 begin
-  assert(Assigned(Self));
-  assert(AMsg <> '', 'Attempt to handle an empty Message'); {do not localize}
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Length(AMsg) > 0, 'Attempt to handle an empty message'); {do not localize}
+  Assert(Assigned(FLock));
   VReply := '';
   Result := True;
   try
     case FCommunicationMode of
       cmUnknown:
-        begin
+      begin
         raise EHL7CommunicationError.Create(Name, RSHL7ImpossibleMessage);
-        end;
+      end;
       cmAsynchronous:
-        begin
-        FOnMessageArrive(self, AConn, Amsg);
-        end;
+      begin
+        FOnMessageArrive(Self, AConn, AMsg);
+      end;
       cmSynchronous, cmSingleThread:
-        begin
+      begin
         if IsListener then
-          begin
+        begin
           if FCommunicationMode = cmSynchronous then
-            begin
+          begin
             Result := False;
-            FOnReceiveMessage(self, AConn, AMsg, Result, VReply)
-            end
-          else
-            begin
-            LQueMsg := TQueuedMessage.Create(AMsg, FReceiveTimeout);
-            LQueMsg._AddRef;
+            FOnReceiveMessage(Self, AConn, AMsg, Result, VReply);
+          end else
+          begin
+            LQueMsg := TIdQueuedMessage.Create(AMsg, FReceiveTimeout);
             try
               FLock.Enter;
               try
                 FMsgQueue.Add(LQueMsg);
               finally
                 FLock.Leave;
-                end;
-              LQueMsg.wait;
+              end;
+              LQueMsg.Wait;
               // no locking. There is potential problems here. To be reviewed
-              VReply := LQueMsg.FReply;
+              VReply := LQueMsg.Reply;
             finally
               FLock.Enter;
               try
-                LIndex := FMsgQueue.IndexOf(LQueMsg);
-                if LIndex > -1 then
-                  FMsgQueue.Delete(LIndex);
+                FMsgQueue.Remove(LQueMsg);
               finally
                 FLock.Leave;
-                end;
-              LQueMsg._Release;
               end;
-            end
-          end
-        else
-          begin
+              LQueMsg := nil;
+            end;
+          end;
+        end else
+        begin
           FLock.Enter;
           try
             if FWaitingForAnswer then
-              begin
+            begin
               FWaitingForAnswer := False;
               FMsgReply := AMsg;
               FReplyResponse := srOK;
               if FCommunicationMode = cmSynchronous then
-                begin
-                assert(Assigned(FWaitEvent));
-                FWaitEvent.SetEvent;
-                end;
-              end
-            else
               begin
+                Assert(Assigned(FWaitEvent));
+                FWaitEvent.SetEvent;
+              end;
+            end else begin
               // we could have got here by timing out, but this is quite unlikely,
               // since the connection will be dropped in that case. We will report
               // this as a spurious message
               raise EHL7CommunicationError.Create(Name, RSHL7UnexpectedMessage);
-              end;
+            end;
           finally
             FLock.Leave;
-            end;
-          end
-        end;
-      else
-        begin
-        raise EHL7CommunicationError.Create(Name, RSHL7UnknownMode);
+          end;
         end;
       end;
-  except
-    on e:
-    Exception do
-      if Assigned(FOnReceiveError) then
-        begin
-        FOnReceiveError(self, AConn, AMsg, e, VReply, Result)
-        end
     else
       begin
-      Result := False;
+        raise EHL7CommunicationError.Create(Name, RSHL7UnknownMode);
       end;
     end;
+  except
+    on e: Exception do
+    begin
+      if Assigned(FOnReceiveError) then begin
+        FOnReceiveError(Self, AConn, AMsg, e, VReply, Result);
+      end else begin
+        Result := False;
+      end;
+    end;
+  end;
 end;
 
 {==========================================================
@@ -1418,103 +1796,122 @@ end;
 // strategies are available to prevent this but they significantly
 // increase the scope of the locks, which costs more than it gains
 
-function TIdHL7.AsynchronousSend(AMsg: String): TSendResponse;
+function TIdHL7.AsynchronousSend(const AMsg: String; ASyncConnection: TIdTCPConnection = nil): TSendResponse;
+var
+  LBytes: TIdBytes;
 begin
-  assert(Assigned(self));
-  assert(AMsg <> '', 'Attempt to send an empty message'); {do not localize}
-  assert(Assigned(FLock));
   Result := srNone; // just to suppress the compiler warning
+  Assert(Assigned(Self));
+  Assert(Length(AMsg) > 0, 'Attempt to send an empty message'); {do not localize}
+  Assert(Assigned(FLock));
+  if GetStatus = isTimedOut then
+  begin
+    ReConnectFromTimeout;
+  end;
   FLock.Enter;
   try
     if not Going then
-      begin
-      raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWorking, [RSHL7SendMessage]))
-      end
+    begin
+      raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWorking, [RSHL7SendMessage]));
+    end
     else if GetStatus <> isConnected then
+    begin
+      Result := srNoConnection;
+    end
+    else if FIsServer then
+    begin
+      if (FCommunicationMode = cmAsynchronous) and Assigned(ASyncConnection) then
       begin
-      Result := srNoConnection
+        LBytes := EncodeHL7Message(AMsg, FDefStringEncoding
+          {$IFDEF STRING_IS_ANSI}, FDefAnsiEncoding{$ENDIF}
+        );
+        ASyncConnection.IOHandler.Write(LBytes);
+        Result := srSent;
       end
-    else
+      else if Assigned(FServerConn) then
       begin
-      if FIsServer then
-        begin
-        if Assigned(FServerConn) then
-          begin
-          FServerConn.IOHandler.Write(MSG_START + AMsg + MSG_END);
-          Result := srSent
-          end
-        else
-          begin
-          raise EHL7CommunicationError.Create(Name, RSHL7NoConnectionFound);
-          end
-        end
-      else
-        begin
-        FClient.IOHandler.Write(MSG_START + AMsg + MSG_END);
-        Result := srSent
-        end;
+        LBytes := EncodeHL7Message(AMsg, FDefStringEncoding
+          {$IFDEF STRING_IS_ANSI}, FDefAnsiEncoding{$ENDIF}
+        );
+        FServerConn.IOHandler.Write(LBytes);
+        Result := srSent;
+      end else begin
+        raise EHL7CommunicationError.Create(Name, RSHL7NoConnectionFound);
       end;
+    end
+    else if Assigned(FClientThread) and Assigned(FClient) then
+    begin
+      LBytes := EncodeHL7Message(AMsg, FDefStringEncoding
+        {$IFDEF STRING_IS_ANSI}, FDefAnsiEncoding{$ENDIF}
+      );
+      FClient.IOHandler.Write(LBytes);
+      FClientThread.FLastTraffic := Ticks64; // TODO: sync this?
+      Result := srSent;
+    end else begin
+      raise EHL7CommunicationError.Create(Name, RSHL7NoConnectionFound);
+    end;
   finally
     FLock.Leave;
-    end
+  end;
 end;
 
-function TIdHL7.SynchronousSend(AMsg: String; var VReply: String): TSendResponse;
+function TIdHL7.SynchronousSend(const AMsg: String; var VReply: String): TSendResponse;
 begin
-  assert(Assigned(self));
-  assert(AMsg <> '', 'Attempt to send an empty message'); {do not localize}
-  assert(Assigned(FLock));
+  Assert(Assigned(self));
+  Assert(Length(AMsg) > 0, 'Attempt to send an empty message'); {do not localize}
+  Assert(Assigned(FLock));
   Result := srError;
   FLock.Enter;
   try
     FWaitingForAnswer := True;
-    FWaitStop := Now + (FTimeOut * MILLISECOND_LENGTH);
+    FWaitStart := Ticks64;
     FReplyResponse := srTimeout;
     FMsgReply := '';
   finally
     FLock.Leave;
-    end;
+  end;
   try
     Result := AsynchronousSend(AMsg);
     if Result = srSent then
-      begin
-      assert(Assigned(FWaitEvent));
+    begin
+      Assert(Assigned(FWaitEvent));
       FWaitEvent.WaitFor(FTimeOut);
-      end;
+    end;
   finally
     FLock.Enter;
     try
       FWaitingForAnswer := False;
       if Result = srSent then
-        begin
+      begin
         Result := FReplyResponse;
-        end;
+      end;
       if Result = srTimeout then
-        begin
-        if FIsServer then
-          DropServerConnection
-        else
+      begin
+        if FIsServer then begin
+          DropServerConnection;
+        end else begin
           DropClientConnection;
         end;
+      end;
       VReply := FMsgReply;
     finally
       FLock.Leave;
-      end;
     end;
+  end;
 end;
 
-procedure TIdHL7.SendMessage(AMsg: String);
+procedure TIdHL7.SendMessage(const AMsg: String);
 begin
-  assert(Assigned(self));
-  assert(AMsg <> '', 'Attempt to send an empty message'); {do not localize}
-  assert(Assigned(FLock));
-  if FWaitingForAnswer then
+  Assert(Assigned(Self));
+  Assert(Length(AMsg) > 0, 'Attempt to send an empty message'); {do not localize}
+  Assert(Assigned(FLock));
+  if FWaitingForAnswer then begin
     raise EHL7CommunicationError.Create(Name, RSHL7WaitForAnswer);
-
+  end;
   FLock.Enter;
   try
     FWaitingForAnswer := True;
-    FWaitStop := Now + (FTimeOut * MILLISECOND_LENGTH);
+    FWaitStart := Ticks64;
     FMsgReply := '';
     FReplyResponse := AsynchronousSend(AMsg);
   finally
@@ -1524,82 +1921,77 @@ end;
 
 function TIdHL7.GetReply(var VReply: String): TSendResponse;
 begin
-  assert(Assigned(self));
-  assert(Assigned(FLock));
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
   FLock.Enter;
   try
     if FWaitingForAnswer then
+    begin
+      if GetElapsedTicks(FWaitStart) > FTimeOut then
       begin
-      if FWaitStop < Now then
-        begin
         Result := srTimeout;
         VReply := '';
         FWaitingForAnswer := False;
         FReplyResponse := srError;
-        end
-      else
-        begin
+      end else begin
         Result := srNone;
-        end;
-      end
-    else
-      begin
+      end;
+    end else
+    begin
       Result := FReplyResponse;
       if Result = srSent then
-        begin
+      begin
         Result := srTimeOut;
-        end;
+      end;
       VReply := FMsgReply;
       FWaitingForAnswer := False;
       FReplyResponse := srError;
-      end;
+    end;
   finally
     FLock.Leave;
-    end;
+  end;
 end;
 
-function TIdHL7.GetMessage(var VMsg: String): TObject;
-begin
-  assert(Assigned(self));
-  assert(Assigned(FLock));
-  assert(Assigned(FMsgQueue));
-  FLock.Enter;
-  try
-    if FMsgQueue.Count = 0 then
-      begin
-      Result := NIL;
-      end
-    else
-      begin
-      Result := FMsgQueue[0];
-      TQueuedMessage(Result)._AddRef;
-      VMsg := TQueuedMessage(Result).FMsg;
-      FMsgQueue.Delete(0);
-      FHndMsgQueue.Add(Result);
-      end;
-  finally
-    FLock.Leave;
-    end;
-end;
-
-procedure TIdHL7.SendReply(AMsgHnd: TObject; AReply: String);
+function TIdHL7.GetMessage(var VMsg: String): IInterface;
 var
-  qm: TQueuedMessage;
+  LQueMsg: IIdQueuedMessage;
 begin
-  assert(Assigned(self));
-  assert(Assigned(AMsgHnd));
-  assert(AReply <> '', 'Attempt to send an empty reply'); {do not localize}
-  assert(Assigned(FLock));
+  Result := nil;
+  Assert(Assigned(Self));
+  Assert(Assigned(FLock));
+  Assert(Assigned(FMsgQueue));
   FLock.Enter;
   try
-    qm := AMsgHnd as TQueuedMessage;
-    qm.FReply := AReply;
-    qm._Release;
-    FHndMsgQueue.Delete(FHndMsgQueue.IndexOf(AMsgHnd));
+    if FMsgQueue.Count > 0 then
+    begin
+      LQueMsg := IIdQueuedMessage(FMsgQueue[0]);
+      VMsg := LQueMsg.Message;
+      FMsgQueue.Delete(0);
+      FHndMsgQueue.Add(LQueMsg);
+      Result := LQueMsg;
+    end;
   finally
     FLock.Leave;
-    end;
-  qm.FEvent.SetEvent;
+  end;
+end;
+
+procedure TIdHL7.SendReply(AMsgHnd: IInterface; const AReply: String);
+var
+  LQueMsg: IIdQueuedMessage;
+begin
+  Assert(Assigned(Self));
+  Assert(Assigned(AMsgHnd));
+  Assert(Length(AReply) > 0, 'Attempt to send an empty reply'); {do not localize}
+  Assert(Assigned(FLock));
+  FLock.Enter;
+  try
+    LQueMsg := AMsgHnd as IIdQueuedMessage;
+    LQueMsg.Reply := AReply;
+    LQueMsg.SetEvent;
+    FHndMsgQueue.Remove(LQueMsg);
+  finally
+    FLock.Leave;
+  end;
 end;
 
 end.

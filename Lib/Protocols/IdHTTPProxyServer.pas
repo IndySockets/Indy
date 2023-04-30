@@ -305,6 +305,20 @@ procedure TIdHTTPProxyServer.CommandPassThrough(ASender: TIdCommand);
 var
   LURI: TIdURI;
   LContext: TIdHTTPProxyServerContext;
+  LConnection: string;
+
+  function IsVersionAtLeast11(const AVersionStr: string): Boolean;
+  var
+    s: string;
+    LMajor, LMinor: Integer;
+  begin
+    s := AVersionStr;
+    Fetch(s, '/');  {Do not localize}
+    LMajor := IndyStrToInt(Fetch(s, '.'), -1);  {Do not Localize}
+    LMinor := IndyStrToInt(S, -1);
+    Result := (LMajor > 1) or ((LMajor = 1) and (LMinor >= 1));
+  end;
+
 begin
   ASender.PerformReply := False;
 
@@ -327,7 +341,7 @@ begin
       else if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
         TIdTCPClient(LContext.FOutboundClient).Port := IdPORT_https;
       end else begin
-        raise EIdException.Create(RSHTTPUnknownProtocol);
+        raise EIdException.Create(RSHTTPUnknownProtocol); // TODO: create a new Exception class for this
       end;
 
       //We have to remove the host and port from the request
@@ -342,8 +356,31 @@ begin
     LContext.FTransferSource := tsClient;
     DoHTTPBeforeCommand(LContext);
 
+    LConnection := LContext.Headers.Values['Proxy-Connection'];           {do not localize}
+    if LConnection <> '' then begin
+      ASender.Disconnect := TextIsSame(LConnection, 'close');             {do not localize}
+    end else begin
+      LConnection := LContext.Headers.Values['Connection'];               {do not localize}
+      if IsVersionAtLeast11(ASender.Params.Strings[1]) then begin
+        ASender.Disconnect := TextIsSame(LConnection, 'close');           {do not localize}
+      end else begin
+        ASender.Disconnect := not TextIsSame(LConnection, 'keep-alive');  {do not localize}
+      end;
+    end;
+
+    // TODO: If the client requests a keep-alive with the target server, don't disconnect the
+    // TIdTCPClient below, so it can be reused for subsequent requests.  Disconnect it only
+    // when the requesting client disconnects, the keep-alive times out, or a different
+    // host/port is requested...
+
     TIdTCPClient(LContext.FOutboundClient).Connect;
     try
+      // TODO: if FDefTransferMode is tmStreaming, send the request and receive the response
+      // in parallel, similar to how CommandCONNECT() does.  This would also facilitate the
+      // server being able to send back an error reponse while the client is still sending
+      // its request...
+
+      LContext.Headers.Values['Connection'] := 'close'; {do not localize}
       TransferData(LContext, LContext.Connection, LContext.FOutboundClient);
 
       LContext.Headers.Clear;
@@ -351,6 +388,8 @@ begin
       LContext.FTransferMode := FDefTransferMode;
       LContext.FTransferSource := tsServer;
       DoHTTPResponse(LContext);
+
+      LContext.Headers.Values['Proxy-Connection'] := iif(ASender.Disconnect, 'close', 'keep-alive'); {do not localize}
       TransferData(LContext, LContext.FOutboundClient, LContext.Connection);
     finally
       LContext.FOutboundClient.Disconnect;
@@ -423,7 +462,7 @@ begin
 
         LContext.Headers.Clear;
         LConnectionIO.Capture(LContext.Headers, '', False);
-        LContext.FTransferMode := FDefTransferMode;
+        LContext.FTransferMode := FDefTransferMode; // TODO: should this be forced to tmStreaming instead?
         LContext.FTransferSource := tsClient;
         DoHTTPBeforeCommand(LContext);
 

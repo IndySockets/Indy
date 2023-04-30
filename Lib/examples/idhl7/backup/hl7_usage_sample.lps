@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="12"/>
+    <BuildModes Active="Default"/>
+    <Units>
+      <Unit>
+        <Filename Value="hl7_usage_sample.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
+        <TopLine Value="-1"/>
+        <CursorPos X="-1" Y="-1"/>
+        <UsageCount Value="61"/>
+      </Unit>
+      <Unit>
+        <Filename Value="fmain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <TopLine Value="45"/>
+        <CursorPos X="70" Y="56"/>
+        <UsageCount Value="61"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="1539"/>
+        <CursorPos X="9" Y="1550"/>
+        <UsageCount Value="13"/>
+        <Bookmarks Count="2">
+          <Item0 X="84" Y="359" ID="1"/>
+          <Item1 X="30" Y="1709" ID="2"/>
+        </Bookmarks>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus\lcl\include\control.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2939"/>
+        <CursorPos Y="2959"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus\components\indy\Lib\Core\IdIOHandler.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="2134"/>
+        <CursorPos X="109" Y="2153"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="29">
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="1581" TopLine="1577"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="178" TopLine="158"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="1581" TopLine="1577"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="168" Column="92" TopLine="158"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="76" Column="5" TopLine="74"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="60" Column="15" TopLine="49"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="178" Column="38" TopLine="169"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="56" Column="15" TopLine="49"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="159" Column="3" TopLine="155"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="55" Column="15" TopLine="45"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="153" TopLine="145"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="56" Column="15" TopLine="44"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="161" Column="62" TopLine="155"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="57" Column="24" TopLine="45"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="169" Column="3" TopLine="164"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="55" Column="15" TopLine="46"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="153" TopLine="146"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="57" Column="15" TopLine="44"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="167" Column="34" TopLine="164"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="58" Column="15" TopLine="46"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="44" Column="25" TopLine="25"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="98" Column="51" TopLine="93"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="1588" Column="49" TopLine="1577"/>
+      </Position>
+      <Position>
+        <Filename Value="fmain.pas"/>
+        <Caret Line="107" Column="108" TopLine="87"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="1587" Column="65" TopLine="1577"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="330" Column="35" TopLine="321"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="1512" Column="38" TopLine="1501"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="330" Column="33" TopLine="330"/>
+      </Position>
+      <Position>
+        <Filename Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Caret Line="1535" Column="51" TopLine="1525"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+  <Debugging>
+    <BreakPoints>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="fmain.pas"/>
+        <Line Value="199"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="fmain.pas"/>
+        <Line Value="202"/>
+      </Item>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="C:\lazarus\components\indy\Lib\Protocols\IdHL7.pas"/>
+        <Line Value="1632"/>
+      </Item>
+    </BreakPoints>
+  </Debugging>
+</CONFIG>

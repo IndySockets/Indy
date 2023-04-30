@@ -796,8 +796,12 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 // compiling in C++ without having to re-define
 // OpenSSL data types and without having to
 // include the OpenSSL header files
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT OPENNAMESPACE}
+{$ELSE}
 (*$HPPEMIT 'namespace Idsslopensslheaders'*)
 (*$HPPEMIT '{'*)
+{$ENDIF}
 (*$HPPEMIT '	struct SSL;'*)
 (*$HPPEMIT '	typedef SSL* PSSL;'*)
 (*$HPPEMIT '	struct SSL_CTX;'*)
@@ -808,7 +812,12 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 (*$HPPEMIT '	typedef X509* PX509;'*)
 (*$HPPEMIT '	struct X509_NAME;'*)
 (*$HPPEMIT '	typedef X509_NAME* PX509_NAME;'*)
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT CLOSENAMESPACE}
+{$ELSE}
 (*$HPPEMIT '}'*)
+{$ENDIF}
+
 // RLebeau: why are the following types not being placed in
 // the Idsslopensslheaders namespace with the types above?
 (*$HPPEMIT 'struct RSA;'*)
@@ -19674,10 +19683,10 @@ them in case we use them later.}
 {$IFNDEF OPENSSL_NO_FP_API}
   {CH fn_NCONF_load_fp = 'NCONF_load_fp'; }{Do not localize}
 {$ENDIF}
-  {CH fn_NCONF_load_bio = 'NCONF_load_bio'; {Do not localize}
-  {CH fn_NCONF_get_section = 'NCONF_get_section'; {Do not localize}
-  {CH fn_NCONF_get_string = 'NCONF_get_string'; {Do not localize}
-  {CH fn_NCONF_get_number_e = 'NCONF_get_number_e'; {Do not localize}
+  {CH fn_NCONF_load_bio = 'NCONF_load_bio'; } {Do not localize}
+  {CH fn_NCONF_get_section = 'NCONF_get_section'; } {Do not localize}
+  {CH fn_NCONF_get_string = 'NCONF_get_string'; } {Do not localize}
+  {CH fn_NCONF_get_number_e = 'NCONF_get_number_e'; } {Do not localize}
   {CH fn_NCONF_dump_fp = 'NCONF_dump_fp'; } {Do not localize}
   {CH fn_NCONF_dump_bio = 'NCONF_dump_bio'; }{Do not localize}
   {CH fn_CONF_modules_load = 'CONF_modules_load'; } {Do not localize}
@@ -19730,7 +19739,7 @@ them in case we use them later.}
   {CH fn_CRYPTO_pop_info = 'CRYPTO_pop_info'; } {Do not localize}
   {CH fn_CRYPTO_remove_all_info = 'CRYPTO_remove_all_info'; } {Do not localize}
   {CH fn_OpenSSLDie = 'OpenSSLDie'; } {Do not localize}
-  {CH fn_OPENSSL_ia32cap_loc = 'OPENSSL_ia32cap_loc'; { {Do not localize}
+  {CH fn_OPENSSL_ia32cap_loc = 'OPENSSL_ia32cap_loc'; } {Do not localize}
   {CH fn_CRYPTO_get_new_lockid = 'CRYPTO_get_new_lockid'; }  {Do not localize}
   fn_CRYPTO_num_locks = 'CRYPTO_num_locks';  {Do not localize}
   fn_CRYPTO_lock = 'CRYPTO_lock';   {Do not localize}
@@ -20033,49 +20042,49 @@ them in case we use them later.}
   {CH fn_des_read_pw = 'DES_read_pw'; }  {Do not localize}
   {CH fn_des_cblock_print_file = 'DES_cblock_print_file'; }  {Do not localize}
    //des_old.h
-  {CH fn__ossl_old_des_options = '_ossl_old_des_options'; {Do not localize}
-  {CH fn__ossl_old_des_ecb3_encrypt = '_ossl_old_des_ecb3_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_cbc_cksum = '_ossl_old_des_cbc_cksum'; {Do not localize}
-  {CH fn__ossl_old_des_cbc_encrypt = '_ossl_old_des_cbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ncbc_encrypt = '_ossl_old_des_ncbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_xcbc_encrypt = '_ossl_old_des_xcbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_cfb_encrypt = '_ossl_old_des_cfb_encrypt'; {Do not localize}
+  {CH fn__ossl_old_des_options = '_ossl_old_des_options'; } {Do not localize}
+  {CH fn__ossl_old_des_ecb3_encrypt = '_ossl_old_des_ecb3_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_cbc_cksum = '_ossl_old_des_cbc_cksum'; } {Do not localize}
+  {CH fn__ossl_old_des_cbc_encrypt = '_ossl_old_des_cbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ncbc_encrypt = '_ossl_old_des_ncbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_xcbc_encrypt = '_ossl_old_des_xcbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_cfb_encrypt = '_ossl_old_des_cfb_encrypt'; } {Do not localize}
   fn__ossl_old_des_ecb_encrypt = '_ossl_old_des_ecb_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_encrypt = '_ossl_old_des_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_encrypt2 = '_ossl_old_des_encrypt2'; {Do not localize}
-  {CH fn__ossl_old_des_encrypt3 = '_ossl_old_des_encrypt3'; {Do not localize}
-  {CH fn__ossl_old_des_decrypt3 = '_ossl_old_des_decrypt3'; {Do not localize}
-  {CH fn__ossl_old_des_ede3_cbc_encrypt = '_ossl_old_des_ede3_cbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ede3_cfb64_encrypt = '_ossl_old_des_ede3_cfb64_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ede3_ofb64_encrypt = '_ossl_old_des_ede3_ofb64_encrypt'; {Do not localize}
+  {CH fn__ossl_old_des_encrypt = '_ossl_old_des_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_encrypt2 = '_ossl_old_des_encrypt2'; } {Do not localize}
+  {CH fn__ossl_old_des_encrypt3 = '_ossl_old_des_encrypt3'; } {Do not localize}
+  {CH fn__ossl_old_des_decrypt3 = '_ossl_old_des_decrypt3'; } {Do not localize}
+  {CH fn__ossl_old_des_ede3_cbc_encrypt = '_ossl_old_des_ede3_cbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ede3_cfb64_encrypt = '_ossl_old_des_ede3_cfb64_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ede3_ofb64_encrypt = '_ossl_old_des_ede3_ofb64_encrypt'; } {Do not localize}
     {$IFDEF USE_THIS}
-  {CH fn__ossl_old_des_xwhite_in2out = '_ossl_old_des_xwhite_in2out'; {Do not localize}
+  {CH fn__ossl_old_des_xwhite_in2out = '_ossl_old_des_xwhite_in2out'; } {Do not localize}
     {$ENDIF}
-  {CH fn__ossl_old_des_enc_read = '_ossl_old_des_enc_read'; {Do not localize}
-  {CH fn__ossl_old_des_enc_write = '_ossl_old_des_enc_write'; {Do not localize}
-  {CH fn__ossl_old_des_fcrypt = '_ossl_old_des_fcrypt'; {Do not localize}
-  {CH fn__ossl_old_des_crypt = '_ossl_old_des_crypt'; {Do not localize}
+  {CH fn__ossl_old_des_enc_read = '_ossl_old_des_enc_read'; } {Do not localize}
+  {CH fn__ossl_old_des_enc_write = '_ossl_old_des_enc_write'; } {Do not localize}
+  {CH fn__ossl_old_des_fcrypt = '_ossl_old_des_fcrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_crypt = '_ossl_old_des_crypt'; } {Do not localize}
     {$IFNDEF PERL5}
       {$IFNDEF NeXT}
-  {CH fn__ossl_old_crypt = '_ossl_old_crypt'; {Do not localize}
+  {CH fn__ossl_old_crypt = '_ossl_old_crypt'; } {Do not localize}
       {$ENDIF}
     {$ENDIF}
-  {CH fn__ossl_old_des_ofb_encrypt = '_ossl_old_des_ofb_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_pcbc_encrypt = '_ossl_old_des_pcbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_quad_cksum = '_ossl_old_des_quad_cksum'; {Do not localize}
-  {CH fn__ossl_old_des_random_seed = '_ossl_old_des_random_seed'; {Do not localize}
-  {CH fn__ossl_old_des_random_key = '_ossl_old_des_random_key'; {Do not localize}
-  {CH fn__ossl_old_des_read_password = '_ossl_old_des_read_password'; {Do not localize}
-  {CH fn__ossl_old_des_read_2passwords = '_ossl_old_des_read_2passwords'; {Do not localize}
+  {CH fn__ossl_old_des_ofb_encrypt = '_ossl_old_des_ofb_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_pcbc_encrypt = '_ossl_old_des_pcbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_quad_cksum = '_ossl_old_des_quad_cksum'; } {Do not localize}
+  {CH fn__ossl_old_des_random_seed = '_ossl_old_des_random_seed'; } {Do not localize}
+  {CH fn__ossl_old_des_random_key = '_ossl_old_des_random_key'; } {Do not localize}
+  {CH fn__ossl_old_des_read_password = '_ossl_old_des_read_password'; } {Do not localize}
+  {CH fn__ossl_old_des_read_2passwords = '_ossl_old_des_read_2passwords'; } {Do not localize}
   fn__ossl_old_des_set_odd_parity = '_ossl_old_des_set_odd_parity'; {Do not localize}
-  {CH fn__ossl_old_des_is_weak_key = '_ossl_old_des_is_weak_key'; {Do not localize}
+  {CH fn__ossl_old_des_is_weak_key = '_ossl_old_des_is_weak_key'; } {Do not localize}
   fn__ossl_old_des_set_key = '_ossl_old_des_set_key'; {Do not localize}
-  {CH fn__ossl_old_des_key_sched = '_ossl_old_des_key_sched'; {Do not localize}
-  {CH fn__ossl_old_des_string_to_key = '_ossl_old_des_string_to_key'; {Do not localize}
-  {CH fn__ossl_old_des_string_to_2keys = '_ossl_old_des_string_to_2keys'; {Do not localize}
-  {CH fn__ossl_old_des_cfb64_encrypt = '_ossl_old_des_cfb64_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ofb64_encrypt = '_ossl_old_des_ofb64_encrypt'; {Do not localize}
-  {CH fn__ossl_096_des_random_seed = '_ossl_096_des_random_seed'; {Do not localize}
+  {CH fn__ossl_old_des_key_sched = '_ossl_old_des_key_sched'; } {Do not localize}
+  {CH fn__ossl_old_des_string_to_key = '_ossl_old_des_string_to_key'; } {Do not localize}
+  {CH fn__ossl_old_des_string_to_2keys = '_ossl_old_des_string_to_2keys'; } {Do not localize}
+  {CH fn__ossl_old_des_cfb64_encrypt = '_ossl_old_des_cfb64_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ofb64_encrypt = '_ossl_old_des_ofb64_encrypt'; } {Do not localize}
+  {CH fn__ossl_096_des_random_seed = '_ossl_096_des_random_seed'; } {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RC4}
   {CH fn_RC4_options = 'RC4_options'; } {Do not localize}
@@ -20764,7 +20773,7 @@ them in case we use them later.}
   {CH fn_ASN1_mbstring_copy = 'ASN1_mbstring_copy'; } {Do not localize}
   {CH fn_ASN1_mbstring_ncopy = 'ASN1_mbstring_ncopy'; } {Do not localize}
   {CH fn_ASN1_STRING_set_by_NID = 'ASN1_STRING_set_by_NID'; } {Do not localize}
-  {CH fn_ASN1_STRING_TABLE_get = 'ASN1_STRING_TABLE_get'; {Do not localize}
+  {CH fn_ASN1_STRING_TABLE_get = 'ASN1_STRING_TABLE_get'; } {Do not localize}
   {CH fn_ASN1_STRING_TABLE_add = 'ASN1_STRING_TABLE_add'; } {Do not localize}
   {CH fn_ASN1_STRING_TABLE_cleanup = 'ASN1_STRING_TABLE_cleanup'; } {Do not localize}
   {CH fn_ASN1_item_new = 'ASN1_item_new'; } {Do not localize}
@@ -22082,7 +22091,7 @@ them in case we use them later.}
   {CH fn_SSL_use_RSAPrivateKey_ASN1 = 'SSL_use_RSAPrivateKey_ASN1'; }  {Do not localize}
   {$ENDIF}
   {CH fn_SSL_use_PrivateKey = 'SSL_use_PrivateKey'; }  {Do not localize}
-  {CH fn_SSL_use_PrivateKey_ASN1 = 'SSL_use_PrivateKey_ASN1'; {Do not localize}
+  {CH fn_SSL_use_PrivateKey_ASN1 = 'SSL_use_PrivateKey_ASN1'; } {Do not localize}
   {CH fn_SSL_use_certificate = 'SSL_use_certificate'; }  {Do not localize}
   {CH fn_SSL_use_certificate_ASN1 = 'SSL_use_certificate_ASN1'; }  {Do not localize}
   {CH fn_SSL_use_RSAPrivateKey_file = 'SSL_use_RSAPrivateKey_file'; }  {Do not localize}
@@ -22437,7 +22446,7 @@ them in case we use them later.}
   {CH fn_ENGINE_register_RAND = 'ENGINE_register_RAND'; } {Do not localize}
   {CH fn_ENGINE_unregister_RAND = 'ENGINE_unregister_RAND'; } {Do not localize}
   {CH fn_ENGINE_register_all_RAND = 'ENGINE_register_all_RAND'; } {Do not localize}
-  {CH fn_ENGINE_register_STORE = 'ENGINE_register_STORE'; { {Do not localize}
+  {CH fn_ENGINE_register_STORE = 'ENGINE_register_STORE'; } {Do not localize}
   {CH fn_ENGINE_unregister_STORE = 'ENGINE_unregister_STORE'; } {Do not localize}
   {CH fn_ENGINE_register_all_STORE = 'ENGINE_register_all_STORE'; } {Do not localize}
   {CH fn_ENGINE_register_ciphers = 'ENGINE_register_ciphers'; } {Do not localize}
@@ -22451,7 +22460,7 @@ them in case we use them later.}
   {CH fn_ENGINE_ctrl = 'ENGINE_ctrl'; } {Do not localize}
   {CH fn_ENGINE_cmd_is_executable = 'ENGINE_cmd_is_executable'; } {Do not localize}
   {CH fn_ENGINE_ctrl_cmd = 'ENGINE_ctrl_cmd'; } {Do not localize}
-  {CH fn_ENGINE_ctrl_cmd_string = 'ENGINE_ctrl_cmd_string'; }  {Do not localize}
+  {CH fn_ENGINE_ctrl_cmd_string = 'ENGINE_ctrl_cmd_string'; } {Do not localize}
   {CH fn_ENGINE_new = 'ENGINE_new'; } {Do not localize}
   {CH fn_ENGINE_free = 'ENGINE_free'; } {Do not localize}
   {CH fn_ENGINE_up_ref = 'ENGINE_up_ref'; } {Do not localize}
@@ -22703,6 +22712,9 @@ end;
 
   {$IFDEF UNIX}
 var
+  // TODO: default these to False instead, as modern systems now
+  // use symlinks that point to OpenSSL 1.1.x+, which is not
+  // compatible with this unit...
   GIdCanLoadSymLinks: Boolean = True;
   GIdLoadSymLinksFirst: Boolean = True;
 
@@ -25469,9 +25481,13 @@ end;
 //* #define BIO_set_nbio(b,n)	BIO_ctrl(b,BIO_C_SET_NBIO,(n),NULL) */
 function BIO_set_nbio_accept(b : PBIO; n : TIdC_INT) : TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
+var
+  a: array[0..1] of TIdAnsiChar;
 begin
   if n <> 0 then begin
-    Result := BIO_ctrl(b, BIO_C_SET_ACCEPT, 1, PIdAnsiChar('a'));
+    a[0] := TIdAnsiChar('a');
+    a[1] := TIdAnsiChar(#0);
+    Result := BIO_ctrl(b, BIO_C_SET_ACCEPT, 1, @a[0]);
   end else begin
     Result := BIO_ctrl(b, BIO_C_SET_ACCEPT, 1, nil);
   end;
@@ -25480,7 +25496,7 @@ end;
 function BIO_set_accept_bios(b : PBIO; bio : PBIO) : TIdC_LONG;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := BIO_ctrl(b,BIO_C_SET_ACCEPT, 2, PIdAnsiChar(bio));
+  Result := BIO_ctrl(b,BIO_C_SET_ACCEPT, 2, bio);
 end;
 
 function BIO_set_bind_mode(b : PBIO; mode : TIdC_LONG) : TIdC_LONG;

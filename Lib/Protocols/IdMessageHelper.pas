@@ -16,7 +16,9 @@ uses
   {$ENDIF}
 {$ENDIF}
 {$IFDEF FPC}
-  {$DEFINE HAS_CLASS_HELPER} // TODO: when were class helpers introduced?
+  {$IFDEF FPC_2_6_0_OR_ABOVE}
+    {$DEFINE HAS_CLASS_HELPER}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF HAS_CLASS_HELPER}

@@ -954,7 +954,7 @@ class function TIdIOHandler.MakeIOHandler(ABaseType: TIdIOHandlerClass;
 begin
   Result := TryMakeIOHandler(ABaseType, AOwner);
   if not Assigned(Result) then begin
-    raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]);
+    raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]); // TODO: create a new Exception class for this
   end;
 end;
 
@@ -2537,6 +2537,11 @@ var
   LOldErrorMode : Integer;
   {$ENDIF}
 begin
+  // keep the compiler happy (when was this fixed exactly?)
+  {$IFDEF DCC}{$IFNDEF VCL_8_OR_ABOVE}
+  Result := -1;
+  {$ENDIF}{$ENDIF}
+
   {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try

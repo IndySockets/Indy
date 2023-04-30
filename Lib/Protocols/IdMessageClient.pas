@@ -1226,7 +1226,7 @@ begin
       if AMsg.MessageParts.Count > 0 then begin
         //CC2: We cannot deal with parts within a body encoding (user has to do
         //this manually, if the user really wants to). Note this should have been trapped in TIdMessage.GenerateHeader.
-        raise EIdException.Create(RSMsgClientInvalidForTransferEncoding);
+        raise EIdException.Create(RSMsgClientInvalidForTransferEncoding); // TODO: create a new Exception class for this
       end;
       IOHandler.WriteLn;     //This is the blank line after the headers
       DoStatus(hsStatusText, [RSMsgClientEncodingText]);

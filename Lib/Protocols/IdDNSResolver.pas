@@ -1232,7 +1232,7 @@ procedure TIdDNSResolver.CreateQuery(ADomain: string; SOARR : TIdRR_SOA;
         IPV6Ptr := IPV6Ptr + IPV6Str[i] + '.';  {Do not Localize}
       end;
     end;
-    IPV6Ptr := IPV6Ptr + 'IP6.INT';  {Do not Localize}
+    IPV6Ptr := IPV6Ptr + 'IP6.ARPA';  {Do not Localize}
     Result := DoDomainName(IPV6Ptr);
   end;
 
@@ -1330,7 +1330,7 @@ begin
 
   if qtAXFR in QueryType then begin
     if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
-       (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then {do not localize}
+       (IndyPos('IP6.ARPA', UpperCase(ADomain)) > 0) then {do not localize}
     begin
       AppendBytes(AQuestion, DoHostAddress(ADomain));
     end else
@@ -1351,7 +1351,7 @@ begin
   end
   else if qtIXFR in QueryType then begin
     if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
-       (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then {do not localize}
+       (IndyPos('IP6.ARPA', UpperCase(ADomain)) > 0) then {do not localize}
     begin
       AppendBytes(AQuestion, DoHostAddress(ADomain));
     end else
@@ -1376,7 +1376,7 @@ begin
         // Create the question
         if (ARecType = qtPTR) and
            (IndyPos('IN-ADDR', UpperCase(ADomain)) = 0) and {Do not Localize}
-           (IndyPos('IP6.INT', UpperCase(ADomain)) = 0) then {do not localize}
+           (IndyPos('IP6.ARPA', UpperCase(ADomain)) = 0) then {do not localize}
         begin
           AppendBytes(AQuestion, DoHostAddress(ADomain));
         end else begin

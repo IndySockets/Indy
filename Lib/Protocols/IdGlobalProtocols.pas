@@ -377,10 +377,19 @@ type
     property OnBuildCache: TNotifyEvent read FOnBuildCache write FOnBuildCache;
   end;
 
+  {$UNDEF INTF_USES_STDCALL}
+  {$IFDEF DCC}
+    {$DEFINE INTF_USES_STDCALL}
+  {$ELSE}
+    {$IFDEF WINDOWS}
+      {$DEFINE INTF_USES_STDCALL}
+    {$ENDIF}
+  {$ENDIF}
+
   TIdInterfacedObject = class (TInterfacedObject)
   public
-    function _AddRef: Integer;
-    function _Release: Integer;
+    function _AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
+    function _Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
   end;
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
@@ -3639,7 +3648,7 @@ begin
   LExt := IndyLowerCase(Ext);
   if Length(LExt) = 0 then begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEExtensionEmpty);
+      raise EIdException.Create(RSMIMEExtensionEmpty); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -3647,7 +3656,7 @@ begin
   LMIMEType := IndyLowerCase(MIMEType);
   if Length(LMIMEType) = 0 then begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEMIMETypeEmpty);
+      raise EIdException.Create(RSMIMEMIMETypeEmpty); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -3664,7 +3673,7 @@ begin
     FMIMEList.Add(LMIMEType);
   end else begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEMIMEExtAlreadyExists);
+      raise EIdException.Create(RSMIMEMIMEExtAlreadyExists); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -5347,7 +5356,7 @@ end;
 
 { TIdInterfacedObject }
 
-function TIdInterfacedObject._AddRef: Integer;
+function TIdInterfacedObject._AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
@@ -5356,7 +5365,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdInterfacedObject._Release: Integer;
+function TIdInterfacedObject._Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
