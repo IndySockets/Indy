@@ -968,9 +968,7 @@ var
 
 procedure EnsureEncoding(var VEncoding : IIdTextEncoding; ADefEncoding: IdTextEncodingType = encIndyDefault);
 procedure CheckByteEncoding(var VBytes: TIdBytes; ASrcEncoding, ADestEncoding: IIdTextEncoding);
-{$IFNDEF DOTNET}
 function GetEncodingCodePage(AEncoding: IIdTextEncoding): UInt16; deprecated;
-{$ENDIF}
 
 type
   TIdAppendFileStream = class(TFileStream)
@@ -1628,9 +1626,6 @@ type
   //NativeInt = System.NativeInt;
   //NativeUInt = System.NativeUInt;
   //PNativeUInt = System.PNativeUInt;
-  {$IFDEF DOTNET}
-  IntPtr = System.IntPtr;
-  {$ENDIF}
   //UIntPtr = System.UIntPtr;
 {$IFEND}
 
