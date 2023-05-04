@@ -131,6 +131,7 @@ type
     procedure SetAvailable(const AValue: Boolean);
   public
     constructor Create;
+    procedure Clear;
   published
     property StatusClass : UInt32 read FStatusClass write SetStatusClass default CLASS_DEF;
     property Subject : UInt32 read FSubject write FSubject default NODETAILS;
@@ -150,6 +151,7 @@ type
     constructor Create(ACollection: TCollection); overload; override;
     constructor CreateWithReplyTexts(ACollection: TCollection; AReplyTexts: TIdReplies); overload; override;
     destructor Destroy; override;
+    procedure Clear; override;
     procedure RaiseReplyError; override;
     procedure SetEnhReply(const ANumericCode : Integer; const AEnhReply, AText : String);
   published
@@ -340,6 +342,11 @@ end;
 constructor TIdSMTPEnhancedCode.Create;
 begin
   inherited Create;
+  Clear;
+end;
+
+procedure TIdSMTPEnhancedCode.Clear;
+begin
   FStatusClass := CLASS_DEF;
   FSubject := NODETAILS;
   FDetails := NODETAILS;
@@ -439,6 +446,12 @@ begin
   end else begin
     inherited AssignTo(ADest);
   end;
+end;
+
+procedure TIdReplySMTP.Clear;
+begin
+  inherited Clear;
+  FEnhancedCode.Clear;
 end;
 
 constructor TIdReplySMTP.Create(ACollection: TCollection);
