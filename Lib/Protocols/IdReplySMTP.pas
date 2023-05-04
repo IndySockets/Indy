@@ -448,7 +448,7 @@ begin
   end;
 end;
 
-constructor TIdReplySMTP.Clear;
+procedure TIdReplySMTP.Clear;
 begin
   inherited Clear;
   FEnhancedCode.Clear;
