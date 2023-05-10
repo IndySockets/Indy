@@ -3730,7 +3730,7 @@ begin
   //
   // RLebeau: is this actually true?  Should we be reusing the original
   // IOHandler's active session ID regardless of whether this is a client
-  // or server socket?
+  // or server socket? What about FTP in non-passive mode, for example?
   {
   if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
      (LParentIO.fSSLSocket <> Self) then
@@ -4279,14 +4279,18 @@ end;
 initialization
   Assert(SSLIsLoaded=nil);
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
+
+  {$I IdSymbolDeprecatedOff.inc}
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright '+Char(169)+' 1993 - 2014'#10#13 +                                     {do not localize}
+    'Copyright '+Char(169)+' 1993 - 2014'#10#13 +                         {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
     'http://www.indyproject.org/'#10#13 +                                 {do not localize}
-    'Original Author - Gregor Ibic',                                        {do not localize}
+    'Original Author - Gregor Ibic',                                      {do not localize}
     TIdSSLIOHandlerSocketOpenSSL,
     TIdServerIOHandlerSSLOpenSSL);
+  {$I IdSymbolDeprecatedOn.inc}
+
   TIdSSLIOHandlerSocketOpenSSL.RegisterIOHandler;
 finalization
   // TODO: TIdSSLIOHandlerSocketOpenSSL.UnregisterIOHandler;
