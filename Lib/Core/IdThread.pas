@@ -192,7 +192,8 @@ type
   TIdSynchronizeThreadEvent = procedure(AThread: TIdThread; AData: Pointer) of object;
 
   // Note: itoDataOwner doesn't make sense in DCC nextgen when AutoRefCounting is enabled...
-  TIdThreadOptions = set of (itoStopped, itoReqCleanup, itoDataOwner, itoTag);
+  TIdThreadOption = (itoStopped, itoReqCleanup, itoDataOwner, itoTag);
+  TIdThreadOptions = set of TIdThreadOption;
 
   TIdThread = class(TThread)
   protected
