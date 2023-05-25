@@ -119,7 +119,7 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-  TIdC_TIMET = PtrUInt;
+  TIdC_TIMET = PtrInt;
   {$ENDIF}
   {$IFDEF HAS_PTIME_T}
   PIdC_TIMET = ptime_t;
@@ -214,7 +214,7 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-  TIdC_TIMET = NativeUInt;
+  TIdC_TIMET = NativeInt;
   {$ENDIF}
   {$IFDEF HAS_PTIME_T}
   PIdC_TIMET = PTIME_T;
