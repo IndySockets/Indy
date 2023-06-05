@@ -254,6 +254,7 @@ type
     FFormParams: string;
     FCommandType: THTTPCommandType;
     FAuthType: string;
+    FNumRequestsAllowed: Integer;
     //
     procedure DecodeAndSetParams(const AValue: String); virtual;
   public
@@ -1286,7 +1287,7 @@ var
   LContinueProcessing, LCloseConnection: Boolean;
   LConn: TIdTCPConnection;
   LEncoding: IIdTextEncoding;
-  LNumRequests, LMaxRequests: Integer;
+  LNumRequestsAllowed: Integer;
 begin
   LContinueProcessing := True;
   Result := False;
@@ -1302,7 +1303,7 @@ begin
           Exit;
         end;
       end;
-      LNumRequests := 0;
+      LNumRequestsAllowed := KeepAliveMaxRequests;
       repeat
         LInputLine := InternalReadLn(LConn.IOHandler);
         i := RPos(' ', LInputLine, -1);    {Do not Localize}
@@ -1314,6 +1315,8 @@ begin
         // reset them as needed on each iteration...
         LRequestInfo := TIdHTTPRequestInfo.Create(Self);
         try
+          LRequestInfo.FNumRequestsAllowed := LNumRequestsAllowed;
+
           LResponseInfo := TIdHTTPResponseInfo.Create(Self, LRequestInfo, LConn);
           try
             // SG 05.07.99
@@ -1535,21 +1538,12 @@ begin
             LResponseInfo.Free;
           end;
         finally
-          if not LCloseConnection then begin
-            LMaxRequests := IndyStrToInt(LRequestInfo.RawHeaders.Params['Keep-Alive', 'max'], -1);
-          end else begin
-            LMaxRequests := -1;
-          end;
           LRequestInfo.Free;
         end;
-        Inc(LNumRequests);
-        if (not LCloseConnection) and (LMaxRequests > 0) then
+        if (not LCloseConnection) and (KeepAliveMaxRequests > 0) then
         begin
-          LCloseConnection := (LNumRequests >= LMaxRequests);
-        end;
-        if (not LCloseConnection) and (FKeepAliveMaxRequests > 0) then
-        begin
-          LCloseConnection := (LNumRequests >= FKeepAliveMaxRequests);
+          Dec(LNumRequestsAllowed);
+          LCloseConnection := (LNumRequestsAllowed < 1);
         end;
         if (not LCloseConnection) and (FKeepAliveTimeout > 0) and
           AContext.Connection.IOHandler.InputBufferIsEmpty then
@@ -2044,14 +2038,6 @@ procedure TIdHTTPResponseInfo.SetCloseConnection(const Value: Boolean);
 begin
   FCloseConnection := Value;
   Connection := iif(Value, 'close', 'keep-alive');    {Do not Localize}
-  if not Value then begin
-    if HTTPServer.KeepAliveTimeout > 0 then begin
-      CustomHeaders.Params['Keep-Alive', 'timeout'] := IntToStr(HTTPServer.KeepAliveTimeout); {do not localize}
-    end;
-    if HTTPServer.KeepAliveMaxRequests > 0 then begin
-      CustomHeaders.Params['Keep-Alive', 'max'] := IntToStr(HTTPServer.KeepAliveMaxRequests); {do not localize}
-    end;
-  end;
 end;
 
 procedure TIdHTTPResponseInfo.SetCookies(const AValue: TIdCookies);
@@ -2065,6 +2051,14 @@ var
   I: Integer;
 begin
   inherited SetHeaders;
+  if not CloseConnection then begin
+    if HTTPServer.KeepAliveTimeout > 0 then begin
+      FRawHeaders.Params['Keep-Alive', 'timeout'] := IntToStr(HTTPServer.KeepAliveTimeout); {do not localize}
+    end;
+    if HTTPServer.KeepAliveMaxRequests > 0 then begin
+      FRawHeaders.Params['Keep-Alive', 'max'] := IntToStr(FRequestInfo.FNumRequestsAllowed-1); {do not localize}
+    end;
+  end;
   if Server <> '' then begin
     FRawHeaders.Values['Server'] := Server;    {Do not Localize}
   end;
