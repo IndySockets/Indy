@@ -184,11 +184,13 @@ type
     ///   Save every line into a text file, in wireshark set "(para-)Master
     ///   Secret log filename" to that text file. Now wireshark can unencrypt
     ///   all encrypted messages.
-    ///   <code>Wireshark: Edit/preferences/Protocols/SSL/(para-)Master Secret log filename</code>
+    ///   <code>Wireshark: Edit/preferences/Protocols/TLS/(pre-)Master Secret log filename</code>
+    ///   A sample implementation could be (which does not handle read share)
+    ///   <code>TFile.AppendAllText('C:\MyLog.txt', ALine + sLineBreak);</code>
     ///  </para>
     ///  <para>
-    ///  OpenSSL follows the format from NSS:
-    ///  <code>https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format</code>
+    ///   OpenSSL follows the format from NSS:
+    ///   <code>https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format</code>
     ///  </para>
     /// </summary>
     /// <remarks>
