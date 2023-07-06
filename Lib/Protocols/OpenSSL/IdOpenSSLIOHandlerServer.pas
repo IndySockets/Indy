@@ -156,6 +156,8 @@ var
   LHandler: TIdOpenSSLIOHandlerClientForServer;
 begin
   LHandler := TIdOpenSSLIOHandlerClientForServer.Create(nil);
+
+  LHandler.Options.Assign(FOptions);
   LHandler.SetServerContext(FContext);
 
   Result := LHandler;

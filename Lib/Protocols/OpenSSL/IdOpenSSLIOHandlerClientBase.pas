@@ -33,21 +33,27 @@ interface
 uses
   IdGlobal,
   IdOpenSSLContext,
+  IdOpenSSLOptions,
   IdOpenSSLSocket,
   IdSSL;
 
 type
   TIdOpenSSLIOHandlerClientBase = class(TIdSSLIOHandlerSocketBase)
   private
+    procedure TLSShutdown;
   protected
     FTLSSocket: TIdOpenSSLSocket;
     FContext: TIdOpenSSLContext;
+    FOptions: TIdOpenSSLOptionsBase;
 
     function RecvEnc(var ABuffer: TIdBytes): Integer; override;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     procedure EnsureContext; virtual; abstract;
 
     procedure SetPassThrough(const Value: Boolean); override;
+
+    function GetOptionClass: TIdOpenSSLOptionsClass; virtual;
+    procedure InitComponent; override;
   public
     destructor Destroy; override;
 
@@ -62,6 +68,8 @@ type
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; override;
 
     function Clone: TIdSSLIOHandlerSocketBase; override;
+
+    property Options: TIdOpenSSLOptionsBase read FOptions;
   end;
 
 implementation
@@ -73,6 +81,7 @@ uses
   SysUtils;
 
 type
+  TIdOpenSSLIOHandlerClientBaseClass = class of TIdOpenSSLIOHandlerClientBase;
   TIdOpenSSLSocketAccessor = class(TIdOpenSSLSocket);
 
 { TIdOpenSSLIOHandlerClientBase }
@@ -86,11 +95,7 @@ end;
 
 procedure TIdOpenSSLIOHandlerClientBase.Close;
 begin
-  if Assigned(FTLSSocket) then
-  begin
-    FTLSSocket.Close();
-    FreeAndNil(FTLSSocket);
-  end;
+  TLSShutdown();
   inherited;
 end;
 
@@ -106,7 +111,19 @@ begin
   FreeAndNil(FTLSSocket);
   // no FContext.Free() here, if a derived class creates an own instance that
   // class should free that object
+  FOptions.Free();
   inherited;
+end;
+
+function TIdOpenSSLIOHandlerClientBase.GetOptionClass: TIdOpenSSLOptionsClass;
+begin
+  Result := TIdOpenSSLOptionsBase;
+end;
+
+procedure TIdOpenSSLIOHandlerClientBase.InitComponent;
+begin
+  inherited;
+  FOptions := GetOptionClass().Create();
 end;
 
 function TIdOpenSSLIOHandlerClientBase.CheckForError(ALastResult: Integer): Integer;
@@ -133,8 +150,13 @@ begin
 end;
 
 function TIdOpenSSLIOHandlerClientBase.Clone: TIdSSLIOHandlerSocketBase;
+var
+  LHandler: TIdOpenSSLIOHandlerClientBase;
 begin
-  Result := TIdClientSSLClass(Self.ClassType).Create(Owner);
+  LHandler := TIdOpenSSLIOHandlerClientBaseClass(Self.ClassType).Create(Owner);
+  LHandler.FOptions.Assign(FOptions);
+
+  Result := LHandler;
 end;
 
 function TIdOpenSSLIOHandlerClientBase.RecvEnc(var ABuffer: TIdBytes): Integer;
@@ -160,11 +182,7 @@ begin
   end
   else
   begin
-    if Assigned(FTLSSocket) then
-    begin
-      FTLSSocket.Close();
-      FreeAndNil(FTLSSocket);
-    end;
+    TLSShutdown();
   end;
 end;
 
@@ -213,6 +231,15 @@ begin
     Binding.SetSockOpt(Id_SOL_SOCKET, Id_SO_SNDTIMEO, LTimeout);
   end;
   {$ENDIF}
+end;
+
+procedure TIdOpenSSLIOHandlerClientBase.TLSShutdown;
+begin
+  if Assigned(FTLSSocket) then
+  begin
+    FTLSSocket.Shutdown(FOptions.UseBidirectionalShutdown);
+    FreeAndNil(FTLSSocket);
+  end;
 end;
 
 end.

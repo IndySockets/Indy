@@ -34,6 +34,7 @@ uses
   IdGlobal,
   IdOpenSSLContext,
   IdOpenSSLIOHandlerClientBase,
+  IdOpenSSLOptions,
   IdOpenSSLOptionsClient,
   IdOpenSSLSocketClient,
   IdSSL;
@@ -45,10 +46,9 @@ type
     function GetTargetHost: string;
     function GetClientSocket: TIdOpenSSLSocketClient; {$IFDEF USE_INLINE}inline;{$ENDIF}
     procedure EnsureOpenSSLLoaded;
+    function GetOptions: TIdOpenSSLOptionsClient;
   protected
-    FOptions: TIdOpenSSLOptionsClient;
-    function GetOptionClass: TIdOpenSSLOptionsClientClass; virtual;
-    procedure InitComponent; override;
+    function GetOptionClass: TIdOpenSSLOptionsClass; override;
     procedure EnsureContext; override;
 
     procedure BeforeInitContext(const AContext: TIdOpenSSLContext); virtual;
@@ -59,7 +59,7 @@ type
 
     function Clone: TIdSSLIOHandlerSocketBase; override;
   published
-    property Options: TIdOpenSSLOptionsClient read FOptions;
+    property Options: TIdOpenSSLOptionsClient read GetOptions;
   end;
 
 implementation
@@ -87,7 +87,7 @@ begin
   EnsureOpenSSLLoaded();
   try
     BeforeInitContext(FContext);
-    TIdOpenSSLContextClient(FContext).Init(FOptions);
+    TIdOpenSSLContextClient(FContext).Init(Options);
     AfterInitContext(FContext);
   except
     on E: EExternalException do
@@ -131,7 +131,6 @@ var
   i: Integer;
 begin
   Result := inherited Clone();
-  Options.AssignTo(TIdOpenSSLIOHandlerClient(Result).Options);
   TIdOpenSSLIOHandlerClient(Result).EnsureContext();
   LSessionCopies := TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Result).FContext).FSessionList;
   LSessionCopies.Assign(TIdOpenSSLContextClientAccessor(TIdOpenSSLIOHandlerClient(Self).FContext).FSessionList);
@@ -141,7 +140,6 @@ end;
 
 destructor TIdOpenSSLIOHandlerClient.Destroy;
 begin
-  FOptions.Free();
   inherited;
   // Destroy tls socket before context
   FContext.Free();
@@ -152,9 +150,14 @@ begin
   Result := FTLSSocket as TIdOpenSSLSocketClient;
 end;
 
-function TIdOpenSSLIOHandlerClient.GetOptionClass: TIdOpenSSLOptionsClientClass;
+function TIdOpenSSLIOHandlerClient.GetOptionClass: TIdOpenSSLOptionsClass;
 begin
   Result := TIdOpenSSLOptionsClient;
+end;
+
+function TIdOpenSSLIOHandlerClient.GetOptions: TIdOpenSSLOptionsClient;
+begin
+  Result := TIdOpenSSLOptionsClient(FOptions);
 end;
 
 function TIdOpenSSLIOHandlerClient.GetTargetHost: string;
@@ -195,18 +198,12 @@ begin
     Result := GetProxyTargetHost(FTransparentProxy);
 end;
 
-procedure TIdOpenSSLIOHandlerClient.InitComponent;
-begin
-  inherited;
-  FOptions := GetOptionClass().Create();
-end;
-
 procedure TIdOpenSSLIOHandlerClient.StartSSL;
 begin
   inherited;
   if PassThrough then
     Exit;
-  GetClientSocket().Connect(Binding.Handle, GetTargetHost(), FOptions.VerifyHostName);
+  GetClientSocket().Connect(Binding.Handle, GetTargetHost(), Options.VerifyHostName);
 end;
 
 end.

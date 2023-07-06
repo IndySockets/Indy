@@ -37,7 +37,9 @@ uses
 type
   TIdOpenSSLSocket = class(TObject)
   private
-    FDoNotCallShutdown: Boolean;
+    FCallShutdown: Boolean;
+    function HasShutdownBeenReceived(const ASSL: PSSL): Boolean;
+    function HasShutdownBeenSent(const ASSL: PSSL): Boolean;
   protected
     FSSL: PSSL;
     FContext: PSSL_CTX;
@@ -59,7 +61,21 @@ type
     constructor Create(const AContext: PSSL_CTX);
     destructor Destroy; override;
 
-    procedure Close;
+    /// <summary>
+    ///   Closes the TLS (but not the TCP) connection with a shutdown (close_notify alert)
+    /// </summary>
+    /// <param name="AUseBidirectionalShutdown">
+    ///   Determines whether to wait for the close_notify of the peer.
+    ///   The wait could trigger ReadTimeouts.
+    /// </param>
+    /// <remarks>
+    ///   See RFC 5246 Section 7.2.1 for more information
+    ///   (for example https://www.rfc-editor.org/rfc/rfc5246#section-7.2.1). If the application
+    ///   protocol will not transfer any additional data, but will only close the underlying
+    ///   transport connection, then the implementation MAY choose to close the transport without
+    ///   waiting for the responding close_notify.
+    /// </remarks>
+    procedure Shutdown(const AUseBidirectionalShutdown: Boolean);
 
     function Send(const ABuffer: TIdBytes; AOffset, ALength: Integer): Integer;
     function Receive(var ABuffer: TIdBytes): Integer;
@@ -80,25 +96,6 @@ uses
   SysUtils;
 
 { TIdOpenSSLSocket }
-
-procedure TIdOpenSSLSocket.Close;
-var
-  LReturnCode: TIdC_INT;
-  LSSLErrorCode: TIdC_INT;
-begin
-  if not FDoNotCallShutdown then
-  begin
-    LReturnCode := SSL_shutdown(FSSL);
-    if LReturnCode < 0 then
-    begin
-      LSSLErrorCode := SSL_get_error(FSSL, LReturnCode);
-      if LSSLErrorCode <> SSL_ERROR_ZERO_RETURN then
-        raise EIdOpenSSLShutdownError.Create(FSSL, LReturnCode, RIdOpenSSLShutdownError);
-    end;
-  end
-  else
-    SSL_set_shutdown(FSSL, SSL_SENT_SHUTDOWN or SSL_RECEIVED_SHUTDOWN);
-end;
 
 constructor TIdOpenSSLSocket.Create(const AContext: PSSL_CTX);
 begin
@@ -126,6 +123,22 @@ end;
 function TIdOpenSSLSocket.HasReadableData: Boolean;
 begin
   Result := SSL_pending(FSSL) > 0;
+end;
+
+function TIdOpenSSLSocket.HasShutdownBeenReceived(const ASSL: PSSL): Boolean;
+var
+  LShutdownMask: TIdC_INT;
+begin
+  LShutdownMask := SSL_get_shutdown(ASSL);
+  Result := (LShutdownMask and SSL_RECEIVED_SHUTDOWN) <> 0;
+end;
+
+function TIdOpenSSLSocket.HasShutdownBeenSent(const ASSL: PSSL): Boolean;
+var
+  LShutdownMask: TIdC_INT;
+begin
+  LShutdownMask := SSL_get_shutdown(ASSL);
+  Result := (LShutdownMask and SSL_SENT_SHUTDOWN) <> 0;
 end;
 
 function TIdOpenSSLSocket.ShouldRetry(const ASSL: PSSL; var AReturnCode: Integer): Boolean;
@@ -165,7 +178,7 @@ begin
     SSL_ERROR_SYSCALL:
     // Some non-recoverable, fatal I/O error occurred.
     begin
-      FDoNotCallShutdown := True;
+      FCallShutdown := False;
       Result := False;
     end;
 
@@ -173,12 +186,60 @@ begin
     // A non-recoverable, fatal error in the SSL library occurred, usually a
     // protocol error.
     begin
-      FDoNotCallShutdown := True;
+      FCallShutdown := False;
       Result := False;
     end
   else
     Result := False;
   end;
+end;
+
+procedure TIdOpenSSLSocket.Shutdown(const AUseBidirectionalShutdown: Boolean);
+var
+  LReturnCode: TIdC_INT;
+  LSSLErrorCode: TIdC_INT;
+  LBuffer: array[0 .. 1023] of Byte;
+  LReadBytes: TIdC_SizeT;
+begin
+  if FCallShutdown and not HasShutdownBeenSent(FSSL) then
+  begin
+    // Maybe the server has already sent a close notify alert. Or maybe we haven't received a
+    // New Session Ticket event yet.
+    // Read it to avoid a RST on the TCP connection
+    // See https://github.com/openssl/openssl/issues/7948 for more information, really you should
+    // read that discussion
+    // Same solution as used in https://github.com/curl/curl/issues/6149
+//    SSL_read(FSSL, @LBuffer[0], Length(LBuffer));
+
+    LReturnCode := SSL_shutdown(FSSL);
+    case LReturnCode of
+      // The shutdown was successfully completed. The close_notify alert was sent and the peer's
+      // close_notify alert was received.
+      1: ;
+
+      // The shutdown is not yet finished: the close_notify was sent but the peer did not send it
+      // back yet. Call SSL_read() to do a bidirectional shutdown.
+      // Unlike most other functions, returning 0 does not indicate an error. SSL_get_error should
+      // not get called, it may misleadingly indicate an error even though no error occurred.
+      0:
+      begin
+        if AUseBidirectionalShutdown then
+        begin
+          LReadBytes := 0;
+          // Continue reading until the close_notify is received
+          while not HasShutdownBeenReceived(FSSL) do
+            if SSL_read_ex(FSSL, @LBuffer[0], Length(LBuffer), @LReadBytes) = 0 then
+              Break;
+        end;
+      end;
+    else
+      LSSLErrorCode := SSL_get_error(FSSL, LReturnCode);
+      if LSSLErrorCode <> SSL_ERROR_ZERO_RETURN then
+        raise EIdOpenSSLShutdownError.Create(FSSL, LReturnCode, RIdOpenSSLShutdownError);
+    end;
+  end
+  else
+    SSL_set_shutdown(FSSL, SSL_SENT_SHUTDOWN or SSL_RECEIVED_SHUTDOWN);
 end;
 
 function TIdOpenSSLSocket.Receive(var ABuffer: TIdBytes): Integer;
@@ -187,7 +248,10 @@ begin
     Result := SSL_read(FSSL, PByte(ABuffer), Length(ABuffer));
     // Got a result, no need for reading more or retrying
     if Result > 0 then
+    begin
+      SetLength(ABuffer, Result);
       Exit;
+    end;
   until not ShouldRetry(FSSL, Result);
 end;
 
@@ -221,7 +285,7 @@ begin
   Result := SSL_new(AContext);
   if not Assigned(Result) then
     EIdOpenSSLNewSSLError.Raise_(RIdOpenSSLNewSSLError);
-  FDoNotCallShutdown := False;
+  FCallShutdown := True;
 end;
 
 end.

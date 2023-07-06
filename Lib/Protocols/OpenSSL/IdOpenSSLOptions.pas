@@ -42,6 +42,7 @@ const
   CDefaultUseServerCipherPreferences = True;
   CDefaultAllowUnsafeLegacyRenegotiation = False;
   CDefaultUseLegacyServerConnect = False;
+  CDefaultUseBidirectionalShutdown = True;
 
 type
   TIdOpenSSLOptionsBase = class(TIdOpenSSLPersistent)
@@ -60,6 +61,7 @@ type
     FAllowUnsafeLegacyRenegotiation: Boolean;
     FUseLegacyServerConnect: Boolean;
     FOnVerify: TVerifyCallback;
+    FUseBidirectionalShutdown: Boolean;
   public
     constructor Create; override;
     procedure AssignTo(Dest: TPersistent); override;
@@ -170,6 +172,23 @@ type
     ///   names in order of preference.
     /// </remarks>
     property CipherSuites: string read FCipherSuites write FCipherSuites;
+    /// <summary>
+    ///   Determines whether to wait for the close_notify of the peer.
+    ///   The wait contains multiple Reads and could trigger ReadTimeouts.
+    /// </summary>
+    /// <remarks>
+    ///   <para>A unidirectional shutdown in TLS 1.3 can lead to a TCP RST, and associated data loss
+    ///   at the remote peer. See https://github.com/openssl/openssl/issues/7948 for whole
+    ///   discussion. Really, you should read it.</para>
+    ///
+    ///   <para>If the application protocol will not transfer any additional data, but will only
+    ///   close the underlying transport connection, then the implementation MAY choose to close the
+    ///   transport without waiting for the responding close_notify.</para>
+    ///
+    ///   <para>See RFC 5246 Section 7.2.1 for more information
+    ///   (for example https://www.rfc-editor.org/rfc/rfc5246#section-7.2.1).</para>
+    /// </remarks>
+    property UseBidirectionalShutdown: Boolean read FUseBidirectionalShutdown write FUseBidirectionalShutdown default CDefaultUseBidirectionalShutdown;
 
     /// <summary>
     ///  <para>
@@ -230,6 +249,7 @@ begin
     LDest.FUseServerCipherPreferences := FUseServerCipherPreferences;
     LDest.FAllowUnsafeLegacyRenegotiation := FAllowUnsafeLegacyRenegotiation;
     LDest.FUseLegacyServerConnect := FUseLegacyServerConnect;
+    LDest.FUseBidirectionalShutdown := FUseBidirectionalShutdown;
     LDest.FOnGetPassword := FOnGetPassword;
     LDest.FOnKeyLogging := FOnKeyLogging;
     LDest.FOnVerify := FOnVerify;
@@ -244,6 +264,7 @@ begin
   FUseServerCipherPreferences := CDefaultUseServerCipherPreferences;
   FAllowUnsafeLegacyRenegotiation := CDefaultAllowUnsafeLegacyRenegotiation;
   FUseLegacyServerConnect := CDefaultUseLegacyServerConnect;
+  FUseBidirectionalShutdown := CDefaultUseBidirectionalShutdown;
 end;
 
 function TIdOpenSSLOptionsBase.Equals(Obj: TObject): Boolean;
@@ -271,6 +292,7 @@ begin
       and (FUseServerCipherPreferences = LObj.FUseServerCipherPreferences)
       and (FAllowUnsafeLegacyRenegotiation = LObj.FAllowUnsafeLegacyRenegotiation)
       and (FUseLegacyServerConnect = LObj.FUseLegacyServerConnect)
+      and (FUseBidirectionalShutdown = LObj.FUseBidirectionalShutdown)
       and EqualMethod(TMethod(FOnGetPassword), TMethod(LObj.FOnGetPassword))
       and EqualMethod(TMethod(FOnKeyLogging), TMethod(LObj.FOnKeyLogging))
       and EqualMethod(TMethod(FOnVerify), TMethod(LObj.FOnVerify));
