@@ -4174,24 +4174,32 @@ end;
 
 function TIdVCLEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetByteCount(AChars, ACharCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
   ABytes: PByte; AByteCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetBytes(AChars, ACharCount, ABytes, AByteCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetCharCount(ABytes, AByteCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
   AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetChars(ABytes, AByteCount, AChars, ACharCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetMaxByteCount(ACharCount: Integer): Integer;

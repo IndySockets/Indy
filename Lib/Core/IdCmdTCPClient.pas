@@ -195,7 +195,9 @@ begin
   FClient := AClient;
   FContext := TIdCmdClientContext.Create(AClient, nil, nil);
   FContext.FClient := AClient;
+  {$I IdObjectChecksOff.inc}
   TIdCmdClientContextAccess(FContext).FOwnsConnection := False;
+  {$I IdObjectChecksOn.inc}
   //
   inherited Create(False);
 end;

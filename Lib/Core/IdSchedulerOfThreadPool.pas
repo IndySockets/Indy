@@ -166,7 +166,9 @@ var
 begin
   //take posession of the thread
   LThread := TIdYarnOfThread(AYarn).Thread;
+  {$I IdObjectChecksOff.inc}
   TIdYarnOfThreadAccess(AYarn).FThread := nil;
+  {$I IdObjectChecksOn.inc}
   //Currently LThread can =nil. Is that a valid condition?
   //Assert(LThread<>nil);
 
