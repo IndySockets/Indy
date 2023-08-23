@@ -608,7 +608,9 @@ begin
   //IdDisposeAndNil(FYarn);
   if FYarn is TIdYarnOfThread then
   begin
+    {$I IdObjectChecksOff.inc}
     LScheduler := TIdYarnOfThreadAccess(FYarn).FScheduler;
+    {$I IdObjectChecksOn.inc}
     if Assigned(LScheduler) then
     begin
       LList := LScheduler.ActiveYarns.LockList;
@@ -726,7 +728,9 @@ initialization
   GThreadCount := TIdThreadSafeInt32.Create;
   {$IF (NOT DEFINED(FREE_ON_FINAL)) AND DEFINED(REGISTER_EXPECTED_MEMORY_LEAK)}
   IndyRegisterExpectedMemoryLeak(GThreadCount);
+  {$I IdObjectChecksOff.inc}
   IndyRegisterExpectedMemoryLeak(TIdThreadSafeInt32Access(GThreadCount).FCriticalSection);
+  {$I IdObjectChecksOn.inc}
   {$IFEND}
   {$I IdSymbolDeprecatedOn.inc}
 finalization
