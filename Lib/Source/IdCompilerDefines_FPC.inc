@@ -98,6 +98,7 @@
 {$IF FPC_FULLVERSION >= 30101}
   {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
   {$DEFINE HAS_PRawByteString}
+  {$DEFINE HAS_UIntToStr} // requires rev 40529+
 {$ENDIF}
 
 {$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}

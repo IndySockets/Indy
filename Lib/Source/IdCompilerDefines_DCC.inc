@@ -373,6 +373,7 @@
 // Native(U)Int are still buggy, so do not use them yet
 {.$DEFINE HAS_NativeInt}
 {.$DEFINE HAS_NativeUInt}
+{$DEFINE HAS_UIntToStr}
 {$DEFINE HAS_PRawByteString}
 {$DEFINE HAS_TThreadProcedure}
 

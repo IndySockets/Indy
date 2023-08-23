@@ -83,8 +83,8 @@ const
   ASN1_TIMETICKS = $43;
   ASN1_OPAQUE = $44;
 
-function ASNEncOIDItem(Value: Integer): string;
-function ASNDecOIDItem(var Start: Integer; const Buffer: string): Integer;
+function ASNEncOIDItem(Value: UInt32): string;
+function ASNDecOIDItem(var Start: Integer; const Buffer: string): UInt32;
 function ASNEncLen(Len: Integer): string;
 function ASNDecLen(var Start: Integer; const Buffer: string): Integer;
 function ASNEncInt(Value: Integer): string;
@@ -102,9 +102,9 @@ uses
   IdGlobal;
 
 {==============================================================================}
-function ASNEncOIDItem(Value: Integer): string;
+function ASNEncOIDItem(Value: UInt32): string;
 var
-  x, xm: Integer;
+  x, xm: UInt32;
   b: Boolean;
 begin
   x := Value;
@@ -122,9 +122,9 @@ begin
 end;
 
 {==============================================================================}
-function ASNDecOIDItem(var Start: Integer; const Buffer: string): Integer;
+function ASNDecOIDItem(var Start: Integer; const Buffer: string): UInt32;
 var
-  x: Integer;
+  x: UInt32;
   b: Boolean;
 begin
   Result := 0;
@@ -450,9 +450,9 @@ end;
 {==============================================================================}
 function MibToId(Mib: string): string;
 var
-  x: Integer;
+  x: UInt32;
 
-  function WalkInt(var s: string): Integer;
+  function WalkInt(var s: string): UInt32;
   var
     lx: Integer;
     t: string;
@@ -468,7 +468,8 @@ var
       t := Copy(s, 1, lx - 1);
       s := Copy(s, lx + 1, MaxInt);
     end;
-    Result := IndyStrToInt(t, 0);
+    // TODO: verify the returned value is in the range of UInt32!
+    Result := IndyStrToInt64(t, 0);
   end;
 
 begin
@@ -484,9 +485,19 @@ begin
 end;
 
 {==============================================================================}
+
+{$IFNDEF HAS_UIntToStr}
+function UIntToStr(AValue: UInt32): string;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := SysUtils.IntToStr(Int64(AValue));
+end;
+{$ENDIF}
+
 function IdToMib(const Id: string): string;
 var
-  x, y, n: Integer;
+  x, y: UInt32;
+  n: Integer;
 begin
   Result := '';              {Do not Localize}
   n := 1;
@@ -497,9 +508,9 @@ begin
     begin
       y := x div 40;
       x := x mod 40;
-      Result := IntToStr(y);
+      Result := UIntToStr(y);
     end;
-    Result := Result + '.' + IntToStr(x);    {Do not Localize}
+    Result := Result + '.' + UIntToStr(x);    {Do not Localize}
   end;
 end;
 
