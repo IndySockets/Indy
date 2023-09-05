@@ -84,6 +84,8 @@ const
   ASN1_GAUGE = $42;
   ASN1_TIMETICKS = $43;
   ASN1_OPAQUE = $44;
+  ASN1_APP_COUNTER64 = $46;
+  // TODO: float, double, int64, uint64
 
 function ASNEncOIDItem(Value: UInt32): string;
 function ASNDecOIDItem(var Start: Integer; const Buffer: string): UInt32;
@@ -333,7 +335,9 @@ begin
           end;
           Result := IntToStr(y);
         end;
-      ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:  //Typically a 32-bit _unsigned_ number
+      ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS,  //Typically a 32-bit _unsigned_ number
+      ASN1_APP_COUNTER64:
+      // TODO: int64, uint64
         begin
           z := 0;
           for n := 1 to ASNSize do begin
@@ -344,6 +348,7 @@ begin
           end;
           Result := IntToStr(z);
         end;
+      // TODO: float, double
       ASN1_OCTSTR, ASN1_OPAQUE:
         begin
           {$IFDEF STRING_IS_IMMUTABLE}
