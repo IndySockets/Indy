@@ -764,6 +764,9 @@ type
 
 implementation
 
+uses
+  SysUtils;
+
 { TIdLDAPV3Control }
 
 constructor TIdLDAPV3Control.Create;
