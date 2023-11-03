@@ -374,13 +374,13 @@ procedure TIdCustomSocksServer.HandleConnectV4(AContext: TIdSocksServerContext;
 var
   LData: TIdBytes;
   LBinding: TIdSocketHandle;
+  LUserId: string;
 begin
   AContext.Connection.IOHandler.ReadBytes(LData, 7);
   VCommand := LData[0];
   VPort := GStack.NetworkToHost(BytesToUInt16(LData, 1));
   VHost := BytesToIPv4Str(LData, 3);
-  AContext.FUsername := AContext.Connection.IOHandler.ReadLn(#0);
-  AContext.FPassword := '';
+  LUserId := AContext.Connection.IOHandler.ReadLn(#0);
 
   // According to the Socks 4a spec:
   //
@@ -403,10 +403,17 @@ begin
     AContext.FIPVersion := Id_IPv4;
   end;
 
-  if not DoAuthenticate(AContext) then begin
-    SendV4Response(AContext, 93);
-    AContext.Connection.Disconnect;
-    raise EIdSocksSvrInvalidLogin.Create(RSSocksSvrInvalidLogin);
+  if not NeedsAuthentication then begin
+    AContext.FUsername := '';
+    AContext.FPassword := '';
+  end else begin
+    AContext.FUsername := LUserId;
+    AContext.FPassword := '';
+    if not DoAuthenticate(AContext) then begin
+      SendV4Response(AContext, 93);
+      AContext.Connection.Disconnect;
+      raise EIdSocksSvrInvalidLogin.Create(RSSocksSvrInvalidLogin);
+    end;
   end;
 end;
 

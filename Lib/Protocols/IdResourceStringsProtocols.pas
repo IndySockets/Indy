@@ -187,7 +187,7 @@ resourcestring
   //MIME Types
   RSMIMEExtensionEmpty = 'Extension is empty';
   RSMIMEMIMETypeEmpty = 'Mimetype is empty';
-  RSMIMEMIMEExtAlreadyExists = 'Extension already exits';
+  RSMIMEMIMEExtAlreadyExists = 'Extension already exists';
 
   // IdRegister
   RSRegSASL = 'Indy SASL';

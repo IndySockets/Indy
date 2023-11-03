@@ -1062,6 +1062,7 @@
   {$ENDIF}
   {$DEFINE HAS_GetObjectProp}
   {$DEFINE HAS_TObjectList}
+  {$DEFINE HAS_StrToInt64Def}
 {$ENDIF}
 
 {$IFDEF VCL_6_OR_ABOVE}
@@ -1164,7 +1165,6 @@
   // Native(U)Int exist but are buggy, so do not use them yet
   {.$DEFINE HAS_NativeInt}
   {.$DEFINE HAS_NativeUInt}
-  {$DEFINE HAS_StrToInt64Def}
   {$DEFINE HAS_DWORD_PTR}
   {$DEFINE HAS_ULONG_PTR}
   {$DEFINE HAS_ULONGLONG}
@@ -1203,6 +1203,7 @@
   {$DEFINE HAS_UInt16}
   {$DEFINE HAS_Int32}
   {$DEFINE HAS_UInt32}
+  {$DEFINE HAS_UIntToStr}
   // UInt64 is now emitted as unsigned __int64 in HPP files
   {$IFDEF CBUILDER}
     {$UNDEF BROKEN_UINT64_HPPEMIT}
@@ -1503,6 +1504,7 @@
   {$IFDEF FPC_3_1_1_OR_ABOVE}
     {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
     {$DEFINE HAS_PRawByteString}
+    {$DEFINE HAS_UIntToStr} // requires rev 40529+
   {$ENDIF}
 {$ENDIF}
 

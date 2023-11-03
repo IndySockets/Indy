@@ -584,7 +584,9 @@ begin
   Result := True;
   AStream.Size := ACapacity;
   if AStream is TMemoryStream then begin
+    {$I IdObjectChecksOff.inc}
     AStream.Size := TMemStreamAccess(AStream).Capacity;
+    {$I IdObjectChecksOn.inc}
   end;
 end;
 

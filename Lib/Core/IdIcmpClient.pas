@@ -166,17 +166,17 @@ type
     procedure GetEchoReply;
     procedure InitComponent; override;
     {$IFNDEF DOTNET_1_1}
-    procedure PrepareEchoRequestIPv6(const ABuffer: String);
+    procedure PrepareEchoRequestIPv6(const ABuffer: TIdBytes);
     {$ENDIF}
-    procedure PrepareEchoRequestIPv4(const ABuffer: String);
-    procedure PrepareEchoRequest(const ABuffer: String);
+    procedure PrepareEchoRequestIPv4(const ABuffer: TIdBytes);
+    procedure PrepareEchoRequest(const ABuffer: TIdBytes);
     procedure SendEchoRequest; overload;
     procedure SendEchoRequest(const AIP : String); overload;
     function GetPacketSize: Integer;
     procedure SetPacketSize(const AValue: Integer);
 
     //these are made public in the client
-    procedure InternalPing(const AIP : String; const ABuffer: String = ''; SequenceID: Word = 0); overload; {Do not Localize}
+    procedure InternalPing(const AIP : String; const ABuffer: TIdBytes = nil; SequenceID: Word = 0); overload;
     //
     property PacketSize : Integer read GetPacketSize write SetPacketSize default DEF_PACKET_SIZE;
     property ReplyData: string read FReplydata;
@@ -193,7 +193,8 @@ type
 
   TIdIcmpClient = class(TIdCustomIcmpClient)
   public
-    procedure Ping(const ABuffer: String = ''; SequenceID: Word = 0);    {Do not Localize}
+    procedure Ping(const ABuffer: TIdBytes = nil; SequenceID: Word = 0); overload;
+    procedure Ping(const ABuffer: String; SequenceID: Word = 0); overload;
     property ReplyData;
     property ReplyStatus;
   published
@@ -223,7 +224,7 @@ uses
 
 { TIdCustomIcmpClient }
 
-procedure TIdCustomIcmpClient.PrepareEchoRequest(const ABuffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequest(const ABuffer: TIdBytes);
 begin
   {$IFNDEF DOTNET_1_1}
   if IPVersion = Id_IPv6 then begin
@@ -601,15 +602,13 @@ begin
   end;
 end;
 
-procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(const ABuffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(const ABuffer: TIdBytes);
 var
   LIcmp: TIdICMPHdr;
   LIdx: UInt32;
-  LBuffer: TIdBytes;
   LBufferLen: Integer;
 begin
-  LBuffer := ToBytes(ABuffer, IndyTextEncoding_8Bit);
-  LBufferLen := IndyMin(Length(LBuffer), FPacketSize);
+  LBufferLen := IndyMin(Length(ABuffer), FPacketSize);
 
   SetLength(FBufIcmp, ICMP_MIN + SizeOf(TIdTicks) + LBufferLen);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
@@ -627,7 +626,7 @@ begin
     CopyTIdTicks(Ticks64, FBufIcmp, LIdx);
     Inc(LIdx, SizeOf(TIdTicks));
     if LBufferLen > 0 then begin
-      CopyTIdBytes(LBuffer, 0, FBufIcmp, LIdx, LBufferLen);
+      CopyTIdBytes(ABuffer, 0, FBufIcmp, LIdx, LBufferLen);
     end;
   finally
     FreeAndNil(LIcmp);
@@ -635,15 +634,13 @@ begin
 end;
 
 {$IFNDEF DOTNET_1_1}
-procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const ABuffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const ABuffer: TIdBytes);
 var
   LIcmp : TIdicmp6_hdr;
   LIdx : UInt32;
-  LBuffer: TIdBytes;
   LBufferLen: Integer;
 begin
-  LBuffer := ToBytes(ABuffer, IndyTextEncoding_8Bit);
-  LBufferLen := IndyMin(Length(LBuffer), FPacketSize);
+  LBufferLen := IndyMin(Length(ABuffer), FPacketSize);
 
   SetLength(FBufIcmp, ICMP_MIN + SizeOf(TIdTicks) + LBufferLen);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
@@ -661,7 +658,7 @@ begin
     CopyTIdTicks(Ticks64, FBufIcmp, LIdx);
     Inc(LIdx, SizeOf(TIdTicks));
     if LBufferLen > 0 then begin
-      CopyTIdBytes(LBuffer, 0, FBufIcmp, LIdx, LBufferLen);
+      CopyTIdBytes(ABuffer, 0, FBufIcmp, LIdx, LBufferLen);
     end;
   finally
     FreeAndNil(LIcmp);
@@ -799,7 +796,7 @@ begin
   end;
 end;
 
-procedure TIdCustomIcmpClient.InternalPing(const AIP, ABuffer: String; SequenceID: Word);
+procedure TIdCustomIcmpClient.InternalPing(const AIP: String; const ABuffer: TIdBytes; SequenceID: Word);
 begin
   if SequenceID <> 0 then begin
     wSeqNo := SequenceID;
@@ -819,9 +816,14 @@ end;
 
 { TIdIcmpClient }
 
-procedure TIdIcmpClient.Ping(const ABuffer: String; SequenceID: Word);
+procedure TIdIcmpClient.Ping(const ABuffer: TIdBytes; SequenceID: Word);
 begin
   InternalPing(GStack.ResolveHost(Host, IPVersion), ABuffer, SequenceID);
+end;
+
+procedure TIdIcmpClient.Ping(const ABuffer: String; SequenceID: Word);
+begin
+  Ping(ToBytes(ABuffer, IndyTextEncoding_8Bit), SequenceID);
 end;
 
 end.

@@ -95,7 +95,7 @@ begin
   for i := 1 to 30 do
   begin
     ReplyStatus.PacketNumber := i;
-    InternalPing(LIPAddr, '', LSeq);
+    InternalPing(LIPAddr, nil, LSeq);
     case ReplyStatus.ReplyStatusType of
       rsErrorTTLExceeded,
       rsTimeout : ;
