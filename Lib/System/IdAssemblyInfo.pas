@@ -41,7 +41,7 @@ uses
 [assembly: AssemblyConfiguration('')]
 [assembly: AssemblyCompany('Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
 [assembly: AssemblyProduct('Indy for Microsoft .NET Framework')]
-[assembly: AssemblyCopyright('Copyright © 1993 - 2015 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
+[assembly: AssemblyCopyright('Copyright © 1993 - 2023 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
 [assembly: AssemblyTrademark('')]
 [assembly: AssemblyCulture('')]
 
