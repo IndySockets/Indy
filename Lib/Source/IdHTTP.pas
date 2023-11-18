@@ -568,6 +568,10 @@ type
 
     procedure Delete(AURL: string; AResponseContent: TStream); overload;
     function Delete(AURL: string): string; overload;
+    function Delete(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil): string; overload;
+    function Delete(AURL: string; ASource: TStream): string; overload;
+    procedure Delete(AURL: string; ASource: TStrings; AResponseContent: TStream; AByteEncoding: IIdTextEncoding = nil); overload;
+    procedure Delete(AURL: string; ASource, AResponseContent: TStream); overload;
 
     procedure Options(AURL: string; AResponseContent: TStream); overload;
     function Options(AURL: string): string; overload;
@@ -747,6 +751,75 @@ begin
   finally
     LStream.Free;
   end;
+end;
+
+function TIdCustomHTTP.Delete(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil): string;
+var
+  LParams: TMemoryStream;
+begin
+  // Usual posting request have default ContentType is application/x-www-form-urlencoded
+  if (AHTTP.Request.ContentType = '') or IsContentTypeHtml(AHTTP.Request) then begin
+    AHTTP.Request.ContentType := 'application/x-www-form-urlencoded'; {do not localize}
+  end;
+
+  if ASource <> nil then
+  begin
+    LParams := TMemoryStream.Create;
+    try
+      WriteStringToStream(LParams, SetRequestParams(ASource, AByteEncoding));
+      LParams.Position := 0;
+      DoRequest(Id_HTTPMethodDelete, AURL, LParams, AResponseContent, []);
+    finally
+      LParams.Free;
+    end;
+  end else begin
+    DoRequest(Id_HTTPMethodDelete, AURL, TStream(nil), AResponseContent, []);
+  end;
+end;
+
+
+function TIdCustomHTTP.Delete(AURL: string; ASource: TStream): string;
+var
+  LResponse: TMemoryStream;
+begin
+  LResponse := TMemoryStream.Create;
+  try
+    DoRequest(Id_HTTPMethodDelete, AURL, ASource, LResponse, []);
+    LResponse.Position := 0;
+    Result := ReadStringAsCharset(LResponse, AHTTP.Response.Charset);
+    // TODO: if the data is XML, add/update the declared encoding to 'UTF-16LE'...
+  finally
+    LResponse.Free;
+  end;
+end;
+
+procedure TIdCustomHTTP.Delete(AURL: string; ASource: TStrings; AResponseContent: TStream; AByteEncoding: IIdTextEncoding = nil);
+var
+  LParams: TMemoryStream;
+begin
+  // Usual posting request have default ContentType is application/x-www-form-urlencoded
+  if (AHTTP.Request.ContentType = '') or IsContentTypeHtml(AHTTP.Request) then begin
+    AHTTP.Request.ContentType := 'application/x-www-form-urlencoded'; {do not localize}
+  end;
+  
+  if ASource <> nil then
+  begin
+    LParams := TMemoryStream.Create;
+    try
+      WriteStringToStream(LParams, SetRequestParams(ASource, AByteEncoding));
+      LParams.Position := 0;
+      DoRequest(Id_HTTPMethodDelete, AURL, LParams, AResponseContent, []);
+    finally
+      LParams.Free;
+    end;
+  end else begin
+    DoRequest(Id_HTTPMethodDelete, AURL, TStream(nil), AResponseContent, []);
+  end;
+end;
+
+procedure TIdCustomHTTP.Delete(AURL: string; ASource, AResponseContent: TStream);
+begin
+  DoRequest(Id_HTTPMethodDelete, AURL, ASource, AResponseContent, []);
 end;
 
 procedure TIdCustomHTTP.Options(AURL: string; AResponseContent: TStream);
@@ -3175,7 +3248,7 @@ begin
         Response.ResponseText := InternalReadLn;
         FHTTPProto.RetrieveHeaders(MaxHeaderLines);
         ProcessCookies(Request, Response);
-        if (Response.ResponseCode div 100) <> 1) or (Response.ResponseCode = 101) then begin
+        if ((Response.ResponseCode div 100) <> 1) or (Response.ResponseCode = 101) then begin
           Break;
         end;
         Response.Clear;
