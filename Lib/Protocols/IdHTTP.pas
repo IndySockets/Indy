@@ -880,7 +880,7 @@ begin
   EnsureEncoding(AByteEncoding, encUTF8);
   {$IFDEF STRING_IS_ANSI}
   EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
+  LChars := ASrcEncoding.GetChars(PByte(PAnsiChar(ASrc)), Length(ASrc));
   {$ENDIF}
 
   // 2 Chars to handle UTF-16 surrogates
@@ -3186,7 +3186,7 @@ begin
         Response.ResponseText := InternalReadLn;
         FHTTPProto.RetrieveHeaders(MaxHeaderLines);
         ProcessCookies(Request, Response);
-        if (Response.ResponseCode div 100) <> 1) or (Response.ResponseCode = 101) then begin
+        if ((Response.ResponseCode div 100) <> 1) or (Response.ResponseCode = 101) then begin
           Break;
         end;
         Response.Clear;
