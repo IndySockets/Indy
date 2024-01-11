@@ -1,4 +1,4 @@
-{$IFDEF CONDITIONALEXPRESSIONS}
+﻿{$IFDEF CONDITIONALEXPRESSIONS}
   // Must be at the top...
   {$IF CompilerVersion >= 24.0}
     {$LEGACYIFEND ON}
@@ -440,6 +440,16 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 12.0 Athens (Yukon)
+  {$IFDEF VER360}
+    {$DEFINE VCL_12}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_12}
+    {$ELSE}
+      {$DEFINE DELPHI_12}
+    {$ENDIF}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
@@ -739,8 +749,20 @@
 
 // end FPC
 
+{$IFDEF VCL_12}
+  {$DEFINE VCL_12_OR_ABOVE}
+{$ENDIF}
+
 {$IFDEF VCL_11}
   {$DEFINE VCL_11_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_12_OR_ABOVE}
+  {$DEFINE VCL_11_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_11}
+    {$DEFINE VCL_10_4_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_11_OR_ABOVE}
@@ -1627,7 +1649,7 @@
 {$IFDEF UNIX}
   {$DEFINE USE_OPENSSL}
   {$DEFINE USE_ZLIB_UNIT}
-  {$DEFINE HAS_getifaddrs}
+  {$DEFINE HAS_getifaddrs}  
 {$ENDIF}
 
 {$IFDEF MACOS}
