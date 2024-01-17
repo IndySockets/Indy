@@ -187,7 +187,7 @@ resourcestring
   //MIME Types
   RSMIMEExtensionEmpty = 'Extension is empty';
   RSMIMEMIMETypeEmpty = 'Mimetype is empty';
-  RSMIMEMIMEExtAlreadyExists = 'Extension already exits';
+  RSMIMEMIMEExtAlreadyExists = 'Extension already exists';
 
   // IdRegister
   RSRegSASL = 'Indy SASL';
@@ -217,6 +217,8 @@ resourcestring
   RSHTTPChunkStarted = 'Chunk Started';
   RSHTTPContinue = 'Continue';
   RSHTTPSwitchingProtocols = 'Switching protocols';
+  RSHTTPProcessing = 'Processing';
+  RSHTTPEarlyHints = 'Early Hints';
   RSHTTPOK = 'OK';
   RSHTTPCreated = 'Created';
   RSHTTPAccepted = 'Accepted';
@@ -224,13 +226,20 @@ resourcestring
   RSHTTPNoContent = 'No Content';
   RSHTTPResetContent = 'Reset Content';
   RSHTTPPartialContent = 'Partial Content';
+  RSHTTPMultiStatus = 'Multi-Status';
+  RSHTTPAlreadyReported = 'Already Reported';
+  RSHTTPIMUsed = 'IM Used';
+  RSHTTPMultipleChoices = 'Multiple Choices';
   RSHTTPMovedPermanently = 'Moved Permanently';
   RSHTTPMovedTemporarily = 'Moved Temporarily';
   RSHTTPSeeOther = 'See Other';
   RSHTTPNotModified = 'Not Modified';
   RSHTTPUseProxy = 'Use Proxy';
+  RSHTTPTemporaryRedirect = 'Temporary Redirect';
+  RSHTTPPermanentRedirect = 'Permanent Redirect';
   RSHTTPBadRequest = 'Bad Request';
   RSHTTPUnauthorized = 'Unauthorized';
+  RSHTTPPaymentRequired = 'Payment Required';
   RSHTTPForbidden = 'Forbidden';
   RSHTTPNotFound = 'Not Found';
   RSHTTPMethodNotAllowed = 'Method not allowed';
@@ -248,13 +257,24 @@ resourcestring
   RSHTTPRequestEntityTooLong = 'Request Entity Too Long';
   RSHTTPRequestURITooLong = 'Request-URI Too Long. 256 Chars max';
   RSHTTPUnsupportedMediaType = 'Unsupported Media Type';
+  RSHTTPRangeNotSatisfiable = 'Range Not Satisfiable';
   RSHTTPExpectationFailed = 'Expectation Failed';
+  RSHTTPMisdirectedRequest = 'Misdirected Request';
+  RSHTTPUnprocessableContent = 'Unprocessable Content';
+  RSHTTPLocked = 'Locked';
+  RSHTTPFailedDependency = 'Failed Dependency';
+  RSHTTPTooEarly = 'Too Early';
+  RSHTTPUpgradeRequired = 'Upgrade Required';
   RSHTTPInternalServerError = 'Internal Server Error';
   RSHTTPNotImplemented = 'Not Implemented';
   RSHTTPBadGateway = 'Bad Gateway';
   RSHTTPServiceUnavailable = 'Service Unavailable';
   RSHTTPGatewayTimeout = 'Gateway timeout';
   RSHTTPHTTPVersionNotSupported = 'HTTP version not supported';
+  RSHTTPVariantAlsoNegotiates = 'Variant Also Negotiates';
+  RSHTTPInsufficientStorage = 'Insufficient Storage';
+  RSHTTPLoopDetected = 'Loop Detected';
+  RSHTTPNotExtended = 'Not Extended';
   RSHTTPUnknownResponseCode = 'Unknown Response Code';
 
   // HTTP Other
