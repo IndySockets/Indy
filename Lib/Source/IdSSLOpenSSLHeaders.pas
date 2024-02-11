@@ -24669,18 +24669,19 @@ end;
 // Author : Gregor Ibich (gregor.ibic@intelicom.si)
 // Pascal translation: Doychin Bondzhev (doichin@5group.com)
 
-// Converts the following string representation into corresponding parts
-// YYMMDDHHMMSS(+|-)HH( )MM
+// Converts the following string representations into corresponding parts
+// YYYYMMDDHHMMSS(+|-)HH( )MM (GeneralizedTime, for dates 2050 and later)
+// YYMMDDHHMMSS(+|-)HH( )MM   (UTCTime, for dates up to 2049)
 function UTC_Time_Decode(UCTtime : PASN1_UTCTIME; var year, month, day, hour, min, sec: Word;
   var tz_hour, tz_min: Integer): Integer;
 var
-  i, tz_dir: Integer;
+  i, tz_dir, index: Integer;
   time_str: string;
   {$IFNDEF USE_MARSHALLED_PTRS}
   LTemp: AnsiString;
   {$ENDIF}
 begin
-  Result := 1;
+  Result := 0;
   if UCTtime^.length < 12 then begin
     Exit;
   end;
@@ -24690,37 +24691,51 @@ begin
   SetString(LTemp, UCTtime^.data, UCTtime^.length);
   time_str := String(LTemp); // explicit convert to Unicode
   {$ENDIF}
-  // Check if first 12 chars are numbers
-  if not IsNumeric(time_str, 12) then begin
-    Exit;
-  end;
+  // Check if first 14 chars (4-digit year) are numbers
+  if (Length(time_str) >= 14) and IsNumeric(time_str, 14) then begin
   // Convert time from string to number
-  year := IndyStrToInt(Copy(time_str, 1, 2)) + 1900;
-  month := IndyStrToInt(Copy(time_str, 3, 2));
-  day := IndyStrToInt(Copy(time_str, 5, 2));
-  hour := IndyStrToInt(Copy(time_str, 7, 2));
-  min := IndyStrToInt(Copy(time_str, 9, 2));
-  sec := IndyStrToInt(Copy(time_str, 11, 2));
-  // Fix year. This function is Y2k but isn't compatible with Y2k5 :-(    {Do not Localize}
-  if year < 1950 then begin
-    Inc(year, 100);
+    year := IndyStrToInt(Copy(time_str, 1, 4));
+    month := IndyStrToInt(Copy(time_str, 5, 2));
+    day := IndyStrToInt(Copy(time_str, 7, 2));
+    hour := IndyStrToInt(Copy(time_str, 9, 2));
+    min := IndyStrToInt(Copy(time_str, 11, 2));
+    sec := IndyStrToInt(Copy(time_str, 13, 2));
+    index := 15;
+  end
+  // Check if first 12 chars (2-digit year) are numbers
+  else if (Length(time_str) >= 12) and IsNumeric(time_str, 12) then begin
+    // Convert time from string to number
+    year := IndyStrToInt(Copy(time_str, 1, 2)) + 1900;
+    month := IndyStrToInt(Copy(time_str, 3, 2));
+    day := IndyStrToInt(Copy(time_str, 5, 2));
+    hour := IndyStrToInt(Copy(time_str, 7, 2));
+    min := IndyStrToInt(Copy(time_str, 9, 2));
+    sec := IndyStrToInt(Copy(time_str, 11, 2));
+    // Fix year. This function is Y2k but isn't compatible with Y2k5 :-(    {Do not Localize}
+    if year < 1950 then begin
+      Inc(year, 100);
+    end;
+    index := 13;
+  end else begin
+    Exit;
   end;
   // Check TZ
   tz_hour := 0;
   tz_min := 0;
-  if CharIsInSet(time_str, 13, '-+') then begin    {Do not Localize}
-    tz_dir := iif(CharEquals(time_str, 13, '-'), -1, 1);    {Do not Localize}
-    for i := 14 to 18 do begin  // Check if numbers are numbers
-      if i = 16 then begin
+  if CharIsInSet(time_str, index, '-+') then begin    {Do not Localize}
+    tz_dir := iif(CharEquals(time_str, index, '-'), -1, 1);    {Do not Localize}
+    for i := index+1 to index+5 do begin  // Check if numbers are numbers
+      if i = index+3 then begin
         Continue;
       end;
       if not IsNumeric(time_str[i]) then begin
         Exit;
       end;
     end;
-    tz_hour := IndyStrToInt(Copy(time_str, 14, 15)) * tz_dir;
-    tz_min  := IndyStrToInt(Copy(time_str, 17, 18)) * tz_dir;
+    tz_hour := IndyStrToInt(Copy(time_str, index+1, 2)) * tz_dir;
+    tz_min  := IndyStrToInt(Copy(time_str, index+4, 2)) * tz_dir;
   end;
+  Result := 1;
 end;
 
 function SSL_set_app_data(s: PSSL; arg: Pointer): TIdC_INT;
