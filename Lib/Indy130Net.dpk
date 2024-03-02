@@ -144,6 +144,7 @@ contains
   IdGopher in 'Protocols\IdGopher.pas',
   IdGopherConsts in 'Protocols\IdGopherConsts.pas',
   IdGopherServer in 'Protocols\IdGopherServer.pas',
+  IdHL7 in 'Protocols\IdHL7.pas',
   IdHMAC in 'Protocols\IdHMAC.pas',
   IdHMACMD5 in 'Protocols\IdHMACMD5.pas',
   IdHMACSHA1 in 'Protocols\IdHMACSHA1.pas',

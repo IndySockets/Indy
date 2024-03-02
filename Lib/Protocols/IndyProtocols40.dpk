@@ -1,17 +1,13 @@
 package IndyProtocols40;
 
-{$ASSERTIONS ON}
+{$R *.res}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -22,10 +18,9 @@ package IndyProtocols40;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
-  rtl,
   IndySystem40,
   IndyCore40;
 
@@ -163,7 +158,6 @@ contains
   IdIdentServer in 'IdIdentServer.pas',
   IdIrcServer in 'IdIrcServer.pas',
   IdLPR in 'IdLPR.pas',
-  IdMIMETypes in 'IdMIMETypes.pas',
   IdMailBox in 'IdMailBox.pas',
   IdMappedFTP in 'IdMappedFTP.pas',
   IdMappedPOP3 in 'IdMappedPOP3.pas',
