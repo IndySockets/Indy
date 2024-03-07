@@ -50,18 +50,17 @@ uses
 
 type
   TPackageVisualStudio = class(TPackage)
-  public
-    Debug: Boolean;
-    //
-    constructor Create; override;
+  protected
     procedure GenHeader; override;
-    procedure GenOptions(ADesignTime: Boolean = False); override;
-    procedure Generate(ACompiler: TCompiler); override;
+    procedure GenOptions; override;
+    procedure GenContains; override;
+    procedure GenFooter; override;
+  public
+    constructor Create; override;
+    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
   end;
 
 implementation
-
-uses DModule;
 
 { TPackageVisualStudio }
 
@@ -70,28 +69,16 @@ begin
   inherited;
   FContainsClause := 'uses';
   FExt := '.dpr';
+  FOutputSubDir := 'Lib';
 end;
 
-procedure TPackageVisualStudio.Generate(ACompiler: TCompiler);
+procedure TPackageVisualStudio.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  inherited;
-  if Debug then begin
-    FName := 'Indy.SocketsDebug';
-  end else begin
-    FName := 'Indy.Sockets';
-  end;
+  FName := 'Indy.Sockets' + iif(gfDebug in AFlags, 'Debug', '');
   FDesc := '.Net Assembly';
   AddUnit('IdAssemblyInfo', 'System');
-  GenHeader;
-  GenOptions;
-  if Debug then begin
-    GenContains();
-  end else begin
-    GenContains('Indy.Sockets.Id', False);
-  end;
-  Code('');
-  Code('begin');
-  WriteFile(DM.OutputPath + '\Lib\');
+  inherited Generate(ACompiler, AFlags - [gfDesignTime]);
+  WriteFile;
 end;
 
 procedure TPackageVisualStudio.GenHeader;
@@ -99,7 +86,7 @@ begin
   Code('library ' + FName + ';');
 end;
 
-procedure TPackageVisualStudio.GenOptions(ADesignTime: Boolean);
+procedure TPackageVisualStudio.GenOptions;
 begin
   Code('');
   Code('{%DelphiDotNetAssemblyCompiler ''$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll''}');
@@ -109,6 +96,72 @@ begin
   //Code('{%DelphiDotNetAssemblyCompiler ''$(CommonProgramFiles)\borland shared\bds\shared assemblies\3.0\Borland.Vcl.dll''}');
   Code('{%DelphiDotNetAssemblyCompiler ''$(CommonProgramFiles)\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll''}');
   Code('');
+end;
+
+procedure TPackageVisualStudio.GenContains;
+begin
+  if FDebug then begin
+    inherited GenContains();
+  end else begin
+    inherited GenContains('Indy.Sockets.Id', False);
+  end;
+end;
+
+procedure TPackageVisualStudio.GenFooter;
+begin
+  Code('');
+  Code('');
+  Code('//');
+  Code('// Version information for an assembly consists of the following four values:');
+  Code('//');
+  Code('//      Major Version');
+  Code('//      Minor Version');
+  Code('//      Build Number');
+  Code('//      Revision');
+  Code('//');
+  Code('// You can specify all the values or you can default the Revision and Build Numbers');
+  Code('// by using the ''*'' as shown below:');
+  Code('');
+  Code('');
+  Code('//');
+  Code('// In order to sign your assembly you must specify a key to use. Refer to the');
+  Code('// Microsoft .NET Framework documentation for more information on assembly signing.');
+  Code('//');
+  Code('// Use the attributes below to control which key is used for signing.');
+  Code('//');
+  Code('// Notes:');
+  Code('//   (*) If no key is specified, the assembly is not signed.');
+  Code('//   (*) KeyName refers to a key that has been installed in the Crypto Service');
+  Code('//       Provider (CSP) on your machine. KeyFile refers to a file which contains');
+  Code('//       a key.');
+  Code('//   (*) If the KeyFile and the KeyName values are both specified, the');
+  Code('//       following processing occurs:');
+  Code('//       (1) If the KeyName can be found in the CSP, that key is used.');
+  Code('//       (2) If the KeyName does not exist and the KeyFile does exist, the key');
+  Code('//           in the KeyFile is installed into the CSP and used.');
+  Code('//   (*) In order to create a KeyFile, you can use the sn.exe (Strong Name) utility.');
+  Code('//       When specifying the KeyFile, the location of the KeyFile should be');
+  Code('//       relative to the project output directory. For example, if your KeyFile is');
+  Code('//       located in the project directory, you would specify the AssemblyKeyFile');
+  Code('//       attribute as [assembly: AssemblyKeyFile(''mykey.snk'')], provided your output');
+  Code('//       directory is the project directory (the default).');
+  Code('//   (*) Delay Signing is an advanced option - see the Microsoft .NET Framework');
+  Code('//       documentation for more information on this.');
+  Code('//');
+  Code('');
+  Code('//');
+  Code('// Use the attributes below to control the COM visibility of your assembly. By');
+  Code('// default the entire assembly is visible to COM. Setting ComVisible to false');
+  Code('// is the recommended default for your assembly. To then expose a class and interface');
+  Code('// to COM set ComVisible to true on each one. It is also recommended to add a');
+  Code('// Guid attribute.');
+  Code('//');
+  Code('');
+  Code('//[assembly: Guid('')]');
+  Code('//[assembly: TypeLibVersion(1, 0)]');
+  Code('');
+  Code('begin');
+  inherited GenFooter;
 end;
 
 end.

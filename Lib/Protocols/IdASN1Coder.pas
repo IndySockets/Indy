@@ -219,8 +219,9 @@ begin
     oSequence.Tag := iTag;
     oSequence.Contents := '';
     FSequences.add(oSequence);
-  finally
+  except
     oSequence.Free;
+    raise;
   end;
 end;
 

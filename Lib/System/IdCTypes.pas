@@ -139,14 +139,14 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-    {$IFDEF HAS_PtrUInt}
-  TIdC_TIMET = PtrUInt;
+    {$IFDEF HAS_PtrInt}
+  TIdC_TIMET = PtrInt;
     {$ELSE}
       {$IFDEF CPU32}
-  TIdC_TIMET = TIdC_UINT32;
+  TIdC_TIMET = TIdC_INT32;
       {$ENDIF}
       {$IFDEF CPU64}
-  TIdC_TIMET = TIdC_UINT64;
+  TIdC_TIMET = TIdC_INT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -261,14 +261,14 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-    {$IFDEF HAS_NativeUInt}
-  TIdC_TIMET = NativeUInt;
+    {$IFDEF HAS_NativeInt}
+  TIdC_TIMET = NativeInt;
     {$ELSE}
       {$IFDEF CPU32}
-  TIdC_TIMET = TIdC_UINT32;
+  TIdC_TIMET = TIdC_INT32;
       {$ENDIF}
       {$IFDEF CPU64}
-  TIdC_TIMET = TIdC_UINT64;
+  TIdC_TIMET = TIdC_INT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}

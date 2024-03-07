@@ -845,12 +845,14 @@ begin
           end;
           if LAddress <> nil then begin
             LName := LAddrInfo^.ifa_name;
+            {$I IdObjectChecksOff.inc}
             TIdStackLocalAddressAccess(LAddress).FDescription := LName;
             TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
+            {$I IdObjectChecksOn.inc}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;

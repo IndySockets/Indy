@@ -42,30 +42,39 @@ uses
 
 type
   TPackageD8Master = class(TPackage)
+  protected
+    procedure GenRequires; override;
   public
-    procedure Generate(ACompiler: TCompiler); override;
+    constructor Create; override;
+    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
   end;
 
 implementation
 
-uses DModule;
-
 { TPackageD8Master }
 
-procedure TPackageD8Master.Generate(ACompiler: TCompiler);
+constructor TPackageD8Master.Create;
 begin
   inherited;
-  FName := 'Indy' + GCompilerID[Compiler];
+  FOutputSubDir := 'Lib';
+end;
+
+procedure TPackageD8Master.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+begin
+  FName := 'Indy' + GCompilerID[ACompiler];
   FDesc := 'Master';
-  GenHeader;
-  GenOptions;
+  FExt := '.dpk';
+  inherited Generate(ACompiler, AFlags);
+  WriteFile;
+end;
+
+procedure TPackageD8Master.GenRequires;
+begin
   Code('');
   Code('requires');
   Code('  Borland.Delphi,');
   Code('  Borland.Vcl,');
   Code('  Borland.VclRtl;');
-  GenContains;
-  WriteFile(DM.OutputPath + '\Lib\');
 end;
 
 end.

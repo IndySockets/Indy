@@ -42,31 +42,39 @@ uses
 
 type
   TPackageSuperCore = class(TPackage)
+  protected
+    procedure GenRequires; override;
   public
-    procedure Generate(ACompiler: TCompiler); override;
+    constructor Create; override;
+    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
   end;
 
 implementation
 
-uses
-  DModule;
-
 { TPackageSuperCore }
 
-procedure TPackageSuperCore.Generate(ACompiler: TCompiler);
+constructor TPackageSuperCore.Create;
 begin
   inherited;
-  FName := 'IndySuperCore' + GCompilerID[Compiler];
+  FOutputSubDir := 'Lib\SuperCore';
+end;
+
+procedure TPackageSuperCore.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+begin
+  FName := 'IndySuperCore' + GCompilerID[ACompiler];
   FDesc := 'SuperCore';
-  GenHeader;
-  GenOptions;
+  FExt := '.dpk';
+  inherited Generate(ACompiler, AFlags - [gfDesignTime]);
+  WriteFile;
+end;
+
+procedure TPackageSuperCore.GenRequires;
+begin
   Code('');
   Code('requires');
   Code('  rtl,');
-  Code('  IndySystem' + GCompilerID[Compiler] + ',');
-  Code('  IndyCore' + GCompilerID[Compiler] + ';');
-  GenContains;
-  WriteFile(DM.OutputPath + '\Lib\SuperCore\');
+  Code('  IndySystem' + GCompilerID[FCompiler] + ',');
+  Code('  IndyCore' + GCompilerID[FCompiler] + ';');
 end;
 
 end.
