@@ -489,8 +489,6 @@ uses
     {$IFDEF OSX}
   CoreServices,
     {$ENDIF}
-  PosixSysSelect,
-  PosixSysTime,
   {$ENDIF}
   IdGlobalProtocols,
   IdResourceStringsProtocols;
@@ -1574,7 +1572,7 @@ var
 begin
   {$IFDEF STRING_IS_ANSI}
   if AMsg <> '' then begin
-    LTemp := AAnsiEncoding.GetString(RawToBytes(AMsg[1], Length(AMsg)));
+    LTemp := AAnsiEncoding.GetString(PByte(PAnsiChar(AMsg)), Length(AMsg));
   end;
   LMsgLen := AByteEncoding.GetByteCount(LTemp);
   {$ELSE}
