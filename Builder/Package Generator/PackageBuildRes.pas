@@ -114,17 +114,17 @@ begin
   LCmdLine := 'cmd.exe /C ' + AnsiQuotedStr(LPathname + FName + FExt, '"');
   ZeroMemory(@SI, sizeof(SI));
   SI.cb := sizeof(SI);
-  if CreateProcess(nil, PChar(LCmdLine), nil, nil, False, CREATE_NEW_CONSOLE, nil, PChar(LPathname), SI, PI) then
+  if CreateProcess(nil, PChar(LCmdLine), nil, nil, False, CREATE_NO_WINDOW, nil, PChar(LPathname), SI, PI) then
   begin
     CloseHandle(PI.hThread);
     WaitForSingleObject(PI.hProcess, INFINITE);
     GetExitCodeProcess(PI.hProcess, LExitCode);
     CloseHandle(PI.hProcess);
     if LExitCode <> 0 then
-      WriteLn('Error from ' + FName + FExt);
+      WriteLn('Error from ' + LSubDir + FName + FExt);
   end else
   begin
-    WriteLn('Unable to run ' + FName + FExt);
+    WriteLn('Unable to run ' + LSubDir + FName + FExt);
   end;
 end;
 
