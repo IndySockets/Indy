@@ -211,6 +211,7 @@ contains
   IdSASLDigest in 'IdSASLDigest.pas',
   IdSASLExternal in 'IdSASLExternal.pas',
   IdSASLLogin in 'IdSASLLogin.pas',
+  IdSASLOAuth in 'IdSASLOAuth.pas',
   IdSASLOTP in 'IdSASLOTP.pas',
   IdSASLPlain in 'IdSASLPlain.pas',
   IdSASLSKey in 'IdSASLSKey.pas',

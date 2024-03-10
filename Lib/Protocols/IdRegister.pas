@@ -273,6 +273,7 @@ uses
   IdSASLDigest,
   IdSASLExternal,
   IdSASLLogin,
+  IdSASLOAuth,
   IdSASLOTP,
   IdSASLPlain,
   IdSASLSKey,
@@ -411,9 +412,12 @@ uses
   {$R IconsDotNet\TIdSASLExternal.bmp}
   {$R IconsDotNet\TIdSASLList.bmp}
   {$R IconsDotNet\TIdSASLLogin.bmp}
+  {$R IconsDotNet\TIdSASLOAuth2Bearer.bmp}
+  {$R IconsDotNet\TIdSASLOAuth10A.bmp}
   {$R IconsDotNet\TIdSASLOTP.bmp}
   {$R IconsDotNet\TIdSASLPlain.bmp}
   {$R IconsDotNet\TIdSASLSKey.bmp}
+  {$R IconsDotNet\TIdSASLXOAuth2.bmp}
   {$R IconsDotNet\TIdServerCompressionIntercept.bmp}
   {$R IconsDotNet\TIdServerInterceptLogEvent.bmp}
   {$R IconsDotNet\TIdServerInterceptLogFile.bmp}
@@ -588,9 +592,12 @@ begin
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
+   TIdSASLOAuth10A,
+   TIdSASLOAuth2Bearer,
    TIdSASLOTP,
    TIdSASLPlain,
    TIdSASLSKey,
+   TIdSASLXOAuth2,
    TIdUserPassProvider
    ]);
 
@@ -738,9 +745,12 @@ begin
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
+   TIdSASLOAuth10A,
+   TIdSASLOAuth2Bearer,
    TIdSASLOTP,
    TIdSASLPlain,
    TIdSASLSKey,
+   TIdSASLXOAuth2,
    TIdUserPassProvider
    ]);
 

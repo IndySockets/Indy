@@ -276,6 +276,7 @@
         <DCCReference Include="IdSASLDigest.pas"/>
         <DCCReference Include="IdSASLExternal.pas"/>
         <DCCReference Include="IdSASLLogin.pas"/>
+        <DCCReference Include="IdSASLOAuth.pas"/>
         <DCCReference Include="IdSASLOTP.pas"/>
         <DCCReference Include="IdSASLPlain.pas"/>
         <DCCReference Include="IdSASLSKey.pas"/>
