@@ -3842,6 +3842,7 @@ var
   ret, err: Integer;
 begin
   repeat
+    if fSSL = nil then Break;  
     ret := SSL_read(fSSL, PByte(ABuffer), Length(ABuffer));
     if ret > 0 then begin
       Result := ret;
@@ -3866,6 +3867,7 @@ var
 begin
   Result := 0;
   repeat
+    if fSSL = nil then Break;
     ret := SSL_write(fSSL, @ABuffer[AOffset], ALength);
     if ret > 0 then begin
       Inc(Result, ret);
