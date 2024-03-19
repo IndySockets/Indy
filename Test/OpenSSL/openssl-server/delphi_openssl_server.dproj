@@ -62,10 +62,9 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_ExeOutput>.</DCC_ExeOutput>
-        <DCC_BplOutput>C:\Users\A User\projects\Indy\test\openssl\openssl-server\</DCC_BplOutput>
-        <DCC_UnitSearchPath>C:\Users\A User\projects\Indy\Lib\System;C:\Users\A User\projects\Indy\Lib\Core;C:\Users\A User\projects\Indy\Lib\Protocols;C:\Users\A User\projects\Indy\Lib\Protocols\opensslHdrs;C:\Users\A User\projects\Indy\includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_BplOutput>.</DCC_BplOutput>
+        <DCC_UnitSearchPath>..\..\..\Lib\System;..\..\..\Lib\Core;..\..\..\Lib\Protocols;..\..\..\Lib\Protocols\opensslHdrs;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Debugger_RunParams>..\libs\1.0\i386</Debugger_RunParams>
         <Manifest_File>(None)</Manifest_File>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>

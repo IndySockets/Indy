@@ -61,10 +61,9 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <Debugger_RunParams>..\libs\1.0\i386</Debugger_RunParams>
         <DCC_ExeOutput>.</DCC_ExeOutput>
         <Debugger_HostApplication>C:\Users\A User\projects\Indy\test\openssl\openssl-client\Win32\Debug\Project1.exe</Debugger_HostApplication>
-        <DCC_UnitSearchPath>..\..\..\includes;..\..\..\Lib\Protocols\opensslHdrs;..\..\..\Lib\System;..\..\..\Lib\Core;..\..\..\Lib\Protocols;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\..\Lib\Protocols\opensslHdrs;..\..\..\Lib\System;..\..\..\Lib\Core;..\..\..\Lib\Protocols;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <BRCC_IncludePath>..\..\Indy\Lib\Protocols\opensslHdrs;$(BRCC_IncludePath)</BRCC_IncludePath>
         <Manifest_File>(None)</Manifest_File>

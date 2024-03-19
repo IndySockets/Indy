@@ -18,7 +18,6 @@
       </Unit>
       <Unit>
         <Filename Value="testserver.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="380"/>
         <CursorPos X="59" Y="408"/>
@@ -276,7 +275,7 @@
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="704"/>
         <CursorPos X="3" Y="709"/>
         <UsageCount Value="14"/>
@@ -317,7 +316,7 @@
       </Unit>
       <Unit>
         <Filename Value="../../../../fpcsrc/3.2.2/rtl/inc/astrings.inc"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="126"/>
         <CursorPos Y="150"/>
         <UsageCount Value="14"/>
@@ -325,18 +324,24 @@
       </Unit>
       <Unit>
         <Filename Value="../openssl-client/TestClient.pas"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="324"/>
         <CursorPos Y="346"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="../../../../Indy/runtime/system/IdStackUnix.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="851"/>
+        <CursorPos X="34" Y="866"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="../openssl-client/TestClient.pas"/>
-        <Caret Line="292" Column="16" TopLine="268"/>
-      </Position>
       <Position>
         <Filename Value="../openssl-client/TestClient.pas"/>
         <Caret Line="298" Column="16" TopLine="275"/>
@@ -452,6 +457,10 @@
         <Filename Value="testserver.pas"/>
         <Caret Line="86" Column="15" TopLine="79"/>
       </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="408" Column="59" TopLine="380"/>
+      </Position>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
@@ -460,15 +469,13 @@
       </Modes>
     </RunParams>
     <HistoryLists>
-      <List Name="CommandLineParameters" Count="6">
-        <Item2 Value="../libs/3.0/x86_64"/>
-        <Item3 Value="-h"/>
-        <Item4 Value="../libs/1.0/x86_64"/>
-        <Item5 Value="../libs/3.2/x86_64"/>
-        <Item6 Value="../3.2/x86_64"/>
+      <List Name="CommandLineParameters" Count="5">
+        <Item1 Value="../libs/3.0/x86_64"/>
+        <Item2 Value="-h"/>
+        <Item3 Value="../libs/1.0/x86_64"/>
+        <Item4 Value="../libs/3.2/x86_64"/>
+        <Item5 Value="../3.2/x86_64"/>
       </List>
-      <List Name="WorkingDirectory" Type="File" Count="1"/>
-      <List Name="LaunchingApplication" Type="File" Count="1"/>
     </HistoryLists>
   </ProjectSession>
 </CONFIG>
