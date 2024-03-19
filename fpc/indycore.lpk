@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="indycore"/>
+    <Author Value="Chad Z. Hower (Kudzu) and the Indy Pit Crew - http://www.indyproject.org"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="includes"/>
+        <OtherUnitFiles Value="runtime/core"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <SyntaxMode Value="Delphi"/>
+        </SyntaxOptions>
+      </Parsing>
+      <Other>
+        <Verbosity>
+          <ShowHints Value="False"/>
+        </Verbosity>
+        <CustomOptions Value="-Ur"/>
+      </Other>
+    </CompilerOptions>
+    <Description Value="Indy - Internet Direct
+
+Indy is a well-known internet component suite for Delphi, C++Builder, and Free Pascal providing both low-level support (TCP, UDP, raw sockets) and over a 120 higher level protocols (SMTP, POP3, NNT, HTTP, FTP) for building both client and server applications."/>
+    <License Value="Duel License
+
+MPL 
+
+Indy Modified BSD License
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation, about box and/or other materials provided with the distribution. 
+
+No personal names or organizations names associated with the Indy project may be used to endorse or promote products derived from this software without specific prior written permission of the specific individual or organization. 
+
+THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;amp;quot;AS IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."/>
+    <Version Major="10" Minor="6" Release="2"/>
+    <Files Count="58">
+      <Item1>
+        <Filename Value="runtime/core/IdAssignedNumbers.pas"/>
+        <UnitName Value="IdAssignedNumbers"/>
+      </Item1>
+      <Item2>
+        <Filename Value="runtime/core/IdBuffer.pas"/>
+        <UnitName Value="IdBuffer"/>
+      </Item2>
+      <Item3>
+        <Filename Value="runtime/core/IdCmdTCPClient.pas"/>
+        <UnitName Value="IdCmdTCPClient"/>
+      </Item3>
+      <Item4>
+        <Filename Value="runtime/core/IdCmdTCPServer.pas"/>
+        <UnitName Value="IdCmdTCPServer"/>
+      </Item4>
+      <Item5>
+        <Filename Value="runtime/core/IdCommandHandlers.pas"/>
+        <UnitName Value="IdCommandHandlers"/>
+      </Item5>
+      <Item6>
+        <Filename Value="runtime/core/IdContext.pas"/>
+        <UnitName Value="IdContext"/>
+      </Item6>
+      <Item7>
+        <Filename Value="runtime/core/IdCustomTCPServer.pas"/>
+        <UnitName Value="IdCustomTCPServer"/>
+      </Item7>
+      <Item8>
+        <Filename Value="runtime/core/IdCustomTransparentProxy.pas"/>
+        <UnitName Value="IdCustomTransparentProxy"/>
+      </Item8>
+      <Item9>
+        <Filename Value="runtime/core/IdExceptionCore.pas"/>
+        <UnitName Value="IdExceptionCore"/>
+      </Item9>
+      <Item10>
+        <Filename Value="runtime/core/IdGlobalCore.pas"/>
+        <UnitName Value="IdGlobalCore"/>
+      </Item10>
+      <Item11>
+        <Filename Value="runtime/core/IdIcmpClient.pas"/>
+        <UnitName Value="IdIcmpClient"/>
+      </Item11>
+      <Item12>
+        <Filename Value="runtime/core/IdIntercept.pas"/>
+        <UnitName Value="IdIntercept"/>
+      </Item12>
+      <Item13>
+        <Filename Value="runtime/core/IdInterceptSimLog.pas"/>
+        <UnitName Value="IdInterceptSimLog"/>
+      </Item13>
+      <Item14>
+        <Filename Value="runtime/core/IdInterceptThrottler.pas"/>
+        <UnitName Value="IdInterceptThrottler"/>
+      </Item14>
+      <Item15>
+        <Filename Value="runtime/core/IdIOHandler.pas"/>
+        <UnitName Value="IdIOHandler"/>
+      </Item15>
+      <Item16>
+        <Filename Value="runtime/core/IdIOHandlerSocket.pas"/>
+        <UnitName Value="IdIOHandlerSocket"/>
+      </Item16>
+      <Item17>
+        <Filename Value="runtime/core/IdIOHandlerStack.pas"/>
+        <UnitName Value="IdIOHandlerStack"/>
+      </Item17>
+      <Item18>
+        <Filename Value="runtime/core/IdIOHandlerStream.pas"/>
+        <UnitName Value="IdIOHandlerStream"/>
+      </Item18>
+      <Item19>
+        <Filename Value="runtime/core/IdIPAddress.pas"/>
+        <UnitName Value="IdIPAddress"/>
+      </Item19>
+      <Item20>
+        <Filename Value="runtime/core/IdIPMCastBase.pas"/>
+        <UnitName Value="IdIPMCastBase"/>
+      </Item20>
+      <Item21>
+        <Filename Value="runtime/core/IdIPMCastClient.pas"/>
+        <UnitName Value="IdIPMCastClient"/>
+      </Item21>
+      <Item22>
+        <Filename Value="runtime/core/IdIPMCastServer.pas"/>
+        <UnitName Value="IdIPMCastServer"/>
+      </Item22>
+      <Item23>
+        <Filename Value="runtime/core/IdLogBase.pas"/>
+        <UnitName Value="IdLogBase"/>
+      </Item23>
+      <Item24>
+        <Filename Value="runtime/core/IdLogDebug.pas"/>
+        <UnitName Value="IdLogDebug"/>
+      </Item24>
+      <Item25>
+        <Filename Value="runtime/core/IdLogEvent.pas"/>
+        <UnitName Value="IdLogEvent"/>
+      </Item25>
+      <Item26>
+        <Filename Value="runtime/core/IdLogFile.pas"/>
+        <UnitName Value="IdLogFile"/>
+      </Item26>
+      <Item27>
+        <Filename Value="runtime/core/IdLogStream.pas"/>
+        <UnitName Value="IdLogStream"/>
+      </Item27>
+      <Item28>
+        <Filename Value="runtime/core/IdRawBase.pas"/>
+        <UnitName Value="IdRawBase"/>
+      </Item28>
+      <Item29>
+        <Filename Value="runtime/core/IdRawClient.pas"/>
+        <UnitName Value="IdRawClient"/>
+      </Item29>
+      <Item30>
+        <Filename Value="runtime/core/IdRawFunctions.pas"/>
+        <UnitName Value="IdRawFunctions"/>
+      </Item30>
+      <Item31>
+        <Filename Value="runtime/core/IdRawHeaders.pas"/>
+        <UnitName Value="IdRawHeaders"/>
+      </Item31>
+      <Item32>
+        <Filename Value="runtime/core/IdReply.pas"/>
+        <UnitName Value="IdReply"/>
+      </Item32>
+      <Item33>
+        <Filename Value="runtime/core/IdReplyRFC.pas"/>
+        <UnitName Value="IdReplyRFC"/>
+      </Item33>
+      <Item34>
+        <Filename Value="runtime/core/IdResourceStringsCore.pas"/>
+        <UnitName Value="IdResourceStringsCore"/>
+      </Item34>
+      <Item35>
+        <Filename Value="runtime/core/IdScheduler.pas"/>
+        <UnitName Value="IdScheduler"/>
+      </Item35>
+      <Item36>
+        <Filename Value="runtime/core/IdSchedulerOfThread.pas"/>
+        <UnitName Value="IdSchedulerOfThread"/>
+      </Item36>
+      <Item37>
+        <Filename Value="runtime/core/IdSchedulerOfThreadDefault.pas"/>
+        <UnitName Value="IdSchedulerOfThreadDefault"/>
+      </Item37>
+      <Item38>
+        <Filename Value="runtime/core/IdSchedulerOfThreadPool.pas"/>
+        <UnitName Value="IdSchedulerOfThreadPool"/>
+      </Item38>
+      <Item39>
+        <Filename Value="runtime/core/IdServerIOHandler.pas"/>
+        <UnitName Value="IdServerIOHandler"/>
+      </Item39>
+      <Item40>
+        <Filename Value="runtime/core/IdServerIOHandlerSocket.pas"/>
+        <UnitName Value="IdServerIOHandlerSocket"/>
+      </Item40>
+      <Item41>
+        <Filename Value="runtime/core/IdServerIOHandlerStack.pas"/>
+        <UnitName Value="IdServerIOHandlerStack"/>
+      </Item41>
+      <Item42>
+        <Filename Value="runtime/core/IdSimpleServer.pas"/>
+        <UnitName Value="IdSimpleServer"/>
+      </Item42>
+      <Item43>
+        <Filename Value="runtime/core/IdSocketHandle.pas"/>
+        <UnitName Value="IdSocketHandle"/>
+      </Item43>
+      <Item44>
+        <Filename Value="runtime/core/IdSocks.pas"/>
+        <UnitName Value="IdSocks"/>
+      </Item44>
+      <Item45>
+        <Filename Value="runtime/core/IdSync.pas"/>
+        <UnitName Value="IdSync"/>
+      </Item45>
+      <Item46>
+        <Filename Value="runtime/core/IdTask.pas"/>
+        <UnitName Value="IdTask"/>
+      </Item46>
+      <Item47>
+        <Filename Value="runtime/core/IdTCPClient.pas"/>
+        <UnitName Value="IdTCPClient"/>
+      </Item47>
+      <Item48>
+        <Filename Value="runtime/core/IdTCPConnection.pas"/>
+        <UnitName Value="IdTCPConnection"/>
+      </Item48>
+      <Item49>
+        <Filename Value="runtime/core/IdTCPServer.pas"/>
+        <UnitName Value="IdTCPServer"/>
+      </Item49>
+      <Item50>
+        <Filename Value="runtime/core/IdTCPStream.pas"/>
+        <UnitName Value="IdTCPStream"/>
+      </Item50>
+      <Item51>
+        <Filename Value="runtime/core/IdThread.pas"/>
+        <UnitName Value="IdThread"/>
+      </Item51>
+      <Item52>
+        <Filename Value="runtime/core/IdThreadComponent.pas"/>
+        <UnitName Value="IdThreadComponent"/>
+      </Item52>
+      <Item53>
+        <Filename Value="runtime/core/IdThreadSafe.pas"/>
+        <UnitName Value="IdThreadSafe"/>
+      </Item53>
+      <Item54>
+        <Filename Value="runtime/core/IdTraceRoute.pas"/>
+        <UnitName Value="IdTraceRoute"/>
+      </Item54>
+      <Item55>
+        <Filename Value="runtime/core/IdUDPBase.pas"/>
+        <UnitName Value="IdUDPBase"/>
+      </Item55>
+      <Item56>
+        <Filename Value="runtime/core/IdUDPClient.pas"/>
+        <UnitName Value="IdUDPClient"/>
+      </Item56>
+      <Item57>
+        <Filename Value="runtime/core/IdUDPServer.pas"/>
+        <UnitName Value="IdUDPServer"/>
+      </Item57>
+      <Item58>
+        <Filename Value="runtime/core/IdYarn.pas"/>
+        <UnitName Value="IdYarn"/>
+      </Item58>
+    </Files>
+    <CompatibilityMode Value="True"/>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="indysystem"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
