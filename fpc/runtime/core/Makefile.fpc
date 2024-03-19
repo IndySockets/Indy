@@ -1,0 +1,21 @@
+[package]
+name=indycore
+version=$(INDY_VERSION)
+main=indy
+
+[requires]
+packages=indysystem
+
+[compiler]
+options= -MDelphi $(OPT) -Scghi -CX -Ur -Xs -vew
+unittargetdir= ../../units/$(CPU_TARGET)-$(OS_TARGET)
+includedir=../../includes
+unitdir=.
+
+[target]
+units=indycorefpc
+
+[install]
+fpcpackage=y
+fpcsubdir=packages/extra
+buildunit=indycorefpc

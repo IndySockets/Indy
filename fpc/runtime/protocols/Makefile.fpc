@@ -1,0 +1,21 @@
+[package]
+name=indyprotocols
+version=$(INDY_VERSION)
+main=indy
+
+[requires]
+packages=indycore
+
+[compiler]
+options= -MDelphi $(OPT) -Scghi -CX -Ur -Xs -vew
+unittargetdir= ../../units/$(CPU_TARGET)-$(OS_TARGET)
+includedir=../../includes
+unitdir=.:opensslHdrs
+
+[target]
+units=indyprotocolsfpc
+
+[install]
+fpcpackage=y
+fpcsubdir=packages/extra
+buildunit=indyprotocolsfpc

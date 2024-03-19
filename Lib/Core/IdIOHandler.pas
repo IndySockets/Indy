@@ -1463,15 +1463,15 @@ begin
   // #$8E instead of #$A).  To account for that, don't encoding the LF using the
   // specified encoding anymore, force the encoding to what it should be.  But
   // what if UTF-16 is being used?
-  {
+  (*
   if ATerminator = LF then begin
     LTerm := ToBytes(Byte($0A));
   end else begin
     LTerm := ToBytes(ATerminator, AByteEncoding
-      {$IFDEF STRING_IS_ANSI, ADestEncoding{$ENDIF
+      {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
       );
   end;
-  }
+  *)
   LTerm := ToBytes(ATerminator, AByteEncoding
     {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
     );
