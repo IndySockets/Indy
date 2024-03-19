@@ -1,4 +1,0 @@
-    function SSL_get_app_data(const ssl: PSSL): Pointer ; {removed 1.1.1} 
-  function SSL_set_app_data(ssl: PSSL; data: Pointer): TIdC_INT; {removed 1.1.1}
-function SSL_set_app_data(ssl: PSSL; data: Pointer): TIdC_INT; 
-

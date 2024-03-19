@@ -1,0 +1,1045 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="12"/>
+    <BuildModes Active="Default"/>
+    <Units>
+      <Unit>
+        <Filename Value="fpc_openssl_client.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <CursorPos X="11" Y="8"/>
+        <UsageCount Value="69"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="TestClient.pas"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="159"/>
+        <CursorPos X="46" Y="366"/>
+        <UsageCount Value="59"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="OpenSSLClient.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="54"/>
+        <CursorPos Y="206"/>
+        <UsageCount Value="19"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../test.old/octopus/project1.lpr"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="7"/>
+        <CursorPos Y="21"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../test.old/octopus/restservices.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="84"/>
+        <CursorPos X="34" Y="107"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdSSLOpenSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3995"/>
+        <CursorPos X="45" Y="4017"/>
+        <UsageCount Value="21"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../test.old/project1.lpr"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="10"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLLoader.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="244"/>
+        <CursorPos Y="272"/>
+        <UsageCount Value="19"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../fpcsrc/3.2.2/rtl/inc/text.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="698"/>
+        <CursorPos X="33" Y="709"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../fpcsrc/3.2.2/rtl/inc/objpas.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="318"/>
+        <CursorPos Y="336"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_crypto.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="747"/>
+        <CursorPos X="12" Y="760"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/core/IdThreadSafe.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="78"/>
+        <CursorPos X="23" Y="98"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_evp.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1271"/>
+        <CursorPos X="3" Y="1287"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_ssl.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2275"/>
+        <CursorPos X="60" Y="2275"/>
+        <UsageCount Value="12"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_x509.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="818"/>
+        <CursorPos X="76" Y="818"/>
+        <UsageCount Value="14"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_x509.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="21"/>
+        <CursorPos X="25" Y="43"/>
+        <UsageCount Value="14"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_crypto.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="451"/>
+        <CursorPos X="28" Y="476"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_ssl.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2330"/>
+        <CursorPos X="3" Y="2347"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLConsts.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="31"/>
+        <CursorPos X="3" Y="33"/>
+        <UsageCount Value="14"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLExceptionHandlers.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="26"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_ossl_typ.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="504"/>
+        <CursorPos X="57" Y="532"/>
+        <UsageCount Value="9"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdAuthenticationNTLM.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="79"/>
+        <CursorPos X="26" Y="43"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_aes.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="86" Y="31"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdResourceStringsOpenSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="31"/>
+        <CursorPos X="25" Y="60"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_des.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="48" Y="25"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_des.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="163"/>
+        <CursorPos X="50" Y="191"/>
+        <UsageCount Value="9"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../indyopenssl.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="11" Y="13"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdNTLM.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="391"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/system/IdStackConsts.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="55"/>
+        <CursorPos X="3" Y="86"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/system/IdStack.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1204"/>
+        <CursorPos X="21" Y="1226"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/system/IdStackWindows.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="319"/>
+        <CursorPos X="20" Y="338"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/system/IdStackUnix.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="416"/>
+        <CursorPos Y="433"/>
+        <UsageCount Value="12"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../indysystem.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="34" Y="12"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/protocols/IdAuthenticationSSPI.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="429"/>
+        <CursorPos X="7" Y="447"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_err.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="367"/>
+        <CursorPos X="30" Y="359"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/system/IdGlobal.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1056"/>
+        <CursorPos X="3" Y="1073"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../lazarus/2.2/otherComponents/fbintf/client/FBClientLib.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../lazarus/2.2/otherComponents/fbintf/client/include/uloadlibrary.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="41"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/sysutilh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="320"/>
+        <CursorPos X="12" Y="336"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../fpcsrc/3.2.2/rtl/inc/astrings.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="288"/>
+        <CursorPos Y="305"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../fpcsrc/3.2.2/rtl/objpas/classes/stringl.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1807"/>
+        <CursorPos Y="1825"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../fpcsrc/3.2.2/rtl/inc/generic.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="816"/>
+        <CursorPos Y="837"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_ec.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="240"/>
+        <CursorPos X="18" Y="257"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../lazarus/2.2/otherComponents/fbintf/testsuite/testApp/TestApplication.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="16"/>
+        <CursorPos Y="1635"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/rtl/inc/dynlibs.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="7"/>
+        <CursorPos X="165" Y="23"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_err.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="247"/>
+        <CursorPos X="42" Y="275"/>
+        <UsageCount Value="12"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_ossl_typ.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="285"/>
+        <CursorPos X="3" Y="302"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_x509v3.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="16" Y="3"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_x509_vfy.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="994"/>
+        <CursorPos X="18" Y="1012"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Indy.old/runtime/openssl/1.0.x/IdSSLOpenSSLHeaders.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="26587"/>
+        <CursorPos X="40" Y="26615"/>
+        <UsageCount Value="12"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_x509_vfy.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="612"/>
+        <CursorPos X="23" Y="630"/>
+        <UsageCount Value="13"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_pem.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="203"/>
+        <CursorPos X="5" Y="237"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Indy.old/runtime/openssl/1.0.x/IdSSLOpenSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1290"/>
+        <CursorPos X="39" Y="1318"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_evp.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1209"/>
+        <CursorPos X="35" Y="1237"/>
+        <UsageCount Value="12"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_stack.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="131"/>
+        <CursorPos X="69" Y="165"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../tools/sslheaders_source/IdOpenSSLHeaders_stack.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="91"/>
+        <CursorPos Y="111"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/openssl/IdOpenSSLHeaders_pem.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="110"/>
+        <CursorPos Y="128"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/protocols/IdSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="88"/>
+        <CursorPos X="45" Y="105"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/core/IdServerIOHandler.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="56"/>
+        <CursorPos X="3" Y="58"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/protocols/IdHTTP.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="502"/>
+        <CursorPos X="15" Y="532"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/core/IdTCPClient.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="144"/>
+        <CursorPos X="38" Y="155"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/core/IdTCPConnection.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="547"/>
+        <CursorPos X="22" Y="573"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../runtime/core/IdIOHandler.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="823"/>
+        <CursorPos X="3" Y="834"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLLoader.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="280"/>
+        <CursorPos X="12" Y="282"/>
+        <UsageCount Value="17"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/filutilh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="128"/>
+        <CursorPos X="3" Y="139"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdSSLOpenSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="261"/>
+        <CursorPos X="11" Y="267"/>
+        <UsageCount Value="18"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcsrc/3.2.2/rtl/inc/objpas.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="62"/>
+        <CursorPos Y="84"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLConsts.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="31"/>
+        <CursorPos X="37" Y="49"/>
+        <UsageCount Value="18"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_x509.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="192"/>
+        <CursorPos X="3" Y="212"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_x509.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="100" Y="10"/>
+        <UsageCount Value="9"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../includes/IdCompilerDefines.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="511"/>
+        <CursorPos X="4" Y="528"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_ssl.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4813"/>
+        <CursorPos X="32" Y="4831"/>
+        <UsageCount Value="15"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_ssl.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="160" Y="5"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdNTLM.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="34"/>
+        <CursorPos X="17" Y="46"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_err.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../includes/IdOpenSSLDefines.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="35" Y="28"/>
+        <UsageCount Value="16"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLExceptionHandlers.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="114"/>
+        <CursorPos X="35" Y="117"/>
+        <UsageCount Value="14"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/core/IdIOHandlerSocket.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="357"/>
+        <CursorPos Y="369"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_stack.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="320"/>
+        <CursorPos Y="342"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="763"/>
+        <CursorPos Y="778"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_crypto.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="328"/>
+        <CursorPos X="3" Y="345"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdResourceStringsOpenSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="30"/>
+        <CursorPos X="32" Y="46"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/rtl/wince/windows.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="9"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/idwindowscertstore.pas"/>
+        <UnitName Value="IdWindowsCertStore"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="9"/>
+        <CursorPos X="28" Y="21"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_x509_vfy.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="458"/>
+        <CursorPos X="18" Y="477"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_ossl_typ.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="13"/>
+        <CursorPos X="31" Y="36"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/lazarus/fpc/3.2.2/source/rtl/win64/windows.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="34"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/system/IdCTypes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="46"/>
+        <CursorPos X="12" Y="46"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/lazarus/fpc/3.2.2/source/rtl/inc/ctypes.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="64"/>
+        <CursorPos X="48" Y="84"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_crypto.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="471"/>
+        <CursorPos X="17" Y="504"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_err.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="51" Y="12"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_evp.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="25"/>
+        <CursorPos X="26" Y="36"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/system/IdStack.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1218"/>
+        <CursorPos X="5" Y="1246"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/core/IdThreadSafe.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="251"/>
+        <CursorPos Y="251"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/core/IdThread.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="768"/>
+        <CursorPos X="34" Y="780"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_x509err.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="95"/>
+        <CursorPos X="36" Y="123"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/lazarus/fpc/3.2.2/source/packages/fcl-base/src/custapp.pp"/>
+        <UnitName Value="CustApp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="362"/>
+        <CursorPos X="61" Y="373"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_objects.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="386"/>
+        <CursorPos X="10" Y="362"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../projects/oauth2/src/oauth2Client.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="407"/>
+        <CursorPos X="3" Y="407"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdHTTPServer.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="25"/>
+        <CursorPos X="30" Y="44"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdCustomHTTPServer.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="408"/>
+        <CursorPos X="40" Y="414"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/core/IdCustomTCPServer.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="374"/>
+        <CursorPos X="3" Y="316"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../openssl-server/testserver.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="259"/>
+        <CursorPos X="45" Y="267"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSL.pas"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="3326"/>
+        <CursorPos Y="3340"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdAllAuthentications.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="12"/>
+        <CursorPos Y="31"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdOpenSSLLoader.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="177"/>
+        <CursorPos Y="194"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/system/IdStream.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="14"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/system/IdStreamVCL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="42"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdOpenSSLConsts.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="35"/>
+        <CursorPos X="3" Y="49"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/opensslHdrs/IdOpenSSLHeaders_crypto.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="72"/>
+        <CursorPos X="14" Y="84"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdOpenSSLExceptionHandlers.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="118"/>
+        <CursorPos Y="133"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLConsts.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="22"/>
+        <CursorPos X="20" Y="28"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="161"/>
+        <CursorPos Y="186"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcsrc/3.2.2/rtl/objpas/classes/lists.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="621"/>
+        <CursorPos Y="636"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/opensslHdrs/IdOpenSSLHeaders_err.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="342"/>
+        <CursorPos X="34" Y="352"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../OpenSSLHdr_gen/sslheaders_source/IdOpenSSLHeaders_aes.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLLoader.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="253"/>
+        <CursorPos X="37" Y="258"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/IdNTLM.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="318"/>
+        <CursorPos X="26" Y="325"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../includes/IdSSLOpenSSLDefines.inc"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="12"/>
+        <CursorPos X="35" Y="31"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/packages/fcl-base/src/custapp.pp"/>
+        <UnitName Value="CustApp"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="259"/>
+        <CursorPos Y="343"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/opensslHdrs/IdOpenSSLHeaders_aes.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/opensslHdrs/AllOpenSSLHeaders.pas"/>
+        <EditorIndex Value="7"/>
+        <CursorPos X="23"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/protocols/indyprotocolsfpc.pas"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="194"/>
+        <CursorPos X="21" Y="201"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="29">
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
+        <Caret Line="134" TopLine="115"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
+        <Caret Line="186" TopLine="161"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSL.pas"/>
+        <Caret Line="4231" TopLine="4217"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdSSLOpenSSL.pas"/>
+        <Caret Line="3340" TopLine="3326"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Caret Line="334" TopLine="320"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Caret Line="336" TopLine="320"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Caret Line="337" TopLine="320"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Caret Line="338" TopLine="320"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Caret Line="342" TopLine="320"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="1932" TopLine="1918"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="1937" TopLine="1918"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="1939" TopLine="1918"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="2146" TopLine="2132"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="3226" TopLine="3212"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="3227" TopLine="3212"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="3228" TopLine="3212"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="3231" TopLine="3212"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="3234" TopLine="3212"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="3140" TopLine="3126"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Caret Line="778" TopLine="763"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="166" TopLine="152"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="169" TopLine="152"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="171" TopLine="152"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="281" TopLine="266"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="336" TopLine="323"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="332" Column="27" TopLine="323"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="68" Column="14" TopLine="53"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="78" Column="15" TopLine="65"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="286" Column="25" TopLine="258"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="315" Column="40" TopLine="302"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode="default">
+        <Mode Name="default"/>
+      </Modes>
+    </RunParams>
+    <HistoryLists>
+      <List Name="LaunchingApplication" Type="File" Count="2">
+        <Item1 Value="C:\Windows\system32\cmd.exe \C ${TargetCmdLine}"/>
+        <Item2 Value="C:\Windows\system32\cmd.exe /C ${TargetCmdLine}"/>
+      </List>
+      <List Name="CommandLineParameters" Count="9">
+        <Item1 Value="-h"/>
+        <Item2 Value="../libs/3.2/x86_64 -L"/>
+        <Item3 Value="../libs/3.2/x86_64"/>
+        <Item4 Value="../libs/3.2/x86_64 -l /etc/ssl/certs"/>
+        <Item5 Value="../libs/3.0/x86_64"/>
+        <Item6 Value="..\libs\3.0\x86_64"/>
+        <Item7 Value="..\libs\3.2\x86_64"/>
+        <Item8 Value="../libs/1.0/x86_64"/>
+        <Item9 Value="..\libs\1.0\x86_64"/>
+      </List>
+    </HistoryLists>
+  </ProjectSession>
+  <Debugging>
+    <Watches>
+      <Item>
+        <Expression Value="FullLibName"/>
+      </Item>
+    </Watches>
+  </Debugging>
+</CONFIG>
