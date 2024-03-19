@@ -82,7 +82,6 @@ uses
   IdCoderMIME,
   IdResourceStringsOpenSSL,
   {.$IFDEF USE_OPENSSL}
-  IdSSLOpenSSLHeaders,
   IdSSLOpenSSL,
   {.$ENDIF}
   IdNTLM,
