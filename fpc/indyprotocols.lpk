@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="indyprotocols"/>
+    <Author Value="Chad Z. Hower (Kudzu) and the Indy Pit Crew - http://www.indyproject.org"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="includes"/>
+        <OtherUnitFiles Value="runtime/protocols;runtime/protocols/opensslHdrs"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <SyntaxMode Value="Delphi"/>
+        </SyntaxOptions>
+      </Parsing>
+      <Other>
+        <Verbosity>
+          <ShowHints Value="False"/>
+        </Verbosity>
+        <CustomOptions Value="-Ur"/>
+      </Other>
+    </CompilerOptions>
+    <Description Value="Indy - Internet Direct
+
+Indy is a well-known internet component suite for Delphi, C++Builder, and Free Pascal providing both low-level support (TCP, UDP, raw sockets) and over a 120 higher level protocols (SMTP, POP3, NNT, HTTP, FTP) for building both client and server applications."/>
+    <License Value="Duel License
+
+MPL 
+
+Indy Modified BSD License
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation, about box and/or other materials provided with the distribution. 
+
+No personal names or organizations names associated with the Indy project may be used to endorse or promote products derived from this software without specific prior written permission of the specific individual or organization. 
+
+THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;amp;quot;AS IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."/>
+    <Version Major="10" Minor="6" Release="2"/>
+    <Files Count="240">
+      <Item1>
+        <Filename Value="runtime/protocols/IdAllAuthentications.pas"/>
+        <UnitName Value="IdAllAuthentications"/>
+      </Item1>
+      <Item2>
+        <Filename Value="runtime/protocols/IdAllFTPListParsers.pas"/>
+        <UnitName Value="IdAllFTPListParsers"/>
+      </Item2>
+      <Item3>
+        <Filename Value="runtime/protocols/IdAllHeaderCoders.pas"/>
+        <UnitName Value="IdAllHeaderCoders"/>
+      </Item3>
+      <Item4>
+        <Filename Value="runtime/protocols/IdASN1Util.pas"/>
+        <UnitName Value="IdASN1Util"/>
+      </Item4>
+      <Item5>
+        <Filename Value="runtime/protocols/IdAttachment.pas"/>
+        <UnitName Value="IdAttachment"/>
+      </Item5>
+      <Item6>
+        <Filename Value="runtime/protocols/IdAttachmentFile.pas"/>
+        <UnitName Value="IdAttachmentFile"/>
+      </Item6>
+      <Item7>
+        <Filename Value="runtime/protocols/IdAttachmentMemory.pas"/>
+        <UnitName Value="IdAttachmentMemory"/>
+      </Item7>
+      <Item8>
+        <Filename Value="runtime/protocols/IdAuthentication.pas"/>
+        <UnitName Value="IdAuthentication"/>
+      </Item8>
+      <Item9>
+        <Filename Value="runtime/protocols/IdAuthenticationDigest.pas"/>
+        <UnitName Value="IdAuthenticationDigest"/>
+      </Item9>
+      <Item10>
+        <Filename Value="runtime/protocols/IdAuthenticationManager.pas"/>
+        <UnitName Value="IdAuthenticationManager"/>
+      </Item10>
+      <Item11>
+        <Filename Value="runtime/protocols/IdBlockCipherIntercept.pas"/>
+        <UnitName Value="IdBlockCipherIntercept"/>
+      </Item11>
+      <Item12>
+        <Filename Value="runtime/protocols/IdChargenServer.pas"/>
+        <UnitName Value="IdChargenServer"/>
+      </Item12>
+      <Item13>
+        <Filename Value="runtime/protocols/IdChargenUDPServer.pas"/>
+        <UnitName Value="IdChargenUDPServer"/>
+      </Item13>
+      <Item14>
+        <Filename Value="runtime/protocols/IdCharsets.pas"/>
+        <UnitName Value="IdCharsets"/>
+      </Item14>
+      <Item15>
+        <Filename Value="runtime/protocols/IdCoder.pas"/>
+        <UnitName Value="IdCoder"/>
+      </Item15>
+      <Item16>
+        <Filename Value="runtime/protocols/IdCoder00E.pas"/>
+        <UnitName Value="IdCoder00E"/>
+      </Item16>
+      <Item17>
+        <Filename Value="runtime/protocols/IdCoder3to4.pas"/>
+        <UnitName Value="IdCoder3to4"/>
+      </Item17>
+      <Item18>
+        <Filename Value="runtime/protocols/IdCoderBinHex4.pas"/>
+        <UnitName Value="IdCoderBinHex4"/>
+      </Item18>
+      <Item19>
+        <Filename Value="runtime/protocols/IdCoderHeader.pas"/>
+        <UnitName Value="IdCoderHeader"/>
+      </Item19>
+      <Item20>
+        <Filename Value="runtime/protocols/IdCoderMIME.pas"/>
+        <UnitName Value="IdCoderMIME"/>
+      </Item20>
+      <Item21>
+        <Filename Value="runtime/protocols/IdCoderQuotedPrintable.pas"/>
+        <UnitName Value="IdCoderQuotedPrintable"/>
+      </Item21>
+      <Item22>
+        <Filename Value="runtime/protocols/IdCoderUUE.pas"/>
+        <UnitName Value="IdCoderUUE"/>
+      </Item22>
+      <Item23>
+        <Filename Value="runtime/protocols/IdCoderXXE.pas"/>
+        <UnitName Value="IdCoderXXE"/>
+      </Item23>
+      <Item24>
+        <Filename Value="runtime/protocols/IdCompressionIntercept.pas"/>
+        <UnitName Value="IdCompressionIntercept"/>
+      </Item24>
+      <Item25>
+        <Filename Value="runtime/protocols/IdCompressorZLib.pas"/>
+        <UnitName Value="IdCompressorZLib"/>
+      </Item25>
+      <Item26>
+        <Filename Value="runtime/protocols/IdConnectThroughHttpProxy.pas"/>
+        <UnitName Value="IdConnectThroughHttpProxy"/>
+      </Item26>
+      <Item27>
+        <Filename Value="runtime/protocols/IdContainers.pas"/>
+        <UnitName Value="IdContainers"/>
+      </Item27>
+      <Item28>
+        <Filename Value="runtime/protocols/IdCookie.pas"/>
+        <UnitName Value="IdCookie"/>
+      </Item28>
+      <Item29>
+        <Filename Value="runtime/protocols/IdCookieManager.pas"/>
+        <UnitName Value="IdCookieManager"/>
+      </Item29>
+      <Item30>
+        <Filename Value="runtime/protocols/IdCustomHTTPServer.pas"/>
+        <UnitName Value="IdCustomHTTPServer"/>
+      </Item30>
+      <Item31>
+        <Filename Value="runtime/protocols/IdDateTimeStamp.pas"/>
+        <UnitName Value="IdDateTimeStamp"/>
+      </Item31>
+      <Item32>
+        <Filename Value="runtime/protocols/IdDayTime.pas"/>
+        <UnitName Value="IdDayTime"/>
+      </Item32>
+      <Item33>
+        <Filename Value="runtime/protocols/IdDayTimeServer.pas"/>
+        <UnitName Value="IdDayTimeServer"/>
+      </Item33>
+      <Item34>
+        <Filename Value="runtime/protocols/IdDayTimeUDP.pas"/>
+        <UnitName Value="IdDayTimeUDP"/>
+      </Item34>
+      <Item35>
+        <Filename Value="runtime/protocols/IdDayTimeUDPServer.pas"/>
+        <UnitName Value="IdDayTimeUDPServer"/>
+      </Item35>
+      <Item36>
+        <Filename Value="runtime/protocols/IdDICT.pas"/>
+        <UnitName Value="IdDICT"/>
+      </Item36>
+      <Item37>
+        <Filename Value="runtime/protocols/IdDICTCommon.pas"/>
+        <UnitName Value="IdDICTCommon"/>
+      </Item37>
+      <Item38>
+        <Filename Value="runtime/protocols/IdDICTServer.pas"/>
+        <UnitName Value="IdDICTServer"/>
+      </Item38>
+      <Item39>
+        <Filename Value="runtime/protocols/IdDiscardServer.pas"/>
+        <UnitName Value="IdDiscardServer"/>
+      </Item39>
+      <Item40>
+        <Filename Value="runtime/protocols/IdDiscardUDPServer.pas"/>
+        <UnitName Value="IdDiscardUDPServer"/>
+      </Item40>
+      <Item41>
+        <Filename Value="runtime/protocols/IdDNSCommon.pas"/>
+        <UnitName Value="IdDNSCommon"/>
+      </Item41>
+      <Item42>
+        <Filename Value="runtime/protocols/IdDNSResolver.pas"/>
+        <UnitName Value="IdDNSResolver"/>
+      </Item42>
+      <Item43>
+        <Filename Value="runtime/protocols/IdDNSServer.pas"/>
+        <UnitName Value="IdDNSServer"/>
+      </Item43>
+      <Item44>
+        <Filename Value="runtime/protocols/IdEcho.pas"/>
+        <UnitName Value="IdEcho"/>
+      </Item44>
+      <Item45>
+        <Filename Value="runtime/protocols/IdEchoServer.pas"/>
+        <UnitName Value="IdEchoServer"/>
+      </Item45>
+      <Item46>
+        <Filename Value="runtime/protocols/IdEchoUDP.pas"/>
+        <UnitName Value="IdEchoUDP"/>
+      </Item46>
+      <Item47>
+        <Filename Value="runtime/protocols/IdEchoUDPServer.pas"/>
+        <UnitName Value="IdEchoUDPServer"/>
+      </Item47>
+      <Item48>
+        <Filename Value="runtime/protocols/IdEMailAddress.pas"/>
+        <UnitName Value="IdEMailAddress"/>
+      </Item48>
+      <Item49>
+        <Filename Value="runtime/protocols/IdExplicitTLSClientServerBase.pas"/>
+        <UnitName Value="IdExplicitTLSClientServerBase"/>
+      </Item49>
+      <Item50>
+        <Filename Value="runtime/protocols/IdFinger.pas"/>
+        <UnitName Value="IdFinger"/>
+      </Item50>
+      <Item51>
+        <Filename Value="runtime/protocols/IdFingerServer.pas"/>
+        <UnitName Value="IdFingerServer"/>
+      </Item51>
+      <Item52>
+        <Filename Value="runtime/protocols/IdFIPS.pas"/>
+        <UnitName Value="IdFIPS"/>
+      </Item52>
+      <Item53>
+        <Filename Value="runtime/protocols/IdFSP.pas"/>
+        <UnitName Value="IdFSP"/>
+      </Item53>
+      <Item54>
+        <Filename Value="runtime/protocols/IdFTP.pas"/>
+        <UnitName Value="IdFTP"/>
+      </Item54>
+      <Item55>
+        <Filename Value="runtime/protocols/IdFTPBaseFileSystem.pas"/>
+        <UnitName Value="IdFTPBaseFileSystem"/>
+      </Item55>
+      <Item56>
+        <Filename Value="runtime/protocols/IdFTPCommon.pas"/>
+        <UnitName Value="IdFTPCommon"/>
+      </Item56>
+      <Item57>
+        <Filename Value="runtime/protocols/IdFTPList.pas"/>
+        <UnitName Value="IdFTPList"/>
+      </Item57>
+      <Item58>
+        <Filename Value="runtime/protocols/IdFTPListOutput.pas"/>
+        <UnitName Value="IdFTPListOutput"/>
+      </Item58>
+      <Item59>
+        <Filename Value="runtime/protocols/IdFTPListParseAS400.pas"/>
+        <UnitName Value="IdFTPListParseAS400"/>
+      </Item59>
+      <Item60>
+        <Filename Value="runtime/protocols/IdFTPListParseBase.pas"/>
+        <UnitName Value="IdFTPListParseBase"/>
+      </Item60>
+      <Item61>
+        <Filename Value="runtime/protocols/IdFTPListParseBullGCOS7.pas"/>
+        <UnitName Value="IdFTPListParseBullGCOS7"/>
+      </Item61>
+      <Item62>
+        <Filename Value="runtime/protocols/IdFTPListParseBullGCOS8.pas"/>
+        <UnitName Value="IdFTPListParseBullGCOS8"/>
+      </Item62>
+      <Item63>
+        <Filename Value="runtime/protocols/IdFTPListParseChameleonNewt.pas"/>
+        <UnitName Value="IdFTPListParseChameleonNewt"/>
+      </Item63>
+      <Item64>
+        <Filename Value="runtime/protocols/IdFTPListParseCiscoIOS.pas"/>
+        <UnitName Value="IdFTPListParseCiscoIOS"/>
+      </Item64>
+      <Item65>
+        <Filename Value="runtime/protocols/IdFTPListParseDistinctTCPIP.pas"/>
+        <UnitName Value="IdFTPListParseDistinctTCPIP"/>
+      </Item65>
+      <Item66>
+        <Filename Value="runtime/protocols/IdFTPListParseEPLF.pas"/>
+        <UnitName Value="IdFTPListParseEPLF"/>
+      </Item66>
+      <Item67>
+        <Filename Value="runtime/protocols/IdFTPListParseHellSoft.pas"/>
+        <UnitName Value="IdFTPListParseHellSoft"/>
+      </Item67>
+      <Item68>
+        <Filename Value="runtime/protocols/IdFTPListParseIEFTPGateway.pas"/>
+        <UnitName Value="IdFTPListParseIEFTPGateway"/>
+      </Item68>
+      <Item69>
+        <Filename Value="runtime/protocols/IdFTPListParseKA9Q.pas"/>
+        <UnitName Value="IdFTPListParseKA9Q"/>
+      </Item69>
+      <Item70>
+        <Filename Value="runtime/protocols/IdFTPListParseMicrowareOS9.pas"/>
+        <UnitName Value="IdFTPListParseMicrowareOS9"/>
+      </Item70>
+      <Item71>
+        <Filename Value="runtime/protocols/IdFTPListParseMPEiX.pas"/>
+        <UnitName Value="IdFTPListParseMPEiX"/>
+      </Item71>
+      <Item72>
+        <Filename Value="runtime/protocols/IdFTPListParseMusic.pas"/>
+        <UnitName Value="IdFTPListParseMusic"/>
+      </Item72>
+      <Item73>
+        <Filename Value="runtime/protocols/IdFTPListParseMVS.pas"/>
+        <UnitName Value="IdFTPListParseMVS"/>
+      </Item73>
+      <Item74>
+        <Filename Value="runtime/protocols/IdFTPListParseNCSAForDOS.pas"/>
+        <UnitName Value="IdFTPListParseNCSAForDOS"/>
+      </Item74>
+      <Item75>
+        <Filename Value="runtime/protocols/IdFTPListParseNCSAForMACOS.pas"/>
+        <UnitName Value="IdFTPListParseNCSAForMACOS"/>
+      </Item75>
+      <Item76>
+        <Filename Value="runtime/protocols/IdFTPListParseNovellNetware.pas"/>
+        <UnitName Value="IdFTPListParseNovellNetware"/>
+      </Item76>
+      <Item77>
+        <Filename Value="runtime/protocols/IdFTPListParseNovellNetwarePSU.pas"/>
+        <UnitName Value="IdFTPListParseNovellNetwarePSU"/>
+      </Item77>
+      <Item78>
+        <Filename Value="runtime/protocols/IdFTPListParseOS2.pas"/>
+        <UnitName Value="IdFTPListParseOS2"/>
+      </Item78>
+      <Item79>
+        <Filename Value="runtime/protocols/IdFTPListParsePCNFSD.pas"/>
+        <UnitName Value="IdFTPListParsePCNFSD"/>
+      </Item79>
+      <Item80>
+        <Filename Value="runtime/protocols/IdFTPListParsePCTCP.pas"/>
+        <UnitName Value="IdFTPListParsePCTCP"/>
+      </Item80>
+      <Item81>
+        <Filename Value="runtime/protocols/IdFTPListParseStercomOS390Exp.pas"/>
+        <UnitName Value="IdFTPListParseStercomOS390Exp"/>
+      </Item81>
+      <Item82>
+        <Filename Value="runtime/protocols/IdFTPListParseStercomUnixEnt.pas"/>
+        <UnitName Value="IdFTPListParseStercomUnixEnt"/>
+      </Item82>
+      <Item83>
+        <Filename Value="runtime/protocols/IdFTPListParseStratusVOS.pas"/>
+        <UnitName Value="IdFTPListParseStratusVOS"/>
+      </Item83>
+      <Item84>
+        <Filename Value="runtime/protocols/IdFTPListParseSuperTCP.pas"/>
+        <UnitName Value="IdFTPListParseSuperTCP"/>
+      </Item84>
+      <Item85>
+        <Filename Value="runtime/protocols/IdFTPListParseTandemGuardian.pas"/>
+        <UnitName Value="IdFTPListParseTandemGuardian"/>
+      </Item85>
+      <Item86>
+        <Filename Value="runtime/protocols/IdFTPListParseTOPS20.pas"/>
+        <UnitName Value="IdFTPListParseTOPS20"/>
+      </Item86>
+      <Item87>
+        <Filename Value="runtime/protocols/IdFTPListParseTSXPlus.pas"/>
+        <UnitName Value="IdFTPListParseTSXPlus"/>
+      </Item87>
+      <Item88>
+        <Filename Value="runtime/protocols/IdFTPListParseUnisysClearPath.pas"/>
+        <UnitName Value="IdFTPListParseUnisysClearPath"/>
+      </Item88>
+      <Item89>
+        <Filename Value="runtime/protocols/IdFTPListParseUnix.pas"/>
+        <UnitName Value="IdFTPListParseUnix"/>
+      </Item89>
+      <Item90>
+        <Filename Value="runtime/protocols/IdFTPListParseVM.pas"/>
+        <UnitName Value="IdFTPListParseVM"/>
+      </Item90>
+      <Item91>
+        <Filename Value="runtime/protocols/IdFTPListParseVMS.pas"/>
+        <UnitName Value="IdFTPListParseVMS"/>
+      </Item91>
+      <Item92>
+        <Filename Value="runtime/protocols/IdFTPListParseVSE.pas"/>
+        <UnitName Value="IdFTPListParseVSE"/>
+      </Item92>
+      <Item93>
+        <Filename Value="runtime/protocols/IdFTPListParseVxWorks.pas"/>
+        <UnitName Value="IdFTPListParseVxWorks"/>
+      </Item93>
+      <Item94>
+        <Filename Value="runtime/protocols/IdFTPListParseWfFTP.pas"/>
+        <UnitName Value="IdFTPListParseWfFTP"/>
+      </Item94>
+      <Item95>
+        <Filename Value="runtime/protocols/IdFTPListParseWindowsNT.pas"/>
+        <UnitName Value="IdFTPListParseWindowsNT"/>
+      </Item95>
+      <Item96>
+        <Filename Value="runtime/protocols/IdFTPListParseWinQVTNET.pas"/>
+        <UnitName Value="IdFTPListParseWinQVTNET"/>
+      </Item96>
+      <Item97>
+        <Filename Value="runtime/protocols/IdFTPListParseXecomMicroRTOS.pas"/>
+        <UnitName Value="IdFTPListParseXecomMicroRTOS"/>
+      </Item97>
+      <Item98>
+        <Filename Value="runtime/protocols/IdFTPListTypes.pas"/>
+        <UnitName Value="IdFTPListTypes"/>
+      </Item98>
+      <Item99>
+        <Filename Value="runtime/protocols/IdFTPServer.pas"/>
+        <UnitName Value="IdFTPServer"/>
+      </Item99>
+      <Item100>
+        <Filename Value="runtime/protocols/IdFTPServerContextBase.pas"/>
+        <UnitName Value="IdFTPServerContextBase"/>
+      </Item100>
+      <Item101>
+        <Filename Value="runtime/protocols/IdGlobalProtocols.pas"/>
+        <UnitName Value="IdGlobalProtocols"/>
+      </Item101>
+      <Item102>
+        <Filename Value="runtime/protocols/IdGopher.pas"/>
+        <UnitName Value="IdGopher"/>
+      </Item102>
+      <Item103>
+        <Filename Value="runtime/protocols/IdGopherConsts.pas"/>
+        <UnitName Value="IdGopherConsts"/>
+      </Item103>
+      <Item104>
+        <Filename Value="runtime/protocols/IdGopherServer.pas"/>
+        <UnitName Value="IdGopherServer"/>
+      </Item104>
+      <Item105>
+        <Filename Value="runtime/protocols/IdHash.pas"/>
+        <UnitName Value="IdHash"/>
+      </Item105>
+      <Item106>
+        <Filename Value="runtime/protocols/IdHashAdler32.pas"/>
+        <UnitName Value="IdHashAdler32"/>
+      </Item106>
+      <Item107>
+        <Filename Value="runtime/protocols/IdHashCRC.pas"/>
+        <UnitName Value="IdHashCRC"/>
+      </Item107>
+      <Item108>
+        <Filename Value="runtime/protocols/IdHashElf.pas"/>
+        <UnitName Value="IdHashElf"/>
+      </Item108>
+      <Item109>
+        <Filename Value="runtime/protocols/IdHashMessageDigest.pas"/>
+        <UnitName Value="IdHashMessageDigest"/>
+      </Item109>
+      <Item110>
+        <Filename Value="runtime/protocols/IdHashSHA.pas"/>
+        <UnitName Value="IdHashSHA"/>
+      </Item110>
+      <Item111>
+        <Filename Value="runtime/protocols/IdHeaderCoder2022JP.pas"/>
+        <UnitName Value="IdHeaderCoder2022JP"/>
+      </Item111>
+      <Item112>
+        <Filename Value="runtime/protocols/IdHeaderCoderBase.pas"/>
+        <UnitName Value="IdHeaderCoderBase"/>
+      </Item112>
+      <Item113>
+        <Filename Value="runtime/protocols/IdHeaderCoderIndy.pas"/>
+        <UnitName Value="IdHeaderCoderIndy"/>
+      </Item113>
+      <Item114>
+        <Filename Value="runtime/protocols/IdHeaderCoderPlain.pas"/>
+        <UnitName Value="IdHeaderCoderPlain"/>
+      </Item114>
+      <Item115>
+        <Filename Value="runtime/protocols/IdHeaderList.pas"/>
+        <UnitName Value="IdHeaderList"/>
+      </Item115>
+      <Item116>
+        <Filename Value="runtime/protocols/IdHL7.pas"/>
+        <UnitName Value="IdHL7"/>
+      </Item116>
+      <Item117>
+        <Filename Value="runtime/protocols/IdHMAC.pas"/>
+        <UnitName Value="IdHMAC"/>
+      </Item117>
+      <Item118>
+        <Filename Value="runtime/protocols/IdHMACMD5.pas"/>
+        <UnitName Value="IdHMACMD5"/>
+      </Item118>
+      <Item119>
+        <Filename Value="runtime/protocols/IdHMACSHA1.pas"/>
+        <UnitName Value="IdHMACSHA1"/>
+      </Item119>
+      <Item120>
+        <Filename Value="runtime/protocols/IdHTTP.pas"/>
+        <UnitName Value="IdHTTP"/>
+      </Item120>
+      <Item121>
+        <Filename Value="runtime/protocols/IdHTTPHeaderInfo.pas"/>
+        <UnitName Value="IdHTTPHeaderInfo"/>
+      </Item121>
+      <Item122>
+        <Filename Value="runtime/protocols/IdHTTPProxyServer.pas"/>
+        <UnitName Value="IdHTTPProxyServer"/>
+      </Item122>
+      <Item123>
+        <Filename Value="runtime/protocols/IdHTTPServer.pas"/>
+        <UnitName Value="IdHTTPServer"/>
+      </Item123>
+      <Item124>
+        <Filename Value="runtime/protocols/IdIdent.pas"/>
+        <UnitName Value="IdIdent"/>
+      </Item124>
+      <Item125>
+        <Filename Value="runtime/protocols/IdIdentServer.pas"/>
+        <UnitName Value="IdIdentServer"/>
+      </Item125>
+      <Item126>
+        <Filename Value="runtime/protocols/IdIMAP4.pas"/>
+        <UnitName Value="IdIMAP4"/>
+      </Item126>
+      <Item127>
+        <Filename Value="runtime/protocols/IdIMAP4Server.pas"/>
+        <UnitName Value="IdIMAP4Server"/>
+      </Item127>
+      <Item128>
+        <Filename Value="runtime/protocols/IdIPAddrMon.pas"/>
+        <UnitName Value="IdIPAddrMon"/>
+      </Item128>
+      <Item129>
+        <Filename Value="runtime/protocols/IdIPWatch.pas"/>
+        <UnitName Value="IdIPWatch"/>
+      </Item129>
+      <Item130>
+        <Filename Value="runtime/protocols/IdIRC.pas"/>
+        <UnitName Value="IdIRC"/>
+      </Item130>
+      <Item131>
+        <Filename Value="runtime/protocols/IdIrcServer.pas"/>
+        <UnitName Value="IdIrcServer"/>
+      </Item131>
+      <Item132>
+        <Filename Value="runtime/protocols/IdLPR.pas"/>
+        <UnitName Value="IdLPR"/>
+      </Item132>
+      <Item133>
+        <Filename Value="runtime/protocols/IdMailBox.pas"/>
+        <UnitName Value="IdMailBox"/>
+      </Item133>
+      <Item134>
+        <Filename Value="runtime/protocols/IdMappedFTP.pas"/>
+        <UnitName Value="IdMappedFTP"/>
+      </Item134>
+      <Item135>
+        <Filename Value="runtime/protocols/IdMappedPOP3.pas"/>
+        <UnitName Value="IdMappedPOP3"/>
+      </Item135>
+      <Item136>
+        <Filename Value="runtime/protocols/IdMappedPortTCP.pas"/>
+        <UnitName Value="IdMappedPortTCP"/>
+      </Item136>
+      <Item137>
+        <Filename Value="runtime/protocols/IdMappedPortUDP.pas"/>
+        <UnitName Value="IdMappedPortUDP"/>
+      </Item137>
+      <Item138>
+        <Filename Value="runtime/protocols/IdMappedTelnet.pas"/>
+        <UnitName Value="IdMappedTelnet"/>
+      </Item138>
+      <Item139>
+        <Filename Value="runtime/protocols/IdMessage.pas"/>
+        <UnitName Value="IdMessage"/>
+      </Item139>
+      <Item140>
+        <Filename Value="runtime/protocols/IdMessageBuilder.pas"/>
+        <UnitName Value="IdMessageBuilder"/>
+      </Item140>
+      <Item141>
+        <Filename Value="runtime/protocols/IdMessageClient.pas"/>
+        <UnitName Value="IdMessageClient"/>
+      </Item141>
+      <Item142>
+        <Filename Value="runtime/protocols/IdMessageCoder.pas"/>
+        <UnitName Value="IdMessageCoder"/>
+      </Item142>
+      <Item143>
+        <Filename Value="runtime/protocols/IdMessageCoderBinHex4.pas"/>
+        <UnitName Value="IdMessageCoderBinHex4"/>
+      </Item143>
+      <Item144>
+        <Filename Value="runtime/protocols/IdMessageCoderMIME.pas"/>
+        <UnitName Value="IdMessageCoderMIME"/>
+      </Item144>
+      <Item145>
+        <Filename Value="runtime/protocols/IdMessageCoderQuotedPrintable.pas"/>
+        <UnitName Value="IdMessageCoderQuotedPrintable"/>
+      </Item145>
+      <Item146>
+        <Filename Value="runtime/protocols/IdMessageCoderUUE.pas"/>
+        <UnitName Value="IdMessageCoderUUE"/>
+      </Item146>
+      <Item147>
+        <Filename Value="runtime/protocols/IdMessageCoderXXE.pas"/>
+        <UnitName Value="IdMessageCoderXXE"/>
+      </Item147>
+      <Item148>
+        <Filename Value="runtime/protocols/IdMessageCoderYenc.pas"/>
+        <UnitName Value="IdMessageCoderYenc"/>
+      </Item148>
+      <Item149>
+        <Filename Value="runtime/protocols/IdMessageCollection.pas"/>
+        <UnitName Value="IdMessageCollection"/>
+      </Item149>
+      <Item150>
+        <Filename Value="runtime/protocols/IdMessageHelper.pas"/>
+        <UnitName Value="IdMessageHelper"/>
+      </Item150>
+      <Item151>
+        <Filename Value="runtime/protocols/IdMessageParts.pas"/>
+        <UnitName Value="IdMessageParts"/>
+      </Item151>
+      <Item152>
+        <Filename Value="runtime/protocols/IdMultipartFormData.pas"/>
+        <UnitName Value="IdMultipartFormData"/>
+      </Item152>
+      <Item153>
+        <Filename Value="runtime/protocols/IdNetworkCalculator.pas"/>
+        <UnitName Value="IdNetworkCalculator"/>
+      </Item153>
+      <Item154>
+        <Filename Value="runtime/protocols/IdNNTP.pas"/>
+        <UnitName Value="IdNNTP"/>
+      </Item154>
+      <Item155>
+        <Filename Value="runtime/protocols/IdNNTPServer.pas"/>
+        <UnitName Value="IdNNTPServer"/>
+      </Item155>
+      <Item156>
+        <Filename Value="runtime/protocols/IdOSFileName.pas"/>
+        <UnitName Value="IdOSFileName"/>
+      </Item156>
+      <Item157>
+        <Filename Value="runtime/protocols/IdOTPCalculator.pas"/>
+        <UnitName Value="IdOTPCalculator"/>
+      </Item157>
+      <Item158>
+        <Filename Value="runtime/protocols/IdPOP3.pas"/>
+        <UnitName Value="IdPOP3"/>
+      </Item158>
+      <Item159>
+        <Filename Value="runtime/protocols/IdPOP3Server.pas"/>
+        <UnitName Value="IdPOP3Server"/>
+      </Item159>
+      <Item160>
+        <Filename Value="runtime/protocols/IdQotd.pas"/>
+        <UnitName Value="IdQotd"/>
+      </Item160>
+      <Item161>
+        <Filename Value="runtime/protocols/IdQotdServer.pas"/>
+        <UnitName Value="IdQotdServer"/>
+      </Item161>
+      <Item162>
+        <Filename Value="runtime/protocols/IdQOTDUDP.pas"/>
+        <UnitName Value="IdQOTDUDP"/>
+      </Item162>
+      <Item163>
+        <Filename Value="runtime/protocols/IdQOTDUDPServer.pas"/>
+        <UnitName Value="IdQOTDUDPServer"/>
+      </Item163>
+      <Item164>
+        <Filename Value="runtime/protocols/IdRemoteCMDClient.pas"/>
+        <UnitName Value="IdRemoteCMDClient"/>
+      </Item164>
+      <Item165>
+        <Filename Value="runtime/protocols/IdRemoteCMDServer.pas"/>
+        <UnitName Value="IdRemoteCMDServer"/>
+      </Item165>
+      <Item166>
+        <Filename Value="runtime/protocols/IdReplyFTP.pas"/>
+        <UnitName Value="IdReplyFTP"/>
+      </Item166>
+      <Item167>
+        <Filename Value="runtime/protocols/IdReplyIMAP4.pas"/>
+        <UnitName Value="IdReplyIMAP4"/>
+      </Item167>
+      <Item168>
+        <Filename Value="runtime/protocols/IdReplyPOP3.pas"/>
+        <UnitName Value="IdReplyPOP3"/>
+      </Item168>
+      <Item169>
+        <Filename Value="runtime/protocols/IdReplySMTP.pas"/>
+        <UnitName Value="IdReplySMTP"/>
+      </Item169>
+      <Item170>
+        <Filename Value="runtime/protocols/IdResourceStringsProtocols.pas"/>
+        <UnitName Value="IdResourceStringsProtocols"/>
+      </Item170>
+      <Item171>
+        <Filename Value="runtime/protocols/IdResourceStringsUriUtils.pas"/>
+        <UnitName Value="IdResourceStringsUriUtils"/>
+      </Item171>
+      <Item172>
+        <Filename Value="runtime/protocols/IdRexec.pas"/>
+        <UnitName Value="IdRexec"/>
+      </Item172>
+      <Item173>
+        <Filename Value="runtime/protocols/IdRexecServer.pas"/>
+        <UnitName Value="IdRexecServer"/>
+      </Item173>
+      <Item174>
+        <Filename Value="runtime/protocols/IdRSH.pas"/>
+        <UnitName Value="IdRSH"/>
+      </Item174>
+      <Item175>
+        <Filename Value="runtime/protocols/IdRSHServer.pas"/>
+        <UnitName Value="IdRSHServer"/>
+      </Item175>
+      <Item176>
+        <Filename Value="runtime/protocols/IdSASL.pas"/>
+        <UnitName Value="IdSASL"/>
+      </Item176>
+      <Item177>
+        <Filename Value="runtime/protocols/IdSASLAnonymous.pas"/>
+        <UnitName Value="IdSASLAnonymous"/>
+      </Item177>
+      <Item178>
+        <Filename Value="runtime/protocols/IdSASLCollection.pas"/>
+        <UnitName Value="IdSASLCollection"/>
+      </Item178>
+      <Item179>
+        <Filename Value="runtime/protocols/IdSASL_CRAMBase.pas"/>
+        <UnitName Value="IdSASL_CRAMBase"/>
+      </Item179>
+      <Item180>
+        <Filename Value="runtime/protocols/IdSASL_CRAM_MD5.pas"/>
+        <UnitName Value="IdSASL_CRAM_MD5"/>
+      </Item180>
+      <Item181>
+        <Filename Value="runtime/protocols/IdSASL_CRAM_SHA1.pas"/>
+        <UnitName Value="IdSASL_CRAM_SHA1"/>
+      </Item181>
+      <Item182>
+        <Filename Value="runtime/protocols/IdSASLDigest.pas"/>
+        <UnitName Value="IdSASLDigest"/>
+      </Item182>
+      <Item183>
+        <Filename Value="runtime/protocols/IdSASLExternal.pas"/>
+        <UnitName Value="IdSASLExternal"/>
+      </Item183>
+      <Item184>
+        <Filename Value="runtime/protocols/IdSASLLogin.pas"/>
+        <UnitName Value="IdSASLLogin"/>
+      </Item184>
+      <Item185>
+        <Filename Value="runtime/protocols/IdSASLOTP.pas"/>
+        <UnitName Value="IdSASLOTP"/>
+      </Item185>
+      <Item186>
+        <Filename Value="runtime/protocols/IdSASLPlain.pas"/>
+        <UnitName Value="IdSASLPlain"/>
+      </Item186>
+      <Item187>
+        <Filename Value="runtime/protocols/IdSASLSKey.pas"/>
+        <UnitName Value="IdSASLSKey"/>
+      </Item187>
+      <Item188>
+        <Filename Value="runtime/protocols/IdSASLUserPass.pas"/>
+        <UnitName Value="IdSASLUserPass"/>
+      </Item188>
+      <Item189>
+        <Filename Value="runtime/protocols/IdServerInterceptLogBase.pas"/>
+        <UnitName Value="IdServerInterceptLogBase"/>
+      </Item189>
+      <Item190>
+        <Filename Value="runtime/protocols/IdServerInterceptLogEvent.pas"/>
+        <UnitName Value="IdServerInterceptLogEvent"/>
+      </Item190>
+      <Item191>
+        <Filename Value="runtime/protocols/IdServerInterceptLogFile.pas"/>
+        <UnitName Value="IdServerInterceptLogFile"/>
+      </Item191>
+      <Item192>
+        <Filename Value="runtime/protocols/IdSMTP.pas"/>
+        <UnitName Value="IdSMTP"/>
+      </Item192>
+      <Item193>
+        <Filename Value="runtime/protocols/IdSMTPBase.pas"/>
+        <UnitName Value="IdSMTPBase"/>
+      </Item193>
+      <Item194>
+        <Filename Value="runtime/protocols/IdSMTPRelay.pas"/>
+        <UnitName Value="IdSMTPRelay"/>
+      </Item194>
+      <Item195>
+        <Filename Value="runtime/protocols/IdSMTPServer.pas"/>
+        <UnitName Value="IdSMTPServer"/>
+      </Item195>
+      <Item196>
+        <Filename Value="runtime/protocols/IdSNMP.pas"/>
+        <UnitName Value="IdSNMP"/>
+      </Item196>
+      <Item197>
+        <Filename Value="runtime/protocols/IdSNPP.pas"/>
+        <UnitName Value="IdSNPP"/>
+      </Item197>
+      <Item198>
+        <Filename Value="runtime/protocols/IdSNTP.pas"/>
+        <UnitName Value="IdSNTP"/>
+      </Item198>
+      <Item199>
+        <Filename Value="runtime/protocols/IdSocksServer.pas"/>
+        <UnitName Value="IdSocksServer"/>
+      </Item199>
+      <Item200>
+        <Filename Value="runtime/protocols/IdSSL.pas"/>
+        <UnitName Value="IdSSL"/>
+      </Item200>
+      <Item201>
+        <Filename Value="runtime/protocols/IdStrings.pas"/>
+        <UnitName Value="IdStrings"/>
+      </Item201>
+      <Item202>
+        <Filename Value="runtime/protocols/IdSysLog.pas"/>
+        <UnitName Value="IdSysLog"/>
+      </Item202>
+      <Item203>
+        <Filename Value="runtime/protocols/IdSysLogMessage.pas"/>
+        <UnitName Value="IdSysLogMessage"/>
+      </Item203>
+      <Item204>
+        <Filename Value="runtime/protocols/IdSysLogServer.pas"/>
+        <UnitName Value="IdSysLogServer"/>
+      </Item204>
+      <Item205>
+        <Filename Value="runtime/protocols/IdSystat.pas"/>
+        <UnitName Value="IdSystat"/>
+      </Item205>
+      <Item206>
+        <Filename Value="runtime/protocols/IdSystatServer.pas"/>
+        <UnitName Value="IdSystatServer"/>
+      </Item206>
+      <Item207>
+        <Filename Value="runtime/protocols/IdSystatUDP.pas"/>
+        <UnitName Value="IdSystatUDP"/>
+      </Item207>
+      <Item208>
+        <Filename Value="runtime/protocols/IdSystatUDPServer.pas"/>
+        <UnitName Value="IdSystatUDPServer"/>
+      </Item208>
+      <Item209>
+        <Filename Value="runtime/protocols/IdTelnet.pas"/>
+        <UnitName Value="IdTelnet"/>
+      </Item209>
+      <Item210>
+        <Filename Value="runtime/protocols/IdTelnetServer.pas"/>
+        <UnitName Value="IdTelnetServer"/>
+      </Item210>
+      <Item211>
+        <Filename Value="runtime/protocols/IdText.pas"/>
+        <UnitName Value="IdText"/>
+      </Item211>
+      <Item212>
+        <Filename Value="runtime/protocols/IdTime.pas"/>
+        <UnitName Value="IdTime"/>
+      </Item212>
+      <Item213>
+        <Filename Value="runtime/protocols/IdTimeServer.pas"/>
+        <UnitName Value="IdTimeServer"/>
+      </Item213>
+      <Item214>
+        <Filename Value="runtime/protocols/IdTimeUDP.pas"/>
+        <UnitName Value="IdTimeUDP"/>
+      </Item214>
+      <Item215>
+        <Filename Value="runtime/protocols/IdTimeUDPServer.pas"/>
+        <UnitName Value="IdTimeUDPServer"/>
+      </Item215>
+      <Item216>
+        <Filename Value="runtime/protocols/IdTrivialFTP.pas"/>
+        <UnitName Value="IdTrivialFTP"/>
+      </Item216>
+      <Item217>
+        <Filename Value="runtime/protocols/IdTrivialFTPBase.pas"/>
+        <UnitName Value="IdTrivialFTPBase"/>
+      </Item217>
+      <Item218>
+        <Filename Value="runtime/protocols/IdTrivialFTPServer.pas"/>
+        <UnitName Value="IdTrivialFTPServer"/>
+      </Item218>
+      <Item219>
+        <Filename Value="runtime/protocols/IdUnixTime.pas"/>
+        <UnitName Value="IdUnixTime"/>
+      </Item219>
+      <Item220>
+        <Filename Value="runtime/protocols/IdUnixTimeServer.pas"/>
+        <UnitName Value="IdUnixTimeServer"/>
+      </Item220>
+      <Item221>
+        <Filename Value="runtime/protocols/IdUnixTimeUDP.pas"/>
+        <UnitName Value="IdUnixTimeUDP"/>
+      </Item221>
+      <Item222>
+        <Filename Value="runtime/protocols/IdUnixTimeUDPServer.pas"/>
+        <UnitName Value="IdUnixTimeUDPServer"/>
+      </Item222>
+      <Item223>
+        <Filename Value="runtime/protocols/IdURI.pas"/>
+        <UnitName Value="IdURI"/>
+      </Item223>
+      <Item224>
+        <Filename Value="runtime/protocols/IdUriUtils.pas"/>
+        <UnitName Value="IdUriUtils"/>
+      </Item224>
+      <Item225>
+        <Filename Value="runtime/protocols/IdUserAccounts.pas"/>
+        <UnitName Value="IdUserAccounts"/>
+      </Item225>
+      <Item226>
+        <Filename Value="runtime/protocols/IdUserPassProvider.pas"/>
+        <UnitName Value="IdUserPassProvider"/>
+      </Item226>
+      <Item227>
+        <Filename Value="runtime/protocols/IdVCard.pas"/>
+        <UnitName Value="IdVCard"/>
+      </Item227>
+      <Item228>
+        <Filename Value="runtime/protocols/IdWebDAV.pas"/>
+        <UnitName Value="IdWebDAV"/>
+      </Item228>
+      <Item229>
+        <Filename Value="runtime/protocols/IdWhois.pas"/>
+        <UnitName Value="IdWhois"/>
+      </Item229>
+      <Item230>
+        <Filename Value="runtime/protocols/IdWhoIsServer.pas"/>
+        <UnitName Value="IdWhoIsServer"/>
+      </Item230>
+      <Item231>
+        <Filename Value="runtime/protocols/IdZLib.pas"/>
+        <UnitName Value="IdZLib"/>
+      </Item231>
+      <Item232>
+        <Filename Value="runtime/protocols/IdZLibCompressorBase.pas"/>
+        <UnitName Value="IdZLibCompressorBase"/>
+      </Item232>
+      <Item233>
+        <Filename Value="runtime/protocols/IdZLibConst.pas"/>
+        <UnitName Value="IdZLibConst"/>
+      </Item233>
+      <Item234>
+        <Filename Value="runtime/protocols/IdZLibHeaders.pas"/>
+        <UnitName Value="IdZLibHeaders"/>
+      </Item234>
+      <Item235>
+        <Filename Value="runtime/protocols/IdAuthenticationNTLM.pas"/>
+        <UnitName Value="IdAuthenticationNTLM"/>
+      </Item235>
+      <Item236>
+        <Filename Value="runtime/protocols/IdSSLOpenSSL.pas"/>
+        <UnitName Value="IdSSLOpenSSL"/>
+      </Item236>
+      <Item237>
+        <Filename Value="runtime/protocols/IdResourceStringsOpenSSL.pas"/>
+        <UnitName Value="IdResourceStringsOpenSSL"/>
+      </Item237>
+      <Item238>
+        <Filename Value="runtime/protocols/IdSSLOpenSSLConsts.pas"/>
+        <UnitName Value="IdSSLOpenSSLConsts"/>
+      </Item238>
+      <Item239>
+        <Filename Value="runtime/protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
+        <UnitName Value="IdSSLOpenSSLExceptionHandlers"/>
+      </Item239>
+      <Item240>
+        <Filename Value="runtime/protocols/IdSSLOpenSSLLoader.pas"/>
+        <UnitName Value="IdSSLOpenSSLLoader"/>
+      </Item240>
+    </Files>
+    <CompatibilityMode Value="True"/>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="indycore"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
