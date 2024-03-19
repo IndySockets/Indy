@@ -14,9 +14,8 @@
       <Unit>
         <Filename Value="TestClient.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="159"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="338"/>
         <CursorPos X="46" Y="366"/>
         <UsageCount Value="59"/>
         <Loaded Value="True"/>
@@ -84,7 +83,7 @@
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/core/IdThreadSafe.pas"/>
+        <Filename Value="../../Lib/Core/IdThreadSafe.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="78"/>
         <CursorPos X="23" Y="98"/>
@@ -203,28 +202,28 @@
         <UsageCount Value="9"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/system/IdStackConsts.pas"/>
+        <Filename Value="../../Lib/System/IdStackConsts.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="55"/>
         <CursorPos X="3" Y="86"/>
         <UsageCount Value="9"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/system/IdStack.pas"/>
+        <Filename Value="../../Lib/System/IdStack.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1204"/>
         <CursorPos X="21" Y="1226"/>
         <UsageCount Value="11"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/system/IdStackWindows.pas"/>
+        <Filename Value="../../Lib/System/IdStackWindows.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="319"/>
         <CursorPos X="20" Y="338"/>
         <UsageCount Value="11"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/system/IdStackUnix.pas"/>
+        <Filename Value="../../Lib/System/IdStackUnix.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="416"/>
         <CursorPos Y="433"/>
@@ -237,7 +236,7 @@
         <UsageCount Value="9"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/protocols/IdAuthenticationSSPI.pas"/>
+        <Filename Value="../../Lib/Protocols/IdAuthenticationSSPI.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="429"/>
         <CursorPos X="7" Y="447"/>
@@ -251,7 +250,7 @@
         <UsageCount Value="13"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/system/IdGlobal.pas"/>
+        <Filename Value="../../Lib/System/IdGlobal.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1056"/>
         <CursorPos X="3" Y="1073"/>
@@ -407,42 +406,42 @@
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/protocols/IdSSL.pas"/>
+        <Filename Value="../../Lib/Protocols/IdSSL.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="88"/>
         <CursorPos X="45" Y="105"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/core/IdServerIOHandler.pas"/>
+        <Filename Value="../../Lib/Core/IdServerIOHandler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="56"/>
         <CursorPos X="3" Y="58"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../Lib/Protocols/IdHTTP.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="502"/>
         <CursorPos X="15" Y="532"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/core/IdTCPClient.pas"/>
+        <Filename Value="../../Lib/Core/IdTCPClient.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="144"/>
         <CursorPos X="38" Y="155"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/core/IdTCPConnection.pas"/>
+        <Filename Value="../../Lib/Core/IdTCPConnection.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="547"/>
         <CursorPos X="22" Y="573"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../runtime/core/IdIOHandler.pas"/>
+        <Filename Value="../../Lib/Core/IdIOHandler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="823"/>
         <CursorPos X="3" Y="834"/>
@@ -544,7 +543,7 @@
         <UsageCount Value="14"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/core/IdIOHandlerSocket.pas"/>
+        <Filename Value="../../../Lib/Core/IdIOHandlerSocket.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="357"/>
         <CursorPos Y="369"/>
@@ -556,22 +555,20 @@
         <UsageCount Value="9"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
         <EditorIndex Value="9"/>
         <TopLine Value="320"/>
         <CursorPos Y="342"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <EditorIndex Value="10"/>
         <TopLine Value="763"/>
         <CursorPos Y="778"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_crypto.pas"/>
@@ -622,7 +619,7 @@
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/system/IdCTypes.pas"/>
+        <Filename Value="../../../Lib/System/IdCTypes.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="46"/>
         <CursorPos X="12" Y="46"/>
@@ -658,21 +655,21 @@
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/system/IdStack.pas"/>
+        <Filename Value="../../../Lib/System/IdStack.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1218"/>
         <CursorPos X="5" Y="1246"/>
         <UsageCount Value="13"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/core/IdThreadSafe.pas"/>
+        <Filename Value="../../../Lib/Core/IdThreadSafe.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="251"/>
         <CursorPos Y="251"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/core/IdThread.pas"/>
+        <Filename Value="../../../Lib/Core/IdThread.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="768"/>
         <CursorPos X="34" Y="780"/>
@@ -708,21 +705,21 @@
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdHTTPServer.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTPServer.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="25"/>
         <CursorPos X="30" Y="44"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdCustomHTTPServer.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdCustomHTTPServer.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="408"/>
         <CursorPos X="40" Y="414"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/core/IdCustomTCPServer.pas"/>
+        <Filename Value="../../../Lib/Core/IdCustomTCPServer.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="374"/>
         <CursorPos X="3" Y="316"/>
@@ -736,81 +733,75 @@
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSL.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
         <EditorIndex Value="6"/>
         <TopLine Value="3326"/>
         <CursorPos Y="3340"/>
         <UsageCount Value="12"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdAllAuthentications.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdAllAuthentications.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="12"/>
         <CursorPos Y="31"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdOpenSSLLoader.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdOpenSSLLoader.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="177"/>
         <CursorPos Y="194"/>
         <UsageCount Value="11"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/system/IdStream.pas"/>
+        <Filename Value="../../../Lib/System/IdStream.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="14"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/system/IdStreamVCL.pas"/>
+        <Filename Value="../../../Lib/System/IdStreamVCL.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="42"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdOpenSSLConsts.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdOpenSSLConsts.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="35"/>
         <CursorPos X="3" Y="49"/>
         <UsageCount Value="11"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/opensslHdrs/IdOpenSSLHeaders_crypto.pas"/>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_crypto.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="72"/>
         <CursorPos X="14" Y="84"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdOpenSSLExceptionHandlers.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdOpenSSLExceptionHandlers.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="118"/>
         <CursorPos Y="133"/>
         <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLConsts.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSLConsts.pas"/>
         <EditorIndex Value="1"/>
         <TopLine Value="22"/>
         <CursorPos X="20" Y="28"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
         <EditorIndex Value="5"/>
         <TopLine Value="161"/>
         <CursorPos Y="186"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="../../../../fpcsrc/3.2.2/rtl/objpas/classes/lists.inc"/>
@@ -820,12 +811,12 @@
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/opensslHdrs/IdOpenSSLHeaders_err.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="342"/>
-        <CursorPos X="34" Y="352"/>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_err.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="3"/>
+        <CursorPos X="2" Y="8"/>
         <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../../OpenSSLHdr_gen/sslheaders_source/IdOpenSSLHeaders_aes.h2pas"/>
@@ -834,28 +825,25 @@
         <DefaultSyntaxHighlighter Value="None"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLLoader.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSLLoader.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="253"/>
         <CursorPos X="37" Y="258"/>
         <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/IdNTLM.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdNTLM.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="318"/>
         <CursorPos X="26" Y="325"/>
         <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="../../../includes/IdSSLOpenSSLDefines.inc"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="12"/>
         <CursorPos X="35" Y="31"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="/usr/share/fpcsrc/packages/fcl-base/src/custapp.pp"/>
@@ -867,107 +855,97 @@
         <Loaded Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/opensslHdrs/IdOpenSSLHeaders_aes.pas"/>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_aes.pas"/>
         <EditorIndex Value="-1"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/opensslHdrs/AllOpenSSLHeaders.pas"/>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/AllOpenSSLHeaders.pas"/>
         <EditorIndex Value="7"/>
         <CursorPos X="23"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
-        <Filename Value="../../../runtime/protocols/indyprotocolsfpc.pas"/>
+        <Filename Value="../../../Lib/Protocols/indyprotocolsfpc.pas"/>
         <EditorIndex Value="8"/>
         <TopLine Value="194"/>
         <CursorPos X="21" Y="201"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
       <Position>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
-        <Caret Line="134" TopLine="115"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSLExceptionHandlers.pas"/>
-        <Caret Line="186" TopLine="161"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSL.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
         <Caret Line="4231" TopLine="4217"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdSSLOpenSSL.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
         <Caret Line="3340" TopLine="3326"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
         <Caret Line="334" TopLine="320"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
         <Caret Line="336" TopLine="320"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
         <Caret Line="337" TopLine="320"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
         <Caret Line="338" TopLine="320"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/core/IdTCPClient.pas"/>
+        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
         <Caret Line="342" TopLine="320"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="1932" TopLine="1918"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="1937" TopLine="1918"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="1939" TopLine="1918"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="2146" TopLine="2132"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="3226" TopLine="3212"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="3227" TopLine="3212"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="3228" TopLine="3212"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="3231" TopLine="3212"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="3234" TopLine="3212"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="3140" TopLine="3126"/>
       </Position>
       <Position>
-        <Filename Value="../../../runtime/protocols/IdHTTP.pas"/>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
         <Caret Line="778" TopLine="763"/>
       </Position>
       <Position>
@@ -1009,6 +987,14 @@
       <Position>
         <Filename Value="TestClient.pas"/>
         <Caret Line="315" Column="40" TopLine="302"/>
+      </Position>
+      <Position>
+        <Filename Value="TestClient.pas"/>
+        <Caret Line="366" Column="46" TopLine="338"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_err.pas"/>
+        <Caret Line="7" Column="2"/>
       </Position>
     </JumpHistory>
     <RunParams>

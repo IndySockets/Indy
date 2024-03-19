@@ -40,8 +40,8 @@
       <Filename Value="fpc_openssl_client"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir);../../../includes"/>
-      <OtherUnitFiles Value="../../../runtime/system;../../../runtime/core;../../../runtime/protocols;../../../runtime/protocols/opensslHdrs"/>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="../../../Lib/System;../../../Lib/Core;../../../Lib/Protocols;../../../Lib/Protocols/opensslHdrs"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

@@ -7,7 +7,7 @@ program delphi_openssl_server;
 uses
   System.SysUtils,
   testserver in 'testserver.pas',
-  IdSSLOpenSSL in '..\..\..\runtime\protocols\IdSSLOpenSSL.pas';
+  IdSSLOpenSSL in '..\..\..\Lib\Protocols\IdSSLOpenSSL.pas';
 
 var
   Application: TOpenSSLServerTest;

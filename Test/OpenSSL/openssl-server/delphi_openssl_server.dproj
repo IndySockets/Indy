@@ -63,7 +63,7 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_ExeOutput>.</DCC_ExeOutput>
         <DCC_BplOutput>C:\Users\A User\projects\Indy\test\openssl\openssl-server\</DCC_BplOutput>
-        <DCC_UnitSearchPath>C:\Users\A User\projects\Indy\runtime\system;C:\Users\A User\projects\Indy\runtime\core;C:\Users\A User\projects\Indy\runtime\protocols;C:\Users\A User\projects\Indy\runtime\protocols\opensslHdrs;C:\Users\A User\projects\Indy\includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>C:\Users\A User\projects\Indy\Lib\System;C:\Users\A User\projects\Indy\Lib\Core;C:\Users\A User\projects\Indy\Lib\Protocols;C:\Users\A User\projects\Indy\Lib\Protocols\opensslHdrs;C:\Users\A User\projects\Indy\includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Debugger_RunParams>..\libs\1.0\i386</Debugger_RunParams>
         <Manifest_File>(None)</Manifest_File>
@@ -80,7 +80,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="testserver.pas"/>
-        <DCCReference Include="..\..\..\runtime\protocols\IdSSLOpenSSL.pas"/>
+        <DCCReference Include="..\..\..\Lib\Protocols\IdSSLOpenSSL.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

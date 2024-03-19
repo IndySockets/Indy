@@ -64,9 +64,9 @@
         <Debugger_RunParams>..\libs\1.0\i386</Debugger_RunParams>
         <DCC_ExeOutput>.</DCC_ExeOutput>
         <Debugger_HostApplication>C:\Users\A User\projects\Indy\test\openssl\openssl-client\Win32\Debug\Project1.exe</Debugger_HostApplication>
-        <DCC_UnitSearchPath>..\..\..\includes;..\..\..\runtime\protocols\opensslHdrs;..\..\..\runtime\system;..\..\..\runtime\core;..\..\..\runtime\protocols;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\..\includes;..\..\..\Lib\Protocols\opensslHdrs;..\..\..\Lib\System;..\..\..\Lib\Core;..\..\..\Lib\Protocols;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <BRCC_IncludePath>..\..\Indy\runtime\protocols\opensslHdrs;$(BRCC_IncludePath)</BRCC_IncludePath>
+        <BRCC_IncludePath>..\..\Indy\Lib\Protocols\opensslHdrs;$(BRCC_IncludePath)</BRCC_IncludePath>
         <Manifest_File>(None)</Manifest_File>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
     </PropertyGroup>
@@ -81,8 +81,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="TestClient.pas"/>
-        <DCCReference Include="..\..\..\runtime\protocols\IdSSLOpenSSL.pas"/>
-        <DCCReference Include="..\..\..\runtime\protocols\IdSSLOpenSSLLoader.pas"/>
+        <DCCReference Include="..\..\..\Lib\Protocols\IdSSLOpenSSL.pas"/>
+        <DCCReference Include="..\..\..\Lib\Protocols\IdSSLOpenSSLLoader.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

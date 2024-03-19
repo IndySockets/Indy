@@ -7,8 +7,8 @@ program delphi_openssl_client;
 uses
   System.SysUtils,
   TestClient in 'TestClient.pas',
-  IdSSLOpenSSL in '..\..\..\runtime\protocols\IdSSLOpenSSL.pas',
-  IdSSLOpenSSLLoader in '..\..\..\runtime\protocols\IdSSLOpenSSLLoader.pas';
+  IdSSLOpenSSL in '..\..\..\Lib\Protocols\IdSSLOpenSSL.pas',
+  IdSSLOpenSSLLoader in '..\..\..\Lib\Protocols\IdSSLOpenSSLLoader.pas';
 
 var
   Application: TBasicHttpsClient;
