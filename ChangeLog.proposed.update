@@ -1,0 +1,5 @@
+This Log File records changes to the Indy Proposed Update since its initial publication
+
+2024/3/21 Updated Test/OpenSSL/openssl-client/TestClient.pas to avoid problem 
+          on Linux where -L option meant that the OpenSSL lib directory given 
+          on the command line was ignored.
