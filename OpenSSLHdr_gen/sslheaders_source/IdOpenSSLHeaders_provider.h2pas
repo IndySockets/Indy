@@ -1,0 +1,87 @@
+{******************************************************************************}
+{                                                                              }
+{            Indy (Internet Direct) - Internet Protocols Simplified            }
+{                                                                              }
+{            https://www.indyproject.org/                                      }
+{            https://gitter.im/IndySockets/Indy                                }
+{                                                                              }
+{******************************************************************************}
+{                                                                              }
+{  This file is part of the Indy (Internet Direct) project, and is offered     }
+{  under the dual-licensing agreement described on the Indy website.           }
+{  (https://www.indyproject.org/license/)                                      }
+{                                                                              }
+{  Copyright:                                                                  }
+{   (c) 1993-2020, Chad Z. Hower and the Indy Pit Crew. All rights reserved.   }
+{                                                                              }
+{******************************************************************************}
+{                                                                              }
+{                                                                              }
+{******************************************************************************}
+
+unit IdOpenSSLHeaders_provider;
+
+interface
+
+{
+  Automatically converted by H2Pas 1.0.0 from provider.h
+  The following command line parameters were used:
+    provider.h
+}
+
+uses
+  IdCTypes,
+  IdGlobal,
+  IdSSLOpenSSLConsts,
+  IdOpenSSLHeaders_ossl_typ,
+  IdOpenSSLHeaders_core;
+
+type
+    POSSL_ALGORITHM  = ^OSSL_ALGORITHM;
+    POSSL_CALLBACK  = ^OSSL_CALLBACK;
+    POSSL_DISPATCH  = ^OSSL_DISPATCH;
+    POSSL_PARAM  = ^OSSL_PARAM;
+    POSSL_PROVIDER  = pointer;
+    POSSL_provider_init_fn  = ^OSSL_provider_init_fn;
+
+    TDo_AllCallback = function (provider:POSSL_PROVIDER; cbdata:pointer):TIdC_LONG; cdecl;
+
+{$IFDEF FPC}
+{$PACKRECORDS C}
+{$ENDIF}
+  {
+   * Copyright 2019-2023 The OpenSSL Project Authors. All Rights Reserved.
+   *
+   * Licensed under the Apache License 2.0 (the "License").  You may not use
+   * this file except in compliance with the License.  You can obtain a copy
+   * in the file LICENSE in the source distribution or at
+   * https://www.openssl.org/source/license.html
+    }
+  { Set and Get a library context search path  }
+    function OSSL_PROVIDER_set_default_search_path(ctx: POSSL_LIB_CTX; path: PIdAnsiChar): TIdC_INT; {introduced 3.0.0}
+    function OSSL_PROVIDER_get0_default_search_path(libctx: POSSL_LIB_CTX): PIdAnsiChar; {introduced 3.0.0}
+    { Load and unload a provider  }
+    function OSSL_PROVIDER_load(_para1:POSSL_LIB_CTX; name: PIdAnsiChar):POSSL_PROVIDER; {introduced 3.0.0}
+    function OSSL_PROVIDER_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params: POSSL_PARAM):POSSL_PROVIDER; {introduced 3.0.0}
+    function OSSL_PROVIDER_try_load(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; retain_fallbacks: TIdC_LONG):POSSL_PROVIDER; {introduced 3.0.0}
+    function OSSL_PROVIDER_try_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params:POSSL_PARAM; retain_fallbacks:TIdC_LONG):POSSL_PROVIDER; {introduced 3.0.0}
+    function OSSL_PROVIDER_unload(prov:POSSL_PROVIDER):TIdC_LONG; {introduced 3.0.0}
+    function OSSL_PROVIDER_available(_para1:POSSL_LIB_CTX; name:PIdAnsiChar):TIdC_LONG; {introduced 3.0.0}
+    function OSSL_PROVIDER_do_all(ctx:POSSL_LIB_CTX; cb:TDo_AllCallback; cbdata:pointer):TIdC_LONG; {introduced 3.0.0}
+    function OSSL_PROVIDER_gettable_params(prov:POSSL_PROVIDER):POSSL_PARAM; {introduced 3.0.0}
+    function OSSL_PROVIDER_get_params(prov:POSSL_PROVIDER; params:POSSL_PARAM):TIdC_LONG; {introduced 3.0.0}
+    function OSSL_PROVIDER_self_test(prov:POSSL_PROVIDER):TIdC_LONG;{introduced 3.0.0}
+    function OSSL_PROVIDER_get_capabilities(prov:POSSL_PROVIDER; capability:PIdAnsiChar; cb:POSSL_CALLBACK; arg:pointer):TIdC_LONG;{introduced 3.0.0}
+    function OSSL_PROVIDER_query_operation(prov:POSSL_PROVIDER; operation_id:TIdC_LONG; no_cache:PIdC_LONG):POSSL_ALGORITHM; {introduced 3.0.0}
+    procedure OSSL_PROVIDER_unquery_operation(prov:POSSL_PROVIDER; operation_id:TIdC_LONG; algs:POSSL_ALGORITHM); {introduced 3.0.0}
+    function OSSL_PROVIDER_get0_provider_ctx(prov:POSSL_PROVIDER):pointer; {introduced 3.0.0}
+    function OSSL_PROVIDER_get0_dispatch(prov:POSSL_PROVIDER):POSSL_DISPATCH; {introduced 3.0.0}
+    { Add a built in providers  }
+    function OSSL_PROVIDER_add_builtin(_para1:POSSL_LIB_CTX; name:PIdAnsiChar; init_fn:POSSL_provider_init_fn):TIdC_LONG; {introduced 3.0.0}
+
+    { Information  }
+    function OSSL_PROVIDER_get0_name(prov:POSSL_PROVIDER):PIdAnsiChar; {introduced 3.0.0}
+
+
+implementation
+end.
