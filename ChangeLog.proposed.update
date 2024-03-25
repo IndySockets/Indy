@@ -8,3 +8,9 @@ This Log File records changes to the Indy Proposed Update since its initial publ
           versions of Indy. A new unit has been added IdSSLOpenSSLFIPS, and two new supporting
           OpenSSL Header files: core and provider.
           README.OpenSSL.FIPS.txt for more information.
+
+2024/3/25 Added support for Delphi "delayed" loading. If Indy is compiled with the
+          OPENSSL_USE_DELAYED_LOADING defined symbol then the static loading of a shared
+          library link model is implied and each OpenSSL library external declaration
+          includes the "delayed" directive. This should result in each such function only
+          being loaded immediately before it is first used.

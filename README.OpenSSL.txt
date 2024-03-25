@@ -22,36 +22,54 @@ with earlier versions but this is not guaranteed. In order to avoid an
 exception when using an earlier version, Indy must be compiled with the 
 OPENSSL_NO_MIN_VERSION defined symbol.
 
-Three link models are supported for use of the OpenSSL library:
+Four link models are supported for use of the OpenSSL library:
 
     1. Dynamic loading (default). Under this model, the OpenSSL library is 
-loaded on demand at run time. The Indy OpenSSL modules then adjust to the 
-version of the OpenSSL library loaded. A range of well known library names (for 
-the OpenSSL libraries) is supported and each is checked in turn when searching 
-for the OpenSSL shared library, starting with the most recent version of 
-OpenSSL.
+       loaded on demand at run time. The Indy OpenSSL modules then adjust to the 
+       version of the OpenSSL library loaded. A range of well known library names (for 
+       the OpenSSL libraries) is supported and each is checked in turn when searching 
+       for the OpenSSL shared library, starting with the most recent version of 
+       OpenSSL. Versions 1.0.2 to 3.x are currently supported.
 
-    2. Statically linked shared library. Under this model, the OpenSSL library 
-(.dll or .so) is loaded when a program using Indy and OpenSSL is loaded with 
-all library entry points pre-determined. This link model is only available with 
-version 3.x of OpenSSL and effectively forces use of the most recent versions 
-of OpenSSL and with a specific library name (e.g. libssl.so.3 and 
-libcrypto.so.3 for the Linux version).
+    2. Static Loading of a shared library. Under this model, the OpenSSL 
+       library (.dll or .so) is loaded when a program using Indy and OpenSSL is loaded 
+       with all library entry points pre-determined. This link model is only available 
+       with version 3.x of OpenSSL and effectively forces use of the most recent 
+       versions of OpenSSL and with a specific library name (e.g. libssl.so.3 and 
+       libcrypto.so.3 for the Linux version).
 
     3. Statically linked static library. Under this model, an OpenSSL code 
-library is statically linked into the using program. This significantly 
-increases program size, but ensures that a given version of OpenSSL is always 
-used and that OpenSSL does not have to be otherwise installed on the target 
-system. It also guards against an attacker replacing an OpenSSL shared library 
-(.dll or .so) with a malicious version. This model is supported for both 
-Windows and Linux but currently only available with the Free Pascal Compiler 
-(FPC)  and a static code library compiled using gcc (file extension “.a”).
+       library is statically linked into the using program. This significantly 
+       increases program size, but ensures that a given version of OpenSSL is always 
+       used and that OpenSSL does not have to be otherwise installed on the target 
+       system. It also guards against an attacker replacing an OpenSSL shared library 
+       (.dll or .so) with a malicious version. This model is supported for both 
+       Windows and Linux but currently only available with the Free Pascal Compiler 
+       (FPC)  and a static code library compiled using gcc (file extension “.a”).
 
-In order to use the Statically Linked shared library mode, Indy must be 
-compiled with the OPENSSL_USE_SHARED_LIBRARY defined symbol.
+  4.   Delayed Loading at run time. This is a variant of option 2 (Static loading of a
+       shared library) and, at present, is only supported by Delphi. When this link
+       model is selected, the actual loading happens when the routine is called for
+       the first time.
 
-In order to use the Statically linked static library model, Indy must be 
-complied with the OPENSSL_USE_STATIC_LIBRARY defined symbol.
+       The delayed directive is useful in the case where the imported routines do not
+       exist on the target operating system on which the application is run. Statically
+       imported routines require that the operating system find and load the library
+       when the application is started. If the routine is not found in the loaded library,
+       or the library does not exist, the Operating System halts the execution of the
+       application. Using the delayed directive enables you to check, at run time,
+       whether the Operating System supports the required APIs; only then you
+       can call the imported routines.    
+
+Link Option 2 is selected if your program or the IndyOpenSSL package is compiled with
+the OPENSSL_USE_SHARED_LIBRARY defined symbol. It is also selected if
+IdCompilierDefines.inc sets the STATICLOAD_OPENSSL defined symbol (e.g. for IOS).
+
+Link Option 3 is selected if your program or the IndyOpenSSL package is compiled with
+the OPENSSL_USE_STATIC_LIBRARY defined symbol.
+
+Link Option 4 is selected if your program or the IndyOpenSSL package is compiled with
+the OPENSSL_USE_DELAYED_LOADING defined symbol.  
 
 TLS Version Considerations
 

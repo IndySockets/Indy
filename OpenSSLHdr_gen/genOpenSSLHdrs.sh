@@ -28,6 +28,7 @@ PROCFILTER='^ *\(function \|procedure \) *\([A-Za-z0-9_]*\+\)\((.*) *: *[A-Za-z0
 HELPERS='/^{helper_functions}/,/^{\/helper_functions}/'
 FORWARDS='/^{forward_compatibility}/,/^{\/forward_compatibility}/'
 DEFINES='/^ *{\$\(IFNDEF\|IFDEF\|ENDIF\)/'
+DELAYED_LOADING='{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}'
 
 #Initialise AllHeaders Unit
 (
@@ -114,7 +115,7 @@ EOT
     
     #All functions/procedures in interface section other than helper functions that have not been commented as removed are included and made external
     sed  '/^implementation.*$/,$d' $FILE | sed "${HELPERS}d" | sed -n '/^ *\(procedure \|function \)/,$p' | grep -v "$REMOVEDFILTER"  |sed "s/{${ALLOW_NIL}}//" | \
-    sed "s/^ *\(function\|procedure\) *\(.*\);/  \1 \2 cdecl; external {\$IFNDEF OPENSSL_USE_STATIC_LIBRARY}C$LIBNAME{\$ENDIF};/" >> $UNITFILE
+    sed "s/^ *\(function\|procedure\) *\(.*\);/  \1 \2 cdecl; external {\$IFNDEF OPENSSL_USE_STATIC_LIBRARY}C$LIBNAME{\$ENDIF}$DELAYED_LOADING;/" >> $UNITFILE
     
     #All functions/procedures in interface section that have been commented as removed are included as normal 
     #function/procedure definitions provided that a function/procedure with the same name is located in the implementation section.
