@@ -556,7 +556,7 @@
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="14"/>
         <TopLine Value="320"/>
         <CursorPos Y="342"/>
         <UsageCount Value="10"/>
@@ -564,7 +564,7 @@
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="15"/>
         <TopLine Value="763"/>
         <CursorPos Y="778"/>
         <UsageCount Value="10"/>
@@ -735,17 +735,18 @@
       <Unit>
         <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
         <EditorIndex Value="6"/>
-        <TopLine Value="3326"/>
-        <CursorPos Y="3340"/>
+        <TopLine Value="262"/>
+        <CursorPos X="3" Y="277"/>
         <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/IdAllAuthentications.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="12"/>
-        <CursorPos Y="31"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="11"/>
+        <CursorPos X="16" Y="30"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/IdOpenSSLLoader.pas"/>
@@ -812,7 +813,6 @@
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_err.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <CursorPos X="36" Y="14"/>
         <UsageCount Value="10"/>
@@ -833,10 +833,11 @@
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/IdNTLM.pas"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="318"/>
-        <CursorPos X="26" Y="325"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="266"/>
+        <CursorPos X="3" Y="289"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../../includes/IdSSLOpenSSLDefines.inc"/>
@@ -861,109 +862,45 @@
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/opensslHdrs/AllOpenSSLHeaders.pas"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="12"/>
         <CursorPos X="23"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../../../Lib/Protocols/indyprotocolsfpc.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="194"/>
         <CursorPos X="21" Y="201"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdSSL.pas"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="124"/>
+        <CursorPos X="3" Y="124"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdAuthenticationNTLM.pas"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="61"/>
+        <CursorPos X="7" Y="87"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="11"/>
+        <CursorPos X="152" Y="4"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
     </Units>
-    <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
-        <Caret Line="4231" TopLine="4217"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
-        <Caret Line="3340" TopLine="3326"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
-        <Caret Line="334" TopLine="320"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
-        <Caret Line="336" TopLine="320"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
-        <Caret Line="337" TopLine="320"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
-        <Caret Line="338" TopLine="320"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Core/IdTCPClient.pas"/>
-        <Caret Line="342" TopLine="320"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="1932" TopLine="1918"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="1937" TopLine="1918"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="1939" TopLine="1918"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="2146" TopLine="2132"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="3226" TopLine="3212"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="3227" TopLine="3212"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="3228" TopLine="3212"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="3231" TopLine="3212"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="3234" TopLine="3212"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="3140" TopLine="3126"/>
-      </Position>
-      <Position>
-        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
-        <Caret Line="778" TopLine="763"/>
-      </Position>
-      <Position>
-        <Filename Value="TestClient.pas"/>
-        <Caret Line="166" TopLine="152"/>
-      </Position>
-      <Position>
-        <Filename Value="TestClient.pas"/>
-        <Caret Line="169" TopLine="152"/>
-      </Position>
-      <Position>
-        <Filename Value="TestClient.pas"/>
-        <Caret Line="171" TopLine="152"/>
-      </Position>
-      <Position>
-        <Filename Value="TestClient.pas"/>
-        <Caret Line="281" TopLine="266"/>
-      </Position>
+    <JumpHistory HistoryIndex="28">
       <Position>
         <Filename Value="TestClient.pas"/>
         <Caret Line="336" TopLine="323"/>
@@ -996,6 +933,90 @@
         <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_err.pas"/>
         <Caret Line="7" Column="2"/>
       </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
+        <Caret Line="3340" TopLine="3326"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
+        <Caret Line="277" Column="3" TopLine="262"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdSSL.pas"/>
+        <Caret TopLine="55"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdSSL.pas"/>
+        <Caret Line="157" Column="23" TopLine="135"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdSSL.pas"/>
+        <Caret Line="152" Column="50" TopLine="135"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdAllAuthentications.pas"/>
+        <Caret Line="30" Column="16" TopLine="11"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdAuthenticationNTLM.pas"/>
+        <Caret Line="87" Column="7" TopLine="61"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLM.pas"/>
+        <Caret TopLine="244"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="10" Column="18"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="153" Column="16" TopLine="141"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="171" Column="17" TopLine="168"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="195" Column="15" TopLine="183"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="208" Column="16" TopLine="199"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="227" Column="15" TopLine="221"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="257" Column="17" TopLine="246"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="271" Column="15" TopLine="248"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="301" Column="17" TopLine="279"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="469" Column="15" TopLine="446"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="550" Column="15" TopLine="527"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="611" Column="16" TopLine="588"/>
+      </Position>
+      <Position>
+        <Filename Value="../../../Lib/Protocols/IdNTLMv2.pas"/>
+        <Caret Line="952" Column="15" TopLine="929"/>
+      </Position>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
@@ -1004,23 +1025,22 @@
       </Modes>
     </RunParams>
     <HistoryLists>
-      <List Name="LaunchingApplication" Type="File" Count="3">
-        <Item2 Value="C:\Windows\system32\cmd.exe \C ${TargetCmdLine}"/>
-        <Item3 Value="C:\Windows\system32\cmd.exe /C ${TargetCmdLine}"/>
+      <List Name="LaunchingApplication" Type="File" Count="2">
+        <Item1 Value="C:\Windows\system32\cmd.exe \C ${TargetCmdLine}"/>
+        <Item2 Value="C:\Windows\system32\cmd.exe /C ${TargetCmdLine}"/>
       </List>
-      <List Name="CommandLineParameters" Count="11">
-        <Item2 Value="/usr/local/openssl-3.2.0/lib64 -L"/>
-        <Item3 Value="-h"/>
-        <Item4 Value="../libs/3.2/x86_64 -L"/>
-        <Item5 Value="../libs/3.2/x86_64"/>
-        <Item6 Value="../libs/3.2/x86_64 -l /etc/ssl/certs"/>
-        <Item7 Value="../libs/3.0/x86_64"/>
-        <Item8 Value="..\libs\3.0\x86_64"/>
-        <Item9 Value="..\libs\3.2\x86_64"/>
-        <Item10 Value="../libs/1.0/x86_64"/>
-        <Item11 Value="..\libs\1.0\x86_64"/>
+      <List Name="CommandLineParameters" Count="10">
+        <Item1 Value="/usr/local/openssl-3.2.0/lib64 -L"/>
+        <Item2 Value="-h"/>
+        <Item3 Value="../libs/3.2/x86_64 -L"/>
+        <Item4 Value="../libs/3.2/x86_64"/>
+        <Item5 Value="../libs/3.2/x86_64 -l /etc/ssl/certs"/>
+        <Item6 Value="../libs/3.0/x86_64"/>
+        <Item7 Value="..\libs\3.0\x86_64"/>
+        <Item8 Value="..\libs\3.2\x86_64"/>
+        <Item9 Value="../libs/1.0/x86_64"/>
+        <Item10 Value="..\libs\1.0\x86_64"/>
       </List>
-      <List Name="WorkingDirectory" Type="File" Count="1"/>
     </HistoryLists>
   </ProjectSession>
   <Debugging>

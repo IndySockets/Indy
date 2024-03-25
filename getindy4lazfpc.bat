@@ -434,6 +434,7 @@ copy %SRCROOT%\Lib\Protocols\IdSSLOpenSSLExceptionHandlers.pas %DESTDIR%\runtime
 copy %SRCROOT%\Lib\Protocols\IdResourceStringsOpenSSL.pas %DESTDIR%\runtime\protocols
 copy %SRCROOT%\Lib\Protocols\IdAuthenticationNTLM.pas %DESTDIR%\runtime\protocols
 copy %SRCROOT%\Lib\Protocols\IdNTLM.pas %DESTDIR%\runtime\protocols
+copy %SRCROOT%\Lib\Protocols\IdNTLMv2.pas %DESTDIR%\runtime\protocols
 copy %SRCROOT%\Lib\Protocols\IdSSLOpenSSLFIPS.pas %DESTDIR%\runtime\protocols
 
 echo Indy successfully extracted to %DESTDIR%

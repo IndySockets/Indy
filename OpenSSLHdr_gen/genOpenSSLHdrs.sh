@@ -71,7 +71,7 @@ for FILE in `ls -1 $SRCDIR/*.h2pas`; do
 {\$ENDIF}
 EOT
   #copy everything from source to dest up to the first function/procedure declaration
-  sed '/^ *\(procedure \|function \)/,$d' $FILE |sed 's/[[:blank:]]*$//' >>$UNITFILE
+  sed '/^ *\(procedure \|function \|^{interface_body}\)/,$d' $FILE |sed 's/[[:blank:]]*$//' >>$UNITFILE
   
   #ignore files without a procedure/function definition
   if grep -i '^ *\(procedure \|function \)' $FILE >/dev/null 2>&1; then 
@@ -114,7 +114,7 @@ EOT
     #Generate static library interface
     
     #All functions/procedures in interface section other than helper functions that have not been commented as removed are included and made external
-    sed  '/^implementation.*$/,$d' $FILE | sed "${HELPERS}d" | sed -n '/^ *\(procedure \|function \)/,$p' | grep -v "$REMOVEDFILTER"  |sed "s/{${ALLOW_NIL}}//" | \
+    sed  '/^implementation.*$/,$d' $FILE | sed "${HELPERS}d" | sed -n '/^ *\(procedure \|function \|^{interface_body}\)/,$p' | grep -v "$REMOVEDFILTER"  |sed "s/{${ALLOW_NIL}}//" | \
     sed "s/^ *\(function\|procedure\) *\(.*\);/  \1 \2 cdecl; external {\$IFNDEF OPENSSL_USE_STATIC_LIBRARY}C$LIBNAME{\$ENDIF}$DELAYED_LOADING;/" >> $UNITFILE
     
     #All functions/procedures in interface section that have been commented as removed are included as normal 

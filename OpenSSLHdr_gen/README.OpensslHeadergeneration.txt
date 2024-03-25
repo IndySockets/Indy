@@ -42,7 +42,7 @@ H2PAS FILE STRUCTURE
 1. Standard unit layout with no external definitions.
 
 2. function/procedure definitions in interface section must each be on a single 
-line and not split over multiple lines.
+line and not split over multiple lines. 
 
 3. Special bracketed comments after each function/procedure definition used to 
 identify new (introduced) and removed functions procedures together with the 3 
@@ -68,6 +68,13 @@ compatible procedure/function is needed.
 6. Both interface and implementation sections may contain a section delimited 
 by "{helper_functions}" and "{/helper_functions}". These sections are copied 
 unchanged to the output unit.
+
+Normally, the first function/procedure definition found in the interface 
+section, identifies the start of this group. However, if a line or line, such 
+as a conditional directive precedes this group then these lines should be 
+preceded by the special comment {interface_body} starting a line. The text 
+between this special comment and the first function/procedure is included in 
+the static section, but not the dynamic section. 
 
 GENERATION OF OUTPUT UNIT
 

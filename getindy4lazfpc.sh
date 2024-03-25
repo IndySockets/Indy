@@ -428,6 +428,7 @@ cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSLExceptionHandlers.pas" "$DESTDIR/runtime/
 cp "$SRCROOT/Lib/Protocols/IdResourceStringsOpenSSL.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdAuthenticationNTLM.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdNTLM.pas" "$DESTDIR/runtime/protocols"
+cp "$SRCROOT/Lib/Protocols/IdNTLMv2.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSLFIPS.pas" "$DESTDIR/runtime/protocols"
 
 

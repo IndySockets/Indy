@@ -61,6 +61,7 @@ uses
   IdOpenSSLHeaders_provider,
   IdOpenSSLHeaders_randerr,
   IdOpenSSLHeaders_rand,
+  IdOpenSSLHeaders_rc4,
   IdOpenSSLHeaders_rsaerr,
   IdOpenSSLHeaders_rsa,
   IdOpenSSLHeaders_sha,

@@ -67,7 +67,8 @@ uses
   IdUserPassProvider, IdVCard, IdWebDAV, IdWhois, IdWhoIsServer, IdZLib, 
   IdZLibCompressorBase, IdZLibConst, IdZLibHeaders, IdAuthenticationNTLM, 
   IdSSLOpenSSL, IdResourceStringsOpenSSL, IdSSLOpenSSLConsts, 
-  IdSSLOpenSSLExceptionHandlers, IdSSLOpenSSLLoader, IdSSLOpenSSLFIPS;
+  IdSSLOpenSSLExceptionHandlers, IdSSLOpenSSLLoader, IdSSLOpenSSLFIPS, IdNTLM, 
+  IdNTLMv2;
 
 implementation
 
