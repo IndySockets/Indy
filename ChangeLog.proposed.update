@@ -14,3 +14,6 @@ This Log File records changes to the Indy Proposed Update since its initial publ
           library link model is implied and each OpenSSL library external declaration
           includes the "delayed" directive. This should result in each such function only
           being loaded immediately before it is first used.
+
+2024/3/25 Unit NTLMv2 updated to use new SSL Header Files and reference to old header files 
+          removed from IdDSNRegister
