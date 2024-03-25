@@ -147,7 +147,6 @@ begin
   inherited RequiresUnits(Proc);
   //for new callback event
   Proc('IdCTypes');
-  Proc('IdSSLOpenSSLHeaders');
 end;
 
   {$ENDIF}
